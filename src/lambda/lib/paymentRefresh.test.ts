@@ -1,4 +1,4 @@
-import type { JsonRefundTransaction } from '../../types'
+import type { JsonRefundTransaction, JsonRegistration } from '../../types'
 import { vi } from 'vitest'
 
 const mockGetPayment = vi.fn()
@@ -17,6 +17,8 @@ vi.doMock('../utils/CustomDynamoClient', () => ({
 }))
 
 const { refreshTransactionStatusesFromPaytrail } = await import('./payment')
+
+const registration: JsonRegistration = { eventId: 'event123', id: 'reg456' } as JsonRegistration
 
 describe('refreshTransactionStatusesFromPaytrail', () => {
   beforeEach(() => {
@@ -41,7 +43,7 @@ describe('refreshTransactionStatusesFromPaytrail', () => {
       transactionId: 'refund123',
     })
 
-    const refreshed = await refreshTransactionStatusesFromPaytrail([transaction])
+    const refreshed = await refreshTransactionStatusesFromPaytrail([transaction], registration)
 
     expect(mockGetPayment).toHaveBeenCalledWith('refund123')
     expect(mockDynamoUpdate).toHaveBeenCalledWith(
@@ -54,16 +56,24 @@ describe('refreshTransactionStatusesFromPaytrail', () => {
           statusAt: expect.any(String),
         },
       },
-      expect.any(String)
+      expect.any(String),
+      undefined,
+      expect.objectContaining({
+        expression:
+          'attribute_not_exists(registrationAppliedAt) AND attribute_not_exists(duplicatePaymentAt) AND #status <> :fail',
+      })
     )
-    expect(refreshed).toEqual([
-      {
-        ...transaction,
-        provider: 'paytrail',
-        status: 'ok',
-        statusAt: expect.any(String),
-      },
-    ])
+    expect(refreshed).toEqual({
+      cancelled: [],
+      transactions: [
+        {
+          ...transaction,
+          provider: 'paytrail',
+          status: 'ok',
+          statusAt: expect.any(String),
+        },
+      ],
+    })
   })
 
   it('does not refresh an already ok refund transaction', async () => {
@@ -78,10 +88,10 @@ describe('refreshTransactionStatusesFromPaytrail', () => {
       user: 'Admin',
     }
 
-    const refreshed = await refreshTransactionStatusesFromPaytrail([transaction])
+    const refreshed = await refreshTransactionStatusesFromPaytrail([transaction], registration)
 
     expect(mockGetPayment).not.toHaveBeenCalled()
     expect(mockDynamoUpdate).not.toHaveBeenCalled()
-    expect(refreshed).toEqual([transaction])
+    expect(refreshed).toEqual({ cancelled: [], transactions: [transaction] })
   })
 })

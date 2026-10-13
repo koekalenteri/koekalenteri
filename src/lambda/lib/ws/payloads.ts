@@ -15,8 +15,9 @@ export const buildRegistrationPatchPayload = (
 /**
  * The payment state the participant's page shows. The due and the pay button are worked out here from
  * the same row (`getParticipantPaymentState`): both read the group, which the participant never
- * receives, and the rule is GetRegistration's (KOE-1526). The row is the stored one as
- * `getParticipantRow` reads it.
+ * receives, and the rule is GetRegistration's (KOE-1526). `paymentInProgress` is computed by the
+ * caller (`participantPaymentPatch` in `lib/payment.ts`) from the registration's open payment ids and
+ * passed in on the row; the ids themselves are never part of this patch (KOE-1529).
  */
 export const buildParticipantPaymentPatch = (
   registration: JsonRegistration,
@@ -31,6 +32,7 @@ export const buildParticipantPaymentPatch = (
     paidAmount: registration.paidAmount,
     paidAt: registration.paidAt,
     paymentDue,
+    paymentInProgress: registration.paymentInProgress,
     paymentStatus: registration.paymentStatus,
     // The page reads the refund to know a fee that went back, and only then takes the due from here.
     refundAmount: registration.refundAmount,

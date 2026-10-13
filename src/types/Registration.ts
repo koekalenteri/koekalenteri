@@ -271,6 +271,15 @@ export interface JsonRegistration extends JsonDbRecord {
   paidAt?: string
   payer?: Omit<RegistrationPerson, 'location' | 'membership'>
   paymentStatus?: PaymentStatus
+  /**
+   * Ids of payment transactions whose outcome (applied, duplicate, or failed) has not been written
+   * yet: a DynamoDB string set, read back as a plain array (KOE-1529). Absent means none are open,
+   * which is also true of every row written before KOE-1529. Never sent to the participant; the
+   * secretary's rows carry it so `PaymentIcon`/`RegistrationTooltipContent` can read it directly.
+   */
+  openPayments?: string[]
+  /** Same as `openPayments`, for refund transactions. */
+  openRefunds?: string[]
   priorityByInvitation?: boolean
   qualifies?: boolean
   qualifyingResults: JsonQualifyingResult[]
@@ -290,6 +299,13 @@ export interface JsonRegistration extends JsonDbRecord {
    * participant's responses and payment patches, which leave out the group it depends on (KOE-1526).
    */
   paymentDue?: number
+  /**
+   * Whether a payment is still being worked on, computed on every read from `openPayments`
+   * (`isPaymentInProgress`: pending, under 5 minutes old) rather than stored. Only in the
+   * participant's responses and payment patches, same as `paymentDue` (KOE-1529). Replaces reading
+   * `paymentStatus === 'PENDING'`, which said nothing of which transaction.
+   */
+  paymentInProgress?: boolean
   totalAmount?: number
   selectedCost?: DogEventCostSegment
   /** Durable, at-least-once completion markers for a newly created registration. */

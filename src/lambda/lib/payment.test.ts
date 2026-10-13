@@ -1,4 +1,10 @@
-import type { JsonConfirmedEvent, JsonPaymentTransaction, JsonRefundTransaction, JsonRegistration } from '../../types'
+import type {
+  JsonConfirmedEvent,
+  JsonPaymentTransaction,
+  JsonRefundTransaction,
+  JsonRegistration,
+  JsonTransaction,
+} from '../../types'
 import type CustomDynamoClient from '../utils/CustomDynamoClient'
 import { vi } from 'vitest'
 import { jsonEmptyEvent } from '../../__mockData__/emptyEvent'
@@ -9,10 +15,11 @@ import { loggedLines } from '../test-utils/logs'
 const mockAudit = vi.fn<() => Promise<void>>()
 const mockGetEvent = vi.fn<() => Promise<Partial<JsonConfirmedEvent>>>()
 const mockGetRegistration = vi.fn<() => Promise<Partial<JsonRegistration>>>()
-const mockRead = vi.fn<() => Promise<JsonPaymentTransaction | JsonRefundTransaction | undefined>>()
-const mockUpdate = vi.fn<() => Promise<unknown>>()
+const mockRead = vi.fn<() => Promise<JsonPaymentTransaction | JsonRefundTransaction | JsonRegistration | undefined>>()
+const mockUpdate = vi.fn<() => Promise<{ Attributes?: Record<string, unknown> }>>()
 const mockDocumentTransaction = vi.fn<CustomDynamoClient['documentTransaction']>()
 const mockQuery = vi.fn<() => Promise<Partial<JsonPaymentTransaction | JsonRefundTransaction>[] | undefined>>()
+const mockBatchGet = vi.fn<() => Promise<Partial<JsonPaymentTransaction>[]>>()
 
 vi.doMock('./audit', () => ({
   audit: mockAudit,
@@ -29,6 +36,7 @@ vi.doMock('./secrets', () => ({
 vi.doMock('../utils/CustomDynamoClient', () => ({
   default: vi.fn(function MockCustomDynamoClient() {
     return {
+      batchGet: mockBatchGet,
       documentTransaction: mockDocumentTransaction,
       query: mockQuery,
       read: mockRead,
@@ -37,15 +45,19 @@ vi.doMock('../utils/CustomDynamoClient', () => ({
   }),
 }))
 const {
-  cancelRegistrationStatus,
-  cancelTransaction,
   claimTransactionCreation,
-  getParticipantRow,
+  computePaymentInProgress,
+  dropOpenTransaction,
+  failUnfinishedTransaction,
+  isTransactionSettled,
   participantPaymentPatch,
   participantResponse,
   paymentDescription,
   refundPaytrailErrorAudit,
   releaseTransactionCreation,
+  resolveCallbackTransaction,
+  settleFailedTransaction,
+  updateTransactionStatus,
   verifyParams,
 } = await import('./payment')
 const { calculateHmac } = await import('./paytrail')
@@ -82,7 +94,8 @@ describe('payment', () => {
       ownerHandles: true,
       paymentStatus: 'PENDING',
     })
-    mockUpdate.mockResolvedValue(undefined)
+    mockUpdate.mockResolvedValue({})
+    mockBatchGet.mockResolvedValue([])
     mockGetEvent.mockResolvedValue({
       cost: 50,
       entryStartDate: '2026-07-01T00:00:00.000Z',
@@ -222,126 +235,254 @@ describe('payment', () => {
     })
   })
 
-  // KOE-1526 review: a stored PENDING holds the pay offer only while a payment Paytrail is working on
-  // is fresh, the rule PaymentCreate answers 409 for.
-  describe('getParticipantRow', () => {
-    const pending = { eventId: 'event-1', id: 'registration-1', paymentStatus: 'PENDING' as const }
-    const minutesAgo = (minutes: number) => new Date(Date.now() - minutes * 60 * 1000).toISOString()
+  const minutesAgo = (minutes: number) => new Date(Date.now() - minutes * 60 * 1000).toISOString()
 
-    it.each<[string, Partial<JsonPaymentTransaction | JsonRefundTransaction>[] | undefined, string]>([
-      ['a fresh pending payment', [{ createdAt: minutesAgo(1), status: 'pending', type: 'payment' }], 'PENDING'],
-      ['a stale pending payment', [{ createdAt: minutesAgo(10), status: 'pending', type: 'payment' }], 'NEW'],
-      ['a payment left new at Paytrail', [{ createdAt: minutesAgo(1), status: 'new', type: 'payment' }], 'NEW'],
-      ['a fresh pending refund', [{ createdAt: minutesAgo(1), status: 'pending', type: 'refund' }], 'NEW'],
-      ['no transactions', undefined, 'NEW'],
-    ])('reads a stored PENDING with %s as %s', async (_name, transactions, expected) => {
-      mockQuery.mockResolvedValueOnce(transactions)
-
-      await expect(getParticipantRow(pending)).resolves.toEqual({ ...pending, paymentStatus: expected })
-    })
-
-    // The two ways a participant's answer leaves the server read the row the same way.
-    describe('the participant answers built from a stored row', () => {
-      const stalePending: JsonRegistration = {
-        ...JSON.parse(JSON.stringify(jsonRegistrationsToEventWithALOInvited[0])),
-        paidAmount: undefined,
-        paymentStatus: 'PENDING',
-      }
-      const event: JsonConfirmedEvent = JSON.parse(
-        JSON.stringify({ ...eventWithALOClassInvited, cost: 50, costMember: 50, paymentTime: 'registration' })
-      )
-      beforeEach(() => {
-        mockQuery.mockResolvedValueOnce([{ createdAt: minutesAgo(10), status: 'pending', type: 'payment' }])
-      })
-
-      it('participantResponse answers a stale PENDING as NEW, payable', async () => {
-        await expect(participantResponse(stalePending, 'raw-token', event)).resolves.toMatchObject({
-          paymentStatus: 'NEW',
-          shouldPay: true,
-        })
-      })
-
-      it('participantPaymentPatch patches a stale PENDING as NEW, payable', async () => {
-        await expect(participantPaymentPatch(stalePending, event)).resolves.toMatchObject({
-          paymentStatus: 'NEW',
-          shouldPay: true,
-        })
-      })
-    })
-
-    it('leaves any other status as it is, without reading the transactions', async () => {
-      const paid = { ...pending, paymentStatus: 'SUCCESS' as const }
-      await expect(getParticipantRow(paid)).resolves.toBe(paid)
-      expect(mockQuery).not.toHaveBeenCalled()
+  describe('isTransactionSettled', () => {
+    it.each<[string, Partial<JsonTransaction>, boolean]>([
+      ['already applied', { registrationAppliedAt: '2026-08-16T10:00:00.000Z', status: 'ok' }, true],
+      ['already a duplicate', { duplicatePaymentAt: '2026-08-16T10:00:00.000Z', status: 'ok' }, true],
+      ['already failed', { status: 'fail' }, true],
+      // Paytrail's own `ok` is not enough on its own: an email refund answers `ok` while still
+      // pending the customer's bank account (KOE-1529).
+      ["Paytrail's ok, nothing applied yet", { status: 'ok' }, false],
+      ['still pending', { status: 'pending' }, false],
+    ])('%s: %s', (_name, partial, expected) => {
+      expect(isTransactionSettled({ status: 'new', ...partial })).toBe(expected)
     })
   })
 
-  // The one cancel PaymentVerify and the provider's callback share (KOE-1526).
-  describe('cancelRegistrationStatus', () => {
-    it('writes a cancelled refund and answers both patches', async () => {
-      const registration: JsonRegistration = {
-        ...JSON.parse(JSON.stringify(jsonRegistrationsToEventWithALOInvited[0])),
-        refundStatus: 'PENDING',
-      }
+  describe('resolveCallbackTransaction', () => {
+    it('reads the transaction the callback names and the registration it belongs to', async () => {
+      const resolved = await resolveCallbackTransaction<JsonPaymentTransaction>(params)
 
-      const cancelled = await cancelRegistrationStatus(registration, 'refundStatus')
+      expect(resolved).toMatchObject({
+        eventId: 'event-1',
+        provider: 'paytrail',
+        registration: expect.objectContaining({ id: 'registration-1' }),
+        registrationId: 'registration-1',
+        transaction: paymentTransaction,
+      })
+    })
+
+    it('throws a 404 when the transaction does not exist, without reading the registration', async () => {
+      mockRead.mockResolvedValueOnce(undefined)
+
+      await expect(resolveCallbackTransaction<JsonPaymentTransaction>(params)).rejects.toMatchObject({ status: 404 })
+      expect(mockGetRegistration).not.toHaveBeenCalled()
+    })
+  })
+
+  describe('failUnfinishedTransaction', () => {
+    it('writes fail, conditional on the transaction being unresolved', async () => {
+      await expect(failUnfinishedTransaction(paymentTransaction, 'paytrail')).resolves.toBe(true)
 
       expect(mockUpdate).toHaveBeenCalledWith(
-        { eventId: registration.eventId, id: registration.id },
-        { set: { refundStatus: 'CANCEL', updatedAt: expect.any(String) } },
-        expect.any(String)
+        { transactionId: 'transaction-1' },
+        { remove: ['paymentResponse'], set: { provider: 'paytrail', status: 'fail', statusAt: expect.any(String) } },
+        expect.any(String),
+        undefined,
+        {
+          expression:
+            'attribute_not_exists(registrationAppliedAt) AND attribute_not_exists(duplicatePaymentAt) AND #status <> :fail',
+          names: { '#status': 'status' },
+          values: { ':fail': 'fail' },
+        }
       )
-      expect(cancelled).toMatchObject({
-        organizerId: 'organizer-1',
-        participantPatch: { id: registration.id, refundStatus: 'CANCEL' },
-        patch: { eventId: registration.eventId, id: registration.id, refundStatus: 'CANCEL' },
-        registrationId: registration.id,
-      })
+    })
+
+    it('omits the provider clause when none is given', async () => {
+      await failUnfinishedTransaction(paymentTransaction)
+
+      expect(mockUpdate).toHaveBeenCalledWith(
+        { transactionId: 'transaction-1' },
+        { remove: ['paymentResponse'], set: { status: 'fail', statusAt: expect.any(String) } },
+        expect.any(String),
+        undefined,
+        expect.anything()
+      )
+    })
+
+    it('returns false, without throwing, when another call already settled it first', async () => {
+      const conflict = new Error('conditional check failed')
+      conflict.name = 'ConditionalCheckFailedException'
+      mockUpdate.mockRejectedValueOnce(conflict)
+
+      await expect(failUnfinishedTransaction(paymentTransaction)).resolves.toBe(false)
+    })
+
+    it('does not swallow an unrelated error', async () => {
+      const failure = new Error('throttled')
+      mockUpdate.mockRejectedValueOnce(failure)
+
+      await expect(failUnfinishedTransaction(paymentTransaction)).rejects.toThrow(failure)
     })
   })
 
-  describe('cancelTransaction', () => {
-    it('marks the transaction failed, patches a pending registration, and audits', async () => {
-      const cancelled = await cancelTransaction<JsonPaymentTransaction>({
-        auditActor: (transaction) => ({ name: transaction.user ?? 'anonymous' }),
-        auditMessage: (transaction, provider) => ({
-          message: `${provider}: ${transaction.amount}`,
-          messageKey: 'audit.messages.paymentFailed',
-          messageParams: { amount: transaction.amount, provider: provider ?? '' },
-        }),
-        params,
-        statusField: 'paymentStatus',
-        updateProvider: true,
-      })
+  describe('dropOpenTransaction', () => {
+    const registration = { eventId: 'event-1', id: 'registration-1' }
 
-      expect(mockUpdate).toHaveBeenNthCalledWith(
-        1,
-        { transactionId: 'transaction-1' },
-        { remove: ['paymentResponse'], set: { provider: 'paytrail', status: 'fail', statusAt: expect.any(String) } },
-        expect.any(String)
-      )
-      expect(mockUpdate).toHaveBeenNthCalledWith(
-        2,
+    it('removes only the given id, unconditionally, and reports it was open', async () => {
+      mockUpdate.mockResolvedValueOnce({ Attributes: { openPayments: ['transaction-1', 'transaction-2'] } })
+
+      await expect(dropOpenTransaction(registration, 'openPayments', 'transaction-1')).resolves.toBe(true)
+
+      expect(mockUpdate).toHaveBeenCalledWith(
         { eventId: 'event-1', id: 'registration-1' },
-        { set: { paymentStatus: 'CANCEL', updatedAt: expect.any(String) } },
-        expect.any(String)
+        { delete: { openPayments: new Set(['transaction-1']) } },
+        expect.any(String),
+        'UPDATED_OLD'
       )
-      // What the caller broadcasts; sending it is the handler's job (KOE-1340).
-      expect(cancelled).toEqual({
-        eventId: 'event-1',
-        organizerId: 'organizer-1',
-        // The participant's page reads the pay offer from its patch, as from GetRegistration: a
-        // cancelled payment leaves the fee to pay (KOE-1526).
-        participantPatch: expect.objectContaining({
-          eventId: 'event-1',
-          id: 'registration-1',
-          paymentDue: 50,
-          paymentStatus: 'CANCEL',
-          shouldPay: true,
-        }),
-        patch: { eventId: 'event-1', id: 'registration-1', paymentStatus: 'CANCEL', updatedAt: expect.any(String) },
-        registrationId: 'registration-1',
+    })
+
+    it('reports no change when the id was not a member -- a different, newer transaction is untouched', async () => {
+      mockUpdate.mockResolvedValueOnce({ Attributes: { openPayments: ['transaction-2'] } })
+
+      await expect(dropOpenTransaction(registration, 'openPayments', 'transaction-1')).resolves.toBe(false)
+    })
+
+    it('reports no change when nothing was ever open', async () => {
+      mockUpdate.mockResolvedValueOnce({})
+
+      await expect(dropOpenTransaction(registration, 'openPayments', 'transaction-1')).resolves.toBe(false)
+    })
+  })
+
+  describe('updateTransactionStatus', () => {
+    it('writes the new status, conditional on the transaction being unresolved', async () => {
+      await updateTransactionStatus(paymentTransaction, 'pending')
+
+      expect(mockUpdate).toHaveBeenCalledWith(
+        { transactionId: 'transaction-1' },
+        { remove: ['paymentResponse'], set: { status: 'pending', statusAt: expect.any(String) } },
+        expect.any(String),
+        undefined,
+        expect.objectContaining({
+          expression:
+            'attribute_not_exists(registrationAppliedAt) AND attribute_not_exists(duplicatePaymentAt) AND #status <> :fail',
+        })
+      )
+    })
+
+    it('does not write over an already settled transaction (rule 3)', async () => {
+      const consoleSpy = vi.spyOn(console, 'info').mockImplementation(() => undefined)
+      const conflict = new Error('conditional check failed')
+      conflict.name = 'ConditionalCheckFailedException'
+      mockUpdate.mockRejectedValueOnce(conflict)
+
+      await expect(updateTransactionStatus(paymentTransaction, 'pending')).resolves.toBe(false)
+      expect(loggedLines(consoleSpy)).toContainEqual(
+        expect.objectContaining({ message: 'transaction already settled, ignoring status update' })
+      )
+    })
+  })
+
+  describe('computePaymentInProgress', () => {
+    it('is false with no open ids, without calling batchGet', async () => {
+      await expect(computePaymentInProgress(undefined)).resolves.toBe(false)
+      await expect(computePaymentInProgress([])).resolves.toBe(false)
+      expect(mockBatchGet).not.toHaveBeenCalled()
+    })
+
+    it('is true when one of several open ids is a fresh pending payment', async () => {
+      mockBatchGet.mockResolvedValueOnce([
+        { createdAt: minutesAgo(10), status: 'fail', type: 'payment' },
+        { createdAt: minutesAgo(1), status: 'pending', type: 'payment' },
+      ])
+
+      await expect(computePaymentInProgress(['t1', 't2'])).resolves.toBe(true)
+      expect(mockBatchGet).toHaveBeenCalledWith([{ transactionId: 't1' }, { transactionId: 't2' }], expect.any(String))
+    })
+
+    it('is false once the only open id is stale', async () => {
+      mockBatchGet.mockResolvedValueOnce([{ createdAt: minutesAgo(10), status: 'pending', type: 'payment' }])
+
+      await expect(computePaymentInProgress(['t1'])).resolves.toBe(false)
+    })
+  })
+
+  // The two ways a participant's answer leaves the server compute paymentInProgress the same way,
+  // and never send the open ids themselves (KOE-1529).
+  describe('the participant answers built from open payments', () => {
+    const withOpenPayment: JsonRegistration = {
+      ...JSON.parse(JSON.stringify(jsonRegistrationsToEventWithALOInvited[0])),
+      openPayments: ['transaction-1'],
+      paidAmount: undefined,
+    }
+    const event: JsonConfirmedEvent = JSON.parse(
+      JSON.stringify({ ...eventWithALOClassInvited, cost: 50, costMember: 50, paymentTime: 'registration' })
+    )
+
+    it('participantResponse offers to pay once the open payment is stale, never sending the id', async () => {
+      mockBatchGet.mockResolvedValueOnce([{ createdAt: minutesAgo(10), status: 'pending', type: 'payment' }])
+
+      const result = await participantResponse(withOpenPayment, 'raw-token', event)
+
+      expect(result).toMatchObject({ paymentInProgress: false, shouldPay: true })
+      expect(result).not.toHaveProperty('openPayments')
+      expect(result).not.toHaveProperty('openRefunds')
+    })
+
+    it('participantResponse holds the pay offer back while the open payment is fresh', async () => {
+      mockBatchGet.mockResolvedValueOnce([{ createdAt: minutesAgo(1), status: 'pending', type: 'payment' }])
+
+      await expect(participantResponse(withOpenPayment, 'raw-token', event)).resolves.toMatchObject({
+        paymentInProgress: true,
+        shouldPay: false,
       })
+    })
+
+    it('participantPaymentPatch computes paymentInProgress the same way', async () => {
+      mockBatchGet.mockResolvedValueOnce([{ createdAt: minutesAgo(10), status: 'pending', type: 'payment' }])
+
+      await expect(participantPaymentPatch(withOpenPayment, event)).resolves.toMatchObject({
+        paymentInProgress: false,
+        shouldPay: true,
+      })
+    })
+
+    it('reads no open payments as not in progress, without calling batchGet', async () => {
+      const registration: JsonRegistration = JSON.parse(JSON.stringify(jsonRegistrationsToEventWithALOInvited[0]))
+
+      await expect(participantResponse(registration, 'raw-token', event)).resolves.toMatchObject({
+        paymentInProgress: false,
+      })
+      expect(mockBatchGet).not.toHaveBeenCalled()
+    })
+  })
+
+  // The one step every writer that can fail a payment or refund settles through (KOE-1529).
+  describe('settleFailedTransaction', () => {
+    const registration: JsonRegistration = {
+      ...JSON.parse(JSON.stringify(jsonRegistrationsToEventWithALOInvited[0])),
+      eventId: 'event-1',
+      id: 'registration-1',
+      openPayments: ['transaction-1'],
+    }
+    const auditOptions = {
+      auditActor: (transaction: JsonTransaction) => ({ name: transaction.user ?? 'anonymous' }),
+      auditMessage: (transaction: JsonTransaction, provider: string | undefined) => ({
+        message: `${provider}: ${transaction.amount}`,
+        messageKey: 'audit.messages.paymentFailed',
+        messageParams: { amount: transaction.amount, provider: provider ?? '' },
+      }),
+      provider: 'paytrail',
+    }
+
+    it('fails the transaction, drops it from the open set, audits once, and builds a fresh patch', async () => {
+      mockUpdate.mockResolvedValueOnce({}) // failUnfinishedTransaction
+      mockUpdate.mockResolvedValueOnce({ Attributes: { openPayments: ['transaction-1'] } }) // dropOpenTransaction
+      mockRead.mockResolvedValueOnce({ ...registration, openPayments: [] }) // the strongly consistent re-read
+
+      const settled = await settleFailedTransaction(paymentTransaction, registration, 'openPayments', auditOptions)
+
+      expect(settled.moved).toBe(true)
+      expect(settled.changed).toBe(true)
+      expect(mockRead).toHaveBeenCalledWith(
+        { eventId: 'event-1', id: 'registration-1' },
+        expect.any(String),
+        true // strongly consistent (correction #2)
+      )
+      expect(mockAudit).toHaveBeenCalledTimes(1)
       expect(mockAudit).toHaveBeenCalledWith({
         auditKey: 'event-1:registration-1',
         message: 'paytrail: 5000',
@@ -349,44 +490,61 @@ describe('payment', () => {
         messageParams: { amount: 5000, provider: 'paytrail' },
         user: 'Test User',
       })
+      // What the caller broadcasts; sending it is the handler's job (KOE-1340).
+      expect(settled.cancelled).toMatchObject({
+        eventId: 'event-1',
+        organizerId: 'organizer-1',
+        participantPatch: expect.objectContaining({ paymentInProgress: false, shouldPay: true }),
+        patch: { eventId: 'event-1', id: 'registration-1', openPayments: [] },
+        registrationId: 'registration-1',
+      })
     })
 
-    it('does not patch or audit a transaction already marked failed', async () => {
-      const consoleSpy = vi.spyOn(console, 'info').mockImplementation(() => undefined)
-      mockRead.mockResolvedValueOnce({
-        ...paymentTransaction,
-        provider: 'paytrail',
-        status: 'fail',
-        statusAt: '2026-08-16T10:01:00.000Z',
-      })
+    it('still drops and publishes a retry that finds the transaction already failed (rule 6, C12)', async () => {
+      const conflict = new Error('conditional check failed')
+      conflict.name = 'ConditionalCheckFailedException'
+      mockUpdate.mockRejectedValueOnce(conflict) // failUnfinishedTransaction: already fail
+      mockUpdate.mockResolvedValueOnce({ Attributes: { openPayments: ['transaction-1'] } }) // still open
+      mockRead.mockResolvedValueOnce({ ...registration, openPayments: [] })
 
-      await cancelTransaction<JsonPaymentTransaction>({
-        auditActor: () => ({ name: 'unused' }),
-        auditMessage: () => ({ messageKey: 'unused' }),
-        params,
-        statusField: 'paymentStatus',
-        updateProvider: true,
-      })
+      const settled = await settleFailedTransaction(paymentTransaction, registration, 'openPayments', auditOptions)
 
-      expect(loggedLines(consoleSpy)).toContainEqual(
-        expect.objectContaining({ message: 'transaction already marked as failed', transactionId: 'transaction-1' })
-      )
-      expect(mockUpdate).not.toHaveBeenCalled()
+      expect(settled.moved).toBe(false)
+      expect(settled.changed).toBe(true)
+      expect(settled.cancelled).toBeDefined()
       expect(mockAudit).not.toHaveBeenCalled()
     })
 
-    it('throws a 404 when the transaction does not exist', async () => {
-      mockRead.mockResolvedValueOnce(undefined)
+    it('does not publish when the id was already gone (a second, racing writer)', async () => {
+      mockUpdate.mockResolvedValueOnce({}) // failUnfinishedTransaction (lost the race, but still tries)
+      mockUpdate.mockResolvedValueOnce({ Attributes: { openPayments: [] } }) // already removed
 
-      await expect(
-        cancelTransaction<JsonPaymentTransaction>({
-          auditActor: () => ({ name: 'unused' }),
-          auditMessage: () => ({ messageKey: 'unused' }),
-          params,
-          statusField: 'paymentStatus',
-        })
-      ).rejects.toMatchObject({ status: 404 })
-      expect(mockGetRegistration).not.toHaveBeenCalled()
+      const settled = await settleFailedTransaction(paymentTransaction, registration, 'openPayments', auditOptions)
+
+      expect(settled.changed).toBe(false)
+      expect(settled.cancelled).toBeUndefined()
+      expect(mockRead).not.toHaveBeenCalled()
+    })
+
+    it('reads the registration fresh, not the row it started with, so a racing recordDuplicatePayment wins', async () => {
+      // KOE-1529 correction: recordDuplicatePayment writes the transaction (duplicatePaymentAt) and the
+      // registration (paymentStatus: DUPLICATE) as two separate updates. A settle call racing into that
+      // gap sees the transaction already resolved (moved: false) but can still find the id open
+      // (changed: true) if it beats the registration write. The published patch must say DUPLICATE, not
+      // the stale row this call started with.
+      const conflict = new Error('conditional check failed')
+      conflict.name = 'ConditionalCheckFailedException'
+      mockUpdate.mockRejectedValueOnce(conflict)
+      mockUpdate.mockResolvedValueOnce({ Attributes: { openPayments: ['transaction-1'] } })
+      mockRead.mockResolvedValueOnce({
+        ...registration,
+        openPayments: [],
+        paymentStatus: 'DUPLICATE',
+      })
+
+      const settled = await settleFailedTransaction(paymentTransaction, registration, 'openPayments', auditOptions)
+
+      expect(settled.cancelled?.participantPatch).toMatchObject({ paymentStatus: 'DUPLICATE' })
     })
   })
 

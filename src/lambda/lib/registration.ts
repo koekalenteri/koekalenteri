@@ -238,6 +238,9 @@ export const participantRegistrationResponse = <T extends JsonRegistration>(
     eventResult: _eventResult,
     group: _group,
     internalNotes: _internalNotes,
+    // Identifiers, never sent to the participant: `paymentInProgress` says all they need (KOE-1529).
+    openPayments: _openPayments,
+    openRefunds: _openRefunds,
     startGroup: _startGroup,
     ...visible
   } = adminRegistrationResponse(registration, editToken)
