@@ -75,6 +75,19 @@ describe('scanItemsFromChunks', () => {
     const chunks = ['x'.repeat(1_000_001)]
     await expect(collect(scanItemsFromChunks(chunks))).rejects.toThrow(/within the expected preamble/)
   })
+
+  it('does not throw for a preamble just under the safety cap, once Items arrives', async () => {
+    // Pins the cap from the other side: the case above alone would still pass with the cap
+    // mutated down to 0 (any preamble at all would then exceed it), since both a real cap and a
+    // broken one throw the same message for a large enough input. A preamble of about 999,999
+    // characters -- just under the 1,000,000 cap -- must still be accepted, so a shrunk cap fails
+    // this case instead.
+    const filler = 'x'.repeat(333_333)
+    const chunks = [filler, filler, filler.slice(0, 333_333), '{"Items": [{"a": {"N": "1"}}]}']
+    expect(chunks.slice(0, 3).join('').length).toBe(999_999)
+    const items = await collect(scanItemsFromChunks(chunks))
+    expect(items.map((item) => JSON.parse(item))).toEqual([{ a: { N: '1' } }])
+  })
 })
 
 describe('scanItems', () => {
@@ -116,6 +129,11 @@ describe('unmarshallFields', () => {
     const decoded = unmarshallFields(rawItem, ['dog', 'results'])
     expect(decoded.dog).toEqual({ M: { regNo: { S: 'FI123' } } })
     expect(decoded.results).toEqual({ L: [] })
+  })
+
+  it('decodes a NULL attribute to null', () => {
+    const rawItem = { refundAt: { NULL: true } }
+    expect(unmarshallFields(rawItem, ['refundAt'])).toEqual({ refundAt: null })
   })
 })
 
