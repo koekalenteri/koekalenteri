@@ -30,7 +30,7 @@ vaiheessa ilmoittautumisesi on.
 | Rivi | Mitä se voi sanoa |
 | --- | --- |
 | etusija | *{t:registration.priority.hasPriority}* tai *{t:registration.priority.noPriority}* — etusijan perusteet ovat kokeen tiedoissa |
-| maksu | *{t:paymentStatus.success}*, *{t:paymentStatus.missing}*, *{t:paymentStatus.waitingForConfirmation}* tai *{t:paymentStatus.pending}*; jos maksusta puuttuu osa, rivi kertoo summan |
+| maksu | *{t:paymentStatus.success}*, *{t:paymentStatus.missing}*, *{t:paymentStatus.waitingForConfirmation}*, *{t:paymentStatus.pending}*, *{t:paymentStatus.refunded}* tai *{t:paymentStatus.notCharged}*; jos maksusta puuttuu osa, rivi kertoo summan |
 | vaihe | *{t:registration.status.received}*, *{t:registration.status.placeOffered}*, *{t:registration.status.confirmed}*, *{t:registration.status.confirmedAndInvitationRead}* tai *{t:registration.status.cancelled}* |
 
 Samat tiedot ovat koiran rivillä kuvakkeina; niiden selitys tulee näkyviin, kun hiiren vie
@@ -43,9 +43,11 @@ euromerkki, jonka nimi on *{t:registration.actions.pay}*. Kumpikin vie Paytraili
 Kun palaat maksusta, sivu ilmoittaa *{t:registration.notifications.paymentVerifying}* ja tila
 päivittyy itsestään hetken kuluttua.
 
-Painike näkyy vain silloin, kun jotain on maksamatta. Jos koe maksetaan vasta koepaikan
-vahvistuttua, maksurivillä lukee siihen asti *{t:paymentStatus.waitingForConfirmation}* ja
-painike ilmestyy vasta, kun olet vahvistanut paikan. Maksettavaa voi tulla myös jälkikäteen,
+Painike näkyy vain silloin, kun jotain on maksamatta. Jos koe maksetaan vasta, kun sinulla on
+koepaikka, maksurivillä lukee *{t:paymentStatus.waitingForConfirmation}* siihen asti, kun
+koesihteeri tarjoaa sinulle paikan. Siitä alkaen rivillä lukee *{t:paymentStatus.missing}*, ja
+painike on näkyvissä jo ennen kuin olet vahvistanut paikan. Jos koe on peruttu tai se on maksuton,
+mitään ei peritä: rivillä lukee *{t:paymentStatus.notCharged}*, eikä painiketta ole. Maksettavaa voi tulla myös jälkikäteen,
 jos koesihteeri korjaa ilmoittautumisen tietoja niin, että hinta nousee — esimerkiksi poistaa
 jäsenyysmerkinnän. Silloin rivi kertoo puuttuvan summan ja painike palaa näkyviin. Kun olet
 maksanut puuttuvan osan, saat kuitin ja viestin *{t:registration.email.subject_update}*.
@@ -53,6 +55,13 @@ maksanut puuttuvan osan, saat kuitin ja viestin *{t:registration.email.subject_u
 Jos koesihteeri palauttaa maksusta osan, esimerkiksi liikaa maksetun osuuden, maksutiedoissa on
 maksetun summan alla rivi *{t:registration.refunded}*, ja maksettava summa on laskettu
 palautuksen jälkeen.
+Jos palautuksesta on pidätetty käsittelykulu, se näkyy omalla rivillään
+*{t:registration.refundHandlingCost}*. Käsittelykulu on palautuksen hinta, eikä sitä lasketa
+koemaksun maksuksi.
+
+Jos olet varasijalla etkä saa koepaikkaa, koesihteeri palauttaa koemaksun. Maksurivillä lukee
+silloin *{t:paymentStatus.refunded}*, eikä sinulta pyydetä maksua. Jos saat paikan myöhemmin,
+koemaksu on taas maksettava, ja maksurivi ja painike **{t:registration.cta.pay}** palaavat.
 
 ## Koepaikan vahvistaminen
 

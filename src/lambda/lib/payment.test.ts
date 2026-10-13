@@ -1,31 +1,28 @@
-import type { JsonPaymentTransaction, JsonRefundTransaction } from '../../types'
+import type { JsonConfirmedEvent, JsonPaymentTransaction, JsonRefundTransaction, JsonRegistration } from '../../types'
 import type CustomDynamoClient from '../utils/CustomDynamoClient'
 import { vi } from 'vitest'
 import { jsonEmptyEvent } from '../../__mockData__/emptyEvent'
-import { eventWithStaticDatesAnd3Classes } from '../../__mockData__/events'
+import { eventWithALOClassInvited, eventWithStaticDatesAnd3Classes } from '../../__mockData__/events'
+import { jsonRegistrationsToEventWithALOInvited } from '../../__mockData__/registrations'
 import { loggedLines } from '../test-utils/logs'
 
 const mockAudit = vi.fn<() => Promise<void>>()
-const mockGetEvent = vi.fn<() => Promise<{ organizer: { id: string } }>>()
-const mockGetRegistration =
-  vi.fn<
-    () => Promise<{
-      eventId: string
-      id: string
-      paymentStatus?: 'PENDING' | 'CANCEL'
-      refundStatus?: 'PENDING' | 'CANCEL'
-    }>
-  >()
+const mockGetEvent = vi.fn<() => Promise<Partial<JsonConfirmedEvent>>>()
+const mockGetRegistration = vi.fn<() => Promise<Partial<JsonRegistration>>>()
 const mockRead = vi.fn<() => Promise<JsonPaymentTransaction | JsonRefundTransaction | undefined>>()
 const mockUpdate = vi.fn<() => Promise<unknown>>()
 const mockDocumentTransaction = vi.fn<CustomDynamoClient['documentTransaction']>()
+const mockQuery = vi.fn<() => Promise<Partial<JsonPaymentTransaction | JsonRefundTransaction>[] | undefined>>()
 
 vi.doMock('./audit', () => ({
   audit: mockAudit,
   registrationAuditKey: (registration: { eventId: string; id: string }) => `${registration.eventId}:${registration.id}`,
 }))
 vi.doMock('./event', () => ({ getEvent: mockGetEvent }))
-vi.doMock('./registration', () => ({ getRegistration: mockGetRegistration }))
+vi.doMock('./registration', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('./registration')>()),
+  getRegistration: mockGetRegistration,
+}))
 vi.doMock('./secrets', () => ({
   getPaytrailConfig: vi.fn(() => Promise.resolve({ PAYTRAIL_SECRET: 'test-secret' })),
 }))
@@ -33,15 +30,19 @@ vi.doMock('../utils/CustomDynamoClient', () => ({
   default: vi.fn(function MockCustomDynamoClient() {
     return {
       documentTransaction: mockDocumentTransaction,
-      query: vi.fn(),
+      query: mockQuery,
       read: mockRead,
       update: mockUpdate,
     }
   }),
 }))
 const {
+  cancelRegistrationStatus,
   cancelTransaction,
   claimTransactionCreation,
+  getParticipantRow,
+  participantPaymentPatch,
+  participantResponse,
   paymentDescription,
   refundPaytrailErrorAudit,
   releaseTransactionCreation,
@@ -73,12 +74,22 @@ describe('payment', () => {
     mockDocumentTransaction.mockResolvedValue({ $metadata: {} })
     mockRead.mockResolvedValue(paymentTransaction)
     mockGetRegistration.mockResolvedValue({
+      createdAt: '2026-07-25T10:00:00.000Z',
+      dog: { name: 'Test Dog', regNo: 'TEST-1' },
       eventId: 'event-1',
       id: 'registration-1',
+      owner: { email: 'owner@example.com', membership: false, name: 'Owner' },
+      ownerHandles: true,
       paymentStatus: 'PENDING',
     })
     mockUpdate.mockResolvedValue(undefined)
-    mockGetEvent.mockResolvedValue({ organizer: { id: 'organizer-1' } })
+    mockGetEvent.mockResolvedValue({
+      cost: 50,
+      entryStartDate: '2026-07-01T00:00:00.000Z',
+      organizer: { id: 'organizer-1', name: 'Organizer' },
+      paymentTime: 'registration',
+      state: 'confirmed',
+    })
     mockAudit.mockResolvedValue(undefined)
   })
 
@@ -211,6 +222,84 @@ describe('payment', () => {
     })
   })
 
+  // KOE-1526 review: a stored PENDING holds the pay offer only while a payment Paytrail is working on
+  // is fresh, the rule PaymentCreate answers 409 for.
+  describe('getParticipantRow', () => {
+    const pending = { eventId: 'event-1', id: 'registration-1', paymentStatus: 'PENDING' as const }
+    const minutesAgo = (minutes: number) => new Date(Date.now() - minutes * 60 * 1000).toISOString()
+
+    it.each<[string, Partial<JsonPaymentTransaction | JsonRefundTransaction>[] | undefined, string]>([
+      ['a fresh pending payment', [{ createdAt: minutesAgo(1), status: 'pending', type: 'payment' }], 'PENDING'],
+      ['a stale pending payment', [{ createdAt: minutesAgo(10), status: 'pending', type: 'payment' }], 'NEW'],
+      ['a payment left new at Paytrail', [{ createdAt: minutesAgo(1), status: 'new', type: 'payment' }], 'NEW'],
+      ['a fresh pending refund', [{ createdAt: minutesAgo(1), status: 'pending', type: 'refund' }], 'NEW'],
+      ['no transactions', undefined, 'NEW'],
+    ])('reads a stored PENDING with %s as %s', async (_name, transactions, expected) => {
+      mockQuery.mockResolvedValueOnce(transactions)
+
+      await expect(getParticipantRow(pending)).resolves.toEqual({ ...pending, paymentStatus: expected })
+    })
+
+    // The two ways a participant's answer leaves the server read the row the same way.
+    describe('the participant answers built from a stored row', () => {
+      const stalePending: JsonRegistration = {
+        ...JSON.parse(JSON.stringify(jsonRegistrationsToEventWithALOInvited[0])),
+        paidAmount: undefined,
+        paymentStatus: 'PENDING',
+      }
+      const event: JsonConfirmedEvent = JSON.parse(
+        JSON.stringify({ ...eventWithALOClassInvited, cost: 50, costMember: 50, paymentTime: 'registration' })
+      )
+      beforeEach(() => {
+        mockQuery.mockResolvedValueOnce([{ createdAt: minutesAgo(10), status: 'pending', type: 'payment' }])
+      })
+
+      it('participantResponse answers a stale PENDING as NEW, payable', async () => {
+        await expect(participantResponse(stalePending, 'raw-token', event)).resolves.toMatchObject({
+          paymentStatus: 'NEW',
+          shouldPay: true,
+        })
+      })
+
+      it('participantPaymentPatch patches a stale PENDING as NEW, payable', async () => {
+        await expect(participantPaymentPatch(stalePending, event)).resolves.toMatchObject({
+          paymentStatus: 'NEW',
+          shouldPay: true,
+        })
+      })
+    })
+
+    it('leaves any other status as it is, without reading the transactions', async () => {
+      const paid = { ...pending, paymentStatus: 'SUCCESS' as const }
+      await expect(getParticipantRow(paid)).resolves.toBe(paid)
+      expect(mockQuery).not.toHaveBeenCalled()
+    })
+  })
+
+  // The one cancel PaymentVerify and the provider's callback share (KOE-1526).
+  describe('cancelRegistrationStatus', () => {
+    it('writes a cancelled refund and answers both patches', async () => {
+      const registration: JsonRegistration = {
+        ...JSON.parse(JSON.stringify(jsonRegistrationsToEventWithALOInvited[0])),
+        refundStatus: 'PENDING',
+      }
+
+      const cancelled = await cancelRegistrationStatus(registration, 'refundStatus')
+
+      expect(mockUpdate).toHaveBeenCalledWith(
+        { eventId: registration.eventId, id: registration.id },
+        { set: { refundStatus: 'CANCEL', updatedAt: expect.any(String) } },
+        expect.any(String)
+      )
+      expect(cancelled).toMatchObject({
+        organizerId: 'organizer-1',
+        participantPatch: { id: registration.id, refundStatus: 'CANCEL' },
+        patch: { eventId: registration.eventId, id: registration.id, refundStatus: 'CANCEL' },
+        registrationId: registration.id,
+      })
+    })
+  })
+
   describe('cancelTransaction', () => {
     it('marks the transaction failed, patches a pending registration, and audits', async () => {
       const cancelled = await cancelTransaction<JsonPaymentTransaction>({
@@ -241,6 +330,15 @@ describe('payment', () => {
       expect(cancelled).toEqual({
         eventId: 'event-1',
         organizerId: 'organizer-1',
+        // The participant's page reads the pay offer from its patch, as from GetRegistration: a
+        // cancelled payment leaves the fee to pay (KOE-1526).
+        participantPatch: expect.objectContaining({
+          eventId: 'event-1',
+          id: 'registration-1',
+          paymentDue: 50,
+          paymentStatus: 'CANCEL',
+          shouldPay: true,
+        }),
         patch: { eventId: 'event-1', id: 'registration-1', paymentStatus: 'CANCEL', updatedAt: expect.any(String) },
         registrationId: 'registration-1',
       })

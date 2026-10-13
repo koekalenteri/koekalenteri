@@ -1,4 +1,4 @@
-import type { CreatePaymentResponse, JsonConfirmedEvent, JsonRegistration, Organizer } from '../../types'
+import type { CreatePaymentResponse, JsonConfirmedEvent, JsonDogEvent, JsonRegistration, Organizer } from '../../types'
 import { vi } from 'vitest'
 import { CONFIG } from '../config'
 import { LambdaError } from '../lib/lambda'
@@ -6,7 +6,7 @@ import { constructAPIGwEvent } from '../test-utils/helpers'
 
 // --- Mock setup ---
 const mockAuthorize = vi.fn<() => Promise<{ id: string; name: string } | null>>()
-const mockGetEvent = vi.fn<() => Promise<JsonConfirmedEvent | undefined>>()
+const mockGetEvent = vi.fn<() => Promise<JsonDogEvent | undefined>>()
 const mockCreatePayment = vi.fn<() => Promise<CreatePaymentResponse | null>>()
 const mockGetTransactionsByReference = vi.fn<() => Promise<any[] | undefined>>()
 const mockUpdateTransactionStatus = vi.fn<() => Promise<boolean>>()
@@ -242,6 +242,7 @@ describe('paymentCreateLambda', () => {
             reference: 'event123:reg456',
             status: 'new',
             transactionId: 'tx123',
+            type: 'payment',
             user: 'Test User',
           }),
         }),
@@ -324,6 +325,7 @@ describe('paymentCreateLambda', () => {
     const result = await paymentCreateLambda(event)
 
     expect(result.statusCode).toBe(409)
+    expect(JSON.parse(result.body)).toEqual('Duplicate payment requires a refund')
     expect(mockGetTransactionsByReference).not.toHaveBeenCalled()
     expect(mockCreatePayment).not.toHaveBeenCalled()
     expect(mockDocumentTransaction).not.toHaveBeenCalled()
@@ -335,6 +337,7 @@ describe('paymentCreateLambda', () => {
     const result = await paymentCreateLambda(event)
 
     expect(result.statusCode).toBe(409)
+    expect(JSON.parse(result.body)).toEqual('Payment already in progress')
     expect(mockCreatePayment).not.toHaveBeenCalled()
   })
 
@@ -414,16 +417,43 @@ describe('paymentCreateLambda', () => {
     expect(mockCreatePayment).toHaveBeenCalledWith(expect.objectContaining({ amount: 1000 }))
   })
 
-  it('charges a refunded fee again', async () => {
+  it('charges a refunded fee again once the entry holds a place', async () => {
     mockRead.mockReset()
     mockRead
-      .mockResolvedValueOnce(createMockRegistration({ paidAmount: 40, refundAmount: 40 }))
+      .mockResolvedValueOnce(
+        createMockRegistration({ group: { key: '2026-08-15-ap', number: 1 }, paidAmount: 40, refundAmount: 40 })
+      )
       .mockResolvedValueOnce(createMockOrganizer())
 
     const result = await paymentCreateLambda(event)
 
     expect(result.statusCode).toEqual(200)
     expect(mockCreatePayment).toHaveBeenCalledWith(expect.objectContaining({ amount: 4000 }))
+  })
+
+  it('does not charge a reserve whose fee was refunded (KOE-1526)', async () => {
+    mockRead.mockReset()
+    mockRead
+      .mockResolvedValueOnce(
+        createMockRegistration({ group: { key: 'reserve', number: 1 }, paidAmount: 40, refundAmount: 40 })
+      )
+      .mockResolvedValueOnce(createMockOrganizer())
+
+    const result = await paymentCreateLambda(event)
+
+    expect(result.statusCode).toEqual(204)
+    expect(mockCreatePayment).not.toHaveBeenCalled()
+  })
+
+  // KOE-1526 review: a trial that is not confirmed asks nothing, and its link charges nothing.
+  it('refuses to charge for a trial that has been cancelled', async () => {
+    mockGetEvent.mockResolvedValue({ ...createMockConfirmedEvent(), state: 'cancelled' })
+
+    const result = await paymentCreateLambda(event)
+
+    expect(result.statusCode).toEqual(404)
+    expect(JSON.parse(result.body)).toEqual('Event is not open for payment')
+    expect(mockCreatePayment).not.toHaveBeenCalled()
   })
 
   it('returns 204 if registration is already paid', async () => {
@@ -613,6 +643,7 @@ describe('paymentCreateLambda', () => {
       reference: 'event123:reg456',
       status: 'new',
       transactionId: 'oldTx',
+      type: 'payment',
     }
     mockGetTransactionsByReference.mockResolvedValue([existingTransaction])
 
@@ -629,6 +660,7 @@ describe('paymentCreateLambda', () => {
       reference: 'event123:reg456',
       status: 'pending',
       transactionId: 'oldPendingTx',
+      type: 'payment',
     }
     mockGetTransactionsByReference.mockResolvedValue([existingTransaction])
 
@@ -643,6 +675,7 @@ describe('paymentCreateLambda', () => {
       reference: 'event123:reg456',
       status: 'pending',
       transactionId: 'freshPendingTx',
+      type: 'payment',
     }
     mockGetTransactionsByReference.mockResolvedValue([existingTransaction])
 
@@ -651,12 +684,38 @@ describe('paymentCreateLambda', () => {
     expect(mockUpdateTransactionStatus).not.toHaveBeenCalled()
   })
 
+  // KOE-1526 review: refunds share the payment's reference; a refund Paytrail is working on is not
+  // a payment in progress, and PaymentCreate leaves it alone, stale or not.
+  it.each([
+    ['fresh', 2],
+    ['stale', 10],
+  ])('neither waits for nor touches a %s pending refund', async (_name, minutes) => {
+    mockGetTransactionsByReference.mockResolvedValue([
+      {
+        createdAt: new Date(Date.now() - minutes * 60 * 1000).toISOString(),
+        reference: 'event123:reg456',
+        status: 'pending',
+        transactionId: 'pendingRefundTx',
+        type: 'refund',
+      },
+    ])
+
+    const result = await paymentCreateLambda(event)
+
+    expect(result.statusCode).toEqual(200)
+    expect(mockUpdateTransactionStatus).not.toHaveBeenCalledWith(
+      expect.objectContaining({ transactionId: 'pendingRefundTx' }),
+      'fail'
+    )
+  })
+
   it('returns 409 if there is a non-stale pending transaction', async () => {
     const existingTransaction = {
       createdAt: new Date(Date.now() - 2 * 60 * 1000).toISOString(),
       reference: 'event123:reg456',
       status: 'pending',
       transactionId: 'freshPendingTx',
+      type: 'payment',
     }
     mockGetTransactionsByReference.mockResolvedValue([existingTransaction])
 
@@ -704,6 +763,7 @@ describe('paymentCreateLambda', () => {
         reference: 'event123:reg456',
         status: 'pending',
         transactionId: 'freshPendingTx',
+        type: 'payment',
       },
     ])
 

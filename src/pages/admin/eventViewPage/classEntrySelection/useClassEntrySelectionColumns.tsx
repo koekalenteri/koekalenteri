@@ -15,10 +15,9 @@ import Tooltip from '@mui/material/Tooltip'
 import { GridActionsCellItem } from '@mui/x-data-grid'
 import { useCallback, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
-import { getPaymentBalance } from '@/lib/cost'
 import { breedAbbreviation } from '@/lib/dog'
 import { isEventOngoing, isEventOver, registrationDatesOutsideClass } from '@/lib/event'
-import { canRefundExcess } from '@/lib/payment'
+import { canRefundExcess, canRequestPaymentFor } from '@/lib/payment'
 import {
   canRefund,
   GROUP_KEY_CANCELLED,
@@ -26,7 +25,6 @@ import {
   getLastEmailText,
   getRegistrationClass,
   getRegistrationGroupKey,
-  isParticipantGroup,
   isPredefinedReason,
 } from '@/lib/registration'
 import { isConfirmedEvent } from '@/lib/typeGuards'
@@ -154,17 +152,6 @@ const getMovementActions = (options: RegistrationActionsOptions & { groupKey: st
   return getParticipantMovementActions(options)
 }
 
-/**
- * A place whose fee is still short can be asked for it: nothing paid yet, or a member price paid by
- * someone who was not a member (KOE-722). Paying at confirmation, only a picked place has a payment
- * link to send. A cancelled entry owes nothing.
- */
-const canRequestPayment = (event: DogEvent, row: Registration, groupKey: string): boolean =>
-  groupKey !== GROUP_KEY_CANCELLED &&
-  isConfirmedEvent(event) &&
-  getPaymentBalance(event, row).due > 0 &&
-  (event.paymentTime !== 'confirmation' || isParticipantGroup(groupKey))
-
 const createRegistrationActions = (options: RegistrationActionsOptions): ReactElement<GridActionsCellItemProps>[] => {
   const { callbacks, event, row, t } = options
   const actionsDisabled = Boolean(callbacks?.actionsDisabled)
@@ -175,7 +162,7 @@ const createRegistrationActions = (options: RegistrationActionsOptions): ReactEl
   // The overpaid part of a participant's fee is refundable too, and the trial being over does not
   // close it (KOE-1382): the money is the entrant's regardless of what the calendar says.
   const refundable = canRefund(row) || (isConfirmedEvent(event) && canRefundExcess(event, row))
-  if (refundable && (row.refundAmount ?? 0) < (row.paidAmount ?? 0)) {
+  if (refundable) {
     actions.push(
       <GridActionsCellItem
         key="refund"
@@ -231,7 +218,7 @@ const createRegistrationActions = (options: RegistrationActionsOptions): ReactEl
     />
   )
 
-  if (canRequestPayment(event, row, groupKey)) {
+  if (canRequestPaymentFor(event, row)) {
     actions.push(
       <GridActionsCellItem
         key="requestPayment"

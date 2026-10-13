@@ -2,9 +2,11 @@ import { render, screen } from '@testing-library/react'
 import PaymentIcon from './PaymentIcon'
 
 describe('PaymentIcon', () => {
-  it('should render SavingsOutlined icon when refundAt is set', () => {
+  it('should render SavingsOutlined icon when the payment went back', () => {
     const reg = {
+      paidAmount: 50,
       paidAt: new Date(),
+      refundAmount: 50,
       refundAt: new Date(),
     }
 
@@ -12,6 +14,20 @@ describe('PaymentIcon', () => {
 
     // SavingsOutlined icon has this path
     expect(screen.getByTestId('SavingsOutlinedIcon')).toBeInTheDocument()
+  })
+
+  // KOE-1526 review: a reserve refunded and then lifted into a place that paid again is paid.
+  it('should render EuroOutlined icon when a refunded fee has been paid again', () => {
+    const reg = {
+      paidAmount: 100,
+      paidAt: new Date(),
+      refundAmount: 50,
+      refundAt: new Date(),
+    }
+
+    render(<PaymentIcon reg={reg} />)
+
+    expect(screen.getByTestId('EuroOutlinedIcon')).toBeInTheDocument()
   })
 
   it('should render SavingsOutlined icon when refundStatus is PENDING', () => {

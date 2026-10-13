@@ -1,7 +1,8 @@
-import type { JsonDogEvent } from '../../../types'
+import type { JsonConfirmedEvent, JsonDogEvent } from '../../../types'
 import type { WebSocketConnection } from './types'
 import { getEvent } from '../../lib/event'
 import { LambdaError } from '../../lib/lambda'
+import { participantPaymentPatch } from '../../lib/payment'
 import { getRegistration, verifyRegistrationEditToken } from '../../lib/registration'
 import { canReceiveAnyAdminEvent, isConnectionExpired } from './connectionPolicy'
 import {
@@ -14,7 +15,6 @@ import {
   unsubscribePublicEventConnection,
   unsubscribeRegistrationConnection,
 } from './connectionRepository'
-import { buildParticipantPaymentPatch } from './payloads'
 
 type PublishEventViewers = (
   eventId: string,
@@ -108,11 +108,13 @@ export const subscribeToRegistration = async (
   const registration = await getRegistration(eventId, registrationId)
   verifyRegistrationEditToken(registration, editToken)
   await subscribeRegistrationConnection(connection.connectionId, eventId, registrationId)
+  // A payment left at Paytrail is not in progress, as GetRegistration reads it (KOE-1526).
   const currentRegistration = await getRegistration(eventId, registrationId)
+  const dogEvent = await getEvent<JsonConfirmedEvent>(eventId)
 
   return {
     eventId,
-    patch: buildParticipantPaymentPatch(currentRegistration),
+    patch: await participantPaymentPatch(currentRegistration, dogEvent),
     registrationId,
     scope: 'participant:registration-patch',
     subscribed: true,

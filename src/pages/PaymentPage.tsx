@@ -1,5 +1,6 @@
 import type { Params } from 'react-router'
 import type { CreatePaymentResult } from '../api/payment'
+import type { PaymentStatusKey } from '../lib/payment'
 import type { CreatePaymentResponse, PublicConfirmedEvent, Registration } from '../types'
 import Divider from '@mui/material/Divider'
 import Grid from '@mui/material/Grid'
@@ -12,7 +13,7 @@ import { Await, useLoaderData, useParams } from 'react-router'
 import { APIError } from '../api/http'
 import { createPayment } from '../api/payment'
 import { useRegistrationLanguage } from '../hooks/useRegistrationLanguage'
-import { paytrailErrorText } from '../lib/payment'
+import { getShownPayment, paytrailErrorText } from '../lib/payment'
 import { printContactInfo } from '../lib/utils'
 import { Path } from '../routeConfig'
 import { ErrorInfo } from './components/ErrorInfo'
@@ -64,6 +65,13 @@ interface Props {
   readonly paytrailError?: string
   readonly responseStatus?: number
 }
+
+/** The payment line's statuses that leave nothing to pay on this page: the page says so instead. */
+const NOTICE_STATUSES = new Set<PaymentStatusKey>([
+  'paymentStatus.notCharged',
+  'paymentStatus.refunded',
+  'paymentStatus.waitingForConfirmation',
+])
 
 const paymentErrorStatusKey = {
   403: 'paymentPage.error403',
@@ -117,9 +125,12 @@ export const PaymentPageWithData = ({
     </Paper>
   )
 
-  // If payment is after confirmation but registration is not confirmed yet, show message
-  if (event.paymentTime === 'confirmation' && !registration.shouldPay) {
-    return renderNotice(t('paymentStatus.waitingForConfirmation'))
+  // The notice says what the status line says (KOE-1526), whatever PaymentCreate answered: paying at
+  // confirmation waits for a place, not for the confirmation; a fee that went back was refunded, not
+  // paid; and a trial that is not confirmed charges nothing.
+  const { status: paymentStatus } = getShownPayment(event, registration)
+  if (NOTICE_STATUSES.has(paymentStatus)) {
+    return renderNotice(t(paymentStatus))
   }
 
   if (responseStatus === 204) {

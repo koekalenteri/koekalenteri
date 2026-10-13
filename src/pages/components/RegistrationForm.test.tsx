@@ -6,7 +6,7 @@ import { render, screen } from '@testing-library/react'
 import { Provider } from 'jotai'
 import { Suspense } from 'react'
 import { eventWithStaticDates } from '../../__mockData__/events'
-import { registrationWithStaticDates } from '../../__mockData__/registrations'
+import { registrationWithStaticDates, unpaidRegistrationWithStaticDates } from '../../__mockData__/registrations'
 import theme from '../../assets/Theme'
 import { locales } from '../../i18n'
 import { createMatchMedia, flushPromises, renderWithUserEvents, runPendingTimers } from '../../test-utils/utils'
@@ -19,6 +19,23 @@ vi.mock('../../api/judge')
 vi.mock('../../api/official')
 vi.mock('../../api/organizer')
 vi.mock('../../api/registration')
+
+// The shared mock prints a key and the names of its options; the amount to pay is the one value this
+// file reads, so its line carries the amount itself.
+vi.mock('react-i18next', async () => {
+  const mocked = await import('../../__mocks__/react-i18next')
+  return {
+    ...mocked,
+    useTranslation: () => {
+      const translation = mocked.useTranslation()
+      const t = (key: string, options: Record<string, unknown> = {}) =>
+        key.startsWith('registration.paymentToBePaid')
+          ? `${key} ${String(options.amount)}`
+          : translation.t(key, options)
+      return { ...translation, t }
+    },
+  }
+})
 
 function Wrapper({ children }: { readonly children: ReactNode }) {
   return (
@@ -151,6 +168,71 @@ describe('RegistrationForm', () => {
     await user.dblClick(saveButton)
     expect(onSave).toHaveBeenCalledTimes(1)
   })
+  // KOE-1526 review: the server's due stands only for a fee that went back. A paid place whose price
+  // changes in the form shows the new amount at once (KOE-722).
+  it('shows what a change to a paid registration leaves to pay', async () => {
+    const event = { ...eventWithStaticDates, cost: 130, costMember: 123 }
+    const owner = { email: 'owner@example.com', location: 'Owner Location', name: 'Owner Name', phone: '+3584012345' }
+    const paid = {
+      ...registrationWithStaticDates,
+      owner: { ...owner, membership: true },
+      paidAmount: 123,
+      paymentDue: 0,
+    }
+    const { rerender } = render(<RegistrationForm event={event} registration={paid} />, { wrapper: Wrapper })
+    await flushPromises()
+    expect(screen.getByText(/registration\.paymentToBePaid/)).toHaveTextContent('0,00')
+
+    rerender(<RegistrationForm event={event} registration={{ ...paid, owner: { ...owner, membership: false } }} />)
+    await flushPromises()
+
+    expect(screen.getByText(/registration\.paymentToBePaid/)).toHaveTextContent('7,00')
+  })
+
+  // KOE-1526 review: at confirmation-time payment the line follows the pay offer, not the confirmation.
+  it('asks for the fee now when paying is offered before the place is confirmed', async () => {
+    const event = { ...eventWithStaticDates, paymentTime: 'confirmation' as const }
+    const picked = {
+      ...unpaidRegistrationWithStaticDates,
+      confirmed: false,
+      messagesSent: { picked: true },
+      shouldPay: true,
+    }
+    render(<RegistrationForm event={event} registration={picked} />, { wrapper: Wrapper })
+    await flushPromises()
+
+    expect(screen.getByText(/registration\.paymentToBePaid/)).toHaveTextContent(/^registration\.paymentToBePaid /)
+  })
+
+  it('says a new entry pays once its place is confirmed when the trial is paid at confirmation', async () => {
+    const event = { ...eventWithStaticDates, paymentTime: 'confirmation' as const }
+    const { group: _group, ...entry } = { ...unpaidRegistrationWithStaticDates, id: '' }
+    render(<RegistrationForm event={event} registration={entry} />, { wrapper: Wrapper })
+    await flushPromises()
+
+    expect(screen.getByText(/^registration\.paymentToBePaid/)).toHaveTextContent(
+      /^registration\.paymentToBePaidAfterConfirmation 123,00/
+    )
+  })
+
+  // KOE-1526 review: a payment in progress turns the pay offer off, not the place.
+  it('asks for the fee of a confirmed place while its payment is in progress', async () => {
+    const event = { ...eventWithStaticDates, paymentTime: 'confirmation' as const }
+    const pending = {
+      ...unpaidRegistrationWithStaticDates,
+      confirmed: true,
+      messagesSent: { picked: true },
+      paymentStatus: 'PENDING' as const,
+      shouldPay: false,
+    }
+    render(<RegistrationForm event={event} registration={pending} />, { wrapper: Wrapper })
+    await flushPromises()
+
+    expect(screen.getByText(/^registration\.paymentToBePaid/)).toHaveTextContent(
+      /^registration\.paymentToBePaid 123,00/
+    )
+  })
+
   it('should render optional costs', async () => {
     const event = {
       ...eventWithStaticDates,

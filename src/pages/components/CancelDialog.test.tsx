@@ -66,6 +66,52 @@ describe('CancelDialog', () => {
     expect(screen.getByRole('option', { name: 'registration.cancelReason.unpaid' })).toBeInTheDocument()
   })
 
+  // KOE-1526: a reserve whose fee went back and that was then lifted into a place has paid nothing
+  // for it, so it can be cancelled as unpaid like any other.
+  it('should offer the unpaid reason when the payment went back', async () => {
+    const { user } = renderWithUserEvents(
+      <CancelDialog
+        admin
+        event={publicEventWithStaticDatesAndClass}
+        open
+        registration={{ ...registrationWithStaticDatesAndClass, refundAmount: 123, refundHandlingCost: 0 }}
+      />
+    )
+
+    await user.click(screen.getByLabelText('registration.cancelDialog.reason'))
+
+    expect(screen.getByRole('option', { name: 'registration.cancelReason.unpaid' })).toBeInTheDocument()
+  })
+
+  // The unpaid reason by the payment rule in a confirmed trial; by the mark of a payment in one not
+  // confirmed yet, which has no fee to read (KOE-1526).
+  it.each([
+    [
+      'a paid entry in a confirmed trial',
+      publicEventWithStaticDatesAndClass,
+      registrationWithStaticDatesAndClass,
+      false,
+    ],
+    [
+      'a paid entry in a tentative trial',
+      { ...publicEventWithStaticDatesAndClass, state: 'tentative' as const },
+      registrationWithStaticDatesAndClass,
+      false,
+    ],
+    [
+      'an unpaid entry in a tentative trial',
+      { ...publicEventWithStaticDatesAndClass, state: 'tentative' as const },
+      unpaidRegistrationWithStaticDatesAndClass,
+      true,
+    ],
+  ])('offers the unpaid reason for %s: %s', async (_name, event, registration, offered) => {
+    const { user } = renderWithUserEvents(<CancelDialog admin event={event} open registration={registration} />)
+
+    await user.click(screen.getByLabelText('registration.cancelDialog.reason'))
+
+    expect(Boolean(screen.queryByRole('option', { name: 'registration.cancelReason.unpaid' }))).toBe(offered)
+  })
+
   it('should render for admin, with reason preselected', () => {
     render(
       <CancelDialog

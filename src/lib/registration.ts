@@ -15,10 +15,13 @@ import type {
   Patch,
   PaymentBalance,
   PublicDogEvent,
+  RefundField,
   Registration,
   RegistrationClass,
   RegistrationOwner,
   RegistrationPerson,
+  RegistrationPlacement,
+  RegistrationRefundAmounts,
   RegistrationTemplateContext,
   RegistrationTime,
 } from '../types'
@@ -26,7 +29,7 @@ import type { AuditActor } from './audit'
 import { nanoid } from 'nanoid'
 import { emptyBreeder, emptyDog, emptyPerson } from './data'
 import { hasSharedReserveList, isEntryClosed, localizedEventDescription, localizedEventName } from './event'
-import { formatMoney } from './money'
+import { formatMoney, getNetPaidAmount } from './money'
 import { PRIORITY_INVITED, PRIORITY_MEMBER, priorityValuesToPriority, RESTRICTION } from './priority'
 import { isDefined } from './typeGuards'
 import { isObject, unique } from './utils'
@@ -511,9 +514,7 @@ export const getRegistrationNumberingGroupKey = <T extends JsonRegistration | Re
   return hasSharedReserveList(reg.eventType) ? GROUP_KEY_RESERVE : `${GROUP_KEY_RESERVE}-${classOrType}`
 }
 
-export const getRegistrationGroupKey = <T extends JsonRegistration | Registration>(
-  reg: Pick<T, 'cancelled' | 'group'>
-) => {
+export const getRegistrationGroupKey = (reg: RegistrationPlacement): string => {
   if (reg.cancelled) {
     return GROUP_KEY_CANCELLED
   }
@@ -552,13 +553,27 @@ export const isScorableRegistration = <T extends JsonRegistration | Registration
 ): boolean => isParticipantGroup(getRegistrationGroupKey(reg))
 
 /** Whether any of what was paid is still with the organizer, handling fees counted as kept. */
-export const hasRefundableBalance = <T extends JsonRegistration | Registration>(
-  reg: Pick<T, 'paidAmount' | 'refundAmount' | 'refundHandlingCost'>
-): boolean => (reg.paidAmount ?? 0) > (reg.refundAmount ?? 0) + (reg.refundHandlingCost ?? 0)
+export const hasRefundableBalance = <T extends JsonRegistration | Registration>(reg: Pick<T, RefundField>): boolean =>
+  getNetPaidAmount(reg) > 0
 
 export const canRefund = <T extends JsonRegistration | Registration>(
-  reg: Pick<T, 'cancelled' | 'group' | 'paidAmount' | 'refundAmount' | 'refundHandlingCost'>
+  reg: Pick<T, 'cancelled' | 'group' | RefundField>
 ): boolean => hasRefundableBalance(reg) && REFUNDABLE_GROUP_KEYS.has(getRegistrationGroupKey(reg))
+
+/**
+ * Whether a payment has gone back: something was refunded and nothing of what was paid is left,
+ * the handling fee kept from the refund aside. Such an entry has not paid for a place (KOE-1526).
+ */
+export const isPaymentReturned = <T extends JsonRegistration | Registration>(reg: Pick<T, RefundField>): boolean =>
+  (reg.refundAmount ?? 0) > 0 && !hasRefundableBalance(reg)
+
+/**
+ * A reserve that did not get a place and had its fee back: it owes nothing while it has no place,
+ * and owes the fee again once it is lifted into one (KOE-1526). An entry without a group counts as a
+ * reserve, as it does for the refund.
+ */
+export const isReturnedReserve = (reg: RegistrationPlacement & RegistrationRefundAmounts): boolean =>
+  !isParticipantGroup(getRegistrationGroupKey(reg)) && isPaymentReturned(reg)
 
 export const getSelectedAdditionalCosts = (
   event: MinimalEventForCost,

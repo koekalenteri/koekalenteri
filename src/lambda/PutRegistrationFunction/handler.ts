@@ -25,13 +25,13 @@ import {
 import { getEvent } from '../lib/event'
 import { parseJSONWithFallback } from '../lib/json'
 import { httpError, isPatchRequest, lambda, response } from '../lib/lambda'
+import { participantResponse } from '../lib/payment'
 import {
   applyOwnerOverrides,
   authorizeRegistrationEdit,
   getRegistration,
   getRegistrationEditToken,
   hasRegistrationChanges,
-  participantRegistrationResponse,
   publicRegistrationPatch,
   registrationConflictBody,
 } from '../lib/registration'
@@ -181,7 +181,9 @@ const putRegistrationLambda = lambda('putRegistration', async (event) => {
 
   if (!existing) {
     const retried = await startNewRegistration(registration, confirmedEvent, user, linkOrigin, timestamp)
-    if (retried) return response(200, participantRegistrationResponse(retried.completed, retried.editToken), event)
+    if (retried) {
+      return response(200, await participantResponse(retried.completed, retried.editToken, confirmedEvent), event)
+    }
   }
 
   // modification info is always updated
@@ -228,12 +230,16 @@ const putRegistrationLambda = lambda('putRegistration', async (event) => {
       registration: savedData,
       user,
     })
-    return response(200, participantRegistrationResponse(completed, getRegistrationEditToken(completed)), event)
+    return response(
+      200,
+      await participantResponse(completed, getRegistrationEditToken(completed), confirmedEvent),
+      event
+    )
   }
 
   await finalizeRegistrationUpdate({ existing, flags, groupPatches, origin: linkOrigin, registration: savedData, user })
 
-  return response(200, participantRegistrationResponse(savedData, getRegistrationEditToken(savedData)), event)
+  return response(200, await participantResponse(savedData, getRegistrationEditToken(savedData), confirmedEvent), event)
 })
 
 export default putRegistrationLambda

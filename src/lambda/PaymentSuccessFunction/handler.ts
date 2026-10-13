@@ -1,4 +1,4 @@
-import type { JsonRegistration, JsonTransaction } from '../../types'
+import type { JsonConfirmedEvent, JsonRegistration, JsonTransaction } from '../../types'
 import type { PaytrailCallbackParams } from '../types/paytrail'
 import { getFixedT } from '../../i18n/lambda'
 import {
@@ -10,7 +10,7 @@ import {
   paymentAudit,
 } from '../../lib/audit'
 import { getCostSegmentName } from '../../lib/cost'
-import { formatMoney } from '../../lib/money'
+import { formatMoney, getNetPaidAmount } from '../../lib/money'
 import {
   getProviderName,
   getRegistrationPaymentDetails,
@@ -22,6 +22,7 @@ import { audit, registrationAuditKey } from '../lib/audit'
 import { emailTo, registrationEmailTags, registrationEmailTemplateData, sendTemplatedMail } from '../lib/email'
 import {
   fixRegistrationGroups,
+  getEvent,
   lockRegistrationGroups,
   lockRegistrationPayments,
   updateRegistrations,
@@ -84,7 +85,7 @@ const recordDuplicatePayment = async (
   duplicateOf: Pick<JsonRegistration, 'eventId' | 'id'>,
   provider: string | undefined,
   transactionExists: boolean,
-  registration: Parameters<typeof registrationAuditKey>[0]
+  registration: JsonRegistration
 ) => {
   const duplicateOfRegistrationId = duplicateOf.id
   const duplicatePaymentAt = new Date().toISOString()
@@ -121,13 +122,16 @@ const recordDuplicatePayment = async (
     { set: { paymentStatus: 'DUPLICATE', updatedAt: duplicatePaymentAt } },
     registrationTable
   )
-  await publishParticipantRegistrationPatch(registration.eventId, registration.id, {
-    eventId: registration.eventId,
-    id: registration.id,
-    paymentStatus: 'DUPLICATE',
-    shouldPay: false,
-    updatedAt: duplicatePaymentAt,
-  })
+  // The pay button follows the same rule as GetRegistration's: a duplicate waits for its refund.
+  const dogEvent = await getEvent<JsonConfirmedEvent>(registration.eventId)
+  await publishParticipantRegistrationPatch(
+    registration.eventId,
+    registration.id,
+    buildParticipantPaymentPatch(
+      { ...registration, paymentStatus: 'DUPLICATE', updatedAt: duplicatePaymentAt },
+      dogEvent
+    )
+  )
   await audit({
     auditKey: registrationAuditKey(registration),
     ...duplicatePaymentAudit(providerName, amount, duplicateOfRegistrationId),
@@ -167,7 +171,11 @@ const applyPaymentToRegistration = async (
     }
     if (duplicatePayment) return { appliedPayment, duplicatePayment, previouslyPaid, registration }
 
-    previouslyPaid = registration.paidAmount ?? 0
+    // What the receipt and the confirmation count as paid before: the payment less what went back,
+    // and nothing of a payment that went back, as for the balance (KOE-1526). The stored amount
+    // itself stays gross, as the database adds the payment to it.
+    const storedPaid = registration.paidAmount ?? 0
+    previouslyPaid = getNetPaidAmount(registration)
     const confirmed = Boolean(registration.messagesSent?.picked || registration.confirmed)
     const applied = await applySuccessfulPayment(
       transaction,
@@ -180,7 +188,7 @@ const applyPaymentToRegistration = async (
     )
     appliedPayment = applied.applied
     if (appliedPayment) {
-      registration.paidAmount = previouslyPaid + transaction.amount / 100
+      registration.paidAmount = storedPaid + transaction.amount / 100
       registration.paidAt = applied.appliedAt
       registration.paymentStatus = 'SUCCESS'
       registration.state = 'ready'
@@ -321,11 +329,13 @@ const handleSuccessfulPayment = async (
   if (duplicatePayment) return true
 
   // Notify the participant as soon as the payment has been persisted. Receipt,
-  // confirmation email, and admin-side reconciliation may continue afterwards.
+  // confirmation email, and admin-side reconciliation may continue afterwards. The page takes what
+  // is still owed from the patch: it holds no group to work it out from (KOE-1526).
+  const paidEvent = await getEvent<JsonConfirmedEvent>(eventId)
   await publishParticipantRegistrationPatch(
     registration.eventId,
     registrationId,
-    buildParticipantPaymentPatch(registration)
+    buildParticipantPaymentPatch(registration, paidEvent)
   )
 
   const workflowClaim = await claimPostPaymentWorkflow(transaction.transactionId)

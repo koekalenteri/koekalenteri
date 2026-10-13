@@ -1,10 +1,13 @@
-import type { MinimalEventForCost, MinimalRegistrationForCost } from '../../types'
+import type { MinimalEventForCost, MinimalRegistrationForCost, PublicDogEvent } from '../../types'
 import { render, screen } from '@testing-library/react'
 import { TestProvider as Provider } from 'test-utils/AtomProvider'
+import { eventWithStaticDates } from '../../__mockData__/events'
 import { languageAtom } from '../state'
 import { PaymentDetails } from './PaymentDetails'
 
-const event: MinimalEventForCost = {
+/** A confirmed trial: the details show what is to pay only for one (KOE-1526). */
+const event: PublicDogEvent & MinimalEventForCost = {
+  ...eventWithStaticDates,
   cost: {
     earlyBird: { cost: 35, days: 7 },
     normal: 45,
@@ -88,6 +91,57 @@ describe('PaymentDetails', () => {
     expect(screen.getByText('registration.toBePaid').nextSibling).toHaveTextContent('0,00 €')
   })
 
+  // KOE-1526: the participant's page has no group, so the server's due says whether a refunded
+  // reserve owes the fee again.
+  it.each([
+    ['nothing while the reserve has no place', 0, '0,00 €'],
+    ['the fee again once the reserve has a place', 35, '35,00 €'],
+  ])('asks a reserve whose fee was refunded for %s (KOE-1526)', (_name, paymentDue, payable) => {
+    setup({
+      includePayable: true,
+      registration: {
+        ...registration,
+        optionalCosts: [],
+        paidAmount: 35,
+        paymentDue,
+        refundAmount: 35,
+      },
+    })
+
+    expect(screen.getByText('registration.toBePaid').nextSibling).toHaveTextContent(payable)
+  })
+
+  // KOE-1526: the kept handling fee is the price of the refund, so it has its own line and the
+  // rows add up to what is left to pay.
+  it('shows the handling fee kept from a refund on its own line', () => {
+    setup({
+      includePayable: true,
+      registration: {
+        ...registration,
+        optionalCosts: [],
+        paidAmount: 35,
+        paymentDue: 35,
+        refundAmount: 30,
+        refundHandlingCost: 5,
+      },
+    })
+
+    expect(screen.getByText('registration.refundHandlingCost').nextSibling).toHaveTextContent('−5,00 €')
+    expect(screen.getByText('registration.toBePaid').nextSibling).toHaveTextContent('35,00 €')
+  })
+
+  // KOE-1526 review: the details ask for what the status box asks for, and a trial that is not
+  // confirmed, a cancelled one say, asks for nothing.
+  it('asks nothing to be paid for a trial that is not confirmed', () => {
+    setup({
+      event: { ...event, state: 'cancelled' },
+      includePayable: true,
+      registration: { ...registration, optionalCosts: [] },
+    })
+
+    expect(screen.getByText('registration.toBePaid').nextSibling).toHaveTextContent('0,00 €')
+  })
+
   it('says nothing about payments that have not been made', () => {
     setup()
 
@@ -107,7 +161,7 @@ describe('PaymentDetails', () => {
   })
 
   it('renders a legacy flat cost as the one thing that was bought', () => {
-    setup({ event: { cost: 50, costMember: undefined, entryStartDate: event.entryStartDate }, includeTotal: true })
+    setup({ event: { ...event, cost: 50, costMember: undefined }, includeTotal: true })
 
     expect(screen.getByText(/^costNames\.normal/)).toBeInTheDocument()
     expect(screen.getAllByText('50,00 €')).toHaveLength(2)

@@ -751,8 +751,10 @@
   "paymentStatus": {
     "duplicate": "Maksu veloitettiin sen jälkeen, kun koiran toinen ilmoittautuminen oli jo maksettu. Ota yhteyttä koesihteeriin maksun palauttamiseksi.",
     "missing": "Koemaksu puuttuu vielä",
+    "notCharged": "Koemaksua ei peritä",
     "partial": "Maksusta puuttuu {{amount}}",
     "pending": "Odottaa maksun käsittelyä",
+    "refunded": "Koemaksu on palautettu",
     "success": "Olen maksanut",
     "waitingForConfirmation": "Maksetaan paikan vahvistuttua"
   },
@@ -1010,6 +1012,7 @@
       "wholePayment": "Palauta valittu maksu, käsittelykulun voi vähentää"
     },
     "refunded": "Palautettu",
+    "refundHandlingCost": "Pidätetty käsittelykulu",
     "registeredDogs": "Ilmoitetut koirat",
     "reserve": "Pystyn ottamaan koepaikan vastaan varasijalta",
     "reserveChoises": {

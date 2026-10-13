@@ -18,6 +18,8 @@ const mockRead = vi.fn()
 const mockUpdate = vi.fn()
 const mockGetEvent = vi.fn()
 const mockPublishRegistrationPatches = vi.fn()
+const mockPublishCancelledRegistration = vi.fn()
+const mockCancelRegistrationStatus = vi.fn()
 
 vi.doMock('../lib/lambda', async () => ({
   ...(await vi.importActual<typeof import('../lib/lambda')>('../lib/lambda')),
@@ -31,10 +33,14 @@ vi.doMock('../lib/event', () => ({
 }))
 
 vi.doMock('../lib/ws/actions', () => ({
+  publishCancelledRegistration: mockPublishCancelledRegistration,
   publishRegistrationPatches: mockPublishRegistrationPatches,
 }))
 
+// The cancel is the shared workflow cancelTransaction uses too, tested in lib/payment; this handler
+// only has to hand it the row and send on both patches it answers with (KOE-1526).
 vi.doMock('../lib/payment', () => ({
+  cancelRegistrationStatus: mockCancelRegistrationStatus,
   parseParams: mockParseParams,
   verifyParams: mockVerifyParams,
 }))
@@ -165,6 +171,14 @@ describe('paymentVerifyLambda', () => {
   })
 
   it('handles a failed payment correctly', async () => {
+    const cancelled = {
+      eventId: 'event123',
+      organizerId: 'org-1',
+      participantPatch: { eventId: 'event123', id: 'reg456', paymentStatus: 'CANCEL', shouldPay: true },
+      patch: { eventId: 'event123', id: 'reg456', paymentStatus: 'CANCEL', updatedAt: '2026-08-01T00:00:00.000Z' },
+      registrationId: 'reg456',
+    }
+    mockCancelRegistrationStatus.mockResolvedValueOnce(cancelled)
     mockParseParams.mockReturnValueOnce({
       eventId: 'event123',
       provider: 'paytrail',
@@ -181,22 +195,13 @@ describe('paymentVerifyLambda', () => {
     // Verify registration was retrieved for failed payment
     expect(mockGetRegistration).toHaveBeenCalledWith('event123', 'reg456')
 
-    // Verify registration payment status was updated
-    expect(mockUpdate).toHaveBeenCalledWith(
-      { eventId: 'event123', id: 'reg456' },
-      {
-        set: {
-          paymentStatus: 'CANCEL',
-          updatedAt: expect.any(String),
-        },
-      },
-      expect.any(String) // registrationTable
+    // The cancel is written and sent on to the admins and to the participant's open page alike:
+    // a page still holding PENDING gets its pay button back without a reload (KOE-1526).
+    expect(mockCancelRegistrationStatus).toHaveBeenCalledWith(
+      { eventId: 'event123', id: 'reg456', paymentStatus: 'PENDING' },
+      'paymentStatus'
     )
-    expect(mockPublishRegistrationPatches).toHaveBeenCalledWith(
-      'event123',
-      [expect.objectContaining({ eventId: 'event123', id: 'reg456', paymentStatus: 'CANCEL' })],
-      'org-1'
-    )
+    expect(mockPublishCancelledRegistration).toHaveBeenCalledWith(cancelled)
 
     // Verify audit entry was created
     expect(mockAudit).toHaveBeenCalledWith({
@@ -241,6 +246,8 @@ describe('paymentVerifyLambda', () => {
     expect(mockGetRegistration).toHaveBeenCalledWith('event123', 'reg456')
 
     // Verify registration payment status was NOT updated
+    expect(mockCancelRegistrationStatus).not.toHaveBeenCalled()
+    expect(mockPublishCancelledRegistration).not.toHaveBeenCalled()
     expect(mockUpdate).not.toHaveBeenCalled()
 
     // Verify audit entry was NOT created

@@ -14,7 +14,7 @@ import SpeakerNotesOutlined from '@mui/icons-material/SpeakerNotesOutlined'
 import { useTranslation } from 'react-i18next'
 import { getPaymentBalance } from '@/lib/cost'
 import { formatMoney } from '@/lib/money'
-import { isInvitationAwaitingPayment } from '@/lib/payment'
+import { hasStandingPayment, isInvitationAwaitingPayment } from '@/lib/payment'
 import { getInvitationReadStatus, getRegistrationOwners, priorityDescriptionKey } from '@/lib/registration'
 import { isConfirmedEvent } from '@/lib/typeGuards'
 import { TooltipIcon } from '@/pages/components/IconsTooltip'
@@ -166,7 +166,9 @@ const RegistrationTooltipContent = ({
       />
       <TooltipIcon
         key="payment-paid"
-        condition={!!reg.paidAt && !reg.refundAt && reg.refundStatus !== 'PENDING'}
+        // Paid while some of the payment still stands for the place, a refunded fee paid again too
+        // (KOE-1526); a payment recorded before the amounts were kept counts as paid.
+        condition={!!reg.paidAt && hasStandingPayment(reg)}
         icon={<EuroOutlined fontSize="small" />}
         text={t('registration.tooltip.paid', { amount: formatMoney(reg.paidAmount ?? 0) })}
       />

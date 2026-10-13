@@ -202,6 +202,8 @@ describe('putRegistrationLabmda', () => {
     const body = JSON.parse(res.body)
     expect(body.id).toBe(registrationWithStaticDates.id)
     expectNoSecretaryOnlyFields(body)
+    // The payment state goes with every answer, a new registration's too (KOE-1526): paid in full.
+    expect(body).toMatchObject({ paymentDue: 0, shouldPay: false })
   })
 
   it('should do happy path for new registration', async () => {
@@ -578,6 +580,31 @@ describe('putRegistrationLabmda', () => {
     const body = JSON.parse(res.body)
     expect(body.notes).toEqual('updated notes')
     expectNoSecretaryOnlyFields(body)
+  })
+
+  // The group stays out of the answer, so what is owed goes with it (KOE-1526).
+  it.each([
+    ['nothing while it is a reserve', { key: 'reserve', number: 1 }, 0],
+    ['the fee again once it has a place', secretaryGroup, 123],
+  ])('answers a save of a reserve whose fee was refunded with %s owed (KOE-1526)', async (_name, group, due) => {
+    const existingJson = {
+      ...JSON.parse(JSON.stringify(registrationWithStaticDates)),
+      group,
+      refundAmount: 123,
+      refundHandlingCost: 0,
+    }
+    mockGetEvent.mockResolvedValueOnce(JSON.parse(JSON.stringify(eventWithStaticDates)))
+    mockGetRegistration.mockResolvedValueOnce(existingJson)
+
+    const res = await putRegistrationLabmda(
+      constructAPIGwEvent({ ...registrationWithStaticDates, notes: 'updated notes' })
+    )
+
+    expect(res.statusCode).toEqual(200)
+    const body = JSON.parse(res.body)
+    expect(body.paymentDue).toBe(due)
+    expect(body.shouldPay).toBe(due > 0)
+    expect(body).not.toHaveProperty('group')
   })
 
   it('should clear email delivery status from response after sending update email', async () => {

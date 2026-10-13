@@ -1,7 +1,14 @@
 import { vi } from 'vitest'
 
-const broadcastConfigurations: unknown[] = []
-const mockBroadcast = vi.fn((configuration: unknown) => {
+/** What a publish hands the broadcaster: who gets it, and what they get. */
+interface BroadcastConfiguration {
+  audience: () => Promise<unknown[]>
+  buildPayload: (audience?: unknown[]) => unknown
+  onGoneConnection?: (id: string) => Promise<void>
+}
+
+const broadcastConfigurations: BroadcastConfiguration[] = []
+const mockBroadcast = vi.fn((configuration: BroadcastConfiguration) => {
   broadcastConfigurations.push(configuration)
   return Promise.resolve({ attempted: 0, failed: 0, gone: 0, sent: 0 })
 })
@@ -60,6 +67,7 @@ const {
   publishAdminDataInvalidation,
   publishEventViewers,
   publishEventChange,
+  publishCancelledRegistration,
 } = await import('./actions')
 
 describe('ws/actions', () => {
@@ -213,6 +221,26 @@ describe('ws/actions', () => {
     })
   })
 
+  // KOE-1526 review: the admins get what changed, the participant the payment state their page reads.
+  it('publishes a cancelled payment to the admins as a change and to the participant as payment state', async () => {
+    const patch = { eventId: 'e1', id: 'r1', paymentStatus: 'CANCEL' as const, updatedAt: '2026-08-01T00:00:00.000Z' }
+    const participantPatch = { ...patch, paymentDue: 50, shouldPay: true }
+    await publishCancelledRegistration({
+      eventId: 'e1',
+      organizerId: 'o1',
+      participantPatch,
+      patch,
+      registrationId: 'r1',
+    })
+
+    expect(broadcastConfigurations.at(-1)?.buildPayload()).toEqual({
+      eventId: 'e1',
+      patch: participantPatch,
+      registrationId: 'r1',
+      scope: 'participant:registration-patch',
+    })
+  })
+
   it('publishAdminDataInvalidation sends collection names to the admin audience', async () => {
     await publishAdminDataInvalidation(['users', 'organizers'])
 
@@ -302,9 +330,9 @@ describe('ws/actions', () => {
   it('send uses onGoneConnection handler to remove a gone connection', async () => {
     await publishPublicEvent({ entries: 5, eventId: 'e1' })
 
-    const call = broadcastConfigurations[0] as { onGoneConnection: (id: string) => Promise<void> } | undefined
-    expect(call).toBeTruthy()
-    if (!call) throw new Error('missing broadcast call')
+    const call = broadcastConfigurations[0]
+    expect(call?.onGoneConnection).toBeTruthy()
+    if (!call?.onGoneConnection) throw new Error('missing broadcast call')
 
     await call.onGoneConnection('gone-1')
 

@@ -16,7 +16,9 @@ import Select from '@mui/material/Select'
 import TextField from '@mui/material/TextField'
 import { useCallback, useState } from 'react'
 import { Trans, useTranslation } from 'react-i18next'
+import { isRegistrationPaid } from '../../lib/payment'
 import { isPredefinedReason } from '../../lib/registration'
+import { isConfirmedEvent } from '../../lib/typeGuards'
 
 interface Props {
   readonly admin?: boolean
@@ -54,6 +56,10 @@ const CancelDialog = ({ admin, disabled, event, onCancel, onClose, open, registr
     return null
   }
 
+  // Unpaid as the payment rule reads it, so a payment that went back is unpaid too (KOE-1526). An
+  // event that is not confirmed has no fee to read yet; the mark of a payment stands for it there.
+  const unpaid = isConfirmedEvent(event) ? !isRegistrationPaid(event, registration) : !registration.paidAt
+
   return (
     <Dialog
       open={open}
@@ -86,9 +92,7 @@ const CancelDialog = ({ admin, disabled, event, onCancel, onClose, open, registr
                 value={reason}
                 onChange={handleReasonChange}
               >
-                {admin && !registration.paidAt ? (
-                  <MenuItem value="unpaid">{t('registration.cancelReason.unpaid')}</MenuItem>
-                ) : null}
+                {admin && unpaid ? <MenuItem value="unpaid">{t('registration.cancelReason.unpaid')}</MenuItem> : null}
                 <MenuItem value="dog-heat">{t('registration.cancelReason.dog-heat')}</MenuItem>
                 <MenuItem value="handler-sick">{t('registration.cancelReason.handler-sick')}</MenuItem>
                 <MenuItem value="dog-sick">{t('registration.cancelReason.dog-sick')}</MenuItem>

@@ -1,6 +1,7 @@
 import type { AuditActor, AuditMessage } from '../../lib/audit'
 import type {
   DogEvent,
+  JsonConfirmedEvent,
   JsonDogEvent,
   JsonPaymentTransaction,
   JsonRefundTransaction,
@@ -14,7 +15,7 @@ import type { PaytrailError } from './paytrail'
 import { getFixedT } from '../../i18n/lambda'
 import { auditUser, refundPaytrailFailedAudit } from '../../lib/audit'
 import { localizedEventName } from '../../lib/event'
-import { paytrailErrorText } from '../../lib/payment'
+import { asPaymentNotInProgress, isPaymentInProgress, paytrailErrorText } from '../../lib/payment'
 import { CONFIG } from '../config'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 import { audit, registrationAuditKey } from './audit'
@@ -22,7 +23,8 @@ import { getEvent } from './event'
 import { LambdaError } from './lambda'
 import { logger } from './log'
 import { paytrail } from './paytrail'
-import { getRegistration } from './registration'
+import { getRegistration, participantRegistrationResponse } from './registration'
+import { buildParticipantPaymentPatch } from './ws/payloads'
 
 const { registrationTable, transactionTable } = CONFIG
 const dynamoDB = new CustomDynamoClient(transactionTable)
@@ -116,8 +118,43 @@ interface CancelTransactionOptions<T extends JsonTransaction> {
 export interface CancelledRegistration {
   eventId: string
   organizerId: string
+  /**
+   * What the participant's page reads: the payment state of the cancelled row, built as PaymentSuccess
+   * builds its patch, so the pay offer comes back with a cancelled payment (KOE-1526).
+   */
+  participantPatch: Patch<JsonRegistration>
   patch: Patch<JsonRegistration> & { eventId: string; id: string }
   registrationId: string
+}
+
+/**
+ * Writes a cancelled payment or refund on a registration and says what to send on: the plain change
+ * for the admins, and the participant's payment state, so an open page gets its pay offer back
+ * (KOE-1526). PaymentVerify and the provider's cancel callback (`cancelTransaction`) both cancel
+ * through this; whichever comes first writes it, and the other finds the status no longer PENDING.
+ */
+export const cancelRegistrationStatus = async (
+  registration: JsonRegistration,
+  statusField: RegistrationStatusField
+): Promise<CancelledRegistration> => {
+  const { eventId, id: registrationId } = registration
+  const updatedAt = new Date().toISOString()
+  await dynamoDB.update(
+    { eventId, id: registrationId },
+    { set: { [statusField]: 'CANCEL', updatedAt } },
+    registrationTable
+  )
+  const confirmedEvent = await getEvent<JsonConfirmedEvent>(eventId)
+  return {
+    eventId,
+    organizerId: confirmedEvent.organizer.id,
+    participantPatch: await participantPaymentPatch(
+      { ...registration, [statusField]: 'CANCEL', updatedAt },
+      confirmedEvent
+    ),
+    patch: { eventId, id: registrationId, [statusField]: 'CANCEL', updatedAt },
+    registrationId,
+  }
 }
 
 export const cancelTransaction = async <T extends JsonTransaction>({
@@ -142,22 +179,8 @@ export const cancelTransaction = async <T extends JsonTransaction>({
     return
   }
 
-  let cancelled: CancelledRegistration | undefined
-  if (registration[statusField] === 'PENDING') {
-    const updatedAt = new Date().toISOString()
-    await dynamoDB.update(
-      { eventId, id: registrationId },
-      { set: { [statusField]: 'CANCEL', updatedAt } },
-      registrationTable
-    )
-    const confirmedEvent = await getEvent(eventId)
-    cancelled = {
-      eventId,
-      organizerId: confirmedEvent.organizer.id,
-      patch: { eventId, id: registrationId, [statusField]: 'CANCEL', updatedAt },
-      registrationId,
-    }
-  }
+  const cancelled =
+    registration[statusField] === 'PENDING' ? await cancelRegistrationStatus(registration, statusField) : undefined
 
   await audit({
     auditKey: registrationAuditKey(registration),
@@ -417,6 +440,42 @@ export const getTransactionsByReference = async (reference: string) =>
     table: transactionTable,
     values: { ':reference': reference },
   })
+
+/**
+ * The stored row as the participant's payment state reads it. A stored PENDING means a payment in
+ * progress only while a transaction Paytrail is working on is younger than the stale limit, which is
+ * what PaymentCreate answers 409 for. An entrant who reached Paytrail and closed the tab leaves
+ * PENDING behind with a transaction still new: that reads as NEW, payable again (KOE-1526). Every
+ * participant response and payment patch built from a stored row reads it through this.
+ */
+export const getParticipantRow = async <T extends Pick<JsonRegistration, 'eventId' | 'id' | 'paymentStatus'>>(
+  registration: T
+): Promise<T> => {
+  if (registration.paymentStatus !== 'PENDING') return registration
+  const transactions = await getTransactionsByReference(`${registration.eventId}:${registration.id}`)
+  const inProgress = transactions?.some(isPaymentInProgress)
+  return inProgress ? registration : asPaymentNotInProgress(registration)
+}
+
+/**
+ * A stored registration as its participant receives it: read through `getParticipantRow` first, so
+ * no answer is built from a stored PENDING that is not a payment in progress (KOE-1526).
+ * GetRegistration and PutRegistration answer through this.
+ */
+export const participantResponse = async (
+  registration: JsonRegistration,
+  editToken: string,
+  event: JsonConfirmedEvent
+) => participantRegistrationResponse(await getParticipantRow(registration), editToken, event)
+
+/**
+ * The participant's payment patch of a stored registration, read through `getParticipantRow` first.
+ * The subscribe answer and the cancel patch are built through this. PaymentSuccess builds its patch
+ * directly: the row it sends has just been written SUCCESS or DUPLICATE, which `getParticipantRow`
+ * leaves as it is.
+ */
+export const participantPaymentPatch = async (registration: JsonRegistration, event: JsonConfirmedEvent) =>
+  buildParticipantPaymentPatch(await getParticipantRow(registration), event)
 
 const shouldRefreshTransactionStatus = (transaction: JsonPaymentTransaction | JsonRefundTransaction) =>
   transaction.type === 'refund'

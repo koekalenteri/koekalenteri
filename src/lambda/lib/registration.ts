@@ -18,6 +18,7 @@ import {
   registrationCancelledAudit,
 } from '../../lib/audit'
 import { objectsDiffer } from '../../lib/diff'
+import { getParticipantPaymentState } from '../../lib/payment'
 import {
   GROUP_KEY_RESERVE,
   getRegistrationClass,
@@ -223,12 +224,16 @@ export const adminRegistrationResponse = <T extends Partial<JsonRegistration>>(r
  * A registration as its owner or handler receives it through the edit link. The fields a participant
  * must not see are decided here: the dog's result, the secretary's own notes, and the group and the
  * start number. No participant page reads them, and before their publication each would tell more
- * than the public start list does (KOE-1515). The caller derives what it needs from them before this.
+ * than the public start list does (KOE-1515). The caller derives what it needs from them before this:
+ * the payment state reads the group, so it is worked out here from the same row (KOE-1526). The row
+ * is the stored one as `getParticipantRow` reads it.
  */
-export const participantRegistrationResponse = <T extends Partial<JsonRegistration>>(
+export const participantRegistrationResponse = <T extends JsonRegistration>(
   registration: T,
-  editToken: string
+  editToken: string,
+  event: JsonConfirmedEvent
 ) => {
+  const payment = getParticipantPaymentState(event, registration)
   const {
     eventResult: _eventResult,
     group: _group,
@@ -236,7 +241,7 @@ export const participantRegistrationResponse = <T extends Partial<JsonRegistrati
     startGroup: _startGroup,
     ...visible
   } = adminRegistrationResponse(registration, editToken)
-  return visible
+  return { ...visible, ...payment }
 }
 
 export const getRegistration = async (eventId: string, registrationId: string): Promise<JsonRegistration> => {

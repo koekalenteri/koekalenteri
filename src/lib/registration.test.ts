@@ -590,7 +590,7 @@ describe('lib/registration', () => {
     })
 
     it('should return the group.key for non-cancelled registration', () => {
-      expect(getRegistrationGroupKey({ group: { key: 'test', number: 1 } })).toEqual('test')
+      expect(getRegistrationGroupKey({ group: { key: 'test' } })).toEqual('test')
     })
 
     it('should default to reserver', () => {
@@ -646,6 +646,13 @@ describe('lib/registration', () => {
       expect(hasRefundableBalance({ paidAmount: 10, refundAmount: 4, refundHandlingCost: 5 })).toBe(true)
       expect(hasRefundableBalance({ paidAmount: 10, refundAmount: 5, refundHandlingCost: 5 })).toBe(false)
       expect(hasRefundableBalance({})).toBe(false)
+    })
+
+    // KOE-1526 review: in cents, as the balance counts, so float sums do not leave a ghost cent.
+    it('compares in cents, so a payment refunded less a fee to the cent has nothing left', () => {
+      const returned = { paidAmount: 10.05, refundAmount: 9.85, refundHandlingCost: 0.2 }
+      expect(hasRefundableBalance(returned)).toBe(false)
+      expect(canRefund({ ...returned, group: { key: 'reserve', number: 1 } })).toBe(false)
     })
   })
 

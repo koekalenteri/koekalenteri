@@ -11,8 +11,8 @@ import { useRegistrationLanguage } from '../hooks/useRegistrationLanguage'
 import { useRegistrationSubscription } from '../hooks/useRegistrationSubscription'
 import { redirectTo } from '../lib/client/navigation'
 import { errorSnackbarOptions } from '../lib/client/snackbar'
-import { calculateCost, getNetPaidAmount } from '../lib/cost'
 import { getEventStateForClass } from '../lib/event'
+import { getShownPaymentDue, isPaymentOffered } from '../lib/payment'
 import { getRegistrationClass, getRegistrationEmails } from '../lib/registration'
 import { isConfirmedEvent } from '../lib/typeGuards'
 import { Path } from '../routeConfig'
@@ -67,9 +67,9 @@ export function RegistrationListPage({ cancel, confirm, invitation }: Registrati
     () => !event || allDisabled || isPast(subDays(event.startDate, 1)),
     [allDisabled, event]
   )
-  const costResult = event && registration && calculateCost(event, registration)
-  const payable =
-    registration?.cancelled || !registration ? 0 : (costResult?.amount ?? 0) - getNetPaidAmount(registration)
+  // What the page shows as owed: the server's word only for a fee that went back, which needs the
+  // group this page does not have (getParticipantPaymentDue, KOE-1526).
+  const paymentDue = event && registration ? getShownPaymentDue(event, registration) : 0
 
   const handleCancel = useCallback(
     (reason: string) => {
@@ -208,10 +208,16 @@ export function RegistrationListPage({ cancel, confirm, invitation }: Registrati
     // it and its backdrop would swallow the confirm button (KOE-1265). It opens once confirmed.
     if (confirm && !registration.confirmed) return
 
-    if (getNetPaidAmount(registration) < (costResult?.amount ?? 0) && registration.messagesSent?.picked) {
+    // The same offer as the pay button: the server's shouldPay, never while a payment is being
+    // verified (KOE-1526).
+    if (
+      paymentDue > 0 &&
+      registration.messagesSent?.picked &&
+      isPaymentOffered(registration, paymentVerificationInProgress)
+    ) {
       setPaymentOpen((current) => current ?? true)
     }
-  }, [confirm, event, registration, costResult])
+  }, [confirm, event, registration, paymentDue, paymentVerificationInProgress])
 
   useEffect(() => {
     if (!registration || registration.cancelled) return
@@ -300,7 +306,7 @@ export function RegistrationListPage({ cancel, confirm, invitation }: Registrati
             about the choices made in it (KOE-1055). */}
         <Box sx={{ mb: 1, p: { md: 1, xs: 0.5 }, width: '100%' }}>
           <Typography variant="h2">{t('paymentDetails')}</Typography>
-          <PaymentDetails event={event} registration={registration} includeTotal includePayable={payable > 0} />
+          <PaymentDetails event={event} registration={registration} includeTotal includePayable={paymentDue > 0} />
         </Box>
         <CancelDialog
           disabled={cancelDisabled}

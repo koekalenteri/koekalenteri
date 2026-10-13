@@ -1,3 +1,4 @@
+import type { PaymentStatusKey } from '../../lib/payment'
 import type { PublicDogEvent, Registration } from '../../types'
 import CheckOutlined from '@mui/icons-material/CheckOutlined'
 import EuroOutlined from '@mui/icons-material/EuroOutlined'
@@ -11,11 +12,9 @@ import ListItemText from '@mui/material/ListItemText'
 import Paper from '@mui/material/Paper'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router'
-import { getPaymentBalance } from '../../lib/cost'
 import { formatMoney } from '../../lib/money'
-import { getPaymentStatus } from '../../lib/payment'
+import { getShownPayment, isPaidStatus, isPaymentOffered } from '../../lib/payment'
 import { hasPriority } from '../../lib/registration'
-import { isConfirmedEvent } from '../../lib/typeGuards'
 import { Path } from '../../routeConfig'
 
 const priorityIconColor = (event: PublicDogEvent, registration: Registration) =>
@@ -24,8 +23,8 @@ const priorityIconColor = (event: PublicDogEvent, registration: Registration) =>
 const priorityStatus = (event: PublicDogEvent, registration: Registration) =>
   hasPriority(event, registration) ? 'registration.priority.hasPriority' : 'registration.priority.noPriority'
 
-const paymentIconColor = (registration: Registration) =>
-  registration.paymentStatus === 'SUCCESS' ? 'primary.main' : 'transparent'
+/** The euro sign says what the line beside it says: a fee that went back is not paid (KOE-1526). */
+const paymentIconColor = (status: PaymentStatusKey) => (isPaidStatus(status) ? 'primary.main' : 'transparent')
 
 const registrationStatus = (registration: Registration) => {
   if (registration.cancelled) {
@@ -53,14 +52,15 @@ export const InfoBox = ({ event, registration, onConfirm, paymentVerificationInP
   const { t } = useTranslation()
   const navigate = useNavigate()
   const needsConfirmation = !registration.cancelled && !registration.confirmed && !!registration.messagesSent?.picked
-  const needsPayment =
-    Boolean(registration.shouldPay) && registration.paymentStatus !== 'DUPLICATE' && !paymentVerificationInProgress
+  const needsPayment = isPaymentOffered(registration, paymentVerificationInProgress)
   // A paid place reads as paid until its fee rises above what was paid (KOE-722): then the line
-  // names the missing part, the same amount the payment button collects.
-  const paymentDue = isConfirmedEvent(event) ? getPaymentBalance(event, registration).due : 0
+  // names the missing part, the same amount the payment button collects. For a fee that went back the
+  // server decides it, as only it knows whether the reserve has a place (getParticipantPaymentDue,
+  // KOE-1526).
+  const { due: paymentDue, status: paymentStatus } = getShownPayment(event, registration)
   const paymentStatusText = paymentVerificationInProgress
     ? t('registration.notifications.paymentVerifying')
-    : t(getPaymentStatus(registration, event, paymentDue), { amount: formatMoney(paymentDue) })
+    : t(paymentStatus, { amount: formatMoney(paymentDue) })
 
   return (
     <Paper sx={{ bgcolor: 'background.selected', m: 1, p: 1 }}>
@@ -89,7 +89,7 @@ export const InfoBox = ({ event, registration, onConfirm, paymentVerificationInP
             ) : null
           }
         >
-          <ListItemIcon sx={{ color: paymentIconColor(registration), minWidth: 32 }}>
+          <ListItemIcon sx={{ color: paymentIconColor(paymentStatus), minWidth: 32 }}>
             <EuroOutlined fontSize="small" />
           </ListItemIcon>
           <ListItemText

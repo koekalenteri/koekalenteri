@@ -1,3 +1,4 @@
+import type { JsonRegistration } from '../../types'
 import { vi } from 'vitest'
 import { answerRejections, constructPartialAPIGwEvent } from '../test-utils/helpers'
 
@@ -16,7 +17,8 @@ const mockRead = vi.fn()
 const mockUpdate = vi.fn()
 const mockWrite = vi.fn()
 const mockUpdateRegistrations = vi.fn()
-const mockFixRegistrationGroups = vi.fn(async (registrations: any[]) => registrations)
+const mockGetEvent = vi.fn()
+const mockFixRegistrationGroups = vi.fn(async (registrations: unknown[]) => registrations)
 const mockLockRegistrationGroups = vi.fn().mockResolvedValue(async () => undefined)
 const mockLockRegistrationPayments = vi.fn().mockResolvedValue(async () => undefined)
 const mockGetReadyRegistrationsByEventId = vi.fn().mockResolvedValue([])
@@ -60,7 +62,7 @@ vi.doMock('../lib/payment', () => ({
 
 vi.doMock('../lib/registration', () => ({
   clearRegistrationEmailDeliveryStatus: mockClearRegistrationEmailDeliveryStatus,
-  createRegistrationPatch: vi.fn((registration: any, existing: any = {}) => ({
+  createRegistrationPatch: vi.fn((registration: Record<string, unknown>, existing: Record<string, unknown> = {}) => ({
     eventId: registration.eventId,
     id: registration.id,
     ...Object.fromEntries(Object.entries(registration).filter(([key, value]) => existing[key] !== value)),
@@ -89,6 +91,7 @@ vi.doMock('../utils/CustomDynamoClient', () => ({
 
 vi.doMock('../lib/event', () => ({
   fixRegistrationGroups: mockFixRegistrationGroups,
+  getEvent: mockGetEvent,
   lockRegistrationGroups: mockLockRegistrationGroups,
   lockRegistrationPayments: mockLockRegistrationPayments,
   updateRegistrations: mockUpdateRegistrations,
@@ -177,8 +180,15 @@ describe('paymentSuccessLambda', () => {
       name: 'Test Event',
       organizer: { id: 'org-1' },
     })
+    mockGetEvent.mockResolvedValue({
+      cost: 50,
+      id: 'event123',
+      name: 'Test Event',
+      organizer: { id: 'org-1' },
+      state: 'confirmed',
+    })
 
-    mockGetFixedT.mockReturnValue((key: string, _options?: Record<string, any>) => {
+    mockGetFixedT.mockReturnValue((key: string, _options?: Record<string, unknown>) => {
       if (key === 'dateFormat.long') return '1.1.2025'
       return key
     })
@@ -189,11 +199,13 @@ describe('paymentSuccessLambda', () => {
     })
 
     mockEmailTo.mockReturnValue(['test@example.com'])
-    mockRegistrationEmailTags.mockImplementation((registration: any, template: any) => [
-      { Name: 'eventId', Value: registration.eventId },
-      { Name: 'registrationId', Value: registration.id },
-      { Name: 'template', Value: template },
-    ])
+    mockRegistrationEmailTags.mockImplementation(
+      (registration: Pick<JsonRegistration, 'eventId' | 'id'>, template: string) => [
+        { Name: 'eventId', Value: registration.eventId },
+        { Name: 'registrationId', Value: registration.id },
+        { Name: 'template', Value: template },
+      ]
+    )
 
     mockSendTemplatedMail.mockResolvedValue(undefined)
   })
@@ -269,6 +281,8 @@ describe('paymentSuccessLambda', () => {
       expect.objectContaining({
         eventId: 'event123',
         id: 'reg456',
+        // The page holds no group, so the patch says what is left to pay (KOE-1526).
+        paymentDue: 0,
         paymentStatus: 'SUCCESS',
         shouldPay: false,
       })
@@ -386,13 +400,19 @@ describe('paymentSuccessLambda', () => {
       { set: { paymentStatus: 'DUPLICATE', updatedAt: expect.any(String) } },
       'registration-table-not-found-in-env'
     )
-    expect(mockPublishParticipantRegistrationPatch).toHaveBeenCalledWith('event123', 'reg456', {
-      eventId: 'event123',
-      id: 'reg456',
-      paymentStatus: 'DUPLICATE',
-      shouldPay: false,
-      updatedAt: expect.any(String),
-    })
+    // The same rule as GetRegistration: a payment charged twice offers no pay button (KOE-1526).
+    expect(mockPublishParticipantRegistrationPatch).toHaveBeenCalledWith(
+      'event123',
+      'reg456',
+      expect.objectContaining({
+        eventId: 'event123',
+        id: 'reg456',
+        paymentDue: 50,
+        paymentStatus: 'DUPLICATE',
+        shouldPay: false,
+        updatedAt: expect.any(String),
+      })
+    )
     expect(mockAudit).toHaveBeenCalledWith(
       expect.objectContaining({
         auditKey: 'event123:reg456',
@@ -675,6 +695,101 @@ describe('paymentSuccessLambda', () => {
       await paymentSuccessLambda(event)
 
       expect(confirmationContexts()).toEqual(['update'])
+    })
+
+    // KOE-1526 review: a reserve whose fee went back has paid nothing towards the place it was
+    // lifted into, so its payment is a first one: in the receipt and in the confirmation alike.
+    describe('a reserve whose fee was refunded, paying for the place it was lifted into', () => {
+      beforeEach(() => {
+        mockGetRegistration.mockResolvedValue({
+          eventId: 'event123',
+          group: { key: 'ALO-AP', number: 1 },
+          id: 'reg456',
+          language: 'fi',
+          paidAmount: 50,
+          payer: { email: 'test@example.com' },
+          paymentStatus: 'SUCCESS',
+          refundAmount: 45,
+          refundHandlingCost: 5,
+          state: 'ready',
+        })
+      })
+
+      it('confirms it as a registration', async () => {
+        await paymentSuccessLambda(event)
+
+        expect(confirmationContexts()).toEqual([''])
+      })
+
+      it('records and receipts nothing as paid before it', async () => {
+        await paymentSuccessLambda(event)
+
+        expect(mockApplySuccessfulPayment).toHaveBeenCalledWith(
+          expect.any(Object),
+          'event123',
+          'reg456',
+          'paytrail',
+          false,
+          true,
+          0
+        )
+        expect(mockSendTemplatedMail).toHaveBeenCalledWith(
+          'receipt',
+          'fi',
+          expect.any(String),
+          ['test@example.com'],
+          expect.objectContaining({ previouslyPaid: undefined, totalPaid: '50,00\u00a0€' }),
+          expect.any(Array)
+        )
+      })
+    })
+
+    // A registration that has never been paid has no amount stored: the payment is all of it.
+    it('records a first payment on a registration with no amount stored', async () => {
+      mockGetRegistration.mockResolvedValue({
+        eventId: 'event123',
+        id: 'reg456',
+        language: 'fi',
+        payer: { email: 'test@example.com' },
+        paymentStatus: 'PENDING',
+        state: 'ready',
+      })
+
+      await paymentSuccessLambda(event)
+
+      expect(mockPublishParticipantRegistrationPatch).toHaveBeenCalledWith(
+        'event123',
+        'reg456',
+        expect.objectContaining({ paidAmount: 50, paymentStatus: 'SUCCESS' })
+      )
+      expect(confirmationContexts()).toEqual([''])
+    })
+
+    // A payer who had part of the fee back still has the rest standing: the receipt counts it.
+    it('receipts what is left of an earlier payment after a refund', async () => {
+      mockGetRegistration.mockResolvedValue({
+        eventId: 'event123',
+        id: 'reg456',
+        language: 'fi',
+        paidAmount: 50,
+        payer: { email: 'test@example.com' },
+        paymentStatus: 'SUCCESS',
+        refundAmount: 10,
+        refundHandlingCost: 0,
+        state: 'ready',
+      })
+
+      // The callback pays 50 on top: 40 standing before it, 90 in all.
+      await paymentSuccessLambda(event)
+
+      expect(mockSendTemplatedMail).toHaveBeenCalledWith(
+        'receipt',
+        'fi',
+        expect.any(String),
+        ['test@example.com'],
+        expect.objectContaining({ previouslyPaid: '40,00\u00a0€', totalPaid: '90,00\u00a0€' }),
+        expect.any(Array)
+      )
     })
 
     it('still confirms a first payment as a registration when its callback is retried', async () => {

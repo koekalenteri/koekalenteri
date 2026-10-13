@@ -155,9 +155,10 @@ export const publishEventCounts = ({ classes, entries, id, members, organizer, u
 export const publishCancelledRegistration = async ({
   eventId,
   organizerId,
+  participantPatch,
   patch,
   registrationId,
 }: CancelledRegistration) => {
   await publishRegistrationPatches(eventId, [patch], organizerId)
-  await publishParticipantRegistrationPatch(eventId, registrationId, patch)
+  await publishParticipantRegistrationPatch(eventId, registrationId, participantPatch)
 }

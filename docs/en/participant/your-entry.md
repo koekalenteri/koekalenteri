@@ -9,7 +9,7 @@ covers:
   - src/pages/RegistrationInvitation.tsx
   - src/pages/components/CancelDialog.tsx
   - src/pages/components/RegistrationEventInfo.tsx
-sourceHash: 862400
+sourceHash: 03d1c3
 ---
 
 The link in your confirmation email opens your entry's own page, headed **{t:entryList}**. The
@@ -32,7 +32,7 @@ and what stage your entry is at.
 | Line | What it can say |
 | --- | --- |
 | priority | *{t:registration.priority.hasPriority}* or *{t:registration.priority.noPriority}* — the grounds for priority are in the trial's details |
-| payment | *{t:paymentStatus.success}*, *{t:paymentStatus.missing}*, *{t:paymentStatus.waitingForConfirmation}* or *{t:paymentStatus.pending}*; when part of the fee is missing, the line names the amount |
+| payment | *{t:paymentStatus.success}*, *{t:paymentStatus.missing}*, *{t:paymentStatus.waitingForConfirmation}*, *{t:paymentStatus.pending}*, *{t:paymentStatus.refunded}* or *{t:paymentStatus.notCharged}*; when part of the fee is missing, the line names the amount |
 | stage | *{t:registration.status.received}*, *{t:registration.status.placeOffered}*, *{t:registration.status.confirmed}*, *{t:registration.status.confirmedAndInvitationRead}* or *{t:registration.status.cancelled}* |
 
 The same facts appear as icons on the dog's row; hover over the icons to see what they mean.
@@ -44,9 +44,11 @@ the dog's row a euro sign named *{t:registration.actions.pay}*. Both take you to
 page. When you return from the payment, the page says *{t:registration.notifications.paymentVerifying}*
 and the status updates by itself in a moment.
 
-The button shows only while something is unpaid. If the trial is paid only once your place is
-confirmed, the payment line reads *{t:paymentStatus.waitingForConfirmation}* until then, and the
-button appears once you have accepted the place. Something may also become payable later, if the
+The button shows only while something is unpaid. If the trial is paid only once you have a place,
+the payment line reads *{t:paymentStatus.waitingForConfirmation}* until the secretary offers you
+one. From then on the line reads *{t:paymentStatus.missing}* and the button is there, also before
+you have accepted the place. If the trial has been cancelled or costs nothing, nothing is charged:
+the line reads *{t:paymentStatus.notCharged}* and there is no button. Something may also become payable later, if the
 secretary corrects your entry so that its price rises — by removing a membership tick, say. The
 line then names the missing amount and the button comes back. Once you have paid the missing
 part, you get a receipt and the message *{t:registration.email.subject_update}*.
@@ -54,6 +56,14 @@ part, you get a receipt and the message *{t:registration.email.subject_update}*.
 If the secretary refunds part of the payment, the overpaid part say, the payment details show a
 *{t:registration.refunded}* line under the amount paid, and what is left to pay is counted after
 the refund.
+If a handling fee was kept from the refund, it shows on a line of its own,
+*{t:registration.refundHandlingCost}*. The fee is the price of the refund and does not count as
+paid towards the entry fee.
+
+If you are on the reserve list and do not get a place, the secretary refunds the fee. The payment
+line then reads *{t:paymentStatus.refunded}*, and nothing is asked of you. Should you get a place
+later, the fee is payable again, and the payment line and the **{t:registration.cta.pay}** button
+come back.
 
 ## Accepting your place
 

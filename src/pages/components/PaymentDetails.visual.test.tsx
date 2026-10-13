@@ -1,6 +1,7 @@
-import type { MinimalEventForCost, MinimalRegistrationForCost } from '../../types'
+import type { MinimalEventForCost, MinimalRegistrationForCost, PublicDogEvent } from '../../types'
 import { ThemeProvider } from '@mui/material/styles'
 import { render } from 'vitest-browser-react'
+import { eventWithStaticDates } from '../../__mockData__/events'
 import theme from '../../assets/Theme'
 import { TestProvider } from '../../test-utils/AtomProvider'
 import { languageAtom } from '../state'
@@ -16,7 +17,9 @@ const Frame = ({ children, width = 600 }: { readonly children: React.ReactNode; 
 /** A phone's worth of width, less the page's own margins. */
 const PHONE = 360
 
-const event: MinimalEventForCost = {
+/** A confirmed trial: the details show what is to pay only for one (KOE-1526). */
+const event: PublicDogEvent & MinimalEventForCost = {
+  ...eventWithStaticDates,
   cost: {
     earlyBird: { cost: 35, days: 7 },
     normal: 45,
@@ -89,4 +92,48 @@ it('shows a refund beside the payment it came out of', async () => {
 
   await expect.element(screen.getByText('Palautettu')).toBeVisible()
   await expect(screen.getByTestId('visual-root')).toMatchScreenshot('payment-details-refunded-phone')
+})
+
+it('asks nothing of a reserve whose fee was refunded', async () => {
+  // KOE-1526: the payment page showed the refunded fee as payable again; the server's due says it is not.
+  const screen = await render(
+    <TestProvider initializeState={({ set }) => set(languageAtom, 'fi')}>
+      <Frame width={PHONE}>
+        <PaymentDetails
+          event={event}
+          registration={{
+            ...registration,
+            paidAmount: 55,
+            paidAt: new Date('2025-08-02T09:05:00Z'),
+            paymentDue: 0,
+            refundAmount: 55,
+          }}
+          includePayable
+        />
+      </Frame>
+    </TestProvider>
+  )
+
+  await expect.element(screen.getByText('Maksettava')).toBeVisible()
+  await expect(screen.getByTestId('visual-root')).toMatchScreenshot('payment-details-refunded-reserve-phone')
+})
+
+it('shows the handling fee kept from a refund on its own line', async () => {
+  // KOE-1526: a reserve had its fee back less a handling fee and was then lifted into a place. The
+  // kept fee paid for the refund, so the whole fee is to pay again, and the rows add up to it.
+  const screen = await render(
+    <TestProvider initializeState={({ set }) => set(languageAtom, 'fi')}>
+      <Frame width={PHONE}>
+        <PaymentDetails
+          event={event}
+          registration={{ ...registration, paidAmount: 55, paymentDue: 55, refundAmount: 50, refundHandlingCost: 5 }}
+          includeTotal
+          includePayable
+        />
+      </Frame>
+    </TestProvider>
+  )
+
+  await expect.element(screen.getByText('Pidätetty käsittelykulu')).toBeVisible()
+  await expect(screen.getByTestId('visual-root')).toMatchScreenshot('payment-details-handling-fee-phone')
 })

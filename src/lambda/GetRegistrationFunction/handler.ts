@@ -1,11 +1,10 @@
 import type { JsonConfirmedEvent } from '../../types'
-import { getPaymentBalance } from '../../lib/cost'
 import { isEventOver } from '../../lib/event'
 import { getSentInvitationAttachment, isParticipantGroup } from '../../lib/registration'
 import { getEvent } from '../lib/event'
 import { getParam, LambdaError, lambda, response } from '../lib/lambda'
-import { getTransactionsByReference } from '../lib/payment'
-import { authorizeRegistrationRead, getRegistration, participantRegistrationResponse } from '../lib/registration'
+import { participantResponse } from '../lib/payment'
+import { authorizeRegistrationRead, getRegistration } from '../lib/registration'
 
 const getRegistrationLambda = lambda('getRegistration', async (event) => {
   const eventId = getParam(event, 'eventId')
@@ -29,30 +28,12 @@ const getRegistrationLambda = lambda('getRegistration', async (event) => {
       : undefined
   }
 
-  if (registration.paymentStatus === 'PENDING') {
-    const transactions = await getTransactionsByReference(`${eventId}:${id}`)
-    const hasNew = transactions?.some((tx) => tx.status === 'new')
-    if (hasNew) {
-      registration.paymentStatus = 'NEW'
-    }
-  }
-
-  if (!registration.cancelled) {
-    // A paid place can still owe: the fee rose after it was paid (KOE-722), and the payment link
-    // charges the difference.
-    const { due } = getPaymentBalance(dogEvent, registration)
-    const shouldPay = registration.paymentStatus !== 'PENDING' && (registration.paymentStatus !== 'SUCCESS' || due > 0)
-
-    if (dogEvent.paymentTime === 'confirmation') {
-      registration.shouldPay = isParticipantGroup(registration?.group?.key) && shouldPay
-    } else {
-      registration.shouldPay = shouldPay
-    }
-  }
-
-  // The group and the other fields a participant must not see are left out last: the derivations
-  // above read them.
-  return response(200, participantRegistrationResponse(registration, editToken), event)
+  // A paid place can still owe: the fee rose after it was paid (KOE-722), and the payment link
+  // charges the difference. A reserve whose fee went back owes nothing until it has a place, which
+  // only the group tells, so the due and the pay button go out with the response (KOE-1526). The
+  // group and the other fields a participant must not see are left out last: the derivations read
+  // them.
+  return response(200, await participantResponse(registration, editToken, dogEvent), event)
 })
 
 export default getRegistrationLambda

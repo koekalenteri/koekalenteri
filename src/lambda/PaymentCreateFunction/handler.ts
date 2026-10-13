@@ -9,9 +9,16 @@ import type {
 import type { PaymentCustomer } from '../types/paytrail'
 import { nanoid } from 'nanoid'
 import { auditUser } from '../../lib/audit'
-import { getPaymentBalance } from '../../lib/cost'
-import { paytrailRefusalBody } from '../../lib/payment'
-import { isParticipantGroup, registrationActor } from '../../lib/registration'
+import {
+  getParticipantPaymentState,
+  isEventOpenForPayment,
+  isPaymentInProgress,
+  isPaymentOpenForPlace,
+  isStalePendingPayment,
+  paytrailRefusalBody,
+  STALE_PENDING_PAYMENT_AGE_MS,
+} from '../../lib/payment'
+import { registrationActor } from '../../lib/registration'
 import { paymentCreateSchema } from '../../lib/schema/payment'
 import { splitName } from '../../lib/string'
 import { CONFIG } from '../config'
@@ -19,7 +26,7 @@ import { getFrontendOrigin } from '../lib/api-gw'
 import { authorize } from '../lib/auth'
 import { getEvent } from '../lib/event'
 import { parseJSONWithFallback } from '../lib/json'
-import { lambda, response } from '../lib/lambda'
+import { httpError, lambda, response } from '../lib/lambda'
 import {
   claimTransactionCreation,
   getTransactionsByReference,
@@ -50,16 +57,6 @@ const toPaytrailItem = (item: TransactionItem): PaymentItem => ({
   units: 1,
   vatPercentage: 0,
 })
-const STALE_PENDING_PAYMENT_AGE_MS = 5 * 60 * 1000
-
-const isStalePendingPayment = (createdAt?: string, statusAt?: string) => {
-  const timestamp = statusAt ?? createdAt
-  if (!timestamp) return false
-
-  const age = Date.now() - new Date(timestamp).getTime()
-  return Number.isFinite(age) && age >= STALE_PENDING_PAYMENT_AGE_MS
-}
-
 const canReuseNewTransaction = (current: JsonPaymentTransaction | undefined, candidate: JsonPaymentTransaction) =>
   !current || new Date(candidate.createdAt).getTime() > new Date(current.createdAt).getTime()
 
@@ -74,7 +71,8 @@ const inspectExistingTransactions = async (reference: string) => {
   let reusableNewTransaction: JsonPaymentTransaction | undefined
 
   for (const tx of existingTransactions) {
-    if (tx.status !== 'new' && tx.status !== 'pending') {
+    // A refund shares the payment's reference; it is RefundCreate's to finish, never touched here.
+    if (tx.type !== 'payment' || (tx.status !== 'new' && tx.status !== 'pending')) {
       continue
     }
 
@@ -83,7 +81,7 @@ const inspectExistingTransactions = async (reference: string) => {
       continue
     }
 
-    if (tx.status === 'pending') {
+    if (isPaymentInProgress(tx)) {
       freshPendingTransaction = true
       continue
     }
@@ -107,21 +105,26 @@ const paymentCreateLambda = lambda('paymentCreate', async (event) => {
   const jsonEvent = await getEvent<JsonConfirmedEvent>(eventId)
 
   if (registration.cancelled) {
-    return response<string>(404, 'Registration not found', event)
+    throw httpError(404, 'Registration not found')
+  }
+
+  // A trial that is not confirmed, a cancelled one say, asks nothing of anyone (KOE-1526).
+  if (!isEventOpenForPayment(jsonEvent)) {
+    throw httpError(404, 'Event is not open for payment')
   }
 
   if (registration.paymentStatus === 'DUPLICATE') {
-    return response<string>(409, 'Duplicate payment requires a refund', event)
+    throw httpError(409, 'Duplicate payment requires a refund')
   }
 
-  // Don't allow payment if event requires payment after confirmation but registration is not picked yet
-  if (jsonEvent.paymentTime === 'confirmation' && !isParticipantGroup(registration.group?.key)) {
-    return response<string>(403, 'Payment not allowed - registration must be picked first', event)
+  // Paying at confirmation, only a place pays: the rule the pay offer reads (KOE-1526).
+  if (!isPaymentOpenForPlace(jsonEvent, registration)) {
+    throw httpError(403, 'Payment not allowed - registration must be picked first')
   }
 
   const organizer = await dynamoDB.read<Organizer>({ id: jsonEvent?.organizer.id }, organizerTable)
   if (!organizer?.paytrailMerchantId) {
-    return response<string>(412, `Organizer ${jsonEvent.organizer.id} does not have MerchantId!`, event)
+    throw httpError(412, `Organizer ${jsonEvent.organizer.id} does not have MerchantId!`)
   }
 
   const reference = `${eventId}:${registrationId}`
@@ -132,12 +135,13 @@ const paymentCreateLambda = lambda('paymentCreate', async (event) => {
   }
 
   if (freshPendingTransaction) {
-    return response<string>(409, 'Payment already in progress', event)
+    throw httpError(409, 'Payment already in progress')
   }
 
   // What is still owed of the fee as the entry reads now: the whole of it, or the part a corrected
-  // membership added after a member-price payment (KOE-722). A refund counts as unpaid again.
-  const amount = Math.round(100 * getPaymentBalance(jsonEvent, registration).due)
+  // membership added after a member-price payment (KOE-722). A fee that went back is owed again only
+  // once the entry holds a place; a reserve's is settled, and gets 204 (KOE-1526).
+  const amount = Math.round(100 * getParticipantPaymentState(jsonEvent, registration).paymentDue)
   if (amount <= 0) {
     return response<string>(204, 'Already paid', event)
   }
@@ -166,7 +170,7 @@ const paymentCreateLambda = lambda('paymentCreate', async (event) => {
   if (
     !(await claimTransactionCreation(dynamoDB, 'payment', eventId, registrationId, stamp, STALE_PENDING_PAYMENT_AGE_MS))
   ) {
-    return response<string>(409, 'Payment already in progress', event)
+    throw httpError(409, 'Payment already in progress')
   }
 
   let result: CreatePaymentResponse | undefined | null

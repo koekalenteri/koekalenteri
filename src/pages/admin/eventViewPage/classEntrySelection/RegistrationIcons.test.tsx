@@ -104,12 +104,12 @@ describe('RegistrationIcons component', () => {
     expect(screen.getByTestId('StarBorderOutlinedIcon')).toBeInTheDocument()
   })
 
-  it('should render refund icon when registration has been refunded', () => {
-    // Mock a registration with refund
+  // The piggy bank is for a payment that went back; a part refunded leaves a paid fee (KOE-1526).
+  it('should render refund icon when the payment has been refunded', () => {
     const mockReg = createMockRegistration({
       paidAmount: 5000,
       paidAt: new Date(),
-      refundAmount: 2500,
+      refundAmount: 5000,
       refundAt: new Date(),
     })
 
@@ -118,6 +118,26 @@ describe('RegistrationIcons component', () => {
 
     // The component should be rendered
     expect(screen.getByTestId('SavingsOutlinedIcon')).toBeInTheDocument()
+  })
+
+  // KOE-1526 review: the screenshot comparator lets an icon's colour change through, so the colour of
+  // the refund mark is pinned here: plain for a reserve whose fee went back, amber once it has a place.
+  it.each([
+    ['a reserve', 'reserve', false],
+    ['a reserve lifted into a place', 'testing', true],
+  ])('colours the refund mark of %s whose fee went back: warning %s', (_name, key, warning) => {
+    const mockReg = createMockRegistration({
+      group: { key, number: 1 },
+      paidAmount: 123,
+      paidAt: new Date(),
+      refundAmount: 123,
+      refundAt: new Date(),
+      refundHandlingCost: 0,
+    })
+
+    render(<RegistrationIcons event={eventWithStaticDatesAnd3Classes} reg={mockReg} />)
+
+    expect(screen.getByTestId('SavingsOutlinedIcon').classList.contains('MuiSvgIcon-colorWarning')).toBe(warning)
   })
 
   it('should render refund icon when refund is pending', () => {

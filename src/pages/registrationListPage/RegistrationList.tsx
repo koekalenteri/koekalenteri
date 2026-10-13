@@ -1,5 +1,6 @@
 import type { Theme } from '@mui/material'
 import type { GridColDef } from '@mui/x-data-grid'
+import type { PaymentStatusKey } from '../../lib/payment'
 import type { BreedCode, PublicDogEvent, Registration } from '../../types'
 import CancelOutlined from '@mui/icons-material/CancelOutlined'
 import EditOutlined from '@mui/icons-material/EditOutlined'
@@ -10,11 +11,9 @@ import { Box } from '@mui/system'
 import { GridActionsCellItem } from '@mui/x-data-grid'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router'
-import { getPaymentBalance } from '../../lib/cost'
 import { formatMoney } from '../../lib/money'
-import { getPaymentStatus } from '../../lib/payment'
+import { getShownPayment, isPaymentOffered } from '../../lib/payment'
 import { hasPriority } from '../../lib/registration'
-import { isConfirmedEvent } from '../../lib/typeGuards'
 import { Path } from '../../routeConfig'
 import { IconsTooltip, TooltipIcon } from '../components/IconsTooltip'
 import { PaymentIcon } from '../components/icons/PaymentIcon'
@@ -23,13 +22,6 @@ import StyledDataGrid from '../components/StyledDataGrid'
 import { SCREEN_READER_ONLY } from '../components/screenReaderOnly'
 
 type StrippedRegistration = Omit<Registration, 'group' | 'internalNotes'>
-
-/**
- * What is still owed of the fee. A paid place can owe again when its fee rose after the payment,
- * a membership tick taken off by the secretary (KOE-722), and then paying is offered once more.
- */
-const paymentDue = (event: PublicDogEvent, registration: StrippedRegistration): number =>
-  isConfirmedEvent(event) ? getPaymentBalance(event, registration).due : 0
 
 interface Props {
   readonly disabled?: boolean
@@ -40,15 +32,16 @@ interface Props {
 }
 
 interface RegistrationListItemTooltipIconsProps {
-  registration: StrippedRegistration
+  paymentDue: number
+  paymentStatus: PaymentStatusKey
   priority: boolean | 0.5
 }
 
 const RegistrationListItemTooltipIcons = ({
-  registration,
+  paymentDue,
+  paymentStatus,
   priority,
-  event,
-}: RegistrationListItemTooltipIconsProps & { event: PublicDogEvent }) => {
+}: RegistrationListItemTooltipIconsProps) => {
   const { t } = useTranslation()
   return (
     <>
@@ -59,10 +52,8 @@ const RegistrationListItemTooltipIcons = ({
       />
       <TooltipIcon
         key="payment"
-        text={t(getPaymentStatus(registration, event, paymentDue(event, registration)), {
-          amount: formatMoney(paymentDue(event, registration)),
-        })}
-        icon={<PaymentIcon paymentStatus={registration.paymentStatus} fontSize="small" />}
+        text={t(paymentStatus, { amount: formatMoney(paymentDue) })}
+        icon={<PaymentIcon status={paymentStatus} fontSize="small" />}
       />
     </>
   )
@@ -76,9 +67,13 @@ const RegistrationListItemIcons = ({
   registration: StrippedRegistration
 }) => {
   const priority = hasPriority(event, registration)
+  // What the payment line reads, which its euro sign shows too (KOE-1526).
+  const { due: paymentDue, status: paymentStatus } = getShownPayment(event, registration)
   return (
     <IconsTooltip
-      icons={<RegistrationListItemTooltipIcons registration={registration} priority={priority} event={event} />}
+      icons={
+        <RegistrationListItemTooltipIcons paymentDue={paymentDue} paymentStatus={paymentStatus} priority={priority} />
+      }
       placement="bottom-start"
     >
       <Box
@@ -89,7 +84,7 @@ const RegistrationListItemIcons = ({
         }}
       >
         <PriorityIcon dim priority={priority} fontSize="small" />
-        <PaymentIcon dim paymentStatus={registration.paymentStatus} fontSize="small" />
+        <PaymentIcon dim status={paymentStatus} fontSize="small" />
       </Box>
     </IconsTooltip>
   )
@@ -183,13 +178,9 @@ export default function RegistrationList({
             showInMenu
           />,
         ]
-        if (
-          !params.row.cancelled &&
-          !paymentVerificationInProgress &&
-          (params.row.paymentStatus !== 'SUCCESS' || paymentDue(event, params.row) > 0) &&
-          params.row.paymentStatus !== 'PENDING' &&
-          (event.paymentTime === 'registration' || params.row.confirmed)
-        ) {
+        // The server's answer, as the status box's pay button reads it: only it knows the group
+        // that decides a paying-at-confirmation place and a refunded reserve (KOE-1526).
+        if (isPaymentOffered(params.row, paymentVerificationInProgress)) {
           return [
             <GridActionsCellItem
               disabled={disabled}
