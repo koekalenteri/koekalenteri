@@ -12,7 +12,7 @@ import { Await, useLoaderData, useParams } from 'react-router'
 import { APIError } from '../api/http'
 import { createPayment } from '../api/payment'
 import { useRegistrationLanguage } from '../hooks/useRegistrationLanguage'
-import { getPaymentStatus, getShownPaymentDue, paytrailErrorText } from '../lib/payment'
+import { getShownPayment, paytrailErrorText } from '../lib/payment'
 import { printContactInfo } from '../lib/utils'
 import { Path } from '../routeConfig'
 import { ErrorInfo } from './components/ErrorInfo'
@@ -119,7 +119,7 @@ export const PaymentPageWithData = ({
 
   // The notice says what the status line says (KOE-1526): paying at confirmation waits for a place,
   // not for the confirmation, and a fee that went back was refunded, not paid.
-  const paymentStatus = getPaymentStatus(registration, event, getShownPaymentDue(event, registration))
+  const { status: paymentStatus } = getShownPayment(event, registration)
   if (paymentStatus === 'paymentStatus.waitingForConfirmation') {
     return renderNotice(t(paymentStatus))
   }

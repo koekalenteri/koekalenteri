@@ -12,7 +12,7 @@ import { GridActionsCellItem } from '@mui/x-data-grid'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router'
 import { formatMoney } from '../../lib/money'
-import { getPaymentStatus, getShownPaymentDue, isPaymentOffered } from '../../lib/payment'
+import { getShownPayment, isPaymentOffered } from '../../lib/payment'
 import { hasPriority } from '../../lib/registration'
 import { Path } from '../../routeConfig'
 import { IconsTooltip, TooltipIcon } from '../components/IconsTooltip'
@@ -68,8 +68,7 @@ const RegistrationListItemIcons = ({
 }) => {
   const priority = hasPriority(event, registration)
   // What the payment line reads, which its euro sign shows too (KOE-1526).
-  const paymentDue = getShownPaymentDue(event, registration)
-  const paymentStatus = getPaymentStatus(registration, event, paymentDue)
+  const { due: paymentDue, status: paymentStatus } = getShownPayment(event, registration)
   return (
     <IconsTooltip
       icons={

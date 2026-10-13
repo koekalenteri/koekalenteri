@@ -15,6 +15,14 @@ const mockUnsubscribePublicEventConnection = vi.fn()
 const mockUnsubscribeRegistrationConnection = vi.fn()
 const mockGetRegistration = vi.fn()
 const mockVerifyRegistrationEditToken = vi.fn()
+const mockQuery = vi.fn()
+
+// The transactions of the registration, which tell a payment in progress from one left at Paytrail.
+vi.doMock('../../utils/CustomDynamoClient', () => ({
+  default: vi.fn(function MockCustomDynamoClient() {
+    return { query: mockQuery }
+  }),
+}))
 
 vi.doMock('../../lib/event', () => ({
   getEvent: mockGetEvent,
@@ -181,7 +189,7 @@ describe('ws/subscriptionService', () => {
       owner: { membership: false },
       ownerHandles: true,
     }
-    mockGetEvent.mockResolvedValueOnce({ cost: 50, entryStartDate: '2026-07-01', id: 'e1' })
+    mockGetEvent.mockResolvedValueOnce({ cost: 50, entryStartDate: '2026-07-01', id: 'e1', state: 'confirmed' })
     // A reserve whose fee went back: the page has no group, so the patch says it owes nothing (KOE-1526).
     mockGetRegistration.mockResolvedValueOnce(registration).mockResolvedValueOnce({
       ...registration,
@@ -230,12 +238,47 @@ describe('ws/subscriptionService', () => {
       entryStartDate: '2026-07-01',
       id: 'e1',
       paymentTime: 'registration',
+      state: 'confirmed',
     })
     mockGetRegistration.mockResolvedValueOnce(registration).mockResolvedValueOnce(registration)
 
     await expect(subscribeToRegistration({ connectionId: 'c1' }, 'e1', 'r1', 'edit-token')).resolves.toEqual(
       expect.objectContaining({
         patch: expect.objectContaining({ paymentDue: 50, refundAmount: 50, shouldPay: true }),
+      })
+    )
+  })
+
+  // KOE-1526 review: an entrant who reached Paytrail and closed the tab leaves PENDING stored with a
+  // transaction still new. That payment is not in progress, and the answer says what GetRegistration
+  // says: pay.
+  it('answers an abandoned payment as one that can be paid, as GetRegistration does', async () => {
+    const registration = {
+      createdAt: '2026-07-25T10:00:00.000Z',
+      dog: { breedCode: '122' },
+      editTokenVersion: 1,
+      eventId: 'e1',
+      group: { key: '2026-08-15-ap', number: 1 },
+      id: 'r1',
+      owner: { membership: false },
+      ownerHandles: true,
+      paymentStatus: 'PENDING',
+    }
+    mockGetEvent.mockResolvedValueOnce({
+      cost: 50,
+      entryStartDate: '2026-07-01',
+      id: 'e1',
+      paymentTime: 'registration',
+      state: 'confirmed',
+    })
+    mockGetRegistration.mockResolvedValueOnce(registration).mockResolvedValueOnce(registration)
+    mockQuery.mockResolvedValueOnce([
+      { createdAt: new Date().toISOString(), reference: 'e1:r1', status: 'new', transactionId: 't1', type: 'payment' },
+    ])
+
+    await expect(subscribeToRegistration({ connectionId: 'c1' }, 'e1', 'r1', 'edit-token')).resolves.toEqual(
+      expect.objectContaining({
+        patch: expect.objectContaining({ paymentDue: 50, paymentStatus: 'NEW', shouldPay: true }),
       })
     )
   })

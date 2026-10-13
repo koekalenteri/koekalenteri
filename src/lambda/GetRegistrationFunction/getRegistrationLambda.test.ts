@@ -1,4 +1,4 @@
-import type { JsonRegistration, JsonTransaction, PaymentStatus, PaymentTime, Registration } from '../../types'
+import type { DogEvent, JsonRegistration, JsonTransaction, PaymentStatus, PaymentTime, Registration } from '../../types'
 import { addDays } from 'date-fns'
 import { vi } from 'vitest'
 import { eventWithParticipantsInvited } from '../../__mockData__/events'
@@ -33,7 +33,10 @@ vi.doMock('../lib/registration', () => ({
   getRegistration: mockGetRegistration,
 }))
 
-const mockGetEvent = vi.fn(() => mockEventWithInvitationAttachment)
+/** The trial in any state, a cancelled one too (KOE-1526). */
+type MockEvent = Omit<typeof mockEventWithInvitationAttachment, 'state'> & Pick<DogEvent, 'state'>
+
+const mockGetEvent = vi.fn((): MockEvent => mockEventWithInvitationAttachment)
 
 vi.doMock('../lib/event', () => ({
   getEvent: mockGetEvent,
@@ -41,8 +44,12 @@ vi.doMock('../lib/event', () => ({
 
 const mockGetTransactionsByReference = vi.fn(() => [] as JsonTransaction[])
 
-vi.doMock('../lib/payment', () => ({
-  getTransactionsByReference: mockGetTransactionsByReference,
+// The registration's transactions, which tell a payment in progress from one left at Paytrail
+// (getParticipantRow reads them through the client, KOE-1526).
+vi.doMock('../utils/CustomDynamoClient', () => ({
+  default: vi.fn(function MockCustomDynamoClient() {
+    return { query: mockGetTransactionsByReference }
+  }),
 }))
 
 const { default: getRegistrationLambda } = await import('./handler')
@@ -184,6 +191,38 @@ describe('getRegistration', () => {
     expect(reg.invitationAttachment).toBeUndefined()
   })
 
+  /** A stored PENDING in these cases is a payment Paytrail is still working on (KOE-1526). */
+  const inProgressWhenPending = (paymentStatus: PaymentStatus | undefined) => {
+    if (paymentStatus === 'PENDING') {
+      mockGetTransactionsByReference.mockReturnValueOnce([
+        { createdAt: new Date().toISOString(), status: 'pending', type: 'payment' } as JsonTransaction,
+      ])
+    }
+  }
+
+  // KOE-1526 review: a payment Paytrail is no longer working on is not in progress either.
+  it('should read a stored PENDING whose payment went stale as NEW', async () => {
+    mockGetRegistration.mockReturnValueOnce({
+      ...registrationsToEventWithParticipantsInvited[0],
+      paymentStatus: 'PENDING',
+    })
+    mockGetTransactionsByReference.mockReturnValueOnce([
+      {
+        createdAt: new Date(Date.now() - 10 * 60 * 1000).toISOString(),
+        status: 'pending',
+        type: 'payment',
+      } as JsonTransaction,
+    ])
+
+    const res = await getRegistrationLambda(
+      constructAPIGwEvent('test', { pathParameters: { eventId: '123', id: '456' } })
+    )
+
+    const reg: JsonRegistration = JSON.parse(res.body)
+    expect(reg.paymentStatus).toEqual('NEW')
+    expect(reg.shouldPay).toBe(true)
+  })
+
   it('should update paymentStatus from PENDING to NEW when there is a new transaction', async () => {
     mockGetRegistration.mockReturnValueOnce({
       ...registrationsToEventWithParticipantsInvited[0],
@@ -199,7 +238,13 @@ describe('getRegistration', () => {
     const reg: JsonRegistration = JSON.parse(res.body)
     expect(reg.paymentStatus).toEqual('NEW')
     expect(reg.shouldPay).toBe(true)
-    expect(mockGetTransactionsByReference).toHaveBeenCalledWith('123:456')
+    expect(mockGetTransactionsByReference).toHaveBeenCalledWith(
+      expect.objectContaining({
+        values: {
+          ':reference': `${registrationsToEventWithParticipantsInvited[0].eventId}:${registrationsToEventWithParticipantsInvited[0].id}`,
+        },
+      })
+    )
   })
 
   it.each<[boolean, PaymentTime | undefined, PaymentStatus | undefined]>([
@@ -215,6 +260,7 @@ describe('getRegistration', () => {
     'should set shouldPay: %p when paymentTime is %p and paymentStatus is %p',
     async (expected, paymentTime, paymentStatus) => {
       mockGetEvent.mockReturnValueOnce({ ...mockEventWithInvitationAttachment, paymentTime })
+      inProgressWhenPending(paymentStatus)
       mockGetRegistration.mockReturnValueOnce({
         ...registrationsToEventWithParticipantsInvited[0],
         paymentStatus,
@@ -243,6 +289,7 @@ describe('getRegistration', () => {
     'should set shouldPay: %p when paymentTime is %p and paymentStatus is %p and not picked',
     async (expected, paymentTime, paymentStatus) => {
       mockGetEvent.mockReturnValueOnce({ ...mockEventWithInvitationAttachment, paymentTime })
+      inProgressWhenPending(paymentStatus)
       mockGetRegistration.mockReturnValueOnce({
         ...registrationsToEventWithParticipantsInvited[0],
         group: undefined,
@@ -283,6 +330,30 @@ describe('getRegistration', () => {
       expect(reg.shouldPay).toBe(expected)
     }
   )
+
+  // KOE-1526 review: a trial that is not confirmed, a cancelled one say, asks nothing of anyone.
+  it('asks nothing to be paid for a trial that has been cancelled', async () => {
+    mockGetEvent.mockReturnValueOnce({
+      ...mockEventWithInvitationAttachment,
+      paymentTime: 'registration',
+      state: 'cancelled',
+    })
+    mockGetRegistration.mockReturnValueOnce({
+      ...registrationsToEventWithParticipantsInvited[0],
+      paidAmount: undefined,
+      paidAt: undefined,
+      paymentStatus: undefined,
+    })
+
+    const res = await getRegistrationLambda(
+      constructAPIGwEvent('test', { pathParameters: { eventId: '123', id: '123' } })
+    )
+
+    expect(res.statusCode).toEqual(200)
+    const reg: JsonRegistration = JSON.parse(res.body)
+    expect(reg.paymentDue).toBe(0)
+    expect(reg.shouldPay).toBe(false)
+  })
 
   // The prod row of KOE-1526: a reserve that had its whole fee back. The participant gets no group,
   // so what is owed goes with the response.

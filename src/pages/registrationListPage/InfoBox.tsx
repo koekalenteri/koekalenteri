@@ -13,7 +13,7 @@ import Paper from '@mui/material/Paper'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router'
 import { formatMoney } from '../../lib/money'
-import { getPaymentStatus, getShownPaymentDue, isPaidStatus, isPaymentOffered } from '../../lib/payment'
+import { getShownPayment, isPaidStatus, isPaymentOffered } from '../../lib/payment'
 import { hasPriority } from '../../lib/registration'
 import { Path } from '../../routeConfig'
 
@@ -56,8 +56,7 @@ export const InfoBox = ({ event, registration, onConfirm, paymentVerificationInP
   // A paid place reads as paid until its fee rises above what was paid (KOE-722): then the line
   // names the missing part, the same amount the payment button collects. The server decides it once
   // something has been paid, as only it knows whether a refunded reserve has a place (KOE-1526).
-  const paymentDue = getShownPaymentDue(event, registration)
-  const paymentStatus = getPaymentStatus(registration, event, paymentDue)
+  const { due: paymentDue, status: paymentStatus } = getShownPayment(event, registration)
   const paymentStatusText = paymentVerificationInProgress
     ? t('registration.notifications.paymentVerifying')
     : t(paymentStatus, { amount: formatMoney(paymentDue) })

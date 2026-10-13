@@ -1,6 +1,5 @@
 import type { APIGatewayProxyEvent } from 'aws-lambda'
 import type { AuditActor } from '../../lib/audit'
-import type { ParticipantPaymentState } from '../../lib/payment'
 import type {
   EmailTemplateId,
   JsonConfirmedEvent,
@@ -19,6 +18,7 @@ import {
   registrationCancelledAudit,
 } from '../../lib/audit'
 import { objectsDiffer } from '../../lib/diff'
+import { getParticipantPaymentState } from '../../lib/payment'
 import {
   GROUP_KEY_RESERVE,
   getRegistrationClass,
@@ -225,13 +225,15 @@ export const adminRegistrationResponse = <T extends Partial<JsonRegistration>>(r
  * must not see are decided here: the dog's result, the secretary's own notes, and the group and the
  * start number. No participant page reads them, and before their publication each would tell more
  * than the public start list does (KOE-1515). The caller derives what it needs from them before this:
- * the payment state reads the group (`getParticipantPaymentState`, KOE-1526).
+ * the payment state reads the group, so it is worked out here from the same row (KOE-1526). The row
+ * is the stored one as `getParticipantRow` reads it.
  */
-export const participantRegistrationResponse = <T extends Partial<JsonRegistration>>(
+export const participantRegistrationResponse = <T extends JsonRegistration>(
   registration: T,
   editToken: string,
-  payment: ParticipantPaymentState
+  event: JsonConfirmedEvent
 ) => {
+  const payment = getParticipantPaymentState(event, registration)
   const {
     eventResult: _eventResult,
     group: _group,

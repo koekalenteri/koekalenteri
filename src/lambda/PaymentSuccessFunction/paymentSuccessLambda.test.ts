@@ -180,7 +180,13 @@ describe('paymentSuccessLambda', () => {
       name: 'Test Event',
       organizer: { id: 'org-1' },
     })
-    mockGetEvent.mockResolvedValue({ cost: 50, id: 'event123', name: 'Test Event', organizer: { id: 'org-1' } })
+    mockGetEvent.mockResolvedValue({
+      cost: 50,
+      id: 'event123',
+      name: 'Test Event',
+      organizer: { id: 'org-1' },
+      state: 'confirmed',
+    })
 
     mockGetFixedT.mockReturnValue((key: string, _options?: Record<string, unknown>) => {
       if (key === 'dateFormat.long') return '1.1.2025'

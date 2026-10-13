@@ -1,4 +1,10 @@
-import type { DeepPartial, EmailTemplateId, JsonRegistration, RegistrationTemplateContext } from '../../types'
+import type {
+  DeepPartial,
+  EmailTemplateId,
+  JsonConfirmedEvent,
+  JsonRegistration,
+  RegistrationTemplateContext,
+} from '../../types'
 import type CustomDynamoClient from '../utils/CustomDynamoClient'
 import { vi } from 'vitest'
 import { eventWithALOClassInvited } from '../../__mockData__/events'
@@ -1156,19 +1162,24 @@ describe('registration access', () => {
     ).toEqual({ cancelled: true, cancelReason: 'reason', confirmed: true, invitationRead: true })
   })
 
+  // A stored row and its trial, as the handlers have them (paid at entry, the fee unpaid).
+  const participantEvent: JsonConfirmedEvent = JSON.parse(JSON.stringify(eventWithALOClassInvited))
+  const storedRow = { ...jsonRegistrationsToEventWithALOInvited[0], paidAmount: undefined, paymentStatus: undefined }
+
   it('never returns the stored token version to a participant', () => {
-    const stored = { editTokenVersion: 3, id: 'registration' }
-    expect(participantRegistrationResponse(stored, 'raw-token', { paymentDue: 0, shouldPay: false })).toEqual({
-      editToken: 'raw-token',
-      id: 'registration',
-      paymentDue: 0,
-      shouldPay: false,
-    })
+    const response = participantRegistrationResponse(
+      { ...storedRow, editTokenVersion: 3 },
+      'raw-token',
+      participantEvent
+    )
+    expect(response).toMatchObject({ editToken: 'raw-token', id: storedRow.id })
+    expect(response).not.toHaveProperty('editTokenVersion')
   })
 
   describe('the fields only the secretary sees', () => {
     const group = { date: '2026-08-01', key: '2026-08-01-ap', number: 3, time: 'ap' as const }
     const stored = {
+      ...storedRow,
       editTokenVersion: 3,
       eventResult: { result: 'AVO1', updatedAt: '2026-08-01T12:00:00.000Z', updatedBy: 'Secretary' },
       group,
@@ -1178,25 +1189,23 @@ describe('registration access', () => {
     }
 
     it('leaves the result, the notes and the groups out of the participant response (KOE-1515)', () => {
-      expect(participantRegistrationResponse(stored, 'raw-token', { paymentDue: 0, shouldPay: false })).toEqual({
-        editToken: 'raw-token',
-        id: 'registration',
-        paymentDue: 0,
-        shouldPay: false,
-      })
+      const response = participantRegistrationResponse(stored, 'raw-token', participantEvent)
+      for (const field of ['eventResult', 'group', 'internalNotes', 'startGroup']) {
+        expect(response).not.toHaveProperty(field)
+      }
     })
 
+    // The state is worked out here from the same row, so it reads the group it leaves out.
     it('says what is still owed in place of the group it was worked out from (KOE-1526)', () => {
-      expect(participantRegistrationResponse(stored, 'raw-token', { paymentDue: 50, shouldPay: true })).toEqual({
-        editToken: 'raw-token',
-        id: 'registration',
-        paymentDue: 50,
-        shouldPay: true,
+      const cost = typeof participantEvent.cost === 'number' ? participantEvent.cost : 0
+      expect(participantRegistrationResponse(stored, 'raw-token', participantEvent)).toMatchObject({
+        paymentDue: cost,
+        shouldPay: cost > 0,
       })
     })
 
     it('keeps them in the admin response', () => {
-      expect(adminRegistrationResponse(stored, 'raw-token')).toEqual({
+      expect(adminRegistrationResponse(stored, 'raw-token')).toMatchObject({
         editToken: 'raw-token',
         eventResult: { result: 'AVO1', updatedAt: '2026-08-01T12:00:00.000Z', updatedBy: 'Secretary' },
         group,

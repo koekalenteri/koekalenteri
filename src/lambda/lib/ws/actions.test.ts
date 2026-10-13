@@ -60,6 +60,7 @@ const {
   publishAdminDataInvalidation,
   publishEventViewers,
   publishEventChange,
+  publishCancelledRegistration,
 } = await import('./actions')
 
 describe('ws/actions', () => {
@@ -208,6 +209,27 @@ describe('ws/actions', () => {
     expect(call.buildPayload()).toEqual({
       eventId: 'e1',
       patch,
+      registrationId: 'r1',
+      scope: 'participant:registration-patch',
+    })
+  })
+
+  // KOE-1526 review: the admins get what changed, the participant the payment state their page reads.
+  it('publishes a cancelled payment to the admins as a change and to the participant as payment state', async () => {
+    const patch = { eventId: 'e1', id: 'r1', paymentStatus: 'CANCEL' as const, updatedAt: '2026-08-01T00:00:00.000Z' }
+    const participantPatch = { ...patch, paymentDue: 50, shouldPay: true }
+    await publishCancelledRegistration({
+      eventId: 'e1',
+      organizerId: 'o1',
+      participantPatch,
+      patch,
+      registrationId: 'r1',
+    })
+
+    const participant = broadcastConfigurations.at(-1) as { buildPayload: () => unknown }
+    expect(participant.buildPayload()).toEqual({
+      eventId: 'e1',
+      patch: participantPatch,
       registrationId: 'r1',
       scope: 'participant:registration-patch',
     })

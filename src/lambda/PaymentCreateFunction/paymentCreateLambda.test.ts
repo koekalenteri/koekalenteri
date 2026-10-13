@@ -1,4 +1,4 @@
-import type { CreatePaymentResponse, JsonConfirmedEvent, JsonRegistration, Organizer } from '../../types'
+import type { CreatePaymentResponse, JsonConfirmedEvent, JsonDogEvent, JsonRegistration, Organizer } from '../../types'
 import { vi } from 'vitest'
 import { CONFIG } from '../config'
 import { LambdaError } from '../lib/lambda'
@@ -6,7 +6,7 @@ import { constructAPIGwEvent } from '../test-utils/helpers'
 
 // --- Mock setup ---
 const mockAuthorize = vi.fn<() => Promise<{ id: string; name: string } | null>>()
-const mockGetEvent = vi.fn<() => Promise<JsonConfirmedEvent | undefined>>()
+const mockGetEvent = vi.fn<() => Promise<JsonDogEvent | undefined>>()
 const mockCreatePayment = vi.fn<() => Promise<CreatePaymentResponse | null>>()
 const mockGetTransactionsByReference = vi.fn<() => Promise<any[] | undefined>>()
 const mockUpdateTransactionStatus = vi.fn<() => Promise<boolean>>()
@@ -439,6 +439,16 @@ describe('paymentCreateLambda', () => {
     const result = await paymentCreateLambda(event)
 
     expect(result.statusCode).toEqual(204)
+    expect(mockCreatePayment).not.toHaveBeenCalled()
+  })
+
+  // KOE-1526 review: a trial that is not confirmed asks nothing, and its link charges nothing.
+  it('refuses to charge for a trial that has been cancelled', async () => {
+    mockGetEvent.mockResolvedValue({ ...createMockConfirmedEvent(), state: 'cancelled' })
+
+    const result = await paymentCreateLambda(event)
+
+    expect(result.statusCode).toEqual(404)
     expect(mockCreatePayment).not.toHaveBeenCalled()
   })
 

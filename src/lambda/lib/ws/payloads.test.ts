@@ -1,3 +1,6 @@
+import type { JsonConfirmedEvent } from '../../../types'
+import { eventWithStaticDates } from '../../../__mockData__/events'
+import { registrationWithStaticDates } from '../../../__mockData__/registrations'
 import {
   buildEventPatchPayload,
   buildEventViewersPayload,
@@ -26,26 +29,27 @@ describe('ws/payloads', () => {
   })
 
   it('buildParticipantPaymentPatch exposes only participant payment state', () => {
-    expect(
-      buildParticipantPaymentPatch(
-        {
-          confirmed: true,
-          eventId: 'e1',
-          group: { key: 'reserve', number: 1 },
-          id: 'r1',
-          internalNotes: 'secret',
-          paidAmount: 50,
-          paidAt: '2026-08-16T10:00:00.000Z',
-          paymentStatus: 'SUCCESS',
-          refundAmount: 50,
-          refundAt: '2026-08-17T11:37:27.000Z',
-          refundHandlingCost: 0,
-          refundStatus: 'SUCCESS',
-          state: 'ready',
-        },
-        { paymentDue: 0, shouldPay: false }
-      )
-    ).toEqual({
+    // A reserve whose fee went back: the state is worked out from the same row (KOE-1526).
+    const event: JsonConfirmedEvent = JSON.parse(JSON.stringify({ ...eventWithStaticDates, cost: 50, costMember: 50 }))
+    const row = {
+      ...JSON.parse(JSON.stringify(registrationWithStaticDates)),
+      confirmed: true,
+      eventId: 'e1',
+      group: { key: 'reserve', number: 1 },
+      id: 'r1',
+      internalNotes: 'secret',
+      messagesSent: undefined,
+      paidAmount: 50,
+      paidAt: '2026-08-16T10:00:00.000Z',
+      paymentStatus: 'SUCCESS',
+      refundAmount: 50,
+      refundAt: '2026-08-17T11:37:27.000Z',
+      refundHandlingCost: 0,
+      refundStatus: 'SUCCESS',
+      state: 'ready',
+      updatedAt: undefined,
+    }
+    expect(buildParticipantPaymentPatch(row, event)).toEqual({
       confirmed: true,
       eventId: 'e1',
       id: 'r1',

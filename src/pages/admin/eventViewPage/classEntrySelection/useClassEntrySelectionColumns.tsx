@@ -15,10 +15,9 @@ import Tooltip from '@mui/material/Tooltip'
 import { GridActionsCellItem } from '@mui/x-data-grid'
 import { useCallback, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
-import { getPaymentBalance } from '@/lib/cost'
 import { breedAbbreviation } from '@/lib/dog'
 import { isEventOngoing, isEventOver, registrationDatesOutsideClass } from '@/lib/event'
-import { canRefundExcess, shouldParticipantPay } from '@/lib/payment'
+import { canRefundExcess, getParticipantPaymentState } from '@/lib/payment'
 import {
   canRefund,
   GROUP_KEY_CANCELLED,
@@ -155,12 +154,16 @@ const getMovementActions = (options: RegistrationActionsOptions & { groupKey: st
 
 /**
  * A place whose fee is still short can be asked for it: nothing paid yet, or a member price paid by
- * someone who was not a member (KOE-722). The request is the participant's pay offer, so it follows
- * the same rule (KOE-1526): paying at confirmation only a place has a link to send, a cancelled entry
- * owes nothing, and a payment in progress or charged twice is not asked for again.
+ * someone who was not a member (KOE-722). The request is the participant's pay offer, so it is the
+ * same state (KOE-1526): paying at confirmation only a place has a link to send, a cancelled entry
+ * owes nothing, and a payment charged twice waits for its refund. The secretary's row has no
+ * transactions to tell a payment in progress from one left at Paytrail, so a stored PENDING does not
+ * hold the request back: PaymentCreate decides that when the link is opened, with a 409 for a payment
+ * truly in progress.
  */
 const canRequestPayment = (event: DogEvent, row: Registration): boolean =>
-  isConfirmedEvent(event) && shouldParticipantPay(event, row, getPaymentBalance(event, row).due)
+  isConfirmedEvent(event) &&
+  getParticipantPaymentState(event, row.paymentStatus === 'PENDING' ? { ...row, paymentStatus: 'NEW' } : row).shouldPay
 
 const createRegistrationActions = (options: RegistrationActionsOptions): ReactElement<GridActionsCellItemProps>[] => {
   const { callbacks, event, row, t } = options
@@ -172,7 +175,7 @@ const createRegistrationActions = (options: RegistrationActionsOptions): ReactEl
   // The overpaid part of a participant's fee is refundable too, and the trial being over does not
   // close it (KOE-1382): the money is the entrant's regardless of what the calendar says.
   const refundable = canRefund(row) || (isConfirmedEvent(event) && canRefundExcess(event, row))
-  if (refundable && (row.refundAmount ?? 0) < (row.paidAmount ?? 0)) {
+  if (refundable) {
     actions.push(
       <GridActionsCellItem
         key="refund"

@@ -1,5 +1,6 @@
 import type {
   CustomCost,
+  EventState,
   JsonRegistration,
   JsonTransaction,
   MinimalEventForCost,
@@ -81,12 +82,16 @@ type PayOfferRegistration = Pick<Registration, 'cancelled' | 'paymentStatus' | '
  * at confirmation only a place. The pay offer, the waiting text and the secretary's payment request
  * read this one rule (KOE-1526).
  */
-const isPaymentOpenForPlace = (
+export const isPaymentOpenForPlace = (
   event: PaymentTimeEvent,
   registration: Pick<Registration, 'cancelled'> & RegistrationGroupHolder
 ): boolean => event.paymentTime !== 'confirmation' || isParticipantGroup(getRegistrationGroupKey(registration))
 
-/** A payment in progress, or one charged twice: either holds the pay offer back, place or no place. */
+/**
+ * A payment in progress, or one charged twice: either holds the pay offer back, place or no place.
+ * A stored PENDING means a payment in progress only once the server has read its transactions
+ * (`getParticipantRow`): the participant's state is built from such a row (KOE-1526).
+ */
 const isPaymentHeld = (registration: Pick<Registration, 'paymentStatus'>): boolean =>
   registration.paymentStatus === 'PENDING' || registration.paymentStatus === 'DUPLICATE'
 
@@ -140,10 +145,15 @@ export const isPaidStatus = (status: PaymentStatusKey): boolean =>
 export const isRegistrationPaid = (
   event: MinimalEventForCost,
   registration: MinimalRegistrationForCost & Pick<Registration, 'paymentStatus' | 'refundAmount' | 'refundHandlingCost'>
-): boolean =>
-  isPaymentWithoutAmount(registration) ||
-  hasRefundableBalance(registration) ||
-  calculateCost(event, registration).amount <= 0
+): boolean => hasStandingPayment(registration) || calculateCost(event, registration).amount <= 0
+
+/**
+ * Whether some payment still stands for the place: money paid and not gone back, or a payment
+ * recorded before the amounts were kept. What the paid rule and the secretary's paid line read.
+ */
+export const hasStandingPayment = (
+  registration: Pick<Registration, 'paidAmount' | 'paymentStatus' | 'refundAmount' | 'refundHandlingCost'>
+): boolean => isPaymentWithoutAmount(registration) || hasRefundableBalance(registration)
 
 /** A registration as the participant's own pages hold it: no group, and the server's word on what is owed. */
 export type ParticipantPaymentRegistration = PaymentBalanceRegistration & Pick<Registration, 'paymentDue'>
@@ -168,11 +178,31 @@ export const getParticipantPaymentDue = (
 }
 
 /**
+ * Whether the trial asks for its fee at all: only once it is confirmed. A tentative or a cancelled
+ * trial asks nothing of anyone. The one rule is `isConfirmedEvent`, which the server's state and the
+ * page's shown due both read (KOE-1526).
+ */
+export const isEventOpenForPayment = (event: { state?: EventState }): boolean =>
+  isConfirmedEvent({ state: event.state })
+
+/**
  * What the participant's own pages show as still owed. A trial that is not confirmed yet shows no
- * amount: the fee is not asked for before the trial is.
+ * amount, as the server's state says (`isEventOpenForPayment`).
  */
 export const getShownPaymentDue = (event: PublicDogEvent, registration: ParticipantPaymentRegistration): number =>
   isConfirmedEvent(event) ? getParticipantPaymentDue(event, registration) : 0
+
+/**
+ * What the participant's payment line shows: the amount still owed, and the status it reads as.
+ * InfoBox, RegistrationList and PaymentPage take both from here.
+ */
+export const getShownPayment = (
+  event: PublicDogEvent,
+  registration: ParticipantPaymentRegistration & PaymentStatusRegistration
+): { due: number; status: PaymentStatusKey } => {
+  const due = getShownPaymentDue(event, registration)
+  return { due, status: getPaymentStatus(registration, event, due) }
+}
 
 /**
  * Whether the participant's pages offer paying, on the status box and on the dog's row alike: the
@@ -202,7 +232,7 @@ export const shouldParticipantPay = (
 }
 
 /** What the participant's pages read of the fee: what is still owed, and whether to offer the payment link. */
-export interface ParticipantPaymentState {
+interface ParticipantPaymentState {
   paymentDue: number
   shouldPay: boolean
 }
@@ -213,11 +243,23 @@ export interface ParticipantPaymentState {
  * payment patch to the participant takes it from here.
  */
 export const getParticipantPaymentState = (
-  event: MinimalEventForCost & PaymentTimeEvent,
+  event: MinimalEventForCost & PaymentTimeEvent & { state?: EventState },
   registration: PaymentBalanceRegistration
 ): ParticipantPaymentState => {
+  if (!isEventOpenForPayment(event)) return { paymentDue: 0, shouldPay: false }
   const paymentDue = getPaymentBalance(event, registration).due
   return { paymentDue, shouldPay: shouldParticipantPay(event, registration, paymentDue) }
+}
+
+/** How long a payment may stay unfinished at Paytrail before it no longer counts as in progress. */
+export const STALE_PENDING_PAYMENT_AGE_MS = 5 * 60 * 1000
+
+export const isStalePendingPayment = (createdAt?: string, statusAt?: string) => {
+  const timestamp = statusAt ?? createdAt
+  if (!timestamp) return false
+
+  const age = Date.now() - new Date(timestamp).getTime()
+  return Number.isFinite(age) && age >= STALE_PENDING_PAYMENT_AGE_MS
 }
 
 /**

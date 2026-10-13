@@ -4,7 +4,6 @@ import type { JsonConfirmedEvent, JsonRegistration, JsonRegistrationPatchRequest
 import { registrationCreatedAudit } from '../../lib/audit'
 import { isEntryOpen, isEventOver } from '../../lib/event'
 import { InvalidPatchError } from '../../lib/patch'
-import { getParticipantPaymentState } from '../../lib/payment'
 import { qualifyJsonRegistration } from '../../lib/qualification'
 import {
   isCompleteRegistration,
@@ -26,6 +25,7 @@ import {
 import { getEvent } from '../lib/event'
 import { parseJSONWithFallback } from '../lib/json'
 import { httpError, isPatchRequest, lambda, response } from '../lib/lambda'
+import { getParticipantRow } from '../lib/payment'
 import {
   applyOwnerOverrides,
   authorizeRegistrationEdit,
@@ -183,8 +183,8 @@ const putRegistrationLambda = lambda('putRegistration', async (event) => {
   if (!existing) {
     const retried = await startNewRegistration(registration, confirmedEvent, user, linkOrigin, timestamp)
     if (retried) {
-      const payment = getParticipantPaymentState(confirmedEvent, retried.completed)
-      return response(200, participantRegistrationResponse(retried.completed, retried.editToken, payment), event)
+      const row = await getParticipantRow(retried.completed)
+      return response(200, participantRegistrationResponse(row, retried.editToken, confirmedEvent), event)
     }
   }
 
@@ -232,18 +232,18 @@ const putRegistrationLambda = lambda('putRegistration', async (event) => {
       registration: savedData,
       user,
     })
-    const payment = getParticipantPaymentState(confirmedEvent, completed)
+    const row = await getParticipantRow(completed)
     return response(
       200,
-      participantRegistrationResponse(completed, getRegistrationEditToken(completed), payment),
+      participantRegistrationResponse(row, getRegistrationEditToken(completed), confirmedEvent),
       event
     )
   }
 
   await finalizeRegistrationUpdate({ existing, flags, groupPatches, origin: linkOrigin, registration: savedData, user })
 
-  const payment = getParticipantPaymentState(confirmedEvent, savedData)
-  return response(200, participantRegistrationResponse(savedData, getRegistrationEditToken(savedData), payment), event)
+  const row = await getParticipantRow(savedData)
+  return response(200, participantRegistrationResponse(row, getRegistrationEditToken(savedData), confirmedEvent), event)
 })
 
 export default putRegistrationLambda

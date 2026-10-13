@@ -1,8 +1,6 @@
-import type { ParticipantPaymentState } from '../../../lib/payment'
-import type { JsonDogEvent, JsonRegistration, Patch } from '../../../types'
+import type { JsonConfirmedEvent, JsonDogEvent, JsonRegistration, Patch } from '../../../types'
 import type { EventPatchPayload, EventViewerPayload, RegistrationPatchPayload, WebSocketConnection } from './types'
-
-type PaymentPatchSource = Pick<JsonRegistration, 'eventId' | 'id'> & Partial<JsonRegistration>
+import { getParticipantPaymentState } from '../../../lib/payment'
 
 export const buildEventPatchPayload = (eventId: string, patch: Patch<JsonDogEvent>): EventPatchPayload => ({
   eventId,
@@ -15,31 +13,35 @@ export const buildRegistrationPatchPayload = (
 ): RegistrationPatchPayload => ({ eventId, patch })
 
 /**
- * The payment state the participant's page shows. The due and the pay button are the caller's
- * (`getParticipantPaymentState`): both read the group, which the participant never receives, and a
- * patch that decided the button on its own would contradict GetRegistration (KOE-1526).
+ * The payment state the participant's page shows. The due and the pay button are worked out here from
+ * the same row (`getParticipantPaymentState`): both read the group, which the participant never
+ * receives, and the rule is GetRegistration's (KOE-1526). The row is the stored one as
+ * `getParticipantRow` reads it.
  */
 export const buildParticipantPaymentPatch = (
-  registration: PaymentPatchSource,
-  { paymentDue, shouldPay }: ParticipantPaymentState
-): Patch<JsonRegistration> => ({
-  confirmed: registration.confirmed,
-  eventId: registration.eventId,
-  id: registration.id,
-  messagesSent: registration.messagesSent,
-  paidAmount: registration.paidAmount,
-  paidAt: registration.paidAt,
-  paymentDue,
-  paymentStatus: registration.paymentStatus,
-  // The page reads the refund to know a fee that went back, and only then takes the due from here.
-  refundAmount: registration.refundAmount,
-  refundAt: registration.refundAt,
-  refundHandlingCost: registration.refundHandlingCost,
-  refundStatus: registration.refundStatus,
-  shouldPay,
-  state: registration.state,
-  updatedAt: registration.updatedAt,
-})
+  registration: JsonRegistration,
+  event: JsonConfirmedEvent
+): Patch<JsonRegistration> => {
+  const { paymentDue, shouldPay } = getParticipantPaymentState(event, registration)
+  return {
+    confirmed: registration.confirmed,
+    eventId: registration.eventId,
+    id: registration.id,
+    messagesSent: registration.messagesSent,
+    paidAmount: registration.paidAmount,
+    paidAt: registration.paidAt,
+    paymentDue,
+    paymentStatus: registration.paymentStatus,
+    // The page reads the refund to know a fee that went back, and only then takes the due from here.
+    refundAmount: registration.refundAmount,
+    refundAt: registration.refundAt,
+    refundHandlingCost: registration.refundHandlingCost,
+    refundStatus: registration.refundStatus,
+    shouldPay,
+    state: registration.state,
+    updatedAt: registration.updatedAt,
+  }
+}
 
 export const buildEventViewersPayload = (eventId: string, viewers: EventViewerPayload[]) => ({
   eventId,

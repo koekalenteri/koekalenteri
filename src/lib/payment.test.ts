@@ -42,12 +42,14 @@ describe('payment', () => {
         expect(getParticipantPaymentDue(event, { ...paid, owner: { membership: false } })).toBe(5)
       })
 
+      // For a fee that went back the server's due says only reserve (0) or place (anything else); the
+      // amount of a place is read here.
       it.each([
-        ['nothing while it is a reserve', 0],
-        ['the fee again once it has a place', 35],
-      ])("takes the server's word for a fee that went back: %s", (_name, paymentDue) => {
+        ['nothing for a reserve, as the server says 0', 0, 0],
+        ["the place's fee as read here, whatever amount the server sent", 99, 35],
+      ])('reads a fee that went back as %s', (_name, paymentDue, expected) => {
         expect(getParticipantPaymentDue(event, { ...member, paidAmount: 35, paymentDue, refundAmount: 35 })).toBe(
-          paymentDue
+          expected
         )
       })
 
@@ -92,7 +94,7 @@ describe('payment', () => {
         paymentStatus: 'SUCCESS' as const,
         refundAmount: 40,
       }
-      const priced = { ...event, paymentTime: 'registration' as const }
+      const priced = { ...event, paymentTime: 'registration' as const, state: 'confirmed' as const }
       expect(getParticipantPaymentState(priced, { ...returned, group: { key: 'reserve' } })).toEqual({
         paymentDue: 0,
         shouldPay: false,
@@ -145,6 +147,17 @@ describe('payment', () => {
       ['while a payment is being verified', { shouldPay: true }, true, false],
     ])('isPaymentOffered offers paying %s: %s', (_name, registration, verifying, expected) => {
       expect(isPaymentOffered(registration, verifying)).toBe(expected)
+    })
+
+    // KOE-1526 review: one rule for a trial that is not confirmed, on the server as on the page.
+    it('getParticipantPaymentState asks nothing for a trial that is not confirmed', () => {
+      const unpaid = { ...member, owner: { membership: false } }
+      expect(getParticipantPaymentState({ ...event, paymentTime: 'registration', state: 'cancelled' }, unpaid)).toEqual(
+        {
+          paymentDue: 0,
+          shouldPay: false,
+        }
+      )
     })
 
     it.each([

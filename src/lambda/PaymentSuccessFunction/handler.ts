@@ -12,7 +12,6 @@ import {
 import { getCostSegmentName } from '../../lib/cost'
 import { formatMoney, getNetPaidAmount } from '../../lib/money'
 import {
-  getParticipantPaymentState,
   getProviderName,
   getRegistrationPaymentDetails,
   shouldSendInvitationAfterPayment,
@@ -124,12 +123,14 @@ const recordDuplicatePayment = async (
     registrationTable
   )
   // The pay button follows the same rule as GetRegistration's: a duplicate waits for its refund.
-  const duplicateRow: JsonRegistration = { ...registration, paymentStatus: 'DUPLICATE', updatedAt: duplicatePaymentAt }
   const dogEvent = await getEvent<JsonConfirmedEvent>(registration.eventId)
   await publishParticipantRegistrationPatch(
     registration.eventId,
     registration.id,
-    buildParticipantPaymentPatch(duplicateRow, getParticipantPaymentState(dogEvent, duplicateRow))
+    buildParticipantPaymentPatch(
+      { ...registration, paymentStatus: 'DUPLICATE', updatedAt: duplicatePaymentAt },
+      dogEvent
+    )
   )
   await audit({
     auditKey: registrationAuditKey(registration),
@@ -334,7 +335,7 @@ const handleSuccessfulPayment = async (
   await publishParticipantRegistrationPatch(
     registration.eventId,
     registrationId,
-    buildParticipantPaymentPatch(registration, getParticipantPaymentState(paidEvent, registration))
+    buildParticipantPaymentPatch(registration, paidEvent)
   )
 
   const workflowClaim = await claimPostPaymentWorkflow(transaction.transactionId)
