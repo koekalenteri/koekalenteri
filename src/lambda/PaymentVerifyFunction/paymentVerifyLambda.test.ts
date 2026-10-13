@@ -3,7 +3,7 @@ import { answerRejections, constructPartialAPIGwEvent } from '../test-utils/help
 import { loggedLines } from '../test-utils/logs'
 
 const mockLambda = vi.fn((_name, fn) => answerRejections(fn, mockResponse))
-const mockResponse = vi.fn().mockImplementation((statusCode: number, body: unknown) => ({
+const mockResponse = vi.fn().mockImplementation((statusCode: number, body: any) => ({
   body: JSON.stringify(body),
   headers: { 'Content-Type': 'application/json' },
   statusCode,
@@ -12,9 +12,14 @@ const mockParseParams = vi.fn()
 const mockVerifyParams = vi.fn()
 const mockGetRegistration = vi.fn()
 const mockGetRegistrationEditToken = vi.fn()
+const mockAudit = vi.fn()
+const mockRegistrationAuditKey = vi.fn()
 const mockRead = vi.fn()
+const mockUpdate = vi.fn()
+const mockGetEvent = vi.fn()
+const mockPublishRegistrationPatches = vi.fn()
 const mockPublishCancelledRegistration = vi.fn()
-const mockCancelUnfinishedTransaction = vi.fn()
+const mockCancelRegistrationStatus = vi.fn()
 
 vi.doMock('../lib/lambda', async () => ({
   ...(await vi.importActual<typeof import('../lib/lambda')>('../lib/lambda')),
@@ -23,15 +28,19 @@ vi.doMock('../lib/lambda', async () => ({
   response: mockResponse,
 }))
 
-vi.doMock('../lib/ws/actions', () => ({
-  publishCancelledRegistration: mockPublishCancelledRegistration,
+vi.doMock('../lib/event', () => ({
+  getEvent: mockGetEvent,
 }))
 
-// The cancel is the step the provider's cancel callback shares, tested in lib/payment: it fails the
-// transaction, cancels a PENDING registration and audits once. This handler only hands it the
-// transaction and the row, and sends on what it answers (KOE-1526).
+vi.doMock('../lib/ws/actions', () => ({
+  publishCancelledRegistration: mockPublishCancelledRegistration,
+  publishRegistrationPatches: mockPublishRegistrationPatches,
+}))
+
+// The cancel is the shared workflow cancelTransaction uses too, tested in lib/payment; this handler
+// only has to hand it the row and send on both patches it answers with (KOE-1526).
 vi.doMock('../lib/payment', () => ({
-  cancelUnfinishedTransaction: mockCancelUnfinishedTransaction,
+  cancelRegistrationStatus: mockCancelRegistrationStatus,
   parseParams: mockParseParams,
   verifyParams: mockVerifyParams,
 }))
@@ -41,10 +50,16 @@ vi.doMock('../lib/registration', () => ({
   getRegistrationEditToken: mockGetRegistrationEditToken,
 }))
 
+vi.doMock('../lib/audit', () => ({
+  audit: mockAudit,
+  registrationAuditKey: mockRegistrationAuditKey,
+}))
+
 vi.doMock('../utils/CustomDynamoClient', () => ({
   default: vi.fn(function MockCustomDynamoClient() {
     return {
       read: mockRead,
+      update: mockUpdate,
     }
   }),
 }))
@@ -76,6 +91,7 @@ describe('paymentVerifyLambda', () => {
     })
 
     mockVerifyParams.mockResolvedValue(undefined)
+    mockGetEvent.mockResolvedValue({ organizer: { id: 'org-1' } })
 
     mockRead.mockResolvedValue({
       amount: 5000,
@@ -91,6 +107,10 @@ describe('paymentVerifyLambda', () => {
       paymentStatus: 'PENDING',
     })
     mockGetRegistrationEditToken.mockReturnValue('edit-token')
+
+    mockRegistrationAuditKey.mockReturnValue('event123:reg456')
+
+    mockUpdate.mockResolvedValue({})
   })
 
   it('verifies a successful payment correctly', async () => {
@@ -122,9 +142,11 @@ describe('paymentVerifyLambda', () => {
       paymentStatus: 'PENDING',
     })
 
-    // A successful return cancels nothing and sends nothing on
-    expect(mockCancelUnfinishedTransaction).not.toHaveBeenCalled()
-    expect(mockPublishCancelledRegistration).not.toHaveBeenCalled()
+    // Verify registration payment status was NOT updated
+    expect(mockUpdate).not.toHaveBeenCalled()
+
+    // Verify audit entry was NOT created
+    expect(mockAudit).not.toHaveBeenCalled()
 
     // Verify response was returned
     expect(mockResponse).toHaveBeenCalledWith(
@@ -156,17 +178,7 @@ describe('paymentVerifyLambda', () => {
       patch: { eventId: 'event123', id: 'reg456', paymentStatus: 'CANCEL', updatedAt: '2026-08-01T00:00:00.000Z' },
       registrationId: 'reg456',
     }
-    let auditMessage: unknown
-    mockCancelUnfinishedTransaction.mockImplementationOnce(
-      async (step: {
-        auditMessage: (transaction: unknown, provider?: string) => unknown
-        transaction: unknown
-        provider?: string
-      }) => {
-        auditMessage = step.auditMessage(step.transaction, step.provider)
-        return cancelled
-      }
-    )
+    mockCancelRegistrationStatus.mockResolvedValueOnce(cancelled)
     mockParseParams.mockReturnValueOnce({
       eventId: 'event123',
       provider: 'paytrail',
@@ -185,22 +197,19 @@ describe('paymentVerifyLambda', () => {
 
     // The cancel is written and sent on to the admins and to the participant's open page alike:
     // a page still holding PENDING gets its pay button back without a reload (KOE-1526).
-    // The transaction is handed over to fail too, so the payment page cannot reuse it, and the
-    // audit is the shared step's: the one cancel is recorded once (KOE-1526).
-    expect(mockCancelUnfinishedTransaction).toHaveBeenCalledWith(
-      expect.objectContaining({
-        provider: 'paytrail',
-        registration: { eventId: 'event123', id: 'reg456', paymentStatus: 'PENDING' },
-        statusField: 'paymentStatus',
-        transaction: expect.objectContaining({ transactionId: 'tx123' }),
-        updateProvider: true,
-      })
+    expect(mockCancelRegistrationStatus).toHaveBeenCalledWith(
+      { eventId: 'event123', id: 'reg456', paymentStatus: 'PENDING' },
+      'paymentStatus'
     )
-    expect(auditMessage).toMatchObject({
+    expect(mockPublishCancelledRegistration).toHaveBeenCalledWith(cancelled)
+
+    // Verify audit entry was created
+    expect(mockAudit).toHaveBeenCalledWith({
+      auditKey: 'event123:reg456',
       messageKey: 'audit.messages.paymentFailed',
       messageParams: { amount: '50,00\u00a0€', provider: 'Paytrail' },
+      user: 'user123',
     })
-    expect(mockPublishCancelledRegistration).toHaveBeenCalledWith(cancelled)
 
     // Verify response was returned
     expect(mockResponse).toHaveBeenCalledWith(
@@ -216,7 +225,7 @@ describe('paymentVerifyLambda', () => {
     )
   })
 
-  it('sends nothing on when the shared step cancelled nothing', async () => {
+  it('does not update registration if payment status is not PENDING', async () => {
     mockParseParams.mockReturnValueOnce({
       eventId: 'event123',
       provider: 'paytrail',
@@ -236,9 +245,13 @@ describe('paymentVerifyLambda', () => {
     // Verify registration was retrieved
     expect(mockGetRegistration).toHaveBeenCalledWith('event123', 'reg456')
 
-    // The step finds the registration no longer PENDING and answers nothing to send on
-    expect(mockCancelUnfinishedTransaction).toHaveBeenCalledTimes(1)
+    // Verify registration payment status was NOT updated
+    expect(mockCancelRegistrationStatus).not.toHaveBeenCalled()
     expect(mockPublishCancelledRegistration).not.toHaveBeenCalled()
+    expect(mockUpdate).not.toHaveBeenCalled()
+
+    // Verify audit entry was NOT created
+    expect(mockAudit).not.toHaveBeenCalled()
 
     // Verify response was returned
     expect(mockResponse).toHaveBeenCalledWith(

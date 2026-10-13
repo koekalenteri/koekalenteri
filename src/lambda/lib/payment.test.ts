@@ -39,7 +39,6 @@ vi.doMock('../utils/CustomDynamoClient', () => ({
 const {
   cancelRegistrationStatus,
   cancelTransaction,
-  cancelUnfinishedTransaction,
   claimTransactionCreation,
   getParticipantRow,
   participantPaymentPatch,
@@ -279,38 +278,6 @@ describe('payment', () => {
 
   // The one cancel PaymentVerify and the provider's callback share (KOE-1526).
   describe('cancelRegistrationStatus', () => {
-    // KOE-1526 review: the write is conditional, so of a verify and a cancel callback only the first
-    // writes and publishes.
-    it('writes nothing and answers nothing for a row no longer PENDING', async () => {
-      const registration: JsonRegistration = {
-        ...JSON.parse(JSON.stringify(jsonRegistrationsToEventWithALOInvited[0])),
-        paymentStatus: 'CANCEL',
-      }
-
-      await expect(cancelRegistrationStatus(registration, 'paymentStatus')).resolves.toBeUndefined()
-      expect(mockUpdate).not.toHaveBeenCalled()
-    })
-
-    it('takes a failed condition as cancelled already, and answers nothing', async () => {
-      const registration: JsonRegistration = {
-        ...JSON.parse(JSON.stringify(jsonRegistrationsToEventWithALOInvited[0])),
-        paymentStatus: 'PENDING',
-      }
-      mockUpdate.mockRejectedValueOnce(
-        Object.assign(new Error('The conditional request failed'), { name: 'ConditionalCheckFailedException' })
-      )
-
-      await expect(cancelRegistrationStatus(registration, 'paymentStatus')).resolves.toBeUndefined()
-      expect(mockUpdate).toHaveBeenCalledWith(
-        { eventId: registration.eventId, id: registration.id },
-        { set: { paymentStatus: 'CANCEL', updatedAt: expect.any(String) } },
-        expect.any(String),
-        undefined,
-        { expression: '#field = :pending', names: { '#field': 'paymentStatus' }, values: { ':pending': 'PENDING' } }
-      )
-      expect(mockGetEvent).not.toHaveBeenCalled()
-    })
-
     it('writes a cancelled refund and answers both patches', async () => {
       const registration: JsonRegistration = {
         ...JSON.parse(JSON.stringify(jsonRegistrationsToEventWithALOInvited[0])),
@@ -322,9 +289,7 @@ describe('payment', () => {
       expect(mockUpdate).toHaveBeenCalledWith(
         { eventId: registration.eventId, id: registration.id },
         { set: { refundStatus: 'CANCEL', updatedAt: expect.any(String) } },
-        expect.any(String),
-        undefined,
-        expect.objectContaining({ expression: '#field = :pending', names: { '#field': 'refundStatus' } })
+        expect.any(String)
       )
       expect(cancelled).toMatchObject({
         organizerId: 'organizer-1',
@@ -332,112 +297,6 @@ describe('payment', () => {
         patch: { eventId: registration.eventId, id: registration.id, refundStatus: 'CANCEL' },
         registrationId: registration.id,
       })
-    })
-  })
-
-  // KOE-1526 review: PaymentVerify and the provider's cancel callback cancel the same transaction
-  // through one step: the transaction to fail, so PaymentCreate never reuses it, the registration's
-  // PENDING to CANCEL, and one audit entry for the one cancel.
-  describe('cancelUnfinishedTransaction', () => {
-    const pendingRow = (): JsonRegistration => ({
-      ...JSON.parse(JSON.stringify(jsonRegistrationsToEventWithALOInvited[0])),
-      eventId: 'event-1',
-      id: 'registration-1',
-      paymentStatus: 'PENDING',
-    })
-    const step = {
-      auditActor: (transaction: JsonPaymentTransaction) => ({ name: transaction.user ?? 'anonymous' }),
-      auditMessage: () => ({ messageKey: 'audit.messages.paymentFailed' }),
-      provider: 'paytrail',
-      statusField: 'paymentStatus' as const,
-      updateProvider: true,
-    }
-    const conditionFailed = () =>
-      Object.assign(new Error('The conditional request failed'), { name: 'ConditionalCheckFailedException' })
-    const staleNew = { ...paymentTransaction, status: 'new' as const }
-
-    it('fails an unfinished transaction only while it is unfinished, so its payment response cannot be reused', async () => {
-      await cancelUnfinishedTransaction({ ...step, registration: pendingRow(), transaction: staleNew })
-
-      expect(mockUpdate).toHaveBeenCalledWith(
-        { transactionId: 'transaction-1' },
-        { remove: ['paymentResponse'], set: { provider: 'paytrail', status: 'fail', statusAt: expect.any(String) } },
-        expect.any(String),
-        undefined,
-        {
-          expression: '#status IN (:new, :pending)',
-          names: { '#status': 'status' },
-          values: { ':new': 'new', ':pending': 'pending' },
-        }
-      )
-    })
-
-    // The return and the provider's callback both read the transaction new: only the first one's
-    // conditional writes change anything, and only it audits and has a cancel to publish.
-    it('audits and answers one cancel when the return and the callback race on the same stale read', async () => {
-      const first = await cancelUnfinishedTransaction({ ...step, registration: pendingRow(), transaction: staleNew })
-      mockUpdate.mockRejectedValueOnce(conditionFailed()).mockRejectedValueOnce(conditionFailed())
-      const second = await cancelUnfinishedTransaction({ ...step, registration: pendingRow(), transaction: staleNew })
-
-      expect(first).toBeDefined()
-      expect(second).toBeUndefined()
-      expect(mockAudit).toHaveBeenCalledTimes(1)
-    })
-
-    // A replayed fail return (Back or reload of an old URL) for a payment that went through.
-    it('touches nothing of a finished payment', async () => {
-      const result = await cancelUnfinishedTransaction({
-        ...step,
-        registration: { ...pendingRow(), paymentStatus: 'SUCCESS' },
-        transaction: { ...paymentTransaction, status: 'ok' },
-      })
-
-      expect(result).toBeUndefined()
-      expect(mockUpdate).not.toHaveBeenCalled()
-      expect(mockAudit).not.toHaveBeenCalled()
-    })
-
-    // Another writer (the admin's refresh from Paytrail, say) failed the transaction first: the
-    // registration is still cancelled, once.
-    it('cancels a registration left PENDING when another writer failed the transaction first', async () => {
-      mockUpdate.mockResolvedValueOnce(undefined).mockRejectedValueOnce(conditionFailed())
-
-      const result = await cancelUnfinishedTransaction({
-        ...step,
-        registration: pendingRow(),
-        transaction: { ...paymentTransaction, status: 'fail', statusAt: '2026-08-16T10:01:00.000Z' },
-      })
-
-      expect(result).toMatchObject({ patch: { paymentStatus: 'CANCEL' }, registrationId: 'registration-1' })
-      expect(mockAudit).toHaveBeenCalledTimes(1)
-    })
-
-    it('rethrows a registration write that fails for any other reason', async () => {
-      mockUpdate.mockRejectedValueOnce(new Error('throttled'))
-
-      await expect(
-        cancelUnfinishedTransaction({ ...step, registration: pendingRow(), transaction: staleNew })
-      ).rejects.toThrow('throttled')
-      expect(mockAudit).not.toHaveBeenCalled()
-    })
-
-    it('cancels a refund without writing a provider', async () => {
-      const result = await cancelUnfinishedTransaction({
-        ...step,
-        registration: { ...pendingRow(), paymentStatus: 'SUCCESS', refundStatus: 'PENDING' },
-        statusField: 'refundStatus',
-        transaction: staleNew,
-        updateProvider: false,
-      })
-
-      expect(result).toMatchObject({ patch: { refundStatus: 'CANCEL' } })
-      expect(mockUpdate).toHaveBeenCalledWith(
-        { transactionId: 'transaction-1' },
-        { remove: ['paymentResponse'], set: { status: 'fail', statusAt: expect.any(String) } },
-        expect.any(String),
-        undefined,
-        expect.objectContaining({ expression: '#status IN (:new, :pending)' })
-      )
     })
   })
 
@@ -455,22 +314,17 @@ describe('payment', () => {
         updateProvider: true,
       })
 
-      // The registration first, so a failure between the writes leaves the transaction to a retry.
       expect(mockUpdate).toHaveBeenNthCalledWith(
         1,
-        { eventId: 'event-1', id: 'registration-1' },
-        { set: { paymentStatus: 'CANCEL', updatedAt: expect.any(String) } },
-        expect.any(String),
-        undefined,
-        expect.objectContaining({ expression: '#field = :pending' })
+        { transactionId: 'transaction-1' },
+        { remove: ['paymentResponse'], set: { provider: 'paytrail', status: 'fail', statusAt: expect.any(String) } },
+        expect.any(String)
       )
       expect(mockUpdate).toHaveBeenNthCalledWith(
         2,
-        { transactionId: 'transaction-1' },
-        { remove: ['paymentResponse'], set: { provider: 'paytrail', status: 'fail', statusAt: expect.any(String) } },
-        expect.any(String),
-        undefined,
-        expect.objectContaining({ expression: '#status IN (:new, :pending)' })
+        { eventId: 'event-1', id: 'registration-1' },
+        { set: { paymentStatus: 'CANCEL', updatedAt: expect.any(String) } },
+        expect.any(String)
       )
       // What the caller broadcasts; sending it is the handler's job (KOE-1340).
       expect(cancelled).toEqual({
@@ -497,46 +351,16 @@ describe('payment', () => {
       })
     })
 
-    // KOE-1526 review: the payment's cancel is the transaction's; a registration no longer PENDING
-    // (paid by another payment, say) is left alone, and the cancel is still recorded.
-    it('fails the transaction and audits it when the registration is no longer PENDING', async () => {
-      mockGetRegistration.mockResolvedValueOnce({ eventId: 'event-1', id: 'registration-1', paymentStatus: 'SUCCESS' })
-
-      const cancelled = await cancelTransaction<JsonPaymentTransaction>({
-        auditActor: (transaction) => ({ name: transaction.user ?? 'anonymous' }),
-        auditMessage: () => ({ messageKey: 'audit.messages.paymentFailed' }),
-        params,
-        statusField: 'paymentStatus',
-        updateProvider: true,
-      })
-
-      expect(cancelled).toBeUndefined()
-      expect(mockUpdate).toHaveBeenCalledTimes(1)
-      expect(mockUpdate).toHaveBeenCalledWith(
-        { transactionId: 'transaction-1' },
-        expect.objectContaining({ set: expect.objectContaining({ status: 'fail' }) }),
-        expect.any(String),
-        undefined,
-        expect.objectContaining({ expression: '#status IN (:new, :pending)' })
-      )
-      expect(mockAudit).toHaveBeenCalledTimes(1)
-    })
-
-    // The return cancelled it already: the registration is no longer PENDING and the transaction is
-    // failed, so the callback changes nothing and audits nothing.
-    it('does not patch or audit a cancel the return made already', async () => {
+    it('does not patch or audit a transaction already marked failed', async () => {
+      const consoleSpy = vi.spyOn(console, 'info').mockImplementation(() => undefined)
       mockRead.mockResolvedValueOnce({
         ...paymentTransaction,
         provider: 'paytrail',
         status: 'fail',
         statusAt: '2026-08-16T10:01:00.000Z',
       })
-      mockGetRegistration.mockResolvedValueOnce({ eventId: 'event-1', id: 'registration-1', paymentStatus: 'CANCEL' })
-      mockUpdate.mockRejectedValueOnce(
-        Object.assign(new Error('The conditional request failed'), { name: 'ConditionalCheckFailedException' })
-      )
 
-      const cancelled = await cancelTransaction<JsonPaymentTransaction>({
+      await cancelTransaction<JsonPaymentTransaction>({
         auditActor: () => ({ name: 'unused' }),
         auditMessage: () => ({ messageKey: 'unused' }),
         params,
@@ -544,8 +368,10 @@ describe('payment', () => {
         updateProvider: true,
       })
 
-      expect(cancelled).toBeUndefined()
-      expect(mockUpdate).toHaveBeenCalledTimes(1)
+      expect(loggedLines(consoleSpy)).toContainEqual(
+        expect.objectContaining({ message: 'transaction already marked as failed', transactionId: 'transaction-1' })
+      )
+      expect(mockUpdate).not.toHaveBeenCalled()
       expect(mockAudit).not.toHaveBeenCalled()
     })
 

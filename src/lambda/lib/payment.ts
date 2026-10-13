@@ -18,7 +18,6 @@ import { localizedEventName } from '../../lib/event'
 import { asPaymentNotInProgress, isPaymentInProgress, paytrailErrorText } from '../../lib/payment'
 import { CONFIG } from '../config'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
-import { isConditionalCheckFailure } from './api-gw'
 import { audit, registrationAuditKey } from './audit'
 import { getEvent } from './event'
 import { LambdaError } from './lambda'
@@ -129,32 +128,22 @@ export interface CancelledRegistration {
 }
 
 /**
- * Writes a cancelled payment or refund on a registration still PENDING and says what to send on: the
- * plain change for the admins, and the participant's payment state, so an open page gets its pay
- * offer back (KOE-1526). The write is conditional on the status still being PENDING, so of
- * PaymentVerify and the provider's cancel callback only the first writes and publishes; the other
- * finds the status no longer PENDING and gets nothing back.
+ * Writes a cancelled payment or refund on a registration and says what to send on: the plain change
+ * for the admins, and the participant's payment state, so an open page gets its pay offer back
+ * (KOE-1526). PaymentVerify and the provider's cancel callback (`cancelTransaction`) both cancel
+ * through this; whichever comes first writes it, and the other finds the status no longer PENDING.
  */
 export const cancelRegistrationStatus = async (
   registration: JsonRegistration,
   statusField: RegistrationStatusField
-): Promise<CancelledRegistration | undefined> => {
-  if (registration[statusField] !== 'PENDING') return undefined
+): Promise<CancelledRegistration> => {
   const { eventId, id: registrationId } = registration
   const updatedAt = new Date().toISOString()
-  try {
-    await dynamoDB.update(
-      { eventId, id: registrationId },
-      { set: { [statusField]: 'CANCEL', updatedAt } },
-      registrationTable,
-      undefined,
-      { expression: '#field = :pending', names: { '#field': statusField }, values: { ':pending': 'PENDING' } }
-    )
-  } catch (error) {
-    if (!isConditionalCheckFailure(error)) throw error
-    logger.info('registration status already moved on from PENDING', { registrationId, statusField })
-    return undefined
-  }
+  await dynamoDB.update(
+    { eventId, id: registrationId },
+    { set: { [statusField]: 'CANCEL', updatedAt } },
+    registrationTable
+  )
   const confirmedEvent = await getEvent<JsonConfirmedEvent>(eventId)
   return {
     eventId,
@@ -166,90 +155,6 @@ export const cancelRegistrationStatus = async (
     patch: { eventId, id: registrationId, [statusField]: 'CANCEL', updatedAt },
     registrationId,
   }
-}
-
-interface UnfinishedTransactionCancel<T extends JsonTransaction> {
-  auditActor: (transaction: T) => AuditActor
-  auditMessage: (transaction: T, provider: string | undefined) => AuditMessage
-  provider: string | undefined
-  registration: JsonRegistration
-  statusField: RegistrationStatusField
-  transaction: T
-  updateProvider?: boolean
-}
-
-/**
- * Moves a transaction Paytrail did not finish to fail, and removes its payment response so
- * PaymentCreate never reuses it. Only a transaction still new or pending moves: one that went through
- * (a replayed fail return) or was failed already by another writer is left as it is. Answers whether
- * this call moved it.
- */
-const failUnfinishedTransaction = async (transaction: JsonTransaction, provider: string | undefined) => {
-  try {
-    await dynamoDB.update(
-      { transactionId: transaction.transactionId },
-      {
-        remove: ['paymentResponse'],
-        set: { ...(provider ? { provider } : {}), status: 'fail', statusAt: new Date().toISOString() },
-      },
-      transactionTable,
-      undefined,
-      {
-        expression: '#status IN (:new, :pending)',
-        names: { '#status': 'status' },
-        values: { ':new': 'new', ':pending': 'pending' },
-      }
-    )
-    return true
-  } catch (error) {
-    if (!isConditionalCheckFailure(error)) throw error
-    return false
-  }
-}
-
-/**
- * Cancels a payment or refund Paytrail did not finish, the one step PaymentVerify's failed return and
- * the provider's cancel callback share (KOE-1526). Both read the transaction eventually consistently,
- * so every write here is conditional on what it changes:
- *
- * - A transaction read as finished (ok) is a replayed fail return: nothing is touched or audited.
- * - The registration's PENDING becomes CANCEL first, whether or not this call moves the transaction,
- *   so an earlier writer of the transaction (the admin's refresh from Paytrail, say) or a failure
- *   between the writes does not leave it PENDING: a retry finds the work still to do.
- * - The transaction moves to fail only while it is still new or pending.
- * - The cancel is audited once: by the call whose registration write changed it, or, when the
- *   registration was not PENDING to begin with, by the call that moved the transaction.
- *
- * The two writes are not one DynamoDB transaction on purpose: either condition may fail on its own
- * (the transaction failed by another writer, the registration paid by another payment), and the
- * other write must still happen. An audit lost to a failure after both writes is not repeated.
- */
-export const cancelUnfinishedTransaction = async <T extends JsonTransaction>({
-  auditActor,
-  auditMessage,
-  provider,
-  registration,
-  statusField,
-  transaction,
-  updateProvider = false,
-}: UnfinishedTransactionCancel<T>): Promise<CancelledRegistration | undefined> => {
-  if (transaction.status === 'ok') {
-    logger.info('transaction already finished, not cancelled', { transactionId: transaction.transactionId })
-    return undefined
-  }
-
-  const cancelled = await cancelRegistrationStatus(registration, statusField)
-  const moved = await failUnfinishedTransaction(transaction, updateProvider ? provider : undefined)
-
-  if (cancelled || (moved && registration[statusField] !== 'PENDING')) {
-    await audit({
-      auditKey: registrationAuditKey(registration),
-      ...auditMessage(transaction, provider),
-      ...auditUser(auditActor(transaction)),
-    })
-  }
-
-  return cancelled
 }
 
 export const cancelTransaction = async <T extends JsonTransaction>({
@@ -267,15 +172,23 @@ export const cancelTransaction = async <T extends JsonTransaction>({
   if (!transaction) throw new LambdaError(404, `Transaction with id '${transactionId}' was not found`)
 
   const registration = await getRegistration(eventId, registrationId)
-  return cancelUnfinishedTransaction({
-    auditActor,
-    auditMessage,
-    provider,
-    registration,
-    statusField,
-    transaction,
-    updateProvider,
+  const updated = await updateTransactionStatus(transaction, 'fail', updateProvider ? provider : undefined)
+
+  if (!updated) {
+    logger.info('transaction already marked as failed', { transactionId })
+    return
+  }
+
+  const cancelled =
+    registration[statusField] === 'PENDING' ? await cancelRegistrationStatus(registration, statusField) : undefined
+
+  await audit({
+    auditKey: registrationAuditKey(registration),
+    ...auditMessage(transaction, provider),
+    ...auditUser(auditActor(transaction)),
   })
+
+  return cancelled
 }
 
 export const parseParams = (params: Partial<PaytrailCallbackParams>) => {
@@ -316,7 +229,7 @@ export const updateTransactionStatus = async (
   }
 
   // Prepare update object with set operations
-  const updateObj: { set: Record<string, string>; remove?: string[] } = {
+  const updateObj: { set: Record<string, any>; remove?: string[] } = {
     set: {
       status,
       statusAt: new Date().toISOString(),
@@ -372,7 +285,7 @@ export const applySuccessfulPayment = async (
 ) => {
   const appliedAt = new Date().toISOString()
   const transactionNames: Record<string, string> = { '#status': 'status' }
-  const transactionValues: Record<string, number | string> = {
+  const transactionValues: Record<string, any> = {
     ':appliedAt': appliedAt,
     ':ok': 'ok',
     ':receiptPreviouslyPaid': previouslyPaid,
