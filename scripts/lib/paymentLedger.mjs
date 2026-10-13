@@ -6,12 +6,18 @@
  *
  * A "transaction" here is already decoded to a plain object with the fields this module reads:
  * `{ reference, type: 'payment'|'refund', amount (cents), handlingCost? (cents), status,
- * createdAt, registrationAppliedAt?, duplicatePaymentAt?, transactionId }`. A "registration" is
+ * createdAt, statusAt?, registrationAppliedAt?, duplicatePaymentAt?, transactionId }`. A
+ * "registration" is
  * `{ eventId, id, paidAmount?, refundAmount?, refundHandlingCost?, paymentStatus?, refundStatus? }`
  * (euros, as cached on the row).
  */
 
-/** Euros to cents. The one place this conversion happens; always rounds, never floors. */
+/**
+ * Euros to cents. The one place this conversion happens in this script; mirrors `toCents` in
+ * `src/lib/money.ts` (always rounds, never floors or truncates) rather than importing it, since a
+ * script run with plain `node` cannot load a `.ts` module at run time. `paymentLedger.test.mjs`
+ * asserts the two agree.
+ */
 export const toCents = (euros) => Math.round(euros * 100)
 
 export const registrationKey = (registration) => `${registration.eventId}:${registration.id}`
@@ -23,6 +29,19 @@ export const registrationKey = (registration) => `${registration.eventId}:${regi
 export const isApplied = (transaction) => transaction.status === 'ok' && !transaction.duplicatePaymentAt
 
 const MONEY_FIELDS = ['paidAmount', 'refundAmount', 'refundHandlingCost']
+
+/** The per-money-field diff categories `categorizeFieldDiff` produces, in report order. */
+export const FIELD_CATEGORIES = ['no_transactions', 'success_without_amount', 'amount_mismatch']
+
+/** The per-transaction flag categories `categorizeTransaction` produces, in report order. */
+export const TRANSACTION_CATEGORIES = [
+  'legacy_applied',
+  'ok_not_applied',
+  'duplicate_payment',
+  'stale_open_transaction',
+  'orphan_transaction',
+  'other',
+]
 
 const FIELD_STATUS = {
   paidAmount: 'paymentStatus',
@@ -86,8 +105,10 @@ const RESOLVED_STATUSES = new Set(['SUCCESS', 'CANCEL', 'DUPLICATE'])
  *   status field has already moved on.
  * - `legacy_applied` / `ok_not_applied`: `ok`, counted toward the registration's totals already
  *   (`isApplied` does not require the marker), but never got `registrationAppliedAt`. Split by
- *   `cutoff`, the earliest `createdAt` seen with the marker (`buildTransactionIndex`): before it,
- *   this is the known pre-KOE-1337-style legacy shape; at or after it, something skipped the write.
+ *   `cutoff` (`buildTransactionIndex`), against the time *this* transaction actually became `ok`
+ *   (`statusAt ?? createdAt` -- `createdAt` alone would be when it was opened, not settled): before
+ *   the cutoff, this is the known pre-KOE-1337-style legacy shape; at or after it, something
+ *   skipped the write.
  * - `other`: a status this module does not otherwise recognise.
  */
 export const categorizeTransaction = (transaction, registration, cutoff) => {
@@ -104,16 +125,22 @@ export const categorizeTransaction = (transaction, registration, cutoff) => {
   if (transaction.status === 'ok') {
     if (transaction.registrationAppliedAt) return undefined
     if (cutoff === undefined) return 'ok_not_applied'
-    return transaction.createdAt < cutoff ? 'legacy_applied' : 'ok_not_applied'
+    const resolvedAt = transaction.statusAt ?? transaction.createdAt
+    return resolvedAt < cutoff ? 'legacy_applied' : 'ok_not_applied'
   }
 
   return 'other'
 }
 
 /**
- * Groups transactions by reference and finds `cutoff`: the earliest `createdAt` among all
- * transactions (either type) that carry `registrationAppliedAt`. `cutoff` is `undefined` when
- * none do, which `categorizeTransaction` treats as "every candidate is `ok_not_applied`".
+ * Groups transactions by reference and finds `cutoff`: the earliest `registrationAppliedAt`
+ * among all transactions (either type) that carry it. `cutoff` is `undefined` when none do, which
+ * `categorizeTransaction` treats as "every candidate is `ok_not_applied`".
+ *
+ * This is deliberately `registrationAppliedAt`, not `createdAt`: the marker is stamped at apply
+ * time, so a transaction created long before the marker existed but applied shortly after it would
+ * pull a `createdAt`-based cutoff far too early, relabelling genuine legacy rows elsewhere in the
+ * ledger as `ok_not_applied`.
  */
 export const buildTransactionIndex = (transactions) => {
   const byReference = new Map()
@@ -124,8 +151,11 @@ export const buildTransactionIndex = (transactions) => {
     if (list) list.push(transaction)
     else byReference.set(transaction.reference, [transaction])
 
-    if (transaction.registrationAppliedAt && (cutoff === undefined || transaction.createdAt < cutoff)) {
-      cutoff = transaction.createdAt
+    if (
+      transaction.registrationAppliedAt &&
+      (cutoff === undefined || transaction.registrationAppliedAt < cutoff)
+    ) {
+      cutoff = transaction.registrationAppliedAt
     }
   }
 

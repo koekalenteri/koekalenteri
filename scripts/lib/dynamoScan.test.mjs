@@ -67,6 +67,14 @@ describe('scanItemsFromChunks', () => {
   it('throws when no Items array is ever found', async () => {
     await expect(collect(scanItemsFromChunks(['{"Count": 0}']))).rejects.toThrow(/no "Items" array/)
   })
+
+  it('refuses to buffer more than the preamble safety cap while still searching for "Items"', async () => {
+    // Over 1,000,000 characters with no "Items" key anywhere: this must not be mistaken for the
+    // "search the whole, smaller input and never find it" case above -- it has its own message,
+    // because buffering this much is itself the problem, before the search has even concluded.
+    const chunks = ['x'.repeat(1_000_001)]
+    await expect(collect(scanItemsFromChunks(chunks))).rejects.toThrow(/within the expected preamble/)
+  })
 })
 
 describe('scanItems', () => {

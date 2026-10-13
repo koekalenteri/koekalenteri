@@ -2,7 +2,7 @@
 import { resolve } from 'node:path'
 
 import { decodeItem, scanItems } from './lib/dynamoScan.mjs'
-import { checkPaymentLedger } from './lib/paymentLedger.mjs'
+import { checkPaymentLedger, FIELD_CATEGORIES, TRANSACTION_CATEGORIES } from './lib/paymentLedger.mjs'
 
 const usage = `Usage:
   npm run check-payment-ledger -- <dir>
@@ -26,6 +26,7 @@ const TRANSACTION_FIELDS = [
   'handlingCost',
   'status',
   'createdAt',
+  'statusAt',
   'registrationAppliedAt',
   'duplicatePaymentAt',
   'transactionId',
@@ -40,16 +41,6 @@ const REGISTRATION_FIELDS = [
   'paymentStatus',
   'refundStatus',
   'dog',
-]
-
-const FIELD_CATEGORIES = ['no_transactions', 'success_without_amount', 'amount_mismatch']
-const TRANSACTION_CATEGORIES = [
-  'legacy_applied',
-  'ok_not_applied',
-  'duplicate_payment',
-  'stale_open_transaction',
-  'orphan_transaction',
-  'other',
 ]
 
 export const parseArgs = (args) => {

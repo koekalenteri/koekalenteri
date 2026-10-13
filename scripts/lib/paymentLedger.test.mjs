@@ -1,3 +1,5 @@
+import { toCents as productionToCents } from '../../src/lib/money'
+
 import {
   buildTransactionIndex,
   categorizeFieldDiff,
@@ -45,6 +47,12 @@ describe('toCents', () => {
     expect(toCents(0.005)).toBe(1)
     expect(toCents(12.344)).toBe(1234)
     expect(toCents(12.346)).toBe(1235)
+  })
+
+  it('agrees with the production toCents in src/lib/money.ts, which this one mirrors', () => {
+    for (const euros of [0, 0.005, 12.344, 12.346, 10.05, 9.85, -4.5, -0.005]) {
+      expect(toCents(euros)).toBe(productionToCents(euros))
+    }
   })
 })
 
@@ -232,6 +240,18 @@ describe('categorizeTransaction', () => {
     expect(categorizeTransaction(tx, reg, '2026-01-01T00:00:00.000Z')).toBe('ok_not_applied')
   })
 
+  it('classifies an unmarked ok row by statusAt, not createdAt, when both are present', () => {
+    // Created long before the cutoff but only resolved (statusAt) after it: it is the createdAt
+    // that would wrongly read as legacy here.
+    const tx = payment({ createdAt: '2020-01-01T00:00:00.000Z', status: 'ok', statusAt: '2026-06-01T00:00:00.000Z' })
+    expect(categorizeTransaction(tx, reg, '2026-01-01T00:00:00.000Z')).toBe('ok_not_applied')
+  })
+
+  it('falls back to createdAt when statusAt is absent', () => {
+    const tx = payment({ createdAt: '2025-01-01T00:00:00.000Z', status: 'ok', statusAt: undefined })
+    expect(categorizeTransaction(tx, reg, '2026-01-01T00:00:00.000Z')).toBe('legacy_applied')
+  })
+
   it('treats every ok-without-marker row as ok_not_applied when no cutoff exists', () => {
     const tx = payment({ createdAt: '2020-01-01T00:00:00.000Z', status: 'ok' })
     expect(categorizeTransaction(tx, reg, undefined)).toBe('ok_not_applied')
@@ -255,17 +275,48 @@ describe('buildTransactionIndex', () => {
     expect(byReference.get('evt-2:reg-2')).toHaveLength(1)
   })
 
-  it('finds the earliest createdAt among transactions carrying registrationAppliedAt, of either type', () => {
+  it('finds the earliest registrationAppliedAt among transactions carrying it, of either type', () => {
     const transactions = [
       payment({ createdAt: '2026-03-01T00:00:00.000Z', registrationAppliedAt: '2026-03-01T00:00:05.000Z' }),
       refund({ createdAt: '2026-01-01T00:00:00.000Z', registrationAppliedAt: '2026-01-01T00:00:05.000Z' }),
       payment({ createdAt: '2020-01-01T00:00:00.000Z' }), // no marker: not a candidate
     ]
-    expect(buildTransactionIndex(transactions).cutoff).toBe('2026-01-01T00:00:00.000Z')
+    expect(buildTransactionIndex(transactions).cutoff).toBe('2026-01-01T00:00:05.000Z')
   })
 
   it('leaves cutoff undefined when no transaction carries the marker', () => {
     expect(buildTransactionIndex([payment(), refund()]).cutoff).toBeUndefined()
+  })
+
+  it('uses registrationAppliedAt, not createdAt, so an early-created transaction applied late does not pull the cutoff too early', () => {
+    // A refund created well before any marker existed, but only applied (and marked) much later.
+    // A createdAt-based cutoff would read this as "2026-06-01", wrongly relabelling genuinely
+    // legacy rows elsewhere in the ledger as ok_not_applied.
+    const earlyCreatedLateApplied = refund({
+      createdAt: '2026-06-01T00:00:00.000Z',
+      reference: 'evt-1:reg-1',
+      registrationAppliedAt: '2026-09-01T00:00:00.000Z',
+    })
+    // The transaction that actually sets the earliest cutoff.
+    const cutoffSetter = payment({
+      reference: 'evt-1:reg-3',
+      registrationAppliedAt: '2026-08-05T00:00:00.000Z',
+      transactionId: 'tx-cutoff-setter',
+    })
+    // A genuinely legacy row: ok, no marker, resolved (statusAt) well before the real cutoff.
+    const legacyPayment = payment({
+      createdAt: '2020-01-01T00:00:00.000Z',
+      reference: 'evt-1:reg-2',
+      statusAt: '2026-07-01T00:00:00.000Z',
+      transactionId: 'tx-legacy',
+    })
+
+    const { cutoff } = buildTransactionIndex([earlyCreatedLateApplied, cutoffSetter, legacyPayment])
+    expect(cutoff).toBe('2026-08-05T00:00:00.000Z')
+
+    expect(categorizeTransaction(legacyPayment, registration({ eventId: 'evt-1', id: 'reg-2' }), cutoff)).toBe(
+      'legacy_applied'
+    )
   })
 })
 
@@ -292,7 +343,7 @@ describe('checkPaymentLedger', () => {
     expect(result.registrationsScanned).toBe(2)
     expect(result.transactionsLoaded).toBe(3)
     expect(result.orphanCount).toBe(1)
-    expect(result.cutoff).toBe('2026-05-01T00:00:00.000Z')
+    expect(result.cutoff).toBe('2026-05-01T00:00:05.000Z')
 
     // reg-1's payment predates the cutoff (reg-2's applied transaction) and never got the marker,
     // so it is both a money-field mismatch (success_without_amount) and its own flagged row
@@ -302,6 +353,28 @@ describe('checkPaymentLedger', () => {
 
     const orphanRow = result.rows.find((row) => row.category === 'orphan_transaction')
     expect(orphanRow).toEqual({ category: 'orphan_transaction', key: 'evt-1:orphan', transactionId: 'tx-orphan' })
+  })
+
+  it('flags no_transactions through the full pipeline for a registration with a stored amount and no transactions at all', async () => {
+    async function* registrations() {
+      yield registration({ eventId: 'evt-1', id: 'reg-1', paidAmount: 45 })
+    }
+
+    const result = await checkPaymentLedger({ registrations: registrations(), transactions: [] })
+
+    expect(result.rows).toEqual([
+      {
+        category: 'no_transactions',
+        diffCents: 4500,
+        expectedCents: 0,
+        field: 'paidAmount',
+        key: 'evt-1:reg-1',
+        storedCents: 4500,
+      },
+    ])
+    expect(result.orphanCount).toBe(0)
+    expect(result.transactionsLoaded).toBe(0)
+    expect(result.registrationsScanned).toBe(1)
   })
 
   it('reports nothing for a clean registration applied through its transactions', async () => {
