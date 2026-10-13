@@ -1,5 +1,6 @@
-import type { JsonRegistration } from '../../types'
+import type { JsonConfirmedEvent, JsonRegistration } from '../../types'
 import { vi } from 'vitest'
+import { buildParticipantPaymentPatch } from '../lib/ws/payloads'
 import { answerRejections, constructPartialAPIGwEvent } from '../test-utils/helpers'
 
 const mockLambda = vi.fn((_name, fn) => answerRejections(fn, mockResponse))
@@ -9,6 +10,16 @@ const mockVerifyParams = vi.fn()
 const mockUpdateTransactionStatus = vi.fn()
 const mockSettleFailedTransaction = vi.fn()
 const mockApplySuccessfulPayment = vi.fn()
+// Delegates to the real, pure buildParticipantPaymentPatch -- a different module than the one this
+// file mocks -- with paymentInProgress recomputed from openPayments the way the real
+// participantPaymentPatch (computePaymentInProgress) does, so a test only has to override
+// openPayments to pin the shape (KOE-1529, round 1 part 3).
+const mockParticipantPaymentPatch = vi.fn((registration: JsonRegistration, event: JsonConfirmedEvent) =>
+  buildParticipantPaymentPatch(
+    { ...registration, paymentInProgress: Boolean(registration.openPayments?.length) },
+    event
+  )
+)
 const mockClearRegistrationEmailDeliveryStatus = vi.fn()
 const mockGetRegistration = vi.fn()
 const mockCreateRegistrationPatches = vi.fn(() => [])
@@ -57,6 +68,7 @@ vi.doMock('../lib/lambda', async () => ({
 vi.doMock('../lib/payment', () => ({
   applySuccessfulPayment: mockApplySuccessfulPayment,
   parseParams: mockParseParams,
+  participantPaymentPatch: mockParticipantPaymentPatch,
   settleFailedTransaction: mockSettleFailedTransaction,
   updateTransactionStatus: mockUpdateTransactionStatus,
   verifyParams: mockVerifyParams,
@@ -288,6 +300,9 @@ describe('paymentSuccessLambda', () => {
         id: 'reg456',
         // The page holds no group, so the patch says what is left to pay (KOE-1526).
         paymentDue: 0,
+        // Recomputed fresh with this transaction's id taken out of the open set, not left at
+        // whatever it was on the row this handler started with (KOE-1529, round 1 part 3).
+        paymentInProgress: false,
         paymentStatus: 'SUCCESS',
         shouldPay: false,
       })
@@ -357,6 +372,35 @@ describe('paymentSuccessLambda', () => {
     expect(mockResponse).toHaveBeenCalledWith(200, undefined, event)
   })
 
+  // KOE-1529, round 1 part 3: a delayed (bank transfer) payment was read as in progress by an
+  // earlier, full GetRegistration, which stored paymentInProgress: true alongside openPayments on
+  // the participant's own page. When the ok callback applies it, the published patch must say so is
+  // no longer true, or getPaymentStatus (which checks paymentInProgress first) keeps the page saying
+  // "Odottaa maksun käsittelyä" for a fee that is actually paid, until a reload the verifying budget
+  // may no longer give.
+  it('clears paymentInProgress in the published patch once a delayed payment is applied', async () => {
+    mockGetRegistration.mockResolvedValue({
+      dog: { regNo: 'FI12345' },
+      eventId: 'event123',
+      id: 'reg456',
+      language: 'fi',
+      openPayments: ['tx123'],
+      paidAmount: 0,
+      payer: { email: 'test@example.com' },
+      paymentInProgress: true,
+      paymentStatus: 'PENDING',
+      state: 'creating',
+    })
+
+    await paymentSuccessLambda(event)
+
+    expect(mockPublishParticipantRegistrationPatch).toHaveBeenCalledWith(
+      'event123',
+      'reg456',
+      expect.objectContaining({ paymentInProgress: false, paymentStatus: 'SUCCESS' })
+    )
+  })
+
   it('assigns a group when payment makes a registration ready', async () => {
     const readyRegistration = {
       eventId: 'event123',
@@ -386,6 +430,20 @@ describe('paymentSuccessLambda', () => {
     mockGetReadyRegistrationsByEventId.mockResolvedValueOnce([
       { dog: { regNo: 'FI12345' }, eventId: 'event123', id: 'other-registration', state: 'ready' },
     ])
+    // Both getRegistration calls (handleSuccessfulPayment's own, and applyPaymentToRegistration's
+    // re-fetch, whose result is what recordDuplicatePayment actually uses) return the same row here.
+    mockGetRegistration.mockResolvedValue({
+      dog: { regNo: 'FI12345' },
+      eventId: 'event123',
+      id: 'reg456',
+      language: 'fi',
+      openPayments: ['tx123'],
+      paidAmount: 0,
+      payer: { email: 'test@example.com' },
+      paymentInProgress: true,
+      paymentStatus: 'PENDING',
+      state: 'creating',
+    })
 
     await paymentSuccessLambda(event)
 
@@ -416,6 +474,9 @@ describe('paymentSuccessLambda', () => {
         eventId: 'event123',
         id: 'reg456',
         paymentDue: 50,
+        // Recomputed with this transaction's id taken out of the open set, not left at whatever it
+        // was on the row this handler started with (KOE-1529, round 1 part 3).
+        paymentInProgress: false,
         paymentStatus: 'DUPLICATE',
         shouldPay: false,
         updatedAt: expect.any(String),

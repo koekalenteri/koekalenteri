@@ -32,6 +32,7 @@ import { createDynamoLease } from '../lib/lease'
 import {
   applySuccessfulPayment,
   parseParams,
+  participantPaymentPatch,
   settleFailedTransaction,
   updateTransactionStatus,
   verifyParams,
@@ -51,7 +52,6 @@ import {
   publishParticipantRegistrationPatch,
   publishRegistrationPatchesStrict,
 } from '../lib/ws/actions'
-import { buildParticipantPaymentPatch } from '../lib/ws/payloads'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 
 const { frontendURL, emailFrom, registrationTable, transactionTable } = CONFIG
@@ -133,12 +133,20 @@ const recordDuplicatePayment = async (
     registrationTable
   )
   // The pay button follows the same rule as GetRegistration's: a duplicate waits for its refund.
+  // paymentInProgress is recomputed from the open set with this transaction's id already taken out
+  // -- the DELETE above already removed it in the table -- rather than left at whatever it was on
+  // the row this handler started with (KOE-1529, round 1 part 3).
   const dogEvent = await getEvent<JsonConfirmedEvent>(registration.eventId)
   await publishParticipantRegistrationPatch(
     registration.eventId,
     registration.id,
-    buildParticipantPaymentPatch(
-      { ...registration, paymentStatus: 'DUPLICATE', updatedAt: duplicatePaymentAt },
+    await participantPaymentPatch(
+      {
+        ...registration,
+        openPayments: registration.openPayments?.filter((id) => id !== transaction.transactionId),
+        paymentStatus: 'DUPLICATE',
+        updatedAt: duplicatePaymentAt,
+      },
       dogEvent
     )
   )
@@ -341,11 +349,20 @@ const handleSuccessfulPayment = async (
   // Notify the participant as soon as the payment has been persisted. Receipt,
   // confirmation email, and admin-side reconciliation may continue afterwards. The page takes what
   // is still owed from the patch: it holds no group to work it out from (KOE-1526).
+  // paymentInProgress is recomputed with this transaction's id taken out of the local copy of the
+  // open set -- applySuccessfulPayment already DELETEd it in the table -- rather than left at
+  // whatever it was on the row applyPaymentToRegistration started with: a delayed (bank transfer)
+  // payment read as in progress by an earlier GetRegistration must not still read that way once this
+  // callback applies it, or the page keeps saying "Odottaa maksun käsittelyä" for a paid fee until a
+  // reload the verifying budget may no longer give (KOE-1529, round 1 part 3).
   const paidEvent = await getEvent<JsonConfirmedEvent>(eventId)
   await publishParticipantRegistrationPatch(
     registration.eventId,
     registrationId,
-    buildParticipantPaymentPatch(registration, paidEvent)
+    await participantPaymentPatch(
+      { ...registration, openPayments: registration.openPayments?.filter((id) => id !== transaction.transactionId) },
+      paidEvent
+    )
   )
 
   const workflowClaim = await claimPostPaymentWorkflow(transaction.transactionId)
