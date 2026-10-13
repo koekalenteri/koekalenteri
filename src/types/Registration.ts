@@ -488,6 +488,13 @@ export type RegistrationBreeder = Omit<Person, 'email' | 'phone' | 'location'>
 
 export type ReserveChoise = 'ANY' | 'DAY' | 'WEEK' | 'NO'
 
+/**
+ * `PENDING` and `CANCEL` are legacy values (KOE-1529): no writer sets them any more, since neither
+ * said which of a registration's several transactions it was about. A registration's open attempts
+ * live in `openPayments`/`openRefunds` instead, and a failed one is written by `settleFailedTransaction`
+ * straight to the transaction's own `fail` status, without touching `paymentStatus`/`refundStatus` at
+ * all. A row written before KOE-1529 may still hold `PENDING` or `CANCEL`; nothing reads them.
+ */
 export type PaymentStatus = 'SUCCESS' | 'CANCEL' | 'DUPLICATE' | 'PENDING' | 'NEW'
 
 export interface MinimalRegistrationForMembership {
