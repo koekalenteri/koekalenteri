@@ -325,6 +325,7 @@ describe('paymentCreateLambda', () => {
     const result = await paymentCreateLambda(event)
 
     expect(result.statusCode).toBe(409)
+    expect(JSON.parse(result.body)).toEqual('Duplicate payment requires a refund')
     expect(mockGetTransactionsByReference).not.toHaveBeenCalled()
     expect(mockCreatePayment).not.toHaveBeenCalled()
     expect(mockDocumentTransaction).not.toHaveBeenCalled()
@@ -336,6 +337,7 @@ describe('paymentCreateLambda', () => {
     const result = await paymentCreateLambda(event)
 
     expect(result.statusCode).toBe(409)
+    expect(JSON.parse(result.body)).toEqual('Payment already in progress')
     expect(mockCreatePayment).not.toHaveBeenCalled()
   })
 
@@ -450,6 +452,7 @@ describe('paymentCreateLambda', () => {
     const result = await paymentCreateLambda(event)
 
     expect(result.statusCode).toEqual(404)
+    expect(JSON.parse(result.body)).toEqual('Event is not open for payment')
     expect(mockCreatePayment).not.toHaveBeenCalled()
   })
 
