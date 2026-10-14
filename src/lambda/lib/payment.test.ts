@@ -484,11 +484,16 @@ describe('payment', () => {
     }
 
     it('fails the transaction, drops it from the open set, audits once, and builds a fresh patch', async () => {
-      // Frozen: the transaction's statusAt and the registration's updatedAt must be the exact same
-      // moment, not just equal to each other by coincidence of two Date.now() calls a test without
-      // a frozen clock only catches some of the time (KOE-1529, round 2 part 2).
-      const FIXED = '2026-08-16T12:00:00.000Z'
-      vi.useFakeTimers().setSystemTime(new Date(FIXED))
+      // Not a frozen clock: with time frozen, two independent new Date() calls still read the same
+      // instant, so a reverted shared `now` would pass this test too (round 3 finding, root-cause
+      // reviewer). Spying new Date().toISOString()'s own return sequence is what actually falsifies
+      // the shared-timestamp property: settleFailedTransaction calls it exactly once and passes that
+      // one value to both writes; a reverted version that lets failUnfinishedTransaction and
+      // dropOpenTransaction default their own timestamp would each consume one spied value, landing
+      // FIRST on one write and SECOND on the other (KOE-1529, round 4).
+      const FIRST = '2026-08-16T12:00:00.000Z'
+      const SECOND = '2026-08-16T12:00:05.000Z'
+      vi.spyOn(Date.prototype, 'toISOString').mockReturnValueOnce(FIRST).mockReturnValueOnce(SECOND)
       mockUpdate.mockResolvedValueOnce({}) // failUnfinishedTransaction
       mockUpdate.mockResolvedValueOnce({ Attributes: { openPayments: ['transaction-1'] } }) // dropOpenTransaction
       mockRead.mockResolvedValueOnce({ ...registration, openPayments: [] }) // the strongly consistent re-read
@@ -503,11 +508,12 @@ describe('payment', () => {
         true // strongly consistent (correction #2)
       )
       // The secretary's incremental refresh reads updatedAt, and must see this as of the one moment
-      // the failure actually happened (KOE-1529, round 1 part 2).
+      // the failure actually happened (KOE-1529, round 1 part 2); both writes get FIRST, the one
+      // value settleFailedTransaction actually computed, never SECOND.
       expect(mockUpdate).toHaveBeenNthCalledWith(
         1,
         { transactionId: 'transaction-1' },
-        expect.objectContaining({ set: expect.objectContaining({ statusAt: FIXED }) }),
+        expect.objectContaining({ set: expect.objectContaining({ statusAt: FIRST }) }),
         expect.any(String),
         undefined,
         expect.any(Object)
@@ -515,7 +521,7 @@ describe('payment', () => {
       expect(mockUpdate).toHaveBeenNthCalledWith(
         2,
         { eventId: 'event-1', id: 'registration-1' },
-        expect.objectContaining({ set: expect.objectContaining({ updatedAt: FIXED }) }),
+        expect.objectContaining({ set: expect.objectContaining({ updatedAt: FIRST }) }),
         expect.any(String),
         'UPDATED_OLD'
       )
