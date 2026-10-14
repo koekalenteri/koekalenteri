@@ -951,6 +951,7 @@
     "owners": "Owner information",
     "paid": "Paid",
     "paidAndConfirmed": "Participation paid and confirmed.\nReceipt was sent to:\n{{to}}",
+    "paidExcess": "The registrant has paid too much",
     "payer": "Payer information",
     "payment": "Payment information",
     "paymentDialog": {
@@ -1002,7 +1003,7 @@
         "pendingEmail": "The refund has been started. The registrant has been sent an email to complete the refund. The audit trail shows when the refund has been processed."
       },
       "text": "Select the payment to be refunded.",
-      "title": "Refund, {{regNo}} / {{payer}}",
+      "title": "Refund, {{dogName}} / {{payer}}",
       "total": "Transactions total",
       "transactionType": {
         "payment": "Payment",

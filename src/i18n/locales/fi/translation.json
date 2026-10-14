@@ -951,6 +951,7 @@
     "owners": "Omistajien tiedot",
     "paid": "Maksettu",
     "paidAndConfirmed": "Osallistumismaksu maksettu ja osallistuminen vahvistettu.\nKuitti on lähetetty sähköpostiosoitteeseen:\n{{to}}",
+    "paidExcess": "Ilmoittautuja on maksanut liikaa",
     "payer": "Maksajan tiedot",
     "payment": "Maksutiedot",
     "paymentDialog": {
@@ -1002,7 +1003,7 @@
         "pendingEmail": "Maksun palautus on aloitettu. Ilmoittautujalle on lähetetty sähköposti rahojen palautuksen viimeistelyä varten. Näet audit trailista, kun palautus on käsitelty loppuun."
       },
       "text": "Valitse palautettava maksu.",
-      "title": "Maksun palautus, {{regNo}} / {{payer}}",
+      "title": "Maksun palautus, {{dogName}} / {{payer}}",
       "total": "Tapahtumat yhteensä",
       "transactionType": {
         "payment": "Maksu",
