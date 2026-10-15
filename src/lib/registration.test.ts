@@ -44,6 +44,7 @@ import {
   isPublicRegistrationOperationField,
   isRegistrationClass,
   isScorableRegistration,
+  isStarter,
   meetsRestrictions,
   priorityDescriptionKey,
   registrationActor,
@@ -613,6 +614,18 @@ describe('lib/registration', () => {
       expect(isScorableRegistration({ cancelled: true, group: { key: GROUP_KEY_CANCELLED, number: 1 } })).toBe(false)
       // A dog cancelled after being placed keeps the group it was placed in; the flag is what counts.
       expect(isScorableRegistration({ cancelled: true, group: { key: 'ALO-AP', number: 1 } })).toBe(false)
+    })
+  })
+
+  describe('isStarter', () => {
+    it.each([
+      ['a placed entry', { group: { key: 'ALO-AP', number: 1 } }, true],
+      ['a reserve', { group: { key: GROUP_KEY_RESERVE, number: 1 } }, false],
+      ['an entry without a group', {}, false],
+      ['a cancelled entry', { cancelled: true, group: { key: GROUP_KEY_CANCELLED, number: 1 } }, false],
+      ['an entry cancelled after it was placed', { cancelled: true, group: { key: 'ALO-AP', number: 1 } }, false],
+    ])('%s', (_label, registration, expected) => {
+      expect(isStarter(registration)).toBe(expected)
     })
   })
 

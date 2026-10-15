@@ -524,6 +524,9 @@ export const getRegistrationGroupKey = (reg: RegistrationPlacement): string => {
 export const isParticipantGroup = (group?: string): boolean =>
   Boolean(group) && group !== GROUP_KEY_RESERVE && group !== GROUP_KEY_CANCELLED
 
+/** A start: an entry that is not cancelled and sits in a participant group, not on the reserve list. */
+export const isStarter = (reg: RegistrationPlacement): boolean => isParticipantGroup(getRegistrationGroupKey(reg))
+
 /**
  * The picked participants by class, a classless event's under its event type: what the publishing
  * gates count on the panel and on the server alike (KOE-1466).
@@ -550,7 +553,7 @@ export const groupParticipantsByClass = <
  */
 export const isScorableRegistration = <T extends JsonRegistration | Registration>(
   reg: Pick<T, 'cancelled' | 'group'>
-): boolean => isParticipantGroup(getRegistrationGroupKey(reg))
+): boolean => isStarter(reg)
 
 /** Whether any of what was paid is still with the organizer, handling fees counted as kept. */
 export const hasRefundableBalance = <T extends JsonRegistration | Registration>(reg: Pick<T, RefundField>): boolean =>

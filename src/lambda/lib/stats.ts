@@ -16,7 +16,7 @@ import type {
 import crypto from 'node:crypto'
 import { formatDate } from '../../i18n/dates'
 import { getEventSeason } from '../../lib/event'
-import { isMember, isParticipantGroup } from '../../lib/registration'
+import { isMember, isStarter } from '../../lib/registration'
 import { CONFIG } from '../config'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 
@@ -485,12 +485,11 @@ export async function getEventBreakdown(year: number): Promise<EventBreakdownEnt
 }
 
 /** On the waiting list: not cancelled, and not placed in a participant (starting) group. */
-const isReserve = (registration: RegistrationStatsInput): boolean =>
-  !registration.cancelled && !isParticipantGroup(registration.group?.key)
+const isReserve = (registration: RegistrationStatsInput): boolean => !registration.cancelled && !isStarter(registration)
 
 /** A starter (non-cancelled, non-reserve) whose owner or handler is a club member. */
 const isMemberStarter = (registration: RegistrationStatsInput): boolean =>
-  !registration.cancelled && isParticipantGroup(registration.group?.key) && isMember(registration)
+  isStarter(registration) && isMember(registration)
 
 /**
  * Calculate the deltas for various statistics based on registration changes
