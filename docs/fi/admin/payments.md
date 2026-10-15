@@ -63,6 +63,9 @@ palautettava summa on jokin muu, valitse *{t:registration.refundDialog.wholePaym
 pidätettävä osuus *{t:registration.refundDialog.handlingCost}*-kenttään;
 *{t:registration.refundDialog.refundTotal}*-rivi näyttää palautettavan summan.
 
+Maksutapahtumien yläpuolella ikkuna näyttää ilmoittautumisen ostoskorin sellaisena kuin se on nyt:
+osallistumismaksun, valitut lisäpalvelut, aiemmin maksetun ja maksettavan summan.
+
 !shot[RefundDialog/refund-dialog-open] Maksun palautus koekalenterista
 
 Palautus onnistuu vain, jos yhdistyksen Paytrail-tilillä on saldoa. Heti tilityksen jälkeen sitä

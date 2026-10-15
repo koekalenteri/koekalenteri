@@ -13,7 +13,7 @@ covers:
   - src/lambda/lib/payment.ts
   - src/lambda/PaymentCreateFunction/**
   - src/lambda/RefundCreateFunction/**
-sourceHash: e2d55f
+sourceHash: 50e3c5
 ---
 
 Koekalenteri is a web shop: the entrant pays the entry fee in the calendar, and the money goes
@@ -63,6 +63,9 @@ several payments, it selects the latest one the part can be returned from. For a
 other amount, choose *{t:registration.refundDialog.wholePayment}* and enter the part to keep in the
 *{t:registration.refundDialog.handlingCost}* field; the *{t:registration.refundDialog.refundTotal}*
 line shows what goes back.
+
+Above the transactions the dialog shows the entry's cart as it is now: the participation fee, any
+optional services, what has already been paid and what is still to be paid.
 
 !shot[RefundDialog/refund-dialog-open] Refunding a payment from the calendar
 

@@ -60,7 +60,8 @@ ilmoittautumisen rivin valikko (⋮) ja valitse **{t:registration.actions.refund
 
 !shot[RefundDialog/refund-dialog-open] Maksun palautus
 
-Ikkuna listaa ilmoittautumisen maksut. Valitse palautettava maksu, kirjaa tarvittaessa
+Ikkuna näyttää ensin ilmoittautumisen ostoskorin sellaisena kuin se on nyt ja listaa sen alla
+ilmoittautumisen maksut. Valitse palautettava maksu, kirjaa tarvittaessa
 *{t:registration.refundDialog.handlingCost}*, joka jää yhdistykselle, ja lisää halutessasi sisäinen kommentti — se ei näy
 ilmoittautujalle. **{t:refund}** tekee palautuksen Paytrailin kautta samalle maksutavalle, jolla
 maksu tuli. Palautettu summa näkyy sen jälkeen ilmoittautumisen rivillä.

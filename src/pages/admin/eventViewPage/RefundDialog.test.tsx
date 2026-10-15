@@ -220,8 +220,9 @@ describe('RefundDialog', () => {
     })
     await flushPromises()
 
-    expect(screen.getByText('registration.refundDialog.previouslyChargedHandlingCost:')).toBeInTheDocument()
-    expect(screen.getByText('7,00 €')).toBeInTheDocument()
+    // The breakdown above the table shows the kept handling fee as its own row (KOE-1103), which
+    // replaced the dialog's separate "previously charged" paragraph that said the same thing twice.
+    expect(screen.getByText('registration.refundHandlingCost').nextSibling).toHaveTextContent('−7,00 €')
 
     fireEvent.click(screen.getByText('refund'))
     await waitFor(() => {
@@ -263,7 +264,11 @@ describe('RefundDialog', () => {
     await flushPromises()
 
     expect(screen.getByRole('button', { name: 'refund' })).toBeDisabled()
-    expect(screen.getByText('0,00 €')).toBeInTheDocument()
+    // The breakdown above the table can also read 0,00 € once a reserve's fee is accounted for
+    // (KOE-1103), so the total is read from the transactions table's own footer row.
+    expect(
+      within(screen.getByRole('row', { name: /registration.refundDialog.total/ })).getByText('0,00 €')
+    ).toBeInTheDocument()
   })
 
   it('refunds a second payment in full without charging another handling cost', async () => {
@@ -559,6 +564,34 @@ describe('RefundDialog', () => {
 
     // Verify the notes were updated (this is implicit since we're mocking the API call)
     expect(notesField).toHaveValue('New internal notes')
+  })
+
+  // The breakdown shown on the payment page goes above the transactions table too (KOE-1103), so
+  // the secretary sees what is in the cart now, not just the raw payment rows.
+  describeWithTranslations('fi', () => {
+    it("shows the registration's payment breakdown above the transactions table", async () => {
+      const registration = {
+        ...registrationWithStaticDates,
+        group: { key: '2024-01-01-ALO-ap', number: 1 },
+        paidAmount: 30,
+        refundAmount: 25,
+      }
+      render(<RefundDialog event={eventWithStaticDates} registration={registration} open={true} />, {
+        wrapper: Wrapper,
+      })
+      await flushPromises()
+
+      const dialog = screen.getByRole('dialog')
+      const breakdownLabel = within(dialog).getByText('Osallistumismaksu')
+      expect(breakdownLabel).toBeInTheDocument()
+      expect(within(dialog).getByText('Maksettu')).toBeInTheDocument()
+      expect(within(dialog).getByText('Palautettu')).toBeInTheDocument()
+
+      // Not just present, but above the table (KOE-1103): the breakdown's node must precede the
+      // transactions grid in document order, so moving it below the table fails here too.
+      const grid = within(dialog).getByRole('grid')
+      expect(breakdownLabel.compareDocumentPosition(grid) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+    })
   })
 
   describe('overpaid fee (KOE-1382)', () => {
