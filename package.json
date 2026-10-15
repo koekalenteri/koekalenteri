@@ -34,7 +34,7 @@
     "date-fns": "^4.4.0",
     "dnd-core": "^16.0.1",
     "handlebars": "^4.7.10",
-    "i18next": "^26.4.3",
+    "i18next": "^26.4.4",
     "jotai": "^2.20.3",
     "jotai-family": "^1.1.0",
     "material-ui-confirm": "^4.0.0",
