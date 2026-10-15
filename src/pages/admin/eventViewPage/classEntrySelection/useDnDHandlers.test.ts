@@ -218,6 +218,37 @@ describe('useDnDHandlers', () => {
       ])
     })
 
+    it('anchors the drop on a starter, not on a cancelled entry left in the target group (KOE-1537)', async () => {
+      // Listed under cancelled in the grid, but its stale key still names the target group.
+      const staleCancelled: Registration = {
+        ...mockRegistration,
+        cancelled: true,
+        group: { key: 'group2', number: 2 },
+        id: 'stale',
+      }
+      const starter: Registration = { ...mockRegistration, group: { key: 'group2', number: 2 }, id: 'starter' }
+      const mockChanges: RegistrationGroupInfo[] = [
+        { eventId: 'event1', group: { key: 'group2', number: 1.5 }, id: 'reg1' },
+      ]
+      ;(determineChangesFromDrop as import('vitest').Mock).mockReturnValue(mockChanges)
+
+      const { result } = renderHook(() =>
+        useDnDHandlers({ ...defaultProps, registrations: [mockRegistration, staleCancelled, starter] })
+      )
+
+      await result.current.handleDrop(mockGroup)(mockDragItem)
+
+      expect(determineChangesFromDrop).toHaveBeenCalledWith(mockDragItem, mockGroup, mockRegistration, [starter], true)
+      expect(mockSaveGroups).toHaveBeenCalledWith('event1', [
+        {
+          beforeId: 'starter',
+          cancelReason: undefined,
+          group: { date: undefined, key: 'group2', time: undefined },
+          id: 'reg1',
+        },
+      ])
+    })
+
     it('should call onCancelOpen when a single cancelled change is returned', async () => {
       const mockChanges: RegistrationGroupInfo[] = [
         { cancelled: true, eventId: 'event1', group: { key: GROUP_KEY_CANCELLED, number: 1 }, id: 'reg1' },

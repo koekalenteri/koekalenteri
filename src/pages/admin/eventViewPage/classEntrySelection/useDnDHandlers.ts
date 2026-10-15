@@ -72,7 +72,9 @@ export const useDnDHandlers = ({
 
     setSelectedRegistrationId?.(reg.id)
 
-    const regs = registrations.filter((r) => r.group?.key === group.key && r.id !== reg.id)
+    // The grid lists a row by getRegistrationGroupKey: a cancelled entry whose stale key still names
+    // this group is not a sibling, and anchoring on it gets the move refused (KOE-1537).
+    const regs = registrations.filter((r) => getRegistrationGroupKey(r) === group.key && r.id !== reg.id)
     const save = determineChangesFromDrop(item, group, reg, regs, canArrangeReserve)
 
     if (save.length) {
