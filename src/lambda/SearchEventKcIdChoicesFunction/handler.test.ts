@@ -370,11 +370,23 @@ describe('searchEventKcIdChoicesLambda', () => {
     expect(mockResponse).toHaveBeenCalledWith(200, { choices: [] }, event)
   })
 
-  it('does not take a 404 with other reasons for "no result"', async () => {
+  it('takes a format Koe/Kokeet does not know for an empty result, not a failure', async () => {
     mockLueKokeet.mockResolvedValue({ status: 404, virheet: ['Virheellinen koemuoto'] })
+    mockReadEventType.mockResolvedValue({ ...eventTypeRecord, eventType: 'NOTO' })
+
+    const event = await search({ ...laukaaRequest, eventType: 'NOTO' })
+
+    // Both the exact and the widened search ask, and both are empty
+    expect(mockLueKokeet).toHaveBeenCalledTimes(2)
+    expect(mockLueKoe).not.toHaveBeenCalled()
+    expect(mockResponse).toHaveBeenCalledWith(200, { choices: [] }, event)
+  })
+
+  it('does not take a 404 with other reasons for "no result"', async () => {
+    mockLueKokeet.mockResolvedValue({ status: 404, virheet: ['Virheellinen Yhdistys.'] })
 
     await expect(search()).rejects.toMatchObject({
-      message: expect.stringContaining('Virheellinen koemuoto'),
+      message: expect.stringContaining('Virheellinen Yhdistys.'),
       status: 404,
     })
     expect(mockLueKokeet).toHaveBeenCalledTimes(1)

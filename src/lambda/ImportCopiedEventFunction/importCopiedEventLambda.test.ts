@@ -124,9 +124,9 @@ describe('importCopiedEvent', () => {
 
     await importCopiedEvent(older)
 
-    expect(mockSaveEvent).toHaveBeenCalledWith(
-      expect.not.objectContaining({ kcEvent: expect.anything(), kcGuid: expect.anything(), kcId: expect.anything() })
-    )
+    expect(mockSaveEvent).toHaveBeenCalledWith(expect.not.objectContaining({ kcEvent: expect.anything() }))
+    expect(mockSaveEvent).toHaveBeenCalledWith(expect.not.objectContaining({ kcGuid: expect.anything() }))
+    expect(mockSaveEvent).toHaveBeenCalledWith(expect.not.objectContaining({ kcId: expect.anything() }))
   })
 
   it('does not store the legacy kcId of a copy that has no GUID', async () => {

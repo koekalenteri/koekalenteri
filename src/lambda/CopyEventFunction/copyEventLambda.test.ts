@@ -228,9 +228,9 @@ describe('copyEventHandler', () => {
 
     await copyEventHandler(event)
 
-    expect(mockSaveEvent).toHaveBeenCalledWith(
-      expect.not.objectContaining({ kcEvent: expect.anything(), kcGuid: expect.anything(), kcId: expect.anything() })
-    )
+    expect(mockSaveEvent).toHaveBeenCalledWith(expect.not.objectContaining({ kcEvent: expect.anything() }))
+    expect(mockSaveEvent).toHaveBeenCalledWith(expect.not.objectContaining({ kcGuid: expect.anything() }))
+    expect(mockSaveEvent).toHaveBeenCalledWith(expect.not.objectContaining({ kcId: expect.anything() }))
   })
 
   it('does not copy registration idempotency credentials, post-processing state or event outcomes', async () => {

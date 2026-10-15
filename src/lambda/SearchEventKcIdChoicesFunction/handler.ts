@@ -29,6 +29,12 @@ const LUE_CONCURRENCY = 3
 
 const NO_RESULT = 'Ei tulosta'
 
+/**
+ * Koe/Kokeet does not know every format the old API lists (Testi2 refused NOTO, NOTO-M, NOVA, AJO and
+ * KVA, 15.10.2026): there is nothing to find for those, which is an empty result, not a failure.
+ */
+const UNSUPPORTED_KOEMUOTO = 'Virheellinen koemuoto'
+
 const dynamoDB = new CustomDynamoClient(CONFIG.organizerTable)
 
 const normalize = (value?: string) =>
@@ -156,7 +162,7 @@ const sortCandidates = (event: KcIdLookupCriteria, candidates: Candidate[]) =>
   [...candidates].sort((a, b) => scoreMatch(event, b) - scoreMatch(event, a))
 
 const isNoResults = ({ status, virheet }: KLIntegraatioResult<unknown>) =>
-  status === 404 && Boolean(virheet?.some((virhe) => virhe.includes(NO_RESULT)))
+  status === 404 && Boolean(virheet?.some((virhe) => virhe.includes(NO_RESULT) || virhe.includes(UNSUPPORTED_KOEMUOTO)))
 
 const upstreamError = ({ error, status, virheet }: KLIntegraatioResult<unknown>) =>
   // Status 0 is a call that never got an answer: a bad gateway, not a status KL gave.
