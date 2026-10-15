@@ -87,8 +87,9 @@ export default function StationResultsPage() {
 
   if (!event?.id || !station) return <EventNotFound />
 
-  const kcId = event.kcId ? ` · ${t('event.kcId')} ${event.kcId}` : ''
-  const subtitle = `${localizedEventName(event, language) || event.eventType}${kcId}`
+  // Only the link to Kennelliitto's trial is marked: the old kcId alone says nothing the results can use
+  const kcLink = event.kcGuid ? ` · ${t('event.kcGuidLinked')}` : ''
+  const subtitle = `${localizedEventName(event, language) || event.eventType}${kcLink}`
   // A format whose phases are the post's own gets them written here, at the post, on the day.
   const format = liveFormat(event.eventType)
   const ownPhases = format.tasks === 'phases' && !format.phases

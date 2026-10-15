@@ -55,6 +55,7 @@ const eventFieldTranslationKeys: Partial<Record<EventField, EventFieldTranslatio
   id: 'event.id',
   invitationAttachment: 'event.invitationAttachment',
   judges: 'event.judges',
+  kcGuid: 'event.kcGuid',
   kcId: 'event.kcId',
   location: 'event.location',
   modifiedAt: 'event.modifiedAt',

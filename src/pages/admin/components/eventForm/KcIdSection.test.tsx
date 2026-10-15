@@ -11,6 +11,7 @@ import { eventWithStaticDates } from '@/__mockData__/events'
 import * as eventApi from '@/api/event'
 import { locales } from '@/i18n'
 import { TIME_ZONE, zonedDateString } from '@/i18n/dates'
+import { patchMerge } from '@/lib/utils'
 import { idTokenAtom } from '@/pages/state'
 import { flushPromises, renderWithUserEvents } from '@/test-utils/utils'
 import { adminEventsAtom } from '../../state'
@@ -20,7 +21,7 @@ vi.mock('notistack', () => ({
   enqueueSnackbar: vi.fn(),
 }))
 
-/** Events other than the one being edited, whose koetunnukset are therefore already spoken for. */
+/** Events other than the one being edited, whose Kennelliitto trials are therefore already spoken for. */
 const renderComponent = async (props: Props, otherEvents: DogEvent[] = []) => {
   const rendered = renderWithUserEvents(
     <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales.fi}>
@@ -41,7 +42,7 @@ const renderComponent = async (props: Props, otherEvents: DogEvent[] = []) => {
   return rendered
 }
 
-const eventLinkedTo = (kcId: number): DogEvent => ({ ...eventWithStaticDates, id: `linked-${kcId}`, kcId })
+const eventLinkedTo = (kcGuid: string): DogEvent => ({ ...eventWithStaticDates, id: `linked-${kcGuid}`, kcGuid })
 
 describe('KcIdSection', () => {
   beforeEach(() => {
@@ -103,7 +104,7 @@ describe('KcIdSection', () => {
           classes: ['ALO', 'AVO'],
           endDate: new TZDate('2026-07-02', TIME_ZONE),
           eventType: 'NOME-B',
-          id: 222,
+          kcGuid: 'guid-222',
           location: 'Espoo',
           name: 'Toinen koe',
           organizer: 'Järjestäjä',
@@ -139,18 +140,18 @@ describe('KcIdSection', () => {
     )
     expect(screen.queryByText('event.kcIdChoiceTitle')).not.toBeInTheDocument()
     // exact top-level match: linking must not touch the event's own fields (that's the whole
-    // point of the snapshot) — only kcEvent/kcId are set, nothing else
+    // point of the snapshot): only kcEvent/kcGuid are set, nothing else (the old kcId is left alone)
     expect(changeHandler).toHaveBeenLastCalledWith({
       kcEvent: expect.objectContaining({
         classes: ['ALO', 'AVO'],
         eventType: 'NOME-B',
         location: 'Espoo',
       }),
-      kcId: 222,
+      kcGuid: 'guid-222',
     })
     expect(zonedDateString(changeHandler.mock.lastCall?.[0].kcEvent.startDate)).toEqual('2026-07-01')
     expect(zonedDateString(changeHandler.mock.lastCall?.[0].kcEvent.endDate)).toEqual('2026-07-02')
-    expect(enqueueSnackbar).toHaveBeenCalledWith('event.kcIdSelected id', { variant: 'success' })
+    expect(enqueueSnackbar).toHaveBeenCalledWith('event.kcIdSelected', { variant: 'success' })
   })
 
   it('should let the user pick from multiple matching Kennel Club events', async () => {
@@ -160,7 +161,7 @@ describe('KcIdSection', () => {
           classes: ['ALO', 'AVO'],
           endDate: new TZDate('2026-07-02', TIME_ZONE),
           eventType: 'NOME-B',
-          id: 222,
+          kcGuid: 'guid-222',
           location: 'Espoo',
           name: 'Toinen koe',
           organizer: 'Järjestäjä',
@@ -170,7 +171,7 @@ describe('KcIdSection', () => {
           classes: ['VOI'],
           endDate: new TZDate('2026-08-02', TIME_ZONE),
           eventType: 'NOME-B',
-          id: 333,
+          kcGuid: 'guid-333',
           location: 'Vantaa',
           name: 'Kolmas koe',
           organizer: 'Järjestäjä',
@@ -206,7 +207,7 @@ describe('KcIdSection', () => {
 
     expect(changeHandler).toHaveBeenLastCalledWith({
       kcEvent: expect.objectContaining({ classes: ['ALO', 'AVO'], eventType: 'NOME-B', location: 'Espoo' }),
-      kcId: 222,
+      kcGuid: 'guid-222',
     })
     expect(screen.queryByText('event.kcIdChoiceTitle')).not.toBeInTheDocument()
   })
@@ -218,7 +219,7 @@ describe('KcIdSection', () => {
           classes: ['ALO', 'AVO'],
           endDate: new TZDate('2026-07-02', TIME_ZONE),
           eventType: 'NOME-B',
-          id: 222,
+          kcGuid: 'guid-222',
           location: 'Espoo',
           name: 'Toinen koe',
           organizer: 'Järjestäjä',
@@ -238,14 +239,14 @@ describe('KcIdSection', () => {
     }
 
     const { user } = await renderComponent({ event: testEvent, onChange: changeHandler, open: true }, [
-      eventLinkedTo(222),
+      eventLinkedTo('guid-222'),
     ])
     await flushPromises()
 
     await user.click(screen.getByText('event.kcIdLookup'))
     await flushPromises()
 
-    expect(enqueueSnackbar).toHaveBeenCalledWith('event.kcIdConflict', { variant: 'error' })
+    expect(enqueueSnackbar).toHaveBeenCalledWith('event.kcGuidConflict', { variant: 'error' })
     expect(changeHandler).not.toHaveBeenCalled()
   })
 
@@ -256,7 +257,7 @@ describe('KcIdSection', () => {
           classes: ['ALO', 'AVO'],
           endDate: new TZDate('2026-07-02', TIME_ZONE),
           eventType: 'NOME-B',
-          id: 222,
+          kcGuid: 'guid-222',
           location: 'Espoo',
           name: 'Toinen koe',
           organizer: 'Järjestäjä',
@@ -266,7 +267,7 @@ describe('KcIdSection', () => {
           classes: ['VOI'],
           endDate: new TZDate('2026-08-02', TIME_ZONE),
           eventType: 'NOME-B',
-          id: 333,
+          kcGuid: 'guid-333',
           location: 'Vantaa',
           name: 'Kolmas koe',
           organizer: 'Järjestäjä',
@@ -286,7 +287,7 @@ describe('KcIdSection', () => {
     }
 
     const { user } = await renderComponent({ event: testEvent, onChange: changeHandler, open: true }, [
-      eventLinkedTo(222),
+      eventLinkedTo('guid-222'),
     ])
     await flushPromises()
 
@@ -302,11 +303,162 @@ describe('KcIdSection', () => {
 
     expect(changeHandler).toHaveBeenLastCalledWith({
       kcEvent: expect.objectContaining({ classes: ['VOI'] }),
-      kcId: 333,
+      kcGuid: 'guid-333',
     })
   })
 
-  it('should show the fetched Kennel Club ID as static, non-editable text', async () => {
+  describe('a trial without a GUID', () => {
+    const searchEventKcIdChoices = (...kcTunnukset: Array<string | undefined>) =>
+      vi.spyOn(eventApi, 'searchEventKcIdChoices').mockResolvedValueOnce({
+        choices: kcTunnukset.map((kcTunnus) => ({
+          classes: [],
+          endDate: new TZDate('2026-06-01', TIME_ZONE),
+          eventType: 'NOME-B',
+          kcGuid: null,
+          kcTunnus,
+          location: 'Espoo',
+          name: 'Koe',
+          organizer: 'Järjestäjä',
+          startDate: new TZDate('2026-06-01', TIME_ZONE),
+        })),
+      })
+    const testEvent: PartialEvent = {
+      classes: [{ class: 'ALO', date: new TZDate('2026-06-01', TIME_ZONE) }],
+      endDate: new TZDate('2026-06-01', TIME_ZONE),
+      eventType: 'NOME-B',
+      id: 'test',
+      judges: [],
+      organizer: { id: 'org-id', name: 'Organizer' },
+      startDate: new TZDate('2026-06-01', TIME_ZONE),
+    }
+
+    it('is shown, not applied, when it is the only match, and cannot be selected', async () => {
+      searchEventKcIdChoices(undefined)
+      const changeHandler = vi.fn()
+
+      const { user } = await renderComponent({ event: testEvent, onChange: changeHandler, open: true })
+      await user.click(screen.getByText('event.kcIdLookup'))
+
+      expect(await screen.findByText('event.kcIdChoiceTitle')).toBeInTheDocument()
+      expect(screen.getByText('event.kcGuidMissing')).toBeInTheDocument()
+      expect(screen.queryByRole('button', { name: 'event.kcIdSelect' })).not.toBeInTheDocument()
+      expect(changeHandler).not.toHaveBeenCalled()
+      expect(enqueueSnackbar).not.toHaveBeenCalled()
+    })
+
+    it('can be listed twice without a key clash, and neither can be selected', async () => {
+      searchEventKcIdChoices(undefined, undefined)
+
+      const { user } = await renderComponent({ event: testEvent, onChange: vi.fn(), open: true })
+      await user.click(screen.getByText('event.kcIdLookup'))
+
+      expect(await screen.findAllByText('event.kcGuidMissing')).toHaveLength(2)
+      expect(screen.queryByRole('button', { name: 'event.kcIdSelect' })).not.toBeInTheDocument()
+    })
+
+    it('leaves the one with a GUID selectable beside it', async () => {
+      vi.spyOn(eventApi, 'searchEventKcIdChoices').mockResolvedValueOnce({
+        choices: [
+          {
+            classes: [],
+            endDate: new TZDate('2026-06-01', TIME_ZONE),
+            eventType: 'NOME-B',
+            kcGuid: null,
+            location: 'Espoo',
+            name: 'Koe',
+            organizer: 'Järjestäjä',
+            startDate: new TZDate('2026-06-01', TIME_ZONE),
+          },
+          {
+            classes: [],
+            endDate: new TZDate('2026-06-01', TIME_ZONE),
+            eventType: 'NOME-B',
+            kcGuid: 'guid-1',
+            location: 'Espoo',
+            name: 'Koe',
+            organizer: 'Järjestäjä',
+            startDate: new TZDate('2026-06-01', TIME_ZONE),
+          },
+        ],
+      })
+
+      const { user } = await renderComponent({ event: testEvent, onChange: vi.fn(), open: true })
+      await user.click(screen.getByText('event.kcIdLookup'))
+
+      expect(await screen.findAllByRole('button', { name: 'event.kcIdSelect' })).toHaveLength(1)
+      expect(screen.getAllByText('event.kcGuidMissing')).toHaveLength(1)
+    })
+  })
+
+  it("should not leave the previous trial's judge behind when the new trial has none", async () => {
+    vi.spyOn(eventApi, 'searchEventKcIdChoices').mockResolvedValueOnce({
+      choices: [
+        {
+          classes: ['ALO'],
+          endDate: new TZDate('2026-07-02', TIME_ZONE),
+          eventType: 'NOME-B',
+          kcGuid: 'guid-b',
+          name: 'Koe B',
+          organizer: 'Järjestäjä',
+          startDate: new TZDate('2026-07-01', TIME_ZONE),
+        },
+      ],
+    })
+    const changeHandler = vi.fn()
+    const testEvent: PartialEvent = {
+      classes: [{ class: 'ALO', date: new TZDate('2026-06-01', TIME_ZONE) }],
+      endDate: new TZDate('2026-06-01', TIME_ZONE),
+      eventType: 'NOME-B',
+      id: 'test',
+      judges: [],
+      kcEvent: {
+        classes: ['AVO'],
+        endDate: new TZDate('2026-06-01', TIME_ZONE),
+        eventType: 'NOME-B',
+        judge: 'Tuomari A',
+        judgeId: 1000001,
+        location: 'Vantaa',
+        startDate: new TZDate('2026-06-01', TIME_ZONE),
+      },
+      kcGuid: 'guid-a',
+      organizer: { id: 'org-id', name: 'Organizer' },
+      startDate: new TZDate('2026-06-01', TIME_ZONE),
+    }
+
+    const { user } = await renderComponent({ event: testEvent, onChange: changeHandler, open: true })
+    await user.click(screen.getByText('event.kcIdSwitch'))
+    await flushPromises()
+
+    expect(changeHandler).toHaveBeenCalledTimes(1)
+    // The server merges what the form sends the way patchMerge does: only an explicit null deletes a key
+    const merged = patchMerge({ ...testEvent }, changeHandler.mock.lastCall?.[0])
+    expect(merged.kcGuid).toBe('guid-b')
+    expect(merged.kcEvent).toEqual(expect.objectContaining({ classes: ['ALO'] }))
+    expect(merged.kcEvent).not.toHaveProperty('judge')
+    expect(merged.kcEvent).not.toHaveProperty('judgeId')
+    expect(merged.kcEvent).not.toHaveProperty('location')
+  })
+
+  it('should say that the event is linked, without showing the GUID', async () => {
+    const testEvent: PartialEvent = {
+      classes: [],
+      endDate: new TZDate('2026-06-01', TIME_ZONE),
+      eventType: 'NOME-B',
+      id: 'test',
+      judges: [],
+      kcGuid: 'guid-222',
+      organizer: { id: 'org-id', name: 'Organizer' },
+      startDate: new TZDate('2026-06-01', TIME_ZONE),
+    }
+
+    await renderComponent({ event: testEvent, onChange: vi.fn(), open: true })
+
+    expect(screen.getByText('event.kcGuidLinked')).toBeInTheDocument()
+    expect(screen.queryByText('guid-222')).not.toBeInTheDocument()
+    expect(screen.queryByRole('textbox', { name: 'event.kcGuid' })).not.toBeInTheDocument()
+  })
+
+  it('should show the old koetunnus of an event without a GUID, and offer the lookup', async () => {
     const testEvent: PartialEvent = {
       classes: [],
       endDate: new TZDate('2026-06-01', TIME_ZONE),
@@ -320,11 +472,13 @@ describe('KcIdSection', () => {
 
     await renderComponent({ event: testEvent, onChange: vi.fn(), open: true })
 
-    expect(screen.getByText('222')).toBeInTheDocument()
-    expect(screen.queryByRole('textbox', { name: 'event.kcId' })).not.toBeInTheDocument()
+    expect(screen.getByText('event.kcIdLegacy id')).toBeInTheDocument()
+    expect(screen.queryByText('event.kcGuidLinked')).not.toBeInTheDocument()
+    expect(screen.getByText('event.kcIdLookup')).toBeInTheDocument()
+    expect(screen.queryByText('event.kcIdRemove')).not.toBeInTheDocument()
   })
 
-  it('should clear an existing Kennel Club ID when remove is selected', async () => {
+  it('should clear the link, and only the link, when remove is selected', async () => {
     const changeHandler = vi.fn()
     const testEvent: PartialEvent = {
       classes: [{ class: 'ALO', date: new TZDate('2026-06-01', TIME_ZONE) }],
@@ -332,7 +486,8 @@ describe('KcIdSection', () => {
       eventType: 'NOME-B',
       id: 'test',
       judges: [],
-      kcId: 222,
+      kcGuid: 'guid-222',
+      kcId: 111,
       name: 'Koe',
       organizer: { id: 'org-id', name: 'Organizer' },
       startDate: new TZDate('2026-06-01', TIME_ZONE),
@@ -342,17 +497,19 @@ describe('KcIdSection', () => {
 
     await user.click(screen.getByText('event.kcIdRemove'))
 
-    expect(changeHandler).toHaveBeenLastCalledWith({ kcEvent: null, kcId: null })
+    expect(changeHandler).toHaveBeenLastCalledWith({ kcEvent: null, kcGuid: null })
 
     rerender(
       <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales.fi}>
         <Provider initializeState={({ set }) => set(idTokenAtom, 'id-token')}>
-          <KcIdSection {...{ event: { ...testEvent, kcId: null }, onChange: changeHandler, open: true }} />
+          <KcIdSection
+            {...{ event: { ...testEvent, kcGuid: null, kcId: undefined }, onChange: changeHandler, open: true }}
+          />
         </Provider>
       </LocalizationProvider>
     )
 
-    expect(screen.queryByText('222')).not.toBeInTheDocument()
+    expect(screen.queryByText('event.kcGuidLinked')).not.toBeInTheDocument()
     expect(screen.getByText('event.kcIdEmpty')).toBeInTheDocument()
   })
 
@@ -419,7 +576,7 @@ describe('KcIdSection', () => {
       id: 'test',
       judges: [{ id: 1, name: 'Tuomari Testi' }],
       kcEvent,
-      kcId: 222,
+      kcGuid: 'guid-222',
       location: 'Espoo',
       organizer: { id: 'org-id', name: 'Organizer' },
       startDate: new TZDate('2026-06-01', TIME_ZONE),
@@ -431,7 +588,7 @@ describe('KcIdSection', () => {
       expect(screen.queryByRole('alert')).not.toBeInTheDocument()
     })
 
-    it('should show no warnings when a koetunnus is set without a stored snapshot', async () => {
+    it('should show no warnings when a GUID is set without a stored snapshot', async () => {
       await renderComponent({ event: { ...baseEvent, kcEvent: undefined }, onChange: vi.fn(), open: true })
 
       expect(screen.queryByRole('alert')).not.toBeInTheDocument()
@@ -494,6 +651,84 @@ describe('KcIdSection', () => {
       })
 
       expect(screen.queryByRole('alert')).not.toBeInTheDocument()
+    })
+
+    describe('by member number', () => {
+      const withJudgeId = { ...kcEvent, judgeId: 1000001 }
+
+      it('should match a judge by number, however the names are spelled', async () => {
+        await renderComponent({
+          event: { ...baseEvent, judges: [{ id: 1000001, name: 'Testi, Tuomari' }], kcEvent: withJudgeId },
+          onChange: vi.fn(),
+          open: true,
+        })
+
+        expect(screen.queryByRole('alert')).not.toBeInTheDocument()
+      })
+
+      it('should not match a judge with the same name but another number', async () => {
+        await renderComponent({
+          event: { ...baseEvent, judges: [{ id: 2, name: 'Tuomari Testi' }], kcEvent: withJudgeId },
+          onChange: vi.fn(),
+          open: true,
+        })
+
+        expect(screen.getByText('event.kcIdWarningJudge kcJudge')).toBeInTheDocument()
+      })
+
+      it('should accept any of the event judges', async () => {
+        await renderComponent({
+          event: {
+            ...baseEvent,
+            judges: [
+              { id: 2, name: 'Joku Muu' },
+              { id: 1000001, name: 'Tuomari Testi' },
+            ],
+            kcEvent: withJudgeId,
+          },
+          onChange: vi.fn(),
+          open: true,
+        })
+
+        expect(screen.queryByRole('alert')).not.toBeInTheDocument()
+      })
+
+      it('should compare by name a judge that has no number', async () => {
+        await renderComponent({
+          event: { ...baseEvent, judges: [{ name: ' tuomari TESTI ' }], kcEvent: withJudgeId },
+          onChange: vi.fn(),
+          open: true,
+        })
+
+        expect(screen.queryByRole('alert')).not.toBeInTheDocument()
+      })
+
+      it.each([0, undefined])(
+        'should not warn when the chief judge number is %s and no name is known',
+        async (judgeId) => {
+          await renderComponent({
+            event: {
+              ...baseEvent,
+              judges: [{ id: 2, name: 'Joku Muu' }],
+              kcEvent: { ...kcEvent, judge: undefined, judgeId },
+            },
+            onChange: vi.fn(),
+            open: true,
+          })
+
+          expect(screen.queryByRole('alert')).not.toBeInTheDocument()
+        }
+      )
+
+      it('should fall back to names for a kcEvent stored before the number was kept', async () => {
+        await renderComponent({
+          event: { ...baseEvent, judges: [{ id: 2, name: 'Joku Muu' }] },
+          onChange: vi.fn(),
+          open: true,
+        })
+
+        expect(screen.getByText('event.kcIdWarningJudge kcJudge')).toBeInTheDocument()
+      })
     })
   })
 })

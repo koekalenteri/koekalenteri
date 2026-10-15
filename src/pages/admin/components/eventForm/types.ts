@@ -4,7 +4,7 @@ import type { DeepPartial, DogEvent, EventState, Patch } from '@/types'
 export interface PartialEvent
   extends Omit<
     DeepPartial<DogEvent>,
-    'startDate' | 'endDate' | 'classes' | 'judges' | 'official' | 'secretary' | 'dates' | 'kcId'
+    'startDate' | 'endDate' | 'classes' | 'judges' | 'official' | 'secretary' | 'dates' | 'kcId' | 'kcGuid'
   > {
   startDate: DogEvent['startDate']
   endDate: DogEvent['endDate']
@@ -14,6 +14,7 @@ export interface PartialEvent
   secretary?: Partial<DogEvent['secretary']>
   dates?: NonNullable<DogEvent['dates']>
   kcId?: NonNullable<DogEvent['kcId']> | null
+  kcGuid?: NonNullable<DogEvent['kcGuid']> | null
 
   cost?: DogEvent['cost']
   costMember?: NonNullable<DogEvent['costMember']>
@@ -46,6 +47,7 @@ export type BasicInfoEvent = Pick<
   | 'id'
   | 'judges'
   | 'kcEvent'
+  | 'kcGuid'
   | 'kcId'
   | 'location'
   | 'mockTrial'

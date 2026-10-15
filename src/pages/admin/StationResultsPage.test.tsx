@@ -215,7 +215,12 @@ describe('StationResultsPage', () => {
 
   // The post's screen names the trial the way the results page does: in English for a secretary
   // browsing in English where an English name is kept (KOE-1453), the event type when it has no name.
-  const namedStations: ConfirmedEvent = { ...eventWithStations, kcId: undefined, names: { en: 'Results trial' } }
+  const namedStations: ConfirmedEvent = {
+    ...eventWithStations,
+    kcGuid: undefined,
+    kcId: undefined,
+    names: { en: 'Results trial' },
+  }
 
   it('names the trial in Finnish in a Finnish view', async () => {
     await renderStation('fi', 'post-2', namedStations)
@@ -227,14 +232,37 @@ describe('StationResultsPage', () => {
   describeInLanguage('en', () => {
     it.each([
       ['its English name', namedStations, 'Results trial'],
-      ['its Finnish name when it has no English one', { ...eventWithStations, kcId: undefined }, 'Tuloskoe'],
-      ['its event type when it has no name', { ...eventWithStations, kcId: undefined, name: '' }, 'NOWT'],
+      [
+        'its Finnish name when it has no English one',
+        { ...eventWithStations, kcGuid: undefined, kcId: undefined },
+        'Tuloskoe',
+      ],
+      [
+        'its event type when it has no name',
+        { ...eventWithStations, kcGuid: undefined, kcId: undefined, name: '' },
+        'NOWT',
+      ],
     ])('names the trial by %s', async (_case, event, expected) => {
       await renderStation('en', 'post-2', event)
       await flushPromises()
 
       expect(screen.getByText(expected)).toBeInTheDocument()
     })
+  })
+
+  it('marks a trial that is linked to Kennelliitto, by its GUID', async () => {
+    await renderStation('fi', 'post-2', { ...eventWithStations, kcGuid: '2b81e6a1-559b-407c-87c7-b8a9b89b1987' })
+    await flushPromises()
+
+    expect(screen.getByText('Tuloskoe · event.kcGuidLinked')).toBeInTheDocument()
+  })
+
+  it('does not take the old kcId alone for a link', async () => {
+    await renderStation('fi', 'post-2', { ...eventWithStations, kcGuid: undefined, kcId: 451859 })
+    await flushPromises()
+
+    expect(screen.getByText('Tuloskoe')).toBeInTheDocument()
+    expect(screen.queryByText(/451859/)).not.toBeInTheDocument()
   })
 
   it('names the post and queues the dogs due through it', async () => {

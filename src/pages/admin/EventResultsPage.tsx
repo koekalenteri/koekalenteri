@@ -265,14 +265,14 @@ export default function EventResultsPage() {
           {t('dateFormat.datespan', { end: event.endDate, start: event.startDate })} {event.eventType} {event.location}
           {name ? ` (${name})` : ''}
         </Typography>
-        {event.kcId ? (
+        {event.kcGuid ? (
           <Typography
             variant="body2"
             sx={{
               color: 'text.secondary',
             }}
           >
-            {t('event.kcId')}: {event.kcId}
+            {t('event.kcGuidLinked')}
           </Typography>
         ) : (
           <Stack
@@ -288,7 +288,7 @@ export default function EventResultsPage() {
                 color: 'text.secondary',
               }}
             >
-              {t('event.kcIdEmpty')}
+              {event.kcId ? t('event.kcIdLegacy', { id: event.kcId }) : t('event.kcIdEmpty')}
             </Typography>
             <KcIdLookupButton event={event} onChange={saveKcId} variant="text" />
           </Stack>

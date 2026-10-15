@@ -34,7 +34,7 @@ const MissingKcId = () => {
       >
         {t('event.kcIdEmpty')}
       </Typography>
-      <KcIdLookupButton event={{ ...eventWithStations, kcId: undefined }} onChange={async () => {}} variant="text" />
+      <KcIdLookupButton event={{ ...eventWithStations, kcGuid: undefined }} onChange={async () => {}} variant="text" />
     </Stack>
   )
 }

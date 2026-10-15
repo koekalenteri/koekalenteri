@@ -17,6 +17,7 @@ import { patchMerge } from '../../lib/utils'
 import { audit, eventAuditKey, getEventAuditMessages } from '../lib/audit'
 import { authorize } from '../lib/auth'
 import {
+  findEventWithKcGuid,
   findEventWithKcId,
   findQualificationStartDate,
   getEvent,
@@ -247,6 +248,30 @@ const auditEventChanges = async (
   }
 }
 
+type KcLinkConflict = { error: 'kcGuidConflict' | 'kcIdConflict'; message: string }
+
+/**
+ * The 409 body when the event is being linked to a Kennelliitto trial another event is linked to
+ * already. Only a link that changes is looked up (a save from the results page repeats the stored
+ * one, and a null clears it), so an unchanged link never rescans the table.
+ */
+const findKcLinkConflict = async (
+  item: Patch<JsonConfirmedEvent>,
+  existing: JsonConfirmedEvent | undefined
+): Promise<KcLinkConflict | undefined> => {
+  if (item.kcId != null && item.kcId !== existing?.kcId && (await findEventWithKcId(item.kcId, existing?.id))) {
+    return { error: 'kcIdConflict', message: 'Kennel Club ID is already linked to another event' }
+  }
+  if (
+    item.kcGuid != null &&
+    item.kcGuid !== existing?.kcGuid &&
+    (await findEventWithKcGuid(item.kcGuid, existing?.id))
+  ) {
+    return { error: 'kcGuidConflict', message: 'Kennel Club trial is already linked to another event' }
+  }
+  return undefined
+}
+
 const putEventLambda = lambda('putEvent', async (event) => {
   const user = await authorize(event)
   if (!user) {
@@ -268,16 +293,8 @@ const putEventLambda = lambda('putEvent', async (event) => {
   checkPutEventAgainstExisting(user, item, existing, clientModifiedAt)
   dropResultsPublished(item, existing)
 
-  if (item.kcId != null && item.kcId !== existing?.kcId) {
-    const conflict = await findEventWithKcId(item.kcId, existing?.id)
-    if (conflict) {
-      return response(
-        409,
-        { error: 'kcIdConflict', message: 'Kennel Club ID is already linked to another event' },
-        event
-      )
-    }
-  }
+  const kcConflict = await findKcLinkConflict(item, existing)
+  if (kcConflict) return response(409, kcConflict, event)
 
   if (!existing) {
     initializeNewEvent(item, timestamp, user.name)

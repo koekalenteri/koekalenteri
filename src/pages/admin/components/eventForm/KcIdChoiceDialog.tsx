@@ -13,14 +13,27 @@ import Typography from '@mui/material/Typography'
 import { useTranslation } from 'react-i18next'
 import { zonedDateString } from '@/i18n/dates'
 
+/** Text for screen readers only: the column of buttons has a name, and none to look at. */
+const VISUALLY_HIDDEN = {
+  border: 0,
+  clip: 'rect(0 0 0 0)',
+  height: 1,
+  margin: -1,
+  overflow: 'hidden',
+  padding: 0,
+  position: 'absolute',
+  whiteSpace: 'nowrap',
+  width: 1,
+} as const
+
 type Props = {
   readonly choices: EventKcIdChoice[]
-  readonly linkedKcIds?: ReadonlySet<number>
+  readonly linkedKcGuids?: ReadonlySet<string>
   readonly onClose: () => void
   readonly onSelect: (choice: EventKcIdChoice) => void
 }
 
-export default function KcIdChoiceDialog({ choices, linkedKcIds, onClose, onSelect }: Props) {
+export default function KcIdChoiceDialog({ choices, linkedKcGuids, onClose, onSelect }: Props) {
   const { t } = useTranslation()
 
   return (
@@ -37,13 +50,17 @@ export default function KcIdChoiceDialog({ choices, linkedKcIds, onClose, onSele
               <TableCell>{t('event.kcIdChoiceLocation')}</TableCell>
               <TableCell>{t('event.kcIdChoiceOrganizer')}</TableCell>
               <TableCell>{t('event.kcIdChoiceStatus')}</TableCell>
-              <TableCell />
+              <TableCell>
+                <span style={VISUALLY_HIDDEN}>{t('event.kcIdSelect')}</span>
+              </TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
-            {choices.map((choice) => (
-              <TableRow key={choice.id}>
-                <TableCell>{choice.id}</TableCell>
+            {choices.map((choice, index) => (
+              // The index is part of the key: two trials without a GUID can be alike in everything shown.
+              // biome-ignore lint/suspicious/noArrayIndexKey: the list is never reordered while it is open
+              <TableRow key={`${choice.kcGuid ?? choice.kcTunnus ?? ''}|${choice.startDate.getTime()}|${index}`}>
+                <TableCell>{choice.kcTunnus ?? '-'}</TableCell>
                 <TableCell>{[choice.eventType, choice.name].filter(Boolean).join(' ')}</TableCell>
                 <TableCell>{choice.classes.join(', ')}</TableCell>
                 <TableCell>{formatDateSpan(choice)}</TableCell>
@@ -51,15 +68,7 @@ export default function KcIdChoiceDialog({ choices, linkedKcIds, onClose, onSele
                 <TableCell>{choice.organizer}</TableCell>
                 <TableCell>{choice.status}</TableCell>
                 <TableCell align="right">
-                  {linkedKcIds?.has(choice.id) ? (
-                    <Typography variant="caption" color="error">
-                      {t('event.kcIdChoiceLinked')}
-                    </Typography>
-                  ) : (
-                    <Button variant="contained" size="small" onClick={() => onSelect(choice)}>
-                      {t('event.kcIdSelect')}
-                    </Button>
-                  )}
+                  <ChoiceAction choice={choice} linkedKcGuids={linkedKcGuids} onSelect={onSelect} />
                 </TableCell>
               </TableRow>
             ))}
@@ -72,6 +81,33 @@ export default function KcIdChoiceDialog({ choices, linkedKcIds, onClose, onSele
         </Button>
       </DialogActions>
     </Dialog>
+  )
+}
+
+type ActionProps = Pick<Props, 'linkedKcGuids' | 'onSelect'> & { readonly choice: EventKcIdChoice }
+
+/** A trial without a GUID is shown but cannot be linked: Kennelliitto has not given it an identifier yet. */
+function ChoiceAction({ choice, linkedKcGuids, onSelect }: ActionProps) {
+  const { t } = useTranslation()
+
+  if (!choice.kcGuid) {
+    return (
+      <Typography variant="caption" color="text.secondary">
+        {t('event.kcGuidMissing')}
+      </Typography>
+    )
+  }
+  if (linkedKcGuids?.has(choice.kcGuid)) {
+    return (
+      <Typography variant="caption" color="error">
+        {t('event.kcIdChoiceLinked')}
+      </Typography>
+    )
+  }
+  return (
+    <Button variant="contained" size="small" onClick={() => onSelect(choice)}>
+      {t('event.kcIdSelect')}
+    </Button>
   )
 }
 

@@ -27,6 +27,7 @@ export const emptyEvent: ConfirmedEvent = {
   headquarters: { zipCode: '33101' },
   id: 'test',
   judges: [{ id: 123, name: 'Tuomari 1', official: true }],
+  kcGuid: '2b81e6a1-559b-407c-87c7-b8a9b89b1987',
   kcId: 123456,
   location: 'test',
   modifiedAt: new Date('1989-01-02'),

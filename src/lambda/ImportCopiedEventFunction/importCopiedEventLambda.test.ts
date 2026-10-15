@@ -113,6 +113,31 @@ describe('importCopiedEvent', () => {
     expect(result).toEqual({ eventId: 'copy-1', judges: [{ name: 'Puuttuva Tuomari', reason: 'missing' }] })
   })
 
+  it('does not store a link to a Kennelliitto trial a source that is not up to date still sends (KOE-1534)', async () => {
+    const older = request()
+    older.copy.event = {
+      ...older.copy.event,
+      kcEvent: { classes: [], endDate: '2026-09-27', eventType: 'NOU', startDate: '2026-09-26' },
+      kcGuid: '2b81e6a1-559b-407c-87c7-b8a9b89b1987',
+      kcId: 451859,
+    }
+
+    await importCopiedEvent(older)
+
+    expect(mockSaveEvent).toHaveBeenCalledWith(expect.not.objectContaining({ kcEvent: expect.anything() }))
+    expect(mockSaveEvent).toHaveBeenCalledWith(expect.not.objectContaining({ kcGuid: expect.anything() }))
+    expect(mockSaveEvent).toHaveBeenCalledWith(expect.not.objectContaining({ kcId: expect.anything() }))
+  })
+
+  it('does not store the legacy kcId of a copy that has no GUID', async () => {
+    const legacy = request()
+    legacy.copy.event = { ...legacy.copy.event, kcId: 451859 }
+
+    await importCopiedEvent(legacy)
+
+    expect(mockSaveEvent).toHaveBeenCalledWith(expect.not.objectContaining({ kcId: expect.anything() }))
+  })
+
   it('never imports into prod', async () => {
     CONFIG.stageName = 'prod'
 

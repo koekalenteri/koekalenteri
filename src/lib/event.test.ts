@@ -69,6 +69,7 @@ import {
   isStartNumbersPublishedForClass,
   isStartNumbersPublishedForDay,
   isStartNumbersPublishedForSlot,
+  KENNELLIITTO_LINK_FIELDS,
   localizedEventDescription,
   localizedEventName,
   newEventEntryEndDate,
@@ -78,6 +79,7 @@ import {
   registrationDatesOutsideClass,
   sanitizeDogEvent,
   startNumbersSlotKey,
+  stripKennelliittoLink,
   withResultsDay,
 } from './event'
 
@@ -1058,6 +1060,23 @@ describe('lib/event', () => {
       expect(copy.startNumbersPublished).toBe(false)
       expect(copy.resultsPublished).toBeUndefined()
     })
+    it('should not carry the link to a Kennelliitto trial (KOE-1534)', () => {
+      const copy = copyDogEvent({
+        ...eventWithParticipantsInvited,
+        kcEvent: {
+          classes: ['ALO'],
+          endDate: new Date(),
+          eventType: 'NOU',
+          location: 'Laukaa',
+          startDate: new Date(),
+        },
+        kcGuid: '2b81e6a1-559b-407c-87c7-b8a9b89b1987',
+        kcId: 12345,
+      })
+      expect(copy.kcGuid).toBeUndefined()
+      expect(copy.kcEvent).toBeUndefined()
+      expect(copy.kcId).toBeUndefined()
+    })
     it('should reset entries and members', () => {
       const copy = copyDogEvent({ ...eventWithParticipantsInvited, entries: 15, members: 10 })
       expect(copy.entries).toBe(0)
@@ -1281,6 +1300,7 @@ describe('sanitizeDogEvent', () => {
       invitationAttachment: 'attachment.pdf',
       invitationAttachmentHistory: { 'attachment.pdf': { uploadedAt: new Date() } },
       invitationAttachments: { ALO: 'attachment.pdf' },
+      kcGuid: '2b81e6a1-559b-407c-87c7-b8a9b89b1987',
       kcId: 12345,
       modifiedBy: 'user-3',
       name: 'Test Event',
@@ -1300,6 +1320,7 @@ describe('sanitizeDogEvent', () => {
     expect(sanitized.deletedBy).toBeUndefined()
     expect(sanitized.headquarters).toBeUndefined()
     expect(sanitized.kcId).toBeUndefined()
+    expect(sanitized.kcGuid).toBeUndefined()
     expect(sanitized.invitationAttachment).toBeUndefined()
     expect(sanitized.invitationAttachmentHistory).toBeUndefined()
     expect(sanitized.invitationAttachments).toBeUndefined()
@@ -1355,6 +1376,7 @@ describe('sanitizeDogEvent', () => {
       invitationAttachment: 'attachment.pdf',
       invitationAttachmentHistory: { 'attachment.pdf': { uploadedAt: new Date() } },
       invitationAttachments: { ALO: 'attachment.pdf' },
+      kcGuid: '2b81e6a1-559b-407c-87c7-b8a9b89b1987',
       kcId: 12345,
       modifiedBy: 'user-3',
       official: 'official-info',
@@ -1364,6 +1386,21 @@ describe('sanitizeDogEvent', () => {
     const sanitized = sanitizeDogEvent(asDogEvent(event))
 
     expect(sanitized).toEqual({})
+  })
+})
+
+describe('stripKennelliittoLink (KOE-1534)', () => {
+  it('removes the GUID, the old id and the snapshot, and nothing else', () => {
+    const event = { kcEvent: { classes: [] }, kcGuid: 'guid', kcId: 1, name: 'Koe' }
+
+    expect(stripKennelliittoLink(event)).toEqual({ name: 'Koe' })
+    expect(KENNELLIITTO_LINK_FIELDS.every((field) => !Object.hasOwn(event, field))).toBe(true)
+  })
+
+  it('leaves an event without a link as it is', () => {
+    const event: { kcId?: number; name: string } = { name: 'Koe' }
+
+    expect(stripKennelliittoLink(event)).toEqual({ name: 'Koe' })
   })
 })
 

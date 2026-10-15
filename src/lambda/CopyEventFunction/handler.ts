@@ -2,7 +2,7 @@ import { addDays } from 'date-fns/addDays'
 import { differenceInDays } from 'date-fns/differenceInDays'
 import { parseISO } from 'date-fns/parseISO'
 import { nanoid } from 'nanoid'
-import { getEventSeason } from '../../lib/event'
+import { getEventSeason, stripKennelliittoLink } from '../../lib/event'
 import { saveEvent } from '../lib/event'
 import { authorizeEvent } from '../lib/eventAuth'
 import { removeEventRuntimeState } from '../lib/eventCopy'
@@ -27,6 +27,9 @@ const copyEventLambda = lambda('copyEvent', async (event) => {
 
   // The source's live timeline and locks belong to its own run of the trial.
   removeEventRuntimeState(item)
+  // The link to a Kennelliitto trial belongs to the event it was made for (KOE-1534): a second event
+  // with the same GUID would send its results to the original's trial.
+  stripKennelliittoLink(item)
   item.id = nanoid(10)
   item.name = `Kopio - ${item.name ?? ''}`
   item.state = 'draft'

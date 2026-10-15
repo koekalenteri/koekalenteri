@@ -36,23 +36,25 @@ export const adminEventAtom = atomFamily((eventId: string | undefined) =>
   )
 )
 
-// Koetunnukset already spoken for, so the koetunnus picker can refuse one at pick time instead of
-// leaving the secretary to discover the clash from the conflict the backend raises on save.
-export const adminLinkedKcIdsAtom = atomFamily((eventId: string | undefined) =>
+// Kennelliitto trials already linked to an event, so the picker can refuse one at pick time instead
+// of leaving the secretary to discover the clash from the conflict the backend raises on save.
+// A deleted event keeps its kcGuid (the delete only sets deletedAt) but no longer holds the trial,
+// the way the server's scan sees it.
+export const adminLinkedKcGuidsAtom = atomFamily((eventId: string | undefined) =>
   atom(async (get) => {
-    const kcIds = new Set<number>()
+    const kcGuids = new Set<string>()
     for (const event of await get(adminEventsAtom)) {
-      if (event.id !== eventId && event.kcId !== undefined) kcIds.add(event.kcId)
+      if (event.id !== eventId && event.kcGuid && !event.deletedAt) kcGuids.add(event.kcGuid)
     }
-    return kcIds
+    return kcGuids
   })
 )
 
 // Unwrapped for a button that must not suspend the section around it: before the events resolve
 // nothing is known to be taken, which only loses the early warning — the backend still raises the
 // conflict on save — and by the time an event's form is open they have.
-export const adminKnownKcIdsAtom = atomFamily((eventId: string | undefined) =>
-  unwrap(adminLinkedKcIdsAtom(eventId), (previous) => previous ?? new Set<number>())
+export const adminKnownKcGuidsAtom = atomFamily((eventId: string | undefined) =>
+  unwrap(adminLinkedKcGuidsAtom(eventId), (previous) => previous ?? new Set<string>())
 )
 
 export const adminConfirmedEventAtom = atomFamily((eventId: string | undefined) =>

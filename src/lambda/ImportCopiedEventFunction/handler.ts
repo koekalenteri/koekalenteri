@@ -2,7 +2,7 @@ import type { JsonDogEvent, JsonJudge, JsonUser, Organizer } from '../../types'
 import type { CopyImportRequest, CopyImportResult } from '../lib/eventCopy'
 import { nanoid } from 'nanoid'
 import { eventCopiedFromAudit } from '../../lib/audit'
-import { getEventSeason } from '../../lib/event'
+import { getEventSeason, stripKennelliittoLink } from '../../lib/event'
 import { CONFIG } from '../config'
 import { audit, eventAuditKey } from '../lib/audit'
 import { withoutPlusTag } from '../lib/email'
@@ -37,6 +37,9 @@ export default async function importCopiedEvent(request: CopyImportRequest): Pro
   if (CONFIG.stageName === 'prod') throw new Error('An event copy is never imported into prod')
 
   const { copy, copier, organizerKcId, source } = request
+  // A source that has not been deployed yet may still send the link; it names a trial of its own
+  // environment, so it is dropped here and never stored (KOE-1534).
+  stripKennelliittoLink(copy.event)
   const leaks = findCopyLeaks(copy, copier)
   if (leaks.length) throw new Error(`Event copy rejected: ${leaks.join(', ')}`)
 

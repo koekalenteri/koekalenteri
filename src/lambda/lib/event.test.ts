@@ -4,6 +4,7 @@ import { PRIORITY_MEMBER } from '../../lib/priority'
 
 const mockQuery = vi.fn()
 const mockRead = vi.fn()
+const mockReadAll = vi.fn()
 const mockUpdate = vi.fn()
 const mockWrite = vi.fn()
 
@@ -13,6 +14,7 @@ vi.doMock('../utils/CustomDynamoClient', () => ({
     return {
       query: mockQuery,
       read: mockRead,
+      readAll: mockReadAll,
       update: mockUpdate,
       write: mockWrite,
     }
@@ -28,6 +30,7 @@ vi.doMock('./audit', () => ({
 }))
 
 const {
+  findEventWithKcGuid,
   findQualificationStartDate,
   fixRegistrationGroups,
   getEvent,
@@ -115,6 +118,40 @@ describe('lib/event', () => {
       await expect(
         findQualificationStartDate('NOME-B SM', new Date('2025-03-22T17:00:00Z').toISOString())
       ).resolves.toEqual('2024-08-16T00:00:00.000+03:00')
+    })
+  })
+
+  describe('findEventWithKcGuid (KOE-1534)', () => {
+    const GUID = '2b81e6a1-559b-407c-87c7-b8a9b89b1987'
+
+    beforeEach(() => {
+      mockReadAll.mockReset()
+    })
+
+    it('scans the event table for the GUID', async () => {
+      mockReadAll.mockResolvedValueOnce([])
+
+      await findEventWithKcGuid(GUID)
+
+      expect(mockReadAll).toHaveBeenCalledWith({
+        filter: 'kcGuid = :kcGuid',
+        projection: 'id',
+        table: expect.any(String),
+        values: { ':kcGuid': GUID },
+      })
+    })
+
+    it('returns the other event that has the GUID', async () => {
+      mockReadAll.mockResolvedValueOnce([{ id: 'this' }, { id: 'other' }])
+
+      await expect(findEventWithKcGuid(GUID, 'this')).resolves.toEqual({ id: 'other' })
+    })
+
+    it('finds no conflict when the only match is the event itself or nothing matches', async () => {
+      mockReadAll.mockResolvedValueOnce([{ id: 'this' }]).mockResolvedValueOnce(undefined)
+
+      await expect(findEventWithKcGuid(GUID, 'this')).resolves.toBeUndefined()
+      await expect(findEventWithKcGuid(GUID, 'this')).resolves.toBeUndefined()
     })
   })
 

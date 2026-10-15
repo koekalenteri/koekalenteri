@@ -7,6 +7,7 @@ import {
   adminEventAtom,
   adminEventOrganizersAtom,
   adminFilteredEventsAtom,
+  adminLinkedKcGuidsAtom,
 } from './derivedAtoms'
 
 const event = (id: string, endDate: Date): DogEvent => ({
@@ -112,6 +113,28 @@ describe('admin event derived atoms', () => {
     await store.set(adminEventAtom(redated.id), redated)
 
     expect((await store.get(adminEventsAtom)).map((item) => item.id)).toEqual(['july', 'august', 'june'])
+  })
+
+  describe('Kennelliitto trials already linked (KOE-1534)', () => {
+    const linked = (id: string, kcGuid: string, deletedAt?: Date): DogEvent => ({
+      ...event(id, new Date('2026-06-10T00:00:00.000+03:00')),
+      deletedAt,
+      kcGuid,
+    })
+
+    it('lists the GUIDs of the other events', async () => {
+      const store = createStore()
+      store.set(adminEventsAtom, [linked('a', 'guid-a'), linked('b', 'guid-b')])
+
+      await expect(store.get(adminLinkedKcGuidsAtom('a'))).resolves.toEqual(new Set(['guid-b']))
+    })
+
+    it('does not count a deleted event, which keeps its GUID but no longer holds the trial', async () => {
+      const store = createStore()
+      store.set(adminEventsAtom, [linked('a', 'guid-a'), linked('b', 'guid-b', new Date('2026-05-01T00:00:00.000Z'))])
+
+      await expect(store.get(adminLinkedKcGuidsAtom('a'))).resolves.toEqual(new Set())
+    })
   })
 
   it('ignores events with missing organizers when listing event organizers', async () => {

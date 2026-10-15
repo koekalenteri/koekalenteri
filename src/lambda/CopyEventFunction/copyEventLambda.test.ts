@@ -211,6 +211,28 @@ describe('copyEventHandler', () => {
     )
   })
 
+  it('does not carry the link to a Kennelliitto trial, the old kcId included, into the copy (KOE-1534)', async () => {
+    mockAuthorize.mockResolvedValueOnce({ name: 'Test User' })
+    setEventBody(event, { id: 'event123', startDate: '2025-07-01T00:00:00.000Z' })
+    mockGetEvent.mockResolvedValueOnce({
+      classes: [],
+      endDate: '2025-06-12T00:00:00.000Z',
+      id: 'event123',
+      kcEvent: { classes: [], endDate: '2025-06-12', eventType: 'NOU', location: 'Laukaa', startDate: '2025-06-10' },
+      kcGuid: '2b81e6a1-559b-407c-87c7-b8a9b89b1987',
+      kcId: 451859,
+      name: 'Original Event',
+      startDate: '2025-06-10T00:00:00.000Z',
+    })
+    mockNanoid.mockReturnValueOnce('newid123')
+
+    await copyEventHandler(event)
+
+    expect(mockSaveEvent).toHaveBeenCalledWith(expect.not.objectContaining({ kcEvent: expect.anything() }))
+    expect(mockSaveEvent).toHaveBeenCalledWith(expect.not.objectContaining({ kcGuid: expect.anything() }))
+    expect(mockSaveEvent).toHaveBeenCalledWith(expect.not.objectContaining({ kcId: expect.anything() }))
+  })
+
   it('does not copy registration idempotency credentials, post-processing state or event outcomes', async () => {
     const user = { name: 'Test User' }
     mockAuthorize.mockResolvedValueOnce(user)

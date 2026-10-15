@@ -2,8 +2,8 @@ import { useEffect } from 'react'
 import {
   adminConfirmedEventAtom,
   adminEventAtom,
-  adminKnownKcIdsAtom,
-  adminLinkedKcIdsAtom,
+  adminKnownKcGuidsAtom,
+  adminLinkedKcGuidsAtom,
 } from './events/derivedAtoms'
 import { adminEditableEventByIdAtom } from './events/editableAtoms'
 import {
@@ -23,8 +23,8 @@ const EVENT_FAMILIES = [
   adminEventRegistrationsAtom,
   adminEventRegistrationsCursorAtom,
   adminEventRegistrationsFetchedAtAtom,
-  adminKnownKcIdsAtom,
-  adminLinkedKcIdsAtom,
+  adminKnownKcGuidsAtom,
+  adminLinkedKcGuidsAtom,
   adminPendingRegistrationGroupMovesAtom,
   adminProjectedEventRegistrationsAtom,
 ] as const

@@ -381,6 +381,25 @@ describe('useEventForm', () => {
     consoleErrorSpy.mockRestore()
   })
 
+  it('should say the trial is already linked, without mentioning a koetunnus, for a kcGuid conflict (KOE-1534)', async () => {
+    const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+    mockSave.mockRejectedValue(new APIError({ status: 409, statusText: '' } as Response, { error: 'kcGuidConflict' }))
+
+    const { result } = renderHook(() => useEventForm(), {
+      wrapper: Provider,
+    })
+
+    await act(async () => {
+      await result.current.handleSave()
+    })
+
+    expect(mockEnqueueSnackbar).toHaveBeenCalledWith('event.kcGuidConflict', errorSnackbarOptions)
+    expect(consoleErrorSpy).not.toHaveBeenCalled()
+    expect(mockNavigate).not.toHaveBeenCalled()
+
+    consoleErrorSpy.mockRestore()
+  })
+
   it('should not attempt to save if event is null', async () => {
     ;(useAtom as import('vitest').Mock).mockReturnValue([null, mockSetEvent])
 

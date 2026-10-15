@@ -21,7 +21,7 @@ function KcIdSection({ disabled, event, errorStates, open, onOpenChange, onChang
   const { t } = useTranslation()
   const official = useIsOfficialEventType(event.eventType)
   const organizerId = event.organizer?.id
-  const hasKcId = Boolean(event.kcId)
+  const hasKcGuid = Boolean(event.kcGuid)
   const canEditKcId = Boolean(organizerId) && !disabled
   const error = errorStates?.kcId || false
   const helperText = error ? t('validation.event.errors') : t('event.kcIdSectionInfo')
@@ -45,7 +45,7 @@ function KcIdSection({ disabled, event, errorStates, open, onOpenChange, onChang
           alignItems: 'center',
         }}
       >
-        <Box sx={{ minWidth: 160 }}>
+        <Box sx={{ flex: 1, minWidth: 160 }}>
           <Typography
             variant="caption"
             component="div"
@@ -53,19 +53,19 @@ function KcIdSection({ disabled, event, errorStates, open, onOpenChange, onChang
               color: 'text.secondary',
             }}
           >
-            {t('event.kcId')}
+            {t('event.kcGuid')}
           </Typography>
           <Typography
-            color={hasKcId ? 'text.primary' : 'text.secondary'}
+            color={hasKcGuid ? 'text.primary' : 'text.secondary'}
             sx={{
-              fontStyle: hasKcId ? undefined : 'italic',
+              fontStyle: hasKcGuid ? undefined : 'italic',
             }}
           >
-            {event.kcId ?? t('event.kcIdEmpty')}
+            {linkText(event, t)}
           </Typography>
         </Box>
         {canEditKcId && <KcIdLookupButton editable event={event} onChange={onChange} />}
-        {!hasKcId && !organizerId && !disabled && (
+        {!hasKcGuid && !organizerId && !disabled && (
           <Typography
             variant="body2"
             sx={{
@@ -90,6 +90,13 @@ function KcIdSection({ disabled, event, errorStates, open, onOpenChange, onChang
 
 export default memo(KcIdSection)
 
+/** A GUID is not for people to read: the section says that the event is linked, or what it has instead. */
+function linkText(event: BasicInfoEvent, t: TFunction) {
+  if (event.kcGuid) return t('event.kcGuidLinked')
+  if (event.kcId) return t('event.kcIdLegacy', { id: event.kcId })
+  return t('event.kcIdEmpty')
+}
+
 function formatDateSpan(start?: Date, end?: Date) {
   if (!start) return ''
   const startDate = zonedDateString(start)
@@ -103,9 +110,29 @@ function joinSorted(values: readonly (string | undefined)[] | undefined) {
     .join(', ')
 }
 
+type EventJudge = NonNullable<BasicInfoEvent['judges']>[number]
+
+const normalizeName = (name?: string) => name?.trim().toLocaleLowerCase('fi') ?? ''
+
+/**
+ * Whether one of the event's judges is Kennelliitto's chief judge: by member number when the event's
+ * judge has one, by name when it has none. A kcEvent stored before `judgeId` existed has the name only.
+ */
+function isChiefJudge(judge: EventJudge | undefined, kcEvent: NonNullable<BasicInfoEvent['kcEvent']>) {
+  if (judge?.id && kcEvent.judgeId) return judge.id === kcEvent.judgeId
+  const name = normalizeName(kcEvent.judge)
+  return name !== '' && normalizeName(judge?.name) === name
+}
+
+/** No warning where Kennelliitto named no chief judge: nothing to compare with. */
+function isChiefJudgeMissing(event: BasicInfoEvent, kcEvent: NonNullable<BasicInfoEvent['kcEvent']>) {
+  if (!kcEvent.judgeId && !kcEvent.judge) return false
+  return !(event.judges ?? []).some((judge) => isChiefJudge(judge, kcEvent))
+}
+
 function computeKcWarnings(event: BasicInfoEvent, t: TFunction) {
   const kcEvent = event.kcEvent
-  if (!event.kcId || !kcEvent) return []
+  if (!event.kcGuid || !kcEvent) return []
 
   const warnings: string[] = []
 
@@ -129,11 +156,8 @@ function computeKcWarnings(event: BasicInfoEvent, t: TFunction) {
     warnings.push(t('event.kcIdWarningLocation', { kcLocation: kcEvent.location, location: event.location }))
   }
 
-  if (kcEvent.judge) {
-    const judgeNames = new Set((event.judges ?? []).map((j) => j?.name?.trim().toLocaleLowerCase('fi')).filter(Boolean))
-    if (!judgeNames.has(kcEvent.judge.trim().toLocaleLowerCase('fi'))) {
-      warnings.push(t('event.kcIdWarningJudge', { kcJudge: kcEvent.judge }))
-    }
+  if (isChiefJudgeMissing(event, kcEvent)) {
+    warnings.push(t('event.kcIdWarningJudge', { kcJudge: kcEvent.judge ?? kcEvent.judgeId }))
   }
 
   return warnings

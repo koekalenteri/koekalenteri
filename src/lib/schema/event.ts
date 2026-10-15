@@ -27,6 +27,8 @@ export const eventBodySchema = objectOf({
   headquarters: maybe(objectOf({})),
   id: maybe(str),
   judges: maybe(arrayOf(objectOf({ id: maybe(num), name: maybe(str) }))),
+  /** Cleared by sending an explicit null, like kcId (KOE-1534). */
+  kcGuid: maybe(str),
   /** Cleared by sending an explicit null, which the handler reads as "no Kennel Club id". */
   kcId: maybe(num),
   location: maybe(str),

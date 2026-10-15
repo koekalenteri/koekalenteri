@@ -8,6 +8,7 @@ import type {
   RegistrationOwner,
 } from '../../types'
 import { createHmac, randomBytes } from 'node:crypto'
+import { KENNELLIITTO_LINK_FIELDS, stripKennelliittoLink } from '../../lib/event'
 import { judgesMockTrialIndependently } from '../../lib/judge'
 import { normalizeEmail, withoutPlusTag } from './email'
 import { removeRegistrationCreationMetadata } from './registration'
@@ -206,6 +207,10 @@ export const removeEventRuntimeState = <T extends Partial<JsonDogEvent>>(event: 
 
 const copyEvent = (source: JsonDogEvent, copier: Copier, standIns: StandIns, originals: CopyOriginals) => {
   const event: JsonDogEvent = removeEventRuntimeState(structuredClone(source))
+  // A GUID names a trial in one environment (Testi2 or production), so a copy into another stack must
+  // not carry it: results sent from there would land on someone else's trial (KOE-1534). The old kcId
+  // and the kcEvent that describes the link go with it.
+  stripKennelliittoLink(event)
 
   for (const role of ['official', 'secretary'] as const) {
     const person = source[role]
@@ -341,6 +346,7 @@ export const findCopyLeaks = (copy: EventCopy, copier: Copier, originals?: CopyO
   const copierPhone = copier.phone ? digitsOf(copier.phone) : undefined
   const reservedPrefix = digitsOf(COPY_PHONE_PREFIX)
   const leaks = new Set<string>()
+  if (KENNELLIITTO_LINK_FIELDS.some((field) => copy.event[field])) leaks.add('kcGuid: a link to a Kennelliitto trial')
 
   eachString(copy, (text, key) => {
     for (const match of text.match(EMAIL_RE) ?? []) {
