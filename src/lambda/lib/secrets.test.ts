@@ -23,9 +23,14 @@ vi.doMock('../config', () => ({
 }))
 
 // Import the module after mocking
-const { getKLAPIConfig, getPaytrailConfig, getRegistrationEditTokenSecret, getSSMParams, resetCache } = await import(
-  './secrets'
-)
+const {
+  getKLAPIConfig,
+  getKLIntegraatioConfig,
+  getPaytrailConfig,
+  getRegistrationEditTokenSecret,
+  getSSMParams,
+  resetCache,
+} = await import('./secrets')
 
 describe('secrets', () => {
   beforeEach(() => {
@@ -324,6 +329,35 @@ describe('secrets', () => {
       // Verify that the function throws an error
       await expect(getPaytrailConfig()).rejects.toThrow('Missing Paytrail Config!')
     })
+  })
+
+  describe('getKLIntegraatioConfig', () => {
+    const params = [
+      { Name: 'KL_API_UID', Value: 'uid' },
+      { Name: 'KL_API_PWD', Value: 'pwd' },
+      { Name: 'test-stack-KL_INT_API_URL', Value: 'https://api.example.com/' },
+      { Name: 'test-stack-KL_INT_SSO_URL', Value: 'https://sso.example.com/connect/token' },
+    ]
+
+    it('reads the shared credentials and the stack specific addresses', async () => {
+      mockSend.mockImplementationOnce(() => Promise.resolve({ Parameters: params }))
+
+      await expect(getKLIntegraatioConfig()).resolves.toEqual({
+        KL_API_PWD: 'pwd',
+        KL_API_UID: 'uid',
+        KL_INT_API_URL: 'https://api.example.com/',
+        KL_INT_SSO_URL: 'https://sso.example.com/connect/token',
+      })
+    })
+
+    it.each(['KL_API_UID', 'KL_API_PWD', 'test-stack-KL_INT_API_URL', 'test-stack-KL_INT_SSO_URL'])(
+      'throws when %s is missing',
+      async (missing) => {
+        mockSend.mockImplementationOnce(() => Promise.resolve({ Parameters: params.filter((p) => p.Name !== missing) }))
+
+        await expect(getKLIntegraatioConfig()).rejects.toThrow('Missing KL Integraatio Config!')
+      }
+    )
   })
 
   describe('getRegistrationEditTokenSecret', () => {

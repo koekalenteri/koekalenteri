@@ -1,0 +1,41 @@
+{
+  "koemuoto": "NKM",
+  "luokat": [],
+  "nimi": "Noutajien käytännön metsästyskoe",
+  "osaAlueet": [],
+  "osaAlueValinnat": [],
+  "tapahtumat": [],
+  "tarkenteet": ["Kokokauden koe"],
+  "tulokset": [
+    {
+      "hylätty": false,
+      "järjestys": 1,
+      "keskeytys": false,
+      "pisteetMax": 0,
+      "pisteetMin": 0,
+      "tulos": "NKM1",
+      "tulostyypinNimi": "Varsinainen tulos",
+      "tulostyyppi": 247
+    },
+    {
+      "hylätty": true,
+      "järjestys": 2,
+      "keskeytys": false,
+      "pisteetMax": 0,
+      "pisteetMin": 0,
+      "tulos": "NKM0",
+      "tulostyypinNimi": "Varsinainen tulos",
+      "tulostyyppi": 247
+    },
+    {
+      "hylätty": false,
+      "järjestys": 3,
+      "keskeytys": true,
+      "pisteetMax": 0,
+      "pisteetMin": 0,
+      "tulos": "NKM-",
+      "tulostyypinNimi": "Varsinainen tulos",
+      "tulostyyppi": 247
+    }
+  ]
+}

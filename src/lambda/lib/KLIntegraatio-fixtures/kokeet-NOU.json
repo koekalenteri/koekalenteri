@@ -1,0 +1,40 @@
+[
+  {
+    "alku": "2026-06-06T00:00:00",
+    "kennelpiiri": 9,
+    "koeGUID": null,
+    "koemuoto": "Noutajien taipumuskoe",
+    "koeTunnus": "",
+    "kokokaudenkoe": false,
+    "loppu": "2026-06-06T00:00:00",
+    "paikkakunta": "Tampere",
+    "tapahtuma": "",
+    "tarkenne": "",
+    "tila": 304,
+    "tilanNimi": "Valmistunut",
+    "tyyppi": "yleinen",
+    "yhdistysNimi": "PIRKANMAAN NOUTAJAKOIRAYHDISTYS r.y.",
+    "yhdistysNumero": 400629,
+    "ylituomariNimi": "Toinen Tuomari",
+    "ylituomariNumero": 1000002
+  },
+  {
+    "alku": "2026-09-26T00:00:00",
+    "kennelpiiri": 5,
+    "koeGUID": "2b81e6a1-559b-407c-87c7-b8a9b89b1987",
+    "koemuoto": "Noutajien taipumuskoe",
+    "koeTunnus": "",
+    "kokokaudenkoe": false,
+    "loppu": "2026-09-27T00:00:00",
+    "paikkakunta": "Laukaa",
+    "tapahtuma": "",
+    "tarkenne": "",
+    "tila": 754,
+    "tilanNimi": "Hyväksytty",
+    "tyyppi": "yleinen",
+    "yhdistysNimi": "KESKI-SUOMEN NOUTAJAKOIRAYHDISTYS RY.",
+    "yhdistysNumero": 400294,
+    "ylituomariNimi": "Testi Tuomari",
+    "ylituomariNumero": 1000001
+  }
+]
