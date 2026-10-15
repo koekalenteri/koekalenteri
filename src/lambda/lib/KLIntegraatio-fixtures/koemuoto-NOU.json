@@ -1,0 +1,31 @@
+{
+  "koemuoto": "NOU",
+  "luokat": [],
+  "nimi": "Noutajien taipumuskoe",
+  "osaAlueet": [],
+  "osaAlueValinnat": [],
+  "tapahtumat": [],
+  "tarkenteet": [],
+  "tulokset": [
+    {
+      "hylätty": false,
+      "järjestys": 1,
+      "keskeytys": false,
+      "pisteetMax": 0,
+      "pisteetMin": 0,
+      "tulos": "NOU1",
+      "tulostyypinNimi": "Varsinainen tulos",
+      "tulostyyppi": 247
+    },
+    {
+      "hylätty": true,
+      "järjestys": 2,
+      "keskeytys": false,
+      "pisteetMax": 0,
+      "pisteetMin": 0,
+      "tulos": "NOU0",
+      "tulostyypinNimi": "Varsinainen tulos",
+      "tulostyyppi": 247
+    }
+  ]
+}

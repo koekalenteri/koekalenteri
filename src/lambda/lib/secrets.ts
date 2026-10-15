@@ -1,5 +1,6 @@
 import type { Parameter } from '@aws-sdk/client-ssm'
 import type { KLAPIConfig } from '../types/KLAPI'
+import type { KLIntegraatioConfig } from '../types/KLIntegraatio'
 import type { PaytrailConfig } from '../types/paytrail'
 import { GetParametersCommand, SSMClient } from '@aws-sdk/client-ssm'
 import { CONFIG } from '../config'
@@ -121,6 +122,26 @@ export async function getKLAPIConfig(): Promise<KLAPIConfig> {
   const cfg = await getSSMParams<KLAPIConfig>(['KL_API_URL', 'KL_API_UID', 'KL_API_PWD'])
   if (!cfg.KL_API_URL) {
     throw new Error('Missing KLAPI Config!')
+  }
+  return cfg
+}
+
+/**
+ * The Integraatio API shares its credentials with the old one, but its addresses are per stack: a
+ * writing call from dev or test must never reach production (KOE-1533).
+ */
+export const getKLIntegraatioConfig = async (): Promise<KLIntegraatioConfig> => {
+  const apiUrl = `${stackName}-KL_INT_API_URL`
+  const ssoUrl = `${stackName}-KL_INT_SSO_URL`
+  const params = await getSSMParams(['KL_API_UID', 'KL_API_PWD', apiUrl, ssoUrl])
+  const cfg: KLIntegraatioConfig = {
+    KL_API_PWD: params.KL_API_PWD,
+    KL_API_UID: params.KL_API_UID,
+    KL_INT_API_URL: params[apiUrl],
+    KL_INT_SSO_URL: params[ssoUrl],
+  }
+  if (!cfg.KL_API_UID || !cfg.KL_API_PWD || !cfg.KL_INT_API_URL || !cfg.KL_INT_SSO_URL) {
+    throw new Error('Missing KL Integraatio Config!')
   }
   return cfg
 }

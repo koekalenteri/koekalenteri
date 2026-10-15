@@ -1,0 +1,222 @@
+{
+  "koemuoto": "NOWT",
+  "luokat": ["ALO", "AVO", "VOI"],
+  "nimi": "Noutajien Working Test",
+  "osaAlueet": [],
+  "osaAlueValinnat": [],
+  "tapahtumat": [
+    {
+      "tapahtumanNimi": "SM-NOWT",
+      "tapahtumantyyppi": 333,
+      "tapahtumantyyppiNimi": "SM-koe tai muu mestaruusottelu"
+    },
+    {
+      "tapahtumanNimi": "SM-NOWT karsinta",
+      "tapahtumantyyppi": 333,
+      "tapahtumantyyppiNimi": "SM-koe tai muu mestaruusottelu"
+    }
+  ],
+  "tarkenteet": [],
+  "tulokset": [
+    {
+      "hylätty": false,
+      "järjestys": 1,
+      "keskeytys": false,
+      "pisteetMax": 0,
+      "pisteetMin": 0,
+      "tulos": "sert",
+      "tulostyypinNimi": "Muu lisätieto",
+      "tulostyyppi": 250
+    },
+    {
+      "hylätty": false,
+      "järjestys": 2,
+      "keskeytys": false,
+      "pisteetMax": 0,
+      "pisteetMin": 0,
+      "tulos": "vara sert",
+      "tulostyypinNimi": "Muu lisätieto",
+      "tulostyyppi": 250
+    },
+    {
+      "hylätty": false,
+      "järjestys": 3,
+      "keskeytys": false,
+      "pisteetMax": 0,
+      "pisteetMin": 0,
+      "tulos": "Mock Trial",
+      "tulostyypinNimi": "Muu lisätieto",
+      "tulostyyppi": 250
+    },
+    {
+      "hylätty": false,
+      "järjestys": 4,
+      "keskeytys": false,
+      "pisteetMax": 0,
+      "pisteetMin": 0,
+      "tulos": "MESTARI",
+      "tulostyypinNimi": "Muu lisätieto",
+      "tulostyyppi": 250
+    },
+    {
+      "hylätty": false,
+      "järjestys": 5,
+      "keskeytys": false,
+      "pisteetMax": 100,
+      "pisteetMin": 80,
+      "tulos": "VOI1",
+      "tulostyypinNimi": "Varsinainen tulos",
+      "tulostyyppi": 247
+    },
+    {
+      "hylätty": false,
+      "järjestys": 6,
+      "keskeytys": false,
+      "pisteetMax": 79,
+      "pisteetMin": 65,
+      "tulos": "VOI2",
+      "tulostyypinNimi": "Varsinainen tulos",
+      "tulostyyppi": 247
+    },
+    {
+      "hylätty": false,
+      "järjestys": 7,
+      "keskeytys": false,
+      "pisteetMax": 64,
+      "pisteetMin": 50,
+      "tulos": "VOI3",
+      "tulostyypinNimi": "Varsinainen tulos",
+      "tulostyyppi": 247
+    },
+    {
+      "hylätty": false,
+      "järjestys": 8,
+      "keskeytys": false,
+      "pisteetMax": 49,
+      "pisteetMin": 0,
+      "tulos": "VOI0",
+      "tulostyypinNimi": "Varsinainen tulos",
+      "tulostyyppi": 247
+    },
+    {
+      "hylätty": false,
+      "järjestys": 9,
+      "keskeytys": true,
+      "pisteetMax": 0,
+      "pisteetMin": 0,
+      "tulos": "VOI-",
+      "tulostyypinNimi": "Varsinainen tulos",
+      "tulostyyppi": 247
+    },
+    {
+      "hylätty": false,
+      "järjestys": 10,
+      "keskeytys": false,
+      "pisteetMax": 100,
+      "pisteetMin": 80,
+      "tulos": "AVO1",
+      "tulostyypinNimi": "Varsinainen tulos",
+      "tulostyyppi": 247
+    },
+    {
+      "hylätty": false,
+      "järjestys": 11,
+      "keskeytys": false,
+      "pisteetMax": 79,
+      "pisteetMin": 65,
+      "tulos": "AVO2",
+      "tulostyypinNimi": "Varsinainen tulos",
+      "tulostyyppi": 247
+    },
+    {
+      "hylätty": false,
+      "järjestys": 12,
+      "keskeytys": false,
+      "pisteetMax": 64,
+      "pisteetMin": 50,
+      "tulos": "AVO3",
+      "tulostyypinNimi": "Varsinainen tulos",
+      "tulostyyppi": 247
+    },
+    {
+      "hylätty": false,
+      "järjestys": 13,
+      "keskeytys": false,
+      "pisteetMax": 49,
+      "pisteetMin": 0,
+      "tulos": "AVO0",
+      "tulostyypinNimi": "Varsinainen tulos",
+      "tulostyyppi": 247
+    },
+    {
+      "hylätty": false,
+      "järjestys": 14,
+      "keskeytys": true,
+      "pisteetMax": 0,
+      "pisteetMin": 0,
+      "tulos": "AVO-",
+      "tulostyypinNimi": "Varsinainen tulos",
+      "tulostyyppi": 247
+    },
+    {
+      "hylätty": false,
+      "järjestys": 15,
+      "keskeytys": false,
+      "pisteetMax": 100,
+      "pisteetMin": 80,
+      "tulos": "ALO1",
+      "tulostyypinNimi": "Varsinainen tulos",
+      "tulostyyppi": 247
+    },
+    {
+      "hylätty": false,
+      "järjestys": 16,
+      "keskeytys": false,
+      "pisteetMax": 79,
+      "pisteetMin": 65,
+      "tulos": "ALO2",
+      "tulostyypinNimi": "Varsinainen tulos",
+      "tulostyyppi": 247
+    },
+    {
+      "hylätty": false,
+      "järjestys": 17,
+      "keskeytys": false,
+      "pisteetMax": 64,
+      "pisteetMin": 50,
+      "tulos": "ALO3",
+      "tulostyypinNimi": "Varsinainen tulos",
+      "tulostyyppi": 247
+    },
+    {
+      "hylätty": false,
+      "järjestys": 18,
+      "keskeytys": false,
+      "pisteetMax": 0,
+      "pisteetMin": 0,
+      "tulos": "ALO0",
+      "tulostyypinNimi": "Varsinainen tulos",
+      "tulostyyppi": 247
+    },
+    {
+      "hylätty": false,
+      "järjestys": 19,
+      "keskeytys": true,
+      "pisteetMax": 49,
+      "pisteetMin": 0,
+      "tulos": "ALO-",
+      "tulostyypinNimi": "Varsinainen tulos",
+      "tulostyyppi": 247
+    },
+    {
+      "hylätty": false,
+      "järjestys": 20,
+      "keskeytys": true,
+      "pisteetMax": 0,
+      "pisteetMin": 0,
+      "tulos": "Kesk.",
+      "tulostyypinNimi": "Muu lisätieto",
+      "tulostyyppi": 250
+    }
+  ]
+}

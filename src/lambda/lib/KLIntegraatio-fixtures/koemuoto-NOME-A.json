@@ -1,0 +1,147 @@
+{
+  "koemuoto": "NOME-A",
+  "luokat": [],
+  "nimi": "Noutajien A-metsästyskoe",
+  "osaAlueet": [],
+  "osaAlueValinnat": [],
+  "tapahtumat": [
+    {
+      "tapahtumanNimi": "Noutajien NOME-A KV-koe",
+      "tapahtumantyyppi": 332,
+      "tapahtumantyyppiNimi": "KV-koe"
+    },
+    {
+      "tapahtumanNimi": "Noutajien PM",
+      "tapahtumantyyppi": 763,
+      "tapahtumantyyppiNimi": "maaottelu"
+    },
+    {
+      "tapahtumanNimi": "SM-NOME-A",
+      "tapahtumantyyppi": 333,
+      "tapahtumantyyppiNimi": "SM-koe tai muu mestaruusottelu"
+    },
+    {
+      "tapahtumanNimi": "SM-NOME-A karsinta",
+      "tapahtumantyyppi": 333,
+      "tapahtumantyyppiNimi": "SM-koe tai muu mestaruusottelu"
+    },
+    {
+      "tapahtumanNimi": "Noutajien EM ",
+      "tapahtumantyyppi": 763,
+      "tapahtumantyyppiNimi": "maaottelu"
+    }
+  ],
+  "tarkenteet": [],
+  "tulokset": [
+    {
+      "hylätty": false,
+      "järjestys": 1,
+      "keskeytys": false,
+      "pisteetMax": 0,
+      "pisteetMin": 0,
+      "tulos": "SERT",
+      "tulostyypinNimi": "Muu lisätieto",
+      "tulostyyppi": 250
+    },
+    {
+      "hylätty": false,
+      "järjestys": 2,
+      "keskeytys": false,
+      "pisteetMax": 0,
+      "pisteetMin": 0,
+      "tulos": "CACIT",
+      "tulostyypinNimi": "Muu lisätieto",
+      "tulostyyppi": 250
+    },
+    {
+      "hylätty": false,
+      "järjestys": 3,
+      "keskeytys": false,
+      "pisteetMax": 0,
+      "pisteetMin": 0,
+      "tulos": "VARA-CACIT",
+      "tulostyypinNimi": "Muu lisätieto",
+      "tulostyyppi": 250
+    },
+    {
+      "hylätty": false,
+      "järjestys": 4,
+      "keskeytys": false,
+      "pisteetMax": 0,
+      "pisteetMin": 0,
+      "tulos": "vara-SERT",
+      "tulostyypinNimi": "Muu lisätieto",
+      "tulostyyppi": 250
+    },
+    {
+      "hylätty": false,
+      "järjestys": 5,
+      "keskeytys": false,
+      "pisteetMax": 0,
+      "pisteetMin": 0,
+      "tulos": "MESTARI",
+      "tulostyypinNimi": "Muu lisätieto",
+      "tulostyyppi": 250
+    },
+    {
+      "hylätty": false,
+      "järjestys": 6,
+      "keskeytys": false,
+      "pisteetMax": 0,
+      "pisteetMin": 0,
+      "tulos": "A1",
+      "tulostyypinNimi": "Varsinainen tulos",
+      "tulostyyppi": 247
+    },
+    {
+      "hylätty": false,
+      "järjestys": 7,
+      "keskeytys": false,
+      "pisteetMax": 0,
+      "pisteetMin": 0,
+      "tulos": "A2",
+      "tulostyypinNimi": "Varsinainen tulos",
+      "tulostyyppi": 247
+    },
+    {
+      "hylätty": false,
+      "järjestys": 8,
+      "keskeytys": false,
+      "pisteetMax": 0,
+      "pisteetMin": 0,
+      "tulos": "A3",
+      "tulostyypinNimi": "Varsinainen tulos",
+      "tulostyyppi": 247
+    },
+    {
+      "hylätty": false,
+      "järjestys": 9,
+      "keskeytys": false,
+      "pisteetMax": 0,
+      "pisteetMin": 0,
+      "tulos": "A0",
+      "tulostyypinNimi": "Varsinainen tulos",
+      "tulostyyppi": 247
+    },
+    {
+      "hylätty": false,
+      "järjestys": 10,
+      "keskeytys": true,
+      "pisteetMax": 0,
+      "pisteetMin": 0,
+      "tulos": "A-",
+      "tulostyypinNimi": "Varsinainen tulos",
+      "tulostyyppi": 247
+    },
+    {
+      "hylätty": false,
+      "järjestys": 11,
+      "keskeytys": true,
+      "pisteetMax": 0,
+      "pisteetMin": 0,
+      "tulos": "Kesk.",
+      "tulostyypinNimi": "Muu lisätieto",
+      "tulostyyppi": 250
+    }
+  ]
+}
