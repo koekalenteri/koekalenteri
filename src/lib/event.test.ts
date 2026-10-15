@@ -69,6 +69,7 @@ import {
   isStartNumbersPublishedForClass,
   isStartNumbersPublishedForDay,
   isStartNumbersPublishedForSlot,
+  KENNELLIITTO_LINK_FIELDS,
   localizedEventDescription,
   localizedEventName,
   newEventEntryEndDate,
@@ -78,6 +79,7 @@ import {
   registrationDatesOutsideClass,
   sanitizeDogEvent,
   startNumbersSlotKey,
+  stripKennelliittoLink,
   withResultsDay,
 } from './event'
 
@@ -1384,6 +1386,21 @@ describe('sanitizeDogEvent', () => {
     const sanitized = sanitizeDogEvent(asDogEvent(event))
 
     expect(sanitized).toEqual({})
+  })
+})
+
+describe('stripKennelliittoLink (KOE-1534)', () => {
+  it('removes the GUID, the old id and the snapshot, and nothing else', () => {
+    const event = { kcEvent: { classes: [] }, kcGuid: 'guid', kcId: 1, name: 'Koe' }
+
+    expect(stripKennelliittoLink(event)).toEqual({ name: 'Koe' })
+    expect(KENNELLIITTO_LINK_FIELDS.every((field) => !Object.hasOwn(event, field))).toBe(true)
+  })
+
+  it('leaves an event without a link as it is', () => {
+    const event: { kcId?: number; name: string } = { name: 'Koe' }
+
+    expect(stripKennelliittoLink(event)).toEqual({ name: 'Koe' })
   })
 })
 

@@ -10,7 +10,7 @@ covers:
   - src/pages/admin/EventCreatePage.tsx
   - src/pages/admin/EventEditPage.tsx
   - src/pages/admin/OrganizerListPage.tsx
-sourceHash: 173ef3
+sourceHash: ca6075
 ---
 
 Once a trial has been created in the calendar, the secretary's job before entry opens is to make
@@ -43,7 +43,7 @@ required is in place. Go through the sections and check in particular:
 - **the dates** — the trial's first and last day, and when entry opens and closes,
 - **classes, groups and the number of places** — places can be given in total, per day or per class,
 - **the judges and the classes each of them judges**,
-- **{t:event.kcIdSectionTitle}** — the trial is linked to the Kennel Club event so that the results can be saved,
+- **{t:event.kcIdSectionTitle}**: the trial is linked to the Kennel Club event so that the results can be saved,
 - **contact details** — which of the chief officer's and the secretary's details entrants may see.
 
 ## 2. Check the trial's state

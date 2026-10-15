@@ -344,6 +344,23 @@ describe('searchEventKcIdChoicesLambda', () => {
     expectResponse({ choices: [expect.objectContaining({ kcGuid: LAUKAA_GUID })] })
   })
 
+  it('widens the search in Finnish days across the change to summer time', async () => {
+    mockLueKokeet.mockResolvedValueOnce(notFound).mockResolvedValueOnce({ json: [laukaa], status: 200 })
+
+    // 2.4.2026 is the Thursday after the clocks went forward (29.3.). Seven 24-hour steps back from
+    // its midnight, taken in UTC, land on the 25th in Helsinki; seven Finnish days back is the 26th.
+    await search({ ...laukaaRequest, endDate: '2026-04-02T20:59:59.999Z', startDate: '2026-04-01T21:00:00.000Z' })
+
+    expect(mockLueKokeet).toHaveBeenNthCalledWith(
+      1,
+      expect.objectContaining({ alku: '2026-04-02', loppu: '2026-04-02' })
+    )
+    expect(mockLueKokeet).toHaveBeenNthCalledWith(
+      2,
+      expect.objectContaining({ alku: '2026-03-26', loppu: '2026-04-09' })
+    )
+  })
+
   it('returns empty choices when the expanded search also says "Ei tulosta"', async () => {
     mockLueKokeet.mockResolvedValue(notFound)
 

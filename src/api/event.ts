@@ -11,7 +11,6 @@ import type {
 } from '../types'
 import { addDays, nextSaturday } from 'date-fns'
 import { zonedStartOfDay } from '../i18n/dates'
-import { normalizeEventKcIdChoice } from '../lib/event'
 import { latestCollectionUpdate } from '../lib/incremental'
 import http, { withToken } from './http'
 
@@ -165,6 +164,10 @@ export async function putResultsPublished(
     withToken({ signal }, token)
   )
 }
+
+/** A one-day trial may come from Kennelliitto with the year 1 for its end: the end is the start then. */
+const normalizeEventKcIdChoice = (choice: EventKcIdChoice): EventKcIdChoice =>
+  choice.endDate.getFullYear() <= 1 ? { ...choice, endDate: choice.startDate } : choice
 
 export async function searchEventKcIdChoices(
   request: SearchEventKcIdChoicesRequest,

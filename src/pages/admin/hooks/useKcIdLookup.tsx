@@ -6,7 +6,6 @@ import { useCallback, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { searchEventKcIdChoices } from '@/api/event'
 import { zonedDateString, zonedEndOfDay, zonedStartOfDay } from '@/i18n/dates'
-import { normalizeEventKcIdChoice } from '@/lib/event'
 import { idTokenAtom } from '../../state'
 
 /** The event details the Kennelliitto search matches against. */
@@ -35,19 +34,17 @@ const formatDateSpan = (start?: Date, end?: Date) => {
  * integer, is not touched.
  */
 const applyKcChoice = (choice: EventKcIdChoice): Patch<DogEvent> => {
-  const normalized = normalizeEventKcIdChoice(choice)
-
   return {
     kcEvent: {
-      classes: normalized.classes,
-      endDate: zonedEndOfDay(normalized.endDate),
-      eventType: normalized.eventType,
-      judge: normalized.judge ?? null,
-      judgeId: normalized.judgeId ?? null,
-      location: normalized.location ?? null,
-      startDate: zonedStartOfDay(normalized.startDate),
+      classes: choice.classes,
+      endDate: zonedEndOfDay(choice.endDate),
+      eventType: choice.eventType,
+      judge: choice.judge ?? null,
+      judgeId: choice.judgeId ?? null,
+      location: choice.location ?? null,
+      startDate: zonedStartOfDay(choice.startDate),
     },
-    kcGuid: normalized.kcGuid,
+    kcGuid: choice.kcGuid,
   }
 }
 
@@ -111,9 +108,9 @@ export const useKcIdLookup = (
       // One trial with a GUID is taken as it is; one without is shown, so the secretary is told why
       // nothing was linked.
       if (result.choices.length === 1 && result.choices[0].kcGuid) {
-        selectChoice(normalizeEventKcIdChoice(result.choices[0]))
+        selectChoice(result.choices[0])
       } else if (result.choices.length > 0) {
-        setChoices(result.choices.map(normalizeEventKcIdChoice))
+        setChoices(result.choices)
       } else {
         enqueueSnackbar(t('event.kcIdNotFound', { criteria }), { variant: 'warning' })
       }

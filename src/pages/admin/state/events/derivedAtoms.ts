@@ -38,11 +38,13 @@ export const adminEventAtom = atomFamily((eventId: string | undefined) =>
 
 // Kennelliitto trials already linked to an event, so the picker can refuse one at pick time instead
 // of leaving the secretary to discover the clash from the conflict the backend raises on save.
+// A deleted event keeps its kcGuid (the delete only sets deletedAt) but no longer holds the trial,
+// the way the server's scan sees it.
 export const adminLinkedKcGuidsAtom = atomFamily((eventId: string | undefined) =>
   atom(async (get) => {
     const kcGuids = new Set<string>()
     for (const event of await get(adminEventsAtom)) {
-      if (event.id !== eventId && event.kcGuid) kcGuids.add(event.kcGuid)
+      if (event.id !== eventId && event.kcGuid && !event.deletedAt) kcGuids.add(event.kcGuid)
     }
     return kcGuids
   })

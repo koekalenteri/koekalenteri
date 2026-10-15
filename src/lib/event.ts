@@ -1431,16 +1431,23 @@ export const copyDogEvent = (event: DogEvent): DogEvent => {
   copy.startNumbersPublished = false
   delete copy.resultsPublished
 
-  delete copy.kcId
-  // A link to a Kennelliitto trial belongs to the event it was made for (KOE-1534)
-  delete copy.kcGuid
-  delete copy.kcEvent
+  stripKennelliittoLink(copy)
   delete copy.entryOrigEndDate
   delete copy.invitationAttachment
 
   return copy
 }
 
-/** A one-day trial comes from Kennelliitto with the year 1 for its end: the end is the start then. */
-export const normalizeEventKcIdChoice = <T extends { endDate: Date; startDate: Date }>(choice: T): T =>
-  choice.endDate.getFullYear() <= 1 ? { ...choice, endDate: choice.startDate } : choice
+/** What links an event to its Kennelliitto trial: the GUID, the old integer id and the snapshot of the trial. */
+export const KENNELLIITTO_LINK_FIELDS = ['kcEvent', 'kcGuid', 'kcId'] as const
+
+/**
+ * Removes the link to a Kennelliitto trial. A copy of an event is not the event the link was made
+ * for, and a GUID names a trial in one environment only (KOE-1534).
+ */
+export const stripKennelliittoLink = <T extends { kcEvent?: unknown; kcGuid?: unknown; kcId?: unknown }>(
+  event: T
+): T => {
+  for (const field of KENNELLIITTO_LINK_FIELDS) delete event[field]
+  return event
+}

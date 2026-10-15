@@ -140,7 +140,7 @@ describe('KcIdSection', () => {
     )
     expect(screen.queryByText('event.kcIdChoiceTitle')).not.toBeInTheDocument()
     // exact top-level match: linking must not touch the event's own fields (that's the whole
-    // point of the snapshot) — only kcEvent/kcGuid are set, nothing else (the old kcId is left alone)
+    // point of the snapshot): only kcEvent/kcGuid are set, nothing else (the old kcId is left alone)
     expect(changeHandler).toHaveBeenLastCalledWith({
       kcEvent: expect.objectContaining({
         classes: ['ALO', 'AVO'],

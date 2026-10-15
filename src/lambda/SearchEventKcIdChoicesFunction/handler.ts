@@ -1,8 +1,9 @@
 import type { JsonDogEvent, JsonEventType, Organizer } from '../../types'
 import type KLIntegraatio from '../lib/KLIntegraatio'
 import type { KLIntegraatioResult, KLIntHenkilö, KLIntKoe, KLIntKoeListassa } from '../types/KLIntegraatio'
+import { TZDate } from '@date-fns/tz'
 import { addDays } from 'date-fns/addDays'
-import { zonedDateString } from '../../i18n/dates'
+import { TIME_ZONE, zonedDateString } from '../../i18n/dates'
 import { isOfficialEventType, OFFICIAL_EVENT_TYPES } from '../../lib/event'
 import { mapWithConcurrency } from '../../lib/utils'
 import { CONFIG } from '../config'
@@ -161,6 +162,13 @@ const upstreamError = ({ error, status, virheet }: KLIntegraatioResult<unknown>)
   // Status 0 is a call that never got an answer: a bad gateway, not a status KL gave.
   new LambdaError(status || 502, `Upstream error: ${virheet?.join(', ') ?? error ?? 'Kennel Club event search failed'}`)
 
+/**
+ * The Finnish day `days` days from the one the instant falls on. The step is taken in Finnish time:
+ * stepping the instant by 24 hours in the Lambda's own zone (UTC) is a day off across the change
+ * to or from summer time.
+ */
+const shiftedDay = (instant: string, days: number) => zonedDateString(addDays(new TZDate(instant, TIME_ZONE), days))
+
 const findEvents = async (
   klint: KLIntegraatio,
   item: KcIdLookupCriteria,
@@ -168,9 +176,9 @@ const findEvents = async (
   dateMarginDays = 0
 ): Promise<KLIntKoeListassa[]> => {
   const result = await klint.lueKokeet({
-    alku: zonedDateString(addDays(item.startDate, -dateMarginDays)),
+    alku: shiftedDay(item.startDate, -dateMarginDays),
     koemuoto: toKcEventType(item.eventType),
-    loppu: zonedDateString(addDays(item.endDate, dateMarginDays)),
+    loppu: shiftedDay(item.endDate, dateMarginDays),
     yhdistys: organizerKcId,
   })
   if (isNoResults(result)) return []
