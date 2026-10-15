@@ -179,6 +179,7 @@ describe('statsRebuild', () => {
       [
         registration('reserve', testEvent.id, { group: { key: 'reserve' } }),
         start('member-start', testEvent.id, member),
+        start('non-member-start', testEvent.id, { handler: { email: 'other@example.com', membership: false } }),
         start('member-cancelled', testEvent.id, { ...member, cancelled: true }),
       ],
       new Map([[testEvent.id, testEvent]]),
@@ -189,7 +190,7 @@ describe('statsRebuild', () => {
     expect(records).toContainEqual(
       expect.objectContaining({
         cancelledRegistrations: 1,
-        count: 3,
+        count: 4,
         memberRegistrations: 1,
         PK: 'ORG#organizer-event-2025',
         reserveRegistrations: 1,
@@ -279,11 +280,31 @@ describe('statsRebuild', () => {
     }
   )
 
+  it('counts no starts of an unofficial event type', () => {
+    const held = event('event-held', '2025-05-01')
+    const unofficial = event('event-unofficial', '2025-06-01', 'other')
+    const { records } = buildStatsRecords(
+      [
+        start('placed', unofficial.id, {
+          dog: { regNo: 'FI1' },
+          eventType: 'other',
+          handler: { email: 'a@example.com' },
+        }),
+      ],
+      new Map([held, unofficial].map((testEvent) => [testEvent.id, testEvent])),
+      '2025-01-01T00:00:00.000Z'
+    )
+
+    expect(records).toContainEqual({ count: 0, PK: 'TOTALS#2025', SK: 'dog' })
+    expect(records.some((record) => record.PK.startsWith('BUCKETS#2025#'))).toBe(false)
+  })
+
   it('counts no starts of an event that has not run yet', () => {
+    const held = event('event-held', '2025-05-01')
     const upcoming = event('event-upcoming', '2025-11-01')
     const { records } = buildStatsRecords(
       [start('placed', upcoming.id, { dog: { regNo: 'FI1' }, handler: { email: 'a@example.com' } })],
-      new Map([[upcoming.id, upcoming]]),
+      new Map([held, upcoming].map((testEvent) => [testEvent.id, testEvent])),
       '2025-10-15T00:00:00.000Z',
       undefined,
       new Date('2025-10-15T12:00:00.000Z')
@@ -291,6 +312,8 @@ describe('statsRebuild', () => {
 
     expect(records).toContainEqual({ count: 0, PK: 'TOTALS#2025', SK: 'dog' })
     expect(records.some((record) => record.PK.startsWith('BUCKETS#2025#'))).toBe(false)
+    // Nor is the event itself held yet: only the one that has run counts.
+    expect(records).toContainEqual({ count: 1, PK: 'TOTALS#2025', SK: 'event' })
     // The year is still listed: the organizer stats count the entry.
     expect(records).toContainEqual(expect.objectContaining({ PK: 'YEARS', SK: '2025' }))
   })
