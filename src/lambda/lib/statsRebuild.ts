@@ -16,7 +16,7 @@ import type {
 } from '../../types/Stats'
 import type { RegistrationStatsInput } from './stats'
 import { isEventOver, OFFICIAL_EVENT_TYPES, uniqueClasses } from '../../lib/event'
-import { getRegistrationClass, isMember, isParticipantGroup, isStarter } from '../../lib/registration'
+import { getRegistrationClass, isMember, isStarter } from '../../lib/registration'
 import { splitEvenly } from '../../lib/utils'
 import { ALL_EVENT_TYPES_FOR_CAPACITY, ALL_ORGANIZERS_FOR_EVENTS, YEARLY_BREAKDOWN_TYPES } from '../../types/Stats'
 import { CONFIG } from '../config'
@@ -52,7 +52,8 @@ export type EventStatsEvent = Pick<
  * registration (20 000 of them in production, for 700 events): its stats year, a timezone-aware
  * parse of the start date, and whether it has ended by the time of the rebuild.
  *
- * `ended` gates the capacity and club breakdown stats: an event is in them only once it has run.
+ * `ended` gates the capacity, participation and club breakdown stats: an event is in them only once
+ * it has run.
  * Until the event day is over, every entry of an event that has not been drawn yet sits in the
  * reserve group, and one drawn but not yet run has starters who may still withdraw -- so an
  * upcoming event would show up as all reserve. Counting only some of its figures ahead of the day
@@ -86,8 +87,8 @@ const EVENT_STATS_PROJECTION_NAMES = { '#state': 'state' }
 const EVENT_STATS_PROJECTION = 'id, organizer, startDate, endDate, eventType, classes, places, #state, judges'
 const PARTICIPATION_TYPES: YearlyStatTypes[] = ['eventType', 'dog', 'breed', 'handler', 'dog#handler', 'class', 'event']
 // Draft/tentative/cancelled events aren't real committed capacity, so they're excluded from
-// capacity stats (unlike the organizer/participation stats above, which count every event
-// regardless of state). Events predating the state field are treated as committed.
+// capacity, participation and the club breakdown (unlike the organizer stats, which count every
+// event regardless of state). Events predating the state field are treated as committed.
 const CAPACITY_EXCLUDED_STATES = new Set<EventState>(['cancelled', 'draft', 'tentative'])
 const countsTowardsCapacity = (event: EventStatsEvent): boolean =>
   !event.state || !CAPACITY_EXCLUDED_STATES.has(event.state)
@@ -456,7 +457,7 @@ const addCapacityRegistration = (
 
   if (registration.cancelled) {
     bucket.cancelledRegistrations += 1
-  } else if (isParticipantGroup(registration.group?.key)) {
+  } else if (isStarter(registration)) {
     bucket.starters += 1
   } else {
     bucket.reserve += 1
@@ -521,7 +522,7 @@ const addBreedStartRegistration = (
     return
   }
   const bucket = getOrCreateBreedStartBucket(buckets, year, statIdentifier(registration.dog?.breedCode))
-  if (isParticipantGroup(registration.group?.key)) {
+  if (isStarter(registration)) {
     bucket.starters += 1
   } else {
     bucket.reserve += 1
@@ -634,7 +635,7 @@ const addEventBreakdownRegistration = (
     const bucket = getOrCreateEventBreakdownBucket(buckets, year, organizerId, eventType)
     if (registration.cancelled) {
       bucket.cancelledRegistrations += 1
-    } else if (isParticipantGroup(registration.group?.key)) {
+    } else if (isStarter(registration)) {
       bucket.starters += 1
       bucket.handlerIds.add(handlerId)
       if (isMember(registration)) bucket.memberStarters += 1
@@ -713,22 +714,28 @@ const judgeWorkloadRecords = (buckets: Map<string, JudgeWorkloadBucket>, updated
     updatedAt,
   }))
 
+/**
+ * Whether an entry is a start for the participation stats: placed in a participant group of an
+ * official event that was held and has run. A reserve never called up and a cancelled entry did
+ * not take part; neither did a dog placed in an event that was cancelled afterwards (the state does
+ * not cascade to its entries) or in one still ahead, whose starters may yet withdraw.
+ */
+const isParticipationStart = (registration: RegistrationStatsInput, { event, ended }: DatedStatsEvent): boolean =>
+  ended && countsTowardsCapacity(event) && OFFICIAL_EVENT_TYPES.includes(event.eventType) && isStarter(registration)
+
 const addRegistrationStats = (
   registration: RegistrationStatsInput,
-  event: EventStatsEvent,
-  year: number,
+  dated: DatedStatsEvent & { year: number },
   updatedAt: string,
   accumulator: StatsAccumulator,
   wanted: Set<StatsPartition>
 ) => {
+  const { event, year } = dated
   accumulator.years.add(year)
+  // The organizer stats count every entry of every event: they track the cancelled and reserve counts.
   if (wanted.has('organizer')) updateOrganizerStats(accumulator.organizerStats, event, registration, updatedAt)
 
-  // Participation counts starts: a reserve that was never called up and a cancelled entry did not
-  // take part. The organizer stats above still count every entry, they track those states.
-  if (!wanted.has('participation') || !OFFICIAL_EVENT_TYPES.includes(event.eventType) || !isStarter(registration)) {
-    return
-  }
+  if (!wanted.has('participation') || !isParticipationStart(registration, dated)) return
 
   const yearlyCounts = getYearlyCounts(accumulator.yearlyStats, year)
   const identifiers = participationIdentifiers(registration)
@@ -764,9 +771,8 @@ const processRegistrationStats = (
     })
     return { skipped: true, unattributedCapacity: false }
   }
-  const { event, year } = dated
-  const datedWithYear = { ...dated, year }
-  addRegistrationStats(registration, event, year, updatedAt, accumulator, wanted)
+  const datedWithYear = { ...dated, year: dated.year }
+  addRegistrationStats(registration, datedWithYear, updatedAt, accumulator, wanted)
   if (wanted.has('participation')) addBreedStartRegistration(registration, datedWithYear, breedStartBuckets)
   if (wanted.has('eventBreakdown')) addEventBreakdownRegistration(registration, datedWithYear, eventBreakdownBuckets)
   const unattributedCapacity =

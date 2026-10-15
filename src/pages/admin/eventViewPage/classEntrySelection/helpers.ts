@@ -8,6 +8,7 @@ import {
   getHandlingPerson,
   getRegistrationGroupKey,
   isParticipantGroup,
+  isStarter,
 } from '@/lib/registration'
 import { uniqueDate } from '@/lib/utils'
 
@@ -142,8 +143,7 @@ export const getDrawnNumberDays = (registrations: Registration[]): Set<string> =
  * the move enters the chosen number as the dog's own drawn number (KOE-1273).
  */
 export const isDrawnNumberMove = (registration: Registration | undefined, drawnDays: Set<string>): boolean => {
-  if (!registration || registration.cancelled) return false
-  if (!isParticipantGroup(getRegistrationGroupKey(registration))) return false
+  if (!registration || !isStarter(registration)) return false
   const day = registrationDrawDay(registration)
   return day !== undefined && drawnDays.has(day)
 }
@@ -160,12 +160,7 @@ export const buildDrawnNumberOptions = (
   const day = date ? drawDayKey(date) : registrationDrawDay(registration)
   if (!day) return []
 
-  const sameDay = registrations.filter(
-    (candidate) =>
-      !candidate.cancelled &&
-      isParticipantGroup(getRegistrationGroupKey(candidate)) &&
-      registrationDrawDay(candidate) === day
-  )
+  const sameDay = registrations.filter((candidate) => isStarter(candidate) && registrationDrawDay(candidate) === day)
   // A cancelled dog's frozen number is deliberately not taken: the server hands a vacated slot on
   // (KOE-1017), so the dialog offers it too.
   const taken = new Set<number>()
@@ -213,7 +208,7 @@ export const buildMoveToPositionDays = (
   drawnDays: Set<string>
 ): MoveToPositionDay[] => {
   if (!registration || registration.cancelled) return []
-  if (isParticipantGroup(getRegistrationGroupKey(registration))) return []
+  if (isStarter(registration)) return []
 
   const days = getAllowedParticipantGroups(registration, groups).flatMap((group) =>
     group.date

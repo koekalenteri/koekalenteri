@@ -538,7 +538,7 @@ export const groupParticipantsByClass = <
 ): Record<string, T[]> => {
   const byClass: Record<string, T[]> = {}
   for (const registration of registrations) {
-    if (registration.cancelled || !isParticipantGroup(registration.group?.key)) continue
+    if (!isStarter(registration)) continue
     const eventClass = getRegistrationClass(registration)
     byClass[eventClass] ??= []
     byClass[eventClass].push(registration)
@@ -576,7 +576,7 @@ export const isPaymentReturned = <T extends JsonRegistration | Registration>(reg
  * reserve, as it does for the refund.
  */
 export const isReturnedReserve = (reg: RegistrationPlacement & RegistrationRefundAmounts): boolean =>
-  !isParticipantGroup(getRegistrationGroupKey(reg)) && isPaymentReturned(reg)
+  !isStarter(reg) && isPaymentReturned(reg)
 
 export const getSelectedAdditionalCosts = (
   event: MinimalEventForCost,
