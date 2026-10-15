@@ -54,6 +54,10 @@ const registration = (id: string, eventId: string, overrides = {}) => ({
   ...overrides,
 })
 
+/** An entry placed in a participant group: a start, which is what participation stats count. */
+const start = (id: string, eventId: string, overrides = {}) =>
+  registration(id, eventId, { group: { key: 'kp' }, ...overrides })
+
 describe('statsRebuild', () => {
   const mockLog = vi.spyOn(console, 'info').mockImplementation(() => undefined)
 
@@ -104,6 +108,11 @@ describe('statsRebuild', () => {
       paidAmount: 30,
       refundAmount: 5,
     })
+    // The cancelled entry counts for the organizer only; the start beside it makes the participation rows.
+    const start2025 = start('start-2025', event2025.id, {
+      dog: { regNo: 'FI456' },
+      handler: { email: 'other@example.com' },
+    })
     const registration2026 = registration('registration-2026', event2026.id, { paidAmount: 20 })
     const stats = [
       { PK: 'TOTALS#2025', SK: 'dog' },
@@ -111,7 +120,7 @@ describe('statsRebuild', () => {
     ]
     mockReadAll
       .mockResolvedValueOnce([event2026, event2025])
-      .mockResolvedValueOnce([registration2026, registration2025])
+      .mockResolvedValueOnce([registration2026, registration2025, start2025])
       .mockResolvedValueOnce(stats)
 
     await handler()
@@ -139,12 +148,13 @@ describe('statsRebuild', () => {
       expect.arrayContaining([
         expect.objectContaining({
           cancelledRegistrations: 1,
-          count: 1,
+          count: 2,
           PK: 'ORG#organizer-event-2025',
           paidAmount: 30,
           paidRegistrations: 1,
           refundedAmount: 5,
           refundedRegistrations: 1,
+          reserveRegistrations: 0,
           SK: '2025-05-01#event-2025',
         }),
         { count: 1, PK: 'TOTALS#2025', SK: 'dog' },
@@ -162,13 +172,39 @@ describe('statsRebuild', () => {
     )
   })
 
+  it('counts reserve entries and member starts in the organizer stats, a cancelled member entry in neither', () => {
+    const testEvent = event('event-2025', '2025-05-01')
+    const member = { handler: { email: 'member@example.com', membership: true } }
+    const { records } = buildStatsRecords(
+      [
+        registration('reserve', testEvent.id, { group: { key: 'reserve' } }),
+        start('member-start', testEvent.id, member),
+        start('non-member-start', testEvent.id, { handler: { email: 'other@example.com', membership: false } }),
+        start('member-cancelled', testEvent.id, { ...member, cancelled: true }),
+      ],
+      new Map([[testEvent.id, testEvent]]),
+      '2025-01-01T00:00:00.000Z',
+      ['organizer']
+    )
+
+    expect(records).toContainEqual(
+      expect.objectContaining({
+        cancelledRegistrations: 1,
+        count: 4,
+        memberRegistrations: 1,
+        PK: 'ORG#organizer-event-2025',
+        reserveRegistrations: 1,
+      })
+    )
+  })
+
   it('counts repeated participants and derives unique totals and dog-handler buckets', () => {
     const testEvent = event('event-2025', '2025-05-01')
     const { records, skippedCount } = buildStatsRecords(
       [
-        registration('one', testEvent.id, { dog: { regNo: 'FI1' }, handler: { email: 'a@example.com' } }),
-        registration('two', testEvent.id, { dog: { regNo: 'FI1' }, handler: { email: 'a@example.com' } }),
-        registration('three', testEvent.id, { dog: { regNo: 'FI2' }, handler: { email: 'b@example.com' } }),
+        start('one', testEvent.id, { dog: { regNo: 'FI1' }, handler: { email: 'a@example.com' } }),
+        start('two', testEvent.id, { dog: { regNo: 'FI1' }, handler: { email: 'a@example.com' } }),
+        start('three', testEvent.id, { dog: { regNo: 'FI2' }, handler: { email: 'b@example.com' } }),
       ],
       new Map([[testEvent.id, testEvent]]),
       '2025-01-01T00:00:00.000Z'
@@ -187,11 +223,106 @@ describe('statsRebuild', () => {
     )
   })
 
+  it('counts only starts in participation stats, not reserve or cancelled entries', () => {
+    const first = event('event-1', '2025-05-01')
+    const second = event('event-2', '2025-06-01')
+    const third = event('event-3', '2025-07-01')
+    const pair = { dog: { breedCode: '111', regNo: 'FI1' }, handler: { email: 'a@example.com' } }
+    const other = { dog: { breedCode: '122', regNo: 'FI2' }, handler: { email: 'b@example.com' } }
+    const { records } = buildStatsRecords(
+      [
+        registration('started', first.id, { ...pair, group: { key: 'kp' } }),
+        registration('reserve', second.id, { ...pair, group: { key: 'reserve' } }),
+        registration('cancelled', third.id, { ...pair, cancelled: true, group: { key: 'kp' } }),
+        // A pair that never started: one reserve entry and one entry without a group.
+        registration('other-reserve', first.id, { ...other, group: { key: 'reserve' } }),
+        registration('other-ungrouped', second.id, other),
+      ],
+      new Map([first, second, third].map((testEvent) => [testEvent.id, testEvent])),
+      '2025-01-01T00:00:00.000Z'
+    )
+
+    const participation = records.filter((record) => /^(TOTALS|BUCKETS|STAT)#2025/.test(record.PK))
+    expect(participation).toEqual(
+      expect.arrayContaining([
+        { count: 1, PK: 'TOTALS#2025', SK: 'dog' },
+        { count: 1, PK: 'TOTALS#2025', SK: 'handler' },
+        { count: 1, PK: 'TOTALS#2025', SK: 'dog#handler' },
+        { count: 1, PK: 'BUCKETS#2025#dog#handler', SK: '1' },
+        { count: 1, PK: 'BUCKETS#2025#dogsPerHandler', SK: '1' },
+        { count: 1, PK: 'STAT#2025#breed', SK: '111' },
+        { count: 1, PK: 'STAT#2025#eventType', SK: 'NOU' },
+      ])
+    )
+    expect(participation).not.toContainEqual(expect.objectContaining({ PK: 'BUCKETS#2025#dog#handler', SK: '2' }))
+    expect(participation).not.toContainEqual(expect.objectContaining({ PK: 'BUCKETS#2025#dog#handler', SK: '3' }))
+    expect(participation).not.toContainEqual(expect.objectContaining({ PK: 'STAT#2025#breed', SK: '122' }))
+    // Every held event still counts, also the ones whose entries for these dogs did not start.
+    expect(participation).toContainEqual({ count: 3, PK: 'TOTALS#2025', SK: 'event' })
+  })
+
+  it.each(['cancelled', 'draft', 'tentative'] as const)(
+    'counts no starts of a %s event, nor the event itself',
+    (state) => {
+      const held = event('event-held', '2025-05-01')
+      const notHeld: EventStatsEvent = { ...event('event-not-held', '2025-06-01'), state }
+      const { records } = buildStatsRecords(
+        [start('placed', notHeld.id, { dog: { breedCode: '111', regNo: 'FI1' }, handler: { email: 'a@example.com' } })],
+        new Map([held, notHeld].map((testEvent) => [testEvent.id, testEvent])),
+        '2025-01-01T00:00:00.000Z'
+      )
+
+      expect(records).toContainEqual({ count: 0, PK: 'TOTALS#2025', SK: 'dog' })
+      expect(records.some((record) => record.PK.startsWith('BUCKETS#2025#'))).toBe(false)
+      expect(records.some((record) => record.PK.startsWith('STAT#2025#breed'))).toBe(false)
+      // Only the held event counts; the placed entry must not bring the other one back in.
+      expect(records).toContainEqual({ count: 1, PK: 'TOTALS#2025', SK: 'event' })
+    }
+  )
+
+  it('counts no starts of an unofficial event type', () => {
+    const held = event('event-held', '2025-05-01')
+    const unofficial = event('event-unofficial', '2025-06-01', 'other')
+    const { records } = buildStatsRecords(
+      [
+        start('placed', unofficial.id, {
+          dog: { regNo: 'FI1' },
+          eventType: 'other',
+          handler: { email: 'a@example.com' },
+        }),
+      ],
+      new Map([held, unofficial].map((testEvent) => [testEvent.id, testEvent])),
+      '2025-01-01T00:00:00.000Z'
+    )
+
+    expect(records).toContainEqual({ count: 0, PK: 'TOTALS#2025', SK: 'dog' })
+    expect(records.some((record) => record.PK.startsWith('BUCKETS#2025#'))).toBe(false)
+  })
+
+  it('counts no starts of an event that has not run yet', () => {
+    const held = event('event-held', '2025-05-01')
+    const upcoming = event('event-upcoming', '2025-11-01')
+    const { records } = buildStatsRecords(
+      [start('placed', upcoming.id, { dog: { regNo: 'FI1' }, handler: { email: 'a@example.com' } })],
+      new Map([held, upcoming].map((testEvent) => [testEvent.id, testEvent])),
+      '2025-10-15T00:00:00.000Z',
+      undefined,
+      new Date('2025-10-15T12:00:00.000Z')
+    )
+
+    expect(records).toContainEqual({ count: 0, PK: 'TOTALS#2025', SK: 'dog' })
+    expect(records.some((record) => record.PK.startsWith('BUCKETS#2025#'))).toBe(false)
+    // Nor is the event itself held yet: only the one that has run counts.
+    expect(records).toContainEqual({ count: 1, PK: 'TOTALS#2025', SK: 'event' })
+    // The year is still listed: the organizer stats count the entry.
+    expect(records).toContainEqual(expect.objectContaining({ PK: 'YEARS', SK: '2025' }))
+  })
+
   it('stores per-entity rows only for the breakdowns the API serves, the rest just count toward the totals', () => {
     const testEvent = event('event-2025', '2025-05-01')
     const { records } = buildStatsRecords(
       [
-        registration('one', testEvent.id, {
+        start('one', testEvent.id, {
           class: 'ALO',
           dog: { breedCode: '111', regNo: 'FI1' },
           handler: { email: 'a@example.com' },
@@ -227,9 +358,9 @@ describe('statsRebuild', () => {
     const testEvent = event('event-2025', '2025-05-01')
     const { records } = buildStatsRecords(
       [
-        registration('one', testEvent.id, { dog: { regNo: 'FI1' }, handler: { email: 'a@example.com' } }),
-        registration('two', testEvent.id, { dog: { regNo: 'FI2' }, handler: { email: 'a@example.com' } }),
-        registration('three', testEvent.id, { dog: { regNo: 'FI3' }, handler: { email: 'b@example.com' } }),
+        start('one', testEvent.id, { dog: { regNo: 'FI1' }, handler: { email: 'a@example.com' } }),
+        start('two', testEvent.id, { dog: { regNo: 'FI2' }, handler: { email: 'a@example.com' } }),
+        start('three', testEvent.id, { dog: { regNo: 'FI3' }, handler: { email: 'b@example.com' } }),
       ],
       new Map([[testEvent.id, testEvent]]),
       '2025-01-01T00:00:00.000Z'
@@ -1282,7 +1413,7 @@ describe('statsRebuild', () => {
     const build = (years: { year: number; pairs: { dog: { regNo: string }; handler: { email: string } }[] }[]) => {
       const events = years.map(({ year }) => event(`e${year}`, `${year}-05-01`))
       const registrations = years.flatMap(({ year, pairs }) =>
-        pairs.map((p, i) => registration(`r${year}-${i}`, `e${year}`, p))
+        pairs.map((p, i) => start(`r${year}-${i}`, `e${year}`, p))
       )
       const { records } = buildStatsRecords(registrations, new Map(events.map((e) => [e.id, e])), 'now')
       return records.filter((r) => r.PK.startsWith('RETENTION#'))

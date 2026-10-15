@@ -16,7 +16,7 @@ import type {
 } from '../../types/Stats'
 import type { RegistrationStatsInput } from './stats'
 import { isEventOver, OFFICIAL_EVENT_TYPES, uniqueClasses } from '../../lib/event'
-import { getRegistrationClass, isMember, isParticipantGroup } from '../../lib/registration'
+import { getRegistrationClass, isMember, isStarter } from '../../lib/registration'
 import { splitEvenly } from '../../lib/utils'
 import { ALL_EVENT_TYPES_FOR_CAPACITY, ALL_ORGANIZERS_FOR_EVENTS, YEARLY_BREAKDOWN_TYPES } from '../../types/Stats'
 import { CONFIG } from '../config'
@@ -52,7 +52,8 @@ export type EventStatsEvent = Pick<
  * registration (20 000 of them in production, for 700 events): its stats year, a timezone-aware
  * parse of the start date, and whether it has ended by the time of the rebuild.
  *
- * `ended` gates the capacity and club breakdown stats: an event is in them only once it has run.
+ * `ended` gates the capacity, participation and club breakdown stats: an event is in them only once
+ * it has run.
  * Until the event day is over, every entry of an event that has not been drawn yet sits in the
  * reserve group, and one drawn but not yet run has starters who may still withdraw -- so an
  * upcoming event would show up as all reserve. Counting only some of its figures ahead of the day
@@ -86,11 +87,23 @@ const EVENT_STATS_PROJECTION_NAMES = { '#state': 'state' }
 const EVENT_STATS_PROJECTION = 'id, organizer, startDate, endDate, eventType, classes, places, #state, judges'
 const PARTICIPATION_TYPES: YearlyStatTypes[] = ['eventType', 'dog', 'breed', 'handler', 'dog#handler', 'class', 'event']
 // Draft/tentative/cancelled events aren't real committed capacity, so they're excluded from
-// capacity stats (unlike the organizer/participation stats above, which count every event
-// regardless of state). Events predating the state field are treated as committed.
+// capacity, participation and the club breakdown (unlike the organizer stats, which count every
+// event regardless of state). Events predating the state field are treated as committed.
 const CAPACITY_EXCLUDED_STATES = new Set<EventState>(['cancelled', 'draft', 'tentative'])
 const countsTowardsCapacity = (event: EventStatsEvent): boolean =>
   !event.state || !CAPACITY_EXCLUDED_STATES.has(event.state)
+
+/**
+ * An event that was held: committed (see countsTowardsCapacity) and over by the time of the
+ * rebuild (see DatedStatsEvent). Only held events are in the capacity, participation and club
+ * breakdown stats.
+ */
+const isHeldEvent = ({ event, ended }: Pick<DatedStatsEvent, 'event' | 'ended'>): boolean =>
+  ended && countsTowardsCapacity(event)
+
+/** A held event of an official type: the scope of the participation and breed start stats. */
+const isHeldOfficialEvent = (dated: Pick<DatedStatsEvent, 'event' | 'ended'>): boolean =>
+  isHeldEvent(dated) && OFFICIAL_EVENT_TYPES.includes(dated.event.eventType)
 
 const dynamoDB = new CustomDynamoClient(CONFIG.eventStatsTable)
 
@@ -173,11 +186,11 @@ const updateOrganizerStats = (
     reserveRegistrations: 0,
     updatedAt,
   }
-  const isStarter = !registration.cancelled && isParticipantGroup(registration.group?.key)
+  const started = isStarter(registration)
   stats.count = (stats.count ?? 0) + 1
   stats.cancelledRegistrations = (stats.cancelledRegistrations ?? 0) + (registration.cancelled ? 1 : 0)
-  stats.reserveRegistrations = (stats.reserveRegistrations ?? 0) + (!registration.cancelled && !isStarter ? 1 : 0)
-  stats.memberRegistrations = (stats.memberRegistrations ?? 0) + (isStarter && isMember(registration) ? 1 : 0)
+  stats.reserveRegistrations = (stats.reserveRegistrations ?? 0) + (!registration.cancelled && !started ? 1 : 0)
+  stats.memberRegistrations = (stats.memberRegistrations ?? 0) + (started && isMember(registration) ? 1 : 0)
   stats.paidAmount = (stats.paidAmount ?? 0) + (registration.paidAmount ?? 0)
   stats.paidRegistrations = (stats.paidRegistrations ?? 0) + (registration.paidAmount ? 1 : 0)
   stats.refundedAmount = (stats.refundedAmount ?? 0) + (registration.refundAmount ?? 0)
@@ -195,20 +208,20 @@ const getYearlyCounts = (yearlyStats: Map<number, Map<YearlyStatTypes, Map<strin
 }
 
 /**
- * Seeds the per-year 'event' counts with every committed official event, so the TOTALS 'event'
+ * Seeds the per-year 'event' counts with every held official event, so the TOTALS 'event'
  * figure means "events held" rather than "events that got at least one registration". Without
  * this, a year where half the events drew no entries shows the same registrations-per-event
- * average as a year where every event filled. Draft/tentative/cancelled events are excluded the
- * same way as for capacity: they were never committed capacity to fill.
+ * average as a year where every event filled. Held means committed and over by the rebuild (see
+ * isHeldEvent): a draft/tentative/cancelled event was never committed capacity to fill, and one
+ * still ahead has no starts yet, so counting it would lower the starts-per-event average.
  */
 const seedEventCountsFromEvents = (
-  eventsById: Map<string, EventStatsEvent>,
+  datedEvents: Map<string, DatedStatsEvent>,
   yearlyStats: Map<number, Map<YearlyStatTypes, Map<string, number>>>
 ): void => {
-  for (const event of eventsById.values()) {
-    if (!OFFICIAL_EVENT_TYPES.includes(event.eventType) || !countsTowardsCapacity(event)) continue
-    const year = eventStatsYear(event)
-    if (year === undefined) continue
+  for (const dated of datedEvents.values()) {
+    const { event, year } = dated
+    if (!isHeldOfficialEvent(dated) || year === undefined) continue
 
     const counts = countsForType(getYearlyCounts(yearlyStats, year), 'event')
     if (!counts.has(event.id)) counts.set(event.id, 0)
@@ -403,8 +416,9 @@ const seedCapacityFromEvents = (
   buckets: Map<string, CapacityBucket>,
   eventClassMonths: Map<string, Map<string, string>>
 ): void => {
-  for (const { event, ended, year } of datedEvents.values()) {
-    if (!ended || !countsTowardsCapacity(event) || year === undefined) continue
+  for (const dated of datedEvents.values()) {
+    const { event, year } = dated
+    if (!isHeldEvent(dated) || year === undefined) continue
 
     const classKeys = eventClassKeys(event)
     const placesByClass = eventClassPlaces(event, classKeys)
@@ -431,11 +445,12 @@ const seedCapacityFromEvents = (
  */
 const addCapacityRegistration = (
   registration: CapacityRegistrationInput,
-  { event, ended }: DatedStatsEvent,
+  dated: DatedStatsEvent,
   buckets: Map<string, CapacityBucket>,
   eventClassMonths: Map<string, Map<string, string>>
 ): boolean => {
-  if (!ended || !countsTowardsCapacity(event)) return true
+  if (!isHeldEvent(dated)) return true
+  const { event } = dated
 
   const classMonths = eventClassMonths.get(event.id)
   if (!classMonths?.size) return false
@@ -456,7 +471,7 @@ const addCapacityRegistration = (
 
   if (registration.cancelled) {
     bucket.cancelledRegistrations += 1
-  } else if (isParticipantGroup(registration.group?.key)) {
+  } else if (isStarter(registration)) {
     bucket.starters += 1
   } else {
     bucket.reserve += 1
@@ -509,19 +524,12 @@ const getOrCreateBreedStartBucket = (
  */
 const addBreedStartRegistration = (
   registration: CapacityRegistrationInput,
-  { event, year, ended }: DatedStatsEvent & { year: number },
+  dated: DatedStatsEvent & { year: number },
   buckets: Map<string, BreedStartBucket>
 ): void => {
-  if (
-    registration.cancelled ||
-    !ended ||
-    !countsTowardsCapacity(event) ||
-    !OFFICIAL_EVENT_TYPES.includes(event.eventType)
-  ) {
-    return
-  }
-  const bucket = getOrCreateBreedStartBucket(buckets, year, statIdentifier(registration.dog?.breedCode))
-  if (isParticipantGroup(registration.group?.key)) {
+  if (registration.cancelled || !isHeldOfficialEvent(dated)) return
+  const bucket = getOrCreateBreedStartBucket(buckets, dated.year, statIdentifier(registration.dog?.breedCode))
+  if (isStarter(registration)) {
     bucket.starters += 1
   } else {
     bucket.reserve += 1
@@ -603,8 +611,9 @@ const seedEventBreakdownFromEvents = (
   datedEvents: Map<string, DatedStatsEvent>,
   buckets: Map<string, EventBreakdownBucket>
 ): void => {
-  for (const { event, ended, year } of datedEvents.values()) {
-    if (!ended || !countsTowardsCapacity(event) || year === undefined) continue
+  for (const dated of datedEvents.values()) {
+    const { event, year } = dated
+    if (!isHeldEvent(dated) || year === undefined) continue
 
     const places = Number(event.places) || 0
     for (const [organizerId, eventType] of eventBreakdownBucketTargets(event.organizer.id, event.eventType)) {
@@ -624,17 +633,18 @@ const seedEventBreakdownFromEvents = (
  */
 const addEventBreakdownRegistration = (
   registration: CapacityRegistrationInput,
-  { event, year, ended }: DatedStatsEvent & { year: number },
+  dated: DatedStatsEvent & { year: number },
   buckets: Map<string, EventBreakdownBucket>
 ): void => {
-  if (!ended || !countsTowardsCapacity(event)) return
+  if (!isHeldEvent(dated)) return
+  const { event, year } = dated
 
   const handlerId = hashStatValue(registration.handler?.email)
   for (const [organizerId, eventType] of eventBreakdownBucketTargets(event.organizer.id, event.eventType)) {
     const bucket = getOrCreateEventBreakdownBucket(buckets, year, organizerId, eventType)
     if (registration.cancelled) {
       bucket.cancelledRegistrations += 1
-    } else if (isParticipantGroup(registration.group?.key)) {
+    } else if (isStarter(registration)) {
       bucket.starters += 1
       bucket.handlerIds.add(handlerId)
       if (isMember(registration)) bucket.memberStarters += 1
@@ -713,18 +723,28 @@ const judgeWorkloadRecords = (buckets: Map<string, JudgeWorkloadBucket>, updated
     updatedAt,
   }))
 
+/**
+ * Whether an entry is a start for the participation stats: placed in a participant group of an
+ * official event that was held and has run. A reserve never called up and a cancelled entry did
+ * not take part; neither did a dog placed in an event that was cancelled afterwards (the state does
+ * not cascade to its entries) or in one still ahead, whose starters may yet withdraw.
+ */
+const isParticipationStart = (registration: RegistrationStatsInput, dated: DatedStatsEvent): boolean =>
+  isHeldOfficialEvent(dated) && isStarter(registration)
+
 const addRegistrationStats = (
   registration: RegistrationStatsInput,
-  event: EventStatsEvent,
-  year: number,
+  dated: DatedStatsEvent & { year: number },
   updatedAt: string,
   accumulator: StatsAccumulator,
   wanted: Set<StatsPartition>
 ) => {
+  const { event, year } = dated
   accumulator.years.add(year)
+  // The organizer stats count every entry of every event: they track the cancelled and reserve counts.
   if (wanted.has('organizer')) updateOrganizerStats(accumulator.organizerStats, event, registration, updatedAt)
 
-  if (!wanted.has('participation') || !OFFICIAL_EVENT_TYPES.includes(event.eventType)) return
+  if (!wanted.has('participation') || !isParticipationStart(registration, dated)) return
 
   const yearlyCounts = getYearlyCounts(accumulator.yearlyStats, year)
   const identifiers = participationIdentifiers(registration)
@@ -760,9 +780,8 @@ const processRegistrationStats = (
     })
     return { skipped: true, unattributedCapacity: false }
   }
-  const { event, year } = dated
-  const datedWithYear = { ...dated, year }
-  addRegistrationStats(registration, event, year, updatedAt, accumulator, wanted)
+  const datedWithYear = { ...dated, year: dated.year }
+  addRegistrationStats(registration, datedWithYear, updatedAt, accumulator, wanted)
   if (wanted.has('participation')) addBreedStartRegistration(registration, datedWithYear, breedStartBuckets)
   if (wanted.has('eventBreakdown')) addEventBreakdownRegistration(registration, datedWithYear, eventBreakdownBuckets)
   const unattributedCapacity =
@@ -787,7 +806,7 @@ const seedStatsBuckets = (
   const judgeWorkloadBuckets = new Map<string, JudgeWorkloadBucket>()
   if (wanted.has('judges')) seedJudgeWorkloadFromEvents(eventsById, judgeWorkloadBuckets)
 
-  if (wanted.has('participation')) seedEventCountsFromEvents(eventsById, yearlyStats)
+  if (wanted.has('participation')) seedEventCountsFromEvents(datedEvents, yearlyStats)
 
   const breedStartBuckets = new Map<string, BreedStartBucket>()
 

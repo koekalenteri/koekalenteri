@@ -28,11 +28,10 @@ import {
 import { getEventStateForClass } from './event'
 import {
   getRegistrationClass,
-  getRegistrationGroupKey,
   hasRefundableBalance,
   isMember,
-  isParticipantGroup,
   isPaymentReturned,
+  isStarter,
   shouldSendInvitationToRegistration,
 } from './registration'
 import { capitalize } from './string'
@@ -88,7 +87,7 @@ type PayOfferRegistration = RegistrationPlacement &
  * read this one rule (KOE-1526).
  */
 export const isPaymentOpenForPlace = (event: PaymentTimeEvent, registration: RegistrationPlacement): boolean =>
-  event.paymentTime !== 'confirmation' || isParticipantGroup(getRegistrationGroupKey(registration))
+  event.paymentTime !== 'confirmation' || isStarter(registration)
 
 /**
  * A payment in progress, or one charged twice: either holds the pay offer back, place or no place.
@@ -338,7 +337,7 @@ const isInvitedRound = (event: InvitationPaymentEvent, registration: InvitationP
  * dog lifted from the reserve list after the others were invited.
  */
 const isInvitationDue = (event: InvitationPaymentEvent, registration: InvitationPaymentRegistration): boolean =>
-  isParticipantGroup(getRegistrationGroupKey(registration)) &&
+  isStarter(registration) &&
   isInvitedRound(event, registration) &&
   shouldSendInvitationToRegistration(event, registration)
 

@@ -6,6 +6,7 @@ import {
   getRegistrationClass,
   getRegistrationGroupKey,
   groupParticipantsByClass,
+  isStarter,
 } from '../lib/registration'
 import { unique } from '../lib/utils'
 
@@ -57,8 +58,8 @@ export default function useAdminEventRegistrationInfo(
     for (const c of eventClasses) {
       const places = placesForClass(event, c)
       const classRegs = registrations.filter((r) => getRegistrationClass(r) === c)
-      const regs = classRegs.filter((r) => r.group && !r.cancelled && r.group.key !== GROUP_KEY_RESERVE).length
-      const reserve = classRegs.filter((r) => !r.cancelled && (!r.group || r.group.key === GROUP_KEY_RESERVE)).length
+      const regs = classRegs.filter(isStarter).length
+      const reserve = classRegs.filter((r) => !r.cancelled && !isStarter(r)).length
       const cancelled = classRegs.filter((r) => r.cancelled).length
       result[c] = {
         cancelled,
