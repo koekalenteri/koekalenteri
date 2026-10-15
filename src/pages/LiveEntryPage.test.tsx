@@ -105,4 +105,14 @@ describe('LiveEntryPage', () => {
     expect(screen.getByText('results.liveEntryLinkInvalid')).toBeInTheDocument()
     expect(within(document.body).queryByRole('tab')).not.toBeInTheDocument()
   })
+  it('cannot be saved once the trial is with the chief judge, which the link learns from the trial it opens', async () => {
+    vi.mocked(getStationEntry).mockResolvedValue({ ...entry(), event: { ...entry().event, locked: true } })
+    const { user } = renderPage()
+    await flushPromises()
+
+    await user.click(screen.getByRole('button', { name: /1 Ensimmainen/ }))
+
+    expect(screen.getByText('results.kennelliitto.lockedSave')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'results.save' })).toBeDisabled()
+  })
 })

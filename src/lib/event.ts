@@ -1254,6 +1254,7 @@ export function sanitizeDogEvent(
     kcId: _kcId,
     kcGuid: _kcGuid,
     kcEvent: _kcEvent,
+    kcState: _kcState,
     invitationAttachment: _invitationAttachment,
     invitationAttachmentHistory: _invitationAttachmentHistory,
     invitationAttachments: _invitationAttachments,
@@ -1439,13 +1440,16 @@ export const copyDogEvent = (event: DogEvent): DogEvent => {
 }
 
 /** What links an event to its Kennelliitto trial: the GUID, the old integer id and the snapshot of the trial. */
-export const KENNELLIITTO_LINK_FIELDS = ['kcEvent', 'kcGuid', 'kcId'] as const
+export const KENNELLIITTO_LINK_FIELDS = ['kcEvent', 'kcGuid', 'kcId', 'kcState'] as const
 
 /**
  * Removes the link to a Kennelliitto trial. A copy of an event is not the event the link was made
- * for, and a GUID names a trial in one environment only (KOE-1534).
+ * for, and a GUID names a trial in one environment only (KOE-1534). The state last read from the
+ * trial goes with it.
  */
-export const stripKennelliittoLink = <T extends { kcEvent?: unknown; kcGuid?: unknown; kcId?: unknown }>(
+export const stripKennelliittoLink = <
+  T extends { kcEvent?: unknown; kcGuid?: unknown; kcId?: unknown; kcState?: unknown },
+>(
   event: T
 ): T => {
   for (const field of KENNELLIITTO_LINK_FIELDS) delete event[field]

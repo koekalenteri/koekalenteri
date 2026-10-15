@@ -1,3 +1,4 @@
+import type { KcPreviewResponse, KcSendResponse } from '../../lib/kennelliittoResults'
 import type {
   AuditRecord,
   ConfirmedEvent,
@@ -203,4 +204,28 @@ export const putEventResults = vi.fn(
     saved: results.map(({ id }) => ({ eventResult: {} as EventResult, id })),
     unchanged: [],
   })
+)
+
+/** Kennelliitto's side of the results: a vi.fn each, so a test chooses what the endpoint answers. */
+export const previewKennelliittoResults = vi.fn(
+  async (
+    _eventId: string,
+    _registrationIds: string[] | undefined,
+    _token: string,
+    _signal?: AbortSignal
+  ): Promise<KcPreviewResponse> => ({ blockers: [], dogs: [] })
+)
+
+export const sendKennelliittoResults = vi.fn(
+  async (
+    _eventId: string,
+    _registrationIds: string[],
+    _force: boolean,
+    _token: string,
+    _signal?: AbortSignal
+  ): Promise<KcSendResponse> => ({ blockers: [], kcResults: [], notAttempted: [], reports: [] })
+)
+
+export const handOverKennelliittoResults = vi.fn(
+  async (_eventId: string, _withoutBlocked: boolean, _token: string, _signal?: AbortSignal) => ({ handedOver: true })
 )

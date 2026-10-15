@@ -23,6 +23,8 @@ type Query = Record<string, string | number | undefined>
 type Options = {
   /** The clock, in milliseconds. Injected so that token expiry is testable without fake timers. */
   now?: () => number
+  /** How long one call to KL may take before it is given up as unanswered. */
+  timeoutMs?: number
 }
 
 type TokenOutcome = { failure?: undefined; token: string } | { failure: KLIntegraatioResult<never>; token?: undefined }
@@ -36,6 +38,14 @@ const TOKEN_MARGIN_S = 60
 const PATH_PREFIX = 'Integraatio'
 
 const SCOPE = 'kennelapi'
+
+/**
+ * One call's time limit. The reads of Testi2 took 0.1 to 0.3 s warm and 2.7 s at the very first call of
+ * a cold session, the token 5.7 s once (15.10.2026), and a request through the API gateway has 29 s in
+ * all. Eight seconds is ten times the warm read and three times the worst cold one: a call that takes
+ * longer has hung, and waiting for it would use up the answer the secretary is waiting for.
+ */
+const CALL_TIMEOUT_MS = 8000
 
 const toSearchParams = (query: Query): URLSearchParams => {
   const sp = new URLSearchParams()
@@ -93,12 +103,17 @@ const errorMessage = (e: unknown): string => (e instanceof Error ? e.message : '
 export default class KLIntegraatio {
   private readonly _loadConfig: () => Promise<KLIntegraatioConfig>
   private readonly _now: () => number
+  private readonly _timeoutMs: number
   private _token?: { expiresAt: number; token: string }
   private _tokenRequest?: Promise<TokenOutcome>
 
-  public constructor(loadConfig: () => Promise<KLIntegraatioConfig>, { now = Date.now }: Options = {}) {
+  public constructor(
+    loadConfig: () => Promise<KLIntegraatioConfig>,
+    { now = Date.now, timeoutMs = CALL_TIMEOUT_MS }: Options = {}
+  ) {
     this._loadConfig = loadConfig
     this._now = now
+    this._timeoutMs = timeoutMs
   }
 
   private async _fetchToken(cfg: KLIntegraatioConfig): Promise<TokenOutcome> {
@@ -112,6 +127,7 @@ export default class KLIntegraatio {
         }),
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         method: 'POST',
+        signal: AbortSignal.timeout(this._timeoutMs),
       })
       if (!res.ok) {
         logger.error('KLIntegraatio token request was not ok', { status: res.status })
@@ -148,6 +164,7 @@ export default class KLIntegraatio {
         ...(body === undefined ? {} : { 'Content-Type': 'application/json' }),
       },
       method,
+      signal: AbortSignal.timeout(this._timeoutMs),
     })
   }
 

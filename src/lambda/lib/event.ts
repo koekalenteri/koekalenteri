@@ -6,6 +6,7 @@ import type {
   EventState,
   JsonConfirmedEvent,
   JsonDogEvent,
+  JsonKcState,
   JsonLinkedEvent,
   JsonRegistration,
   JsonRegistrationGroupInfo,
@@ -19,12 +20,14 @@ import { addDays } from 'date-fns/addDays'
 import { zonedStartOfDay } from '../../i18n/dates'
 import { auditUser, groupChangeAudit } from '../../lib/audit'
 import { isResultsPublishedClassMap, withResultsDay } from '../../lib/event'
+import { isResultsLocked } from '../../lib/kennelliittoResults'
 import { getResultsBlocker, isResultsPublishedState } from '../../lib/publishing'
 import { GROUP_KEY_CANCELLED, hasPriority, REGISTRATION_WRITE_CONCURRENCY } from '../../lib/registration'
 import { normalizeRegistrationGroups } from '../../lib/registrationGroups'
 import { mapWithConcurrency } from '../../lib/utils'
 import { CONFIG } from '../config'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
+import { isConditionalCheckFailure } from './api-gw'
 import { audit, registrationAuditKey } from './audit'
 import { foldedFrom, retryOnConditionFailure } from './conditionalWrite'
 import { httpError, LambdaError } from './lambda'
@@ -474,6 +477,7 @@ export const linkedEventProjection = (confirmedEvent: JsonConfirmedEvent): JsonL
   eventType: confirmedEvent.eventType,
   id: confirmedEvent.id,
   location: confirmedEvent.location,
+  ...(isResultsLocked(confirmedEvent) ? { locked: true } : {}),
   name: confirmedEvent.name,
   names: confirmedEvent.names,
   startDate: confirmedEvent.startDate,
@@ -575,4 +579,41 @@ export const setResultsPublishedState = (
     reread: () => getEvent<JsonConfirmedEvent>(confirmedEvent.id, true),
     work: (current) => writeResultsDay(current, request, updatedAt),
   })
+}
+
+/**
+ * Records what Kennelliitto last said of the trial's state (KOE-1140). A field-level write, never a
+ * save of the event, so it cannot overwrite what a secretary saved meanwhile, and `updatedAt` moves so
+ * an incremental fetch carries it.
+ *
+ * Several requests read the state at once, and a slow one must not put back what a faster one has
+ * already replaced (a judge's return to 754 after a hand-over to 1253 is the case that matters): the
+ * write lands only on a reading no older than the stored one. Answers whether it was written.
+ */
+export const writeKcState = async (eventId: string, kcState: JsonKcState, updatedAt: string): Promise<boolean> => {
+  try {
+    await dynamoDB.update({ id: eventId }, { set: { kcState, updatedAt } }, eventTable, 'NONE', {
+      expression: 'attribute_exists(#id) AND (attribute_not_exists(#kcState) OR #kcState.#readAt <= :readAt)',
+      names: { '#id': 'id', '#kcState': 'kcState', '#readAt': 'readAt' },
+      values: { ':readAt': kcState.readAt },
+    })
+    return true
+  } catch (error) {
+    if (isConditionalCheckFailure(error)) return false
+    throw error
+  }
+}
+
+/** Links an event that has none to the trial found for it. A link another save made first stays. */
+export const writeKcGuid = async (eventId: string, kcGuid: string, updatedAt: string): Promise<boolean> => {
+  try {
+    await dynamoDB.update({ id: eventId }, { set: { kcGuid, updatedAt } }, eventTable, 'NONE', {
+      expression: 'attribute_exists(#id) AND attribute_not_exists(#kcGuid)',
+      names: { '#id': 'id', '#kcGuid': 'kcGuid' },
+    })
+    return true
+  } catch (error) {
+    if (isConditionalCheckFailure(error)) return false
+    throw error
+  }
 }

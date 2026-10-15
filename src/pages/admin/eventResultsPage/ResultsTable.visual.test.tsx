@@ -1,6 +1,7 @@
 import type { PublicJudge, Registration } from '@/types'
 import type { ResultEdit } from '../../components/stationScoring/types'
 import { ThemeProvider } from '@mui/material/styles'
+import { page } from 'vitest/browser'
 import { render } from 'vitest-browser-react'
 import { eventWithStations, registrationsToEventWithStations } from '@/__mockData__/resultsEvent'
 import theme from '@/assets/Theme'
@@ -100,6 +101,77 @@ it('shows a working test round as the secretary scores it', async () => {
   await expect(screen.getByTestId('visual-root')).toMatchScreenshot('results-entry-nowt')
 })
 
+// What sending to Omakoira came to, dog by dog (KOE-1140): sent as it stands, edited since, refused with
+// Kennelliitto's reason, and not yet sent.
+const sentAt = new Date('2026-09-26T10:00:00Z')
+const resultAt = (updatedAt: string, result: string) => ({
+  result,
+  updatedAt: new Date(updatedAt),
+  updatedBy: 'Sihteeri',
+})
+const kcRegistrations: Registration[] = [
+  {
+    ...nouRegistrations[0],
+    eventResult: resultAt('2026-09-26T09:00:00Z', 'NOU1'),
+    kcResult: {
+      at: sentAt,
+      by: 'Sihteeri',
+      payloadHash: 'h',
+      resultVersion: '2026-09-26T09:00:00.000Z',
+      status: 'sent',
+    },
+  },
+  {
+    ...nouRegistrations[1],
+    eventResult: resultAt('2026-09-26T09:30:00Z', 'NOU0'),
+    kcResult: {
+      at: sentAt,
+      by: 'Sihteeri',
+      payloadHash: 'h',
+      resultVersion: '2026-09-26T09:00:00.000Z',
+      status: 'sent',
+    },
+  },
+  {
+    ...nouRegistrations[0],
+    dog: { ...nouRegistrations[0].dog, name: 'Kolmas', regNo: 'REG-run-3' },
+    eventResult: resultAt('2026-09-26T09:00:00Z', 'NOU1'),
+    id: 'run-3',
+    kcResult: { at: sentAt, by: 'Sihteeri', errors: ['Koiran nimi ei täsmää.'], status: 'failed' },
+  },
+  {
+    ...nouRegistrations[0],
+    dog: { ...nouRegistrations[0].dog, name: 'Neljäs', regNo: 'REG-run-4' },
+    eventResult: resultAt('2026-09-26T09:00:00Z', 'NOU1'),
+    id: 'run-4',
+  },
+]
+
+const kcTable = (compact = false) => (
+  <ResultsTable
+    compact={compact}
+    defaultJudges={{}}
+    edits={{}}
+    eventType="NOU"
+    fullRound={[]}
+    judges={nouJudges}
+    judgesFor={() => []}
+    kennelliitto
+    onChange={noop}
+    onJudgeChange={noop}
+    registrations={kcRegistrations}
+    round={[]}
+    stations={[]}
+  />
+)
+
+it('shows where each dog stands with Omakoira beside its result (KOE-1140)', async () => {
+  const screen = await render(<Frame>{kcTable()}</Frame>)
+
+  await expect.element(screen.getByText('Muuttunut')).toBeVisible()
+  await expect(screen.getByTestId('visual-root')).toMatchScreenshot('results-entry-kennelliitto')
+})
+
 it('shows a pass/fail round with the result and the judge as the entry', async () => {
   const screen = await render(<Frame>{nouTable()}</Frame>)
 
@@ -139,4 +211,13 @@ describeInLanguage('en', () => {
     await expect.element(screen.getByRole('columnheader', { name: 'Dog' })).toBeVisible()
     await expect(screen.getByTestId('visual-root')).toMatchScreenshot('results-entry-nou-en')
   })
+})
+
+// Last in the file: it takes the viewport its four cards need, and the sheets above keep the default one.
+it('shows the same on a phone', async () => {
+  await page.viewport(PHONE + 40, 1100)
+  const screen = await render(<Frame width={PHONE}>{kcTable(true)}</Frame>)
+
+  await expect.element(screen.getByText('Muuttunut')).toBeVisible()
+  await expect(screen.getByTestId('visual-root')).toMatchScreenshot('results-entry-kennelliitto-phone')
 })

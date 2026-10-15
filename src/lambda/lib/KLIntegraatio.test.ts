@@ -633,4 +633,43 @@ describe('KLIntegraatio', () => {
       expect(result.error).toBeDefined()
     })
   })
+  describe('a call that is never answered', () => {
+    /** A KL that takes the request and then says nothing until the caller gives up. */
+    const hangingFetch = (_input: string, init?: RequestInit) => {
+      const signal = init?.signal
+      return new Promise<Response>((_resolve, reject) => {
+        if (!signal) return
+        signal.addEventListener('abort', () => reject(signal.reason))
+      })
+    }
+
+    it('is given up as unanswered after the time limit, with status 0', async () => {
+      const slow = new KLIntegraatio(loadConfig, { timeoutMs: 20 })
+      vi.stubGlobal('fetch', hangingFetch)
+
+      const result = await slow.lueKoemuoto({ koemuoto: 'NOU' })
+
+      expect(result.status).toBe(0)
+      expect(result.error).toBeDefined()
+    })
+
+    it('gives up a token request that is never answered as well', async () => {
+      const slow = new KLIntegraatio(loadConfig, { timeoutMs: 20 })
+      vi.stubGlobal('fetch', hangingFetch)
+
+      const result = await slow.tallennaTulos({
+        hylätty: false,
+        keskeytetty: false,
+        koeGUID: 'guid-1',
+        nimi: 'Hukka',
+        palkintotuomarit: [],
+        päivä: '2026-09-26',
+        rekisterinumero: 'FI12345/21',
+        tulos: 'NOU1',
+        tuomarit: [1000001],
+      })
+
+      expect(result.status).toBe(0)
+    })
+  })
 })

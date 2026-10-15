@@ -130,6 +130,10 @@ const restoreServerOwnedLocks = (data: JsonConfirmedEvent, existing: JsonConfirm
   // event save must not clobber the spans a post recorded meanwhile.
   delete data.turns
   if (existing?.turns) data.turns = existing.turns
+  // What Kennelliitto last said of the trial (KOE-1140) comes from reading it, never from a save: a
+  // copy riding an event save would put back a lock a hand-over just took, or lift one.
+  delete data.kcState
+  if (existing?.kcState) data.kcState = existing.kcState
   // The numbers are published only through PutStartNumbersFunction, which freezes them and holds the
   // publish to its rules; an event save must not flip them on the side (KOE-1466).
   if (existing) {
@@ -248,7 +252,7 @@ const auditEventChanges = async (
   }
 }
 
-type KcLinkConflict = { error: 'kcGuidConflict' | 'kcIdConflict'; message: string }
+type KcLinkConflict = { error: 'kcGuidConflict' | 'kcGuidLocked' | 'kcIdConflict'; message: string }
 
 /**
  * The 409 body when the event is being linked to a Kennelliitto trial another event is linked to
@@ -272,6 +276,22 @@ const findKcLinkConflict = async (
   return undefined
 }
 
+/**
+ * A trial's results go to the Kennelliitto trial the event is linked to. Once anything has been sent
+ * or read from it, moving the link would leave results in one trial and the event pointing at another
+ * (KOE-1140), so the link stays until the copy of the event is made anew.
+ */
+const findKcGuidLock = async (
+  item: Patch<JsonConfirmedEvent>,
+  existing: JsonConfirmedEvent | undefined
+): Promise<KcLinkConflict | undefined> => {
+  if (!existing?.kcGuid || !Object.hasOwn(item, 'kcGuid') || (item.kcGuid ?? undefined) === existing.kcGuid) {
+    return undefined
+  }
+  const sent = existing.kcState || (await getRegistrationsByEventId(existing.id)).some((reg) => reg.kcResult)
+  return sent ? { error: 'kcGuidLocked', message: 'Results have been sent to the linked Kennel Club trial' } : undefined
+}
+
 const putEventLambda = lambda('putEvent', async (event) => {
   const user = await authorize(event)
   if (!user) {
@@ -293,7 +313,7 @@ const putEventLambda = lambda('putEvent', async (event) => {
   checkPutEventAgainstExisting(user, item, existing, clientModifiedAt)
   dropResultsPublished(item, existing)
 
-  const kcConflict = await findKcLinkConflict(item, existing)
+  const kcConflict = (await findKcGuidLock(item, existing)) ?? (await findKcLinkConflict(item, existing))
   if (kcConflict) return response(409, kcConflict, event)
 
   if (!existing) {

@@ -12,6 +12,7 @@ import type {
 import { resultSavedAudit } from '../../lib/audit'
 import { objectsDiffer } from '../../lib/diff'
 import { makeArray } from '../../lib/judge'
+import { isResultsLocked } from '../../lib/kennelliittoResults'
 import { isScorableRegistration } from '../../lib/registration'
 import {
   availableResultCodes,
@@ -27,8 +28,9 @@ import {
   taskEntryCeiling,
 } from '../../lib/results'
 import { audit, registrationAuditKey } from './audit'
+import { getEvent } from './event'
 import { parseJSONWithFallback } from './json'
-import { LambdaError } from './lambda'
+import { httpError, LambdaError } from './lambda'
 import { updateRegistrationField } from './registration'
 
 /** The outcome dropdown's Finnish labels, for the audit line (KOE-1284). */
@@ -442,6 +444,15 @@ const validateSubmittedTasks = (
   }
 }
 
+/**
+ * The results of a trial handed to the chief judge (or finished) are not the secretary's to change
+ * (KOE-1140). Read as last written, because the lock is taken by another request, and asked only of a
+ * submission that would change something: a retry of a save that already landed is still answered.
+ */
+const assertResultsUnlocked = async (eventId: string): Promise<void> => {
+  if (isResultsLocked(await getEvent(eventId, true))) throw httpError(423, { error: 'resultsLocked' })
+}
+
 export const processResultSubmissions = async (
   eventId: string,
   confirmedEvent: JsonConfirmedEvent,
@@ -456,6 +467,11 @@ export const processResultSubmissions = async (
   const saved: StoredEventResult[] = []
   const unchanged: StoredEventResult[] = []
   const conflicts: EventResultConflict[] = []
+  let unlocked: Promise<void> | undefined
+  const ensureUnlocked = () => {
+    unlocked ??= assertResultsUnlocked(eventId)
+    return unlocked
+  }
 
   for (const submission of submissions) {
     const registration = registrations.find((item) => item.id === submission.id)
@@ -485,6 +501,8 @@ export const processResultSubmissions = async (
       unchanged.push({ eventResult: outcome.eventResult, id: submission.id })
       continue
     }
+
+    await ensureUnlocked()
 
     if (outcome.kind === 'conflict') {
       conflicts.push({

@@ -12,6 +12,7 @@ import { Link, useParams } from 'react-router'
 import { getStationLink } from '../../api/station'
 import { useEventSubscription } from '../../hooks/useEventSubscription'
 import { localizedEventName } from '../../lib/event'
+import { isResultsLocked } from '../../lib/kennelliittoResults'
 import { liveFormat, resolveStation } from '../../lib/liveFormat'
 import { isScorableRegistration } from '../../lib/registration'
 import { Path } from '../../routeConfig'
@@ -134,6 +135,7 @@ export default function StationResultsPage() {
       <StationScoring
         classes={event.classes}
         eventType={event.eventType}
+        locked={isResultsLocked(event)}
         onSave={handleSave}
         onTurn={handleTurn}
         registrations={scorable}

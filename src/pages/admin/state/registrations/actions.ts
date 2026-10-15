@@ -1,27 +1,33 @@
 import type { TFunction } from 'i18next'
 import type { EventResultSubmission, StoredEventResult } from '@/api/registration'
-import type { PublicDogEvent, Registration, RegistrationGroupMove, RegistrationMessage } from '@/types'
+import type { KcBlocker, KcDogReport, KcSendReport } from '@/lib/kennelliittoResults'
+import type { JsonKcResult, PublicDogEvent, Registration, RegistrationGroupMove, RegistrationMessage } from '@/types'
 import { useAtom, useAtomValue, useSetAtom } from 'jotai'
 import { useAtomCallback } from 'jotai/utils'
 import { useSnackbar } from 'notistack'
 import { useCallback, useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { sendTemplatedEmail } from '@/api/email'
+import { APIError } from '@/api/http'
 import { createRefund } from '@/api/payment'
 import {
   getRegistrations,
   getRegistrationTransactions,
+  handOverKennelliittoResults,
   patchAdminRegistration,
   postAdminRegistration,
+  previewKennelliittoResults,
   putAdminRegistrationNotes,
   putEventResults,
   putRegistrationGroups,
+  sendKennelliittoResults,
 } from '@/api/registration'
 import { reportError } from '@/lib/client/error'
 import { isTestEnv } from '@/lib/env'
 import { latestCollectionUpdate, reconcileCollection } from '@/lib/incremental'
 import { createPatchOperations } from '@/lib/patch'
 import { GROUP_KEY_CANCELLED, withRegistrationOverrides } from '@/lib/registration'
+import { isObject } from '@/lib/utils'
 import { validIdTokenAtom } from '@/pages/state'
 import { showRegistrationSaveConflict } from '@/pages/state/registration/registrationSaveError'
 import { adminEventAtom } from '../events'
@@ -116,6 +122,178 @@ export const useSaveEventResults = (eventId: string) => {
     },
     [eventId, store, token]
   )
+}
+
+/** Dogs in one sending: what the endpoint takes, and few enough to be answered within the gateway's time. */
+const KC_SEND_CHUNK = 10
+
+/** The dogs of a sending, ten at a time. */
+const chunksOf = (ids: readonly string[]): string[][] =>
+  Array.from({ length: Math.ceil(ids.length / KC_SEND_CHUNK) }, (_unused, index) =>
+    ids.slice(index * KC_SEND_CHUNK, (index + 1) * KC_SEND_CHUNK)
+  )
+
+export interface KcSendSummary {
+  blockers: KcBlocker[]
+  /**
+   * The sending was cut short by an error or no answer. What the dogs came to is then read from the
+   * server instead of guessed, and the dogs not tried are in `notAttempted`.
+   */
+  interrupted: boolean
+  notAttempted: string[]
+  reports: KcSendReport[]
+}
+
+/** Why a hand-over did not happen, as the dialog needs it. */
+export type KcHandOverOutcome =
+  | { kind: 'blocked'; blockers: KcBlocker[] }
+  | { kind: 'confirmationNeeded'; dogs: KcDogReport[] }
+  | { kind: 'done' }
+  | { kind: 'failed' }
+  | { kind: 'refused'; virheet: string[] }
+  | { kind: 'unsent'; dogs: KcDogReport[] }
+
+const bodyOf = (error: unknown): Record<string, unknown> | undefined =>
+  error instanceof APIError && isObject(error.body) ? error.body : undefined
+
+const isBlockers = (value: unknown): value is KcBlocker[] => Array.isArray(value)
+
+const isDogs = (value: unknown): value is KcDogReport[] => Array.isArray(value)
+
+/**
+ * Folds what sending the results to Kennelliitto came to into the event's registrations, so the page
+ * that sent them shows it without waiting for the socket.
+ */
+const useStoreKcResults = (eventId: string) =>
+  useAtomCallback(
+    useCallback(
+      async (get, set, stored: ReadonlyArray<{ id: string; kcResult: JsonKcResult }>) => {
+        if (stored.length === 0) return
+        const registrations = await get(adminEventRegistrationsAtom(eventId))
+        set(
+          adminEventRegistrationsAtom(eventId),
+          registrations.map((registration) => {
+            const written = stored.find((item) => item.id === registration.id)
+            return written
+              ? { ...registration, kcResult: { ...written.kcResult, at: new Date(written.kcResult.at) } }
+              : registration
+          })
+        )
+      },
+      [eventId]
+    )
+  )
+
+/**
+ * The results page's side of Kennelliitto's Omakoira (KOE-1140): the preview, the sending ten dogs at a
+ * time, and the hand-over to the chief judge.
+ */
+export const useKennelliittoResults = (eventId: string) => {
+  const token = useAtomValue(validIdTokenAtom)
+  const store = useStoreKcResults(eventId)
+
+  const reload = useAtomCallback(
+    useCallback(
+      async (_get, set) => {
+        if (!token) return
+        set(adminEventRegistrationsAtom(eventId), await getRegistrations(eventId, token))
+      },
+      [eventId, token]
+    )
+  )
+
+  const preview = useCallback(
+    (registrationIds?: string[], signal?: AbortSignal) =>
+      previewKennelliittoResults(eventId, registrationIds, token ?? '', signal),
+    [eventId, token]
+  )
+
+  const sendChunks = useCallback(
+    async (
+      queue: string[][],
+      force: boolean,
+      summary: KcSendSummary,
+      onProgress?: (done: number) => void
+    ): Promise<KcSendSummary> => {
+      const [chunk, ...rest] = queue
+      if (!chunk) return summary
+
+      try {
+        const response = await sendKennelliittoResults(eventId, chunk, force, token ?? '')
+        await store(response.kcResults)
+        // A request that ran out of time leaves dogs for the next one, which only helps if this one got
+        // somewhere; otherwise they are reported as not tried.
+        const retry = response.reports.length > 0 ? chunksOf(response.notAttempted) : []
+        const next: KcSendSummary = {
+          ...summary,
+          notAttempted: retry.length ? summary.notAttempted : [...summary.notAttempted, ...response.notAttempted],
+          reports: [...summary.reports, ...response.reports],
+        }
+        onProgress?.(next.reports.length)
+        return sendChunks([...retry, ...rest], force, next, onProgress)
+      } catch (error) {
+        const body = bodyOf(error)
+        if (error instanceof APIError && error.status === 409 && body && isBlockers(body.blockers)) {
+          return {
+            ...summary,
+            blockers: body.blockers,
+            notAttempted: [...summary.notAttempted, ...chunk, ...rest.flat()],
+          }
+        }
+        // No answer, a gateway timeout or an error: some of the dogs may have been sent. Read what
+        // the server holds rather than report a failure that may not be one.
+        await reload().catch(reportError)
+        return {
+          ...summary,
+          interrupted: true,
+          notAttempted: [...summary.notAttempted, ...chunk, ...rest.flat()],
+        }
+      }
+    },
+    [eventId, reload, store, token]
+  )
+
+  const send = useCallback(
+    (registrationIds: readonly string[], force: boolean, onProgress?: (done: number) => void) =>
+      sendChunks(
+        chunksOf(registrationIds),
+        force,
+        { blockers: [], interrupted: false, notAttempted: [], reports: [] },
+        onProgress
+      ),
+    [sendChunks]
+  )
+
+  const handOver = useCallback(
+    async (withoutBlocked: boolean): Promise<KcHandOverOutcome> => {
+      try {
+        await handOverKennelliittoResults(eventId, withoutBlocked, token ?? '')
+        return { kind: 'done' }
+      } catch (error) {
+        const body = bodyOf(error)
+        if (error instanceof APIError && body) {
+          if (error.status === 409 && body.error === 'blocked' && isBlockers(body.blockers)) {
+            return { blockers: body.blockers, kind: 'blocked' }
+          }
+          if (error.status === 409 && body.error === 'unsentResults' && isDogs(body.dogs)) {
+            return { dogs: body.dogs, kind: 'unsent' }
+          }
+          if (error.status === 409 && body.error === 'confirmationNeeded' && isDogs(body.dogs)) {
+            return { dogs: body.dogs, kind: 'confirmationNeeded' }
+          }
+          if (error.status === 502 && body.error === 'kennelliittoRefused') {
+            const virheet = Array.isArray(body.virheet) ? body.virheet.filter((item) => typeof item === 'string') : []
+            return { kind: 'refused', virheet }
+          }
+        }
+        reportError(error)
+        return { kind: 'failed' }
+      }
+    },
+    [eventId, token]
+  )
+
+  return { handOver, preview, send }
 }
 
 export const useAdminRegistrationActions = (eventId: string) => {

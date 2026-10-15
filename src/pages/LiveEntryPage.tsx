@@ -60,6 +60,11 @@ export function Component() {
   )
 
   // A wrong link, a revoked one and a station that never existed all read the same, on purpose.
+  const handleLocked = useCallback(
+    () => setEntry((previous) => previous && { ...previous, event: { ...previous.event, locked: true } }),
+    [setEntry]
+  )
+
   if (failed) {
     return (
       <Typography sx={{ p: 2 }} variant="body1">
@@ -76,6 +81,8 @@ export function Component() {
     <StationScoring
       classes={entry.event.classes}
       eventType={entry.event.eventType}
+      locked={entry.event.locked}
+      onLocked={handleLocked}
       onSave={handleSave}
       onTurn={handleTurn}
       registrations={entry.registrations}

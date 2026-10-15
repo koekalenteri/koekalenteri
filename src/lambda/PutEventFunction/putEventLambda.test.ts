@@ -365,6 +365,98 @@ describe('putEventLambda', () => {
     expect(JSON.parse(res.body)).not.toHaveProperty('registrationGroupsLock')
   })
 
+  describe('what Kennelliitto said of the trial (KOE-1140)', () => {
+    const stored = { code: 1253, name: 'Ylituomarin hyväksyttäväksi', readAt: '2026-09-26T10:00:00.000Z' }
+
+    it('restores the stored state over a copy that rides an event save, without refusing the save', async () => {
+      authorizeMock.mockResolvedValueOnce(mockSecretary)
+      getEventMock.mockResolvedValueOnce({ ...mockEvent, kcState: stored })
+
+      const res = await putEventLambda(
+        constructAPIGwEvent<Partial<JsonDogEvent>>({
+          id: 'existing',
+          kcState: { code: 754, name: 'Hyväksytty', readAt: '2026-09-26T09:00:00.000Z' },
+        })
+      )
+
+      expect(res.statusCode).toEqual(200)
+      expect(patchEventMock).toHaveBeenCalledWith(
+        'existing',
+        expect.objectContaining({ kcState: stored }),
+        expect.objectContaining({ kcState: stored })
+      )
+    })
+
+    it('does not let a client write a state where none is stored', async () => {
+      authorizeMock.mockResolvedValueOnce(mockSecretary)
+      getEventMock.mockResolvedValueOnce(mockEvent)
+
+      await putEventLambda(
+        constructAPIGwEvent<Partial<JsonDogEvent>>({ id: 'existing', kcState: { code: 1253, name: 'x', readAt: 'y' } })
+      )
+
+      expect(patchEventMock).toHaveBeenCalledWith(
+        'existing',
+        mockEvent,
+        expect.not.objectContaining({ kcState: expect.anything() })
+      )
+    })
+
+    describe('the link to the Kennelliitto trial', () => {
+      const GUID = '2b81e6a1-559b-407c-87c7-b8a9b89b1987'
+      const linked = { ...mockEvent, kcGuid: GUID }
+
+      it.each([
+        ['changed', { kcGuid: 'another-guid' }],
+        ['cleared', { kcGuid: null }],
+      ])('refuses a link %s once the state of the trial has been read', async (_name, change) => {
+        authorizeMock.mockResolvedValueOnce(mockSecretary)
+        getEventMock.mockResolvedValueOnce({ ...linked, kcState: stored })
+
+        const res = await putEventLambda(constructAPIGwEvent({ id: 'existing', ...change }))
+
+        expect(res.statusCode).toEqual(409)
+        expect(JSON.parse(res.body)).toMatchObject({ error: 'kcGuidLocked' })
+        expect(patchEventMock).not.toHaveBeenCalled()
+      })
+
+      it('refuses a changed link once a result has been sent for any dog', async () => {
+        authorizeMock.mockResolvedValueOnce(mockSecretary)
+        getEventMock.mockResolvedValueOnce(linked)
+        mockGetRegistrationsByEventId.mockResolvedValueOnce([
+          { id: 'a' },
+          { id: 'b', kcResult: { at: 'x', by: 'y', status: 'failed' } },
+        ])
+
+        const res = await putEventLambda(constructAPIGwEvent({ id: 'existing', kcGuid: 'another-guid' }))
+
+        expect(res.statusCode).toEqual(409)
+        expect(JSON.parse(res.body)).toMatchObject({ error: 'kcGuidLocked' })
+      })
+
+      it('lets the link change while nothing has been sent or read', async () => {
+        authorizeMock.mockResolvedValueOnce(mockSecretary)
+        getEventMock.mockResolvedValueOnce(linked)
+        mockGetRegistrationsByEventId.mockResolvedValueOnce([{ id: 'a' }])
+        patchEventMock.mockResolvedValueOnce({ event: { ...mockEvent, kcGuid: 'another-guid' } })
+
+        const res = await putEventLambda(constructAPIGwEvent({ id: 'existing', kcGuid: 'another-guid' }))
+
+        expect(res.statusCode).toEqual(200)
+      })
+
+      it('lets a save repeat the stored link, as the results page does', async () => {
+        authorizeMock.mockResolvedValueOnce(mockSecretary)
+        getEventMock.mockResolvedValueOnce({ ...linked, kcState: stored })
+        patchEventMock.mockResolvedValueOnce({ event: linked })
+
+        const res = await putEventLambda(constructAPIGwEvent({ eventType: 'TEST', id: 'existing', kcGuid: GUID }))
+
+        expect(res.statusCode).toEqual(200)
+      })
+    })
+  })
+
   it('keeps the server-owned live timeline over whatever an event save carries', async () => {
     // KOE-1259: a stale copy riding an event save must not clobber the spans a post recorded meanwhile.
     const storedTurns = [

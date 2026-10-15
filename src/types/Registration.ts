@@ -184,6 +184,25 @@ export interface JsonEventResult {
   updatedBy: string
 }
 
+/**
+ * A dog's result as sent to Kennelliitto's Omakoira (KOE-1140). Written only by the sending, never by a
+ * client. The hash is of the body that was sent, so a result that comes out the same needs no new call.
+ */
+export interface JsonKcResult {
+  status: 'sent' | 'failed'
+  /** Of the last body Kennelliitto accepted. Absent when the outcome of the last call is unknown. */
+  payloadHash?: string
+  /** The result (`eventResult.updatedAt`) the hash was made from. */
+  resultVersion?: string
+  tulosId?: number
+  at: string
+  by: string
+  /** What Kennelliitto answered to a refused call, as it worded it. */
+  errors?: string[]
+}
+
+export type KcResult = Replace<JsonKcResult, 'at', Date>
+
 export interface JsonEmailDeliveryStatus {
   at: string
   email: string
@@ -292,6 +311,8 @@ export interface JsonRegistration extends JsonDbRecord {
   results?: Array<JsonTestResult & { id: string }>
   /** The result recorded for THIS event by the secretary. See `JsonEventResult`. */
   eventResult?: JsonEventResult
+  /** What sending the result to Kennelliitto came to. Server-owned, never part of `eventResult`. */
+  kcResult?: JsonKcResult
   state?: 'creating' | 'ready'
   shouldPay?: boolean
   /**
@@ -380,6 +401,7 @@ export interface Registration
       | 'dates'
       | 'dog'
       | 'eventResult'
+      | 'kcResult'
       | 'invitationAttachmentUpdatedAt'
       | 'lastEmail'
       | 'paidAt'
@@ -394,6 +416,7 @@ export interface Registration
   dates: RegistrationDate[]
   dog: Dog
   eventResult?: EventResult
+  kcResult?: KcResult
   lastEmail?: string | LastEmail
   paidAt?: Date
   refundAt?: Date

@@ -1226,6 +1226,13 @@ describe('registration access', () => {
       group,
       id: 'registration',
       internalNotes: 'call the owner',
+      kcResult: {
+        at: '2026-08-01T13:00:00.000Z',
+        by: 'Secretary',
+        payloadHash: 'h',
+        status: 'sent' as const,
+        tulosId: 5,
+      },
       startGroup: { ...group, number: 7 },
     }
 
@@ -1240,7 +1247,15 @@ describe('registration access', () => {
         paymentInProgress: true,
       }
       const response = participantRegistrationResponse(withOpenTransactions, 'raw-token', participantEvent)
-      for (const field of ['eventResult', 'group', 'internalNotes', 'startGroup', 'openPayments', 'openRefunds']) {
+      for (const field of [
+        'eventResult',
+        'group',
+        'internalNotes',
+        'kcResult',
+        'startGroup',
+        'openPayments',
+        'openRefunds',
+      ]) {
         expect(response).not.toHaveProperty(field)
       }
       expect(response).toMatchObject({ paymentInProgress: true })

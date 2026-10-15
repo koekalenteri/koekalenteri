@@ -1,7 +1,7 @@
 import type { UserEvent } from '@testing-library/user-event'
 import type { RouteObject } from 'react-router'
 import type { Language } from '../../i18n'
-import type { EventResult, Registration } from '../../types'
+import type { ConfirmedEvent, EventResult, Registration } from '../../types'
 import { ThemeProvider } from '@mui/material'
 import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
@@ -14,7 +14,12 @@ import { eventWithStaticDates } from '../../__mockData__/events'
 import { eventWithStations, RESULTS_EVENT_DAY, registrationsToEventWithStations } from '../../__mockData__/resultsEvent'
 import { putEvent, searchEventKcIdChoices } from '../../api/event'
 import { APIError } from '../../api/http'
-import { putEventResults } from '../../api/registration'
+import {
+  handOverKennelliittoResults,
+  previewKennelliittoResults,
+  putEventResults,
+  sendKennelliittoResults,
+} from '../../api/registration'
 import theme from '../../assets/Theme'
 import { locales } from '../../i18n'
 import { Path } from '../../routeConfig'
@@ -98,7 +103,8 @@ const renderScoringPage = (language: Language, registrations = registrationsToEv
 const renderQualitativePage = (
   language: Language,
   storedResults: Record<string, EventResult> = {},
-  event = eventWithStaticDates
+  event: ConfirmedEvent = eventWithStaticDates,
+  extra: Record<string, Partial<Registration>> = {}
 ) => {
   const registrations = registrationsToEventWithStations.map((reg) => ({
     ...reg,
@@ -106,6 +112,7 @@ const renderQualitativePage = (
     eventId: event.id,
     eventResult: storedResults[reg.id],
     eventType: 'NOU',
+    ...extra[reg.id],
   }))
   const routes: RouteObject[] = [{ element: <EventResultsPage />, path: Path.admin.results() }]
 
@@ -951,5 +958,260 @@ describe('a pass/fail event type', () => {
 
     expect(screen.getByText('Toinen')).toBeInTheDocument()
     expect(screen.queryByText('Ensimmainen')).not.toBeInTheDocument()
+  })
+})
+
+describe('EventResultsPage and Kennelliitto (KOE-1140)', () => {
+  beforeAll(() => vi.useFakeTimers())
+  afterEach(() => {
+    cleanup()
+    vi.runOnlyPendingTimers()
+  })
+  afterAll(() => vi.useRealTimers())
+
+  const noon = new Date('2021-02-10T12:00:00Z')
+  const stored = (result: string, updatedAt = noon): EventResult => ({ result, updatedAt, updatedBy: 'Sihteeri' })
+  const sentOk = {
+    at: noon,
+    by: 'Sihteeri',
+    payloadHash: 'h',
+    resultVersion: noon.toISOString(),
+    status: 'sent' as const,
+  }
+  const dogReport = (id: string, status: 'blocked' | 'changed' | 'ready' | 'unchanged', problems = [] as never[]) => ({
+    id,
+    name: `Koira ${id}`,
+    problems,
+    regNo: `REG-${id}`,
+    status,
+  })
+
+  /** A handled-over trial: Kennelliitto has it with the chief judge. */
+  const handedOver = { ...eventWithStaticDates, kcState: { code: 1253, name: 'x', readAt: noon } }
+
+  it('offers the sending for a format Kennelliitto knows', async () => {
+    await renderQualitativePage('fi', { 'run-1': stored('NOU1') })
+    await flushPromises()
+
+    expect(screen.getByRole('button', { name: 'results.kennelliitto.send' })).toBeEnabled()
+    expect(screen.getByText('results.kennelliitto.column')).toBeInTheDocument()
+  })
+
+  it('does not offer it for NOWT, whose placement does not exist yet', async () => {
+    await renderScoringPage('fi')
+    await flushPromises()
+
+    expect(screen.queryByRole('button', { name: 'results.kennelliitto.send' })).not.toBeInTheDocument()
+    expect(screen.queryByText('results.kennelliitto.column')).not.toBeInTheDocument()
+  })
+
+  it('shows where each dog stands beside it', async () => {
+    await renderQualitativePage(
+      'fi',
+      { 'run-1': stored('NOU1'), 'run-2': stored('NOU0', new Date('2021-02-10T13:00:00Z')) },
+      eventWithStaticDates,
+      { 'run-1': { kcResult: sentOk }, 'run-2': { kcResult: sentOk } }
+    )
+    await flushPromises()
+
+    // One was sent as it stands; the other was edited after it was sent.
+    expect(within(rowFor('Ensimmainen')).getByText('results.kennelliitto.badge.sent')).toBeInTheDocument()
+    expect(within(rowFor('Toinen')).getByText('results.kennelliitto.badge.changed')).toBeInTheDocument()
+  })
+
+  describe('the sending dialog', () => {
+    it('asks the question and says the results can still be corrected until the hand-over', async () => {
+      vi.mocked(previewKennelliittoResults).mockResolvedValueOnce({
+        blockers: [],
+        dogs: [dogReport('run-1', 'ready')],
+      })
+      const { user } = await renderQualitativePage('fi', { 'run-1': stored('NOU1') })
+      await flushPromises()
+
+      await user.click(screen.getByRole('button', { name: 'results.kennelliitto.send' }))
+      await flushPromises()
+
+      expect(screen.getByText('results.kennelliitto.confirm')).toBeInTheDocument()
+      expect(screen.getByText('results.kennelliitto.confirmNote')).toBeInTheDocument()
+      // The sentence about no more editing belongs to the hand-over, not to the sending.
+      expect(screen.queryByText('results.kennelliitto.handOver.confirm')).not.toBeInTheDocument()
+      expect(previewKennelliittoResults).toHaveBeenCalledWith('test1', ['run-1', 'run-2'], expect.anything(), undefined)
+    })
+
+    it('lists what stops the trial and does not let it be sent', async () => {
+      vi.mocked(previewKennelliittoResults).mockResolvedValueOnce({
+        blockers: [{ code: 'stateNotWritable', detail: 'Valmistunut' }],
+        dogs: [],
+      })
+      const { user } = await renderQualitativePage('fi', { 'run-1': stored('NOU1') })
+      await flushPromises()
+
+      await user.click(screen.getByRole('button', { name: 'results.kennelliitto.send' }))
+      await flushPromises()
+
+      expect(screen.getByText('results.kennelliitto.blocker.stateNotWritable detail')).toBeInTheDocument()
+      const dialog = within(screen.getByRole('dialog'))
+      expect(dialog.getByRole('button', { name: 'results.kennelliitto.send' })).toBeDisabled()
+    })
+
+    it('names the dogs that cannot be sent, with the reason', async () => {
+      vi.mocked(previewKennelliittoResults).mockResolvedValueOnce({
+        blockers: [],
+        dogs: [dogReport('run-1', 'ready'), dogReport('run-2', 'blocked', [{ code: 'noJudge' }] as never[])],
+      })
+      const { user } = await renderQualitativePage('fi', { 'run-1': stored('NOU1') })
+      await flushPromises()
+
+      await user.click(screen.getByRole('button', { name: 'results.kennelliitto.send' }))
+      await flushPromises()
+
+      expect(screen.getByText(/Koira run-2 \(REG-run-2\): results.kennelliitto.problem.noJudge/)).toBeInTheDocument()
+    })
+
+    it('sends the dogs ten at a time and reports who was saved and who was refused, in Kennelliitto’s words', async () => {
+      const ids = Array.from({ length: 12 }, (_unused, index) => `dog-${index}`)
+      vi.mocked(previewKennelliittoResults).mockResolvedValueOnce({
+        blockers: [],
+        dogs: ids.map((id) => dogReport(id, 'ready')),
+      })
+      vi.mocked(sendKennelliittoResults)
+        .mockResolvedValueOnce({
+          blockers: [],
+          kcResults: [],
+          notAttempted: [],
+          reports: ids
+            .slice(0, 10)
+            .map((id) => ({ id, name: `Koira ${id}`, outcome: 'sent' as const, regNo: `REG-${id}` })),
+        })
+        .mockResolvedValueOnce({
+          blockers: [],
+          kcResults: [],
+          notAttempted: [],
+          reports: [
+            { id: 'dog-10', name: 'Koira dog-10', outcome: 'sent' as const, regNo: 'REG-dog-10' },
+            {
+              errors: ['Koiran nimi ei täsmää.'],
+              id: 'dog-11',
+              name: 'Koira dog-11',
+              outcome: 'failed' as const,
+              regNo: 'REG-dog-11',
+              status: 400,
+            },
+          ],
+        })
+      const { user } = await renderQualitativePage('fi', { 'run-1': stored('NOU1') })
+      await flushPromises()
+
+      await user.click(screen.getByRole('button', { name: 'results.kennelliitto.send' }))
+      await flushPromises()
+      await user.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'results.kennelliitto.send' }))
+      await flushPromises()
+
+      expect(sendKennelliittoResults).toHaveBeenNthCalledWith(1, 'test1', ids.slice(0, 10), false, expect.anything())
+      expect(sendKennelliittoResults).toHaveBeenNthCalledWith(2, 'test1', ids.slice(10), false, expect.anything())
+      expect(screen.getByText('results.kennelliitto.success count')).toBeInTheDocument()
+      expect(screen.getByText('results.kennelliitto.failure count')).toBeInTheDocument()
+      expect(screen.getByText('Koira dog-11 (REG-dog-11): Koiran nimi ei täsmää.')).toBeInTheDocument()
+    })
+
+    it('reads the state from the server instead of reporting a failure when the answer never came', async () => {
+      vi.mocked(previewKennelliittoResults).mockResolvedValueOnce({ blockers: [], dogs: [dogReport('run-1', 'ready')] })
+      vi.mocked(sendKennelliittoResults).mockRejectedValueOnce(new Error('Network Error'))
+      const { user } = await renderQualitativePage('fi', { 'run-1': stored('NOU1') })
+      await flushPromises()
+
+      await user.click(screen.getByRole('button', { name: 'results.kennelliitto.send' }))
+      await flushPromises()
+      await user.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'results.kennelliitto.send' }))
+      await flushPromises()
+
+      // The page's list is the server's now (the mock holds none for this trial), not what it believed.
+      expect(screen.queryByText('Ensimmainen')).not.toBeInTheDocument()
+      expect(screen.getByText('results.kennelliitto.interrupted')).toBeInTheDocument()
+      expect(screen.queryByText('results.kennelliitto.failure count')).not.toBeInTheDocument()
+    })
+  })
+
+  describe('a trial that has been sent but not handed over', () => {
+    it('keeps asking for the hand-over on the page', async () => {
+      const { user } = await renderQualitativePage('fi', { 'run-1': stored('NOU1') }, eventWithStaticDates, {
+        'run-1': { kcResult: sentOk },
+      })
+      await flushPromises()
+
+      expect(screen.getByText('results.kennelliitto.sentNotHandedOver count')).toBeInTheDocument()
+      await user.click(screen.getAllByRole('button', { name: 'results.kennelliitto.handOverButton' })[0])
+      await flushPromises()
+
+      // The hand-over is where the secretary is told they can no longer edit.
+      expect(screen.getByText('results.kennelliitto.handOver.confirm')).toBeInTheDocument()
+      expect(screen.getByText('results.kennelliitto.handOver.certificates')).toBeInTheDocument()
+    })
+
+    it('lists the dogs that stay out and hands over once the secretary accepts them', async () => {
+      vi.mocked(handOverKennelliittoResults).mockRejectedValueOnce(
+        new APIError(new Response(null, { status: 409 }), {
+          dogs: [dogReport('run-2', 'blocked', [{ code: 'noResult' }] as never[])],
+          error: 'confirmationNeeded',
+        })
+      )
+      const { user } = await renderQualitativePage('fi', { 'run-1': stored('NOU1') }, eventWithStaticDates, {
+        'run-1': { kcResult: sentOk },
+      })
+      await flushPromises()
+      await user.click(screen.getAllByRole('button', { name: 'results.kennelliitto.handOverButton' })[0])
+      await flushPromises()
+      const dialog = within(screen.getByRole('dialog'))
+
+      await user.click(dialog.getByRole('button', { name: 'results.kennelliitto.handOverButton' }))
+      await flushPromises()
+      expect(dialog.getByText('results.kennelliitto.handOver.leftOut')).toBeInTheDocument()
+      expect(dialog.getByRole('button', { name: 'results.kennelliitto.handOverButton' })).toBeDisabled()
+
+      await user.click(dialog.getByRole('checkbox'))
+      await user.click(dialog.getByRole('button', { name: 'results.kennelliitto.handOverButton' }))
+      await flushPromises()
+
+      expect(handOverKennelliittoResults).toHaveBeenNthCalledWith(1, 'test1', false, expect.anything())
+      expect(handOverKennelliittoResults).toHaveBeenNthCalledWith(2, 'test1', true, expect.anything())
+    })
+  })
+
+  describe('a trial handed to the chief judge', () => {
+    it('cannot be edited or sent, and says why', async () => {
+      await renderQualitativePage('fi', { 'run-1': stored('NOU1') }, handedOver)
+      await flushPromises()
+
+      expect(screen.getByText('results.kennelliitto.locked')).toBeInTheDocument()
+      expect(screen.getByRole('button', { name: 'results.save' })).toBeDisabled()
+      expect(screen.getByRole('button', { name: 'results.kennelliitto.send' })).toBeDisabled()
+    })
+
+    it('reads the state afresh, so a trial the judge sent back opens again', async () => {
+      const { user } = await renderQualitativePage('fi', { 'run-1': stored('NOU1') }, handedOver)
+      await flushPromises()
+      vi.mocked(previewKennelliittoResults).mockClear()
+
+      await user.click(screen.getByRole('button', { name: 'results.kennelliitto.refreshState' }))
+      await flushPromises()
+
+      expect(previewKennelliittoResults).toHaveBeenCalledWith('test1', [], expect.anything(), undefined)
+    })
+  })
+
+  it('says the results are locked when a save finds the trial handed over from elsewhere', async () => {
+    vi.mocked(putEventResults).mockRejectedValueOnce(
+      new APIError(new Response(null, { status: 423 }), { error: 'resultsLocked' })
+    )
+    const { user } = await renderQualitativePage('fi', {})
+    await flushPromises()
+    await user.click(within(rowFor('Ensimmainen')).getByLabelText('results.column.result'))
+    await user.click(screen.getByRole('option', { name: 'NOU1' }))
+    await flushPromises()
+
+    await user.click(screen.getByRole('button', { name: 'results.save' }))
+    await flushPromises()
+
+    expect(screen.getByText('results.kennelliitto.lockedSave')).toBeInTheDocument()
   })
 })

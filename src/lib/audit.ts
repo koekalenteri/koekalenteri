@@ -288,6 +288,16 @@ export const resultSavedAudit = (changed: boolean, result: string) => {
   return auditMessage(changed ? 'audit.messages.resultChangedDetail' : 'audit.messages.resultSavedDetail', { result })
 }
 
+/** A result sent to Kennelliitto's Omakoira (KOE-1140). */
+export const resultSentToKennelliittoAudit = () => auditMessage('audit.messages.resultSentToKennelliitto')
+
+/** A result Kennelliitto refused, with the reasons as it worded them. */
+export const resultSendFailedAudit = (reason: string) => auditMessage('audit.messages.resultSendFailed', { reason })
+
+export const resultsHandedOverAudit = () => auditMessage('audit.messages.resultsHandedOver')
+
+export const kcGuidFoundAudit = () => auditMessage('audit.messages.kcGuidFound')
+
 export const eventCopiedToAudit = (stage: string, eventId: string) =>
   auditMessage('audit.messages.eventCopiedTo', { eventId, stage })
 

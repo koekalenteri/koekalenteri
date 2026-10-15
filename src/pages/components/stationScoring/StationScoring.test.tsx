@@ -1,6 +1,7 @@
 import type { StationTurnItem } from './StationTurnControls'
 import { render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
+import { APIError } from '../../../api/http'
 import AppSnackbarProvider from '../AppSnackbarProvider'
 import { StationScoring } from './StationScoring'
 
@@ -219,6 +220,32 @@ describe('StationScoring', () => {
 
       expect(screen.getByRole('tab', { name: 'ALO', selected: true })).toBeInTheDocument()
       expect(screen.queryByRole('heading', { name: /Kolmas/ })).not.toBeInTheDocument()
+    })
+  })
+  describe('a trial handed to the chief judge (KOE-1140)', () => {
+    it('says so and cannot be saved', async () => {
+      const user = userEvent.setup()
+      renderScoring({ locked: true })
+
+      await user.click(screen.getByRole('button', { name: '1 Ensimmainen' }))
+
+      expect(screen.getByText('results.kennelliitto.lockedSave')).toBeInTheDocument()
+      expect(screen.getByRole('button', { name: 'results.save' })).toBeDisabled()
+    })
+
+    it('tells the caller, and says so, when a save finds the trial locked after all', async () => {
+      const user = userEvent.setup()
+      const onLocked = vi.fn()
+      const { onSave } = renderScoring({ onLocked })
+      onSave.mockRejectedValueOnce(new APIError(new Response(null, { status: 423 }), { error: 'resultsLocked' }))
+
+      await user.click(screen.getByRole('button', { name: '1 Ensimmainen' }))
+      await user.click(screen.getByLabelText('results.column.result'))
+      await user.click(screen.getByRole('option', { name: 'ALO1' }))
+      await user.click(screen.getByRole('button', { name: 'results.save' }))
+
+      expect(onLocked).toHaveBeenCalledTimes(1)
+      expect(await screen.findByText('results.kennelliitto.lockedSave')).toBeInTheDocument()
     })
   })
 })

@@ -253,6 +253,7 @@ describe('copyEventHandler', () => {
         // What the dog did at the source event stays there: a copy has not run.
         eventResult: { result: 'AVO1', updatedAt: '2025-06-12T00:00:00.000Z', updatedBy: 'Sihteeri' },
         id: 'registration123',
+        kcResult: { at: '2025-06-12T01:00:00.000Z', by: 'Sihteeri', status: 'sent', tulosId: 3 },
         newRegistrationAuditAt: '2025-06-01T00:00:00.000Z',
         newRegistrationEmailSentAt: '2025-06-01T00:00:00.000Z',
         newRegistrationLease: { expiresAt: 123, token: 'source-lease' },

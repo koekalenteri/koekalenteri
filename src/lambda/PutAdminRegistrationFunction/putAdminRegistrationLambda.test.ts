@@ -569,6 +569,53 @@ describe('putAdminRegistrationLambda', () => {
     expect(result.statusCode).toBe(200)
   })
 
+  describe('what only the results endpoints write (KOE-1140)', () => {
+    const storedResult = { result: 'ALO1', updatedAt: '2026-09-26T09:00:00.000Z', updatedBy: 'Sihteeri' }
+    const storedKc = { at: '2026-09-26T10:00:00.000Z', by: 'Sihteeri', payloadHash: 'h', status: 'sent' as const }
+    const stored = { eventId: 'event123', eventResult: storedResult, id: 'reg456', kcResult: storedKc, state: 'draft' }
+    const stale = { ...storedResult, result: 'ALO3' }
+
+    it.each([
+      ['a full save', 'PUT'],
+      ['a merge patch', 'PATCH'],
+    ])('keeps the stored result and the sending when %s carries old copies of them', async (_name, httpMethod) => {
+      mockGetRegistration.mockResolvedValueOnce(stored)
+
+      const result = await putAdminRegistrationLambda({
+        ...event,
+        body: JSON.stringify({
+          ...JSON.parse(event.body ?? ''),
+          eventResult: stale,
+          kcResult: { ...storedKc, status: 'failed' },
+        }),
+        httpMethod,
+      })
+
+      expect(result.statusCode).toBe(200)
+      expect(mockPatchRegistration).toHaveBeenCalledWith(
+        'event123',
+        'reg456',
+        expect.anything(),
+        expect.objectContaining({ eventResult: storedResult, kcResult: storedKc })
+      )
+    })
+
+    it.each(['eventResult', 'kcResult'])('refuses an operation on %s', async (field) => {
+      const result = await putAdminRegistrationLambda({
+        ...event,
+        body: JSON.stringify({
+          eventId: 'event123',
+          id: 'reg456',
+          operations: [{ path: [field, 'result'], type: 'UPDATE', value: 'ALO3' }],
+        }),
+        httpMethod: 'PATCH',
+      })
+
+      expect(result.statusCode).toBe(400)
+      expect(mockPatchRegistration).not.toHaveBeenCalled()
+    })
+  })
+
   it('merges partial patch payloads before saving existing registrations', async () => {
     const result = await putAdminRegistrationLambda({
       ...event,

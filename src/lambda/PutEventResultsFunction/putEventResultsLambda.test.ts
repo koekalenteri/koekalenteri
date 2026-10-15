@@ -11,6 +11,7 @@ const mockAuthorizeWithMemberOf = vi.fn()
 const mockAudit = vi.fn()
 const mockRegistrationAuditKey = vi.fn(({ eventId, id }: { eventId: string; id: string }) => `${eventId}:${id}`)
 const mockGetAuthorizedEvent = vi.fn()
+const mockGetEvent = vi.fn()
 const mockGetRegistrationsByEventId = vi.fn()
 const mockUpdateRegistrationField = vi.fn()
 const mockPublishRegistrationPatches = vi.fn()
@@ -34,6 +35,7 @@ vi.doMock('../lib/lambda', async () => ({
 vi.doMock('../lib/auth', () => ({ authorizeWithMemberOf: mockAuthorizeWithMemberOf }))
 vi.doMock('../lib/audit', () => ({ audit: mockAudit, registrationAuditKey: mockRegistrationAuditKey }))
 vi.doMock('../lib/eventAuth', () => ({ getAuthorizedEvent: mockGetAuthorizedEvent }))
+vi.doMock('../lib/event', () => ({ getEvent: mockGetEvent }))
 vi.doMock('../lib/registration', () => ({
   getRegistrationsByEventId: mockGetRegistrationsByEventId,
   updateRegistrationField: mockUpdateRegistrationField,
@@ -80,6 +82,7 @@ describe('putEventResultsLambda', () => {
     mockGetParam.mockReturnValue('event-1')
     mockAuthorizeWithMemberOf.mockResolvedValue({ memberOf: ['org-1'], user: { id: 'u1', name: 'Sihteeri' } })
     mockGetAuthorizedEvent.mockResolvedValue(nowtEvent)
+    mockGetEvent.mockResolvedValue(nowtEvent)
     mockGetRegistrationsByEventId.mockResolvedValue([registration('reg-1'), registration('reg-2')])
   })
 
@@ -763,5 +766,68 @@ describe('putEventResultsLambda', () => {
     expect(stored.result).toBe('AVO-')
     // A voided round has no total to publish, even though a post had already scored it.
     expect(stored.points).toBeUndefined()
+  })
+  describe('a trial handed to the chief judge', () => {
+    const handedOver = { ...nowtEvent, kcState: { code: 1253, name: 'Ylituomarin hyväksyttäväksi', readAt: 'x' } }
+    const stored = {
+      maxPoints: 80,
+      percentage: 50,
+      points: 40,
+      result: 'AVO3',
+      tasks: scores(10, 10, 10, 10),
+      updatedAt: '2026-09-12T10:00:00.000Z',
+      updatedBy: 'Sihteeri',
+    }
+
+    it('refuses a new result, as locked, and writes nothing', async () => {
+      mockGetEvent.mockResolvedValue(handedOver)
+
+      await putEventResultsLambda(apiEvent([{ eventResult: { tasks: scores(17, 18, 16, 14) }, id: 'reg-1' }]))
+
+      expect(mockResponse).toHaveBeenCalledWith(423, { error: 'resultsLocked' }, expect.anything())
+      expect(mockUpdateRegistrationField).not.toHaveBeenCalled()
+    })
+
+    it('refuses a disputed save too, as locked rather than as a conflict', async () => {
+      mockGetEvent.mockResolvedValue(handedOver)
+      mockGetRegistrationsByEventId.mockResolvedValue([{ ...registration('reg-1'), eventResult: stored }])
+
+      await putEventResultsLambda(
+        apiEvent([{ basedOn: '2026-09-12T09:00:00.000Z', eventResult: { tasks: scores(17, 18, 16, 14) }, id: 'reg-1' }])
+      )
+
+      expect(mockResponse).toHaveBeenCalledWith(423, { error: 'resultsLocked' }, expect.anything())
+    })
+
+    it('still answers a retry of a save that already landed', async () => {
+      mockGetEvent.mockResolvedValue(handedOver)
+      mockGetRegistrationsByEventId.mockResolvedValue([{ ...registration('reg-1'), eventResult: stored }])
+
+      await putEventResultsLambda(apiEvent([{ eventResult: { tasks: scores(10, 10, 10, 10) }, id: 'reg-1' }]))
+
+      expect(mockResponse).toHaveBeenCalledWith(200, expect.objectContaining({ saved: [] }), expect.anything())
+    })
+
+    it('refuses a finished trial the same way', async () => {
+      mockGetEvent.mockResolvedValue({ ...nowtEvent, kcState: { code: 304, name: 'Valmistunut', readAt: 'x' } })
+
+      await putEventResultsLambda(apiEvent([{ eventResult: { tasks: scores(17, 18, 16, 14) }, id: 'reg-1' }]))
+
+      expect(mockResponse).toHaveBeenCalledWith(423, { error: 'resultsLocked' }, expect.anything())
+    })
+
+    it('saves again once the judge has sent the trial back', async () => {
+      mockGetEvent.mockResolvedValue({ ...nowtEvent, kcState: { code: 754, name: 'Hyväksytty', readAt: 'x' } })
+
+      await putEventResultsLambda(apiEvent([{ eventResult: { tasks: scores(17, 18, 16, 14) }, id: 'reg-1' }]))
+
+      expect(mockUpdateRegistrationField).toHaveBeenCalledTimes(1)
+    })
+
+    it('reads the lock as last written', async () => {
+      await putEventResultsLambda(apiEvent([{ eventResult: { tasks: scores(17, 18, 16, 14) }, id: 'reg-1' }]))
+
+      expect(mockGetEvent).toHaveBeenCalledWith('event-1', true)
+    })
   })
 })

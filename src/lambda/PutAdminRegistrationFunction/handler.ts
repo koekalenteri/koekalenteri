@@ -42,7 +42,11 @@ const PROTECTED_PATCH_FIELDS = new Set([
   'editToken',
   'editTokenVersion',
   'eventId',
+  // Results are written by the results endpoints and the sending to Kennelliitto, which know the
+  // lock; a registration form carries a copy that is old by the time it is saved (KOE-1140).
+  'eventResult',
   'id',
+  'kcResult',
   'modifiedAt',
   'modifiedBy',
   'newRegistrationAuditAt',
@@ -109,6 +113,8 @@ const putAdminRegistrationLambda = lambda('putAdminRegistration', async (event) 
   const clientModifiedAt = operationRequest?.modifiedAt ?? registration.modifiedAt
   if (!operationRequest) {
     delete registration.editToken
+    delete registration.eventResult
+    delete registration.kcResult
     removeNewRegistrationWorkflowMetadata(registration)
     normalizeRegistrationEmails(registration)
   }
