@@ -1,5 +1,6 @@
 import type { JsonEventResult, JsonRegistration } from '../../types'
 import { asJsonConfirmedEvent, asJsonRegistration } from '../test-utils/helpers'
+import { linkedEventProjection } from './event'
 import {
   authorizeStationEntry,
   deriveStationEntryToken,
@@ -103,6 +104,8 @@ describe('stationEntry', () => {
 
       expect(result.event.locked).toEqual(true)
       expect(result.event).not.toHaveProperty('kcState')
+      // The lock is the post's to know; the other links built on the same projection are told nothing of it.
+      expect(linkedEventProjection(locked)).not.toHaveProperty('locked')
       expect(stationEntryResponse(confirmedEvent, station, [registration('run-1')]).event).not.toHaveProperty('locked')
     })
 

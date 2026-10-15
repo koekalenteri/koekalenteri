@@ -1,6 +1,5 @@
-import type { APIGatewayProxyEvent } from 'aws-lambda'
 import { vi } from 'vitest'
-import { answerRejections, asJsonConfirmedEvent } from '../test-utils/helpers'
+import { answerRejections, asJsonConfirmedEvent, constructAPIGwEvent } from '../test-utils/helpers'
 
 const mockResponse = vi.fn()
 const mockAuthorizeWithMemberOf = vi.fn()
@@ -44,11 +43,7 @@ const confirmedEvent = asJsonConfirmedEvent({
   organizer: { id: 'org-1', name: 'Org' },
 })
 
-const call = (body: unknown): Promise<unknown> => {
-  const partial: Pick<APIGatewayProxyEvent, 'body' | 'headers'> = { body: JSON.stringify(body), headers: {} }
-  // Safe: the handler reads only `body` off the event; the rest comes through the mocked collaborators.
-  return kennelliittoResultsLambda(partial as APIGatewayProxyEvent)
-}
+const call = (body: unknown) => kennelliittoResultsLambda(constructAPIGwEvent(body, { method: 'POST' }))
 
 describe('kennelliittoResultsLambda', () => {
   beforeEach(() => {

@@ -15,7 +15,7 @@ import Stack from '@mui/material/Stack'
 import Typography from '@mui/material/Typography'
 import { useTranslation } from 'react-i18next'
 import { KennelliittoDogList } from './KennelliittoDogList'
-import { blockerText, dogLabel, dogLine } from './kennelliittoMessages'
+import { blockerText, dogLabel, dogLine, skippedLine } from './kennelliittoMessages'
 
 export type KcSendPhase =
   | { kind: 'loading' }
@@ -119,6 +119,7 @@ const Report = ({ summary }: { readonly summary: KcSendSummary }) => {
   const { t } = useTranslation()
   const sent = summary.reports.filter((report) => report.outcome === 'sent')
   const failed = summary.reports.filter((report) => report.outcome === 'failed')
+  const skipped = summary.reports.filter((report) => report.outcome === 'skipped')
 
   return (
     <Stack spacing={2}>
@@ -147,6 +148,14 @@ const Report = ({ summary }: { readonly summary: KcSendSummary }) => {
               text: `${dogLabel(report)}: ${report.errors?.join(' ') ?? t('results.kennelliitto.statusUnknown', { status: report.status ?? 0 })}`,
             }))}
           />
+        </Alert>
+      )}
+      {skipped.length > 0 && (
+        <Alert severity="warning">
+          <Typography sx={{ fontWeight: 600 }} variant="body2">
+            {t('results.kennelliitto.skipped', { count: skipped.length })}
+          </Typography>
+          <KennelliittoDogList lines={skipped.map((report) => skippedLine(t, report))} />
         </Alert>
       )}
       {summary.notAttempted.length > 0 && !summary.interrupted && (

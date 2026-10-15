@@ -18,7 +18,7 @@ const putEventResultsLambda = lambda('putEventResults', async (event) => {
 
   const registrations = await getRegistrationsByEventId(eventId)
 
-  const { conflicts, patches, saved, unchanged } = await processResultSubmissions(
+  const { conflicts, locked, patches, saved, unchanged } = await processResultSubmissions(
     eventId,
     confirmedEvent,
     registrations,
@@ -32,6 +32,9 @@ const putEventResultsLambda = lambda('putEventResults', async (event) => {
     await publishRegistrationPatches(eventId, patches, confirmedEvent.organizer.id)
     await publishPublicStartList(eventId)
   }
+
+  // A trial handed to the judge while the batch was written: the dogs before that are saved and published above.
+  if (locked) throw httpError(423, { conflicts, error: 'resultsLocked', saved, unchanged })
 
   // The dogs that did not conflict are already written, so a resubmission only has to carry the ones
   // still in dispute — losing a screenful of work to one contested dog would be its own bug.

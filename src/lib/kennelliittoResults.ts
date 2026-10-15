@@ -92,6 +92,7 @@ export type KcProblemCode =
   | 'noDay'
   | 'noName'
   | 'dayNotReached'
+  | 'dayChanged'
   | 'resultNotAllowed'
   | 'stopNotAllowed'
   | 'noJudge'
@@ -149,13 +150,13 @@ type JudgeOutcome = { palkintotuomarit: number[]; tuomarit: number[] } | { probl
 
 const judgeNumbers = (registration: KcResultRegistration, event: KcResultEvent): JudgeOutcome => {
   const judges = judgesOf(registration, event)
-  if (!judges.length) return { problems: [{ code: 'noJudge' }] }
 
   const unnumbered = judges.filter((judge) => judgeId(judge) === undefined)
   if (unnumbered.length) {
     return { problems: unnumbered.map((judge) => ({ code: 'judgeWithoutNumber', detail: judge.name })) }
   }
 
+  // With no judge at all there is no chief either.
   const [chief, ...others] = [...new Set(judges.flatMap((judge) => judgeId(judge) ?? []))]
   if (chief === undefined) return { problems: [{ code: 'noJudge' }] }
   if (others.length > MAX_PRIZE_JUDGES) return { problems: [{ code: 'tooManyJudges' }] }
@@ -218,6 +219,33 @@ export const kcResultDay = (registration: Pick<KcResultRegistration, 'group' | '
  */
 const pointsOf = (registration: KcResultRegistration): number => registration.eventResult?.percentage ?? 0
 
+const problemsOf = (outcome: object & { problems?: KcProblem[] }): KcProblem[] => outcome.problems ?? []
+
+/** What is missing from the dog or the trial before the result itself is looked at. */
+const basicProblems = (
+  event: KcResultEvent,
+  registration: KcResultRegistration,
+  day: string | undefined
+): KcProblem[] => {
+  const problems: KcProblem[] = []
+  if (!event.kcGuid) problems.push({ code: 'noKcGuid' })
+  if (!registration.eventResult?.result) problems.push({ code: 'noResult' })
+  if (!registration.dog.name?.trim() || !registration.dog.regNo?.trim()) problems.push({ code: 'noName' })
+  if (!day) problems.push({ code: 'noDay' })
+  return problems
+}
+
+/** The result's own problems: Kennelliitto's format does not list it, or it cannot carry the judge's stop. */
+const resultProblems = (
+  registration: KcResultRegistration,
+  koemuoto: KcKoemuoto,
+  row: KcKoemuotoResult | undefined
+): KcProblem[] => {
+  if (!row) return [{ code: 'resultNotAllowed', detail: registration.eventResult?.result }]
+  const interrupted = resultMarks(registration.eventResult).length > 0
+  return interrupted && !formatAllowsStop(koemuoto) ? [{ code: 'stopNotAllowed', detail: row.tulos }] : []
+}
+
 /**
  * The Tallenna body for one dog, or what stands in the way. `koemuoto` is Kennelliitto's answer for
  * the format the trial itself reports (Koe/Lue), never one derived from the event type here.
@@ -227,40 +255,31 @@ export const buildKcResult = (
   registration: KcResultRegistration,
   koemuoto: KcKoemuoto
 ): KcResultOutcome => {
-  const problems: KcProblem[] = []
+  const day = kcResultDay(registration)
+  const basic = basicProblems(event, registration, day)
+  const row = basic.length ? undefined : klResultOf(registration, event, koemuoto)
+  const judges = judgeNumbers(registration, event)
+  const info = additionalInfo(registration, event, koemuoto)
+  const type = tarkenneOf(event, koemuoto)
+  const problems = [
+    ...basic,
+    ...(basic.length ? [] : resultProblems(registration, koemuoto, row)),
+    ...problemsOf(judges),
+    ...problemsOf(info),
+    ...problemsOf(type),
+  ]
+
+  if (problems.length || 'problems' in judges || 'problems' in info || 'problems' in type) {
+    return { ok: false, problems }
+  }
   const name = registration.dog.name?.trim()
   const regNo = registration.dog.regNo?.trim()
-  const day = kcResultDay(registration)
-
-  if (!event.kcGuid) problems.push({ code: 'noKcGuid' })
-  if (!registration.eventResult?.result) problems.push({ code: 'noResult' })
-  if (!name || !regNo) problems.push({ code: 'noName' })
-  if (!day) problems.push({ code: 'noDay' })
-
-  const row = problems.length ? undefined : klResultOf(registration, event, koemuoto)
-  if (!problems.length && !row) {
-    problems.push({ code: 'resultNotAllowed', detail: registration.eventResult?.result })
-  }
-
-  const interrupted = resultMarks(registration.eventResult).length > 0
-  if (row && interrupted && !formatAllowsStop(koemuoto)) {
-    problems.push({ code: 'stopNotAllowed', detail: row.tulos })
-  }
-
-  const judges = judgeNumbers(registration, event)
-  if ('problems' in judges) problems.push(...judges.problems)
-  const info = additionalInfo(registration, event, koemuoto)
-  if ('problems' in info) problems.push(...info.problems)
-  const type = tarkenneOf(event, koemuoto)
-  if ('problems' in type) problems.push(...type.problems)
-
-  if ('problems' in judges || 'problems' in info || 'problems' in type) return { ok: false, problems }
-  if (problems.length || !row || !day || !name || !regNo || !event.kcGuid) return { ok: false, problems }
+  if (!row || !day || !name || !regNo || !event.kcGuid) return { ok: false, problems }
 
   return {
     body: {
       hylätty: row.hylätty,
-      keskeytetty: row.keskeytys || interrupted,
+      keskeytetty: row.keskeytys || resultMarks(registration.eventResult).length > 0,
       koeGUID: event.kcGuid,
       nimi: name,
       palkintotuomarit: judges.palkintotuomarit,
@@ -274,6 +293,15 @@ export const buildKcResult = (
     },
     ok: true,
   }
+}
+
+/**
+ * A day as a person reads it, d.M.yyyy. A yyyy-MM-dd string in a response is revived into a Date by the
+ * client, so a message that names a day carries this form instead.
+ */
+export const finnishDay = (day: string): string => {
+  const [year, month, date] = day.split('-')
+  return `${Number(date)}.${Number(month)}.${year}`
 }
 
 /** Results can be written on the trial day or later (Juha): the dog's day must have begun in Finland. */
@@ -325,13 +353,16 @@ export interface KcBlocker {
   virheet?: string[]
 }
 
-export type KcSendOutcome = 'sent' | 'failed' | 'unchanged'
+export type KcSendOutcome = 'sent' | 'failed' | 'skipped' | 'unchanged'
 
 export interface KcSendReport {
+  /** Where a dog that was asked for and not sent stood, and why (a `skipped` outcome). */
+  dogStatus?: KcDogStatus
   errors?: string[]
   id: string
   name: string
   outcome: KcSendOutcome
+  problems?: KcProblem[]
   regNo: string
   /** The status Kennelliitto answered with, for a call it refused without giving reasons. */
   status?: number

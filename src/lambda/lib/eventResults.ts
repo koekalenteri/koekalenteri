@@ -27,10 +27,11 @@ import {
   stationVersion,
   taskEntryCeiling,
 } from '../../lib/results'
+import { mapWithConcurrency } from '../../lib/utils'
 import { audit, registrationAuditKey } from './audit'
 import { getEvent } from './event'
 import { parseJSONWithFallback } from './json'
-import { httpError, LambdaError } from './lambda'
+import { LambdaError } from './lambda'
 import { updateRegistrationField } from './registration'
 
 /** The outcome dropdown's Finnish labels, for the audit line (KOE-1284). */
@@ -122,6 +123,8 @@ interface EventResultConflict {
 
 interface ProcessedResultSubmissions {
   conflicts: EventResultConflict[]
+  /** The trial was handed to the chief judge while the batch was written: the dogs from there on were not. */
+  locked: boolean
   patches: Patch<JsonRegistration>[]
   saved: StoredEventResult[]
   unchanged: StoredEventResult[]
@@ -449,8 +452,44 @@ const validateSubmittedTasks = (
  * (KOE-1140). Read as last written, because the lock is taken by another request, and asked only of a
  * submission that would change something: a retry of a save that already landed is still answered.
  */
-const assertResultsUnlocked = async (eventId: string): Promise<void> => {
-  if (isResultsLocked(await getEvent(eventId, true))) throw httpError(423, { error: 'resultsLocked' })
+const isEventLocked = async (eventId: string): Promise<boolean> => isResultsLocked(await getEvent(eventId, true))
+
+/** A submission checked and classified, ready to be written or reported. */
+interface PlannedSubmission {
+  outcome: SubmissionOutcome
+  submission: ResultSubmission
+}
+
+/** Everything a submission may be refused for before anything is written, and what it turns out to be. */
+const planSubmission = (
+  confirmedEvent: JsonConfirmedEvent,
+  registrations: JsonRegistration[],
+  submission: ResultSubmission,
+  timestamp: string,
+  userName: string
+): PlannedSubmission => {
+  const registration = registrations.find((item) => item.id === submission.id)
+  if (!registration) throw new LambdaError(404, `Registration '${submission.id}' not found`)
+
+  // A reserve never called up and a cancelled entry have no round to record. The views do not offer
+  // them a row, so this is a client working from a list that has moved on since it loaded — refusing
+  // is what stops a result being attributed to a dog that was not there.
+  if (!isScorableRegistration(registration)) {
+    throw new LambdaError(422, `Registration '${submission.id}' did not run`)
+  }
+
+  if (scoresAtPosts(confirmedEvent.eventType)) {
+    validateSubmittedTasks(confirmedEvent, registration, submission)
+  }
+
+  // The alphabet is the event type's own: a pass/fail test awards 1 or 0 and nothing else, so a code
+  // outside it is a client bug to refuse, not a judgement to store.
+  const { resultCode } = submission.eventResult
+  if (resultCode && !availableResultCodes(confirmedEvent.eventType).includes(resultCode)) {
+    throw new LambdaError(422, `Result code '${resultCode}' is not valid for ${confirmedEvent.eventType}`)
+  }
+
+  return { outcome: classifySubmission(confirmedEvent, registration, submission, timestamp, userName), submission }
 }
 
 export const processResultSubmissions = async (
@@ -467,42 +506,22 @@ export const processResultSubmissions = async (
   const saved: StoredEventResult[] = []
   const unchanged: StoredEventResult[] = []
   const conflicts: EventResultConflict[] = []
-  let unlocked: Promise<void> | undefined
-  const ensureUnlocked = () => {
-    unlocked ??= assertResultsUnlocked(eventId)
-    return unlocked
-  }
+  let locked = false
 
-  for (const submission of submissions) {
-    const registration = registrations.find((item) => item.id === submission.id)
-    if (!registration) throw new LambdaError(404, `Registration '${submission.id}' not found`)
+  // Decide first, write second: a submission that is refused outright refuses the batch before a dog is written.
+  const planned = submissions.map((submission) =>
+    planSubmission(confirmedEvent, registrations, submission, timestamp, userName)
+  )
 
-    // A reserve never called up and a cancelled entry have no round to record. The views do not offer
-    // them a row, so this is a client working from a list that has moved on since it loaded — refusing
-    // is what stops a result being attributed to a dog that was not there.
-    if (!isScorableRegistration(registration)) {
-      throw new LambdaError(422, `Registration '${submission.id}' did not run`)
-    }
-
-    if (scoresAtPosts(confirmedEvent.eventType)) {
-      validateSubmittedTasks(confirmedEvent, registration, submission)
-    }
-
-    // The alphabet is the event type's own: a pass/fail test awards 1 or 0 and nothing else, so a code
-    // outside it is a client bug to refuse, not a judgement to store.
-    const { resultCode } = submission.eventResult
-    if (resultCode && !availableResultCodes(confirmedEvent.eventType).includes(resultCode)) {
-      throw new LambdaError(422, `Result code '${resultCode}' is not valid for ${confirmedEvent.eventType}`)
-    }
-
-    const outcome = classifySubmission(confirmedEvent, registration, submission, timestamp, userName)
-
+  // One dog at a time, the lock asked of the row as last written before each: a hand-over that takes the
+  // lock while a batch is being written stops the dogs not yet written, and the ones that were stay.
+  await mapWithConcurrency(planned, 1, async ({ outcome, submission }) => {
     if (outcome.kind === 'unchanged') {
       unchanged.push({ eventResult: outcome.eventResult, id: submission.id })
-      continue
+      return
     }
-
-    await ensureUnlocked()
+    locked ||= await isEventLocked(eventId)
+    if (locked) return
 
     if (outcome.kind === 'conflict') {
       conflicts.push({
@@ -511,11 +530,10 @@ export const processResultSubmissions = async (
         stored: outcome.stored,
         submitted: outcome.submitted,
       })
-      continue
+      return
     }
 
     const { eventResult } = outcome
-
     await updateRegistrationField(eventId, submission.id, 'eventResult', eventResult)
     await audit({
       auditKey: registrationAuditKey({ eventId, id: submission.id }),
@@ -525,7 +543,7 @@ export const processResultSubmissions = async (
 
     patches.push({ eventResult, id: submission.id })
     saved.push({ eventResult, id: submission.id })
-  }
+  })
 
-  return { conflicts, patches, saved, unchanged }
+  return { conflicts, locked, patches, saved, unchanged }
 }

@@ -353,20 +353,20 @@ export type StationEntryDog = Omit<JsonStationEntryDog, 'group' | 'eventResult'>
 export type JsonLinkedEvent = Pick<
   JsonPublicDogEvent,
   'id' | 'eventType' | 'name' | 'names' | 'location' | 'startDate' | 'endDate' | 'classes'
-> & {
-  /** The results are handed to the chief judge: a link can read them but no longer write them. */
-  locked?: boolean
-}
+>
 export type LinkedEvent = Pick<
   PublicDogEvent,
   'id' | 'eventType' | 'name' | 'names' | 'location' | 'startDate' | 'endDate' | 'classes'
-> & {
+>
+
+/** The results are handed to the chief judge: the post's link can read them but no longer write them. */
+interface StationEntryLock {
   locked?: boolean
 }
 
 /** What the tokenized station link serves: the post, its slice of the course, and the dogs that run. */
 export interface JsonStationEntry {
-  event: JsonLinkedEvent
+  event: JsonLinkedEvent & StationEntryLock
   /** Without `tokenVersion`: the link must not reveal its own revocation counter. */
   station: Omit<JsonEventStation, 'tokenVersion'>
   registrations: JsonStationEntryDog[]
@@ -374,7 +374,7 @@ export interface JsonStationEntry {
   turns?: JsonPublicStationTurn[]
 }
 export type StationEntry = {
-  event: LinkedEvent
+  event: LinkedEvent & StationEntryLock
   station: Omit<EventStation, 'tokenVersion'>
   registrations: StationEntryDog[]
   turns?: PublicStationTurn[]

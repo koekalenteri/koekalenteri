@@ -195,6 +195,8 @@ export interface JsonKcResult {
   /** The result (`eventResult.updatedAt`) the hash was made from. */
   resultVersion?: string
   tulosId?: number
+  /** The day (yyyy-MM-dd) the accepted result was sent for: a result sent for another day is another result in Kennelliitto. */
+  day?: string
   at: string
   by: string
   /** What Kennelliitto answered to a refused call, as it worded it. */

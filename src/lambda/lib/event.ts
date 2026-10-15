@@ -20,7 +20,6 @@ import { addDays } from 'date-fns/addDays'
 import { zonedStartOfDay } from '../../i18n/dates'
 import { auditUser, groupChangeAudit } from '../../lib/audit'
 import { isResultsPublishedClassMap, withResultsDay } from '../../lib/event'
-import { isResultsLocked } from '../../lib/kennelliittoResults'
 import { getResultsBlocker, isResultsPublishedState } from '../../lib/publishing'
 import { GROUP_KEY_CANCELLED, hasPriority, REGISTRATION_WRITE_CONCURRENCY } from '../../lib/registration'
 import { normalizeRegistrationGroups } from '../../lib/registrationGroups'
@@ -477,7 +476,6 @@ export const linkedEventProjection = (confirmedEvent: JsonConfirmedEvent): JsonL
   eventType: confirmedEvent.eventType,
   id: confirmedEvent.id,
   location: confirmedEvent.location,
-  ...(isResultsLocked(confirmedEvent) ? { locked: true } : {}),
   name: confirmedEvent.name,
   names: confirmedEvent.names,
   startDate: confirmedEvent.startDate,

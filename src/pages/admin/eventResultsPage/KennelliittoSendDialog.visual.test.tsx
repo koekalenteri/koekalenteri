@@ -95,6 +95,14 @@ it('reports who was saved and who was refused, with Kennelliitto’s own words',
               status: 400,
             },
             { id: '10005', name: 'Nelli', outcome: 'failed', regNo: 'FI10005/21', status: 0 },
+            {
+              dogStatus: 'blocked',
+              id: '10006',
+              name: 'Tupu',
+              outcome: 'skipped',
+              problems: [{ code: 'dayChanged', detail: '26.9.2026' }],
+              regNo: 'FI10006/21',
+            },
           ],
         },
       }}
@@ -123,6 +131,21 @@ it('asks for the hand-over by saying what it means, and lists the dogs that stay
     />,
     'Tulosten luovutus ylituomarille',
     'kennelliitto-hand-over'
+  )
+})
+
+it('asks for the secretary’s word before it hands over a trial with nothing sent', async () => {
+  await shoot(
+    <KennelliittoHandOverDialog
+      accepted={false}
+      onAccept={noop}
+      onClose={noop}
+      onHandOver={noop}
+      open
+      outcome={{ kind: 'nothingSent' }}
+    />,
+    'Tulosten luovutus ylituomarille',
+    'kennelliitto-hand-over-nothing'
   )
 })
 

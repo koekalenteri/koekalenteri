@@ -1,6 +1,7 @@
 import type { UserEvent } from '@testing-library/user-event'
 import type { RouteObject } from 'react-router'
 import type { Language } from '../../i18n'
+import type { KcDogReport } from '../../lib/kennelliittoResults'
 import type { ConfirmedEvent, EventResult, Registration } from '../../types'
 import { ThemeProvider } from '@mui/material'
 import { LocalizationProvider } from '@mui/x-date-pickers'
@@ -978,7 +979,11 @@ describe('EventResultsPage and Kennelliitto (KOE-1140)', () => {
     resultVersion: noon.toISOString(),
     status: 'sent' as const,
   }
-  const dogReport = (id: string, status: 'blocked' | 'changed' | 'ready' | 'unchanged', problems = [] as never[]) => ({
+  const dogReport = (
+    id: string,
+    status: 'blocked' | 'changed' | 'ready' | 'unchanged',
+    problems: KcDogReport['problems'] = []
+  ) => ({
     id,
     name: `Koira ${id}`,
     problems,
@@ -1057,7 +1062,7 @@ describe('EventResultsPage and Kennelliitto (KOE-1140)', () => {
     it('names the dogs that cannot be sent, with the reason', async () => {
       vi.mocked(previewKennelliittoResults).mockResolvedValueOnce({
         blockers: [],
-        dogs: [dogReport('run-1', 'ready'), dogReport('run-2', 'blocked', [{ code: 'noJudge' }] as never[])],
+        dogs: [dogReport('run-1', 'ready'), dogReport('run-2', 'blocked', [{ code: 'noJudge' }])],
       })
       const { user } = await renderQualitativePage('fi', { 'run-1': stored('NOU1') })
       await flushPromises()
@@ -1105,6 +1110,8 @@ describe('EventResultsPage and Kennelliitto (KOE-1140)', () => {
       await user.click(screen.getByRole('button', { name: 'results.kennelliitto.send' }))
       await flushPromises()
       await user.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'results.kennelliitto.send' }))
+      // Two requests, one after the other: each answer settles the page's state before the next goes.
+      await flushPromises()
       await flushPromises()
 
       expect(sendKennelliittoResults).toHaveBeenNthCalledWith(1, 'test1', ids.slice(0, 10), false, expect.anything())
@@ -1132,6 +1139,183 @@ describe('EventResultsPage and Kennelliitto (KOE-1140)', () => {
     })
   })
 
+  describe('the answers of a sending', () => {
+    const sendOnePage = async () => {
+      vi.mocked(previewKennelliittoResults).mockResolvedValueOnce({
+        blockers: [],
+        dogs: [dogReport('run-1', 'ready'), dogReport('run-2', 'ready')],
+      })
+      const { user } = await renderQualitativePage('fi', { 'run-1': stored('NOU1') })
+      await flushPromises()
+      await user.click(screen.getByRole('button', { name: 'results.kennelliitto.send' }))
+      await flushPromises()
+      await user.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'results.kennelliitto.send' }))
+      await flushPromises()
+      await flushPromises()
+    }
+    const sent = (id: string) => ({ id, name: `Koira ${id}`, outcome: 'sent' as const, regNo: `REG-${id}` })
+
+    it('shows a dog that was sent as sent at once, from the answer, without reading the registrations again', async () => {
+      vi.mocked(sendKennelliittoResults).mockResolvedValueOnce({
+        blockers: [],
+        kcResults: [
+          {
+            id: 'run-1',
+            kcResult: {
+              at: noon.toISOString(),
+              by: 'Sihteeri',
+              payloadHash: 'h',
+              resultVersion: noon.toISOString(),
+              status: 'sent',
+            },
+          },
+        ],
+        notAttempted: [],
+        reports: [sent('run-1'), sent('run-2')],
+      })
+
+      await sendOnePage()
+
+      expect(within(rowFor('Ensimmainen')).getByText('results.kennelliitto.badge.sent')).toBeInTheDocument()
+    })
+
+    it('asks again for the dogs a request had no time for, once it got somewhere', async () => {
+      vi.mocked(sendKennelliittoResults)
+        .mockResolvedValueOnce({ blockers: [], kcResults: [], notAttempted: ['run-2'], reports: [sent('run-1')] })
+        .mockResolvedValueOnce({ blockers: [], kcResults: [], notAttempted: [], reports: [sent('run-2')] })
+
+      await sendOnePage()
+
+      expect(sendKennelliittoResults).toHaveBeenCalledTimes(2)
+      expect(sendKennelliittoResults).toHaveBeenNthCalledWith(2, 'test1', ['run-2'], false, expect.anything())
+      expect(screen.getByText('results.kennelliitto.success count')).toBeInTheDocument()
+      expect(screen.queryByText('results.kennelliitto.notAttempted count')).not.toBeInTheDocument()
+    })
+
+    it('does not ask again when the request got nowhere, and says which dogs were left', async () => {
+      vi.mocked(sendKennelliittoResults).mockResolvedValueOnce({
+        blockers: [],
+        kcResults: [],
+        notAttempted: ['run-1', 'run-2'],
+        reports: [],
+      })
+
+      await sendOnePage()
+
+      expect(sendKennelliittoResults).toHaveBeenCalledTimes(1)
+      expect(screen.getByText('results.kennelliitto.notAttempted count')).toBeInTheDocument()
+    })
+
+    it('says what stopped the trial when the server refuses it as blocked, and sends no more', async () => {
+      vi.mocked(sendKennelliittoResults).mockRejectedValueOnce(
+        new APIError(new Response(null, { status: 409 }), { blockers: [{ code: 'handedOver' }], error: 'blocked' })
+      )
+
+      await sendOnePage()
+
+      expect(screen.getByText('results.kennelliitto.blocker.handedOver detail')).toBeInTheDocument()
+      expect(screen.queryByText('results.kennelliitto.interrupted')).not.toBeInTheDocument()
+    })
+
+    it('says which dogs it did not send, with where they stood', async () => {
+      vi.mocked(sendKennelliittoResults).mockResolvedValueOnce({
+        blockers: [],
+        kcResults: [],
+        notAttempted: [],
+        reports: [
+          sent('run-1'),
+          {
+            dogStatus: 'blocked',
+            id: 'run-2',
+            name: 'Koira run-2',
+            outcome: 'skipped',
+            problems: [{ code: 'noJudge' }],
+            regNo: 'REG-run-2',
+          },
+        ],
+      })
+
+      await sendOnePage()
+
+      expect(screen.getByText('results.kennelliitto.skipped count')).toBeInTheDocument()
+      expect(
+        screen.getByText('Koira run-2 (REG-run-2): results.kennelliitto.problem.noJudge detail')
+      ).toBeInTheDocument()
+    })
+  })
+
+  describe('what a hand-over answers', () => {
+    const openHandOver = async () => {
+      const { user } = await renderQualitativePage('fi', { 'run-1': stored('NOU1') }, eventWithStaticDates, {
+        'run-1': { kcResult: sentOk },
+      })
+      await flushPromises()
+      await user.click(screen.getAllByRole('button', { name: 'results.kennelliitto.handOverButton' })[0])
+      await flushPromises()
+      const dialog = within(screen.getByRole('dialog'))
+      await user.click(dialog.getByRole('button', { name: 'results.kennelliitto.handOverButton' }))
+      await flushPromises()
+      return { dialog, user }
+    }
+    const refusal = (status: number, body: ConstructorParameters<typeof APIError>[1]) =>
+      vi.mocked(handOverKennelliittoResults).mockRejectedValueOnce(new APIError(new Response(null, { status }), body))
+
+    it('lists what stops the trial', async () => {
+      refusal(409, { blockers: [{ code: 'stateNotWritable', detail: 'Valmistunut' }], error: 'blocked' })
+
+      const { dialog } = await openHandOver()
+
+      expect(dialog.getByText('results.kennelliitto.blocker.stateNotWritable detail')).toBeInTheDocument()
+    })
+
+    it('lists the results that have to be sent first', async () => {
+      refusal(409, { dogs: [dogReport('run-2', 'ready')], error: 'unsentResults' })
+
+      const { dialog } = await openHandOver()
+
+      expect(dialog.getByText('results.kennelliitto.handOver.unsent')).toBeInTheDocument()
+      expect(dialog.getByText('Koira run-2 (REG-run-2): results.kennelliitto.dogStatus.ready')).toBeInTheDocument()
+    })
+
+    it('gives Kennelliitto’s reasons when it refuses the hand-over', async () => {
+      refusal(502, { error: 'kennelliittoRefused', status: 400, virheet: ['Tila ei kelpaa.'] })
+
+      const { dialog } = await openHandOver()
+
+      expect(dialog.getByText('results.kennelliitto.handOver.refused reasons')).toBeInTheDocument()
+    })
+
+    it('says it is not known whether it happened when Kennelliitto gave no reasons', async () => {
+      refusal(502, { error: 'kennelliittoRefused', status: 0 })
+
+      const { dialog } = await openHandOver()
+
+      expect(dialog.getByText('results.kennelliitto.handOver.unknown')).toBeInTheDocument()
+      expect(dialog.queryByText('results.kennelliitto.handOver.refused reasons')).not.toBeInTheDocument()
+    })
+
+    it('asks for the secretary’s word before handing over nothing, and then hands over', async () => {
+      refusal(409, { error: 'nothingSent' })
+
+      const { dialog, user } = await openHandOver()
+      expect(dialog.getByText('results.kennelliitto.handOver.nothingSent')).toBeInTheDocument()
+      expect(dialog.getByRole('button', { name: 'results.kennelliitto.handOverButton' })).toBeDisabled()
+
+      await user.click(dialog.getByRole('checkbox'))
+      await user.click(dialog.getByRole('button', { name: 'results.kennelliitto.handOverButton' }))
+      await flushPromises()
+
+      expect(handOverKennelliittoResults).toHaveBeenLastCalledWith('test1', true, expect.anything())
+    })
+
+    it('says it is done and closes when the trial is handed over', async () => {
+      await openHandOver()
+
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+      expect(screen.getByText('results.kennelliitto.handOver.done')).toBeInTheDocument()
+    })
+  })
+
   describe('a trial that has been sent but not handed over', () => {
     it('keeps asking for the hand-over on the page', async () => {
       const { user } = await renderQualitativePage('fi', { 'run-1': stored('NOU1') }, eventWithStaticDates, {
@@ -1151,7 +1335,7 @@ describe('EventResultsPage and Kennelliitto (KOE-1140)', () => {
     it('lists the dogs that stay out and hands over once the secretary accepts them', async () => {
       vi.mocked(handOverKennelliittoResults).mockRejectedValueOnce(
         new APIError(new Response(null, { status: 409 }), {
-          dogs: [dogReport('run-2', 'blocked', [{ code: 'noResult' }] as never[])],
+          dogs: [dogReport('run-2', 'blocked', [{ code: 'noResult' }])],
           error: 'confirmationNeeded',
         })
       )

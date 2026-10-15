@@ -112,7 +112,7 @@ describe('LiveEntryPage', () => {
 
     await user.click(screen.getByRole('button', { name: /1 Ensimmainen/ }))
 
-    expect(screen.getByText('results.kennelliitto.lockedSave')).toBeInTheDocument()
+    expect(screen.getByText('results.kennelliitto.lockedLive')).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'results.save' })).toBeDisabled()
   })
 })

@@ -653,6 +653,39 @@ describe('KLIntegraatio', () => {
       expect(result.error).toBeDefined()
     })
 
+    /** A Kennelliitto whose token endpoint answers and whose API takes the request and says nothing. */
+    const silentApi = (input: string, init?: RequestInit) =>
+      String(input).includes('sso.example.test')
+        ? Promise.resolve(Response.json(tokenReply(3600).body))
+        : hangingFetch(input, init)
+
+    it('gives up the call itself when the token came and the API says nothing', async () => {
+      const slow = new KLIntegraatio(loadConfig, { timeoutMs: 20 })
+      vi.stubGlobal('fetch', silentApi)
+
+      const result = await slow.lueKoemuoto({ koemuoto: 'NOU' })
+
+      expect(result.status).toBe(0)
+    })
+
+    it("gives up a call when the caller's own time is spent, whatever the call's limit", async () => {
+      const patient = new KLIntegraatio(loadConfig, { timeoutMs: 60_000 })
+      vi.stubGlobal('fetch', silentApi)
+
+      const result = await patient.lueKoemuoto({ koemuoto: 'NOU' }, { signal: AbortSignal.timeout(20) })
+
+      expect(result.status).toBe(0)
+    })
+
+    it("gives up a token request when the caller's time is spent", async () => {
+      const patient = new KLIntegraatio(loadConfig, { timeoutMs: 60_000 })
+      vi.stubGlobal('fetch', hangingFetch)
+
+      const result = await patient.lueKoemuoto({ koemuoto: 'NOU' }, { signal: AbortSignal.timeout(20) })
+
+      expect(result.status).toBe(0)
+    })
+
     it('gives up a token request that is never answered as well', async () => {
       const slow = new KLIntegraatio(loadConfig, { timeoutMs: 20 })
       vi.stubGlobal('fetch', hangingFetch)

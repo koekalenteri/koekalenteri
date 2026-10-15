@@ -40,6 +40,67 @@ const idsOf = (value: unknown): string[] | undefined => {
   return value
 }
 
+type Ctx = Parameters<typeof previewKennelliittoResults>[0]
+type EventPatch = Parameters<typeof publishEventChange>[0]['patch']
+
+/** What an action needs of the request it answers. */
+interface Run {
+  body: KennelliittoRequest
+  ctx: Ctx
+  eventId: string
+  ids?: string[]
+  organizerId: string
+}
+
+/** Tells the open pages what changed on the trial. */
+const publishEvent = async ({ eventId, organizerId }: Run, patch: Omit<EventPatch, 'eventId'> | undefined) => {
+  if (patch) await publishEventChange({ audience: 'admin', organizerId, patch: { ...patch, eventId } })
+}
+
+const previewAction = async (run: Run) => {
+  const { eventPatch, ...preview } = await previewKennelliittoResults(run.ctx, run.ids)
+  await publishEvent(run, eventPatch)
+  return preview
+}
+
+const sendAction = async (run: Run) => {
+  const { ids } = run
+  if (!ids?.length || ids.length > MAX_SENT_DOGS) {
+    throw httpError(422, `send takes 1 to ${MAX_SENT_DOGS} registrationIds`)
+  }
+  const { eventPatch, patches, ...sent } = await sendKennelliittoResults(run.ctx, ids, {
+    force: run.body.force === true,
+  })
+  if (patches.length) await publishRegistrationPatches(run.eventId, patches, run.organizerId)
+  await publishEvent(run, eventPatch)
+  if (sent.blockers.length) throw httpError(409, { blockers: sent.blockers, error: 'blocked' })
+  return { ...sent, kcResults: patches }
+}
+
+/** Why a hand-over did not happen, as the answer the page reads it from. */
+const handOverRefusal = (result: Awaited<ReturnType<typeof handOverKennelliittoResults>>) => {
+  if (result.blockers.length) return httpError(409, { blockers: result.blockers, error: 'blocked' })
+  if (result.unsent) return httpError(409, { dogs: result.unsent, error: 'unsentResults' })
+  if (result.needsConfirmation) return httpError(409, { dogs: result.needsConfirmation, error: 'confirmationNeeded' })
+  if (result.nothingSent) return httpError(409, { error: 'nothingSent' })
+  if (result.refused) return httpError(502, { error: 'kennelliittoRefused', ...result.refused })
+  return undefined
+}
+
+const handOverAction = async (run: Run) => {
+  const result = await handOverKennelliittoResults(run.ctx, { withoutBlocked: run.body.withoutBlocked === true })
+  await publishEvent(run, result.eventPatch)
+  const refusal = handOverRefusal(result)
+  if (refusal) throw refusal
+  return { handedOver: result.handedOver }
+}
+
+const ACTIONS: Record<string, (run: Run) => Promise<object>> = {
+  handOver: handOverAction,
+  preview: previewAction,
+  send: sendAction,
+}
+
 /**
  * Results to Kennelliitto's Omakoira, for the people who may save the trial's results: the preview the
  * dialog shows (no write), the sending ten dogs at a time, and the hand-over to the chief judge.
@@ -50,6 +111,8 @@ const kennelliittoResultsLambda = lambda('kennelliittoResults', async (event) =>
   const eventId = getParam(event, 'eventId')
   const body = parseJSONWithFallback<KennelliittoRequest>(event.body, {})
   const ids = idsOf(body.registrationIds)
+  const action = body.action ? ACTIONS[body.action] : undefined
+  if (!action) throw httpError(400, 'unknown action')
 
   // As last written: the lock and the state are read from this row.
   const confirmedEvent = await getEvent<JsonConfirmedEvent>(eventId, true)
@@ -66,40 +129,8 @@ const kennelliittoResultsLambda = lambda('kennelliittoResults', async (event) =>
     organizerKcId: organizer?.kcId,
     userName: user.name,
   }
-  const organizerId = confirmedEvent.organizer.id
-  const publishEvent = async (patch: Parameters<typeof publishEventChange>[0]['patch'] | undefined) => {
-    if (patch) await publishEventChange({ audience: 'admin', organizerId, patch })
-  }
 
-  switch (body.action) {
-    case 'preview': {
-      const { eventPatch, ...preview } = await previewKennelliittoResults(ctx, ids)
-      await publishEvent(eventPatch && { ...eventPatch, eventId })
-      return response(200, preview, event)
-    }
-    case 'send': {
-      if (!ids?.length || ids.length > MAX_SENT_DOGS) {
-        throw httpError(422, `send takes 1 to ${MAX_SENT_DOGS} registrationIds`)
-      }
-      const { eventPatch, patches, ...sent } = await sendKennelliittoResults(ctx, ids, { force: body.force === true })
-      if (patches.length) await publishRegistrationPatches(eventId, patches, organizerId)
-      await publishEvent(eventPatch && { ...eventPatch, eventId })
-      if (sent.blockers.length) throw httpError(409, { blockers: sent.blockers, error: 'blocked' })
-      return response(200, { ...sent, kcResults: patches }, event)
-    }
-    case 'handOver': {
-      const result = await handOverKennelliittoResults(ctx, { withoutBlocked: body.withoutBlocked === true })
-      await publishEvent(result.eventPatch && { ...result.eventPatch, eventId })
-      if (result.blockers.length) throw httpError(409, { blockers: result.blockers, error: 'blocked' })
-      if (result.unsent) throw httpError(409, { dogs: result.unsent, error: 'unsentResults' })
-      if (result.needsConfirmation)
-        throw httpError(409, { dogs: result.needsConfirmation, error: 'confirmationNeeded' })
-      if (result.refused) throw httpError(502, { error: 'kennelliittoRefused', ...result.refused })
-      return response(200, { handedOver: result.handedOver }, event)
-    }
-    default:
-      throw httpError(400, 'unknown action')
-  }
+  return response(200, await action({ body, ctx, eventId, ids, organizerId: confirmedEvent.organizer.id }), event)
 })
 
 export default kennelliittoResultsLambda

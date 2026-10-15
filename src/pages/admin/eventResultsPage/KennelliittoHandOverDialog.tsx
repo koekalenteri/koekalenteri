@@ -65,6 +65,16 @@ export const KennelliittoHandOverDialog = ({ accepted, onAccept, onClose, onHand
               />
             </Alert>
           )}
+          {outcome?.kind === 'nothingSent' && (
+            <Alert severity="warning">
+              <Typography variant="body2">{t('results.kennelliitto.handOver.nothingSent')}</Typography>
+              <FormControlLabel
+                control={<Checkbox checked={accepted} onChange={(_event, checked) => onAccept(checked)} size="small" />}
+                label={t('results.kennelliitto.handOver.nothingSentConfirm')}
+              />
+            </Alert>
+          )}
+          {outcome?.kind === 'unknown' && <Alert severity="error">{t('results.kennelliitto.handOver.unknown')}</Alert>}
           {outcome?.kind === 'refused' && (
             <Alert severity="error">
               {t('results.kennelliitto.handOver.refused', { reasons: outcome.virheet.join(' ') })}
@@ -75,7 +85,11 @@ export const KennelliittoHandOverDialog = ({ accepted, onAccept, onClose, onHand
       </DialogContent>
       <DialogActions>
         <Button onClick={onClose}>{t('cancel')}</Button>
-        <Button disabled={leftOut.length > 0 && !accepted} onClick={onHandOver} variant="contained">
+        <Button
+          disabled={(leftOut.length > 0 || outcome?.kind === 'nothingSent') && !accepted}
+          onClick={onHandOver}
+          variant="contained"
+        >
           {t('results.kennelliitto.handOverButton')}
         </Button>
       </DialogActions>

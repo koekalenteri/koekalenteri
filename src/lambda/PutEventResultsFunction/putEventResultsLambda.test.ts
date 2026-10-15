@@ -784,7 +784,11 @@ describe('putEventResultsLambda', () => {
 
       await putEventResultsLambda(apiEvent([{ eventResult: { tasks: scores(17, 18, 16, 14) }, id: 'reg-1' }]))
 
-      expect(mockResponse).toHaveBeenCalledWith(423, { error: 'resultsLocked' }, expect.anything())
+      expect(mockResponse).toHaveBeenCalledWith(
+        423,
+        expect.objectContaining({ error: 'resultsLocked' }),
+        expect.anything()
+      )
       expect(mockUpdateRegistrationField).not.toHaveBeenCalled()
     })
 
@@ -796,7 +800,11 @@ describe('putEventResultsLambda', () => {
         apiEvent([{ basedOn: '2026-09-12T09:00:00.000Z', eventResult: { tasks: scores(17, 18, 16, 14) }, id: 'reg-1' }])
       )
 
-      expect(mockResponse).toHaveBeenCalledWith(423, { error: 'resultsLocked' }, expect.anything())
+      expect(mockResponse).toHaveBeenCalledWith(
+        423,
+        expect.objectContaining({ error: 'resultsLocked' }),
+        expect.anything()
+      )
     })
 
     it('still answers a retry of a save that already landed', async () => {
@@ -808,12 +816,65 @@ describe('putEventResultsLambda', () => {
       expect(mockResponse).toHaveBeenCalledWith(200, expect.objectContaining({ saved: [] }), expect.anything())
     })
 
+    it('stops a batch at the dog the hand-over took the lock before, and publishes the dogs saved until then', async () => {
+      // The first dog is saved while the trial is open; the hand-over takes the lock before the second.
+      mockGetEvent.mockResolvedValueOnce(nowtEvent).mockResolvedValue(handedOver)
+
+      await putEventResultsLambda(
+        apiEvent([
+          { eventResult: { tasks: scores(17, 18, 16, 14) }, id: 'reg-1' },
+          { eventResult: { tasks: scores(10, 10, 10, 10) }, id: 'reg-2' },
+        ])
+      )
+
+      expect(mockUpdateRegistrationField).toHaveBeenCalledTimes(1)
+      expect(mockUpdateRegistrationField).toHaveBeenCalledWith('event-1', 'reg-1', 'eventResult', expect.anything())
+      expect(mockPublishRegistrationPatches).toHaveBeenCalledWith(
+        'event-1',
+        [expect.objectContaining({ id: 'reg-1' })],
+        'org-1'
+      )
+      expect(mockResponse).toHaveBeenCalledWith(
+        423,
+        expect.objectContaining({ error: 'resultsLocked', saved: [expect.objectContaining({ id: 'reg-1' })] }),
+        expect.anything()
+      )
+    })
+
+    it('asks the row for the lock before every dog it writes, not once for the batch', async () => {
+      await putEventResultsLambda(
+        apiEvent([
+          { eventResult: { tasks: scores(17, 18, 16, 14) }, id: 'reg-1' },
+          { eventResult: { tasks: scores(10, 10, 10, 10) }, id: 'reg-2' },
+        ])
+      )
+
+      expect(mockGetEvent).toHaveBeenCalledTimes(2)
+    })
+
+    it('refuses nothing of a batch when one of its submissions is refused outright', async () => {
+      await expect(
+        putEventResultsLambda(
+          apiEvent([
+            { eventResult: { tasks: scores(17, 18, 16, 14) }, id: 'reg-1' },
+            { eventResult: { tasks: scores(10, 10, 10, 10) }, id: 'stranger' },
+          ])
+        )
+      ).rejects.toThrow("Registration 'stranger' not found")
+
+      expect(mockUpdateRegistrationField).not.toHaveBeenCalled()
+    })
+
     it('refuses a finished trial the same way', async () => {
       mockGetEvent.mockResolvedValue({ ...nowtEvent, kcState: { code: 304, name: 'Valmistunut', readAt: 'x' } })
 
       await putEventResultsLambda(apiEvent([{ eventResult: { tasks: scores(17, 18, 16, 14) }, id: 'reg-1' }]))
 
-      expect(mockResponse).toHaveBeenCalledWith(423, { error: 'resultsLocked' }, expect.anything())
+      expect(mockResponse).toHaveBeenCalledWith(
+        423,
+        expect.objectContaining({ error: 'resultsLocked' }),
+        expect.anything()
+      )
     })
 
     it('saves again once the judge has sent the trial back', async () => {

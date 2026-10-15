@@ -1,5 +1,5 @@
 import type { TFunction } from 'i18next'
-import type { KcBlocker, KcDogReport, KcProblem } from '@/lib/kennelliittoResults'
+import type { KcBlocker, KcDogReport, KcProblem, KcSendReport } from '@/lib/kennelliittoResults'
 import type { DogLine } from './KennelliittoDogList'
 
 /** What stops the whole trial, as the secretary reads it, with Kennelliitto's own reasons after it. */
@@ -24,4 +24,14 @@ const dogReason = (t: TFunction, dog: KcDogReport): string =>
 export const dogLine = (t: TFunction, dog: KcDogReport): DogLine => ({
   id: dog.id,
   text: `${dogLabel(dog)}: ${dogReason(t, dog)}`,
+})
+
+/** A dog that was asked for and not sent, with where it stood. */
+export const skippedLine = (t: TFunction, report: KcSendReport): DogLine => ({
+  id: report.id,
+  text: `${report.name ? dogLabel(report) : report.id}: ${
+    report.problems?.length
+      ? report.problems.map((problem) => problemText(t, problem)).join('; ')
+      : t(`results.kennelliitto.dogStatus.${report.dogStatus ?? 'notRecorded'}`)
+  }`,
 })

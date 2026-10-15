@@ -12,7 +12,7 @@ import { TestProvider as Provider } from 'test-utils/AtomProvider'
 import { eventWithStaticDates } from '../../__mockData__/events'
 import { eventWithStations, registrationsToEventWithStations } from '../../__mockData__/resultsEvent'
 import { putEvent } from '../../api/event'
-import { putEventResults } from '../../api/registration'
+import { previewKennelliittoResults, putEventResults } from '../../api/registration'
 import theme from '../../assets/Theme'
 import { locales } from '../../i18n'
 import { Path } from '../../routeConfig'
@@ -323,5 +323,31 @@ describe('StationResultsPage', () => {
 
     // The dog just scored is behind us; the screen is already on the next one in the queue.
     expect(screen.getByRole('heading', { name: /Toinen/ })).toBeInTheDocument()
+  })
+  describe('a trial handed to the chief judge (KOE-1140)', () => {
+    const handedOver: ConfirmedEvent = {
+      ...eventWithStations,
+      kcState: { code: 1253, name: 'x', readAt: new Date('2021-02-10T12:00:00Z') },
+    }
+
+    it('says so in the words of a page that can read the state, and reads it when it opens', async () => {
+      vi.mocked(previewKennelliittoResults).mockClear()
+      await renderStation('fi', 'post-2', handedOver)
+      await flushPromises()
+
+      expect(screen.getByText('results.kennelliitto.lockedPost')).toBeInTheDocument()
+      expect(screen.getByRole('button', { name: 'results.save' })).toBeDisabled()
+      // A judge who has sent the trial back opens the post again without anyone asking for it.
+      expect(previewKennelliittoResults).toHaveBeenCalledTimes(1)
+      expect(previewKennelliittoResults).toHaveBeenCalledWith(eventWithStations.id, [], expect.anything(), undefined)
+    })
+
+    it('does not read the state of a trial that is open', async () => {
+      vi.mocked(previewKennelliittoResults).mockClear()
+      await renderStation('fi')
+      await flushPromises()
+
+      expect(previewKennelliittoResults).not.toHaveBeenCalled()
+    })
   })
 })

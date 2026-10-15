@@ -111,8 +111,9 @@ export const applyRegistrationPatchRequest = (
   operationRequest: JsonRegistrationPatchRequest,
   isEditableField: (field: unknown) => boolean
 ): JsonRegistration => {
-  if (operationRequest.operations.some(({ path }) => !isEditableField(path[0]))) {
-    throw new InvalidPatchError('patch changes a protected registration field')
+  const protectedOperation = operationRequest.operations.find(({ path }) => !isEditableField(path[0]))
+  if (protectedOperation) {
+    throw new InvalidPatchError(`patch changes a protected registration field: ${String(protectedOperation.path[0])}`)
   }
   const patched = applyPatchOperations(existing, operationRequest.operations)
   if (patched.eventId !== operationRequest.eventId || patched.id !== operationRequest.id) {

@@ -6,11 +6,12 @@ import Button from '@mui/material/Button'
 import Stack from '@mui/material/Stack'
 import { useAtomValue } from 'jotai'
 import { enqueueSnackbar } from 'notistack'
-import { useCallback, useMemo } from 'react'
+import { useCallback, useEffect, useMemo, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link, useParams } from 'react-router'
 import { getStationLink } from '../../api/station'
 import { useEventSubscription } from '../../hooks/useEventSubscription'
+import { reportError } from '../../lib/client/error'
 import { localizedEventName } from '../../lib/event'
 import { isResultsLocked } from '../../lib/kennelliittoResults'
 import { liveFormat, resolveStation } from '../../lib/liveFormat'
@@ -22,7 +23,7 @@ import EventNotFound from './components/EventNotFound'
 import { StationPhasesEditor } from './eventResultsPage/StationPhasesEditor'
 import { adminConfirmedEventAtom, adminEventRegistrationsAtom, useAdminEventActions } from './state'
 import { useAdminEventScope } from './state/eventScope'
-import { useSaveEventResults } from './state/registrations/actions'
+import { useKennelliittoResults, useSaveEventResults } from './state/registrations/actions'
 
 /**
  * The event secretary's view of one post: `StationScoring` over the admin data, plus the controls for
@@ -38,9 +39,20 @@ export default function StationResultsPage() {
   const registrations = useAtomValue(adminEventRegistrationsAtom(eventId))
   const eventActions = useAdminEventActions()
   const saveResults = useSaveEventResults(eventId)
+  const kc = useKennelliittoResults(eventId)
   // The other posts' scores, the token link's saves and its turns arrive over the socket only while
   // this page is subscribed to the event.
   useEventSubscription(eventId)
+
+  // The state Kennelliitto reports is what locks, so a page that opens locked reads it afresh: a judge who
+  // has sent the trial back opens the post again without anyone asking for it.
+  const locked = event ? isResultsLocked(event) : false
+  const refreshedWhileLocked = useRef(false)
+  useEffect(() => {
+    if (!locked || refreshedWhileLocked.current) return
+    refreshedWhileLocked.current = true
+    kc.preview([]).catch(reportError)
+  }, [kc, locked])
 
   // The event's own post, or the implicit single post of a format that lays none out (NOME-B, NOU).
   const station = event && resolveStation(event, stationId)
@@ -135,7 +147,8 @@ export default function StationResultsPage() {
       <StationScoring
         classes={event.classes}
         eventType={event.eventType}
-        locked={isResultsLocked(event)}
+        locked={locked}
+        lockedText={t('results.kennelliitto.lockedPost')}
         onSave={handleSave}
         onTurn={handleTurn}
         registrations={scorable}

@@ -27,6 +27,11 @@ type Options = {
   timeoutMs?: number
 }
 
+/** What a caller may ask of one call: to be given up when the caller's own time is used up. */
+type CallOptions = {
+  signal?: AbortSignal
+}
+
 type TokenOutcome = { failure?: undefined; token: string } | { failure: KLIntegraatioResult<never>; token?: undefined }
 
 type Parsed<T> = { error?: string; json?: T; virheet?: string[] }
@@ -46,6 +51,10 @@ const SCOPE = 'kennelapi'
  * longer has hung, and waiting for it would use up the answer the secretary is waiting for.
  */
 const CALL_TIMEOUT_MS = 8000
+
+/** One call's own limit, and the caller's if it has one: whichever ends first. */
+const limitOf = (timeoutMs: number, signal?: AbortSignal): AbortSignal =>
+  signal ? AbortSignal.any([AbortSignal.timeout(timeoutMs), signal]) : AbortSignal.timeout(timeoutMs)
 
 const toSearchParams = (query: Query): URLSearchParams => {
   const sp = new URLSearchParams()
@@ -116,7 +125,7 @@ export default class KLIntegraatio {
     this._timeoutMs = timeoutMs
   }
 
-  private async _fetchToken(cfg: KLIntegraatioConfig): Promise<TokenOutcome> {
+  private async _fetchToken(cfg: KLIntegraatioConfig, signal?: AbortSignal): Promise<TokenOutcome> {
     try {
       const res = await fetch(cfg.KL_INT_SSO_URL, {
         body: new URLSearchParams({
@@ -127,7 +136,7 @@ export default class KLIntegraatio {
         }),
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         method: 'POST',
-        signal: AbortSignal.timeout(this._timeoutMs),
+        signal: limitOf(this._timeoutMs, signal),
       })
       if (!res.ok) {
         logger.error('KLIntegraatio token request was not ok', { status: res.status })
@@ -147,16 +156,16 @@ export default class KLIntegraatio {
     }
   }
 
-  private async _getToken(cfg: KLIntegraatioConfig): Promise<TokenOutcome> {
+  private async _getToken(cfg: KLIntegraatioConfig, signal?: AbortSignal): Promise<TokenOutcome> {
     if (this._token && this._token.expiresAt > this._now()) return { token: this._token.token }
     // Concurrent calls wait for the same request. The request is forgotten when it ends, so a failure is retried.
-    this._tokenRequest ??= this._fetchToken(cfg).finally(() => {
+    this._tokenRequest ??= this._fetchToken(cfg, signal).finally(() => {
       this._tokenRequest = undefined
     })
     return this._tokenRequest
   }
 
-  private async _send(token: string, method: string, url: string, body?: object) {
+  private async _send(token: string, method: string, url: string, body?: object, signal?: AbortSignal) {
     return fetch(url, {
       body: body === undefined ? undefined : JSON.stringify(body),
       headers: {
@@ -164,7 +173,7 @@ export default class KLIntegraatio {
         ...(body === undefined ? {} : { 'Content-Type': 'application/json' }),
       },
       method,
-      signal: AbortSignal.timeout(this._timeoutMs),
+      signal: limitOf(this._timeoutMs, signal),
     })
   }
 
@@ -190,21 +199,22 @@ export default class KLIntegraatio {
     method: string,
     path: string,
     query?: Query,
-    body?: object
+    body?: object,
+    signal?: AbortSignal
   ): Promise<KLIntegraatioResult<T>> {
     const cfg = await this._loadConfig()
     const url = joinUrl(cfg.KL_INT_API_URL, path, query)
     logger.info('KLIntegraatio request', { method, path })
     try {
-      let outcome = await this._getToken(cfg)
+      let outcome = await this._getToken(cfg, signal)
       if (outcome.failure) return outcome.failure
-      let res = await this._send(outcome.token, method, url, body)
+      let res = await this._send(outcome.token, method, url, body, signal)
       if (res.status === 401) {
         // The token may have been revoked before it expired: ask for a new one, once.
         this._token = undefined
-        outcome = await this._getToken(cfg)
+        outcome = await this._getToken(cfg, signal)
         if (outcome.failure) return outcome.failure
-        res = await this._send(outcome.token, method, url, body)
+        res = await this._send(outcome.token, method, url, body, signal)
       }
       return { status: res.status, ...(await this._read<T>(res, path)) }
     } catch (e) {
@@ -213,16 +223,16 @@ export default class KLIntegraatio {
     }
   }
 
-  lueKoemuoto(params: KLIntKoemuotoParametrit) {
-    return this.request<KLIntKoemuoto>('GET', 'Koe/Koemuoto', params)
+  lueKoemuoto(params: KLIntKoemuotoParametrit, { signal }: CallOptions = {}) {
+    return this.request<KLIntKoemuoto>('GET', 'Koe/Koemuoto', params, undefined, signal)
   }
 
-  lueKokeet(params: KLIntKokeetParametrit) {
-    return this.request<KLIntKoeListassa[]>('GET', 'Koe/Kokeet', params)
+  lueKokeet(params: KLIntKokeetParametrit, { signal }: CallOptions = {}) {
+    return this.request<KLIntKoeListassa[]>('GET', 'Koe/Kokeet', params, undefined, signal)
   }
 
-  lueKoe(params: KLIntKoeLueParametrit) {
-    return this.request<KLIntKoe>('GET', 'Koe/Lue', params)
+  lueKoe(params: KLIntKoeLueParametrit, { signal }: CallOptions = {}) {
+    return this.request<KLIntKoe>('GET', 'Koe/Lue', params, undefined, signal)
   }
 
   /** KL answers 200 with empty fields for a dog it does not find (and for a dead one): that is a 404 here. */
@@ -236,16 +246,16 @@ export default class KLIntegraatio {
   }
 
   /** Saves one dog's result. Saving again for the same dog updates the earlier result. */
-  tallennaTulos(tulos: KLIntTulosTallenna) {
-    return this.request<KLIntTulosTallennaVastaus>('POST', 'Koe/Tulos/Tallenna', undefined, tulos)
+  tallennaTulos(tulos: KLIntTulosTallenna, { signal }: CallOptions = {}) {
+    return this.request<KLIntTulosTallennaVastaus>('POST', 'Koe/Tulos/Tallenna', undefined, tulos, signal)
   }
 
   poistaTulos(tulos: KLIntTulosPoista) {
     return this.request<never>('POST', 'Koe/Tulos/Poista', undefined, tulos)
   }
 
-  asetaTila(tila: KLIntAsetaTila) {
-    return this.request<never>('POST', 'Koe/AsetaTila', undefined, tila)
+  asetaTila(tila: KLIntAsetaTila, { signal }: CallOptions = {}) {
+    return this.request<never>('POST', 'Koe/AsetaTila', undefined, tila, signal)
   }
 }
 

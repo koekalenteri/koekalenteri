@@ -7,6 +7,7 @@ import type {
   KcSendReport,
 } from '../../lib/kennelliittoResults'
 import type { JsonConfirmedEvent, JsonDogEvent, JsonKcResult, JsonKcState, JsonRegistration, Patch } from '../../types'
+import type { KLIntKoemuoto } from '../types/KLIntegraatio'
 import type KLIntegraatio from './KLIntegraatio'
 import { createHash } from 'node:crypto'
 import {
@@ -18,6 +19,7 @@ import {
 import {
   buildKcResult,
   canSendResultsOfEventType,
+  finnishDay,
   isKcDayReached,
   isKcStateWritable,
   KC_STATE_HANDED_OVER,
@@ -26,6 +28,7 @@ import {
 } from '../../lib/kennelliittoResults'
 import { getRegistrationClass, isScorableRegistration } from '../../lib/registration'
 import { mapWithConcurrency } from '../../lib/utils'
+import { isKlAccepted } from '../types/KLIntegraatio'
 import { audit, eventAuditKey, registrationAuditKey } from './audit'
 import { findEventWithKcGuid, getEvent, writeKcGuid, writeKcState } from './event'
 import { getKLIntegraatio } from './KLIntegraatio'
@@ -46,17 +49,25 @@ import { getReadyRegistrationsByEventId, getRegistration, writeKcResult } from '
 const SEND_CONCURRENCY = 4
 
 /**
- * The time a request spends on new calls before it stops starting them. The gateway answers at 29 s;
- * the dogs not yet started are reported back and the client asks for them again, so a slow Kennelliitto
- * costs a second request and not an answer that never comes.
+ * The request's whole budget. The gateway answers at 29 s, so every call to Kennelliitto is given up
+ * when this is spent (a signal passed into the client), whatever call it is in the middle of: a token,
+ * a call and the retry after a 401 cannot add up to more. What is written afterwards is DynamoDB.
  */
-const SEND_DEADLINE_MS = 20_000
+const REQUEST_BUDGET_MS = 25_000
+
+/**
+ * After this much of the budget no new dog is started. One that starts at the limit still has the
+ * rest of the budget for its calls, and the dogs left are reported back for the client to ask again.
+ */
+const START_CUTOFF_MS = 17_000
 
 /** The state name stored for a trial this code handed over itself. */
 const HANDED_OVER_NAME = 'Ylituomarin hyväksyttäväksi'
 
 interface KcContext {
-  /** The clock, in milliseconds. Injected, so the time limit of a request can be tested. */
+  /** The request's budget in milliseconds, for a test that cannot wait for the real one. */
+  budgetMs?: number
+  /** The clock, in milliseconds. Injected, so the time of a request and the stamps it writes are testable. */
   clock?: () => number
   event: JsonConfirmedEvent
   /** Whether the event type is one of Kennelliitto's own. */
@@ -66,11 +77,23 @@ interface KcContext {
   klint?: KLIntegraatio
 }
 
+/** A request in progress: its context, and the signal that ends every call it makes when the budget is spent. */
+interface KcRequest extends KcContext {
+  signal: AbortSignal
+}
+
+const startRequest = (ctx: KcContext): KcRequest => ({
+  ...ctx,
+  signal: AbortSignal.timeout(ctx.budgetMs ?? REQUEST_BUDGET_MS),
+})
+
+const nowOf = (ctx: KcContext): Date => new Date((ctx.clock ?? Date.now)())
+
 interface KcTrial {
   /** The trial as it stands, with the GUID and the state this request found. */
   event: JsonConfirmedEvent
   blockers: KcBlocker[]
-  koemuoto?: Awaited<ReturnType<KLIntegraatio['lueKoemuoto']>>['json']
+  koemuoto?: KLIntKoemuoto
   /** What changed on the event itself, for the handler to publish. */
   eventPatch?: Patch<JsonDogEvent>
 }
@@ -96,7 +119,11 @@ const hashKcBody = (body: KcResultBody): string => createHash('sha256').update(J
 
 const klintOf = (ctx: KcContext): KLIntegraatio => ctx.klint ?? getKLIntegraatio()
 
-const toState = (code: number, name: string, now: Date): JsonKcState => ({ code, name, readAt: now.toISOString() })
+const toState = (code: number, name: string, readAt: Date): JsonKcState => ({
+  code,
+  name,
+  readAt: readAt.toISOString(),
+})
 
 const upstreamBlocker = (status: number, virheet?: string[]): KcBlocker => ({
   code: 'kcUnavailable',
@@ -109,15 +136,14 @@ const upstreamBlocker = (status: number, virheet?: string[]): KcBlocker => ({
  * found again the way the lookup finds it: one hit is taken, several are for the secretary to choose.
  */
 const findKcGuid = async (
-  ctx: KcContext,
-  now: Date
+  req: KcRequest
 ): Promise<{ blocker?: KcBlocker; eventPatch?: Patch<JsonDogEvent>; kcGuid?: string }> => {
-  const { event, organizerKcId } = ctx
+  const { event, organizerKcId } = req
   if (!organizerKcId) return { blocker: { code: 'noKcGuid' } }
 
   let choices: Awaited<ReturnType<typeof searchKcTrials>>
   try {
-    choices = await searchKcTrials(klintOf(ctx), event, organizerKcId)
+    choices = await searchKcTrials(klintOf(req), event, organizerKcId)
   } catch (error) {
     logger.warn('Kennelliitto trial search failed', { error, eventId: event.id })
     return { blocker: { code: 'kcUnavailable' } }
@@ -128,9 +154,9 @@ const findKcGuid = async (
   if (!choice?.kcGuid) return { blocker: { code: 'noKcGuid' } }
   if (await findEventWithKcGuid(choice.kcGuid, event.id)) return { blocker: { code: 'kcGuidConflict' } }
 
-  const updatedAt = now.toISOString()
+  const updatedAt = nowOf(req).toISOString()
   if (await writeKcGuid(event.id, choice.kcGuid, updatedAt)) {
-    await audit({ auditKey: eventAuditKey(event), ...kcGuidFoundAudit(), user: ctx.userName })
+    await audit({ auditKey: eventAuditKey(event), ...kcGuidFoundAudit(), user: req.userName })
   }
   const stored = (await getEvent(event.id, true)).kcGuid
   return stored ? { eventPatch: { kcGuid: stored, updatedAt }, kcGuid: stored } : { blocker: { code: 'noKcGuid' } }
@@ -141,57 +167,91 @@ const stateBlocker = (code: number, name: string): KcBlocker | undefined => {
   return { code: code === KC_STATE_HANDED_OVER ? 'handedOver' : 'stateNotWritable', detail: name }
 }
 
+/** The trial found for the event, or what stands in the way of finding it. */
+type Linked =
+  | { event: JsonConfirmedEvent; eventPatch?: Patch<JsonDogEvent>; kcGuid: string }
+  | { blocker: KcBlocker; event: JsonConfirmedEvent; eventPatch?: Patch<JsonDogEvent> }
+
+const linkTrial = async (req: KcRequest, findGuid: boolean): Promise<Linked> => {
+  const { event } = req
+  if (event.kcGuid) return { event, kcGuid: event.kcGuid }
+  if (!findGuid) return { blocker: { code: 'noKcGuid' }, event }
+
+  const found = await findKcGuid(req)
+  if (!found.kcGuid) return { blocker: found.blocker ?? { code: 'noKcGuid' }, event }
+  return {
+    event: { ...event, kcGuid: found.kcGuid },
+    ...(found.eventPatch ? { eventPatch: found.eventPatch } : {}),
+    kcGuid: found.kcGuid,
+  }
+}
+
+/** Keeps the state Kennelliitto reported on the event, when it is another than the stored one. */
+const storeState = async (event: JsonConfirmedEvent, state: JsonKcState, eventPatch?: Patch<JsonDogEvent>) => {
+  if (event.kcState?.code === state.code && event.kcState?.name === state.name) return { event, eventPatch }
+  const written = await writeKcState(event.id, state, state.readAt)
+  return {
+    event: { ...event, kcState: state },
+    eventPatch: written ? { ...eventPatch, kcState: state, updatedAt: state.readAt } : eventPatch,
+  }
+}
+
+type Read =
+  | { blocker: KcBlocker; event: JsonConfirmedEvent; eventPatch?: Patch<JsonDogEvent> }
+  | { event: JsonConfirmedEvent; eventPatch?: Patch<JsonDogEvent>; koemuoto: string }
+
+/**
+ * Kennelliitto's state of the trial. It is stamped when the answer has arrived, not when the request
+ * began: of two readings the one that came last must win, or a slow newer one loses to a quick older one.
+ */
+const readState = async (
+  req: KcRequest,
+  linked: { event: JsonConfirmedEvent; eventPatch?: Patch<JsonDogEvent>; kcGuid: string }
+): Promise<Read> => {
+  const lue = await klintOf(req).lueKoe({ koeGuid: linked.kcGuid }, { signal: req.signal })
+  const { event, eventPatch } = linked
+  if (lue.status !== 200 || !lue.json) return { blocker: upstreamBlocker(lue.status, lue.virheet), event, eventPatch }
+  if (lue.json.koemuoto !== kcFormatOfEventType(event.eventType)) {
+    return { blocker: { code: 'koemuotoMismatch', detail: lue.json.koemuoto }, event, eventPatch }
+  }
+
+  const state = toState(lue.json.tila, lue.json.tilaNimi, nowOf(req))
+  const stored = await storeState(event, state, eventPatch)
+  const blocker = stateBlocker(state.code, state.name)
+  return blocker ? { blocker, ...stored } : { ...stored, koemuoto: lue.json.koemuoto }
+}
+
+const stopped = (blocker: KcBlocker, event: JsonConfirmedEvent, eventPatch?: Patch<JsonDogEvent>): KcTrial => ({
+  blockers: [blocker],
+  event,
+  ...(eventPatch ? { eventPatch } : {}),
+})
+
 /**
  * The checks that concern the trial and not a dog, in the order the first sending needs them: the
  * format may be sent at all, the trial is found, Kennelliitto's state lets results in, and the format's
  * results are known. The state is stored when it differs from what was stored, so a trial the judge
  * returned unlocks and one handed over elsewhere locks.
  */
-const openKcTrial = async (ctx: KcContext, { findGuid }: { findGuid: boolean }): Promise<KcTrial> => {
-  const now = new Date(ctx.clock?.() ?? Date.now())
-  const stop = (blocker: KcBlocker, event = ctx.event, eventPatch?: Patch<JsonDogEvent>): KcTrial => ({
-    blockers: [blocker],
-    event,
-    ...(eventPatch ? { eventPatch } : {}),
-  })
+const openKcTrial = async (req: KcRequest, { findGuid }: { findGuid: boolean }): Promise<KcTrial> => {
+  if (!canSendResultsOfEventType(req.event.eventType)) return stopped({ code: 'postScoredAwaitsPlacement' }, req.event)
+  if (!req.official) return stopped({ code: 'notOfficial' }, req.event)
 
-  if (!canSendResultsOfEventType(ctx.event.eventType)) return stop({ code: 'postScoredAwaitsPlacement' })
-  if (!ctx.official) return stop({ code: 'notOfficial' })
+  const linked = await linkTrial(req, findGuid)
+  if ('blocker' in linked) return stopped(linked.blocker, linked.event, linked.eventPatch)
+  const read = await readState(req, linked)
+  if ('blocker' in read) return stopped(read.blocker, read.event, read.eventPatch)
 
-  let event = ctx.event
-  let eventPatch: Patch<JsonDogEvent> | undefined
-  if (!event.kcGuid) {
-    if (!findGuid) return stop({ code: 'noKcGuid' })
-    const found = await findKcGuid(ctx, now)
-    if (found.blocker || !found.kcGuid) return stop(found.blocker ?? { code: 'noKcGuid' })
-    event = { ...event, kcGuid: found.kcGuid }
-    eventPatch = found.eventPatch
+  const koemuoto = await klintOf(req).lueKoemuoto({ koemuoto: read.koemuoto }, { signal: req.signal })
+  if (koemuoto.status !== 200 || !koemuoto.json) {
+    return stopped(upstreamBlocker(koemuoto.status, koemuoto.virheet), read.event, read.eventPatch)
   }
-  const kcGuid = event.kcGuid
-  if (!kcGuid) return stop({ code: 'noKcGuid' }, event, eventPatch)
-
-  const klint = klintOf(ctx)
-  const lue = await klint.lueKoe({ koeGuid: kcGuid })
-  if (lue.status !== 200 || !lue.json) return stop(upstreamBlocker(lue.status, lue.virheet), event, eventPatch)
-  if (lue.json.koemuoto !== kcFormatOfEventType(event.eventType)) {
-    return stop({ code: 'koemuotoMismatch', detail: lue.json.koemuoto }, event, eventPatch)
+  return {
+    blockers: [],
+    event: read.event,
+    ...(read.eventPatch ? { eventPatch: read.eventPatch } : {}),
+    koemuoto: koemuoto.json,
   }
-
-  const state = toState(lue.json.tila, lue.json.tilaNimi, now)
-  if (event.kcState?.code !== state.code || event.kcState?.name !== state.name) {
-    if (await writeKcState(event.id, state, state.readAt)) {
-      eventPatch = { ...eventPatch, kcState: state, updatedAt: state.readAt }
-    }
-    event = { ...event, kcState: state }
-  }
-  const blocked = stateBlocker(state.code, state.name)
-  if (blocked) return stop(blocked, event, eventPatch)
-
-  const koemuoto = await klint.lueKoemuoto({ koemuoto: lue.json.koemuoto })
-  if (koemuoto.status !== 200 || !koemuoto.json)
-    return stop(upstreamBlocker(koemuoto.status, koemuoto.virheet), event, eventPatch)
-
-  return { blockers: [], event, ...(eventPatch ? { eventPatch } : {}), koemuoto: koemuoto.json }
 }
 
 const dogReport = (registration: JsonRegistration, status: KcDogStatus, problems: KcProblem[] = []): KcDogReport => ({
@@ -212,6 +272,21 @@ interface Evaluated {
   report: KcDogReport
 }
 
+/**
+ * What the dog's day says against sending: the day has not begun, or the result was sent for another day.
+ * The day is part of what Kennelliitto keys a result by, so a dog moved after sending would leave a second
+ * result behind; the old one has to go first (KOE-1220). Days are named d.M.yyyy: a yyyy-MM-dd string in a
+ * response is revived into a Date by the client.
+ */
+const dayProblems = (registration: JsonRegistration, now: Date): KcProblem[] => {
+  const day = kcResultDay(registration)
+  const sentDay = registration.kcResult?.day
+  const problems: KcProblem[] = []
+  if (day && !isKcDayReached(day, now)) problems.push({ code: 'dayNotReached', detail: finnishDay(day) })
+  if (day && sentDay && sentDay !== day) problems.push({ code: 'dayChanged', detail: finnishDay(sentDay) })
+  return problems
+}
+
 /** Where a dog stands, from the stored registration and the format's results. Makes no call. */
 const evaluateKcDog = (
   event: JsonConfirmedEvent,
@@ -227,11 +302,7 @@ const evaluateKcDog = (
   }
 
   const outcome = buildKcResult(event, registration, koemuoto)
-  const day = kcResultDay(registration)
-  const problems = outcome.ok ? [] : [...outcome.problems]
-  if (day && !isKcDayReached(day, now) && !problems.some((problem) => problem.code === 'dayNotReached')) {
-    problems.push({ code: 'dayNotReached', detail: day })
-  }
+  const problems = [...(outcome.ok ? [] : outcome.problems), ...dayProblems(registration, now)]
   if (!outcome.ok || problems.length) return { registration, report: dogReport(registration, 'blocked', problems) }
 
   const hash = hashKcBody(outcome.body)
@@ -254,14 +325,14 @@ const selected = (registrations: JsonRegistration[], ids?: string[]) =>
 
 /** What sending would do, without sending: the secretary's list before the confirmation. */
 export const previewKennelliittoResults = async (ctx: KcContext, ids?: string[]): Promise<KcPreview> => {
-  const now = new Date(ctx.clock?.() ?? Date.now())
-  const trial = await openKcTrial(ctx, { findGuid: true })
+  const req = startRequest(ctx)
+  const trial = await openKcTrial(req, { findGuid: true })
   const state = trial.event.kcState && { code: trial.event.kcState.code, name: trial.event.kcState.name }
   const withState = { ...(state ? { state } : {}), ...(trial.eventPatch ? { eventPatch: trial.eventPatch } : {}) }
   if (!trial.koemuoto) return { blockers: trial.blockers, dogs: [], ...withState }
 
   const registrations = await getReadyRegistrationsByEventId(ctx.event.id, true)
-  const evaluated = evaluateAll(trial.event, selected(registrations, ids), trial.koemuoto, now)
+  const evaluated = evaluateAll(trial.event, selected(registrations, ids), trial.koemuoto, nowOf(ctx))
   return { blockers: [], dogs: evaluated.map(({ report }) => report), ...withState }
 }
 
@@ -274,32 +345,44 @@ const tulosIdOf = (json: unknown): number | undefined => {
   return typeof id === 'number' ? id : undefined
 }
 
-/** A refusal with reasons: Kennelliitto looked at the body and said no. Anything else leaves the outcome unknown. */
+/**
+ * A refusal with reasons: Kennelliitto looked at the body and said no. A 5xx with reasons is not that: a
+ * failing service may say anything, and the call may have been taken. Anything else leaves the outcome unknown.
+ */
 const isRefusal = (status: number, virheet?: string[]) => status >= 400 && status < 500 && Boolean(virheet?.length)
+
+interface Sent {
+  /** The day the body was sent for. */
+  day: string
+  hash: string
+  version: string
+}
 
 const nextKcResult = (
   call: { json?: unknown; status: number; virheet?: string[] },
-  sent: { hash: string; version: string },
+  sent: Sent,
   previous: JsonKcResult | undefined,
   by: string,
   at: string
 ): JsonKcResult => {
-  if (call.status === 200) {
+  // What Kennelliitto holds from before stays known through a refusal and through no answer at all.
+  const kept = {
+    ...(previous?.day === undefined ? {} : { day: previous.day }),
+    ...(previous?.tulosId === undefined ? {} : { tulosId: previous.tulosId }),
+  }
+  if (isKlAccepted(call.status)) {
     const tulosId = tulosIdOf(call.json) ?? previous?.tulosId
     return {
       at,
       by,
+      day: sent.day,
       payloadHash: sent.hash,
       resultVersion: sent.version,
       status: 'sent',
       ...(tulosId === undefined ? {} : { tulosId }),
     }
   }
-  const kept = {
-    ...(previous?.tulosId === undefined ? {} : { tulosId: previous.tulosId }),
-  }
   if (isRefusal(call.status, call.virheet)) {
-    // Kennelliitto still holds whatever it accepted before, so that stays known.
     return {
       at,
       by,
@@ -315,37 +398,50 @@ const nextKcResult = (
   return { at, by, status: 'failed', ...kept }
 }
 
+/** Writes what a sending came to; when another sending got in first, what Kennelliitto holds is unknown. */
+const recordKcResult = async (
+  req: KcRequest,
+  registration: JsonRegistration,
+  next: JsonKcResult
+): Promise<JsonKcResult> => {
+  const { event } = req
+  const updatedAt = next.at
+  if (await writeKcResult(event.id, registration.id, next, registration.kcResult?.at, updatedAt)) return next
+
+  const { payloadHash: _unknown, resultVersion: _version, ...unknown } = next
+  const latest = (await getRegistration(event.id, registration.id, true)).kcResult?.at
+  if (!(await writeKcResult(event.id, registration.id, unknown, latest, updatedAt))) {
+    logger.warn('kcResult could not be recorded', { eventId: event.id, registrationId: registration.id })
+  }
+  return unknown
+}
+
 const sendOne = async (
-  ctx: KcContext,
+  req: KcRequest,
   { body, hash, registration }: Required<Pick<Evaluated, 'body' | 'hash'>> & Pick<Evaluated, 'registration'>,
   patches: Patch<JsonRegistration>[]
 ): Promise<KcSendReport> => {
-  const { event, userName } = ctx
+  const { event, userName } = req
   // The version is read before the call: a result saved while Kennelliitto thinks about it is a later
   // version than the one the hash stands for, and reads as changed afterwards.
   const version = registration.eventResult?.updatedAt ?? ''
-  const previous = registration.kcResult
-  const call = await klintOf(ctx).tallennaTulos(body)
-  const next = nextKcResult(call, { hash, version }, previous, userName, new Date().toISOString())
+  const call = await klintOf(req).tallennaTulos(body, { signal: req.signal })
+  const next = nextKcResult(
+    call,
+    { day: body.päivä, hash, version },
+    registration.kcResult,
+    userName,
+    nowOf(req).toISOString()
+  )
 
-  let written = await writeKcResult(event.id, registration.id, next, previous?.at)
-  if (!written) {
-    // Someone else sent the same dog meanwhile; which body Kennelliitto holds is not known any more.
-    const { payloadHash: _unknown, resultVersion: _version, ...unknown } = next
-    const latest = (await getRegistration(event.id, registration.id, true)).kcResult?.at
-    written = await writeKcResult(event.id, registration.id, unknown, latest)
-    if (!written) logger.warn('kcResult could not be recorded', { eventId: event.id, registrationId: registration.id })
-    patches.push({ id: registration.id, kcResult: unknown })
-  } else {
-    patches.push({ id: registration.id, kcResult: next })
-  }
+  const recorded = await recordKcResult(req, registration, next)
+  patches.push({ id: registration.id, kcResult: recorded })
 
   const auditKey = registrationAuditKey({ eventId: event.id, id: registration.id })
   if (next.status === 'sent') {
     await audit({ auditKey, ...resultSentToKennelliittoAudit(), user: userName })
   } else {
-    const reason = next.errors?.join('; ') ?? `${call.status}`
-    await audit({ auditKey, ...resultSendFailedAudit(reason), user: userName })
+    await audit({ auditKey, ...resultSendFailedAudit(next.errors?.join('; ') ?? `${call.status}`), user: userName })
   }
 
   return {
@@ -363,12 +459,12 @@ const sendOne = async (
  * A result whose hash is what was sent needs no new call, but the version it stands for moves on: an
  * edit that was taken back has a later `updatedAt` and the same content.
  */
-const keepVersion = async (ctx: KcContext, { registration }: Evaluated, patches: Patch<JsonRegistration>[]) => {
+const keepVersion = async (req: KcRequest, { registration }: Evaluated, patches: Patch<JsonRegistration>[]) => {
   const { kcResult } = registration
   const version = registration.eventResult?.updatedAt
   if (!kcResult || !version || kcResult.resultVersion === version) return
   const next: JsonKcResult = { ...kcResult, resultVersion: version }
-  if (await writeKcResult(ctx.event.id, registration.id, next, kcResult.at)) {
+  if (await writeKcResult(req.event.id, registration.id, next, kcResult.at, nowOf(req).toISOString())) {
     patches.push({ id: registration.id, kcResult: next })
   }
 }
@@ -384,6 +480,58 @@ const unchangedReport = ({ registration }: Evaluated): KcSendReport => ({
 const isSendable = (status: KcDogStatus) => status === 'ready' || status === 'changed'
 
 /**
+ * A dog that was asked for and got no line of the sending: it was not sendable, or it is not on the
+ * trial any more. Said so, with where it stood, so a sending never answers less than it was asked.
+ */
+const skippedReport = (id: string, item: Evaluated | undefined): KcSendReport => ({
+  dogStatus: item?.report.status ?? 'notRecorded',
+  id,
+  name: item?.registration.dog.name ?? '',
+  outcome: 'skipped',
+  problems: item?.report.problems ?? [],
+  regNo: item?.registration.dog.regNo ?? '',
+})
+
+const skippedReports = (
+  ids: string[],
+  evaluated: Evaluated[],
+  reports: KcSendReport[],
+  notAttempted: string[]
+): KcSendReport[] =>
+  ids
+    .filter((id) => !reports.some((report) => report.id === id) && !notAttempted.includes(id))
+    .map((id) =>
+      skippedReport(
+        id,
+        evaluated.find((item) => item.registration.id === id)
+      )
+    )
+
+/** One dog of a sending: nothing for one that cannot be sent, no call for one that is as sent. */
+const sendDog = async (
+  req: KcRequest,
+  item: Evaluated,
+  {
+    force,
+    notAttempted,
+    patches,
+    startedAt,
+  }: { force: boolean; notAttempted: string[]; patches: Patch<JsonRegistration>[]; startedAt: number }
+): Promise<KcSendReport | undefined> => {
+  const { body, hash, report } = item
+  if (report.status === 'unchanged' && !force) {
+    await keepVersion(req, item, patches)
+    return unchangedReport(item)
+  }
+  if (!body || !hash || !(isSendable(report.status) || report.status === 'unchanged')) return undefined
+  if (nowOf(req).getTime() - startedAt > START_CUTOFF_MS) {
+    notAttempted.push(report.id)
+    return undefined
+  }
+  return sendOne(req, { body, hash, registration: item.registration }, patches)
+}
+
+/**
  * Sends the results of the chosen dogs, one call each. A dog whose result is what was sent is left
  * alone unless `force` asks for it again (an edit made in Omakoira itself is invisible to the hash).
  * One dog's refusal never stops the others, and a request that has used its time leaves the rest for
@@ -394,9 +542,9 @@ export const sendKennelliittoResults = async (
   ids: string[],
   { force }: { force: boolean }
 ): Promise<KcSendResult> => {
-  const clock = ctx.clock ?? Date.now
-  const startedAt = clock()
-  const trial = await openKcTrial(ctx, { findGuid: true })
+  const req = startRequest(ctx)
+  const startedAt = nowOf(req).getTime()
+  const trial = await openKcTrial(req, { findGuid: true })
   const patches: Patch<JsonRegistration>[] = []
   const eventPatch = trial.eventPatch && { eventPatch: trial.eventPatch }
   if (!trial.koemuoto) return { blockers: trial.blockers, notAttempted: [], patches, reports: [], ...eventPatch }
@@ -404,31 +552,18 @@ export const sendKennelliittoResults = async (
   const registrations = await getReadyRegistrationsByEventId(ctx.event.id, true)
   const evaluated = evaluateAll(trial.event, selected(registrations, ids), trial.koemuoto, new Date(startedAt))
   const notAttempted: string[] = []
-  const sendCtx = { ...ctx, event: trial.event }
+  const sendReq = { ...req, event: trial.event }
 
-  const reports = await mapWithConcurrency(
-    evaluated,
-    SEND_CONCURRENCY,
-    async (item): Promise<KcSendReport | undefined> => {
-      const { body, hash, report } = item
-      if (report.status === 'unchanged' && !force) {
-        await keepVersion(ctx, item, patches)
-        return unchangedReport(item)
-      }
-      if (!body || !hash || !(isSendable(report.status) || report.status === 'unchanged')) return undefined
-      if (clock() - startedAt > SEND_DEADLINE_MS) {
-        notAttempted.push(report.id)
-        return undefined
-      }
-      return sendOne(sendCtx, { body, hash, registration: item.registration }, patches)
-    }
+  const sent = await mapWithConcurrency(evaluated, SEND_CONCURRENCY, (item) =>
+    sendDog(sendReq, item, { force, notAttempted, patches, startedAt })
   )
+  const reports = sent.filter((report): report is KcSendReport => report !== undefined)
 
   return {
     blockers: [],
     notAttempted,
     patches,
-    reports: reports.filter((report): report is KcSendReport => report !== undefined),
+    reports: [...reports, ...skippedReports(ids, evaluated, reports, notAttempted)],
     ...eventPatch,
   }
 }
@@ -440,8 +575,10 @@ interface KcHandOverResult {
   unsent?: KcDogReport[]
   /** Dogs that will not be in the hand-over, for the secretary to accept by name. */
   needsConfirmation?: KcDogReport[]
+  /** No result has been sent at all: a hand-over of nothing needs the secretary's word. */
+  nothingSent?: boolean
   handedOver: boolean
-  /** Kennelliitto's refusal of the state change. */
+  /** Kennelliitto's refusal of the state change, or its silence (no reasons). */
   refused?: { status: number; virheet?: string[] }
 }
 
@@ -454,19 +591,62 @@ const reportsOf = (items: Evaluated[]) => items.map(({ report }) => report)
 const handOverGate = (
   evaluated: Evaluated[],
   withoutBlocked: boolean
-): Pick<KcHandOverResult, 'needsConfirmation' | 'unsent'> | undefined => {
+): Pick<KcHandOverResult, 'needsConfirmation' | 'nothingSent' | 'unsent'> | undefined => {
   const unsent = evaluated.filter(({ report }) => isSendable(report.status))
   if (unsent.length) return { unsent: reportsOf(unsent) }
+  if (withoutBlocked) return undefined
+
   const leftOut = evaluated.filter(isLeftOut)
-  if (leftOut.length && !withoutBlocked) return { needsConfirmation: reportsOf(leftOut) }
-  return undefined
+  if (leftOut.length) return { needsConfirmation: reportsOf(leftOut) }
+  return evaluated.some(({ report }) => report.status === 'unchanged') ? undefined : { nothingSent: true }
 }
 
-const stored = (state: JsonKcState, eventPatch?: Patch<JsonDogEvent>): Patch<JsonDogEvent> => ({
-  ...eventPatch,
-  kcState: state,
-  updatedAt: state.readAt,
+const refusedBy = (call: { status: number; virheet?: string[] }): Pick<KcHandOverResult, 'refused'> => ({
+  refused: { status: call.status, ...(call.virheet ? { virheet: call.virheet } : {}) },
 })
+
+/** The lock a hand-over takes before it looks at the dogs a second time, and how to give it back. */
+const takeLock = async (req: KcRequest, event: JsonConfirmedEvent) => {
+  const handed = toState(KC_STATE_HANDED_OVER, HANDED_OVER_NAME, nowOf(req))
+  if (!(await writeKcState(event.id, handed, handed.readAt))) {
+    throw new LambdaError(409, 'The state of the trial changed meanwhile')
+  }
+  const previous = event.kcState
+  const release = async () => {
+    if (previous)
+      await writeKcState(event.id, { ...previous, readAt: nowOf(req).toISOString() }, nowOf(req).toISOString())
+  }
+  return { handed, release }
+}
+
+/**
+ * The state is written once more after Kennelliitto took the hand-over, with a reading stamped now: a
+ * state read that landed during the call (and said 754) must not be the last word.
+ */
+const confirmHandOver = async (req: KcRequest, event: JsonConfirmedEvent): Promise<KcHandOverResult> => {
+  const confirmed = toState(KC_STATE_HANDED_OVER, HANDED_OVER_NAME, nowOf(req))
+  await writeKcState(event.id, confirmed, confirmed.readAt)
+  await audit({ auditKey: eventAuditKey(event), ...resultsHandedOverAudit(), user: req.userName })
+  return { blockers: [], eventPatch: { kcState: confirmed, updatedAt: confirmed.readAt }, handedOver: true }
+}
+
+/**
+ * A state change with no clear answer (no answer, a 5xx, a 4xx without reasons) may have been taken. The
+ * lock stays unless Kennelliitto can be read and says the trial is not with the judge; a trial it cannot
+ * be asked about stays locked until a preview reads it.
+ */
+const settleUncertain = async (
+  req: KcRequest,
+  event: JsonConfirmedEvent,
+  kcGuid: string,
+  lock: Awaited<ReturnType<typeof takeLock>>,
+  call: { status: number; virheet?: string[] }
+): Promise<KcHandOverResult> => {
+  const read = await klintOf(req).lueKoe({ koeGuid: kcGuid }, { signal: req.signal })
+  if (read.status === 200 && read.json?.tila === KC_STATE_HANDED_OVER) return confirmHandOver(req, event)
+  if (read.status === 200 && read.json) await lock.release()
+  return { blockers: [], handedOver: false, ...refusedBy(call) }
+}
 
 /**
  * Hands the trial to the chief judge: the last step, after which the secretary can no longer correct.
@@ -480,8 +660,8 @@ export const handOverKennelliittoResults = async (
   ctx: KcContext,
   { withoutBlocked }: { withoutBlocked: boolean }
 ): Promise<KcHandOverResult> => {
-  const clock = ctx.clock ?? Date.now
-  const trial = await openKcTrial(ctx, { findGuid: false })
+  const req = startRequest(ctx)
+  const trial = await openKcTrial(req, { findGuid: false })
   const [blocker] = trial.blockers
   const eventPatch = trial.eventPatch && { eventPatch: trial.eventPatch }
   if (blocker?.code === 'handedOver') return { blockers: [], handedOver: true, ...eventPatch }
@@ -490,41 +670,22 @@ export const handOverKennelliittoResults = async (
   if (!koemuoto || !kcGuid) return { blockers: trial.blockers, handedOver: false, ...eventPatch }
 
   const evaluate = async () =>
-    evaluateAll(event, await getReadyRegistrationsByEventId(event.id, true), koemuoto, new Date(clock()))
+    evaluateAll(event, await getReadyRegistrationsByEventId(event.id, true), koemuoto, nowOf(req))
   const first = handOverGate(await evaluate(), withoutBlocked)
   if (first) return { blockers: [], handedOver: false, ...first, ...eventPatch }
 
-  const previous = event.kcState
-  const handed = toState(KC_STATE_HANDED_OVER, HANDED_OVER_NAME, new Date(clock()))
-  if (!(await writeKcState(event.id, handed, handed.readAt))) {
-    throw new LambdaError(409, 'The state of the trial changed meanwhile')
-  }
-  const release = async () => {
-    if (previous)
-      await writeKcState(
-        event.id,
-        { ...previous, readAt: new Date(clock()).toISOString() },
-        new Date(clock()).toISOString()
-      )
-  }
-
+  const lock = await takeLock(req, event)
   const second = handOverGate(await evaluate(), withoutBlocked)
   if (second) {
-    await release()
+    await lock.release()
     return { blockers: [], handedOver: false, ...second, ...eventPatch }
   }
 
-  const call = await klintOf(ctx).asetaTila({ koeGUID: kcGuid, tila: KC_STATE_HANDED_OVER })
-  if (call.status !== 200) {
-    await release()
-    return {
-      blockers: [],
-      handedOver: false,
-      refused: { status: call.status, ...(call.virheet ? { virheet: call.virheet } : {}) },
-      ...eventPatch,
-    }
+  const call = await klintOf(req).asetaTila({ koeGUID: kcGuid, tila: KC_STATE_HANDED_OVER }, { signal: req.signal })
+  if (isKlAccepted(call.status)) return confirmHandOver(req, event)
+  if (isRefusal(call.status, call.virheet)) {
+    await lock.release()
+    return { blockers: [], handedOver: false, ...refusedBy(call), ...eventPatch }
   }
-
-  await audit({ auditKey: eventAuditKey(event), ...resultsHandedOverAudit(), user: ctx.userName })
-  return { blockers: [], eventPatch: stored(handed, trial.eventPatch), handedOver: true }
+  return settleUncertain(req, event, kcGuid, lock, call)
 }

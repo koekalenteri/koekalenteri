@@ -85,11 +85,23 @@ let calls: Call[]
 let tila: number
 let koemuoto: string
 /** Answers for Tallenna by registration number; the default is an accepted result. */
-let tallennaReply: Record<string, { body?: unknown; status: number } | 'hang'>
+let tallennaReply: Record<string, { body?: unknown; status: number } | 'broken' | 'hang'>
 let nextTulosId: number
-let asetaTilaStatus: number
+/** What the fake does to AsetaTila, and what the tests hook into the calls (the clock, a state read in between). */
+let asetaTilaReply: { body?: unknown; status: number } | 'hang'
+let hooks: { asetaTila?: () => void; lue?: () => void }
+/** The whole of Koe/Lue fails while this is set. */
+let lueStatus: number | undefined
+
+/** A server that takes the request and says nothing until the caller gives up. */
+const hang = (signal?: AbortSignal | null) =>
+  new Promise<Response>((_resolve, reject) => {
+    signal?.addEventListener('abort', () => reject(signal.reason))
+  })
 
 const fakeFetch = async (input: string | URL | Request, init?: RequestInit) => {
+  // A real fetch with a signal that has fired never gets as far as the server.
+  init?.signal?.throwIfAborted()
   const url = new URL(String(input))
   const path = url.pathname.replace(/^.*\/Integraatio\//, '')
   if (url.hostname.startsWith('sso')) {
@@ -98,16 +110,30 @@ const fakeFetch = async (input: string | URL | Request, init?: RequestInit) => {
   const body = typeof init?.body === 'string' ? JSON.parse(init.body) : undefined
   calls.push({ body, method: init?.method ?? 'GET', path })
 
-  if (path === 'Koe/Lue')
+  if (path === 'Koe/Lue') {
+    hooks.lue?.()
+    if (lueStatus) return new Response('', { status: lueStatus })
     return Response.json({ ...lueNOU, koeGUID: GUID, koemuoto, tila, tilaNimi: names[tila] ?? 'x' })
+  }
   if (path === 'Koe/Koemuoto') {
     return Response.json(url.searchParams.get('koemuoto') === 'NOU' ? koemuotoNOU : koemuotoNOME_A)
   }
-  if (path === 'Koe/AsetaTila') return new Response('', { status: asetaTilaStatus })
+  if (path === 'Koe/AsetaTila') {
+    hooks.asetaTila?.()
+    if (asetaTilaReply === 'hang') return hang(init?.signal)
+    return new Response(asetaTilaReply.body === undefined ? null : JSON.stringify(asetaTilaReply.body), {
+      status: asetaTilaReply.status,
+    })
+  }
   if (path === 'Koe/Tulos/Tallenna') {
     const reply = tallennaReply[String(body?.rekisterinumero)]
-    if (reply === 'hang') throw new Error('socket hang up')
-    if (reply) return Response.json(reply.body ?? {}, { status: reply.status })
+    if (reply === 'hang') return hang(init?.signal)
+    if (reply === 'broken') throw new Error('socket hang up')
+    if (reply) {
+      return reply.status === 204
+        ? new Response(null, { status: 204 })
+        : Response.json(reply.body ?? {}, { status: reply.status })
+    }
     return Response.json({ TulosId: nextTulosId++ })
   }
   throw new Error(`unexpected ${path}`)
@@ -146,14 +172,18 @@ const dog = (id: string, regNo: string, result?: string, fields: Partial<JsonReg
 
 const klint = () => new KLIntegraatio(async () => config, { now: () => now })
 
-const ctx = (fields: Partial<JsonConfirmedEvent> = {}, official = true) => ({
+const ctx = (fields: Partial<JsonConfirmedEvent> = {}, official = true, extra: { budgetMs?: number } = {}) => ({
   clock,
   event: event(fields),
   klint: klint(),
   official,
   organizerKcId: 123,
   userName: 'Sihteeri',
+  ...extra,
 })
+
+/** The stored state's reading, asked afresh: a test that assigns `storedState` first would have it narrowed away. */
+const readAtOfStored = () => storedState?.readAt
 
 const posts = () => calls.filter((call) => call.method === 'POST')
 const tallennat = () => calls.filter((call) => call.path === 'Koe/Tulos/Tallenna')
@@ -180,7 +210,9 @@ describe('kennelliittoResults', () => {
     koemuoto = 'NOME-A'
     tallennaReply = {}
     nextTulosId = 100
-    asetaTilaStatus = 200
+    asetaTilaReply = { status: 200 }
+    hooks = {}
+    lueStatus = undefined
     now = Date.parse('2026-09-26T10:00:00.000Z')
     storedState = { code: 754, name: 'Hyväksytty', readAt: '2026-09-26T09:00:00.000Z' }
     storedGuid = GUID
@@ -389,7 +421,7 @@ describe('kennelliittoResults', () => {
 
       const preview = await previewKennelliittoResults(ctx())
 
-      expect(preview.dogs[0].problems).toEqual([{ code: 'dayNotReached', detail: '2026-09-26' }])
+      expect(preview.dogs[0].problems).toEqual([{ code: 'dayNotReached', detail: '26.9.2026' }])
     })
 
     it('takes the name from the registration and asks for no dog', async () => {
@@ -554,7 +586,7 @@ describe('kennelliittoResults', () => {
     })
 
     it('does not trust a call that got no answer: no hash is kept, so the next sending calls again', async () => {
-      tallennaReply['FI10001/20'] = 'hang'
+      tallennaReply['FI10001/20'] = 'broken'
       const first = await sendKennelliittoResults(ctx(), ['d1'], { force: false })
       expect(first.reports[0]).toMatchObject({ outcome: 'failed', status: 0 })
       expect(registrations[0].kcResult?.payloadHash).toBeUndefined()
@@ -638,9 +670,8 @@ describe('kennelliittoResults', () => {
     it('does not send a dog that cannot be sent', async () => {
       now = Date.parse('2026-09-25T10:00:00.000Z')
 
-      const result = await sendKennelliittoResults(ctx(), ['d1'], { force: false })
+      await sendKennelliittoResults(ctx(), ['d1'], { force: false })
 
-      expect(result.reports).toEqual([])
       expect(tallennat()).toEqual([])
     })
 
@@ -748,7 +779,7 @@ describe('kennelliittoResults', () => {
 
     it('gives the lock back when Kennelliitto refuses the state change', async () => {
       await sendAll()
-      asetaTilaStatus = 400
+      asetaTilaReply = { body: { virheet: ['Tila ei kelpaa.'] }, status: 400 }
 
       const result = await handOverKennelliittoResults(ctx(), { withoutBlocked: false })
 
@@ -764,6 +795,291 @@ describe('kennelliittoResults', () => {
       await expect(handOverKennelliittoResults(ctx(), { withoutBlocked: false })).rejects.toMatchObject({
         status: 409,
       })
+    })
+  })
+  describe('what counts as Kennelliitto taking a write', () => {
+    it.each([200, 201, 204])('takes a %s from Tallenna as a result that was sent', async (status) => {
+      tallennaReply['FI10001/20'] = { body: { TulosId: 9 }, status }
+
+      const result = await sendKennelliittoResults(ctx(), ['d1'], { force: false })
+
+      expect(result.reports[0]).toMatchObject({ id: 'd1', outcome: 'sent' })
+      expect(registrations[0].kcResult).toMatchObject({ status: 'sent' })
+      expect(registrations[0].kcResult?.payloadHash).toBeDefined()
+    })
+
+    it.each([200, 201, 204])('takes a %s from AsetaTila as a hand-over, and keeps the lock', async (status) => {
+      await sendKennelliittoResults(ctx(), ['d1', 'd2'], { force: false })
+      asetaTilaReply = { status }
+
+      const result = await handOverKennelliittoResults(ctx(), { withoutBlocked: false })
+
+      expect(result.handedOver).toEqual(true)
+      expect(result.refused).toBeUndefined()
+      expect(storedState?.code).toEqual(1253)
+    })
+
+    it('does not take a 500 that comes with reasons for a refusal: the call may have been taken', async () => {
+      tallennaReply['FI10001/20'] = { body: { virheet: ['Palvelu ei jaksa.'] }, status: 500 }
+
+      await sendKennelliittoResults(ctx(), ['d1'], { force: false })
+
+      expect(registrations[0].kcResult).toMatchObject({ status: 'failed' })
+      expect(registrations[0].kcResult?.payloadHash).toBeUndefined()
+      expect(registrations[0].kcResult?.errors).toBeUndefined()
+    })
+
+    it('keeps the id Kennelliitto gave before when a later 200 carries none', async () => {
+      await sendKennelliittoResults(ctx(), ['d1'], { force: false })
+      registrations[0].eventResult = {
+        ...registrations[0].eventResult,
+        result: 'NOME-A3',
+        updatedAt: 'later',
+        updatedBy: 'S',
+      }
+      tallennaReply['FI10001/20'] = { body: {}, status: 200 }
+
+      await sendKennelliittoResults(ctx(), ['d1'], { force: false })
+
+      expect(registrations[0].kcResult).toMatchObject({ status: 'sent', tulosId: 100 })
+    })
+  })
+
+  describe('a hand-over Kennelliitto gave no clear answer to', () => {
+    const sendAll = () => sendKennelliittoResults(ctx(), ['d1', 'd2'], { force: false })
+
+    it('keeps the lock and says it is handed over when Kennelliitto reads as handed over afterwards', async () => {
+      await sendAll()
+      asetaTilaReply = { status: 500 }
+      hooks.asetaTila = () => {
+        tila = 1253
+      }
+
+      const result = await handOverKennelliittoResults(ctx(), { withoutBlocked: false })
+
+      expect(result.handedOver).toEqual(true)
+      expect(storedState?.code).toEqual(1253)
+    })
+
+    it('gives the lock back when Kennelliitto reads as not handed over', async () => {
+      await sendAll()
+      asetaTilaReply = { status: 500 }
+
+      const result = await handOverKennelliittoResults(ctx(), { withoutBlocked: false })
+
+      expect(result.handedOver).toEqual(false)
+      expect(result.refused).toEqual({ status: 500 })
+      expect(storedState?.code).toEqual(754)
+    })
+
+    it('keeps the lock when Kennelliitto cannot be read afterwards: a preview opens it', async () => {
+      await sendAll()
+      asetaTilaReply = { status: 502 }
+      hooks.asetaTila = () => {
+        lueStatus = 503
+      }
+
+      const result = await handOverKennelliittoResults(ctx(), { withoutBlocked: false })
+
+      expect(result.handedOver).toEqual(false)
+      expect(result.refused).toEqual({ status: 502 })
+      expect(storedState?.code).toEqual(1253)
+    })
+
+    it('keeps the lock when the call is given up with the budget of the request', async () => {
+      await sendAll()
+      asetaTilaReply = 'hang'
+
+      const result = await handOverKennelliittoResults(ctx({}, true, { budgetMs: 100 }), { withoutBlocked: false })
+
+      expect(result.refused).toEqual({ status: 0 })
+      expect(storedState?.code).toEqual(1253)
+    })
+
+    it('writes the handed-over state again with a reading of now, so a state read that landed meanwhile cannot undo it', async () => {
+      await sendAll()
+      hooks.asetaTila = () => {
+        // Another request read the trial as open while Kennelliitto was taking the hand-over.
+        storedState = { code: 754, name: 'Hyväksytty', readAt: new Date(now + 1).toISOString() }
+        now += 1000
+      }
+
+      const result = await handOverKennelliittoResults(ctx(), { withoutBlocked: false })
+
+      expect(result.handedOver).toEqual(true)
+      expect(storedState?.code).toEqual(1253)
+      expect(result.eventPatch).toMatchObject({ kcState: { code: 1253 } })
+    })
+  })
+
+  describe('a hand-over of nothing', () => {
+    it('needs the secretary’s word when no result has been sent at all', async () => {
+      registrations = []
+
+      const result = await handOverKennelliittoResults(ctx(), { withoutBlocked: false })
+
+      expect(result.handedOver).toEqual(false)
+      expect(result.nothingSent).toEqual(true)
+      expect(posts()).toEqual([])
+    })
+
+    it('goes ahead when the secretary has given it', async () => {
+      registrations = []
+
+      expect((await handOverKennelliittoResults(ctx(), { withoutBlocked: true })).handedOver).toEqual(true)
+    })
+
+    it('asks about the dogs that stay out before it asks about there being nothing', async () => {
+      registrations = [dog('n', 'FI10009/20')]
+
+      const result = await handOverKennelliittoResults(ctx(), { withoutBlocked: false })
+
+      expect(result.needsConfirmation?.map((item) => item.id)).toEqual(['n'])
+      expect(result.nothingSent).toBeUndefined()
+    })
+  })
+
+  describe('a dog moved to another day after its result was sent', () => {
+    const moved = async () => {
+      await sendKennelliittoResults(ctx(), ['d1'], { force: false })
+      registrations[0].group = { date: '2026-09-26T21:00:00.000Z', key: '2026-09-27-ap', number: 1 }
+      now = Date.parse('2026-09-28T10:00:00.000Z')
+      calls = []
+    }
+
+    it('is blocked, naming the day it was sent for as a person reads it', async () => {
+      await moved()
+
+      const preview = await previewKennelliittoResults(ctx())
+
+      expect(preview.dogs.find((item) => item.id === 'd1')).toMatchObject({
+        problems: [{ code: 'dayChanged', detail: '26.9.2026' }],
+        status: 'blocked',
+      })
+    })
+
+    it('is not sent: a second result for the other day would be left in Kennelliitto', async () => {
+      await moved()
+
+      const result = await sendKennelliittoResults(ctx(), ['d1'], { force: true })
+
+      expect(tallennat()).toEqual([])
+      expect(result.reports).toEqual([expect.objectContaining({ dogStatus: 'blocked', id: 'd1', outcome: 'skipped' })])
+    })
+
+    it('is listed at the hand-over as a dog that stays out', async () => {
+      registrations = registrations.slice(0, 1)
+      await moved()
+
+      const result = await handOverKennelliittoResults(ctx(), { withoutBlocked: false })
+      expect(result.needsConfirmation?.map((item) => [item.id, item.status])).toEqual([['d1', 'blocked']])
+    })
+  })
+
+  describe('a dog that was asked for and not sent', () => {
+    it('is reported with where it stood, so the answer is never shorter than the question', async () => {
+      registrations = [
+        dog('ok', 'FI10001/20', 'NOME-A1'),
+        dog('blk', 'FI10002/20', 'NOME-A1', {
+          eventResult: { judge: { name: 'Ulkomaalainen' }, result: 'NOME-A1', updatedAt: 'x', updatedBy: 'y' },
+        }),
+        dog('none', 'FI10003/20'),
+        dog('gone', 'FI10004/20', undefined, { kcResult: { at: 'a', by: 'b', payloadHash: 'h', status: 'sent' } }),
+      ]
+
+      const result = await sendKennelliittoResults(ctx(), ['ok', 'blk', 'none', 'gone', 'stranger'], { force: false })
+
+      expect(result.reports.map((report) => [report.id, report.outcome, report.dogStatus])).toEqual([
+        ['ok', 'sent', undefined],
+        ['blk', 'skipped', 'blocked'],
+        ['none', 'skipped', 'notRecorded'],
+        ['gone', 'skipped', 'sentGone'],
+        ['stranger', 'skipped', 'notRecorded'],
+      ])
+      expect(result.reports[1].problems).toEqual([{ code: 'judgeWithoutNumber', detail: 'Ulkomaalainen' }])
+      expect(result.reports[1]).toMatchObject({ name: 'Koira blk', regNo: 'FI10002/20' })
+    })
+
+    it('is not counted among the dogs the time ran out for, nor reported twice', async () => {
+      const result = await sendKennelliittoResults(ctx(), ['d1', 'd2', 'stranger'], { force: false })
+
+      expect(result.notAttempted).toEqual([])
+      expect(result.reports.filter((report) => report.id === 'd1')).toHaveLength(1)
+    })
+  })
+
+  describe('the request’s own budget', () => {
+    it('gives up every call when it is spent, and keeps no hash for a dog it cannot know about', async () => {
+      tallennaReply['FI10001/20'] = 'hang'
+      tallennaReply['FI10002/20'] = 'hang'
+      const started = Date.now()
+
+      const result = await sendKennelliittoResults(ctx({}, true, { budgetMs: 100 }), ['d1', 'd2'], { force: false })
+
+      expect(Date.now() - started).toBeLessThan(2000)
+      expect(result.reports.map((report) => [report.outcome, report.status])).toEqual([
+        ['failed', 0],
+        ['failed', 0],
+      ])
+      expect(registrations.map((registration) => registration.kcResult?.payloadHash)).toEqual([undefined, undefined])
+    })
+
+    it('stamps what it writes with the clock it was given', async () => {
+      await sendKennelliittoResults(ctx(), ['d1'], { force: false })
+
+      const at = new Date(now).toISOString()
+      expect(registrations[0].kcResult?.at).toEqual(at)
+      expect(mockWriteKcResult).toHaveBeenCalledWith('event-1', 'd1', expect.anything(), undefined, at)
+    })
+  })
+
+  describe('the order of two readings of the state', () => {
+    it('stamps a reading when the answer has arrived, not when the request began', async () => {
+      storedState = undefined
+      hooks.lue = () => {
+        now += 5000
+      }
+
+      await previewKennelliittoResults(ctx())
+
+      expect(readAtOfStored()).toEqual(new Date(now).toISOString())
+    })
+
+    it('lets a slow newer reading of 754 win over a quick older reading of 1253', async () => {
+      // A quicker request, begun a second later, had already stored 1253 when this one's answer came.
+      storedState = { code: 1253, name: 'x', readAt: new Date(now + 1100).toISOString() }
+      hooks.lue = () => {
+        now += 5000
+      }
+
+      await previewKennelliittoResults(ctx())
+
+      expect(storedState?.code).toEqual(754)
+    })
+
+    it('does not return what it could not write: a reading that lost the race is not the state', async () => {
+      storedState = undefined
+      mockWriteKcState.mockResolvedValueOnce(false)
+
+      const preview = await previewKennelliittoResults(ctx())
+
+      expect(preview.eventPatch).toBeUndefined()
+    })
+  })
+
+  describe('what has and has not been sent', () => {
+    it('does not call a result unchanged unless it was sent: a failed one with the same hash is sent again', async () => {
+      await sendKennelliittoResults(ctx(), ['d1'], { force: false })
+      const sentBefore = registrations[0].kcResult
+      registrations[0].kcResult = { ...sentBefore, at: sentBefore?.at ?? '', by: 'x', status: 'failed' }
+
+      expect(statusOf(await previewKennelliittoResults(ctx()), 'd1')).toEqual('changed')
+    })
+
+    it('calls a result that failed without a hash ready, not changed: nothing is known to be held', async () => {
+      registrations[0].kcResult = { at: 'a', by: 'b', status: 'failed' }
+
+      expect(statusOf(await previewKennelliittoResults(ctx()), 'd1')).toEqual('ready')
     })
   })
 })

@@ -8,10 +8,12 @@ import koemuotoNOWT from '../lambda/lib/KLIntegraatio-fixtures/koemuoto-NOWT.jso
 import {
   buildKcResult,
   canSendResultsOfEventType,
+  finnishDay,
   isKcDayReached,
   isKcStateWritable,
   isResultsLocked,
   kcFormatOfEventType,
+  kcResultBadge,
   kcResultDay,
   PLACEMENT_AVAILABLE_FOR_POST_SCORED,
 } from './kennelliittoResults'
@@ -298,5 +300,116 @@ describe('kennelliittoResults', () => {
     expect(problemsOf(buildKcResult(event('NOU'), dog(result({ result: 'NOU1' })), koemuoto))).toEqual([
       { code: 'resultNotAllowed', detail: 'NOU1' },
     ])
+  })
+  describe('what the mapping refuses', () => {
+    it('refuses a dog judged by more than four judges besides the chief', () => {
+      const judge = (id: number) => ({ id, name: `Tuomari ${id}` })
+      const tasks = [2001, 2002, 2003, 2004, 2005].map((id, index) => ({
+        index,
+        judge: judge(id),
+        points: 10,
+        stationId: `s${index}`,
+        updatedAt: 'a',
+        updatedBy: 'b',
+      }))
+      const registration = dog(result({ percentage: 70, result: 'VOI2', tasks }), { class: 'VOI' })
+
+      expect(problemsOf(buildKcResult(event('NOWT'), registration, koemuotoNOWT))).toEqual([{ code: 'tooManyJudges' }])
+    })
+
+    it('refuses a dog that has no judge at all, there being no chief to name', () => {
+      const registration = dog(result({ result: 'NOU1' }))
+
+      expect(problemsOf(buildKcResult(event('NOU', { judges: [] }), registration, koemuotoNOU))).toEqual([
+        { code: 'noJudge' },
+      ])
+    })
+
+    it('refuses a B-trial type the format does not list', () => {
+      const registration = dog(result({ judge: chief, result: 'AVO1' }), { class: 'AVO' })
+      const withoutTypes = { ...koemuotoNOME_B, tarkenteet: [] }
+
+      expect(problemsOf(buildKcResult(event('NOME-B', { retrieveType: 'game' }), registration, withoutTypes))).toEqual([
+        { code: 'retrieveTypeNotAllowed', detail: 'riistakoe' },
+      ])
+    })
+
+    it('leaves a Mock trial dog without the additional info where the format has no such row', () => {
+      const withoutMock = {
+        ...koemuotoNOWT,
+        tulokset: koemuotoNOWT.tulokset.filter((row) => row.tulos !== 'Mock Trial'),
+      }
+      const registration = dog(result({ percentage: 55, result: 'VOI3' }), { class: 'VOI' })
+
+      const body = sent(buildKcResult(event('NOWT', { mockTrial: true }), registration, withoutMock))
+
+      expect(body.lisätiedot).toBeUndefined()
+    })
+
+    it('refuses a dog without a name or a registration number', () => {
+      const nameless = dog(result({ result: 'NOU1' }), { dog: { name: ' ', regNo: 'FI1/20' } })
+      const numberless = dog(result({ result: 'NOU1' }), { dog: { name: 'Hukka', regNo: '' } })
+
+      expect(problemsOf(buildKcResult(event('NOU'), nameless, koemuotoNOU))).toEqual([{ code: 'noName' }])
+      expect(problemsOf(buildKcResult(event('NOU'), numberless, koemuotoNOU))).toEqual([{ code: 'noName' }])
+    })
+
+    it('refuses a dog that has no day', () => {
+      const dayless = dog(result({ result: 'NOU1' }), { group: undefined })
+
+      expect(problemsOf(buildKcResult(event('NOU'), dayless, koemuotoNOU))).toEqual([{ code: 'noDay' }])
+    })
+  })
+
+  describe('the day, in Finnish time', () => {
+    it('is the next day for a winter evening instant that is already past midnight in Finland (UTC+2)', () => {
+      const winter = dog(undefined, { group: { date: '2026-01-15T22:30:00.000Z', key: 'k', number: 1 } })
+
+      expect(kcResultDay(winter)).toEqual('2026-01-16')
+      expect(isKcDayReached('2026-01-16', new Date('2026-01-15T22:30:00.000Z'))).toEqual(true)
+      expect(isKcDayReached('2026-01-16', new Date('2026-01-15T21:30:00.000Z'))).toEqual(false)
+    })
+
+    it('is the next day for a summer evening instant that is already past midnight in Finland (UTC+3)', () => {
+      const summer = dog(undefined, { group: { date: '2026-09-26T21:30:00.000Z', key: 'k', number: 1 } })
+
+      expect(kcResultDay(summer)).toEqual('2026-09-27')
+      expect(isKcDayReached('2026-09-27', new Date('2026-09-26T21:30:00.000Z'))).toEqual(true)
+      expect(isKcDayReached('2026-09-27', new Date('2026-09-26T20:30:00.000Z'))).toEqual(false)
+    })
+
+    it('is named the way a person writes it, which the client does not take for a date', () => {
+      expect([finnishDay('2026-10-17'), finnishDay('2026-01-05')]).toEqual(['17.10.2026', '5.1.2026'])
+    })
+  })
+
+  describe('where a dog stands beside it', () => {
+    const at = '2026-09-26T09:00:00.000Z'
+    const registration = (kcResult?: Parameters<typeof kcResultBadge>[0]['kcResult'], resultAt = at) => ({
+      eventResult: { result: 'NOU1', updatedAt: resultAt },
+      kcResult,
+    })
+
+    it.each([
+      ['a failed sending', registration({ status: 'failed' }), 'failed'],
+      ['a result sent as it stands', registration({ payloadHash: 'h', resultVersion: at, status: 'sent' }), 'sent'],
+      [
+        'a result edited after it was sent',
+        registration({ payloadHash: 'h', resultVersion: at, status: 'sent' }, '2026-09-26T10:00:00.000Z'),
+        'changed',
+      ],
+      [
+        'a result sent without knowing what Kennelliitto holds',
+        registration({ resultVersion: at, status: 'sent' }),
+        'changed',
+      ],
+      ['a result not sent', registration(), 'unsent'],
+    ])('says %s', (_name, input, expected) => {
+      expect(kcResultBadge(input)).toEqual(expected)
+    })
+
+    it('says nothing of a dog that has no result and was never sent', () => {
+      expect(kcResultBadge({})).toBeUndefined()
+    })
   })
 })

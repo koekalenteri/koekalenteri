@@ -82,6 +82,7 @@ export function Component() {
       classes={entry.event.classes}
       eventType={entry.event.eventType}
       locked={entry.event.locked}
+      lockedText={t('results.kennelliitto.lockedLive')}
       onLocked={handleLocked}
       onSave={handleSave}
       onTurn={handleTurn}

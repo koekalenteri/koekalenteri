@@ -332,23 +332,18 @@ export const writeKcResult = async (
   eventId: JsonRegistration['eventId'],
   id: JsonRegistration['id'],
   kcResult: NonNullable<JsonRegistration['kcResult']>,
-  previousAt: string | undefined
+  previousAt: string | undefined,
+  updatedAt: string
 ): Promise<boolean> => {
   try {
-    await dynamoDB.update(
-      { eventId, id },
-      { set: { kcResult, updatedAt: new Date().toISOString() } },
-      undefined,
-      'NONE',
-      {
-        expression:
-          previousAt === undefined
-            ? 'attribute_exists(#id) AND attribute_not_exists(#kcResult)'
-            : 'attribute_exists(#id) AND #kcResult.#at = :at',
-        names: { '#at': 'at', '#id': 'id', '#kcResult': 'kcResult' },
-        ...(previousAt === undefined ? {} : { values: { ':at': previousAt } }),
-      }
-    )
+    await dynamoDB.update({ eventId, id }, { set: { kcResult, updatedAt } }, undefined, 'NONE', {
+      expression:
+        previousAt === undefined
+          ? 'attribute_exists(#id) AND attribute_not_exists(#kcResult)'
+          : 'attribute_exists(#id) AND #kcResult.#at = :at',
+      names: { '#at': 'at', '#id': 'id', '#kcResult': 'kcResult' },
+      ...(previousAt === undefined ? {} : { values: { ':at': previousAt } }),
+    })
     return true
   } catch (error) {
     if (isConditionalCheckFailure(error)) return false

@@ -67,6 +67,8 @@ interface Props {
   readonly onTurn?: (op: StationTurnOp) => Promise<unknown>
   /** The results are with the chief judge: nothing can be saved until the judge sends the trial back (KOE-1140). */
   readonly locked?: boolean
+  /** What the notice of a locked trial says, for the caller knows how the lock can be lifted from where it is. */
+  readonly lockedText?: string
   /** The save found the results locked after all; the caller marks its copy of the event as locked. */
   readonly onLocked?: () => void
 }
@@ -131,6 +133,7 @@ export function StationScoring({
   turns,
   onTurn,
   locked,
+  lockedText,
   onLocked,
 }: Props) {
   const { t } = useTranslation()
@@ -260,7 +263,7 @@ export function StationScoring({
 
       {locked && (
         <Alert severity="warning" sx={{ mt: 1, mx: 2 }}>
-          {t('results.kennelliitto.lockedSave')}
+          {lockedText ?? t('results.kennelliitto.lockedSave')}
         </Alert>
       )}
 

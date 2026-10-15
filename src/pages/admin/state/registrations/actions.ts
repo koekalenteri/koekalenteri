@@ -1,6 +1,6 @@
 import type { TFunction } from 'i18next'
 import type { EventResultSubmission, StoredEventResult } from '@/api/registration'
-import type { KcBlocker, KcDogReport, KcSendReport } from '@/lib/kennelliittoResults'
+import type { KcBlocker, KcDogReport, KcSendReport, KcSendResponse } from '@/lib/kennelliittoResults'
 import type { JsonKcResult, PublicDogEvent, Registration, RegistrationGroupMove, RegistrationMessage } from '@/types'
 import { useAtom, useAtomValue, useSetAtom } from 'jotai'
 import { useAtomCallback } from 'jotai/utils'
@@ -150,7 +150,11 @@ export type KcHandOverOutcome =
   | { kind: 'confirmationNeeded'; dogs: KcDogReport[] }
   | { kind: 'done' }
   | { kind: 'failed' }
+  /** No result has been sent: handing over nothing wants the secretary's word. */
+  | { kind: 'nothingSent' }
   | { kind: 'refused'; virheet: string[] }
+  /** Kennelliitto gave no clear answer: whether the hand-over happened is not known. */
+  | { kind: 'unknown' }
   | { kind: 'unsent'; dogs: KcDogReport[] }
 
 const bodyOf = (error: unknown): Record<string, unknown> | undefined =>
@@ -159,6 +163,44 @@ const bodyOf = (error: unknown): Record<string, unknown> | undefined =>
 const isBlockers = (value: unknown): value is KcBlocker[] => Array.isArray(value)
 
 const isDogs = (value: unknown): value is KcDogReport[] => Array.isArray(value)
+
+const blockersOf = (error: unknown): KcBlocker[] | undefined => {
+  const body = bodyOf(error)
+  return error instanceof APIError && error.status === 409 && isBlockers(body?.blockers) ? body.blockers : undefined
+}
+
+/** What the endpoint's refusals of a hand-over say, by the name it gives them. */
+const HAND_OVER_REFUSALS: Record<string, (body: Record<string, unknown>) => KcHandOverOutcome | undefined> = {
+  blocked: (body) => (isBlockers(body.blockers) ? { blockers: body.blockers, kind: 'blocked' } : undefined),
+  confirmationNeeded: (body) => (isDogs(body.dogs) ? { dogs: body.dogs, kind: 'confirmationNeeded' } : undefined),
+  kennelliittoRefused: (body) => {
+    const virheet = Array.isArray(body.virheet) ? body.virheet.filter((item) => typeof item === 'string') : []
+    return virheet.length ? { kind: 'refused', virheet } : { kind: 'unknown' }
+  },
+  nothingSent: () => ({ kind: 'nothingSent' }),
+  unsentResults: (body) => (isDogs(body.dogs) ? { dogs: body.dogs, kind: 'unsent' } : undefined),
+}
+
+const handOverRefusal = (error: unknown): KcHandOverOutcome | undefined => {
+  const body = bodyOf(error)
+  const name = typeof body?.error === 'string' ? body.error : undefined
+  return body && name ? HAND_OVER_REFUSALS[name]?.(body) : undefined
+}
+
+/** What a chunk's answer adds to the sending so far, and the dogs it asks to be tried again. */
+const foldChunk = (summary: KcSendSummary, response: KcSendResponse): { retry: string[][]; summary: KcSendSummary } => {
+  // A request that ran out of time leaves dogs for the next one, which only helps if this one got
+  // somewhere; otherwise they are reported as not tried.
+  const retry = response.reports.length > 0 ? chunksOf(response.notAttempted) : []
+  return {
+    retry,
+    summary: {
+      ...summary,
+      notAttempted: retry.length ? summary.notAttempted : [...summary.notAttempted, ...response.notAttempted],
+      reports: [...summary.reports, ...response.reports],
+    },
+  }
+}
 
 /**
  * Folds what sending the results to Kennelliitto came to into the event's registrations, so the page
@@ -218,37 +260,26 @@ export const useKennelliittoResults = (eventId: string) => {
       const [chunk, ...rest] = queue
       if (!chunk) return summary
 
+      let answer: { response: KcSendResponse } | { error: unknown }
       try {
-        const response = await sendKennelliittoResults(eventId, chunk, force, token ?? '')
-        await store(response.kcResults)
-        // A request that ran out of time leaves dogs for the next one, which only helps if this one got
-        // somewhere; otherwise they are reported as not tried.
-        const retry = response.reports.length > 0 ? chunksOf(response.notAttempted) : []
-        const next: KcSendSummary = {
-          ...summary,
-          notAttempted: retry.length ? summary.notAttempted : [...summary.notAttempted, ...response.notAttempted],
-          reports: [...summary.reports, ...response.reports],
-        }
-        onProgress?.(next.reports.length)
-        return sendChunks([...retry, ...rest], force, next, onProgress)
+        answer = { response: await sendKennelliittoResults(eventId, chunk, force, token ?? '') }
       } catch (error) {
-        const body = bodyOf(error)
-        if (error instanceof APIError && error.status === 409 && body && isBlockers(body.blockers)) {
-          return {
-            ...summary,
-            blockers: body.blockers,
-            notAttempted: [...summary.notAttempted, ...chunk, ...rest.flat()],
-          }
-        }
-        // No answer, a gateway timeout or an error: some of the dogs may have been sent. Read what
-        // the server holds rather than report a failure that may not be one.
-        await reload().catch(reportError)
-        return {
-          ...summary,
-          interrupted: true,
-          notAttempted: [...summary.notAttempted, ...chunk, ...rest.flat()],
-        }
+        answer = { error }
       }
+      if ('response' in answer) {
+        await store(answer.response.kcResults)
+        const folded = foldChunk(summary, answer.response)
+        onProgress?.(folded.summary.reports.length)
+        return sendChunks([...folded.retry, ...rest], force, folded.summary, onProgress)
+      }
+
+      const undelivered = [...summary.notAttempted, ...chunk, ...rest.flat()]
+      const blockers = blockersOf(answer.error)
+      if (blockers) return { ...summary, blockers, notAttempted: undelivered }
+      // No answer, a gateway timeout or an error: some of the dogs may have been sent. Read what the
+      // server holds rather than report a failure that may not be one.
+      await reload().catch(reportError)
+      return { ...summary, interrupted: true, notAttempted: undelivered }
     },
     [eventId, reload, store, token]
   )
@@ -270,22 +301,8 @@ export const useKennelliittoResults = (eventId: string) => {
         await handOverKennelliittoResults(eventId, withoutBlocked, token ?? '')
         return { kind: 'done' }
       } catch (error) {
-        const body = bodyOf(error)
-        if (error instanceof APIError && body) {
-          if (error.status === 409 && body.error === 'blocked' && isBlockers(body.blockers)) {
-            return { blockers: body.blockers, kind: 'blocked' }
-          }
-          if (error.status === 409 && body.error === 'unsentResults' && isDogs(body.dogs)) {
-            return { dogs: body.dogs, kind: 'unsent' }
-          }
-          if (error.status === 409 && body.error === 'confirmationNeeded' && isDogs(body.dogs)) {
-            return { dogs: body.dogs, kind: 'confirmationNeeded' }
-          }
-          if (error.status === 502 && body.error === 'kennelliittoRefused') {
-            const virheet = Array.isArray(body.virheet) ? body.virheet.filter((item) => typeof item === 'string') : []
-            return { kind: 'refused', virheet }
-          }
-        }
+        const refusal = handOverRefusal(error)
+        if (refusal) return refusal
         reportError(error)
         return { kind: 'failed' }
       }

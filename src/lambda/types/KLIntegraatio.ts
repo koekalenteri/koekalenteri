@@ -214,6 +214,9 @@ export type KLIntTulosPoista = {
   rekisterinumero: string
 }
 
+/** Kennelliitto took the write: any 2xx, since 201 and 204 are as good as 200 for a call whose answer says nothing more. */
+export const isKlAccepted = (status: number): boolean => status >= 200 && status < 300
+
 /** Koe/AsetaTila 1253 hands the trial to the chief judge for approval. */
 export const KL_TILA_YLITUOMARIN_HYVÄKSYTTÄVÄKSI = 1253
 
