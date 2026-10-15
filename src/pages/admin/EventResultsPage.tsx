@@ -319,10 +319,15 @@ export default function EventResultsPage() {
         // Handed to the judge from somewhere else, perhaps part way through the batch: the dogs saved before
         // that are stored, so they are folded in and taken off the screen like the saved dogs of a conflict.
         const done = savedOf(error.body)
-        await storeResults(done)
-        setEdits((prev) =>
-          Object.fromEntries(Object.entries(prev).filter(([id]) => !done.some((item) => item.id === id)))
-        )
+        try {
+          await storeResults(done)
+          setEdits((prev) =>
+            Object.fromEntries(Object.entries(prev).filter(([id]) => !done.some((item) => item.id === id)))
+          )
+        } catch (storeError) {
+          // The state still has to be read, or the page stays open to a trial that is not.
+          reportError(storeError)
+        }
         enqueueSnackbar(t('results.kennelliitto.lockedSave'), errorSnackbarOptions)
         await refreshState()
         return

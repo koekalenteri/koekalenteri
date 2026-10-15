@@ -231,22 +231,25 @@ describe('StationScoring', () => {
       await user.click(screen.getByRole('button', { name: 'results.save' }))
     }
 
-    it('keeps the dog and its scores, says so, and has the caller read the list when the dog is gone', async () => {
-      const user = userEvent.setup()
-      const onRefused = vi.fn()
-      const { onSave } = renderScoring({ onRefused })
-      onSave.mockRejectedValueOnce(new APIError(new Response(null, { status: 422 }), 'did not run'))
-      expectConsoleOutput(/reportError .*422/)
+    it.each([404, 422])(
+      'keeps the dog and its scores, says so, and has the caller read the list when the dog is gone (%i)',
+      async (status) => {
+        const user = userEvent.setup()
+        const onRefused = vi.fn()
+        const { onSave } = renderScoring({ onRefused })
+        onSave.mockRejectedValueOnce(new APIError(new Response(null, { status }), 'did not run'))
+        expectConsoleOutput(new RegExp(`reportError .*${status}`))
 
-      await pickAndSave(user)
+        await pickAndSave(user)
 
-      expect(await screen.findByText('results.saveFailed')).toBeInTheDocument()
-      expect(onRefused).toHaveBeenCalledTimes(1)
-      expect(screen.getByLabelText('results.column.result')).toHaveTextContent('ALO1')
-      // Another dog can be picked and saved: the refusal of one is not the end of the post.
-      await user.click(screen.getByRole('button', { name: '2 Toinen' }))
-      expect(screen.getByRole('button', { name: 'results.save' })).toBeEnabled()
-    })
+        expect(await screen.findByText('results.saveFailed')).toBeInTheDocument()
+        expect(onRefused).toHaveBeenCalledTimes(1)
+        expect(screen.getByLabelText('results.column.result')).toHaveTextContent('ALO1')
+        // Another dog can be picked and saved: the refusal of one is not the end of the post.
+        await user.click(screen.getByRole('button', { name: '2 Toinen' }))
+        expect(screen.getByRole('button', { name: 'results.save' })).toBeEnabled()
+      }
+    )
 
     it('does not read the list for a failure that says nothing of the dog', async () => {
       const user = userEvent.setup()

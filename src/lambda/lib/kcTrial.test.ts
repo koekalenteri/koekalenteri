@@ -30,13 +30,23 @@ const hang = (signal?: AbortSignal | null) =>
   })
 
 /** The token comes, the list comes or does not, and every Koe/Lue says nothing. */
-const fakeFetch = (listAnswers: boolean) => (input: string | URL | Request, init?: RequestInit) => {
-  const url = String(input)
-  if (url.includes('sso.example.test')) {
-    return Promise.resolve(Response.json({ access_token: 't', expires_in: 3600, token_type: 'Bearer' }))
+const fakeFetch = (listAnswers: boolean | 'empty first') => {
+  let lists = 0
+  return (input: string | URL | Request, init?: RequestInit) => {
+    const url = String(input)
+    if (url.includes('sso.example.test')) {
+      return Promise.resolve(Response.json({ access_token: 't', expires_in: 3600, token_type: 'Bearer' }))
+    }
+    if (url.includes('Koe/Kokeet')) {
+      lists++
+      // The first list is empty, which is what widens the search by a week: the second says nothing.
+      if (listAnswers === 'empty first' && lists === 1) {
+        return Promise.resolve(Response.json({ virheet: ['Ei tulosta'] }, { status: 404 }))
+      }
+      if (listAnswers === true) return Promise.resolve(Response.json(kokeetNOU))
+    }
+    return hang(init?.signal)
   }
-  if (url.includes('Koe/Kokeet') && listAnswers) return Promise.resolve(Response.json(kokeetNOU))
-  return hang(init?.signal)
 }
 
 describe('searchKcTrials under the caller’s time', () => {
@@ -61,6 +71,14 @@ describe('searchKcTrials under the caller’s time', () => {
 
     await expect(
       searchKcTrials(patient(), criteria, 400294, { signal: AbortSignal.timeout(30) })
+    ).rejects.toMatchObject({ status: 502 })
+  })
+
+  it('gives up the second list, the one with a week’s margin, when the caller does', async () => {
+    vi.stubGlobal('fetch', fakeFetch('empty first'))
+
+    await expect(
+      searchKcTrials(patient(), criteria, 400294, { signal: AbortSignal.timeout(50) })
     ).rejects.toMatchObject({ status: 502 })
   })
 

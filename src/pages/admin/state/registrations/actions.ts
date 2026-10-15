@@ -249,7 +249,8 @@ export const useKennelliittoResults = (eventId: string) => {
   const reload = useAtomCallback(
     useCallback(
       async (_get, set): Promise<Registration[]> => {
-        if (!token) return []
+        // Without a token the list cannot be read, and an empty answer would read as a trial with no dogs.
+        if (!token) throw new Error('missing token')
         const registrations = await getRegistrations(eventId, token)
         set(adminEventRegistrationsAtom(eventId), registrations)
         return registrations

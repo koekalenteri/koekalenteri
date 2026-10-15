@@ -22,6 +22,11 @@ const mockWriteKcState = vi.fn(async (_id: string, state: JsonKcState) => {
   storedState = state
   return true
 })
+const mockLockKcState = vi.fn(async (_id: string, state: JsonKcState, handedOver: number) => {
+  if (storedState && (storedState.code === handedOver || storedState.readAt > state.readAt)) return false
+  storedState = state
+  return true
+})
 const mockReleaseKcState = vi.fn(async (_id: string, restored: JsonKcState, lockedAt: string) => {
   if (storedState?.readAt !== lockedAt) return false
   storedState = restored
@@ -62,6 +67,7 @@ vi.doMock('./audit', () => ({
 vi.doMock('./event', () => ({
   findEventWithKcGuid: mockFindEventWithKcGuid,
   getEvent: mockGetEvent,
+  lockKcState: mockLockKcState,
   releaseKcState: mockReleaseKcState,
   writeKcGuid: mockWriteKcGuid,
   writeKcState: mockWriteKcState,
@@ -302,6 +308,25 @@ describe('kennelliittoResults', () => {
         user: 'Sihteeri',
       })
       expect(preview.eventPatch).toMatchObject({ kcGuid: GUID })
+    })
+
+    it('searches under the budget of the request: a search that says nothing is given up, not waited for', async () => {
+      storedGuid = undefined
+      mockSearchKcTrials.mockImplementationOnce(
+        (_klint: unknown, _criteria: unknown, _id: unknown, options?: { signal?: AbortSignal }) =>
+          new Promise((_resolve, reject) => {
+            options?.signal?.addEventListener('abort', () => reject(options.signal?.reason))
+          })
+      )
+      const started = Date.now()
+
+      const preview = await previewKennelliittoResults(ctx({ kcGuid: undefined }, true, { budgetMs: 50 }))
+
+      expect(mockSearchKcTrials).toHaveBeenCalledWith(expect.anything(), expect.anything(), 123, {
+        signal: expect.any(AbortSignal),
+      })
+      expect(Date.now() - started).toBeLessThan(2000)
+      expect(preview.blockers).toEqual([{ code: 'kcUnavailable' }])
     })
 
     it('leaves several trials to the secretary', async () => {
@@ -794,9 +819,24 @@ describe('kennelliittoResults', () => {
       expect(storedState?.code).toEqual(754)
     })
 
+    it('answers a second hand-over of the trial with a conflict, and leaves the first one’s lock alone', async () => {
+      await sendAll()
+      const first = { code: 1253, name: 'Ylituomarin hyväksyttäväksi', readAt: new Date(now + 1).toISOString() }
+      // The first hand-over took the lock between this one's second look and its own lock.
+      mockLockKcState.mockImplementationOnce(async () => {
+        storedState = first
+        return false
+      })
+
+      await expect(handOverKennelliittoResults(ctx(), { withoutBlocked: false })).rejects.toMatchObject({ status: 409 })
+
+      expect(storedState).toEqual(first)
+      expect(calls.some((call) => call.path === 'Koe/AsetaTila')).toEqual(false)
+    })
+
     it('refuses when the state was written by a fresher reading meanwhile', async () => {
       await sendAll()
-      mockWriteKcState.mockResolvedValueOnce(false)
+      mockLockKcState.mockResolvedValueOnce(false)
 
       await expect(handOverKennelliittoResults(ctx(), { withoutBlocked: false })).rejects.toMatchObject({
         status: 409,
@@ -918,6 +958,10 @@ describe('kennelliittoResults', () => {
     it('still gives back its own lock when Kennelliitto refuses and reads as open', async () => {
       await sendAll()
       asetaTilaReply = { body: { virheet: ['Tila ei kelpaa.'] }, status: 400 }
+      // Time passes during the call, so the stamp of the release is not the stamp of the lock.
+      hooks.asetaTila = () => {
+        now += 1000
+      }
 
       const result = await handOverKennelliittoResults(ctx(), { withoutBlocked: false })
 

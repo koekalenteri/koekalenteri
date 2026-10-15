@@ -12,7 +12,7 @@ import { isPaymentUnsettled } from '@/lib/payment'
 import { idTokenAtom } from '@/pages/state'
 import { TEST_ID_TOKEN } from '@/test-utils/utils'
 import { adminEventAtom, adminEventsAtom } from '../events'
-import { useAdminRegistrationActions } from './actions'
+import { useAdminRegistrationActions, useKennelliittoResults } from './actions'
 import {
   adminEventRegistrationsAtom,
   adminEventRegistrationsCursorAtom,
@@ -387,5 +387,72 @@ describe('useAdminRegistrationActions', () => {
     expect(row).toMatchObject({ openRefunds: ['r-1'], refundAmount: 45, refundHandlingCost: 5 })
     expect(row?.refundStatus).toBe(isSynchronous ? 'SUCCESS' : undefined)
     expect(row && isPaymentUnsettled(event, row)).toBe(false)
+  })
+})
+
+describe('useKennelliittoResults', () => {
+  const id = eventWithStaticDates.id
+  const sentResult = {
+    at: '2026-09-26T10:00:00.000Z',
+    by: 'Sihteeri',
+    day: '2026-09-26',
+    payloadHash: 'h',
+    resultVersion: '2026-09-26T09:00:00.000Z',
+    status: 'sent' as const,
+  }
+
+  const sendOne = (kcResult: typeof sentResult | Omit<typeof sentResult, 'day'>) => {
+    vi.mocked(registrationApi.sendKennelliittoResults).mockResolvedValueOnce({
+      blockers: [],
+      kcResults: [{ id: registrationWithStaticDates.id, kcResult }],
+      notAttempted: [],
+      reports: [],
+    })
+    const rendered = renderHook(
+      () => ({ kc: useKennelliittoResults(id), registrations: useAtomValue(adminEventRegistrationsAtom(id)) }),
+      { wrapper }
+    )
+    return rendered
+  }
+
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
+  it('holds the stored result of a sent dog with its time and its day as Dates, as the client holds a response', async () => {
+    const { result } = sendOne(sentResult)
+
+    await act(async () => {
+      await result.current.kc.send([registrationWithStaticDates.id], false)
+    })
+
+    const { kcResult } = result.current.registrations[0]
+    expect(kcResult?.at).toEqual(new Date('2026-09-26T10:00:00.000Z'))
+    expect(kcResult?.day).toEqual(new Date('2026-09-26'))
+    expect(kcResult?.at).toBeInstanceOf(Date)
+    expect(kcResult?.day).toBeInstanceOf(Date)
+  })
+
+  it('has no day to convert when the stored result has none', async () => {
+    const { day: _day, ...withoutDay } = sentResult
+    const { result } = sendOne(withoutDay)
+
+    await act(async () => {
+      await result.current.kc.send([registrationWithStaticDates.id], false)
+    })
+
+    expect(result.current.registrations[0].kcResult?.at).toBeInstanceOf(Date)
+    expect(result.current.registrations[0].kcResult).not.toHaveProperty('day')
+  })
+
+  it('does not read the list of a trial without a token, since an empty answer would say it has no dogs', async () => {
+    const { result } = renderHook(() => useKennelliittoResults(id), {
+      wrapper: ({ children }: { readonly children: React.ReactNode }) => (
+        <Provider initializeState={({ set }) => set(idTokenAtom, '')}>{children}</Provider>
+      ),
+    })
+
+    await expect(result.current.reload()).rejects.toThrow('missing token')
+    expect(registrationApi.getRegistrations).not.toHaveBeenCalled()
   })
 })

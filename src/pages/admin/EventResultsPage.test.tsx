@@ -106,7 +106,8 @@ const renderQualitativePage = (
   language: Language,
   storedResults: Record<string, EventResult> = {},
   event: ConfirmedEvent = eventWithStaticDates,
-  extra: Record<string, Partial<Registration>> = {}
+  extra: Record<string, Partial<Registration>> = {},
+  idToken: string = TEST_ID_TOKEN
 ) => {
   const registrations = registrationsToEventWithStations.map((reg) => ({
     ...reg,
@@ -123,7 +124,7 @@ const renderQualitativePage = (
       <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales[language]}>
         <Provider
           initializeState={({ set }) => {
-            set(idTokenAtom, TEST_ID_TOKEN)
+            set(idTokenAtom, idToken)
             set(adminEventsAtom, [event])
             set(adminEventRegistrationsAtom(event.id), registrations)
           }}
@@ -1430,22 +1431,100 @@ describe('EventResultsPage and Kennelliitto (KOE-1140)', () => {
     expect(previewKennelliittoResults).toHaveBeenCalledWith('test1', [], expect.anything(), undefined)
   })
 
+  it('folds in a dog the batch found stored already, and takes it off the screen, when it finds the trial locked', async () => {
+    vi.mocked(putEventResults).mockRejectedValueOnce(
+      new APIError(new Response(null, { status: 423 }), {
+        conflicts: [],
+        error: 'resultsLocked',
+        saved: [],
+        unchanged: [{ eventResult: { result: 'NOU1', updatedAt: noon, updatedBy: 'Sihteeri' }, id: 'run-1' }],
+      })
+    )
+    const { user } = await renderQualitativePage('fi', {})
+    await flushPromises()
+    await user.click(within(rowFor('Ensimmainen')).getByLabelText('results.column.result'))
+    await user.click(screen.getByRole('option', { name: 'NOU1' }))
+    await flushPromises()
+
+    await user.click(screen.getByRole('button', { name: 'results.save' }))
+    await flushPromises()
+
+    expect(within(rowFor('Ensimmainen')).getByLabelText('results.column.result')).toHaveTextContent('NOU1')
+    expect(screen.getByRole('button', { name: 'results.save' })).toBeDisabled()
+  })
+
+  it('reads the state of a trial found locked even when folding in the saved dogs fails, and reports that', async () => {
+    vi.mocked(putEventResults).mockRejectedValueOnce(
+      new APIError(new Response(null, { status: 423 }), {
+        conflicts: [],
+        error: 'resultsLocked',
+        saved: [null],
+        unchanged: [],
+      })
+    )
+    vi.mocked(previewKennelliittoResults).mockClear()
+    expectConsoleOutput(/reportError .*TypeError/)
+    const { user } = await renderQualitativePage('fi', {})
+    await flushPromises()
+    await user.click(within(rowFor('Ensimmainen')).getByLabelText('results.column.result'))
+    await user.click(screen.getByRole('option', { name: 'NOU1' }))
+    await flushPromises()
+
+    await user.click(screen.getByRole('button', { name: 'results.save' }))
+    await flushPromises()
+
+    expect(screen.getByText('results.kennelliitto.lockedSave')).toBeInTheDocument()
+    expect(previewKennelliittoResults).toHaveBeenCalledWith('test1', [], expect.anything(), undefined)
+  })
+
   describe('a batch refused because a dog is no longer on the trial', () => {
     const pick = async (user: UserEvent, dog: string, option: string) => {
       await user.click(within(rowFor(dog)).getByLabelText('results.column.result'))
       await user.click(screen.getByRole('option', { name: option }))
     }
 
-    it('drops the dog that is gone and keeps the others, so they can be saved', async () => {
+    it.each([404, 422])(
+      'drops the dog that is gone and keeps the others, so they can be saved (%i)',
+      async (status) => {
+        vi.mocked(putEventResults).mockRejectedValueOnce(
+          new APIError(new Response(null, { status, statusText: 'Refused' }), 'did not run')
+        )
+        expectConsoleOutput(new RegExp(`reportError .*${status}`))
+        // The list read again has only the second dog: the first was cancelled while the page was open.
+        listRegistrations.mockResolvedValueOnce(
+          registrationsToEventWithStations.filter((registration) => registration.id !== 'run-1')
+        )
+        const { user } = await renderQualitativePage('fi', {})
+        await flushPromises()
+        await pick(user, 'Ensimmainen', 'NOU1')
+        await pick(user, 'Toinen', 'NOU0')
+        await flushPromises()
+
+        await user.click(screen.getByRole('button', { name: 'results.save' }))
+        await flushPromises()
+
+        expect(screen.getByText('results.saveFailed')).toBeInTheDocument()
+        expect(screen.queryByText('Ensimmainen')).not.toBeInTheDocument()
+        expect(screen.getByRole('button', { name: 'results.save' })).toBeEnabled()
+
+        await user.click(screen.getByRole('button', { name: 'results.save' }))
+        await flushPromises()
+
+        expect(putEventResults).toHaveBeenLastCalledWith(
+          'test1',
+          [expect.objectContaining({ id: 'run-2' })],
+          expect.anything()
+        )
+      }
+    )
+
+    it('keeps every edit when the list cannot be read for want of a token: nothing says a dog is gone', async () => {
       vi.mocked(putEventResults).mockRejectedValueOnce(
-        new APIError(new Response(null, { status: 422, statusText: 'Unprocessable' }), 'did not run')
+        new APIError(new Response(null, { status: 404, statusText: 'Not found' }), 'not found')
       )
-      expectConsoleOutput(/reportError .*422/)
-      // The list read again has only the second dog: the first was cancelled while the page was open.
-      listRegistrations.mockResolvedValueOnce(
-        registrationsToEventWithStations.filter((registration) => registration.id !== 'run-1')
-      )
-      const { user } = await renderQualitativePage('fi', {})
+      // The refusal and the list that could not be read are both reported.
+      expectConsoleOutput(/reportError .*404/, /reportError .*missing token/)
+      const { user } = await renderQualitativePage('fi', {}, eventWithStaticDates, {}, '')
       await flushPromises()
       await pick(user, 'Ensimmainen', 'NOU1')
       await pick(user, 'Toinen', 'NOU0')
@@ -1455,14 +1534,9 @@ describe('EventResultsPage and Kennelliitto (KOE-1140)', () => {
       await flushPromises()
 
       expect(screen.getByText('results.saveFailed')).toBeInTheDocument()
-      expect(screen.queryByText('Ensimmainen')).not.toBeInTheDocument()
+      expect(screen.getByText('Ensimmainen')).toBeInTheDocument()
+      expect(screen.getByText('Toinen')).toBeInTheDocument()
       expect(screen.getByRole('button', { name: 'results.save' })).toBeEnabled()
-
-      await user.click(screen.getByRole('button', { name: 'results.save' }))
-      await flushPromises()
-
-      const [, submissions] = vi.mocked(putEventResults).mock.lastCall ?? []
-      expect(submissions?.map((submission) => submission.id)).toEqual(['run-2'])
     })
   })
 

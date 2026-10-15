@@ -30,7 +30,7 @@ import { getRegistrationClass, isScorableRegistration } from '../../lib/registra
 import { mapWithConcurrency } from '../../lib/utils'
 import { isKlAccepted } from '../types/KLIntegraatio'
 import { audit, eventAuditKey, registrationAuditKey } from './audit'
-import { findEventWithKcGuid, getEvent, releaseKcState, writeKcGuid, writeKcState } from './event'
+import { findEventWithKcGuid, getEvent, lockKcState, releaseKcState, writeKcGuid, writeKcState } from './event'
 import { getKLIntegraatio } from './KLIntegraatio'
 import { searchKcTrials } from './kcTrial'
 import { LambdaError } from './lambda'
@@ -611,14 +611,19 @@ const refusedBy = (call: { status: number; virheet?: string[] }): Pick<KcHandOve
  * The lock is a state written ahead of Kennelliitto's own, and a result save is refused once it is there.
  * That holds outside a window of a few milliseconds: the lock check and the write of a result are two
  * tables, so a save that passed the check just before the lock may still land just after it, and the
- * second look at the dogs only sees saves that landed before. The lock is not exclusive between two
- * hand-overs either: giving it back is conditional on the stored state still being this request's lock, so
- * the hand-over that lost cannot undo the one that won.
+ * second look at the dogs only sees saves that landed before.
+ *
+ * The lock is exclusive: it is taken only where no handed-over state is stored, and the second hand-over of
+ * the trial is answered 409. Giving it back is conditional on the stored state still being this request's
+ * lock, so a lock is only ever given back by the request that took it, and one that lost cannot undo the
+ * one that won. A reading of Kennelliitto's state that arrives while the hand-over's call is out says what
+ * Kennelliitto still held before the call (754) and may replace the lock for the length of that call; the
+ * confirmation written after the call restores it.
  */
 const takeLock = async (req: KcRequest, event: JsonConfirmedEvent) => {
   const handed = toState(KC_STATE_HANDED_OVER, HANDED_OVER_NAME, nowOf(req))
-  if (!(await writeKcState(event.id, handed, handed.readAt))) {
-    throw new LambdaError(409, 'The state of the trial changed meanwhile')
+  if (!(await lockKcState(event.id, handed, KC_STATE_HANDED_OVER))) {
+    throw new LambdaError(409, 'The trial is being handed over already, or its state changed meanwhile')
   }
   const previous = event.kcState
   const release = async () => {

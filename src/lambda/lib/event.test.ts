@@ -35,15 +35,19 @@ const {
   fixRegistrationGroups,
   getEvent,
   getStateFromTemplate,
+  lockKcState,
   lockRegistrationGroups,
   markParticipants,
   patchEvent,
+  releaseKcState,
   saveEvent,
   saveGroup,
   setResultsPublishedState,
   updateRegistrations,
   upgradeClassState,
   upgradeEventState,
+  writeKcGuid,
+  writeKcState,
 } = await import('./event')
 
 const { LambdaError } = await import('./lambda')
@@ -54,6 +58,125 @@ const { LambdaError } = await import('./lambda')
  */
 const asJsonConfirmedEvent = (event: DeepPartial<JsonConfirmedEvent>) => event as JsonConfirmedEvent
 const asJsonRegistrations = (regs: DeepPartial<JsonRegistration>[]) => regs as JsonRegistration[]
+
+describe('the state read from Kennelliitto (KOE-1140)', () => {
+  const state = { code: 1253, name: 'Ylituomarin hyväksyttäväksi', readAt: '2026-09-26T10:00:00.000Z' }
+
+  beforeEach(() => {
+    mockUpdate.mockReset()
+  })
+
+  afterEach(() => {
+    mockUpdate.mockReset()
+  })
+
+  describe('writeKcState', () => {
+    it('writes the state field by field, on condition that no newer reading is stored', async () => {
+      mockUpdate.mockResolvedValueOnce(undefined)
+
+      await expect(writeKcState('event-1', state, state.readAt)).resolves.toBe(true)
+
+      expect(mockUpdate).toHaveBeenCalledWith(
+        { id: 'event-1' },
+        { set: { kcState: state, updatedAt: state.readAt } },
+        expect.anything(),
+        'NONE',
+        {
+          expression: 'attribute_exists(#id) AND (attribute_not_exists(#kcState) OR #kcState.#readAt <= :readAt)',
+          names: { '#id': 'id', '#kcState': 'kcState', '#readAt': 'readAt' },
+          values: { ':readAt': state.readAt },
+        }
+      )
+    })
+
+    it('answers false when a newer reading is stored, and lets any other failure through', async () => {
+      mockUpdate.mockRejectedValueOnce({ name: 'ConditionalCheckFailedException' })
+      await expect(writeKcState('event-1', state, state.readAt)).resolves.toBe(false)
+
+      mockUpdate.mockRejectedValueOnce(new Error('throttled'))
+      await expect(writeKcState('event-1', state, state.readAt)).rejects.toThrow('throttled')
+    })
+  })
+
+  describe('lockKcState', () => {
+    it('takes the lock only where no handed-over state is stored and no newer reading is', async () => {
+      mockUpdate.mockResolvedValueOnce(undefined)
+
+      await expect(lockKcState('event-1', state, 1253)).resolves.toBe(true)
+
+      expect(mockUpdate).toHaveBeenCalledWith(
+        { id: 'event-1' },
+        { set: { kcState: state, updatedAt: state.readAt } },
+        expect.anything(),
+        'NONE',
+        {
+          expression:
+            'attribute_exists(#id) AND (attribute_not_exists(#kcState) OR (#kcState.#code <> :handedOver AND #kcState.#readAt <= :readAt))',
+          names: { '#code': 'code', '#id': 'id', '#kcState': 'kcState', '#readAt': 'readAt' },
+          values: { ':handedOver': 1253, ':readAt': state.readAt },
+        }
+      )
+    })
+
+    it('answers false when another hand-over holds the lock, and lets any other failure through', async () => {
+      mockUpdate.mockRejectedValueOnce({ name: 'ConditionalCheckFailedException' })
+      await expect(lockKcState('event-1', state, 1253)).resolves.toBe(false)
+
+      mockUpdate.mockRejectedValueOnce(new Error('throttled'))
+      await expect(lockKcState('event-1', state, 1253)).rejects.toThrow('throttled')
+    })
+  })
+
+  describe('releaseKcState', () => {
+    const restored = { code: 754, name: 'Hyväksytty', readAt: '2026-09-26T10:00:05.000Z' }
+
+    it('gives the state back only while the stored one is the lock it wrote', async () => {
+      mockUpdate.mockResolvedValueOnce(undefined)
+
+      await expect(releaseKcState('event-1', restored, state.readAt, restored.readAt)).resolves.toBe(true)
+
+      expect(mockUpdate).toHaveBeenCalledWith(
+        { id: 'event-1' },
+        { set: { kcState: restored, updatedAt: restored.readAt } },
+        expect.anything(),
+        'NONE',
+        {
+          expression: 'attribute_exists(#id) AND #kcState.#readAt = :lockedAt',
+          names: { '#id': 'id', '#kcState': 'kcState', '#readAt': 'readAt' },
+          values: { ':lockedAt': state.readAt },
+        }
+      )
+    })
+
+    it('answers false when the stored state is not the lock, and lets any other failure through', async () => {
+      mockUpdate.mockRejectedValueOnce({ name: 'ConditionalCheckFailedException' })
+      await expect(releaseKcState('event-1', restored, state.readAt, restored.readAt)).resolves.toBe(false)
+
+      mockUpdate.mockRejectedValueOnce(new Error('throttled'))
+      await expect(releaseKcState('event-1', restored, state.readAt, restored.readAt)).rejects.toThrow('throttled')
+    })
+  })
+
+  describe('writeKcGuid', () => {
+    it('links only an event that has no link, and answers false when it has one', async () => {
+      mockUpdate.mockResolvedValueOnce(undefined)
+      await expect(writeKcGuid('event-1', 'guid-1', '2026-09-26T10:00:00.000Z')).resolves.toBe(true)
+      expect(mockUpdate).toHaveBeenCalledWith(
+        { id: 'event-1' },
+        { set: { kcGuid: 'guid-1', updatedAt: '2026-09-26T10:00:00.000Z' } },
+        expect.anything(),
+        'NONE',
+        {
+          expression: 'attribute_exists(#id) AND attribute_not_exists(#kcGuid)',
+          names: { '#id': 'id', '#kcGuid': 'kcGuid' },
+        }
+      )
+
+      mockUpdate.mockRejectedValueOnce({ name: 'ConditionalCheckFailedException' })
+      await expect(writeKcGuid('event-1', 'guid-2', '2026-09-26T10:00:00.000Z')).resolves.toBe(false)
+    })
+  })
+})
 
 describe('lib/event', () => {
   describe('lockRegistrationGroups', () => {

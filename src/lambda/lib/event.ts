@@ -603,6 +603,27 @@ export const writeKcState = async (eventId: string, kcState: JsonKcState, update
 }
 
 /**
+ * Takes the hand-over lock: writes the handed-over state, but only where none is stored already. A stored
+ * 1253 is another hand-over's lock (or Kennelliitto's own word that the trial is with the judge), and a
+ * lock that is not exclusive could be given back by the one that lost it while the one that won is still
+ * at work. A reading newer than this one is not overwritten either. Answers whether the lock was taken.
+ */
+export const lockKcState = async (eventId: string, locked: JsonKcState, handedOver: number): Promise<boolean> => {
+  try {
+    await dynamoDB.update({ id: eventId }, { set: { kcState: locked, updatedAt: locked.readAt } }, eventTable, 'NONE', {
+      expression:
+        'attribute_exists(#id) AND (attribute_not_exists(#kcState) OR (#kcState.#code <> :handedOver AND #kcState.#readAt <= :readAt))',
+      names: { '#code': 'code', '#id': 'id', '#kcState': 'kcState', '#readAt': 'readAt' },
+      values: { ':handedOver': handedOver, ':readAt': locked.readAt },
+    })
+    return true
+  } catch (error) {
+    if (isConditionalCheckFailure(error)) return false
+    throw error
+  }
+}
+
+/**
  * Gives the state back that a hand-over took the lock from, but only while the stored state is still the
  * lock this request wrote (`lockedAt` is its `readAt`). A state another request wrote since, a second
  * hand-over's lock or a reading, is not this request's to overwrite. Answers whether it was given back.
