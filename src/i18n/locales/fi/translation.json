@@ -1198,7 +1198,7 @@
       "nothingToSend": "Ei lähetettävää.",
       "problem": {
         "additionalInfoNotAllowed": "Lisätietoa \"{{detail}}\" ei voi lähettää tässä koemuodossa",
-        "dayChanged": "Tulos on lähetetty päivälle {{detail}}, mutta koiran päivä on vaihtunut: poista vanha tulos Omakoirasta ensin (KOE-1220)",
+        "dayChanged": "Tulos on lähetetty päivälle {{detail}}, mutta koiran päivä on vaihtunut: poista vanha tulos Omakoirasta ensin",
         "dayNotReached": "Tuloksia voi kirjata koepäivänä ({{detail}}) tai sen jälkeen",
         "judgeWithoutNumber": "Tuomarilla {{detail}} ei ole Kennelliiton jäsennumeroa",
         "noDay": "Koiran koepäivä puuttuu",

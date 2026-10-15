@@ -6,7 +6,7 @@ import Button from '@mui/material/Button'
 import Stack from '@mui/material/Stack'
 import { useAtomValue } from 'jotai'
 import { enqueueSnackbar } from 'notistack'
-import { useCallback, useEffect, useMemo, useRef } from 'react'
+import { useCallback, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link, useParams } from 'react-router'
 import { getStationLink } from '../../api/station'
@@ -21,6 +21,7 @@ import { StationScoring } from '../components/stationScoring/StationScoring'
 import { idTokenAtom, languageAtom } from '../state'
 import EventNotFound from './components/EventNotFound'
 import { StationPhasesEditor } from './eventResultsPage/StationPhasesEditor'
+import { useReadStateWhileLocked } from './hooks/useReadStateWhileLocked'
 import { adminConfirmedEventAtom, adminEventRegistrationsAtom, useAdminEventActions } from './state'
 import { useAdminEventScope } from './state/eventScope'
 import { useKennelliittoResults, useSaveEventResults } from './state/registrations/actions'
@@ -47,12 +48,15 @@ export default function StationResultsPage() {
   // The state Kennelliitto reports is what locks, so a page that opens locked reads it afresh: a judge who
   // has sent the trial back opens the post again without anyone asking for it.
   const locked = event ? isResultsLocked(event) : false
-  const refreshedWhileLocked = useRef(false)
-  useEffect(() => {
-    if (!locked || refreshedWhileLocked.current) return
-    refreshedWhileLocked.current = true
-    kc.preview([]).catch(reportError)
-  }, [kc, locked])
+  const refreshState = useCallback(() => kc.preview([]), [kc])
+  useReadStateWhileLocked(locked, refreshState)
+  // A save found the trial locked, or a dog it named gone: the page learns it the same way the results page does.
+  const handleLocked = useCallback(() => {
+    refreshState().catch(reportError)
+  }, [refreshState])
+  const handleRefused = useCallback(() => {
+    kc.reload().catch(reportError)
+  }, [kc])
 
   // The event's own post, or the implicit single post of a format that lays none out (NOME-B, NOU).
   const station = event && resolveStation(event, stationId)
@@ -149,6 +153,8 @@ export default function StationResultsPage() {
         eventType={event.eventType}
         locked={locked}
         lockedText={t('results.kennelliitto.lockedPost')}
+        onLocked={handleLocked}
+        onRefused={handleRefused}
         onSave={handleSave}
         onTurn={handleTurn}
         registrations={scorable}

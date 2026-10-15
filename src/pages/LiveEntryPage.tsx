@@ -7,6 +7,7 @@ import { useTranslation } from 'react-i18next'
 import { useParams } from 'react-router'
 import { getStationEntry, putStationEntry, putStationEntryTurn } from '../api/station'
 import { useLinkedEntry } from '../hooks/useLinkedEntry'
+import { reportError } from '../lib/client/error'
 import { linkedEventSubtitle } from '../lib/event'
 import LoadingIndicator from './components/LoadingIndicator'
 import { StationScoring } from './components/stationScoring/StationScoring'
@@ -65,6 +66,13 @@ export function Component() {
     [setEntry]
   )
 
+  // A dog the trial no longer has: the day's list is read again, so the post goes on with the dogs that are.
+  const handleRefused = useCallback(() => {
+    load(new AbortController().signal)
+      .then((data) => setEntry(data))
+      .catch(reportError)
+  }, [load, setEntry])
+
   if (failed) {
     return (
       <Typography sx={{ p: 2 }} variant="body1">
@@ -84,6 +92,7 @@ export function Component() {
       locked={entry.event.locked}
       lockedText={t('results.kennelliitto.lockedLive')}
       onLocked={handleLocked}
+      onRefused={handleRefused}
       onSave={handleSave}
       onTurn={handleTurn}
       registrations={entry.registrations}

@@ -70,20 +70,17 @@ for (const reg of mockRegistrationData) {
   mockRegistrations[reg.eventId].push(reg)
 }
 
-export async function getRegistrations(
-  eventId: string,
-  _token?: string,
-  _signal?: AbortSignal
-): Promise<Registration[]> {
-  return new Promise((resolve, reject) => {
-    const event = mockEvents.find((item) => item.id === eventId)
-    if (!event) {
-      process.nextTick(() => reject(new Error(`event not found with id: ${eventId}`)))
-    } else {
-      process.nextTick(() => resolve(mockRegistrations[eventId] || []))
-    }
-  })
-}
+export const getRegistrations = vi.fn(
+  async (eventId: string, _token?: string, _signal?: AbortSignal, _since?: Date): Promise<Registration[]> =>
+    new Promise((resolve, reject) => {
+      const event = mockEvents.find((item) => item.id === eventId)
+      if (!event) {
+        process.nextTick(() => reject(new Error(`event not found with id: ${eventId}`)))
+      } else {
+        process.nextTick(() => resolve(mockRegistrations[eventId] || []))
+      }
+    })
+)
 
 export const getRegistration = vi.fn(
   async (

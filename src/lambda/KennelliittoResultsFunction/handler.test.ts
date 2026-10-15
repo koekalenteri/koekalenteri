@@ -217,6 +217,14 @@ describe('kennelliittoResultsLambda', () => {
       )
     })
 
+    it('answers a hand-over of nothing as a conflict that names it, for the page to ask the secretary', async () => {
+      mockHandOver.mockResolvedValue({ blockers: [], handedOver: false, nothingSent: true })
+
+      await call({ action: 'handOver' })
+
+      expect(mockResponse).toHaveBeenCalledWith(409, { error: 'nothingSent' }, expect.anything())
+    })
+
     it("answers Kennelliitto's refusal as a bad gateway with its reasons", async () => {
       mockHandOver.mockResolvedValue({
         blockers: [],

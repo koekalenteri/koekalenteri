@@ -203,7 +203,8 @@ export interface JsonKcResult {
   errors?: string[]
 }
 
-export type KcResult = Replace<JsonKcResult, 'at', Date>
+/** `at` and `day` as the client holds them: its reviver turns a date-shaped string into a Date. */
+export type KcResult = Omit<JsonKcResult, 'at' | 'day'> & { at: Date; day?: Date }
 
 export interface JsonEmailDeliveryStatus {
   at: string

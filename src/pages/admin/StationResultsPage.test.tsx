@@ -1,7 +1,7 @@
 import type { UserEvent } from '@testing-library/user-event'
 import type { RouteObject } from 'react-router'
 import type { Language } from '../../i18n'
-import type { ConfirmedEvent } from '../../types'
+import type { ConfirmedEvent, Registration } from '../../types'
 import { ThemeProvider } from '@mui/material'
 import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
@@ -12,10 +12,12 @@ import { TestProvider as Provider } from 'test-utils/AtomProvider'
 import { eventWithStaticDates } from '../../__mockData__/events'
 import { eventWithStations, registrationsToEventWithStations } from '../../__mockData__/resultsEvent'
 import { putEvent } from '../../api/event'
-import { previewKennelliittoResults, putEventResults } from '../../api/registration'
+import { APIError } from '../../api/http'
+import { getRegistrations, previewKennelliittoResults, putEventResults } from '../../api/registration'
 import theme from '../../assets/Theme'
 import { locales } from '../../i18n'
 import { Path } from '../../routeConfig'
+import { expectConsoleOutput } from '../../test-utils/consoleGuard'
 import { describeInLanguage } from '../../test-utils/language'
 import { DataMemoryRouter, flushPromises, renderSuspendedWithUserEvents, TEST_ID_TOKEN } from '../../test-utils/utils'
 import AppSnackbarProvider from '../components/AppSnackbarProvider'
@@ -94,6 +96,10 @@ const score = async (user: UserEvent, input: HTMLElement, points: string) => {
   await user.type(input, points)
   await flushPromises()
 }
+
+/** The list of a trial's registrations as the page reads it again: the call without a cursor, which answers the whole list. */
+const listRegistrations =
+  vi.mocked<(eventId: string, token: string, signal?: AbortSignal) => Promise<Registration[]>>(getRegistrations)
 
 describe('StationResultsPage', () => {
   beforeAll(() => vi.useFakeTimers())
@@ -324,6 +330,50 @@ describe('StationResultsPage', () => {
     // The dog just scored is behind us; the screen is already on the next one in the queue.
     expect(screen.getByRole('heading', { name: /Toinen/ })).toBeInTheDocument()
   })
+  describe('a save that is refused', () => {
+    const pickFirstDog = async (user: UserEvent) => {
+      await user.click(screen.getByRole('button', { name: '1 Ensimmainen' }))
+      await user.click(screen.getByLabelText('results.column.result'))
+      await user.click(screen.getByRole('option', { name: 'ALO1' }))
+      await user.click(screen.getByRole('button', { name: 'results.save' }))
+      await flushPromises()
+    }
+
+    it('reads the state when the trial turns out to be handed over, so an open post page does not stay editable', async () => {
+      vi.mocked(previewKennelliittoResults).mockClear()
+      vi.mocked(putEventResults).mockRejectedValueOnce(
+        new APIError(new Response(null, { status: 423 }), { error: 'resultsLocked' })
+      )
+      const { user } = await renderStation('fi', '1', singlePostEvent)
+      await flushPromises()
+
+      await pickFirstDog(user)
+
+      expect(screen.getByText('results.kennelliitto.lockedSave')).toBeInTheDocument()
+      expect(previewKennelliittoResults).toHaveBeenCalledWith(eventWithStations.id, [], expect.anything(), undefined)
+    })
+
+    it('keeps the scores on screen when a dog is gone, reads the list again and lets another dog be picked', async () => {
+      vi.mocked(putEventResults).mockRejectedValueOnce(
+        new APIError(new Response(null, { status: 422, statusText: 'Unprocessable' }), 'did not run')
+      )
+      expectConsoleOutput(/reportError .*422/)
+      vi.mocked(getRegistrations).mockClear()
+      // The list read again still has both dogs.
+      listRegistrations.mockResolvedValueOnce(registrationsToEventWithStations)
+      const { user } = await renderStation('fi', '1', singlePostEvent)
+      await flushPromises()
+
+      await pickFirstDog(user)
+
+      expect(screen.getByText('results.saveFailed')).toBeInTheDocument()
+      expect(getRegistrations).toHaveBeenCalledTimes(1)
+      // The result chosen is still there, and so is the next dog of the queue to pick.
+      expect(screen.getByLabelText('results.column.result')).toHaveTextContent('ALO1')
+      expect(screen.getByRole('button', { name: '2 Toinen' })).toBeInTheDocument()
+    })
+  })
+
   describe('a trial handed to the chief judge (KOE-1140)', () => {
     const handedOver: ConfirmedEvent = {
       ...eventWithStations,

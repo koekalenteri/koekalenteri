@@ -236,8 +236,8 @@ export default class KLIntegraatio {
   }
 
   /** KL answers 200 with empty fields for a dog it does not find (and for a dead one): that is a 404 here. */
-  async lueKoira(params: KLIntKoiraParametrit): Promise<KLIntegraatioResult<KLIntKoira>> {
-    const result = await this.request<KLIntKoira>('GET', 'Koira', params)
+  async lueKoira(params: KLIntKoiraParametrit, { signal }: CallOptions = {}): Promise<KLIntegraatioResult<KLIntKoira>> {
+    const result = await this.request<KLIntKoira>('GET', 'Koira', params, undefined, signal)
     if (result.status === 200 && !result.json?.rekisterinumero) {
       logger.warn('KLIntegraatio returned a dog without rekisterinumero, converting to 404')
       return { error: 'not found', status: 404 }

@@ -1,5 +1,5 @@
 import type { Theme } from '@mui/material'
-import type { EventResultsResponse } from '../../api/registration'
+import type { EventResultsResponse, StoredEventResult } from '../../api/registration'
 import type { DogEvent, EventResult, EventStation, Patch, PublicJudge } from '../../types'
 import type { ResultEdit } from '../components/stationScoring/types'
 import type { ConflictChoice, ResultConflict } from './eventResultsPage/ConflictDialog'
@@ -19,7 +19,7 @@ import TextField from '@mui/material/TextField'
 import Typography from '@mui/material/Typography'
 import { useAtomValue } from 'jotai'
 import { enqueueSnackbar } from 'notistack'
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link, useParams } from 'react-router'
 import { APIError } from '../../api/http'
@@ -51,6 +51,7 @@ import { ConflictDialog } from './eventResultsPage/ConflictDialog'
 import { KennelliittoHandOverDialog } from './eventResultsPage/KennelliittoHandOverDialog'
 import { dogsToSend, KennelliittoSendDialog } from './eventResultsPage/KennelliittoSendDialog'
 import ResultsTable from './eventResultsPage/ResultsTable'
+import { useReadStateWhileLocked } from './hooks/useReadStateWhileLocked'
 import { adminConfirmedEventAtom, adminEventRegistrationsAtom, useAdminEventActions } from './state'
 import { useAdminEventScope } from './state/eventScope'
 import { useKennelliittoResults, useSaveEventResults, useStoreEventResults } from './state/registrations/actions'
@@ -63,6 +64,14 @@ interface ResultConflictBody {
   conflicts: ResultConflict[]
   saved?: EventResultsResponse['saved']
   unchanged?: EventResultsResponse['unchanged']
+}
+
+/** The dogs a refused batch had written before it was refused, as the 423 body carries them. */
+const savedOf = (body: unknown): StoredEventResult[] => {
+  if (typeof body !== 'object' || body === null) return []
+  const saved = 'saved' in body && Array.isArray(body.saved) ? body.saved : []
+  const unchanged = 'unchanged' in body && Array.isArray(body.unchanged) ? body.unchanged : []
+  return [...saved, ...unchanged]
 }
 
 const isResultConflictBody = (body: unknown): body is ResultConflictBody =>
@@ -195,12 +204,7 @@ export default function EventResultsPage() {
       reportError(error)
     }
   }, [kc])
-  const refreshedWhileLocked = useRef(false)
-  useEffect(() => {
-    if (!locked || refreshedWhileLocked.current) return
-    refreshedWhileLocked.current = true
-    void refreshState()
-  }, [locked, refreshState])
+  useReadStateWhileLocked(locked, refreshState)
 
   const loadPreview = useCallback(
     async (scope: KcSendScope) => {
@@ -293,6 +297,13 @@ export default function EventResultsPage() {
     [t]
   )
 
+  // The list as the server has it: edits of dogs that are no longer on the sheet are dropped, the rest stay.
+  const dropGoneDogs = useCallback(async () => {
+    const fresh = await kc.reload()
+    const present = new Set(fresh.filter(isScorableRegistration).map((registration) => registration.id))
+    setEdits((prev) => Object.fromEntries(Object.entries(prev).filter(([id]) => present.has(id))))
+  }, [kc])
+
   const handleSave = useCallback(async () => {
     const submissions = Object.entries(edits).map(([id, edit]) => submissionFor(id, edit))
     if (submissions.length === 0) return
@@ -305,9 +316,23 @@ export default function EventResultsPage() {
     } catch (error) {
       // A conflict arrives as a rejected 409 rather than a value, and its body carries both versions.
       if (error instanceof APIError && error.status === 423) {
-        // Handed to the judge from somewhere else meanwhile: say so, and read the state so the page locks.
+        // Handed to the judge from somewhere else, perhaps part way through the batch: the dogs saved before
+        // that are stored, so they are folded in and taken off the screen like the saved dogs of a conflict.
+        const done = savedOf(error.body)
+        await storeResults(done)
+        setEdits((prev) =>
+          Object.fromEntries(Object.entries(prev).filter(([id]) => !done.some((item) => item.id === id)))
+        )
         enqueueSnackbar(t('results.kennelliitto.lockedSave'), errorSnackbarOptions)
-        void refreshState()
+        await refreshState()
+        return
+      }
+      if (error instanceof APIError && (error.status === 404 || error.status === 422)) {
+        // A dog the batch named is not on the trial any more (the list was old): nothing was written. The list
+        // is read again and the dogs that are gone leave the screen, so the others can be saved.
+        reportError(error)
+        enqueueSnackbar(t('results.saveFailed'), errorSnackbarOptions)
+        await dropGoneDogs().catch(reportError)
         return
       }
       const body = error instanceof APIError && error.status === 409 ? error.body : undefined
@@ -325,7 +350,7 @@ export default function EventResultsPage() {
       setConflicts(body.conflicts)
       setChoices({})
     }
-  }, [edits, refreshState, report, saveResults, storeResults, submissionFor, t])
+  }, [dropGoneDogs, edits, refreshState, report, saveResults, storeResults, submissionFor, t])
 
   const handleResolve = useCallback(async () => {
     // Only the dogs the secretary decided to overrule are sent again, each based on the version that

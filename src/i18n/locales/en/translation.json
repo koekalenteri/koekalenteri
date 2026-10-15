@@ -1198,7 +1198,7 @@
       "nothingToSend": "Nothing to send.",
       "problem": {
         "additionalInfoNotAllowed": "The additional info \"{{detail}}\" cannot be sent in this format",
-        "dayChanged": "The result was sent for {{detail}}, but the dog's day has changed: remove the old result in Omakoira first (KOE-1220)",
+        "dayChanged": "The result was sent for {{detail}}, but the dog's day has changed: remove the old result in Omakoira first",
         "dayNotReached": "Results can be entered on the trial day ({{detail}}) or after it",
         "judgeWithoutNumber": "The judge {{detail}} has no Kennel Club member number",
         "noDay": "The dog has no trial day",

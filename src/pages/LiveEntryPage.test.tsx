@@ -2,9 +2,11 @@ import type { RouteObject } from 'react-router'
 import type { StationEntry } from '../types'
 import { ThemeProvider } from '@mui/material'
 import { cleanup, screen, within } from '@testing-library/react'
+import { APIError } from '../api/http'
 import { getStationEntry, putStationEntry } from '../api/station'
 import theme from '../assets/Theme'
 import { Path } from '../routeConfig'
+import { expectConsoleOutput } from '../test-utils/consoleGuard'
 import { DataMemoryRouter, flushPromises, renderWithUserEvents } from '../test-utils/utils'
 import AppSnackbarProvider from './components/AppSnackbarProvider'
 import { Component as LiveEntryPage } from './LiveEntryPage'
@@ -114,5 +116,22 @@ describe('LiveEntryPage', () => {
 
     expect(screen.getByText('results.kennelliitto.lockedLive')).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'results.save' })).toBeDisabled()
+  })
+  it('reads the day’s list again when a save names a dog the trial no longer has, and keeps the scores on screen', async () => {
+    vi.mocked(getStationEntry).mockResolvedValue(entry())
+    vi.mocked(putStationEntry).mockRejectedValueOnce(new APIError(new Response(null, { status: 422 }), 'did not run'))
+    expectConsoleOutput(/reportError .*422/)
+    const { user } = renderPage()
+    await flushPromises()
+    vi.mocked(getStationEntry).mockClear()
+
+    await user.click(screen.getByRole('button', { name: /1 Ensimmainen/ }))
+    await user.type(screen.getAllByRole('textbox')[0], '10')
+    await user.click(screen.getByRole('button', { name: 'results.save' }))
+    await flushPromises()
+
+    expect(screen.getByText('results.saveFailed')).toBeInTheDocument()
+    expect(getStationEntry).toHaveBeenCalledTimes(1)
+    expect(screen.getAllByRole('textbox')[0]).toHaveValue('10')
   })
 })

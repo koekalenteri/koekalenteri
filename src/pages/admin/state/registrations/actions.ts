@@ -1,7 +1,14 @@
 import type { TFunction } from 'i18next'
 import type { EventResultSubmission, StoredEventResult } from '@/api/registration'
 import type { KcBlocker, KcDogReport, KcSendReport, KcSendResponse } from '@/lib/kennelliittoResults'
-import type { JsonKcResult, PublicDogEvent, Registration, RegistrationGroupMove, RegistrationMessage } from '@/types'
+import type {
+  JsonKcResult,
+  KcResult,
+  PublicDogEvent,
+  Registration,
+  RegistrationGroupMove,
+  RegistrationMessage,
+} from '@/types'
 import { useAtom, useAtomValue, useSetAtom } from 'jotai'
 import { useAtomCallback } from 'jotai/utils'
 import { useSnackbar } from 'notistack'
@@ -202,6 +209,13 @@ const foldChunk = (summary: KcSendSummary, response: KcSendResponse): { retry: s
   }
 }
 
+/** The stored result as the client holds it: the client's reviver has turned the date-shaped strings into Dates. */
+const toClientKcResult = ({ at, day, ...kcResult }: JsonKcResult): KcResult => ({
+  ...kcResult,
+  at: new Date(at),
+  ...(day === undefined ? {} : { day: new Date(day) }),
+})
+
 /**
  * Folds what sending the results to Kennelliitto came to into the event's registrations, so the page
  * that sent them shows it without waiting for the socket.
@@ -216,9 +230,7 @@ const useStoreKcResults = (eventId: string) =>
           adminEventRegistrationsAtom(eventId),
           registrations.map((registration) => {
             const written = stored.find((item) => item.id === registration.id)
-            return written
-              ? { ...registration, kcResult: { ...written.kcResult, at: new Date(written.kcResult.at) } }
-              : registration
+            return written ? { ...registration, kcResult: toClientKcResult(written.kcResult) } : registration
           })
         )
       },
@@ -236,9 +248,11 @@ export const useKennelliittoResults = (eventId: string) => {
 
   const reload = useAtomCallback(
     useCallback(
-      async (_get, set) => {
-        if (!token) return
-        set(adminEventRegistrationsAtom(eventId), await getRegistrations(eventId, token))
+      async (_get, set): Promise<Registration[]> => {
+        if (!token) return []
+        const registrations = await getRegistrations(eventId, token)
+        set(adminEventRegistrationsAtom(eventId), registrations)
+        return registrations
       },
       [eventId, token]
     )
@@ -310,7 +324,7 @@ export const useKennelliittoResults = (eventId: string) => {
     [eventId, token]
   )
 
-  return { handOver, preview, send }
+  return { handOver, preview, reload, send }
 }
 
 export const useAdminRegistrationActions = (eventId: string) => {

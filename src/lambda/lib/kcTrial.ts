@@ -62,6 +62,9 @@ const scoreMatch = (event: KcIdLookupCriteria, { koe, listed }: Candidate) => {
   return score
 }
 
+/** The options of a call, when the caller has a signal to give it. */
+const callOptions = (signal?: AbortSignal): [] | [{ signal: AbortSignal }] => (signal ? [{ signal }] : [])
+
 const clean = (value?: string | null) => value?.trim() || undefined
 
 const isChampionship = (listed: KLIntKoeListassa) => normalize(listed.tyyppi) === 'sm koe tai muu mestaruusottelu'
@@ -168,14 +171,18 @@ const findEvents = async (
   klint: KLIntegraatio,
   item: KcIdLookupCriteria,
   organizerKcId: number,
-  dateMarginDays = 0
+  dateMarginDays = 0,
+  signal?: AbortSignal
 ): Promise<KLIntKoeListassa[]> => {
-  const result = await klint.lueKokeet({
-    alku: shiftedDay(item.startDate, -dateMarginDays),
-    koemuoto: kcFormatOfEventType(item.eventType),
-    loppu: shiftedDay(item.endDate, dateMarginDays),
-    yhdistys: organizerKcId,
-  })
+  const result = await klint.lueKokeet(
+    {
+      alku: shiftedDay(item.startDate, -dateMarginDays),
+      koemuoto: kcFormatOfEventType(item.eventType),
+      loppu: shiftedDay(item.endDate, dateMarginDays),
+      yhdistys: organizerKcId,
+    },
+    ...callOptions(signal)
+  )
   if (isNoResults(result)) return []
   if (result.status !== 200 || !result.json) throw upstreamError(result)
   return result.json
@@ -186,9 +193,9 @@ const findEvents = async (
  * trial with a GUID is read with Koe/Lue as well. A failed read leaves the trial in with what the
  * list gave; one that turns out to be another format is dropped.
  */
-const readDetails = async (klint: KLIntegraatio, koemuoto: string, listed: KLIntKoeListassa) => {
+const readDetails = async (klint: KLIntegraatio, koemuoto: string, listed: KLIntKoeListassa, signal?: AbortSignal) => {
   if (!listed.koeGUID) return { listed }
-  const { json, status } = await klint.lueKoe({ koeGuid: listed.koeGUID })
+  const { json, status } = await klint.lueKoe({ koeGuid: listed.koeGUID }, ...callOptions(signal))
   if (status !== 200 || !json) {
     logger.warn('KLIntegraatio Koe/Lue failed for a candidate trial', { status })
     return { listed }
@@ -205,12 +212,17 @@ const readDetails = async (klint: KLIntegraatio, koemuoto: string, listed: KLInt
  * exact days find nothing. Shared by the lookup the secretary starts and the first sending, which finds
  * the GUID of an event that was linked before GUIDs.
  */
-export const searchKcTrials = async (klint: KLIntegraatio, criteria: KcIdLookupCriteria, organizerKcId: number) => {
+export const searchKcTrials = async (
+  klint: KLIntegraatio,
+  criteria: KcIdLookupCriteria,
+  organizerKcId: number,
+  { signal }: { signal?: AbortSignal } = {}
+) => {
   const koemuoto = kcFormatOfEventType(criteria.eventType)
-  let listed = await findEvents(klint, criteria, organizerKcId)
-  if (!listed.length) listed = await findEvents(klint, criteria, organizerKcId, 7)
+  let listed = await findEvents(klint, criteria, organizerKcId, 0, signal)
+  if (!listed.length) listed = await findEvents(klint, criteria, organizerKcId, 7, signal)
 
-  const read = await mapWithConcurrency(listed, LUE_CONCURRENCY, (item) => readDetails(klint, koemuoto, item))
+  const read = await mapWithConcurrency(listed, LUE_CONCURRENCY, (item) => readDetails(klint, koemuoto, item, signal))
   const candidates = read.filter((candidate): candidate is Candidate => candidate !== undefined)
 
   return sortCandidates(criteria, candidates).map((candidate) => toChoice(koemuoto, candidate))

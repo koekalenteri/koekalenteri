@@ -30,7 +30,7 @@ import { getRegistrationClass, isScorableRegistration } from '../../lib/registra
 import { mapWithConcurrency } from '../../lib/utils'
 import { isKlAccepted } from '../types/KLIntegraatio'
 import { audit, eventAuditKey, registrationAuditKey } from './audit'
-import { findEventWithKcGuid, getEvent, writeKcGuid, writeKcState } from './event'
+import { findEventWithKcGuid, getEvent, releaseKcState, writeKcGuid, writeKcState } from './event'
 import { getKLIntegraatio } from './KLIntegraatio'
 import { searchKcTrials } from './kcTrial'
 import { LambdaError } from './lambda'
@@ -143,7 +143,7 @@ const findKcGuid = async (
 
   let choices: Awaited<ReturnType<typeof searchKcTrials>>
   try {
-    choices = await searchKcTrials(klintOf(req), event, organizerKcId)
+    choices = await searchKcTrials(klintOf(req), event, organizerKcId, { signal: req.signal })
   } catch (error) {
     logger.warn('Kennelliitto trial search failed', { error, eventId: event.id })
     return { blocker: { code: 'kcUnavailable' } }
@@ -605,7 +605,16 @@ const refusedBy = (call: { status: number; virheet?: string[] }): Pick<KcHandOve
   refused: { status: call.status, ...(call.virheet ? { virheet: call.virheet } : {}) },
 })
 
-/** The lock a hand-over takes before it looks at the dogs a second time, and how to give it back. */
+/**
+ * The lock a hand-over takes before it looks at the dogs a second time, and how to give it back.
+ *
+ * The lock is a state written ahead of Kennelliitto's own, and a result save is refused once it is there.
+ * That holds outside a window of a few milliseconds: the lock check and the write of a result are two
+ * tables, so a save that passed the check just before the lock may still land just after it, and the
+ * second look at the dogs only sees saves that landed before. The lock is not exclusive between two
+ * hand-overs either: giving it back is conditional on the stored state still being this request's lock, so
+ * the hand-over that lost cannot undo the one that won.
+ */
 const takeLock = async (req: KcRequest, event: JsonConfirmedEvent) => {
   const handed = toState(KC_STATE_HANDED_OVER, HANDED_OVER_NAME, nowOf(req))
   if (!(await writeKcState(event.id, handed, handed.readAt))) {
@@ -613,8 +622,9 @@ const takeLock = async (req: KcRequest, event: JsonConfirmedEvent) => {
   }
   const previous = event.kcState
   const release = async () => {
-    if (previous)
-      await writeKcState(event.id, { ...previous, readAt: nowOf(req).toISOString() }, nowOf(req).toISOString())
+    if (!previous) return
+    const at = nowOf(req).toISOString()
+    await releaseKcState(event.id, { ...previous, readAt: at }, handed.readAt, at)
   }
   return { handed, release }
 }
@@ -622,6 +632,12 @@ const takeLock = async (req: KcRequest, event: JsonConfirmedEvent) => {
 /**
  * The state is written once more after Kennelliitto took the hand-over, with a reading stamped now: a
  * state read that landed during the call (and said 754) must not be the last word.
+ *
+ * Readings are ordered by the arrival of their answers, and the latest arrival wins. A request that read
+ * the trial as open just before the hand-over and stamps its reading after this write can therefore put 754
+ * back for a while. That is acceptable: the next preview, sending or hand-over reads Kennelliitto again and
+ * restores the lock, Kennelliitto itself refuses results to a trial that is with the judge, and a preview
+ * that reads 1253 never writes a reading older than the one stored.
  */
 const confirmHandOver = async (req: KcRequest, event: JsonConfirmedEvent): Promise<KcHandOverResult> => {
   const confirmed = toState(KC_STATE_HANDED_OVER, HANDED_OVER_NAME, nowOf(req))
@@ -631,9 +647,10 @@ const confirmHandOver = async (req: KcRequest, event: JsonConfirmedEvent): Promi
 }
 
 /**
- * A state change with no clear answer (no answer, a 5xx, a 4xx without reasons) may have been taken. The
- * lock stays unless Kennelliitto can be read and says the trial is not with the judge; a trial it cannot
- * be asked about stays locked until a preview reads it.
+ * A state change that was not accepted: no answer, a 5xx, or a 4xx, with reasons or without. It may have
+ * been taken, or another hand-over of the trial may have taken it first. The lock stays unless
+ * Kennelliitto can be read and says the trial is not with the judge; a trial it cannot be asked about
+ * stays locked until a preview reads it. A refusal's reasons are passed on.
  */
 const settleUncertain = async (
   req: KcRequest,
@@ -683,9 +700,7 @@ export const handOverKennelliittoResults = async (
 
   const call = await klintOf(req).asetaTila({ koeGUID: kcGuid, tila: KC_STATE_HANDED_OVER }, { signal: req.signal })
   if (isKlAccepted(call.status)) return confirmHandOver(req, event)
-  if (isRefusal(call.status, call.virheet)) {
-    await lock.release()
-    return { blockers: [], handedOver: false, ...refusedBy(call), ...eventPatch }
-  }
+  // A refusal with reasons may also be Kennelliitto saying the trial is in that state already, because
+  // another hand-over of the same trial got there first: Koe/Lue says which before the lock goes back.
   return settleUncertain(req, event, kcGuid, lock, call)
 }

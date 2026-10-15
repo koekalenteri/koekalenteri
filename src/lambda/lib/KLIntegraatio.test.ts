@@ -686,6 +686,82 @@ describe('KLIntegraatio', () => {
       expect(result.status).toBe(0)
     })
 
+    it('still gives up at its own limit when the caller has a signal that never fires', async () => {
+      const slow = new KLIntegraatio(loadConfig, { timeoutMs: 20 })
+      vi.stubGlobal('fetch', silentApi)
+
+      const result = await slow.lueKoemuoto({ koemuoto: 'NOU' }, { signal: new AbortController().signal })
+
+      expect(result.status).toBe(0)
+    })
+
+    describe('after a 401, the retry is under the same limits', () => {
+      /** The first call gets a 401, and then the retry is the part that says nothing. */
+      const hangAfter401 = (what: 'api' | 'token') => {
+        let tokens = 0
+        let apiCalls = 0
+        return (input: string, init?: RequestInit) => {
+          if (String(input).includes('sso.example.test')) {
+            tokens++
+            return tokens === 1 || what === 'api'
+              ? Promise.resolve(Response.json(tokenReply(3600).body))
+              : hangingFetch(input, init)
+          }
+          apiCalls++
+          return apiCalls === 1 ? Promise.resolve(new Response('', { status: 401 })) : hangingFetch(input, init)
+        }
+      }
+
+      it.each(['api', 'token'] as const)(
+        "gives up a retry whose %s call says nothing, when the caller's time is spent",
+        async (what) => {
+          const patient = new KLIntegraatio(loadConfig, { timeoutMs: 60_000 })
+          vi.stubGlobal('fetch', hangAfter401(what))
+
+          const result = await patient.lueKoemuoto({ koemuoto: 'NOU' }, { signal: AbortSignal.timeout(50) })
+
+          expect(result.status).toBe(0)
+        }
+      )
+    })
+
+    describe("every call takes the caller's signal", () => {
+      const tulos = {
+        hylätty: false,
+        keskeytetty: false,
+        koeGUID: 'guid-1',
+        nimi: 'Hukka',
+        palkintotuomarit: [],
+        päivä: '2026-09-26',
+        rekisterinumero: 'FI12345/21',
+        tulos: 'NOU1',
+        tuomarit: [1000001],
+      }
+
+      it.each([
+        ['lueKoemuoto', (k: KLIntegraatio, signal: AbortSignal) => k.lueKoemuoto({ koemuoto: 'NOU' }, { signal })],
+        [
+          'lueKokeet',
+          (k: KLIntegraatio, signal: AbortSignal) =>
+            k.lueKokeet({ alku: '2026-09-01', koemuoto: 'NOU', loppu: '2026-09-30' }, { signal }),
+        ],
+        ['lueKoe', (k: KLIntegraatio, signal: AbortSignal) => k.lueKoe({ koeGuid: 'guid-1' }, { signal })],
+        ['lueKoira', (k: KLIntegraatio, signal: AbortSignal) => k.lueKoira({ rekisterinumero: 'FI1/20' }, { signal })],
+        ['tallennaTulos', (k: KLIntegraatio, signal: AbortSignal) => k.tallennaTulos(tulos, { signal })],
+        [
+          'asetaTila',
+          (k: KLIntegraatio, signal: AbortSignal) => k.asetaTila({ koeGUID: 'guid-1', tila: 1253 }, { signal }),
+        ],
+      ])('%s gives up when the caller does', async (_name, call) => {
+        const patient = new KLIntegraatio(loadConfig, { timeoutMs: 60_000 })
+        vi.stubGlobal('fetch', silentApi)
+
+        const result = await call(patient, AbortSignal.timeout(30))
+
+        expect(result.status).toBe(0)
+      })
+    })
+
     it('gives up a token request that is never answered as well', async () => {
       const slow = new KLIntegraatio(loadConfig, { timeoutMs: 20 })
       vi.stubGlobal('fetch', hangingFetch)

@@ -22,6 +22,11 @@ const mockWriteKcState = vi.fn(async (_id: string, state: JsonKcState) => {
   storedState = state
   return true
 })
+const mockReleaseKcState = vi.fn(async (_id: string, restored: JsonKcState, lockedAt: string) => {
+  if (storedState?.readAt !== lockedAt) return false
+  storedState = restored
+  return true
+})
 const mockWriteKcGuid = vi.fn(async (_id: string, guid: string) => {
   if (storedGuid) return false
   storedGuid = guid
@@ -57,6 +62,7 @@ vi.doMock('./audit', () => ({
 vi.doMock('./event', () => ({
   findEventWithKcGuid: mockFindEventWithKcGuid,
   getEvent: mockGetEvent,
+  releaseKcState: mockReleaseKcState,
   writeKcGuid: mockWriteKcGuid,
   writeKcState: mockWriteKcState,
 }))
@@ -819,6 +825,36 @@ describe('kennelliittoResults', () => {
       expect(storedState?.code).toEqual(1253)
     })
 
+    it('takes a 299 as sent and a 300 as not sent: the end of the 2xx, nothing past it', async () => {
+      tallennaReply['FI10001/20'] = { body: { TulosId: 9 }, status: 299 }
+      tallennaReply['FI10002/20'] = { status: 300 }
+
+      await sendKennelliittoResults(ctx(), ['d1', 'd2'], { force: false })
+
+      expect(registrations[0].kcResult).toMatchObject({ status: 'sent' })
+      expect(registrations[1].kcResult).toMatchObject({ status: 'failed' })
+      expect(registrations[1].kcResult?.payloadHash).toBeUndefined()
+    })
+
+    it('leaves a dog sendable after a redirect it did not follow, nothing having been accepted', async () => {
+      tallennaReply['FI10001/20'] = { status: 302 }
+      await sendKennelliittoResults(ctx(), ['d1'], { force: false })
+
+      expect(statusOf(await previewKennelliittoResults(ctx()), 'd1')).toEqual('ready')
+    })
+
+    it('takes a 299 from AsetaTila as a hand-over and a 300 as one that did not happen', async () => {
+      await sendKennelliittoResults(ctx(), ['d1', 'd2'], { force: false })
+      asetaTilaReply = { status: 300 }
+      const refused = await handOverKennelliittoResults(ctx(), { withoutBlocked: false })
+      expect(refused.handedOver).toEqual(false)
+      expect(storedState?.code).toEqual(754)
+
+      asetaTilaReply = { status: 299 }
+      const accepted = await handOverKennelliittoResults(ctx(), { withoutBlocked: false })
+      expect(accepted.handedOver).toEqual(true)
+    })
+
     it('does not take a 500 that comes with reasons for a refusal: the call may have been taken', async () => {
       tallennaReply['FI10001/20'] = { body: { virheet: ['Palvelu ei jaksa.'] }, status: 500 }
 
@@ -842,6 +878,51 @@ describe('kennelliittoResults', () => {
       await sendKennelliittoResults(ctx(), ['d1'], { force: false })
 
       expect(registrations[0].kcResult).toMatchObject({ status: 'sent', tulosId: 100 })
+    })
+  })
+
+  describe('two hand-overs of one trial at once (a double click, two tabs)', () => {
+    const sendAll = () => sendKennelliittoResults(ctx(), ['d1', 'd2'], { force: false })
+
+    it('lets the one that lost keep the lock the winner took: Kennelliitto answers that the trial is in that state already', async () => {
+      await sendAll()
+      // The other hand-over got there first: Kennelliitto holds the trial, and refuses this call with reasons.
+      asetaTilaReply = { body: { virheet: ['Koe on jo tilassa Ylituomarin hyväksyttäväksi.'] }, status: 400 }
+      hooks.asetaTila = () => {
+        tila = 1253
+      }
+
+      const result = await handOverKennelliittoResults(ctx(), { withoutBlocked: false })
+
+      expect(result.handedOver).toEqual(true)
+      expect(result.refused).toBeUndefined()
+      expect(storedState?.code).toEqual(1253)
+    })
+
+    it('does not give back a lock that is no longer its own, even when Kennelliitto reads as open', async () => {
+      await sendAll()
+      asetaTilaReply = { body: { virheet: ['Tila ei kelpaa.'] }, status: 400 }
+      hooks.asetaTila = () => {
+        // The other hand-over's confirmation replaced ours while this call was out, and the clock has moved on:
+        // only the stored state still being our own lock tells it apart, not its age.
+        now += 1000
+        storedState = { code: 1253, name: 'Ylituomarin hyväksyttäväksi', readAt: new Date(now - 500).toISOString() }
+      }
+
+      const result = await handOverKennelliittoResults(ctx(), { withoutBlocked: false })
+
+      expect(result.refused).toMatchObject({ status: 400 })
+      expect(storedState?.code).toEqual(1253)
+    })
+
+    it('still gives back its own lock when Kennelliitto refuses and reads as open', async () => {
+      await sendAll()
+      asetaTilaReply = { body: { virheet: ['Tila ei kelpaa.'] }, status: 400 }
+
+      const result = await handOverKennelliittoResults(ctx(), { withoutBlocked: false })
+
+      expect(result.refused).toEqual({ status: 400, virheet: ['Tila ei kelpaa.'] })
+      expect(storedState?.code).toEqual(754)
     })
   })
 
@@ -889,9 +970,12 @@ describe('kennelliittoResults', () => {
     it('keeps the lock when the call is given up with the budget of the request', async () => {
       await sendAll()
       asetaTilaReply = 'hang'
+      const started = Date.now()
 
       const result = await handOverKennelliittoResults(ctx({}, true, { budgetMs: 100 }), { withoutBlocked: false })
 
+      // The call took the request's signal: without it the call would wait for its own limit, eight seconds.
+      expect(Date.now() - started).toBeLessThan(2000)
       expect(result.refused).toEqual({ status: 0 })
       expect(storedState?.code).toEqual(1253)
     })

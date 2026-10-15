@@ -2,6 +2,7 @@ import type { StationTurnItem } from './StationTurnControls'
 import { render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { APIError } from '../../../api/http'
+import { expectConsoleOutput } from '../../../test-utils/consoleGuard'
 import AppSnackbarProvider from '../AppSnackbarProvider'
 import { StationScoring } from './StationScoring'
 
@@ -222,6 +223,45 @@ describe('StationScoring', () => {
       expect(screen.queryByRole('heading', { name: /Kolmas/ })).not.toBeInTheDocument()
     })
   })
+  describe('a save that is refused (KOE-1140)', () => {
+    const pickAndSave = async (user: ReturnType<typeof userEvent.setup>) => {
+      await user.click(screen.getByRole('button', { name: '1 Ensimmainen' }))
+      await user.click(screen.getByLabelText('results.column.result'))
+      await user.click(screen.getByRole('option', { name: 'ALO1' }))
+      await user.click(screen.getByRole('button', { name: 'results.save' }))
+    }
+
+    it('keeps the dog and its scores, says so, and has the caller read the list when the dog is gone', async () => {
+      const user = userEvent.setup()
+      const onRefused = vi.fn()
+      const { onSave } = renderScoring({ onRefused })
+      onSave.mockRejectedValueOnce(new APIError(new Response(null, { status: 422 }), 'did not run'))
+      expectConsoleOutput(/reportError .*422/)
+
+      await pickAndSave(user)
+
+      expect(await screen.findByText('results.saveFailed')).toBeInTheDocument()
+      expect(onRefused).toHaveBeenCalledTimes(1)
+      expect(screen.getByLabelText('results.column.result')).toHaveTextContent('ALO1')
+      // Another dog can be picked and saved: the refusal of one is not the end of the post.
+      await user.click(screen.getByRole('button', { name: '2 Toinen' }))
+      expect(screen.getByRole('button', { name: 'results.save' })).toBeEnabled()
+    })
+
+    it('does not read the list for a failure that says nothing of the dog', async () => {
+      const user = userEvent.setup()
+      const onRefused = vi.fn()
+      const { onSave } = renderScoring({ onRefused })
+      onSave.mockRejectedValueOnce(new Error('Network Error'))
+      expectConsoleOutput(/reportError .*Network Error/)
+
+      await pickAndSave(user)
+
+      expect(await screen.findByText('results.saveFailed')).toBeInTheDocument()
+      expect(onRefused).not.toHaveBeenCalled()
+    })
+  })
+
   describe('a trial handed to the chief judge (KOE-1140)', () => {
     it('says so and cannot be saved', async () => {
       const user = userEvent.setup()

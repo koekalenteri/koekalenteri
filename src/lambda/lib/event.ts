@@ -602,6 +602,30 @@ export const writeKcState = async (eventId: string, kcState: JsonKcState, update
   }
 }
 
+/**
+ * Gives the state back that a hand-over took the lock from, but only while the stored state is still the
+ * lock this request wrote (`lockedAt` is its `readAt`). A state another request wrote since, a second
+ * hand-over's lock or a reading, is not this request's to overwrite. Answers whether it was given back.
+ */
+export const releaseKcState = async (
+  eventId: string,
+  restored: JsonKcState,
+  lockedAt: string,
+  updatedAt: string
+): Promise<boolean> => {
+  try {
+    await dynamoDB.update({ id: eventId }, { set: { kcState: restored, updatedAt } }, eventTable, 'NONE', {
+      expression: 'attribute_exists(#id) AND #kcState.#readAt = :lockedAt',
+      names: { '#id': 'id', '#kcState': 'kcState', '#readAt': 'readAt' },
+      values: { ':lockedAt': lockedAt },
+    })
+    return true
+  } catch (error) {
+    if (isConditionalCheckFailure(error)) return false
+    throw error
+  }
+}
+
 /** Links an event that has none to the trial found for it. A link another save made first stays. */
 export const writeKcGuid = async (eventId: string, kcGuid: string, updatedAt: string): Promise<boolean> => {
   try {

@@ -16,6 +16,7 @@ import { eventWithStations, RESULTS_EVENT_DAY, registrationsToEventWithStations 
 import { putEvent, searchEventKcIdChoices } from '../../api/event'
 import { APIError } from '../../api/http'
 import {
+  getRegistrations,
   handOverKennelliittoResults,
   previewKennelliittoResults,
   putEventResults,
@@ -167,6 +168,10 @@ const onSecondDay = (registration: Registration): Registration => ({
   ...registration,
   group: { ...registration.group, date: SECOND_DAY, key: registration.group?.key ?? '', number: 1 },
 })
+
+/** The list of a trial's registrations as the page reads it again: the call without a cursor, which answers the whole list. */
+const listRegistrations =
+  vi.mocked<(eventId: string, token: string, signal?: AbortSignal) => Promise<Registration[]>>(getRegistrations)
 
 describe('EventResultsPage', () => {
   beforeAll(() => vi.useFakeTimers())
@@ -625,6 +630,8 @@ describe('EventResultsPage', () => {
     )
     // The refusal is reported as an error before the page tells the user; that is the report.
     expectConsoleOutput(/reportError .*422/)
+    // The list read again after the refusal still has the dog.
+    listRegistrations.mockResolvedValueOnce(registrationsToEventWithStations)
     const { user } = await renderScoringPage(i18n.language as Language)
     await flushPromises()
 
@@ -1397,5 +1404,115 @@ describe('EventResultsPage and Kennelliitto (KOE-1140)', () => {
     await flushPromises()
 
     expect(screen.getByText('results.kennelliitto.lockedSave')).toBeInTheDocument()
+  })
+  it('folds in the dogs a refused batch had saved before the lock, and takes them off the screen, before it reads the state', async () => {
+    vi.mocked(putEventResults).mockRejectedValueOnce(
+      new APIError(new Response(null, { status: 423 }), {
+        conflicts: [],
+        error: 'resultsLocked',
+        saved: [{ eventResult: { result: 'NOU1', updatedAt: noon, updatedBy: 'Sihteeri' }, id: 'run-1' }],
+        unchanged: [],
+      })
+    )
+    vi.mocked(previewKennelliittoResults).mockClear()
+    const { user } = await renderQualitativePage('fi', {})
+    await flushPromises()
+    await user.click(within(rowFor('Ensimmainen')).getByLabelText('results.column.result'))
+    await user.click(screen.getByRole('option', { name: 'NOU1' }))
+    await flushPromises()
+
+    await user.click(screen.getByRole('button', { name: 'results.save' }))
+    await flushPromises()
+
+    // The dog is stored as the server says, and nothing of it is left to save.
+    expect(within(rowFor('Ensimmainen')).getByLabelText('results.column.result')).toHaveTextContent('NOU1')
+    expect(screen.getByRole('button', { name: 'results.save' })).toBeDisabled()
+    expect(previewKennelliittoResults).toHaveBeenCalledWith('test1', [], expect.anything(), undefined)
+  })
+
+  describe('a batch refused because a dog is no longer on the trial', () => {
+    const pick = async (user: UserEvent, dog: string, option: string) => {
+      await user.click(within(rowFor(dog)).getByLabelText('results.column.result'))
+      await user.click(screen.getByRole('option', { name: option }))
+    }
+
+    it('drops the dog that is gone and keeps the others, so they can be saved', async () => {
+      vi.mocked(putEventResults).mockRejectedValueOnce(
+        new APIError(new Response(null, { status: 422, statusText: 'Unprocessable' }), 'did not run')
+      )
+      expectConsoleOutput(/reportError .*422/)
+      // The list read again has only the second dog: the first was cancelled while the page was open.
+      listRegistrations.mockResolvedValueOnce(
+        registrationsToEventWithStations.filter((registration) => registration.id !== 'run-1')
+      )
+      const { user } = await renderQualitativePage('fi', {})
+      await flushPromises()
+      await pick(user, 'Ensimmainen', 'NOU1')
+      await pick(user, 'Toinen', 'NOU0')
+      await flushPromises()
+
+      await user.click(screen.getByRole('button', { name: 'results.save' }))
+      await flushPromises()
+
+      expect(screen.getByText('results.saveFailed')).toBeInTheDocument()
+      expect(screen.queryByText('Ensimmainen')).not.toBeInTheDocument()
+      expect(screen.getByRole('button', { name: 'results.save' })).toBeEnabled()
+
+      await user.click(screen.getByRole('button', { name: 'results.save' }))
+      await flushPromises()
+
+      const [, submissions] = vi.mocked(putEventResults).mock.lastCall ?? []
+      expect(submissions?.map((submission) => submission.id)).toEqual(['run-2'])
+    })
+  })
+
+  describe('handing over with the secretary’s word', () => {
+    const openNothingSent = async () => {
+      vi.mocked(handOverKennelliittoResults).mockClear()
+      vi.mocked(handOverKennelliittoResults).mockRejectedValueOnce(
+        new APIError(new Response(null, { status: 409 }), { error: 'nothingSent' })
+      )
+      const { user } = await renderQualitativePage('fi', { 'run-1': stored('NOU1') }, eventWithStaticDates, {
+        'run-1': { kcResult: sentOk },
+      })
+      await flushPromises()
+      await user.click(screen.getAllByRole('button', { name: 'results.kennelliitto.handOverButton' })[0])
+      await flushPromises()
+      return { dialog: within(screen.getByRole('dialog')), user }
+    }
+
+    it('asks without the word first, and sends the word only after it has been given', async () => {
+      const { dialog, user } = await openNothingSent()
+
+      await user.click(dialog.getByRole('button', { name: 'results.kennelliitto.handOverButton' }))
+      await flushPromises()
+      expect(handOverKennelliittoResults).toHaveBeenCalledTimes(1)
+      expect(handOverKennelliittoResults).toHaveBeenLastCalledWith('test1', false, expect.anything())
+
+      await user.click(dialog.getByRole('checkbox'))
+      await user.click(dialog.getByRole('button', { name: 'results.kennelliitto.handOverButton' }))
+      await flushPromises()
+
+      expect(handOverKennelliittoResults).toHaveBeenCalledTimes(2)
+      expect(handOverKennelliittoResults).toHaveBeenLastCalledWith('test1', true, expect.anything())
+    })
+
+    it('does not carry the word over to the next time the dialog is opened', async () => {
+      const { dialog, user } = await openNothingSent()
+      await user.click(dialog.getByRole('button', { name: 'results.kennelliitto.handOverButton' }))
+      await flushPromises()
+      await user.click(dialog.getByRole('checkbox'))
+
+      await user.click(dialog.getByRole('button', { name: 'cancel' }))
+      await flushPromises()
+      await user.click(screen.getAllByRole('button', { name: 'results.kennelliitto.handOverButton' })[0])
+      await flushPromises()
+      await user.click(
+        within(screen.getByRole('dialog')).getByRole('button', { name: 'results.kennelliitto.handOverButton' })
+      )
+      await flushPromises()
+
+      expect(handOverKennelliittoResults).toHaveBeenLastCalledWith('test1', false, expect.anything())
+    })
   })
 })
