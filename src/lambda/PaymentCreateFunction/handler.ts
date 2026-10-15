@@ -2,6 +2,8 @@ import type {
   CreatePaymentResponse,
   JsonConfirmedEvent,
   JsonPaymentTransaction,
+  JsonRefundTransaction,
+  JsonRegistration,
   Organizer,
   PaymentItem,
   TransactionItem,
@@ -21,6 +23,7 @@ import {
 import { registrationActor } from '../../lib/registration'
 import { paymentCreateSchema } from '../../lib/schema/payment'
 import { splitName } from '../../lib/string'
+import { mapWithConcurrency } from '../../lib/utils'
 import { CONFIG } from '../config'
 import { getFrontendOrigin } from '../lib/api-gw'
 import { authorize } from '../lib/auth'
@@ -29,10 +32,11 @@ import { parseJSONWithFallback } from '../lib/json'
 import { httpError, lambda, response } from '../lib/lambda'
 import {
   claimTransactionCreation,
+  dropOpenTransaction,
+  failUnfinishedTransaction,
   getTransactionsByReference,
   paymentDescription,
   releaseTransactionCreation,
-  updateTransactionStatus,
 } from '../lib/payment'
 import { PaytrailError, paytrail } from '../lib/paytrail'
 import { authorizeRegistrationEdit, getRegistration } from '../lib/registration'
@@ -60,7 +64,15 @@ const toPaytrailItem = (item: TransactionItem): PaymentItem => ({
 const canReuseNewTransaction = (current: JsonPaymentTransaction | undefined, candidate: JsonPaymentTransaction) =>
   !current || new Date(candidate.createdAt).getTime() > new Date(current.createdAt).getTime()
 
-const inspectExistingTransactions = async (reference: string) => {
+// A refund shares the payment's reference; it is RefundCreate's to finish, never touched here. A
+// type predicate, not a plain boolean, so the rest of the loop below narrows without a cast.
+const isUnfinishedPayment = (tx: JsonPaymentTransaction | JsonRefundTransaction): tx is JsonPaymentTransaction =>
+  tx.type === 'payment' && (tx.status === 'new' || tx.status === 'pending')
+
+const inspectExistingTransactions = async (
+  reference: string,
+  registration: Pick<JsonRegistration, 'eventId' | 'id'>
+) => {
   const existingTransactions = await getTransactionsByReference(reference)
 
   if (!existingTransactions) {
@@ -69,15 +81,13 @@ const inspectExistingTransactions = async (reference: string) => {
 
   let freshPendingTransaction = false
   let reusableNewTransaction: JsonPaymentTransaction | undefined
+  const staleTransactions: JsonPaymentTransaction[] = []
 
   for (const tx of existingTransactions) {
-    // A refund shares the payment's reference; it is RefundCreate's to finish, never touched here.
-    if (tx.type !== 'payment' || (tx.status !== 'new' && tx.status !== 'pending')) {
-      continue
-    }
+    if (!isUnfinishedPayment(tx)) continue
 
     if (isStalePendingPayment(tx.createdAt, tx.statusAt)) {
-      await updateTransactionStatus(tx, 'fail')
+      staleTransactions.push(tx)
       continue
     }
 
@@ -86,10 +96,21 @@ const inspectExistingTransactions = async (reference: string) => {
       continue
     }
 
-    if (canReuseNewTransaction(reusableNewTransaction, tx as JsonPaymentTransaction)) {
-      reusableNewTransaction = tx as JsonPaymentTransaction
+    if (canReuseNewTransaction(reusableNewTransaction, tx)) {
+      reusableNewTransaction = tx
     }
   }
+
+  // Resolves each stale attempt and drops it from the open set, same as every other writer, but
+  // with no audit row: nothing failed here, the attempt was simply never finished (KOE-1529).
+  // One at a time, in order (AGENTS.md, Promises and async): a registration realistically has at
+  // most one or two stale transactions here, and each one's own pair of writes (the transaction
+  // row, then the registration's open set) is easiest to reason about settled fully before the
+  // next one starts, rather than interleaved with it.
+  await mapWithConcurrency(staleTransactions, 1, async (tx) => {
+    await failUnfinishedTransaction(tx)
+    await dropOpenTransaction(registration, 'openPayments', tx.transactionId)
+  })
 
   return { freshPendingTransaction, reusableNewTransaction }
 }
@@ -128,7 +149,7 @@ const paymentCreateLambda = lambda('paymentCreate', async (event) => {
   }
 
   const reference = `${eventId}:${registrationId}`
-  const { freshPendingTransaction, reusableNewTransaction } = await inspectExistingTransactions(reference)
+  const { freshPendingTransaction, reusableNewTransaction } = await inspectExistingTransactions(reference, registration)
 
   if (reusableNewTransaction?.paymentResponse) {
     return response<CreatePaymentResponse>(200, reusableNewTransaction.paymentResponse, event)
@@ -230,12 +251,11 @@ const paymentCreateLambda = lambda('paymentCreate', async (event) => {
     {
       Update: {
         ConditionExpression: 'attribute_exists(id)',
-        ExpressionAttributeNames: { '#status': 'paymentStatus' },
-        ExpressionAttributeValues: { ':pending': 'PENDING', ':updatedAt': updatedAt },
+        ExpressionAttributeValues: { ':transactionId': new Set([transaction.transactionId]), ':updatedAt': updatedAt },
         Key: { eventId, id: registrationId },
         TableName: registrationTable,
         UpdateExpression:
-          'SET #status = :pending, updatedAt = :updatedAt REMOVE paymentCreationAt, paymentCreationStamp',
+          'SET updatedAt = :updatedAt REMOVE paymentCreationAt, paymentCreationStamp ADD openPayments :transactionId',
       },
     },
   ])

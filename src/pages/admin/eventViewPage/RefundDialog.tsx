@@ -116,8 +116,11 @@ export const RefundDailog = ({ event, open, registration, onClose }: Props) => {
   // or the selected payment less the handling fee.
   const refundBase = Math.min(total, refundAmount)
   const refundTotal = excessOnly ? Math.min(excessCents, refundBase) : refundBase - handlingCost
+  // openPayments/openRefunds are part of the key: a pending refund no longer bumps refundStatus or
+  // updatedAt on its own (KOE-1529), so without them the dialog would not reload its transaction
+  // list once a refund the secretary just started actually settles.
   const registrationVersion = registration
-    ? `${registration.id}:${registration.updatedAt?.getTime() ?? ''}:${registration.paymentStatus ?? ''}:${registration.refundStatus ?? ''}`
+    ? `${registration.id}:${registration.updatedAt?.getTime() ?? ''}:${registration.paymentStatus ?? ''}:${registration.refundStatus ?? ''}:${(registration.openPayments ?? []).join(',')}:${(registration.openRefunds ?? []).join(',')}`
     : ''
 
   useEffect(() => {

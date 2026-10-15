@@ -154,13 +154,15 @@ const RegistrationTooltipContent = ({
       />
       <TooltipIcon
         key="payment-refund-pending"
-        condition={!!reg.paidAt && reg.refundStatus === 'PENDING'}
+        // Reads the open refund set, not a stored PENDING, which said nothing of which refund
+        // (KOE-1529).
+        condition={!!reg.paidAt && (reg.openRefunds?.length ?? 0) > 0}
         icon={<SavingsOutlined fontSize="small" />}
         text={t('registration.tooltip.refundPending', refundTextValues)}
       />
       <TooltipIcon
         key="payment-refunded"
-        condition={!!reg.paidAt && !!reg.refundAt && reg.refundStatus !== 'PENDING'}
+        condition={!!reg.paidAt && !!reg.refundAt && (reg.openRefunds?.length ?? 0) === 0}
         icon={<SavingsOutlined fontSize="small" />}
         text={t('registration.tooltip.refunded', refundTextValues)}
       />

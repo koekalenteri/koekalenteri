@@ -64,6 +64,7 @@ const {
   findExistingRegistrationToEventForDog,
   hasRegistrationChanges,
   markNewRegistrationPhase,
+  getRegistration,
   getRegistrationsByEventId,
   getReadyRegistrationsByEventId,
   groupRegistrationsByClass,
@@ -638,6 +639,45 @@ describe('registration', () => {
     })
   })
 
+  describe('getRegistration', () => {
+    beforeEach(() => {
+      vi.clearAllMocks()
+    })
+
+    it('reads eventually consistent by default', async () => {
+      mockDynamoDB.read.mockResolvedValueOnce(asJsonRegistration({ eventId: 'event-id', id: 'reg-id' }))
+
+      await getRegistration('event-id', 'reg-id')
+
+      expect(mockDynamoDB.read).toHaveBeenCalledWith(
+        { eventId: 'event-id', id: 'reg-id' },
+        CONFIG.registrationTable,
+        false
+      )
+    })
+
+    // Every writer that just changed the row and must publish its current state asks for this
+    // (KOE-1529): an eventually consistent read could still answer with the row from before the
+    // write.
+    it('reads strongly consistently when asked', async () => {
+      mockDynamoDB.read.mockResolvedValueOnce(asJsonRegistration({ eventId: 'event-id', id: 'reg-id' }))
+
+      await getRegistration('event-id', 'reg-id', true)
+
+      expect(mockDynamoDB.read).toHaveBeenCalledWith(
+        { eventId: 'event-id', id: 'reg-id' },
+        CONFIG.registrationTable,
+        true
+      )
+    })
+
+    it('throws a 404 when the registration does not exist', async () => {
+      mockDynamoDB.read.mockResolvedValueOnce(undefined)
+
+      await expect(getRegistration('event-id', 'missing-id')).rejects.toMatchObject({ status: 404 })
+    })
+  })
+
   describe('patchRegistration', () => {
     beforeEach(() => {
       vi.clearAllMocks()
@@ -677,7 +717,8 @@ describe('registration', () => {
           eventId: 'event-id',
           id: 'reg-id',
         },
-        'registration-table-not-found-in-env'
+        'registration-table-not-found-in-env',
+        false
       )
       expect(result).toEqual(next)
     })
@@ -1188,11 +1229,21 @@ describe('registration access', () => {
       startGroup: { ...group, number: 7 },
     }
 
-    it('leaves the result, the notes and the groups out of the participant response (KOE-1515)', () => {
-      const response = participantRegistrationResponse(stored, 'raw-token', participantEvent)
-      for (const field of ['eventResult', 'group', 'internalNotes', 'startGroup']) {
+    it('leaves the result, the notes, the groups and the open ids out of the participant response, but keeps paymentInProgress (KOE-1515, KOE-1529)', () => {
+      // Set directly, as the caller (participantResponse in lib/payment.ts) already has them by the
+      // time this function runs: the open ids are never sent, but paymentInProgress is. Local to
+      // this test: paymentInProgress feeds shouldParticipantPay elsewhere in this describe block.
+      const withOpenTransactions = {
+        ...stored,
+        openPayments: ['transaction-1'],
+        openRefunds: ['refund-1'],
+        paymentInProgress: true,
+      }
+      const response = participantRegistrationResponse(withOpenTransactions, 'raw-token', participantEvent)
+      for (const field of ['eventResult', 'group', 'internalNotes', 'startGroup', 'openPayments', 'openRefunds']) {
         expect(response).not.toHaveProperty(field)
       }
+      expect(response).toMatchObject({ paymentInProgress: true })
     })
 
     // The state is worked out here from the same row, so it reads the group it leaves out: a reserve

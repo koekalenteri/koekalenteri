@@ -1,6 +1,6 @@
 import type { Page } from '@playwright/test'
 
-type BankOutcome = 'Maksa' | 'Peruuta' | 'Väärennetty paluu'
+type BankOutcome = 'Maksa' | 'Peruuta' | 'Peruuta (kahdesti)' | 'Väärennetty paluu'
 
 /**
  * The payment step: `/p/<eventId>/<registrationId>/...` lists the methods Paytrail returned, and
@@ -24,6 +24,6 @@ export class PaymentPage {
     await this.page.getByRole('heading', { name: 'Valitse maksutapa' }).waitFor()
     await this.page.getByRole('button', { name: 'E2E-pankki' }).click()
     await this.page.getByRole('heading', { name: 'E2E-pankki' }).waitFor()
-    await this.page.getByRole('button', { name: outcome }).click()
+    await this.page.getByRole('button', { exact: true, name: outcome }).click()
   }
 }

@@ -140,13 +140,14 @@ describe('RegistrationIcons component', () => {
     expect(screen.getByTestId('SavingsOutlinedIcon').classList.contains('MuiSvgIcon-colorWarning')).toBe(warning)
   })
 
+  // KOE-1529: reads the open refund set, not a stored refundStatus.
   it('should render refund icon when refund is pending', () => {
-    // Mock a registration with pending refund
+    // Mock a registration with an open refund
     const mockReg = createMockRegistration({
+      openRefunds: ['t1'],
       paidAmount: 5000,
       paidAt: new Date(),
       refundAmount: 2500,
-      refundStatus: 'PENDING',
     })
 
     // Render the component

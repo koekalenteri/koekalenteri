@@ -58,9 +58,14 @@ export function RegistrationListPage({ cancel, confirm, invitation }: Registrati
   const actions = useRegistrationActions()
   useRegistrationSubscription(registration, setRegistration)
   const paymentFlow = new URLSearchParams(location.search).get('payment')
+  // Still verifying for as long as the row has not settled to SUCCESS or DUPLICATE. A fresh payment
+  // transaction stays `new` until the callback, so `paymentInProgress` (pending only) is false for
+  // exactly the window this flag covers -- keying it on that would end the loop at once and re-offer
+  // Pay (KOE-1529).
   const paymentVerificationInProgress =
     paymentFlow === 'verifying' &&
-    (!registration?.paymentStatus || ['NEW', 'PENDING'].includes(registration.paymentStatus)) &&
+    registration?.paymentStatus !== 'SUCCESS' &&
+    registration?.paymentStatus !== 'DUPLICATE' &&
     reloadCount < 5
   const allDisabled = useMemo(() => !event || !isConfirmedEvent(event) || isPast(event.endDate), [event])
   const cancelDisabled = useMemo(
@@ -183,11 +188,7 @@ export function RegistrationListPage({ cancel, confirm, invitation }: Registrati
   }, [paymentVerificationInProgress, t])
 
   useEffect(() => {
-    if (
-      (!paymentVerificationInProgress && registration?.paymentStatus !== 'PENDING') ||
-      reloadCount >= 5 ||
-      !registration
-    ) {
+    if ((!paymentVerificationInProgress && !registration?.paymentInProgress) || reloadCount >= 5 || !registration) {
       return
     }
 

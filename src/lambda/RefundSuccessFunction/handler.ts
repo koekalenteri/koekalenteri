@@ -3,19 +3,25 @@ import type { PaytrailCallbackParams } from '../types/paytrail'
 import { getFixedT } from '../../i18n/lambda'
 import { emailSentAudit, emailSubjectAuditKey, paymentAudit } from '../../lib/audit'
 import { formatMoney } from '../../lib/money'
-import { getProviderName } from '../../lib/payment'
+import { getProviderName, transactionActor } from '../../lib/payment'
 import { CONFIG } from '../config'
 import { audit, registrationAuditKey } from '../lib/audit'
 import { registrationEmailTags, registrationEmailTemplateData, sendTemplatedMail } from '../lib/email'
 import { getEvent } from '../lib/event'
 import { LambdaError, lambda, response } from '../lib/lambda'
 import { logger } from '../lib/log'
-import { applySuccessfulRefund, parseParams, updateTransactionStatus, verifyParams } from '../lib/payment'
+import {
+  applySuccessfulRefund,
+  parseParams,
+  settleFailedTransaction,
+  updateTransactionStatus,
+  verifyParams,
+} from '../lib/payment'
 import { clearRegistrationEmailDeliveryStatus, getRegistration, getRegistrationEditToken } from '../lib/registration'
-import { publishRegistrationPatches } from '../lib/ws/actions'
+import { publishCancelledRegistration, publishRegistrationPatches } from '../lib/ws/actions'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 
-const { frontendURL, emailFrom, transactionTable } = CONFIG
+const { frontendURL, emailFrom, registrationTable, transactionTable } = CONFIG
 const dynamoDB = new CustomDynamoClient(transactionTable)
 
 /**
@@ -68,6 +74,17 @@ const refundSuccessLambda = lambda('refundSuccess', async (event) => {
   const registration = await getRegistration(eventId, registrationId)
   const editToken = getRegistrationEditToken(registration)
 
+  if (status === 'fail') {
+    // Settled through the same step every other failure writer uses (KOE-1529).
+    const settled = await settleFailedTransaction(transaction, registration, 'openRefunds', {
+      auditActor: transactionActor,
+      auditMessage: (t, p) => paymentAudit('refundFailed', getProviderName(p), formatMoney(t.amount / 100)),
+      provider: params['checkout-provider'],
+    })
+    if (settled.cancelled) await publishCancelledRegistration(settled.cancelled)
+    return response(200, undefined, event)
+  }
+
   if (status !== 'ok') {
     await updateTransactionStatus(transaction, status)
     return response(200, undefined, event)
@@ -80,6 +97,16 @@ const refundSuccessLambda = lambda('refundSuccess', async (event) => {
     Boolean(storedTransaction)
   )
   if (!applied) return response(200, undefined, event)
+
+  // Strongly consistent, the same convention settleFailedTransaction uses: applySuccessfulRefund
+  // just DELETEd this transaction's id from openRefunds in the same atomic write, and the admin
+  // patch below must say so, or an open tab keeps showing "palautus kesken" until a reload
+  // (KOE-1529).
+  const updatedRegistration = await dynamoDB.read<JsonRegistration>(
+    { eventId, id: registrationId },
+    registrationTable,
+    true
+  )
 
   const t = getFixedT(registration.language)
   const amount = transaction.amount / 100
@@ -150,7 +177,16 @@ const refundSuccessLambda = lambda('refundSuccess', async (event) => {
   })
   await publishRegistrationPatches(
     eventId,
-    [{ emailDeliveryStatus: null, eventId, id: registrationId, ...changes, updatedAt }],
+    [
+      {
+        emailDeliveryStatus: null,
+        eventId,
+        id: registrationId,
+        openRefunds: updatedRegistration?.openRefunds,
+        ...changes,
+        updatedAt,
+      },
+    ],
     confirmedEvent.organizer.id
   )
 

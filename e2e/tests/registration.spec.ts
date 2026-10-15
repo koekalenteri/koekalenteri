@@ -1,6 +1,6 @@
 import type { Page } from '@playwright/test'
 import { expect, test } from '@playwright/test'
-import { readRegistration, seedDog, seedEvent, seedOrganizer, seedStaffUser } from '../fixtures/db'
+import { readAuditTrail, readRegistration, seedDog, seedEvent, seedOrganizer, seedStaffUser } from '../fixtures/db'
 import { sentTo } from '../fixtures/fakes'
 import { issue } from '../fixtures/issue'
 import { PaymentPage } from '../pages/PaymentPage'
@@ -59,6 +59,51 @@ test.describe('registering and paying', { annotation: issue('KOE-1477'), tag: ['
     expect(registration?.paymentStatus).not.toBe('SUCCESS')
     expect(registration?.paidAt).toBeUndefined()
     expect((await sentTo(owner.email)).map((message) => message.template)).not.toContain('receipt-e2e-fi')
+
+    // The cancel is written by both the provider's own callback and the client's return, racing on
+    // the same transaction: only one settles it (rule 5, KOE-1529).
+    const audit = await readAuditTrail(key.eventId, key.id)
+    expect(audit.filter((row) => row.messageKey === 'audit.messages.paymentFailed')).toHaveLength(1)
+  })
+
+  // Paytrail's own delivery is at-least-once, not exactly-once: the fake bank fires the cancel
+  // callback twice for this one outcome. Whichever of the two reaches the step first settles the
+  // transaction; the other finds it already gone (KOE-1529).
+  test('a cancel callback Paytrail delivers twice still settles once', async ({ page }) => {
+    const { key, owner, payment } = await register(page)
+
+    await payment.payAtBank('Peruuta (kahdesti)')
+
+    await expect(page.getByRole('heading', { name: 'Valitse maksutapa' })).toBeVisible()
+    const registration = await readRegistration(key.eventId, key.id)
+    expect(registration?.paymentStatus).not.toBe('SUCCESS')
+    expect((await sentTo(owner.email)).map((message) => message.template)).not.toContain('receipt-e2e-fi')
+
+    const audit = await readAuditTrail(key.eventId, key.id)
+    expect(audit.filter((row) => row.messageKey === 'audit.messages.paymentFailed')).toHaveLength(1)
+  })
+
+  test('a cancelled payment followed by a successful one leaves one failure and one payment on the trail', async ({
+    page,
+  }) => {
+    const { key, owner, payment } = await register(page)
+
+    await payment.payAtBank('Peruuta')
+    await expect(page.getByRole('heading', { name: 'Valitse maksutapa' })).toBeVisible()
+
+    await payment.payAtBank('Maksa')
+
+    await expect(page.getByRole('main').getByText('Olen maksanut')).toBeVisible()
+    const registration = await readRegistration(key.eventId, key.id)
+    expect(registration).toMatchObject({ paidAmount: 50, paymentStatus: 'SUCCESS' })
+    // The failed attempt's id is no longer open once a later one is: the old attempt never comes
+    // back to hold the row pending once something new has paid it (rule 3, KOE-1529).
+    expect(registration?.openPayments ?? []).toHaveLength(0)
+
+    const audit = await readAuditTrail(key.eventId, key.id)
+    expect(audit.filter((row) => row.messageKey === 'audit.messages.paymentFailed')).toHaveLength(1)
+    expect(audit.filter((row) => row.messageKey === 'audit.messages.payment')).toHaveLength(1)
+    expect((await sentTo(owner.email)).map((message) => message.template)).toContain('receipt-e2e-fi')
   })
 
   test('a return signed with the wrong secret is not taken as a payment', {

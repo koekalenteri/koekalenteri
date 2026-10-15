@@ -1,19 +1,19 @@
 import type { AuditMessage } from '../../lib/audit'
-import type { JsonPaymentTransaction } from '../../types'
+import type { JsonPaymentTransaction, JsonRegistration } from '../../types'
 import { vi } from 'vitest'
 import { answerRejections, constructAPIGwEvent } from '../test-utils/helpers'
 
-interface CancelOptions {
+interface SettleOptions {
   auditMessage: (transaction: JsonPaymentTransaction, provider: string | undefined) => AuditMessage
   auditActor: (transaction: JsonPaymentTransaction) => { name: string; source?: string }
-  params: Record<string, string>
-  statusField: string
-  updateProvider: boolean
+  provider?: string
 }
 
 const mockLambda = vi.fn((_name, fn) => answerRejections(fn, mockResponse))
 const mockResponse = vi.fn()
-const mockCancelTransaction = vi.fn<(options: CancelOptions) => Promise<void>>()
+const mockResolveCallbackTransaction = vi.fn()
+const mockSettleFailedTransaction = vi.fn<(...args: unknown[]) => Promise<{ cancelled?: unknown }>>()
+const mockPublishCancelledRegistration = vi.fn()
 
 vi.doMock('../lib/lambda', async () => ({
   ...(await vi.importActual<typeof import('../lib/lambda')>('../lib/lambda')),
@@ -22,7 +22,12 @@ vi.doMock('../lib/lambda', async () => ({
 }))
 
 vi.doMock('../lib/payment', () => ({
-  cancelTransaction: mockCancelTransaction,
+  resolveCallbackTransaction: mockResolveCallbackTransaction,
+  settleFailedTransaction: mockSettleFailedTransaction,
+}))
+
+vi.doMock('../lib/ws/actions', () => ({
+  publishCancelledRegistration: mockPublishCancelledRegistration,
 }))
 
 const { default: paymentCancelLambda } = await import('./handler')
@@ -36,44 +41,71 @@ describe('paymentCancelLambda', () => {
       'checkout-transaction-id': 'tx123',
     },
   })
+  const transaction: JsonPaymentTransaction = {
+    amount: 5000,
+    createdAt: '2026-08-16T10:00:00.000Z',
+    reference: 'event123:reg456',
+    stamp: 'stamp-1',
+    status: 'pending',
+    transactionId: 'tx123',
+    type: 'payment',
+  }
+  const registration = { eventId: 'event123', id: 'reg456' } as JsonRegistration
 
   beforeEach(() => {
     vi.clearAllMocks()
-    mockCancelTransaction.mockResolvedValue(undefined)
+    mockResolveCallbackTransaction.mockResolvedValue({
+      eventId: 'event123',
+      provider: 'paytrail',
+      registration,
+      registrationId: 'reg456',
+      transaction,
+    })
+    mockSettleFailedTransaction.mockResolvedValue({})
     mockResponse.mockReturnValue({ statusCode: 200 })
   })
 
-  it('delegates the callback to the shared cancellation workflow', async () => {
+  it('settles the callback through the shared step, with the provider updated', async () => {
     await paymentCancelLambda(event)
 
-    expect(mockCancelTransaction).toHaveBeenCalledWith({
+    expect(mockResolveCallbackTransaction).toHaveBeenCalledWith(event.queryStringParameters)
+    expect(mockSettleFailedTransaction).toHaveBeenCalledWith(transaction, registration, 'openPayments', {
       auditActor: expect.any(Function),
       auditMessage: expect.any(Function),
-      params: event.queryStringParameters,
-      statusField: 'paymentStatus',
-      updateProvider: true,
+      provider: 'paytrail',
     })
     expect(mockResponse).toHaveBeenCalledWith(200, undefined, event)
   })
 
   it('configures payment-specific audit values', async () => {
-    const transaction: JsonPaymentTransaction = {
-      amount: 5000,
-      createdAt: '2026-08-16T10:00:00.000Z',
-      reference: 'event123:reg456',
-      stamp: 'stamp-1',
-      status: 'pending',
-      transactionId: 'tx123',
-      type: 'payment',
-    }
-
     await paymentCancelLambda(event)
 
-    const options = mockCancelTransaction.mock.lastCall?.[0]
-    expect(options?.auditMessage(transaction, 'paytrail')).toEqual({
+    const options = mockSettleFailedTransaction.mock.lastCall?.[3] as SettleOptions
+    expect(options.auditMessage(transaction, 'paytrail')).toEqual({
       messageKey: 'audit.messages.paymentFailed',
       messageParams: { amount: '50,00 €', provider: 'Paytrail' },
     })
-    expect(options?.auditActor(transaction)).toEqual({ name: 'anonymous' })
+    expect(options.auditActor(transaction)).toEqual({ name: 'anonymous' })
+  })
+
+  it('publishes whatever the step found changed', async () => {
+    const cancelled = {
+      eventId: 'event123',
+      organizerId: 'org1',
+      participantPatch: {},
+      patch: {},
+      registrationId: 'reg456',
+    }
+    mockSettleFailedTransaction.mockResolvedValueOnce({ cancelled })
+
+    await paymentCancelLambda(event)
+
+    expect(mockPublishCancelledRegistration).toHaveBeenCalledWith(cancelled)
+  })
+
+  it('does not publish when nothing changed', async () => {
+    await paymentCancelLambda(event)
+
+    expect(mockPublishCancelledRegistration).not.toHaveBeenCalled()
   })
 })

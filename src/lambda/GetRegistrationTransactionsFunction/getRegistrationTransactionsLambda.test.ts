@@ -9,6 +9,8 @@ const mockLambda = vi.fn((_name, fn) => answerRejections(fn, mockResponse))
 const mockResponse = vi.fn()
 const mockGetTransactionsByReference = vi.fn()
 const mockRefreshTransactionStatusesFromPaytrail = vi.fn()
+const mockGetRegistration = vi.fn()
+const mockPublishCancelledRegistration = vi.fn()
 
 vi.doMock('../lib/auth', () => ({
   authorizeWithMemberOf: mockAuthorizeWithMemberOf,
@@ -38,6 +40,14 @@ vi.doMock('../lib/payment', () => ({
   refreshTransactionStatusesFromPaytrail: mockRefreshTransactionStatusesFromPaytrail,
 }))
 
+vi.doMock('../lib/registration', () => ({
+  getRegistration: mockGetRegistration,
+}))
+
+vi.doMock('../lib/ws/actions', () => ({
+  publishCancelledRegistration: mockPublishCancelledRegistration,
+}))
+
 const { default: getRegistrationTransactionsLambda } = await import('./handler')
 
 describe('getRegistrationTransactionsLambda', () => {
@@ -46,6 +56,7 @@ describe('getRegistrationTransactionsLambda', () => {
     headers: {},
     pathParameters: { eventId: 'event123', id: 'reg456' },
   })
+  const registration = { eventId: 'event123', id: 'reg456' }
 
   beforeEach(() => {
     vi.clearAllMocks()
@@ -54,8 +65,9 @@ describe('getRegistrationTransactionsLambda', () => {
       user: { id: 'user1', name: 'Test User' },
     })
     mockGetEvent.mockResolvedValue({ organizer: { id: 'org1' } })
+    mockGetRegistration.mockResolvedValue(registration)
     mockRefreshTransactionStatusesFromPaytrail.mockImplementation((transactions: unknown) =>
-      Promise.resolve(transactions)
+      Promise.resolve({ cancelled: [], transactions })
     )
   })
 
@@ -106,13 +118,16 @@ describe('getRegistrationTransactionsLambda', () => {
 
     mockGetParam.mockReturnValueOnce(eventId).mockReturnValueOnce(regId)
     mockGetTransactionsByReference.mockResolvedValueOnce(transactions)
-    mockRefreshTransactionStatusesFromPaytrail.mockResolvedValueOnce([
-      transactions[0],
-      {
-        ...transactions[1],
-        status: 'ok',
-      },
-    ])
+    mockRefreshTransactionStatusesFromPaytrail.mockResolvedValueOnce({
+      cancelled: [],
+      transactions: [
+        transactions[0],
+        {
+          ...transactions[1],
+          status: 'ok',
+        },
+      ],
+    })
 
     await getRegistrationTransactionsLambda(event)
 
@@ -120,7 +135,7 @@ describe('getRegistrationTransactionsLambda', () => {
     expect(mockGetParam).toHaveBeenCalledWith(event, 'eventId')
     expect(mockGetParam).toHaveBeenCalledWith(event, 'id')
     expect(mockGetTransactionsByReference).toHaveBeenCalledWith(reference)
-    expect(mockRefreshTransactionStatusesFromPaytrail).toHaveBeenCalledWith(transactions)
+    expect(mockRefreshTransactionStatusesFromPaytrail).toHaveBeenCalledWith(transactions, registration)
     expect(mockResponse).toHaveBeenCalledWith(
       200,
       [
@@ -132,6 +147,36 @@ describe('getRegistrationTransactionsLambda', () => {
       ],
       event
     )
+  })
+
+  // The sixth writer that can find a transaction failed: the refresh settles it like any other, and
+  // the handler publishes whatever changed (KOE-1529).
+  it('publishes a cancellation the refresh settled', async () => {
+    const eventId = 'event123'
+    const regId = 'reg456'
+    const reference = `${eventId}:${regId}`
+    const transactions = [
+      { amount: 5000, createdAt: '2025-01-01T00:00:00.000Z', reference, status: 'pending', transactionId: 'tx1' },
+    ]
+    const cancelled = {
+      eventId,
+      organizerId: 'org1',
+      participantPatch: {},
+      patch: { eventId, id: regId },
+      registrationId: regId,
+    }
+
+    mockGetParam.mockReturnValueOnce(eventId).mockReturnValueOnce(regId)
+    mockGetTransactionsByReference.mockResolvedValueOnce(transactions)
+    mockRefreshTransactionStatusesFromPaytrail.mockResolvedValueOnce({
+      cancelled: [cancelled],
+      transactions: [{ ...transactions[0], status: 'fail' }],
+    })
+
+    await getRegistrationTransactionsLambda(event)
+
+    expect(mockPublishCancelledRegistration).toHaveBeenCalledWith(cancelled)
+    expect(mockResponse).toHaveBeenCalledWith(200, [{ ...transactions[0], status: 'fail' }], event)
   })
 
   it('returns empty array if no transactions found', async () => {
@@ -149,7 +194,7 @@ describe('getRegistrationTransactionsLambda', () => {
     expect(mockGetParam).toHaveBeenCalledWith(event, 'eventId')
     expect(mockGetParam).toHaveBeenCalledWith(event, 'id')
     expect(mockGetTransactionsByReference).toHaveBeenCalledWith(reference)
-    expect(mockRefreshTransactionStatusesFromPaytrail).toHaveBeenCalledWith(emptyTransactions)
+    expect(mockRefreshTransactionStatusesFromPaytrail).toHaveBeenCalledWith(emptyTransactions, registration)
     expect(mockResponse).toHaveBeenCalledWith(200, emptyTransactions, event)
   })
 
@@ -167,7 +212,7 @@ describe('getRegistrationTransactionsLambda', () => {
     expect(mockGetParam).toHaveBeenCalledWith(event, 'eventId')
     expect(mockGetParam).toHaveBeenCalledWith(event, 'id')
     expect(mockGetTransactionsByReference).toHaveBeenCalledWith(reference)
-    expect(mockRefreshTransactionStatusesFromPaytrail).toHaveBeenCalledWith(undefined)
+    expect(mockRefreshTransactionStatusesFromPaytrail).toHaveBeenCalledWith(undefined, registration)
     expect(mockResponse).toHaveBeenCalledWith(200, undefined, event)
   })
 
@@ -186,7 +231,7 @@ describe('getRegistrationTransactionsLambda', () => {
     expect(mockGetParam).toHaveBeenCalledWith(event, 'eventId')
     expect(mockGetParam).toHaveBeenCalledWith(event, 'id')
     expect(mockGetTransactionsByReference).toHaveBeenCalledWith(reference)
-    expect(mockRefreshTransactionStatusesFromPaytrail).toHaveBeenCalledWith(emptyTransactions)
+    expect(mockRefreshTransactionStatusesFromPaytrail).toHaveBeenCalledWith(emptyTransactions, registration)
     expect(mockResponse).toHaveBeenCalledWith(200, emptyTransactions, event)
   })
 
@@ -235,7 +280,7 @@ describe('getRegistrationTransactionsLambda', () => {
     expect(mockGetParam).toHaveBeenCalledWith(event, 'eventId')
     expect(mockGetParam).toHaveBeenCalledWith(event, 'id')
     expect(mockGetTransactionsByReference).toHaveBeenCalledWith(reference)
-    expect(mockRefreshTransactionStatusesFromPaytrail).toHaveBeenCalledWith(transactions)
+    expect(mockRefreshTransactionStatusesFromPaytrail).toHaveBeenCalledWith(transactions, registration)
     expect(mockResponse).not.toHaveBeenCalled()
   })
 })

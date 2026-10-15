@@ -109,12 +109,13 @@ describe('RegistrationTooltipContent', () => {
     expect(paymentTooltip).toBeInTheDocument()
   })
 
-  it('should render refund pending tooltip when refundStatus is PENDING', () => {
+  // KOE-1529: reads the open refund set, not a stored refundStatus.
+  it('should render refund pending tooltip when openRefunds is not empty', () => {
     const regWithPendingRefund = {
       ...mockRegistration,
+      openRefunds: ['t1'],
       refundAmount: 2500,
       refundHandlingCost: 5,
-      refundStatus: 'PENDING' as const,
     }
 
     render(

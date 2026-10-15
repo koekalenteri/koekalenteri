@@ -15,12 +15,12 @@ const mockUnsubscribePublicEventConnection = vi.fn()
 const mockUnsubscribeRegistrationConnection = vi.fn()
 const mockGetRegistration = vi.fn()
 const mockVerifyRegistrationEditToken = vi.fn()
-const mockQuery = vi.fn()
+const mockBatchGet = vi.fn()
 
-// The transactions of the registration, which tell a payment in progress from one left at Paytrail.
+// The open payment ids tell a payment in progress from one left at Paytrail (KOE-1529).
 vi.doMock('../../utils/CustomDynamoClient', () => ({
   default: vi.fn(function MockCustomDynamoClient() {
-    return { query: mockQuery }
+    return { batchGet: mockBatchGet }
   }),
 }))
 
@@ -249,9 +249,9 @@ describe('ws/subscriptionService', () => {
     )
   })
 
-  // KOE-1526 review: an entrant who reached Paytrail and closed the tab leaves PENDING stored with a
-  // transaction still new. That payment is not in progress, and the answer says what GetRegistration
-  // says: pay.
+  // KOE-1529: an entrant who reached Paytrail and closed the tab leaves an open payment that is
+  // still `new` at Paytrail. That payment is not in progress, and the answer says what
+  // GetRegistration says: pay. The legacy stored PENDING itself is left exactly as it is.
   it('answers an abandoned payment as one that can be paid, as GetRegistration does', async () => {
     const registration = {
       createdAt: '2026-07-25T10:00:00.000Z',
@@ -260,6 +260,7 @@ describe('ws/subscriptionService', () => {
       eventId: 'e1',
       group: { key: '2026-08-15-ap', number: 1 },
       id: 'r1',
+      openPayments: ['t1'],
       owner: { membership: false },
       ownerHandles: true,
       paymentStatus: 'PENDING',
@@ -272,13 +273,13 @@ describe('ws/subscriptionService', () => {
       state: 'confirmed',
     })
     mockGetRegistration.mockResolvedValueOnce(registration).mockResolvedValueOnce(registration)
-    mockQuery.mockResolvedValueOnce([
+    mockBatchGet.mockResolvedValueOnce([
       { createdAt: new Date().toISOString(), reference: 'e1:r1', status: 'new', transactionId: 't1', type: 'payment' },
     ])
 
     await expect(subscribeToRegistration({ connectionId: 'c1' }, 'e1', 'r1', 'edit-token')).resolves.toEqual(
       expect.objectContaining({
-        patch: expect.objectContaining({ paymentDue: 50, paymentStatus: 'NEW', shouldPay: true }),
+        patch: expect.objectContaining({ paymentDue: 50, paymentInProgress: false, shouldPay: true }),
       })
     )
   })

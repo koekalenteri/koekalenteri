@@ -1,5 +1,6 @@
-import type { JsonRegistration } from '../../types'
+import type { JsonConfirmedEvent, JsonRegistration } from '../../types'
 import { vi } from 'vitest'
+import { buildParticipantPaymentPatch } from '../lib/ws/payloads'
 import { answerRejections, constructPartialAPIGwEvent } from '../test-utils/helpers'
 
 const mockLambda = vi.fn((_name, fn) => answerRejections(fn, mockResponse))
@@ -7,7 +8,18 @@ const mockResponse = vi.fn()
 const mockParseParams = vi.fn()
 const mockVerifyParams = vi.fn()
 const mockUpdateTransactionStatus = vi.fn()
+const mockSettleFailedTransaction = vi.fn()
 const mockApplySuccessfulPayment = vi.fn()
+// Delegates to the real, pure buildParticipantPaymentPatch -- a different module than the one this
+// file mocks -- with paymentInProgress recomputed from openPayments the way the real
+// participantPaymentPatch (computePaymentInProgress) does, so a test only has to override
+// openPayments to pin the shape (KOE-1529, round 1 part 3).
+const mockParticipantPaymentPatch = vi.fn((registration: JsonRegistration, event: JsonConfirmedEvent) =>
+  buildParticipantPaymentPatch(
+    { ...registration, paymentInProgress: Boolean(registration.openPayments?.length) },
+    event
+  )
+)
 const mockClearRegistrationEmailDeliveryStatus = vi.fn()
 const mockGetRegistration = vi.fn()
 const mockCreateRegistrationPatches = vi.fn(() => [])
@@ -56,6 +68,8 @@ vi.doMock('../lib/lambda', async () => ({
 vi.doMock('../lib/payment', () => ({
   applySuccessfulPayment: mockApplySuccessfulPayment,
   parseParams: mockParseParams,
+  participantPaymentPatch: mockParticipantPaymentPatch,
+  settleFailedTransaction: mockSettleFailedTransaction,
   updateTransactionStatus: mockUpdateTransactionStatus,
   verifyParams: mockVerifyParams,
 }))
@@ -109,7 +123,9 @@ vi.doMock('../lib/email', () => ({
 }))
 
 const mockPublishEventCounts = vi.fn()
+const mockPublishCancelledRegistration = vi.fn()
 vi.doMock('../lib/ws/actions', () => ({
+  publishCancelledRegistration: mockPublishCancelledRegistration,
   publishEventCounts: mockPublishEventCounts,
   publishParticipantRegistrationPatch: mockPublishParticipantRegistrationPatch,
   publishRegistrationPatchesStrict: mockPublishRegistrationPatches,
@@ -167,6 +183,7 @@ describe('paymentSuccessLambda', () => {
     })
 
     mockUpdateTransactionStatus.mockResolvedValue(true)
+    mockSettleFailedTransaction.mockResolvedValue({ changed: false, moved: false })
     mockApplySuccessfulPayment.mockResolvedValue({ applied: true, appliedAt: '2025-01-01T00:00:00.000Z' })
     mockClearRegistrationEmailDeliveryStatus.mockResolvedValue(undefined)
 
@@ -283,6 +300,9 @@ describe('paymentSuccessLambda', () => {
         id: 'reg456',
         // The page holds no group, so the patch says what is left to pay (KOE-1526).
         paymentDue: 0,
+        // Recomputed fresh with this transaction's id taken out of the open set, not left at
+        // whatever it was on the row this handler started with (KOE-1529, round 1 part 3).
+        paymentInProgress: false,
         paymentStatus: 'SUCCESS',
         shouldPay: false,
       })
@@ -352,6 +372,49 @@ describe('paymentSuccessLambda', () => {
     expect(mockResponse).toHaveBeenCalledWith(200, undefined, event)
   })
 
+  // KOE-1529, round 2 part 3: a delayed (bank transfer) payment was read as in progress by an
+  // earlier, full GetRegistration, which stored paymentInProgress: true alongside openPayments on
+  // the participant's own page. When the ok callback applies it, the published patch must say so is
+  // no longer true, or getPaymentStatus (which checks paymentInProgress first) keeps the page saying
+  // "Odottaa maksun käsittelyä" for a fee that is actually paid, until a reload the verifying budget
+  // may no longer give. The first two getRegistration calls (handleSuccessfulPayment's own fetch and
+  // applyPaymentToRegistration's re-fetch) answer with the stale, pre-apply row; only the third, the
+  // strongly consistent re-read this test pins, reflects applySuccessfulPayment's DELETE from
+  // openPayments. Without that re-read, the handler would pass the stale row straight through and
+  // this assertion would fail.
+  it('clears paymentInProgress in the published patch once a delayed payment is applied', async () => {
+    const beforeApply = {
+      dog: { regNo: 'FI12345' },
+      eventId: 'event123',
+      id: 'reg456',
+      language: 'fi',
+      openPayments: ['tx123'],
+      paidAmount: 0,
+      payer: { email: 'test@example.com' },
+      paymentInProgress: true,
+      paymentStatus: 'PENDING',
+      state: 'creating',
+    }
+    mockGetRegistration
+      .mockResolvedValueOnce(beforeApply)
+      .mockResolvedValueOnce(beforeApply)
+      .mockResolvedValueOnce({
+        ...beforeApply,
+        openPayments: [],
+        paidAmount: 50,
+        paymentStatus: 'SUCCESS',
+        state: 'ready',
+      })
+
+    await paymentSuccessLambda(event)
+
+    expect(mockPublishParticipantRegistrationPatch).toHaveBeenCalledWith(
+      'event123',
+      'reg456',
+      expect.objectContaining({ paymentInProgress: false, paymentStatus: 'SUCCESS' })
+    )
+  })
+
   it('assigns a group when payment makes a registration ready', async () => {
     const readyRegistration = {
       eventId: 'event123',
@@ -381,6 +444,31 @@ describe('paymentSuccessLambda', () => {
     mockGetReadyRegistrationsByEventId.mockResolvedValueOnce([
       { dog: { regNo: 'FI12345' }, eventId: 'event123', id: 'other-registration', state: 'ready' },
     ])
+    // getRegistration is called three times here: handleSuccessfulPayment's own fetch,
+    // applyPaymentToRegistration's re-fetch (whose result decides the duplicate), and
+    // recordDuplicatePayment's strongly consistent re-read after its own DELETE from openPayments --
+    // only the third reflects it (KOE-1529, round 2 part 3).
+    const beforeApply = {
+      dog: { regNo: 'FI12345' },
+      eventId: 'event123',
+      id: 'reg456',
+      language: 'fi',
+      openPayments: ['tx123'],
+      paidAmount: 0,
+      payer: { email: 'test@example.com' },
+      paymentInProgress: true,
+      paymentStatus: 'PENDING',
+      state: 'creating',
+    }
+    mockGetRegistration
+      .mockResolvedValueOnce(beforeApply)
+      .mockResolvedValueOnce(beforeApply)
+      .mockResolvedValueOnce({
+        ...beforeApply,
+        openPayments: [],
+        paymentStatus: 'DUPLICATE',
+        updatedAt: '2025-01-01T00:00:00.000Z',
+      })
 
     await paymentSuccessLambda(event)
 
@@ -388,6 +476,7 @@ describe('paymentSuccessLambda', () => {
     expect(mockSendTemplatedMail).not.toHaveBeenCalled()
     expect(mockLockRegistrationPayments).toHaveBeenCalledWith('event123')
     expect(mockGetReadyRegistrationsByEventId).toHaveBeenCalledWith('event123', true)
+    expect(mockGetRegistration).toHaveBeenCalledTimes(3)
     expect(mockUpdate).toHaveBeenCalledWith(
       { transactionId: 'tx123' },
       expect.objectContaining({
@@ -397,7 +486,10 @@ describe('paymentSuccessLambda', () => {
     )
     expect(mockUpdate).toHaveBeenCalledWith(
       { eventId: 'event123', id: 'reg456' },
-      { set: { paymentStatus: 'DUPLICATE', updatedAt: expect.any(String) } },
+      {
+        delete: { openPayments: new Set(['tx123']) },
+        set: { paymentStatus: 'DUPLICATE', updatedAt: expect.any(String) },
+      },
       'registration-table-not-found-in-env'
     )
     // The same rule as GetRegistration: a payment charged twice offers no pay button (KOE-1526).
@@ -408,6 +500,9 @@ describe('paymentSuccessLambda', () => {
         eventId: 'event123',
         id: 'reg456',
         paymentDue: 50,
+        // Recomputed with this transaction's id taken out of the open set, not left at whatever it
+        // was on the row this handler started with (KOE-1529, round 1 part 3).
+        paymentInProgress: false,
         paymentStatus: 'DUPLICATE',
         shouldPay: false,
         updatedAt: expect.any(String),
@@ -449,12 +544,12 @@ describe('paymentSuccessLambda', () => {
     expect(mockResponse).toHaveBeenCalledWith(200, undefined, event)
   })
 
-  it('does not process payment if status is not ok', async () => {
+  it('does not process payment if status is pending or delayed', async () => {
     mockParseParams.mockReturnValueOnce({
       eventId: 'event123',
       provider: 'paytrail',
       registrationId: 'reg456',
-      status: 'fail',
+      status: 'pending',
       transactionId: 'tx123',
     })
 
@@ -462,6 +557,7 @@ describe('paymentSuccessLambda', () => {
 
     // Verify transaction status was updated
     expect(mockUpdateTransactionStatus).toHaveBeenCalled()
+    expect(mockSettleFailedTransaction).not.toHaveBeenCalled()
 
     // Verify registration was NOT retrieved
     expect(mockGetRegistration).not.toHaveBeenCalled()
@@ -480,6 +576,61 @@ describe('paymentSuccessLambda', () => {
     expect(mockAudit).not.toHaveBeenCalled()
 
     // Verify response was returned
+    expect(mockResponse).toHaveBeenCalledWith(200, undefined, event)
+  })
+
+  // The fourth writer that settles through the shared step (KOE-1529): a success callback
+  // reporting fail is as final as the provider's own cancel callback.
+  it('settles a failed payment through the shared step and publishes whatever changed', async () => {
+    const cancelled = {
+      eventId: 'event123',
+      organizerId: 'org-1',
+      participantPatch: {},
+      patch: { eventId: 'event123', id: 'reg456', openPayments: [] },
+      registrationId: 'reg456',
+    }
+    mockParseParams.mockReturnValueOnce({
+      eventId: 'event123',
+      provider: 'paytrail',
+      registrationId: 'reg456',
+      status: 'fail',
+      transactionId: 'tx123',
+    })
+    mockSettleFailedTransaction.mockResolvedValueOnce({ cancelled, changed: true, moved: true })
+
+    await paymentSuccessLambda(event)
+
+    expect(mockUpdateTransactionStatus).not.toHaveBeenCalled()
+    expect(mockGetRegistration).toHaveBeenCalledWith('event123', 'reg456')
+    expect(mockSettleFailedTransaction).toHaveBeenCalledWith(
+      expect.objectContaining({ transactionId: 'tx123' }),
+      expect.objectContaining({ eventId: 'event123', id: 'reg456' }),
+      'openPayments',
+      { auditActor: expect.any(Function), auditMessage: expect.any(Function), provider: 'paytrail' }
+    )
+    expect(mockPublishCancelledRegistration).toHaveBeenCalledWith(cancelled)
+
+    // Verify event registrations were NOT updated through the ordinary success path
+    expect(mockUpdateRegistrations).not.toHaveBeenCalled()
+    expect(mockSendTemplatedMail).not.toHaveBeenCalled()
+
+    // Verify response was returned
+    expect(mockResponse).toHaveBeenCalledWith(200, undefined, event)
+  })
+
+  it('does not publish when the settle step found nothing changed', async () => {
+    mockParseParams.mockReturnValueOnce({
+      eventId: 'event123',
+      provider: 'paytrail',
+      registrationId: 'reg456',
+      status: 'fail',
+      transactionId: 'tx123',
+    })
+    mockSettleFailedTransaction.mockResolvedValueOnce({ changed: false, moved: false })
+
+    await paymentSuccessLambda(event)
+
+    expect(mockPublishCancelledRegistration).not.toHaveBeenCalled()
     expect(mockResponse).toHaveBeenCalledWith(200, undefined, event)
   })
 

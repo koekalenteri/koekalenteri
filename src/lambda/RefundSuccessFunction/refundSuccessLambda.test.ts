@@ -9,6 +9,7 @@ const mockParseParams = vi.fn()
 const mockGetRegistration = vi.fn()
 const mockGetEvent = vi.fn()
 const mockUpdateTransactionStatus = vi.fn()
+const mockSettleFailedTransaction = vi.fn()
 const mockApplySuccessfulRefund = vi.fn()
 const mockClearRegistrationEmailDeliveryStatus = vi.fn()
 const mockSendTemplatedMail = vi.fn()
@@ -18,6 +19,7 @@ const mockRegistrationAuditKey = vi.fn()
 const mockDynamoRead = vi.fn()
 const mockDynamoUpdate = vi.fn()
 const mockPublishRegistrationPatches = vi.fn()
+const mockPublishCancelledRegistration = vi.fn()
 const mockDynamoClient = vi.fn(function MockCustomDynamoClient() {
   return {
     read: mockDynamoRead,
@@ -41,6 +43,7 @@ vi.doMock('../lib/lambda', async () => ({
 vi.doMock('../lib/payment', () => ({
   applySuccessfulRefund: mockApplySuccessfulRefund,
   parseParams: mockParseParams,
+  settleFailedTransaction: mockSettleFailedTransaction,
   updateTransactionStatus: mockUpdateTransactionStatus,
   verifyParams: mockVerifyParams,
 }))
@@ -71,6 +74,7 @@ vi.doMock('../utils/CustomDynamoClient', () => ({
 }))
 
 vi.doMock('../lib/ws/actions', () => ({
+  publishCancelledRegistration: mockPublishCancelledRegistration,
   publishRegistrationPatches: mockPublishRegistrationPatches,
 }))
 
@@ -134,10 +138,15 @@ describe('refundSuccessLambda', () => {
       transactionId: 'transaction123',
     })
 
-    mockDynamoRead.mockResolvedValue(mockTransaction)
+    // The transaction read passes no table (it uses the client's own default); the registration
+    // re-read after applying always names one explicitly (KOE-1529).
+    mockDynamoRead.mockImplementation((_key: unknown, table?: string) =>
+      Promise.resolve(table ? { ...mockRegistration, openRefunds: [] } : mockTransaction)
+    )
     mockGetRegistration.mockImplementation(() => Promise.resolve(structuredClone(mockRegistration)))
     mockGetEvent.mockResolvedValue(mockConfirmedEvent)
     mockUpdateTransactionStatus.mockResolvedValue(true)
+    mockSettleFailedTransaction.mockResolvedValue({ changed: false, moved: false })
     mockApplySuccessfulRefund.mockResolvedValue({ applied: true, appliedAt: '2023-01-01T12:30:00.000Z' })
     mockClearRegistrationEmailDeliveryStatus.mockResolvedValue(undefined)
     mockSendTemplatedMail.mockResolvedValue(undefined)
@@ -196,10 +205,63 @@ describe('refundSuccessLambda', () => {
     expect(mockResponse).toHaveBeenCalledWith(200, undefined, event)
   })
 
+  // The fifth writer that settles through the shared step (KOE-1529): a refund-success callback
+  // reporting fail is as final as the provider's own cancel callback.
+  it('settles a failed refund through the shared step and publishes whatever changed', async () => {
+    const cancelled = {
+      eventId: 'event123',
+      organizerId: 'org-1',
+      participantPatch: {},
+      patch: { eventId: 'event123', id: 'reg456', openRefunds: [] },
+      registrationId: 'reg456',
+    }
+    mockParseParams.mockReturnValueOnce({
+      eventId: 'event123',
+      provider: 'paytrail',
+      registrationId: 'reg456',
+      status: 'fail',
+      transactionId: 'transaction123',
+    })
+    mockSettleFailedTransaction.mockResolvedValueOnce({ cancelled, changed: true, moved: true })
+
+    await refundSuccessLambda(event)
+
+    expect(mockUpdateTransactionStatus).not.toHaveBeenCalled()
+    expect(mockGetRegistration).toHaveBeenCalledWith('event123', 'reg456')
+    expect(mockSettleFailedTransaction).toHaveBeenCalledWith(
+      expect.objectContaining({ transactionId: 'transaction123' }),
+      expect.objectContaining({ eventId: 'event123', id: 'reg456' }),
+      'openRefunds',
+      { auditActor: expect.any(Function), auditMessage: expect.any(Function), provider: 'paytrail' }
+    )
+    expect(mockPublishCancelledRegistration).toHaveBeenCalledWith(cancelled)
+    expect(mockApplySuccessfulRefund).not.toHaveBeenCalled()
+    expect(mockResponse).toHaveBeenCalledWith(200, undefined, event)
+  })
+
+  it('does not publish when the settle step found nothing changed', async () => {
+    mockParseParams.mockReturnValueOnce({
+      eventId: 'event123',
+      provider: 'paytrail',
+      registrationId: 'reg456',
+      status: 'fail',
+      transactionId: 'transaction123',
+    })
+    mockSettleFailedTransaction.mockResolvedValueOnce({ changed: false, moved: false })
+
+    await refundSuccessLambda(event)
+
+    expect(mockPublishCancelledRegistration).not.toHaveBeenCalled()
+    expect(mockResponse).toHaveBeenCalledWith(200, undefined, event)
+  })
+
   it('processes successful refund with status "ok"', async () => {
     await refundSuccessLambda(event)
 
     expect(mockApplySuccessfulRefund).toHaveBeenCalledWith(mockTransaction, 'event123', 'reg456', true)
+    // openRefunds comes from a fresh, strongly consistent re-read: applySuccessfulRefund already
+    // DELETEd this transaction's id in the same write, and an open admin tab must see that in the
+    // patch, not keep showing "palautus kesken" until a reload (KOE-1529, round 1 part 2).
     expect(mockPublishRegistrationPatches).toHaveBeenCalledWith(
       'event123',
       [
@@ -207,6 +269,7 @@ describe('refundSuccessLambda', () => {
           emailDeliveryStatus: null,
           eventId: 'event123',
           id: 'reg456',
+          openRefunds: [],
           refundStatus: 'SUCCESS',
           updatedAt: expect.any(String),
         }),

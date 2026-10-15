@@ -122,16 +122,19 @@ const bankPage = (
 <body><h1>E2E-pankki</h1><p>${escapeHtml(payment.reference)}: ${(payment.amount / 100).toFixed(2)} €</p>
 <form method="post" action="${FAKES_URL}/paytrail/bank/${payment.transactionId}/ok"><button>Maksa</button></form>
 <form method="post" action="${FAKES_URL}/paytrail/bank/${payment.transactionId}/fail"><button>Peruuta</button></form>
+<form method="post" action="${FAKES_URL}/paytrail/bank/${payment.transactionId}/fail-twice"><button>Peruuta (kahdesti)</button></form>
 <form method="post" action="${FAKES_URL}/paytrail/bank/${payment.transactionId}/forged"><button>Väärennetty paluu</button></form>
 </body></html>`
 
 /**
  * The customer's decision at the bank: Paytrail signs the outcome, calls the merchant's callback
  * server to server, and sends the browser to the redirect url with the same parameters. `forged`
- * signs a success with the wrong secret, as a tampered return would be.
+ * signs a success with the wrong secret, as a tampered return would be. `fail-twice` is the same
+ * cancel as `fail`, but calls the callback a second time before redirecting, the way Paytrail's own
+ * at-least-once delivery can (KOE-1529): the app must settle it once either way.
  */
 const completePayment = async (payment, outcome, res) => {
-  const status = outcome === 'fail' ? 'fail' : 'ok'
+  const status = outcome === 'forged' || outcome === 'ok' ? 'ok' : 'fail'
   const params = {
     'checkout-account': PAYTRAIL_MERCHANT_ID,
     'checkout-algorithm': 'sha256',
@@ -149,8 +152,11 @@ const completePayment = async (payment, outcome, res) => {
   }
 
   const callback = status === 'ok' ? payment.callbackUrls.success : payment.callbackUrls.cancel
-  const answer = await fetch(withParams(localUrl(callback), params))
-  if (!answer.ok && outcome !== 'forged') console.error(`callback ${callback} answered ${answer.status}`)
+  const deliveries = outcome === 'fail-twice' ? 2 : 1
+  for (let i = 0; i < deliveries; i++) {
+    const answer = await fetch(withParams(localUrl(callback), params))
+    if (!answer.ok && outcome !== 'forged') console.error(`callback ${callback} answered ${answer.status}`)
+  }
 
   const redirect = status === 'ok' ? payment.redirectUrls.success : payment.redirectUrls.cancel
   res.writeHead(303, { Location: withParams(redirect, params) })
@@ -188,7 +194,7 @@ const paytrail = async (req, res, path) => {
     res.writeHead(200, { 'Content-Type': 'image/svg+xml' })
     return res.end('<svg xmlns="http://www.w3.org/2000/svg" width="80" height="40"><text y="25">E2E</text></svg>')
   }
-  const bank = /^\/bank\/([^/]+)(?:\/(ok|fail|forged))?$/.exec(path)
+  const bank = /^\/bank\/([^/]+)(?:\/(ok|fail|fail-twice|forged))?$/.exec(path)
   const payment = bank && payments.get(bank[1])
   if (payment && bank[2] && req.method === 'POST') return completePayment(payment, bank[2], res)
   if (payment) {

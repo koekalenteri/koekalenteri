@@ -62,13 +62,13 @@ const paymentTransaction = (overrides: Partial<JsonPaymentTransaction> = {}): Js
   ...overrides,
 })
 
-const mockGetTransactionsByReference = vi.fn((): JsonTransaction[] => [])
+const mockBatchGet = vi.fn((): JsonTransaction[] => [])
 
-// The registration's transactions, which tell a payment in progress from one left at Paytrail
-// (getParticipantRow reads them through the client, KOE-1526).
+// The open payment ids tell a payment in progress from one left at Paytrail
+// (computePaymentInProgress BatchGets them through the client, KOE-1526, KOE-1529).
 vi.doMock('../utils/CustomDynamoClient', () => ({
   default: vi.fn(function MockCustomDynamoClient() {
-    return { query: mockGetTransactionsByReference }
+    return { batchGet: mockBatchGet }
   }),
 }))
 
@@ -160,7 +160,7 @@ describe('getRegistration', () => {
     )
 
     expect(res.statusCode).toBe(404)
-    expect(mockGetTransactionsByReference).not.toHaveBeenCalled()
+    expect(mockBatchGet).not.toHaveBeenCalled()
   })
 
   it('falls back to event invitationAttachment when class attachment is missing', async () => {
@@ -211,20 +211,26 @@ describe('getRegistration', () => {
     expect(reg.invitationAttachment).toBeUndefined()
   })
 
-  /** A stored PENDING in these cases is a payment Paytrail is still working on (KOE-1526). */
+  /**
+   * In the shouldPay tables below, 'PENDING' is a sentinel for "a payment is in progress": it is
+   * expressed as `openPayments`, never as the stored `paymentStatus` any more (KOE-1529).
+   */
+  const withPaymentStatus = (paymentStatus: PaymentStatus | undefined) =>
+    paymentStatus === 'PENDING' ? { openPayments: ['transaction-1'] } : { paymentStatus }
+
   const inProgressWhenPending = (paymentStatus: PaymentStatus | undefined) => {
     if (paymentStatus === 'PENDING') {
-      mockGetTransactionsByReference.mockReturnValueOnce([paymentTransaction({ status: 'pending' })])
+      mockBatchGet.mockReturnValueOnce([paymentTransaction({ status: 'pending' })])
     }
   }
 
   // KOE-1526 review: a payment Paytrail is no longer working on is not in progress either.
-  it('should read a stored PENDING whose payment went stale as NEW', async () => {
+  it('reads a stale open payment as not in progress, payable', async () => {
     mockGetRegistration.mockReturnValueOnce({
       ...registrationsToEventWithParticipantsInvited[0],
-      paymentStatus: 'PENDING',
+      openPayments: ['transaction-1'],
     })
-    mockGetTransactionsByReference.mockReturnValueOnce([
+    mockBatchGet.mockReturnValueOnce([
       paymentTransaction({ createdAt: new Date(Date.now() - 10 * 60 * 1000).toISOString(), status: 'pending' }),
     ])
 
@@ -233,16 +239,17 @@ describe('getRegistration', () => {
     )
 
     const reg: JsonRegistration = JSON.parse(res.body)
-    expect(reg.paymentStatus).toEqual('NEW')
+    expect(reg.paymentInProgress).toBe(false)
     expect(reg.shouldPay).toBe(true)
   })
 
-  it('should update paymentStatus from PENDING to NEW when there is a new transaction', async () => {
+  // KOE-1529: a legacy stored PENDING is left exactly as it was -- nothing rewrites it any more --
+  // and with no open payment it does not hold the pay offer back either.
+  it('leaves a legacy stored PENDING as it is, and pays no attention to it', async () => {
     mockGetRegistration.mockReturnValueOnce({
       ...registrationsToEventWithParticipantsInvited[0],
       paymentStatus: 'PENDING',
     })
-    mockGetTransactionsByReference.mockReturnValueOnce([paymentTransaction()])
 
     const res = await getRegistrationLambda(
       constructAPIGwEvent('test', { pathParameters: { eventId: '123', id: '456' } })
@@ -250,15 +257,29 @@ describe('getRegistration', () => {
 
     expect(res.statusCode).toEqual(200)
     const reg: JsonRegistration = JSON.parse(res.body)
-    expect(reg.paymentStatus).toEqual('NEW')
+    expect(reg.paymentStatus).toEqual('PENDING')
+    expect(reg.paymentInProgress).toBe(false)
     expect(reg.shouldPay).toBe(true)
-    expect(mockGetTransactionsByReference).toHaveBeenCalledWith(
-      expect.objectContaining({
-        values: {
-          ':reference': `${registrationsToEventWithParticipantsInvited[0].eventId}:${registrationsToEventWithParticipantsInvited[0].id}`,
-        },
-      })
+    expect(mockBatchGet).not.toHaveBeenCalled()
+  })
+
+  it('reads paymentInProgress from a fresh open payment, never sending its id', async () => {
+    mockGetRegistration.mockReturnValueOnce({
+      ...registrationsToEventWithParticipantsInvited[0],
+      openPayments: ['transaction-1'],
+    })
+    mockBatchGet.mockReturnValueOnce([paymentTransaction({ status: 'pending' })])
+
+    const res = await getRegistrationLambda(
+      constructAPIGwEvent('test', { pathParameters: { eventId: '123', id: '456' } })
     )
+
+    expect(res.statusCode).toEqual(200)
+    const reg: JsonRegistration = JSON.parse(res.body)
+    expect(reg.paymentInProgress).toBe(true)
+    expect(reg.shouldPay).toBe(false)
+    expect(reg).not.toHaveProperty('openPayments')
+    expect(mockBatchGet).toHaveBeenCalledWith([{ transactionId: 'transaction-1' }], expect.any(String))
   })
 
   it.each<[boolean, PaymentTime | undefined, PaymentStatus | undefined]>([
@@ -277,7 +298,7 @@ describe('getRegistration', () => {
       inProgressWhenPending(paymentStatus)
       mockGetRegistration.mockReturnValueOnce({
         ...registrationsToEventWithParticipantsInvited[0],
-        paymentStatus,
+        ...withPaymentStatus(paymentStatus),
       })
 
       const res = await getRegistrationLambda(
@@ -307,7 +328,7 @@ describe('getRegistration', () => {
       mockGetRegistration.mockReturnValueOnce({
         ...registrationsToEventWithParticipantsInvited[0],
         group: undefined,
-        paymentStatus,
+        ...withPaymentStatus(paymentStatus),
       })
 
       const res = await getRegistrationLambda(

@@ -9,7 +9,8 @@ const mockAuthorize = vi.fn<() => Promise<{ id: string; name: string } | null>>(
 const mockGetEvent = vi.fn<() => Promise<JsonDogEvent | undefined>>()
 const mockCreatePayment = vi.fn<() => Promise<CreatePaymentResponse | null>>()
 const mockGetTransactionsByReference = vi.fn<() => Promise<any[] | undefined>>()
-const mockUpdateTransactionStatus = vi.fn<() => Promise<boolean>>()
+const mockFailUnfinishedTransaction = vi.fn<() => Promise<boolean>>()
+const mockDropOpenTransaction = vi.fn<() => Promise<boolean>>()
 const mockRead =
   vi.fn<(_key: Record<string, string>, _tableName: string) => Promise<JsonRegistration | Organizer | undefined>>()
 const mockWrite = vi.fn()
@@ -52,10 +53,11 @@ vi.doMock('../lib/paytrail', () => ({
 
 vi.doMock('../lib/payment', () => ({
   claimTransactionCreation: mockClaimTransactionCreation,
+  dropOpenTransaction: mockDropOpenTransaction,
+  failUnfinishedTransaction: mockFailUnfinishedTransaction,
   getTransactionsByReference: mockGetTransactionsByReference,
   paymentDescription: vi.fn(() => 'Test Type 1.–2.1. Test Location Test Event'),
   releaseTransactionCreation: mockReleaseTransactionCreation,
-  updateTransactionStatus: mockUpdateTransactionStatus,
 }))
 
 vi.doMock('../lib/registration', () => ({
@@ -183,7 +185,8 @@ describe('paymentCreateLambda', () => {
     mockCreatePayment.mockResolvedValue(createMockPaymentResponse())
     mockAuthorize.mockResolvedValue({ id: 'user123', name: 'Test User' })
     mockGetTransactionsByReference.mockResolvedValue([])
-    mockUpdateTransactionStatus.mockResolvedValue(true)
+    mockFailUnfinishedTransaction.mockResolvedValue(true)
+    mockDropOpenTransaction.mockResolvedValue(true)
   })
 
   it('creates a payment successfully for a member', async () => {
@@ -248,9 +251,13 @@ describe('paymentCreateLambda', () => {
         }),
       },
       {
+        // Rule 1: opens, never writes paymentStatus PENDING any more (KOE-1529).
         Update: expect.objectContaining({
           ConditionExpression: 'attribute_exists(id)',
+          ExpressionAttributeValues: expect.objectContaining({ ':transactionId': new Set(['tx123']) }),
           Key: { eventId: 'event123', id: 'reg456' },
+          UpdateExpression:
+            'SET updatedAt = :updatedAt REMOVE paymentCreationAt, paymentCreationStamp ADD openPayments :transactionId',
         }),
       },
     ])
@@ -650,7 +657,14 @@ describe('paymentCreateLambda', () => {
     await paymentCreateLambda(event)
 
     expect(mockGetTransactionsByReference).toHaveBeenCalledWith('event123:reg456')
-    expect(mockUpdateTransactionStatus).toHaveBeenCalledWith(existingTransaction, 'fail')
+    // Resolved and dropped, with no audit row: nothing failed here, the attempt was simply never
+    // finished (KOE-1529).
+    expect(mockFailUnfinishedTransaction).toHaveBeenCalledWith(existingTransaction)
+    expect(mockDropOpenTransaction).toHaveBeenCalledWith(
+      expect.objectContaining({ eventId: 'event123', id: 'reg456' }),
+      'openPayments',
+      'oldTx'
+    )
   })
 
   it('should cancel existing stale pending transactions for the same reference', async () => {
@@ -666,7 +680,125 @@ describe('paymentCreateLambda', () => {
 
     await paymentCreateLambda(event)
 
-    expect(mockUpdateTransactionStatus).toHaveBeenCalledWith(existingTransaction, 'fail')
+    expect(mockFailUnfinishedTransaction).toHaveBeenCalledWith(existingTransaction)
+    expect(mockDropOpenTransaction).toHaveBeenCalledWith(
+      expect.objectContaining({ eventId: 'event123', id: 'reg456' }),
+      'openPayments',
+      'oldPendingTx'
+    )
+  })
+
+  it('settles two stale transactions one at a time, leaving the fresh-pending decision unaffected', async () => {
+    const staleTx1 = {
+      createdAt: new Date(Date.now() - 10 * 60 * 1000).toISOString(),
+      paymentResponse: createMockPaymentResponse({ transactionId: 'staleTx1' }),
+      reference: 'event123:reg456',
+      status: 'new',
+      transactionId: 'staleTx1',
+      type: 'payment',
+    }
+    const staleTx2 = {
+      createdAt: new Date(Date.now() - 20 * 60 * 1000).toISOString(),
+      reference: 'event123:reg456',
+      status: 'pending',
+      transactionId: 'staleTx2',
+      type: 'payment',
+    }
+    const freshPendingTx = {
+      createdAt: new Date(Date.now() - 2 * 60 * 1000).toISOString(),
+      reference: 'event123:reg456',
+      status: 'pending',
+      transactionId: 'freshPendingTx',
+      type: 'payment',
+    }
+    mockGetTransactionsByReference.mockResolvedValue([staleTx1, staleTx2, freshPendingTx])
+
+    const result = await paymentCreateLambda(event)
+
+    expect(mockFailUnfinishedTransaction).toHaveBeenNthCalledWith(1, staleTx1)
+    expect(mockFailUnfinishedTransaction).toHaveBeenNthCalledWith(2, staleTx2)
+    expect(mockDropOpenTransaction).toHaveBeenNthCalledWith(
+      1,
+      expect.objectContaining({ eventId: 'event123', id: 'reg456' }),
+      'openPayments',
+      'staleTx1'
+    )
+    expect(mockDropOpenTransaction).toHaveBeenNthCalledWith(
+      2,
+      expect.objectContaining({ eventId: 'event123', id: 'reg456' }),
+      'openPayments',
+      'staleTx2'
+    )
+    // One at a time (mapWithConcurrency(staleTransactions, 1, ...), never Promise.all): the first
+    // pair settles fully -- its fail write, then its drop write -- before the second one even
+    // starts, so the two mocks' calls interleave fail/drop/fail/drop. A concurrent implementation
+    // would instead call both fails before either drop (KOE-1529, round 4).
+    const [fail1, fail2] = mockFailUnfinishedTransaction.mock.invocationCallOrder
+    const [drop1, drop2] = mockDropOpenTransaction.mock.invocationCallOrder
+    expect(fail1).toBeLessThan(drop1)
+    expect(drop1).toBeLessThan(fail2)
+    expect(fail2).toBeLessThan(drop2)
+
+    // The unrelated fresh pending transaction still blocks with 409, same as it would alone: adding
+    // stale transactions to the mix changes nothing about that decision.
+    expect(result.statusCode).toEqual(409)
+    expect(mockCreatePayment).not.toHaveBeenCalled()
+  })
+
+  it('settles two stale transactions one at a time, leaving the reusable-new decision unaffected', async () => {
+    const staleTx1 = {
+      createdAt: new Date(Date.now() - 10 * 60 * 1000).toISOString(),
+      paymentResponse: createMockPaymentResponse({ transactionId: 'staleTx1' }),
+      reference: 'event123:reg456',
+      status: 'new',
+      transactionId: 'staleTx1',
+      type: 'payment',
+    }
+    const staleTx2 = {
+      createdAt: new Date(Date.now() - 20 * 60 * 1000).toISOString(),
+      reference: 'event123:reg456',
+      status: 'pending',
+      transactionId: 'staleTx2',
+      type: 'payment',
+    }
+    const existingResponse = createMockPaymentResponse({ transactionId: 'reusableTx' })
+    const reusableTx = {
+      createdAt: new Date(Date.now() - 90 * 1000).toISOString(),
+      paymentResponse: existingResponse,
+      reference: 'event123:reg456',
+      status: 'new',
+      transactionId: 'reusableTx',
+      type: 'payment',
+    }
+    mockGetTransactionsByReference.mockResolvedValue([staleTx1, staleTx2, reusableTx])
+
+    const result = await paymentCreateLambda(event)
+
+    expect(mockFailUnfinishedTransaction).toHaveBeenNthCalledWith(1, staleTx1)
+    expect(mockFailUnfinishedTransaction).toHaveBeenNthCalledWith(2, staleTx2)
+    expect(mockDropOpenTransaction).toHaveBeenNthCalledWith(
+      1,
+      expect.objectContaining({ eventId: 'event123', id: 'reg456' }),
+      'openPayments',
+      'staleTx1'
+    )
+    expect(mockDropOpenTransaction).toHaveBeenNthCalledWith(
+      2,
+      expect.objectContaining({ eventId: 'event123', id: 'reg456' }),
+      'openPayments',
+      'staleTx2'
+    )
+    const [fail1, fail2] = mockFailUnfinishedTransaction.mock.invocationCallOrder
+    const [drop1, drop2] = mockDropOpenTransaction.mock.invocationCallOrder
+    expect(fail1).toBeLessThan(drop1)
+    expect(drop1).toBeLessThan(fail2)
+    expect(fail2).toBeLessThan(drop2)
+
+    // The unrelated reusable new transaction's response is still returned as-is, same as it would
+    // alone: adding stale transactions to the mix changes nothing about that decision.
+    expect(result.statusCode).toEqual(200)
+    expect(JSON.parse(result.body)).toEqual(existingResponse)
+    expect(mockCreatePayment).not.toHaveBeenCalled()
   })
 
   it('should not cancel fresh pending transactions within safety margin', async () => {
@@ -681,7 +813,8 @@ describe('paymentCreateLambda', () => {
 
     await paymentCreateLambda(event)
 
-    expect(mockUpdateTransactionStatus).not.toHaveBeenCalled()
+    expect(mockFailUnfinishedTransaction).not.toHaveBeenCalled()
+    expect(mockDropOpenTransaction).not.toHaveBeenCalled()
   })
 
   // KOE-1526 review: refunds share the payment's reference; a refund Paytrail is working on is not
@@ -703,9 +836,8 @@ describe('paymentCreateLambda', () => {
     const result = await paymentCreateLambda(event)
 
     expect(result.statusCode).toEqual(200)
-    expect(mockUpdateTransactionStatus).not.toHaveBeenCalledWith(
-      expect.objectContaining({ transactionId: 'pendingRefundTx' }),
-      'fail'
+    expect(mockFailUnfinishedTransaction).not.toHaveBeenCalledWith(
+      expect.objectContaining({ transactionId: 'pendingRefundTx' })
     )
   })
 

@@ -452,11 +452,15 @@ describe('refundCreateLambda', () => {
       user: 'Test User',
     })
 
+    // No refundStatus is written: PENDING is never written any more, and a pending refund's own
+    // SUCCESS comes later, from applySuccessfulRefund, once it has actually been applied (KOE-1529).
     expect(mockDocumentTransaction).toHaveBeenCalledWith(
       expect.arrayContaining([
         {
           Update: expect.objectContaining({
-            ExpressionAttributeValues: expect.objectContaining({ ':status': 'PENDING' }),
+            ExpressionAttributeValues: expect.objectContaining({ ':transactionId': new Set(['refund123']) }),
+            UpdateExpression:
+              'SET updatedAt = :updatedAt REMOVE refundCreationAt, refundCreationStamp ADD openRefunds :transactionId',
           }),
         },
       ])
@@ -498,7 +502,7 @@ describe('refundCreateLambda', () => {
       expect.arrayContaining([
         {
           Update: expect.objectContaining({
-            ExpressionAttributeValues: expect.objectContaining({ ':status': 'PENDING' }),
+            ExpressionAttributeValues: expect.objectContaining({ ':transactionId': new Set(['refund123']) }),
           }),
         },
       ])

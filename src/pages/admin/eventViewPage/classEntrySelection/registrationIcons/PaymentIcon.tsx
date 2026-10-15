@@ -9,7 +9,9 @@ import { isConfirmedEvent } from '@/lib/typeGuards'
 
 interface PaymentIconProps {
   event: DogEvent
-  reg: PaymentBalanceRegistration & Pick<Registration, 'paidAt' | 'refundStatus' | 'refundHandlingCost'>
+  // "On its way" reads from the open refund set, not a stored refundStatus, which said nothing of
+  // which refund (KOE-1529). PaymentBalanceRegistration already carries RegistrationRefundAmounts.
+  reg: PaymentBalanceRegistration & Pick<Registration, 'paidAt' | 'openRefunds' | 'refundHandlingCost'>
 }
 
 const PaymentIcon = ({ event, reg }: PaymentIconProps) => {
@@ -19,8 +21,9 @@ const PaymentIcon = ({ event, reg }: PaymentIconProps) => {
   const unsettled = isConfirmedEvent(event) && isPaymentUnsettled(event, reg)
 
   // The piggy bank for money that went back, or is on its way; a refunded fee paid again is paid
-  // and shows the euro sign (KOE-1526).
-  if (isPaymentReturned(reg) || reg.refundStatus === 'PENDING') {
+  // and shows the euro sign (KOE-1526). "On its way" reads from the open refund set, not a stored
+  // PENDING, which said nothing of which refund (KOE-1529).
+  if (isPaymentReturned(reg) || (reg.openRefunds?.length ?? 0) > 0) {
     return <SavingsOutlined color={unsettled ? 'warning' : undefined} fontSize="small" />
   }
 
