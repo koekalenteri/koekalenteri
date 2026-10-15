@@ -7,6 +7,9 @@ import koemuotoNOME_A from './KLIntegraatio-fixtures/koemuoto-NOME-A.json'
 import koemuotoNOME_B from './KLIntegraatio-fixtures/koemuoto-NOME-B.json'
 import koemuotoNOU from './KLIntegraatio-fixtures/koemuoto-NOU.json'
 import koemuotoNOWT from './KLIntegraatio-fixtures/koemuoto-NOWT.json'
+import koiraFI99999 from './KLIntegraatio-fixtures/koira-FI99999_99.json'
+import koiraFI130131 from './KLIntegraatio-fixtures/koira-FI130131_11.json'
+import koiraSF06626 from './KLIntegraatio-fixtures/koira-SF06626_92.json'
 import kokeetNOU from './KLIntegraatio-fixtures/kokeet-NOU.json'
 import lueNOU from './KLIntegraatio-fixtures/lue-NOU.json'
 
@@ -403,11 +406,57 @@ describe('KLIntegraatio', () => {
       [{ nimi: 'Testi Koira' }, 'nimi=Testi+Koira'],
       [{ id: 42 }, 'id=42'],
     ])('sends only %o', async (params, query) => {
-      replies.push(tokenReply(3600), { body: { nimi: 'Testi Koira' } })
+      replies.push(tokenReply(3600), { body: koiraSF06626 })
 
       await klint.lueKoira(params)
 
       expect(requests[1].url).toBe(`${config.KL_INT_API_URL}Integraatio/Koira?${query}`)
+    })
+
+    it('returns the real answer for a dog that is found', async () => {
+      replies.push(tokenReply(3600), { body: koiraSF06626 })
+
+      const result = await klint.lueKoira({ rekisterinumero: 'SF06626/92' })
+
+      expect(result).toEqual({ json: koiraSF06626, status: 200 })
+      expect(result.json?.nimi).toBe('HOLTVEIN AKOSTINI')
+      expect(result.json?.syntymäaika).toBe('1992-02-07T00:00:00')
+    })
+
+    it('looks a dog up by id and returns the same real answer', async () => {
+      replies.push(tokenReply(3600), { body: koiraSF06626 })
+
+      const result = await klint.lueKoira({ id: 800000 })
+
+      expect(requests[1].url).toBe(`${config.KL_INT_API_URL}Integraatio/Koira?id=800000`)
+      expect(result.json?.rekisterinumero).toBe('SF06626/92')
+    })
+
+    it.each([
+      ['a number KL does not know (FI99999/99)', koiraFI99999],
+      ['a dead dog (FI130131/11)', koiraFI130131],
+    ])('turns the empty 200 for %s into a 404', async (_name, fixture) => {
+      replies.push(tokenReply(3600), { body: fixture })
+
+      const result = await klint.lueKoira({ rekisterinumero: 'FI99999/99' })
+
+      expect(result).toEqual({ error: 'not found', status: 404 })
+    })
+
+    it('turns a 200 without a body into a 404', async () => {
+      replies.push(tokenReply(3600), { status: 200 })
+
+      const result = await klint.lueKoira({ rekisterinumero: 'FI99999/99' })
+
+      expect(result).toEqual({ error: 'not found', status: 404 })
+    })
+
+    it('leaves a failed call as it was', async () => {
+      replies.push(tokenReply(3600), { body: { virheet: ['Annettava vain yksi.'] }, status: 400 })
+
+      const result = await klint.lueKoira({ nimi: 'x' })
+
+      expect(result).toEqual({ status: 400, virheet: ['Annettava vain yksi.'] })
     })
   })
 

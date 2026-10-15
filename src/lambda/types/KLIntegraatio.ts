@@ -4,7 +4,7 @@ import type { JsonObject } from '../../types'
  * Types for Kennelliitto's Integraatio API (KLIntegraatio.ts).
  *
  * Response types follow real Testi2 responses read on 15.10.2026, not the API document's tables.
- * Where no real sample exists the type says so: Koira (response), and the request bodies of the
+ * Where no real sample exists the type says so: the request bodies of the
  * three write calls, which follow the API document and are exercised with mocked fetch only.
  */
 
@@ -162,8 +162,27 @@ export type KLIntKoiraParametrit =
   | { nimi: string }
   | { id: number }
 
-/** No real Koira response has been read yet, so the shape is left open. */
-export type KLIntKoira = JsonObject
+/**
+ * The Koira answer, from real Testi2 responses (15.10.2026). A dog KL does not find, and a dead
+ * one, comes back as 200 with every string empty and every other field null, so check
+ * `rekisterinumero` before trusting it (KLIntegraatio.lueKoira does). An unknown birth date can be
+ * `0001-01-01T00:00:00`.
+ */
+export type KLIntKoira = {
+  id_Emä: number | null
+  id_Isä: number | null
+  id_Sukupuoli: number | null
+  nimi: string
+  rekisterinumero: string
+  rotu: string
+  rotukoodi: string
+  sukupuoli: string
+  /** yyyy-MM-ddT00:00:00 */
+  syntymäaika: string | null
+  tittelit: string
+  tunnistusmerkintä: string
+  väri: string
+}
 
 /** Request body of Koe/Tulos/Tallenna, from the API document (no real sample). */
 export type KLIntTulosTallenna = {
