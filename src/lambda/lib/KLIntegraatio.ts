@@ -81,6 +81,9 @@ const errorMessage = (e: unknown): string => (e instanceof Error ? e.message : '
  * Nothing here throws on a bad answer. A failed call returns its status, and the reasons KL gave
  * (`{ "virheet": [...] }` on 400 and 404) are logged and returned, so the caller decides what the
  * secretary is told.
+ *
+ * A configuration that cannot be loaded does propagate, as the rejection of the call: a missing
+ * parameter or a failed SSM read is a deployment fault, and must not look like a network error.
  */
 export default class KLIntegraatio {
   private _config?: KLIntegraatioConfig

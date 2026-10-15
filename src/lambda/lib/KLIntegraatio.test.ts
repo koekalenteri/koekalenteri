@@ -91,6 +91,20 @@ describe('KLIntegraatio', () => {
     })
   })
 
+  describe('config that cannot be loaded', () => {
+    it('rejects the call and sends no request', async () => {
+      klint = new KLIntegraatio(
+        async () => {
+          throw new Error('Missing KL Integraatio Config!')
+        },
+        { now: () => nowMs }
+      )
+
+      await expect(klint.lueKoemuoto({ koemuoto: 'NOU' })).rejects.toThrow('Missing KL Integraatio Config!')
+      expect(requests).toHaveLength(0)
+    })
+  })
+
   describe('token', () => {
     it('asks the SSO address for a client_credentials token with scope kennelapi', async () => {
       replies.push(tokenReply(3600), { body: koemuotoNOU })
