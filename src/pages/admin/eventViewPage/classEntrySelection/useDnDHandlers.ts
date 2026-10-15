@@ -16,11 +16,14 @@ import { errorSnackbarOptions } from '@/lib/client/snackbar'
 import { eventRegistrationDateKey } from '@/lib/event'
 import { GROUP_KEY_RESERVE, getRegistrationGroupKey } from '@/lib/registration'
 import { determineChangesFromDrop } from './dnd'
+import { listKey } from './helpers'
 import { confirmMoveToParticipants } from './moveConfirmation'
 
 interface UseDnDHandlersArgs {
   disabled?: boolean
   event: DogEvent
+  /** The grid's participant groups: the drop's siblings are the rows the grid lists in the target group. */
+  groups: RegistrationGroup[]
   registrations: Registration[]
   state?: EventClassState | EventState
   canArrangeReserve: boolean
@@ -41,6 +44,7 @@ const findAnchor = (change: Pick<Registration, 'group' | 'id'>, registrations: R
 
 export const useDnDHandlers = ({
   event,
+  groups,
   registrations,
   state,
   disabled,
@@ -72,9 +76,10 @@ export const useDnDHandlers = ({
 
     setSelectedRegistrationId?.(reg.id)
 
-    // The grid lists a row by getRegistrationGroupKey: a cancelled entry whose stale key still names
-    // this group is not a sibling, and anchoring on it gets the move refused (KOE-1537).
-    const regs = registrations.filter((r) => getRegistrationGroupKey(r) === group.key && r.id !== reg.id)
+    // The siblings are exactly the rows the grid lists in this group (listKey): a cancelled entry whose
+    // stale key still names the group is not one, and anchoring on it gets the move refused, while a
+    // start whose stored key names the UTC day is (KOE-1537).
+    const regs = registrations.filter((r) => listKey(r, groups) === group.key && r.id !== reg.id)
     const save = determineChangesFromDrop(item, group, reg, regs, canArrangeReserve)
 
     if (save.length) {

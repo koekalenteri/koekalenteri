@@ -298,6 +298,7 @@ const ClassEntrySelection = ({
     confirm,
     disabled: movementDisabled,
     event,
+    groups,
     onCancelOpen: handleCancel,
     registrations,
     saveGroups: actions.saveGroups,

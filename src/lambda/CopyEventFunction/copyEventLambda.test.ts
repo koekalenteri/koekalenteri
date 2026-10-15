@@ -352,6 +352,41 @@ describe('copyEventHandler', () => {
     )
   })
 
+  it("keys a copied start by the trial's day in Finnish time, not the UTC day (KOE-1537)", async () => {
+    setEventBody(event, { id: 'event123', startDate: '2026-08-21T21:00:00.000Z' })
+    mockGetEvent.mockResolvedValueOnce({
+      classes: [],
+      endDate: '2026-08-14T21:00:00.000Z',
+      id: 'event123',
+      name: 'Original Event',
+      startDate: '2026-08-14T21:00:00.000Z',
+    })
+    mockNanoid.mockReturnValueOnce('newid123')
+    mockQuery.mockResolvedValueOnce([
+      {
+        dates: [{ date: '2026-08-14T21:00:00.000Z', time: 'ap' }],
+        eventId: 'event123',
+        // 21:00Z on the 14th is the morning of the 15th in Finland.
+        group: { date: '2026-08-14T21:00:00.000Z', key: '2026-08-15-ap', number: 1, time: 'ap' },
+        id: 'starter',
+      },
+    ])
+
+    await copyEventHandler(event)
+
+    expect(mockBatchWrite).toHaveBeenCalledWith(
+      [
+        {
+          dates: [{ date: '2026-08-21T21:00:00.000Z', time: 'ap' }],
+          eventId: 'newid123',
+          group: { date: '2026-08-21T21:00:00.000Z', key: '2026-08-22-ap', number: 1, time: 'ap' },
+          id: 'starter',
+        },
+      ],
+      'registration-table-not-found-in-env'
+    )
+  })
+
   it('returns 500 if getEvent throws', async () => {
     const user = { name: 'Test User' }
     mockAuthorize.mockResolvedValueOnce(user)

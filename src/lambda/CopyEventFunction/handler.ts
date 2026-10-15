@@ -2,7 +2,7 @@ import { addDays } from 'date-fns/addDays'
 import { differenceInDays } from 'date-fns/differenceInDays'
 import { parseISO } from 'date-fns/parseISO'
 import { nanoid } from 'nanoid'
-import { getEventSeason, stripKennelliittoLink } from '../../lib/event'
+import { eventRegistrationDateKey, getEventSeason, stripKennelliittoLink } from '../../lib/event'
 import { getRegistrationGroupKey, isStarter } from '../../lib/registration'
 import { saveEvent } from '../lib/event'
 import { authorizeEvent } from '../lib/eventAuth'
@@ -74,10 +74,14 @@ const copyEventLambda = lambda('copyEvent', async (event) => {
       d.date = addDays(parseISO(d.date), days).toISOString()
     })
     if (reg.group?.date) {
-      reg.group.date = addDays(parseISO(reg.group.date), days).toISOString()
-      // Only a start's key names its day. A cancelled entry gets the cancelled key even when the source
-      // row still carried a participant key, and a reserve entry keeps its own (KOE-1537).
-      reg.group.key = isStarter(reg) ? `${reg.group.date.slice(0, 10)}-${reg.group.time}` : getRegistrationGroupKey(reg)
+      const date = addDays(parseISO(reg.group.date), days)
+      reg.group.date = date.toISOString()
+      // Only a start's key names its day, in the trial's time zone as every other writer keys it. A
+      // cancelled entry gets the cancelled key even when the source row still carried a participant
+      // key, and a reserve entry keeps its own (KOE-1537).
+      reg.group.key = isStarter(reg)
+        ? eventRegistrationDateKey({ date, time: reg.group.time })
+        : getRegistrationGroupKey(reg)
     }
     return reg
   })

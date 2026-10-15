@@ -71,6 +71,7 @@ describe('useDnDHandlers', () => {
     canArrangeReserve: true,
     confirm: mockConfirm,
     event: eventWithStaticDatesAnd3Classes,
+    groups: [mockGroup],
     onCancelOpen: mockOnCancelOpen,
     registrations: mockRegistrations,
     saveGroups: mockSaveGroups,
@@ -247,6 +248,29 @@ describe('useDnDHandlers', () => {
           id: 'reg1',
         },
       ])
+    })
+
+    it('counts a start whose stored key names the UTC day among the rows the grid lists in its group (KOE-1537)', async () => {
+      // 21:00Z on the 2nd is the evening start of the 3rd in Finland: the grid lists the dog there.
+      const gridGroup: RegistrationGroup = {
+        date: new Date('2024-08-02T21:00:00.000Z'),
+        key: '2024-08-03-ip',
+        number: 0,
+        time: 'ip',
+      }
+      const utcKeyed: Registration = {
+        ...mockRegistration,
+        group: { date: new Date('2024-08-02T21:00:00.000Z'), key: '2024-08-02-ip', number: 1, time: 'ip' },
+        id: 'utc-keyed',
+      }
+
+      const { result } = renderHook(() =>
+        useDnDHandlers({ ...defaultProps, groups: [gridGroup], registrations: [mockRegistration, utcKeyed] })
+      )
+
+      await result.current.handleDrop(gridGroup)(mockDragItem)
+
+      expect(determineChangesFromDrop).toHaveBeenCalledWith(mockDragItem, gridGroup, mockRegistration, [utcKeyed], true)
     })
 
     it('should call onCancelOpen when a single cancelled change is returned', async () => {
