@@ -277,6 +277,54 @@ describe('copyEventHandler', () => {
     )
   })
 
+  it('shifts the group date of every entry but keeps a cancelled entry out of the participant group (KOE-1537)', async () => {
+    setEventBody(event, { id: 'event123', startDate: '2025-07-01T00:00:00.000Z' })
+    mockGetEvent.mockResolvedValueOnce({
+      classes: [],
+      endDate: '2025-06-12T00:00:00.000Z',
+      id: 'event123',
+      name: 'Original Event',
+      startDate: '2025-06-10T00:00:00.000Z',
+    })
+    mockNanoid.mockReturnValueOnce('newid123')
+    mockQuery.mockResolvedValueOnce([
+      {
+        dates: [{ date: '2025-06-10T00:00:00.000Z', time: 'kp' }],
+        eventId: 'event123',
+        group: { date: '2025-06-10T00:00:00.000Z', key: '2025-06-10-kp', number: 1, time: 'kp' },
+        id: 'starter',
+      },
+      {
+        cancelled: true,
+        dates: [{ date: '2025-06-10T00:00:00.000Z', time: 'kp' }],
+        eventId: 'event123',
+        group: { date: '2025-06-10T00:00:00.000Z', key: 'cancelled', number: 2, time: 'kp' },
+        id: 'cancelled',
+      },
+    ])
+
+    await copyEventHandler(event)
+
+    expect(mockBatchWrite).toHaveBeenCalledWith(
+      [
+        {
+          dates: [{ date: '2025-07-01T00:00:00.000Z', time: 'kp' }],
+          eventId: 'newid123',
+          group: { date: '2025-07-01T00:00:00.000Z', key: '2025-07-01-kp', number: 1, time: 'kp' },
+          id: 'starter',
+        },
+        {
+          cancelled: true,
+          dates: [{ date: '2025-07-01T00:00:00.000Z', time: 'kp' }],
+          eventId: 'newid123',
+          group: { date: '2025-07-01T00:00:00.000Z', key: 'cancelled', number: 2, time: 'kp' },
+          id: 'cancelled',
+        },
+      ],
+      'registration-table-not-found-in-env'
+    )
+  })
+
   it('returns 500 if getEvent throws', async () => {
     const user = { name: 'Test User' }
     mockAuthorize.mockResolvedValueOnce(user)

@@ -1,6 +1,6 @@
 import type { JsonConfirmedEvent } from '../../types'
 import { isEventOver } from '../../lib/event'
-import { getSentInvitationAttachment, isParticipantGroup } from '../../lib/registration'
+import { getSentInvitationAttachment, isStarter } from '../../lib/registration'
 import { getEvent } from '../lib/event'
 import { getParam, LambdaError, lambda, response } from '../lib/lambda'
 import { participantResponse } from '../lib/payment'
@@ -21,7 +21,7 @@ const getRegistrationLambda = lambda('getRegistration', async (event) => {
     throw new LambdaError(404, 'not found')
   }
 
-  if (isParticipantGroup(registration.group?.key)) {
+  if (isStarter(registration)) {
     registration.invitationAttachment = getSentInvitationAttachment(dogEvent, registration)
     registration.invitationAttachmentUpdatedAt = registration.invitationAttachment
       ? dogEvent.invitationAttachmentHistory?.[registration.invitationAttachment]?.uploadedAt

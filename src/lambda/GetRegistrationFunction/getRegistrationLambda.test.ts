@@ -211,6 +211,22 @@ describe('getRegistration', () => {
     expect(reg.invitationAttachment).toBeUndefined()
   })
 
+  it('does not add invitationAttachment for a cancelled registration left in a participant group (KOE-1537)', async () => {
+    const stored = registrationsToEventWithParticipantsInvited[0]
+    // The bad state: cancelled, but the group key still names a participant group.
+    expect(stored.group?.key).toBe('ALO-AP')
+    mockGetRegistration.mockReturnValueOnce({ ...stored, cancelled: true })
+
+    const res = await getRegistrationLambda(
+      constructAPIGwEvent('test', { pathParameters: { eventId: '123', id: '123' } })
+    )
+
+    expect(res.statusCode).toEqual(200)
+    const reg: JsonRegistration = JSON.parse(res.body)
+    expect(reg.invitationAttachment).toBeUndefined()
+    expect(reg.invitationAttachmentUpdatedAt).toBeUndefined()
+  })
+
   /**
    * In the shouldPay tables below, 'PENDING' is a sentinel for "a payment is in progress": it is
    * expressed as `openPayments`, never as the stored `paymentStatus` any more (KOE-1529).

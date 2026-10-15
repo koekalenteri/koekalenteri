@@ -3,6 +3,7 @@ import { differenceInDays } from 'date-fns/differenceInDays'
 import { parseISO } from 'date-fns/parseISO'
 import { nanoid } from 'nanoid'
 import { getEventSeason, stripKennelliittoLink } from '../../lib/event'
+import { isStarter } from '../../lib/registration'
 import { saveEvent } from '../lib/event'
 import { authorizeEvent } from '../lib/eventAuth'
 import { removeEventRuntimeState } from '../lib/eventCopy'
@@ -72,11 +73,10 @@ const copyEventLambda = lambda('copyEvent', async (event) => {
     reg.dates.forEach((d) => {
       d.date = addDays(parseISO(d.date), days).toISOString()
     })
-    if (reg.group) {
-      if (reg.group.date && reg.group.key) {
-        reg.group.date = addDays(parseISO(reg.group.date), days).toISOString()
-        reg.group.key = `${reg.group.date.slice(0, 10)}-${reg.group.time}`
-      }
+    if (reg.group?.date) {
+      reg.group.date = addDays(parseISO(reg.group.date), days).toISOString()
+      // Only a start's key names its day: a cancelled or reserve entry keeps its own (KOE-1537).
+      if (isStarter(reg)) reg.group.key = `${reg.group.date.slice(0, 10)}-${reg.group.time}`
     }
     return reg
   })
