@@ -7,7 +7,7 @@ import { CONFIG } from '../config'
 import { audit, eventAuditKey } from '../lib/audit'
 import { withoutPlusTag } from '../lib/email'
 import { saveEvent } from '../lib/event'
-import { findCopyLeaks, judgeNotices } from '../lib/eventCopy'
+import { findCopyLeaks, judgeNotices, stripKennelliittoLink } from '../lib/eventCopy'
 import { logger } from '../lib/log'
 import { saveRegistrations } from '../lib/registration'
 import { sumNewRegistrationStatDeltas, updateOrganizerEventStats } from '../lib/stats'
@@ -37,6 +37,9 @@ export default async function importCopiedEvent(request: CopyImportRequest): Pro
   if (CONFIG.stageName === 'prod') throw new Error('An event copy is never imported into prod')
 
   const { copy, copier, organizerKcId, source } = request
+  // A source that has not been deployed yet may still send the link; it names a trial of its own
+  // environment, so it is dropped here and never stored (KOE-1534).
+  stripKennelliittoLink(copy.event)
   const leaks = findCopyLeaks(copy, copier)
   if (leaks.length) throw new Error(`Event copy rejected: ${leaks.join(', ')}`)
 

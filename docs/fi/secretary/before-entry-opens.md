@@ -42,7 +42,7 @@ kun kaikki vaadittu on paikallaan. Käy osiot läpi ja tarkista erityisesti:
 - **päivämäärät** — kokeen alkamis- ja päättymispäivä sekä ilmoittautumisajan alku ja loppu,
 - **luokat, ryhmät ja koepaikkojen määrä** — paikat voi antaa yhteensä, päivittäin tai luokittain,
 - **tuomarit ja luokat, joita kukin arvostelee**,
-- **{t:event.kcIdSectionTitle}** — sitä tarvitaan tulosten tallentamiseen,
+- **{t:event.kcIdSectionTitle}** — koe liitetään Kennelliiton kokeeseen, jotta tulokset voi tallentaa,
 - **yhteystiedot** — mitkä vastaavan koetoimitsijan ja koesihteerin tiedot ilmoittautuja saa nähdä.
 
 ## 2. Tarkasta kokeen tila

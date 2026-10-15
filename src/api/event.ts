@@ -11,6 +11,7 @@ import type {
 } from '../types'
 import { addDays, nextSaturday } from 'date-fns'
 import { zonedStartOfDay } from '../i18n/dates'
+import { normalizeEventKcIdChoice } from '../lib/event'
 import { latestCollectionUpdate } from '../lib/incremental'
 import http, { withToken } from './http'
 
@@ -33,8 +34,12 @@ export type EventKcIdChoice = {
   contactInfo?: NonNullable<DogEvent['contactInfo']>
   cost?: DogEvent['cost']
   description?: DogEvent['description']
-  id: number
   judge?: string
+  /** The chief judge's member number, which the judge warning compares with the event's judges. */
+  judgeId?: number
+  /** Null for a trial Kennelliitto has not given a GUID: it is shown, and cannot be selected (KOE-1534). */
+  kcGuid: string | null
+  kcTunnus?: string
   name: string
   eventType: string
   startDate: Date
@@ -42,7 +47,8 @@ export type EventKcIdChoice = {
   entryStartDate?: Date
   entryEndDate?: Date
   organizer: string
-  location: string
+  /** Absent when the trial's details could not be read from Kennelliitto. */
+  location?: string
   status?: string
 }
 
@@ -56,10 +62,6 @@ export type SearchEventKcIdChoicesRequest = Pick<
 > & {
   classes: Pick<EventClass, 'class' | 'date'>[]
   organizer: Pick<DogEvent['organizer'], 'id'>
-}
-
-export function normalizeEventKcIdChoice(choice: EventKcIdChoice): EventKcIdChoice {
-  return choice.endDate.getFullYear() <= 1 ? { ...choice, endDate: choice.startDate } : choice
 }
 
 function isPublicEventsDeltaResponse(response: PublicEventsResponse): response is PublicEventsDeltaResponse {

@@ -13,7 +13,7 @@ covers:
   - src/pages/admin/eventViewPage/infoPanel/ResultsPublishing.tsx
   - src/pages/admin/components/KcIdLookupButton.tsx
   - src/pages/admin/components/StartDaySelector.tsx
-sourceHash: 92dedb
+sourceHash: 8d7e37
 ---
 
 On the trial day the secretary's job is to record what the dogs did and to get the results in
@@ -27,10 +27,11 @@ published.
 
 ## Before the trial starts
 
-Check on the event page that the trial has its *{t:event.kcId}*. It is not needed for entering
-results, but the results page reminds you of a missing id and offers the
-**{t:event.kcIdLookup}** button, which fetches the id from the Kennel Club without leaving the
-page.
+Check on the event page that the trial is linked to a Kennel Club event (*{t:event.kcGuidLinked}*).
+The link is not needed for entering results, but the results page reminds you of a missing link
+and offers the **{t:event.kcIdLookup}** button, which finds the Kennel Club event without
+leaving the page. If the search shows the event but does not let you select it, the Kennel Club
+has not yet given it an identifier: repeat the search later.
 
 The start list needed at the venue opens from the panel's *{t:eventManagement.actions}* section
 with **{t:eventManagement.startList.secretary}**. When logged in, the public start list also has

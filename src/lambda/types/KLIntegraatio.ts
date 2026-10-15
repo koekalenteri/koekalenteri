@@ -100,6 +100,8 @@ export type KLIntKokeetParametrit = {
   /** yyyy-MM-dd */
   loppu: string
   koemuoto: string
+  /** The organizer's number. Testi2 lists only that organizer's trials (checked 15.10.2026). */
+  yhdistys?: number
 }
 
 export type KLIntRajoitus = {

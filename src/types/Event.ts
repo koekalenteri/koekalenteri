@@ -110,7 +110,13 @@ export interface JsonDogEvent extends JsonDbRecord {
   invitationAttachmentHistory?: Record<string, JsonInvitationAttachmentVersion>
   invitationAttachments?: Record<string, string>
   judges: Array<PublicJudge>
+  /** The integer of the old Kennelliitto API. A record only: nothing new trusts it (KOE-1534). */
   kcId?: number
+  /**
+   * The Kennelliitto trial this event is linked to, found with Koe/Kokeet (KOE-1534). A GUID belongs
+   * to one KL environment (Testi2 or production) and never travels with a copy of the event.
+   */
+  kcGuid?: string
   kcEvent?: JsonKcEventInfo
   location: string
   members?: number
@@ -434,8 +440,11 @@ export type JsonKcEventInfo = {
   eventType: string
   startDate: string
   endDate: string
-  location: string
+  /** Absent when Kennelliitto's details of the trial could not be read, so no false warning follows. */
+  location?: string
   judge?: string
+  /** The chief judge's member number (ylituomariNumero); the judge warning compares numbers. */
+  judgeId?: number
 }
 export type KcEventInfo = Replace<JsonKcEventInfo, 'startDate' | 'endDate', Date>
 
@@ -480,6 +489,7 @@ type NonPublicDogEventProperties =
   | 'invitationAttachmentHistory'
   | 'invitationAttachments'
   | 'kcId'
+  | 'kcGuid'
   | 'kcEvent'
   | 'official'
   | 'secretary'

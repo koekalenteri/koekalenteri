@@ -1,7 +1,7 @@
 import type { KLIntegraatioConfig, KLIntKoemuoto } from '../types/KLIntegraatio'
 import { vi } from 'vitest'
 import { KL_TILA_YLITUOMARIN_HYVÄKSYTTÄVÄKSI } from '../types/KLIntegraatio'
-import KLIntegraatio from './KLIntegraatio'
+import KLIntegraatio, { getKLIntegraatio } from './KLIntegraatio'
 import koemuotoNKM from './KLIntegraatio-fixtures/koemuoto-NKM.json'
 import koemuotoNOME_A from './KLIntegraatio-fixtures/koemuoto-NOME-A.json'
 import koemuotoNOME_B from './KLIntegraatio-fixtures/koemuoto-NOME-B.json'
@@ -12,6 +12,8 @@ import koiraFI130131 from './KLIntegraatio-fixtures/koira-FI130131_11.json'
 import koiraSF06626 from './KLIntegraatio-fixtures/koira-SF06626_92.json'
 import kokeetNOU from './KLIntegraatio-fixtures/kokeet-NOU.json'
 import lueNOU from './KLIntegraatio-fixtures/lue-NOU.json'
+
+vi.mock('./secrets', () => ({ getKLIntegraatioConfig: async () => config }))
 
 const config: KLIntegraatioConfig = {
   KL_API_PWD: 'secret-pwd',
@@ -76,21 +78,44 @@ describe('KLIntegraatio', () => {
   })
 
   describe('config', () => {
-    it('is loaded once, however many requests follow', async () => {
-      let loads = 0
-      klint = new KLIntegraatio(
-        async () => {
-          loads++
-          return config
-        },
-        { now: () => nowMs }
-      )
+    it('is asked from loadConfig on every request, so a changed value is picked up', async () => {
+      let url = 'https://first.example.test/KennelliittoAPI_JulkinenTesti2/'
+      klint = new KLIntegraatio(async () => ({ ...config, KL_INT_API_URL: url }), { now: () => nowMs })
+      replies.push(tokenReply(3600), { body: koemuotoNOU }, { body: koemuotoNOU })
+
+      await klint.lueKoemuoto({ koemuoto: 'NOU' })
+      url = 'https://second.example.test/KennelliittoAPI_JulkinenTesti2/'
+      await klint.lueKoemuoto({ koemuoto: 'NOU' })
+
+      expect(requests[1].url).toMatch(/^https:\/\/first\.example\.test\//)
+      expect(requests[2].url).toMatch(/^https:\/\/second\.example\.test\//)
+    })
+
+    it('calls loadConfig once per request', async () => {
+      const load = vi.fn(async () => config)
+      klint = new KLIntegraatio(load, { now: () => nowMs })
       replies.push(tokenReply(3600), { body: koemuotoNOU }, { body: koemuotoNOU })
 
       await klint.lueKoemuoto({ koemuoto: 'NOU' })
       await klint.lueKoemuoto({ koemuoto: 'NOU' })
 
-      expect(loads).toBe(1)
+      expect(load).toHaveBeenCalledTimes(2)
+    })
+  })
+
+  describe('getKLIntegraatio', () => {
+    it('returns one shared instance, so two calls make one token request', async () => {
+      replies.push(tokenReply(3600), { body: [] }, { body: [] })
+      const query = { alku: '2026-09-01', koemuoto: 'NOU', loppu: '2026-09-30' }
+
+      const first = getKLIntegraatio()
+      const second = getKLIntegraatio()
+      await first.lueKokeet(query)
+      await second.lueKokeet(query)
+
+      expect(second).toBe(first)
+      expect(requests.filter((r) => r.url === config.KL_INT_SSO_URL)).toHaveLength(1)
+      expect(requests).toHaveLength(3)
     })
   })
 
@@ -355,6 +380,16 @@ describe('KLIntegraatio', () => {
 
       expect(requests[1].url).toBe(
         `${config.KL_INT_API_URL}Integraatio/Koe/Kokeet?alku=2026-01-01&koemuoto=NOU&loppu=2026-12-31`
+      )
+    })
+
+    it('sends yhdistys, which Testi2 answered by listing only that organizer (checked 15.10.2026)', async () => {
+      replies.push(tokenReply(3600), { body: kokeetNOU })
+
+      await klint.lueKokeet({ alku: '2026-09-26', koemuoto: 'NOU', loppu: '2026-09-26', yhdistys: 400294 })
+
+      expect(requests[1].url).toBe(
+        `${config.KL_INT_API_URL}Integraatio/Koe/Kokeet?alku=2026-09-26&koemuoto=NOU&loppu=2026-09-26&yhdistys=400294`
       )
     })
 

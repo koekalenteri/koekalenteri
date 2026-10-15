@@ -98,13 +98,13 @@ export const putEvent = vi.fn(
   }
 )
 
-export async function searchEventKcIdChoices(
-  _request: SearchEventKcIdChoicesRequest,
-  _token?: string,
-  _signal?: AbortSignal
-): Promise<SearchEventKcIdChoicesResponse> {
-  return { choices: [] }
-}
+export const searchEventKcIdChoices = vi.fn(
+  async (
+    _request: SearchEventKcIdChoicesRequest,
+    _token?: string,
+    _signal?: AbortSignal
+  ): Promise<SearchEventKcIdChoicesResponse> => ({ choices: [] })
+)
 
 export async function putInvitationAttachment(
   _eventId: string,

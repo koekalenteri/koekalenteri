@@ -16,6 +16,7 @@ import type {
   KLIntTulosTallennaVastaus,
 } from '../types/KLIntegraatio'
 import { logger } from './log'
+import { getKLIntegraatioConfig } from './secrets'
 
 type Query = Record<string, string | number | undefined>
 
@@ -82,11 +83,14 @@ const errorMessage = (e: unknown): string => (e instanceof Error ? e.message : '
  * (`{ "virheet": [...] }` on 400 and 404) are logged and returned, so the caller decides what the
  * secretary is told.
  *
+ * The configuration is asked from `loadConfig` on every request and not kept here: the loader
+ * (`getKLIntegraatioConfig`) caches with a time limit, so a rotated credential is picked up by a
+ * warm Lambda.
+ *
  * A configuration that cannot be loaded does propagate, as the rejection of the call: a missing
  * parameter or a failed SSM read is a deployment fault, and must not look like a network error.
  */
 export default class KLIntegraatio {
-  private _config?: KLIntegraatioConfig
   private readonly _loadConfig: () => Promise<KLIntegraatioConfig>
   private readonly _now: () => number
   private _token?: { expiresAt: number; token: string }
@@ -95,11 +99,6 @@ export default class KLIntegraatio {
   public constructor(loadConfig: () => Promise<KLIntegraatioConfig>, { now = Date.now }: Options = {}) {
     this._loadConfig = loadConfig
     this._now = now
-  }
-
-  private async _getConfig(): Promise<KLIntegraatioConfig> {
-    this._config ??= await this._loadConfig()
-    return this._config
   }
 
   private async _fetchToken(cfg: KLIntegraatioConfig): Promise<TokenOutcome> {
@@ -176,7 +175,7 @@ export default class KLIntegraatio {
     query?: Query,
     body?: object
   ): Promise<KLIntegraatioResult<T>> {
-    const cfg = await this._getConfig()
+    const cfg = await this._loadConfig()
     const url = joinUrl(cfg.KL_INT_API_URL, path, query)
     logger.info('KLIntegraatio request', { method, path })
     try {
@@ -231,4 +230,15 @@ export default class KLIntegraatio {
   asetaTila(tila: KLIntAsetaTila) {
     return this.request<never>('POST', 'Koe/AsetaTila', undefined, tila)
   }
+}
+
+let shared: KLIntegraatio | undefined
+
+/**
+ * The one instance of a Lambda container. The token is cached in the instance, so an instance
+ * created per invocation would ask KL for a new token on every call.
+ */
+export const getKLIntegraatio = (): KLIntegraatio => {
+  shared ??= new KLIntegraatio(getKLIntegraatioConfig)
+  return shared
 }

@@ -5,7 +5,7 @@ import { nanoid } from 'nanoid'
 import { getEventSeason } from '../../lib/event'
 import { saveEvent } from '../lib/event'
 import { authorizeEvent } from '../lib/eventAuth'
-import { removeEventRuntimeState } from '../lib/eventCopy'
+import { removeEventRuntimeState, stripKennelliittoLink } from '../lib/eventCopy'
 import { parseJSONWithFallback } from '../lib/json'
 import { httpError, lambda, response } from '../lib/lambda'
 import { getRegistrationsByEventId, removeRegistrationCreationMetadata, saveRegistrations } from '../lib/registration'
@@ -27,6 +27,9 @@ const copyEventLambda = lambda('copyEvent', async (event) => {
 
   // The source's live timeline and locks belong to its own run of the trial.
   removeEventRuntimeState(item)
+  // The link to a Kennelliitto trial belongs to the event it was made for (KOE-1534): a second event
+  // with the same GUID would send its results to the original's trial.
+  stripKennelliittoLink(item)
   item.id = nanoid(10)
   item.name = `Kopio - ${item.name ?? ''}`
   item.state = 'draft'

@@ -73,6 +73,7 @@ export const seedEvent = async (overrides: Partial<JsonConfirmedEvent> = {}): Pr
     headquarters: { address: 'Koetie 1', name: 'Kokoontumispaikka', postalDistrict: 'Tampere', zipCode: '33100' },
     id,
     judges: [{ id: 100002, name: 'Tuomari 1', official: true }],
+    kcGuid: '2b81e6a1-559b-407c-87c7-b8a9b89b1987',
     kcId: 1234567,
     location: `E2E-paikka ${id}`,
     modifiedAt: now,

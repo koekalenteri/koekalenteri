@@ -12,6 +12,7 @@ import { useTranslation } from 'react-i18next'
 import { TestProvider as Provider } from 'test-utils/AtomProvider'
 import { eventWithStaticDates } from '../../__mockData__/events'
 import { eventWithStations, RESULTS_EVENT_DAY, registrationsToEventWithStations } from '../../__mockData__/resultsEvent'
+import { putEvent, searchEventKcIdChoices } from '../../api/event'
 import { APIError } from '../../api/http'
 import { putEventResults } from '../../api/registration'
 import theme from '../../assets/Theme'
@@ -293,16 +294,69 @@ describe('EventResultsPage', () => {
     }
   })
 
-  it('shows the koetunnus, so the secretary can see which event they are scoring', async () => {
+  it('shows that the trial is linked to Kennelliitto, so the secretary can see which event they are scoring', async () => {
     const { i18n } = useTranslation()
     await renderPage(i18n.language as Language)
     await flushPromises()
 
     // KOE-72 asks for this outright: entering a whole class against the wrong event is a silent and
-    // expensive mistake. The mock event has an id, so the header states it rather than offering the
-    // lookup that stands in its place.
-    expect(screen.getByText(/event\.kcId/)).toBeInTheDocument()
+    // expensive mistake. The mock event is linked (it has a kcGuid), so the header says so rather than
+    // offering the lookup that stands in its place.
+    expect(screen.getByText('event.kcGuidLinked')).toBeInTheDocument()
     expect(screen.queryByRole('button', { name: 'event.kcIdLookup' })).not.toBeInTheDocument()
+  })
+
+  describe('an event without a GUID', () => {
+    const legacy = {
+      ...eventWithStaticDates,
+      kcEvent: {
+        classes: ['AVO'],
+        endDate: eventWithStaticDates.endDate,
+        eventType: 'NOU',
+        judge: 'Tuomari A',
+        judgeId: 1000001,
+        location: 'Vantaa',
+        startDate: eventWithStaticDates.startDate,
+      },
+      kcGuid: undefined,
+    }
+
+    it('shows its old koetunnus and offers the lookup', async () => {
+      await renderQualitativePage('fi', {}, legacy)
+      await flushPromises()
+
+      expect(screen.getByText('event.kcIdLegacy id')).toBeInTheDocument()
+      expect(screen.getByRole('button', { name: 'event.kcIdLookup' })).toBeInTheDocument()
+    })
+
+    it('links the trial found, and sends null for every kcEvent field it lacks, so the old judge is not left behind', async () => {
+      vi.mocked(searchEventKcIdChoices).mockResolvedValueOnce({
+        choices: [
+          {
+            classes: ['ALO'],
+            endDate: eventWithStaticDates.endDate,
+            eventType: 'NOU',
+            kcGuid: 'guid-b',
+            name: '',
+            organizer: 'Järjestäjä',
+            startDate: eventWithStaticDates.startDate,
+          },
+        ],
+      })
+      const { user } = await renderQualitativePage('fi', {}, legacy)
+      await flushPromises()
+
+      await user.click(screen.getByRole('button', { name: 'event.kcIdLookup' }))
+      await flushPromises()
+
+      expect(putEvent).toHaveBeenCalledWith(
+        expect.objectContaining({
+          kcEvent: expect.objectContaining({ classes: ['ALO'], judge: null, judgeId: null, location: null }),
+          kcGuid: 'guid-b',
+        }),
+        expect.anything()
+      )
+    })
   })
 
   // The secretary browsing in English reads the trial's English name where one is kept (KOE-1453).

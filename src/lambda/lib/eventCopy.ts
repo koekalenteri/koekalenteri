@@ -197,6 +197,14 @@ const copierContact = (copier: Copier, standIns: StandIns, original: PublicConta
  * What belongs to the source's run of the trial rather than to the event: the live timeline of the
  * day and the short-lived locks. A copy has not run, and nobody holds its locks.
  */
+/** Removes the event's link to a Kennelliitto trial: the GUID, the old integer id and the snapshot of the trial. */
+export const stripKennelliittoLink = <T extends Partial<JsonDogEvent>>(event: T): T => {
+  delete event.kcGuid
+  delete event.kcId
+  delete event.kcEvent
+  return event
+}
+
 export const removeEventRuntimeState = <T extends Partial<JsonDogEvent>>(event: T): T => {
   delete event.turns
   delete event.registrationGroupsLock
@@ -206,6 +214,11 @@ export const removeEventRuntimeState = <T extends Partial<JsonDogEvent>>(event: 
 
 const copyEvent = (source: JsonDogEvent, copier: Copier, standIns: StandIns, originals: CopyOriginals) => {
   const event: JsonDogEvent = removeEventRuntimeState(structuredClone(source))
+  // The link to a Kennelliitto trial belongs to the event it was made for. A GUID names a trial in one
+  // environment (Testi2 or production), so a copy into another stack must not carry it: results sent
+  // from there would land on someone else's trial (KOE-1534). The old kcId and the kcEvent that
+  // describes the link go with it.
+  stripKennelliittoLink(event)
 
   for (const role of ['official', 'secretary'] as const) {
     const person = source[role]
@@ -341,6 +354,9 @@ export const findCopyLeaks = (copy: EventCopy, copier: Copier, originals?: CopyO
   const copierPhone = copier.phone ? digitsOf(copier.phone) : undefined
   const reservedPrefix = digitsOf(COPY_PHONE_PREFIX)
   const leaks = new Set<string>()
+  if (copy.event.kcGuid || copy.event.kcId || copy.event.kcEvent) {
+    leaks.add('kcGuid: a link to a Kennelliitto trial')
+  }
 
   eachString(copy, (text, key) => {
     for (const match of text.match(EMAIL_RE) ?? []) {

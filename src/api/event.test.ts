@@ -155,7 +155,7 @@ test('searchEventKcIdChoices', async () => {
       ? Promise.resolve(
           JSON.stringify({
             choices: [
-              { endDate: '2026-07-02', id: 123, startDate: '2026-07-01' },
+              { endDate: '2026-07-02', kcGuid: 'guid-123', startDate: '2026-07-01' },
               {
                 contactInfo: { secretary: { email: 'nome.maija@gmail.com', name: 'Parviainen Niina' } },
                 cost: 55,
@@ -163,7 +163,7 @@ test('searchEventKcIdChoices', async () => {
                 endDate: '0001-01-01T00:00:00',
                 entryEndDate: '2026-06-07T00:00:00',
                 entryStartDate: '2026-05-17T00:00:00',
-                id: 456,
+                kcGuid: null,
                 startDate: '2026-06-28T00:00:00',
               },
             ],
@@ -190,7 +190,8 @@ test('searchEventKcIdChoices', async () => {
     endDate: emptyEvent.endDate.toISOString(),
     startDate: emptyEvent.startDate.toISOString(),
   })
-  expect(response.choices[0]?.id).toEqual(123)
+  expect(response.choices[0]?.kcGuid).toEqual('guid-123')
+  expect(response.choices[1]?.kcGuid).toBeNull()
   expect(response.choices[0]?.startDate).toBeInstanceOf(Date)
   expect(response.choices[0]?.endDate).toBeInstanceOf(Date)
   expect(zonedDateString(response.choices[0]!.startDate)).toEqual('2026-07-01')

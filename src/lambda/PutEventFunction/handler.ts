@@ -17,6 +17,7 @@ import { patchMerge } from '../../lib/utils'
 import { audit, eventAuditKey, getEventAuditMessages } from '../lib/audit'
 import { authorize } from '../lib/auth'
 import {
+  findEventWithKcGuid,
   findEventWithKcId,
   findQualificationStartDate,
   getEvent,
@@ -274,6 +275,17 @@ const putEventLambda = lambda('putEvent', async (event) => {
       return response(
         409,
         { error: 'kcIdConflict', message: 'Kennel Club ID is already linked to another event' },
+        event
+      )
+    }
+  }
+
+  if (item.kcGuid != null && item.kcGuid !== existing?.kcGuid) {
+    const conflict = await findEventWithKcGuid(item.kcGuid, existing?.id)
+    if (conflict) {
+      return response(
+        409,
+        { error: 'kcGuidConflict', message: 'Kennel Club trial is already linked to another event' },
         event
       )
     }

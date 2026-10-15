@@ -106,6 +106,36 @@ describe('createEventCopy', () => {
     })
   })
 
+  it('leaves out the link to a Kennelliitto trial: a GUID names a trial in one environment only (KOE-1534)', () => {
+    const linked = createEventCopy(
+      {
+        event: {
+          ...sourceEvent(),
+          kcEvent: {
+            classes: ['ALO'],
+            endDate: '2026-09-27',
+            eventType: 'NOU',
+            location: 'Laukaa',
+            startDate: '2026-09-26',
+          },
+          kcGuid: '2b81e6a1-559b-407c-87c7-b8a9b89b1987',
+        },
+        registrations: [],
+      },
+      copier,
+      key
+    ).copy
+
+    expect(Object.hasOwn(linked.event, 'kcGuid')).toBe(false)
+    expect(Object.hasOwn(linked.event, 'kcEvent')).toBe(false)
+  })
+
+  it('leaves out the old kcId as well, also of an event that has no GUID (a legacy link)', () => {
+    const legacy = createEventCopy({ event: { ...sourceEvent(), kcId: 451859 }, registrations: [] }, copier, key).copy
+
+    expect(Object.hasOwn(legacy.event, 'kcId')).toBe(false)
+  })
+
   it('gives every other address a plus-address of the copier, the same one for the same person', () => {
     expect(first.handler?.email).toMatch(COPY_ADDRESS)
     expect(first.owner?.email).toBe(first.handler?.email)
@@ -269,6 +299,17 @@ describe('findCopyLeaks', () => {
       'email: an address that is not the copier’s',
       'email: an original address',
     ])
+  })
+
+  it.each([
+    ['kcGuid', { kcGuid: '2b81e6a1-559b-407c-87c7-b8a9b89b1987' }],
+    ['kcId', { kcId: 451859 }],
+    ['kcEvent', { kcEvent: { classes: [], endDate: '2026-09-27', eventType: 'NOU', startDate: '2026-09-26' } }],
+  ])('refuses a copy that still carries %s', (_name, link) => {
+    const { copy } = clean()
+    copy.event = { ...copy.event, ...link }
+
+    expect(findCopyLeaks(copy, copier)).toEqual(['kcGuid: a link to a Kennelliitto trial'])
   })
 
   it('finds an original name in any field', () => {
