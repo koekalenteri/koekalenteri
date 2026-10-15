@@ -72,6 +72,25 @@ describe('KLIntegraatio', () => {
     vi.restoreAllMocks()
   })
 
+  describe('config', () => {
+    it('is loaded once, however many requests follow', async () => {
+      let loads = 0
+      klint = new KLIntegraatio(
+        async () => {
+          loads++
+          return config
+        },
+        { now: () => nowMs }
+      )
+      replies.push(tokenReply(3600), { body: koemuotoNOU }, { body: koemuotoNOU })
+
+      await klint.lueKoemuoto({ koemuoto: 'NOU' })
+      await klint.lueKoemuoto({ koemuoto: 'NOU' })
+
+      expect(loads).toBe(1)
+    })
+  })
+
   describe('token', () => {
     it('asks the SSO address for a client_credentials token with scope kennelapi', async () => {
       replies.push(tokenReply(3600), { body: koemuotoNOU })
@@ -225,6 +244,14 @@ describe('KLIntegraatio', () => {
       expect(result).toEqual({ status: 404 })
     })
 
+    it('does not mistake virheet that is not a list of strings for reasons', async () => {
+      replies.push(tokenReply(3600), { body: { virheet: 'x' }, status: 400 })
+
+      const result = await klint.lueKoemuoto({ koemuoto: 'NOU' })
+
+      expect(result).toEqual({ status: 400 })
+    })
+
     it('does not mistake a body without virheet for reasons', async () => {
       replies.push(tokenReply(3600), { body: { viesti: 'jotain' }, status: 400 })
 
@@ -338,6 +365,14 @@ describe('KLIntegraatio', () => {
   })
 
   describe('lueKoe by koeTunnus', () => {
+    it('leaves a koeGuid that is undefined out of the query', async () => {
+      replies.push(tokenReply(3600), { body: lueNOU })
+
+      await klint.lueKoe({ koeGuid: undefined, koeTunnus: 'T1' })
+
+      expect(requests[1].url).toBe(`${config.KL_INT_API_URL}Integraatio/Koe/Lue?koeTunnus=T1`)
+    })
+
     it('leaves the unused koeGuid out of the query', async () => {
       replies.push(tokenReply(3600), { body: lueNOU })
 
