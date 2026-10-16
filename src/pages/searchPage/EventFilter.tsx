@@ -19,7 +19,7 @@ import { subMonths } from 'date-fns'
 import { useCallback, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { HEADER_HEIGHT } from '../../assets/Theme'
-import { zonedStartOfDay } from '../../i18n/dates'
+import { zonedEndOfDay, zonedStartOfDay } from '../../i18n/dates'
 import AutocompleteMulti from '../components/AutocompleteMulti'
 import DateRange from '../components/DateRange'
 import SelectMulti from '../components/SelectMulti'
@@ -49,8 +49,11 @@ export const EventFilter = ({ judges, organizers, eventTypes, eventClasses, filt
     (props: Partial<FilterProps>) => onChange?.({ ...filter, ...props }),
     [filter, onChange]
   )
+  // Whole Finnish days, as the event form stores its dates and as a reload restores the filter: the
+  // picker can report a time of day, and the search drops an event that ended before the start moment.
   const handleDateRangeChange = useCallback(
-    (start: DateValue, end: DateValue) => setFilter({ end, start }),
+    (start: DateValue, end: DateValue) =>
+      setFilter({ end: end ? zonedEndOfDay(end) : null, start: start ? zonedStartOfDay(start) : null }),
     [setFilter]
   )
   const handleEventTypeChange = useCallback(

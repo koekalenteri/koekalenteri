@@ -1,5 +1,4 @@
 import type { Theme } from '@mui/material'
-import { TZDate } from '@date-fns/tz'
 import Box from '@mui/material/Box'
 import FormControl from '@mui/material/FormControl'
 import { DatePicker } from '@mui/x-date-pickers'
@@ -7,7 +6,7 @@ import { isSameDay, isValid } from 'date-fns'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import useDebouncedCallback from '../../hooks/useDebouncedCallback'
-import { TIME_ZONE, zonedStartOfDay } from '../../i18n/dates'
+import { zonedStartOfDay } from '../../i18n/dates'
 
 export type DateValue = Date | null
 
@@ -37,28 +36,22 @@ function dayStyle(date: Date, selected: boolean, defaultDate?: Date) {
   }
 }
 
-/** The start of the Finnish day a bound falls on: the callers' bounds are Finnish moments. */
-const boundDay = (bound: Date) => zonedStartOfDay(bound).getTime()
+/** The Finnish day `d` falls on, as the moment it starts: the callers' bounds and what they store are Finnish days. */
+const finnishDay = (d: Date) => zonedStartOfDay(d).getTime()
 
-/**
- * The start of the Finnish day with the date a field shows. The picker gives a typed date as
- * midnight of the browser's own day, which east of Finland is still the previous Finnish day, so
- * the day is read from the date's calendar fields rather than from the moment.
- */
-const typedDay = (d: Date) => new TZDate(d.getFullYear(), d.getMonth(), d.getDate(), TIME_ZONE).getTime()
+/** Whether `d` falls on a Finnish day before the one `min` falls on. */
+const isDayBefore = (d: Date, min: DateValue | undefined) => !!min && finnishDay(d) < finnishDay(min)
 
-/** Whether the day typed as `d` comes before the Finnish day of `min`. */
-const isDayBefore = (d: Date, min: DateValue | undefined) => !!min && typedDay(d) < boundDay(min)
-
-/** Whether the day typed as `d` comes after the Finnish day of `max`. */
-const isDayAfter = (d: Date, max: DateValue | undefined) => !!max && typedDay(d) > boundDay(max)
+/** Whether `d` falls on a Finnish day after the one `max` falls on. */
+const isDayAfter = (d: Date, max: DateValue | undefined) => !!max && finnishDay(d) > finnishDay(max)
 
 /**
  * The bounds are compared by day, not by instant: the picker offers every day from minDate to
  * maxDate, and a date typed on the start's day is 00:00 while the start may carry a later time
- * (KOE-1538). The day typed is compared with the Finnish day of the bound, as the callers' bounds
- * are Finnish (EntrySection's range runs from zonedStartOfDay to zonedEndOfDay): a day before the
- * first allowed Finnish day is refused and the allowed days are taken, whatever the browser's zone.
+ * (KOE-1538). Every value is read as the Finnish day its moment falls on, as the callers' bounds
+ * are (EntrySection's range runs from zonedStartOfDay to zonedEndOfDay) and as they store what they
+ * get, so what is accepted here is what they save. In a browser in Finland's time zone that is the
+ * day the picker shows.
  */
 const coerceToDateValue = (
   d: DateValue,
@@ -70,8 +63,7 @@ const coerceToDateValue = (
 
   if (!isValid(d)) return fallback
   if (isDayBefore(d, range?.start) || isDayAfter(d, range?.end)) return fallback
-  // The start is a picker value, so its day is the one its field shows, as the end picker's minDate reads it.
-  if (otherEnd.min && typedDay(d) < typedDay(otherEnd.min)) return fallback
+  if (isDayBefore(d, otherEnd.min)) return fallback
 
   return d
 }

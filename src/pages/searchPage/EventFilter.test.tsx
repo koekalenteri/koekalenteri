@@ -1,6 +1,7 @@
 import type { UserEvent } from '@testing-library/user-event/dist/types/setup/setup'
 import type { Judge, Organizer, RegistrationClass } from '../../types'
 import type { FilterProps } from '../state'
+import { TZDate } from '@date-fns/tz'
 import { ThemeProvider } from '@mui/material'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
@@ -8,7 +9,8 @@ import { screen, within } from '@testing-library/react'
 import { subMonths } from 'date-fns'
 import theme from '../../assets/Theme'
 import { locales } from '../../i18n'
-import { zonedStartOfDay } from '../../i18n/dates'
+import { TIME_ZONE, zonedEndOfDay, zonedStartOfDay } from '../../i18n/dates'
+import { describeInTimeZone } from '../../test-utils/timeZone'
 import { createMatchMedia, flushPromises, renderWithUserEvents } from '../../test-utils/utils'
 import { EventFilter } from './EventFilter'
 
@@ -199,5 +201,39 @@ describe('EventFilter', () => {
     expect(changeHandler).toHaveBeenCalledTimes(1)
 
     vi.useRealTimers()
+  })
+
+  // The picker's dates are midnight of the browser's day, so this reads as Finnish days in a browser
+  // in Finland's time zone, whatever zone the machine running it is in.
+  describeInTimeZone(TIME_ZONE, () => {
+    beforeEach(() => vi.useFakeTimers())
+    afterEach(() => vi.useRealTimers())
+
+    it('keeps whole Finnish days in the filter when the picker reports a time of day (KOE-1538)', async () => {
+      // Typing the start's year digit by digit after emptying it lands the start at 23:55:55, and
+      // the search drops an event that ended before the filter's start moment.
+      const lastDayOfOctober = new TZDate(2026, 9, 31, TIME_ZONE)
+      const lateStart = new Date(new TZDate(2026, 9, 31, 23, 55, 55, TIME_ZONE).getTime())
+      const changeHandler = vi.fn()
+      const { user } = renderComponent(
+        { end: null, eventClass: [], eventType: [], judge: [], organizer: [], start: lateStart },
+        changeHandler,
+        true
+      )
+      const endDay = screen
+        .getByRole('group', { name: 'daterangeEnd' })
+        .querySelector<HTMLElement>('[role="spinbutton"]')
+      if (!endDay) throw new Error('End date day section not found')
+
+      await user.click(endDay)
+      for (const key of '31102026') {
+        await user.keyboard(key)
+        await flushPromises()
+      }
+
+      expect(changeHandler).toHaveBeenLastCalledWith(
+        expect.objectContaining({ end: zonedEndOfDay(lastDayOfOctober), start: zonedStartOfDay(lastDayOfOctober) })
+      )
+    })
   })
 })
