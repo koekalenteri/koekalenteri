@@ -2,10 +2,11 @@ import type { Theme } from '@mui/material'
 import Box from '@mui/material/Box'
 import FormControl from '@mui/material/FormControl'
 import { DatePicker } from '@mui/x-date-pickers'
-import { differenceInCalendarDays, isSameDay, isValid } from 'date-fns'
+import { isSameDay, isValid } from 'date-fns'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import useDebouncedCallback from '../../hooks/useDebouncedCallback'
+import { zonedStartOfDay } from '../../i18n/dates'
 
 export type DateValue = Date | null
 
@@ -35,28 +36,33 @@ function dayStyle(date: Date, selected: boolean, defaultDate?: Date) {
   }
 }
 
-/** Whether `d` falls on a day before `min`, by local calendar day as the picker's minDate. */
-const isDayBefore = (d: Date, min: DateValue | undefined) => !!min && differenceInCalendarDays(d, min) < 0
+/** The Finnish day `d` falls on, as the moment it starts: the bounds and what the callers store are Finnish days. */
+const finnishDay = (d: Date) => zonedStartOfDay(d).getTime()
 
-/** Whether `d` falls on a day after `max`, by local calendar day as the picker's maxDate. */
-const isDayAfter = (d: Date, max: DateValue | undefined) => !!max && differenceInCalendarDays(d, max) > 0
+/** Whether `d` falls on a Finnish day before the one `min` falls on. */
+const isDayBefore = (d: Date, min: DateValue | undefined) => !!min && finnishDay(d) < finnishDay(min)
+
+/** Whether `d` falls on a Finnish day after the one `max` falls on. */
+const isDayAfter = (d: Date, max: DateValue | undefined) => !!max && finnishDay(d) > finnishDay(max)
 
 /**
  * The bounds are compared by day, not by instant: the picker offers every day from minDate to
  * maxDate, and a date typed on the start's day is 00:00 while the start may carry a later time
- * (KOE-1538).
+ * (KOE-1538). The day is the Finnish one, as the callers' bounds are (EntrySection's range runs
+ * from zonedStartOfDay to zonedEndOfDay), so a browser in another time zone cannot pass a day
+ * before the first allowed one.
  */
 const coerceToDateValue = (
   d: DateValue,
   range: { start?: Date; end?: Date } | undefined,
-  otherEnd: { min?: DateValue; max?: DateValue },
+  otherEnd: { min?: DateValue },
   fallback: DateValue
 ): DateValue => {
   if (!d) return d
 
   if (!isValid(d)) return fallback
   if (isDayBefore(d, range?.start) || isDayAfter(d, range?.end)) return fallback
-  if (isDayBefore(d, otherEnd.min) || isDayAfter(d, otherEnd.max)) return fallback
+  if (isDayBefore(d, otherEnd.min)) return fallback
 
   return d
 }

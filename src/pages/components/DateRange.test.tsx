@@ -1,10 +1,12 @@
 import type { DateValue, Props } from './DateRange'
+import { TZDate } from '@date-fns/tz'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
 import { screen } from '@testing-library/react'
 import { addDays, format, parseISO, startOfDay, startOfMonth } from 'date-fns'
 import { useState } from 'react'
 import { locales } from '../../i18n'
+import { TIME_ZONE } from '../../i18n/dates'
 import { flushPromises, renderWithUserEvents } from '../../test-utils/utils'
 import DateRange from './DateRange'
 
@@ -196,6 +198,12 @@ describe('DateRange', () => {
     })
 
     const lastDayOfOctober = new Date(2026, 9, 31)
+    /**
+     * A moment of a Finnish October day, as the callers' bounds are (zonedStartOfDay, zonedEndOfDay),
+     * as a plain Date: a TZDate would become the picker's reference and carry its zone into the typed value.
+     */
+    const finnish = (day: number, hours = 0, minutes = 0, seconds = 0) =>
+      new Date(new TZDate(2026, 9, day, hours, minutes, seconds, TIME_ZONE).getTime())
 
     /** Renders a StatefulDateRange and types `keys` into the field one key at a time, as a person does. */
     const typeInto = async (field: 'start' | 'end', keys: string, props: Pick<Props, 'end' | 'range' | 'start'>) => {
@@ -224,25 +232,25 @@ describe('DateRange', () => {
         // The search page: emptying the start and typing the year digit by digit leaves the start at
         // 23:55:55 of the typed day (the year passes through 2, 20 and 202 in local mean time).
         case: 'an end typed on the day of a start that has a late time',
-        expected: [new Date(2026, 9, 31, 23, 55, 55), lastDayOfOctober],
+        expected: [finnish(31, 23, 55, 55), lastDayOfOctober],
         field: 'end',
         keys: '31102026',
-        props: { end: null, start: new Date(2026, 9, 31, 23, 55, 55) },
+        props: { end: null, start: finnish(31, 23, 55, 55) },
       },
       {
         case: 'a start typed on the first day of a range that starts later that day',
         expected: [lastDayOfOctober, null],
         field: 'start',
         keys: '31102026',
-        props: { end: null, range: { start: new Date(2026, 9, 31, 12) }, start: null },
+        props: { end: null, range: { start: finnish(31, 12) }, start: null },
       },
       {
         // A field with a value keeps its time when the day is edited.
         case: 'a start moved to the last day of a range that ends earlier that day',
-        expected: [new Date(2026, 9, 31, 23), null],
+        expected: [new Date(2026, 9, 31, 20), null],
         field: 'start',
         keys: '31',
-        props: { end: null, range: { end: new Date(2026, 9, 31, 12) }, start: new Date(2026, 9, 30, 23) },
+        props: { end: null, range: { end: finnish(31, 12) }, start: new Date(2026, 9, 30, 20) },
       },
     ] as const
 
@@ -256,15 +264,38 @@ describe('DateRange', () => {
       }
     )
 
-    it('refuses a start typed on the day after the range ends (KOE-1538)', async () => {
-      const { changeHandler } = await typeInto('start', '31102026', {
-        end: null,
-        range: { end: new Date(2026, 9, 30, 12) },
-        start: null,
+    it.each([
+      { case: 'the day before the range starts', keys: '30102026', range: { start: finnish(31, 12) } },
+      { case: 'the day after the range ends', keys: '31102026', range: { end: finnish(30, 12) } },
+    ])('refuses a start typed on $case (KOE-1538)', async ({ keys, range }) => {
+      const { changeHandler } = await typeInto('start', keys, { end: null, range, start: null })
+
+      expect(changeHandler).not.toHaveBeenCalledWith(expect.any(Date), null)
+      expect(changeHandler).toHaveBeenLastCalledWith(null, null)
+    })
+
+    describe('in a browser west of Finland', () => {
+      const systemTimeZone = process.env.TZ
+      beforeAll(() => {
+        process.env.TZ = 'America/New_York'
+      })
+      afterAll(() => {
+        if (systemTimeZone === undefined) Reflect.deleteProperty(process.env, 'TZ')
+        else process.env.TZ = systemTimeZone
       })
 
-      expect(changeHandler).not.toHaveBeenCalledWith(lastDayOfOctober, null)
-      expect(changeHandler).toHaveBeenLastCalledWith(null, null)
+      it('refuses a start typed on the Finnish day before the range starts (KOE-1538)', async () => {
+        // EntrySection's range starts at zonedStartOfDay(createdAt): 16.10. 00:00 in Finland is
+        // 15.10. 17:00 in New York, the same local day as the 15.10. typed there.
+        const { changeHandler } = await typeInto('start', '15102026', {
+          end: null,
+          range: { start: finnish(16) },
+          start: null,
+        })
+
+        expect(changeHandler).not.toHaveBeenCalledWith(new Date(2026, 9, 15), null)
+        expect(changeHandler).toHaveBeenLastCalledWith(null, null)
+      })
     })
 
     it('should not allow setting the end date before the current start date', async () => {
