@@ -34,6 +34,22 @@ test.describe('finding an event', { annotation: issue('KOE-1476'), tag: '@public
     await expect(search.event(event)).toBeVisible()
   })
 
+  test('a date typed over a date of a shorter month keeps its day', async ({ page }) => {
+    const search = new SearchPage(page)
+    await search.goto()
+    await search.setStartDay('2030-11-10')
+
+    // 31 is not a day of November, which the field still holds while the day is typed
+    await search.setStartDay('2030-10-31')
+
+    const group = search.filters.getByRole('group', { name: 'Tapahtumat alkaen' })
+    await expect(group).toContainText('31.10.2030')
+
+    // and the other way: the field holds the 31st, the new month has fewer days
+    await search.setStartDay('2030-02-28')
+    await expect(group).toContainText('28.02.2030')
+  })
+
   test('the end date typed into the empty field hides a later event', { annotation: issue('KOE-1481') }, async ({
     page,
   }) => {

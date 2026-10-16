@@ -33,24 +33,34 @@ export class SearchPage {
   }
 
   /**
-   * Types a date into a range field as a keyboard user would: the field moves from day to month to
-   * year by itself. Keys come 250 ms apart, a person's pace; at 100 ms or less the range's 100 ms
+   * Types a date into a range field as a keyboard user would: the field moves from month to year by
+   * itself. Keys come 250 ms apart, a person's pace; at 100 ms or less the range's 100 ms
    * debounce drops a date typed over an earlier one.
    */
-  private async typeDate(field: 'Tapahtumat alkaen' | 'Tapahtumat päättyen', offsetDays: number) {
-    const [year, month, day] = helsinkiDay(offsetDays).split('-')
+  private async typeDate(field: 'Tapahtumat alkaen' | 'Tapahtumat päättyen', isoDay: string) {
+    const [year, month, day] = isoDay.split('-')
     const group = this.filters.getByRole('group', { name: field })
+    // The first of the month first, then month and year, the real day last: the field checks the day
+    // against the month it holds, so 31 typed into a field on a 30-day month is refused (the field
+    // ends on 03), and a month typed over a held 31st is refused the same way.
     await group.getByRole('spinbutton', { name: 'Päivä' }).click()
-    await this.page.keyboard.type(`${day}${month}${year}`, { delay: 250 })
+    await this.page.keyboard.type(`01${month}${year}`, { delay: 250 })
+    await group.getByRole('spinbutton', { name: 'Päivä' }).click()
+    await this.page.keyboard.type(day, { delay: 250 })
     await expect(group).toContainText(`${day}.${month}.${year}`)
   }
 
   setStartDate(offsetDays: number) {
-    return this.typeDate('Tapahtumat alkaen', offsetDays)
+    return this.typeDate('Tapahtumat alkaen', helsinkiDay(offsetDays))
+  }
+
+  /** The start date as a fixed yyyy-MM-dd, for a test that must not depend on today's date. */
+  setStartDay(isoDay: string) {
+    return this.typeDate('Tapahtumat alkaen', isoDay)
   }
 
   setEndDate(offsetDays: number) {
-    return this.typeDate('Tapahtumat päättyen', offsetDays)
+    return this.typeDate('Tapahtumat päättyen', helsinkiDay(offsetDays))
   }
 
   async setEntryOpen(on: boolean) {
