@@ -34,7 +34,7 @@ bug is fixed. See [README.md](README.md) for how they run.
 | --- | --- | --- |
 | finding an event › the event type filter shows the matching event and hides the other | `@public` | [KOE-1476](https://koekalenteri.atlassian.net/browse/KOE-1476)<br>[KOE-1480](https://koekalenteri.atlassian.net/browse/KOE-1480) the options are picked with includeHidden |
 | finding an event › the start date hides an earlier event and shows it again when moved back | `@public` | [KOE-1476](https://koekalenteri.atlassian.net/browse/KOE-1476) |
-| finding an event › a date typed over a date of a shorter month keeps its day | `@public` | [KOE-1476](https://koekalenteri.atlassian.net/browse/KOE-1476) |
+| finding an event › a date typed over any other date lands as typed | `@public` | [KOE-1476](https://koekalenteri.atlassian.net/browse/KOE-1476) |
 | finding an event › the end date typed into the empty field hides a later event | `@public` | [KOE-1476](https://koekalenteri.atlassian.net/browse/KOE-1476)<br>[KOE-1481](https://koekalenteri.atlassian.net/browse/KOE-1481) |
 | finding an event › "entry open" hides an event whose entry has not opened yet | `@public` | [KOE-1476](https://koekalenteri.atlassian.net/browse/KOE-1476) |
 | finding an event › a range no event falls in shows the empty result | `@public` | [KOE-1476](https://koekalenteri.atlassian.net/browse/KOE-1476) |

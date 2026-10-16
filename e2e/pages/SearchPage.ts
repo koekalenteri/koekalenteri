@@ -40,10 +40,13 @@ export class SearchPage {
   private async typeDate(field: 'Tapahtumat alkaen' | 'Tapahtumat päättyen', isoDay: string) {
     const [year, month, day] = isoDay.split('-')
     const group = this.filters.getByRole('group', { name: field })
-    // The first of the month first, then month and year, the real day last: the field checks the day
-    // against the month it holds, so 31 typed into a field on a 30-day month is refused (the field
-    // ends on 03), and a month typed over a held 31st is refused the same way.
-    await group.getByRole('spinbutton', { name: 'Päivä' }).click()
+    // The day is checked against the month the field holds, and typed digits are joined to the
+    // held value: 31 into a 30-day month is refused (the field ends on 03), a month typed over a
+    // held 31st likewise, and 01 over a held 1st reads as 10. So the day is emptied and set to the
+    // 1st, which every month has; month and year follow; the real day comes last.
+    const dayPart = group.getByRole('spinbutton', { name: 'Päivä' })
+    await dayPart.click()
+    await this.page.keyboard.press('Backspace')
     await this.page.keyboard.type(`01${month}${year}`, { delay: 250 })
     await group.getByRole('spinbutton', { name: 'Päivä' }).click()
     await this.page.keyboard.type(day, { delay: 250 })

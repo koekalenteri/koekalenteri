@@ -34,20 +34,32 @@ test.describe('finding an event', { annotation: issue('KOE-1476'), tag: '@public
     await expect(search.event(event)).toBeVisible()
   })
 
-  test('a date typed over a date of a shorter month keeps its day', async ({ page }) => {
+  test('a date typed over any other date lands as typed', async ({ page }) => {
     const search = new SearchPage(page)
     await search.goto()
-    await search.setStartDay('2030-11-10')
-
-    // 31 is not a day of November, which the field still holds while the day is typed
-    await search.setStartDay('2030-10-31')
-
     const group = search.filters.getByRole('group', { name: 'Tapahtumat alkaen' })
-    await expect(group).toContainText('31.10.2030')
 
-    // and the other way: the field holds the 31st, the new month has fewer days
-    await search.setStartDay('2030-02-28')
-    await expect(group).toContainText('28.02.2030')
+    // Each day is typed over the one before it. The pairs are the ones where the field's own
+    // checks get in the way: a day the new month lacks, a held 1st (typing 01 reads as 10), a leap day.
+    const days = [
+      '2031-05-01',
+      '2031-05-12', // held 1st to another day
+      '2031-01-01',
+      '2028-02-29', // held 1st to a leap day
+      '2030-02-28', // leap day to the 28th
+      '2028-02-29', // and back
+      '2031-01-01',
+      '2030-04-30', // held 1st to the 30th
+      '2030-05-31', // 30th to 31st
+      '2030-06-30', // 31st to a 30-day month
+      '2030-12-31',
+      '2031-01-01', // December to January
+    ]
+    for (const day of days) {
+      await search.setStartDay(day)
+      const [year, month, date] = day.split('-')
+      await expect(group).toContainText(`${date}.${month}.${year}`)
+    }
   })
 
   test('the end date typed into the empty field hides a later event', { annotation: issue('KOE-1481') }, async ({
