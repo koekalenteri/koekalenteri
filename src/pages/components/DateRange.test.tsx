@@ -195,6 +195,78 @@ describe('DateRange', () => {
       expect(changeHandler).toHaveBeenLastCalledWith(today, target)
     })
 
+    const lastDayOfOctober = new Date(2026, 9, 31)
+
+    /** Renders a StatefulDateRange and types `keys` into the field one key at a time, as a person does. */
+    const typeInto = async (field: 'start' | 'end', keys: string, props: Pick<Props, 'end' | 'range' | 'start'>) => {
+      const changeHandler = vi.fn()
+      const { user } = renderWithUserEvents(
+        <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales.fi}>
+          <StatefulDateRange endLabel="end" onChange={changeHandler} startLabel="start" {...props} />
+        </LocalizationProvider>,
+        undefined,
+        { advanceTimers: vi.advanceTimersByTime }
+      )
+      const group = screen.getByRole('group', { name: field })
+      const day = group.querySelector<HTMLElement>('[role="spinbutton"]')
+      if (!day) throw new Error(`${field} date day section not found`)
+
+      await user.click(day)
+      for (const key of keys) {
+        await user.keyboard(key)
+        await flushPromises()
+      }
+      return { changeHandler, group }
+    }
+
+    const sameDayCases = [
+      {
+        // The search page: emptying the start and typing the year digit by digit leaves the start at
+        // 23:55:55 of the typed day (the year passes through 2, 20 and 202 in local mean time).
+        case: 'an end typed on the day of a start that has a late time',
+        expected: [new Date(2026, 9, 31, 23, 55, 55), lastDayOfOctober],
+        field: 'end',
+        keys: '31102026',
+        props: { end: null, start: new Date(2026, 9, 31, 23, 55, 55) },
+      },
+      {
+        case: 'a start typed on the first day of a range that starts later that day',
+        expected: [lastDayOfOctober, null],
+        field: 'start',
+        keys: '31102026',
+        props: { end: null, range: { start: new Date(2026, 9, 31, 12) }, start: null },
+      },
+      {
+        // A field with a value keeps its time when the day is edited.
+        case: 'a start moved to the last day of a range that ends earlier that day',
+        expected: [new Date(2026, 9, 31, 23), null],
+        field: 'start',
+        keys: '31',
+        props: { end: null, range: { end: new Date(2026, 9, 31, 12) }, start: new Date(2026, 9, 30, 23) },
+      },
+    ] as const
+
+    it.each(sameDayCases.map((c) => [c.case, c] as const))(
+      'keeps %s (KOE-1538)',
+      async (_, { expected, field, keys, props }) => {
+        const { changeHandler, group } = await typeInto(field, keys, props)
+
+        expect(group).toHaveTextContent('31.10.2026')
+        expect(changeHandler).toHaveBeenLastCalledWith(...expected)
+      }
+    )
+
+    it('refuses a start typed on the day after the range ends (KOE-1538)', async () => {
+      const { changeHandler } = await typeInto('start', '31102026', {
+        end: null,
+        range: { end: new Date(2026, 9, 30, 12) },
+        start: null,
+      })
+
+      expect(changeHandler).not.toHaveBeenCalledWith(lastDayOfOctober, null)
+      expect(changeHandler).toHaveBeenLastCalledWith(null, null)
+    })
+
     it('should not allow setting the end date before the current start date', async () => {
       const changeHandler = vi.fn()
 

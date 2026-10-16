@@ -2,7 +2,7 @@ import type { Theme } from '@mui/material'
 import Box from '@mui/material/Box'
 import FormControl from '@mui/material/FormControl'
 import { DatePicker } from '@mui/x-date-pickers'
-import { isSameDay, isValid } from 'date-fns'
+import { differenceInCalendarDays, isSameDay, isValid } from 'date-fns'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import useDebouncedCallback from '../../hooks/useDebouncedCallback'
@@ -35,6 +35,17 @@ function dayStyle(date: Date, selected: boolean, defaultDate?: Date) {
   }
 }
 
+/** Whether `d` falls on a day before `min`, by local calendar day as the picker's minDate. */
+const isDayBefore = (d: Date, min: DateValue | undefined) => !!min && differenceInCalendarDays(d, min) < 0
+
+/** Whether `d` falls on a day after `max`, by local calendar day as the picker's maxDate. */
+const isDayAfter = (d: Date, max: DateValue | undefined) => !!max && differenceInCalendarDays(d, max) > 0
+
+/**
+ * The bounds are compared by day, not by instant: the picker offers every day from minDate to
+ * maxDate, and a date typed on the start's day is 00:00 while the start may carry a later time
+ * (KOE-1538).
+ */
 const coerceToDateValue = (
   d: DateValue,
   range: { start?: Date; end?: Date } | undefined,
@@ -44,10 +55,8 @@ const coerceToDateValue = (
   if (!d) return d
 
   if (!isValid(d)) return fallback
-  if (range?.start && d < range.start) return fallback
-  if (range?.end && d > range.end) return fallback
-  if (otherEnd.min && d < otherEnd.min) return fallback
-  if (otherEnd.max && d > otherEnd.max) return fallback
+  if (isDayBefore(d, range?.start) || isDayAfter(d, range?.end)) return fallback
+  if (isDayBefore(d, otherEnd.min) || isDayAfter(d, otherEnd.max)) return fallback
 
   return d
 }
