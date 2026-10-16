@@ -274,15 +274,16 @@ describe('DateRange', () => {
       expect(changeHandler).toHaveBeenLastCalledWith(null, null)
     })
 
+    /** Sets the zone the browser's dates are read in; undefined gives the system's own back. */
+    const systemTimeZone = process.env.TZ
+    const setTimeZone = (timeZone: string | undefined) => {
+      if (timeZone === undefined) Reflect.deleteProperty(process.env, 'TZ')
+      else process.env.TZ = timeZone
+    }
+
     describe('in a browser west of Finland', () => {
-      const systemTimeZone = process.env.TZ
-      beforeAll(() => {
-        process.env.TZ = 'America/New_York'
-      })
-      afterAll(() => {
-        if (systemTimeZone === undefined) Reflect.deleteProperty(process.env, 'TZ')
-        else process.env.TZ = systemTimeZone
-      })
+      beforeAll(() => setTimeZone('America/New_York'))
+      afterAll(() => setTimeZone(systemTimeZone))
 
       it('refuses a start typed on the Finnish day before the range starts (KOE-1538)', async () => {
         // EntrySection's range starts at zonedStartOfDay(createdAt): 16.10. 00:00 in Finland is
@@ -295,6 +296,32 @@ describe('DateRange', () => {
 
         expect(changeHandler).not.toHaveBeenCalledWith(new Date(2026, 9, 15), null)
         expect(changeHandler).toHaveBeenLastCalledWith(null, null)
+      })
+    })
+
+    describe('in a browser east of Finland', () => {
+      beforeAll(() => setTimeZone('Asia/Tokyo'))
+      afterAll(() => setTimeZone(systemTimeZone))
+
+      it('keeps a start typed on the Finnish day the range starts (KOE-1538)', async () => {
+        // 16.10. 00:00 typed in Tokyo is 15.10. 18:00 in Finland, but the day typed is the 16th.
+        const { changeHandler, group } = await typeInto('start', '16102026', {
+          end: null,
+          range: { start: finnish(16) },
+          start: null,
+        })
+
+        expect(group).toHaveTextContent('16.10.2026')
+        expect(changeHandler).toHaveBeenLastCalledWith(new Date(2026, 9, 16), null)
+      })
+
+      it('refuses an end typed on the day before the start its field shows (KOE-1538)', async () => {
+        // The start shows 16.10., which is 15.10. 18:00 in Finland: an end on the 15th is still a day early.
+        const start = new Date(2026, 9, 16)
+        const { changeHandler } = await typeInto('end', '15102026', { end: null, start })
+
+        expect(changeHandler).not.toHaveBeenCalledWith(start, new Date(2026, 9, 15))
+        expect(changeHandler).toHaveBeenLastCalledWith(start, null)
       })
     })
 
