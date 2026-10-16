@@ -71,7 +71,7 @@ describe('the state read from Kennelliitto (KOE-1140)', () => {
   })
 
   describe('writeKcState', () => {
-    it('writes the state field by field, on condition that no newer reading is stored', async () => {
+    it('writes the state field by field, on condition that no newer reading is stored and no fresh lock is lifted', async () => {
       mockUpdate.mockResolvedValueOnce(undefined)
 
       await expect(writeKcState('event-1', state, state.readAt)).resolves.toBe(true)
@@ -82,10 +82,39 @@ describe('the state read from Kennelliitto (KOE-1140)', () => {
         expect.anything(),
         'NONE',
         {
-          expression: 'attribute_exists(#id) AND (attribute_not_exists(#kcState) OR #kcState.#readAt <= :readAt)',
-          names: { '#id': 'id', '#kcState': 'kcState', '#readAt': 'readAt' },
-          values: { ':readAt': state.readAt },
+          expression:
+            'attribute_exists(#id) AND (attribute_not_exists(#kcState) OR (#kcState.#readAt <= :readAt AND (:code = :handedOver OR #kcState.#code <> :handedOver OR #kcState.#readAt <= :freshAfter)))',
+          names: { '#code': 'code', '#id': 'id', '#kcState': 'kcState', '#readAt': 'readAt' },
+          // A handed-over state younger than thirty seconds (longer than a request lives) stays against a reading of another state.
+          values: {
+            ':code': 1253,
+            ':freshAfter': '2026-09-26T09:59:30.000Z',
+            ':handedOver': 1253,
+            ':readAt': state.readAt,
+          },
         }
+      )
+    })
+
+    it('measures the window from the reading it writes, for a reading of another state', async () => {
+      mockUpdate.mockResolvedValueOnce(undefined)
+      const open = { code: 754, name: 'Hyväksytty', readAt: '2026-09-26T10:01:00.000Z' }
+
+      await writeKcState('event-1', open, open.readAt)
+
+      expect(mockUpdate).toHaveBeenCalledWith(
+        { id: 'event-1' },
+        expect.anything(),
+        expect.anything(),
+        'NONE',
+        expect.objectContaining({
+          values: {
+            ':code': 754,
+            ':freshAfter': '2026-09-26T10:00:30.000Z',
+            ':handedOver': 1253,
+            ':readAt': open.readAt,
+          },
+        })
       )
     })
 

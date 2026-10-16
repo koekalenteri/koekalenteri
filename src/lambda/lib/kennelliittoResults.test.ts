@@ -17,8 +17,15 @@ let storedGuid: string | undefined
 let registrations: JsonRegistration[]
 let secondRead: (() => void) | undefined
 
+/** The rule of `writeKcState`, as the table applies it: no older reading, and no fresh lock lifted by a reading of another state. */
+const LOCK_WINDOW_MS = 30_000
 const mockWriteKcState = vi.fn(async (_id: string, state: JsonKcState) => {
   if (storedState && storedState.readAt > state.readAt) return false
+  const heldLock =
+    storedState?.code === 1253 &&
+    state.code !== 1253 &&
+    Date.parse(storedState.readAt) > Date.parse(state.readAt) - LOCK_WINDOW_MS
+  if (heldLock) return false
   storedState = state
   return true
 })
@@ -104,6 +111,8 @@ let asetaTilaReply: { body?: unknown; status: number } | 'hang'
 let hooks: { asetaTila?: () => void; lue?: () => void }
 /** The whole of Koe/Lue fails while this is set. */
 let lueStatus: number | undefined
+/** Paths of Kennelliitto that take the request and say nothing. */
+let hungPaths: Set<string>
 
 /** A server that takes the request and says nothing until the caller gives up. */
 const hang = (signal?: AbortSignal | null) =>
@@ -121,6 +130,7 @@ const fakeFetch = async (input: string | URL | Request, init?: RequestInit) => {
   }
   const body = typeof init?.body === 'string' ? JSON.parse(init.body) : undefined
   calls.push({ body, method: init?.method ?? 'GET', path })
+  if (hungPaths.has(path)) return hang(init?.signal)
 
   if (path === 'Koe/Lue') {
     hooks.lue?.()
@@ -225,6 +235,7 @@ describe('kennelliittoResults', () => {
     asetaTilaReply = { status: 200 }
     hooks = {}
     lueStatus = undefined
+    hungPaths = new Set()
     now = Date.parse('2026-09-26T10:00:00.000Z')
     storedState = { code: 754, name: 'Hyväksytty', readAt: '2026-09-26T09:00:00.000Z' }
     storedGuid = GUID
@@ -921,6 +932,40 @@ describe('kennelliittoResults', () => {
     })
   })
 
+  describe('a second hand-over that starts while the first one’s call is out', () => {
+    const sendAll = () => sendKennelliittoResults(ctx(), ['d1', 'd2'], { force: false })
+
+    it('cannot lift the first one’s lock with its own reading, so it is answered 409 and calls nothing', async () => {
+      await sendAll()
+      // The first hand-over took the lock a moment ago and its call has not been taken yet: Kennelliitto still reads open.
+      storedState = { code: 1253, name: 'Ylituomarin hyväksyttäväksi', readAt: new Date(now - 1_000).toISOString() }
+      const lock = storedState
+
+      await expect(handOverKennelliittoResults(ctx(), { withoutBlocked: false })).rejects.toMatchObject({ status: 409 })
+
+      expect(storedState).toEqual(lock)
+      expect(calls.some((call) => call.path === 'Koe/AsetaTila')).toEqual(false)
+    })
+
+    it('goes ahead when the stored lock is older than a request lives: the judge sent the trial back', async () => {
+      await sendAll()
+      storedState = { code: 1253, name: 'Ylituomarin hyväksyttäväksi', readAt: new Date(now - 31_000).toISOString() }
+
+      const result = await handOverKennelliittoResults(ctx(), { withoutBlocked: false })
+
+      expect(result.handedOver).toEqual(true)
+      expect(calls.filter((call) => call.path === 'Koe/AsetaTila')).toHaveLength(1)
+    })
+
+    it('takes the lock as the handed-over state, which is what makes a second hand-over refused', async () => {
+      await sendAll()
+
+      await handOverKennelliittoResults(ctx(), { withoutBlocked: false })
+
+      expect(mockLockKcState).toHaveBeenCalledWith('event-1', expect.objectContaining({ code: 1253 }), 1253)
+    })
+  })
+
   describe('two hand-overs of one trial at once (a double click, two tabs)', () => {
     const sendAll = () => sendKennelliittoResults(ctx(), ['d1', 'd2'], { force: false })
 
@@ -1161,6 +1206,19 @@ describe('kennelliittoResults', () => {
     })
   })
 
+  describe('the reads of the trial under the budget of the request', () => {
+    it.each(['Koe/Lue', 'Koe/Koemuoto'])('gives up a %s that says nothing when the budget is spent', async (path) => {
+      hungPaths.add(path)
+      const started = Date.now()
+
+      const preview = await previewKennelliittoResults(ctx({}, true, { budgetMs: 50 }))
+
+      // Without the request's signal the read would wait for its own limit, eight seconds.
+      expect(Date.now() - started).toBeLessThan(2000)
+      expect(preview.blockers).toEqual([{ code: 'kcUnavailable', detail: '0' }])
+    })
+  })
+
   describe('the order of two readings of the state', () => {
     it('stamps a reading when the answer has arrived, not when the request began', async () => {
       storedState = undefined
@@ -1173,16 +1231,21 @@ describe('kennelliittoResults', () => {
       expect(readAtOfStored()).toEqual(new Date(now).toISOString())
     })
 
-    it('lets a slow newer reading of 754 win over a quick older reading of 1253', async () => {
-      // A quicker request, begun a second later, had already stored 1253 when this one's answer came.
-      storedState = { code: 1253, name: 'x', readAt: new Date(now + 1100).toISOString() }
-      hooks.lue = () => {
-        now += 5000
-      }
+    it('lets a reading of 754 replace a handed-over state older than a request lives: the judge sent the trial back', async () => {
+      storedState = { code: 1253, name: 'x', readAt: new Date(now - 31_000).toISOString() }
 
       await previewKennelliittoResults(ctx())
 
       expect(storedState?.code).toEqual(754)
+    })
+
+    it('does not let a reading of 754 lift a hand-over lock that is younger than a request lives', async () => {
+      // A hand-over's call may still be out; until Kennelliitto has taken it, it reads as open.
+      storedState = { code: 1253, name: 'x', readAt: new Date(now - 2_000).toISOString() }
+
+      await previewKennelliittoResults(ctx())
+
+      expect(storedState?.code).toEqual(1253)
     })
 
     it('does not return what it could not write: a reading that lost the race is not the state', async () => {

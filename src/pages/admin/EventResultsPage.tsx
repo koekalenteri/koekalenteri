@@ -304,6 +304,49 @@ export default function EventResultsPage() {
     setEdits((prev) => Object.fromEntries(Object.entries(prev).filter(([id]) => present.has(id))))
   }, [kc])
 
+  // The batch was refused as locked: the dogs saved before the lock are stored, so they are folded in and taken
+  // off the screen like the saved dogs of a conflict. The state is read whatever happens to the fold.
+  const settleLockedBatch = useCallback(
+    async (body: unknown) => {
+      const done = savedOf(body)
+      try {
+        await storeResults(done)
+        setEdits((prev) =>
+          Object.fromEntries(Object.entries(prev).filter(([id]) => !done.some((item) => item.id === id)))
+        )
+      } catch (storeError) {
+        // The state still has to be read, or the page stays open to a trial that is not.
+        reportError(storeError)
+      }
+      enqueueSnackbar(t('results.kennelliitto.lockedSave'), errorSnackbarOptions)
+      await refreshState()
+    },
+    [refreshState, storeResults, t]
+  )
+
+  // A dog the batch named is not on the trial any more (the list was old): nothing was written. The list is read
+  // again and the dogs that are gone leave the screen, so the others can be saved.
+  const settleGoneDogs = useCallback(
+    async (error: APIError) => {
+      reportError(error)
+      enqueueSnackbar(t('results.saveFailed'), errorSnackbarOptions)
+      await dropGoneDogs().catch(reportError)
+    },
+    [dropGoneDogs, t]
+  )
+
+  /** Settles a batch the server refused outright, locked or naming a dog that is gone. Whether it was one. */
+  const settleRefusedBatch = useCallback(
+    async (error: unknown): Promise<boolean> => {
+      if (!(error instanceof APIError)) return false
+      if (error.status === 423) await settleLockedBatch(error.body)
+      else if (error.status === 404 || error.status === 422) await settleGoneDogs(error)
+      else return false
+      return true
+    },
+    [settleGoneDogs, settleLockedBatch]
+  )
+
   const handleSave = useCallback(async () => {
     const submissions = Object.entries(edits).map(([id, edit]) => submissionFor(id, edit))
     if (submissions.length === 0) return
@@ -315,31 +358,7 @@ export default function EventResultsPage() {
       setEdits({})
     } catch (error) {
       // A conflict arrives as a rejected 409 rather than a value, and its body carries both versions.
-      if (error instanceof APIError && error.status === 423) {
-        // Handed to the judge from somewhere else, perhaps part way through the batch: the dogs saved before
-        // that are stored, so they are folded in and taken off the screen like the saved dogs of a conflict.
-        const done = savedOf(error.body)
-        try {
-          await storeResults(done)
-          setEdits((prev) =>
-            Object.fromEntries(Object.entries(prev).filter(([id]) => !done.some((item) => item.id === id)))
-          )
-        } catch (storeError) {
-          // The state still has to be read, or the page stays open to a trial that is not.
-          reportError(storeError)
-        }
-        enqueueSnackbar(t('results.kennelliitto.lockedSave'), errorSnackbarOptions)
-        await refreshState()
-        return
-      }
-      if (error instanceof APIError && (error.status === 404 || error.status === 422)) {
-        // A dog the batch named is not on the trial any more (the list was old): nothing was written. The list
-        // is read again and the dogs that are gone leave the screen, so the others can be saved.
-        reportError(error)
-        enqueueSnackbar(t('results.saveFailed'), errorSnackbarOptions)
-        await dropGoneDogs().catch(reportError)
-        return
-      }
+      if (await settleRefusedBatch(error)) return
       const body = error instanceof APIError && error.status === 409 ? error.body : undefined
       if (!isResultConflictBody(body)) {
         // Anything else — the server refusing a dog that did not run, a dropped connection — keeps the
@@ -355,7 +374,7 @@ export default function EventResultsPage() {
       setConflicts(body.conflicts)
       setChoices({})
     }
-  }, [dropGoneDogs, edits, refreshState, report, saveResults, storeResults, submissionFor, t])
+  }, [edits, report, saveResults, settleRefusedBatch, storeResults, submissionFor, t])
 
   const handleResolve = useCallback(async () => {
     // Only the dogs the secretary decided to overrule are sent again, each based on the version that

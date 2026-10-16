@@ -20,6 +20,7 @@ import { addDays } from 'date-fns/addDays'
 import { zonedStartOfDay } from '../../i18n/dates'
 import { auditUser, groupChangeAudit } from '../../lib/audit'
 import { isResultsPublishedClassMap, withResultsDay } from '../../lib/event'
+import { KC_STATE_HANDED_OVER } from '../../lib/kennelliittoResults'
 import { getResultsBlocker, isResultsPublishedState } from '../../lib/publishing'
 import { GROUP_KEY_CANCELLED, hasPriority, REGISTRATION_WRITE_CONCURRENCY } from '../../lib/registration'
 import { normalizeRegistrationGroups } from '../../lib/registrationGroups'
@@ -579,6 +580,9 @@ export const setResultsPublishedState = (
   })
 }
 
+/** How long a handed-over state is held against a reading of another state: longer than a request lives. */
+const KC_LOCK_WINDOW_MS = 30_000
+
 /**
  * Records what Kennelliitto last said of the trial's state (KOE-1140). A field-level write, never a
  * save of the event, so it cannot overwrite what a secretary saved meanwhile, and `updatedAt` moves so
@@ -586,14 +590,28 @@ export const setResultsPublishedState = (
  *
  * Several requests read the state at once, and a slow one must not put back what a faster one has
  * already replaced (a judge's return to 754 after a hand-over to 1253 is the case that matters): the
- * write lands only on a reading no older than the stored one. Answers whether it was written.
+ * write lands only on a reading no older than the stored one.
+ *
+ * A handed-over state written less than `KC_LOCK_WINDOW_MS` ago is not replaced by a reading of another
+ * state. A hand-over's call to Kennelliitto may still be out for as long as a request lives, and until
+ * Kennelliitto has taken it a reading says what it held before: that reading would lift the lock under a
+ * hand-over that is about to succeed, and let a second one in. A handed-over state older than the window
+ * is replaced like any other, which is how a trial the judge sent back opens again. Answers whether it was
+ * written.
  */
 export const writeKcState = async (eventId: string, kcState: JsonKcState, updatedAt: string): Promise<boolean> => {
+  const freshAfter = new Date(Date.parse(kcState.readAt) - KC_LOCK_WINDOW_MS).toISOString()
   try {
     await dynamoDB.update({ id: eventId }, { set: { kcState, updatedAt } }, eventTable, 'NONE', {
-      expression: 'attribute_exists(#id) AND (attribute_not_exists(#kcState) OR #kcState.#readAt <= :readAt)',
-      names: { '#id': 'id', '#kcState': 'kcState', '#readAt': 'readAt' },
-      values: { ':readAt': kcState.readAt },
+      expression:
+        'attribute_exists(#id) AND (attribute_not_exists(#kcState) OR (#kcState.#readAt <= :readAt AND (:code = :handedOver OR #kcState.#code <> :handedOver OR #kcState.#readAt <= :freshAfter)))',
+      names: { '#code': 'code', '#id': 'id', '#kcState': 'kcState', '#readAt': 'readAt' },
+      values: {
+        ':code': kcState.code,
+        ':freshAfter': freshAfter,
+        ':handedOver': KC_STATE_HANDED_OVER,
+        ':readAt': kcState.readAt,
+      },
     })
     return true
   } catch (error) {

@@ -617,8 +617,8 @@ const refusedBy = (call: { status: number; virheet?: string[] }): Pick<KcHandOve
  * the trial is answered 409. Giving it back is conditional on the stored state still being this request's
  * lock, so a lock is only ever given back by the request that took it, and one that lost cannot undo the
  * one that won. A reading of Kennelliitto's state that arrives while the hand-over's call is out says what
- * Kennelliitto still held before the call (754) and may replace the lock for the length of that call; the
- * confirmation written after the call restores it.
+ * Kennelliitto still held before the call (754), and does not replace a lock younger than the time a request
+ * lives (`writeKcState`); a trial the judge returned later is read as open again.
  */
 const takeLock = async (req: KcRequest, event: JsonConfirmedEvent) => {
   const handed = toState(KC_STATE_HANDED_OVER, HANDED_OVER_NAME, nowOf(req))
@@ -638,11 +638,10 @@ const takeLock = async (req: KcRequest, event: JsonConfirmedEvent) => {
  * The state is written once more after Kennelliitto took the hand-over, with a reading stamped now: a
  * state read that landed during the call (and said 754) must not be the last word.
  *
- * Readings are ordered by the arrival of their answers, and the latest arrival wins. A request that read
- * the trial as open just before the hand-over and stamps its reading after this write can therefore put 754
- * back for a while. That is acceptable: the next preview, sending or hand-over reads Kennelliitto again and
- * restores the lock, Kennelliitto itself refuses results to a trial that is with the judge, and a preview
- * that reads 1253 never writes a reading older than the one stored.
+ * Readings are ordered by the arrival of their answers, and the latest arrival wins, except that a
+ * handed-over state is held for the time a request lives against a reading of another state: a request that
+ * read the trial as open just before the hand-over cannot put 754 back over it. A judge who returns the trial
+ * within that time is seen at the next read after it.
  */
 const confirmHandOver = async (req: KcRequest, event: JsonConfirmedEvent): Promise<KcHandOverResult> => {
   const confirmed = toState(KC_STATE_HANDED_OVER, HANDED_OVER_NAME, nowOf(req))
