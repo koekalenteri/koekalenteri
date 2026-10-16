@@ -110,6 +110,21 @@ export const flushPromises = async (timers: boolean = true) => {
 const SETTLE_MS = 320
 const SETTLE_ROUNDS = 8
 
+/**
+ * Types `keys` into a date picker field (its `group`) one key at a time, at a person's pace: the tree
+ * settles between the keys, so a debounced change runs out on every partial date the field makes.
+ */
+export const typeDateKeyByKey = async (user: UserEvent, group: HTMLElement, keys: string) => {
+  const day = group.querySelector<HTMLElement>('[role="spinbutton"]')
+  if (!day) throw new Error('Date field day section not found')
+
+  await user.click(day)
+  for (const key of keys) {
+    await user.keyboard(key)
+    await flushPromises()
+  }
+}
+
 export const createMatchMedia =
   (width: number) =>
   (query: string): MediaQueryList => ({

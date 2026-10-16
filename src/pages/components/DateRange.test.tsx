@@ -8,7 +8,7 @@ import { useState } from 'react'
 import { locales } from '../../i18n'
 import { TIME_ZONE } from '../../i18n/dates'
 import { describeInTimeZone } from '../../test-utils/timeZone'
-import { flushPromises, renderWithUserEvents } from '../../test-utils/utils'
+import { flushPromises, renderWithUserEvents, typeDateKeyByKey } from '../../test-utils/utils'
 import DateRange from './DateRange'
 
 const renderComponent = (props: Props) => {
@@ -171,33 +171,6 @@ describe('DateRange', () => {
       expect(changeHandler).toHaveBeenLastCalledWith(start, day16)
     })
 
-    it('keeps a date typed into the empty end date one key at a time (KOE-1481)', async () => {
-      const changeHandler = vi.fn()
-      const today = startOfDay(date)
-      const target = addDays(today, 18)
-      const { user } = renderWithUserEvents(
-        <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales.fi}>
-          <StatefulDateRange end={null} endLabel="end" onChange={changeHandler} start={today} startLabel="start" />
-        </LocalizationProvider>,
-        undefined,
-        { advanceTimers: vi.advanceTimersByTime }
-      )
-      const endGroup = screen.getByRole('group', { name: 'end' })
-      const endDay = endGroup.querySelector<HTMLElement>('[role="spinbutton"]')
-      if (!endDay) throw new Error('End date day section not found')
-
-      await user.click(endDay)
-      // A person's pace: the range's debounce runs out between the keys. The year's first digit
-      // makes year 2, a whole date before the start, which used to empty the field (KOE-1481).
-      for (const key of format(target, 'ddMMyyyy')) {
-        await user.keyboard(key)
-        await flushPromises()
-      }
-
-      expect(endGroup).toHaveTextContent(format(target, 'dd.MM.yyyy'))
-      expect(changeHandler).toHaveBeenLastCalledWith(today, target)
-    })
-
     /**
      * A moment of a Finnish October 2026 day, as the callers' bounds are (zonedStartOfDay,
      * zonedEndOfDay), as a plain Date: a TZDate would become the picker's reference and carry its
@@ -217,16 +190,20 @@ describe('DateRange', () => {
         { advanceTimers: vi.advanceTimersByTime }
       )
       const group = screen.getByRole('group', { name: field })
-      const day = group.querySelector<HTMLElement>('[role="spinbutton"]')
-      if (!day) throw new Error(`${field} date day section not found`)
-
-      await user.click(day)
-      for (const key of keys) {
-        await user.keyboard(key)
-        await flushPromises()
-      }
+      await typeDateKeyByKey(user, group, keys)
       return { changeHandler, group }
     }
+
+    it('keeps a date typed into the empty end date one key at a time (KOE-1481)', async () => {
+      const today = startOfDay(date)
+      const target = addDays(today, 18)
+      // A person's pace: the range's debounce runs out between the keys. The year's first digit
+      // makes year 2, a whole date before the start, which used to empty the field (KOE-1481).
+      const { changeHandler, group } = await typeInto('end', format(target, 'ddMMyyyy'), { end: null, start: today })
+
+      expect(group).toHaveTextContent(format(target, 'dd.MM.yyyy'))
+      expect(changeHandler).toHaveBeenLastCalledWith(today, target)
+    })
 
     // A typed date is midnight of the browser's day, so these read as Finnish days only in a browser
     // in Finland's time zone, whatever zone the machine running them is in.

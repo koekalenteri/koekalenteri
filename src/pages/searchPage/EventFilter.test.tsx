@@ -11,7 +11,7 @@ import theme from '../../assets/Theme'
 import { locales } from '../../i18n'
 import { TIME_ZONE, zonedEndOfDay, zonedStartOfDay } from '../../i18n/dates'
 import { describeInTimeZone } from '../../test-utils/timeZone'
-import { createMatchMedia, flushPromises, renderWithUserEvents } from '../../test-utils/utils'
+import { createMatchMedia, flushPromises, renderWithUserEvents, typeDateKeyByKey } from '../../test-utils/utils'
 import { EventFilter } from './EventFilter'
 
 const judges: Judge[] = [
@@ -220,20 +220,37 @@ describe('EventFilter', () => {
         changeHandler,
         true
       )
-      const endDay = screen
-        .getByRole('group', { name: 'daterangeEnd' })
-        .querySelector<HTMLElement>('[role="spinbutton"]')
-      if (!endDay) throw new Error('End date day section not found')
-
-      await user.click(endDay)
-      for (const key of '31102026') {
-        await user.keyboard(key)
-        await flushPromises()
-      }
+      await typeDateKeyByKey(user, screen.getByRole('group', { name: 'daterangeEnd' }), '31102026')
 
       expect(changeHandler).toHaveBeenLastCalledWith(
         expect.objectContaining({ end: zonedEndOfDay(lastDayOfOctober), start: zonedStartOfDay(lastDayOfOctober) })
       )
+    })
+
+    it('stores no start when the start date is cleared', async () => {
+      const changeHandler = vi.fn()
+      const { user } = renderComponent(
+        {
+          end: null,
+          eventClass: [],
+          eventType: [],
+          judge: [],
+          organizer: [],
+          start: new TZDate(2026, 9, 31, TIME_ZONE),
+        },
+        changeHandler,
+        true
+      )
+      const startDay = screen
+        .getByRole('group', { name: 'daterangeStart' })
+        .querySelector<HTMLElement>('[role="spinbutton"]')
+      if (!startDay) throw new Error('Start date day section not found')
+
+      await user.click(startDay)
+      await user.keyboard('{Control>}a{/Control}{Backspace}')
+      await flushPromises()
+
+      expect(changeHandler).toHaveBeenLastCalledWith(expect.objectContaining({ end: null, start: null }))
     })
   })
 })
