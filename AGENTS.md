@@ -12,7 +12,8 @@ Read `LLM_CONTEXT.md` for the project overview and architecture notes.
 - `npm run test-integration` runs the `integration` project: the lambda code against real tables in a
   DynamoDB-local (`npm run init-dynamodb`, or `DYNAMODB_ENDPOINT` for one on another port). The tables
   are created from `template/tables` at the start of every run, empty, under the access key
-  `integration`, so the `npm run init` tables and the browser tests' rows are never touched. The tests
+  `integration`, so the `npm run init` tables and the browser tests' rows are never touched (a
+  container started with `-sharedDb` keeps no databases apart, and the run refuses to reset there). The tests
   are `src/lambda/**/*.integration.test.ts`, beside the module they run; each writes under ids of its
   own and asserts on those, never on a table's whole content. Never part of `npm test` or the
   pre-commit hook; CI runs them in the `integration` job with the container as a service (KOE-1369).

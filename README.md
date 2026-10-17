@@ -117,8 +117,9 @@ npm run test-integration
 ```
 
 The run creates its tables afresh under an access key of its own, so the `npm run init` tables are
-left alone. `DYNAMODB_ENDPOINT` points it at a container on another port. CI runs the same command
-in the `integration` job.
+left alone; a container started with `-sharedDb` has no databases to keep apart, and the run refuses
+to reset there. `DYNAMODB_ENDPOINT` points it at a container on another port. CI runs the same
+command in the `integration` job.
 
 ### Deploying
 

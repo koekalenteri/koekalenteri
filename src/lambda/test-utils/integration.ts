@@ -45,7 +45,7 @@ export const storedUser = (overrides: Partial<JsonUser> = {}): JsonUser => {
 /**
  * A confirmed event row of a club of its own, two weeks from now unless `startDate` says otherwise,
  * with the keys the indexes are derived from (`season`, `organizerId`, `updatedAt`) as PutEvent
- * stores them. A file that pins its clock builds `startDate` and `updatedAt` from the frozen instant.
+ * stores them.
  */
 export const storedEvent = (overrides: Partial<JsonDogEvent> = {}): JsonDogEvent => {
   const startDate = overrides.startDate ?? addDays(new Date(), 14).toISOString()

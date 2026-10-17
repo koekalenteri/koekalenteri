@@ -18,7 +18,7 @@ export const STAGE = 'dev'
 export const API_URL = `http://localhost:${API_PORT}/${STAGE}`
 export const FAKES_URL = `http://127.0.0.1:${FAKES_PORT}`
 
-export { DYNAMODB_ENDPOINT }
+export { DYNAMODB_ENDPOINT, LOCAL_ACCESS_KEY }
 
 /** The Cognito ids the frontend is built with. Nothing calls Cognito; they only have to be present. */
 const USER_POOL_ID = 'eu-north-1_e2e'

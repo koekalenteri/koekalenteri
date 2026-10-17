@@ -13,12 +13,12 @@ import type {
 import { randomInt, randomUUID } from 'node:crypto'
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb'
 import { DynamoDBDocumentClient, GetCommand, PutCommand, QueryCommand } from '@aws-sdk/lib-dynamodb'
-import { DYNAMODB_ENDPOINT } from '../env.mjs'
+import { DYNAMODB_ENDPOINT, LOCAL_ACCESS_KEY } from '../env.mjs'
 import { endOfDay, helsinkiYear, startOfDay } from './dates'
 
 const client = DynamoDBDocumentClient.from(
   new DynamoDBClient({
-    credentials: { accessKeyId: 'local', secretAccessKey: 'local' },
+    credentials: { accessKeyId: LOCAL_ACCESS_KEY, secretAccessKey: LOCAL_ACCESS_KEY },
     endpoint: DYNAMODB_ENDPOINT,
     region: 'eu-north-1',
   }),

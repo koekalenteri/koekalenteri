@@ -7,12 +7,17 @@
  */
 import { ensureLocalTables, INTEGRATION_ACCESS_KEY } from './lib/local-dynamodb.mjs'
 
-export default async function globalSetup() {
+/** @param {import('vitest/node').TestProject} project */
+export default async function globalSetup(project) {
   // The tests reach the same database only when they run under the same key, which
   // scripts/test-integration.js sets along with the endpoint and the table names.
   if (process.env.AWS_ACCESS_KEY_ID !== INTEGRATION_ACCESS_KEY) {
     throw new Error('The integration tests run through `npm run test-integration`, which sets their environment.')
   }
 
-  await ensureLocalTables({ accessKey: INTEGRATION_ACCESS_KEY, args: ['--reset', '--no-seed'] })
+  await ensureLocalTables({
+    accessKey: INTEGRATION_ACCESS_KEY,
+    args: ['--reset', '--no-seed'],
+    root: project.config.root,
+  })
 }
