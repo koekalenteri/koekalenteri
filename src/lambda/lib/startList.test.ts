@@ -93,4 +93,64 @@ describe('readPublishedStartList (KOE-1516)', () => {
     expect(checkEvent).toHaveBeenCalledWith(publishedEvent)
     expect(mockGetRegistrationsByEventId).not.toHaveBeenCalled()
   })
+
+  describe('placement', () => {
+    const resultsEvent = {
+      ...publishedEvent,
+      classes: [{ class: 'ALO', state: 'ended' as const }],
+      eventType: 'NOWT',
+      resultsPublished: { ALO: true },
+      state: 'ended' as const,
+    }
+    const scored = (id: string, result: string, points: number) =>
+      asJsonRegistration({
+        ...registration,
+        eventResult: { maxPoints: 100, points, result, updatedAt: '', updatedBy: '' },
+        eventType: 'NOWT',
+        group: { date: '2025-01-01', key: 'participants', number: 1 },
+        id,
+      })
+
+    it('publishes the rank beside the result, ties sharing one', async () => {
+      mockGetEvent.mockResolvedValue(resultsEvent)
+      mockGetRegistrationsByEventId.mockResolvedValue([
+        scored('a', 'ALO1', 90),
+        scored('b', 'ALO2', 70),
+        scored('c', 'ALO2', 70),
+        scored('d', 'ALO0', 40),
+      ])
+
+      const { participants } = await readPublishedStartList('event-1')
+
+      expect(participants.map(({ placement, result }) => [result, placement])).toEqual([
+        ['ALO1', 1],
+        ['ALO2', 2],
+        ['ALO2', 2],
+        ['ALO0', undefined],
+      ])
+    })
+
+    it('counts a dog whose row is withheld in the rank of the published ones', async () => {
+      mockGetEvent.mockResolvedValue(resultsEvent)
+      mockGetRegistrationsByEventId.mockResolvedValue([
+        scored('a', 'ALO2', 70),
+        // Its number is not entered yet, so it stays off the list, but it still ran ahead of the others.
+        { ...scored('w', 'ALO1', 95), startGroup: undefined },
+      ])
+
+      const { participants } = await readPublishedStartList('event-1')
+
+      expect(participants).toEqual([expect.objectContaining({ placement: 2, result: 'ALO2' })])
+    })
+
+    it('withholds the rank where the results are not published', async () => {
+      mockGetEvent.mockResolvedValue({ ...resultsEvent, resultsPublished: { ALO: false } })
+      mockGetRegistrationsByEventId.mockResolvedValue([scored('a', 'ALO1', 90)])
+
+      const { participants } = await readPublishedStartList('event-1')
+
+      expect(participants).toHaveLength(1)
+      expect(participants[0]).not.toHaveProperty('placement')
+    })
+  })
 })

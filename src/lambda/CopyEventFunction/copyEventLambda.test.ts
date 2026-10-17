@@ -181,6 +181,135 @@ describe('copyEventHandler', () => {
     vi.useRealTimers()
   })
 
+  // Finnish midnights as stored instants: 21:00Z in summer time, 22:00Z in winter time (KOE-1540).
+  it.each([
+    {
+      expected: {
+        endDate: '2026-10-31T22:00:00.000Z',
+        entryEndDate: '2026-10-17T21:00:00.000Z',
+        entryStartDate: '2026-09-30T21:00:00.000Z',
+        groupDate: '2026-10-31T22:00:00.000Z',
+        groupKey: '2026-11-01-ip',
+        startDate: '2026-10-30T22:00:00.000Z',
+      },
+      name: 'summer time to winter time',
+      requested: '2026-10-30T22:00:00.000Z',
+      source: {
+        endDate: '2026-05-15T21:00:00.000Z',
+        entryEndDate: '2026-05-01T21:00:00.000Z',
+        entryStartDate: '2026-04-14T21:00:00.000Z',
+        groupDate: '2026-05-15T21:00:00.000Z',
+        groupKey: '2026-05-16-ip',
+        startDate: '2026-05-14T21:00:00.000Z',
+      },
+    },
+    {
+      expected: {
+        endDate: '2026-05-16T21:00:00.000Z',
+        entryEndDate: '2026-05-01T21:00:00.000Z',
+        entryStartDate: '2026-04-14T21:00:00.000Z',
+        groupDate: '2026-05-16T21:00:00.000Z',
+        groupKey: '2026-05-17-ip',
+        startDate: '2026-05-15T21:00:00.000Z',
+      },
+      name: 'winter time to summer time',
+      requested: '2026-05-15T21:00:00.000Z',
+      source: {
+        endDate: '2026-02-15T22:00:00.000Z',
+        entryEndDate: '2026-01-31T22:00:00.000Z',
+        entryStartDate: '2026-01-14T22:00:00.000Z',
+        groupDate: '2026-02-15T22:00:00.000Z',
+        groupKey: '2026-02-16-ip',
+        startDate: '2026-02-14T22:00:00.000Z',
+      },
+    },
+    {
+      // The source itself spans the change of 29.3.2026: 27.3. is +02:00 and 30.3. is +03:00.
+      expected: {
+        endDate: '2026-06-14T21:00:00.000Z',
+        entryEndDate: '2026-04-30T21:00:00.000Z',
+        entryStartDate: '2026-04-13T21:00:00.000Z',
+        groupDate: '2026-06-14T21:00:00.000Z',
+        groupKey: '2026-06-15-ip',
+        startDate: '2026-06-11T21:00:00.000Z',
+      },
+      name: 'a multi-day event across the change of time',
+      requested: '2026-06-11T21:00:00.000Z',
+      source: {
+        endDate: '2026-03-29T21:00:00.000Z',
+        entryEndDate: '2026-02-12T22:00:00.000Z',
+        entryStartDate: '2026-01-26T22:00:00.000Z',
+        groupDate: '2026-03-29T21:00:00.000Z',
+        groupKey: '2026-03-30-ip',
+        startDate: '2026-03-26T22:00:00.000Z',
+      },
+    },
+    {
+      expected: {
+        endDate: '2026-03-29T21:00:00.000Z',
+        entryEndDate: '2026-02-12T22:00:00.000Z',
+        entryStartDate: '2026-01-26T22:00:00.000Z',
+        groupDate: '2026-03-29T21:00:00.000Z',
+        groupKey: '2026-03-30-ip',
+        startDate: '2026-03-26T22:00:00.000Z',
+      },
+      name: 'a copy to the same day',
+      requested: '2026-03-26T22:00:00.000Z',
+      source: {
+        endDate: '2026-03-29T21:00:00.000Z',
+        entryEndDate: '2026-02-12T22:00:00.000Z',
+        entryStartDate: '2026-01-26T22:00:00.000Z',
+        groupDate: '2026-03-29T21:00:00.000Z',
+        groupKey: '2026-03-30-ip',
+        startDate: '2026-03-26T22:00:00.000Z',
+      },
+    },
+  ])('moves every date by Finnish calendar days: $name (KOE-1540)', async ({ expected, requested, source }) => {
+    mockAuthorize.mockResolvedValueOnce({ name: 'Test User' })
+    setEventBody(event, { id: 'event123', startDate: requested })
+    mockGetEvent.mockResolvedValueOnce({
+      classes: [{ date: source.startDate }, { date: source.endDate }],
+      endDate: source.endDate,
+      entryEndDate: source.entryEndDate,
+      entryStartDate: source.entryStartDate,
+      id: 'event123',
+      name: 'Original Event',
+      startDate: source.startDate,
+    })
+    mockNanoid.mockReturnValueOnce('newid123')
+    mockQuery.mockResolvedValueOnce([
+      {
+        dates: [{ date: source.startDate }, { date: source.endDate }],
+        eventId: 'event123',
+        group: { date: source.groupDate, key: source.groupKey, number: 1, time: 'ip' },
+        id: 'registration123',
+      },
+    ])
+
+    await copyEventHandler(event)
+
+    expect(mockSaveEvent).toHaveBeenCalledWith(
+      expect.objectContaining({
+        classes: [{ date: expected.startDate }, { date: expected.endDate }],
+        endDate: expected.endDate,
+        entryEndDate: expected.entryEndDate,
+        entryStartDate: expected.entryStartDate,
+        startDate: expected.startDate,
+      })
+    )
+    expect(mockBatchWrite).toHaveBeenCalledWith(
+      [
+        {
+          dates: [{ date: expected.startDate }, { date: expected.endDate }],
+          eventId: 'newid123',
+          group: { date: expected.groupDate, key: expected.groupKey, number: 1, time: 'ip' },
+          id: 'registration123',
+        },
+      ],
+      'registration-table-not-found-in-env'
+    )
+  })
+
   it('sets season using Finnish timezone when copying an event near year boundary', async () => {
     const user = { name: 'Test User' }
     const input = { id: 'event123', startDate: '2024-12-31T22:00:00.000Z' }

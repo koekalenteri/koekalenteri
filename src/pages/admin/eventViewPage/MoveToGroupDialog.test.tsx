@@ -65,13 +65,13 @@ describe('MoveToGroupDialog', () => {
       makeGroup(eventWithStaticDates.startDate, 'ap'),
       makeGroup(eventWithStaticDates.endDate, 'ip'),
     ]
-    const currentGroupKey = 'dateFormat.wdshort date registration.timeLong.ap'
     const notRegisteredGroupKey = 'dateFormat.wdshort date registration.timeLong.ip'
 
     const registration: Registration = {
       ...registrationWithStaticDates,
       dates: [groups[0]],
-      group: { date: groups[0].date, key: currentGroupKey, number: 1, time: groups[0].time },
+      // On the reserve list, so the registered day is offered as the move
+      group: { key: 'reserve', number: 1 },
     }
 
     const onClose = vi.fn()
@@ -105,14 +105,12 @@ describe('MoveToGroupDialog', () => {
       makeGroup(eventWithStaticDates.startDate, 'ap'),
       makeGroup(eventWithStaticDates.startDate, 'ip'),
     ]
-    const currentGroupKey =
-      'dateFormat.wdshort date registration.timeLong.ap registration.moveToGroupDialog.currentGroup'
     const targetGroupKey = 'dateFormat.wdshort date registration.timeLong.ip'
 
     const registration: Registration = {
       ...registrationWithStaticDates,
       dates: [groups[0], groups[1]],
-      group: { date: groups[0].date, key: currentGroupKey, number: 1, time: groups[0].time },
+      group: { date: groups[0].date, key: groups[0].key, number: 1, time: groups[0].time },
     }
 
     const onClose = vi.fn()
@@ -153,14 +151,12 @@ describe('MoveToGroupDialog', () => {
       makeGroup(eventWithStaticDates.startDate, 'ap'),
       makeGroup(eventWithStaticDates.startDate, 'ip'),
     ]
-    const currentGroupKey =
-      'dateFormat.wdshort date registration.timeLong.ap registration.moveToGroupDialog.currentGroup'
     const targetGroupKey = 'dateFormat.wdshort date registration.timeLong.ip'
 
     const registration: Registration = {
       ...registrationWithStaticDates,
       dates: [groups[0], groups[1]],
-      group: { date: groups[0].date, key: currentGroupKey, number: 1, time: groups[0].time },
+      group: { date: groups[0].date, key: groups[0].key, number: 1, time: groups[0].time },
     }
 
     const onClose = vi.fn()

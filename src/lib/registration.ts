@@ -4,6 +4,7 @@ import type {
   CustomCost,
   EmailTemplateId,
   EventState,
+  GroupDate,
   JsonConfirmedEvent,
   JsonPublicDogEvent,
   JsonRegistration,
@@ -28,8 +29,15 @@ import type {
 } from '../types'
 import type { AuditActor } from './audit'
 import { nanoid } from 'nanoid'
+import { zonedDateString } from '../i18n/dates'
 import { emptyBreeder, emptyDog, emptyPerson } from './data'
-import { hasSharedReserveList, isEntryClosed, localizedEventDescription, localizedEventName } from './event'
+import {
+  eventRegistrationDateKey,
+  hasSharedReserveList,
+  isEntryClosed,
+  localizedEventDescription,
+  localizedEventName,
+} from './event'
 import { formatMoney, getNetPaidAmount } from './money'
 import { PRIORITY_INVITED, PRIORITY_MEMBER, priorityValuesToPriority, RESTRICTION } from './priority'
 import { isDefined } from './typeGuards'
@@ -462,7 +470,7 @@ export const priorityDescriptionKey: PriorityCheckFn<
  * Structural minimum the sort needs, so it serves stored registrations and public projections alike —
  * including a public row whose number is withheld until the class's start numbers are published.
  */
-type SortablePlacement = { date?: string | Date; key?: string; number?: number; time?: RegistrationTime }
+type SortablePlacement = { date?: GroupDate; key?: string; number?: number; time?: RegistrationTime }
 
 export type SortableRegistration = {
   class?: string | null
@@ -480,7 +488,7 @@ export const getRegistrationPlacement = <T extends SortableRegistration>(
 const placementOf = (registration: SortableRegistration): SortablePlacement | undefined =>
   getRegistrationPlacement(registration)
 
-const sortableDate = (date: string | Date | undefined): string =>
+const sortableDate = (date: GroupDate | undefined): string =>
   date instanceof Date ? date.toISOString() : (date ?? '\uffff')
 
 export const getRegistrationGroupTime = (registration: SortableRegistration): RegistrationTime =>
@@ -515,15 +523,53 @@ export const getRegistrationNumberingGroupKey = <T extends JsonRegistration | Re
   return hasSharedReserveList(reg.eventType) ? GROUP_KEY_RESERVE : `${GROUP_KEY_RESERVE}-${classOrType}`
 }
 
+export const isParticipantGroup = (group?: string): boolean =>
+  Boolean(group) && group !== GROUP_KEY_RESERVE && group !== GROUP_KEY_CANCELLED
+
+const groupInstant = (date: GroupDate | undefined): Date | undefined => {
+  if (!date) return undefined
+  const instant = date instanceof Date ? date : new Date(date)
+  return Number.isNaN(instant.getTime()) ? undefined : instant
+}
+
+/** The trial's calendar day of a group's date, or '' when it has none (or none that reads as a date). */
+export const getRegistrationGroupDay = (date: GroupDate | undefined): string => {
+  const instant = groupInstant(date)
+  return instant ? zonedDateString(instant) : ''
+}
+
+/**
+ * The one rule for which group a start belongs to: a participant group is named by the trial's day
+ * and the time (`eventRegistrationDateKey`), whatever spelling the stored key has. Rows written by an
+ * older copy of an event carry the UTC day, which is another day for a start at the Helsinki
+ * midnight (KOE-1541). Reserve, cancelled and a group without a usable date and time keep their key.
+ */
+export const deriveParticipantGroupKey = (group: NonNullable<RegistrationPlacement['group']>): string => {
+  const date = groupInstant(group.date)
+  if (!isParticipantGroup(group.key) || !date || !group.time) return group.key
+  return eventRegistrationDateKey({ date, time: group.time })
+}
+
+type PlacedGroup = NonNullable<RegistrationPlacement['group']> & { number?: number }
+
+/**
+ * Whether a group row differs from the one before only in how its key is spelled: the same day,
+ * time and number under the other key. That write repairs a stored key (KOE-1541) and says nothing
+ * about the dog's place, so it is not worth a line in the trail.
+ */
+export const isKeyRespelling = (previous: PlacedGroup | undefined, group: PlacedGroup | undefined): boolean =>
+  !!previous &&
+  !!group &&
+  previous.key !== group.key &&
+  previous.number === group.number &&
+  deriveParticipantGroupKey(previous) === deriveParticipantGroupKey(group)
+
 export const getRegistrationGroupKey = (reg: RegistrationPlacement): string => {
   if (reg.cancelled) {
     return GROUP_KEY_CANCELLED
   }
-  return reg.group?.key ?? GROUP_KEY_RESERVE
+  return reg.group ? deriveParticipantGroupKey(reg.group) : GROUP_KEY_RESERVE
 }
-
-export const isParticipantGroup = (group?: string): boolean =>
-  Boolean(group) && group !== GROUP_KEY_RESERVE && group !== GROUP_KEY_CANCELLED
 
 /** A start: an entry that is not cancelled and sits in a participant group, not on the reserve list. */
 export const isStarter = (reg: RegistrationPlacement): boolean => isParticipantGroup(getRegistrationGroupKey(reg))
