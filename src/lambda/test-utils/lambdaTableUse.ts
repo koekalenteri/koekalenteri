@@ -19,31 +19,15 @@
  * values the reached code passes them, iterated to a fixed point per handler. A table the walk
  * cannot name is an error, never a silent skip.
  */
+import type { Action } from './dynamoActions'
 import path from 'node:path'
 import ts from 'typescript'
-import { parse } from 'yaml'
+import { indexKey } from './dynamoActions'
 
-type Access = 'read' | 'write'
-
-/** A DynamoDB action without its `dynamodb:` prefix: `GetItem`, `Query`, `PutItem`, ... */
-type Action = string
-
-const READ_ACTIONS: ReadonlySet<Action> = new Set(['BatchGetItem', 'DescribeTable', 'GetItem', 'Query', 'Scan'])
-const WRITE_ACTIONS: ReadonlySet<Action> = new Set([
-  'BatchWriteItem',
-  'ConditionCheckItem',
-  'DeleteItem',
-  'PutItem',
-  'UpdateItem',
-])
-
-export const accessOf = (action: Action): Access => {
-  if (READ_ACTIONS.has(action)) return 'read'
-  if (WRITE_ACTIONS.has(action)) return 'write'
-  throw new Error(`dynamodb:${action} is not classified in lambdaTables.ts`)
-}
-
-/** The `CONFIG` keys a handler reaches, per action, each use as `file:line (call chain)`. */
+/**
+ * The tables a handler reaches, as the CONFIG key (`eventTable`) or an index of it
+ * (`userTable/index/gsiEmail`), per action, each use as `file:line (call chain)`.
+ */
 type TableUse = Map<string, Map<Action, string[]>>
 
 interface MethodSpec {
@@ -81,16 +65,24 @@ const CLIENT_CLASS = 'CustomDynamoClient'
 
 /**
  * What an expression can evaluate to, as far as tables are concerned: `T:<key>` a table name from
- * CONFIG, `C:<key>` a client whose default table is that key, `N:<id>` a function or object
- * literal (looked up in `Context.nodes`).
+ * CONFIG, `C:<key>` a client whose default table is that key, `S:<text>` a string literal (an index
+ * name), `N:<id>` a function or object literal (looked up in `Context.nodes`).
  */
 type Value = string
 type Values = Set<Value>
 
 const NONE: Values = new Set()
 
+const withPrefix = (values: Values, prefix: 'T' | 'C' | 'S') =>
+  [...values].filter((value) => value.startsWith(`${prefix}:`)).map((value) => value.slice(2))
+
+/** The CONFIG table keys among the values. */
+const tableKeys = (values: Values) => withPrefix(values, 'T')
+
 /** A unit is a module-level statement or a class member: what the walk reaches whole. */
 type Unit = ts.Node
+
+type TableNameProperty = ts.PropertyAssignment | ts.ShorthandPropertyAssignment
 
 /** What one unit contains, computed once and shared by every handler that reaches it. */
 interface UnitInfo {
@@ -100,8 +92,8 @@ interface UnitInfo {
   literals: ts.ObjectLiteralExpression[]
   /** Calls of a CustomDynamoClient method, with the method's name. */
   clientCalls: { call: ts.CallExpression; method: string }[]
-  /** `TableName:` properties of transaction items. */
-  tableNames: ts.PropertyAssignment[]
+  /** `TableName:` properties of transaction items, written out or shorthand. */
+  tableNames: TableNameProperty[]
 }
 
 interface Context {
@@ -258,8 +250,7 @@ const isClientConstruction = (ctx: Context, node: ts.NewExpression) =>
 
 const valuesOfClientConstruction = (ctx: Context, state: HandlerState, node: ts.NewExpression): Values => {
   if (!isClientConstruction(ctx, node) || !node.arguments?.[0]) return NONE
-  const tables = valuesOf(ctx, state, node.arguments[0])
-  return new Set([...tables].filter((value) => value.startsWith('T:')).map((value) => `C:${value.slice(2)}`))
+  return new Set(tableKeys(valuesOf(ctx, state, node.arguments[0])).map((key) => `C:${key}`))
 }
 
 const valuesOfAccess = (ctx: Context, state: HandlerState, node: ts.PropertyAccessExpression): Values => {
@@ -277,6 +268,7 @@ const computeValues = (ctx: Context, state: HandlerState, node: ts.Node): Values
     return union(valuesOf(ctx, state, node.whenTrue), valuesOf(ctx, state, node.whenFalse))
   }
   if (ts.isBinaryExpression(node)) return union(valuesOf(ctx, state, node.left), valuesOf(ctx, state, node.right))
+  if (ts.isStringLiteralLike(node)) return new Set([`S:${node.text}`])
   if (ts.isObjectLiteralExpression(node) || isFunctionLike(node)) return new Set([nodeId(ctx, node)])
   if (ts.isNewExpression(node)) return valuesOfClientConstruction(ctx, state, node)
   if (ts.isPropertyAccessExpression(node)) return valuesOfAccess(ctx, state, node)
@@ -374,8 +366,8 @@ const clientMethod = (ctx: Context, call: ts.CallExpression): string | undefined
   return member(symbolOf(ctx, callee.name)) || member(receiver.getProperty(name)) ? name : undefined
 }
 
-const isTableNameProperty = (node: ts.Node): node is ts.PropertyAssignment =>
-  ts.isPropertyAssignment(node) &&
+const isTableNameProperty = (node: ts.Node): node is TableNameProperty =>
+  (ts.isPropertyAssignment(node) || ts.isShorthandPropertyAssignment(node)) &&
   ts.isIdentifier(node.name) &&
   node.name.text === 'TableName' &&
   !CLIENT_FILE.test(node.getSourceFile().fileName)
@@ -411,10 +403,8 @@ const cannotTell = (node: ts.Node, what: string): never => {
   throw new Error(`${location(node)}: cannot tell which table ${what} (${node.getText()}) names`)
 }
 
-const tableKeys = (values: Values) => [...values].filter((v) => v.startsWith('T:')).map((v) => v.slice(2))
-
 const defaultTables = (ctx: Context, state: HandlerState, receiver: ts.Expression): string[] => {
-  const keys = [...valuesOf(ctx, state, receiver)].filter((v) => v.startsWith('C:')).map((v) => v.slice(2))
+  const keys = withPrefix(valuesOf(ctx, state, receiver), 'C')
   return keys.length ? keys : cannotTell(receiver, 'the client')
 }
 
@@ -430,6 +420,28 @@ const receiverOf = (call: ts.CallExpression): ts.Expression => {
   return call.expression.expression
 }
 
+/** The tables one options literal names: its `table`, or the client's default; with `index`, the index of each. */
+const literalTables = (
+  ctx: Context,
+  state: HandlerState,
+  call: ts.CallExpression,
+  literal: ts.ObjectLiteralExpression
+) => {
+  const table = propertyNamed(literal, 'table')
+  let keys: string[]
+  if (table) {
+    keys = tableKeys(valuesOfProperty(ctx, state, table))
+    if (!keys.length) cannotTell(table, 'the table option')
+  } else {
+    keys = defaultTables(ctx, state, receiverOf(call))
+  }
+  const index = propertyNamed(literal, 'index')
+  if (!index) return keys
+  const names = withPrefix(valuesOfProperty(ctx, state, index), 'S')
+  if (!names.length) cannotTell(index, 'the index option')
+  return keys.flatMap((key) => names.map((name) => indexKey(key, name)))
+}
+
 /** The tables of a call that takes its table in an options object: the literal's `table`, or the client's default. */
 const optionTables = (
   ctx: Context,
@@ -442,17 +454,7 @@ const optionTables = (
     .map((value) => ctx.nodes.get(value))
     .filter((node): node is ts.ObjectLiteralExpression => node !== undefined && ts.isObjectLiteralExpression(node))
   if (!literals.length) return cannotTell(argument, 'the options')
-  const keys: string[] = []
-  for (const literal of literals) {
-    const table = propertyNamed(literal, 'table')
-    if (table) {
-      const found = tableKeys(valuesOfProperty(ctx, state, table))
-      keys.push(...(found.length ? found : cannotTell(table, 'the table option')))
-    } else {
-      keys.push(...defaultTables(ctx, state, receiverOf(call)))
-    }
-  }
-  return keys
+  return literals.flatMap((literal) => literalTables(ctx, state, call, literal))
 }
 
 const callTables = (ctx: Context, state: HandlerState, call: ts.CallExpression, spec: MethodSpec): string[] => {
@@ -479,7 +481,7 @@ const record = (state: HandlerState, uses: TableUse, key: string, action: Action
 }
 
 /** The action of the transaction item a `TableName:` property sits in: `{ Put: { TableName } }` is a PutItem. */
-const transactionAction = (property: ts.PropertyAssignment): Action => {
+const transactionAction = (property: TableNameProperty): Action => {
   const item = property.parent.parent
   const kind = ts.isPropertyAssignment(item) && ts.isIdentifier(item.name) ? item.name.text : undefined
   const action = kind === undefined ? undefined : TRANSACTION_ACTIONS[kind]
@@ -492,14 +494,16 @@ const collect = (ctx: Context, state: HandlerState, unit: Unit, uses: TableUse) 
   const info = unitInfo(ctx, unit)
   for (const { call, method } of info.clientCalls) {
     const spec = CLIENT_METHODS.get(method)
-    if (!spec) throw new Error(`${location(call)}: ${CLIENT_CLASS}.${method} is not classified in lambdaTables.ts`)
+    if (!spec) throw new Error(`${location(call)}: ${CLIENT_CLASS}.${method} is not classified in lambdaTableUse.ts`)
     for (const key of callTables(ctx, state, call, spec)) {
       for (const action of spec.actions) record(state, uses, key, action, call, unit)
     }
   }
   for (const property of info.tableNames) {
     const action = transactionAction(property)
-    for (const key of explicitTables(ctx, state, property.initializer)) record(state, uses, key, action, property, unit)
+    const keys = tableKeys(valuesOfProperty(ctx, state, property))
+    if (!keys.length) cannotTell(property, 'the item')
+    for (const key of keys) record(state, uses, key, action, property, unit)
   }
 }
 
@@ -614,154 +618,4 @@ export const analyzeTableUse = (handlerFiles: string[]): TableAnalysis => {
     uses.set(file, analyzeHandler(ctx, source))
   }
   return { environmentVariables: configEnvironmentVariables(ctx.config), uses }
-}
-
-// --- The template side ---------------------------------------------------------------------------
-
-interface FunctionGrants {
-  codeUri: string
-  /** Table logical id to the actions the function's policies allow on it (`*` for all). */
-  tables: Map<string, Set<Action>>
-}
-
-interface TemplateTables {
-  /** Function logical id to the table logical ids its policies grant. */
-  functions: Map<string, FunctionGrants>
-  /** Environment variable (`EVENT_TABLE_NAME`) to the table logical id the Globals set it to. */
-  environmentVariables: Map<string, string>
-}
-
-const isRecord = (value: unknown): value is Record<string, unknown> =>
-  typeof value === 'object' && value !== null && !Array.isArray(value)
-
-const isStringArray = (value: unknown): value is string[] =>
-  Array.isArray(value) && value.every((item) => typeof item === 'string')
-
-const stringField = (record: Record<string, unknown>, key: string): string | undefined => {
-  const value = record[key]
-  return typeof value === 'string' ? value : undefined
-}
-
-const recordField = (record: Record<string, unknown>, key: string): Record<string, unknown> => {
-  const value = record[key]
-  return isRecord(value) ? value : {}
-}
-
-const listField = (record: Record<string, unknown>, key: string): unknown[] => {
-  const value = record[key]
-  if (Array.isArray(value)) return value
-  return value === undefined ? [] : [value]
-}
-
-/** The intrinsics the templates use. Scalars keep their tag as a one-key object; the list forms become plain lists. */
-const intrinsicTags = ['Ref', 'Sub', 'GetAtt', 'Join', 'Select', 'Split', 'If', 'Equals', 'Not', 'Condition'].flatMap(
-  (name) => [
-    { collection: 'seq' as const, identify: () => false, tag: `!${name}` },
-    { identify: () => false, resolve: (value: string) => ({ [name]: value }), tag: `!${name}` },
-  ]
-)
-
-const actionsOf = (actions: string[], where: string): Action[] =>
-  actions.map((action) => {
-    const name = action.slice('dynamodb:'.length)
-    if (name !== '*' && !READ_ACTIONS.has(name) && !WRITE_ACTIONS.has(name)) {
-      throw new Error(`${where}: ${action} is not classified in lambdaTables.ts`)
-    }
-    return name
-  })
-
-/** The table logical id an IAM resource names: `!GetAtt X.Arn` or `!Sub ${X.Arn}/index/*`. */
-const tableOfResource = (resource: unknown, where: string): string => {
-  if (isRecord(resource)) {
-    const getAtt = stringField(resource, 'GetAtt')?.match(/^(\w+)\.Arn$/)
-    const sub = stringField(resource, 'Sub')?.match(/^\$\{(\w+)\.Arn\}(\/.*)?$/)
-    const match = getAtt ?? sub
-    if (match) return match[1]
-  }
-  throw new Error(`${where}: resource ${JSON.stringify(resource)} is not a table ARN this check understands`)
-}
-
-const grant = (grants: FunctionGrants, table: string, actions: Action[]) => {
-  const granted = grants.tables.get(table) ?? new Set<Action>()
-  for (const action of actions) granted.add(action)
-  grants.tables.set(table, granted)
-}
-
-const grantStatements = (grants: FunctionGrants, statements: unknown[], tables: Set<string>, where: string) => {
-  for (const statement of statements) {
-    if (!isRecord(statement)) throw new Error(`${where}: statement is not a map`)
-    const actions = listField(statement, 'Action')
-    if (!isStringArray(actions)) throw new Error(`${where}: actions are not strings`)
-    const dynamo = actions.filter((action) => action.startsWith('dynamodb:'))
-    if (!dynamo.length) continue
-    if (stringField(statement, 'Effect') !== 'Allow')
-      throw new Error(`${where}: a dynamodb statement that is not Allow`)
-    for (const resource of listField(statement, 'Resource')) {
-      const table = tableOfResource(resource, where)
-      if (!tables.has(table)) throw new Error(`${where}: ${table} is not a table`)
-      grant(grants, table, actionsOf(dynamo, where))
-    }
-  }
-}
-
-/** What the SAM policy templates allow (their PartiQL actions left out: nothing here sends PartiQL). */
-const POLICY_TEMPLATES: Record<string, Action[]> = {
-  DynamoDBCrudPolicy: [...READ_ACTIONS, ...WRITE_ACTIONS],
-  DynamoDBReadPolicy: [...READ_ACTIONS],
-  DynamoDBWritePolicy: ['BatchWriteItem', 'DeleteItem', 'PutItem', 'UpdateItem'],
-}
-
-const grantPolicy = (
-  grants: FunctionGrants,
-  policy: unknown,
-  resources: Record<string, unknown>,
-  tables: Set<string>,
-  where: string
-) => {
-  if (!isRecord(policy)) throw new Error(`${where}: a policy that is not a map`)
-  const [name] = Object.keys(policy)
-  if (name === 'Ref') {
-    const reference = stringField(policy, 'Ref') ?? ''
-    const managed = recordField(resources, reference)
-    if (stringField(managed, 'Type') !== 'AWS::IAM::ManagedPolicy') {
-      throw new Error(`${where}: ${reference} is not a managed policy`)
-    }
-    const document = recordField(recordField(managed, 'Properties'), 'PolicyDocument')
-    grantStatements(grants, listField(document, 'Statement'), tables, `${where} (${reference})`)
-  } else if (name === 'Statement') {
-    grantStatements(grants, listField(policy, 'Statement'), tables, where)
-  } else if (name in POLICY_TEMPLATES) {
-    const table = stringField(recordField(recordField(policy, name), 'TableName'), 'Ref')
-    if (!table || !tables.has(table)) throw new Error(`${where}: ${name} names no table`)
-    grant(grants, table, POLICY_TEMPLATES[name])
-  } else if (name.includes('DynamoDB')) {
-    throw new Error(`${where}: ${name} is not classified in lambdaTables.ts`)
-  }
-}
-
-/** Every function in the built template with the tables its policies grant, and the Globals' table variables. */
-export const templateTables = (templateText: string): TemplateTables => {
-  const parsed: unknown = parse(templateText, { customTags: intrinsicTags })
-  if (!isRecord(parsed)) throw new Error('template is not a map')
-  const resources = recordField(parsed, 'Resources')
-  const tables = new Set(
-    Object.entries(resources)
-      .filter(([, resource]) => isRecord(resource) && resource.Type === 'AWS::DynamoDB::Table')
-      .map(([name]) => name)
-  )
-  const functions = new Map<string, FunctionGrants>()
-  for (const [name, resource] of Object.entries(resources)) {
-    if (!isRecord(resource) || resource.Type !== 'AWS::Serverless::Function') continue
-    const properties = recordField(resource, 'Properties')
-    const grants: FunctionGrants = { codeUri: stringField(properties, 'CodeUri') ?? '', tables: new Map() }
-    for (const policy of listField(properties, 'Policies')) grantPolicy(grants, policy, resources, tables, name)
-    functions.set(name, grants)
-  }
-  const globals = recordField(recordField(recordField(parsed, 'Globals'), 'Function'), 'Environment')
-  const environmentVariables = new Map<string, string>()
-  for (const [variable, value] of Object.entries(recordField(globals, 'Variables'))) {
-    const table = isRecord(value) ? stringField(value, 'Ref') : undefined
-    if (table && tables.has(table)) environmentVariables.set(variable, table)
-  }
-  return { environmentVariables, functions }
 }

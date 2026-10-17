@@ -1,6 +1,8 @@
 import { execFileSync } from 'node:child_process'
 import { existsSync, readdirSync, readFileSync } from 'node:fs'
-import { accessOf, analyzeTableUse, templateTables } from './test-utils/lambdaTables'
+import { accessOf, isGranted, tableOfKey } from './test-utils/dynamoActions'
+import { analyzeTableUse } from './test-utils/lambdaTableUse'
+import { templateTables } from './test-utils/templateGrants'
 
 /**
  * Adding a lambda used to mean keeping three places in step by hand, and a function present in one
@@ -42,19 +44,6 @@ describe('template', () => {
     expect(functions.filter((name) => !logGroups.includes(name))).toEqual([])
   })
 
-  // Outside prod, sendTemplatedMail asks the user table who is staff; a sender without the read
-  // policy would fail on the first mail it sends in test or dev (KOE-1469).
-  it('lets every function that sends mail read the user table', () => {
-    const functions = template.split(/^ {2}(?=\w+:\n {4}Type: )/m)
-    const senders = functions.filter((block) => block.includes('ses:sendTemplatedEmail'))
-    const withoutUserTable = senders
-      .filter((block) => !/DynamoDB(Read|Crud)Policy:\n {12}TableName: !Ref UserTable$/m.test(block))
-      .map((block) => block.slice(0, block.indexOf(':')))
-
-    expect(senders.length).toBeGreaterThan(0)
-    expect(withoutUserTable).toEqual([])
-  })
-
   // An event is copied into test or dev, never into prod (KOE-1471): nothing may name a prod
   // resource, and prod has no function that could receive a copy.
   it('reaches no prod resource from an event copy', () => {
@@ -75,17 +64,22 @@ describe('template', () => {
 })
 
 // A lambda that reaches a table its policies do not grant fails here, not in dev (KOE-1492). The
-// code side follows calls from each handler's default export (see test-utils/lambdaTables.ts); the
-// template side is the function block's DynamoDB policies, inline statements and managed policies.
+// code side follows calls from each handler's default export (test-utils/lambdaTableUse.ts); the
+// template side is the function block's DynamoDB policies, inline statements and managed policies
+// (test-utils/templateGrants.ts). The first case of the kind was the user table: outside prod,
+// sendTemplatedMail asks it who is staff, and a sender without the read policy failed on the first
+// mail it sent in test or dev (KOE-1469); that rule is one of the paths the walk now finds.
 describe('table policies', () => {
   const tables = templateTables(template)
   const analysis = analyzeTableUse(handlerDirectories.map((dir) => `src/lambda/${dir}/handler.ts`))
 
-  const tableId = (key: string) => {
+  /** `eventTable` to `EventTable`, and `userTable/index/gsiEmail` to `UserTable/index/gsiEmail`. */
+  const grantKey = (useKey: string) => {
+    const [key, ...rest] = useKey.split('/')
     const variable = analysis.environmentVariables.get(key)
     const id = variable === undefined ? undefined : tables.environmentVariables.get(variable)
     if (!id) throw new Error(`CONFIG.${key} is not a table the template's Globals name`)
-    return id
+    return [id, ...rest].join('/')
   }
 
   const usesOf = (name: string, codeUri: string) => {
@@ -97,12 +91,11 @@ describe('table policies', () => {
   it('grants every function the tables its code reaches', () => {
     const missing: string[] = []
     for (const [name, grants] of tables.functions) {
-      for (const [key, byAction] of usesOf(name, grants.codeUri)) {
-        const id = tableId(key)
-        const granted = grants.tables.get(id) ?? new Set()
+      for (const [useKey, byAction] of usesOf(name, grants.codeUri)) {
+        const key = grantKey(useKey)
         for (const [action, locations] of byAction) {
-          if (granted.has(action) || granted.has('*')) continue
-          missing.push(`${name} ${action} on ${id} without a policy: ${locations.join(', ')}`)
+          if (isGranted(grants.grants, key, action)) continue
+          missing.push(`${name} ${action} on ${key} without a policy: ${locations.join(', ')}`)
         }
       }
     }
@@ -115,15 +108,25 @@ describe('table policies', () => {
     const excess: string[] = []
     for (const [name, grants] of tables.functions) {
       const used = new Map<string, Set<string>>()
-      for (const [key, byAction] of usesOf(name, grants.codeUri)) {
-        used.set(tableId(key), new Set([...byAction.keys()].map(accessOf)))
+      for (const [useKey, byAction] of usesOf(name, grants.codeUri)) {
+        const table = tableOfKey(grantKey(useKey))
+        const accesses = used.get(table) ?? new Set<string>()
+        for (const action of byAction.keys()) accesses.add(accessOf(action))
+        used.set(table, accesses)
       }
-      for (const [id, actions] of grants.tables) {
-        const granted = new Set(
-          [...actions].flatMap((action) => (action === '*' ? ['read', 'write'] : [accessOf(action)]))
-        )
-        for (const access of granted) {
-          if (!used.get(id)?.has(access)) excess.push(`${name} may ${access} ${id} but never does`)
+      const granted = new Map<string, Set<string>>()
+      for (const [key, actions] of grants.grants) {
+        const table = tableOfKey(key)
+        const accesses = granted.get(table) ?? new Set<string>()
+        for (const action of actions) {
+          if (action === '*') accesses.add('read').add('write')
+          else accesses.add(accessOf(action))
+        }
+        granted.set(table, accesses)
+      }
+      for (const [table, accesses] of granted) {
+        for (const access of accesses) {
+          if (!used.get(table)?.has(access)) excess.push(`${name} may ${access} ${table} but never does`)
         }
       }
     }

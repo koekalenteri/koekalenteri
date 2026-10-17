@@ -12,12 +12,9 @@
             TableName: !Ref OrganizerTable
         - DynamoDBReadPolicy:
             TableName: !Ref EventTypeTable
-        - DynamoDBCrudPolicy:
+        - DynamoDBWritePolicy:
             TableName: !Ref AuditTable
-        - DynamoDBReadPolicy:
-            TableName: !Ref UserTable
-        - DynamoDBReadPolicy:
-            TableName: !Ref UserLinkTable
+        - !Ref AuthorizePolicy
         - Statement:
             - Sid: SSMGetParameterPolicy
               Effect: Allow
