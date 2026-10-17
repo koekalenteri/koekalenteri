@@ -622,6 +622,8 @@ describe('RegistrationListPage', () => {
   })
 
   // A payment return keeps verifying until the picture has a payment standing or charged twice.
+  const verifyingMessage = ['registration.notifications.paymentVerifying', { variant: 'info' }] as const
+
   it.each([
     ['a payment standing', paymentPictureWith()],
     ['a payment charged twice', paymentPictureWith({ due: 123, standing: false, status: 'duplicate' })],
@@ -630,9 +632,32 @@ describe('RegistrationListPage', () => {
     await renderWithRouter('/r/test1/unpaid-nou-registration?payment=verifying')
     await flushPromises()
 
-    expect(enqueueSnackbar).not.toHaveBeenCalledWith('registration.notifications.paymentVerifying', {
-      variant: 'info',
+    expect(enqueueSnackbar).not.toHaveBeenCalledWith(...verifyingMessage)
+  })
+
+  // A place paid, fully refunded, lifted into a place and not yet paid again has a stored SUCCESS but
+  // no money standing: the page keeps waiting for the money (an intended change from reading the
+  // stored status, which ended the wait at once).
+  it('keeps verifying a payment return while no money stands, whatever the stored status says', async () => {
+    vi.spyOn(registrationApi, 'getRegistration').mockResolvedValue({
+      ...unpaidRegistrationWithStaticDates,
+      payment: owing,
+      paymentStatus: 'SUCCESS',
     })
+    await renderWithRouter('/r/test1/unpaid-nou-registration?payment=verifying')
+    await flushPromises()
+
+    expect(enqueueSnackbar).toHaveBeenCalledWith(...verifyingMessage)
+  })
+
+  // The server always sends the picture; a response without it gives the page nothing to say.
+  it('stays on the loading page when the response has no payment picture', async () => {
+    vi.spyOn(registrationApi, 'getRegistration').mockResolvedValue(unpaidRegistrationWithStaticDates)
+    await renderWithRouter('/r/test1/unpaid-nou-registration')
+    await flushPromises()
+
+    expect(screen.getByRole('progressbar')).toBeInTheDocument()
+    expect(screen.queryByText('registration.registeredDogs')).not.toBeInTheDocument()
   })
 
   it('polls pending payment as a bounded websocket fallback', async () => {

@@ -325,6 +325,26 @@ describe('PaymentPage', () => {
       expect(container).toHaveTextContent('paymentPage.registrationNotFound registrationId')
     })
 
+    // A response without the server's payment picture says nothing of the payment (KOE-1530).
+    it('should show registration not found when the response has no payment picture', async () => {
+      const { payment: _payment, ...withoutPicture } = testRegistration
+      const { container } = render(
+        <Provider>
+          <MemoryRouter>
+            <PaymentPageWithData
+              registrationId="test-reg-id"
+              event={asPaymentEvent({ id: 'test-id' })}
+              registration={withoutPicture}
+            />
+          </MemoryRouter>
+        </Provider>
+      )
+
+      await flushPromises()
+
+      expect(container).toHaveTextContent('paymentPage.registrationNotFound registrationId')
+    })
+
     it('should show payment methods when registration has payment status SUCCESS', async () => {
       const event = {
         cost: 50,

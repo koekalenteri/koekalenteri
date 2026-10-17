@@ -1,4 +1,5 @@
 import { vi } from 'vitest'
+import { paymentPictureWith } from '../../../__mockData__/paymentPicture'
 
 /** What a publish hands the broadcaster: who gets it, and what they get. */
 interface BroadcastConfiguration {
@@ -224,7 +225,7 @@ describe('ws/actions', () => {
   // KOE-1526 review: the admins get what changed, the participant the payment state their page reads.
   it('publishes a cancelled payment to the admins as a change and to the participant as payment state', async () => {
     const patch = { eventId: 'e1', id: 'r1', paymentStatus: 'CANCEL' as const, updatedAt: '2026-08-01T00:00:00.000Z' }
-    const participantPatch = { ...patch, confirmed: true }
+    const participantPatch = { ...patch, payment: paymentPictureWith({ canPay: true, due: 50 }) }
     await publishCancelledRegistration({
       eventId: 'e1',
       organizerId: 'o1',

@@ -52,6 +52,9 @@ function Wrapper({ children }: { readonly children: ReactNode }) {
   )
 }
 
+/** A place, as the form's row holds it when the entry has been picked. */
+const place = { date: eventWithStaticDates.startDate, key: 'place-ap', number: 1, time: 'ap' as const }
+
 describe('RegistrationForm', () => {
   beforeAll(() => {
     // jsdom does not have matchMedia, so inject a polyfill
@@ -196,6 +199,7 @@ describe('RegistrationForm', () => {
     const picked = {
       ...unpaidRegistrationWithStaticDates,
       confirmed: false,
+      group: place,
       messagesSent: { picked: true },
       payment: paymentPictureWith({ canPay: true, due: 123, standing: false, status: 'unpaid' }),
     }
@@ -216,19 +220,44 @@ describe('RegistrationForm', () => {
     )
   })
 
-  // KOE-1530: a participant's form takes whether paying waits for a place from the server's picture,
-  // not from the group it has no copy of.
+  // KOE-1530: the picture is the saved row's. The form edits the row, so whether paying waits for a
+  // place follows the row's group, whatever the picture said when it was saved.
   it.each([
-    ['waits for a place', 'waitingForPlace', /^registration\.paymentToBePaidAfterConfirmation 123,00/],
-    ['does not wait for a place', 'unpaid', /^registration\.paymentToBePaid 123,00/],
-  ] as const)('says the fee %s as the picture does', async (_name, status, text) => {
+    [
+      'a saved free class edited to a paid one',
+      paymentPictureWith({ due: 0, standing: false, status: 'notCharged' }),
+      { paidAmount: undefined, paymentStatus: undefined },
+      /^registration\.paymentToBePaidAfterConfirmation 123,00/,
+    ],
+    [
+      'a part paid place that is no longer a starter',
+      paymentPictureWith({ due: 23, status: 'partial' }),
+      { paidAmount: 100, paymentStatus: 'SUCCESS' as const },
+      /^registration\.paymentToBePaidAfterConfirmation 23,00/,
+    ],
+  ])('says the fee waits for a place for %s', async (_name, payment, paid, text) => {
     const event = { ...eventWithStaticDates, paymentTime: 'confirmation' as const }
     const { group: _group, ...entry } = unpaidRegistrationWithStaticDates
-    const picture = paymentPictureWith({ due: 123, standing: false, status })
-    render(<RegistrationForm event={event} registration={{ ...entry, payment: picture }} />, { wrapper: Wrapper })
+    render(<RegistrationForm event={event} registration={{ ...entry, ...paid, payment }} />, { wrapper: Wrapper })
     await flushPromises()
 
     expect(screen.getByText(/^registration\.paymentToBePaid/)).toHaveTextContent(text)
+  })
+
+  it('does not say the fee waits for a place for a row in one, whatever the picture said', async () => {
+    const event = { ...eventWithStaticDates, paymentTime: 'confirmation' as const }
+    const payment = paymentPictureWith({ due: 123, standing: false, status: 'waitingForPlace' })
+    render(
+      <RegistrationForm event={event} registration={{ ...unpaidRegistrationWithStaticDates, group: place, payment }} />,
+      {
+        wrapper: Wrapper,
+      }
+    )
+    await flushPromises()
+
+    expect(screen.getByText(/^registration\.paymentToBePaid/)).toHaveTextContent(
+      /^registration\.paymentToBePaid 123,00/
+    )
   })
 
   // KOE-1526 review: a payment in progress turns the pay offer off, not the place.
@@ -237,6 +266,7 @@ describe('RegistrationForm', () => {
     const pending = {
       ...unpaidRegistrationWithStaticDates,
       confirmed: true,
+      group: place,
       messagesSent: { picked: true },
       payment: paymentPictureWith({ due: 123, standing: false, status: 'inProgress' }),
     }

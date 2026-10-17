@@ -35,7 +35,6 @@ import {
   dropOpenTransaction,
   failUnfinishedTransaction,
   getTransactionsByReference,
-  loadOpenPayments,
   paymentDescription,
   releaseTransactionCreation,
 } from '../lib/payment'
@@ -135,9 +134,9 @@ const paymentCreateLambda = lambda('paymentCreate', async (event) => {
     throw httpError(404, 'Event is not open for payment')
   }
 
-  // The picture is worked out from the whole row and its open payments, as the participant's own
-  // pages have it from GetRegistration (KOE-1530).
-  const picture = getPaymentPicture(jsonEvent, registration, await loadOpenPayments(registration.openPayments))
+  // Only the duplicate mark and the amount are read, and neither depends on open payments (a payment
+  // in progress is answered 409 below, from the transactions themselves), so none are loaded.
+  const picture = getPaymentPicture(jsonEvent, registration, [])
 
   if (picture.status === 'duplicate') {
     throw httpError(409, 'Duplicate payment requires a refund')

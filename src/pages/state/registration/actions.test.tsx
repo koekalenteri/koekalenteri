@@ -104,20 +104,24 @@ describe('useRegistrationActions', () => {
     expect(saved).toBe(editedRegistration)
   })
 
-  // KOE-1530: the participant's payment picture is the server's word. A save never sends it, and what
-  // the page holds afterwards is the picture the response carried, not the one it had.
-  it('replaces the payment picture with the one the save answered, and never sends it', async () => {
-    const before = paymentPictureWith({ canPay: true, due: 7, standing: true, status: 'partial' })
-    const after = paymentPictureWith()
-    const savedRegistration = { ...registrationWithStaticDates, editToken: 'participant-token', payment: before }
-    const editedRegistration = { ...savedRegistration, notes: 'changed notes' }
-    vi.spyOn(registrationApi, 'patchRegistration').mockResolvedValueOnce({ ...editedRegistration, payment: after })
+  // KOE-1530: the participant's payment picture is the server's word, so a save never sends it, even
+  // when the row the form holds carries another one than the saved row.
+  it('never sends the payment picture, whatever the edited row holds', async () => {
+    const savedRegistration = {
+      ...registrationWithStaticDates,
+      editToken: 'participant-token',
+      payment: paymentPictureWith({ canPay: true, due: 7, status: 'partial' }),
+    }
+    const editedRegistration = {
+      ...savedRegistration,
+      notes: 'changed notes',
+      payment: paymentPictureWith({ due: 99, status: 'unpaid' }),
+    }
+    vi.spyOn(registrationApi, 'patchRegistration').mockResolvedValueOnce(editedRegistration)
 
     const { result } = renderHook(() => useRegistrationActions(), { wrapper })
-
-    let saved: Awaited<ReturnType<typeof result.current.save>> | undefined
     await act(async () => {
-      saved = await result.current.save(editedRegistration, eventWithStaticDates, savedRegistration)
+      await result.current.save(editedRegistration, eventWithStaticDates, savedRegistration)
     })
 
     expect(registrationApi.patchRegistration).toHaveBeenCalledWith(
@@ -129,22 +133,37 @@ describe('useRegistrationActions', () => {
       'participant-token',
       undefined
     )
-    expect(saved?.payment).toEqual(after)
-    // The paid place says so when saved, by the picture.
+  })
+
+  // The "saved" snackbar follows the picture the save answered, not the stored status of the row sent.
+  it('says a saved place was paid by the picture the save answered', async () => {
+    const savedRegistration = { ...registrationWithStaticDates, editToken: 'participant-token' }
+    const editedRegistration = { ...savedRegistration, notes: 'changed notes', paymentStatus: 'SUCCESS' as const }
+    vi.spyOn(registrationApi, 'patchRegistration').mockResolvedValueOnce({
+      ...editedRegistration,
+      payment: paymentPictureWith(),
+    })
+
+    const { result } = renderHook(() => useRegistrationActions(), { wrapper })
+    await act(async () => {
+      await result.current.save(editedRegistration, eventWithStaticDates, savedRegistration)
+    })
+
     expect(mockEnqueueSnackbar).toHaveBeenCalledWith(
       expect.stringContaining('registration.modified'),
       expect.objectContaining({ variant: 'success' })
     )
   })
 
-  it('does not say a place that is not paid was paid when saved', async () => {
-    const savedRegistration = {
-      ...registrationWithStaticDates,
-      editToken: 'participant-token',
+  // A place paid, fully refunded, lifted and not yet paid again has a stored SUCCESS but no money
+  // standing: it is not said to be paid (an intended change from reading the stored status).
+  it('does not say a place with a stored SUCCESS but no money standing was paid', async () => {
+    const savedRegistration = { ...registrationWithStaticDates, editToken: 'participant-token' }
+    const editedRegistration = { ...savedRegistration, notes: 'changed notes', paymentStatus: 'SUCCESS' as const }
+    vi.spyOn(registrationApi, 'patchRegistration').mockResolvedValueOnce({
+      ...editedRegistration,
       payment: paymentPictureWith({ canPay: true, due: 123, standing: false, status: 'unpaid' }),
-    }
-    const editedRegistration = { ...savedRegistration, notes: 'changed notes' }
-    vi.spyOn(registrationApi, 'patchRegistration').mockResolvedValueOnce(editedRegistration)
+    })
 
     const { result } = renderHook(() => useRegistrationActions(), { wrapper })
     await act(async () => {
@@ -157,8 +176,8 @@ describe('useRegistrationActions', () => {
   it('does not send client-derived qualification fields when adding a result', async () => {
     const savedRegistration = {
       ...registrationWithStaticDates,
+      payment: paymentPictureWith({ canPay: true, due: 123, standing: false, status: 'unpaid' }),
       results: [],
-      shouldPay: true,
       updatedAt: new Date('2026-08-16T12:21:00.000Z'),
     }
     const manualResult: ManualTestResult = {
@@ -175,10 +194,10 @@ describe('useRegistrationActions', () => {
     const editedRegistration = {
       ...savedRegistration,
       group: { key: 'reserve', number: 1 },
+      payment: paymentPictureWith(),
       qualifies: false,
       qualifyingResults: [{ ...manualResult, qualifying: true }],
       results: [manualResult],
-      shouldPay: undefined,
       updatedAt: new Date('2026-08-16T12:19:41.030Z'),
     }
     vi.spyOn(registrationApi, 'patchRegistration').mockResolvedValueOnce(editedRegistration)

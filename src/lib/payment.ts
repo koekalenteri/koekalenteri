@@ -198,7 +198,7 @@ export const getPaymentPicture = (
   const held = inProgress || registration.paymentStatus === 'DUPLICATE'
 
   return {
-    canPay: open && !registration.cancelled && due > 0 && !held && isPaymentOpenForPlace(event, registration),
+    canPay: open && due > 0 && !held && isPaymentOpenForPlace(event, registration),
     canRefund: canRefund(registration),
     canRefundExcess: open && canRefundExcess(event, registration),
     due,
