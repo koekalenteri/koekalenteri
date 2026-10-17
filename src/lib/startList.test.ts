@@ -2,6 +2,8 @@ import type { TFunction } from 'i18next'
 import type { PublicConfirmedEvent } from '../types/Event'
 import type { PublicRegistration } from '../types/Registration'
 import i18n from 'i18next'
+import { eventWithStaticDates } from '../__mockData__/events'
+import { emptyDog } from './data'
 import {
   isStartListUpToDate,
   newestStartListVersion,
@@ -145,17 +147,17 @@ describe('a published result on the exported list', () => {
   })
 
   it('carries the placement in its own column', () => {
-    const event = { classes: [], startDate: new Date('2023-02-01') } as unknown as PublicConfirmedEvent
-    const registration = {
+    const event: PublicConfirmedEvent = { ...eventWithStaticDates, classes: [] }
+    const registration: PublicRegistration = {
       breeder: 'Test Breeder',
       class: 'ALO',
-      dog: { name: 'Test Dog', regNo: 'REG1' },
+      dog: { ...emptyDog, name: 'Test Dog', regNo: 'REG1' },
       group: { key: 'ALO', number: 2 },
       handler: 'Test Handler',
       owner: 'Test Owner',
       placement: 2,
       result: 'ALO1',
-    } as PublicRegistration
+    }
 
     const [header, row] = startListSpreadsheetRows([registration], event, t)
 

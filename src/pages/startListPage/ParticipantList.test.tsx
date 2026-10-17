@@ -16,6 +16,21 @@ import { ParticipantList } from './ParticipantList'
  */
 const t = i18n.getFixedT('en') as TFunction
 
+// The global mock returns keys; the placement's number is the thing the copied text must carry.
+vi.mock('react-i18next', async () => {
+  const actual = await vi.importActual<typeof import('../../__mocks__/react-i18next')>('../../__mocks__/react-i18next')
+  return {
+    ...actual,
+    useTranslation: () => {
+      const base = actual.useTranslation()
+      return {
+        ...base,
+        t: (key: string, options?: { placement?: number }) =>
+          key === 'results.placement' ? `Sija ${options?.placement}` : base.t(key, options),
+      }
+    },
+  }
+})
 vi.mock('notistack', () => ({ enqueueSnackbar: vi.fn() }))
 vi.mock('../../lib/client/xlsx', () => ({ downloadXlsx: vi.fn().mockResolvedValue(undefined) }))
 
@@ -486,7 +501,7 @@ describe('ParticipantList', () => {
 
     await user.click(screen.getByRole('button', { name: /copy|kopioi/i }))
 
-    expect(writeText).toHaveBeenCalledWith(expect.stringContaining('AVO1 results.placement'))
+    expect(writeText).toHaveBeenCalledWith(expect.stringContaining('AVO1 Sija 2'))
   })
 
   it('reports a failed copy instead of failing silently', async () => {

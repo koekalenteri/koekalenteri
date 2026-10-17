@@ -1,4 +1,3 @@
-import type { TFunction } from 'i18next'
 import type { JsonEventResult, JsonEventResultTask } from '../types'
 import type { ScoredTask, SubmittedEventResult } from './results'
 import i18n from 'i18next'
@@ -677,6 +676,28 @@ describe('placementsFor', () => {
     expect(Object.fromEntries(placements)).toEqual({ a: 1, b: 2 })
   })
 
+  describe('in a browser east of Finland', () => {
+    beforeEach(() => {
+      vi.stubEnv('TZ', 'Asia/Tokyo')
+    })
+    afterEach(() => {
+      vi.unstubAllEnvs()
+    })
+
+    it('runs in the zone it says it does', () => {
+      // Tokyo midnight is the evening before in Finland; without this the case below proves nothing.
+      expect(new Date(2026, 7, 1).toISOString()).toBe('2026-07-31T15:00:00.000Z')
+    })
+
+    it('keeps a bare day string on the day it names, with an instant of that day', () => {
+      const placements = placementsFor([
+        dog('a', 'ALO1', 90, { group: { date: '2026-08-01', key: 'participants', number: 1 } }),
+        dog('b', 'ALO1', 85, { group: { date: new Date('2026-08-01T10:00:00Z'), key: 'participants', number: 2 } }),
+      ])
+      expect(Object.fromEntries(placements)).toEqual({ a: 1, b: 2 })
+    })
+  })
+
   it('ranks a bare date string and an ISO instant of the same day together', () => {
     const placements = placementsFor([
       dog('a', 'ALO1', 90, { group: { date: '2026-08-01', key: 'participants', number: 1 } }),
@@ -731,7 +752,7 @@ describe('placementsFor', () => {
 })
 
 describe('formatResultLine', () => {
-  const t = i18n.getFixedT('en') as TFunction
+  const t = i18n.getFixedT('en')
 
   it('reads the code, the marks and the placement as one line, each only where there is one', () => {
     expect(formatResultLine({ marks: ['interrupted'], placement: 2, result: 'AVO1' }, t)).toBe('AVO1 Stopped Place 2')
