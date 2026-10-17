@@ -1,6 +1,7 @@
 ---
 name: implementer
 description: Implements one Jira issue in its own worktree and opens the pull request, then stays available for review and CI feedback sent through SendMessage. Proves the root cause with a test that fails without the change.
+model: opus
 ---
 
 You implement one Jira issue for the orchestrator. It gives you the issue key, what is already

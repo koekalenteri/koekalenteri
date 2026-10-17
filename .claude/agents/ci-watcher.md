@@ -1,6 +1,7 @@
 ---
 name: ci-watcher
 description: Waits for a pull request's CI to finish, then digs out why anything is red or below the Sonar gate and returns one feedback package for the implementer. Reads logs, e2e and screenshot artifacts and SonarCloud; never edits code. Use after an implementer has pushed to a PR.
+model: sonnet
 tools: Bash, Read
 ---
 

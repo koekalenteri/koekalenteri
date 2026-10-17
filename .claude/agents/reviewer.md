@@ -1,6 +1,7 @@
 ---
 name: reviewer
 description: Reviews one pull request from one angle given by the orchestrator (root cause, rule readers, tests, clock, conventions). Sees only the issue, the diff and the repo's rules, not the implementer's reasoning. Reports findings that come with a concrete failure scenario; never edits code.
+model: sonnet
 tools: Bash, Read
 ---
 
