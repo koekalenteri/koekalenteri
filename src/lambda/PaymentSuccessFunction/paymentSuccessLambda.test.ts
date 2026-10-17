@@ -11,13 +11,18 @@ const mockUpdateTransactionStatus = vi.fn()
 const mockSettleFailedTransaction = vi.fn()
 const mockApplySuccessfulPayment = vi.fn()
 // Delegates to the real, pure buildParticipantPaymentPatch -- a different module than the one this
-// file mocks -- with paymentInProgress recomputed from openPayments the way the real
-// participantPaymentPatch (computePaymentInProgress) does, so a test only has to override
-// openPayments to pin the shape (KOE-1529, round 1 part 3).
+// file mocks -- with the open payments read from openPayments the way the real
+// participantPaymentPatch (loadOpenPayments) does, a fresh pending one for each id, so a test only
+// has to override openPayments to pin the shape (KOE-1529, round 1 part 3).
 const mockParticipantPaymentPatch = vi.fn((registration: JsonRegistration, event: JsonConfirmedEvent) =>
   buildParticipantPaymentPatch(
-    { ...registration, paymentInProgress: Boolean(registration.openPayments?.length) },
-    event
+    registration,
+    event,
+    (registration.openPayments ?? []).map(() => ({
+      createdAt: new Date().toISOString(),
+      status: 'pending' as const,
+      type: 'payment' as const,
+    }))
   )
 )
 const mockClearRegistrationEmailDeliveryStatus = vi.fn()
@@ -298,13 +303,11 @@ describe('paymentSuccessLambda', () => {
       expect.objectContaining({
         eventId: 'event123',
         id: 'reg456',
-        // The page holds no group, so the patch says what is left to pay (KOE-1526).
-        paymentDue: 0,
-        // Recomputed fresh with this transaction's id taken out of the open set, not left at
-        // whatever it was on the row this handler started with (KOE-1529, round 1 part 3).
-        paymentInProgress: false,
+        // The page holds no group, so the patch says what is left to pay (KOE-1526). Recomputed
+        // fresh with this transaction's id taken out of the open set, not left at whatever it was
+        // on the row this handler started with (KOE-1529, round 1 part 3).
+        payment: expect.objectContaining({ canPay: false, due: 0 }),
         paymentStatus: 'SUCCESS',
-        shouldPay: false,
       })
     )
 
@@ -373,16 +376,16 @@ describe('paymentSuccessLambda', () => {
   })
 
   // KOE-1529, round 2 part 3: a delayed (bank transfer) payment was read as in progress by an
-  // earlier, full GetRegistration, which stored paymentInProgress: true alongside openPayments on
+  // earlier, full GetRegistration, which sent the picture's inProgress status for openPayments on
   // the participant's own page. When the ok callback applies it, the published patch must say so is
-  // no longer true, or getPaymentStatus (which checks paymentInProgress first) keeps the page saying
+  // no longer true, or the payment picture (which checks the open payments before the paid amount) keeps the page saying
   // "Odottaa maksun käsittelyä" for a fee that is actually paid, until a reload the verifying budget
   // may no longer give. The first two getRegistration calls (handleSuccessfulPayment's own fetch and
   // applyPaymentToRegistration's re-fetch) answer with the stale, pre-apply row; only the third, the
   // strongly consistent re-read this test pins, reflects applySuccessfulPayment's DELETE from
   // openPayments. Without that re-read, the handler would pass the stale row straight through and
   // this assertion would fail.
-  it('clears paymentInProgress in the published patch once a delayed payment is applied', async () => {
+  it('no longer says in progress in the published patch once a delayed payment is applied', async () => {
     const beforeApply = {
       dog: { regNo: 'FI12345' },
       eventId: 'event123',
@@ -391,7 +394,6 @@ describe('paymentSuccessLambda', () => {
       openPayments: ['tx123'],
       paidAmount: 0,
       payer: { email: 'test@example.com' },
-      paymentInProgress: true,
       paymentStatus: 'PENDING',
       state: 'creating',
     }
@@ -411,7 +413,10 @@ describe('paymentSuccessLambda', () => {
     expect(mockPublishParticipantRegistrationPatch).toHaveBeenCalledWith(
       'event123',
       'reg456',
-      expect.objectContaining({ paymentInProgress: false, paymentStatus: 'SUCCESS' })
+      expect.objectContaining({
+        payment: expect.objectContaining({ status: 'paid' }),
+        paymentStatus: 'SUCCESS',
+      })
     )
   })
 
@@ -456,7 +461,6 @@ describe('paymentSuccessLambda', () => {
       openPayments: ['tx123'],
       paidAmount: 0,
       payer: { email: 'test@example.com' },
-      paymentInProgress: true,
       paymentStatus: 'PENDING',
       state: 'creating',
     }
@@ -499,12 +503,10 @@ describe('paymentSuccessLambda', () => {
       expect.objectContaining({
         eventId: 'event123',
         id: 'reg456',
-        paymentDue: 50,
         // Recomputed with this transaction's id taken out of the open set, not left at whatever it
         // was on the row this handler started with (KOE-1529, round 1 part 3).
-        paymentInProgress: false,
+        payment: expect.objectContaining({ canPay: false, due: 50, status: 'duplicate' }),
         paymentStatus: 'DUPLICATE',
-        shouldPay: false,
         updatedAt: expect.any(String),
       })
     )

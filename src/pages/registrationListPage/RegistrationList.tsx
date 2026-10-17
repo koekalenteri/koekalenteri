@@ -1,7 +1,6 @@
 import type { Theme } from '@mui/material'
 import type { GridColDef } from '@mui/x-data-grid'
-import type { PaymentStatusKey } from '../../lib/payment'
-import type { BreedCode, PublicDogEvent, Registration } from '../../types'
+import type { BreedCode, PaymentPicture, PublicDogEvent, Registration } from '../../types'
 import CancelOutlined from '@mui/icons-material/CancelOutlined'
 import EditOutlined from '@mui/icons-material/EditOutlined'
 import EuroOutlined from '@mui/icons-material/EuroOutlined'
@@ -12,16 +11,16 @@ import { GridActionsCellItem } from '@mui/x-data-grid'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router'
 import { formatMoney } from '../../lib/money'
-import { getShownPayment, isPaymentOffered } from '../../lib/payment'
 import { hasPriority } from '../../lib/registration'
 import { Path } from '../../routeConfig'
 import { IconsTooltip, TooltipIcon } from '../components/IconsTooltip'
 import { PaymentIcon } from '../components/icons/PaymentIcon'
 import { PriorityIcon } from '../components/icons/PriorityIcon'
+import { PAYMENT_STATUS_KEY } from '../components/paymentStatus'
 import StyledDataGrid from '../components/StyledDataGrid'
 import { SCREEN_READER_ONLY } from '../components/screenReaderOnly'
 
-type StrippedRegistration = Omit<Registration, 'group' | 'internalNotes'>
+type StrippedRegistration = Omit<Registration, 'group' | 'internalNotes'> & { payment: PaymentPicture }
 
 interface Props {
   readonly disabled?: boolean
@@ -32,16 +31,11 @@ interface Props {
 }
 
 interface RegistrationListItemTooltipIconsProps {
-  paymentDue: number
-  paymentStatus: PaymentStatusKey
+  payment: PaymentPicture
   priority: boolean | 0.5
 }
 
-const RegistrationListItemTooltipIcons = ({
-  paymentDue,
-  paymentStatus,
-  priority,
-}: RegistrationListItemTooltipIconsProps) => {
+const RegistrationListItemTooltipIcons = ({ payment, priority }: RegistrationListItemTooltipIconsProps) => {
   const { t } = useTranslation()
   return (
     <>
@@ -52,8 +46,8 @@ const RegistrationListItemTooltipIcons = ({
       />
       <TooltipIcon
         key="payment"
-        text={t(paymentStatus, { amount: formatMoney(paymentDue) })}
-        icon={<PaymentIcon status={paymentStatus} fontSize="small" />}
+        text={t(PAYMENT_STATUS_KEY[payment.status], { amount: formatMoney(payment.due) })}
+        icon={<PaymentIcon status={payment.status} fontSize="small" />}
       />
     </>
   )
@@ -68,12 +62,10 @@ const RegistrationListItemIcons = ({
 }) => {
   const priority = hasPriority(event, registration)
   // What the payment line reads, which its euro sign shows too (KOE-1526).
-  const { due: paymentDue, status: paymentStatus } = getShownPayment(event, registration)
+  const { payment } = registration
   return (
     <IconsTooltip
-      icons={
-        <RegistrationListItemTooltipIcons paymentDue={paymentDue} paymentStatus={paymentStatus} priority={priority} />
-      }
+      icons={<RegistrationListItemTooltipIcons payment={payment} priority={priority} />}
       placement="bottom-start"
     >
       <Box
@@ -84,7 +76,7 @@ const RegistrationListItemIcons = ({
         }}
       >
         <PriorityIcon dim priority={priority} fontSize="small" />
-        <PaymentIcon dim status={paymentStatus} fontSize="small" />
+        <PaymentIcon dim status={payment.status} fontSize="small" />
       </Box>
     </IconsTooltip>
   )
@@ -179,8 +171,9 @@ export default function RegistrationList({
           />,
         ]
         // The server's answer, as the status box's pay button reads it: only it knows the group
-        // that decides a paying-at-confirmation place and a refunded reserve (KOE-1526).
-        if (isPaymentOffered(params.row, paymentVerificationInProgress)) {
+        // that decides a paying-at-confirmation place and a refunded reserve (KOE-1526); not while a
+        // payment is being verified, which only the page knows.
+        if (params.row.payment.canPay && !paymentVerificationInProgress) {
           return [
             <GridActionsCellItem
               disabled={disabled}

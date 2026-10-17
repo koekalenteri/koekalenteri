@@ -12,8 +12,7 @@ import { useRegistrationSubscription } from '../hooks/useRegistrationSubscriptio
 import { redirectTo } from '../lib/client/navigation'
 import { errorSnackbarOptions } from '../lib/client/snackbar'
 import { getEventStateForClass } from '../lib/event'
-import { getShownPaymentDue, isPaymentOffered } from '../lib/payment'
-import { getRegistrationClass, getRegistrationEmails } from '../lib/registration'
+import { getRegistrationClass, getRegistrationEmails, hasPaymentPicture } from '../lib/registration'
 import { isConfirmedEvent } from '../lib/typeGuards'
 import { Path } from '../routeConfig'
 import CancelDialog from './components/CancelDialog'
@@ -58,23 +57,21 @@ export function RegistrationListPage({ cancel, confirm, invitation }: Registrati
   const actions = useRegistrationActions()
   useRegistrationSubscription(registration, setRegistration)
   const paymentFlow = new URLSearchParams(location.search).get('payment')
-  // Still verifying for as long as the row has not settled to SUCCESS or DUPLICATE. A fresh payment
-  // transaction stays `new` until the callback, so `paymentInProgress` (pending only) is false for
-  // exactly the window this flag covers -- keying it on that would end the loop at once and re-offer
-  // Pay (KOE-1529).
-  const paymentVerificationInProgress =
-    paymentFlow === 'verifying' &&
-    registration?.paymentStatus !== 'SUCCESS' &&
-    registration?.paymentStatus !== 'DUPLICATE' &&
-    reloadCount < 5
+  // Still verifying for as long as the picture has no payment standing and none charged twice. A
+  // fresh payment transaction stays `new` until the callback, so `inProgress` (pending only) is false
+  // for exactly the window this flag covers -- keying it on that would end the loop at once and
+  // re-offer Pay (KOE-1529).
+  const payment = registration?.payment
+  const paymentSettled = Boolean(payment?.standing) || payment?.status === 'duplicate'
+  const paymentVerificationInProgress = paymentFlow === 'verifying' && !paymentSettled && reloadCount < 5
   const allDisabled = useMemo(() => !event || !isConfirmedEvent(event) || isPast(event.endDate), [event])
   const cancelDisabled = useMemo(
     () => !event || allDisabled || isPast(subDays(event.startDate, 1)),
     [allDisabled, event]
   )
-  // What the page shows as owed: the server's word only for a fee that went back, which needs the
-  // group this page does not have (getParticipantPaymentDue, KOE-1526).
-  const paymentDue = event && registration ? getShownPaymentDue(event, registration) : 0
+  // What the page shows as owed: the server's word, which needs the group this page does not have
+  // (KOE-1526, KOE-1530).
+  const paymentDue = payment?.due ?? 0
 
   const handleCancel = useCallback(
     (reason: string) => {
@@ -155,14 +152,14 @@ export function RegistrationListPage({ cancel, confirm, invitation }: Registrati
   useEffect(() => {
     if (!registration) return
     if (location.pathname.endsWith('/saved')) {
-      if (registration?.messagesSent?.picked && registration.paymentStatus === 'SUCCESS') {
+      if (registration?.messagesSent?.picked && registration.payment?.standing) {
         enqueueSnackbar(
           t('registration.paidAndConfirmed', {
             to: registration.payer?.email,
           }),
           { style: { overflowWrap: 'break-word', whiteSpace: 'pre-line' }, variant: 'success' }
         )
-      } else if (registration?.paymentStatus === 'SUCCESS') {
+      } else if (registration?.payment?.standing) {
         const emails = getRegistrationEmails(registration)
 
         enqueueSnackbar(
@@ -174,7 +171,7 @@ export function RegistrationListPage({ cancel, confirm, invitation }: Registrati
         )
       }
 
-      const search = paymentFlow === 'verifying' && registration.paymentStatus !== 'SUCCESS' ? '?payment=verifying' : ''
+      const search = paymentFlow === 'verifying' && !registration.payment?.standing ? '?payment=verifying' : ''
       void navigate(`${Path.registration(registration)}${search}`, { replace: true })
     }
   }, [location.pathname, navigate, paymentFlow, registration, t])
@@ -188,7 +185,7 @@ export function RegistrationListPage({ cancel, confirm, invitation }: Registrati
   }, [paymentVerificationInProgress, t])
 
   useEffect(() => {
-    if ((!paymentVerificationInProgress && !registration?.paymentInProgress) || reloadCount >= 5 || !registration) {
+    if ((!paymentVerificationInProgress && payment?.status !== 'inProgress') || reloadCount >= 5 || !registration) {
       return
     }
 
@@ -201,7 +198,7 @@ export function RegistrationListPage({ cancel, confirm, invitation }: Registrati
     const timeout = setTimeout(reload, PAYMENT_RELOAD_INTERVAL_MS)
 
     return () => clearTimeout(timeout)
-  }, [actions, paymentVerificationInProgress, registration, reloadCount, setRegistration])
+  }, [actions, payment?.status, paymentVerificationInProgress, registration, reloadCount, setRegistration])
 
   useEffect(() => {
     if (!event || !registration || registration.cancelled) return
@@ -209,16 +206,12 @@ export function RegistrationListPage({ cancel, confirm, invitation }: Registrati
     // it and its backdrop would swallow the confirm button (KOE-1265). It opens once confirmed.
     if (confirm && !registration.confirmed) return
 
-    // The same offer as the pay button: the server's shouldPay, never while a payment is being
+    // The same offer as the pay button: the server's picture, never while a payment is being
     // verified (KOE-1526).
-    if (
-      paymentDue > 0 &&
-      registration.messagesSent?.picked &&
-      isPaymentOffered(registration, paymentVerificationInProgress)
-    ) {
+    if (paymentDue > 0 && registration.messagesSent?.picked && payment?.canPay && !paymentVerificationInProgress) {
       setPaymentOpen((current) => current ?? true)
     }
-  }, [confirm, event, registration, paymentDue, paymentVerificationInProgress])
+  }, [confirm, event, registration, payment, paymentDue, paymentVerificationInProgress])
 
   useEffect(() => {
     if (!registration || registration.cancelled) return
@@ -244,7 +237,8 @@ export function RegistrationListPage({ cancel, confirm, invitation }: Registrati
     return <>{t('error.registrationNotFound')}</>
   }
 
-  if (!event || !registration) {
+  // Every response to the participant carries the picture; without it the page has nothing to say of the payment.
+  if (!event || !registration || !hasPaymentPicture(registration)) {
     return <LoadingPage />
   }
 

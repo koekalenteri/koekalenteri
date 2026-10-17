@@ -1,6 +1,7 @@
+import type { OpenPayment } from '../../../lib/payment'
 import type { JsonConfirmedEvent, JsonDogEvent, JsonRegistration, Patch } from '../../../types'
 import type { EventPatchPayload, EventViewerPayload, RegistrationPatchPayload, WebSocketConnection } from './types'
-import { getParticipantPaymentState } from '../../../lib/payment'
+import { getPaymentPicture } from '../../../lib/payment'
 
 export const buildEventPatchPayload = (eventId: string, patch: Patch<JsonDogEvent>): EventPatchPayload => ({
   eventId,
@@ -13,37 +14,33 @@ export const buildRegistrationPatchPayload = (
 ): RegistrationPatchPayload => ({ eventId, patch })
 
 /**
- * The payment state the participant's page shows. The due and the pay button are worked out here from
- * the same row (`getParticipantPaymentState`): both read the group, which the participant never
- * receives, and the rule is GetRegistration's (KOE-1526). `paymentInProgress` is computed by the
- * caller (`participantPaymentPatch` in `lib/payment.ts`) from the registration's open payment ids and
- * passed in on the row; the ids themselves are never part of this patch (KOE-1529).
+ * The payment state the participant's page shows: the picture, worked out here from the whole row
+ * (`getPaymentPicture`) as the participant never receives the group (KOE-1526). The caller loads the
+ * registration's open payments (`participantPaymentPatch` in `lib/payment.ts`); the ids themselves
+ * are never part of this patch (KOE-1529). The picture always has every key, so a patch merged over
+ * the last one leaves nothing of it behind.
  */
 export const buildParticipantPaymentPatch = (
   registration: JsonRegistration,
-  event: JsonConfirmedEvent
-): Patch<JsonRegistration> => {
-  const { paymentDue, shouldPay } = getParticipantPaymentState(event, registration)
-  return {
-    confirmed: registration.confirmed,
-    eventId: registration.eventId,
-    id: registration.id,
-    messagesSent: registration.messagesSent,
-    paidAmount: registration.paidAmount,
-    paidAt: registration.paidAt,
-    paymentDue,
-    paymentInProgress: registration.paymentInProgress,
-    paymentStatus: registration.paymentStatus,
-    // The page reads the refund to know a fee that went back, and only then takes the due from here.
-    refundAmount: registration.refundAmount,
-    refundAt: registration.refundAt,
-    refundHandlingCost: registration.refundHandlingCost,
-    refundStatus: registration.refundStatus,
-    shouldPay,
-    state: registration.state,
-    updatedAt: registration.updatedAt,
-  }
-}
+  event: JsonConfirmedEvent,
+  openPayments: readonly OpenPayment[]
+): Patch<JsonRegistration> => ({
+  confirmed: registration.confirmed,
+  eventId: registration.eventId,
+  id: registration.id,
+  messagesSent: registration.messagesSent,
+  paidAmount: registration.paidAmount,
+  paidAt: registration.paidAt,
+  payment: getPaymentPicture(event, registration, openPayments),
+  paymentStatus: registration.paymentStatus,
+  // The page reads the refund to know a fee that went back, and only then takes the due from here.
+  refundAmount: registration.refundAmount,
+  refundAt: registration.refundAt,
+  refundHandlingCost: registration.refundHandlingCost,
+  refundStatus: registration.refundStatus,
+  state: registration.state,
+  updatedAt: registration.updatedAt,
+})
 
 export const buildEventViewersPayload = (eventId: string, viewers: EventViewerPayload[]) => ({
   eventId,

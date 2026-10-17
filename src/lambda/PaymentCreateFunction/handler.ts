@@ -12,7 +12,7 @@ import type { PaymentCustomer } from '../types/paytrail'
 import { nanoid } from 'nanoid'
 import { auditUser } from '../../lib/audit'
 import {
-  getParticipantPaymentState,
+  getPaymentPicture,
   isEventOpenForPayment,
   isPaymentInProgress,
   isPaymentOpenForPlace,
@@ -134,7 +134,11 @@ const paymentCreateLambda = lambda('paymentCreate', async (event) => {
     throw httpError(404, 'Event is not open for payment')
   }
 
-  if (registration.paymentStatus === 'DUPLICATE') {
+  // Only the duplicate mark and the amount are read, and neither depends on open payments (a payment
+  // in progress is answered 409 below, from the transactions themselves), so none are loaded.
+  const picture = getPaymentPicture(jsonEvent, registration, [])
+
+  if (picture.status === 'duplicate') {
     throw httpError(409, 'Duplicate payment requires a refund')
   }
 
@@ -162,7 +166,7 @@ const paymentCreateLambda = lambda('paymentCreate', async (event) => {
   // What is still owed of the fee as the entry reads now: the whole of it, or the part a corrected
   // membership added after a member-price payment (KOE-722). A fee that went back is owed again only
   // once the entry holds a place; a reserve's is settled, and gets 204 (KOE-1526).
-  const amount = Math.round(100 * getParticipantPaymentState(jsonEvent, registration).paymentDue)
+  const amount = Math.round(100 * picture.due)
   if (amount <= 0) {
     return response<string>(204, 'Already paid', event)
   }

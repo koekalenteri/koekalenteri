@@ -15,6 +15,7 @@ import type {
   OwnerSelection,
   Patch,
   PaymentBalance,
+  PaymentPicture,
   PublicDogEvent,
   RefundField,
   Registration,
@@ -574,6 +575,14 @@ export const getRegistrationGroupKey = (reg: RegistrationPlacement): string => {
 export const isStarter = (reg: RegistrationPlacement): boolean => isParticipantGroup(getRegistrationGroupKey(reg))
 
 /**
+ * A registration that carries the server's payment picture, as every response to the participant
+ * does (KOE-1530): what the participant's pages need before they can say anything of the payment.
+ */
+export const hasPaymentPicture = <T extends Pick<Registration, 'payment'>>(
+  registration: T
+): registration is T & { payment: PaymentPicture } => registration.payment !== undefined
+
+/**
  * The picked participants by class, a classless event's under its event type: what the publishing
  * gates count on the panel and on the server alike (KOE-1466).
  */
@@ -605,9 +614,8 @@ export const isScorableRegistration = <T extends JsonRegistration | Registration
 export const hasRefundableBalance = <T extends JsonRegistration | Registration>(reg: Pick<T, RefundField>): boolean =>
   getNetPaidAmount(reg) > 0
 
-export const canRefund = <T extends JsonRegistration | Registration>(
-  reg: Pick<T, 'cancelled' | 'group' | RefundField>
-): boolean => hasRefundableBalance(reg) && REFUNDABLE_GROUP_KEYS.has(getRegistrationGroupKey(reg))
+export const canRefund = <T extends RegistrationPlacement & RegistrationRefundAmounts>(reg: T): boolean =>
+  hasRefundableBalance(reg) && REFUNDABLE_GROUP_KEYS.has(getRegistrationGroupKey(reg))
 
 /**
  * Whether a payment has gone back: something was refunded and nothing of what was paid is left,
