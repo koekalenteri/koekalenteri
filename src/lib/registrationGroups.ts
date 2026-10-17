@@ -36,14 +36,14 @@ const isInvalidMoveAnchor = <T extends GroupedRegistration>(
   item: T,
   before: T | undefined,
   targetNumberingGroupKey: string,
-  tarderiveParticipantGroupKey: string
+  targetGroupKey: string
 ) =>
   !!move.beforeId &&
   (!before ||
     before.id === item.id ||
     getRegistrationNumberingGroupKey(before) !== targetNumberingGroupKey ||
     // The key names the day and the time of a participant group, so it is the whole comparison.
-    getRegistrationGroupKey(before) !== tarderiveParticipantGroupKey ||
+    getRegistrationGroupKey(before) !== targetGroupKey ||
     before.group?.time !== move.group.time)
 
 /** Sorts and renumbers a complete registration snapshot in place. */

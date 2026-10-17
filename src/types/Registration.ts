@@ -327,10 +327,10 @@ export interface JsonRegistrationGroup extends Partial<JsonRegistrationDate> {
   key: string
 }
 
-/** An entry as a decision that asks only which group it is in reads it: a stored and a parsed group alike. */
 /** A group's day as stored (an ISO string) or parsed (a Date). */
 export type GroupDate = string | Date
 
+/** An entry as a decision that asks only which group it is in reads it: a stored and a parsed group alike. */
 interface RegistrationGroupHolder {
   group?: Pick<JsonRegistrationGroup, 'key'> & { date?: GroupDate; time?: RegistrationTime }
 }
