@@ -1,6 +1,8 @@
 import type { Locale } from 'date-fns'
 import type { Language } from '../types'
 import { tz } from '@date-fns/tz'
+import { addDays } from 'date-fns/addDays'
+import { differenceInCalendarDays } from 'date-fns/differenceInCalendarDays'
 import { endOfDay } from 'date-fns/endOfDay'
 import { format } from 'date-fns/format'
 import { formatDistanceToNowStrict } from 'date-fns/formatDistanceToNowStrict'
@@ -107,3 +109,12 @@ export const zonedEndOfDay = (date: DateType, timeZone = TIME_ZONE) => endOfDay(
 export const zonedDateString = (date: Date, timeZone = TIME_ZONE) => formatDate(date, 'yyyy-MM-dd', { timeZone })
 export const zonedParseDate = (dateStr: string, timeZone = TIME_ZONE) =>
   parse(dateStr, 'yyyy-MM-dd', new Date(), { in: tz(timeZone) })
+
+/** Whole Finnish calendar days from `from` to `to`; an hour of daylight saving never turns a day into 23 or 25 hours. */
+export const finnishDaysBetween = (from: DateType, to: DateType, timeZone = TIME_ZONE) =>
+  differenceInCalendarDays(to, from, { in: tz(timeZone) })
+
+/** `date` moved by whole Finnish calendar days, keeping its Finnish wall-clock time, as an ISO instant. */
+export const addFinnishDays = (date: DateType, days: number, timeZone = TIME_ZONE) =>
+  // A TZDate prints its own offset ("+03:00"); the stored form is the UTC instant.
+  new Date(addDays(date, days, { in: tz(timeZone) })).toISOString()
