@@ -1,6 +1,7 @@
 import { nanoid } from 'nanoid'
 import { addFinnishDays, finnishDaysBetween } from '../../i18n/dates'
 import { eventRegistrationDateKey, getEventSeason, stripKennelliittoLink } from '../../lib/event'
+import { getRegistrationGroupKey, isStarter } from '../../lib/registration'
 import { saveEvent } from '../lib/event'
 import { authorizeEvent } from '../lib/eventAuth'
 import { removeEventRuntimeState } from '../lib/eventCopy'
@@ -72,11 +73,14 @@ const copyEventLambda = lambda('copyEvent', async (event) => {
     reg.dates.forEach((d) => {
       d.date = shift(d.date)
     })
-    if (reg.group) {
-      if (reg.group.date && reg.group.key) {
-        reg.group.date = shift(reg.group.date)
-        reg.group.key = eventRegistrationDateKey({ ...reg.group, date: new Date(reg.group.date) })
-      }
+    if (reg.group?.date) {
+      reg.group.date = shift(reg.group.date)
+      // Only a start's key names its day, in the trial's time zone as every other writer keys it. A
+      // cancelled entry gets the cancelled key even when the source row still carried a participant
+      // key, and a reserve entry keeps its own (KOE-1537).
+      reg.group.key = isStarter(reg)
+        ? eventRegistrationDateKey({ date: new Date(reg.group.date), time: reg.group.time })
+        : getRegistrationGroupKey(reg)
     }
     return reg
   })

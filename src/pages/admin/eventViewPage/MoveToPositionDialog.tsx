@@ -12,7 +12,7 @@ import { enqueueSnackbar } from 'notistack'
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { errorSnackbarOptions } from '@/lib/client/snackbar'
-import { isParticipantGroup } from '@/lib/registration'
+import { isStarter } from '@/lib/registration'
 
 /** A day a reserve dog can be placed on; the dialog labels it the way the group dialog does. */
 interface MoveToPositionDayOption {
@@ -68,7 +68,7 @@ export default function MoveToPositionDialog({
   const handleMove = async () => {
     setSaving(true)
     try {
-      const isParticipantMove = isParticipantGroup(registration.group?.key)
+      const isParticipantMove = isStarter(registration)
       const currentPosition = registration.group?.number
       let movePosition = selectedPosition
       if (!assignNumber) {

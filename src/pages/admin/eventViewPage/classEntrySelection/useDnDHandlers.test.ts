@@ -218,6 +218,69 @@ describe('useDnDHandlers', () => {
       ])
     })
 
+    it('anchors the drop on a starter, not on a cancelled entry left in the target group (KOE-1537)', async () => {
+      // Listed under cancelled in the grid, but its stale key still names the target group.
+      const staleCancelled: Registration = {
+        ...mockRegistration,
+        cancelled: true,
+        group: { key: 'group2', number: 2 },
+        id: 'stale',
+      }
+      const starter: Registration = { ...mockRegistration, group: { key: 'group2', number: 2 }, id: 'starter' }
+      const mockChanges: RegistrationGroupInfo[] = [
+        { eventId: 'event1', group: { key: 'group2', number: 1.5 }, id: 'reg1' },
+      ]
+      ;(determineChangesFromDrop as import('vitest').Mock).mockReturnValue(mockChanges)
+
+      const { result } = renderHook(() =>
+        useDnDHandlers({ ...defaultProps, registrations: [mockRegistration, staleCancelled, starter] })
+      )
+
+      await result.current.handleDrop(mockGroup)(mockDragItem)
+
+      expect(determineChangesFromDrop).toHaveBeenCalledWith(mockDragItem, mockGroup, mockRegistration, [starter], true)
+      expect(mockSaveGroups).toHaveBeenCalledWith('event1', [
+        {
+          beforeId: 'starter',
+          cancelReason: undefined,
+          group: { date: undefined, key: 'group2', time: undefined },
+          id: 'reg1',
+        },
+      ])
+    })
+
+    it('does not anchor a drop on a start whose stored key names the UTC day (KOE-1537)', async () => {
+      // 21:00Z on the 2nd is the evening start of the 3rd in Finland: the grid lists the dog in the 3rd's
+      // group, but the server accepts only an anchor whose stored key is the move's key, so this one
+      // would get the move refused on every retry.
+      const gridGroup: RegistrationGroup = {
+        date: new Date('2024-08-02T21:00:00.000Z'),
+        key: '2024-08-03-ip',
+        number: 0,
+        time: 'ip',
+      }
+      const utcKeyed: Registration = {
+        ...mockRegistration,
+        group: { date: new Date('2024-08-02T21:00:00.000Z'), key: '2024-08-02-ip', number: 1, time: 'ip' },
+        id: 'utc-keyed',
+      }
+      const mockChanges: RegistrationGroupInfo[] = [
+        { eventId: 'event1', group: { key: '2024-08-03-ip', number: 0.5 }, id: 'reg1' },
+      ]
+      ;(determineChangesFromDrop as import('vitest').Mock).mockReturnValue(mockChanges)
+
+      const { result } = renderHook(() =>
+        useDnDHandlers({ ...defaultProps, registrations: [mockRegistration, utcKeyed] })
+      )
+
+      await result.current.handleDrop(gridGroup)(mockDragItem)
+
+      expect(determineChangesFromDrop).toHaveBeenCalledWith(mockDragItem, gridGroup, mockRegistration, [], true)
+      expect(mockSaveGroups).toHaveBeenCalledWith('event1', [
+        { cancelReason: undefined, group: { date: undefined, key: '2024-08-03-ip', time: undefined }, id: 'reg1' },
+      ])
+    })
+
     it('should call onCancelOpen when a single cancelled change is returned', async () => {
       const mockChanges: RegistrationGroupInfo[] = [
         { cancelled: true, eventId: 'event1', group: { key: GROUP_KEY_CANCELLED, number: 1 }, id: 'reg1' },
