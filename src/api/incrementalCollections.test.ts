@@ -39,3 +39,35 @@ describe('incremental admin collections', () => {
     expect(fetchMock).toHaveBeenCalledWith(`${API_BASE_URL}/admin/judge/?refresh&since=123`, expect.any(Object))
   })
 })
+
+describe('the collections with stamps in their model', () => {
+  beforeEach(() => {
+    fetchMock.resetMocks()
+    fetchMock.enableMocks()
+  })
+
+  it('getEventTypes makes the stamps Dates, in the incremental response too (KOE-1546)', async () => {
+    const wireEventType = {
+      createdAt: '2026-01-02T10:00:00.000Z',
+      createdBy: 'seed',
+      description: { en: 'e', fi: 'f', sv: 's' },
+      eventType: 'NOME-B',
+      modifiedAt: '2026-01-03T10:00:00.000Z',
+      modifiedBy: 'seed',
+    }
+    const modelEventType = {
+      ...wireEventType,
+      createdAt: new Date('2026-01-02T10:00:00.000Z'),
+      modifiedAt: new Date('2026-01-03T10:00:00.000Z'),
+    }
+    fetchMock.mockResponseOnce(JSON.stringify([wireEventType]))
+    await expect(getEventTypes('token')).resolves.toEqual([modelEventType])
+
+    fetchMock.mockResponseOnce(JSON.stringify({ cursor: 123, deletedIds: ['x'], items: [wireEventType] }))
+    await expect(getEventTypes('token', false, undefined, new Date(123))).resolves.toEqual({
+      cursor: 123,
+      deletedIds: ['x'],
+      items: [modelEventType],
+    })
+  })
+})

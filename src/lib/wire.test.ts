@@ -2,14 +2,20 @@ import type { EventKcIdChoice, JsonAuditRecord, JsonDogEvent, JsonRegistration, 
 import {
   arrayOf,
   converter,
+  finnishTimestamp,
   recordOf,
   timestamp,
   toAuditRecord,
   toCollection,
   toDogEvent,
+  toEventKcIdChoice,
+  toEventStatsItem,
+  toPublicRegistration,
   toRegistration,
   toUser,
 } from './wire'
+
+const dbRecordRules = { createdAt: timestamp, deletedAt: timestamp, modifiedAt: timestamp, updatedAt: timestamp }
 
 /** The row's stamps as the API writes them; the names the model expects as `Date`s. */
 const stamps = {
@@ -87,6 +93,34 @@ describe('wire', () => {
       expect(user.lastSeen).toEqual(new Date('2026-05-01T08:00:00.000Z'))
     })
 
+    it('keeps a message recorded as text before KOE-1454 as the text it is', () => {
+      expect(toRegistration({ id: 'r1', lastEmail: 'Koekutsu 1.1.2026 12:00' })).toEqual({
+        id: 'r1',
+        lastEmail: 'Koekutsu 1.1.2026 12:00',
+      })
+    })
+
+    it('makes the dog and the placement of a start list row Dates', () => {
+      const row = toPublicRegistration({
+        breeder: 'b',
+        dog: { dob: '2020-02-02T22:00:00.000Z', regNo: 'FI1/20', results: [] },
+        group: { date: '2026-09-11T21:00:00.000Z', key: '2026-09-12', number: 1 },
+        handler: 'h',
+        owner: 'o',
+      })
+
+      expect(row.dog.dob).toEqual(new Date('2020-02-02T22:00:00.000Z'))
+      expect(row.group).toEqual({ date: new Date('2026-09-11T21:00:00.000Z'), key: '2026-09-12', number: 1 })
+    })
+
+    it("makes an event's Kennelliitto state and a stats row's day Dates", () => {
+      const event = toDogEvent({ kcState: { code: 1253, name: 'Luovutettu', readAt: '2026-09-13T08:00:00.000Z' } })
+      expect(event.kcState).toEqual({ code: 1253, name: 'Luovutettu', readAt: new Date('2026-09-13T08:00:00.000Z') })
+
+      const row = toEventStatsItem({ date: '2026-09-11T21:00:00.000Z', PK: 'ORG#1', SK: '2026-09-12#e1' })
+      expect(row.date).toEqual(new Date('2026-09-11T21:00:00.000Z'))
+    })
+
     it('reads a day key list as the strings they are', () => {
       const event = toDogEvent({ startNumbersPublished: { ALO: ['2026-05-01', '2026-05-02/ap'] } })
 
@@ -114,8 +148,32 @@ describe('wire', () => {
       expect(timestamp('2026-05-01T08:00:00.000Z')).toEqual(new Date('2026-05-01T08:00:00.000Z'))
     })
 
+    it("reads Kennelliitto's zone-less stamps as Finnish local time, wherever the browser is", () => {
+      // The test zone is Asia/Tokyo; read as local time these would be the evening before in Finland.
+      expect(finnishTimestamp('2026-06-28T00:00:00')).toEqual(new Date('2026-06-27T21:00:00.000Z'))
+      expect(finnishTimestamp('2026-07-01')).toEqual(new Date('2026-06-30T21:00:00.000Z'))
+      // A stamp with a zone keeps it.
+      expect(finnishTimestamp('2026-06-28T00:00:00.000Z')).toEqual(new Date('2026-06-28T00:00:00.000Z'))
+      // Kennelliitto's "no end" is the year 1, which the search's normalizer reads by its year.
+      expect(finnishTimestamp('0001-01-01T00:00:00').getFullYear()).toBeLessThanOrEqual(1)
+
+      const choice = toEventKcIdChoice({
+        classes: [],
+        endDate: '2026-06-28T00:00:00',
+        entryEndDate: '2026-06-07T00:00:00',
+        entryStartDate: '2026-05-17T00:00:00',
+        eventType: 'NOME-B',
+        kcGuid: null,
+        name: 'n',
+        organizer: 'o',
+        startDate: '2026-06-28T00:00:00',
+      })
+      expect(choice.startDate).toEqual(new Date('2026-06-27T21:00:00.000Z'))
+      expect(choice.entryEndDate).toEqual(new Date('2026-06-06T21:00:00.000Z'))
+    })
+
     it('arrayOf and recordOf apply a converter to every element present', () => {
-      const toItem = converter<{ at: string }, { at: Date }>({ at: timestamp })
+      const toItem = converter<{ at: string }, { at: Date }>()({ at: timestamp })
 
       expect(arrayOf(toItem)([{ at: '2026-05-01T08:00:00.000Z' }])).toEqual([
         { at: new Date('2026-05-01T08:00:00.000Z') },
@@ -126,7 +184,7 @@ describe('wire', () => {
     })
 
     it('toCollection converts a full list and an incremental response alike', () => {
-      const toItem = converter<{ at: string }, { at: Date }>({ at: timestamp })
+      const toItem = converter<{ at: string }, { at: Date }>()({ at: timestamp })
       const item = { at: '2026-05-01T08:00:00.000Z' }
       const converted = { at: new Date('2026-05-01T08:00:00.000Z') }
 
@@ -142,20 +200,29 @@ describe('wire', () => {
   describe('the compiler checks the field list', () => {
     it('refuses a spec that leaves a Date field out, names a field that holds none, or takes a model for the wire', () => {
       // @ts-expect-error `lastSeen` holds a Date and is not named.
-      converter<JsonUser, User>({
+      converter<JsonUser, User>()({
         createdAt: timestamp,
         deletedAt: timestamp,
         modifiedAt: timestamp,
         updatedAt: timestamp,
       })
       // @ts-expect-error `name` holds no Date.
-      converter<{ name: string }, { name: string }>({ name: timestamp })
-      // @ts-expect-error The wire type holds a Date: the model cannot stand in for its own wire shape.
-      converter<EventKcIdChoice, EventKcIdChoice>({})
-      // @ts-expect-error A nested type with Date fields (Partial<User>) makes the wire type hold a Date.
-      converter<{ official: Partial<User> }, { official: Partial<User> }>({ official: toUser })
+      converter<{ name: string }, { name: string }>()({ name: timestamp })
+      const same = (date: Date) => date
+      const sameUser = (user: Partial<User>) => user
+      // @ts-expect-error A full spec cannot make a model its own wire type.
+      converter<EventKcIdChoice, EventKcIdChoice>()({
+        endDate: same,
+        entryEndDate: same,
+        entryStartDate: same,
+        startDate: same,
+      })
+      // @ts-expect-error A full spec cannot make a wire type that holds Partial<User>.
+      converter<{ official: Partial<User> }, { official: Partial<User> }>()({ official: sameUser })
+      // @ts-expect-error A key the model does not have is refused even when it is spread in.
+      converter<JsonUser, User>()({ ...{ ...dbRecordRules, lastSeen: timestamp, notAKey: timestamp } })
 
-      expect(converter<{ name: string }, { name: string }>({})({ name: 'n' })).toEqual({ name: 'n' })
+      expect(converter<{ name: string }, { name: string }>()({})({ name: 'n' })).toEqual({ name: 'n' })
     })
   })
 })

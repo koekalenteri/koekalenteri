@@ -1,4 +1,5 @@
 import type {
+  EventResultsResponse,
   JsonEventResultsResponse,
   JsonPublicStationTurn,
   JsonStationEntry,
@@ -8,7 +9,7 @@ import type {
   StationTurn,
   StationTurnOp,
 } from '../types'
-import type { EventResultSubmission, EventResultsResponse } from './registration'
+import type { EventResultSubmission } from './registration'
 import { toEventResultsResponse, toPublicStationTurn, toStationEntry, toStationTurn } from '../lib/wire'
 import http, { withToken } from './http'
 

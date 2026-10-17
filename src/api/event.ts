@@ -48,8 +48,6 @@ export type PublicEventsDeltaResponse = Replace<JsonPublicEventsDeltaResponse, '
 
 type JsonPublicEventsResponse = JsonPublicDogEvent[] | JsonPublicEventsDeltaResponse
 
-export type { EventKcIdChoice }
-
 export type SearchEventKcIdChoicesResponse = {
   choices: EventKcIdChoice[]
 }
@@ -122,7 +120,7 @@ export async function putEvent(event: Patch<DogEvent>, token?: string, signal?: 
 }
 
 /** The event as the publishing endpoints answer with it. */
-const toSavedEvent = converter<{ event: JsonDogEvent }, { event: DogEvent }>({ event: toDogEvent })
+const toSavedEvent = converter<{ event: JsonDogEvent }, { event: DogEvent }>()({ event: toDogEvent })
 
 export interface StartNumbersRequest {
   eventClass?: RegistrationClass
@@ -200,12 +198,12 @@ type JsonInvitationAttachmentResponse = {
   key: string
   uploadedAt: string
 }
-type InvitationAttachmentResponse = {
-  invitationAttachmentHistory: Record<string, InvitationAttachmentVersion>
-  key: string
-  uploadedAt: Date
-}
-const toInvitationAttachmentResponse = converter<JsonInvitationAttachmentResponse, InvitationAttachmentResponse>({
+type InvitationAttachmentResponse = Replace<
+  Replace<JsonInvitationAttachmentResponse, 'invitationAttachmentHistory', Record<string, InvitationAttachmentVersion>>,
+  'uploadedAt',
+  Date
+>
+const toInvitationAttachmentResponse = converter<JsonInvitationAttachmentResponse, InvitationAttachmentResponse>()({
   invitationAttachmentHistory: recordOf(toInvitationAttachmentVersion),
   uploadedAt: timestamp,
 })

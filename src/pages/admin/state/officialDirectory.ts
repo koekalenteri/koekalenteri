@@ -1,4 +1,5 @@
 import type { SetStateAction } from 'jotai'
+import type { ReviveOption } from '@/lib/wire'
 import type { Official } from '@/types'
 import i18next from 'i18next'
 import { useAtomValue, useSetAtom } from 'jotai'
@@ -8,19 +9,18 @@ import { validIdTokenAtom } from '../../state'
 import { atomWithCachedRemoteCollection } from './cached/createCachedRemoteCollection'
 import { adminUsersAtom } from './user'
 
-interface OfficialDirectoryAtomOptions<T extends Official> {
+type OfficialDirectoryAtomOptions<T extends Official> = {
   cacheKey: 'judges' | 'officials'
   fetch: (token: string) => Promise<T[]>
-}
+} & ReviveOption<T, T>
 
 const sortOfficialDirectory = <T extends Official>(entries: T[]): T[] => {
   entries.sort(compareByLocalizedString('name'))
   return entries
 }
 
-export const atomWithOfficialDirectory = <T extends Official>({ cacheKey, fetch }: OfficialDirectoryAtomOptions<T>) =>
-  // A judge or an official holds no Date: its JSON is its model.
-  atomWithCachedRemoteCollection({ cacheKey, fetch, revive: (entry: T) => entry, sort: sortOfficialDirectory })
+export const atomWithOfficialDirectory = <T extends Official>(options: OfficialDirectoryAtomOptions<T>) =>
+  atomWithCachedRemoteCollection<T>({ ...options, sort: sortOfficialDirectory })
 
 /**
  * Matches the search text against every column the directory shows, event types included: an

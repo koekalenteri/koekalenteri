@@ -65,7 +65,7 @@ describe('AuditTrail', () => {
     expect(screen.getByText('audit.changed: notes')).toBeInTheDocument()
   })
 
-  it('shows a change whose text is an ISO timestamp as that text (KOE-1546)', async () => {
+  it('shows a change whose text is an ISO timestamp as that text', async () => {
     const { user } = renderWithUserEvents(
       <AuditTrail
         auditTrail={[

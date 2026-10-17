@@ -18,7 +18,7 @@ import type {
   RegistrationCreateRequest,
   RegistrationGroupMove,
   RegistrationPatchRequest,
-  StoredEventResult,
+  Replace,
   Transaction,
 } from '../types'
 import { startListVersionOf } from '../lib/startList'
@@ -171,19 +171,6 @@ type JsonRegistrationGroupResponse = Pick<JsonConfirmedEvent, 'classes' | 'entri
   items: JsonRegistration[]
   invitedOk: string[]
   invitedFailed: string[]
-  invitationAwaitingPayment?: string[]
-  pickedOk: string[]
-  pickedFailed: string[]
-  reserveOk: string[]
-  reserveFailed: string[]
-  cancelledOk: string[]
-  cancelledFailed: string[]
-}
-
-type RegistrationGroupResponse = Pick<ConfirmedEvent, 'classes' | 'entries'> & {
-  items: Registration[]
-  invitedOk: string[]
-  invitedFailed: string[]
   /** Lifted from the reserve list into an invited class, but the place is not paid for yet. */
   invitationAwaitingPayment?: string[]
   pickedOk: string[]
@@ -194,7 +181,13 @@ type RegistrationGroupResponse = Pick<ConfirmedEvent, 'classes' | 'entries'> & {
   cancelledFailed: string[]
 }
 
-const toRegistrationGroupResponse = converter<JsonRegistrationGroupResponse, RegistrationGroupResponse>({
+type RegistrationGroupResponse = Replace<
+  Replace<JsonRegistrationGroupResponse, 'classes', ConfirmedEvent['classes']>,
+  'items',
+  Registration[]
+>
+
+const toRegistrationGroupResponse = converter<JsonRegistrationGroupResponse, RegistrationGroupResponse>()({
   classes: arrayOf(toEventClass),
   items: arrayOf(toRegistration),
 })
@@ -254,8 +247,6 @@ export interface EventResultSubmission {
   /** The version this edit was made against: the post's own when scoped, the whole result otherwise. */
   basedOn?: string | Date
 }
-
-export type { EventResultsResponse, StoredEventResult }
 
 export async function putEventResults(
   eventId: string,

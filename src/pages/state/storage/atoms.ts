@@ -1,4 +1,5 @@
 import type { SetStateAction } from 'jotai'
+import type { HoldsDate, ReviveOption } from '@/lib/wire'
 import { atom } from 'jotai'
 import { atomWithLazy, RESET } from 'jotai/utils'
 import { parseJSON } from '@/lib/utils'
@@ -6,17 +7,21 @@ import { runCleaners } from './cleaners'
 
 runCleaners()
 
-interface StorageAtomOptions<T, J = unknown> {
+/**
+ * `revive` (KOE-1546) is the stored value's model from its JSON shape, as `lib/wire.ts` makes it: a
+ * value with Dates goes into storage as JSON and comes back with ISO strings, like a response from
+ * the API. Required exactly when the model holds a Date. Runs before `refine`, and never writes the
+ * storage back on its own.
+ */
+type StorageAtomOptions<T, J> = {
   getInitialValue?: () => T
-  /**
-   * The stored value's model from its JSON shape (`lib/wire.ts`, KOE-1546): a value with Dates goes
-   * into storage as JSON and comes back with ISO strings, like a response from the API. Runs before
-   * `refine`, and never writes the storage back on its own.
-   */
-  revive?: (stored: J) => T
   refine?: (value: unknown) => T | undefined
   onRefined?: () => void
-}
+} & ReviveOption<T, J>
+
+/** The options, which a model with a Date cannot leave out. */
+type StorageAtomArgs<T, J> =
+  true extends HoldsDate<T> ? [options: StorageAtomOptions<T, J>] : [options?: StorageAtomOptions<T, J>]
 
 export const parseStorageJSON = (value: string | null) => {
   try {
@@ -41,7 +46,7 @@ export const atomWithStoredValue = <T, J = unknown>(
   key: string,
   initialValue: T,
   storage: Storage,
-  options?: StorageAtomOptions<T, J>
+  ...[options]: StorageAtomArgs<T, J>
 ) => {
   const fallback = () => options?.getInitialValue?.() ?? initialValue
   const readStoredValue = () => {
@@ -97,14 +102,8 @@ export const atomWithStoredValue = <T, J = unknown>(
   return storedAtom
 }
 
-export const atomWithLocalStorage = <T, J = unknown>(
-  key: string,
-  initialValue: T,
-  options?: StorageAtomOptions<T, J>
-) => atomWithStoredValue(key, initialValue, localStorage, options)
+export const atomWithLocalStorage = <T, J = unknown>(key: string, initialValue: T, ...args: StorageAtomArgs<T, J>) =>
+  atomWithStoredValue<T, J>(key, initialValue, localStorage, ...args)
 
-export const atomWithSessionStorage = <T, J = unknown>(
-  key: string,
-  initialValue: T,
-  options?: StorageAtomOptions<T, J>
-) => atomWithStoredValue(key, initialValue, sessionStorage, options)
+export const atomWithSessionStorage = <T, J = unknown>(key: string, initialValue: T, ...args: StorageAtomArgs<T, J>) =>
+  atomWithStoredValue<T, J>(key, initialValue, sessionStorage, ...args)

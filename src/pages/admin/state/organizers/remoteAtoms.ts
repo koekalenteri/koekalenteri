@@ -6,8 +6,6 @@ import { atomWithCachedRemoteCollection } from '../cached/createCachedRemoteColl
 export const adminOrganizersRemoteAtom = atomWithCachedRemoteCollection<Organizer>({
   cacheKey: 'organizers',
   fetch: (token) => getAdminOrganizers(token),
-  // An organizer holds no Date: its JSON is its model.
-  revive: (organizer) => organizer,
   sort: (organizers) => {
     organizers.sort(compareByLocalizedString('name'))
     return organizers

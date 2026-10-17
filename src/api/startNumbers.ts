@@ -2,8 +2,6 @@ import type { ClassStartNumbers, JsonClassStartNumbers, JsonStartNumberPatch, St
 import { toClassStartNumbers, toStartNumberPatch } from '../lib/wire'
 import http, { withToken } from './http'
 
-export type { StartNumberPatch }
-
 /** One drawn number, the way both number entry screens send it. */
 export interface StartNumberEntry {
   id: string

@@ -202,25 +202,35 @@ export interface JsonKcResult {
 /** `at` as the client holds it; `day` is a day key, a string on both sides of the wire. */
 export type KcResult = Replace<JsonKcResult, 'at', Date>
 
-export interface StoredEventResult {
+export interface JsonStoredEventResult {
   id: string
-  eventResult: EventResult
+  eventResult: JsonEventResult
 }
+export type StoredEventResult = Replace<JsonStoredEventResult, 'eventResult', EventResult>
 
-/** What saving results answers with: the rows written, the ones already so, and the edits that lost a race. */
-export interface EventResultsResponse {
-  saved: StoredEventResult[]
-  /** Already stored: what a retry over a bad connection gets back. */
-  unchanged: StoredEventResult[]
-  conflicts: { id: string; stationId?: string; stored: EventResult; submitted: EventResult }[]
+/** An edit that lost a race: the result as stored and the one submitted, for the one post or the whole result. */
+export interface JsonEventResultConflict {
+  id: string
+  stationId?: string
+  stored: JsonEventResult
+  submitted: JsonEventResult
 }
+export type EventResultConflict = Replace<JsonEventResultConflict, 'stored' | 'submitted', EventResult>
 
-/** The same answer as the server writes it, every result's `updatedAt` an ISO string. */
+/**
+ * What saving results answers with, as the server writes it: the rows written, the ones already so
+ * (what a retry over a bad connection gets back), and the edits that lost a race.
+ */
 export interface JsonEventResultsResponse {
-  saved: { id: string; eventResult: JsonEventResult }[]
-  unchanged: { id: string; eventResult: JsonEventResult }[]
-  conflicts: { id: string; stationId?: string; stored: JsonEventResult; submitted: JsonEventResult }[]
+  saved: JsonStoredEventResult[]
+  unchanged: JsonStoredEventResult[]
+  conflicts: JsonEventResultConflict[]
 }
+export type EventResultsResponse = Replace<
+  Replace<JsonEventResultsResponse, 'saved' | 'unchanged', StoredEventResult[]>,
+  'conflicts',
+  EventResultConflict[]
+>
 
 export interface JsonEmailDeliveryStatus {
   at: string

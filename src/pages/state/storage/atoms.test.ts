@@ -81,7 +81,7 @@ describe('storage atoms', () => {
   it('refines stored values and persists the result', () => {
     localStorage.setItem('refined-storage-test', JSON.stringify([{ valid: true }, { valid: false }]))
     const onRefined = vi.fn()
-    const valueAtom = atomWithStoredValue('refined-storage-test', [], localStorage, {
+    const valueAtom = atomWithStoredValue<{ valid: boolean }[]>('refined-storage-test', [], localStorage, {
       onRefined,
       refine: (value) => (Array.isArray(value) ? value.filter((item) => item?.valid) : undefined),
     })
@@ -89,6 +89,15 @@ describe('storage atoms', () => {
     expect(createStore().get(valueAtom)).toEqual([{ valid: true }])
     expect(localStorage.getItem('refined-storage-test')).toBe(JSON.stringify([{ valid: true }]))
     expect(onRefined).toHaveBeenCalledTimes(1)
+  })
+
+  it('names a converter exactly when the model holds a Date', () => {
+    // @ts-expect-error A calendar event holds Dates, so the stored list cannot be read without its converter.
+    atomWithStoredValue<PublicDogEvent[]>('typed-storage-test', [], localStorage)
+    // @ts-expect-error A string holds no Date: there is nothing to convert.
+    atomWithStoredValue<string, string>('typed-storage-test', '', localStorage, { revive: (stored) => stored })
+
+    expect(atomWithStoredValue<string>('typed-storage-test', '', localStorage)).toBeDefined()
   })
 
   it('does not persist changes made by a hidden window', () => {

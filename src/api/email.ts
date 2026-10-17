@@ -61,7 +61,7 @@ interface EmailSendResponse extends Omit<JsonEmailSendResponse, 'classes' | 'reg
   registrations: Registration[]
 }
 
-const toEmailSendResponse = converter<JsonEmailSendResponse, EmailSendResponse>({
+const toEmailSendResponse = converter<JsonEmailSendResponse, EmailSendResponse>()({
   classes: arrayOf(toEventClass),
   registrations: arrayOf(toRegistration),
 })

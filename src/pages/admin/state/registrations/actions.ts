@@ -1,7 +1,14 @@
 import type { TFunction } from 'i18next'
-import type { EventResultSubmission, StoredEventResult } from '@/api/registration'
+import type { EventResultSubmission } from '@/api/registration'
 import type { KcBlocker, KcDogReport, KcSendReport, KcSendResponse } from '@/lib/kennelliittoResults'
-import type { JsonKcResult, PublicDogEvent, Registration, RegistrationGroupMove, RegistrationMessage } from '@/types'
+import type {
+  JsonKcResult,
+  PublicDogEvent,
+  Registration,
+  RegistrationGroupMove,
+  RegistrationMessage,
+  StoredEventResult,
+} from '@/types'
 import { useAtom, useAtomValue, useSetAtom } from 'jotai'
 import { useAtomCallback } from 'jotai/utils'
 import { useSnackbar } from 'notistack'

@@ -6,8 +6,6 @@ import { atomWithCachedRemoteCollection } from '../cached/createCachedRemoteColl
 export const adminLocationsRemoteAtom = atomWithCachedRemoteCollection<Location>({
   cacheKey: 'locations',
   fetch: (token) => getLocations(token),
-  // A location holds no Date: its JSON is its model.
-  revive: (location) => location,
   sort: (locations) => {
     locations.sort(compareByLocalizedString('name'))
     return locations

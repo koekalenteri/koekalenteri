@@ -6,13 +6,16 @@ import { isEntryClosing, isEntryOpen, isEntryUpcoming } from '../lib/event'
 import { API_BASE_URL } from '../routeConfig'
 import fetchMock from '../test-utils/fetchMock'
 import {
+  copyEventWithRegistrations,
   getAdminEvent,
   getAdminEvents,
   getEvent,
   getEventAuditTrail,
   getEvents,
   putEvent,
+  putInvitationAttachment,
   putResultsPublished,
+  putStartNumbers,
   searchEventKcIdChoices,
 } from './event'
 
@@ -308,6 +311,65 @@ test.each([
     expect(isEntryUpcoming(event, parseISO(date))).toEqual(upcoming)
   }
 )
+
+test('putStartNumbers answers with the event as saved, its dates Dates and its day keys strings', async () => {
+  fetchMock.mockResponseOnce(
+    JSON.stringify({ event: { ...emptyEvent, startNumbersPublished: { ALO: ['2026-09-12', '2026-09-13/ap'] } } })
+  )
+
+  const { event: saved } = await putStartNumbers(
+    'TestEventID',
+    { date: '2026-09-12', eventClass: 'ALO', published: true },
+    'token'
+  )
+
+  expect(fetchMock).toHaveBeenCalledWith(
+    `${API_BASE_URL}/admin/startnumbers/TestEventID`,
+    expect.objectContaining({
+      body: JSON.stringify({ date: '2026-09-12', eventClass: 'ALO', published: true }),
+      method: 'PUT',
+    })
+  )
+  expect(saved.startDate).toEqual(emptyEvent.startDate)
+  expect(saved.startNumbersPublished).toEqual({ ALO: ['2026-09-12', '2026-09-13/ap'] })
+})
+
+test('putInvitationAttachment answers with the upload time and the history as Dates', async () => {
+  // The upload goes as FormData, which the fetch mock's Request cannot take from jsdom; answer the fetch itself.
+  const fetchSpy = vi.spyOn(globalThis, 'fetch').mockResolvedValueOnce(
+    new Response(
+      JSON.stringify({
+        invitationAttachmentHistory: { 'key-1': { className: 'ALO', uploadedAt: '2026-08-01T08:00:00.000Z' } },
+        key: 'key-1',
+        uploadedAt: '2026-08-01T08:00:00.000Z',
+      })
+    )
+  )
+
+  const response = await putInvitationAttachment('TestEventID', new File(['pdf'], 'kutsu.pdf'), 'ALO', 'token')
+
+  expect(fetchSpy).toHaveBeenCalledWith(
+    `${API_BASE_URL}/admin/file/invitation/TestEventID/ALO`,
+    expect.objectContaining({ method: 'POST' })
+  )
+  expect(response).toEqual({
+    invitationAttachmentHistory: { 'key-1': { className: 'ALO', uploadedAt: new Date('2026-08-01T08:00:00.000Z') } },
+    key: 'key-1',
+    uploadedAt: new Date('2026-08-01T08:00:00.000Z'),
+  })
+})
+
+test('copyEventWithRegistrations answers with the copy, its dates Dates', async () => {
+  fetchMock.mockResponseOnce(JSON.stringify({ ...emptyEvent, id: 'copy' }))
+
+  const copy = await copyEventWithRegistrations('TestEventID', 'token')
+
+  expect(fetchMock).toHaveBeenCalledWith(
+    `${API_BASE_URL}/admin/event/copy`,
+    expect.objectContaining({ method: 'POST' })
+  )
+  expect(copy).toEqual({ ...emptyEvent, id: 'copy' })
+})
 
 test('isEntryOpen with mocked date', () => {
   vi.useFakeTimers()

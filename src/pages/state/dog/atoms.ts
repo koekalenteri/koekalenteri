@@ -45,7 +45,7 @@ type JsonDogCachedInfo = Replace<Replace<DogCachedInfo, 'dog', JsonDog>, 'result
 type JsonDogCache = Record<string, Partial<JsonDogCachedInfo>>
 
 const toDogCache = recordOf(
-  converter<Partial<JsonDogCachedInfo>, Partial<DogCachedInfo>>({
+  converter<Partial<JsonDogCachedInfo>, Partial<DogCachedInfo>>()({
     dog: toDog,
     results: arrayOf(toManualTestResult),
   })
