@@ -12,7 +12,13 @@ import type {
 } from '../types'
 import { format } from 'date-fns/format'
 import { formatDate, zonedParseDate } from '../i18n/dates'
-import { GROUP_KEY_CANCELLED, GROUP_KEY_RESERVE, isPredefinedReason, isRegistrationClass } from './registration'
+import {
+  GROUP_KEY_CANCELLED,
+  GROUP_KEY_RESERVE,
+  isKeyRespelling,
+  isPredefinedReason,
+  isRegistrationClass,
+} from './registration'
 import { isDateOnlyString } from './utils'
 
 /**
@@ -102,7 +108,8 @@ const groupChangeKey = (previous: AuditGroup, group: AuditGroup): AuditMessageKe
 /**
  * A group change as a row that names the group on either side; the reader names the sides by the
  * same rule. A guard: when neither side names a group, no row is written (KOE-1511). Today's callers
- * always pass one, as normalizeRegistrationGroups gives every registration a group.
+ * always pass one, as normalizeRegistrationGroups gives every registration a group. A group that only
+ * has its key respelled (KOE-1541) is no change of place either.
  */
 export const groupChangeAudit = (
   previous: AuditGroup,
@@ -110,7 +117,7 @@ export const groupChangeAudit = (
   reason?: GroupChangeReason
 ): AuditMessage | undefined => {
   const messageKey = groupChangeKey(previous, group)
-  if (!messageKey) return undefined
+  if (!messageKey || isKeyRespelling(previous, group)) return undefined
 
   return auditMessage(messageKey, {
     ...(previous ? groupParams('from', previous) : {}),

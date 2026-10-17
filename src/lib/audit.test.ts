@@ -91,6 +91,13 @@ describe('groupChangeAudit', () => {
     })
   })
 
+  it('writes no row for a group that only has its key respelled (KOE-1541)', () => {
+    const utcKeyed = { date: '2026-08-14T21:00:00.000Z', key: '2026-08-14-ap', number: 2, time: 'ap' as const }
+
+    expect(groupChangeAudit(utcKeyed, { ...utcKeyed, key: '2026-08-15-ap' }, 'consequence')).toBeUndefined()
+    expect(groupChangeAudit(utcKeyed, { ...utcKeyed, key: '2026-08-15-ap', number: 3 }, 'consequence')).toBeDefined()
+  })
+
   it('names the first placement without a previous group', () => {
     expect(groupChangeAudit(undefined, { key: 'cancelled', number: 3 }, 'automatic')).toEqual({
       messageKey: 'audit.messages.groupSet',

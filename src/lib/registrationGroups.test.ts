@@ -279,3 +279,119 @@ describe('normalizeRegistrationGroups', () => {
     expect(moved.map((item) => item.id)).toEqual(['numbered', 'unassigned'])
   })
 })
+
+// A start copied by an older CopyEventFunction carries the key of the UTC day: the midnight of
+// 15.8. in Helsinki is 14.8. 21:00 UTC, so it was stored as '2026-08-14-ap' while the group view
+// (eventRegistrationDateKey) names the group '2026-08-15-ap' (KOE-1541).
+describe('a start stored with the UTC day key', () => {
+  const HELSINKI_KEY = '2026-08-15-ap'
+  const HELSINKI_GROUP = { date: '2026-08-14T21:00:00.000Z', key: HELSINKI_KEY, time: 'ap' as const }
+
+  const start = (id: string, number: number, key = '2026-08-14-ap', date = '2026-08-14T21:00:00.000Z') => ({
+    ...registration(id, number),
+    group: { date, key, number, time: 'ap' as const },
+  })
+  const reserve = (id: string) => registration(id, 1)
+
+  it('accepts a start with the UTC key as the anchor of a move', () => {
+    const result = applyRegistrationGroupMoves(
+      [start('a', 1), start('b', 2, HELSINKI_KEY), reserve('c')],
+      [{ beforeId: 'a', group: HELSINKI_GROUP, id: 'c' }]
+    )
+
+    expect(result.invalid).toEqual([])
+    expect(result.items.map((item) => [item.id, item.group?.number])).toEqual([
+      ['c', 1],
+      ['a', 2],
+      ['b', 3],
+    ])
+  })
+
+  it('accepts a payload that still names the UTC day (a cached client)', () => {
+    const result = applyRegistrationGroupMoves(
+      [start('a', 1), start('b', 2), reserve('c')],
+      [{ beforeId: 'b', group: { ...HELSINKI_GROUP, key: '2026-08-14-ap' }, id: 'c' }]
+    )
+
+    expect(result.invalid).toEqual([])
+    expect(result.items.map((item) => item.id)).toEqual(['a', 'c', 'b'])
+    expect(result.items.every((item) => item.group?.key === HELSINKI_KEY)).toBe(true)
+  })
+
+  it('puts a dog moved to the end of the group last, after the UTC-keyed starts', () => {
+    const result = applyRegistrationGroupMoves(
+      [start('a', 1), start('b', 2), reserve('c')],
+      [{ group: HELSINKI_GROUP, id: 'c' }]
+    )
+
+    expect(result.invalid).toEqual([])
+    expect(result.items.map((item) => [item.id, item.group?.number])).toEqual([
+      ['a', 1],
+      ['b', 2],
+      ['c', 3],
+    ])
+  })
+
+  it('moves a UTC-keyed start before another start of its group', () => {
+    const result = applyRegistrationGroupMoves(
+      [start('a', 1), start('b', 2), start('c', 3)],
+      [{ beforeId: 'a', group: HELSINKI_GROUP, id: 'c' }]
+    )
+
+    expect(result.invalid).toEqual([])
+    expect(result.items.map((item) => item.id)).toEqual(['c', 'a', 'b'])
+  })
+
+  it('treats two instants of the same Helsinki day and time as one group', () => {
+    const result = applyRegistrationGroupMoves(
+      [start('a', 1), start('b', 2, HELSINKI_KEY, '2026-08-15T00:00:00.000Z'), reserve('c')],
+      [{ group: HELSINKI_GROUP, id: 'c' }]
+    )
+
+    expect(result.invalid).toEqual([])
+    expect(result.items.map((item) => [item.id, item.group?.number])).toEqual([
+      ['a', 1],
+      ['b', 2],
+      ['c', 3],
+    ])
+  })
+
+  it('accepts as the anchor a start whose date is another instant of the same day', () => {
+    const result = applyRegistrationGroupMoves(
+      [start('a', 1), start('b', 2, HELSINKI_KEY, '2026-08-15T00:00:00.000Z'), reserve('c')],
+      [{ beforeId: 'b', group: HELSINKI_GROUP, id: 'c' }]
+    )
+
+    expect(result.invalid).toEqual([])
+    expect(result.items.map((item) => item.id)).toEqual(['a', 'c', 'b'])
+  })
+
+  it('still rejects an anchor of another time on the same day', () => {
+    const other = {
+      ...start('x', 1),
+      group: { date: HELSINKI_GROUP.date, key: HELSINKI_KEY, number: 1, time: 'ip' as const },
+    }
+    const move = { beforeId: 'x', group: HELSINKI_GROUP, id: 'c' }
+
+    expect(applyRegistrationGroupMoves([other, reserve('c')], [move]).invalid).toEqual([move])
+  })
+
+  it('has its key respelled by normalization, keeping the order and numbers', () => {
+    const normalized = normalizeRegistrationGroups([start('a', 1), start('b', 2)])
+
+    expect(normalized.map((item) => [item.id, item.group?.key, item.group?.number])).toEqual([
+      ['a', HELSINKI_KEY, 1],
+      ['b', HELSINKI_KEY, 2],
+    ])
+  })
+
+  it('keeps the key of a start without a time, and a cancelled entry in the cancelled group', () => {
+    const noTime = { ...registration('n', 1), group: { date: '2026-08-14T21:00:00.000Z', key: 'x-key', number: 1 } }
+    const cancelled = { ...start('k', 1), cancelled: true }
+
+    const normalized = normalizeRegistrationGroups([noTime, cancelled])
+
+    expect(normalized.find((item) => item.id === 'n')?.group?.key).toBe('x-key')
+    expect(normalized.find((item) => item.id === 'k')?.group?.key).toBe(GROUP_KEY_CANCELLED)
+  })
+})

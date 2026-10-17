@@ -1,7 +1,9 @@
 import type { JsonRegistration, Registration, RegistrationGroupMove } from '../types'
 import {
+  deriveParticipantGroupKey,
   GROUP_KEY_CANCELLED,
   GROUP_KEY_RESERVE,
+  getRegistrationGroupDay,
   getRegistrationGroupKey,
   getRegistrationNumberingGroupKey,
 } from './registration'
@@ -18,10 +20,10 @@ type RegistrationGroupMoveResult<T extends GroupedRegistration> = {
 
 const copyGroup = (group: GroupedRegistration['group']) => (group ? { ...group } : undefined)
 
-const compareGroupValue = (value: string | Date | undefined) =>
-  value instanceof Date ? value.toISOString() : (value ?? '')
+// The day is the trial's calendar day, as the group key names it: two instants of one Helsinki day
+// are one group, however the stored date is spelled (KOE-1541).
 const sortSnapshot = (a: GroupedRegistration, b: GroupedRegistration) =>
-  compareGroupValue(a.group?.date).localeCompare(compareGroupValue(b.group?.date)) ||
+  getRegistrationGroupDay(a.group?.date).localeCompare(getRegistrationGroupDay(b.group?.date)) ||
   // Keep the established ordering semantics from
   // sortRegistrationsByDateClassTimeAndNumber. eventType participates in the
   // numbering-group key, but must not change the sort order within a snapshot.
@@ -33,14 +35,15 @@ const isInvalidMoveAnchor = <T extends GroupedRegistration>(
   move: RegistrationGroupMove,
   item: T,
   before: T | undefined,
-  targetNumberingGroupKey: string
+  targetNumberingGroupKey: string,
+  targetGroupKey: string
 ) =>
   !!move.beforeId &&
   (!before ||
     before.id === item.id ||
     getRegistrationNumberingGroupKey(before) !== targetNumberingGroupKey ||
-    getRegistrationGroupKey(before) !== move.group.key ||
-    compareGroupValue(before.group?.date) !== compareGroupValue(move.group.date) ||
+    // The key names the day and the time of a participant group, so it is the whole comparison.
+    getRegistrationGroupKey(before) !== targetGroupKey ||
     before.group?.time !== move.group.time)
 
 /** Sorts and renumbers a complete registration snapshot in place. */
@@ -74,26 +77,28 @@ const applyRegistrationGroupMove = <T extends GroupedRegistration>(
   const item = items.find((registration) => registration.id === move.id)
   if (!item) return false
 
+  // A payload from a cached client may still name the UTC day; the group is the day it is on.
+  const group = { ...move.group, key: deriveParticipantGroupKey(move.group) }
   const before = move.beforeId ? items.find((registration) => registration.id === move.beforeId) : undefined
   const targetNumberingGroupKey = getRegistrationNumberingGroupKey({
     ...item,
-    cancelled: move.group.key === GROUP_KEY_CANCELLED,
-    group: move.group,
+    cancelled: group.key === GROUP_KEY_CANCELLED,
+    group,
   })
-  if (isInvalidMoveAnchor(move, item, before, targetNumberingGroupKey)) return false
+  if (isInvalidMoveAnchor(move, item, before, targetNumberingGroupKey, group.key)) return false
 
   const siblings = items.filter(
-    (registration) => registration.id !== item.id && registration.group?.key === move.group.key
+    (registration) => registration.id !== item.id && getRegistrationGroupKey(registration) === group.key
   )
   const lastNumber = siblings.reduce((last, registration) => Math.max(last, registration.group?.number ?? 0), 0)
   const beforeNumber = before?.group?.number
   const insertionCount = before && beforeNumber !== undefined ? (insertionsBeforeAnchor.get(before.id) ?? 0) + 1 : 0
   if (insertionCount && before) insertionsBeforeAnchor.set(before.id, insertionCount)
   item.group = {
-    ...move.group,
+    ...group,
     number: beforeNumber === undefined ? lastNumber + 1 : beforeNumber - 1 / (insertionCount + 1),
   } as T['group']
-  item.cancelled = move.group.key === GROUP_KEY_CANCELLED
+  item.cancelled = group.key === GROUP_KEY_CANCELLED
   if (item.cancelled) item.cancelReason = move.cancelReason
   else delete item.cancelReason
   // A dog moved back to the reserve list gives its drawn number up here and now (KOE-1428). A
@@ -101,7 +106,7 @@ const applyRegistrationGroupMove = <T extends GroupedRegistration>(
   // row there, and its `group.number` is a place in the queue, a numbering of its own: a drawn
   // number left on it showed on the reserve list as if the dog still held it, and sorted the queue
   // by it. Decided here so the admin UI's projection and the Lambda's write drop it alike.
-  if (move.group.key === GROUP_KEY_RESERVE) delete item.startGroup
+  if (group.key === GROUP_KEY_RESERVE) delete item.startGroup
   return true
 }
 

@@ -4,6 +4,7 @@ import { parseISO } from 'date-fns'
 import { registrationWithStaticDates } from '@/__mockData__/registrations'
 import { eventRegistrationDateKey } from '@/lib/event'
 import { GROUP_KEY_CANCELLED, GROUP_KEY_RESERVE } from '@/lib/registration'
+import { applyRegistrationGroupMoves } from '@/lib/registrationGroups'
 import {
   buildDrawnNumberOptions,
   buildMoveToGroupChange,
@@ -618,6 +619,33 @@ describe('helpers', () => {
       const result = findMoveToPositionTargetGroup(participantRegistration, 0.5, mockGroups, registrationsByGroup)
 
       expect(result?.key).toBe('group1')
+    })
+  })
+
+  describe('a start stored with the UTC day key (KOE-1541)', () => {
+    const date = new Date('2026-08-14T21:00:00.000Z') // 15.8. 00:00 in Helsinki
+    const groups: RegistrationGroup[] = [{ date, key: '2026-08-15-ap', number: 0, time: 'ap' }]
+    const start = (id: string, number: number): Registration => ({
+      ...registrationWithStaticDates,
+      dates: [{ date, time: 'ap' }],
+      group: { date, key: '2026-08-14-ap', number, time: 'ap' },
+      id,
+    })
+
+    it('lists the start in the group of its Helsinki day', () => {
+      expect(listKey(start('a', 1), groups)).toBe('2026-08-15-ap')
+    })
+
+    it('moves the start itself to a position through the server rule, before another UTC-keyed start', () => {
+      const registrations = [start('a', 1), start('b', 2), start('c', 3)]
+      const byGroup = buildRegistrationsByGroup(registrations, groups)
+
+      const change = buildMoveToPositionGroupChange(registrations[2], 1, groups, byGroup)
+      const result = change ? applyRegistrationGroupMoves(registrations, [change]) : undefined
+
+      expect(change).toMatchObject({ beforeId: 'a', group: { key: '2026-08-15-ap' }, id: 'c' })
+      expect(result?.invalid).toEqual([])
+      expect(result?.items.map((item) => item.id)).toEqual(['c', 'a', 'b'])
     })
   })
 

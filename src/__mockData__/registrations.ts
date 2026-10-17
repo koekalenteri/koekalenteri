@@ -1,4 +1,5 @@
-import type { JsonRegistration, Registration } from '../types'
+import type { JsonRegistration, Registration, RegistrationTime } from '../types'
+import { eventRegistrationDateKey } from '../lib/event'
 import {
   registrationDogAged10MonthsAndNoResults,
   registrationDogAged20MonthsAndNoResults,
@@ -11,6 +12,10 @@ import {
   eventWithStaticDates,
   eventWithStaticDatesAndClass,
 } from './events'
+
+/** The group key the app gives a start of the event's first day. */
+const invitedDayKey = (time: RegistrationTime) =>
+  eventRegistrationDateKey({ date: eventWithParticipantsInvited.startDate, time })
 
 const mockRegistrationDefaults: Omit<
   Registration,
@@ -245,7 +250,7 @@ export const registrationsToEventWithParticipantsInvited: Registration[] = [
     ...registrationToEventWithParticipantsInvitedBase,
     class: 'ALO',
     dates: [{ date: eventWithParticipantsInvited.startDate, time: 'ap' }],
-    group: { date: eventWithParticipantsInvited.startDate, key: 'ALO-AP', number: 1, time: 'ap' },
+    group: { date: eventWithParticipantsInvited.startDate, key: invitedDayKey('ap'), number: 1, time: 'ap' },
     id: `${eventWithParticipantsInvited.id}1`,
   },
   {
@@ -255,21 +260,21 @@ export const registrationsToEventWithParticipantsInvited: Registration[] = [
       { date: eventWithParticipantsInvited.startDate, time: 'ap' },
       { date: eventWithParticipantsInvited.startDate, time: 'ip' },
     ],
-    group: { date: eventWithParticipantsInvited.startDate, key: 'ALO-IP', number: 2, time: 'ip' },
+    group: { date: eventWithParticipantsInvited.startDate, key: invitedDayKey('ip'), number: 2, time: 'ip' },
     id: `${eventWithParticipantsInvited.id}2`,
   },
   {
     ...registrationToEventWithParticipantsInvitedBase,
     class: 'AVO',
     dates: [{ date: eventWithParticipantsInvited.startDate, time: 'ap' }],
-    group: { date: eventWithParticipantsInvited.startDate, key: 'AVO-AP', number: 3, time: 'ap' },
+    group: { date: eventWithParticipantsInvited.startDate, key: invitedDayKey('ap'), number: 3, time: 'ap' },
     id: `${eventWithParticipantsInvited.id}3`,
   },
   {
     ...registrationToEventWithParticipantsInvitedBase,
     class: 'AVO',
     dates: [{ date: eventWithParticipantsInvited.startDate, time: 'ip' }],
-    group: { date: eventWithParticipantsInvited.startDate, key: 'AVO-IP', number: 4, time: 'ip' },
+    group: { date: eventWithParticipantsInvited.startDate, key: invitedDayKey('ip'), number: 4, time: 'ip' },
     id: `${eventWithParticipantsInvited.id}4`,
   },
   {
