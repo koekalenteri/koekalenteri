@@ -4,7 +4,10 @@ import FormControl from '@mui/material/FormControl'
 import Grid from '@mui/material/Grid'
 import TextField from '@mui/material/TextField'
 import { DatePicker } from '@mui/x-date-pickers'
-import { subMonths, subYears } from 'date-fns'
+// biome-ignore lint/style/noRestrictedImports: the dog's birthday is a browser-zone day from a picker with no Finnish-day conversion, and its bounds are counted in the same zone; the stored dob becomes a day key in KOE-1547 and the pickers move in KOE-1548
+import { subMonths } from 'date-fns/subMonths'
+// biome-ignore lint/style/noRestrictedImports: as above (KOE-1547, KOE-1548)
+import { subYears } from 'date-fns/subYears'
 import { useTranslation } from 'react-i18next'
 import AutocompleteSingle from '../../AutocompleteSingle'
 import { TitlesAndName } from './TitlesAndName'

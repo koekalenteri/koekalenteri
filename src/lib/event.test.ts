@@ -1,6 +1,7 @@
 import type { TFunction } from 'i18next'
 import type {
   ConfirmedEvent,
+  DayKey,
   DogEvent,
   EventClass,
   EventClassState,
@@ -10,12 +11,13 @@ import type {
   RegistrationTime,
 } from '../types'
 import { TZDate } from '@date-fns/tz'
-import { addDays, differenceInDays } from 'date-fns'
+import { addDays } from 'date-fns'
 import i18n from 'i18next'
 import { eventWithEntryClosing, eventWithParticipantsInvited, eventWithStaticDates } from '../__mockData__/events'
-import { formatDate, TIME_ZONE, zonedParseDate } from '../i18n/dates'
+import { startOfFinnishDay } from '../test-utils/finnishDays'
 import { freezeClockAt } from '../test-utils/freezeClock'
 import { describeInTimeZone } from '../test-utils/timeZone'
+import { addDays as addDaysToKey, dayStart, TIME_ZONE } from './day'
 import {
   applyNewGroupsToDogEventClass,
   applyNewGroupsToDogEventDates,
@@ -45,15 +47,19 @@ import {
   hasAllResultsPublished,
   hasAvailableResults,
   hasDayStarted,
+  hasEntryEnded,
   hasExplicitPlacesForClass,
   hasMockTrialChoice,
   hasRetrieveTypeChoice,
   hasSharedReserveList,
   isDetaultEntryEndDate,
   isDetaultEntryStartDate,
+  isEntryClosing,
   isEntryEditingClosed,
+  isEntryOpen,
   isEventDeletable,
   isEventLive,
+  isEventOver,
   isMockTrialClass,
   isOfficialEventType,
   isResultsAvailableForClass,
@@ -73,9 +79,8 @@ import {
   KENNELLIITTO_LINK_FIELDS,
   localizedEventDescription,
   localizedEventName,
-  newEventEntryEndDate,
-  newEventEntryStartDate,
-  newEventStartDate,
+  newEventDates,
+  newEventStartDay,
   placesForClass,
   registrationDatesOutsideClass,
   sanitizeDogEvent,
@@ -83,6 +88,9 @@ import {
   stripKennelliittoLink,
   withResultsDay,
 } from './event'
+
+/** A moment to stand for now where a test needs one: Monday 15.6.2026 at noon in Finland. */
+const NOON_2026_06_15 = new Date('2026-06-15T09:00:00.000Z')
 
 describe('lib/event', () => {
   describe('getEventSavedMessage', () => {
@@ -116,8 +124,16 @@ describe('lib/event', () => {
 
   describe('getEventTitle', () => {
     const t = ((key: string) => key) as TFunction<'translation'>
-    const now = new Date()
-    const event = (overrides: Partial<DogEvent>): DogEvent => ({ ...eventWithEntryClosing, ...overrides })
+    const now = NOON_2026_06_15
+    // A trial whose entry closed yesterday and which starts the day after tomorrow, as seen from `now`.
+    const event = (overrides: Partial<DogEvent>): DogEvent => ({
+      ...eventWithEntryClosing,
+      endDate: addDays(now, 3),
+      entryEndDate: addDays(now, -1),
+      entryStartDate: addDays(now, -3),
+      startDate: addDays(now, 2),
+      ...overrides,
+    })
 
     it('returns the current progress phase directly', () => {
       const confirmedEvent: ConfirmedEvent = {
@@ -780,7 +796,7 @@ describe('lib/event', () => {
     it('expands an absent flag only for the classes the workflow carried to invited', () => {
       // Read as the public list reads it: a past trial whose invitations were never sent has nothing
       // published, so publishing one class must not publish the others with it (KOE-1465).
-      const lastYear = addDays(new Date(), -365)
+      const lastYear = startOfFinnishDay('2025-06-15')
       expect(
         getStartListPublishedClassMap({
           classes: [{ class: 'ALO', state: 'invited' }, { class: 'AVO' }, { class: 'VOI', state: 'picked' }],
@@ -821,17 +837,36 @@ describe('lib/event', () => {
     it('returns an empty string when start date is missing or invalid', () => {
       expect(getEventSeason()).toEqual('')
       expect(getEventSeason('')).toEqual('')
+      // The request validators (PutEvent, CopyEvent) answer 400 on this; a throw would make it a 500.
+      expect(getEventSeason('foo')).toEqual('')
+      expect(getEventSeason(new Date(Number.NaN))).toEqual('')
     })
   })
 
   describe('eventDays', () => {
-    it.each`
-      startDate                | endDate                  | expected
-      ${new Date(2023, 0, 1)}  | ${new Date(2023, 0, 1)}  | ${[new TZDate(2023, 0, 1, TIME_ZONE)]}
-      ${new Date(2023, 1, 15)} | ${new Date(2023, 1, 16)} | ${[new TZDate(2023, 1, 15, TIME_ZONE), new TZDate(2023, 1, 16, TIME_ZONE)]}
-      ${new Date(2023, 2, 10)} | ${new Date(2023, 2, 12)} | ${[new TZDate(2023, 2, 10, TIME_ZONE), new TZDate(2023, 2, 11, TIME_ZONE), new TZDate(2023, 2, 12, TIME_ZONE)]}
-    `('returns $expected when event startDate=$startDate and endDate=$endDate', ({ startDate, endDate, expected }) => {
-      expect(getEventDays({ endDate, startDate })).toEqual(expected)
+    // Finnish days in and out: a fixture built as the machine's midnight was another Finnish day east of Finland.
+    it.each([
+      { days: ['2023-01-01'], end: '2023-01-01', start: '2023-01-01' },
+      { days: ['2023-02-15', '2023-02-16'], end: '2023-02-16', start: '2023-02-15' },
+      { days: ['2023-03-10', '2023-03-11', '2023-03-12'], end: '2023-03-12', start: '2023-03-10' },
+      { days: ['2026-03-28', '2026-03-29', '2026-03-30'], end: '2026-03-30', start: '2026-03-28' },
+      { days: ['2026-10-24', '2026-10-25', '2026-10-26'], end: '2026-10-26', start: '2026-10-24' },
+    ] satisfies Array<{ days: DayKey[]; end: DayKey; start: DayKey }>)(
+      'returns the Finnish midnights from $start to $end',
+      ({ days, end, start }) => {
+        expect(getEventDays({ endDate: startOfFinnishDay(end), startDate: startOfFinnishDay(start) })).toEqual(
+          days.map(startOfFinnishDay)
+        )
+      }
+    )
+
+    it('reads the days the moments fall on, late in the Finnish evening too', () => {
+      const lateStart = new Date('2023-03-10T21:30:00.000Z')
+      const lateEnd = new Date('2023-03-11T21:30:00.000Z')
+      expect(getEventDays({ endDate: lateEnd, startDate: lateStart })).toEqual([
+        startOfFinnishDay('2023-03-10'),
+        startOfFinnishDay('2023-03-11'),
+      ])
     })
   })
 
@@ -1042,18 +1077,23 @@ describe('lib/event', () => {
   })
 
   describe('copyDogEvent', () => {
-    it('should remove id', () => expect(copyDogEvent(eventWithParticipantsInvited).id).toEqual(''))
+    // Copied on 15.6.2026: ninety days on is Sunday 13.9., so the copy starts on Saturday 19.9.2026.
+    const now = NOON_2026_06_15
+    const copyNow = (event: DogEvent) => copyDogEvent(event, now)
+    const newStartDay = newEventStartDay(now, TIME_ZONE)
+    const newDates = newEventDates(now)
+
+    it('starts on the first Saturday after ninety days', () => expect(newStartDay).toBe('2026-09-19'))
+    it('should remove id', () => expect(copyNow(eventWithParticipantsInvited).id).toEqual(''))
     it('should add "Kopio - " to name', () =>
-      expect(copyDogEvent(eventWithParticipantsInvited).name.startsWith('Kopio -')).toBeTruthy())
-    it('should set state to draft', () => expect(copyDogEvent(eventWithParticipantsInvited).state).toEqual('draft'))
+      expect(copyNow(eventWithParticipantsInvited).name.startsWith('Kopio -')).toBeTruthy())
+    it('should set state to draft', () => expect(copyNow(eventWithParticipantsInvited).state).toEqual('draft'))
     it('should reset start list publishing', () =>
-      expect(copyDogEvent({ ...eventWithParticipantsInvited, startListPublished: true }).startListPublished).toBe(
-        false
-      ))
+      expect(copyNow({ ...eventWithParticipantsInvited, startListPublished: true }).startListPublished).toBe(false))
     it('should reset start number and results publishing', () => {
       // An inherited flag would skip the whole decision: absent-means-published for numbers that
       // predate the field, and a copied resultsPublished would advertise results that do not exist.
-      const copy = copyDogEvent({
+      const copy = copyNow({
         ...eventWithParticipantsInvited,
         resultsPublished: { ALO: true },
         startNumbersPublished: true,
@@ -1062,14 +1102,14 @@ describe('lib/event', () => {
       expect(copy.resultsPublished).toBeUndefined()
     })
     it('should not carry the link to a Kennelliitto trial (KOE-1534)', () => {
-      const copy = copyDogEvent({
+      const copy = copyNow({
         ...eventWithParticipantsInvited,
         kcEvent: {
           classes: ['ALO'],
-          endDate: new Date(),
+          endDate: now,
           eventType: 'NOU',
           location: 'Laukaa',
-          startDate: new Date(),
+          startDate: now,
         },
         kcGuid: '2b81e6a1-559b-407c-87c7-b8a9b89b1987',
         kcId: 12345,
@@ -1079,34 +1119,33 @@ describe('lib/event', () => {
       expect(copy.kcId).toBeUndefined()
     })
     it('should reset entries and members', () => {
-      const copy = copyDogEvent({ ...eventWithParticipantsInvited, entries: 15, members: 10 })
+      const copy = copyNow({ ...eventWithParticipantsInvited, entries: 15, members: 10 })
       expect(copy.entries).toBe(0)
       expect(copy.members).toBe(0)
     })
     it('should set startDate', () =>
-      expect(copyDogEvent(eventWithParticipantsInvited).startDate).toEqual(newEventStartDate))
-    it('should set endDate', () =>
-      expect(copyDogEvent(eventWithParticipantsInvited).endDate).toEqual(newEventStartDate))
+      expect(copyNow(eventWithParticipantsInvited).startDate).toEqual(newDates.startDate))
+    it('should set endDate', () => expect(copyNow(eventWithParticipantsInvited).endDate).toEqual(newDates.startDate))
     it('should set endDate on two day event', () =>
-      expect(copyDogEvent(eventWithEntryClosing).endDate).toEqual(addDays(newEventStartDate, 1)))
+      expect(copyNow(eventWithEntryClosing).endDate).toEqual(dayStart(addDaysToKey(newStartDay, 1), TIME_ZONE)))
     it('should set entryStartDate / entryEndDate', () => {
-      const copy = copyDogEvent({ ...eventWithParticipantsInvited, entryOrigEndDate: new Date() })
-      expect(copy.entryStartDate).toEqual(newEventEntryStartDate)
-      expect(copy.entryEndDate).toEqual(newEventEntryEndDate)
+      const copy = copyNow({ ...eventWithParticipantsInvited, entryOrigEndDate: now })
+      expect(copy.entryStartDate).toEqual(newDates.entryStartDate)
+      expect(copy.entryEndDate).toEqual(newDates.entryEndDate)
       expect(copy.entryOrigEndDate).toBeUndefined()
     })
     it('should update classes', () => {
-      const copy = copyDogEvent(eventWithParticipantsInvited)
+      const copy = copyNow(eventWithParticipantsInvited)
       expect(copy.classes).toHaveLength(2)
       for (let i = 0; i < 2; i++) {
         expect(copy.classes[i].places).toBe(eventWithParticipantsInvited.classes[i].places)
         expect(copy.classes[i].entries).toBe(0)
         expect(copy.classes[i].members).toBe(0)
-        expect(copy.classes[i].date).toEqual(newEventStartDate)
+        expect(copy.classes[i].date).toEqual(newDates.startDate)
       }
     })
     it('should update class dates on muptiple day event', () => {
-      const copy = copyDogEvent({
+      const copy = copyNow({
         ...eventWithEntryClosing,
         classes: [
           { class: 'ALO', date: eventWithEntryClosing.startDate, places: 2 },
@@ -1118,7 +1157,7 @@ describe('lib/event', () => {
     })
 
     it('should update dates', () => {
-      const copy = copyDogEvent({
+      const copy = copyNow({
         ...eventWithEntryClosing,
         dates: [
           { date: eventWithEntryClosing.startDate, time: 'ap' },
@@ -1132,50 +1171,35 @@ describe('lib/event', () => {
     })
 
     it('should copy and adjust placesPerDay', () => {
-      // Create an event with placesPerDay
-      const origStartDate = new Date(2023, 5, 15) // June 15, 2023
-      const origEndDate = new Date(2023, 5, 16) // June 16, 2023
+      // A two-day trial on 15.-16.6.2023; the places move along with the days, as keys of Finnish days.
       const event = {
         ...eventWithEntryClosing,
-        endDate: origEndDate,
-        placesPerDay: {
-          '2023-06-15': 10, // First day
-          '2023-06-16': 15, // Second day
-        },
-        startDate: origStartDate,
+        endDate: startOfFinnishDay('2023-06-16'),
+        placesPerDay: { '2023-06-15': 10, '2023-06-16': 15, 'not-a-day': 3 },
+        startDate: startOfFinnishDay('2023-06-15'),
       }
 
-      const copy = copyDogEvent(event)
+      const copy = copyNow(event)
 
-      // Calculate expected dates based on the day difference
-      const dayDiff = differenceInDays(newEventStartDate, origStartDate)
-      const expectedFirstDate = formatDate(addDays(origStartDate, dayDiff), 'yyyy-MM-dd')
-      const expectedSecondDate = formatDate(addDays(origEndDate, dayDiff), 'yyyy-MM-dd')
-
-      // Verify placesPerDay was copied and dates were adjusted
-      expect(copy.placesPerDay).toBeDefined()
-      expect(Object.keys(copy.placesPerDay!)).toHaveLength(2)
-      expect(copy.placesPerDay?.[expectedFirstDate]).toBe(10)
-      expect(copy.placesPerDay?.[expectedSecondDate]).toBe(15)
+      expect(copy.placesPerDay).toEqual({ '2026-09-19': 10, '2026-09-20': 15 })
     })
   })
 })
 
 describe('defaultEntryStartDate and defaultEntryEndDate', () => {
-  it('should calculate correct entry start date', () => {
-    const eventStartDate = new Date(2023, 5, 15) // June 15, 2023
-    const expectedStartDate = new Date(2023, 5, 15)
-    expectedStartDate.setDate(expectedStartDate.getDate() - 6 * 7) // 6 weeks before
+  // The defaults are Finnish midnights, six and three weeks before the trial's Finnish day.
+  const eventStartDate = startOfFinnishDay('2023-06-15')
 
-    expect(defaultEntryStartDate(eventStartDate).getTime()).toEqual(expectedStartDate.getTime())
+  it('should calculate correct entry start date', () => {
+    expect(defaultEntryStartDate(eventStartDate)).toEqual(startOfFinnishDay('2023-05-04'))
   })
 
   it('should calculate correct entry end date', () => {
-    const eventStartDate = new Date(2023, 5, 15) // June 15, 2023
-    const expectedEndDate = new Date(2023, 5, 15)
-    expectedEndDate.setDate(expectedEndDate.getDate() - 3 * 7) // 3 weeks before
+    expect(defaultEntryEndDate(eventStartDate)).toEqual(startOfFinnishDay('2023-05-25'))
+  })
 
-    expect(defaultEntryEndDate(eventStartDate).getTime()).toEqual(expectedEndDate.getTime())
+  it('reads the trial day in Finnish time, late in the evening too', () => {
+    expect(defaultEntryEndDate(new Date('2023-06-14T21:30:00.000Z'))).toEqual(startOfFinnishDay('2023-05-25'))
   })
 })
 
@@ -1269,6 +1293,65 @@ describe.each([TIME_ZONE, 'America/New_York', 'Asia/Tokyo'])('the default entry 
   })
 })
 
+describe('a stored date that is neither a day nor an instant (KOE-1545)', () => {
+  it('passes no vital, so a bad row is listed rather than a 500', () => {
+    expect(hasEntryEnded({ entryEndDate: 'foo' })).toBe(false)
+    expect(isEventOver({ endDate: new Date(Number.NaN) })).toBe(false)
+    expect(isEntryOpen({ entryEndDate: '2099-01-01', entryStartDate: 'foo', state: 'confirmed' })).toBe(false)
+    expect(hasDayStarted(undefined)).toBe(false)
+  })
+})
+
+describe('isEntryClosing counts Finnish days (KOE-1545)', () => {
+  // The entry closes on 2.4.2026, stored as its Finnish midnight. Its last week begins on 26.3.; stepping
+  // the instant back seven days in the browser's own zone made it begin an evening early west of Finland,
+  // as the step kept the browser's wall clock over Finland's change of time.
+  const event = {
+    entryEndDate: new Date('2026-04-01T21:00:00.000Z'),
+    entryStartDate: new Date('2026-03-01T22:00:00.000Z'),
+    state: 'confirmed' as const,
+  }
+
+  for (const zone of [TIME_ZONE, 'America/New_York', 'Asia/Tokyo']) {
+    describeInTimeZone(zone, () => {
+      it('is not closing yet on 25.3.', () => {
+        expect(isEntryClosing(event, new Date('2026-03-25T10:00:00.000Z'))).toBe(false)
+      })
+
+      it('is closing from 26.3. on', () => {
+        expect(isEntryClosing(event, new Date('2026-03-26T10:00:00.000Z'))).toBe(true)
+      })
+    })
+  }
+})
+
+describe('newEventStartDay (KOE-1545)', () => {
+  // Sunday 18.10.2026 at 01:00 in Finland is still Saturday evening in New York. Ninety days on it is
+  // Saturday 16.1.2027 in Finland but Friday 15.1. in New York, so a browser there used to offer the
+  // 16th where Finland's next Saturday is the 23rd: a week off, for a default the secretary rarely
+  // reads twice.
+  const sundayNight = new Date(new TZDate(2026, 9, 18, 1, 0, TIME_ZONE).getTime())
+
+  for (const zone of [TIME_ZONE, 'America/New_York', 'Asia/Tokyo']) {
+    describeInTimeZone(zone, () => {
+      it('is the first Saturday after ninety Finnish days', () => {
+        expect(newEventStartDay(sundayNight, TIME_ZONE)).toBe('2027-01-23')
+      })
+
+      it('takes the Saturday right after the ninety days when they end on a Friday', () => {
+        // Saturday 17.10.2026 + 90 days is Friday 15.1.2027; the Saturday after it is the 16th.
+        const saturdayNight = new Date(new TZDate(2026, 9, 17, 1, 0, TIME_ZONE).getTime())
+        expect(newEventStartDay(saturdayNight, TIME_ZONE)).toBe('2027-01-16')
+      })
+
+      it('counts the days in the zone it is given', () => {
+        // The same moment is Saturday evening in New York: ninety days on is a Friday there.
+        expect(newEventStartDay(sundayNight, 'America/New_York')).toBe('2027-01-16')
+      })
+    })
+  }
+})
+
 describe('eventRegistrationDateKey', () => {
   it('should generate a key in the format date-time', () => {
     const date = new Date(2023, 5, 15, 12) // June 15, 2023
@@ -1348,12 +1431,12 @@ describe('sanitizeDogEvent', () => {
   it('should remove private fields from event', () => {
     const event = {
       createdBy: 'user-1',
-      deletedAt: new Date(),
+      deletedAt: NOON_2026_06_15,
       deletedBy: 'user-2',
       headquarters: { zipCode: '12345' },
       id: 'event-1',
       invitationAttachment: 'attachment.pdf',
-      invitationAttachmentHistory: { 'attachment.pdf': { uploadedAt: new Date() } },
+      invitationAttachmentHistory: { 'attachment.pdf': { uploadedAt: NOON_2026_06_15 } },
       invitationAttachments: { ALO: 'attachment.pdf' },
       kcGuid: '2b81e6a1-559b-407c-87c7-b8a9b89b1987',
       kcId: 12345,
@@ -1363,8 +1446,8 @@ describe('sanitizeDogEvent', () => {
       official: 'official-info',
       publicField1: 'public-value-1',
       publicField2: 'public-value-2',
-      registrationGroupsLock: { expiresAt: Date.now() + 90_000, token: 'secret' },
-      registrationPaymentsLock: { expiresAt: Date.now() + 90_000, token: 'payment-secret' },
+      registrationGroupsLock: { expiresAt: NOON_2026_06_15.getTime() + 90_000, token: 'secret' },
+      registrationPaymentsLock: { expiresAt: NOON_2026_06_15.getTime() + 90_000, token: 'payment-secret' },
       secretary: 'secretary-info',
     }
 
@@ -1427,11 +1510,11 @@ describe('sanitizeDogEvent', () => {
   it('should handle event with only private fields', () => {
     const event = {
       createdBy: 'user-1',
-      deletedAt: new Date(),
+      deletedAt: NOON_2026_06_15,
       deletedBy: 'user-2',
       headquarters: { zipCode: '12345' },
       invitationAttachment: 'attachment.pdf',
-      invitationAttachmentHistory: { 'attachment.pdf': { uploadedAt: new Date() } },
+      invitationAttachmentHistory: { 'attachment.pdf': { uploadedAt: NOON_2026_06_15 } },
       invitationAttachments: { ALO: 'attachment.pdf' },
       kcGuid: '2b81e6a1-559b-407c-87c7-b8a9b89b1987',
       kcId: 12345,
@@ -1722,7 +1805,11 @@ describe('publishing results', () => {
     })
 
     it('waits for the dogs to have run', () => {
-      const ahead = { endDate: addDays(new Date(), 31), startDate: addDays(new Date(), 30), state: 'picked' as const }
+      const ahead = {
+        endDate: startOfFinnishDay('2099-06-06'),
+        startDate: startOfFinnishDay('2099-06-05'),
+        state: 'picked' as const,
+      }
       expect(hasAvailableResults({ ...ahead, resultsPublished: true, startListPublished: true })).toBe(false)
     })
 
@@ -1743,6 +1830,8 @@ describe('publishing results', () => {
   })
 
   describe('canPublishResults', () => {
+    freezeClockAt('2026-06-15')
+
     it('waits until the dogs have run', () => {
       // A start list exists before the event; a result does not.
       expect(canPublishResults('invited')).toBe(false)
@@ -1789,7 +1878,7 @@ describe('publishing results', () => {
 
   describe('canPublishStartList', () => {
     it('opens on the calendar too, so a finished event can still publish its list', () => {
-      const lastYear = addDays(new Date(), -365)
+      const lastYear = startOfFinnishDay('2025-06-15')
 
       // Results reach the public on the start list's rows, and they are entered after the dogs have
       // run — so a finished event is exactly when publishing the list is needed.
@@ -1804,7 +1893,7 @@ describe('publishing results', () => {
   })
 
   describe('a start list the calendar alone opened', () => {
-    const lastYear = addDays(new Date(), -365)
+    const lastYear = startOfFinnishDay('2025-06-15')
     const past = { endDate: lastYear, startDate: lastYear, state: 'confirmed' as const }
 
     it('still has to be published on purpose', () => {
@@ -1816,6 +1905,8 @@ describe('publishing results', () => {
   })
 
   describe('a picked class published on purpose (KOE-1509)', () => {
+    freezeClockAt('2026-06-15')
+
     // A one-day NOME-B with only ALO: the place notices went, the invitations never did.
     const oneDay = {
       classes: [{ class: 'ALO' as const, date: '2026-06-13', state: 'picked' as const }],
@@ -1840,8 +1931,6 @@ describe('publishing results', () => {
     const secondDay = { class: 'ALO', group: { date: '2026-06-14' } }
 
     describe('once the trial is over', () => {
-      freezeClockAt('2026-06-15')
-
       it('opens the list, and the results riding on it', () => {
         // The invitations can no longer be sent, so the list follows the explicit publish.
         expect(isStartListAvailableForClass(oneDay, oneDay.classes[0])).toBe(true)
@@ -2142,7 +2231,7 @@ describe('results published day by day', () => {
     })
 
     it('keeps a bare day key the day it names', () => {
-      const firstDay = { resultsPublished: { ALO: [zonedParseDate('2026-09-12')] } }
+      const firstDay = { resultsPublished: { ALO: [dayStart('2026-09-12', TIME_ZONE)] } }
 
       expect(isResultsPublishedForDay(firstDay, 'ALO', '2026-09-12')).toBe(true)
       expect(isResultsPublishedForDay(firstDay, 'ALO', '2026-09-13')).toBe(false)
@@ -2442,7 +2531,7 @@ describe('isEventLive', () => {
 
 describe('getParticipantsPhase', () => {
   const classes = (...states: Array<EventClassState | undefined>) =>
-    states.map((state, index): EventClass => ({ class: index ? 'AVO' : 'ALO', date: new Date(), state }))
+    states.map((state, index): EventClass => ({ class: index ? 'AVO' : 'ALO', date: NOON_2026_06_15, state }))
 
   it('reads the event state where there are no classes', () => {
     expect(getParticipantsPhase({ classes: [], state: 'confirmed' })).toBeUndefined()

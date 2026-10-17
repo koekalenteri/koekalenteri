@@ -3,7 +3,7 @@ import Box from '@mui/material/Box'
 import Grid from '@mui/material/Grid'
 import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
-import { zonedEndOfDay } from '@/i18n/dates'
+import { dayEndOf, TIME_ZONE } from '@/lib/day'
 import { hasExplicitPlacesForClass, isEntryOpen } from '@/lib/event'
 import { judgeName } from '@/lib/judge'
 import { RESTRICTION } from '@/lib/priority'
@@ -35,7 +35,7 @@ const judgeClasses = (judge: PublicJudge, event: PublicDogEvent) => {
 /** The countdown to the entry's close, while the entry is open and has a day it closes on. */
 const EntryTimeLeft = ({ event }: Props) => {
   if (!isEntryOpen(event) || !event.entryEndDate) return null
-  return <TimeLeft date={zonedEndOfDay(event.entryEndDate)} />
+  return <TimeLeft date={dayEndOf(event.entryEndDate, TIME_ZONE)} />
 }
 
 export const EventInfo = ({ event }: Props) => {

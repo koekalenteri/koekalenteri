@@ -1,18 +1,17 @@
 import type { GridColumnVisibilityModel } from '@mui/x-data-grid'
 import type { DogEvent } from '@/types'
-import { newEventEntryEndDate, newEventEntryStartDate, newEventStartDate } from '@/lib/event'
+import { newEventDates } from '@/lib/event'
 import { atomWithLocalStorage } from '@/pages/state/storage'
 
 export { adminEventsRemoteAtom as adminEventsAtom } from './remoteAtoms'
 // A new event draft is intentionally incomplete; the event form fills in the rest of DogEvent
 // before anything is saved, so the conversion below is deliberate.
+// The clock is read when this module loads: the dates are only the default before the first draft is
+// stored, and a lazily built default is a change to the storage atom, not to the dates.
 export const adminNewEventAtom = atomWithLocalStorage<DogEvent>('newEvent', {
   classes: [],
-  endDate: newEventStartDate,
-  entryEndDate: newEventEntryEndDate,
-  entryStartDate: newEventEntryStartDate,
+  ...newEventDates(new Date()),
   judges: [{ id: 0, name: '', official: true }],
-  startDate: newEventStartDate,
   startListPublished: false,
   state: 'draft',
 } as unknown as DogEvent)

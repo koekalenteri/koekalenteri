@@ -1,6 +1,7 @@
 import type { ValidationResult, Validators2, WideValidationResult } from '@/i18n/validation'
 import type { BreedCode, Dog, PublicConfirmedEvent, Registration, TestResult } from '@/types'
-import { differenceInMonths } from 'date-fns'
+// biome-ignore lint/style/noRestrictedImports: the dog's age in months is counted between a Finnish midnight and a browser-zone birthday from the dob picker, as it has been; the stored dob becomes a day key in KOE-1547 and the pickers move in KOE-1548
+import { differenceInMonths } from 'date-fns/differenceInMonths'
 import { validName } from '@/lib/name'
 import { getOwnerRole, getRegistrationOwners, ownerKeyAt, resolveOwnerSelection } from '@/lib/registration'
 import { REQUIREMENTS } from '@/rules'

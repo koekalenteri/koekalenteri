@@ -5,8 +5,7 @@ import type {
   QualifyingResults,
   TestResult,
 } from './types'
-import { subYears } from 'date-fns/subYears'
-import { zonedEndOfDay } from './i18n/dates'
+import { addMonths, dayEnd, dayEndOf, dayOf, TIME_ZONE } from './lib/day'
 import { NOME_B_CH_qualificationStartDate2023 } from './lib/registration'
 
 const byPointsAndDate = (a: QualifyingResult, b: QualifyingResult) => {
@@ -45,28 +44,24 @@ const getRelevantRankingResults = ({
     .sort(byPointsAndDate)
     .slice(0, maxResults)
 
+/** The ranking period that closes with the entry: from the end of the same day `years` back, exclusive. */
+const yearsBeforeEntryEnd = (entryEndDate: Date, years: number) => {
+  const endDay = dayOf(entryEndDate, TIME_ZONE)
+
+  return {
+    maxResultDate: dayEnd(endDay, TIME_ZONE),
+    minResultDate: dayEnd(addMonths(endDay, -12 * years), TIME_ZONE),
+  }
+}
+
 const getNOME_B_CH_RankingPeriod = (entryEndDate?: Date, qualificationStartDate?: Date) => ({
-  maxResultDate: zonedEndOfDay(entryEndDate ?? new Date()),
+  maxResultDate: dayEndOf(entryEndDate ?? new Date(), TIME_ZONE),
   minResultDate: qualificationStartDate ?? NOME_B_CH_qualificationStartDate2023,
 })
 
-const getNOME_A_CH_RankingPeriod = (entryEndDate: Date) => {
-  const endDate = zonedEndOfDay(entryEndDate)
+const getNOME_A_CH_RankingPeriod = (entryEndDate: Date) => yearsBeforeEntryEnd(entryEndDate, 2)
 
-  return {
-    maxResultDate: endDate,
-    minResultDate: subYears(endDate, 2),
-  }
-}
-
-const getNOWT_CH_RankingPeriod = (entryEndDate: Date) => {
-  const endDate = zonedEndOfDay(entryEndDate)
-
-  return {
-    maxResultDate: endDate,
-    minResultDate: subYears(endDate, 1),
-  }
-}
+const getNOWT_CH_RankingPeriod = (entryEndDate: Date) => yearsBeforeEntryEnd(entryEndDate, 1)
 
 export const getRankingPeriod = (
   eventType: string,

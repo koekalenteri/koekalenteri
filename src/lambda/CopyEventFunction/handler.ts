@@ -1,5 +1,5 @@
 import { nanoid } from 'nanoid'
-import { addFinnishDays, finnishDaysBetween } from '../../i18n/dates'
+import { dayOf, daysBetween, shiftDays, TIME_ZONE } from '../../lib/day'
 import { eventRegistrationDateKey, getEventSeason, stripKennelliittoLink } from '../../lib/event'
 import { getRegistrationGroupKey, isStarter } from '../../lib/registration'
 import { saveEvent } from '../lib/event'
@@ -45,8 +45,8 @@ const copyEventLambda = lambda('copyEvent', async (event) => {
   item.modifiedBy = user.name
 
   // Whole Finnish calendar days, so the copy keeps each date's Finnish wall-clock time across the change of time.
-  const days = finnishDaysBetween(item.startDate, startDate)
-  const shift = (date: string) => addFinnishDays(date, days)
+  const days = daysBetween(dayOf(new Date(item.startDate), TIME_ZONE), dayOf(new Date(startDate), TIME_ZONE))
+  const shift = (date: string) => shiftDays(new Date(date), days, TIME_ZONE).toISOString()
   item.startDate = shift(item.startDate)
   item.season = getEventSeason(item.startDate)
   item.endDate = shift(item.endDate)

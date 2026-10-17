@@ -1,6 +1,5 @@
 import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
-import { parseISO } from 'date-fns'
 import { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useLocation } from 'react-router'
@@ -37,7 +36,7 @@ export const WhatsNewPage = () => {
               <Typography variant="h2" sx={{ mb: 1 }}>
                 {t('docs.version', { version: note.version })}
                 <Typography component="span" variant="body2" color="text.secondary" sx={{ ml: 1.5 }}>
-                  {t('dateFormat.date', { date: parseISO(note.date) })}
+                  {t('dateFormat.date', { date: note.date })}
                 </Typography>
               </Typography>
               <DocsBody html={note.html} sectionLevel={3} />

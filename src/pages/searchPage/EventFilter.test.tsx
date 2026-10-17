@@ -6,11 +6,11 @@ import { ThemeProvider } from '@mui/material'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
 import { screen, within } from '@testing-library/react'
-import { subMonths } from 'date-fns'
 import { useState } from 'react'
 import theme from '../../assets/Theme'
 import { locales } from '../../i18n'
-import { TIME_ZONE, zonedEndOfDay, zonedStartOfDay } from '../../i18n/dates'
+import { addMonths, dayOf, dayStart, TIME_ZONE } from '../../lib/day'
+import { endOfFinnishDay, startOfFinnishDay } from '../../test-utils/finnishDays'
 import { describeInTimeZone } from '../../test-utils/timeZone'
 import { createMatchMedia, flushPromises, renderWithUserEvents, typeDateKeyByKey } from '../../test-utils/utils'
 import { EventFilter } from './EventFilter'
@@ -170,25 +170,32 @@ describe('EventFilter', () => {
   })
 
   it('widens the range backwards when the results switch is turned on', async () => {
-    const changeHandler = vi.fn()
-    const start = zonedStartOfDay(new Date())
-    const { user } = renderComponent(
-      { end: null, eventClass: [], eventType: [], judge: [], organizer: [], start },
-      changeHandler
-    )
+    // Frozen in winter time, six months back in summer time: the start is the Finnish midnight either way.
+    vi.useFakeTimers({ now: new Date('2026-11-20T10:00:00.000Z'), toFake: ['Date'] })
+    try {
+      const changeHandler = vi.fn()
+      const today = dayOf(new Date(), TIME_ZONE)
+      const { user } = renderComponent(
+        { end: null, eventClass: [], eventType: [], judge: [], organizer: [], start: dayStart(today, TIME_ZONE) },
+        changeHandler
+      )
 
-    await user.click(screen.getByLabelText('filter.resultsPublished'))
+      await user.click(screen.getByLabelText('filter.resultsPublished'))
 
-    // Results exist only on ended events; with the default range starting today the filter would
-    // show nothing, so the start date moves back and stays visible for the user to adjust.
-    expect(changeHandler).toHaveBeenCalledWith(
-      expect.objectContaining({ start: subMonths(start, 6), withResults: true })
-    )
+      // Results exist only on ended events; with the default range starting today the filter would
+      // show nothing, so the start date moves back and stays visible for the user to adjust.
+      expect(changeHandler).toHaveBeenCalledWith(
+        expect.objectContaining({ start: dayStart(addMonths(today, -6), TIME_ZONE), withResults: true })
+      )
+      expect(changeHandler.mock.lastCall?.[0].start.toISOString()).toBe('2026-05-19T21:00:00.000Z')
+    } finally {
+      vi.useRealTimers()
+    }
   })
 
   it('leaves a range the user already widened alone', async () => {
     const changeHandler = vi.fn()
-    const start = zonedStartOfDay(subMonths(new Date(), 1))
+    const start = dayStart(addMonths(dayOf(new Date(), TIME_ZONE), -1), TIME_ZONE)
     const { user } = renderComponent(
       { end: null, eventClass: [], eventType: [], judge: [], organizer: [], start },
       changeHandler
@@ -244,7 +251,7 @@ describe('EventFilter', () => {
       await typeDateKeyByKey(user, screen.getByRole('group', { name: 'daterangeEnd' }), '31102026')
 
       expect(changeHandler).toHaveBeenLastCalledWith(
-        expect.objectContaining({ end: zonedEndOfDay(lastDayOfOctober), start: zonedStartOfDay(lastDayOfOctober) })
+        expect.objectContaining({ end: endOfFinnishDay(lastDayOfOctober), start: startOfFinnishDay(lastDayOfOctober) })
       )
     })
 

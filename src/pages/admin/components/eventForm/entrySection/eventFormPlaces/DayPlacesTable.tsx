@@ -2,7 +2,7 @@ import type { EntryEvent } from '../../types'
 import TableCell from '@mui/material/TableCell'
 import TableRow from '@mui/material/TableRow'
 import { useTranslation } from 'react-i18next'
-import { formatDate } from '@/i18n/dates'
+import { dayOf, TIME_ZONE } from '@/lib/day'
 import { getEventDays } from '@/lib/event'
 import { NumberInput } from '@/pages/components/NumberInput'
 import { calculateTotalFromDays } from '../../places'
@@ -24,7 +24,7 @@ export default function DayPlacesTable({ event, disabled, handleDayPlacesChange 
   return (
     <BasePlacesTable headers={headers}>
       {eventDays.map((day) => {
-        const dateStr = formatDate(day, 'yyyy-MM-dd')
+        const dateStr = dayOf(day, TIME_ZONE)
         const places = event.placesPerDay?.[dateStr] ?? 0
 
         return (

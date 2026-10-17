@@ -6,7 +6,6 @@ import List from '@mui/material/List'
 import ListItem from '@mui/material/ListItem'
 import TextField from '@mui/material/TextField'
 import Typography from '@mui/material/Typography'
-import { parseISO } from 'date-fns'
 import { useDeferredValue, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { DocsBody } from './DocsBody'
@@ -62,8 +61,8 @@ export const RulesBody = ({ document }: Props) => {
   return (
     <Box data-testid="rules">
       <Alert severity="info" sx={{ mb: 2, mt: 1 }}>
-        {t('docs.rulesNotice')} {t('docs.rulesEdition', { edition: parseISO(document.edition) })}
-        {document.amended ? ` ${t('docs.rulesAmended', { amended: parseISO(document.amended) })}` : ''}{' '}
+        {t('docs.rulesNotice')} {t('docs.rulesEdition', { edition: document.edition })}
+        {document.amended ? ` ${t('docs.rulesAmended', { amended: document.amended })}` : ''}{' '}
         <Link href={document.source} target="_blank" rel="noopener">
           {t('docs.rulesSource')}
         </Link>

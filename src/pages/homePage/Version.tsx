@@ -1,5 +1,5 @@
 import Box from '@mui/material/Box'
-import { lightFormat } from 'date-fns'
+import { lightFormat } from 'date-fns/lightFormat'
 import pkg from '../../../package.json'
 import { HEADER_HEIGHT } from '../../assets/Theme'
 

@@ -3,7 +3,7 @@ import { act, render } from '@testing-library/react'
 import { addDays } from 'date-fns'
 import { TestProvider as Provider } from 'test-utils/AtomProvider'
 import { getEvents } from '@/api/event'
-import { zonedStartOfDay } from '@/i18n/dates'
+import { startOfFinnishDay } from '@/test-utils/finnishDays'
 import { eventFilterAtom, eventMetadataAtom, eventsAtom } from './atoms'
 import { DateHandler } from './DateHandler'
 import { RANGE_INCREMENTAL_THROTTLE } from './hooks'
@@ -123,8 +123,8 @@ describe('DateHandler visibility refresh', () => {
 
   it('refreshes the default start when the zoned date changes', async () => {
     renderDateHandler(0, null)
-    const initialStart = zonedStartOfDay(initialSystemTime)
-    const nextStart = zonedStartOfDay(addDays(initialSystemTime, 1))
+    const initialStart = startOfFinnishDay(initialSystemTime)
+    const nextStart = startOfFinnishDay(addDays(initialSystemTime, 1))
     const nextDayDelay = nextStart.getTime() - initialSystemTime.getTime() + 1000
 
     await act(async () => Promise.resolve())

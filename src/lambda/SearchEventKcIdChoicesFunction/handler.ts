@@ -1,6 +1,6 @@
 import type { JsonEventType, Organizer } from '../../types'
 import type { KcIdLookupCriteria } from '../lib/kcTrial'
-import { isOfficialEventType } from '../../lib/event'
+import { getEventSeason, isOfficialEventType } from '../../lib/event'
 import { kcFormatOfEventType } from '../../lib/kennelliittoResults'
 import { CONFIG } from '../config'
 import { authorizeWithMemberOf } from '../lib/auth'
@@ -21,6 +21,9 @@ const searchEventKcIdChoicesLambda = lambda('searchEventKcIdChoices', async (eve
   const criteria = parseJSONWithFallback<Partial<KcIdLookupCriteria>>(event.body)
   if (!isLookupCriteria(criteria)) {
     throw new LambdaError(400, 'Organizer ID, event type, classes, start date, and end date are required')
+  }
+  if (!getEventSeason(criteria.startDate) || !getEventSeason(criteria.endDate)) {
+    throw new LambdaError(400, 'Start date and end date must be valid dates')
   }
 
   if (!user.admin && !memberOf.includes(criteria.organizer.id)) {

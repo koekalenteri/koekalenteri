@@ -1,5 +1,6 @@
 import type { EventClass, EventState, PublicDogEvent } from '../types'
 import type { AnyObject } from './utils'
+import { startOfFinnishDay } from '../test-utils/finnishDays'
 import {
   eventDates,
   hasEntryEnded,
@@ -22,7 +23,6 @@ import {
   getChanges,
   getPatchChangedIds,
   hasChanges,
-  isDateOnlyString,
   isDateString,
   isEmpty,
   isObject,
@@ -62,8 +62,12 @@ describe('utils', () => {
 
     it('returns each day of the event when it has no classes', () => {
       expect(
-        eventDates({ classes: [] as EventClass[], endDate: new Date(2020, 1, 3), startDate: new Date(2020, 1, 1) })
-      ).toEqual([new Date(2020, 1, 1), new Date(2020, 1, 2), new Date(2020, 1, 3)])
+        eventDates({
+          classes: [] as EventClass[],
+          endDate: startOfFinnishDay('2020-02-03'),
+          startDate: startOfFinnishDay('2020-02-01'),
+        })
+      ).toEqual([startOfFinnishDay('2020-02-01'), startOfFinnishDay('2020-02-02'), startOfFinnishDay('2020-02-03')])
     })
 
     it('returns the unique class dates when the event has classes', () => {
@@ -110,19 +114,6 @@ describe('utils', () => {
     })
   })
 
-  describe('isDateOnlyString', () => {
-    it.each(['2021-05-10', '2016-09-18'])('should return true for valid date-only string: %p', (dateStr) => {
-      expect(isDateOnlyString(dateStr)).toEqual(true)
-    })
-
-    it.each([null, undefined, false, true, [], {}, '', '2021-05-10T00:00:00Z', '2021-13-10', '2021-05-32'])(
-      'should return false for invalid date-only values: %p',
-      (value) => {
-        expect(isDateOnlyString(value)).toEqual(false)
-      }
-    )
-  })
-
   describe('parseDateOnlyString', () => {
     it('should parse date-only strings as local midday to avoid timezone day shifts', () => {
       const result = parseDateOnlyString('2021-05-10')
@@ -148,6 +139,14 @@ describe('utils', () => {
         pvm: new Date('2021-05-10T09:05:12.000Z'),
       })
       expect(parseJSON('{"date":"2021-05-10T00:00:00"}').date).toBeInstanceOf(Date)
+    })
+
+    it("revives the Kennel Club's empty birth date into the year-1 Date the form expects (KOE-1545)", () => {
+      // GetDogFunction stores `syntymäaika` as it comes; a dog with no birthday has 0001-01-01T00:00:00.
+      const parsed = parseJSON('{"dob":"0001-01-01T00:00:00"}')
+
+      expect(parsed.dob).toBeInstanceOf(Date)
+      expect(parsed.dob.getFullYear()).toBe(1)
     })
 
     it('should revive date-only strings as local calendar dates', () => {
@@ -188,12 +187,12 @@ describe('utils', () => {
     it('falls back to the event dates for a classless event, keyed by its event type', () => {
       const event = {
         classes: [] as EventClass[],
-        endDate: new Date(2020, 1, 2),
+        endDate: startOfFinnishDay('2020-02-02'),
         eventType: 'NOU',
-        startDate: new Date(2020, 1, 1),
+        startDate: startOfFinnishDay('2020-02-01'),
       } as PublicDogEvent
 
-      expect(uniqueClassDates(event, 'NOU')).toEqual([new Date(2020, 1, 1), new Date(2020, 1, 2)])
+      expect(uniqueClassDates(event, 'NOU')).toEqual([startOfFinnishDay('2020-02-01'), startOfFinnishDay('2020-02-02')])
     })
 
     it('should return each possible registration date for event without classes', () => {

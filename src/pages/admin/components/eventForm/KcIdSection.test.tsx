@@ -10,9 +10,10 @@ import { TestProvider as Provider } from 'test-utils/AtomProvider'
 import { eventWithStaticDates } from '@/__mockData__/events'
 import * as eventApi from '@/api/event'
 import { locales } from '@/i18n'
-import { TIME_ZONE, zonedDateString } from '@/i18n/dates'
+import { TIME_ZONE } from '@/lib/day'
 import { patchMerge } from '@/lib/utils'
 import { idTokenAtom } from '@/pages/state'
+import { finnishDayOf } from '@/test-utils/finnishDays'
 import { flushPromises, renderWithUserEvents } from '@/test-utils/utils'
 import { adminEventsAtom } from '../../state'
 import KcIdSection from './KcIdSection'
@@ -149,8 +150,8 @@ describe('KcIdSection', () => {
       }),
       kcGuid: 'guid-222',
     })
-    expect(zonedDateString(changeHandler.mock.lastCall?.[0].kcEvent.startDate)).toEqual('2026-07-01')
-    expect(zonedDateString(changeHandler.mock.lastCall?.[0].kcEvent.endDate)).toEqual('2026-07-02')
+    expect(finnishDayOf(changeHandler.mock.lastCall?.[0].kcEvent.startDate)).toEqual('2026-07-01')
+    expect(finnishDayOf(changeHandler.mock.lastCall?.[0].kcEvent.endDate)).toEqual('2026-07-02')
     expect(enqueueSnackbar).toHaveBeenCalledWith('event.kcIdSelected', { variant: 'success' })
   })
 

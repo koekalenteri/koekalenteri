@@ -12,8 +12,8 @@ import Typography from '@mui/material/Typography'
 import { enqueueSnackbar } from 'notistack'
 import { useTranslation } from 'react-i18next'
 import { refusalCode } from '@/api/http'
-import { zonedParseDate } from '@/i18n/dates'
 import { errorSnackbarOptions } from '@/lib/client/snackbar'
+import { dayStart, TIME_ZONE } from '@/lib/day'
 import {
   getClassDays,
   getPublishedStartNumbersSlots,
@@ -60,7 +60,7 @@ interface ClassDay {
 /** The days a class runs, one per class entry — or the event's own days where it has no classes. */
 const classDays = (event: ConfirmedEvent, className: string): ClassDay[] =>
   getClassDays(event, event.classes.length ? className : undefined).map((key) => ({
-    date: zonedParseDate(key),
+    date: dayStart(key, TIME_ZONE),
     key,
   }))
 
@@ -221,7 +221,7 @@ const StartNumbersPublishing = ({
                   >
                     {t('eventManagement.startList.numbersPublishedDays', {
                       days: published
-                        .map((slot) => scopeLabel(t, { date: zonedParseDate(slot.date), time: slot.time }, true))
+                        .map((slot) => scopeLabel(t, { date: dayStart(slot.date, TIME_ZONE), time: slot.time }, true))
                         .join(', '),
                     })}
                   </Typography>

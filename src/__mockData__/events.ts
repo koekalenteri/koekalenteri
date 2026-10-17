@@ -1,14 +1,15 @@
-import type { ConfirmedEvent } from '../types'
-import { addDays, parseISO } from 'date-fns'
-import { zonedDateString, zonedEndOfDay, zonedStartOfDay } from '../i18n/dates'
+import type { ConfirmedEvent, DayKey } from '../types'
+import { addDays, dayEnd, dayOf, dayStart, TIME_ZONE } from '../lib/day'
 import { emptyEvent } from './emptyEvent'
 
-// IMPORTANT: derive "today" using the app/event timezone (Europe/Helsinki).
-// Using `Date.toISOString().slice(0, 10)` would key by *UTC day* and flips at 00:00Z,
-// which makes entryOpen/entryUpcoming and snapshots change depending on the hour.
-const isoDay = zonedDateString(new Date())
-const parseDate = (iso: string) => zonedStartOfDay(parseISO(`${iso}T12:00:00Z`))
-const today = parseDate(isoDay)
+// "Today" is the Finnish day, as the app reads it, and the days around it are counted as Finnish days:
+// keyed by the UTC day the fixtures flipped at 00:00Z, and stepped by 24 hours they drifted an hour
+// across a change of time, onto the wrong Finnish day.
+const todayKey = dayOf(new Date(), TIME_ZONE)
+/** The Finnish midnight `days` days from today. */
+const day = (days: number) => dayStart(addDays(todayKey, days), TIME_ZONE)
+const parseDate = (iso: DayKey) => dayStart(iso, TIME_ZONE)
+const today = day(0)
 
 export const eventWithStaticDates: ConfirmedEvent = {
   ...emptyEvent,
@@ -20,7 +21,7 @@ export const eventWithStaticDates: ConfirmedEvent = {
     { date: parseDate('2021-02-11'), time: 'ip' },
   ],
   endDate: parseDate('2021-02-11'),
-  entryEndDate: zonedEndOfDay(parseDate('2021-02-07')),
+  entryEndDate: dayEnd('2021-02-07', TIME_ZONE),
   entryStartDate: parseDate('2021-02-01'),
   eventType: 'NOU',
   id: 'test1',
@@ -64,69 +65,69 @@ export const eventWithStaticDatesAnd3Classes: ConfirmedEvent = {
 
 export const eventWithEntryOpen: ConfirmedEvent = {
   ...emptyEvent,
-  classes: [{ class: 'VOI', date: addDays(today, 14), entries: 7 }],
-  endDate: addDays(today, 15),
+  classes: [{ class: 'VOI', date: day(14), entries: 7 }],
+  endDate: day(15),
   entries: 7,
-  entryEndDate: addDays(today, 8), // over week from today
+  entryEndDate: day(8), // over week from today
   entryStartDate: today, // entry starts today
   eventType: 'NOWT',
   id: 'test3',
   judges: [{ id: 223, name: 'Tuomari 2' }],
   places: 10,
-  startDate: addDays(today, 14),
+  startDate: day(14),
 }
 
 export const eventWithEntryOpenButNoEntries: ConfirmedEvent = {
   ...emptyEvent,
-  classes: [{ class: 'VOI', date: addDays(today, 14) }],
-  endDate: addDays(today, 15),
-  entryEndDate: addDays(today, 8), // over week from today
+  classes: [{ class: 'VOI', date: day(14) }],
+  endDate: day(15),
+  entryEndDate: day(8), // over week from today
   entryStartDate: today, // entry starts today
   eventType: 'NOWT',
   id: 'test3',
   judges: [{ id: 223, name: 'Tuomari 2' }],
   places: 10,
-  startDate: addDays(today, 14),
+  startDate: day(14),
 }
 
 export const eventWithEntryNotYetOpen: ConfirmedEvent = {
   ...emptyEvent,
-  classes: [{ class: 'AVO', date: addDays(today, 14), judge: { id: 223, name: 'Tuomari 2' } }],
-  endDate: addDays(today, 15),
+  classes: [{ class: 'AVO', date: day(14), judge: { id: 223, name: 'Tuomari 2' } }],
+  endDate: day(15),
   entries: undefined,
-  entryEndDate: addDays(today, 8),
-  entryStartDate: addDays(today, 1), // entry not open yet
+  entryEndDate: day(8),
+  entryStartDate: day(1), // entry not open yet
   eventType: 'type4',
   id: 'test4',
   judges: [{ id: 223, name: 'Tuomari 2' }],
   places: 10,
-  startDate: addDays(today, 14),
+  startDate: day(14),
 }
 
 export const eventWithEntryClosing: ConfirmedEvent = {
   ...emptyEvent,
-  classes: [{ class: 'ALO', date: addDays(today, 14) }],
-  endDate: addDays(today, 25),
+  classes: [{ class: 'ALO', date: day(14) }],
+  endDate: day(25),
   entries: 10,
-  entryEndDate: addDays(today, 6),
-  entryStartDate: addDays(today, -1),
+  entryEndDate: day(6),
+  entryStartDate: day(-1),
   eventType: 'type5',
   id: 'test5',
   judges: [{ id: 223, name: 'Tuomari 2' }],
   places: 10,
-  startDate: addDays(today, 24),
+  startDate: day(24),
 }
 
 export const eventWithEntryClosed: ConfirmedEvent = {
   ...emptyEvent,
   classes: [
-    { class: 'ALO', date: addDays(today, 7), entries: 2, places: 3 },
-    { class: 'AVO', date: addDays(today, 7), entries: 2, places: 1 },
+    { class: 'ALO', date: day(7), entries: 2, places: 3 },
+    { class: 'AVO', date: day(7), entries: 2, places: 1 },
   ],
-  endDate: addDays(today, 7),
+  endDate: day(7),
   entries: 4,
-  entryEndDate: addDays(today, -28),
-  entryStartDate: addDays(today, -14),
+  entryEndDate: day(-28),
+  entryStartDate: day(-14),
   eventType: 'NOME-B',
   id: 'testEntryClosed',
   judges: [
@@ -134,19 +135,19 @@ export const eventWithEntryClosed: ConfirmedEvent = {
     { id: 223, name: 'Tuomari 2' },
   ],
   places: 4,
-  startDate: addDays(today, 7),
+  startDate: day(7),
 }
 
 export const eventWithParticipantsInvited: ConfirmedEvent = {
   ...emptyEvent,
   classes: [
-    { class: 'ALO', date: addDays(today, 7), entries: 2, members: 1, places: 3 },
-    { class: 'AVO', date: addDays(today, 7), entries: 2, places: 1 },
+    { class: 'ALO', date: day(7), entries: 2, members: 1, places: 3 },
+    { class: 'AVO', date: day(7), entries: 2, places: 1 },
   ],
-  endDate: addDays(today, 7),
+  endDate: day(7),
   entries: 4,
-  entryEndDate: addDays(today, -28),
-  entryStartDate: addDays(today, -14),
+  entryEndDate: day(-28),
+  entryStartDate: day(-14),
   eventType: 'NOME-B',
   id: 'testInvited',
   judges: [
@@ -154,20 +155,20 @@ export const eventWithParticipantsInvited: ConfirmedEvent = {
     { id: 223, name: 'Tuomari 2' },
   ],
   places: 4,
-  startDate: addDays(today, 7),
+  startDate: day(7),
   state: 'invited',
 }
 
 export const eventWithALOClassInvited: ConfirmedEvent = {
   ...emptyEvent,
   classes: [
-    { class: 'ALO', date: addDays(today, 7), entries: 2, places: 3, state: 'invited' },
-    { class: 'AVO', date: addDays(today, 7), entries: 2, places: 1 },
+    { class: 'ALO', date: day(7), entries: 2, places: 3, state: 'invited' },
+    { class: 'AVO', date: day(7), entries: 2, places: 1 },
   ],
-  endDate: addDays(today, 7),
+  endDate: day(7),
   entries: 4,
-  entryEndDate: addDays(today, -28),
-  entryStartDate: addDays(today, -14),
+  entryEndDate: day(-28),
+  entryStartDate: day(-14),
   eventType: 'NOME-B',
   id: 'testALOInvited',
   judges: [
@@ -175,6 +176,6 @@ export const eventWithALOClassInvited: ConfirmedEvent = {
     { id: 223, name: 'Tuomari 2' },
   ],
   places: 4,
-  startDate: addDays(today, 7),
+  startDate: day(7),
   state: 'picked',
 }

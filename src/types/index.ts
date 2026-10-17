@@ -1,3 +1,4 @@
+export type * from './Day'
 export * from './Cost'
 export * from './countries'
 export * from './Database'
