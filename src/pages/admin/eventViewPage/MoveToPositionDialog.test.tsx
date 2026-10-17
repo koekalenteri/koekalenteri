@@ -139,12 +139,22 @@ describe('MoveToPositionDialog', () => {
     expect(onClose).toHaveBeenCalledTimes(1)
   })
 
-  it('moves non-participant before the selected participant position', async () => {
+  it.each<[string, Pick<Registration, 'cancelled' | 'group'>]>([
+    ['a reserve entry', { group: { key: 'reserve', number: 1 } }],
+    [
+      // KOE-1537: a copied event kept a cancelled entry's participant group key.
+      'a cancelled entry left in a participant group',
+      {
+        cancelled: true,
+        group: { date: new Date('2026-08-14T21:00:00.000Z'), key: '2026-08-15-ap', number: 1, time: 'ap' },
+      },
+    ],
+  ])('moves %s before the selected participant position', async (_name, placement) => {
     const onClose = vi.fn()
     const onMove = vi.fn().mockResolvedValue(undefined)
     const registration: Registration = {
       ...registrationWithStaticDates,
-      group: { key: 'reserve', number: 1 },
+      ...placement,
     }
 
     const { user } = renderWithUserEvents(

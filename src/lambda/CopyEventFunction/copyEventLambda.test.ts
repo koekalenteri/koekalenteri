@@ -277,6 +277,116 @@ describe('copyEventHandler', () => {
     )
   })
 
+  it('shifts the group date of every entry and gives a participant group key only to a start (KOE-1537)', async () => {
+    setEventBody(event, { id: 'event123', startDate: '2025-07-01T00:00:00.000Z' })
+    mockGetEvent.mockResolvedValueOnce({
+      classes: [],
+      endDate: '2025-06-12T00:00:00.000Z',
+      id: 'event123',
+      name: 'Original Event',
+      startDate: '2025-06-10T00:00:00.000Z',
+    })
+    mockNanoid.mockReturnValueOnce('newid123')
+    mockQuery.mockResolvedValueOnce([
+      {
+        dates: [{ date: '2025-06-10T00:00:00.000Z', time: 'kp' }],
+        eventId: 'event123',
+        group: { date: '2025-06-10T00:00:00.000Z', key: '2025-06-10-kp', number: 1, time: 'kp' },
+        id: 'starter',
+      },
+      {
+        cancelled: true,
+        dates: [{ date: '2025-06-10T00:00:00.000Z', time: 'kp' }],
+        eventId: 'event123',
+        group: { date: '2025-06-10T00:00:00.000Z', key: 'cancelled', number: 2, time: 'kp' },
+        id: 'cancelled',
+      },
+      {
+        // The legacy state: cancelled, but the key still names the source's day.
+        cancelled: true,
+        dates: [{ date: '2025-06-10T00:00:00.000Z', time: 'kp' }],
+        eventId: 'event123',
+        group: { date: '2025-06-10T00:00:00.000Z', key: '2025-06-10-kp', number: 3, time: 'kp' },
+        id: 'legacy-cancelled',
+      },
+      {
+        dates: [{ date: '2025-06-10T00:00:00.000Z', time: 'kp' }],
+        eventId: 'event123',
+        group: { date: '2025-06-10T00:00:00.000Z', key: 'reserve', number: 1, time: 'kp' },
+        id: 'reserve',
+      },
+    ])
+
+    await copyEventHandler(event)
+
+    expect(mockBatchWrite).toHaveBeenCalledWith(
+      [
+        {
+          dates: [{ date: '2025-07-01T00:00:00.000Z', time: 'kp' }],
+          eventId: 'newid123',
+          group: { date: '2025-07-01T00:00:00.000Z', key: '2025-07-01-kp', number: 1, time: 'kp' },
+          id: 'starter',
+        },
+        {
+          cancelled: true,
+          dates: [{ date: '2025-07-01T00:00:00.000Z', time: 'kp' }],
+          eventId: 'newid123',
+          group: { date: '2025-07-01T00:00:00.000Z', key: 'cancelled', number: 2, time: 'kp' },
+          id: 'cancelled',
+        },
+        {
+          cancelled: true,
+          dates: [{ date: '2025-07-01T00:00:00.000Z', time: 'kp' }],
+          eventId: 'newid123',
+          group: { date: '2025-07-01T00:00:00.000Z', key: 'cancelled', number: 3, time: 'kp' },
+          id: 'legacy-cancelled',
+        },
+        {
+          dates: [{ date: '2025-07-01T00:00:00.000Z', time: 'kp' }],
+          eventId: 'newid123',
+          group: { date: '2025-07-01T00:00:00.000Z', key: 'reserve', number: 1, time: 'kp' },
+          id: 'reserve',
+        },
+      ],
+      'registration-table-not-found-in-env'
+    )
+  })
+
+  it("keys a copied start by the trial's day in Finnish time, not the UTC day (KOE-1537)", async () => {
+    setEventBody(event, { id: 'event123', startDate: '2026-08-21T21:00:00.000Z' })
+    mockGetEvent.mockResolvedValueOnce({
+      classes: [],
+      endDate: '2026-08-14T21:00:00.000Z',
+      id: 'event123',
+      name: 'Original Event',
+      startDate: '2026-08-14T21:00:00.000Z',
+    })
+    mockNanoid.mockReturnValueOnce('newid123')
+    mockQuery.mockResolvedValueOnce([
+      {
+        dates: [{ date: '2026-08-14T21:00:00.000Z', time: 'ap' }],
+        eventId: 'event123',
+        // 21:00Z on the 14th is the morning of the 15th in Finland.
+        group: { date: '2026-08-14T21:00:00.000Z', key: '2026-08-15-ap', number: 1, time: 'ap' },
+        id: 'starter',
+      },
+    ])
+
+    await copyEventHandler(event)
+
+    expect(mockBatchWrite).toHaveBeenCalledWith(
+      [
+        {
+          dates: [{ date: '2026-08-21T21:00:00.000Z', time: 'ap' }],
+          eventId: 'newid123',
+          group: { date: '2026-08-21T21:00:00.000Z', key: '2026-08-22-ap', number: 1, time: 'ap' },
+          id: 'starter',
+        },
+      ],
+      'registration-table-not-found-in-env'
+    )
+  })
+
   it('returns 500 if getEvent throws', async () => {
     const user = { name: 'Test User' }
     mockAuthorize.mockResolvedValueOnce(user)

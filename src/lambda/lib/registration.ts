@@ -20,9 +20,9 @@ import {
 import { objectsDiffer } from '../../lib/diff'
 import { getParticipantPaymentState } from '../../lib/payment'
 import {
-  GROUP_KEY_RESERVE,
   getRegistrationClass,
-  isParticipantGroup,
+  getRegistrationGroupKey,
+  isStarter,
   PUBLIC_REGISTRATION_FIELDS,
   PUBLIC_REGISTRATION_UPDATE_FIELDS,
   resolveOwnerPerson,
@@ -539,9 +539,11 @@ export const groupRegistrationsByClassAndGroup = (
     result[classKey] = {}
 
     for (const reg of classRegs) {
-      if (!isParticipantGroup(reg.group?.key)) continue
+      // A cancelled entry can still carry a participant group key (a copied event, rows from before
+      // 27.7.2026); it never gets the message, so it must not hold the class back (KOE-1537).
+      if (!isStarter(reg)) continue
 
-      const groupKey = reg.group?.key ?? GROUP_KEY_RESERVE
+      const groupKey = getRegistrationGroupKey(reg)
       result[classKey][groupKey] = result[classKey][groupKey] || []
       result[classKey][groupKey].push(reg)
     }
