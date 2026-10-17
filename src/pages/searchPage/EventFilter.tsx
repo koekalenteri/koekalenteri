@@ -56,8 +56,8 @@ export const EventFilter = ({ judges, organizers, eventTypes, eventClasses, filt
   const handleDateRangeChange = useCallback(
     (start: DateValue, end: DateValue) =>
       setFilter({
-        end: end ? new Date(zonedEndOfDay(end).getTime()) : null,
-        start: start ? new Date(zonedStartOfDay(start).getTime()) : null,
+        end: end ? new Date(zonedEndOfDay(end)) : null,
+        start: start ? new Date(zonedStartOfDay(start)) : null,
       }),
     [setFilter]
   )
