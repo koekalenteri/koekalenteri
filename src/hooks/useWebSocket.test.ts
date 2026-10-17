@@ -467,14 +467,14 @@ describe('useWebSocket', () => {
       mockWebSocketInstance.onmessage?.({
         data: JSON.stringify({
           eventId: 'event-1',
-          patch: { paymentStatus: 'SUCCESS' },
+          patch: { paidAt: '2026-05-03T08:00:00.000Z', paymentStatus: 'SUCCESS' },
           registrationId: 'registration-1',
           scope: 'participant:registration-patch',
         }),
       })
     })
 
-    expect(listener).toHaveBeenCalledWith({ paymentStatus: 'SUCCESS' })
+    expect(listener).toHaveBeenCalledWith({ paidAt: new Date('2026-05-03T08:00:00.000Z'), paymentStatus: 'SUCCESS' })
   })
 
   it('ignores participant registration patches for another registration', () => {
@@ -514,7 +514,13 @@ describe('useWebSocket', () => {
       mockWebSocketInstance.onmessage?.({
         data: JSON.stringify({
           eventId: 'event-1',
-          participants: [{ class: 'ALO', dog: { name: 'Aapo', regNo: 'REG1' }, group: { key: 'ALO', number: 1 } }],
+          participants: [
+            {
+              class: 'ALO',
+              dog: { name: 'Aapo', regNo: 'REG1' },
+              group: { date: '2026-09-11T21:00:00.000Z', key: 'ALO', number: 1 },
+            },
+          ],
           scope: 'public:start-list',
           version: 200,
         }),
@@ -523,7 +529,13 @@ describe('useWebSocket', () => {
 
     // The version goes with the rows: the page orders them against its fetches by it (KOE-1516).
     expect(listener).toHaveBeenCalledWith(
-      [{ class: 'ALO', dog: { name: 'Aapo', regNo: 'REG1' }, group: { key: 'ALO', number: 1 } }],
+      [
+        {
+          class: 'ALO',
+          dog: { name: 'Aapo', regNo: 'REG1' },
+          group: { date: new Date('2026-09-11T21:00:00.000Z'), key: 'ALO', number: 1 },
+        },
+      ],
       200,
       'event-1'
     )
@@ -986,12 +998,18 @@ describe('useWebSocket', () => {
 
     act(() => {
       mockWebSocketInstance.onmessage?.({
-        data: JSON.stringify({ entries: 2, eventId: 'event-1', scope: 'public:event-patch' }),
+        data: JSON.stringify({
+          entries: 2,
+          eventId: 'event-1',
+          scope: 'public:event-patch',
+          startDate: '2026-03-09T22:00:00.000Z',
+        }),
       })
     })
 
     await waitFor(() => {
       expect(result.current.events[0]?.entries).toBe(2)
+      expect(result.current.events[0]?.startDate).toEqual(new Date('2026-03-09T22:00:00.000Z'))
       expect(result.current.recentlyUpdated['public:event:event-1']).toEqual(expect.any(Number))
     })
   })

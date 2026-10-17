@@ -1,7 +1,7 @@
 import { API_BASE_URL } from '../routeConfig'
 import fetchMock from '../test-utils/fetchMock'
 import { getEmailTemplates } from './email'
-import { getEventTypes } from './eventType'
+import { getEventTypes, putEventType } from './eventType'
 import { getJudges } from './judge'
 import { getOfficials } from './official'
 import { getUsers } from './user'
@@ -69,5 +69,14 @@ describe('the collections with stamps in their model', () => {
       deletedIds: ['x'],
       items: [modelEventType],
     })
+
+    fetchMock.mockResponseOnce(JSON.stringify(wireEventType))
+    await expect(
+      putEventType({ description: wireEventType.description, eventType: 'NOME-B' }, 'token')
+    ).resolves.toEqual(modelEventType)
+    expect(fetchMock).toHaveBeenLastCalledWith(
+      `${API_BASE_URL}/admin/eventType/`,
+      expect.objectContaining({ method: 'POST' })
+    )
   })
 })

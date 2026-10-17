@@ -168,9 +168,10 @@ export const timestamp = (value: string): Date => new Date(value)
 /**
  * A stamp Kennelliitto writes without a zone (`2026-06-28T00:00:00`, or a bare day) as the Finnish
  * local time it is: read as the browser's local time, Tokyo would see the day before. A stamp that
- * carries a zone keeps it.
+ * carries a zone keeps it, so a value the form itself wrote is unaffected. A plain `Date`, not the
+ * `TZDate` the parse answers with, so the model holds one kind of date.
  */
-export const finnishTimestamp = (value: string): Date => new Date(parseISO(value, { in: tz(TIME_ZONE) }).getTime())
+const finnishTimestamp = (value: string): Date => new Date(+parseISO(value, { in: tz(TIME_ZONE) }))
 
 /**
  * `converter<J, M>()(spec)`: the wire and model types first, the spec in a call of its own, so that
@@ -240,14 +241,16 @@ export const toAuditRecord = converter<JsonAuditRecord, AuditRecord>()({ timesta
 
 export const toEventStatsItem = converter<JsonEventStatsItem, EventStatsItem>()({ date: timestamp })
 
-const toTestResult = converter<JsonTestResult, TestResult>()({ date: timestamp })
+/** A result's day comes from Kennelliitto as it wrote it (`aika`), zone-less; a manual result's day the form wrote, zoned. */
+const toTestResult = converter<JsonTestResult, TestResult>()({ date: finnishTimestamp })
 
-const toQualifyingResult = converter<JsonQualifyingResult, QualifyingResult>()({ date: timestamp })
+const toQualifyingResult = converter<JsonQualifyingResult, QualifyingResult>()({ date: finnishTimestamp })
 
-export const toManualTestResult = converter<JsonManualTestResult, ManualTestResult>()({ date: timestamp })
+export const toManualTestResult = converter<JsonManualTestResult, ManualTestResult>()({ date: finnishTimestamp })
 
+/** The birthday comes from Kennelliitto as it wrote it (`syntymäaika`, zone-less) or from the form (zoned). */
 export const toDog = converter<JsonDog, Dog>()({
-  dob: timestamp,
+  dob: finnishTimestamp,
   refreshDate: timestamp,
   results: arrayOf(toTestResult),
 })

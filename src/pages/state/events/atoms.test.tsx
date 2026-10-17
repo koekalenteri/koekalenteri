@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react'
 import { renderHook } from '@testing-library/react'
 import { Provider, useAtomValue } from 'jotai'
-import { eventMetadataAtom, eventsAtom } from './atoms'
+import { EVENT_METADATA_INVALIDATED_STORAGE_KEY, eventMetadataAtom, eventsAtom } from './atoms'
 
 const validEvent = {
   classes: [],
@@ -25,6 +25,29 @@ const wrapper = ({ children }: { readonly children: ReactNode }) => <Provider>{c
 describe('eventsAtom storage', () => {
   beforeEach(() => {
     localStorage.clear()
+  })
+
+  afterEach(() => vi.restoreAllMocks())
+
+  it('reads the stored calendar through its converter before refining it, and writes nothing back (KOE-1546)', () => {
+    localStorage.setItem(
+      'events',
+      JSON.stringify([
+        { ...validEvent, classes: [{ class: 'ALO', date: validEvent.startDate }], description: '2026-01-01' },
+      ])
+    )
+    const setItem = vi.spyOn(Storage.prototype, 'setItem')
+
+    const { result } = renderHook(() => useAtomValue(eventsAtom), { wrapper })
+
+    // Refined before converting, `isStoredPublicDogEvent` would drop the event for its string dates
+    // and invalidate the metadata on every load.
+    expect(result.current).toHaveLength(1)
+    expect(result.current[0]?.startDate).toEqual(new Date(validEvent.startDate))
+    expect(result.current[0]?.classes[0]?.date).toEqual(new Date(validEvent.startDate))
+    expect(result.current[0]?.description).toBe('2026-01-01')
+    expect(setItem).not.toHaveBeenCalled()
+    expect(localStorage.getItem(EVENT_METADATA_INVALIDATED_STORAGE_KEY)).toBeNull()
   })
 
   it('drops malformed stored public events and invalidates event metadata', () => {

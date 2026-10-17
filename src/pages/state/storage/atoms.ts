@@ -57,6 +57,7 @@ export const atomWithStoredValue = <T, J = unknown>(
       storage.removeItem(key)
       return fallback()
     }
+    // Without `revive` the model holds no Date (`ReviveOption`), so the parsed JSON is the model.
     const refined = options?.refine ? options.refine(revived) : (revived as T)
     if (refined === undefined) {
       storage.removeItem(key)

@@ -434,16 +434,11 @@ export type ClassStartNumbers = {
 }
 
 /** What a start number save changed: the dog's frozen placement, or null where a cancelled holder yielded it. */
-export interface StartNumberPatch {
-  id: string
-  startGroup?: RegistrationGroup | null
-}
-
-/** The same patch as the server writes it. */
 export interface JsonStartNumberPatch {
   id: string
   startGroup?: JsonRegistrationGroup | null
 }
+export type StartNumberPatch = ReplaceOptional<JsonStartNumberPatch, 'startGroup', RegistrationGroup | null>
 
 /**
  * How many tasks one class runs at a post, where that differs from the post's own layout.
