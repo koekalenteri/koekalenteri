@@ -16,14 +16,11 @@ import { errorSnackbarOptions } from '@/lib/client/snackbar'
 import { eventRegistrationDateKey } from '@/lib/event'
 import { GROUP_KEY_RESERVE, getRegistrationGroupKey } from '@/lib/registration'
 import { determineChangesFromDrop } from './dnd'
-import { listKey } from './helpers'
 import { confirmMoveToParticipants } from './moveConfirmation'
 
 interface UseDnDHandlersArgs {
   disabled?: boolean
   event: DogEvent
-  /** The grid's participant groups: the drop's siblings are the rows the grid lists in the target group. */
-  groups: RegistrationGroup[]
   registrations: Registration[]
   state?: EventClassState | EventState
   canArrangeReserve: boolean
@@ -44,7 +41,6 @@ const findAnchor = (change: Pick<Registration, 'group' | 'id'>, registrations: R
 
 export const useDnDHandlers = ({
   event,
-  groups,
   registrations,
   state,
   disabled,
@@ -76,10 +72,12 @@ export const useDnDHandlers = ({
 
     setSelectedRegistrationId?.(reg.id)
 
-    // The siblings are exactly the rows the grid lists in this group (listKey): a cancelled entry whose
-    // stale key still names the group is not one, and anchoring on it gets the move refused, while a
-    // start whose stored key names the UTC day is (KOE-1537).
-    const regs = registrations.filter((r) => listKey(r, groups) === group.key && r.id !== reg.id)
+    // The server accepts only an anchor whose stored key is the move's key (isInvalidMoveAnchor), so the
+    // siblings are the rows whose stored key names this group. A cancelled entry left with this key is
+    // not one, and neither is a start the grid lists here by its date and time while its stored key
+    // names the UTC day: anchoring on either gets the move refused on every retry (KOE-1537). Making
+    // the grid and the server agree on such rows is a separate issue.
+    const regs = registrations.filter((r) => getRegistrationGroupKey(r) === group.key && r.id !== reg.id)
     const save = determineChangesFromDrop(item, group, reg, regs, canArrangeReserve)
 
     if (save.length) {

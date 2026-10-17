@@ -71,7 +71,6 @@ describe('useDnDHandlers', () => {
     canArrangeReserve: true,
     confirm: mockConfirm,
     event: eventWithStaticDatesAnd3Classes,
-    groups: [mockGroup],
     onCancelOpen: mockOnCancelOpen,
     registrations: mockRegistrations,
     saveGroups: mockSaveGroups,
@@ -250,8 +249,10 @@ describe('useDnDHandlers', () => {
       ])
     })
 
-    it('counts a start whose stored key names the UTC day among the rows the grid lists in its group (KOE-1537)', async () => {
-      // 21:00Z on the 2nd is the evening start of the 3rd in Finland: the grid lists the dog there.
+    it('does not anchor a drop on a start whose stored key names the UTC day (KOE-1537)', async () => {
+      // 21:00Z on the 2nd is the evening start of the 3rd in Finland: the grid lists the dog in the 3rd's
+      // group, but the server accepts only an anchor whose stored key is the move's key, so this one
+      // would get the move refused on every retry.
       const gridGroup: RegistrationGroup = {
         date: new Date('2024-08-02T21:00:00.000Z'),
         key: '2024-08-03-ip',
@@ -263,14 +264,21 @@ describe('useDnDHandlers', () => {
         group: { date: new Date('2024-08-02T21:00:00.000Z'), key: '2024-08-02-ip', number: 1, time: 'ip' },
         id: 'utc-keyed',
       }
+      const mockChanges: RegistrationGroupInfo[] = [
+        { eventId: 'event1', group: { key: '2024-08-03-ip', number: 0.5 }, id: 'reg1' },
+      ]
+      ;(determineChangesFromDrop as import('vitest').Mock).mockReturnValue(mockChanges)
 
       const { result } = renderHook(() =>
-        useDnDHandlers({ ...defaultProps, groups: [gridGroup], registrations: [mockRegistration, utcKeyed] })
+        useDnDHandlers({ ...defaultProps, registrations: [mockRegistration, utcKeyed] })
       )
 
       await result.current.handleDrop(gridGroup)(mockDragItem)
 
-      expect(determineChangesFromDrop).toHaveBeenCalledWith(mockDragItem, gridGroup, mockRegistration, [utcKeyed], true)
+      expect(determineChangesFromDrop).toHaveBeenCalledWith(mockDragItem, gridGroup, mockRegistration, [], true)
+      expect(mockSaveGroups).toHaveBeenCalledWith('event1', [
+        { cancelReason: undefined, group: { date: undefined, key: '2024-08-03-ip', time: undefined }, id: 'reg1' },
+      ])
     })
 
     it('should call onCancelOpen when a single cancelled change is returned', async () => {
