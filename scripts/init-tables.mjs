@@ -28,10 +28,10 @@ import {
   waitUntilTableExists,
   waitUntilTableNotExists,
 } from '@aws-sdk/client-dynamodb'
+import { DYNAMODB_ENDPOINT as ENDPOINT, LOCAL_ACCESS_KEY } from './lib/local-dynamodb.mjs'
 import { readTableDefinitions } from './lib/tables.mjs'
 
-const ENDPOINT = process.env.DYNAMODB_ENDPOINT ?? 'http://127.0.0.1:8000'
-const ACCESS_KEY = process.env.DYNAMODB_LOCAL_ACCESS_KEY ?? 'local'
+const ACCESS_KEY = process.env.DYNAMODB_LOCAL_ACCESS_KEY ?? LOCAL_ACCESS_KEY
 const DATA_DIR = './_test_data_'
 const BATCH_SIZE = 25
 

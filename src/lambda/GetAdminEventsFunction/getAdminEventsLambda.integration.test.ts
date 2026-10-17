@@ -1,10 +1,9 @@
-import type { JsonDogEvent, JsonUser } from '../../types'
+import type { JsonUser } from '../../types'
 import { addDays } from 'date-fns'
 import { vi } from 'vitest'
-import { eventWithParticipantsInvited } from '../../__mockData__/events'
-import { getEventSeason } from '../../lib/event'
+import { freezeClockAt } from '../../test-utils/freezeClock'
 import { constructAPIGwEvent } from '../test-utils/helpers'
-import { uniqueId } from '../test-utils/integration'
+import { idsIn, storedEvent, storedUser, uniqueId } from '../test-utils/integration'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 
 // Authorization is the one boundary replaced: who asks decides which index is read.
@@ -13,38 +12,12 @@ vi.doMock('../lib/auth', () => ({ authorizeWithMemberOf: mockAuthorizeWithMember
 
 const { default: getAdminEventsLambda } = await import('./handler')
 
-const user = (overrides: Partial<JsonUser> = {}): JsonUser => {
-  const id = uniqueId('user')
-  return {
-    createdAt: '2026-01-01T00:00:00.000Z',
-    createdBy: 'test',
-    email: `${id}@example.com`,
-    id,
-    modifiedAt: '2026-01-01T00:00:00.000Z',
-    modifiedBy: 'test',
-    name: `User ${id}`,
-    ...overrides,
-  }
-}
-
-/** A stored event of the given club, in the season the index keys are derived from. */
-const storedEvent = (organizerId: string, overrides: Partial<JsonDogEvent> = {}): JsonDogEvent => {
-  const startDate = overrides.startDate ?? addDays(new Date(), 14).toISOString()
-  return {
-    ...JSON.parse(JSON.stringify(eventWithParticipantsInvited)),
-    endDate: startDate,
-    id: uniqueId('event'),
-    organizer: { id: organizerId, name: `Club ${organizerId}` },
-    organizerId,
-    season: getEventSeason(startDate),
-    startDate,
-    state: 'confirmed',
-    updatedAt: new Date().toISOString(),
-    ...overrides,
-  }
-}
-
-const idsIn = (body: string) => JSON.parse(body).map((event: { id: string }) => event.id)
+// Pinned mid-year: an event two weeks ahead belongs to next season from 18.12 on, and the handler's
+// `since` query reads seasons only up to the current year, so from then until New Year the changed
+// event is not found. That is a handler bug (KOE-1555), not this test's; the clock keeps the test
+// about the index until the handler is fixed.
+const now = freezeClockAt('2026-06-15')
+const inDays = (days: number) => addDays(new Date(now), days).toISOString()
 
 describe('getAdminEventsLambda against DynamoDB-local', () => {
   const client = new CustomDynamoClient('EventTable')
@@ -55,12 +28,12 @@ describe('getAdminEventsLambda against DynamoDB-local', () => {
   })
 
   it("reads a club administrator's own events through gsiOrganizerStartDate, in start order", async () => {
-    const own = uniqueId('org')
-    const later = storedEvent(own, { startDate: addDays(new Date(), 30).toISOString() })
-    const earlier = storedEvent(own, { startDate: addDays(new Date(), 10).toISOString() })
-    const other = storedEvent(uniqueId('org'))
+    const organizerId = uniqueId('org')
+    const later = storedEvent({ organizerId, startDate: inDays(30), updatedAt: inDays(0) })
+    const earlier = storedEvent({ organizerId, startDate: inDays(10), updatedAt: inDays(0) })
+    const other = storedEvent({ startDate: inDays(14), updatedAt: inDays(0) })
     await client.batchWrite([later, earlier, other])
-    mockAuthorizeWithMemberOf.mockResolvedValue({ memberOf: [own], user: user() })
+    mockAuthorizeWithMemberOf.mockResolvedValue({ memberOf: [organizerId], user: storedUser() })
 
     const result = await getAdminEventsLambda(event)
 
@@ -69,9 +42,9 @@ describe('getAdminEventsLambda against DynamoDB-local', () => {
   })
 
   it('walks the seasons through gsiSeasonStartDate for a superadmin', async () => {
-    const own = storedEvent(uniqueId('org'))
+    const own = storedEvent({ startDate: inDays(14), updatedAt: inDays(0) })
     await client.write(own)
-    mockAuthorizeWithMemberOf.mockResolvedValue({ memberOf: [], user: user({ admin: true }) })
+    mockAuthorizeWithMemberOf.mockResolvedValue({ memberOf: [], user: storedUser({ admin: true }) })
 
     const result = await getAdminEventsLambda(event)
 
@@ -80,11 +53,11 @@ describe('getAdminEventsLambda against DynamoDB-local', () => {
   })
 
   it('reads what changed since a moment through gsiSeasonUpdatedAt', async () => {
-    const since = Date.now() - 60_000
-    const changed = storedEvent(uniqueId('org'))
-    const unchanged = storedEvent(uniqueId('org'), { updatedAt: new Date(since - 86_400_000).toISOString() })
+    const since = now - 60_000
+    const changed = storedEvent({ startDate: inDays(14), updatedAt: inDays(0) })
+    const unchanged = storedEvent({ startDate: inDays(14), updatedAt: inDays(-1) })
     await client.batchWrite([changed, unchanged])
-    mockAuthorizeWithMemberOf.mockResolvedValue({ memberOf: [], user: user({ admin: true }) })
+    mockAuthorizeWithMemberOf.mockResolvedValue({ memberOf: [], user: storedUser({ admin: true }) })
 
     const result = await getAdminEventsLambda(constructAPIGwEvent(undefined, { query: { since: String(since) } }))
 

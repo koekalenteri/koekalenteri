@@ -16,26 +16,26 @@ require('../config/env')
 const { spawnSync } = require('node:child_process')
 const path = require('node:path')
 
-const ACCESS_KEY = 'integration'
-
 const main = async () => {
-  const { DYNAMODB_ENDPOINT, tableEnv } = await import('../e2e/env.mjs')
+  const { DYNAMODB_ENDPOINT, INTEGRATION_ACCESS_KEY } = await import('./lib/local-dynamodb.mjs')
+  const { tableEnv } = await import('../e2e/env.mjs')
   const argv = process.argv.slice(2)
   if (!argv.includes('--run')) argv.push('--run')
 
   const env = {
     ...process.env,
     ...tableEnv,
-    // DynamoDB-local keeps one database per access key; the global setup resets this one.
-    AWS_ACCESS_KEY_ID: ACCESS_KEY,
+    AWS_ACCESS_KEY_ID: INTEGRATION_ACCESS_KEY,
     // The lambda wrapper's metrics: without an environment named, the detector probes EC2 metadata.
     AWS_EMF_ENVIRONMENT: 'Local',
+    // Every other AWS client (SES, SSM, ...) is mocked where a test reaches one; one that is not
+    // fails fast against a port nothing listens on instead of calling eu-north-1 under this key.
+    AWS_ENDPOINT_URL: 'http://127.0.0.1:9',
     // The SDK's own variable, read by every DynamoDBClient the lambda code constructs.
     AWS_ENDPOINT_URL_DYNAMODB: DYNAMODB_ENDPOINT,
     AWS_REGION: 'eu-north-1',
-    AWS_SECRET_ACCESS_KEY: ACCESS_KEY,
+    AWS_SECRET_ACCESS_KEY: INTEGRATION_ACCESS_KEY,
     DYNAMODB_ENDPOINT,
-    DYNAMODB_LOCAL_ACCESS_KEY: ACCESS_KEY,
   }
 
   const vitestCli = path.join(path.dirname(require.resolve('vitest/package.json')), 'vitest.mjs')

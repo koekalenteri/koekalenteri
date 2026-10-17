@@ -2,25 +2,17 @@
  * Before the integration tests: the tables exist, empty, with the keys and indexes the templates
  * declare. They are created by the same script as for local development and the browser tests, so
  * a query that names an index or a key the template does not have fails here, not in production
- * (KOE-1369). The reset is safe because `scripts/test-integration.js` runs this under an access
- * key of the tests' own.
+ * (KOE-1369). The reset runs under the integration tests' own access key, set here and nowhere
+ * else, so however this setup is reached the developer's tables stay as they are.
  */
-import { spawnSync } from 'node:child_process'
-
-const endpoint = process.env.DYNAMODB_ENDPOINT ?? 'http://127.0.0.1:8000'
+import { ensureLocalTables, INTEGRATION_ACCESS_KEY } from './lib/local-dynamodb.mjs'
 
 export default async function globalSetup() {
-  try {
-    await fetch(endpoint)
-  } catch {
-    throw new Error(
-      `No DynamoDB at ${endpoint}. Start one, e.g. npm run init-dynamodb, or docker run --rm -d -p 8000:8000 amazon/dynamodb-local, or set DYNAMODB_ENDPOINT.`
-    )
+  // The tests reach the same database only when they run under the same key, which
+  // scripts/test-integration.js sets along with the endpoint and the table names.
+  if (process.env.AWS_ACCESS_KEY_ID !== INTEGRATION_ACCESS_KEY) {
+    throw new Error('The integration tests run through `npm run test-integration`, which sets their environment.')
   }
 
-  const { status } = spawnSync(process.execPath, ['scripts/init-tables.mjs', '--reset', '--no-seed'], {
-    env: { ...process.env, DYNAMODB_ENDPOINT: endpoint },
-    stdio: 'inherit',
-  })
-  if (status !== 0) throw new Error(`init-tables failed with ${status}`)
+  await ensureLocalTables({ accessKey: INTEGRATION_ACCESS_KEY, args: ['--reset', '--no-seed'] })
 }

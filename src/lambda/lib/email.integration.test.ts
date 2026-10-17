@@ -1,6 +1,5 @@
-import type { JsonUser } from '../../types'
 import { vi } from 'vitest'
-import { uniqueId } from '../test-utils/integration'
+import { storedUser, uniqueId } from '../test-utils/integration'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 
 const mockSend = vi.fn<() => Promise<void>>()
@@ -26,20 +25,6 @@ describe('sendTemplatedMail outside prod against DynamoDB-local', () => {
   const client = new CustomDynamoClient('UserTable')
   const { stageName } = CONFIG
 
-  const user = (overrides: Partial<JsonUser> = {}): JsonUser => {
-    const id = uniqueId('user')
-    return {
-      createdAt: '2026-01-01T00:00:00.000Z',
-      createdBy: 'test',
-      email: `${id}@example.com`,
-      id,
-      modifiedAt: '2026-01-01T00:00:00.000Z',
-      modifiedBy: 'test',
-      name: `User ${id}`,
-      ...overrides,
-    }
-  }
-
   beforeEach(() => {
     vi.clearAllMocks()
     __resetStaffAddressCache()
@@ -52,10 +37,10 @@ describe('sendTemplatedMail outside prod against DynamoDB-local', () => {
   })
 
   it('delivers to an admin and a role holder, also at a plus-address, and not to the others', async () => {
-    const admin = user({ admin: true })
-    const secretary = user({ roles: { [uniqueId('org')]: 'secretary' } })
-    const participant = user()
-    const deletedAdmin = user({ admin: true, deletedAt: '2026-02-01T00:00:00.000Z' })
+    const admin = storedUser({ admin: true })
+    const secretary = storedUser({ roles: { [uniqueId('org')]: 'secretary' } })
+    const participant = storedUser()
+    const deletedAdmin = storedUser({ admin: true, deletedAt: '2026-02-01T00:00:00.000Z' })
     await client.batchWrite([admin, secretary, participant, deletedAdmin])
     const [adminLocal, adminDomain] = admin.email.split('@')
 
@@ -85,7 +70,7 @@ describe('sendTemplatedMail outside prod against DynamoDB-local', () => {
   })
 
   it('sends nothing when no recipient is staff', async () => {
-    const participant = user()
+    const participant = storedUser()
     await client.write(participant)
 
     await sendTemplatedMail('registration', 'fi', 'sender@example.com', [participant.email], {})

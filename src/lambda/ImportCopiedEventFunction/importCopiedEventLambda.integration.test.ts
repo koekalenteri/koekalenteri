@@ -3,23 +3,9 @@ import type { CopyImportRequest } from '../lib/eventCopy'
 import { randomInt } from 'node:crypto'
 import { eventWithParticipantsInvited } from '../../__mockData__/events'
 import { createEventCopy } from '../lib/eventCopy'
-import { uniqueId } from '../test-utils/integration'
+import { storedUser, uniqueId } from '../test-utils/integration'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 import importCopiedEvent from './handler'
-
-const user = (overrides: Partial<JsonUser> = {}): JsonUser => {
-  const id = uniqueId('user')
-  return {
-    createdAt: '2026-01-01T00:00:00.000Z',
-    createdBy: 'test',
-    email: `${id}@example.com`,
-    id,
-    modifiedAt: '2026-01-01T00:00:00.000Z',
-    modifiedBy: 'test',
-    name: `User ${id}`,
-    ...overrides,
-  }
-}
 
 /** A scrubbed copy whose only address is the copier's, as the export makes it. */
 const request = (copier: JsonUser): CopyImportRequest => {
@@ -45,13 +31,13 @@ describe('importCopiedEvent against DynamoDB-local', () => {
   const client = new CustomDynamoClient('UserTable')
 
   it('refuses a copier the user table does not know', async () => {
-    await expect(importCopiedEvent(request(user()))).rejects.toThrow(
+    await expect(importCopiedEvent(request(storedUser()))).rejects.toThrow(
       'The copier is not an admin in the target environment'
     )
   })
 
   it('refuses a copier who is a user but not an admin', async () => {
-    const copier = user()
+    const copier = storedUser()
     await client.write(copier)
 
     await expect(importCopiedEvent(request(copier))).rejects.toThrow(
@@ -60,7 +46,7 @@ describe('importCopiedEvent against DynamoDB-local', () => {
   })
 
   it('finds an admin copier through gsiEmail and goes on to the organizer check', async () => {
-    const copier = user({ admin: true })
+    const copier = storedUser({ admin: true })
     await client.write(copier)
 
     await expect(importCopiedEvent(request(copier))).rejects.toThrow(/^No organizer with Kennel Club number/)

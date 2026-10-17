@@ -111,6 +111,8 @@ describe('lib/event', () => {
       ).resolves.toEqual('2024-08-21T00:00:00.000+03:00')
     })
 
+    // The mocked query returns a field the index never projects (KOE-1554); the integration twin in
+    // event.integration.test.ts is marked as failing until the projection is fixed, and the two must agree.
     it('should prefer entryOrigEndDate when available ', async () => {
       mockQuery.mockResolvedValueOnce([
         { entryEndDate: '2024-08-20T23:59:59.999+03:00', entryOrigEndDate: '2024-08-15T23:59:59.999+03:00' },

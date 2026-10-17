@@ -1,31 +1,8 @@
-import type { JsonDogEvent } from '../../types'
 import { addDays } from 'date-fns'
-import { eventWithParticipantsInvited } from '../../__mockData__/events'
-import { getEventSeason } from '../../lib/event'
 import { constructAPIGwEvent } from '../test-utils/helpers'
-import { uniqueId } from '../test-utils/integration'
+import { idsIn, storedEvent } from '../test-utils/integration'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 import getEventsLambda from './handler'
-
-/** A stored event, in the season gsiSeasonStartDate is keyed on, two weeks from now unless told otherwise. */
-const storedEvent = (overrides: Partial<JsonDogEvent> = {}): JsonDogEvent => {
-  const startDate = overrides.startDate ?? addDays(new Date(), 14).toISOString()
-  const organizerId = uniqueId('org')
-  return {
-    ...JSON.parse(JSON.stringify(eventWithParticipantsInvited)),
-    endDate: startDate,
-    id: uniqueId('event'),
-    organizer: { id: organizerId, name: 'Integration ry' },
-    organizerId,
-    season: getEventSeason(startDate),
-    startDate,
-    state: 'confirmed',
-    updatedAt: new Date().toISOString(),
-    ...overrides,
-  }
-}
-
-const idsIn = (body: string) => JSON.parse(body).map((event: { id: string }) => event.id)
 
 describe('getEventsLambda against DynamoDB-local', () => {
   const client = new CustomDynamoClient('EventTable')
