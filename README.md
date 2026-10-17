@@ -105,6 +105,22 @@ linux references back out.
 
 Review every regenerated image before committing it — that review is the actual test.
 
+### Database tests
+
+The lambda code is run against real tables in the DynamoDB-local `npm run init` started
+(`*.integration.test.ts`, beside the module), created from the same `template/tables` as the cloud
+stacks: a query that names an index or a key the template does not have fails here rather than in
+production.
+
+```bash
+npm run test-integration
+```
+
+The run creates its tables afresh under an access key of its own, so the `npm run init` tables are
+left alone; a container started with `-sharedDb` has no databases to keep apart, and the run refuses
+to reset there. `DYNAMODB_ENDPOINT` points it at a container on another port. CI runs the same
+command in the `integration` job.
+
 ### Deploying
 
 Deployment is automated with GitHub actions.
