@@ -1,5 +1,6 @@
 import type { DateValue, Props } from './DateRange'
 import { TZDate } from '@date-fns/tz'
+import { DatePicker } from '@mui/x-date-pickers'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
 import { screen } from '@testing-library/react'
@@ -205,58 +206,89 @@ describe('DateRange', () => {
       expect(changeHandler).toHaveBeenLastCalledWith(today, target)
     })
 
-    // A typed date is midnight of the browser's day, so these read as Finnish days only in a browser
-    // in Finland's time zone, whatever zone the machine running them is in.
-    describeInTimeZone(TIME_ZONE, () => {
-      const sameDayCases = [
-        {
-          // The search page: emptying the start and typing the year digit by digit leaves the start
-          // at 23:55:55 of the typed day (the year passes through 2, 20 and 202 in local mean time).
-          case: 'an end typed on the day of a start that has a late time',
-          expected: [finnish(31, 23, 55, 55), finnish(31)],
-          field: 'end',
-          keys: '31102026',
-          props: { end: null, start: finnish(31, 23, 55, 55) },
-        },
-        {
-          case: 'a start typed on the first day of a range that starts later that day',
-          expected: [finnish(31), null],
-          field: 'start',
-          keys: '31102026',
-          props: { end: null, range: { start: finnish(31, 12) }, start: null },
-        },
-        {
-          // A field with a value keeps its time when the day is edited.
-          case: 'a start moved to the last day of a range that ends earlier that day',
-          expected: [finnish(31, 20), null],
-          field: 'start',
-          keys: '31',
-          props: { end: null, range: { end: finnish(31, 12) }, start: finnish(30, 20) },
-        },
-      ] as const
+    // The days are Finnish days, so a browser west or east of Finland reads and reports the same ones
+    // (KOE-1539), whatever zone the machine running the tests is in.
+    describe.each([TIME_ZONE, 'America/New_York', 'Asia/Tokyo'])('days in %s', (zone) => {
+      describeInTimeZone(zone, () => {
+        const sameDayCases = [
+          {
+            // The search page: emptying the start and typing the year digit by digit leaves the start
+            // at 23:55:55 of the typed day (the year passes through 2, 20 and 202 in local mean time).
+            case: 'an end typed on the day of a start that has a late time',
+            expected: [finnish(31, 23, 55, 55), finnish(31)],
+            field: 'end',
+            keys: '31102026',
+            props: { end: null, start: finnish(31, 23, 55, 55) },
+          },
+          {
+            case: 'a start typed on the first day of a range that starts later that day',
+            expected: [finnish(31), null],
+            field: 'start',
+            keys: '31102026',
+            props: { end: null, range: { start: finnish(31, 12) }, start: null },
+          },
+          {
+            // What is reported is the Finnish day's start, whatever time the field had.
+            case: 'a start moved to the last day of a range that ends earlier that day',
+            expected: [finnish(31), null],
+            field: 'start',
+            keys: '31',
+            props: { end: null, range: { end: finnish(31, 12) }, start: finnish(30, 20) },
+          },
+        ] as const
 
-      it.each(sameDayCases.map((c) => [c.case, c] as const))(
-        'keeps %s (KOE-1538)',
-        async (_, { expected, field, keys, props }) => {
-          const { changeHandler, group } = await typeInto(field, keys, props)
+        it.each(sameDayCases.map((c) => [c.case, c] as const))(
+          'keeps %s (KOE-1538)',
+          async (_, { expected, field, keys, props }) => {
+            const { changeHandler, group } = await typeInto(field, keys, props)
 
-          expect(group).toHaveTextContent('31.10.2026')
-          expect(changeHandler).toHaveBeenLastCalledWith(...expected)
-        }
-      )
+            expect(group).toHaveTextContent('31.10.2026')
+            expect(changeHandler).toHaveBeenLastCalledWith(...expected)
+          }
+        )
 
-      it.each([
-        { case: 'the day before the range starts', keys: '30102026', range: { start: finnish(31, 12) } },
-        { case: 'the day after the range ends', keys: '31102026', range: { end: finnish(30, 12) } },
-      ])('refuses a start typed on $case (KOE-1538)', async ({ keys, range }) => {
-        const { changeHandler } = await typeInto('start', keys, { end: null, range, start: null })
+        it.each([
+          { case: 'the day before the range starts', keys: '30102026', range: { start: finnish(31, 12) } },
+          { case: 'the day after the range ends', keys: '31102026', range: { end: finnish(30, 12) } },
+        ])('refuses a start typed on $case (KOE-1538)', async ({ keys, range }) => {
+          const { changeHandler } = await typeInto('start', keys, { end: null, range, start: null })
 
-        expect(changeHandler).not.toHaveBeenCalledWith(expect.any(Date), null)
-        expect(changeHandler).toHaveBeenLastCalledWith(null, null)
+          expect(changeHandler).not.toHaveBeenCalledWith(expect.any(Date), null)
+          expect(changeHandler).toHaveBeenLastCalledWith(null, null)
+        })
+
+        it("shows the Finnish day of a value, not the browser zone's (KOE-1539)", () => {
+          renderComponent({ end: finnish(17, 23, 59, 59), endLabel: 'end', start: finnish(16), startLabel: 'start' })
+
+          expect(screen.getByRole('group', { name: 'start' })).toHaveTextContent('16.10.2026')
+          expect(screen.getByRole('group', { name: 'end' })).toHaveTextContent('17.10.2026')
+        })
+
+        it('accepts the same Finnish day typed for the end as the start has (KOE-1538, KOE-1539)', async () => {
+          const { changeHandler, group } = await typeInto('end', '16102026', { end: null, start: finnish(16) })
+
+          expect(group).toHaveTextContent('16.10.2026')
+          expect(changeHandler).toHaveBeenLastCalledWith(finnish(16), finnish(16))
+        })
+
+        it('refuses an end typed on the Finnish day before the start (KOE-1539)', async () => {
+          const { changeHandler } = await typeInto('end', '15102026', { end: null, start: finnish(16) })
+
+          expect(changeHandler).toHaveBeenLastCalledWith(finnish(16), null)
+        })
       })
     })
-
     describeInTimeZone('America/New_York', () => {
+      it("shows the browser zone's day whatever timezone the picker is given: the adapter has no zone support (KOE-1539)", () => {
+        renderWithUserEvents(
+          <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales.fi}>
+            <DatePicker label="day" timezone={TIME_ZONE} value={finnish(16)} />
+          </LocalizationProvider>
+        )
+
+        expect(screen.getByRole('group', { name: 'day' })).toHaveTextContent('15.10.2026')
+      })
+
       it('refuses a start typed on the Finnish day before the range starts (KOE-1538)', async () => {
         // EntrySection's range starts at zonedStartOfDay(createdAt): 16.10. 00:00 in Finland is
         // 15.10. 17:00 in New York, the same local day as the 15.10. typed there.

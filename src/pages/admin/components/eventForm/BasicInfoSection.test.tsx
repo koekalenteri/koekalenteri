@@ -7,9 +7,10 @@ import { screen, waitFor } from '@testing-library/react'
 import { add, format } from 'date-fns'
 import { TestProvider as Provider } from 'test-utils/AtomProvider'
 import { locales } from '@/i18n'
-import { TIME_ZONE } from '@/i18n/dates'
+import { TIME_ZONE, zonedDateString, zonedEndOfDay } from '@/i18n/dates'
 import { defaultEntryEndDate, defaultEntryStartDate, newEventStartDate } from '@/lib/event'
 import { idTokenAtom } from '@/pages/state'
+import { describeInTimeZone } from '@/test-utils/timeZone'
 import { renderWithUserEvents } from '@/test-utils/utils'
 import BasicInfoSection from './BasicInfoSection'
 
@@ -229,6 +230,74 @@ describe('BasicInfoSection', () => {
         entryEndDate: customEntryEndDate,
         entryStartDate: customEntryStartDate,
         startDate: otherDate,
+      })
+    })
+  })
+
+  describe.each([TIME_ZONE, 'America/New_York', 'Asia/Tokyo'])('moving the start day in %s (KOE-1539)', (zone) => {
+    describeInTimeZone(zone, () => {
+      /** A Finnish day's start, the way the event stores it. */
+      const finnishDay = (year: number, month: number, day: number) =>
+        new Date(new TZDate(year, month - 1, day, TIME_ZONE).getTime())
+
+      const moveStart = async (event: PartialEvent, keys: string) => {
+        const changeHandler = vi.fn()
+        const { startInput, user } = renderComponent({ event, onChange: changeHandler, open: true })
+        const startDay = startInput.querySelector<HTMLElement>('[role="spinbutton"]')
+        if (!startDay) throw new Error('Start date day section not found')
+        await user.click(startDay)
+        await user.keyboard('{Control>}a{/Control}')
+        await user.paste(keys)
+        await waitFor(() => expect(changeHandler).toHaveBeenCalledTimes(1))
+        const [changes] = changeHandler.mock.lastCall ?? []
+        return changes
+      }
+
+      const days = (dates: readonly (Date | undefined)[]) => dates.map((d) => d && zonedDateString(d))
+
+      it('saves the typed day as the start, a day later than the shown one nowhere', async () => {
+        const event: PartialEvent = {
+          classes: [],
+          endDate: zonedEndOfDay(finnishDay(2026, 10, 17)),
+          judges: [],
+          startDate: finnishDay(2026, 10, 17),
+        }
+        // Not 16.10. in Tokyo, where the typed day's local midnight is the Finnish day before
+        const changes = await moveStart(event, '16.10.2026')
+
+        expect(days([changes.startDate])).toEqual(['2026-10-16'])
+      })
+
+      // Finland leaves summer time on 25.10.2026: the day that starts 2 days later is the day before when
+      // the days are counted in the browser's zone.
+      it('moves the classes and the entry dates by Finnish days across the end of summer time', async () => {
+        const event: PartialEvent = {
+          classes: [{ class: 'AVO', date: finnishDay(2026, 10, 25) }],
+          endDate: zonedEndOfDay(finnishDay(2026, 10, 25)),
+          entryEndDate: defaultEntryEndDate(finnishDay(2026, 10, 23)),
+          entryStartDate: defaultEntryStartDate(finnishDay(2026, 10, 23)),
+          judges: [],
+          startDate: finnishDay(2026, 10, 23),
+        }
+        const changes = await moveStart(event, '24.10.2026')
+
+        expect(days([changes.startDate, changes.endDate])).toEqual(['2026-10-24', '2026-10-26'])
+        expect(days(changes.classes.map((c: { date: Date }) => c.date))).toEqual(['2026-10-26'])
+        expect(days([changes.entryStartDate, changes.entryEndDate])).toEqual(['2026-09-12', '2026-10-03'])
+      })
+
+      // Finland enters summer time on 28.3.2027: the 2 days from 27.3. to 29.3. are 47 hours, and a
+      // browser that counts hours of its own days finds 1 day.
+      it('keeps a class on its day of the trial across the start of summer time', async () => {
+        const event: PartialEvent = {
+          classes: [{ class: 'AVO', date: finnishDay(2027, 3, 29) }],
+          endDate: zonedEndOfDay(finnishDay(2027, 3, 29)),
+          judges: [],
+          startDate: finnishDay(2027, 3, 27),
+        }
+        const changes = await moveStart(event, '3.4.2027')
+
+        expect(days(changes.classes.map((c: { date: Date }) => c.date))).toEqual(['2027-04-05'])
       })
     })
   })

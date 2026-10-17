@@ -286,8 +286,12 @@ const EntryStartWeeks = 6
 const EntryEndWeeks = 3
 const eventSeasonFormatter = new Intl.DateTimeFormat('en', { timeZone: TIME_ZONE, year: 'numeric' })
 
-export const defaultEntryStartDate = (eventStartDate: Date) => sub(eventStartDate, { weeks: EntryStartWeeks })
-export const defaultEntryEndDate = (eventStartDate: Date) => sub(eventStartDate, { weeks: EntryEndWeeks })
+/** Whole Finnish weeks before the event's start, whatever zone this runs in (KOE-1539). */
+const finnishWeeksBefore = (eventStartDate: Date, weeks: number) =>
+  new Date(sub(eventStartDate, { weeks }, { in: tz(TIME_ZONE) }).getTime())
+
+export const defaultEntryStartDate = (eventStartDate: Date) => finnishWeeksBefore(eventStartDate, EntryStartWeeks)
+export const defaultEntryEndDate = (eventStartDate: Date) => finnishWeeksBefore(eventStartDate, EntryEndWeeks)
 
 export const newEventStartDate = zonedStartOfDay(nextSaturday(addDays(Date.now(), 90)))
 export const newEventEntryStartDate = defaultEntryStartDate(newEventStartDate)
@@ -1197,9 +1201,9 @@ export const getEventSeason = (startDate?: Date | string): string => {
 }
 
 export const isDetaultEntryStartDate = (date: Date | undefined, eventStartDate: Date) =>
-  !date || isSameDay(defaultEntryStartDate(eventStartDate), date)
+  !date || isSameDay(defaultEntryStartDate(eventStartDate), date, { in: tz(TIME_ZONE) })
 export const isDetaultEntryEndDate = (date: Date | undefined, eventStartDate: Date) =>
-  !date || isSameDay(defaultEntryEndDate(eventStartDate), date)
+  !date || isSameDay(defaultEntryEndDate(eventStartDate), date, { in: tz(TIME_ZONE) })
 
 export const getEventDays = ({ startDate, endDate }: Pick<DogEvent, 'startDate' | 'endDate'>) =>
   eachDayOfInterval(
