@@ -2,11 +2,11 @@ import type { Theme } from '@mui/material'
 import Box from '@mui/material/Box'
 import FormControl from '@mui/material/FormControl'
 import { DatePicker } from '@mui/x-date-pickers'
-import { isSameDay, isValid } from 'date-fns'
+import { format, isSameDay, isValid } from 'date-fns'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import useDebouncedCallback from '../../hooks/useDebouncedCallback'
-import { zonedStartOfDay } from '../../i18n/dates'
+import { formatDate, zonedParseDate, zonedStartOfDay } from '../../i18n/dates'
 
 export type DateValue = Date | null
 
@@ -35,6 +35,24 @@ function dayStyle(date: Date, selected: boolean, defaultDate?: Date) {
     border: hilight ? (theme: Theme) => `2px solid ${theme.palette.secondary.light}` : undefined,
   }
 }
+
+/**
+ * The picker reads and writes days in the browser's zone (AdapterDateFns has no zone support: its
+ * `timezone` is ignored), while the callers' values are Finnish days. These two are the one place
+ * where the two meet (KOE-1539): the picker is given the browser-local calendar day with the
+ * Finnish day's year, month and date, and what it reports is read as the Finnish day with the
+ * year, month and date it shows.
+ */
+function toPickerDay(d: Date): Date
+function toPickerDay(d: Date | undefined): Date | undefined
+function toPickerDay(d: Date | undefined): Date | undefined {
+  if (!d || !isValid(d)) return d
+  const [year, month, day] = formatDate(d, 'yyyy-MM-dd').split('-').map(Number)
+  return new Date(year, month - 1, day)
+}
+
+/** The moment the day shown by the picker starts in Finland. */
+const fromPickerDay = (d: DateValue): DateValue => (d && isValid(d) ? zonedParseDate(format(d, 'yyyy-MM-dd')) : d)
 
 /** The Finnish day `d` falls on, as the moment it starts: the callers' bounds and what they store are Finnish days. */
 const finnishDay = (d: Date) => zonedStartOfDay(d).getTime()
@@ -82,7 +100,7 @@ const isYearBeingTyped = (d: DateValue) => !!d && isValid(d) && d.getFullYear() 
  */
 const useTypedIntoEmpty = (value: DateValue) => {
   const [typed, setTyped] = useState<DateValue>(null)
-  const shown = value ?? typed
+  const shown = value ? toPickerDay(value) : typed
   const track = (date: DateValue) => setTyped(value ? null : date)
   return { shown, track, untrack: () => setTyped(null) }
 }
@@ -113,12 +131,14 @@ export default function DateRange({
     if (coerced !== date && isValid(date)) untrack()
     return coerced
   }
-  const startChanged = useDebouncedCallback((date: DateValue) => {
-    if (isYearBeingTyped(date)) return
+  const startChanged = useDebouncedCallback((picked: DateValue) => {
+    if (isYearBeingTyped(picked)) return
+    const date = fromPickerDay(picked)
     onChange?.(accept(date, coerceToDateValue(date, range, {}, start), typedStart.untrack), end)
   })
-  const endChanged = useDebouncedCallback((date: DateValue) => {
-    if (isYearBeingTyped(date)) return
+  const endChanged = useDebouncedCallback((picked: DateValue) => {
+    if (isYearBeingTyped(picked)) return
+    const date = fromPickerDay(picked)
     onChange?.(start, accept(date, coerceToDateValue(date, range, { min: start }, end), typedEnd.untrack))
   })
   const handleStartChange = (date: DateValue) => {
@@ -135,19 +155,19 @@ export default function DateRange({
     <Box sx={{ columnGap: 1, display: 'flex', flexWrap: 'wrap', rowGap: 1, width: '100%' }}>
       <FormControl sx={{ flex: '1 1 200px' }}>
         <DatePicker
-          referenceDate={defaultStart}
+          referenceDate={toPickerDay(defaultStart)}
           disabled={startDisabled}
           label={startLabel}
           value={typedStart.shown}
           format={t('dateFormatString.long')}
-          minDate={range?.start}
-          maxDate={range?.end}
+          minDate={toPickerDay(range?.start)}
+          maxDate={toPickerDay(range?.end)}
           onChange={handleStartChange}
           slotProps={{
             actionBar: {
               actions: ['clear', 'cancel', 'accept'],
             },
-            day: ({ day, isDaySelected }) => ({ sx: dayStyle(day, isDaySelected, defaultStart) }),
+            day: ({ day, isDaySelected }) => ({ sx: dayStyle(day, isDaySelected, toPickerDay(defaultStart)) }),
             textField: { error: startError, helperText: startHelperText, required },
             toolbar: {
               hidden: true,
@@ -158,19 +178,19 @@ export default function DateRange({
 
       <FormControl sx={{ flex: '1 1 200px' }}>
         <DatePicker
-          referenceDate={defaultEnd}
+          referenceDate={toPickerDay(defaultEnd)}
           disabled={endDisabled}
           label={endLabel}
           value={typedEnd.shown}
           format={t('dateFormatString.long')}
-          minDate={start ?? range?.start}
-          maxDate={range?.end}
+          minDate={toPickerDay(start ?? range?.start)}
+          maxDate={toPickerDay(range?.end)}
           onChange={handleEndChange}
           slotProps={{
             actionBar: {
               actions: ['clear', 'cancel', 'accept'],
             },
-            day: ({ day, isDaySelected }) => ({ sx: dayStyle(day, isDaySelected, defaultEnd) }),
+            day: ({ day, isDaySelected }) => ({ sx: dayStyle(day, isDaySelected, toPickerDay(defaultEnd)) }),
             textField: { error: endError, helperText: endHelperText, required },
             toolbar: {
               hidden: true,

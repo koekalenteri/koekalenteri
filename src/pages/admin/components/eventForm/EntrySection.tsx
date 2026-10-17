@@ -5,12 +5,13 @@ import type { EventClass, RegistrationClass } from '@/types'
 import type { EntryEvent, SectionProps } from './types'
 import FormHelperText from '@mui/material/FormHelperText'
 import Grid from '@mui/material/Grid'
-import { clamp, sub } from 'date-fns'
+import { clamp } from 'date-fns'
 import { enqueueSnackbar } from 'notistack'
 import { memo, useCallback, useEffect, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { zonedEndOfDay, zonedStartOfDay } from '@/i18n/dates'
 import { isDevEnv } from '@/lib/env'
+import { defaultEntryEndDate, defaultEntryStartDate } from '@/lib/event'
 import { getPrioritySort, PRIORITY, priorityValuesToPriority, RESTRICTION } from '@/lib/priority'
 import AutocompleteMulti from '@/pages/components/AutocompleteMulti'
 import CollapsibleSection from '@/pages/components/CollapsibleSection'
@@ -152,10 +153,10 @@ function EntrySection(props: Props) {
             startLabel={t('event.entryStart')}
             endLabel={t('event.entryEnd')}
             start={event.entryStartDate ?? null}
-            defaultStart={sub(event.startDate, { weeks: 6 })}
+            defaultStart={defaultEntryStartDate(event.startDate)}
             end={event.entryEndDate ?? null}
             endDisabled={disabled}
-            defaultEnd={sub(event.startDate, { weeks: 3 })}
+            defaultEnd={defaultEntryEndDate(event.startDate)}
             range={registrationDateRange}
             required={fields?.required.entryStartDate ?? fields?.required.entryEndDate}
             onChange={handleDateChange}

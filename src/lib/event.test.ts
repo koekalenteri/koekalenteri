@@ -15,6 +15,7 @@ import i18n from 'i18next'
 import { eventWithEntryClosing, eventWithParticipantsInvited, eventWithStaticDates } from '../__mockData__/events'
 import { formatDate, TIME_ZONE, zonedParseDate } from '../i18n/dates'
 import { freezeClockAt } from '../test-utils/freezeClock'
+import { describeInTimeZone } from '../test-utils/timeZone'
 import {
   applyNewGroupsToDogEventClass,
   applyNewGroupsToDogEventDates,
@@ -1211,6 +1212,60 @@ describe('isDetaultEntryStartDate and isDetaultEntryEndDate', () => {
     const nonDefaultDate = new Date(2023, 4, 1) // May 1, 2023
 
     expect(isDetaultEntryEndDate(nonDefaultDate, eventStartDate)).toBe(false)
+  })
+})
+
+describe.each([TIME_ZONE, 'America/New_York', 'Asia/Tokyo'])('the default entry dates in %s (KOE-1539)', (zone) => {
+  describeInTimeZone(zone, () => {
+    const midnight = (year: number, month: number, day: number) =>
+      new Date(new TZDate(year, month - 1, day, TIME_ZONE).getTime())
+
+    // Finland leaves summer time on 25.10.2026 and enters it on 28.3.2027: the weeks are Finnish
+    // weeks, so the entry dates are Finnish midnights on either side of the change.
+    it.each([
+      {
+        case: 'over the end of summer time',
+        end: midnight(2026, 11, 14),
+        eventStart: midnight(2026, 12, 5),
+        start: midnight(2026, 10, 24),
+      },
+      {
+        case: 'over the start of summer time',
+        end: midnight(2027, 3, 27),
+        eventStart: midnight(2027, 4, 17),
+        start: midnight(2027, 3, 6),
+      },
+      {
+        case: 'from winter back to summer time',
+        end: midnight(2026, 10, 24),
+        eventStart: midnight(2026, 11, 14),
+        start: midnight(2026, 10, 3),
+      },
+    ])('are Finnish midnights $case', ({ eventStart, start, end }) => {
+      expect(defaultEntryStartDate(eventStart).getTime()).toEqual(start.getTime())
+      expect(defaultEntryEndDate(eventStart).getTime()).toEqual(end.getTime())
+      expect(isDetaultEntryStartDate(start, eventStart)).toBe(true)
+      expect(isDetaultEntryEndDate(end, eventStart)).toBe(true)
+    })
+
+    it('does not take the next Finnish day for the default', () => {
+      const eventStart = midnight(2026, 12, 5)
+
+      expect(isDetaultEntryStartDate(midnight(2026, 10, 25), eventStart)).toBe(false)
+    })
+
+    // 23:30 in Finland is the next morning in Tokyo, so the default's day in the browser's zone is
+    // another day than its Finnish one.
+    it('tells the default day by its Finnish day, late in the evening too', () => {
+      const eventStart = midnight(2026, 12, 5)
+      const late = (year: number, month: number, day: number) =>
+        new Date(new TZDate(year, month - 1, day, 23, 30, TIME_ZONE).getTime())
+
+      expect(isDetaultEntryEndDate(late(2026, 11, 14), eventStart)).toBe(true)
+      expect(isDetaultEntryEndDate(late(2026, 11, 13), eventStart)).toBe(false)
+      expect(isDetaultEntryStartDate(late(2026, 10, 24), eventStart)).toBe(true)
+      expect(isDetaultEntryStartDate(late(2026, 10, 23), eventStart)).toBe(false)
+    })
   })
 })
 
