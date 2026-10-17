@@ -9,6 +9,10 @@ This session is the orchestrator. It does not edit code. It routes work and feed
 the agents defined in `.claude/agents/`, and checks the outcome from the source, not from their
 reports. The gate is the pull request and the user's merge; nothing here approves or merges.
 
+Each agent definition names its model (`implementer` opus, `reviewer` and `ci-watcher` sonnet).
+Do not pass `model` to `Agent`; the override would run them on this session's model, which costs
+several times more and is not needed for their work.
+
 ## 1. Pick up
 
 - Read the issue with comments and attachments (images through the REST API).
