@@ -611,6 +611,13 @@ describe('lib/registration', () => {
       })
 
       it.each([
+        ['winter time', '2026-12-14T22:00:00.000Z', '2026-12-15-ap'],
+        ['the turn of the year', '2026-12-31T22:00:00.000Z', '2027-01-01-ap'],
+      ])('names the group by the Helsinki day in %s', (_name, date, expected) => {
+        expect(getRegistrationGroupKey({ group: { date, key: 'utc-spelling', time: 'ap' } })).toEqual(expected)
+      })
+
+      it.each([
         ['no time', { date: midnight, key: 'stored' }],
         ['no date', { key: 'stored', time: 'ap' as const }],
         ['an unreadable date', { date: 'not a date', key: 'stored', time: 'ap' as const }],
@@ -626,6 +633,18 @@ describe('lib/registration', () => {
           getRegistrationGroupKey({ cancelled: true, group: { date: midnight, key: '2026-08-14-ap', time: 'ap' } })
         ).toEqual(GROUP_KEY_CANCELLED)
       })
+    })
+  })
+
+  describe('isStarter on a stats projection of the group key alone (KOE-1541)', () => {
+    // The stats rebuild projects only `#group.#key`: no date and no time, so the stored key decides
+    it.each([
+      ['a participant key', { group: { key: '2026-08-14-ap' } }, true],
+      ['the reserve key', { group: { key: GROUP_KEY_RESERVE } }, false],
+      ['the cancelled key', { group: { key: GROUP_KEY_CANCELLED } }, false],
+      ['no group', {}, false],
+    ])('for %s', (_name, registration, expected) => {
+      expect(isStarter(registration)).toBe(expected)
     })
   })
 

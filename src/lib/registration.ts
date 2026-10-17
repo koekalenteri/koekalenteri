@@ -4,6 +4,7 @@ import type {
   CustomCost,
   EmailTemplateId,
   EventState,
+  GroupDate,
   JsonConfirmedEvent,
   JsonPublicDogEvent,
   JsonRegistration,
@@ -468,7 +469,7 @@ export const priorityDescriptionKey: PriorityCheckFn<
  * Structural minimum the sort needs, so it serves stored registrations and public projections alike —
  * including a public row whose number is withheld until the class's start numbers are published.
  */
-type SortablePlacement = { date?: string | Date; key?: string; number?: number; time?: RegistrationTime }
+type SortablePlacement = { date?: GroupDate; key?: string; number?: number; time?: RegistrationTime }
 
 export type SortableRegistration = {
   class?: string | null
@@ -486,7 +487,7 @@ export const getRegistrationPlacement = <T extends SortableRegistration>(
 const placementOf = (registration: SortableRegistration): SortablePlacement | undefined =>
   getRegistrationPlacement(registration)
 
-const sortableDate = (date: string | Date | undefined): string =>
+const sortableDate = (date: GroupDate | undefined): string =>
   date instanceof Date ? date.toISOString() : (date ?? '\uffff')
 
 export const getRegistrationGroupTime = (registration: SortableRegistration): RegistrationTime =>
@@ -524,14 +525,14 @@ export const getRegistrationNumberingGroupKey = <T extends JsonRegistration | Re
 export const isParticipantGroup = (group?: string): boolean =>
   Boolean(group) && group !== GROUP_KEY_RESERVE && group !== GROUP_KEY_CANCELLED
 
-const groupInstant = (date: string | Date | undefined): Date | undefined => {
+const groupInstant = (date: GroupDate | undefined): Date | undefined => {
   if (!date) return undefined
   const instant = date instanceof Date ? date : new Date(date)
   return Number.isNaN(instant.getTime()) ? undefined : instant
 }
 
 /** The trial's calendar day of a group's date, or '' when it has none (or none that reads as a date). */
-export const getRegistrationGroupDay = (date: string | Date | undefined): string => {
+export const getRegistrationGroupDay = (date: GroupDate | undefined): string => {
   const instant = groupInstant(date)
   return instant ? zonedDateString(instant) : ''
 }
@@ -542,7 +543,7 @@ export const getRegistrationGroupDay = (date: string | Date | undefined): string
  * older copy of an event carry the UTC day, which is another day for a start at the Helsinki
  * midnight (KOE-1541). Reserve, cancelled and a group without a usable date and time keep their key.
  */
-export const getGroupKey = (group: NonNullable<RegistrationPlacement['group']>): string => {
+export const deriveParticipantGroupKey = (group: NonNullable<RegistrationPlacement['group']>): string => {
   const date = groupInstant(group.date)
   if (!isParticipantGroup(group.key) || !date || !group.time) return group.key
   return eventRegistrationDateKey({ date, time: group.time })
@@ -560,13 +561,13 @@ export const isKeyRespelling = (previous: PlacedGroup | undefined, group: Placed
   !!group &&
   previous.key !== group.key &&
   previous.number === group.number &&
-  getGroupKey(previous) === getGroupKey(group)
+  deriveParticipantGroupKey(previous) === deriveParticipantGroupKey(group)
 
 export const getRegistrationGroupKey = (reg: RegistrationPlacement): string => {
   if (reg.cancelled) {
     return GROUP_KEY_CANCELLED
   }
-  return reg.group ? getGroupKey(reg.group) : GROUP_KEY_RESERVE
+  return reg.group ? deriveParticipantGroupKey(reg.group) : GROUP_KEY_RESERVE
 }
 
 /** A start: an entry that is not cancelled and sits in a participant group, not on the reserve list. */

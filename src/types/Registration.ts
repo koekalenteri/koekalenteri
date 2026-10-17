@@ -328,8 +328,11 @@ export interface JsonRegistrationGroup extends Partial<JsonRegistrationDate> {
 }
 
 /** An entry as a decision that asks only which group it is in reads it: a stored and a parsed group alike. */
+/** A group's day as stored (an ISO string) or parsed (a Date). */
+export type GroupDate = string | Date
+
 interface RegistrationGroupHolder {
-  group?: Pick<JsonRegistrationGroup, 'key'> & { date?: string | Date; time?: RegistrationTime }
+  group?: Pick<JsonRegistrationGroup, 'key'> & { date?: GroupDate; time?: RegistrationTime }
 }
 
 /** Where an entry stands as far as its place goes: whether it was cancelled, and its group. */
@@ -360,7 +363,7 @@ export type RegistrationGroupMove = {
   id: string
   group: {
     key: string
-    date?: string | Date
+    date?: GroupDate
     time?: RegistrationTime
   }
   /** Insert before this registration in the destination group; omit to append. */

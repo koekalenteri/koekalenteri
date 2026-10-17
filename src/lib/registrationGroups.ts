@@ -1,8 +1,8 @@
 import type { JsonRegistration, Registration, RegistrationGroupMove } from '../types'
 import {
+  deriveParticipantGroupKey,
   GROUP_KEY_CANCELLED,
   GROUP_KEY_RESERVE,
-  getGroupKey,
   getRegistrationGroupDay,
   getRegistrationGroupKey,
   getRegistrationNumberingGroupKey,
@@ -36,14 +36,14 @@ const isInvalidMoveAnchor = <T extends GroupedRegistration>(
   item: T,
   before: T | undefined,
   targetNumberingGroupKey: string,
-  targetGroupKey: string
+  tarderiveParticipantGroupKey: string
 ) =>
   !!move.beforeId &&
   (!before ||
     before.id === item.id ||
     getRegistrationNumberingGroupKey(before) !== targetNumberingGroupKey ||
     // The key names the day and the time of a participant group, so it is the whole comparison.
-    getRegistrationGroupKey(before) !== targetGroupKey ||
+    getRegistrationGroupKey(before) !== tarderiveParticipantGroupKey ||
     before.group?.time !== move.group.time)
 
 /** Sorts and renumbers a complete registration snapshot in place. */
@@ -78,7 +78,7 @@ const applyRegistrationGroupMove = <T extends GroupedRegistration>(
   if (!item) return false
 
   // A payload from a cached client may still name the UTC day; the group is the day it is on.
-  const group = { ...move.group, key: getGroupKey(move.group) }
+  const group = { ...move.group, key: deriveParticipantGroupKey(move.group) }
   const before = move.beforeId ? items.find((registration) => registration.id === move.beforeId) : undefined
   const targetNumberingGroupKey = getRegistrationNumberingGroupKey({
     ...item,

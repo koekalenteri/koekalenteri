@@ -1,9 +1,10 @@
-import type { Registration, RegistrationGroup, RegistrationGroupInfo } from '@/types'
+import type { Registration, RegistrationGroup, RegistrationGroupInfo, RegistrationGroupMove } from '@/types'
 import type { DragItem } from './types'
 import { renderHook } from '@testing-library/react'
 import { eventWithStaticDatesAnd3Classes } from '@/__mockData__/events'
 import { recordEvent } from '@/lib/client/rum'
 import { GROUP_KEY_CANCELLED, GROUP_KEY_RESERVE } from '@/lib/registration'
+import { applyRegistrationGroupMoves } from '@/lib/registrationGroups'
 import { determineChangesFromDrop } from './dnd'
 import { useDnDHandlers } from './useDnDHandlers'
 
@@ -187,7 +188,7 @@ describe('useDnDHandlers', () => {
       expect(mockSetSelectedRegistrationId).toHaveBeenCalledWith('reg1')
     })
 
-    it('anchors on a start stored with the UTC day key, which the grid lists in the group (KOE-1541)', async () => {
+    describe('over starts stored with the UTC day key (KOE-1541)', () => {
       const date = new Date('2026-08-14T21:00:00.000Z') // 15.8. 00:00 in Helsinki
       const group: RegistrationGroup = { date, key: '2026-08-15-ap', number: 0, time: 'ap' }
       const start = (id: string, number: number): Registration => ({
@@ -195,19 +196,52 @@ describe('useDnDHandlers', () => {
         group: { date, key: '2026-08-14-ap', number, time: 'ap' },
         id,
       })
-      const reserve: Registration = { ...mockRegistration, group: { key: GROUP_KEY_RESERVE, number: 1 } }
-      const siblings = [start('a', 1), start('b', 2)]
-      ;(determineChangesFromDrop as import('vitest').Mock).mockReturnValue([
-        { eventId: 'event1', group: { ...group, number: 1.5 }, id: 'reg1' },
-      ])
+      const reserve: Registration = { ...mockRegistration, group: { key: GROUP_KEY_RESERVE, number: 1 }, id: 'reserve' }
 
-      const { result } = renderHook(() => useDnDHandlers({ ...defaultProps, registrations: [reserve, ...siblings] }))
-      await result.current.handleDrop(group)({ ...mockDragItem, groupKey: GROUP_KEY_RESERVE })
+      // The real drop rule and the real move rule, the way the secretary's drag meets the server
+      const drop = async (registrations: Registration[], item: DragItem) => {
+        const actual = await vi.importActual<typeof import('./dnd')>('./dnd')
+        vi.mocked(determineChangesFromDrop).mockImplementationOnce(actual.determineChangesFromDrop)
+        let moves: RegistrationGroupMove[] = []
+        const saveGroups = async (_eventId: string, saved: RegistrationGroupMove[]) => {
+          moves = saved
+          return undefined
+        }
+        const { result } = renderHook(() => useDnDHandlers({ ...defaultProps, registrations, saveGroups }))
+        await result.current.handleDrop(group)(item)
+        return applyRegistrationGroupMoves(registrations, moves)
+      }
 
-      expect(determineChangesFromDrop).toHaveBeenCalledWith(expect.anything(), group, reserve, siblings, true)
-      expect(mockSaveGroups).toHaveBeenCalledWith('event1', [
-        { beforeId: 'b', cancelReason: undefined, group: { date, key: '2026-08-15-ap', time: 'ap' }, id: 'reg1' },
-      ])
+      it('drops a start before another start of its group', async () => {
+        const starts = [start('a', 1), start('b', 2), start('c', 3)]
+
+        const { invalid, items } = await drop(starts, {
+          groupKey: group.key,
+          groups: [group.key],
+          id: 'c',
+          index: 2,
+          position: 'before',
+          targetGroupKey: group.key,
+          targetIndex: 0,
+        })
+
+        expect(invalid).toEqual([])
+        expect(items.map((item) => item.id)).toEqual(['c', 'a', 'b'])
+      })
+
+      it('drops a reserve dog last in the group', async () => {
+        const starts = [start('a', 1), start('b', 2)]
+
+        const { invalid, items } = await drop([reserve, ...starts], {
+          groupKey: GROUP_KEY_RESERVE,
+          groups: [group.key],
+          id: 'reserve',
+          index: 0,
+        })
+
+        expect(invalid).toEqual([])
+        expect(items.map((item) => item.id)).toEqual(['a', 'b', 'reserve'])
+      })
     })
 
     it('should set selected registration ID', async () => {

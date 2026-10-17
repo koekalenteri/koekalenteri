@@ -1,7 +1,7 @@
 import type { Registration } from '@/types'
 import { atom } from 'jotai'
 import { atomFamily } from 'jotai-family'
-import { getGroupKey } from '@/lib/registration'
+import { deriveParticipantGroupKey } from '@/lib/registration'
 import { applyRegistrationGroupMoves } from '@/lib/registrationGroups'
 import { adminEventRegistrationsAtom, adminPendingRegistrationGroupMovesAtom } from './atoms'
 
@@ -16,7 +16,7 @@ const placementKey = (registration: Registration) =>
           ...registration.group,
           date:
             registration.group.date instanceof Date ? registration.group.date.toISOString() : registration.group.date,
-          key: getGroupKey(registration.group),
+          key: deriveParticipantGroupKey(registration.group),
         }
       : undefined,
   })
