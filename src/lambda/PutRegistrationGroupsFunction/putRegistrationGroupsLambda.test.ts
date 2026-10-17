@@ -7,6 +7,7 @@ import {
   jsonRegistrationsToEventWithParticipantsInvited,
 } from '../../__mockData__/registrations'
 import { formatDate } from '../../i18n/dates'
+import { eventRegistrationDateKey } from '../../lib/event'
 import { httpError } from '../lib/lambda'
 import { constructAPIGwEvent as constructRawAPIGwEvent } from '../test-utils/helpers'
 
@@ -455,6 +456,55 @@ describe('putRegistrationGroupsLambda', () => {
     expect(res.statusCode).toBe(200)
   })
 
+  it('repairs the UTC day key of a start in passing, without a trail line or a change of place (KOE-1541)', async () => {
+    const event = JSON.parse(JSON.stringify(eventWithParticipantsInvited))
+    authorizeWithMemberOfMock.mockResolvedValueOnce({ memberOf: [], user: mockUser })
+    const date = '2026-08-14T21:00:00.000Z' // 15.8. 00:00 in Helsinki
+    const stored = jsonRegistrationsToEventWithParticipantsInvited.filter((r) => r.class === 'ALO')
+    const [first, second, third] = stored.map(
+      (r, index): JsonRegistration => ({
+        ...r,
+        cancelled: false,
+        group: { date, key: '2026-08-14-ap', number: index + 1, time: 'ap' },
+      })
+    )
+    const reserve: JsonRegistration = { ...third, group: { key: 'reserve', number: 1 }, id: 'reserve-dog' }
+    mockDynamoDB.query.mockResolvedValueOnce([first, second, reserve])
+    mockDynamoDB.read.mockResolvedValue(event)
+
+    const res = await putRegistrationGroupsLambda(
+      constructAPIGwEvent([{ group: { date, key: '2026-08-15-ap', time: 'ap' }, id: reserve.id }], {
+        pathParameters: { eventId: event.id },
+      })
+    )
+
+    expect(res.statusCode).toBe(200)
+    for (const [index, reg] of [first, second].entries()) {
+      // The key is respelled and nothing else about the place: not the number, not the cancelled flag
+      expect(mockDynamoDB.update).toHaveBeenCalledWith(
+        { eventId: reg.eventId, id: reg.id },
+        {
+          set: {
+            cancelled: false,
+            group: { date, key: '2026-08-15-ap', number: index + 1, time: 'ap' },
+            updatedAt: expect.any(String),
+          },
+        },
+        'registration-table-not-found-in-env'
+      )
+    }
+    // Only the move of the reserve dog is in the trail, none of the respelled starts
+    expect(mockAudit).toHaveBeenCalledWith(
+      expect.objectContaining({
+        auditKey: `${reserve.eventId}:${reserve.id}`,
+        messageKey: 'audit.messages.groupChanged',
+      })
+    )
+    for (const reg of [first, second]) {
+      expect(mockAudit).not.toHaveBeenCalledWith(expect.objectContaining({ auditKey: `${reg.eventId}:${reg.id}` }))
+    }
+  })
+
   it('publishes group field removals when moving a participant to reserve', async () => {
     const event = JSON.parse(JSON.stringify(eventWithParticipantsInvited))
     const registration = jsonRegistrationsToEventWithParticipantsInvited[0]
@@ -766,7 +816,12 @@ describe('putRegistrationGroupsLambda', () => {
     const updated = storedItems.map((r) => ({
       ...r,
       group: isLifted(r)
-        ? { date: eventWithParticipantsInvited.startDate.toISOString(), key: 'ALO-AP', number: 2, time: 'ap' }
+        ? {
+            date: eventWithParticipantsInvited.startDate.toISOString(),
+            key: eventRegistrationDateKey({ date: eventWithParticipantsInvited.startDate, time: 'ap' }),
+            number: 2,
+            time: 'ap',
+          }
         : r.group,
     }))
 

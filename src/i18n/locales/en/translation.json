@@ -1101,6 +1101,7 @@
       "handler": "Handler",
       "number": "#",
       "outcome": "Elimination / retirement",
+      "placement": "Place",
       "result": "Result",
       "task": "Task {{number}}"
     },
@@ -1248,6 +1249,7 @@
     "outcomeEliminated": "Eliminating fault",
     "outcomeNone": "No elimination or retirement",
     "outcomeRetired": "Stopped",
+    "placement": "Place {{placement}}",
     "resultNone": "No result",
     "retirement": {
       "handlerChoice": "Handler withdrew",

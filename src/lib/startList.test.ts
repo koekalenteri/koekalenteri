@@ -2,6 +2,8 @@ import type { TFunction } from 'i18next'
 import type { PublicConfirmedEvent } from '../types/Event'
 import type { PublicRegistration } from '../types/Registration'
 import i18n from 'i18next'
+import { eventWithStaticDates } from '../__mockData__/events'
+import { emptyDog } from './data'
 import {
   isStartListUpToDate,
   newestStartListVersion,
@@ -96,6 +98,7 @@ describe('startListSpreadsheetRows', () => {
         'Breeder',
         'Result',
         'Additional marks',
+        'Place',
       ],
       [
         // The fixture is cancelled: since KOE-1017 a cancelled row exports its number and the
@@ -105,6 +108,7 @@ describe('startListSpreadsheetRows', () => {
         'ALO',
         2,
         'ABSENT',
+        '',
         '',
         '',
         '',
@@ -137,8 +141,28 @@ describe('a published result on the exported list', () => {
 
     // The download is what gets circulated, so a result missing here is a file that disagrees with
     // the page it came from.
-    expect(row.at(-2)).toBe('ALO1')
+    expect(row.at(-3)).toBe('ALO1')
+    expect(row.at(-2)).toBe('')
     expect(row.at(-1)).toBe('')
+  })
+
+  it('carries the placement in its own column', () => {
+    const event: PublicConfirmedEvent = { ...eventWithStaticDates, classes: [] }
+    const registration: PublicRegistration = {
+      breeder: 'Test Breeder',
+      class: 'ALO',
+      dog: { ...emptyDog, name: 'Test Dog', regNo: 'REG1' },
+      group: { key: 'ALO', number: 2 },
+      handler: 'Test Handler',
+      owner: 'Test Owner',
+      placement: 2,
+      result: 'ALO1',
+    }
+
+    const [header, row] = startListSpreadsheetRows([registration], event, t)
+
+    expect(header.at(-1)).toBe('Place')
+    expect(row.at(-1)).toBe(2)
   })
 
   it("keeps a stopped trial's mark in its own column, the way Koiranet asks for it", () => {
@@ -156,7 +180,7 @@ describe('a published result on the exported list', () => {
 
     const [, row] = startListSpreadsheetRows([registration], event, t)
 
-    expect(row.at(-2)).toBe('AVO0')
-    expect(row.at(-1)).toBe('Stopped')
+    expect(row.at(-3)).toBe('AVO0')
+    expect(row.at(-2)).toBe('Stopped')
   })
 })

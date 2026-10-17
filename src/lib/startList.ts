@@ -62,6 +62,7 @@ export function startListSpreadsheetRows(
       t('startListExport.breeder'),
       t('startListExport.result'),
       t('startListExport.marks'),
+      t('results.column.placement'),
     ],
     ...participants.map((registration) =>
       // A cancelled row carries its frozen number and the mark, nothing else (KOE-1017).
@@ -72,7 +73,7 @@ export function startListSpreadsheetRows(
             registration.class ?? '',
             registration.group.number ?? '',
             t('startList.absent'),
-            ...Array.from({ length: 9 }, () => ''),
+            ...Array.from({ length: 10 }, () => ''),
           ]
         : [
             spreadsheetDate(registration.group.date ?? event.startDate),
@@ -90,6 +91,7 @@ export function startListSpreadsheetRows(
             registration.result ?? '',
             // Koiranet keeps these apart from the result, and so does the sheet someone types into it.
             formatResultMarks(registration.marks, t),
+            registration.placement ?? '',
           ]
     ),
   ]

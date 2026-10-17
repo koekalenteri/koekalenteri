@@ -452,6 +452,33 @@ describe('EventResultsPage', () => {
     expect(screen.getByRole('link', { name: 'results.openLiveEntry' })).toBeInTheDocument()
   })
 
+  it("shows each awarded dog's rank in the whole round, and none in a post's own view", async () => {
+    const { i18n } = useTranslation()
+    const at = new Date('2021-02-10T10:00:00Z')
+    const stored = (points: number, result: string): EventResult => ({
+      maxPoints: 40,
+      points,
+      result,
+      updatedAt: at,
+      updatedBy: 'Rasti 1',
+    })
+    const registrations = registrationsToEventWithStations.map((reg) => {
+      if (reg.id === 'run-1') return { ...reg, eventResult: stored(40, 'ALO1') }
+      if (reg.id === 'run-2') return { ...reg, eventResult: stored(25, 'ALO3') }
+      return reg
+    })
+    const { user } = await renderScoringPage(i18n.language as Language, registrations)
+    await flushPromises()
+
+    expect(screen.getAllByText(/results\.placement/)).toHaveLength(2)
+
+    await user.click(screen.getByLabelText('results.scope'))
+    await user.click(screen.getByRole('option', { name: 'event.station 2' }))
+    await flushPromises()
+
+    expect(screen.queryByText(/results\.placement/)).not.toBeInTheDocument()
+  })
+
   it('states a lone post judge rather than offering a choice', async () => {
     const { i18n } = useTranslation()
     await renderScoringPage(i18n.language as Language)

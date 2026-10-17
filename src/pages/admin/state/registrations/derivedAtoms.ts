@@ -1,9 +1,12 @@
 import type { Registration } from '@/types'
 import { atom } from 'jotai'
 import { atomFamily } from 'jotai-family'
+import { deriveParticipantGroupKey } from '@/lib/registration'
 import { applyRegistrationGroupMoves } from '@/lib/registrationGroups'
 import { adminEventRegistrationsAtom, adminPendingRegistrationGroupMovesAtom } from './atoms'
 
+// The key is compared by the group it names, not by its spelling: the projection respells a stored
+// UTC-day key (KOE-1541), and a row that only differs in that must not look moved.
 const placementKey = (registration: Registration) =>
   JSON.stringify({
     cancelled: registration.cancelled,
@@ -13,6 +16,7 @@ const placementKey = (registration: Registration) =>
           ...registration.group,
           date:
             registration.group.date instanceof Date ? registration.group.date.toISOString() : registration.group.date,
+          key: deriveParticipantGroupKey(registration.group),
         }
       : undefined,
   })

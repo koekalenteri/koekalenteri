@@ -1,9 +1,10 @@
-import type { Registration, RegistrationGroup, RegistrationGroupInfo } from '@/types'
+import type { Registration, RegistrationGroup, RegistrationGroupInfo, RegistrationGroupMove } from '@/types'
 import type { DragItem } from './types'
 import { renderHook } from '@testing-library/react'
 import { eventWithStaticDatesAnd3Classes } from '@/__mockData__/events'
 import { recordEvent } from '@/lib/client/rum'
 import { GROUP_KEY_CANCELLED, GROUP_KEY_RESERVE } from '@/lib/registration'
+import { applyRegistrationGroupMoves } from '@/lib/registrationGroups'
 import { determineChangesFromDrop } from './dnd'
 import { useDnDHandlers } from './useDnDHandlers'
 
@@ -187,6 +188,62 @@ describe('useDnDHandlers', () => {
       expect(mockSetSelectedRegistrationId).toHaveBeenCalledWith('reg1')
     })
 
+    describe('over starts stored with the UTC day key (KOE-1541)', () => {
+      const date = new Date('2026-08-14T21:00:00.000Z') // 15.8. 00:00 in Helsinki
+      const group: RegistrationGroup = { date, key: '2026-08-15-ap', number: 0, time: 'ap' }
+      const start = (id: string, number: number): Registration => ({
+        ...mockRegistration,
+        group: { date, key: '2026-08-14-ap', number, time: 'ap' },
+        id,
+      })
+      const reserve: Registration = { ...mockRegistration, group: { key: GROUP_KEY_RESERVE, number: 1 }, id: 'reserve' }
+
+      // The real drop rule and the real move rule, the way the secretary's drag meets the server
+      const drop = async (registrations: Registration[], item: DragItem) => {
+        const actual = await vi.importActual<typeof import('./dnd')>('./dnd')
+        vi.mocked(determineChangesFromDrop).mockImplementationOnce(actual.determineChangesFromDrop)
+        let moves: RegistrationGroupMove[] = []
+        const saveGroups = async (_eventId: string, saved: RegistrationGroupMove[]) => {
+          moves = saved
+          return undefined
+        }
+        const { result } = renderHook(() => useDnDHandlers({ ...defaultProps, registrations, saveGroups }))
+        await result.current.handleDrop(group)(item)
+        return applyRegistrationGroupMoves(registrations, moves)
+      }
+
+      it('drops a start before another start of its group', async () => {
+        const starts = [start('a', 1), start('b', 2), start('c', 3)]
+
+        const { invalid, items } = await drop(starts, {
+          groupKey: group.key,
+          groups: [group.key],
+          id: 'c',
+          index: 2,
+          position: 'before',
+          targetGroupKey: group.key,
+          targetIndex: 0,
+        })
+
+        expect(invalid).toEqual([])
+        expect(items.map((item) => item.id)).toEqual(['c', 'a', 'b'])
+      })
+
+      it('drops a reserve dog last in the group', async () => {
+        const starts = [start('a', 1), start('b', 2)]
+
+        const { invalid, items } = await drop([reserve, ...starts], {
+          groupKey: GROUP_KEY_RESERVE,
+          groups: [group.key],
+          id: 'reserve',
+          index: 0,
+        })
+
+        expect(invalid).toEqual([])
+        expect(items.map((item) => item.id)).toEqual(['a', 'b', 'reserve'])
+      })
+    })
+
     it('should set selected registration ID', async () => {
       const { result } = renderHook(() => useDnDHandlers(defaultProps))
 
@@ -215,6 +272,37 @@ describe('useDnDHandlers', () => {
 
       expect(mockSaveGroups).toHaveBeenCalledWith('event1', [
         { cancelReason: undefined, group: { date: undefined, key: 'group2', time: undefined }, id: 'reg1' },
+      ])
+    })
+
+    it('anchors the drop on a starter, not on a cancelled entry left in the target group (KOE-1537)', async () => {
+      // Listed under cancelled in the grid, but its stale key still names the target group.
+      const staleCancelled: Registration = {
+        ...mockRegistration,
+        cancelled: true,
+        group: { key: 'group2', number: 2 },
+        id: 'stale',
+      }
+      const starter: Registration = { ...mockRegistration, group: { key: 'group2', number: 2 }, id: 'starter' }
+      const mockChanges: RegistrationGroupInfo[] = [
+        { eventId: 'event1', group: { key: 'group2', number: 1.5 }, id: 'reg1' },
+      ]
+      ;(determineChangesFromDrop as import('vitest').Mock).mockReturnValue(mockChanges)
+
+      const { result } = renderHook(() =>
+        useDnDHandlers({ ...defaultProps, registrations: [mockRegistration, staleCancelled, starter] })
+      )
+
+      await result.current.handleDrop(mockGroup)(mockDragItem)
+
+      expect(determineChangesFromDrop).toHaveBeenCalledWith(mockDragItem, mockGroup, mockRegistration, [starter], true)
+      expect(mockSaveGroups).toHaveBeenCalledWith('event1', [
+        {
+          beforeId: 'starter',
+          cancelReason: undefined,
+          group: { date: undefined, key: 'group2', time: undefined },
+          id: 'reg1',
+        },
       ])
     })
 

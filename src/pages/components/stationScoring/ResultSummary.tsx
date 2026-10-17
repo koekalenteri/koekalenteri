@@ -23,6 +23,8 @@ interface Props {
   readonly eventType: string
   readonly eventClass?: string
   readonly disabled?: boolean
+  /** The rank among the class's awarded dogs that day. Withheld by the caller while the row is unsaved. */
+  readonly placement?: number
   readonly onChange: (edit: ResultEdit) => void
 }
 
@@ -33,7 +35,7 @@ interface Props {
  * is the one that gets stored. A post's own view passes no round, because the prize depends on posts it
  * cannot see and a partial figure there would be worse than none.
  */
-export const ResultSummary = ({ round, edit, stored, eventType, eventClass, disabled, onChange }: Props) => {
+export const ResultSummary = ({ round, edit, stored, eventType, eventClass, disabled, onChange, placement }: Props) => {
   const { t } = useTranslation()
   // What rides beside the result once it is published, shown here so the secretary reads the line the
   // public will read rather than only the choice they made in the outcome control (KOE-1300).
@@ -106,6 +108,11 @@ export const ResultSummary = ({ round, edit, stored, eventType, eventClass, disa
         {code ? formatEventResult(code, eventType, eventClass) : '–'}
       </Typography>
       {marks}
+      {placement !== undefined && (
+        <Typography variant="caption" sx={{ color: 'text.secondary', display: 'block' }}>
+          {t('results.placement', { placement })}
+        </Typography>
+      )}
       {/* A voided round has no total worth showing beside dogs that ran everything. */}
       {!edit.elimination && !edit.retirement && (
         <Typography

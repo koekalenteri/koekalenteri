@@ -1,11 +1,14 @@
 import type { DateValue, Props } from './DateRange'
+import { TZDate } from '@date-fns/tz'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
 import { screen } from '@testing-library/react'
 import { addDays, format, parseISO, startOfDay, startOfMonth } from 'date-fns'
 import { useState } from 'react'
 import { locales } from '../../i18n'
-import { flushPromises, renderWithUserEvents } from '../../test-utils/utils'
+import { TIME_ZONE } from '../../i18n/dates'
+import { describeInTimeZone } from '../../test-utils/timeZone'
+import { flushPromises, renderWithUserEvents, typeDateKeyByKey } from '../../test-utils/utils'
 import DateRange from './DateRange'
 
 const renderComponent = (props: Props) => {
@@ -168,31 +171,104 @@ describe('DateRange', () => {
       expect(changeHandler).toHaveBeenLastCalledWith(start, day16)
     })
 
-    it('keeps a date typed into the empty end date one key at a time (KOE-1481)', async () => {
+    /**
+     * A moment of a Finnish October 2026 day, as the callers' bounds are (zonedStartOfDay,
+     * zonedEndOfDay), as a plain Date: a TZDate would become the picker's reference and carry its
+     * zone into the typed value.
+     */
+    const finnish = (day: number, hours = 0, minutes = 0, seconds = 0) =>
+      new Date(new TZDate(2026, 9, day, hours, minutes, seconds, TIME_ZONE).getTime())
+
+    /** Renders a StatefulDateRange and types `keys` into the field one key at a time, as a person does. */
+    const typeInto = async (field: 'start' | 'end', keys: string, props: Pick<Props, 'end' | 'range' | 'start'>) => {
       const changeHandler = vi.fn()
-      const today = startOfDay(date)
-      const target = addDays(today, 18)
       const { user } = renderWithUserEvents(
         <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales.fi}>
-          <StatefulDateRange end={null} endLabel="end" onChange={changeHandler} start={today} startLabel="start" />
+          <StatefulDateRange endLabel="end" onChange={changeHandler} startLabel="start" {...props} />
         </LocalizationProvider>,
         undefined,
         { advanceTimers: vi.advanceTimersByTime }
       )
-      const endGroup = screen.getByRole('group', { name: 'end' })
-      const endDay = endGroup.querySelector<HTMLElement>('[role="spinbutton"]')
-      if (!endDay) throw new Error('End date day section not found')
+      const group = screen.getByRole('group', { name: field })
+      await typeDateKeyByKey(user, group, keys)
+      return { changeHandler, group }
+    }
 
-      await user.click(endDay)
+    it('keeps a date typed into the empty end date one key at a time (KOE-1481)', async () => {
+      const today = startOfDay(date)
+      const target = addDays(today, 18)
       // A person's pace: the range's debounce runs out between the keys. The year's first digit
       // makes year 2, a whole date before the start, which used to empty the field (KOE-1481).
-      for (const key of format(target, 'ddMMyyyy')) {
-        await user.keyboard(key)
-        await flushPromises()
-      }
+      const { changeHandler, group } = await typeInto('end', format(target, 'ddMMyyyy'), { end: null, start: today })
 
-      expect(endGroup).toHaveTextContent(format(target, 'dd.MM.yyyy'))
+      expect(group).toHaveTextContent(format(target, 'dd.MM.yyyy'))
       expect(changeHandler).toHaveBeenLastCalledWith(today, target)
+    })
+
+    // A typed date is midnight of the browser's day, so these read as Finnish days only in a browser
+    // in Finland's time zone, whatever zone the machine running them is in.
+    describeInTimeZone(TIME_ZONE, () => {
+      const sameDayCases = [
+        {
+          // The search page: emptying the start and typing the year digit by digit leaves the start
+          // at 23:55:55 of the typed day (the year passes through 2, 20 and 202 in local mean time).
+          case: 'an end typed on the day of a start that has a late time',
+          expected: [finnish(31, 23, 55, 55), finnish(31)],
+          field: 'end',
+          keys: '31102026',
+          props: { end: null, start: finnish(31, 23, 55, 55) },
+        },
+        {
+          case: 'a start typed on the first day of a range that starts later that day',
+          expected: [finnish(31), null],
+          field: 'start',
+          keys: '31102026',
+          props: { end: null, range: { start: finnish(31, 12) }, start: null },
+        },
+        {
+          // A field with a value keeps its time when the day is edited.
+          case: 'a start moved to the last day of a range that ends earlier that day',
+          expected: [finnish(31, 20), null],
+          field: 'start',
+          keys: '31',
+          props: { end: null, range: { end: finnish(31, 12) }, start: finnish(30, 20) },
+        },
+      ] as const
+
+      it.each(sameDayCases.map((c) => [c.case, c] as const))(
+        'keeps %s (KOE-1538)',
+        async (_, { expected, field, keys, props }) => {
+          const { changeHandler, group } = await typeInto(field, keys, props)
+
+          expect(group).toHaveTextContent('31.10.2026')
+          expect(changeHandler).toHaveBeenLastCalledWith(...expected)
+        }
+      )
+
+      it.each([
+        { case: 'the day before the range starts', keys: '30102026', range: { start: finnish(31, 12) } },
+        { case: 'the day after the range ends', keys: '31102026', range: { end: finnish(30, 12) } },
+      ])('refuses a start typed on $case (KOE-1538)', async ({ keys, range }) => {
+        const { changeHandler } = await typeInto('start', keys, { end: null, range, start: null })
+
+        expect(changeHandler).not.toHaveBeenCalledWith(expect.any(Date), null)
+        expect(changeHandler).toHaveBeenLastCalledWith(null, null)
+      })
+    })
+
+    describeInTimeZone('America/New_York', () => {
+      it('refuses a start typed on the Finnish day before the range starts (KOE-1538)', async () => {
+        // EntrySection's range starts at zonedStartOfDay(createdAt): 16.10. 00:00 in Finland is
+        // 15.10. 17:00 in New York, the same local day as the 15.10. typed there.
+        const { changeHandler } = await typeInto('start', '15102026', {
+          end: null,
+          range: { start: finnish(16) },
+          start: null,
+        })
+
+        expect(changeHandler).not.toHaveBeenCalledWith(new Date(2026, 9, 15), null)
+        expect(changeHandler).toHaveBeenLastCalledWith(null, null)
+      })
     })
 
     it('should not allow setting the end date before the current start date', async () => {

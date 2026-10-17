@@ -71,26 +71,14 @@ export const getNouGroupRuleIssues = (
 /**
  * Decide which visual list a registration belongs to.
  * - Cancelled always to cancelled
- * - Existing event group keys honored
+ * - A start to the group of its day and time, however its stored key spells the day
+ *   (`getRegistrationGroupKey`, the rule the server moves by too)
  * - Otherwise reserve
  */
 export const listKey = (reg: Registration, eventGroups: RegistrationGroup[]) => {
   const key = getRegistrationGroupKey(reg)
   if (key === GROUP_KEY_CANCELLED) return GROUP_KEY_CANCELLED
-  // Primary: honor explicit group.key if it matches an existing visual group.
-  if (eventGroups.some((eg) => eg.key === key)) return key
-
-  // Fallback: some backends may persist a different `group.key` format than what UI derives
-  // via `eventRegistrationDateKey()` (timezone differences, legacy data etc.).
-  // If we have date+time on the group, derive the UI key and try that.
-  const derivedKey =
-    reg.group?.date && reg.group?.time
-      ? eventRegistrationDateKey({ date: reg.group.date, time: reg.group.time })
-      : undefined
-  if (derivedKey && eventGroups.some((eg) => eg.key === derivedKey)) {
-    return derivedKey
-  }
-  return GROUP_KEY_RESERVE
+  return eventGroups.some((eg) => eg.key === key) ? key : GROUP_KEY_RESERVE
 }
 
 /** Derive grouped, augmented registrations for grids */
@@ -299,7 +287,8 @@ export const buildMoveToPositionGroupChange = (
 
   const currentGroup = selectedForAction.group
   if (!currentGroup) return undefined
-  const before = (registrationsByGroup[currentGroup.key] ?? []).find(
+  // The list the row is shown in, which the stored key may not name (KOE-1541).
+  const before = (registrationsByGroup[currentGroupKey] ?? []).find(
     (registration) =>
       registration.id !== selectedForAction.id && (registration.group?.number ?? Infinity) >= Math.ceil(position)
   )
@@ -307,7 +296,7 @@ export const buildMoveToPositionGroupChange = (
   return {
     group: {
       date: currentGroup.date,
-      key: currentGroup.key,
+      key: currentGroupKey,
       time: currentGroup.time,
     },
     id: selectedForAction.id,

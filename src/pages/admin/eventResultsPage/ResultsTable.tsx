@@ -52,6 +52,11 @@ interface Props {
   readonly compact?: boolean
   /** Shows where each dog's result stands with Kennelliitto's Omakoira (KOE-1140). */
   readonly kennelliitto?: boolean
+  /**
+   * Each awarded dog's rank (`placementsFor`). Absent in a post's own view, where it is unknowable. A row
+   * with an unsaved edit shows none: the rank is of what is stored, and the edit may move it.
+   */
+  readonly placements?: ReadonlyMap<string, number>
 }
 
 /** A dog's controls, built once and placed by whichever layout is showing. */
@@ -89,6 +94,7 @@ function ResultsTable({
   onChange,
   compact,
   kennelliitto,
+  placements,
 }: Props) {
   const { t } = useTranslation()
   const qualitative = !scoresAtPosts(eventType)
@@ -198,6 +204,7 @@ function ResultsTable({
           eventType={eventType}
           onChange={(next) => report(registration, attributed(next))}
           round={fullRound}
+          placement={edits[registration.id] ? undefined : placements?.get(registration.id)}
           stored={registration.eventResult}
         />
       ),

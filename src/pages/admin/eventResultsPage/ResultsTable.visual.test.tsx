@@ -5,7 +5,7 @@ import { page } from 'vitest/browser'
 import { render } from 'vitest-browser-react'
 import { eventWithStations, registrationsToEventWithStations } from '@/__mockData__/resultsEvent'
 import theme from '@/assets/Theme'
-import { classRound } from '@/lib/results'
+import { classRound, placementsFor } from '@/lib/results'
 import { describeInLanguage } from '@/test-utils/language'
 import ResultsTable from './ResultsTable'
 
@@ -170,6 +170,59 @@ it('shows where each dog stands with Omakoira beside its result (KOE-1140)', asy
 
   await expect.element(screen.getByText('Muuttunut')).toBeVisible()
   await expect(screen.getByTestId('visual-root')).toMatchScreenshot('results-entry-kennelliitto')
+})
+
+// Stored results, nothing being edited: the rank of each awarded dog shows under its prize, tied dogs
+// sharing one.
+const storedResult = (points: number[], result: string): Registration['eventResult'] => ({
+  maxPoints: 40,
+  points: points.reduce((sum, value) => sum + value, 0),
+  result,
+  tasks: [
+    { index: 0, points: points[0], stationId: 'post-1', updatedAt: '2021-02-10T10:00:00Z', updatedBy: 'Rasti 1' },
+    { index: 0, points: points[1], stationId: 'post-2', updatedAt: '2021-02-10T10:00:00Z', updatedBy: 'Rasti 2' },
+    { index: 1, points: points[2], stationId: 'post-2', updatedAt: '2021-02-10T10:00:00Z', updatedBy: 'Rasti 2' },
+  ],
+  updatedAt: '2021-02-10T10:00:00Z',
+  updatedBy: 'Rasti 2',
+})
+const placed: Registration[] = [
+  { ...runners[0], eventResult: storedResult([20, 10, 10], 'ALO1') },
+  { ...runners[1], eventResult: storedResult([15, 5, 5], 'ALO3') },
+  {
+    ...runners[0],
+    dog: { ...runners[0].dog, name: 'Kolmas', regNo: 'REG-run-3' },
+    eventResult: storedResult([15, 5, 5], 'ALO3'),
+    group: { ...runners[0].group, key: 'ALO-AP', number: 3 },
+    handler: { ...runners[0].handler, name: 'Kolmas ohjaaja' },
+    id: 'run-3',
+  },
+]
+
+it('shows the rank of each awarded dog beside its prize', async () => {
+  const screen = await render(
+    <Frame>
+      <ResultsTable
+        defaultJudges={{}}
+        edits={{}}
+        eventClass="ALO"
+        eventType="NOWT"
+        fullRound={round}
+        judgesFor={() => [judge]}
+        onChange={noop}
+        onJudgeChange={noop}
+        placements={placementsFor(placed)}
+        registrations={placed}
+        round={round}
+        stations={eventWithStations.stations ?? []}
+      />
+    </Frame>
+  )
+
+  await expect.element(screen.getByText('ALO1')).toBeVisible()
+  await expect.element(screen.getByText('Sija 1')).toBeVisible()
+  await expect.element(screen.getByText('Sija 2').first()).toBeVisible()
+  await expect(screen.getByTestId('visual-root')).toMatchScreenshot('results-entry-nowt-placement')
 })
 
 it('shows a pass/fail round with the result and the judge as the entry', async () => {

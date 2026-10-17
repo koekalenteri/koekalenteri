@@ -351,9 +351,12 @@ export interface JsonRegistrationGroup extends Partial<JsonRegistrationDate> {
   key: string
 }
 
+/** A group's day as stored (an ISO string) or parsed (a Date). */
+export type GroupDate = string | Date
+
 /** An entry as a decision that asks only which group it is in reads it: a stored and a parsed group alike. */
 interface RegistrationGroupHolder {
-  group?: Pick<JsonRegistrationGroup, 'key'>
+  group?: Pick<JsonRegistrationGroup, 'key'> & { date?: GroupDate; time?: RegistrationTime }
 }
 
 /** Where an entry stands as far as its place goes: whether it was cancelled, and its group. */
@@ -384,7 +387,7 @@ export type RegistrationGroupMove = {
   id: string
   group: {
     key: string
-    date?: string | Date
+    date?: GroupDate
     time?: RegistrationTime
   }
   /** Insert before this registration in the destination group; omit to append. */
@@ -464,6 +467,11 @@ export interface JsonPublicRegistration {
   numberProvisional?: boolean
   /** Present only where the class's results have been published. Composed, e.g. `AVO1` or `ALO-`. */
   result?: string
+  /**
+   * Published with the result: the rank among the class's awarded dogs that day, ties sharing one
+   * (1, 2, 2, 4). Derived when the list is built, never stored. Absent for a dog without a prize.
+   */
+  placement?: number
   /**
    * Published with the result and only where it is: what the code alone cannot say, such as a trial the
    * judge stopped (KOE-1300). Absent rather than empty when there is nothing to add.

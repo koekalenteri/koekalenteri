@@ -547,6 +547,20 @@ describe('registration', () => {
       expect(result.ALO.group1).toHaveLength(1)
     })
 
+    it('skips a cancelled registration still placed in a participant group (KOE-1537)', () => {
+      const registrationsByClass = asRegistrationsByClass({
+        ALO: [
+          { group: { key: '2026-10-20-kp' }, id: '1', messagesSent: { invitation: true } },
+          { cancelled: true, group: { key: '2026-10-20-kp' }, id: '2' },
+        ],
+      })
+
+      const result = groupRegistrationsByClassAndGroup(registrationsByClass)
+
+      expect(result.ALO['2026-10-20-kp'].map((r) => r.id)).toEqual(['1'])
+      expect(findClassesToMark(result, 'invitation')).toEqual(['ALO'])
+    })
+
     it('should handle empty input', () => {
       const result = groupRegistrationsByClassAndGroup({})
       expect(result).toEqual({})

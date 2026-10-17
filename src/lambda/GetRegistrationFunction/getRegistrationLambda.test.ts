@@ -11,6 +11,7 @@ import { addDays } from 'date-fns'
 import { vi } from 'vitest'
 import { eventWithParticipantsInvited } from '../../__mockData__/events'
 import { registrationsToEventWithParticipantsInvited } from '../../__mockData__/registrations'
+import { isParticipantGroup } from '../../lib/registration'
 import { LambdaError } from '../lib/lambda'
 import { constructAPIGwEvent } from '../test-utils/helpers'
 
@@ -209,6 +210,22 @@ describe('getRegistration', () => {
     expect(res.statusCode).toEqual(200)
     const reg: JsonRegistration = JSON.parse(res.body)
     expect(reg.invitationAttachment).toBeUndefined()
+  })
+
+  it('does not add invitationAttachment for a cancelled registration left in a participant group (KOE-1537)', async () => {
+    const stored = registrationsToEventWithParticipantsInvited[0]
+    // The bad state: cancelled, but the group key still names a participant group.
+    expect(isParticipantGroup(stored.group?.key)).toBe(true)
+    mockGetRegistration.mockReturnValueOnce({ ...stored, cancelled: true })
+
+    const res = await getRegistrationLambda(
+      constructAPIGwEvent('test', { pathParameters: { eventId: '123', id: '123' } })
+    )
+
+    expect(res.statusCode).toEqual(200)
+    const reg: JsonRegistration = JSON.parse(res.body)
+    expect(reg.invitationAttachment).toBeUndefined()
+    expect(reg.invitationAttachmentUpdatedAt).toBeUndefined()
   })
 
   /**

@@ -37,7 +37,7 @@ import {
   isScorableRegistration,
   sortRegistrationsByDateClassTimeAndNumber,
 } from '../../lib/registration'
-import { classRound, scoresAtPosts, stationVersion } from '../../lib/results'
+import { classRound, placementsFor, scoresAtPosts, stationVersion } from '../../lib/results'
 import { Path } from '../../routeConfig'
 import { AsyncButton } from '../components/AsyncButton'
 import { emptyEdit } from '../components/stationScoring/types'
@@ -136,6 +136,9 @@ export default function EventResultsPage() {
         .sort(sortRegistrationsByDateClassTimeAndNumber),
     [dayRegistrations, eventClass]
   )
+
+  // Ranked over every dog of the event, so a class's other day cannot leak into this one's ranks.
+  const placements = useMemo(() => placementsFor(registrations), [registrations])
 
   const fullRound = useMemo(() => {
     const classStations = event?.classes?.find((item) => item.class === eventClass)?.stations
@@ -525,6 +528,7 @@ export default function EventResultsPage() {
           eventType={event.eventType}
           fullRound={scoped ? undefined : fullRound}
           onChange={handleChange}
+          placements={scoped ? undefined : placements}
           defaultJudges={defaultJudges}
           judges={eventJudges}
           judgesFor={judgesFor}

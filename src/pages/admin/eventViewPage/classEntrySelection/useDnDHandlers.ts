@@ -72,7 +72,10 @@ export const useDnDHandlers = ({
 
     setSelectedRegistrationId?.(reg.id)
 
-    const regs = registrations.filter((r) => r.group?.key === group.key && r.id !== reg.id)
+    // The siblings are the rows in this group by the one rule the server moves by: a start is named by
+    // its date and time, whatever key it was stored with, and a cancelled entry belongs to the
+    // cancelled group. An anchor chosen among them is one the server accepts.
+    const regs = registrations.filter((r) => getRegistrationGroupKey(r) === group.key && r.id !== reg.id)
     const save = determineChangesFromDrop(item, group, reg, regs, canArrangeReserve)
 
     if (save.length) {
