@@ -130,13 +130,27 @@ describe('readPublishedStartList (KOE-1516)', () => {
       ])
     })
 
+    it('counts a dog whose row is withheld in the rank of the published ones', async () => {
+      mockGetEvent.mockResolvedValue(resultsEvent)
+      mockGetRegistrationsByEventId.mockResolvedValue([
+        scored('a', 'ALO2', 70),
+        // Its number is not entered yet, so it stays off the list, but it still ran ahead of the others.
+        { ...scored('w', 'ALO1', 95), startGroup: undefined },
+      ])
+
+      const { participants } = await readPublishedStartList('event-1')
+
+      expect(participants).toEqual([expect.objectContaining({ placement: 2, result: 'ALO2' })])
+    })
+
     it('withholds the rank where the results are not published', async () => {
       mockGetEvent.mockResolvedValue({ ...resultsEvent, resultsPublished: { ALO: false } })
       mockGetRegistrationsByEventId.mockResolvedValue([scored('a', 'ALO1', 90)])
 
       const { participants } = await readPublishedStartList('event-1')
 
-      expect(participants).toEqual([expect.not.objectContaining({ placement: 1 })])
+      expect(participants).toHaveLength(1)
+      expect(participants[0]).not.toHaveProperty('placement')
     })
   })
 })

@@ -3,6 +3,7 @@ import type React from 'react'
 import type { MouseEventHandler, ReactElement, ReactNode } from 'react'
 import type { Registration, RegistrationDate, RegistrationGroup } from '@/types'
 import CircularProgress from '@mui/material/CircularProgress'
+import { useGridApiRef } from '@mui/x-data-grid'
 import { renderHook } from '@testing-library/react'
 import { isValidElement } from 'react'
 import { eventWithStaticDatesAnd3Classes } from '@/__mockData__/events'
@@ -1114,9 +1115,14 @@ describe('placement column', () => {
       useClassEntrySelectionColumns(mockAvailableDates, nowtEvent, undefined, registrations)
     )
     const column = result.current.participantColumns.find((col) => col.field === 'placement')
-    const getter = column?.valueGetter as (value: unknown, row: Registration) => number | ''
+    if (typeof column?.valueGetter !== 'function') throw new Error('Expected a placement value getter')
+    const { valueGetter } = column
 
-    expect(registrations.map((row) => getter(undefined, row))).toEqual([1, 2, 2, ''])
+    const { result: apiRef } = renderHook(() => useGridApiRef())
+
+    expect(
+      registrations.map((row) => Reflect.apply(valueGetter, undefined, [undefined, row, column, apiRef.current]))
+    ).toEqual([1, 2, 2, ''])
   })
 
   it('has no column for a qualitative event type', () => {

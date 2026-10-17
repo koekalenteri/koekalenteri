@@ -117,7 +117,14 @@ const storedResult = (points: number[], result: string): Registration['eventResu
 const placed: Registration[] = [
   { ...runners[0], eventResult: storedResult([20, 10, 10], 'ALO1') },
   { ...runners[1], eventResult: storedResult([15, 5, 5], 'ALO3') },
-  { ...runners[0], eventResult: storedResult([15, 5, 5], 'ALO3'), id: 'run-3' },
+  {
+    ...runners[0],
+    dog: { ...runners[0].dog, name: 'Kolmas', regNo: 'REG-run-3' },
+    eventResult: storedResult([15, 5, 5], 'ALO3'),
+    group: { ...runners[0].group, key: 'ALO-AP', number: 3 },
+    handler: { ...runners[0].handler, name: 'Kolmas ohjaaja' },
+    id: 'run-3',
+  },
 ]
 
 it('shows the rank of each awarded dog beside its prize', async () => {

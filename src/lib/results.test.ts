@@ -1,5 +1,7 @@
+import type { TFunction } from 'i18next'
 import type { JsonEventResult, JsonEventResultTask } from '../types'
 import type { ScoredTask, SubmittedEventResult } from './results'
+import i18n from 'i18next'
 import {
   availableResultCodes,
   canBeStopped,
@@ -8,6 +10,7 @@ import {
   eliminatingFaults,
   eventResultPrefix,
   formatEventResult,
+  formatResultLine,
   mergeStationTasks,
   nowtTotals,
   parseEventResultCode,
@@ -607,8 +610,8 @@ describe('per-post entry', () => {
 })
 
 describe('placementsFor', () => {
-  const day1 = new Date('2026-08-01T00:00:00')
-  const day2 = new Date('2026-08-02T00:00:00')
+  const day1 = new Date('2026-08-01T05:00:00Z')
+  const day2 = new Date('2026-08-02T05:00:00Z')
 
   type Row = Parameters<typeof placementsFor>[0][number]
   const dog = (
@@ -669,9 +672,48 @@ describe('placementsFor', () => {
   it('ranks a time of day on the same date together', () => {
     const placements = placementsFor([
       dog('a', 'ALO1', 90),
-      dog('b', 'ALO1', 85, { group: { date: new Date('2026-08-01T12:00:00'), key: 'participants', number: 2 } }),
+      dog('b', 'ALO1', 85, { group: { date: new Date('2026-08-01T15:00:00Z'), key: 'participants', number: 2 } }),
     ])
     expect(Object.fromEntries(placements)).toEqual({ a: 1, b: 2 })
+  })
+
+  it('ranks a bare date string and an ISO instant of the same day together', () => {
+    const placements = placementsFor([
+      dog('a', 'ALO1', 90, { group: { date: '2026-08-01', key: 'participants', number: 1 } }),
+      dog('b', 'ALO1', 85, { group: { date: new Date('2026-08-01T10:00:00Z'), key: 'participants', number: 2 } }),
+    ])
+    expect(Object.fromEntries(placements)).toEqual({ a: 1, b: 2 })
+  })
+
+  it('shares a rank between different round sizes that score the same share', () => {
+    const placements = placementsFor([
+      dog('a', 'ALO1', 90, { maxPoints: 100 }),
+      dog('five', 'ALO2', 70, { maxPoints: 100 }),
+      dog('four', 'ALO2', 56, { maxPoints: 80 }),
+    ])
+    expect(Object.fromEntries(placements)).toEqual({ a: 1, five: 2, four: 2 })
+  })
+
+  it('gives no rank without a usable maximum', () => {
+    const placements = placementsFor([
+      dog('zero', 'ALO1', 90, { maxPoints: 0 }),
+      { ...dog('unset', 'ALO1', 90), eventResult: { points: 90, result: 'ALO1' } },
+      dog('a', 'ALO1', 80),
+    ])
+    expect(Object.fromEntries(placements)).toEqual({ a: 1 })
+  })
+
+  it('reads the code with the event type as the prefix of a classless entry', () => {
+    const placements = placementsFor([dog('a', 'NOWT1', 90, { class: undefined })])
+    expect(Object.fromEntries(placements)).toEqual({ a: 1 })
+  })
+
+  it('leaves out a dog whose group is the cancelled one', () => {
+    const placements = placementsFor([
+      dog('gone', 'ALO1', 95, { group: { date: day1, key: 'cancelled', number: 1 } }),
+      dog('b', 'ALO1', 90),
+    ])
+    expect(Object.fromEntries(placements)).toEqual({ b: 1 })
   })
 
   it('leaves a qualitative event type unranked', () => {
@@ -685,5 +727,15 @@ describe('placementsFor', () => {
       dog('b', 'ALO1', 90),
     ])
     expect(Object.fromEntries(placements)).toEqual({ b: 1 })
+  })
+})
+
+describe('formatResultLine', () => {
+  const t = i18n.getFixedT('en') as TFunction
+
+  it('reads the code, the marks and the placement as one line, each only where there is one', () => {
+    expect(formatResultLine({ marks: ['interrupted'], placement: 2, result: 'AVO1' }, t)).toBe('AVO1 Stopped Place 2')
+    expect(formatResultLine({ result: 'AVO0' }, t)).toBe('AVO0')
+    expect(formatResultLine({}, t)).toBe('')
   })
 })

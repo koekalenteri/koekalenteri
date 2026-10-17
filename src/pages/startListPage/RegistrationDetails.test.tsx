@@ -14,7 +14,8 @@ const startListAbbreviations: Record<string, string> = {
 }
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({
-    t: (key: string, _options?: any) => {
+    t: (key: string, options?: { placement?: number }) => {
+      if (key === 'results.placement') return `Sija ${options?.placement}`
       if (key.includes('breedAbbr')) {
         return 'LAB/U'
       }
@@ -147,7 +148,7 @@ describe('RegistrationDetails', () => {
       </table>
     )
 
-    expect(screen.getByText('AVO1 results.placement')).toBeInTheDocument()
+    expect(screen.getByText('AVO1 Sija 2')).toBeInTheDocument()
   })
 
   it('applies top-border class when index > 0', () => {

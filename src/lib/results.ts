@@ -12,8 +12,8 @@ import type {
   Registration,
   ResultMark,
 } from '../types'
-import { formatDate } from '../i18n/dates'
 import { objectsDiffer } from './diff'
+import { startListAvailabilityDateKey } from './event'
 import { getRegistrationClass, isScorableRegistration } from './registration'
 
 /**
@@ -40,6 +40,18 @@ export const resultMarks = (result?: { retirement?: EventResultRetirement }): Re
 /** The marks as one reader-facing string, for wherever the result itself is spelled out. */
 export const formatResultMarks = (marks: readonly ResultMark[] | undefined, t: TFunction<'translation'>): string =>
   (marks ?? []).map((mark) => t(`results.marks.${mark}`)).join(' ')
+
+/**
+ * The result as it is read out beside a dog: the code, the marks it carries and the placement, each
+ * only where there is one. One line for the screen and the copied text alike.
+ */
+export const formatResultLine = (
+  { marks, placement, result }: { marks?: readonly ResultMark[]; placement?: number; result?: string },
+  t: TFunction<'translation'>
+): string =>
+  [result, formatResultMarks(marks, t), placement ? t('results.placement', { placement }) : '']
+    .filter(Boolean)
+    .join(' ')
 
 /**
  * Prize thresholds as percentages of the round's maximum (NOWT rules §5.4.1).
@@ -560,7 +572,7 @@ export const placementsFor = (rows: readonly PlacementRow[]): Map<string, number
     const code = parseEventResultCode(eventResult?.result, row.eventType, eventClass)
     if (code !== '1' && code !== '2' && code !== '3') continue
 
-    const key = `${eventClass}|${formatDate(group.date, 'yyyy-MM-dd')}`
+    const key = `${eventClass}|${startListAvailabilityDateKey(group.date)}`
     const entries = groups.get(key) ?? []
     entries.push({ id: row.id, maxPoints, points })
     groups.set(key, entries)
@@ -572,10 +584,13 @@ export const placementsFor = (rows: readonly PlacementRow[]): Map<string, number
     // a before b when a.points / a.maxPoints is larger, without dividing.
     entries.sort((a, b) => b.points * a.maxPoints - a.points * b.maxPoints)
 
+    let rank = 0
     entries.forEach((entry, index) => {
       const previous = entries[index - 1]
       const tied = previous && previous.points * entry.maxPoints === entry.points * previous.maxPoints
-      placements.set(entry.id, tied ? (placements.get(previous.id) ?? index + 1) : index + 1)
+      // A tie keeps the rank of the dog before it; otherwise the rank is the position, so 1, 2, 2, 4.
+      if (!tied) rank = index + 1
+      placements.set(entry.id, rank)
     })
   }
 

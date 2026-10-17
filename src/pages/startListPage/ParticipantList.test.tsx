@@ -473,6 +473,22 @@ describe('ParticipantList', () => {
     expect(writeText).toHaveBeenCalledWith(expect.stringContaining('2. startList.absent'))
   })
 
+  it('carries the result and the placement into the copied text', async () => {
+    const user = userEvent.setup()
+    mockClipboard()
+    const participant = {
+      ...createMockRegistration('AVO', 'Dog 1', 1, new Date('2023-01-01'), 'ap'),
+      placement: 2,
+      result: 'AVO1',
+    }
+
+    render(<ParticipantList participants={[participant]} event={mockEvent} showExportActions />)
+
+    await user.click(screen.getByRole('button', { name: /copy|kopioi/i }))
+
+    expect(writeText).toHaveBeenCalledWith(expect.stringContaining('AVO1 results.placement'))
+  })
+
   it('reports a failed copy instead of failing silently', async () => {
     const user = userEvent.setup()
     mockClipboard()
@@ -569,6 +585,7 @@ describe('ParticipantList', () => {
         'Breeder',
         'Result',
         'Additional marks',
+        'Place',
       ],
       [
         new Date(2023, 0, 1, 12),
@@ -583,6 +600,7 @@ describe('ParticipantList', () => {
         'Test Owner',
         'Test Handler',
         'Test Breeder',
+        '',
         '',
         '',
       ],
