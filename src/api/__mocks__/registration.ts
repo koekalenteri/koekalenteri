@@ -11,8 +11,10 @@ import type {
 } from '../../types'
 import type { EventResultSubmission, EventResultsResponse } from '../registration'
 import { parseISO } from 'date-fns'
+import { withPaymentPicture } from '../../__mockData__/paymentPicture'
 import { mockRegistrationData } from '../../__mockData__/registrations'
 import { applyPatchOperations } from '../../lib/patch'
+import { isConfirmedEvent } from '../../lib/typeGuards'
 import { mockEvents } from './event'
 
 export const mockRegistrations: { [key: string]: Registration[] } = {
@@ -94,7 +96,20 @@ export const getRegistration = vi.fn(
       if (!registration) {
         reject(new Error(`Registration not found ${eventId}/${id}`))
       } else {
-        process.nextTick(() => resolve(registration))
+        // As the participant receives it: the server's picture of the payment goes with the row, for an
+        // event that asks nothing of anyone (not confirmed, or unknown) as well.
+        const event = mockEvents.find((item) => item.id === eventId)
+        const priced =
+          event && isConfirmedEvent(event)
+            ? event
+            : {
+                cost: event?.cost ?? 0,
+                costMember: event?.costMember ?? event?.cost ?? 0,
+                entryStartDate: event?.entryStartDate ?? registration.createdAt,
+                paymentTime: event?.paymentTime,
+                state: event?.state,
+              }
+        process.nextTick(() => resolve(withPaymentPicture(priced, registration)))
       }
     })
   }

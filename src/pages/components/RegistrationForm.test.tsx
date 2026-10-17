@@ -6,6 +6,7 @@ import { render, screen } from '@testing-library/react'
 import { Provider } from 'jotai'
 import { Suspense } from 'react'
 import { eventWithStaticDates } from '../../__mockData__/events'
+import { paymentPictureWith } from '../../__mockData__/paymentPicture'
 import { registrationWithStaticDates, unpaidRegistrationWithStaticDates } from '../../__mockData__/registrations'
 import theme from '../../assets/Theme'
 import { locales } from '../../i18n'
@@ -50,6 +51,9 @@ function Wrapper({ children }: { readonly children: ReactNode }) {
     </ThemeProvider>
   )
 }
+
+/** A place, as the form's row holds it when the entry has been picked. */
+const place = { date: eventWithStaticDates.startDate, key: 'place-ap', number: 1, time: 'ap' as const }
 
 describe('RegistrationForm', () => {
   beforeAll(() => {
@@ -177,7 +181,7 @@ describe('RegistrationForm', () => {
       ...registrationWithStaticDates,
       owner: { ...owner, membership: true },
       paidAmount: 123,
-      paymentDue: 0,
+      payment: paymentPictureWith(),
     }
     const { rerender } = render(<RegistrationForm event={event} registration={paid} />, { wrapper: Wrapper })
     await flushPromises()
@@ -189,19 +193,80 @@ describe('RegistrationForm', () => {
     expect(screen.getByText(/registration\.paymentToBePaid/)).toHaveTextContent('7,00')
   })
 
-  // KOE-1526 review: at confirmation-time payment the line follows the pay offer, not the confirmation.
-  it('asks for the fee now when paying is offered before the place is confirmed', async () => {
+  // KOE-1526, KOE-1530: at confirmation-time payment the line follows the pay offer. The participant's
+  // row has no group, so the server's picture says it: waiting for a place when paying is not offered
+  // and no payment is held; the picture is the saved row's, as the server's answer was before it.
+  describe("at confirmation-time payment, on the participant's row (no group)", () => {
     const event = { ...eventWithStaticDates, paymentTime: 'confirmation' as const }
-    const picked = {
-      ...unpaidRegistrationWithStaticDates,
-      confirmed: false,
-      messagesSent: { picked: true },
-      shouldPay: true,
-    }
-    render(<RegistrationForm event={event} registration={picked} />, { wrapper: Wrapper })
-    await flushPromises()
+    const { group: _group, ...participantRow } = unpaidRegistrationWithStaticDates
+    const afterConfirmation = (amount: string) =>
+      new RegExp(`^registration\\.paymentToBePaidAfterConfirmation ${amount}`)
+    const atOnce = (amount: string) => new RegExp(`^registration\\.paymentToBePaid ${amount}`)
 
-    expect(screen.getByText(/registration\.paymentToBePaid/)).toHaveTextContent(/^registration\.paymentToBePaid /)
+    // Paid at entry, nothing waits for a place: the picture's canPay says nothing of it.
+    it('says the fee at once for a trial paid at entry, whatever canPay says', async () => {
+      const entryEvent = { ...eventWithStaticDates, paymentTime: 'registration' as const }
+      const payment = paymentPictureWith({ due: 123, standing: false, status: 'unpaid' })
+      render(<RegistrationForm event={entryEvent} registration={{ ...participantRow, payment }} />, {
+        wrapper: Wrapper,
+      })
+      await flushPromises()
+
+      expect(screen.getByText(/^registration\.paymentToBePaid/)).toHaveTextContent(atOnce('123,00'))
+    })
+
+    it.each([
+      [
+        'a confirmed place whose pay link is offered',
+        paymentPictureWith({ canPay: true, due: 123, standing: false, status: 'unpaid' }),
+        {},
+        atOnce('123,00'),
+      ],
+      [
+        'a picked place not yet confirmed whose pay link is offered',
+        paymentPictureWith({ canPay: true, due: 123, standing: false, status: 'unpaid' }),
+        { confirmed: false, messagesSent: { picked: true } },
+        atOnce('123,00'),
+      ],
+      [
+        'a part paid place whose pay link is offered',
+        paymentPictureWith({ canPay: true, due: 23, status: 'partial' }),
+        { paidAmount: 100, paymentStatus: 'SUCCESS' as const },
+        atOnce('23,00'),
+      ],
+      [
+        'a payment in progress',
+        paymentPictureWith({ due: 123, standing: false, status: 'inProgress' }),
+        {},
+        atOnce('123,00'),
+      ],
+      ['a payment charged twice', paymentPictureWith({ due: 123, status: 'duplicate' }), {}, atOnce('123,00')],
+      [
+        'a reserve that waits for a place',
+        paymentPictureWith({ due: 123, standing: false, status: 'waitingForPlace' }),
+        {},
+        afterConfirmation('123,00'),
+      ],
+      [
+        'a saved free class edited to a paid one',
+        paymentPictureWith({ due: 0, standing: false, status: 'notCharged' }),
+        {},
+        afterConfirmation('123,00'),
+      ],
+      [
+        'a part paid reserve',
+        paymentPictureWith({ due: 23, status: 'partial' }),
+        { paidAmount: 100, paymentStatus: 'SUCCESS' as const },
+        afterConfirmation('23,00'),
+      ],
+    ])('says the fee for %s', async (_name, payment, overrides, text) => {
+      render(<RegistrationForm event={event} registration={{ ...participantRow, ...overrides, payment }} />, {
+        wrapper: Wrapper,
+      })
+      await flushPromises()
+
+      expect(screen.getByText(/^registration\.paymentToBePaid/)).toHaveTextContent(text)
+    })
   })
 
   it('says a new entry pays once its place is confirmed when the trial is paid at confirmation', async () => {
@@ -215,22 +280,18 @@ describe('RegistrationForm', () => {
     )
   })
 
-  // KOE-1526 review: a payment in progress turns the pay offer off, not the place.
-  it('asks for the fee of a confirmed place while its payment is in progress', async () => {
+  // The secretary's row carries its group and no picture: the group says whether it has a place.
+  it.each([
+    ['a place', place, /^registration\.paymentToBePaid 123,00/],
+    ['the reserve list', { ...place, key: 'reserve' }, /^registration\.paymentToBePaidAfterConfirmation 123,00/],
+  ])("reads the secretary's row by its group: %s", async (_name, group, text) => {
     const event = { ...eventWithStaticDates, paymentTime: 'confirmation' as const }
-    const pending = {
-      ...unpaidRegistrationWithStaticDates,
-      confirmed: true,
-      messagesSent: { picked: true },
-      paymentInProgress: true,
-      shouldPay: false,
-    }
-    render(<RegistrationForm event={event} registration={pending} />, { wrapper: Wrapper })
+    render(<RegistrationForm event={event} registration={{ ...unpaidRegistrationWithStaticDates, group }} />, {
+      wrapper: Wrapper,
+    })
     await flushPromises()
 
-    expect(screen.getByText(/^registration\.paymentToBePaid/)).toHaveTextContent(
-      /^registration\.paymentToBePaid 123,00/
-    )
+    expect(screen.getByText(/^registration\.paymentToBePaid/)).toHaveTextContent(text)
   })
 
   it('should render optional costs', async () => {

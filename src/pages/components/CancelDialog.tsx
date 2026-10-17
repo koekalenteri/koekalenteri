@@ -56,9 +56,14 @@ const CancelDialog = ({ admin, disabled, event, onCancel, onClose, open, registr
     return null
   }
 
-  // Unpaid as the payment rule reads it, so a payment that went back is unpaid too (KOE-1526). An
-  // event that is not confirmed has no fee to read yet; the mark of a payment stands for it there.
-  const unpaid = isConfirmedEvent(event) ? !isRegistrationPaid(event, registration) : !registration.paidAt
+  // Unpaid as the payment rule reads it, so a payment that went back is unpaid too (KOE-1526). The
+  // participant's registration carries the server's picture; the secretary's row has none and reads
+  // the rule itself, until it takes the picture too. An event that is not confirmed has no fee to
+  // read yet; the mark of a payment stands for it there.
+  const paidForPlace = registration.payment?.paidForPlace
+  const unpaid = isConfirmedEvent(event)
+    ? !(paidForPlace ?? isRegistrationPaid(event, registration))
+    : !registration.paidAt
 
   return (
     <Dialog

@@ -13,6 +13,7 @@ import type {
   User,
 } from '@/types'
 import type { BasicInfoEvent, PartialEvent, SectionProps } from './types'
+import { tz } from '@date-fns/tz'
 import Checkbox from '@mui/material/Checkbox'
 import FormControl from '@mui/material/FormControl'
 import FormControlLabel from '@mui/material/FormControlLabel'
@@ -25,7 +26,7 @@ import { add, differenceInDays, eachDayOfInterval, isAfter, isSameDay } from 'da
 import { memo, useCallback, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useLocalState } from '@/hooks/useLocalState'
-import { zonedEndOfDay, zonedStartOfDay } from '@/i18n/dates'
+import { TIME_ZONE, zonedEndOfDay, zonedStartOfDay } from '@/i18n/dates'
 import {
   applySingleDayNowtGroups,
   defaultEntryEndDate,
@@ -57,6 +58,9 @@ export interface Props extends Readonly<Omit<SectionProps, 'event'>> {
 
 /** A stable default for `useLocalState`, so its initial-value effect does not fire on every render. */
 const EMPTY_TRANSLATIONS: Partial<Record<Language, string>> = {}
+
+/** The event's days are Finnish days: counted and moved so, whatever zone the browser is in (KOE-1539). */
+const inFinland = { in: tz(TIME_ZONE) }
 
 const RETRIEVE_TYPES: RetrieveType[] = ['game', 'dummies']
 
@@ -131,10 +135,11 @@ function BasicInfoSection({
 
       let { entryEndDate, entryStartDate } = event
 
+      // start and end are Finnish dates (zoned* above), and isSameDay compares in the zone of its first argument
       if (!isSameDay(start, event.startDate)) {
         if (isSameDay(end, event.endDate)) {
           // startDate changed and endDate remained the same => change endDate based on the previous distance between days
-          end = add(start, { days: differenceInDays(event.endDate, event.startDate) })
+          end = add(start, { days: differenceInDays(event.endDate, event.startDate, inFinland) }, inFinland)
         }
         if (isDetaultEntryStartDate(entryStartDate, event.startDate)) {
           entryStartDate = defaultEntryStartDate(start)
@@ -437,7 +442,9 @@ function eventClassOptions(event: PartialEvent | undefined, typeClasses: Registr
 function updateClassDates(event: PartialEvent, start: Date, end: Date) {
   const result: EventClass[] = []
   for (const c of event.classes) {
-    const date = zonedStartOfDay(add(start, { days: differenceInDays(c.date ?? event.startDate, event.startDate) }))
+    const date = zonedStartOfDay(
+      add(start, { days: differenceInDays(c.date ?? event.startDate, event.startDate, inFinland) }, inFinland)
+    )
     if (!isAfter(date, end)) {
       result.push({ ...c, date })
     }

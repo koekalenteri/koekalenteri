@@ -1225,7 +1225,8 @@ describe('registration access', () => {
     const response = participantRegistrationResponse(
       { ...storedRow, editTokenVersion: 3 },
       'raw-token',
-      participantEvent
+      participantEvent,
+      []
     )
     expect(response).toMatchObject({ editToken: 'raw-token', id: storedRow.id })
     expect(response).not.toHaveProperty('editTokenVersion')
@@ -1250,17 +1251,12 @@ describe('registration access', () => {
       startGroup: { ...group, number: 7 },
     }
 
-    it('leaves the result, the notes, the groups and the open ids out of the participant response, but keeps paymentInProgress (KOE-1515, KOE-1529)', () => {
-      // Set directly, as the caller (participantResponse in lib/payment.ts) already has them by the
-      // time this function runs: the open ids are never sent, but paymentInProgress is. Local to
-      // this test: paymentInProgress feeds shouldParticipantPay elsewhere in this describe block.
-      const withOpenTransactions = {
-        ...stored,
-        openPayments: ['transaction-1'],
-        openRefunds: ['refund-1'],
-        paymentInProgress: true,
-      }
-      const response = participantRegistrationResponse(withOpenTransactions, 'raw-token', participantEvent)
+    it('leaves the result, the notes, the groups and the open ids out of the participant response, but says a payment is in progress (KOE-1515, KOE-1529)', () => {
+      // The caller (participantResponse in lib/payment.ts) has loaded the open payments by the time
+      // this function runs: the open ids are never sent, but what they say is.
+      const withOpenTransactions = { ...stored, openPayments: ['transaction-1'], openRefunds: ['refund-1'] }
+      const fresh = { createdAt: new Date().toISOString(), status: 'pending' as const, type: 'payment' as const }
+      const response = participantRegistrationResponse(withOpenTransactions, 'raw-token', participantEvent, [fresh])
       for (const field of [
         'eventResult',
         'group',
@@ -1272,7 +1268,7 @@ describe('registration access', () => {
       ]) {
         expect(response).not.toHaveProperty(field)
       }
-      expect(response).toMatchObject({ paymentInProgress: true })
+      expect(response).toMatchObject({ payment: { canPay: false, status: 'inProgress' } })
     })
 
     // The state is worked out here from the same row, so it reads the group it leaves out: a reserve
@@ -1281,11 +1277,10 @@ describe('registration access', () => {
       const returned = { ...stored, paidAmount: 50, paymentStatus: 'SUCCESS' as const, refundAmount: 50 }
       const fee = { ...participantEvent, cost: 50, costMember: 50 }
       expect(
-        participantRegistrationResponse({ ...returned, group: { key: 'reserve', number: 1 } }, 'raw-token', fee)
-      ).toMatchObject({ paymentDue: 0, shouldPay: false })
-      expect(participantRegistrationResponse(returned, 'raw-token', fee)).toMatchObject({
-        paymentDue: 50,
-        shouldPay: true,
+        participantRegistrationResponse({ ...returned, group: { key: 'reserve', number: 1 } }, 'raw-token', fee, [])
+      ).toMatchObject({ payment: { canPay: false, due: 0, status: 'refunded' } })
+      expect(participantRegistrationResponse(returned, 'raw-token', fee, [])).toMatchObject({
+        payment: { canPay: true, due: 50, status: 'unpaid' },
       })
     })
 

@@ -134,7 +134,7 @@ const recordDuplicatePayment = async (
   )
   // The pay button follows the same rule as GetRegistration's: a duplicate waits for its refund.
   // Strongly consistent, the same convention every other writer in this ticket uses: the DELETE
-  // above already removed this transaction's id in the table, and paymentInProgress is recomputed
+  // above already removed this transaction's id in the table, and the payment picture is built
   // from that row, not a local guess at what it now looks like (KOE-1529, round 2 part 3).
   const dogEvent = await getEvent<JsonConfirmedEvent>(registration.eventId)
   const updatedRegistration = await getRegistration(registration.eventId, registration.id, true)
@@ -343,7 +343,7 @@ const handleSuccessfulPayment = async (
   // confirmation email, and admin-side reconciliation may continue afterwards. The page takes what
   // is still owed from the patch: it holds no group to work it out from (KOE-1526). Strongly
   // consistent, the same convention every other writer in this ticket uses: applySuccessfulPayment
-  // already DELETEd this transaction's id in the table, and paymentInProgress is recomputed from
+  // already DELETEd this transaction's id in the table, and the payment picture is built from
   // that row, not a local guess at what it now looks like. A delayed (bank transfer) payment read
   // as in progress by an earlier GetRegistration must not still read that way once this callback
   // applies it, or the page keeps saying "Odottaa maksun käsittelyä" for a paid fee until a reload

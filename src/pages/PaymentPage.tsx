@@ -1,7 +1,6 @@
 import type { Params } from 'react-router'
 import type { CreatePaymentResult } from '../api/payment'
-import type { PaymentStatusKey } from '../lib/payment'
-import type { CreatePaymentResponse, PublicConfirmedEvent, Registration } from '../types'
+import type { CreatePaymentResponse, PaymentPictureStatus, PublicConfirmedEvent, Registration } from '../types'
 import Divider from '@mui/material/Divider'
 import Grid from '@mui/material/Grid'
 import Paper from '@mui/material/Paper'
@@ -13,12 +12,14 @@ import { Await, useLoaderData, useParams } from 'react-router'
 import { APIError } from '../api/http'
 import { createPayment } from '../api/payment'
 import { useRegistrationLanguage } from '../hooks/useRegistrationLanguage'
-import { getShownPayment, paytrailErrorText } from '../lib/payment'
+import { paytrailErrorText } from '../lib/payment'
+import { hasPaymentPicture } from '../lib/registration'
 import { printContactInfo } from '../lib/utils'
 import { Path } from '../routeConfig'
 import { ErrorInfo } from './components/ErrorInfo'
 import LinkButton from './components/LinkButton'
 import { PaymentDetails } from './components/PaymentDetails'
+import { PAYMENT_STATUS_KEY } from './components/paymentStatus'
 import { RegistrationDetails } from './components/RegistrationDetails'
 import { SCREEN_READER_ONLY } from './components/screenReaderOnly'
 import { LoadingPage } from './LoadingPage'
@@ -67,11 +68,7 @@ interface Props {
 }
 
 /** The payment line's statuses that leave nothing to pay on this page: the page says so instead. */
-const NOTICE_STATUSES = new Set<PaymentStatusKey>([
-  'paymentStatus.notCharged',
-  'paymentStatus.refunded',
-  'paymentStatus.waitingForConfirmation',
-])
+const NOTICE_STATUSES = new Set<PaymentPictureStatus>(['notCharged', 'refunded', 'waitingForPlace'])
 
 const paymentErrorStatusKey = {
   403: 'paymentPage.error403',
@@ -96,7 +93,8 @@ export const PaymentPageWithData = ({
     return <>{t('error.eventNotFound')}</>
   }
 
-  if (!registration) {
+  // A response without the payment picture says nothing of the payment: the page has no registration to show.
+  if (!registration || !hasPaymentPicture(registration)) {
     return <>{t('paymentPage.registrationNotFound', { registrationId })}</>
   }
 
@@ -128,9 +126,9 @@ export const PaymentPageWithData = ({
   // The notice says what the status line says (KOE-1526), whatever PaymentCreate answered: paying at
   // confirmation waits for a place, not for the confirmation; a fee that went back was refunded, not
   // paid; and a trial that is not confirmed charges nothing.
-  const { status: paymentStatus } = getShownPayment(event, registration)
+  const { status: paymentStatus } = registration.payment
   if (NOTICE_STATUSES.has(paymentStatus)) {
-    return renderNotice(t(paymentStatus))
+    return renderNotice(t(PAYMENT_STATUS_KEY[paymentStatus]))
   }
 
   if (responseStatus === 204) {

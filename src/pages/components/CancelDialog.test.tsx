@@ -1,5 +1,6 @@
 import { render, screen } from '@testing-library/react'
 import { eventWithStaticDatesAndClass } from '../../__mockData__/events'
+import { paymentPictureWith } from '../../__mockData__/paymentPicture'
 import {
   registrationWithStaticDatesAndClass,
   unpaidRegistrationWithStaticDatesAndClass,
@@ -106,6 +107,29 @@ describe('CancelDialog', () => {
     ],
   ])('offers the unpaid reason for %s: %s', async (_name, event, registration, offered) => {
     const { user } = renderWithUserEvents(<CancelDialog admin event={event} open registration={registration} />)
+
+    await user.click(screen.getByLabelText('registration.cancelDialog.reason'))
+
+    expect(Boolean(screen.queryByRole('option', { name: 'registration.cancelReason.unpaid' }))).toBe(offered)
+  })
+
+  // KOE-1530: the participant's dialog takes whether the place is paid for from the server's picture,
+  // whatever the row beside it says; the secretary's row has none and is read as above.
+  it.each([
+    ['a paid place', paymentPictureWith(), false],
+    ['an unpaid place', paymentPictureWith({ paidForPlace: false, standing: false, status: 'unpaid' }), true],
+  ])('offers the unpaid reason by the picture of %s: %s', async (_name, payment, offered) => {
+    const { user } = renderWithUserEvents(
+      <CancelDialog
+        admin
+        event={publicEventWithStaticDatesAndClass}
+        open
+        registration={{
+          ...(offered ? registrationWithStaticDatesAndClass : unpaidRegistrationWithStaticDatesAndClass),
+          payment,
+        }}
+      />
+    )
 
     await user.click(screen.getByLabelText('registration.cancelDialog.reason'))
 

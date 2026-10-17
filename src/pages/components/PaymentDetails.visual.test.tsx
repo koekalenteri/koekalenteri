@@ -2,6 +2,7 @@ import type { MinimalEventForCost, MinimalRegistrationForCost, PublicDogEvent } 
 import { ThemeProvider } from '@mui/material/styles'
 import { render } from 'vitest-browser-react'
 import { eventWithStaticDates } from '../../__mockData__/events'
+import { paymentPictureWith } from '../../__mockData__/paymentPicture'
 import theme from '../../assets/Theme'
 import { TestProvider } from '../../test-utils/AtomProvider'
 import { languageAtom } from '../state'
@@ -105,7 +106,7 @@ it('asks nothing of a reserve whose fee was refunded', async () => {
             ...registration,
             paidAmount: 55,
             paidAt: new Date('2025-08-02T09:05:00Z'),
-            paymentDue: 0,
+            payment: paymentPictureWith({ paidAmount: 55, refundedAmount: 55, standing: false, status: 'refunded' }),
             refundAmount: 55,
           }}
           includePayable
@@ -126,7 +127,20 @@ it('shows the handling fee kept from a refund on its own line', async () => {
       <Frame width={PHONE}>
         <PaymentDetails
           event={event}
-          registration={{ ...registration, paidAmount: 55, paymentDue: 55, refundAmount: 50, refundHandlingCost: 5 }}
+          registration={{
+            ...registration,
+            paidAmount: 55,
+            payment: paymentPictureWith({
+              due: 55,
+              keptFee: 5,
+              paidAmount: 55,
+              refundedAmount: 50,
+              standing: false,
+              status: 'unpaid',
+            }),
+            refundAmount: 50,
+            refundHandlingCost: 5,
+          }}
           includeTotal
           includePayable
         />

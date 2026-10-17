@@ -12,7 +12,7 @@ import type {
   Replace,
   TestResult,
 } from '.'
-import type { DogEventCostSegment } from './Cost'
+import type { DogEventCostSegment, PaymentPicture } from './Cost'
 
 export type RegistrationClass = 'ALO' | 'AVO' | 'VOI'
 export type RegistrationTemplateContext = '' | 'cancel' | 'confirm' | 'receipt' | 'update' | 'invitation' | 'refund'
@@ -317,19 +317,13 @@ export interface JsonRegistration extends JsonDbRecord {
   /** What sending the result to Kennelliitto came to. Server-owned, never part of `eventResult`. */
   kcResult?: JsonKcResult
   state?: 'creating' | 'ready'
-  shouldPay?: boolean
   /**
-   * What is still owed of the fee, as the server decides it from the whole row. Only in the
-   * participant's responses and payment patches, which leave out the group it depends on (KOE-1526).
+   * Where the entry's money stands, as the server works it out from the whole row, group and open
+   * payments included (`getPaymentPicture`, KOE-1530). Only in the participant's responses and
+   * payment patches, which leave out the group it depends on (KOE-1526); never stored. Every key is
+   * always present, as a patch merges objects key by key.
    */
-  paymentDue?: number
-  /**
-   * Whether a payment is still being worked on, computed on every read from `openPayments`
-   * (`isPaymentInProgress`: pending, under 5 minutes old) rather than stored. Only in the
-   * participant's responses and payment patches, same as `paymentDue` (KOE-1529). Replaces reading
-   * `paymentStatus === 'PENDING'`, which said nothing of which transaction.
-   */
-  paymentInProgress?: boolean
+  payment?: PaymentPicture
   totalAmount?: number
   selectedCost?: DogEventCostSegment
   /** Durable, at-least-once completion markers for a newly created registration. */

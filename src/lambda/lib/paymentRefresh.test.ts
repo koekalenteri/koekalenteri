@@ -111,7 +111,13 @@ describe('refreshTransactionStatusesFromPaytrail', () => {
     mockDynamoUpdate.mockResolvedValueOnce({}) // failUnfinishedTransaction
     mockDynamoUpdate.mockResolvedValueOnce({ Attributes: { openRefunds: ['refund123'] } }) // dropOpenTransaction
     mockDynamoRead.mockResolvedValueOnce({ ...registration, openRefunds: [] }) // the strongly consistent re-read
-    mockGetEvent.mockResolvedValueOnce({ organizer: { id: 'org-1' } })
+    mockGetEvent.mockResolvedValueOnce({
+      cost: 50,
+      costMember: 50,
+      entryStartDate: '2025-01-01T00:00:00.000Z',
+      organizer: { id: 'org-1' },
+      state: 'confirmed',
+    })
     mockBatchGet.mockResolvedValueOnce([])
 
     const refreshed = await refreshTransactionStatusesFromPaytrail([transaction], registration)

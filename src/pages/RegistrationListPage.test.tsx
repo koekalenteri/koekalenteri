@@ -7,8 +7,9 @@ import i18n from 'i18next'
 import { createStore, Provider } from 'jotai'
 import { enqueueSnackbar } from 'notistack'
 import { Suspense } from 'react'
-import { Link, useParams } from 'react-router'
+import { Link, useLocation, useParams } from 'react-router'
 import { eventWithParticipantsInvited, eventWithStaticDates } from '../__mockData__/events'
+import { paymentPictureWith } from '../__mockData__/paymentPicture'
 import { registrationWithStaticDates, unpaidRegistrationWithStaticDates } from '../__mockData__/registrations'
 import * as eventApi from '../api/event'
 import { APIError } from '../api/http'
@@ -57,6 +58,7 @@ const PaymentStub = () => {
     eventId: id,
     id: registrationId,
     language: 'en' as const,
+    payment: paymentPictureWith({ canPay: true, due: 123, standing: false, status: 'unpaid' }),
   }
   return (
     <>
@@ -64,6 +66,15 @@ const PaymentStub = () => {
       <Link to={Path.registration(registration)}>goBack</Link>
     </>
   )
+}
+
+/** What the server's picture says of a place that owes its fee. */
+const owing = paymentPictureWith({ canPay: true, due: 123, standing: false, status: 'unpaid' })
+
+/** Shows where the saved route redirected to. */
+const LocationProbe = () => {
+  const { pathname, search } = useLocation()
+  return <>{`at ${pathname}${search}`}</>
 }
 
 describe('RegistrationListPage', () => {
@@ -161,7 +172,11 @@ describe('RegistrationListPage', () => {
     'shows the page opened from an email link (%s) in the registration language (KOE-1508, KOE-1512)',
     async (path) => {
       localStorage.setItem(languageStorageKey, JSON.stringify('fi'))
-      vi.spyOn(registrationApi, 'getRegistration').mockResolvedValue({ ...registrationWithStaticDates, language: 'en' })
+      vi.spyOn(registrationApi, 'getRegistration').mockResolvedValue({
+        ...registrationWithStaticDates,
+        language: 'en',
+        payment: paymentPictureWith(),
+      })
 
       await renderWithRouter(path)
       await flushPromises()
@@ -181,7 +196,11 @@ describe('RegistrationListPage', () => {
     '/p/test1/nou-registration?from=admin',
   ])('keeps the reader language when the registration is opened from the admin side (%s, KOE-1512)', async (path) => {
     localStorage.setItem(languageStorageKey, JSON.stringify('fi'))
-    vi.spyOn(registrationApi, 'getRegistration').mockResolvedValue({ ...registrationWithStaticDates, language: 'en' })
+    vi.spyOn(registrationApi, 'getRegistration').mockResolvedValue({
+      ...registrationWithStaticDates,
+      language: 'en',
+      payment: paymentPictureWith(),
+    })
 
     await renderWithRouter(path)
     await flushPromises()
@@ -198,7 +217,7 @@ describe('RegistrationListPage', () => {
     vi.spyOn(registrationApi, 'getRegistration').mockResolvedValue({
       ...unpaidRegistrationWithStaticDates,
       language: 'en',
-      shouldPay: true,
+      payment: owing,
     })
     const store = createStore()
 
@@ -297,6 +316,7 @@ describe('RegistrationListPage', () => {
     vi.spyOn(registrationApi, 'getRegistration').mockResolvedValue({
       ...registrationWithStaticDates,
       messagesSent: { picked: true },
+      payment: paymentPictureWith(),
     })
 
     const { user } = await renderWithRouter('/r/test1/nou-registration')
@@ -317,6 +337,7 @@ describe('RegistrationListPage', () => {
     vi.spyOn(registrationApi, 'getRegistration').mockResolvedValue({
       ...registrationWithStaticDates,
       eventId: 'pending-event',
+      payment: paymentPictureWith(),
     })
 
     await renderWithRouter('/r/pending-event/nou-registration/confirm')
@@ -529,7 +550,7 @@ describe('RegistrationListPage', () => {
       ...unpaidRegistrationWithStaticDates,
       id: 'unpaid-picked-nou-registration',
       messagesSent: { picked: true },
-      shouldPay: true,
+      payment: owing,
     })
     await renderWithRouter('/r/test1/unpaid-picked-nou-registration')
 
@@ -551,7 +572,10 @@ describe('RegistrationListPage', () => {
     }
 
     it('asks for nothing while the reserve has no place', async () => {
-      vi.spyOn(registrationApi, 'getRegistration').mockResolvedValue({ ...refunded, paymentDue: 0 })
+      vi.spyOn(registrationApi, 'getRegistration').mockResolvedValue({
+        ...refunded,
+        payment: paymentPictureWith({ refundedAmount: 123, standing: false, status: 'refunded' }),
+      })
       await renderWithRouter('/r/test1/nou-registration')
       await flushPromises()
 
@@ -564,8 +588,7 @@ describe('RegistrationListPage', () => {
       vi.spyOn(registrationApi, 'getRegistration').mockResolvedValue({
         ...refunded,
         messagesSent: { picked: true },
-        paymentDue: 123,
-        shouldPay: true,
+        payment: paymentPictureWith({ ...owing, refundedAmount: 123 }),
       })
       await renderWithRouter('/r/test1/nou-registration')
       await flushPromises()
@@ -576,15 +599,14 @@ describe('RegistrationListPage', () => {
   })
 
   // KOE-1526 review: the payment dialog opens on the same offer as the pay button, the server's
-  // shouldPay, and not while a payment is being verified.
+  // picture, and not while a payment is being verified.
   describe('the payment dialog follows the pay offer', () => {
     it('stays closed for a picked entry moved back to the reserve list when paying at confirmation', async () => {
       vi.spyOn(eventApi, 'getEvent').mockResolvedValue({ ...eventWithStaticDates, paymentTime: 'confirmation' })
       vi.spyOn(registrationApi, 'getRegistration').mockResolvedValue({
         ...unpaidRegistrationWithStaticDates,
         messagesSent: { picked: true },
-        paymentDue: 123,
-        shouldPay: false,
+        payment: paymentPictureWith({ due: 123, standing: false, status: 'waitingForPlace' }),
       })
       await renderWithRouter('/r/test1/unpaid-nou-registration')
       await flushPromises()
@@ -596,15 +618,102 @@ describe('RegistrationListPage', () => {
       vi.spyOn(registrationApi, 'getRegistration').mockResolvedValue({
         ...unpaidRegistrationWithStaticDates,
         messagesSent: { picked: true },
-        paymentDue: 123,
-        paymentStatus: 'NEW',
-        shouldPay: true,
+        payment: owing,
       })
       await renderWithRouter('/r/test1/unpaid-nou-registration?payment=verifying')
       await flushPromises()
 
       expect(screen.queryByRole('dialog', { name: 'registration.paymentDialog.title' })).not.toBeInTheDocument()
     })
+  })
+
+  // A payment return keeps verifying until the picture has a payment standing or charged twice.
+  const verifyingMessage = ['registration.notifications.paymentVerifying', { variant: 'info' }] as const
+
+  it.each([
+    ['a payment standing', paymentPictureWith()],
+    ['a payment charged twice', paymentPictureWith({ due: 123, standing: false, status: 'duplicate' })],
+  ])('stops verifying a payment return once the picture has %s', async (_name, payment) => {
+    vi.spyOn(registrationApi, 'getRegistration').mockResolvedValue({ ...unpaidRegistrationWithStaticDates, payment })
+    await renderWithRouter('/r/test1/unpaid-nou-registration?payment=verifying')
+    await flushPromises()
+
+    expect(enqueueSnackbar).not.toHaveBeenCalledWith(...verifyingMessage)
+  })
+
+  // A place paid, fully refunded, lifted into a place and not yet paid again has a stored SUCCESS but
+  // no money standing: the page keeps waiting for the money (an intended change from reading the
+  // stored status, which ended the wait at once).
+  it('keeps verifying a payment return while no money stands, whatever the stored status says', async () => {
+    vi.spyOn(registrationApi, 'getRegistration').mockResolvedValue({
+      ...unpaidRegistrationWithStaticDates,
+      payment: owing,
+      paymentStatus: 'SUCCESS',
+    })
+    await renderWithRouter('/r/test1/unpaid-nou-registration?payment=verifying')
+    await flushPromises()
+
+    expect(enqueueSnackbar).toHaveBeenCalledWith(...verifyingMessage)
+  })
+
+  // Where the saved route goes next: it keeps the verifying mark until the picture has money standing.
+  it.each([
+    [
+      'no money stands, whatever the stored status says',
+      owing,
+      'at /r/test1/unpaid-nou-registration?payment=verifying',
+    ],
+    ['money stands', paymentPictureWith(), 'at /r/test1/unpaid-nou-registration'],
+  ])('redirects from the saved route when %s', async (_name, payment, location) => {
+    vi.spyOn(registrationApi, 'getRegistration').mockResolvedValue({
+      ...unpaidRegistrationWithStaticDates,
+      payment,
+      paymentStatus: 'SUCCESS',
+    })
+    const routes: RouteObject[] = [
+      { element: <RegistrationListPage />, path: '/r/:id/:registrationId/saved' },
+      { element: <LocationProbe />, path: '/r/:id/:registrationId' },
+    ]
+    await renderSuspended(
+      <Provider>
+        <Suspense fallback={<div>loading...</div>}>
+          <AppSnackbarProvider>
+            <DataMemoryRouter
+              initialEntries={['/r/test1/unpaid-nou-registration/saved?payment=verifying']}
+              routes={routes}
+            />
+          </AppSnackbarProvider>
+        </Suspense>
+      </Provider>
+    )
+    await flushPromises()
+
+    expect(screen.getByText(location)).toBeInTheDocument()
+  })
+
+  // The divergent branch of the saved return: the stored status says SUCCESS, the picture says no money
+  // stands (paid, fully refunded, lifted, not yet paid again), so no "paid" snackbar is shown.
+  it('shows no paid snackbar on the saved route while no money stands, whatever the stored status says', async () => {
+    vi.spyOn(registrationApi, 'getRegistration').mockResolvedValue({
+      ...registrationWithStaticDates,
+      messagesSent: { picked: true },
+      payment: owing,
+      paymentStatus: 'SUCCESS',
+    })
+    await renderWithRouter('/r/test1/nou-registration/saved')
+    await flushPromises()
+
+    expect(enqueueSnackbar).not.toHaveBeenCalledWith(expect.stringContaining('registration.'), expect.anything())
+  })
+
+  // The server always sends the picture; a response without it gives the page nothing to say.
+  it('stays on the loading page when the response has no payment picture', async () => {
+    vi.spyOn(registrationApi, 'getRegistration').mockResolvedValue(unpaidRegistrationWithStaticDates)
+    await renderWithRouter('/r/test1/unpaid-nou-registration')
+    await flushPromises()
+
+    expect(screen.getByRole('progressbar')).toBeInTheDocument()
+    expect(screen.queryByText('registration.registeredDogs')).not.toBeInTheDocument()
   })
 
   it('polls pending payment as a bounded websocket fallback', async () => {
@@ -614,10 +723,11 @@ describe('RegistrationListPage', () => {
       .spyOn(registrationApi, 'getRegistration')
       .mockResolvedValueOnce({
         ...unpaidRegistrationWithStaticDates,
-        paymentInProgress: true,
+        payment: paymentPictureWith({ due: 123, standing: false, status: 'inProgress' }),
       })
       .mockResolvedValue({
         ...unpaidRegistrationWithStaticDates,
+        payment: paymentPictureWith(),
         paymentStatus: 'SUCCESS',
       })
 
@@ -646,9 +756,11 @@ describe('RegistrationListPage', () => {
       .spyOn(registrationApi, 'getRegistration')
       .mockResolvedValueOnce({
         ...unpaidRegistrationWithStaticDates,
+        payment: owing,
       })
       .mockResolvedValue({
         ...unpaidRegistrationWithStaticDates,
+        payment: paymentPictureWith(),
         paymentStatus: 'SUCCESS',
       })
 
@@ -742,6 +854,7 @@ describe('RegistrationListPage', () => {
       eventType: event.eventType,
       id: 'class-invitation-registration',
       invitationAttachment: 'alo-attachment',
+      payment: paymentPictureWith(),
     }
     vi.spyOn(eventApi, 'getEvent').mockResolvedValueOnce(event)
     vi.spyOn(registrationApi, 'getRegistration').mockResolvedValueOnce(registration)

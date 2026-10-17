@@ -1,4 +1,5 @@
 import { vi } from 'vitest'
+import { paymentPictureWith } from '../../__mockData__/paymentPicture'
 import { answerRejections, constructPartialAPIGwEvent } from '../test-utils/helpers'
 import { loggedLines } from '../test-utils/logs'
 
@@ -159,7 +160,7 @@ describe('paymentVerifyLambda', () => {
     const cancelled = {
       eventId: 'event123',
       organizerId: 'org-1',
-      participantPatch: { eventId: 'event123', id: 'reg456', paymentInProgress: false, shouldPay: true },
+      participantPatch: { eventId: 'event123', id: 'reg456', payment: paymentPictureWith() },
       patch: { eventId: 'event123', id: 'reg456', openPayments: [] },
       registrationId: 'reg456',
     }

@@ -204,9 +204,8 @@ describe('ws/subscriptionService', () => {
         patch: expect.objectContaining({
           eventId: 'e1',
           id: 'r1',
-          paymentDue: 0,
+          payment: expect.objectContaining({ canPay: false, due: 0, status: 'refunded' }),
           paymentStatus: 'SUCCESS',
-          shouldPay: false,
         }),
         registrationId: 'r1',
         scope: 'participant:registration-patch',
@@ -244,7 +243,10 @@ describe('ws/subscriptionService', () => {
 
     await expect(subscribeToRegistration({ connectionId: 'c1' }, 'e1', 'r1', 'edit-token')).resolves.toEqual(
       expect.objectContaining({
-        patch: expect.objectContaining({ paymentDue: 50, refundAmount: 50, shouldPay: true }),
+        patch: expect.objectContaining({
+          payment: expect.objectContaining({ canPay: true, due: 50 }),
+          refundAmount: 50,
+        }),
       })
     )
   })
@@ -279,7 +281,9 @@ describe('ws/subscriptionService', () => {
 
     await expect(subscribeToRegistration({ connectionId: 'c1' }, 'e1', 'r1', 'edit-token')).resolves.toEqual(
       expect.objectContaining({
-        patch: expect.objectContaining({ paymentDue: 50, paymentInProgress: false, shouldPay: true }),
+        patch: expect.objectContaining({
+          payment: expect.objectContaining({ canPay: true, due: 50, status: 'unpaid' }),
+        }),
       })
     )
   })

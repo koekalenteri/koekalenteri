@@ -203,7 +203,7 @@ describe('putRegistrationLabmda', () => {
     expect(body.id).toBe(registrationWithStaticDates.id)
     expectNoSecretaryOnlyFields(body)
     // The payment state goes with every answer, a new registration's too (KOE-1526): paid in full.
-    expect(body).toMatchObject({ paymentDue: 0, shouldPay: false })
+    expect(body).toMatchObject({ payment: { canPay: false, due: 0 } })
   })
 
   it('should do happy path for new registration', async () => {
@@ -602,8 +602,8 @@ describe('putRegistrationLabmda', () => {
 
     expect(res.statusCode).toEqual(200)
     const body = JSON.parse(res.body)
-    expect(body.paymentDue).toBe(due)
-    expect(body.shouldPay).toBe(due > 0)
+    expect(body.payment.due).toBe(due)
+    expect(body.payment.canPay).toBe(due > 0)
     expect(body).not.toHaveProperty('group')
   })
 

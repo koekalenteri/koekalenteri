@@ -27,7 +27,7 @@ import { calculateCost } from '../../lib/cost'
 import { getDiffOperations } from '../../lib/diff'
 import { isDevEnv } from '../../lib/env'
 import { formatMoney } from '../../lib/money'
-import { getShownPaymentDue, isPaymentWaitingForPlace } from '../../lib/payment'
+import { getShownPaymentDue, isPaymentWaitingForPlaceInForm } from '../../lib/payment'
 import { getPrioritySort, PRIORITY_MEMBER, priorityValuesToPriority, RESTRICTION } from '../../lib/priority'
 import { filterRelevantResults } from '../../lib/qualification'
 import {
@@ -100,7 +100,9 @@ export default function RegistrationForm({
   // themselves, so a registration made before the restriction stays theirs to edit.
   const valid = errors.length === 0 && registration.qualifies && (admin || !restriction)
   const costResult = calculateCost(event, registration)
+  // The amount owed follows the row as it is edited (KOE-722), and so does whether paying waits for a place.
   const paymentDue = getShownPaymentDue(event, registration)
+  const waitsForPlace = isPaymentWaitingForPlaceInForm(event, registration)
   const ctaText = useMemo(() => {
     if (registration.id) return t('registration.cta.saveChanges')
     if (admin) {
@@ -464,9 +466,9 @@ export default function RegistrationForm({
           }}
         >
           {/* The same facts as the pay offer: what is shown as owed, and whether paying waits for a
-              place, which the server's shouldPay or the group tells, not the confirmation (KOE-1526). */}
+              place, which the server's picture or the group tells, not the confirmation (KOE-1526). */}
           {t(
-            paymentDue > 0 && isPaymentWaitingForPlace(event, registration)
+            paymentDue > 0 && waitsForPlace
               ? 'registration.paymentToBePaidAfterConfirmation'
               : 'registration.paymentToBePaid',
             { amount: formatMoney(paymentDue) }

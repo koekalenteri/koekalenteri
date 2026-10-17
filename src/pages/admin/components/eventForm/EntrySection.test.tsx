@@ -1,4 +1,5 @@
 import type { ConfirmedEvent } from '@/types'
+import { TZDate } from '@date-fns/tz'
 import { ThemeProvider } from '@mui/material'
 import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
@@ -9,9 +10,11 @@ import { MemoryRouter } from 'react-router'
 import { eventWithStaticDates, eventWithStaticDatesAnd3Classes } from '@/__mockData__/events'
 import theme from '@/assets/Theme'
 import { locales } from '@/i18n'
+import { TIME_ZONE, zonedDateString } from '@/i18n/dates'
 import * as env from '@/lib/env'
 import AppSnackbarProvider from '@/pages/components/AppSnackbarProvider'
-import { flushPromises, renderWithUserEvents, runPendingTimers } from '@/test-utils/utils'
+import { describeInTimeZone } from '@/test-utils/timeZone'
+import { flushPromises, renderWithUserEvents, runPendingTimers, typeDateKeyByKey } from '@/test-utils/utils'
 import EntrySection from './EntrySection'
 
 describe('EntrySection', () => {
@@ -219,5 +222,80 @@ describe('EntrySection', () => {
     await flushPromises()
 
     expect(onChange).toHaveBeenLastCalledWith({ restrictions: ['member', '312'] })
+  })
+
+  describe.each([TIME_ZONE, 'America/New_York', 'Asia/Tokyo'])('the registration days in %s (KOE-1539)', (zone) => {
+    describeInTimeZone(zone, () => {
+      const eventStart = new Date(new TZDate(2026, 11, 5, TIME_ZONE).getTime())
+      const eventWith = (startDate: Date) => ({
+        ...eventWithStaticDates,
+        entryEndDate: undefined,
+        entryStartDate: undefined,
+        startDate,
+      })
+      let testEvent = eventWith(eventStart)
+
+      const renderEntrySection = async (onChange = vi.fn()) => {
+        vi.spyOn(env, 'isDevEnv').mockReturnValue(true)
+        const res = renderWithUserEvents(
+          <ThemeProvider theme={theme}>
+            <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales.fi}>
+              <Provider>
+                <MemoryRouter>
+                  <Suspense fallback={<div>loading...</div>}>
+                    <AppSnackbarProvider>
+                      <EntrySection event={testEvent} onChange={onChange} open />
+                    </AppSnackbarProvider>
+                  </Suspense>
+                </MemoryRouter>
+              </Provider>
+            </LocalizationProvider>
+          </ThemeProvider>,
+          undefined,
+          { advanceTimers: vi.advanceTimersByTime }
+        )
+        await flushPromises()
+        return { ...res, onChange }
+      }
+
+      it('saves the typed days as the Finnish days they show', async () => {
+        const { onChange, user } = await renderEntrySection()
+
+        await typeDateKeyByKey(user, screen.getAllByRole('group')[0], '02112026')
+
+        const [saved] = onChange.mock.lastCall ?? []
+        expect(zonedDateString(saved.entryStartDate)).toBe('2026-11-02')
+        expect(saved.entryStartDate.getTime()).toBe(new TZDate(2026, 10, 2, TIME_ZONE).getTime())
+      })
+
+      // The default days are whole Finnish weeks before the trial. Counted in the browser's zone the
+      // day lands a day early: over the end of summer time in New York (the changes of Finland and the
+      // US are a week apart), over the start of it in Tokyo.
+      it.each([
+        {
+          calendar: 0,
+          case: 'start over the end of summer time',
+          day: 29,
+          eventDay: new TZDate(2026, 11, 10, TIME_ZONE),
+        },
+        {
+          calendar: 1,
+          case: 'end over the start of summer time',
+          day: 27,
+          eventDay: new TZDate(2027, 3, 17, TIME_ZONE),
+        },
+      ])('marks the default $case in the calendar', async ({ calendar, day, eventDay }) => {
+        testEvent = eventWith(new Date(eventDay.getTime()))
+        const { user } = await renderEntrySection()
+
+        await user.click(screen.getAllByTestId('CalendarIcon')[calendar])
+        const dialog = await screen.findByRole('dialog')
+
+        expect(getComputedStyle(within(dialog).getByRole('gridcell', { name: String(day) })).borderTopWidth).toBe('2px')
+        expect(
+          getComputedStyle(within(dialog).getByRole('gridcell', { name: String(day - 1) })).borderTopWidth
+        ).not.toBe('2px')
+      })
+    })
   })
 })

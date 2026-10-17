@@ -111,7 +111,7 @@ describe('lib/registration', () => {
       expect(isPublicRegistrationOperationField(field)).toBe(true)
     })
 
-    it.each(['qualifyingResults', 'updatedAt', 'shouldPay', 'group', 'eventId', 'id'])(
+    it.each(['qualifyingResults', 'updatedAt', 'payment', 'group', 'eventId', 'id'])(
       'rejects server-managed field %s',
       (field) => {
         expect(isPublicRegistrationOperationField(field)).toBe(false)

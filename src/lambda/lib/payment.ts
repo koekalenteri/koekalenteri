@@ -16,7 +16,7 @@ import { getFixedT } from '../../i18n/lambda'
 import { auditUser, paymentAudit, refundPaytrailFailedAudit } from '../../lib/audit'
 import { localizedEventName } from '../../lib/event'
 import { formatMoney } from '../../lib/money'
-import { getProviderName, isPaymentInProgress, paytrailErrorText, transactionActor } from '../../lib/payment'
+import { getProviderName, paytrailErrorText, transactionActor } from '../../lib/payment'
 import { CONFIG } from '../config'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 import { audit, registrationAuditKey } from './audit'
@@ -338,7 +338,7 @@ export const updateTransactionStatus = async (
   }
 
   // Prepare update object with set operations
-  const updateObj: { set: Record<string, any>; remove?: string[] } = {
+  const updateObj: { set: Record<string, unknown>; remove?: string[] } = {
     set: {
       status,
       statusAt: new Date().toISOString(),
@@ -407,7 +407,7 @@ export const applySuccessfulPayment = async (
 ) => {
   const appliedAt = new Date().toISOString()
   const transactionNames: Record<string, string> = { '#status': 'status' }
-  const transactionValues: Record<string, any> = {
+  const transactionValues: Record<string, unknown> = {
     ':appliedAt': appliedAt,
     ':ok': 'ok',
     ':receiptPreviouslyPaid': previouslyPaid,
@@ -568,44 +568,40 @@ export const getTransactionsByReference = async (reference: string) =>
   })
 
 /**
- * Whether a payment is still being worked on, computed fresh from the registration's open payment
- * ids rather than a stored status (KOE-1529): `isPaymentInProgress` unchanged (pending, under 5
- * minutes old). In practice 0 or 1 ids; `batchGet` handles more just as well. A refund shares the
- * payment's reference but is never a payment in progress, so only `openPayments` feeds this.
+ * The payments still being worked on, loaded fresh from the registration's open payment ids rather
+ * than read from a stored status (KOE-1529): the transactions the payment picture decides
+ * `inProgress` from (`isPaymentInProgress`: pending, under 5 minutes old). In practice 0 or 1 ids;
+ * `batchGet` handles more just as well. A refund shares the payment's reference but is never a
+ * payment in progress, so only `openPayments` feeds this. Every response to the participant loads
+ * them: a picture built without them would offer the pay button mid-payment (KOE-1530).
  */
-export const computePaymentInProgress = async (openPaymentIds: string[] | undefined): Promise<boolean> => {
-  if (!openPaymentIds?.length) return false
-  const transactions = await dynamoDB.batchGet<JsonPaymentTransaction>(
+export const loadOpenPayments = async (openPaymentIds: string[] | undefined): Promise<JsonPaymentTransaction[]> => {
+  if (!openPaymentIds?.length) return []
+  return dynamoDB.batchGet<JsonPaymentTransaction>(
     openPaymentIds.map((transactionId) => ({ transactionId })),
     transactionTable
   )
-  return transactions.some(isPaymentInProgress)
 }
 
 /**
- * A stored registration as its participant receives it: `paymentInProgress` computed fresh from
- * `openPayments`, never a stored PENDING (KOE-1529). GetRegistration and PutRegistration answer
- * through this.
+ * A stored registration as its participant receives it: the payment picture worked out from the
+ * whole row and its open payments, loaded fresh (KOE-1529, KOE-1530). GetRegistration and
+ * PutRegistration answer through this.
  */
 export const participantResponse = async (
   registration: JsonRegistration,
   editToken: string,
   event: JsonConfirmedEvent
-) => {
-  const paymentInProgress = await computePaymentInProgress(registration.openPayments)
-  return participantRegistrationResponse({ ...registration, paymentInProgress }, editToken, event)
-}
+) => participantRegistrationResponse(registration, editToken, event, await loadOpenPayments(registration.openPayments))
 
 /**
- * The participant's payment patch of a stored registration, with `paymentInProgress` computed the
- * same way. The subscribe answer and `settleFailedTransaction`'s cancel patch are built through this.
- * PaymentSuccess builds its patch directly: the row it sends has just been written SUCCESS or
- * DUPLICATE, with nothing left open to compute (KOE-1529).
+ * The participant's payment patch of a stored registration, with its picture built the same way. The
+ * subscribe answer, `settleFailedTransaction`'s cancel patch and PaymentSuccess's patches are built
+ * through this: a row whose open set was just emptied loads nothing, which is exactly its state
+ * (KOE-1529).
  */
-export const participantPaymentPatch = async (registration: JsonRegistration, event: JsonConfirmedEvent) => {
-  const paymentInProgress = await computePaymentInProgress(registration.openPayments)
-  return buildParticipantPaymentPatch({ ...registration, paymentInProgress }, event)
-}
+export const participantPaymentPatch = async (registration: JsonRegistration, event: JsonConfirmedEvent) =>
+  buildParticipantPaymentPatch(registration, event, await loadOpenPayments(registration.openPayments))
 
 const shouldRefreshTransactionStatus = (transaction: JsonPaymentTransaction | JsonRefundTransaction) =>
   transaction.type === 'refund'
