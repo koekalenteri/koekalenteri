@@ -13,14 +13,13 @@
             TableName: !Ref EmailSuppressionTable
         - DynamoDBCrudPolicy:
             TableName: !Ref EventTable
-        - DynamoDBCrudPolicy:
+        - DynamoDBWritePolicy:
             TableName: !Ref AuditTable
-        - DynamoDBCrudPolicy:
+        - DynamoDBWritePolicy:
             TableName: !Ref EventStatsTable
         - DynamoDBReadPolicy:
             TableName: !Ref UserTable
-        - DynamoDBReadPolicy:
-            TableName: !Ref UserLinkTable
+        - !Ref AuthorizePolicy
         - CloudWatchPutMetricPolicy: {}
         - Statement:
             - Sid: SESSendEmailPolicy

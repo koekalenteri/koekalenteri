@@ -22,13 +22,7 @@
             TableName: !Ref OrganizerTable
         - DynamoDBReadPolicy:
             TableName: !Ref EventTable
-        - DynamoDBCrudPolicy:
-            TableName: !Ref AuditTable
-        # The logged-in route resolves the calling user (KOE-1418).
-        - DynamoDBReadPolicy:
-            TableName: !Ref UserTable
-        - DynamoDBReadPolicy:
-            TableName: !Ref UserLinkTable
+        - !Ref AuthorizePolicy
         - CloudWatchPutMetricPolicy: {}
       Events:
         PutEvent:

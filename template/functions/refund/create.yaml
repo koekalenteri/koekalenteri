@@ -11,10 +11,6 @@
               - ssm:GetParameters
               - ssm:GetParameter
               Resource: '*'
-        - DynamoDBReadPolicy:
-            TableName: !Ref UserTable
-        - DynamoDBReadPolicy:
-            TableName: !Ref UserLinkTable
         - DynamoDBCrudPolicy:
             TableName: !Ref TransactionTable
         - DynamoDBCrudPolicy:
@@ -23,8 +19,11 @@
             TableName: !Ref OrganizerTable
         - DynamoDBReadPolicy:
             TableName: !Ref EventTable
-        - DynamoDBCrudPolicy:
+        - DynamoDBWritePolicy:
             TableName: !Ref AuditTable
+        # Every audit row is streamed to the event's viewers (KOE-1340).
+        - !Ref WebSocketPolicy
+        - !Ref AuthorizePolicy
         - CloudWatchPutMetricPolicy: {}
       Events:
         PutEvent:

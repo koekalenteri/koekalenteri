@@ -12,7 +12,7 @@
         # The draw takes the event's registration groups lock, which is written onto the event row.
         - DynamoDBCrudPolicy:
             TableName: !Ref EventTable
-        - DynamoDBCrudPolicy:
+        - DynamoDBWritePolicy:
             TableName: !Ref AuditTable
         - CloudWatchPutMetricPolicy: {}
         - !Ref WebSocketPolicy

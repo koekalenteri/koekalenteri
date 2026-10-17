@@ -8,10 +8,7 @@
             TableName: !Ref EventRegistrationTable
         - DynamoDBReadPolicy:
             TableName: !Ref EventTable
-        - DynamoDBCrudPolicy:
-            TableName: !Ref UserTable
-        - DynamoDBCrudPolicy:
-            TableName: !Ref UserLinkTable
+        - !Ref AuthorizePolicy
         - CloudWatchPutMetricPolicy: {}
       Events:
         GetRegistration:
