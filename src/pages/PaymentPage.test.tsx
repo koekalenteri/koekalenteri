@@ -8,6 +8,7 @@ import i18n from 'i18next'
 import { createStore, Provider } from 'jotai'
 import { Suspense } from 'react'
 import { MemoryRouter, useParams } from 'react-router'
+import { paymentPictureWith } from '../__mockData__/paymentPicture'
 import { unpaidRegistrationWithStaticDatesAndClass } from '../__mockData__/registrations'
 import mockResponse from '../api/__mocks__/paymentCreate.response.json'
 import { createPayment } from '../api/payment'
@@ -37,7 +38,23 @@ vi.mock('react-router', async () => ({
 const mockUseParams = useParams as import('vitest').Mock
 const mockCreatePayment = createPayment as import('vitest').MockedFunction<typeof createPayment>
 
-const { paymentStatus: _0, paidAt: _1, paidAmount: _2, ...testRegistration } = unpaidRegistrationWithStaticDatesAndClass
+/** What the server's picture says of a place that owes its fee of 50. */
+const owing = paymentPictureWith({
+  canPay: true,
+  due: 50,
+  paidAmount: 0,
+  paidForPlace: false,
+  standing: false,
+  status: 'unpaid',
+})
+
+const {
+  paymentStatus: _0,
+  paidAt: _1,
+  paidAmount: _2,
+  ...unpaidRegistration
+} = unpaidRegistrationWithStaticDatesAndClass
+const testRegistration = { ...unpaidRegistration, payment: owing }
 
 /** The page reads only a few event fields; minimal events convert at this one boundary. */
 const asPaymentEvent = (event: Partial<Omit<PublicConfirmedEvent, 'state'>> & { state?: EventState }) =>
@@ -373,7 +390,7 @@ describe('PaymentPage', () => {
       }
       const registration = {
         ...testRegistration,
-        shouldPay: false,
+        payment: paymentPictureWith({ ...owing, canPay: false, status: 'waitingForPlace' }),
         totalAmount: 50,
       }
 
@@ -447,9 +464,8 @@ describe('PaymentPage', () => {
           confirmed: true,
           group: { key: '2026-08-15-ap', number: 1 },
           paidAmount: 50,
-          paymentDue: 0,
+          payment: paymentPictureWith({ paidAmount: 50 }),
           paymentStatus: 'SUCCESS',
-          shouldPay: false,
         })
         await flushPromises()
 
@@ -461,11 +477,10 @@ describe('PaymentPage', () => {
         const { container } = renderPage('registration', {
           ...testRegistration,
           paidAmount: 50,
-          paymentDue: 0,
+          payment: paymentPictureWith({ paidAmount: 50, refundedAmount: 50, standing: false, status: 'refunded' }),
           paymentStatus: 'SUCCESS',
           refundAmount: 50,
           refundHandlingCost: 0,
-          shouldPay: false,
         })
         await flushPromises()
 
@@ -481,11 +496,10 @@ describe('PaymentPage', () => {
           {
             ...testRegistration,
             paidAmount: 50,
-            paymentDue: 0,
+            payment: paymentPictureWith({ paidAmount: 50, refundedAmount: 50, standing: false, status: 'refunded' }),
             paymentStatus: 'SUCCESS',
             refundAmount: 50,
             refundHandlingCost: 0,
-            shouldPay: false,
           },
           { responseStatus: 403 }
         )
@@ -500,7 +514,10 @@ describe('PaymentPage', () => {
         async (paymentTime) => {
           const { container } = renderPage(
             paymentTime,
-            { ...testRegistration, paymentDue: 0, shouldPay: false },
+            {
+              ...testRegistration,
+              payment: paymentPictureWith({ ...owing, canPay: false, due: 0, status: 'notCharged' }),
+            },
             { responseStatus: 404, state: 'cancelled' }
           )
           await flushPromises()
@@ -519,7 +536,6 @@ describe('PaymentPage', () => {
       }
       const registration = {
         ...testRegistration,
-        shouldPay: true,
         totalAmount: 50,
       }
 

@@ -159,7 +159,7 @@ describe('paymentVerifyLambda', () => {
     const cancelled = {
       eventId: 'event123',
       organizerId: 'org-1',
-      participantPatch: { eventId: 'event123', id: 'reg456', paymentInProgress: false, shouldPay: true },
+      participantPatch: { confirmed: true, eventId: 'event123', id: 'reg456' },
       patch: { eventId: 'event123', id: 'reg456', openPayments: [] },
       registrationId: 'reg456',
     }

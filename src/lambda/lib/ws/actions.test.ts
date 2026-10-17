@@ -224,7 +224,7 @@ describe('ws/actions', () => {
   // KOE-1526 review: the admins get what changed, the participant the payment state their page reads.
   it('publishes a cancelled payment to the admins as a change and to the participant as payment state', async () => {
     const patch = { eventId: 'e1', id: 'r1', paymentStatus: 'CANCEL' as const, updatedAt: '2026-08-01T00:00:00.000Z' }
-    const participantPatch = { ...patch, paymentDue: 50, shouldPay: true }
+    const participantPatch = { ...patch, confirmed: true }
     await publishCancelledRegistration({
       eventId: 'e1',
       organizerId: 'o1',

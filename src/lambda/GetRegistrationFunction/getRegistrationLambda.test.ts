@@ -65,7 +65,7 @@ const paymentTransaction = (overrides: Partial<JsonPaymentTransaction> = {}): Js
 const mockBatchGet = vi.fn((): JsonTransaction[] => [])
 
 // The open payment ids tell a payment in progress from one left at Paytrail
-// (computePaymentInProgress BatchGets them through the client, KOE-1526, KOE-1529).
+// (loadOpenPayments BatchGets them through the client, KOE-1526, KOE-1529, KOE-1530).
 vi.doMock('../utils/CustomDynamoClient', () => ({
   default: vi.fn(function MockCustomDynamoClient() {
     return { batchGet: mockBatchGet }
@@ -112,7 +112,7 @@ describe('getRegistration', () => {
     const reg: JsonRegistration = JSON.parse(res.body)
     expect(reg.invitationAttachment).toEqual('alo.pdf')
     expect(reg.invitationAttachmentUpdatedAt).toEqual('2026-07-28T10:00:00.000Z')
-    expect(reg.shouldPay).toBeFalsy()
+    expect(reg.payment?.canPay).toBeFalsy()
   })
 
   it('leaves the result, the notes and the groups out after deriving from them (KOE-1515)', async () => {
@@ -228,7 +228,7 @@ describe('getRegistration', () => {
   })
 
   /**
-   * In the shouldPay tables below, 'PENDING' is a sentinel for "a payment is in progress": it is
+   * In the canPay tables below, 'PENDING' is a sentinel for "a payment is in progress": it is
    * expressed as `openPayments`, never as the stored `paymentStatus` any more (KOE-1529).
    */
   const withPaymentStatus = (paymentStatus: PaymentStatus | undefined) =>
@@ -255,8 +255,8 @@ describe('getRegistration', () => {
     )
 
     const reg: JsonRegistration = JSON.parse(res.body)
-    expect(reg.paymentInProgress).toBe(false)
-    expect(reg.shouldPay).toBe(true)
+    expect(reg.payment?.status).toBe('unpaid')
+    expect(reg.payment?.canPay).toBe(true)
   })
 
   // KOE-1529: a legacy stored PENDING is left exactly as it was -- nothing rewrites it any more --
@@ -274,12 +274,12 @@ describe('getRegistration', () => {
     expect(res.statusCode).toEqual(200)
     const reg: JsonRegistration = JSON.parse(res.body)
     expect(reg.paymentStatus).toEqual('PENDING')
-    expect(reg.paymentInProgress).toBe(false)
-    expect(reg.shouldPay).toBe(true)
+    expect(reg.payment?.status).toBe('unpaid')
+    expect(reg.payment?.canPay).toBe(true)
     expect(mockBatchGet).not.toHaveBeenCalled()
   })
 
-  it('reads paymentInProgress from a fresh open payment, never sending its id', async () => {
+  it('reads a payment in progress from a fresh open payment, never sending its id', async () => {
     mockGetRegistration.mockReturnValueOnce({
       ...registrationsToEventWithParticipantsInvited[0],
       openPayments: ['transaction-1'],
@@ -292,8 +292,9 @@ describe('getRegistration', () => {
 
     expect(res.statusCode).toEqual(200)
     const reg: JsonRegistration = JSON.parse(res.body)
-    expect(reg.paymentInProgress).toBe(true)
-    expect(reg.shouldPay).toBe(false)
+    // A reload mid-payment must not offer the pay button again (KOE-1530).
+    expect(reg.payment?.status).toBe('inProgress')
+    expect(reg.payment?.canPay).toBe(false)
     expect(reg).not.toHaveProperty('openPayments')
     expect(mockBatchGet).toHaveBeenCalledWith([{ transactionId: 'transaction-1' }], expect.any(String))
   })
@@ -308,7 +309,7 @@ describe('getRegistration', () => {
     [false, 'registration', 'SUCCESS'],
     [true, 'registration', 'CANCEL'],
   ])(
-    'should set shouldPay: %p when paymentTime is %p and paymentStatus is %p',
+    'should set canPay: %p when paymentTime is %p and paymentStatus is %p',
     async (expected, paymentTime, paymentStatus) => {
       mockGetEvent.mockReturnValueOnce({ ...mockEventWithInvitationAttachment, paymentTime })
       inProgressWhenPending(paymentStatus)
@@ -323,7 +324,7 @@ describe('getRegistration', () => {
 
       expect(res.statusCode).toEqual(200)
       const reg: JsonRegistration = JSON.parse(res.body)
-      expect(reg.shouldPay).toBe(expected)
+      expect(reg.payment?.canPay).toBe(expected)
     }
   )
 
@@ -337,7 +338,7 @@ describe('getRegistration', () => {
     [false, 'registration', 'SUCCESS'],
     [true, 'registration', 'CANCEL'],
   ])(
-    'should set shouldPay: %p when paymentTime is %p and paymentStatus is %p and not picked',
+    'should set canPay: %p when paymentTime is %p and paymentStatus is %p and not picked',
     async (expected, paymentTime, paymentStatus) => {
       mockGetEvent.mockReturnValueOnce({ ...mockEventWithInvitationAttachment, paymentTime })
       inProgressWhenPending(paymentStatus)
@@ -353,7 +354,7 @@ describe('getRegistration', () => {
 
       expect(res.statusCode).toEqual(200)
       const reg: JsonRegistration = JSON.parse(res.body)
-      expect(reg.shouldPay).toBe(expected)
+      expect(reg.payment?.canPay).toBe(expected)
     }
   )
 
@@ -363,7 +364,7 @@ describe('getRegistration', () => {
     [true, 123],
     [false, 130],
   ])(
-    'should set shouldPay: %p for a paid registration when the fee is 130 and %p was paid',
+    'should set canPay: %p for a paid registration when the fee is 130 and %p was paid',
     async (expected, paidAmount) => {
       mockGetEvent.mockReturnValueOnce({ ...mockEventWithInvitationAttachment, cost: 130, costMember: 130 })
       mockGetRegistration.mockReturnValueOnce({
@@ -378,7 +379,7 @@ describe('getRegistration', () => {
 
       expect(res.statusCode).toEqual(200)
       const reg: JsonRegistration = JSON.parse(res.body)
-      expect(reg.shouldPay).toBe(expected)
+      expect(reg.payment?.canPay).toBe(expected)
     }
   )
 
@@ -402,8 +403,8 @@ describe('getRegistration', () => {
 
     expect(res.statusCode).toEqual(200)
     const reg: JsonRegistration = JSON.parse(res.body)
-    expect(reg.paymentDue).toBe(0)
-    expect(reg.shouldPay).toBe(false)
+    expect(reg.payment?.due).toBe(0)
+    expect(reg.payment?.canPay).toBe(false)
   })
 
   // The prod row of KOE-1526: a reserve that had its whole fee back. The participant gets no group,
@@ -411,7 +412,7 @@ describe('getRegistration', () => {
   it.each<[string, { key: string; number: number }, number, boolean]>([
     ['owes nothing while it is a reserve', { key: 'reserve', number: 1 }, 0, false],
     ['owes the fee again once lifted into a place', { key: '2026-08-15-ap', number: 1 }, 130, true],
-  ])('a reserve whose fee was refunded %s (KOE-1526)', async (_name, group, paymentDue, shouldPay) => {
+  ])('a reserve whose fee was refunded %s (KOE-1526)', async (_name, group, paymentDue, canPay) => {
     mockGetEvent.mockReturnValueOnce({
       ...mockEventWithInvitationAttachment,
       cost: 130,
@@ -433,8 +434,8 @@ describe('getRegistration', () => {
 
     expect(res.statusCode).toEqual(200)
     const reg: JsonRegistration = JSON.parse(res.body)
-    expect(reg.paymentDue).toBe(paymentDue)
-    expect(reg.shouldPay).toBe(shouldPay)
+    expect(reg.payment?.due).toBe(paymentDue)
+    expect(reg.payment?.canPay).toBe(canPay)
     expect(reg.group).toBeUndefined()
   })
 })

@@ -7,6 +7,7 @@ import { Suspense } from 'react'
 import { page } from 'vitest/browser'
 import { render } from 'vitest-browser-react'
 import { eventWithStaticDates } from '../__mockData__/events'
+import { withPaymentPicture } from '../__mockData__/paymentPicture'
 import { registrationWithStaticDates } from '../__mockData__/registrations'
 import theme from '../assets/Theme'
 import { locales } from '../i18n'
@@ -33,7 +34,7 @@ vi.mock(import('../api/event'), async (importOriginal) => ({
 }))
 vi.mock(import('../api/registration'), async (importOriginal) => ({
   ...(await importOriginal()),
-  getRegistration: async () => registrationWithStaticDates,
+  getRegistration: async () => withPaymentPicture(eventWithStaticDates, registrationWithStaticDates),
 }))
 
 afterEach(() => sessionStorage.clear())

@@ -46,10 +46,10 @@ vi.doMock('../utils/CustomDynamoClient', () => ({
 }))
 const {
   claimTransactionCreation,
-  computePaymentInProgress,
   dropOpenTransaction,
   failUnfinishedTransaction,
   isTransactionSettled,
+  loadOpenPayments,
   participantPaymentPatch,
   participantResponse,
   paymentDescription,
@@ -391,31 +391,26 @@ describe('payment', () => {
     })
   })
 
-  describe('computePaymentInProgress', () => {
-    it('is false with no open ids, without calling batchGet', async () => {
-      await expect(computePaymentInProgress(undefined)).resolves.toBe(false)
-      await expect(computePaymentInProgress([])).resolves.toBe(false)
+  describe('loadOpenPayments', () => {
+    it('loads nothing with no open ids, without calling batchGet', async () => {
+      await expect(loadOpenPayments(undefined)).resolves.toEqual([])
+      await expect(loadOpenPayments([])).resolves.toEqual([])
       expect(mockBatchGet).not.toHaveBeenCalled()
     })
 
-    it('is true when one of several open ids is a fresh pending payment', async () => {
-      mockBatchGet.mockResolvedValueOnce([
+    it('loads every open payment by id, for the payment picture to read', async () => {
+      const loaded: Partial<JsonPaymentTransaction>[] = [
         { createdAt: minutesAgo(10), status: 'fail', type: 'payment' },
         { createdAt: minutesAgo(1), status: 'pending', type: 'payment' },
-      ])
+      ]
+      mockBatchGet.mockResolvedValueOnce(loaded)
 
-      await expect(computePaymentInProgress(['t1', 't2'])).resolves.toBe(true)
+      await expect(loadOpenPayments(['t1', 't2'])).resolves.toEqual(loaded)
       expect(mockBatchGet).toHaveBeenCalledWith([{ transactionId: 't1' }, { transactionId: 't2' }], expect.any(String))
-    })
-
-    it('is false once the only open id is stale', async () => {
-      mockBatchGet.mockResolvedValueOnce([{ createdAt: minutesAgo(10), status: 'pending', type: 'payment' }])
-
-      await expect(computePaymentInProgress(['t1'])).resolves.toBe(false)
     })
   })
 
-  // The two ways a participant's answer leaves the server compute paymentInProgress the same way,
+  // The two ways a participant's answer leaves the server build the payment picture the same way,
   // and never send the open ids themselves (KOE-1529).
   describe('the participant answers built from open payments', () => {
     const withOpenPayment: JsonRegistration = {
@@ -432,7 +427,7 @@ describe('payment', () => {
 
       const result = await participantResponse(withOpenPayment, 'raw-token', event)
 
-      expect(result).toMatchObject({ paymentInProgress: false, shouldPay: true })
+      expect(result).toMatchObject({ payment: { canPay: true, status: 'unpaid' } })
       expect(result).not.toHaveProperty('openPayments')
       expect(result).not.toHaveProperty('openRefunds')
     })
@@ -441,17 +436,15 @@ describe('payment', () => {
       mockBatchGet.mockResolvedValueOnce([{ createdAt: minutesAgo(1), status: 'pending', type: 'payment' }])
 
       await expect(participantResponse(withOpenPayment, 'raw-token', event)).resolves.toMatchObject({
-        paymentInProgress: true,
-        shouldPay: false,
+        payment: { canPay: false, status: 'inProgress' },
       })
     })
 
-    it('participantPaymentPatch computes paymentInProgress the same way', async () => {
+    it('participantPaymentPatch builds the picture the same way', async () => {
       mockBatchGet.mockResolvedValueOnce([{ createdAt: minutesAgo(10), status: 'pending', type: 'payment' }])
 
       await expect(participantPaymentPatch(withOpenPayment, event)).resolves.toMatchObject({
-        paymentInProgress: false,
-        shouldPay: true,
+        payment: { canPay: true, status: 'unpaid' },
       })
     })
 
@@ -459,7 +452,7 @@ describe('payment', () => {
       const registration: JsonRegistration = JSON.parse(JSON.stringify(jsonRegistrationsToEventWithALOInvited[0]))
 
       await expect(participantResponse(registration, 'raw-token', event)).resolves.toMatchObject({
-        paymentInProgress: false,
+        payment: { status: 'unpaid' },
       })
       expect(mockBatchGet).not.toHaveBeenCalled()
     })
@@ -537,7 +530,9 @@ describe('payment', () => {
       expect(settled.cancelled).toMatchObject({
         eventId: 'event-1',
         organizerId: 'organizer-1',
-        participantPatch: expect.objectContaining({ paymentInProgress: false, shouldPay: true }),
+        participantPatch: expect.objectContaining({
+          payment: expect.objectContaining({ canPay: true, status: 'unpaid' }),
+        }),
         patch: { eventId: 'event-1', id: 'registration-1', openPayments: [] },
         registrationId: 'registration-1',
       })

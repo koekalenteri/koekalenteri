@@ -95,7 +95,8 @@ export function useRegistrationActions() {
         }
       }
       const emails = getRegistrationEmails(saved)
-      if (reg.paymentStatus === 'SUCCESS') {
+      // The saved entry is paid when the picture says money stands for it, in full or in part.
+      if (reg.payment?.standing) {
         enqueueSnackbar(
           t(reg.id ? 'registration.modified' : 'registration.saved', {
             count: emails.length,

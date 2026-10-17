@@ -1,6 +1,7 @@
 import type { JsonConfirmedEvent } from '../../../types'
 import { eventWithStaticDates } from '../../../__mockData__/events'
 import { registrationWithStaticDates } from '../../../__mockData__/registrations'
+import { patchMerge } from '../../../lib/utils'
 import {
   buildEventPatchPayload,
   buildEventViewersPayload,
@@ -49,24 +50,54 @@ describe('ws/payloads', () => {
       state: 'ready',
       updatedAt: undefined,
     }
-    expect(buildParticipantPaymentPatch(row, event)).toEqual({
+    expect(buildParticipantPaymentPatch(row, event, [])).toEqual({
       confirmed: true,
       eventId: 'e1',
       id: 'r1',
       messagesSent: undefined,
       paidAmount: 50,
       paidAt: '2026-08-16T10:00:00.000Z',
-      paymentDue: 0,
+      payment: {
+        canPay: false,
+        canRefund: false,
+        canRefundExcess: false,
+        due: 0,
+        excess: 0,
+        keptFee: 0,
+        paidAmount: 50,
+        paidForPlace: false,
+        refundedAmount: 50,
+        standing: false,
+        status: 'refunded',
+        unsettled: false,
+      },
       paymentStatus: 'SUCCESS',
       // The page reads the refund to know whether to take the due from the server (KOE-1526).
       refundAmount: 50,
       refundAt: '2026-08-17T11:37:27.000Z',
       refundHandlingCost: 0,
       refundStatus: 'SUCCESS',
-      shouldPay: false,
       state: 'ready',
       updatedAt: undefined,
     })
+  })
+
+  // A patch merges objects key by key and only null removes a key, so the picture has every key
+  // each time and the second one wins whole (KOE-1530).
+  it('leaves a merged picture as the last patch said it, nothing of the first behind', () => {
+    const event: JsonConfirmedEvent = JSON.parse(JSON.stringify({ ...eventWithStaticDates, cost: 50, costMember: 50 }))
+    const row = {
+      ...JSON.parse(JSON.stringify(registrationWithStaticDates)),
+      eventId: 'e1',
+      group: { key: '2026-08-15-ap', number: 1 },
+      id: 'r1',
+    }
+    const unpaid = buildParticipantPaymentPatch({ ...row, paidAmount: undefined, paymentStatus: undefined }, event, [])
+    const paid = buildParticipantPaymentPatch({ ...row, paidAmount: 50, paymentStatus: 'SUCCESS' }, event, [])
+
+    expect(unpaid.payment?.status).toBe('unpaid')
+    expect(patchMerge({ payment: unpaid.payment }, { payment: paid.payment })).toEqual({ payment: paid.payment })
+    expect(paid.payment?.status).toBe('paid')
   })
 
   it('buildEventViewersPayload returns admin scope payload', () => {

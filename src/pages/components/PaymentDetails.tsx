@@ -49,9 +49,12 @@ export const PaymentDetails = ({ event, registration, includePayable, includeTot
   const language = useAtomValue(languageAtom)
   const details = getRegistrationPaymentDetails(event, registration)
   const costSegmentName = getCostSegmentName(details.strategy)
-  const paidAmount = registration.paidAmount ?? 0
-  const refundAmount = registration.refundAmount ?? 0
-  const refundHandlingCost = registration.refundHandlingCost ?? 0
+  // The server's picture says what was paid and what went back; the shared form and the secretary's
+  // refund dialog hold rows without one and read the amounts themselves, until they take it too.
+  const { payment } = registration
+  const paidAmount = payment ? payment.paidAmount : (registration.paidAmount ?? 0)
+  const refundAmount = payment ? payment.refundedAmount : (registration.refundAmount ?? 0)
+  const refundHandlingCost = payment ? payment.keptFee : (registration.refundHandlingCost ?? 0)
 
   // Only show "for members" when the member price actually differs from base price. It says that
   // about the participation fee alone: an optional service has no member price of its own to compare.
@@ -97,7 +100,11 @@ export const PaymentDetails = ({ event, registration, includePayable, includeTot
         ) : null}
         {includePayable ? (
           // What the payment link collects: a reserve's refunded fee is not asked for again (KOE-1526).
-          <PaymentRow bold name={t('registration.toBePaid')} amount={getShownPaymentDue(event, registration)} />
+          <PaymentRow
+            bold
+            name={t('registration.toBePaid')}
+            amount={payment ? payment.due : getShownPaymentDue(event, registration)}
+          />
         ) : null}
       </InfoTableContainerGrid>
     </Box>

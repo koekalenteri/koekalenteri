@@ -2,6 +2,7 @@ import { ThemeProvider } from '@mui/material/styles'
 import { MemoryRouter } from 'react-router'
 import { render } from 'vitest-browser-react'
 import { eventWithStaticDates } from '../../__mockData__/events'
+import { paymentPictureWith, withPaymentPicture } from '../../__mockData__/paymentPicture'
 import { registrationWithStaticDates } from '../../__mockData__/registrations'
 import theme from '../../assets/Theme'
 import { describeInLanguage } from '../../test-utils/language'
@@ -20,12 +21,14 @@ const noop = () => {}
 
 // Paid 123 at the member price and found not to be a member: the place costs 130 now, and the
 // status line names the 7 still missing instead of reading as paid (KOE-722).
+const partMissingEvent = { ...eventWithStaticDates, cost: 130, costMember: 123, paymentTime: 'registration' as const }
+
 const renderPartMissing = () =>
   render(
     <Frame>
       <InfoBox
-        event={{ ...eventWithStaticDates, cost: 130, costMember: 123, paymentTime: 'registration' }}
-        registration={{ ...registrationWithStaticDates, shouldPay: true }}
+        event={partMissingEvent}
+        registration={withPaymentPicture(partMissingEvent, registrationWithStaticDates)}
         onConfirm={noop}
       />
     </Frame>
@@ -47,10 +50,9 @@ it('says the fee was refunded to a reserve', async () => {
         event={{ ...eventWithStaticDates, paymentTime: 'registration' }}
         registration={{
           ...registrationWithStaticDates,
-          paymentDue: 0,
+          payment: paymentPictureWith({ refundedAmount: 123, standing: false, status: 'refunded' }),
           refundAmount: 123,
           refundHandlingCost: 0,
-          shouldPay: false,
         }}
         onConfirm={noop}
       />

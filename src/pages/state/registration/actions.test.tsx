@@ -3,6 +3,7 @@ import type { ManualTestResult } from '@/types'
 import { act, renderHook } from '@testing-library/react'
 import { createStore, Provider } from 'jotai'
 import { eventWithStaticDates } from '@/__mockData__/events'
+import { paymentPictureWith } from '@/__mockData__/paymentPicture'
 import { registrationWithStaticDates } from '@/__mockData__/registrations'
 import { APIError } from '@/api/http'
 import * as registrationApi from '@/api/registration'
@@ -101,6 +102,56 @@ describe('useRegistrationActions', () => {
       expect.objectContaining({ dog: expect.anything() })
     )
     expect(saved).toBe(editedRegistration)
+  })
+
+  // KOE-1530: the participant's payment picture is the server's word. A save never sends it, and what
+  // the page holds afterwards is the picture the response carried, not the one it had.
+  it('replaces the payment picture with the one the save answered, and never sends it', async () => {
+    const before = paymentPictureWith({ canPay: true, due: 7, standing: true, status: 'partial' })
+    const after = paymentPictureWith()
+    const savedRegistration = { ...registrationWithStaticDates, editToken: 'participant-token', payment: before }
+    const editedRegistration = { ...savedRegistration, notes: 'changed notes' }
+    vi.spyOn(registrationApi, 'patchRegistration').mockResolvedValueOnce({ ...editedRegistration, payment: after })
+
+    const { result } = renderHook(() => useRegistrationActions(), { wrapper })
+
+    let saved: Awaited<ReturnType<typeof result.current.save>> | undefined
+    await act(async () => {
+      saved = await result.current.save(editedRegistration, eventWithStaticDates, savedRegistration)
+    })
+
+    expect(registrationApi.patchRegistration).toHaveBeenCalledWith(
+      {
+        eventId: savedRegistration.eventId,
+        id: savedRegistration.id,
+        operations: [{ path: ['notes'], type: 'CHANGE', value: 'changed notes' }],
+      },
+      'participant-token',
+      undefined
+    )
+    expect(saved?.payment).toEqual(after)
+    // The paid place says so when saved, by the picture.
+    expect(mockEnqueueSnackbar).toHaveBeenCalledWith(
+      expect.stringContaining('registration.modified'),
+      expect.objectContaining({ variant: 'success' })
+    )
+  })
+
+  it('does not say a place that is not paid was paid when saved', async () => {
+    const savedRegistration = {
+      ...registrationWithStaticDates,
+      editToken: 'participant-token',
+      payment: paymentPictureWith({ canPay: true, due: 123, standing: false, status: 'unpaid' }),
+    }
+    const editedRegistration = { ...savedRegistration, notes: 'changed notes' }
+    vi.spyOn(registrationApi, 'patchRegistration').mockResolvedValueOnce(editedRegistration)
+
+    const { result } = renderHook(() => useRegistrationActions(), { wrapper })
+    await act(async () => {
+      await result.current.save(editedRegistration, eventWithStaticDates, savedRegistration)
+    })
+
+    expect(mockEnqueueSnackbar).not.toHaveBeenCalled()
   })
 
   it('does not send client-derived qualification fields when adding a result', async () => {

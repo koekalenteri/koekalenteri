@@ -5,6 +5,7 @@ import { MemoryRouter } from 'react-router'
 import { page } from 'vitest/browser'
 import { render } from 'vitest-browser-react'
 import { eventWithStaticDates } from '../__mockData__/events'
+import { withPaymentPicture } from '../__mockData__/paymentPicture'
 import { unpaidRegistrationWithStaticDatesAndClass } from '../__mockData__/registrations'
 import theme from '../assets/Theme'
 // The "Takaisin" link's black/bold/underlined look is a global class, not a theme override.
@@ -55,10 +56,7 @@ const event = {
   paymentTime: 'registration' as const,
 }
 
-const registration = {
-  ...unpaidRegistrationWithStaticDatesAndClass,
-  totalAmount: 50,
-}
+const registration = withPaymentPicture(event, { ...unpaidRegistrationWithStaticDatesAndClass, totalAmount: 50 })
 
 /**
  * The page at a screen's width. The payer sees the page in the language they entered in -- the page

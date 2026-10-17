@@ -1,5 +1,4 @@
-import type { PaymentStatusKey } from '../../lib/payment'
-import type { PublicDogEvent, Registration } from '../../types'
+import type { PaymentPicture, PaymentPictureStatus, PublicDogEvent, Registration } from '../../types'
 import CheckOutlined from '@mui/icons-material/CheckOutlined'
 import EuroOutlined from '@mui/icons-material/EuroOutlined'
 import PersonOutline from '@mui/icons-material/PersonOutlined'
@@ -13,9 +12,9 @@ import Paper from '@mui/material/Paper'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router'
 import { formatMoney } from '../../lib/money'
-import { getShownPayment, isPaidStatus, isPaymentOffered } from '../../lib/payment'
 import { hasPriority } from '../../lib/registration'
 import { Path } from '../../routeConfig'
+import { isPaidPaymentStatus, PAYMENT_STATUS_KEY } from '../components/paymentStatus'
 
 const priorityIconColor = (event: PublicDogEvent, registration: Registration) =>
   hasPriority(event, registration) ? 'primary.main' : 'transparent'
@@ -24,7 +23,8 @@ const priorityStatus = (event: PublicDogEvent, registration: Registration) =>
   hasPriority(event, registration) ? 'registration.priority.hasPriority' : 'registration.priority.noPriority'
 
 /** The euro sign says what the line beside it says: a fee that went back is not paid (KOE-1526). */
-const paymentIconColor = (status: PaymentStatusKey) => (isPaidStatus(status) ? 'primary.main' : 'transparent')
+const paymentIconColor = (status: PaymentPictureStatus) =>
+  isPaidPaymentStatus(status) ? 'primary.main' : 'transparent'
 
 const registrationStatus = (registration: Registration) => {
   if (registration.cancelled) {
@@ -43,7 +43,7 @@ const registrationStatus = (registration: Registration) => {
 
 interface Props {
   event: PublicDogEvent
-  registration: Registration
+  registration: Registration & { payment: PaymentPicture }
   onConfirm: () => void
   paymentVerificationInProgress?: boolean
 }
@@ -52,12 +52,15 @@ export const InfoBox = ({ event, registration, onConfirm, paymentVerificationInP
   const { t } = useTranslation()
   const navigate = useNavigate()
   const needsConfirmation = !registration.cancelled && !registration.confirmed && !!registration.messagesSent?.picked
-  const needsPayment = isPaymentOffered(registration, paymentVerificationInProgress)
+  // The server's answer, which only it can give as it reads the group (KOE-1526); not while a
+  // payment is being verified, which only the page knows.
+  const { payment } = registration
+  const needsPayment = payment.canPay && !paymentVerificationInProgress
   // A paid place reads as paid until its fee rises above what was paid (KOE-722): then the line
-  // names the missing part, the same amount the payment button collects. For a fee that went back the
-  // server decides it, as only it knows whether the reserve has a place (getParticipantPaymentDue,
-  // KOE-1526).
-  const { due: paymentDue, status: paymentStatus } = getShownPayment(event, registration)
+  // names the missing part, the same amount the payment button collects. Both are the server's
+  // picture (KOE-1530).
+  const { due: paymentDue, status } = payment
+  const paymentStatus = PAYMENT_STATUS_KEY[status]
   const paymentStatusText = paymentVerificationInProgress
     ? t('registration.notifications.paymentVerifying')
     : t(paymentStatus, { amount: formatMoney(paymentDue) })
@@ -89,7 +92,7 @@ export const InfoBox = ({ event, registration, onConfirm, paymentVerificationInP
             ) : null
           }
         >
-          <ListItemIcon sx={{ color: paymentIconColor(paymentStatus), minWidth: 32 }}>
+          <ListItemIcon sx={{ color: paymentIconColor(status), minWidth: 32 }}>
             <EuroOutlined fontSize="small" />
           </ListItemIcon>
           <ListItemText

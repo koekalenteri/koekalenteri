@@ -89,3 +89,52 @@ export interface CostResult {
   segment: DogEventCostSegment | 'legacy'
   cost?: DogEventCost
 }
+
+/**
+ * What the entry's payment reads as, in the order the rules decide it: a payment charged twice, a
+ * payment in progress, a fee that went back (`unpaid` when it is owed again, else `refunded`), money
+ * standing for the place (`partial` while a part is missing, `overpaid` above the fee), nothing owed
+ * or a trial that is not confirmed (`notCharged`), a place still awaited (`waitingForPlace`) and
+ * last the fee not paid (`unpaid`). A standing payment keeps its status whatever the trial's state.
+ */
+export type PaymentPictureStatus =
+  | 'duplicate'
+  | 'inProgress'
+  | 'notCharged'
+  | 'overpaid'
+  | 'paid'
+  | 'partial'
+  | 'refunded'
+  | 'unpaid'
+  | 'waitingForPlace'
+
+/**
+ * The one answer to "where does this entry's payment stand" (`getPaymentPicture`, KOE-1530). Every
+ * key is always there, with 0 or false for nothing: a websocket patch merges objects key by key and
+ * only `null` removes one, so a key that came and went would stay behind.
+ */
+export interface PaymentPicture {
+  /** Whether the participant is offered the payment link. The page adds its own wait for a verification. */
+  canPay: boolean
+  /** Whether the overpaid part can still be returned. For the secretary's views. */
+  canRefundExcess: boolean
+  /** Whether the ordinary refund applies. For the secretary's views. */
+  canRefund: boolean
+  /** What is still owed; 0 for a trial that is not confirmed. */
+  due: number
+  /** Paid over the fee. */
+  excess: number
+  /** The handling fee kept from a refund. */
+  keptFee: number
+  /** What was paid, as recorded. */
+  paidAmount: number
+  /** Whether the place counts as paid for: money standing for it, or a fee of nothing. */
+  paidForPlace: boolean
+  /** What went back. */
+  refundedAmount: number
+  /** Whether some payment stands for the place: money paid and not gone back, or a legacy payment. */
+  standing: boolean
+  status: PaymentPictureStatus
+  /** Whether a paid fee no longer matches what the entry adds up to. For the secretary's views. */
+  unsettled: boolean
+}

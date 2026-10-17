@@ -12,7 +12,7 @@ import type { PaymentCustomer } from '../types/paytrail'
 import { nanoid } from 'nanoid'
 import { auditUser } from '../../lib/audit'
 import {
-  getParticipantPaymentState,
+  getPaymentPicture,
   isEventOpenForPayment,
   isPaymentInProgress,
   isPaymentOpenForPlace,
@@ -35,6 +35,7 @@ import {
   dropOpenTransaction,
   failUnfinishedTransaction,
   getTransactionsByReference,
+  loadOpenPayments,
   paymentDescription,
   releaseTransactionCreation,
 } from '../lib/payment'
@@ -134,7 +135,11 @@ const paymentCreateLambda = lambda('paymentCreate', async (event) => {
     throw httpError(404, 'Event is not open for payment')
   }
 
-  if (registration.paymentStatus === 'DUPLICATE') {
+  // The picture is worked out from the whole row and its open payments, as the participant's own
+  // pages have it from GetRegistration (KOE-1530).
+  const picture = getPaymentPicture(jsonEvent, registration, await loadOpenPayments(registration.openPayments))
+
+  if (picture.status === 'duplicate') {
     throw httpError(409, 'Duplicate payment requires a refund')
   }
 
@@ -162,7 +167,7 @@ const paymentCreateLambda = lambda('paymentCreate', async (event) => {
   // What is still owed of the fee as the entry reads now: the whole of it, or the part a corrected
   // membership added after a member-price payment (KOE-722). A fee that went back is owed again only
   // once the entry holds a place; a reserve's is settled, and gets 204 (KOE-1526).
-  const amount = Math.round(100 * getParticipantPaymentState(jsonEvent, registration).paymentDue)
+  const amount = Math.round(100 * picture.due)
   if (amount <= 0) {
     return response<string>(204, 'Already paid', event)
   }

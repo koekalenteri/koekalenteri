@@ -6,6 +6,7 @@ import { render, screen } from '@testing-library/react'
 import { Provider } from 'jotai'
 import { Suspense } from 'react'
 import { eventWithStaticDates } from '../../__mockData__/events'
+import { paymentPictureWith } from '../../__mockData__/paymentPicture'
 import { registrationWithStaticDates, unpaidRegistrationWithStaticDates } from '../../__mockData__/registrations'
 import theme from '../../assets/Theme'
 import { locales } from '../../i18n'
@@ -177,7 +178,7 @@ describe('RegistrationForm', () => {
       ...registrationWithStaticDates,
       owner: { ...owner, membership: true },
       paidAmount: 123,
-      paymentDue: 0,
+      payment: paymentPictureWith(),
     }
     const { rerender } = render(<RegistrationForm event={event} registration={paid} />, { wrapper: Wrapper })
     await flushPromises()
@@ -196,7 +197,7 @@ describe('RegistrationForm', () => {
       ...unpaidRegistrationWithStaticDates,
       confirmed: false,
       messagesSent: { picked: true },
-      shouldPay: true,
+      payment: paymentPictureWith({ canPay: true, due: 123, standing: false, status: 'unpaid' }),
     }
     render(<RegistrationForm event={event} registration={picked} />, { wrapper: Wrapper })
     await flushPromises()
@@ -215,6 +216,21 @@ describe('RegistrationForm', () => {
     )
   })
 
+  // KOE-1530: a participant's form takes whether paying waits for a place from the server's picture,
+  // not from the group it has no copy of.
+  it.each([
+    ['waits for a place', 'waitingForPlace', /^registration\.paymentToBePaidAfterConfirmation 123,00/],
+    ['does not wait for a place', 'unpaid', /^registration\.paymentToBePaid 123,00/],
+  ] as const)('says the fee %s as the picture does', async (_name, status, text) => {
+    const event = { ...eventWithStaticDates, paymentTime: 'confirmation' as const }
+    const { group: _group, ...entry } = unpaidRegistrationWithStaticDates
+    const picture = paymentPictureWith({ due: 123, standing: false, status })
+    render(<RegistrationForm event={event} registration={{ ...entry, payment: picture }} />, { wrapper: Wrapper })
+    await flushPromises()
+
+    expect(screen.getByText(/^registration\.paymentToBePaid/)).toHaveTextContent(text)
+  })
+
   // KOE-1526 review: a payment in progress turns the pay offer off, not the place.
   it('asks for the fee of a confirmed place while its payment is in progress', async () => {
     const event = { ...eventWithStaticDates, paymentTime: 'confirmation' as const }
@@ -222,8 +238,7 @@ describe('RegistrationForm', () => {
       ...unpaidRegistrationWithStaticDates,
       confirmed: true,
       messagesSent: { picked: true },
-      paymentInProgress: true,
-      shouldPay: false,
+      payment: paymentPictureWith({ due: 123, standing: false, status: 'inProgress' }),
     }
     render(<RegistrationForm event={event} registration={pending} />, { wrapper: Wrapper })
     await flushPromises()

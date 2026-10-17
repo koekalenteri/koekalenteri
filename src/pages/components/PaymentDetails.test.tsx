@@ -2,6 +2,7 @@ import type { MinimalEventForCost, MinimalRegistrationForCost, PublicDogEvent } 
 import { render, screen } from '@testing-library/react'
 import { TestProvider as Provider } from 'test-utils/AtomProvider'
 import { eventWithStaticDates } from '../../__mockData__/events'
+import { paymentPictureWith } from '../../__mockData__/paymentPicture'
 import { languageAtom } from '../state'
 import { PaymentDetails } from './PaymentDetails'
 
@@ -103,7 +104,13 @@ describe('PaymentDetails', () => {
         ...registration,
         optionalCosts: [],
         paidAmount: 35,
-        paymentDue,
+        payment: paymentPictureWith({
+          due: paymentDue,
+          paidAmount: 35,
+          refundedAmount: 35,
+          standing: false,
+          status: paymentDue > 0 ? 'unpaid' : 'refunded',
+        }),
         refundAmount: 35,
       },
     })
@@ -120,7 +127,14 @@ describe('PaymentDetails', () => {
         ...registration,
         optionalCosts: [],
         paidAmount: 35,
-        paymentDue: 35,
+        payment: paymentPictureWith({
+          due: 35,
+          keptFee: 5,
+          paidAmount: 35,
+          refundedAmount: 30,
+          standing: false,
+          status: 'unpaid',
+        }),
         refundAmount: 30,
         refundHandlingCost: 5,
       },
@@ -128,6 +142,34 @@ describe('PaymentDetails', () => {
 
     expect(screen.getByText('registration.refundHandlingCost').nextSibling).toHaveTextContent('−5,00 €')
     expect(screen.getByText('registration.toBePaid').nextSibling).toHaveTextContent('35,00 €')
+  })
+
+  // KOE-1530: with the server's picture the details show its amounts, whatever the row beside it
+  // holds; a row without one (the form's, the secretary's) is read as before.
+  it("shows the picture's amounts and what is to pay in place of the row's own", () => {
+    setup({
+      includePayable: true,
+      registration: {
+        ...registration,
+        optionalCosts: [],
+        paidAmount: 10,
+        payment: paymentPictureWith({
+          due: 12,
+          keptFee: 3,
+          paidAmount: 45,
+          refundedAmount: 20,
+          standing: true,
+          status: 'partial',
+        }),
+        refundAmount: 1,
+        refundHandlingCost: 1,
+      },
+    })
+
+    expect(screen.getByText('registration.paid').nextSibling).toHaveTextContent('45,00 €')
+    expect(screen.getByText('registration.refunded').nextSibling).toHaveTextContent('−20,00 €')
+    expect(screen.getByText('registration.refundHandlingCost').nextSibling).toHaveTextContent('−3,00 €')
+    expect(screen.getByText('registration.toBePaid').nextSibling).toHaveTextContent('12,00 €')
   })
 
   // KOE-1526 review: the details ask for what the status box asks for, and a trial that is not

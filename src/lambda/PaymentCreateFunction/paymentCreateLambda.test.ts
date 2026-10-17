@@ -17,6 +17,7 @@ const mockWrite = vi.fn()
 const mockUpdate = vi.fn()
 const mockDocumentTransaction = vi.fn<() => Promise<unknown>>()
 const mockClaimTransactionCreation = vi.fn<() => Promise<boolean>>(() => Promise.resolve(true))
+const mockLoadOpenPayments = vi.fn<() => Promise<unknown[]>>(() => Promise.resolve([]))
 const mockReleaseTransactionCreation = vi.fn<() => Promise<void>>(() => Promise.resolve())
 const mockAuthorizeRegistrationEdit = vi.fn<() => string>(() => 'test-edit-token')
 const mockGetRegistration = vi.fn<(eventId: string, registrationId: string) => Promise<JsonRegistration>>(
@@ -56,6 +57,7 @@ vi.doMock('../lib/payment', () => ({
   dropOpenTransaction: mockDropOpenTransaction,
   failUnfinishedTransaction: mockFailUnfinishedTransaction,
   getTransactionsByReference: mockGetTransactionsByReference,
+  loadOpenPayments: mockLoadOpenPayments,
   paymentDescription: vi.fn(() => 'Test Type 1.–2.1. Test Location Test Event'),
   releaseTransactionCreation: mockReleaseTransactionCreation,
 }))
@@ -336,6 +338,17 @@ describe('paymentCreateLambda', () => {
     expect(mockGetTransactionsByReference).not.toHaveBeenCalled()
     expect(mockCreatePayment).not.toHaveBeenCalled()
     expect(mockDocumentTransaction).not.toHaveBeenCalled()
+  })
+
+  // KOE-1530: the payment is read with the registration's real open payments, as the participant's
+  // own pages are, not with none.
+  it("loads the registration's open payments for the picture it decides from", async () => {
+    mockRead.mockReset()
+    mockRead.mockResolvedValueOnce(createMockRegistration({ openPayments: ['open-1', 'open-2'] }))
+
+    await paymentCreateLambda(event)
+
+    expect(mockLoadOpenPayments).toHaveBeenCalledWith(['open-1', 'open-2'])
   })
 
   it('rejects a concurrent payment creation before calling Paytrail', async () => {

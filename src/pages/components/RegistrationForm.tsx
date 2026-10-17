@@ -100,7 +100,12 @@ export default function RegistrationForm({
   // themselves, so a registration made before the restriction stays theirs to edit.
   const valid = errors.length === 0 && registration.qualifies && (admin || !restriction)
   const costResult = calculateCost(event, registration)
+  // The amount owed follows the form as it is edited (KOE-722). Whether it waits for a place is the
+  // server's picture, or for an entry that has none yet (a new one, the secretary's) the group's.
   const paymentDue = getShownPaymentDue(event, registration)
+  const waitsForPlace = registration.payment
+    ? registration.payment.status === 'waitingForPlace'
+    : isPaymentWaitingForPlace(event, registration)
   const ctaText = useMemo(() => {
     if (registration.id) return t('registration.cta.saveChanges')
     if (admin) {
@@ -464,9 +469,9 @@ export default function RegistrationForm({
           }}
         >
           {/* The same facts as the pay offer: what is shown as owed, and whether paying waits for a
-              place, which the server's shouldPay or the group tells, not the confirmation (KOE-1526). */}
+              place, which the server's picture or the group tells, not the confirmation (KOE-1526). */}
           {t(
-            paymentDue > 0 && isPaymentWaitingForPlace(event, registration)
+            paymentDue > 0 && waitsForPlace
               ? 'registration.paymentToBePaidAfterConfirmation'
               : 'registration.paymentToBePaid',
             { amount: formatMoney(paymentDue) }
