@@ -13,9 +13,6 @@
               Resource: '*'
         - DynamoDBCrudPolicy:
             TableName: !Ref OrganizerTable
-        # Telling the admin clients the organizers changed bumps the collection's version.
-        - DynamoDBWritePolicy:
-            TableName: !Ref DataVersionTable
         - !Ref AuthorizePolicy
         - CloudWatchPutMetricPolicy: {}
         - !Ref WebSocketPolicy

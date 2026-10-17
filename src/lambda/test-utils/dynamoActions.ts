@@ -28,7 +28,7 @@ export const accessOf = (action: Action): Access => {
  */
 export const indexKey = (table: string, index: string) => `${table}/index/${index}`
 
-export const tableOfKey = (key: string) => key.split('/')[0]
+const tableOfKey = (key: string) => key.split('/')[0]
 
 /** Whether `actions` (a key to the actions granted on it) allow `action` on `key`. */
 export const isGranted = (grants: ReadonlyMap<string, ReadonlySet<Action>>, key: string, action: Action) => {
@@ -37,4 +37,51 @@ export const isGranted = (grants: ReadonlyMap<string, ReadonlySet<Action>>, key:
   if (allows(grants.get(key))) return true
   const [table, , index] = key.split('/')
   return index !== undefined && allows(grants.get(indexKey(table, '*')))
+}
+
+/** The write actions only the crud template carries (`DynamoDBWritePolicy` has neither). */
+const CRUD_ONLY_WRITES: ReadonlySet<Action> = new Set(['ConditionCheckItem', 'DeleteItem'])
+
+const accessesOf = (actions: ReadonlySet<Action>) => {
+  const accesses = new Set<Access>()
+  for (const action of actions) {
+    if (action === '*') accesses.add('read').add('write')
+    else accesses.add(accessOf(action))
+  }
+  return accesses
+}
+
+/** Grant keys (a table or its index) to actions, folded onto the table. */
+const byTable = (actions: ReadonlyMap<string, ReadonlySet<Action>>) => {
+  const tables = new Map<string, Set<Action>>()
+  for (const [key, keyActions] of actions) {
+    const table = tableOfKey(key)
+    const all = tables.get(table) ?? new Set<Action>()
+    for (const action of keyActions) all.add(action)
+    tables.set(table, all)
+  }
+  return tables
+}
+
+/**
+ * The read and write classes granted on a table the code never uses in that class. A table the code
+ * only deletes from or condition-checks is the one exception: no write template carries those two
+ * actions, so the crud template's read class is not excess there.
+ */
+export const unusedGrants = (
+  granted: ReadonlyMap<string, ReadonlySet<Action>>,
+  used: ReadonlyMap<string, ReadonlySet<Action>>
+): { access: Access; table: string }[] => {
+  const usedByTable = byTable(used)
+  const unused: { access: Access; table: string }[] = []
+  for (const [table, actions] of byTable(granted)) {
+    const usedActions = usedByTable.get(table) ?? new Set<Action>()
+    const usedAccesses = accessesOf(usedActions)
+    const needsCrud = [...usedActions].some((action) => CRUD_ONLY_WRITES.has(action))
+    for (const access of accessesOf(actions)) {
+      if (usedAccesses.has(access) || (access === 'read' && needsCrud)) continue
+      unused.push({ access, table })
+    }
+  }
+  return unused
 }

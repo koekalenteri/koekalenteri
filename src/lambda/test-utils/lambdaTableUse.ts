@@ -66,14 +66,16 @@ const CLIENT_CLASS = 'CustomDynamoClient'
 /**
  * What an expression can evaluate to, as far as tables are concerned: `T:<key>` a table name from
  * CONFIG, `C:<key>` a client whose default table is that key, `S:<text>` a string literal (an index
- * name), `N:<id>` a function or object literal (looked up in `Context.nodes`).
+ * name), `N:<id>` a function or object literal (looked up in `Context.nodes`), `U:` undefined (an
+ * omitted optional argument or property, so that a query's index may be missing).
  */
 type Value = string
 type Values = Set<Value>
 
 const NONE: Values = new Set()
+const UNDEFINED: Values = new Set(['U:'])
 
-const withPrefix = (values: Values, prefix: 'T' | 'C' | 'S') =>
+const withPrefix = (values: Values, prefix: 'T' | 'C' | 'S' | 'U') =>
   [...values].filter((value) => value.startsWith(`${prefix}:`)).map((value) => value.slice(2))
 
 /** The CONFIG table keys among the values. */
@@ -217,7 +219,8 @@ const propertyOf = (ctx: Context, state: HandlerState, values: Values, name: str
     const node = ctx.nodes.get(value)
     if (!node || !ts.isObjectLiteralExpression(node)) continue
     const property = propertyNamed(node, name)
-    if (property) for (const v of valuesOfProperty(ctx, state, property)) result.add(v)
+    // A literal without the property has it undefined, which matters for a query's optional index.
+    for (const v of property ? valuesOfProperty(ctx, state, property) : UNDEFINED) result.add(v)
   }
   return result
 }
@@ -269,6 +272,7 @@ const computeValues = (ctx: Context, state: HandlerState, node: ts.Node): Values
   }
   if (ts.isBinaryExpression(node)) return union(valuesOf(ctx, state, node.left), valuesOf(ctx, state, node.right))
   if (ts.isStringLiteralLike(node)) return new Set([`S:${node.text}`])
+  if (ts.isIdentifier(node) && node.text === 'undefined') return UNDEFINED
   if (ts.isObjectLiteralExpression(node) || isFunctionLike(node)) return new Set([nodeId(ctx, node)])
   if (ts.isNewExpression(node)) return valuesOfClientConstruction(ctx, state, node)
   if (ts.isPropertyAccessExpression(node)) return valuesOfAccess(ctx, state, node)
@@ -326,8 +330,13 @@ const bindCall = (ctx: Context, state: HandlerState, call: ts.CallExpression | t
     const unit = unitOf(callee)
     if (unit) reach(state, unit, from)
     callee.parameters.forEach((parameter, index) => {
-      if (parameter.dotDotDotToken || !args[index]) return
-      bindPattern(ctx, state, parameter.name, valuesOf(ctx, state, args[index]))
+      if (parameter.dotDotDotToken) return
+      const argument = args[index]
+      if (argument) {
+        bindPattern(ctx, state, parameter.name, valuesOf(ctx, state, argument))
+      } else if (parameter.questionToken || parameter.initializer) {
+        bindPattern(ctx, state, parameter.name, UNDEFINED)
+      }
     })
   }
 }
@@ -358,12 +367,10 @@ const bindObjectLiteral = (ctx: Context, state: HandlerState, literal: ts.Object
 const clientMethod = (ctx: Context, call: ts.CallExpression): string | undefined => {
   const callee = call.expression
   if (!ts.isPropertyAccessExpression(callee) || callee.expression.kind === ts.SyntaxKind.ThisKeyword) return undefined
-  const name = callee.name.text
-  const member = (symbol: ts.Symbol | undefined) => symbol?.declarations?.some((d) => d.parent === ctx.clientClass)
-  // Through the name's own symbol and through the receiver's type, so that a `Pick<CustomDynamoClient, ...>`
-  // parameter is seen too.
-  const receiver = ctx.checker.getTypeAtLocation(callee.expression)
-  return member(symbolOf(ctx, callee.name)) || member(receiver.getProperty(name)) ? name : undefined
+  // The name's symbol declares the class member also through a `Pick<CustomDynamoClient, ...>` parameter:
+  // a mapped type's property keeps the declarations of the one it maps.
+  const member = symbolOf(ctx, callee.name)?.declarations?.some((d) => d.parent === ctx.clientClass)
+  return member ? callee.name.text : undefined
 }
 
 const isTableNameProperty = (node: ts.Node): node is TableNameProperty =>
@@ -437,9 +444,12 @@ const literalTables = (
   }
   const index = propertyNamed(literal, 'index')
   if (!index) return keys
-  const names = withPrefix(valuesOfProperty(ctx, state, index), 'S')
-  if (!names.length) cannotTell(index, 'the index option')
-  return keys.flatMap((key) => names.map((name) => indexKey(key, name)))
+  const values = valuesOfProperty(ctx, state, index)
+  const names = withPrefix(values, 'S')
+  if (names.includes('') || (!names.length && !withPrefix(values, 'U').length)) cannotTell(index, 'the index option')
+  // An index that may be undefined leaves the query on the table itself for those calls.
+  const tables = withPrefix(values, 'U').length ? keys : []
+  return [...tables, ...keys.flatMap((key) => names.map((name) => indexKey(key, name)))]
 }
 
 /** The tables of a call that takes its table in an options object: the literal's `table`, or the client's default. */
@@ -604,18 +614,33 @@ interface TableAnalysis {
   environmentVariables: Map<string, string>
 }
 
-/** The tables each handler can reach, by following calls from its default export. */
-export const analyzeTableUse = (handlerFiles: string[]): TableAnalysis => {
+interface TableUseAnalyzer {
+  environmentVariables: Map<string, string>
+  /** The tables one of the handlers reaches; throws on the first use it cannot name. */
+  usesOf: (handlerFile: string) => TableUse
+}
+
+/** One program over the handlers, each walked on request, so a test can hold the failing ones apart. */
+export const createTableUseAnalyzer = (handlerFiles: string[]): TableUseAnalyzer => {
   const program = ts.createProgram(
     handlerFiles.map((file) => path.resolve(file)),
     compilerOptions()
   )
   const ctx = createContext(program)
-  const uses = new Map<string, TableUse>()
-  for (const file of handlerFiles) {
-    const source = program.getSourceFile(path.resolve(file))
-    if (!source) throw new Error(`${file} is not in the program`)
-    uses.set(file, analyzeHandler(ctx, source))
+  return {
+    environmentVariables: configEnvironmentVariables(ctx.config),
+    usesOf: (file) => {
+      const source = program.getSourceFile(path.resolve(file))
+      if (!source) throw new Error(`${file} is not in the program`)
+      return analyzeHandler(ctx, source)
+    },
   }
-  return { environmentVariables: configEnvironmentVariables(ctx.config), uses }
+}
+
+/** The tables each handler can reach, by following calls from its default export. */
+export const analyzeTableUse = (handlerFiles: string[]): TableAnalysis => {
+  const analyzer = createTableUseAnalyzer(handlerFiles)
+  const uses = new Map<string, TableUse>()
+  for (const file of handlerFiles) uses.set(file, analyzer.usesOf(file))
+  return { environmentVariables: analyzer.environmentVariables, uses }
 }

@@ -99,6 +99,27 @@ describe('templateTables', () => {
       '        - DynamoDBReadPolicy:\n            TableName: !Ref StageNameParam',
       /names no table/,
     ],
+    [
+      'an action it does not classify',
+      '        - Statement:\n            - Effect: Allow\n              Action: dynamodb:PartiQLSelect\n              Resource: !GetAtt UserTable.Arn',
+      /dynamodb:PartiQLSelect is not classified/,
+    ],
+    [
+      'a statement that is not Allow',
+      '        - Statement:\n            - Effect: Deny\n              Action: dynamodb:GetItem\n              Resource: !GetAtt UserTable.Arn',
+      /not Allow/,
+    ],
+    [
+      'a resource that is not a table',
+      '        - Statement:\n            - Effect: Allow\n              Action: dynamodb:GetItem\n              Resource: !GetAtt AuthorizePolicy.Arn',
+      /AuthorizePolicy is not a table/,
+    ],
+    [
+      'a Ref to something that is not a managed policy',
+      '        - !Ref UserTable',
+      /UserTable is not a managed policy/,
+    ],
+    ['a policy that is not a map', '        - CloudWatchPutMetricPolicy', /not a map/],
   ])('refuses %s', (_, policies, message) => {
     expect(() => grantsOf(policies)).toThrow(message)
   })

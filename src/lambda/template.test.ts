@@ -1,6 +1,6 @@
 import { execFileSync } from 'node:child_process'
 import { existsSync, readdirSync, readFileSync } from 'node:fs'
-import { accessOf, isGranted, tableOfKey } from './test-utils/dynamoActions'
+import { isGranted, unusedGrants } from './test-utils/dynamoActions'
 import { analyzeTableUse } from './test-utils/lambdaTableUse'
 import { templateTables } from './test-utils/templateGrants'
 
@@ -108,26 +108,10 @@ describe('table policies', () => {
     const excess: string[] = []
     for (const [name, grants] of tables.functions) {
       const used = new Map<string, Set<string>>()
-      for (const [useKey, byAction] of usesOf(name, grants.codeUri)) {
-        const table = tableOfKey(grantKey(useKey))
-        const accesses = used.get(table) ?? new Set<string>()
-        for (const action of byAction.keys()) accesses.add(accessOf(action))
-        used.set(table, accesses)
-      }
-      const granted = new Map<string, Set<string>>()
-      for (const [key, actions] of grants.grants) {
-        const table = tableOfKey(key)
-        const accesses = granted.get(table) ?? new Set<string>()
-        for (const action of actions) {
-          if (action === '*') accesses.add('read').add('write')
-          else accesses.add(accessOf(action))
-        }
-        granted.set(table, accesses)
-      }
-      for (const [table, accesses] of granted) {
-        for (const access of accesses) {
-          if (!used.get(table)?.has(access)) excess.push(`${name} may ${access} ${table} but never does`)
-        }
+      for (const [useKey, byAction] of usesOf(name, grants.codeUri))
+        used.set(grantKey(useKey), new Set(byAction.keys()))
+      for (const { access, table } of unusedGrants(grants.grants, used)) {
+        excess.push(`${name} may ${access} ${table} but never does`)
       }
     }
     expect(excess).toEqual([])

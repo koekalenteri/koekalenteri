@@ -199,7 +199,8 @@ Read `LLM_CONTEXT.md` for the project overview and architecture notes.
   a read or write class on a table the code never touches (`PutJudgeFunction may read JudgeTable but
   never does`): fix the template, not the test. Note that SAM's `DynamoDBWritePolicy` has no
   DeleteItem and no ConditionCheckItem; a delete or a transaction condition needs
-  `DynamoDBCrudPolicy`. A function that calls `authorize()` carries `- !Ref AuthorizePolicy`
+  `DynamoDBCrudPolicy`, and the excess test accepts the crud grant's read class on such a table
+  since no write template can carry it. A function that calls `authorize()` carries `- !Ref AuthorizePolicy`
   (`template/policies/authorize-policy.yaml`) for the user, user link and data version tables; a
   broadcast needs `- !Ref WebSocketPolicy`.
 
