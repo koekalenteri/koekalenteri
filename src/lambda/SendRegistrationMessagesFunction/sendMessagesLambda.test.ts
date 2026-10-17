@@ -783,6 +783,46 @@ describe('sendMessagesLambda', () => {
     expect(mockMarkParticipants).toHaveBeenCalledWith(expect.anything(), 'invited', 'AVO')
   })
 
+  it.each([
+    ['invitation', 'invited'],
+    ['picked', 'picked'],
+  ] as const)(
+    'marks the class after %s although a cancelled entry left in a group never got it (KOE-1537)',
+    async (template, state) => {
+      const registrations: Partial<Registration>[] = [
+        {
+          class: 'ALO',
+          eventId: 'event123',
+          group: { key: 'group1', number: 1 },
+          id: 'reg456',
+          messagesSent: { [template]: true },
+          state: 'ready',
+        },
+        {
+          cancelled: true,
+          class: 'ALO',
+          eventId: 'event123',
+          group: { key: 'group1', number: 2 },
+          id: 'reg789',
+          state: 'ready',
+        },
+      ]
+
+      mockGetReadyRegistrationsByEventId.mockResolvedValueOnce(registrations)
+      setEventBody(event, {
+        contactInfo: { email: 'contact@example.com' },
+        eventId: 'event123',
+        registrationIds: ['reg456'],
+        template,
+        text: 'Test message',
+      })
+
+      await sendMessagesLambda(event)
+
+      expect(mockMarkParticipants).toHaveBeenCalledWith(expect.anything(), state, 'ALO')
+    }
+  )
+
   it('handles registrations with no class by using eventType', async () => {
     // Create registrations with no class
     const noClassRegistrations: Partial<Registration>[] = [

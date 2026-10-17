@@ -72,7 +72,12 @@ export const useDnDHandlers = ({
 
     setSelectedRegistrationId?.(reg.id)
 
-    const regs = registrations.filter((r) => r.group?.key === group.key && r.id !== reg.id)
+    // The server accepts only an anchor whose stored key is the move's key (isInvalidMoveAnchor), so the
+    // siblings are the rows whose stored key names this group. A cancelled entry left with this key is
+    // not one, and neither is a start the grid lists here by its date and time while its stored key
+    // names the UTC day: anchoring on either gets the move refused on every retry (KOE-1537). Making
+    // the grid and the server agree on such rows is a separate issue.
+    const regs = registrations.filter((r) => getRegistrationGroupKey(r) === group.key && r.id !== reg.id)
     const save = determineChangesFromDrop(item, group, reg, regs, canArrangeReserve)
 
     if (save.length) {
