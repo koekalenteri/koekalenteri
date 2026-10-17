@@ -17,7 +17,7 @@ import { eventWithEntryClosing, eventWithParticipantsInvited, eventWithStaticDat
 import { startOfFinnishDay } from '../test-utils/finnishDays'
 import { freezeClockAt } from '../test-utils/freezeClock'
 import { describeInTimeZone } from '../test-utils/timeZone'
-import { addDays as addDaysToKey, dayStart, daysBetween, TIME_ZONE } from './day'
+import { addDays as addDaysToKey, dayStart, TIME_ZONE } from './day'
 import {
   applyNewGroupsToDogEventClass,
   applyNewGroupsToDogEventDates,
@@ -47,6 +47,7 @@ import {
   hasAllResultsPublished,
   hasAvailableResults,
   hasDayStarted,
+  hasEntryEnded,
   hasExplicitPlacesForClass,
   hasMockTrialChoice,
   hasRetrieveTypeChoice,
@@ -55,8 +56,10 @@ import {
   isDetaultEntryStartDate,
   isEntryClosing,
   isEntryEditingClosed,
+  isEntryOpen,
   isEventDeletable,
   isEventLive,
+  isEventOver,
   isMockTrialClass,
   isOfficialEventType,
   isResultsAvailableForClass,
@@ -1178,11 +1181,7 @@ describe('lib/event', () => {
 
       const copy = copyNow(event)
 
-      const shift = daysBetween('2023-06-15', newStartDay)
-      expect(copy.placesPerDay).toEqual({
-        [newStartDay]: 10,
-        [addDaysToKey('2023-06-16', shift)]: 15,
-      })
+      expect(copy.placesPerDay).toEqual({ '2026-09-19': 10, '2026-09-20': 15 })
     })
   })
 })
@@ -1294,6 +1293,15 @@ describe.each([TIME_ZONE, 'America/New_York', 'Asia/Tokyo'])('the default entry 
   })
 })
 
+describe('a stored date that is neither a day nor an instant (KOE-1545)', () => {
+  it('passes no vital, so a bad row is listed rather than a 500', () => {
+    expect(hasEntryEnded({ entryEndDate: 'foo' })).toBe(false)
+    expect(isEventOver({ endDate: new Date(Number.NaN) })).toBe(false)
+    expect(isEntryOpen({ entryEndDate: '2099-01-01', entryStartDate: 'foo', state: 'confirmed' })).toBe(false)
+    expect(hasDayStarted(undefined)).toBe(false)
+  })
+})
+
 describe('isEntryClosing counts Finnish days (KOE-1545)', () => {
   // The entry closes on 2.4.2026, stored as its Finnish midnight. Its last week begins on 26.3.; stepping
   // the instant back seven days in the browser's own zone made it begin an evening early west of Finland,
@@ -1330,10 +1338,15 @@ describe('newEventStartDay (KOE-1545)', () => {
         expect(newEventStartDay(sundayNight, TIME_ZONE)).toBe('2027-01-23')
       })
 
-      it('skips a Saturday that the ninety days land on', () => {
+      it('takes the Saturday right after the ninety days when they end on a Friday', () => {
         // Saturday 17.10.2026 + 90 days is Friday 15.1.2027; the Saturday after it is the 16th.
         const saturdayNight = new Date(new TZDate(2026, 9, 17, 1, 0, TIME_ZONE).getTime())
         expect(newEventStartDay(saturdayNight, TIME_ZONE)).toBe('2027-01-16')
+      })
+
+      it('counts the days in the zone it is given', () => {
+        // The same moment is Saturday evening in New York: ninety days on is a Friday there.
+        expect(newEventStartDay(sundayNight, 'America/New_York')).toBe('2027-01-16')
       })
     })
   }

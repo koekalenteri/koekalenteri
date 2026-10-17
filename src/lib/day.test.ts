@@ -1,6 +1,6 @@
 import type { DayKey } from '../types'
+import { dayEndOf, dayStartOf, isDayKey, monthOf, sameDay, toDayKey, yearOf } from '../lib/day'
 import { describeInTimeZone } from '../test-utils/timeZone'
-import { toDayKey } from '../types'
 import {
   addDays,
   addMonths,
@@ -312,6 +312,80 @@ for (const hostZone of HOST_ZONES) {
     })
   })
 }
+
+describe('isDayKey', () => {
+  it.each(['2026-10-17', '2026-03-29', '2024-02-29', '1977-01-01'])('accepts %s', (value) => {
+    expect(isDayKey(value)).toBe(true)
+  })
+
+  it.each([
+    ['an instant', '2026-10-17T00:00:00.000Z'],
+    ['an unpadded month and day', '2026-1-7'],
+    ['a day the month does not have', '2026-02-30'],
+    ['a thirteenth month', '2026-13-01'],
+    ['a leap day in a common year', '2026-02-29'],
+    ["the Kennel Club's empty date, before the calendar's years", '0001-01-01'],
+    ['a number', 20261017],
+    ['a Date', new Date('2026-10-17T00:00:00Z')],
+    ['null', null],
+    ['undefined', undefined],
+    ['an empty string', ''],
+  ])('rejects %s', (_name, value) => {
+    expect(isDayKey(value)).toBe(false)
+  })
+})
+
+describe('toDayKey', () => {
+  it('pads the month and the day', () => {
+    expect(toDayKey(2026, 3, 9)).toBe('2026-03-09')
+  })
+
+  it('builds a key the guard accepts', () => {
+    expect(isDayKey(toDayKey(2024, 2, 29))).toBe(true)
+  })
+
+  it.each([
+    ['a day the month does not have', 2026, 2, 30],
+    ['a thirteenth month', 2026, 13, 1],
+    ['a zero day', 2026, 10, 0],
+    ['a fractional day', 2026, 10, 1.5],
+    ['a year of fewer than four digits', 999, 1, 1],
+  ])('refuses %s', (_name, year, month, day) => {
+    expect(() => toDayKey(year, month, day)).toThrow(RangeError)
+  })
+
+  it('sorts and compares as text, oldest first', () => {
+    const days = [toDayKey(2026, 10, 25), toDayKey(2026, 3, 29), toDayKey(2025, 12, 31)]
+    expect([...days].sort((a, b) => a.localeCompare(b))).toEqual(['2025-12-31', '2026-03-29', '2026-10-25'])
+    expect(toDayKey(2026, 3, 29) < toDayKey(2026, 10, 25)).toBe(true)
+  })
+})
+
+describe('the readers of an instant', () => {
+  // 23:30 on 31.12.2025 in Finland is 21:30Z: another year and month in UTC and New York.
+  const lastMoments = new Date('2025-12-31T21:30:00.000Z')
+
+  it('dayStartOf and dayEndOf bound the day the instant falls on in the zone', () => {
+    expect(dayStartOf(lastMoments, TIME_ZONE).toISOString()).toBe('2025-12-30T22:00:00.000Z')
+    expect(dayEndOf(lastMoments, TIME_ZONE).toISOString()).toBe('2025-12-31T21:59:59.999Z')
+    expect(dayStartOf(lastMoments, 'UTC').toISOString()).toBe('2025-12-31T00:00:00.000Z')
+    expect(dayEndOf(lastMoments, 'America/New_York').toISOString()).toBe('2026-01-01T04:59:59.999Z')
+  })
+
+  it('sameDay compares the days in the zone', () => {
+    const newYear = new Date('2025-12-31T22:30:00.000Z')
+    expect(sameDay(lastMoments, newYear, TIME_ZONE)).toBe(false)
+    expect(sameDay(lastMoments, newYear, 'UTC')).toBe(true)
+  })
+
+  it('yearOf and monthOf read the year and the month in the zone', () => {
+    expect(yearOf(lastMoments, TIME_ZONE)).toBe(2025)
+    expect(yearOf(new Date('2025-12-31T22:30:00.000Z'), TIME_ZONE)).toBe(2026)
+    expect(yearOf(lastMoments, 'America/New_York')).toBe(2025)
+    expect(monthOf(lastMoments, TIME_ZONE)).toBe('2025-12')
+    expect(monthOf(new Date('2025-12-31T22:30:00.000Z'), TIME_ZONE)).toBe('2026-01')
+  })
+})
 
 describe('TIME_ZONE', () => {
   it("is the trials' zone", () => {

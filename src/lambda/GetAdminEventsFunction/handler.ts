@@ -1,5 +1,5 @@
 import type { JsonDogEvent, JsonUser } from '../../types'
-import { dayOf, dayParts, TIME_ZONE } from '../../lib/day'
+import { TIME_ZONE, yearOf } from '../../lib/day'
 import { CONFIG } from '../config'
 import { authorizeWithMemberOf } from '../lib/auth'
 import { lambda, response } from '../lib/lambda'
@@ -16,7 +16,7 @@ const EARLIEST_SEASON = 2020
 const EMPTY_SEASONS_TO_STOP = 2
 
 /** The season an instant falls in: its Finnish year, as the events' seasons are (GetEventsFunction). */
-const seasonOf = (instant: Date) => dayParts(dayOf(instant, TIME_ZONE)).year
+const seasonOf = (instant: Date) => yearOf(instant, TIME_ZONE)
 
 const querySeason = (season: number, updatedAfter?: string) =>
   dynamoDB.query<JsonDogEvent>(

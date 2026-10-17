@@ -1,8 +1,10 @@
-import { TZDate } from '@date-fns/tz'
-import { TIME_ZONE } from '../lib/day'
+import { dayStart, isDayKey, TIME_ZONE } from '../lib/day'
 
-/** Midday of `day` in Helsinki, so no time zone lands it on a neighbour. */
-const middayOf = (day: string) => new TZDate(`${day}T12:00:00`, TIME_ZONE).getTime()
+/** Midday of `day` in Helsinki (twelve hours into its Finnish day), so no time zone lands it on a neighbour. */
+const middayOf = (day: string) => {
+  if (!isDayKey(day)) throw new RangeError(`Not a day: ${day}`)
+  return dayStart(day, TIME_ZONE).getTime() + 12 * 3_600_000
+}
 
 /**
  * Freezes the calling file's clock to one day, so that a screenshot of anything date-shaped renders

@@ -12,15 +12,14 @@ import type {
   TestResult,
 } from '../types'
 import { getRequirements } from '../rules'
-import { toDayKey } from '../types'
-import { dayOf, dayParts, dayStart, TIME_ZONE } from './day'
+import { dayStart, TIME_ZONE, toDayKey, yearOf } from './day'
 import { getNextClass, isRegistrationClass } from './registration'
 
 export const objectContains = (obj: object, req: object) =>
   Object.entries(req).every(([key, value]) => key in obj && Reflect.get(obj, key) === value)
 
 /** The first moment of the Finnish year `date` falls in. */
-const startOfFinnishYear = (date: Date) => dayStart(toDayKey(dayParts(dayOf(date, TIME_ZONE)).year, 1, 1), TIME_ZONE)
+const startOfFinnishYear = (date: Date) => dayStart(toDayKey(yearOf(date, TIME_ZONE), 1, 1), TIME_ZONE)
 
 const excludeByYear = (result: Partial<TestResult>, date: Date) => result.date && result.date > startOfFinnishYear(date)
 const byDate = (a: TestResult, b: TestResult) => a.date.valueOf() - b.date.valueOf()

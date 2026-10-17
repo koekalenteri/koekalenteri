@@ -1,7 +1,6 @@
 import type { JsonDogEvent } from '../../types'
-import { dayEnd, dayOf, dayParts, dayStart, TIME_ZONE } from '../../lib/day'
+import { dayEnd, dayStart, TIME_ZONE, toDayKey, yearOf } from '../../lib/day'
 import { sanitizeDogEvent } from '../../lib/event'
-import { toDayKey } from '../../types'
 import { CONFIG } from '../config'
 import { changedSince, collectionCursor, parseDateParam } from '../lib/incremental'
 import { lambda, response } from '../lib/lambda'
@@ -36,7 +35,7 @@ function zonedEndOfYear(year: number): Date {
 }
 
 function zonedYear(date: Date): number {
-  return dayParts(dayOf(date, TIME_ZONE)).year
+  return yearOf(date, TIME_ZONE)
 }
 
 function getUpperBoundYear(end: Date | undefined, lowerBoundYear: number): number {

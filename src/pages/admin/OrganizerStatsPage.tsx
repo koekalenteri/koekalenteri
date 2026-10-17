@@ -4,7 +4,7 @@ import Typography from '@mui/material/Typography'
 import { useAtom, useAtomValue } from 'jotai'
 import { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { dayOf, TIME_ZONE } from '../../lib/day'
+import { dayOf, TIME_ZONE, yearOf } from '../../lib/day'
 import AutocompleteSingle from '../components/AutocompleteSingle'
 import CancellationRateChart from '../components/stats/CancellationRateChart'
 import CapacityUtilizationChart, { ALL_CLASSES_ID } from '../components/stats/CapacityUtilizationChart'
@@ -26,7 +26,8 @@ import {
   adminStatsYearAtom,
 } from './state'
 
-const CURRENT_YEAR = new Date().getFullYear()
+// Read when the module loads: the default year before the picker is touched.
+const CURRENT_YEAR = yearOf(new Date(), TIME_ZONE)
 
 export default function OrganizerStatsPage() {
   const { t, i18n } = useTranslation()
@@ -49,9 +50,7 @@ export default function OrganizerStatsPage() {
   // Derived from the stats already loaded rather than from /stats: the global year list would
   // cost four queries per year, and years with no events of your own are not selectable anyway.
   const years = useMemo(() => {
-    const found = new Set(
-      allOrganizerStats.flatMap((item) => (item.date ? [Number(dayOf(item.date, TIME_ZONE).slice(0, 4))] : []))
-    )
+    const found = new Set(allOrganizerStats.flatMap((item) => (item.date ? [yearOf(item.date, TIME_ZONE)] : [])))
     found.add(CURRENT_YEAR)
     return [...found].filter((year) => !Number.isNaN(year)).sort((a, b) => a - b)
   }, [allOrganizerStats])

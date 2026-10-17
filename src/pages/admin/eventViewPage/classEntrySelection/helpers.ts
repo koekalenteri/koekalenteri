@@ -1,6 +1,6 @@
 import type { CustomCost, DogEvent, Registration, RegistrationGroup, RegistrationGroupMove } from '@/types'
 import type { RegistrationWithGroups } from './types'
-import { dayOf, TIME_ZONE } from '@/lib/day'
+import { sameDay, TIME_ZONE } from '@/lib/day'
 import { eventDayKey, eventRegistrationDateKey } from '@/lib/event'
 import {
   GROUP_KEY_CANCELLED,
@@ -95,7 +95,7 @@ export const buildRegistrationsByGroup = (
     byGroup[key].push({
       ...reg,
       dropGroups: groups
-        .filter((g) => regDates.some((d) => !g.date || dayOf(g.date, TIME_ZONE) === dayOf(d, TIME_ZONE)))
+        .filter((g) => regDates.some((d) => !g.date || sameDay(g.date, d, TIME_ZONE)))
         .map((g) => g.key),
       groups: reg.dates.map((rd) => eventRegistrationDateKey(rd)),
     })

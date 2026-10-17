@@ -2,9 +2,15 @@ import type { Dog } from '../types'
 import { addMonths, dayOf, dayStart, TIME_ZONE } from '../lib/day'
 import { eventWithStaticDates } from './events'
 
-/** The Finnish midnight `months` months before the static event's start. */
+/**
+ * Finnish noon `months` months before the static event's start. Noon, because the birthday picker
+ * reads the moment in the browser's zone (KOE-1548), and noon in Finland is the same calendar day
+ * from UTC-9 to UTC+13.
+ */
 const monthsBeforeStart = (months: number) =>
-  dayStart(addMonths(dayOf(eventWithStaticDates.startDate, TIME_ZONE), -months), TIME_ZONE)
+  new Date(
+    dayStart(addMonths(dayOf(eventWithStaticDates.startDate, TIME_ZONE), -months), TIME_ZONE).getTime() + 12 * 3_600_000
+  )
 
 export const registrationDogAged10MonthsAndNoResults: Dog = {
   breedCode: '110',

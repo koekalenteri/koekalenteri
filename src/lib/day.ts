@@ -1,7 +1,6 @@
 import type { DayKey } from '../types'
 import { TZDate, tz } from '@date-fns/tz'
 import { addDays as addDaysInZone } from 'date-fns/addDays'
-import { toDayKey } from '../types'
 
 /**
  * The trials' zone. Every day the calendar stores or shows is a Finnish day, so this is the zone the
@@ -14,9 +13,51 @@ const MS_PER_DAY = 86_400_000
 /*
  * The day arithmetic below runs on the UTC calendar: a day key is placed at its UTC midnight, moved,
  * and read back with the UTC getters. UTC has no change of time, so a step of a day is always
- * 24 hours there, and the host's zone never enters. Only `dayOf`, `dayStart`, `dayEnd` and
- * `shiftDays` deal in zones, and they take the zone as a parameter.
+ * 24 hours there, and the host's zone never enters. Only the functions that take a zone deal in
+ * zones: `dayOf`, `dayStart`, `dayEnd` and the readers built on them, and `shiftDays`.
  */
+
+/**
+ * Four digits from 1000 on: the calendar has no day before that, and the Date constructors would read
+ * a year below 100 as 19xx. The Kennel Club's empty date, 0001-01-01, is therefore not a day.
+ */
+const DAY_KEY_RE = /^[1-9]\d{3}-(?:0[1-9]|1[0-2])-(?:0[1-9]|[12]\d|3[01])$/
+
+/** Whether a year, month and day name a day that exists: no 30.2., no 31.4. */
+const dayExists = (year: number, month: number, day: number) => {
+  const probe = new Date(Date.UTC(year, month - 1, day))
+  return probe.getUTCFullYear() === year && probe.getUTCMonth() === month - 1 && probe.getUTCDate() === day
+}
+
+/** Whether `value` is a `yyyy-MM-dd` that names a day there is. */
+export const isDayKey = (value: unknown): value is DayKey => {
+  if (typeof value !== 'string' || !DAY_KEY_RE.test(value)) return false
+  const [year, month, day] = value.split('-').map(Number)
+  return dayExists(year, month, day)
+}
+
+/** Whether the parts name a day in the calendar's range: whole numbers, a four-digit year, a day the month has. */
+const isDayParts = (year: number, month: number, day: number) =>
+  Number.isInteger(year) &&
+  Number.isInteger(month) &&
+  Number.isInteger(day) &&
+  year >= 1000 &&
+  year <= 9999 &&
+  dayExists(year, month, day)
+
+const pad = (part: number) => String(part).padStart(2, '0')
+
+/**
+ * The key of the day `year`-`month`-`day`, with `month` 1 to 12. A day there is not (30.2.2026, a
+ * fractional day, a year of fewer than four digits) is a programming error and throws.
+ */
+export const toDayKey = (year: number, month: number, day: number): DayKey => {
+  if (!isDayParts(year, month, day)) throw new RangeError(`Not a day: ${year}-${month}-${day}`)
+  const key = `${year}-${pad(month)}-${pad(day)}`
+  // Narrows the template string to the DayKey type; the parts were checked above, so this never throws.
+  if (!isDayKey(key)) throw new RangeError(`Not a day: ${key}`)
+  return key
+}
 
 /** The year, month (1 to 12) and day of a key. */
 export const dayParts = (day: DayKey) => {
@@ -77,23 +118,42 @@ export const dayOf = (instant: Date | number, zone: string): DayKey => {
 }
 
 /**
- * The first moment of the day in `zone`, as a plain Date (the stored form is the UTC instant). Built
- * through the zone's own clock, so where a change of time falls on midnight the day starts at the
- * first moment the zone has.
+ * The first moment of the day in `zone`, as a plain Date (the stored form is the UTC instant; copying
+ * the TZDate drops its class). Built through the zone's own clock, so where a change of time falls on
+ * midnight the day starts at the first moment the zone has.
  */
 export const dayStart = (day: DayKey, zone: string): Date => {
   const { year, month, day: date } = dayParts(day)
-  return new Date(new TZDate(year, month - 1, date, zone).getTime())
+  return new Date(new TZDate(year, month - 1, date, zone))
 }
 
 /** The last millisecond of the day in `zone`: a day of 23 or 25 hours ends where the next one starts. */
 export const dayEnd = (day: DayKey, zone: string): Date => new Date(dayStart(addDays(day, 1), zone).getTime() - 1)
+
+/** The first moment, in `zone`, of the day the instant falls on there. */
+export const dayStartOf = (instant: Date | number, zone: string): Date => dayStart(dayOf(instant, zone), zone)
+
+/** The last millisecond, in `zone`, of the day the instant falls on there. */
+export const dayEndOf = (instant: Date | number, zone: string): Date => dayEnd(dayOf(instant, zone), zone)
+
+/** Whether the two instants fall on the same day in `zone`. */
+export const sameDay = (a: Date | number, b: Date | number, zone: string): boolean => dayOf(a, zone) === dayOf(b, zone)
+
+/** The year the instant falls in, in `zone`. */
+export const yearOf = (instant: Date | number, zone: string): number => dayParts(dayOf(instant, zone)).year
+
+/** The month the instant falls in, in `zone`, as `yyyy-MM`: the key the statistics bucket by. */
+export const monthOf = (instant: Date | number, zone: string): string => dayOf(instant, zone).slice(0, 7)
 
 /**
  * The instant moved by whole calendar days of `zone`, keeping its wall-clock time there: midnight
  * stays midnight and 23:59:59.999 stays so across a change of time, where 24-hour steps would land
  * an hour off. For a day that is known to start or end the result, prefer `dayStart`/`dayEnd` of
  * `addDays`; this is for stored instants whose time of day is to be kept as it is.
+ *
+ * One limit: a wall-clock time that the target day has twice (03:xx on the autumn change) is
+ * resolved by date-fns through the host's zone, so the hour, never the day, can differ between
+ * machines there. Stored instants are midnights or 23:59:59.999, which no change of time repeats.
  */
 export const shiftDays = (instant: Date, days: number, zone: string): Date =>
-  new Date(addDaysInZone(instant, days, { in: tz(zone) }).getTime())
+  new Date(addDaysInZone(instant, days, { in: tz(zone) }))

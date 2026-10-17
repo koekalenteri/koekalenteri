@@ -25,8 +25,8 @@ import type {
   StartNumbersDayScope,
 } from '../types'
 import { isValid } from 'date-fns/isValid'
-import { isDayKey, LANGUAGES } from '../types'
-import { addDays, dayOf, dayOfWeek, dayStart, daysBetween, eachDay, TIME_ZONE } from './day'
+import { LANGUAGES } from '../types'
+import { addDays, dayOf, dayOfWeek, dayStart, daysBetween, eachDay, isDayKey, sameDay, TIME_ZONE, yearOf } from './day'
 import { isLiveNow, isStoredStationTurn, toPublicStationTurn } from './stationTurns'
 import { isConfirmedEvent } from './typeGuards'
 import { isObject, unique, uniqueDate } from './utils'
@@ -43,19 +43,27 @@ export const isValidForEntry = (state?: EventState) => !['draft', 'tentative', '
  * as a Date or the ISO string the stored form is, is read in the trial's zone. The one bridge for the
  * `Date | string` fields until they are typed as days (KOE-1544).
  */
-export const eventDayKey = (date: Date | string): DayKey =>
-  isDayKey(date) ? date : dayOf(typeof date === 'string' ? new Date(date) : date, TIME_ZONE)
+export const eventDayKey = (date: Date | string): DayKey => (isDayKey(date) ? date : dayOf(toInstant(date), TIME_ZONE))
+
+/** A stored instant as a Date: the ISO string the stored form is, or the Date the client revived it to. */
+const toInstant = (date: Date | string): Date => (typeof date === 'string' ? new Date(date) : date)
 
 /**
- * Whether a stored date passes `test` as its Finnish day. A date that reads as neither a day nor an
- * instant has no day and passes nothing: the vitals read rows as they are, and a bad date must not
- * turn a listing into a 500.
+ * The Finnish day of a stored date that may be missing or unreadable: undefined for no date and for
+ * one that reads as neither a day nor an instant. The listings and the vitals read rows as they are,
+ * and a bad or absent date must not turn a read into a 500.
  */
+const storedDayKey = (date: Date | string | undefined): DayKey | undefined => {
+  if (!date) return undefined
+  if (isDayKey(date)) return date
+  const instant = toInstant(date)
+  return Number.isNaN(instant.getTime()) ? undefined : dayOf(instant, TIME_ZONE)
+}
+
+/** Whether a stored date passes `test` as its Finnish day; a missing or unreadable date passes nothing. */
 const dayPasses = (date: Date | string | undefined, test: (day: DayKey) => boolean): boolean => {
-  if (!date) return false
-  if (isDayKey(date)) return test(date)
-  const instant = typeof date === 'string' ? new Date(date) : date
-  return !Number.isNaN(instant.getTime()) && test(dayOf(instant, TIME_ZONE))
+  const day = storedDayKey(date)
+  return day !== undefined && test(day)
 }
 
 /** The Finnish day `now` falls on: what every "has it started yet" question compares against. */
@@ -406,7 +414,8 @@ export const canPublishResults = (
 ) => state === 'started' || state === 'ended' || state === 'completed' || hasReachedPhaseByDate(event, 'started', now)
 
 /** Whether the day has begun in the event's zone: before it, none of its dogs has run (KOE-1510). */
-export const hasDayStarted = (day: Date | string, now = new Date()) => dayStart(eventDayKey(day), TIME_ZONE) <= now
+export const hasDayStarted = (day: Date | string | undefined, now = new Date()) =>
+  dayPasses(day, (key) => dayStart(key, TIME_ZONE) <= now)
 
 export const isResultsPublishedClassMap = (
   resultsPublished: JsonDogEvent['resultsPublished']
@@ -831,9 +840,10 @@ const findRegistrationClass = (event: AvailabilityEvent, registration: Availabil
   const classes = event.classes ?? []
   if (!registration.class || classes.length === 0) return undefined
 
-  const registrationDate = eventDayKey(registration.group.date ?? event.startDate)
+  // A stored event without a start date has no day to match on; the class stands alone then, as before.
+  const registrationDate = storedDayKey(registration.group.date ?? event.startDate)
   const eventClasses = classes.filter((eventClass) => eventClass.class === registration.class)
-  const onTheDay = eventClasses.find((item) => eventDayKey(item.date ?? event.startDate) === registrationDate)
+  const onTheDay = eventClasses.find((item) => storedDayKey(item.date ?? event.startDate) === registrationDate)
 
   return onTheDay ?? (eventClasses.length === 1 ? eventClasses[0] : undefined)
 }
@@ -1224,13 +1234,13 @@ export const getEventSeason = (startDate?: Date | string): string => {
     return ''
   }
 
-  return dayOf(date, TIME_ZONE).slice(0, 4)
+  return String(yearOf(date, TIME_ZONE))
 }
 
 export const isDetaultEntryStartDate = (date: Date | undefined, eventStartDate: Date) =>
-  !date || dayOf(defaultEntryStartDate(eventStartDate), TIME_ZONE) === dayOf(date, TIME_ZONE)
+  !date || sameDay(defaultEntryStartDate(eventStartDate), date, TIME_ZONE)
 export const isDetaultEntryEndDate = (date: Date | undefined, eventStartDate: Date) =>
-  !date || dayOf(defaultEntryEndDate(eventStartDate), TIME_ZONE) === dayOf(date, TIME_ZONE)
+  !date || sameDay(defaultEntryEndDate(eventStartDate), date, TIME_ZONE)
 
 /** The event's days as their Finnish midnights, first to last. */
 export const getEventDays = ({ startDate, endDate }: Pick<DogEvent, 'startDate' | 'endDate'>) =>
@@ -1245,13 +1255,13 @@ export const applySingleDayNowtGroups = <T extends object>(
   endDate: Date,
   classes: readonly T[]
 ): T[] =>
-  eventType === 'NOWT' && dayOf(startDate, TIME_ZONE) === dayOf(endDate, TIME_ZONE)
+  eventType === 'NOWT' && sameDay(startDate, endDate, TIME_ZONE)
     ? classes.map((eventClass) => ({ ...eventClass, groups: ['kp'] }))
     : [...classes]
 
 export const getEventClassesByDays = (event: Pick<DogEvent, 'startDate' | 'endDate' | 'classes'>) =>
   getEventDays(event).map((day) => ({
-    classes: event.classes?.filter((c) => dayOf(c.date ?? event.startDate, TIME_ZONE) === dayOf(day, TIME_ZONE)) ?? [],
+    classes: event.classes?.filter((c) => sameDay(c.date ?? event.startDate, day, TIME_ZONE)) ?? [],
     day,
   }))
 
@@ -1448,7 +1458,7 @@ export const copyDogEvent = (event: DogEvent, now = new Date()): DogEvent => {
   copy.endDate = dayStart(addDays(newStartDay, days), TIME_ZONE)
   copy.entryStartDate = newDates.entryStartDate
   copy.entryEndDate = newDates.entryEndDate
-  copy.season = newStartDay.slice(0, 4)
+  copy.season = getEventSeason(newDates.startDate)
   // Publish decisions belong to the source event's runs, not the copy — and for numbers and results
   // an inherited flag would skip the whole decision, since absent means published for a start list
   // that predates the flag and a copied `resultsPublished` would advertise results that do not exist.

@@ -1,11 +1,10 @@
 import type { JsonDogEvent } from '../../types'
 import type { KLIntegraatioResult, KLIntHenkilö, KLIntKoe, KLIntKoeListassa } from '../types/KLIntegraatio'
 import type KLIntegraatio from './KLIntegraatio'
-import { addDays, dayOf, dayStart, TIME_ZONE } from '../../lib/day'
+import { addDays, dayOf, dayStart, isDayKey, TIME_ZONE } from '../../lib/day'
 import { OFFICIAL_EVENT_TYPES } from '../../lib/event'
 import { kcFormatOfEventType } from '../../lib/kennelliittoResults'
 import { mapWithConcurrency } from '../../lib/utils'
-import { isDayKey } from '../../types'
 import { LambdaError } from './lambda'
 import { logger } from './log'
 
@@ -62,17 +61,12 @@ const klInstant = (local: string) => {
   return day ? dayStart(day, TIME_ZONE).toISOString() : local
 }
 
-/** The Kennel Club's empty date is 0001-01-01; no trial was held before the calendar's own years. */
-const KL_EMPTY_DATE_LIMIT = '1000-01-01'
-
 /**
  * A trial's last day as KL lists it, or its first day where the listing has no readable end: the
- * client reads both as days, and an empty or empty-valued `loppu` would give it nothing to read.
+ * client reads both as days, and an empty `loppu`, or the Kennel Club's empty date 0001-01-01 (not a
+ * day to `klDay`), would give it nothing to read.
  */
-const endDateOf = (listed: KLIntKoeListassa) => {
-  const day = klDay(listed.loppu)
-  return day && day >= KL_EMPTY_DATE_LIMIT ? klInstant(listed.loppu) : klInstant(listed.alku)
-}
+const endDateOf = (listed: KLIntKoeListassa) => (klDay(listed.loppu) ? klInstant(listed.loppu) : klInstant(listed.alku))
 
 const classOverlap = (event: KcIdLookupCriteria, koe?: KLIntKoe) => {
   const localClasses = new Set<string>(event.classes.map((c) => c.class))

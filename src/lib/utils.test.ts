@@ -141,6 +141,14 @@ describe('utils', () => {
       expect(parseJSON('{"date":"2021-05-10T00:00:00"}').date).toBeInstanceOf(Date)
     })
 
+    it("revives the Kennel Club's empty birth date into the year-1 Date the form expects (KOE-1545)", () => {
+      // GetDogFunction stores `syntymäaika` as it comes; a dog with no birthday has 0001-01-01T00:00:00.
+      const parsed = parseJSON('{"dob":"0001-01-01T00:00:00"}')
+
+      expect(parsed.dob).toBeInstanceOf(Date)
+      expect(parsed.dob.getFullYear()).toBe(1)
+    })
+
     it('should revive date-only strings as local calendar dates', () => {
       const parsed = parseJSON('{"date":"2021-05-10"}')
 

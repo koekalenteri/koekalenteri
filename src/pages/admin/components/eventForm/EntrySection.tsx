@@ -9,7 +9,7 @@ import { clamp } from 'date-fns/clamp'
 import { enqueueSnackbar } from 'notistack'
 import { memo, useCallback, useEffect, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
-import { dayEnd, dayOf, dayStart, TIME_ZONE } from '@/lib/day'
+import { dayEndOf, dayOf, dayStartOf, TIME_ZONE } from '@/lib/day'
 import { isDevEnv } from '@/lib/env'
 import { defaultEntryEndDate, defaultEntryStartDate } from '@/lib/event'
 import { getPrioritySort, PRIORITY, priorityValuesToPriority, RESTRICTION } from '@/lib/priority'
@@ -68,11 +68,11 @@ function EntrySection(props: Props) {
   const allowPastRegistrationDates = isDevEnv()
   let registrationStartDate: Date | undefined
   if (!allowPastRegistrationDates) {
-    registrationStartDate = dayStart(dayOf(event.createdAt ?? new Date(), TIME_ZONE), TIME_ZONE)
+    registrationStartDate = dayStartOf(event.createdAt ?? new Date(), TIME_ZONE)
   }
   const registrationDateRange = useMemo(
     () => ({
-      end: dayEnd(dayOf(event.startDate, TIME_ZONE), TIME_ZONE),
+      end: dayEndOf(event.startDate, TIME_ZONE),
       start: registrationStartDate,
     }),
     [event.startDate, registrationStartDate]
@@ -88,8 +88,8 @@ function EntrySection(props: Props) {
   const handleDateChange = useCallback(
     (start: DateValue, end: DateValue) =>
       onChange?.({
-        entryEndDate: end ? dayEnd(dayOf(end, TIME_ZONE), TIME_ZONE) : undefined,
-        entryStartDate: start ? dayStart(dayOf(start, TIME_ZONE), TIME_ZONE) : undefined,
+        entryEndDate: end ? dayEndOf(end, TIME_ZONE) : undefined,
+        entryStartDate: start ? dayStartOf(start, TIME_ZONE) : undefined,
       }),
     [onChange]
   )

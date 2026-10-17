@@ -1,7 +1,7 @@
 import type { EventStatsItem } from '@/types/Stats'
 import type { MonthlyRate } from './MonthlyRateChart'
 import { useTranslation } from 'react-i18next'
-import { dayOf, TIME_ZONE } from '@/lib/day'
+import { monthOf, TIME_ZONE } from '@/lib/day'
 import MonthlyRateChart, { percentageOf } from './MonthlyRateChart'
 
 interface Props {
@@ -9,7 +9,7 @@ interface Props {
   readonly filters?: readonly string[]
 }
 
-const monthKey = (date?: Date): string | undefined => (date ? dayOf(date, TIME_ZONE).slice(0, 7) : undefined)
+const monthKey = (date?: Date): string | undefined => (date ? monthOf(date, TIME_ZONE) : undefined)
 
 /**
  * Share of starters (non-cancelled, non-reserve registrations) whose owner or handler is a

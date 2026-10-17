@@ -11,8 +11,7 @@ import type {
   JsonRegistrationGroup,
 } from '../types'
 import { formatDate } from '../i18n/dates'
-import { isDayKey, toDayKey } from '../types'
-import { dayStart, TIME_ZONE } from './day'
+import { dayStart, isDayKey, TIME_ZONE, toDayKey } from './day'
 import { eventDayKey } from './event'
 import {
   GROUP_KEY_CANCELLED,

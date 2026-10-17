@@ -1,7 +1,7 @@
 import { useAtomValue } from 'jotai'
 import { useCallback, useEffect, useState } from 'react'
 import { reportError } from '@/lib/client/error'
-import { addDays, dayOf, dayStart, TIME_ZONE } from '@/lib/day'
+import { addDays, dayOf, dayStart, dayStartOf, TIME_ZONE } from '@/lib/day'
 import { eventFilterAtom, eventMetadataAtom } from './atoms'
 import { RANGE_INCREMENTAL_THROTTLE, useFetchEvents } from './hooks'
 
@@ -9,7 +9,7 @@ const isEventMetadataStale = (lastSyncAt: number | undefined, now = Date.now()) 
   !lastSyncAt || now - lastSyncAt >= RANGE_INCREMENTAL_THROTTLE
 
 /** The Finnish midnight that began the day `now` falls on. */
-const startOfToday = (now: Date) => dayStart(dayOf(now, TIME_ZONE), TIME_ZONE)
+const startOfToday = (now: Date) => dayStartOf(now, TIME_ZONE)
 
 function useCurrentZonedStartOfDay() {
   const [today, setToday] = useState(() => startOfToday(new Date()))

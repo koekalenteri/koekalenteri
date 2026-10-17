@@ -13,7 +13,7 @@ import { useTranslation } from 'react-i18next'
 import { useAdminEventRegistrationDates } from '@/hooks/useAdminEventRegistrationDates'
 import { useLocalState } from '@/hooks/useLocalState'
 import { formatDate } from '@/i18n/dates'
-import { dayOf, TIME_ZONE } from '@/lib/day'
+import { sameDay, TIME_ZONE } from '@/lib/day'
 import { eventDates, registrationDates, uniqueClasses } from '@/lib/event'
 import { getRegistrationClass, isRegistrationClass } from '@/lib/registration'
 import { unique, uniqueDate } from '@/lib/utils'
@@ -22,9 +22,6 @@ import AutocompleteSingle from '../AutocompleteSingle'
 import CollapsibleSection from '../CollapsibleSection'
 
 // Helper to sort registration dates
-/** Whether two moments fall on the same Finnish day. */
-const sameDay = (a: Date, b: Date) => dayOf(a, TIME_ZONE) === dayOf(b, TIME_ZONE)
-
 const sortRegistrationDates = (dates: RegistrationDate[]): RegistrationDate[] => {
   return [...dates].sort((a, b) => {
     if (a.date !== b.date) return a.date.valueOf() - b.date.valueOf()
@@ -94,7 +91,9 @@ export function EntryInfo({
   // Helper function to determine initial filter dates
   const getInitialFilterDates = useCallback(() => {
     const selectedDates =
-      reg.eventId === event.id ? (reg.dates?.filter((rd) => dates.some((d) => sameDay(d, rd.date))) ?? []) : []
+      reg.eventId === event.id
+        ? (reg.dates?.filter((rd) => dates.some((d) => sameDay(d, rd.date, TIME_ZONE))) ?? [])
+        : []
     const tmpDates = selectedDates.length ? selectedDates.map((rd) => rd.date) : dates
 
     return uniqueDate(
@@ -127,7 +126,7 @@ export function EntryInfo({
 
   // Helper functions for date filtering
   const isValidRegistrationDate = useCallback(
-    (rd: RegistrationDate) => filterDates.some((fd) => sameDay(fd, rd.date)),
+    (rd: RegistrationDate) => filterDates.some((fd) => sameDay(fd, rd.date, TIME_ZONE)),
     [filterDates]
   )
 
@@ -207,7 +206,7 @@ export function EntryInfo({
 
       // Find dates in filter that aren't in current selection
       const missingFilterDates = filterDates.filter(
-        (filterDate) => !currentDates.some((ud) => sameDay(ud.date, filterDate))
+        (filterDate) => !currentDates.some((ud) => sameDay(ud.date, filterDate, TIME_ZONE))
       )
 
       // No missing dates, no changes needed
@@ -217,7 +216,7 @@ export function EntryInfo({
 
       // Add available dates that match missing filter dates
       const datesToAdd = availableDates.filter((availableDate) =>
-        missingFilterDates.some((date) => sameDay(date, availableDate.date))
+        missingFilterDates.some((date) => sameDay(date, availableDate.date, TIME_ZONE))
       )
 
       return datesToAdd.length ? [...currentDates, ...datesToAdd] : undefined
@@ -239,7 +238,7 @@ export function EntryInfo({
     const validDates = getValidDates(changes.class)
 
     const validCurrentDates =
-      reg.dates?.filter((rd) => validDates.some((d) => sameDay(d.date, rd.date) && d.time === rd.time)) ?? []
+      reg.dates?.filter((rd) => validDates.some((d) => sameDay(d.date, rd.date, TIME_ZONE) && d.time === rd.time)) ?? []
 
     // Update dates if current selection is invalid
     if (!validCurrentDates.length || validCurrentDates.length !== reg.dates?.length) {

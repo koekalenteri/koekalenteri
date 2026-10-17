@@ -5,7 +5,7 @@ import { enqueueSnackbar } from 'notistack'
 import { useCallback, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { searchEventKcIdChoices } from '@/api/event'
-import { dayEnd, dayOf, dayStart, TIME_ZONE } from '@/lib/day'
+import { dayEndOf, dayOf, dayStartOf, TIME_ZONE } from '@/lib/day'
 import { idTokenAtom } from '../../state'
 
 /** The event details the Kennelliitto search matches against. */
@@ -37,12 +37,12 @@ const applyKcChoice = (choice: EventKcIdChoice): Patch<DogEvent> => {
   return {
     kcEvent: {
       classes: choice.classes,
-      endDate: dayEnd(dayOf(choice.endDate, TIME_ZONE), TIME_ZONE),
+      endDate: dayEndOf(choice.endDate, TIME_ZONE),
       eventType: choice.eventType,
       judge: choice.judge ?? null,
       judgeId: choice.judgeId ?? null,
       location: choice.location ?? null,
-      startDate: dayStart(dayOf(choice.startDate, TIME_ZONE), TIME_ZONE),
+      startDate: dayStartOf(choice.startDate, TIME_ZONE),
     },
     kcGuid: choice.kcGuid,
   }

@@ -276,6 +276,18 @@ describe('getEarlyBirdEndDate', () => {
     expect(result?.toISOString()).toBe('2026-01-05T00:00:00.000Z')
   })
 
+  it('counts the days in Finnish time over the change to summer time (KOE-1545)', () => {
+    // 27.3.2026 00:00 Finnish time plus four Finnish days is 31.3. 00:00, 21:00Z in summer time; a
+    // 24-hour step in the lambda's zone (UTC) gave 22:00Z, an hour into the last day.
+    const result = getEarlyBirdEndDate(
+      { entryStartDate: '2026-03-26T22:00:00.000Z' },
+      {
+        earlyBird: { cost: 40, days: 5 },
+      }
+    )
+    expect(result?.toISOString()).toBe('2026-03-30T21:00:00.000Z')
+  })
+
   it('should treat days=1 as ending on the same day as entryStartDate', () => {
     const entryStartDate = new Date('2026-01-01T00:00:00.000Z')
     const result = getEarlyBirdEndDate(

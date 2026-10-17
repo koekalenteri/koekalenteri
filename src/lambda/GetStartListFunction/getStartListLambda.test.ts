@@ -390,7 +390,6 @@ describe('getStartListLambda', () => {
       classes: [{ class: 'ALO', state: 'confirmed' }],
       id: 'event123',
       organizer: { id: 'org123' },
-      startDate: '2025-01-01',
       startListPublished: { ALO: false },
       state: 'confirmed',
     }
@@ -444,7 +443,6 @@ describe('getStartListLambda', () => {
       classes: [{ class: 'ALO', state: 'confirmed' }],
       id: 'event123',
       organizer: { id: 'org123' },
-      startDate: '2025-01-01',
       startListPublished: { ALO: true },
       startNumbersPublished: { ALO: false },
       state: 'confirmed',
@@ -668,7 +666,6 @@ describe('getStartListLambda', () => {
     const confirmedEvent = {
       classes: [{ class: 'ALO', state: 'invited' }],
       id: eventId,
-      startDate: '2025-01-01',
       startListPublished: { ALO: true, AVO: false },
       state: 'invited',
     }

@@ -18,7 +18,7 @@ import Typography from '@mui/material/Typography'
 import { useCallback, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { HEADER_HEIGHT } from '../../assets/Theme'
-import { addMonths, dayEnd, dayOf, dayStart, TIME_ZONE } from '../../lib/day'
+import { addMonths, dayEndOf, dayOf, dayStart, dayStartOf, TIME_ZONE } from '../../lib/day'
 import AutocompleteMulti from '../components/AutocompleteMulti'
 import DateRange from '../components/DateRange'
 import SelectMulti from '../components/SelectMulti'
@@ -55,8 +55,8 @@ export const EventFilter = ({ judges, organizers, eventTypes, eventClasses, filt
   const handleDateRangeChange = useCallback(
     (start: DateValue, end: DateValue) =>
       setFilter({
-        end: end ? dayEnd(dayOf(end, TIME_ZONE), TIME_ZONE) : null,
-        start: start ? dayStart(dayOf(start, TIME_ZONE), TIME_ZONE) : null,
+        end: end ? dayEndOf(end, TIME_ZONE) : null,
+        start: start ? dayStartOf(start, TIME_ZONE) : null,
       }),
     [setFilter]
   )

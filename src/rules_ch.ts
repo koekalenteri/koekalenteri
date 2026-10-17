@@ -5,7 +5,7 @@ import type {
   QualifyingResults,
   TestResult,
 } from './types'
-import { addMonths, dayEnd, dayOf, TIME_ZONE } from './lib/day'
+import { addMonths, dayEnd, dayEndOf, dayOf, TIME_ZONE } from './lib/day'
 import { NOME_B_CH_qualificationStartDate2023 } from './lib/registration'
 
 const byPointsAndDate = (a: QualifyingResult, b: QualifyingResult) => {
@@ -44,9 +44,6 @@ const getRelevantRankingResults = ({
     .sort(byPointsAndDate)
     .slice(0, maxResults)
 
-/** The Finnish end of the day `date` falls on. */
-const finnishEndOfDay = (date: Date) => dayEnd(dayOf(date, TIME_ZONE), TIME_ZONE)
-
 /** The ranking period that closes with the entry: from the end of the same day `years` back, exclusive. */
 const yearsBeforeEntryEnd = (entryEndDate: Date, years: number) => {
   const endDay = dayOf(entryEndDate, TIME_ZONE)
@@ -58,7 +55,7 @@ const yearsBeforeEntryEnd = (entryEndDate: Date, years: number) => {
 }
 
 const getNOME_B_CH_RankingPeriod = (entryEndDate?: Date, qualificationStartDate?: Date) => ({
-  maxResultDate: finnishEndOfDay(entryEndDate ?? new Date()),
+  maxResultDate: dayEndOf(entryEndDate ?? new Date(), TIME_ZONE),
   minResultDate: qualificationStartDate ?? NOME_B_CH_qualificationStartDate2023,
 })
 

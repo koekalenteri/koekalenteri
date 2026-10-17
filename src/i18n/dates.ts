@@ -7,8 +7,7 @@ import { isValid } from 'date-fns/isValid'
 import { enGB as en } from 'date-fns/locale/en-GB'
 import { fi } from 'date-fns/locale/fi'
 import { parseISO } from 'date-fns/parseISO'
-import { dayOf, dayStart, TIME_ZONE } from '../lib/day'
-import { isDayKey } from '../types'
+import { dayOf, dayStart, isDayKey, TIME_ZONE } from '../lib/day'
 
 interface DateFormatOptions {
   timeZone?: string

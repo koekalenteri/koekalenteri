@@ -1,6 +1,6 @@
 import type { DeepPartial, EventClass, EventType, Judge, PublicJudge } from '@/types'
 import type { PartialEvent } from '../types'
-import { dayOf, TIME_ZONE } from '@/lib/day'
+import { sameDay, TIME_ZONE } from '@/lib/day'
 import { canJudgeMockTrial, makeArray } from '@/lib/judge'
 
 type PartialPublicJudge = Partial<PublicJudge>
@@ -67,11 +67,7 @@ export const updateJudge = (
   values?: DeepPartial<EventClass>[]
 ) => {
   const isSelected = (c: DeepPartial<EventClass>) =>
-    values?.some(
-      (v) =>
-        dayOf(v.date ?? event.startDate, TIME_ZONE) === dayOf(c.date ?? event.startDate, TIME_ZONE) &&
-        v.class === c.class
-    )
+    values?.some((v) => sameDay(v.date ?? event.startDate, c.date ?? event.startDate, TIME_ZONE) && v.class === c.class)
 
   return event.classes?.map((c) => ({
     ...c,

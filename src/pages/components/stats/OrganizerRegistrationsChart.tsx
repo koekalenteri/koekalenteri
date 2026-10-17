@@ -1,6 +1,6 @@
 import type { EventStatsItem } from '@/types/Stats'
 import { useTranslation } from 'react-i18next'
-import { dayOf, TIME_ZONE } from '@/lib/day'
+import { monthOf, TIME_ZONE } from '@/lib/day'
 import { CATEGORICAL_CHART_COLORS } from './chartColors'
 import StatsBarChart from './StatsBarChart'
 
@@ -9,7 +9,7 @@ interface Props {
   readonly filters?: readonly string[]
 }
 
-const monthKey = (date?: Date): string | undefined => (date ? dayOf(date, TIME_ZONE).slice(0, 7) : undefined)
+const monthKey = (date?: Date): string | undefined => (date ? monthOf(date, TIME_ZONE) : undefined)
 
 export default function OrganizerRegistrationsChart({ items, filters }: Props) {
   const { t } = useTranslation()

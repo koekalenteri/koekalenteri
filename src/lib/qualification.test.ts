@@ -36,6 +36,21 @@ describe('lib/qualification', () => {
       ])
     })
 
+    // A result from the trial's own year does not put the dog above its class. 23:30 Finnish time on
+    // 31.12.2025 is still 2025 in UTC, so a host-zone start of the year read a 2026 result as 2025 (KOE-1545).
+    it("tells the trial year's results apart by the Finnish year", () => {
+      const trial = { eventType: 'NOME-B', startDate: '2026-08-01T00:00:00.000Z' }
+      const ALO1 = { ...NOU1, class: 'ALO', result: 'ALO1', type: 'NOME-B' }
+      const qualify = (date: string) =>
+        qualifyJsonRegistration(
+          { class: 'ALO', dog: { regNo: 'FI12345/22', results: [NOU1, { ...ALO1, date }] } },
+          trial
+        )
+
+      expect(qualify('2025-12-31T21:30:00.000Z').qualifies).toBe(false)
+      expect(qualify('2025-12-31T22:30:00.000Z').qualifies).toBe(true)
+    })
+
     it('rejects a dog whose official results already put it above the class', () => {
       const ALO1 = { ...NOU1, class: 'ALO', result: 'ALO1', type: 'NOME-B' }
       const qualification = qualifyJsonRegistration(

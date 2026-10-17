@@ -2,7 +2,7 @@ import type { PublicDogEvent } from '@/types'
 import type { EventMetadata, FilterProps } from './types'
 import { atom } from 'jotai'
 import { atomWithLazy } from 'jotai/utils'
-import { dayOf, dayStart, TIME_ZONE } from '@/lib/day'
+import { dayStartOf, TIME_ZONE } from '@/lib/day'
 import { atomWithLocalStorage } from '../storage'
 import { deserializeFilter, serializeFilter } from './filters'
 
@@ -54,7 +54,7 @@ const defaultFilter = (): FilterProps => ({
   eventType: [],
   judge: [],
   organizer: [],
-  start: dayStart(dayOf(new Date(), TIME_ZONE), TIME_ZONE),
+  start: dayStartOf(new Date(), TIME_ZONE),
   withClosingEntry: false,
   withFreePlaces: false,
   withOpenEntry: false,

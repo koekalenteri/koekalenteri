@@ -2,10 +2,9 @@ import type { TFunction } from 'i18next'
 import type { PublicDogEvent } from '@/types'
 import type { FilterProps } from './types'
 import { formatDate, formatDateSpan } from '@/i18n/dates'
-import { dayEnd, dayOf, dayStart, TIME_ZONE } from '@/lib/day'
+import { dayEnd, dayOf, dayStart, isDayKey, TIME_ZONE } from '@/lib/day'
 import { hasAvailableResults, isEntryClosing, isEntryOpen, isEntryUpcoming } from '@/lib/event'
 import { isRegistrationClass } from '@/lib/registration'
-import { isDayKey } from '@/types'
 
 /** The Finnish midnight of a day key from the URL; anything else, including nothing, is no date. */
 export const readDate = (date: string | null) => (isDayKey(date) ? dayStart(date, TIME_ZONE) : null)

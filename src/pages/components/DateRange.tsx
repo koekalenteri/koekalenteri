@@ -6,8 +6,7 @@ import { isValid } from 'date-fns/isValid'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import useDebouncedCallback from '../../hooks/useDebouncedCallback'
-import { dayOf, dayParts, dayStart, TIME_ZONE } from '../../lib/day'
-import { toDayKey } from '../../types'
+import { dayOf, dayParts, dayStart, sameDay, TIME_ZONE, toDayKey } from '../../lib/day'
 
 export type DateValue = Date | null
 
@@ -30,7 +29,7 @@ export interface Props {
 }
 
 function dayStyle(date: Date, selected: boolean, defaultDate?: Date) {
-  const isDefault = !!defaultDate && dayOf(date, TIME_ZONE) === dayOf(defaultDate, TIME_ZONE)
+  const isDefault = !!defaultDate && sameDay(date, defaultDate, TIME_ZONE)
   const hilight = isDefault && !selected
   return {
     border: hilight ? (theme: Theme) => `2px solid ${theme.palette.secondary.light}` : undefined,

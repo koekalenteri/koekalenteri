@@ -180,6 +180,14 @@ describe('searchEventKcIdChoicesLambda', () => {
     )
   })
 
+  it.each([
+    { field: 'startDate', value: 'foo' },
+    { field: 'endDate', value: '2026-13-45T00:00:00.000Z' },
+  ])('answers 400 to a $field that is not a date, instead of failing in the search', async ({ field, value }) => {
+    await expect(search({ ...laukaaRequest, [field]: value })).rejects.toMatchObject({ status: 400 })
+    expect(mockLueKokeet).not.toHaveBeenCalled()
+  })
+
   it('uses the number of the requested organizer', async () => {
     mockAuthorizeWithMemberOf.mockResolvedValueOnce({ memberOf: ['org-id', 'org-2'], user })
     mockReadOrganizer.mockResolvedValueOnce(otherOrganizer)
