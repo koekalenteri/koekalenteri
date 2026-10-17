@@ -135,8 +135,9 @@ function BasicInfoSection({
 
       let { entryEndDate, entryStartDate } = event
 
-      if (!isSameDay(start, event.startDate, inFinland)) {
-        if (isSameDay(end, event.endDate, inFinland)) {
+      // start and end are Finnish dates (zoned* above), and isSameDay compares in the zone of its first argument
+      if (!isSameDay(start, event.startDate)) {
+        if (isSameDay(end, event.endDate)) {
           // startDate changed and endDate remained the same => change endDate based on the previous distance between days
           end = add(start, { days: differenceInDays(event.endDate, event.startDate, inFinland) }, inFinland)
         }

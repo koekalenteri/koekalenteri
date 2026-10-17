@@ -1253,6 +1253,19 @@ describe.each([TIME_ZONE, 'America/New_York', 'Asia/Tokyo'])('the default entry 
 
       expect(isDetaultEntryStartDate(midnight(2026, 10, 25), eventStart)).toBe(false)
     })
+
+    // 23:30 in Finland is the next morning in Tokyo, so the default's day in the browser's zone is
+    // another day than its Finnish one.
+    it('tells the default day by its Finnish day, late in the evening too', () => {
+      const eventStart = midnight(2026, 12, 5)
+      const late = (year: number, month: number, day: number) =>
+        new Date(new TZDate(year, month - 1, day, 23, 30, TIME_ZONE).getTime())
+
+      expect(isDetaultEntryEndDate(late(2026, 11, 14), eventStart)).toBe(true)
+      expect(isDetaultEntryEndDate(late(2026, 11, 13), eventStart)).toBe(false)
+      expect(isDetaultEntryStartDate(late(2026, 10, 24), eventStart)).toBe(true)
+      expect(isDetaultEntryStartDate(late(2026, 10, 23), eventStart)).toBe(false)
+    })
   })
 })
 
