@@ -4,7 +4,8 @@
  * local development (KOE-1345, KOE-1369).
  */
 import { spawnSync } from 'node:child_process'
-import { CreateTableCommand, DeleteTableCommand, DynamoDBClient, ListTablesCommand } from '@aws-sdk/client-dynamodb'
+import { randomUUID } from 'node:crypto'
+import { CreateTableCommand, DeleteTableCommand, DescribeTableCommand, DynamoDBClient } from '@aws-sdk/client-dynamodb'
 
 export const DYNAMODB_ENDPOINT = process.env.DYNAMODB_ENDPOINT ?? 'http://127.0.0.1:8000'
 
@@ -23,44 +24,44 @@ export const INTEGRATION_ACCESS_KEY = 'integration'
  * a hyphen in it with "invalid".
  */
 const PROBE_KEYS = ['isolationprobe1', 'isolationprobe2']
-const PROBE_TABLE = 'isolation-probe'
 
 const probeClient = (endpoint, key) =>
   new DynamoDBClient({ credentials: { accessKeyId: key, secretAccessKey: key }, endpoint, region: 'eu-north-1' })
-
-const ignoring = async (name, action) => {
-  try {
-    await action()
-  } catch (error) {
-    if (error.name !== name) throw error
-  }
-}
 
 /**
  * Whether the container keeps a database per access key: a table created under one key is not seen
  * under another. One started with -sharedDb (AWS's own docker-compose example, and what NoSQL
  * Workbench or the AWS CLI need to see the same tables) answers every key with the one database, so
  * a reset under the integration key would empty the developer's tables there. A marker table rather
- * than a look at what is there, so an empty shared database reads as shared too.
+ * than a look at what is there, so an empty shared database reads as shared too; the marker's name
+ * is this probe's own, so a probe running beside it, or a table of the developer's, is neither
+ * mistaken for it nor deleted with it, and it is asked for by name rather than looked for in a
+ * table list that stops at a hundred names.
  */
 const isolatesAccessKeys = async (endpoint) => {
+  const marker = `isolation-probe-${randomUUID()}`
   const [writer, reader] = PROBE_KEYS.map((key) => probeClient(endpoint, key))
+  let created = false
   try {
-    // A marker left behind by an interrupted probe is as good as a new one
-    await ignoring('ResourceInUseException', () =>
-      writer.send(
-        new CreateTableCommand({
-          AttributeDefinitions: [{ AttributeName: 'id', AttributeType: 'S' }],
-          BillingMode: 'PAY_PER_REQUEST',
-          KeySchema: [{ AttributeName: 'id', KeyType: 'HASH' }],
-          TableName: PROBE_TABLE,
-        })
-      )
+    await writer.send(
+      new CreateTableCommand({
+        AttributeDefinitions: [{ AttributeName: 'id', AttributeType: 'S' }],
+        BillingMode: 'PAY_PER_REQUEST',
+        KeySchema: [{ AttributeName: 'id', KeyType: 'HASH' }],
+        TableName: marker,
+      })
     )
-    const { TableNames = [] } = await reader.send(new ListTablesCommand({}))
-    return !TableNames.includes(PROBE_TABLE)
+    created = true
+    try {
+      await reader.send(new DescribeTableCommand({ TableName: marker }))
+      return false
+    } catch (error) {
+      if (error.name === 'ResourceNotFoundException') return true
+      throw error
+    }
   } finally {
-    await ignoring('ResourceNotFoundException', () => writer.send(new DeleteTableCommand({ TableName: PROBE_TABLE })))
+    // Only what this probe made, and only under the key that made it
+    if (created) await writer.send(new DeleteTableCommand({ TableName: marker }))
     writer.destroy()
     reader.destroy()
   }
