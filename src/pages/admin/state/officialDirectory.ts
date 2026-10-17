@@ -19,7 +19,8 @@ const sortOfficialDirectory = <T extends Official>(entries: T[]): T[] => {
 }
 
 export const atomWithOfficialDirectory = <T extends Official>({ cacheKey, fetch }: OfficialDirectoryAtomOptions<T>) =>
-  atomWithCachedRemoteCollection({ cacheKey, fetch, sort: sortOfficialDirectory })
+  // A judge or an official holds no Date: its JSON is its model.
+  atomWithCachedRemoteCollection({ cacheKey, fetch, revive: (entry: T) => entry, sort: sortOfficialDirectory })
 
 /**
  * Matches the search text against every column the directory shows, event types included: an

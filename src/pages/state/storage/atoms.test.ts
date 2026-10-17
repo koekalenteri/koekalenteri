@@ -1,8 +1,63 @@
+import type { JsonPublicDogEvent, PublicDogEvent } from '@/types'
 import { createStore } from 'jotai'
+import { arrayOf, toPublicDogEvent } from '@/lib/wire'
 import { atomWithStoredValue, parseStorageJSON } from './atoms'
 
 describe('storage atoms', () => {
   afterEach(() => vi.restoreAllMocks())
+
+  it('reads a stored value as written: a text that looks like a day stays text (KOE-1546)', () => {
+    localStorage.setItem(
+      'as-written-test',
+      JSON.stringify({ description: '2024-05-01', notes: '2026-05-01T08:00:00.000Z' })
+    )
+    const valueAtom = atomWithStoredValue('as-written-test', {}, localStorage)
+
+    expect(createStore().get(valueAtom)).toEqual({ description: '2024-05-01', notes: '2026-05-01T08:00:00.000Z' })
+  })
+
+  it('revives a stored value through its converter, without writing the storage back', () => {
+    const stored = [{ description: '2024-05-01', id: 'e1', startDate: '2026-05-01T21:00:00.000Z' }]
+    localStorage.setItem('revived-test', JSON.stringify(stored))
+    const setItem = vi.spyOn(Storage.prototype, 'setItem')
+    const onRefined = vi.fn()
+    const valueAtom = atomWithStoredValue<PublicDogEvent[], JsonPublicDogEvent[]>('revived-test', [], localStorage, {
+      onRefined,
+      refine: (value) => (Array.isArray(value) ? value : undefined),
+      revive: arrayOf(toPublicDogEvent),
+    })
+
+    const events = createStore().get(valueAtom)
+
+    expect(events[0].startDate).toEqual(new Date('2026-05-01T21:00:00.000Z'))
+    expect(events[0].description).toBe('2024-05-01')
+    expect(setItem).not.toHaveBeenCalled()
+    expect(onRefined).not.toHaveBeenCalled()
+  })
+
+  it('falls back when the converter cannot read the stored value, and removes it', () => {
+    localStorage.setItem('unreadable-test', JSON.stringify({ not: 'a list' }))
+    const valueAtom = atomWithStoredValue<PublicDogEvent[], JsonPublicDogEvent[]>('unreadable-test', [], localStorage, {
+      revive: arrayOf(toPublicDogEvent),
+    })
+
+    expect(createStore().get(valueAtom)).toEqual([])
+    expect(localStorage.getItem('unreadable-test')).toBeNull()
+  })
+
+  it('leaves a stored null to the atom, with nothing to revive', () => {
+    localStorage.setItem('null-test', 'null')
+    const valueAtom = atomWithStoredValue<PublicDogEvent[] | null, JsonPublicDogEvent[]>(
+      'null-test',
+      [],
+      localStorage,
+      {
+        revive: arrayOf(toPublicDogEvent),
+      }
+    )
+
+    expect(createStore().get(valueAtom)).toBeNull()
+  })
 
   it('parses stored JSON and handles invalid input', () => {
     expect(parseStorageJSON(null)).toBeUndefined()

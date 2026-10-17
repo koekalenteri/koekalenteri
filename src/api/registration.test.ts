@@ -281,6 +281,7 @@ test('putRegistrationGroups', async () => {
 
 describe('getStartList', () => {
   it('should call correct endpoint', async () => {
+    fetchMock.mockResponseOnce(JSON.stringify([]))
     await getStartList('test-id')
     expect(fetchMock).toHaveBeenCalledTimes(1)
     expect(fetchMock).toHaveBeenCalledWith(`${API_BASE_URL}/startlist/test-id`, expect.any(Object))
@@ -299,6 +300,7 @@ describe('getStartList', () => {
   })
 
   it('should call authenticated preview endpoint', async () => {
+    fetchMock.mockResponseOnce(JSON.stringify([]))
     await getStartListPreview('test-id', 'test-token')
     expect(fetchMock).toHaveBeenCalledTimes(1)
     expect(fetchMock).toHaveBeenCalledWith(

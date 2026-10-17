@@ -147,12 +147,8 @@ export interface JsonEventResultTask {
   updatedBy: string
 }
 
-/**
- * Client-side shapes. `http` revives any ISO string into a `Date` by the value's own shape rather than
- * by field name, so `updatedAt` really is a `Date` once a result has crossed the wire — the same reason
- * `paidAt` and `refundAt` are mapped.
- */
-type EventResultTask = Replace<JsonEventResultTask, 'updatedAt', Date>
+/** Client-side shapes: `updatedAt` is made a `Date` at the typed boundary (`lib/wire.ts`), as `paidAt` and `refundAt` are. */
+export type EventResultTask = Replace<JsonEventResultTask, 'updatedAt', Date>
 export type EventResult = Replace<Omit<JsonEventResult, 'tasks'>, 'updatedAt', Date> & {
   tasks?: EventResultTask[]
 }
@@ -203,8 +199,28 @@ export interface JsonKcResult {
   errors?: string[]
 }
 
-/** `at` and `day` as the client holds them: its reviver turns a date-shaped string into a Date. */
-export type KcResult = Omit<JsonKcResult, 'at' | 'day'> & { at: Date; day?: Date }
+/** `at` as the client holds it; `day` is a day key, a string on both sides of the wire. */
+export type KcResult = Replace<JsonKcResult, 'at', Date>
+
+export interface StoredEventResult {
+  id: string
+  eventResult: EventResult
+}
+
+/** What saving results answers with: the rows written, the ones already so, and the edits that lost a race. */
+export interface EventResultsResponse {
+  saved: StoredEventResult[]
+  /** Already stored: what a retry over a bad connection gets back. */
+  unchanged: StoredEventResult[]
+  conflicts: { id: string; stationId?: string; stored: EventResult; submitted: EventResult }[]
+}
+
+/** The same answer as the server writes it, every result's `updatedAt` an ISO string. */
+export interface JsonEventResultsResponse {
+  saved: { id: string; eventResult: JsonEventResult }[]
+  unchanged: { id: string; eventResult: JsonEventResult }[]
+  conflicts: { id: string; stationId?: string; stored: JsonEventResult; submitted: JsonEventResult }[]
+}
 
 export interface JsonEmailDeliveryStatus {
   at: string
@@ -230,9 +246,8 @@ export interface JsonLastEmail {
   groupNumber?: number
 }
 
-/** The JSON reviver turns `sentAt` into a Date on the way in; a value built in the browser may still hold the string. */
 export interface LastEmail extends Omit<JsonLastEmail, 'sentAt'> {
-  sentAt: Date | string
+  sentAt: Date
 }
 
 export interface JsonRegistration extends JsonDbRecord {
@@ -311,7 +326,7 @@ export interface JsonRegistration extends JsonDbRecord {
   refundStatus?: PaymentStatus
   reserve: ReserveChoise | ''
   reserveNotified?: number | true // true is only found in old records
-  results?: Array<JsonTestResult & { id: string }>
+  results?: JsonManualTestResult[]
   /** The result recorded for THIS event by the secretary. See `JsonEventResult`. */
   eventResult?: JsonEventResult
   /** What sending the result to Kennelliitto came to. Server-owned, never part of `eventResult`. */
@@ -394,6 +409,9 @@ export interface ManualTestResult extends QualifyingResult {
   regNo: string
   official: false
 }
+
+/** A result the registrant entered by hand, as stored: a test result with the row's own id. */
+export type JsonManualTestResult = JsonTestResult & { id: string }
 
 export interface Registration
   extends Omit<

@@ -4,22 +4,28 @@ import { unwrap } from 'jotai/utils'
 import { readEncryptedDataset, writeEncryptedDataset } from '@/lib/client/encryptedStore'
 import { userAtom, validIdTokenAtom } from '@/pages/state'
 
-interface CachedCollectionOptions<T> {
+interface CachedCollectionOptions<T, J = T> {
   cacheKey: keyof DataVersions
   fetch: (token: string) => Promise<T[]>
+  /**
+   * The model of an item read back from the cache, from its JSON shape (`lib/wire.ts`, KOE-1546):
+   * the blob holds the list as JSON, so a `Date` comes back as the ISO string it was written as. A
+   * model with no `Date` is its own JSON shape and names the identity.
+   */
+  revive: (item: J) => T
   sort?: (items: T[]) => T[]
 }
 
 const sorted = <T>(items: T[], sort?: (items: T[]) => T[]): T[] => (sort ? sort([...items]) : items)
 
-export async function loadCachedRemoteCollection<T>(
-  { cacheKey, fetch, sort }: CachedCollectionOptions<T>,
+export async function loadCachedRemoteCollection<T, J = T>(
+  { cacheKey, fetch, revive, sort }: CachedCollectionOptions<T, J>,
   token: string,
   user: { id: string; dataVersions?: DataVersions }
 ) {
   const version = user.dataVersions?.[cacheKey]
-  const cached = await readEncryptedDataset<T[]>(user.id, cacheKey).catch(() => undefined)
-  const sortedCached = cached ? sorted(cached.data, sort) : undefined
+  const cached = await readEncryptedDataset<J[]>(user.id, cacheKey).catch(() => undefined)
+  const sortedCached = cached ? sorted(cached.data.map(revive), sort) : undefined
   if (sortedCached && isFresh(cached?.revision, version)) return sortedCached
   try {
     const fresh = sorted(await fetch(token), sort)
@@ -37,7 +43,12 @@ export async function loadCachedRemoteCollection<T>(
 const isFresh = (cachedRevision: string | undefined, current: DataVersion | undefined): boolean =>
   Boolean(cachedRevision && current?.revision && cachedRevision === current.revision)
 
-export function atomWithCachedRemoteCollection<T>({ cacheKey, fetch, sort }: CachedCollectionOptions<T>) {
+export function atomWithCachedRemoteCollection<T, J = T>({
+  cacheKey,
+  fetch,
+  revive,
+  sort,
+}: CachedCollectionOptions<T, J>) {
   /**
    * Where an update should be mirrored, recorded by the load that produced the list being updated.
    * Taken from the load rather than read from `userAtom` in the writer, so that seeding the atom -
@@ -52,7 +63,7 @@ export function atomWithCachedRemoteCollection<T>({ cacheKey, fetch, sort }: Cac
     if (!token || !user?.id) return []
 
     cacheTarget = { revision: user.dataVersions?.[cacheKey]?.revision, userId: user.id }
-    return loadCachedRemoteCollection({ cacheKey, fetch, sort }, token, user)
+    return loadCachedRemoteCollection({ cacheKey, fetch, revive, sort }, token, user)
   })
   const overrideAtom = atom<T[] | undefined>(undefined)
   // Once the load has settled, serve the list synchronously: a dependent reading it in a plain

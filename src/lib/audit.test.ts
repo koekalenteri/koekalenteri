@@ -43,7 +43,6 @@ import {
   startNumbersEnteredAudit,
   startNumbersPublishedAudit,
 } from './audit'
-import { parseDateOnlyString } from './utils'
 
 describe('auditUser', () => {
   it('names an authenticated user without a source', () => {
@@ -430,22 +429,24 @@ describe('formatAuditMessage', () => {
     expect(formatAuditMessage(en(), row)).toBe(english)
   })
 
-  it('reads a day the API revived into a Date as the day it was (KOE-1442)', () => {
+  it('reads a day parameter as the day it names, wherever the reader is (KOE-1442, KOE-865)', () => {
+    // The row as the API and the WebSocket hand it over: the day a bare yyyy-MM-dd key (KOE-1546). The
+    // test runs with TZ=Asia/Tokyo, where that key read as local midnight would be the evening before
+    // in Finland; a reader west of UTC-10 would see the day after.
     const row = groupRow(dayGroup, { key: 'reserve', number: 1 }, 'move')
-    const revived = { ...row, messageParams: { ...row.messageParams, fromDate: parseDateOnlyString('2024-08-03') } }
+    const stored = { ...row, messageParams: { ...row.messageParams, fromDate: '2024-08-03' } }
 
-    expect(formatAuditMessage(en(), revived)).toBe('Group: Sat 3.8. pm #2 -> Registered #1 move')
-    expect(formatAuditMessage(fi(), revived)).toBe('Ryhmä: la 3.8. ip #2 -> Ilmoittautuneet #1 siirto')
+    expect(formatAuditMessage(en(), stored)).toBe('Group: Sat 3.8. pm #2 -> Registered #1 move')
+    expect(formatAuditMessage(fi(), stored)).toBe('Ryhmä: la 3.8. ip #2 -> Ilmoittautuneet #1 siirto')
   })
 
-  it('shows a free text the API revived into a Date as the text it was', () => {
+  it('shows a free text that looks like a date as the text it is', () => {
     const row = registrationCancelledAudit('2026-10-18')
 
-    expect(formatAuditMessage(en(), { ...row, messageParams: { reason: parseDateOnlyString('2026-10-18') } })).toBe(
+    expect(formatAuditMessage(en(), { ...row, messageParams: { reason: '2026-10-18' } })).toBe(
       'Registration cancelled, reason: 2026-10-18'
     )
-    // A full timestamp keeps its time: only the reviver's local noon marks a bare day.
-    expect(formatAuditMessage(en(), { ...row, messageParams: { reason: new Date('2026-10-18T10:00:07.000Z') } })).toBe(
+    expect(formatAuditMessage(en(), { ...row, messageParams: { reason: '2026-10-18T10:00:07.000Z' } })).toBe(
       'Registration cancelled, reason: 2026-10-18T10:00:07.000Z'
     )
   })
@@ -505,13 +506,12 @@ describe('formatAuditDetail', () => {
 })
 
 describe('auditLabelParams', () => {
-  // The class day is written as its Helsinki midnight, an instant; at UTC-10 that instant is local
-  // noon, which must not be taken for a revived bare day (KOE-1442).
-  it.each([
-    ['an instant revived into a Date', new Date('2026-09-18T21:00:00.000Z')] as const,
-    ['an instant over the WebSocket', '2026-09-18T21:00:00.000Z'] as const,
-  ])('formats %s as the day in Finnish time', (_name, eventDate) => {
-    expect(auditLabelParams({ eventClass: 'ALO', eventDate })).toEqual({ eventClass: 'ALO', eventDate: '19.9.2026' })
+  // The class day is written as its Helsinki midnight, an instant, and read as that instant (KOE-1442).
+  it('formats the instant as the day in Finnish time', () => {
+    expect(auditLabelParams({ eventClass: 'ALO', eventDate: '2026-09-18T21:00:00.000Z' })).toEqual({
+      eventClass: 'ALO',
+      eventDate: '19.9.2026',
+    })
   })
 
   it('leaves parameters without a date as they are', () => {

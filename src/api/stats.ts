@@ -3,11 +3,13 @@ import type {
   CapacityStatsEntry,
   EventBreakdownEntry,
   EventStatsItem,
+  JsonEventStatsItem,
   JudgeWorkloadEntry,
   RetentionStats,
   YearlyBreakdownEntry,
   YearlyTotalStat,
 } from '../types/Stats'
+import { toEventStatsItem } from '../lib/wire'
 import http, { withToken } from './http'
 
 const PATH = '/stats'
@@ -112,5 +114,5 @@ export async function getOrganizerEventStats(
   if (from) params.set('from', from)
   if (to) params.set('to', to)
   const qs = params.toString() ? `?${params.toString()}` : ''
-  return http.get<EventStatsItem[]>(ADMIN_PATH + qs, withToken({ signal }, token))
+  return (await http.get<JsonEventStatsItem[]>(ADMIN_PATH + qs, withToken({ signal }, token))).map(toEventStatsItem)
 }

@@ -1,11 +1,8 @@
-import type { ClassStartNumbers, RegistrationGroup } from '../types'
+import type { ClassStartNumbers, JsonClassStartNumbers, JsonStartNumberPatch, StartNumberPatch } from '../types'
+import { toClassStartNumbers, toStartNumberPatch } from '../lib/wire'
 import http, { withToken } from './http'
 
-/** What a save changed: the dog's frozen placement, or null where a cancelled holder yielded it. */
-export interface StartNumberPatch {
-  id: string
-  startGroup?: RegistrationGroup | null
-}
+export type { StartNumberPatch }
 
 /** One drawn number, the way both number entry screens send it. */
 export interface StartNumberEntry {
@@ -25,7 +22,9 @@ export async function getClassStartNumbers(
   token: string,
   signal?: AbortSignal
 ): Promise<ClassStartNumbers> {
-  return http.get<ClassStartNumbers>(classPath(eventId, eventClass), withToken({ signal }, token))
+  return toClassStartNumbers(
+    await http.get<JsonClassStartNumbers>(classPath(eventId, eventClass), withToken({ signal }, token))
+  )
 }
 
 export async function putClassStartNumbers(
@@ -35,13 +34,14 @@ export async function putClassStartNumbers(
   token: string,
   signal?: AbortSignal
 ): Promise<{ patches: StartNumberPatch[] }> {
-  return (
-    await http.post<{ numbers: StartNumberEntry[] }, { patches: StartNumberPatch[] }>(
+  const { patches } = (
+    await http.post<{ numbers: StartNumberEntry[] }, { patches: JsonStartNumberPatch[] }>(
       classPath(eventId, eventClass),
       { numbers },
       withToken({ signal }, token)
     )
   ).data
+  return { patches: patches.map(toStartNumberPatch) }
 }
 
 /** The token behind a class's draw link; the event secretary's side of the same mechanism. */

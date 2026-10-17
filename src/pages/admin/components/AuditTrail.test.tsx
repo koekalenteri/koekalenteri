@@ -65,6 +65,33 @@ describe('AuditTrail', () => {
     expect(screen.getByText('audit.changed: notes')).toBeInTheDocument()
   })
 
+  it('shows a change whose text is an ISO timestamp as that text (KOE-1546)', async () => {
+    const { user } = renderWithUserEvents(
+      <AuditTrail
+        auditTrail={[
+          auditRecord({
+            changes: [
+              {
+                field: 'startDate',
+                labelKey: 'event.startDate',
+                next: { text: '2026-05-01T21:00:00.000Z' },
+                previous: { text: '2026-04-30T21:00:00.000Z' },
+              },
+            ],
+            messageKey: 'audit.changed',
+          }),
+        ]}
+        fullHeight
+      />,
+      { wrapper: Wrapper }
+    )
+
+    await user.click(screen.getByRole('button', { name: 'audit.showDetails' }))
+
+    expect(screen.getByText(/^\+ .*: 2026-05-01T21:00:00.000Z$/)).toBeInTheDocument()
+    expect(screen.getByText(/^− .*: 2026-04-30T21:00:00.000Z$/)).toBeInTheDocument()
+  })
+
   it('shows the stored message for a key outside the audit translations', () => {
     render(<AuditTrail auditTrail={[auditRecord({ message: 'Tallennettu teksti', messageKey: 'x' })]} fullHeight />, {
       wrapper: Wrapper,

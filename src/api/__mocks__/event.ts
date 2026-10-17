@@ -1,5 +1,5 @@
 import type { AuditRecord, DogEvent, InvitationAttachmentVersion, Patch } from '../../types'
-import type { PublicEventsResponse, SearchEventKcIdChoicesRequest, SearchEventKcIdChoicesResponse } from '../event'
+import type { PublicEventsDeltaResponse, SearchEventKcIdChoicesRequest, SearchEventKcIdChoicesResponse } from '../event'
 import { parseISO } from 'date-fns'
 import { emptyEvent } from '../../__mockData__/emptyEvent'
 import {
@@ -46,7 +46,7 @@ export async function getEvents(
   _end?: Date,
   _since?: number,
   _signal?: AbortSignal
-): Promise<PublicEventsResponse> {
+): Promise<PublicEventsDeltaResponse> {
   return new Promise((resolve) => {
     const events = mockEvents.map((item) => sanitizeDogEvent(item))
     process.nextTick(() => resolve({ events, unchangedIds: [] }))

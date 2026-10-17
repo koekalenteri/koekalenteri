@@ -44,7 +44,11 @@ beforeAll(async () => {
 })
 
 const makeEffect = (fetch = vi.fn()) => {
-  const promise = loadCachedRemoteCollection({ cacheKey: 'judges', fetch }, 'token', currentUser)
+  const promise = loadCachedRemoteCollection(
+    { cacheKey: 'judges', fetch, revive: (item) => item },
+    'token',
+    currentUser
+  )
   return { fetch, promise }
 }
 
@@ -146,7 +150,7 @@ describe('atomWithCachedRemoteCollection', () => {
   })
 
   const loadedCollection = async (fetch = vi.fn()) => {
-    const collection = atomWithCachedRemoteCollection<string>({ cacheKey: 'judges', fetch })
+    const collection = atomWithCachedRemoteCollection<string>({ cacheKey: 'judges', fetch, revive: (item) => item })
     const store = createStore()
     store.set(idTokenAtom, TEST_ID_TOKEN)
     await store.get(collection)
@@ -181,7 +185,11 @@ describe('atomWithCachedRemoteCollection', () => {
   })
 
   it('leaves the cache alone for a write that precedes any load', async () => {
-    const collection = atomWithCachedRemoteCollection<string>({ cacheKey: 'judges', fetch: vi.fn() })
+    const collection = atomWithCachedRemoteCollection<string>({
+      cacheKey: 'judges',
+      fetch: vi.fn(),
+      revive: (item) => item,
+    })
     const store = createStore()
 
     await store.set(collection, ['seeded'])

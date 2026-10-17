@@ -4,52 +4,51 @@ import type {
   DogEvent,
   EventClass,
   EventCopyResult,
+  EventKcIdChoice,
   InvitationAttachmentVersion,
+  JsonAuditRecord,
+  JsonDogEvent,
+  JsonEventKcIdChoice,
+  JsonInvitationAttachmentVersion,
+  JsonPublicDogEvent,
   Patch,
   PublicDogEvent,
   RegistrationClass,
+  Replace,
 } from '../types'
 import { addDays, nextSaturday } from 'date-fns'
 import { zonedStartOfDay } from '../i18n/dates'
 import { latestCollectionUpdate } from '../lib/incremental'
+import {
+  converter,
+  recordOf,
+  timestamp,
+  toAuditRecord,
+  toDogEvent,
+  toDogEventWithLiveTurns,
+  toEventKcIdChoice,
+  toInvitationAttachmentVersion,
+  toPublicDogEvent,
+} from '../lib/wire'
 import http, { withToken } from './http'
 
 const PATH = '/event/'
 const ADMIN_PATH = '/admin/event/'
 
-export type PublicEventsDeltaResponse = {
+type JsonPublicEventsDeltaResponse = {
   /** The server's watermark for the next incremental fetch (KOE-1501) */
   cursor?: number
-  events: PublicDogEvent[]
+  events: JsonPublicDogEvent[]
   /** The unchanged events' stamps, so a stale cached copy can be told from a current one (KOE-1501) */
   unchanged?: { id: string; updatedAt: string }[]
   unchangedIds: string[]
 }
 
-export type PublicEventsResponse = PublicDogEvent[] | PublicEventsDeltaResponse
+export type PublicEventsDeltaResponse = Replace<JsonPublicEventsDeltaResponse, 'events', PublicDogEvent[]>
 
-export type EventKcIdChoice = {
-  classes: string[]
-  contactInfo?: NonNullable<DogEvent['contactInfo']>
-  cost?: DogEvent['cost']
-  description?: DogEvent['description']
-  judge?: string
-  /** The chief judge's member number, which the judge warning compares with the event's judges. */
-  judgeId?: number
-  /** Null for a trial Kennelliitto has not given a GUID: it is shown, and cannot be selected (KOE-1534). */
-  kcGuid: string | null
-  kcTunnus?: string
-  name: string
-  eventType: string
-  startDate: Date
-  endDate: Date
-  entryStartDate?: Date
-  entryEndDate?: Date
-  organizer: string
-  /** Absent when the trial's details could not be read from Kennelliitto. */
-  location?: string
-  status?: string
-}
+type JsonPublicEventsResponse = JsonPublicDogEvent[] | JsonPublicEventsDeltaResponse
+
+export type { EventKcIdChoice }
 
 export type SearchEventKcIdChoicesResponse = {
   choices: EventKcIdChoice[]
@@ -63,7 +62,7 @@ export type SearchEventKcIdChoicesRequest = Pick<
   organizer: Pick<DogEvent['organizer'], 'id'>
 }
 
-function isPublicEventsDeltaResponse(response: PublicEventsResponse): response is PublicEventsDeltaResponse {
+function isPublicEventsDeltaResponse(response: JsonPublicEventsResponse): response is JsonPublicEventsDeltaResponse {
   return !Array.isArray(response)
 }
 
@@ -82,26 +81,29 @@ export const getEvents = async (
   const query = params.toString()
   const url = query ? `${PATH}?${query}` : PATH
 
-  const response = await http.get<PublicEventsResponse>(url, { signal })
+  const response = await http.get<JsonPublicEventsResponse>(url, { signal })
 
-  if (isPublicEventsDeltaResponse(response)) return response
+  if (isPublicEventsDeltaResponse(response)) return { ...response, events: response.events.map(toPublicDogEvent) }
 
   // A full list carries no cursor of its own: the latest stamp among its events is what the
   // server would have computed for it.
-  return { cursor: latestCollectionUpdate(response)?.getTime(), events: response, unchangedIds: [] }
+  const events = response.map(toPublicDogEvent)
+  return { cursor: latestCollectionUpdate(events)?.getTime(), events, unchangedIds: [] }
 }
 
 // The endpoint serves the sanitized public event, so the public-only `liveTurns` rides along.
 export const getEvent = async (id: string, signal?: AbortSignal) =>
-  http.get<DogEvent & Pick<PublicDogEvent, 'liveTurns'>>(`${PATH}${id}`, { signal })
+  toDogEventWithLiveTurns(
+    await http.get<JsonDogEvent & Pick<JsonPublicDogEvent, 'liveTurns'>>(`${PATH}${id}`, { signal })
+  )
 
 export async function getAdminEvents(token?: string, lastModified?: number, signal?: AbortSignal): Promise<DogEvent[]> {
   const qs = lastModified ? `?since=${lastModified}` : ''
-  return http.get<DogEvent[]>(ADMIN_PATH + qs, withToken({ signal }, token))
+  return (await http.get<JsonDogEvent[]>(ADMIN_PATH + qs, withToken({ signal }, token))).map(toDogEvent)
 }
 
 export async function getAdminEvent(id: string, token?: string, signal?: AbortSignal): Promise<DogEvent> {
-  return http.get<DogEvent>(`${ADMIN_PATH}${id}`, withToken({ signal }, token))
+  return toDogEvent(await http.get<JsonDogEvent>(`${ADMIN_PATH}${id}`, withToken({ signal }, token)))
 }
 
 export const getEventAuditTrail = async (
@@ -109,14 +111,18 @@ export const getEventAuditTrail = async (
   token: string,
   signal?: AbortSignal
 ): Promise<AuditRecord[] | undefined> =>
-  http.get<AuditRecord[]>(`${ADMIN_PATH}audit/${id}`, withToken({ signal }, token))
+  (await http.get<JsonAuditRecord[]>(`${ADMIN_PATH}audit/${id}`, withToken({ signal }, token))).map(toAuditRecord)
 
 export async function putEvent(event: Patch<DogEvent>, token?: string, signal?: AbortSignal): Promise<DogEvent> {
   const request = withToken({ signal }, token)
-  return event.id
-    ? (await http.patch<Patch<DogEvent>, DogEvent>(ADMIN_PATH, event, request)).data
-    : (await http.post<Patch<DogEvent>, DogEvent>(ADMIN_PATH, event, request)).data
+  const saved = event.id
+    ? await http.patch<Patch<DogEvent>, JsonDogEvent>(ADMIN_PATH, event, request)
+    : await http.post<Patch<DogEvent>, JsonDogEvent>(ADMIN_PATH, event, request)
+  return toDogEvent(saved.data)
 }
+
+/** The event as the publishing endpoints answer with it. */
+const toSavedEvent = converter<{ event: JsonDogEvent }, { event: DogEvent }>({ event: toDogEvent })
 
 export interface StartNumbersRequest {
   eventClass?: RegistrationClass
@@ -136,10 +142,12 @@ export async function putStartNumbers(
   token?: string,
   signal?: AbortSignal
 ): Promise<{ event: DogEvent }> {
-  return http.put<StartNumbersRequest, { event: DogEvent }>(
-    `/admin/startnumbers/${eventId}`,
-    request,
-    withToken({ signal }, token)
+  return toSavedEvent(
+    await http.put<StartNumbersRequest, { event: JsonDogEvent }>(
+      `/admin/startnumbers/${eventId}`,
+      request,
+      withToken({ signal }, token)
+    )
   )
 }
 
@@ -158,10 +166,12 @@ export async function putResultsPublished(
   token?: string,
   signal?: AbortSignal
 ): Promise<{ event: DogEvent }> {
-  return http.put<ResultsPublishedRequest, { event: DogEvent }>(
-    `/admin/results-published/${eventId}`,
-    request,
-    withToken({ signal }, token)
+  return toSavedEvent(
+    await http.put<ResultsPublishedRequest, { event: JsonDogEvent }>(
+      `/admin/results-published/${eventId}`,
+      request,
+      withToken({ signal }, token)
+    )
   )
 }
 
@@ -175,15 +185,30 @@ export async function searchEventKcIdChoices(
   signal?: AbortSignal
 ): Promise<SearchEventKcIdChoicesResponse> {
   const response = (
-    await http.post<SearchEventKcIdChoicesRequest, SearchEventKcIdChoicesResponse>(
+    await http.post<SearchEventKcIdChoicesRequest, { choices: JsonEventKcIdChoice[] }>(
       `${ADMIN_PATH}kcId/choices`,
       request,
       withToken({ signal }, token)
     )
   ).data
 
-  return { ...response, choices: response.choices.map(normalizeEventKcIdChoice) }
+  return { ...response, choices: response.choices.map((choice) => normalizeEventKcIdChoice(toEventKcIdChoice(choice))) }
 }
+
+type JsonInvitationAttachmentResponse = {
+  invitationAttachmentHistory: Record<string, JsonInvitationAttachmentVersion>
+  key: string
+  uploadedAt: string
+}
+type InvitationAttachmentResponse = {
+  invitationAttachmentHistory: Record<string, InvitationAttachmentVersion>
+  key: string
+  uploadedAt: Date
+}
+const toInvitationAttachmentResponse = converter<JsonInvitationAttachmentResponse, InvitationAttachmentResponse>({
+  invitationAttachmentHistory: recordOf(toInvitationAttachmentVersion),
+  uploadedAt: timestamp,
+})
 
 export async function putInvitationAttachment(
   eventId: string,
@@ -191,11 +216,7 @@ export async function putInvitationAttachment(
   className?: string,
   token?: string,
   signal?: AbortSignal
-): Promise<{
-  invitationAttachmentHistory: Record<string, InvitationAttachmentVersion>
-  key: string
-  uploadedAt: Date
-}> {
+): Promise<InvitationAttachmentResponse> {
   const data = new FormData()
   data.append('file', file, file.name)
 
@@ -203,10 +224,9 @@ export async function putInvitationAttachment(
     ? `/admin/file/invitation/${eventId}/${encodeURIComponent(className)}`
     : `/admin/file/invitation/${eventId}`
 
-  return http.postRaw<
-    FormData,
-    { invitationAttachmentHistory: Record<string, InvitationAttachmentVersion>; key: string; uploadedAt: Date }
-  >(path, data, withToken({ signal }, token))
+  return toInvitationAttachmentResponse(
+    await http.postRaw<FormData, JsonInvitationAttachmentResponse>(path, data, withToken({ signal }, token))
+  )
 }
 
 /** Copies the event with its registrations into another environment, every person in it replaced (KOE-1471). */
@@ -221,11 +241,13 @@ export async function exportEventToStage(eventId: string, target: string, token?
 }
 
 export async function copyEventWithRegistrations(eventId: string, token?: string, signal?: AbortSignal) {
-  return (
-    await http.post<{ id: string; startDate: Date }, DogEvent>(
-      `${ADMIN_PATH}copy`,
-      { id: eventId, startDate: zonedStartOfDay(nextSaturday(addDays(Date.now(), 90))) },
-      withToken({ signal }, token)
-    )
-  ).data
+  return toDogEvent(
+    (
+      await http.post<{ id: string; startDate: Date }, JsonDogEvent>(
+        `${ADMIN_PATH}copy`,
+        { id: eventId, startDate: zonedStartOfDay(nextSaturday(addDays(Date.now(), 90))) },
+        withToken({ signal }, token)
+      )
+    ).data
+  )
 }

@@ -43,7 +43,7 @@ export const parseStartNumberEntries = (numbers: unknown): StartNumberEntry[] =>
 /** ` (ALO)` after a message about one class, nothing after one about the whole event. */
 const classSuffix = (eventClass?: RegistrationClass) => (eventClass ? ` (${eventClass})` : '')
 
-const placementDay = (date: string | Date) => formatDate(date, 'yyyy-MM-dd')
+const placementDay = (date: string) => formatDate(date, 'yyyy-MM-dd')
 
 const inScope = (
   registration: JsonRegistration,

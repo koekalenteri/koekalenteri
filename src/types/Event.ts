@@ -5,6 +5,7 @@ import type {
   JsonEventResult,
   JsonRegistrationDate,
   JsonRegistrationGroup,
+  JsonUser,
   Language,
   NotOptional,
   PublicJudge,
@@ -34,10 +35,9 @@ export type StartListPublishedState = boolean | Partial<Record<RegistrationClass
  * listed as the day key and the time it ran, `yyyy-MM-dd/ap` or `yyyy-MM-dd/ip`; a bare day key
  * covers every time of that day, and a day whose every half is out is stored as the bare key.
  *
- * Stored as strings; the browser's JSON date reviver turns a bare yyyy-MM-dd into a `Date`, so on
- * the client the list holds dates. Compare through a day key, never by string equality.
+ * Day keys on both sides of the wire (KOE-1546); a half-day entry carries its time after the key.
  */
-export type StartNumbersDayScope = boolean | Array<string | Date>
+export type StartNumbersDayScope = boolean | string[]
 export type StartNumbersPublishedState = StartNumbersDayScope | Partial<Record<RegistrationClass, StartNumbersDayScope>>
 
 /**
@@ -46,10 +46,9 @@ export type StartNumbersPublishedState = StartNumbersDayScope | Partial<Record<R
  * first day's results can be public while the second day is still being scored. Whole days only: the
  * halves start numbers can be drawn in do not apply to results.
  *
- * Stored as strings; the browser's JSON date reviver turns them into `Date`s, as with
- * `StartNumbersDayScope`. Compare through a day key, never by string equality.
+ * Day keys on both sides of the wire, as `StartNumbersDayScope` (KOE-1546).
  */
-export type ResultsDayScope = boolean | Array<string | Date>
+export type ResultsDayScope = boolean | string[]
 
 /** A class, or none for a classless event (NOU, NOME-A), whose one flag covers the whole event. */
 export type ClassOrNone = RegistrationClass | undefined
@@ -136,7 +135,8 @@ export interface JsonDogEvent extends JsonDbRecord {
   name: string
   /** The event name in other languages (KOE-1263), keyed like `descriptions`; `name` is the fallback. */
   names?: Partial<Record<Language, string>>
-  official: Partial<User>
+  /** The user picked for the role, as the users list holds it: with the row's own stamps. */
+  official: Partial<JsonUser>
   organizer: PublicOrganizer
   places: number
   /**
@@ -158,7 +158,7 @@ export interface JsonDogEvent extends JsonDbRecord {
    */
   retrieveType?: RetrieveType
   season?: string
-  secretary: Partial<User>
+  secretary: Partial<JsonUser>
   startDate: string
   state: EventState
   startListPublished?: StartListPublishedState
@@ -294,7 +294,7 @@ export interface JsonStationTurn extends JsonPublicStationTurn {
   registrationIds: string[]
 }
 
-/** The turn as the browser holds it, timestamps revived to `Date` by the http layer. */
+/** The turn as the browser holds it, timestamps made `Date`s at the typed boundary (`lib/wire.ts`). */
 export type PublicStationTurn = Replace<
   ReplaceOptional<ReplaceOptional<JsonPublicStationTurn, 'endedAt', Date>, 'phases', StationTurnPhase[]>,
   'startedAt',
@@ -433,6 +433,18 @@ export type ClassStartNumbers = {
   reserved: ReservedStartNumber[]
 }
 
+/** What a start number save changed: the dog's frozen placement, or null where a cancelled holder yielded it. */
+export interface StartNumberPatch {
+  id: string
+  startGroup?: RegistrationGroup | null
+}
+
+/** The same patch as the server writes it. */
+export interface JsonStartNumberPatch {
+  id: string
+  startGroup?: JsonRegistrationGroup | null
+}
+
 /**
  * How many tasks one class runs at a post, where that differs from the post's own layout.
  *
@@ -466,6 +478,36 @@ export type JsonKcState = {
 }
 export type KcState = Replace<JsonKcState, 'readAt', Date>
 
+/** A trial as Kennelliitto lists it, as the kcId search answers: its days as ISO timestamps. */
+export type JsonEventKcIdChoice = {
+  classes: string[]
+  contactInfo?: NonNullable<JsonDogEvent['contactInfo']>
+  cost?: JsonDogEvent['cost']
+  description?: JsonDogEvent['description']
+  judge?: string
+  /** The chief judge's member number, which the judge warning compares with the event's judges. */
+  judgeId?: number
+  /** Null for a trial Kennelliitto has not given a GUID: it is shown, and cannot be selected (KOE-1534). */
+  kcGuid: string | null
+  kcTunnus?: string
+  name: string
+  eventType: string
+  startDate: string
+  endDate: string
+  entryStartDate?: string
+  entryEndDate?: string
+  organizer: string
+  /** Absent when the trial's details could not be read from Kennelliitto. */
+  location?: string
+  status?: string
+}
+
+export type EventKcIdChoice = Replace<
+  ReplaceOptional<JsonEventKcIdChoice, 'entryStartDate' | 'entryEndDate', Date>,
+  'startDate' | 'endDate',
+  Date
+>
+
 export type DogEvent = DbRecord &
   Replace<
     Replace<
@@ -474,7 +516,10 @@ export type DogEvent = DbRecord &
           ReplaceOptional<
             ReplaceOptional<
               ReplaceOptional<
-                Omit<JsonDogEvent, keyof JsonDbRecord | 'invitationAttachmentHistory' | 'kcState'>,
+                Omit<
+                  JsonDogEvent,
+                  keyof JsonDbRecord | 'invitationAttachmentHistory' | 'kcState' | 'official' | 'secretary'
+                >,
                 EventOptionalDates,
                 Date
               >,
@@ -498,6 +543,8 @@ export type DogEvent = DbRecord &
   > & {
     invitationAttachmentHistory?: Record<string, InvitationAttachmentVersion>
     kcState?: KcState
+    official: Partial<User>
+    secretary: Partial<User>
   }
 
 type NonPublicDogEventProperties =

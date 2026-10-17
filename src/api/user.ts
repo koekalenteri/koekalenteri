@@ -1,8 +1,9 @@
-import type { CollectionResponse, IncrementalCollectionResponse, User, UserRole } from '../types'
+import type { CollectionResponse, IncrementalCollectionResponse, JsonUser, User, UserRole } from '../types'
+import { toCollection, toUser } from '../lib/wire'
 import http, { withToken } from './http'
 
 export const getUser = async (token: string, signal?: AbortSignal, coalesceRevision?: number) =>
-  http.get<User>('/user', withToken({ coalesceRevision, signal }, token))
+  toUser(await http.get<JsonUser>('/user', withToken({ coalesceRevision, signal }, token)))
 
 export function getUsers(token: string, signal?: AbortSignal): Promise<User[]>
 export function getUsers(
@@ -10,21 +11,31 @@ export function getUsers(
   signal: AbortSignal | undefined,
   since: Date
 ): Promise<IncrementalCollectionResponse<User>>
-export function getUsers(token: string, signal?: AbortSignal, since?: Date): Promise<CollectionResponse<User>> {
+export async function getUsers(token: string, signal?: AbortSignal, since?: Date): Promise<CollectionResponse<User>> {
   const query = since ? `?since=${since.getTime()}` : ''
-  return http.get<CollectionResponse<User>>(`/admin/user${query}`, withToken({ signal }, token))
+  return toCollection(
+    await http.get<CollectionResponse<JsonUser>>(`/admin/user${query}`, withToken({ signal }, token)),
+    toUser
+  )
 }
 
 export const putUser = async (user: User, token?: string, signal?: AbortSignal): Promise<User> =>
-  (await http.post<User, User>('/admin/user', user, withToken({ signal }, token))).data
+  toUser((await http.post<User, JsonUser>('/admin/user', user, withToken({ signal }, token))).data)
 
 export const putAdmin = async (
   item: { userId: string; admin: boolean },
   token: string | undefined,
   signal?: AbortSignal
 ): Promise<User> =>
-  (await http.post<{ userId: string; admin: boolean }, User>('/admin/user/admin', item, withToken({ signal }, token)))
-    .data
+  toUser(
+    (
+      await http.post<{ userId: string; admin: boolean }, JsonUser>(
+        '/admin/user/admin',
+        item,
+        withToken({ signal }, token)
+      )
+    ).data
+  )
 
 export interface RoleItem {
   userId: string
@@ -33,7 +44,7 @@ export interface RoleItem {
 }
 
 export const putRole = async (item: RoleItem, token: string | undefined, signal?: AbortSignal): Promise<User> =>
-  (await http.post<RoleItem, User>('/admin/user/role', item, withToken({ signal }, token))).data
+  toUser((await http.post<RoleItem, JsonUser>('/admin/user/role', item, withToken({ signal }, token))).data)
 
 export const putUserName = async (
   name: string,

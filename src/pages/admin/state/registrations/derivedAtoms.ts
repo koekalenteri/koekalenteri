@@ -14,8 +14,7 @@ const placementKey = (registration: Registration) =>
     group: registration.group
       ? {
           ...registration.group,
-          date:
-            registration.group.date instanceof Date ? registration.group.date.toISOString() : registration.group.date,
+          date: registration.group.date ? new Date(registration.group.date).toISOString() : undefined,
           key: deriveParticipantGroupKey(registration.group),
         }
       : undefined,

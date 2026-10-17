@@ -85,7 +85,7 @@ describe('stationTurns', () => {
       expect(turnDurationMs(minuteTurn('a', 0))).toBe(0)
     })
 
-    it('accepts revived Date timestamps', () => {
+    it('accepts Date timestamps, the form the browser holds', () => {
       expect(
         turnDurationMs({ endedAt: new Date('2026-09-12T08:06:00Z'), startedAt: new Date('2026-09-12T08:00:00Z') })
       ).toBe(6 * 60000)

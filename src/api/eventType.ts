@@ -1,4 +1,11 @@
-import type { CollectionResponse, EventType, EventTypeData, IncrementalCollectionResponse } from '../types'
+import type {
+  CollectionResponse,
+  EventType,
+  EventTypeData,
+  IncrementalCollectionResponse,
+  JsonEventType,
+} from '../types'
+import { toEventType } from '../lib/wire'
 import http, { withToken } from './http'
 import { getIncrementalCollection } from './incrementalCollection'
 
@@ -17,9 +24,11 @@ export async function getEventTypes(
   signal?: AbortSignal,
   since?: Date
 ): Promise<CollectionResponse<EventType>> {
-  return getIncrementalCollection(PATH, token, refresh, signal, since)
+  return getIncrementalCollection<JsonEventType, EventType>(PATH, token, refresh, signal, since, toEventType)
 }
 
 export async function putEventType(eventType: EventTypeData, token?: string, signal?: AbortSignal): Promise<EventType> {
-  return (await http.post<EventTypeData, EventType>(PATH, eventType, withToken({ signal }, token))).data
+  return toEventType(
+    (await http.post<EventTypeData, JsonEventType>(PATH, eventType, withToken({ signal }, token))).data
+  )
 }

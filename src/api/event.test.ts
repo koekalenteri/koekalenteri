@@ -6,6 +6,7 @@ import { isEntryClosing, isEntryOpen, isEntryUpcoming } from '../lib/event'
 import { API_BASE_URL } from '../routeConfig'
 import fetchMock from '../test-utils/fetchMock'
 import {
+  getAdminEvent,
   getAdminEvents,
   getEvent,
   getEventAuditTrail,
@@ -112,6 +113,52 @@ test('getEventAuditTrail', async () => {
   expect(auditTrail).toEqual([])
   expect(fetchMock).toHaveBeenCalledTimes(1)
   expect(fetchMock).toHaveBeenCalledWith(`${API_BASE_URL}/admin/event/audit/TestEventID`, expect.any(Object))
+})
+
+test('getEventAuditTrail makes the stamp a Date and leaves a day parameter and a change text as written (KOE-1546)', async () => {
+  fetchMock.mockResponseOnce(
+    JSON.stringify([
+      {
+        auditKey: 'event:TestEventID',
+        changes: [{ field: 'startDate', next: { text: '2026-05-01T21:00:00.000Z' }, previous: { state: 'empty' } }],
+        messageKey: 'audit.messages.groupChanged',
+        messageParams: { toDate: '2026-11-07', toNumber: 1 },
+        timestamp: '2026-05-01T08:00:00.000Z',
+        user: 'u',
+      },
+    ])
+  )
+
+  const auditTrail = await getEventAuditTrail('TestEventID', 'token')
+
+  expect(auditTrail).toEqual([
+    {
+      auditKey: 'event:TestEventID',
+      changes: [{ field: 'startDate', next: { text: '2026-05-01T21:00:00.000Z' }, previous: { state: 'empty' } }],
+      messageKey: 'audit.messages.groupChanged',
+      messageParams: { toDate: '2026-11-07', toNumber: 1 },
+      timestamp: new Date('2026-05-01T08:00:00.000Z'),
+      user: 'u',
+    },
+  ])
+})
+
+test('getAdminEvent reads the published-days lists as the day keys they are (KOE-1546)', async () => {
+  fetchMock.mockResponseOnce(
+    JSON.stringify({
+      ...emptyEvent,
+      resultsPublished: { ALO: ['2026-05-01'] },
+      startNumbersPublished: ['2026-05-01/ap'],
+    })
+  )
+
+  const event = await getAdminEvent('TestEventID', 'token')
+
+  expect(event).toMatchObject({
+    createdAt: emptyEvent.createdAt,
+    resultsPublished: { ALO: ['2026-05-01'] },
+    startNumbersPublished: ['2026-05-01/ap'],
+  })
 })
 
 test('getAdminEvents sends the incremental cursor', async () => {
@@ -230,7 +277,7 @@ test('putResultsPublished names one day of one class (KOE-1510)', async () => {
       method: 'PUT',
     })
   )
-  expect(saved.resultsPublished).toEqual({ ALO: [expect.any(Date)] })
+  expect(saved.resultsPublished).toEqual({ ALO: ['2026-09-12'] })
 })
 
 /**

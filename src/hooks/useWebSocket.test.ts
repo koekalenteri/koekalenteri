@@ -844,7 +844,7 @@ describe('useWebSocket', () => {
     })
   })
 
-  it('should revive date strings in admin event patch messages as Date objects', async () => {
+  it('makes the named date fields of an admin event patch Dates and leaves a text that looks like a day alone (KOE-1546)', async () => {
     const event = {
       classes: [],
       endDate: new Date('2026-01-02'),
@@ -874,18 +874,23 @@ describe('useWebSocket', () => {
     act(() => {
       mockWebSocketInstance.onmessage?.({
         data: JSON.stringify({
-          endDate: '2026-03-15',
+          // A description the secretary typed, and a published-days list of day keys: strings, as written.
+          description: '2024-05-01',
+          endDate: '2026-03-14T22:00:00.000Z',
           eventId: 'event-1',
           scope: 'admin:event-patch',
-          startDate: '2026-03-10',
+          startDate: '2026-03-09T22:00:00.000Z',
+          startNumbersPublished: { ALO: ['2026-03-10'] },
         }),
       })
     })
 
     await waitFor(() => {
       const updated = result.current[0]
-      expect(updated?.startDate).toBeInstanceOf(Date)
-      expect(updated?.endDate).toBeInstanceOf(Date)
+      expect(updated?.startDate).toEqual(new Date('2026-03-09T22:00:00.000Z'))
+      expect(updated?.endDate).toEqual(new Date('2026-03-14T22:00:00.000Z'))
+      expect(updated?.description).toBe('2024-05-01')
+      expect(updated?.startNumbersPublished).toEqual({ ALO: ['2026-03-10'] })
     })
   })
 
@@ -1251,14 +1256,16 @@ describe('useWebSocket', () => {
       mockWebSocketInstance.onmessage?.({
         data: JSON.stringify({
           eventId: 'event-1',
-          patch: [{ id: 'reg-1', notes: 'updated' }],
+          // A note that looks like a day stays the text it is; the payment stamp is made a Date.
+          patch: [{ id: 'reg-1', notes: '2024-05-01', paidAt: '2026-05-03T08:00:00.000Z' }],
           scope: 'admin:event-registrations',
         }),
       })
     })
 
     await waitFor(() => {
-      expect(result.current.registrations[0]?.notes).toBe('updated')
+      expect(result.current.registrations[0]?.notes).toBe('2024-05-01')
+      expect(result.current.registrations[0]?.paidAt).toEqual(new Date('2026-05-03T08:00:00.000Z'))
       expect(result.current.recentlyUpdated['admin:registration:reg-1']).toEqual(expect.any(Number))
     })
   })

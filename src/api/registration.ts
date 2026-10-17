@@ -4,17 +4,35 @@ import type {
   AuditRecord,
   CollectionResponse,
   ConfirmedEvent,
-  EventResult,
+  EventResultsResponse,
   IncrementalCollectionResponse,
+  JsonAuditRecord,
+  JsonConfirmedEvent,
+  JsonEventResultsResponse,
+  JsonPublicRegistration,
+  JsonRegistration,
+  JsonTransaction,
   PublicRegistration,
   PublicStartList,
   Registration,
   RegistrationCreateRequest,
   RegistrationGroupMove,
   RegistrationPatchRequest,
+  StoredEventResult,
   Transaction,
 } from '../types'
 import { startListVersionOf } from '../lib/startList'
+import {
+  arrayOf,
+  converter,
+  toAuditRecord,
+  toCollection,
+  toEventClass,
+  toEventResultsResponse,
+  toPublicRegistration,
+  toRegistration,
+  toTransaction,
+} from '../lib/wire'
 import http, { withRegistrationAuth, withToken, withUserRouteFallback } from './http'
 
 export async function getRegistrations(eventId: string, token: string, signal?: AbortSignal): Promise<Registration[]>
@@ -32,9 +50,12 @@ export async function getRegistrations(
 ): Promise<CollectionResponse<Registration>> {
   const query = since ? `?since=${since.getTime()}` : ''
 
-  return http.get<CollectionResponse<Registration>>(
-    `/admin/registration/${eventId}${query}`,
-    withToken({ signal }, token)
+  return toCollection(
+    await http.get<CollectionResponse<JsonRegistration>>(
+      `/admin/registration/${eventId}${query}`,
+      withToken({ signal }, token)
+    ),
+    toRegistration
   )
 }
 
@@ -44,7 +65,9 @@ export async function getRegistration(
   editToken?: string,
   signal?: AbortSignal
 ): Promise<Registration | undefined> {
-  return http.get<Registration>(`/registration/${eventId}/${id}`, withToken({ signal }, editToken))
+  return toRegistration(
+    await http.get<JsonRegistration>(`/registration/${eventId}/${id}`, withToken({ signal }, editToken))
+  )
 }
 
 export const getRegistrationAuditTrail = async (
@@ -53,7 +76,9 @@ export const getRegistrationAuditTrail = async (
   token: string,
   signal?: AbortSignal
 ): Promise<AuditRecord[] | undefined> =>
-  http.get<AuditRecord[]>(`/admin/registration/audit/${eventId}/${id}`, withToken({ signal }, token))
+  (await http.get<JsonAuditRecord[]>(`/admin/registration/audit/${eventId}/${id}`, withToken({ signal }, token))).map(
+    toAuditRecord
+  )
 
 /** The participant's registration route: the logged-in one names them in the audit trail (KOE-1418). */
 const registrationPath = (idToken?: string) => (idToken ? '/user/registration/' : '/registration/')
@@ -63,16 +88,16 @@ export async function postRegistration(
   idToken?: string,
   signal?: AbortSignal
 ): Promise<Registration> {
-  return withUserRouteFallback(
-    idToken,
-    async (token) =>
+  return withUserRouteFallback(idToken, async (token) =>
+    toRegistration(
       (
-        await http.post<RegistrationCreateRequest, Registration>(
+        await http.post<RegistrationCreateRequest, JsonRegistration>(
           registrationPath(token),
           registration,
           withRegistrationAuth({ signal }, undefined, token)
         )
       ).data
+    )
   )
 }
 
@@ -82,16 +107,16 @@ export async function patchRegistration(
   idToken?: string,
   signal?: AbortSignal
 ): Promise<Registration> {
-  return withUserRouteFallback(
-    idToken,
-    async (token) =>
+  return withUserRouteFallback(idToken, async (token) =>
+    toRegistration(
       (
-        await http.patch<RegistrationPatchRequest, Registration>(
+        await http.patch<RegistrationPatchRequest, JsonRegistration>(
           registrationPath(token),
           registration,
           withRegistrationAuth({ signal }, editToken, token)
         )
       ).data
+    )
   )
 }
 
@@ -100,13 +125,15 @@ export async function postAdminRegistration(
   token: string,
   signal?: AbortSignal
 ): Promise<Registration> {
-  return (
-    await http.post<RegistrationCreateRequest, Registration>(
-      '/admin/registration/',
-      registration,
-      withToken({ signal }, token)
-    )
-  ).data
+  return toRegistration(
+    (
+      await http.post<RegistrationCreateRequest, JsonRegistration>(
+        '/admin/registration/',
+        registration,
+        withToken({ signal }, token)
+      )
+    ).data
+  )
 }
 
 export async function patchAdminRegistration(
@@ -114,13 +141,15 @@ export async function patchAdminRegistration(
   token: string,
   signal?: AbortSignal
 ): Promise<Registration> {
-  return (
-    await http.patch<RegistrationPatchRequest, Registration>(
-      '/admin/registration/',
-      registration,
-      withToken({ signal }, token)
-    )
-  ).data
+  return toRegistration(
+    (
+      await http.patch<RegistrationPatchRequest, JsonRegistration>(
+        '/admin/registration/',
+        registration,
+        withToken({ signal }, token)
+      )
+    ).data
+  )
 }
 
 type RegistrationInternalNotes = Pick<Registration, 'eventId' | 'id' | 'internalNotes'>
@@ -138,6 +167,19 @@ export async function putAdminRegistrationNotes(
   ).data
 }
 
+type JsonRegistrationGroupResponse = Pick<JsonConfirmedEvent, 'classes' | 'entries'> & {
+  items: JsonRegistration[]
+  invitedOk: string[]
+  invitedFailed: string[]
+  invitationAwaitingPayment?: string[]
+  pickedOk: string[]
+  pickedFailed: string[]
+  reserveOk: string[]
+  reserveFailed: string[]
+  cancelledOk: string[]
+  cancelledFailed: string[]
+}
+
 type RegistrationGroupResponse = Pick<ConfirmedEvent, 'classes' | 'entries'> & {
   items: Registration[]
   invitedOk: string[]
@@ -152,27 +194,34 @@ type RegistrationGroupResponse = Pick<ConfirmedEvent, 'classes' | 'entries'> & {
   cancelledFailed: string[]
 }
 
+const toRegistrationGroupResponse = converter<JsonRegistrationGroupResponse, RegistrationGroupResponse>({
+  classes: arrayOf(toEventClass),
+  items: arrayOf(toRegistration),
+})
+
 export async function putRegistrationGroups(
   eventId: string,
   groups: RegistrationGroupMove[],
   token: string,
   signal?: AbortSignal
 ): Promise<RegistrationGroupResponse> {
-  return (
-    await http.post<RegistrationGroupMove[], RegistrationGroupResponse>(
-      `/admin/reg-groups/${eventId}`,
-      groups,
-      withToken({ signal }, token)
-    )
-  ).data
+  return toRegistrationGroupResponse(
+    (
+      await http.post<RegistrationGroupMove[], JsonRegistrationGroupResponse>(
+        `/admin/reg-groups/${eventId}`,
+        groups,
+        withToken({ signal }, token)
+      )
+    ).data
+  )
 }
 
 export async function getStartList(eventId: string, token?: string, signal?: AbortSignal): Promise<PublicStartList> {
-  const { data, headers } = await http.getWithHeaders<PublicRegistration[]>(
+  const { data, headers } = await http.getWithHeaders<JsonPublicRegistration[]>(
     `/startlist/${eventId}`,
     withToken({ signal }, token)
   )
-  return { participants: data, version: startListVersionOf(headers) }
+  return { participants: data.map(toPublicRegistration), version: startListVersionOf(headers) }
 }
 
 export async function getStartListPreview(
@@ -180,7 +229,9 @@ export async function getStartListPreview(
   token: string,
   signal?: AbortSignal
 ): Promise<PublicRegistration[]> {
-  return http.get<PublicRegistration[]>(`/admin/startlist/${eventId}`, withToken({ signal }, token))
+  return (await http.get<JsonPublicRegistration[]>(`/admin/startlist/${eventId}`, withToken({ signal }, token))).map(
+    toPublicRegistration
+  )
 }
 
 export const getRegistrationTransactions = async (
@@ -189,7 +240,9 @@ export const getRegistrationTransactions = async (
   token: string,
   signal?: AbortSignal
 ): Promise<Transaction[] | undefined> =>
-  http.get<Transaction[]>(`/admin/registration/transactions/${eventId}/${id}`, withToken({ signal }, token))
+  (
+    await http.get<JsonTransaction[]>(`/admin/registration/transactions/${eventId}/${id}`, withToken({ signal }, token))
+  ).map(toTransaction)
 
 /** One dog's result as entered. Totals are derived on the server, never sent. */
 export interface EventResultSubmission {
@@ -202,17 +255,7 @@ export interface EventResultSubmission {
   basedOn?: string | Date
 }
 
-export interface StoredEventResult {
-  id: string
-  eventResult: EventResult
-}
-
-export interface EventResultsResponse {
-  saved: StoredEventResult[]
-  /** Already stored — what a retry over a bad connection gets back. */
-  unchanged: StoredEventResult[]
-  conflicts: { id: string; stationId?: string; stored: EventResult; submitted: EventResult }[]
-}
+export type { EventResultsResponse, StoredEventResult }
 
 export async function putEventResults(
   eventId: string,
@@ -220,13 +263,15 @@ export async function putEventResults(
   token: string,
   signal?: AbortSignal
 ): Promise<EventResultsResponse> {
-  return (
-    await http.post<EventResultSubmission[], EventResultsResponse>(
-      `/admin/event-results/${eventId}`,
-      results,
-      withToken({ signal }, token)
-    )
-  ).data
+  return toEventResultsResponse(
+    (
+      await http.post<EventResultSubmission[], JsonEventResultsResponse>(
+        `/admin/event-results/${eventId}`,
+        results,
+        withToken({ signal }, token)
+      )
+    ).data
+  )
 }
 
 type KennelliittoRequest =

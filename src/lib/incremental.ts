@@ -14,11 +14,7 @@ export type TimestampedItem = {
   updatedAt?: Timestamp
 }
 
-const timestampValue = (value?: Timestamp): number => {
-  if (value instanceof Date) return value.getTime()
-  if (typeof value === 'string') return Date.parse(value)
-  return Number.NaN
-}
+const timestampValue = (value?: Timestamp): number => (value === undefined ? Number.NaN : new Date(value).getTime())
 
 /**
  * The latest stamp a row carries (epoch ms), not the first one that happens to be present. The one
