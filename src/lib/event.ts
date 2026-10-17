@@ -288,7 +288,7 @@ const eventSeasonFormatter = new Intl.DateTimeFormat('en', { timeZone: TIME_ZONE
 
 /** Whole Finnish weeks before the event's start, whatever zone this runs in (KOE-1539). */
 const finnishWeeksBefore = (eventStartDate: Date, weeks: number) =>
-  new Date(sub(eventStartDate, { weeks }, { in: tz(TIME_ZONE) }).getTime())
+  new Date(sub(eventStartDate, { weeks }, { in: tz(TIME_ZONE) }))
 
 export const defaultEntryStartDate = (eventStartDate: Date) => finnishWeeksBefore(eventStartDate, EntryStartWeeks)
 export const defaultEntryEndDate = (eventStartDate: Date) => finnishWeeksBefore(eventStartDate, EntryEndWeeks)

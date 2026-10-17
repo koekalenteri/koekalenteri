@@ -268,9 +268,9 @@ describe('BasicInfoSection', () => {
         expect(days([changes.startDate])).toEqual(['2026-10-16'])
       })
 
-      // Finland leaves summer time on 25.10.2026: the day that starts 2 days later is the day before when
-      // the days are counted in the browser's zone.
-      it('moves the classes and the entry dates by Finnish days across the end of summer time', async () => {
+      // A regression guard: neither Finland (25.10.) nor New York (1.11.) changes its clock between 23. and
+      // 26.10.2026, so a count in the browser's zone agrees here. The days that tell them apart follow.
+      it('moves the classes and the entry dates by Finnish days from 23.10. to 24.10.2026', async () => {
         const event: PartialEvent = {
           classes: [{ class: 'AVO', date: finnishDay(2026, 10, 25) }],
           endDate: zonedEndOfDay(finnishDay(2026, 10, 25)),
@@ -284,6 +284,20 @@ describe('BasicInfoSection', () => {
         expect(days([changes.startDate, changes.endDate])).toEqual(['2026-10-24', '2026-10-26'])
         expect(days(changes.classes.map((c: { date: Date }) => c.date))).toEqual(['2026-10-26'])
         expect(days([changes.entryStartDate, changes.entryEndDate])).toEqual(['2026-09-12', '2026-10-03'])
+      })
+
+      // New York turns its clocks back on 1.11.2026 and Finland does not: the 2 days from 31.10. to 2.11.
+      // are 47 hours there, and a browser that counts hours of its own days finds 1 day.
+      it('keeps a class on its day of the trial across the end of New York summer time', async () => {
+        const event: PartialEvent = {
+          classes: [{ class: 'AVO', date: finnishDay(2026, 11, 2) }],
+          endDate: zonedEndOfDay(finnishDay(2026, 11, 2)),
+          judges: [],
+          startDate: finnishDay(2026, 10, 31),
+        }
+        const changes = await moveStart(event, '7.11.2026')
+
+        expect(days(changes.classes.map((c: { date: Date }) => c.date))).toEqual(['2026-11-09'])
       })
 
       // Finland enters summer time on 28.3.2027: the 2 days from 27.3. to 29.3. are 47 hours, and a

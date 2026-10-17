@@ -244,6 +244,9 @@ describe('DateRange', () => {
         }
       )
 
+      // The day after the range ends is a case the old comparison got wrong in Tokyo (31.10. 00:00 there
+      // is 30.10. in Finland). The day before the range starts it refused anyway, as no zone's midnight
+      // is a later Finnish day than the one typed: a regression guard.
       it.each([
         { case: 'the day before the range starts', keys: '30102026', range: { start: finnish(31, 12) } },
         { case: 'the day after the range ends', keys: '31102026', range: { end: finnish(30, 12) } },
@@ -311,8 +314,9 @@ describe('DateRange', () => {
       )
 
       it('refuses a start typed on the Finnish day before the range starts (KOE-1538)', async () => {
-        // EntrySection's range starts at zonedStartOfDay(createdAt): 16.10. 00:00 in Finland is
-        // 15.10. 17:00 in New York, the same local day as the 15.10. typed there.
+        // A regression guard: EntrySection's range starts at zonedStartOfDay(createdAt), 16.10. 00:00 in
+        // Finland, which is 15.10. 17:00 in New York, the same local day as the 15.10. typed there. The
+        // instant comparison refused this too; no zone's midnight is a later Finnish day than the one typed.
         const { changeHandler } = await typeInto('start', '15102026', {
           end: null,
           range: { start: finnish(16) },
