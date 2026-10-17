@@ -6,11 +6,15 @@ import type {
   JsonEventClassStation,
   JsonEventResult,
   JsonEventResultTask,
+  JsonRegistration,
   NowtZeroFault,
   PublicJudge,
+  Registration,
   ResultMark,
 } from '../types'
 import { objectsDiffer } from './diff'
+import { startListAvailabilityDateKey } from './event'
+import { getRegistrationClass, isScorableRegistration } from './registration'
 
 /**
  * The result codes shared by every event type. `0` and `-` are different outcomes: `0` says the dog was
@@ -36,6 +40,18 @@ export const resultMarks = (result?: { retirement?: EventResultRetirement }): Re
 /** The marks as one reader-facing string, for wherever the result itself is spelled out. */
 export const formatResultMarks = (marks: readonly ResultMark[] | undefined, t: TFunction<'translation'>): string =>
   (marks ?? []).map((mark) => t(`results.marks.${mark}`)).join(' ')
+
+/**
+ * The result as it is read out beside a dog: the code, the marks it carries and the placement, each
+ * only where there is one. One line for the screen and the copied text alike.
+ */
+export const formatResultLine = (
+  { marks, placement, result }: { marks?: readonly ResultMark[]; placement?: number; result?: string },
+  t: TFunction<'translation'>
+): string =>
+  [result, formatResultMarks(marks, t), placement ? t('results.placement', { placement }) : '']
+    .filter(Boolean)
+    .join(' ')
 
 /**
  * Prize thresholds as percentages of the round's maximum (NOWT rules §5.4.1).
@@ -526,3 +542,57 @@ export const mergeStationTasks = <T extends StationScopedTask>(
   submitted: readonly T[] | undefined,
   stationId: string
 ): T[] => [...(stored ?? []).filter((task) => task.stationId !== stationId), ...stationTasks(submitted, stationId)]
+
+/** What `placementsFor` reads of a registration: where the dog ran and what it scored. */
+type PlacementRow = Pick<JsonRegistration | Registration, 'id' | 'class' | 'eventType' | 'cancelled' | 'group'> & {
+  eventResult?: Pick<JsonEventResult, 'result' | 'points' | 'maxPoints'>
+}
+
+/**
+ * The placement of every awarded dog, by registration id: derived, never stored, because it depends on
+ * the other dogs of the class and day and would go stale on every path that moves a dog in or out.
+ *
+ * Only events scored at posts rank; a qualitative type has nothing to order by. A dog ranks when it ran
+ * (a participant with a day), was awarded a prize (code 1, 2 or 3) and has points to be ordered by —
+ * a prize 0, a dash, an unscored dog and an awarded dog without points (a voided round whose code was
+ * overridden) get none and take no rank. Dogs are ranked within their class and day, by the share of
+ * the round's maximum compared exactly (maxPoints can differ within a class if the posts were edited).
+ * Ties share a rank and the next rank skips: 1, 2, 2, 4.
+ */
+export const placementsFor = (rows: readonly PlacementRow[]): Map<string, number> => {
+  const groups = new Map<string, { id: string; points: number; maxPoints: number }[]>()
+
+  for (const row of rows) {
+    const { eventResult, group } = row
+    if (!scoresAtPosts(row.eventType) || !isScorableRegistration(row) || !group?.date) continue
+    const { points, maxPoints } = eventResult ?? {}
+    if (typeof points !== 'number' || typeof maxPoints !== 'number' || maxPoints <= 0) continue
+
+    const eventClass = getRegistrationClass(row)
+    const code = parseEventResultCode(eventResult?.result, row.eventType, eventClass)
+    if (code !== '1' && code !== '2' && code !== '3') continue
+
+    const key = `${eventClass}|${startListAvailabilityDateKey(group.date)}`
+    const entries = groups.get(key) ?? []
+    entries.push({ id: row.id, maxPoints, points })
+    groups.set(key, entries)
+  }
+
+  const placements = new Map<string, number>()
+
+  for (const entries of groups.values()) {
+    // a before b when a.points / a.maxPoints is larger, without dividing.
+    entries.sort((a, b) => b.points * a.maxPoints - a.points * b.maxPoints)
+
+    let rank = 0
+    entries.forEach((entry, index) => {
+      const previous = entries[index - 1]
+      const tied = previous && previous.points * entry.maxPoints === entry.points * previous.maxPoints
+      // A tie keeps the rank of the dog before it; otherwise the rank is the position, so 1, 2, 2, 4.
+      if (!tied) rank = index + 1
+      placements.set(entry.id, rank)
+    })
+  }
+
+  return placements
+}

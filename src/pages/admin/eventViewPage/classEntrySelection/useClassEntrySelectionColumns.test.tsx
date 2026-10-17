@@ -3,6 +3,7 @@ import type React from 'react'
 import type { MouseEventHandler, ReactElement, ReactNode } from 'react'
 import type { Registration, RegistrationDate, RegistrationGroup } from '@/types'
 import CircularProgress from '@mui/material/CircularProgress'
+import { useGridApiRef } from '@mui/x-data-grid'
 import { renderHook } from '@testing-library/react'
 import { isValidElement } from 'react'
 import { eventWithStaticDatesAnd3Classes } from '@/__mockData__/events'
@@ -1088,5 +1089,47 @@ describe('lastEmail column', () => {
 
   it('is empty when no message has been sent', () => {
     expect(lastEmailText(undefined)).toBe('')
+  })
+})
+
+describe('placement column', () => {
+  const day = new Date('2021-02-10T12:00:00Z')
+  const scored = (id: string, result: string, points: number) =>
+    asRegistration({
+      class: 'ALO',
+      eventResult: { maxPoints: 100, points, result, updatedAt: day, updatedBy: '' },
+      eventType: 'NOWT',
+      group: { date: day, key: 'ALO-AP', number: 1 },
+      id,
+    })
+  const nowtEvent = { ...eventWithStaticDatesAnd3Classes, endDate: new Date('2020-01-01'), eventType: 'NOWT' }
+
+  it('shows the rank among the awarded dogs, ties sharing one, and nothing for a prize 0', () => {
+    const registrations = [
+      scored('a', 'ALO1', 90),
+      scored('b', 'ALO2', 70),
+      scored('c', 'ALO2', 70),
+      scored('d', 'ALO0', 40),
+    ]
+    const { result } = renderHook(() =>
+      useClassEntrySelectionColumns(mockAvailableDates, nowtEvent, undefined, registrations)
+    )
+    const column = result.current.participantColumns.find((col) => col.field === 'placement')
+    if (typeof column?.valueGetter !== 'function') throw new Error('Expected a placement value getter')
+    const { valueGetter } = column
+
+    const { result: apiRef } = renderHook(() => useGridApiRef())
+
+    expect(
+      registrations.map((row) => Reflect.apply(valueGetter, undefined, [undefined, row, column, apiRef.current]))
+    ).toEqual([1, 2, 2, ''])
+  })
+
+  it('has no column for a qualitative event type', () => {
+    const { result } = renderHook(() =>
+      useClassEntrySelectionColumns(mockAvailableDates, { ...nowtEvent, eventType: 'NOU' })
+    )
+
+    expect(result.current.participantColumns.some((col) => col.field === 'placement')).toBe(false)
   })
 })

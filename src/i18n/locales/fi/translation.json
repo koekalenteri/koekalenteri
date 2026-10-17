@@ -1096,6 +1096,7 @@
       "handler": "Ohjaaja",
       "number": "#",
       "outcome": "Hylkäys / keskeytys",
+      "placement": "Sija",
       "result": "Tulos",
       "task": "Tehtävä {{number}}"
     },
@@ -1146,6 +1147,7 @@
     "outcomeEliminated": "Hylkäävä virhe",
     "outcomeNone": "Ei hylkäystä tai keskeytystä",
     "outcomeRetired": "Keskeytys",
+    "placement": "Sija {{placement}}",
     "resultNone": "Ei tulosta",
     "retirement": {
       "handlerChoice": "Ohjaaja keskeytti",

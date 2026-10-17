@@ -24,7 +24,7 @@ import {
 } from '../../lib/event'
 import { startListFileName } from '../../lib/fileName'
 import { judgeName } from '../../lib/judge'
-import { formatResultMarks } from '../../lib/results'
+import { formatResultLine } from '../../lib/results'
 import { startListSpreadsheetRows } from '../../lib/startList'
 import { CancelledRegistration } from './CancelledRegistration'
 import { ClassHeader } from './ClassHeader'
@@ -98,7 +98,7 @@ export const ParticipantList = ({
           <Button
             onClick={() => {
               downloadXlsx({
-                columnWidths: [12, 14, 10, 8, 28, 18, 14, 24, 24, 24, 24, 24],
+                columnWidths: [12, 14, 10, 8, 28, 18, 14, 24, 24, 24, 24, 24, 12, 16, 8],
                 fileName: startListFileName(event),
                 rows: spreadsheetRows,
                 sheetName: t('startListExport.sheetName'),
@@ -390,7 +390,7 @@ function formatRegistration(reg: PublicRegistration, t: TFunction) {
     `${ownerHandler}, ${t('startList.breeder')} ${reg.breeder}`,
     // The copied list is the one that gets pasted into a forum post, so it has to carry what the
     // screen shows. Leaving the result out here is how the two quietly stop matching.
-    [reg.result, formatResultMarks(reg.marks, t)].filter(Boolean).join(' '),
+    formatResultLine(reg, t),
   ]
     .filter(Boolean)
     .join('\n')

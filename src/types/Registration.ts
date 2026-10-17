@@ -439,6 +439,11 @@ export interface JsonPublicRegistration {
   /** Present only where the class's results have been published. Composed, e.g. `AVO1` or `ALO-`. */
   result?: string
   /**
+   * Published with the result: the rank among the class's awarded dogs that day, ties sharing one
+   * (1, 2, 2, 4). Derived when the list is built, never stored. Absent for a dog without a prize.
+   */
+  placement?: number
+  /**
    * Published with the result and only where it is: what the code alone cannot say, such as a trial the
    * judge stopped (KOE-1300). Absent rather than empty when there is nothing to add.
    */

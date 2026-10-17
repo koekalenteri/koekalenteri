@@ -49,6 +49,11 @@ interface Props {
    * phone in the field (KOE-1280). The controls are the same either way; only their arrangement differs.
    */
   readonly compact?: boolean
+  /**
+   * Each awarded dog's rank (`placementsFor`). Absent in a post's own view, where it is unknowable. A row
+   * with an unsaved edit shows none: the rank is of what is stored, and the edit may move it.
+   */
+  readonly placements?: ReadonlyMap<string, number>
 }
 
 /** A dog's controls, built once and placed by whichever layout is showing. */
@@ -85,6 +90,7 @@ function ResultsTable({
   disabled,
   onChange,
   compact,
+  placements,
 }: Props) {
   const { t } = useTranslation()
   const qualitative = !scoresAtPosts(eventType)
@@ -194,6 +200,7 @@ function ResultsTable({
           eventType={eventType}
           onChange={(next) => report(registration, attributed(next))}
           round={fullRound}
+          placement={edits[registration.id] ? undefined : placements?.get(registration.id)}
           stored={registration.eventResult}
         />
       ),
