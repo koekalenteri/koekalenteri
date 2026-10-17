@@ -28,17 +28,6 @@ export const isKcStateWritable = (code: number): boolean => code === KC_STATE_OP
 export const isResultsLocked = (event: { kcState?: Pick<JsonKcState, 'code'> }): boolean =>
   event.kcState?.code === KC_STATE_HANDED_OVER || event.kcState?.code === KC_STATE_COMPLETED
 
-/**
- * NOWT results carry a placement that the results model does not hold yet (KOE-1535), and Kennelliitto
- * may refuse a prized dog without it. Until it exists the NOWT formats are not sent: KOE-1535 adds
- * `placement` to the body below and flips this to true.
- */
-export const PLACEMENT_AVAILABLE_FOR_POST_SCORED = false
-
-/** Whether results of this event type may be sent at all. The one place that knows about the gate. */
-export const canSendResultsOfEventType = (eventType: string): boolean =>
-  !scoresAtPosts(eventType) || PLACEMENT_AVAILABLE_FOR_POST_SCORED
-
 /** The format as Koe/Kokeet and Koe/Koemuoto name it: a championship is asked as its plain format. */
 export const kcFormatOfEventType = (eventType: string): string => eventType.replace(/ SM$/, '')
 
@@ -82,6 +71,8 @@ export interface KcResultBody {
   tuomarit: number[]
   palkintotuomarit: number[]
   pisteet?: number
+  /** The rank among the awarded dogs of the class and day. Only the formats scored at posts have one. */
+  sijoitus?: number
   lisätiedot?: string
   tarkenne?: string
 }
@@ -91,6 +82,7 @@ export type KcProblemCode =
   | 'noResult'
   | 'noDay'
   | 'noName'
+  | 'noPlacement'
   | 'dayNotReached'
   | 'dayChanged'
   | 'resultNotAllowed'
@@ -124,8 +116,11 @@ const classlessPrefix = (koemuoto: string): string => koemuoto.split('-').at(-1)
  * the code (`NOME-A1`, `NOME-A SM1`) where Kennelliitto's own list says `A1`, so the string is rebuilt
  * from the code and has to be one of the format's results, never guessed.
  */
+const resultCodeOf = (registration: KcResultRegistration, event: KcResultEvent) =>
+  parseEventResultCode(registration.eventResult?.result, event.eventType, registration.class ?? undefined)
+
 const klResultOf = (registration: KcResultRegistration, event: KcResultEvent, koemuoto: KcKoemuoto) => {
-  const code = parseEventResultCode(registration.eventResult?.result, event.eventType, registration.class ?? undefined)
+  const code = resultCodeOf(registration, event)
   if (!code) return undefined
   const prefix = registration.class ?? classlessPrefix(koemuoto.koemuoto)
   return koemuoto.tulokset.find((row) => row.tulostyyppi === RESULT_TYPE && row.tulos === `${prefix}${code}`)
@@ -219,6 +214,25 @@ export const kcResultDay = (registration: Pick<KcResultRegistration, 'group' | '
  */
 const pointsOf = (registration: KcResultRegistration): number => registration.eventResult?.percentage ?? 0
 
+/**
+ * The placement Kennelliitto takes with a NOWT result: the rank `placementsFor` derived for the dog over
+ * every dog of the trial, which is why it is an input here and not computed from the one registration.
+ * The API says a placement is given only where the format's results have one, so the other formats send
+ * none. An awarded dog (prize 1, 2 or 3) that has no rank has no points to be ranked by (a voided round
+ * whose code was overridden), and is not sent until it has.
+ */
+const placementOf = (
+  event: KcResultEvent,
+  registration: KcResultRegistration,
+  placement: number | undefined
+): { sijoitus?: number } | { problems: KcProblem[] } => {
+  if (!scoresAtPosts(event.eventType)) return {}
+  const code = resultCodeOf(registration, event)
+  const awarded = code === '1' || code === '2' || code === '3'
+  if (!awarded) return {}
+  return placement === undefined ? { problems: [{ code: 'noPlacement' }] } : { sijoitus: placement }
+}
+
 const problemsOf = (outcome: object & { problems?: KcProblem[] }): KcProblem[] => outcome.problems ?? []
 
 /** What is missing from the dog or the trial before the result itself is looked at. */
@@ -248,12 +262,14 @@ const resultProblems = (
 
 /**
  * The Tallenna body for one dog, or what stands in the way. `koemuoto` is Kennelliitto's answer for
- * the format the trial itself reports (Koe/Lue), never one derived from the event type here.
+ * the format the trial itself reports (Koe/Lue), never one derived from the event type here, and
+ * `placement` is the dog's rank among the trial's dogs (`placementsFor`), which one registration cannot tell.
  */
 export const buildKcResult = (
   event: KcResultEvent,
   registration: KcResultRegistration,
-  koemuoto: KcKoemuoto
+  koemuoto: KcKoemuoto,
+  placement?: number
 ): KcResultOutcome => {
   const day = kcResultDay(registration)
   const basic = basicProblems(event, registration, day)
@@ -261,15 +277,17 @@ export const buildKcResult = (
   const judges = judgeNumbers(registration, event)
   const info = additionalInfo(registration, event, koemuoto)
   const type = tarkenneOf(event, koemuoto)
+  const rank = placementOf(event, registration, placement)
   const problems = [
     ...basic,
     ...(basic.length ? [] : resultProblems(registration, koemuoto, row)),
     ...problemsOf(judges),
     ...problemsOf(info),
     ...problemsOf(type),
+    ...problemsOf(rank),
   ]
 
-  if (problems.length || 'problems' in judges || 'problems' in info || 'problems' in type) {
+  if (problems.length || 'problems' in judges || 'problems' in info || 'problems' in type || 'problems' in rank) {
     return { ok: false, problems }
   }
   const name = registration.dog.name?.trim()
@@ -288,6 +306,7 @@ export const buildKcResult = (
       tulos: row.tulos,
       tuomarit: judges.tuomarit,
       ...(scoresAtPosts(event.eventType) ? { pisteet: pointsOf(registration) } : {}),
+      ...(rank.sijoitus === undefined ? {} : { sijoitus: rank.sijoitus }),
       ...(info.infos.length ? { lisätiedot: info.infos.join(', ') } : {}),
       ...(type.tarkenne ? { tarkenne: type.tarkenne } : {}),
     },
@@ -336,7 +355,6 @@ export interface KcDogReport {
 }
 
 export type KcBlockerCode =
-  | 'postScoredAwaitsPlacement'
   | 'notOfficial'
   | 'noKcGuid'
   | 'kcGuidChoose'

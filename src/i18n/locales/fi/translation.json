@@ -1154,7 +1154,6 @@
         "koemuotoMismatch": "Kennelliiton koe on toista koemuotoa ({{detail}}).",
         "noKcGuid": "Koetta ei löytynyt Kennelliitosta tai sillä ei ole vielä tunnistetta. Liitä koe Kennelliiton kokeeseen hakutoiminnolla.",
         "notOfficial": "Tämän koemuodon tuloksia ei lähetetä Kennelliittoon.",
-        "postScoredAwaitsPlacement": "NOWT-tulosten lähetys odottaa sijoitusta (KOE-1535).",
         "stateNotWritable": "Kennelliitossa kokeen tila on \"{{detail}}\", jolloin tuloksia ei voi tallentaa."
       },
       "close": "Sulje",
@@ -1206,6 +1205,7 @@
         "noJudge": "Tuomari puuttuu",
         "noKcGuid": "Koetta ei ole liitetty Kennelliiton kokeeseen",
         "noName": "Koiran nimi tai rekisterinumero puuttuu",
+        "noPlacement": "Palkitulla koiralla ei ole sijoitusta, koska sillä ei ole pisteitä",
         "noResult": "Tulosta ei ole kirjattu",
         "resultNotAllowed": "Kennelliitto ei tunne tulosta {{detail}} tässä koemuodossa",
         "retrieveTypeMissing": "Kokeelta puuttuu valinta, pidetäänkö se riistalla vai dameilla",

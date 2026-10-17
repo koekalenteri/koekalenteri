@@ -30,7 +30,7 @@ import { errorSnackbarOptions } from '../../lib/client/snackbar'
 import { isOfficialEventType, localizedEventName } from '../../lib/event'
 import { liveViewEnabled } from '../../lib/features'
 import { makeArray } from '../../lib/judge'
-import { canSendResultsOfEventType, isResultsLocked } from '../../lib/kennelliittoResults'
+import { isResultsLocked } from '../../lib/kennelliittoResults'
 import { IMPLICIT_STATION_ID, liveFormat } from '../../lib/liveFormat'
 import {
   getRegistrationClass,
@@ -192,7 +192,7 @@ export default function EventResultsPage() {
 
   // Results handed to the chief judge are out of the secretary's hands until the judge sends them back.
   const locked = event ? isResultsLocked(event) : false
-  const kennelliitto = !!event && isOfficialEventType(event.eventType) && canSendResultsOfEventType(event.eventType)
+  const kennelliitto = !!event && isOfficialEventType(event.eventType)
   const sentCount = useMemo(
     () => registrations.filter((registration) => registration.kcResult?.status === 'sent').length,
     [registrations]

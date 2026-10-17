@@ -7,7 +7,6 @@ import koemuotoNOU from '../lambda/lib/KLIntegraatio-fixtures/koemuoto-NOU.json'
 import koemuotoNOWT from '../lambda/lib/KLIntegraatio-fixtures/koemuoto-NOWT.json'
 import {
   buildKcResult,
-  canSendResultsOfEventType,
   finnishDay,
   isKcDayReached,
   isKcStateWritable,
@@ -15,7 +14,6 @@ import {
   kcFormatOfEventType,
   kcResultBadge,
   kcResultDay,
-  PLACEMENT_AVAILABLE_FOR_POST_SCORED,
 } from './kennelliittoResults'
 
 const chief = { id: 1000001, name: 'Pääty Tuomari' }
@@ -225,15 +223,47 @@ describe('kennelliittoResults', () => {
       { index: 0, judge: second, points: 8, stationId: 's1', updatedAt: 'a', updatedBy: 'b' },
       { index: 1, judge: third, points: 9, stationId: 's1', updatedAt: 'a', updatedBy: 'b' },
     ]
+    /** A NOWT dog as the sending sees it: ranked first among its class unless the test says otherwise. */
     const nowt = (
       fields: Partial<JsonEventResult>,
-      eventFields: Partial<KcResultEvent> = {},
-      cls: RegistrationClass = 'VOI'
-    ) => buildKcResult(event('NOWT', eventFields), dog(result({ tasks, ...fields }), { class: cls }), koemuotoNOWT)
+      options: Partial<KcResultEvent> & { cls?: RegistrationClass; placement?: number } = {}
+    ) => {
+      const { cls = 'VOI', placement: _given, ...eventFields } = options
+      // A destructuring default would turn an explicit `undefined` into 1, which is the case under test.
+      const placement = 'placement' in options ? options.placement : 1
+      return buildKcResult(
+        event('NOWT', eventFields),
+        dog(result({ tasks, ...fields }), { class: cls }),
+        koemuotoNOWT,
+        placement
+      )
+    }
 
-    it('sends the percentage as points, unrounded', () => {
-      const body = sent(nowt({ percentage: 66.25, result: 'VOI2' }))
-      expect(body.pisteet).toEqual(66.25)
+    it('sends the percentage as points, unrounded, and the placement it was given', () => {
+      const body = sent(nowt({ percentage: 66.25, result: 'VOI2' }, { placement: 2 }))
+      expect([body.pisteet, body.sijoitus]).toEqual([66.25, 2])
+    })
+
+    it('sends no placement for a nought or a dash, which rank nowhere', () => {
+      const nought = sent(
+        buildKcResult(
+          event('NOWT'),
+          dog(result({ percentage: 40, result: 'ALO0', tasks }), { class: 'ALO' }),
+          koemuotoNOWT
+        )
+      )
+      const dash = sent(nowt({ elimination: { fault: 'aggression' }, result: 'VOI-' }, { placement: undefined }))
+      expect([nought.sijoitus, dash.sijoitus]).toEqual([undefined, undefined])
+      expect('sijoitus' in nought || 'sijoitus' in dash).toEqual(false)
+    })
+
+    it('does not send a prized dog that has no placement: it has no points to rank by', () => {
+      expect(problemsOf(nowt({ result: 'VOI2' }, { placement: undefined }))).toEqual([{ code: 'noPlacement' }])
+    })
+
+    it('sends no placement with a format whose results have none', () => {
+      const body = sent(buildKcResult(event('NOU'), dog(result({ result: 'NOU1' })), koemuotoNOU, 1))
+      expect('sijoitus' in body).toEqual(false)
     })
 
     it('does not check the points against the limits of the result, which Kennelliitto lists wrongly for ALO0', () => {
@@ -260,17 +290,8 @@ describe('kennelliittoResults', () => {
 
     it('sends Mock Trial for a dog of a Mock trial, in the classes that run one', () => {
       expect(sent(nowt({ percentage: 55, result: 'VOI3' }, { mockTrial: true })).lisätiedot).toEqual('Mock Trial')
-      const alo = nowt({ percentage: 55, result: 'ALO3' }, { mockTrial: true }, 'ALO')
+      const alo = nowt({ percentage: 55, result: 'ALO3' }, { cls: 'ALO', mockTrial: true })
       expect(sent(alo).lisätiedot).toBeUndefined()
-    })
-
-    it('is not sent yet: the placement it belongs with does not exist', () => {
-      expect(PLACEMENT_AVAILABLE_FOR_POST_SCORED).toEqual(false)
-      expect(canSendResultsOfEventType('NOWT')).toEqual(false)
-      expect(canSendResultsOfEventType('NOWT SM')).toEqual(false)
-      expect(['NOU', 'NKM', 'NOME-A', 'NOME-A SM', 'NOME-B', 'NOME-B SM'].map(canSendResultsOfEventType)).toEqual(
-        Array.from({ length: 6 }, () => true)
-      )
     })
   })
 
@@ -314,7 +335,9 @@ describe('kennelliittoResults', () => {
       }))
       const registration = dog(result({ percentage: 70, result: 'VOI2', tasks }), { class: 'VOI' })
 
-      expect(problemsOf(buildKcResult(event('NOWT'), registration, koemuotoNOWT))).toEqual([{ code: 'tooManyJudges' }])
+      expect(problemsOf(buildKcResult(event('NOWT'), registration, koemuotoNOWT, 1))).toEqual([
+        { code: 'tooManyJudges' },
+      ])
     })
 
     it('refuses a dog that has no judge at all, there being no chief to name', () => {
@@ -341,7 +364,7 @@ describe('kennelliittoResults', () => {
       }
       const registration = dog(result({ percentage: 55, result: 'VOI3' }), { class: 'VOI' })
 
-      const body = sent(buildKcResult(event('NOWT', { mockTrial: true }), registration, withoutMock))
+      const body = sent(buildKcResult(event('NOWT', { mockTrial: true }), registration, withoutMock, 1))
 
       expect(body.lisätiedot).toBeUndefined()
     })

@@ -1154,7 +1154,6 @@
         "koemuotoMismatch": "The Kennel Club trial is of another format ({{detail}}).",
         "noKcGuid": "The trial was not found at the Kennel Club, or it has no identifier yet. Link the trial to the Kennel Club trial with the lookup.",
         "notOfficial": "Results of this format are not sent to the Kennel Club.",
-        "postScoredAwaitsPlacement": "Sending NOWT results waits for placements (KOE-1535).",
         "stateNotWritable": "The Kennel Club has the trial in the state \"{{detail}}\", where results cannot be saved."
       },
       "close": "Close",
@@ -1206,6 +1205,7 @@
         "noJudge": "The judge is missing",
         "noKcGuid": "The event is not linked to a Kennel Club trial",
         "noName": "The dog's name or registration number is missing",
+        "noPlacement": "The awarded dog has no placement, because it has no points",
         "noResult": "No result has been recorded",
         "resultNotAllowed": "The Kennel Club does not know the result {{detail}} in this format",
         "retrieveTypeMissing": "The trial lacks the choice of whether it is run with game or dummies",

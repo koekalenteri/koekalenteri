@@ -18,7 +18,6 @@ import {
 } from '../../lib/audit'
 import {
   buildKcResult,
-  canSendResultsOfEventType,
   finnishDay,
   isKcDayReached,
   isKcStateWritable,
@@ -27,6 +26,7 @@ import {
   kcResultDay,
 } from '../../lib/kennelliittoResults'
 import { getRegistrationClass, isScorableRegistration } from '../../lib/registration'
+import { placementsFor } from '../../lib/results'
 import { mapWithConcurrency } from '../../lib/utils'
 import { isKlAccepted } from '../types/KLIntegraatio'
 import { audit, eventAuditKey, registrationAuditKey } from './audit'
@@ -229,12 +229,11 @@ const stopped = (blocker: KcBlocker, event: JsonConfirmedEvent, eventPatch?: Pat
 
 /**
  * The checks that concern the trial and not a dog, in the order the first sending needs them: the
- * format may be sent at all, the trial is found, Kennelliitto's state lets results in, and the format's
- * results are known. The state is stored when it differs from what was stored, so a trial the judge
- * returned unlocks and one handed over elsewhere locks.
+ * format is one of Kennelliitto's, the trial is found, Kennelliitto's state lets results in, and the
+ * format's results are known. The state is stored when it differs from what was stored, so a trial the
+ * judge returned unlocks and one handed over elsewhere locks.
  */
 const openKcTrial = async (req: KcRequest, { findGuid }: { findGuid: boolean }): Promise<KcTrial> => {
-  if (!canSendResultsOfEventType(req.event.eventType)) return stopped({ code: 'postScoredAwaitsPlacement' }, req.event)
   if (!req.official) return stopped({ code: 'notOfficial' }, req.event)
 
   const linked = await linkTrial(req, findGuid)
@@ -287,12 +286,16 @@ const dayProblems = (registration: JsonRegistration, now: Date): KcProblem[] => 
   return problems
 }
 
-/** Where a dog stands, from the stored registration and the format's results. Makes no call. */
+/**
+ * Where a dog stands, from the stored registration, the format's results and the dog's rank among the
+ * trial's dogs. Makes no call.
+ */
 const evaluateKcDog = (
   event: JsonConfirmedEvent,
   registration: JsonRegistration,
   koemuoto: NonNullable<KcTrial['koemuoto']>,
-  now: Date
+  now: Date,
+  placement: number | undefined
 ): Evaluated | undefined => {
   const scorable = isScorableRegistration(registration)
   const sent = registration.kcResult?.status === 'sent'
@@ -301,7 +304,7 @@ const evaluateKcDog = (
     return scorable ? { registration, report: dogReport(registration, 'notRecorded') } : undefined
   }
 
-  const outcome = buildKcResult(event, registration, koemuoto)
+  const outcome = buildKcResult(event, registration, koemuoto, placement)
   const problems = [...(outcome.ok ? [] : outcome.problems), ...dayProblems(registration, now)]
   if (!outcome.ok || problems.length) return { registration, report: dogReport(registration, 'blocked', problems) }
 
@@ -313,15 +316,24 @@ const evaluateKcDog = (
   return { body: outcome.body, hash, registration, report: dogReport(registration, status) }
 }
 
+/**
+ * The chosen dogs (every dog, with no ids), each with the rank it holds among all the dogs of the trial.
+ * The ranks are derived over everyone that `registrations` holds, not over the chosen dogs alone: a dog's
+ * rank depends on the other dogs, so the hash of its body moves when another dog's result does.
+ */
 const evaluateAll = (
   event: JsonConfirmedEvent,
   registrations: JsonRegistration[],
   koemuoto: NonNullable<KcTrial['koemuoto']>,
-  now: Date
-): Evaluated[] => registrations.flatMap((registration) => evaluateKcDog(event, registration, koemuoto, now) ?? [])
-
-const selected = (registrations: JsonRegistration[], ids?: string[]) =>
-  ids ? registrations.filter((registration) => ids.includes(registration.id)) : registrations
+  now: Date,
+  ids?: string[]
+): Evaluated[] => {
+  const placements = placementsFor(registrations)
+  const chosen = ids ? registrations.filter((registration) => ids.includes(registration.id)) : registrations
+  return chosen.flatMap(
+    (registration) => evaluateKcDog(event, registration, koemuoto, now, placements.get(registration.id)) ?? []
+  )
+}
 
 /** What sending would do, without sending: the secretary's list before the confirmation. */
 export const previewKennelliittoResults = async (ctx: KcContext, ids?: string[]): Promise<KcPreview> => {
@@ -332,7 +344,7 @@ export const previewKennelliittoResults = async (ctx: KcContext, ids?: string[])
   if (!trial.koemuoto) return { blockers: trial.blockers, dogs: [], ...withState }
 
   const registrations = await getReadyRegistrationsByEventId(ctx.event.id, true)
-  const evaluated = evaluateAll(trial.event, selected(registrations, ids), trial.koemuoto, nowOf(ctx))
+  const evaluated = evaluateAll(trial.event, registrations, trial.koemuoto, nowOf(ctx), ids)
   return { blockers: [], dogs: evaluated.map(({ report }) => report), ...withState }
 }
 
@@ -550,7 +562,7 @@ export const sendKennelliittoResults = async (
   if (!trial.koemuoto) return { blockers: trial.blockers, notAttempted: [], patches, reports: [], ...eventPatch }
 
   const registrations = await getReadyRegistrationsByEventId(ctx.event.id, true)
-  const evaluated = evaluateAll(trial.event, selected(registrations, ids), trial.koemuoto, new Date(startedAt))
+  const evaluated = evaluateAll(trial.event, registrations, trial.koemuoto, new Date(startedAt), ids)
   const notAttempted: string[] = []
   const sendReq = { ...req, event: trial.event }
 

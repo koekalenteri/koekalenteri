@@ -7,6 +7,7 @@ import { asJsonConfirmedEvent, asJsonRegistration } from '../test-utils/helpers'
 import KLIntegraatio from './KLIntegraatio'
 import koemuotoNOME_A from './KLIntegraatio-fixtures/koemuoto-NOME-A.json'
 import koemuotoNOU from './KLIntegraatio-fixtures/koemuoto-NOU.json'
+import koemuotoNOWT from './KLIntegraatio-fixtures/koemuoto-NOWT.json'
 import lueNOU from './KLIntegraatio-fixtures/lue-NOU.json'
 
 const GUID = '2b81e6a1-559b-407c-87c7-b8a9b89b1987'
@@ -138,7 +139,7 @@ const fakeFetch = async (input: string | URL | Request, init?: RequestInit) => {
     return Response.json({ ...lueNOU, koeGUID: GUID, koemuoto, tila, tilaNimi: names[tila] ?? 'x' })
   }
   if (path === 'Koe/Koemuoto') {
-    return Response.json(url.searchParams.get('koemuoto') === 'NOU' ? koemuotoNOU : koemuotoNOME_A)
+    return Response.json(koemuodot[url.searchParams.get('koemuoto') ?? ''] ?? koemuotoNOME_A)
   }
   if (path === 'Koe/AsetaTila') {
     hooks.asetaTila?.()
@@ -162,6 +163,7 @@ const fakeFetch = async (input: string | URL | Request, init?: RequestInit) => {
 }
 
 const names: Record<number, string> = { 304: 'Valmistunut', 754: 'Hyväksytty', 1253: 'Ylituomarin hyväksyttäväksi' }
+const koemuodot: Record<string, unknown> = { NOU: koemuotoNOU, NOWT: koemuotoNOWT }
 
 const chief = { id: 1000001, name: 'Pääty' }
 let now: number
@@ -249,19 +251,6 @@ describe('kennelliittoResults', () => {
   })
 
   describe('the gate', () => {
-    it('does not send NOWT: its placement does not exist yet, and nothing is asked of Kennelliitto', async () => {
-      const preview = await previewKennelliittoResults(ctx({ eventType: 'NOWT' }))
-
-      expect(preview.blockers).toEqual([{ code: 'postScoredAwaitsPlacement' }])
-      expect(calls).toEqual([])
-    })
-
-    it('does not send NOWT SM either', async () => {
-      const preview = await previewKennelliittoResults(ctx({ eventType: 'NOWT SM' }))
-
-      expect(preview.blockers).toEqual([{ code: 'postScoredAwaitsPlacement' }])
-    })
-
     it('does not send an event type Kennelliitto does not know', async () => {
       expect((await previewKennelliittoResults(ctx({}, false))).blockers).toEqual([{ code: 'notOfficial' }])
     })
@@ -721,6 +710,84 @@ describe('kennelliittoResults', () => {
       await sendKennelliittoResults(ctx(), ['d2'], { force: false })
 
       expect(tallennat().map((call) => call.body?.rekisterinumero)).toEqual(['FI10002/20'])
+    })
+  })
+
+  describe('NOWT, whose results carry a placement', () => {
+    /** A NOWT dog of the ALO class with the round's points, or an awarded one with none (a voided round). */
+    const nowtDog = (
+      id: string,
+      regNo: string,
+      result: string,
+      points?: number,
+      fields: Partial<JsonRegistration> = {}
+    ) =>
+      dog(id, regNo, result, {
+        class: 'ALO',
+        eventResult: {
+          ...(points === undefined ? {} : { maxPoints: 100, percentage: points, points }),
+          result,
+          updatedAt: '2026-09-26T09:00:00.000Z',
+          updatedBy: 'Sihteeri',
+        },
+        eventType: 'NOWT',
+        ...fields,
+      })
+    const nowtCtx = () => ctx({ eventType: 'NOWT' })
+    const sijoitukset = () => tallennat().map((call) => [call.body?.rekisterinumero, call.body?.sijoitus])
+
+    beforeEach(() => {
+      koemuoto = 'NOWT'
+      registrations = [
+        nowtDog('a', 'FI20001/20', 'ALO1', 90),
+        nowtDog('b', 'FI20002/20', 'ALO2', 75),
+        nowtDog('c', 'FI20003/20', 'ALO3', 60),
+      ]
+    })
+
+    it('sends the rank among every dog of the trial with the points, also when only some dogs are sent', async () => {
+      await sendKennelliittoResults(nowtCtx(), ['c'], { force: false })
+
+      expect(tallennat().map((call) => call.body)).toEqual([
+        expect.objectContaining({ pisteet: 60, rekisterinumero: 'FI20003/20', sijoitus: 3, tulos: 'ALO3' }),
+      ])
+    })
+
+    it("reads a dog as changed when another dog's result moves its rank, and sends it again with the new rank", async () => {
+      await sendKennelliittoResults(nowtCtx(), ['b'], { force: false })
+      expect(sijoitukset()).toEqual([['FI20002/20', 2]])
+      expect(statusOf(await previewKennelliittoResults(nowtCtx()), 'b')).toEqual('unchanged')
+
+      // The winner's round is voided to a nought: b is first now, with the same result of its own.
+      const winner = registrations.find((reg) => reg.id === 'a')
+      if (winner?.eventResult) winner.eventResult = { ...winner.eventResult, result: 'ALO0' }
+
+      expect(statusOf(await previewKennelliittoResults(nowtCtx()), 'b')).toEqual('changed')
+      await sendKennelliittoResults(nowtCtx(), ['b'], { force: false })
+      expect(sijoitukset()).toEqual([
+        ['FI20002/20', 2],
+        ['FI20002/20', 1],
+      ])
+    })
+
+    it('sends no placement for a nought, and does not send an awarded dog that has no points to rank by', async () => {
+      registrations = [
+        nowtDog('nought', 'FI20004/20', 'ALO0', 40),
+        nowtDog('voided', 'FI20005/20', 'ALO1'),
+        nowtDog('a', 'FI20001/20', 'ALO1', 90),
+      ]
+
+      const result = await sendKennelliittoResults(nowtCtx(), ['nought', 'voided', 'a'], { force: false })
+
+      expect(sijoitukset()).toEqual([
+        ['FI20004/20', undefined],
+        ['FI20001/20', 1],
+      ])
+      expect(result.reports.find((report) => report.id === 'voided')).toMatchObject({
+        dogStatus: 'blocked',
+        outcome: 'skipped',
+        problems: [{ code: 'noPlacement' }],
+      })
     })
   })
 

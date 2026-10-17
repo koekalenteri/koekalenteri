@@ -1037,12 +1037,12 @@ describe('EventResultsPage and Kennelliitto (KOE-1140)', () => {
     expect(screen.getByText('results.kennelliitto.column')).toBeInTheDocument()
   })
 
-  it('does not offer it for NOWT, whose placement does not exist yet', async () => {
+  it('offers it for NOWT as well, whose placement goes with the result', async () => {
     await renderScoringPage('fi')
     await flushPromises()
 
-    expect(screen.queryByRole('button', { name: 'results.kennelliitto.send' })).not.toBeInTheDocument()
-    expect(screen.queryByText('results.kennelliitto.column')).not.toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'results.kennelliitto.send' })).toBeEnabled()
+    expect(screen.getByText('results.kennelliitto.column')).toBeInTheDocument()
   })
 
   it('shows where each dog stands beside it', async () => {
