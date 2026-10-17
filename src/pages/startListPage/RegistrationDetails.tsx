@@ -28,7 +28,13 @@ export const RegistrationDetails = ({ registration: reg, index, warnNumberPendin
   const dam = formatDogName(reg.dog.dam)
   // Koiranet's "Lisämerkinnät" beside the code: a stopped trial takes the same dash an eliminated dog
   // takes, and this is what tells the two apart (KOE-1300).
-  const result = [reg.result, formatResultMarks(reg.marks, t)].filter(Boolean).join(' ')
+  const result = [
+    reg.result,
+    formatResultMarks(reg.marks, t),
+    reg.placement ? t('results.placement', { placement: reg.placement }) : '',
+  ]
+    .filter(Boolean)
+    .join(' ')
 
   return (
     <StyledTableRow key={`${reg.group.number}-a`} className={index > 0 ? 'top-border' : ''}>

@@ -138,6 +138,18 @@ describe('RegistrationDetails', () => {
     expect(screen.getByText('AVO0 results.marks.interrupted')).toBeInTheDocument()
   })
 
+  it('names the placement beside the result of an awarded dog', () => {
+    render(
+      <table>
+        <tbody>
+          <RegistrationDetails registration={{ ...mockRegistration, placement: 2, result: 'AVO1' }} index={0} />
+        </tbody>
+      </table>
+    )
+
+    expect(screen.getByText('AVO1 results.placement')).toBeInTheDocument()
+  })
+
   it('applies top-border class when index > 0', () => {
     const { container } = render(
       <table>

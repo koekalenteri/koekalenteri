@@ -11,6 +11,7 @@ import {
   mergeStationTasks,
   nowtTotals,
   parseEventResultCode,
+  placementsFor,
   resolveEventResult,
   resultMarks,
   STOPPED_RESULT_CODE,
@@ -602,5 +603,87 @@ describe('per-post entry', () => {
       // Post 2 differs wildly, but this is a post 1 submission.
       expect(sameStationTasks(stored, [at('post-1', 0, 17, 'x'), at('post-2', 0, 0, 'x')], 'post-1')).toBe(true)
     })
+  })
+})
+
+describe('placementsFor', () => {
+  const day1 = new Date('2026-08-01T00:00:00')
+  const day2 = new Date('2026-08-02T00:00:00')
+
+  type Row = Parameters<typeof placementsFor>[0][number]
+  const dog = (
+    id: string,
+    result: string | undefined,
+    points: number | undefined,
+    extra: Partial<Row> & { maxPoints?: number } = {}
+  ): Row => {
+    const { maxPoints = 100, ...rest } = extra
+    return {
+      class: 'ALO',
+      eventResult: { maxPoints: points === undefined ? undefined : maxPoints, points, result },
+      eventType: 'NOWT',
+      group: { date: day1, key: 'participants', number: 1 },
+      id,
+      ...rest,
+    }
+  }
+
+  it('ranks ties together and skips the next rank: 1, 2, 2, 4', () => {
+    const placements = placementsFor([
+      dog('a', 'ALO1', 90),
+      dog('b', 'ALO2', 85),
+      dog('c', 'ALO2', 85),
+      dog('d', 'ALO3', 60),
+    ])
+    expect(Object.fromEntries(placements)).toEqual({ a: 1, b: 2, c: 2, d: 4 })
+  })
+
+  it('gives no placement and takes no rank for a prize 0, a dash, an unscored dog or an awarded dog without points', () => {
+    const placements = placementsFor([
+      dog('zero', 'ALO0', 95),
+      dog('dash', 'ALO-', 95),
+      dog('none', undefined, undefined),
+      dog('voided', 'ALO1', undefined),
+      dog('a', 'ALO1', 81),
+    ])
+    expect(Object.fromEntries(placements)).toEqual({ a: 1 })
+  })
+
+  it('ranks each class and each day apart', () => {
+    const placements = placementsFor([
+      dog('a', 'ALO1', 90),
+      dog('b', 'ALO1', 85, { group: { date: day2, key: 'participants', number: 1 } }),
+      dog('c', 'AVO1', 82, { class: 'AVO' }),
+    ])
+    expect(Object.fromEntries(placements)).toEqual({ a: 1, b: 1, c: 1 })
+  })
+
+  it('compares the share of the maximum when a class has rounds of different size', () => {
+    const placements = placementsFor([
+      dog('five', 'ALO2', 70, { maxPoints: 100 }),
+      dog('four', 'ALO1', 60, { maxPoints: 80 }),
+    ])
+    expect(Object.fromEntries(placements)).toEqual({ five: 2, four: 1 })
+  })
+
+  it('ranks a time of day on the same date together', () => {
+    const placements = placementsFor([
+      dog('a', 'ALO1', 90),
+      dog('b', 'ALO1', 85, { group: { date: new Date('2026-08-01T12:00:00'), key: 'participants', number: 2 } }),
+    ])
+    expect(Object.fromEntries(placements)).toEqual({ a: 1, b: 2 })
+  })
+
+  it('leaves a qualitative event type unranked', () => {
+    expect(placementsFor([dog('a', 'NOU1', 90, { class: undefined, eventType: 'NOU' })]).size).toBe(0)
+  })
+
+  it('leaves out a cancelled or reserve dog, and the rest close up', () => {
+    const placements = placementsFor([
+      dog('a', 'ALO1', 95, { cancelled: true }),
+      dog('r', 'ALO1', 94, { group: { date: day1, key: 'reserve', number: 1 } }),
+      dog('b', 'ALO1', 90),
+    ])
+    expect(Object.fromEntries(placements)).toEqual({ b: 1 })
   })
 })

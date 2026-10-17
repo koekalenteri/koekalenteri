@@ -27,6 +27,7 @@ import {
   getRegistrationGroupKey,
   isPredefinedReason,
 } from '@/lib/registration'
+import { placementsFor, scoresAtPosts } from '@/lib/results'
 import { isConfirmedEvent } from '@/lib/typeGuards'
 import GroupColors from './GroupColors'
 import RegistrationIcons from './RegistrationIcons'
@@ -385,6 +386,8 @@ export function useClassEntrySelectionColumns(
     })) as GridColDef<Registration>[]
   }, [available, callbacks, drawnDates, event, showClass, t])
 
+  const placements = useMemo(() => placementsFor(registrations), [registrations])
+
   return useMemo(() => {
     const entryColumns = createColumnDefinitions()
 
@@ -401,6 +404,17 @@ export function useClassEntrySelectionColumns(
         valueGetter: (_value, row) => row.eventResult?.result ?? '',
         width: 70,
       })
+      // Derived from the registrations held here, so it follows every move without being stored.
+      if (scoresAtPosts(event.eventType)) {
+        participantColumns.splice(-2, 0, {
+          field: 'placement',
+          headerName: t('results.column.placement'),
+          minWidth: 56,
+          sortable: false,
+          valueGetter: (_value, row) => placements.get(row.id) ?? '',
+          width: 56,
+        })
+      }
     }
 
     const cancelledColumns = [...participantColumns]
@@ -414,5 +428,5 @@ export function useClassEntrySelectionColumns(
     })
 
     return { cancelledColumns, entryColumns, participantColumns }
-  }, [t, createColumnDefinitions, event])
+  }, [t, createColumnDefinitions, event, placements])
 }

@@ -390,7 +390,13 @@ function formatRegistration(reg: PublicRegistration, t: TFunction) {
     `${ownerHandler}, ${t('startList.breeder')} ${reg.breeder}`,
     // The copied list is the one that gets pasted into a forum post, so it has to carry what the
     // screen shows. Leaving the result out here is how the two quietly stop matching.
-    [reg.result, formatResultMarks(reg.marks, t)].filter(Boolean).join(' '),
+    [
+      reg.result,
+      formatResultMarks(reg.marks, t),
+      reg.placement ? t('results.placement', { placement: reg.placement }) : '',
+    ]
+      .filter(Boolean)
+      .join(' '),
   ]
     .filter(Boolean)
     .join('\n')

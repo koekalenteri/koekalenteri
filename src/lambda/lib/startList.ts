@@ -12,7 +12,7 @@ import {
   resolveOwnerSelection,
   sortRegistrationsByDateClassTimeAndNumber,
 } from '../../lib/registration'
-import { resultMarks } from '../../lib/results'
+import { placementsFor, resultMarks } from '../../lib/results'
 import { getEvent } from './event'
 import { getRegistrationsByEventId } from './registration'
 
@@ -50,10 +50,15 @@ const buildPublicStartList = (
   // anywhere and are unaffected.
   const drawn = registrations.some((reg) => !reg.cancelled && reg.startGroup?.date)
 
+  // Derived over everyone who ran, so a withheld row still takes its rank; published only with the result.
+  const placements = placementsFor(registrations)
+
   const publicRegs = registrations
     .filter((reg) => isInEventClasses(confirmedEvent, reg))
     .map((reg) =>
-      reg.cancelled ? cancelledPublicRow(confirmedEvent, reg, preview) : publicRow(confirmedEvent, reg, preview, drawn)
+      reg.cancelled
+        ? cancelledPublicRow(confirmedEvent, reg, preview)
+        : publicRow(confirmedEvent, reg, preview, drawn, placements.get(reg.id))
     )
     .filter((row) => row !== undefined)
 
@@ -107,7 +112,8 @@ const publicRow = (
   confirmedEvent: JsonDogEvent,
   reg: JsonRegistration,
   preview: boolean,
-  drawn: boolean
+  drawn: boolean,
+  placement?: number
 ): JsonPublicRegistration | undefined => {
   const group = reg.group
   if (!group?.date) return undefined
@@ -131,7 +137,11 @@ const publicRow = (
     // The marks ride with the result and only where it does: a mark on its own would tell a reader
     // something about a dog whose result is not published yet (KOE-1300).
     ...(isResultsAvailableForRegistration(confirmedEvent, registered)
-      ? { ...(marks.length ? { marks } : {}), result: reg.eventResult?.result }
+      ? {
+          ...(marks.length ? { marks } : {}),
+          ...(placement ? { placement } : {}),
+          result: reg.eventResult?.result,
+        }
       : {}),
   }
 }
