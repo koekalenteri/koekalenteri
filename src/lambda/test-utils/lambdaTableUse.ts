@@ -74,8 +74,10 @@ type Values = Set<Value>
 
 const NONE: Values = new Set()
 const UNDEFINED: Values = new Set(['U:'])
+/** A spread the walk cannot see into: the property may be anything, so a table or index read through it is refused. */
+const UNKNOWN: Values = new Set(['?:'])
 
-const withPrefix = (values: Values, prefix: 'T' | 'C' | 'S' | 'U') =>
+const withPrefix = (values: Values, prefix: 'T' | 'C' | 'S' | 'U' | '?') =>
   [...values].filter((value) => value.startsWith(`${prefix}:`)).map((value) => value.slice(2))
 
 /** The CONFIG table keys among the values. */
@@ -212,18 +214,61 @@ const tableValue = (key: string): Values => (key.endsWith('Table') ? new Set([`T
 const propertyNamed = (literal: ts.ObjectLiteralExpression, name: string) =>
   literal.properties.find((p) => p.name && ts.isIdentifier(p.name) && p.name.text === name)
 
-/** The property `name` of each object literal among `values`. */
-const propertyOf = (ctx: Context, state: HandlerState, values: Values, name: string): Values => {
-  const result = new Set<Value>()
-  for (const value of values) {
-    const node = ctx.nodes.get(value)
-    if (!node || !ts.isObjectLiteralExpression(node)) continue
-    const property = propertyNamed(node, name)
-    // A literal without the property has it undefined, which matters for a query's optional index.
-    for (const v of property ? valuesOfProperty(ctx, state, property) : UNDEFINED) result.add(v)
+const literalsOf = (ctx: Context, values: Values) =>
+  [...values]
+    .map((value) => ctx.nodes.get(value))
+    .filter((node): node is ts.ObjectLiteralExpression => node !== undefined && ts.isObjectLiteralExpression(node))
+
+const hasUndefined = (values: Values) => values.has('U:')
+
+const withoutUndefined = (values: Values): Values => new Set([...values].filter((value) => value !== 'U:'))
+
+const isUndefined = (node: ts.Node) => ts.isIdentifier(node) && node.text === 'undefined'
+
+/**
+ * The property `name` of one object literal, read in source order: a later property wins over an
+ * earlier one, a spread brings the property of each literal it can stand for (or leaves the value as
+ * it was where that literal lacks it), and a spread of something that is no literal makes it UNKNOWN.
+ * A literal without the property has it UNDEFINED, which matters for an optional index or table.
+ */
+const literalProperty = (
+  ctx: Context,
+  state: HandlerState,
+  literal: ts.ObjectLiteralExpression,
+  name: string,
+  visiting = new Set<ts.ObjectLiteralExpression>()
+): Values => {
+  // A literal that spreads itself through a parameter (`retry({ ...options, attempt })`) adds nothing
+  // on the second visit.
+  if (visiting.has(literal)) return NONE
+  visiting.add(literal)
+  let current: Values = UNDEFINED
+  for (const property of literal.properties) {
+    if (ts.isSpreadAssignment(property)) {
+      const sources = literalsOf(ctx, valuesOf(ctx, state, property.expression))
+      if (!sources.length) {
+        current = union(current, UNKNOWN)
+        continue
+      }
+      const next = new Set<Value>()
+      for (const source of sources) {
+        const spread = literalProperty(ctx, state, source, name, visiting)
+        // A source without the property leaves the value as it was; one with it overrides.
+        const values = hasUndefined(spread) ? union(current, withoutUndefined(spread)) : spread
+        for (const value of values) next.add(value)
+      }
+      current = next
+    } else if (property.name && ts.isIdentifier(property.name) && property.name.text === name) {
+      current = valuesOfProperty(ctx, state, property)
+    }
   }
-  return result
+  visiting.delete(literal)
+  return current
 }
+
+/** The property `name` of each object literal among `values`. */
+const propertyOf = (ctx: Context, state: HandlerState, values: Values, name: string): Values =>
+  union(...literalsOf(ctx, values).map((literal) => literalProperty(ctx, state, literal, name)))
 
 const valuesOfProperty = (ctx: Context, state: HandlerState, property: ts.ObjectLiteralElementLike): Values => {
   if (ts.isPropertyAssignment(property)) return valuesOf(ctx, state, property.initializer)
@@ -272,7 +317,7 @@ const computeValues = (ctx: Context, state: HandlerState, node: ts.Node): Values
   }
   if (ts.isBinaryExpression(node)) return union(valuesOf(ctx, state, node.left), valuesOf(ctx, state, node.right))
   if (ts.isStringLiteralLike(node)) return new Set([`S:${node.text}`])
-  if (ts.isIdentifier(node) && node.text === 'undefined') return UNDEFINED
+  if (isUndefined(node)) return UNDEFINED
   if (ts.isObjectLiteralExpression(node) || isFunctionLike(node)) return new Set([nodeId(ctx, node)])
   if (ts.isNewExpression(node)) return valuesOfClientConstruction(ctx, state, node)
   if (ts.isPropertyAccessExpression(node)) return valuesOfAccess(ctx, state, node)
@@ -305,15 +350,29 @@ const calleesOf = (ctx: Context, state: HandlerState, call: ts.CallExpression | 
   return callees
 }
 
-const bindPattern = (ctx: Context, state: HandlerState, name: ts.BindingName, values: Values) => {
+/** The values with a default in place of undefined: `(index = 'gsiEmail')` called without one is the literal. */
+const withDefault = (ctx: Context, state: HandlerState, values: Values, initializer: ts.Expression | undefined) => {
+  if (!initializer || !hasUndefined(values)) return values
+  return union(withoutUndefined(values), valuesOf(ctx, state, initializer))
+}
+
+const bindPattern = (
+  ctx: Context,
+  state: HandlerState,
+  name: ts.BindingName,
+  values: Values,
+  initializer: ts.Expression | undefined
+) => {
+  const bound = withDefault(ctx, state, values, initializer)
   if (ts.isIdentifier(name)) {
-    for (const declaration of declarationsOf(ctx, name)) addValues(state, declaration, values)
+    for (const declaration of declarationsOf(ctx, name)) addValues(state, declaration, bound)
     return
   }
   if (!ts.isObjectBindingPattern(name)) return
   for (const element of name.elements) {
     const property = element.propertyName ?? element.name
-    if (ts.isIdentifier(property)) bindPattern(ctx, state, element.name, propertyOf(ctx, state, values, property.text))
+    if (!ts.isIdentifier(property)) continue
+    bindPattern(ctx, state, element.name, propertyOf(ctx, state, bound, property.text), element.initializer)
   }
 }
 
@@ -333,9 +392,9 @@ const bindCall = (ctx: Context, state: HandlerState, call: ts.CallExpression | t
       if (parameter.dotDotDotToken) return
       const argument = args[index]
       if (argument) {
-        bindPattern(ctx, state, parameter.name, valuesOf(ctx, state, argument))
+        bindPattern(ctx, state, parameter.name, valuesOf(ctx, state, argument), parameter.initializer)
       } else if (parameter.questionToken || parameter.initializer) {
-        bindPattern(ctx, state, parameter.name, UNDEFINED)
+        bindPattern(ctx, state, parameter.name, UNDEFINED, parameter.initializer)
       }
     })
   }
@@ -415,12 +474,17 @@ const defaultTables = (ctx: Context, state: HandlerState, receiver: ts.Expressio
   return keys.length ? keys : cannotTell(receiver, 'the client')
 }
 
-const explicitTables = (ctx: Context, state: HandlerState, argument: ts.Expression): string[] => {
-  const keys = tableKeys(valuesOf(ctx, state, argument))
-  return keys.length ? keys : cannotTell(argument, 'the table argument')
+/** The tables an expression names, plus the receiver's default where it may be undefined. */
+const tablesOrDefault = (ctx: Context, state: HandlerState, values: Values, call: ts.CallExpression) => {
+  if (withPrefix(values, '?').length) return []
+  const defaults = hasUndefined(values) ? defaultTables(ctx, state, receiverOf(call)) : []
+  return [...tableKeys(values), ...defaults]
 }
 
-const isUndefined = (node: ts.Expression) => ts.isIdentifier(node) && node.text === 'undefined'
+const explicitTables = (ctx: Context, state: HandlerState, call: ts.CallExpression, argument: ts.Expression) => {
+  const keys = tablesOrDefault(ctx, state, valuesOf(ctx, state, argument), call)
+  return keys.length ? keys : cannotTell(argument, 'the table argument')
+}
 
 const receiverOf = (call: ts.CallExpression): ts.Expression => {
   if (!ts.isPropertyAccessExpression(call.expression)) throw new Error(`${location(call)}: not a method call`)
@@ -434,21 +498,16 @@ const literalTables = (
   call: ts.CallExpression,
   literal: ts.ObjectLiteralExpression
 ) => {
-  const table = propertyNamed(literal, 'table')
-  let keys: string[]
-  if (table) {
-    keys = tableKeys(valuesOfProperty(ctx, state, table))
-    if (!keys.length) cannotTell(table, 'the table option')
-  } else {
-    keys = defaultTables(ctx, state, receiverOf(call))
-  }
-  const index = propertyNamed(literal, 'index')
-  if (!index) return keys
-  const values = valuesOfProperty(ctx, state, index)
+  const keys = tablesOrDefault(ctx, state, literalProperty(ctx, state, literal, 'table'), call)
+  if (!keys.length) cannotTell(propertyNamed(literal, 'table') ?? literal, 'the table option')
+  const values = literalProperty(ctx, state, literal, 'index')
   const names = withPrefix(values, 'S')
-  if (names.includes('') || (!names.length && !withPrefix(values, 'U').length)) cannotTell(index, 'the index option')
+  const maybeUndefined = hasUndefined(values)
+  if (names.includes('') || withPrefix(values, '?').length || (!names.length && !maybeUndefined)) {
+    cannotTell(propertyNamed(literal, 'index') ?? literal, 'the index option')
+  }
   // An index that may be undefined leaves the query on the table itself for those calls.
-  const tables = withPrefix(values, 'U').length ? keys : []
+  const tables = maybeUndefined ? keys : []
   return [...tables, ...keys.flatMap((key) => names.map((name) => indexKey(key, name)))]
 }
 
@@ -460,9 +519,7 @@ const optionTables = (
   argument: ts.Expression | undefined
 ): string[] => {
   if (!argument) return defaultTables(ctx, state, receiverOf(call))
-  const literals = [...valuesOf(ctx, state, argument)]
-    .map((value) => ctx.nodes.get(value))
-    .filter((node): node is ts.ObjectLiteralExpression => node !== undefined && ts.isObjectLiteralExpression(node))
+  const literals = literalsOf(ctx, valuesOf(ctx, state, argument))
   if (!literals.length) return cannotTell(argument, 'the options')
   return literals.flatMap((literal) => literalTables(ctx, state, call, literal))
 }
@@ -471,8 +528,7 @@ const callTables = (ctx: Context, state: HandlerState, call: ts.CallExpression, 
   if (spec.table === 'items') return []
   if ('option' in spec.table) return optionTables(ctx, state, call, call.arguments[spec.table.option])
   const argument = call.arguments[spec.table.arg]
-  if (argument && !isUndefined(argument)) return explicitTables(ctx, state, argument)
-  return defaultTables(ctx, state, receiverOf(call))
+  return argument ? explicitTables(ctx, state, call, argument) : defaultTables(ctx, state, receiverOf(call))
 }
 
 /** How the handler got to a unit: the names of the units on the way, innermost last. */

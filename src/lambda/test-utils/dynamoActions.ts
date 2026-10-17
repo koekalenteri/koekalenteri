@@ -28,15 +28,15 @@ export const accessOf = (action: Action): Access => {
  */
 export const indexKey = (table: string, index: string) => `${table}/index/${index}`
 
-const tableOfKey = (key: string) => key.split('/')[0]
+export const tableOfKey = (key: string) => key.split('/')[0]
 
 /** Whether `actions` (a key to the actions granted on it) allow `action` on `key`. */
 export const isGranted = (grants: ReadonlyMap<string, ReadonlySet<Action>>, key: string, action: Action) => {
   const allows = (granted: ReadonlySet<Action> | undefined) =>
     granted !== undefined && (granted.has(action) || granted.has('*'))
   if (allows(grants.get(key))) return true
-  const [table, , index] = key.split('/')
-  return index !== undefined && allows(grants.get(indexKey(table, '*')))
+  const table = tableOfKey(key)
+  return table !== key && allows(grants.get(indexKey(table, '*')))
 }
 
 /** The write actions only the crud template carries (`DynamoDBWritePolicy` has neither). */
@@ -66,7 +66,8 @@ const byTable = (actions: ReadonlyMap<string, ReadonlySet<Action>>) => {
 /**
  * The read and write classes granted on a table the code never uses in that class. A table the code
  * only deletes from or condition-checks is the one exception: no write template carries those two
- * actions, so the crud template's read class is not excess there.
+ * actions, so the crud template's read class (every read action, as the template grants them) is
+ * not excess there. A narrower read grant beside a delete is still excess: it could have been left out.
  */
 export const unusedGrants = (
   granted: ReadonlyMap<string, ReadonlySet<Action>>,
@@ -77,7 +78,9 @@ export const unusedGrants = (
   for (const [table, actions] of byTable(granted)) {
     const usedActions = usedByTable.get(table) ?? new Set<Action>()
     const usedAccesses = accessesOf(usedActions)
-    const needsCrud = [...usedActions].some((action) => CRUD_ONLY_WRITES.has(action))
+    const needsCrud =
+      [...usedActions].some((action) => CRUD_ONLY_WRITES.has(action)) &&
+      [...READ_ACTIONS].every((action) => actions.has(action))
     for (const access of accessesOf(actions)) {
       if (usedAccesses.has(access) || (access === 'read' && needsCrud)) continue
       unused.push({ access, table })

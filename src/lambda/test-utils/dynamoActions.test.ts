@@ -1,4 +1,4 @@
-import { accessOf, isGranted, unusedGrants } from './dynamoActions'
+import { accessOf, isGranted, READ_ACTIONS, unusedGrants } from './dynamoActions'
 
 const grants = (entries: [string, string[]][]) => new Map(entries.map(([key, actions]) => [key, new Set(actions)]))
 
@@ -54,9 +54,14 @@ describe('unusedGrants', () => {
   it.each(['DeleteItem', 'ConditionCheckItem'])(
     'accepts the crud read class on a table the code only uses for %s',
     (action) => {
-      const crud = grants([['EventTable', ['GetItem', 'Query', 'DeleteItem', 'ConditionCheckItem', 'PutItem']]])
+      const crud = grants([['EventTable', [...READ_ACTIONS, 'DeleteItem', 'ConditionCheckItem', 'PutItem']]])
 
       expect(unusedGrants(crud, grants([['EventTable', [action]]]))).toEqual([])
+      // A narrower read grant beside the delete is not the crud template, and could have been left out.
+      const inline = grants([['EventTable', ['GetItem', action]]])
+      expect(unusedGrants(inline, grants([['EventTable', [action]]]))).toEqual([
+        { access: 'read', table: 'EventTable' },
+      ])
       expect(unusedGrants(crud, grants([['EventTable', ['UpdateItem']]]))).toEqual([
         { access: 'read', table: 'EventTable' },
       ])

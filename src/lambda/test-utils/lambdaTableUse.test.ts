@@ -7,7 +7,8 @@ import { createTableUseAnalyzer } from './lambdaTableUse'
  * A small lambda tree of its own, so each case says what the walk must find or refuse without
  * depending on what the real handlers happen to do. The paths mirror the repository's, since the
  * walk finds CONFIG and the client by them. One program holds every handler; a walk that must
- * throw does so for its own handler only.
+ * throw does so for its own handler only, and each rule has a handler of its own, so that a rule
+ * dropped from the walk fails the case that pins it.
  */
 const root = mkdtempSync(path.join(tmpdir(), 'lambda-table-use-'))
 
@@ -28,6 +29,35 @@ const HANDLERS: Record<string, string> = {
   ConditionalIndex: `${COMMON}
 export default async () => {
   await dynamoDB.query({ index: Date.now() > 0 ? 'gsiEmail' : undefined, key: 'email = :email' })
+}
+`,
+  ConditionalTable: `${COMMON}
+export default async () => {
+  await dynamoDB.readAll({ table: Date.now() > 0 ? CONFIG.judgeTable : undefined })
+}
+`,
+  DefaultArgument: `${COMMON}
+const byIndex = (index = 'gsiEmail') => dynamoDB.query({ index, key: 'email = :email' })
+
+export default async () => {
+  await byIndex()
+}
+`,
+  DefaultOptions: `${COMMON}
+type Options = { index?: string }
+const inner = (options: Options) => dynamoDB.query({ index: options.index, key: 'email = :email' })
+const outer = (options: Options = {}) => inner(options)
+
+export default async () => {
+  await outer({ index: 'gsiEmail' })
+  await outer()
+}
+`,
+  DefaultProperty: `${COMMON}
+const byOptions = ({ index = 'gsiEmail' }: { index?: string }) => dynamoDB.query({ index, key: 'email = :email' })
+
+export default async () => {
+  await byOptions({})
 }
 `,
   Directory: `${COMMON}
@@ -62,15 +92,36 @@ export default async () => {
   await byIndex(String(Date.now()))
 }
 `,
-  OptionalIndex: `${COMMON}
+  OptionalArgument: `${COMMON}
 const byIndex = (index?: string) => dynamoDB.query({ index, key: 'email = :email' })
-const byOptions = (options: { index?: string }) => dynamoDB.query({ index: options.index, key: 'email = :email' })
 
 export default async () => {
   await byIndex('gsiEmail')
   await byIndex()
+}
+`,
+  OptionalProperty: `${COMMON}
+const byOptions = (options: { index?: string }) => dynamoDB.query({ index: options.index, key: 'email = :email' })
+
+export default async () => {
   await byOptions({})
   await byOptions({ index: 'gsiName' })
+}
+`,
+  OptionalTableArgument: `${COMMON}
+const readOne = (id: string, table?: string) => dynamoDB.read({ id }, table)
+
+export default async () => {
+  await readOne('a')
+  await readOne('b', CONFIG.judgeTable)
+}
+`,
+  OptionalTableOption: `${COMMON}
+const list = (options: { table?: string }) => dynamoDB.readAll({ table: options.table })
+
+export default async () => {
+  await list({})
+  await list({ table: CONFIG.judgeTable })
 }
 `,
   Shorthand: `${COMMON}
@@ -79,6 +130,27 @@ const TableName = CONFIG.judgeTable
 export default async () => {
   await dynamoDB.documentTransaction([{ Put: { Item: { id: 1 }, TableName } }])
 }
+`,
+  SpreadIndex: `${COMMON}
+const base = { index: 'gsiEmail', key: 'email = :email' }
+const byOptions = (options: { index?: string }) => dynamoDB.query({ index: options.index, key: 'email = :email' })
+
+export default async () => {
+  await dynamoDB.query({ ...base })
+  await byOptions({ ...base })
+}
+`,
+  SpreadTable: `${COMMON}
+const options = { key: 'id = :id', table: CONFIG.judgeTable }
+
+export default async () => {
+  await dynamoDB.query({ ...options })
+}
+`,
+  SpreadUnknown: `${COMMON}
+const query = (options: object) => dynamoDB.query({ ...options, key: 'id = :id' })
+
+export default async () => query(JSON.parse('{}'))
 `,
   TableNameOutsideItem: `${COMMON}
 const params = { TableName: CONFIG.judgeTable }
@@ -185,14 +257,44 @@ describe('createTableUseAnalyzer', () => {
   })
 
   // The base-table query of the calls without an index is the one IAM denies when only the index
-  // is granted, so it is recorded beside the index.
-  it('records the table itself for a query whose index may be undefined', () => {
-    expect(usesOf('OptionalIndex')).toEqual([
-      'Query userTable',
-      'Query userTable/index/gsiEmail',
-      'Query userTable/index/gsiName',
-    ])
-    expect(usesOf('ConditionalIndex')).toEqual(['Query userTable', 'Query userTable/index/gsiEmail'])
+  // is granted, so it is recorded beside the index. One handler per way the index goes missing.
+  it.each([
+    ['an optional argument some call omits', 'OptionalArgument', ['Query userTable', 'Query userTable/index/gsiEmail']],
+    [
+      'an optional property some literal lacks',
+      'OptionalProperty',
+      ['Query userTable', 'Query userTable/index/gsiName'],
+    ],
+    ['a conditional', 'ConditionalIndex', ['Query userTable', 'Query userTable/index/gsiEmail']],
+    [
+      'an options object with a default, handed on',
+      'DefaultOptions',
+      ['Query userTable', 'Query userTable/index/gsiEmail'],
+    ],
+  ])('records the table itself for a query whose index may be undefined through %s', (_, name, expected) => {
+    expect(usesOf(name)).toEqual(expected)
+  })
+
+  // A default fills in for an omitted argument or property: the call is on the index, not the table.
+  it.each([
+    ['a parameter default', 'DefaultArgument'],
+    ['a destructuring default', 'DefaultProperty'],
+  ])('reads %s in place of an omitted index', (_, name) => {
+    expect(usesOf(name)).toEqual(['Query userTable/index/gsiEmail'])
+  })
+
+  // The same for a table: where it may be undefined, the call lands on the client's default table.
+  it.each([
+    ['an optional argument', 'OptionalTableArgument', ['GetItem judgeTable', 'GetItem userTable']],
+    ['an optional option', 'OptionalTableOption', ['Scan judgeTable', 'Scan userTable']],
+    ['a conditional option', 'ConditionalTable', ['Scan judgeTable', 'Scan userTable']],
+  ])("records the client's default table for a table that may be undefined through %s", (_, name, expected) => {
+    expect(usesOf(name)).toEqual(expected)
+  })
+
+  it('reads an index and a table through a spread in the options literal', () => {
+    expect(usesOf('SpreadIndex')).toEqual(['Query userTable/index/gsiEmail'])
+    expect(usesOf('SpreadTable')).toEqual(['Query judgeTable'])
   })
 
   it.each([
@@ -208,6 +310,7 @@ describe('createTableUseAnalyzer', () => {
       /cannot tell which table the client \(client\) names/,
     ],
     ['options it cannot trace to a literal', 'UnknownOptions', /cannot tell which table the options \(options\) names/],
+    ['a spread it cannot see into', 'SpreadUnknown', /cannot tell which table the table option/],
     [
       'a transaction item whose table it cannot name',
       'UnknownItem',

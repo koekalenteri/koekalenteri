@@ -6,7 +6,7 @@
  */
 import type { Action } from './dynamoActions'
 import { parse } from 'yaml'
-import { indexKey, READ_ACTIONS, WRITE_ACTIONS } from './dynamoActions'
+import { indexKey, READ_ACTIONS, tableOfKey, WRITE_ACTIONS } from './dynamoActions'
 
 interface FunctionGrants {
   codeUri: string
@@ -45,7 +45,7 @@ const listField = (record: Record<string, unknown>, key: string): unknown[] => {
 
 /**
  * The intrinsics the templates use. Scalars keep their tag as a one-key object; the list forms become
- * plain lists. The same list lives in scripts/lib/tables.mjs and e2e/server/routes.mjs; it is not
+ * plain lists. A similar list lives in scripts/lib/tables.mjs and e2e/server/routes.mjs; it is not
  * imported from there because the lambda tsconfig has no allowJs, so lint-backend could not type it.
  */
 const intrinsicTags = ['Ref', 'Sub', 'GetAtt', 'Join', 'Select', 'Split', 'If', 'Equals', 'Not', 'Condition'].flatMap(
@@ -93,7 +93,7 @@ const grantStatements = (grants: FunctionGrants, statements: unknown[], tables: 
     }
     for (const resource of listField(statement, 'Resource')) {
       const key = keyOfResource(resource, where)
-      if (!tables.has(key.split('/')[0])) throw new Error(`${where}: ${key} is not a table`)
+      if (!tables.has(tableOfKey(key))) throw new Error(`${where}: ${key} is not a table`)
       grant(grants, key, actionsOf(dynamo, where))
     }
   }
