@@ -187,6 +187,29 @@ describe('useDnDHandlers', () => {
       expect(mockSetSelectedRegistrationId).toHaveBeenCalledWith('reg1')
     })
 
+    it('anchors on a start stored with the UTC day key, which the grid lists in the group (KOE-1541)', async () => {
+      const date = new Date('2026-08-14T21:00:00.000Z') // 15.8. 00:00 in Helsinki
+      const group: RegistrationGroup = { date, key: '2026-08-15-ap', number: 0, time: 'ap' }
+      const start = (id: string, number: number): Registration => ({
+        ...mockRegistration,
+        group: { date, key: '2026-08-14-ap', number, time: 'ap' },
+        id,
+      })
+      const reserve: Registration = { ...mockRegistration, group: { key: GROUP_KEY_RESERVE, number: 1 } }
+      const siblings = [start('a', 1), start('b', 2)]
+      ;(determineChangesFromDrop as import('vitest').Mock).mockReturnValue([
+        { eventId: 'event1', group: { ...group, number: 1.5 }, id: 'reg1' },
+      ])
+
+      const { result } = renderHook(() => useDnDHandlers({ ...defaultProps, registrations: [reserve, ...siblings] }))
+      await result.current.handleDrop(group)({ ...mockDragItem, groupKey: GROUP_KEY_RESERVE })
+
+      expect(determineChangesFromDrop).toHaveBeenCalledWith(expect.anything(), group, reserve, siblings, true)
+      expect(mockSaveGroups).toHaveBeenCalledWith('event1', [
+        { beforeId: 'b', cancelReason: undefined, group: { date, key: '2026-08-15-ap', time: 'ap' }, id: 'reg1' },
+      ])
+    })
+
     it('should set selected registration ID', async () => {
       const { result } = renderHook(() => useDnDHandlers(defaultProps))
 
@@ -246,38 +269,6 @@ describe('useDnDHandlers', () => {
           group: { date: undefined, key: 'group2', time: undefined },
           id: 'reg1',
         },
-      ])
-    })
-
-    it('does not anchor a drop on a start whose stored key names the UTC day (KOE-1537)', async () => {
-      // 21:00Z on the 2nd is the evening start of the 3rd in Finland: the grid lists the dog in the 3rd's
-      // group, but the server accepts only an anchor whose stored key is the move's key, so this one
-      // would get the move refused on every retry.
-      const gridGroup: RegistrationGroup = {
-        date: new Date('2024-08-02T21:00:00.000Z'),
-        key: '2024-08-03-ip',
-        number: 0,
-        time: 'ip',
-      }
-      const utcKeyed: Registration = {
-        ...mockRegistration,
-        group: { date: new Date('2024-08-02T21:00:00.000Z'), key: '2024-08-02-ip', number: 1, time: 'ip' },
-        id: 'utc-keyed',
-      }
-      const mockChanges: RegistrationGroupInfo[] = [
-        { eventId: 'event1', group: { key: '2024-08-03-ip', number: 0.5 }, id: 'reg1' },
-      ]
-      ;(determineChangesFromDrop as import('vitest').Mock).mockReturnValue(mockChanges)
-
-      const { result } = renderHook(() =>
-        useDnDHandlers({ ...defaultProps, registrations: [mockRegistration, utcKeyed] })
-      )
-
-      await result.current.handleDrop(gridGroup)(mockDragItem)
-
-      expect(determineChangesFromDrop).toHaveBeenCalledWith(mockDragItem, gridGroup, mockRegistration, [], true)
-      expect(mockSaveGroups).toHaveBeenCalledWith('event1', [
-        { cancelReason: undefined, group: { date: undefined, key: '2024-08-03-ip', time: undefined }, id: 'reg1' },
       ])
     })
 

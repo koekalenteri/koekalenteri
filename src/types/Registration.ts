@@ -329,7 +329,7 @@ export interface JsonRegistrationGroup extends Partial<JsonRegistrationDate> {
 
 /** An entry as a decision that asks only which group it is in reads it: a stored and a parsed group alike. */
 interface RegistrationGroupHolder {
-  group?: Pick<JsonRegistrationGroup, 'key'>
+  group?: Pick<JsonRegistrationGroup, 'key'> & { date?: string | Date; time?: RegistrationTime }
 }
 
 /** Where an entry stands as far as its place goes: whether it was cancelled, and its group. */

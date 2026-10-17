@@ -38,6 +38,7 @@ import {
   hasPriority,
   hasRefundableBalance,
   isCompleteRegistration,
+  isKeyRespelling,
   isMember,
   isPayerTemplate,
   isPredefinedReason,
@@ -596,6 +597,58 @@ describe('lib/registration', () => {
 
     it('should default to reserver', () => {
       expect(getRegistrationGroupKey({})).toEqual(GROUP_KEY_RESERVE)
+    })
+
+    describe('a start stored with another spelling of its day (KOE-1541)', () => {
+      const midnight = '2026-08-14T21:00:00.000Z' // 15.8. 00:00 in Helsinki
+
+      it.each([
+        ['an ISO string', midnight],
+        ['a Date', new Date(midnight)],
+        ['a bare day', '2026-08-15'],
+      ])('names the group by the Helsinki day when the date is %s', (_name, date) => {
+        expect(getRegistrationGroupKey({ group: { date, key: '2026-08-14-ap', time: 'ap' } })).toEqual('2026-08-15-ap')
+      })
+
+      it.each([
+        ['no time', { date: midnight, key: 'stored' }],
+        ['no date', { key: 'stored', time: 'ap' as const }],
+        ['an unreadable date', { date: 'not a date', key: 'stored', time: 'ap' as const }],
+        ['an empty date', { date: '', key: 'stored', time: 'ap' as const }],
+        ['the reserve key', { date: midnight, key: GROUP_KEY_RESERVE, time: 'ap' as const }],
+        ['the cancelled key', { date: midnight, key: GROUP_KEY_CANCELLED, time: 'ap' as const }],
+      ])('keeps the stored key with %s', (_name, group) => {
+        expect(getRegistrationGroupKey({ group })).toEqual(group.key)
+      })
+
+      it('puts a cancelled entry in the cancelled group whatever its key says', () => {
+        expect(
+          getRegistrationGroupKey({ cancelled: true, group: { date: midnight, key: '2026-08-14-ap', time: 'ap' } })
+        ).toEqual(GROUP_KEY_CANCELLED)
+      })
+    })
+  })
+
+  describe('isKeyRespelling', () => {
+    const utc = { date: '2026-08-14T21:00:00.000Z', key: '2026-08-14-ap', number: 2, time: 'ap' as const }
+
+    it('is true for the same day, time and number under the Helsinki key', () => {
+      expect(isKeyRespelling(utc, { ...utc, key: '2026-08-15-ap' })).toBe(true)
+    })
+
+    it.each([
+      ['another number', { ...utc, key: '2026-08-15-ap', number: 3 }],
+      ['another time', { ...utc, key: '2026-08-15-ip', time: 'ip' as const }],
+      ['another day', { ...utc, date: '2026-08-15T21:00:00.000Z', key: '2026-08-16-ap' }],
+      ['the same key', utc],
+      ['the reserve list', { key: GROUP_KEY_RESERVE, number: 2 }],
+    ])('is false for %s', (_name, group) => {
+      expect(isKeyRespelling(utc, group)).toBe(false)
+    })
+
+    it('is false without a previous or a new group', () => {
+      expect(isKeyRespelling(undefined, utc)).toBe(false)
+      expect(isKeyRespelling(utc, undefined)).toBe(false)
     })
   })
 
