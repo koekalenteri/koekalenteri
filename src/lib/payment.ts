@@ -104,16 +104,17 @@ export const isPaymentWaitingForPlace = (
 /**
  * Whether paying waits for a place, as the form reads it from the row it edits. The participant's row
  * has no group, so the server's picture says it, as its `shouldPay` and `paymentInProgress` did: paying
- * waits when it is not offered and no payment is held (in progress or charged twice). The secretary's
- * row, which has its group, and a new entry, which has neither group nor picture, are read by the group
- * (`isPaymentWaitingForPlace`).
+ * waits when it is not offered and no payment is held (in progress or charged twice). A row has the
+ * picture or the group, never both: the participant's response strips the group
+ * (`participantRegistrationResponse`) and the secretary's rows carry no picture. So a row without a
+ * picture, the secretary's or a new entry, is read by the group (`isPaymentWaitingForPlace`).
  */
 export const isPaymentWaitingForPlaceInForm = (
   event: PaymentTimeEvent,
   registration: RegistrationPlacement & Pick<Registration, 'payment' | 'paymentStatus'>
 ): boolean => {
   const { payment } = registration
-  if (!payment || registration.group) return isPaymentWaitingForPlace(event, registration)
+  if (!payment) return isPaymentWaitingForPlace(event, registration)
   const held = payment.status === 'inProgress' || payment.status === 'duplicate'
   return event.paymentTime === 'confirmation' && !payment.canPay && !held
 }
