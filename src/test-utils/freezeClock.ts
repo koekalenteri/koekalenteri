@@ -1,5 +1,5 @@
 import { TZDate } from '@date-fns/tz'
-import { TIME_ZONE } from '../i18n/dates'
+import { TIME_ZONE } from '../lib/day'
 
 /** Midday of `day` in Helsinki, so no time zone lands it on a neighbour. */
 const middayOf = (day: string) => new TZDate(`${day}T12:00:00`, TIME_ZONE).getTime()

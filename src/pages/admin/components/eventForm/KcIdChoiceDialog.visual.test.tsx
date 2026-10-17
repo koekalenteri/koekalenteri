@@ -3,7 +3,7 @@ import { TZDate } from '@date-fns/tz'
 import { ThemeProvider } from '@mui/material/styles'
 import { render } from 'vitest-browser-react'
 import theme from '@/assets/Theme'
-import { TIME_ZONE } from '@/i18n/dates'
+import { TIME_ZONE } from '@/lib/day'
 import KcIdChoiceDialog from './KcIdChoiceDialog'
 
 const LINKED_GUID = '0a0b27bc-f651-4575-b0aa-b0b16a5ce52d'

@@ -1,6 +1,7 @@
 import type { JsonDogEvent } from '../../types'
-import { formatDate, TIME_ZONE, zonedEndOfDay, zonedParseDate } from '../../i18n/dates'
+import { dayEnd, dayOf, dayParts, dayStart, TIME_ZONE } from '../../lib/day'
 import { sanitizeDogEvent } from '../../lib/event'
+import { toDayKey } from '../../types'
 import { CONFIG } from '../config'
 import { changedSince, collectionCursor, parseDateParam } from '../lib/incremental'
 import { lambda, response } from '../lib/lambda'
@@ -27,15 +28,15 @@ function seasonsBetween(startYear: number, endYear: number): string[] {
 }
 
 function zonedStartOfYear(year: number): Date {
-  return zonedParseDate(`${year}-01-01`, TIME_ZONE)
+  return dayStart(toDayKey(year, 1, 1), TIME_ZONE)
 }
 
 function zonedEndOfYear(year: number): Date {
-  return zonedEndOfDay(`${year}-12-31`, TIME_ZONE)
+  return dayEnd(toDayKey(year, 12, 31), TIME_ZONE)
 }
 
 function zonedYear(date: Date): number {
-  return Number(formatDate(date, 'yyyy', { timeZone: TIME_ZONE }))
+  return dayParts(dayOf(date, TIME_ZONE)).year
 }
 
 function getUpperBoundYear(end: Date | undefined, lowerBoundYear: number): number {

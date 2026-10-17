@@ -6,8 +6,8 @@ import Stack from '@mui/material/Stack'
 import Typography from '@mui/material/Typography'
 import { memo, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
-import { zonedDateString } from '@/i18n/dates'
 import { localeSortComparator } from '@/lib/datagrid'
+import { dayOf, TIME_ZONE } from '@/lib/day'
 import { unique } from '@/lib/utils'
 import CollapsibleSection from '@/pages/components/CollapsibleSection'
 import { useIsOfficialEventType } from '../../hooks/useIsOfficialEventType'
@@ -99,8 +99,8 @@ function linkText(event: BasicInfoEvent, t: TFunction) {
 
 function formatDateSpan(start?: Date, end?: Date) {
   if (!start) return ''
-  const startDate = zonedDateString(start)
-  const endDate = end ? zonedDateString(end) : startDate
+  const startDate = dayOf(start, TIME_ZONE)
+  const endDate = end ? dayOf(end, TIME_ZONE) : startDate
   return startDate === endDate ? startDate : `${startDate} - ${endDate}`
 }
 

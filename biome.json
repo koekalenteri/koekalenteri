@@ -6,7 +6,11 @@
         "organizeImports": {
           "level": "on",
           "options": {
-            "groups": [{ "type": true }]
+            "groups": [
+              {
+                "type": true
+              }
+            ]
           }
         },
         "useSortedKeys": "on"
@@ -15,7 +19,12 @@
     "enabled": true
   },
   "files": {
-    "includes": ["src/**/*", "!src/generated", "e2e/**/*", "playwright.config.ts"]
+    "includes": [
+      "src/**/*",
+      "!src/generated",
+      "e2e/**/*",
+      "playwright.config.ts"
+    ]
   },
   "formatter": {
     "enabled": true,
@@ -58,31 +67,12 @@
   },
   "overrides": [
     {
-      "includes": ["src/**", "!src/lambda/**"],
-      "linter": {
-        "rules": {
-          "style": {
-            "noRestrictedImports": {
-              "level": "error",
-              "options": {
-                "patterns": [
-                  {
-                    "group": ["**/lambda/**"],
-                    "message": "Frontend and shared code must not import from src/lambda. Move the shared code to src/lib or src/types instead; see src/lib/README.md."
-                  },
-                  {
-                    "group": ["@aws-sdk/**"],
-                    "message": "Frontend and shared code must not depend on the AWS SDK. Mirror the needed shape in src/types instead (see EmailTemplateContent in src/types/Email.ts)."
-                  }
-                ]
-              }
-            }
-          }
-        }
-      }
-    },
-    {
-      "includes": ["src/lib/**", "src/i18n/**", "src/rules.ts", "src/rules_ch.ts"],
+      "includes": [
+        "src/**",
+        "!src/lambda/**",
+        "!src/lib/day.ts",
+        "!src/i18n/dates.ts"
+      ],
       "linter": {
         "rules": {
           "style": {
@@ -91,14 +81,60 @@
               "options": {
                 "paths": {
                   "date-fns": {
-                    "allowImportNames": ["Locale"],
-                    "message": "Import date-fns by module path instead: date-fns/addDays. A bare specifier pulls the whole 245-export index into the module graph; when the lambdas resolved it from the dependencies layer that cost 508 ms of cold start against 8 ms for one module (KOE-6). Bundling (KOE-1330) now tree-shakes it away for the lambdas, but the module path stays the convention -- the frontend build has not been measured."
+                    "allowImportNames": [
+                      "Locale"
+                    ],
+                    "message": "Import date-fns by module path instead: date-fns/parseISO. A bare specifier pulls the whole 245-export index into the module graph; when the lambdas resolved it from the dependencies layer that cost 508 ms of cold start against 8 ms for one module (KOE-6). Bundling (KOE-1330) now tree-shakes it away for the lambdas, but the module path stays the convention -- the frontend build has not been measured."
                   }
                 },
                 "patterns": [
                   {
-                    "group": ["**/lambda/**"],
-                    "message": "Shared code must not import from src/lambda. Move the shared code to src/lib or src/types instead; see src/lib/README.md."
+                    "group": [
+                      "**/lambda/**"
+                    ],
+                    "message": "Frontend and shared code must not import from src/lambda. Move the shared code to src/lib or src/types instead; see src/lib/README.md."
+                  },
+                  {
+                    "group": [
+                      "@aws-sdk/**"
+                    ],
+                    "message": "Frontend and shared code must not depend on the AWS SDK. Mirror the needed shape in src/types instead (see EmailTemplateContent in src/types/Email.ts)."
+                  },
+                  {
+                    "group": [
+                      "date-fns/**",
+                      "!date-fns/lightFormat",
+                      "!date-fns/isValid",
+                      "!date-fns/isAfter",
+                      "!date-fns/isBefore",
+                      "!date-fns/isEqual",
+                      "!date-fns/isPast",
+                      "!date-fns/isFuture",
+                      "!date-fns/compareAsc",
+                      "!date-fns/compareDesc",
+                      "!date-fns/max",
+                      "!date-fns/min",
+                      "!date-fns/clamp",
+                      "!date-fns/differenceInMilliseconds",
+                      "!date-fns/differenceInSeconds",
+                      "!date-fns/differenceInMinutes",
+                      "!date-fns/differenceInHours",
+                      "!date-fns/addMilliseconds",
+                      "!date-fns/addSeconds",
+                      "!date-fns/addMinutes",
+                      "!date-fns/addHours",
+                      "!date-fns/subMilliseconds",
+                      "!date-fns/subSeconds",
+                      "!date-fns/subMinutes",
+                      "!date-fns/subHours",
+                      "!date-fns/formatDistance",
+                      "!date-fns/formatDistanceStrict",
+                      "!date-fns/formatDistanceToNow",
+                      "!date-fns/formatDistanceToNowStrict",
+                      "!date-fns/formatDuration",
+                      "!date-fns/locale/**"
+                    ],
+                    "message": "A calendar day is a DayKey, and its conversions live in src/lib/day.ts: dayOf, dayStart, dayEnd, addDays, daysBetween, eachDay, shiftDays (KOE-1545). date-fns calendar functions (isSameDay, startOfDay, addDays, nextSaturday, subWeeks, ...) read the day in the machine's zone, and format and parseISO do the same with day tokens and day keys: format a moment with formatDate (src/i18n/dates.ts), read a day key with dayStart after isDayKey. Only instant functions are allowed here (isValid, isAfter, differenceInMinutes, formatDistanceToNowStrict, lightFormat of a build time, ...). A line that must keep a calendar call carries a biome-ignore with the reason and the issue that moves it."
                   }
                 ]
               }
@@ -108,7 +144,9 @@
       }
     },
     {
-      "includes": ["src/lambda/**"],
+      "includes": [
+        "src/lambda/**"
+      ],
       "linter": {
         "rules": {
           "style": {
@@ -117,8 +155,10 @@
               "options": {
                 "paths": {
                   "date-fns": {
-                    "allowImportNames": ["Locale"],
-                    "message": "Import date-fns by module path instead: date-fns/addDays. A bare specifier pulls the whole 245-export index into the module graph; when the lambdas resolved it from the dependencies layer that cost 508 ms of cold start against 8 ms for one module (KOE-6). Bundling (KOE-1330) now tree-shakes it away for the lambdas, but the module path stays the convention -- the frontend build has not been measured."
+                    "allowImportNames": [
+                      "Locale"
+                    ],
+                    "message": "Import date-fns by module path instead: date-fns/parseISO. A bare specifier pulls the whole 245-export index into the module graph; when the lambdas resolved it from the dependencies layer that cost 508 ms of cold start against 8 ms for one module (KOE-6). Bundling (KOE-1330) now tree-shakes it away for the lambdas, but the module path stays the convention -- the frontend build has not been measured."
                   }
                 },
                 "patterns": [
@@ -132,6 +172,42 @@
                       "**/lib/client/**"
                     ],
                     "message": "Lambda code must not import frontend code (src/pages, src/hooks, src/api, src/lib/client)."
+                  },
+                  {
+                    "group": [
+                      "date-fns/**",
+                      "!date-fns/lightFormat",
+                      "!date-fns/isValid",
+                      "!date-fns/isAfter",
+                      "!date-fns/isBefore",
+                      "!date-fns/isEqual",
+                      "!date-fns/isPast",
+                      "!date-fns/isFuture",
+                      "!date-fns/compareAsc",
+                      "!date-fns/compareDesc",
+                      "!date-fns/max",
+                      "!date-fns/min",
+                      "!date-fns/clamp",
+                      "!date-fns/differenceInMilliseconds",
+                      "!date-fns/differenceInSeconds",
+                      "!date-fns/differenceInMinutes",
+                      "!date-fns/differenceInHours",
+                      "!date-fns/addMilliseconds",
+                      "!date-fns/addSeconds",
+                      "!date-fns/addMinutes",
+                      "!date-fns/addHours",
+                      "!date-fns/subMilliseconds",
+                      "!date-fns/subSeconds",
+                      "!date-fns/subMinutes",
+                      "!date-fns/subHours",
+                      "!date-fns/formatDistance",
+                      "!date-fns/formatDistanceStrict",
+                      "!date-fns/formatDistanceToNow",
+                      "!date-fns/formatDistanceToNowStrict",
+                      "!date-fns/formatDuration",
+                      "!date-fns/locale/**"
+                    ],
+                    "message": "A calendar day is a DayKey, and its conversions live in src/lib/day.ts: dayOf, dayStart, dayEnd, addDays, daysBetween, eachDay, shiftDays (KOE-1545). date-fns calendar functions (isSameDay, startOfDay, addDays, nextSaturday, subWeeks, ...) read the day in the machine's zone, and format and parseISO do the same with day tokens and day keys: format a moment with formatDate (src/i18n/dates.ts), read a day key with dayStart after isDayKey. Only instant functions are allowed here (isValid, isAfter, differenceInMinutes, formatDistanceToNowStrict, lightFormat of a build time, ...). A line that must keep a calendar call carries a biome-ignore with the reason and the issue that moves it."
                   }
                 ]
               }
@@ -147,7 +223,123 @@
       }
     },
     {
-      "includes": ["src/lambda/lib/log.ts"],
+      "includes": [
+        "src/lib/day.ts"
+      ],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "paths": {
+                  "date-fns": {
+                    "allowImportNames": [
+                      "Locale"
+                    ],
+                    "message": "Import date-fns by module path instead: date-fns/parseISO. A bare specifier pulls the whole 245-export index into the module graph; when the lambdas resolved it from the dependencies layer that cost 508 ms of cold start against 8 ms for one module (KOE-6). Bundling (KOE-1330) now tree-shakes it away for the lambdas, but the module path stays the convention -- the frontend build has not been measured."
+                  }
+                },
+                "patterns": [
+                  {
+                    "group": [
+                      "**/lambda/**"
+                    ],
+                    "message": "Frontend and shared code must not import from src/lambda. Move the shared code to src/lib or src/types instead; see src/lib/README.md."
+                  },
+                  {
+                    "group": [
+                      "@aws-sdk/**"
+                    ],
+                    "message": "Frontend and shared code must not depend on the AWS SDK. Mirror the needed shape in src/types instead (see EmailTemplateContent in src/types/Email.ts)."
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "includes": [
+        "src/i18n/dates.ts"
+      ],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "paths": {
+                  "date-fns": {
+                    "allowImportNames": [
+                      "Locale"
+                    ],
+                    "message": "Import date-fns by module path instead: date-fns/parseISO. A bare specifier pulls the whole 245-export index into the module graph; when the lambdas resolved it from the dependencies layer that cost 508 ms of cold start against 8 ms for one module (KOE-6). Bundling (KOE-1330) now tree-shakes it away for the lambdas, but the module path stays the convention -- the frontend build has not been measured."
+                  }
+                },
+                "patterns": [
+                  {
+                    "group": [
+                      "**/lambda/**"
+                    ],
+                    "message": "Frontend and shared code must not import from src/lambda. Move the shared code to src/lib or src/types instead; see src/lib/README.md."
+                  },
+                  {
+                    "group": [
+                      "@aws-sdk/**"
+                    ],
+                    "message": "Frontend and shared code must not depend on the AWS SDK. Mirror the needed shape in src/types instead (see EmailTemplateContent in src/types/Email.ts)."
+                  },
+                  {
+                    "group": [
+                      "date-fns/**",
+                      "!date-fns/lightFormat",
+                      "!date-fns/isValid",
+                      "!date-fns/isAfter",
+                      "!date-fns/isBefore",
+                      "!date-fns/isEqual",
+                      "!date-fns/isPast",
+                      "!date-fns/isFuture",
+                      "!date-fns/compareAsc",
+                      "!date-fns/compareDesc",
+                      "!date-fns/max",
+                      "!date-fns/min",
+                      "!date-fns/clamp",
+                      "!date-fns/differenceInMilliseconds",
+                      "!date-fns/differenceInSeconds",
+                      "!date-fns/differenceInMinutes",
+                      "!date-fns/differenceInHours",
+                      "!date-fns/addMilliseconds",
+                      "!date-fns/addSeconds",
+                      "!date-fns/addMinutes",
+                      "!date-fns/addHours",
+                      "!date-fns/subMilliseconds",
+                      "!date-fns/subSeconds",
+                      "!date-fns/subMinutes",
+                      "!date-fns/subHours",
+                      "!date-fns/formatDistance",
+                      "!date-fns/formatDistanceStrict",
+                      "!date-fns/formatDistanceToNow",
+                      "!date-fns/formatDistanceToNowStrict",
+                      "!date-fns/formatDuration",
+                      "!date-fns/locale/**",
+                      "!date-fns/format",
+                      "!date-fns/parseISO"
+                    ],
+                    "message": "A calendar day is a DayKey, and its conversions live in src/lib/day.ts: dayOf, dayStart, dayEnd, addDays, daysBetween, eachDay, shiftDays (KOE-1545). date-fns calendar functions (isSameDay, startOfDay, addDays, nextSaturday, subWeeks, ...) read the day in the machine's zone, and format and parseISO do the same with day tokens and day keys: format a moment with formatDate (src/i18n/dates.ts), read a day key with dayStart after isDayKey. Only instant functions are allowed here (isValid, isAfter, differenceInMinutes, formatDistanceToNowStrict, lightFormat of a build time, ...). A line that must keep a calendar call carries a biome-ignore with the reason and the issue that moves it."
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "includes": [
+        "src/lambda/lib/log.ts"
+      ],
       "linter": {
         "rules": {
           "suspicious": {
@@ -157,7 +349,10 @@
       }
     },
     {
-      "includes": ["**/*.test.ts", "**/*.test.tsx"],
+      "includes": [
+        "**/*.test.ts",
+        "**/*.test.tsx"
+      ],
       "linter": {
         "rules": {
           "style": {

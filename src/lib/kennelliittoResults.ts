@@ -1,5 +1,5 @@
 import type { JsonConfirmedEvent, JsonKcResult, JsonKcState, JsonRegistration, PublicJudge } from '../types'
-import { zonedDateString } from '../i18n/dates'
+import { dayOf, TIME_ZONE } from './day'
 import { hasRetrieveTypeChoice, isMockTrialClass } from './event'
 import { makeArray } from './judge'
 import { getRegistrationGroupDay, getRegistrationPlacement } from './registration'
@@ -326,7 +326,7 @@ export const finnishDay = (day: string): string => {
 }
 
 /** Results can be written on the trial day or later (Juha): the dog's day must have begun in Finland. */
-export const isKcDayReached = (day: string, now: Date): boolean => day <= zonedDateString(now)
+export const isKcDayReached = (day: string, now: Date): boolean => day <= dayOf(now, TIME_ZONE)
 
 /* What the secretary's page and the endpoint say to each other (KOE-1140). */
 

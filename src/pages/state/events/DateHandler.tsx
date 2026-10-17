@@ -1,27 +1,29 @@
-import { addDays } from 'date-fns'
 import { useAtomValue } from 'jotai'
 import { useCallback, useEffect, useState } from 'react'
-import { zonedStartOfDay } from '@/i18n/dates'
 import { reportError } from '@/lib/client/error'
+import { addDays, dayOf, dayStart, TIME_ZONE } from '@/lib/day'
 import { eventFilterAtom, eventMetadataAtom } from './atoms'
 import { RANGE_INCREMENTAL_THROTTLE, useFetchEvents } from './hooks'
 
 const isEventMetadataStale = (lastSyncAt: number | undefined, now = Date.now()) =>
   !lastSyncAt || now - lastSyncAt >= RANGE_INCREMENTAL_THROTTLE
 
+/** The Finnish midnight that began the day `now` falls on. */
+const startOfToday = (now: Date) => dayStart(dayOf(now, TIME_ZONE), TIME_ZONE)
+
 function useCurrentZonedStartOfDay() {
-  const [today, setToday] = useState(() => zonedStartOfDay(new Date()))
+  const [today, setToday] = useState(() => startOfToday(new Date()))
 
   useEffect(() => {
     let timeout: ReturnType<typeof setTimeout>
 
     const scheduleNextDay = () => {
       const now = new Date()
-      const nextDay = zonedStartOfDay(addDays(now, 1))
+      const nextDay = dayStart(addDays(dayOf(now, TIME_ZONE), 1), TIME_ZONE)
       const delay = Math.max(1000, nextDay.getTime() - now.getTime() + 1000)
 
       timeout = setTimeout(() => {
-        setToday(zonedStartOfDay(new Date()))
+        setToday(startOfToday(new Date()))
         scheduleNextDay()
       }, delay)
     }

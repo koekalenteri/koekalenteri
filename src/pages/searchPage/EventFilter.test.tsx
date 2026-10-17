@@ -10,7 +10,8 @@ import { subMonths } from 'date-fns'
 import { useState } from 'react'
 import theme from '../../assets/Theme'
 import { locales } from '../../i18n'
-import { TIME_ZONE, zonedEndOfDay, zonedStartOfDay } from '../../i18n/dates'
+import { TIME_ZONE } from '../../lib/day'
+import { endOfFinnishDay, startOfFinnishDay } from '../../test-utils/finnishDays'
 import { describeInTimeZone } from '../../test-utils/timeZone'
 import { createMatchMedia, flushPromises, renderWithUserEvents, typeDateKeyByKey } from '../../test-utils/utils'
 import { EventFilter } from './EventFilter'
@@ -171,7 +172,7 @@ describe('EventFilter', () => {
 
   it('widens the range backwards when the results switch is turned on', async () => {
     const changeHandler = vi.fn()
-    const start = zonedStartOfDay(new Date())
+    const start = startOfFinnishDay(new Date())
     const { user } = renderComponent(
       { end: null, eventClass: [], eventType: [], judge: [], organizer: [], start },
       changeHandler
@@ -188,7 +189,7 @@ describe('EventFilter', () => {
 
   it('leaves a range the user already widened alone', async () => {
     const changeHandler = vi.fn()
-    const start = zonedStartOfDay(subMonths(new Date(), 1))
+    const start = startOfFinnishDay(subMonths(new Date(), 1))
     const { user } = renderComponent(
       { end: null, eventClass: [], eventType: [], judge: [], organizer: [], start },
       changeHandler
@@ -244,7 +245,7 @@ describe('EventFilter', () => {
       await typeDateKeyByKey(user, screen.getByRole('group', { name: 'daterangeEnd' }), '31102026')
 
       expect(changeHandler).toHaveBeenLastCalledWith(
-        expect.objectContaining({ end: zonedEndOfDay(lastDayOfOctober), start: zonedStartOfDay(lastDayOfOctober) })
+        expect.objectContaining({ end: endOfFinnishDay(lastDayOfOctober), start: startOfFinnishDay(lastDayOfOctober) })
       )
     })
 

@@ -29,8 +29,8 @@ import type {
 } from '../types'
 import type { AuditActor } from './audit'
 import { nanoid } from 'nanoid'
-import { zonedDateString } from '../i18n/dates'
 import { emptyBreeder, emptyDog, emptyPerson } from './data'
+import { dayOf, TIME_ZONE } from './day'
 import {
   eventRegistrationDateKey,
   hasSharedReserveList,
@@ -535,7 +535,7 @@ const groupInstant = (date: GroupDate | undefined): Date | undefined => {
 /** The trial's calendar day of a group's date, or '' when it has none (or none that reads as a date). */
 export const getRegistrationGroupDay = (date: GroupDate | undefined): string => {
   const instant = groupInstant(date)
-  return instant ? zonedDateString(instant) : ''
+  return instant ? dayOf(instant, TIME_ZONE) : ''
 }
 
 /**

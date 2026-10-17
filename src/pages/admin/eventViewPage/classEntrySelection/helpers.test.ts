@@ -5,6 +5,7 @@ import { registrationWithStaticDates } from '@/__mockData__/registrations'
 import { eventRegistrationDateKey } from '@/lib/event'
 import { GROUP_KEY_CANCELLED, GROUP_KEY_RESERVE } from '@/lib/registration'
 import { applyRegistrationGroupMoves } from '@/lib/registrationGroups'
+import { finnishDayOf } from '@/test-utils/finnishDays'
 import {
   buildDrawnNumberOptions,
   buildMoveToGroupChange,
@@ -398,12 +399,12 @@ describe('helpers', () => {
 
       it('includes the day once a dog holds an entered number, ignoring cancelled dogs', () => {
         const days = getDrawnNumberDays([dog('a', 1, 3), dog('b', 2, 9, { cancelled: true })])
-        expect(days).toEqual(new Set([day.toDateString()]))
+        expect(days).toEqual(new Set([finnishDayOf(day)]))
       })
     })
 
     describe('isDrawnNumberMove', () => {
-      const drawnDays = new Set([day.toDateString()])
+      const drawnDays = new Set([finnishDayOf(day)])
 
       it('applies to a participant on a drawn day', () => {
         expect(isDrawnNumberMove(dog('a', 1), drawnDays)).toBe(true)
@@ -449,7 +450,7 @@ describe('helpers', () => {
     })
 
     describe('buildMoveToPositionDays', () => {
-      const drawnDays = new Set([day.toDateString()])
+      const drawnDays = new Set([finnishDayOf(day)])
       const otherDay = parseISO('2023-01-02T12:00:00Z')
       const groups: RegistrationGroup[] = [
         { date: day, key: groupKey, number: 1, time: 'ap' },

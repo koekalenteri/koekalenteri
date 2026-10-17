@@ -16,9 +16,8 @@ import type {
   ResultsPublishedState,
 } from '../../types'
 import { randomUUID } from 'node:crypto'
-import { addDays } from 'date-fns/addDays'
-import { zonedStartOfDay } from '../../i18n/dates'
 import { auditUser, groupChangeAudit } from '../../lib/audit'
+import { addDays, dayOf, dayStart, TIME_ZONE } from '../../lib/day'
 import { isResultsPublishedClassMap, withResultsDay } from '../../lib/event'
 import { KC_STATE_HANDED_OVER } from '../../lib/kennelliittoResults'
 import { getResultsBlocker, isResultsPublishedState } from '../../lib/publishing'
@@ -124,8 +123,9 @@ export const findQualificationStartDate = async (
   })
 
   if (result?.length === 1 && result[0]?.entryEndDate) {
+    // The Finnish day after the previous trial's entry closed, from its start.
     const date = new Date(result[0].entryOrigEndDate ?? result[0].entryEndDate)
-    const qualificationStartDate = zonedStartOfDay(addDays(date, 1))
+    const qualificationStartDate = dayStart(addDays(dayOf(date, TIME_ZONE), 1), TIME_ZONE)
     return qualificationStartDate.toISOString()
   }
 }

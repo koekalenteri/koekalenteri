@@ -7,7 +7,7 @@ import { screen } from '@testing-library/react'
 import { parseISO } from 'date-fns'
 import { useState } from 'react'
 import { locales } from '../../i18n'
-import { TIME_ZONE } from '../../i18n/dates'
+import { TIME_ZONE } from '../../lib/day'
 import { describeInTimeZone } from '../../test-utils/timeZone'
 import { flushPromises, renderWithUserEvents, typeDateKeyByKey } from '../../test-utils/utils'
 import DateRange from './DateRange'
@@ -68,8 +68,8 @@ describe('DateRange', () => {
   describe.each([TIME_ZONE, 'America/New_York', 'Asia/Tokyo'])('interactions in %s', (zone) => {
     describeInTimeZone(zone, () => {
       /**
-       * A moment of a Finnish October 2026 day, as the callers' bounds are (zonedStartOfDay,
-       * zonedEndOfDay), as a plain Date: a TZDate would become the picker's reference and carry its
+       * A moment of a Finnish October 2026 day, as the callers' bounds are (startOfFinnishDay,
+       * endOfFinnishDay), as a plain Date: a TZDate would become the picker's reference and carry its
        * zone into the typed value.
        */
       const finnish = (day: number, hours = 0, minutes = 0, seconds = 0) =>
@@ -314,7 +314,7 @@ describe('DateRange', () => {
       )
 
       it('refuses a start typed on the Finnish day before the range starts (KOE-1538)', async () => {
-        // A regression guard: EntrySection's range starts at zonedStartOfDay(createdAt), 16.10. 00:00 in
+        // A regression guard: EntrySection's range starts at startOfFinnishDay(createdAt), 16.10. 00:00 in
         // Finland, which is 15.10. 17:00 in New York, the same local day as the 15.10. typed there. The
         // instant comparison refused this too; no zone's midnight is a later Finnish day than the one typed.
         const { changeHandler } = await typeInto('start', '15102026', {

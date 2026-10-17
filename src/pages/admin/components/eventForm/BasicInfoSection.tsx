@@ -1,6 +1,7 @@
 import type { ChangeEvent, SyntheticEvent } from 'react'
 import type { DateValue } from '@/pages/components/DateRange'
 import type {
+  DayKey,
   DeepPartial,
   DogEvent,
   EventClass,
@@ -13,7 +14,6 @@ import type {
   User,
 } from '@/types'
 import type { BasicInfoEvent, PartialEvent, SectionProps } from './types'
-import { tz } from '@date-fns/tz'
 import Checkbox from '@mui/material/Checkbox'
 import FormControl from '@mui/material/FormControl'
 import FormControlLabel from '@mui/material/FormControlLabel'
@@ -22,11 +22,10 @@ import Grid from '@mui/material/Grid'
 import Radio from '@mui/material/Radio'
 import RadioGroup from '@mui/material/RadioGroup'
 import TextField from '@mui/material/TextField'
-import { add, differenceInDays, eachDayOfInterval, isAfter, isSameDay } from 'date-fns'
 import { memo, useCallback, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useLocalState } from '@/hooks/useLocalState'
-import { TIME_ZONE, zonedEndOfDay, zonedStartOfDay } from '@/i18n/dates'
+import { addDays, dayEnd, dayOf, dayStart, daysBetween, eachDay, TIME_ZONE } from '@/lib/day'
 import {
   applySingleDayNowtGroups,
   defaultEntryEndDate,
@@ -58,9 +57,6 @@ export interface Props extends Readonly<Omit<SectionProps, 'event'>> {
 
 /** A stable default for `useLocalState`, so its initial-value effect does not fire on every render. */
 const EMPTY_TRANSLATIONS: Partial<Record<Language, string>> = {}
-
-/** The event's days are Finnish days: counted and moved so, whatever zone the browser is in (KOE-1539). */
-const inFinland = { in: tz(TIME_ZONE) }
 
 const RETRIEVE_TYPES: RetrieveType[] = ['game', 'dummies']
 
@@ -130,30 +126,37 @@ function BasicInfoSection({
   const hasEntries = (event.entries ?? 0) > 0
   const handleDateChange = useCallback(
     (start: DateValue, end: DateValue) => {
-      start = zonedStartOfDay(start ?? event.startDate)
-      end = zonedEndOfDay(end ?? event.endDate)
+      // The event's days are Finnish days: counted and moved so, whatever zone the browser is in (KOE-1539).
+      const eventStartDay = dayOf(event.startDate, TIME_ZONE)
+      const eventEndDay = dayOf(event.endDate, TIME_ZONE)
+      const startDay = dayOf(start ?? event.startDate, TIME_ZONE)
+      let endDay = dayOf(end ?? event.endDate, TIME_ZONE)
+      const startDate = dayStart(startDay, TIME_ZONE)
+      // A picked end is stored as the end of its day; an end that follows a moved start as the start of
+      // its day, as it has been. The time of day settles when the dates become days (KOE-1544).
+      let endDate = dayEnd(endDay, TIME_ZONE)
 
       let { entryEndDate, entryStartDate } = event
 
-      // start and end are Finnish dates (zoned* above), and isSameDay compares in the zone of its first argument
-      if (!isSameDay(start, event.startDate)) {
-        if (isSameDay(end, event.endDate)) {
-          // startDate changed and endDate remained the same => change endDate based on the previous distance between days
-          end = add(start, { days: differenceInDays(event.endDate, event.startDate, inFinland) }, inFinland)
+      if (startDay !== eventStartDay) {
+        if (endDay === eventEndDay) {
+          // startDate changed and endDate remained the same => keep the distance between the days
+          endDay = addDays(startDay, daysBetween(eventStartDay, eventEndDay))
+          endDate = dayStart(endDay, TIME_ZONE)
         }
         if (isDetaultEntryStartDate(entryStartDate, event.startDate)) {
-          entryStartDate = defaultEntryStartDate(start)
+          entryStartDate = defaultEntryStartDate(startDate)
         }
         if (isDetaultEntryEndDate(entryEndDate, event.startDate)) {
-          entryEndDate = defaultEntryEndDate(start)
+          entryEndDate = defaultEntryEndDate(startDate)
         }
       }
       onChange?.({
-        classes: updateClassDates(event, start, end),
-        endDate: end,
+        classes: updateClassDates(event, startDay, endDay),
+        endDate,
         entryEndDate,
         entryStartDate,
-        startDate: start,
+        startDate,
       })
     },
     [event, onChange]
@@ -420,33 +423,35 @@ function BasicInfoSection({
 export default memo(BasicInfoSection)
 
 function eventClassOptions(event: PartialEvent | undefined, typeClasses: RegistrationClass[]) {
-  if (!event?.startDate || !event?.endDate || isAfter(event.startDate, event.endDate)) {
+  if (!event?.startDate || !event?.endDate) {
     return []
   }
-  const days = eachDayOfInterval({
-    end: event.endDate,
-    start: event.startDate,
-  })
+  const startDay = dayOf(event.startDate, TIME_ZONE)
+  const endDay = dayOf(event.endDate, TIME_ZONE)
+  if (startDay > endDay) {
+    return []
+  }
   const result: EventClass[] = []
-  for (const day of days) {
+  for (const day of eachDay(startDay, endDay)) {
+    const date = dayStart(day, TIME_ZONE)
     result.push(
       ...typeClasses.map((c) => ({
         class: c,
-        date: day,
+        date,
       }))
     )
   }
   return result
 }
 
-function updateClassDates(event: PartialEvent, start: Date, end: Date) {
+/** The classes moved along with the start, each the same number of days from it; a class past the end is dropped. */
+function updateClassDates(event: PartialEvent, startDay: DayKey, endDay: DayKey) {
+  const eventStartDay = dayOf(event.startDate, TIME_ZONE)
   const result: EventClass[] = []
   for (const c of event.classes) {
-    const date = zonedStartOfDay(
-      add(start, { days: differenceInDays(c.date ?? event.startDate, event.startDate, inFinland) }, inFinland)
-    )
-    if (!isAfter(date, end)) {
-      result.push({ ...c, date })
+    const day = addDays(startDay, daysBetween(eventStartDay, dayOf(c.date ?? event.startDate, TIME_ZONE)))
+    if (day <= endDay) {
+      result.push({ ...c, date: dayStart(day, TIME_ZONE) })
     }
   }
   return result

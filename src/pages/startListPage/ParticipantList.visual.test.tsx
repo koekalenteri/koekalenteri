@@ -4,7 +4,7 @@ import { ThemeProvider } from '@mui/material/styles'
 import { parseISO } from 'date-fns'
 import { render } from 'vitest-browser-react'
 import theme from '../../assets/Theme'
-import { zonedStartOfDay } from '../../i18n/dates'
+import { startOfFinnishDay } from '../../test-utils/finnishDays'
 import { ParticipantList } from './ParticipantList'
 
 /** Wrapper the screenshot is taken of: a fixed width and an opaque background keep captures stable. */
@@ -14,7 +14,7 @@ const Frame = ({ children }: { readonly children: React.ReactNode }) => (
   </div>
 )
 
-const EVENT_DAY = zonedStartOfDay(parseISO('2026-10-02T12:00:00Z'))
+const EVENT_DAY = startOfFinnishDay(parseISO('2026-10-02T12:00:00Z'))
 
 // A NOU: no classes, so the withheld-numbers note hangs off the date header (KOE-1006 feedback).
 const event: PublicConfirmedEvent = {

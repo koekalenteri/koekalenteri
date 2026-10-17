@@ -1,9 +1,9 @@
 import type { AuditMessage } from '../../lib/audit'
 import type { StartNumbersTime } from '../../lib/event'
 import type { JsonConfirmedEvent, JsonRegistration, Patch, RegistrationClass, StartNumbersDayScope } from '../../types'
-import { formatDate } from '../../i18n/dates'
 import { startNumberPublishedAudit, startNumberReleasedAudit, startNumberSavedAudit } from '../../lib/audit'
 import {
+  eventDayKey,
   foldDayScope,
   getClassDays,
   getStartNumbersDayScope,
@@ -43,7 +43,7 @@ export const parseStartNumberEntries = (numbers: unknown): StartNumberEntry[] =>
 /** ` (ALO)` after a message about one class, nothing after one about the whole event. */
 const classSuffix = (eventClass?: RegistrationClass) => (eventClass ? ` (${eventClass})` : '')
 
-const placementDay = (date: string | Date) => formatDate(date, 'yyyy-MM-dd')
+const placementDay = eventDayKey
 
 const inScope = (
   registration: JsonRegistration,

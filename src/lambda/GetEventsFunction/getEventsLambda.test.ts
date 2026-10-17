@@ -113,7 +113,7 @@ describe('getEventsLambda', () => {
       table: expect.anything(),
       values: {
         ':draft': 'draft',
-        ':endDate': '2027-12-31T23:59:59.999+02:00',
+        ':endDate': '2027-12-31T21:59:59.999Z',
         ':season': '2026',
       },
     })
@@ -168,7 +168,7 @@ describe('getEventsLambda', () => {
       table: expect.anything(),
       values: {
         ':draft': 'draft',
-        ':endDate': '2027-12-31T23:59:59.999+02:00',
+        ':endDate': '2027-12-31T21:59:59.999Z',
         ':season': '2026',
       },
     })
@@ -180,7 +180,7 @@ describe('getEventsLambda', () => {
       table: expect.anything(),
       values: {
         ':draft': 'draft',
-        ':endDate': '2027-12-31T23:59:59.999+02:00',
+        ':endDate': '2027-12-31T21:59:59.999Z',
         ':season': '2027',
       },
     })
@@ -523,7 +523,7 @@ describe('getEventsLambda', () => {
       table: expect.anything(),
       values: {
         ':draft': 'draft',
-        ':endDate': '2027-12-31T23:59:59.999+02:00',
+        ':endDate': '2027-12-31T21:59:59.999Z',
         ':season': '2026',
       },
     })
@@ -535,7 +535,7 @@ describe('getEventsLambda', () => {
       table: expect.anything(),
       values: {
         ':draft': 'draft',
-        ':endDate': '2027-12-31T23:59:59.999+02:00',
+        ':endDate': '2027-12-31T21:59:59.999Z',
         ':season': '2027',
       },
     })
@@ -565,7 +565,7 @@ describe('getEventsLambda', () => {
       table: expect.anything(),
       values: {
         ':draft': 'draft',
-        ':endDate': '2028-12-31T23:59:59.999+02:00',
+        ':endDate': '2028-12-31T21:59:59.999Z',
         ':season': '2027',
       },
     })
@@ -577,7 +577,7 @@ describe('getEventsLambda', () => {
       table: expect.anything(),
       values: {
         ':draft': 'draft',
-        ':endDate': '2028-12-31T23:59:59.999+02:00',
+        ':endDate': '2028-12-31T21:59:59.999Z',
         ':season': '2028',
       },
     })

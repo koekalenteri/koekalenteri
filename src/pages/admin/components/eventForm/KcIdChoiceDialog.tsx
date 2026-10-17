@@ -11,7 +11,7 @@ import TableHead from '@mui/material/TableHead'
 import TableRow from '@mui/material/TableRow'
 import Typography from '@mui/material/Typography'
 import { useTranslation } from 'react-i18next'
-import { zonedDateString } from '@/i18n/dates'
+import { dayOf, TIME_ZONE } from '@/lib/day'
 
 /** Text for screen readers only: the column of buttons has a name, and none to look at. */
 const VISUALLY_HIDDEN = {
@@ -112,8 +112,8 @@ function ChoiceAction({ choice, linkedKcGuids, onSelect }: ActionProps) {
 }
 
 function formatDateSpan(choice: EventKcIdChoice) {
-  const startDate = zonedDateString(choice.startDate)
-  const endDate = zonedDateString(choice.endDate)
+  const startDate = dayOf(choice.startDate, TIME_ZONE)
+  const endDate = dayOf(choice.endDate, TIME_ZONE)
 
   return startDate === endDate ? startDate : `${startDate} - ${endDate}`
 }

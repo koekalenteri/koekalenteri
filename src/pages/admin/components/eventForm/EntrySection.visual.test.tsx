@@ -6,7 +6,7 @@ import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
 import { render } from 'vitest-browser-react'
 import theme from '@/assets/Theme'
 import { locales } from '@/i18n'
-import { TIME_ZONE } from '@/i18n/dates'
+import { TIME_ZONE } from '@/lib/day'
 import EntrySection from './EntrySection'
 
 /** Wrapper the screenshot is taken of: a fixed width and an opaque background keep captures stable. */

@@ -8,9 +8,9 @@ import Avatar from '@mui/material/Avatar'
 import Checkbox from '@mui/material/Checkbox'
 import Chip from '@mui/material/Chip'
 import TextField from '@mui/material/TextField'
-import { isSameDay } from 'date-fns'
 import { useCallback, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
+import { dayOf, TIME_ZONE } from '@/lib/day'
 
 interface Props {
   readonly id: string
@@ -32,8 +32,11 @@ interface Props {
   ) => void
 }
 
+/** Whether two class dates fall on the same Finnish day; a class with no date is read as today. */
+const sameDay = (a?: Date, b?: Date) => dayOf(a ?? new Date(), TIME_ZONE) === dayOf(b ?? new Date(), TIME_ZONE)
+
 export const compareEventClass = (a: DeepPartial<EventClass>, b: DeepPartial<EventClass>) =>
-  isSameDay(a.date ?? new Date(), b.date ?? new Date())
+  sameDay(a.date, b.date)
     ? (a.class?.localeCompare(b.class ?? '') ?? 0)
     : (a.date?.valueOf() ?? 0) - (b.date?.valueOf() ?? 0)
 
@@ -65,7 +68,7 @@ export default function EventClasses(props: Props) {
     (a: DeepPartial<EventClass>, b: DeepPartial<EventClass>) => compareEventClass(a, b) === 0,
     []
   )
-  const groupBy = !isSameDay(eventStartDate, eventEndDate)
+  const groupBy = !sameDay(eventStartDate, eventEndDate)
   const hasJudge = useCallback(
     (option: DeepPartial<EventClass>) => (Array.isArray(option.judge) ? option.judge.length : option.judge?.id),
     []
@@ -110,7 +113,7 @@ export default function EventClasses(props: Props) {
                 groupBy ? (
                   <Avatar
                     sx={{
-                      bgcolor: isSameDay(option.date || eventStartDate, eventStartDate)
+                      bgcolor: sameDay(option.date || eventStartDate, eventStartDate)
                         ? 'secondary.light'
                         : 'secondary.dark',
                       fontWeight: 'bold',

@@ -10,8 +10,10 @@ import type {
   JsonRegistration,
   JsonRegistrationGroup,
 } from '../types'
-import { format } from 'date-fns/format'
-import { formatDate, zonedParseDate } from '../i18n/dates'
+import { formatDate } from '../i18n/dates'
+import { isDayKey, toDayKey } from '../types'
+import { dayStart, TIME_ZONE } from './day'
+import { eventDayKey } from './event'
 import {
   GROUP_KEY_CANCELLED,
   GROUP_KEY_RESERVE,
@@ -19,7 +21,6 @@ import {
   isPredefinedReason,
   isRegistrationClass,
 } from './registration'
-import { isDateOnlyString } from './utils'
 
 /**
  * Whom an audit row is attributed to. An authenticated user has no `source`; a name taken from the
@@ -79,12 +80,9 @@ type DayParamPart = 'Date' | 'Time' | 'TimeKey'
 const dayParamName = (prefix: DayParamPrefix, part: DayParamPart) =>
   prefix ? `${prefix}${part}` : `${part.charAt(0).toLowerCase()}${part.slice(1)}`
 
-/** A bare yyyy-MM-dd is a day in Finnish time; anything else is an instant already. */
-const toDay = (date: string | Date) => (isDateOnlyString(date) ? zonedParseDate(date) : date)
-
 /** A day and a time as parameters: the day as yyyy-MM-dd in Finnish time, the time by its `audit.time.*` key. */
 const dayParams = (prefix: DayParamPrefix, date?: string | Date, time?: string): AuditMessageParams => ({
-  ...(date ? { [dayParamName(prefix, 'Date')]: formatDate(toDay(date), 'yyyy-MM-dd') } : {}),
+  ...(date ? { [dayParamName(prefix, 'Date')]: eventDayKey(date) } : {}),
   ...(time ? { [dayParamName(prefix, 'TimeKey')]: `audit.time.${time}` } : {}),
 })
 
@@ -388,19 +386,25 @@ const isRevivedDay = (value: Date) =>
   value.getHours() === 12 && value.getMinutes() === 0 && value.getSeconds() === 0 && value.getMilliseconds() === 0
 
 /**
+ * The day a revived Date stands for: the reviver built it from the day's parts in the host's zone, so
+ * the parts are read back in the same zone. The one place a Date's own getters name a day.
+ */
+const revivedDayKey = (value: Date) => toDayKey(value.getFullYear(), value.getMonth() + 1, value.getDate())
+
+/**
  * A day parameter (`date`, `fromDate`, `toDate`) as a Date to format in Finnish time. `dayParams`
  * writes these only as yyyy-MM-dd, which arrives as that string over the WebSocket and as local noon
  * through the API; both are read as that day in Finnish time, so a reader west of UTC-10 sees the
  * same day. Only for these: an instant elsewhere is formatted as the instant it is.
  */
 const auditDay = (value: unknown): Date | undefined => {
-  if (value instanceof Date) return zonedParseDate(format(value, 'yyyy-MM-dd'))
-  return isDateOnlyString(value) ? zonedParseDate(value) : undefined
+  if (value instanceof Date) return dayStart(revivedDayKey(value), TIME_ZONE)
+  return isDayKey(value) ? dayStart(value, TIME_ZONE) : undefined
 }
 
 /** Text a parameter can stand for. A free text that happened to look like a date was revived too. */
 const paramText = (value: unknown) => {
-  if (value instanceof Date) return isRevivedDay(value) ? format(value, 'yyyy-MM-dd') : value.toISOString()
+  if (value instanceof Date) return isRevivedDay(value) ? revivedDayKey(value) : value.toISOString()
   return typeof value === 'string' || typeof value === 'number' ? String(value) : ''
 }
 

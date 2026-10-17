@@ -1,4 +1,6 @@
-import type { JsonValue, Patch, PublicContactInfo } from '../types'
+import type { DayKey, JsonValue, Patch, PublicContactInfo } from '../types'
+import { isDayKey } from '../types'
+import { dayParts } from './day'
 import { getNestedChanges, objectsDiffer } from './diff'
 
 export const unique = <T = string>(arr: T[]): T[] => arr.filter((c, i, a) => a.indexOf(c) === i)
@@ -8,28 +10,29 @@ export const uniqueFn = <T>(arr: T[], cmp: (a: T, b: T) => boolean): T[] =>
 
 export const uniqueDate = (arr: Date[]) => [...new Set<number>(arr.map((d) => d.valueOf()))].map((v) => new Date(v))
 
-const DATE_ONLY_RE = /^\d{4}-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2]\d|3[01])$/
-const DATE_RE = /^\d{4}-(?:0[1-9]|1[0-2])-(?:[0-2][1-9]|[1-3]0|3[01])$/
 const TIME_RE = /^(?:[0-1]\d|2[0-3])(?::[0-6]\d)(?::[0-6]\d)?(?:\.\d{3})?(?:[+-][0-2]\d:[0-5]\d|Z)?$/
 
-export const isDateOnlyString = (value: unknown): value is string =>
-  typeof value === 'string' && DATE_ONLY_RE.test(value)
-
+/** Whether `value` is an ISO instant: a day key, a `T` and a time. */
 export const isDateString = (value: unknown): value is string => {
   if (typeof value !== 'string') {
     return false
   }
   const [date, time] = value.split('T')
-  return DATE_RE.test(date) && TIME_RE.test(time)
+  return isDayKey(date) && TIME_RE.test(time)
 }
 
-export const parseDateOnlyString = (value: string): Date => {
-  const [year, month, day] = value.split('-').map(Number)
+/**
+ * The reviver's reading of a bare day: the host's local noon of it, a Date that `isRevivedDay`
+ * (lib/audit.ts) tells from an instant by its 12:00. Stays until the reviver leaves bare days as
+ * `DayKey`s (KOE-1544).
+ */
+export const parseDateOnlyString = (value: DayKey): Date => {
+  const { year, month, day } = dayParts(value)
   return new Date(year, month - 1, day, 12)
 }
 
 function dateReviver(_key: string, value: JsonValue): JsonValue | Date {
-  if (isDateOnlyString(value)) {
+  if (isDayKey(value)) {
     return parseDateOnlyString(value)
   }
   if (isDateString(value)) {

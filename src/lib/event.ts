@@ -3,6 +3,7 @@ import type {
   ClassOrNone,
   ConfirmedEvent,
   ConfirmedEventStates,
+  DayKey,
   DeepPartial,
   DogEvent,
   EventClass,
@@ -23,27 +24,42 @@ import type {
   SanitizedPublicDogEvent,
   StartNumbersDayScope,
 } from '../types'
-import { tz } from '@date-fns/tz'
-import { addDays } from 'date-fns/addDays'
-import { differenceInDays } from 'date-fns/differenceInDays'
-import { eachDayOfInterval } from 'date-fns/eachDayOfInterval'
-import { isSameDay } from 'date-fns/isSameDay'
 import { isValid } from 'date-fns/isValid'
-import { nextSaturday } from 'date-fns/nextSaturday'
-import { parseISO } from 'date-fns/parseISO'
-import { sub } from 'date-fns/sub'
-import { subDays } from 'date-fns/subDays'
-import { formatDate, TIME_ZONE, zonedDateString, zonedEndOfDay, zonedParseDate, zonedStartOfDay } from '../i18n/dates'
-import { LANGUAGES } from '../types'
+import { isDayKey, LANGUAGES } from '../types'
+import { addDays, dayOf, dayOfWeek, dayStart, daysBetween, eachDay, TIME_ZONE } from './day'
 import { isLiveNow, isStoredStationTurn, toPublicStationTurn } from './stationTurns'
 import { isConfirmedEvent } from './typeGuards'
-import { isDateOnlyString, isObject, unique, uniqueDate } from './utils'
+import { isObject, unique, uniqueDate } from './utils'
 
 type EventVitals = Partial<
   Pick<PublicDogEvent | JsonPublicDogEvent, 'startDate' | 'endDate' | 'entryStartDate' | 'entryEndDate' | 'state'>
 >
 
 export const isValidForEntry = (state?: EventState) => !['draft', 'tentative', 'cancelled'].includes(state ?? '')
+
+/**
+ * The Finnish day of a stored date. A day key passes through unchanged: parsed, it would be read as
+ * midnight where the browser is, which east of Finland falls on the day before (KOE-1510). An instant,
+ * as a Date or the ISO string the stored form is, is read in the trial's zone. The one bridge for the
+ * `Date | string` fields until they are typed as days (KOE-1544).
+ */
+export const eventDayKey = (date: Date | string): DayKey =>
+  isDayKey(date) ? date : dayOf(typeof date === 'string' ? new Date(date) : date, TIME_ZONE)
+
+/**
+ * Whether a stored date passes `test` as its Finnish day. A date that reads as neither a day nor an
+ * instant has no day and passes nothing: the vitals read rows as they are, and a bad date must not
+ * turn a listing into a 500.
+ */
+const dayPasses = (date: Date | string | undefined, test: (day: DayKey) => boolean): boolean => {
+  if (!date) return false
+  if (isDayKey(date)) return test(date)
+  const instant = typeof date === 'string' ? new Date(date) : date
+  return !Number.isNaN(instant.getTime()) && test(dayOf(instant, TIME_ZONE))
+}
+
+/** The Finnish day `now` falls on: what every "has it started yet" question compares against. */
+const today = (now: Date) => dayOf(now, TIME_ZONE)
 
 type EventDateSortKey = { id: string; startDate?: Date | string; endDate?: Date | string }
 
@@ -101,37 +117,36 @@ export const linkedEventSubtitle = (
 export const isEntryUpcoming = ({ entryStartDate, state }: EventVitals, now = new Date()) =>
   !!entryStartDate && entryStartDate > now && (isValidForEntry(state) || state === 'tentative')
 
+// The vitals compare Finnish days: a day has started once today is it or later, and is over once
+// today is after it, whatever the hour and wherever the browser is.
+
 export const hasEntryStarted = ({ entryStartDate }: EventVitals, now = new Date()) =>
-  !!entryStartDate && zonedStartOfDay(entryStartDate) <= now
+  dayPasses(entryStartDate, (day) => day <= today(now))
 
 export const hasEntryEnded = ({ entryEndDate }: EventVitals, now = new Date()) =>
-  !!entryEndDate && zonedEndOfDay(entryEndDate) < now
+  dayPasses(entryEndDate, (day) => day < today(now))
 
 export const isEntryOpen = ({ entryStartDate, entryEndDate, state }: EventVitals, now = new Date()) =>
-  !!entryStartDate &&
-  !!entryEndDate &&
-  zonedStartOfDay(entryStartDate) <= zonedEndOfDay(now) &&
-  zonedEndOfDay(entryEndDate) >= zonedEndOfDay(now) &&
+  dayPasses(entryStartDate, (day) => day <= today(now)) &&
+  dayPasses(entryEndDate, (day) => day >= today(now)) &&
   isValidForEntry(state)
 
+/** The entry is in its last week: the seventh Finnish day before the closing day has begun. */
 export const isEntryClosing = (event: EventVitals, now = new Date()) =>
-  !!event.entryEndDate &&
   isEntryOpen(event, now) &&
-  subDays(event.entryEndDate, 7) <= zonedEndOfDay(now) &&
+  dayPasses(event.entryEndDate, (day) => addDays(day, -7) <= today(now)) &&
   isValidForEntry(event.state)
 
 export const isEntryClosed = ({ startDate, entryEndDate }: EventVitals, now = new Date()) =>
-  !!startDate && !!entryEndDate && zonedEndOfDay(entryEndDate) < now && zonedStartOfDay(startDate) > now
+  dayPasses(entryEndDate, (day) => day < today(now)) && dayPasses(startDate, (day) => day > today(now))
 
 export const isEventOngoing = ({ startDate, endDate, state }: EventVitals, now = new Date()) =>
-  !!startDate &&
-  !!endDate &&
-  zonedStartOfDay(startDate) <= zonedEndOfDay(now) &&
-  zonedEndOfDay(endDate) >= zonedEndOfDay(now) &&
+  dayPasses(startDate, (day) => day <= today(now)) &&
+  dayPasses(endDate, (day) => day >= today(now)) &&
   isValidForEntry(state) &&
   state !== 'confirmed'
 
-export const isEventOver = ({ endDate }: EventVitals, now = new Date()) => !!endDate && zonedEndOfDay(endDate) < now
+export const isEventOver = ({ endDate }: EventVitals, now = new Date()) => dayPasses(endDate, (day) => day < today(now))
 
 /**
  * Whether an entry is past changing: the trial's day has gone, or this class has been judged. The
@@ -148,7 +163,7 @@ export const eventDates = (event?: Pick<PublicDogEvent, 'classes' | 'startDate' 
   const classes = Array.isArray(event.classes) ? event.classes : []
   return classes.length
     ? uniqueDate(classes.map((eventClass) => eventClass.date ?? event.startDate))
-    : eachDayOfInterval({ end: event.endDate, start: event.startDate })
+    : eachDay(eventDayKey(event.startDate), eventDayKey(event.endDate)).map((day) => dayStart(day, TIME_ZONE))
 }
 
 /** Only `class` is read, so this accepts both the `Date`- and `string`-dated event shapes. */
@@ -167,8 +182,8 @@ const classAndDayTotals = (
   const placesPerDay = event.placesPerDay
   const dayTotal = placesPerDay
     ? classItems.reduce((total, item) => {
-        const dateStr = item.date ? formatDate(item.date, 'yyyy-MM-dd') : undefined
-        return total + (dateStr ? Number(placesPerDay[dateStr]) || 0 : 0)
+        const day = item.date ? eventDayKey(item.date) : undefined
+        return total + (day ? Number(placesPerDay[day]) || 0 : 0)
       }, 0)
     : 0
 
@@ -227,13 +242,13 @@ export const registrationDatesOutsideClass = <T extends { date: Date | string }>
   const classes = Array.isArray(event.classes) ? event.classes : []
   const classItems = regClass ? classes.filter((item) => item.class === regClass) : classes
   if (classItems.length) {
-    const classDays = new Set(classItems.map((item) => formatDate(item.date ?? event.startDate, 'yyyy-MM-dd')))
-    return dates.filter((rd) => !classDays.has(formatDate(rd.date, 'yyyy-MM-dd')))
+    const classDays = new Set(classItems.map((item) => eventDayKey(item.date ?? event.startDate)))
+    return dates.filter((rd) => !classDays.has(eventDayKey(rd.date)))
   }
-  const firstDay = formatDate(event.startDate, 'yyyy-MM-dd')
-  const lastDay = formatDate(event.endDate, 'yyyy-MM-dd')
+  const firstDay = eventDayKey(event.startDate)
+  const lastDay = eventDayKey(event.endDate)
   return dates.filter((rd) => {
-    const day = formatDate(rd.date, 'yyyy-MM-dd')
+    const day = eventDayKey(rd.date)
     return day < firstDay || day > lastDay
   })
 }
@@ -284,18 +299,39 @@ export const isOfficialEventType = (eventType?: string | null, official?: boolea
 
 const EntryStartWeeks = 6
 const EntryEndWeeks = 3
-const eventSeasonFormatter = new Intl.DateTimeFormat('en', { timeZone: TIME_ZONE, year: 'numeric' })
 
-/** Whole Finnish weeks before the event's start, whatever zone this runs in (KOE-1539). */
+/** The Finnish midnight whole Finnish weeks before the event's start, whatever zone this runs in (KOE-1539). */
 const finnishWeeksBefore = (eventStartDate: Date, weeks: number) =>
-  new Date(sub(eventStartDate, { weeks }, { in: tz(TIME_ZONE) }))
+  dayStart(addDays(dayOf(eventStartDate, TIME_ZONE), -7 * weeks), TIME_ZONE)
 
 export const defaultEntryStartDate = (eventStartDate: Date) => finnishWeeksBefore(eventStartDate, EntryStartWeeks)
 export const defaultEntryEndDate = (eventStartDate: Date) => finnishWeeksBefore(eventStartDate, EntryEndWeeks)
 
-export const newEventStartDate = zonedStartOfDay(nextSaturday(addDays(Date.now(), 90)))
-export const newEventEntryStartDate = defaultEntryStartDate(newEventStartDate)
-export const newEventEntryEndDate = defaultEntryEndDate(newEventStartDate)
+const SATURDAY = 6
+const DAYS_IN_WEEK = 7
+const NEW_EVENT_LEAD_DAYS = 90
+
+/**
+ * The day a new event is offered: the first Saturday after ninety days from `now`, counted in the
+ * trial's zone. Late in the evening west of Finland the browser's own day, and so its weekday, is
+ * already another one, which used to offer a Saturday a week off (KOE-1545).
+ */
+export const newEventStartDay = (now: Date, zone: string): DayKey => {
+  const base = addDays(dayOf(now, zone), NEW_EVENT_LEAD_DAYS)
+  const untilSaturday = (SATURDAY - dayOfWeek(base) + DAYS_IN_WEEK) % DAYS_IN_WEEK || DAYS_IN_WEEK
+  return addDays(base, untilSaturday)
+}
+
+/** The dates a new event starts with: its day, and the default entry period before it. */
+export const newEventDates = (now: Date) => {
+  const startDate = dayStart(newEventStartDay(now, TIME_ZONE), TIME_ZONE)
+  return {
+    endDate: startDate,
+    entryEndDate: defaultEntryEndDate(startDate),
+    entryStartDate: defaultEntryStartDate(startDate),
+    startDate,
+  }
+}
 
 /**
  * The dates the event-wide gates (isStartListAvailable, isStartNumbersAvailable,
@@ -370,8 +406,7 @@ export const canPublishResults = (
 ) => state === 'started' || state === 'ended' || state === 'completed' || hasReachedPhaseByDate(event, 'started', now)
 
 /** Whether the day has begun in the event's zone: before it, none of its dogs has run (KOE-1510). */
-export const hasDayStarted = (day: Date | string, now = new Date()) =>
-  zonedParseDate(startListAvailabilityDateKey(day)) <= now
+export const hasDayStarted = (day: Date | string, now = new Date()) => dayStart(eventDayKey(day), TIME_ZONE) <= now
 
 export const isResultsPublishedClassMap = (
   resultsPublished: JsonDogEvent['resultsPublished']
@@ -424,10 +459,10 @@ const isTodaysResultsPublished = (event: ResultsDaysEvent, now: Date) => {
   const classes = event.classes ?? []
   if (classes.length === 0) return isResultsPublishedForDay(event, undefined, now)
 
-  const today = startListAvailabilityDateKey(now)
+  const today = eventDayKey(now)
   const todays = classes.filter((item) => {
     const date = item.date ?? event.startDate
-    return !!date && startListAvailabilityDateKey(date) === today
+    return !!date && eventDayKey(date) === today
   })
   if (todays.length === 0) return hasAllResultsPublished(event)
   return todays.every((item) => isResultsPublishedForDay(event, item.class, today))
@@ -796,11 +831,9 @@ const findRegistrationClass = (event: AvailabilityEvent, registration: Availabil
   const classes = event.classes ?? []
   if (!registration.class || classes.length === 0) return undefined
 
-  const registrationDate = startListAvailabilityDateKey(registration.group.date ?? event.startDate)
+  const registrationDate = eventDayKey(registration.group.date ?? event.startDate)
   const eventClasses = classes.filter((eventClass) => eventClass.class === registration.class)
-  const onTheDay = eventClasses.find(
-    (item) => startListAvailabilityDateKey(item.date ?? event.startDate) === registrationDate
-  )
+  const onTheDay = eventClasses.find((item) => eventDayKey(item.date ?? event.startDate) === registrationDate)
 
   return onTheDay ?? (eventClasses.length === 1 ? eventClasses[0] : undefined)
 }
@@ -833,24 +866,22 @@ type StartNumbersDaysEvent = Pick<JsonDogEvent, 'startNumbersPublished'> & Class
  */
 const CLASS_MAX_DAYS = 14
 
-export const getClassDays = (event: ClassDaysEvent, eventClass?: string): string[] => {
+export const getClassDays = (event: ClassDaysEvent, eventClass?: string): DayKey[] => {
   const classes = event.classes ?? []
   const classDates = eventClass
     ? classes.filter((item) => item.class === eventClass).map((item) => item.date ?? event.startDate)
     : []
   if (classDates.length || !event.startDate) {
-    return [...new Set(classDates.filter((date): date is Date | string => !!date).map(startListAvailabilityDateKey))]
+    return [...new Set(classDates.filter((date): date is Date | string => !!date).map(eventDayKey))]
   }
 
-  const days: string[] = []
-  const first = zonedStartOfDay(event.startDate)
-  const last = startListAvailabilityDateKey(event.endDate ?? event.startDate)
-  for (let offset = 0; offset < CLASS_MAX_DAYS; offset++) {
-    const key = startListAvailabilityDateKey(addDays(first, offset))
-    days.push(key)
-    if (key >= last) break
-  }
-  return days
+  const first = eventDayKey(event.startDate)
+  const capped = addDays(first, CLASS_MAX_DAYS - 1)
+  // An end before the start is still the one day; an end past the cap is cut at it.
+  let last = eventDayKey(event.endDate ?? event.startDate)
+  if (last < first) last = first
+  if (last > capped) last = capped
+  return eachDay(first, last)
 }
 
 const isStartNumbersPublishedClassMap = (
@@ -888,7 +919,7 @@ export const isStartNumbersTime = (value: unknown): value is StartNumbersTime =>
  * key and the time for one half of it (KOE-1430). A day with no halves (`kp`) only ever has the key.
  */
 export const startNumbersSlotKey = (date: Date | string, time?: RegistrationTime) => {
-  const day = startListAvailabilityDateKey(date)
+  const day = eventDayKey(date)
   return isStartNumbersTime(time) ? `${day}/${time}` : day
 }
 
@@ -898,7 +929,7 @@ export const startNumbersSlotKey = (date: Date | string, time?: RegistrationTime
  * half-day entry is not a date and comes through as it was stored.
  */
 const scopeSlotKeys = (scope: Array<string | Date>) =>
-  scope.map((entry) => (typeof entry === 'string' && entry.includes('/') ? entry : startListAvailabilityDateKey(entry)))
+  scope.map((entry) => (typeof entry === 'string' && entry.includes('/') ? entry : eventDayKey(entry)))
 
 /** Only the whole days of a scope list: a half-day entry does not make its day published. */
 const scopeDayKeys = (scope: Array<string | Date>) => scopeSlotKeys(scope).filter((key) => !key.includes('/'))
@@ -908,7 +939,7 @@ type DayScope = StartNumbersDayScope | ResultsDayScope
 
 /** Whether a scope covers the day: a list by its whole days, a plain flag every day alike. */
 const scopeHasDay = (scope: DayScope, date: DayInput) =>
-  Array.isArray(scope) ? !!date && scopeDayKeys(scope).includes(startListAvailabilityDateKey(date)) : scope
+  Array.isArray(scope) ? !!date && scopeDayKeys(scope).includes(eventDayKey(date)) : scope
 
 /** Whether a scope covers every one of the days; a list covers nothing of a class without days. */
 const scopeHasEveryDay = (scope: DayScope, days: string[]) => {
@@ -966,8 +997,7 @@ export const isStartNumbersPublishedForSlot = (
 
   const keys = scopeSlotKeys(scope)
   return (
-    keys.includes(startListAvailabilityDateKey(date)) ||
-    (isStartNumbersTime(time) && keys.includes(startNumbersSlotKey(date, time)))
+    keys.includes(eventDayKey(date)) || (isStartNumbersTime(time) && keys.includes(startNumbersSlotKey(date, time)))
   )
 }
 
@@ -987,8 +1017,8 @@ export const getPublishedStartNumbersDays = (event: StartNumbersDaysEvent, event
 }
 
 export interface PublishedStartNumbersSlot {
-  /** The day, as yyyy-MM-dd in the event's time zone. */
-  date: string
+  /** The day, in the event's time zone. */
+  date: DayKey
   /** The half of the day that is out on its own; absent when the whole day is (KOE-1430). */
   time?: StartNumbersTime
 }
@@ -1024,10 +1054,10 @@ export const getStartNumbersDayTimes = (
   registrations: ReadonlyArray<{ group?: { date?: Date | string; time?: RegistrationTime } }>,
   date: Date | string
 ): StartNumbersTime[] => {
-  const day = startListAvailabilityDateKey(date)
+  const day = eventDayKey(date)
   const times = new Set<StartNumbersTime>()
   for (const { group } of registrations) {
-    if (group?.date && isStartNumbersTime(group.time) && startListAvailabilityDateKey(group.date) === day) {
+    if (group?.date && isStartNumbersTime(group.time) && eventDayKey(group.date) === day) {
       times.add(group.time)
     }
   }
@@ -1134,13 +1164,6 @@ export const isResultsAvailableForRegistration = (
   return eventClass ? isResultsAvailableForClass(event, eventClass) : false
 }
 
-/**
- * A day as its key in Finnish time. A key already is one and passes through unchanged: parsed, it would
- * be read as midnight where the browser is, which east of Finland falls on the day before (KOE-1510).
- */
-const startListAvailabilityDateKey = (date: Date | string) =>
-  isDateOnlyString(date) ? date : formatDate(date, 'yyyy-MM-dd')
-
 export const isStartListPublishedForClass = (event: Pick<JsonDogEvent, 'startListPublished'>, eventClass: string) =>
   isStartListPublishedClassMap(event.startListPublished)
     ? event.startListPublished[eventClass as RegistrationClass] === true
@@ -1190,29 +1213,28 @@ export const getStartListPublishedClassMap = (
 export const isEventDeletable = ({ state }: Partial<Pick<JsonDogEvent, 'state'>> | undefined = {}) =>
   state === 'draft' || state === 'tentative' || state === 'cancelled'
 
+/**
+ * The year of the start date's Finnish day, or '' for no date or one that does not read as an instant:
+ * the request validators (PutEvent, CopyEvent) answer 400 on that, so this never throws.
+ */
 export const getEventSeason = (startDate?: Date | string): string => {
-  const date = typeof startDate === 'string' ? parseISO(startDate) : startDate
+  const date = typeof startDate === 'string' ? new Date(startDate) : startDate
 
   if (!date || !isValid(date)) {
     return ''
   }
 
-  return eventSeasonFormatter.format(date)
+  return dayOf(date, TIME_ZONE).slice(0, 4)
 }
 
 export const isDetaultEntryStartDate = (date: Date | undefined, eventStartDate: Date) =>
-  !date || isSameDay(defaultEntryStartDate(eventStartDate), date, { in: tz(TIME_ZONE) })
+  !date || dayOf(defaultEntryStartDate(eventStartDate), TIME_ZONE) === dayOf(date, TIME_ZONE)
 export const isDetaultEntryEndDate = (date: Date | undefined, eventStartDate: Date) =>
-  !date || isSameDay(defaultEntryEndDate(eventStartDate), date, { in: tz(TIME_ZONE) })
+  !date || dayOf(defaultEntryEndDate(eventStartDate), TIME_ZONE) === dayOf(date, TIME_ZONE)
 
+/** The event's days as their Finnish midnights, first to last. */
 export const getEventDays = ({ startDate, endDate }: Pick<DogEvent, 'startDate' | 'endDate'>) =>
-  eachDayOfInterval(
-    {
-      end: endDate,
-      start: startDate,
-    },
-    { in: tz(TIME_ZONE) }
-  )
+  eachDay(dayOf(startDate, TIME_ZONE), dayOf(endDate, TIME_ZONE)).map((day) => dayStart(day, TIME_ZONE))
 
 export const getUniqueEventClasses = ({ classes }: Pick<DogEvent, 'classes'>) =>
   unique(classes?.map((c) => c?.class) ?? []).filter(Boolean)
@@ -1223,20 +1245,18 @@ export const applySingleDayNowtGroups = <T extends object>(
   endDate: Date,
   classes: readonly T[]
 ): T[] =>
-  eventType === 'NOWT' && isSameDay(startDate, endDate)
+  eventType === 'NOWT' && dayOf(startDate, TIME_ZONE) === dayOf(endDate, TIME_ZONE)
     ? classes.map((eventClass) => ({ ...eventClass, groups: ['kp'] }))
     : [...classes]
 
 export const getEventClassesByDays = (event: Pick<DogEvent, 'startDate' | 'endDate' | 'classes'>) =>
   getEventDays(event).map((day) => ({
-    classes: event.classes?.filter((c) => isSameDay(c.date ?? event.startDate, day)) ?? [],
+    classes: event.classes?.filter((c) => dayOf(c.date ?? event.startDate, TIME_ZONE) === dayOf(day, TIME_ZONE)) ?? [],
     day,
   }))
 
-// IMPORTANT: Use event timezone (Europe/Helsinki) when generating date keys.
-// Using `Date.toISOString().slice(0, 10)` would key by *UTC day*, which can differ
-// from the event day for users in other timezones and would make DnD/group matching fail.
-export const eventRegistrationDateKey = (rd: RegistrationDate) => `${zonedDateString(rd.date)}-${rd.time}`
+/** A group's key: the Finnish day and the time, so a browser in another zone names the same group. */
+export const eventRegistrationDateKey = (rd: RegistrationDate) => `${dayOf(rd.date, TIME_ZONE)}-${rd.time}`
 
 export function sanitizeDogEvent(event: JsonDogEvent): SanitizedJsonPublicDogEvent
 export function sanitizeDogEvent(event: ConfirmedEvent): SanitizedPublicConfirmedDogEvent
@@ -1388,10 +1408,14 @@ export const applyNewGroupsToDogEventDates = (
   return { classes: [], dates: finalDates }
 }
 
-export const copyDogEvent = (event: DogEvent): DogEvent => {
+export const copyDogEvent = (event: DogEvent, now = new Date()): DogEvent => {
   const copy = structuredClone(event)
-  const origStartDate = event.startDate
-  const days = differenceInDays(copy.endDate, copy.startDate)
+  const origStartDay = dayOf(event.startDate, TIME_ZONE)
+  const newStartDay = newEventStartDay(now, TIME_ZONE)
+  const shift = daysBetween(origStartDay, newStartDay)
+  /** The Finnish midnight of the day `date` falls on, moved along with the start. */
+  const moved = (date: Date) => dayStart(addDays(dayOf(date, TIME_ZONE), shift), TIME_ZONE)
+  const days = daysBetween(origStartDay, dayOf(copy.endDate, TIME_ZONE))
 
   copy.id = ''
   copy.name = `Kopio - ${copy.name ?? ''}`
@@ -1401,34 +1425,30 @@ export const copyDogEvent = (event: DogEvent): DogEvent => {
   copy.classes.forEach((c) => {
     c.entries = c.members = 0
     if (c.date) {
-      c.date = addDays(newEventStartDate, differenceInDays(c.date, origStartDate))
+      c.date = moved(c.date)
     }
     delete c.state
   })
 
   copy.dates?.forEach((d) => {
-    d.date = addDays(newEventStartDate, differenceInDays(d.date, origStartDate))
+    d.date = moved(d.date)
   })
 
-  // Copy and adjust placesPerDay if it exists
+  // The places per day move with their days; a key that is not a day has no day to move to.
   if (event.placesPerDay) {
-    copy.placesPerDay = {}
-    const dayDiff = differenceInDays(newEventStartDate, origStartDate)
-
-    Object.entries(event.placesPerDay).forEach(([dateStr, places]) => {
-      const originalDate = new Date(dateStr)
-      const newDate = addDays(originalDate, dayDiff)
-      const newDateStr = formatDate(newDate, 'yyyy-MM-dd')
-      // biome-ignore lint/style/noNonNullAssertion: its set couple of lines above
-      copy.placesPerDay![newDateStr] = places
+    const placesPerDay: Record<string, number> = {}
+    Object.entries(event.placesPerDay).forEach(([day, places]) => {
+      if (isDayKey(day)) placesPerDay[addDays(day, shift)] = places
     })
+    copy.placesPerDay = placesPerDay
   }
 
-  copy.startDate = newEventStartDate
-  copy.endDate = addDays(newEventStartDate, days)
-  copy.entryStartDate = newEventEntryStartDate
-  copy.entryEndDate = newEventEntryEndDate
-  copy.season = String(newEventStartDate.getFullYear())
+  const newDates = newEventDates(now)
+  copy.startDate = newDates.startDate
+  copy.endDate = dayStart(addDays(newStartDay, days), TIME_ZONE)
+  copy.entryStartDate = newDates.entryStartDate
+  copy.entryEndDate = newDates.entryEndDate
+  copy.season = newStartDay.slice(0, 4)
   // Publish decisions belong to the source event's runs, not the copy — and for numbers and results
   // an inherited flag would skip the whole decision, since absent means published for a start list
   // that predates the flag and a copied `resultsPublished` would advertise results that do not exist.

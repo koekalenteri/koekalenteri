@@ -11,9 +11,9 @@ import TableBody from '@mui/material/TableBody'
 import { enqueueSnackbar } from 'notistack'
 import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { zonedDateString } from '../../i18n/dates'
 import { reportError } from '../../lib/client/error'
 import { downloadXlsx } from '../../lib/client/xlsx'
+import { dayOf, TIME_ZONE } from '../../lib/day'
 import { breedAbbreviation, formatDogName } from '../../lib/dog'
 import {
   eventRegistrationDateKey,
@@ -356,7 +356,7 @@ function classDateKey(classValue: string | null | undefined, date: Date | undefi
 }
 
 function startListDateKey(date: Date | undefined): string {
-  return date ? zonedDateString(date) : ''
+  return date ? dayOf(date, TIME_ZONE) : ''
 }
 
 function startListGroupKey(date: Date, time: PublicRegistration['group']['time']): string {

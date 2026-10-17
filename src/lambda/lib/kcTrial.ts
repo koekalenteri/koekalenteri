@@ -1,12 +1,11 @@
 import type { JsonDogEvent } from '../../types'
 import type { KLIntegraatioResult, KLIntHenkilö, KLIntKoe, KLIntKoeListassa } from '../types/KLIntegraatio'
 import type KLIntegraatio from './KLIntegraatio'
-import { TZDate } from '@date-fns/tz'
-import { addDays } from 'date-fns/addDays'
-import { TIME_ZONE, zonedDateString } from '../../i18n/dates'
+import { addDays, dayOf, dayStart, TIME_ZONE } from '../../lib/day'
 import { OFFICIAL_EVENT_TYPES } from '../../lib/event'
 import { kcFormatOfEventType } from '../../lib/kennelliittoResults'
 import { mapWithConcurrency } from '../../lib/utils'
+import { isDayKey } from '../../types'
 import { LambdaError } from './lambda'
 import { logger } from './log'
 
@@ -45,7 +44,35 @@ const normalize = (value?: string) =>
  * of both strings never matched a start date.
  */
 const sameDate = (eventDate: string, klDate: string) =>
-  Boolean(klDate) && zonedDateString(new Date(eventDate)) === klDate.substring(0, 10)
+  Boolean(klDate) && dayOf(new Date(eventDate), TIME_ZONE) === klDate.substring(0, 10)
+
+/** The day a Kennel Club timestamp ('2026-09-26T00:00:00', Finnish local time with no zone) names. */
+const klDay = (local: string | undefined) => {
+  const day = local?.slice(0, 10)
+  return isDayKey(day) ? day : undefined
+}
+
+/**
+ * A Kennel Club timestamp sent on as the UTC instant its Finnish day starts at, so a browser anywhere
+ * reads the same day: read as it comes it is the browser's own midnight, a day off east or west of
+ * Finland (KOE-1545). Anything that is not a day goes on as it is.
+ */
+const klInstant = (local: string) => {
+  const day = klDay(local)
+  return day ? dayStart(day, TIME_ZONE).toISOString() : local
+}
+
+/** The Kennel Club's empty date is 0001-01-01; no trial was held before the calendar's own years. */
+const KL_EMPTY_DATE_LIMIT = '1000-01-01'
+
+/**
+ * A trial's last day as KL lists it, or its first day where the listing has no readable end: the
+ * client reads both as days, and an empty or empty-valued `loppu` would give it nothing to read.
+ */
+const endDateOf = (listed: KLIntKoeListassa) => {
+  const day = klDay(listed.loppu)
+  return day && day >= KL_EMPTY_DATE_LIMIT ? klInstant(listed.loppu) : klInstant(listed.alku)
+}
 
 const classOverlap = (event: KcIdLookupCriteria, koe?: KLIntKoe) => {
   const localClasses = new Set<string>(event.classes.map((c) => c.class))
@@ -111,8 +138,8 @@ const toDetails = (koe?: KLIntKoe) => {
     ...(contactInfo ? { contactInfo } : undefined),
     ...(koe.osallistumismaksu === undefined ? undefined : { cost: koe.osallistumismaksu }),
     ...(description ? { description } : undefined),
-    ...(clean(koe.ilmoittautuminen_Loppu) ? { entryEndDate: koe.ilmoittautuminen_Loppu } : undefined),
-    ...(clean(koe.ilmoittautuminen_Alku) ? { entryStartDate: koe.ilmoittautuminen_Alku } : undefined),
+    ...(clean(koe.ilmoittautuminen_Loppu) ? { entryEndDate: klInstant(koe.ilmoittautuminen_Loppu) } : undefined),
+    ...(clean(koe.ilmoittautuminen_Alku) ? { entryStartDate: klInstant(koe.ilmoittautuminen_Alku) } : undefined),
     location: [koe.paikkakunta, koe.paikka].filter(Boolean).join(', '),
   }
 }
@@ -137,7 +164,7 @@ const toChoice = (koemuoto: string, candidate: Candidate) => {
     ...toDetails(koe),
     ...toLocation(candidate),
     classes: [...new Set(koe?.luokat ?? [])],
-    endDate: listed.loppu,
+    endDate: endDateOf(listed),
     eventType: toEventType(koemuoto, listed),
     ...(judge ? { judge } : undefined),
     ...(listed.ylituomariNumero ? { judgeId: listed.ylituomariNumero } : undefined),
@@ -145,7 +172,7 @@ const toChoice = (koemuoto: string, candidate: Candidate) => {
     ...(kcTunnus ? { kcTunnus } : undefined),
     name: clean(listed.tapahtuma) ?? clean(listed.tarkenne) ?? '',
     organizer: listed.yhdistysNimi,
-    startDate: listed.alku,
+    startDate: klInstant(listed.alku),
     ...(status ? { status } : undefined),
   }
 }
@@ -165,7 +192,7 @@ const upstreamError = ({ error, status, virheet }: KLIntegraatioResult<unknown>)
  * stepping the instant by 24 hours in the Lambda's own zone (UTC) is a day off across the change
  * to or from summer time.
  */
-const shiftedDay = (instant: string, days: number) => zonedDateString(addDays(new TZDate(instant, TIME_ZONE), days))
+const shiftedDay = (instant: string, days: number) => addDays(dayOf(new Date(instant), TIME_ZONE), days)
 
 const findEvents = async (
   klint: KLIntegraatio,

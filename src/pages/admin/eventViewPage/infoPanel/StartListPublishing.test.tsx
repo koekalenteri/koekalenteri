@@ -11,9 +11,9 @@ import {
 } from '@/__mockData__/events'
 import { registrationsToEventWithParticipantsInvited, registrationWithStaticDates } from '@/__mockData__/registrations'
 import { APIError } from '@/api/http'
-import { zonedDateString } from '@/i18n/dates'
 import { eventRegistrationDateKey } from '@/lib/event'
 import { parseDateOnlyString } from '@/lib/utils'
+import { finnishDayOf } from '@/test-utils/finnishDays'
 import { renderWithUserEvents, TEST_ID_TOKEN } from '@/test-utils/utils'
 import { adminEventsAtom } from '../../state'
 import InfoPanel from '../InfoPanel'
@@ -405,7 +405,7 @@ describe('InfoPanel>', () => {
           startListPublished: true,
           // Friday's draw is out; Saturday's is tomorrow morning. The API hands the browser a date
           // here, not the stored string: its JSON reviver turns a bare yyyy-MM-dd into one.
-          startNumbersPublished: { ALO: [parseDateOnlyString(zonedDateString(aloDay.date))], AVO: false },
+          startNumbersPublished: { ALO: [parseDateOnlyString(finnishDayOf(aloDay.date))], AVO: false },
         }}
         onSetStartListPublished={vi.fn().mockResolvedValue(undefined)}
         onSetStartNumbersPublished={onSetStartNumbersPublished}
@@ -435,14 +435,14 @@ describe('InfoPanel>', () => {
     await user.click(publishButtons[0])
 
     await waitFor(() => {
-      expect(onSetStartNumbersPublished).toHaveBeenCalledWith('ALO', true, zonedDateString(saturday), undefined)
+      expect(onSetStartNumbersPublished).toHaveBeenCalledWith('ALO', true, finnishDayOf(saturday), undefined)
     })
 
     // The halves come morning first: hiding the morning names it.
     await user.click(hideFriday[0])
 
     await waitFor(() => {
-      expect(onSetStartNumbersPublished).toHaveBeenCalledWith('ALO', false, zonedDateString(aloDay.date), 'ap')
+      expect(onSetStartNumbersPublished).toHaveBeenCalledWith('ALO', false, finnishDayOf(aloDay.date), 'ap')
     })
   })
 

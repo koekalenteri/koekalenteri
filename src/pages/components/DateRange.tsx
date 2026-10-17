@@ -2,11 +2,12 @@ import type { Theme } from '@mui/material'
 import Box from '@mui/material/Box'
 import FormControl from '@mui/material/FormControl'
 import { DatePicker } from '@mui/x-date-pickers'
-import { format, isSameDay, isValid } from 'date-fns'
+import { isValid } from 'date-fns/isValid'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import useDebouncedCallback from '../../hooks/useDebouncedCallback'
-import { formatDate, zonedParseDate, zonedStartOfDay } from '../../i18n/dates'
+import { dayOf, dayParts, dayStart, TIME_ZONE } from '../../lib/day'
+import { toDayKey } from '../../types'
 
 export type DateValue = Date | null
 
@@ -29,7 +30,7 @@ export interface Props {
 }
 
 function dayStyle(date: Date, selected: boolean, defaultDate?: Date) {
-  const isDefault = !!defaultDate && isSameDay(date, defaultDate)
+  const isDefault = !!defaultDate && dayOf(date, TIME_ZONE) === dayOf(defaultDate, TIME_ZONE)
   const hilight = isDefault && !selected
   return {
     border: hilight ? (theme: Theme) => `2px solid ${theme.palette.secondary.light}` : undefined,
@@ -47,15 +48,24 @@ function toPickerDay(d: Date): Date
 function toPickerDay(d: Date | undefined): Date | undefined
 function toPickerDay(d: Date | undefined): Date | undefined {
   if (!d || !isValid(d)) return d
-  const [year, month, day] = formatDate(d, 'yyyy-MM-dd').split('-').map(Number)
+  const { year, month, day } = dayParts(dayOf(d, TIME_ZONE))
   return new Date(year, month - 1, day)
 }
 
-/** The moment the day shown by the picker starts in Finland. */
-const fromPickerDay = (d: DateValue): DateValue => (d && isValid(d) ? zonedParseDate(format(d, 'yyyy-MM-dd')) : d)
+/**
+ * The moment the day shown by the picker starts in Finland: the picker's Date is read with its own
+ * (browser-zone) getters, the one place that is right. A year outside four digits is not a day the
+ * calendar has and is passed on as typed, for the range to reject.
+ */
+const fromPickerDay = (d: DateValue): DateValue => {
+  if (!d || !isValid(d)) return d
+  const year = d.getFullYear()
+  if (year < 1000 || year > 9999) return d
+  return dayStart(toDayKey(year, d.getMonth() + 1, d.getDate()), TIME_ZONE)
+}
 
-/** The Finnish day `d` falls on, as the moment it starts: the callers' bounds and what they store are Finnish days. */
-const finnishDay = (d: Date) => zonedStartOfDay(d).getTime()
+/** The Finnish day `d` falls on: the callers' bounds and what they store are Finnish days. */
+const finnishDay = (d: Date) => dayOf(d, TIME_ZONE)
 
 /** Whether `d` falls on a Finnish day before the one `min` falls on. */
 const isDayBefore = (d: Date, min: DateValue | undefined) => !!min && finnishDay(d) < finnishDay(min)
@@ -67,7 +77,7 @@ const isDayAfter = (d: Date, max: DateValue | undefined) => !!max && finnishDay(
  * The bounds are compared by day, not by instant: the picker offers every day from minDate to
  * maxDate, and a date typed on the start's day is 00:00 while the start may carry a later time
  * (KOE-1538). Every value is read as the Finnish day its moment falls on, as the callers' bounds
- * are (EntrySection's range runs from zonedStartOfDay to zonedEndOfDay) and as they store what they
+ * are (EntrySection's range runs from the start of a Finnish day to the end of one) and as they store what they
  * get, so what is accepted here is what they save. In a browser in Finland's time zone that is the
  * day the picker shows.
  */

@@ -5,7 +5,7 @@ import { enqueueSnackbar } from 'notistack'
 import { useCallback, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { searchEventKcIdChoices } from '@/api/event'
-import { zonedDateString, zonedEndOfDay, zonedStartOfDay } from '@/i18n/dates'
+import { dayEnd, dayOf, dayStart, TIME_ZONE } from '@/lib/day'
 import { idTokenAtom } from '../../state'
 
 /** The event details the Kennelliitto search matches against. */
@@ -21,8 +21,8 @@ export interface KcIdLookupEvent {
 
 const formatDateSpan = (start?: Date, end?: Date) => {
   if (!start) return ''
-  const startDate = zonedDateString(start)
-  const endDate = end ? zonedDateString(end) : startDate
+  const startDate = dayOf(start, TIME_ZONE)
+  const endDate = end ? dayOf(end, TIME_ZONE) : startDate
 
   return startDate === endDate ? startDate : `${startDate} - ${endDate}`
 }
@@ -37,12 +37,12 @@ const applyKcChoice = (choice: EventKcIdChoice): Patch<DogEvent> => {
   return {
     kcEvent: {
       classes: choice.classes,
-      endDate: zonedEndOfDay(choice.endDate),
+      endDate: dayEnd(dayOf(choice.endDate, TIME_ZONE), TIME_ZONE),
       eventType: choice.eventType,
       judge: choice.judge ?? null,
       judgeId: choice.judgeId ?? null,
       location: choice.location ?? null,
-      startDate: zonedStartOfDay(choice.startDate),
+      startDate: dayStart(dayOf(choice.startDate, TIME_ZONE), TIME_ZONE),
     },
     kcGuid: choice.kcGuid,
   }

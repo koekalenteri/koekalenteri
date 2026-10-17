@@ -48,6 +48,28 @@ Read `LLM_CONTEXT.md` for the project overview and architecture notes.
 - Create a new library file only when it represents a clearly separate, reusable responsibility or a meaningful dependency boundary. Name it after the domain concept rather than a one-off operation or implementation detail.
 - `@/` is the source root (`tsconfig` paths, the webpack alias and the vitest alias all declare it). Under `src/pages`, an import that would climb three or more directories names the file from `@/` instead (`@/types`, `@/lib/event`, `@/__mockData__/events`); one or two levels stay relative. Lambda code does not use the alias: esbuild reads `src/lambda/tsconfig.json`, which does not declare it.
 
+## Calendar Days
+
+- A calendar day (the day a trial runs, an entry opens or closes, a dog is placed on) is a `DayKey`
+  (`src/types/Day.ts`): `yyyy-MM-dd`, no zone. `isDayKey` narrows what comes from storage or a URL,
+  `toDayKey(year, month, day)` builds one. Days compare and sort as text.
+- A day becomes a moment, and a moment a day, only in `src/lib/day.ts`: `dayOf(instant, zone)`,
+  `dayStart(day, zone)`, `dayEnd(day, zone)`, `shiftDays(instant, days, zone)`. The zone is a required
+  parameter, never a default; the trials' zone is `TIME_ZONE` from the same module. Day arithmetic
+  (`addDays`, `addMonths`, `daysBetween`, `eachDay`, `dayOfWeek`) needs no zone at all.
+- date-fns' calendar functions (`isSameDay`, `startOfDay`, `addDays`, `nextSaturday`, `subWeeks`,
+  ...) read the day in the machine's zone, and so do `format` with day tokens and `parseISO` of a day
+  key. Biome's `noRestrictedImports` bans them outside `src/lib/day.ts` (`format` and `parseISO` also
+  in `src/i18n/dates.ts`); format a moment with `formatDate`, read a day key with `dayStart` after
+  `isDayKey`. Instant functions (`isValid`, `isAfter`, `differenceInMinutes`,
+  `formatDistanceToNowStrict`, `lightFormat` of a build time) stay allowed. A line that must keep a
+  calendar call carries a `biome-ignore` with the reason and the issue that moves it.
+- `getFullYear`, `getMonth`, `getDate` and `getDay` on an instant are calendar calls too, in the
+  machine's zone, and Biome has no rule for them: read the day with `dayOf` and `dayParts` instead.
+- Tests run in the machine's zone (Helsinki on a laptop, UTC in CI). A fixture is a Finnish day:
+  `startOfFinnishDay('2026-10-17')` from `src/test-utils/finnishDays.ts`, never `new Date(2026, 9, 17)`.
+  A test of zone handling runs under `describeInTimeZone` (`src/test-utils/timeZone.ts`).
+
 ## Data Migrations
 
 - A one-off data migration is an entry in the `migrations` array of

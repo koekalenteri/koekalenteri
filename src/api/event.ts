@@ -9,8 +9,7 @@ import type {
   PublicDogEvent,
   RegistrationClass,
 } from '../types'
-import { addDays, nextSaturday } from 'date-fns'
-import { zonedStartOfDay } from '../i18n/dates'
+import { newEventDates } from '../lib/event'
 import { latestCollectionUpdate } from '../lib/incremental'
 import http, { withToken } from './http'
 
@@ -165,9 +164,15 @@ export async function putResultsPublished(
   )
 }
 
-/** A one-day trial may come from Kennelliitto with the year 1 for its end: the end is the start then. */
+/**
+ * A one-day trial may come from Kennelliitto with the year 1 for its end: the end is the start then.
+ * The server now sends the start instead (KOE-1545); an older server's 0001-01-01 is not a day the
+ * reviver reads, so it arrives as the string it was.
+ */
 const normalizeEventKcIdChoice = (choice: EventKcIdChoice): EventKcIdChoice =>
-  choice.endDate.getFullYear() <= 1 ? { ...choice, endDate: choice.startDate } : choice
+  !(choice.endDate instanceof Date) || choice.endDate.getFullYear() <= 1
+    ? { ...choice, endDate: choice.startDate }
+    : choice
 
 export async function searchEventKcIdChoices(
   request: SearchEventKcIdChoicesRequest,
@@ -224,7 +229,7 @@ export async function copyEventWithRegistrations(eventId: string, token?: string
   return (
     await http.post<{ id: string; startDate: Date }, DogEvent>(
       `${ADMIN_PATH}copy`,
-      { id: eventId, startDate: zonedStartOfDay(nextSaturday(addDays(Date.now(), 90))) },
+      { id: eventId, startDate: newEventDates(new Date()).startDate },
       withToken({ signal }, token)
     )
   ).data

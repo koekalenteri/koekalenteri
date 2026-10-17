@@ -1,6 +1,10 @@
 import type { Dog } from '../types'
-import { subMonths } from 'date-fns'
+import { addMonths, dayOf, dayStart, TIME_ZONE } from '../lib/day'
 import { eventWithStaticDates } from './events'
+
+/** The Finnish midnight `months` months before the static event's start. */
+const monthsBeforeStart = (months: number) =>
+  dayStart(addMonths(dayOf(eventWithStaticDates.startDate, TIME_ZONE), -months), TIME_ZONE)
 
 export const registrationDogAged10MonthsAndNoResults: Dog = {
   breedCode: '110',
@@ -9,7 +13,7 @@ export const registrationDogAged10MonthsAndNoResults: Dog = {
     name: 'Dam Name',
     titles: 'Dam titles',
   },
-  dob: subMonths(eventWithStaticDates.startDate, 10),
+  dob: monthsBeforeStart(10),
   gender: 'M',
   name: 'Dog Name 10',
   refreshDate: eventWithStaticDates.entryStartDate,
@@ -30,7 +34,7 @@ export const registrationDogAged20MonthsAndNoResults: Dog = {
     name: 'Dam Name',
     titles: 'Dam titles',
   },
-  dob: subMonths(eventWithStaticDates.startDate, 20),
+  dob: monthsBeforeStart(20),
   gender: 'M',
   name: 'Dog Name 20',
   refreshDate: eventWithStaticDates.entryStartDate,
@@ -51,7 +55,7 @@ export const registrationDogAged28MonthsWithNOUResult: Dog = {
     name: 'Dam Name',
     titles: 'Dam titles',
   },
-  dob: subMonths(eventWithStaticDates.startDate, 28),
+  dob: monthsBeforeStart(28),
   gender: 'M',
   name: 'Dog Name 20',
   refreshDate: eventWithStaticDates.entryStartDate,
@@ -59,7 +63,7 @@ export const registrationDogAged28MonthsWithNOUResult: Dog = {
   results: [
     {
       class: '',
-      date: subMonths(eventWithStaticDates.startDate, 1),
+      date: monthsBeforeStart(1),
       judge: 'test judge',
       location: 'test location',
       result: 'NOU1',

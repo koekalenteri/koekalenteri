@@ -2,6 +2,7 @@ import type { ClassOrNone, JsonConfirmedEvent } from '../../types'
 import { resultsPublishedAudit } from '../../lib/audit'
 import { getClassDays, uniqueClasses } from '../../lib/event'
 import { isRegistrationClass } from '../../lib/registration'
+import { isDayKey } from '../../types'
 import { audit, eventAuditKey } from '../lib/audit'
 import { authorizeWithMemberOf } from '../lib/auth'
 import { getEvent, setResultsPublishedState } from '../lib/event'
@@ -57,7 +58,7 @@ const putResultsPublishedLambda = lambda('putResultsPublished', async (event) =>
   assertEventOrganizerAccess(user, memberOf, confirmedEvent)
   const eventClass = requestedClass(confirmedEvent, body.eventClass)
   const date = body.date
-  if (typeof date !== 'string' || !getClassDays(confirmedEvent, eventClass).includes(date)) {
+  if (!isDayKey(date) || !getClassDays(confirmedEvent, eventClass).includes(date)) {
     throw httpError(422, 'invalid date')
   }
 

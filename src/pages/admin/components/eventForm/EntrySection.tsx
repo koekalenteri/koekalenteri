@@ -5,11 +5,11 @@ import type { EventClass, RegistrationClass } from '@/types'
 import type { EntryEvent, SectionProps } from './types'
 import FormHelperText from '@mui/material/FormHelperText'
 import Grid from '@mui/material/Grid'
-import { clamp } from 'date-fns'
+import { clamp } from 'date-fns/clamp'
 import { enqueueSnackbar } from 'notistack'
 import { memo, useCallback, useEffect, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
-import { zonedEndOfDay, zonedStartOfDay } from '@/i18n/dates'
+import { dayEnd, dayOf, dayStart, TIME_ZONE } from '@/lib/day'
 import { isDevEnv } from '@/lib/env'
 import { defaultEntryEndDate, defaultEntryStartDate } from '@/lib/event'
 import { getPrioritySort, PRIORITY, priorityValuesToPriority, RESTRICTION } from '@/lib/priority'
@@ -68,28 +68,28 @@ function EntrySection(props: Props) {
   const allowPastRegistrationDates = isDevEnv()
   let registrationStartDate: Date | undefined
   if (!allowPastRegistrationDates) {
-    registrationStartDate = zonedStartOfDay(event.createdAt ?? new Date())
+    registrationStartDate = dayStart(dayOf(event.createdAt ?? new Date(), TIME_ZONE), TIME_ZONE)
   }
   const registrationDateRange = useMemo(
     () => ({
-      end: zonedEndOfDay(event.startDate),
+      end: dayEnd(dayOf(event.startDate, TIME_ZONE), TIME_ZONE),
       start: registrationStartDate,
     }),
     [event.startDate, registrationStartDate]
   )
   const hasPastRegistrationDate = useMemo(() => {
-    const today = zonedStartOfDay(new Date())
+    const today = dayOf(new Date(), TIME_ZONE)
     return (
-      (!!event.entryStartDate && zonedStartOfDay(event.entryStartDate) < today) ||
-      (!!event.entryEndDate && zonedEndOfDay(event.entryEndDate) < today)
+      (!!event.entryStartDate && dayOf(event.entryStartDate, TIME_ZONE) < today) ||
+      (!!event.entryEndDate && dayOf(event.entryEndDate, TIME_ZONE) < today)
     )
   }, [event.entryEndDate, event.entryStartDate])
 
   const handleDateChange = useCallback(
     (start: DateValue, end: DateValue) =>
       onChange?.({
-        entryEndDate: end ? zonedEndOfDay(end) : undefined,
-        entryStartDate: start ? zonedStartOfDay(start) : undefined,
+        entryEndDate: end ? dayEnd(dayOf(end, TIME_ZONE), TIME_ZONE) : undefined,
+        entryStartDate: start ? dayStart(dayOf(start, TIME_ZONE), TIME_ZONE) : undefined,
       }),
     [onChange]
   )

@@ -260,7 +260,7 @@ describe('lib/event', () => {
       mockQuery.mockResolvedValueOnce([{ entryEndDate: '2024-08-20T23:59:59.999+03:00' }])
       await expect(
         findQualificationStartDate('NOME-B SM', new Date('2025-03-22T17:00:00Z').toISOString())
-      ).resolves.toEqual('2024-08-21T00:00:00.000+03:00')
+      ).resolves.toEqual('2024-08-20T21:00:00.000Z')
     })
 
     it('should prefer entryOrigEndDate when available ', async () => {
@@ -269,7 +269,7 @@ describe('lib/event', () => {
       ])
       await expect(
         findQualificationStartDate('NOME-B SM', new Date('2025-03-22T17:00:00Z').toISOString())
-      ).resolves.toEqual('2024-08-16T00:00:00.000+03:00')
+      ).resolves.toEqual('2024-08-15T21:00:00.000Z')
     })
   })
 

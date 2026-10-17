@@ -1,7 +1,7 @@
 import type { PublicConfirmedEvent } from '../../types/Event'
 import TableCell from '@mui/material/TableCell'
 import { useTranslation } from 'react-i18next'
-import { zonedDateString } from '../../i18n/dates'
+import { dayOf, TIME_ZONE } from '../../lib/day'
 import { judgeName } from '../../lib/judge'
 import { StyledTableRow } from './StyledTableRow'
 
@@ -32,7 +32,10 @@ export const ClassHeader = ({
         {event.classes
           .filter(
             (c) =>
-              c.class === classValue && !!c.date && !!lastDate && zonedDateString(c.date) === zonedDateString(lastDate)
+              c.class === classValue &&
+              !!c.date &&
+              !!lastDate &&
+              dayOf(c.date, TIME_ZONE) === dayOf(lastDate, TIME_ZONE)
           )
           .map((c) => (Array.isArray(c.judge) ? c.judge.map((j) => judgeName(j, t)).join(', ') : judgeName(c.judge, t)))
           .filter(Boolean)
