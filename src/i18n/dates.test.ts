@@ -1,4 +1,11 @@
-import { currentFinnishTime, formatDateSpan, zonedEndOfDay, zonedStartOfDay } from './dates'
+import {
+  addFinnishDays,
+  currentFinnishTime,
+  finnishDaysBetween,
+  formatDateSpan,
+  zonedEndOfDay,
+  zonedStartOfDay,
+} from './dates'
 
 describe('formatDateSpan', () => {
   it.each([
@@ -66,5 +73,33 @@ describe('zonedEndOfDay', () => {
   it('should use Europe/Helsinki by default', () => {
     expect(zonedEndOfDay('2024-01-01').toISOString()).toEqual('2024-01-01T23:59:59.999+02:00')
     expect(zonedEndOfDay('2024-06-02').toISOString()).toEqual('2024-06-02T23:59:59.999+03:00')
+  })
+})
+
+describe('finnishDaysBetween', () => {
+  it.each([
+    { expected: 0, from: '2026-03-26T22:00:00.000Z', name: 'the same day', to: '2026-03-26T22:00:00.000Z' },
+    {
+      expected: 77,
+      from: '2026-03-26T22:00:00.000Z',
+      name: 'across the spring change',
+      to: '2026-06-11T21:00:00.000Z',
+    },
+    { expected: 90, from: '2026-02-14T22:00:00.000Z', name: 'winter to summer', to: '2026-05-15T21:00:00.000Z' },
+    { expected: 169, from: '2026-05-14T21:00:00.000Z', name: 'summer to winter', to: '2026-10-30T22:00:00.000Z' },
+    { expected: -90, from: '2026-05-15T21:00:00.000Z', name: 'backwards', to: '2026-02-14T22:00:00.000Z' },
+  ])('counts Finnish calendar days $name', ({ expected, from, to }) => {
+    expect(finnishDaysBetween(from, to)).toBe(expected)
+  })
+})
+
+describe('addFinnishDays', () => {
+  it.each([
+    { days: 0, expected: '2026-03-26T22:00:00.000Z', from: '2026-03-26T22:00:00.000Z', name: 'zero days' },
+    { days: 169, expected: '2026-10-30T22:00:00.000Z', from: '2026-05-14T21:00:00.000Z', name: 'into winter time' },
+    { days: 90, expected: '2026-05-15T21:00:00.000Z', from: '2026-02-14T22:00:00.000Z', name: 'into summer time' },
+    { days: -1, expected: '2026-03-28T22:00:00.000Z', from: '2026-03-29T21:00:00.000Z', name: 'backwards' },
+  ])('keeps the Finnish wall clock: $name', ({ days, expected, from }) => {
+    expect(addFinnishDays(from, days)).toBe(expected)
   })
 })

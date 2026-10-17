@@ -1,8 +1,6 @@
-import { addDays } from 'date-fns/addDays'
-import { differenceInDays } from 'date-fns/differenceInDays'
-import { parseISO } from 'date-fns/parseISO'
 import { nanoid } from 'nanoid'
-import { getEventSeason, stripKennelliittoLink } from '../../lib/event'
+import { addFinnishDays, finnishDaysBetween } from '../../i18n/dates'
+import { eventRegistrationDateKey, getEventSeason, stripKennelliittoLink } from '../../lib/event'
 import { saveEvent } from '../lib/event'
 import { authorizeEvent } from '../lib/eventAuth'
 import { removeEventRuntimeState } from '../lib/eventCopy'
@@ -45,15 +43,17 @@ const copyEventLambda = lambda('copyEvent', async (event) => {
   item.modifiedAt = timestamp
   item.modifiedBy = user.name
 
-  const days = differenceInDays(parseISO(startDate), parseISO(item.startDate))
-  item.startDate = addDays(parseISO(item.startDate), days).toISOString()
+  // Whole Finnish calendar days, so the copy keeps each date's Finnish wall-clock time across the change of time.
+  const days = finnishDaysBetween(item.startDate, startDate)
+  const shift = (date: string) => addFinnishDays(date, days)
+  item.startDate = shift(item.startDate)
   item.season = getEventSeason(item.startDate)
-  item.endDate = addDays(parseISO(item.endDate), days).toISOString()
-  if (item.entryStartDate) item.entryStartDate = addDays(parseISO(item.entryStartDate), days).toISOString()
-  if (item.entryEndDate) item.entryEndDate = addDays(parseISO(item.entryEndDate), days).toISOString()
+  item.endDate = shift(item.endDate)
+  if (item.entryStartDate) item.entryStartDate = shift(item.entryStartDate)
+  if (item.entryEndDate) item.entryEndDate = shift(item.entryEndDate)
 
   item.classes.forEach((c) => {
-    if (c.date) c.date = addDays(parseISO(c.date), days).toISOString()
+    if (c.date) c.date = shift(c.date)
   })
 
   await publishEventChange(await saveEvent(item))
@@ -70,12 +70,12 @@ const copyEventLambda = lambda('copyEvent', async (event) => {
     delete reg.startGroup
     delete reg.eventResult
     reg.dates.forEach((d) => {
-      d.date = addDays(parseISO(d.date), days).toISOString()
+      d.date = shift(d.date)
     })
     if (reg.group) {
       if (reg.group.date && reg.group.key) {
-        reg.group.date = addDays(parseISO(reg.group.date), days).toISOString()
-        reg.group.key = `${reg.group.date.slice(0, 10)}-${reg.group.time}`
+        reg.group.date = shift(reg.group.date)
+        reg.group.key = eventRegistrationDateKey({ ...reg.group, date: new Date(reg.group.date) })
       }
     }
     return reg
