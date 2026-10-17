@@ -1,5 +1,6 @@
 import { execFileSync } from 'node:child_process'
 import { existsSync, readdirSync, readFileSync } from 'node:fs'
+import { accessOf, analyzeTableUse, templateTables } from './test-utils/lambdaTables'
 
 /**
  * Adding a lambda used to mean keeping three places in step by hand, and a function present in one
@@ -70,5 +71,62 @@ describe('template', () => {
     expect(importer).toMatch(/^ {4}Condition: IsNotProdStage$/m)
     expect(importerLogGroup).toMatch(/^ {4}Condition: IsNotProdStage$/m)
     expect(template).toMatch(/^ {2}IsNotProdStage: !Not \[!Condition IsProdStage\]$/m)
+  })
+})
+
+// A lambda that reaches a table its policies do not grant fails here, not in dev (KOE-1492). The
+// code side follows calls from each handler's default export (see test-utils/lambdaTables.ts); the
+// template side is the function block's DynamoDB policies, inline statements and managed policies.
+describe('table policies', () => {
+  const tables = templateTables(template)
+  const analysis = analyzeTableUse(handlerDirectories.map((dir) => `src/lambda/${dir}/handler.ts`))
+
+  const tableId = (key: string) => {
+    const variable = analysis.environmentVariables.get(key)
+    const id = variable === undefined ? undefined : tables.environmentVariables.get(variable)
+    if (!id) throw new Error(`CONFIG.${key} is not a table the template's Globals name`)
+    return id
+  }
+
+  const usesOf = (name: string, codeUri: string) => {
+    const uses = analysis.uses.get(`src/${codeUri}/handler.ts`)
+    if (!uses) throw new Error(`${name}: no analysis for ${codeUri}`)
+    return uses
+  }
+
+  it('grants every function the tables its code reaches', () => {
+    const missing: string[] = []
+    for (const [name, grants] of tables.functions) {
+      for (const [key, byAction] of usesOf(name, grants.codeUri)) {
+        const id = tableId(key)
+        const granted = grants.tables.get(id) ?? new Set()
+        for (const [action, locations] of byAction) {
+          if (granted.has(action) || granted.has('*')) continue
+          missing.push(`${name} ${action} on ${id} without a policy: ${locations.join(', ')}`)
+        }
+      }
+    }
+    expect(missing).toEqual([])
+  })
+
+  // The other direction: a grant the code cannot use is a policy nobody can read anything from. Read
+  // and write are checked as classes, since the SAM policy templates come in those two sizes.
+  it('grants no table a function never reaches', () => {
+    const excess: string[] = []
+    for (const [name, grants] of tables.functions) {
+      const used = new Map<string, Set<string>>()
+      for (const [key, byAction] of usesOf(name, grants.codeUri)) {
+        used.set(tableId(key), new Set([...byAction.keys()].map(accessOf)))
+      }
+      for (const [id, actions] of grants.tables) {
+        const granted = new Set(
+          [...actions].flatMap((action) => (action === '*' ? ['read', 'write'] : [accessOf(action)]))
+        )
+        for (const access of granted) {
+          if (!used.get(id)?.has(access)) excess.push(`${name} may ${access} ${id} but never does`)
+        }
+      }
+    }
+    expect(excess).toEqual([])
   })
 })

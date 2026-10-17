@@ -6,10 +6,7 @@
       Policies:
         - DynamoDBReadPolicy:
             TableName: !Ref EventStatsTable
-        - DynamoDBReadPolicy:
-            TableName: !Ref UserTable
-        - DynamoDBReadPolicy:
-            TableName: !Ref UserLinkTable
+        - !Ref AuthorizePolicy
       Events:
         GetAdminStatsApi:
           Type: Api

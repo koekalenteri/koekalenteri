@@ -17,7 +17,7 @@
               Resource: '*'
         - DynamoDBCrudPolicy:
             TableName: !Ref LocationTable
-        - DynamoDBCrudPolicy:
+        - DynamoDBWritePolicy:
             TableName: !Ref DataVersionTable
         - !Ref WebSocketPolicy
       Events:

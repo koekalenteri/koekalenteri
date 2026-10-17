@@ -5,15 +5,10 @@
       Handler: handler.default
       Policies:
         - DynamoDBReadPolicy:
-            TableName: !Ref UserTable
-        - DynamoDBReadPolicy:
-            TableName: !Ref UserLinkTable
-        - DynamoDBReadPolicy:
             TableName: !Ref OrganizerTable
         - DynamoDBReadPolicy:
             TableName: !Ref EventTypeTable
-        - DynamoDBCrudPolicy:
-            TableName: !Ref AuditTable
+        - !Ref AuthorizePolicy
         - Statement:
             - Sid: SSMGetParameterPolicy
               Effect: Allow
@@ -22,7 +17,6 @@
               - ssm:GetParameter
               Resource: '*'
         - CloudWatchPutMetricPolicy: {}
-        - !Ref WebSocketPolicy
       Events:
         SearchEventKcIdChoices:
           Type: Api

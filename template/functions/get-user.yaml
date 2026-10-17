@@ -4,14 +4,11 @@
       CodeUri: lambda/GetUserFunction
       Handler: handler.default
       Policies:
-        - DynamoDBCrudPolicy:
-            TableName: !Ref UserTable
-        - DynamoDBCrudPolicy:
-            TableName: !Ref UserLinkTable
-        # dataVersions reads the version registry instead of scanning the collection tables.
-        # Crud, not Read: authorize() can create or update the caller's user record, which bumps.
-        - DynamoDBCrudPolicy:
+        # dataVersions reads the version registry instead of scanning the collection tables; the
+        # bump a changed user record causes comes with AuthorizePolicy.
+        - DynamoDBReadPolicy:
             TableName: !Ref DataVersionTable
+        - !Ref AuthorizePolicy
         - CloudWatchPutMetricPolicy: {}
       Events:
         GetUser:

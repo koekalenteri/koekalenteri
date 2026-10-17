@@ -16,11 +16,11 @@
         - DynamoDBCrudPolicy:
             TableName: !Ref EventRegistrationTable
         - DynamoDBReadPolicy:
-            TableName: !Ref OrganizerTable
-        - DynamoDBReadPolicy:
             TableName: !Ref EventTable
-        - DynamoDBCrudPolicy:
+        - DynamoDBWritePolicy:
             TableName: !Ref AuditTable
+        # Every audit row is streamed to the event's viewers, and a settled failure is broadcast (KOE-1529).
+        - !Ref WebSocketPolicy
         - CloudWatchPutMetricPolicy: {}
       Events:
         PutEvent:

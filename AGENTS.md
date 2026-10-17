@@ -188,6 +188,16 @@ Read `LLM_CONTEXT.md` for the project overview and architecture notes.
   it alone -- the payment and refund functions keep their logs for 180 days that way.
 - `src/lambda/template.test.ts` builds the template and compares its `CodeUri` values with the
   directories on disk, so a lambda in one and not the other fails a test instead of a deploy.
+- The function block's `Policies` must grant every table the handler's code reaches, and nothing
+  more. The same test follows the calls from each handler's default export through `src/lambda/lib`
+  (`src/lambda/test-utils/lambdaTables.ts`, KOE-1492) and fails on a table the code uses without a
+  policy for that action, naming the function, the action, the table and the call chain
+  (`PutEventFunction GetItem on EventRegistrationTable without a policy: src/lambda/lib/registration.ts:585
+  (putEventLambda > checkPublishing > getRegistrationsByEventId)`). It also fails on an excess grant,
+  a read or write class on a table the code never touches (`PutJudgeFunction may read JudgeTable but
+  never does`): fix the template, not the test. A function that calls `authorize()` carries
+  `- !Ref AuthorizePolicy` (`template/policies/authorize-policy.yaml`) for the user, user link and
+  data version tables; a broadcast needs `- !Ref WebSocketPolicy`.
 
 ## Lambda Logging
 

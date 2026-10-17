@@ -40,12 +40,17 @@
       CodeUri: lambda/SesNotificationFunction
       Handler: handler.default
       Policies:
-        - DynamoDBCrudPolicy:
+        - DynamoDBWritePolicy:
             TableName: !Ref EventRegistrationTable
-        - DynamoDBCrudPolicy:
+        - DynamoDBWritePolicy:
             TableName: !Ref EmailSuppressionTable
-        - DynamoDBCrudPolicy:
+        - DynamoDBWritePolicy:
             TableName: !Ref AuditTable
+        # The bounce is matched to its event before the status is stored on the registration.
+        - DynamoDBReadPolicy:
+            TableName: !Ref EventTable
+        # The stored delivery status is broadcast to the event's organizer.
+        - !Ref WebSocketPolicy
         - CloudWatchPutMetricPolicy: {}
       Events:
         SesNotification:

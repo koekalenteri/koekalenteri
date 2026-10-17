@@ -13,12 +13,10 @@
               Resource: '*'
         - DynamoDBCrudPolicy:
             TableName: !Ref OrganizerTable
-        - DynamoDBReadPolicy:
-            TableName: !Ref UserTable
-        - DynamoDBReadPolicy:
-            TableName: !Ref UserLinkTable
-        - DynamoDBCrudPolicy:
-            TableName: !Ref AuditTable
+        # Telling the admin clients the organizers changed bumps the collection's version.
+        - DynamoDBWritePolicy:
+            TableName: !Ref DataVersionTable
+        - !Ref AuthorizePolicy
         - CloudWatchPutMetricPolicy: {}
         - !Ref WebSocketPolicy
       Events:
