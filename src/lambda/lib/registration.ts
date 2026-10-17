@@ -31,6 +31,7 @@ import {
 import { isObject, mapWithConcurrency } from '../../lib/utils'
 import { CONFIG } from '../config'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
+import { isConditionalCheckFailure } from './api-gw'
 import { audit, eventAuditKey, registrationAuditKey } from './audit'
 import { emailTo, registrationEmailTags, registrationEmailTemplateData, sendTemplatedMail } from './email'
 import { LambdaError } from './lambda'
@@ -242,6 +243,8 @@ export const participantRegistrationResponse = <T extends JsonRegistration>(
     eventResult: _eventResult,
     group: _group,
     internalNotes: _internalNotes,
+    // How the sending to Kennelliitto went is the secretary's business (KOE-1140).
+    kcResult: _kcResult,
     // Identifiers, never sent to the participant: the picture's status says all they need (KOE-1529, KOE-1530).
     openPayments: _openPayments,
     openRefunds: _openRefunds,
@@ -320,6 +323,35 @@ export const updateRegistrationField = async <F extends keyof JsonRegistration>(
       },
     }
   )
+
+/**
+ * Records what sending a dog's result to Kennelliitto came to (KOE-1140). The write lands only on the
+ * record it was made from: `previousAt` is the `at` of the `kcResult` that was read (none when there
+ * was none), so two secretaries sending the same dog at once cannot both claim the last word. Answers
+ * whether it was written.
+ */
+export const writeKcResult = async (
+  eventId: JsonRegistration['eventId'],
+  id: JsonRegistration['id'],
+  kcResult: NonNullable<JsonRegistration['kcResult']>,
+  previousAt: string | undefined,
+  updatedAt: string
+): Promise<boolean> => {
+  try {
+    await dynamoDB.update({ eventId, id }, { set: { kcResult, updatedAt } }, undefined, 'NONE', {
+      expression:
+        previousAt === undefined
+          ? 'attribute_exists(#id) AND attribute_not_exists(#kcResult)'
+          : 'attribute_exists(#id) AND #kcResult.#at = :at',
+      names: { '#at': 'at', '#id': 'id', '#kcResult': 'kcResult' },
+      ...(previousAt === undefined ? {} : { values: { ':at': previousAt } }),
+    })
+    return true
+  } catch (error) {
+    if (isConditionalCheckFailure(error)) return false
+    throw error
+  }
+}
 
 /** Remove a field outright. DynamoDB refuses `SET x = :undefined`, so clearing is its own expression. */
 export const removeRegistrationField = async (

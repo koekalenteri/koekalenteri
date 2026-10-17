@@ -201,6 +201,7 @@ const copierContact = (copier: Copier, standIns: StandIns, original: PublicConta
 export const removeEventRuntimeState = <T extends Partial<JsonDogEvent>>(event: T): T => {
   delete event.turns
   delete event.registrationGroupsLock
+  delete event.kcState
   delete event.registrationPaymentsLock
   return event
 }
@@ -263,6 +264,9 @@ const copyRegistration = (source: JsonRegistration, copier: Copier, standIns: St
       updatedBy: copier.name,
     }
   }
+
+  // A result sent to Kennelliitto belongs to the trial it was sent to, in the environment it was sent in.
+  delete registration.kcResult
 
   // The source's delivery failure concerns an address the copy no longer has, and the raw edit token
   // is a credential for the source.
@@ -347,6 +351,8 @@ export const findCopyLeaks = (copy: EventCopy, copier: Copier, originals?: CopyO
   const reservedPrefix = digitsOf(COPY_PHONE_PREFIX)
   const leaks = new Set<string>()
   if (KENNELLIITTO_LINK_FIELDS.some((field) => copy.event[field])) leaks.add('kcGuid: a link to a Kennelliitto trial')
+  if (copy.registrations.some((registration) => registration.kcResult))
+    leaks.add('kcResult: a result sent to Kennelliitto')
 
   eachString(copy, (text, key) => {
     for (const match of text.match(EMAIL_RE) ?? []) {

@@ -1,0 +1,38 @@
+  KennelliittoResultsFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: lambda/KennelliittoResultsFunction
+      Handler: handler.default
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref EventRegistrationTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref EventTable
+        - DynamoDBReadPolicy:
+            TableName: !Ref OrganizerTable
+        - DynamoDBReadPolicy:
+            TableName: !Ref EventTypeTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref AuditTable
+        - DynamoDBReadPolicy:
+            TableName: !Ref UserTable
+        - DynamoDBReadPolicy:
+            TableName: !Ref UserLinkTable
+        - Statement:
+            - Sid: SSMGetParameterPolicy
+              Effect: Allow
+              Action:
+              - ssm:GetParameters
+              - ssm:GetParameter
+              Resource: '*'
+        - CloudWatchPutMetricPolicy: {}
+        - !Ref WebSocketPolicy
+      Events:
+        KennelliittoResults:
+          Type: Api
+          Properties:
+            Path: /admin/event-results/{eventId}/kennelliitto
+            Method: POST
+            RestApiId: !Ref KoekalenteriApi
+            Auth:
+              Authorizer: CognitoAuthorizer

@@ -660,6 +660,15 @@ describe('placementsFor', () => {
     expect(Object.fromEntries(placements)).toEqual({ a: 1, b: 1, c: 1 })
   })
 
+  it("ranks a dog on the day of its frozen start group, not the working order's, as the sending keys the day", () => {
+    const placements = placementsFor([
+      dog('a', 'ALO1', 90, { startGroup: { date: day2, key: 'participants', number: 1 } }),
+      dog('b', 'ALO1', 85, { group: { date: day2, key: 'participants', number: 2 } }),
+      dog('c', 'ALO1', 80),
+    ])
+    expect(Object.fromEntries(placements)).toEqual({ a: 1, b: 2, c: 1 })
+  })
+
   it('compares the share of the maximum when a class has rounds of different size', () => {
     const placements = placementsFor([
       dog('five', 'ALO2', 70, { maxPoints: 100 }),

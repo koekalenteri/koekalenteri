@@ -6,6 +6,7 @@ import type {
   EventState,
   JsonConfirmedEvent,
   JsonDogEvent,
+  JsonKcState,
   JsonLinkedEvent,
   JsonRegistration,
   JsonRegistrationGroupInfo,
@@ -19,12 +20,14 @@ import { addDays } from 'date-fns/addDays'
 import { zonedStartOfDay } from '../../i18n/dates'
 import { auditUser, groupChangeAudit } from '../../lib/audit'
 import { isResultsPublishedClassMap, withResultsDay } from '../../lib/event'
+import { KC_STATE_HANDED_OVER } from '../../lib/kennelliittoResults'
 import { getResultsBlocker, isResultsPublishedState } from '../../lib/publishing'
 import { GROUP_KEY_CANCELLED, hasPriority, REGISTRATION_WRITE_CONCURRENCY } from '../../lib/registration'
 import { normalizeRegistrationGroups } from '../../lib/registrationGroups'
 import { mapWithConcurrency } from '../../lib/utils'
 import { CONFIG } from '../config'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
+import { isConditionalCheckFailure } from './api-gw'
 import { audit, registrationAuditKey } from './audit'
 import { foldedFrom, retryOnConditionFailure } from './conditionalWrite'
 import { httpError, LambdaError } from './lambda'
@@ -575,4 +578,103 @@ export const setResultsPublishedState = (
     reread: () => getEvent<JsonConfirmedEvent>(confirmedEvent.id, true),
     work: (current) => writeResultsDay(current, request, updatedAt),
   })
+}
+
+/** How long a handed-over state is held against a reading of another state: longer than a request lives. */
+const KC_LOCK_WINDOW_MS = 30_000
+
+/**
+ * Records what Kennelliitto last said of the trial's state (KOE-1140). A field-level write, never a
+ * save of the event, so it cannot overwrite what a secretary saved meanwhile, and `updatedAt` moves so
+ * an incremental fetch carries it.
+ *
+ * Several requests read the state at once, and a slow one must not put back what a faster one has
+ * already replaced (a judge's return to 754 after a hand-over to 1253 is the case that matters): the
+ * write lands only on a reading no older than the stored one.
+ *
+ * A handed-over state written less than `KC_LOCK_WINDOW_MS` ago is not replaced by a reading of another
+ * state. A hand-over's call to Kennelliitto may still be out for as long as a request lives, and until
+ * Kennelliitto has taken it a reading says what it held before: that reading would lift the lock under a
+ * hand-over that is about to succeed, and let a second one in. A handed-over state older than the window
+ * is replaced like any other, which is how a trial the judge sent back opens again. Answers whether it was
+ * written.
+ */
+export const writeKcState = async (eventId: string, kcState: JsonKcState, updatedAt: string): Promise<boolean> => {
+  const freshAfter = new Date(Date.parse(kcState.readAt) - KC_LOCK_WINDOW_MS).toISOString()
+  try {
+    await dynamoDB.update({ id: eventId }, { set: { kcState, updatedAt } }, eventTable, 'NONE', {
+      expression:
+        'attribute_exists(#id) AND (attribute_not_exists(#kcState) OR (#kcState.#readAt <= :readAt AND (:code = :handedOver OR #kcState.#code <> :handedOver OR #kcState.#readAt <= :freshAfter)))',
+      names: { '#code': 'code', '#id': 'id', '#kcState': 'kcState', '#readAt': 'readAt' },
+      values: {
+        ':code': kcState.code,
+        ':freshAfter': freshAfter,
+        ':handedOver': KC_STATE_HANDED_OVER,
+        ':readAt': kcState.readAt,
+      },
+    })
+    return true
+  } catch (error) {
+    if (isConditionalCheckFailure(error)) return false
+    throw error
+  }
+}
+
+/**
+ * Takes the hand-over lock: writes the handed-over state, but only where none is stored already. A stored
+ * 1253 is another hand-over's lock (or Kennelliitto's own word that the trial is with the judge), and a
+ * lock that is not exclusive could be given back by the one that lost it while the one that won is still
+ * at work. A reading newer than this one is not overwritten either. Answers whether the lock was taken.
+ */
+export const lockKcState = async (eventId: string, locked: JsonKcState, handedOver: number): Promise<boolean> => {
+  try {
+    await dynamoDB.update({ id: eventId }, { set: { kcState: locked, updatedAt: locked.readAt } }, eventTable, 'NONE', {
+      expression:
+        'attribute_exists(#id) AND (attribute_not_exists(#kcState) OR (#kcState.#code <> :handedOver AND #kcState.#readAt <= :readAt))',
+      names: { '#code': 'code', '#id': 'id', '#kcState': 'kcState', '#readAt': 'readAt' },
+      values: { ':handedOver': handedOver, ':readAt': locked.readAt },
+    })
+    return true
+  } catch (error) {
+    if (isConditionalCheckFailure(error)) return false
+    throw error
+  }
+}
+
+/**
+ * Gives the state back that a hand-over took the lock from, but only while the stored state is still the
+ * lock this request wrote (`lockedAt` is its `readAt`). A state another request wrote since, a second
+ * hand-over's lock or a reading, is not this request's to overwrite. Answers whether it was given back.
+ */
+export const releaseKcState = async (
+  eventId: string,
+  restored: JsonKcState,
+  lockedAt: string,
+  updatedAt: string
+): Promise<boolean> => {
+  try {
+    await dynamoDB.update({ id: eventId }, { set: { kcState: restored, updatedAt } }, eventTable, 'NONE', {
+      expression: 'attribute_exists(#id) AND #kcState.#readAt = :lockedAt',
+      names: { '#id': 'id', '#kcState': 'kcState', '#readAt': 'readAt' },
+      values: { ':lockedAt': lockedAt },
+    })
+    return true
+  } catch (error) {
+    if (isConditionalCheckFailure(error)) return false
+    throw error
+  }
+}
+
+/** Links an event that has none to the trial found for it. A link another save made first stays. */
+export const writeKcGuid = async (eventId: string, kcGuid: string, updatedAt: string): Promise<boolean> => {
+  try {
+    await dynamoDB.update({ id: eventId }, { set: { kcGuid, updatedAt } }, eventTable, 'NONE', {
+      expression: 'attribute_exists(#id) AND attribute_not_exists(#kcGuid)',
+      names: { '#id': 'id', '#kcGuid': 'kcGuid' },
+    })
+    return true
+  } catch (error) {
+    if (isConditionalCheckFailure(error)) return false
+    throw error
+  }
 }

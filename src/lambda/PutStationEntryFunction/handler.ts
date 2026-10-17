@@ -25,7 +25,7 @@ const putStationEntryLambda = lambda('putStationEntry', async (event) => {
   if (submissions.length === 0) throw httpError(422, 'no results')
 
   const registrations = await getRegistrationsByEventId(eventId)
-  const { conflicts, patches, saved, unchanged } = await processResultSubmissions(
+  const { conflicts, locked, patches, saved, unchanged } = await processResultSubmissions(
     eventId,
     confirmedEvent,
     registrations,
@@ -45,6 +45,8 @@ const putStationEntryLambda = lambda('putStationEntry', async (event) => {
     stored: scopeResultToStation(conflict.stored, stationId, eventType),
     submitted: scopeResultToStation(conflict.submitted, stationId, eventType),
   }))
+
+  if (locked) throw httpError(423, { error: 'resultsLocked', saved: scope(saved), unchanged: scope(unchanged) })
 
   if (conflicts.length) {
     return response(

@@ -198,6 +198,25 @@ describe('createEventCopy', () => {
     expect(copy.event.registrationGroupsLock).toBeUndefined()
   })
 
+  it('leaves out what was sent to Kennelliitto and the state read from it: they belong to the trial they were sent to (KOE-1140)', () => {
+    const sent = createEventCopy(
+      {
+        event: { ...sourceEvent(), kcState: { code: 1253, name: 'x', readAt: '2026-09-26T10:00:00.000Z' } },
+        registrations: sourceRegistrations().map((registration) => ({
+          ...registration,
+          kcResult: { at: '2026-09-26T10:00:00.000Z', by: 'Matti Meikäläinen', status: 'sent' as const, tulosId: 4 },
+        })),
+      },
+      copier,
+      key
+    )
+
+    expect(Object.hasOwn(sent.copy.event, 'kcState')).toBe(false)
+    expect(sent.copy.registrations.some((registration) => Object.hasOwn(registration, 'kcResult'))).toBe(false)
+    // The name of whoever sent it is not left behind in the copy either.
+    expect(findCopyLeaks(sent.copy, copier, sent.originals)).toEqual([])
+  })
+
   it('leaves nothing that could reach a real person', () => {
     expect(findCopyLeaks(copy, copier, originals)).toEqual([])
     expect(() => assertCopyIsScrubbed(copy, copier, originals)).not.toThrow()
@@ -303,6 +322,7 @@ describe('findCopyLeaks', () => {
 
   it.each([
     ['kcGuid', { kcGuid: '2b81e6a1-559b-407c-87c7-b8a9b89b1987' }],
+    ['kcState', { kcState: { code: 1253, name: 'x', readAt: 'y' } }],
     ['kcId', { kcId: 451859 }],
     ['kcEvent', { kcEvent: { classes: [], endDate: '2026-09-27', eventType: 'NOU', startDate: '2026-09-26' } }],
   ])('refuses a copy that still carries %s', (_name, link) => {
@@ -310,6 +330,13 @@ describe('findCopyLeaks', () => {
     copy.event = { ...copy.event, ...link }
 
     expect(findCopyLeaks(copy, copier)).toEqual(['kcGuid: a link to a Kennelliitto trial'])
+  })
+
+  it('refuses a copy that still carries a result sent to Kennelliitto', () => {
+    const { copy } = clean()
+    copy.registrations[0].kcResult = { at: 'a', by: 'b', status: 'sent' }
+
+    expect(findCopyLeaks(copy, copier)).toEqual(['kcResult: a result sent to Kennelliitto'])
   })
 
   it('finds an original name in any field', () => {
@@ -463,9 +490,10 @@ describe('attachmentKeys', () => {
 })
 
 describe('removeEventRuntimeState', () => {
-  it("removes the source's live timeline and locks", () => {
+  it("removes the source's live timeline, locks and the state read from Kennelliitto", () => {
     expect(
       removeEventRuntimeState({
+        kcState: { code: 1253, name: 'x', readAt: 'y' },
         name: 'Koe',
         registrationGroupsLock: { expiresAt: 1, token: 'a' },
         registrationPaymentsLock: { expiresAt: 1, token: 'b' },

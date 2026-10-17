@@ -12,6 +12,7 @@ import type {
 import type { StationTurnItem } from './StationTurnControls'
 import type { ResultEdit } from './types'
 import Save from '@mui/icons-material/Save'
+import Alert from '@mui/material/Alert'
 import Box from '@mui/material/Box'
 import Chip from '@mui/material/Chip'
 import Paper from '@mui/material/Paper'
@@ -22,6 +23,9 @@ import Typography from '@mui/material/Typography'
 import { enqueueSnackbar } from 'notistack'
 import { useCallback, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { APIError } from '@/api/http'
+import { reportError } from '@/lib/client/error'
+import { errorSnackbarOptions } from '@/lib/client/snackbar'
 import { makeArray } from '@/lib/judge'
 import { liveFormat } from '@/lib/liveFormat'
 import { getRegistrationClass, sortRegistrationsByDateClassTimeAndNumber } from '@/lib/registration'
@@ -63,6 +67,14 @@ interface Props {
   /** The post's live timeline (KOE-1259); the clock and its buttons render only when provided. */
   readonly turns?: readonly StationTurnItem[]
   readonly onTurn?: (op: StationTurnOp) => Promise<unknown>
+  /** The results are with the chief judge: nothing can be saved until the judge sends the trial back (KOE-1140). */
+  readonly locked?: boolean
+  /** What the notice of a locked trial says, for the caller knows how the lock can be lifted from where it is. */
+  readonly lockedText?: string
+  /** The save found the results locked after all; the caller marks its copy of the event as locked. */
+  readonly onLocked?: () => void
+  /** The save was refused because the dog is not on the trial any more: the caller reads the list again. */
+  readonly onRefused?: () => void
 }
 
 /**
@@ -115,7 +127,20 @@ const dogAtPost = (
  * Serves two callers that differ only in where the data comes from: the event secretary's own post
  * view, and the live entry link a judge's secretary opens without an account.
  */
-export function StationScoring({ station, eventType, subtitle, classes, registrations, onSave, turns, onTurn }: Props) {
+export function StationScoring({
+  station,
+  eventType,
+  subtitle,
+  classes,
+  registrations,
+  onSave,
+  turns,
+  onTurn,
+  locked,
+  lockedText,
+  onLocked,
+  onRefused,
+}: Props) {
   const { t } = useTranslation()
 
   // A qualitative type has no tasks to score; the judge's decision is the result, entered as such.
@@ -188,19 +213,35 @@ export function StationScoring({ station, eventType, subtitle, classes, registra
     const stored = selected.eventResult
     // A qualitative result is attributed to whoever is judging, as a task's score is at a post.
     const judge = qualitative ? (edit.judge ?? lastJudge ?? judges[0]) : undefined
-    const response = await onSave({
-      // Where the post is the whole trial, the version is the whole result's, as on the results page.
-      basedOn: qualitative ? stored?.updatedAt : stationVersion(stored?.tasks, station.id),
-      eventResult: {
-        elimination: edit.elimination,
-        retirement: edit.retirement,
-        tasks: edit.tasks,
-        ...(qualitative ? { resultCode: edit.resultCode } : {}),
-        ...(judge ? { judge } : {}),
-      },
-      id: selected.id,
-      stationId: station.id,
-    })
+    let response: EventResultsResponse
+    try {
+      response = await onSave({
+        // Where the post is the whole trial, the version is the whole result's, as on the results page.
+        basedOn: qualitative ? stored?.updatedAt : stationVersion(stored?.tasks, station.id),
+        eventResult: {
+          elimination: edit.elimination,
+          retirement: edit.retirement,
+          tasks: edit.tasks,
+          ...(qualitative ? { resultCode: edit.resultCode } : {}),
+          ...(judge ? { judge } : {}),
+        },
+        id: selected.id,
+        stationId: station.id,
+      })
+    } catch (error) {
+      // Handed to the chief judge from somewhere else meanwhile: the scores stay on screen, unsaved.
+      if (error instanceof APIError && error.status === 423) {
+        enqueueSnackbar(t('results.kennelliitto.lockedSave'), { variant: 'error' })
+        onLocked?.()
+        return
+      }
+      // Anything else refuses this dog and nothing more: the scores stay on screen, another dog can be picked,
+      // and a dog that is gone from the trial is a list that has moved on, which the caller reads again.
+      reportError(error)
+      enqueueSnackbar(t('results.saveFailed'), errorSnackbarOptions)
+      if (error instanceof APIError && (error.status === 404 || error.status === 422)) onRefused?.()
+      return
+    }
 
     enqueueSnackbar(response.saved.length ? t('results.saved') : t('results.alreadySaved'), { variant: 'success' })
 
@@ -208,7 +249,21 @@ export function StationScoring({ station, eventType, subtitle, classes, registra
     const next = dogs.find((dog) => !isScored(dog) && dog.id !== selected.id)
     if (next) select(next)
     else setSelectedId(undefined)
-  }, [dogs, edit, isScored, judges, lastJudge, onSave, qualitative, select, selected, station.id, t])
+  }, [
+    dogs,
+    edit,
+    isScored,
+    judges,
+    lastJudge,
+    onLocked,
+    onRefused,
+    onSave,
+    qualitative,
+    select,
+    selected,
+    station.id,
+    t,
+  ])
 
   return (
     <Paper
@@ -231,6 +286,12 @@ export function StationScoring({ station, eventType, subtitle, classes, registra
           </Typography>
         )}
       </Box>
+
+      {locked && (
+        <Alert severity="warning" sx={{ mt: 1, mx: 2 }}>
+          {lockedText ?? t('results.kennelliitto.lockedSave')}
+        </Alert>
+      )}
 
       <Tabs onChange={(_event, value) => setSelectedClass(value)} sx={{ px: 2 }} value={eventClass ?? false}>
         {eventClasses.map((item) => (
@@ -345,7 +406,13 @@ export function StationScoring({ station, eventType, subtitle, classes, registra
           p: 1,
         }}
       >
-        <AsyncButton color="primary" disabled={!selected} onClick={handleSave} startIcon={<Save />} variant="contained">
+        <AsyncButton
+          color="primary"
+          disabled={!selected || locked}
+          onClick={handleSave}
+          startIcon={<Save />}
+          variant="contained"
+        >
           {t('results.save')}
         </AsyncButton>
       </Stack>

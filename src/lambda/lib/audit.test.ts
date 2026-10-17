@@ -60,6 +60,19 @@ describe('audit', () => {
       state: 'confirmed',
     }
 
+    it('says nothing of a stale state of the Kennelliitto trial riding a save: it is read, not edited (KOE-1140)', () => {
+      const stored = { ...event, kcState: { code: 1253, name: 'x', readAt: '2026-09-26T10:00:00.000Z' } }
+
+      const messages = getEventAuditMessages(stored, {
+        id: 'event-id',
+        kcState: { code: 754, name: 'Hyväksytty', readAt: '2026-09-26T09:00:00.000Z' },
+        name: 'Uusi nimi',
+      })
+
+      expect(messages).toHaveLength(1)
+      expect(messages[0].changes?.map((change) => change.field)).toEqual(['name'])
+    })
+
     it('stores event field translation keys for generic changes', () => {
       const messages = getEventAuditMessages(event, { eventType: 'NOME-B', id: 'event-id' })
 

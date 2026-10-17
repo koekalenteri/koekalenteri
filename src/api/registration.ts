@@ -1,3 +1,4 @@
+import type { KcPreviewResponse, KcSendResponse } from '../lib/kennelliittoResults'
 import type { SubmittedEventResult, SubmittedTask } from '../lib/results'
 import type {
   AuditRecord,
@@ -227,3 +228,46 @@ export async function putEventResults(
     )
   ).data
 }
+
+type KennelliittoRequest =
+  | { action: 'handOver'; withoutBlocked?: boolean }
+  | { action: 'preview'; registrationIds?: string[] }
+  | { action: 'send'; force?: boolean; registrationIds: string[] }
+
+const kennelliittoResults = async <R>(
+  eventId: string,
+  request: KennelliittoRequest,
+  token: string,
+  signal?: AbortSignal
+): Promise<R> =>
+  (
+    await http.post<KennelliittoRequest, R>(
+      `/admin/event-results/${eventId}/kennelliitto`,
+      request,
+      withToken({ signal }, token)
+    )
+  ).data
+
+/** What sending would do, without sending: the dialog's list. A write to Kennelliitto it is not. */
+export const previewKennelliittoResults = (
+  eventId: string,
+  registrationIds: string[] | undefined,
+  token: string,
+  signal?: AbortSignal
+) => kennelliittoResults<KcPreviewResponse>(eventId, { action: 'preview', registrationIds }, token, signal)
+
+/** At most ten dogs at a time; the server refuses more. */
+export const sendKennelliittoResults = (
+  eventId: string,
+  registrationIds: string[],
+  force: boolean,
+  token: string,
+  signal?: AbortSignal
+) => kennelliittoResults<KcSendResponse>(eventId, { action: 'send', force, registrationIds }, token, signal)
+
+export const handOverKennelliittoResults = (
+  eventId: string,
+  withoutBlocked: boolean,
+  token: string,
+  signal?: AbortSignal
+) => kennelliittoResults<{ handedOver: boolean }>(eventId, { action: 'handOver', withoutBlocked }, token, signal)

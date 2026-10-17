@@ -118,6 +118,12 @@ export interface JsonDogEvent extends JsonDbRecord {
    */
   kcGuid?: string
   kcEvent?: JsonKcEventInfo
+  /**
+   * What Kennelliitto last said of the linked trial's state (Koe/Lue), refreshed whenever results are
+   * previewed, sent or handed over. Server-owned: an event save never writes it. A trial handed to the
+   * chief judge (1253) or finished (304) locks its results here (`isResultsLocked`).
+   */
+  kcState?: JsonKcState
   location: string
   members?: number
   /**
@@ -353,9 +359,14 @@ export type LinkedEvent = Pick<
   'id' | 'eventType' | 'name' | 'names' | 'location' | 'startDate' | 'endDate' | 'classes'
 >
 
+/** The results are handed to the chief judge: the post's link can read them but no longer write them. */
+interface StationEntryLock {
+  locked?: boolean
+}
+
 /** What the tokenized station link serves: the post, its slice of the course, and the dogs that run. */
 export interface JsonStationEntry {
-  event: JsonLinkedEvent
+  event: JsonLinkedEvent & StationEntryLock
   /** Without `tokenVersion`: the link must not reveal its own revocation counter. */
   station: Omit<JsonEventStation, 'tokenVersion'>
   registrations: JsonStationEntryDog[]
@@ -363,7 +374,7 @@ export interface JsonStationEntry {
   turns?: JsonPublicStationTurn[]
 }
 export type StationEntry = {
-  event: LinkedEvent
+  event: LinkedEvent & StationEntryLock
   station: Omit<EventStation, 'tokenVersion'>
   registrations: StationEntryDog[]
   turns?: PublicStationTurn[]
@@ -448,6 +459,13 @@ export type JsonKcEventInfo = {
 }
 export type KcEventInfo = Replace<JsonKcEventInfo, 'startDate' | 'endDate', Date>
 
+export type JsonKcState = {
+  code: number
+  name: string
+  readAt: string
+}
+export type KcState = Replace<JsonKcState, 'readAt', Date>
+
 export type DogEvent = DbRecord &
   Replace<
     Replace<
@@ -456,7 +474,7 @@ export type DogEvent = DbRecord &
           ReplaceOptional<
             ReplaceOptional<
               ReplaceOptional<
-                Omit<JsonDogEvent, keyof JsonDbRecord | 'invitationAttachmentHistory'>,
+                Omit<JsonDogEvent, keyof JsonDbRecord | 'invitationAttachmentHistory' | 'kcState'>,
                 EventOptionalDates,
                 Date
               >,
@@ -479,6 +497,7 @@ export type DogEvent = DbRecord &
     Array<EventClass>
   > & {
     invitationAttachmentHistory?: Record<string, InvitationAttachmentVersion>
+    kcState?: KcState
   }
 
 type NonPublicDogEventProperties =
@@ -491,6 +510,7 @@ type NonPublicDogEventProperties =
   | 'kcId'
   | 'kcGuid'
   | 'kcEvent'
+  | 'kcState'
   | 'official'
   | 'secretary'
   | 'createdBy'

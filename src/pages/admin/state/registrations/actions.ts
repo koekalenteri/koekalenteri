@@ -1,27 +1,40 @@
 import type { TFunction } from 'i18next'
 import type { EventResultSubmission, StoredEventResult } from '@/api/registration'
-import type { PublicDogEvent, Registration, RegistrationGroupMove, RegistrationMessage } from '@/types'
+import type { KcBlocker, KcDogReport, KcSendReport, KcSendResponse } from '@/lib/kennelliittoResults'
+import type {
+  JsonKcResult,
+  KcResult,
+  PublicDogEvent,
+  Registration,
+  RegistrationGroupMove,
+  RegistrationMessage,
+} from '@/types'
 import { useAtom, useAtomValue, useSetAtom } from 'jotai'
 import { useAtomCallback } from 'jotai/utils'
 import { useSnackbar } from 'notistack'
 import { useCallback, useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { sendTemplatedEmail } from '@/api/email'
+import { APIError } from '@/api/http'
 import { createRefund } from '@/api/payment'
 import {
   getRegistrations,
   getRegistrationTransactions,
+  handOverKennelliittoResults,
   patchAdminRegistration,
   postAdminRegistration,
+  previewKennelliittoResults,
   putAdminRegistrationNotes,
   putEventResults,
   putRegistrationGroups,
+  sendKennelliittoResults,
 } from '@/api/registration'
 import { reportError } from '@/lib/client/error'
 import { isTestEnv } from '@/lib/env'
 import { latestCollectionUpdate, reconcileCollection } from '@/lib/incremental'
 import { createPatchOperations } from '@/lib/patch'
 import { GROUP_KEY_CANCELLED, withRegistrationOverrides } from '@/lib/registration'
+import { isObject } from '@/lib/utils'
 import { validIdTokenAtom } from '@/pages/state'
 import { showRegistrationSaveConflict } from '@/pages/state/registration/registrationSaveError'
 import { adminEventAtom } from '../events'
@@ -116,6 +129,203 @@ export const useSaveEventResults = (eventId: string) => {
     },
     [eventId, store, token]
   )
+}
+
+/** Dogs in one sending: what the endpoint takes, and few enough to be answered within the gateway's time. */
+const KC_SEND_CHUNK = 10
+
+/** The dogs of a sending, ten at a time. */
+const chunksOf = (ids: readonly string[]): string[][] =>
+  Array.from({ length: Math.ceil(ids.length / KC_SEND_CHUNK) }, (_unused, index) =>
+    ids.slice(index * KC_SEND_CHUNK, (index + 1) * KC_SEND_CHUNK)
+  )
+
+export interface KcSendSummary {
+  blockers: KcBlocker[]
+  /**
+   * The sending was cut short by an error or no answer. What the dogs came to is then read from the
+   * server instead of guessed, and the dogs not tried are in `notAttempted`.
+   */
+  interrupted: boolean
+  notAttempted: string[]
+  reports: KcSendReport[]
+}
+
+/** Why a hand-over did not happen, as the dialog needs it. */
+export type KcHandOverOutcome =
+  | { kind: 'blocked'; blockers: KcBlocker[] }
+  | { kind: 'confirmationNeeded'; dogs: KcDogReport[] }
+  | { kind: 'done' }
+  | { kind: 'failed' }
+  /** No result has been sent: handing over nothing wants the secretary's word. */
+  | { kind: 'nothingSent' }
+  | { kind: 'refused'; virheet: string[] }
+  /** Kennelliitto gave no clear answer: whether the hand-over happened is not known. */
+  | { kind: 'unknown' }
+  | { kind: 'unsent'; dogs: KcDogReport[] }
+
+const bodyOf = (error: unknown): Record<string, unknown> | undefined =>
+  error instanceof APIError && isObject(error.body) ? error.body : undefined
+
+const isBlockers = (value: unknown): value is KcBlocker[] => Array.isArray(value)
+
+const isDogs = (value: unknown): value is KcDogReport[] => Array.isArray(value)
+
+const blockersOf = (error: unknown): KcBlocker[] | undefined => {
+  const body = bodyOf(error)
+  return error instanceof APIError && error.status === 409 && isBlockers(body?.blockers) ? body.blockers : undefined
+}
+
+/** What the endpoint's refusals of a hand-over say, by the name it gives them. */
+const HAND_OVER_REFUSALS: Record<string, (body: Record<string, unknown>) => KcHandOverOutcome | undefined> = {
+  blocked: (body) => (isBlockers(body.blockers) ? { blockers: body.blockers, kind: 'blocked' } : undefined),
+  confirmationNeeded: (body) => (isDogs(body.dogs) ? { dogs: body.dogs, kind: 'confirmationNeeded' } : undefined),
+  kennelliittoRefused: (body) => {
+    const virheet = Array.isArray(body.virheet) ? body.virheet.filter((item) => typeof item === 'string') : []
+    return virheet.length ? { kind: 'refused', virheet } : { kind: 'unknown' }
+  },
+  nothingSent: () => ({ kind: 'nothingSent' }),
+  unsentResults: (body) => (isDogs(body.dogs) ? { dogs: body.dogs, kind: 'unsent' } : undefined),
+}
+
+const handOverRefusal = (error: unknown): KcHandOverOutcome | undefined => {
+  const body = bodyOf(error)
+  const name = typeof body?.error === 'string' ? body.error : undefined
+  return body && name ? HAND_OVER_REFUSALS[name]?.(body) : undefined
+}
+
+/** What a chunk's answer adds to the sending so far, and the dogs it asks to be tried again. */
+const foldChunk = (summary: KcSendSummary, response: KcSendResponse): { retry: string[][]; summary: KcSendSummary } => {
+  // A request that ran out of time leaves dogs for the next one, which only helps if this one got
+  // somewhere; otherwise they are reported as not tried.
+  const retry = response.reports.length > 0 ? chunksOf(response.notAttempted) : []
+  return {
+    retry,
+    summary: {
+      ...summary,
+      notAttempted: retry.length ? summary.notAttempted : [...summary.notAttempted, ...response.notAttempted],
+      reports: [...summary.reports, ...response.reports],
+    },
+  }
+}
+
+/** The stored result as the client holds it: the client's reviver has turned the date-shaped strings into Dates. */
+const toClientKcResult = ({ at, day, ...kcResult }: JsonKcResult): KcResult => ({
+  ...kcResult,
+  at: new Date(at),
+  ...(day === undefined ? {} : { day: new Date(day) }),
+})
+
+/**
+ * Folds what sending the results to Kennelliitto came to into the event's registrations, so the page
+ * that sent them shows it without waiting for the socket.
+ */
+const useStoreKcResults = (eventId: string) =>
+  useAtomCallback(
+    useCallback(
+      async (get, set, stored: ReadonlyArray<{ id: string; kcResult: JsonKcResult }>) => {
+        if (stored.length === 0) return
+        const registrations = await get(adminEventRegistrationsAtom(eventId))
+        set(
+          adminEventRegistrationsAtom(eventId),
+          registrations.map((registration) => {
+            const written = stored.find((item) => item.id === registration.id)
+            return written ? { ...registration, kcResult: toClientKcResult(written.kcResult) } : registration
+          })
+        )
+      },
+      [eventId]
+    )
+  )
+
+/**
+ * The results page's side of Kennelliitto's Omakoira (KOE-1140): the preview, the sending ten dogs at a
+ * time, and the hand-over to the chief judge.
+ */
+export const useKennelliittoResults = (eventId: string) => {
+  const token = useAtomValue(validIdTokenAtom)
+  const store = useStoreKcResults(eventId)
+
+  const reload = useAtomCallback(
+    useCallback(
+      async (_get, set): Promise<Registration[]> => {
+        // Without a token the list cannot be read, and an empty answer would read as a trial with no dogs.
+        if (!token) throw new Error('missing token')
+        const registrations = await getRegistrations(eventId, token)
+        set(adminEventRegistrationsAtom(eventId), registrations)
+        return registrations
+      },
+      [eventId, token]
+    )
+  )
+
+  const preview = useCallback(
+    (registrationIds?: string[], signal?: AbortSignal) =>
+      previewKennelliittoResults(eventId, registrationIds, token ?? '', signal),
+    [eventId, token]
+  )
+
+  const sendChunks = useCallback(
+    async (
+      queue: string[][],
+      force: boolean,
+      summary: KcSendSummary,
+      onProgress?: (done: number) => void
+    ): Promise<KcSendSummary> => {
+      const [chunk, ...rest] = queue
+      if (!chunk) return summary
+
+      let answer: { response: KcSendResponse } | { error: unknown }
+      try {
+        answer = { response: await sendKennelliittoResults(eventId, chunk, force, token ?? '') }
+      } catch (error) {
+        answer = { error }
+      }
+      if ('response' in answer) {
+        await store(answer.response.kcResults)
+        const folded = foldChunk(summary, answer.response)
+        onProgress?.(folded.summary.reports.length)
+        return sendChunks([...folded.retry, ...rest], force, folded.summary, onProgress)
+      }
+
+      const undelivered = [...summary.notAttempted, ...chunk, ...rest.flat()]
+      const blockers = blockersOf(answer.error)
+      if (blockers) return { ...summary, blockers, notAttempted: undelivered }
+      // No answer, a gateway timeout or an error: some of the dogs may have been sent. Read what the
+      // server holds rather than report a failure that may not be one.
+      await reload().catch(reportError)
+      return { ...summary, interrupted: true, notAttempted: undelivered }
+    },
+    [eventId, reload, store, token]
+  )
+
+  const send = useCallback(
+    (registrationIds: readonly string[], force: boolean, onProgress?: (done: number) => void) =>
+      sendChunks(
+        chunksOf(registrationIds),
+        force,
+        { blockers: [], interrupted: false, notAttempted: [], reports: [] },
+        onProgress
+      ),
+    [sendChunks]
+  )
+
+  const handOver = useCallback(
+    async (withoutBlocked: boolean): Promise<KcHandOverOutcome> => {
+      try {
+        await handOverKennelliittoResults(eventId, withoutBlocked, token ?? '')
+        return { kind: 'done' }
+      } catch (error) {
+        const refusal = handOverRefusal(error)
+        if (refusal) return refusal
+        reportError(error)
+        return { kind: 'failed' }
+      }
+    },
+    [eventId, token]
+  )
+
+  return { handOver, preview, reload, send }
 }
 
 export const useAdminRegistrationActions = (eventId: string) => {

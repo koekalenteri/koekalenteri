@@ -178,4 +178,15 @@ describe('putStationEntryLambda', () => {
     expect(payload.saved[0].eventResult).not.toHaveProperty('result')
     expect(payload.saved[0].eventResult).not.toHaveProperty('points')
   })
+  it('refuses the post once the trial is handed to the chief judge, with its own status and code', async () => {
+    mockGetEvent.mockResolvedValue({ ...confirmedEvent, kcState: { code: 1253, name: 'x', readAt: 'y' } })
+
+    await expect(
+      putStationEntryLambda(
+        apiEvent([{ eventResult: { tasks: [{ index: 0, points: 17, stationId: 'post-1' }] }, id: 'reg-1' }])
+      )
+    ).rejects.toMatchObject({ body: { error: 'resultsLocked' }, status: 423 })
+
+    expect(mockUpdateRegistrationField).not.toHaveBeenCalled()
+  })
 })

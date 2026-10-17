@@ -21,6 +21,7 @@ import { ResultSummary } from '../../components/stationScoring/ResultSummary'
 import { outcomeLabelKeys, RoundOutcome } from '../../components/stationScoring/RoundOutcome'
 import { TaskScore } from '../../components/stationScoring/TaskScore'
 import { emptyEdit, isVoided, sameResultEdit } from '../../components/stationScoring/types'
+import { KennelliittoStatus } from './KennelliittoStatus'
 
 interface Props {
   readonly registrations: Registration[]
@@ -49,6 +50,8 @@ interface Props {
    * phone in the field (KOE-1280). The controls are the same either way; only their arrangement differs.
    */
   readonly compact?: boolean
+  /** Shows where each dog's result stands with Kennelliitto's Omakoira (KOE-1140). */
+  readonly kennelliitto?: boolean
   /**
    * Each awarded dog's rank (`placementsFor`). Absent in a post's own view, where it is unknowable. A row
    * with an unsaved edit shows none: the rank is of what is stored, and the edit may move it.
@@ -90,6 +93,7 @@ function ResultsTable({
   disabled,
   onChange,
   compact,
+  kennelliitto,
   placements,
 }: Props) {
   const { t } = useTranslation()
@@ -231,6 +235,7 @@ function ResultsTable({
           <ResultCard
             controls={controlsFor(registration)}
             key={registration.id}
+            kennelliitto={kennelliitto}
             qualitative={qualitative}
             registration={registration}
           />
@@ -259,6 +264,7 @@ function ResultsTable({
             {qualitative && <TableCell>{t('results.column.result')}</TableCell>}
             <TableCell>{t(outcomeColumn)}</TableCell>
             {!qualitative && <TableCell align="right">{t('results.column.result')}</TableCell>}
+            {kennelliitto && <TableCell>{t('results.kennelliitto.column')}</TableCell>}
           </TableRow>
         </TableHead>
         <TableBody>
@@ -280,6 +286,11 @@ function ResultsTable({
                 {qualitative && <TableCell>{controls.result}</TableCell>}
                 <TableCell>{controls.outcome}</TableCell>
                 {!qualitative && <TableCell align="right">{controls.result}</TableCell>}
+                {kennelliitto && (
+                  <TableCell>
+                    <KennelliittoStatus registration={registration} />
+                  </TableCell>
+                )}
               </TableRow>
             )
           })}
@@ -293,13 +304,14 @@ interface CardProps {
   readonly registration: Registration
   readonly qualitative: boolean
   readonly controls: RowControls
+  readonly kennelliitto?: boolean
 }
 
 /**
  * A dog on a phone: who it is on top, the round's controls under it. A derived prize sits beside the
  * name where the eye lands first; an entered one is a control like the rest and takes its place below.
  */
-const ResultCard = ({ registration, qualitative, controls }: CardProps) => {
+const ResultCard = ({ registration, qualitative, controls, kennelliitto }: CardProps) => {
   const identity = [registration.dog.regNo, registration.handler?.name].filter(Boolean).join(' · ')
   const placementNumber = getRegistrationPlacement(registration)?.number
 
@@ -334,6 +346,7 @@ const ResultCard = ({ registration, qualitative, controls }: CardProps) => {
           >
             {identity}
           </Typography>
+          {kennelliitto && <KennelliittoStatus registration={registration} />}
         </Box>
         {!qualitative && <Box sx={{ flexShrink: 0, textAlign: 'right' }}>{controls.result}</Box>}
       </Stack>

@@ -22,7 +22,12 @@ type EventFormOptions = {
   savedMessage?: string
 }
 
-type RefusalKey = 'event.saveForbidden' | 'event.staleData' | 'event.kcIdConflict' | 'event.kcGuidConflict'
+type RefusalKey =
+  | 'event.saveForbidden'
+  | 'event.staleData'
+  | 'event.kcIdConflict'
+  | 'event.kcGuidConflict'
+  | 'event.kcGuidLocked'
 
 /**
  * The notice for a refusal the secretary can act on: no right to this event, or a 409 the server
@@ -35,6 +40,7 @@ const knownRefusal = (error: unknown): RefusalKey | undefined => {
     if (error.body.error === 'staleData') return 'event.staleData'
     if (error.body.error === 'kcIdConflict') return 'event.kcIdConflict'
     if (error.body.error === 'kcGuidConflict') return 'event.kcGuidConflict'
+    if (error.body.error === 'kcGuidLocked') return 'event.kcGuidLocked'
   }
   return undefined
 }

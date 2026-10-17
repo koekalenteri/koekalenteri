@@ -13,8 +13,12 @@ import type {
   ResultMark,
 } from '../types'
 import { objectsDiffer } from './diff'
-import { startListAvailabilityDateKey } from './event'
-import { getRegistrationClass, isScorableRegistration } from './registration'
+import {
+  getRegistrationClass,
+  getRegistrationGroupDay,
+  getRegistrationPlacement,
+  isScorableRegistration,
+} from './registration'
 
 /**
  * The result codes shared by every event type. `0` and `-` are different outcomes: `0` says the dog was
@@ -544,7 +548,10 @@ export const mergeStationTasks = <T extends StationScopedTask>(
 ): T[] => [...(stored ?? []).filter((task) => task.stationId !== stationId), ...stationTasks(submitted, stationId)]
 
 /** What `placementsFor` reads of a registration: where the dog ran and what it scored. */
-type PlacementRow = Pick<JsonRegistration | Registration, 'id' | 'class' | 'eventType' | 'cancelled' | 'group'> & {
+type PlacementRow = Pick<
+  JsonRegistration | Registration,
+  'id' | 'class' | 'eventType' | 'cancelled' | 'group' | 'startGroup'
+> & {
   eventResult?: Pick<JsonEventResult, 'result' | 'points' | 'maxPoints'>
 }
 
@@ -558,13 +565,18 @@ type PlacementRow = Pick<JsonRegistration | Registration, 'id' | 'class' | 'even
  * overridden) get none and take no rank. Dogs are ranked within their class and day, by the share of
  * the round's maximum compared exactly (maxPoints can differ within a class if the posts were edited).
  * Ties share a rank and the next rank skips: 1, 2, 2, 4.
+ *
+ * The day is the one the dog ran: the frozen placement's over the working order's, as the trial's
+ * calendar day (`getRegistrationGroupDay`). The sending to Kennelliitto keys its day the same way
+ * (`kcResultDay`), so a dog ranks among the dogs of the day its result is sent for.
  */
 export const placementsFor = (rows: readonly PlacementRow[]): Map<string, number> => {
   const groups = new Map<string, { id: string; points: number; maxPoints: number }[]>()
 
   for (const row of rows) {
-    const { eventResult, group } = row
-    if (!scoresAtPosts(row.eventType) || !isScorableRegistration(row) || !group?.date) continue
+    const { eventResult } = row
+    const day = getRegistrationGroupDay(getRegistrationPlacement(row)?.date)
+    if (!scoresAtPosts(row.eventType) || !isScorableRegistration(row) || !day) continue
     const { points, maxPoints } = eventResult ?? {}
     if (typeof points !== 'number' || typeof maxPoints !== 'number' || maxPoints <= 0) continue
 
@@ -572,7 +584,7 @@ export const placementsFor = (rows: readonly PlacementRow[]): Map<string, number
     const code = parseEventResultCode(eventResult?.result, row.eventType, eventClass)
     if (code !== '1' && code !== '2' && code !== '3') continue
 
-    const key = `${eventClass}|${startListAvailabilityDateKey(group.date)}`
+    const key = `${eventClass}|${day}`
     const entries = groups.get(key) ?? []
     entries.push({ id: row.id, maxPoints, points })
     groups.set(key, entries)

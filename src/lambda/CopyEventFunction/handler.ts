@@ -70,6 +70,7 @@ const copyEventLambda = lambda('copyEvent', async (event) => {
     // start number would pin it to the source's published order.
     delete reg.startGroup
     delete reg.eventResult
+    delete reg.kcResult
     reg.dates.forEach((d) => {
       d.date = shift(d.date)
     })

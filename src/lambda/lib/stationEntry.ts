@@ -9,6 +9,7 @@ import type {
   JsonStationEntryDog,
   JsonStationTurn,
 } from '../../types'
+import { isResultsLocked } from '../../lib/kennelliittoResults'
 import { resolveStation } from '../../lib/liveFormat'
 import { isScorableRegistration, sortRegistrationsByDateClassTimeAndNumber } from '../../lib/registration'
 import { scoresAtPosts } from '../../lib/results'
@@ -118,7 +119,7 @@ export const stationEntryResponse = (
   const { tokenVersion: _tokenVersion, ...publicStation } = station
 
   return {
-    event: linkedEventProjection(confirmedEvent),
+    event: { ...linkedEventProjection(confirmedEvent), ...(isResultsLocked(confirmedEvent) ? { locked: true } : {}) },
     registrations: registrations
       .filter(isScorableRegistration)
       .sort(sortRegistrationsByDateClassTimeAndNumber)

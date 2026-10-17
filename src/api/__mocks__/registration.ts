@@ -1,3 +1,4 @@
+import type { KcPreviewResponse, KcSendResponse } from '../../lib/kennelliittoResults'
 import type {
   AuditRecord,
   ConfirmedEvent,
@@ -71,20 +72,17 @@ for (const reg of mockRegistrationData) {
   mockRegistrations[reg.eventId].push(reg)
 }
 
-export async function getRegistrations(
-  eventId: string,
-  _token?: string,
-  _signal?: AbortSignal
-): Promise<Registration[]> {
-  return new Promise((resolve, reject) => {
-    const event = mockEvents.find((item) => item.id === eventId)
-    if (!event) {
-      process.nextTick(() => reject(new Error(`event not found with id: ${eventId}`)))
-    } else {
-      process.nextTick(() => resolve(mockRegistrations[eventId] || []))
-    }
-  })
-}
+export const getRegistrations = vi.fn(
+  async (eventId: string, _token?: string, _signal?: AbortSignal, _since?: Date): Promise<Registration[]> =>
+    new Promise((resolve, reject) => {
+      const event = mockEvents.find((item) => item.id === eventId)
+      if (!event) {
+        process.nextTick(() => reject(new Error(`event not found with id: ${eventId}`)))
+      } else {
+        process.nextTick(() => resolve(mockRegistrations[eventId] || []))
+      }
+    })
+)
 
 export const getRegistration = vi.fn(
   async (
@@ -218,4 +216,28 @@ export const putEventResults = vi.fn(
     saved: results.map(({ id }) => ({ eventResult: {} as EventResult, id })),
     unchanged: [],
   })
+)
+
+/** Kennelliitto's side of the results: a vi.fn each, so a test chooses what the endpoint answers. */
+export const previewKennelliittoResults = vi.fn(
+  async (
+    _eventId: string,
+    _registrationIds: string[] | undefined,
+    _token: string,
+    _signal?: AbortSignal
+  ): Promise<KcPreviewResponse> => ({ blockers: [], dogs: [] })
+)
+
+export const sendKennelliittoResults = vi.fn(
+  async (
+    _eventId: string,
+    _registrationIds: string[],
+    _force: boolean,
+    _token: string,
+    _signal?: AbortSignal
+  ): Promise<KcSendResponse> => ({ blockers: [], kcResults: [], notAttempted: [], reports: [] })
+)
+
+export const handOverKennelliittoResults = vi.fn(
+  async (_eventId: string, _withoutBlocked: boolean, _token: string, _signal?: AbortSignal) => ({ handedOver: true })
 )

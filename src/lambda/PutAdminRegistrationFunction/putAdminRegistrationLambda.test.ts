@@ -569,6 +569,91 @@ describe('putAdminRegistrationLambda', () => {
     expect(result.statusCode).toBe(200)
   })
 
+  describe('what only the results endpoints write (KOE-1140)', () => {
+    const storedResult = { result: 'ALO1', updatedAt: '2026-09-26T09:00:00.000Z', updatedBy: 'Sihteeri' }
+    const storedKc = { at: '2026-09-26T10:00:00.000Z', by: 'Sihteeri', payloadHash: 'h', status: 'sent' as const }
+    const stored = {
+      class: 'ALO',
+      dates: [],
+      dog: { breedCode: '111', regNo: 'DOG123' },
+      eventId: 'event123',
+      eventResult: storedResult,
+      handler: { email: 'handler@example.com' },
+      id: 'reg456',
+      kcResult: storedKc,
+      language: 'fi',
+      owner: { email: 'owner@example.com' },
+      qualifyingResults: [],
+      reserve: 'ANY',
+      state: 'draft',
+    }
+    const stale = { ...storedResult, result: 'ALO3' }
+
+    it.each([
+      ['a full save', 'PUT'],
+      ['a merge patch', 'PATCH'],
+    ])('keeps the stored result and the sending when %s carries old copies of them', async (_name, httpMethod) => {
+      mockGetRegistration.mockResolvedValueOnce(stored)
+
+      const result = await putAdminRegistrationLambda({
+        ...event,
+        body: JSON.stringify({
+          ...JSON.parse(event.body ?? ''),
+          eventResult: stale,
+          kcResult: { ...storedKc, status: 'failed' },
+        }),
+        httpMethod,
+      })
+
+      expect(result.statusCode).toBe(200)
+      expect(mockPatchRegistration).toHaveBeenCalledWith(
+        'event123',
+        'reg456',
+        expect.anything(),
+        expect.objectContaining({ eventResult: storedResult, kcResult: storedKc })
+      )
+    })
+
+    /** A well-formed operations request: only the field it names decides whether it is accepted. */
+    const operation = (field: string, value: unknown) =>
+      putAdminRegistrationLambda({
+        ...event,
+        body: JSON.stringify({
+          eventId: 'event123',
+          id: 'reg456',
+          operations: [{ path: [field], type: 'CHANGE', value }],
+        }),
+        httpMethod: 'PATCH',
+      })
+
+    it.each([
+      ['eventResult', stale],
+      ['kcResult', { ...storedKc, status: 'failed' }],
+    ])('refuses an operation on %s and names it', async (field, value) => {
+      mockGetRegistration.mockResolvedValueOnce(stored)
+
+      const result = await operation(field, value)
+
+      expect(result.statusCode).toBe(400)
+      expect(JSON.parse(result.body).message).toContain(`protected registration field: ${field}`)
+      expect(mockPatchRegistration).not.toHaveBeenCalled()
+    })
+
+    it('accepts the same operation on a field a registration form may change', async () => {
+      mockGetRegistration.mockResolvedValueOnce(stored)
+
+      const result = await operation('class', 'AVO')
+
+      expect(result.statusCode).toBe(200)
+      expect(mockPatchRegistration).toHaveBeenCalledWith(
+        'event123',
+        'reg456',
+        expect.anything(),
+        expect.objectContaining({ class: 'AVO', eventResult: storedResult, kcResult: storedKc })
+      )
+    })
+  })
+
   it('merges partial patch payloads before saving existing registrations', async () => {
     const result = await putAdminRegistrationLambda({
       ...event,

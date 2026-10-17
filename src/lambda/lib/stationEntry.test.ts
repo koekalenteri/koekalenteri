@@ -1,5 +1,6 @@
 import type { JsonEventResult, JsonRegistration } from '../../types'
 import { asJsonConfirmedEvent, asJsonRegistration } from '../test-utils/helpers'
+import { linkedEventProjection } from './event'
 import {
   authorizeStationEntry,
   deriveStationEntryToken,
@@ -95,6 +96,18 @@ describe('stationEntry', () => {
         owner: { email: 'x@example.com', name: 'Owner' },
         ...overrides,
       })
+
+    it('tells the post when the trial is out of its hands, and says nothing of the state itself', () => {
+      const locked = { ...confirmedEvent, kcState: { code: 1253, name: 'Ylituomarin hyväksyttäväksi', readAt: 'x' } }
+
+      const result = stationEntryResponse(locked, station, [registration('run-1')])
+
+      expect(result.event.locked).toEqual(true)
+      expect(result.event).not.toHaveProperty('kcState')
+      // The lock is the post's to know; the other links built on the same projection are told nothing of it.
+      expect(linkedEventProjection(locked)).not.toHaveProperty('locked')
+      expect(stationEntryResponse(confirmedEvent, station, [registration('run-1')]).event).not.toHaveProperty('locked')
+    })
 
     it('serves the minimum a post needs to call dogs up, and nothing personal', () => {
       const result = stationEntryResponse(confirmedEvent, station, [registration('run-1')])
