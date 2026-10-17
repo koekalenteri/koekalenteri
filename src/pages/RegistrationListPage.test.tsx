@@ -7,7 +7,7 @@ import i18n from 'i18next'
 import { createStore, Provider } from 'jotai'
 import { enqueueSnackbar } from 'notistack'
 import { Suspense } from 'react'
-import { Link, useParams } from 'react-router'
+import { Link, useLocation, useParams } from 'react-router'
 import { eventWithParticipantsInvited, eventWithStaticDates } from '../__mockData__/events'
 import { paymentPictureWith } from '../__mockData__/paymentPicture'
 import { registrationWithStaticDates, unpaidRegistrationWithStaticDates } from '../__mockData__/registrations'
@@ -70,6 +70,12 @@ const PaymentStub = () => {
 
 /** What the server's picture says of a place that owes its fee. */
 const owing = paymentPictureWith({ canPay: true, due: 123, standing: false, status: 'unpaid' })
+
+/** Shows where the saved route redirected to. */
+const LocationProbe = () => {
+  const { pathname, search } = useLocation()
+  return <>{`at ${pathname}${search}`}</>
+}
 
 describe('RegistrationListPage', () => {
   beforeEach(() => vi.useFakeTimers())
@@ -648,6 +654,41 @@ describe('RegistrationListPage', () => {
     await flushPromises()
 
     expect(enqueueSnackbar).toHaveBeenCalledWith(...verifyingMessage)
+  })
+
+  // Where the saved route goes next: it keeps the verifying mark until the picture has money standing.
+  it.each([
+    [
+      'no money stands, whatever the stored status says',
+      owing,
+      'at /r/test1/unpaid-nou-registration?payment=verifying',
+    ],
+    ['money stands', paymentPictureWith(), 'at /r/test1/unpaid-nou-registration'],
+  ])('redirects from the saved route when %s', async (_name, payment, location) => {
+    vi.spyOn(registrationApi, 'getRegistration').mockResolvedValue({
+      ...unpaidRegistrationWithStaticDates,
+      payment,
+      paymentStatus: 'SUCCESS',
+    })
+    const routes: RouteObject[] = [
+      { element: <RegistrationListPage />, path: '/r/:id/:registrationId/saved' },
+      { element: <LocationProbe />, path: '/r/:id/:registrationId' },
+    ]
+    await renderSuspended(
+      <Provider>
+        <Suspense fallback={<div>loading...</div>}>
+          <AppSnackbarProvider>
+            <DataMemoryRouter
+              initialEntries={['/r/test1/unpaid-nou-registration/saved?payment=verifying']}
+              routes={routes}
+            />
+          </AppSnackbarProvider>
+        </Suspense>
+      </Provider>
+    )
+    await flushPromises()
+
+    expect(screen.getByText(location)).toBeInTheDocument()
   })
 
   // The divergent branch of the saved return: the stored status says SUCCESS, the picture says no money

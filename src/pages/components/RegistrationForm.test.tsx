@@ -203,6 +203,18 @@ describe('RegistrationForm', () => {
       new RegExp(`^registration\\.paymentToBePaidAfterConfirmation ${amount}`)
     const atOnce = (amount: string) => new RegExp(`^registration\\.paymentToBePaid ${amount}`)
 
+    // Paid at entry, nothing waits for a place: the picture's canPay says nothing of it.
+    it('says the fee at once for a trial paid at entry, whatever canPay says', async () => {
+      const entryEvent = { ...eventWithStaticDates, paymentTime: 'registration' as const }
+      const payment = paymentPictureWith({ due: 123, standing: false, status: 'unpaid' })
+      render(<RegistrationForm event={entryEvent} registration={{ ...participantRow, payment }} />, {
+        wrapper: Wrapper,
+      })
+      await flushPromises()
+
+      expect(screen.getByText(/^registration\.paymentToBePaid/)).toHaveTextContent(atOnce('123,00'))
+    })
+
     it.each([
       [
         'a confirmed place whose pay link is offered',

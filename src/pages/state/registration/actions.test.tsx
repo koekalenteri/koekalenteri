@@ -104,8 +104,8 @@ describe('useRegistrationActions', () => {
     expect(saved).toBe(editedRegistration)
   })
 
-  // KOE-1530: the participant's payment picture is the server's word, so a save never sends it, even
-  // when the row the form holds carries another one than the saved row.
+  // KOE-1530, a regression guard (it passes on the code before the picture too): a save never sends the
+  // payment picture, even when the row the form holds carries another one than the saved row.
   it('never sends the payment picture, whatever the edited row holds', async () => {
     const savedRegistration = {
       ...registrationWithStaticDates,
@@ -137,7 +137,12 @@ describe('useRegistrationActions', () => {
 
   // The "saved" snackbar follows the picture the save answered, not the stored status of the row sent.
   it('says a saved place was paid by the picture the save answered', async () => {
-    const savedRegistration = { ...registrationWithStaticDates, editToken: 'participant-token' }
+    // No stored status on either row: only the picture can say it was paid.
+    const savedRegistration = {
+      ...registrationWithStaticDates,
+      editToken: 'participant-token',
+      paymentStatus: undefined,
+    }
     const editedRegistration = { ...savedRegistration, notes: 'changed notes' }
     vi.spyOn(registrationApi, 'patchRegistration').mockResolvedValueOnce({
       ...editedRegistration,
@@ -171,6 +176,49 @@ describe('useRegistrationActions', () => {
     })
 
     expect(mockEnqueueSnackbar).not.toHaveBeenCalled()
+  })
+
+  // The 304 answer (nothing changed) keeps the row as it is, with the picture it carries.
+  it('says a place paid when the save answered 304 and the row carries a standing picture', async () => {
+    const savedRegistration = {
+      ...registrationWithStaticDates,
+      editToken: 'participant-token',
+      paymentStatus: undefined,
+    }
+    const editedRegistration = { ...savedRegistration, notes: 'changed notes', payment: paymentPictureWith() }
+    vi.spyOn(registrationApi, 'patchRegistration').mockRejectedValueOnce(
+      new APIError(new Response(null, { status: 304, statusText: 'Not Modified' }), '')
+    )
+
+    const { result } = renderHook(() => useRegistrationActions(), { wrapper })
+    await act(async () => {
+      await result.current.save(editedRegistration, eventWithStaticDates, savedRegistration)
+    })
+
+    expect(mockEnqueueSnackbar).toHaveBeenCalledWith(
+      expect.stringContaining('registration.modified'),
+      expect.objectContaining({ variant: 'success' })
+    )
+  })
+
+  // A new entry saved: the server's answer carries the picture, and it is the answer that says paid.
+  it('says a new entry paid by the picture the create answered', async () => {
+    const { id: _id, ...entry } = { ...registrationWithStaticDates, paymentStatus: undefined }
+    vi.spyOn(registrationApi, 'postRegistration').mockResolvedValueOnce({
+      ...registrationWithStaticDates,
+      payment: paymentPictureWith(),
+      paymentStatus: undefined,
+    })
+
+    const { result } = renderHook(() => useRegistrationActions(), { wrapper })
+    await act(async () => {
+      await result.current.save({ ...entry, id: '' }, eventWithStaticDates)
+    })
+
+    expect(mockEnqueueSnackbar).toHaveBeenCalledWith(
+      expect.stringContaining('registration.saved'),
+      expect.objectContaining({ variant: 'success' })
+    )
   })
 
   it('does not send client-derived qualification fields when adding a result', async () => {
