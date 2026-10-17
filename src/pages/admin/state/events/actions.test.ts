@@ -155,7 +155,7 @@ describe('useAdminEventActions.setResultsPublished', () => {
 
   it('hides a published day, which a class-wide reading would have skipped', async () => {
     // The class as a whole is not published (day two is not), so only the day can tell a hide is due.
-    const firstDay = { ...twoDays, resultsPublished: { ALO: [new Date('2021-02-10')] } }
+    const firstDay = { ...twoDays, resultsPublished: { ALO: ['2021-02-10'] } }
     vi.mocked(putResultsPublished).mockResolvedValueOnce({ event: { ...twoDays, resultsPublished: { ALO: false } } })
     const { result } = renderHook(() => useAdminEventActions(), { wrapper: Provider })
 

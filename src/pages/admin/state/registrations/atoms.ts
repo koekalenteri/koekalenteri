@@ -1,8 +1,9 @@
-import type { Registration, RegistrationGroupMove } from '@/types'
+import type { JsonRegistration, Registration, RegistrationGroupMove } from '@/types'
 import { atom } from 'jotai'
 import { atomFamily } from 'jotai-family'
 import { getRegistrations } from '@/api/registration'
 import { createRegistrationDraft } from '@/lib/registration'
+import { toRegistration } from '@/lib/wire'
 import { atomWithLocalStorage } from '@/pages/state'
 import { validIdTokenAtom } from '@/pages/state/user'
 
@@ -34,7 +35,8 @@ export const adminPendingRegistrationGroupMovesAtom = atomFamily((_eventId: stri
 )
 
 export const createAdminNewRegistration = (): Registration => createRegistrationDraft('admin')
-export const adminNewRegistrationAtom = atomWithLocalStorage<Registration | undefined>(
+export const adminNewRegistrationAtom = atomWithLocalStorage<Registration | undefined, JsonRegistration>(
   'adminNewRegistration',
-  createAdminNewRegistration()
+  createAdminNewRegistration(),
+  { revive: toRegistration }
 )

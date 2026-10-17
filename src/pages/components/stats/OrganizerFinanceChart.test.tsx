@@ -11,7 +11,7 @@ const item = (date: Date, paidAmount: number, refundedAmount: number): EventStat
 })
 
 describe('OrganizerFinanceChart', () => {
-  it('groups revived Date values by month without crashing', () => {
+  it('groups Date values by month without crashing', () => {
     render(
       <OrganizerFinanceChart
         items={[

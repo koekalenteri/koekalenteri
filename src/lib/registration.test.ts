@@ -1557,7 +1557,7 @@ describe('getLastEmailText', () => {
     expect(getLastEmailText(lastEmail, en)).toBe(expectedEn)
   })
 
-  it('reads a send time that has not been revived into a Date', () => {
+  it('reads a send time in its stored form, an ISO string', () => {
     expect(getLastEmailText({ context: '', sentAt: '2023-01-01T12:00:00.000Z', template: 'invitation' }, en)).toBe(
       'Invitation 1.1.2023 14:00'
     )

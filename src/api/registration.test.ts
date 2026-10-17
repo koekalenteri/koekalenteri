@@ -5,12 +5,14 @@ import fetchMock from '../test-utils/fetchMock'
 import {
   getRegistration,
   getRegistrations,
+  getRegistrationTransactions,
   getStartList,
   getStartListPreview,
   patchAdminRegistration,
   patchRegistration,
   postAdminRegistration,
   postRegistration,
+  putEventResults,
   putRegistrationGroups,
 } from './registration'
 
@@ -281,6 +283,7 @@ test('putRegistrationGroups', async () => {
 
 describe('getStartList', () => {
   it('should call correct endpoint', async () => {
+    fetchMock.mockResponseOnce(JSON.stringify([]))
     await getStartList('test-id')
     expect(fetchMock).toHaveBeenCalledTimes(1)
     expect(fetchMock).toHaveBeenCalledWith(`${API_BASE_URL}/startlist/test-id`, expect.any(Object))
@@ -299,11 +302,91 @@ describe('getStartList', () => {
   })
 
   it('should call authenticated preview endpoint', async () => {
+    fetchMock.mockResponseOnce(JSON.stringify([]))
     await getStartListPreview('test-id', 'test-token')
     expect(fetchMock).toHaveBeenCalledTimes(1)
     expect(fetchMock).toHaveBeenCalledWith(
       `${API_BASE_URL}/admin/startlist/test-id`,
       expect.objectContaining({ headers: expect.objectContaining({ Authorization: 'Bearer test-token' }) })
     )
+  })
+})
+
+test('getStartList makes the dogs and the placements of the rows Dates (KOE-1546)', async () => {
+  fetchMock.mockResponseOnce(
+    JSON.stringify([
+      {
+        breeder: 'b',
+        dog: { dob: '2020-02-02T22:00:00.000Z', name: 'Hukka', regNo: 'FI1/20', results: [] },
+        group: { date: '2026-09-11T21:00:00.000Z', key: '2026-09-12-ap', number: 1, time: 'ap' },
+        handler: 'h',
+        owner: 'o',
+      },
+    ]),
+    { headers: { 'X-Start-List-Version': '7' } }
+  )
+
+  const { participants, version } = await getStartList('test-id')
+
+  expect(version).toBe(7)
+  expect(participants[0].dog.dob).toEqual(new Date('2020-02-02T22:00:00.000Z'))
+  expect(participants[0].group).toEqual({
+    date: new Date('2026-09-11T21:00:00.000Z'),
+    key: '2026-09-12-ap',
+    number: 1,
+    time: 'ap',
+  })
+})
+
+test('getRegistrationTransactions makes the stamps of the transactions Dates', async () => {
+  fetchMock.mockResponseOnce(
+    JSON.stringify([
+      {
+        amount: 5000,
+        createdAt: '2026-05-03T08:00:00.000Z',
+        reference: 'ref',
+        stamp: 'stamp',
+        status: 'ok',
+        statusAt: '2026-05-03T08:01:00.000Z',
+        transactionId: 't1',
+        type: 'payment',
+      },
+    ])
+  )
+
+  const transactions = await getRegistrationTransactions('test-id', 'test-registration-id', 'token')
+
+  expect(fetchMock).toHaveBeenCalledWith(
+    `${API_BASE_URL}/admin/registration/transactions/test-id/test-registration-id`,
+    expect.any(Object)
+  )
+  expect(transactions?.[0]).toMatchObject({
+    createdAt: new Date('2026-05-03T08:00:00.000Z'),
+    statusAt: new Date('2026-05-03T08:01:00.000Z'),
+    transactionId: 't1',
+  })
+})
+
+test('putEventResults answers with the results as stored, their stamps Dates', async () => {
+  const wireResult = { result: 'ALO1', updatedAt: '2026-09-12T08:05:00.000Z', updatedBy: 'u' }
+  fetchMock.mockResponseOnce(
+    JSON.stringify({
+      conflicts: [{ id: 'r2', stored: wireResult, submitted: wireResult }],
+      saved: [{ eventResult: wireResult, id: 'r1' }],
+      unchanged: [{ eventResult: wireResult, id: 'r3' }],
+    })
+  )
+
+  const response = await putEventResults('test-id', [], 'token')
+
+  const modelResult = { result: 'ALO1', updatedAt: new Date('2026-09-12T08:05:00.000Z'), updatedBy: 'u' }
+  expect(fetchMock).toHaveBeenCalledWith(
+    `${API_BASE_URL}/admin/event-results/test-id`,
+    expect.objectContaining({ method: 'POST' })
+  )
+  expect(response).toEqual({
+    conflicts: [{ id: 'r2', stored: modelResult, submitted: modelResult }],
+    saved: [{ eventResult: modelResult, id: 'r1' }],
+    unchanged: [{ eventResult: modelResult, id: 'r3' }],
   })
 })

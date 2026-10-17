@@ -1,13 +1,13 @@
 import type { TFunction } from 'i18next'
-import type { EventResultSubmission, StoredEventResult } from '@/api/registration'
+import type { EventResultSubmission } from '@/api/registration'
 import type { KcBlocker, KcDogReport, KcSendReport, KcSendResponse } from '@/lib/kennelliittoResults'
 import type {
   JsonKcResult,
-  KcResult,
   PublicDogEvent,
   Registration,
   RegistrationGroupMove,
   RegistrationMessage,
+  StoredEventResult,
 } from '@/types'
 import { useAtom, useAtomValue, useSetAtom } from 'jotai'
 import { useAtomCallback } from 'jotai/utils'
@@ -35,6 +35,7 @@ import { latestCollectionUpdate, reconcileCollection } from '@/lib/incremental'
 import { createPatchOperations } from '@/lib/patch'
 import { GROUP_KEY_CANCELLED, withRegistrationOverrides } from '@/lib/registration'
 import { isObject } from '@/lib/utils'
+import { toKcResult } from '@/lib/wire'
 import { validIdTokenAtom } from '@/pages/state'
 import { showRegistrationSaveConflict } from '@/pages/state/registration/registrationSaveError'
 import { adminEventAtom } from '../events'
@@ -209,13 +210,6 @@ const foldChunk = (summary: KcSendSummary, response: KcSendResponse): { retry: s
   }
 }
 
-/** The stored result as the client holds it: the client's reviver has turned the date-shaped strings into Dates. */
-const toClientKcResult = ({ at, day, ...kcResult }: JsonKcResult): KcResult => ({
-  ...kcResult,
-  at: new Date(at),
-  ...(day === undefined ? {} : { day: new Date(day) }),
-})
-
 /**
  * Folds what sending the results to Kennelliitto came to into the event's registrations, so the page
  * that sent them shows it without waiting for the socket.
@@ -230,7 +224,7 @@ const useStoreKcResults = (eventId: string) =>
           adminEventRegistrationsAtom(eventId),
           registrations.map((registration) => {
             const written = stored.find((item) => item.id === registration.id)
-            return written ? { ...registration, kcResult: toClientKcResult(written.kcResult) } : registration
+            return written ? { ...registration, kcResult: toKcResult(written.kcResult) } : registration
           })
         )
       },

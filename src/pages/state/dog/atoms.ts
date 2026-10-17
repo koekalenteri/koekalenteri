@@ -1,6 +1,15 @@
-import type { Dog, ManualTestResult, RegistrationBreeder, RegistrationPerson } from '@/types'
+import type {
+  Dog,
+  JsonDog,
+  JsonManualTestResult,
+  ManualTestResult,
+  RegistrationBreeder,
+  RegistrationPerson,
+  Replace,
+} from '@/types'
 import { atom } from 'jotai'
 import { atomFamily } from 'jotai-family'
+import { arrayOf, converter, recordOf, toDog, toManualTestResult } from '@/lib/wire'
 import { atomWithLocalStorage } from '../storage/atoms'
 
 type DogCachedBasePerson = Omit<RegistrationPerson, 'membership'>
@@ -31,5 +40,16 @@ export interface DogCachedInfo {
 
 export type DogCache = Record<string, Partial<DogCachedInfo>>
 
-export const dogCacheAtom = atomWithLocalStorage<DogCache>('dog-cache', {})
+/** The cache as it sits in storage: the dog's and the results' dates as ISO strings. */
+type JsonDogCachedInfo = Replace<Replace<DogCachedInfo, 'dog', JsonDog>, 'results', JsonManualTestResult[]>
+type JsonDogCache = Record<string, Partial<JsonDogCachedInfo>>
+
+const toDogCache = recordOf(
+  converter<Partial<JsonDogCachedInfo>, Partial<DogCachedInfo>>()({
+    dog: toDog,
+    results: arrayOf(toManualTestResult),
+  })
+)
+
+export const dogCacheAtom = atomWithLocalStorage<DogCache, JsonDogCache>('dog-cache', {}, { revive: toDogCache })
 export const dogAtom = atomFamily((_registrationNumber: string) => atom<Dog | undefined>(undefined))
