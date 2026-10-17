@@ -60,6 +60,19 @@ describe('http', () => {
       )
     })
 
+    it('hands the body over as the server wrote it: a text that looks like a date stays text (KOE-1546)', async () => {
+      // A cancellation reason the entrant typed, a published-days list of day keys and a timestamp: the
+      // http layer parses JSON and nothing more. Dates are made from named fields at a typed boundary.
+      const body = {
+        cancelReason: '2024-05-01',
+        modifiedAt: '2024-05-01T10:00:00.000Z',
+        startNumbersPublished: { ALO: ['2024-05-01', '2024-05-02/ap'] },
+      }
+      fetchMock.mockResponseOnce(JSON.stringify(body))
+
+      await expect(http.get('/typed-boundary')).resolves.toEqual(body)
+    })
+
     it('retries a failed network request once', async () => {
       vi.useFakeTimers({ toFake: ['Date', 'setTimeout', 'clearTimeout'] })
       fetchMock.mockRejectOnce(new TypeError('Failed to fetch'))
