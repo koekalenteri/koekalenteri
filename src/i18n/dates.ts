@@ -117,4 +117,4 @@ export const finnishDaysBetween = (from: DateType, to: DateType, timeZone = TIME
 /** `date` moved by whole Finnish calendar days, keeping its Finnish wall-clock time, as an ISO instant. */
 export const addFinnishDays = (date: DateType, days: number, timeZone = TIME_ZONE) =>
   // A TZDate prints its own offset ("+03:00"); the stored form is the UTC instant.
-  new Date(addDays(date, days, { in: tz(timeZone) }).getTime()).toISOString()
+  new Date(addDays(date, days, { in: tz(timeZone) })).toISOString()
