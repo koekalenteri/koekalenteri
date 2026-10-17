@@ -27,7 +27,7 @@ import { calculateCost } from '../../lib/cost'
 import { getDiffOperations } from '../../lib/diff'
 import { isDevEnv } from '../../lib/env'
 import { formatMoney } from '../../lib/money'
-import { getShownPaymentDue, isPaymentWaitingForPlace } from '../../lib/payment'
+import { getShownPaymentDue, isPaymentWaitingForPlaceInForm } from '../../lib/payment'
 import { getPrioritySort, PRIORITY_MEMBER, priorityValuesToPriority, RESTRICTION } from '../../lib/priority'
 import { filterRelevantResults } from '../../lib/qualification'
 import {
@@ -100,19 +100,9 @@ export default function RegistrationForm({
   // themselves, so a registration made before the restriction stays theirs to edit.
   const valid = errors.length === 0 && registration.qualifies && (admin || !restriction)
   const costResult = calculateCost(event, registration)
-  // The amount owed follows the row as it is edited (KOE-722). Whether paying waits for a place is the
-  // group's word on the secretary's row and on a new entry, which has none and waits. The participant's
-  // row has no group, so the server's picture says it, as its `shouldPay` did: paying waits when it is
-  // not offered and no payment is held (in progress or charged twice).
+  // The amount owed follows the row as it is edited (KOE-722), and so does whether paying waits for a place.
   const paymentDue = getShownPaymentDue(event, registration)
-  const { payment } = registration
-  const waitsForPlace =
-    payment && !registration.group
-      ? event.paymentTime === 'confirmation' &&
-        !payment.canPay &&
-        payment.status !== 'inProgress' &&
-        payment.status !== 'duplicate'
-      : isPaymentWaitingForPlace(event, registration)
+  const waitsForPlace = isPaymentWaitingForPlaceInForm(event, registration)
   const ctaText = useMemo(() => {
     if (registration.id) return t('registration.cta.saveChanges')
     if (admin) {

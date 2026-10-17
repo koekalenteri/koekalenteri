@@ -8,6 +8,7 @@ import type {
 } from '../types'
 import { addDays } from 'date-fns'
 import { eventWithStaticDates } from '../__mockData__/events'
+import { paymentPictureWith } from '../__mockData__/paymentPicture'
 import {
   canRefundExcess,
   canRequestPaymentFor,
@@ -19,6 +20,7 @@ import {
   isPaymentInProgress,
   isPaymentUnsettled,
   isPaymentWaitingForPlace,
+  isPaymentWaitingForPlaceInForm,
   isPaytrailRefusal,
   isRegistrationPaid,
   isStalePendingPayment,
@@ -493,6 +495,36 @@ describe('payment', () => {
   })
 
   // The form's own reading of an entry that has no picture yet (a new one, the secretary's).
+  describe('isPaymentWaitingForPlaceInForm', () => {
+    const at = (paymentTime: PaymentTime, registration: Parameters<typeof isPaymentWaitingForPlaceInForm>[1]) =>
+      isPaymentWaitingForPlaceInForm({ paymentTime }, registration)
+    const picture = (overrides: Partial<PaymentPicture>) => paymentPictureWith(overrides)
+
+    // The participant's row: no group, the picture decides.
+    it.each<[string, Partial<PaymentPicture>, boolean]>([
+      ['paying is offered', { canPay: true, status: 'unpaid' }, false],
+      ['paying is not offered', { canPay: false, status: 'waitingForPlace' }, true],
+      ['a free class (nothing owed yet)', { status: 'notCharged' }, true],
+      ['a payment in progress', { status: 'inProgress' }, false],
+      ['a payment charged twice', { status: 'duplicate' }, false],
+    ])('on a row with no group, when %s', (_name, overrides, expected) => {
+      expect(at('confirmation', { payment: picture(overrides) })).toBe(expected)
+    })
+
+    it('never waits on a row with a picture when the trial is paid at entry', () => {
+      expect(at('registration', { payment: picture({ canPay: false, status: 'unpaid' }) })).toBe(false)
+    })
+
+    // The secretary's row, with its group, and a new entry: the group decides.
+    it.each([
+      ['a row in a place', { group: { key: '2026-08-15-ap' } }, false],
+      ['a row on the reserve list', { group: { key: 'reserve' } }, true],
+      ['a new entry, with neither group nor picture', {}, true],
+    ])('reads %s by the group', (_name, registration, expected) => {
+      expect(at('confirmation', registration)).toBe(expected)
+    })
+  })
+
   describe('isPaymentWaitingForPlace', () => {
     it.each<[string, Parameters<typeof isPaymentWaitingForPlace>[1], boolean]>([
       ['a payment charged twice', { paymentStatus: 'DUPLICATE' }, false],

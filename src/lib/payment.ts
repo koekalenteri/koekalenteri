@@ -102,6 +102,23 @@ export const isPaymentWaitingForPlace = (
   event.paymentTime === 'confirmation' && registration.paymentStatus !== 'DUPLICATE' && !isStarter(registration)
 
 /**
+ * Whether paying waits for a place, as the form reads it from the row it edits. The participant's row
+ * has no group, so the server's picture says it, as its `shouldPay` and `paymentInProgress` did: paying
+ * waits when it is not offered and no payment is held (in progress or charged twice). The secretary's
+ * row, which has its group, and a new entry, which has neither group nor picture, are read by the group
+ * (`isPaymentWaitingForPlace`).
+ */
+export const isPaymentWaitingForPlaceInForm = (
+  event: PaymentTimeEvent,
+  registration: RegistrationPlacement & Pick<Registration, 'payment' | 'paymentStatus'>
+): boolean => {
+  const { payment } = registration
+  if (!payment || registration.group) return isPaymentWaitingForPlace(event, registration)
+  const held = payment.status === 'inProgress' || payment.status === 'duplicate'
+  return event.paymentTime === 'confirmation' && !payment.canPay && !held
+}
+
+/**
  * Whether the place has been paid for. A trial that costs nothing has nothing to wait for, and a
  * part payment counts too: a missing remainder is the secretary's business, not the invitation's.
  * What counts is money still standing for the place: a payment refunded whole, or all but the
