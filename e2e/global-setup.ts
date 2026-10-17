@@ -15,10 +15,12 @@ const required = [
 ]
 
 export default async function globalSetup(config: FullConfig) {
-  const missing = required.filter(([file]) => !fs.existsSync(path.join(config.rootDir, file)))
+  // The repository root: playwright.config.ts lives there (`rootDir` is the test directory)
+  const root = config.configFile ? path.dirname(config.configFile) : process.cwd()
+  const missing = required.filter(([file]) => !fs.existsSync(path.join(root, file)))
   if (missing.length) {
     throw new Error(`Build first: ${missing.map(([file, command]) => `${command} (${file} is missing)`).join(', ')}`)
   }
 
-  await ensureLocalTables({ root: config.rootDir })
+  await ensureLocalTables({ root })
 }
