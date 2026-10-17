@@ -162,6 +162,10 @@ describe('kennelliittoResults', () => {
       expect(kcResultDay(registration)).toEqual('2026-09-27')
     })
 
+    it('is none for a group whose date does not read as one', () => {
+      expect(kcResultDay(dog(undefined, { group: { date: 'eilen', key: 'k', number: 1 } }))).toBeUndefined()
+    })
+
     it('is reached on the day and after it, not before', () => {
       const now = new Date('2026-09-26T08:00:00.000Z')
       expect([isKcDayReached('2026-09-26', now), isKcDayReached('2026-09-27', now)]).toEqual([true, false])

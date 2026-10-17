@@ -770,6 +770,27 @@ describe('kennelliittoResults', () => {
       ])
     })
 
+    it('ranks a dog moved after the start list was frozen among the dogs of its frozen day, and sends it for that day', async () => {
+      // Moved to the second day in the working order, while its published number stands on the first: it runs
+      // on the first, so it ranks among the first day's dogs and is sent for that day, not the other way round.
+      const moved = { date: '2026-09-26T21:00:00.000Z', key: '2026-09-27-ap', number: 1 }
+      const frozen = { date: '2026-09-25T21:00:00.000Z', key: '2026-09-26-ap', number: 4 }
+      registrations = [
+        ...registrations,
+        nowtDog('moved', 'FI20006/20', 'ALO1', 80, { group: moved, startGroup: frozen }),
+        nowtDog('other', 'FI20007/20', 'ALO1', 70, { group: moved }),
+      ]
+      // The second day has begun, so both can be sent.
+      now = Date.parse('2026-09-27T10:00:00.000Z')
+
+      await sendKennelliittoResults(nowtCtx(), ['moved', 'other'], { force: false })
+
+      expect(tallennat().map((call) => call.body)).toEqual([
+        expect.objectContaining({ päivä: '2026-09-26', rekisterinumero: 'FI20006/20', sijoitus: 2 }),
+        expect.objectContaining({ päivä: '2026-09-27', rekisterinumero: 'FI20007/20', sijoitus: 1 }),
+      ])
+    })
+
     it('sends no placement for a nought, and does not send an awarded dog that has no points to rank by', async () => {
       registrations = [
         nowtDog('nought', 'FI20004/20', 'ALO0', 40),

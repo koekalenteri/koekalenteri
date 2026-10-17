@@ -2,7 +2,7 @@ import type { JsonConfirmedEvent, JsonKcResult, JsonKcState, JsonRegistration, P
 import { zonedDateString } from '../i18n/dates'
 import { hasRetrieveTypeChoice, isMockTrialClass } from './event'
 import { makeArray } from './judge'
-import { getRegistrationPlacement } from './registration'
+import { getRegistrationGroupDay, getRegistrationPlacement } from './registration'
 import { parseEventResultCode, resultMarks, scoresAtPosts } from './results'
 
 /**
@@ -200,11 +200,13 @@ const tarkenneOf = (event: KcResultEvent, koemuoto: KcKoemuoto): { tarkenne?: st
 /** Whether the format has any result that is a stop, which is the only place a judge's stop can go. */
 const formatAllowsStop = (koemuoto: KcKoemuoto): boolean => koemuoto.tulokset.some((row) => row.keskeytys)
 
-/** The day of the dog's own run, as Kennelliitto writes it. */
-export const kcResultDay = (registration: Pick<KcResultRegistration, 'group' | 'startGroup'>): string | undefined => {
-  const date = getRegistrationPlacement(registration)?.date
-  return date ? zonedDateString(new Date(date)) : undefined
-}
+/**
+ * The day of the dog's own run, as Kennelliitto writes it: the frozen placement's over the working
+ * order's, as the trial's calendar day. The one rule `placementsFor` ranks by as well, so the rank sent
+ * with a result is the rank among the dogs of the day it is sent for.
+ */
+export const kcResultDay = (registration: Pick<KcResultRegistration, 'group' | 'startGroup'>): string | undefined =>
+  getRegistrationGroupDay(getRegistrationPlacement(registration)?.date) || undefined
 
 /**
  * The percentage NOWT sends in place of points: `points * 100 / maxPoints` as recorded, and 0 for a

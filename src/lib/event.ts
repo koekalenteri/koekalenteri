@@ -1134,7 +1134,7 @@ export const isResultsAvailableForRegistration = (
  * A day as its key in Finnish time. A key already is one and passes through unchanged: parsed, it would
  * be read as midnight where the browser is, which east of Finland falls on the day before (KOE-1510).
  */
-export const startListAvailabilityDateKey = (date: Date | string) =>
+const startListAvailabilityDateKey = (date: Date | string) =>
   isDateOnlyString(date) ? date : formatDate(date, 'yyyy-MM-dd')
 
 export const isStartListPublishedForClass = (event: Pick<JsonDogEvent, 'startListPublished'>, eventClass: string) =>
