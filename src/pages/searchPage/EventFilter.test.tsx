@@ -7,6 +7,7 @@ import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
 import { screen, within } from '@testing-library/react'
 import { subMonths } from 'date-fns'
+import { useState } from 'react'
 import theme from '../../assets/Theme'
 import { locales } from '../../i18n'
 import { TIME_ZONE, zonedEndOfDay, zonedStartOfDay } from '../../i18n/dates'
@@ -73,6 +74,26 @@ const renderComponent = (
     </ThemeProvider>,
     undefined,
     fakeTimers ? { advanceTimers: vi.advanceTimersByTime } : undefined
+  )
+}
+
+/** A parent that keeps the filter EventFilter reports and hands it back, as the search page does. */
+const StatefulEventFilter = ({ initial }: { readonly initial: FilterProps }) => {
+  const [filter, setFilter] = useState(initial)
+  return (
+    <ThemeProvider theme={theme}>
+      <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales.fi}>
+        <EventFilter
+          eventCount={0}
+          judges={judges}
+          organizers={organizers}
+          filter={filter}
+          eventTypes={eventTypes}
+          eventClasses={eventClasses}
+          onChange={setFilter}
+        />
+      </LocalizationProvider>
+    </ThemeProvider>
   )
 }
 
@@ -251,6 +272,39 @@ describe('EventFilter', () => {
       await flushPromises()
 
       expect(changeHandler).toHaveBeenLastCalledWith(expect.objectContaining({ end: null, start: null }))
+    })
+
+    it('keeps a leap day typed over a start the filter stored (KOE-1538)', async () => {
+      const { user } = renderWithUserEvents(
+        <StatefulEventFilter
+          initial={{
+            end: null,
+            eventClass: [],
+            eventType: [],
+            judge: [],
+            organizer: [],
+            start: new Date(2031, 0, 1),
+          }}
+        />,
+        undefined,
+        { advanceTimers: vi.advanceTimersByTime }
+      )
+      const group = screen.getByRole('group', { name: 'daterangeStart' })
+      // As the search page's e2e helper types a date: empty the field from its year, then type.
+      const typeOver = async (keys: string) => {
+        await user.click(within(group).getByRole('spinbutton', { name: 'Year' }))
+        await user.keyboard('{Backspace}')
+        await flushPromises()
+        await typeDateKeyByKey(user, group, keys)
+      }
+
+      // A January in a year with no 29 February: the day and month of the next date are typed while
+      // the field still builds on 2031, and 29.02 does not exist in it.
+      await typeOver('01012031')
+      expect(group).toHaveTextContent('01.01.2031')
+
+      await typeOver('29022028')
+      expect(group).toHaveTextContent('29.02.2028')
     })
   })
 })

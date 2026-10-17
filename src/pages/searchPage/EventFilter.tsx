@@ -51,9 +51,14 @@ export const EventFilter = ({ judges, organizers, eventTypes, eventClasses, filt
   )
   // Whole Finnish days, as the event form stores its dates and as a reload restores the filter: the
   // picker can report a time of day, and the search drops an event that ended before the start moment.
+  // Kept as plain Dates: the filter goes back to the picker, and a TZDate held there rolls a typed
+  // 29.02 into 01.03 while the year it builds on has no leap day (KOE-1538).
   const handleDateRangeChange = useCallback(
     (start: DateValue, end: DateValue) =>
-      setFilter({ end: end ? zonedEndOfDay(end) : null, start: start ? zonedStartOfDay(start) : null }),
+      setFilter({
+        end: end ? new Date(zonedEndOfDay(end).getTime()) : null,
+        start: start ? new Date(zonedStartOfDay(start).getTime()) : null,
+      }),
     [setFilter]
   )
   const handleEventTypeChange = useCallback(
