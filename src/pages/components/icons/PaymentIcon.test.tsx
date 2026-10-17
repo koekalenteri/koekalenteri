@@ -12,6 +12,8 @@ describe('PaymentIcon', () => {
     ['inProgress', 'PauseCircleOutlinedIcon', '1'],
     ['refunded', 'EuroOutlinedIcon', String(DIM_OPACITY)],
     ['unpaid', 'EuroOutlinedIcon', String(DIM_OPACITY)],
+    ['duplicate', 'EuroOutlinedIcon', String(DIM_OPACITY)],
+    ['waitingForPlace', 'EuroOutlinedIcon', String(DIM_OPACITY)],
     ['notCharged', 'EuroOutlinedIcon', String(DIM_OPACITY)],
   ])('dimmed, shows %s as %s with opacity %s', (status, icon, opacity) => {
     render(<PaymentIcon dim status={status} />)

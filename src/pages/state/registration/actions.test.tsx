@@ -138,7 +138,7 @@ describe('useRegistrationActions', () => {
   // The "saved" snackbar follows the picture the save answered, not the stored status of the row sent.
   it('says a saved place was paid by the picture the save answered', async () => {
     const savedRegistration = { ...registrationWithStaticDates, editToken: 'participant-token' }
-    const editedRegistration = { ...savedRegistration, notes: 'changed notes', paymentStatus: 'SUCCESS' as const }
+    const editedRegistration = { ...savedRegistration, notes: 'changed notes' }
     vi.spyOn(registrationApi, 'patchRegistration').mockResolvedValueOnce({
       ...editedRegistration,
       payment: paymentPictureWith(),

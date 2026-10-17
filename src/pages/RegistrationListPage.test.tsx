@@ -650,6 +650,21 @@ describe('RegistrationListPage', () => {
     expect(enqueueSnackbar).toHaveBeenCalledWith(...verifyingMessage)
   })
 
+  // The divergent branch of the saved return: the stored status says SUCCESS, the picture says no money
+  // stands (paid, fully refunded, lifted, not yet paid again), so no "paid" snackbar is shown.
+  it('shows no paid snackbar on the saved route while no money stands, whatever the stored status says', async () => {
+    vi.spyOn(registrationApi, 'getRegistration').mockResolvedValue({
+      ...registrationWithStaticDates,
+      messagesSent: { picked: true },
+      payment: owing,
+      paymentStatus: 'SUCCESS',
+    })
+    await renderWithRouter('/r/test1/nou-registration/saved')
+    await flushPromises()
+
+    expect(enqueueSnackbar).not.toHaveBeenCalledWith(expect.stringContaining('registration.'), expect.anything())
+  })
+
   // The server always sends the picture; a response without it gives the page nothing to say.
   it('stays on the loading page when the response has no payment picture', async () => {
     vi.spyOn(registrationApi, 'getRegistration').mockResolvedValue(unpaidRegistrationWithStaticDates)
