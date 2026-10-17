@@ -42,8 +42,11 @@ export const frontendBuildEnv = {
   REACT_APP_WS_API_URL: '',
 }
 
-/** The table variables as the template's Globals name them; CustomDynamoClient kebab-cases the values. */
-const tableEnv = {
+/**
+ * The table variables as the template's Globals name them; CustomDynamoClient kebab-cases the values.
+ * The integration tests (`scripts/test-integration.js`) run under the same names.
+ */
+export const tableEnv = {
   AUDIT_TABLE_NAME: 'AuditTable',
   DATA_VERSION_TABLE_NAME: 'DataVersionTable',
   DOG_TABLE_NAME: 'DogTable',

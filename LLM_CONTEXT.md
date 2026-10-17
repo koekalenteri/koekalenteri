@@ -34,6 +34,8 @@
 - Follow existing patterns for consistency
 - Validate types and run tests after changes
 - Backend tests: `npm run test-backend`
+- Database layer against DynamoDB-local: `npm run test-integration` (needs `npm run init-dynamodb`;
+  see "Test Gotchas" in `AGENTS.md`)
 - Fully test every new or changed function in `src/lambda/lib/`, including its
   normal path, edge cases, and error or invalid-input behavior where applicable.
 - UI changes should follow existing styling conventions
