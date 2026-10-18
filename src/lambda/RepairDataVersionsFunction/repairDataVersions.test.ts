@@ -1,7 +1,8 @@
 import { vi } from 'vitest'
 import { loggedLines } from '../test-utils/logs'
 
-const mockReadAll = vi.fn()
+const mockReadEmailTemplates = vi.fn()
+const mockGetAllUsers = vi.fn()
 const mockReadEventTypes = vi.fn()
 const mockReadJudges = vi.fn()
 const mockReadOfficials = vi.fn()
@@ -10,17 +11,17 @@ const mockReadOrganizers = vi.fn()
 const mockReadStored = vi.fn()
 const mockWriteFingerprint = vi.fn()
 
-vi.doMock('../utils/CustomDynamoClient', () => ({
-  default: vi.fn(function MockCustomDynamoClient() {
-    return { readAll: mockReadAll }
-  }),
-}))
-
+vi.doMock('../lib/repositories/emailTemplateRepository', () => ({ readEmailTemplates: mockReadEmailTemplates }))
 vi.doMock('../lib/repositories/eventTypeRepository', () => ({ readEventTypes: mockReadEventTypes }))
 vi.doMock('../lib/repositories/judgeRepository', () => ({ readJudges: mockReadJudges }))
 vi.doMock('../lib/repositories/officialRepository', () => ({ readOfficials: mockReadOfficials }))
 vi.doMock('../lib/repositories/locationRepository', () => ({ readLocationSnapshot: mockReadLocationSnapshot }))
 vi.doMock('../lib/repositories/organizerRepository', () => ({ readOrganizers: mockReadOrganizers }))
+// The scopes are the real rule; only the table read is replaced.
+vi.doMock('../lib/user', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('../lib/user')>()),
+  getAllUsers: mockGetAllUsers,
+}))
 
 vi.doMock('../lib/dataVersions', () => ({
   // Vitest replaces the whole module, so the scope constant has to come along.
@@ -42,8 +43,8 @@ const organizers = [
 ]
 
 const setup = () => {
-  // emailTemplates and users through the handler's own client
-  mockReadAll.mockResolvedValueOnce([]).mockResolvedValueOnce(users)
+  mockReadEmailTemplates.mockResolvedValueOnce([])
+  mockGetAllUsers.mockResolvedValueOnce(users)
   mockReadEventTypes.mockResolvedValueOnce([])
   mockReadJudges.mockResolvedValueOnce([])
   mockReadOfficials.mockResolvedValueOnce([])
@@ -146,5 +147,22 @@ describe('repairDataVersions', () => {
     await repairDataVersions()
 
     expect(mockWriteFingerprint).toHaveBeenCalledWith('users', 'org-gone', { count: 0 }, true)
+  })
+
+  it('measures an email template table that reads as nothing as empty', async () => {
+    setup()
+    mockReadEmailTemplates.mockReset().mockResolvedValueOnce(undefined)
+    mockReadStored.mockResolvedValueOnce([
+      { collection: 'emailTemplates', count: 2, fingerprintAt: '2026-01-01T00:00:00.000Z', scope: '*' },
+    ])
+
+    await repairDataVersions()
+
+    expect(mockWriteFingerprint).toHaveBeenCalledWith(
+      'emailTemplates',
+      '*',
+      { count: 0, fingerprintAt: undefined },
+      true
+    )
   })
 })

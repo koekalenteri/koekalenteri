@@ -7,7 +7,7 @@
  * (KOE-1465). `template.test.ts` compares the two sides this module computes.
  *
  * The code side follows calls, not imports. Nearly every handler imports a module that opens a
- * client on some table at load (`lib/dataVersions`, `lib/email`, `lib/ws/connectionRepository`),
+ * client on some table at load (`lib/repositories/dataVersionRepository`, `lib/email`, `lib/ws/connectionRepository`),
  * so an import graph would grant every lambda every table. Instead the walk starts at the code that
  * runs. From the handler's default export it follows each identifier to its declaration: a function
  * it calls, a module-level variable it reads, a class member it uses, each reached whole. It also

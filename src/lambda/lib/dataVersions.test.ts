@@ -7,32 +7,49 @@ vi.setSystemTime(new Date('2026-08-30T12:00:00Z'))
 const revision = vi.hoisted(() => ({ next: 0 }))
 vi.doMock('nanoid', () => ({ nanoid: () => `test-revision-${++revision.next}` }))
 
-const mockBatchGet = vi.fn()
-const mockUpdate = vi.fn()
-const mockReadAll = vi.fn()
+const mockReadVersionRecords = vi.fn()
+const mockWriteRevision = vi.fn()
+const mockReadAllVersionRecords = vi.fn()
+const mockReadMigrationHashes = vi.fn()
+const mockRecordMigration = vi.fn()
+const mockWriteFingerprint = vi.fn()
 
-vi.doMock('../utils/CustomDynamoClient', () => ({
-  default: vi.fn(function MockCustomDynamoClient() {
-    return { batchGet: mockBatchGet, readAll: mockReadAll, update: mockUpdate }
-  }),
+vi.doMock('./repositories/dataVersionRepository', () => ({
+  readAllVersionRecords: mockReadAllVersionRecords,
+  readMigrationHashes: mockReadMigrationHashes,
+  readVersionRecords: mockReadVersionRecords,
+  recordMigration: mockRecordMigration,
+  writeFingerprint: mockWriteFingerprint,
+  writeRevision: mockWriteRevision,
 }))
 
-const { bumpDataVersion, getDataVersions, markMigrationApplied, readAppliedMigrations, readStoredDataVersions } =
-  await import('./dataVersions')
+const {
+  bumpDataVersion,
+  getDataVersions,
+  markMigrationApplied,
+  readAppliedMigrations,
+  readStoredDataVersions,
+  writeDataVersionFingerprint,
+} = await import('./dataVersions')
 
 const NOW = '2026-08-30T12:00:00.000Z'
+
+// Restores the console spies a test installs, also when one of its assertions failed first.
+afterEach(() => {
+  vi.restoreAllMocks()
+})
 
 describe('getDataVersions', () => {
   beforeEach(() => {
     vi.clearAllMocks()
-    mockBatchGet.mockResolvedValue([])
+    mockReadVersionRecords.mockResolvedValue([])
   })
 
   it('reads one row per global collection and per caller scope', async () => {
     await getDataVersions(['directory', 'org1', 'org2'])
 
-    expect(mockBatchGet).toHaveBeenCalledTimes(1)
-    expect(mockBatchGet).toHaveBeenCalledWith([
+    expect(mockReadVersionRecords).toHaveBeenCalledTimes(1)
+    expect(mockReadVersionRecords).toHaveBeenCalledWith([
       { collection: 'emailTemplates', scope: '*' },
       { collection: 'eventTypes', scope: '*' },
       { collection: 'judges', scope: '*' },
@@ -48,12 +65,14 @@ describe('getDataVersions', () => {
   it('reads a single row for a global admin', async () => {
     await getDataVersions(['*'])
 
-    expect(mockBatchGet).toHaveBeenCalledWith(expect.arrayContaining([{ collection: 'users', scope: '*' }]))
-    expect(mockBatchGet).toHaveBeenCalledWith(expect.not.arrayContaining([{ collection: 'users', scope: 'org1' }]))
+    expect(mockReadVersionRecords).toHaveBeenCalledWith(expect.arrayContaining([{ collection: 'users', scope: '*' }]))
+    expect(mockReadVersionRecords).toHaveBeenCalledWith(
+      expect.not.arrayContaining([{ collection: 'users', scope: 'org1' }])
+    )
   })
 
   it('composes the users version from every caller scope', async () => {
-    mockBatchGet.mockResolvedValueOnce([
+    mockReadVersionRecords.mockResolvedValueOnce([
       { collection: 'users', modifiedAt: '2026-01-02T00:00:00.000Z', revision: 'aaa', scope: 'org1' },
       { collection: 'users', modifiedAt: '2026-01-03T00:00:00.000Z', revision: 'bbb', scope: 'directory' },
     ])
@@ -85,55 +104,51 @@ describe('bumpDataVersion', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     revision.next = 0
-    mockUpdate.mockResolvedValue(undefined)
+    mockWriteRevision.mockResolvedValue(undefined)
   })
 
   it('remints the global scope by default', async () => {
     await bumpDataVersion('judges')
 
-    expect(mockUpdate).toHaveBeenCalledTimes(1)
-    expect(mockUpdate).toHaveBeenCalledWith(
-      { collection: 'judges', scope: '*' },
-      { set: { modifiedAt: NOW, revision: 'test-revision-1' } }
-    )
+    expect(mockWriteRevision).toHaveBeenCalledTimes(1)
+    expect(mockWriteRevision).toHaveBeenCalledWith('judges', '*', { modifiedAt: NOW, revision: 'test-revision-1' })
   })
 
   it('remints every scope with the same revision, deduplicated', async () => {
     await bumpDataVersion('users', ['*', 'org1', 'org1', 'directory'])
 
-    expect(mockUpdate).toHaveBeenCalledTimes(3)
-    expect(mockUpdate).toHaveBeenNthCalledWith(
-      1,
-      { collection: 'users', scope: '*' },
-      { set: { modifiedAt: NOW, revision: 'test-revision-1' } }
-    )
-    expect(mockUpdate).toHaveBeenNthCalledWith(
-      2,
-      { collection: 'users', scope: 'org1' },
-      { set: { modifiedAt: NOW, revision: 'test-revision-1' } }
-    )
-    expect(mockUpdate).toHaveBeenNthCalledWith(
-      3,
-      { collection: 'users', scope: 'directory' },
-      { set: { modifiedAt: NOW, revision: 'test-revision-1' } }
-    )
+    expect(mockWriteRevision).toHaveBeenCalledTimes(3)
+    expect(mockWriteRevision).toHaveBeenNthCalledWith(1, 'users', '*', {
+      modifiedAt: NOW,
+      revision: 'test-revision-1',
+    })
+    expect(mockWriteRevision).toHaveBeenNthCalledWith(2, 'users', 'org1', {
+      modifiedAt: NOW,
+      revision: 'test-revision-1',
+    })
+    expect(mockWriteRevision).toHaveBeenNthCalledWith(3, 'users', 'directory', {
+      modifiedAt: NOW,
+      revision: 'test-revision-1',
+    })
   })
 
   it('produces a different revision on every bump', async () => {
     await bumpDataVersion('judges')
     await bumpDataVersion('judges')
 
-    expect(mockUpdate).toHaveBeenNthCalledWith(1, expect.anything(), {
-      set: { modifiedAt: NOW, revision: 'test-revision-1' },
+    expect(mockWriteRevision).toHaveBeenNthCalledWith(1, 'judges', '*', {
+      modifiedAt: NOW,
+      revision: 'test-revision-1',
     })
-    expect(mockUpdate).toHaveBeenNthCalledWith(2, expect.anything(), {
-      set: { modifiedAt: NOW, revision: 'test-revision-2' },
+    expect(mockWriteRevision).toHaveBeenNthCalledWith(2, 'judges', '*', {
+      modifiedAt: NOW,
+      revision: 'test-revision-2',
     })
   })
 
   it('does not fail the write that triggered it', async () => {
     const error = vi.spyOn(console, 'error').mockImplementation(() => undefined)
-    mockUpdate.mockRejectedValueOnce(new Error('AccessDenied'))
+    mockWriteRevision.mockRejectedValueOnce(new Error('AccessDenied'))
 
     await expect(bumpDataVersion('judges')).resolves.toBeUndefined()
     expect(loggedLines(error)).toContainEqual(
@@ -144,92 +159,82 @@ describe('bumpDataVersion', () => {
         scopes: ['*'],
       })
     )
-    error.mockRestore()
   })
 
   it('does nothing without scopes', async () => {
     await bumpDataVersion('users', [])
 
-    expect(mockUpdate).not.toHaveBeenCalled()
+    expect(mockWriteRevision).not.toHaveBeenCalled()
   })
 })
 
 describe('migration registry', () => {
   beforeEach(() => {
     vi.clearAllMocks()
-    mockBatchGet.mockResolvedValue([])
-    mockUpdate.mockResolvedValue(undefined)
   })
 
-  it('reads the named migrations in one batchGet and returns the stored hashes', async () => {
-    mockBatchGet.mockResolvedValueOnce([
-      { appliedAt: NOW, collection: 'migrations', count: 3, hash: 'abc123', scope: 'backfillOrganizerId' },
-      { appliedAt: NOW, collection: 'migrations', count: 1, scope: 'fixSeasonFromStartDate' },
-    ])
+  it('reads the stored hashes of the named migrations', async () => {
+    const hashes = new Map([['backfillOrganizerId', 'abc123']])
+    mockReadMigrationHashes.mockResolvedValueOnce(hashes)
 
-    const applied = await readAppliedMigrations(['backfillOrganizerId', 'fixSeasonFromStartDate'])
-
-    expect(mockBatchGet).toHaveBeenCalledTimes(1)
-    expect(mockBatchGet).toHaveBeenCalledWith([
-      { collection: 'migrations', scope: 'backfillOrganizerId' },
-      { collection: 'migrations', scope: 'fixSeasonFromStartDate' },
-    ])
-    // A row from before hashes existed maps to undefined, like one never written
-    expect(applied).toEqual(
-      new Map([
-        ['backfillOrganizerId', 'abc123'],
-        ['fixSeasonFromStartDate', undefined],
-      ])
-    )
-    expect(applied.get('neverRecorded')).toBeUndefined()
+    await expect(readAppliedMigrations(['backfillOrganizerId'])).resolves.toBe(hashes)
+    expect(mockReadMigrationHashes).toHaveBeenCalledWith(['backfillOrganizerId'])
   })
 
-  // The expression is what DynamoDB judges, which a mock cannot: it was run against DynamoDB-local for
-  // the four row states. No row, a row without a hash and a row with another hash are written; a row
-  // with the same hash is refused (ConditionalCheckFailedException, swallowed below).
   it('records a migration with the time, the rows it changed and the hash of its code', async () => {
+    const info = vi.spyOn(console, 'info').mockImplementation(() => undefined)
+    mockRecordMigration.mockResolvedValueOnce(true)
+
     await markMigrationApplied('backfillOrganizerId', 4, 'abc123')
 
-    expect(mockUpdate).toHaveBeenCalledWith(
-      { collection: 'migrations', scope: 'backfillOrganizerId' },
-      { set: { appliedAt: NOW, count: 4, hash: 'abc123' } },
-      undefined,
-      undefined,
-      {
-        expression: 'attribute_not_exists(#hash) OR #hash <> :hash',
-        names: { '#hash': 'hash' },
-        values: { ':hash': 'abc123' },
-      }
-    )
+    expect(mockRecordMigration).toHaveBeenCalledWith('backfillOrganizerId', 4, 'abc123', NOW)
+    expect(loggedLines(info)).toEqual([])
   })
 
   it('leaves an earlier mark alone when a concurrent run already recorded it', async () => {
-    mockUpdate.mockRejectedValueOnce(
-      Object.assign(new Error('The conditional request failed'), { name: 'ConditionalCheckFailedException' })
-    )
+    const info = vi.spyOn(console, 'info').mockImplementation(() => undefined)
+    mockRecordMigration.mockResolvedValueOnce(false)
 
     await expect(markMigrationApplied('backfillOrganizerId', 0, 'abc123')).resolves.toBeUndefined()
+    expect(loggedLines(info)).toContainEqual(
+      expect.objectContaining({ message: 'migration already recorded', name: 'backfillOrganizerId' })
+    )
   })
 
   it('does not swallow any other failure of the mark', async () => {
-    mockUpdate.mockRejectedValueOnce(new Error('throttled'))
+    mockRecordMigration.mockRejectedValueOnce(new Error('throttled'))
 
     await expect(markMigrationApplied('backfillOrganizerId', 0, 'abc123')).rejects.toThrow('throttled')
   })
+})
 
-  it('keeps migration rows out of what the weekly repair measures', async () => {
-    const version = { collection: 'judges', count: 2, revision: 'aaa', scope: '*' }
-    mockReadAll.mockResolvedValueOnce([
-      version,
-      { appliedAt: NOW, collection: 'migrations', count: 3, scope: 'backfillOrganizerId' },
-    ])
-
-    expect(await readStoredDataVersions()).toEqual([version])
+describe('weekly repair', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+    revision.next = 0
   })
 
-  it('reads an empty table as no stored versions', async () => {
-    mockReadAll.mockResolvedValueOnce(undefined)
+  it('reads the stored version rows', async () => {
+    const version = { collection: 'judges', count: 2, revision: 'aaa', scope: '*' }
+    mockReadAllVersionRecords.mockResolvedValueOnce([version])
 
-    expect(await readStoredDataVersions()).toEqual([])
+    await expect(readStoredDataVersions()).resolves.toEqual([version])
+  })
+
+  it('records a fingerprint without touching the revision', async () => {
+    await writeDataVersionFingerprint('judges', '*', { count: 3, fingerprintAt: NOW }, false)
+
+    expect(mockWriteFingerprint).toHaveBeenCalledWith('judges', '*', { count: 3, fingerprintAt: NOW }, undefined)
+  })
+
+  it('remints the revision with the fingerprint when the data moved without a bump', async () => {
+    await writeDataVersionFingerprint('users', 'org1', { count: 1 }, true)
+
+    expect(mockWriteFingerprint).toHaveBeenCalledWith(
+      'users',
+      'org1',
+      { count: 1 },
+      { modifiedAt: NOW, revision: 'test-revision-1' }
+    )
   })
 })

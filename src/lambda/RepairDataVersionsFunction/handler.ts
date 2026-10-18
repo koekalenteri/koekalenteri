@@ -1,15 +1,14 @@
 import type { JsonUser } from '../../types'
-import type { VersionedCollection, VersionRecord } from '../lib/dataVersions'
-import { CONFIG } from '../config'
+import type { VersionedCollection, VersionRecord } from '../lib/repositories/dataVersionRepository'
 import { GLOBAL_SCOPE, readStoredDataVersions, writeDataVersionFingerprint } from '../lib/dataVersions'
 import { logger } from '../lib/log'
+import { readEmailTemplates } from '../lib/repositories/emailTemplateRepository'
 import { readEventTypes } from '../lib/repositories/eventTypeRepository'
 import { readJudges } from '../lib/repositories/judgeRepository'
 import { readLocationSnapshot } from '../lib/repositories/locationRepository'
 import { readOfficials } from '../lib/repositories/officialRepository'
 import { readOrganizers } from '../lib/repositories/organizerRepository'
-import { userScopes } from '../lib/user'
-import CustomDynamoClient from '../utils/CustomDynamoClient'
+import { getAllUsers, userScopes } from '../lib/user'
 
 /**
  * The backstop for the version registry. Bumps are written by hand at every mutation site, so a
@@ -19,7 +18,6 @@ import CustomDynamoClient from '../utils/CustomDynamoClient'
  *
  * The scans it needs are the ones that used to run on every /user call; here they run weekly.
  */
-const dynamoDB = new CustomDynamoClient(CONFIG.dataVersionTable)
 
 interface Fingerprint {
   count: number
@@ -38,22 +36,20 @@ const fingerprintOf = <T extends object>(items: (T & TimestampedItem)[]): Finger
 
 const key = (collection: string, scope: string) => `${collection}#${scope}`
 
-const readTable = async <T extends TimestampedItem>(table: string) => (await dynamoDB.readAll<T>({ table })) ?? []
-
 const collectFingerprints = async (): Promise<Map<string, Fingerprint>> => {
   const [emailTemplates, eventTypes, judges, officials, locations, organizers, users] = await Promise.all([
-    readTable(CONFIG.emailTemplateTable),
+    readEmailTemplates(),
     readEventTypes(),
     readJudges(),
     readOfficials(),
     // Locations live in a single snapshot row that carries its own count and modifiedAt.
     readLocationSnapshot(),
     readOrganizers(),
-    readTable<JsonUser>(CONFIG.userTable),
+    getAllUsers(),
   ])
 
   const fingerprints = new Map<string, Fingerprint>([
-    [key('emailTemplates', GLOBAL_SCOPE), fingerprintOf(emailTemplates)],
+    [key('emailTemplates', GLOBAL_SCOPE), fingerprintOf(emailTemplates ?? [])],
     [key('eventTypes', GLOBAL_SCOPE), fingerprintOf(eventTypes)],
     [key('judges', GLOBAL_SCOPE), fingerprintOf(judges)],
     [key('officials', GLOBAL_SCOPE), fingerprintOf(officials)],

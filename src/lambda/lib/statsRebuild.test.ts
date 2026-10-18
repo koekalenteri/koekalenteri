@@ -1,30 +1,29 @@
-import type CustomDynamoClient from '../utils/CustomDynamoClient'
 import type { EventStatsEvent } from './repositories/eventRepository'
+import type * as eventStatsRepository from './repositories/eventStatsRepository'
+import type * as registrationRepository from './repositories/registrationRepository'
 import { vi } from 'vitest'
 import { loggedLines } from '../test-utils/logs'
 
-const mockBatchDelete = vi.fn<CustomDynamoClient['batchDelete']>()
-const mockBatchWrite = vi.fn<CustomDynamoClient['batchWrite']>()
-const mockReadAll = vi.fn<CustomDynamoClient['readAll']>()
+const mockDeleteStatRecords = vi.fn<typeof eventStatsRepository.deleteStatRecords>()
+const mockWriteStatRecords = vi.fn<typeof eventStatsRepository.writeStatRecords>()
+const mockReadAllStatKeys = vi.fn<typeof eventStatsRepository.readAllStatKeys>()
+const mockReadRegistrationsForStats = vi.fn<typeof registrationRepository.readRegistrationsForStats>()
 const mockReadEventsForStats = vi.fn()
 
-vi.doMock('../utils/CustomDynamoClient', () => ({
-  default: class {
-    batchDelete = mockBatchDelete
-    batchWrite = mockBatchWrite
-    readAll = mockReadAll
-  },
+// The key builder is the real one; only the table access is replaced.
+vi.doMock('./repositories/eventStatsRepository', async (importOriginal) => ({
+  ...(await importOriginal<typeof eventStatsRepository>()),
+  deleteStatRecords: mockDeleteStatRecords,
+  readAllStatKeys: mockReadAllStatKeys,
+  writeStatRecords: mockWriteStatRecords,
+}))
+
+vi.doMock('./repositories/registrationRepository', () => ({
+  readRegistrationsForStats: mockReadRegistrationsForStats,
 }))
 
 vi.doMock('./repositories/eventRepository', () => ({
   readEventsForStats: mockReadEventsForStats,
-}))
-
-vi.doMock('../config', () => ({
-  CONFIG: {
-    eventStatsTable: 'event-stats-table',
-    registrationTable: 'registration-table',
-  },
 }))
 
 const {
@@ -67,8 +66,8 @@ describe('statsRebuild', () => {
 
   beforeEach(() => {
     vi.clearAllMocks()
-    mockBatchDelete.mockResolvedValue(undefined)
-    mockBatchWrite.mockResolvedValue(undefined)
+    mockDeleteStatRecords.mockResolvedValue(undefined)
+    mockWriteStatRecords.mockResolvedValue(undefined)
   })
 
   it.each([
@@ -87,20 +86,23 @@ describe('statsRebuild', () => {
     [{ PK: 'CAPACITY#NOU', SK: 'not-a-month#NOU' }, undefined],
     [{ PK: 'JUDGE#2025', SK: '1' }, 2025],
     [{ PK: 'BREAKDOWN#2025', SK: 'organizer-1#NOU' }, 2025],
+    [{ PK: 'RETENTION#2025', SK: 'new' }, 2025],
   ])('extracts stats year from %o', (key, expected) => {
     expect(getEventStatsRecordYear(key)).toBe(expected)
   })
 
   it('does nothing when events, registrations, and stats are all absent', async () => {
     mockReadEventsForStats.mockResolvedValue([])
-    mockReadAll.mockResolvedValue([])
+    mockReadRegistrationsForStats.mockResolvedValueOnce([])
+    mockReadAllStatKeys.mockResolvedValueOnce([])
 
     await handler()
 
     expect(mockReadEventsForStats).toHaveBeenCalledTimes(1)
-    expect(mockReadAll).toHaveBeenCalledTimes(2)
-    expect(mockBatchDelete).not.toHaveBeenCalled()
-    expect(mockBatchWrite).not.toHaveBeenCalled()
+    expect(mockReadRegistrationsForStats).toHaveBeenCalledTimes(1)
+    expect(mockReadAllStatKeys).toHaveBeenCalledTimes(1)
+    expect(mockDeleteStatRecords).not.toHaveBeenCalled()
+    expect(mockWriteStatRecords).not.toHaveBeenCalled()
   })
 
   it('calculates final stats once, then bulk writes each year in ascending order and prunes only stale keys', async () => {
@@ -125,25 +127,21 @@ describe('statsRebuild', () => {
       { PK: 'TOTALS#2024', SK: 'dog' },
     ]
     mockReadEventsForStats.mockResolvedValueOnce([event2026, event2025])
-    mockReadAll.mockResolvedValueOnce([registration2026, registration2025, start2025]).mockResolvedValueOnce(stats)
+    mockReadRegistrationsForStats.mockResolvedValueOnce([registration2026, registration2025, start2025])
+    mockReadAllStatKeys.mockResolvedValueOnce(stats)
 
     await handler()
 
     expect(mockReadEventsForStats).toHaveBeenCalledTimes(1)
-    expect(mockReadAll).toHaveBeenNthCalledWith(1, {
-      names: { '#class': 'class', '#group': 'group', '#handler': 'handler', '#key': 'key', '#owner': 'owner' },
-      projection:
-        'eventId, id, cancelled, paidAmount, refundAmount, eventType, dog.regNo, dog.breedCode, #handler.email, #handler.membership, #owner.membership, owners, ownerHandles, #class, #group.#key',
-      table: 'registration-table',
-    })
-    expect(mockReadAll).toHaveBeenNthCalledWith(2, { projection: 'PK, SK' })
+    expect(mockReadRegistrationsForStats).toHaveBeenCalledTimes(1)
+    expect(mockReadAllStatKeys).toHaveBeenCalledTimes(1)
     // TOTALS#2024 has no counterpart in the rebuilt records, so it is pruned; TOTALS#2025 is
     // regenerated in place and must never be deleted -- deleting it would blank the year for
     // however long the write takes, and /stats caches that gap publicly.
-    expect(mockBatchDelete).toHaveBeenCalledTimes(1)
-    expect(mockBatchDelete).toHaveBeenCalledWith([stats[1]])
-    expect(mockBatchWrite).toHaveBeenCalledTimes(2)
-    expect(mockBatchWrite).toHaveBeenNthCalledWith(
+    expect(mockDeleteStatRecords).toHaveBeenCalledTimes(1)
+    expect(mockDeleteStatRecords).toHaveBeenCalledWith([stats[1]])
+    expect(mockWriteStatRecords).toHaveBeenCalledTimes(2)
+    expect(mockWriteStatRecords).toHaveBeenNthCalledWith(
       1,
       expect.arrayContaining([
         expect.objectContaining({
@@ -163,7 +161,7 @@ describe('statsRebuild', () => {
         expect.objectContaining({ PK: 'YEARS', SK: '2025' }),
       ])
     )
-    expect(mockBatchWrite).toHaveBeenNthCalledWith(
+    expect(mockWriteStatRecords).toHaveBeenNthCalledWith(
       2,
       expect.arrayContaining([
         expect.objectContaining({ count: 1, PK: 'ORG#organizer-event-2026', SK: '2026-05-01#event-2026' }),
@@ -1120,17 +1118,16 @@ describe('statsRebuild', () => {
   it('skips registrations whose events are missing or have invalid start dates', async () => {
     const invalidEvent = event('invalid-event', 'not-a-date')
     mockReadEventsForStats.mockResolvedValueOnce([invalidEvent])
-    mockReadAll
-      .mockResolvedValueOnce([
-        registration('missing-registration', 'missing-event'),
-        registration('invalid-registration', invalidEvent.id),
-      ])
-      .mockResolvedValueOnce([])
+    mockReadRegistrationsForStats.mockResolvedValueOnce([
+      registration('missing-registration', 'missing-event'),
+      registration('invalid-registration', invalidEvent.id),
+    ])
+    mockReadAllStatKeys.mockResolvedValueOnce([])
 
     await handler()
 
-    expect(mockBatchDelete).not.toHaveBeenCalled()
-    expect(mockBatchWrite).not.toHaveBeenCalled()
+    expect(mockDeleteStatRecords).not.toHaveBeenCalled()
+    expect(mockWriteStatRecords).not.toHaveBeenCalled()
     expect(loggedLines(mockLog)).toContainEqual(
       expect.objectContaining({
         message: 'stats regeneration completed',
@@ -1144,11 +1141,12 @@ describe('statsRebuild', () => {
 
   it('reports stats records that cannot be assigned to a year', async () => {
     mockReadEventsForStats.mockResolvedValueOnce([])
-    mockReadAll.mockResolvedValueOnce([]).mockResolvedValueOnce([{ PK: 'NEW_STAT_FAMILY#2025', SK: 'id' }])
+    mockReadRegistrationsForStats.mockResolvedValueOnce([])
+    mockReadAllStatKeys.mockResolvedValueOnce([{ PK: 'NEW_STAT_FAMILY#2025', SK: 'id' }])
 
     await handler()
 
-    expect(mockBatchDelete).not.toHaveBeenCalled()
+    expect(mockDeleteStatRecords).not.toHaveBeenCalled()
     expect(loggedLines(mockLog)).toContainEqual(
       expect.objectContaining({
         message: 'stats regeneration completed',
@@ -1177,7 +1175,8 @@ describe('statsRebuild', () => {
 
     it('never deletes organizer records when they are out of scope', async () => {
       mockReadEventsForStats.mockResolvedValueOnce([])
-      mockReadAll.mockResolvedValueOnce([]).mockResolvedValueOnce([
+      mockReadRegistrationsForStats.mockResolvedValueOnce([])
+      mockReadAllStatKeys.mockResolvedValueOnce([
         { PK: 'ORG#organizer-1', SK: '2025-06-01#event' },
         { PK: 'TOTALS#2025', SK: 'dog' },
         { PK: 'CAPACITY#NOME-B', SK: '2025-06#ALO' },
@@ -1186,8 +1185,8 @@ describe('statsRebuild', () => {
       await rebuildHandler()
 
       // ORG# is maintained by registration writes; touching it here would race them.
-      expect(mockBatchDelete).toHaveBeenCalledTimes(1)
-      expect(mockBatchDelete).toHaveBeenCalledWith([
+      expect(mockDeleteStatRecords).toHaveBeenCalledTimes(1)
+      expect(mockDeleteStatRecords).toHaveBeenCalledWith([
         { PK: 'TOTALS#2025', SK: 'dog' },
         { PK: 'CAPACITY#NOME-B', SK: '2025-06#ALO' },
       ])
@@ -1246,13 +1245,57 @@ describe('statsRebuild', () => {
 
   it('fails instead of reporting success when cleanup fails', async () => {
     mockReadEventsForStats.mockResolvedValueOnce([])
-    mockReadAll.mockResolvedValueOnce([]).mockResolvedValueOnce([{ PK: 'TOTALS#2025', SK: 'dog' }])
-    mockBatchDelete.mockRejectedValueOnce(
+    mockReadRegistrationsForStats.mockResolvedValueOnce([])
+    mockReadAllStatKeys.mockResolvedValueOnce([{ PK: 'TOTALS#2025', SK: 'dog' }])
+    mockDeleteStatRecords.mockRejectedValueOnce(
       new Error('DynamoDB: 1 items of a batch write to event-stats-table were left unprocessed after 5 attempts')
     )
 
     await expect(handler()).rejects.toThrow('were left unprocessed after 5 attempts')
-    expect(mockBatchWrite).not.toHaveBeenCalled()
+    expect(mockWriteStatRecords).not.toHaveBeenCalled()
+  })
+
+  describe('regenerating year by year', () => {
+    const event2025 = event('event-2025', '2025-05-01')
+    const event2026 = event('event-2026', '2026-05-01', 'other')
+    const stale2025 = { PK: 'TOTALS#2025', SK: 'gone' }
+    const stale2026 = { PK: 'TOTALS#2026', SK: 'gone' }
+    const yearOf = (rows: { PK: string; SK: string }[]) => getEventStatsRecordYear(rows[0])
+
+    beforeEach(() => {
+      mockReadEventsForStats.mockResolvedValueOnce([event2025, event2026])
+      mockReadRegistrationsForStats.mockResolvedValueOnce([
+        registration('registration-2025', event2025.id),
+        registration('registration-2026', event2026.id),
+      ])
+      mockReadAllStatKeys.mockResolvedValueOnce([stale2025, stale2026])
+    })
+
+    it("writes a year's rows before deleting its stale keys, and finishes a year before the next", async () => {
+      const steps: string[] = []
+      mockWriteStatRecords.mockImplementation(async (rows) => {
+        steps.push(`write ${yearOf(rows)}`)
+      })
+      mockDeleteStatRecords.mockImplementation(async (keys) => {
+        steps.push(`delete ${yearOf(keys)}`)
+      })
+
+      await handler()
+
+      expect(steps).toEqual(['write 2025', 'delete 2025', 'write 2026', 'delete 2026'])
+    })
+
+    it('leaves the later years alone when a year fails', async () => {
+      mockWriteStatRecords.mockRejectedValueOnce(new Error('throttled'))
+
+      await expect(handler()).rejects.toThrow('throttled')
+
+      expect(mockWriteStatRecords).toHaveBeenCalledTimes(1)
+      expect(mockWriteStatRecords).not.toHaveBeenCalledWith(
+        expect.arrayContaining([expect.objectContaining({ PK: 'YEARS', SK: '2026' })])
+      )
+      expect(mockDeleteStatRecords).not.toHaveBeenCalled()
+    })
   })
 
   describe('event totals', () => {

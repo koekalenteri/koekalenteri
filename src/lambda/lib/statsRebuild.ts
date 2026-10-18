@@ -12,31 +12,35 @@ import type {
   JsonEventBreakdownItem,
   JsonEventStatsItem,
   JsonJudgeWorkloadItem,
+  RegistrationStatsInput,
   YearlyStatTypes,
 } from '../../types/Stats'
 import type { EventStatsEvent } from './repositories/eventRepository'
-import type { RegistrationStatsInput } from './stats'
+import type { EventStatKey } from './repositories/eventStatsRepository'
 import { isEventOver, OFFICIAL_EVENT_TYPES, storedMonthKey, uniqueClasses } from '../../lib/event'
 import { getRegistrationClass, isMember, isStarter } from '../../lib/registration'
-import { splitEvenly } from '../../lib/utils'
+import { mapWithConcurrency, splitEvenly } from '../../lib/utils'
 import { ALL_EVENT_TYPES_FOR_CAPACITY, ALL_ORGANIZERS_FOR_EVENTS, YEARLY_BREAKDOWN_TYPES } from '../../types/Stats'
-import { CONFIG } from '../config'
-import CustomDynamoClient from '../utils/CustomDynamoClient'
 import { logger } from './log'
 import { readEventsForStats } from './repositories/eventRepository'
 import {
-  bucketForCount,
-  eventStatsYear,
-  hashStatValue,
+  bucketsPk,
+  capacityPk,
+  capacitySk,
+  deleteStatRecords,
+  eventBreakdownPk,
+  judgeWorkloadPk,
   organizerStatsKey,
-  participationIdentifiers,
-  statIdentifier,
-} from './stats'
-
-interface EventStatKey {
-  PK: string
-  SK: string
-}
+  readAllStatKeys,
+  retentionPk,
+  STATS_KEY_PREFIX,
+  writeStatRecords,
+  YEARS_PK,
+  yearlyStatPk,
+  yearlyTotalsPk,
+} from './repositories/eventStatsRepository'
+import { readRegistrationsForStats } from './repositories/registrationRepository'
+import { bucketForCount, eventStatsYear, hashStatValue, participationIdentifiers, statIdentifier } from './stats'
 
 /**
  * An event with what the registration loop needs of it resolved once rather than once per
@@ -65,15 +69,6 @@ const dateStatsEvents = (eventsById: Map<string, EventStatsEvent>, now: Date): M
 
 type CapacityRegistrationInput = RegistrationStatsInput & Pick<JsonRegistration, 'group'>
 
-const REGISTRATION_STATS_PROJECTION_NAMES = {
-  '#class': 'class',
-  '#group': 'group',
-  '#handler': 'handler',
-  '#key': 'key',
-  '#owner': 'owner',
-}
-const REGISTRATION_STATS_PROJECTION =
-  'eventId, id, cancelled, paidAmount, refundAmount, eventType, dog.regNo, dog.breedCode, #handler.email, #handler.membership, #owner.membership, owners, ownerHandles, #class, #group.#key'
 const PARTICIPATION_TYPES: YearlyStatTypes[] = ['eventType', 'dog', 'breed', 'handler', 'dog#handler', 'class', 'event']
 // Draft/tentative/cancelled events aren't real committed capacity, so they're excluded from
 // capacity, participation and the club breakdown (unlike the organizer stats, which count every
@@ -94,8 +89,6 @@ const isHeldEvent = ({ event, ended }: Pick<DatedStatsEvent, 'event' | 'ended'>)
 const isHeldOfficialEvent = (dated: Pick<DatedStatsEvent, 'event' | 'ended'>): boolean =>
   isHeldEvent(dated) && OFFICIAL_EVENT_TYPES.includes(dated.event.eventType)
 
-const dynamoDB = new CustomDynamoClient(CONFIG.eventStatsTable)
-
 /**
  * Which group of stats records a key belongs to. `organizer` is the only partition also written
  * incrementally on registration writes; the rest are owned solely by this module.
@@ -113,29 +106,46 @@ export const ALL_STATS_PARTITIONS: StatsPartition[] = [
 export const REBUILDABLE_STATS_PARTITIONS: StatsPartition[] = ['participation', 'capacity', 'judges', 'eventBreakdown']
 
 export const getStatsRecordPartition = ({ PK }: EventStatKey): StatsPartition | undefined => {
-  if (PK.startsWith('ORG#')) return 'organizer'
-  if (PK.startsWith('CAPACITY#')) return 'capacity'
-  if (PK.startsWith('JUDGE#')) return 'judges'
-  if (PK.startsWith('BREAKDOWN#')) return 'eventBreakdown'
+  if (PK.startsWith(STATS_KEY_PREFIX.organizer)) return 'organizer'
+  if (PK.startsWith(STATS_KEY_PREFIX.capacity)) return 'capacity'
+  if (PK.startsWith(STATS_KEY_PREFIX.judge)) return 'judges'
+  if (PK.startsWith(STATS_KEY_PREFIX.breakdown)) return 'eventBreakdown'
   // STAT# matches every type, including the per-dog/handler/pair/event rows no longer written:
   // they belong to this partition so the rebuild prunes them as stale instead of leaking them.
-  if (PK === 'YEARS' || /^(?:STAT|TOTALS|BUCKETS|RETENTION)#/.test(PK)) return 'participation'
+  if (PK === YEARS_PK || PARTICIPATION_PREFIXES.some((prefix) => PK.startsWith(prefix))) return 'participation'
   return undefined
+}
+
+const PARTICIPATION_PREFIXES = [
+  STATS_KEY_PREFIX.stat,
+  STATS_KEY_PREFIX.totals,
+  STATS_KEY_PREFIX.buckets,
+  STATS_KEY_PREFIX.retention,
+]
+
+/** The partitions whose key carries the year right after the prefix. */
+const YEARLY_PREFIXES = [...PARTICIPATION_PREFIXES, STATS_KEY_PREFIX.judge, STATS_KEY_PREFIX.breakdown]
+
+const yearAfterPrefix = (PK: string): number | undefined => {
+  const prefix = YEARLY_PREFIXES.find((candidate) => PK.startsWith(candidate))
+  const match = prefix === undefined ? undefined : /^(\d{4})(?:#|$)/.exec(PK.slice(prefix.length))
+  return match ? Number(match[1]) : undefined
 }
 
 /** Returns the year represented by a stats-table key, if it is a stats record. */
 export function getEventStatsRecordYear({ PK, SK }: EventStatKey): number | undefined {
-  const match =
-    /^(?:STAT|TOTALS|BUCKETS|RETENTION|JUDGE|BREAKDOWN)#(\d{4})(?:#|$)/.exec(PK) ||
-    (PK === 'YEARS' ? /^(\d{4})$/.exec(SK) : undefined)
-  if (match) return Number(match[1])
+  const yearOfPartition = yearAfterPrefix(PK)
+  if (yearOfPartition !== undefined) return yearOfPartition
 
-  if (PK.startsWith('ORG#')) {
+  const yearsMatch = PK === YEARS_PK ? /^(\d{4})$/.exec(SK) : undefined
+  if (yearsMatch) return Number(yearsMatch[1])
+
+  if (PK.startsWith(STATS_KEY_PREFIX.organizer)) {
     const eventIdSeparator = SK.indexOf('#')
     return eventIdSeparator === -1 ? undefined : eventStatsYear({ startDate: SK.slice(0, eventIdSeparator) })
   }
 
-  if (PK.startsWith('CAPACITY#')) {
+  if (PK.startsWith(STATS_KEY_PREFIX.capacity)) {
     const monthMatch = /^(\d{4})-\d{2}#/.exec(SK)
     return monthMatch ? Number(monthMatch[1]) : undefined
   }
@@ -223,7 +233,7 @@ const dogHandlerBucketRecords = (year: number, counts: Map<string, number>): Jso
     const bucket = bucketForCount(count)
     if (bucket) increment(buckets, bucket)
   }
-  return [...buckets].map(([bucket, count]) => ({ count, PK: `BUCKETS#${year}#dog#handler`, SK: bucket }))
+  return [...buckets].map(([bucket, count]) => ({ count, PK: bucketsPk(year, 'dog#handler'), SK: bucket }))
 }
 
 /** How many distinct dogs each handler ran that year, bucketed -- e.g. "38 handlers ran exactly 2 dogs". */
@@ -233,7 +243,7 @@ const dogsPerHandlerBucketRecords = (year: number, handlerDogs: Map<string, Set<
     const bucket = bucketForCount(dogs.size)
     if (bucket) increment(buckets, bucket)
   }
-  return [...buckets].map(([bucket, count]) => ({ count, PK: `BUCKETS#${year}#dogsPerHandler`, SK: bucket }))
+  return [...buckets].map(([bucket, count]) => ({ count, PK: bucketsPk(year, 'dogsPerHandler'), SK: bucket }))
 }
 
 /**
@@ -263,8 +273,8 @@ const retentionRecords = (
     else fresh++
   }
   return [
-    { count: fresh, PK: `RETENTION#${year}`, SK: 'new' },
-    { count: returning, PK: `RETENTION#${year}`, SK: 'returning' },
+    { count: fresh, PK: retentionPk(year), SK: 'new' },
+    { count: returning, PK: retentionPk(year), SK: 'returning' },
   ]
 }
 
@@ -277,10 +287,10 @@ const yearlyStatsRecords = (
   for (const [year, countsByType] of yearlyStats) {
     for (const type of PARTICIPATION_TYPES) {
       const counts = countsForType(countsByType, type)
-      records.push({ count: counts.size, PK: `TOTALS#${year}`, SK: type })
+      records.push({ count: counts.size, PK: yearlyTotalsPk(year), SK: type })
       // Per-entity rows only for the breakdowns the API serves; the rest are counted, not stored.
       if (publishedTypes.has(type)) {
-        for (const [entityId, count] of counts) records.push({ count, PK: `STAT#${year}#${type}`, SK: entityId })
+        for (const [entityId, count] of counts) records.push({ count, PK: yearlyStatPk(year, type), SK: entityId })
       }
       if (type === 'dog#handler') records.push(...dogHandlerBucketRecords(year, counts))
     }
@@ -473,10 +483,10 @@ const capacityStatsRecords = (buckets: Map<string, CapacityBucket>, updatedAt: s
     cancelledRegistrations: bucket.cancelledRegistrations,
     eventCount: bucket.eventCount,
     organizerId: bucket.organizerId,
-    PK: `CAPACITY#${bucket.eventType}`,
+    PK: capacityPk(bucket.eventType),
     places: bucket.places,
     reserve: bucket.reserve,
-    SK: `${bucket.month}#${bucket.classKey}#${bucket.organizerId}`,
+    SK: capacitySk(bucket.month, bucket.classKey, bucket.organizerId),
     starters: bucket.starters,
     updatedAt,
   }))
@@ -527,7 +537,7 @@ const addBreedStartRegistration = (
 
 const breedStartRecords = (buckets: Map<string, BreedStartBucket>, updatedAt: string): JsonBreedStartStatsItem[] =>
   [...buckets.values()].map((bucket) => ({
-    PK: `STAT#${bucket.year}#breedStart`,
+    PK: yearlyStatPk(bucket.year, 'breedStart'),
     reserve: bucket.reserve,
     SK: bucket.breed,
     starters: bucket.starters,
@@ -654,7 +664,7 @@ const eventBreakdownRecords = (
     handlerCount: bucket.handlerIds.size,
     memberStarters: bucket.memberStarters,
     organizerId: bucket.organizerId,
-    PK: `BREAKDOWN#${bucket.year}`,
+    PK: eventBreakdownPk(bucket.year),
     places: bucket.places,
     reserve: bucket.reserve,
     SK: `${bucket.organizerId}#${bucket.eventType}`,
@@ -707,7 +717,7 @@ const judgeWorkloadRecords = (buckets: Map<string, JudgeWorkloadBucket>, updated
     judgeId: bucket.judgeId,
     name: bucket.name,
     organizerId: bucket.organizerId,
-    PK: `JUDGE#${bucket.year}`,
+    PK: judgeWorkloadPk(bucket.year),
     SK: `${bucket.organizerId}#${bucket.judgeId}`,
     updatedAt,
   }))
@@ -869,7 +879,7 @@ export function buildStatsRecords(
 
   // The YEARS marker belongs to the participation partition (see getStatsRecordPartition).
   if (wanted.has('participation')) {
-    for (const year of years) records.push({ PK: 'YEARS', SK: year.toString(), updatedAt })
+    for (const year of years) records.push({ PK: YEARS_PK, SK: year.toString(), updatedAt })
   }
   return { records, skippedCount, unattributedCapacityCount }
 }
@@ -886,23 +896,31 @@ const groupStatsByYear = <T extends EventStatKey>(records: T[]) => {
   return recordsByYear
 }
 
+/**
+ * Writes the year's rebuilt rows, then deletes the year's keys the rebuild did not regenerate.
+ * Deleting first left a window where /stats served empty or partial data for the year -- which the
+ * public endpoint then caches for up to an hour. batchWrite overwrites in place, so every surviving
+ * key stays continuously readable and only genuinely-gone keys are removed.
+ */
+const regenerateYear = async (year: number, oldRecords: EventStatKey[], newRecords: EventStatKey[]) => {
+  const newKeys = new Set(newRecords.map((record) => `${record.PK}\u0000${record.SK}`))
+  const staleRecords = oldRecords.filter((record) => !newKeys.has(`${record.PK}\u0000${record.SK}`))
+  if (newRecords.length > 0) await writeStatRecords(newRecords)
+  if (staleRecords.length > 0) await deleteStatRecords(staleRecords)
+  logger.info('regenerated stats for year', { removed: staleRecords.length, wrote: newRecords.length, year })
+}
+
 export function createHandler(partitions: StatsPartition[] = ALL_STATS_PARTITIONS) {
   return async function handler(): Promise<void> {
     const wanted = new Set(partitions)
     logger.info('starting stats regeneration', { partitions })
 
-    const [allEvents, registrations, allStatKeys] = await Promise.all([
+    const [allEvents, registrationRecords, everyStatKey] = await Promise.all([
       readEventsForStats(),
-      dynamoDB.readAll<CapacityRegistrationInput>({
-        names: REGISTRATION_STATS_PROJECTION_NAMES,
-        projection: REGISTRATION_STATS_PROJECTION,
-        table: CONFIG.registrationTable,
-      }),
-      dynamoDB.readAll<EventStatKey>({ projection: 'PK, SK' }),
+      readRegistrationsForStats(),
+      readAllStatKeys(),
     ])
     const events = allEvents || []
-    const registrationRecords = registrations || []
-    const everyStatKey = allStatKeys || []
     // Only ever delete keys in the partitions this run owns; anything else is left untouched.
     const statKeys = everyStatKey.filter((key) => {
       const partition = getStatsRecordPartition(key)
@@ -930,20 +948,11 @@ export function createHandler(partitions: StatsPartition[] = ALL_STATS_PARTITION
       registrations: registrationRecords.length,
       statsRecordsInScope: statKeys.length,
     })
-    for (const year of years) {
-      const oldRecords = existingStatsByYear.get(year) ?? []
-      const newRecords = recordsByYear.get(year) ?? []
-      // Write before deleting, and only delete keys the rebuild did not regenerate. Deleting
-      // first left a window where /stats served empty or partial data for the year -- which the
-      // public endpoint then caches for up to an hour. batchWrite overwrites in place, so every
-      // surviving key stays continuously readable and only genuinely-gone keys are removed.
-      const newKeys = new Set(newRecords.map((record) => `${record.PK}\u0000${record.SK}`))
-      const staleRecords = oldRecords.filter((record) => !newKeys.has(`${record.PK}\u0000${record.SK}`))
-      // Keep each year independently regenerable if a manual run fails midway.
-      if (newRecords.length > 0) await dynamoDB.batchWrite(newRecords)
-      if (staleRecords.length > 0) await dynamoDB.batchDelete(staleRecords.map(({ PK, SK }) => ({ PK, SK })))
-      logger.info('regenerated stats for year', { removed: staleRecords.length, wrote: newRecords.length, year })
-    }
+    // One year at a time, in order, so each year stays independently regenerable if a manual run
+    // fails midway: the years after the failing one are left as they were.
+    await mapWithConcurrency(years, 1, (year) =>
+      regenerateYear(year, existingStatsByYear.get(year) ?? [], recordsByYear.get(year) ?? [])
+    )
 
     logger.info('stats regeneration completed', {
       records: records.length,

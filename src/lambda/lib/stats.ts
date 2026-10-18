@@ -1,33 +1,45 @@
-import type { TransactWriteCommandInput } from '@aws-sdk/lib-dynamodb'
 import type { JsonConfirmedEvent, JsonRegistration } from '../../types'
 import type {
   BreedStartRateEntry,
   CapacityStatsEntry,
   EventBreakdownEntry,
-  JsonCapacityStatsItem,
   JsonEventStatsItem,
-  JsonJudgeWorkloadItem,
   JudgeWorkloadEntry,
+  RegistrationStatsInput,
   RetentionStats,
   YearlyBreakdownType,
   YearlyStatTypes,
   YearlyTotalStat,
 } from '../../types/Stats'
+import type { OrganizerStatsEvent, StatDeltas } from './repositories/eventStatsRepository'
 import crypto from 'node:crypto'
 import { storedYear } from '../../lib/event'
 import { isMember, isStarter } from '../../lib/registration'
-import { CONFIG } from '../config'
-import CustomDynamoClient from '../utils/CustomDynamoClient'
+import {
+  addOrganizerEventStats,
+  commitNewRegistrationStats,
+  isSameOrganizerStatsRow,
+  moveOrganizerEventStatsRow,
+  readAllOrganizerEventStats,
+  readBreedStarts,
+  readBuckets,
+  readCapacityStats,
+  readEventBreakdown,
+  readJudgeWorkload,
+  readOrganizerEventStats,
+  readOrganizerEventStatsRow,
+  readRetention,
+  readStatsYears,
+  readYearlyBreakdown,
+  readYearlyTotals,
+} from './repositories/eventStatsRepository'
 import { readEventTypes } from './repositories/eventTypeRepository'
+import { readRegistrationConsistently } from './repositories/registrationRepository'
 
-// Single global client for all DynamoDB operations
-const dynamoDB = new CustomDynamoClient(CONFIG.eventStatsTable)
 const NEW_REGISTRATION_STATS_MAX_ATTEMPTS = 12
 const NEW_REGISTRATION_STATS_RETRY_BASE_MS = 10
 const NEW_REGISTRATION_STATS_RETRY_MAX_MS = 500
 const MOVE_ORGANIZER_STATS_MAX_ATTEMPTS = 8
-
-type StatsTransactionItem = NonNullable<TransactWriteCommandInput['TransactItems']>[number]
 
 const isTransactionCancelled = (error: unknown) => (error as { name?: string }).name === 'TransactionCanceledException'
 
@@ -40,101 +52,9 @@ const waitForStatsRetry = (attempt: number) => {
   return new Promise<void>((resolve) => setTimeout(resolve, delay))
 }
 
-export type RegistrationStatsInput = Pick<
-  JsonRegistration,
-  'cancelled' | 'class' | 'eventId' | 'eventType' | 'group' | 'id' | 'ownerHandles' | 'paidAmount' | 'refundAmount'
-> & {
-  dog?: Pick<JsonRegistration['dog'], 'breedCode' | 'regNo'>
-  handler?: Pick<NonNullable<JsonRegistration['handler']>, 'email' | 'membership'>
-  owner?: Pick<NonNullable<JsonRegistration['owner']>, 'membership'>
-  owners?: Pick<NonNullable<JsonRegistration['owners']>[number], 'membership'>[]
-}
-
 /** The Finnish year of an event's stored start date, or undefined for one without a calendar day. */
 export function eventStatsYear({ startDate }: { startDate: string }): number | undefined {
   return storedYear(startDate)
-}
-
-/**
- * Get stats for organizers, optionally filtered by date range
- * If organizerIds is provided, only stats for those organizers are returned
- * If organizerIds is not provided, stats for all organizers are returned
- */
-/**
- * Build date range filter expressions for DynamoDB queries
- */
-function buildDateRangeFilters(from?: string, to?: string) {
-  const filterExpressions: string[] = []
-  const expressionValues: Record<string, string> = {}
-
-  if (from) {
-    filterExpressions.push('SK >= :from')
-    expressionValues[':from'] = from
-  }
-
-  if (to) {
-    filterExpressions.push('SK <= :to')
-    expressionValues[':to'] = to
-  }
-
-  return { expressionValues, filterExpressions }
-}
-
-/**
- * Query stats for a single organizer with optional date filtering
- */
-async function queryOrganizerStats(
-  organizerId: string,
-  from?: string,
-  to?: string
-): Promise<Required<JsonEventStatsItem>[]> {
-  const keyCondition = '#pk = :pk'
-  const expressionNames: Record<string, string> = { '#pk': 'PK' }
-  const expressionValues: Record<string, string> = { ':pk': `ORG#${organizerId}` }
-
-  // Add date range filters
-  const { filterExpressions, expressionValues: dateValues } = buildDateRangeFilters(from, to)
-  Object.assign(expressionValues, dateValues)
-
-  // Combine filter expressions if any
-  const filterExpression = filterExpressions.length > 0 ? filterExpressions.join(' AND ') : undefined
-
-  // Query for this organizerId with date filters
-  const items = await dynamoDB.query<Required<JsonEventStatsItem>>({
-    filterExpression,
-    key: keyCondition,
-    names: expressionNames,
-    values: expressionValues,
-  })
-
-  return items || []
-}
-
-/**
- * Query stats for all organizers with optional date filtering
- */
-async function queryAllOrganizerStats(from?: string, to?: string): Promise<Required<JsonEventStatsItem>[]> {
-  // Start with the base filter for all organizer records
-  const filterExpressions: string[] = ['begins_with(#pk, :orgPrefix)']
-  const expressionNames: Record<string, string> = { '#pk': 'PK' }
-  const expressionValues: Record<string, string> = { ':orgPrefix': 'ORG#' }
-
-  // Add date range filters
-  const { filterExpressions: dateFilters, expressionValues: dateValues } = buildDateRangeFilters(from, to)
-  filterExpressions.push(...dateFilters)
-  Object.assign(expressionValues, dateValues)
-
-  // Combine filter expressions
-  const filterExpression = filterExpressions.join(' AND ')
-
-  // Use readAll with filtering
-  const items = await dynamoDB.readAll<Required<JsonEventStatsItem>>({
-    filter: filterExpression,
-    names: expressionNames,
-    values: expressionValues,
-  })
-
-  return items || []
 }
 
 /**
@@ -156,12 +76,12 @@ export async function getOrganizerStats(
   if (organizerIds) {
     // Query for specific organizers, all at once; the result is sorted below anyway
     const perOrganizer = await Promise.all(
-      organizerIds.map((organizerId) => queryOrganizerStats(organizerId, from, to))
+      organizerIds.map((organizerId) => readOrganizerEventStats(organizerId, from, to))
     )
     allStats = perOrganizer.flat()
   } else {
     // Query for all organizers
-    allStats = await queryAllOrganizerStats(from, to)
+    allStats = await readAllOrganizerEventStats(from, to)
   }
 
   // Sort by date
@@ -173,13 +93,9 @@ export async function getOrganizerStats(
  * Get yearly total stats for a specific year
  */
 export async function getYearlyTotalStats(year: number): Promise<YearlyTotalStat[]> {
-  const pk = `TOTALS#${year}`
-  const items = await dynamoDB.query<{ SK: string; count: number }>({
-    key: 'PK = :pk',
-    values: { ':pk': pk },
-  })
+  const items = await readYearlyTotals(year)
 
-  return (items || []).map((item) => ({
+  return items.map((item) => ({
     count: item.count,
     type: item.SK as YearlyStatTypes,
     year,
@@ -192,11 +108,8 @@ export async function getYearlyTotalStats(year: number): Promise<YearlyTotalStat
  * once. Undefined for the earliest year on record, which has nothing to compare against.
  */
 export async function getRetentionStats(year: number): Promise<RetentionStats | undefined> {
-  const items = await dynamoDB.query<{ SK: string; count: number }>({
-    key: 'PK = :pk',
-    values: { ':pk': `RETENTION#${year}` },
-  })
-  if (!items?.length) return undefined
+  const items = await readRetention(year)
+  if (!items.length) return undefined
 
   const countFor = (sk: string) => items.find((item) => item.SK === sk)?.count ?? 0
   return { new: countFor('new'), returning: countFor('returning'), year }
@@ -209,13 +122,9 @@ export async function getYearlyBreakdown(
   year: number,
   type: YearlyBreakdownType
 ): Promise<{ entityId: string; count: number }[]> {
-  const pk = `STAT#${year}#${type}`
-  const items = await dynamoDB.query<{ SK: string; count: number }>({
-    key: 'PK = :pk',
-    values: { ':pk': pk },
-  })
+  const items = await readYearlyBreakdown(year, type)
 
-  return (items || []).map((item) => ({
+  return items.map((item) => ({
     count: item.count,
     entityId: item.SK,
   }))
@@ -226,13 +135,9 @@ export async function getYearlyBreakdown(
  * actually got a starting position. Written by the nightly rebuild, alongside breedBreakdown.
  */
 export async function getBreedStartBreakdown(year: number): Promise<BreedStartRateEntry[]> {
-  const pk = `STAT#${year}#breedStart`
-  const items = await dynamoDB.query<{ SK: string; starters: number; reserve: number }>({
-    key: 'PK = :pk',
-    values: { ':pk': pk },
-  })
+  const items = await readBreedStarts(year)
 
-  return (items || []).map((item) => ({
+  return items.map((item) => ({
     entityId: item.SK,
     reserve: item.reserve ?? 0,
     starters: item.starters ?? 0,
@@ -243,13 +148,9 @@ export async function getBreedStartBreakdown(year: number): Promise<BreedStartRa
  * Get dog#handler buckets for a specific year
  */
 export async function getDogHandlerBuckets(year: number): Promise<{ bucket: string; count: number }[]> {
-  const pk = `BUCKETS#${year}#dog#handler`
-  const items = await dynamoDB.query<{ SK: string; count: number }>({
-    key: 'PK = :pk',
-    values: { ':pk': pk },
-  })
+  const items = await readBuckets(year, 'dog#handler')
 
-  return (items || []).map((item) => ({
+  return items.map((item) => ({
     bucket: item.SK,
     count: item.count,
   }))
@@ -259,13 +160,9 @@ export async function getDogHandlerBuckets(year: number): Promise<{ bucket: stri
  * Get dogs-per-handler buckets for a specific year: how many handlers ran 1 dog, 2 dogs, etc.
  */
 export async function getDogsPerHandlerBuckets(year: number): Promise<{ bucket: string; count: number }[]> {
-  const pk = `BUCKETS#${year}#dogsPerHandler`
-  const items = await dynamoDB.query<{ SK: string; count: number }>({
-    key: 'PK = :pk',
-    values: { ':pk': pk },
-  })
+  const items = await readBuckets(year, 'dogsPerHandler')
 
-  return (items || []).map((item) => ({
+  return items.map((item) => ({
     bucket: item.SK,
     count: item.count,
   }))
@@ -275,44 +172,15 @@ export async function getDogsPerHandlerBuckets(year: number): Promise<{ bucket: 
  * Get available years for which we have statistics
  */
 export async function getAvailableYears(): Promise<number[]> {
-  const items = await dynamoDB.query<{ SK: string }>({
-    key: 'PK = :pk',
-    values: { ':pk': 'YEARS' },
-  })
-
-  if (!items || items.length === 0) {
-    return []
-  }
+  const items = await readStatsYears()
 
   // Convert SK (year as string) to numbers and sort
   return items.map((item) => Number.parseInt(item.SK, 10)).sort((a, b) => a - b)
 }
 
 /**
- * `organizerId IN (...)` filter over a partition whose rows carry an `organizerId` attribute,
- * registering the placeholders it needs in `names` / `values`. Undefined means no filter (every
- * organizer); an empty list is the caller's job to short-circuit before querying at all.
- */
-const organizerFilterExpression = (
-  organizerIds: string[] | undefined,
-  names: Record<string, string>,
-  values: Record<string, string>
-): string | undefined => {
-  if (!organizerIds) return undefined
-  names['#organizerId'] = 'organizerId'
-  const placeholders = organizerIds.map((id, index) => {
-    values[`:organizerId${index}`] = id
-    return `:organizerId${index}`
-  })
-  return `#organizerId IN (${placeholders.join(', ')})`
-}
-
-/**
  * Get monthly available-places-vs-actual-starters stats for one event type,
- * optionally bounded to a yyyy-mm month range. Uses a key condition (not a
- * filter) since SK = {yyyy-mm}#{class}#{organizerId} sorts naturally within
- * the partition; the upper bound is padded past '#' so the whole `to` month
- * is included regardless of the class/organizer that follows it.
+ * optionally bounded to a yyyy-mm month range.
  *
  * One row per month/class comes back per organizer that ran events of this type, so the
  * result is always summed into one entry per month/class. `organizerIds` narrows which
@@ -332,31 +200,9 @@ export async function getCapacityStats(
   // DynamoDB rejects an inverted BETWEEN with a ValidationException; the range is simply empty.
   if (from && to && from > to) return []
 
-  const pk = `CAPACITY#${eventType}`
-  let keyCondition = '#pk = :pk'
-  const names: Record<string, string> = { '#pk': 'PK' }
-  const values: Record<string, string> = { ':pk': pk }
+  const items = await readCapacityStats(eventType, organizerIds, from, to)
 
-  if (from && to) {
-    keyCondition += ' AND SK BETWEEN :from AND :to'
-    values[':from'] = from
-    values[':to'] = `${to}#￿`
-  } else if (from) {
-    keyCondition += ' AND SK >= :from'
-    values[':from'] = from
-  } else if (to) {
-    keyCondition += ' AND SK <= :to'
-    values[':to'] = `${to}#￿`
-  }
-
-  const items = await dynamoDB.query<JsonCapacityStatsItem>({
-    filterExpression: organizerFilterExpression(organizerIds, names, values),
-    key: keyCondition,
-    names,
-    values,
-  })
-
-  const entries = (items || []).map((item) => {
+  const entries = items.map((item) => {
     const [month, classKey] = item.SK.split('#')
     return {
       cancelledRegistrations: item.cancelledRegistrations ?? 0,
@@ -417,17 +263,10 @@ export async function getJudgeWorkload(year: number, organizerIds?: string[]): P
   // An explicit empty list means "no organizers the caller may see", not "all of them".
   if (organizerIds?.length === 0) return []
 
-  const names: Record<string, string> = { '#pk': 'PK' }
-  const values: Record<string, string> = { ':pk': `JUDGE#${year}` }
-  const items = await dynamoDB.query<JsonJudgeWorkloadItem>({
-    filterExpression: organizerFilterExpression(organizerIds, names, values),
-    key: '#pk = :pk',
-    names,
-    values,
-  })
+  const items = await readJudgeWorkload(year, organizerIds)
 
   const totalsByJudge = new Map<string, JudgeWorkloadEntry>()
-  for (const item of items || []) {
+  for (const item of items) {
     const total = totalsByJudge.get(item.judgeId)
     if (total) {
       total.count += item.count
@@ -445,22 +284,9 @@ export async function getJudgeWorkload(year: number, organizerIds?: string[]): P
  * nightly rebuild.
  */
 export async function getEventBreakdown(year: number): Promise<EventBreakdownEntry[]> {
-  const items = await dynamoDB.query<{
-    eventType: string
-    organizerId: string
-    eventCount: number
-    places: number
-    starters: number
-    handlerCount: number
-    reserve: number
-    cancelledRegistrations: number
-    memberStarters: number
-  }>({
-    key: 'PK = :pk',
-    values: { ':pk': `BREAKDOWN#${year}` },
-  })
+  const items = await readEventBreakdown(year)
 
-  return (items || []).map((item) => ({
+  return items.map((item) => ({
     cancelledRegistrations: item.cancelledRegistrations ?? 0,
     eventCount: item.eventCount ?? 0,
     eventType: item.eventType,
@@ -486,7 +312,7 @@ const isMemberStarter = (registration: RegistrationStatsInput): boolean =>
 export function calculateStatDeltas(
   registration: RegistrationStatsInput,
   existingRegistration: RegistrationStatsInput | undefined
-) {
+): StatDeltas {
   return {
     cancelledDelta: (registration.cancelled ? 1 : 0) - (existingRegistration?.cancelled ? 1 : 0),
     memberDelta:
@@ -501,8 +327,6 @@ export function calculateStatDeltas(
     totalDelta: existingRegistration ? 0 : 1,
   }
 }
-
-type StatDeltas = ReturnType<typeof calculateStatDeltas>
 
 /** The deltas of registrations that are all new to the event, added up: an event copied in whole (KOE-1471). */
 export function sumNewRegistrationStatDeltas(registrations: RegistrationStatsInput[]): StatDeltas {
@@ -520,40 +344,11 @@ export function sumNewRegistrationStatDeltas(registrations: RegistrationStatsInp
   }
 }
 
-/** Identifies an event's organizer stats record. Both key parts are editable event fields. */
-type OrganizerStatsEvent = Pick<JsonConfirmedEvent, 'id' | 'startDate'> & { organizer: { id: string } }
-
-export const organizerStatsKey = (event: OrganizerStatsEvent) => ({
-  PK: `ORG#${event.organizer.id}`,
-  SK: `${event.startDate}#${event.id}`,
-})
-
 /**
  * Update the organizer event stats in DynamoDB
  */
-export async function updateOrganizerEventStats(
-  event: OrganizerStatsEvent,
-  deltas: ReturnType<typeof calculateStatDeltas>
-): Promise<void> {
-  const key = organizerStatsKey(event)
-
-  await dynamoDB.update(key, {
-    add: {
-      cancelledRegistrations: deltas.cancelledDelta,
-      count: deltas.totalDelta,
-      memberRegistrations: deltas.memberDelta,
-      paidAmount: deltas.paidAmountDelta,
-      paidRegistrations: deltas.paidDelta,
-      refundedAmount: deltas.refundedAmountDelta,
-      refundedRegistrations: deltas.refundedDelta,
-      reserveRegistrations: deltas.reserveDelta,
-    },
-    set: {
-      date: event.startDate,
-      organizerId: event.organizer.id,
-      updatedAt: new Date().toISOString(),
-    },
-  })
+export async function updateOrganizerEventStats(event: OrganizerStatsEvent, deltas: StatDeltas): Promise<void> {
+  await addOrganizerEventStats(event, deltas, new Date().toISOString())
 }
 
 /**
@@ -577,69 +372,18 @@ export async function moveOrganizerEventStats(
   existing: OrganizerStatsEvent,
   updated: OrganizerStatsEvent
 ): Promise<void> {
-  const from = organizerStatsKey(existing)
-  const to = organizerStatsKey(updated)
-  if (from.PK === to.PK && from.SK === to.SK) return
+  if (isSameOrganizerStatsRow(existing, updated)) return
 
   for (let attempt = 1; attempt <= MOVE_ORGANIZER_STATS_MAX_ATTEMPTS; attempt++) {
     // No record yet means no registrations have been counted for this event; the first
     // registration will simply create it under the new key.
-    const stats = await dynamoDB.read<JsonEventStatsItem>(from, undefined, true)
+    const stats = await readOrganizerEventStatsRow(existing)
     if (!stats) return
 
     try {
       // One transaction, because a half-finished move either double-counts the event in the
       // organizer's totals or drops it, and no scheduled job would notice either.
-      await dynamoDB.documentTransaction([
-        {
-          // ADD, not Put: a registration for the *updated* event can already have created the
-          // destination item (its blind ADD uses the new key). A Put would overwrite that
-          // increment; accumulating into whatever is there merges the two instead.
-          Update: {
-            ExpressionAttributeNames: {
-              '#cancelledRegistrations': 'cancelledRegistrations',
-              '#count': 'count',
-              '#date': 'date',
-              '#memberRegistrations': 'memberRegistrations',
-              '#organizerId': 'organizerId',
-              '#paidAmount': 'paidAmount',
-              '#paidRegistrations': 'paidRegistrations',
-              '#refundedAmount': 'refundedAmount',
-              '#refundedRegistrations': 'refundedRegistrations',
-              '#reserveRegistrations': 'reserveRegistrations',
-              '#updatedAt': 'updatedAt',
-            },
-            ExpressionAttributeValues: {
-              ':cancelledRegistrations': stats.cancelledRegistrations ?? 0,
-              ':count': stats.count ?? 0,
-              ':date': updated.startDate,
-              ':memberRegistrations': stats.memberRegistrations ?? 0,
-              ':organizerId': updated.organizer.id,
-              ':paidAmount': stats.paidAmount ?? 0,
-              ':paidRegistrations': stats.paidRegistrations ?? 0,
-              ':refundedAmount': stats.refundedAmount ?? 0,
-              ':refundedRegistrations': stats.refundedRegistrations ?? 0,
-              ':reserveRegistrations': stats.reserveRegistrations ?? 0,
-              ':updatedAt': new Date().toISOString(),
-            },
-            Key: to,
-            TableName: CONFIG.eventStatsTable,
-            UpdateExpression:
-              'ADD #cancelledRegistrations :cancelledRegistrations, #count :count, #memberRegistrations :memberRegistrations, #paidAmount :paidAmount, #paidRegistrations :paidRegistrations, #refundedAmount :refundedAmount, #refundedRegistrations :refundedRegistrations, #reserveRegistrations :reserveRegistrations SET #date = :date, #organizerId = :organizerId, #updatedAt = :updatedAt',
-          },
-        },
-        {
-          Delete: {
-            ConditionExpression: stats.updatedAt
-              ? '#updatedAt = :expectedUpdatedAt'
-              : 'attribute_not_exists(#updatedAt)',
-            ExpressionAttributeNames: { '#updatedAt': 'updatedAt' },
-            ExpressionAttributeValues: stats.updatedAt ? { ':expectedUpdatedAt': stats.updatedAt } : undefined,
-            Key: from,
-            TableName: CONFIG.eventStatsTable,
-          },
-        },
-      ])
+      await moveOrganizerEventStatsRow(existing, updated, stats, new Date().toISOString())
       return
     } catch (error) {
       if (!isTransactionCancelled(error) || attempt === MOVE_ORGANIZER_STATS_MAX_ATTEMPTS) throw error
@@ -695,45 +439,6 @@ export const participationIdentifiers = (registration: RegistrationStatsInput): 
   }
 }
 
-const organizerStatsTransactionItem = (
-  event: JsonConfirmedEvent,
-  deltas: ReturnType<typeof calculateStatDeltas>,
-  updatedAt: string
-): StatsTransactionItem => ({
-  Update: {
-    ExpressionAttributeNames: {
-      '#cancelledRegistrations': 'cancelledRegistrations',
-      '#count': 'count',
-      '#date': 'date',
-      '#memberRegistrations': 'memberRegistrations',
-      '#organizerId': 'organizerId',
-      '#paidAmount': 'paidAmount',
-      '#paidRegistrations': 'paidRegistrations',
-      '#refundedAmount': 'refundedAmount',
-      '#refundedRegistrations': 'refundedRegistrations',
-      '#reserveRegistrations': 'reserveRegistrations',
-      '#updatedAt': 'updatedAt',
-    },
-    ExpressionAttributeValues: {
-      ':cancelledDelta': deltas.cancelledDelta,
-      ':date': event.startDate,
-      ':memberDelta': deltas.memberDelta,
-      ':organizerId': event.organizer.id,
-      ':paidAmountDelta': deltas.paidAmountDelta,
-      ':paidDelta': deltas.paidDelta,
-      ':refundedAmountDelta': deltas.refundedAmountDelta,
-      ':refundedDelta': deltas.refundedDelta,
-      ':reserveDelta': deltas.reserveDelta,
-      ':totalDelta': deltas.totalDelta,
-      ':updatedAt': updatedAt,
-    },
-    Key: organizerStatsKey(event),
-    TableName: CONFIG.eventStatsTable,
-    UpdateExpression:
-      'ADD #cancelledRegistrations :cancelledDelta, #count :totalDelta, #memberRegistrations :memberDelta, #paidAmount :paidAmountDelta, #paidRegistrations :paidDelta, #refundedAmount :refundedAmountDelta, #refundedRegistrations :refundedDelta, #reserveRegistrations :reserveDelta SET #date = :date, #organizerId = :organizerId, #updatedAt = :updatedAt',
-  },
-})
-
 /**
  * Applies a new registration's organizer stats and its completion marker in one transaction.
  *
@@ -758,38 +463,13 @@ export const applyNewRegistrationStatsOnce = async (
   }
 
   for (let attempt = 1; attempt <= NEW_REGISTRATION_STATS_MAX_ATTEMPTS; attempt++) {
-    const updatedAt = new Date().toISOString()
-    const transaction: StatsTransactionItem[] = [
-      organizerStatsTransactionItem(event, deltas, updatedAt),
-      {
-        Update: {
-          ConditionExpression:
-            'attribute_exists(#id) AND attribute_not_exists(#statsAt) AND #lease.#token = :leaseToken',
-          ExpressionAttributeNames: {
-            '#id': 'id',
-            '#lease': 'newRegistrationLease',
-            '#statsAt': 'newRegistrationStatsAt',
-            '#token': 'token',
-          },
-          ExpressionAttributeValues: { ':leaseToken': leaseToken, ':statsAt': updatedAt },
-          Key: { eventId: registration.eventId, id: registration.id },
-          TableName: CONFIG.registrationTable,
-          UpdateExpression: 'SET #statsAt = :statsAt',
-        },
-      },
-    ]
-
     try {
-      await dynamoDB.documentTransaction(transaction)
+      await commitNewRegistrationStats(event, deltas, registration, leaseToken, new Date().toISOString())
       return
     } catch (error) {
       if (!isTransactionCancelled(error)) throw error
 
-      const saved = await dynamoDB.read<JsonRegistration>(
-        { eventId: registration.eventId, id: registration.id },
-        CONFIG.registrationTable,
-        true
-      )
+      const saved = await readRegistrationConsistently(registration.eventId, registration.id)
       if (saved?.newRegistrationStatsAt) return
       if (saved?.newRegistrationLease?.token !== leaseToken || attempt === NEW_REGISTRATION_STATS_MAX_ATTEMPTS) {
         throw error
