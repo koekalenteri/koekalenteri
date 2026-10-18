@@ -113,18 +113,18 @@ describe('state.events.filters', () => {
 
     // A stored date is any moment of its Finnish day; the filter's days include both ends.
     const moments = [
-      startOfFinnishDay(day),
-      new Date(startOfFinnishDay(day).getTime() + 12 * 3_600_000),
-      endOfFinnishDay(day),
+      { moment: startOfFinnishDay(day), name: 'start of day' },
+      { moment: new Date(startOfFinnishDay(day).getTime() + 12 * 3_600_000), name: 'noon' },
+      { moment: endOfFinnishDay(day), name: 'end of day' },
     ]
 
-    it.each(moments)('keeps an event that ends at %s on the first day of the filter', (endDate) => {
+    it.each(moments)('keeps an event that ends at $name on the first day of the filter', ({ moment: endDate }) => {
       expect(withinDateFilters({ endDate }, { end: null, start: day })).toBe(true)
       expect(withinDateFilters({ endDate }, { end: null, start: null })).toBe(true)
       expect(withinDateFilters({ endDate }, { end: null, start: addDays(day, 1) })).toBe(false)
     })
 
-    it.each(moments)('keeps an event that starts at %s on the last day of the filter', (startDate) => {
+    it.each(moments)('keeps an event that starts at $name on the last day of the filter', ({ moment: startDate }) => {
       expect(withinDateFilters({ startDate }, { end: day, start: null })).toBe(true)
       expect(withinDateFilters({ startDate }, { end: null, start: null })).toBe(true)
       expect(withinDateFilters({ startDate }, { end: addDays(day, -1), start: null })).toBe(false)

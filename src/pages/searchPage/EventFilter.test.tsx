@@ -257,8 +257,9 @@ describe('EventFilter', () => {
     vi.useRealTimers()
   })
 
-  // The earliest day is 1.1.2020 in every zone. It was the browser's midnight of that day, made when the
-  // module loaded: 31.12.2019 in Finland for a browser east of it, and the range took that day (KOE-1548).
+  // A boundary test: the range starts on 1.1.2020, so 31.12.2019 is refused and 1.1.2020 is taken. The
+  // bound used to be a local Date made when the module loaded, which fell on 31.12.2019 in Tokyo; the
+  // module loads here in the machine's zone, so this does not catch that (KOE-1548).
   describe('the first day of the range', () => {
     describeInTimeZone('Asia/Tokyo', () => {
       beforeEach(() => vi.useFakeTimers())
