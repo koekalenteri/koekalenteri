@@ -56,7 +56,7 @@ Read `LLM_CONTEXT.md` for the project overview and architecture notes.
 - Before adding a file under `src/lib/` or `src/lambda/lib/`, look for an existing module that owns the same domain and extend it when the responsibility remains cohesive.
 - Avoid narrowly named parallel helper files for variants of one workflow, such as `paymentCreation.ts` and `paymentCancellation.ts`, when the code belongs naturally in `payment.ts`.
 - Create a new library file only when it represents a clearly separate, reusable responsibility or a meaningful dependency boundary. Name it after the domain concept rather than a one-off operation or implementation detail.
-- New table access goes into the table's repository in `src/lambda/lib/repositories/`, not into a handler or a domain module: one module per table with its client at module level, functions named by purpose, keys and indexes written only there. Add the function to the existing repository, or create `<table>Repository.ts` for a table that has none yet; `src/lambda/lib/repositories/README.md` has the convention and the list. `npm run ratchet` fails a commit that opens a `CustomDynamoClient` anywhere else (KOE-1405).
+- New table access goes into the table's repository in `src/lambda/lib/repositories/`, not into a handler or a domain module: one module per table with its client at module level, functions named by purpose, keys and indexes written only there. Add the function to the existing repository, or create `<table>Repository.ts` for a table that has none yet; `src/lambda/lib/repositories/README.md` has the convention and the list. `npm run ratchet` fails a commit that raises the number of `CustomDynamoClient`s opened outside the repositories, so that number can only go down (KOE-1405).
 - `@/` is the source root (`tsconfig` paths, the webpack alias and the vitest alias all declare it). Under `src/pages`, an import that would climb three or more directories names the file from `@/` instead (`@/types`, `@/lib/event`, `@/__mockData__/events`); one or two levels stay relative. Lambda code does not use the alias: esbuild reads `src/lambda/tsconfig.json`, which does not declare it.
 
 ## Calendar Days
@@ -449,9 +449,11 @@ repositories (see "Library Organization"). Each number is compared with
 
 - **How a commit fails.** A count above its baseline fails the ratchet, which runs alongside the
   other pre-commit checks and in both CI lint steps. The message lists the matches in the files
-  changed against HEAD, so the new one is easy to find. Model or narrow the value instead
-  of asserting; if a boundary conversion is truly unavoidable, remove another assertion in the same
-  commit and leave the specific comment LLM_CONTEXT.md asks for.
+  changed against HEAD, so the new one is easy to find. For an assertion or an `any`, model or
+  narrow the value instead; if a boundary conversion is truly unavoidable, remove another assertion
+  in the same commit and leave the specific comment LLM_CONTEXT.md asks for. For a DynamoDB client,
+  add the access to the table's repository in `src/lambda/lib/repositories/` instead (create
+  `<table>Repository.ts` if the table has none yet).
 - **How the baseline updates.** A count below its baseline is written back to the file, and the
   pre-commit hook stages the lowered baseline into the same commit. Nobody edits the file by hand.
 - **Rebase conflicts.** Two branches that each lowered a number conflict on that line. Take either

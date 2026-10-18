@@ -1,8 +1,11 @@
 # Repositories
 
-Every DynamoDB table the lambdas use is read and written through one module here. A handler or a
-`lambda/lib` module that needs a table calls the table's repository; it does not open a
-`CustomDynamoClient` of its own. The epic is [KOE-1405](https://koekalenteri.atlassian.net/browse/KOE-1405).
+The target is that every DynamoDB table the lambdas use is read and written through one module
+here: a handler or a `lambda/lib` module that needs a table calls the table's repository and does
+not open a `CustomDynamoClient` of its own. Most tables are not here yet; the
+`dynamoClientsOutsideRepositories` count in `scripts/ratchet-baseline.json` is the remaining work,
+and the table below lists what has moved. New table access goes into a repository from the start.
+The epic is [KOE-1405](https://koekalenteri.atlassian.net/browse/KOE-1405).
 
 ## Convention
 

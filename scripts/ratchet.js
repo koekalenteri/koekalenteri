@@ -2,8 +2,8 @@
 // them are already in the tree: type assertions (`x as T`, `<T>x`) outside tests, explicit `any`
 // anywhere, and DynamoDB clients opened outside a table's repository. Each count is compared with
 // scripts/ratchet-baseline.json: a count above its baseline fails, a count below it is written back
-// as the new baseline, so the numbers only ever go down. Runs as one of the pre-commit checks (which then stages the lowered baseline) and in the
-// CI lint steps.
+// as the new baseline, so the numbers only ever go down. Runs as one of the pre-commit checks
+// (which then stages the lowered baseline) and in the CI lint steps.
 //
 // `as const` is not an assertion and is not counted. Tests may assert freely -- AGENTS.md itself
 // recommends `fn as MockedFunction<typeof fn>` -- but `any` is off limits there too.
