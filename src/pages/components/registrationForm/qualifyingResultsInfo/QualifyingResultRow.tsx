@@ -1,4 +1,4 @@
-import type { EventResultRequirementsByDate, ManualTestResult, QualifyingResult, TestResult } from '@/types'
+import type { DayKey, EventResultRequirementsByDate, ManualTestResult, QualifyingResult, TestResult } from '@/types'
 import DeleteOutline from '@mui/icons-material/DeleteOutlined'
 import Button from '@mui/material/Button'
 import FormControl from '@mui/material/FormControl'
@@ -9,16 +9,17 @@ import { DatePicker } from '@mui/x-date-pickers'
 import { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import { localDateOf } from '@/lib/day'
-import { earliestResultDate } from '@/lib/dog'
+import { earliestResultDay } from '@/lib/dog'
 import { lastResultDay } from '@/lib/resultDay'
 import AutocompleteSingle from '../../AutocompleteSingle'
+import { useDayField } from '../../dayPicker'
 import RankingPoints from '../../RankingPoints'
 import { useLocalStateGroup } from '../hooks/useLocalStateGroup'
 import { availableResults, availableTypes, resultBorderColor } from './utils'
 
 interface Props {
   readonly eventType?: string
-  readonly dob?: Date
+  readonly dob?: DayKey
   readonly result: QualifyingResult | ManualTestResult
   readonly manualResults?: ManualTestResult[]
   readonly disabled?: boolean
@@ -29,7 +30,7 @@ interface Props {
 }
 
 interface ResultFormValues {
-  readonly date: Date | undefined
+  readonly date: DayKey | undefined
   readonly judge: string
   readonly location: string
   readonly result: string
@@ -72,15 +73,13 @@ const parseResult = (result?: string): Partial<TestResult> => {
 }
 
 /**
- * The earliest day the result date picker offers: nine months after the dog's birth, never after
- * `maxDate`. A birth date that is there but has no day (Kennelliitto's empty date, a half-typed value)
- * sets no lower bound; without a birth date the picker offers only `maxDate`.
+ * The earliest day the result date picker offers: nine months after the dog's birth day, never after
+ * `lastDay`. Without a birth day (none given, or Kennelliitto's empty date) it offers only `lastDay`.
  */
-const resultMinDate = (dob: Date | undefined, maxDate: Date): Date | undefined => {
-  if (!dob) return maxDate
-  const earliest = earliestResultDate(dob)
-  if (!earliest) return undefined
-  return earliest < maxDate ? earliest : maxDate
+const firstResultDay = (dob: DayKey | undefined, lastDay: DayKey): DayKey => {
+  if (!dob) return lastDay
+  const earliest = earliestResultDay(dob)
+  return earliest < lastDay ? earliest : lastDay
 }
 
 export default function QualifyingResultRow({
@@ -96,8 +95,8 @@ export default function QualifyingResultRow({
 }: Props) {
   const { t } = useTranslation()
   // Don't let the picker offer dates the rules will silently drop (KOE-1270, KOE-1548).
-  const maxDate = localDateOf(lastResultDay(rankingPeriod?.max))
-  const minDate = resultMinDate(dob, maxDate)
+  // The last day is a Finnish day, today or the period's last; the picker shows it as its own day.
+  const lastDay = lastResultDay(rankingPeriod?.max)
 
   // Group local state for all form fields with a single debounced update
   // A cleared picker leaves no date, so the field may be empty while the result's own date is not.
@@ -126,6 +125,8 @@ export default function QualifyingResultRow({
       }
     }
   )
+
+  const dateField = useDayField(formValues.date, (day) => updateField('date', day))
 
   const handleRemove = useCallback(() => {
     if (isManualResult(result)) onRemove?.(result)
@@ -184,13 +185,13 @@ export default function QualifyingResultRow({
             disabled={result.official || disabled}
             format={t('dateFormatString.long')}
             label={t('testResult.date')}
-            maxDate={maxDate}
-            minDate={minDate}
-            onChange={(value: Date | null) => updateField('date', value ?? undefined)}
+            maxDate={localDateOf(lastDay)}
+            minDate={localDateOf(firstResultDay(dob, lastDay))}
+            onChange={dateField.onChange}
             slotProps={{
               textField: { error: !formValues.date },
             }}
-            value={formValues.date || null}
+            value={dateField.value}
           />
         </FormControl>
       </Grid>

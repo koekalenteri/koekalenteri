@@ -20,6 +20,7 @@ import {
   registrationCancelledAudit,
 } from '../../lib/audit'
 import { objectsDiffer } from '../../lib/diff'
+import { withDogDayKeys } from '../../lib/dog'
 import { getPaymentPicture } from '../../lib/payment'
 import {
   getRegistrationClass,
@@ -690,6 +691,10 @@ const omitTechnicalRegistrationFields = (registration: JsonRegistration): Partia
   return comparable
 }
 
+/** Whether the save changes the row: the dog's dates compare by day, whatever form either side holds them in. */
 export const hasRegistrationChanges = (existing: JsonRegistration, data: JsonRegistration) => {
-  return objectsDiffer(omitTechnicalRegistrationFields(existing), omitTechnicalRegistrationFields(data))
+  return objectsDiffer(
+    withDogDayKeys(omitTechnicalRegistrationFields(existing)),
+    withDogDayKeys(omitTechnicalRegistrationFields(data))
+  )
 }

@@ -7,8 +7,7 @@ import type {
   TestResult,
 } from './types'
 import { addDays, addMonths, dayEnd, dayOf, dayStart, TIME_ZONE } from './lib/day'
-import { NOME_B_CH_qualificationStartDate2023 } from './lib/registration'
-import { manualResultDay, officialResultDay } from './lib/resultDay'
+import { nomeBChQualificationStartDay } from './lib/registration'
 
 /** A ranking period as the Finnish days it is made of, both included. */
 interface RankingDays {
@@ -18,7 +17,7 @@ interface RankingDays {
 
 type ChampionshipResult = TestResult | ManualTestResult
 
-/** A result with the day it counts for: the day written on an official one, the Finnish day of a hand-entered one. */
+/** A result with the day it counts for: its own day key (KOE-1548). */
 interface DatedResult {
   result: ChampionshipResult
   official: boolean
@@ -29,8 +28,8 @@ type ScoredResult = DatedResult & { points: number }
 
 const datedResults = (officialResults: TestResult[], manualResults: ManualTestResult[]): DatedResult[] =>
   officialResults
-    .map((result): DatedResult => ({ day: officialResultDay(result.date), official: true, result }))
-    .concat(manualResults.map((result) => ({ day: manualResultDay(result.date), official: false, result })))
+    .map((result): DatedResult => ({ day: result.date, official: true, result }))
+    .concat(manualResults.map((result) => ({ day: result.date, official: false, result })))
 
 const isWithin = (days: RankingDays, day: DayKey | undefined) =>
   day !== undefined && day >= days.first && day <= days.last
@@ -86,7 +85,7 @@ const yearsBeforeEntryEnd = (entryEndDate: Date, years: number): RankingDays => 
 }
 
 const getNOME_B_CH_RankingDays = (entryEndDate: Date, qualificationStartDate?: Date): RankingDays => ({
-  first: dayOf(qualificationStartDate ?? NOME_B_CH_qualificationStartDate2023, TIME_ZONE),
+  first: nomeBChQualificationStartDay(qualificationStartDate),
   last: dayOf(entryEndDate, TIME_ZONE),
 })
 

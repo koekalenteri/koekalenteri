@@ -1,4 +1,4 @@
-import type { JsonDogEvent, JsonRegistration, JsonTestResult, Registration } from '../../types'
+import type { JsonDogEvent, JsonManualTestResult, JsonRegistration, JsonTestResult, Registration } from '../../types'
 import { addMinutes } from 'date-fns'
 import { vi } from 'vitest'
 import { registrationDogAged28MonthsWithNOUResult } from '../../__mockData__/dogs'
@@ -9,6 +9,7 @@ import {
 } from '../../__mockData__/events'
 import { registrationWithStaticDates, registrationWithStaticDatesAndClass } from '../../__mockData__/registrations'
 import { dayStartOf, TIME_ZONE } from '../../lib/day'
+import { qualifyJsonRegistration } from '../../lib/qualification'
 import { GROUP_KEY_RESERVE } from '../../lib/registration'
 import { CONFIG } from '../config'
 import { LambdaError } from '../lib/lambda'
@@ -1342,6 +1343,44 @@ describe('putRegistrationLabmda', () => {
 
     expect(res.statusCode).toEqual(304)
     expect(res.body).toBeUndefined()
+  })
+
+  // A row stored before the dog's dates were day keys (KOE-1548) holds the old forms: the birth date
+  // as the instant a Finnish browser wrote, the dog table's results as Kennelliitto's stamps, the
+  // qualifying results as the instants the lambda wrote. The same days saved again are no change.
+  it('answers an unchanged save of a row stored before the dog dates were day keys with 304 (KOE-1548)', async () => {
+    const event = JSON.parse(JSON.stringify(eventWithStaticDates))
+    const official: JsonTestResult[] = [
+      { class: '', date: '2021-03-01T00:00:00', judge: 'J', location: 'L', result: 'NOU1', type: 'NOU' },
+    ]
+    const manual: JsonManualTestResult[] = [
+      { class: 'ALO', date: '2021-02-01', id: 'm1', judge: 'J', location: 'L', result: 'ALO1', type: 'NOME-B' },
+    ]
+    const body: JsonRegistration = JSON.parse(
+      JSON.stringify({
+        ...registrationWithStaticDates,
+        confirmed: true,
+        dog: { ...registrationWithStaticDates.dog, dob: '2020-01-01', results: [] },
+        results: manual,
+      })
+    )
+    const qualification = qualifyJsonRegistration({ ...body, dog: { ...body.dog, results: official } }, event)
+    const existingJson: JsonRegistration = {
+      ...body,
+      dog: { ...body.dog, dob: '2019-12-31T22:00:00.000Z', results: official },
+      qualifies: qualification.qualifies,
+      qualifyingResults: qualification.qualifyingResults.map((r) => ({ ...r, date: `${r.date}T00:00:00.000Z` })),
+      results: manual.map((r) => ({ ...r, date: '2021-01-31T22:00:00.000Z' })),
+    }
+    mockGetEvent.mockResolvedValueOnce(event)
+    mockGetRegistration.mockResolvedValueOnce(existingJson)
+    mockReadOfficialResults.mockResolvedValueOnce(official)
+
+    const res = await putRegistrationLabmda(constructAPIGwEvent(body))
+
+    expect(mockSaveRegistration).not.toHaveBeenCalled()
+    expect(mockSES.send).not.toHaveBeenCalled()
+    expect(res.statusCode).toEqual(304)
   })
 
   it('should not send secretary email on cancellation if secretary has no email', async () => {

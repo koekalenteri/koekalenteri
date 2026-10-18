@@ -3,12 +3,11 @@ import { subMinutes } from 'date-fns'
 import { t } from 'i18next'
 import { startOfFinnishDay } from '../test-utils/finnishDays'
 import { describeInTimeZone } from '../test-utils/timeZone'
-import { localDayOf } from './day'
 import {
   breedAbbreviation,
   createDogUpdateFromFormValues,
   dogAgeInMonths,
-  earliestResultDate,
+  earliestResultDay,
   formatDogName,
   isValidDob,
   latestDobForAge,
@@ -35,36 +34,22 @@ describe("the dog's age", () => {
     expect(MIN_RESULT_AGE_MONTHS).toBe(9)
   })
 
+  // The birth date is a day key (KOE-1548), the trial's day its Finnish day: no host zone moves either.
   for (const zone of ['UTC', 'Europe/Helsinki', 'America/New_York', 'Asia/Tokyo']) {
     describeInTimeZone(zone, () => {
-      const born = (stamp: string) => new Date(`${stamp}T00:00:00`)
-
-      it('counts whole months from the day the birth date shows to the Finnish day of the trial', () => {
-        expect(dogAgeInMonths(born('2025-12-28'), startOfFinnishDay('2026-09-28'))).toBe(9)
-        expect(dogAgeInMonths(born('2025-12-28'), startOfFinnishDay('2026-09-27'))).toBe(8)
-        expect(dogAgeInMonths(born('2026-01-01'), startOfFinnishDay('2026-09-30'))).toBe(8)
-        expect(dogAgeInMonths(born('2026-09-29'), startOfFinnishDay('2026-09-28'))).toBe(-1)
+      it('counts whole months from the birth day to the Finnish day of the trial', () => {
+        expect(dogAgeInMonths('2025-12-28', startOfFinnishDay('2026-09-28'))).toBe(9)
+        expect(dogAgeInMonths('2025-12-28', startOfFinnishDay('2026-09-27'))).toBe(8)
+        expect(dogAgeInMonths('2026-01-01', startOfFinnishDay('2026-09-30'))).toBe(8)
+        expect(dogAgeInMonths('2026-09-29', startOfFinnishDay('2026-09-28'))).toBe(-1)
       })
 
-      it.each([
-        ["Kennelliitto's empty date", () => born('0001-01-01')],
-        ['an Invalid Date', () => new Date(Number.NaN)],
-        ['a typed year 202', () => born('0202-12-28')],
-      ])('has no age, and no earliest result date, for %s', (_name, dob) => {
-        expect(dogAgeInMonths(dob(), startOfFinnishDay('2026-09-28'))).toBeUndefined()
-        expect(earliestResultDate(dob())).toBeUndefined()
+      it('gives the latest birth day for an age on the Finnish day of the trial', () => {
+        expect(latestDobForAge(startOfFinnishDay('2026-04-30'), 9)).toBe('2025-07-31')
       })
 
-      it('gives the latest birth date as the local midnight of the day', () => {
-        const latest = latestDobForAge(startOfFinnishDay('2026-04-30'), 9)
-        expect(localDayOf(latest)).toBe('2025-07-31')
-        expect(latest.getHours()).toBe(0)
-      })
-
-      it('gives the earliest result date nine months after the day of birth, as a local midnight', () => {
-        const earliest = earliestResultDate(born('2025-05-31'))
-        expect(earliest && localDayOf(earliest)).toBe('2026-02-28')
-        expect(earliest?.getHours()).toBe(0)
+      it('gives the earliest result day nine months after the day of birth', () => {
+        expect(earliestResultDay('2025-05-31')).toBe('2026-02-28')
       })
     })
   }
@@ -97,26 +82,15 @@ describe('dog utility functions', () => {
       expect(isValidDob(undefined)).toBe(false)
     })
 
-    it('should return false for KL empty date (year 0001)', () => {
-      const emptyKlDate = new Date('0001-01-01T00:00:00')
-      expect(isValidDob(emptyKlDate)).toBe(false)
-    })
-
     it('reads the empty date as the API hands it to the form, through the typed boundary (KOE-1545)', () => {
       expect(isValidDob(toDog({ dob: '0001-01-01T00:00:00' }).dob)).toBe(false)
       expect(isValidDob(toDog({ dob: '0000-12-31T22:20:11.000Z' }).dob)).toBe(false)
       expect(isValidDob(toDog({ dob: '2020-06-01T00:00:00' }).dob)).toBe(true)
     })
 
-    it('should return true for valid dates', () => {
-      expect(isValidDob(new Date('2020-01-01T12:00:00.000Z'))).toBe(true)
-      expect(isValidDob(new Date('2010-05-15T12:00:00.000Z'))).toBe(true)
-      expect(isValidDob(new Date('2024-12-31T12:00:00.000Z'))).toBe(true)
-    })
-
-    it('reads an old birthday as valid and a year before the calendar as none, in any zone', () => {
-      expect(isValidDob(new Date('1990-01-01T12:00:00.000Z'))).toBe(true)
-      expect(isValidDob(new Date('0002-01-01T12:00:00.000Z'))).toBe(false)
+    it('should return true for a birth day', () => {
+      expect(isValidDob('2020-01-01')).toBe(true)
+      expect(isValidDob('1990-01-01')).toBe(true)
     })
   })
 
@@ -165,7 +139,7 @@ describe('dog utility functions', () => {
 
   describe('createDogUpdateFromFormValues', () => {
     it('should create a dog update object from form values', () => {
-      const dob = new Date('2020-01-01')
+      const dob = '2020-01-01' as const
       const formValues = {
         breedCode: '110' as const,
         dam: 'Dam Name',
@@ -192,7 +166,7 @@ describe('dog utility functions', () => {
     })
 
     it('should handle empty gender and breedCode values', () => {
-      const dob = new Date('2020-01-01')
+      const dob = '2020-01-01' as const
       const formValues = {
         breedCode: '' as const,
         dam: 'Dam Name',

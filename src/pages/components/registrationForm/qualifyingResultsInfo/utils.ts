@@ -6,7 +6,6 @@ import type {
   QualifyingResult,
 } from '@/types'
 import { nanoid } from 'nanoid'
-import { localDateOf } from '@/lib/day'
 import { objectContains } from '@/lib/qualification'
 import { lastResultDay } from '@/lib/resultDay'
 import { unique } from '@/lib/utils'
@@ -90,7 +89,7 @@ export function createMissingResult(
   return {
     class: '',
     // The last day the result's picker offers: a date the rules will drop helps nobody (KOE-1270, KOE-1548).
-    date: localDateOf(lastResultDay(periodEnd)),
+    date: lastResultDay(periodEnd),
     id: nanoid(10),
     judge: '',
     location: '',
@@ -112,9 +111,13 @@ export function resultBorderColor(qualifying: boolean | undefined) {
   }
 }
 
+/**
+ * A result's id: a hand-entered one has its own; an official one is told apart by what it holds, its
+ * day included, so two of one type and class on different days, or with no day at all, do not collide.
+ */
 export function getResultId(result: ManualTestResult | QualifyingResult) {
   if ('id' in result) {
     return result.id
   }
-  return result.type + result.class + result.date.toISOString()
+  return [result.type, result.class, result.date ?? '', result.result, result.location, result.judge].join('|')
 }

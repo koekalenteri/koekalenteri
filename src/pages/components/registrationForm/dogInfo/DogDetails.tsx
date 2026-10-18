@@ -1,4 +1,4 @@
-import type { BreedCode, DeepPartial, DogGender, Registration } from '@/types'
+import type { BreedCode, DayKey, DeepPartial, DogGender, Registration } from '@/types'
 import type { DogMode } from './DogSearch'
 import FormControl from '@mui/material/FormControl'
 import Grid from '@mui/material/Grid'
@@ -8,13 +8,14 @@ import { useTranslation } from 'react-i18next'
 import { addMonths, localDateOf, localDayOf } from '@/lib/day'
 import { latestDobForAge } from '@/lib/dog'
 import AutocompleteSingle from '../../AutocompleteSingle'
+import { useDayField } from '../../dayPicker'
 import { TitlesAndName } from './TitlesAndName'
 
 interface DogFormValues {
   rfid: string
   name: string
   titles: string
-  dob: Date | undefined
+  dob: DayKey | undefined
   gender: DogGender | ''
   breedCode: BreedCode | ''
   sire: string
@@ -52,6 +53,7 @@ export const DogDetails = ({
   const { t: breed } = useTranslation('breed')
   // The picker's days are the browser's (KOE-1548): it opens two years back and offers 15 years.
   const today = localDayOf(new Date())
+  const dobField = useDayField(formValues.dob, (day) => updateField('dob', day))
 
   return (
     <>
@@ -89,11 +91,11 @@ export const DogDetails = ({
             disabled={disabled || dobDisabled}
             format={t('dateFormatString.long')}
             label={t('dog.dob')}
-            maxDate={latestDobForAge(eventDate, minDogAgeMonths)}
+            maxDate={localDateOf(latestDobForAge(eventDate, minDogAgeMonths))}
             minDate={localDateOf(addMonths(today, -180))}
-            onChange={(value: Date | null) => updateField('dob', value ?? undefined)}
+            onChange={dobField.onChange}
             openTo={'year'}
-            value={formValues.dob ?? null}
+            value={dobField.value}
             views={['year', 'month', 'day']}
             slotProps={{
               textField: {

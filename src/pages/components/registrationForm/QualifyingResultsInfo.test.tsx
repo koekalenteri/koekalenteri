@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react'
-import type { ManualTestResult } from '@/types'
+import type { DayKey, ManualTestResult } from '@/types'
 import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
 import { render, screen, within } from '@testing-library/react'
@@ -11,11 +11,11 @@ import {
 import { locales } from '@/i18n'
 import { dayEnd, dayStart, TIME_ZONE } from '@/lib/day'
 import { filterRelevantResults } from '@/lib/qualification'
+import { toDog } from '@/lib/wire'
 import { getRequirements } from '@/rules'
-import { noonOfFinnishDay } from '@/test-utils/finnishDays'
 import { frozenInstant } from '@/test-utils/freezeClock'
 import { describeInTimeZone } from '@/test-utils/timeZone'
-import { renderWithUserEvents } from '@/test-utils/utils'
+import { renderWithUserEvents, runPendingTimers, typeDateKeyByKey } from '@/test-utils/utils'
 import QualifyingResultsInfo from './QualifyingResultsInfo'
 
 const Provider = ({ children }: { readonly children: ReactNode }) => (
@@ -75,10 +75,10 @@ describe('QualifyingResultsInfo', () => {
     beforeEach(() => vi.useFakeTimers({ now: frozenInstant('2026-05-15'), toFake: ['Date'] }))
     afterEach(() => vi.useRealTimers())
 
-    const daysOffered = async (dob: Date | undefined, rankingPeriod?: { min?: Date; max?: Date }) => {
+    const daysOffered = async (dob: DayKey | undefined, rankingPeriod?: { min?: Date; max?: Date }) => {
       const reg = registrationWithManualResults
       const requirements = getRequirements(reg.eventType, reg.class, reg.dates[0].date)
-      const result = { ...(reg.results ?? [])[0], date: noonOfFinnishDay('2026-05-10') }
+      const result: ManualTestResult = { ...(reg.results ?? [])[0], date: '2026-05-10' }
       const { user } = renderWithUserEvents(
         <QualifyingResultsInfo
           dob={dob}
@@ -102,17 +102,10 @@ describe('QualifyingResultsInfo', () => {
     const range = (first: number, last: number) => Array.from({ length: last - first + 1 }, (_, i) => first + i)
 
     it('offers the days from nine months after birth to today', async () => {
-      expect(await daysOffered(new Date('2025-08-05T00:00:00'))).toEqual(range(5, 15))
+      expect(await daysOffered('2025-08-05')).toEqual(range(5, 15))
     })
 
-    it.each([
-      ["Kennelliitto's empty date", () => new Date('0001-01-01T00:00:00')],
-      ['a half-typed date', () => new Date(Number.NaN)],
-      ['a typed year 202', () => new Date('0202-12-28T00:00:00')],
-    ])('sets no lower bound for a birth date with no day, %s', async (_name, dob) => {
-      expect(await daysOffered(dob())).toEqual(range(1, 15))
-    })
-
+    // Kennelliitto's empty date reaches the form as no birth day (KOE-1548).
     it('offers only today without a birth date', async () => {
       expect(await daysOffered(undefined)).toEqual([15])
     })
@@ -124,13 +117,13 @@ describe('QualifyingResultsInfo', () => {
         it('offers no day after the ranking period ends (KOE-1548)', async () => {
           const rankingPeriod = { max: dayEnd('2026-05-12', TIME_ZONE), min: dayStart('2025-05-13', TIME_ZONE) }
 
-          expect(await daysOffered(new Date(2025, 7, 5), rankingPeriod)).toEqual(range(5, 12))
+          expect(await daysOffered('2025-08-05', rankingPeriod)).toEqual(range(5, 12))
         })
 
         it('offers no day after today in a ranking period that ends later (KOE-1548)', async () => {
           const rankingPeriod = { max: dayEnd('2026-06-30', TIME_ZONE), min: dayStart('2025-07-01', TIME_ZONE) }
 
-          expect(await daysOffered(new Date(2025, 7, 5), rankingPeriod)).toEqual(range(5, 15))
+          expect(await daysOffered('2025-08-05', rankingPeriod)).toEqual(range(5, 15))
         })
       })
     })
@@ -182,13 +175,13 @@ describe('QualifyingResultsInfo', () => {
     const manualResult = (
       id: string,
       result: string,
-      date: string,
+      date: DayKey,
       rankingPoints: number,
       cert?: boolean
     ): ManualTestResult => ({
       cert,
       class: 'VOI',
-      date: new Date(date),
+      date,
       id,
       judge: 'Tuomari',
       location: 'Paikka',
@@ -225,5 +218,64 @@ describe('QualifyingResultsInfo', () => {
 
     expect(screen.getByText('26')).toBeInTheDocument()
     expect(screen.queryByText('28')).toBeNull()
+  })
+
+  // Kennelliitto's result day as the API hands it over: a bare day, which `new Date` reads as UTC
+  // midnight, the day before west of UTC (KOE-1548).
+  describe.each([TIME_ZONE, 'America/New_York', 'Asia/Tokyo'])('an official result in %s', (zone) => {
+    describeInTimeZone(zone, () => {
+      it.each(['2024-01-01', '2024-01-01T00:00:00'])('shows the day written on it, %s, as 01.01.2024', (aika) => {
+        const reg = registrationWithStaticDatesAndClass
+        const [official] = toDog({
+          regNo: reg.dog.regNo,
+          results: [{ class: 'ALO', date: aika, judge: 'J', location: 'L', result: 'ALO1', type: 'NOME-B' }],
+        }).results
+        render(
+          <QualifyingResultsInfo
+            regNo={reg.dog.regNo}
+            requirements={getRequirements(reg.eventType, reg.class, reg.dates[0].date)}
+            qualifyingResults={[{ ...official, official: true, qualifying: true }]}
+          />,
+          { wrapper: Provider }
+        )
+
+        expect(screen.getByRole('group', { name: 'testResult.date' })).toHaveTextContent('01.01.2024')
+      })
+    })
+  })
+
+  // A hand-entered result typed key by key, as a person types: the year passes through 2, 20 and 202,
+  // which are whole dates but no days, and the field keeps what is typed (KOE-1481, KOE-1548).
+  describe.each([TIME_ZONE, 'America/New_York', 'Asia/Tokyo'])('a hand-entered date in %s', (zone) => {
+    describeInTimeZone(zone, () => {
+      beforeEach(() =>
+        vi.useFakeTimers({ now: frozenInstant('2026-05-15'), toFake: ['Date', 'setTimeout', 'clearTimeout'] })
+      )
+      afterEach(() => vi.useRealTimers())
+
+      it('keeps the typed day and stores it as the key', async () => {
+        const reg = registrationWithManualResults
+        const onChange = vi.fn()
+        const result: ManualTestResult = { ...(reg.results ?? [])[0], date: undefined }
+        const { user } = renderWithUserEvents(
+          <QualifyingResultsInfo
+            dob="2020-01-01"
+            regNo={reg.dog.regNo}
+            requirements={getRequirements(reg.eventType, reg.class, reg.dates[0].date)}
+            results={[result]}
+            qualifyingResults={[]}
+            onChange={onChange}
+          />,
+          { wrapper: Provider },
+          { advanceTimers: vi.advanceTimersByTime }
+        )
+        const group = screen.getByRole('group', { name: 'testResult.date' })
+        await typeDateKeyByKey(user, group, '10052026')
+        await runPendingTimers()
+
+        expect(group).toHaveTextContent('10.05.2026')
+        expect(onChange).toHaveBeenLastCalledWith({ results: [expect.objectContaining({ date: '2026-05-10' })] })
+      })
+    })
   })
 })

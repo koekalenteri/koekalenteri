@@ -99,15 +99,20 @@ Read `LLM_CONTEXT.md` for the project overview and architecture notes.
   `noRestrictedImports`.
 - `getFullYear`, `getMonth`, `getDate` and `getDay` on an instant are calendar calls too, in the
   machine's zone, and Biome has no rule for them: read the day with `dayOf`, `yearOf` and `dayParts`.
-  `localDayOf` is the one sanctioned reader of a browser-zone day. The deliberate exceptions, until
-  KOE-1547/1548 make the dog's dates day keys: a dog's official result date is a host-local stamp read
-  with the local getter (the official-result year in `qualification.ts`), and its birth date is read
-  with `localDayOf` as the day its picker shows (the age rule in `src/lib/dog.ts`), never as its
-  Finnish day, while a hand-entered result, sent as an instant, is read in Finnish time. `DateRange`
-  takes and gives day keys: the picker gets `localDateOf(day)`, and only the day it shows comes back
-  (`localDayOf`), so no time of day or zone reaches the event form or the search filter (KOE-1548).
-  The search filter's `start` and `end` are the day keys of the URL; the event form converts its
-  stored instants at the section, until KOE-1547 stores them as days.
+  `localDayOf` is the one sanctioned reader of a browser-zone day. The pickers take and give day keys
+  (KOE-1548): a picker gets `localDateOf(day)`, and only the day it shows comes back (`pickedDayOf`),
+  so no time of day or zone reaches the event form, the search filter or the registration form;
+  `src/pages/components/dayPicker.ts` holds what they share. The search filter's `start` and `end` are
+  the day keys of the URL; the event form converts its stored instants at the section, until KOE-1547
+  stores them as days.
+- A dog's birth date (`Dog.dob`) and a result's date (`TestResult.date`, and so the qualifying and the
+  hand-entered results) are day keys in the browser and are written as keys. Rows stored before hold
+  older forms: Kennelliitto's stamp without a zone, a bare day, an instant a browser or a lambda wrote.
+  `calendarDayOf(value, zone)` reads any of them as a day (an instant as its day in the zone), and
+  `localCalendarDayOf` reads an instant as the browser's day, for what the same browser stored (a draft,
+  the dog cache: `toStoredRegistration`, `toStoredDog` in `lib/wire.ts`). Both answer undefined for
+  Kennelliitto's empty date in every form. `GetDogFunction` stores Kennelliitto's days as keys, and
+  `hasRegistrationChanges` compares the dog's dates by day, so an old row saved unchanged stays a 304.
 - Tests run in the machine's zone (Helsinki on a laptop, UTC in CI). A fixture is a Finnish day:
   `startOfFinnishDay('2026-10-17')` from `src/test-utils/finnishDays.ts`, never `new Date(2026, 9, 17)`.
   A test of zone handling runs under `describeInTimeZone` (`src/test-utils/timeZone.ts`).

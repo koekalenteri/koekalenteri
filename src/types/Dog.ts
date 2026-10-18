@@ -1,3 +1,5 @@
+import type { DayKey } from './Day'
+
 export interface JsonDog extends DogName {
   regNo: string
   callingName?: string
@@ -5,6 +7,7 @@ export interface JsonDog extends DogName {
   rfidEditable?: boolean
   kcId?: number
   breedCode?: BreedCode
+  /** A day key, or one of the older stored forms: Kennelliitto's stamp without a zone, an instant. */
   dob?: string
   gender?: DogGender
   refreshDate?: string
@@ -14,7 +17,8 @@ export interface JsonDog extends DogName {
 }
 
 export interface Dog extends Omit<JsonDog, 'dob' | 'refreshDate' | 'results'> {
-  dob?: Date
+  /** The birth day; none for Kennelliitto's empty date. */
+  dob?: DayKey
   refreshDate?: Date
   results: TestResult[]
 }
@@ -29,6 +33,7 @@ export type DogGender = 'F' | 'M'
 export interface JsonTestResult {
   type: string
   class: string
+  /** A day key, or one of the older stored forms: Kennelliitto's stamp without a zone, an instant. */
   date: string
   location: string
   result: string
@@ -45,7 +50,8 @@ export interface JsonTestResult {
 }
 
 export interface TestResult extends Omit<JsonTestResult, 'date'> {
-  date: Date
+  /** The day of the result; none for a hand-entered one not yet given a day, or a stored date with no day. */
+  date?: DayKey
 }
 
 // export type RetrieverBreedCode = '110' | '111' | '121' | '122' | '263' | '312'

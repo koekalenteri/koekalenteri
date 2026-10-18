@@ -1,4 +1,5 @@
 import type { TFunction } from 'i18next'
+import type { DayKey } from '../types/Day'
 import type { PublicConfirmedEvent } from '../types/Event'
 import type { PublicRegistration } from '../types/Registration'
 import { dayOf, dayParts, TIME_ZONE } from './day'
@@ -82,7 +83,7 @@ export function startListSpreadsheetRows(
             registration.group.number ?? '',
             [registration.dog.titles, registration.dog.name].filter(Boolean).join(' '),
             registration.dog.regNo,
-            registration.dog.dob ? spreadsheetDate(registration.dog.dob) : '',
+            registration.dog.dob ? spreadsheetDay(registration.dog.dob) : '',
             formatDogName(registration.dog.sire),
             formatDogName(registration.dog.dam),
             registration.owner,
@@ -97,9 +98,13 @@ export function startListSpreadsheetRows(
   ]
 }
 
-/** The Finnish day of `date` as the sheet library takes a day: the host's local noon of it. */
+/** A day as the sheet library takes one: the host's local noon of it, since it writes a Date's local day parts. */
+function spreadsheetDay(day: DayKey): Date {
+  const { year, month, day: date } = dayParts(day)
+  return new Date(year, month - 1, date, 12)
+}
+
+/** The Finnish day of `date` as the sheet library takes a day. */
 function spreadsheetDate(date: Date): Date {
-  // The sheet library writes a Date's local day parts, so the Finnish day is built at the host's noon.
-  const { year, month, day } = dayParts(dayOf(date, TIME_ZONE))
-  return new Date(year, month - 1, day, 12)
+  return spreadsheetDay(dayOf(date, TIME_ZONE))
 }

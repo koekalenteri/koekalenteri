@@ -1,18 +1,8 @@
 import type { TFunction } from 'i18next'
-import type { BreedCode, DeepPartial, Dog, DogGender } from '../types'
+import type { BreedCode, DayKey, DeepPartial, Dog, DogGender, JsonDog, JsonRegistration } from '../types'
 import { differenceInMinutes } from 'date-fns/differenceInMinutes'
 import { REQUIREMENTS } from '../rules'
-import {
-  addMonths,
-  dayOf,
-  hasCalendarDay,
-  hasLocalDay,
-  latestDayMonthsBefore,
-  localDateOf,
-  localDayOf,
-  monthsBetween,
-  TIME_ZONE,
-} from './day'
+import { addMonths, calendarDayOf, dayOf, isDayKey, latestDayMonthsBefore, monthsBetween, TIME_ZONE } from './day'
 
 /** A result cannot predate the dog being this many months old, whatever the trial it is entered in. */
 export const MIN_RESULT_AGE_MONTHS = 9
@@ -24,26 +14,20 @@ export const minDogAgeFor = (eventType: string): number => {
 }
 
 /*
- * The dog's birth date is a browser-zone Date until it is stored as a day (KOE-1547): Kennelliitto's
- * zone-less stamp read as a local midnight, or the day the dob picker wrote. Its day is the one the
- * picker shows (`localDayOf`), never its Finnish day: in Tokyo the Finnish day of a 1.1. midnight is
- * 31.12. The trial's day is its Finnish day.
+ * The dog's birth date is a day key (KOE-1548), the day Kennelliitto wrote or the dob picker showed.
+ * The trial's day is its Finnish day.
  */
 
-/**
- * The dog's age in whole months (`monthsBetween`) on the Finnish day the trial starts, or undefined for
- * a birth date with no day (Kennelliitto's empty date, a half-typed or out-of-range picker value).
- */
-export const dogAgeInMonths = (dob: Date, eventStart: Date): number | undefined =>
-  hasLocalDay(dob) ? monthsBetween(localDayOf(dob), dayOf(eventStart, TIME_ZONE)) : undefined
+/** The dog's age in whole months (`monthsBetween`) on the Finnish day the trial starts. */
+export const dogAgeInMonths = (dob: DayKey, eventStart: Date): number =>
+  monthsBetween(dob, dayOf(eventStart, TIME_ZONE))
 
-/** The latest birth date, as the dob picker's Date, of a dog that is `months` old on the trial's first day. */
-export const latestDobForAge = (eventStart: Date, months: number): Date =>
-  localDateOf(latestDayMonthsBefore(dayOf(eventStart, TIME_ZONE), months))
+/** The latest birth day of a dog that is `months` old on the trial's first day. */
+export const latestDobForAge = (eventStart: Date, months: number): DayKey =>
+  latestDayMonthsBefore(dayOf(eventStart, TIME_ZONE), months)
 
-/** The earliest date, as a picker's Date, a result of the dog can have; undefined for a birth date with no day. */
-export const earliestResultDate = (dob: Date): Date | undefined =>
-  hasLocalDay(dob) ? localDateOf(addMonths(localDayOf(dob), MIN_RESULT_AGE_MONTHS)) : undefined
+/** The earliest day a result of the dog can have. */
+export const earliestResultDay = (dob: DayKey): DayKey => addMonths(dob, MIN_RESULT_AGE_MONTHS)
 
 /**
  * Determines if a dog's data should be allowed to be refreshed
@@ -61,18 +45,10 @@ export function shouldAllowRefresh(dog?: DeepPartial<Dog>): boolean {
 }
 
 /**
- * Determines if a dog has a valid date of birth
- * KL returns "0001-01-01T00:00:00" for dogs with missing dob
- * @param dob The date of birth
- * @returns True if dob is valid, false otherwise
+ * Whether the dog has a birth day. Kennelliitto's empty date (0001-01-01) is read as none at the
+ * typed boundary, so this is whether there is a key.
  */
-export function isValidDob(dob?: Date): boolean {
-  if (!dob) {
-    return false
-  }
-  // The KL empty value (0001-01-01) has no calendar day, in any zone the browser is in.
-  return hasCalendarDay(dob, TIME_ZONE)
-}
+export const isValidDob = (dob?: DayKey): dob is DayKey => isDayKey(dob)
 
 /** How many leading characters of a breed name to use when the breed has no official abbreviation. */
 const DERIVED_BREED_ABBREVIATION_LENGTH = 3
@@ -109,6 +85,32 @@ export function formatDogName(dog?: Pick<Dog, 'name' | 'titles'>): string {
     .join(' ')
 }
 
+/** A stored dog date as its day key; one with no day stays as it is, so it still differs from a day. */
+const dayOrStored = (value: string) => calendarDayOf(value, TIME_ZONE) ?? value
+
+const withResultDays = <R extends { date: string }>(results: R[]): R[] =>
+  results.map((result) => (typeof result.date === 'string' ? { ...result, date: dayOrStored(result.date) } : result))
+
+const withDobDays = (dog: JsonDog): JsonDog => {
+  const copy = { ...dog }
+  if (typeof copy.dob === 'string') copy.dob = dayOrStored(copy.dob)
+  if (copy.results) copy.results = withResultDays(copy.results)
+  return copy
+}
+
+/**
+ * The registration with the dog's birth date and the results' dates as day keys: a row stored before
+ * they were keys (KOE-1548) holds instants and Kennelliitto's stamps, and the same days must not read
+ * as a change when the row is saved again unchanged.
+ */
+export const withDogDayKeys = <R extends Partial<JsonRegistration>>(registration: R): R => {
+  const copy = { ...registration }
+  if (copy.dog) copy.dog = withDobDays(copy.dog)
+  if (copy.qualifyingResults) copy.qualifyingResults = withResultDays(copy.qualifyingResults)
+  if (copy.results) copy.results = withResultDays(copy.results)
+  return copy
+}
+
 /**
  * Creates a dog update object from form values
  * @param values Form values
@@ -118,7 +120,7 @@ export function createDogUpdateFromFormValues(values: {
   rfid: string
   name: string
   titles: string
-  dob: Date | undefined
+  dob: DayKey | undefined
   gender: DogGender | ''
   breedCode: BreedCode | ''
   sire: string

@@ -49,6 +49,7 @@ import {
   isScorableRegistration,
   isStarter,
   meetsRestrictions,
+  nomeBChQualificationStartDay,
   priorityDescriptionKey,
   registrationActor,
   resolveInvitationRead,
@@ -242,7 +243,7 @@ describe('lib/registration', () => {
     describe('NOME-B SM priority', () => {
       const NOME_B_VOI1: Readonly<QualifyingResult> = {
         class: 'VOI',
-        date: new Date('2024-06-06'),
+        date: '2024-06-06',
         judge: 'Some One',
         location: 'Somewhere',
         official: false,
@@ -259,7 +260,7 @@ describe('lib/registration', () => {
       }
       const NOME_B_KVA_OLD: Readonly<QualifyingResult> = {
         ...NOME_B_KVA_NEW,
-        date: new Date('2023-06-06'),
+        date: '2023-06-06',
       }
       it.each<Array<QualifyingResult> | Array<JsonQualifyingResult>>([
         [],
@@ -277,6 +278,31 @@ describe('lib/registration', () => {
         [NOME_B_VOI1, NOME_B_VOI1, NOME_B_KVA_OLD],
       ])('should return true when prirized', (...qualifyingResults) => {
         expect(hasPriority({ eventType: 'NOME-B SM' }, { qualifyingResults })).toEqual(true)
+      })
+
+      // The ranking period of a trial that names none starts on 18.8.2023, for the priority as for the
+      // ranking (`rules_ch.ts`): a KVA won before that day is an old one (KOE-1548). The day of a stored
+      // KVA is read from any form it was stored in.
+      it.each([
+        { date: '2023-08-17', expected: true },
+        { date: '2023-08-18', expected: false },
+        { date: '2023-08-16T21:00:00.000Z', expected: true },
+        { date: '2023-08-17T21:00:00.000Z', expected: false },
+      ])('reads a FI KVA-B of $date as won before the period: $expected', ({ date, expected }) => {
+        const qualifyingResults: JsonQualifyingResult[] = JSON.parse(
+          JSON.stringify([NOME_B_VOI1, NOME_B_VOI1, { ...NOME_B_KVA_NEW, date }])
+        )
+
+        expect(hasPriority({ eventType: 'NOME-B SM' }, { qualifyingResults })).toEqual(expected)
+        expect(nomeBChQualificationStartDay(undefined)).toBe('2023-08-18')
+      })
+
+      it.each([
+        { expected: '2025-02-01', qualificationStartDate: new Date('2025-01-31T22:00:00.000Z') },
+        { expected: '2025-02-01', qualificationStartDate: '2025-01-31T22:00:00.000Z' },
+        { expected: '2023-08-18', qualificationStartDate: undefined },
+      ])('starts the period on $expected', ({ expected, qualificationStartDate }) => {
+        expect(nomeBChQualificationStartDay(qualificationStartDate)).toBe(expected)
       })
     })
   })
@@ -405,7 +431,7 @@ describe('lib/registration', () => {
     describe('NOME-B SM priority', () => {
       const NOME_B_VOI1: Readonly<QualifyingResult> = {
         class: 'VOI',
-        date: new Date('2024-06-06'),
+        date: '2024-06-06',
         judge: 'Some One',
         location: 'Somewhere',
         official: false,
@@ -422,7 +448,7 @@ describe('lib/registration', () => {
       }
       const NOME_B_KVA_OLD: Readonly<QualifyingResult> = {
         ...NOME_B_KVA_NEW,
-        date: new Date('2023-06-06'),
+        date: '2023-06-06',
       }
       it.each<Array<QualifyingResult> | Array<JsonQualifyingResult>>([
         [],

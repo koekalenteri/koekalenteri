@@ -63,7 +63,7 @@ const mockRegistration: Registration = {
   results: [
     {
       class: 'test-class',
-      date: new Date(),
+      date: '2024-01-01',
       id: 'result-id',
       judge: 'test-judge',
       location: 'test-location',
@@ -312,7 +312,7 @@ describe('getStartList', () => {
   })
 })
 
-test('getStartList makes the dogs and the placements of the rows Dates (KOE-1546)', async () => {
+test('getStartList reads the dogs and the placements of the rows (KOE-1546, KOE-1548)', async () => {
   fetchMock.mockResponseOnce(
     JSON.stringify([
       {
@@ -329,7 +329,8 @@ test('getStartList makes the dogs and the placements of the rows Dates (KOE-1546
   const { participants, version } = await getStartList('test-id')
 
   expect(version).toBe(7)
-  expect(participants[0].dog.dob).toEqual(new Date('2020-02-02T22:00:00.000Z'))
+  // An instant from before the birth date was a day key is read as its Finnish day.
+  expect(participants[0].dog.dob).toBe('2020-02-03')
   expect(participants[0].group).toEqual({
     date: new Date('2026-09-11T21:00:00.000Z'),
     key: '2026-09-12-ap',

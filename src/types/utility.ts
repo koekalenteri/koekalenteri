@@ -11,9 +11,12 @@ export type DeepPartial<T> = T extends (...arguments_: unknown[]) => unknown
     ? T | undefined
     : T extends Array<infer U>
       ? Array<DeepPartial<U>>
-      : T extends object
-        ? { [P in keyof T]?: DeepPartial<T[P]> }
-        : T | undefined
+      : // A branded string (`DayKey`) is a string, not an object to make partial.
+        T extends string
+        ? T | undefined
+        : T extends object
+          ? { [P in keyof T]?: DeepPartial<T[P]> }
+          : T | undefined
 
 type PatchValue<T> = T extends (...arguments_: unknown[]) => unknown
   ? T | undefined | null
@@ -21,9 +24,11 @@ type PatchValue<T> = T extends (...arguments_: unknown[]) => unknown
     ? T | undefined | null
     : T extends Array<infer U>
       ? Array<PatchValue<U>> | undefined | null
-      : T extends object
-        ? Patch<T> | undefined | null
-        : T | undefined | null
+      : T extends string
+        ? T | undefined | null
+        : T extends object
+          ? Patch<T> | undefined | null
+          : T | undefined | null
 
 export type Patch<T extends object> = {
   [P in keyof T]?: PatchValue<T[P]>

@@ -1,9 +1,10 @@
-import type { ManualTestResult } from '@/types'
-import { dayEnd, TIME_ZONE } from '@/lib/day'
+import type { ManualTestResult, QualifyingResult } from '@/types'
+import { dayEnd, dayStart, TIME_ZONE } from '@/lib/day'
 import { getRequirements } from '@/rules'
+import { NOME_B_CH_requirements } from '@/rules_ch'
 import { frozenInstant } from '@/test-utils/freezeClock'
 import { describeInTimeZone } from '@/test-utils/timeZone'
-import { availableResults, availableTypes, createMissingResult, resultBorderColor } from './utils'
+import { availableResults, availableTypes, createMissingResult, getResultId, resultBorderColor } from './utils'
 
 const ID_REGEXP = /^[0-9a-zA-Z_-]{10}$/
 // SM rules are in force from 15.4.2023 onwards
@@ -127,7 +128,7 @@ describe('QualifyingResultsInfo utils', () => {
     it('should not offer a title the dog already has', () => {
       const kvaResult: ManualTestResult = {
         class: 'VOI',
-        date: new Date('2024-01-01'),
+        date: '2024-01-01',
         id: 'kva',
         judge: 'Judge Dredd',
         location: 'Location',
@@ -185,7 +186,7 @@ describe('QualifyingResultsInfo utils', () => {
           [
             {
               class: 'ALO',
-              date: new Date(),
+              date: '2024-01-01',
               id: 'test',
               judge: 'Judge Dredd',
               location: 'Location',
@@ -220,7 +221,7 @@ describe('QualifyingResultsInfo utils', () => {
           [
             {
               class: 'ALO',
-              date: new Date(),
+              date: '2024-01-01',
               id: 'test',
               judge: 'Judge Dredd',
               location: 'Location',
@@ -258,23 +259,68 @@ describe('QualifyingResultsInfo utils', () => {
     })
   })
 
-  // The new row's date is the last day its picker offers, as the picker's Date: the ranking period's
-  // last Finnish day, or today in Finland. 12.5. 23:59 in Finland is 13.5. in Tokyo (KOE-1548).
+  // The new row's date is the last day its picker offers: the ranking period's last Finnish day, or
+  // today in Finland, as a day key (KOE-1548).
   describe.each([TIME_ZONE, 'America/New_York', 'Asia/Tokyo'])('the default date in %s', (zone) => {
     describeInTimeZone(zone, () => {
       beforeEach(() => vi.useFakeTimers({ now: frozenInstant('2026-05-15'), toFake: ['Date'] }))
       afterEach(() => vi.useRealTimers())
 
       it.each([
-        { expected: [2026, 4, 12], periodEnd: '2026-05-12' },
-        { expected: [2026, 4, 15], periodEnd: '2026-06-30' },
-        { expected: [2026, 4, 15], periodEnd: undefined },
+        { expected: '2026-05-12', periodEnd: '2026-05-12' },
+        { expected: '2026-05-15', periodEnd: '2026-06-30' },
+        { expected: '2026-05-15', periodEnd: undefined },
       ] as const)('is $expected for a period ending on $periodEnd (KOE-1548)', ({ expected, periodEnd }) => {
         const max = periodEnd ? dayEnd(periodEnd, TIME_ZONE) : undefined
-        const [year, month, day] = expected
 
-        expect(createMissingResult(undefined, [], 'test-reg-no', max).date).toEqual(new Date(year, month, day))
+        expect(createMissingResult(undefined, [], 'test-reg-no', max).date).toBe(expected)
       })
+
+      // A NOME-B SM ranking period of one day, 12.5.2026: the new row's default, filled in as a VOI1,
+      // must count in it. As a local midnight it was 11.5. in Finland in Tokyo, outside the period.
+      it('counts a new result on its default day in the ranking period (KOE-1548)', () => {
+        const entryEndDate = dayEnd('2026-05-12', TIME_ZONE)
+        const qualificationStartDate = dayStart('2026-05-12', TIME_ZONE)
+        const manual: ManualTestResult = {
+          ...createMissingResult(undefined, [], 'test-reg-no', entryEndDate),
+          class: 'VOI',
+          judge: 'J',
+          location: 'L',
+          result: 'VOI1',
+          type: 'NOME-B',
+        }
+
+        expect(NOME_B_CH_requirements([], [manual], entryEndDate, qualificationStartDate).qualifies).toBe(true)
+      })
+    })
+  })
+
+  describe('getResultId', () => {
+    const official = (props: Partial<QualifyingResult>): QualifyingResult => ({
+      class: 'VOI',
+      date: '2024-01-01',
+      judge: 'J',
+      location: 'L',
+      official: true,
+      result: 'VOI1',
+      type: 'NOWT',
+      ...props,
+    })
+
+    it('keeps the id of a hand-entered result', () => {
+      expect(getResultId({ ...official({}), id: 'own-id', official: false, regNo: 'R' })).toBe('own-id')
+    })
+
+    it('tells apart official results of one type and class on different days', () => {
+      expect(getResultId(official({}))).not.toBe(getResultId(official({ date: '2024-02-01' })))
+    })
+
+    // Kennelliitto's empty date is read as no day (KOE-1548): two such results must not share an id.
+    it('tells apart two undated official results of one type and class', () => {
+      const first = official({ date: undefined })
+      const second = official({ date: undefined, location: 'Elsewhere' })
+
+      expect(getResultId(first)).not.toBe(getResultId(second))
     })
   })
 

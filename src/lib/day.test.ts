@@ -4,6 +4,7 @@ import { describeInTimeZone } from '../test-utils/timeZone'
 import {
   addDays,
   addMonths,
+  calendarDayOf,
   dayEnd,
   dayEndOf,
   dayOf,
@@ -18,10 +19,12 @@ import {
   isDayKey,
   isInstantString,
   latestDayMonthsBefore,
+  localCalendarDayOf,
   localDateOf,
   localDayOf,
   monthKeyOf,
   monthsBetween,
+  pickedDayOf,
   sameDay,
   shiftDays,
   TIME_ZONE,
@@ -600,6 +603,61 @@ for (const hostZone of HOST_ZONES) {
         ['a birth date', () => new Date('2025-12-28T00:00:00'), true],
       ])('%s has a day: %s', (_name, date, expected) => {
         expect(hasLocalDay(date())).toBe(expected)
+      })
+    })
+  })
+}
+
+// The dog's dates in every form they were stored in (KOE-1548), read the same in every host zone.
+for (const hostZone of HOST_ZONES) {
+  describeInTimeZone(hostZone, () => {
+    describe('a stored dog date', () => {
+      it.each([
+        ['a day key', '2021-01-01', '2021-01-01'],
+        ["Kennelliitto's stamp", '2021-01-01T00:00:00', '2021-01-01'],
+        ['a stamp with seconds and milliseconds', '2021-01-01T00:00:00.000', '2021-01-01'],
+        ['a Finnish midnight a browser wrote', '2020-12-31T22:00:00.000Z', '2021-01-01'],
+        ['a midnight a lambda wrote in UTC', '2024-01-01T00:00:00.000Z', '2024-01-01'],
+        ['an instant with an offset', '2021-01-01T00:30:00+02:00', '2021-01-01'],
+      ])('reads %s as its Finnish day', (_name, value, expected) => {
+        expect(calendarDayOf(value, TIME_ZONE)).toBe(expected)
+      })
+
+      it.each([
+        ["Kennelliitto's empty date", '0001-01-01T00:00:00'],
+        ['its empty date written by a lambda', '0001-01-01T00:00:00.000Z'],
+        ['its empty date written by a browser in Finland', '0000-12-31T22:00:00.000Z'],
+        ['an empty string', ''],
+        ['a day the month does not have', '2021-02-30'],
+        ['a stamp with a bad time', '2021-01-01T25:00:00'],
+        ['text', 'tomorrow'],
+      ])('reads %s as no day, without throwing', (_name, value) => {
+        expect(calendarDayOf(value, TIME_ZONE)).toBeUndefined()
+        expect(localCalendarDayOf(value)).toBeUndefined()
+      })
+
+      // The empty date's instants are no instants of an accepted day to begin with; an instant whose own
+      // date is accepted can still fall on a day in Finland that is not, and is no day either.
+      it('reads an instant that falls outside the accepted years in Finland as no day', () => {
+        expect(calendarDayOf('9899-12-31T23:00:00.000Z', TIME_ZONE)).toBeUndefined()
+        expect(calendarDayOf('9899-12-31T20:00:00.000Z', TIME_ZONE)).toBe('9899-12-31')
+      })
+
+      it("reads an instant as the day it shows in the browser's zone for what this browser stored", () => {
+        const midnight = new Date(2021, 0, 1)
+        expect(localCalendarDayOf(midnight.toISOString())).toBe('2021-01-01')
+        expect(localCalendarDayOf('2021-01-01T00:00:00')).toBe('2021-01-01')
+      })
+    })
+
+    describe('the day a picker shows', () => {
+      it.each([
+        ['a local midnight', () => new Date(2021, 0, 1), '2021-01-01'],
+        ['an Invalid Date', () => new Date(Number.NaN), undefined],
+        ['a typed year 202', () => new Date('0202-01-01T00:00:00'), undefined],
+        ['a year no key may hold', () => new Date('1050-01-01T00:00:00'), undefined],
+      ])('is the day of %s', (_name, date, expected) => {
+        expect(pickedDayOf(date())).toBe(expected)
       })
     })
   })

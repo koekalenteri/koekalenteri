@@ -1,19 +1,17 @@
 import type { Theme } from '@mui/material'
 import type { DayKey } from '../../types'
+import type { PickerValue } from './dayPicker'
 import Box from '@mui/material/Box'
 import FormControl from '@mui/material/FormControl'
 import { DatePicker } from '@mui/x-date-pickers'
 import { isValid } from 'date-fns/isValid'
-import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import useDebouncedCallback from '../../hooks/useDebouncedCallback'
-import { hasLocalDay, isDayKey, localDateOf, localDayOf } from '../../lib/day'
+import { pickedDayOf } from '../../lib/day'
+import { isYearBeingTyped, pickerDate, useTypedIntoEmpty } from './dayPicker'
 
 /** A day of the range, or none: what the callers give and get. */
 export type DayValue = DayKey | null
-
-/** What the picker itself holds and reports: a browser-local Date, or nothing. */
-type PickerValue = Date | null
 
 export interface Props {
   readonly defaultStart?: DayKey
@@ -39,27 +37,6 @@ interface Bounds {
   max?: DayKey
 }
 
-/*
- * The picker reads and writes days in the browser's zone (AdapterDateFns has no zone support: its
- * `timezone` is ignored), while the callers' values are days with no zone (KOE-1548). The picker is
- * given the browser's midnight of the key's year, month and date (`localDateOf`), and of what it
- * reports only the year, month and date it shows are taken back (`localDayOf`), so no time of day
- * or zone ever reaches a caller (KOE-1538, KOE-1539).
- */
-
-/** The picker's Date for a day, or undefined for none. */
-const pickerDate = (day: DayKey | undefined) => (day ? localDateOf(day) : undefined)
-
-/**
- * The day the picker's Date shows, or undefined for one that is no day a key can spell: an invalid
- * Date (a half-typed value) or a year outside the accepted ones.
- */
-const pickedDay = (d: Date): DayKey | undefined => {
-  if (!hasLocalDay(d)) return undefined
-  const day = localDayOf(d)
-  return isDayKey(day) ? day : undefined
-}
-
 /** The later of two days, either of which may be missing. */
 const laterDay = (a: DayKey | undefined, b: DayKey | undefined) => (a && b && b > a ? b : (a ?? b))
 
@@ -72,36 +49,17 @@ const isOutside = (day: DayKey, { min, max }: Bounds) => (!!min && day < min) ||
  */
 const coerceToDayValue = (picked: PickerValue, bounds: Bounds, fallback: DayValue): DayValue => {
   if (!picked) return null
-  const day = pickedDay(picked)
+  const day = pickedDayOf(picked)
   if (!day || isOutside(day, bounds)) return fallback
   return day
 }
 
 function dayStyle(date: Date, selected: boolean, defaultDay?: DayKey) {
-  const isDefault = !!defaultDay && pickedDay(date) === defaultDay
+  const isDefault = !!defaultDay && pickedDayOf(date) === defaultDay
   const hilight = isDefault && !selected
   return {
     border: hilight ? (theme: Theme) => `2px solid ${theme.palette.secondary.light}` : undefined,
   }
-}
-
-/**
- * A year of fewer than four digits is still being typed: the field turns the first digit of 2026
- * into year 2, a whole and valid date. It is not passed on until the year is whole (KOE-1481).
- */
-const isYearBeingTyped = (d: PickerValue) => !!d && isValid(d) && d.getFullYear() < 1000
-
-/**
- * What is being typed into an empty field. The picker empties a field whose value stays null after
- * it reported a whole date, so year 2, which the range does not take, used to wipe the day and
- * month typed before it (KOE-1481). While the value is null the field shows this instead; a field
- * with a value keeps what is typed into it without help.
- */
-const useTypedIntoEmpty = (value: DayValue) => {
-  const [typed, setTyped] = useState<PickerValue>(null)
-  const shown = value ? localDateOf(value) : typed
-  const track = (date: PickerValue) => setTyped(value ? null : date)
-  return { shown, track, untrack: () => setTyped(null) }
 }
 
 export default function DateRange({
@@ -131,7 +89,7 @@ export default function DateRange({
   /** A whole date the bounds reject falls back to the old value, and an empty field empties again. */
   const accept = (picked: PickerValue, bounds: Bounds, fallback: DayValue, untrack: () => void) => {
     const day = coerceToDayValue(picked, bounds, fallback)
-    if (picked && isValid(picked) && day !== pickedDay(picked)) untrack()
+    if (picked && isValid(picked) && day !== pickedDayOf(picked)) untrack()
     return day
   }
   const startChanged = useDebouncedCallback((picked: PickerValue) => {

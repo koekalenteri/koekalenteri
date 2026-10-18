@@ -139,8 +139,8 @@ describe('the ranking period of a championship', () => {
     const official = [
       {
         class: 'VOI',
-        // Kennelliitto's zone-less stamp, read as the browser's local time as the typed boundary reads it.
-        date: new Date('2026-04-25T00:00:00'),
+        // The day Kennelliitto wrote, as the typed boundary reads it: a key (KOE-1548).
+        date: '2026-04-25',
         judge: 'Test Judge',
         location: 'Hollola',
         result: 'VOI1',

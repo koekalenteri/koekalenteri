@@ -1,5 +1,5 @@
 import type { SyntheticEvent } from 'react'
-import type { BreedCode, DeepPartial, DogGender, Registration } from '@/types'
+import type { BreedCode, DayKey, DeepPartial, DogGender, Registration } from '@/types'
 import type { DogCachedInfo } from '../../state/dog'
 import Grid from '@mui/material/Grid'
 import { useAtomValue } from 'jotai'
@@ -63,7 +63,7 @@ export const DogInfo = ({
     rfid: string
     name: string
     titles: string
-    dob: Date | undefined
+    dob: DayKey | undefined
     gender: DogGender | ''
     breedCode: BreedCode | ''
     sire: string

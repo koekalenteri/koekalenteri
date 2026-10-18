@@ -1,6 +1,7 @@
 import type { BreedCode, JsonDog, JsonEventType, JsonTestResult } from '../../types'
 import type { KLKoira } from '../types/KLAPI'
 import { differenceInMinutes } from 'date-fns/differenceInMinutes'
+import { calendarDayOf, TIME_ZONE } from '../../lib/day'
 import KLAPI from '../lib/KLAPI'
 import { getParam, LambdaError, lambda, response } from '../lib/lambda'
 import { logger } from '../lib/log'
@@ -28,6 +29,12 @@ const GENDER: Record<KLKoira['sukupuoli'], 'F' | 'M'> = {
   uros: 'M',
 }
 
+/**
+ * Kennelliitto's day as a key (KOE-1548): it writes days as midnights without a zone
+ * (`2021-01-01T00:00:00`) or bare days. Undefined for none: a null, or its empty date 0001-01-01.
+ */
+const kcDay = (stamp: string | null | undefined) => (stamp ? calendarDayOf(stamp, TIME_ZONE) : undefined)
+
 const readDogResultsFromKlapi = async (klapi: KLAPI, regNo: string): Promise<JsonTestResult[]> => {
   // Luetaan koetulokset käyttäen palautettua rekisterinumeroa.
   // Jos koiralla on useampi rekkari, niin palautettu on se mille tulokset on kirjattu.
@@ -53,7 +60,8 @@ const readDogResultsFromKlapi = async (klapi: KLAPI, regNo: string): Promise<Jso
 
       cert,
       class: result.luokka,
-      date: result.aika,
+      // A result with no day is stored with an empty date, which every reader takes as none.
+      date: kcDay(result.aika) ?? '',
 
       ext: result.tarkenne,
       judge: result.tuomari,
@@ -75,7 +83,8 @@ const readDogResultsFromKlapi = async (klapi: KLAPI, regNo: string): Promise<Jso
 const createDogFromJson = (json: KLKoira, existing?: JsonDog): JsonDog => ({
   ...existing, // keep refined info on refresh
   breedCode: json.rotukoodi as BreedCode,
-  dob: json.syntymäaika,
+  // No day leaves no birth date: the put replaces the row, so an earlier one does not linger.
+  dob: kcDay(json.syntymäaika),
   gender: GENDER[json.sukupuoli],
   kcId: json.id,
   name: json.nimi,

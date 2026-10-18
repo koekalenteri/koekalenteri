@@ -9,15 +9,15 @@ const officialResult = (result: TestResult): TestResult => result
 
 const manualResult = (result: Omit<ManualTestResult, 'id' | 'official' | 'regNo'>): ManualTestResult => ({
   ...result,
-  id: `${result.type}-${result.result}-${result.date.toISOString()}`,
+  id: `${result.type}-${result.result}-${result.date}`,
   official: false,
   regNo: 'FI12345/67',
 })
 
-const nowtResult = (result: string, date: string, props: Partial<TestResult> = {}): TestResult =>
+const nowtResult = (result: string, date: DayKey, props: Partial<TestResult> = {}): TestResult =>
   officialResult({
     class: 'VOI',
-    date: new Date(date),
+    date,
     judge: `Judge ${result}`,
     location: `Loc ${result}`,
     result,
@@ -55,7 +55,7 @@ describe('championship ranking rules', () => {
     const officialResults: TestResult[] = [
       officialResult({
         class: 'VOI',
-        date: new Date('2025-05-05T00:00:00.000Z'),
+        date: '2025-05-05',
         judge: 'Judge 1',
         location: 'Loc 1',
         result: 'VOI2',
@@ -63,7 +63,7 @@ describe('championship ranking rules', () => {
       }),
       officialResult({
         class: 'VOI',
-        date: new Date('2025-06-05T00:00:00.000Z'),
+        date: '2025-06-05',
         judge: 'Judge 2',
         location: 'Loc 2',
         result: 'VOI1',
@@ -71,7 +71,7 @@ describe('championship ranking rules', () => {
       }),
       officialResult({
         class: 'VOI',
-        date: new Date('2025-04-05T00:00:00.000Z'),
+        date: '2025-04-05',
         judge: 'Judge 3',
         location: 'Loc 3',
         result: 'VOI3',
@@ -81,7 +81,7 @@ describe('championship ranking rules', () => {
     const manualResults: ManualTestResult[] = [
       manualResult({
         class: 'VOI',
-        date: new Date('2025-07-05T00:00:00.000Z'),
+        date: '2025-07-05',
         judge: 'Judge 4',
         location: 'Loc 4',
         result: 'FI KVA-B',
@@ -89,7 +89,7 @@ describe('championship ranking rules', () => {
       }),
       manualResult({
         class: 'VOI',
-        date: new Date('2025-03-05T00:00:00.000Z'),
+        date: '2025-03-05',
         judge: 'Judge 5',
         location: 'Loc 5',
         result: 'VOI2',
@@ -97,7 +97,7 @@ describe('championship ranking rules', () => {
       }),
       manualResult({
         class: 'VOI',
-        date: new Date('2025-02-05T00:00:00.000Z'),
+        date: '2025-02-05',
         judge: 'Judge 6',
         location: 'Loc 6',
         result: 'VOI3',
@@ -120,7 +120,7 @@ describe('championship ranking rules', () => {
       officialResult({
         cacit: true,
         class: 'VOI',
-        date: new Date('2025-06-01T00:00:00.000Z'),
+        date: '2025-06-01',
         judge: 'Judge A',
         location: 'Loc A',
         result: 'A1',
@@ -130,7 +130,7 @@ describe('championship ranking rules', () => {
     const manualResults: ManualTestResult[] = [
       manualResult({
         class: 'VOI',
-        date: new Date('2025-07-01T00:00:00.000Z'),
+        date: '2025-07-01',
         judge: 'Judge B',
         location: 'Loc B',
         resCacit: true,
@@ -153,7 +153,7 @@ describe('championship ranking rules', () => {
       officialResult({
         cert: true,
         class: 'VOI',
-        date: new Date('2025-06-01T00:00:00.000Z'),
+        date: '2025-06-01',
         judge: 'Judge A',
         location: 'Loc A',
         result: 'VOI1',
@@ -163,7 +163,7 @@ describe('championship ranking rules', () => {
     const manualResults: ManualTestResult[] = [
       manualResult({
         class: 'VOI',
-        date: new Date('2025-07-01T00:00:00.000Z'),
+        date: '2025-07-01',
         judge: 'Judge B',
         location: 'Loc B',
         result: 'VOI2',
@@ -185,7 +185,7 @@ describe('championship ranking rules', () => {
       [
         officialResult({
           class: 'VOI',
-          date: new Date('2025-07-01T00:00:00.000Z'),
+          date: '2025-07-01',
           judge: 'Judge Ranking',
           location: 'Loc Ranking',
           result: 'VOI2',
@@ -195,7 +195,7 @@ describe('championship ranking rules', () => {
       [
         manualResult({
           class: 'VOI',
-          date: new Date('2024-01-15T00:00:00.000Z'),
+          date: '2024-01-15',
           judge: 'Judge KVA',
           location: 'Loc KVA',
           result: 'FI KVA-WT',
@@ -228,12 +228,7 @@ describe('championship ranking rules', () => {
   ])('scores NOWT championship result %s with %p as %i points', (resultName, props, qualifies, rankingPoints) => {
     const entryEndDate = new Date('2025-08-15T12:00:00.000Z')
 
-    const result = NOWT_CH_requirements(
-      [nowtResult(resultName, '2025-06-01T00:00:00.000Z', props)],
-      [],
-      entryEndDate,
-      undefined
-    )
+    const result = NOWT_CH_requirements([nowtResult(resultName, '2025-06-01', props)], [], entryEndDate, undefined)
 
     expect(result.qualifies).toBe(qualifies)
     expect(result.relevant).toHaveLength(1)
@@ -249,11 +244,7 @@ describe('championship ranking rules', () => {
     const entryEndDate = new Date('2025-08-15T12:00:00.000Z')
 
     const result = NOWT_CH_requirements(
-      [
-        nowtResult('VOI1', '2024-01-15T00:00:00.000Z'),
-        nowtResult('VOI2', '2024-01-16T00:00:00.000Z'),
-        nowtResult('VOI3', '2024-01-17T00:00:00.000Z'),
-      ],
+      [nowtResult('VOI1', '2024-01-15'), nowtResult('VOI2', '2024-01-16'), nowtResult('VOI3', '2024-01-17')],
       [],
       entryEndDate,
       undefined
@@ -268,9 +259,9 @@ describe('championship ranking rules', () => {
 
     const result = NOWT_CH_requirements(
       [
-        nowtResult('VOI1', '2025-06-01T00:00:00.000Z', { type: 'NOME-B' }),
-        nowtResult('VOI1', '2025-06-02T00:00:00.000Z', { class: 'AVO' }),
-        nowtResult('VOI0', '2025-06-03T00:00:00.000Z'),
+        nowtResult('VOI1', '2025-06-01', { type: 'NOME-B' }),
+        nowtResult('VOI1', '2025-06-02', { class: 'AVO' }),
+        nowtResult('VOI0', '2025-06-03'),
       ],
       [],
       entryEndDate,
@@ -286,17 +277,17 @@ describe('championship ranking rules', () => {
 
     const result = NOWT_CH_requirements(
       [
-        nowtResult('VOI3', '2025-01-01T00:00:00.000Z'),
-        nowtResult('VOI2', '2025-02-01T00:00:00.000Z'),
-        nowtResult('VOI1', '2025-03-01T00:00:00.000Z'),
-        nowtResult('VOI1', '2025-04-01T00:00:00.000Z', { resCert: true }),
-        nowtResult('VOI1', '2025-05-01T00:00:00.000Z', { cert: true }),
-        nowtResult('FI KVA-WT', '2025-06-01T00:00:00.000Z'),
+        nowtResult('VOI3', '2025-01-01'),
+        nowtResult('VOI2', '2025-02-01'),
+        nowtResult('VOI1', '2025-03-01'),
+        nowtResult('VOI1', '2025-04-01', { resCert: true }),
+        nowtResult('VOI1', '2025-05-01', { cert: true }),
+        nowtResult('FI KVA-WT', '2025-06-01'),
       ],
       [
         manualResult({
           class: 'VOI',
-          date: new Date('2025-07-01T00:00:00.000Z'),
+          date: '2025-07-01',
           judge: 'Judge Manual',
           location: 'Loc Manual',
           result: 'VOI2',
@@ -311,12 +302,12 @@ describe('championship ranking rules', () => {
     expect(result.relevant).toHaveLength(5)
     expect(result.relevant.map((r) => r.result)).toEqual(['FI KVA-WT', 'VOI1', 'VOI1', 'VOI1', 'VOI2'])
     expect(result.relevant.map((r) => r.rankingPoints)).toEqual([6, 6, 5, 4, 2])
-    expect(result.relevant.map((r) => r.date.toISOString())).toEqual([
-      '2025-06-01T00:00:00.000Z',
-      '2025-05-01T00:00:00.000Z',
-      '2025-04-01T00:00:00.000Z',
-      '2025-03-01T00:00:00.000Z',
-      '2025-07-01T00:00:00.000Z',
+    expect(result.relevant.map((r) => r.date)).toEqual([
+      '2025-06-01',
+      '2025-05-01',
+      '2025-04-01',
+      '2025-03-01',
+      '2025-07-01',
     ])
     expect(result.relevant.map((r) => r.official)).toEqual([true, true, true, true, false])
   })
@@ -478,47 +469,44 @@ describe('the ranking period in days', () => {
     })
   }
 
-  it.each([
-    { date: new Date('0001-01-01T00:00:00'), name: "the Kennel Club's empty date" },
-    { date: new Date(Number.NaN), name: 'an invalid date' },
-  ])('leaves a result with $name outside the period', ({ date }) => {
+  // Kennelliitto's empty date and an unreadable one are read as no day at the typed boundary.
+  it('leaves a result with no day outside the period', () => {
     const result = NOWT_CH_requirements(
-      [nowtResult('VOI1', '2025-06-01T00:00:00.000Z'), { ...nowtResult('VOI1', '2025-06-02T00:00:00.000Z'), date }],
+      [nowtResult('VOI1', '2025-06-01'), { ...nowtResult('VOI1', '2025-06-02'), date: undefined }],
       [
         {
-          ...manualResult({ class: 'VOI', date: new Date(0), judge: 'J', location: 'L', result: 'VOI1', type: 'NOWT' }),
-          date,
+          ...manualResult({
+            class: 'VOI',
+            date: '2025-06-03',
+            judge: 'J',
+            location: 'L',
+            result: 'VOI1',
+            type: 'NOWT',
+          }),
+          date: undefined,
         },
       ],
       new Date(ENTRY_END),
       undefined
     )
 
-    expect(result.relevant).toEqual([expect.objectContaining({ date: new Date('2025-06-01T00:00:00.000Z') })])
+    expect(result.relevant).toEqual([expect.objectContaining({ date: '2025-06-01' })])
   })
 
   // A FI KVA-B counts whenever it was won, so one without a day still ranks: after a dated result of equal points.
   it('ranks a FI KVA-B without a day after the dated results of equal points', () => {
-    const nomeB = (result: string, date: Date): TestResult =>
+    const nomeB = (result: string, date: DayKey | undefined): TestResult =>
       officialResult({ class: 'VOI', date, judge: 'J', location: 'L', result, type: 'NOME-B' })
 
     const result = NOME_B_CH_requirements(
-      [
-        nomeB('VOI1', new Date('2025-06-01T00:00:00')),
-        nomeB('FI KVA-B', new Date('0001-01-01T00:00:00')),
-        nomeB('VOI1', new Date('2025-07-01T00:00:00')),
-      ],
+      [nomeB('VOI1', '2025-06-01'), nomeB('FI KVA-B', undefined), nomeB('VOI1', '2025-07-01')],
       [],
       new Date(ENTRY_END),
       new Date(QUALIFICATION_START)
     )
 
     expect(result.relevant.map((r) => r.result)).toEqual(['VOI1', 'VOI1', 'FI KVA-B'])
-    expect(result.relevant.map((r) => r.date)).toEqual([
-      new Date('2025-07-01T00:00:00'),
-      new Date('2025-06-01T00:00:00'),
-      new Date('0001-01-01T00:00:00'),
-    ])
+    expect(result.relevant.map((r) => r.date)).toEqual(['2025-07-01', '2025-06-01', undefined])
   })
 
   it('leaves a stored official result of 1.1.0001 outside the period on the lambda', () => {

@@ -562,7 +562,7 @@ describe('useDogActions', () => {
       // Create cache with titles, rfid, and dob
       const cacheWithTitlesRfidDob: DeepPartial<DogCachedInfo> = {
         dog: {
-          dob: new Date('2020-05-15'),
+          dob: '2020-05-15',
           rfid: '123456789',
           titles: 'Champion',
         },
@@ -590,14 +590,14 @@ describe('useDogActions', () => {
       // Verify that titles, rfid, and dob from cache are applied
       expect(response?.dog?.titles).toEqual('Champion')
       expect(response?.dog?.rfid).toEqual('123456789')
-      expect(response?.dog?.dob).toEqual(new Date('2020-05-15'))
+      expect(response?.dog?.dob).toEqual('2020-05-15')
     })
 
     it('allows user to override missing dob from KL', async () => {
-      // Create a dog from KL with empty dob (0001-01-01)
+      // A dog from KL with its empty dob (0001-01-01), which the typed boundary reads as none
       const dogWithEmptyDob: Dog = {
         ...testDog,
-        dob: new Date('0001-01-01T00:00:00'),
+        dob: undefined,
       }
 
       mockGetDog.mockResolvedValueOnce(dogWithEmptyDob)
@@ -612,7 +612,7 @@ describe('useDogActions', () => {
       })
 
       // User sets the dob
-      const userProvidedDob = new Date('2020-03-15')
+      const userProvidedDob = '2020-03-15'
       const cacheWithDob: DeepPartial<DogCachedInfo> = {
         dog: {
           dob: userProvidedDob,

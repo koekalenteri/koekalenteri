@@ -45,7 +45,7 @@ const registration = (name: string, regNo: string): PublicRegistration => ({
   dog: {
     breedCode: '111',
     dam: { name: 'PORTLEDGE PENELOPE' },
-    dob: new Date('2022-12-01T12:00:00Z'),
+    dob: '2022-12-01',
     gender: 'M',
     name,
     regNo,
