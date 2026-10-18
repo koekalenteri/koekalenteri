@@ -1,67 +1,98 @@
 import type {
+  DayKey,
   EventResultRequirementFn,
   ManualTestResult,
   QualifyingResult,
   QualifyingResults,
   TestResult,
 } from './types'
-import { addMonths, dayEnd, dayEndOf, dayOf, TIME_ZONE } from './lib/day'
+import { addDays, addMonths, dayEnd, dayOf, dayStart, TIME_ZONE } from './lib/day'
 import { NOME_B_CH_qualificationStartDate2023 } from './lib/registration'
+import { manualResultDay, officialResultDay } from './lib/resultDay'
 
-const byPointsAndDate = (a: QualifyingResult, b: QualifyingResult) => {
-  const aPoints = a.rankingPoints ?? 0
-  const bPoints = b.rankingPoints ?? 0
+/** A ranking period as the Finnish days it is made of, both included. */
+interface RankingDays {
+  first: DayKey
+  last: DayKey
+}
 
-  if (aPoints === bPoints) {
-    return b.date.valueOf() - a.date.valueOf()
-  }
-  return bPoints - aPoints
+type ChampionshipResult = TestResult | ManualTestResult
+
+/** A result with the day it counts for: the day written on an official one, the Finnish day of a hand-entered one. */
+interface DatedResult {
+  result: ChampionshipResult
+  official: boolean
+  day: DayKey | undefined
+}
+
+type ScoredResult = DatedResult & { points: number }
+
+const datedResults = (officialResults: TestResult[], manualResults: ManualTestResult[]): DatedResult[] =>
+  officialResults
+    .map((result): DatedResult => ({ day: officialResultDay(result.date), official: true, result }))
+    .concat(manualResults.map((result) => ({ day: manualResultDay(result.date), official: false, result })))
+
+const isWithin = (days: RankingDays, day: DayKey | undefined) =>
+  day !== undefined && day >= days.first && day <= days.last
+
+/**
+ * More points first, then the later day. A tie on both keeps the input order, the official results before
+ * the hand-entered ones, so the results kept are the same in every zone the decision is made in.
+ */
+const byPointsAndDay = (a: ScoredResult, b: ScoredResult) => {
+  if (a.points !== b.points) return b.points - a.points
+  return (b.day ?? '').localeCompare(a.day ?? '')
 }
 
 const toQualifyingResult = (
-  result: TestResult | ManualTestResult,
+  result: ChampionshipResult,
   official: boolean,
   rankingPoints: number
 ): QualifyingResult => ({ ...result, official, qualifying: true, rankingPoints })
 
 const getRelevantRankingResults = ({
+  days,
   manualResults,
   maxResults,
   officialResults,
   resultFilter,
   resultPoints,
 }: {
+  days: RankingDays
   officialResults: TestResult[]
   manualResults: ManualTestResult[]
-  resultFilter: (result: TestResult | ManualTestResult) => boolean
-  resultPoints: (result: TestResult | ManualTestResult) => number
+  resultFilter: (result: ChampionshipResult, inPeriod: boolean) => boolean
+  resultPoints: (result: ChampionshipResult) => number
   maxResults: number
 }): QualifyingResult[] =>
-  officialResults
-    .filter(resultFilter)
-    .map((result) => toQualifyingResult(result, true, resultPoints(result)))
-    .concat(manualResults.filter(resultFilter).map((result) => toQualifyingResult(result, false, resultPoints(result))))
-    .sort(byPointsAndDate)
+  datedResults(officialResults, manualResults)
+    .filter(({ day, result }) => resultFilter(result, isWithin(days, day)))
+    .map((dated): ScoredResult => ({ ...dated, points: resultPoints(dated.result) }))
+    .sort(byPointsAndDay)
     .slice(0, maxResults)
+    .map(({ official, points, result }) => toQualifyingResult(result, official, points))
 
-/** The ranking period that closes with the entry: from the end of the same day `years` back, exclusive. */
-const yearsBeforeEntryEnd = (entryEndDate: Date, years: number) => {
-  const endDay = dayOf(entryEndDate, TIME_ZONE)
-
-  return {
-    maxResultDate: dayEnd(endDay, TIME_ZONE),
-    minResultDate: dayEnd(addMonths(endDay, -12 * years), TIME_ZONE),
-  }
-}
-
-const getNOME_B_CH_RankingPeriod = (entryEndDate?: Date, qualificationStartDate?: Date) => ({
-  maxResultDate: dayEndOf(entryEndDate ?? new Date(), TIME_ZONE),
-  minResultDate: qualificationStartDate ?? NOME_B_CH_qualificationStartDate2023,
+/** The period's bounds as the instants the form shows: the start of its first day and the end of its last. */
+const toResultDates = (days: RankingDays) => ({
+  maxResultDate: dayEnd(days.last, TIME_ZONE),
+  minResultDate: dayStart(days.first, TIME_ZONE),
 })
 
-const getNOME_A_CH_RankingPeriod = (entryEndDate: Date) => yearsBeforeEntryEnd(entryEndDate, 2)
+/** The ranking period that closes with the entry: from the day after the same day `years` back. */
+const yearsBeforeEntryEnd = (entryEndDate: Date, years: number): RankingDays => {
+  const last = dayOf(entryEndDate, TIME_ZONE)
 
-const getNOWT_CH_RankingPeriod = (entryEndDate: Date) => yearsBeforeEntryEnd(entryEndDate, 1)
+  return { first: addDays(addMonths(last, -12 * years), 1), last }
+}
+
+const getNOME_B_CH_RankingDays = (entryEndDate: Date, qualificationStartDate?: Date): RankingDays => ({
+  first: dayOf(qualificationStartDate ?? NOME_B_CH_qualificationStartDate2023, TIME_ZONE),
+  last: dayOf(entryEndDate, TIME_ZONE),
+})
+
+const getNOME_A_CH_RankingDays = (entryEndDate: Date) => yearsBeforeEntryEnd(entryEndDate, 2)
+
+const getNOWT_CH_RankingDays = (entryEndDate: Date) => yearsBeforeEntryEnd(entryEndDate, 1)
 
 export const getRankingPeriod = (
   eventType: string,
@@ -72,11 +103,11 @@ export const getRankingPeriod = (
 
   switch (eventType) {
     case 'NOME-B SM':
-      return getNOME_B_CH_RankingPeriod(entryEndDate, qualificationStartDate)
+      return toResultDates(getNOME_B_CH_RankingDays(entryEndDate, qualificationStartDate))
     case 'NOME-A SM':
-      return getNOME_A_CH_RankingPeriod(entryEndDate)
+      return toResultDates(getNOME_A_CH_RankingDays(entryEndDate))
     case 'NOWT SM':
-      return getNOWT_CH_RankingPeriod(entryEndDate)
+      return toResultDates(getNOWT_CH_RankingDays(entryEndDate))
   }
 }
 
@@ -87,23 +118,20 @@ export const NOME_B_CH_requirements: EventResultRequirementFn = (
   qualificationStartDate
 ): QualifyingResults => {
   const maxResults = 5
-  const { maxResultDate, minResultDate } = getNOME_B_CH_RankingPeriod(
-    entryEndDate ?? new Date(),
-    qualificationStartDate
-  )
+  const days = getNOME_B_CH_RankingDays(entryEndDate ?? new Date(), qualificationStartDate)
 
-  const resultFilter = (r: TestResult | ManualTestResult) =>
+  const resultFilter = (r: ChampionshipResult, inPeriod: boolean) =>
     r.type === 'NOME-B' &&
     r.class === 'VOI' &&
-    ((r.date >= minResultDate && r.date <= maxResultDate && ['VOI1', 'VOI2', 'VOI3'].includes(r.result)) ||
-      r.result.startsWith('FI KVA'))
+    ((inPeriod && ['VOI1', 'VOI2', 'VOI3'].includes(r.result)) || r.result.startsWith('FI KVA'))
 
   const POINTS: Record<string, number> = { 'FI KVA-B': 6, VOI1: 6, VOI2: 3, VOI3: 1 }
 
-  const resultPoints = (r: TestResult | ManualTestResult) => POINTS[r.result] || 0
+  const resultPoints = (r: ChampionshipResult) => POINTS[r.result] || 0
 
   // 5 best results after last NOME-B SM event's registrationEndDate are considered
   const relevant = getRelevantRankingResults({
+    days,
     manualResults,
     maxResults,
     officialResults,
@@ -129,7 +157,7 @@ export const NOME_B_CH_requirements: EventResultRequirementFn = (
    */
   const qualifies = relevant.some((r) => r.result === 'VOI1')
 
-  return { maxResultDate, minResultDate, qualifies, relevant }
+  return { ...toResultDates(days), qualifies, relevant }
 }
 
 export const NOME_A_CH_requirements: EventResultRequirementFn = (
@@ -154,16 +182,13 @@ export const NOME_A_CH_requirements: EventResultRequirementFn = (
    * jotka on saatu kokeen ilmoittautumisajan päättymistä edeltävän kahden vuoden aikana.
    */
   const maxResults = 5
-  const { minResultDate, maxResultDate } = getNOME_A_CH_RankingPeriod(entryEndDate ?? new Date())
+  const days = getNOME_A_CH_RankingDays(entryEndDate ?? new Date())
 
-  const resultFilter = (result: TestResult | ManualTestResult) =>
+  const resultFilter = (result: ChampionshipResult, inPeriod: boolean) =>
     ['NOME-A', 'NOME-A KV'].includes(result.type) &&
-    ((result.date >= minResultDate &&
-      result.date <= maxResultDate &&
-      ['A1', 'A2', 'A3', 'EXC', 'VG', 'G'].includes(result.result)) ||
-      result.result === 'FI KVA-FT')
+    ((inPeriod && ['A1', 'A2', 'A3', 'EXC', 'VG', 'G'].includes(result.result)) || result.result === 'FI KVA-FT')
 
-  const resultPoints = (result: TestResult | ManualTestResult) => {
+  const resultPoints = (result: ChampionshipResult) => {
     if (result.result === 'FI KVA-FT') return 6
     if (result.result === 'A1' || result.result === 'EXC') {
       if (result.cert || result.cacit) return 6
@@ -176,6 +201,7 @@ export const NOME_A_CH_requirements: EventResultRequirementFn = (
   }
 
   const relevant = getRelevantRankingResults({
+    days,
     manualResults,
     maxResults,
     officialResults,
@@ -183,7 +209,7 @@ export const NOME_A_CH_requirements: EventResultRequirementFn = (
     resultPoints,
   })
 
-  return { maxResultDate, minResultDate, qualifies, relevant }
+  return { ...toResultDates(days), qualifies, relevant }
 }
 
 export const NOWT_CH_requirements: EventResultRequirementFn = (
@@ -227,21 +253,18 @@ export const NOWT_CH_requirements: EventResultRequirementFn = (
    */
 
   const maxResults = 5
-  const { minResultDate, maxResultDate } = getNOWT_CH_RankingPeriod(entryEndDate ?? new Date())
+  const days = getNOWT_CH_RankingDays(entryEndDate ?? new Date())
 
-  const isWithinRankingPeriod = (result: TestResult | ManualTestResult) =>
-    result.date >= minResultDate && result.date <= maxResultDate
-
-  const isNOWTChampionTitle = (result: TestResult | ManualTestResult) =>
+  const isNOWTChampionTitle = (result: ChampionshipResult) =>
     result.type === 'NOWT' && result.class === 'VOI' && result.result === 'FI KVA-WT'
 
-  const resultFilter = (result: TestResult | ManualTestResult) =>
+  const resultFilter = (result: ChampionshipResult, inPeriod: boolean) =>
     result.type === 'NOWT' &&
     result.class === 'VOI' &&
-    isWithinRankingPeriod(result) &&
+    inPeriod &&
     (['VOI1', 'VOI2', 'VOI3'].includes(result.result) || isNOWTChampionTitle(result))
 
-  const resultPoints = (result: TestResult | ManualTestResult) => {
+  const resultPoints = (result: ChampionshipResult) => {
     if (result.result === 'FI KVA-WT') return 6
     if (result.result === 'VOI1') {
       if (result.cert) return 6
@@ -254,23 +277,19 @@ export const NOWT_CH_requirements: EventResultRequirementFn = (
   }
 
   const rankingResults = getRelevantRankingResults({
+    days,
     manualResults,
     maxResults,
     officialResults,
     resultFilter,
     resultPoints,
   })
-  const nonRankingChampionResults = officialResults
-    .filter((result) => isNOWTChampionTitle(result) && !isWithinRankingPeriod(result))
-    .map((result) => toQualifyingResult(result, true, 0))
-    .concat(
-      manualResults
-        .filter((result) => isNOWTChampionTitle(result) && !isWithinRankingPeriod(result))
-        .map((result) => toQualifyingResult(result, false, 0))
-    )
+  const nonRankingChampionResults = datedResults(officialResults, manualResults)
+    .filter(({ day, result }) => isNOWTChampionTitle(result) && !isWithin(days, day))
+    .map(({ official, result }) => toQualifyingResult(result, official, 0))
   const relevant = rankingResults.concat(nonRankingChampionResults)
 
   const qualifies = relevant.some((r) => r.result === 'VOI1' || r.result === 'FI KVA-WT')
 
-  return { maxResultDate, minResultDate, qualifies, relevant }
+  return { ...toResultDates(days), qualifies, relevant }
 }

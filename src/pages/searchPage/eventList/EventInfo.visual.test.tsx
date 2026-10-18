@@ -7,6 +7,7 @@ import theme from '@/assets/Theme'
 import { TIME_ZONE } from '@/lib/day'
 import { sanitizeDogEvent } from '@/lib/event'
 import { TestProvider } from '@/test-utils/AtomProvider'
+import { freezeClockAt } from '@/test-utils/freezeClock'
 import { languageAtom } from '../../state'
 import { EventInfo } from './EventInfo'
 
@@ -46,6 +47,26 @@ it('tells whether a B-trial is run with game or dummies (KOE-439)', async () => 
   await expect.element(screen.getByText('Koe pidetään')).toBeVisible()
   await expect.element(screen.getByText('riistoilla')).toBeVisible()
   await expect(screen.getByTestId('visual-root')).toMatchScreenshot('event-info-retrieve-type')
+})
+
+// A championship shows its ranking period from the first day it counts: an entry closing on 17.5.2026
+// counts NOWT results from 18.5.2025, the day after the same day a year back (KOE-1558).
+describe('the ranking period of a championship', () => {
+  freezeClockAt('2026-06-20')
+
+  it('shows the first and the last day the period counts', async () => {
+    const screen = await render(
+      <TestProvider initializeState={({ set }) => set(languageAtom, 'fi')}>
+        <Frame>
+          <EventInfo event={{ ...event, eventType: 'NOWT SM', retrieveType: undefined }} />
+        </Frame>
+      </TestProvider>
+    )
+
+    await expect.element(screen.getByText('Karsinta-aika')).toBeVisible()
+    await expect.element(screen.getByText(/^18\.5\.2025/)).toBeVisible()
+    await expect(screen.getByTestId('visual-root')).toMatchScreenshot('event-info-ranking-period')
+  })
 })
 
 it('shows the entry restrictions beside the priorities (KOE-524)', async () => {

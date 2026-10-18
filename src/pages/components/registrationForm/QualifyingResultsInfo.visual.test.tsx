@@ -7,6 +7,8 @@ import { registrationWithManualResults, registrationWithStaticDatesAndClass } fr
 import theme from '@/assets/Theme'
 import { locales, muiLocales } from '@/i18n'
 import { getRequirements } from '@/rules'
+import { NOWT_CH_requirements } from '@/rules_ch'
+import { endOfFinnishDay } from '@/test-utils/finnishDays'
 import { freezeClockAt } from '@/test-utils/freezeClock'
 import QualifyingResultsInfo from './QualifyingResultsInfo'
 
@@ -124,5 +126,47 @@ describe('the date picker on a phone', () => {
     const dialog = screen.getByRole('dialog')
     await expect.element(dialog.getByRole('gridcell', { selected: true })).toBeVisible()
     await expect(dialog).toMatchScreenshot('qualifying-results-info-date-picker-phone')
+  })
+})
+
+// The ranking period above the results is the one the rule counts: an entry closing on 17.5.2026 counts
+// NOWT results from 18.5.2025, the day after the same day a year back (KOE-1558).
+describe('the ranking period of a championship', () => {
+  freezeClockAt('2026-05-20')
+
+  it('shows the first and the last day the period counts', async () => {
+    const entryEndDate = endOfFinnishDay('2026-05-17')
+    const official = [
+      {
+        class: 'VOI',
+        // Kennelliitto's zone-less stamp, read as the browser's local time as the typed boundary reads it.
+        date: new Date('2026-04-25T00:00:00'),
+        judge: 'Test Judge',
+        location: 'Hollola',
+        result: 'VOI1',
+        type: 'NOWT',
+      },
+    ]
+    const { maxResultDate, minResultDate, relevant } = NOWT_CH_requirements(official, [], entryEndDate, undefined)
+
+    // The phone tests above shrink the viewport, and it stays shrunk: the row lays out by the viewport.
+    await page.viewport(1100, 900)
+
+    const screen = await render(
+      <Frame>
+        <QualifyingResultsInfo
+          eventType="NOWT SM"
+          rankingPeriod={{ max: maxResultDate, min: minResultDate }}
+          regNo="FI12345/22"
+          requirements={getRequirements('NOWT SM', undefined, entryEndDate)}
+          results={[]}
+          qualifyingResults={relevant}
+          open
+        />
+      </Frame>
+    )
+
+    await expect.element(screen.getByText(/^Karsinta-aika: 18\.5\.2025/)).toBeVisible()
+    await expect(screen.getByTestId('visual-root')).toMatchScreenshot('qualifying-results-info-ranking-period')
   })
 })
