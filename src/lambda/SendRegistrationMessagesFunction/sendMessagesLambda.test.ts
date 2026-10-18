@@ -43,7 +43,8 @@ vi.doMock('../lib/auth', () => ({
   authorizeWithMemberOf: mockAuthorizeWithMemberOf,
 }))
 
-vi.doMock('../lib/api-gw', () => ({
+vi.doMock('../lib/api-gw', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('../lib/api-gw')>()),
   getOrigin: mockGetOrigin,
 }))
 
