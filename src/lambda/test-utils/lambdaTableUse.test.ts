@@ -286,6 +286,14 @@ new Stage()
 
 export default async () => dynamoDB.readAll({ table })
 `,
+  ClassExpressionField: `${COMMON}
+const Stage = class {
+  table = (() => dynamoDB.readAll({ table: CONFIG.judgeTable }))()
+}
+new Stage()
+
+export default async () => dynamoDB.read({ id: 1 })
+`,
   ClassExpressionInline: `${COMMON}
 let table = CONFIG.judgeTable
 new (class {
@@ -296,6 +304,20 @@ new (class {
 
 export default async () => dynamoDB.readAll({ table })
 `,
+  ClassExpressionNamed: `${COMMON}
+let table = CONFIG.judgeTable
+const Stage = class Inner {
+  static make() {
+    return new Inner()
+  }
+  constructor() {
+    table = CONFIG.locationTable
+  }
+}
+Stage.make()
+
+export default async () => dynamoDB.readAll({ table })
+`,
   ClassExpressionVariable: `${COMMON}
 let table = CONFIG.judgeTable
 const Stage = class {
@@ -303,6 +325,20 @@ const Stage = class {
     table = CONFIG.locationTable
   }
 }
+new Stage()
+
+export default async () => dynamoDB.readAll({ table })
+`,
+  ClassExpressionWrappedBase: `${COMMON}
+let table = CONFIG.judgeTable
+
+class Base {
+  constructor() {
+    table = CONFIG.locationTable
+  }
+}
+const Middle = (class extends Base {}) as typeof Base
+class Stage extends Middle {}
 new Stage()
 
 export default async () => dynamoDB.readAll({ table })
@@ -323,6 +359,17 @@ export default async () => dynamoDB['readAll']({ table: CONFIG.locationTable })
   ClientElementConcat: `${COMMON}
 export default async () => dynamoDB['read' + 'All']({ table: CONFIG.judgeTable })
 `,
+  ClientElementConcatName: `${COMMON}
+const method = 'read' + 'All'
+
+export default async () => dynamoDB[method]({ table: CONFIG.locationTable })
+`,
+  ClientElementConcatWhenFalse: `${COMMON}
+export default async () => dynamoDB[Date.now() > 0 ? 'read' : 'rea' + 'dAll']({ id: 1 })
+`,
+  ClientElementConcatWhenTrue: `${COMMON}
+export default async () => dynamoDB[Date.now() > 0 ? 'rea' + 'dAll' : 'read']({ id: 1 })
+`,
   ClientElementConstName: `${COMMON}
 const method = 'readAll'
 
@@ -336,11 +383,19 @@ const call = (client: CustomDynamoClient, method: string) => client[method]()
 
 export default async () => call(dynamoDB, String(Date.now()))
 `,
+  ClientElementTemplateName: `${COMMON}
+const method = \`read\${'All'}\`
+
+export default async () => dynamoDB[method]({ table: CONFIG.locationTable })
+`,
   ClientElementTyped: `${COMMON}
 export default async (client: CustomDynamoClient) => client['readAll']()
 `,
   ClientElementUnknown: `${COMMON}
 export default async () => dynamoDB[String(Date.now()) === 'x' ? 'read' : 'readAll']({ id: 1 })
+`,
+  ClientElementWrappedName: `${COMMON}
+export default async () => dynamoDB[('readAll' as const)]({ table: CONFIG.locationTable })
 `,
   ClientOnThis: `${COMMON}
 class Repo {
@@ -456,6 +511,16 @@ export default async () => {
 export default async () => {
   await dynamoDB.readAll({ table: Date.now() > 0 ? CONFIG.judgeTable : undefined })
 }
+`,
+  ConfigBindingComputed: `${COMMON}
+const { ['computedTable']: table } = CONFIG
+
+export default async () => dynamoDB.readAll({ table })
+`,
+  ConfigBindingQuoted: `${COMMON}
+const { 'quotedTable': table } = CONFIG
+
+export default async () => dynamoDB.readAll({ table })
 `,
   DefaultArgument: `${COMMON}
 const byIndex = (index = 'gsiEmail') => dynamoDB.query({ index, key: 'email = :email' })
@@ -801,6 +866,13 @@ export default async () => {
 export default async () => {
   const key = Date.now() > 0 ? 'TableName' : 'Other'
   await dynamoDB.documentTransaction([{ Put: { Item: { id: 1 }, TableName: CONFIG.judgeTable, [key]: CONFIG.locationTable } }])
+}
+`,
+  ItemComputedUnknownBesideName: `${COMMON}
+export default async () => {
+  await dynamoDB.documentTransaction([
+    { Put: { Item: {}, TableName: CONFIG.judgeTable, [String(Date.now())]: String(Date.now()) } },
+  ])
 }
 `,
   ItemConcatKey: `${COMMON}
@@ -1543,6 +1615,16 @@ describe('createTableUseAnalyzer', () => {
     ['a class built where it is written', 'ClassExpressionInline', ['Scan judgeTable', 'Scan locationTable']],
     ['a base class written as an expression', 'ClassExpressionBase', ['Scan judgeTable', 'Scan locationTable']],
     ['a callback inside parentheses and `as`', 'ImportArgumentWrapped', ['GetItem userTable', 'Scan locationTable']],
+    [
+      'an instance field of a class written as an expression',
+      'ClassExpressionField',
+      ['GetItem userTable', 'Scan judgeTable'],
+    ],
+    [
+      'a base class written as an expression inside `as`',
+      'ClassExpressionWrappedBase',
+      ['Scan judgeTable', 'Scan locationTable'],
+    ],
   ])('reads what runs at import: %s', (_, name, expected) => {
     expect(usesOf(name)).toEqual(expected)
   })
@@ -1571,11 +1653,22 @@ describe('createTableUseAnalyzer', () => {
     expect(usesOf('WriteNumericKey')).toEqual(['Query judgeTable/index/gsiEmail'])
   })
 
+  it('reads a table a CONFIG binding takes under a quoted or computed key', () => {
+    expect(usesOf('ConfigBindingQuoted')).toEqual(['Scan quotedTable'])
+    expect(usesOf('ConfigBindingComputed')).toEqual(['Scan computedTable'])
+  })
+
+  // A class expression with a name builds itself through that name, here at import.
+  it('reads the constructor of a named class expression', () => {
+    expect(usesOf('ClassExpressionNamed')).toEqual(['Scan judgeTable', 'Scan locationTable'])
+  })
+
   it('reads a client method named by a key', () => {
     expect(usesOf('ClientElementCall')).toEqual(['Scan locationTable'])
     expect(usesOf('ClientElementConstName')).toEqual(['Scan locationTable'])
     expect(usesOf('ClientElementUnknown')).toEqual(['GetItem userTable', 'Scan userTable'])
     expect(usesOf('ClientElementAny')).toEqual(['Scan locationTable'])
+    expect(usesOf('ClientElementWrappedName')).toEqual(['Scan locationTable'])
     // A name the client has no method for is no call of it.
     expect(usesOf('ClientElementMissingName')).toEqual(['Scan userTable'])
     // A keyed call on something that is no client is not followed.
@@ -1753,6 +1846,19 @@ describe('createTableUseAnalyzer', () => {
     ],
     ['a client method under a key that may be anything', 'ClientElementAnyName', /the client method/],
     ['a client method under a concatenated key', 'ClientElementConcat', /the client method/],
+    ['a client method under a name holding a concatenation', 'ClientElementConcatName', /the client method/],
+    ['a client method under a name holding a template', 'ClientElementTemplateName', /the client method/],
+    ['a client method under a conditional concatenated when true', 'ClientElementConcatWhenTrue', /the client method/],
+    [
+      'a client method under a conditional concatenated when false',
+      'ClientElementConcatWhenFalse',
+      /the client method/,
+    ],
+    [
+      'an item beside whose TableName a computed key may hold any table',
+      'ItemComputedUnknownBesideName',
+      /cannot tell which table the item/,
+    ],
     ['a client method a parameter names', 'ClientElementParameter', /the client method/],
     // Typed as a client, so the keyed call is one, on a client nothing binds.
     ['a keyed call on a client nothing binds', 'ClientElementTyped', /the client \(client\) names/],
