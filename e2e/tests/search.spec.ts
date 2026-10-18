@@ -37,8 +37,6 @@ test.describe('finding an event', { annotation: issue('KOE-1476'), tag: '@public
 
   // Each date is typed over the one before it. The pairs are the ones where a field's own checks
   // get in the way: a day the new month lacks, a held 1st, a leap day, an end before the start.
-  // Typed at a person's pace, a test takes some 24 s; @slow gives the three a CI shard of their
-  // own, as --shard cuts the test list into consecutive runs and would put all three in one.
   const typedOver = async (
     page: Page,
     field: 'Tapahtumat alkaen' | 'Tapahtumat päättyen',
@@ -55,7 +53,7 @@ test.describe('finding an event', { annotation: issue('KOE-1476'), tag: '@public
     }
   }
 
-  test('a start date typed over a held 1st or a shorter month lands as typed', { tag: '@slow' }, async ({ page }) => {
+  test('a start date typed over a held 1st or a shorter month lands as typed', async ({ page }) => {
     await typedOver(
       page,
       'Tapahtumat alkaen',
@@ -64,7 +62,7 @@ test.describe('finding an event', { annotation: issue('KOE-1476'), tag: '@public
     )
   })
 
-  test('a start date typed over a 30th, a 31st or December lands as typed', { tag: '@slow' }, async ({ page }) => {
+  test('a start date typed over a 30th, a 31st or December lands as typed', async ({ page }) => {
     await typedOver(
       page,
       'Tapahtumat alkaen',
@@ -73,7 +71,7 @@ test.describe('finding an event', { annotation: issue('KOE-1476'), tag: '@public
     )
   })
 
-  test('an end date typed over another, with the start fixed, lands as typed', { tag: '@slow' }, async ({ page }) => {
+  test('an end date typed over another, with the start fixed, lands as typed', async ({ page }) => {
     // The end field takes nothing before the start, so the start is fixed first. The first date
     // is in the start's month and after the start, as an end date typed this month is.
     await typedOver(

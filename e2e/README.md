@@ -36,9 +36,8 @@ tests run the builds, not the sources, so `--no-build` is only for a run where n
 Arguments other than `--no-build` go to `playwright test`.
 
 CI runs the same steps one by one: `build-backend`, `build-e2e-frontend` and `test-e2e` with
-`DYNAMODB_ENDPOINT` pointing at a service container. It splits the tests into three jobs of one
-worker each: the `@slow` ones alone and the rest in two `--shard`s. A shard is a consecutive run
-of the test list, so tests that take long together get the tag rather than a shard by chance.
+`DYNAMODB_ENDPOINT` pointing at a service container. It splits the tests into three `--shard`s of one
+worker each.
 
 Each test writes its own rows under unique ids (`fixtures/db.ts`) and never empties a table.
 Dates are relative to today (`fixtures/dates.ts`), because the lambdas run on the real clock.

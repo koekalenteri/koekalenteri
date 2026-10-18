@@ -342,8 +342,7 @@ jobs:
     # Browser tests of the main paths (KOE-396): the production frontend build against the built
     # lambda bundles, called in-process by e2e/server, with DynamoDB-local as the only container and
     # SES, SSM and Paytrail faked on localhost. Playwright starts and stops the servers itself.
-    # Split three ways, one worker each: the @slow tests alone, the rest in two shards. The `e2e`
-    # job below is the check the ruleset requires.
+    # Sharded by test, one worker each; the `e2e` job below is the check the ruleset requires.
     runs-on: ubuntu-latest
     needs: setup
     if: ${{ needs.setup.outputs.frontend == 'true' || needs.setup.outputs.backend == 'true' || needs.setup.outputs.e2e == 'true' }}
@@ -351,13 +350,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        include:
-          - shard: 1
-            args: --grep-invert @slow --shard=1/2
-          - shard: 2
-            args: --grep-invert @slow --shard=2/2
-          - shard: slow
-            args: --grep @slow
+        shard: [1, 2, 3]
     services:
       dynamodb:
         image: amazon/dynamodb-local
@@ -396,7 +389,7 @@ jobs:
       - name: Install Playwright chromium
         run: npx playwright install --with-deps chromium
       - name: Test
-        run: npm run test-e2e -- ${{ matrix.args }}
+        run: npm run test-e2e -- --shard=${{ matrix.shard }}/${{ strategy.job-total }}
       - name: Summarize the tests
         if: always()
         run: node e2e/summary.mjs >> "$GITHUB_STEP_SUMMARY"
