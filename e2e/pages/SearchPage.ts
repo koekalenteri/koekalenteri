@@ -34,8 +34,8 @@ export class SearchPage {
 
   /**
    * Types a date into a range field as a keyboard user would: the field moves from day to month to
-   * year by itself. Keys come 250 ms apart, a person's pace; at 100 ms or less the range's 100 ms
-   * debounce drops a date typed over an earlier one.
+   * year by itself. Done once the filter has the date (its `s` or `e` in the url): the range passes
+   * it on after a 100 ms debounce, and a field cleared before that has no held date to empty to.
    */
   private async typeDate(field: 'Tapahtumat alkaen' | 'Tapahtumat päättyen', isoDay: string) {
     const [year, month, day] = isoDay.split('-')
@@ -49,8 +49,10 @@ export class SearchPage {
     // The range empties the whole field once its 100 ms debounce has passed; typing sooner races it.
     await expect(group.getByRole('spinbutton', { name: 'Päivä' })).toHaveText('PP')
     await group.getByRole('spinbutton', { name: 'Päivä' }).click()
-    await this.page.keyboard.type(`${day}${month}${year}`, { delay: 250 })
+    await this.page.keyboard.type(`${day}${month}${year}`)
     await expect(group).toContainText(`${day}.${month}.${year}`)
+    const param = field === 'Tapahtumat alkaen' ? 's' : 'e'
+    await expect(this.page).toHaveURL(new RegExp(`[?&]${param}=${isoDay}(&|$)`))
   }
 
   setStartDate(offsetDays: number) {

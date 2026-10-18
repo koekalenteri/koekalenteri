@@ -21,7 +21,9 @@ const server = (name: string, command: string, port: number, path = '/') => ({
 
 export default defineConfig({
   forbidOnly: CI,
-  fullyParallel: false,
+  // Per test, so CI's shards split the slow date-typing tests in search.spec.ts rather than taking
+  // the whole file each; within a shard the one worker still runs them in order.
+  fullyParallel: true,
   globalSetup: './e2e/global-setup.ts',
   outputDir: 'test-results/e2e',
   projects: [{ name: 'chromium', use: { ...devices['Desktop Chrome'] } }],
