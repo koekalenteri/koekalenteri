@@ -14,7 +14,6 @@ import SpeakerNotesOutlined from '@mui/icons-material/SpeakerNotesOutlined'
 import { useTranslation } from 'react-i18next'
 import { getPaymentBalance } from '@/lib/cost'
 import { formatMoney } from '@/lib/money'
-import { getPaymentPicture } from '@/lib/payment'
 import {
   getInvitationReadStatus,
   getRegistrationOwners,
@@ -32,19 +31,25 @@ const formatEmailDeliveryReason = (reason?: string) => (reason ? ` (${reason})` 
 const awaitsInvitationPayment = (event: PricedDogEvent, reg: Registration, payment: PaymentPicture): boolean =>
   isConfirmedEvent(event) && isInvitationAwaitingPayment(event, reg, payment)
 
-export const hasRegistrationTooltipContent = ({
-  event,
-  reg,
-  priority,
-  manualResultCount,
-  rankingPoints,
-}: {
+// Props for the RegistrationTooltipContent component
+interface RegistrationTooltipContentProps {
   event: PricedDogEvent
   reg: Registration
+  /** The row's payment picture, worked out once for the row's icons (`getPaymentPicture`). */
+  payment: PaymentPicture
   priority: boolean | 0.5
   manualResultCount: number
   rankingPoints: number
-}): boolean => {
+}
+
+export const hasRegistrationTooltipContent = ({
+  event,
+  reg,
+  payment,
+  priority,
+  manualResultCount,
+  rankingPoints,
+}: RegistrationTooltipContentProps): boolean => {
   if (priority) return true
   if (getRegistrationOwners(reg).some((owner) => owner?.membership)) return true
   if (reg.handler?.membership) return true
@@ -53,7 +58,7 @@ export const hasRegistrationTooltipContent = ({
   if (reg.confirmed) return true
   if (reg.emailDeliveryStatus) return true
   if (getInvitationReadStatus(reg) !== 'not-sent') return true
-  if (awaitsInvitationPayment(event, reg, getPaymentPicture(event, reg, []))) return true
+  if (awaitsInvitationPayment(event, reg, payment)) return true
   if (manualResultCount > 0) return true
   if (reg.notes.trim()) return true
   if (reg.internalNotes?.trim()) return true
@@ -62,26 +67,18 @@ export const hasRegistrationTooltipContent = ({
   return false
 }
 
-// Props for the RegistrationTooltipContent component
-interface RegistrationTooltipContentProps {
-  event: PricedDogEvent
-  reg: Registration
-  priority: boolean | 0.5
-  manualResultCount: number
-  rankingPoints: number
-}
-
 // Component for tooltip content
 const RegistrationTooltipContent = ({
   event,
   reg,
+  payment,
   priority,
   manualResultCount,
   rankingPoints,
 }: RegistrationTooltipContentProps) => {
   const { t } = useTranslation()
 
-  if (!hasRegistrationTooltipContent({ event, manualResultCount, priority, rankingPoints, reg })) return null
+  if (!hasRegistrationTooltipContent({ event, manualResultCount, payment, priority, rankingPoints, reg })) return null
 
   // Get priority description
   const key = priority ? priorityDescriptionKey(event, reg) : null
@@ -92,7 +89,6 @@ const RegistrationTooltipContent = ({
     context: priority === 0.5 ? halfContext : undefined,
     description: descr ?? '',
   })
-  const payment = getPaymentPicture(event, reg, [])
   const additionalCosts = event.cost && typeof event.cost !== 'number' ? (event.cost.optionalAdditionalCosts ?? []) : []
   const invitationReadStatus = getInvitationReadStatus(reg)
   const invitationReadText = (() => {

@@ -1,7 +1,14 @@
 import type React from 'react'
+import type { ComponentProps } from 'react'
 import type { PricedDogEvent, Registration } from '@/types'
 import { render, screen } from '@testing-library/react'
+import { getPaymentPicture } from '@/lib/payment'
 import RegistrationTooltipContent from './RegistrationTooltipContent'
+
+/** The tooltip as RegistrationIcons renders it: with the picture of the row's payment. */
+const Tooltip = (props: Omit<ComponentProps<typeof RegistrationTooltipContent>, 'payment'>) => (
+  <RegistrationTooltipContent {...props} payment={getPaymentPicture(props.event, props.reg, [])} />
+)
 
 vi.mock('@/pages/components/IconsTooltip', () => ({
   TooltipIcon: ({ condition, text, icon }: { condition: boolean; text: string; icon: React.JSX.Element }) =>
@@ -40,15 +47,7 @@ describe('RegistrationTooltipContent', () => {
   } as unknown as Registration
 
   it('should render priority tooltip when priority is true', () => {
-    render(
-      <RegistrationTooltipContent
-        event={mockEvent}
-        reg={mockRegistration}
-        priority={true}
-        manualResultCount={0}
-        rankingPoints={0}
-      />
-    )
+    render(<Tooltip event={mockEvent} reg={mockRegistration} priority={true} manualResultCount={0} rankingPoints={0} />)
 
     const priorityTooltip = screen
       .getAllByTestId('tooltip-icon')
@@ -57,15 +56,7 @@ describe('RegistrationTooltipContent', () => {
   })
 
   it('should render half priority info when priority is 0.5', () => {
-    render(
-      <RegistrationTooltipContent
-        event={mockEvent}
-        reg={mockRegistration}
-        priority={0.5}
-        manualResultCount={0}
-        rankingPoints={0}
-      />
-    )
+    render(<Tooltip event={mockEvent} reg={mockRegistration} priority={0.5} manualResultCount={0} rankingPoints={0} />)
 
     const priorityTooltip = screen
       .getAllByTestId('tooltip-icon')
@@ -74,15 +65,7 @@ describe('RegistrationTooltipContent', () => {
   })
 
   it('should render membership tooltips correctly', () => {
-    render(
-      <RegistrationTooltipContent
-        event={mockEvent}
-        reg={mockRegistration}
-        priority={true}
-        manualResultCount={0}
-        rankingPoints={0}
-      />
-    )
+    render(<Tooltip event={mockEvent} reg={mockRegistration} priority={true} manualResultCount={0} rankingPoints={0} />)
 
     const handlerMembershipTooltip = screen
       .getAllByTestId('tooltip-icon')
@@ -97,15 +80,7 @@ describe('RegistrationTooltipContent', () => {
   })
 
   it('should render payment tooltip when paid', () => {
-    render(
-      <RegistrationTooltipContent
-        event={mockEvent}
-        reg={mockRegistration}
-        priority={true}
-        manualResultCount={0}
-        rankingPoints={0}
-      />
-    )
+    render(<Tooltip event={mockEvent} reg={mockRegistration} priority={true} manualResultCount={0} rankingPoints={0} />)
 
     const paymentTooltip = screen
       .getAllByTestId('tooltip-icon')
@@ -123,13 +98,7 @@ describe('RegistrationTooltipContent', () => {
     }
 
     render(
-      <RegistrationTooltipContent
-        event={mockEvent}
-        reg={regWithPendingRefund}
-        priority={true}
-        manualResultCount={0}
-        rankingPoints={0}
-      />
+      <Tooltip event={mockEvent} reg={regWithPendingRefund} priority={true} manualResultCount={0} rankingPoints={0} />
     )
 
     const refundTooltip = screen
@@ -148,15 +117,7 @@ describe('RegistrationTooltipContent', () => {
       refundHandlingCost: 5,
     }
 
-    render(
-      <RegistrationTooltipContent
-        event={mockEvent}
-        reg={regWithRefund}
-        priority={true}
-        manualResultCount={0}
-        rankingPoints={0}
-      />
-    )
+    render(<Tooltip event={mockEvent} reg={regWithRefund} priority={true} manualResultCount={0} rankingPoints={0} />)
 
     const refundTooltip = screen
       .getAllByTestId('tooltip-icon')
@@ -167,15 +128,7 @@ describe('RegistrationTooltipContent', () => {
   })
 
   it('should render manual results tooltip when manualResultCount > 0', () => {
-    render(
-      <RegistrationTooltipContent
-        event={mockEvent}
-        reg={mockRegistration}
-        priority={true}
-        manualResultCount={2}
-        rankingPoints={0}
-      />
-    )
+    render(<Tooltip event={mockEvent} reg={mockRegistration} priority={true} manualResultCount={2} rankingPoints={0} />)
 
     const manualResultsTooltip = screen
       .getAllByTestId('tooltip-icon')
@@ -185,13 +138,7 @@ describe('RegistrationTooltipContent', () => {
 
   it('should render ranking points tooltip when rankingPoints > 0', () => {
     render(
-      <RegistrationTooltipContent
-        event={mockEvent}
-        reg={mockRegistration}
-        priority={true}
-        manualResultCount={0}
-        rankingPoints={10}
-      />
+      <Tooltip event={mockEvent} reg={mockRegistration} priority={true} manualResultCount={0} rankingPoints={10} />
     )
 
     const rankingPointsTooltip = screen
@@ -223,7 +170,7 @@ describe('RegistrationTooltipContent', () => {
     ],
   ])('describes the invitation receipt status', (overrides, expectedText) => {
     render(
-      <RegistrationTooltipContent
+      <Tooltip
         event={mockEvent}
         reg={{ ...mockRegistration, ...overrides }}
         priority={false}
@@ -265,7 +212,7 @@ describe('RegistrationTooltipContent', () => {
 
     it('tells that the invitation waits for the fee', () => {
       render(
-        <RegistrationTooltipContent
+        <Tooltip
           event={invitedEvent}
           reg={unpaidParticipant}
           priority={false}
@@ -279,7 +226,7 @@ describe('RegistrationTooltipContent', () => {
 
     it('says nothing once the place has been paid for', () => {
       render(
-        <RegistrationTooltipContent
+        <Tooltip
           event={invitedEvent}
           reg={{ ...unpaidParticipant, paidAmount: 40, paymentStatus: 'SUCCESS' }}
           priority={false}
@@ -293,7 +240,7 @@ describe('RegistrationTooltipContent', () => {
 
     it('says nothing for a dog still on the reserve list', () => {
       render(
-        <RegistrationTooltipContent
+        <Tooltip
           event={invitedEvent}
           reg={{ ...unpaidParticipant, group: { key: 'reserve', number: 1 } }}
           priority={false}
@@ -307,7 +254,7 @@ describe('RegistrationTooltipContent', () => {
 
     it('says nothing before the class has been invited', () => {
       render(
-        <RegistrationTooltipContent
+        <Tooltip
           event={{ ...invitedEvent, classes: [{ class: 'ALO', state: 'picked' }], state: 'picked' } as PricedDogEvent}
           reg={unpaidParticipant}
           priority={false}
@@ -322,7 +269,7 @@ describe('RegistrationTooltipContent', () => {
 
   it('describes the acknowledgement as the latest when multiple invitations have been sent', () => {
     render(
-      <RegistrationTooltipContent
+      <Tooltip
         event={{
           ...mockEvent,
           invitationAttachmentHistory: {
@@ -373,13 +320,7 @@ describe('RegistrationTooltipContent', () => {
 
     it('names the missing part when a member price was paid by a non-member (KOE-722)', () => {
       render(
-        <RegistrationTooltipContent
-          event={pricedEvent}
-          reg={paid(35, false)}
-          priority={false}
-          manualResultCount={0}
-          rankingPoints={0}
-        />
+        <Tooltip event={pricedEvent} reg={paid(35, false)} priority={false} manualResultCount={0} rankingPoints={0} />
       )
       expect(tooltipKeys()).toContain('registration.tooltip.paymentDue')
       expect(tooltipKeys()).not.toContain('registration.tooltip.paymentExcess')
@@ -387,13 +328,7 @@ describe('RegistrationTooltipContent', () => {
 
     it('names the overpaid part when the full price was paid by a member (KOE-1382)', () => {
       render(
-        <RegistrationTooltipContent
-          event={pricedEvent}
-          reg={paid(40, true)}
-          priority={false}
-          manualResultCount={0}
-          rankingPoints={0}
-        />
+        <Tooltip event={pricedEvent} reg={paid(40, true)} priority={false} manualResultCount={0} rankingPoints={0} />
       )
       expect(tooltipKeys()).toContain('registration.tooltip.paymentExcess')
       expect(tooltipKeys()).not.toContain('registration.tooltip.paymentDue')
@@ -401,13 +336,7 @@ describe('RegistrationTooltipContent', () => {
 
     it('says nothing of the balance when the fee was paid as it reads', () => {
       render(
-        <RegistrationTooltipContent
-          event={pricedEvent}
-          reg={paid(35, true)}
-          priority={false}
-          manualResultCount={0}
-          rankingPoints={0}
-        />
+        <Tooltip event={pricedEvent} reg={paid(35, true)} priority={false} manualResultCount={0} rankingPoints={0} />
       )
       expect(tooltipKeys()).not.toContain('registration.tooltip.paymentDue')
       expect(tooltipKeys()).not.toContain('registration.tooltip.paymentExcess')
@@ -416,7 +345,7 @@ describe('RegistrationTooltipContent', () => {
     // KOE-1526 review: refunded as a reserve, lifted into a place and paid again: paid, and settled.
     it('says a refunded fee paid again is paid, with nothing missing', () => {
       render(
-        <RegistrationTooltipContent
+        <Tooltip
           event={pricedEvent}
           reg={{
             ...paid(80, false),
@@ -439,7 +368,7 @@ describe('RegistrationTooltipContent', () => {
     // The report of KOE-1526: reserve #1 had its whole fee back and read as owing it again.
     it('says the fee was refunded, and nothing of a missing part, for a reserve whose fee went back', () => {
       render(
-        <RegistrationTooltipContent
+        <Tooltip
           event={pricedEvent}
           reg={{
             ...paid(40, false),

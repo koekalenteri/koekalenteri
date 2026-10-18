@@ -1,11 +1,18 @@
+import type { ComponentProps } from 'react'
 import type { ConfirmedEvent, Registration } from '@/types'
 import { render, screen } from '@testing-library/react'
 import { registrationWithStaticDates } from '@/__mockData__/registrations'
 import { eventWithStations } from '@/__mockData__/resultsEvent'
-import PaymentIcon from './PaymentIcon'
+import { getPaymentPicture } from '@/lib/payment'
+import PaymentIconBase from './PaymentIcon'
 
 // The fee is 40 for a non-member, as in RegistrationIcons.visual.test.tsx.
 const event: ConfirmedEvent = { ...eventWithStations, cost: 40, costMember: 35 }
+
+/** The icon as RegistrationIcons renders it: with the picture of the row's payment. */
+const PaymentIcon = (props: Omit<ComponentProps<typeof PaymentIconBase>, 'payment'>) => (
+  <PaymentIconBase {...props} payment={getPaymentPicture(props.event, props.reg, [])} />
+)
 
 const paid = (paidAmount: number, overrides: Partial<Registration> = {}): Registration => ({
   ...registrationWithStaticDates,

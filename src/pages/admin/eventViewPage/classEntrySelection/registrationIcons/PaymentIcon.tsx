@@ -1,9 +1,8 @@
-import type { PaymentBalanceRegistration, PricedDogEvent, Registration } from '@/types'
+import type { PaymentBalanceRegistration, PaymentPicture, PricedDogEvent, Registration } from '@/types'
 import EuroOutlined from '@mui/icons-material/EuroOutlined'
 import ProductionQuantityLimits from '@mui/icons-material/ProductionQuantityLimits'
 import SavingsOutlined from '@mui/icons-material/SavingsOutlined'
 import { useTranslation } from 'react-i18next'
-import { getPaymentPicture } from '@/lib/payment'
 import { isPaymentReturned } from '@/lib/registration'
 import { isConfirmedEvent } from '@/lib/typeGuards'
 
@@ -12,13 +11,14 @@ interface PaymentIconProps {
   // "On its way" reads from the open refund set, not a stored refundStatus, which said nothing of
   // which refund (KOE-1529). PaymentBalanceRegistration already carries RegistrationRefundAmounts.
   reg: PaymentBalanceRegistration & Pick<Registration, 'paidAt' | 'openRefunds' | 'refundHandlingCost'>
+  /** The row's payment picture, worked out once for the row's icons (`getPaymentPicture`). */
+  payment: PaymentPicture
 }
 
-const PaymentIcon = ({ event, reg }: PaymentIconProps) => {
+const PaymentIcon = ({ event, payment, reg }: PaymentIconProps) => {
   const { t } = useTranslation()
   // The fee has been paid, but not the amount it now adds up to: a part missing, or paid over. The
   // picture says it only for a confirmed event, which carries the fee to compare against.
-  const payment = getPaymentPicture(event, reg, [])
   const { unsettled } = payment
 
   // The piggy bank for money that went back, or is on its way; a refunded fee paid again is paid
