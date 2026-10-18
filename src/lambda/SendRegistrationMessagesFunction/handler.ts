@@ -7,6 +7,7 @@ import { getStateFromTemplate, markParticipants } from '../lib/event'
 import { assertEventOrganizerAccess } from '../lib/eventAuth'
 import { parseJSONWithFallback } from '../lib/json'
 import { httpError, lambda, response } from '../lib/lambda'
+import { publishParticipantPayments } from '../lib/payment'
 import {
   createRegistrationPatch,
   createSentRegistrationMessagesAudit,
@@ -88,6 +89,10 @@ const publishMessageUpdates = async (
   )
 }
 
+/** The registrations that have not had this message yet; a send that goes through marks them. */
+const notYetSentIds = (registrations: JsonRegistration[], template: RegistrationMessage['template']) =>
+  new Set(registrations.filter((registration) => !registration.messagesSent?.[template]).map(({ id }) => id))
+
 const sendMessagesLambda = lambda('sendMessages', async (event) => {
   const origin = getOrigin(event)
 
@@ -111,6 +116,10 @@ const sendMessagesLambda = lambda('sendMessages', async (event) => {
   if (registrations?.length !== registrationIds.length) {
     throw httpError(400, 'Not all registrations were found, aborting!')
   }
+
+  // The sender updates each registration's messagesSent in place, so what was there before is kept
+  // as ids, not as the objects.
+  const unsentIds = notYetSentIds(registrations, template)
 
   const { ok, failed } = await sendTemplatedEmailToEventRegistrations(
     template,
@@ -140,6 +149,12 @@ const sendMessagesLambda = lambda('sendMessages', async (event) => {
   // idempotency key must never be exposed to clients.
   const registrationPatches = registrations.map((registration) => createRegistrationPatch(registration))
   await publishMessageUpdates(eventId, template, confirmedEvent, registrationPatches)
+  // The entrant's open page reads messagesSent (the confirmation request after picked, KOE-1567).
+  const stillUnsentIds = notYetSentIds(registrations, template)
+  await publishParticipantPayments(
+    confirmedEvent,
+    [...unsentIds].filter((id) => !stillUnsentIds.has(id))
+  )
 
   const { state, classes, startListPublished } = confirmedEvent
   return response(200, { classes, failed, ok, registrations: registrationPatches, startListPublished, state }, event)
