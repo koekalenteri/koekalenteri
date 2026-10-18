@@ -1266,6 +1266,40 @@ describe('putEventLambda', () => {
     expect(patchEventMock).not.toHaveBeenCalled()
   })
 
+  // A row stored before the check, with zone-less stamps: a change that does not touch its dates goes
+  // through, and a bad date the request does carry is still refused.
+  it('takes a date-less change to a row whose stored dates the check would refuse', async () => {
+    authorizeMock.mockResolvedValueOnce(mockSecretary)
+    getEventMock.mockResolvedValueOnce({
+      ...mockEvent,
+      endDate: '2025-06-02T00:00:00',
+      startDate: '2025-06-01T00:00:00',
+    })
+
+    const res = await putEventLambda(
+      constructAPIGwEvent<Partial<JsonDogEvent>>({ id: 'existing', name: 'Uusi nimi' }, { method: 'PATCH' })
+    )
+
+    expect(res.statusCode).toEqual(200)
+  })
+
+  it('refuses a bad date the update carries', async () => {
+    authorizeMock.mockResolvedValueOnce(mockSecretary)
+    getEventMock.mockResolvedValueOnce({
+      ...mockEvent,
+      endDate: '2025-06-02T00:00:00',
+      startDate: '2025-06-01T00:00:00',
+    })
+
+    const res = await putEventLambda(
+      constructAPIGwEvent<Partial<JsonDogEvent>>({ id: 'existing', startDate: '12' }, { method: 'PATCH' })
+    )
+
+    expect(res.statusCode).toEqual(400)
+    expect(JSON.parse(res.body)).toEqual({ message: 'Bad request: startDate must be a valid date' })
+    expect(patchEventMock).not.toHaveBeenCalled()
+  })
+
   it.each([
     [{ endDate: '2025-06-02', state: 'draft' as const }, 'startDate'],
     [{ endDate: '', startDate: '2025-06-01', state: 'draft' as const }, 'endDate'],

@@ -14,7 +14,7 @@ import type {
   YearlyTotalStat,
 } from '../../types/Stats'
 import crypto from 'node:crypto'
-import { getEventSeason } from '../../lib/event'
+import { storedYear } from '../../lib/event'
 import { isMember, isStarter } from '../../lib/registration'
 import { CONFIG } from '../config'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
@@ -49,10 +49,9 @@ export type RegistrationStatsInput = Pick<
   owners?: Pick<NonNullable<JsonRegistration['owners']>[number], 'membership'>[]
 }
 
-/** Returns the calendar year of an instant in the event timezone. */
+/** The Finnish year of an event's stored start date, or undefined for one without a calendar day. */
 export function eventStatsYear({ startDate }: { startDate: string }): number | undefined {
-  const season = getEventSeason(startDate)
-  return /^\d{4}$/.test(season) ? Number(season) : undefined
+  return storedYear(startDate)
 }
 
 /**

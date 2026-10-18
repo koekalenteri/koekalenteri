@@ -85,6 +85,12 @@ export const isEventDateString = (value: unknown): value is string =>
   (isInstantString(value) || isDayKey(value)) && hasCalendarDay(new Date(value), TIME_ZONE)
 
 /** The Finnish month of a stored date as `yyyy-MM`, the key the statistics bucket by; undefined without a day. */
+/** The Finnish year of a stored date; undefined without a calendar day. */
+export const storedYear = (date: DayInput): number | undefined => {
+  const day = storedDayKey(date)
+  return day ? dayParts(day).year : undefined
+}
+
 export const storedMonthKey = (date: DayInput): string | undefined => {
   const day = storedDayKey(date)
   return day ? monthKeyOf(day) : undefined
@@ -1265,10 +1271,7 @@ export const isEventDeletable = ({ state }: Partial<Pick<JsonDogEvent, 'state'>>
  * The year of the start date's Finnish day, or '' for no date or one without a calendar day (not an
  * instant, or the Kennel Club's year 1): stored rows are read through this, so it never throws.
  */
-export const getEventSeason = (startDate?: Date | string): string => {
-  const day = storedDayKey(startDate)
-  return day ? String(dayParts(day).year) : ''
-}
+export const getEventSeason = (startDate?: Date | string): string => String(storedYear(startDate) ?? '')
 
 export const isDetaultEntryStartDate = (date: Date | undefined, eventStartDate: Date) =>
   !date || sameDay(defaultEntryStartDate(eventStartDate), date, TIME_ZONE)

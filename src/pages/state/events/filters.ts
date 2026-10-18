@@ -3,7 +3,7 @@ import type { PublicDogEvent } from '@/types'
 import type { FilterProps } from './types'
 import { formatDate, formatDateSpan } from '@/i18n/dates'
 import { dayEnd, dayOf, dayStart, isDayKey, TIME_ZONE } from '@/lib/day'
-import { hasAvailableResults, isEntryClosing, isEntryOpen, isEntryUpcoming } from '@/lib/event'
+import { hasAvailableResults, isEntryClosing, isEntryOpen, isEntryUpcoming, storedDayKey } from '@/lib/event'
 import { isRegistrationClass } from '@/lib/registration'
 
 /** The Finnish midnight of a day key from the URL; anything else, including nothing, is no date. */
@@ -14,11 +14,14 @@ export function withinDateFilters(
   event: Partial<Pick<PublicDogEvent, 'startDate' | 'endDate'>>,
   { start, end }: Pick<FilterProps, 'start' | 'end'>
 ) {
-  if (start && (!event.endDate || dayOf(event.endDate, TIME_ZONE) < dayOf(start, TIME_ZONE))) {
-    return false
+  // A stored date without a calendar day is not in any range: the list skips the event rather than fail.
+  if (start) {
+    const endDay = storedDayKey(event.endDate)
+    if (!endDay || endDay < dayOf(start, TIME_ZONE)) return false
   }
-  if (end && (!event.startDate || dayOf(event.startDate, TIME_ZONE) > dayOf(end, TIME_ZONE))) {
-    return false
+  if (end) {
+    const startDay = storedDayKey(event.startDate)
+    if (!startDay || startDay > dayOf(end, TIME_ZONE)) return false
   }
   return true
 }

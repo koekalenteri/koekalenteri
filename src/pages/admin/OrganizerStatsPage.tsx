@@ -5,7 +5,7 @@ import { useAtom, useAtomValue } from 'jotai'
 import { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { currentYear, TIME_ZONE } from '../../lib/day'
-import { getEventSeason } from '../../lib/event'
+import { storedYear } from '../../lib/event'
 import AutocompleteSingle from '../components/AutocompleteSingle'
 import CancellationRateChart from '../components/stats/CancellationRateChart'
 import CapacityUtilizationChart, { ALL_CLASSES_ID } from '../components/stats/CapacityUtilizationChart'
@@ -51,8 +51,8 @@ export default function OrganizerStatsPage() {
     // A row without a calendar day (no date, or the year 1) has no year to offer.
     const found = new Set(
       allOrganizerStats.flatMap((item) => {
-        const season = getEventSeason(item.date)
-        return season ? [Number(season)] : []
+        const itemYear = storedYear(item.date)
+        return itemYear === undefined ? [] : [itemYear]
       })
     )
     found.add(currentYear(TIME_ZONE))
@@ -64,7 +64,7 @@ export default function OrganizerStatsPage() {
     () =>
       allOrganizerStats.filter((item) => {
         if (organizerId && item.organizerId !== organizerId) return false
-        return getEventSeason(item.date) === String(year)
+        return storedYear(item.date) === year
       }),
     [allOrganizerStats, organizerId, year]
   )

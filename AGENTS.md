@@ -91,6 +91,9 @@ Read `LLM_CONTEXT.md` for the project overview and architecture notes.
   `noRestrictedImports`.
 - `getFullYear`, `getMonth`, `getDate` and `getDay` on an instant are calendar calls too, in the
   machine's zone, and Biome has no rule for them: read the day with `dayOf`, `yearOf` and `dayParts`.
+  The deliberate exceptions: a dog's official result and birth dates are host-local stamps until
+  KOE-1547/1548 and are read with the local getters (the official-result year in `qualification.ts`,
+  DateRange's picker), while a hand-entered result, sent as an instant, is read in Finnish time.
 - Tests run in the machine's zone (Helsinki on a laptop, UTC in CI). A fixture is a Finnish day:
   `startOfFinnishDay('2026-10-17')` from `src/test-utils/finnishDays.ts`, never `new Date(2026, 9, 17)`.
   A test of zone handling runs under `describeInTimeZone` (`src/test-utils/timeZone.ts`).
