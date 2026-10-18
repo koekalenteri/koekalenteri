@@ -10,9 +10,9 @@ vi.doMock('../lib/ws/actions', () => ({
 
 const mockLambda = vi.fn((_name, fn) => answerRejections(fn, mockResponse))
 const mockResponse = vi.fn()
-const mockReadAll = vi.fn()
-const mockBatchWrite = vi.fn()
-const mockUpdate = vi.fn()
+const mockReadOrganizers = vi.fn()
+const mockAddOrganizers = vi.fn()
+const mockRenameOrganizer = vi.fn()
 const mockAuthorize = vi.fn()
 const mockNanoid = vi.fn()
 const mockGetKLAPIConfig = vi.fn()
@@ -34,14 +34,10 @@ vi.doMock('../lib/lambda', async () => ({
   response: mockResponse,
 }))
 
-vi.doMock('../utils/CustomDynamoClient', () => ({
-  default: vi.fn(function MockCustomDynamoClient() {
-    return {
-      batchWrite: mockBatchWrite,
-      readAll: mockReadAll,
-      update: mockUpdate,
-    }
-  }),
+vi.doMock('../lib/repositories/organizerRepository', () => ({
+  addOrganizers: mockAddOrganizers,
+  readOrganizers: mockReadOrganizers,
+  renameOrganizer: mockRenameOrganizer,
 }))
 
 vi.doMock('../lib/auth', () => ({
@@ -95,32 +91,23 @@ describe('getOrganizersLambda', () => {
       { id: 'org2', kcId: '456', name: 'Organizer 2' },
     ]
 
-    mockReadAll.mockResolvedValueOnce(organizers)
+    mockReadOrganizers.mockResolvedValueOnce(organizers)
 
     await getOrganizersLambda(event)
 
-    expect(mockReadAll).toHaveBeenCalled()
+    expect(mockReadOrganizers).toHaveBeenCalled()
     expect(mockResponse).toHaveBeenCalledWith(200, organizers, event)
     expect(mockAuthorize).not.toHaveBeenCalled()
     expect(mockLueYhdistykset).not.toHaveBeenCalled()
   })
 
   it('returns empty array if no organizers found', async () => {
-    mockReadAll.mockResolvedValueOnce([])
+    mockReadOrganizers.mockResolvedValueOnce([])
 
     await getOrganizersLambda(event)
 
-    expect(mockReadAll).toHaveBeenCalled()
+    expect(mockReadOrganizers).toHaveBeenCalled()
     expect(mockResponse).toHaveBeenCalledWith(200, [], event)
-  })
-
-  it('returns undefined if readAll returns undefined', async () => {
-    mockReadAll.mockResolvedValueOnce(undefined)
-
-    await getOrganizersLambda(event)
-
-    expect(mockReadAll).toHaveBeenCalled()
-    expect(mockResponse).toHaveBeenCalledWith(200, undefined, event)
   })
 
   it('calls refreshOrganizersLambda when refresh parameter is present', async () => {
@@ -144,17 +131,17 @@ describe('getOrganizersLambda', () => {
       ],
       status: 200,
     })
-    mockReadAll.mockResolvedValueOnce(organizers) // First call for existing organizers
+    mockReadOrganizers.mockResolvedValueOnce(organizers) // First call for existing organizers
     mockNanoid.mockReturnValueOnce('org3')
-    mockBatchWrite.mockResolvedValueOnce(undefined)
-    mockReadAll.mockResolvedValueOnce([...organizers, { id: 'org3', kcId: '789', name: 'Organizer 3' }]) // Second call after refresh
+    mockAddOrganizers.mockResolvedValueOnce(undefined)
+    mockReadOrganizers.mockResolvedValueOnce([...organizers, { id: 'org3', kcId: '789', name: 'Organizer 3' }]) // Second call after refresh
 
     await getOrganizersLambda(eventWithRefresh)
 
     expect(mockAuthorize).toHaveBeenCalledWith(eventWithRefresh)
     expect(mockLueYhdistykset).toHaveBeenCalled()
-    expect(mockReadAll).toHaveBeenCalledTimes(2)
-    expect(mockBatchWrite).toHaveBeenCalledWith([{ id: 'org3', kcId: '789', name: 'Organizer 3' }])
+    expect(mockReadOrganizers).toHaveBeenCalledTimes(2)
+    expect(mockAddOrganizers).toHaveBeenCalledWith([{ id: 'org3', kcId: '789', name: 'Organizer 3' }])
     expect(mockResponse).toHaveBeenCalledWith(
       200,
       [...organizers, { id: 'org3', kcId: '789', name: 'Organizer 3' }],
@@ -177,7 +164,7 @@ describe('getOrganizersLambda', () => {
     expect(mockAuthorize).toHaveBeenCalledWith(eventWithRefresh)
     expect(mockResponse).toHaveBeenCalledWith(403, 'Forbidden', eventWithRefresh)
     expect(mockLueYhdistykset).not.toHaveBeenCalled()
-    expect(mockReadAll).not.toHaveBeenCalled()
+    expect(mockReadOrganizers).not.toHaveBeenCalled()
   })
 
   it('updates organizer name if changed in KLAPI', async () => {
@@ -194,16 +181,16 @@ describe('getOrganizersLambda', () => {
       json: [{ jäsennumero: '123', strYhdistys: 'New Name' }],
       status: 200,
     })
-    mockReadAll.mockResolvedValueOnce(organizers) // First call for existing organizers
-    mockUpdate.mockResolvedValueOnce(undefined)
-    mockReadAll.mockResolvedValueOnce([{ id: 'org1', kcId: '123', name: 'New Name' }]) // Second call after refresh
+    mockReadOrganizers.mockResolvedValueOnce(organizers) // First call for existing organizers
+    mockRenameOrganizer.mockResolvedValueOnce(undefined)
+    mockReadOrganizers.mockResolvedValueOnce([{ id: 'org1', kcId: '123', name: 'New Name' }]) // Second call after refresh
 
     await getOrganizersLambda(eventWithRefresh)
 
     expect(mockAuthorize).toHaveBeenCalledWith(eventWithRefresh)
     expect(mockLueYhdistykset).toHaveBeenCalled()
-    expect(mockReadAll).toHaveBeenCalledTimes(2)
-    expect(mockUpdate).toHaveBeenCalledWith({ id: 'org1' }, { set: { name: 'New Name' } })
+    expect(mockReadOrganizers).toHaveBeenCalledTimes(2)
+    expect(mockRenameOrganizer).toHaveBeenCalledWith('org1', 'New Name')
     expect(mockResponse).toHaveBeenCalledWith(200, [{ id: 'org1', kcId: '123', name: 'New Name' }], eventWithRefresh)
 
     // Verify the name change was logged
@@ -215,5 +202,43 @@ describe('getOrganizersLambda', () => {
         previous: organizers[0].name,
       })
     )
+  })
+
+  it('renames every organizer the Kennel Club reports under a new name and adds the new ones', async () => {
+    const eventWithRefresh = {
+      ...event,
+      queryStringParameters: { refresh: '' },
+    }
+    const organizers = [
+      { id: 'org1', kcId: '123', name: 'Old 1' },
+      { id: 'org2', kcId: '456', name: 'Same' },
+      { id: 'org3', kcId: '789', name: 'Old 3' },
+    ]
+
+    mockAuthorize.mockResolvedValueOnce({ admin: true, id: 'admin1' })
+    mockLueYhdistykset.mockResolvedValueOnce({
+      json: [
+        { jäsennumero: '123', strYhdistys: 'New 1' },
+        { jäsennumero: '456', strYhdistys: 'Same' },
+        { jäsennumero: '789', strYhdistys: 'New 3' },
+        { jäsennumero: '999', strYhdistys: 'Added' },
+      ],
+      status: 200,
+    })
+    mockReadOrganizers.mockResolvedValueOnce(organizers)
+    mockNanoid.mockReturnValueOnce('org4')
+    mockReadOrganizers.mockResolvedValueOnce([])
+
+    await getOrganizersLambda(eventWithRefresh)
+
+    expect(mockRenameOrganizer).toHaveBeenCalledTimes(2)
+    expect(mockRenameOrganizer).toHaveBeenCalledWith('org1', 'New 1')
+    expect(mockRenameOrganizer).toHaveBeenCalledWith('org3', 'New 3')
+    expect(mockAddOrganizers).toHaveBeenCalledWith([{ id: 'org4', kcId: '999', name: 'Added' }])
+    const lines = loggedLines(consoleLogSpy).filter((line) => line.message === 'organizer name changed')
+    expect(lines).toEqual([
+      expect.objectContaining({ kcId: '123', name: 'New 1', previous: 'Old 1' }),
+      expect.objectContaining({ kcId: '789', name: 'New 3', previous: 'Old 3' }),
+    ])
   })
 })

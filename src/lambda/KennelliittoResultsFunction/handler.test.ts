@@ -11,6 +11,7 @@ const mockHandOver = vi.fn()
 const mockPublishRegistrationPatches = vi.fn()
 const mockPublishEventChange = vi.fn()
 const mockRead = vi.fn()
+const mockReadOrganizer = vi.fn()
 
 vi.doMock('../lib/lambda', async () => ({
   ...(await vi.importActual<typeof import('../lib/lambda')>('../lib/lambda')),
@@ -29,6 +30,7 @@ vi.doMock('../lib/ws/actions', () => ({
   publishEventChange: mockPublishEventChange,
   publishRegistrationPatches: mockPublishRegistrationPatches,
 }))
+vi.doMock('../lib/repositories/organizerRepository', () => ({ readOrganizer: mockReadOrganizer }))
 vi.doMock('../utils/CustomDynamoClient', () => ({
   default: vi.fn(function MockCustomDynamoClient() {
     return { read: mockRead }
@@ -51,9 +53,8 @@ describe('kennelliittoResultsLambda', () => {
     mockGetParam.mockReturnValue('event-1')
     mockAuthorizeWithMemberOf.mockResolvedValue({ memberOf: ['org-1'], user: { id: 'u1', name: 'Sihteeri' } })
     mockGetEvent.mockResolvedValue(confirmedEvent)
-    mockRead.mockImplementation(async (key: Record<string, unknown>) =>
-      'eventType' in key ? { eventType: 'NOME-A', official: true } : { id: 'org-1', kcId: 400294 }
-    )
+    mockRead.mockResolvedValue({ eventType: 'NOME-A', official: true })
+    mockReadOrganizer.mockResolvedValue({ id: 'org-1', kcId: 400294 })
     mockPreview.mockResolvedValue({ blockers: [], dogs: [] })
     mockSend.mockResolvedValue({ blockers: [], notAttempted: [], patches: [], reports: [] })
     mockHandOver.mockResolvedValue({ blockers: [], handedOver: true })
@@ -90,7 +91,8 @@ describe('kennelliittoResultsLambda', () => {
       undefined
     )
     // A championship is looked up as its plain format.
-    expect(mockRead).toHaveBeenCalledWith({ eventType: 'NOME-A' }, expect.anything())
+    expect(mockRead).toHaveBeenCalledWith({ eventType: 'NOME-A' })
+    expect(mockReadOrganizer).toHaveBeenCalledWith('org-1')
   })
 
   it('refuses an action it does not know', async () => {

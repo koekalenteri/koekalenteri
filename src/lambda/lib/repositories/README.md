@@ -44,4 +44,5 @@ The count can only go down; moving a table here lowers it.
 | emailSuppression | `emailSuppressionRepository.ts` | `SesNotificationFunction`, `lib/emailSuppression` |
 | emailTemplate | `emailTemplateRepository.ts` | `GetEmailTemplatesFunction`, `PutEmailTemplateFunction` |
 | event | `eventRepository.ts` | `lib/event.ts`, `lib/startNumbers.ts`, `lib/stationTurns.ts`, `lib/statsRebuild.ts`, `lib/user.ts`, `GetEventsFunction`, `GetAdminEventsFunction`, `PutInvitationAttachmentFunction`, `RunMigrationFunction`, `SendRegistrationMessagesFunction` |
+| organizer | `organizerRepository.ts` | `GetOrganizersFunction`, `PutOrganizerFunction`, `SearchEventKcIdChoicesFunction`, `ExportEventToStageFunction`, `ImportCopiedEventFunction`, `KennelliittoResultsFunction`, `PaymentCreateFunction`, `RefundCreateFunction`, `RepairDataVersionsFunction`, `lib/user.ts` |
 | wsConnections | `../ws/connectionRepository.ts` | the WebSocket handlers and `lib/ws` |

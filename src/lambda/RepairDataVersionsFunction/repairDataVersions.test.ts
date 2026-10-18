@@ -3,6 +3,7 @@ import { loggedLines } from '../test-utils/logs'
 
 const mockReadAll = vi.fn()
 const mockRead = vi.fn()
+const mockReadOrganizers = vi.fn()
 const mockReadStored = vi.fn()
 const mockWriteFingerprint = vi.fn()
 
@@ -11,6 +12,8 @@ vi.doMock('../utils/CustomDynamoClient', () => ({
     return { read: mockRead, readAll: mockReadAll }
   }),
 }))
+
+vi.doMock('../lib/repositories/organizerRepository', () => ({ readOrganizers: mockReadOrganizers }))
 
 vi.doMock('../lib/dataVersions', () => ({
   // Vitest replaces the whole module, so the scope constant has to come along.
@@ -32,10 +35,10 @@ const organizers = [
 ]
 
 const setup = () => {
-  // emailTemplates, eventTypes, judges, officials, then organizers and users
+  // emailTemplates, eventTypes, judges, officials, then users; the organizers come from their repository
   mockReadAll.mockResolvedValueOnce([]).mockResolvedValueOnce([]).mockResolvedValueOnce([]).mockResolvedValueOnce([])
-  mockReadAll.mockResolvedValueOnce(organizers)
   mockReadAll.mockResolvedValueOnce(users)
+  mockReadOrganizers.mockResolvedValueOnce(organizers)
   mockRead.mockResolvedValueOnce({ count: 309, modifiedAt: '2026-01-01T00:00:00.000Z' })
 }
 

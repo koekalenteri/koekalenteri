@@ -3,7 +3,6 @@ import type {
   JsonPaymentTransaction,
   JsonRefundTransaction,
   JsonUser,
-  Organizer,
   RefundItem,
   RefundPaymentResponse,
   TransactionItem,
@@ -21,10 +20,11 @@ import { httpError, LambdaError, lambda, response } from '../lib/lambda'
 import { claimTransactionCreation, refundPaytrailErrorAudit, releaseTransactionCreation } from '../lib/payment'
 import { PaytrailError, paytrail } from '../lib/paytrail'
 import { getRegistration } from '../lib/registration'
+import { readOrganizer } from '../lib/repositories/organizerRepository'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 import { getApiHost } from '../utils/proxyEvent'
 
-const { organizerTable, registrationTable, transactionTable } = CONFIG
+const { registrationTable, transactionTable } = CONFIG
 const dynamoDB = new CustomDynamoClient(transactionTable)
 const STALE_REFUND_CREATION_AGE_MS = 5 * 60 * 1000
 
@@ -41,7 +41,7 @@ const getData = async (transactionId: string, user: JsonUser, memberOf: string[]
 
   const registration = await getRegistration(eventId, registrationId)
 
-  const organizer = await dynamoDB.read<Organizer>({ id: jsonEvent?.organizer.id }, organizerTable)
+  const organizer = await readOrganizer(jsonEvent.organizer.id)
   if (!organizer?.paytrailMerchantId) {
     throw new LambdaError(412, `Organizer ${jsonEvent.organizer.id} does not have MerchantId!`)
   }

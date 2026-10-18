@@ -14,8 +14,7 @@ vi.doMock('../lib/ws/actions', () => ({
 const mockLambda = vi.fn((_name, fn) => answerRejections(fn, mockResponse))
 const mockResponse = vi.fn()
 const mockAuthorize = vi.fn()
-const mockRead = vi.fn()
-const mockWrite = vi.fn()
+const mockSaveOrganizer = vi.fn()
 
 vi.doMock('../lib/lambda', async () => ({
   ...(await vi.importActual<typeof import('../lib/lambda')>('../lib/lambda')),
@@ -33,52 +32,34 @@ vi.doMock('../lib/auth', () => ({
   },
 }))
 
-vi.doMock('../utils/CustomDynamoClient', () => ({
-  default: vi.fn(function MockCustomDynamoClient() {
-    return {
-      read: mockRead,
-      write: mockWrite,
-    }
-  }),
+vi.doMock('../lib/repositories/organizerRepository', () => ({
+  saveOrganizer: mockSaveOrganizer,
 }))
 
 const { default: putOrganizerLambda } = await import('./handler')
 
 describe('putOrganizerLambda', () => {
-  const event = constructPartialAPIGwEvent({
-    body: JSON.stringify({
-      email: 'test@example.com',
-      id: 'org123',
-      name: 'Test Organizer',
-      paytrailMerchantId: 'merchant123',
-    }),
-    headers: {},
-  })
+  const changes = {
+    email: 'test@example.com',
+    id: 'org123',
+    name: 'Test Organizer',
+    paytrailMerchantId: 'merchant123',
+  }
+  const stored = { ...changes, address: '123 Main St' }
+  const event = constructPartialAPIGwEvent({ body: JSON.stringify(changes), headers: {} })
 
   beforeEach(() => {
     vi.clearAllMocks()
 
-    // Default mock implementations
     mockAuthorize.mockResolvedValue({
       admin: true,
       id: 'user123',
       name: 'Test User',
     })
 
-    setEventBody(event, {
-      email: 'test@example.com',
-      id: 'org123',
-      name: 'Test Organizer',
-      paytrailMerchantId: 'merchant123',
-    })
+    setEventBody(event, changes)
 
-    mockRead.mockResolvedValue({
-      email: 'old@example.com',
-      id: 'org123',
-      name: 'Old Organizer Name',
-    })
-
-    mockWrite.mockResolvedValue({})
+    mockSaveOrganizer.mockResolvedValue(stored)
   })
 
   it('returns 403 if authenticated user is not an admin', async () => {
@@ -92,7 +73,8 @@ describe('putOrganizerLambda', () => {
 
     expect(mockAuthorize).toHaveBeenCalledWith(event)
     expect(mockResponse).toHaveBeenCalledWith(403, 'Forbidden', event)
-    expect(mockWrite).not.toHaveBeenCalled()
+    expect(mockSaveOrganizer).not.toHaveBeenCalled()
+    expect(mockPublishAdminDataInvalidation).not.toHaveBeenCalled()
   })
 
   it('returns 400 if organizer id is missing', async () => {
@@ -105,106 +87,15 @@ describe('putOrganizerLambda', () => {
 
     expect(mockAuthorize).toHaveBeenCalledWith(event)
     expect(mockResponse).toHaveBeenCalledWith(400, 'no data', event)
-    expect(mockRead).not.toHaveBeenCalled()
-    expect(mockWrite).not.toHaveBeenCalled()
+    expect(mockSaveOrganizer).not.toHaveBeenCalled()
+    expect(mockPublishAdminDataInvalidation).not.toHaveBeenCalled()
   })
 
-  it('creates a new organizer if it does not exist', async () => {
-    mockRead.mockResolvedValueOnce(null)
-
+  it('saves the changes, tells the admin pages and answers with the row as stored', async () => {
     await putOrganizerLambda(event)
 
-    // Verify organizer was read from database
-    expect(mockRead).toHaveBeenCalledWith({ id: 'org123' })
-
-    // Verify organizer was written to database
-    expect(mockWrite).toHaveBeenCalledWith({
-      email: 'test@example.com',
-      id: 'org123',
-      name: 'Test Organizer',
-      paytrailMerchantId: 'merchant123',
-    })
-
-    // Verify response
-    expect(mockResponse).toHaveBeenCalledWith(
-      200,
-      {
-        email: 'test@example.com',
-        id: 'org123',
-        name: 'Test Organizer',
-        paytrailMerchantId: 'merchant123',
-      },
-      event
-    )
-  })
-
-  it('updates an existing organizer', async () => {
-    await putOrganizerLambda(event)
-
-    // Verify organizer was read from database
-    expect(mockRead).toHaveBeenCalledWith({ id: 'org123' })
-
-    // Verify organizer was written to database with merged data
-    expect(mockWrite).toHaveBeenCalledWith({
-      email: 'test@example.com',
-      id: 'org123',
-      name: 'Test Organizer',
-      paytrailMerchantId: 'merchant123',
-    })
-
-    // Verify response
-    expect(mockResponse).toHaveBeenCalledWith(
-      200,
-      {
-        email: 'test@example.com',
-        id: 'org123',
-        name: 'Test Organizer',
-        paytrailMerchantId: 'merchant123',
-      },
-      event
-    )
-  })
-
-  it('preserves existing fields when updating', async () => {
-    mockRead.mockResolvedValueOnce({
-      address: '123 Main St', // Additional field
-      email: 'old@example.com',
-      id: 'org123',
-      name: 'Old Organizer Name',
-      phone: '1234567890', // Additional field
-    })
-
-    setEventBody(event, {
-      id: 'org123',
-      name: 'Test Organizer',
-      // email not provided in update
-    })
-
-    await putOrganizerLambda(event)
-
-    // Verify organizer was read from database
-    expect(mockRead).toHaveBeenCalledWith({ id: 'org123' })
-
-    // Verify organizer was written to database with merged data
-    expect(mockWrite).toHaveBeenCalledWith({
-      address: '123 Main St', // Preserved from existing
-      email: 'old@example.com', // Preserved from existing
-      id: 'org123',
-      name: 'Test Organizer',
-      phone: '1234567890', // Preserved from existing
-    })
-
-    // Verify response
-    expect(mockResponse).toHaveBeenCalledWith(
-      200,
-      {
-        address: '123 Main St',
-        email: 'old@example.com',
-        id: 'org123',
-        name: 'Test Organizer',
-        phone: '1234567890',
-      },
-      event
-    )
+    expect(mockSaveOrganizer).toHaveBeenCalledWith(changes)
+    expect(mockPublishAdminDataInvalidation).toHaveBeenCalledWith(['organizers'])
+    expect(mockResponse).toHaveBeenCalledWith(200, stored, event)
   })
 })
