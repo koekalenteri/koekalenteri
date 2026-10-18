@@ -31,6 +31,10 @@ vi.mock(import('../../api/user'), async (importOriginal) => ({
   }),
 }))
 
+// The state column reads each trial against today, so the file names its own: after the entry closed
+// on 27.9 and before the first trial starts on 10.10, every row reads "Ilmoittautuminen on päättynyt".
+freezeClockAt('2026-10-01')
+
 // A screen each, not the page's height: the grid sizes its page to the room it gets.
 const PHONE = { height: 844, width: 390 }
 const DESKTOP = { height: 800, width: 1200 }
