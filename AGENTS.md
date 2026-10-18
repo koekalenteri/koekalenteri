@@ -233,6 +233,21 @@ Read `LLM_CONTEXT.md` for the project overview and architecture notes.
   it alone -- the payment and refund functions keep their logs for 180 days that way.
 - `src/lambda/template.test.ts` builds the template and compares its `CodeUri` values with the
   directories on disk, so a lambda in one and not the other fails a test instead of a deploy.
+- The function block's `Policies` must grant every table the handler's code reaches, and nothing
+  more. The same test follows the calls from each handler's default export through `src/lambda/lib`
+  (`src/lambda/test-utils/lambdaTableUse.ts`) and reads the block's policies
+  (`src/lambda/test-utils/templateGrants.ts`, KOE-1492). It fails on a table the code uses without a
+  policy for that action, naming the function, the action, the table (or the index, for a query on
+  one) and the call chain, like this one from PutEvent with its registration read policy taken out:
+  `PutEventFunction Query on EventRegistrationTable without a policy: src/lambda/lib/registration.ts:617
+  (putEventLambda > findKcGuidLock > getRegistrationsByEventId)`. It also fails on an excess grant,
+  a read or write class on a table the code never touches (`PutJudgeFunction may read JudgeTable but
+  never does`): fix the template, not the test. Note that SAM's `DynamoDBWritePolicy` has no
+  DeleteItem and no ConditionCheckItem; a delete or a transaction condition needs
+  `DynamoDBCrudPolicy`, and the excess test accepts the crud grant's read class on such a table
+  since no write template can carry it. A function that calls `authorize()` carries `- !Ref AuthorizePolicy`
+  (`template/policies/authorize-policy.yaml`) for the user, user link and data version tables; a
+  broadcast needs `- !Ref WebSocketPolicy`.
 
 ## Lambda Logging
 

@@ -4,16 +4,11 @@
       CodeUri: lambda/GetRegistrationAuditTrailFunction
       Handler: handler.default
       Policies:
-        - DynamoDBCrudPolicy:
-            TableName: !Ref EventRegistrationTable
-        - DynamoDBCrudPolicy:
+        - DynamoDBReadPolicy:
             TableName: !Ref EventTable
         - DynamoDBReadPolicy:
-            TableName: !Ref UserTable
-        - DynamoDBReadPolicy:
-            TableName: !Ref UserLinkTable
-        - DynamoDBReadPolicy:
             TableName: !Ref AuditTable
+        - !Ref AuthorizePolicy
         - CloudWatchPutMetricPolicy: {}
       Events:
         GetRegistrationAuditTrail:

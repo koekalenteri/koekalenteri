@@ -6,15 +6,10 @@
       Policies:
         - DynamoDBCrudPolicy:
             TableName: !Ref EmailTemplatesTable
-        - DynamoDBReadPolicy:
-            TableName: !Ref UserTable
-        - DynamoDBReadPolicy:
-            TableName: !Ref UserLinkTable
-        - DynamoDBCrudPolicy:
-            TableName: !Ref AuditTable
         - CloudWatchPutMetricPolicy: {}
-        - DynamoDBCrudPolicy:
+        - DynamoDBWritePolicy:
             TableName: !Ref DataVersionTable
+        - !Ref AuthorizePolicy
         - !Ref WebSocketPolicy
         - Statement:
             - Sid: SESTemplatesPolicy

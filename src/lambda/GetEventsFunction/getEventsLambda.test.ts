@@ -157,6 +157,10 @@ describe('getEventsLambda', () => {
   })
 
   it('filters events by start date (excludes those ending before start)', async () => {
+    // An open-ended range in the current season also reads the next one, so the bounds below hold
+    // only while "now" is in 2026.
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date('2026-05-12T00:00:00.000Z'))
     const allEvents = [
       // ends before the range start -> excluded
       { endDate: '2026-01-01T23:59:59.000Z', id: 'event1', startDate: '2026-01-01T00:00:00.000Z', state: 'confirmed' },
@@ -203,6 +207,8 @@ describe('getEventsLambda', () => {
       },
     })
     expect(mockResponse).toHaveBeenCalledWith(200, [allEvents[1], allEvents[2]], rangeEvent)
+
+    vi.useRealTimers()
   })
 
   it('accepts ISO string start date query params', async () => {

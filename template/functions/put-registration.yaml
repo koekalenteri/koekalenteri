@@ -16,15 +16,17 @@
             TableName: !Ref DogTable
         - DynamoDBCrudPolicy:
             TableName: !Ref EventTable
-        - DynamoDBCrudPolicy:
+        - DynamoDBWritePolicy:
             TableName: !Ref AuditTable
-        - DynamoDBCrudPolicy:
+        - DynamoDBWritePolicy:
             TableName: !Ref EventStatsTable
         # The logged-in route resolves the calling user (KOE-1418).
         - DynamoDBReadPolicy:
             TableName: !Ref UserTable
+        # The participant's answer carries the payment picture, built from the open payments (KOE-1530).
         - DynamoDBReadPolicy:
-            TableName: !Ref UserLinkTable
+            TableName: !Ref TransactionTable
+        - !Ref AuthorizePolicy
         - CloudWatchPutMetricPolicy: {}
         - Statement:
             - Sid: SESSendEmailPolicy

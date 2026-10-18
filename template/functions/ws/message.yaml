@@ -13,10 +13,10 @@
             TableName: !Ref EventTable
         - DynamoDBReadPolicy:
             TableName: !Ref EventRegistrationTable
-        - DynamoDBCrudPolicy:
-            TableName: !Ref UserLinkTable
-        - DynamoDBCrudPolicy:
-            TableName: !Ref UserTable
+        # The subscribe answer carries the payment picture, built from the open payments (KOE-1530).
+        - DynamoDBReadPolicy:
+            TableName: !Ref TransactionTable
+        - !Ref AuthorizePolicy
         - !Ref WebSocketPolicy
 
   MessageIntegration:

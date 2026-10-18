@@ -18,15 +18,15 @@
             TableName: !Ref TransactionTable
         - DynamoDBCrudPolicy:
             TableName: !Ref EventRegistrationTable
-        - DynamoDBCrudPolicy:
-            TableName: !Ref EventTable
         - DynamoDBReadPolicy:
-            TableName: !Ref OrganizerTable
+            TableName: !Ref EventTable
         # sendTemplatedMail looks up staff outside prod (KOE-1469)
         - DynamoDBReadPolicy:
             TableName: !Ref UserTable
-        - DynamoDBCrudPolicy:
+        - DynamoDBWritePolicy:
             TableName: !Ref AuditTable
+        # Every audit row is streamed to the event's viewers, and the refunded registration is broadcast (KOE-1340).
+        - !Ref WebSocketPolicy
         - CloudWatchPutMetricPolicy: {}
         - Statement:
             - Sid: SESSendEmailPolicy

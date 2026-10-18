@@ -6,14 +6,16 @@
       Policies:
         - DynamoDBCrudPolicy:
             TableName: !Ref EventRegistrationTable
-        - DynamoDBCrudPolicy:
+        - DynamoDBReadPolicy:
             TableName: !Ref EventTable
-        - DynamoDBReadPolicy:
-            TableName: !Ref UserTable
-        - DynamoDBReadPolicy:
-            TableName: !Ref UserLinkTable
         - DynamoDBCrudPolicy:
             TableName: !Ref TransactionTable
+        # A refresh that finds a payment failed settles it, which audits the registration (KOE-1529).
+        - DynamoDBWritePolicy:
+            TableName: !Ref AuditTable
+        # The settled failure and its audit row are broadcast to the admins and the entrant (KOE-1529).
+        - !Ref WebSocketPolicy
+        - !Ref AuthorizePolicy
         - CloudWatchPutMetricPolicy: {}
         - Statement:
             - Sid: SSMGetParameterPolicy
