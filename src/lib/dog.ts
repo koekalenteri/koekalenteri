@@ -1,7 +1,7 @@
 import type { TFunction } from 'i18next'
-import type { BreedCode, DeepPartial, Dog, DogGender } from '../types'
+import type { BreedCode, DayKey, DeepPartial, Dog, DogGender } from '../types'
 import { differenceInMinutes } from 'date-fns/differenceInMinutes'
-import { hasCalendarDay, TIME_ZONE } from './day'
+import { dayOf, hasCalendarDay, isDayKey, TIME_ZONE } from './day'
 
 /**
  * Determines if a dog's data should be allowed to be refreshed
@@ -31,6 +31,28 @@ export function isValidDob(dob?: Date): boolean {
   // The KL empty value (0001-01-01) has no calendar day, in any zone the browser is in.
   return hasCalendarDay(dob, TIME_ZONE)
 }
+
+/**
+ * The day an official result was written on. Kennelliitto's `aika` has no zone, and both the browser's
+ * typed boundary and the lambda's `new Date` read it as local time, so the local getters give back the
+ * day written on it in any host zone; read in Finnish time, it would move a day back east of Finland.
+ * Undefined for a date that has no day: an invalid one, or the Kennel Club's empty 0001-01-01. The
+ * results move to day keys in KOE-1547 and KOE-1548, and this reader with them.
+ */
+export const officialResultDay = (date: Date): DayKey | undefined => {
+  if (Number.isNaN(date.getTime())) return undefined
+  const pad = (part: number) => String(part).padStart(2, '0')
+  const key = `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`
+  return isDayKey(key) ? key : undefined
+}
+
+/**
+ * The day a hand-entered result counts for: its Finnish day. The form sends the picked date as an
+ * instant (`toISOString`), so the browser and the lambda agree only when both read it in one zone.
+ * Undefined for a date that has no day.
+ */
+export const manualResultDay = (date: Date): DayKey | undefined =>
+  hasCalendarDay(date, TIME_ZONE) ? dayOf(date, TIME_ZONE) : undefined
 
 /** How many leading characters of a breed name to use when the breed has no official abbreviation. */
 const DERIVED_BREED_ABBREVIATION_LENGTH = 3

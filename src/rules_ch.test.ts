@@ -1,5 +1,9 @@
-import type { ManualTestResult, TestResult } from './types'
+import type { DayKey, JsonManualTestResult, JsonTestResult, ManualTestResult, TestResult } from './types'
+import { filterRelevantResults, qualifyJsonRegistration } from './lib/qualification'
+import { toDog, toManualTestResult } from './lib/wire'
 import { getRankingPeriod, NOME_A_CH_requirements, NOME_B_CH_requirements, NOWT_CH_requirements } from './rules_ch'
+import { noonOfFinnishDay } from './test-utils/finnishDays'
+import { describeInTimeZone, withTimeZone } from './test-utils/timeZone'
 
 const officialResult = (result: TestResult): TestResult => result
 
@@ -22,21 +26,24 @@ const nowtResult = (result: string, date: string, props: Partial<TestResult> = {
   })
 
 describe('championship ranking rules', () => {
+  // The period runs from the start of its first counted day to the end of its last, both in Finland: the
+  // NOME-A and NOWT periods start the day after the entry's last day two years and a year back.
   it('returns ranking periods for supported championship event types', () => {
     const entryEndDate = new Date('2025-08-15T12:00:00.000Z')
     const qualificationStartDate = new Date('2024-08-01T00:00:00.000Z')
+    const maxResultDate = new Date('2025-08-15T20:59:59.999Z')
 
     expect(getRankingPeriod('NOME-B SM', entryEndDate, qualificationStartDate)).toEqual({
-      maxResultDate: expect.any(Date),
-      minResultDate: qualificationStartDate,
+      maxResultDate,
+      minResultDate: new Date('2024-07-31T21:00:00.000Z'),
     })
     expect(getRankingPeriod('NOME-A SM', entryEndDate, qualificationStartDate)).toEqual({
-      maxResultDate: expect.any(Date),
-      minResultDate: expect.any(Date),
+      maxResultDate,
+      minResultDate: new Date('2023-08-15T21:00:00.000Z'),
     })
     expect(getRankingPeriod('NOWT SM', entryEndDate, qualificationStartDate)).toEqual({
-      maxResultDate: expect.any(Date),
-      minResultDate: expect.any(Date),
+      maxResultDate,
+      minResultDate: new Date('2024-08-15T21:00:00.000Z'),
     })
     expect(getRankingPeriod('NOME-B SM', undefined, qualificationStartDate)).toBeUndefined()
   })
@@ -312,5 +319,211 @@ describe('championship ranking rules', () => {
       '2025-07-01T00:00:00.000Z',
     ])
     expect(result.relevant.map((r) => r.official)).toEqual([true, true, true, true, false])
+  })
+})
+
+/** Runs `run` in the host zone the lambdas have, UTC. */
+const inLambdaZone = <T>(run: () => T): T => withTimeZone('UTC', run)
+
+const REG_NO = 'FI12345/22'
+const ENTRY_END = '2026-02-15T21:59:59.999Z' // the end of 15.2.2026 in Finland
+const QUALIFICATION_START = '2025-01-31T22:00:00.000Z' // the start of 1.2.2025 in Finland
+const START_DATE = '2026-03-07T22:00:00.000Z'
+
+const smEvent = (eventType: string) => ({
+  entryEndDate: ENTRY_END,
+  eventType,
+  qualificationStartDate: QUALIFICATION_START,
+  startDate: START_DATE,
+})
+
+/** The decision the registration form makes in this browser, from the results as the API hands them over. */
+const decideInBrowser = (eventType: string, official: JsonTestResult[], manual: JsonManualTestResult[] = []) =>
+  filterRelevantResults(
+    {
+      entryEndDate: new Date(ENTRY_END),
+      eventType,
+      qualificationStartDate: new Date(QUALIFICATION_START),
+      startDate: new Date(START_DATE),
+    },
+    undefined,
+    toDog({ regNo: REG_NO, results: official }).results,
+    manual.map((result) => toManualTestResult(result))
+  )
+
+/** The decision the lambda stores, from the same results. */
+const decideOnLambda = (eventType: string, official: JsonTestResult[], manual: JsonManualTestResult[] = []) =>
+  inLambdaZone(() =>
+    qualifyJsonRegistration(
+      { class: undefined, dog: { regNo: REG_NO, results: official }, results: manual },
+      smEvent(eventType)
+    )
+  )
+
+type ResultProps = Pick<JsonTestResult, 'date' | 'result' | 'type'>
+
+const jsonResult = (props: ResultProps): JsonTestResult => ({ class: 'VOI', judge: 'Judge', location: 'Loc', ...props })
+
+const jsonManualResult = (props: ResultProps): JsonManualTestResult => ({
+  ...jsonResult(props),
+  id: `manual-${props.date}`,
+})
+
+interface RankingPeriodCase {
+  eventType: string
+  result: string
+  type: string
+  before: DayKey
+  first: DayKey
+  last: DayKey
+  after: DayKey
+}
+
+/**
+ * The ranking periods that close with an entry ending 15.2.2026, in winter, when Istanbul is an hour ahead
+ * of Finland: NOME-B from the qualification start,
+ * NOME-A two years back and NOWT one year back, both from the day after the same day then.
+ */
+const PERIODS: RankingPeriodCase[] = [
+  {
+    after: '2026-02-16',
+    before: '2025-01-31',
+    eventType: 'NOME-B SM',
+    first: '2025-02-01',
+    last: '2026-02-15',
+    result: 'VOI1',
+    type: 'NOME-B',
+  },
+  {
+    after: '2026-02-16',
+    before: '2024-02-15',
+    eventType: 'NOME-A SM',
+    first: '2024-02-16',
+    last: '2026-02-15',
+    result: 'A1',
+    type: 'NOME-A',
+  },
+  {
+    after: '2026-02-16',
+    before: '2025-02-15',
+    eventType: 'NOWT SM',
+    first: '2025-02-16',
+    last: '2026-02-15',
+    result: 'VOI1',
+    type: 'NOWT',
+  },
+]
+
+const EDGE_DAYS = PERIODS.flatMap((period) => [
+  { ...period, counts: false, day: period.before, edge: 'the day before the first day' },
+  { ...period, counts: true, day: period.first, edge: 'the first day' },
+  { ...period, counts: true, day: period.last, edge: 'the last day' },
+  { ...period, counts: false, day: period.after, edge: 'the day after the last day' },
+])
+
+const ALL_OFFICIAL = [true, true, true, true, true]
+
+// Kennelliitto's result stamps have no zone, and the ranking period is made of Finnish days. A result counts
+// by the day written on it, so the browser and the lambda keep the same results in any zone (KOE-1558).
+describe('the ranking period in days', () => {
+  for (const zone of ['UTC', 'Europe/Helsinki', 'America/New_York', 'Asia/Tokyo', 'Europe/Istanbul']) {
+    describeInTimeZone(zone, () => {
+      it.each(EDGE_DAYS)(
+        '$eventType counts an official result on $edge ($day): $counts',
+        ({ counts, day, eventType, result, type }) => {
+          const official = [jsonResult({ date: `${day}T00:00:00`, result, type })]
+
+          expect(decideInBrowser(eventType, official).relevant).toHaveLength(counts ? 1 : 0)
+          expect(decideOnLambda(eventType, official).qualifyingResults).toHaveLength(counts ? 1 : 0)
+        }
+      )
+
+      // A hand-entered result is the instant the form sent, and it counts by its Finnish day. Picked at noon
+      // in Finland, it is the same day in every zone here.
+      it.each(EDGE_DAYS)(
+        '$eventType counts a hand-entered result on $edge ($day): $counts',
+        ({ counts, day, eventType, result, type }) => {
+          const manual = [jsonManualResult({ date: noonOfFinnishDay(day).toISOString(), result, type })]
+
+          expect(decideInBrowser(eventType, [], manual).relevant).toHaveLength(counts ? 1 : 0)
+          expect(decideOnLambda(eventType, [], manual).qualifyingResults).toHaveLength(counts ? 1 : 0)
+        }
+      )
+
+      it.each([
+        { day: '2025-02-15', points: 0 },
+        { day: '2025-02-16', points: 6 },
+      ])('scores a FI KVA-WT written on $day with $points points', ({ day, points }) => {
+        const official = [jsonResult({ date: `${day}T00:00:00`, result: 'FI KVA-WT', type: 'NOWT' })]
+        const expected = [expect.objectContaining({ rankingPoints: points, result: 'FI KVA-WT' })]
+
+        expect(decideInBrowser('NOWT SM', official).relevant).toEqual(expected)
+        expect(decideOnLambda('NOWT SM', official).qualifyingResults).toEqual(expected)
+      })
+
+      // Equal points on the same Finnish day: an official result and a hand-entered one picked at midnight
+      // in Finland. The sixth result drops out, and it is the same one in the browser and on the lambda:
+      // a tie on points and day keeps the official result before the hand-entered one.
+      it('cuts a tie on points and day the same way in the browser and on the lambda', () => {
+        const official = ['2026-02-01', '2026-01-15', '2026-01-10', '2026-01-05', '2026-01-01'].map((day) =>
+          jsonResult({ date: `${day}T00:00:00`, result: 'VOI2', type: 'NOWT' })
+        )
+        const manual = [jsonManualResult({ date: '2025-12-31T22:00:00.000Z', result: 'VOI2', type: 'NOWT' })]
+
+        expect(decideInBrowser('NOWT SM', official, manual).relevant.map((r) => r.official)).toEqual(ALL_OFFICIAL)
+        expect(decideOnLambda('NOWT SM', official, manual).qualifyingResults?.map((r) => r.official)).toEqual(
+          ALL_OFFICIAL
+        )
+      })
+    })
+  }
+
+  it.each([
+    { date: new Date('0001-01-01T00:00:00'), name: "the Kennel Club's empty date" },
+    { date: new Date(Number.NaN), name: 'an invalid date' },
+  ])('leaves a result with $name outside the period', ({ date }) => {
+    const result = NOWT_CH_requirements(
+      [nowtResult('VOI1', '2025-06-01T00:00:00.000Z'), { ...nowtResult('VOI1', '2025-06-02T00:00:00.000Z'), date }],
+      [
+        {
+          ...manualResult({ class: 'VOI', date: new Date(0), judge: 'J', location: 'L', result: 'VOI1', type: 'NOWT' }),
+          date,
+        },
+      ],
+      new Date(ENTRY_END),
+      undefined
+    )
+
+    expect(result.relevant).toEqual([expect.objectContaining({ date: new Date('2025-06-01T00:00:00.000Z') })])
+  })
+
+  // A FI KVA-B counts whenever it was won, so one without a day still ranks: after a dated result of equal points.
+  it('ranks a FI KVA-B without a day after the dated results of equal points', () => {
+    const nomeB = (result: string, date: Date): TestResult =>
+      officialResult({ class: 'VOI', date, judge: 'J', location: 'L', result, type: 'NOME-B' })
+
+    const result = NOME_B_CH_requirements(
+      [
+        nomeB('VOI1', new Date('2025-06-01T00:00:00')),
+        nomeB('FI KVA-B', new Date('0001-01-01T00:00:00')),
+        nomeB('VOI1', new Date('2025-07-01T00:00:00')),
+      ],
+      [],
+      new Date(ENTRY_END),
+      new Date(QUALIFICATION_START)
+    )
+
+    expect(result.relevant.map((r) => r.result)).toEqual(['VOI1', 'VOI1', 'FI KVA-B'])
+    expect(result.relevant.map((r) => r.date)).toEqual([
+      new Date('2025-07-01T00:00:00'),
+      new Date('2025-06-01T00:00:00'),
+      new Date('0001-01-01T00:00:00'),
+    ])
+  })
+
+  it('leaves a stored official result of 1.1.0001 outside the period on the lambda', () => {
+    const official = [jsonResult({ date: '0001-01-01T00:00:00', result: 'VOI1', type: 'NOWT' })]
+
+    expect(decideOnLambda('NOWT SM', official)).toEqual({ qualifies: false, qualifyingResults: [] })
   })
 })
