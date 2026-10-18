@@ -19,6 +19,7 @@ jobs:
       backend: ${{ steps.scope.outputs.backend }}
       e2e: ${{ steps.scope.outputs.e2e }}
       frontend: ${{ steps.scope.outputs.frontend }}
+      frontend-test-weights: ${{ steps.weights.outputs.cache-matched-key }}
     steps:
       - uses: actions/checkout@v7
         with:
@@ -143,8 +144,17 @@ jobs:
         if: steps.cache.outputs.cache-hit != 'true'
         run: npm ci
 
-      - name: Knip (unused files/exports/deps)
-        run: npm run knip
+      # The frontend-test shards cut the files by the last run's times (scripts/vitestShards.mjs).
+      # The entry is picked here, once: shards that read two different entries would cut the list
+      # two ways, and a file would run twice or not at all.
+      - name: Find the frontend test weights
+        id: weights
+        uses: actions/cache/restore@v6
+        with:
+          path: frontend-test-weights.json
+          key: frontend-test-weights-${{ github.run_id }}
+          restore-keys: frontend-test-weights-
+          lookup-only: true
 
   backend:
     runs-on: ubuntu-latest
@@ -166,8 +176,6 @@ jobs:
       - name: Install packages
         if: steps.cache.outputs.cache-hit != 'true'
         run: npm ci
-      - name: Lint
-        run: npm run lint-backend && npm run lint-biome && npm run ratchet
       - name: Build
         run: npm run build-backend
       - uses: aws-actions/setup-sam@v3
@@ -221,12 +229,10 @@ jobs:
       - name: Install packages
         if: steps.cache.outputs.cache-hit != 'true'
         run: npm ci
-      - name: Lint
-        run: npm run lint-frontend && npm run lint-biome && npm run ratchet
       - name: Build
         run: npm run build-frontend
         env:
-          SKIP_TYPECHECK: 'true' # the lint step above ran the same tsc
+          SKIP_TYPECHECK: 'true' # the lint job type-checks the same sources
       # The post-deploy smoke check reads this stamp from the served page (KOE-1368); checking the
       # real minified build here means a template or minifier change cannot drop it unnoticed.
       - name: Check the build's version stamp
@@ -283,8 +289,18 @@ jobs:
       - name: Install packages
         if: steps.cache-restore.outputs.cache-hit != 'true'
         run: npm ci
+      - name: Restore the test weights
+        if: ${{ needs.setup.outputs.frontend-test-weights != '' }}
+        uses: actions/cache/restore@v6
+        with:
+          path: frontend-test-weights.json
+          key: ${{ needs.setup.outputs.frontend-test-weights }}
+          fail-on-cache-miss: true
       - name: Test
         run: npm run test-frontend -- --coverage --shard=${{ matrix.shard }}/${{ strategy.job-total }}
+        env:
+          VITEST_SHARD_WEIGHTS: frontend-test-weights.json
+          VITEST_DURATIONS_OUT: durations/frontend-${{ matrix.shard }}.json
       - name: Rename coverage
         run: mv coverage/lcov.info coverage/lcov${{ matrix.shard }}.info
       - name: Upload coverage report
@@ -292,6 +308,11 @@ jobs:
         with:
           name: frontend-coverage-${{ matrix.shard }}
           path: coverage/lcov${{ matrix.shard }}.info
+      - name: Upload test durations
+        uses: actions/upload-artifact@v7
+        with:
+          name: frontend-durations-${{ matrix.shard }}
+          path: durations/frontend-${{ matrix.shard }}.json
 
   visual-test:
     # Screenshot comparisons of components in a real browser. Reference images are per-platform, so
@@ -379,7 +400,7 @@ jobs:
       - name: Build frontend
         run: npm run build-e2e-frontend
         env:
-          SKIP_TYPECHECK: 'true' # the frontend job type-checks the same sources
+          SKIP_TYPECHECK: 'true' # the lint job type-checks the same sources
       - name: Cache Playwright browsers
         id: playwright-cache
         uses: actions/cache@v6
@@ -403,29 +424,26 @@ jobs:
             test-results/e2e
           retention-days: 7
 
-  # The required check: one name for the sharded tests and their lint, failing when either did. A
-  # skipped run (nothing in scope) passes, as the skipped jobs themselves would.
+  # One name for the sharded tests, failing when a shard did. A skipped run (nothing in scope)
+  # passes, as the skipped jobs themselves would.
   e2e:
     runs-on: ubuntu-latest
-    needs: [setup, e2e-lint, e2e-test]
+    needs: [setup, e2e-test]
     if: ${{ always() }}
     steps:
-      - name: Check the e2e jobs
+      - name: Check the e2e shards
         run: |
           test "${{ needs.setup.result }}" = success || { echo "setup ended ${{ needs.setup.result }}"; exit 1; }
-          for result in ${{ needs.e2e-lint.result }} ${{ needs.e2e-test.result }}; do
-            case "$result" in
-              success | skipped) ;;
-              *) echo "an e2e job ended $result"; exit 1 ;;
-            esac
-          done
+          case "${{ needs.e2e-test.result }}" in
+            success | skipped) ;;
+            *) echo "the e2e shards ended ${{ needs.e2e-test.result }}"; exit 1 ;;
+          esac
 
-  # The browser tests' own sources: no other lint covers e2e/, and TESTS.md must match the tests.
-  # Beside the e2e job rather than in it, so the browser tests do not wait for it.
-  e2e-lint:
+  # Every lint in one job beside the builds and tests, none of which waits for it: the type-checks,
+  # biome and its ratchet once for all of src, the browser tests' sources and TESTS.md, and knip.
+  lint:
     runs-on: ubuntu-latest
     needs: setup
-    if: ${{ needs.setup.outputs.frontend == 'true' || needs.setup.outputs.backend == 'true' || needs.setup.outputs.e2e == 'true' }}
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-node@v7
@@ -442,8 +460,32 @@ jobs:
       - name: Install packages
         if: steps.cache-restore.outputs.cache-hit != 'true'
         run: npm ci
-      - name: Lint
+      - name: Type-check the frontend
+        run: npm run lint-frontend
+      - name: Type-check the backend
+        run: npm run lint-backend
+      - name: Biome
+        run: npm run lint-biome
+      - name: Ratchet
+        run: npm run ratchet
+      - name: Lint the browser tests
         run: npm run lint-e2e
+      - name: Knip (unused files/exports/deps)
+        run: npm run knip
+
+  # The check the ruleset requires: every job that tests the change, under one name. A job skipped
+  # for being out of the change's scope passes; one that failed, was cancelled or never ran fails it.
+  tests:
+    runs-on: ubuntu-latest
+    needs: [setup, lint, backend, frontend, frontend-test, docs, visual-test, e2e, integration]
+    if: ${{ always() }}
+    steps:
+      - name: Check the jobs
+        env:
+          NEEDS: ${{ toJSON(needs) }}
+        run: |
+          echo "$NEEDS" | jq -r 'to_entries[] | "\(.key): \(.value.result)"'
+          echo "$NEEDS" | jq -e '.setup.result == "success" and all(.[]; .result == "success" or .result == "skipped")' > /dev/null
 
   integration:
     # The database layer against DynamoDB-local (KOE-1369): the tables are created from
@@ -496,9 +538,22 @@ jobs:
         with:
           path: coverage
           key: ${{ github.ref_name }}-frontend-coverage-${{ github.run_id }}
+      - name: Download test durations
+        uses: actions/download-artifact@v8
+        with:
+          pattern: frontend-durations-*
+          path: durations
+          merge-multiple: true
+      - name: Join the test durations
+        run: jq -s add durations/*.json > frontend-test-weights.json
+      - name: Cache the test weights for the next run
+        uses: actions/cache/save@v6
+        with:
+          path: frontend-test-weights.json
+          key: frontend-test-weights-${{ github.run_id }}
 
   deploy-dev:
-    needs: [setup, backend, frontend, frontend-test, docs, integration]
+    needs: [setup, lint, backend, frontend, frontend-test, docs, integration]
     if: ${{ always() && !failure() && !cancelled() && github.event_name == 'push' && (needs.setup.outputs.backend == 'true' || needs.setup.outputs.frontend == 'true') }}
     permissions:
       actions: read
