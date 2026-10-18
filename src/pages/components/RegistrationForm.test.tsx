@@ -2,7 +2,7 @@ import type { ReactNode } from 'react'
 import { ThemeProvider } from '@mui/material'
 import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
-import { render, screen } from '@testing-library/react'
+import { render, screen, within } from '@testing-library/react'
 import { Provider } from 'jotai'
 import { Suspense } from 'react'
 import { eventWithStaticDates } from '../../__mockData__/events'
@@ -10,6 +10,7 @@ import { paymentPictureWith } from '../../__mockData__/paymentPicture'
 import { registrationWithStaticDates, unpaidRegistrationWithStaticDates } from '../../__mockData__/registrations'
 import theme from '../../assets/Theme'
 import { locales } from '../../i18n'
+import { frozenInstant } from '../../test-utils/freezeClock'
 import { createMatchMedia, flushPromises, renderWithUserEvents, runPendingTimers } from '../../test-utils/utils'
 import AppSnackbarProvider from './AppSnackbarProvider'
 import RegistrationForm from './RegistrationForm'
@@ -103,6 +104,73 @@ describe('RegistrationForm', () => {
     // The section order is unaffected; the dog section itself falls back to an empty search.
     expect(sectionTitles()).toContain('registration.dog')
     expect(screen.getByRole('combobox', { name: 'dog.regNo' })).toHaveValue('')
+  })
+
+  it.each([
+    ["Kennelliitto's empty date", () => new Date('0001-01-01T00:00:00')],
+    ['a half-typed date', () => new Date(Number.NaN)],
+    ['a typed year 202', () => new Date('0202-12-28T00:00:00')],
+  ])('renders a dog whose birth date has no day, %s, as too young', async (_name, dob) => {
+    const registration = { ...registrationWithStaticDates, dog: { ...registrationWithStaticDates.dog, dob: dob() } }
+    render(<RegistrationForm event={eventWithStaticDates} registration={registration} />, { wrapper: Wrapper })
+    await flushPromises()
+
+    expect(sectionTitles()).toContain('registration.dog')
+    expect(screen.getAllByText(/validation\.registration\.dogAge/).length).toBeGreaterThan(0)
+  })
+
+  describe("the dob picker's days (KOE-1556)", () => {
+    // Today is 1.1.2021 and the trial starts on 10.2.2021. The dog has Kennelliitto's empty birth
+    // date, so the dob is entered by hand and its picker is enabled; it opens on the year view.
+    beforeEach(() => vi.setSystemTime(frozenInstant('2021-01-01')))
+    // The file's fake timers started from the real time; later tests get it back.
+    afterEach(() => vi.setSystemTime(vi.getRealSystemTime()))
+
+    const openDobPicker = async (eventType: string) => {
+      const registration = {
+        ...unpaidRegistrationWithStaticDates,
+        dog: { ...unpaidRegistrationWithStaticDates.dog, dob: new Date('0001-01-01T00:00:00') },
+      }
+      const { user } = renderWithUserEvents(
+        <RegistrationForm event={{ ...eventWithStaticDates, eventType }} registration={registration} />,
+        { wrapper: Wrapper },
+        { advanceTimers: vi.advanceTimersByTime }
+      )
+      await flushPromises()
+      await user.click(screen.getByRole('button', { name: /choose date/i }))
+      const dialog = await screen.findByRole('dialog')
+      const years = within(dialog)
+        .getAllByRole('radio')
+        .map((year) => year.textContent)
+      /** The days the picker offers in the month, after choosing its year and month (0 is January). */
+      const daysIn = async (year: string, monthIndex: number) => {
+        await user.click(within(dialog).getByRole('radio', { name: year }))
+        await user.click(within(dialog).getAllByRole('radio')[monthIndex])
+        return within(dialog)
+          .getAllByRole('gridcell')
+          .filter((cell) => cell.textContent !== '' && !cell.hasAttribute('disabled'))
+          .map((cell) => Number(cell.textContent))
+      }
+      return { daysIn, years }
+    }
+
+    it('ends nine months before a NOU trial, as its age limit', async () => {
+      const { daysIn, years } = await openDobPicker('NOU')
+      expect(years.at(-1)).toBe('2020')
+      expect((await daysIn('2020', 4)).at(-1)).toBe(10)
+    })
+
+    it('ends on the trial day itself for a type without an age limit', async () => {
+      const { daysIn, years } = await openDobPicker('NOME-B')
+      expect(years.at(-1)).toBe('2021')
+      expect((await daysIn('2021', 1)).at(-1)).toBe(10)
+    })
+
+    it('starts fifteen years before today', async () => {
+      const { daysIn, years } = await openDobPicker('NOU')
+      expect(years[0]).toBe('2006')
+      expect((await daysIn('2006', 0))[0]).toBe(1)
+    })
   })
 
   it('should call onChange', async () => {

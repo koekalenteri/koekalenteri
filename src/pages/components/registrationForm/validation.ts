@@ -1,7 +1,6 @@
 import type { ValidationResult, Validators2, WideValidationResult } from '@/i18n/validation'
 import type { BreedCode, Dog, PublicConfirmedEvent, Registration, TestResult } from '@/types'
-// biome-ignore lint/style/noRestrictedImports: the dog's age in months is counted between a Finnish midnight and a browser-zone birthday from the dob picker, as it has been; the stored dob becomes a day key in KOE-1547 and the pickers move in KOE-1548
-import { differenceInMonths } from 'date-fns/differenceInMonths'
+import { dogAgeInMonths, minDogAgeFor } from '@/lib/dog'
 import { validName } from '@/lib/name'
 import { getOwnerRole, getRegistrationOwners, ownerKeyAt, resolveOwnerSelection } from '@/lib/registration'
 import { REQUIREMENTS } from '@/rules'
@@ -103,10 +102,11 @@ export function validateRegistration(
   return errors
 }
 
+/** The minimum age the dog falls short of, in months; a birth date with no day falls short of it. */
 const validateDogAge = (event: { eventType: string; startDate: Date }, dog: { dob?: Date }) => {
-  const requirements = REQUIREMENTS[event.eventType]
-  const minAge = requirements && 'age' in requirements ? (requirements.age ?? 0) : 0
-  if (!dog.dob || differenceInMonths(event.startDate, dog.dob) < minAge) return minAge
+  const minAge = minDogAgeFor(event.eventType)
+  const age = dog.dob ? dogAgeInMonths(dog.dob, event.startDate) : undefined
+  if (age === undefined || age < minAge) return minAge
 }
 
 const validateDogBreed = (event: { eventType: string }, dog: { breedCode?: BreedCode }) => {

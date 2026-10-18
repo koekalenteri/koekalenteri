@@ -1,4 +1,5 @@
 import type { DayKey } from '../types'
+import { differenceInMonths } from 'date-fns/differenceInMonths'
 import { describeInTimeZone } from '../test-utils/timeZone'
 import {
   addDays,
@@ -13,9 +14,14 @@ import {
   daysBetween,
   eachDay,
   hasCalendarDay,
+  hasLocalDay,
   isDayKey,
   isInstantString,
+  latestDayMonthsBefore,
+  localDateOf,
+  localDayOf,
   monthKeyOf,
+  monthsBetween,
   sameDay,
   shiftDays,
   TIME_ZONE,
@@ -479,3 +485,122 @@ describe('TIME_ZONE', () => {
     expect(TIME_ZONE).toBe('Europe/Helsinki')
   })
 })
+
+describe('monthsBetween', () => {
+  it.each<[DayKey, DayKey, number]>([
+    ['2025-12-28', '2026-09-28', 9],
+    ['2025-12-28', '2026-09-27', 8],
+    ['2025-12-29', '2026-09-28', 8],
+    ['2026-01-01', '2026-01-01', 0],
+    // A month without the starting date ends on its last day.
+    ['2025-07-31', '2026-04-30', 9],
+    ['2025-07-31', '2026-04-29', 8],
+    ['2026-01-31', '2026-02-28', 1],
+    ['2024-01-31', '2024-02-28', 0],
+    ['2024-01-31', '2024-02-29', 1],
+    // A leap February's 28th is not its last day.
+    ['2023-05-29', '2024-02-28', 8],
+    ['2023-05-29', '2024-02-29', 9],
+    ['2024-02-29', '2025-02-28', 12],
+    // A day after `to` is never any number of months before it.
+    ['2026-01-02', '2026-01-01', -1],
+    ['2026-03-01', '2026-01-31', -2],
+    ['2026-01-31', '2025-12-31', -1],
+  ])('from %s to %s is %i', (from, to, months) => {
+    expect(monthsBetween(from, to)).toBe(months)
+  })
+
+  it('is the largest count whose addMonths step does not pass `to`', () => {
+    const misses: string[] = []
+    for (const from of eachDay('2023-01-01', '2024-12-31')) {
+      for (let span = -70; span <= 470; span += 7) {
+        const to = addDays(from, span)
+        const months = monthsBetween(from, to)
+        if (addMonths(from, months) > to || addMonths(from, months + 1) <= to) misses.push(`${from} ${to}`)
+      }
+    }
+    expect(misses).toEqual([])
+  })
+
+  it('counts as date-fns differenceInMonths does, except where date-fns misses a month end', () => {
+    const lastOfMonth = (day: DayKey) => addDays(day, 1).endsWith('-01')
+    const unexplained: string[] = []
+    let explained = 0
+    for (const from of eachDay('2023-01-01', '2024-12-31')) {
+      for (let span = 0; span <= 400; span++) {
+        const to = addDays(from, span)
+        const ours = monthsBetween(from, to)
+        const theirs = differenceInMonths(localDateOf(to), localDateOf(from))
+        if (ours === theirs) continue
+        const fromDate = dayParts(from).day
+        const { day: toDate, month: toMonth } = dayParts(to)
+        // date-fns does not count a month reached on the last day of a shorter month (31.7. to 30.4.)...
+        const shortMonthEnd = ours === theirs + 1 && lastOfMonth(to) && toDate < fromDate
+        // ...and counts a leap February's 28th as its last day (29.5. to 28.2.).
+        const leapFebruary28 = ours === theirs - 1 && toMonth === 2 && toDate === 28 && !lastOfMonth(to)
+        if (shortMonthEnd || leapFebruary28) explained++
+        else unexplained.push(`${from} ${to}: ${ours} vs ${theirs}`)
+      }
+    }
+    expect(unexplained).toEqual([])
+    expect(explained).toBeGreaterThan(0)
+  })
+})
+
+describe('latestDayMonthsBefore', () => {
+  it.each<[DayKey, number, DayKey]>([
+    ['2026-09-28', 9, '2025-12-28'],
+    ['2026-09-30', 9, '2025-12-31'],
+    ['2026-04-30', 9, '2025-07-31'],
+    ['2026-04-29', 9, '2025-07-29'],
+    ['2024-02-28', 9, '2023-05-28'],
+    ['2024-02-29', 9, '2023-05-31'],
+    ['2025-02-28', 9, '2024-05-31'],
+    ['2026-05-31', 3, '2026-02-28'],
+    ['2026-01-15', 0, '2026-01-15'],
+  ])('by %s, %i months have passed from %s at the latest', (day, months, latest) => {
+    expect(latestDayMonthsBefore(day, months)).toBe(latest)
+  })
+
+  it('is the last day from which monthsBetween reaches the count, zero months included', () => {
+    const misses: string[] = []
+    for (const day of eachDay('2023-01-01', '2024-12-31')) {
+      for (const months of [0, 1, 9, 12]) {
+        const latest = latestDayMonthsBefore(day, months)
+        for (let offset = -40; offset <= 40; offset++) {
+          const from = addDays(latest, offset)
+          if (monthsBetween(from, day) >= months !== from <= latest) misses.push(`${day} ${months} ${from}`)
+        }
+      }
+    }
+    expect(misses).toEqual([])
+  })
+})
+
+for (const hostZone of HOST_ZONES) {
+  describeInTimeZone(hostZone, () => {
+    describe("the browser's day", () => {
+      it('reads a local midnight as its own day, 1.1. as 1.1.', () => {
+        expect(localDayOf(new Date('2026-01-01T00:00:00'))).toBe('2026-01-01')
+        expect(localDayOf(new Date(2026, 11, 31, 23, 59))).toBe('2026-12-31')
+      })
+
+      it('builds the local midnight a picker shows as the day', () => {
+        const date = localDateOf('2026-02-28')
+        expect([date.getFullYear(), date.getMonth(), date.getDate(), date.getHours()]).toEqual([2026, 1, 28, 0])
+        expect(localDayOf(date)).toBe('2026-02-28')
+      })
+
+      it.each([
+        ['an Invalid Date', () => new Date(Number.NaN), false],
+        ["Kennelliitto's empty date", () => new Date('0001-01-01T00:00:00'), false],
+        ['a typed year 202', () => new Date('0202-01-01T00:00:00'), false],
+        ['year 1000', () => new Date('1000-01-01T00:00:00'), true],
+        ['year 9999', () => new Date('9999-12-31T00:00:00'), true],
+        ['a birth date', () => new Date('2025-12-28T00:00:00'), true],
+      ])('%s has a day: %s', (_name, date, expected) => {
+        expect(hasLocalDay(date())).toBe(expected)
+      })
+    })
+  })
+}

@@ -1,5 +1,6 @@
 import type {
   BreedCode,
+  DayKey,
   Dog,
   ManualTestResult,
   PublicConfirmedEvent,
@@ -9,7 +10,11 @@ import type {
 } from '@/types'
 import { eventWithStaticDates } from '@/__mockData__/events'
 import { registrationWithStaticDates } from '@/__mockData__/registrations'
+import { addDays, addMonths, localDateOf, localDayOf } from '@/lib/day'
+import { latestDobForAge } from '@/lib/dog'
 import { filterRelevantResults, objectContains } from '@/lib/qualification'
+import { startOfFinnishDay } from '@/test-utils/finnishDays'
+import { describeInTimeZone } from '@/test-utils/timeZone'
 import { validateDog, validateRegistration } from './validation'
 
 const testDog: Dog = {
@@ -78,9 +83,95 @@ describe('validation', () => {
       ['2020-01-16', { key: 'dogAge', opts: { field: 'dog', length: 9 } }],
       ['2020-01-15', false],
       ['2010-01-01', false],
-    ])('when event is at 2020-10-50 and dog dob is %p, should return %p', (dob, result) => {
-      const testEvent = { eventType: 'NOU', startDate: new Date('2020-10-15') }
-      expect(validateDog(testEvent, { dog: { ...testDog, dob: new Date(dob) } })).toEqual(result)
+    ])('when event is at 2020-10-15 and dog dob is %p, should return %p', (dob, result) => {
+      const testEvent = { eventType: 'NOU', startDate: startOfFinnishDay('2020-10-15') }
+      expect(validateDog(testEvent, { dog: { ...testDog, dob: new Date(`${dob}T00:00:00`) } })).toEqual(result)
+    })
+
+    describe.each<[string, DayKey]>([
+      ['Asia/Tokyo', '2025-12-28'],
+      ['America/New_York', '2025-12-27'],
+      ['Europe/Helsinki', '2025-12-28'],
+    ])('the age limit (KOE-1556)', (zone, helsinkiStoredDobShowsAs) => {
+      const tooYoung = { key: 'dogAge', opts: { field: 'dog', length: 9 } }
+      // The two shapes a dob reaches the form in: Kennelliitto's zone-less stamp, which the typed
+      // boundary reads as the browser's midnight, and the instant a Helsinki browser's picker stored.
+      const kennelClubDob = (stamp: string) => new Date(`${stamp}T00:00:00`)
+      const nouOn = (day: DayKey) => ({ eventType: 'NOU', startDate: startOfFinnishDay(day) })
+
+      describeInTimeZone(zone, () => {
+        it('counts a dog born 28.12.2025 as nine months old on a NOU trial on 28.9.2026', () => {
+          const event = nouOn('2026-09-28')
+          expect(validateDog(event, { dog: { ...testDog, dob: kennelClubDob('2025-12-28') } })).toBe(false)
+          expect(validateDog(event, { dog: { ...testDog, dob: kennelClubDob('2025-12-29') } })).toEqual(tooYoung)
+        })
+
+        it('counts a birth date a Helsinki browser stored on the day it shows here', () => {
+          const dob = new Date('2025-12-27T22:00:00.000Z')
+          const nineMonths = addMonths(helsinkiStoredDobShowsAs, 9)
+          expect(validateDog(nouOn(nineMonths), { dog: { ...testDog, dob } })).toBe(false)
+          expect(validateDog(nouOn(addDays(nineMonths, -1)), { dog: { ...testDog, dob } })).toEqual(tooYoung)
+        })
+
+        it.each([
+          ["Kennelliitto's empty date", () => kennelClubDob('0001-01-01')],
+          ['a half-typed date', () => new Date(Number.NaN)],
+          ['a typed year 202', () => kennelClubDob('0202-12-28')],
+        ])('counts a birth date with no day, %s, as too young and does not throw', (_name, dob) => {
+          expect(validateDog(nouOn('2026-09-28'), { dog: { ...testDog, dob: dob() } })).toEqual(tooYoung)
+        })
+
+        it('reads a dob without a day as no age limit failure where the type has none', () => {
+          const event = { eventType: 'NOME-B', startDate: startOfFinnishDay('2026-09-28') }
+          expect(validateDog(event, { dog: { ...testDog, dob: new Date(Number.NaN) } })).toBe(false)
+        })
+
+        it('reads a dog born 1.1. as born 1.1., not on the Finnish day of its midnight', () => {
+          const dob = kennelClubDob('2026-01-01')
+          expect(validateDog(nouOn('2026-09-30'), { dog: { ...testDog, dob } })).toEqual(tooYoung)
+          expect(validateDog(nouOn('2026-10-01'), { dog: { ...testDog, dob } })).toBe(false)
+        })
+
+        it.each<[DayKey, DayKey, typeof tooYoung | false]>([
+          // A month without the birthday's date ends on its last day: born 31.7., nine months on 30.4.
+          ['2026-04-30', '2025-07-31', false],
+          ['2025-09-30', '2024-12-31', false],
+          // A leap February's 28th is not its last day: born 29.5., nine months only on 29.2.
+          ['2024-02-28', '2023-05-29', tooYoung],
+          ['2024-02-29', '2023-05-29', false],
+        ])('on a trial on %s, a dog born %s is %o', (trial, born, expected) => {
+          expect(validateDog(nouOn(trial), { dog: { ...testDog, dob: kennelClubDob(born) } })).toEqual(expected)
+        })
+
+        it.each<[DayKey, DayKey]>([
+          ['2026-09-28', '2025-12-28'],
+          ['2026-09-30', '2025-12-31'],
+          ['2024-02-28', '2023-05-28'],
+          ['2024-02-29', '2023-05-31'],
+          ['2025-02-28', '2024-05-31'],
+          ['2026-04-30', '2025-07-31'],
+        ])("lets the picker's latest birth date for a trial on %s be %s, and the validator agrees", (trial, latest) => {
+          const event = nouOn(trial)
+          const maxDob = latestDobForAge(event.startDate, 9)
+          expect(localDayOf(maxDob)).toBe(latest)
+          expect(validateDog(event, { dog: { ...testDog, dob: maxDob } })).toBe(false)
+          expect(validateDog(event, { dog: { ...testDog, dob: localDateOf(addDays(latest, 1)) } })).toEqual(tooYoung)
+        })
+      })
+    })
+
+    describeInTimeZone('Europe/Helsinki', () => {
+      it('reads a dob picked late in the evening in Helsinki as the day picked', () => {
+        // MUI merges the picked day with the reference date's time: 28.12. picked at 23:30 is 21:30Z.
+        const dob = new Date('2025-12-28T21:30:00.000Z')
+        const event = { eventType: 'NOU', startDate: startOfFinnishDay('2026-09-28') }
+        expect(validateDog(event, { dog: { ...testDog, dob } })).toBe(false)
+        const dayBefore = { eventType: 'NOU', startDate: startOfFinnishDay('2026-09-27') }
+        expect(validateDog(dayBefore, { dog: { ...testDog, dob } })).toEqual({
+          key: 'dogAge',
+          opts: { field: 'dog', length: 9 },
+        })
+      })
     })
 
     it.each([

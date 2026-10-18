@@ -25,6 +25,7 @@ import { Trans, useTranslation } from 'react-i18next'
 import { loadKnownTlds } from '../../lib/client/tlds'
 import { calculateCost } from '../../lib/cost'
 import { getDiffOperations } from '../../lib/diff'
+import { minDogAgeFor } from '../../lib/dog'
 import { isDevEnv } from '../../lib/env'
 import { formatMoney } from '../../lib/money'
 import { getShownPaymentDue, isPaymentWaitingForPlaceInForm } from '../../lib/payment'
@@ -321,7 +322,7 @@ export default function RegistrationForm({
         <DogInfo
           reg={registration}
           eventDate={event.startDate}
-          minDogAgeMonths={9}
+          minDogAgeMonths={minDogAgeFor(event.eventType)}
           disabled={disabled || disabledForUserAfterPaid}
           error={errorStates.dog}
           helperText={helperTexts.dog}

@@ -4,11 +4,9 @@ import FormControl from '@mui/material/FormControl'
 import Grid from '@mui/material/Grid'
 import TextField from '@mui/material/TextField'
 import { DatePicker } from '@mui/x-date-pickers'
-// biome-ignore lint/style/noRestrictedImports: the dog's birthday is a browser-zone day from a picker with no Finnish-day conversion, and its bounds are counted in the same zone; the stored dob becomes a day key in KOE-1547 and the pickers move in KOE-1548
-import { subMonths } from 'date-fns/subMonths'
-// biome-ignore lint/style/noRestrictedImports: as above (KOE-1547, KOE-1548)
-import { subYears } from 'date-fns/subYears'
 import { useTranslation } from 'react-i18next'
+import { addMonths, localDateOf, localDayOf } from '@/lib/day'
+import { latestDobForAge } from '@/lib/dog'
 import AutocompleteSingle from '../../AutocompleteSingle'
 import { TitlesAndName } from './TitlesAndName'
 
@@ -52,6 +50,8 @@ export const DogDetails = ({
 }: Readonly<DogDetailsProps>) => {
   const { t } = useTranslation()
   const { t: breed } = useTranslation('breed')
+  // The picker's days are the browser's (KOE-1548): it opens two years back and offers 15 years.
+  const today = localDayOf(new Date())
 
   return (
     <>
@@ -85,13 +85,13 @@ export const DogDetails = ({
       <Grid size={{ lg: 3, sm: 3, xs: 6 }}>
         <FormControl className={dobDisabled && reg?.dog?.dob ? 'fact' : ''} fullWidth>
           <DatePicker
-            referenceDate={subYears(new Date(), 2)}
+            referenceDate={localDateOf(addMonths(today, -24))}
             disabled={disabled || dobDisabled}
             format={t('dateFormatString.long')}
             label={t('dog.dob')}
-            maxDate={subMonths(eventDate, minDogAgeMonths)}
-            minDate={subYears(new Date(), 15)}
-            onChange={(value: any) => updateField('dob', value || undefined)}
+            maxDate={latestDobForAge(eventDate, minDogAgeMonths)}
+            minDate={localDateOf(addMonths(today, -180))}
+            onChange={(value: Date | null) => updateField('dob', value ?? undefined)}
             openTo={'year'}
             value={formValues.dob ?? null}
             views={['year', 'month', 'day']}
