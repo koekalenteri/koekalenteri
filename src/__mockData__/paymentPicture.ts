@@ -1,4 +1,6 @@
+import type { ComponentType } from 'react'
 import type { PaymentPicture, Registration } from '../types'
+import { createElement } from 'react'
 import { getPaymentPicture } from '../lib/payment'
 
 /**
@@ -26,3 +28,19 @@ export const withPaymentPicture = <T extends Registration>(
   event: Parameters<typeof getPaymentPicture>[0],
   registration: T
 ): T & { payment: PaymentPicture } => ({ ...registration, payment: getPaymentPicture(event, registration, []) })
+
+/** What a component that shows a row's payment is given besides the picture: the trial and the row. */
+type RowPictureProps = {
+  event: Parameters<typeof getPaymentPicture>[0]
+  reg: Parameters<typeof getPaymentPicture>[1]
+}
+
+/**
+ * A component that takes the row's payment picture as a prop, rendered the way RegistrationIcons
+ * renders it: with the picture worked out from the `event` and `reg` it is given (KOE-1552). Name the
+ * props without the picture: `withRowPaymentPicture<Omit<ComponentProps<typeof X>, 'payment'>>(X)`.
+ */
+export const withRowPaymentPicture =
+  <P extends RowPictureProps>(Component: ComponentType<P & { payment: PaymentPicture }>) =>
+  (props: P) =>
+    createElement(Component, { ...props, payment: getPaymentPicture(props.event, props.reg, []) })

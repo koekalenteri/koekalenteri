@@ -11,14 +11,15 @@ interface PaymentIconProps {
   // "On its way" reads from the open refund set, not a stored refundStatus, which said nothing of
   // which refund (KOE-1529). PaymentBalanceRegistration already carries RegistrationRefundAmounts.
   reg: PaymentBalanceRegistration & Pick<Registration, 'paidAt' | 'openRefunds' | 'refundHandlingCost'>
-  /** The row's payment picture, worked out once for the row's icons (`getPaymentPicture`). */
+  /**
+   * The row's payment picture, worked out once for the row's icons (`getPaymentPicture`). Its
+   * `unsettled` (a part missing, or paid over) holds only in a confirmed trial.
+   */
   payment: PaymentPicture
 }
 
 const PaymentIcon = ({ event, payment, reg }: PaymentIconProps) => {
   const { t } = useTranslation()
-  // The fee has been paid, but not the amount it now adds up to: a part missing, or paid over. The
-  // picture says it only for a confirmed event, which carries the fee to compare against.
   const { unsettled } = payment
 
   // The piggy bank for money that went back, or is on its way; a refunded fee paid again is paid

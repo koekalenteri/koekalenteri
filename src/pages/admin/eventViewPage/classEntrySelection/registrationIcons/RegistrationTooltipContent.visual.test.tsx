@@ -2,16 +2,15 @@ import type { ComponentProps } from 'react'
 import type { ConfirmedEvent, Registration } from '@/types'
 import { ThemeProvider } from '@mui/material/styles'
 import { render } from 'vitest-browser-react'
+import { withRowPaymentPicture } from '@/__mockData__/paymentPicture'
 import { registrationWithStaticDates } from '@/__mockData__/registrations'
 import { eventWithStations } from '@/__mockData__/resultsEvent'
 import theme from '@/assets/Theme'
-import { getPaymentPicture } from '@/lib/payment'
 import RegistrationTooltipContent from './RegistrationTooltipContent'
 
 /** The tooltip as RegistrationIcons renders it: with the picture of the row's payment. */
-const Tooltip = (props: Omit<ComponentProps<typeof RegistrationTooltipContent>, 'payment'>) => (
-  <RegistrationTooltipContent {...props} payment={getPaymentPicture(props.event, props.reg, [])} />
-)
+const Tooltip =
+  withRowPaymentPicture<Omit<ComponentProps<typeof RegistrationTooltipContent>, 'payment'>>(RegistrationTooltipContent)
 
 /** Wrapper the screenshot is taken of: a fixed width and an opaque background keep captures stable. */
 const Frame = ({ children }: { readonly children: React.ReactNode }) => (

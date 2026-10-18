@@ -2,13 +2,12 @@ import type React from 'react'
 import type { ComponentProps } from 'react'
 import type { PricedDogEvent, Registration } from '@/types'
 import { render, screen } from '@testing-library/react'
-import { getPaymentPicture } from '@/lib/payment'
+import { withRowPaymentPicture } from '@/__mockData__/paymentPicture'
 import RegistrationTooltipContent from './RegistrationTooltipContent'
 
 /** The tooltip as RegistrationIcons renders it: with the picture of the row's payment. */
-const Tooltip = (props: Omit<ComponentProps<typeof RegistrationTooltipContent>, 'payment'>) => (
-  <RegistrationTooltipContent {...props} payment={getPaymentPicture(props.event, props.reg, [])} />
-)
+const Tooltip =
+  withRowPaymentPicture<Omit<ComponentProps<typeof RegistrationTooltipContent>, 'payment'>>(RegistrationTooltipContent)
 
 vi.mock('@/pages/components/IconsTooltip', () => ({
   TooltipIcon: ({ condition, text, icon }: { condition: boolean; text: string; icon: React.JSX.Element }) =>
