@@ -1457,6 +1457,18 @@ export const applyNewGroupsToDogEventDates = (
   return { classes: [], dates: finalDates }
 }
 
+/**
+ * The places per day of an event moved `days` calendar days, as a copy moves its days. A key that is
+ * not a day has no day to move to and is left out.
+ */
+export const shiftPlacesPerDay = (placesPerDay: Record<string, number>, days: number): Record<string, number> => {
+  const shifted: Record<string, number> = {}
+  Object.entries(placesPerDay).forEach(([day, places]) => {
+    if (isDayKey(day)) shifted[addDays(day, days)] = places
+  })
+  return shifted
+}
+
 export const copyDogEvent = (event: DogEvent, now = new Date()): DogEvent => {
   const copy = structuredClone(event)
   const origStartDay = dayOf(event.startDate, TIME_ZONE)
@@ -1483,14 +1495,7 @@ export const copyDogEvent = (event: DogEvent, now = new Date()): DogEvent => {
     d.date = moved(d.date)
   })
 
-  // The places per day move with their days; a key that is not a day has no day to move to.
-  if (event.placesPerDay) {
-    const placesPerDay: Record<string, number> = {}
-    Object.entries(event.placesPerDay).forEach(([day, places]) => {
-      if (isDayKey(day)) placesPerDay[addDays(day, shift)] = places
-    })
-    copy.placesPerDay = placesPerDay
-  }
+  if (event.placesPerDay) copy.placesPerDay = shiftPlacesPerDay(event.placesPerDay, shift)
 
   const newDates = newEventDates(now)
   copy.startDate = newDates.startDate

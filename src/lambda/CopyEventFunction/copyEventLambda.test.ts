@@ -193,6 +193,7 @@ describe('copyEventHandler', () => {
   it.each([
     {
       expected: {
+        days: ['2026-10-31', '2026-11-01'],
         endDate: '2026-10-31T22:00:00.000Z',
         entryEndDate: '2026-10-17T21:00:00.000Z',
         entryStartDate: '2026-09-30T21:00:00.000Z',
@@ -203,6 +204,7 @@ describe('copyEventHandler', () => {
       name: 'summer time to winter time',
       requested: '2026-10-30T22:00:00.000Z',
       source: {
+        days: ['2026-05-15', '2026-05-16'],
         endDate: '2026-05-15T21:00:00.000Z',
         entryEndDate: '2026-05-01T21:00:00.000Z',
         entryStartDate: '2026-04-14T21:00:00.000Z',
@@ -213,6 +215,7 @@ describe('copyEventHandler', () => {
     },
     {
       expected: {
+        days: ['2026-05-16', '2026-05-17'],
         endDate: '2026-05-16T21:00:00.000Z',
         entryEndDate: '2026-05-01T21:00:00.000Z',
         entryStartDate: '2026-04-14T21:00:00.000Z',
@@ -223,6 +226,7 @@ describe('copyEventHandler', () => {
       name: 'winter time to summer time',
       requested: '2026-05-15T21:00:00.000Z',
       source: {
+        days: ['2026-02-15', '2026-02-16'],
         endDate: '2026-02-15T22:00:00.000Z',
         entryEndDate: '2026-01-31T22:00:00.000Z',
         entryStartDate: '2026-01-14T22:00:00.000Z',
@@ -234,6 +238,7 @@ describe('copyEventHandler', () => {
     {
       // The source itself spans the change of 29.3.2026: 27.3. is +02:00 and 30.3. is +03:00.
       expected: {
+        days: ['2026-06-12', '2026-06-15'],
         endDate: '2026-06-14T21:00:00.000Z',
         entryEndDate: '2026-04-30T21:00:00.000Z',
         entryStartDate: '2026-04-13T21:00:00.000Z',
@@ -244,6 +249,7 @@ describe('copyEventHandler', () => {
       name: 'a multi-day event across the change of time',
       requested: '2026-06-11T21:00:00.000Z',
       source: {
+        days: ['2026-03-27', '2026-03-30'],
         endDate: '2026-03-29T21:00:00.000Z',
         entryEndDate: '2026-02-12T22:00:00.000Z',
         entryStartDate: '2026-01-26T22:00:00.000Z',
@@ -254,6 +260,7 @@ describe('copyEventHandler', () => {
     },
     {
       expected: {
+        days: ['2026-03-27', '2026-03-30'],
         endDate: '2026-03-29T21:00:00.000Z',
         entryEndDate: '2026-02-12T22:00:00.000Z',
         entryStartDate: '2026-01-26T22:00:00.000Z',
@@ -264,6 +271,7 @@ describe('copyEventHandler', () => {
       name: 'a copy to the same day',
       requested: '2026-03-26T22:00:00.000Z',
       source: {
+        days: ['2026-03-27', '2026-03-30'],
         endDate: '2026-03-29T21:00:00.000Z',
         entryEndDate: '2026-02-12T22:00:00.000Z',
         entryStartDate: '2026-01-26T22:00:00.000Z',
@@ -277,11 +285,16 @@ describe('copyEventHandler', () => {
     setEventBody(event, { id: 'event123', startDate: requested })
     mockGetEvent.mockResolvedValueOnce({
       classes: [{ date: source.startDate }, { date: source.endDate }],
+      dates: [
+        { date: source.startDate, time: 'ap' },
+        { date: source.endDate, time: 'ip' },
+      ],
       endDate: source.endDate,
       entryEndDate: source.entryEndDate,
       entryStartDate: source.entryStartDate,
       id: 'event123',
       name: 'Original Event',
+      placesPerDay: { [source.days[0]]: 10, [source.days[1]]: 15, 'not-a-day': 3 },
       startDate: source.startDate,
     })
     mockNanoid.mockReturnValueOnce('newid123')
@@ -299,9 +312,15 @@ describe('copyEventHandler', () => {
     expect(mockSaveEvent).toHaveBeenCalledWith(
       expect.objectContaining({
         classes: [{ date: expected.startDate }, { date: expected.endDate }],
+        dates: [
+          { date: expected.startDate, time: 'ap' },
+          { date: expected.endDate, time: 'ip' },
+        ],
         endDate: expected.endDate,
         entryEndDate: expected.entryEndDate,
         entryStartDate: expected.entryStartDate,
+        // The places per day move with their days; a key that is not a day has no day to move to.
+        placesPerDay: { [expected.days[0]]: 10, [expected.days[1]]: 15 },
         startDate: expected.startDate,
       })
     )
