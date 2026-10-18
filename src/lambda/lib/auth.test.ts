@@ -237,6 +237,7 @@ describe('auth', () => {
 
       expect(JSON.stringify(loggedLines(infoSpy))).not.toContain('test@example.com')
       expect(mockReadUserLink).toHaveBeenCalledWith(cognitoUser)
+      expect(mockReadUser).toHaveBeenCalledWith(link.userId)
       expect(mockWriteUserLink).not.toHaveBeenCalled()
       expect(loggedLines(infoSpy)).not.toContainEqual(expect.objectContaining({ message: 'added user link' }))
       expect(result).toEqual(existingUser)
