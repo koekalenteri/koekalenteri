@@ -37,6 +37,10 @@ describe('getAdminEventsLambda', () => {
 
   beforeEach(() => {
     vi.clearAllMocks()
+    // Implementations set by a test go too, even when its assertions failed before the end.
+    mockReadSeasonEvents.mockReset()
+    mockReadSeasonEventsUpdatedSince.mockReset()
+    mockReadOrganizerEvents.mockReset()
   })
 
   it('answers the auth refusal without reading anything', async () => {
@@ -73,8 +77,6 @@ describe('getAdminEventsLambda', () => {
     expect(mockReadSeasonEvents).toHaveBeenNthCalledWith(1, 2027)
     expect(mockReadSeasonEvents).toHaveBeenNthCalledWith(5, 2023)
     expect(mockResponse).toHaveBeenCalledWith(200, [...bySeason['2026'], ...bySeason['2025']], event)
-
-    mockReadSeasonEvents.mockReset()
   })
 
   it("reads a club administrator's clubs by organizer", async () => {
@@ -94,8 +96,6 @@ describe('getAdminEventsLambda', () => {
     expect(mockReadOrganizerEvents).toHaveBeenNthCalledWith(1, 'org1')
     expect(mockReadOrganizerEvents).toHaveBeenNthCalledWith(2, 'org3')
     expect(mockResponse).toHaveBeenCalledWith(200, [...byOrganizer.org1, ...byOrganizer.org3], event)
-
-    mockReadOrganizerEvents.mockReset()
   })
 
   it('queries events with since parameter', async () => {
@@ -110,7 +110,7 @@ describe('getAdminEventsLambda', () => {
     }
 
     const startSeason = 2024
-    const endSeason = 2026
+    const endSeason = 2027
 
     const seasonEvents1 = [{ id: 'event1', organizer: { id: 'org1' } }]
     const seasonEvents2 = [{ id: 'event2', organizer: { id: 'org2' } }]
@@ -123,11 +123,33 @@ describe('getAdminEventsLambda', () => {
 
     // Check that query was called for each season
     expect(mockReadSeasonEventsUpdatedSince).toHaveBeenCalledTimes(endSeason - startSeason + 1)
-    expect(mockReadSeasonEventsUpdatedSince).toHaveBeenCalledWith(startSeason, new Date(Number(since)).toISOString())
+    const updatedAfter = new Date(Number(since)).toISOString()
+    expect(mockReadSeasonEventsUpdatedSince).toHaveBeenNthCalledWith(1, startSeason, updatedAfter)
+    expect(mockReadSeasonEventsUpdatedSince).toHaveBeenNthCalledWith(4, endSeason, updatedAfter)
     expect(mockReadSeasonEvents).not.toHaveBeenCalled()
 
     // Check that response combines all season events
     expect(mockResponse).toHaveBeenCalledWith(200, [...seasonEvents1, ...seasonEvents2], eventWithSince)
+  })
+
+  // Before New Year a trial in early January is already next season's, and the full read lists it:
+  // the since walk has to reach the same season, or an edit to it never comes back (KOE-1555).
+  it('walks the since query up to next season, as the full read does', async () => {
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date('2026-12-20T10:00:00.000Z'))
+    const since = String(Date.parse('2026-12-19T10:00:00.000Z'))
+    const nextSeasonEvents = [{ id: 'event2027', organizer: { id: 'org1' } }]
+    mockAuthorizeWithMemberOf.mockResolvedValueOnce({ memberOf: ['org1'], user: { admin: true, id: 'admin1' } })
+    mockReadSeasonEventsUpdatedSince.mockImplementation(async (season: number) =>
+      season === 2027 ? nextSeasonEvents : []
+    )
+
+    await getAdminEventsLambda({ ...event, queryStringParameters: { since } })
+
+    expect(mockReadSeasonEventsUpdatedSince).toHaveBeenCalledTimes(2)
+    expect(mockReadSeasonEventsUpdatedSince).toHaveBeenNthCalledWith(1, 2026, '2026-12-19T10:00:00.000Z')
+    expect(mockReadSeasonEventsUpdatedSince).toHaveBeenNthCalledWith(2, 2027, '2026-12-19T10:00:00.000Z')
+    expect(mockResponse).toHaveBeenCalledWith(200, nextSeasonEvents, expect.anything())
   })
 
   it('answers 400 to a since that has no calendar day', async () => {
@@ -145,12 +167,13 @@ describe('getAdminEventsLambda', () => {
     vi.setSystemTime(new Date('2026-05-12T00:00:00.000Z'))
     const since = String(Date.parse('2025-12-31T22:30:00.000Z'))
     mockAuthorizeWithMemberOf.mockResolvedValueOnce({ memberOf: ['org1'], user: { admin: true, id: 'admin1' } })
-    mockReadSeasonEventsUpdatedSince.mockResolvedValueOnce([])
+    mockReadSeasonEventsUpdatedSince.mockResolvedValue([])
 
     await getAdminEventsLambda({ ...event, queryStringParameters: { since } })
 
-    expect(mockReadSeasonEventsUpdatedSince).toHaveBeenCalledTimes(1)
-    expect(mockReadSeasonEventsUpdatedSince).toHaveBeenCalledWith(2026, '2025-12-31T22:30:00.000Z')
+    expect(mockReadSeasonEventsUpdatedSince).toHaveBeenCalledTimes(2)
+    expect(mockReadSeasonEventsUpdatedSince).toHaveBeenNthCalledWith(1, 2026, '2025-12-31T22:30:00.000Z')
+    expect(mockReadSeasonEventsUpdatedSince).toHaveBeenNthCalledWith(2, 2027, '2025-12-31T22:30:00.000Z')
   })
 
   it('returns an empty array for a club with no events', async () => {

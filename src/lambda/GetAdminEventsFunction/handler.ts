@@ -10,12 +10,19 @@ import {
 } from '../lib/repositories/eventRepository'
 
 /**
- * The seasons a superadmin's list walks back through: from next season down, stopping once two
+ * The seasons a superadmin's list walks back through: from the latest season down, stopping once two
  * seasons in a row hold nothing. Seasons are contiguous in practice, and the calendar has no data
  * before this floor.
  */
 const EARLIEST_SEASON = 2020
 const EMPTY_SEASONS_TO_STOP = 2
+
+/**
+ * The latest season either list reads. A trial early next year is already next season's before New
+ * Year, so both the full read and the since walk reach it; a since walk that stopped at the current
+ * year never brought an edit to it back (KOE-1555).
+ */
+const latestSeason = () => currentYear(TIME_ZONE) + 1
 
 const querySeason = (season: number, updatedAfter?: string) =>
   updatedAfter ? readSeasonEventsUpdatedSince(season, updatedAfter) : readSeasonEvents(season)
@@ -27,7 +34,7 @@ const queryChangedSince = async (since: string): Promise<JsonDogEvent[]> => {
   const updatedAfter = sinceInstant.toISOString()
   // The seasons are Finnish years, as the events' are (GetEventsFunction).
   const startSeason = yearOf(sinceInstant, TIME_ZONE)
-  const endSeason = currentYear(TIME_ZONE)
+  const endSeason = latestSeason()
   const seasons = Array.from({ length: endSeason - startSeason + 1 }, (_, index) => startSeason + index)
 
   const perSeason = await Promise.all(seasons.map((season) => querySeason(season, updatedAfter)))
@@ -46,7 +53,7 @@ const queryAllSeasons = async (): Promise<JsonDogEvent[]> => {
     return [...seasonEvents, ...earlier]
   }
 
-  return walkBack(currentYear(TIME_ZONE) + 1, 0)
+  return walkBack(latestSeason(), 0)
 }
 
 /**
