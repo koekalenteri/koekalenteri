@@ -341,7 +341,7 @@ jobs:
           node scripts/smoke-deploy.mjs "${args[@]}"
 
   # The public path through the test environment once a deploy there is up (KOE-1559): the front
-  # page lists an event, its registration form opens and checks what is filled in. The run writes
+  # page lists an event, its registration form opens and validates what is filled in. The run writes
   # its own event into the stack's event table first (e2e/remote/global-setup.ts) and deletes it
   # afterwards, here too whatever the outcome, so a failed or cancelled run leaves nothing in the
   # public list. The form is never sent, so nothing is stored and no mail goes out. Every deploy of

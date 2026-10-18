@@ -21,22 +21,25 @@ test.describe('the test environment after a deploy', { annotation: issue('KOE-15
     await expect(page.getByRole('combobox', { name: 'Rekisterinumero' })).toBeVisible()
   })
 
-  // The breeder's section opens and the qualifying results are read only once there is a dog, so
-  // with the owner and the terms filled in, those two and the dog are all the form still asks for.
-  test('the registration form checks what is filled in and asks only for what needs the dog', async ({ page }) => {
+  // Without a dog the form offers only the class, the reserve and groups, the notes and the terms:
+  // the breeder's and the owners' sections open once there is a dog, and the dog would be fetched
+  // from the Kennel Club. So the check is that the form's own validation answers what is filled in:
+  // accepting the terms takes them off the list of what is missing, and nothing else changes.
+  test('the registration form lists what is missing and takes the terms off once accepted', async ({ page }) => {
     const form = new RegistrationPage(page)
     await form.goto(remoteEvent())
-
-    await form.fillOwner({ email: 'omistaja@example.com', location: 'Tampere', name: 'Olli Omistaja' }, '401234567')
-    await form.acceptTerms()
-
-    await expect(form.submit).toBeDisabled()
-    await page.getByRole('button', { name: 'Miksi en voi siirtyä eteenpäin?' }).click()
-    const missing = page.getByTestId('missing-info')
-    await expect(missing.getByRole('listitem')).toHaveText([
+    const missing = await form.missingInfo()
+    const forTheDog = [
       'Kasvattajan tiedot',
       'Koiran tiedot',
+      'Omistajan tiedot',
       'Osallistumisoikeuteen vaikuttavat tulokset',
-    ])
+    ]
+    await expect(missing).toHaveText(['Ehdot ja tietosuojaseloste', ...forTheDog])
+
+    await form.acceptTerms()
+
+    await expect(missing).toHaveText(forTheDog)
+    await expect(form.submit).toBeDisabled()
   })
 })

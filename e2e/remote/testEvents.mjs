@@ -63,6 +63,10 @@ const testEventIds = async (startKey) => {
   return page.LastEvaluatedKey ? [...ids, ...(await testEventIds(page.LastEvaluatedKey))] : ids
 }
 
+/** What a sweep did, in a line for the log: the ids it deleted, or that there were none. */
+export const describeSweep = (ids) =>
+  ids.length ? `Deleted browser test events ${ids.join(', ')}` : 'No browser test events to delete'
+
 /**
  * Deletes every event of the test organizer: the run's own by key, the ones the index lists, and
  * any id given. Answers the ids deleted; a key with no row is deleted all the same.

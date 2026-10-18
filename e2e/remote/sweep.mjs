@@ -5,7 +5,6 @@
  *
  *   E2E_EVENT_TABLE=<the stack's EventTable> node e2e/remote/sweep.mjs
  */
-import { sweepTestEvents } from './testEvents.mjs'
+import { describeSweep, sweepTestEvents } from './testEvents.mjs'
 
-const ids = await sweepTestEvents()
-console.log(ids.length ? `Deleted ${ids.join(', ')}` : 'No browser test events to delete')
+console.log(describeSweep(await sweepTestEvents()))

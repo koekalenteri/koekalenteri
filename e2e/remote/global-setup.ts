@@ -11,7 +11,7 @@
 import { setTimeout as sleep } from 'node:timers/promises'
 import { buildEvent, uniqueId } from '../fixtures/events'
 import { REMOTE_EVENT_VARIABLE } from './event'
-import { putTestEvent, sweepTestEvents, TEST_ORGANIZER } from './testEvents.mjs'
+import { describeSweep, putTestEvent, sweepTestEvents, TEST_ORGANIZER } from './testEvents.mjs'
 
 const LISTED_WITHIN_MS = 30_000
 const POLL_INTERVAL_MS = 1_000
@@ -47,7 +47,7 @@ export default async function globalSetup() {
   requiredVariable('E2E_BASE_URL', 'the address of the frontend to test')
   const listUrl = `${requiredVariable('E2E_API_URL', 'the stack’s KoekalenteriFunctionApi').replace(/\/$/, '')}/event`
 
-  await sweepTestEvents()
+  console.log(`Before the run: ${describeSweep(await sweepTestEvents())}`)
   // No Kennel Club ids: another event linked to the same trial would share its lock with this one.
   const event = buildEvent({
     id: uniqueId(TEST_ORGANIZER.id),
@@ -61,13 +61,13 @@ export default async function globalSetup() {
     await waitUntilListed(listUrl, event.id, written + LISTED_WITHIN_MS)
   } catch (error) {
     // No teardown runs after a failed setup: the event goes now, by key, not with the next run.
-    await sweepTestEvents([event.id])
+    console.log(`After the failed setup: ${describeSweep(await sweepTestEvents([event.id]))}`)
     throw error
   }
   console.log(`${listUrl} lists ${event.id} ${Date.now() - written} ms after the write`)
   process.env[REMOTE_EVENT_VARIABLE] = JSON.stringify(event)
 
   return async () => {
-    await sweepTestEvents()
+    console.log(`After the run: ${describeSweep(await sweepTestEvents())}`)
   }
 }

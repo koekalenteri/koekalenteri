@@ -69,9 +69,11 @@ uploads nothing.
 `playwright.remote.config.ts` runs the tests in `remote/tests/` against a deployed stack: the
 release workflow's `e2e` job, after every deploy of the test environment (a prerelease or a
 dispatched branch) and its smoke check (KOE-1559). The front page must list an event, its
-registration form must open from the list, and the form must accept what is filled in and ask
-only for the dog. No login or payment is needed, the dog is not fetched (that goes to the Kennel
-Club) and the form is never sent, so nothing is stored and no mail goes out.
+registration form must open from the list, and the form's validation must list what is missing
+and take the terms off the list once they are accepted. Without a dog that is all the form offers:
+the breeder's and owners' sections open once there is a dog, and the dog is not fetched (that goes
+to the Kennel Club). No login or payment is needed and the form is never sent, so nothing is
+stored and no mail goes out.
 
 The test environment holds no event it can count on, so the run writes its own. `remote/global-setup.ts`
 builds it with `buildEvent` (`fixtures/events.ts`, the same row the local tests write) and stores it in

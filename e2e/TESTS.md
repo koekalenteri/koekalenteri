@@ -61,6 +61,6 @@ bug is fixed. See [README.md](README.md) for how they run.
 | Test | Tags | Issues |
 | --- | --- | --- |
 | the test environment after a deploy › the front page lists the event and its registration form opens from the list | `@public` | [KOE-1559](https://koekalenteri.atlassian.net/browse/KOE-1559) |
-| the test environment after a deploy › the registration form checks what is filled in and asks only for what needs the dog | `@public` | [KOE-1559](https://koekalenteri.atlassian.net/browse/KOE-1559) |
+| the test environment after a deploy › the registration form lists what is missing and takes the terms off once accepted | `@public` | [KOE-1559](https://koekalenteri.atlassian.net/browse/KOE-1559) |
 
 22 tests.
