@@ -7,6 +7,7 @@ import { readEventTypes } from '../lib/repositories/eventTypeRepository'
 import { readJudges } from '../lib/repositories/judgeRepository'
 import { readLocationSnapshot } from '../lib/repositories/locationRepository'
 import { readOfficials } from '../lib/repositories/officialRepository'
+import { readOrganizers } from '../lib/repositories/organizerRepository'
 import { userScopes } from '../lib/user'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 
@@ -27,7 +28,7 @@ interface Fingerprint {
 
 type TimestampedItem = { modifiedAt?: string }
 
-const fingerprintOf = (items: TimestampedItem[]): Fingerprint => ({
+const fingerprintOf = <T extends object>(items: (T & TimestampedItem)[]): Fingerprint => ({
   count: items.length,
   fingerprintAt: items.reduce<string | undefined>(
     (latest, item) => (item.modifiedAt && (!latest || item.modifiedAt > latest) ? item.modifiedAt : latest),
@@ -47,7 +48,7 @@ const collectFingerprints = async (): Promise<Map<string, Fingerprint>> => {
     readOfficials(),
     // Locations live in a single snapshot row that carries its own count and modifiedAt.
     readLocationSnapshot(),
-    readTable(CONFIG.organizerTable),
+    readOrganizers(),
     readTable<JsonUser>(CONFIG.userTable),
   ])
 

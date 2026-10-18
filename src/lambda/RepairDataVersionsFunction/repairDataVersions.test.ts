@@ -6,6 +6,7 @@ const mockReadEventTypes = vi.fn()
 const mockReadJudges = vi.fn()
 const mockReadOfficials = vi.fn()
 const mockReadLocationSnapshot = vi.fn()
+const mockReadOrganizers = vi.fn()
 const mockReadStored = vi.fn()
 const mockWriteFingerprint = vi.fn()
 
@@ -19,6 +20,7 @@ vi.doMock('../lib/repositories/eventTypeRepository', () => ({ readEventTypes: mo
 vi.doMock('../lib/repositories/judgeRepository', () => ({ readJudges: mockReadJudges }))
 vi.doMock('../lib/repositories/officialRepository', () => ({ readOfficials: mockReadOfficials }))
 vi.doMock('../lib/repositories/locationRepository', () => ({ readLocationSnapshot: mockReadLocationSnapshot }))
+vi.doMock('../lib/repositories/organizerRepository', () => ({ readOrganizers: mockReadOrganizers }))
 
 vi.doMock('../lib/dataVersions', () => ({
   // Vitest replaces the whole module, so the scope constant has to come along.
@@ -40,12 +42,13 @@ const organizers = [
 ]
 
 const setup = () => {
-  // emailTemplates, organizers and users through the handler's own client
-  mockReadAll.mockResolvedValueOnce([]).mockResolvedValueOnce(organizers).mockResolvedValueOnce(users)
+  // emailTemplates and users through the handler's own client
+  mockReadAll.mockResolvedValueOnce([]).mockResolvedValueOnce(users)
   mockReadEventTypes.mockResolvedValueOnce([])
   mockReadJudges.mockResolvedValueOnce([])
   mockReadOfficials.mockResolvedValueOnce([])
   mockReadLocationSnapshot.mockResolvedValueOnce({ count: 309, modifiedAt: '2026-01-01T00:00:00.000Z' })
+  mockReadOrganizers.mockResolvedValueOnce(organizers)
 }
 
 describe('repairDataVersions', () => {

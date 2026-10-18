@@ -1,17 +1,13 @@
-import type { Organizer } from '../../types'
 import type { KcIdLookupCriteria } from '../lib/kcTrial'
 import { isEventDateString, isOfficialEventType } from '../../lib/event'
 import { kcFormatOfEventType } from '../../lib/kennelliittoResults'
-import { CONFIG } from '../config'
 import { authorizeWithMemberOf } from '../lib/auth'
 import { parseJSONWithFallback } from '../lib/json'
 import { getKLIntegraatio } from '../lib/KLIntegraatio'
 import { searchKcTrials } from '../lib/kcTrial'
 import { LambdaError, lambda, response } from '../lib/lambda'
 import { readEventType } from '../lib/repositories/eventTypeRepository'
-import CustomDynamoClient from '../utils/CustomDynamoClient'
-
-const dynamoDB = new CustomDynamoClient(CONFIG.organizerTable)
+import { readOrganizer } from '../lib/repositories/organizerRepository'
 
 const isLookupCriteria = (value: Partial<KcIdLookupCriteria>): value is KcIdLookupCriteria =>
   Boolean(value.organizer?.id && value.classes && value.endDate && value.eventType && value.startDate)
@@ -40,7 +36,7 @@ const searchEventKcIdChoicesLambda = lambda('searchEventKcIdChoices', async (eve
     throw new LambdaError(403, 'Forbidden')
   }
 
-  const organizer = await dynamoDB.read<Organizer>({ id: criteria.organizer.id }, CONFIG.organizerTable)
+  const organizer = await readOrganizer(criteria.organizer.id)
   if (!organizer?.kcId) {
     throw new LambdaError(400, 'Event organizer does not have Kennel Club ID')
   }

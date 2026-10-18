@@ -41,9 +41,12 @@ The count can only go down; moving a table here lowers it.
 | Table | Module | Used by |
 | --- | --- | --- |
 | dog | `dogRepository.ts` | `GetDogFunction`, `PutRegistrationFunction` |
+| emailSuppression | `emailSuppressionRepository.ts` | `SesNotificationFunction`, `lib/emailSuppression` |
+| emailTemplate | `emailTemplateRepository.ts` | `GetEmailTemplatesFunction`, `PutEmailTemplateFunction` |
 | event | `eventRepository.ts` | `lib/event.ts`, `lib/startNumbers.ts`, `lib/stationTurns.ts`, `lib/statsRebuild.ts`, `lib/user.ts`, `GetEventsFunction`, `GetAdminEventsFunction`, `PutInvitationAttachmentFunction`, `RunMigrationFunction`, `SendRegistrationMessagesFunction` |
 | eventType | `eventTypeRepository.ts` | `GetDogFunction`, `GetEventTypesFunction`, `PutEventTypeFunction`, `KennelliittoResultsFunction`, `SearchEventKcIdChoicesFunction`, `RepairDataVersionsFunction`, `lib/officialDirectory` (`GetJudgesFunction`, `GetOfficialsFunction`), `lib/stats` |
 | judge | `judgeRepository.ts` | `GetJudgesFunction` (through `lib/judge`), `PutJudgeFunction`, `PutEventTypeFunction`, `ImportCopiedEventFunction`, `RepairDataVersionsFunction` |
 | official | `officialRepository.ts` | `GetOfficialsFunction` (through `lib/official`), `PutEventTypeFunction`, `RepairDataVersionsFunction` |
 | location | `locationRepository.ts` | `GetLocationsFunction`, `RefreshLocationsFunction` (through `lib/location`), `RepairDataVersionsFunction` |
+| organizer | `organizerRepository.ts` | `GetOrganizersFunction`, `PutOrganizerFunction`, `SearchEventKcIdChoicesFunction`, `ExportEventToStageFunction`, `ImportCopiedEventFunction`, `KennelliittoResultsFunction`, `PaymentCreateFunction`, `RefundCreateFunction`, `RepairDataVersionsFunction`, `lib/user.ts` |
 | wsConnections | `../ws/connectionRepository.ts` | the WebSocket handlers and `lib/ws` |

@@ -9,9 +9,8 @@ vi.useFakeTimers()
 const TEST_NOW = new Date('2026-06-01T12:00:00.000Z')
 
 const mockAuthorizeWithMemberOf = vi.fn<() => Promise<{ memberOf: string[]; user: JsonUser }>>()
-const mockReadOrganizer = vi.fn<() => Promise<Organizer | undefined>>()
+const mockReadOrganizer = vi.fn<(id: string) => Promise<Organizer | undefined>>()
 const mockReadEventType = vi.fn<(eventType: string) => Promise<JsonEventType | undefined>>()
-const mockRead = vi.fn((_key: Record<string, unknown>) => mockReadOrganizer())
 const mockResponse = vi.fn<(status: number, body: unknown, event: unknown) => unknown>()
 const mockLueKokeet = vi.fn<(params: unknown) => Promise<KLIntegraatioResult<KLIntKoeListassa[]>>>()
 const mockLueKoe = vi.fn<(params: { koeGuid?: string }) => Promise<KLIntegraatioResult<KLIntKoe>>>()
@@ -45,12 +44,8 @@ vi.doMock('../lib/repositories/eventTypeRepository', () => ({
   readEventType: mockReadEventType,
 }))
 
-vi.doMock('../utils/CustomDynamoClient', () => ({
-  default: vi.fn(function MockCustomDynamoClient() {
-    return {
-      read: mockRead,
-    }
-  }),
+vi.doMock('../lib/repositories/organizerRepository', () => ({
+  readOrganizer: mockReadOrganizer,
 }))
 
 const { default: searchEventKcIdChoicesLambda } = await import('./handler')
@@ -151,7 +146,7 @@ describe('searchEventKcIdChoicesLambda', () => {
   it('asks Koe/Kokeet with the organizer number, the koemuoto abbreviation and the days of the event', async () => {
     await search()
 
-    expect(mockRead).toHaveBeenCalledWith({ id: 'org-id' }, expect.anything())
+    expect(mockReadOrganizer).toHaveBeenCalledWith('org-id')
     expect(mockLueKokeet).toHaveBeenCalledTimes(1)
     expect(mockLueKokeet).toHaveBeenCalledWith({
       alku: '2026-09-26',
@@ -220,7 +215,7 @@ describe('searchEventKcIdChoicesLambda', () => {
 
     await search({ ...laukaaRequest, organizer: { id: 'org-2' } })
 
-    expect(mockRead).toHaveBeenCalledWith({ id: 'org-2' }, expect.anything())
+    expect(mockReadOrganizer).toHaveBeenCalledWith('org-2')
     expect(mockLueKokeet).toHaveBeenCalledWith(expect.objectContaining({ yhdistys: 67890 }))
   })
 
@@ -463,8 +458,8 @@ describe('searchEventKcIdChoicesLambda', () => {
     const event = constructAPIGwEvent({ ...lookupRequest, organizer: undefined }, { method: 'POST' })
 
     await expect(searchEventKcIdChoicesLambda(event)).rejects.toMatchObject({ status: 400 })
-    expect(mockRead).not.toHaveBeenCalled()
     expect(mockReadEventType).not.toHaveBeenCalled()
+    expect(mockReadOrganizer).not.toHaveBeenCalled()
     expect(mockLueKokeet).not.toHaveBeenCalled()
   })
 
@@ -509,8 +504,8 @@ describe('searchEventKcIdChoicesLambda', () => {
     const event = constructAPIGwEvent({ ...lookupRequest, organizer: { id: 'org-2' } }, { method: 'POST' })
 
     await expect(searchEventKcIdChoicesLambda(event)).rejects.toMatchObject({ status: 403 })
-    expect(mockRead).not.toHaveBeenCalled()
     expect(mockReadEventType).not.toHaveBeenCalled()
+    expect(mockReadOrganizer).not.toHaveBeenCalled()
     expect(mockLueKokeet).not.toHaveBeenCalled()
   })
 

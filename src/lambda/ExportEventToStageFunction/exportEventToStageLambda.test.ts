@@ -11,7 +11,7 @@ const mockResponse = vi.fn()
 const mockAuthorize = vi.fn()
 const mockGetEvent = vi.fn<(id: string) => Promise<JsonDogEvent>>()
 const mockGetRegistrations = vi.fn<(id: string) => Promise<JsonRegistration[]>>()
-const mockRead = vi.fn()
+const mockReadOrganizer = vi.fn()
 const mockCopyFile = vi.fn()
 const mockAudit = vi.fn()
 const mockInvoke = vi.fn()
@@ -39,11 +39,7 @@ vi.doMock('../lib/audit', async () => ({
   ...(await vi.importActual<typeof import('../lib/audit')>('../lib/audit')),
   audit: mockAudit,
 }))
-vi.doMock('../utils/CustomDynamoClient', () => ({
-  default: vi.fn(function MockCustomDynamoClient() {
-    return { read: mockRead }
-  }),
-}))
+vi.doMock('../lib/repositories/organizerRepository', () => ({ readOrganizer: mockReadOrganizer }))
 vi.doMock('@aws-sdk/client-lambda', () => ({
   InvokeCommand: vi.fn(function MockInvokeCommand(input) {
     return { input }
@@ -88,7 +84,7 @@ describe('exportEventToStageLambda', () => {
     mockAuthorize.mockResolvedValue(admin)
     mockGetEvent.mockResolvedValue(sourceEvent())
     mockGetRegistrations.mockResolvedValue(sourceRegistrations())
-    mockRead.mockResolvedValue({ id: 'org-prod', kcId: 1234, name: 'Seura' })
+    mockReadOrganizer.mockResolvedValue({ id: 'org-prod', kcId: 1234, name: 'Seura' })
     mockInvoke.mockResolvedValue(invokeResult({ eventId: 'copy-1', judges: [] }))
   })
 
@@ -122,6 +118,7 @@ describe('exportEventToStageLambda', () => {
       organizerKcId: 1234,
       source: { eventId: 'source-1', stage: 'prod' },
     })
+    expect(mockReadOrganizer).toHaveBeenCalledWith(eventWithParticipantsInvited.organizer.id)
     expect(mockCopyFile).toHaveBeenCalledWith('attachment-1', 'koekalenteri-test-event-attachments')
     expect(mockAudit).toHaveBeenCalledWith({
       auditKey: `event:${eventWithParticipantsInvited.id}`,
@@ -172,7 +169,7 @@ describe('exportEventToStageLambda', () => {
   })
 
   it("needs the organizer's Kennel Club number to find it in the target", async () => {
-    mockRead.mockResolvedValueOnce({ id: 'org-prod', name: 'Seura' })
+    mockReadOrganizer.mockResolvedValueOnce({ id: 'org-prod', name: 'Seura' })
     const event = request({ eventId: 'source-1', target: 'test' })
 
     await exportEventToStageLambda(event)

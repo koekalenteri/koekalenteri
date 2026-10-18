@@ -7,8 +7,8 @@ import { CONFIG } from '../config'
 import { createEventCopy } from '../lib/eventCopy'
 
 const mockQuery = vi.fn()
-const mockReadAll = vi.fn()
 const mockReadJudges = vi.fn()
+const mockReadOrganizers = vi.fn()
 const mockSaveEvent = vi.fn()
 const mockPublishEventChange = vi.fn()
 const mockSaveRegistrations = vi.fn()
@@ -17,10 +17,11 @@ const mockAudit = vi.fn()
 
 vi.doMock('../utils/CustomDynamoClient', () => ({
   default: vi.fn(function MockCustomDynamoClient() {
-    return { query: mockQuery, readAll: mockReadAll }
+    return { query: mockQuery }
   }),
 }))
 vi.doMock('../lib/repositories/judgeRepository', () => ({ readJudges: mockReadJudges }))
+vi.doMock('../lib/repositories/organizerRepository', () => ({ readOrganizers: mockReadOrganizers }))
 vi.doMock('../lib/event', () => ({ saveEvent: mockSaveEvent }))
 vi.doMock('../lib/ws/actions', () => ({ publishEventChange: mockPublishEventChange }))
 vi.doMock('../lib/registration', async () => ({
@@ -70,7 +71,7 @@ describe('importCopiedEvent', () => {
     vi.useFakeTimers({ now: new Date('2026-09-29T12:00:00.000Z') })
     CONFIG.stageName = 'test'
     mockQuery.mockResolvedValue([{ admin: true, email: 'jukka@example.com', id: 'u1' }])
-    mockReadAll.mockResolvedValue([{ id: 'org-test', kcId: 1234, name: 'Seura' }])
+    mockReadOrganizers.mockResolvedValue([{ id: 'org-test', kcId: 1234, name: 'Seura' }])
     mockReadJudges.mockResolvedValue([judge])
     mockSaveEvent.mockImplementation(async (event: JsonDogEvent) => ({ audience: 'public', patch: event }))
   })
@@ -164,7 +165,7 @@ describe('importCopiedEvent', () => {
   })
 
   it("needs this environment to know the organizer's Kennel Club number", async () => {
-    mockReadAll.mockResolvedValueOnce([{ id: 'org-test', kcId: 99, name: 'Toinen seura' }])
+    mockReadOrganizers.mockResolvedValueOnce([{ id: 'org-test', kcId: 99, name: 'Toinen seura' }])
 
     await expect(importCopiedEvent(request())).rejects.toThrow(
       'No organizer with Kennel Club number 1234 in the target environment'

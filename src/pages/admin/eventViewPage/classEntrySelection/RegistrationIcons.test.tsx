@@ -375,4 +375,71 @@ describe('RegistrationIcons component', () => {
     // The component should be rendered
     expect(screen.getByTestId('SpeakerNotesOutlinedIcon')).toBeInTheDocument()
   })
+  // KOE-1552: the row works its payment picture out once and every mark reads that one; these go
+  // through the whole row, as the entry list renders it.
+  describe('payment picture of the row', () => {
+    // A trial with a fee of 40 (35 for a member) whose koekutsu round has gone out.
+    const invitedEvent = { ...eventWithStaticDatesAnd3Classes, cost: 40, costMember: 35, state: 'invited' as const }
+    const place = { key: '2024-01-01-ALO-ap', number: 1 }
+    const nonMember = { ...registrationWithStaticDates.owner!, membership: false }
+    const participant = createMockRegistration({
+      class: 'ALO',
+      group: place,
+      handler: { ...registrationWithStaticDates.handler!, membership: false },
+      messagesSent: { picked: true },
+      owner: nonMember,
+      paidAmount: undefined,
+      paidAt: undefined,
+      paymentStatus: undefined,
+      refundAmount: undefined,
+    })
+
+    it.each([
+      ['an unpaid place', 1, participant],
+      [
+        'a place paid in full',
+        0.05,
+        { ...participant, paidAmount: 40, paidAt: new Date(), paymentStatus: 'SUCCESS' as const },
+      ],
+      ['a reserve', 0.05, { ...participant, group: { key: 'reserve', number: 1 } }],
+    ])('marks the koekutsu held for the payment of %s with opacity %s', (_name, opacity, reg) => {
+      render(<RegistrationIcons event={invitedEvent} reg={reg} />)
+
+      expect(screen.getByTestId('ScheduleSendOutlinedIcon')).toHaveStyle(`opacity: ${opacity}`)
+    })
+
+    it.each([
+      [
+        'a part missing',
+        { ...participant, paidAmount: 35, paidAt: new Date(), paymentStatus: 'SUCCESS' as const },
+        /^registration\.tooltip\.paymentDue/,
+        'EuroOutlinedIcon',
+      ],
+      [
+        'the full price paid by a member',
+        {
+          ...participant,
+          owner: { ...nonMember, membership: true },
+          paidAmount: 40,
+          paidAt: new Date(),
+          paymentStatus: 'SUCCESS' as const,
+        },
+        /^registration\.tooltip\.paymentExcess/,
+        'ProductionQuantityLimitsIcon',
+      ],
+    ])('names %s in the tooltip and marks it in the row', async (_name, reg, line, rowIcon) => {
+      const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime })
+      render(<RegistrationIcons event={{ ...invitedEvent, state: 'confirmed' }} reg={reg} />)
+
+      const mark = screen.getByTestId(rowIcon)
+      expect(mark).toHaveClass('MuiSvgIcon-colorWarning')
+
+      await user.hover(mark.closest('div')!)
+      act(() => {
+        vi.runOnlyPendingTimers()
+      })
+
+      expect(await screen.findByText(line)).toBeInTheDocument()
+    })
+  })
 })

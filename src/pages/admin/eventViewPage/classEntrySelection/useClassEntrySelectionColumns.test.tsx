@@ -1044,6 +1044,31 @@ describe('fee against what was paid', () => {
       false
     )
   })
+
+  // KOE-1552: in a trial that is not confirmed the menu offers the ordinary refund to a reserve, the
+  // overpaid part of a participant not at all, and asks nobody for a payment.
+  it.each([
+    ['an overpaid participant', false, { group: { key: 'testing', number: 1 } }],
+    ['an overpaid reserve', true, { group: { key: 'reserve', number: 1 } }],
+  ])('offers the refund in a cancelled trial to %s: %s', (_name, offered, overrides) => {
+    const cancelledEvent = { ...eventWithStaticDatesAnd3Classes, state: 'cancelled' as const }
+    const { result } = renderHook(() => useClassEntrySelectionColumns(mockAvailableDates, cancelledEvent))
+    const actionsColumn = result.current.participantColumns.find((col) => col.field === 'actions')
+
+    const actions = getRowActions(actionsColumn, paidRow(130, overrides))
+    expect(actions.some((action) => action.key === 'refund')).toBe(offered)
+    expect(actions.some((action) => action.key === 'requestPayment')).toBe(false)
+  })
+
+  it('asks for no payment in a cancelled trial', () => {
+    const cancelledEvent = { ...eventWithStaticDatesAnd3Classes, state: 'cancelled' as const }
+    const { result } = renderHook(() =>
+      useClassEntrySelectionColumns(mockAvailableDates, cancelledEvent, { requestPayment: vi.fn() })
+    )
+    const actionsColumn = result.current.entryColumns.find((col) => col.field === 'actions')
+
+    expect(getRowActions(actionsColumn, paidRow(100)).some((action) => action.key === 'requestPayment')).toBe(false)
+  })
 })
 
 describe('Edge cases', () => {

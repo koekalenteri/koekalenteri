@@ -1,4 +1,4 @@
-import type { DogEvent, Registration } from '@/types'
+import type { PaymentPicture, PricedDogEvent, Registration } from '@/types'
 import AddTaskOutlinedIcon from '@mui/icons-material/AddTaskOutlined'
 import CheckOutlined from '@mui/icons-material/CheckOutlined'
 import CommentOutlined from '@mui/icons-material/CommentOutlined'
@@ -14,8 +14,12 @@ import SpeakerNotesOutlined from '@mui/icons-material/SpeakerNotesOutlined'
 import { useTranslation } from 'react-i18next'
 import { getPaymentBalance } from '@/lib/cost'
 import { formatMoney } from '@/lib/money'
-import { hasStandingPayment, isInvitationAwaitingPayment } from '@/lib/payment'
-import { getInvitationReadStatus, getRegistrationOwners, priorityDescriptionKey } from '@/lib/registration'
+import {
+  getInvitationReadStatus,
+  getRegistrationOwners,
+  isInvitationAwaitingPayment,
+  priorityDescriptionKey,
+} from '@/lib/registration'
 import { isConfirmedEvent } from '@/lib/typeGuards'
 import { TooltipIcon } from '@/pages/components/IconsTooltip'
 import { PriorityIcon } from '@/pages/components/icons/PriorityIcon'
@@ -24,30 +28,28 @@ import RankingPoints from '@/pages/components/RankingPoints'
 const formatEmailDeliveryReason = (reason?: string) => (reason ? ` (${reason})` : '')
 
 /** Only a confirmed trial has places to invite to, and only it carries the fee to compare against. */
-const awaitsInvitationPayment = (event: DogEvent, reg: Registration): boolean =>
-  isConfirmedEvent(event) && isInvitationAwaitingPayment(event, reg)
+const awaitsInvitationPayment = (event: PricedDogEvent, reg: Registration, payment: PaymentPicture): boolean =>
+  isConfirmedEvent(event) && isInvitationAwaitingPayment(event, reg, payment)
 
-/**
- * The fee against what has been paid, once something has: a never-paid place is the dim euro sign,
- * not a shortfall. A missing part is what the secretary asks for (KOE-722); an excess is what they
- * give back (KOE-1382).
- */
-const paidBalance = (event: DogEvent, reg: Registration) =>
-  reg.paidAt && isConfirmedEvent(event) ? getPaymentBalance(event, reg) : undefined
+// Props for the RegistrationTooltipContent component
+interface RegistrationTooltipContentProps {
+  event: PricedDogEvent
+  reg: Registration
+  /** The row's payment picture, worked out once for the row's icons (`getPaymentPicture`). */
+  payment: PaymentPicture
+  priority: boolean | 0.5
+  manualResultCount: number
+  rankingPoints: number
+}
 
 export const hasRegistrationTooltipContent = ({
   event,
   reg,
+  payment,
   priority,
   manualResultCount,
   rankingPoints,
-}: {
-  event: DogEvent
-  reg: Registration
-  priority: boolean | 0.5
-  manualResultCount: number
-  rankingPoints: number
-}): boolean => {
+}: RegistrationTooltipContentProps): boolean => {
   if (priority) return true
   if (getRegistrationOwners(reg).some((owner) => owner?.membership)) return true
   if (reg.handler?.membership) return true
@@ -56,7 +58,7 @@ export const hasRegistrationTooltipContent = ({
   if (reg.confirmed) return true
   if (reg.emailDeliveryStatus) return true
   if (getInvitationReadStatus(reg) !== 'not-sent') return true
-  if (awaitsInvitationPayment(event, reg)) return true
+  if (awaitsInvitationPayment(event, reg, payment)) return true
   if (manualResultCount > 0) return true
   if (reg.notes.trim()) return true
   if (reg.internalNotes?.trim()) return true
@@ -65,26 +67,18 @@ export const hasRegistrationTooltipContent = ({
   return false
 }
 
-// Props for the RegistrationTooltipContent component
-interface RegistrationTooltipContentProps {
-  event: DogEvent
-  reg: Registration
-  priority: boolean | 0.5
-  manualResultCount: number
-  rankingPoints: number
-}
-
 // Component for tooltip content
 const RegistrationTooltipContent = ({
   event,
   reg,
+  payment,
   priority,
   manualResultCount,
   rankingPoints,
 }: RegistrationTooltipContentProps) => {
   const { t } = useTranslation()
 
-  if (!hasRegistrationTooltipContent({ event, manualResultCount, priority, rankingPoints, reg })) return null
+  if (!hasRegistrationTooltipContent({ event, manualResultCount, payment, priority, rankingPoints, reg })) return null
 
   // Get priority description
   const key = priority ? priorityDescriptionKey(event, reg) : null
@@ -124,7 +118,11 @@ const RegistrationTooltipContent = ({
     paidAmount: formatMoney(reg.paidAmount ?? 0),
     refundAmount: formatMoney(reg.refundAmount ?? 0),
   }
-  const balance = paidBalance(event, reg)
+  // The fee against what has been paid, once a paid fee no longer matches it (the picture's
+  // `unsettled`): a never-paid place is the dim euro sign, not a shortfall. A missing part is what
+  // the secretary asks for (KOE-722); an excess is what they give back (KOE-1382). The lines name
+  // the fee and the net paid amount, which the picture does not carry.
+  const balance = payment.unsettled ? getPaymentBalance(event, reg) : undefined
   const balanceTextValues = balance && {
     cost: formatMoney(balance.cost),
     due: formatMoney(balance.due),
@@ -170,7 +168,7 @@ const RegistrationTooltipContent = ({
         key="payment-paid"
         // Paid while some of the payment still stands for the place, a refunded fee paid again too
         // (KOE-1526); a payment recorded before the amounts were kept counts as paid.
-        condition={!!reg.paidAt && hasStandingPayment(reg)}
+        condition={!!reg.paidAt && payment.standing}
         icon={<EuroOutlined fontSize="small" />}
         text={t('registration.tooltip.paid', { amount: formatMoney(reg.paidAmount ?? 0) })}
       />
@@ -224,7 +222,7 @@ const RegistrationTooltipContent = ({
       />
       <TooltipIcon
         key="invitation-awaiting-payment"
-        condition={awaitsInvitationPayment(event, reg)}
+        condition={awaitsInvitationPayment(event, reg, payment)}
         icon={<ScheduleSendOutlined color="warning" fontSize="small" />}
         text={t('registration.tooltip.invitation.awaitingPayment')}
       />

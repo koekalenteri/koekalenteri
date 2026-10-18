@@ -144,6 +144,31 @@ describe('PaymentDetails', () => {
     expect(screen.getByText('registration.toBePaid').nextSibling).toHaveTextContent('35,00 €')
   })
 
+  // KOE-1552: the secretary's row carries no picture but has its group, so the details work the
+  // picture out from the row: a refunded fee is owed again by a place, not by a reserve.
+  it.each([
+    ['a place', { key: '2025-08-15-ap', number: 1 }, '35,00 €'],
+    ['a reserve', { key: 'reserve', number: 1 }, '0,00 €'],
+  ])("reads the secretary's row of %s whose fee was refunded", (_name, group, payable) => {
+    setup({
+      includePayable: true,
+      registration: {
+        ...registration,
+        group,
+        optionalCosts: [],
+        paidAmount: 35,
+        paymentStatus: 'SUCCESS',
+        refundAmount: 30,
+        refundHandlingCost: 5,
+      },
+    })
+
+    expect(screen.getByText('registration.paid').nextSibling).toHaveTextContent('35,00 €')
+    expect(screen.getByText('registration.refunded').nextSibling).toHaveTextContent('−30,00 €')
+    expect(screen.getByText('registration.refundHandlingCost').nextSibling).toHaveTextContent('−5,00 €')
+    expect(screen.getByText('registration.toBePaid').nextSibling).toHaveTextContent(payable)
+  })
+
   // KOE-1530: with the server's picture the details show its amounts, whatever the row beside it
   // holds; a row without one (the form's, the secretary's) is read as before.
   it("shows the picture's amounts and what is to pay in place of the row's own", () => {

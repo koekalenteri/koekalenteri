@@ -1,4 +1,4 @@
-import type { JsonDogEvent, JsonUser, Organizer } from '../../types'
+import type { JsonDogEvent, JsonUser } from '../../types'
 import type { CopyImportRequest, CopyImportResult } from '../lib/eventCopy'
 import { nanoid } from 'nanoid'
 import { eventCopiedFromAudit } from '../../lib/audit'
@@ -11,12 +11,13 @@ import { findCopyLeaks, judgeNotices } from '../lib/eventCopy'
 import { logger } from '../lib/log'
 import { saveRegistrations } from '../lib/registration'
 import { readJudges } from '../lib/repositories/judgeRepository'
+import { readOrganizers } from '../lib/repositories/organizerRepository'
 import { sumNewRegistrationStatDeltas, updateOrganizerEventStats } from '../lib/stats'
 import { publishEventChange } from '../lib/ws/actions'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 
-const { organizerTable, userTable } = CONFIG
-const dynamoDB = new CustomDynamoClient(organizerTable)
+const { userTable } = CONFIG
+const dynamoDB = new CustomDynamoClient(userTable)
 
 const findAdmin = async (email: string) => {
   const users = await dynamoDB.query<JsonUser>({
@@ -48,8 +49,8 @@ export default async function importCopiedEvent(request: CopyImportRequest): Pro
     throw new Error('The copier is not an admin in the target environment')
   }
 
-  const organizers = await dynamoDB.readAll<Organizer>({ table: organizerTable })
-  const organizer = organizers?.find((candidate) => candidate.kcId === organizerKcId)
+  const organizers = await readOrganizers()
+  const organizer = organizers.find((candidate) => candidate.kcId === organizerKcId)
   if (!organizer) throw new Error(`No organizer with Kennel Club number ${organizerKcId} in the target environment`)
 
   const now = new Date().toISOString()

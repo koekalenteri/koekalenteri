@@ -65,6 +65,11 @@ vi.doMock('../lib/registration', () => ({
   getRegistration: mockGetRegistration,
 }))
 
+// The organizer read answers from the same queue as the registration read, in the order the handler reads.
+vi.doMock('../lib/repositories/organizerRepository', () => ({
+  readOrganizer: async (id: string) => mockRead({ id }, 'organizer-table'),
+}))
+
 vi.doMock('../utils/CustomDynamoClient', () => ({
   default: vi.fn(function MockCustomDynamoClient() {
     return {
