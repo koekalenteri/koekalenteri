@@ -1,5 +1,5 @@
-import type { EventResult, StationEntry, StationTurn } from '../../types'
-import type { EventResultSubmission, EventResultsResponse } from '../registration'
+import type { EventResult, EventResultsResponse, StationEntry, StationTurn } from '../../types'
+import type { EventResultSubmission } from '../registration'
 import { vi } from 'vitest'
 
 export const getStationEntry = vi.fn(

@@ -504,8 +504,8 @@ export const withResultsDay = (
   return result
 }
 
-/** One entry of a stored day list: a day key, or the date the JSON reviver made of one. */
-export const isDayEntry = (entry: unknown): entry is string | Date => typeof entry === 'string' || entry instanceof Date
+/** One entry of a stored day list: a day key, or a day key and a time. */
+export const isDayEntry = (entry: unknown): entry is string => typeof entry === 'string'
 
 /** A scope as a client sent it; anything not shaped like one publishes nothing. */
 const toDayScope = (value: unknown): ResultsDayScope => {
@@ -782,7 +782,7 @@ type AvailabilityEvent = {
 }
 type AvailabilityRegistration = { class?: string | null; group: { date?: Date | string; time?: RegistrationTime } }
 
-/** A day as stored (a yyyy-MM-dd key), as the JSON reviver hands it over (a date), or not known. */
+/** A day as a yyyy-MM-dd key, as a date, or not known. */
 type DayInput = Date | string | undefined
 
 /**
@@ -893,15 +893,16 @@ export const startNumbersSlotKey = (date: Date | string, time?: RegistrationTime
 }
 
 /**
- * A scope list as slot keys. Days are stored as yyyy-MM-dd strings, but the browser's JSON reviver
- * turns those into dates on the way in, so the entries are keyed again before any comparison. A
- * half-day entry is not a date and comes through as it was stored.
+ * A scope list as slot keys: the day keys and the half-day keys as they are stored. Between 3.9.2026
+ * (5a4c9e57) and 28.9.2026 (b4e4ed68) an event save could carry a browser's copy of the list, whose
+ * days the JSON reviver of the time had turned into dates that went back as ISO timestamps; such an
+ * entry is read as the Finnish day it names (KOE-1546).
  */
-const scopeSlotKeys = (scope: Array<string | Date>) =>
-  scope.map((entry) => (typeof entry === 'string' && entry.includes('/') ? entry : startListAvailabilityDateKey(entry)))
+const scopeSlotKeys = (scope: string[]) =>
+  scope.map((entry) => (entry.includes('T') ? startListAvailabilityDateKey(entry) : entry))
 
 /** Only the whole days of a scope list: a half-day entry does not make its day published. */
-const scopeDayKeys = (scope: Array<string | Date>) => scopeSlotKeys(scope).filter((key) => !key.includes('/'))
+const scopeDayKeys = (scope: string[]) => scopeSlotKeys(scope).filter((key) => !key.includes('/'))
 
 /** A scope of published days, the start numbers' or the results': every day, none, or the listed ones. */
 type DayScope = StartNumbersDayScope | ResultsDayScope

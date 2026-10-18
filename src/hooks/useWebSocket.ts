@@ -2,11 +2,15 @@ import type {
   AdminDataCollection,
   AuditRecord,
   DogEvent,
+  JsonDogEvent,
+  JsonPublicRegistration,
+  JsonRegistration,
   Patch,
   PublicDogEvent,
   PublicRegistration,
   Registration,
 } from '../types'
+import { isValid } from 'date-fns/isValid'
 import { useAtomValue } from 'jotai'
 import { unwrap, useAtomCallback } from 'jotai/utils'
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
@@ -22,6 +26,7 @@ import { sanitizeDogEvent } from '../lib/event'
 import { collectionResponseCursor, collectionSince, reconcileCollection } from '../lib/incremental'
 import { getIdTokenDiagnostics } from '../lib/token'
 import { applyPatch, applyPatchesById, applyPatchOrInsert, getPatchChangedIds, parseJSON } from '../lib/utils'
+import { toAuditRecord, toDogEvent, toPublicDogEvent, toPublicRegistration, toRegistration } from '../lib/wire'
 import { adminEmailTemplatesAtom, fetchEmailTemplates } from '../pages/admin/state/emailTemplates'
 import { adminEventsAtom } from '../pages/admin/state/events'
 import { adminEventTypesAtom } from '../pages/admin/state/eventTypes'
@@ -155,8 +160,10 @@ const isInsertablePublicEventPatch = (
   !!patch.location &&
   !!patch.organizer?.id &&
   !!patch.organizer.name &&
-  patch.startDate instanceof Date &&
-  patch.endDate instanceof Date &&
+  !!patch.startDate &&
+  isValid(patch.startDate) &&
+  !!patch.endDate &&
+  isValid(patch.endDate) &&
   Array.isArray(patch.classes) &&
   Array.isArray(patch.judges)
 
@@ -168,11 +175,8 @@ interface EventViewer {
   name: string
 }
 
-interface EventPatchMessage {
-  eventId: string
-  scope?: string
-  [key: string]: unknown
-}
+/** An event patch as the server sends it: the event's fields on the wire, beside the address. */
+type EventPatchMessage = { eventId: string; scope?: string } & Patch<JsonDogEvent>
 
 const getViewerPayloads = (viewers: unknown[]): EventViewer[] =>
   viewers
@@ -556,9 +560,9 @@ export const useWebSocket = () => {
   const handleEventPatchMessage = useCallback(
     ({ eventId, scope, ...patch }: EventPatchMessage) => {
       if (scope === 'admin:event-patch') {
-        // parseJSON revives ISO strings into Dates, so the wire patch already has DogEvent shape;
-        // the conversion is the one trust boundary between the socket payload and typed state.
-        const eventPatch = patch as Patch<DogEvent>
+        // The wire patch carries the event's fields as the server wrote them; the typed boundary
+        // (`lib/wire.ts`) makes the named dates Dates, and only those.
+        const eventPatch = toDogEvent(patch)
         void setAdminEvents(eventId, eventPatch)
         const publicPatch = sanitizeDogEvent(eventPatch)
         if (Object.keys(publicPatch).length > 0) {
@@ -571,7 +575,7 @@ export const useWebSocket = () => {
       // socket and carry an eventId with no scope -- `{ eventId, subscribed: true }` from an event
       // subscribe would otherwise be written into the public event.
       if (scope === 'public:event-patch') {
-        setPublicEvents(eventId, patch as Patch<PublicDogEvent>)
+        setPublicEvents(eventId, toPublicDogEvent(patch))
       }
     },
     [setAdminEvents, setPublicEvents]
@@ -580,11 +584,13 @@ export const useWebSocket = () => {
   const handleAdminMessage = useCallback(
     (data: any, token: string | undefined): boolean => {
       if (data.scope === 'admin:event-registrations' && data.eventId && Array.isArray(data.patch)) {
-        void patchRegistrations(data.eventId, data.patch)
+        const patches: Patch<JsonRegistration>[] = data.patch
+        void patchRegistrations(data.eventId, patches.map(toRegistration))
         return true
       }
-      if (data.scope === 'admin:audit-record' && data.record?.auditKey && data.record.timestamp instanceof Date) {
-        for (const listener of auditRecordListenersRef.current) listener(data.record)
+      if (data.scope === 'admin:audit-record' && data.record?.auditKey) {
+        const record = toAuditRecord(data.record)
+        if (isValid(record.timestamp)) for (const listener of auditRecordListenersRef.current) listener(record)
         return true
       }
       if (data.scope === 'admin:data-invalidation' && Array.isArray(data.collections) && token) {
@@ -607,11 +613,15 @@ export const useWebSocket = () => {
     const subscription = publicStartListRef.current
     if (data.scope !== 'public:start-list' || !subscription || data.eventId !== subscription.eventId) return false
 
-    // The rows were composed and sanitized by the server, and parseJSON has revived their dates —
-    // the same trust boundary as an event patch. `stale` means they did not fit in one message.
+    // The rows were composed and sanitized by the server; the typed boundary makes their dates Dates,
+    // as for an event patch. `stale` means they did not fit in one message.
     const version = typeof data.version === 'number' ? data.version : undefined
-    if (Array.isArray(data.participants)) subscription.listener(data.participants, version, subscription.eventId)
-    else if (data.stale === true) subscription.listener(undefined, version, subscription.eventId)
+    if (Array.isArray(data.participants)) {
+      const participants: JsonPublicRegistration[] = data.participants
+      subscription.listener(participants.map(toPublicRegistration), version, subscription.eventId)
+    } else if (data.stale === true) {
+      subscription.listener(undefined, version, subscription.eventId)
+    }
 
     return true
   }, [])
@@ -632,7 +642,8 @@ export const useWebSocket = () => {
         data.eventId === registrationSubscription.eventId &&
         data.registrationId === registrationSubscription.registrationId
       ) {
-        registrationSubscription.listener(data.patch)
+        const patch: Patch<JsonRegistration> = data.patch
+        registrationSubscription.listener(toRegistration(patch))
         return
       }
 

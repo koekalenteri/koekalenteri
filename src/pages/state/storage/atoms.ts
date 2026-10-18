@@ -1,4 +1,5 @@
 import type { SetStateAction } from 'jotai'
+import type { HoldsDate, ReviveOption } from '@/lib/wire'
 import { atom } from 'jotai'
 import { atomWithLazy, RESET } from 'jotai/utils'
 import { parseJSON } from '@/lib/utils'
@@ -6,11 +7,21 @@ import { runCleaners } from './cleaners'
 
 runCleaners()
 
-interface StorageAtomOptions<T> {
+/**
+ * `revive` (KOE-1546) is the stored value's model from its JSON shape, as `lib/wire.ts` makes it: a
+ * value with Dates goes into storage as JSON and comes back with ISO strings, like a response from
+ * the API. Required exactly when the model holds a Date. Runs before `refine`, and never writes the
+ * storage back on its own.
+ */
+type StorageAtomOptions<T, J> = {
   getInitialValue?: () => T
   refine?: (value: unknown) => T | undefined
   onRefined?: () => void
-}
+} & ReviveOption<T, J>
+
+/** The options, which a model with a Date cannot leave out. */
+type StorageAtomArgs<T, J> =
+  true extends HoldsDate<T> ? [options: StorageAtomOptions<T, J>] : [options?: StorageAtomOptions<T, J>]
 
 export const parseStorageJSON = (value: string | null) => {
   try {
@@ -20,23 +31,41 @@ export const parseStorageJSON = (value: string | null) => {
   }
 }
 
-export const atomWithStoredValue = <T>(
+/** The stored value as the model, or `undefined` for a value the converter cannot read. */
+const reviveStored = <T, J>(parsed: unknown, revive?: (stored: J) => T): unknown => {
+  if (!revive || parsed === null || typeof parsed !== 'object') return parsed
+  try {
+    // JSON.parse gave an object; the converter names the wire shape it reads, which is this one.
+    return revive(parsed as J)
+  } catch {
+    return undefined
+  }
+}
+
+export const atomWithStoredValue = <T, J = unknown>(
   key: string,
   initialValue: T,
   storage: Storage,
-  options?: StorageAtomOptions<T>
+  ...[options]: StorageAtomArgs<T, J>
 ) => {
   const fallback = () => options?.getInitialValue?.() ?? initialValue
   const readStoredValue = () => {
     const parsed = parseStorageJSON(storage.getItem(key))
     if (parsed === undefined) return fallback()
-    const refined = options?.refine ? options.refine(parsed) : (parsed as T)
+    const revived = reviveStored(parsed, options?.revive)
+    if (revived === undefined) {
+      storage.removeItem(key)
+      return fallback()
+    }
+    // Without `revive` the model holds no Date (`ReviveOption`), so the parsed JSON is the model.
+    const refined = options?.refine ? options.refine(revived) : (revived as T)
     if (refined === undefined) {
       storage.removeItem(key)
       options?.onRefined?.()
       return fallback()
     }
-    if (refined !== parsed) {
+    // Compared with the revived value: a conversion always builds a new object, and is not a refinement.
+    if (refined !== revived) {
       storage.setItem(key, JSON.stringify(refined))
       options?.onRefined?.()
     }
@@ -74,8 +103,8 @@ export const atomWithStoredValue = <T>(
   return storedAtom
 }
 
-export const atomWithLocalStorage = <T>(key: string, initialValue: T, options?: StorageAtomOptions<T>) =>
-  atomWithStoredValue(key, initialValue, localStorage, options)
+export const atomWithLocalStorage = <T, J = unknown>(key: string, initialValue: T, ...args: StorageAtomArgs<T, J>) =>
+  atomWithStoredValue<T, J>(key, initialValue, localStorage, ...args)
 
-export const atomWithSessionStorage = <T>(key: string, initialValue: T, options?: StorageAtomOptions<T>) =>
-  atomWithStoredValue(key, initialValue, sessionStorage, options)
+export const atomWithSessionStorage = <T, J = unknown>(key: string, initialValue: T, ...args: StorageAtomArgs<T, J>) =>
+  atomWithStoredValue<T, J>(key, initialValue, sessionStorage, ...args)

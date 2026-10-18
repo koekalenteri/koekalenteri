@@ -1,14 +1,17 @@
-import type { PublicDogEvent } from '@/types'
+import type { JsonPublicDogEvent, PublicDogEvent } from '@/types'
 import type { EventMetadata, FilterProps } from './types'
+import { isDate } from 'date-fns/isDate'
+import { isValid } from 'date-fns/isValid'
 import { atom } from 'jotai'
 import { atomWithLazy } from 'jotai/utils'
 import { zonedStartOfDay } from '@/i18n/dates'
+import { arrayOf, toPublicDogEvent } from '@/lib/wire'
 import { atomWithLocalStorage } from '../storage'
 import { deserializeFilter, serializeFilter } from './filters'
 
 export const EVENT_METADATA_INVALIDATED_STORAGE_KEY = 'eventMetadataInvalidated'
 
-const isValidDate = (value: unknown): value is Date => value instanceof Date && !Number.isNaN(value.valueOf())
+const isValidDate = (value: unknown): value is Date => isDate(value) && isValid(value)
 
 const isStoredPublicDogEvent = (value: unknown): value is PublicDogEvent => {
   if (!value || typeof value !== 'object') return false
@@ -40,9 +43,14 @@ const eventsStorageOptions = {
     localStorage.setItem(EVENT_METADATA_INVALIDATED_STORAGE_KEY, 'true')
   },
   refine: refineStoredEvents,
+  revive: arrayOf(toPublicDogEvent),
 }
 
-export const eventsAtom = atomWithLocalStorage<PublicDogEvent[]>('events', [], eventsStorageOptions)
+export const eventsAtom = atomWithLocalStorage<PublicDogEvent[], JsonPublicDogEvent[]>(
+  'events',
+  [],
+  eventsStorageOptions
+)
 
 export const eventMetadataAtom = atomWithLocalStorage<EventMetadata>('eventMetadata', { singles: {} })
 

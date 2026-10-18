@@ -21,8 +21,7 @@ export const createPayment = async (
       http.post<{ eventId: string; registrationId: string }, CreatePaymentResponse | undefined>(
         token ? '/user/payment/create' : '/payment/create',
         { eventId, registrationId },
-        withRegistrationAuth({ signal }, editToken, token),
-        false
+        withRegistrationAuth({ signal }, editToken, token)
       )
     )
 

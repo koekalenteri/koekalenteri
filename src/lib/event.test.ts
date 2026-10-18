@@ -471,11 +471,12 @@ describe('lib/event', () => {
         '2026-09-05',
       ])
 
-      // The browser's JSON reviver turns the stored "2026-09-04" into a date; the answer must not change.
-      const revived = { ...event, startNumbersPublished: { ALO: [new Date(2026, 8, 4, 12)] } }
-      expect(isStartNumbersAvailableForClass(revived, event.classes[0])).toBe(true)
-      expect(isStartNumbersAvailableForClass(revived, event.classes[1])).toBe(false)
-      expect(getPublishedStartNumbersDays(revived, 'ALO')).toEqual(['2026-09-04'])
+      // A stored entry that is a timestamp (an event saved from a browser's copy between 3.9. and
+      // 28.9.2026, KOE-1546) reads as the Finnish day it names; the answer must not change.
+      const stray = { ...event, startNumbersPublished: { ALO: ['2026-09-04T09:00:00.000Z'] } }
+      expect(isStartNumbersAvailableForClass(stray, event.classes[0])).toBe(true)
+      expect(isStartNumbersAvailableForClass(stray, event.classes[1])).toBe(false)
+      expect(getPublishedStartNumbersDays(stray, 'ALO')).toEqual(['2026-09-04'])
 
       // A classless event keys its days off its own dates.
       const classless = { ...event, classes: [], startNumbersPublished: ['2026-09-05'] }
@@ -524,9 +525,9 @@ describe('lib/event', () => {
       // A whole day covers both halves, whichever form it came in.
       const wholeDay = { ...event, startNumbersPublished: { ALO: ['2026-09-26'] } }
       expect(isStartNumbersAvailableForRegistration(wholeDay, afternoon)).toBe(true)
-      const revived = { ...event, startNumbersPublished: { ALO: [new Date(2026, 8, 26, 12)] } }
-      expect(isStartNumbersAvailableForRegistration(revived, afternoon)).toBe(true)
-      expect(isStartNumbersPublishedForSlot(revived, 'ALO', new Date(2026, 8, 26, 9), 'ap')).toBe(true)
+      const stray = { ...event, startNumbersPublished: { ALO: ['2026-09-26T09:00:00.000Z'] } }
+      expect(isStartNumbersAvailableForRegistration(stray, afternoon)).toBe(true)
+      expect(isStartNumbersPublishedForSlot(stray, 'ALO', new Date(2026, 8, 26, 9), 'ap')).toBe(true)
 
       // The halves a day runs in come from the dogs placed on it, and only a split day has any.
       expect(getStartNumbersDayTimes([morning, afternoon], '2026-09-26')).toEqual(['ap', 'ip'])
@@ -1952,8 +1953,8 @@ describe('results published day by day', () => {
   }
 
   describe('isResultsPublishedForDay', () => {
-    it('reads a listed day, stored or revived, and nothing else', () => {
-      for (const day of ['2026-09-12', new Date('2026-09-12')]) {
+    it('reads a listed day, as a key or as a stray timestamp, and nothing else', () => {
+      for (const day of ['2026-09-12', '2026-09-11T21:00:00.000Z']) {
         const event = { resultsPublished: { ALO: [day] } }
         expect(isResultsPublishedForDay(event, 'ALO', '2026-09-12')).toBe(true)
         expect(isResultsPublishedForDay(event, 'ALO', new Date('2026-09-13'))).toBe(false)
@@ -2043,10 +2044,10 @@ describe('results published day by day', () => {
       })
     })
 
-    it('stores the days as day keys, even where a revived date found its way into the flag', () => {
-      // A date stands where the client's reviver would have put one; the stored list holds keys only.
-      const revived = { ...event, resultsPublished: { ALO: [new Date('2026-09-12T09:00:00.000Z')] } }
-      expect(withResultsDay(revived, 'AVO', '2026-09-12', true)).toEqual({ ALO: ['2026-09-12'], AVO: ['2026-09-12'] })
+    it('stores the days as day keys, even where a stray timestamp found its way into the flag', () => {
+      // A timestamp stands where a browser's copy of 3.9.-28.9.2026 put one; the stored list holds keys only.
+      const stray = { ...event, resultsPublished: { ALO: ['2026-09-12T09:00:00.000Z'] } }
+      expect(withResultsDay(stray, 'AVO', '2026-09-12', true)).toEqual({ ALO: ['2026-09-12'], AVO: ['2026-09-12'] })
     })
 
     it('publishes a classless event day by day as its one scope', () => {
@@ -2083,9 +2084,8 @@ describe('results published day by day', () => {
     it('reads the same days the same way, however they are written', () => {
       const stored = { ...event, resultsPublished: { ALO: ['2026-09-12'], AVO: true } }
 
-      expect(isSameResultsPublished(stored, { ALO: [new Date('2026-09-11T21:00:00.000Z')], AVO: ['2026-09-12'] })).toBe(
-        true
-      )
+      // A stray timestamp entry names the same day as its key.
+      expect(isSameResultsPublished(stored, { ALO: ['2026-09-11T21:00:00.000Z'], AVO: ['2026-09-12'] })).toBe(true)
       expect(isSameResultsPublished(stored, { ALO: ['2026-09-11T21:00:00.000Z'], AVO: true })).toBe(true)
       // Every day listed is every day.
       expect(
@@ -2141,8 +2141,8 @@ describe('results published day by day', () => {
       expect(new Date(2026, 8, 13).toISOString()).toBe('2026-09-12T15:00:00.000Z')
     })
 
-    it('keeps a bare day key the day it names', () => {
-      const firstDay = { resultsPublished: { ALO: [zonedParseDate('2026-09-12')] } }
+    it('reads a stray timestamp as the Finnish day it names', () => {
+      const firstDay = { resultsPublished: { ALO: [zonedParseDate('2026-09-12').toISOString()] } }
 
       expect(isResultsPublishedForDay(firstDay, 'ALO', '2026-09-12')).toBe(true)
       expect(isResultsPublishedForDay(firstDay, 'ALO', '2026-09-13')).toBe(false)
@@ -2345,11 +2345,11 @@ describe('isResultsAvailableForRegistration', () => {
       expect(isResultsAvailableForRegistration(firstDay, secondDayDog)).toBe(false)
     })
 
-    it('reads a day the JSON reviver turned into a date', () => {
-      const revived = { ...twoDays, resultsPublished: { ALO: [new Date('2026-09-12')] } }
+    it('reads a stray timestamp entry as its day', () => {
+      const stray = { ...twoDays, resultsPublished: { ALO: ['2026-09-12T00:00:00.000Z'] } }
 
-      expect(isResultsAvailableForRegistration(revived, firstDayDog)).toBe(true)
-      expect(isResultsAvailableForRegistration(revived, secondDayDog)).toBe(false)
+      expect(isResultsAvailableForRegistration(stray, firstDayDog)).toBe(true)
+      expect(isResultsAvailableForRegistration(stray, secondDayDog)).toBe(false)
     })
 
     it('still reads a plain true as every day, so stored events keep their meaning', () => {

@@ -108,7 +108,7 @@ export const buildRegistrationsByGroup = (
   return byGroup
 }
 
-const drawDayKey = (date: Date | string) => new Date(date).toDateString()
+const drawDayKey = (date: Date) => date.toDateString()
 
 const registrationDrawDay = (registration: Registration): string | undefined => {
   const date = registration.startGroup?.date ?? registration.group?.date

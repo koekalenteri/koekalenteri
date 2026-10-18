@@ -11,6 +11,7 @@ import theme from '../../assets/Theme'
 import { muiLocales } from '../../i18n'
 import { TIME_ZONE } from '../../i18n/dates'
 import { TestProvider } from '../../test-utils/AtomProvider'
+import { freezeClockAt } from '../../test-utils/freezeClock'
 import { describeInLanguage } from '../../test-utils/language'
 import { TEST_ID_TOKEN } from '../../test-utils/utils'
 import { idTokenAtom } from '../state'
@@ -30,12 +31,20 @@ vi.mock(import('../../api/user'), async (importOriginal) => ({
   }),
 }))
 
+// The state column reads each trial against today, so the file names its own: after the entry closed
+// on 27.9 and before the first trial starts on 10.10, every row reads "Ilmoittautuminen on päättynyt".
+freezeClockAt('2026-10-01')
+
 // A screen each, not the page's height: the grid sizes its page to the room it gets.
 const PHONE = { height: 844, width: 390 }
 const DESKTOP = { height: 800, width: 1200 }
 
 // The grid's own texts in the reader's language, as App.tsx sets them; the app's locale bundle drags i18n init along.
 const localizedTheme = (language: Language) => createTheme(theme, muiLocales[language])
+
+// The Tila column says where each trial stands relative to today: after entry closed (27.9) and
+// before the first trial (10.10), every row reads "entry closed", as the baselines show.
+freezeClockAt('2026-09-29')
 
 const day = (iso: string) => new TZDate(iso, TIME_ZONE)
 
@@ -120,6 +129,7 @@ it('lists the events on a desktop', async () => {
   const screen = await renderAt(DESKTOP)
 
   await expect.element(screen.getByText('Syyskoe')).toBeVisible()
+  expect(screen.getByText('Ilmoittautuminen on päättynyt', { exact: true }).elements()).toHaveLength(events.length)
   await expect(screen.getByTestId('visual-root')).toMatchScreenshot('event-list-desktop')
 })
 
@@ -137,6 +147,7 @@ describeInLanguage('en', () => {
 
     await expect.element(screen.getByText('Autumn trial')).toBeVisible()
     await expect.element(screen.getByText('Also show past events')).toBeVisible()
+    expect(screen.getByText('Entry is closed', { exact: true }).elements()).toHaveLength(events.length)
     await expect(screen.getByTestId('visual-root')).toMatchScreenshot('event-list-desktop-en')
   })
 })

@@ -1,5 +1,5 @@
-import type { ClassStartNumbers } from '../../types'
-import type { StartNumberEntry, StartNumberPatch } from '../startNumbers'
+import type { ClassStartNumbers, StartNumberPatch } from '../../types'
+import type { StartNumberEntry } from '../startNumbers'
 import { vi } from 'vitest'
 
 export const getClassStartNumbers = vi.fn(
