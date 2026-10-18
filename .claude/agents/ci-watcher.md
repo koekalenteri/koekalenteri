@@ -33,7 +33,7 @@ Downloads and scratch files go to a directory of your own (`mktemp -d`), never i
 | Source | How | What to keep |
 |---|---|---|
 | Failed jobs | `gh run view --job <id> --log-failed`, ANSI stripped | The assertion, the test name, file:line. Not the setup noise. |
-| e2e | `gh run download <run> -n e2e-report` → `test-results/**/error-context.md` | The page state at the failure: which field is empty, which button disabled, which dialog missing. |
+| e2e | `gh run download <run> -p 'e2e-report-*'` → `test-results/**/error-context.md` | The page state at the failure: which field is empty, which button disabled, which dialog missing. |
 | Visual | `gh run download <run> -n visual-screenshot-diffs` (actual PNGs); the reference is `__screenshots__/<Test>.visual.test.tsx/<name>-chromium-linux.png` on the PR branch | Look at both images with Read. Say what changed and whether it is what the PR meant to change. |
 | Sonar gate | `curl -s "https://sonarcloud.io/api/qualitygates/project_status?projectKey=koekalenteri_koekalenteri&pullRequest=<pr>"` | Each failing condition with actual vs threshold. |
 | Sonar issues | `api/issues/search?componentKeys=koekalenteri_koekalenteri&pullRequest=<pr>&issueStatuses=OPEN,CONFIRMED&ps=100` | `total`, and per issue rule, file:line, message. Every one, also when the gate is OK: the gate checks ratings, not the count. Check `AGENTS.md` "Static Analysis (Sonar)" for the house fix. |

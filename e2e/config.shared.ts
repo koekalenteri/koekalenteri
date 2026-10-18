@@ -10,7 +10,6 @@ const CI = !!process.env.CI
 
 export const sharedConfig = {
   forbidOnly: CI,
-  fullyParallel: false,
   outputDir: 'test-results/e2e',
   projects: [{ name: 'chromium', use: { ...devices['Desktop Chrome'] } }],
   reporter: CI
