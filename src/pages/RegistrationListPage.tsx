@@ -18,6 +18,7 @@ import { isConfirmedEvent } from '../lib/typeGuards'
 import { Path } from '../routeConfig'
 import CancelDialog from './components/CancelDialog'
 import Header from './components/Header'
+import { HiddenPageTitle } from './components/HiddenPageTitle'
 import LinkButton from './components/LinkButton'
 import { PaymentDetails } from './components/PaymentDetails'
 import RegistrationEventInfo from './components/RegistrationEventInfo'
@@ -231,12 +232,14 @@ export function RegistrationListPage({ cancel, confirm, invitation }: Registrati
     }
   }, [confirm, event, registration])
 
-  if (eventNotFound) {
-    return <>{t('error.eventNotFound')}</>
-  }
-
-  if (registration === null) {
-    return <>{t('error.registrationNotFound')}</>
+  // A page with nothing but a sentence to show still has a name for a screen reader (KOE-1519).
+  if (eventNotFound || registration === null) {
+    return (
+      <>
+        <HiddenPageTitle>{t('entryList')}</HiddenPageTitle>
+        {eventNotFound ? t('error.eventNotFound') : t('error.registrationNotFound')}
+      </>
+    )
   }
 
   // Every response to the participant carries the picture; without it the page has nothing to say of the payment.

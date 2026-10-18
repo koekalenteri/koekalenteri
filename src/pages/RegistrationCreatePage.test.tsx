@@ -86,6 +86,7 @@ describe('RegistrationCreatePage', () => {
     await flushPromises()
     expect(screen.getByRole('link', { name: 'goHome' })).toBeInTheDocument()
     expect(screen.getByText(eventWithStaticDates.location, { exact: false })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { level: 1, name: 'entryTitle' })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'registration.cta.confirmAndPay' })).toBeInTheDocument()
   })
 

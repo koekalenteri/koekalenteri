@@ -63,6 +63,7 @@ describe('RegistrationEditPage', () => {
     // that data has settled, matching the RegistrationListPage double-flush convention.
     await flushPromises()
     await flushPromises()
+    expect(screen.getByRole('heading', { level: 1, name: 'entryEditTitle' })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'registration.cta.saveChanges' })).toBeInTheDocument()
     expect(screen.getByText(registrationWithStaticDates.handler?.name ?? 'UNDEFINED!')).toBeInTheDocument()
   })

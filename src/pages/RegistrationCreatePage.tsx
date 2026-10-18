@@ -7,6 +7,7 @@ import { recordPageView } from '../lib/client/rum'
 import { isEntryOpen } from '../lib/event'
 import { hasChanges } from '../lib/utils'
 import { Path } from '../routeConfig'
+import { HiddenPageTitle } from './components/HiddenPageTitle'
 import LinkButton from './components/LinkButton'
 import RegistrationEventInfo from './components/RegistrationEventInfo'
 import RegistrationForm from './components/RegistrationForm'
@@ -113,6 +114,8 @@ export function Component() {
   return (
     <>
       <LinkButton sx={{ mb: 1 }} to="/" back={spa} text={spa ? t('goBackToSearch') : t('goHome')} />
+      {/* The event header below is the page's level 2; the page's own name is for a screen reader (KOE-1519). */}
+      <HiddenPageTitle>{t('entryTitle')}</HiddenPageTitle>
       <RegistrationEventInfo event={event} />
       <RegistrationForm
         changes

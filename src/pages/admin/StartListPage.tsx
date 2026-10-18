@@ -18,7 +18,7 @@ import {
   sortRegistrationsByDateClassTimeAndNumber,
 } from '../../lib/registration'
 import { keysOf } from '../../lib/typeGuards'
-import { SCREEN_READER_ONLY } from '../components/screenReaderOnly'
+import { HiddenPageTitle } from '../components/HiddenPageTitle'
 import { hasAdminAccessAtom, languageAtom, useUserActions } from '../state'
 import StartListGroup from './startListPage/StartListGroup'
 import { adminEventAtom, adminEventRegistrationsAtom } from './state'
@@ -88,9 +88,9 @@ export default function StartListPage() {
     >
       {/* The page's title for a screen reader. The page is printed, and a visible title would add a
           line above the first day on paper (KOE-1506). */}
-      <Typography variant="h1" style={SCREEN_READER_ONLY}>
+      <HiddenPageTitle>
         {event ? `${t('startList.title')}: ${eventTitle(event, language)}` : t('startList.title')}
-      </Typography>
+      </HiddenPageTitle>
       <TableContainer component={Paper}>
         {groupKeys.map((groupKey) => {
           const reserve = groupKey === RESERVE_KEY

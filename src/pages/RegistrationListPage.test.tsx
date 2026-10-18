@@ -168,6 +168,18 @@ describe('RegistrationListPage', () => {
     expect(screen.getByText('registration.registeredDogs')).toBeInTheDocument()
   })
 
+  // A page that has nothing to show still has a name for a screen reader (KOE-1519).
+  it.each([
+    ['/r/no-such-event/nou-registration', 'error.eventNotFound'],
+    ['/r/test1/no-such-registration', 'error.registrationNotFound'],
+  ])('names the page when %s has nothing to show', async (path, message) => {
+    await renderWithRouter(path)
+    await flushPromises()
+
+    expect(screen.getByText(message)).toBeInTheDocument()
+    expect(screen.getByRole('heading', { level: 1, name: 'entryList' })).toBeInTheDocument()
+  })
+
   it.each(['/r/test1/nou-registration', '/r/test1/nou-registration/access/edit-token'])(
     'shows the page opened from an email link (%s) in the registration language (KOE-1508, KOE-1512)',
     async (path) => {
