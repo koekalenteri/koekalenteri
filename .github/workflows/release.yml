@@ -193,6 +193,12 @@ jobs:
     environment: ${{ needs.setup.outputs.env }}
     env:
       AWS_DEPLOY_ROLE_ARN: ${{ secrets.AWS_DEPLOY_ROLE_ARN }}
+    # What the smoke job expects the served page to be stamped with: the commit Amplify is asked to
+    # build and its package.json version, not the commit that triggered this run (dev builds the
+    # newest main).
+    outputs:
+      revision: ${{ steps.amplify.outputs.revision }}
+      version: ${{ steps.amplify.outputs.version }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v7
@@ -215,6 +221,7 @@ jobs:
           aws-region: ${{ secrets.AWS_REGION }}
 
       - name: Deploy to amplify
+        id: amplify
         env:
           APP_ID: ${{ secrets.AMPLIFY_APP_ID }}
           ENV: ${{ needs.setup.outputs.env }}
@@ -247,6 +254,11 @@ jobs:
             git push https://x-access-token:$GITHUB_TOKEN@github.com/${{ github.repository }} $SOURCE_BRANCH:$TARGET_BRANCH --force
           fi
 
+          {
+            echo "revision=$(git rev-parse HEAD)"
+            echo "version=$(git show HEAD:package.json | jq -r .version)"
+          } >> "$GITHUB_OUTPUT"
+
           echo "Starting Amplify job for branch $TARGET_BRANCH"
           JOB_ID=$(aws amplify start-job --app-id $APP_ID --branch-name $TARGET_BRANCH --job-type RELEASE --output json | jq -r .jobSummary.jobId)
           echo "Job started with ID: $JOB_ID"
@@ -264,3 +276,66 @@ jobs:
             sleep 10
           done
           echo "Job completed successfully."
+
+  # The deploy is done when the site answers, not when Amplify and CloudFormation say so (KOE-1368):
+  # the front page must load and the public event list must answer, on every deploy of every
+  # environment. A deploy that failed has its own red job, so this one does not run after it. When
+  # this run built the frontend, the page must also carry that build's stamp (scripts/smoke-deploy.mjs
+  # retries while the CDN catches up) and preconnect to this stack's API: a build that read the
+  # previous stack's variables is caught here. A backend-only deploy built no page, so only the
+  # answers are checked. On dev a red smoke fails deploy-dev in ci.yml, and jira-testable with it.
+  smoke:
+    needs: [setup, deploy-backend, deploy-frontend]
+    if: ${{ always() && !failure() && !cancelled() }}
+    runs-on: ubuntu-latest
+    environment: ${{ needs.setup.outputs.env }}
+    env:
+      AWS_DEPLOY_ROLE_ARN: ${{ secrets.AWS_DEPLOY_ROLE_ARN }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0 # the dev check asks git whether a served commit follows the expected one
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+      - uses: aws-actions/configure-aws-credentials@v6
+        if: ${{ env.AWS_DEPLOY_ROLE_ARN != '' }}
+        with:
+          role-to-assume: ${{ env.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: ${{ secrets.AWS_REGION }}
+      - uses: aws-actions/configure-aws-credentials@v6
+        if: ${{ env.AWS_DEPLOY_ROLE_ARN == '' }}
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+      - name: Read the API URL from the stack
+        id: stack
+        env:
+          STACK: koekalenteri-${{ needs.setup.outputs.env }}
+        run: |
+          api=$(aws cloudformation describe-stacks --stack-name "$STACK" \
+            --query "Stacks[0].Outputs[?OutputKey=='KoekalenteriFunctionApi'].OutputValue" --output text)
+          if [[ -z "$api" || "$api" == "None" ]]; then
+            echo "::error::$STACK has no KoekalenteriFunctionApi output"
+            exit 1
+          fi
+          echo "api=$api" >> "$GITHUB_OUTPUT"
+      - name: Smoke check
+        env:
+          API_URL: ${{ steps.stack.outputs.api }}
+          CUSTOM_DOMAIN: ${{ secrets.CUSTOM_DOMAIN }}
+          DEPLOY_FRONTEND: ${{ needs.setup.outputs.deploy_frontend }}
+          ENV: ${{ needs.setup.outputs.env }}
+          EXPECT_REVISION: ${{ needs.deploy-frontend.outputs.revision }}
+          EXPECT_VERSION: ${{ needs.deploy-frontend.outputs.version }}
+        run: |
+          args=(--url "https://$CUSTOM_DOMAIN/" --api "$API_URL")
+          if [[ "$DEPLOY_FRONTEND" == "true" ]]; then
+            args+=(--expect-version "$EXPECT_VERSION" --expect-revision "$EXPECT_REVISION" --expect-api "$API_URL")
+            # main may have moved on between the deploy job's checkout and Amplify's clone
+            if [[ "$ENV" == "dev" ]]; then
+              args+=(--allow-descendant)
+            fi
+          fi
+          node scripts/smoke-deploy.mjs "${args[@]}"

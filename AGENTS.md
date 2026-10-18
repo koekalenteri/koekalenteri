@@ -139,6 +139,19 @@ Read `LLM_CONTEXT.md` for the project overview and architecture notes.
 - `scripts/migrate.sh` and `aws/README.md` cover a different job — copying whole tables between
   stacks — not changing data in place.
 
+## Post-deploy Smoke Check
+
+- Every deploy `release.yml` makes (dev from ci.yml's `deploy-dev`, test, prod) ends in the `smoke`
+  job (`scripts/smoke-deploy.mjs`, KOE-1368): the front page must answer 200, every script it loads
+  from its own origin must answer 200 as JavaScript, and `GET /event` must answer a JSON array. When the run built the frontend, the page must also carry the `app-version` and
+  `app-revision` metas of that build (written into `public/index.html` by `config/webpack.config.js`)
+  and preconnect to the stack's `KoekalenteriFunctionApi`. A red smoke on dev fails `deploy-dev`, so
+  `jira-testable` does not run.
+- Of the build's settings only `REACT_APP_API_BASE_URL` is compared (through the preconnect link). A
+  stale user pool, client id, OAuth domain, WebSocket URL or RUM setting passes the smoke check.
+- The CI `frontend` job checks the same stamp on its own build, so removing or renaming a meta fails
+  there first. Keep the names in step with the script.
+
 ## Visual Test Convention
 
 - When you change or create a user-visible component, ensure it has a screenshot test

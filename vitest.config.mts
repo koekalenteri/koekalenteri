@@ -49,7 +49,8 @@ export default defineConfig({
           // src/i18n/lambda.ts is lambda-only code, and its test asserts what a cold start sees:
           // an i18next nobody has initialized yet. In the frontend project the setup file has
           // already initialized the shared instance, so the assertion would be vacuous there.
-          include: ['src/lambda/**/*.{spec,test}.ts', 'src/i18n/lambda.test.ts'],
+          // The repo's own CI scripts run in node too; the post-deploy smoke check is one (KOE-1368).
+          include: ['src/lambda/**/*.{spec,test}.ts', 'src/i18n/lambda.test.ts', 'scripts/**/*.test.mjs'],
           // The integration tests need a DynamoDB-local; they are the `integration` project below.
           exclude: [...configDefaults.exclude, 'src/lambda/**/*.integration.test.ts'],
           setupFiles: ['./src/lambda/setupTests.ts'],
