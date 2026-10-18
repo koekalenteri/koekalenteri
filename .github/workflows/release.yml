@@ -339,3 +339,97 @@ jobs:
             fi
           fi
           node scripts/smoke-deploy.mjs "${args[@]}"
+
+  # The public path through dev once a deploy there is up (KOE-1559): the front page lists an event,
+  # its registration form opens and validates what is filled in. Every dev deploy runs it, a
+  # backend-only one too, as smoke does. Test does not, being deployed seldom and every change
+  # reaching dev first; prod never does, because the run writes into the table. A red run fails
+  # deploy-dev in ci.yml, and jira-testable with it. The run writes its own event into the stack's
+  # event table first (e2e/remote/global-setup.ts) and deletes it afterwards, here too whatever the
+  # outcome, a newer push cancelling the run included, so nothing is left in the public list. The
+  # workflow-level group runs one dev deploy at a time, so the sweep never removes another run's
+  # event. The form is never sent, so nothing is stored and no mail goes out.
+  e2e:
+    needs: [setup, smoke]
+    if: ${{ !cancelled() && needs.smoke.result == 'success' && needs.setup.outputs.env == 'dev' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment: ${{ needs.setup.outputs.env }}
+    env:
+      AWS_DEPLOY_ROLE_ARN: ${{ secrets.AWS_DEPLOY_ROLE_ARN }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: package-lock.json
+      - name: Cache node_modules
+        id: cache
+        uses: actions/cache@v6
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+      - name: Install packages
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: npm ci
+      - uses: aws-actions/configure-aws-credentials@v6
+        if: ${{ env.AWS_DEPLOY_ROLE_ARN != '' }}
+        with:
+          role-to-assume: ${{ env.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: ${{ secrets.AWS_REGION }}
+      - uses: aws-actions/configure-aws-credentials@v6
+        if: ${{ env.AWS_DEPLOY_ROLE_ARN == '' }}
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+      # The setup waits until the API lists the event it wrote, so it needs the API as smoke reads it.
+      - name: Read the event table and the API URL from the stack
+        id: stack
+        env:
+          STACK: koekalenteri-${{ needs.setup.outputs.env }}
+        run: |
+          api=$(aws cloudformation describe-stacks --stack-name "$STACK" \
+            --query "Stacks[0].Outputs[?OutputKey=='KoekalenteriFunctionApi'].OutputValue" --output text)
+          if [[ -z "$api" || "$api" == "None" ]]; then
+            echo "::error::$STACK has no KoekalenteriFunctionApi output"
+            exit 1
+          fi
+          table=$(aws cloudformation describe-stack-resource --stack-name "$STACK" \
+            --logical-resource-id EventTable \
+            --query StackResourceDetail.PhysicalResourceId --output text)
+          {
+            echo "api=$api"
+            echo "event_table=$table"
+          } >> "$GITHUB_OUTPUT"
+      - name: Cache Playwright browsers
+        uses: actions/cache@v6
+        with:
+          path: ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-${{ hashFiles('package-lock.json') }}
+      - name: Install Playwright chromium
+        run: npx playwright install --with-deps chromium
+      - name: Test
+        env:
+          CUSTOM_DOMAIN: ${{ secrets.CUSTOM_DOMAIN }}
+          E2E_API_URL: ${{ steps.stack.outputs.api }}
+          E2E_EVENT_TABLE: ${{ steps.stack.outputs.event_table }}
+        run: E2E_BASE_URL="https://$CUSTOM_DOMAIN/" npm run test-e2e-remote
+      - name: Delete the test events
+        if: ${{ always() && steps.stack.outputs.event_table != '' }}
+        env:
+          E2E_EVENT_TABLE: ${{ steps.stack.outputs.event_table }}
+        run: node e2e/remote/sweep.mjs
+      - name: Summarize the tests
+        if: always()
+        run: node e2e/summary.mjs >> "$GITHUB_STEP_SUMMARY"
+      - name: Upload report and traces
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: e2e-report
+          path: |
+            playwright-report
+            test-results/e2e
+          retention-days: 7

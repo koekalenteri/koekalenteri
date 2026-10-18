@@ -9,8 +9,9 @@
  */
 import fs from 'node:fs'
 import path from 'node:path'
+import { stripVTControlCharacters } from 'node:util'
 
-/** Where the CI reporter in playwright.config.ts writes the results. */
+/** Where the CI reporter in e2e/config.shared.ts writes the results. */
 const RESULTS_JSON = 'test-results/e2e-results.json'
 const JIRA = 'https://koekalenteri.atlassian.net/browse'
 /** GitHub caps a step's summary at 1 MiB; one long page tree must not crowd out the others. */
@@ -45,7 +46,7 @@ const issues = (test) =>
 const contexts = []
 
 if (fs.existsSync(RESULTS_JSON)) {
-  const { stats, suites } = JSON.parse(fs.readFileSync(RESULTS_JSON, 'utf8'))
+  const { errors = [], stats, suites } = JSON.parse(fs.readFileSync(RESULTS_JSON, 'utf8'))
   const seconds = Math.round(stats.duration / 1000)
   lines.push(
     `${stats.expected} as expected, ${stats.unexpected} unexpected, ${stats.flaky} flaky, ${stats.skipped} skipped, in ${seconds} s.`,
@@ -69,6 +70,9 @@ if (fs.existsSync(RESULTS_JSON)) {
     }
   }
   lines.push('')
+  // An error outside any test, a global setup that threw, say: no test ran, so only this says why.
+  if (errors.length) lines.push('### Errors outside the tests', '')
+  for (const error of errors) lines.push('```', stripVTControlCharacters(error.message ?? ''), '```', '')
 } else {
   lines.push('No results: the tests did not run. The job log shows the step that stopped it.', '')
 }

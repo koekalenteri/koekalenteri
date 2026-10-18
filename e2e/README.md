@@ -64,3 +64,37 @@ failed test its error, the failing line and the page's accessibility tree at tha
 For the step-by-step trace, download the `e2e-report` artifact and drop a `trace.zip` from it on
 [trace.playwright.dev](https://trace.playwright.dev): it runs in the browser, installs nothing and
 uploads nothing.
+
+## Against dev after a deploy
+
+`playwright.remote.config.ts` runs the tests in `remote/tests/` against a deployed stack: the
+release workflow's `e2e` job, after every deploy of dev (each push to main, a backend-only one
+too) and its smoke check (KOE-1559). A red run fails `deploy-dev`, so `jira-testable` does not
+run, as with a red smoke check. The front page must list an event, its
+registration form must open from the list, and the form's validation must list what is missing
+and take the terms off the list once they are accepted. Without a dog that is all the form offers:
+the breeder's and owners' sections open once there is a dog, and the dog is not fetched (that goes
+to the Kennel Club). No login or payment is needed and the form is never sent, so nothing is
+stored and no mail goes out.
+
+Dev holds no event the run can count on, so the run writes its own. `remote/global-setup.ts`
+builds it with `buildEvent` (`fixtures/events.ts`, the same row the local tests write) and stores it in
+the stack's event table under the organizer id `e2e-remote`, which no real organizer has. Every event
+of that organizer is deleted before the tests, after them and once more by the workflow whatever
+the outcome (`remote/sweep.mjs`), found by an exact query on `gsiOrganizerStartDate`. That index
+trails the write by a moment, so the run's own event is also kept by id in
+`test-results/e2e-remote-event.json` before it is written and deleted by key. The public
+list reads the event through an index DynamoDB updates a moment after the write, and the front page
+asks for the list once, so the tests start only when `GET <E2E_API_URL>/event` lists the event (at
+most 30 s), which also warms the function the deploy has just replaced.
+
+```sh
+E2E_BASE_URL=https://<frontend>/ E2E_API_URL=<the stack's KoekalenteriFunctionApi> \
+  E2E_EVENT_TABLE=<the stack's EventTable> npm run test-e2e-remote
+```
+
+AWS credentials and the region come from the environment. Pointed at the local servers above, the
+same run checks a local build: `E2E_BASE_URL=http://localhost:3000`,
+`E2E_API_URL=http://localhost:8080/dev`, `E2E_EVENT_TABLE=event-table`,
+`AWS_ENDPOINT_URL_DYNAMODB` at the DynamoDB-local and `AWS_ACCESS_KEY_ID`/`AWS_SECRET_ACCESS_KEY`
+set to `local`, the key the servers' database is kept under.

@@ -9,5 +9,11 @@
   },
   "exclude": [],
   "extends": "../tsconfig.json",
-  "include": ["**/*.ts", "**/*.mjs", "../playwright.config.ts", "../src/i18n/i18next.d.ts"]
+  "include": [
+    "**/*.ts",
+    "**/*.mjs",
+    "../playwright.config.ts",
+    "../playwright.remote.config.ts",
+    "../src/i18n/i18next.d.ts"
+  ]
 }
