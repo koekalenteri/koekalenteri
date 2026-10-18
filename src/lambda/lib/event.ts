@@ -306,7 +306,7 @@ const lockEventWorkflow = async (
       await writeWorkflowLock(eventId, field, token, now, now + EVENT_WORKFLOW_LOCK_DURATION_MS)
       break
     } catch (error) {
-      if ((error as { name?: string }).name !== 'ConditionalCheckFailedException') throw error
+      if (!isConditionalCheckFailure(error)) throw error
       if (attempt >= retries) throw new LambdaError(409, conflictMessage)
       const delayMs = Math.min(100 * 2 ** attempt, 1000)
       await new Promise<void>((resolve) => setTimeout(resolve, delayMs))
@@ -317,7 +317,7 @@ const lockEventWorkflow = async (
     try {
       await clearWorkflowLock(eventId, field, token)
     } catch (error) {
-      if ((error as { name?: string }).name !== 'ConditionalCheckFailedException') throw error
+      if (!isConditionalCheckFailure(error)) throw error
     }
   }
 }

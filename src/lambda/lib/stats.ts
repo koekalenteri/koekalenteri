@@ -15,6 +15,7 @@ import type { OrganizerStatsEvent, StatDeltas } from './repositories/eventStatsR
 import crypto from 'node:crypto'
 import { storedYear } from '../../lib/event'
 import { isMember, isStarter } from '../../lib/registration'
+import { isTransactionCanceled } from './api-gw'
 import {
   addOrganizerEventStats,
   commitNewRegistrationStats,
@@ -40,8 +41,6 @@ const NEW_REGISTRATION_STATS_MAX_ATTEMPTS = 12
 const NEW_REGISTRATION_STATS_RETRY_BASE_MS = 10
 const NEW_REGISTRATION_STATS_RETRY_MAX_MS = 500
 const MOVE_ORGANIZER_STATS_MAX_ATTEMPTS = 8
-
-const isTransactionCancelled = (error: unknown) => (error as { name?: string }).name === 'TransactionCanceledException'
 
 const waitForStatsRetry = (attempt: number) => {
   const maximumDelay = Math.min(
@@ -386,7 +385,7 @@ export async function moveOrganizerEventStats(
       await moveOrganizerEventStatsRow(existing, updated, stats, new Date().toISOString())
       return
     } catch (error) {
-      if (!isTransactionCancelled(error) || attempt === MOVE_ORGANIZER_STATS_MAX_ATTEMPTS) throw error
+      if (!isTransactionCanceled(error) || attempt === MOVE_ORGANIZER_STATS_MAX_ATTEMPTS) throw error
       await waitForStatsRetry(attempt)
     }
   }
@@ -467,7 +466,7 @@ export const applyNewRegistrationStatsOnce = async (
       await commitNewRegistrationStats(event, deltas, registration, leaseToken, new Date().toISOString())
       return
     } catch (error) {
-      if (!isTransactionCancelled(error)) throw error
+      if (!isTransactionCanceled(error)) throw error
 
       const saved = await readRegistrationConsistently(registration.eventId, registration.id)
       if (saved?.newRegistrationStatsAt) return

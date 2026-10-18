@@ -1,3 +1,4 @@
+import type { TransactionCanceledException } from '@aws-sdk/client-dynamodb'
 import type { APIGatewayProxyEvent } from 'aws-lambda'
 import { CONFIG } from '../config'
 
@@ -18,6 +19,12 @@ export const isAwsServiceError = (
 export const isConditionalCheckFailure = (error: unknown) =>
   isAwsServiceError(error) && error.name === 'ConditionalCheckFailedException'
 
-/** A transaction DynamoDB cancelled, a condition of one of its items failing among the reasons. */
-export const isTransactionCanceled = (error: unknown) =>
+/**
+ * A transaction DynamoDB cancelled, a condition of one of its items failing among the reasons. The
+ * name decides, not `instanceof`: the SDK error may cross a bundling boundary where the class is not
+ * the same one, and the name is what the AWS SDK documentation tells callers to match.
+ */
+export const isTransactionCanceled = (
+  error: unknown
+): error is Pick<TransactionCanceledException, 'name' | 'CancellationReasons'> =>
   isAwsServiceError(error) && error.name === 'TransactionCanceledException'

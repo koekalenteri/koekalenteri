@@ -2,6 +2,7 @@ import type { SNSEvent } from 'aws-lambda'
 import type { EmailTemplateId, JsonConfirmedEvent, JsonEmailDeliveryStatus } from '../../types'
 import { emailDeliveryFailedAudit } from '../../lib/audit'
 import { CONFIG } from '../config'
+import { isConditionalCheckFailure } from '../lib/api-gw'
 import { audit, registrationAuditKey } from '../lib/audit'
 import { getEvent } from '../lib/event'
 import { logger } from '../lib/log'
@@ -87,9 +88,6 @@ const suppressAddress = async (eventId: string, registrationId: string, status: 
     ...(status.template ? { template: status.template } : undefined),
   })
 
-const isConditionalCheckFailed = (error: unknown) =>
-  typeof error === 'object' && error !== null && 'name' in error && error.name === 'ConditionalCheckFailedException'
-
 /**
  * Stores the status on the registration only if the registration exists: an unconditional update is
  * an upsert, and would leave a row holding nothing but `emailDeliveryStatus` in this stack's table.
@@ -109,7 +107,7 @@ const storeDeliveryStatus = async (eventId: string, registrationId: string, stat
     )
     return true
   } catch (error) {
-    if (!isConditionalCheckFailed(error)) throw error
+    if (!isConditionalCheckFailure(error)) throw error
     return false
   }
 }
