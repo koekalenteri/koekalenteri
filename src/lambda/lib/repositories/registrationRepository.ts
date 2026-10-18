@@ -3,6 +3,7 @@ import type { JsonRegistration } from '../../../types'
 import type { RegistrationStatsInput } from '../../../types/Stats'
 import { CONFIG } from '../../config'
 import CustomDynamoClient from '../../utils/CustomDynamoClient'
+import { isTransactionCanceled } from '../api-gw'
 import { logger } from '../log'
 
 // Partial: the reads the stats code needs and the payment path's writes (KOE-1408). KOE-1409 moves
@@ -42,9 +43,6 @@ export const registrationUpdateItem = (eventId: string, id: string, update: Regi
   Update: { ...update, Key: { eventId, id }, TableName: CONFIG.registrationTable },
 })
 
-const isErrorNamed = (error: unknown, name: string) =>
-  typeof error === 'object' && error !== null && 'name' in error && error.name === name
-
 type CreationType = 'payment' | 'refund'
 
 const creationFields = (type: CreationType) => ({
@@ -82,7 +80,7 @@ export const claimTransactionCreation = async (
     ])
     return true
   } catch (error) {
-    if (isErrorNamed(error, 'TransactionCanceledException')) return false
+    if (isTransactionCanceled(error)) return false
     throw error
   }
 }

@@ -46,8 +46,9 @@ import {
   applySuccessfulPayment,
   claimPostPaymentWorkflow,
   markPostPaymentPhase,
+  markTransactionDuplicate,
   readTransaction,
-  recordDuplicateTransaction,
+  writeDuplicateTransaction,
 } from '../lib/repositories/transactionRepository'
 import { publishEventCounts, publishRegistrationPatchesStrict } from '../lib/ws/actions'
 
@@ -64,11 +65,12 @@ const recordDuplicatePayment = async (
   const duplicatePaymentAt = new Date().toISOString()
   const providerName = getProviderName(provider)
   const amount = formatMoney(transaction.amount / 100)
-  await recordDuplicateTransaction(
-    transaction,
-    { duplicateOfRegistrationId, duplicatePaymentAt, provider },
-    transactionExists
-  )
+  const duplicate = { duplicateOfRegistrationId, duplicatePaymentAt, provider }
+  if (transactionExists) {
+    await markTransactionDuplicate(transaction.transactionId, duplicate)
+  } else {
+    await writeDuplicateTransaction(transaction, duplicate)
+  }
   await markDuplicatePayment(registration.eventId, registration.id, transaction.transactionId, duplicatePaymentAt)
   // The pay button follows the same rule as GetRegistration's: a duplicate waits for its refund.
   // The picture is built from the row read strongly consistent after the DELETE above, not a local

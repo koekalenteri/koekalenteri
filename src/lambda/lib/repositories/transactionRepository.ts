@@ -3,6 +3,7 @@ import type { JsonPaymentTransaction, JsonRefundTransaction, JsonTransaction } f
 import type { UpdateActions } from '../../utils/CustomDynamoClient'
 import { CONFIG } from '../../config'
 import CustomDynamoClient from '../../utils/CustomDynamoClient'
+import { isConditionalCheckFailure, isTransactionCanceled } from '../api-gw'
 import { createDynamoLease } from '../lease'
 import { logger } from '../log'
 import { registrationUpdateItem } from './registrationRepository'
@@ -11,9 +12,6 @@ const { transactionTable } = CONFIG
 const dynamoDB = new CustomDynamoClient(transactionTable)
 
 type TransactionItem = NonNullable<TransactWriteCommandInput['TransactItems']>[number]
-
-const isErrorNamed = (error: unknown, name: string) =>
-  typeof error === 'object' && error !== null && 'name' in error && error.name === name
 
 /**
  * The transaction as stored, or undefined when there is none. The id a provider's callback names is
@@ -117,7 +115,7 @@ export const updateUnresolvedTransaction = async (transactionId: string, actions
     await dynamoDB.update({ transactionId }, actions, undefined, undefined, UNRESOLVED_CONDITION)
     return true
   } catch (error) {
-    if (error instanceof Error && error.name === 'ConditionalCheckFailedException') return false
+    if (isConditionalCheckFailure(error)) return false
     throw error
   }
 }
@@ -142,39 +140,23 @@ interface DuplicatePayment {
   provider: string | undefined
 }
 
-/**
- * Records the payment as a duplicate of another registration's: the stored transaction is updated,
- * one the success callback found missing is written whole.
- */
-export const recordDuplicateTransaction = async (
-  transaction: JsonTransaction,
-  { duplicateOfRegistrationId, duplicatePaymentAt, provider }: DuplicatePayment,
-  transactionExists: boolean
-) => {
-  if (transactionExists) {
-    await dynamoDB.update(
-      { transactionId: transaction.transactionId },
-      {
-        remove: ['paymentResponse'],
-        set: {
-          duplicateOfRegistrationId,
-          duplicatePaymentAt,
-          ...(provider ? { provider } : {}),
-          status: 'ok',
-          statusAt: duplicatePaymentAt,
-        },
-      }
-    )
-  } else {
-    await dynamoDB.write({
-      ...transaction,
-      duplicateOfRegistrationId,
-      duplicatePaymentAt,
-      ...(provider ? { provider } : {}),
-      status: 'ok' as const,
-      statusAt: duplicatePaymentAt,
-    })
-  }
+/** The fields that mark a payment a duplicate of another registration's: it is `ok`, and kept for a refund. */
+const duplicateFields = ({ duplicateOfRegistrationId, duplicatePaymentAt, provider }: DuplicatePayment) => ({
+  duplicateOfRegistrationId,
+  duplicatePaymentAt,
+  ...(provider ? { provider } : {}),
+  status: 'ok' as const,
+  statusAt: duplicatePaymentAt,
+})
+
+/** Marks a stored transaction a duplicate of another registration's payment. */
+export const markTransactionDuplicate = async (transactionId: string, duplicate: DuplicatePayment) => {
+  await dynamoDB.update({ transactionId }, { remove: ['paymentResponse'], set: duplicateFields(duplicate) })
+}
+
+/** Writes a payment the success callback found missing whole, as a duplicate of another registration's. */
+export const writeDuplicateTransaction = async (transaction: JsonTransaction, duplicate: DuplicatePayment) => {
+  await dynamoDB.write({ ...transaction, ...duplicateFields(duplicate) })
 }
 
 const transactionWasAlreadyApplied = async (transactionId: string) => {
@@ -188,7 +170,7 @@ const runRegistrationTransaction = async (transactionId: string, items: Transact
     await dynamoDB.documentTransaction(items)
     return true
   } catch (error) {
-    if (isErrorNamed(error, 'TransactionCanceledException') && (await transactionWasAlreadyApplied(transactionId))) {
+    if (isTransactionCanceled(error) && (await transactionWasAlreadyApplied(transactionId))) {
       logger.info('transaction was already applied to its registration', { transactionId })
       return false
     }

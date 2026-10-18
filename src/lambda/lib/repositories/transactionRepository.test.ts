@@ -36,11 +36,12 @@ const {
   createRefundTransaction,
   failUnfinishedTransaction,
   markPostPaymentPhase,
+  markTransactionDuplicate,
   readPaymentTransactions,
   readTransaction,
   readTransactionsByReference,
-  recordDuplicateTransaction,
   updateUnresolvedTransaction,
+  writeDuplicateTransaction,
 } = await import('./transactionRepository')
 
 const NOW = '2026-10-19T12:00:00.000Z'
@@ -274,13 +275,13 @@ describe('transactionRepository', () => {
     })
   })
 
-  describe('recordDuplicateTransaction', () => {
+  describe('duplicate payments', () => {
     it('marks a stored transaction a duplicate of the other registration', async () => {
-      await recordDuplicateTransaction(
-        payment,
-        { duplicateOfRegistrationId: 'registration-0', duplicatePaymentAt: NOW, provider: 'nordea' },
-        true
-      )
+      await markTransactionDuplicate('transaction-1', {
+        duplicateOfRegistrationId: 'registration-0',
+        duplicatePaymentAt: NOW,
+        provider: 'nordea',
+      })
 
       expect(mockUpdate).toHaveBeenCalledWith(
         { transactionId: 'transaction-1' },
@@ -298,12 +299,28 @@ describe('transactionRepository', () => {
       expect(mockWrite).not.toHaveBeenCalled()
     })
 
-    it('writes a missing transaction whole, as a duplicate', async () => {
-      await recordDuplicateTransaction(
-        payment,
-        { duplicateOfRegistrationId: 'registration-0', duplicatePaymentAt: NOW, provider: undefined },
-        false
+    it('marks a stored transaction a duplicate without naming a provider it was not given', async () => {
+      await markTransactionDuplicate('transaction-1', {
+        duplicateOfRegistrationId: 'registration-0',
+        duplicatePaymentAt: NOW,
+        provider: undefined,
+      })
+
+      expect(mockUpdate).toHaveBeenCalledWith(
+        { transactionId: 'transaction-1' },
+        {
+          remove: ['paymentResponse'],
+          set: { duplicateOfRegistrationId: 'registration-0', duplicatePaymentAt: NOW, status: 'ok', statusAt: NOW },
+        }
       )
+    })
+
+    it('writes a missing transaction whole, as a duplicate', async () => {
+      await writeDuplicateTransaction(payment, {
+        duplicateOfRegistrationId: 'registration-0',
+        duplicatePaymentAt: NOW,
+        provider: undefined,
+      })
 
       expect(mockWrite).toHaveBeenCalledWith({
         ...payment,
@@ -313,6 +330,18 @@ describe('transactionRepository', () => {
         statusAt: NOW,
       })
       expect(mockUpdate).not.toHaveBeenCalled()
+    })
+
+    it('writes a missing transaction whole with the provider that captured it', async () => {
+      await writeDuplicateTransaction(payment, {
+        duplicateOfRegistrationId: 'registration-0',
+        duplicatePaymentAt: NOW,
+        provider: 'nordea',
+      })
+
+      expect(mockWrite).toHaveBeenCalledWith(
+        expect.objectContaining({ provider: 'nordea', transactionId: 'transaction-1' })
+      )
     })
   })
 

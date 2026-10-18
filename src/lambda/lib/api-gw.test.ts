@@ -1,5 +1,11 @@
 import { CONFIG } from '../config'
-import { getFrontendOrigin, getOrigin, isAwsServiceError } from './api-gw'
+import {
+  getFrontendOrigin,
+  getOrigin,
+  isAwsServiceError,
+  isConditionalCheckFailure,
+  isTransactionCanceled,
+} from './api-gw'
 
 describe('lib/api-gw', () => {
   describe('getOrigin', () => {
@@ -50,6 +56,23 @@ describe('lib/api-gw', () => {
       CONFIG.stageName = 'prod'
 
       expect(getFrontendOrigin({ headers: { origin: 'http://localhost:3000' } })).toBe(CONFIG.frontendURL)
+    })
+  })
+
+  describe.each([
+    ['isConditionalCheckFailure', isConditionalCheckFailure, 'ConditionalCheckFailedException'],
+    ['isTransactionCanceled', isTransactionCanceled, 'TransactionCanceledException'],
+  ])('%s', (_name, isNamed, errorName) => {
+    const named = new Error('failed')
+    named.name = errorName
+
+    it.each([
+      ['an SDK error of that name', named, true],
+      ['a plain object of that name', { name: errorName }, true],
+      ['another error', new Error('boom'), false],
+      ['nothing', undefined, false],
+    ])('answers %s with %s', (_case, error, expected) => {
+      expect(isNamed(error)).toBe(expected)
     })
   })
 

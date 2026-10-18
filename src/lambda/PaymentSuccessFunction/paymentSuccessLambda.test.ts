@@ -29,7 +29,8 @@ const mockReadTransaction = vi.fn()
 const mockClaimPostPaymentWorkflow = vi.fn()
 const mockMarkPostPaymentPhase = vi.fn()
 const mockReleasePostPaymentWorkflow = vi.fn()
-const mockRecordDuplicateTransaction = vi.fn()
+const mockMarkTransactionDuplicate = vi.fn()
+const mockWriteDuplicateTransaction = vi.fn()
 const mockMarkDuplicatePayment = vi.fn()
 const mockUpdateRegistrations = vi.fn()
 const mockGetEvent = vi.fn()
@@ -94,9 +95,10 @@ vi.doMock('../lib/repositories/transactionRepository', () => ({
   applySuccessfulPayment: mockApplySuccessfulPayment,
   claimPostPaymentWorkflow: mockClaimPostPaymentWorkflow,
   markPostPaymentPhase: mockMarkPostPaymentPhase,
+  markTransactionDuplicate: mockMarkTransactionDuplicate,
   readPaymentTransactions: mockReadPaymentTransactions,
   readTransaction: mockReadTransaction,
-  recordDuplicateTransaction: mockRecordDuplicateTransaction,
+  writeDuplicateTransaction: mockWriteDuplicateTransaction,
 }))
 
 // The publisher's strongly consistent registration read answers as getRegistration does.
@@ -434,7 +436,7 @@ describe('paymentSuccessLambda', () => {
     )
   })
 
-  it('records and acknowledges a captured duplicate payment without applying it', async () => {
+  const arrangeDuplicatePayment = () => {
     mockRegistrationAuditKey.mockImplementation(
       (registration: { eventId: string; id: string }) => `${registration.eventId}:${registration.id}`
     )
@@ -465,6 +467,10 @@ describe('paymentSuccessLambda', () => {
         paymentStatus: 'DUPLICATE',
         updatedAt: '2025-01-01T00:00:00.000Z',
       })
+  }
+
+  it('records and acknowledges a captured duplicate payment without applying it', async () => {
+    arrangeDuplicatePayment()
 
     await paymentSuccessLambda(event)
 
@@ -473,11 +479,12 @@ describe('paymentSuccessLambda', () => {
     expect(mockLockRegistrationPayments).toHaveBeenCalledWith('event123')
     expect(mockGetReadyRegistrationsByEventId).toHaveBeenCalledWith('event123', true)
     expect(mockGetRegistration).toHaveBeenCalledTimes(3)
-    expect(mockRecordDuplicateTransaction).toHaveBeenCalledWith(
-      expect.objectContaining({ transactionId: 'tx123' }),
-      { duplicateOfRegistrationId: 'other-registration', duplicatePaymentAt: expect.any(String), provider: 'paytrail' },
-      true
-    )
+    expect(mockMarkTransactionDuplicate).toHaveBeenCalledWith('tx123', {
+      duplicateOfRegistrationId: 'other-registration',
+      duplicatePaymentAt: expect.any(String),
+      provider: 'paytrail',
+    })
+    expect(mockWriteDuplicateTransaction).not.toHaveBeenCalled()
     expect(mockMarkDuplicatePayment).toHaveBeenCalledWith('event123', 'reg456', 'tx123', expect.any(String))
     expect(mockClaimPostPaymentWorkflow).not.toHaveBeenCalled()
     // The same rule as GetRegistration: a payment charged twice offers no pay button (KOE-1526).
@@ -616,6 +623,22 @@ describe('paymentSuccessLambda', () => {
     await paymentSuccessLambda(event)
 
     expect(mockPublishCancelledRegistration).not.toHaveBeenCalled()
+    expect(mockResponse).toHaveBeenCalledWith(200, undefined, event)
+  })
+
+  it('writes a duplicate payment the callback found missing whole', async () => {
+    arrangeDuplicatePayment()
+    mockReadTransaction.mockResolvedValueOnce(null)
+
+    await paymentSuccessLambda(event)
+
+    expect(mockWriteDuplicateTransaction).toHaveBeenCalledWith(
+      expect.objectContaining({ amount: 5000, status: 'new', transactionId: 'tx123', type: 'payment' }),
+      { duplicateOfRegistrationId: 'other-registration', duplicatePaymentAt: expect.any(String), provider: 'paytrail' }
+    )
+    expect(mockMarkTransactionDuplicate).not.toHaveBeenCalled()
+    expect(mockMarkDuplicatePayment).toHaveBeenCalledWith('event123', 'reg456', 'tx123', expect.any(String))
+    expect(mockApplySuccessfulPayment).not.toHaveBeenCalled()
     expect(mockResponse).toHaveBeenCalledWith(200, undefined, event)
   })
 
