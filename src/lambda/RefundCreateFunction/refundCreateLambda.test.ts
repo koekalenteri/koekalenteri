@@ -16,18 +16,8 @@ const mockGetEvent = vi.fn()
 const mockGetRegistration = vi.fn()
 const mockAudit = vi.fn()
 const mockRegistrationAuditKey = vi.fn()
-const mockDynamoRead = vi.fn()
-const mockDynamoWrite = vi.fn()
-const mockDynamoUpdate = vi.fn()
-const mockDocumentTransaction = vi.fn()
-const mockDynamoClient = vi.fn(function MockCustomDynamoClient() {
-  return {
-    documentTransaction: mockDocumentTransaction,
-    read: mockDynamoRead,
-    update: mockDynamoUpdate,
-    write: mockDynamoWrite,
-  }
-})
+const mockRead = vi.fn()
+const mockCreateRefundTransaction = vi.fn()
 const mockNanoid = vi.fn()
 const mockClaimTransactionCreation = vi.fn<() => Promise<boolean>>(() => Promise.resolve(true))
 const mockReleaseTransactionCreation = vi.fn<() => Promise<void>>(() => Promise.resolve())
@@ -87,11 +77,17 @@ vi.doMock('../lib/audit', () => ({
 
 // The organizer read answers from the same read mock as the transaction read, told apart by the table.
 vi.doMock('../lib/repositories/organizerRepository', () => ({
-  readOrganizer: async (id: string) => mockDynamoRead({ id }, 'organizer'),
+  readOrganizer: async (id: string) => mockRead({ id }, 'organizer'),
 }))
 
-vi.doMock('../utils/CustomDynamoClient', () => ({
-  default: mockDynamoClient,
+vi.doMock('../lib/repositories/registrationRepository', () => ({
+  claimTransactionCreation: mockClaimTransactionCreation,
+  releaseTransactionCreation: mockReleaseTransactionCreation,
+}))
+
+vi.doMock('../lib/repositories/transactionRepository', () => ({
+  createRefundTransaction: mockCreateRefundTransaction,
+  readTransaction: async (transactionId: string) => mockRead({ transactionId }),
 }))
 
 vi.doMock('nanoid', () => ({
@@ -99,9 +95,7 @@ vi.doMock('nanoid', () => ({
 }))
 
 vi.doMock('../lib/payment', () => ({
-  claimTransactionCreation: mockClaimTransactionCreation,
   refundPaytrailErrorAudit: mockRefundPaytrailErrorAudit,
-  releaseTransactionCreation: mockReleaseTransactionCreation,
 }))
 
 const { default: refundCreateLambda } = await import('./handler')
@@ -171,7 +165,7 @@ describe('refundCreateLambda', () => {
 
     // Set up default behavior for DynamoDB read
     // Set up default behavior for DynamoDB read
-    mockDynamoRead.mockImplementation((params: any, table: any) => {
+    mockRead.mockImplementation((params: any, table: any) => {
       if (table === 'organizer' || params.id === 'org123') {
         return Promise.resolve(mockOrganizer)
       }
@@ -197,7 +191,7 @@ describe('refundCreateLambda', () => {
     await refundCreateLambda(event)
 
     expect(mockAuthorizeWithMemberOf).toHaveBeenCalledWith(event)
-    expect(mockDynamoRead).not.toHaveBeenCalled()
+    expect(mockRead).not.toHaveBeenCalled()
   })
 
   it('rejects users outside the event organizer before loading registration data or refunding', async () => {
@@ -210,7 +204,7 @@ describe('refundCreateLambda', () => {
 
     expect(mockGetRegistration).not.toHaveBeenCalled()
     expect(mockRefundPayment).not.toHaveBeenCalled()
-    expect(mockDynamoWrite).not.toHaveBeenCalled()
+    expect(mockCreateRefundTransaction).not.toHaveBeenCalled()
   })
 
   it('throws error if amount is invalid', async () => {
@@ -220,11 +214,11 @@ describe('refundCreateLambda', () => {
     })
 
     await expect(refundCreateLambda(event)).rejects.toThrow("Invalid amount: '0'")
-    expect(mockDynamoRead).not.toHaveBeenCalled()
+    expect(mockRead).not.toHaveBeenCalled()
   })
 
   it('throws error if transaction is not found', async () => {
-    mockDynamoRead.mockImplementationOnce(() => Promise.resolve(null))
+    mockRead.mockImplementationOnce(() => Promise.resolve(null))
 
     await expect(refundCreateLambda(event)).rejects.toThrow("Transaction with id 'transaction123' was not found")
     expect(mockGetEvent).not.toHaveBeenCalled()
@@ -235,7 +229,7 @@ describe('refundCreateLambda', () => {
     vi.clearAllMocks()
 
     // Mock transaction read
-    mockDynamoRead.mockImplementation((params: any, table: any) => {
+    mockRead.mockImplementation((params: any, table: any) => {
       if (table === 'organizer' || params.id === 'org123') {
         return Promise.resolve({ id: 'org123' }) // No paytrailMerchantId
       }
@@ -254,7 +248,7 @@ describe('refundCreateLambda', () => {
     vi.clearAllMocks()
 
     // Mock transaction read
-    mockDynamoRead.mockImplementation((params: any, table: any) => {
+    mockRead.mockImplementation((params: any, table: any) => {
       if (table === 'organizer' || params.id === 'org123') {
         return Promise.resolve(mockOrganizer)
       }
@@ -267,7 +261,7 @@ describe('refundCreateLambda', () => {
     mockRefundPayment.mockResolvedValueOnce(null)
 
     await expect(refundCreateLambda(event)).rejects.toThrow(/refundPayment did not return a result/)
-    expect(mockDynamoWrite).not.toHaveBeenCalled()
+    expect(mockCreateRefundTransaction).not.toHaveBeenCalled()
   })
 
   it('audits a Paytrail refusal and rejects with its words', async () => {
@@ -292,8 +286,7 @@ describe('refundCreateLambda', () => {
     })
     // The claim is let go and the row written before the request is refused.
     expect(mockReleaseTransactionCreation).toHaveBeenCalledTimes(1)
-    expect(mockDynamoWrite).not.toHaveBeenCalled()
-    expect(mockDynamoUpdate).not.toHaveBeenCalled()
+    expect(mockCreateRefundTransaction).not.toHaveBeenCalled()
   })
 
   it('marks a Paytrail refusal without words as Paytrail, with an empty error', async () => {
@@ -312,7 +305,7 @@ describe('refundCreateLambda', () => {
     vi.clearAllMocks()
 
     // Mock transaction read
-    mockDynamoRead.mockImplementation((params: any, table: any) => {
+    mockRead.mockImplementation((params: any, table: any) => {
       if (table === 'organizer' || params.id === 'org123') {
         return Promise.resolve(mockOrganizer)
       }
@@ -342,31 +335,25 @@ describe('refundCreateLambda', () => {
       'payer@example.com'
     )
 
-    expect(mockDocumentTransaction).toHaveBeenCalledWith([
-      {
-        Put: expect.objectContaining({
-          ConditionExpression: 'attribute_not_exists(transactionId)',
-          Item: expect.objectContaining({
-            amount: 1000,
-            handlingCost: 500,
-            // The refund keeps the application's own line shape, naming the payment line it
-            // refunds. The fixture above is a row in the old, provider-shaped form, which still
-            // works because `stamp` is the field that carries over (KOE-1337).
-            items: [{ amount: 1000, eventId: 'event123', registrationId: 'reg456', stamp: 'item123' }],
-            status: 'ok',
-            transactionId: 'refund123',
-            type: 'refund',
-          }),
-        }),
-      },
-      {
-        Update: expect.objectContaining({
-          ConditionExpression: 'attribute_exists(id)',
-          ExpressionAttributeValues: expect.objectContaining({ ':status': 'SUCCESS' }),
-          Key: { eventId: 'event123', id: 'reg456' },
-        }),
-      },
-    ])
+    // A settled refund: not pending, so its registration's refundStatus is written in the same
+    // transaction (transactionRepository.test.ts pins the write).
+    expect(mockCreateRefundTransaction).toHaveBeenCalledWith(
+      expect.objectContaining({
+        amount: 1000,
+        handlingCost: 500,
+        // The refund keeps the application's own line shape, naming the payment line it
+        // refunds. The fixture above is a row in the old, provider-shaped form, which still
+        // works because `stamp` is the field that carries over (KOE-1337).
+        items: [{ amount: 1000, eventId: 'event123', registrationId: 'reg456', stamp: 'item123' }],
+        status: 'ok',
+        transactionId: 'refund123',
+        type: 'refund',
+      }),
+      'event123',
+      'reg456',
+      expect.any(String),
+      false
+    )
 
     // Verify audit was not called (since status is 'ok')
     expect(mockAudit).not.toHaveBeenCalled()
@@ -389,7 +376,7 @@ describe('refundCreateLambda', () => {
     vi.clearAllMocks()
 
     // Mock a payment transaction without items
-    mockDynamoRead.mockImplementation((params: any, table: any) => {
+    mockRead.mockImplementation((params: any, table: any) => {
       if (table === 'organizer' || params.id === 'org123') {
         return Promise.resolve(mockOrganizer)
       }
@@ -415,14 +402,12 @@ describe('refundCreateLambda', () => {
       'payer@example.com'
     )
 
-    expect(mockDocumentTransaction).toHaveBeenCalledWith(
-      expect.arrayContaining([
-        {
-          Put: expect.objectContaining({
-            Item: expect.objectContaining({ amount: 1000, items: undefined, transactionId: 'refund123' }),
-          }),
-        },
-      ])
+    expect(mockCreateRefundTransaction).toHaveBeenCalledWith(
+      expect.objectContaining({ amount: 1000, items: undefined, transactionId: 'refund123' }),
+      'event123',
+      'reg456',
+      expect.any(String),
+      false
     )
   })
 
@@ -431,7 +416,7 @@ describe('refundCreateLambda', () => {
     vi.clearAllMocks()
 
     // Mock transaction read
-    mockDynamoRead.mockImplementation((params: any, table: any) => {
+    mockRead.mockImplementation((params: any, table: any) => {
       if (table === 'organizer' || params.id === 'org123') {
         return Promise.resolve(mockOrganizer)
       }
@@ -459,16 +444,12 @@ describe('refundCreateLambda', () => {
 
     // No refundStatus is written: PENDING is never written any more, and a pending refund's own
     // SUCCESS comes later, from applySuccessfulRefund, once it has actually been applied (KOE-1529).
-    expect(mockDocumentTransaction).toHaveBeenCalledWith(
-      expect.arrayContaining([
-        {
-          Update: expect.objectContaining({
-            ExpressionAttributeValues: expect.objectContaining({ ':transactionId': new Set(['refund123']) }),
-            UpdateExpression:
-              'SET updatedAt = :updatedAt REMOVE refundCreationAt, refundCreationStamp ADD openRefunds :transactionId',
-          }),
-        },
-      ])
+    expect(mockCreateRefundTransaction).toHaveBeenCalledWith(
+      expect.objectContaining({ status: 'pending', transactionId: 'refund123' }),
+      'event123',
+      'reg456',
+      expect.any(String),
+      true
     )
   })
 
@@ -477,7 +458,7 @@ describe('refundCreateLambda', () => {
     vi.clearAllMocks()
 
     // Mock transaction read
-    mockDynamoRead.mockImplementation((params: any, table: any) => {
+    mockRead.mockImplementation((params: any, table: any) => {
       if (table === 'organizer' || params.id === 'org123') {
         return Promise.resolve(mockOrganizer)
       }
@@ -503,14 +484,13 @@ describe('refundCreateLambda', () => {
       user: 'Test User',
     })
 
-    expect(mockDocumentTransaction).toHaveBeenCalledWith(
-      expect.arrayContaining([
-        {
-          Update: expect.objectContaining({
-            ExpressionAttributeValues: expect.objectContaining({ ':transactionId': new Set(['refund123']) }),
-          }),
-        },
-      ])
+    // An email refund is pending until the customer's bank account has it.
+    expect(mockCreateRefundTransaction).toHaveBeenCalledWith(
+      expect.objectContaining({ provider: 'email refund', transactionId: 'refund123' }),
+      'event123',
+      'reg456',
+      expect.any(String),
+      true
     )
   })
 
@@ -519,7 +499,7 @@ describe('refundCreateLambda', () => {
     vi.clearAllMocks()
 
     // Mock transaction with multiple items
-    mockDynamoRead.mockImplementation((params: any, table: any) => {
+    mockRead.mockImplementation((params: any, table: any) => {
       if (table === 'organizer' || params.id === 'org123') {
         return Promise.resolve(mockOrganizer)
       }
@@ -564,14 +544,12 @@ describe('refundCreateLambda', () => {
       'payer@example.com'
     )
 
-    expect(mockDocumentTransaction).toHaveBeenCalledWith(
-      expect.arrayContaining([
-        {
-          Put: expect.objectContaining({
-            Item: expect.objectContaining({ amount: partialRefundAmount, handlingCost: 500 }),
-          }),
-        },
-      ])
+    expect(mockCreateRefundTransaction).toHaveBeenCalledWith(
+      expect.objectContaining({ amount: partialRefundAmount, handlingCost: 500 }),
+      'event123',
+      'reg456',
+      expect.any(String),
+      false
     )
   })
 })

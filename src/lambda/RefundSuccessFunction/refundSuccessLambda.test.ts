@@ -18,17 +18,11 @@ const mockSendTemplatedMail = vi.fn()
 const mockRegistrationEmailTags = vi.fn()
 const mockAudit = vi.fn()
 const mockRegistrationAuditKey = vi.fn()
-const mockDynamoRead = vi.fn()
-const mockDynamoUpdate = vi.fn()
+const mockReadTransaction = vi.fn()
+const mockReadRegistrationConsistently = vi.fn()
 const mockPublishRegistrationPatches = vi.fn().mockResolvedValue({ attempted: 0, failed: 0, gone: 0, sent: 0 })
 const mockPublishCancelledRegistration = vi.fn()
 const mockPublishParticipantPayments = vi.fn()
-const mockDynamoClient = vi.fn(function MockCustomDynamoClient() {
-  return {
-    read: mockDynamoRead,
-    update: mockDynamoUpdate,
-  }
-})
 
 vi.doMock('../lib/lambda', async () => ({
   ...(await vi.importActual<typeof import('../lib/lambda')>('../lib/lambda')),
@@ -44,7 +38,6 @@ vi.doMock('../lib/lambda', async () => ({
 }))
 
 vi.doMock('../lib/payment', () => ({
-  applySuccessfulRefund: mockApplySuccessfulRefund,
   parseParams: mockParseParams,
   publishCancelledRegistration: mockPublishCancelledRegistration,
   publishParticipantPayments: mockPublishParticipantPayments,
@@ -74,8 +67,13 @@ vi.doMock('../lib/audit', () => ({
   registrationAuditKey: mockRegistrationAuditKey,
 }))
 
-vi.doMock('../utils/CustomDynamoClient', () => ({
-  default: mockDynamoClient,
+vi.doMock('../lib/repositories/transactionRepository', () => ({
+  applySuccessfulRefund: mockApplySuccessfulRefund,
+  readTransaction: mockReadTransaction,
+}))
+
+vi.doMock('../lib/repositories/registrationRepository', () => ({
+  readRegistrationConsistently: mockReadRegistrationConsistently,
 }))
 
 vi.doMock('../lib/ws/actions', () => ({
@@ -142,11 +140,9 @@ describe('refundSuccessLambda', () => {
       transactionId: 'transaction123',
     })
 
-    // The transaction read passes no table (it uses the client's own default); the registration
-    // re-read after applying always names one explicitly (KOE-1529).
-    mockDynamoRead.mockImplementation((_key: unknown, table?: string) =>
-      Promise.resolve(table ? { ...mockRegistration, openRefunds: [] } : mockTransaction)
-    )
+    mockReadTransaction.mockResolvedValue(mockTransaction)
+    // The registration is read again, strongly consistent, after applying (KOE-1529).
+    mockReadRegistrationConsistently.mockResolvedValue({ ...mockRegistration, openRefunds: [] })
     mockGetRegistration.mockImplementation(() => Promise.resolve(structuredClone(mockRegistration)))
     mockGetEvent.mockResolvedValue(mockConfirmedEvent)
     mockUpdateTransactionStatus.mockResolvedValue(true)
@@ -174,11 +170,11 @@ describe('refundSuccessLambda', () => {
     })
 
     await expect(refundSuccessLambda(event)).rejects.toThrow('Bad Request')
-    expect(mockDynamoRead).not.toHaveBeenCalled()
+    expect(mockReadTransaction).not.toHaveBeenCalled()
   })
 
   it('reconstructs a missing transaction from a verified success callback', async () => {
-    mockDynamoRead.mockResolvedValueOnce(null)
+    mockReadTransaction.mockResolvedValueOnce(null)
 
     await refundSuccessLambda(event)
 
@@ -197,7 +193,7 @@ describe('refundSuccessLambda', () => {
   })
 
   it('returns early if transaction already has status "ok"', async () => {
-    mockDynamoRead.mockResolvedValueOnce({
+    mockReadTransaction.mockResolvedValueOnce({
       ...mockTransaction,
       registrationAppliedAt: '2023-01-01T12:30:00.000Z',
       status: 'ok',
@@ -281,7 +277,7 @@ describe('refundSuccessLambda', () => {
       'org-1'
     )
 
-    expect(mockDynamoUpdate).not.toHaveBeenCalled()
+    expect(mockReadRegistrationConsistently).toHaveBeenCalledWith('event123', 'reg456')
 
     // Verify email was sent
     expect(mockSendTemplatedMail).toHaveBeenCalledWith(
@@ -354,7 +350,7 @@ describe('refundSuccessLambda', () => {
   })
 
   it('tells a partial refund without a handling fee as one without a fee (KOE-1459)', async () => {
-    mockDynamoRead.mockResolvedValueOnce({ ...mockTransaction, amount: 400, handlingCost: 0 })
+    mockReadTransaction.mockResolvedValueOnce({ ...mockTransaction, amount: 400, handlingCost: 0 })
     const partialEvent = constructPartialAPIGwEvent({
       queryStringParameters: { ...event.queryStringParameters, 'checkout-amount': '400' },
     })
@@ -414,8 +410,8 @@ describe('refundSuccessLambda', () => {
 
     await refundSuccessLambda(event)
 
-    // Verify registration was not updated
-    expect(mockDynamoUpdate).not.toHaveBeenCalled()
+    // Verify the registration was not read again for a patch
+    expect(mockReadRegistrationConsistently).not.toHaveBeenCalled()
 
     // Verify email was not sent
     expect(mockSendTemplatedMail).not.toHaveBeenCalled()

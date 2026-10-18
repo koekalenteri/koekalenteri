@@ -1,17 +1,14 @@
-import type { JsonTransaction, VerifyPaymentResponse } from '../../types'
+import type { VerifyPaymentResponse } from '../../types'
 import type { PaytrailCallbackParams } from '../types/paytrail'
 import { paymentAudit } from '../../lib/audit'
 import { formatMoney } from '../../lib/money'
 import { getProviderName, transactionActor } from '../../lib/payment'
-import { CONFIG } from '../config'
 import { parseJSONWithFallback } from '../lib/json'
 import { lambda, response } from '../lib/lambda'
 import { logger } from '../lib/log'
 import { parseParams, publishCancelledRegistration, settleFailedTransaction, verifyParams } from '../lib/payment'
 import { getRegistration, getRegistrationEditToken } from '../lib/registration'
-import CustomDynamoClient from '../utils/CustomDynamoClient'
-
-const dynamoDB = new CustomDynamoClient(CONFIG.transactionTable)
+import { readTransaction } from '../lib/repositories/transactionRepository'
 
 /**
  * paymentVerify is called by client when returning from payment provider.
@@ -26,7 +23,7 @@ const paymentVerifyLambda = lambda('paymentVerify', async (event) => {
     /**
      * NB: the stored transaction status is probably outdated, since its updated by callback from the payment provider.
      */
-    const transaction = await dynamoDB.read<JsonTransaction>({ transactionId })
+    const transaction = await readTransaction(transactionId)
     if (!transaction) throw new Error(`Transaction with id '${transactionId}' was not found`)
 
     const status = paymentStatus === 'fail' ? 'error' : 'ok'

@@ -1,18 +1,15 @@
 import { authorizeEvent } from '../lib/eventAuth'
 import { getParam, lambda, response } from '../lib/lambda'
-import {
-  getTransactionsByReference,
-  publishCancelledRegistration,
-  refreshTransactionStatusesFromPaytrail,
-} from '../lib/payment'
+import { publishCancelledRegistration, refreshTransactionStatusesFromPaytrail } from '../lib/payment'
 import { getRegistration } from '../lib/registration'
+import { readTransactionsByReference } from '../lib/repositories/transactionRepository'
 
 const getRegistrationTransactionsLambda = lambda('getRegistrationTransactions', async (event) => {
   const { eventId } = await authorizeEvent(event, () => getParam(event, 'eventId'))
 
   const id = getParam(event, 'id')
   const reference = `${eventId}:${id}`
-  const transactions = await getTransactionsByReference(reference)
+  const transactions = await readTransactionsByReference(reference)
   const registration = await getRegistration(eventId, id)
   const { cancelled, transactions: refreshedTransactions } = await refreshTransactionStatusesFromPaytrail(
     transactions,

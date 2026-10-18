@@ -1,9 +1,9 @@
-import type { JsonPaymentTransaction, JsonRefundTransaction } from '../../types'
-import { uniqueId } from '../test-utils/integration'
-import CustomDynamoClient from '../utils/CustomDynamoClient'
-import { getTransactionsByReference } from './payment'
+import type { JsonPaymentTransaction, JsonRefundTransaction } from '../../../types'
+import { uniqueId } from '../../test-utils/integration'
+import CustomDynamoClient from '../../utils/CustomDynamoClient'
+import { readTransactionsByReference } from './transactionRepository'
 
-describe('getTransactionsByReference against DynamoDB-local', () => {
+describe('readTransactionsByReference against DynamoDB-local', () => {
   const client = new CustomDynamoClient('TransactionTable')
 
   const payment = (reference: string): JsonPaymentTransaction => ({
@@ -32,7 +32,7 @@ describe('getTransactionsByReference against DynamoDB-local', () => {
     const rows = [payment(reference), refund(reference)]
     await client.batchWrite([...rows, payment(uniqueId('reference'))])
 
-    const transactions = await getTransactionsByReference(reference)
+    const transactions = await readTransactionsByReference(reference)
 
     expect(transactions?.toSorted((a, b) => a.transactionId.localeCompare(b.transactionId))).toEqual(
       rows.toSorted((a, b) => a.transactionId.localeCompare(b.transactionId))
@@ -40,6 +40,6 @@ describe('getTransactionsByReference against DynamoDB-local', () => {
   })
 
   it('reads nothing for a reference without transactions', async () => {
-    await expect(getTransactionsByReference(uniqueId('reference'))).resolves.toEqual([])
+    await expect(readTransactionsByReference(uniqueId('reference'))).resolves.toEqual([])
   })
 })

@@ -23,10 +23,8 @@ import {
   updateRegistrations,
 } from '../lib/event'
 import { lambda, response } from '../lib/lambda'
-import { createDynamoLease } from '../lib/lease'
 import { logger } from '../lib/log'
 import {
-  applySuccessfulPayment,
   parseParams,
   publishCancelledRegistration,
   publishParticipantPaymentsOfEvent,
@@ -43,41 +41,17 @@ import {
   getRegistrationEditToken,
   sendTemplatedEmailToEventRegistrations,
 } from '../lib/registration'
+import { markDuplicatePayment } from '../lib/repositories/registrationRepository'
+import {
+  applySuccessfulPayment,
+  claimPostPaymentWorkflow,
+  markPostPaymentPhase,
+  readTransaction,
+  recordDuplicateTransaction,
+} from '../lib/repositories/transactionRepository'
 import { publishEventCounts, publishRegistrationPatchesStrict } from '../lib/ws/actions'
-import CustomDynamoClient from '../utils/CustomDynamoClient'
 
-const { frontendURL, emailFrom, registrationTable, transactionTable } = CONFIG
-const dynamoDB = new CustomDynamoClient(transactionTable)
-const POST_PAYMENT_LEASE_DURATION_MS = 90 * 1000
-
-type PostPaymentPhase =
-  | 'confirmationSentAt'
-  | 'invitationSentAt'
-  | 'paymentAuditAt'
-  | 'postPaymentProcessedAt'
-  | 'postPaymentPublishedAt'
-  | 'receiptSentAt'
-
-const postPaymentLease = createDynamoLease<JsonTransaction, PostPaymentPhase>({
-  client: dynamoDB,
-  durationMs: POST_PAYMENT_LEASE_DURATION_MS,
-  itemExistsField: 'transactionId',
-  leaseField: 'postPaymentLease',
-  table: transactionTable,
-})
-
-const claimPostPaymentWorkflow = async (transactionId: string) => {
-  const claim = await postPaymentLease.claim({
-    key: { transactionId },
-    missingItemMessage: `Transaction '${transactionId}' disappeared while claiming post-payment workflow`,
-  })
-  if (!claim) return undefined
-
-  return { release: claim.release, token: claim.token, transaction: claim.item }
-}
-
-const markPostPaymentPhase = (transactionId: string, token: string, field: PostPaymentPhase) =>
-  postPaymentLease.markPhase({ transactionId }, token, field)
+const { frontendURL, emailFrom } = CONFIG
 
 const recordDuplicatePayment = async (
   transaction: JsonTransaction,
@@ -88,42 +62,14 @@ const recordDuplicatePayment = async (
 ) => {
   const duplicateOfRegistrationId = duplicateOf.id
   const duplicatePaymentAt = new Date().toISOString()
-  const saved = {
-    ...transaction,
-    duplicateOfRegistrationId,
-    duplicatePaymentAt,
-    ...(provider ? { provider } : {}),
-    status: 'ok' as const,
-    statusAt: duplicatePaymentAt,
-  }
   const providerName = getProviderName(provider)
   const amount = formatMoney(transaction.amount / 100)
-  if (transactionExists) {
-    await dynamoDB.update(
-      { transactionId: transaction.transactionId },
-      {
-        remove: ['paymentResponse'],
-        set: {
-          duplicateOfRegistrationId,
-          duplicatePaymentAt,
-          ...(provider ? { provider } : {}),
-          status: 'ok',
-          statusAt: duplicatePaymentAt,
-        },
-      },
-      transactionTable
-    )
-  } else {
-    await dynamoDB.write(saved, transactionTable)
-  }
-  await dynamoDB.update(
-    { eventId: registration.eventId, id: registration.id },
-    {
-      delete: { openPayments: new Set([transaction.transactionId]) },
-      set: { paymentStatus: 'DUPLICATE', updatedAt: duplicatePaymentAt },
-    },
-    registrationTable
+  await recordDuplicateTransaction(
+    transaction,
+    { duplicateOfRegistrationId, duplicatePaymentAt, provider },
+    transactionExists
   )
+  await markDuplicatePayment(registration.eventId, registration.id, transaction.transactionId, duplicatePaymentAt)
   // The pay button follows the same rule as GetRegistration's: a duplicate waits for its refund.
   // The picture is built from the row read strongly consistent after the DELETE above, not a local
   // guess at what it now looks like (KOE-1529, round 2 part 3). It never fails the callback: the
@@ -453,7 +399,7 @@ const paymentSuccessLambda = lambda('paymentSuccess', async (event) => {
   await verifyParams(params)
   if (!transactionId) throw new Error('Missing transaction id')
 
-  const storedTransaction = await dynamoDB.read<JsonTransaction>({ transactionId })
+  const storedTransaction = await readTransaction(transactionId)
   const callbackAmount = Number.parseInt(params['checkout-amount'] ?? '', 10)
   if (!storedTransaction && status !== 'ok') {
     throw new Error(`Transaction with id '${transactionId}' was not found`)

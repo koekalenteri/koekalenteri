@@ -2,9 +2,11 @@ import type { JsonRefundTransaction, JsonRegistration } from '../../types'
 import { vi } from 'vitest'
 
 const mockGetPayment = vi.fn()
-const mockDynamoUpdate = vi.fn()
-const mockDynamoRead = vi.fn()
-const mockBatchGet = vi.fn()
+const mockUpdateUnresolvedTransaction = vi.fn()
+const mockFailUnfinishedTransaction = vi.fn()
+const mockDropOpenTransactionId = vi.fn()
+const mockReadRegistrationConsistently = vi.fn()
+const mockReadPaymentTransactions = vi.fn()
 const mockAudit = vi.fn()
 const mockGetEvent = vi.fn()
 
@@ -19,14 +21,15 @@ vi.doMock('./audit', () => ({
 
 vi.doMock('./event', () => ({ getEvent: mockGetEvent }))
 
-vi.doMock('../utils/CustomDynamoClient', () => ({
-  default: vi.fn(function MockCustomDynamoClient() {
-    return {
-      batchGet: mockBatchGet,
-      read: mockDynamoRead,
-      update: mockDynamoUpdate,
-    }
-  }),
+vi.doMock('./repositories/transactionRepository', () => ({
+  failUnfinishedTransaction: mockFailUnfinishedTransaction,
+  readPaymentTransactions: mockReadPaymentTransactions,
+  updateUnresolvedTransaction: mockUpdateUnresolvedTransaction,
+}))
+
+vi.doMock('./repositories/registrationRepository', () => ({
+  dropOpenTransactionId: mockDropOpenTransactionId,
+  readRegistrationConsistently: mockReadRegistrationConsistently,
 }))
 
 const { refreshTransactionStatusesFromPaytrail } = await import('./payment')
@@ -55,27 +58,19 @@ describe('refreshTransactionStatusesFromPaytrail', () => {
       status: 'ok',
       transactionId: 'refund123',
     })
+    mockUpdateUnresolvedTransaction.mockResolvedValueOnce(true)
 
     const refreshed = await refreshTransactionStatusesFromPaytrail([transaction], registration)
 
     expect(mockGetPayment).toHaveBeenCalledWith('refund123')
-    expect(mockDynamoUpdate).toHaveBeenCalledWith(
-      { transactionId: 'refund123' },
-      {
-        remove: ['paymentResponse'],
-        set: {
-          provider: 'paytrail',
-          status: 'ok',
-          statusAt: expect.any(String),
-        },
+    expect(mockUpdateUnresolvedTransaction).toHaveBeenCalledWith('refund123', {
+      remove: ['paymentResponse'],
+      set: {
+        provider: 'paytrail',
+        status: 'ok',
+        statusAt: expect.any(String),
       },
-      expect.any(String),
-      undefined,
-      expect.objectContaining({
-        expression:
-          'attribute_not_exists(registrationAppliedAt) AND attribute_not_exists(duplicatePaymentAt) AND #status <> :fail',
-      })
-    )
+    })
     expect(refreshed).toEqual({
       cancelled: [],
       transactions: [
@@ -108,9 +103,9 @@ describe('refreshTransactionStatusesFromPaytrail', () => {
       status: 'fail',
       transactionId: 'refund123',
     })
-    mockDynamoUpdate.mockResolvedValueOnce({}) // failUnfinishedTransaction
-    mockDynamoUpdate.mockResolvedValueOnce({ Attributes: { openRefunds: ['refund123'] } }) // dropOpenTransaction
-    mockDynamoRead.mockResolvedValueOnce({ ...registration, openRefunds: [] }) // the strongly consistent re-read
+    mockFailUnfinishedTransaction.mockResolvedValueOnce(true)
+    mockDropOpenTransactionId.mockResolvedValueOnce(['refund123'])
+    mockReadRegistrationConsistently.mockResolvedValueOnce({ ...registration, openRefunds: [] })
     mockGetEvent.mockResolvedValueOnce({
       cost: 50,
       costMember: 50,
@@ -118,13 +113,22 @@ describe('refreshTransactionStatusesFromPaytrail', () => {
       organizer: { id: 'org-1' },
       state: 'confirmed',
     })
-    mockBatchGet.mockResolvedValueOnce([])
+    mockReadPaymentTransactions.mockResolvedValueOnce([])
 
     const refreshed = await refreshTransactionStatusesFromPaytrail([transaction], registration)
 
     expect(mockAudit).toHaveBeenCalledWith(
       expect.objectContaining({ auditKey: 'event123:reg456', messageKey: 'audit.messages.refundFailed' })
     )
+    expect(mockFailUnfinishedTransaction).toHaveBeenCalledWith('refund123', 'paytrail', expect.any(String))
+    expect(mockDropOpenTransactionId).toHaveBeenCalledWith(
+      'event123',
+      'reg456',
+      'openRefunds',
+      'refund123',
+      expect.any(String)
+    )
+    expect(mockUpdateUnresolvedTransaction).not.toHaveBeenCalled()
     expect(refreshed.cancelled).toHaveLength(1)
     expect(refreshed.cancelled[0]).toMatchObject({ eventId: 'event123', registrationId: 'reg456' })
     expect(refreshed.transactions).toEqual([
@@ -147,7 +151,7 @@ describe('refreshTransactionStatusesFromPaytrail', () => {
     const refreshed = await refreshTransactionStatusesFromPaytrail([transaction], registration)
 
     expect(mockGetPayment).not.toHaveBeenCalled()
-    expect(mockDynamoUpdate).not.toHaveBeenCalled()
+    expect(mockUpdateUnresolvedTransaction).not.toHaveBeenCalled()
     expect(refreshed).toEqual({ cancelled: [], transactions: [transaction] })
   })
 })

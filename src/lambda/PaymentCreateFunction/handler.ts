@@ -23,29 +23,23 @@ import { registrationActor } from '../../lib/registration'
 import { paymentCreateSchema } from '../../lib/schema/payment'
 import { splitName } from '../../lib/string'
 import { mapWithConcurrency } from '../../lib/utils'
-import { CONFIG } from '../config'
 import { getFrontendOrigin } from '../lib/api-gw'
 import { authorize } from '../lib/auth'
 import { getEvent } from '../lib/event'
 import { parseJSONWithFallback } from '../lib/json'
 import { httpError, lambda, response } from '../lib/lambda'
-import {
-  claimTransactionCreation,
-  dropOpenTransaction,
-  failUnfinishedTransaction,
-  getTransactionsByReference,
-  paymentDescription,
-  releaseTransactionCreation,
-} from '../lib/payment'
+import { dropOpenTransaction, paymentDescription } from '../lib/payment'
 import { PaytrailError, paytrail } from '../lib/paytrail'
 import { authorizeRegistrationEdit, getRegistration } from '../lib/registration'
 import { readOrganizer } from '../lib/repositories/organizerRepository'
+import { claimTransactionCreation, releaseTransactionCreation } from '../lib/repositories/registrationRepository'
+import {
+  createPaymentTransaction,
+  failUnfinishedTransaction,
+  readTransactionsByReference,
+} from '../lib/repositories/transactionRepository'
 import { validateBody } from '../lib/request'
-import CustomDynamoClient from '../utils/CustomDynamoClient'
 import { getApiHost } from '../utils/proxyEvent'
-
-const { registrationTable, transactionTable } = CONFIG
-const dynamoDB = new CustomDynamoClient(transactionTable)
 
 /**
  * Paytrail's line shape, built from ours. Units and VAT are its concerns, not the application's:
@@ -73,7 +67,7 @@ const inspectExistingTransactions = async (
   reference: string,
   registration: Pick<JsonRegistration, 'eventId' | 'id'>
 ) => {
-  const existingTransactions = await getTransactionsByReference(reference)
+  const existingTransactions = await readTransactionsByReference(reference)
 
   if (!existingTransactions) {
     return { freshPendingTransaction: false, reusableNewTransaction: undefined }
@@ -108,7 +102,7 @@ const inspectExistingTransactions = async (
   // row, then the registration's open set) is easiest to reason about settled fully before the
   // next one starts, rather than interleaved with it.
   await mapWithConcurrency(staleTransactions, 1, async (tx) => {
-    await failUnfinishedTransaction(tx)
+    await failUnfinishedTransaction(tx.transactionId)
     await dropOpenTransaction(registration, 'openPayments', tx.transactionId)
   })
 
@@ -192,9 +186,7 @@ const paymentCreateLambda = lambda('paymentCreate', async (event) => {
 
   const language = registration.language === 'en' ? 'EN' : 'FI'
 
-  if (
-    !(await claimTransactionCreation(dynamoDB, 'payment', eventId, registrationId, stamp, STALE_PENDING_PAYMENT_AGE_MS))
-  ) {
+  if (!(await claimTransactionCreation('payment', eventId, registrationId, stamp, STALE_PENDING_PAYMENT_AGE_MS))) {
     throw httpError(409, 'Payment already in progress')
   }
 
@@ -212,7 +204,7 @@ const paymentCreateLambda = lambda('paymentCreate', async (event) => {
       stamp,
     })
   } catch (error: unknown) {
-    await releaseTransactionCreation(dynamoDB, 'payment', eventId, registrationId, stamp)
+    await releaseTransactionCreation('payment', eventId, registrationId, stamp)
     if (error instanceof PaytrailError) {
       // Paytrail's own words, marked as Paytrail's: the payment page puts them in the payer's language
       // (KOE-1513). Answered rather than thrown, so a Paytrail 5xx is not logged again as unhandled.
@@ -223,7 +215,7 @@ const paymentCreateLambda = lambda('paymentCreate', async (event) => {
   }
 
   if (!result) {
-    await releaseTransactionCreation(dynamoDB, 'payment', eventId, registrationId, stamp)
+    await releaseTransactionCreation('payment', eventId, registrationId, stamp)
     return response<undefined>(500, undefined, event)
   }
 
@@ -243,26 +235,7 @@ const paymentCreateLambda = lambda('paymentCreate', async (event) => {
     type: 'payment',
     ...auditUser(actor),
   }
-  const updatedAt = new Date().toISOString()
-  await dynamoDB.documentTransaction([
-    {
-      Put: {
-        ConditionExpression: 'attribute_not_exists(transactionId)',
-        Item: transaction,
-        TableName: transactionTable,
-      },
-    },
-    {
-      Update: {
-        ConditionExpression: 'attribute_exists(id)',
-        ExpressionAttributeValues: { ':transactionId': new Set([transaction.transactionId]), ':updatedAt': updatedAt },
-        Key: { eventId, id: registrationId },
-        TableName: registrationTable,
-        UpdateExpression:
-          'SET updatedAt = :updatedAt REMOVE paymentCreationAt, paymentCreationStamp ADD openPayments :transactionId',
-      },
-    },
-  ])
+  await createPaymentTransaction(transaction, eventId, registrationId, new Date().toISOString())
 
   return response<CreatePaymentResponse>(200, result, event)
 })
