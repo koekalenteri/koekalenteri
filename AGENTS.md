@@ -65,11 +65,18 @@ Read `LLM_CONTEXT.md` for the project overview and architecture notes.
   storage or a URL, `toDayKey(year, month, day)` builds one. Days compare and sort as text.
 - A day becomes a moment, and a moment a day, only in `src/lib/day.ts`: `dayOf(instant, zone)`,
   `dayStart(day, zone)`, `dayEnd(day, zone)`, `shiftDays(instant, days, zone)`, and the readers of an
-  instant built on them: `dayStartOf`, `dayEndOf`, `sameDay`, `yearOf`, `monthOf`. The zone is a
-  required parameter, never a default; the trials' zone is `TIME_ZONE` from the same module. Day
-  arithmetic (`addDays`, `addMonths`, `daysBetween`, `eachDay`, `dayOfWeek`) needs no zone at all.
+  instant built on them: `dayStartOf(instant, zone, days = 0)` (the start of the day the instant falls
+  on, or of one `days` from it), `dayEndOf`, `sameDay`, `yearOf`, `monthOf`, plus `yearStart`,
+  `yearEnd` and `currentYear`. The zone is a required parameter, never a default; the trials' zone is
+  `TIME_ZONE` from the same module. Day arithmetic (`addDays`, `addMonths`, `daysBetween`, `eachDay`,
+  `dayOfWeek`) needs no zone at all.
+- `dayOf` throws on an instant without a calendar day. Check `hasCalendarDay(instant, zone)` first on
+  anything stored or received: the Kennel Club's empty date (year 1) is a valid Date but no day, and
+  the accepted years (1100 to 9899) leave room for every step the app takes from an accepted day.
 - The stored `Date | string` fields (class and group dates, the published-day scopes) are read through
-  `eventDayKey` in `src/lib/event.ts`, the one bridge until story 3 of KOE-1544 types them as days.
+  `src/lib/event.ts`: `storedDayKey` for a row whose date may be missing or unreadable (undefined
+  then), `eventDayKey` where the date must be there (it throws on one it cannot read). They are the
+  bridge until story 3 of KOE-1544 types the fields as days.
 - date-fns' calendar functions (`isSameDay`, `startOfDay`, `addDays`, `nextSaturday`, `subWeeks`,
   ...) read the day in the machine's zone, and so do `format` with day tokens and `parseISO` of a day
   key. Biome's `noRestrictedImports` bans them outside `src/lib/day.ts` (`format` and `parseISO` also

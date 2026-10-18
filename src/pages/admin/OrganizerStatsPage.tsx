@@ -26,8 +26,6 @@ import {
   adminStatsYearAtom,
 } from './state'
 
-const CURRENT_YEAR = currentYear(TIME_ZONE)
-
 export default function OrganizerStatsPage() {
   const { t, i18n } = useTranslation()
   const [year, setYear] = useAtom(adminStatsYearAtom)
@@ -50,7 +48,7 @@ export default function OrganizerStatsPage() {
   // cost four queries per year, and years with no events of your own are not selectable anyway.
   const years = useMemo(() => {
     const found = new Set(allOrganizerStats.flatMap((item) => (item.date ? [yearOf(item.date, TIME_ZONE)] : [])))
-    found.add(CURRENT_YEAR)
+    found.add(currentYear(TIME_ZONE))
     return [...found].filter((year) => !Number.isNaN(year)).sort((a, b) => a - b)
   }, [allOrganizerStats])
 

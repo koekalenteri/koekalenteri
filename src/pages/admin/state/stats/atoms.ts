@@ -1,8 +1,9 @@
-import { atom } from 'jotai'
+import { atomWithLazy } from 'jotai/utils'
 import { currentYear, TIME_ZONE } from '@/lib/day'
 import { atomWithLocalStorage } from '@/pages/state/storage'
 
-export const adminStatsYearAtom = atom<number>(currentYear(TIME_ZONE))
+/** This year, read when the atom is first used rather than when the module loads. */
+export const adminStatsYearAtom = atomWithLazy<number>(() => currentYear(TIME_ZONE))
 
 /** Empty string means "all organizations the user has access to". */
 export const adminStatsOrganizerIdAtom = atomWithLocalStorage<string>('adminStatsOrganizerId', '')

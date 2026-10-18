@@ -1,5 +1,5 @@
 import type { JsonDogEvent, JsonRegistration, Registration } from '../../types'
-import { addDays, addMinutes } from 'date-fns'
+import { addMinutes } from 'date-fns'
 import { vi } from 'vitest'
 import { registrationDogAged28MonthsWithNOUResult } from '../../__mockData__/dogs'
 import {
@@ -8,6 +8,7 @@ import {
   eventWithStaticDatesAndClass,
 } from '../../__mockData__/events'
 import { registrationWithStaticDates, registrationWithStaticDatesAndClass } from '../../__mockData__/registrations'
+import { dayStartOf, TIME_ZONE } from '../../lib/day'
 import { GROUP_KEY_RESERVE } from '../../lib/registration'
 import { CONFIG } from '../config'
 import { LambdaError } from '../lib/lambda'
@@ -1485,7 +1486,7 @@ describe('putRegistrationLabmda', () => {
   })
 
   it('should return 404 when updating a registration after the event has ended', async () => {
-    vi.setSystemTime(addDays(eventWithStaticDates.endDate, 1))
+    vi.setSystemTime(dayStartOf(eventWithStaticDates.endDate, TIME_ZONE, 1))
     mockGetEvent.mockResolvedValueOnce(JSON.parse(JSON.stringify(eventWithStaticDates)))
     mockGetRegistration.mockResolvedValueOnce(JSON.parse(JSON.stringify(registrationWithStaticDates)))
 

@@ -59,6 +59,7 @@ import {
   isEntryEditingClosed,
   isEntryOpen,
   isEntryUpcoming,
+  isEventDateString,
   isEventDeletable,
   isEventLive,
   isEventOver,
@@ -844,6 +845,15 @@ describe('lib/event', () => {
       expect(getEventSeason('foo')).toEqual('')
       // The Kennel Club's empty date is a valid Date but has no calendar day.
       expect(getEventSeason('0001-01-01T00:00:00.000Z')).toEqual('')
+    })
+
+    it('accepts as a request date only an ISO instant or a day key with a calendar day', () => {
+      expect(isEventDateString('2026-10-17T21:00:00.000Z')).toBe(true)
+      expect(isEventDateString('2026-10-17')).toBe(true)
+      // `new Date('12')` is 1.12.2001: a string Date can read is not therefore a date.
+      expect(isEventDateString('12')).toBe(false)
+      expect(isEventDateString('0001-01-01T00:00:00.000Z')).toBe(false)
+      expect(isEventDateString(20261017)).toBe(false)
       expect(getEventSeason(new Date(Number.NaN))).toEqual('')
     })
   })

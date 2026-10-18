@@ -1,5 +1,5 @@
 import type { JsonDogEvent } from '../../types'
-import { TIME_ZONE, yearEnd, yearOf, yearStart } from '../../lib/day'
+import { currentYear, TIME_ZONE, yearEnd, yearOf, yearStart } from '../../lib/day'
 import { sanitizeDogEvent } from '../../lib/event'
 import { CONFIG } from '../config'
 import { changedSince, collectionCursor, parseDateParam } from '../lib/incremental'
@@ -26,23 +26,11 @@ function seasonsBetween(startYear: number, endYear: number): string[] {
   return seasons
 }
 
-function zonedStartOfYear(year: number): Date {
-  return yearStart(year, TIME_ZONE)
-}
-
-function zonedEndOfYear(year: number): Date {
-  return yearEnd(year, TIME_ZONE)
-}
-
-function zonedYear(date: Date): number {
-  return yearOf(date, TIME_ZONE)
-}
-
 function getUpperBoundYear(end: Date | undefined, lowerBoundYear: number): number {
-  if (end) return zonedYear(end)
+  if (end) return yearOf(end, TIME_ZONE)
 
-  const currentYear = zonedYear(new Date())
-  return lowerBoundYear === currentYear ? lowerBoundYear + 1 : lowerBoundYear
+  const thisYear = currentYear(TIME_ZONE)
+  return lowerBoundYear === thisYear ? lowerBoundYear + 1 : lowerBoundYear
 }
 
 /**
@@ -52,11 +40,11 @@ function getUpperBoundYear(end: Date | undefined, lowerBoundYear: number): numbe
  * public list never needs them, so they are not carried over the wire from the database either.
  */
 async function queryEventsForRange(start?: Date, end?: Date): Promise<JsonDogEvent[] | undefined> {
-  const fallbackLowerBoundYear = zonedYear(end ?? new Date())
-  const lowerBound = start ?? zonedStartOfYear(fallbackLowerBoundYear)
-  const lowerBoundYear = zonedYear(lowerBound)
+  const fallbackLowerBoundYear = end ? yearOf(end, TIME_ZONE) : currentYear(TIME_ZONE)
+  const lowerBound = start ?? yearStart(fallbackLowerBoundYear, TIME_ZONE)
+  const lowerBoundYear = yearOf(lowerBound, TIME_ZONE)
   const upperBoundYear = getUpperBoundYear(end, lowerBoundYear)
-  const upperBound = end ?? zonedEndOfYear(upperBoundYear)
+  const upperBound = end ?? yearEnd(upperBoundYear, TIME_ZONE)
   const seasons = seasonsBetween(lowerBoundYear, upperBoundYear)
 
   // The seasons are independent queries: asked together, the calendar waits for the slowest one

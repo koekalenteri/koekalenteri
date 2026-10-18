@@ -23,14 +23,14 @@ import RetentionChart from './components/stats/RetentionChart'
 import YearSelector from './components/stats/YearSelector'
 import { allYearlyStatsAtom, capacityStatsAtom, hasAdminAccessAtom, useUserActions } from './state'
 
-const CURRENT_YEAR = currentYear(TIME_ZONE)
-const EMPTY_YEAR_STATS: YearlyStatsResponse = { dogHandlerBuckets: [], totals: [], year: CURRENT_YEAR }
+const emptyYearStats = (year: number): YearlyStatsResponse => ({ dogHandlerBuckets: [], totals: [], year })
 
 export function Component() {
   const { t } = useTranslation()
   const location = useLocation()
   const [searchParams, setSearchParams] = useSearchParams()
-  const selectedYear = Number(searchParams.get('year')) || CURRENT_YEAR
+  const thisYear = currentYear(TIME_ZONE)
+  const selectedYear = Number(searchParams.get('year')) || thisYear
   const actions = useUserActions()
   const hasAccess = useAtomValue(hasAdminAccessAtom)
 
@@ -47,10 +47,10 @@ export function Component() {
   const allStats = useAtomValue(allYearlyStatsAtom)
   const capacityStats = useAtomValue(capacityStatsAtom)
   const yearStats = useMemo(
-    () => allStats.stats.find((stats) => stats.year === selectedYear) ?? EMPTY_YEAR_STATS,
+    () => allStats.stats.find((stats) => stats.year === selectedYear) ?? emptyYearStats(selectedYear),
     [allStats.stats, selectedYear]
   )
-  const years = allStats.years.includes(CURRENT_YEAR) ? allStats.years : [...allStats.years, CURRENT_YEAR]
+  const years = allStats.years.includes(thisYear) ? allStats.years : [...allStats.years, thisYear]
 
   if (!hasAccess) return null
 

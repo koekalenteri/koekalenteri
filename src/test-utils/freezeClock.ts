@@ -24,9 +24,9 @@ const middayOf = (day: string) => {
  * read the clock, so it does not matter that the hook fires after the module is evaluated — but one
  * built from `Date.now()` does: build it from the returned instant instead, or inside a test.
  *
- * A component that reads the clock when its own module loads (a `CURRENT_YEAR` at module scope, an
- * atom like `adminStatsYearAtom` whose initial value is `new Date().getFullYear()`) has read it before
- * any `beforeAll`, so this hook is too late for it: freeze it with {@link freezeClockNow} instead.
+ * A component that reads the clock when its own module loads (a constant at module scope, an atom
+ * whose initial value is computed from `new Date()`) has read it before any `beforeAll`, so this hook
+ * is too late for it: freeze it with {@link freezeClockNow} instead, or read the clock lazily.
  *
  * @param day the frozen day as `yyyy-MM-dd`
  * @returns the frozen instant in milliseconds, for fixtures that count back from "now".
@@ -44,6 +44,12 @@ export const freezeClockAt = (day: string) => {
 
   return frozen
 }
+
+/**
+ * The instant {@link freezeClockAt} freezes a day at, for a file that installs its own fake timers
+ * (`vi.useFakeTimers({ now: frozenInstant(day) })`) and needs the same instant.
+ */
+export const frozenInstant = (day: string) => middayOf(day)
 
 /**
  * Freezes the clock at once; see {@link freezeClockAt} for when. Call it from `vi.hoisted`, which runs

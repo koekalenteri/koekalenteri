@@ -126,6 +126,24 @@ describe('getEventsLambda', () => {
     vi.useRealTimers()
   })
 
+  // The public list takes `start` from anyone: a year-1 instant reads as no start, not a 500.
+  it('reads a start without a calendar day as no start', async () => {
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date('2026-05-12T00:00:00.000Z'))
+    mockQuery.mockResolvedValueOnce([]).mockResolvedValueOnce([])
+
+    await getEventsLambda(asEvent({ body: '', headers: {}, queryStringParameters: { start: '-62135596800000' } }))
+
+    expect(mockQuery).toHaveBeenCalledTimes(2)
+    expect(mockQuery).toHaveBeenNthCalledWith(
+      1,
+      expect.objectContaining({ values: expect.objectContaining({ ':season': '2026' }) })
+    )
+    expect(mockResponse).toHaveBeenCalledWith(200, [], expect.anything())
+
+    vi.useRealTimers()
+  })
+
   it('passes through errors from the query', async () => {
     const error = new Error('Database error')
 

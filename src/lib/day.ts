@@ -18,10 +18,19 @@ const MS_PER_DAY = 86_400_000
  */
 
 /**
- * Four digits from 1000 on: the calendar has no day before that, and the Date constructors would read
- * a year below 100 as 19xx. The Kennel Club's empty date, 0001-01-01, is therefore not a day.
+ * The years, in one place. A key can spell 1000 to 9999 (four digits; the Date constructors would read
+ * a year below 100 as 19xx). A day is accepted from storage, a URL or a request (`isDayKey`,
+ * `hasCalendarDay`) only a century inside that, so every step the app takes from an accepted day (a
+ * week's search margin, two years back for a ranking period, the end of a day) still lands on a key.
+ * The Kennel Club's empty date, 0001-01-01, is no day.
  */
-const DAY_KEY_RE = /^[1-9]\d{3}-(?:0[1-9]|1[0-2])-(?:0[1-9]|[12]\d|3[01])$/
+const SPELLED_YEARS = { first: 1000, last: 9999 }
+const ACCEPTED_YEARS = { first: 1100, last: 9899 }
+
+const isYearIn = (year: number, years: { first: number; last: number }) =>
+  Number.isInteger(year) && year >= years.first && year <= years.last
+
+const DAY_KEY_RE = /^\d{4}-(?:0[1-9]|1[0-2])-(?:0[1-9]|[12]\d|3[01])$/
 
 /** Whether a year, month and day name a day that exists: no 30.2., no 31.4. */
 const dayExists = (year: number, month: number, day: number) => {
@@ -29,21 +38,19 @@ const dayExists = (year: number, month: number, day: number) => {
   return probe.getUTCFullYear() === year && probe.getUTCMonth() === month - 1 && probe.getUTCDate() === day
 }
 
-/** Whether `value` is a `yyyy-MM-dd` that names a day there is. */
-export const isDayKey = (value: unknown): value is DayKey => {
+/** Whether `value` is a `yyyy-MM-dd` that names a day there is, in the given years. */
+const isKeyIn = (value: unknown, years: { first: number; last: number }): value is DayKey => {
   if (typeof value !== 'string' || !DAY_KEY_RE.test(value)) return false
   const [year, month, day] = value.split('-').map(Number)
-  return dayExists(year, month, day)
+  return isYearIn(year, years) && dayExists(year, month, day)
 }
 
-/** Whether the parts name a day in the calendar's range: whole numbers, a four-digit year, a day the month has. */
+/** Whether `value` is a `yyyy-MM-dd` that names a day there is, in the accepted years. */
+export const isDayKey = (value: unknown): value is DayKey => isKeyIn(value, ACCEPTED_YEARS)
+
+/** Whether the parts spell a key: whole numbers, a four-digit year, a day the month has. */
 const isDayParts = (year: number, month: number, day: number) =>
-  Number.isInteger(year) &&
-  Number.isInteger(month) &&
-  Number.isInteger(day) &&
-  year >= 1000 &&
-  year <= 9999 &&
-  dayExists(year, month, day)
+  isYearIn(year, SPELLED_YEARS) && Number.isInteger(month) && Number.isInteger(day) && dayExists(year, month, day)
 
 const pad = (part: number) => String(part).padStart(2, '0')
 
@@ -55,7 +62,7 @@ export const toDayKey = (year: number, month: number, day: number): DayKey => {
   if (!isDayParts(year, month, day)) throw new RangeError(`Not a day: ${year}-${month}-${day}`)
   const key = `${year}-${pad(month)}-${pad(day)}`
   // Narrows the template string to the DayKey type; the parts were checked above, so this never throws.
-  if (!isDayKey(key)) throw new RangeError(`Not a day: ${key}`)
+  if (!isKeyIn(key, SPELLED_YEARS)) throw new RangeError(`Not a day: ${key}`)
   return key
 }
 
@@ -107,25 +114,29 @@ export const eachDay = (from: DayKey, to: DayKey): DayKey[] => {
 /** The weekday of the key as `Date` counts them: 0 is Sunday, 6 is Saturday. */
 export const dayOfWeek = (day: DayKey): number => new Date(utcMidnight(day)).getUTCDay()
 
-/**
- * Whether the instant has a day in the calendar's range in `zone`: a valid moment whose year there is
- * 1000 to 9999. The Kennel Club's empty date (0001-01-01) is a valid Date but no calendar day.
- */
-export const hasCalendarDay = (instant: Date | number, zone: string): boolean => {
+/** The instant on the clock of `zone`, or undefined for an invalid one. */
+const inZone = (instant: Date | number, zone: string): TZDate | undefined => {
   const zoned = new TZDate(Number(instant), zone)
-  if (Number.isNaN(zoned.getTime())) return false
-  const year = zoned.getFullYear()
-  return year >= 1000 && year <= 9999
+  return Number.isNaN(zoned.getTime()) ? undefined : zoned
 }
 
 /**
- * The day the instant falls on in `zone`. An instant without a calendar day (invalid, or outside the
- * years 1000 to 9999) throws; a caller that holds a value from storage or a request checks it first
- * with `hasCalendarDay`.
+ * Whether the instant has a day in the accepted years in `zone`. Check this before `dayOf` on anything
+ * stored or received: the Kennel Club's empty date (0001-01-01) is a valid Date but no calendar day.
+ */
+export const hasCalendarDay = (instant: Date | number, zone: string): boolean => {
+  const zoned = inZone(instant, zone)
+  return zoned !== undefined && isYearIn(zoned.getFullYear(), ACCEPTED_YEARS)
+}
+
+/**
+ * The day the instant falls on in `zone`. An invalid instant, or one outside the years a key can spell
+ * (1000 to 9999), throws; a caller that holds a value from storage or a request checks it first with
+ * `hasCalendarDay`, whose accepted years are a century inside those.
  */
 export const dayOf = (instant: Date | number, zone: string): DayKey => {
-  const zoned = new TZDate(Number(instant), zone)
-  if (Number.isNaN(zoned.getTime())) throw new RangeError('Not an instant')
+  const zoned = inZone(instant, zone)
+  if (!zoned) throw new RangeError('Not an instant')
   return toDayKey(zoned.getFullYear(), zoned.getMonth() + 1, zoned.getDate())
 }
 
@@ -139,8 +150,14 @@ export const dayStart = (day: DayKey, zone: string): Date => {
   return new Date(new TZDate(year, month - 1, date, zone))
 }
 
-/** The last millisecond of the day in `zone`: a day of 23 or 25 hours ends where the next one starts. */
-export const dayEnd = (day: DayKey, zone: string): Date => new Date(dayStart(addDays(day, 1), zone).getTime() - 1)
+/**
+ * The last millisecond of the day in `zone`: a day of 23 or 25 hours ends where the next one starts.
+ * The next day is built on the zone's clock, not as a key, so the last day a key can spell has an end.
+ */
+export const dayEnd = (day: DayKey, zone: string): Date => {
+  const { year, month, day: date } = dayParts(day)
+  return new Date(new TZDate(year, month - 1, date + 1, zone).getTime() - 1)
+}
 
 /** The first moment, in `zone`, of the day the instant falls on there, or of the day `days` days from it. */
 export const dayStartOf = (instant: Date | number, zone: string, days = 0): Date =>
@@ -161,10 +178,7 @@ export const yearStart = (year: number, zone: string): Date => dayStart(toDayKey
 /** The last millisecond of the year in `zone`. */
 export const yearEnd = (year: number, zone: string): Date => dayEnd(toDayKey(year, 12, 31), zone)
 
-/**
- * The year it is now in `zone`. The stats pages read it once, when their module loads, as the year
- * picker's default; a test that needs another year freezes the clock before the import (freezeClockNow).
- */
+/** The year it is now in `zone`: the stats pages' default year. */
 export const currentYear = (zone: string): number => yearOf(new Date(), zone)
 
 /** The month the instant falls in, in `zone`, as `yyyy-MM`: the key the statistics bucket by. */

@@ -11,17 +11,13 @@ import {
   getOrganizerEventStats,
 } from '../../api/stats'
 import theme from '../../assets/Theme'
+import { frozenInstant } from '../../test-utils/freezeClock'
 import { flushPromises, renderSuspended, TEST_ID_TOKEN } from '../../test-utils/utils'
 import { idTokenAtom } from '../state'
 import OrganizerStatsPage from './OrganizerStatsPage'
 import { adminCapacityStatsEventTypeAtom, adminStatsOrganizerIdAtom } from './state'
 
-// The page reads the year when its module loads, so the clock is frozen before the imports run.
-const FROZEN = vi.hoisted(() => {
-  const now = new Date('2026-05-12T09:00:00.000Z')
-  vi.useFakeTimers({ now, toFake: ['Date'] })
-  return now
-})
+const FROZEN = frozenInstant('2026-05-12')
 
 vi.mock('../../api/stats')
 vi.mock('../../api/organizer')

@@ -11,6 +11,7 @@ import {
 } from '@/__mockData__/events'
 import { registrationsToEventWithParticipantsInvited, registrationWithStaticDates } from '@/__mockData__/registrations'
 import { APIError } from '@/api/http'
+import { dayStartOf, TIME_ZONE } from '@/lib/day'
 import { eventRegistrationDateKey } from '@/lib/event'
 import { parseDateOnlyString } from '@/lib/utils'
 import { finnishDayOf } from '@/test-utils/finnishDays'
@@ -389,7 +390,7 @@ describe('InfoPanel>', () => {
   it('publishes a two-day class one day at a time (KOE-1304)', async () => {
     const onSetStartNumbersPublished = vi.fn().mockResolvedValue(undefined)
     const [aloDay, avoDay] = eventWithParticipantsInvited.classes
-    const saturday = addDays(aloDay.date, 1)
+    const saturday = dayStartOf(aloDay.date, TIME_ZONE, 1)
     const wrapper = ({ children }: { children: React.ReactNode }) => (
       <Provider initializeState={({ set }) => set(adminEventsAtom, [eventWithParticipantsInvited])}>
         {children}

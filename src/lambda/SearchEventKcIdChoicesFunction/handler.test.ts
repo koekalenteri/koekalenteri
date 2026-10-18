@@ -197,6 +197,21 @@ describe('searchEventKcIdChoicesLambda', () => {
     expect(mockResponse).toHaveBeenCalledWith(200, { choices: [] }, expect.anything())
   })
 
+  it("widens to the week's margin when the exact days list only listings without a first day", async () => {
+    mockLueKokeet
+      .mockResolvedValueOnce({ json: [{ ...laukaa, alku: '' }], status: 200 })
+      .mockResolvedValueOnce({ json: [laukaa], status: 200 })
+
+    await search()
+
+    expect(mockLueKokeet).toHaveBeenCalledTimes(2)
+    expect(mockResponse).toHaveBeenCalledWith(
+      200,
+      { choices: [expect.objectContaining({ kcGuid: LAUKAA_GUID })] },
+      expect.anything()
+    )
+  })
+
   it('uses the number of the requested organizer', async () => {
     mockAuthorizeWithMemberOf.mockResolvedValueOnce({ memberOf: ['org-id', 'org-2'], user })
     mockReadOrganizer.mockResolvedValueOnce(otherOrganizer)

@@ -7,7 +7,7 @@ import { isValid } from 'date-fns/isValid'
 import { enGB as en } from 'date-fns/locale/en-GB'
 import { fi } from 'date-fns/locale/fi'
 import { parseISO } from 'date-fns/parseISO'
-import { dayOf, dayParts, dayStart, isDayKey, TIME_ZONE } from '../lib/day'
+import { dayOf, dayParts, dayStart, hasCalendarDay, isDayKey, TIME_ZONE } from '../lib/day'
 
 interface DateFormatOptions {
   timeZone?: string
@@ -67,10 +67,10 @@ export function formatDateSpan(
   const opts = { in: tz(timeZone) }
   start = readMoment(start, timeZone)
   end = readMoment(end, timeZone)
-  if (!isValid(start)) {
+  if (!hasCalendarDay(start, timeZone)) {
     return ''
   }
-  if (!isValid(end)) {
+  if (!hasCalendarDay(end, timeZone)) {
     end = start
   }
   // The days the span runs between, in the zone.

@@ -7,7 +7,9 @@ import { MemoryRouter } from 'react-router'
 import { TestProvider as Provider } from 'test-utils/AtomProvider'
 import { getAllYearlyStats } from '../../api/stats'
 import theme from '../../assets/Theme'
+import { TIME_ZONE, yearOf } from '../../lib/day'
 import { Path } from '../../routeConfig'
+import { frozenInstant } from '../../test-utils/freezeClock'
 import { DataMemoryRouter, flushPromises, renderSuspended, TEST_ID_TOKEN } from '../../test-utils/utils'
 import { ALL_EVENT_TYPES_FOR_CAPACITY, ALL_ORGANIZERS_FOR_EVENTS } from '../../types/Stats'
 import { idTokenAtom } from '../state'
@@ -17,14 +19,9 @@ vi.mock('../../api/stats')
 vi.mock('../../api/user')
 vi.mock('../../api/organizer')
 
-// The page reads the year when its module loads, so the clock is frozen before the imports run.
-const FROZEN = vi.hoisted(() => {
-  const now = new Date('2026-05-12T09:00:00.000Z')
-  vi.useFakeTimers({ now, toFake: ['Date'] })
-  return now
-})
+const FROZEN = frozenInstant('2026-05-12')
 
-const YEAR = 2026
+const YEAR = yearOf(FROZEN, TIME_ZONE)
 
 // From src/api/__mocks__/organizer.ts: '1' -> 'Järjestäjä 1', '2' -> 'Järjestäjä 2'.
 const payload = (eventBreakdown?: EventBreakdownEntry[]): AllYearlyStatsResponse => ({

@@ -1,8 +1,8 @@
 import type { EventStatsItem } from '@/types/Stats'
 import type { MonthlyRate } from './MonthlyRateChart'
 import { useTranslation } from 'react-i18next'
+import { storedMonthKey as monthKey } from '@/lib/event'
 import MonthlyRateChart, { percentageOf } from './MonthlyRateChart'
-import { monthKey } from './monthKey'
 
 interface Props {
   readonly items: EventStatsItem[]

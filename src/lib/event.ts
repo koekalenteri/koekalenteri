@@ -29,6 +29,7 @@ import {
   addDays,
   dayOf,
   dayOfWeek,
+  dayParts,
   dayStart,
   dayStartOf,
   daysBetween,
@@ -37,11 +38,10 @@ import {
   isDayKey,
   sameDay,
   TIME_ZONE,
-  yearOf,
 } from './day'
 import { isLiveNow, isStoredStationTurn, toPublicStationTurn } from './stationTurns'
 import { isConfirmedEvent } from './typeGuards'
-import { isObject, unique, uniqueDate } from './utils'
+import { isDateString, isObject, unique, uniqueDate } from './utils'
 
 type EventVitals = Partial<
   Pick<PublicDogEvent | JsonPublicDogEvent, 'startDate' | 'endDate' | 'entryStartDate' | 'entryEndDate' | 'state'>
@@ -80,7 +80,13 @@ export const storedDayKey = (date: DayInput): DayKey | undefined => {
  * Kennel Club search accept, and answer 400 to anything else.
  */
 export const isEventDateString = (value: unknown): value is string =>
-  typeof value === 'string' && hasCalendarDay(new Date(value), TIME_ZONE)
+  (isDateString(value) || isDayKey(value)) && hasCalendarDay(new Date(value), TIME_ZONE)
+
+/** The Finnish month of a stored date as `yyyy-MM`, the key the statistics bucket by; undefined without a day. */
+export const storedMonthKey = (date: DayInput): string | undefined => {
+  const day = storedDayKey(date)
+  return day && `${day.slice(0, 7)}`
+}
 
 /** Whether a stored date passes `test` as its Finnish day; a missing or unreadable date passes nothing. */
 const dayPasses = (date: DayInput, test: (day: DayKey) => boolean): boolean => {
@@ -1246,13 +1252,8 @@ export const isEventDeletable = ({ state }: Partial<Pick<JsonDogEvent, 'state'>>
  * instant, or the Kennel Club's year 1): stored rows are read through this, so it never throws.
  */
 export const getEventSeason = (startDate?: Date | string): string => {
-  const date = typeof startDate === 'string' ? new Date(startDate) : startDate
-
-  if (!date || !hasCalendarDay(date, TIME_ZONE)) {
-    return ''
-  }
-
-  return String(yearOf(date, TIME_ZONE))
+  const day = storedDayKey(startDate)
+  return day ? String(dayParts(day).year) : ''
 }
 
 export const isDetaultEntryStartDate = (date: Date | undefined, eventStartDate: Date) =>
@@ -1283,8 +1284,11 @@ export const getEventClassesByDays = (event: Pick<DogEvent, 'startDate' | 'endDa
     day,
   }))
 
+/** A group's key from its Finnish day and its time. */
+export const groupKeyOf = (day: DayKey, time: RegistrationDate['time']) => `${day}-${time}`
+
 /** A group's key: the Finnish day and the time, so a browser in another zone names the same group. */
-export const eventRegistrationDateKey = (rd: RegistrationDate) => `${dayOf(rd.date, TIME_ZONE)}-${rd.time}`
+export const eventRegistrationDateKey = (rd: RegistrationDate) => groupKeyOf(dayOf(rd.date, TIME_ZONE), rd.time)
 
 export function sanitizeDogEvent(event: JsonDogEvent): SanitizedJsonPublicDogEvent
 export function sanitizeDogEvent(event: ConfirmedEvent): SanitizedPublicConfirmedDogEvent

@@ -1243,12 +1243,16 @@ describe('putEventLambda', () => {
     expect(res.statusCode).toEqual(200)
   })
 
-  it.each(['startDate', 'endDate'] as const)('rejects an invalid %s before saving', async (field) => {
+  it.each([
+    ['startDate', 'not-a-date'],
+    ['endDate', 'not-a-date'],
+    ['startDate', '0001-01-01T00:00:00.000Z'],
+    ['endDate', '0001-01-01T00:00:00.000Z'],
+    ['startDate', '12'],
+  ] as const)('rejects an invalid %s (%s) before saving', async (field, value) => {
     authorizeMock.mockResolvedValueOnce(mockSecretary)
 
-    const res = await putEventLambda(
-      constructAPIGwEvent<Partial<JsonDogEvent>>({ [field]: 'not-a-date', eventType: 'TEST' })
-    )
+    const res = await putEventLambda(constructAPIGwEvent<Partial<JsonDogEvent>>({ [field]: value, eventType: 'TEST' }))
 
     expect(res.statusCode).toEqual(400)
     expect(saveEventMock).not.toHaveBeenCalled()

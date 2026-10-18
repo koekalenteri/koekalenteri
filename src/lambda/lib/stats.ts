@@ -14,8 +14,7 @@ import type {
   YearlyTotalStat,
 } from '../../types/Stats'
 import crypto from 'node:crypto'
-import { hasCalendarDay, monthOf, TIME_ZONE } from '../../lib/day'
-import { getEventSeason } from '../../lib/event'
+import { getEventSeason, storedMonthKey } from '../../lib/event'
 import { isMember, isStarter } from '../../lib/registration'
 import { CONFIG } from '../config'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
@@ -62,8 +61,7 @@ export function eventStatsYear({ startDate }: { startDate: string }): number | u
  * string would bucket every event starting on the 1st into the previous month.
  */
 export function eventStatsMonth(date: string): string | undefined {
-  const instant = new Date(date)
-  return hasCalendarDay(instant, TIME_ZONE) ? monthOf(instant, TIME_ZONE) : undefined
+  return storedMonthKey(date)
 }
 
 /**

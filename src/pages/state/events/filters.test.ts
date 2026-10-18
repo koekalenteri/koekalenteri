@@ -21,6 +21,9 @@ describe('state.events.filters', () => {
       expect(readDate('foo')).toBeNull()
       expect(readDate('2024-06-15T00:00:00Z')).toBeNull()
       expect(readDate(null)).toBeNull()
+      // A day past the accepted years: its end would be a year no key can spell.
+      expect(readDate('9999-12-31')).toBeNull()
+      expect(deserializeFilter('s=2026-10-17&e=9999-12-31').end).toBeNull()
     })
   })
 

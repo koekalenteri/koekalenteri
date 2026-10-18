@@ -209,7 +209,9 @@ const findEvents = async (
   )
   if (isNoResults(result)) return []
   if (result.status !== 200 || !result.json) throw upstreamError(result)
-  return result.json
+  // A listing without a first day matches no event's days and gives a browser nothing to read: it is
+  // left out before the search decides whether to widen to a week's margin.
+  return result.json.filter((item) => klDay(item.alku) !== undefined)
 }
 
 /**
@@ -245,8 +247,6 @@ export const searchKcTrials = async (
   const koemuoto = kcFormatOfEventType(criteria.eventType)
   let listed = await findEvents(klint, criteria, organizerKcId, 0, signal)
   if (!listed.length) listed = await findEvents(klint, criteria, organizerKcId, 7, signal)
-  // A listing without a first day has nothing to offer the secretary, and nothing a browser could read.
-  listed = listed.filter((item) => klDay(item.alku) !== undefined)
 
   const read = await mapWithConcurrency(listed, LUE_CONCURRENCY, (item) => readDetails(klint, koemuoto, item, signal))
   const candidates = read.filter((candidate): candidate is Candidate => candidate !== undefined)

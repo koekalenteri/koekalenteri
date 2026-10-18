@@ -1,3 +1,4 @@
+import type { DayKey } from '../../src/types'
 import { addDays, dayEnd, dayOf, dayStart, TIME_ZONE, yearOf } from '../../src/lib/day'
 
 /**
@@ -6,16 +7,14 @@ import { addDays, dayEnd, dayOf, dayStart, TIME_ZONE, yearOf } from '../../src/l
  * days every event date is kept in, counted and bounded by the app's own day module.
  */
 
-/** yyyy-MM-dd of the Helsinki day `offset` days from today. */
-export const helsinkiDay = (offset = 0): string => addDays(dayOf(Date.now(), TIME_ZONE), offset)
+/** The Helsinki day `offset` days from today. */
+export const helsinkiDay = (offset = 0): DayKey => addDays(dayOf(Date.now(), TIME_ZONE), offset)
 
 /** The instant a Helsinki day starts, as the app stores event dates. */
-export const startOfDay = (offset = 0): string =>
-  dayStart(addDays(dayOf(Date.now(), TIME_ZONE), offset), TIME_ZONE).toISOString()
+export const startOfDay = (offset = 0): string => dayStart(helsinkiDay(offset), TIME_ZONE).toISOString()
 
 /** The last millisecond of a Helsinki day, as the app stores an entry end date. */
-export const endOfDay = (offset = 0): string =>
-  dayEnd(addDays(dayOf(Date.now(), TIME_ZONE), offset), TIME_ZONE).toISOString()
+export const endOfDay = (offset = 0): string => dayEnd(helsinkiDay(offset), TIME_ZONE).toISOString()
 
 /** The Helsinki year of an instant: an event's season. */
 export const helsinkiYear = (iso: string): string => String(yearOf(new Date(iso), TIME_ZONE))

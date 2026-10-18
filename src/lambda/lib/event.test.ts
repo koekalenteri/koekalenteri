@@ -1,6 +1,7 @@
 import type { DeepPartial, JsonConfirmedEvent, JsonDogEvent, JsonRegistration } from '../../types'
 import { vi } from 'vitest'
 import { PRIORITY_MEMBER } from '../../lib/priority'
+import { describeInTimeZone } from '../../test-utils/timeZone'
 
 const mockQuery = vi.fn()
 const mockRead = vi.fn()
@@ -237,20 +238,22 @@ describe('lib/event', () => {
   })
 
   describe('findQualificationStartDate', () => {
-    // The next Finnish day's start, over both changes of time: stepping the instant 24 hours in the
-    // lambda's zone (UTC) landed 29.3. on 29.3. 23:00 Finnish time and 25.10. on 26.10. 01:00.
-    it.each([
-      { entryEndDate: '2026-03-28T23:59:59.999+02:00', expected: '2026-03-28T22:00:00.000Z' },
-      { entryEndDate: '2026-03-28T21:59:59.999Z', expected: '2026-03-28T22:00:00.000Z' },
-      { entryEndDate: '2026-10-24T23:59:59.999+03:00', expected: '2026-10-24T21:00:00.000Z' },
-      { entryEndDate: '2026-10-25T23:59:59.999+02:00', expected: '2026-10-25T22:00:00.000Z' },
-      // Stored as the Finnish midnight that starts the day: a 24-hour step kept the wrong hour over the change.
-      { entryEndDate: '2026-10-24T21:00:00.000Z', expected: '2026-10-25T22:00:00.000Z' },
-      { entryEndDate: '2026-03-28T22:00:00.000Z', expected: '2026-03-29T21:00:00.000Z' },
-    ])('starts the qualification the Finnish day after $entryEndDate', async ({ entryEndDate, expected }) => {
-      mockQuery.mockResolvedValueOnce([{ entryEndDate }])
+    // The next Finnish day's start, over both changes of time, run in the lambda's zone (UTC).
+    describeInTimeZone('UTC', () => {
+      it.each([
+        { entryEndDate: '2026-03-28T23:59:59.999+02:00', expected: '2026-03-28T22:00:00.000Z' },
+        { entryEndDate: '2026-03-28T21:59:59.999Z', expected: '2026-03-28T22:00:00.000Z' },
+        { entryEndDate: '2026-10-24T23:59:59.999+03:00', expected: '2026-10-24T21:00:00.000Z' },
+        { entryEndDate: '2026-10-25T23:59:59.999+02:00', expected: '2026-10-25T22:00:00.000Z' },
+        // Stored as the Finnish midnight that starts 25.10.: a 24-hour step in UTC landed on 25.10. 23:00,
+        // still the 25th, where the next Finnish day is the 26th.
+        { entryEndDate: '2026-10-24T21:00:00.000Z', expected: '2026-10-25T22:00:00.000Z' },
+        { entryEndDate: '2026-03-28T22:00:00.000Z', expected: '2026-03-29T21:00:00.000Z' },
+      ])('starts the qualification the Finnish day after $entryEndDate', async ({ entryEndDate, expected }) => {
+        mockQuery.mockResolvedValueOnce([{ entryEndDate }])
 
-      await expect(findQualificationStartDate('NOME-B SM', '2027-01-01T00:00:00.000Z')).resolves.toEqual(expected)
+        await expect(findQualificationStartDate('NOME-B SM', '2027-01-01T00:00:00.000Z')).resolves.toEqual(expected)
+      })
     })
 
     it('should call query with proper arguments', async () => {

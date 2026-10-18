@@ -373,7 +373,15 @@ describe('toDayKey', () => {
 describe('hasCalendarDay', () => {
   it.each([
     { expected: true, instant: new Date('2026-10-17T12:00:00.000Z'), name: 'a day of the trials' },
-    { expected: true, instant: new Date('1000-01-01T12:00:00.000Z'), name: "the calendar's first year" },
+    { expected: true, instant: new Date('1100-01-01T12:00:00.000Z'), name: 'the first accepted year' },
+    { expected: true, instant: new Date('9899-12-31T12:00:00.000Z'), name: 'the last accepted year' },
+    {
+      expected: false,
+      instant: new Date('1050-06-01T12:00:00.000Z'),
+      name: 'a year a key spells but no reader accepts',
+    },
+    { expected: false, instant: new Date('9999-12-31T12:00:00.000Z'), name: 'the last year a key spells' },
+    { expected: false, instant: new Date('+010000-01-01T00:00:00Z'), name: 'a five-digit year' },
     { expected: false, instant: new Date('0001-01-01T00:00:00'), name: "the Kennel Club's empty date" },
     { expected: false, instant: new Date('0500-06-01T00:00:00.000Z'), name: 'a year below 1000' },
     { expected: false, instant: new Date(Number.NaN), name: 'an invalid Date' },
@@ -401,6 +409,13 @@ describe('the readers of an instant', () => {
     expect(dayStartOf(new Date('2026-03-28T21:30:00.000Z'), TIME_ZONE, 2).toISOString()).toBe(
       '2026-03-29T21:00:00.000Z'
     )
+  })
+
+  it('dayEnd ends the last day a key can spell, and every step from an accepted day lands on a key', () => {
+    expect(dayEnd('9999-12-31', TIME_ZONE).toISOString()).toBe('9999-12-31T21:59:59.999Z')
+    expect(addDays('9899-12-31', 7)).toBe('9900-01-07')
+    expect(addMonths('1100-01-01', -24)).toBe('1098-01-01')
+    expect(isDayKey('9999-12-31')).toBe(false)
   })
 
   it('yearStart and yearEnd bound the year in the zone', () => {

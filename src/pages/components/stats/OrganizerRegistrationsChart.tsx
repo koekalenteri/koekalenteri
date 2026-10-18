@@ -1,7 +1,7 @@
 import type { EventStatsItem } from '@/types/Stats'
 import { useTranslation } from 'react-i18next'
+import { storedMonthKey as monthKey } from '@/lib/event'
 import { CATEGORICAL_CHART_COLORS } from './chartColors'
-import { monthKey } from './monthKey'
 import StatsBarChart from './StatsBarChart'
 
 interface Props {

@@ -1,7 +1,8 @@
 import type { JsonDogEvent, JsonUser } from '../../types'
-import { hasCalendarDay, TIME_ZONE, yearOf } from '../../lib/day'
+import { currentYear, TIME_ZONE, yearOf } from '../../lib/day'
 import { CONFIG } from '../config'
 import { authorizeWithMemberOf } from '../lib/auth'
+import { parseDateParam } from '../lib/incremental'
 import { httpError, lambda, response } from '../lib/lambda'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 
@@ -14,9 +15,6 @@ const dynamoDB = new CustomDynamoClient(CONFIG.eventTable)
  */
 const EARLIEST_SEASON = 2020
 const EMPTY_SEASONS_TO_STOP = 2
-
-/** The season an instant falls in: its Finnish year, as the events' seasons are (GetEventsFunction). */
-const seasonOf = (instant: Date) => yearOf(instant, TIME_ZONE)
 
 const querySeason = (season: number, updatedAfter?: string) =>
   dynamoDB.query<JsonDogEvent>(
@@ -37,11 +35,12 @@ const querySeason = (season: number, updatedAfter?: string) =>
 
 /** What changed since the client last asked, every season the change can be in. */
 const queryChangedSince = async (since: string): Promise<JsonDogEvent[]> => {
-  const sinceInstant = new Date(Number(since))
-  if (!hasCalendarDay(sinceInstant, TIME_ZONE)) throw httpError(400, 'Bad request: since must be a valid time')
+  const sinceInstant = parseDateParam(since)
+  if (!sinceInstant) throw httpError(400, 'Bad request: since must be a valid time')
   const updatedAfter = sinceInstant.toISOString()
-  const startSeason = seasonOf(sinceInstant)
-  const endSeason = seasonOf(new Date())
+  // The seasons are Finnish years, as the events' are (GetEventsFunction).
+  const startSeason = yearOf(sinceInstant, TIME_ZONE)
+  const endSeason = currentYear(TIME_ZONE)
   const seasons = Array.from({ length: endSeason - startSeason + 1 }, (_, index) => startSeason + index)
 
   const perSeason = await Promise.all(seasons.map((season) => querySeason(season, updatedAfter)))
@@ -60,7 +59,7 @@ const queryAllSeasons = async (): Promise<JsonDogEvent[]> => {
     return [...seasonEvents, ...earlier]
   }
 
-  return walkBack(seasonOf(new Date()) + 1, 0)
+  return walkBack(currentYear(TIME_ZONE) + 1, 0)
 }
 
 /**

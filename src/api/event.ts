@@ -9,6 +9,7 @@ import type {
   PublicDogEvent,
   RegistrationClass,
 } from '../types'
+import { hasCalendarDay, TIME_ZONE } from '../lib/day'
 import { newEventDates } from '../lib/event'
 import { latestCollectionUpdate } from '../lib/incremental'
 import http, { withToken } from './http'
@@ -166,11 +167,11 @@ export async function putResultsPublished(
 
 /**
  * A one-day trial may come from Kennelliitto with the year 1 for its end: the end is the start then.
- * The server now sends the start instead (KOE-1545); an older server's 0001-01-01 still revives to a
- * year-1 Date, which the year check catches. The type check is for a value the reviver left a string.
+ * The server now sends the start instead (KOE-1545); an older server's 0001-01-01 revives to a year-1
+ * Date, which has no calendar day. The type check is for a value the reviver left a string.
  */
 const normalizeEventKcIdChoice = (choice: EventKcIdChoice): EventKcIdChoice =>
-  !(choice.endDate instanceof Date) || choice.endDate.getFullYear() <= 1
+  !(choice.endDate instanceof Date) || !hasCalendarDay(choice.endDate, TIME_ZONE)
     ? { ...choice, endDate: choice.startDate }
     : choice
 

@@ -22,16 +22,15 @@ import YearSelector from '../components/stats/YearSelector'
 import { allYearlyStatsAtom, isAdminAtom } from '../state'
 import { adminOrganizersAtom } from './state'
 
-const CURRENT_YEAR = currentYear(TIME_ZONE)
-
 export default function EventBreakdownPage() {
   const { t } = useTranslation()
   const isAdmin = useAtomValue(isAdminAtom)
   const allStats = useAtomValue(allYearlyStatsAtom)
   const organizers = useAtomValue(adminOrganizersAtom)
-  const [year, setYear] = useState(CURRENT_YEAR)
+  const thisYear = currentYear(TIME_ZONE)
+  const [year, setYear] = useState(thisYear)
 
-  const years = allStats.years.includes(CURRENT_YEAR) ? allStats.years : [...allStats.years, CURRENT_YEAR]
+  const years = allStats.years.includes(thisYear) ? allStats.years : [...allStats.years, thisYear]
   const yearStats = allStats.stats.find((stats) => stats.year === year)
 
   const organizerNames = useMemo(
