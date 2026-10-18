@@ -142,21 +142,44 @@ export const EventFilter = ({ judges, organizers, eventTypes, eventClasses, filt
       >
         <AccordionSummary
           sx={{
+            '@media (hover: hover)': { '&:hover .filter-header': { boxShadow: 4 } },
             '& .MuiAccordionSummary-content': { margin: 0, overflow: 'hidden' },
             '& .MuiAccordionSummary-content.Mui-expanded': { margin: 0 },
             '&.Mui-expanded': { minHeight: '28px' },
+            // The header is the summary's only content and covers the tint MUI marks focus with, so
+            // keyboard focus gets the ring the theme gives a button. Drawn inside: outside it would
+            // sit on the filter's border and slide under the app bar once the filter sticks.
+            '&.Mui-focusVisible': { outline: '2px solid #1565c0', outlineOffset: -2 },
             bgcolor: 'background.filterHeader',
             minHeight: '28px',
             p: '1px',
           }}
         >
-          <Button
-            component="div"
-            variant="contained"
-            startIcon={<TuneOutlinedIcon />}
-            sx={{ bgcolor: 'background.filterHeader', color: 'black' }}
-            fullWidth
+          {/* Drawn like a contained button, but not one: the summary is the button, and a focusable
+              control inside it would be a second tab stop and a button inside a button (KOE-1560). */}
+          <Box
+            component="span"
+            className="filter-header"
+            sx={(theme) => ({
+              ...theme.typography.button,
+              alignItems: 'center',
+              bgcolor: 'background.filterHeader',
+              borderRadius: 1,
+              boxShadow: 2,
+              boxSizing: 'border-box',
+              color: 'black',
+              display: 'flex',
+              justifyContent: 'center',
+              // A button is one line of its own text tall, whatever the smaller caption inside needs.
+              minHeight: 'calc(1lh + 12px)',
+              minWidth: 64,
+              px: 2,
+              py: '6px',
+              transition: theme.transitions.create('box-shadow', { duration: theme.transitions.duration.short }),
+              width: '100%',
+            })}
           >
+            <TuneOutlinedIcon sx={{ fontSize: 20, ml: '-4px', mr: 1 }} />
             <Typography
               variant="caption"
               noWrap
@@ -169,7 +192,7 @@ export const EventFilter = ({ judges, organizers, eventTypes, eventClasses, filt
               </b>{' '}
               • {filters.join(' | ')} • {resultsLabel}
             </Typography>
-          </Button>
+          </Box>
         </AccordionSummary>
         <AccordionDetails sx={{ bgcolor: 'background.filter' }}>
           <Grid
