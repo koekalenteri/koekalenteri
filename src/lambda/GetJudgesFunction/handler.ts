@@ -1,7 +1,7 @@
 import { fetchJudgesForEventTypes, updateJudges } from '../lib/judge'
 import KLAPI from '../lib/KLAPI'
 import { createOfficialDirectoryLambda } from '../lib/officialDirectory'
-import { readJudges } from '../lib/repositories/judgeRepository'
+import { readJudgesIncludingDeleted } from '../lib/repositories/judgeRepository'
 import { getKLAPIConfig } from '../lib/secrets'
 import { publishAdminDataInvalidation } from '../lib/ws/actions'
 
@@ -10,7 +10,7 @@ export default createOfficialDirectoryLambda({
   fetch: fetchJudgesForEventTypes,
   klapi: () => new KLAPI(getKLAPIConfig),
   onRefreshed: publishAdminDataInvalidation,
-  readAll: readJudges,
+  readAll: readJudgesIncludingDeleted,
   role: 'judge',
   service: 'getJudges',
   update: updateJudges,

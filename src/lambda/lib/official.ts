@@ -2,7 +2,7 @@ import type { JsonOfficial, Official } from '../../types'
 import type KLAPI from './KLAPI'
 import { KLKieli } from '../types/KLAPI'
 import { fetchOfficialDirectory, mapOfficialDirectoryEntry, syncOfficialDirectory } from './officialDirectory'
-import { readOfficials, writeOfficials } from './repositories/officialRepository'
+import { readOfficialsIncludingDeleted, writeOfficials } from './repositories/officialRepository'
 
 export const fetchOfficialsForEventTypes = async (
   klapi: KLAPI,
@@ -34,6 +34,6 @@ export const updateOfficials = (officials: Official[]): Promise<void> =>
       name: official.name,
       phone: official.phone,
     }),
-    readAll: readOfficials,
+    readAll: readOfficialsIncludingDeleted,
     writeAll: writeOfficials,
   })

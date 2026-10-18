@@ -27,10 +27,14 @@ vi.doMock('../lib/auth', () => ({
   getAndUpdateUserByEmail: vi.fn(),
 }))
 
+// The rows the table holds, deleted ones included. The two readers see them the way the real
+// client does: the live reader without the deleted rows, the other with them (KOE-1569).
 const mockReadAll = vi.fn<() => Promise<Partial<JsonJudge>[]>>()
+const readLive = async () => (await mockReadAll()).filter((row) => !row.deletedAt)
 const mockWriteAll = vi.fn<(items: JsonJudge[]) => Promise<void>>()
 vi.doMock('../lib/repositories/judgeRepository', () => ({
-  readJudges: mockReadAll,
+  readJudges: readLive,
+  readJudgesIncludingDeleted: mockReadAll,
   writeJudges: mockWriteAll,
 }))
 

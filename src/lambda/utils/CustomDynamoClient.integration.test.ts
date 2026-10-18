@@ -102,6 +102,23 @@ describe('CustomDynamoClient against DynamoDB-local', () => {
     })
   })
 
+  describe('readAll', () => {
+    // KOE-1569: a since query has to see the deleted rows to report them as deletedIds.
+    it('leaves deleted rows out unless they are asked for', async () => {
+      const marker = uniqueId('deleted')
+      const live = row({ marker })
+      const deleted = row({ deletedAt: '2026-06-02T09:00:00.000Z', marker })
+      const byMarker = { filter: '#marker = :marker', names: { '#marker': 'marker' }, values: { ':marker': marker } }
+
+      await client.batchWrite([live, deleted])
+
+      await expect(client.readAll<Row>(byMarker)).resolves.toEqual([live])
+      const withDeleted = await client.readAll<Row>({ ...byMarker, includeDeleted: true })
+      expect(withDeleted).toHaveLength(2)
+      expect(withDeleted).toEqual(expect.arrayContaining([live, deleted]))
+    })
+  })
+
   describe('batchWrite and batchDelete', () => {
     // DynamoDB takes 25 items per request; 60 rows are three requests, and every one of them must
     // land. The retry of a partly processed request stays a unit test: DynamoDB-local never throttles.

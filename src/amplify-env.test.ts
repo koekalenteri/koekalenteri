@@ -1,4 +1,36 @@
-import { shouldIgnoreRumError } from './amplify-env'
+import { readFileSync } from 'node:fs'
+import { AWSConfig, shouldIgnoreRumError } from './amplify-env'
+import { fiAuthenticationDict } from './i18n/locales/fi/auth'
+
+/** The user pool's password policy as template/cognito.yaml declares it, in Amplify's names. */
+const poolPasswordPolicy = () => {
+  const template = readFileSync('template/cognito.yaml', 'utf8')
+  // The lines indented under `PasswordPolicy:`, and only those.
+  const policy = /^( +)PasswordPolicy:\n((?:\1 +\S[^\n]*\n)+)/m.exec(template)?.[2] ?? ''
+  const setting = (name: string) => new RegExp(String.raw`^ +${name}: (\w+)$`, 'm').exec(policy)?.[1]
+
+  return {
+    minLength: Number(setting('MinimumLength')),
+    requireLowercase: setting('RequireLowercase') === 'true',
+    requireNumbers: setting('RequireNumbers') === 'true',
+    requireSpecialCharacters: setting('RequireSymbols') === 'true',
+    requireUppercase: setting('RequireUppercase') === 'true',
+  }
+}
+
+describe('AWSConfig', () => {
+  // The login checks a new password against this before Cognito refuses it in English.
+  it('checks passwords against the user pool policy', () => {
+    expect(AWSConfig.Auth?.Cognito.passwordFormat).toEqual(poolPasswordPolicy())
+  })
+
+  // Amplify writes the minimum into its message, so a new minimum needs a new Finnish key.
+  it('has the minimum length message in Finnish', () => {
+    const minLength = AWSConfig.Auth?.Cognito.passwordFormat?.minLength
+
+    expect(fiAuthenticationDict).toHaveProperty([`Password must have at least ${minLength} characters`])
+  })
+})
 
 describe('RUM_CONFIG', () => {
   afterEach(() => {

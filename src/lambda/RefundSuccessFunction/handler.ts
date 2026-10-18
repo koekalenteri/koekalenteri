@@ -13,13 +13,14 @@ import { logger } from '../lib/log'
 import {
   applySuccessfulRefund,
   parseParams,
+  publishCancelledRegistration,
   publishParticipantPayments,
   settleFailedTransaction,
   updateTransactionStatus,
   verifyParams,
 } from '../lib/payment'
 import { clearRegistrationEmailDeliveryStatus, getRegistration, getRegistrationEditToken } from '../lib/registration'
-import { publishCancelledRegistration, publishRegistrationPatches } from '../lib/ws/actions'
+import { publishRegistrationPatches } from '../lib/ws/actions'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 
 const { frontendURL, emailFrom, registrationTable, transactionTable } = CONFIG
@@ -176,6 +177,8 @@ const refundSuccessLambda = lambda('refundSuccess', async (event) => {
     ...paymentAudit('refund', providerName, formatMoney(amount)),
     user: transaction.user,
   })
+  // Everything is recorded by now: a failed push to the admins is logged and never fails the
+  // callback (KOE-1566).
   await publishRegistrationPatches(
     eventId,
     [
@@ -189,7 +192,9 @@ const refundSuccessLambda = lambda('refundSuccess', async (event) => {
       },
     ],
     confirmedEvent.organizer.id
-  )
+  ).catch((error: unknown) => {
+    logger.error('refund admin patch failed', { error, eventId, registrationId })
+  })
   // The entrant's page learns the refund too, from the row as it stands after the write; a failed
   // push is logged and never fails the callback (KOE-1553).
   await publishParticipantPayments(confirmedEvent, [registrationId])

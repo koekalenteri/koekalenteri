@@ -21,7 +21,7 @@ vi.doMock('../../utils/CustomDynamoClient', () => ({
   },
 }))
 
-const { readJudges, writeJudge, writeJudges } = await import('./judgeRepository')
+const { readJudges, readJudgesIncludingDeleted, writeJudge, writeJudges } = await import('./judgeRepository')
 
 const judge: JsonJudge = {
   active: true,
@@ -50,11 +50,25 @@ describe('judgeRepository', () => {
     expect(mockConstructor).toHaveBeenCalledTimes(1)
   })
 
-  it('readJudges reads the whole table', async () => {
+  it('readJudges reads the whole table without the deleted rows', async () => {
     mockReadAll.mockResolvedValueOnce([judge])
 
     await expect(readJudges()).resolves.toEqual([judge])
     expect(mockReadAll).toHaveBeenCalledWith()
+  })
+
+  it('readJudgesIncludingDeleted reads the whole table with the deleted rows', async () => {
+    const deleted = { ...judge, deletedAt: '2024-01-02T00:00:00.000Z', deletedBy: 'system' }
+    mockReadAll.mockResolvedValueOnce([judge, deleted])
+
+    await expect(readJudgesIncludingDeleted()).resolves.toEqual([judge, deleted])
+    expect(mockReadAll).toHaveBeenCalledWith({ includeDeleted: true })
+  })
+
+  it('readJudgesIncludingDeleted returns an empty list when the scan returns nothing', async () => {
+    mockReadAll.mockResolvedValueOnce(undefined)
+
+    await expect(readJudgesIncludingDeleted()).resolves.toEqual([])
   })
 
   it('readJudges returns an empty list when the scan returns nothing', async () => {

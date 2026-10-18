@@ -4,8 +4,7 @@ import { paymentAudit } from '../../lib/audit'
 import { formatMoney } from '../../lib/money'
 import { getProviderName, transactionActor } from '../../lib/payment'
 import { lambda, response } from '../lib/lambda'
-import { resolveCallbackTransaction, settleFailedTransaction } from '../lib/payment'
-import { publishCancelledRegistration } from '../lib/ws/actions'
+import { publishCancelledRegistration, resolveCallbackTransaction, settleFailedTransaction } from '../lib/payment'
 
 /**
  * paymentCancel is called by payment provider, to update cancelled payment status

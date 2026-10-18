@@ -1515,10 +1515,31 @@ export const copyDogEvent = (event: DogEvent, now = new Date()): DogEvent => {
   delete copy.resultsPublished
 
   stripKennelliittoLink(copy)
+  stripInvitationAttachments(copy)
   delete copy.entryOrigEndDate
-  delete copy.invitationAttachment
 
   return copy
+}
+
+/** The invitation attachments of an event: the general one, the per-class ones and every version uploaded. */
+export const INVITATION_ATTACHMENT_FIELDS = [
+  'invitationAttachment',
+  'invitationAttachmentHistory',
+  'invitationAttachments',
+] as const
+
+/**
+ * Removes the invitation attachments. An attachment is written for the event it was uploaded to, its
+ * dates and instructions, so a copy in the same environment starts without one (KOE-1564), and
+ * replacing an attachment on the copy cannot delete a file the source still serves.
+ */
+export const stripInvitationAttachments = <
+  T extends { invitationAttachment?: unknown; invitationAttachmentHistory?: unknown; invitationAttachments?: unknown },
+>(
+  event: T
+): T => {
+  for (const field of INVITATION_ATTACHMENT_FIELDS) delete event[field]
+  return event
 }
 
 /** What links an event to its Kennelliitto trial: the GUID, the old integer id and the snapshot of the trial. */
