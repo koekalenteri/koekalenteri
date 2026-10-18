@@ -76,7 +76,9 @@ The test environment holds no event it can count on, so the run writes its own. 
 builds it with `buildEvent` (`fixtures/events.ts`, the same row the local tests write) and stores it in
 the stack's event table under the organizer id `e2e-remote`, which no real organizer has. Every event
 of that organizer is deleted before the tests, after them and once more by the workflow whatever
-the outcome (`remote/sweep.mjs`), found by an exact query on `gsiOrganizerStartDate`. The public
+the outcome (`remote/sweep.mjs`), found by an exact query on `gsiOrganizerStartDate`. That index
+trails the write by a moment, so the run's own event is also kept by id in
+`test-results/e2e-remote-event.json` before it is written and deleted by key. The public
 list reads the event through an index DynamoDB updates a moment after the write, and the front page
 asks for the list once, so the tests start only when `GET <E2E_API_URL>/event` lists the event (at
 most 30 s), which also warms the function the deploy has just replaced.

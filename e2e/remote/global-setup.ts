@@ -60,8 +60,8 @@ export default async function globalSetup() {
   try {
     await waitUntilListed(listUrl, event.id, written + LISTED_WITHIN_MS)
   } catch (error) {
-    // No teardown runs after a failed setup: the event goes now, not with the next run.
-    await sweepTestEvents()
+    // No teardown runs after a failed setup: the event goes now, by key, not with the next run.
+    await sweepTestEvents([event.id])
     throw error
   }
   console.log(`${listUrl} lists ${event.id} ${Date.now() - written} ms after the write`)
