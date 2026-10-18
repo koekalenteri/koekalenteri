@@ -1420,8 +1420,8 @@ describe('newEventStartDay (KOE-1545)', () => {
 
 describe('copyDogEvent across a change of time (KOE-1542)', () => {
   /**
-   * An event on the Finnish days `days`, stored at their Finnish midnights: a class and an ap/ip pair
-   * of `dates` rows on each day, and places per day.
+   * An event on the Finnish days `days`, stored at their Finnish midnights: a class, an ap/ip pair
+   * of `dates` rows and a post on each day, and places per day.
    */
   const eventOn = (days: DayKey[]): DogEvent => ({
     ...eventWithEntryClosing,
@@ -1433,6 +1433,7 @@ describe('copyDogEvent across a change of time (KOE-1542)', () => {
     endDate: startOfFinnishDay(days[days.length - 1]),
     placesPerDay: Object.fromEntries(days.map((day, i) => [day, 10 + i])),
     startDate: startOfFinnishDay(days[0]),
+    stations: days.map((day) => ({ date: startOfFinnishDay(day), id: `post-${day}`, number: 1, tasks: 1 })),
   })
 
   /** Every day the copy stores lands on the Finnish day it should, at that day's Finnish midnight. */
@@ -1445,6 +1446,8 @@ describe('copyDogEvent across a change of time (KOE-1542)', () => {
     expect(copy.dates?.map((d) => d.date)).toEqual(midnights.flatMap((midnight) => [midnight, midnight]))
     expect(copy.dates?.map((d) => d.time)).toEqual(days.flatMap(() => ['ap', 'ip']))
     expect(copy.placesPerDay).toEqual(Object.fromEntries(days.map((day, i) => [day, 10 + i])))
+    // Each post moves to the copy's day that corresponds to its own (KOE-1563).
+    expect(copy.stations?.map((station) => station.date)).toEqual(midnights)
   }
 
   for (const zone of [TIME_ZONE, 'America/New_York', 'Asia/Tokyo']) {
