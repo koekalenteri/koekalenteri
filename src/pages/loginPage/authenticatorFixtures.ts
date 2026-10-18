@@ -2,7 +2,10 @@ import type { UseAuthenticator, useAuthenticator } from '@aws-amplify/ui-react'
 
 type CodeDeliveryDetails = UseAuthenticator['codeDeliveryDetails']
 
-/** A sign-up code Cognito sent by email, as this user pool does. */
+/**
+ * A sign-up code Cognito sent by email, as this user pool does. The same address as `CODE_DESTINATION`
+ * in src/test-utils/authenticator.tsx, which reaches the route through a real sign-up instead.
+ */
 export const emailCodeDelivery: CodeDeliveryDetails = {
   AttributeName: 'email',
   DeliveryMedium: 'EMAIL',

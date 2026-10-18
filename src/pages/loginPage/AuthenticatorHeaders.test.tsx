@@ -26,10 +26,10 @@ describe('authenticatorComponents', () => {
   it.each([
     ['ConfirmResetPassword', 'Vaihda salasana', 3],
     ['ConfirmSignUp', 'Lähetimme sinulle sähköpostia', 4],
-    ['ConfirmVerifyUser', 'Account recovery requires verified contact information', 3],
+    ['ConfirmVerifyUser', 'Tilin palauttaminen vaatii vahvistetun yhteystiedon', 3],
     ['ForceNewPassword', 'Vaihda salasana', 4],
     ['ForgotPassword', 'Vaihda salasana', 3],
-    ['VerifyUser', 'Account recovery requires verified contact information', 3],
+    ['VerifyUser', 'Tilin palauttaminen vaatii vahvistetun yhteystiedon', 3],
   ] as const)(
     'heads %s one level below the page h1, drawn at the level Amplify uses',
     async (route, text, amplifyLevel) => {
