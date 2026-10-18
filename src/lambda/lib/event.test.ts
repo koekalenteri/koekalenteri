@@ -19,6 +19,7 @@ vi.doMock('../utils/CustomDynamoClient', () => ({
 
 const mockReadEvent = vi.fn()
 const mockFindEventIdsByKcGuid = vi.fn()
+const mockFindEventIdsByKcId = vi.fn()
 const mockReadLastEntryEndBefore = vi.fn()
 const mockWriteEvent = vi.fn()
 const mockWriteEventFields = vi.fn()
@@ -33,7 +34,7 @@ const mockWriteKcGuidLink = vi.fn()
 vi.doMock('./repositories/eventRepository', () => ({
   clearWorkflowLock: mockClearWorkflowLock,
   findEventIdsByKcGuid: mockFindEventIdsByKcGuid,
-  findEventIdsByKcId: vi.fn(),
+  findEventIdsByKcId: mockFindEventIdsByKcId,
   readEvent: mockReadEvent,
   readLastEntryEndBefore: mockReadLastEntryEndBefore,
   restoreKcState: mockRestoreKcState,
@@ -56,12 +57,14 @@ vi.doMock('./audit', () => ({
 
 const {
   findEventWithKcGuid,
+  findEventWithKcId,
   findQualificationStartDate,
   fixRegistrationGroups,
   getEvent,
   getStateFromTemplate,
   lockKcState,
   lockRegistrationGroups,
+  lockRegistrationPayments,
   markParticipants,
   patchEvent,
   releaseKcState,
@@ -229,6 +232,43 @@ describe('lib/event', () => {
     })
   })
 
+  describe('lockRegistrationPayments', () => {
+    beforeEach(() => {
+      mockWriteWorkflowLock.mockReset()
+    })
+
+    afterEach(() => {
+      vi.useRealTimers()
+    })
+
+    it('takes the payments lock, not the groups lock', async () => {
+      await lockRegistrationPayments('event-1')
+
+      expect(mockWriteWorkflowLock).toHaveBeenCalledWith(
+        'event-1',
+        'registrationPaymentsLock',
+        expect.any(String),
+        expect.any(Number),
+        expect.any(Number)
+      )
+    })
+
+    it('retries eight times by default, then answers with the payments conflict', async () => {
+      vi.useFakeTimers()
+      mockWriteWorkflowLock.mockRejectedValue({ name: 'ConditionalCheckFailedException' })
+
+      const lock = lockRegistrationPayments('event-1')
+      const refused = expect(lock).rejects.toMatchObject({
+        error: 'Registration payments are being updated. Please retry.',
+        status: 409,
+      })
+      await vi.runAllTimersAsync()
+      await refused
+
+      expect(mockWriteWorkflowLock).toHaveBeenCalledTimes(9)
+    })
+  })
+
   describe('findQualificationStartDate', () => {
     beforeEach(() => {
       mockReadLastEntryEndBefore.mockReset()
@@ -311,6 +351,25 @@ describe('lib/event', () => {
 
       await expect(findEventWithKcGuid(GUID, 'this')).resolves.toBeUndefined()
       await expect(findEventWithKcGuid(GUID, 'this')).resolves.toBeUndefined()
+    })
+  })
+
+  describe('findEventWithKcId', () => {
+    beforeEach(() => {
+      mockFindEventIdsByKcId.mockReset()
+    })
+
+    it('looks the trial number up and returns the other event that has it', async () => {
+      mockFindEventIdsByKcId.mockResolvedValueOnce([{ id: 'this' }, { id: 'other' }])
+
+      await expect(findEventWithKcId(123, 'this')).resolves.toEqual({ id: 'other' })
+      expect(mockFindEventIdsByKcId).toHaveBeenCalledWith(123)
+    })
+
+    it('finds nothing when nothing matches', async () => {
+      mockFindEventIdsByKcId.mockResolvedValueOnce(undefined)
+
+      await expect(findEventWithKcId(123, 'this')).resolves.toBeUndefined()
     })
   })
 

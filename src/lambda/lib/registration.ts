@@ -9,6 +9,7 @@ import type {
   Patch,
   RegistrationTemplateContext,
 } from '../../types'
+import type { UpdateActions } from '../utils/CustomDynamoClient'
 import { createHmac, timingSafeEqual } from 'node:crypto'
 import {
   auditUser,
@@ -328,7 +329,7 @@ export const updateRegistrationField = async <F extends keyof JsonRegistration>(
 export const writeRegistrationGroup = async (
   eventId: JsonRegistration['eventId'],
   id: JsonRegistration['id'],
-  changes: Parameters<CustomDynamoClient['update']>[1]
+  changes: UpdateActions
 ) => {
   await dynamoDB.update({ eventId, id }, changes, registrationTable)
 }

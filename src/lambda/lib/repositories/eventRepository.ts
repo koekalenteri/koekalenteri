@@ -1,4 +1,5 @@
 import type { ClassOrNone, JsonDogEvent, JsonKcState, JsonStationTurn, ResultsPublishedState } from '../../../types'
+import type { UpdateActions } from '../../utils/CustomDynamoClient'
 import { isResultsPublishedClassMap } from '../../../lib/event'
 import { CONFIG } from '../../config'
 import CustomDynamoClient from '../../utils/CustomDynamoClient'
@@ -6,8 +7,6 @@ import { foldedFrom } from '../conditionalWrite'
 
 const { eventTable } = CONFIG
 const dynamoDB = new CustomDynamoClient(eventTable)
-
-type EventFieldChanges = Parameters<CustomDynamoClient['update']>[1]
 
 /** The registration workflows one event serializes, each with a lock of its own on the event row. */
 export type EventWorkflowLock = 'registrationGroupsLock' | 'registrationPaymentsLock'
@@ -125,7 +124,7 @@ export const writeEvent = async (event: JsonDogEvent) => {
 }
 
 /** Sets and removes fields of the event, with no condition. */
-export const writeEventFields = async (eventId: string, changes: EventFieldChanges) => {
+export const writeEventFields = async (eventId: string, changes: UpdateActions) => {
   await dynamoDB.update({ id: eventId }, changes, eventTable)
 }
 
@@ -282,7 +281,7 @@ export const writeStationTurns = async (
  */
 export const writeMigratedEvent = async (
   eventId: string,
-  changes: EventFieldChanges,
+  changes: UpdateActions,
   readUpdatedAt: string | undefined
 ) => {
   await dynamoDB.update(
