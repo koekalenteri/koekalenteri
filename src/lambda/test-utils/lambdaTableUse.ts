@@ -93,6 +93,8 @@ interface UnitInfo {
   /** The units the identifiers in this one declare. */
   targets: Set<Unit>
   calls: (ts.CallExpression | ts.NewExpression)[]
+  /** `x = expr` on an identifier: what else the variable can hold after its initializer. */
+  assignments: ts.BinaryExpression[]
   literals: ts.ObjectLiteralExpression[]
   /** Calls of a CustomDynamoClient method, with the method's name. */
   clientCalls: { call: ts.CallExpression; method: string }[]
@@ -245,12 +247,14 @@ const literalProperty = (
   let current: Values = UNDEFINED
   for (const property of literal.properties) {
     if (ts.isSpreadAssignment(property)) {
-      const sources = literalsOf(ctx, valuesOf(ctx, state, property.expression))
+      const spreadValues = valuesOf(ctx, state, property.expression)
+      const sources = literalsOf(ctx, spreadValues)
+      // A spread of anything but a literal may bring the property or not: unknown, whatever else it can be.
+      const next = new Set<Value>(sources.length && !hasUnknown(spreadValues) ? [] : UNKNOWN)
       if (!sources.length) {
-        current = union(current, UNKNOWN)
+        current = union(current, next)
         continue
       }
-      const next = new Set<Value>()
       for (const source of sources) {
         const spread = literalProperty(ctx, state, source, name, visiting)
         // A source without the property leaves the value as it was; one with it overrides.
@@ -266,9 +270,14 @@ const literalProperty = (
   return current
 }
 
-/** The property `name` of each object literal among `values`. */
+const hasUnknown = (values: Values) => values.has('?:')
+
+/** The property `name` of each object literal among `values`; unknown where a receiver is. */
 const propertyOf = (ctx: Context, state: HandlerState, values: Values, name: string): Values =>
-  union(...literalsOf(ctx, values).map((literal) => literalProperty(ctx, state, literal, name)))
+  union(
+    ...literalsOf(ctx, values).map((literal) => literalProperty(ctx, state, literal, name)),
+    hasUnknown(values) ? UNKNOWN : NONE
+  )
 
 const valuesOfProperty = (ctx: Context, state: HandlerState, property: ts.ObjectLiteralElementLike): Values => {
   if (ts.isPropertyAssignment(property)) return valuesOf(ctx, state, property.initializer)
@@ -298,7 +307,9 @@ const isClientConstruction = (ctx: Context, node: ts.NewExpression) =>
 
 const valuesOfClientConstruction = (ctx: Context, state: HandlerState, node: ts.NewExpression): Values => {
   if (!isClientConstruction(ctx, node) || !node.arguments?.[0]) return NONE
-  return new Set(tableKeys(valuesOf(ctx, state, node.arguments[0])).map((key) => `C:${key}`))
+  const tables = valuesOf(ctx, state, node.arguments[0])
+  if (hasUnknown(tables)) return UNKNOWN
+  return new Set(tableKeys(tables).map((key) => `C:${key}`))
 }
 
 const valuesOfAccess = (ctx: Context, state: HandlerState, node: ts.PropertyAccessExpression): Values => {
@@ -324,7 +335,9 @@ const computeValues = (ctx: Context, state: HandlerState, node: ts.Node): Values
   if (ts.isIdentifier(node)) {
     return union(...declarationsOf(ctx, node).map((d) => valuesOfDeclaration(ctx, state, d)))
   }
-  return NONE
+  // A call, `null`, an element access, a template: anything the walk does not model is unknown, so
+  // that a value it can name beside one it cannot is refused rather than taken for the named half.
+  return UNKNOWN
 }
 
 /** Every table, client, function or object literal an expression can evaluate to. */
@@ -442,7 +455,14 @@ const isTableNameProperty = (node: ts.Node): node is TableNameProperty =>
 const unitInfo = (ctx: Context, unit: Unit): UnitInfo => {
   const cached = ctx.units.get(unit)
   if (cached) return cached
-  const info: UnitInfo = { calls: [], clientCalls: [], literals: [], tableNames: [], targets: new Set() }
+  const info: UnitInfo = {
+    assignments: [],
+    calls: [],
+    clientCalls: [],
+    literals: [],
+    tableNames: [],
+    targets: new Set(),
+  }
   const visit = (node: ts.Node) => {
     if (ts.isTypeNode(node) || ts.isImportDeclaration(node)) return
     if (ts.isIdentifier(node)) {
@@ -457,6 +477,13 @@ const unitInfo = (ctx: Context, unit: Unit): UnitInfo => {
       if (method !== undefined) info.clientCalls.push({ call: node, method })
     }
     if (ts.isObjectLiteralExpression(node)) info.literals.push(node)
+    if (
+      ts.isBinaryExpression(node) &&
+      node.operatorToken.kind === ts.SyntaxKind.EqualsToken &&
+      ts.isIdentifier(node.left)
+    ) {
+      info.assignments.push(node)
+    }
     if (isTableNameProperty(node)) info.tableNames.push(node)
     ts.forEachChild(node, visit)
   }
@@ -470,13 +497,14 @@ const cannotTell = (node: ts.Node, what: string): never => {
 }
 
 const defaultTables = (ctx: Context, state: HandlerState, receiver: ts.Expression): string[] => {
-  const keys = withPrefix(valuesOf(ctx, state, receiver), 'C')
-  return keys.length ? keys : cannotTell(receiver, 'the client')
+  const values = valuesOf(ctx, state, receiver)
+  const keys = withPrefix(values, 'C')
+  return keys.length && !hasUnknown(values) ? keys : cannotTell(receiver, 'the client')
 }
 
 /** The tables an expression names, plus the receiver's default where it may be undefined. */
 const tablesOrDefault = (ctx: Context, state: HandlerState, values: Values, call: ts.CallExpression) => {
-  if (withPrefix(values, '?').length) return []
+  if (hasUnknown(values)) return []
   const defaults = hasUndefined(values) ? defaultTables(ctx, state, receiverOf(call)) : []
   return [...tableKeys(values), ...defaults]
 }
@@ -503,7 +531,7 @@ const literalTables = (
   const values = literalProperty(ctx, state, literal, 'index')
   const names = withPrefix(values, 'S')
   const maybeUndefined = hasUndefined(values)
-  if (names.includes('') || withPrefix(values, '?').length || (!names.length && !maybeUndefined)) {
+  if (names.includes('') || hasUnknown(values) || (!names.length && !maybeUndefined)) {
     cannotTell(propertyNamed(literal, 'index') ?? literal, 'the index option')
   }
   // An index that may be undefined leaves the query on the table itself for those calls.
@@ -519,8 +547,9 @@ const optionTables = (
   argument: ts.Expression | undefined
 ): string[] => {
   if (!argument) return defaultTables(ctx, state, receiverOf(call))
-  const literals = literalsOf(ctx, valuesOf(ctx, state, argument))
-  if (!literals.length) return cannotTell(argument, 'the options')
+  const values = valuesOf(ctx, state, argument)
+  const literals = literalsOf(ctx, values)
+  if (!literals.length || hasUnknown(values)) return cannotTell(argument, 'the options')
   return literals.flatMap((literal) => literalTables(ctx, state, call, literal))
 }
 
@@ -590,6 +619,11 @@ const analyzeHandler = (ctx: Context, file: ts.SourceFile): TableUse => {
       for (const target of info.targets) reach(state, target, unit)
       for (const call of info.calls) bindCall(ctx, state, call, unit)
       for (const literal of info.literals) bindObjectLiteral(ctx, state, literal)
+      for (const assignment of info.assignments) {
+        for (const declaration of declarationsOf(ctx, assignment.left)) {
+          addValues(state, declaration, valuesOf(ctx, state, assignment.right))
+        }
+      }
     }
   }
   const uses: TableUse = new Map()

@@ -124,6 +124,20 @@ export default async () => {
   await list({ table: CONFIG.judgeTable })
 }
 `,
+  ReassignedIndex: `${COMMON}
+export default async () => {
+  let index: string | undefined = 'gsiEmail'
+  if (Date.now() > 0) index = undefined
+  await dynamoDB.query({ index, key: 'email = :email' })
+}
+`,
+  ReassignedTable: `${COMMON}
+export default async () => {
+  let table = CONFIG.judgeTable
+  if (Date.now() > 0) table = CONFIG.locationTable
+  await dynamoDB.readAll({ table })
+}
+`,
   Shorthand: `${COMMON}
 const TableName = CONFIG.judgeTable
 
@@ -139,6 +153,31 @@ export default async () => {
   await dynamoDB.query({ ...base })
   await byOptions({ ...base })
 }
+`,
+  SpreadKeep: `${COMMON}
+const page = { limit: 10 }
+
+export default async () => {
+  await dynamoDB.query({ index: 'gsiEmail', key: 'email = :email', ...page })
+  await dynamoDB.readAll({ table: CONFIG.judgeTable, ...page })
+}
+`,
+  SpreadOverride: `${COMMON}
+const query = { index: 'gsiEmail', key: 'email = :email' }
+const scan = { table: CONFIG.locationTable }
+
+export default async () => {
+  await dynamoDB.query({ ...query, index: 'gsiName' })
+  await dynamoDB.readAll({ ...scan, table: CONFIG.judgeTable })
+}
+`,
+  SpreadSelf: `${COMMON}
+const retry = async (options: { attempt: number; index?: string }): Promise<unknown> =>
+  options.attempt > 3
+    ? dynamoDB.query({ index: options.index, key: 'email = :email' })
+    : retry({ ...options, attempt: options.attempt + 1 })
+
+export default async () => retry({ attempt: 0, index: 'gsiEmail' })
 `,
   SpreadTable: `${COMMON}
 const options = { key: 'id = :id', table: CONFIG.judgeTable }
@@ -156,6 +195,46 @@ export default async () => query(JSON.parse('{}'))
 const params = { TableName: CONFIG.judgeTable }
 
 export default async () => params.TableName.length
+`,
+  TernaryClient: `${COMMON}
+const makeClient = () => new CustomDynamoClient(CONFIG.judgeTable)
+
+export default async () => {
+  const client = Date.now() > 0 ? dynamoDB : makeClient()
+  await client.read({ id: 1 })
+}
+`,
+  TernaryIndex: `${COMMON}
+const pick = () => 'gsiName'
+
+export default async () => {
+  await dynamoDB.query({ index: Date.now() > 0 ? 'gsiEmail' : pick(), key: 'email = :email' })
+}
+`,
+  TernaryOptions: `${COMMON}
+const build = () => ({ key: 'email = :email' })
+
+export default async () => {
+  await dynamoDB.query(Date.now() > 0 ? { index: 'gsiEmail', key: 'email = :email' } : build())
+}
+`,
+  TernarySpread: `${COMMON}
+const base = { key: 'email = :email' }
+const build = () => ({ key: 'email = :email' })
+
+export default async () => {
+  await dynamoDB.query({ ...(Date.now() > 0 ? base : build()) })
+}
+`,
+  TernaryTableCall: `${COMMON}
+export default async () => {
+  await dynamoDB.readAll({ table: Date.now() > 0 ? CONFIG.judgeTable : String(Date.now()) })
+}
+`,
+  TernaryTableNull: `${COMMON}
+export default async () => {
+  await dynamoDB.readAll({ table: Date.now() > 0 ? CONFIG.judgeTable : null })
+}
 `,
   UnclassifiedMethod: `${COMMON}
 export default async () => dynamoDB.scanAll()
@@ -297,6 +376,21 @@ describe('createTableUseAnalyzer', () => {
     expect(usesOf('SpreadTable')).toEqual(['Query judgeTable'])
   })
 
+  it('keeps a property a later spread lacks, and lets a later property override a spread', () => {
+    expect(usesOf('SpreadKeep')).toEqual(['Query userTable/index/gsiEmail', 'Scan judgeTable'])
+    expect(usesOf('SpreadOverride')).toEqual(['Query userTable/index/gsiName', 'Scan judgeTable'])
+  })
+
+  it('reads a literal that spreads itself through a parameter once', () => {
+    expect(usesOf('SpreadSelf')).toEqual(['Query userTable/index/gsiEmail'])
+  })
+
+  // A variable holds its initializer and everything assigned to it later.
+  it('reads what is assigned to a variable after its initializer', () => {
+    expect(usesOf('ReassignedTable')).toEqual(['Scan judgeTable', 'Scan locationTable'])
+    expect(usesOf('ReassignedIndex')).toEqual(['Query userTable', 'Query userTable/index/gsiEmail'])
+  })
+
   it.each([
     [
       'a table that is not a CONFIG key',
@@ -311,6 +405,13 @@ describe('createTableUseAnalyzer', () => {
     ],
     ['options it cannot trace to a literal', 'UnknownOptions', /cannot tell which table the options \(options\) names/],
     ['a spread it cannot see into', 'SpreadUnknown', /cannot tell which table the table option/],
+    // A value it can name beside one it cannot is refused, not taken for the named half.
+    ['options that may come from a call', 'TernaryOptions', /cannot tell which table the options/],
+    ['an index that may come from a call', 'TernaryIndex', /cannot tell which table the index option/],
+    ['a table that may come from a call', 'TernaryTableCall', /cannot tell which table the table option/],
+    ['a table that may be null', 'TernaryTableNull', /cannot tell which table the table option/],
+    ['a spread that may come from a call', 'TernarySpread', /cannot tell which table the table option/],
+    ['a client that may come from a call', 'TernaryClient', /cannot tell which table the client \(client\) names/],
     [
       'a transaction item whose table it cannot name',
       'UnknownItem',
