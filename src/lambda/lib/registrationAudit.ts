@@ -13,6 +13,7 @@ import type {
 import { formatDate } from '../../i18n/dates'
 import { getFixedT } from '../../i18n/lambda'
 import { getCostSegmentName, getCostSegmentNameOptions } from '../../lib/cost'
+import { calendarDayOf, TIME_ZONE } from '../../lib/day'
 import { getNestedChanges } from '../../lib/diff'
 import { getRegistrationOwners, getSelectedAdditionalCosts, resolveOwnerSelection } from '../../lib/registration'
 import { logger } from './log'
@@ -79,6 +80,12 @@ const personLines = (person: Partial<RegistrationPerson> | undefined, t: Transla
 const breederLines = (breeder: Partial<RegistrationBreeder> | undefined, t: Translate): Line[] =>
   breeder ? [[t('contact.name'), breeder.name ?? '']] : []
 
+/** A stored dog date as the trail prints it; nothing for one with no day, as Kennelliitto's empty date (KOE-1548). */
+const dayText = (value: unknown) => {
+  const day = calendarDayOf(value, TIME_ZONE)
+  return day ? formatDate(day, 'd.M.yyyy') : ''
+}
+
 const dogNameText = (dog: Pick<JsonDog, 'name' | 'titles'> | undefined) =>
   [dog?.titles, dog?.name].filter(Boolean).join(' ')
 
@@ -89,7 +96,7 @@ const dogLines = (dog: JsonDog, t: Translate): Line[] => [
   [t('dog.name'), dog.name ?? ''],
   [t('dog.titles'), dog.titles ?? ''],
   [t('dog.rfid'), dog.rfid ?? ''],
-  [t('dog.dob'), dog.dob ? formatDate(dog.dob, 'd.M.yyyy') : ''],
+  [t('dog.dob'), dayText(dog.dob)],
   [t('dog.gender'), dog.gender ? t(`dog.genderChoises.${dog.gender}`) : ''],
   [t('dog.breed'), dog.breedCode ? t(dog.breedCode, { defaultValue: dog.breedCode, ns: 'breed' }) : ''],
   [t('dog.sire.name'), dogNameText(dog.sire)],
@@ -124,9 +131,7 @@ const datesText = (registration: JsonRegistration, t: Translate) =>
 
 const resultLines = (results: JsonTestResult[] | undefined): Line[] =>
   (results ?? []).map((result) => {
-    const held = [result.type, result.class, formatDate(result.date, 'd.M.yyyy'), result.location]
-      .filter(Boolean)
-      .join(' ')
+    const held = [result.type, result.class, dayText(result.date), result.location].filter(Boolean).join(' ')
     return ['', result.judge ? `${held}: ${result.result}, ${result.judge}` : `${held}: ${result.result}`]
   })
 

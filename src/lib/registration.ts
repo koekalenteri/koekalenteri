@@ -871,10 +871,11 @@ export const getRegistrationEmailTemplateData = (
   const accessPath = editToken ? `/access/${encodeURIComponent(editToken)}` : ''
   const link = `${origin}/r/${registration.eventId}/${registration.id}${accessPath}`
   const paymentLink = `${origin}/p/${registration.eventId}/${registration.id}${accessPath}`
-  const qualifyingResults = registration.qualifyingResults.map((r) => ({
-    ...r,
-    date: t('dateFormat.date', { date: r.date }),
-  }))
+  // A result's day from any form it was stored in; none for one without a day (KOE-1548).
+  const qualifyingResults = registration.qualifyingResults.map((r) => {
+    const day = calendarDayOf(r.date, TIME_ZONE)
+    return { ...r, date: day ? t('dateFormat.date', { date: day }) : '' }
+  })
   const delayedPayment = confirmedEvent.paymentTime === 'confirmation'
 
   // Group information. Use previous group when provided.
