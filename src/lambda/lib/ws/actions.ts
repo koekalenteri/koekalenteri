@@ -10,6 +10,7 @@ import type { EventChange } from '../event'
 import type { CancelledRegistration } from '../payment'
 import type { WebSocketConnection } from './types'
 import { sanitizeDogEvent } from '../../../lib/event'
+import { mapWithConcurrency } from '../../../lib/utils'
 import { bumpDataVersion } from '../dataVersions'
 import { broadcast } from './broadcast'
 import { removeConnection } from './connectionRepository'
@@ -19,6 +20,7 @@ import {
   organizerAudience,
   publicAudience,
   registrationAudience,
+  registrationsAudience,
 } from './connectionSelectors'
 import {
   buildEventPatchPayload,
@@ -100,6 +102,34 @@ export const publishParticipantRegistrationPatch = (
     audience: () => registrationAudience(eventId, registrationId),
     buildPayload: () => ({ eventId, patch, registrationId, scope: 'participant:registration-patch' }),
   })
+
+/** How many registrations' patches are built at once: each may read its row and open payments. */
+const PARTICIPANT_PATCH_CONCURRENCY = 10
+
+/**
+ * The entrants' patches for several registrations of one event (KOE-1553). The connections are
+ * scanned once, and a patch is built only for a registration whose page is open, so a change to many
+ * rows costs one scan and a build per watched row. `buildPatch` answers undefined when there is
+ * nothing to send.
+ */
+export const publishParticipantRegistrationPatches = async (
+  eventId: string,
+  registrationIds: readonly string[],
+  buildPatch: (registrationId: string) => Promise<Patch<JsonRegistration> | undefined>
+) => {
+  if (registrationIds.length === 0) return
+  const watching = await registrationsAudience(eventId, registrationIds)
+  const watched = [...new Set(watching.map((connection) => connection.registrationId))]
+
+  await mapWithConcurrency(watched, PARTICIPANT_PATCH_CONCURRENCY, async (registrationId) => {
+    const patch = await buildPatch(registrationId)
+    if (!patch) return
+    await send({
+      audience: async () => watching.filter((connection) => connection.registrationId === registrationId),
+      buildPayload: () => ({ eventId, patch, registrationId, scope: 'participant:registration-patch' }),
+    })
+  })
+}
 
 export const publishAdminDataInvalidation = async (collections: AdminDataCollection[]) => {
   // Bump the stored versions too, so a browser that is not connected right now notices at its next

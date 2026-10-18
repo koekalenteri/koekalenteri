@@ -33,15 +33,24 @@ export const publicStartListAudience = async (eventId: string) => {
   return connections.filter((connection) => connection.publicEventId === eventId && !isConnectionExpired(connection))
 }
 
-export const registrationAudience = async (eventId: string, registrationId: string) => {
+/** A connection whose page shows one registration. */
+type RegistrationConnection = WebSocketConnection & { registrationId: string }
+
+/** The entrants' pages open on any of these registrations of the event, from one scan (KOE-1553). */
+export const registrationsAudience = async (eventId: string, registrationIds: readonly string[]) => {
+  const ids = new Set(registrationIds)
   const connections = await allConnections()
   return connections.filter(
-    (connection) =>
+    (connection): connection is RegistrationConnection =>
       connection.registrationEventId === eventId &&
-      connection.registrationId === registrationId &&
+      connection.registrationId !== undefined &&
+      ids.has(connection.registrationId) &&
       !isConnectionExpired(connection)
   )
 }
+
+export const registrationAudience = (eventId: string, registrationId: string) =>
+  registrationsAudience(eventId, [registrationId])
 
 const includeConnection = (connections: WebSocketConnection[], connection?: WebSocketConnection) => {
   if (!connection || connections.some(({ connectionId }) => connectionId === connection.connectionId))

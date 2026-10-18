@@ -79,11 +79,26 @@ const mockPublishEventPatch = vi.fn()
 const mockBroadcastEventRegistrations = vi.fn()
 const mockBroadcastPublicEvent = vi.fn()
 const mockPublishEventCounts = vi.fn()
+// What each entrant's page receives. The publisher is the boundary: here every entrant has the page
+// open, so the patch the handler's builder makes for a registration reaches this spy.
+const mockToEntrant = vi.fn()
+const mockPublishParticipantRegistrationPatches = vi.fn(
+  async (
+    eventId: string,
+    registrationIds: readonly string[],
+    buildPatch: (registrationId: string) => Promise<unknown>
+  ) => {
+    for (const registrationId of registrationIds) {
+      mockToEntrant(eventId, registrationId, await buildPatch(registrationId))
+    }
+  }
+)
 vi.doMock('../lib/ws/actions', () => ({
   __esModule: true,
   publishAdminEventPatch: vi.fn(),
   publishEventCounts: mockPublishEventCounts,
   publishEventPatch: mockPublishEventPatch,
+  publishParticipantRegistrationPatches: mockPublishParticipantRegistrationPatches,
   publishPublicEvent: mockBroadcastPublicEvent,
   publishRegistrationPatches: mockBroadcastEventRegistrations,
 }))
@@ -503,6 +518,95 @@ describe('putRegistrationGroupsLambda', () => {
     for (const reg of [first, second]) {
       expect(mockAudit).not.toHaveBeenCalledWith(expect.objectContaining({ auditKey: `${reg.eventId}:${reg.id}` }))
     }
+  })
+
+  describe("the entrant's payment picture (KOE-1553)", () => {
+    // A fee paid at confirmation: a reserve waits for a place, a place may pay.
+    const event = JSON.parse(JSON.stringify({ ...eventWithParticipantsInvited, paymentTime: 'confirmation' }))
+    const storedAt = '2030-01-01T00:00:00.500Z'
+
+    /** The rows as the moves stored them: whatever the handler wrote, read back with its own stamp. */
+    const readStoredRows = (moved: Record<string, Partial<JsonRegistration>>) =>
+      mockDynamoDB.read.mockImplementation(async (key) => {
+        const registration = jsonRegistrationsToEventWithParticipantsInvited.find((r) => r.id === key?.id)
+        if (!registration) return event
+        return { ...registration, ...moved[registration.id], updatedAt: storedAt }
+      })
+
+    it('tells a reserve lifted into a place that it can pay now, from the stored row', async () => {
+      const [placed] = jsonRegistrationsToEventWithParticipantsInvited
+      const reserve = jsonRegistrationsToEventWithParticipantsInvited[5]
+      const group = { date: placed.group?.date, key: placed.group?.key, time: placed.group?.time }
+      authorizeWithMemberOfMock.mockResolvedValueOnce({ memberOf: [], user: mockUser })
+      mockDynamoDB.query.mockResolvedValueOnce(jsonRegistrationsToEventWithParticipantsInvited)
+      readStoredRows({ [reserve.id]: { group: { ...group, key: placed.group?.key ?? '', number: 1 } } })
+
+      const res = await putRegistrationGroupsLambda(
+        constructAPIGwEvent([{ group, id: reserve.id }], { pathParameters: { eventId: event.id } })
+      )
+
+      expect(res.statusCode).toBe(200)
+      // Only the moved dog's place changed; the dogs renumbered after it pay as they did.
+      expect(mockToEntrant).toHaveBeenCalledTimes(1)
+      expect(mockToEntrant).toHaveBeenCalledWith(
+        event.id,
+        reserve.id,
+        expect.objectContaining({
+          cancelled: false,
+          id: reserve.id,
+          payment: expect.objectContaining({ canPay: true, due: 123, status: 'unpaid' }),
+          updatedAt: storedAt,
+        })
+      )
+    })
+
+    it('tells a participant moved to cancelled that the entry is cancelled', async () => {
+      const [participant] = jsonRegistrationsToEventWithParticipantsInvited
+      authorizeWithMemberOfMock.mockResolvedValueOnce({ memberOf: [], user: mockUser })
+      mockDynamoDB.query.mockResolvedValueOnce(jsonRegistrationsToEventWithParticipantsInvited)
+      readStoredRows({ [participant.id]: { cancelled: true, group: { key: 'cancelled', number: 2 } } })
+
+      const res = await putRegistrationGroupsLambda(
+        constructAPIGwEvent([{ cancelReason: 'sairas', group: { key: 'cancelled' }, id: participant.id }], {
+          pathParameters: { eventId: event.id },
+        })
+      )
+
+      expect(res.statusCode).toBe(200)
+      expect(mockToEntrant).toHaveBeenCalledTimes(1)
+      expect(mockToEntrant).toHaveBeenCalledWith(
+        event.id,
+        participant.id,
+        expect.objectContaining({
+          cancelled: true,
+          payment: expect.objectContaining({ canPay: false, due: 0, status: 'notCharged' }),
+          updatedAt: storedAt,
+        })
+      )
+    })
+
+    it('tells nobody when the moves only reorder a group', async () => {
+      const first = jsonRegistrationsToEventWithParticipantsInvited[5]
+      const second = jsonRegistrationsToEventWithParticipantsInvited[6]
+      authorizeWithMemberOfMock.mockResolvedValueOnce({ memberOf: [], user: mockUser })
+      mockDynamoDB.query.mockResolvedValueOnce(jsonRegistrationsToEventWithParticipantsInvited)
+      readStoredRows({})
+
+      const res = await putRegistrationGroupsLambda(
+        constructAPIGwEvent([{ beforeId: first.id, group: { key: 'reserve' }, id: second.id }], {
+          pathParameters: { eventId: event.id },
+        })
+      )
+
+      expect(res.statusCode).toBe(200)
+      // Both reserves changed their number, and so their row; neither changed its place.
+      expect(mockDynamoDB.update).toHaveBeenCalledWith(
+        { eventId: event.id, id: second.id },
+        expect.objectContaining({ set: expect.objectContaining({ group: expect.objectContaining({ number: 1 }) }) }),
+        expect.anything()
+      )
+      expect(mockToEntrant).not.toHaveBeenCalled()
+    })
   })
 
   it('publishes group field removals when moving a participant to reserve', async () => {

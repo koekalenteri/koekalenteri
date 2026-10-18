@@ -18,6 +18,7 @@ const mockEventAudience = vi.fn().mockReturnValue([])
 const mockOrganizerAudience = vi.fn().mockReturnValue([])
 const mockPublicAudience = vi.fn().mockReturnValue([])
 const mockRegistrationAudience = vi.fn().mockReturnValue([])
+const mockRegistrationsAudience = vi.fn().mockResolvedValue([])
 const mockAdminAudience = vi.fn().mockReturnValue([])
 const mockBuildEventPatchPayload = vi.fn((eventId: string, patch: object) => ({ eventId, ...patch }))
 const mockBuildEventViewersPayload = vi.fn((eventId: string, viewers: unknown[]) => ({ eventId, viewers }))
@@ -49,6 +50,7 @@ vi.doMock('./connectionSelectors', () => ({
   organizerAudience: mockOrganizerAudience,
   publicAudience: mockPublicAudience,
   registrationAudience: mockRegistrationAudience,
+  registrationsAudience: mockRegistrationsAudience,
 }))
 
 vi.doMock('./payloads', () => ({
@@ -65,6 +67,7 @@ const {
   publishRegistrationPatches,
   publishRegistrationPatchesStrict,
   publishParticipantRegistrationPatch,
+  publishParticipantRegistrationPatches,
   publishAdminDataInvalidation,
   publishEventViewers,
   publishEventChange,
@@ -85,6 +88,7 @@ describe('ws/actions', () => {
     mockBuildEventViewersPayload.mockClear()
     mockBuildRegistrationPatchPayload.mockClear()
     mockToEventViewers.mockClear()
+    mockRegistrationsAudience.mockReset().mockResolvedValue([])
   })
 
   it('publishPublicEvent sends public audience patch payload', async () => {
@@ -219,6 +223,65 @@ describe('ws/actions', () => {
       patch,
       registrationId: 'r1',
       scope: 'participant:registration-patch',
+    })
+  })
+
+  describe('publishParticipantRegistrationPatches (KOE-1553)', () => {
+    const connection = (connectionId: string, registrationId: string) => ({
+      connectionId,
+      registrationEventId: 'e1',
+      registrationId,
+    })
+    const payload = (registrationId: string) => ({
+      eventId: 'e1',
+      patch: { id: registrationId, paymentStatus: 'SUCCESS' },
+      registrationId,
+      scope: 'participant:registration-patch',
+    })
+
+    it('scans nothing for no registrations', async () => {
+      const buildPatch = vi.fn()
+
+      await publishParticipantRegistrationPatches('e1', [], buildPatch)
+
+      expect(mockRegistrationsAudience).not.toHaveBeenCalled()
+      expect(buildPatch).not.toHaveBeenCalled()
+      expect(mockBroadcast).not.toHaveBeenCalled()
+    })
+
+    it('builds nothing when no entrant has the page open', async () => {
+      const buildPatch = vi.fn()
+
+      await publishParticipantRegistrationPatches('e1', ['r1', 'r2'], buildPatch)
+
+      expect(mockRegistrationsAudience).toHaveBeenCalledWith('e1', ['r1', 'r2'])
+      expect(buildPatch).not.toHaveBeenCalled()
+      expect(mockBroadcast).not.toHaveBeenCalled()
+    })
+
+    it('builds each watched registration once and gives every page its own patch', async () => {
+      const watching = [connection('c1', 'r1'), connection('c2', 'r1'), connection('c3', 'r2'), connection('c4', 'r3')]
+      mockRegistrationsAudience.mockResolvedValueOnce(watching)
+      // r3's row is gone: nothing to send it.
+      const buildPatch = vi.fn(async (registrationId: string) =>
+        registrationId === 'r3' ? undefined : { id: registrationId, paymentStatus: 'SUCCESS' as const }
+      )
+
+      await publishParticipantRegistrationPatches('e1', ['r1', 'r2', 'r3', 'r4'], buildPatch)
+
+      expect(buildPatch).toHaveBeenCalledTimes(3)
+      expect(buildPatch).toHaveBeenCalledWith('r1')
+      expect(buildPatch).toHaveBeenCalledWith('r2')
+      expect(buildPatch).toHaveBeenCalledWith('r3')
+      // One send per registration with a patch, to that registration's pages only.
+      expect(mockBroadcast).toHaveBeenCalledTimes(2)
+      const sent = await Promise.all(
+        broadcastConfigurations.map(async (call) => ({ audience: await call.audience(), payload: call.buildPayload() }))
+      )
+      expect(sent).toEqual([
+        { audience: watching.slice(0, 2), payload: payload('r1') },
+        { audience: [watching[2]], payload: payload('r2') },
+      ])
     })
   })
 

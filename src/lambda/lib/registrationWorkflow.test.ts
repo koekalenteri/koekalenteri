@@ -21,8 +21,19 @@ vi.doMock('./stats', () => ({
 const mockPublishEventCounts = vi.fn()
 const mockPublishRegistrationPatches = vi.fn()
 const mockPublishRegistrationPatchesStrict = vi.fn()
+// What each entrant's page receives: here every entrant has the page open (KOE-1553).
+const mockToEntrant = vi.fn()
 vi.doMock('./ws/actions', () => ({
   publishEventCounts: mockPublishEventCounts,
+  publishParticipantRegistrationPatches: async (
+    eventId: string,
+    registrationIds: readonly string[],
+    buildPatch: (registrationId: string) => Promise<unknown>
+  ) => {
+    for (const registrationId of registrationIds) {
+      mockToEntrant(eventId, registrationId, await buildPatch(registrationId))
+    }
+  },
   publishRegistrationPatches: mockPublishRegistrationPatches,
   publishRegistrationPatchesStrict: mockPublishRegistrationPatchesStrict,
 }))
@@ -43,9 +54,11 @@ const mockSendTemplatedMail = vi.fn()
 const libEmail = await import('./email')
 vi.doMock('./email', () => ({ ...libEmail, sendTemplatedMail: mockSendTemplatedMail }))
 
+// The registration row as stored, read back for the entrant's patch (KOE-1553).
+const mockRead = vi.fn()
 vi.doMock('../utils/CustomDynamoClient', () => ({
   default: vi.fn(function MockCustomDynamoClient() {
-    return {}
+    return { read: mockRead }
   }),
 }))
 
@@ -450,6 +463,27 @@ describe('registrationWorkflow', () => {
             template: 'Ilmoittautumisesi tietoja on muokattu',
             templateKey: 'registration.email.subject_update',
           },
+        })
+      )
+    })
+
+    // A secretary's edit can change what the entrant owes (the class, the membership) or cancel the
+    // entry; the entrant's open page hears it from the row as stored.
+    it('tells the entrant the payment as the stored row has it (KOE-1553)', async () => {
+      const saved = { ...registration, cancelled: true }
+      mockRead.mockResolvedValueOnce({ ...saved, updatedAt: '2030-01-01T00:00:00.500Z' })
+
+      await finalize(saved, registration)
+
+      expect(mockRead).toHaveBeenCalledWith({ eventId: saved.eventId, id: saved.id }, expect.any(String), true)
+      expect(mockToEntrant).toHaveBeenCalledTimes(1)
+      expect(mockToEntrant).toHaveBeenCalledWith(
+        saved.eventId,
+        saved.id,
+        expect.objectContaining({
+          cancelled: true,
+          payment: expect.objectContaining({ due: 0 }),
+          updatedAt: '2030-01-01T00:00:00.500Z',
         })
       )
     })

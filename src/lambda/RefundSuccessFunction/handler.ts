@@ -13,12 +13,17 @@ import { logger } from '../lib/log'
 import {
   applySuccessfulRefund,
   parseParams,
+  participantPaymentPatch,
   settleFailedTransaction,
   updateTransactionStatus,
   verifyParams,
 } from '../lib/payment'
 import { clearRegistrationEmailDeliveryStatus, getRegistration, getRegistrationEditToken } from '../lib/registration'
-import { publishCancelledRegistration, publishRegistrationPatches } from '../lib/ws/actions'
+import {
+  publishCancelledRegistration,
+  publishParticipantRegistrationPatch,
+  publishRegistrationPatches,
+} from '../lib/ws/actions'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 
 const { frontendURL, emailFrom, registrationTable, transactionTable } = CONFIG
@@ -189,6 +194,14 @@ const refundSuccessLambda = lambda('refundSuccess', async (event) => {
     ],
     confirmedEvent.organizer.id
   )
+  // The entrant's page learns the refund too, from the row as it stands after the write (KOE-1553).
+  if (updatedRegistration) {
+    await publishParticipantRegistrationPatch(
+      eventId,
+      registrationId,
+      await participantPaymentPatch(updatedRegistration, confirmedEvent)
+    )
+  }
 
   return response(200, undefined, event)
 })

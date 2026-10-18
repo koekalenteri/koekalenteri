@@ -63,8 +63,10 @@ vi.doMock('../lib/stats', () => ({
 }))
 
 const mockPublishEventCounts = vi.fn()
+const mockPublishParticipantRegistrationPatches = vi.fn()
 vi.doMock('../lib/ws/actions', () => ({
   publishEventCounts: mockPublishEventCounts,
+  publishParticipantRegistrationPatches: mockPublishParticipantRegistrationPatches,
   publishRegistrationPatches: mockPublishRegistrationPatches,
   publishRegistrationPatchesStrict: mockPublishRegistrationPatches,
 }))

@@ -13,6 +13,9 @@
             TableName: !Ref EventTable
         - DynamoDBReadPolicy:
             TableName: !Ref UserTable
+        # A moved entrant's payment picture reads the open payments (KOE-1553).
+        - DynamoDBReadPolicy:
+            TableName: !Ref TransactionTable
         - DynamoDBWritePolicy:
             TableName: !Ref AuditTable
         - !Ref AuthorizePolicy
