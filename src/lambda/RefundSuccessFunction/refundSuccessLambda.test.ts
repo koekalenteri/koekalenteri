@@ -1,3 +1,5 @@
+import type { JsonRegistration } from '../../types'
+import type { CancelledRegistration } from '../lib/payment'
 import { vi } from 'vitest'
 import { answerRejections, constructPartialAPIGwEvent } from '../test-utils/helpers'
 import { loggedLines } from '../test-utils/logs'
@@ -18,7 +20,7 @@ const mockAudit = vi.fn()
 const mockRegistrationAuditKey = vi.fn()
 const mockDynamoRead = vi.fn()
 const mockDynamoUpdate = vi.fn()
-const mockPublishRegistrationPatches = vi.fn()
+const mockPublishRegistrationPatches = vi.fn().mockResolvedValue({ attempted: 0, failed: 0, gone: 0, sent: 0 })
 const mockPublishCancelledRegistration = vi.fn()
 const mockPublishParticipantPayments = vi.fn()
 const mockDynamoClient = vi.fn(function MockCustomDynamoClient() {
@@ -44,6 +46,7 @@ vi.doMock('../lib/lambda', async () => ({
 vi.doMock('../lib/payment', () => ({
   applySuccessfulRefund: mockApplySuccessfulRefund,
   parseParams: mockParseParams,
+  publishCancelledRegistration: mockPublishCancelledRegistration,
   publishParticipantPayments: mockPublishParticipantPayments,
   settleFailedTransaction: mockSettleFailedTransaction,
   updateTransactionStatus: mockUpdateTransactionStatus,
@@ -76,7 +79,6 @@ vi.doMock('../utils/CustomDynamoClient', () => ({
 }))
 
 vi.doMock('../lib/ws/actions', () => ({
-  publishCancelledRegistration: mockPublishCancelledRegistration,
   publishRegistrationPatches: mockPublishRegistrationPatches,
 }))
 
@@ -152,11 +154,13 @@ describe('refundSuccessLambda', () => {
     mockApplySuccessfulRefund.mockResolvedValue({ applied: true, appliedAt: '2023-01-01T12:30:00.000Z' })
     mockClearRegistrationEmailDeliveryStatus.mockResolvedValue(undefined)
     mockSendTemplatedMail.mockResolvedValue(undefined)
-    mockRegistrationEmailTags.mockImplementation((registration: any, template: any) => [
-      { Name: 'eventId', Value: registration.eventId },
-      { Name: 'registrationId', Value: registration.id },
-      { Name: 'template', Value: template },
-    ])
+    mockRegistrationEmailTags.mockImplementation(
+      (registration: Pick<JsonRegistration, 'eventId' | 'id'>, template: string) => [
+        { Name: 'eventId', Value: registration.eventId },
+        { Name: 'registrationId', Value: registration.id },
+        { Name: 'template', Value: template },
+      ]
+    )
     mockRegistrationAuditKey.mockReturnValue('event123:reg456')
   })
 
@@ -212,11 +216,9 @@ describe('refundSuccessLambda', () => {
   it('settles a failed refund through the shared step and publishes whatever changed', async () => {
     const cancelled = {
       eventId: 'event123',
-      organizerId: 'org-1',
-      participantPatch: {},
-      patch: { eventId: 'event123', id: 'reg456', openRefunds: [] },
+      field: 'openRefunds',
       registrationId: 'reg456',
-    }
+    } satisfies CancelledRegistration
     mockParseParams.mockReturnValueOnce({
       eventId: 'event123',
       provider: 'paytrail',
@@ -367,6 +369,24 @@ describe('refundSuccessLambda', () => {
       expect.objectContaining({ amount: '4,00\u00A0€', handlingCost: '0,00\u00A0€', paidAmount: '20,00\u00A0€' }),
       expect.any(Array)
     )
+  })
+
+  // Everything is recorded by then: a failed admin push is logged and the callback still answers 200
+  // (KOE-1566).
+  it('answers 200 and still tells the entrant when the admin patch cannot be sent', async () => {
+    mockPublishRegistrationPatches.mockRejectedValueOnce(new Error('connection table down'))
+
+    await refundSuccessLambda(event)
+
+    expect(mockPublishParticipantPayments).toHaveBeenCalledWith(mockConfirmedEvent, ['reg456'])
+    expect(mockResponse).toHaveBeenCalledWith(200, undefined, event)
+    expect(loggedLines(errorSpy)).toEqual([
+      expect.objectContaining({
+        error: expect.objectContaining({ message: 'connection table down' }),
+        message: 'refund admin patch failed',
+        registrationId: 'reg456',
+      }),
+    ])
   })
 
   it('handles failed email sending gracefully', async () => {

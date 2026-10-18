@@ -290,7 +290,7 @@ describe('putEventTypeLambda', () => {
     expect(mockResponse).toHaveBeenCalledWith(200, eventTypeItem, inactiveEvent)
   })
 
-  it('handles judges and officials that are already deleted', async () => {
+  it('leaves judges and officials alone while they serve an active event type', async () => {
     // Setup an inactive event type
     const inactiveEvent = {
       ...event,
@@ -315,19 +315,13 @@ describe('putEventTypeLambda', () => {
     // Setup active event types
     const activeEventTypes = [{ active: true, eventType: 'RALLY_OBEDIENCE', name: 'Rally Obedience' }]
 
-    // Setup judges that are already deleted
-    const deletedJudges = [
-      { deletedAt: '2022-01-01T00:00:00.000Z', eventTypes: ['AGILITY'], id: 'judge1', name: 'Judge One' },
-    ]
-
-    // Setup officials that are already deleted
-    const deletedOfficials = [
-      { deletedAt: '2022-01-01T00:00:00.000Z', eventTypes: ['AGILITY'], id: 'official1', name: 'Official One' },
-    ]
+    // The live readers return no deleted rows; these still serve an active event type
+    const servingJudges = [{ eventTypes: ['AGILITY', 'RALLY_OBEDIENCE'], id: 'judge1', name: 'Judge One' }]
+    const servingOfficials = [{ eventTypes: ['RALLY_OBEDIENCE'], id: 'official1', name: 'Official One' }]
 
     mockReadEventTypes.mockResolvedValueOnce(activeEventTypes)
-    mockReadJudges.mockResolvedValueOnce(deletedJudges)
-    mockReadOfficials.mockResolvedValueOnce(deletedOfficials)
+    mockReadJudges.mockResolvedValueOnce(servingJudges)
+    mockReadOfficials.mockResolvedValueOnce(servingOfficials)
 
     await putEventTypeLambda(inactiveEvent)
 
@@ -339,7 +333,7 @@ describe('putEventTypeLambda', () => {
     expect(mockReadJudges).toHaveBeenCalledTimes(1)
     expect(mockReadOfficials).toHaveBeenCalledTimes(1)
 
-    // Should not mark already deleted judges or officials as deleted again
+    // Should not mark judges or officials who still serve an active event type as deleted
     expect(mockWriteJudges).not.toHaveBeenCalled()
     expect(mockWriteOfficials).not.toHaveBeenCalled()
 

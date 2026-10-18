@@ -81,10 +81,39 @@ interface SyncOfficialDirectoryOptions<
   create: (entry: TIncoming, now: string) => TStored
   label: string
   partialize: (entry: TStored) => TIncoming
-  /** The directory as stored, from the table's repository. */
+  /** The directory as stored, the deleted entries included, from the table's repository. */
   readAll: () => Promise<TStored[]>
-  /** Stores the new, changed and deleted entries, through the table's repository. */
+  /** Stores the new, changed, restored and deleted entries, through the table's repository. */
   writeAll: (entries: TStored[]) => Promise<void>
+}
+
+/**
+ * Updates a stored entry from the Kennel Club's list in place and says whether it needs writing. A
+ * deleted entry back on the list is restored even when its fields did not change, and keeps what
+ * the app stored for it (a judge's languages, say) rather than being created anew (KOE-1569).
+ */
+const updateStoredEntry = <TIncoming extends OfficialDirectoryEntry, TStored extends StoredOfficialDirectoryEntry>(
+  existing: TStored,
+  entry: TIncoming,
+  options: Pick<SyncOfficialDirectoryOptions<TIncoming, TStored>, 'label' | 'partialize'>,
+  now: string
+): boolean => {
+  const stamp = { modifiedAt: now, modifiedBy: 'system' }
+
+  if (existing.deletedAt) {
+    logger.info('restoring directory entry', { id: entry.id, label: options.label })
+    // Undefined attributes are left out of the stored row (removeUndefinedValues).
+    Object.assign(existing, entry, stamp, { deletedAt: undefined, deletedBy: undefined })
+    return true
+  }
+
+  const partial = options.partialize(existing)
+  const changes = getChangedTopLevelKeys(partial, { ...partial, ...entry })
+  if (!changes.length) return false
+
+  logger.info('updating directory entry', { changedKeys: changes, id: entry.id, label: options.label })
+  Object.assign(existing, entry, stamp)
+  return true
 }
 
 export const syncOfficialDirectory = async <
@@ -112,13 +141,7 @@ export const syncOfficialDirectory = async <
       continue
     }
 
-    const partial = options.partialize(existing)
-    const changes = getChangedTopLevelKeys(partial, { ...partial, ...entry })
-    if (changes.length) {
-      logger.info('updating directory entry', { changedKeys: changes, id: entry.id, label: options.label })
-      Object.assign(existing, entry, { modifiedAt: now, modifiedBy: 'system' })
-      write.push(existing)
-    }
+    if (updateStoredEntry(existing, entry, options, now)) write.push(existing)
   }
 
   for (const existing of existingEntries) {
@@ -145,7 +168,10 @@ interface OfficialDirectoryLambdaOptions<
    * (KOE-1340).
    */
   onRefreshed: (collections: AdminDataCollection[]) => Promise<unknown>
-  /** The directory as stored, from the table's repository. */
+  /**
+   * The directory as stored, the deleted entries included, from the table's repository: a `since`
+   * response reports them as deletedIds, the full list leaves them out (KOE-1569).
+   */
   readAll: () => Promise<TStored[]>
   role: 'judge' | 'officer'
   service: string

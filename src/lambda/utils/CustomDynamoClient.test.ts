@@ -196,6 +196,36 @@ describe('CustomDynamoClient', () => {
       )
     })
 
+    it('scans without the deletedAt filter when deleted rows are asked for', async () => {
+      const client = new CustomDynamoClient('TestTable')
+      mockSend.mockResolvedValueOnce({ Items: [{ deletedAt: '2024-01-01T00:00:00.000Z', id: '1' }, { id: '2' }] })
+
+      const result = await client.readAll({ includeDeleted: true })
+
+      expect(mockSend).toHaveBeenCalledWith({ ExclusiveStartKey: undefined, TableName: 'test-table' })
+      expect(result).toEqual([{ deletedAt: '2024-01-01T00:00:00.000Z', id: '1' }, { id: '2' }])
+    })
+
+    it('keeps only the custom filter when deleted rows are asked for', async () => {
+      const client = new CustomDynamoClient('TestTable')
+      mockSend.mockResolvedValueOnce({ Items: [] })
+
+      await client.readAll({
+        filter: '#attribute = :value',
+        includeDeleted: true,
+        names: { '#attribute': 'attribute' },
+        values: { ':value': 'test' },
+      })
+
+      expect(mockSend).toHaveBeenCalledWith({
+        ExclusiveStartKey: undefined,
+        ExpressionAttributeNames: { '#attribute': 'attribute' },
+        ExpressionAttributeValues: { ':value': 'test' },
+        FilterExpression: '#attribute = :value',
+        TableName: 'test-table',
+      })
+    })
+
     it('continues scanning until all pages are read', async () => {
       const client = new CustomDynamoClient('TestTable')
       mockSend

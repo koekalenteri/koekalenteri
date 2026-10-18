@@ -2,6 +2,7 @@ import type { Judge } from '@/types'
 import type { PartialEvent } from './types'
 import { emptyEvent } from '@/__mockData__/emptyEvent'
 import * as env from '@/lib/env'
+import { merge } from '@/lib/utils'
 import { startOfFinnishDay } from '@/test-utils/finnishDays'
 import { requiredFields, VALIDATORS, validateEvent, validateEventField } from './validation'
 
@@ -248,6 +249,29 @@ describe('validation', () => {
       expect(req.required.classes).toBeDefined()
       expect(req.required.judges).toBe(true)
       expect(req.required.places).toBe(true)
+    })
+  })
+
+  describe('retrieveType (KOE-1570)', () => {
+    const errorOf = (event: PartialEvent) =>
+      validateEventField(event, 'retrieveType', !!requiredFields(event).required.retrieveType)
+    const missing = { key: 'validationError', opts: { field: 'retrieveType', state: 'draft' } }
+
+    it.each(['NOME-B', 'NOME-B SM'])('is required for a %s draft', (eventType) => {
+      expect(errorOf({ ...emptyEvent, eventType, state: 'draft' })).toEqual(missing)
+    })
+
+    it.each(['game', 'dummies'] as const)('accepts %s', (retrieveType) => {
+      expect(errorOf({ ...emptyEvent, eventType: 'NOME-B', retrieveType, state: 'draft' })).toBe(false)
+    })
+
+    it('is missing again when the form clears it with a null', () => {
+      const event: PartialEvent = { ...emptyEvent, eventType: 'NOME-B', retrieveType: 'game', state: 'draft' }
+      expect(errorOf(merge(event, { retrieveType: null }))).toEqual(missing)
+    })
+
+    it('is not asked of the other event types', () => {
+      expect(errorOf({ ...emptyEvent, eventType: 'NOU', state: 'confirmed' })).toBe(false)
     })
   })
 

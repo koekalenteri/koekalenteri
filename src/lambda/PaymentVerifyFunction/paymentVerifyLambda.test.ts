@@ -1,5 +1,5 @@
+import type { CancelledRegistration } from '../lib/payment'
 import { vi } from 'vitest'
-import { paymentPictureWith } from '../../__mockData__/paymentPicture'
 import { answerRejections, constructPartialAPIGwEvent } from '../test-utils/helpers'
 import { loggedLines } from '../test-utils/logs'
 
@@ -29,14 +29,11 @@ vi.doMock('../lib/event', () => ({
   getEvent: mockGetEvent,
 }))
 
-vi.doMock('../lib/ws/actions', () => ({
-  publishCancelledRegistration: mockPublishCancelledRegistration,
-}))
-
 // The settle is the shared step every other failure writer uses too, tested in lib/payment; this
 // handler only has to hand it the row and send on whatever it answers with (KOE-1526, KOE-1529).
 vi.doMock('../lib/payment', () => ({
   parseParams: mockParseParams,
+  publishCancelledRegistration: mockPublishCancelledRegistration,
   settleFailedTransaction: mockSettleFailedTransaction,
   verifyParams: mockVerifyParams,
 }))
@@ -159,11 +156,9 @@ describe('paymentVerifyLambda', () => {
   it('handles a failed payment correctly', async () => {
     const cancelled = {
       eventId: 'event123',
-      organizerId: 'org-1',
-      participantPatch: { eventId: 'event123', id: 'reg456', payment: paymentPictureWith() },
-      patch: { eventId: 'event123', id: 'reg456', openPayments: [] },
+      field: 'openPayments',
       registrationId: 'reg456',
-    }
+    } satisfies CancelledRegistration
     mockSettleFailedTransaction.mockResolvedValueOnce({ cancelled, changed: true, moved: true })
     mockParseParams.mockReturnValueOnce({
       eventId: 'event123',

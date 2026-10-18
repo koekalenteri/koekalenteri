@@ -19,7 +19,7 @@ vi.doMock('../../utils/CustomDynamoClient', () => ({
   },
 }))
 
-const { readOfficials, writeOfficials } = await import('./officialRepository')
+const { readOfficials, readOfficialsIncludingDeleted, writeOfficials } = await import('./officialRepository')
 
 const official: JsonOfficial = {
   createdAt: '2024-01-01T00:00:00.000Z',
@@ -44,11 +44,25 @@ describe('officialRepository', () => {
     expect(mockConstructor).toHaveBeenCalledTimes(1)
   })
 
-  it('readOfficials reads the whole table', async () => {
+  it('readOfficials reads the whole table without the deleted rows', async () => {
     mockReadAll.mockResolvedValueOnce([official])
 
     await expect(readOfficials()).resolves.toEqual([official])
     expect(mockReadAll).toHaveBeenCalledWith()
+  })
+
+  it('readOfficialsIncludingDeleted reads the whole table with the deleted rows', async () => {
+    const deleted = { ...official, deletedAt: '2024-01-02T00:00:00.000Z', deletedBy: 'system' }
+    mockReadAll.mockResolvedValueOnce([official, deleted])
+
+    await expect(readOfficialsIncludingDeleted()).resolves.toEqual([official, deleted])
+    expect(mockReadAll).toHaveBeenCalledWith({ includeDeleted: true })
+  })
+
+  it('readOfficialsIncludingDeleted returns an empty list when the scan returns nothing', async () => {
+    mockReadAll.mockResolvedValueOnce(undefined)
+
+    await expect(readOfficialsIncludingDeleted()).resolves.toEqual([])
   })
 
   it('readOfficials returns an empty list when the scan returns nothing', async () => {

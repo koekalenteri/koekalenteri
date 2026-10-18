@@ -91,7 +91,6 @@ export type KcProblemCode =
   | 'judgeWithoutNumber'
   | 'tooManyJudges'
   | 'additionalInfoNotAllowed'
-  | 'retrieveTypeMissing'
   | 'retrieveTypeNotAllowed'
 
 export interface KcProblem {
@@ -187,12 +186,14 @@ const additionalInfo = (
   return problems.length ? { problems } : { infos }
 }
 
-/** The trial type of a B-trial, as Kennelliitto's format lists it, or why there is none. */
+/**
+ * The trial type of a B-trial, as Kennelliitto's format lists it, or why there is none. A trial from
+ * before the choice existed (KOE-439) has none, and is sent as a game trial (KOE-1570).
+ */
 const tarkenneOf = (event: KcResultEvent, koemuoto: KcKoemuoto): { tarkenne?: string } | { problems: KcProblem[] } => {
   if (!hasRetrieveTypeChoice(event.eventType)) return {}
-  if (!event.retrieveType) return { problems: [{ code: 'retrieveTypeMissing' }] }
 
-  const wanted = event.retrieveType === 'game' ? 'riistakoe' : 'damikoe'
+  const wanted = event.retrieveType === 'dummies' ? 'damikoe' : 'riistakoe'
   const tarkenne = koemuoto.tarkenteet.find((item) => nameKey(item) === wanted)
   return tarkenne ? { tarkenne } : { problems: [{ code: 'retrieveTypeNotAllowed', detail: wanted }] }
 }

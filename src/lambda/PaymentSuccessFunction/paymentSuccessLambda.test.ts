@@ -1,7 +1,9 @@
-import type { JsonConfirmedEvent, JsonRegistration } from '../../types'
+import type { JsonRegistration } from '../../types'
+import type { CancelledRegistration } from '../lib/payment'
 import { vi } from 'vitest'
-import { buildParticipantPaymentPatch } from '../lib/ws/payloads'
+import { deliverToEntrant, everyEntrantWatching } from '../test-utils/entrantPages'
 import { answerRejections, constructPartialAPIGwEvent } from '../test-utils/helpers'
+import { loggedLines } from '../test-utils/logs'
 
 const mockLambda = vi.fn((_name, fn) => answerRejections(fn, mockResponse))
 const mockResponse = vi.fn()
@@ -10,20 +12,13 @@ const mockVerifyParams = vi.fn()
 const mockUpdateTransactionStatus = vi.fn()
 const mockSettleFailedTransaction = vi.fn()
 const mockApplySuccessfulPayment = vi.fn()
-// Delegates to the real, pure buildParticipantPaymentPatch -- a different module than the one this
-// file mocks -- with the open payments read from openPayments the way the real
-// participantPaymentPatch (loadOpenPayments) does, a fresh pending one for each id, so a test only
-// has to override openPayments to pin the shape (KOE-1529, round 1 part 3).
-const mockParticipantPaymentPatch = vi.fn((registration: JsonRegistration, event: JsonConfirmedEvent) =>
-  buildParticipantPaymentPatch(
-    registration,
-    event,
-    (registration.openPayments ?? []).map(() => ({
-      createdAt: new Date().toISOString(),
-      status: 'pending' as const,
-      type: 'payment' as const,
-    }))
-  )
+// The entrant's picture goes through the real publisher, its failure handling included (KOE-1566):
+// every entrant named has the page open and each payload reaches `mockToEntrant`. Its open payments
+// are a fresh pending one for each id, so a test only has to override openPayments to pin the shape
+// (KOE-1529, round 1 part 3).
+const mockToEntrant = vi.fn()
+const mockBatchGet = vi.fn(async (keys: { transactionId: string }[]) =>
+  keys.map(() => ({ createdAt: new Date().toISOString(), status: 'pending', type: 'payment' }))
 )
 const mockClearRegistrationEmailDeliveryStatus = vi.fn()
 const mockGetRegistration = vi.fn()
@@ -45,7 +40,6 @@ const mockEmailTo = vi.fn()
 const mockRegistrationEmailTags = vi.fn()
 const mockRegistrationEmailTemplateData = vi.fn()
 const mockPublishRegistrationPatches = vi.fn()
-const mockPublishParticipantRegistrationPatch = vi.fn()
 const mockGetRegistrationEditToken = vi.fn().mockReturnValue('test-edit-token')
 const mockSendTemplatedEmailToEventRegistrations = vi.fn().mockResolvedValue({ failed: [], ok: [] })
 
@@ -70,10 +64,13 @@ vi.doMock('../lib/lambda', async () => ({
   response: mockResponse,
 }))
 
-vi.doMock('../lib/payment', () => ({
+const mockPublishCancelledRegistration = vi.fn()
+vi.doMock('../lib/payment', async () => ({
   applySuccessfulPayment: mockApplySuccessfulPayment,
   parseParams: mockParseParams,
-  participantPaymentPatch: mockParticipantPaymentPatch,
+  publishCancelledRegistration: mockPublishCancelledRegistration,
+  publishParticipantPaymentsOfEvent: (await vi.importActual<typeof import('../lib/payment')>('../lib/payment'))
+    .publishParticipantPaymentsOfEvent,
   settleFailedTransaction: mockSettleFailedTransaction,
   updateTransactionStatus: mockUpdateTransactionStatus,
   verifyParams: mockVerifyParams,
@@ -101,7 +98,13 @@ vi.doMock('../lib/audit', () => ({
 vi.doMock('../utils/CustomDynamoClient', () => ({
   default: vi.fn(function MockCustomDynamoClient() {
     return {
-      read: mockRead,
+      batchGet: mockBatchGet,
+      // A registration read (the publisher's strongly consistent one) answers as getRegistration
+      // does; every other read is the transaction's.
+      read: (key: Record<string, unknown>, ...rest: unknown[]) =>
+        typeof key.eventId === 'string' && typeof key.id === 'string'
+          ? mockGetRegistration(key.eventId, key.id, ...rest.slice(1))
+          : mockRead(key, ...rest),
       update: mockUpdate,
       write: mockWrite,
     }
@@ -127,14 +130,16 @@ vi.doMock('../lib/email', () => ({
   sendTemplatedMail: mockSendTemplatedMail,
 }))
 
-const mockPublishEventCounts = vi.fn()
-const mockPublishCancelledRegistration = vi.fn()
-vi.doMock('../lib/ws/actions', () => ({
-  publishCancelledRegistration: mockPublishCancelledRegistration,
+const mockPublishEventCounts = vi.fn().mockResolvedValue(undefined)
+vi.doMock('../lib/ws/actions', async () => ({
   publishEventCounts: mockPublishEventCounts,
-  publishParticipantRegistrationPatch: mockPublishParticipantRegistrationPatch,
+  publishParticipantRegistrationPatches: (
+    await vi.importActual<typeof import('../lib/ws/actions')>('../lib/ws/actions')
+  ).publishParticipantRegistrationPatches,
   publishRegistrationPatchesStrict: mockPublishRegistrationPatches,
 }))
+vi.doMock('../lib/ws/connectionSelectors', () => ({ registrationsAudience: everyEntrantWatching }))
+vi.doMock('../lib/ws/broadcast', () => ({ broadcast: deliverToEntrant(mockToEntrant) }))
 
 const { default: paymentSuccessLambda } = await import('./handler')
 
@@ -297,7 +302,7 @@ describe('paymentSuccessLambda', () => {
       ],
       'org-1'
     )
-    expect(mockPublishParticipantRegistrationPatch).toHaveBeenCalledWith(
+    expect(mockToEntrant).toHaveBeenCalledWith(
       'event123',
       'reg456',
       expect.objectContaining({
@@ -410,7 +415,7 @@ describe('paymentSuccessLambda', () => {
 
     await paymentSuccessLambda(event)
 
-    expect(mockPublishParticipantRegistrationPatch).toHaveBeenCalledWith(
+    expect(mockToEntrant).toHaveBeenCalledWith(
       'event123',
       'reg456',
       expect.objectContaining({
@@ -497,7 +502,7 @@ describe('paymentSuccessLambda', () => {
       'registration-table-not-found-in-env'
     )
     // The same rule as GetRegistration: a payment charged twice offers no pay button (KOE-1526).
-    expect(mockPublishParticipantRegistrationPatch).toHaveBeenCalledWith(
+    expect(mockToEntrant).toHaveBeenCalledWith(
       'event123',
       'reg456',
       expect.objectContaining({
@@ -586,11 +591,9 @@ describe('paymentSuccessLambda', () => {
   it('settles a failed payment through the shared step and publishes whatever changed', async () => {
     const cancelled = {
       eventId: 'event123',
-      organizerId: 'org-1',
-      participantPatch: {},
-      patch: { eventId: 'event123', id: 'reg456', openPayments: [] },
+      field: 'openPayments',
       registrationId: 'reg456',
-    }
+    } satisfies CancelledRegistration
     mockParseParams.mockReturnValueOnce({
       eventId: 'event123',
       provider: 'paytrail',
@@ -698,6 +701,113 @@ describe('paymentSuccessLambda', () => {
 
     // Verify response was NOT returned
     expect(mockResponse).not.toHaveBeenCalled()
+  })
+
+  // The payment is recorded before the entrant's page is told: a failed read or send is logged and
+  // the receipt and confirmation still go out, instead of waiting for Paytrail's retry (KOE-1566).
+  it.each([
+    ['the event cannot be read', () => mockGetEvent.mockRejectedValueOnce(new Error('event table down'))],
+    [
+      'the open payments cannot be read',
+      () => {
+        mockGetRegistration.mockResolvedValue({
+          eventId: 'event123',
+          id: 'reg456',
+          language: 'fi',
+          openPayments: ['tx-other'],
+          payer: { email: 'test@example.com' },
+          paymentStatus: 'PENDING',
+          state: 'ready',
+        })
+        mockBatchGet.mockRejectedValueOnce(new Error('transaction table down'))
+      },
+    ],
+  ])('sends the receipt and confirmation when %s for the entrant picture', async (_name, failPicture) => {
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined)
+    failPicture()
+
+    await paymentSuccessLambda(event)
+
+    expect(mockToEntrant).not.toHaveBeenCalled()
+    expect(mockSendTemplatedMail).toHaveBeenCalledWith(
+      'receipt',
+      'fi',
+      expect.any(String),
+      ['test@example.com'],
+      expect.any(Object),
+      expect.any(Array)
+    )
+    expect(mockSendTemplatedMail).toHaveBeenCalledWith(
+      'registration',
+      'fi',
+      expect.any(String),
+      ['test@example.com'],
+      expect.any(Object),
+      expect.any(Array)
+    )
+    expect(mockResponse).toHaveBeenCalledWith(200, undefined, event)
+    expect(loggedLines(errorSpy)).toEqual([
+      expect.objectContaining({ eventId: 'event123', message: 'participant patch failed', registrationId: 'reg456' }),
+    ])
+    errorSpy.mockRestore()
+  })
+
+  // The counts go out again with the strict publication in the last phase; the early push must not
+  // hold the receipt and confirmation back (KOE-1566).
+  it('sends the receipt and confirmation when the event counts cannot be pushed', async () => {
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined)
+    mockPublishEventCounts.mockRejectedValueOnce(new Error('connection table down'))
+
+    await paymentSuccessLambda(event)
+
+    expect(mockSendTemplatedMail).toHaveBeenCalledWith(
+      'receipt',
+      'fi',
+      expect.any(String),
+      ['test@example.com'],
+      expect.any(Object),
+      expect.any(Array)
+    )
+    expect(mockSendTemplatedMail).toHaveBeenCalledWith(
+      'registration',
+      'fi',
+      expect.any(String),
+      ['test@example.com'],
+      expect.any(Object),
+      expect.any(Array)
+    )
+    expect(mockPublishEventCounts).toHaveBeenCalledTimes(2)
+    expect(mockUpdate).toHaveBeenCalledWith(...phaseUpdate('postPaymentProcessedAt'))
+    expect(mockResponse).toHaveBeenCalledWith(200, undefined, event)
+    expect(loggedLines(errorSpy)).toEqual([
+      expect.objectContaining({
+        error: expect.objectContaining({ message: 'connection table down' }),
+        message: 'payment event counts push failed',
+        registrationId: 'reg456',
+      }),
+    ])
+    errorSpy.mockRestore()
+  })
+
+  it('writes both duplicate audits when the entrant picture cannot be built (KOE-1566)', async () => {
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined)
+    mockGetReadyRegistrationsByEventId.mockResolvedValueOnce([
+      { dog: { regNo: 'FI12345' }, eventId: 'event123', id: 'other-registration', state: 'ready' },
+    ])
+    mockGetEvent.mockRejectedValueOnce(new Error('event table down'))
+
+    await paymentSuccessLambda(event)
+
+    expect(mockToEntrant).not.toHaveBeenCalled()
+    expect(mockAudit).toHaveBeenCalledWith(expect.objectContaining({ messageKey: 'audit.messages.paymentDuplicate' }))
+    expect(mockAudit).toHaveBeenCalledWith(
+      expect.objectContaining({ messageKey: 'audit.messages.paymentDuplicateOther' })
+    )
+    expect(mockResponse).toHaveBeenCalledWith(200, undefined, event)
+    expect(loggedLines(errorSpy)).toEqual([
+      expect.objectContaining({ message: 'participant patch failed', registrationId: 'reg456' }),
+    ])
+    errorSpy.mockRestore()
   })
 
   it('fails the callback so a receipt delivery failure is retried', async () => {
@@ -910,7 +1020,7 @@ describe('paymentSuccessLambda', () => {
 
       await paymentSuccessLambda(event)
 
-      expect(mockPublishParticipantRegistrationPatch).toHaveBeenCalledWith(
+      expect(mockToEntrant).toHaveBeenCalledWith(
         'event123',
         'reg456',
         expect.objectContaining({ paidAmount: 50, paymentStatus: 'SUCCESS' })

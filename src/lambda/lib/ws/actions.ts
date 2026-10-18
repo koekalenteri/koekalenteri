@@ -7,7 +7,6 @@ import type {
   Patch,
 } from '../../../types'
 import type { EventChange } from '../event'
-import type { CancelledRegistration } from '../payment'
 import type { WebSocketConnection } from './types'
 import { sanitizeDogEvent } from '../../../lib/event'
 import { mapWithConcurrency } from '../../../lib/utils'
@@ -20,7 +19,6 @@ import {
   eventAudience,
   organizerAudience,
   publicAudience,
-  registrationAudience,
   registrationsAudience,
 } from './connectionSelectors'
 import {
@@ -93,16 +91,6 @@ export const publishRegistrationPatchesStrict = async (
   }
   return counts
 }
-
-export const publishParticipantRegistrationPatch = (
-  eventId: string,
-  registrationId: string,
-  patch: Patch<JsonRegistration>
-) =>
-  send({
-    audience: () => registrationAudience(eventId, registrationId),
-    buildPayload: () => ({ eventId, patch, registrationId, scope: 'participant:registration-patch' }),
-  })
 
 /** How many registrations' patches are built at once: each may read its row and open payments. */
 const PARTICIPANT_PATCH_CONCURRENCY = 10
@@ -198,18 +186,3 @@ export const publishEventChange = async ({ audience, organizerId, patch, startLi
  */
 export const publishEventCounts = ({ classes, entries, id, members, organizer, updatedAt }: JsonConfirmedEvent) =>
   publishEventPatch({ classes, entries, eventId: id, members, updatedAt }, organizer.id)
-
-/**
- * A registration whose payment or refund was cancelled reaches two audiences: the organizer's
- * admins watching the event, and the entrant looking at their own registration.
- */
-export const publishCancelledRegistration = async ({
-  eventId,
-  organizerId,
-  participantPatch,
-  patch,
-  registrationId,
-}: CancelledRegistration) => {
-  await publishRegistrationPatches(eventId, [patch], organizerId)
-  await publishParticipantRegistrationPatch(eventId, registrationId, participantPatch)
-}

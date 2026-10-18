@@ -8,10 +8,14 @@ vi.useFakeTimers()
 vi.setSystemTime(new Date('2024-05-30T20:00:00Z'))
 vi.doMock('nanoid', () => ({ nanoid: () => 'test-id' }))
 
+// The rows the table holds, deleted ones included. The two readers see them the way the real
+// client does: the live reader without the deleted rows, the other with them (KOE-1569).
 const mockReadAll = vi.fn<() => Promise<JsonJudge[]>>().mockResolvedValue([])
+const readLive = async () => (await mockReadAll()).filter((row) => !row.deletedAt)
 const mockBatchWrite = vi.fn<(items: JsonJudge[]) => Promise<void>>().mockResolvedValue(undefined)
 vi.doMock('./repositories/judgeRepository', () => ({
-  readJudges: mockReadAll,
+  readJudges: readLive,
+  readJudgesIncludingDeleted: mockReadAll,
   writeJudges: mockBatchWrite,
 }))
 
@@ -344,6 +348,84 @@ describe('judge', () => {
         expect.objectContaining({ id: 222, label: 'judge', message: 'new directory entry' }),
         expect.objectContaining({ id: 123, label: 'judge', message: 'deleting directory entry' }),
       ])
+    })
+
+    describe('a deleted judge back on the Kennel Club list', () => {
+      const deleted: JsonJudge = {
+        active: false,
+        createdAt: '2024-01-01T00:00:00.000Z',
+        createdBy: 'system',
+        deletedAt: '2024-03-01T00:00:00.000Z',
+        deletedBy: 'system',
+        district: 'some district',
+        email: 'test@example.com',
+        eventTypes: ['NOME-B'],
+        id: 123,
+        languages: ['fi', 'sv'],
+        mockTrial: true,
+        modifiedAt: '2024-01-01T00:00:00.000Z',
+        modifiedBy: 'admin',
+        name: 'test',
+      }
+      const back = {
+        district: deleted.district,
+        email: deleted.email,
+        eventTypes: deleted.eventTypes,
+        id: deleted.id,
+        name: deleted.name,
+      }
+
+      it('is restored with what the app stored for it, though the Kennel Club fields did not change', async () => {
+        mockReadAll.mockResolvedValueOnce([structuredClone(deleted)])
+
+        await updateJudges([back])
+
+        expect(mockBatchWrite).toHaveBeenCalledTimes(1)
+        expect(mockBatchWrite).toHaveBeenCalledWith([
+          {
+            active: false,
+            createdAt: '2024-01-01T00:00:00.000Z',
+            createdBy: 'system',
+            district: 'some district',
+            email: 'test@example.com',
+            eventTypes: ['NOME-B'],
+            id: 123,
+            languages: ['fi', 'sv'],
+            mockTrial: true,
+            modifiedAt: '2024-05-30T20:00:00.000Z',
+            modifiedBy: 'system',
+            name: 'test',
+          },
+        ])
+        expect(loggedLines(infoSpy)).toEqual([
+          expect.objectContaining({ id: 123, label: 'judge', message: 'restoring directory entry' }),
+        ])
+      })
+
+      it('is restored with the changed Kennel Club fields', async () => {
+        mockReadAll.mockResolvedValueOnce([structuredClone(deleted)])
+
+        await updateJudges([{ ...back, location: 'home' }])
+
+        expect(mockBatchWrite).toHaveBeenCalledTimes(1)
+        expect(mockBatchWrite).toHaveBeenCalledWith([
+          {
+            active: false,
+            createdAt: '2024-01-01T00:00:00.000Z',
+            createdBy: 'system',
+            district: 'some district',
+            email: 'test@example.com',
+            eventTypes: ['NOME-B'],
+            id: 123,
+            languages: ['fi', 'sv'],
+            location: 'home',
+            mockTrial: true,
+            modifiedAt: '2024-05-30T20:00:00.000Z',
+            modifiedBy: 'system',
+            name: 'test',
+          },
+        ])
+      })
     })
   })
 })

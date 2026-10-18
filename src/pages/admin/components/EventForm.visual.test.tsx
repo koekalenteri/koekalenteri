@@ -51,6 +51,7 @@ const event: ConfirmedEvent = {
   location: 'Hämeenlinna',
   name: 'Syyskoe',
   places: 30,
+  retrieveType: 'game',
   startDate: day('2026-10-10'),
 }
 

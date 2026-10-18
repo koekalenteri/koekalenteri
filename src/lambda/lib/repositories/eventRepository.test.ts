@@ -125,7 +125,7 @@ describe('eventRepository', () => {
 
       expect(mockQuery).toHaveBeenCalledWith({
         forward: false,
-        index: 'gsiEventTypeEntryEndDate',
+        index: 'gsiEventTypeEntryEndDateV2',
         key: 'eventType = :eventType AND entryEndDate < :entryEndDate',
         limit: 1,
         table: 'event-table',

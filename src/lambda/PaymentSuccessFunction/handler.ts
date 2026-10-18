@@ -1,4 +1,4 @@
-import type { JsonConfirmedEvent, JsonRegistration, JsonTransaction } from '../../types'
+import type { JsonRegistration, JsonTransaction } from '../../types'
 import type { PaytrailCallbackParams } from '../types/paytrail'
 import { getFixedT } from '../../i18n/lambda'
 import {
@@ -18,17 +18,18 @@ import { audit, registrationAuditKey } from '../lib/audit'
 import { emailTo, registrationEmailTags, registrationEmailTemplateData, sendTemplatedMail } from '../lib/email'
 import {
   fixRegistrationGroups,
-  getEvent,
   lockRegistrationGroups,
   lockRegistrationPayments,
   updateRegistrations,
 } from '../lib/event'
 import { lambda, response } from '../lib/lambda'
 import { createDynamoLease } from '../lib/lease'
+import { logger } from '../lib/log'
 import {
   applySuccessfulPayment,
   parseParams,
-  participantPaymentPatch,
+  publishCancelledRegistration,
+  publishParticipantPaymentsOfEvent,
   settleFailedTransaction,
   updateTransactionStatus,
   verifyParams,
@@ -42,12 +43,7 @@ import {
   getRegistrationEditToken,
   sendTemplatedEmailToEventRegistrations,
 } from '../lib/registration'
-import {
-  publishCancelledRegistration,
-  publishEventCounts,
-  publishParticipantRegistrationPatch,
-  publishRegistrationPatchesStrict,
-} from '../lib/ws/actions'
+import { publishEventCounts, publishRegistrationPatchesStrict } from '../lib/ws/actions'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 
 const { frontendURL, emailFrom, registrationTable, transactionTable } = CONFIG
@@ -129,16 +125,10 @@ const recordDuplicatePayment = async (
     registrationTable
   )
   // The pay button follows the same rule as GetRegistration's: a duplicate waits for its refund.
-  // Strongly consistent, the same convention every other writer in this ticket uses: the DELETE
-  // above already removed this transaction's id in the table, and the payment picture is built
-  // from that row, not a local guess at what it now looks like (KOE-1529, round 2 part 3).
-  const dogEvent = await getEvent<JsonConfirmedEvent>(registration.eventId)
-  const updatedRegistration = await getRegistration(registration.eventId, registration.id, true)
-  await publishParticipantRegistrationPatch(
-    registration.eventId,
-    registration.id,
-    await participantPaymentPatch(updatedRegistration, dogEvent)
-  )
+  // The picture is built from the row read strongly consistent after the DELETE above, not a local
+  // guess at what it now looks like (KOE-1529, round 2 part 3). It never fails the callback: the
+  // duplicate is already recorded, and the audits below must not wait for a retry (KOE-1566).
+  await publishParticipantPaymentsOfEvent(registration.eventId, [registration.id])
   await audit({
     auditKey: registrationAuditKey(registration),
     ...duplicatePaymentAudit(providerName, amount, duplicateOfRegistrationId),
@@ -343,14 +333,10 @@ const handleSuccessfulPayment = async (
   // that row, not a local guess at what it now looks like. A delayed (bank transfer) payment read
   // as in progress by an earlier GetRegistration must not still read that way once this callback
   // applies it, or the page keeps saying "Odottaa maksun käsittelyä" for a paid fee until a reload
-  // the verifying budget may no longer give (KOE-1529, round 2 part 3).
-  const paidEvent = await getEvent<JsonConfirmedEvent>(eventId)
-  const updatedRegistration = await getRegistration(registration.eventId, registrationId, true)
-  await publishParticipantRegistrationPatch(
-    registration.eventId,
-    registrationId,
-    await participantPaymentPatch(updatedRegistration, paidEvent)
-  )
+  // the verifying budget may no longer give (KOE-1529, round 2 part 3). The push never fails the
+  // callback: a failed read or send is logged, and the receipt and confirmation still go out
+  // (KOE-1566).
+  await publishParticipantPaymentsOfEvent(registration.eventId, [registrationId])
 
   const workflowClaim = await claimPostPaymentWorkflow(transaction.transactionId)
   // Another callback owns the idempotent post-payment phases. The payment
@@ -365,7 +351,11 @@ const handleSuccessfulPayment = async (
     if (workflow.postPaymentProcessedAt) return true
 
     const confirmedEvent = await updateRegistrations(registration.eventId)
-    await publishEventCounts(confirmedEvent)
+    // An early look for the admins only: the strict publication in the last phase sends the counts
+    // again, so a failed push here must not hold the receipt and confirmation back (KOE-1566).
+    await publishEventCounts(confirmedEvent).catch((error: unknown) => {
+      logger.error('payment event counts push failed', { error, eventId, registrationId })
+    })
 
     // send receipt
     if (!workflow.receiptSentAt) {
