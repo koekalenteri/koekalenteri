@@ -1,21 +1,13 @@
-import type { UseAuthenticator } from '@aws-amplify/ui-react'
 import { Authenticator } from '@aws-amplify/ui-react'
 import { render, screen } from '@testing-library/react'
 import { flushPromises } from '../../test-utils/utils'
 import { authenticatorComponents } from './AuthenticatorHeaders'
+import { emailCodeDelivery, setCodeDelivery } from './authenticatorFixtures'
 
-// Where Cognito sent the sign-up code lives in the auth machine's context, which only a real sign-up
-// fills; the test sets it, and without it Amplify's own header would read "We Texted You".
-let codeDeliveryDetails: UseAuthenticator['codeDeliveryDetails'] | undefined
 vi.mock(import('@aws-amplify/ui-react'), async (importOriginal) => {
   const original = await importOriginal()
-  return {
-    ...original,
-    useAuthenticator: (selector) => {
-      const real = original.useAuthenticator(selector)
-      return codeDeliveryDetails ? { ...real, codeDeliveryDetails } : real
-    },
-  }
+  const { withCodeDelivery } = await import('./authenticatorFixtures')
+  return { ...original, useAuthenticator: withCodeDelivery(original.useAuthenticator) }
 })
 
 const renderHeader = async (route: keyof typeof authenticatorComponents) => {
@@ -31,9 +23,7 @@ const renderHeader = async (route: keyof typeof authenticatorComponents) => {
 }
 
 describe('authenticatorComponents', () => {
-  afterEach(() => {
-    codeDeliveryDetails = undefined
-  })
+  afterEach(() => setCodeDelivery(undefined))
 
   it.each([
     ['ConfirmResetPassword', 'Vaihda salasana', 3],
@@ -45,7 +35,7 @@ describe('authenticatorComponents', () => {
   ] as const)(
     'heads %s one level below the page h1, drawn at the level Amplify uses',
     async (route, text, amplifyLevel) => {
-      codeDeliveryDetails = { AttributeName: 'email', DeliveryMedium: 'EMAIL', Destination: 'h***@e***' }
+      setCodeDelivery(emailCodeDelivery)
       await renderHeader(route)
 
       const heading = screen.getByRole('heading', { level: 2, name: text })
