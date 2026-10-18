@@ -310,6 +310,22 @@ describe('EntrySection', () => {
         })
       })
 
+      // A stored day moved to another one (only its day typed over) takes the new day's bound; the other
+      // keeps its stored value.
+      it.each([
+        { field: 'start', group: 0, moved: { entryStartDate: startOfFinnishDay('2026-11-04') }, typed: '04' },
+        { field: 'end', group: 1, moved: { entryEndDate: endOfFinnishDay('2026-11-18') }, typed: '18' },
+      ])('moves a stored $field to the day typed', async ({ group, moved, typed }) => {
+        const start = startOfFinnishDay('2026-11-02')
+        const end = endOfFinnishDay('2026-11-20')
+        testEvent = eventWith(eventStart, start, end)
+        const { onChange, user } = await renderEntrySection()
+
+        await typeDateKeyByKey(user, screen.getAllByRole('group')[group], typed)
+
+        expect(onChange).toHaveBeenLastCalledWith({ entryEndDate: end, entryStartDate: start, ...moved })
+      })
+
       // A cleared field empties its date, however the other one was stored.
       it.each([
         { calendar: 0, cleared: { entryStartDate: undefined }, field: 'start' },
