@@ -64,11 +64,12 @@ describe('template', () => {
 })
 
 // A lambda that reaches a table its policies do not grant fails here, not in dev (KOE-1492). The
-// code side follows calls from each handler's default export (test-utils/lambdaTableUse.ts); the
-// template side is the function block's DynamoDB policies, inline statements and managed policies
-// (test-utils/templateGrants.ts). The first case of the kind was the user table: outside prod,
-// sendTemplatedMail asks it who is staff, and a sender without the read policy failed on the first
-// mail it sent in test or dev (KOE-1469); that rule is one of the paths the walk now finds.
+// code side follows calls from each handler's default export and from the module-level code that
+// runs at import (test-utils/lambdaTableUse.ts); the template side is the function block's DynamoDB
+// policies, inline statements and managed policies (test-utils/templateGrants.ts). The first case of
+// the kind was the user table: outside prod, sendTemplatedMail asks it who is staff, and a sender
+// without the read policy failed on the first mail it sent in test or dev (KOE-1469); that rule is
+// one of the paths the walk now finds.
 describe('table policies', () => {
   const tables = templateTables(template)
   const analysis = analyzeTableUse(handlerDirectories.map((dir) => `src/lambda/${dir}/handler.ts`))

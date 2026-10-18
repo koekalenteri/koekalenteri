@@ -26,10 +26,31 @@ const dynamoDB = new CustomDynamoClient(CONFIG.userTable)
 `
 
 const HANDLERS: Record<string, string> = {
+  ArithmeticAssign: `${COMMON}
+export default async () => {
+  let table = CONFIG.judgeTable
+  table += '-copy'
+  await dynamoDB.readAll({ table })
+}
+`,
   AssignAnd: `${COMMON}
 export default async () => {
   let table = CONFIG.judgeTable
   table &&= CONFIG.locationTable
+  await dynamoDB.readAll({ table })
+}
+`,
+  AssignArrayPattern: `${COMMON}
+export default async () => {
+  let table = CONFIG.judgeTable
+  ;[table] = [CONFIG.locationTable]
+  await dynamoDB.readAll({ table })
+}
+`,
+  AssignComputedPattern: `${COMMON}
+export default async () => {
+  let table = CONFIG.judgeTable
+  ;({ [String(Date.now())]: table } = { x: CONFIG.locationTable })
   await dynamoDB.readAll({ table })
 }
 `,
@@ -108,6 +129,28 @@ export default async () => {
   await dynamoDB.readAll(options)
 }
 `,
+  AssignObjectAssignThis: `${COMMON}
+const judges = new CustomDynamoClient(CONFIG.judgeTable)
+
+class Repo {
+  client = dynamoDB
+  constructor(options: { client: CustomDynamoClient }) {
+    Object.assign(this, options)
+  }
+  list() {
+    return this.client.read({ id: 1 })
+  }
+}
+
+export default async () => new Repo({ client: judges }).list()
+`,
+  AssignObjectAssignUnknown: `${COMMON}
+export default async () => {
+  const options = { table: CONFIG.judgeTable }
+  for (const o of [options].slice()) Object.assign(o, { table: CONFIG.locationTable })
+  await dynamoDB.readAll(options)
+}
+`,
   AssignOr: `${COMMON}
 export default async () => {
   let table = Date.now() > 0 ? CONFIG.judgeTable : undefined
@@ -169,6 +212,34 @@ export default async () => {
   await dynamoDB.readAll(options)
 }
 `,
+  AssignRestPattern: `${COMMON}
+export default async () => {
+  let rest = { table: CONFIG.judgeTable }
+  ;({ ...rest } = { table: CONFIG.locationTable })
+  await dynamoDB.readAll(rest)
+}
+`,
+  AssignWriteClientUnknown: `${COMMON}
+export default async () => {
+  const repo: { client: CustomDynamoClient } = { client: dynamoDB }
+  for (const r of [repo].slice()) r.client = new CustomDynamoClient(CONFIG.judgeTable)
+  await repo.client.read({ id: 1 })
+}
+`,
+  AssignWriteComputedUnknown: `${COMMON}
+export default async () => {
+  const options = { table: CONFIG.judgeTable }
+  for (const o of [options].slice()) o[String(Date.now())] = CONFIG.locationTable
+  await dynamoDB.readAll(options)
+}
+`,
+  AssignWriteIndexUnknown: `${COMMON}
+export default async () => {
+  const options: { index?: string; key: string } = { key: 'email = :email' }
+  for (const o of [options].slice()) o.index = 'gsiName'
+  await dynamoDB.query(options)
+}
+`,
   ClientOnThis: `${COMMON}
 class Repo {
   client = dynamoDB
@@ -193,6 +264,27 @@ class Repo {
 }
 
 export default async () => new Repo(judges).list()
+`,
+  ClientOnThisGrandchild: `${COMMON}
+const judges = new CustomDynamoClient(CONFIG.judgeTable)
+const locations = new CustomDynamoClient(CONFIG.locationTable)
+
+class Repo {
+  client = dynamoDB
+  list() {
+    return this.client.read({ id: 1 })
+  }
+}
+
+class JudgeRepo extends Repo {
+  override client = judges
+}
+
+class LocationRepo extends JudgeRepo {
+  override client = locations
+}
+
+export default async () => new LocationRepo().list()
 `,
   ClientOnThisLiteral: `${COMMON}
 const repo = {
@@ -219,6 +311,18 @@ class JudgeRepo extends Repo {
 }
 
 export default async () => new JudgeRepo().list()
+`,
+  ClientSubclass: `${COMMON}
+class Judges extends CustomDynamoClient {
+  constructor() {
+    super(CONFIG.judgeTable)
+  }
+  list() {
+    return this.readAll()
+  }
+}
+
+export default async () => new Judges().list()
 `,
   ConditionalIndex: `${COMMON}
 export default async () => {
@@ -275,6 +379,13 @@ export default async () => {
   for (const table of [CONFIG.judgeTable, CONFIG.locationTable]) await dynamoDB.readAll({ table })
 }
 `,
+  ForOfSpread: `${COMMON}
+const tables = [CONFIG.locationTable]
+
+export default async () => {
+  for (const table of [CONFIG.judgeTable, ...tables]) await dynamoDB.readAll({ table })
+}
+`,
   ForOfVariable: `${COMMON}
 const tables = [CONFIG.locationTable]
 
@@ -283,16 +394,103 @@ export default async () => {
   for (table of tables) await dynamoDB.readAll({ table })
 }
 `,
+  ImportBarrel: `${COMMON}
+import { stageTable } from '../lib/barrel'
+
+export default async () => {
+  await dynamoDB.readAll({ table: stageTable })
+}
+`,
+  ImportCallsSetter: `import { list } from '../lib/callAtImport'
+
+export default async () => list()
+`,
+  ImportClientCall: `${COMMON}
+const warm = () => dynamoDB.readAll({ table: CONFIG.locationTable })
+void warm()
+
+export default async () => dynamoDB.read({ id: 1 })
+`,
+  ImportFactory: `${COMMON}
+import '../lib/factory'
+
+export default async () => dynamoDB.read({ id: 1 })
+`,
+  ImportIife: `import { list } from '../lib/iife'
+
+export default async () => list()
+`,
+  ImportInit: `import { list } from '../lib/init'
+
+export default async () => list()
+`,
+  ImportLaterWrite: `${COMMON}
+let b = CONFIG.judgeTable
+let a = CONFIG.judgeTable
+if (process.env.STAGE === 'x') a = b
+if (process.env.STAGE === 'x') b = CONFIG.locationTable
+
+export default async () => {
+  await dynamoDB.readAll({ table: a })
+}
+`,
+  ImportObjectSetter: `import { list } from '../lib/objectSetter'
+
+export default async () => list()
+`,
+  ImportStaticBlock: `${COMMON}
+let table = CONFIG.judgeTable
+
+class Stage {
+  static {
+    if (process.env.STAGE === 'x') table = CONFIG.locationTable
+  }
+}
+
+export default async () => dynamoDB.readAll({ table })
+`,
+  ImportWrappedSetter: `import { list } from '../lib/wrapped'
+
+export default async () => list()
+`,
   Index: `${COMMON}
 export default async () => {
   await dynamoDB.query({ index: 'gsiEmail', key: 'email = :email' })
   await dynamoDB.query({ key: 'id = :id', table: CONFIG.judgeTable })
 }
 `,
+  ItemDelete: `${COMMON}
+export default async () => {
+  await dynamoDB.documentTransaction([{ Delete: { Key: { id: 1 }, TableName: CONFIG.judgeTable } }])
+}
+`,
+  ItemDeleteWrite: `${COMMON}
+export default async () => {
+  const item: { Delete: { Key: object; TableName?: string } } = { Delete: { Key: { id: 1 } } }
+  item.Delete.TableName = CONFIG.locationTable
+  await dynamoDB.documentTransaction([item])
+}
+`,
   ItemTableNameAdded: `${COMMON}
 export default async () => {
   const item: { Put: { Item: object; TableName?: string } } = { Put: { Item: { id: 1 } } }
   item.Put.TableName = CONFIG.locationTable
+  await dynamoDB.documentTransaction([item])
+}
+`,
+  ItemTableNameAnyKey: `${COMMON}
+export default async () => {
+  const item: { Put: Record<string, unknown> } = { Put: { Item: { id: 1 } } }
+  item.Put[String(Date.now())] = CONFIG.locationTable
+  await dynamoDB.documentTransaction([item])
+}
+`,
+  ItemTableNameConstKey: `${COMMON}
+const key = 'TableName' as const
+
+export default async () => {
+  const item: { Put: { Item: object; TableName?: string } } = { Put: { Item: { id: 1 } } }
+  item.Put[key] = CONFIG.locationTable
   await dynamoDB.documentTransaction([item])
 }
 `,
@@ -303,12 +501,30 @@ export default async () => {
   return params
 }
 `,
+  ItemTableNameUnknown: `${COMMON}
+export default async () => {
+  const item: { Put: { Item: object; TableName?: string } } = { Put: { Item: { id: 1 } } }
+  item.Put.TableName = String(Date.now())
+  await dynamoDB.documentTransaction([item])
+}
+`,
   ItemTableNameWrite: `${COMMON}
 export default async () => {
   const item = { Put: { Item: { id: 1 }, TableName: CONFIG.judgeTable } }
   if (Date.now() > 0) item.Put.TableName = CONFIG.locationTable
   await dynamoDB.documentTransaction([item])
 }
+`,
+  LiteralAnyKey: `${COMMON}
+export default async () => dynamoDB.readAll({ [String(Date.now())]: CONFIG.locationTable })
+`,
+  LiteralConstKey: `${COMMON}
+const key = 'table'
+
+export default async () => dynamoDB.readAll({ [key]: CONFIG.locationTable })
+`,
+  LiteralStringKey: `${COMMON}
+export default async () => dynamoDB.readAll({ 'table': CONFIG.locationTable })
 `,
   NoDefaultExport: `${COMMON}
 export const handler = async () => dynamoDB.read({ id: 1 })
@@ -590,6 +806,53 @@ export default async () => {
 
 /** Lib modules the handlers import, for the rules that depend on which lambda runs a write. */
 const LIBS: Record<string, string> = {
+  'lib/barrel.ts': `export * from './stage'
+`,
+  'lib/callAtImport.ts': `${COMMON}
+let table = CONFIG.judgeTable
+const use = (next: string) => {
+  table = next
+}
+if (process.env.STAGE === 'x') use(CONFIG.locationTable)
+
+export const list = () => dynamoDB.readAll({ table })
+`,
+  'lib/factory.ts': `${COMMON}
+const makeReader = (table: string) => {
+  const read = () => dynamoDB.readAll({ table })
+  return { read }
+}
+
+export const locations = makeReader(CONFIG.locationTable)
+`,
+  'lib/iife.ts': `${COMMON}
+let table = CONFIG.judgeTable
+;(() => {
+  if (process.env.STAGE === 'x') table = CONFIG.locationTable
+})()
+
+export const list = () => dynamoDB.readAll({ table })
+`,
+  'lib/init.ts': `${COMMON}
+let table = CONFIG.judgeTable
+function init() {
+  if (process.env.STAGE === 'x') table = CONFIG.locationTable
+}
+init()
+
+export const list = () => dynamoDB.readAll({ table })
+`,
+  'lib/objectSetter.ts': `${COMMON}
+let table = CONFIG.judgeTable
+
+export const admin = {
+  useLocations() {
+    table = CONFIG.locationTable
+  },
+}
+
+export const list = () => dynamoDB.readAll({ table })
+`,
   'lib/setter.ts': `${COMMON}
 let table = CONFIG.judgeTable
 
@@ -603,6 +866,16 @@ export const list = () => dynamoDB.readAll({ table })
 
 export let stageTable = CONFIG.judgeTable
 if (process.env.STAGE === 'x') stageTable = CONFIG.locationTable
+`,
+  'lib/wrapped.ts': `${COMMON}
+let table = CONFIG.judgeTable
+const wrap = <T>(f: T) => f
+
+export const useLocations = wrap(() => {
+  table = CONFIG.locationTable
+})
+
+export const list = () => dynamoDB.readAll({ table })
 `,
 }
 
@@ -799,15 +1072,61 @@ describe('createTableUseAnalyzer', () => {
     ])
   })
 
+  // What runs at import: the module-level code, a function it calls (only that function's own body),
+  // a function called on the spot, a static block. A function it only names or builds runs later.
+  it.each([
+    ['a module-level call of a function that writes', 'ImportInit', ['Scan judgeTable', 'Scan locationTable']],
+    ['a module-level call of a setter', 'ImportCallsSetter', ['Scan judgeTable', 'Scan locationTable']],
+    ['a function called on the spot', 'ImportIife', ['Scan judgeTable', 'Scan locationTable']],
+    ['a static block', 'ImportStaticBlock', ['Scan judgeTable', 'Scan locationTable']],
+    ['a file re-exported through another', 'ImportBarrel', ['Scan judgeTable', 'Scan locationTable']],
+    [
+      'a write whose value another module-level write sets later',
+      'ImportLaterWrite',
+      ['Scan judgeTable', 'Scan locationTable'],
+    ],
+    ['a client call in a function called at import', 'ImportClientCall', ['GetItem userTable', 'Scan locationTable']],
+  ])('reads what runs at import: %s', (_, name, expected) => {
+    expect(usesOf(name)).toEqual(expected)
+  })
+
+  it.each([
+    ['a method of an exported object literal', 'ImportObjectSetter', ['Scan judgeTable']],
+    ['a function handed to a wrapper', 'ImportWrappedSetter', ['Scan judgeTable']],
+    ['a closure a factory called at import returns', 'ImportFactory', ['GetItem userTable']],
+  ])('counts nothing at import from %s', (_, name, expected) => {
+    expect(usesOf(name)).toEqual(expected)
+  })
+
+  it.each([
+    ['a string key', 'LiteralStringKey'],
+    ['a computed key that can only be its name', 'LiteralConstKey'],
+  ])('reads a table option written under %s', (_, name) => {
+    expect(usesOf(name)).toEqual(['Scan locationTable'])
+  })
+
   it('reads a TableName written onto a transaction item', () => {
     expect(usesOf('ItemTableNameWrite')).toEqual(['PutItem judgeTable', 'PutItem locationTable'])
     expect(usesOf('ItemTableNameAdded')).toEqual(['PutItem locationTable'])
+    expect(usesOf('ItemTableNameConstKey')).toEqual(['PutItem locationTable'])
+    // A computed key on an item may be its TableName.
+    expect(usesOf('ItemTableNameAnyKey')).toEqual(['PutItem locationTable'])
+  })
+
+  it('takes the action of a transaction item from the key it sits under', () => {
+    expect(usesOf('ItemDelete')).toEqual(['DeleteItem judgeTable'])
+    expect(usesOf('ItemDeleteWrite')).toEqual(['DeleteItem locationTable'])
   })
 
   it.each([
     ['its field initializer', 'ClientOnThis', ['GetItem userTable']],
     ['its constructor', 'ClientOnThisConstructor', ['GetItem judgeTable']],
     ['a subclass that declares it again', 'ClientOnThisSubclass', ['GetItem judgeTable', 'GetItem userTable']],
+    [
+      'a subclass of a subclass',
+      'ClientOnThisGrandchild',
+      ['GetItem judgeTable', 'GetItem locationTable', 'GetItem userTable'],
+    ],
   ])('reads a client on this from %s', (_, name, expected) => {
     expect(usesOf(name)).toEqual(expected)
   })
@@ -884,6 +1203,28 @@ describe('createTableUseAnalyzer', () => {
     // A computed key may be any property: here it may have put a table where the index goes.
     ['options written through a computed key', 'AssignPropertyKey', /cannot tell which table the index option/],
     ['a TableName written outside a transaction item', 'ItemTableNameOutside', /TableName outside a transaction item/],
+    ['a TableName written onto an item that is no table', 'ItemTableNameUnknown', /cannot tell which table the item/],
+    ['an index written onto something that is no literal', 'AssignWriteIndexUnknown', /the write \(o\.index\)/],
+    ['a client written onto something that is no literal', 'AssignWriteClientUnknown', /the write \(r\.client\)/],
+    [
+      'a table written through a computed key onto something that is no literal',
+      'AssignWriteComputedUnknown',
+      /the write \(o\[String\(Date\.now\(\)\)\]\)/,
+    ],
+    [
+      'a table Object.assign copies onto something that is no literal',
+      'AssignObjectAssignUnknown',
+      /the write \(Object\.assign/,
+    ],
+    ['a client field Object.assign may overwrite', 'AssignObjectAssignThis', /the client \(this\.client\)/],
+    ['a client subclass calling its own methods', 'ClientSubclass', /the client \(this\) names/],
+    ['a for-of array that spreads another', 'ForOfSpread', /cannot tell which table the table option/],
+    ['an arithmetic assignment', 'ArithmeticAssign', /cannot tell which table the table option/],
+    ['a position in an array pattern', 'AssignArrayPattern', /cannot tell which table the table option/],
+    ['a computed name in an assignment pattern', 'AssignComputedPattern', /cannot tell which table the table option/],
+    ['a rest element in an assignment pattern', 'AssignRestPattern', /cannot tell which table the options/],
+    // A computed key may be any property: here it may put a table where the index goes.
+    ['an options literal with a computed key', 'LiteralAnyKey', /cannot tell which table the index option/],
     [
       'a client on this outside a class',
       'ClientOnThisLiteral',

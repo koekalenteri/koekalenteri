@@ -199,8 +199,9 @@ Read `LLM_CONTEXT.md` for the project overview and architecture notes.
 - `src/lambda/template.test.ts` builds the template and compares its `CodeUri` values with the
   directories on disk, so a lambda in one and not the other fails a test instead of a deploy.
 - The function block's `Policies` must grant every table the handler's code reaches, and nothing
-  more. The same test follows the calls from each handler's default export through `src/lambda/lib`
-  (`src/lambda/test-utils/lambdaTableUse.ts`) and reads the block's policies
+  more. The same test follows the calls from each handler's default export, and from the module-level
+  code that runs when the handler and the files it imports load, through `src/lambda/lib`
+  (`src/lambda/test-utils/lambdaTableUse.ts`, KOE-1557) and reads the block's policies
   (`src/lambda/test-utils/templateGrants.ts`, KOE-1492). It fails on a table the code uses without a
   policy for that action, naming the function, the action, the table (or the index, for a query on
   one) and the call chain, like this one from PutEvent with its registration read policy taken out:
