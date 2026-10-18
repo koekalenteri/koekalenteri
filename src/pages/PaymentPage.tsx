@@ -17,11 +17,11 @@ import { hasPaymentPicture } from '../lib/registration'
 import { printContactInfo } from '../lib/utils'
 import { Path } from '../routeConfig'
 import { ErrorInfo } from './components/ErrorInfo'
+import { HiddenPageTitle } from './components/HiddenPageTitle'
 import LinkButton from './components/LinkButton'
 import { PaymentDetails } from './components/PaymentDetails'
 import { PAYMENT_STATUS_KEY } from './components/paymentStatus'
 import { RegistrationDetails } from './components/RegistrationDetails'
-import { SCREEN_READER_ONLY } from './components/screenReaderOnly'
 import { LoadingPage } from './LoadingPage'
 import { ProviderButton } from './paymentPage/ProviderButton'
 import {
@@ -89,13 +89,21 @@ export const PaymentPageWithData = ({
   const { t } = useTranslation()
   useRegistrationLanguage(registration)
 
+  // A page with nothing but a sentence to show still has a name for a screen reader (KOE-1519).
+  const renderMessage = (message: string) => (
+    <>
+      <HiddenPageTitle>{t('paymentPage.title')}</HiddenPageTitle>
+      {message}
+    </>
+  )
+
   if (!event) {
-    return <>{t('error.eventNotFound')}</>
+    return renderMessage(t('error.eventNotFound'))
   }
 
   // A response without the payment picture says nothing of the payment: the page has no registration to show.
   if (!registration || !hasPaymentPicture(registration)) {
-    return <>{t('paymentPage.registrationNotFound', { registrationId })}</>
+    return renderMessage(t('paymentPage.registrationNotFound', { registrationId }))
   }
 
   const renderNotice = (message: string) => (
@@ -109,9 +117,7 @@ export const PaymentPageWithData = ({
         <LinkButton sx={{ mb: 1, pl: 0 }} to={Path.registration(registration)} text={t('goBack')} />
         {/* A notice is a sentence, often an error, not the page's name: a screen reader is given the
             page's title and then the notice, which keeps the size it had (KOE-1506). */}
-        <Typography variant="h1" style={SCREEN_READER_ONLY}>
-          {t('paymentPage.title')}
-        </Typography>
+        <HiddenPageTitle>{t('paymentPage.title')}</HiddenPageTitle>
         <Typography variant="h2" component="p">
           {message}
         </Typography>
@@ -158,7 +164,7 @@ export const PaymentPageWithData = ({
   }
 
   if (!response?.groups) {
-    return <>{t('error.somethingWentWrong')}</>
+    return renderMessage(t('error.somethingWentWrong'))
   }
 
   return (

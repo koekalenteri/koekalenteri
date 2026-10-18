@@ -305,6 +305,7 @@ describe('PaymentPage', () => {
       await flushPromises()
 
       expect(container).toHaveTextContent('error.eventNotFound')
+      expect(screen.getByRole('heading', { level: 1, name: 'paymentPage.title' })).toBeInTheDocument()
     })
 
     it('should show error message when registration is not found', async () => {
@@ -323,6 +324,7 @@ describe('PaymentPage', () => {
       await flushPromises()
 
       expect(container).toHaveTextContent('paymentPage.registrationNotFound registrationId')
+      expect(screen.getByRole('heading', { level: 1, name: 'paymentPage.title' })).toBeInTheDocument()
     })
 
     // A response without the server's payment picture says nothing of the payment (KOE-1530).
@@ -343,6 +345,7 @@ describe('PaymentPage', () => {
       await flushPromises()
 
       expect(container).toHaveTextContent('paymentPage.registrationNotFound registrationId')
+      expect(screen.getByRole('heading', { level: 1, name: 'paymentPage.title' })).toBeInTheDocument()
     })
 
     it('should show payment methods when registration has payment status SUCCESS', async () => {
@@ -400,6 +403,7 @@ describe('PaymentPage', () => {
       await flushPromises()
 
       expect(container).toHaveTextContent('error.somethingWentWrong')
+      expect(screen.getByRole('heading', { level: 1, name: 'paymentPage.title' })).toBeInTheDocument()
     })
 
     it('should show waiting message when payment is after confirmation but registration not confirmed', async () => {

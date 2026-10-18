@@ -27,6 +27,11 @@
       "nested-interactive": 1
     }
   },
+  "src/pages/RegistrationCreatePage.visual.test.tsx": {
+    "registration-create-page": {
+      "nested-interactive": 1
+    }
+  },
   "src/pages/RegistrationEditPage.visual.test.tsx": {
     "registration-edit-page-cancelled": {
       "nested-interactive": 1

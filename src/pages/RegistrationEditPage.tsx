@@ -8,6 +8,7 @@ import { useNavigate, useParams } from 'react-router'
 import { isEntryClosed, isEventOngoing, isEventOver } from '../lib/event'
 import { getRegistrationClass } from '../lib/registration'
 import { hasChanges } from '../lib/utils'
+import { HiddenPageTitle } from './components/HiddenPageTitle'
 import LinkButton from './components/LinkButton'
 import RegistrationEventInfo from './components/RegistrationEventInfo'
 import RegistrationForm from './components/RegistrationForm'
@@ -78,6 +79,8 @@ export default function RegistrationEditPage() {
   return (
     <>
       <LinkButton sx={{ mb: 1 }} to="/" back={spa} text={spa ? t('goBack') : t('goHome')} />
+      {/* The event header below is the page's level 2; the page's own name is for a screen reader (KOE-1519). */}
+      <HiddenPageTitle>{t('entryEditTitle')}</HiddenPageTitle>
       <RegistrationEventInfo
         event={event}
         eventClass={getRegistrationClass(registration)}
