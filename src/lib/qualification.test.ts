@@ -44,6 +44,54 @@ describe('lib/qualification', () => {
       expect(qualification.qualifyingResults).toEqual([expect.objectContaining({ date: '2022-05-30' })])
     })
 
+    // The best results are the earliest three: given latest first, the earliest dated ones come first, a
+    // tie on a day keeps the given order, and an undated one comes after them. (Two undated ALO1s would
+    // count as results from before the trial's year and move the dog up a class.)
+    it('keeps the earliest three of the best results, a tie in the order given and the undated one last', () => {
+      const ALO1 = (date: string, location: string) => ({
+        ...NOU1,
+        class: 'ALO',
+        date,
+        location,
+        result: 'ALO1',
+        type: 'NOME-B',
+      })
+      const best = (results: JsonTestResult[]) =>
+        inLambdaZone(() =>
+          qualifyJsonRegistration(
+            { class: 'ALO', dog: { regNo: 'FI12345/22', results: [NOU1, ...results] } },
+            { eventType: 'NOME-B', startDate: '2022-08-01' }
+          )
+        ).qualifyingResults?.map((r) => r.location)
+
+      expect(
+        best([
+          ALO1('2022-07-01T00:00:00', 'Latest'),
+          ALO1('2022-06-01T00:00:00', 'Tie A'),
+          ALO1('', 'Undated'),
+          ALO1('2022-06-01T00:00:00', 'Tie B'),
+        ])
+      ).toEqual(['Test', 'Tie A', 'Tie B', 'Latest'])
+      expect(
+        best([ALO1('', 'Undated'), ALO1('2022-07-01T00:00:00', 'Latest'), ALO1('2022-06-01T00:00:00', 'Earliest')])
+      ).toEqual(['Test', 'Earliest', 'Latest', 'Undated'])
+    })
+
+    // A hand-entered result saved before its day was picked has no date at all; the schema allows it,
+    // and it is no valid claim, so it does not count and does not fail the save (KOE-1548).
+    it('passes over a hand-entered result that has no date', () => {
+      const { date: _date, ...undated } = { ...NOU1, id: 'manual-1' }
+      const qualification = inLambdaZone(() =>
+        qualifyJsonRegistration(
+          // A JSON body, as the request carries it: the field is missing, whatever the type says.
+          { class: 'ALO', dog: { regNo: 'FI12345/22', results: [] }, results: [JSON.parse(JSON.stringify(undated))] },
+          { eventType: 'NOME-B', startDate: '2022-08-01' }
+        )
+      )
+
+      expect(qualification).toEqual({ qualifies: false, qualifyingResults: [] })
+    })
+
     // Kennelliitto's empty date is no day: such a result sorts after the dated ones, and is written
     // back with an empty date rather than failing the save.
     it('sorts a result with no day after the dated ones and writes it with an empty date', () => {

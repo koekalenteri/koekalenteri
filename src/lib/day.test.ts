@@ -630,6 +630,7 @@ for (const hostZone of HOST_ZONES) {
         ['an empty string', ''],
         ['a day the month does not have', '2021-02-30'],
         ['a stamp with a bad time', '2021-01-01T25:00:00'],
+        ['a stamp with two times', '2021-01-01T00:00:00T01:00'],
         ['text', 'tomorrow'],
       ])('reads %s as no day, without throwing', (_name, value) => {
         expect(calendarDayOf(value, TIME_ZONE)).toBeUndefined()

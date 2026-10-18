@@ -11,6 +11,15 @@ describe('lib/resultDay', () => {
       expect(lastResultDay(undefined)).toBe('2026-05-15')
     })
 
+    // Past midnight in Finland, still the day before in UTC: today is the Finnish day.
+    it.each([
+      { expected: '2026-05-16', now: '2026-05-15T21:30:00.000Z' },
+      { expected: '2027-01-01', now: '2026-12-31T22:30:00.000Z' },
+    ])('is $expected at $now', ({ expected, now }) => {
+      vi.setSystemTime(new Date(now))
+      expect(lastResultDay(undefined)).toBe(expected)
+    })
+
     it.each([
       { expected: '2026-05-12', last: '2026-05-12' },
       { expected: '2026-05-15', last: '2026-05-15' },

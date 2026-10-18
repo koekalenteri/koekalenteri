@@ -311,8 +311,16 @@ describe('QualifyingResultsInfo utils', () => {
       expect(getResultId({ ...official({}), id: 'own-id', official: false, regNo: 'R' })).toBe('own-id')
     })
 
-    it('tells apart official results of one type and class on different days', () => {
-      expect(getResultId(official({}))).not.toBe(getResultId(official({ date: '2024-02-01' })))
+    // Each field the id is made of tells two official results apart.
+    it.each([
+      { field: 'type', other: { type: 'NOME-B' } },
+      { field: 'class', other: { class: 'AVO' } },
+      { field: 'date', other: { date: '2024-02-01' } },
+      { field: 'result', other: { result: 'VOI2' } },
+      { field: 'location', other: { location: 'Elsewhere' } },
+      { field: 'judge', other: { judge: 'K' } },
+    ] as const)('tells apart official results that differ only by $field', ({ other }) => {
+      expect(getResultId(official({}))).not.toBe(getResultId(official(other)))
     })
 
     // Kennelliitto's empty date is read as no day (KOE-1548): two such results must not share an id.

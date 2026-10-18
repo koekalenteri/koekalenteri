@@ -31,20 +31,20 @@ export const isYearBeingTyped = (d: PickerValue) => !!d && isValid(d) && d.getFu
  */
 export const useTypedIntoEmpty = (value: DayKey | null | undefined) => {
   const [typed, setTyped] = useState<PickerValue>(null)
-  const shown = value ? localDateOf(value) : typed
+  const shown = pickerDate(value ?? undefined) ?? typed
   const track = (date: PickerValue) => setTyped(value ? null : date)
   return { shown, track, untrack: () => setTyped(null) }
 }
 
 /**
  * A picker for one day: its `value` and `onChange`. A cleared field sets no day; a value that is no
- * whole day yet (half typed, a year being typed) is not passed on, and the field keeps what is typed.
+ * whole day yet (half typed, a year being typed, which `pickedDayOf` takes for none) is not passed
+ * on, and the field keeps what is typed.
  */
 export const useDayField = (day: DayKey | undefined, setDay: (day: DayKey | undefined) => void) => {
   const typed = useTypedIntoEmpty(day)
   const onChange = (picked: PickerValue) => {
     typed.track(picked)
-    if (isYearBeingTyped(picked)) return
     if (!picked) {
       setDay(undefined)
       return

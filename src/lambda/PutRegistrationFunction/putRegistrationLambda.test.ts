@@ -994,6 +994,24 @@ describe('putRegistrationLabmda', () => {
     expect(res.statusCode).toEqual(200)
   })
 
+  // A cleared result picker leaves a hand-entered result with no date, and the schema allows it: the
+  // save goes through, and the result does not count (KOE-1548).
+  it('saves a registration with a hand-entered result that has no date', async () => {
+    const existingJson = JSON.parse(JSON.stringify(registrationWithStaticDates))
+    mockGetEvent.mockResolvedValueOnce(JSON.parse(JSON.stringify(eventWithStaticDates)))
+    mockGetRegistration.mockResolvedValueOnce(existingJson)
+    const undated = { class: 'ALO', id: 'm1', judge: 'J', location: 'L', result: 'ALO1', type: 'NOME-B' }
+    const res = await putRegistrationLabmda(constructAPIGwEvent({ ...registrationWithStaticDates, results: [undated] }))
+
+    expect(res.statusCode).toEqual(200)
+    expect(mockPatchRegistration).toHaveBeenCalledWith(
+      eventWithStaticDates.id,
+      registrationWithStaticDates.id,
+      existingJson,
+      expect.objectContaining({ results: [undated] })
+    )
+  })
+
   it('should do happy path for updating registration', async () => {
     const existingJson = JSON.parse(JSON.stringify(registrationWithStaticDates))
     mockGetEvent.mockResolvedValueOnce(JSON.parse(JSON.stringify(eventWithStaticDates)))

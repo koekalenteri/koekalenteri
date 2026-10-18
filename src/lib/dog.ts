@@ -85,17 +85,27 @@ export function formatDogName(dog?: Pick<Dog, 'name' | 'titles'>): string {
     .join(' ')
 }
 
-/** A stored dog date as its day key; one with no day stays as it is, so it still differs from a day. */
-const dayOrStored = (value: string) => calendarDayOf(value, TIME_ZONE) ?? value
+/** Kennelliitto's empty date in the forms it was stored in: its own stamp, and the instants written of it. */
+const KC_EMPTY_DATE_RE = /^(?:0001-01-01|0000-12-31)(?:T|$)/
+
+/** Whether a stored dog date says there is no day: none, an empty one, or Kennelliitto's empty date. */
+const isNoDay = (value: string | undefined) => !value || KC_EMPTY_DATE_RE.test(value)
+
+/**
+ * A stored dog date as it compares: its day key; '' for no day, so the forms of "no day" are one; and
+ * anything else as it is, so an unreadable value still differs from a day and from another one.
+ */
+const comparableDay = (value: string | undefined): string | undefined =>
+  calendarDayOf(value, TIME_ZONE) ?? (isNoDay(value) ? '' : value)
 
 const withResultDays = <R extends { date: string }>(results: R[]): R[] =>
-  results.map((result) => (typeof result.date === 'string' ? { ...result, date: dayOrStored(result.date) } : result))
+  results.map((result) => ({ ...result, date: comparableDay(result.date) ?? '' }))
 
 const withDobDays = (dog: JsonDog): JsonDog => {
-  const copy = { ...dog }
-  if (typeof copy.dob === 'string') copy.dob = dayOrStored(copy.dob)
+  const { dob, ...copy }: JsonDog = { ...dog }
+  const day = comparableDay(dob)
   if (copy.results) copy.results = withResultDays(copy.results)
-  return copy
+  return day ? { ...copy, dob: day } : copy
 }
 
 /**

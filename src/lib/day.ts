@@ -300,7 +300,9 @@ const isZonelessDay = (value: string) => {
   return rest.length === 0 && DAY_KEY_RE.test(date) && (time === undefined || ZONELESS_TIME_RE.test(time))
 }
 
-const storedDay = (value: string, instantDay: (instant: Date) => DayKey | undefined): DayKey | undefined => {
+const storedDay = (value: unknown, instantDay: (instant: Date) => DayKey | undefined): DayKey | undefined => {
+  // A stored row may hold anything: a request is JSON, and a hand-entered result may have no date.
+  if (typeof value !== 'string') return undefined
   if (isZonelessDay(value)) {
     const day = value.slice(0, 10)
     return isDayKey(day) ? day : undefined
@@ -311,13 +313,14 @@ const storedDay = (value: string, instantDay: (instant: Date) => DayKey | undefi
 /**
  * The day of a stored dog date: the day written on a key or a zone-less stamp, and the day an instant
  * falls on in `zone`. Undefined for anything with no day there, Kennelliitto's empty 0001-01-01 in
- * every form included: never a throw, since a list reads every row.
+ * every form included, and for a value that is no text at all (none, a null): never a throw, since a
+ * list reads every row and a save reads every result.
  */
-export const calendarDayOf = (value: string, zone: string): DayKey | undefined =>
+export const calendarDayOf = (value: unknown, zone: string): DayKey | undefined =>
   storedDay(value, (instant) => (hasCalendarDay(instant, zone) ? dayOf(instant, zone) : undefined))
 
 /**
  * As `calendarDayOf`, but an instant is read as the day it shows in the browser's zone: for what this
  * browser itself stored, a picker's local midnight (a draft, the dog cache), which is the day it showed.
  */
-export const localCalendarDayOf = (value: string): DayKey | undefined => storedDay(value, pickedDayOf)
+export const localCalendarDayOf = (value: unknown): DayKey | undefined => storedDay(value, pickedDayOf)

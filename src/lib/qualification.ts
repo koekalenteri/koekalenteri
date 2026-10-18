@@ -28,12 +28,10 @@ const isFromTrialYear =
   (result: Partial<TestResult>): boolean =>
     !!result.date && dayParts(result.date).year >= yearOf(startDate, TIME_ZONE)
 
-/** The earlier day first; a result with no day after every dated one. */
+/** The earlier day first; a result with no day after every dated one. Equal days keep their order. */
 const byDate = (a: TestResult, b: TestResult) => {
-  if (a.date === b.date) return 0
-  if (!a.date) return 1
-  if (!b.date) return -1
-  return a.date < b.date ? -1 : 1
+  if (!a.date || !b.date) return Number(!a.date) - Number(!b.date)
+  return a.date.localeCompare(b.date)
 }
 const CLASS_ORDER: Registration['class'][] = ['ALO', 'AVO', 'VOI']
 

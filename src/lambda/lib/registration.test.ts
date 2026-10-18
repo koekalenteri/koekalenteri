@@ -652,6 +652,67 @@ describe('registration', () => {
 
       expect(hasRegistrationChanges(existing, updated)).toBe(true)
     })
+
+    // The dog's dates compare by day, whichever form each side stores them in (KOE-1548).
+    describe("the dog's dates", () => {
+      const stored: JsonRegistration = JSON.parse(JSON.stringify(registrationsToEventWithParticipantsInvited[0]))
+      // The fixture's own birth date is left out, so a missing one is missing.
+      const { dob: _dob, ...dogWithoutDob } = stored.dog
+      const base: JsonRegistration = { ...stored, dog: dogWithoutDob }
+      const result = (date: string) => ({
+        class: 'ALO',
+        date,
+        judge: 'J',
+        location: 'L',
+        result: 'ALO1',
+        type: 'NOME-B',
+      })
+      const withDates = ({
+        dob,
+        official,
+        qualifying,
+        manual,
+      }: Record<string, string | undefined>): JsonRegistration => ({
+        ...base,
+        dog: {
+          ...base.dog,
+          ...(dob === undefined ? {} : { dob }),
+          results: official === undefined ? [] : [result(official)],
+        },
+        qualifyingResults: qualifying === undefined ? [] : [{ ...result(qualifying), official: true }],
+        results: manual === undefined ? [] : [{ ...result(manual), id: 'm1' }],
+      })
+      const differ = (a: Record<string, string | undefined>, b: Record<string, string | undefined>) =>
+        hasRegistrationChanges(withDates(a), withDates(b))
+
+      it.each([
+        ['the birth date', 'dob'],
+        ['an official result', 'official'],
+        ['a qualifying result', 'qualifying'],
+        ['a hand-entered result', 'manual'],
+      ])('reads %s stored as a stamp or an instant and sent as a key as no change', (_name, field) => {
+        expect(differ({ [field]: '2021-01-01T00:00:00' }, { [field]: '2021-01-01' })).toBe(false)
+        expect(differ({ [field]: '2020-12-31T22:00:00.000Z' }, { [field]: '2021-01-01' })).toBe(false)
+        expect(differ({ [field]: '2021-01-01' }, { [field]: '2021-01-02' })).toBe(true)
+      })
+
+      // Kennelliitto's empty date in its stored forms, and none at all: one "no day", not a change.
+      it.each(['0001-01-01T00:00:00', '0001-01-01T00:00:00.000Z', '0000-12-31T22:00:00.000Z'])(
+        'reads an empty date of %s against none as no change',
+        (empty) => {
+          expect(differ({ dob: empty }, { dob: undefined })).toBe(false)
+          expect(differ({ official: empty }, { official: '' })).toBe(false)
+          expect(differ({ qualifying: empty }, { qualifying: '' })).toBe(false)
+        }
+      )
+
+      it('reads a value with no day against a day, or two different ones, as a change', () => {
+        expect(differ({ dob: 'unknown' }, { dob: '2021-01-01' })).toBe(true)
+        expect(differ({ dob: 'unknown' }, { dob: 'not known' })).toBe(true)
+        expect(differ({ official: '0001-01-01T00:00:00' }, { official: '2021-01-01' })).toBe(true)
+        expect(differ({ dob: undefined }, { dob: '2021-01-01' })).toBe(true)
+      })
+    })
   })
 
   describe('getRegistration', () => {
