@@ -99,8 +99,8 @@ Read `LLM_CONTEXT.md` for the project overview and architecture notes.
 ## Post-deploy Smoke Check
 
 - Every deploy `release.yml` makes (dev from ci.yml's `deploy-dev`, test, prod) ends in the `smoke`
-  job (`scripts/smoke-deploy.mjs`, KOE-1368): the front page must answer 200 and `GET /event` a JSON
-  array. When the run built the frontend, the page must also carry the `app-version` and
+  job (`scripts/smoke-deploy.mjs`, KOE-1368): the front page must answer 200, every script it loads
+  from its own origin must answer 200 as JavaScript, and `GET /event` must answer a JSON array. When the run built the frontend, the page must also carry the `app-version` and
   `app-revision` metas of that build (written into `public/index.html` by `config/webpack.config.js`)
   and preconnect to the stack's `KoekalenteriFunctionApi`. A red smoke on dev fails `deploy-dev`, so
   `jira-testable` does not run.

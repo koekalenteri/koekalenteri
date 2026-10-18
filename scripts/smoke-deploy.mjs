@@ -24,27 +24,38 @@ import { parseArgs } from 'node:util'
 const COMMIT_ID = /^[0-9a-f]{40}$/
 const REQUEST_TIMEOUT_MS = 15_000
 
-const attribute = (tag, name) => new RegExp(`\\b${name}=(?:"([^"]*)"|'([^']*)'|([^\\s"'>]+))`, 'i').exec(tag)
+/** The value of one attribute of a tag, quoted either way or not at all. */
+const attribute = (tag, name) =>
+  new RegExp(`\\b${name}=(?:"([^"]*)"|'([^']*)'|([^\\s"'>]+))`, 'i')
+    .exec(tag)
+    ?.slice(1)
+    .find((value) => value !== undefined)
 
 const metaContent = (html, name) => {
   for (const [tag] of html.matchAll(/<meta\b[^>]*>/gi)) {
-    const nameMatch = attribute(tag, 'name')
-    if (nameMatch?.slice(1).find((value) => value !== undefined) !== name) continue
-    const content = attribute(tag, 'content')
-    return content?.slice(1).find((value) => value !== undefined)
+    if (attribute(tag, 'name') !== name) continue
+    return attribute(tag, 'content')
   }
   return undefined
 }
 
 const preconnectHref = (html) => {
   for (const [tag] of html.matchAll(/<link\b[^>]*>/gi)) {
-    const rel = attribute(tag, 'rel')?.slice(1).find((value) => value !== undefined)
-    if (rel !== 'preconnect') continue
+    if (attribute(tag, 'rel') !== 'preconnect') continue
     return attribute(tag, 'href')
-      ?.slice(1)
-      .find((value) => value !== undefined)
   }
   return undefined
+}
+
+/** The scripts the page loads from its own origin, as absolute URLs. */
+export function scriptSources(html, pageUrl) {
+  const origin = new URL(pageUrl).origin
+  return [...html.matchAll(/<script\b[^>]*>/gi)]
+    .map(([tag]) => attribute(tag, 'src'))
+    .filter((src) => src !== undefined)
+    .map((src) => new URL(src, pageUrl))
+    .filter((url) => url.origin === origin)
+    .map((url) => url.href)
 }
 
 /** What a built index.html says about itself; a missing part is left out. */
@@ -168,9 +179,32 @@ export function checkFrontPage({ url, expected, fetch, sleep, attempts, interval
     if (response.status !== 200) return { problems: [`HTTP ${response.status}`] }
     const type = response.headers.get('content-type') ?? ''
     if (!type.includes('text/html')) return { problems: [`content-type ${type}, expected text/html`] }
-    const stamp = readStamp(await response.text())
-    return { problems: stampProblems(stamp, expected, git), value: stamp }
+    const page = await response.text()
+    const stamp = readStamp(page)
+    const problems = stampProblems(stamp, expected, git)
+    if (problems.length) return { problems }
+    return { problems: await scriptProblems(scriptSources(page, target.href), fetch), value: stamp }
   })
+}
+
+/**
+ * An index.html whose bundle does not load is a blank page, so every script it names must answer
+ * as JavaScript. Amplify's rewrite leaves `.js` paths alone, so a missing bundle is a 404; the type
+ * is checked too, so that an index.html served in its place cannot pass.
+ */
+async function scriptProblems(sources, fetch) {
+  if (sources.length === 0) return ['the page loads no script']
+  const answers = await Promise.all(
+    sources.map(async (source) => {
+      const response = await fetch(source, { signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS) })
+      const path = new URL(source).pathname
+      if (response.status !== 200) return `${path}: HTTP ${response.status}`
+      const type = response.headers.get('content-type') ?? ''
+      if (!type.includes('javascript')) return `${path}: content-type ${type}, expected JavaScript`
+      return undefined
+    })
+  )
+  return answers.filter((problem) => problem !== undefined)
 }
 
 /** Fetches the public event list, which needs no sign-in and reads the event table. */
