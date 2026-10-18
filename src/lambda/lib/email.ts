@@ -14,12 +14,11 @@ import { emailBlockedAudit } from '../../lib/audit'
 import { getPaymentBalance } from '../../lib/cost'
 import { getRegistrationEmailTemplateData, getRegistrationOwners, isPayerTemplate } from '../../lib/registration'
 import { CONFIG } from '../config'
-import CustomDynamoClient from '../utils/CustomDynamoClient'
 import { audit, registrationAuditKey } from './audit'
 import { logger } from './log'
+import { queryUsersByEmail } from './repositories/userRepository'
 
 const ses = new SESClient()
-const userDB = new CustomDynamoClient(CONFIG.userTable)
 
 export const normalizeEmail = (email: string) => email.trim().toLowerCase()
 
@@ -47,12 +46,8 @@ const isStaffUser = (user: JsonUser) =>
   !user.deletedAt && (user.admin === true || Object.values(user.roles ?? {}).some(Boolean))
 
 const queryStaffAddress = async (address: string): Promise<boolean> => {
-  const users = await userDB.query<JsonUser>({
-    index: 'gsiEmail',
-    key: 'email = :email',
-    values: { ':email': address },
-  })
-  return users?.some(isStaffUser) ?? false
+  const users = await queryUsersByEmail(address)
+  return users.some(isStaffUser)
 }
 
 const isStaffAddress = (address: string): Promise<boolean> => {

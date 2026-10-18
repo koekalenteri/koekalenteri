@@ -1,5 +1,6 @@
 import type { APIGatewayProxyEvent } from 'aws-lambda'
 import type { JsonUser } from '../../types'
+import type { UserLink } from './repositories/userLinkRepository'
 import { vi } from 'vitest'
 import { loggedLines } from '../test-utils/logs'
 
@@ -13,17 +14,16 @@ vi.doMock('../lib/user', () => ({
   userIsMemberOf: vi.fn(),
 }))
 
-const mockRead = vi.fn(async (): Promise<any> => undefined)
-const mockWrite = vi.fn()
+const mockReadUserLink = vi.fn<(cognitoUser: string) => Promise<UserLink | undefined>>()
+const mockWriteUserLink = vi.fn<(link: UserLink) => Promise<void>>()
+const mockReadUser = vi.fn<(id: string) => Promise<JsonUser | undefined>>()
 
-vi.doMock('../utils/CustomDynamoClient', () => ({
-  __esModule: true,
-  default: vi.fn(function MockCustomDynamoClient() {
-    return {
-      read: mockRead,
-      write: mockWrite,
-    }
-  }),
+vi.doMock('./repositories/userLinkRepository', () => ({
+  readUserLink: mockReadUserLink,
+  writeUserLink: mockWriteUserLink,
+}))
+vi.doMock('./repositories/userRepository', () => ({
+  readUser: mockReadUser,
 }))
 
 const infoSpy = vi.spyOn(console, 'info').mockImplementation(() => null)
@@ -90,7 +90,7 @@ describe('auth', () => {
       await authorize(event)
 
       expect(JSON.stringify(loggedLines(infoSpy))).not.toContain(claims.email)
-      expect(mockRead).toHaveBeenCalledWith({ cognitoUser })
+      expect(mockReadUserLink).toHaveBeenCalledWith(cognitoUser)
     })
 
     it('should return null for non-JSON string claims', async () => {
@@ -123,8 +123,8 @@ describe('auth', () => {
       const result = await authorize(event)
 
       expect(JSON.stringify(loggedLines(infoSpy))).not.toContain('test@example.com')
-      expect(mockRead).toHaveBeenCalledWith({ cognitoUser })
-      expect(mockWrite).toHaveBeenCalledWith(link, 'user-link-table-not-found-in-env')
+      expect(mockReadUserLink).toHaveBeenCalledWith(cognitoUser)
+      expect(mockWriteUserLink).toHaveBeenCalledWith(link)
       expect(loggedLines(infoSpy)).toContainEqual(expect.objectContaining({ message: 'added user link', ...link }))
       expect(result).toEqual({
         createdAt: '2023-11-30T20:00:00.000Z',
@@ -173,7 +173,7 @@ describe('auth', () => {
       expect(findUserByEmail).toHaveBeenCalledWith('test@example.com')
 
       // Link should be created against the existing id, not a new nanoid.
-      expect(mockWrite).toHaveBeenCalledWith({ cognitoUser, userId: 'existing-id' }, 'user-link-table-not-found-in-env')
+      expect(mockWriteUserLink).toHaveBeenCalledWith({ cognitoUser, userId: 'existing-id' })
       expect(result?.id).toBe('existing-id')
       expect(result?.email).toBe('test@example.com')
     })
@@ -207,7 +207,7 @@ describe('auth', () => {
           userId: 'existing-id',
         })
       )
-      expect(mockWrite).not.toHaveBeenCalled()
+      expect(mockWriteUserLink).not.toHaveBeenCalled()
       expect(result).toBeNull()
     })
 
@@ -230,14 +230,14 @@ describe('auth', () => {
       }
 
       // auth reads link first, then loads user by id
-      mockRead.mockResolvedValueOnce(link)
-      mockRead.mockResolvedValueOnce(existingUser)
+      mockReadUserLink.mockResolvedValueOnce(link)
+      mockReadUser.mockResolvedValueOnce(existingUser)
 
       const result = await authorize(event)
 
       expect(JSON.stringify(loggedLines(infoSpy))).not.toContain('test@example.com')
-      expect(mockRead).toHaveBeenCalledWith({ cognitoUser })
-      expect(mockWrite).not.toHaveBeenCalled()
+      expect(mockReadUserLink).toHaveBeenCalledWith(cognitoUser)
+      expect(mockWriteUserLink).not.toHaveBeenCalled()
       expect(loggedLines(infoSpy)).not.toContainEqual(expect.objectContaining({ message: 'added user link' }))
       expect(result).toEqual(existingUser)
     })
@@ -260,8 +260,8 @@ describe('auth', () => {
         name: 'test-user',
       }
 
-      mockRead.mockResolvedValueOnce(link)
-      mockRead.mockResolvedValueOnce(existingUser)
+      mockReadUserLink.mockResolvedValueOnce(link)
+      mockReadUser.mockResolvedValueOnce(existingUser)
 
       const result = await authorize(event)
 
@@ -314,8 +314,8 @@ describe('auth', () => {
         name: 1234,
       } as unknown as JsonUser
 
-      mockRead.mockResolvedValueOnce(link)
-      mockRead.mockResolvedValueOnce(existingUser)
+      mockReadUserLink.mockResolvedValueOnce(link)
+      mockReadUser.mockResolvedValueOnce(existingUser)
 
       const result = await authorize(event, true)
 
@@ -349,8 +349,8 @@ describe('auth', () => {
         name: 'test-user',
       }
 
-      mockRead.mockResolvedValueOnce(link)
-      mockRead.mockResolvedValueOnce(existingUser)
+      mockReadUserLink.mockResolvedValueOnce(link)
+      mockReadUser.mockResolvedValueOnce(existingUser)
 
       const result = await authorize(event, true)
 
@@ -540,8 +540,8 @@ describe('auth', () => {
         name: 'test-user',
       }
 
-      mockRead.mockResolvedValueOnce(existingUser)
-      mockRead.mockResolvedValueOnce(link)
+      mockReadUserLink.mockResolvedValueOnce(link)
+      mockReadUser.mockResolvedValueOnce(existingUser)
 
       const result = await getUsername(event)
 
@@ -575,8 +575,8 @@ describe('auth', () => {
         name: 'test-user',
       }
 
-      mockRead.mockResolvedValueOnce(link)
-      mockRead.mockResolvedValueOnce(existingUser)
+      mockReadUserLink.mockResolvedValueOnce(link)
+      mockReadUser.mockResolvedValueOnce(existingUser)
       ;(userIsMemberOf as import('vitest').MockedFunction<typeof userIsMemberOf>).mockReturnValue([])
 
       await expect(authorizeWithMemberOf(event)).rejects.toMatchObject({ body: 'Forbidden', status: 403 })
@@ -604,8 +604,8 @@ describe('auth', () => {
         name: 'test-user',
       }
 
-      mockRead.mockResolvedValueOnce(link)
-      mockRead.mockResolvedValueOnce(existingUser)
+      mockReadUserLink.mockResolvedValueOnce(link)
+      mockReadUser.mockResolvedValueOnce(existingUser)
       ;(userIsMemberOf as import('vitest').MockedFunction<typeof userIsMemberOf>).mockReturnValue(['org-1'])
 
       const result = await authorizeWithMemberOf(event)
@@ -639,16 +639,16 @@ describe('auth', () => {
     })
 
     it('refuses with 403 for an authenticated non-admin', async () => {
-      mockRead.mockResolvedValueOnce(link)
-      mockRead.mockResolvedValueOnce(user)
+      mockReadUserLink.mockResolvedValueOnce(link)
+      mockReadUser.mockResolvedValueOnce(user)
 
       await expect(authorizeAdmin(event)).rejects.toMatchObject({ body: 'Forbidden', status: 403 })
     })
 
     it('returns the authenticated admin user', async () => {
       const admin = { ...user, admin: true }
-      mockRead.mockResolvedValueOnce(link)
-      mockRead.mockResolvedValueOnce(admin)
+      mockReadUserLink.mockResolvedValueOnce(link)
+      mockReadUser.mockResolvedValueOnce(admin)
 
       await expect(authorizeAdmin(event)).resolves.toEqual(admin)
     })

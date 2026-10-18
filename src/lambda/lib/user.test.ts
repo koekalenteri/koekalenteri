@@ -1,6 +1,6 @@
 import type { JsonDbRecord, JsonUser, Official } from '../../types'
-import type CustomDynamoClient from '../utils/CustomDynamoClient'
 import type { PartialJsonJudge } from './judge'
+import type { UserLink } from './repositories/userLinkRepository'
 import { vi } from 'vitest'
 import { loggedLines } from '../test-utils/logs'
 
@@ -13,14 +13,17 @@ vi.doMock('nanoid', () => {
 
 const mockReadAllEvents = vi.fn<() => Promise<unknown[]>>(async () => [])
 const mockWriteEventFields = vi.fn()
-const mockUserReadAll = vi.fn()
-const mockUserLinkReadAll = vi.fn()
-const mockUserQuery = vi.fn()
+const mockUserReadAll = vi.fn<() => Promise<JsonUser[]>>(async () => [])
+const mockUserLinkReadAll = vi.fn<() => Promise<UserLink[]>>(async () => [])
+const mockUserQuery = vi.fn<(email: string) => Promise<JsonUser[]>>(async () => [])
 const mockReadOrganizer = vi.fn()
-const mockUserWrite = vi.fn()
-const mockUserBatchWrite = vi.fn<CustomDynamoClient['batchWrite']>()
+const mockUserWrite = vi.fn<(user: JsonUser) => Promise<unknown>>()
+const mockUserBatchWrite = vi.fn<(users: JsonUser[]) => Promise<void>>()
 const mockUserUpdate = vi.fn()
 const mockSendTemplatedMail = vi.fn()
+const mockBumpDataVersion = vi.fn<(collection: string, scopes?: string[]) => Promise<void>>(async () => undefined)
+
+vi.doMock('./dataVersions', () => ({ bumpDataVersion: mockBumpDataVersion }))
 
 vi.doMock('./repositories/organizerRepository', () => ({ readOrganizer: mockReadOrganizer }))
 
@@ -33,29 +36,16 @@ vi.doMock('./repositories/eventRepository', () => ({
   writeEventFields: mockWriteEventFields,
 }))
 
-// `updateUsersFromOfficialsOrJudges()` creates a separate Dynamo client for user links.
-// Mock it so tests stay fully in-memory.
-vi.doMock('../utils/CustomDynamoClient', () => ({
-  default: class MockCustomDynamoClient {
-    table: string
+vi.doMock('./repositories/userRepository', () => ({
+  queryUsersByEmail: mockUserQuery,
+  readAllUsers: mockUserReadAll,
+  writeUser: mockUserWrite,
+  writeUserRoles: mockUserUpdate,
+  writeUsers: mockUserBatchWrite,
+}))
 
-    constructor(tableName: string) {
-      this.table = tableName
-    }
-
-    readAll = ({ table }: { table?: string } = {}) => {
-      if (table?.includes('user-link')) return mockUserLinkReadAll(table)
-      return mockUserReadAll(table)
-    }
-
-    query = (...args: any[]) => mockUserQuery(...args)
-
-    write = (...args: any[]) => mockUserWrite(...args)
-
-    batchWrite: CustomDynamoClient['batchWrite'] = (...args) => mockUserBatchWrite(...args)
-
-    update = (...args: any[]) => mockUserUpdate(...args)
-  },
+vi.doMock('./repositories/userLinkRepository', () => ({
+  readAllUserLinks: mockUserLinkReadAll,
 }))
 
 const {
@@ -380,8 +370,8 @@ describe('lib/user', () => {
   })
 
   describe('top-level user API helpers', () => {
-    it('getAllUsers returns empty array when db returns undefined', async () => {
-      mockUserReadAll.mockResolvedValueOnce(undefined)
+    it('getAllUsers returns an empty array when the table holds no users', async () => {
+      mockUserReadAll.mockResolvedValueOnce([])
       const users = await getAllUsers()
       expect(users).toEqual([])
     })
@@ -408,13 +398,7 @@ describe('lib/user', () => {
 
       await expect(findUserByEmail('Missing@Example.com ')).resolves.toBeUndefined()
 
-      expect(mockUserQuery).toHaveBeenCalledWith(
-        expect.objectContaining({
-          index: 'gsiEmail',
-          key: 'email = :email',
-          values: { ':email': 'missing@example.com' },
-        })
-      )
+      expect(mockUserQuery).toHaveBeenCalledWith('missing@example.com')
       expect(loggedLines(warnSpy)).toContainEqual(
         expect.objectContaining({ emailHash: expect.any(String), message: 'findUserByEmail: user not found' })
       )
@@ -460,7 +444,8 @@ describe('lib/user', () => {
 
       await updateUser(user)
 
-      expect(mockUserWrite).toHaveBeenCalledWith(user, 'user-table-not-found-in-env')
+      expect(mockUserWrite).toHaveBeenCalledWith(user)
+      expect(mockBumpDataVersion).toHaveBeenCalledWith('users', userScopes(user))
     })
 
     it('setUserRole updates roles and sends access email when role is set', async () => {
@@ -477,16 +462,7 @@ describe('lib/user', () => {
 
       expect(mockReadOrganizer).toHaveBeenCalledWith('org1')
 
-      expect(mockUserUpdate).toHaveBeenCalledWith(
-        { id: 'role-user' },
-        expect.objectContaining({
-          set: expect.objectContaining({
-            modifiedBy: 'tester',
-            roles: { org1: 'admin' },
-          }),
-        }),
-        'user-table-not-found-in-env'
-      )
+      expect(mockUserUpdate).toHaveBeenCalledWith('role-user', { org1: 'admin' }, '2024-05-30T20:00:00.000Z', 'tester')
       expect(mockSendTemplatedMail).toHaveBeenCalledWith(
         'access',
         'fi',
@@ -652,10 +628,10 @@ describe('lib/user', () => {
   })
 
   describe('updateUsersFromOfficialsOrJudges', () => {
-    // The sync reads and writes the user table through the module's own client.
+    // The sync reads and writes the user table through userRepository.
     const mockReadAll = mockUserReadAll
     const mockBatchWrite = mockUserBatchWrite
-    let batchWriteArguments: Parameters<CustomDynamoClient['batchWrite']> | undefined
+    let batchWriteArguments: Parameters<typeof mockUserBatchWrite> | undefined
 
     beforeEach(() => {
       mockReadAll.mockResolvedValue([])
@@ -666,9 +642,9 @@ describe('lib/user', () => {
       })
     })
 
-    it('loadSyncContext falls back to empty users and links when reads return undefined', async () => {
-      mockReadAll.mockResolvedValueOnce(undefined)
-      mockUserLinkReadAll.mockResolvedValueOnce(undefined)
+    it('loadSyncContext starts from empty users and links when the tables hold none', async () => {
+      mockReadAll.mockResolvedValueOnce([])
+      mockUserLinkReadAll.mockResolvedValueOnce([])
 
       await expect(__testables.loadSyncContext([])).resolves.toEqual({
         allUsers: [],
@@ -705,7 +681,7 @@ describe('lib/user', () => {
 
       await updateUsersFromOfficialsOrJudges([added1, added2], 'officer')
 
-      expect(mockReadAll).toHaveBeenCalledWith('user-table-not-found-in-env')
+      expect(mockReadAll).toHaveBeenCalledWith()
       expect(mockReadAll).toHaveBeenCalledTimes(1)
       const written = batchWriteArguments?.[0] as JsonUser[]
       expect(written).toHaveLength(2)
@@ -730,7 +706,6 @@ describe('lib/user', () => {
           phone: 'phone',
         })
       )
-      expect(batchWriteArguments?.[1]).toBe('user-table-not-found-in-env')
       expect(mockBatchWrite).toHaveBeenCalledTimes(1)
       expect(loggedLines(infoSpy)).toContainEqual(
         expect.objectContaining({ message: 'creating user from official directory', sourceId: 222 })
@@ -766,26 +741,23 @@ describe('lib/user', () => {
 
       await updateUsersFromOfficialsOrJudges([official], 'officer')
 
-      expect(mockBatchWrite).toHaveBeenCalledWith(
-        [
-          {
-            createdAt: '2024-05-30T20:00:00.000Z',
-            createdBy: 'system',
-            email: 'dredd@example.com',
-            emailHistory: [{ changedAt: '2024-05-30T20:00:00.000Z', email: 'old@example.com', source: 'kl' }],
-            id: 'test-id',
-            kcEmail: 'dredd@example.com',
-            kcId: 333,
-            location: 'location',
-            modifiedAt: '2024-05-30T20:00:00.000Z',
-            modifiedBy: 'system',
-            name: 'official dredd',
-            officer: ['NOME-A'],
-            phone: 'new phone',
-          },
-        ],
-        'user-table-not-found-in-env'
-      )
+      expect(mockBatchWrite).toHaveBeenCalledWith([
+        {
+          createdAt: '2024-05-30T20:00:00.000Z',
+          createdBy: 'system',
+          email: 'dredd@example.com',
+          emailHistory: [{ changedAt: '2024-05-30T20:00:00.000Z', email: 'old@example.com', source: 'kl' }],
+          id: 'test-id',
+          kcEmail: 'dredd@example.com',
+          kcId: 333,
+          location: 'location',
+          modifiedAt: '2024-05-30T20:00:00.000Z',
+          modifiedBy: 'system',
+          name: 'official dredd',
+          officer: ['NOME-A'],
+          phone: 'new phone',
+        },
+      ])
       expect(mockBatchWrite).toHaveBeenCalledTimes(1)
       expect(loggedLines(infoSpy)).toContainEqual(
         expect.objectContaining({
@@ -826,26 +798,23 @@ describe('lib/user', () => {
 
       await updateUsersFromOfficialsOrJudges([official], 'officer')
 
-      expect(mockBatchWrite).toHaveBeenCalledWith(
-        [
-          {
-            createdAt: '2024-05-30T20:00:00.000Z',
-            createdBy: 'system',
-            email: 'old@example.com',
-            emailHistory: [],
-            id: 'test-id',
-            kcEmail: 'dredd@example.com',
-            kcId: 333,
-            location: 'location',
-            modifiedAt: '2024-05-30T20:00:00.000Z',
-            modifiedBy: 'system',
-            name: 'official dredd',
-            officer: ['NOME-A'],
-            phone: 'new phone',
-          },
-        ],
-        'user-table-not-found-in-env'
-      )
+      expect(mockBatchWrite).toHaveBeenCalledWith([
+        {
+          createdAt: '2024-05-30T20:00:00.000Z',
+          createdBy: 'system',
+          email: 'old@example.com',
+          emailHistory: [],
+          id: 'test-id',
+          kcEmail: 'dredd@example.com',
+          kcId: 333,
+          location: 'location',
+          modifiedAt: '2024-05-30T20:00:00.000Z',
+          modifiedBy: 'system',
+          name: 'official dredd',
+          officer: ['NOME-A'],
+          phone: 'new phone',
+        },
+      ])
       expect(loggedLines(infoSpy)).toContainEqual(
         expect.objectContaining({
           changedKeys: ['officer', 'phone', 'kcEmail'],
@@ -875,7 +844,7 @@ describe('lib/user', () => {
 
       await updateUsersFromOfficialsOrJudges([added1, added2], 'judge')
 
-      expect(mockReadAll).toHaveBeenCalledWith('user-table-not-found-in-env')
+      expect(mockReadAll).toHaveBeenCalledWith()
       expect(mockReadAll).toHaveBeenCalledTimes(1)
       const written = batchWriteArguments?.[0] as JsonUser[]
       expect(written).toHaveLength(2)
@@ -901,7 +870,6 @@ describe('lib/user', () => {
           phone: 'phone',
         })
       )
-      expect(batchWriteArguments?.[1]).toBe('user-table-not-found-in-env')
       expect(mockBatchWrite).toHaveBeenCalledTimes(1)
       expect(loggedLines(infoSpy)).toContainEqual(
         expect.objectContaining({ message: 'creating user from official directory', sourceId: 222 })
@@ -936,25 +904,22 @@ describe('lib/user', () => {
 
       await updateUsersFromOfficialsOrJudges([judge], 'judge')
 
-      expect(mockBatchWrite).toHaveBeenCalledWith(
-        [
-          {
-            createdAt: '2024-05-30T20:00:00.000Z',
-            createdBy: 'system',
-            email: 'dredd@example.com',
-            id: 'test-id',
-            judge: ['NOME-A'],
-            kcEmail: 'dredd@example.com',
-            kcId: 333,
-            location: 'location',
-            modifiedAt: '2024-05-30T20:00:00.000Z',
-            modifiedBy: 'system',
-            name: 'judge dredd',
-            phone: 'new phone',
-          },
-        ],
-        'user-table-not-found-in-env'
-      )
+      expect(mockBatchWrite).toHaveBeenCalledWith([
+        {
+          createdAt: '2024-05-30T20:00:00.000Z',
+          createdBy: 'system',
+          email: 'dredd@example.com',
+          id: 'test-id',
+          judge: ['NOME-A'],
+          kcEmail: 'dredd@example.com',
+          kcId: 333,
+          location: 'location',
+          modifiedAt: '2024-05-30T20:00:00.000Z',
+          modifiedBy: 'system',
+          name: 'judge dredd',
+          phone: 'new phone',
+        },
+      ])
       expect(mockBatchWrite).toHaveBeenCalledTimes(1)
       expect(loggedLines(infoSpy)).toContainEqual(
         expect.objectContaining({
