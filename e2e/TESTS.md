@@ -56,4 +56,11 @@ bug is fixed. See [README.md](README.md) for how they run.
 | --- | --- | --- |
 | the public start list answers with a version the page can read across origins | `@public` | [KOE-1516](https://koekalenteri.atlassian.net/browse/KOE-1516) the page orders its fetches against the live updates by it |
 
-20 tests.
+## registration-form.spec.ts (against the test environment)
+
+| Test | Tags | Issues |
+| --- | --- | --- |
+| the test environment after a deploy › the front page lists the event and its registration form opens from the list | `@public` | [KOE-1559](https://koekalenteri.atlassian.net/browse/KOE-1559) |
+| the test environment after a deploy › the registration form checks what is filled in and asks only for what needs the dog | `@public` | [KOE-1559](https://koekalenteri.atlassian.net/browse/KOE-1559) |
+
+22 tests.

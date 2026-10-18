@@ -85,6 +85,7 @@ jobs:
             e2e:
               - 'e2e/**'
               - 'playwright.config.ts'
+              - 'playwright.remote.config.ts'
 
       - name: Check previous main CI result
         id: previous-ci

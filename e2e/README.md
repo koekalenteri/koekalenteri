@@ -62,3 +62,27 @@ failed test its error, the failing line and the page's accessibility tree at tha
 For the step-by-step trace, download the `e2e-report` artifact and drop a `trace.zip` from it on
 [trace.playwright.dev](https://trace.playwright.dev): it runs in the browser, installs nothing and
 uploads nothing.
+
+## Against the test environment
+
+`playwright.remote.config.ts` runs the tests in `remote/tests/` against a deployed stack: the
+release workflow's `e2e` job, after every deploy of the test environment (a prerelease or a
+dispatched branch) and its smoke check (KOE-1559). The front page must list an event, its
+registration form must open from the list, and the form must accept what is filled in and ask
+only for the dog. No login or payment is needed, the dog is not fetched (that goes to the Kennel
+Club) and the form is never sent, so nothing is stored and no mail goes out.
+
+The test environment holds no event it can count on, so the run writes its own. `remote/global-setup.ts`
+builds it with `buildEvent` (`fixtures/events.ts`, the same row the local tests write) and stores it in
+the stack's event table under the organizer id `e2e-remote`, which no real organizer has. Every event
+of that organizer is deleted before the tests, after them and once more by the workflow whatever
+the outcome (`remote/sweep.mjs`), found by an exact query on `gsiOrganizerStartDate`.
+
+```sh
+E2E_BASE_URL=https://<frontend>/ E2E_EVENT_TABLE=<the stack's EventTable> npm run test-e2e-remote
+```
+
+AWS credentials and the region come from the environment. Pointed at the local servers above, the
+same run checks a local build: `E2E_BASE_URL=http://localhost:3000`, `E2E_EVENT_TABLE=event-table`,
+`AWS_ENDPOINT_URL_DYNAMODB` at the DynamoDB-local and `AWS_ACCESS_KEY_ID`/`AWS_SECRET_ACCESS_KEY`
+set to `local`, the key the servers' database is kept under.

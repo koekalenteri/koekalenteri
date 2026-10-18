@@ -11,15 +11,28 @@ import fs from 'node:fs'
 const CATALOG = 'e2e/TESTS.md'
 const JIRA = 'https://koekalenteri.atlassian.net/browse'
 
-const listed = spawnSync('npx', ['playwright', 'test', '--list', '--reporter=json'], {
-  encoding: 'utf8',
-  maxBuffer: 16 * 1024 * 1024,
-})
-if (listed.status !== 0) {
-  console.error(listed.stderr || listed.stdout)
-  process.exit(1)
+/**
+ * The suites: the local one, and the one run against the test environment after a deploy there
+ * (KOE-1559), whose files are told apart by a note in their heading.
+ */
+const SUITES = [
+  { args: [], note: '' },
+  { args: ['--config', 'playwright.remote.config.ts'], note: ' (against the test environment)' },
+]
+
+/** The files of one suite as Playwright lists them, each with the suite's note. */
+const listFiles = ({ args, note }) => {
+  const listed = spawnSync('npx', ['playwright', 'test', ...args, '--list', '--reporter=json'], {
+    encoding: 'utf8',
+    maxBuffer: 16 * 1024 * 1024,
+  })
+  if (listed.status !== 0) {
+    console.error(listed.stderr || listed.stdout)
+    process.exit(1)
+  }
+  return JSON.parse(listed.stdout).suites.map((file) => ({ ...file, note }))
 }
-const { suites } = JSON.parse(listed.stdout)
+const suites = SUITES.flatMap(listFiles)
 
 /** Every test with the titles of the describe blocks around it, in file order. */
 const collect = (suite, path = []) => [
@@ -49,7 +62,7 @@ let total = 0
 for (const file of suites) {
   const specs = collect(file)
   total += specs.length
-  lines.push(`## ${file.file}`, '', '| Test | Tags | Issues |', '| --- | --- | --- |')
+  lines.push(`## ${file.file}${file.note}`, '', '| Test | Tags | Issues |', '| --- | --- | --- |')
   for (const spec of specs) {
     const annotations = spec.tests[0]?.annotations ?? []
     const title = [...spec.path, spec.title].join(' › ')
