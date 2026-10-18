@@ -115,6 +115,7 @@ const shownOutsideTheLists: Record<string, string> = {
   'New Password': 'label and placeholder of the new password on confirm reset password (formFields/defaults)',
   'Password is hidden': 'state of a password field, passed to it by src/pages/loginPage/passwordFormFields.ts',
   'Password is shown': 'state of a password field, passed to it by src/pages/loginPage/passwordFormFields.ts',
+  // amplify-env.test.ts checks this is the minimum the login is configured with.
   'Password must have at least 8 characters': PASSWORD_POLICY,
   'Password must have lower case letters': PASSWORD_POLICY,
   'Password must have numbers': PASSWORD_POLICY,

@@ -1,6 +1,6 @@
 import { I18n } from '@aws-amplify/core'
 import { screen } from '@testing-library/react'
-import { openRoute, setUpAuthenticator, user } from './authenticatorRoutes'
+import { openRoute, setUpAuthenticator, user } from '../../test-utils/authenticator'
 import { passwordFormFields } from './passwordFormFields'
 
 /** What a reader and the browser get from each field of the open form, in the order drawn. */

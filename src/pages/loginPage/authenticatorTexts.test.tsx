@@ -1,5 +1,5 @@
 import { screen } from '@testing-library/react'
-import { openRoute, setUpAuthenticator, user } from './authenticatorRoutes'
+import { CODE_DESTINATION, openRoute, setUpAuthenticator, user } from '../../test-utils/authenticator'
 
 /** Texts Amplify assembles as it draws, which a vocabulary entry alone cannot show are right. */
 describe('the Authenticator in Finnish', () => {
@@ -10,7 +10,7 @@ describe('the Authenticator in Finnish', () => {
 
     expect(
       screen.getByText(
-        'Koodi on matkalla. Kirjaudu sisään syöttämällä koodi, jonka lähetimme osoitteeseen h***@e***. Sen saapumisessa voi kestää hetki.'
+        `Koodi on matkalla. Kirjaudu sisään syöttämällä koodi, jonka lähetimme osoitteeseen ${CODE_DESTINATION}. Sen saapumisessa voi kestää hetki.`
       )
     ).toBeInTheDocument()
   })
