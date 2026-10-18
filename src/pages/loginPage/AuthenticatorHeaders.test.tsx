@@ -4,11 +4,9 @@ import { flushPromises } from '../../test-utils/utils'
 import { authenticatorComponents } from './AuthenticatorHeaders'
 import { emailCodeDelivery, setCodeDelivery } from './authenticatorFixtures'
 
-vi.mock(import('@aws-amplify/ui-react'), async (importOriginal) => {
-  const original = await importOriginal()
-  const { withCodeDelivery } = await import('./authenticatorFixtures')
-  return { ...original, useAuthenticator: withCodeDelivery(original.useAuthenticator) }
-})
+vi.mock(import('@aws-amplify/ui-react'), async (importOriginal) =>
+  (await import('./authenticatorFixtures')).mockAuthenticatorModule(importOriginal)
+)
 
 const renderHeader = async (route: keyof typeof authenticatorComponents) => {
   const { Header } = authenticatorComponents[route]

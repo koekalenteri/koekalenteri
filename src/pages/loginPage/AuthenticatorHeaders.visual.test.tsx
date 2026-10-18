@@ -11,11 +11,9 @@ import { emailCodeDelivery, setCodeDelivery } from './authenticatorFixtures'
 
 import '@aws-amplify/ui-react/styles.css'
 
-vi.mock(import('@aws-amplify/ui-react'), async (importOriginal) => {
-  const original = await importOriginal()
-  const { withCodeDelivery } = await import('./authenticatorFixtures')
-  return { ...original, useAuthenticator: withCodeDelivery(original.useAuthenticator) }
-})
+vi.mock(import('@aws-amplify/ui-react'), async (importOriginal) =>
+  (await import('./authenticatorFixtures')).mockAuthenticatorModule(importOriginal)
+)
 
 // The app reads Amplify's texts in Finnish from this vocabulary (src/i18n); a capture shows the same.
 beforeAll(() => {

@@ -18,10 +18,25 @@ export const setCodeDelivery = (details: CodeDeliveryDetails | undefined) => {
   codeDelivery = details
 }
 
-/** The real useAuthenticator, reporting the delivery set with setCodeDelivery. For a vi.mock factory. */
-export const withCodeDelivery =
+const withCodeDelivery =
   (real: typeof useAuthenticator): typeof useAuthenticator =>
   (selector) => {
     const context = real(selector)
     return codeDelivery ? { ...context, codeDeliveryDetails: codeDelivery } : context
   }
+
+/**
+ * The real Amplify module, its useAuthenticator reporting the delivery set with setCodeDelivery.
+ *
+ * ```ts
+ * vi.mock(import('@aws-amplify/ui-react'), async (importOriginal) =>
+ *   (await import('./authenticatorFixtures')).mockAuthenticatorModule(importOriginal)
+ * )
+ * ```
+ */
+export const mockAuthenticatorModule = async (
+  importOriginal: () => Promise<typeof import('@aws-amplify/ui-react')>
+) => {
+  const original = await importOriginal()
+  return { ...original, useAuthenticator: withCodeDelivery(original.useAuthenticator) }
+}
