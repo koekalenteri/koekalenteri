@@ -43,6 +43,8 @@ interface QueryParams {
 
 interface ReadAllOptions {
   filter?: string
+  /** Reads the soft-deleted rows too: an incremental response reports them as deletedIds (KOE-1569). */
+  includeDeleted?: boolean
   names?: Record<string, string>
   projection?: string
   table?: string
@@ -218,6 +220,10 @@ const logDb = (operation: string, payload: unknown) => {
   logger.info(operation, { payload })
 }
 
+/** The caller's filter, narrowed to the rows that are not soft-deleted. */
+const liveRowsFilter = (filter?: string) =>
+  filter ? `(attribute_not_exists(deletedAt)) AND (${filter})` : 'attribute_not_exists(deletedAt)'
+
 export default class CustomDynamoClient {
   table: string
   client: DynamoDBClient
@@ -246,6 +252,7 @@ export default class CustomDynamoClient {
   async readAll<T extends object>({
     table,
     filter,
+    includeDeleted,
     values,
     names,
     projection,
@@ -254,14 +261,10 @@ export default class CustomDynamoClient {
       TableName: table ? fromSamLocalTable(table) : this.table,
     }
 
-    // Create or extend filter expression to filter out deleted items
-    let finalFilterExpression = 'attribute_not_exists(deletedAt)'
-
-    if (filter) {
-      finalFilterExpression = `(${finalFilterExpression}) AND (${filter})`
+    const filterExpression = includeDeleted ? filter : liveRowsFilter(filter)
+    if (filterExpression) {
+      params.FilterExpression = filterExpression
     }
-
-    params.FilterExpression = finalFilterExpression
 
     if (projection) {
       params.ProjectionExpression = projection

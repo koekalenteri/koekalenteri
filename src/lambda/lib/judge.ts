@@ -2,7 +2,7 @@ import type { JsonJudge, Judge, RequireAllKeys } from '../../types'
 import type KLAPI from './KLAPI'
 import { KLKieli } from '../types/KLAPI'
 import { fetchOfficialDirectory, mapOfficialDirectoryEntry, syncOfficialDirectory } from './officialDirectory'
-import { readJudges, writeJudges } from './repositories/judgeRepository'
+import { readJudgesIncludingDeleted, writeJudges } from './repositories/judgeRepository'
 
 export type PartialJsonJudge = Omit<Judge, 'languages' | 'active' | 'mockTrial'>
 
@@ -41,6 +41,6 @@ export const updateJudges = (judges: PartialJsonJudge[]): Promise<void> =>
     }),
     label: 'judge',
     partialize: partializeJudge,
-    readAll: readJudges,
+    readAll: readJudgesIncludingDeleted,
     writeAll: writeJudges,
   })
