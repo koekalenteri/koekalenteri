@@ -16,6 +16,15 @@ export const AWSConfig: ResourcesConfig = {
           scopes: ['email', 'openid', 'profile'],
         },
       },
+      // The user pool's PasswordPolicy (template/cognito.yaml), so the login refuses a password in the
+      // reader's language before Cognito does in English. amplify-env.test.ts compares the two.
+      passwordFormat: {
+        minLength: 8,
+        requireLowercase: true,
+        requireNumbers: true,
+        requireSpecialCharacters: false,
+        requireUppercase: true,
+      },
       // OPTIONAL - Amazon Cognito Web Client ID (26-char alphanumeric string)
       userPoolClientId: process.env.REACT_APP_CLIENT_ID ?? '',
       // REQUIRED - Amazon Cognito Region

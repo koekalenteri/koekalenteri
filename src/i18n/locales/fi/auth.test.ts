@@ -100,8 +100,13 @@ const notShown: Record<string, string> = {
  *
  * Two English texts stay out of reach: the alert's 'Dismiss alert' (the Authenticator passes its error
  * alert no label) and VerifyUser's 'Verifying…' (written into the component). 'Dismiss alert' and
- * 'Hide password' are translated all the same, as Amplify's own list has them.
+ * 'Hide password' are translated all the same, as Amplify's own list has them. 'Password must have
+ * special characters' never shows: the user pool requires no symbols (passwordFormat in
+ * src/amplify-env.ts).
  */
+const PASSWORD_POLICY =
+  'the password policy check on sign up, new password and reset password (defaultServices validateFormPassword against passwordFormat in src/amplify-env.ts)'
+
 const shownOutsideTheLists: Record<string, string> = {
   'Code *': 'label of the code field on confirm reset password and confirm verify user (formFields/defaults)',
   'Enter your email':
@@ -110,8 +115,10 @@ const shownOutsideTheLists: Record<string, string> = {
   'New Password': 'label and placeholder of the new password on confirm reset password (formFields/defaults)',
   'Password is hidden': 'state of a password field, passed to it by src/pages/loginPage/passwordFormFields.ts',
   'Password is shown': 'state of a password field, passed to it by src/pages/loginPage/passwordFormFields.ts',
-  'Password must have at least 8 characters':
-    'sign-up and reset password check against the default minimum (defaultServices)',
+  'Password must have at least 8 characters': PASSWORD_POLICY,
+  'Password must have lower case letters': PASSWORD_POLICY,
+  'Password must have numbers': PASSWORD_POLICY,
+  'Password must have upper case letters': PASSWORD_POLICY,
   'Sign Up with Google': 'the Google button on the sign up tab (textUtil getSignInWithFederationText)',
   'Your passwords must match': 'sign-up and reset password check of the confirmation field (defaultServices)',
 }

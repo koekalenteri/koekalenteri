@@ -1,4 +1,26 @@
-import { shouldIgnoreRumError } from './amplify-env'
+import { readFileSync } from 'node:fs'
+import { AWSConfig, shouldIgnoreRumError } from './amplify-env'
+
+/** The user pool's password policy as template/cognito.yaml declares it, in Amplify's names. */
+const poolPasswordPolicy = () => {
+  const template = readFileSync('template/cognito.yaml', 'utf8')
+  const setting = (name: string) => template.match(new RegExp(String.raw`^ +${name}: (\w+)$`, 'm'))?.[1]
+
+  return {
+    minLength: Number(setting('MinimumLength')),
+    requireLowercase: setting('RequireLowercase') === 'true',
+    requireNumbers: setting('RequireNumbers') === 'true',
+    requireSpecialCharacters: setting('RequireSymbols') === 'true',
+    requireUppercase: setting('RequireUppercase') === 'true',
+  }
+}
+
+describe('AWSConfig', () => {
+  // The login checks a new password against this before Cognito refuses it in English.
+  it('checks passwords against the user pool policy', () => {
+    expect(AWSConfig.Auth?.Cognito.passwordFormat).toEqual(poolPasswordPolicy())
+  })
+})
 
 describe('RUM_CONFIG', () => {
   afterEach(() => {
