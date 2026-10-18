@@ -11,7 +11,7 @@ import { NumberInput } from '@/pages/components/NumberInput'
 
 interface OptionalCostRowProps {
   event: PaymentEvent
-  disabled?: boolean
+  readonly disabled?: boolean
   index: number
   error: boolean
   onRemove: (index: number) => void

@@ -21,6 +21,7 @@ import {
   getApplicableStrategy,
   getEarlyBirdDates,
   getPaymentBalance,
+  hasEarlyBirdWindow,
   isPaymentWithoutAmount,
   selectCost,
 } from './cost'
@@ -105,9 +106,12 @@ export const hasPaymentLockingRegistrations = (
   registrations: readonly Pick<Registration | JsonRegistration, 'state'>[]
 ): boolean => registrations.some((registration) => registration.state === 'ready')
 
-/** Whether either price has an early-bird rate, which makes the entry start a payment term. */
+/**
+ * Whether either price has an early-bird rate that applies to anyone (`hasEarlyBirdWindow`), which
+ * makes the entry start a payment term.
+ */
 export const hasEarlyBirdPrice = (terms: Pick<PaymentTerms, 'cost' | 'costMember'>): boolean =>
-  [terms.cost, terms.costMember].some((cost) => typeof cost === 'object' && !!cost?.earlyBird)
+  [terms.cost, terms.costMember].some((cost) => typeof cost === 'object' && !!cost && hasEarlyBirdWindow(cost))
 
 /** A legacy number price is the normal price it stands for, as `calculateCost` reads it. */
 const comparableCost = (cost: PaymentTerms['cost']) => (typeof cost === 'number' ? { normal: cost } : cost)

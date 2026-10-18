@@ -16,7 +16,7 @@ interface CostRowProps {
   costKey: DogEventCostKey
   event: PaymentEvent
   breedCode?: BreedCode
-  disabled?: boolean
+  readonly disabled?: boolean
   error?: boolean
   onEditDescription: (key: DogEventCostKey) => void
   onRemove: (key: DogEventCostKey, breedCode?: BreedCode) => void

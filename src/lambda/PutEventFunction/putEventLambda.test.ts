@@ -1381,6 +1381,16 @@ describe('putEventLambda', () => {
         { ...priced, cost: earlyBird },
         { entryStartDate: '2025-03-31T21:00:00.000Z' },
       ],
+      [
+        'a moved entry start when the early-bird rate counts no days',
+        { ...priced, cost: { earlyBird: { cost: 30, days: 0 }, normal: 40 } },
+        { entryStartDate: '2025-04-03T00:00:00.000+03:00' },
+      ],
+      [
+        'a new entry end beside a legacy bare-day entry start',
+        { ...priced, cost: earlyBird, entryStartDate: '2025-04-01' },
+        { entryEndDate: '2025-05-20T23:59:59.999+03:00' },
+      ],
     ])('accepts %s', async (_name, stored, change) => {
       mockGetRegistrationsByEventId.mockResolvedValue([ready])
 

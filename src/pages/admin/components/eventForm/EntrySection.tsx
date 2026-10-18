@@ -1,7 +1,7 @@
 import type { SyntheticEvent } from 'react'
 import type { Priority } from '@/lib/priority'
 import type { DayValue } from '@/pages/components/DateRange'
-import type { EventClass, RegistrationClass } from '@/types'
+import type { DayKey, EventClass, RegistrationClass } from '@/types'
 import type { EntryEvent, SectionProps } from './types'
 import FormHelperText from '@mui/material/FormHelperText'
 import Grid from '@mui/material/Grid'
@@ -27,6 +27,16 @@ interface Props extends Readonly<Omit<SectionProps, 'changes' | 'event'>> {
   readonly entryStartLocked?: boolean
 }
 
+/** The stored instant while its day is the one picked, else the picked day's bound in Finnish time. */
+const keepStoredDay = (
+  stored: Date | undefined,
+  day: DayValue,
+  toInstant: (day: DayKey, zone: string) => Date
+): Date | undefined => {
+  if (!day) return undefined
+  return stored && storedDayKey(stored) === day ? stored : toInstant(day, TIME_ZONE)
+}
+
 function EntrySection(props: Props) {
   const { t } = useTranslation(['translation', 'breed'])
   const {
@@ -42,6 +52,7 @@ function EntrySection(props: Props) {
     onOpenChange,
     open,
   } = props
+  const { entryEndDate, entryStartDate } = event
   const prioritySort = getPrioritySort(t)
   const classesGroupsError = errors?.find(
     (validationError) => validationError && validationError.key === 'classesGroups'
@@ -84,13 +95,16 @@ function EntrySection(props: Props) {
     )
   }, [event.entryEndDate, event.entryStartDate])
 
+  // The range hands back both days on every change. A day left as it was keeps the stored instant: a
+  // legacy bare day key reaches the form as UTC midnight, and rewriting it as the Finnish one would move
+  // the early-bird window, which an event with registrations refuses (KOE-1568).
   const handleDateChange = useCallback(
     (start: DayValue, end: DayValue) =>
       onChange?.({
-        entryEndDate: end ? dayEnd(end, TIME_ZONE) : undefined,
-        entryStartDate: start ? dayStart(start, TIME_ZONE) : undefined,
+        entryEndDate: keepStoredDay(entryEndDate, end, dayEnd),
+        entryStartDate: keepStoredDay(entryStartDate, start, dayStart),
       }),
-    [onChange]
+    [entryEndDate, entryStartDate, onChange]
   )
   const handlePriorityChange = useCallback(
     (_e: SyntheticEvent<Element, Event>, value: readonly Priority[]) =>

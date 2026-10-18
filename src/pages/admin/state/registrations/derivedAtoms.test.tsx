@@ -1,11 +1,17 @@
 import type React from 'react'
 import type { Registration } from '@/types'
 import { act, renderHook } from '@testing-library/react'
-import { useAtomValue, useSetAtom } from 'jotai'
+import { createStore, useAtomValue, useSetAtom } from 'jotai'
 import { TestProvider as Provider } from 'test-utils/AtomProvider'
 import { registrationWithStaticDates } from '@/__mockData__/registrations'
+import { mockRegistrations } from '@/api/__mocks__/registration'
+import { getRegistrations } from '@/api/registration'
+import { idTokenAtom } from '@/pages/state'
+import { TEST_ID_TOKEN } from '@/test-utils/utils'
 import { adminEventRegistrationsAtom, adminPendingRegistrationGroupMovesAtom } from './atoms'
-import { adminProjectedEventRegistrationsAtom } from './derivedAtoms'
+import { adminEventPaymentLockedAtom, adminProjectedEventRegistrationsAtom } from './derivedAtoms'
+
+vi.mock('@/api/registration')
 
 const eventId = registrationWithStaticDates.eventId
 const HELSINKI_KEY = '2026-08-15-ap'
@@ -52,5 +58,36 @@ describe('adminProjectedEventRegistrationsAtom', () => {
 
     const base = result.current.base
     expect(Array.isArray(base) && base.find((registration) => registration.id === 'a')?.group?.key).toBe(HELSINKI_KEY)
+  })
+})
+
+// KOE-1568: the form's lock reads the list while it is still loading, by the rule PutEvent refuses with.
+describe('adminEventPaymentLockedAtom', () => {
+  const stored = mockRegistrations[eventId]
+  afterEach(() => {
+    mockRegistrations[eventId] = stored
+  })
+
+  it.each<[string, boolean, Registration[]]>([
+    ['a completed registration', true, [{ ...registrationWithStaticDates, state: 'ready' }]],
+    ['only one waiting for its payment', false, [{ ...registrationWithStaticDates, state: 'creating' }]],
+    ['no registrations', false, []],
+  ])('resolves the loading list with %s to %s', async (_name, expected, registrations) => {
+    mockRegistrations[eventId] = registrations
+    const store = createStore()
+    store.set(idTokenAtom, TEST_ID_TOKEN)
+
+    const locked = store.get(adminEventPaymentLockedAtom(eventId))
+
+    expect(locked).toBeInstanceOf(Promise)
+    await expect(locked).resolves.toBe(expected)
+  })
+
+  it('locks nothing, and fetches nothing, for an event not yet saved', () => {
+    const store = createStore()
+    store.set(idTokenAtom, TEST_ID_TOKEN)
+
+    expect(store.get(adminEventPaymentLockedAtom(''))).toBe(false)
+    expect(getRegistrations).not.toHaveBeenCalled()
   })
 })

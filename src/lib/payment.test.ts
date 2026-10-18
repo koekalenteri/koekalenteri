@@ -46,7 +46,10 @@ describe('payment', () => {
       [{ cost: { normal: 40 } }, false],
       [{ cost: earlyBird }, true],
       [{ cost: 40, costMember: earlyBird }, true],
+      // A rate that counts no days applies to no one, as cost.ts reads it.
+      [{ cost: { earlyBird: { cost: 30, days: 0 }, normal: 40 } }, false],
       [{}, false],
+      [{ cost: null }, false],
     ])('hasEarlyBirdPrice(%o) is %s', (input, expected) => {
       expect(hasEarlyBirdPrice(input)).toBe(expected)
     })
@@ -60,6 +63,15 @@ describe('payment', () => {
         'the entry start as a Date of the same moment',
         { ...terms, cost: earlyBird, entryStartDate: new Date('2025-03-31T21:00:00.000Z') },
         { ...terms, cost: earlyBird },
+      ],
+      [
+        'a moved entry start when the early-bird rate counts no days',
+        {
+          ...terms,
+          cost: { earlyBird: { cost: 30, days: 0 }, normal: 40 },
+          entryStartDate: '2025-04-03T00:00:00.000+03:00',
+        },
+        { ...terms, cost: { earlyBird: { cost: 30, days: 0 }, normal: 40 } },
       ],
       [
         'an early-bird event without an entry start on either side',

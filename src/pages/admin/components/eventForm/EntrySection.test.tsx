@@ -281,6 +281,22 @@ describe('EntrySection', () => {
         })
       })
 
+      // KOE-1568: a stored bare day key ('2026-11-02') reaches the form as UTC midnight, not the Finnish
+      // one. Rewriting it when only the end changes would move the early-bird window, which a trial with
+      // registrations refuses: the start is kept as it was stored.
+      it('keeps the stored entry start when only the end changes', async () => {
+        const stored = new Date('2026-11-02')
+        testEvent = eventWith(eventStart, stored)
+        const { onChange, user } = await renderEntrySection()
+
+        await typeDateKeyByKey(user, screen.getAllByRole('group')[1], '20112026')
+
+        expect(onChange).toHaveBeenLastCalledWith({
+          entryEndDate: endOfFinnishDay('2026-11-20'),
+          entryStartDate: stored,
+        })
+      })
+
       // The default days are whole Finnish weeks before the trial. Counted in the browser's zone the
       // day lands a day early: over the end of summer time in New York (the changes of Finland and the
       // US are a week apart), over the start of it in Tokyo.
