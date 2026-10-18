@@ -382,15 +382,25 @@ jobs:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
-      - name: Read the event table from the stack
+      # The setup waits until the API lists the event it wrote, so it needs the API as smoke reads it.
+      - name: Read the event table and the API URL from the stack
         id: stack
         env:
           STACK: koekalenteri-${{ needs.setup.outputs.env }}
         run: |
+          api=$(aws cloudformation describe-stacks --stack-name "$STACK" \
+            --query "Stacks[0].Outputs[?OutputKey=='KoekalenteriFunctionApi'].OutputValue" --output text)
+          if [[ -z "$api" || "$api" == "None" ]]; then
+            echo "::error::$STACK has no KoekalenteriFunctionApi output"
+            exit 1
+          fi
           table=$(aws cloudformation describe-stack-resource --stack-name "$STACK" \
             --logical-resource-id EventTable \
             --query StackResourceDetail.PhysicalResourceId --output text)
-          echo "event_table=$table" >> "$GITHUB_OUTPUT"
+          {
+            echo "api=$api"
+            echo "event_table=$table"
+          } >> "$GITHUB_OUTPUT"
       - name: Cache Playwright browsers
         uses: actions/cache@v6
         with:
@@ -401,6 +411,7 @@ jobs:
       - name: Test
         env:
           CUSTOM_DOMAIN: ${{ secrets.CUSTOM_DOMAIN }}
+          E2E_API_URL: ${{ steps.stack.outputs.api }}
           E2E_EVENT_TABLE: ${{ steps.stack.outputs.event_table }}
         run: E2E_BASE_URL="https://$CUSTOM_DOMAIN/" npm run test-e2e-remote
       - name: Delete the test events

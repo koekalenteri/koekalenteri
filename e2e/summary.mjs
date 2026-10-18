@@ -10,7 +10,7 @@
 import fs from 'node:fs'
 import path from 'node:path'
 
-/** Where the CI reporter in playwright.config.ts writes the results. */
+/** Where the CI reporter in e2e/config.shared.ts writes the results. */
 const RESULTS_JSON = 'test-results/e2e-results.json'
 const JIRA = 'https://koekalenteri.atlassian.net/browse'
 /** GitHub caps a step's summary at 1 MiB; one long page tree must not crowd out the others. */
