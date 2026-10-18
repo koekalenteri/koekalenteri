@@ -28,6 +28,7 @@ import { getAuthorizedEvent } from '../lib/eventAuth'
 import { parseJSONWithFallback } from '../lib/json'
 import { getParam, httpError, LambdaError, lambda, response } from '../lib/lambda'
 import { logger } from '../lib/log'
+import { publishParticipantPayments } from '../lib/payment'
 import {
   adminRegistrationResponse,
   createRegistrationPatches,
@@ -88,6 +89,16 @@ const hasGroupChanged = (reg: JsonRegistration, old: JsonRegistration | undefine
   reg.group?.number !== old?.group?.number ||
   reg.cancelled !== old?.cancelled ||
   reg.cancelReason !== old?.cancelReason
+
+/**
+ * The registrations whose place changed: a group key (a participant group, the reserve or the
+ * cancelled) is all of the group the payment picture reads (KOE-1553). A dog only renumbered pays as
+ * it did, so its entrant hears nothing.
+ */
+const placeChangedIds = (updatedItems: JsonRegistration[], oldItems: JsonRegistration[]) => {
+  const oldKeys = new Map(oldItems.map((item) => [item.id, getRegistrationGroupKey(item)]))
+  return updatedItems.filter((reg) => getRegistrationGroupKey(reg) !== oldKeys.get(reg.id)).map((reg) => reg.id)
+}
 
 const saveChangedGroup = async (
   reg: JsonRegistration,
@@ -339,6 +350,7 @@ const putRegistrationGroupsLambda = lambda('putRegistrationGroups', async (event
 
   const changedRegistrations = createRegistrationPatches(updatedItems, oldItems)
   await publishRegistrationPatches(eventId, changedRegistrations, confirmedEvent.organizer.id)
+  await publishParticipantPayments(confirmedEvent, placeChangedIds(updatedItems, oldItems))
   // Moving a dog between groups, and cancelling one, both change the published rows.
   await publishPublicStartList(eventId)
   const responseItems = await Promise.all(

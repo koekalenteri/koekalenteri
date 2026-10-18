@@ -25,6 +25,7 @@ import { LambdaError } from './lambda'
 import { logger } from './log'
 import { paytrail } from './paytrail'
 import { getRegistration, participantRegistrationResponse } from './registration'
+import { publishParticipantRegistrationPatches } from './ws/actions'
 import { buildParticipantPaymentPatch } from './ws/payloads'
 
 const { registrationTable, transactionTable } = CONFIG
@@ -602,6 +603,29 @@ export const participantResponse = async (
  */
 export const participantPaymentPatch = async (registration: JsonRegistration, event: JsonConfirmedEvent) =>
   buildParticipantPaymentPatch(registration, event, await loadOpenPayments(registration.openPayments))
+
+/**
+ * The participant's payment patch of a registration as it is stored now: read strongly consistent
+ * after the caller's own write, so the patch carries that write's `updatedAt` and whatever a payment
+ * changed meanwhile (KOE-1553). Undefined for a row that is not there.
+ */
+export const storedParticipantPaymentPatch = async (event: JsonConfirmedEvent, registrationId: string) => {
+  const stored = await dynamoDB.read<JsonRegistration>(
+    { eventId: event.id, id: registrationId },
+    registrationTable,
+    true
+  )
+  return stored ? participantPaymentPatch(stored, event) : undefined
+}
+
+/**
+ * Tells the entrants of these registrations what their payment now looks like, each from the row as
+ * stored (KOE-1553). Only the pages that are open get a patch, and only their rows are read.
+ */
+export const publishParticipantPayments = (event: JsonConfirmedEvent, registrationIds: readonly string[]) =>
+  publishParticipantRegistrationPatches(event.id, registrationIds, (registrationId) =>
+    storedParticipantPaymentPatch(event, registrationId)
+  )
 
 const shouldRefreshTransactionStatus = (transaction: JsonPaymentTransaction | JsonRefundTransaction) =>
   transaction.type === 'refund'
