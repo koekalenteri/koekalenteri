@@ -5,6 +5,7 @@ import type {
   EventBreakdownEntry,
   JsonEventStatsItem,
   JudgeWorkloadEntry,
+  RegistrationStatsInput,
   RetentionStats,
   YearlyBreakdownType,
   YearlyStatTypes,
@@ -17,8 +18,8 @@ import { isMember, isStarter } from '../../lib/registration'
 import {
   addOrganizerEventStats,
   commitNewRegistrationStats,
+  isSameOrganizerStatsRow,
   moveOrganizerEventStatsRow,
-  organizerStatsKey,
   readAllOrganizerEventStats,
   readBreedStarts,
   readBuckets,
@@ -49,16 +50,6 @@ const waitForStatsRetry = (attempt: number) => {
   )
   const delay = Math.floor(Math.random() * maximumDelay)
   return new Promise<void>((resolve) => setTimeout(resolve, delay))
-}
-
-export type RegistrationStatsInput = Pick<
-  JsonRegistration,
-  'cancelled' | 'class' | 'eventId' | 'eventType' | 'group' | 'id' | 'ownerHandles' | 'paidAmount' | 'refundAmount'
-> & {
-  dog?: Pick<JsonRegistration['dog'], 'breedCode' | 'regNo'>
-  handler?: Pick<NonNullable<JsonRegistration['handler']>, 'email' | 'membership'>
-  owner?: Pick<NonNullable<JsonRegistration['owner']>, 'membership'>
-  owners?: Pick<NonNullable<JsonRegistration['owners']>[number], 'membership'>[]
 }
 
 /** The Finnish year of an event's stored start date, or undefined for one without a calendar day. */
@@ -381,9 +372,7 @@ export async function moveOrganizerEventStats(
   existing: OrganizerStatsEvent,
   updated: OrganizerStatsEvent
 ): Promise<void> {
-  const from = organizerStatsKey(existing)
-  const to = organizerStatsKey(updated)
-  if (from.PK === to.PK && from.SK === to.SK) return
+  if (isSameOrganizerStatsRow(existing, updated)) return
 
   for (let attempt = 1; attempt <= MOVE_ORGANIZER_STATS_MAX_ATTEMPTS; attempt++) {
     // No record yet means no registrations have been counted for this event; the first

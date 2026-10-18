@@ -40,7 +40,7 @@ The count can only go down; moving a table here lowers it.
 
 | Table | Module | Used by |
 | --- | --- | --- |
-| dataVersion | `dataVersionRepository.ts` | `lib/dataVersions.ts` (the version registry and the applied migrations) |
+| dataVersion | `dataVersionRepository.ts` | `lib/dataVersions.ts` (the version registry and the applied migrations), `RepairDataVersionsFunction` (its types) |
 | dog | `dogRepository.ts` | `GetDogFunction`, `PutRegistrationFunction` |
 | emailSuppression | `emailSuppressionRepository.ts` | `SesNotificationFunction`, `lib/emailSuppression` |
 | emailTemplate | `emailTemplateRepository.ts` | `GetEmailTemplatesFunction`, `PutEmailTemplateFunction`, `RepairDataVersionsFunction` |

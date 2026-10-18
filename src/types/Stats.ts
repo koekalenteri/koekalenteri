@@ -1,3 +1,4 @@
+import type { JsonRegistration } from './Registration'
 import type { ReplaceOptional } from './utility'
 
 interface OrganizerEventStats {
@@ -14,6 +15,17 @@ interface OrganizerEventStats {
   paidAmount: number
   refundedAmount: number
   updatedAt: string
+}
+
+/** What the stats count of a registration: the full row, or the projection the rebuild reads. */
+export type RegistrationStatsInput = Pick<
+  JsonRegistration,
+  'cancelled' | 'class' | 'eventId' | 'eventType' | 'group' | 'id' | 'ownerHandles' | 'paidAmount' | 'refundAmount'
+> & {
+  dog?: Pick<JsonRegistration['dog'], 'breedCode' | 'regNo'>
+  handler?: Pick<NonNullable<JsonRegistration['handler']>, 'email' | 'membership'>
+  owner?: Pick<NonNullable<JsonRegistration['owner']>, 'membership'>
+  owners?: Pick<NonNullable<JsonRegistration['owners']>[number], 'membership'>[]
 }
 
 export type YearlyStatTypes = 'eventType' | 'dog' | 'breed' | 'handler' | 'dog#handler' | 'class' | 'event'

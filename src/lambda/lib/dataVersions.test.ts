@@ -34,6 +34,11 @@ const {
 
 const NOW = '2026-08-30T12:00:00.000Z'
 
+// Restores the console spies a test installs, also when one of its assertions failed first.
+afterEach(() => {
+  vi.restoreAllMocks()
+})
+
 describe('getDataVersions', () => {
   beforeEach(() => {
     vi.clearAllMocks()
@@ -154,7 +159,6 @@ describe('bumpDataVersion', () => {
         scopes: ['*'],
       })
     )
-    error.mockRestore()
   })
 
   it('does nothing without scopes', async () => {
@@ -185,7 +189,6 @@ describe('migration registry', () => {
 
     expect(mockRecordMigration).toHaveBeenCalledWith('backfillOrganizerId', 4, 'abc123', NOW)
     expect(loggedLines(info)).toEqual([])
-    info.mockRestore()
   })
 
   it('leaves an earlier mark alone when a concurrent run already recorded it', async () => {
@@ -196,7 +199,6 @@ describe('migration registry', () => {
     expect(loggedLines(info)).toContainEqual(
       expect.objectContaining({ message: 'migration already recorded', name: 'backfillOrganizerId' })
     )
-    info.mockRestore()
   })
 
   it('does not swallow any other failure of the mark', async () => {

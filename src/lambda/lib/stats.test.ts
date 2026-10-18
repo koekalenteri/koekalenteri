@@ -1,8 +1,7 @@
 import type { JsonConfirmedEvent, JsonEventType, JsonRegistration } from '../../types'
-import type { JsonCapacityStatsItem } from '../../types/Stats'
+import type { JsonCapacityStatsItem, RegistrationStatsInput } from '../../types/Stats'
 import type * as eventStatsRepository from './repositories/eventStatsRepository'
 import type * as registrationRepository from './repositories/registrationRepository'
-import type { RegistrationStatsInput } from './stats'
 import { vi } from 'vitest'
 import { asJsonRegistration } from '../test-utils/helpers'
 
@@ -453,6 +452,12 @@ describe('lib/stats', () => {
         { count: 100, type: 'handler', year: 2024 },
         { count: 200, type: 'dog#handler', year: 2024 },
       ])
+    })
+
+    it('handles empty results', async () => {
+      mockReadYearlyTotals.mockResolvedValueOnce([])
+
+      await expect(getYearlyTotalStats(2023)).resolves.toEqual([])
     })
   })
 

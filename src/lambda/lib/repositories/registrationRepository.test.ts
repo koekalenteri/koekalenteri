@@ -40,7 +40,6 @@ describe('registrationRepository', () => {
         names: { '#class': 'class', '#group': 'group', '#handler': 'handler', '#key': 'key', '#owner': 'owner' },
         projection:
           'eventId, id, cancelled, paidAmount, refundAmount, eventType, dog.regNo, dog.breedCode, #handler.email, #handler.membership, #owner.membership, owners, ownerHandles, #class, #group.#key',
-        table: 'registration-table',
       })
     })
 
@@ -57,7 +56,7 @@ describe('registrationRepository', () => {
       mockRead.mockResolvedValueOnce(registration)
 
       await expect(readRegistrationConsistently('e1', 'r1')).resolves.toBe(registration)
-      expect(mockRead).toHaveBeenCalledWith({ eventId: 'e1', id: 'r1' }, 'registration-table', true)
+      expect(mockRead).toHaveBeenCalledWith({ eventId: 'e1', id: 'r1' }, undefined, true)
     })
 
     it('reads a missing registration as undefined', async () => {

@@ -11,8 +11,7 @@ import type {
 import { CONFIG } from '../../config'
 import CustomDynamoClient from '../../utils/CustomDynamoClient'
 
-const { eventStatsTable, registrationTable } = CONFIG
-const dynamoDB = new CustomDynamoClient(eventStatsTable)
+const dynamoDB = new CustomDynamoClient(CONFIG.eventStatsTable)
 
 type StatsTransactionItem = NonNullable<TransactWriteCommandInput['TransactItems']>[number]
 
@@ -46,10 +45,56 @@ export interface StatDeltas {
 /** The participation bucket partitions of a year. */
 export type BucketPartition = 'dog#handler' | 'dogsPerHandler'
 
+/**
+ * The partition key prefixes, one per family of stats rows. Each partition key below starts with
+ * one of them, followed by the year (or the event type, or the organizer) it holds.
+ */
+export const STATS_KEY_PREFIX = {
+  breakdown: 'BREAKDOWN#',
+  buckets: 'BUCKETS#',
+  capacity: 'CAPACITY#',
+  judge: 'JUDGE#',
+  organizer: 'ORG#',
+  retention: 'RETENTION#',
+  stat: 'STAT#',
+  totals: 'TOTALS#',
+} as const
+
+/** The partition holding one row per year that has statistics, the year in the sort key. */
+export const YEARS_PK = 'YEARS'
+
+/** The year's participation totals, one row per statistic type. */
+export const yearlyTotalsPk = (year: number) => `${STATS_KEY_PREFIX.totals}${year}`
+
+/** The year's new and returning dog+handler pairs. */
+export const retentionPk = (year: number) => `${STATS_KEY_PREFIX.retention}${year}`
+
+/** The year's per-entity counts of one statistic type, or the starters per breed (`breedStart`). */
+export const yearlyStatPk = (year: number, type: string) => `${STATS_KEY_PREFIX.stat}${year}#${type}`
+
+/** The year's bucketed counts of one bucket partition. */
+export const bucketsPk = (year: number, partition: BucketPartition) => `${STATS_KEY_PREFIX.buckets}${year}#${partition}`
+
+/** The monthly capacity rows of one event type. */
+export const capacityPk = (eventType: string) => `${STATS_KEY_PREFIX.capacity}${eventType}`
+
+/** The year's per-organizer, per-judge event counts. */
+export const judgeWorkloadPk = (year: number) => `${STATS_KEY_PREFIX.judge}${year}`
+
+/** The year's club + event type breakdown. */
+export const eventBreakdownPk = (year: number) => `${STATS_KEY_PREFIX.breakdown}${year}`
+
 export const organizerStatsKey = (event: OrganizerStatsEvent) => ({
-  PK: `ORG#${event.organizer.id}`,
+  PK: `${STATS_KEY_PREFIX.organizer}${event.organizer.id}`,
   SK: `${event.startDate}#${event.id}`,
 })
+
+/** Whether the two versions of an event keep their organizer stats in the same row. */
+export const isSameOrganizerStatsRow = (a: OrganizerStatsEvent, b: OrganizerStatsEvent) => {
+  const keyA = organizerStatsKey(a)
+  const keyB = organizerStatsKey(b)
+  return keyA.PK === keyB.PK && keyA.SK === keyB.SK
+}
 
 /** Every counter an organizer stats row carries, as the update expressions name them. */
 const ORGANIZER_STATS_NAMES = {
@@ -112,7 +157,7 @@ export async function readOrganizerEventStats(
   from?: string,
   to?: string
 ): Promise<Required<JsonEventStatsItem>[]> {
-  const expressionValues: Record<string, string> = { ':pk': `ORG#${organizerId}` }
+  const expressionValues: Record<string, string> = { ':pk': `${STATS_KEY_PREFIX.organizer}${organizerId}` }
   const { filterExpressions, expressionValues: dateValues } = buildDateRangeFilters(from, to)
   Object.assign(expressionValues, dateValues)
 
@@ -129,7 +174,7 @@ export async function readOrganizerEventStats(
 /** Every organizer's event rows, optionally only the events starting within the range. */
 export async function readAllOrganizerEventStats(from?: string, to?: string): Promise<Required<JsonEventStatsItem>[]> {
   const filterExpressions: string[] = ['begins_with(#pk, :orgPrefix)']
-  const expressionValues: Record<string, string> = { ':orgPrefix': 'ORG#' }
+  const expressionValues: Record<string, string> = { ':orgPrefix': STATS_KEY_PREFIX.organizer }
   const { filterExpressions: dateFilters, expressionValues: dateValues } = buildDateRangeFilters(from, to)
   filterExpressions.push(...dateFilters)
   Object.assign(expressionValues, dateValues)
@@ -144,25 +189,25 @@ export async function readAllOrganizerEventStats(from?: string, to?: string): Pr
 }
 
 /** The year's participation totals, one row per statistic type. */
-export const readYearlyTotals = async (year: number) => queryPartition<StatCountRow>(`TOTALS#${year}`)
+export const readYearlyTotals = async (year: number) => queryPartition<StatCountRow>(yearlyTotalsPk(year))
 
 /** The year's new and returning dog+handler pair counts. */
-export const readRetention = async (year: number) => queryPartition<StatCountRow>(`RETENTION#${year}`)
+export const readRetention = async (year: number) => queryPartition<StatCountRow>(retentionPk(year))
 
 /** The year's per-entity participation counts of one type. */
 export const readYearlyBreakdown = async (year: number, type: YearlyBreakdownType) =>
-  queryPartition<StatCountRow>(`STAT#${year}#${type}`)
+  queryPartition<StatCountRow>(yearlyStatPk(year, type))
 
 /** The year's starters and reserve per breed. */
 export const readBreedStarts = async (year: number) =>
-  queryPartition<Pick<JsonBreedStartStatsItem, 'SK' | 'reserve' | 'starters'>>(`STAT#${year}#breedStart`)
+  queryPartition<Pick<JsonBreedStartStatsItem, 'SK' | 'reserve' | 'starters'>>(yearlyStatPk(year, 'breedStart'))
 
 /** The year's bucketed counts of one bucket partition. */
 export const readBuckets = async (year: number, partition: BucketPartition) =>
-  queryPartition<StatCountRow>(`BUCKETS#${year}#${partition}`)
+  queryPartition<StatCountRow>(bucketsPk(year, partition))
 
 /** The years that have statistics, one row per year in the sort key. */
-export const readStatsYears = async () => queryPartition<Pick<EventStatKey, 'SK'>>('YEARS')
+export const readStatsYears = async () => queryPartition<Pick<EventStatKey, 'SK'>>(YEARS_PK)
 
 /**
  * The monthly capacity rows of one event type, optionally bounded to a yyyy-mm month range and to
@@ -179,7 +224,7 @@ export async function readCapacityStats(
 ): Promise<JsonCapacityStatsItem[]> {
   let keyCondition = '#pk = :pk'
   const names: Record<string, string> = { '#pk': 'PK' }
-  const values: Record<string, string> = { ':pk': `CAPACITY#${eventType}` }
+  const values: Record<string, string> = { ':pk': capacityPk(eventType) }
 
   if (from && to) {
     keyCondition += ' AND SK BETWEEN :from AND :to'
@@ -206,7 +251,7 @@ export async function readCapacityStats(
 /** The year's per-organizer, per-judge event counts, optionally only some organizers' rows. */
 export async function readJudgeWorkload(year: number, organizerIds?: string[]): Promise<JsonJudgeWorkloadItem[]> {
   const names: Record<string, string> = { '#pk': 'PK' }
-  const values: Record<string, string> = { ':pk': `JUDGE#${year}` }
+  const values: Record<string, string> = { ':pk': judgeWorkloadPk(year) }
   const items = await dynamoDB.query<JsonJudgeWorkloadItem>({
     filterExpression: organizerFilterExpression(organizerIds, names, values),
     key: '#pk = :pk',
@@ -218,7 +263,7 @@ export async function readJudgeWorkload(year: number, organizerIds?: string[]): 
 }
 
 /** The year's club + event type breakdown rows. */
-export const readEventBreakdown = async (year: number) => queryPartition<JsonEventBreakdownItem>(`BREAKDOWN#${year}`)
+export const readEventBreakdown = async (year: number) => queryPartition<JsonEventBreakdownItem>(eventBreakdownPk(year))
 
 /** Adds the deltas to the event's organizer stats row, creating the row when there is none. */
 export async function addOrganizerEventStats(
@@ -280,7 +325,7 @@ export async function moveOrganizerEventStatsRow(
           ':updatedAt': updatedAt,
         },
         Key: organizerStatsKey(updated),
-        TableName: eventStatsTable,
+        TableName: CONFIG.eventStatsTable,
         UpdateExpression:
           'ADD #cancelledRegistrations :cancelledRegistrations, #count :count, #memberRegistrations :memberRegistrations, #paidAmount :paidAmount, #paidRegistrations :paidRegistrations, #refundedAmount :refundedAmount, #refundedRegistrations :refundedRegistrations, #reserveRegistrations :reserveRegistrations SET #date = :date, #organizerId = :organizerId, #updatedAt = :updatedAt',
       },
@@ -291,7 +336,7 @@ export async function moveOrganizerEventStatsRow(
         ExpressionAttributeNames: { '#updatedAt': 'updatedAt' },
         ExpressionAttributeValues: stats.updatedAt ? { ':expectedUpdatedAt': stats.updatedAt } : undefined,
         Key: organizerStatsKey(existing),
-        TableName: eventStatsTable,
+        TableName: CONFIG.eventStatsTable,
       },
     },
   ])
@@ -318,7 +363,7 @@ const organizerStatsTransactionItem = (
       ':updatedAt': updatedAt,
     },
     Key: organizerStatsKey(event),
-    TableName: eventStatsTable,
+    TableName: CONFIG.eventStatsTable,
     UpdateExpression:
       'ADD #cancelledRegistrations :cancelledDelta, #count :totalDelta, #memberRegistrations :memberDelta, #paidAmount :paidAmountDelta, #paidRegistrations :paidDelta, #refundedAmount :refundedAmountDelta, #refundedRegistrations :refundedDelta, #reserveRegistrations :reserveDelta SET #date = :date, #organizerId = :organizerId, #updatedAt = :updatedAt',
   },
@@ -338,6 +383,8 @@ export async function commitNewRegistrationStats(
 ): Promise<void> {
   await dynamoDB.documentTransaction([
     organizerStatsTransactionItem(event, deltas, updatedAt),
+    // The registration's key and its lease and marker attributes are written here because the
+    // transaction belongs to this table's repository; the registration's own access is KOE-1409's.
     {
       Update: {
         ConditionExpression: 'attribute_exists(#id) AND attribute_not_exists(#statsAt) AND #lease.#token = :leaseToken',
@@ -349,7 +396,7 @@ export async function commitNewRegistrationStats(
         },
         ExpressionAttributeValues: { ':leaseToken': leaseToken, ':statsAt': updatedAt },
         Key: { eventId: registration.eventId, id: registration.id },
-        TableName: registrationTable,
+        TableName: CONFIG.registrationTable,
         UpdateExpression: 'SET #statsAt = :statsAt',
       },
     },
@@ -362,8 +409,8 @@ export const readAllStatKeys = async (): Promise<EventStatKey[]> =>
 
 /**
  * Puts the rows, overwriting each key in place. The rebuild (`buildStatsRecords` in
- * `lib/statsRebuild.ts`) still builds the rows with their PK and SK itself, until KOE-1348 moves
- * the stats computation; this function only writes what it is given.
+ * `lib/statsRebuild.ts`) still assembles the rows itself, keyed with the builders above, until
+ * KOE-1348 moves the stats computation; this function only writes what it is given.
  */
 export const writeStatRecords = async (records: EventStatKey[]) => dynamoDB.batchWrite(records)
 

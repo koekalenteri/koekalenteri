@@ -1,11 +1,10 @@
 import type { JsonRegistration } from '../../../types'
-import type { RegistrationStatsInput } from '../stats'
+import type { RegistrationStatsInput } from '../../../types/Stats'
 import { CONFIG } from '../../config'
 import CustomDynamoClient from '../../utils/CustomDynamoClient'
 
 // Partial: only the reads the stats code needs. KOE-1409 moves the rest of the table here.
-const { registrationTable } = CONFIG
-const dynamoDB = new CustomDynamoClient(registrationTable)
+const dynamoDB = new CustomDynamoClient(CONFIG.registrationTable)
 
 const REGISTRATION_STATS_PROJECTION_NAMES = {
   '#class': 'class',
@@ -22,9 +21,8 @@ export const readRegistrationsForStats = async (): Promise<RegistrationStatsInpu
   (await dynamoDB.readAll<RegistrationStatsInput>({
     names: REGISTRATION_STATS_PROJECTION_NAMES,
     projection: REGISTRATION_STATS_PROJECTION,
-    table: registrationTable,
   })) ?? []
 
 /** The registration as last written, or undefined when there is none. */
 export const readRegistrationConsistently = async (eventId: string, id: string) =>
-  dynamoDB.read<JsonRegistration>({ eventId, id }, registrationTable, true)
+  dynamoDB.read<JsonRegistration>({ eventId, id }, undefined, true)

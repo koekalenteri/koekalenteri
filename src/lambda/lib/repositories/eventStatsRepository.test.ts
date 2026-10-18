@@ -33,6 +33,7 @@ const {
   addOrganizerEventStats,
   commitNewRegistrationStats,
   deleteStatRecords,
+  isSameOrganizerStatsRow,
   moveOrganizerEventStatsRow,
   organizerStatsKey,
   readAllOrganizerEventStats,
@@ -97,6 +98,21 @@ describe('eventStatsRepository', () => {
     expect(organizerStatsKey({ id: 'e1', organizer: { id: 'org1' }, startDate: '2024-06-01' })).toEqual({
       PK: 'ORG#org1',
       SK: '2024-06-01#e1',
+    })
+  })
+
+  describe('isSameOrganizerStatsRow', () => {
+    const event = { id: 'e1', organizer: { id: 'org1' }, startDate: '2024-06-01' }
+
+    it('is the same row while neither the organizer nor the start date changed', () => {
+      expect(isSameOrganizerStatsRow(event, { ...event })).toBe(true)
+    })
+
+    it.each([
+      ['the organizer', { ...event, organizer: { id: 'org2' } }],
+      ['the start date', { ...event, startDate: '2024-06-02' }],
+    ])('is another row when %s changed', (_change, updated) => {
+      expect(isSameOrganizerStatsRow(event, updated)).toBe(false)
     })
   })
 
