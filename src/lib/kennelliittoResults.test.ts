@@ -15,6 +15,7 @@ import {
   kcResultBadge,
   kcResultDay,
 } from './kennelliittoResults'
+import { patchMerge } from './utils'
 
 const chief = { id: 1000001, name: 'Pääty Tuomari' }
 const second = { id: 1000002, name: 'Toinen Tuomari' }
@@ -183,10 +184,15 @@ describe('kennelliittoResults', () => {
       expect(body.tarkenne).toEqual(tarkenne)
     })
 
-    it('has nothing to send while the trial does not say whether it ran with game or dummies', () => {
-      expect(problemsOf(buildKcResult(event('NOME-B'), registration, koemuotoNOME_B))).toEqual([
-        { code: 'retrieveTypeMissing' },
-      ])
+    it('sends a trial that does not say whether it ran with game or dummies as riistakoe (KOE-1570)', () => {
+      const body = sent(buildKcResult(event('NOME-B'), registration, koemuotoNOME_B))
+      expect(body.tarkenne).toEqual('riistakoe')
+    })
+
+    it('sends a trial whose choice was cleared as riistakoe (KOE-1570)', () => {
+      // A null in a save clears the field: the server merges the save so, and the row has no value.
+      const cleared = patchMerge(event('NOME-B', { retrieveType: 'dummies' }), { retrieveType: null })
+      expect(sent(buildKcResult(cleared, registration, koemuotoNOME_B)).tarkenne).toEqual('riistakoe')
     })
 
     it('sends no points and no trial type with the other formats', () => {

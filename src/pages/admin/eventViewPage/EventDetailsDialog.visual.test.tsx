@@ -36,6 +36,7 @@ const event: ConfirmedEvent = {
   name: 'Syyskoe',
   names: { en: 'Autumn trial' },
   places: 20,
+  retrieveType: 'game',
   startDate: day('2026-10-17'),
   state: 'confirmed',
 }

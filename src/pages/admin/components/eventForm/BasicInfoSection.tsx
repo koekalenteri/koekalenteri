@@ -17,6 +17,7 @@ import type { BasicInfoEvent, PartialEvent, SectionProps } from './types'
 import Checkbox from '@mui/material/Checkbox'
 import FormControl from '@mui/material/FormControl'
 import FormControlLabel from '@mui/material/FormControlLabel'
+import FormHelperText from '@mui/material/FormHelperText'
 import FormLabel from '@mui/material/FormLabel'
 import Grid from '@mui/material/Grid'
 import Radio from '@mui/material/Radio'
@@ -105,6 +106,7 @@ function BasicInfoSection({
         errorStates.organizer ||
         errorStates.location ||
         errorStates.official ||
+        errorStates.retrieveType ||
         errorStates.secretary)) ||
     false
   const helperText = error
@@ -174,8 +176,9 @@ function BasicInfoSection({
         official && (event.judges.length === 0 || !event.judges[0].official)
           ? [{ id: 0, name: '', official: true }, ...event.judges]
           : event.judges
-      // The game-or-dummies choice (KOE-439) is a B-trial's; a trial that changes format drops it.
-      const retrieveType = hasRetrieveTypeChoice(eventType) ? event.retrieveType : null
+      // The game-or-dummies choice (KOE-439) is a B-trial's; a trial that changes format drops it, and
+      // one that becomes a B-trial starts with game (KOE-1570).
+      const retrieveType = hasRetrieveTypeChoice(eventType) ? (event.retrieveType ?? 'game') : null
       onChange?.({ classes, eventType, judges, mockTrial, retrieveType })
     },
     [event.classes, event.judges, event.mockTrial, event.retrieveType, eventTypeClasses, onChange]
@@ -303,9 +306,14 @@ function BasicInfoSection({
         {hasRetrieveTypeChoice(event.eventType) ? (
           <Grid container spacing={1}>
             <Grid sx={{ width: 600 }}>
-              <FormControl disabled={disabled}>
+              <FormControl
+                disabled={disabled}
+                error={errorStates?.retrieveType}
+                required={fields?.required.retrieveType}
+              >
                 <FormLabel id="retrieveType-label">{t('event.retrieveType')}</FormLabel>
                 <RadioGroup
+                  aria-describedby={helperTexts?.retrieveType ? 'retrieveType-helper' : undefined}
                   aria-labelledby="retrieveType-label"
                   name="retrieveType"
                   onChange={handleRetrieveTypeChange}
@@ -321,6 +329,9 @@ function BasicInfoSection({
                     />
                   ))}
                 </RadioGroup>
+                {helperTexts?.retrieveType ? (
+                  <FormHelperText id="retrieveType-helper">{helperTexts.retrieveType}</FormHelperText>
+                ) : null}
               </FormControl>
             </Grid>
           </Grid>

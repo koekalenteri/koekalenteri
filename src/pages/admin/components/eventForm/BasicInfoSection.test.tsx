@@ -136,6 +136,34 @@ describe('BasicInfoSection', () => {
       expect(changeHandler).toHaveBeenCalledWith({ classes: testEvent.classes, mockTrial: false })
     })
 
+    it.each([
+      ['a new trial becomes a B-trial with game', undefined, undefined, 'NOME-B', 'game'],
+      ['a B-trial keeps its choice in the championship', 'NOME-B', 'dummies' as const, 'NOME-B SM', 'dummies'],
+      ['a B-trial without the choice gets game in the championship', 'NOME-B', undefined, 'NOME-B SM', 'game'],
+      ['a trial that is no B-trial drops the choice', 'NOME-B', 'dummies' as const, 'NOU', null],
+    ])('%s (KOE-1570)', async (_name, eventType, stored, picked, retrieveType) => {
+      const testEvent: PartialEvent = {
+        classes: [],
+        endDate: newEventStartDate,
+        eventType,
+        judges: [],
+        retrieveType: stored,
+        startDate: newEventStartDate,
+      }
+      const changeHandler = vi.fn()
+      const { user } = renderComponent({
+        event: testEvent,
+        eventTypes: ['NOME-B', 'NOME-B SM', 'NOU'],
+        onChange: changeHandler,
+        open: true,
+      })
+
+      await user.click(screen.getByRole('combobox', { name: 'event.eventType' }))
+      await user.click(screen.getByRole('option', { name: picked }))
+
+      expect(changeHandler).toHaveBeenCalledWith(expect.objectContaining({ eventType: picked, retrieveType }))
+    })
+
     it('has no Mock trial mark for the other event types', () => {
       const testEvent: PartialEvent = {
         classes: [],
