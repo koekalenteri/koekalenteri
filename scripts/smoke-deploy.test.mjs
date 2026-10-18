@@ -395,7 +395,7 @@ describe('the command line against a server', () => {
     expect(result.stdout).toContain('GET /event: 2 events')
   })
 
-  it('passes a dev deploy, as release.yml runs it, of the checked-out commit', async () => {
+  it('accepts the dev flags release.yml passes, for a page built from the expected commit', async () => {
     const revision = execFileSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }).trim()
     const version = JSON.parse(execFileSync('git', ['show', 'HEAD:package.json'], { encoding: 'utf8' })).version
     stamp = { revision, version }
