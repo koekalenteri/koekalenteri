@@ -203,4 +203,42 @@ describe('getOrganizersLambda', () => {
       })
     )
   })
+
+  it('renames every organizer the Kennel Club reports under a new name and adds the new ones', async () => {
+    const eventWithRefresh = {
+      ...event,
+      queryStringParameters: { refresh: '' },
+    }
+    const organizers = [
+      { id: 'org1', kcId: '123', name: 'Old 1' },
+      { id: 'org2', kcId: '456', name: 'Same' },
+      { id: 'org3', kcId: '789', name: 'Old 3' },
+    ]
+
+    mockAuthorize.mockResolvedValueOnce({ admin: true, id: 'admin1' })
+    mockLueYhdistykset.mockResolvedValueOnce({
+      json: [
+        { jäsennumero: '123', strYhdistys: 'New 1' },
+        { jäsennumero: '456', strYhdistys: 'Same' },
+        { jäsennumero: '789', strYhdistys: 'New 3' },
+        { jäsennumero: '999', strYhdistys: 'Added' },
+      ],
+      status: 200,
+    })
+    mockReadOrganizers.mockResolvedValueOnce(organizers)
+    mockNanoid.mockReturnValueOnce('org4')
+    mockReadOrganizers.mockResolvedValueOnce([])
+
+    await getOrganizersLambda(eventWithRefresh)
+
+    expect(mockRenameOrganizer).toHaveBeenCalledTimes(2)
+    expect(mockRenameOrganizer).toHaveBeenCalledWith('org1', 'New 1')
+    expect(mockRenameOrganizer).toHaveBeenCalledWith('org3', 'New 3')
+    expect(mockAddOrganizers).toHaveBeenCalledWith([{ id: 'org4', kcId: '999', name: 'Added' }])
+    const lines = loggedLines(consoleLogSpy).filter((line) => line.message === 'organizer name changed')
+    expect(lines).toEqual([
+      expect.objectContaining({ kcId: '123', name: 'New 1', previous: 'Old 1' }),
+      expect.objectContaining({ kcId: '789', name: 'New 3', previous: 'Old 3' }),
+    ])
+  })
 })
