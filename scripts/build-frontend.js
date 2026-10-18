@@ -53,10 +53,13 @@ function compile() {
 }
 
 async function build() {
-  console.log('Type-checking the frontend...')
-  execFileSync(process.execPath, [require.resolve('typescript/bin/tsc'), '--noEmit', '-p', paths.appTsConfig], {
-    stdio: 'inherit',
-  })
+  // CI type-checks once in the frontend job's lint step; the builds there skip the 50 s repeat.
+  if (process.env.SKIP_TYPECHECK !== 'true') {
+    console.log('Type-checking the frontend...')
+    execFileSync(process.execPath, [require.resolve('typescript/bin/tsc'), '--noEmit', '-p', paths.appTsConfig], {
+      stdio: 'inherit',
+    })
+  }
 
   fs.emptyDirSync(paths.appBuild)
   fs.copySync(paths.appPublic, paths.appBuild, {
