@@ -104,6 +104,8 @@ Read `LLM_CONTEXT.md` for the project overview and architecture notes.
   `app-revision` metas of that build (written into `public/index.html` by `config/webpack.config.js`)
   and preconnect to the stack's `KoekalenteriFunctionApi`. A red smoke on dev fails `deploy-dev`, so
   `jira-testable` does not run.
+- Of the build's settings only `REACT_APP_API_BASE_URL` is compared (through the preconnect link). A
+  stale user pool, client id, OAuth domain, WebSocket URL or RUM setting passes the smoke check.
 - The CI `frontend` job checks the same stamp on its own build, so removing or renaming a meta fails
   there first. Keep the names in step with the script.
 

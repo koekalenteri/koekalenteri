@@ -61,30 +61,41 @@ export function readStamp(html) {
 
 const withoutTrailingSlash = (url) => url.replace(/\/+$/, '')
 
-function revisionProblem(served, expected, isDescendant) {
-  if (served === undefined) return 'no app-revision meta'
-  if (served === expected.revision) return undefined
-  if (!expected.allowDescendant) return `revision ${served}, expected ${expected.revision}`
+/**
+ * How the served revision relates to the expected one: `{ problem }` when it is not acceptable,
+ * `{ descendant: true }` when it is a later commit on main that `--allow-descendant` lets through.
+ */
+function checkRevision(served, expected, git) {
+  if (served === undefined) return { problem: 'no app-revision meta' }
+  if (served === expected.revision) return {}
+  if (!expected.allowDescendant) return { problem: `revision ${served}, expected ${expected.revision}` }
   // Only a commit id goes to git: the value comes from a web page.
-  if (COMMIT_ID.test(served) && isDescendant(expected.revision, served)) return undefined
-  return `revision ${served}, expected ${expected.revision} or a later commit`
+  if (COMMIT_ID.test(served) && git.isDescendant(expected.revision, served)) return { descendant: true }
+  return { problem: `revision ${served}, expected ${expected.revision} or a later commit` }
+}
+
+function versionProblem(served, expectedVersion, revisionCheck, git, servedRevision) {
+  if (served === undefined) return 'no app-version meta'
+  // A later commit is the right build only with its own version: main may have bumped it meanwhile.
+  const wanted = revisionCheck.descendant ? git.versionAt(servedRevision) : expectedVersion
+  if (wanted === undefined) return `no package.json version at ${servedRevision}`
+  if (served === wanted) return undefined
+  return `version ${served}, expected ${wanted}`
 }
 
 /**
  * Every way the stamp differs from what this deploy built. Each expectation is checked only when
- * given: a backend-only deploy built no frontend, so it expects nothing of the stamp.
+ * given: a backend-only deploy built no frontend, so it expects nothing of the stamp. `git` answers
+ * `isDescendant(ancestor, revision)` and `versionAt(revision)` from the local clone.
  */
-export function stampProblems(stamp, expected, isDescendant) {
+export function stampProblems(stamp, expected, git) {
   const problems = []
+  const revisionCheck = expected.revision === undefined ? {} : checkRevision(stamp.revision, expected, git)
   if (expected.version !== undefined) {
-    if (stamp.version === undefined) problems.push('no app-version meta')
-    else if (stamp.version !== expected.version)
-      problems.push(`version ${stamp.version}, expected ${expected.version}`)
-  }
-  if (expected.revision !== undefined) {
-    const problem = revisionProblem(stamp.revision, expected, isDescendant)
+    const problem = versionProblem(stamp.version, expected.version, revisionCheck, git, stamp.revision)
     if (problem) problems.push(problem)
   }
+  if (revisionCheck.problem) problems.push(revisionCheck.problem)
   if (expected.api !== undefined) {
     if (stamp.api === undefined) problems.push('no preconnect link')
     else if (withoutTrailingSlash(stamp.api) !== withoutTrailingSlash(expected.api))
@@ -102,6 +113,22 @@ export function isGitDescendant(ancestor, revision) {
     return false
   }
 }
+
+/** The package.json version at `revision` in the local clone, or undefined when git cannot tell. */
+export function gitVersionAt(revision) {
+  try {
+    const text = execFileSync('git', ['show', `${revision}:package.json`], {
+      encoding: 'utf8',
+      stdio: ['ignore', 'pipe', 'ignore'],
+    })
+    const pkg = JSON.parse(text)
+    return typeof pkg.version === 'string' ? pkg.version : undefined
+  } catch {
+    return undefined
+  }
+}
+
+export const localGit = { isDescendant: isGitDescendant, versionAt: gitVersionAt }
 
 /**
  * Runs `attempt` until it reports no problems or the attempts run out. Each attempt answers with
@@ -128,7 +155,7 @@ async function retry({ attempts, interval, sleep, label }, attempt, number = 1) 
  * done, the CDN may still answer with the previous page for a while, hence the retries; the query
  * string and the request header ask past any cache that honours them.
  */
-export function checkFrontPage({ url, expected, fetch, sleep, attempts, interval, isDescendant }) {
+export function checkFrontPage({ url, expected, fetch, sleep, attempts, interval, git }) {
   const runId = Date.now()
   return retry({ attempts, interval, label: 'front page', sleep }, async (number) => {
     const target = new URL(url)
@@ -142,7 +169,7 @@ export function checkFrontPage({ url, expected, fetch, sleep, attempts, interval
     const type = response.headers.get('content-type') ?? ''
     if (!type.includes('text/html')) return { problems: [`content-type ${type}, expected text/html`] }
     const stamp = readStamp(await response.text())
-    return { problems: stampProblems(stamp, expected, isDescendant), value: stamp }
+    return { problems: stampProblems(stamp, expected, git), value: stamp }
   })
 }
 
@@ -158,7 +185,8 @@ export function checkApi({ api, fetch, sleep, attempts, interval }) {
   })
 }
 
-function expectations(values) {
+/** The `--expect-*` options as the expectations `stampProblems` takes. */
+export function expectations(values) {
   const expected = {}
   for (const [key, option] of [
     ['version', 'expect-version'],
@@ -196,7 +224,7 @@ async function main() {
 
   if (values.html) {
     const stamp = readStamp(readFileSync(values.html, 'utf8'))
-    const problems = stampProblems(stamp, expected, isGitDescendant)
+    const problems = stampProblems(stamp, expected, localGit)
     if (problems.length) throw new Error(`${values.html}: ${problems.join('; ')}`)
     console.log(`${values.html}: ${describeStamp(stamp)}`)
     return
@@ -207,7 +235,7 @@ async function main() {
   const interval = Number(values.interval) * 1000
   const common = { fetch: globalThis.fetch, interval, sleep: delay }
 
-  const stamp = await checkFrontPage({ ...common, attempts, expected, isDescendant: isGitDescendant, url: values.url })
+  const stamp = await checkFrontPage({ ...common, attempts, expected, git: localGit, url: values.url })
   console.log(`front page ${values.url}: ${describeStamp(stamp)}`)
   const count = await checkApi({ ...common, api: values.api, attempts: 3 })
   console.log(`GET /event: ${count} events`)
