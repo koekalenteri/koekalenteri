@@ -175,13 +175,11 @@ export async function putResultsPublished(
 
 /**
  * A one-day trial may come from Kennelliitto with the year 1 for its end: the end is the start then.
- * The server now sends the start instead (KOE-1545); an older server's 0001-01-01 revives to a year-1
- * Date, which has no calendar day. The type check is for a value the reviver left a string.
+ * The server now sends the start instead (KOE-1545); an older server's 0001-01-01 still becomes a
+ * year-1 Date at the typed boundary (`toEventKcIdChoice`), which has no calendar day.
  */
 const normalizeEventKcIdChoice = (choice: EventKcIdChoice): EventKcIdChoice =>
-  !(choice.endDate instanceof Date) || !hasCalendarDay(choice.endDate, TIME_ZONE)
-    ? { ...choice, endDate: choice.startDate }
-    : choice
+  hasCalendarDay(choice.endDate, TIME_ZONE) ? choice : { ...choice, endDate: choice.startDate }
 
 export async function searchEventKcIdChoices(
   request: SearchEventKcIdChoicesRequest,

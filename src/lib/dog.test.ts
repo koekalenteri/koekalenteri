@@ -2,7 +2,7 @@ import type { BreedCode } from '../types'
 import { subMinutes } from 'date-fns'
 import { t } from 'i18next'
 import { breedAbbreviation, createDogUpdateFromFormValues, formatDogName, isValidDob, shouldAllowRefresh } from './dog'
-import { parseJSON } from './utils'
+import { toDog } from './wire'
 
 describe('dog utility functions', () => {
   describe('shouldAllowRefresh', () => {
@@ -36,10 +36,10 @@ describe('dog utility functions', () => {
       expect(isValidDob(emptyKlDate)).toBe(false)
     })
 
-    it('reads the empty date as the API hands it to the form: revived from JSON (KOE-1545)', () => {
-      const { dob } = parseJSON('{"dob":"0001-01-01T00:00:00"}')
-      expect(isValidDob(dob)).toBe(false)
-      expect(isValidDob(parseJSON('{"dob":"0000-12-31T22:20:11.000Z"}').dob)).toBe(false)
+    it('reads the empty date as the API hands it to the form, through the typed boundary (KOE-1545)', () => {
+      expect(isValidDob(toDog({ dob: '0001-01-01T00:00:00' }).dob)).toBe(false)
+      expect(isValidDob(toDog({ dob: '0000-12-31T22:20:11.000Z' }).dob)).toBe(false)
+      expect(isValidDob(toDog({ dob: '2020-06-01T00:00:00' }).dob)).toBe(true)
     })
 
     it('should return true for valid dates', () => {

@@ -49,7 +49,7 @@ type EventVitals = Partial<
 
 export const isValidForEntry = (state?: EventState) => !['draft', 'tentative', 'cancelled'].includes(state ?? '')
 
-/** A day as stored (a yyyy-MM-dd key), as the JSON reviver hands it over (a date), or not known. */
+/** A day as stored (a yyyy-MM-dd key or an ISO instant), as the typed boundary hands an instant over (a Date), or not known. */
 type DayInput = Date | string | undefined
 
 /**
@@ -60,7 +60,7 @@ type DayInput = Date | string | undefined
  */
 export const eventDayKey = (date: Date | string): DayKey => (isDayKey(date) ? date : dayOf(toInstant(date), TIME_ZONE))
 
-/** A stored instant as a Date: the ISO string the stored form is, or the Date the client revived it to. */
+/** A stored instant as a Date: the ISO string the stored form is, or the Date the client's typed boundary made of it. */
 const toInstant = (date: Date | string): Date => (typeof date === 'string' ? new Date(date) : date)
 
 /**
