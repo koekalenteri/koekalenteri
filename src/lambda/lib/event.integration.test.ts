@@ -19,7 +19,7 @@ describe('findQualificationStartDate against DynamoDB-local', () => {
     id: uniqueId('event'),
   })
 
-  it('reads the latest earlier entry end of the event type through gsiEventTypeEntryEndDate', async () => {
+  it('reads the latest earlier entry end of the event type through gsiEventTypeEntryEndDateV2', async () => {
     const eventType = uniqueId('type')
     await client.batchWrite([
       seed(eventType, '2026-03-01T21:59:59.999Z'),
@@ -43,13 +43,9 @@ describe('findQualificationStartDate against DynamoDB-local', () => {
     await expect(findQualificationStartDate(eventType, '2026-05-01T20:59:59.999Z')).resolves.toBeUndefined()
   })
 
-  // A known bug (KOE-1554): the reader expects `entryOrigEndDate` (the entry end before it was
-  // extended, as PutEvent stores it), but the index projects `origEntryEndDate`, a name nothing
-  // writes, so the original entry end date never reaches the reader and the extended one is used
-  // instead. The fix is the projection's attribute name in template/tables/event-table.yaml, and a
-  // projection cannot be changed in place: deploy work outside this change. This test is written to
-  // the intended behaviour and marked as failing, so it turns red the day the projection is fixed.
-  it.fails('counts from the original entry end date when the entry was extended (KOE-1554)', async () => {
+  // PutEvent keeps the entry end before an extension in `entryOrigEndDate`; the qualification period
+  // counts from that day, so the index the reader queries must project the field (KOE-1554).
+  it('counts from the original entry end date when the entry was extended (KOE-1554)', async () => {
     const eventType = uniqueId('type')
     await client.write(seed(eventType, '2026-05-20T20:59:59.999Z', '2026-05-10T20:59:59.999Z'))
 
