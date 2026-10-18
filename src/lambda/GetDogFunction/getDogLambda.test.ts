@@ -1,21 +1,33 @@
+import type { JsonDog } from '../../types'
 import type KLAPI from '../lib/KLAPI'
 import type { KLKoira } from '../types/KLAPI'
-import type CustomDynamoClient from '../utils/CustomDynamoClient'
 import { vi } from 'vitest'
+import { CONFIG } from '../config'
 import { constructAPIGwEvent } from '../test-utils/helpers'
 import { loggedLines } from '../test-utils/logs'
 
-const mockDynamoDB: import('vitest').Mocked<CustomDynamoClient> = {
-  delete: vi.fn(),
-  // @ts-expect-error types don't quite match
-  query: vi.fn(),
-  // @ts-expect-error types don't quite match
-  read: vi.fn(),
-  // @ts-expect-error generic methods cannot be represented precisely by import('vitest').Mocked
-  readAll: vi.fn(),
-  update: vi.fn(),
-  write: vi.fn(),
-}
+const mockReadDog = vi.fn<(regNo: string) => Promise<JsonDog | undefined>>()
+const mockWriteDog = vi.fn<(dog: JsonDog) => Promise<void>>()
+const mockDeleteDog = vi.fn<(regNo: string) => Promise<void>>()
+
+vi.doMock('../lib/repositories/dogRepository', () => ({
+  deleteDog: mockDeleteDog,
+  readDog: mockReadDog,
+  writeDog: mockWriteDog,
+}))
+
+// The event type table, read for the active event types the results are filtered by.
+const mockReadAll = vi.fn()
+const clientTables: string[] = []
+
+vi.doMock('../utils/CustomDynamoClient', () => ({
+  default: class MockCustomDynamoClient {
+    constructor(table: string) {
+      clientTables.push(table)
+    }
+    readAll = (...args: unknown[]) => mockReadAll(...args)
+  },
+}))
 
 // @ts-expect-error partial mock
 const mockKLAPI: import('vitest').Mocked<KLAPI> = {
@@ -26,12 +38,6 @@ const mockKLAPI: import('vitest').Mocked<KLAPI> = {
 vi.doMock('../lib/KLAPI', () => ({
   default: vi.fn(function MockKLAPI() {
     return mockKLAPI
-  }),
-}))
-
-vi.doMock('../utils/CustomDynamoClient', () => ({
-  default: vi.fn(function MockCustomDynamoClient() {
-    return mockDynamoDB
   }),
 }))
 
@@ -49,7 +55,7 @@ describe('getDogHandler', () => {
 
   beforeEach(() => {
     vi.clearAllMocks()
-    mockDynamoDB.readAll.mockResolvedValue([
+    mockReadAll.mockResolvedValue([
       { active: true, eventType: 'NOU' },
       { active: true, eventType: 'NOME-B' },
       { active: true, eventType: 'NOME-A' },
@@ -95,8 +101,8 @@ describe('getDogHandler', () => {
     mockKLAPI.lueKoiranPerustiedot.mockResolvedValueOnce({ error: 'not found', status: 404 })
     const res = await getDogHandler(constructAPIGwEvent('test', { pathParameters: { regNo: 'FI12345~24' } }))
 
-    expect(mockDynamoDB.read).toHaveBeenCalledWith({ regNo: 'FI12345/24' })
-    expect(mockDynamoDB.read).toHaveBeenCalledTimes(1)
+    expect(mockReadDog).toHaveBeenCalledWith('FI12345/24')
+    expect(mockReadDog).toHaveBeenCalledTimes(1)
 
     expect(res.statusCode).toBe(404)
     expect(res.body).toBe(JSON.stringify({ error: 'Upstream error: not found' }))
@@ -112,20 +118,20 @@ describe('getDogHandler', () => {
   })
 
   it('should handle multiple tildes in regNo', async () => {
-    mockDynamoDB.read.mockResolvedValueOnce({ refreshDate: '2024-06-20T09:55:00.000Z', regNo: 'FI123/45/67' })
+    mockReadDog.mockResolvedValueOnce({ refreshDate: '2024-06-20T09:55:00.000Z', regNo: 'FI123/45/67' })
     await getDogHandler(constructAPIGwEvent('test', { pathParameters: { regNo: 'FI123~45~67' } }))
-    expect(mockDynamoDB.read).toHaveBeenCalledWith({ regNo: 'FI123/45/67' })
+    expect(mockReadDog).toHaveBeenCalledWith('FI123/45/67')
   })
 
   it('should handle cached dog that has been marked diseased', async () => {
-    mockDynamoDB.read.mockResolvedValueOnce({ refreshDate: '2023-01-01', regNo: 'FI12345/24' })
+    mockReadDog.mockResolvedValueOnce({ refreshDate: '2023-01-01', regNo: 'FI12345/24' })
     mockKLAPI.lueKoiranPerustiedot.mockResolvedValueOnce({ error: 'diseased', status: 404 })
     const res = await getDogHandler(constructAPIGwEvent('test', { pathParameters: { regNo: 'FI12345~24' } }))
 
-    expect(mockDynamoDB.read).toHaveBeenCalledWith({ regNo: 'FI12345/24' })
-    expect(mockDynamoDB.read).toHaveBeenCalledTimes(1)
-    expect(mockDynamoDB.delete).toHaveBeenCalledWith({ regNo: 'FI12345/24' })
-    expect(mockDynamoDB.delete).toHaveBeenCalledTimes(1)
+    expect(mockReadDog).toHaveBeenCalledWith('FI12345/24')
+    expect(mockReadDog).toHaveBeenCalledTimes(1)
+    expect(mockDeleteDog).toHaveBeenCalledWith('FI12345/24')
+    expect(mockDeleteDog).toHaveBeenCalledTimes(1)
 
     expect(res.statusCode).toBe(404)
     expect(res.body).toBe(JSON.stringify({ error: 'Upstream error: diseased' }))
@@ -140,7 +146,7 @@ describe('getDogHandler', () => {
   })
 
   it('should refresh data', async () => {
-    mockDynamoDB.read.mockResolvedValueOnce({ refreshDate: '2023-01-01', regNo: 'FI12345/24' })
+    mockReadDog.mockResolvedValueOnce({ refreshDate: '2023-01-01', regNo: 'FI12345/24' })
     mockKLAPI.lueKoiranPerustiedot.mockResolvedValueOnce({
       json: {
         id: 123,
@@ -170,10 +176,10 @@ describe('getDogHandler', () => {
       titles: '',
     }
 
-    expect(mockDynamoDB.read).toHaveBeenCalledWith({ regNo: 'FI12345/24' })
-    expect(mockDynamoDB.read).toHaveBeenCalledTimes(1)
-    expect(mockDynamoDB.write).toHaveBeenCalledWith(refreshedDog)
-    expect(mockDynamoDB.write).toHaveBeenCalledTimes(1)
+    expect(mockReadDog).toHaveBeenCalledWith('FI12345/24')
+    expect(mockReadDog).toHaveBeenCalledTimes(1)
+    expect(mockWriteDog).toHaveBeenCalledWith(refreshedDog)
+    expect(mockWriteDog).toHaveBeenCalledTimes(1)
 
     expect(res.statusCode).toBe(200)
     expect(JSON.parse(res.body)).toEqual(refreshedDog)
@@ -184,7 +190,7 @@ describe('getDogHandler', () => {
   })
 
   it('should return dog with empty results when lueKoiranKoetulokset fails', async () => {
-    mockDynamoDB.read.mockResolvedValueOnce(undefined)
+    mockReadDog.mockResolvedValueOnce(undefined)
     mockKLAPI.lueKoiranPerustiedot.mockResolvedValueOnce({
       json: {
         id: 123,
@@ -214,10 +220,10 @@ describe('getDogHandler', () => {
       titles: '',
     }
 
-    expect(mockDynamoDB.read).toHaveBeenCalledWith({ regNo: 'FI12345/24' })
-    expect(mockDynamoDB.read).toHaveBeenCalledTimes(1)
-    expect(mockDynamoDB.write).toHaveBeenCalledWith(refreshedDog)
-    expect(mockDynamoDB.write).toHaveBeenCalledTimes(1)
+    expect(mockReadDog).toHaveBeenCalledWith('FI12345/24')
+    expect(mockReadDog).toHaveBeenCalledTimes(1)
+    expect(mockWriteDog).toHaveBeenCalledWith(refreshedDog)
+    expect(mockWriteDog).toHaveBeenCalledTimes(1)
 
     expect(res.statusCode).toBe(200)
     expect(JSON.parse(res.body)).toEqual(refreshedDog)
@@ -237,14 +243,14 @@ describe('getDogHandler', () => {
       regNo: 'FI12345/24',
     }
 
-    mockDynamoDB.read.mockResolvedValueOnce(cachedDog)
+    mockReadDog.mockResolvedValueOnce(cachedDog)
     const res = await getDogHandler(constructAPIGwEvent('test', { pathParameters: { regNo: 'FI12345~24' } }))
 
     expect(mockKLAPI.lueKoiranPerustiedot).not.toHaveBeenCalled()
 
-    expect(mockDynamoDB.read).toHaveBeenCalledWith({ regNo: 'FI12345/24' })
-    expect(mockDynamoDB.read).toHaveBeenCalledTimes(1)
-    expect(mockDynamoDB.write).not.toHaveBeenCalled()
+    expect(mockReadDog).toHaveBeenCalledWith('FI12345/24')
+    expect(mockReadDog).toHaveBeenCalledTimes(1)
+    expect(mockWriteDog).not.toHaveBeenCalled()
 
     expect(res.statusCode).toBe(200)
     expect(res.body).toEqual(JSON.stringify(cachedDog))
@@ -270,21 +276,22 @@ describe('getDogHandler', () => {
         { ...result, type: 'VEPE' },
       ],
     }
-    mockDynamoDB.read.mockResolvedValueOnce(cachedDog)
-    mockDynamoDB.readAll.mockResolvedValueOnce([
+    mockReadDog.mockResolvedValueOnce(cachedDog)
+    mockReadAll.mockResolvedValueOnce([
       { active: true, eventType: 'NOME-B' },
       { active: false, eventType: 'VEPE' },
     ])
 
     const res = await getDogHandler(constructAPIGwEvent('test', { pathParameters: { regNo: 'FI12345~24' } }))
 
-    expect(mockDynamoDB.readAll).toHaveBeenCalledWith({ table: expect.any(String) })
+    expect(clientTables).toEqual([CONFIG.eventTypeTable])
+    expect(mockReadAll).toHaveBeenCalledWith()
     expect(JSON.parse(res.body).results).toEqual([expect.objectContaining({ type: 'NOME-B' })])
-    expect(mockDynamoDB.write).not.toHaveBeenCalled()
+    expect(mockWriteDog).not.toHaveBeenCalled()
   })
 
   it('should return dog with empty results when lueKoiranKoetulokset returns non-200', async () => {
-    mockDynamoDB.read.mockResolvedValueOnce(undefined)
+    mockReadDog.mockResolvedValueOnce(undefined)
     mockKLAPI.lueKoiranPerustiedot.mockResolvedValueOnce({
       json: {
         id: 123,
@@ -321,7 +328,7 @@ describe('getDogHandler', () => {
   })
 
   it('should parse results from KLAPI', async () => {
-    mockDynamoDB.read.mockResolvedValueOnce(undefined)
+    mockReadDog.mockResolvedValueOnce(undefined)
     mockKLAPI.lueKoiranPerustiedot.mockResolvedValueOnce({
       json: {
         id: 123,
@@ -490,7 +497,7 @@ describe('getDogHandler', () => {
     }
 
     expect(JSON.parse(res.body)).toEqual(refreshedDog)
-    expect(mockDynamoDB.write).toHaveBeenCalledWith(
+    expect(mockWriteDog).toHaveBeenCalledWith(
       expect.objectContaining({
         results: [...refreshedDog.results, expect.objectContaining({ type: 'VEPE' })],
       })
@@ -498,7 +505,7 @@ describe('getDogHandler', () => {
   })
 
   it('should handle null results from KLAPI', async () => {
-    mockDynamoDB.read.mockResolvedValueOnce(undefined)
+    mockReadDog.mockResolvedValueOnce(undefined)
     mockKLAPI.lueKoiranPerustiedot.mockResolvedValueOnce({
       json: {
         id: 123,
@@ -536,7 +543,7 @@ describe('getDogHandler', () => {
   })
 
   it('should refresh data when refresh query parameter is present', async () => {
-    mockDynamoDB.read.mockResolvedValueOnce({ refreshDate: '2024-06-20T09:55:00.000Z', regNo: 'FI12345/24' })
+    mockReadDog.mockResolvedValueOnce({ refreshDate: '2024-06-20T09:55:00.000Z', regNo: 'FI12345/24' })
     mockKLAPI.lueKoiranPerustiedot.mockResolvedValueOnce({
       json: {
         id: 123,
@@ -558,8 +565,8 @@ describe('getDogHandler', () => {
       })
     )
 
-    expect(mockDynamoDB.read).toHaveBeenCalledWith({ regNo: 'FI12345/24' })
-    expect(mockDynamoDB.write).toHaveBeenCalled()
+    expect(mockReadDog).toHaveBeenCalledWith('FI12345/24')
+    expect(mockWriteDog).toHaveBeenCalled()
     expect(res.statusCode).toBe(200)
     expect(loggedLines(debugSpy)).toContainEqual(
       expect.objectContaining({ itemAge: 5, message: 'cached dog', refresh: true })
@@ -567,7 +574,7 @@ describe('getDogHandler', () => {
   })
 
   it('should handle sire and dam API failures', async () => {
-    mockDynamoDB.read.mockResolvedValueOnce(undefined)
+    mockReadDog.mockResolvedValueOnce(undefined)
     mockKLAPI.lueKoiranPerustiedot
       .mockResolvedValueOnce({
         json: {
@@ -607,7 +614,7 @@ describe('getDogHandler', () => {
   })
 
   it('should fetch and include sire and dam successfully', async () => {
-    mockDynamoDB.read.mockResolvedValueOnce(undefined)
+    mockReadDog.mockResolvedValueOnce(undefined)
     mockKLAPI.lueKoiranPerustiedot
       .mockResolvedValueOnce({
         json: {
@@ -662,7 +669,7 @@ describe('getDogHandler', () => {
   })
 
   it('should handle different gender mappings', async () => {
-    mockDynamoDB.read.mockResolvedValueOnce(undefined)
+    mockReadDog.mockResolvedValueOnce(undefined)
     mockKLAPI.lueKoiranPerustiedot.mockResolvedValueOnce({
       json: {
         id: 123,
@@ -683,7 +690,7 @@ describe('getDogHandler', () => {
   })
 
   it('should handle KLAPI 200 response without rekisterinumero', async () => {
-    mockDynamoDB.read.mockResolvedValueOnce({ name: 'existing', regNo: 'FI12345/24' })
+    mockReadDog.mockResolvedValueOnce({ name: 'existing', regNo: 'FI12345/24' })
     mockKLAPI.lueKoiranPerustiedot.mockResolvedValueOnce({
       json: {
         id: 123,
@@ -701,6 +708,6 @@ describe('getDogHandler', () => {
 
     // Should return the existing dog without refreshing
     expect(JSON.parse(res.body)).toEqual({ name: 'existing', regNo: 'FI12345/24' })
-    expect(mockDynamoDB.write).not.toHaveBeenCalled()
+    expect(mockWriteDog).not.toHaveBeenCalled()
   })
 })

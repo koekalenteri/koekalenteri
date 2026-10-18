@@ -1,4 +1,4 @@
-import type { JsonDogEvent, JsonRegistration, Registration } from '../../types'
+import type { JsonDogEvent, JsonRegistration, JsonTestResult, Registration } from '../../types'
 import { addMinutes } from 'date-fns'
 import { vi } from 'vitest'
 import { registrationDogAged28MonthsWithNOUResult } from '../../__mockData__/dogs'
@@ -34,8 +34,6 @@ const mockUpdateEventStatsForRegistration = vi.fn()
 const mockUpdateRegistrations = vi.fn()
 const mockPublishRegistrationPatches = vi.fn()
 const mockDynamoDBQuery = vi.fn().mockResolvedValue([])
-// The dog table: nothing in it unless a test puts a dog there.
-const mockDynamoDBRead = vi.fn().mockResolvedValue(undefined)
 const mockDynamoDBWrite = vi.fn()
 const mockDynamoDBUpdate = vi.fn()
 const mockFixRegistrationGroups = vi.fn(async (registrations: JsonRegistration[]) => registrations)
@@ -71,11 +69,16 @@ vi.doMock('../lib/ws/actions', () => ({
   publishRegistrationPatchesStrict: mockPublishRegistrationPatches,
 }))
 
+// The dog table: no official results unless a test puts a dog's there.
+const mockReadOfficialResults = vi.fn<(regNo: string) => Promise<JsonTestResult[]>>().mockResolvedValue([])
+vi.doMock('../lib/repositories/dogRepository', () => ({
+  readOfficialResults: mockReadOfficialResults,
+}))
+
 vi.doMock('../utils/CustomDynamoClient', () => ({
   default: vi.fn(function MockCustomDynamoClient() {
     return {
       query: mockDynamoDBQuery,
-      read: mockDynamoDBRead,
       update: mockDynamoDBUpdate,
       write: mockDynamoDBWrite,
     }
@@ -1803,7 +1806,7 @@ describe('putRegistrationLabmda', () => {
       const res = await putRegistrationLabmda(constructAPIGwEvent({ ...entry, state: 'ready' }))
 
       expect(res.statusCode).toBe(200)
-      expect(mockDynamoDBRead).toHaveBeenCalledWith({ regNo: registrationDogAged28MonthsWithNOUResult.regNo })
+      expect(mockReadOfficialResults).toHaveBeenCalledWith(registrationDogAged28MonthsWithNOUResult.regNo)
       expect(mockSaveRegistration).toHaveBeenCalledWith(
         expect.objectContaining({
           dog: expect.objectContaining({ results: [] }),
@@ -1814,7 +1817,7 @@ describe('putRegistrationLabmda', () => {
     })
 
     it('qualifies a dog on the results the dog table holds, whatever the request carries', async () => {
-      mockDynamoDBRead.mockResolvedValueOnce(jsonDog)
+      mockReadOfficialResults.mockResolvedValueOnce(jsonDog.results)
 
       const res = await putRegistrationLabmda(
         constructAPIGwEvent({ ...entry, dog: { ...entry.dog, results: [] }, state: 'ready' })

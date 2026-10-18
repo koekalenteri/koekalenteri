@@ -16,7 +16,6 @@ import { registrationBodySchema } from '../../lib/schema/registration'
 import { patchMerge } from '../../lib/utils'
 import { getFrontendOrigin } from '../lib/api-gw'
 import { authorize } from '../lib/auth'
-import { readOfficialResults } from '../lib/dog'
 import {
   assertRegistrationEmailsNotSuppressed,
   normalizeRegistrationEmails,
@@ -44,6 +43,7 @@ import {
   initializeNewRegistration,
   parseRegistrationRequest,
 } from '../lib/registrationWorkflow'
+import { readOfficialResults } from '../lib/repositories/dogRepository'
 import { validateBody } from '../lib/request'
 
 /** What the participant's own audit trail says of a registration they made. */
