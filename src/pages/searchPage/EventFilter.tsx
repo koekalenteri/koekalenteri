@@ -138,6 +138,8 @@ export const EventFilter = ({ judges, organizers, eventTypes, eventClasses, filt
         defaultExpanded={md}
         expanded={expanded}
         onChange={(_e, expanded) => setExpanded(expanded)}
+        // MUI heads the summary with an h3; under the page's h1 that skips a level (KOE-1562).
+        slotProps={{ heading: { component: 'h2' } }}
         sx={{ boxShadow: '0 1px 2px rgba(0,0,0,0.05)' }}
       >
         <AccordionSummary

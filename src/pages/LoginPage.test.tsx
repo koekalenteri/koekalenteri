@@ -1,4 +1,4 @@
-import { render, waitFor } from '@testing-library/react'
+import { render, screen, waitFor } from '@testing-library/react'
 import { fetchAuthSession } from 'aws-amplify/auth'
 import { StrictMode, Suspense } from 'react'
 import { TestProvider as Provider } from 'test-utils/AtomProvider'
@@ -106,6 +106,12 @@ describe('LoginPage', () => {
 
     await waitFor(() => expect(mockSignIn).toHaveBeenCalledWith('id-token'))
     expect(mockSignIn).toHaveBeenCalledTimes(1)
+  })
+
+  it('names the page in an h1', async () => {
+    renderLoginPage()
+
+    expect(await screen.findByRole('heading', { level: 1, name: 'login' })).toBeInTheDocument()
   })
 
   it('reports auth session lookup failures', async () => {

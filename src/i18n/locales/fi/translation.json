@@ -1238,6 +1238,7 @@
     "liveEntryLinkCopied": "Live-kirjauslinkki kopioitu leikepöydälle",
     "liveEntryLinkInvalid": "Linkki ei ole voimassa. Pyydä koesihteeriltä uusi linkki.",
     "liveEntryLinkRevoked": "Live-kirjauslinkki mitätöity. Jaa tuomarin sihteerille uusi linkki.",
+    "liveEntryTitle": "Live-kirjaus",
     "marks": {
       "interrupted": "Kesk."
     },

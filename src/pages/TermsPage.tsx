@@ -1,11 +1,25 @@
+import type { ReactNode } from 'react'
 import Paper from '@mui/material/Paper'
+import Typography from '@mui/material/Typography'
+
+interface TermHeadingProps {
+  readonly children: ReactNode
+}
+
+/** A numbered term, drawn as the bold paragraph it used to be. */
+const TermHeading = ({ children }: TermHeadingProps) => (
+  <Typography component="h2" sx={{ fontWeight: 'bold', my: 2 }} variant="body1">
+    {children}
+  </Typography>
+)
 
 export const TermsPage = () => {
   return (
     <Paper sx={{ m: 1, p: 1 }}>
-      <p>
-        <strong>1. Tapahtumaan ilmoittautuminen</strong>
-      </p>
+      <Typography component="h1" variant="h2">
+        Ilmoittautumisen ehdot
+      </Typography>
+      <TermHeading>1. Tapahtumaan ilmoittautuminen</TermHeading>
       <ul>
         <li>
           {' '}
@@ -22,9 +36,7 @@ export const TermsPage = () => {
           ilmoittanut
         </li>
       </ul>
-      <p>
-        <strong>2. Osallistujan osallistumisoikeus</strong>
-      </p>
+      <TermHeading>2. Osallistujan osallistumisoikeus</TermHeading>
       <ul>
         <li>
           {' '}
@@ -44,9 +56,7 @@ export const TermsPage = () => {
           mitätöimistä ilmoittautumistietojen ollessa näiden ehtojen vastaisia.&nbsp;
         </li>
       </ul>
-      <p>
-        <strong>3.&nbsp;Rokotusmääräykset ja antidopingmääräykset</strong>
-      </p>
+      <TermHeading>3.&nbsp;Rokotusmääräykset ja antidopingmääräykset</TermHeading>
       <ul>
         <li>
           {' '}
@@ -54,9 +64,7 @@ export const TermsPage = () => {
           olevia rokotusmääräyksiä ja koe-/testi- ja antidopingsääntöjä sekä niitä täydentäviä ohjeita.
         </li>
       </ul>
-      <p>
-        <strong>4.&nbsp;Kokeen ja/tai kilpailun tulosten julkaiseminen</strong>
-      </p>
+      <TermHeading>4.&nbsp;Kokeen ja/tai kilpailun tulosten julkaiseminen</TermHeading>
       <ul>
         <li>
           {' '}
@@ -64,9 +72,7 @@ export const TermsPage = () => {
           edustaja, Suomen Kennelliitto tai rotuyhdistykset saavat julkaista osallistujan koe-/kilpailu-/testituloksen.
         </li>
       </ul>
-      <p>
-        <strong>5. Ilmoittautumisen peruuttaminen</strong>
-      </p>
+      <TermHeading>5. Ilmoittautumisen peruuttaminen</TermHeading>
       <ul>
         <li>
           {' '}
@@ -85,9 +91,7 @@ export const TermsPage = () => {
           kokeen alkua.
         </li>
       </ul>
-      <p>
-        <strong>6. Osallistumismaksujen palauttaminen</strong>
-      </p>
+      <TermHeading>6. Osallistumismaksujen palauttaminen</TermHeading>
       <ul>
         <li>
           {' '}
@@ -96,9 +100,7 @@ export const TermsPage = () => {
         </li>
         <li> Tapahtuman järjestäjällä on oikeus vähentää palautettavasta summasta käsittelykuluina 5€.</li>
       </ul>
-      <p>
-        <strong>7. Osallistumispaikkojen jakoperusteet</strong>
-      </p>
+      <TermHeading>7. Osallistumispaikkojen jakoperusteet</TermHeading>
       <ul>
         <li>
           {' '}

@@ -9,6 +9,7 @@ import { getStationEntry, putStationEntry, putStationEntryTurn } from '../api/st
 import { useLinkedEntry } from '../hooks/useLinkedEntry'
 import { reportError } from '../lib/client/error'
 import { linkedEventSubtitle } from '../lib/event'
+import { HiddenPageTitle } from './components/HiddenPageTitle'
 import LoadingIndicator from './components/LoadingIndicator'
 import { StationScoring } from './components/stationScoring/StationScoring'
 import { languageAtom } from './state'
@@ -75,9 +76,12 @@ export function Component() {
 
   if (failed) {
     return (
-      <Typography sx={{ p: 2 }} variant="body1">
-        {t('results.liveEntryLinkInvalid')}
-      </Typography>
+      <>
+        <HiddenPageTitle>{t('results.liveEntryTitle')}</HiddenPageTitle>
+        <Typography sx={{ p: 2 }} variant="body1">
+          {t('results.liveEntryLinkInvalid')}
+        </Typography>
+      </>
     )
   }
 

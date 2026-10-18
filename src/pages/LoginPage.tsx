@@ -4,14 +4,18 @@ import Box from '@mui/material/Box'
 import { fetchAuthSession } from 'aws-amplify/auth'
 import { useAtomValue } from 'jotai'
 import { useEffect, useRef } from 'react'
+import { useTranslation } from 'react-i18next'
 import { reportError } from '../lib/client/error'
 import Header from './components/Header'
+import { HiddenPageTitle } from './components/HiddenPageTitle'
+import { authenticatorComponents } from './loginPage/authenticatorHeaders'
 import { languageAtom } from './state'
 import { useUserActions } from './state/user/actions'
 
 import '@aws-amplify/ui-react/styles.css'
 
 export function Component() {
+  const { t } = useTranslation()
   const { route } = useAuthenticator((context) => [context.route])
   const { signIn } = useUserActions()
   const language = useAtomValue(languageAtom)
@@ -58,6 +62,7 @@ export function Component() {
   return (
     <>
       <Header />
+      <HiddenPageTitle>{t('login')}</HiddenPageTitle>
       <Box
         sx={{
           alignItems: 'center',
@@ -69,6 +74,7 @@ export function Component() {
         }}
       >
         <Authenticator
+          components={authenticatorComponents}
           key={`authenticator-${language}`}
           socialProviders={['google' /*, 'facebook'*/]}
           loginMechanisms={['email']}

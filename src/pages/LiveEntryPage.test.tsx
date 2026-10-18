@@ -73,6 +73,8 @@ describe('LiveEntryPage', () => {
     expect(screen.getByText(/event.station/)).toBeInTheDocument()
     expect(screen.getByText(/1 Ensimmainen/)).toBeInTheDocument()
     expect(screen.getByText(/2 Toinen/)).toBeInTheDocument()
+    // StationScoring names the post; the page adds no second h1 of its own.
+    expect(screen.getAllByRole('heading', { level: 1 })).toHaveLength(1)
   })
 
   it('saves through the link, scoped to this post', async () => {
@@ -105,6 +107,7 @@ describe('LiveEntryPage', () => {
     await flushPromises()
 
     expect(screen.getByText('results.liveEntryLinkInvalid')).toBeInTheDocument()
+    expect(screen.getByRole('heading', { level: 1, name: 'results.liveEntryTitle' })).toBeInTheDocument()
     expect(within(document.body).queryByRole('tab')).not.toBeInTheDocument()
   })
   it('cannot be saved once the trial is with the chief judge, which the link learns from the trial it opens', async () => {

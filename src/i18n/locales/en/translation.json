@@ -1238,6 +1238,7 @@
     "liveEntryLinkCopied": "Live entry link copied to clipboard",
     "liveEntryLinkInvalid": "This link is not valid. Ask the event secretary for a new one.",
     "liveEntryLinkRevoked": "Live entry link revoked. Share a new link with the judge's secretary.",
+    "liveEntryTitle": "Live entry",
     "marks": {
       "interrupted": "Stopped"
     },

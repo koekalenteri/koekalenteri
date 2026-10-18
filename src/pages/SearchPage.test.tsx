@@ -65,6 +65,19 @@ describe('SearchPage', () => {
     expect(screen.getAllByRole('article')).toHaveLength(5)
   })
 
+  it('names the page in an h1 with the filter one level below it', async () => {
+    await renderPage('', locales.fi)
+    await flushPage()
+    expect(screen.getByRole('heading', { level: 1, name: 'events' })).toBeInTheDocument()
+    // The filter summary and every event's header sit one level below the page's name.
+    expect(screen.getByRole('heading', { level: 2, name: /^filter\.title/ })).toBeInTheDocument()
+    expect(
+      screen
+        .getAllByRole('heading')
+        .map((heading) => Number(heading.getAttribute('aria-level') ?? heading.tagName.slice(1)))
+    ).toEqual([1, 2, 2, 2, 2, 2, 2])
+  })
+
   it('filters by date/start', async () => {
     await renderPage('/?s=2021-03-01', locales.fi)
     await flushPage()
