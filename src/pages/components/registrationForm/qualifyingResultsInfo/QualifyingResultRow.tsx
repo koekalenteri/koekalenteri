@@ -26,6 +26,14 @@ interface Props {
   readonly onRemove?: (result: ManualTestResult) => void
 }
 
+interface ResultFormValues {
+  readonly date: Date | undefined
+  readonly judge: string
+  readonly location: string
+  readonly result: string
+  readonly type: (QualifyingResult | ManualTestResult)['type']
+}
+
 const isManualResult = (result: QualifyingResult | ManualTestResult): result is ManualTestResult => !result.official
 const getSuffix = (
   result: QualifyingResult | ManualTestResult
@@ -61,6 +69,18 @@ const parseResult = (result?: string): Partial<TestResult> => {
   }
 }
 
+/**
+ * The earliest day the result date picker offers: nine months after the dog's birth, never after
+ * `maxDate`. A birth date that is there but has no day (Kennelliitto's empty date, a half-typed value)
+ * sets no lower bound; without a birth date the picker offers only `maxDate`.
+ */
+const resultMinDate = (dob: Date | undefined, maxDate: Date): Date | undefined => {
+  if (!dob) return maxDate
+  const earliest = earliestResultDate(dob)
+  if (!earliest) return undefined
+  return earliest < maxDate ? earliest : maxDate
+}
+
 export default function QualifyingResultRow({
   eventType,
   dob,
@@ -77,11 +97,11 @@ export default function QualifyingResultRow({
   // A result after the qualification period can never count (rules window ends at entry end), so
   // don't let the picker offer dates the rules will silently drop (KOE-1270).
   const maxDate = rankingPeriod?.max && rankingPeriod.max < now ? rankingPeriod.max : now
-  const earliest = (dob && earliestResultDate(dob)) ?? maxDate
-  const minDate = earliest < maxDate ? earliest : maxDate
+  const minDate = resultMinDate(dob, maxDate)
 
   // Group local state for all form fields with a single debounced update
-  const [formValues, updateField] = useLocalStateGroup(
+  // A cleared picker leaves no date, so the field may be empty while the result's own date is not.
+  const [formValues, updateField] = useLocalStateGroup<ResultFormValues>(
     {
       date: result.date,
       judge: result.judge || '',
@@ -166,7 +186,7 @@ export default function QualifyingResultRow({
             label={t('testResult.date')}
             maxDate={maxDate}
             minDate={minDate}
-            onChange={(value: any) => updateField('date', value || undefined)}
+            onChange={(value: Date | null) => updateField('date', value ?? undefined)}
             slotProps={{
               textField: { error: !formValues.date },
             }}

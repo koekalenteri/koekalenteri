@@ -2,7 +2,7 @@ import type { ReactNode } from 'react'
 import type { ManualTestResult } from '@/types'
 import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
-import { render, screen } from '@testing-library/react'
+import { render, screen, within } from '@testing-library/react'
 import {
   registrationWithManualResults,
   registrationWithStaticDates,
@@ -11,6 +11,9 @@ import {
 import { locales } from '@/i18n'
 import { filterRelevantResults } from '@/lib/qualification'
 import { getRequirements } from '@/rules'
+import { noonOfFinnishDay } from '@/test-utils/finnishDays'
+import { frozenInstant } from '@/test-utils/freezeClock'
+import { renderWithUserEvents } from '@/test-utils/utils'
 import QualifyingResultsInfo from './QualifyingResultsInfo'
 
 const Provider = ({ children }: { readonly children: ReactNode }) => (
@@ -65,25 +68,51 @@ describe('QualifyingResultsInfo', () => {
     expect(screen.getByDisplayValue('Manual Judge 2')).toBeInTheDocument()
   })
 
-  it.each([
-    ["Kennelliitto's empty date", () => new Date('0001-01-01T00:00:00')],
-    ['a half-typed date', () => new Date(Number.NaN)],
-    ['a typed year 202', () => new Date('0202-12-28T00:00:00')],
-  ])('renders the result rows of a dog whose birth date has no day, %s', (_name, dob) => {
-    const reg = registrationWithManualResults
-    const requirements = getRequirements(reg.eventType, reg.class, reg.dates?.length ? reg.dates[0].date : new Date())
-    render(
-      <QualifyingResultsInfo
-        dob={dob()}
-        regNo={reg.dog.regNo}
-        requirements={requirements}
-        results={reg.results}
-        qualifyingResults={reg.qualifyingResults}
-      />,
-      { wrapper: Provider }
-    )
+  describe("the result date picker's days (KOE-1556)", () => {
+    // Today is 15.5.2026, the last day a result can have; the result's picker opens on May.
+    beforeEach(() => vi.useFakeTimers({ now: frozenInstant('2026-05-15'), toFake: ['Date'] }))
+    afterEach(() => vi.useRealTimers())
 
-    expect(screen.getByDisplayValue('Manual Judge')).toBeInTheDocument()
+    const daysOffered = async (dob: Date | undefined) => {
+      const reg = registrationWithManualResults
+      const requirements = getRequirements(reg.eventType, reg.class, reg.dates[0].date)
+      const result = { ...(reg.results ?? [])[0], date: noonOfFinnishDay('2026-05-10') }
+      const { user } = renderWithUserEvents(
+        <QualifyingResultsInfo
+          dob={dob}
+          regNo={reg.dog.regNo}
+          requirements={requirements}
+          results={[result]}
+          qualifyingResults={[]}
+        />,
+        { wrapper: Provider }
+      )
+      await user.click(screen.getByRole('button', { name: /choose date/i }))
+      const dialog = await screen.findByRole('dialog')
+      // The cells before the first of the month are empty fillers.
+      return within(dialog)
+        .getAllByRole('gridcell')
+        .filter((cell) => cell.textContent !== '' && !cell.hasAttribute('disabled'))
+        .map((cell) => Number(cell.textContent))
+    }
+
+    const range = (first: number, last: number) => Array.from({ length: last - first + 1 }, (_, i) => first + i)
+
+    it('offers the days from nine months after birth to today', async () => {
+      expect(await daysOffered(new Date('2025-08-05T00:00:00'))).toEqual(range(5, 15))
+    })
+
+    it.each([
+      ["Kennelliitto's empty date", () => new Date('0001-01-01T00:00:00')],
+      ['a half-typed date', () => new Date(Number.NaN)],
+      ['a typed year 202', () => new Date('0202-12-28T00:00:00')],
+    ])('sets no lower bound for a birth date with no day, %s', async (_name, dob) => {
+      expect(await daysOffered(dob())).toEqual(range(1, 15))
+    })
+
+    it('offers only today without a birth date', async () => {
+      expect(await daysOffered(undefined)).toEqual([15])
+    })
   })
 
   it('should not allow entering results for NOU test', async () => {

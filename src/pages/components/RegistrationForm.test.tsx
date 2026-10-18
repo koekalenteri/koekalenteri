@@ -2,7 +2,7 @@ import type { ReactNode } from 'react'
 import { ThemeProvider } from '@mui/material'
 import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
-import { render, screen } from '@testing-library/react'
+import { render, screen, within } from '@testing-library/react'
 import { Provider } from 'jotai'
 import { Suspense } from 'react'
 import { eventWithStaticDates } from '../../__mockData__/events'
@@ -10,6 +10,7 @@ import { paymentPictureWith } from '../../__mockData__/paymentPicture'
 import { registrationWithStaticDates, unpaidRegistrationWithStaticDates } from '../../__mockData__/registrations'
 import theme from '../../assets/Theme'
 import { locales } from '../../i18n'
+import { frozenInstant } from '../../test-utils/freezeClock'
 import { createMatchMedia, flushPromises, renderWithUserEvents, runPendingTimers } from '../../test-utils/utils'
 import AppSnackbarProvider from './AppSnackbarProvider'
 import RegistrationForm from './RegistrationForm'
@@ -116,6 +117,57 @@ describe('RegistrationForm', () => {
 
     expect(sectionTitles()).toContain('registration.dog')
     expect(screen.getAllByText(/validation\.registration\.dogAge/).length).toBeGreaterThan(0)
+  })
+
+  describe("the dob picker's days (KOE-1556)", () => {
+    // Today is 1.1.2021 and the trial starts on 10.2.2021. The dog has Kennelliitto's empty birth
+    // date, so the dob is entered by hand and its picker is enabled; it opens on the year view.
+    const openDobPicker = async (eventType: string) => {
+      vi.setSystemTime(frozenInstant('2021-01-01'))
+      const registration = {
+        ...unpaidRegistrationWithStaticDates,
+        dog: { ...unpaidRegistrationWithStaticDates.dog, dob: new Date('0001-01-01T00:00:00') },
+      }
+      const { user } = renderWithUserEvents(
+        <RegistrationForm event={{ ...eventWithStaticDates, eventType }} registration={registration} />,
+        { wrapper: Wrapper },
+        { advanceTimers: vi.advanceTimersByTime }
+      )
+      await flushPromises()
+      await user.click(screen.getByRole('button', { name: /choose date/i }))
+      const dialog = await screen.findByRole('dialog')
+      const years = within(dialog)
+        .getAllByRole('radio')
+        .map((year) => year.textContent)
+      /** The days the picker offers in the month, after choosing its year and month (0 is January). */
+      const daysIn = async (year: string, monthIndex: number) => {
+        await user.click(within(dialog).getByRole('radio', { name: year }))
+        await user.click(within(dialog).getAllByRole('radio')[monthIndex])
+        return within(dialog)
+          .getAllByRole('gridcell')
+          .filter((cell) => cell.textContent !== '' && !cell.hasAttribute('disabled'))
+          .map((cell) => Number(cell.textContent))
+      }
+      return { daysIn, years }
+    }
+
+    it('ends nine months before a NOU trial, as its age limit', async () => {
+      const { daysIn, years } = await openDobPicker('NOU')
+      expect(years.at(-1)).toBe('2020')
+      expect((await daysIn('2020', 4)).at(-1)).toBe(10)
+    })
+
+    it('ends on the trial day itself for a type without an age limit', async () => {
+      const { daysIn, years } = await openDobPicker('NOME-B')
+      expect(years.at(-1)).toBe('2021')
+      expect((await daysIn('2021', 1)).at(-1)).toBe(10)
+    })
+
+    it('starts fifteen years before today', async () => {
+      const { daysIn, years } = await openDobPicker('NOU')
+      expect(years[0]).toBe('2006')
+      expect((await daysIn('2006', 0))[0]).toBe(1)
+    })
   })
 
   it('should call onChange', async () => {
