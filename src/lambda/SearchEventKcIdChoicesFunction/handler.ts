@@ -1,4 +1,4 @@
-import type { JsonEventType, Organizer } from '../../types'
+import type { Organizer } from '../../types'
 import type { KcIdLookupCriteria } from '../lib/kcTrial'
 import { isEventDateString, isOfficialEventType } from '../../lib/event'
 import { kcFormatOfEventType } from '../../lib/kennelliittoResults'
@@ -8,6 +8,7 @@ import { parseJSONWithFallback } from '../lib/json'
 import { getKLIntegraatio } from '../lib/KLIntegraatio'
 import { searchKcTrials } from '../lib/kcTrial'
 import { LambdaError, lambda, response } from '../lib/lambda'
+import { readEventType } from '../lib/repositories/eventTypeRepository'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 
 const dynamoDB = new CustomDynamoClient(CONFIG.organizerTable)
@@ -30,10 +31,7 @@ const searchEventKcIdChoicesLambda = lambda('searchEventKcIdChoices', async (eve
     throw new LambdaError(403, 'Forbidden')
   }
 
-  const eventType = await dynamoDB.read<JsonEventType>(
-    { eventType: kcFormatOfEventType(criteria.eventType) },
-    CONFIG.eventTypeTable
-  )
+  const eventType = await readEventType(kcFormatOfEventType(criteria.eventType))
 
   // Only official event types have a Kennelliitto trial to find. A past event is deliberately not
   // refused (the KOE-85 gate used to): the lookup's own use case is results entry (KOE-452), which

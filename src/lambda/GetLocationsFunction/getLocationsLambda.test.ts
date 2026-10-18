@@ -1,4 +1,5 @@
 import type { JsonUser } from '../../types'
+import type { LocationSnapshot } from '../lib/repositories/locationRepository'
 import { vi } from 'vitest'
 import { constructAPIGwEvent } from '../test-utils/helpers'
 
@@ -10,17 +11,15 @@ vi.doMock('../lib/auth', () => ({
   authorize: vi.fn(),
 }))
 
-vi.doMock('../utils/CustomDynamoClient', () => ({
-  default: vi.fn(function MockCustomDynamoClient() {
-    return { read: vi.fn() }
-  }),
+const mockReadLocationSnapshot = vi.fn<() => Promise<LocationSnapshot | undefined>>()
+vi.doMock('../lib/repositories/locationRepository', () => ({
+  readLocationSnapshot: mockReadLocationSnapshot,
 }))
 
 const { authorize } = await import('../lib/auth')
 const authorizeMock = authorize as import('vitest').Mock<typeof authorize>
 
-const { default: getLocationsHandler, dynamoDB } = await import('./handler')
-const mockDynamoDB = dynamoDB as import('vitest').Mocked<typeof dynamoDB>
+const { default: getLocationsHandler } = await import('./handler')
 
 const mockUser: JsonUser = {
   createdAt: '',
@@ -48,7 +47,7 @@ describe('getLocationsLambda', () => {
     const res = await getLocationsHandler(constructAPIGwEvent({}))
 
     expect(res.statusCode).toEqual(401)
-    expect(mockDynamoDB.read).not.toHaveBeenCalled()
+    expect(mockReadLocationSnapshot).not.toHaveBeenCalled()
   })
 
   it('should return 401 for a user without event editing rights', async () => {
@@ -57,12 +56,12 @@ describe('getLocationsLambda', () => {
     const res = await getLocationsHandler(constructAPIGwEvent({}))
 
     expect(res.statusCode).toEqual(401)
-    expect(mockDynamoDB.read).not.toHaveBeenCalled()
+    expect(mockReadLocationSnapshot).not.toHaveBeenCalled()
   })
 
   it('should return the stored locations', async () => {
     authorizeMock.mockResolvedValueOnce(mockUser)
-    mockDynamoDB.read.mockResolvedValueOnce({ count: 1, id: 'fi', items: locations, modifiedAt: 'now' })
+    mockReadLocationSnapshot.mockResolvedValueOnce({ count: 1, id: 'fi', items: locations, modifiedAt: 'now' })
 
     const res = await getLocationsHandler(constructAPIGwEvent({}))
 
@@ -72,7 +71,7 @@ describe('getLocationsLambda', () => {
 
   it('should return an empty list when nothing is stored yet', async () => {
     authorizeMock.mockResolvedValueOnce(mockUser)
-    mockDynamoDB.read.mockResolvedValueOnce(undefined)
+    mockReadLocationSnapshot.mockResolvedValueOnce(undefined)
 
     const res = await getLocationsHandler(constructAPIGwEvent({}))
 

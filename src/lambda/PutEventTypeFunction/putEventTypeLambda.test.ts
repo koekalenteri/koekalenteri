@@ -11,8 +11,12 @@ const mockLambda = vi.fn((_name, fn) => answerRejections(fn, mockResponse))
 const mockResponse = vi.fn()
 const mockAuthorize = vi.fn()
 const mockCreateDbRecord = vi.fn()
-const mockWrite = vi.fn()
-const mockReadAll = vi.fn()
+const mockWriteEventType = vi.fn()
+const mockReadEventTypes = vi.fn()
+const mockReadJudges = vi.fn()
+const mockWriteJudges = vi.fn()
+const mockReadOfficials = vi.fn()
+const mockWriteOfficials = vi.fn()
 
 vi.doMock('../lib/lambda', async () => ({
   ...(await vi.importActual<typeof import('../lib/lambda')>('../lib/lambda')),
@@ -22,7 +26,7 @@ vi.doMock('../lib/lambda', async () => ({
 
 vi.doMock('../lib/auth', () => ({
   authorize: mockAuthorize,
-  authorizeAdmin: async (event: any) => {
+  authorizeAdmin: async (event: unknown) => {
     const user = await mockAuthorize(event)
     if (!user) throw httpError(401, 'Unauthorized')
     if (!user.admin) throw httpError(403, 'Forbidden')
@@ -34,13 +38,19 @@ vi.doMock('../utils/proxyEvent', () => ({
   createDbRecord: mockCreateDbRecord,
 }))
 
-vi.doMock('../utils/CustomDynamoClient', () => ({
-  default: vi.fn(function MockCustomDynamoClient() {
-    return {
-      readAll: mockReadAll,
-      write: mockWrite,
-    }
-  }),
+vi.doMock('../lib/repositories/eventTypeRepository', () => ({
+  readEventTypes: mockReadEventTypes,
+  writeEventType: mockWriteEventType,
+}))
+
+vi.doMock('../lib/repositories/judgeRepository', () => ({
+  readJudges: mockReadJudges,
+  writeJudges: mockWriteJudges,
+}))
+
+vi.doMock('../lib/repositories/officialRepository', () => ({
+  readOfficials: mockReadOfficials,
+  writeOfficials: mockWriteOfficials,
 }))
 
 // Mock Date.toISOString to return a consistent timestamp for testing
@@ -85,8 +95,12 @@ describe('putEventTypeLambda', () => {
       name: 'Agility',
     })
 
-    mockWrite.mockResolvedValue(undefined)
-    mockReadAll.mockResolvedValue([])
+    mockWriteEventType.mockResolvedValue(undefined)
+    mockReadEventTypes.mockResolvedValue([])
+    mockReadJudges.mockResolvedValue([])
+    mockWriteJudges.mockResolvedValue(undefined)
+    mockReadOfficials.mockResolvedValue([])
+    mockWriteOfficials.mockResolvedValue(undefined)
   })
 
   it('returns 403 if user is not an admin', async () => {
@@ -101,7 +115,7 @@ describe('putEventTypeLambda', () => {
     expect(mockAuthorize).toHaveBeenCalledWith(event)
     expect(mockResponse).toHaveBeenCalledWith(403, 'Forbidden', event)
     expect(mockCreateDbRecord).not.toHaveBeenCalled()
-    expect(mockWrite).not.toHaveBeenCalled()
+    expect(mockWriteEventType).not.toHaveBeenCalled()
   })
 
   it('creates an active event type successfully', async () => {
@@ -120,10 +134,12 @@ describe('putEventTypeLambda', () => {
 
     expect(mockAuthorize).toHaveBeenCalledWith(event)
     expect(mockCreateDbRecord).toHaveBeenCalledWith(event, mockTimestamp, 'Admin User', false)
-    expect(mockWrite).toHaveBeenCalledWith(eventTypeItem)
+    expect(mockWriteEventType).toHaveBeenCalledWith(eventTypeItem)
 
     // Since it's active, we shouldn't need to check for judges/officials to remove
-    expect(mockReadAll).not.toHaveBeenCalled()
+    expect(mockReadEventTypes).not.toHaveBeenCalled()
+    expect(mockReadJudges).not.toHaveBeenCalled()
+    expect(mockReadOfficials).not.toHaveBeenCalled()
 
     expect(mockResponse).toHaveBeenCalledWith(200, eventTypeItem, event)
   })
@@ -165,40 +181,39 @@ describe('putEventTypeLambda', () => {
     // Setup officials that should not be removed
     const officialsToKeep = [{ eventTypes: ['RALLY_OBEDIENCE'], id: 'official2', name: 'Official Two' }]
 
-    // Mock readAll to return different values for different calls
-    mockReadAll
-      .mockResolvedValueOnce(activeEventTypes) // First call for active event types
-      .mockResolvedValueOnce([...judgesToRemove, ...judgesToKeep]) // Second call for judges
-      .mockResolvedValueOnce([...officialsToRemove, ...officialsToKeep]) // Third call for officials
+    mockReadEventTypes.mockResolvedValueOnce(activeEventTypes)
+    mockReadJudges.mockResolvedValueOnce([...judgesToRemove, ...judgesToKeep])
+    mockReadOfficials.mockResolvedValueOnce([...officialsToRemove, ...officialsToKeep])
 
     await putEventTypeLambda(inactiveEvent)
 
     expect(mockAuthorize).toHaveBeenCalledWith(inactiveEvent)
     expect(mockCreateDbRecord).toHaveBeenCalledWith(inactiveEvent, mockTimestamp, 'Admin User', false)
-    expect(mockWrite).toHaveBeenCalledWith(eventTypeItem)
+    expect(mockWriteEventType).toHaveBeenCalledWith(eventTypeItem)
 
-    // Should check for active event types
-    expect(mockReadAll).toHaveBeenCalledTimes(3)
+    expect(mockReadEventTypes).toHaveBeenCalledTimes(1)
+    expect(mockReadJudges).toHaveBeenCalledTimes(1)
+    expect(mockReadOfficials).toHaveBeenCalledTimes(1)
 
     // Should mark judges without active event types as deleted
-    expect(mockWrite).toHaveBeenCalledWith(
+    expect(mockWriteJudges).toHaveBeenCalledWith([
       {
         ...judgesToRemove[0],
         deletedAt: mockTimestamp,
         deletedBy: 'Admin User',
       },
-      expect.any(String)
-    )
+    ])
+    expect(mockWriteJudges).toHaveBeenCalledTimes(1)
 
     // Should mark officials without active event types as deleted
-    expect(mockWrite).toHaveBeenCalledWith(
+    expect(mockWriteOfficials).toHaveBeenCalledWith([
       {
         ...officialsToRemove[0],
         deletedAt: mockTimestamp,
         deletedBy: 'Admin User',
       },
-      expect.any(String)
-    )
+    ])
+    expect(mockWriteOfficials).toHaveBeenCalledTimes(1)
 
     expect(mockResponse).toHaveBeenCalledWith(200, eventTypeItem, inactiveEvent)
   })
@@ -238,40 +253,39 @@ describe('putEventTypeLambda', () => {
       { id: 'official1', name: 'Official One' }, // No eventTypes property
     ]
 
-    // Mock readAll to return different values for different calls
-    mockReadAll
-      .mockResolvedValueOnce(activeEventTypes) // First call for active event types
-      .mockResolvedValueOnce(judgesWithNoEventTypes) // Second call for judges
-      .mockResolvedValueOnce(officialsWithNoEventTypes) // Third call for officials
+    mockReadEventTypes.mockResolvedValueOnce(activeEventTypes)
+    mockReadJudges.mockResolvedValueOnce(judgesWithNoEventTypes)
+    mockReadOfficials.mockResolvedValueOnce(officialsWithNoEventTypes)
 
     await putEventTypeLambda(inactiveEvent)
 
     expect(mockAuthorize).toHaveBeenCalledWith(inactiveEvent)
     expect(mockCreateDbRecord).toHaveBeenCalledWith(inactiveEvent, mockTimestamp, 'Admin User', false)
-    expect(mockWrite).toHaveBeenCalledWith(eventTypeItem)
+    expect(mockWriteEventType).toHaveBeenCalledWith(eventTypeItem)
 
-    // Should check for active event types
-    expect(mockReadAll).toHaveBeenCalledTimes(3)
+    expect(mockReadEventTypes).toHaveBeenCalledTimes(1)
+    expect(mockReadJudges).toHaveBeenCalledTimes(1)
+    expect(mockReadOfficials).toHaveBeenCalledTimes(1)
 
     // Should mark judges without active event types as deleted
-    expect(mockWrite).toHaveBeenCalledWith(
+    expect(mockWriteJudges).toHaveBeenCalledWith([
       {
         ...judgesWithNoEventTypes[0],
         deletedAt: mockTimestamp,
         deletedBy: 'Admin User',
       },
-      expect.any(String)
-    )
+    ])
+    expect(mockWriteJudges).toHaveBeenCalledTimes(1)
 
     // Should mark officials without active event types as deleted
-    expect(mockWrite).toHaveBeenCalledWith(
+    expect(mockWriteOfficials).toHaveBeenCalledWith([
       {
         ...officialsWithNoEventTypes[0],
         deletedAt: mockTimestamp,
         deletedBy: 'Admin User',
       },
-      expect.any(String)
-    )
+    ])
+    expect(mockWriteOfficials).toHaveBeenCalledTimes(1)
 
     expect(mockResponse).toHaveBeenCalledWith(200, eventTypeItem, inactiveEvent)
   })
@@ -311,40 +325,40 @@ describe('putEventTypeLambda', () => {
       { deletedAt: '2022-01-01T00:00:00.000Z', eventTypes: ['AGILITY'], id: 'official1', name: 'Official One' },
     ]
 
-    // Mock readAll to return different values for different calls
-    mockReadAll
-      .mockResolvedValueOnce(activeEventTypes) // First call for active event types
-      .mockResolvedValueOnce(deletedJudges) // Second call for judges
-      .mockResolvedValueOnce(deletedOfficials) // Third call for officials
+    mockReadEventTypes.mockResolvedValueOnce(activeEventTypes)
+    mockReadJudges.mockResolvedValueOnce(deletedJudges)
+    mockReadOfficials.mockResolvedValueOnce(deletedOfficials)
 
     await putEventTypeLambda(inactiveEvent)
 
     expect(mockAuthorize).toHaveBeenCalledWith(inactiveEvent)
     expect(mockCreateDbRecord).toHaveBeenCalledWith(inactiveEvent, mockTimestamp, 'Admin User', false)
-    expect(mockWrite).toHaveBeenCalledWith(eventTypeItem)
+    expect(mockWriteEventType).toHaveBeenCalledWith(eventTypeItem)
 
-    // Should check for active event types
-    expect(mockReadAll).toHaveBeenCalledTimes(3)
+    expect(mockReadEventTypes).toHaveBeenCalledTimes(1)
+    expect(mockReadJudges).toHaveBeenCalledTimes(1)
+    expect(mockReadOfficials).toHaveBeenCalledTimes(1)
 
-    // Should not mark already deleted judges as deleted again
-    expect(mockWrite).toHaveBeenCalledTimes(1) // Only the event type write
+    // Should not mark already deleted judges or officials as deleted again
+    expect(mockWriteJudges).not.toHaveBeenCalled()
+    expect(mockWriteOfficials).not.toHaveBeenCalled()
 
     expect(mockResponse).toHaveBeenCalledWith(200, eventTypeItem, inactiveEvent)
   })
 
   it('throws an error if write fails', async () => {
     const error = new Error('Write error')
-    mockWrite.mockRejectedValueOnce(error)
+    mockWriteEventType.mockRejectedValueOnce(error)
 
     await expect(putEventTypeLambda(event)).rejects.toThrow('Write error')
 
     expect(mockAuthorize).toHaveBeenCalledWith(event)
     expect(mockCreateDbRecord).toHaveBeenCalledWith(event, mockTimestamp, 'Admin User', false)
-    expect(mockWrite).toHaveBeenCalledTimes(1)
+    expect(mockWriteEventType).toHaveBeenCalledTimes(1)
     expect(mockResponse).not.toHaveBeenCalled()
   })
 
-  it('throws an error if readAll fails', async () => {
+  it('throws an error if reading the event types fails', async () => {
     // Setup an inactive event type
     const inactiveEvent = {
       ...event,
@@ -367,14 +381,15 @@ describe('putEventTypeLambda', () => {
     mockCreateDbRecord.mockReturnValueOnce(eventTypeItem)
 
     const error = new Error('Read error')
-    mockReadAll.mockRejectedValueOnce(error)
+    mockReadEventTypes.mockRejectedValueOnce(error)
 
     await expect(putEventTypeLambda(inactiveEvent)).rejects.toThrow('Read error')
 
     expect(mockAuthorize).toHaveBeenCalledWith(inactiveEvent)
     expect(mockCreateDbRecord).toHaveBeenCalledWith(inactiveEvent, mockTimestamp, 'Admin User', false)
-    expect(mockWrite).toHaveBeenCalledTimes(1)
-    expect(mockReadAll).toHaveBeenCalledTimes(1)
+    expect(mockWriteEventType).toHaveBeenCalledTimes(1)
+    expect(mockReadEventTypes).toHaveBeenCalledTimes(1)
+    expect(mockReadJudges).not.toHaveBeenCalled()
     expect(mockResponse).not.toHaveBeenCalled()
   })
 })

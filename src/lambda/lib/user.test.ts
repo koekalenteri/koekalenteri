@@ -18,6 +18,7 @@ const mockUserLinkReadAll = vi.fn()
 const mockUserQuery = vi.fn()
 const mockUserRead = vi.fn()
 const mockUserWrite = vi.fn()
+const mockUserBatchWrite = vi.fn<CustomDynamoClient['batchWrite']>()
 const mockUserUpdate = vi.fn()
 const mockSendTemplatedMail = vi.fn()
 
@@ -46,6 +47,8 @@ vi.doMock('../utils/CustomDynamoClient', () => ({
     read = (...args: any[]) => mockUserRead(...args)
 
     write = (...args: any[]) => mockUserWrite(...args)
+
+    batchWrite: CustomDynamoClient['batchWrite'] = (...args) => mockUserBatchWrite(...args)
 
     update = (...args: any[]) => {
       const table = args[2]
@@ -647,23 +650,25 @@ describe('lib/user', () => {
   })
 
   describe('updateUsersFromOfficialsOrJudges', () => {
-    const mockReadAll = vi.fn<CustomDynamoClient['readAll']>().mockResolvedValue([])
+    // The sync reads and writes the user table through the module's own client.
+    const mockReadAll = mockUserReadAll
+    const mockBatchWrite = mockUserBatchWrite
     let batchWriteArguments: Parameters<CustomDynamoClient['batchWrite']> | undefined
-    const mockBatchWrite = vi.fn<CustomDynamoClient['batchWrite']>((...args) => {
-      batchWriteArguments = args
-      return Promise.resolve(undefined)
+
+    beforeEach(() => {
+      mockReadAll.mockResolvedValue([])
+      batchWriteArguments = undefined
+      mockBatchWrite.mockImplementation((...args) => {
+        batchWriteArguments = args
+        return Promise.resolve(undefined)
+      })
     })
-    // The sync touches only these two members; the partial double converts at this boundary.
-    const mockDB = {
-      batchWrite: mockBatchWrite,
-      readAll: mockReadAll,
-    } as unknown as CustomDynamoClient
 
     it('loadSyncContext falls back to empty users and links when reads return undefined', async () => {
       mockReadAll.mockResolvedValueOnce(undefined)
       mockUserLinkReadAll.mockResolvedValueOnce(undefined)
 
-      await expect(__testables.loadSyncContext(mockDB, [])).resolves.toEqual({
+      await expect(__testables.loadSyncContext([])).resolves.toEqual({
         allUsers: [],
         dateString: '2024-05-30T20:00:00.000Z',
         itemsWithEmail: [],
@@ -672,7 +677,7 @@ describe('lib/user', () => {
     })
 
     it('should do nothing with empty judges array', async () => {
-      await updateUsersFromOfficialsOrJudges(mockDB, [], 'judge')
+      await updateUsersFromOfficialsOrJudges([], 'judge')
 
       expect(mockReadAll).not.toHaveBeenCalled()
       expect(mockBatchWrite).not.toHaveBeenCalled()
@@ -696,9 +701,9 @@ describe('lib/user', () => {
         phone: 'phone',
       }
 
-      await updateUsersFromOfficialsOrJudges(mockDB, [added1, added2], 'officer')
+      await updateUsersFromOfficialsOrJudges([added1, added2], 'officer')
 
-      expect(mockReadAll).toHaveBeenCalledWith({ table: 'user-table-not-found-in-env' })
+      expect(mockReadAll).toHaveBeenCalledWith('user-table-not-found-in-env')
       expect(mockReadAll).toHaveBeenCalledTimes(1)
       const written = batchWriteArguments?.[0] as JsonUser[]
       expect(written).toHaveLength(2)
@@ -757,7 +762,7 @@ describe('lib/user', () => {
         phone: 'new phone',
       }
 
-      await updateUsersFromOfficialsOrJudges(mockDB, [official], 'officer')
+      await updateUsersFromOfficialsOrJudges([official], 'officer')
 
       expect(mockBatchWrite).toHaveBeenCalledWith(
         [
@@ -817,7 +822,7 @@ describe('lib/user', () => {
         phone: 'new phone',
       }
 
-      await updateUsersFromOfficialsOrJudges(mockDB, [official], 'officer')
+      await updateUsersFromOfficialsOrJudges([official], 'officer')
 
       expect(mockBatchWrite).toHaveBeenCalledWith(
         [
@@ -866,9 +871,9 @@ describe('lib/user', () => {
         phone: 'phone',
       }
 
-      await updateUsersFromOfficialsOrJudges(mockDB, [added1, added2], 'judge')
+      await updateUsersFromOfficialsOrJudges([added1, added2], 'judge')
 
-      expect(mockReadAll).toHaveBeenCalledWith({ table: 'user-table-not-found-in-env' })
+      expect(mockReadAll).toHaveBeenCalledWith('user-table-not-found-in-env')
       expect(mockReadAll).toHaveBeenCalledTimes(1)
       const written = batchWriteArguments?.[0] as JsonUser[]
       expect(written).toHaveLength(2)
@@ -927,7 +932,7 @@ describe('lib/user', () => {
         phone: 'new phone',
       }
 
-      await updateUsersFromOfficialsOrJudges(mockDB, [judge], 'judge')
+      await updateUsersFromOfficialsOrJudges([judge], 'judge')
 
       expect(mockBatchWrite).toHaveBeenCalledWith(
         [
@@ -989,7 +994,7 @@ describe('lib/user', () => {
         name: 'person official',
       }
 
-      await updateUsersFromOfficialsOrJudges(mockDB, [fromKl], 'officer')
+      await updateUsersFromOfficialsOrJudges([fromKl], 'officer')
 
       // Users are written back: canonical merged + updated, dupe cleared.
       const writeItems = batchWriteArguments?.[0] as JsonUser[]
@@ -1033,7 +1038,7 @@ describe('lib/user', () => {
         name: 'user same',
       }
 
-      await updateUsersFromOfficialsOrJudges(mockDB, [fromKl], 'officer')
+      await updateUsersFromOfficialsOrJudges([fromKl], 'officer')
 
       const writeItems = batchWriteArguments?.[0] as JsonUser[]
       expect(writeItems).toHaveLength(1)
@@ -1075,7 +1080,7 @@ describe('lib/user', () => {
         phone: 'phone',
       }
 
-      await updateUsersFromOfficialsOrJudges(mockDB, [official], 'officer')
+      await updateUsersFromOfficialsOrJudges([official], 'officer')
 
       expect(mockBatchWrite).not.toHaveBeenCalled()
     })
@@ -1102,7 +1107,7 @@ describe('lib/user', () => {
         phone: 'new phone',
       }
 
-      await updateUsersFromOfficialsOrJudges(mockDB, [official], 'officer')
+      await updateUsersFromOfficialsOrJudges([official], 'officer')
 
       const writeItems = batchWriteArguments?.[0] as JsonUser[]
       expect(writeItems).toHaveLength(1)
@@ -1181,7 +1186,7 @@ describe('lib/user', () => {
         name: 'person official',
       }
 
-      await updateUsersFromOfficialsOrJudges(mockDB, [fromKl], 'officer')
+      await updateUsersFromOfficialsOrJudges([fromKl], 'officer')
 
       expect(mockEventUpdate).toHaveBeenCalledTimes(1)
       expect(mockEventUpdate).toHaveBeenCalledWith(
@@ -1245,7 +1250,7 @@ describe('lib/user', () => {
         name: 'person official',
       }
 
-      await updateUsersFromOfficialsOrJudges(mockDB, [fromKl], 'officer')
+      await updateUsersFromOfficialsOrJudges([fromKl], 'officer')
 
       expect(mockEventUpdate).toHaveBeenCalledTimes(1)
       expect(mockEventUpdate).toHaveBeenCalledWith(
@@ -1310,7 +1315,7 @@ describe('lib/user', () => {
         name: 'person secretary',
       }
 
-      await updateUsersFromOfficialsOrJudges(mockDB, [fromKl], 'officer')
+      await updateUsersFromOfficialsOrJudges([fromKl], 'officer')
 
       expect(mockBatchWrite).toHaveBeenCalledTimes(1)
       expect(mockEventUpdate).toHaveBeenCalledWith(
@@ -1337,7 +1342,7 @@ describe('lib/user', () => {
       mockBatchWrite.mockRejectedValueOnce(err)
       const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined)
 
-      await expect(updateUsersFromOfficialsOrJudges(mockDB, [added], 'officer')).rejects.toThrow('batch write failed')
+      await expect(updateUsersFromOfficialsOrJudges([added], 'officer')).rejects.toThrow('batch write failed')
 
       expect(loggedLines(errorSpy)).toContainEqual(
         expect.objectContaining({ message: 'failed to batch write user sync', userCount: 1 })
@@ -1374,7 +1379,7 @@ describe('lib/user', () => {
         name: 'updated existing',
       }
 
-      await updateUsersFromOfficialsOrJudges(mockDB, [invalidNew, validExistingMatch], 'officer')
+      await updateUsersFromOfficialsOrJudges([invalidNew, validExistingMatch], 'officer')
 
       const writeItems = batchWriteArguments?.[0] as JsonUser[]
       expect(writeItems).toHaveLength(1)
@@ -1455,7 +1460,7 @@ describe('lib/user', () => {
         name: 'user b canonical for kc1',
       }
 
-      await updateUsersFromOfficialsOrJudges(mockDB, [fromKl], 'officer')
+      await updateUsersFromOfficialsOrJudges([fromKl], 'officer')
 
       // The A -> B -> C chain is compressed before event references are rewritten.
       expect(mockBatchWrite).toHaveBeenCalled()

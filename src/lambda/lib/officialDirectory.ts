@@ -1,6 +1,5 @@
-import type { AdminDataCollection, EventType } from '../../types'
+import type { AdminDataCollection } from '../../types'
 import type { KLAPIResult, KLKoeHenkilö } from '../types/KLAPI'
-import type CustomDynamoClient from '../utils/CustomDynamoClient'
 import type KLAPI from './KLAPI'
 import { getChangedTopLevelKeys } from '../../lib/diff'
 import { capitalize } from '../../lib/string'
@@ -8,6 +7,7 @@ import { authorize } from './auth'
 import { collectionChangesSince, parseDateParam } from './incremental'
 import { httpError, lambda, response } from './lambda'
 import { logger } from './log'
+import { readEventTypes } from './repositories/eventTypeRepository'
 import { updateUsersFromOfficialsOrJudges } from './user'
 
 interface OfficialDirectoryEntry {
@@ -81,20 +81,22 @@ interface SyncOfficialDirectoryOptions<
   create: (entry: TIncoming, now: string) => TStored
   label: string
   partialize: (entry: TStored) => TIncoming
-  table: string
+  /** The directory as stored, from the table's repository. */
+  readAll: () => Promise<TStored[]>
+  /** Stores the new, changed and deleted entries, through the table's repository. */
+  writeAll: (entries: TStored[]) => Promise<void>
 }
 
 export const syncOfficialDirectory = async <
   TIncoming extends OfficialDirectoryEntry,
   TStored extends StoredOfficialDirectoryEntry,
 >(
-  dynamoDB: CustomDynamoClient,
   entries: TIncoming[],
   options: SyncOfficialDirectoryOptions<TIncoming, TStored>
 ): Promise<void> => {
   if (!entries.length) return
 
-  const existingEntries = (await dynamoDB.readAll<TStored>({ table: options.table })) ?? []
+  const existingEntries = await options.readAll()
   const incomingIds = new Set(entries.map((entry) => entry.id))
   const existingById = new Map(existingEntries.map((entry) => [entry.id, entry]))
   const write: TStored[] = []
@@ -127,13 +129,14 @@ export const syncOfficialDirectory = async <
     write.push(existing)
   }
 
-  if (write.length) await dynamoDB.batchWrite(write, options.table)
+  if (write.length) await options.writeAll(write)
 }
 
-interface OfficialDirectoryLambdaOptions<TIncoming extends OfficialDirectoryEntry> {
+interface OfficialDirectoryLambdaOptions<
+  TIncoming extends OfficialDirectoryEntry,
+  TStored extends StoredOfficialDirectoryEntry,
+> {
   collection: 'judges' | 'officials'
-  dynamoDB: CustomDynamoClient
-  eventTypeTable: string
   fetch: (klapi: KLAPI, eventTypes: string[]) => Promise<TIncoming[] | undefined>
   klapi: () => KLAPI
   /**
@@ -142,16 +145,18 @@ interface OfficialDirectoryLambdaOptions<TIncoming extends OfficialDirectoryEntr
    * (KOE-1340).
    */
   onRefreshed: (collections: AdminDataCollection[]) => Promise<unknown>
+  /** The directory as stored, from the table's repository. */
+  readAll: () => Promise<TStored[]>
   role: 'judge' | 'officer'
   service: string
-  update: (dynamoDB: CustomDynamoClient, entries: TIncoming[]) => Promise<void>
+  update: (entries: TIncoming[]) => Promise<void>
 }
 
 export const createOfficialDirectoryLambda = <
   TIncoming extends OfficialDirectoryEntry,
   TStored extends StoredOfficialDirectoryEntry,
 >(
-  options: OfficialDirectoryLambdaOptions<TIncoming>
+  options: OfficialDirectoryLambdaOptions<TIncoming, TStored>
 ) =>
   lambda(options.service, async (event) => {
     const user = await authorize(event)
@@ -160,21 +165,21 @@ export const createOfficialDirectoryLambda = <
     if (event.queryStringParameters && 'refresh' in event.queryStringParameters) {
       if (!user.admin) throw httpError(401, 'Unauthorized')
 
-      const allEventTypes = await options.dynamoDB.readAll<EventType>({ table: options.eventTypeTable })
-      const eventTypes = allEventTypes?.filter((eventType) => eventType.official && eventType.active) ?? []
+      const allEventTypes = await readEventTypes()
+      const eventTypes = allEventTypes.filter((eventType) => eventType.official && eventType.active)
       const entries = await options.fetch(
         options.klapi(),
         eventTypes.map((eventType) => eventType.eventType)
       )
 
       if (entries?.length) {
-        await options.update(options.dynamoDB, entries)
-        await updateUsersFromOfficialsOrJudges(options.dynamoDB, entries, options.role)
+        await options.update(entries)
+        await updateUsersFromOfficialsOrJudges(entries, options.role)
       }
       await options.onRefreshed([options.collection, 'users'])
     }
 
-    const items = (await options.dynamoDB.readAll<TStored>()) ?? []
+    const items = await options.readAll()
     const since = parseDateParam(event.queryStringParameters?.since)
     return response(200, since ? collectionChangesSince(items, since) : items.filter((item) => !item.deletedAt), event)
   })

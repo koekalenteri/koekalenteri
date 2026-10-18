@@ -577,10 +577,7 @@ type UserSyncPlan = {
   upsertWrites: JsonUser[]
 }
 
-const loadSyncContext = async (
-  dynamoDB: CustomDynamoClient,
-  items: Official[] | PartialJsonJudge[]
-): Promise<UserSyncContext> => {
+const loadSyncContext = async (items: Official[] | PartialJsonJudge[]): Promise<UserSyncContext> => {
   const dateString = new Date().toISOString()
   const allUsers = (await dynamoDB.readAll<JsonUser>({ table: userTable })) ?? []
 
@@ -618,7 +615,7 @@ const planUserSync = (ctx: UserSyncContext, eventTypesFiled: 'officer' | 'judge'
   return { duplicateIdToCanonicalId, mergeWrites, upsertWrites }
 }
 
-const applyUserSyncPlan = async (dynamoDB: CustomDynamoClient, ctx: UserSyncContext, plan: UserSyncPlan) => {
+const applyUserSyncPlan = async (ctx: UserSyncContext, plan: UserSyncPlan) => {
   if (plan.duplicateIdToCanonicalId.size) {
     await updateEventReferences(plan.duplicateIdToCanonicalId, ctx.allUsers, plan.mergeWrites, ctx.dateString)
   }
@@ -644,15 +641,14 @@ const applyUserSyncPlan = async (dynamoDB: CustomDynamoClient, ctx: UserSyncCont
 }
 
 export const updateUsersFromOfficialsOrJudges = async (
-  dynamoDB: CustomDynamoClient,
   items: Official[] | PartialJsonJudge[],
   eventTypesFiled: 'officer' | 'judge'
 ) => {
   if (!items.length) return
 
-  const context = await loadSyncContext(dynamoDB, items)
+  const context = await loadSyncContext(items)
   const plan = planUserSync(context, eventTypesFiled)
-  await applyUserSyncPlan(dynamoDB, context, plan)
+  await applyUserSyncPlan(context, plan)
 }
 
 // Expose internal helpers for unit testing (no runtime usage elsewhere)

@@ -1,4 +1,4 @@
-import type { JsonUser } from '../../types'
+import type { JsonJudge, JsonUser } from '../../types'
 import { vi } from 'vitest'
 
 const mockPublishAdminDataInvalidation = vi.fn()
@@ -23,17 +23,15 @@ vi.doMock('../lib/auth', () => ({
   getAndUpdateUserByEmail: vi.fn(),
 }))
 
-vi.doMock('../utils/CustomDynamoClient', () => ({
-  default: vi.fn(function MockCustomDynamoClient() {
-    return { readAll: vi.fn() }
-  }),
+const mockReadAll = vi.fn<() => Promise<Partial<JsonJudge>[]>>()
+vi.doMock('../lib/repositories/judgeRepository', () => ({
+  readJudges: mockReadAll,
 }))
 
 const { authorize } = await import('../lib/auth')
 const authorizeMock = authorize as import('vitest').Mock<typeof authorize>
 
-const { default: getJudgesHandler, dynamoDB } = await import('./handler')
-const mockDynamoDB = dynamoDB as import('vitest').Mocked<typeof dynamoDB>
+const { default: getJudgesHandler } = await import('./handler')
 
 const mockUser: JsonUser = {
   createdAt: '',
@@ -64,7 +62,7 @@ describe('getJudgesLambda', () => {
 
   it('should return all non-deleted officials', async () => {
     authorizeMock.mockResolvedValueOnce(mockUser)
-    mockDynamoDB.readAll.mockResolvedValue([{ deletedAt: 'sometimes' }, { name: 'not deleted' }])
+    mockReadAll.mockResolvedValue([{ deletedAt: 'sometimes' }, { name: 'not deleted' }])
 
     const res = await getJudgesHandler(constructAPIGwEvent({}))
     expect(res.statusCode).toEqual(200)
@@ -73,7 +71,7 @@ describe('getJudgesLambda', () => {
 
   it('returns changed judges and deletion tombstones since the requested time', async () => {
     authorizeMock.mockResolvedValueOnce(mockUser)
-    mockDynamoDB.readAll.mockResolvedValue([
+    mockReadAll.mockResolvedValue([
       { id: 1, modifiedAt: '2024-01-01T00:00:00.000Z', name: 'unchanged' },
       { id: 2, modifiedAt: '2024-01-03T00:00:00.000Z', name: 'changed' },
       { deletedAt: '2024-01-04T00:00:00.000Z', id: 3, modifiedAt: '2024-01-01T00:00:00.000Z' },

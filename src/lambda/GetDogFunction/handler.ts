@@ -1,16 +1,13 @@
 import type { BreedCode, JsonDog, JsonEventType, JsonTestResult } from '../../types'
 import type { KLKoira } from '../types/KLAPI'
 import { differenceInMinutes } from 'date-fns/differenceInMinutes'
-import { CONFIG } from '../config'
 import KLAPI from '../lib/KLAPI'
 import { getParam, LambdaError, lambda, response } from '../lib/lambda'
 import { logger } from '../lib/log'
 import { deleteDog, readDog, writeDog } from '../lib/repositories/dogRepository'
+import { readEventTypes } from '../lib/repositories/eventTypeRepository'
 import { getKLAPIConfig } from '../lib/secrets'
 import { KLKieli } from '../types/KLAPI'
-import CustomDynamoClient from '../utils/CustomDynamoClient'
-
-const eventTypeDB = new CustomDynamoClient(CONFIG.eventTypeTable)
 
 export const filterDogResults = (
   dog: JsonDog,
@@ -168,8 +165,7 @@ const getDogLambda = lambda('getDog', async (event) => {
     item = dog
   }
 
-  const eventTypes = (await eventTypeDB.readAll<JsonEventType>()) ?? []
-  return response(200, filterDogResults(item, eventTypes), event)
+  return response(200, filterDogResults(item, await readEventTypes()), event)
 })
 
 export default getDogLambda

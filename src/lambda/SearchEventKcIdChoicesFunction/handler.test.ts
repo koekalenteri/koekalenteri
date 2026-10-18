@@ -10,10 +10,8 @@ const TEST_NOW = new Date('2026-06-01T12:00:00.000Z')
 
 const mockAuthorizeWithMemberOf = vi.fn<() => Promise<{ memberOf: string[]; user: JsonUser }>>()
 const mockReadOrganizer = vi.fn<() => Promise<Organizer | undefined>>()
-const mockReadEventType = vi.fn<() => Promise<JsonEventType | undefined>>()
-const mockRead = vi.fn((key: Record<string, unknown>) =>
-  'eventType' in key ? mockReadEventType() : mockReadOrganizer()
-)
+const mockReadEventType = vi.fn<(eventType: string) => Promise<JsonEventType | undefined>>()
+const mockRead = vi.fn((_key: Record<string, unknown>) => mockReadOrganizer())
 const mockResponse = vi.fn<(status: number, body: unknown, event: unknown) => unknown>()
 const mockLueKokeet = vi.fn<(params: unknown) => Promise<KLIntegraatioResult<KLIntKoeListassa[]>>>()
 const mockLueKoe = vi.fn<(params: { koeGuid?: string }) => Promise<KLIntegraatioResult<KLIntKoe>>>()
@@ -41,6 +39,10 @@ vi.doMock('../lib/lambda', async () => ({
   LambdaError: MockLambdaError,
   lambda: vi.fn((_name, fn) => fn),
   response: mockResponse,
+}))
+
+vi.doMock('../lib/repositories/eventTypeRepository', () => ({
+  readEventType: mockReadEventType,
 }))
 
 vi.doMock('../utils/CustomDynamoClient', () => ({
@@ -462,6 +464,7 @@ describe('searchEventKcIdChoicesLambda', () => {
 
     await expect(searchEventKcIdChoicesLambda(event)).rejects.toMatchObject({ status: 400 })
     expect(mockRead).not.toHaveBeenCalled()
+    expect(mockReadEventType).not.toHaveBeenCalled()
     expect(mockLueKokeet).not.toHaveBeenCalled()
   })
 
@@ -483,7 +486,7 @@ describe('searchEventKcIdChoicesLambda', () => {
 
     await search({ ...lookupRequest, eventType: 'MEJÄ' })
 
-    expect(mockRead).toHaveBeenCalledWith({ eventType: 'MEJÄ' }, expect.anything())
+    expect(mockReadEventType).toHaveBeenCalledWith('MEJÄ')
     expect(mockLueKokeet).toHaveBeenCalledWith(expect.objectContaining({ koemuoto: 'MEJÄ' }))
   })
 
@@ -498,7 +501,7 @@ describe('searchEventKcIdChoicesLambda', () => {
     mockLueKokeet.mockResolvedValue({ json: [tamperePast], status: 200 })
     await search({ ...lookupRequest, eventType: 'NOME-B SM' })
 
-    expect(mockRead).toHaveBeenCalledWith({ eventType: 'NOME-B' }, expect.anything())
+    expect(mockReadEventType).toHaveBeenCalledWith('NOME-B')
     expect(mockLueKokeet).toHaveBeenCalledWith(expect.objectContaining({ koemuoto: 'NOME-B' }))
   })
 
@@ -507,6 +510,7 @@ describe('searchEventKcIdChoicesLambda', () => {
 
     await expect(searchEventKcIdChoicesLambda(event)).rejects.toMatchObject({ status: 403 })
     expect(mockRead).not.toHaveBeenCalled()
+    expect(mockReadEventType).not.toHaveBeenCalled()
     expect(mockLueKokeet).not.toHaveBeenCalled()
   })
 

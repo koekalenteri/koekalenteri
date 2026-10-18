@@ -1,4 +1,4 @@
-import type { JsonConfirmedEvent, JsonEventType, Organizer } from '../../types'
+import type { JsonConfirmedEvent, Organizer } from '../../types'
 import { isOfficialEventType } from '../../lib/event'
 import { kcFormatOfEventType } from '../../lib/kennelliittoResults'
 import { CONFIG } from '../config'
@@ -12,6 +12,7 @@ import {
   sendKennelliittoResults,
 } from '../lib/kennelliittoResults'
 import { getParam, httpError, lambda, response } from '../lib/lambda'
+import { readEventType } from '../lib/repositories/eventTypeRepository'
 import { publishEventChange, publishRegistrationPatches } from '../lib/ws/actions'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 
@@ -118,10 +119,7 @@ const kennelliittoResultsLambda = lambda('kennelliittoResults', async (event) =>
   const confirmedEvent = await getEvent<JsonConfirmedEvent>(eventId, true)
   assertEventOrganizerAccess(user, memberOf, confirmedEvent)
 
-  const eventType = await dynamoDB.read<JsonEventType>(
-    { eventType: kcFormatOfEventType(confirmedEvent.eventType) },
-    CONFIG.eventTypeTable
-  )
+  const eventType = await readEventType(kcFormatOfEventType(confirmedEvent.eventType))
   const organizer = await dynamoDB.read<Organizer>({ id: confirmedEvent.organizer.id }, CONFIG.organizerTable)
   const ctx = {
     event: confirmedEvent,

@@ -1,8 +1,7 @@
-import type { JsonDog } from '../../types'
+import type { JsonDog, JsonEventType } from '../../types'
 import type KLAPI from '../lib/KLAPI'
 import type { KLKoira } from '../types/KLAPI'
 import { vi } from 'vitest'
-import { CONFIG } from '../config'
 import { constructAPIGwEvent } from '../test-utils/helpers'
 import { loggedLines } from '../test-utils/logs'
 
@@ -16,17 +15,11 @@ vi.doMock('../lib/repositories/dogRepository', () => ({
   writeDog: mockWriteDog,
 }))
 
-// The event type table, read for the active event types the results are filtered by.
-const mockReadAll = vi.fn()
-const clientTables: string[] = []
+// The event types, read for the active ones the results are filtered by.
+const mockReadAll = vi.fn<() => Promise<Pick<JsonEventType, 'active' | 'eventType'>[]>>()
 
-vi.doMock('../utils/CustomDynamoClient', () => ({
-  default: class MockCustomDynamoClient {
-    constructor(table: string) {
-      clientTables.push(table)
-    }
-    readAll = (...args: unknown[]) => mockReadAll(...args)
-  },
+vi.doMock('../lib/repositories/eventTypeRepository', () => ({
+  readEventTypes: mockReadAll,
 }))
 
 // @ts-expect-error partial mock
@@ -284,7 +277,6 @@ describe('getDogHandler', () => {
 
     const res = await getDogHandler(constructAPIGwEvent('test', { pathParameters: { regNo: 'FI12345~24' } }))
 
-    expect(clientTables).toEqual([CONFIG.eventTypeTable])
     expect(mockReadAll).toHaveBeenCalledWith()
     expect(JSON.parse(res.body).results).toEqual([expect.objectContaining({ type: 'NOME-B' })])
     expect(mockWriteDog).not.toHaveBeenCalled()

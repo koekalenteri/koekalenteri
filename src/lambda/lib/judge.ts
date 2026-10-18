@@ -1,11 +1,8 @@
 import type { JsonJudge, Judge, RequireAllKeys } from '../../types'
-import type CustomDynamoClient from '../utils/CustomDynamoClient'
 import type KLAPI from './KLAPI'
-import { CONFIG } from '../config'
 import { KLKieli } from '../types/KLAPI'
 import { fetchOfficialDirectory, mapOfficialDirectoryEntry, syncOfficialDirectory } from './officialDirectory'
-
-const { judgeTable } = CONFIG
+import { readJudges, writeJudges } from './repositories/judgeRepository'
 
 export type PartialJsonJudge = Omit<Judge, 'languages' | 'active' | 'mockTrial'>
 
@@ -31,8 +28,8 @@ export const partializeJudge = (judge: JsonJudge): RequireAllKeys<PartialJsonJud
   phone: judge.phone,
 })
 
-export const updateJudges = (dynamoDB: CustomDynamoClient, judges: PartialJsonJudge[]): Promise<void> =>
-  syncOfficialDirectory(dynamoDB, judges, {
+export const updateJudges = (judges: PartialJsonJudge[]): Promise<void> =>
+  syncOfficialDirectory(judges, {
     create: (judge, now): JsonJudge => ({
       active: true,
       createdAt: now,
@@ -44,5 +41,6 @@ export const updateJudges = (dynamoDB: CustomDynamoClient, judges: PartialJsonJu
     }),
     label: 'judge',
     partialize: partializeJudge,
-    table: judgeTable,
+    readAll: readJudges,
+    writeAll: writeJudges,
   })

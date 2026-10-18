@@ -1,28 +1,12 @@
 import type { Location } from '../../types'
 import type { KLPaikkakunta } from '../types/KLAPI'
-import type CustomDynamoClient from '../utils/CustomDynamoClient'
 import type KLAPI from './KLAPI'
 import { capitalize } from '../../lib/string'
 import { logger } from './log'
-
-/**
- * The whole municipality list lives in a single row. It is read on every /user call (through
- * dataVersions), which is by far the hottest lambda we have, so the version check has to be a
- * GetItem instead of a scan. ~300 municipalities is around 20kB, nowhere near the item limit,
- * and there is no incremental use case: nobody edits a municipality.
- */
-export const LOCATIONS_ID = 'fi'
+import { readLocationSnapshot, writeLocationSnapshot } from './repositories/locationRepository'
 
 /** Only the calls this module makes, so a test double is a plain object rather than a cast. */
 type LocationApi = Pick<KLAPI, 'lueKennelpiirit' | 'luePaikkakunnat'>
-type LocationStore = Pick<CustomDynamoClient, 'read' | 'write'>
-
-interface LocationSnapshot {
-  count: number
-  id: string
-  items: Location[]
-  modifiedAt: string
-}
 
 const mapLocation = (item: KLPaikkakunta): Location => ({
   district: capitalize(item.kennelpiiri),
@@ -90,27 +74,24 @@ export const fetchLocations = async (klapi: LocationApi): Promise<Location[] | u
   return entries.size ? sortLocations([...entries.values()]) : undefined
 }
 
-export const getLocationSnapshot = (dynamoDB: LocationStore) => dynamoDB.read<LocationSnapshot>({ id: LOCATIONS_ID })
-
 /**
  * Writes the snapshot only when the list actually changed: an unchanged modifiedAt is what keeps
  * every browser from refetching the list after a sync that found nothing new.
  *
  * @returns true when the snapshot was written
  */
-export const syncLocations = async (dynamoDB: LocationStore, locations: Location[]): Promise<boolean> => {
+export const syncLocations = async (locations: Location[]): Promise<boolean> => {
   if (!locations.length) return false
 
-  const existing = await getLocationSnapshot(dynamoDB)
+  const existing = await readLocationSnapshot()
   if (existing?.items && JSON.stringify(existing.items) === JSON.stringify(locations)) {
     logger.info('locations unchanged, not writing', { count: locations.length })
     return false
   }
 
   logger.info('writing locations', { count: locations.length, previously: existing?.count ?? 0 })
-  await dynamoDB.write<LocationSnapshot>({
+  await writeLocationSnapshot({
     count: locations.length,
-    id: LOCATIONS_ID,
     items: locations,
     modifiedAt: new Date().toISOString(),
   })

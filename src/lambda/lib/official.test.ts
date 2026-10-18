@@ -1,5 +1,4 @@
 import type { JsonOfficial, Official } from '../../types'
-import type CustomDynamoClient from '../utils/CustomDynamoClient'
 import type KLAPI from './KLAPI'
 import { vi } from 'vitest'
 import { loggedLines } from '../test-utils/logs'
@@ -7,6 +6,13 @@ import { loggedLines } from '../test-utils/logs'
 vi.useFakeTimers()
 vi.setSystemTime(new Date('2024-05-30T20:00:00Z'))
 vi.doMock('nanoid', () => ({ nanoid: () => 'test-id' }))
+
+const mockReadAll = vi.fn<() => Promise<JsonOfficial[]>>().mockResolvedValue([])
+const mockBatchWrite = vi.fn<(items: JsonOfficial[]) => Promise<void>>().mockResolvedValue(undefined)
+vi.doMock('./repositories/officialRepository', () => ({
+  readOfficials: mockReadAll,
+  writeOfficials: mockBatchWrite,
+}))
 
 const { fetchOfficialsForEventTypes, updateOfficials } = await import('./official')
 
@@ -135,23 +141,15 @@ describe('official', () => {
   })
 
   describe('updateOfficials', () => {
-    const mockReadAll = vi.fn<CustomDynamoClient['readAll']>().mockResolvedValue([])
-    const mockBatchWrite = vi.fn()
-    const mockDB = {
-      batchWrite: mockBatchWrite,
-      readAll: mockReadAll,
-      // The code under test touches only these members; the partial double converts here.
-    } as unknown as CustomDynamoClient
-
     it('should do nothing with empty array', async () => {
-      await updateOfficials(mockDB, [])
+      await updateOfficials([])
 
       expect(mockReadAll).not.toHaveBeenCalled()
       expect(mockBatchWrite).not.toHaveBeenCalled()
     })
 
     it('should add new officials', async () => {
-      await updateOfficials(mockDB, [
+      await updateOfficials([
         {
           district: 'some district',
           email: 'test@example.com',
@@ -162,24 +160,20 @@ describe('official', () => {
       ])
 
       expect(mockReadAll).toHaveBeenCalledTimes(1)
-      expect(mockReadAll).toHaveBeenCalledWith({ table: 'official-table-not-found-in-env' })
       expect(mockBatchWrite).toHaveBeenCalledTimes(1)
-      expect(mockBatchWrite).toHaveBeenCalledWith(
-        [
-          {
-            createdAt: '2024-05-30T20:00:00.000Z',
-            createdBy: 'system',
-            district: 'some district',
-            email: 'test@example.com',
-            eventTypes: ['NOME-B'],
-            id: 0,
-            modifiedAt: '2024-05-30T20:00:00.000Z',
-            modifiedBy: 'system',
-            name: 'test',
-          },
-        ],
-        'official-table-not-found-in-env'
-      )
+      expect(mockBatchWrite).toHaveBeenCalledWith([
+        {
+          createdAt: '2024-05-30T20:00:00.000Z',
+          createdBy: 'system',
+          district: 'some district',
+          email: 'test@example.com',
+          eventTypes: ['NOME-B'],
+          id: 0,
+          modifiedAt: '2024-05-30T20:00:00.000Z',
+          modifiedBy: 'system',
+          name: 'test',
+        },
+      ])
       expect(loggedLines(infoSpy)).toEqual([
         expect.objectContaining({ id: 0, label: 'official', message: 'new directory entry' }),
       ])
@@ -199,7 +193,7 @@ describe('official', () => {
       }
       mockReadAll.mockResolvedValueOnce([existing])
 
-      await updateOfficials(mockDB, [
+      await updateOfficials([
         {
           district: existing.district,
           email: existing.email,
@@ -211,18 +205,14 @@ describe('official', () => {
       ])
 
       expect(mockReadAll).toHaveBeenCalledTimes(1)
-      expect(mockReadAll).toHaveBeenCalledWith({ table: 'official-table-not-found-in-env' })
       expect(mockBatchWrite).toHaveBeenCalledTimes(1)
-      expect(mockBatchWrite).toHaveBeenCalledWith(
-        [
-          {
-            ...existing,
-            eventTypes: ['NOME-B', 'NOME-A'],
-            location: 'home',
-          },
-        ],
-        'official-table-not-found-in-env'
-      )
+      expect(mockBatchWrite).toHaveBeenCalledWith([
+        {
+          ...existing,
+          eventTypes: ['NOME-B', 'NOME-A'],
+          location: 'home',
+        },
+      ])
       expect(loggedLines(infoSpy)).toEqual([
         expect.objectContaining({
           changedKeys: ['eventTypes', 'location'],
@@ -255,62 +245,28 @@ describe('official', () => {
         name: 'other',
       }
 
-      await updateOfficials(mockDB, [added])
+      await updateOfficials([added])
 
       expect(mockReadAll).toHaveBeenCalledTimes(1)
-      expect(mockReadAll).toHaveBeenCalledWith({ table: 'official-table-not-found-in-env' })
       expect(mockBatchWrite).toHaveBeenCalledTimes(1)
-      expect(mockBatchWrite).toHaveBeenCalledWith(
-        [
-          {
-            ...added,
-            createdAt: new Date().toISOString(),
-            createdBy: 'system',
-            modifiedAt: new Date().toISOString(),
-            modifiedBy: 'system',
-          },
-          {
-            ...existing,
-            deletedAt: new Date().toISOString(),
-            deletedBy: 'system',
-          },
-        ],
-        'official-table-not-found-in-env'
-      )
+      expect(mockBatchWrite).toHaveBeenCalledWith([
+        {
+          ...added,
+          createdAt: new Date().toISOString(),
+          createdBy: 'system',
+          modifiedAt: new Date().toISOString(),
+          modifiedBy: 'system',
+        },
+        {
+          ...existing,
+          deletedAt: new Date().toISOString(),
+          deletedBy: 'system',
+        },
+      ])
       expect(loggedLines(infoSpy)).toEqual([
         expect.objectContaining({ id: 222, label: 'official', message: 'new directory entry' }),
         expect.objectContaining({ id: 123, label: 'official', message: 'deleting directory entry' }),
       ])
-    })
-
-    it('should undefined dynamoDB result', async () => {
-      mockReadAll.mockResolvedValueOnce(undefined)
-
-      const added: Official = {
-        district: 'other district',
-        email: 'other@example.com',
-        eventTypes: ['NOME-A'],
-        id: 222,
-        name: 'other',
-      }
-
-      await updateOfficials(mockDB, [added])
-
-      expect(mockReadAll).toHaveBeenCalledTimes(1)
-      expect(mockReadAll).toHaveBeenCalledWith({ table: 'official-table-not-found-in-env' })
-      expect(mockBatchWrite).toHaveBeenCalledTimes(1)
-      expect(mockBatchWrite).toHaveBeenCalledWith(
-        [
-          {
-            ...added,
-            createdAt: new Date().toISOString(),
-            createdBy: 'system',
-            modifiedAt: new Date().toISOString(),
-            modifiedBy: 'system',
-          },
-        ],
-        'official-table-not-found-in-env'
-      )
     })
   })
 })

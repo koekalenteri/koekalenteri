@@ -19,10 +19,10 @@
  * names is not reached. A table counts only where
  * code reached or run that way calls a client method on it (or a transaction item names it).
  *
- * Tables and clients handed around as arguments (`createOfficialDirectoryLambda({ dynamoDB })`,
- * `syncOfficialDirectory(dynamoDB, entries, { table })`, `createDynamoLease({ client, table })`)
- * are followed through a flow-insensitive binding of parameters and interface properties to the
- * values the reached code passes them, iterated to a fixed point per handler. A variable, a class
+ * Tables, clients and functions handed around as arguments (`createDynamoLease({ client, table })`,
+ * a repository function passed as `readAll` to `createOfficialDirectoryLambda`) are followed
+ * through a flow-insensitive binding of parameters and interface properties to the values the
+ * reached code passes them, iterated to a fixed point per handler. A variable, a class
  * field or a property of an object literal also holds what the reached code writes to it later:
  * `=`, `??=`, `||=`, `&&=`, a destructuring assignment, a `for (x of ...)` loop, `delete`. A write in
  * a function nothing reached calls does not count, so a setter only another lambda calls changes

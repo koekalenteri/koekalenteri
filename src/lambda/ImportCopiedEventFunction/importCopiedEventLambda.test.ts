@@ -8,6 +8,7 @@ import { createEventCopy } from '../lib/eventCopy'
 
 const mockQuery = vi.fn()
 const mockReadAll = vi.fn()
+const mockReadJudges = vi.fn()
 const mockSaveEvent = vi.fn()
 const mockPublishEventChange = vi.fn()
 const mockSaveRegistrations = vi.fn()
@@ -19,6 +20,7 @@ vi.doMock('../utils/CustomDynamoClient', () => ({
     return { query: mockQuery, readAll: mockReadAll }
   }),
 }))
+vi.doMock('../lib/repositories/judgeRepository', () => ({ readJudges: mockReadJudges }))
 vi.doMock('../lib/event', () => ({ saveEvent: mockSaveEvent }))
 vi.doMock('../lib/ws/actions', () => ({ publishEventChange: mockPublishEventChange }))
 vi.doMock('../lib/registration', async () => ({
@@ -68,9 +70,8 @@ describe('importCopiedEvent', () => {
     vi.useFakeTimers({ now: new Date('2026-09-29T12:00:00.000Z') })
     CONFIG.stageName = 'test'
     mockQuery.mockResolvedValue([{ admin: true, email: 'jukka@example.com', id: 'u1' }])
-    mockReadAll.mockImplementation(async ({ table }: { table: string }) =>
-      table === CONFIG.organizerTable ? [{ id: 'org-test', kcId: 1234, name: 'Seura' }] : [judge]
-    )
+    mockReadAll.mockResolvedValue([{ id: 'org-test', kcId: 1234, name: 'Seura' }])
+    mockReadJudges.mockResolvedValue([judge])
     mockSaveEvent.mockImplementation(async (event: JsonDogEvent) => ({ audience: 'public', patch: event }))
   })
 

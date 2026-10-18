@@ -8,7 +8,7 @@ const { stageName } = CONFIG
 
 export const getApiHost = (event: APIGatewayProxyEvent) => `${event.headers.Host ?? ''}/${stageName}`
 
-export const createDbRecord = <T extends Partial<JsonDbRecord>>(
+export const createDbRecord = <T extends Partial<Omit<JsonDbRecord, 'id'>> & { id?: number | string }>(
   event: APIGatewayProxyEvent,
   timestamp: string,
   username: string,

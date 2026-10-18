@@ -2,7 +2,6 @@ import type { JsonConfirmedEvent, JsonEventType, JsonRegistration } from '../../
 import type CustomDynamoClient from '../utils/CustomDynamoClient'
 import type { RegistrationStatsInput } from './stats'
 import { vi } from 'vitest'
-import { CONFIG } from '../config'
 import { asJsonRegistration } from '../test-utils/helpers'
 
 const mockQuery = vi.fn()
@@ -34,6 +33,11 @@ vi.doMock('../utils/CustomDynamoClient', () => ({
       write: mockWrite,
     }
   }),
+}))
+
+const mockReadEventTypes = vi.fn<() => Promise<JsonEventType[]>>()
+vi.doMock('./repositories/eventTypeRepository', () => ({
+  readEventTypes: mockReadEventTypes,
 }))
 
 const {
@@ -1040,7 +1044,7 @@ describe('lib/stats', () => {
     const eventType = (eventType: string, active: boolean): JsonEventType => ({ active, eventType }) as JsonEventType
 
     it('sums capacity stats across every active event type, skipping inactive ones', async () => {
-      mockReadAll.mockResolvedValueOnce([
+      mockReadEventTypes.mockResolvedValueOnce([
         eventType('NOME-A', true),
         eventType('NOME-B', true),
         eventType('RETIRED', false),
@@ -1069,7 +1073,7 @@ describe('lib/stats', () => {
 
       const result = await getCapacityStatsAllEventTypes()
 
-      expect(mockReadAll).toHaveBeenCalledWith({ table: CONFIG.eventTypeTable })
+      expect(mockReadEventTypes).toHaveBeenCalledTimes(1)
       expect(mockQuery).toHaveBeenCalledTimes(2)
       expect(result).toEqual([
         expect.objectContaining({ eventType: 'NOME-A', places: 20, starters: 18 }),
@@ -1078,7 +1082,7 @@ describe('lib/stats', () => {
     })
 
     it('passes the from/to range through to each event type query', async () => {
-      mockReadAll.mockResolvedValueOnce([eventType('NOU', true)])
+      mockReadEventTypes.mockResolvedValueOnce([eventType('NOU', true)])
       mockQuery.mockResolvedValueOnce([])
 
       await getCapacityStatsAllEventTypes('2025-01', '2025-06')
@@ -1092,19 +1096,11 @@ describe('lib/stats', () => {
     })
 
     it('returns nothing when there are no active event types', async () => {
-      mockReadAll.mockResolvedValueOnce([eventType('RETIRED', false)])
+      mockReadEventTypes.mockResolvedValueOnce([eventType('RETIRED', false)])
 
       const result = await getCapacityStatsAllEventTypes()
 
       expect(mockQuery).not.toHaveBeenCalled()
-      expect(result).toEqual([])
-    })
-
-    it('handles a missing event type list', async () => {
-      mockReadAll.mockResolvedValueOnce(null)
-
-      const result = await getCapacityStatsAllEventTypes()
-
       expect(result).toEqual([])
     })
   })

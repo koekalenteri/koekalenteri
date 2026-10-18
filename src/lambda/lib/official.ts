@@ -1,11 +1,8 @@
 import type { JsonOfficial, Official } from '../../types'
-import type CustomDynamoClient from '../utils/CustomDynamoClient'
 import type KLAPI from './KLAPI'
-import { CONFIG } from '../config'
 import { KLKieli } from '../types/KLAPI'
 import { fetchOfficialDirectory, mapOfficialDirectoryEntry, syncOfficialDirectory } from './officialDirectory'
-
-const { officialTable } = CONFIG
+import { readOfficials, writeOfficials } from './repositories/officialRepository'
 
 export const fetchOfficialsForEventTypes = async (
   klapi: KLAPI,
@@ -18,8 +15,8 @@ export const fetchOfficialsForEventTypes = async (
     map: mapOfficialDirectoryEntry,
   })
 
-export const updateOfficials = (dynamoDB: CustomDynamoClient, officials: Official[]): Promise<void> =>
-  syncOfficialDirectory(dynamoDB, officials, {
+export const updateOfficials = (officials: Official[]): Promise<void> =>
+  syncOfficialDirectory(officials, {
     create: (official, now): JsonOfficial => ({
       createdAt: now,
       createdBy: 'system',
@@ -37,5 +34,6 @@ export const updateOfficials = (dynamoDB: CustomDynamoClient, officials: Officia
       name: official.name,
       phone: official.phone,
     }),
-    table: officialTable,
+    readAll: readOfficials,
+    writeAll: writeOfficials,
   })

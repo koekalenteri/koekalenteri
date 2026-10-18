@@ -1,4 +1,4 @@
-import type { JsonUser } from '../../types'
+import type { JsonJudge, JsonUser } from '../../types'
 import { vi } from 'vitest'
 import { httpError } from '../lib/lambda'
 
@@ -16,14 +16,10 @@ vi.doMock('../lib/api-gw', () => ({
 const mockAuthorizeAdmin = vi.fn()
 vi.doMock('../lib/auth', () => ({ authorizeAdmin: mockAuthorizeAdmin }))
 
-vi.doMock('../utils/CustomDynamoClient', () => ({
-  default: vi.fn(function MockCustomDynamoClient() {
-    return { write: vi.fn() }
-  }),
-}))
+const mockWriteJudge = vi.fn<(judge: JsonJudge) => Promise<void>>()
+vi.doMock('../lib/repositories/judgeRepository', () => ({ writeJudge: mockWriteJudge }))
 
-const { default: putJudgeLambda, dynamoDB } = await import('./handler')
-const mockDynamoDB = dynamoDB as import('vitest').Mocked<typeof dynamoDB>
+const { default: putJudgeLambda } = await import('./handler')
 
 const mockUser: JsonUser = {
   createdAt: '',
@@ -51,7 +47,7 @@ describe('putJudgeLambda', () => {
     const res = await putJudgeLambda(constructAPIGwEvent('test'))
 
     expect(res.statusCode).toEqual(403)
-    expect(mockDynamoDB.write).not.toHaveBeenCalled()
+    expect(mockWriteJudge).not.toHaveBeenCalled()
   })
 
   it('should write the authorized user to database', async () => {
@@ -60,8 +56,8 @@ describe('putJudgeLambda', () => {
       constructAPIGwEvent({ createdAt: '1986-10-05T22:39:02.250Z', id: 'judge', name: 'Test Judge' })
     )
 
-    expect(mockDynamoDB.write).toHaveBeenCalledTimes(1)
-    expect(mockDynamoDB.write).toHaveBeenCalledWith(
+    expect(mockWriteJudge).toHaveBeenCalledTimes(1)
+    expect(mockWriteJudge).toHaveBeenCalledWith(
       expect.objectContaining({
         createdAt: '1986-10-05T22:39:02.250Z',
         createdBy: 'Test User',
