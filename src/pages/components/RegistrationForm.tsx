@@ -58,14 +58,13 @@ import QualifyingResultsInfo from './registrationForm/QualifyingResultsInfo'
 import { validateRegistration } from './registrationForm/validation'
 
 /**
- * Whether each section is open. The sections the form decides are always set, so none of them is
- * left uncontrolled, which CollapsibleSection would render open. The payer's section and the
- * secretary's notes start that way, open, until they are toggled.
+ * Whether each section is open. Every section is always set, so none is left to CollapsibleSection's
+ * own state, which starts open and does not follow the toggles the form records.
  */
-type SectionOpenState = Record<'breeder' | 'dog' | 'entry' | 'handler' | 'info' | 'owner' | 'qr', boolean> & {
-  internalNotes?: boolean
-  payer?: boolean
-}
+type SectionOpenState = Record<
+  'breeder' | 'dog' | 'entry' | 'handler' | 'info' | 'internalNotes' | 'owner' | 'payer' | 'qr',
+  boolean
+>
 
 /**
  * The sections' open state for a screen size. The form starts from it, so a section never renders
@@ -78,7 +77,9 @@ function defaultSectionOpenState(large: boolean): SectionOpenState {
     entry: true,
     handler: large,
     info: large,
+    internalNotes: true,
     owner: large,
+    payer: true,
     qr: large,
   }
 }
@@ -200,6 +201,8 @@ export default function RegistrationForm({
             entry: false,
             handler: !!registration.ownerHandles,
             info: false,
+            // The secretary's notes sit beside the entry: another section's toggle leaves them be.
+            internalNotes: open.internalNotes,
             owner: false,
             payer: !!registration.ownerPays,
             qr: false,
