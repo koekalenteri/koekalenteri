@@ -71,7 +71,14 @@ Read `LLM_CONTEXT.md` for the project overview and architecture notes.
   stamp without a zone (Kennelliitto writes those) as the wall-clock time it is in the zone, and
   `isInstantString` accepts only an ISO instant with an explicit zone on a day there is. The zone is a required parameter, never a default; the trials' zone is
   `TIME_ZONE` from the same module. Day arithmetic (`addDays`, `addMonths`, `daysBetween`, `eachDay`,
-  `dayOfWeek`) needs no zone at all.
+  `dayOfWeek`, `monthsBetween`, `latestDayMonthsBefore`) needs no zone at all. `monthsBetween` counts
+  whole calendar months as `addMonths` steps them: a month is reached on the day of the month it
+  started on, or on the last day of a shorter month (31.7. to 30.4. is nine months), which is not how
+  date-fns `differenceInMonths` counts at month ends. `latestDayMonthsBefore(day, n)` is the last day
+  from which `n` months have passed by `day`, the bound a picker offers for the same rule.
+- The browser's day, which MUI's pickers read and write, is `localDayOf(date)` and `localDateOf(day)`
+  (a local midnight) in the same module; check `hasLocalDay(date)` first, since a half-typed picker
+  value or Kennelliitto's empty date has none.
 - `dayOf` throws on an instant without a calendar day. Check `hasCalendarDay(instant, zone)` first on
   anything stored or received: the Kennel Club's empty date (year 1) is a valid Date but no day, and
   the accepted years (1100 to 9899) leave room for every step the app takes from an accepted day.
@@ -91,12 +98,13 @@ Read `LLM_CONTEXT.md` for the project overview and architecture notes.
   `noRestrictedImports`.
 - `getFullYear`, `getMonth`, `getDate` and `getDay` on an instant are calendar calls too, in the
   machine's zone, and Biome has no rule for them: read the day with `dayOf`, `yearOf` and `dayParts`.
-  The deliberate exceptions, until KOE-1547/1548 make the dog's dates day keys: a dog's official result
-  date is a host-local stamp read with the local getter (the official-result year in
-  `qualification.ts`), and its birth date goes through the `biome-ignore`d date-fns calls (DogDetails,
-  QualifyingResultRow, the registration form's validation), while a hand-entered result, sent as an
-  instant, is read in Finnish time. Separately, DateRange's `fromPickerDay` reads the picker's own
-  browser-zone day.
+  `localDayOf` is the one sanctioned reader of a browser-zone day. The deliberate exceptions, until
+  KOE-1547/1548 make the dog's dates day keys: a dog's official result date is a host-local stamp read
+  with the local getter (the official-result year in `qualification.ts`), and its birth date is read
+  with `localDayOf` as the day its picker shows (the age rule in `src/lib/dog.ts`), never as its
+  Finnish day, while a hand-entered result, sent as an instant, is read in Finnish time. DateRange's
+  `toPickerDay`/`fromPickerDay` cross between the picker's browser-zone day and the Finnish day
+  through the same `localDateOf`/`localDayOf`.
 - Tests run in the machine's zone (Helsinki on a laptop, UTC in CI). A fixture is a Finnish day:
   `startOfFinnishDay('2026-10-17')` from `src/test-utils/finnishDays.ts`, never `new Date(2026, 9, 17)`.
   A test of zone handling runs under `describeInTimeZone` (`src/test-utils/timeZone.ts`).

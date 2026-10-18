@@ -6,7 +6,7 @@ import { isValid } from 'date-fns/isValid'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import useDebouncedCallback from '../../hooks/useDebouncedCallback'
-import { dayOf, dayParts, dayStart, sameDay, TIME_ZONE, toDayKey } from '../../lib/day'
+import { dayOf, dayStart, hasLocalDay, localDateOf, localDayOf, sameDay, TIME_ZONE } from '../../lib/day'
 
 export type DateValue = Date | null
 
@@ -47,20 +47,17 @@ function toPickerDay(d: Date): Date
 function toPickerDay(d: Date | undefined): Date | undefined
 function toPickerDay(d: Date | undefined): Date | undefined {
   if (!d || !isValid(d)) return d
-  const { year, month, day } = dayParts(dayOf(d, TIME_ZONE))
-  return new Date(year, month - 1, day)
+  return localDateOf(dayOf(d, TIME_ZONE))
 }
 
 /**
- * The moment the day shown by the picker starts in Finland: the picker's Date is read with its own
- * (browser-zone) getters, the one place that is right. A year outside four digits is not a day the
- * calendar has and is passed on as typed, for the range to reject.
+ * The moment the day shown by the picker starts in Finland: the picker's Date is read as the day it
+ * shows (`localDayOf`). An invalid Date, or a year outside four digits, is not a day the calendar has
+ * and is passed on as typed, for the range to reject.
  */
 const fromPickerDay = (d: DateValue): DateValue => {
-  if (!d || !isValid(d)) return d
-  const year = d.getFullYear()
-  if (year < 1000 || year > 9999) return d
-  return dayStart(toDayKey(year, d.getMonth() + 1, d.getDate()), TIME_ZONE)
+  if (!d || !hasLocalDay(d)) return d
+  return dayStart(localDayOf(d), TIME_ZONE)
 }
 
 /** The Finnish day `d` falls on: the callers' bounds and what they store are Finnish days. */

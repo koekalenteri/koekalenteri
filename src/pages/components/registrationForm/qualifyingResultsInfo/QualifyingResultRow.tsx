@@ -6,10 +6,9 @@ import Grid from '@mui/material/Grid'
 import Stack from '@mui/material/Stack'
 import TextField from '@mui/material/TextField'
 import { DatePicker } from '@mui/x-date-pickers'
-// biome-ignore lint/style/noRestrictedImports: the dog's birthday is a browser-zone day from its picker, and the nine months a result needs are counted in the same zone; the stored dob becomes a day key in KOE-1547 and the pickers move in KOE-1548
-import { addMonths } from 'date-fns/addMonths'
 import { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
+import { earliestResultDate } from '@/lib/dog'
 import AutocompleteSingle from '../../AutocompleteSingle'
 import RankingPoints from '../../RankingPoints'
 import { useLocalStateGroup } from '../hooks/useLocalStateGroup'
@@ -78,8 +77,8 @@ export default function QualifyingResultRow({
   // A result after the qualification period can never count (rules window ends at entry end), so
   // don't let the picker offer dates the rules will silently drop (KOE-1270).
   const maxDate = rankingPeriod?.max && rankingPeriod.max < now ? rankingPeriod.max : now
-  const date9Months = dob ? addMonths(dob, 9) : maxDate
-  const minDate = date9Months < maxDate ? date9Months : maxDate
+  const earliest = (dob && earliestResultDate(dob)) ?? maxDate
+  const minDate = earliest < maxDate ? earliest : maxDate
 
   // Group local state for all form fields with a single debounced update
   const [formValues, updateField] = useLocalStateGroup(

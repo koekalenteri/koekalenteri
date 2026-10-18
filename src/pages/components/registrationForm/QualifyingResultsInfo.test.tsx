@@ -65,6 +65,27 @@ describe('QualifyingResultsInfo', () => {
     expect(screen.getByDisplayValue('Manual Judge 2')).toBeInTheDocument()
   })
 
+  it.each([
+    ["Kennelliitto's empty date", () => new Date('0001-01-01T00:00:00')],
+    ['a half-typed date', () => new Date(Number.NaN)],
+    ['a typed year 202', () => new Date('0202-12-28T00:00:00')],
+  ])('renders the result rows of a dog whose birth date has no day, %s', (_name, dob) => {
+    const reg = registrationWithManualResults
+    const requirements = getRequirements(reg.eventType, reg.class, reg.dates?.length ? reg.dates[0].date : new Date())
+    render(
+      <QualifyingResultsInfo
+        dob={dob()}
+        regNo={reg.dog.regNo}
+        requirements={requirements}
+        results={reg.results}
+        qualifyingResults={reg.qualifyingResults}
+      />,
+      { wrapper: Provider }
+    )
+
+    expect(screen.getByDisplayValue('Manual Judge')).toBeInTheDocument()
+  })
+
   it('should not allow entering results for NOU test', async () => {
     const reg = registrationWithStaticDates
     const requirements = getRequirements(reg.eventType, reg.class, reg.dates?.length ? reg.dates[0].date : new Date())

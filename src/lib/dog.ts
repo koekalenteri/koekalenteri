@@ -1,7 +1,49 @@
 import type { TFunction } from 'i18next'
 import type { BreedCode, DeepPartial, Dog, DogGender } from '../types'
 import { differenceInMinutes } from 'date-fns/differenceInMinutes'
-import { hasCalendarDay, TIME_ZONE } from './day'
+import { REQUIREMENTS } from '../rules'
+import {
+  addMonths,
+  dayOf,
+  hasCalendarDay,
+  hasLocalDay,
+  latestDayMonthsBefore,
+  localDateOf,
+  localDayOf,
+  monthsBetween,
+  TIME_ZONE,
+} from './day'
+
+/** A result cannot predate the dog being this many months old, whatever the trial it is entered in. */
+export const MIN_RESULT_AGE_MONTHS = 9
+
+/** The age in whole months a dog must have reached on the first day of a trial of the type; 0 for none. */
+export const minDogAgeFor = (eventType: string): number => {
+  const requirements = REQUIREMENTS[eventType]
+  return requirements && 'age' in requirements ? (requirements.age ?? 0) : 0
+}
+
+/*
+ * The dog's birth date is a browser-zone Date until it is stored as a day (KOE-1547): Kennelliitto's
+ * zone-less stamp read as a local midnight, or the day the dob picker wrote. Its day is the one the
+ * picker shows (`localDayOf`), never its Finnish day: in Tokyo the Finnish day of a 1.1. midnight is
+ * 31.12. The trial's day is its Finnish day.
+ */
+
+/**
+ * The dog's age in whole months (`monthsBetween`) on the Finnish day the trial starts, or undefined for
+ * a birth date with no day (Kennelliitto's empty date, a half-typed or out-of-range picker value).
+ */
+export const dogAgeInMonths = (dob: Date, eventStart: Date): number | undefined =>
+  hasLocalDay(dob) ? monthsBetween(localDayOf(dob), dayOf(eventStart, TIME_ZONE)) : undefined
+
+/** The latest birth date, as the dob picker's Date, of a dog that is `months` old on the trial's first day. */
+export const latestDobForAge = (eventStart: Date, months: number): Date =>
+  localDateOf(latestDayMonthsBefore(dayOf(eventStart, TIME_ZONE), months))
+
+/** The earliest date, as a picker's Date, a result of the dog can have; undefined for a birth date with no day. */
+export const earliestResultDate = (dob: Date): Date | undefined =>
+  hasLocalDay(dob) ? localDateOf(addMonths(localDayOf(dob), MIN_RESULT_AGE_MONTHS)) : undefined
 
 /**
  * Determines if a dog's data should be allowed to be refreshed

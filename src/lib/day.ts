@@ -113,6 +113,34 @@ export const addMonths = (day: DayKey, months: number): DayKey => {
   return toDayKey(firstOfTarget.getUTCFullYear(), firstOfTarget.getUTCMonth() + 1, Math.min(date, lastOfTarget))
 }
 
+/**
+ * Whole calendar months from `from` to `to`: the largest count whose `addMonths` step from `from`
+ * does not pass `to`. A month is reached on the day of the month it started on, or on the last day of
+ * a month that has no such day: from 28.12. nine months are reached on 28.9., from 31.7. on 30.4.,
+ * from 31.1. one month on 28.2., or on 29.2. in a leap year. A `to` before `from` gives a negative
+ * count, so a day after `to` is never any number of months before it.
+ */
+export const monthsBetween = (from: DayKey, to: DayKey): number => {
+  const start = dayParts(from)
+  const end = dayParts(to)
+  const months = (end.year - start.year) * 12 + (end.month - start.month)
+  return addMonths(from, months) > to ? months - 1 : months
+}
+
+/**
+ * The latest day from which `months` whole months (`monthsBetween`) have passed by `day`. On the last
+ * day of a month that is the last day of the month `months` earlier: by 30.4. nine months have passed
+ * from 31.7. as well as from 30.7.
+ */
+export const latestDayMonthsBefore = (day: DayKey, months: number): DayKey => {
+  const back = addMonths(day, -months)
+  if (addDays(day, 1).endsWith('-01')) {
+    const { year, month } = dayParts(back)
+    return addDays(addMonths(toDayKey(year, month, 1), 1), -1)
+  }
+  return back
+}
+
 /** Whole days from `from` to `to`: positive when `to` is later, negative when earlier. */
 export const daysBetween = (from: DayKey, to: DayKey): number =>
   Math.round((utcMidnight(to) - utcMidnight(from)) / MS_PER_DAY)
@@ -221,3 +249,29 @@ export const monthKeyOf = (day: DayKey): string => day.slice(0, 7)
  */
 export const shiftDays = (instant: Date, days: number, zone: string): Date =>
   new Date(addDaysInZone(instant, days, { in: tz(zone) }))
+
+/*
+ * The browser's day. MUI's date pickers (AdapterDateFns) read and write a Date in the browser's zone
+ * and have no zone of their own, so the day a picker shows is the Date's local year, month and date.
+ * These three are the one place that reads or builds such a Date, until the dog's dates are stored as
+ * days and the pickers take day keys (KOE-1547, KOE-1548). The callers are the pickers' own values
+ * and the dog's birth date, which the typed boundary reads from Kennelliitto's zone-less stamp as a
+ * local midnight and the dob picker writes as a local day.
+ */
+
+/**
+ * Whether the Date names a day in the browser's zone that a key can spell: a valid Date in the years
+ * 1000 to 9999 there. A half-typed picker value is an Invalid Date, a typed year 202 is year 202,
+ * and Kennelliitto's empty date reads as year 1; none of them has a day. Check this before `localDayOf`.
+ */
+export const hasLocalDay = (date: Date): boolean =>
+  !Number.isNaN(date.getTime()) && isYearIn(date.getFullYear(), SPELLED_YEARS)
+
+/** The day the Date shows in the browser's zone: the day a picker shows for it. Throws without `hasLocalDay`. */
+export const localDayOf = (date: Date): DayKey => toDayKey(date.getFullYear(), date.getMonth() + 1, date.getDate())
+
+/** The browser's midnight that starts the day: the value a picker shows as that day. */
+export const localDateOf = (day: DayKey): Date => {
+  const { year, month, day: date } = dayParts(day)
+  return new Date(year, month - 1, date)
+}

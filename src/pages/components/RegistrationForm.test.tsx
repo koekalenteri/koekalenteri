@@ -105,6 +105,19 @@ describe('RegistrationForm', () => {
     expect(screen.getByRole('combobox', { name: 'dog.regNo' })).toHaveValue('')
   })
 
+  it.each([
+    ["Kennelliitto's empty date", () => new Date('0001-01-01T00:00:00')],
+    ['a half-typed date', () => new Date(Number.NaN)],
+    ['a typed year 202', () => new Date('0202-12-28T00:00:00')],
+  ])('renders a dog whose birth date has no day, %s, as too young', async (_name, dob) => {
+    const registration = { ...registrationWithStaticDates, dog: { ...registrationWithStaticDates.dog, dob: dob() } }
+    render(<RegistrationForm event={eventWithStaticDates} registration={registration} />, { wrapper: Wrapper })
+    await flushPromises()
+
+    expect(sectionTitles()).toContain('registration.dog')
+    expect(screen.getAllByText(/validation\.registration\.dogAge/).length).toBeGreaterThan(0)
+  })
+
   it('should call onChange', async () => {
     const registration = { ...registrationWithStaticDates }
 
