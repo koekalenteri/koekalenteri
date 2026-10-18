@@ -3,12 +3,13 @@ import { Authenticator, useAuthenticator } from '@aws-amplify/ui-react'
 import Box from '@mui/material/Box'
 import { fetchAuthSession } from 'aws-amplify/auth'
 import { useAtomValue } from 'jotai'
-import { useEffect, useRef } from 'react'
+import { useEffect, useMemo, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { reportError } from '../lib/client/error'
 import Header from './components/Header'
 import { HiddenPageTitle } from './components/HiddenPageTitle'
 import { authenticatorComponents } from './loginPage/AuthenticatorHeaders'
+import { passwordFormFields } from './loginPage/passwordFormFields'
 import { languageAtom } from './state'
 import { useUserActions } from './state/user/actions'
 
@@ -55,8 +56,12 @@ export function Component() {
     }
   }, [route, signIn])
 
-  useEffect(() => {
+  // Amplify translates as it renders, from the language its global I18n holds, and so do the password
+  // labels built here. Set it before the Authenticator below remounts in the new language, not in an
+  // effect that runs after that render.
+  const formFields = useMemo(() => {
     I18n.setLanguage(language)
+    return passwordFormFields()
   }, [language])
 
   return (
@@ -75,6 +80,7 @@ export function Component() {
       >
         <Authenticator
           components={authenticatorComponents}
+          formFields={formFields}
           key={`authenticator-${language}`}
           socialProviders={['google' /*, 'facebook'*/]}
           loginMechanisms={['email']}

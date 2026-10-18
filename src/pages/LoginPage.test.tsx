@@ -1,21 +1,26 @@
-import { render, screen, waitFor } from '@testing-library/react'
+import type { TestStore } from 'test-utils/AtomProvider'
+import type { passwordFormFields } from './loginPage/passwordFormFields'
+import { I18n } from '@aws-amplify/core'
+import { act, render, screen, waitFor } from '@testing-library/react'
 import { fetchAuthSession } from 'aws-amplify/auth'
 import { StrictMode, Suspense } from 'react'
 import { TestProvider as Provider } from 'test-utils/AtomProvider'
+import { fiAuthenticationDict } from '../i18n/locales/fi/auth'
 import { reportError } from '../lib/client/error'
 import { Component as LoginPage } from './LoginPage'
-import { idTokenAtom } from './state'
+import { idTokenAtom, languageAtom } from './state'
 
 const mockSignIn = vi.fn()
 
-vi.mock('@aws-amplify/core', () => ({
-  I18n: {
-    setLanguage: vi.fn(),
-  },
-}))
+interface AuthenticatorStubProps {
+  readonly formFields: ReturnType<typeof passwordFormFields>
+}
 
 vi.mock('@aws-amplify/ui-react', () => ({
-  Authenticator: () => <div>AUTHENTICATOR</div>,
+  // The label the page hands Amplify for the sign-in password's show-password switch.
+  Authenticator: ({ formFields }: AuthenticatorStubProps) => (
+    <div>AUTHENTICATOR {formFields.signIn?.password.showPasswordButtonLabel}</div>
+  ),
   useAuthenticator: () => ({ route: 'authenticated' }),
 }))
 
@@ -106,6 +111,29 @@ describe('LoginPage', () => {
 
     await waitFor(() => expect(mockSignIn).toHaveBeenCalledWith('id-token'))
     expect(mockSignIn).toHaveBeenCalledTimes(1)
+  })
+
+  it('labels the password switch in the language the page switches to', async () => {
+    I18n.putVocabularies({ fi: fiAuthenticationDict })
+    let store: TestStore | undefined
+    render(
+      <Provider
+        initializeState={(initial) => {
+          store = initial
+          initial.set(languageAtom, 'fi')
+        }}
+      >
+        <Suspense fallback={<div>loading</div>}>
+          <LoginPage />
+        </Suspense>
+      </Provider>
+    )
+
+    expect(await screen.findByText('AUTHENTICATOR Näytä salasana')).toBeInTheDocument()
+
+    act(() => store?.set(languageAtom, 'en'))
+
+    expect(await screen.findByText('AUTHENTICATOR Show password')).toBeInTheDocument()
   })
 
   it('names the page in an h1', async () => {
