@@ -1,6 +1,7 @@
 import type { JsonUser } from '../../types'
 import { addDays } from 'date-fns'
 import { vi } from 'vitest'
+import { dayStart, TIME_ZONE, toDayKey } from '../../lib/day'
 import { freezeClockAt } from '../../test-utils/freezeClock'
 import { constructAPIGwEvent } from '../test-utils/helpers'
 import { idsIn, storedEvent, storedUser, uniqueId } from '../test-utils/integration'
@@ -12,17 +13,16 @@ vi.doMock('../lib/auth', () => ({ authorizeWithMemberOf: mockAuthorizeWithMember
 
 const { default: getAdminEventsLambda } = await import('./handler')
 
-// Pinned mid-year: an event two weeks ahead belongs to next season from 18.12 on, and the handler's
-// `since` query reads seasons only up to the current year, so from then until New Year the changed
-// event is not found. That is a handler bug (KOE-1555), not this test's; the clock keeps the test
-// about the index until the handler is fixed. The fixtures are built inside the tests, so the
-// helper's defaults (two weeks ahead, updated now) already read the frozen clock.
-const now = freezeClockAt('2026-06-15')
-const inDays = (days: number) => addDays(new Date(now), days).toISOString()
+const adminEvents = (since?: number) =>
+  getAdminEventsLambda(constructAPIGwEvent(undefined, { query: since ? { since: String(since) } : {} }))
+
+const client = new CustomDynamoClient('EventTable')
 
 describe('getAdminEventsLambda against DynamoDB-local', () => {
-  const client = new CustomDynamoClient('EventTable')
-  const event = constructAPIGwEvent(undefined, { query: {} })
+  // Pinned mid-year, so every fixture two weeks ahead (the helper's default) is this season's. The
+  // fixtures are built inside the tests, so the helper's defaults read the frozen clock.
+  const now = freezeClockAt('2026-06-15')
+  const inDays = (days: number) => addDays(new Date(now), days).toISOString()
 
   beforeEach(() => {
     vi.clearAllMocks()
@@ -36,7 +36,7 @@ describe('getAdminEventsLambda against DynamoDB-local', () => {
     await client.batchWrite([later, earlier, other])
     mockAuthorizeWithMemberOf.mockResolvedValue({ memberOf: [organizerId], user: storedUser() })
 
-    const result = await getAdminEventsLambda(event)
+    const result = await adminEvents()
 
     expect(result.statusCode).toBe(200)
     expect(JSON.parse(result.body)).toEqual([earlier, later])
@@ -47,7 +47,7 @@ describe('getAdminEventsLambda against DynamoDB-local', () => {
     await client.write(own)
     mockAuthorizeWithMemberOf.mockResolvedValue({ memberOf: [], user: storedUser({ admin: true }) })
 
-    const result = await getAdminEventsLambda(event)
+    const result = await adminEvents()
 
     expect(result.statusCode).toBe(200)
     expect(idsIn(result.body)).toContain(own.id)
@@ -60,11 +60,33 @@ describe('getAdminEventsLambda against DynamoDB-local', () => {
     await client.batchWrite([changed, unchanged])
     mockAuthorizeWithMemberOf.mockResolvedValue({ memberOf: [], user: storedUser({ admin: true }) })
 
-    const result = await getAdminEventsLambda(constructAPIGwEvent(undefined, { query: { since: String(since) } }))
+    const result = await adminEvents(since)
 
     expect(result.statusCode).toBe(200)
     const ids = idsIn(result.body)
     expect(ids).toContain(changed.id)
     expect(ids).not.toContain(unchanged.id)
+  })
+})
+
+// Before New Year an event in early January is next season's: the since walk reads that season too,
+// as the full read does (KOE-1555).
+describe('getAdminEventsLambda against DynamoDB-local at year end', () => {
+  const now = freezeClockAt('2026-12-20')
+
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
+  it("reads a change to next season's event through gsiSeasonUpdatedAt", async () => {
+    const nextSeason = storedEvent({ startDate: dayStart(toDayKey(2027, 1, 3), TIME_ZONE).toISOString() })
+    expect(nextSeason.season).toBe('2027')
+    await client.write(nextSeason)
+    mockAuthorizeWithMemberOf.mockResolvedValue({ memberOf: [], user: storedUser({ admin: true }) })
+
+    const result = await adminEvents(now - 60_000)
+
+    expect(result.statusCode).toBe(200)
+    expect(idsIn(result.body)).toContain(nextSeason.id)
   })
 })
