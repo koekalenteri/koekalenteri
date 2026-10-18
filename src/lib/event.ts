@@ -84,13 +84,13 @@ export const storedDayKey = (date: DayInput): DayKey | undefined => {
 export const isEventDateString = (value: unknown): value is string =>
   (isInstantString(value) || isDayKey(value)) && hasCalendarDay(new Date(value), TIME_ZONE)
 
-/** The Finnish month of a stored date as `yyyy-MM`, the key the statistics bucket by; undefined without a day. */
 /** The Finnish year of a stored date; undefined without a calendar day. */
 export const storedYear = (date: DayInput): number | undefined => {
   const day = storedDayKey(date)
   return day ? dayParts(day).year : undefined
 }
 
+/** The Finnish month of a stored date as `yyyy-MM`, the key the statistics bucket by; undefined without a day. */
 export const storedMonthKey = (date: DayInput): string | undefined => {
   const day = storedDayKey(date)
   return day ? monthKeyOf(day) : undefined

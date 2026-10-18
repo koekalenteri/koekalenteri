@@ -6,6 +6,20 @@ const setTimeZone = (timeZone: string | undefined) => {
 }
 
 /**
+ * Runs `run` with the host zone set to `timeZone`, and gives the zone it found back after, unset
+ * included. For one call inside a test, such as a lambda's path, which runs in UTC.
+ */
+export const withTimeZone = <T>(timeZone: string, run: () => T): T => {
+  const systemTimeZone = process.env.TZ
+  setTimeZone(timeZone)
+  try {
+    return run()
+  } finally {
+    setTimeZone(systemTimeZone)
+  }
+}
+
+/**
  * The tests inside run as a browser in `timeZone` would: Node reads `process.env.TZ` again on each
  * change, so local dates (`new Date(2026, 9, 31)`, the date picker's typed values) are that zone's.
  * The machine's own zone comes back after the block. Build the values a test compares inside the

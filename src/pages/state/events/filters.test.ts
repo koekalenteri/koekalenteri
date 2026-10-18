@@ -113,7 +113,7 @@ describe('state.events.filters', () => {
   describe('withinDateFilters', () => {
     it('leaves out an event whose stored date has no calendar day, instead of failing the list', () => {
       const yearOne = new Date('0001-01-01T00:00:00')
-      const today = new Date()
+      const today = startOfFinnishDay('2026-10-17')
       expect(withinDateFilters({ endDate: yearOne, startDate: yearOne }, { end: null, start: today })).toBe(false)
       expect(withinDateFilters({ endDate: today, startDate: new Date(Number.NaN) }, { end: today, start: null })).toBe(
         false

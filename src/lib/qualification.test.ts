@@ -1,19 +1,11 @@
 import type { JsonManualTestResult, JsonTestResult } from '../types'
 import { describe, expect, it } from 'vitest'
-import { describeInTimeZone } from '../test-utils/timeZone'
+import { describeInTimeZone, withTimeZone } from '../test-utils/timeZone'
 import { filterRelevantResults, qualifyJsonRegistration } from './qualification'
 import { toDog, toManualTestResult } from './wire'
 
-/** Runs `run` with the host zone the lambdas have, UTC, and gives the test's own zone back after. */
-const inLambdaZone = <T>(run: () => T): T => {
-  const zone = process.env.TZ
-  process.env.TZ = 'UTC'
-  try {
-    return run()
-  } finally {
-    process.env.TZ = zone
-  }
-}
+/** Runs `run` in the host zone the lambdas have, UTC. */
+const inLambdaZone = <T>(run: () => T): T => withTimeZone('UTC', run)
 
 describe('lib/qualification', () => {
   describe('qualifyJsonRegistration', () => {
