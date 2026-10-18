@@ -141,7 +141,8 @@ describe('EventFilter', () => {
     await user.tab()
     expect(header).toHaveFocus()
     await user.tab()
-    expect(header).not.toContainElement(document.activeElement as HTMLElement)
+    expect(header).not.toHaveFocus()
+    expect(header.contains(document.activeElement)).toBe(false)
 
     await user.tab({ shift: true })
     expect(header).toHaveFocus()

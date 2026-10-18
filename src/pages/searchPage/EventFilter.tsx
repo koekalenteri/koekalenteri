@@ -17,7 +17,7 @@ import Switch from '@mui/material/Switch'
 import Typography from '@mui/material/Typography'
 import { useCallback, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { HEADER_HEIGHT } from '../../assets/Theme'
+import { FOCUS_RING, HEADER_HEIGHT } from '../../assets/Theme'
 import { addMonths, dayEndOf, dayOf, dayStart, dayStartOf, hasCalendarDay, TIME_ZONE } from '../../lib/day'
 import AutocompleteMulti from '../components/AutocompleteMulti'
 import DateRange from '../components/DateRange'
@@ -149,7 +149,7 @@ export const EventFilter = ({ judges, organizers, eventTypes, eventClasses, filt
             // The header is the summary's only content and covers the tint MUI marks focus with, so
             // keyboard focus gets the ring the theme gives a button. Drawn inside: outside it would
             // sit on the filter's border and slide under the app bar once the filter sticks.
-            '&.Mui-focusVisible': { outline: '2px solid #1565c0', outlineOffset: -2 },
+            '&.Mui-focusVisible': { outline: FOCUS_RING, outlineOffset: -2 },
             bgcolor: 'background.filterHeader',
             minHeight: '28px',
             p: '1px',
