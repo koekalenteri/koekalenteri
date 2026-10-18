@@ -15,12 +15,9 @@
             TableName: !Ref EventRegistrationTable
         - DynamoDBReadPolicy:
             TableName: !Ref OrganizerTable
-        - DynamoDBReadPolicy:
-            TableName: !Ref UserTable
-        - DynamoDBReadPolicy:
-            TableName: !Ref UserLinkTable
-        - DynamoDBCrudPolicy:
+        - DynamoDBWritePolicy:
             TableName: !Ref AuditTable
+        - !Ref AuthorizePolicy
         - S3ReadPolicy:
             BucketName: !Ref EventAttachmentBucket
         - CloudWatchPutMetricPolicy: {}

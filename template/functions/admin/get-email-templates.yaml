@@ -6,10 +6,7 @@
       Policies:
         - DynamoDBReadPolicy:
             TableName: !Ref EmailTemplatesTable
-        - DynamoDBReadPolicy:
-            TableName: !Ref UserTable
-        - DynamoDBReadPolicy:
-            TableName: !Ref UserLinkTable
+        - !Ref AuthorizePolicy
         - CloudWatchPutMetricPolicy: {}
       Events:
         GetEmailTemplates:

@@ -8,19 +8,10 @@
       Policies:
         - DynamoDBCrudPolicy:
             TableName: !Ref EventTable
-        - DynamoDBCrudPolicy:
-            TableName: !Ref EventRegistrationTable
-        - DynamoDBReadPolicy:
-            TableName: !Ref JudgeTable
-        - DynamoDBReadPolicy:
-            TableName: !Ref UserTable
-        - DynamoDBReadPolicy:
-            TableName: !Ref UserLinkTable
-        - DynamoDBCrudPolicy:
-            TableName: !Ref AuditTable
         # The registry of applied migrations (collection `migrations`) lives in the version table.
         - DynamoDBCrudPolicy:
             TableName: !Ref DataVersionTable
+        - !Ref AuthorizePolicy
         - CloudWatchPutMetricPolicy: {}
       Events:
         RunMigration:

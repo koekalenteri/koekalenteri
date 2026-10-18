@@ -14,7 +14,7 @@
             TableName: !Ref EventTable
         - DynamoDBCrudPolicy:
             TableName: !Ref EventRegistrationTable
-        - DynamoDBCrudPolicy:
+        - DynamoDBWritePolicy:
             TableName: !Ref EventStatsTable
         - DynamoDBReadPolicy:
             TableName: !Ref OrganizerTable
@@ -22,7 +22,7 @@
             TableName: !Ref UserTable
         - DynamoDBReadPolicy:
             TableName: !Ref JudgeTable
-        - DynamoDBCrudPolicy:
+        - DynamoDBWritePolicy:
             TableName: !Ref AuditTable
         - CloudWatchPutMetricPolicy: {}
         - !Ref WebSocketPolicy

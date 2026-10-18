@@ -6,12 +6,7 @@
       Policies:
         - DynamoDBReadPolicy:
             TableName: !Ref EventTable
-        - DynamoDBReadPolicy:
-            TableName: !Ref UserTable
-        - DynamoDBReadPolicy:
-            TableName: !Ref UserLinkTable
-        - DynamoDBReadPolicy:
-            TableName: !Ref AuditTable
+        - !Ref AuthorizePolicy
         - CloudWatchPutMetricPolicy: {}
       Events:
         GetAdminEvents:

@@ -6,10 +6,6 @@
       Policies:
         - DynamoDBCrudPolicy:
             TableName: !Ref WsConnectionsTable
-        - DynamoDBReadPolicy:
-            TableName: !Ref UserLinkTable
-        - DynamoDBReadPolicy:
-            TableName: !Ref UserTable
         - !Ref WebSocketPolicy
 
   ConnectIntegration:

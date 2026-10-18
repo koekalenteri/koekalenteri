@@ -1,0 +1,32 @@
+  # What authorize() and its callees can do (src/lambda/lib/auth.ts): the Cognito subject's link is
+  # read on every call and written on first contact; the user is read by id, found by email through
+  # the gsiEmail index, and created or updated, which bumps the users collection's data version. So
+  # authorize() can create or update the caller's user record, and every function that calls it
+  # carries this policy rather than a read grant on three tables that would be one write short
+  # (KOE-1492). A function that does more with these tables keeps its own policy beside this one.
+  AuthorizePolicy:
+    Type: AWS::IAM::ManagedPolicy
+    Properties:
+      ManagedPolicyName: !Sub 'AuthorizeAccessPolicy-${AWS::StackName}'
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Action:
+              - dynamodb:GetItem
+              - dynamodb:PutItem
+            Resource: !GetAtt UserLinkTable.Arn
+
+          - Effect: Allow
+            Action:
+              - dynamodb:GetItem
+              - dynamodb:PutItem
+            Resource: !GetAtt UserTable.Arn
+
+          - Effect: Allow
+            Action: dynamodb:Query
+            Resource: !Sub ${UserTable.Arn}/index/gsiEmail
+
+          - Effect: Allow
+            Action: dynamodb:UpdateItem
+            Resource: !GetAtt DataVersionTable.Arn

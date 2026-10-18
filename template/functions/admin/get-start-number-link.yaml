@@ -9,10 +9,7 @@
       Policies:
         - DynamoDBReadPolicy:
             TableName: !Ref EventTable
-        - DynamoDBReadPolicy:
-            TableName: !Ref UserTable
-        - DynamoDBReadPolicy:
-            TableName: !Ref UserLinkTable
+        - !Ref AuthorizePolicy
         - CloudWatchPutMetricPolicy: {}
       Events:
         GetStartNumberLink:

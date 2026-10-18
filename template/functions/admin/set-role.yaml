@@ -7,14 +7,13 @@
         - DynamoDBCrudPolicy:
             TableName: !Ref UserTable
         - DynamoDBReadPolicy:
-            TableName: !Ref UserLinkTable
-        - DynamoDBReadPolicy:
             TableName: !Ref OrganizerTable
-        - DynamoDBCrudPolicy:
+        - DynamoDBWritePolicy:
             TableName: !Ref AuditTable
         - CloudWatchPutMetricPolicy: {}
-        - DynamoDBCrudPolicy:
+        - DynamoDBWritePolicy:
             TableName: !Ref DataVersionTable
+        - !Ref AuthorizePolicy
         - !Ref WebSocketPolicy
         - Statement:
           - Sid: SESSendEmailPolicy

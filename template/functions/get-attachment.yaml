@@ -6,12 +6,6 @@
       Policies:
         - S3ReadPolicy:
             BucketName: !Ref EventAttachmentBucket
-        - DynamoDBReadPolicy:
-            TableName: !Ref UserTable
-        - DynamoDBReadPolicy:
-            TableName: !Ref UserLinkTable
-        - DynamoDBCrudPolicy:
-            TableName: !Ref AuditTable
         - CloudWatchPutMetricPolicy: {}
       Environment:
         Variables:

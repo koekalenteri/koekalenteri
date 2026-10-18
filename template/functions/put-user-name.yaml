@@ -6,11 +6,10 @@
       Policies:
         - DynamoDBCrudPolicy:
             TableName: !Ref UserTable
-        - DynamoDBCrudPolicy:
-            TableName: !Ref UserLinkTable
         - CloudWatchPutMetricPolicy: {}
-        - DynamoDBCrudPolicy:
+        - DynamoDBWritePolicy:
             TableName: !Ref DataVersionTable
+        - !Ref AuthorizePolicy
         - !Ref WebSocketPolicy
       Events:
         PutUserName:

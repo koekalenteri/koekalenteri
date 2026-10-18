@@ -9,12 +9,9 @@
         # The public start list is rebuilt from the event's registrations once a day's results change.
         - DynamoDBReadPolicy:
             TableName: !Ref EventRegistrationTable
-        - DynamoDBCrudPolicy:
+        - DynamoDBWritePolicy:
             TableName: !Ref AuditTable
-        - DynamoDBReadPolicy:
-            TableName: !Ref UserTable
-        - DynamoDBReadPolicy:
-            TableName: !Ref UserLinkTable
+        - !Ref AuthorizePolicy
         - CloudWatchPutMetricPolicy: {}
         - !Ref WebSocketPolicy
       Events:
