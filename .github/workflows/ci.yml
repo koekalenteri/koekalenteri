@@ -326,10 +326,10 @@ jobs:
     # Browser tests of the main paths (KOE-396): the production frontend build against the built
     # lambda bundles, called in-process by e2e/server, with DynamoDB-local as the only container and
     # SES, SSM and Paytrail faked on localhost. Playwright starts and stops the servers itself.
-    # Sharded by test, one worker each. Off sonar's path, so it waits for backend rather than take
-    # runners from the jobs on it; the frontend job's build is done by then.
+    # Sharded by test, one worker each. Off sonar's path, so it waits for the frontend job, whose
+    # build it uses, rather than take runners from the jobs on it at the start.
     runs-on: ubuntu-latest
-    needs: [setup, backend, frontend]
+    needs: [setup, frontend]
     if: ${{ !cancelled() && needs.setup.result == 'success' && (needs.setup.outputs.frontend == 'true' || needs.setup.outputs.backend == 'true' || needs.setup.outputs.e2e == 'true') }}
     timeout-minutes: 15
     strategy:
