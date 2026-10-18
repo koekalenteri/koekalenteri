@@ -487,8 +487,8 @@ export const sameEventResult = (a?: JsonEventResult, b?: JsonEventResult): boole
 }
 
 /**
- * The task shape these helpers need. Generic over `updatedAt` because the client holds a `Date` — `http`
- * revives any ISO string by the value's own shape — while the server holds the string it stored.
+ * The task shape these helpers need. Generic over `updatedAt` because the client holds a `Date`, made
+ * at the typed boundary (`lib/wire.ts`), while the server holds the string it stored.
  */
 interface StationScopedTask {
   stationId: string

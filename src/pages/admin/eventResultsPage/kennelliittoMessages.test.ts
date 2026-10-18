@@ -10,11 +10,11 @@ beforeAll(() =>
   finnish.init({ interpolation: { escapeValue: false }, lng: 'fi', resources: { fi: { translation: fi } } })
 )
 
-/** What the page makes of an answer: the body goes through the client's own reviver, which turns date-shaped strings into Dates. */
-const received = (dog: KcDogReport): KcDogReport => parseJSON(JSON.stringify(dog), true)
+/** What the page makes of an answer: the body as JSON, parsed as written. */
+const received = (dog: KcDogReport): KcDogReport => parseJSON(JSON.stringify(dog))
 
 describe('the messages of a sending', () => {
-  it('names the day of a dog whose day has not begun as a person reads it, after the answer has been revived', () => {
+  it('names the day of a dog whose day has not begun as a person reads it', () => {
     const dog = received({
       id: 'a',
       name: 'Hukka',
@@ -41,7 +41,7 @@ describe('the messages of a sending', () => {
     expect(dogLine(finnish.t, dog).text).toContain('5.1.2026')
   })
 
-  it('would have shown a bare yyyy-MM-dd day as a Date: the reason the days are named d.M.yyyy', () => {
+  it('shows a bare yyyy-MM-dd day in a message as the text it is (KOE-1546)', () => {
     const dog = received({
       id: 'c',
       name: 'Peni',
@@ -50,7 +50,7 @@ describe('the messages of a sending', () => {
       status: 'blocked',
     })
 
-    expect(dogLine(finnish.t, dog).text).toContain('GMT')
+    expect(dogLine(finnish.t, dog).text).toContain('2026-10-17')
   })
 
   it('says a skipped dog by its state when it has no problem to name', () => {

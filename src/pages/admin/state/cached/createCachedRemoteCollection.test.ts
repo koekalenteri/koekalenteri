@@ -1,7 +1,8 @@
 import type { PrimitiveAtom } from 'jotai'
-import type { DataVersions, User } from '@/types'
+import type { DataVersions, JsonUser, User } from '@/types'
 import { createStore } from 'jotai'
 import { vi } from 'vitest'
+import { toUser } from '@/lib/wire'
 import { TEST_ID_TOKEN } from '@/test-utils/utils'
 
 const mockReadEncryptedDataset = vi.fn()
@@ -188,5 +189,52 @@ describe('atomWithCachedRemoteCollection', () => {
 
     expect(store.get(collection)).toEqual(['seeded'])
     expect(mockWriteEncryptedDataset).not.toHaveBeenCalled()
+  })
+})
+
+describe('the cached list as the model', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+    mockWriteEncryptedDataset.mockResolvedValue(undefined)
+  })
+
+  it('reads the ISO strings of a cached user list back as Dates (KOE-1546)', async () => {
+    const stored = {
+      createdAt: '2026-01-02T10:00:00.000Z',
+      createdBy: 'seed',
+      email: 'a@b.c',
+      id: 'u2',
+      lastSeen: '2026-05-01T08:00:00.000Z',
+      modifiedAt: '2026-01-03T10:00:00.000Z',
+      modifiedBy: 'seed',
+      name: 'Cached User',
+    }
+    mockReadEncryptedDataset.mockResolvedValueOnce({ data: [stored], revision: 'directory:initial' })
+    const fetch = vi.fn()
+
+    const list = await loadCachedRemoteCollection<User, JsonUser>(
+      { cacheKey: 'users', fetch, revive: toUser },
+      'token',
+      currentUser
+    )
+
+    expect(fetch).not.toHaveBeenCalled()
+    expect(list).toEqual([
+      {
+        ...stored,
+        createdAt: new Date('2026-01-02T10:00:00.000Z'),
+        lastSeen: new Date('2026-05-01T08:00:00.000Z'),
+        modifiedAt: new Date('2026-01-03T10:00:00.000Z'),
+      },
+    ])
+  })
+
+  it('names a converter exactly when the model holds a Date', () => {
+    // @ts-expect-error A user holds Dates, so the cached list cannot be read without its converter.
+    atomWithCachedRemoteCollection<User, JsonUser>({ cacheKey: 'users', fetch: vi.fn() })
+    // @ts-expect-error A judge holds no Date: its JSON is its model, and there is nothing to convert.
+    atomWithCachedRemoteCollection<string>({ cacheKey: 'judges', fetch: vi.fn(), revive: (item: string) => item })
+
+    expect(atomWithCachedRemoteCollection<string>({ cacheKey: 'judges', fetch: vi.fn() })).toBeDefined()
   })
 })

@@ -1,6 +1,7 @@
-import type { EventResultSubmission, EventResultsResponse } from '@/api/registration'
+import type { EventResultSubmission } from '@/api/registration'
 import type {
   EventResult,
+  EventResultsResponse,
   EventStation,
   PublicDogEvent,
   PublicJudge,

@@ -1,7 +1,8 @@
-import type { EmailTemplate, EmailTemplateId } from '@/types'
+import type { EmailTemplate, EmailTemplateId, JsonEmailTemplate } from '@/types'
 import { getEmailTemplates } from '@/api/email'
 import { compareByLocalizedString } from '@/lib/client/sort'
 import { exhaustiveStringTuple } from '@/lib/typeGuards'
+import { toEmailTemplate } from '@/lib/wire'
 import { atomWithCachedRemoteCollection } from '../cached/createCachedRemoteCollection'
 
 const templateIds = exhaustiveStringTuple<EmailTemplateId>()(
@@ -47,9 +48,10 @@ export async function fetchEmailTemplates(token: string): Promise<EmailTemplate[
   return withEveryTemplate(await getEmailTemplates(token))
 }
 
-export const adminEmailTemplatesRemoteAtom = atomWithCachedRemoteCollection<EmailTemplate>({
+export const adminEmailTemplatesRemoteAtom = atomWithCachedRemoteCollection<EmailTemplate, JsonEmailTemplate>({
   cacheKey: 'emailTemplates',
   fetch: fetchEmailTemplates,
+  revive: toEmailTemplate,
   // Runs on the cached list as well as on a fetched one, which is where the padding must happen.
   sort: (items) => withEveryTemplate(items).sort(compareByLocalizedString('id')),
 })

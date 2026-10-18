@@ -6,6 +6,7 @@ import { getAdminEvents } from '@/api/event'
 import { compareEventsByDate } from '@/lib/event'
 import { latestCollectionUpdate } from '@/lib/incremental'
 import { getJwtSubject } from '@/lib/token'
+import { toDogEvent } from '@/lib/wire'
 import { userAtom, userRefreshAtom, validIdTokenAtom } from '@/pages/state'
 import { parseStorageJSON } from '@/pages/state/storage/atoms'
 
@@ -49,8 +50,9 @@ const remoteAdminEventsAtom = atom(async (get): Promise<AdminEventList> => {
   if (!token || !user) return { events: [], fetchKey }
 
   const scopeKey = 'adminEvents:scope'
-  const stored = parseStorageJSON(sessionStorage.getItem('adminEvents'))
-  const cached = sessionStorage.getItem(scopeKey) === cacheScope(user) && Array.isArray(stored) ? stored : undefined
+  const stored: unknown = parseStorageJSON(sessionStorage.getItem('adminEvents'))
+  const cached =
+    sessionStorage.getItem(scopeKey) === cacheScope(user) && Array.isArray(stored) ? stored.map(toDogEvent) : undefined
   const since = cached ? latestCollectionUpdate(cached)?.getTime() : undefined
   const events = await getAdminEvents(token, since)
 

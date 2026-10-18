@@ -11,7 +11,7 @@ const item = (date: Date, reserveRegistrations: number, cancelledRegistrations: 
 })
 
 describe('OrganizerRegistrationsChart', () => {
-  it('groups revived Date values by month without crashing', () => {
+  it('groups Date values by month without crashing', () => {
     render(
       <OrganizerRegistrationsChart
         items={[

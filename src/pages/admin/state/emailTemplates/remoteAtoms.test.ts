@@ -1,5 +1,6 @@
-import type { DataVersions, EmailTemplate, User } from '@/types'
+import type { DataVersions, EmailTemplate, JsonEmailTemplate, User } from '@/types'
 import { vi } from 'vitest'
+import { toEmailTemplate } from '@/lib/wire'
 
 const mockReadEncryptedDataset = vi.fn()
 const mockWriteEncryptedDataset = vi.fn(async () => undefined)
@@ -76,10 +77,11 @@ describe('adminEmailTemplatesRemoteAtom', () => {
     const { fetchEmailTemplates, withEveryTemplate } = await import('./remoteAtoms')
     mockReadEncryptedDataset.mockResolvedValueOnce({ data: storedTemplates, revision: '*:unchanged' })
 
-    const list = await loadCachedRemoteCollection(
+    const list = await loadCachedRemoteCollection<EmailTemplate, JsonEmailTemplate>(
       {
         cacheKey: 'emailTemplates',
         fetch: fetchEmailTemplates,
+        revive: toEmailTemplate,
         sort: (items) => withEveryTemplate(items).sort((a, b) => a.id.localeCompare(b.id)),
       },
       'token',

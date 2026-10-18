@@ -101,7 +101,7 @@ export const getStartNumbersBlocker = (
 export const getResultsBlocker = (
   event: PublishingEvent,
   eventClass: ClassOrNone,
-  day?: string | Date
+  day?: string
 ): PublishBlocker | undefined => {
   if (!isStartListPublished(event, classEntry(event, eventClass))) return 'startList'
   if (!canPublishResults(getEventStateForClass(event, eventClass), event)) return 'state'

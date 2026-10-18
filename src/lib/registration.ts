@@ -488,8 +488,10 @@ export const getRegistrationPlacement = <T extends SortableRegistration>(
 const placementOf = (registration: SortableRegistration): SortablePlacement | undefined =>
   getRegistrationPlacement(registration)
 
-const sortableDate = (date: GroupDate | undefined): string =>
-  date instanceof Date ? date.toISOString() : (date ?? '\uffff')
+const sortableDate = (date: GroupDate | undefined): string => {
+  if (!date) return '\uffff'
+  return typeof date === 'string' ? date : date.toISOString()
+}
 
 export const getRegistrationGroupTime = (registration: SortableRegistration): RegistrationTime =>
   placementOf(registration)?.time ?? 'kp'
@@ -528,7 +530,7 @@ export const isParticipantGroup = (group?: string): boolean =>
 
 const groupInstant = (date: GroupDate | undefined): Date | undefined => {
   if (!date) return undefined
-  const instant = date instanceof Date ? date : new Date(date)
+  const instant = new Date(date)
   return Number.isNaN(instant.getTime()) ? undefined : instant
 }
 

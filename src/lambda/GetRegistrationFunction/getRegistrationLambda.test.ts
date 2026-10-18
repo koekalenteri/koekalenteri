@@ -7,10 +7,10 @@ import type {
   PaymentTime,
   Registration,
 } from '../../types'
-import { addDays } from 'date-fns'
 import { vi } from 'vitest'
 import { eventWithParticipantsInvited } from '../../__mockData__/events'
 import { registrationsToEventWithParticipantsInvited } from '../../__mockData__/registrations'
+import { zonedEndOfDay } from '../../i18n/dates'
 import { isParticipantGroup } from '../../lib/registration'
 import { LambdaError } from '../lib/lambda'
 import { constructAPIGwEvent } from '../test-utils/helpers'
@@ -154,7 +154,7 @@ describe('getRegistration', () => {
   })
 
   it('does not disclose registrations after the event has ended', async () => {
-    vi.setSystemTime(addDays(new Date(mockEventWithInvitationAttachment.endDate), 1))
+    vi.setSystemTime(zonedEndOfDay(mockEventWithInvitationAttachment.endDate).getTime() + 1)
 
     const res = await getRegistrationLambda(
       constructAPIGwEvent('test', { pathParameters: { eventId: '123', id: '123' } })
