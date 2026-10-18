@@ -15,6 +15,8 @@ import { describeSweep, putTestEvent, sweepTestEvents, TEST_ORGANIZER } from './
 
 const LISTED_WITHIN_MS = 30_000
 const POLL_INTERVAL_MS = 1_000
+/** One answer may take this long; an API that never answers must not hold the setup past its deadline. */
+const LIST_REQUEST_TIMEOUT_MS = 5_000
 
 const requiredVariable = (name: string, what: string) => {
   const value = process.env[name]
@@ -22,10 +24,10 @@ const requiredVariable = (name: string, what: string) => {
   return value
 }
 
-/** Whether the public event list answers with the event; an error or a refusal is a no for now. */
+/** Whether the public event list answers with the event; an error, a refusal or no answer is a no for now. */
 const listsEvent = async (listUrl: string, id: string) => {
   try {
-    const response = await fetch(listUrl)
+    const response = await fetch(listUrl, { signal: AbortSignal.timeout(LIST_REQUEST_TIMEOUT_MS) })
     if (!response.ok) return false
     const events: unknown = await response.json()
     return Array.isArray(events) && events.some((event) => event?.id === id)
