@@ -1,11 +1,16 @@
+import type { ComponentProps } from 'react'
 import type { ConfirmedEvent, Registration } from '@/types'
 import { render, screen } from '@testing-library/react'
+import { withRowPaymentPicture } from '@/__mockData__/paymentPicture'
 import { registrationWithStaticDates } from '@/__mockData__/registrations'
 import { eventWithStations } from '@/__mockData__/resultsEvent'
-import PaymentIcon from './PaymentIcon'
+import PaymentIconBase from './PaymentIcon'
 
 // The fee is 40 for a non-member, as in RegistrationIcons.visual.test.tsx.
 const event: ConfirmedEvent = { ...eventWithStations, cost: 40, costMember: 35 }
+
+/** The icon as RegistrationIcons renders it: with the picture of the row's payment. */
+const PaymentIcon = withRowPaymentPicture<Omit<ComponentProps<typeof PaymentIconBase>, 'payment'>>(PaymentIconBase)
 
 const paid = (paidAmount: number, overrides: Partial<Registration> = {}): Registration => ({
   ...registrationWithStaticDates,
@@ -91,5 +96,19 @@ describe('PaymentIcon', () => {
     expect(screen.getByTestId('ProductionQuantityLimitsIcon')).toBeInTheDocument()
     // react-i18next is mocked to echo the key back in this project (src/__mocks__/react-i18next).
     expect(screen.getByRole('img', { name: 'registration.paidExcess' })).toBeInTheDocument()
+  })
+
+  // KOE-1552: only a confirmed trial carries the fee the marks compare against; in a cancelled one
+  // an overpaid or part paid fee shows the plain euro sign, though the excess can still be returned.
+  it.each([
+    ['paid over', 45],
+    ['part paid', 35],
+  ])('should render the plain EuroOutlined icon for a fee %s in a cancelled trial', (_label, paidAmount) => {
+    render(<PaymentIcon event={{ ...event, state: 'cancelled' }} reg={paid(paidAmount)} />)
+
+    expect(screen.queryByTestId('ProductionQuantityLimitsIcon')).not.toBeInTheDocument()
+    const icon = screen.getByTestId('EuroOutlinedIcon')
+    expect(icon).not.toHaveClass('MuiSvgIcon-colorWarning')
+    expect(icon).toHaveStyle('opacity: 1')
   })
 })

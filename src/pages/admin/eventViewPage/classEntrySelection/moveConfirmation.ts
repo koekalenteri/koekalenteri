@@ -1,7 +1,13 @@
 import type { TFunction } from 'i18next'
 import type { DogEvent, EventClassState, EventState, Registration } from '@/types'
-import { isInvitationAwaitingPayment, shouldSendInvitationAfterPayment } from '@/lib/payment'
-import { GROUP_KEY_CANCELLED, GROUP_KEY_RESERVE, isParticipantGroup } from '@/lib/registration'
+import { getPaymentPicture } from '@/lib/payment'
+import {
+  GROUP_KEY_CANCELLED,
+  GROUP_KEY_RESERVE,
+  isInvitationAwaitingPayment,
+  isParticipantGroup,
+  shouldSendInvitationAfterPayment,
+} from '@/lib/registration'
 import { isConfirmedEvent } from '@/lib/typeGuards'
 
 /** `useConfirm` from material-ui-confirm, narrowed to the options this prompt passes. */
@@ -57,8 +63,9 @@ export const invitationAfterMove = (
   if (!isConfirmedEvent(event) || !toGroupKey || !isParticipantGroup(toGroupKey)) return undefined
 
   const moved = { ...registration, cancelled: false, group: { number: 0, ...registration.group, key: toGroupKey } }
-  if (shouldSendInvitationAfterPayment(event, moved)) return 'invited'
-  if (isInvitationAwaitingPayment(event, moved)) return 'awaitingPayment'
+  const payment = getPaymentPicture(event, moved, [])
+  if (shouldSendInvitationAfterPayment(event, moved, payment)) return 'invited'
+  if (isInvitationAwaitingPayment(event, moved, payment)) return 'awaitingPayment'
   return undefined
 }
 

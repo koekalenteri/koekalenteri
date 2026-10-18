@@ -11,12 +11,8 @@ import {
 } from '../../lib/audit'
 import { getCostSegmentName } from '../../lib/cost'
 import { formatMoney, getNetPaidAmount } from '../../lib/money'
-import {
-  getProviderName,
-  getRegistrationPaymentDetails,
-  shouldSendInvitationAfterPayment,
-  transactionActor,
-} from '../../lib/payment'
+import { getPaymentPicture, getProviderName, getRegistrationPaymentDetails, transactionActor } from '../../lib/payment'
+import { shouldSendInvitationAfterPayment } from '../../lib/registration'
 import { CONFIG } from '../config'
 import { audit, registrationAuditKey } from '../lib/audit'
 import { emailTo, registrationEmailTags, registrationEmailTemplateData, sendTemplatedMail } from '../lib/email'
@@ -421,7 +417,14 @@ const handleSuccessfulPayment = async (
 
     // A place that was still unpaid when it was picked has no koekutsu yet: the group move
     // deliberately held it back (KOE-1191). The payment is what it was waiting for.
-    if (!workflow.invitationSentAt && shouldSendInvitationAfterPayment(confirmedEvent, registration)) {
+    if (
+      !workflow.invitationSentAt &&
+      shouldSendInvitationAfterPayment(
+        confirmedEvent,
+        registration,
+        getPaymentPicture(confirmedEvent, registration, [])
+      )
+    ) {
       await sendTemplatedEmailToEventRegistrations(
         'invitation',
         confirmedEvent,

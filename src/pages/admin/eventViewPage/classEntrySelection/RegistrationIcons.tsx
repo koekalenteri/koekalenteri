@@ -1,4 +1,4 @@
-import type { DogEvent, Registration } from '@/types'
+import type { PricedDogEvent, Registration } from '@/types'
 import AddTaskOutlinedIcon from '@mui/icons-material/AddTaskOutlined'
 import CheckOutlined from '@mui/icons-material/CheckOutlined'
 import CommentOutlined from '@mui/icons-material/CommentOutlined'
@@ -11,8 +11,8 @@ import ScheduleSendOutlined from '@mui/icons-material/ScheduleSendOutlined'
 import SpeakerNotesOutlined from '@mui/icons-material/SpeakerNotesOutlined'
 import Stack from '@mui/material/Stack'
 import { useMemo } from 'react'
-import { isInvitationAwaitingPayment } from '@/lib/payment'
-import { getInvitationReadStatus, hasPriority, isMember } from '@/lib/registration'
+import { getPaymentPicture } from '@/lib/payment'
+import { getInvitationReadStatus, hasPriority, isInvitationAwaitingPayment, isMember } from '@/lib/registration'
 import { isConfirmedEvent } from '@/lib/typeGuards'
 import { IconsTooltip } from '@/pages/components/IconsTooltip'
 import { PriorityIcon } from '@/pages/components/icons/PriorityIcon'
@@ -24,7 +24,7 @@ import RegistrationTooltipContent, {
 import StatusIcon from './registrationIcons/StatusIcon'
 
 interface RegistrationIconsProps {
-  event: DogEvent
+  event: PricedDogEvent
   reg: Registration
 }
 
@@ -37,12 +37,22 @@ const RegistrationIcons = ({ event, reg }: RegistrationIconsProps) => {
     [reg.qualifyingResults]
   )
   const rankingPoints = useMemo(() => reg.qualifyingResults.reduce((acc, r) => acc + (r.rankingPoints ?? 0), 0), [reg])
+  // One picture of the row's payment for every icon and tooltip line that reads it (KOE-1552).
+  const payment = useMemo(() => getPaymentPicture(event, reg, []), [event, reg])
 
-  const tooltipIcons = hasRegistrationTooltipContent({ event, manualResultCount, priority, rankingPoints, reg }) ? (
+  const tooltipIcons = hasRegistrationTooltipContent({
+    event,
+    manualResultCount,
+    payment,
+    priority,
+    rankingPoints,
+    reg,
+  }) ? (
     <RegistrationTooltipContent
       key="tooltip-content"
       event={event}
       reg={reg}
+      payment={payment}
       priority={priority}
       manualResultCount={manualResultCount}
       rankingPoints={rankingPoints}
@@ -61,7 +71,7 @@ const RegistrationIcons = ({ event, reg }: RegistrationIconsProps) => {
         {/* Keep the icons column width in useClassEntrySelectionColumns in sync when adding icons here. */}
         <StatusIcon condition={!!priority} icon={<PriorityIcon dim priority={priority} fontSize="small" />} />
         <StatusIcon condition={isMember(reg)} icon={<PersonOutline fontSize="small" />} />
-        <PaymentIcon event={event} reg={reg} />
+        <PaymentIcon event={event} payment={payment} reg={reg} />
         <StatusIcon condition={(reg.optionalCosts?.length ?? 0) > 0} icon={<AddTaskOutlinedIcon fontSize="small" />} />
         <StatusIcon condition={reg.confirmed} icon={<CheckOutlined fontSize="small" />} />
         <StatusIcon condition={!!reg.emailDeliveryStatus} icon={<MailOutline color="error" fontSize="small" />} />
@@ -79,7 +89,7 @@ const RegistrationIcons = ({ event, reg }: RegistrationIconsProps) => {
           }
         />
         <StatusIcon
-          condition={isConfirmedEvent(event) && isInvitationAwaitingPayment(event, reg)}
+          condition={isConfirmedEvent(event) && isInvitationAwaitingPayment(event, reg, payment)}
           icon={<ScheduleSendOutlined color="warning" fontSize="small" />}
         />
         <StatusIcon condition={manualResultCount > 0} icon={<ErrorOutlineOutlined fontSize="small" />} />

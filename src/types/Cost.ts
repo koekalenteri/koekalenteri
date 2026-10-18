@@ -116,7 +116,11 @@ export type PaymentPictureStatus =
 export interface PaymentPicture {
   /** Whether the participant is offered the payment link. The page adds its own wait for a verification. */
   canPay: boolean
-  /** Whether the overpaid part can still be returned. For the secretary's views. */
+  /**
+   * Whether the overpaid part can still be returned, in whatever state the trial is: the money is the
+   * entrant's (KOE-1382, KOE-1552). For the secretary's views, whose mark and menu show it only for a
+   * confirmed trial.
+   */
   canRefundExcess: boolean
   /** Whether the ordinary refund applies. For the secretary's views. */
   canRefund: boolean

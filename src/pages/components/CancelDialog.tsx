@@ -16,7 +16,7 @@ import Select from '@mui/material/Select'
 import TextField from '@mui/material/TextField'
 import { useCallback, useState } from 'react'
 import { Trans, useTranslation } from 'react-i18next'
-import { isRegistrationPaid } from '../../lib/payment'
+import { getRowPaymentPicture } from '../../lib/payment'
 import { isPredefinedReason } from '../../lib/registration'
 import { isConfirmedEvent } from '../../lib/typeGuards'
 
@@ -56,13 +56,11 @@ const CancelDialog = ({ admin, disabled, event, onCancel, onClose, open, registr
     return null
   }
 
-  // Unpaid as the payment rule reads it, so a payment that went back is unpaid too (KOE-1526). The
-  // participant's registration carries the server's picture; the secretary's row has none and reads
-  // the rule itself, until it takes the picture too. An event that is not confirmed has no fee to
-  // read yet; the mark of a payment stands for it there.
-  const paidForPlace = registration.payment?.paidForPlace
+  // Unpaid as the payment picture reads it, so a payment that went back is unpaid too (KOE-1526): the
+  // server's for the participant, the row's own for the secretary (KOE-1552). An event that is not
+  // confirmed has no fee to read yet; the mark of a payment stands for it there.
   const unpaid = isConfirmedEvent(event)
-    ? !(paidForPlace ?? isRegistrationPaid(event, registration))
+    ? !getRowPaymentPicture(event, registration).paidForPlace
     : !registration.paidAt
 
   return (
