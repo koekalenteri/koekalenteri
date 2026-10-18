@@ -1,4 +1,4 @@
-import type { JsonUser } from '../../types'
+import type { JsonOfficial, JsonUser } from '../../types'
 import { vi } from 'vitest'
 
 const mockPublishAdminDataInvalidation = vi.fn()
@@ -8,9 +8,13 @@ vi.doMock('../lib/ws/actions', () => ({
 
 import { constructAPIGwEvent } from '../test-utils/helpers'
 
+const mockKLAPI = {
+  lueKoemuodonKoetoimitsijat: vi.fn(),
+  lueKoemuodonYlituomarit: vi.fn(),
+}
 vi.doMock('../lib/KLAPI', () => ({
-  default: vi.fn(function MockCustomDynamoClient() {
-    return {}
+  default: vi.fn(function MockKLAPI() {
+    return mockKLAPI
   }),
 }))
 
@@ -23,17 +27,27 @@ vi.doMock('../lib/auth', () => ({
   getAndUpdateUserByEmail: vi.fn(),
 }))
 
-vi.doMock('../utils/CustomDynamoClient', () => ({
-  default: vi.fn(function MockCustomDynamoClient() {
-    return { readAll: vi.fn() }
-  }),
+const mockReadAll = vi.fn<() => Promise<Partial<JsonOfficial>[]>>()
+const mockWriteAll = vi.fn<(items: JsonOfficial[]) => Promise<void>>()
+vi.doMock('../lib/repositories/officialRepository', () => ({
+  readOfficials: mockReadAll,
+  writeOfficials: mockWriteAll,
+}))
+
+const mockReadEventTypes = vi.fn()
+vi.doMock('../lib/repositories/eventTypeRepository', () => ({
+  readEventTypes: mockReadEventTypes,
+}))
+
+const mockUpdateUsers = vi.fn()
+vi.doMock('../lib/user', () => ({
+  updateUsersFromOfficialsOrJudges: mockUpdateUsers,
 }))
 
 const { authorize } = await import('../lib/auth')
 const authorizeMock = authorize as import('vitest').Mock<typeof authorize>
 
-const { default: getOfficialsLambda, dynamoDB } = await import('./handler')
-const mockDynamoDB = dynamoDB as import('vitest').Mocked<typeof dynamoDB>
+const { default: getOfficialsLambda } = await import('./handler')
 
 const mockUser: JsonUser = {
   createdAt: '',
@@ -62,9 +76,43 @@ describe('getOfficialsLambda', () => {
     expect(res.statusCode).toEqual(401)
   })
 
+  it('refreshes the officials from the Kennel Club and syncs them as officer users', async () => {
+    authorizeMock.mockResolvedValueOnce({ ...mockUser, admin: true })
+    mockReadEventTypes.mockResolvedValueOnce([{ active: true, eventType: 'NOME-B', official: true }])
+    mockKLAPI.lueKoemuodonKoetoimitsijat.mockResolvedValueOnce({
+      json: [
+        {
+          jäsennumero: 7,
+          kennelpiiri: 'Helsinki',
+          koemuodot: [{ koemuoto: 'NOME-B', lyhenne: 'NOME-B' }],
+          nimi: 'henkilö testi',
+          paikkakunta: 'espoo',
+          puhelin: '040',
+          sähköposti: 'Testi@Example.com',
+        },
+      ],
+      status: 200,
+    })
+    mockReadAll.mockResolvedValue([])
+
+    const res = await getOfficialsLambda(constructAPIGwEvent({}, { query: { refresh: 'true' } }))
+
+    const entry = expect.objectContaining({
+      email: 'testi@example.com',
+      eventTypes: ['NOME-B'],
+      id: 7,
+    })
+    expect(res.statusCode).toEqual(200)
+    expect(mockKLAPI.lueKoemuodonKoetoimitsijat).toHaveBeenCalledWith({ Kieli: 1, Koemuoto: 'NOME-B' })
+    expect(mockKLAPI.lueKoemuodonYlituomarit).not.toHaveBeenCalled()
+    expect(mockWriteAll).toHaveBeenCalledWith([entry])
+    expect(mockUpdateUsers).toHaveBeenCalledWith([entry], 'officer')
+    expect(mockPublishAdminDataInvalidation).toHaveBeenCalledWith(['officials', 'users'])
+  })
+
   it('should return all non-deleted officials', async () => {
     authorizeMock.mockResolvedValueOnce(mockUser)
-    mockDynamoDB.readAll.mockResolvedValue([{ deletedAt: 'sometimes' }, { name: 'not deleted' }])
+    mockReadAll.mockResolvedValue([{ deletedAt: 'sometimes' }, { name: 'not deleted' }])
 
     const res = await getOfficialsLambda(constructAPIGwEvent({}))
     expect(res.statusCode).toEqual(200)
@@ -73,7 +121,7 @@ describe('getOfficialsLambda', () => {
 
   it('returns changed officials and deletion tombstones since the requested time', async () => {
     authorizeMock.mockResolvedValueOnce(mockUser)
-    mockDynamoDB.readAll.mockResolvedValue([
+    mockReadAll.mockResolvedValue([
       { id: 1, modifiedAt: '2024-01-01T00:00:00.000Z', name: 'unchanged' },
       { id: 2, modifiedAt: '2024-01-03T00:00:00.000Z', name: 'changed' },
       { deletedAt: '2024-01-04T00:00:00.000Z', id: 3, modifiedAt: '2024-01-01T00:00:00.000Z' },

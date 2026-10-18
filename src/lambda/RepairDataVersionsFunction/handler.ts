@@ -2,8 +2,11 @@ import type { JsonUser } from '../../types'
 import type { VersionedCollection, VersionRecord } from '../lib/dataVersions'
 import { CONFIG } from '../config'
 import { GLOBAL_SCOPE, readStoredDataVersions, writeDataVersionFingerprint } from '../lib/dataVersions'
-import { LOCATIONS_ID } from '../lib/location'
 import { logger } from '../lib/log'
+import { readEventTypes } from '../lib/repositories/eventTypeRepository'
+import { readJudges } from '../lib/repositories/judgeRepository'
+import { readLocationSnapshot } from '../lib/repositories/locationRepository'
+import { readOfficials } from '../lib/repositories/officialRepository'
 import { readOrganizers } from '../lib/repositories/organizerRepository'
 import { userScopes } from '../lib/user'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
@@ -40,11 +43,11 @@ const readTable = async <T extends TimestampedItem>(table: string) => (await dyn
 const collectFingerprints = async (): Promise<Map<string, Fingerprint>> => {
   const [emailTemplates, eventTypes, judges, officials, locations, organizers, users] = await Promise.all([
     readTable(CONFIG.emailTemplateTable),
-    readTable(CONFIG.eventTypeTable),
-    readTable(CONFIG.judgeTable),
-    readTable(CONFIG.officialTable),
+    readEventTypes(),
+    readJudges(),
+    readOfficials(),
     // Locations live in a single snapshot row that carries its own count and modifiedAt.
-    dynamoDB.read<{ count?: number; modifiedAt?: string }>({ id: LOCATIONS_ID }, CONFIG.locationTable),
+    readLocationSnapshot(),
     readOrganizers(),
     readTable<JsonUser>(CONFIG.userTable),
   ])

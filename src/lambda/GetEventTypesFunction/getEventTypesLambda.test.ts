@@ -1,6 +1,5 @@
-import type { JsonUser } from '../../types'
+import type { JsonEventType, JsonUser } from '../../types'
 import type KLAPI from '../lib/KLAPI'
-import type CustomDynamoClient from '../utils/CustomDynamoClient'
 import { vi } from 'vitest'
 import { loggedLines } from '../test-utils/logs'
 
@@ -31,17 +30,14 @@ vi.doMock('../lib/auth', () => ({
   getAndUpdateUserByEmail: vi.fn(),
 }))
 
-const mockDynamoDB: import('vitest').Mocked<CustomDynamoClient> = {
-  batchWrite: vi.fn(),
-  // @ts-expect-error types don't quite match
-  readAll: vi.fn(),
-  update: vi.fn(),
-}
+const mockReadEventTypes = vi.fn<() => Promise<Partial<JsonEventType>[]>>()
+const mockWriteEventTypes = vi.fn<(eventTypes: JsonEventType[]) => Promise<void>>()
+const mockUpdateEventTypeDescription = vi.fn<(eventType: string, change: JsonEventType) => Promise<void>>()
 
-vi.doMock('../utils/CustomDynamoClient', () => ({
-  default: vi.fn(function MockCustomDynamoClient() {
-    return mockDynamoDB
-  }),
+vi.doMock('../lib/repositories/eventTypeRepository', () => ({
+  readEventTypes: mockReadEventTypes,
+  updateEventTypeDescription: mockUpdateEventTypeDescription,
+  writeEventTypes: mockWriteEventTypes,
 }))
 
 const { authorize } = await import('../lib/auth')
@@ -87,7 +83,7 @@ describe('getEventTypesLambda', () => {
 
   it('should update eventTypes from KLAPI', async () => {
     authorizeMock.mockResolvedValueOnce(mockAdminUser)
-    mockDynamoDB.readAll.mockResolvedValueOnce([
+    mockReadEventTypes.mockResolvedValueOnce([
       { description: { en: 'old en', fi: 'old fi', sv: 'old sv' }, eventType: 'y' },
     ])
     mockKLAPI.lueKoemuodot
@@ -129,7 +125,7 @@ describe('getEventTypesLambda', () => {
       }),
     ])
 
-    expect(mockDynamoDB.batchWrite).toHaveBeenCalledWith([
+    expect(mockWriteEventTypes).toHaveBeenCalledWith([
       expect.objectContaining({
         createdBy: 'Test User',
         description: { en: 'en', fi: 'fi', sv: 'sv' },
@@ -137,26 +133,40 @@ describe('getEventTypesLambda', () => {
         official: true,
       }),
     ])
-    expect(mockDynamoDB.batchWrite).toHaveBeenCalledTimes(1)
+    expect(mockWriteEventTypes).toHaveBeenCalledTimes(1)
 
-    expect(mockDynamoDB.update).toHaveBeenCalledWith(
-      { eventType: 'y' },
-      {
-        set: {
-          description: { en: 'new en', fi: 'new fi', sv: 'old sv' },
-          modifiedAt: expect.any(String),
-          modifiedBy: 'Test User',
-        },
-      }
+    expect(mockUpdateEventTypeDescription).toHaveBeenCalledWith(
+      'y',
+      expect.objectContaining({
+        description: { en: 'new en', fi: 'new fi', sv: 'old sv' },
+        modifiedAt: expect.any(String),
+        modifiedBy: 'Test User',
+      })
     )
-    expect(mockDynamoDB.update).toHaveBeenCalledTimes(1)
+    expect(mockUpdateEventTypeDescription).toHaveBeenCalledTimes(1)
 
     expect(res.statusCode).toEqual(200)
   })
 
+  it('writes nothing when the Kennel Club lists no new or changed event types', async () => {
+    authorizeMock.mockResolvedValueOnce(mockAdminUser)
+    const stored = { description: { en: 'en', fi: 'fi', sv: 'sv' }, eventType: 'x' }
+    mockReadEventTypes.mockResolvedValue([stored])
+    mockKLAPI.lueKoemuodot
+      .mockResolvedValueOnce({ json: [{ koemuoto: 'fi', lyhenne: 'x' }], status: 200 })
+      .mockResolvedValueOnce({ json: [{ koemuoto: 'sv', lyhenne: 'x' }], status: 200 })
+      .mockResolvedValueOnce({ json: [{ koemuoto: 'en', lyhenne: 'x' }], status: 200 })
+
+    const res = await getEventTypesLambda(constructAPIGwEvent({}, { query: { refresh: 'true' } }))
+
+    expect(mockWriteEventTypes).not.toHaveBeenCalled()
+    expect(mockUpdateEventTypeDescription).not.toHaveBeenCalled()
+    expect(JSON.parse(res.body)).toEqual([stored])
+  })
+
   it('should return all eventTypes', async () => {
     authorizeMock.mockResolvedValueOnce(mockUser)
-    mockDynamoDB.readAll.mockResolvedValue([{ eventType: 'a' }, { eventType: 'b' }])
+    mockReadEventTypes.mockResolvedValue([{ eventType: 'a' }, { eventType: 'b' }])
 
     const res = await getEventTypesLambda(constructAPIGwEvent({}))
     expect(res.statusCode).toEqual(200)
@@ -165,7 +175,7 @@ describe('getEventTypesLambda', () => {
 
   it('returns only event types changed since the requested time', async () => {
     authorizeMock.mockResolvedValueOnce(mockUser)
-    mockDynamoDB.readAll.mockResolvedValue([
+    mockReadEventTypes.mockResolvedValue([
       { eventType: 'old', modifiedAt: '2024-01-01T00:00:00.000Z' },
       { eventType: 'new', modifiedAt: '2024-01-03T00:00:00.000Z' },
     ])

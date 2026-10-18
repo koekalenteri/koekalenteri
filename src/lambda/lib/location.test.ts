@@ -1,6 +1,15 @@
 import type { Location } from '../../types'
+import type { LocationSnapshot } from './repositories/locationRepository'
 import { vi } from 'vitest'
-import { fetchLocations, LOCATIONS_ID, syncLocations } from './location'
+
+const read = vi.fn<() => Promise<LocationSnapshot | undefined>>()
+const write = vi.fn<(snapshot: Omit<LocationSnapshot, 'id'>) => Promise<void>>()
+vi.doMock('./repositories/locationRepository', () => ({
+  readLocationSnapshot: read,
+  writeLocationSnapshot: write,
+}))
+
+const { fetchLocations, syncLocations } = await import('./location')
 
 const klapiResult = <T>(json: T | undefined, status = 200, error?: string) => ({ error, json, status })
 
@@ -8,12 +17,6 @@ const createKlapi = () => {
   const luePaikkakunnat = vi.fn()
   const lueKennelpiirit = vi.fn()
   return { klapi: { lueKennelpiirit, luePaikkakunnat }, lueKennelpiirit, luePaikkakunnat }
-}
-
-const createDynamo = () => {
-  const read = vi.fn()
-  const write = vi.fn()
-  return { dynamoDB: { read, write }, read, write }
 }
 
 describe('fetchLocations', () => {
@@ -116,6 +119,8 @@ describe('syncLocations', () => {
 
   beforeEach(() => {
     vi.spyOn(console, 'log').mockImplementation(() => undefined)
+    read.mockReset()
+    write.mockReset()
   })
 
   afterEach(() => {
@@ -123,39 +128,33 @@ describe('syncLocations', () => {
   })
 
   it('does not write when the list is unchanged', async () => {
-    const { dynamoDB, read, write } = createDynamo()
-    read.mockResolvedValueOnce({ count: 1, id: LOCATIONS_ID, items: locations, modifiedAt: 'earlier' })
+    read.mockResolvedValueOnce({ count: 1, id: 'fi', items: locations, modifiedAt: 'earlier' })
 
-    await expect(syncLocations(dynamoDB, locations)).resolves.toBe(false)
+    await expect(syncLocations(locations)).resolves.toBe(false)
     expect(write).not.toHaveBeenCalled()
   })
 
   it('writes a new snapshot when the list changed', async () => {
-    const { dynamoDB, read, write } = createDynamo()
-    read.mockResolvedValueOnce({ count: 1, id: LOCATIONS_ID, items: locations, modifiedAt: 'earlier' })
+    read.mockResolvedValueOnce({ count: 1, id: 'fi', items: locations, modifiedAt: 'earlier' })
     const changed = [...locations, { district: 'Uudenmaan Kennelpiiri', id: 2, name: 'Vantaa' }]
 
-    await expect(syncLocations(dynamoDB, changed)).resolves.toBe(true)
+    await expect(syncLocations(changed)).resolves.toBe(true)
     expect(write).toHaveBeenCalledWith({
       count: 2,
-      id: LOCATIONS_ID,
       items: changed,
       modifiedAt: expect.any(String),
     })
   })
 
   it('writes the first snapshot when there is nothing stored', async () => {
-    const { dynamoDB, read, write } = createDynamo()
     read.mockResolvedValueOnce(undefined)
 
-    await expect(syncLocations(dynamoDB, locations)).resolves.toBe(true)
+    await expect(syncLocations(locations)).resolves.toBe(true)
     expect(write).toHaveBeenCalled()
   })
 
   it('never empties the snapshot', async () => {
-    const { dynamoDB, read, write } = createDynamo()
-
-    await expect(syncLocations(dynamoDB, [])).resolves.toBe(false)
+    await expect(syncLocations([])).resolves.toBe(false)
     expect(read).not.toHaveBeenCalled()
     expect(write).not.toHaveBeenCalled()
   })

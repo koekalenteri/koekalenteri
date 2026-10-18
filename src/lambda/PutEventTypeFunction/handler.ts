@@ -1,13 +1,11 @@
-import type { EventType, JsonEventType, JsonJudge, JsonOfficial } from '../../types'
-import { CONFIG } from '../config'
+import type { JsonEventType } from '../../types'
 import { authorizeAdmin } from '../lib/auth'
 import { lambda, response } from '../lib/lambda'
+import { readEventTypes, writeEventType } from '../lib/repositories/eventTypeRepository'
+import { readJudges, writeJudges } from '../lib/repositories/judgeRepository'
+import { readOfficials, writeOfficials } from '../lib/repositories/officialRepository'
 import { publishAdminDataInvalidation } from '../lib/ws/actions'
-import CustomDynamoClient from '../utils/CustomDynamoClient'
 import { createDbRecord } from '../utils/proxyEvent'
-
-const { eventTypeTable, judgeTable, officialTable } = CONFIG
-const dynamoDB = new CustomDynamoClient(eventTypeTable)
 
 const putEventTypeLambda = lambda('putEventType', async (event) => {
   const user = await authorizeAdmin(event)
@@ -15,41 +13,22 @@ const putEventTypeLambda = lambda('putEventType', async (event) => {
   const timestamp = new Date().toISOString()
 
   const item = createDbRecord<JsonEventType>(event, timestamp, user.name, false)
-  await dynamoDB.write(item)
+  await writeEventType(item)
 
   if (!item.active) {
-    const active = (await dynamoDB.readAll<EventType>())?.filter((et) => et.active) || []
+    const active = (await readEventTypes()).filter((et) => et.active)
+    const servesNoActiveType = (entry: { deletedAt?: string; eventTypes?: string[] }) =>
+      !entry.deletedAt && !active.some((et) => entry.eventTypes?.includes(et.eventType))
+    const deleted = { deletedAt: timestamp, deletedBy: user.name }
 
-    const judgesToRemove =
-      (await dynamoDB.readAll<JsonJudge>({ table: judgeTable }))?.filter(
-        (j) => !j.deletedAt && !active.some((et) => j.eventTypes?.includes(et.eventType))
-      ) || []
-
-    for (const judge of judgesToRemove) {
-      await dynamoDB.write(
-        {
-          ...judge,
-          deletedAt: timestamp,
-          deletedBy: user.name,
-        },
-        judgeTable
-      )
+    const judgesToRemove = (await readJudges()).filter(servesNoActiveType)
+    if (judgesToRemove.length) {
+      await writeJudges(judgesToRemove.map((judge) => ({ ...judge, ...deleted })))
     }
 
-    const officialsToRemove =
-      (await dynamoDB.readAll<JsonOfficial>({ table: officialTable }))?.filter(
-        (o) => !o.deletedAt && !active.some((et) => o.eventTypes?.includes(et.eventType))
-      ) || []
-
-    for (const official of officialsToRemove) {
-      await dynamoDB.write(
-        {
-          ...official,
-          deletedAt: timestamp,
-          deletedBy: user.name,
-        },
-        officialTable
-      )
+    const officialsToRemove = (await readOfficials()).filter(servesNoActiveType)
+    if (officialsToRemove.length) {
+      await writeOfficials(officialsToRemove.map((official) => ({ ...official, ...deleted })))
     }
   }
 

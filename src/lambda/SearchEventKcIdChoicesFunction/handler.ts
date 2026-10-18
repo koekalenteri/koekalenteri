@@ -1,17 +1,13 @@
-import type { JsonEventType } from '../../types'
 import type { KcIdLookupCriteria } from '../lib/kcTrial'
 import { isEventDateString, isOfficialEventType } from '../../lib/event'
 import { kcFormatOfEventType } from '../../lib/kennelliittoResults'
-import { CONFIG } from '../config'
 import { authorizeWithMemberOf } from '../lib/auth'
 import { parseJSONWithFallback } from '../lib/json'
 import { getKLIntegraatio } from '../lib/KLIntegraatio'
 import { searchKcTrials } from '../lib/kcTrial'
 import { LambdaError, lambda, response } from '../lib/lambda'
+import { readEventType } from '../lib/repositories/eventTypeRepository'
 import { readOrganizer } from '../lib/repositories/organizerRepository'
-import CustomDynamoClient from '../utils/CustomDynamoClient'
-
-const eventTypeDB = new CustomDynamoClient(CONFIG.eventTypeTable)
 
 const isLookupCriteria = (value: Partial<KcIdLookupCriteria>): value is KcIdLookupCriteria =>
   Boolean(value.organizer?.id && value.classes && value.endDate && value.eventType && value.startDate)
@@ -31,7 +27,7 @@ const searchEventKcIdChoicesLambda = lambda('searchEventKcIdChoices', async (eve
     throw new LambdaError(403, 'Forbidden')
   }
 
-  const eventType = await eventTypeDB.read<JsonEventType>({ eventType: kcFormatOfEventType(criteria.eventType) })
+  const eventType = await readEventType(kcFormatOfEventType(criteria.eventType))
 
   // Only official event types have a Kennelliitto trial to find. A past event is deliberately not
   // refused (the KOE-85 gate used to): the lookup's own use case is results entry (KOE-452), which

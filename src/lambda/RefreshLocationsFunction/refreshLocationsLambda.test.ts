@@ -23,13 +23,7 @@ vi.doMock('../lib/secrets', () => ({
   getKLAPIConfig: vi.fn(),
 }))
 
-vi.doMock('../utils/CustomDynamoClient', () => ({
-  default: vi.fn(function MockCustomDynamoClient() {
-    return { read: vi.fn(), write: vi.fn() }
-  }),
-}))
-
-const { default: refreshLocations, dynamoDB } = await import('./handler')
+const { default: refreshLocations } = await import('./handler')
 
 const locations = [{ district: 'Uudenmaan Kennelpiiri', id: 1, name: 'Espoo' }]
 
@@ -44,7 +38,7 @@ describe('refreshLocations', () => {
 
     await refreshLocations()
 
-    expect(mockSyncLocations).toHaveBeenCalledWith(dynamoDB, locations)
+    expect(mockSyncLocations).toHaveBeenCalledWith(locations)
     expect(mockPublishAdminDataInvalidation).toHaveBeenCalledWith(['locations'])
   })
 

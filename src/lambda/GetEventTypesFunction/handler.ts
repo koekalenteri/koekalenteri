@@ -1,17 +1,14 @@
 import type { JsonEventType, JsonUser } from '../../types'
 import { objectsDiffer } from '../../lib/diff'
-import { CONFIG } from '../config'
 import { authorize } from '../lib/auth'
 import { collectionChangesSince, parseDateParam } from '../lib/incremental'
 import KLAPI from '../lib/KLAPI'
 import { httpError, lambda, response } from '../lib/lambda'
 import { logger } from '../lib/log'
+import { readEventTypes, updateEventTypeDescription, writeEventTypes } from '../lib/repositories/eventTypeRepository'
 import { getKLAPIConfig } from '../lib/secrets'
 import { publishAdminDataInvalidation } from '../lib/ws/actions'
 import { KLKieli, KLKieliToLang } from '../types/KLAPI'
-import CustomDynamoClient from '../utils/CustomDynamoClient'
-
-const dynamoDB = new CustomDynamoClient(CONFIG.eventTypeTable)
 
 const getEventTypesFromKlapi = async (user: JsonUser) => {
   const klapi = new KLAPI(getKLAPIConfig)
@@ -46,39 +43,33 @@ const getEventTypesFromKlapi = async (user: JsonUser) => {
 }
 
 const refreshEventTypes = async (user: JsonUser) => {
-  const existing = await dynamoDB.readAll<JsonEventType>()
+  const existing = await readEventTypes()
   const eventTypes = await getEventTypesFromKlapi(user)
 
-  const insert = eventTypes.filter((et) => !existing?.find((ex) => ex.eventType === et.eventType))
+  const insert = eventTypes.filter((et) => !existing.some((ex) => ex.eventType === et.eventType))
 
   if (insert.length) {
     logger.info('new event types', { eventTypes: insert.map((et) => et.eventType) })
-    await dynamoDB.batchWrite(insert)
+    await writeEventTypes(insert)
   }
 
   const updates = eventTypes.filter((et) => {
-    const ex = existing?.find((ex) => ex.eventType === et.eventType)
+    const ex = existing.find((ex) => ex.eventType === et.eventType)
     return ex && objectsDiffer(ex.description, et.description)
   })
 
-  for (const updated of updates) {
-    const ex = existing?.find((ex) => ex.eventType === updated.eventType)
-    logger.info('event type description changed', {
-      description: updated.description,
-      eventType: updated.eventType,
-      previous: ex?.description,
+  // Distinct keys, a handful of rows: the updates do not depend on each other.
+  await Promise.all(
+    updates.map((updated) => {
+      const ex = existing.find((ex) => ex.eventType === updated.eventType)
+      logger.info('event type description changed', {
+        description: updated.description,
+        eventType: updated.eventType,
+        previous: ex?.description,
+      })
+      return updateEventTypeDescription(updated.eventType, updated)
     })
-    await dynamoDB.update(
-      { eventType: updated.eventType },
-      {
-        set: {
-          description: updated.description,
-          modifiedAt: updated.modifiedAt,
-          modifiedBy: updated.modifiedBy,
-        },
-      }
-    )
-  }
+  )
 }
 
 const getEventTypesLambda = lambda('getEventTypes', async (event) => {
@@ -95,9 +86,9 @@ const getEventTypesLambda = lambda('getEventTypes', async (event) => {
     await publishAdminDataInvalidation(['eventTypes'])
   }
 
-  const items = await dynamoDB.readAll<JsonEventType>()
+  const items = await readEventTypes()
   const since = parseDateParam(event.queryStringParameters?.since)
-  return response(200, since ? collectionChangesSince(items ?? [], since, (item) => item.eventType) : items, event)
+  return response(200, since ? collectionChangesSince(items, since, (item) => item.eventType) : items, event)
 })
 
 export default getEventTypesLambda

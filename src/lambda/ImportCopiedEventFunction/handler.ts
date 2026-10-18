@@ -1,4 +1,4 @@
-import type { JsonDogEvent, JsonJudge, JsonUser } from '../../types'
+import type { JsonDogEvent, JsonUser } from '../../types'
 import type { CopyImportRequest, CopyImportResult } from '../lib/eventCopy'
 import { nanoid } from 'nanoid'
 import { eventCopiedFromAudit } from '../../lib/audit'
@@ -10,12 +10,13 @@ import { saveEvent } from '../lib/event'
 import { findCopyLeaks, judgeNotices } from '../lib/eventCopy'
 import { logger } from '../lib/log'
 import { saveRegistrations } from '../lib/registration'
+import { readJudges } from '../lib/repositories/judgeRepository'
 import { readOrganizers } from '../lib/repositories/organizerRepository'
 import { sumNewRegistrationStatDeltas, updateOrganizerEventStats } from '../lib/stats'
 import { publishEventChange } from '../lib/ws/actions'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 
-const { judgeTable, userTable } = CONFIG
+const { userTable } = CONFIG
 const dynamoDB = new CustomDynamoClient(userTable)
 
 const findAdmin = async (email: string) => {
@@ -79,8 +80,7 @@ export default async function importCopiedEvent(request: CopyImportRequest): Pro
     user: copier.name,
   })
 
-  const judges = (await dynamoDB.readAll<JsonJudge>({ table: judgeTable })) ?? []
-  const notices = judgeNotices(event, judges)
+  const notices = judgeNotices(event, await readJudges())
   logger.info('event copy imported', { eventId, judgeNotices: notices.length, registrations: registrations.length })
 
   return { eventId, judges: notices }

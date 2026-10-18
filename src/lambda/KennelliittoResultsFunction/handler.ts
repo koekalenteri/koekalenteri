@@ -1,7 +1,6 @@
-import type { JsonConfirmedEvent, JsonEventType } from '../../types'
+import type { JsonConfirmedEvent } from '../../types'
 import { isOfficialEventType } from '../../lib/event'
 import { kcFormatOfEventType } from '../../lib/kennelliittoResults'
-import { CONFIG } from '../config'
 import { authorizeWithMemberOf } from '../lib/auth'
 import { getEvent } from '../lib/event'
 import { assertEventOrganizerAccess } from '../lib/eventAuth'
@@ -12,9 +11,9 @@ import {
   sendKennelliittoResults,
 } from '../lib/kennelliittoResults'
 import { getParam, httpError, lambda, response } from '../lib/lambda'
+import { readEventType } from '../lib/repositories/eventTypeRepository'
 import { readOrganizer } from '../lib/repositories/organizerRepository'
 import { publishEventChange, publishRegistrationPatches } from '../lib/ws/actions'
-import CustomDynamoClient from '../utils/CustomDynamoClient'
 
 /**
  * Dogs in one sending. A request has 29 s at the gateway and each dog is one call to Kennelliitto;
@@ -30,8 +29,6 @@ interface KennelliittoRequest {
   /** Accepts that the dogs listed as left out stay out of the hand-over. */
   withoutBlocked?: boolean
 }
-
-const eventTypeDB = new CustomDynamoClient(CONFIG.eventTypeTable)
 
 const idsOf = (value: unknown): string[] | undefined => {
   if (value === undefined) return undefined
@@ -119,7 +116,7 @@ const kennelliittoResultsLambda = lambda('kennelliittoResults', async (event) =>
   const confirmedEvent = await getEvent<JsonConfirmedEvent>(eventId, true)
   assertEventOrganizerAccess(user, memberOf, confirmedEvent)
 
-  const eventType = await eventTypeDB.read<JsonEventType>({ eventType: kcFormatOfEventType(confirmedEvent.eventType) })
+  const eventType = await readEventType(kcFormatOfEventType(confirmedEvent.eventType))
   const organizer = await readOrganizer(confirmedEvent.organizer.id)
   const ctx = {
     event: confirmedEvent,

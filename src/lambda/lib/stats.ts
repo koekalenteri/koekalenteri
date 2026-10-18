@@ -1,5 +1,5 @@
 import type { TransactWriteCommandInput } from '@aws-sdk/lib-dynamodb'
-import type { JsonConfirmedEvent, JsonEventType, JsonRegistration } from '../../types'
+import type { JsonConfirmedEvent, JsonRegistration } from '../../types'
 import type {
   BreedStartRateEntry,
   CapacityStatsEntry,
@@ -18,6 +18,7 @@ import { storedYear } from '../../lib/event'
 import { isMember, isStarter } from '../../lib/registration'
 import { CONFIG } from '../config'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
+import { readEventTypes } from './repositories/eventTypeRepository'
 
 // Single global client for all DynamoDB operations
 const dynamoDB = new CustomDynamoClient(CONFIG.eventStatsTable)
@@ -394,8 +395,8 @@ export async function getCapacityStats(
  * says anything about actual demand.
  */
 export async function getCapacityStatsAllEventTypes(from?: string, to?: string): Promise<CapacityStatsEntry[]> {
-  const eventTypes = await dynamoDB.readAll<JsonEventType>({ table: CONFIG.eventTypeTable })
-  const activeEventTypes = (eventTypes ?? []).filter((eventType) => eventType.active).map((et) => et.eventType)
+  const eventTypes = await readEventTypes()
+  const activeEventTypes = eventTypes.filter((eventType) => eventType.active).map((et) => et.eventType)
 
   const results = await Promise.all(
     activeEventTypes.map((eventType) => getCapacityStats(eventType, undefined, from, to))

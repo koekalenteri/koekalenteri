@@ -1,5 +1,4 @@
 import type { JsonJudge } from '../../types'
-import type CustomDynamoClient from '../utils/CustomDynamoClient'
 import type { PartialJsonJudge } from './judge'
 import type KLAPI from './KLAPI'
 import { vi } from 'vitest'
@@ -8,6 +7,13 @@ import { loggedLines } from '../test-utils/logs'
 vi.useFakeTimers()
 vi.setSystemTime(new Date('2024-05-30T20:00:00Z'))
 vi.doMock('nanoid', () => ({ nanoid: () => 'test-id' }))
+
+const mockReadAll = vi.fn<() => Promise<JsonJudge[]>>().mockResolvedValue([])
+const mockBatchWrite = vi.fn<(items: JsonJudge[]) => Promise<void>>().mockResolvedValue(undefined)
+vi.doMock('./repositories/judgeRepository', () => ({
+  readJudges: mockReadAll,
+  writeJudges: mockBatchWrite,
+}))
 
 const { fetchJudgesForEventTypes, partializeJudge, updateJudges } = await import('./judge')
 
@@ -204,23 +210,15 @@ describe('judge', () => {
   })
 
   describe('updateJudges', () => {
-    const mockReadAll = vi.fn<CustomDynamoClient['readAll']>().mockResolvedValue([])
-    const mockBatchWrite = vi.fn()
-    const mockDB = {
-      batchWrite: mockBatchWrite,
-      readAll: mockReadAll,
-      // The code under test touches only these members; the partial double converts here.
-    } as unknown as CustomDynamoClient
-
     it('should do nothing with empty array', async () => {
-      await updateJudges(mockDB, [])
+      await updateJudges([])
 
       expect(mockReadAll).not.toHaveBeenCalled()
       expect(mockBatchWrite).not.toHaveBeenCalled()
     })
 
     it('should add new judges', async () => {
-      await updateJudges(mockDB, [
+      await updateJudges([
         {
           district: 'some district',
           email: 'test@example.com',
@@ -231,26 +229,22 @@ describe('judge', () => {
       ])
 
       expect(mockReadAll).toHaveBeenCalledTimes(1)
-      expect(mockReadAll).toHaveBeenCalledWith({ table: 'judge-table-not-found-in-env' })
       expect(mockBatchWrite).toHaveBeenCalledTimes(1)
-      expect(mockBatchWrite).toHaveBeenCalledWith(
-        [
-          {
-            active: true,
-            createdAt: '2024-05-30T20:00:00.000Z',
-            createdBy: 'system',
-            district: 'some district',
-            email: 'test@example.com',
-            eventTypes: ['NOME-B'],
-            id: 0,
-            languages: [],
-            modifiedAt: '2024-05-30T20:00:00.000Z',
-            modifiedBy: 'system',
-            name: 'test',
-          },
-        ],
-        'judge-table-not-found-in-env'
-      )
+      expect(mockBatchWrite).toHaveBeenCalledWith([
+        {
+          active: true,
+          createdAt: '2024-05-30T20:00:00.000Z',
+          createdBy: 'system',
+          district: 'some district',
+          email: 'test@example.com',
+          eventTypes: ['NOME-B'],
+          id: 0,
+          languages: [],
+          modifiedAt: '2024-05-30T20:00:00.000Z',
+          modifiedBy: 'system',
+          name: 'test',
+        },
+      ])
       expect(loggedLines(infoSpy)).toEqual([
         expect.objectContaining({ id: 0, label: 'judge', message: 'new directory entry' }),
       ])
@@ -272,7 +266,7 @@ describe('judge', () => {
       }
       mockReadAll.mockResolvedValueOnce([existing])
 
-      await updateJudges(mockDB, [
+      await updateJudges([
         {
           district: existing.district,
           email: existing.email,
@@ -284,18 +278,14 @@ describe('judge', () => {
       ])
 
       expect(mockReadAll).toHaveBeenCalledTimes(1)
-      expect(mockReadAll).toHaveBeenCalledWith({ table: 'judge-table-not-found-in-env' })
       expect(mockBatchWrite).toHaveBeenCalledTimes(1)
-      expect(mockBatchWrite).toHaveBeenCalledWith(
-        [
-          {
-            ...existing,
-            eventTypes: ['NOME-B', 'NOME-A'],
-            location: 'home',
-          },
-        ],
-        'judge-table-not-found-in-env'
-      )
+      expect(mockBatchWrite).toHaveBeenCalledWith([
+        {
+          ...existing,
+          eventTypes: ['NOME-B', 'NOME-A'],
+          location: 'home',
+        },
+      ])
       expect(loggedLines(infoSpy)).toEqual([
         expect.objectContaining({
           changedKeys: ['eventTypes', 'location'],
@@ -330,66 +320,30 @@ describe('judge', () => {
         name: 'other',
       }
 
-      await updateJudges(mockDB, [added])
+      await updateJudges([added])
 
       expect(mockReadAll).toHaveBeenCalledTimes(1)
-      expect(mockReadAll).toHaveBeenCalledWith({ table: 'judge-table-not-found-in-env' })
       expect(mockBatchWrite).toHaveBeenCalledTimes(1)
-      expect(mockBatchWrite).toHaveBeenCalledWith(
-        [
-          {
-            ...added,
-            active: true,
-            createdAt: new Date().toISOString(),
-            createdBy: 'system',
-            languages: [],
-            modifiedAt: new Date().toISOString(),
-            modifiedBy: 'system',
-          },
-          {
-            ...existing,
-            deletedAt: new Date().toISOString(),
-            deletedBy: 'system',
-          },
-        ],
-        'judge-table-not-found-in-env'
-      )
+      expect(mockBatchWrite).toHaveBeenCalledWith([
+        {
+          ...added,
+          active: true,
+          createdAt: new Date().toISOString(),
+          createdBy: 'system',
+          languages: [],
+          modifiedAt: new Date().toISOString(),
+          modifiedBy: 'system',
+        },
+        {
+          ...existing,
+          deletedAt: new Date().toISOString(),
+          deletedBy: 'system',
+        },
+      ])
       expect(loggedLines(infoSpy)).toEqual([
         expect.objectContaining({ id: 222, label: 'judge', message: 'new directory entry' }),
         expect.objectContaining({ id: 123, label: 'judge', message: 'deleting directory entry' }),
       ])
-    })
-
-    it('should undefined dynamoDB result', async () => {
-      mockReadAll.mockResolvedValueOnce(undefined)
-
-      const added: PartialJsonJudge = {
-        district: 'other district',
-        email: 'other@example.com',
-        eventTypes: ['NOME-A'],
-        id: 222,
-        name: 'other',
-      }
-
-      await updateJudges(mockDB, [added])
-
-      expect(mockReadAll).toHaveBeenCalledTimes(1)
-      expect(mockReadAll).toHaveBeenCalledWith({ table: 'judge-table-not-found-in-env' })
-      expect(mockBatchWrite).toHaveBeenCalledTimes(1)
-      expect(mockBatchWrite).toHaveBeenCalledWith(
-        [
-          {
-            ...added,
-            active: true,
-            createdAt: new Date().toISOString(),
-            createdBy: 'system',
-            languages: [],
-            modifiedAt: new Date().toISOString(),
-            modifiedBy: 'system',
-          },
-        ],
-        'judge-table-not-found-in-env'
-      )
     })
   })
 })
