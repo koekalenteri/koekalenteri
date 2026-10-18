@@ -1,5 +1,5 @@
 /**
- * Before the tests against the test environment: what an earlier run left is deleted and the run's
+ * Before the tests against a deployed stack: what an earlier run left is deleted and the run's
  * own event is written, with its days counted from now, as the local suite's are. The tests read it
  * with `remoteEvent()`. After the tests the event is deleted again; the release workflow also runs
  * the sweep on its own, for a run cut short.

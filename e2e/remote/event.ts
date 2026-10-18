@@ -1,5 +1,5 @@
 /**
- * The event the run's global setup wrote into the test environment, handed to the tests through an
+ * The event the run's global setup wrote into the deployed stack, handed to the tests through an
  * environment variable: Playwright passes what global setup sets in `process.env` on to its workers.
  */
 import type { EventRow } from '../fixtures/events'

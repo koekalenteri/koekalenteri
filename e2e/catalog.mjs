@@ -12,12 +12,12 @@ const CATALOG = 'e2e/TESTS.md'
 const JIRA = 'https://koekalenteri.atlassian.net/browse'
 
 /**
- * The suites: the local one, and the one run against the test environment after a deploy there
+ * The suites: the local one, and the one run against dev after a deploy there
  * (KOE-1559), whose files are told apart by a note in their heading.
  */
 const SUITES = [
   { args: [], note: '' },
-  { args: ['--config', 'playwright.remote.config.ts'], note: ' (against the test environment)' },
+  { args: ['--config', 'playwright.remote.config.ts'], note: ' (against dev after a deploy)' },
 ]
 
 /** The files of one suite as Playwright lists them, each with the suite's note. */

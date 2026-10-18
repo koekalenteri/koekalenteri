@@ -1,5 +1,5 @@
 /**
- * Deletes the test environment's browser test events (testEvents.mjs). The release workflow runs it
+ * Deletes the deployed stack's browser test events (testEvents.mjs). The release workflow runs it
  * after the tests whatever their outcome, so a failed or cancelled run leaves no event in the
  * public list.
  *

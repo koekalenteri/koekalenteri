@@ -8,7 +8,7 @@ import { remoteEvent } from '../event'
  * The public path through the deployed stack, on the event the run wrote (global-setup.ts). The
  * dog is never fetched, since that would go to the Kennel Club, and the form is never sent.
  */
-test.describe('the test environment after a deploy', { annotation: issue('KOE-1559'), tag: '@public' }, () => {
+test.describe('dev after a deploy', { annotation: issue('KOE-1559'), tag: '@public' }, () => {
   test('the front page lists the event and its registration form opens from the list', async ({ page }) => {
     const event = remoteEvent()
     const search = new SearchPage(page)

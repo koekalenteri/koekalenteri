@@ -1,6 +1,6 @@
 /**
  * What both browser test configs share: the local suite (`playwright.config.ts`) and the one run
- * against the test environment after a deploy there (`playwright.remote.config.ts`). The results
+ * against dev after a deploy there (`playwright.remote.config.ts`). The results
  * land in the same place, so `summary.mjs` writes the job summary of either run.
  */
 import type { PlaywrightTestConfig } from '@playwright/test'

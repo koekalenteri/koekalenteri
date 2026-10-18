@@ -1,5 +1,5 @@
 /**
- * The test environment's own event for the browser tests run there after a deploy (KOE-1559). The
+ * The deployed stack's own event for the browser tests run there after a deploy (KOE-1559). The
  * run writes one event before the tests and deletes it after them; nothing else in the stack is
  * touched, and the form is never sent, so no registration or email follows.
  *
