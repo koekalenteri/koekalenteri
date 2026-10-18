@@ -225,6 +225,12 @@ jobs:
         run: npm run lint-frontend && npm run lint-biome && npm run ratchet
       - name: Build
         run: npm run build-frontend
+      # The post-deploy smoke check reads this stamp from the served page (KOE-1368); checking the
+      # real minified build here means a template or minifier change cannot drop it unnoticed.
+      - name: Check the build's version stamp
+        run: |
+          node scripts/smoke-deploy.mjs --html build/index.html \
+            --expect-version "$(jq -r .version package.json)" --expect-revision "$(git rev-parse HEAD)"
 
   # The guides bind to the code: a control named by a translation key, a picture that is a visual
   # test's reference, a translation with its source's digest. A binding that no longer holds fails

@@ -1,3 +1,4 @@
+const { execFileSync } = require('child_process')
 const fs = require('fs')
 const path = require('path')
 const webpack = require('webpack')
@@ -45,6 +46,20 @@ const excludeNonShellAssets = ({ asset, compilation }) => {
 
   const initialAssets = entrypoint.getFiles()
   return asset.name !== 'index.html' && !initialAssets.includes(asset.name)
+}
+
+// The stamp index.html carries for the post-deploy smoke check (scripts/smoke-deploy.mjs, KOE-1368):
+// the package.json version and the commit the build was made from. Amplify builds in a clone, so git
+// answers there; AWS_COMMIT_ID is the fallback, and "unknown" never matches the commit a deploy
+// expects, so a build that cannot tell its commit fails the check instead of passing it. Template
+// parameters only, not env.raw: env.raw is the persistent cache's key, and a per-commit value there
+// would throw the cache away on every commit.
+const readRevision = () => {
+  try {
+    return execFileSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }).trim()
+  } catch {
+    return process.env.AWS_COMMIT_ID || 'unknown'
+  }
 }
 
 // style files regexes
@@ -451,7 +466,11 @@ module.exports = function (webpackEnv) {
           {
             inject: true,
             template: paths.appHtml,
-            templateParameters: env.raw,
+            templateParameters: {
+              ...env.raw,
+              APP_REVISION: readRevision(),
+              APP_VERSION: require(paths.appPackageJson).version,
+            },
           },
           isEnvProduction
             ? {
