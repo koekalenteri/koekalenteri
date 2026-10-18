@@ -1,5 +1,6 @@
 import { vi } from 'vitest'
 import { paymentPictureWith } from '../../../__mockData__/paymentPicture'
+import { loggedLines } from '../../test-utils/logs'
 
 /** What a publish hands the broadcaster: who gets it, and what they get. */
 interface BroadcastConfiguration {
@@ -282,6 +283,58 @@ describe('ws/actions', () => {
         { audience: watching.slice(0, 2), payload: payload('r1') },
         { audience: [watching[2]], payload: payload('r2') },
       ])
+    })
+
+    // A live push never decides the write's outcome: the caller has already committed it.
+    it('logs a failed build and still sends the other registrations their patch', async () => {
+      const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+      mockRegistrationsAudience.mockResolvedValueOnce([connection('c1', 'r1'), connection('c2', 'r2')])
+      const buildPatch = vi.fn(async (registrationId: string) => {
+        if (registrationId === 'r1') throw new Error('read failed')
+        return { id: registrationId, paymentStatus: 'SUCCESS' as const }
+      })
+
+      await expect(publishParticipantRegistrationPatches('e1', ['r1', 'r2'], buildPatch)).resolves.toBeUndefined()
+
+      expect(mockBroadcast).toHaveBeenCalledTimes(1)
+      expect(broadcastConfigurations[0].buildPayload()).toEqual(payload('r2'))
+      expect(loggedLines(errorSpy)).toEqual([
+        expect.objectContaining({
+          error: expect.objectContaining({ message: 'read failed' }),
+          eventId: 'e1',
+          message: 'participant patch failed',
+          registrationId: 'r1',
+        }),
+      ])
+      errorSpy.mockRestore()
+    })
+
+    it('logs a failed send without rejecting', async () => {
+      const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+      mockRegistrationsAudience.mockResolvedValueOnce([connection('c1', 'r1')])
+      mockBroadcast.mockRejectedValueOnce(new Error('gateway down'))
+
+      await expect(publishParticipantRegistrationPatches('e1', ['r1'], async (id) => ({ id }))).resolves.toBeUndefined()
+
+      expect(loggedLines(errorSpy)).toEqual([
+        expect.objectContaining({ message: 'participant patch failed', registrationId: 'r1' }),
+      ])
+      errorSpy.mockRestore()
+    })
+
+    it('logs a failed connection scan without rejecting or building', async () => {
+      const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+      mockRegistrationsAudience.mockRejectedValueOnce(new Error('scan failed'))
+      const buildPatch = vi.fn()
+
+      await expect(publishParticipantRegistrationPatches('e1', ['r1'], buildPatch)).resolves.toBeUndefined()
+
+      expect(buildPatch).not.toHaveBeenCalled()
+      expect(mockBroadcast).not.toHaveBeenCalled()
+      expect(loggedLines(errorSpy)).toEqual([
+        expect.objectContaining({ eventId: 'e1', message: 'participant patch audience failed' }),
+      ])
+      errorSpy.mockRestore()
     })
   })
 

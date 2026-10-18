@@ -3,6 +3,8 @@ import { vi } from 'vitest'
 import { eventWithStaticDates } from '../../__mockData__/events'
 import { registrationWithStaticDates } from '../../__mockData__/registrations'
 import { registrationCreatedAudit } from '../../lib/audit'
+import { deliverToEntrant, everyEntrantWatching } from '../test-utils/entrantPages'
+import { loggedLines } from '../test-utils/logs'
 
 const mockUpdateRegistrations = vi.fn<(eventId: string) => Promise<JsonConfirmedEvent>>()
 const mockRepairReadyRegistrationGroups = vi.fn<() => Promise<Partial<JsonRegistration>[]>>()
@@ -21,19 +23,15 @@ vi.doMock('./stats', () => ({
 const mockPublishEventCounts = vi.fn()
 const mockPublishRegistrationPatches = vi.fn()
 const mockPublishRegistrationPatchesStrict = vi.fn()
-// What each entrant's page receives: here every entrant has the page open (KOE-1553).
+// What each entrant's page receives. The real publisher runs, failure handling included; every
+// entrant has the page open (KOE-1553).
 const mockToEntrant = vi.fn()
-vi.doMock('./ws/actions', () => ({
+vi.doMock('./ws/connectionSelectors', () => ({ registrationsAudience: everyEntrantWatching }))
+vi.doMock('./ws/broadcast', () => ({ broadcast: deliverToEntrant(mockToEntrant) }))
+vi.doMock('./ws/actions', async () => ({
   publishEventCounts: mockPublishEventCounts,
-  publishParticipantRegistrationPatches: async (
-    eventId: string,
-    registrationIds: readonly string[],
-    buildPatch: (registrationId: string) => Promise<unknown>
-  ) => {
-    for (const registrationId of registrationIds) {
-      mockToEntrant(eventId, registrationId, await buildPatch(registrationId))
-    }
-  },
+  publishParticipantRegistrationPatches: (await vi.importActual<typeof import('./ws/actions')>('./ws/actions'))
+    .publishParticipantRegistrationPatches,
   publishRegistrationPatches: mockPublishRegistrationPatches,
   publishRegistrationPatchesStrict: mockPublishRegistrationPatchesStrict,
 }))
@@ -486,6 +484,30 @@ describe('registrationWorkflow', () => {
           updatedAt: '2030-01-01T00:00:00.500Z',
         })
       )
+    })
+
+    // The edit is stored before the entrant hears of it: a failed push must not undo the rest.
+    it('audits and emails the edit even when the entrant patch cannot be built (KOE-1553)', async () => {
+      const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+      const saved = { ...registration, notes: 'changed' }
+      mockRead.mockRejectedValueOnce(new Error('read failed'))
+
+      await expect(finalize(saved, registration)).resolves.toBeUndefined()
+
+      expect(mockToEntrant).not.toHaveBeenCalled()
+      expect(mockAudit).toHaveBeenCalledWith(expect.objectContaining({ messageKey: 'audit.changed' }))
+      expect(mockSendTemplatedMail).toHaveBeenCalledWith(
+        'registration',
+        'fi',
+        expect.any(String),
+        ['handler@example.com', 'owner@example.com'],
+        expect.anything(),
+        expect.any(Array)
+      )
+      expect(loggedLines(errorSpy)).toEqual([
+        expect.objectContaining({ message: 'participant patch failed', registrationId: saved.id }),
+      ])
+      errorSpy.mockRestore()
     })
 
     it('says on the row when the actor was named from the registration', async () => {

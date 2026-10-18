@@ -9,7 +9,9 @@ import {
 import { formatDate } from '../../i18n/dates'
 import { eventRegistrationDateKey } from '../../lib/event'
 import { httpError } from '../lib/lambda'
+import { deliverToEntrant, everyEntrantWatching } from '../test-utils/entrantPages'
 import { constructAPIGwEvent as constructRawAPIGwEvent } from '../test-utils/helpers'
+import { loggedLines } from '../test-utils/logs'
 
 // Keep existing move fixtures concise while exercising the semantic API
 // contract used by the only client.
@@ -79,26 +81,19 @@ const mockPublishEventPatch = vi.fn()
 const mockBroadcastEventRegistrations = vi.fn()
 const mockBroadcastPublicEvent = vi.fn()
 const mockPublishEventCounts = vi.fn()
-// What each entrant's page receives. The publisher is the boundary: here every entrant has the page
-// open, so the patch the handler's builder makes for a registration reaches this spy.
+// What each entrant's page receives. The real publisher runs, failure handling included; every
+// entrant has the page open (KOE-1553).
 const mockToEntrant = vi.fn()
-const mockPublishParticipantRegistrationPatches = vi.fn(
-  async (
-    eventId: string,
-    registrationIds: readonly string[],
-    buildPatch: (registrationId: string) => Promise<unknown>
-  ) => {
-    for (const registrationId of registrationIds) {
-      mockToEntrant(eventId, registrationId, await buildPatch(registrationId))
-    }
-  }
-)
-vi.doMock('../lib/ws/actions', () => ({
+vi.doMock('../lib/ws/connectionSelectors', () => ({ registrationsAudience: everyEntrantWatching }))
+vi.doMock('../lib/ws/broadcast', () => ({ broadcast: deliverToEntrant(mockToEntrant) }))
+vi.doMock('../lib/ws/actions', async () => ({
   __esModule: true,
   publishAdminEventPatch: vi.fn(),
   publishEventCounts: mockPublishEventCounts,
   publishEventPatch: mockPublishEventPatch,
-  publishParticipantRegistrationPatches: mockPublishParticipantRegistrationPatches,
+  publishParticipantRegistrationPatches: (
+    await vi.importActual<typeof import('../lib/ws/actions')>('../lib/ws/actions')
+  ).publishParticipantRegistrationPatches,
   publishPublicEvent: mockBroadcastPublicEvent,
   publishRegistrationPatches: mockBroadcastEventRegistrations,
 }))
@@ -582,6 +577,40 @@ describe('putRegistrationGroupsLambda', () => {
           payment: expect.objectContaining({ canPay: false, due: 0, status: 'notCharged' }),
           updatedAt: storedAt,
         })
+      )
+    })
+
+    // The groups are saved and the emails sent before the entrants hear of it: one failed patch
+    // must neither fail the request nor cost the other entrants theirs.
+    it('answers 200 and tells the others when one entrant patch cannot be built', async () => {
+      const [placed, moved] = jsonRegistrationsToEventWithParticipantsInvited
+      const reserve = jsonRegistrationsToEventWithParticipantsInvited[5]
+      const group = { date: placed.group?.date, key: placed.group?.key, time: placed.group?.time }
+      authorizeWithMemberOfMock.mockResolvedValueOnce({ memberOf: [], user: mockUser })
+      mockDynamoDB.query.mockResolvedValueOnce(jsonRegistrationsToEventWithParticipantsInvited)
+      readStoredRows({ [moved.id]: { cancelled: true, group: { key: 'cancelled', number: 2 } } })
+      const storedRead = mockDynamoDB.read.getMockImplementation()
+      mockDynamoDB.read.mockImplementation(async (key, table, consistent) => {
+        if (key?.id === reserve.id && consistent) throw new Error('read failed')
+        return storedRead?.(key, table, consistent)
+      })
+
+      const res = await putRegistrationGroupsLambda(
+        constructAPIGwEvent(
+          [
+            { group, id: reserve.id },
+            { cancelReason: 'sairas', group: { key: 'cancelled' }, id: moved.id },
+          ],
+          { pathParameters: { eventId: event.id } }
+        )
+      )
+
+      expect(res.statusCode).toBe(200)
+      expect(mockPublishPublicStartList).toHaveBeenCalledWith(event.id)
+      expect(mockToEntrant).toHaveBeenCalledTimes(1)
+      expect(mockToEntrant).toHaveBeenCalledWith(event.id, moved.id, expect.objectContaining({ cancelled: true }))
+      expect(loggedLines(mockConsoleError)).toContainEqual(
+        expect.objectContaining({ eventId: event.id, message: 'participant patch failed', registrationId: reserve.id })
       )
     })
 

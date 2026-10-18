@@ -12,6 +12,7 @@ import type { WebSocketConnection } from './types'
 import { sanitizeDogEvent } from '../../../lib/event'
 import { mapWithConcurrency } from '../../../lib/utils'
 import { bumpDataVersion } from '../dataVersions'
+import { logger } from '../log'
 import { broadcast } from './broadcast'
 import { removeConnection } from './connectionRepository'
 import {
@@ -106,29 +107,49 @@ export const publishParticipantRegistrationPatch = (
 /** How many registrations' patches are built at once: each may read its row and open payments. */
 const PARTICIPANT_PATCH_CONCURRENCY = 10
 
+type ParticipantPatchBuilder = (registrationId: string) => Promise<Patch<JsonRegistration> | undefined>
+
+/** One registration's patch to its own pages. A failure is logged and ends only this registration. */
+const sendParticipantPatch = async (
+  eventId: string,
+  registrationId: string,
+  watching: WebSocketConnection[],
+  buildPatch: ParticipantPatchBuilder
+) => {
+  try {
+    const patch = await buildPatch(registrationId)
+    if (!patch) return
+    await send({
+      audience: () => Promise.resolve(watching.filter((connection) => connection.registrationId === registrationId)),
+      buildPayload: () => ({ eventId, patch, registrationId, scope: 'participant:registration-patch' }),
+    })
+  } catch (error) {
+    logger.error('participant patch failed', { error, eventId, registrationId })
+  }
+}
+
 /**
  * The entrants' patches for several registrations of one event (KOE-1553). The connections are
  * scanned once, and a patch is built only for a registration whose page is open, so a change to many
  * rows costs one scan and a build per watched row. `buildPatch` answers undefined when there is
- * nothing to send.
+ * nothing to send. A live push never decides the outcome of the write before it: a failed scan, build
+ * or send is logged, the other registrations still get theirs, and this never rejects.
  */
 export const publishParticipantRegistrationPatches = async (
   eventId: string,
   registrationIds: readonly string[],
-  buildPatch: (registrationId: string) => Promise<Patch<JsonRegistration> | undefined>
+  buildPatch: ParticipantPatchBuilder
 ) => {
   if (registrationIds.length === 0) return
-  const watching = await registrationsAudience(eventId, registrationIds)
+  const watching = await registrationsAudience(eventId, registrationIds).catch((error: unknown) => {
+    logger.error('participant patch audience failed', { error, eventId })
+    return []
+  })
   const watched = [...new Set(watching.map((connection) => connection.registrationId))]
 
-  await mapWithConcurrency(watched, PARTICIPANT_PATCH_CONCURRENCY, async (registrationId) => {
-    const patch = await buildPatch(registrationId)
-    if (!patch) return
-    await send({
-      audience: async () => watching.filter((connection) => connection.registrationId === registrationId),
-      buildPayload: () => ({ eventId, patch, registrationId, scope: 'participant:registration-patch' }),
-    })
-  })
+  await mapWithConcurrency(watched, PARTICIPANT_PATCH_CONCURRENCY, (registrationId) =>
+    sendParticipantPatch(eventId, registrationId, watching, buildPatch)
+  )
 }
 
 export const publishAdminDataInvalidation = async (collections: AdminDataCollection[]) => {

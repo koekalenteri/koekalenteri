@@ -1,6 +1,4 @@
-import type { JsonConfirmedEvent, JsonRegistration } from '../../types'
 import { vi } from 'vitest'
-import { buildParticipantPaymentPatch } from '../lib/ws/payloads'
 import { answerRejections, constructPartialAPIGwEvent } from '../test-utils/helpers'
 import { loggedLines } from '../test-utils/logs'
 
@@ -22,11 +20,7 @@ const mockDynamoRead = vi.fn()
 const mockDynamoUpdate = vi.fn()
 const mockPublishRegistrationPatches = vi.fn()
 const mockPublishCancelledRegistration = vi.fn()
-const mockPublishParticipantRegistrationPatch = vi.fn()
-// The real, pure picture; a refunded row has no open payments to load.
-const mockParticipantPaymentPatch = vi.fn((registration: JsonRegistration, event: JsonConfirmedEvent) =>
-  buildParticipantPaymentPatch(registration, event, [])
-)
+const mockPublishParticipantPayments = vi.fn()
 const mockDynamoClient = vi.fn(function MockCustomDynamoClient() {
   return {
     read: mockDynamoRead,
@@ -50,7 +44,7 @@ vi.doMock('../lib/lambda', async () => ({
 vi.doMock('../lib/payment', () => ({
   applySuccessfulRefund: mockApplySuccessfulRefund,
   parseParams: mockParseParams,
-  participantPaymentPatch: mockParticipantPaymentPatch,
+  publishParticipantPayments: mockPublishParticipantPayments,
   settleFailedTransaction: mockSettleFailedTransaction,
   updateTransactionStatus: mockUpdateTransactionStatus,
   verifyParams: mockVerifyParams,
@@ -83,7 +77,6 @@ vi.doMock('../utils/CustomDynamoClient', () => ({
 
 vi.doMock('../lib/ws/actions', () => ({
   publishCancelledRegistration: mockPublishCancelledRegistration,
-  publishParticipantRegistrationPatch: mockPublishParticipantRegistrationPatch,
   publishRegistrationPatches: mockPublishRegistrationPatches,
 }))
 
@@ -125,11 +118,9 @@ describe('refundSuccessLambda', () => {
   }
 
   const mockConfirmedEvent = {
-    cost: 20,
     id: 'event123',
     name: 'Test Event',
     organizer: { id: 'org-1' },
-    state: 'confirmed',
   }
 
   beforeEach(() => {
@@ -333,48 +324,23 @@ describe('refundSuccessLambda', () => {
     expect(mockResponse).toHaveBeenCalledWith(200, undefined, event)
   })
 
-  it('tells the entrant the refund from the row as stored after the write (KOE-1553)', async () => {
-    // The stored row differs from the one the handler holds in memory: an earlier partial refund
-    // and its own updatedAt. The entrant's picture must say what the row says.
-    const stored = {
-      ...mockRegistration,
-      cancelled: true,
-      openRefunds: [],
-      refundAmount: 15,
-      refundAt: '2023-01-01T12:30:00.000Z',
-      refundHandlingCost: 5,
-      refundStatus: 'SUCCESS',
-      updatedAt: '2023-01-01T12:30:00.500Z',
-    }
-    mockDynamoRead.mockImplementation((_key: unknown, table?: string) =>
-      Promise.resolve(table ? stored : mockTransaction)
-    )
+  // The picture is built from the row as stored, and a failed push is logged without failing the
+  // callback: both are publishParticipantPayments' own (lib/payment.test.ts, ws/actions.test.ts).
+  it('tells the entrant the refund once it is applied (KOE-1553)', async () => {
+    const steps: string[] = []
+    mockApplySuccessfulRefund.mockImplementationOnce(async () => {
+      steps.push('apply')
+      return { applied: true, appliedAt: '2023-01-01T12:30:00.000Z' }
+    })
+    mockPublishParticipantPayments.mockImplementationOnce(async () => {
+      steps.push('tell the entrant')
+    })
 
     await refundSuccessLambda(event)
 
-    expect(mockPublishParticipantRegistrationPatch).toHaveBeenCalledTimes(1)
-    expect(mockPublishParticipantRegistrationPatch).toHaveBeenCalledWith(
-      'event123',
-      'reg456',
-      expect.objectContaining({
-        cancelled: true,
-        payment: expect.objectContaining({ due: 0, keptFee: 5, refundedAmount: 15, status: 'refunded' }),
-        refundAmount: 15,
-        refundStatus: 'SUCCESS',
-        updatedAt: '2023-01-01T12:30:00.500Z',
-      })
-    )
-  })
-
-  it('tells the entrant nothing when the row is gone after the write (KOE-1553)', async () => {
-    mockDynamoRead.mockImplementation((_key: unknown, table?: string) =>
-      Promise.resolve(table ? undefined : mockTransaction)
-    )
-
-    await refundSuccessLambda(event)
-
-    expect(mockPublishRegistrationPatches).toHaveBeenCalledTimes(1)
-    expect(mockPublishParticipantRegistrationPatch).not.toHaveBeenCalled()
+    expect(mockPublishParticipantPayments).toHaveBeenCalledTimes(1)
+    expect(mockPublishParticipantPayments).toHaveBeenCalledWith(mockConfirmedEvent, ['reg456'])
+    expect(steps).toEqual(['apply', 'tell the entrant'])
   })
 
   it('tells the entrant nothing when the refund was already applied (KOE-1553)', async () => {
@@ -382,7 +348,7 @@ describe('refundSuccessLambda', () => {
 
     await refundSuccessLambda(event)
 
-    expect(mockPublishParticipantRegistrationPatch).not.toHaveBeenCalled()
+    expect(mockPublishParticipantPayments).not.toHaveBeenCalled()
   })
 
   it('tells a partial refund without a handling fee as one without a fee (KOE-1459)', async () => {
