@@ -86,6 +86,7 @@ describe('statsRebuild', () => {
     [{ PK: 'CAPACITY#NOU', SK: 'not-a-month#NOU' }, undefined],
     [{ PK: 'JUDGE#2025', SK: '1' }, 2025],
     [{ PK: 'BREAKDOWN#2025', SK: 'organizer-1#NOU' }, 2025],
+    [{ PK: 'RETENTION#2025', SK: 'new' }, 2025],
   ])('extracts stats year from %o', (key, expected) => {
     expect(getEventStatsRecordYear(key)).toBe(expected)
   })
@@ -1252,6 +1253,49 @@ describe('statsRebuild', () => {
 
     await expect(handler()).rejects.toThrow('were left unprocessed after 5 attempts')
     expect(mockWriteStatRecords).not.toHaveBeenCalled()
+  })
+
+  describe('regenerating year by year', () => {
+    const event2025 = event('event-2025', '2025-05-01')
+    const event2026 = event('event-2026', '2026-05-01', 'other')
+    const stale2025 = { PK: 'TOTALS#2025', SK: 'gone' }
+    const stale2026 = { PK: 'TOTALS#2026', SK: 'gone' }
+    const yearOf = (rows: { PK: string; SK: string }[]) => getEventStatsRecordYear(rows[0])
+
+    beforeEach(() => {
+      mockReadEventsForStats.mockResolvedValueOnce([event2025, event2026])
+      mockReadRegistrationsForStats.mockResolvedValueOnce([
+        registration('registration-2025', event2025.id),
+        registration('registration-2026', event2026.id),
+      ])
+      mockReadAllStatKeys.mockResolvedValueOnce([stale2025, stale2026])
+    })
+
+    it("writes a year's rows before deleting its stale keys, and finishes a year before the next", async () => {
+      const steps: string[] = []
+      mockWriteStatRecords.mockImplementation(async (rows) => {
+        steps.push(`write ${yearOf(rows)}`)
+      })
+      mockDeleteStatRecords.mockImplementation(async (keys) => {
+        steps.push(`delete ${yearOf(keys)}`)
+      })
+
+      await handler()
+
+      expect(steps).toEqual(['write 2025', 'delete 2025', 'write 2026', 'delete 2026'])
+    })
+
+    it('leaves the later years alone when a year fails', async () => {
+      mockWriteStatRecords.mockRejectedValueOnce(new Error('throttled'))
+
+      await expect(handler()).rejects.toThrow('throttled')
+
+      expect(mockWriteStatRecords).toHaveBeenCalledTimes(1)
+      expect(mockWriteStatRecords).not.toHaveBeenCalledWith(
+        expect.arrayContaining([expect.objectContaining({ PK: 'YEARS', SK: '2026' })])
+      )
+      expect(mockDeleteStatRecords).not.toHaveBeenCalled()
+    })
   })
 
   describe('event totals', () => {

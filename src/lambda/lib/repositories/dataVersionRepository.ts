@@ -7,7 +7,16 @@ const dynamoDB = new CustomDynamoClient(CONFIG.dataVersionTable)
 
 export type VersionedCollection = keyof DataVersions
 
-/** One row of the version registry, keyed by collection and scope. */
+/**
+ * Version registry: one row per (collection, scope), holding an opaque revision token that is
+ * reminted whenever the collection changes. Deriving the versions instead - counting rows and
+ * taking max(modifiedAt) - meant five full table scans on every /user call, which is the hottest
+ * lambda we have.
+ *
+ * The token is opaque on purpose. A counter cannot be maintained without drifting (a duplicated
+ * write inflates it and every browser then refetches until something repairs the number), while a
+ * needless remint costs exactly one extra fetch.
+ */
 export interface VersionRecord extends DataVersion {
   collection: VersionedCollection
   scope: string

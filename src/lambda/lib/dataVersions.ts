@@ -19,17 +19,6 @@ import {
 /** Every collection but `users` has a single version; see `userScopes()` in lib/user.ts. */
 export const GLOBAL_SCOPE = '*'
 
-/**
- * Version registry: one row per (collection, scope), holding an opaque revision token that is
- * reminted whenever the collection changes. Deriving the versions instead - counting rows and
- * taking max(modifiedAt) - meant five full table scans on every /user call, which is the hottest
- * lambda we have.
- *
- * The token is opaque on purpose. A counter cannot be maintained without drifting (a duplicated
- * write inflates it and every browser then refetches until something repairs the number), while a
- * needless remint costs exactly one extra fetch.
- */
-
 /** Collections with a single global version. `users` is scoped per organization instead. */
 const GLOBAL_VERSIONED_COLLECTIONS = [
   'emailTemplates',

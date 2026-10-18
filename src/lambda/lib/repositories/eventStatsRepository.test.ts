@@ -31,10 +31,12 @@ vi.doMock('../../utils/CustomDynamoClient', () => ({
 
 const {
   addOrganizerEventStats,
+  capacitySk,
   commitNewRegistrationStats,
   deleteStatRecords,
   isSameOrganizerStatsRow,
   moveOrganizerEventStatsRow,
+  organizerPk,
   organizerStatsKey,
   readAllOrganizerEventStats,
   readAllStatKeys,
@@ -99,6 +101,11 @@ describe('eventStatsRepository', () => {
       PK: 'ORG#org1',
       SK: '2024-06-01#e1',
     })
+  })
+
+  it('keys a capacity row by month, class and organizer, and an organizer partition by organizer', () => {
+    expect(capacitySk('2025-06', 'ALO', 'org-1')).toBe('2025-06#ALO#org-1')
+    expect(organizerPk('org-1')).toBe('ORG#org-1')
   })
 
   describe('isSameOrganizerStatsRow', () => {

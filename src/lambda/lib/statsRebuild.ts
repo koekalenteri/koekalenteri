@@ -26,6 +26,7 @@ import { readEventsForStats } from './repositories/eventRepository'
 import {
   bucketsPk,
   capacityPk,
+  capacitySk,
   deleteStatRecords,
   eventBreakdownPk,
   judgeWorkloadPk,
@@ -485,7 +486,7 @@ const capacityStatsRecords = (buckets: Map<string, CapacityBucket>, updatedAt: s
     PK: capacityPk(bucket.eventType),
     places: bucket.places,
     reserve: bucket.reserve,
-    SK: `${bucket.month}#${bucket.classKey}#${bucket.organizerId}`,
+    SK: capacitySk(bucket.month, bucket.classKey, bucket.organizerId),
     starters: bucket.starters,
     updatedAt,
   }))

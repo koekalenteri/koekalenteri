@@ -84,8 +84,18 @@ export const judgeWorkloadPk = (year: number) => `${STATS_KEY_PREFIX.judge}${yea
 /** The year's club + event type breakdown. */
 export const eventBreakdownPk = (year: number) => `${STATS_KEY_PREFIX.breakdown}${year}`
 
+/** One organizer's event rows. */
+export const organizerPk = (organizerId: string) => `${STATS_KEY_PREFIX.organizer}${organizerId}`
+
+/** A capacity row: the month, the class and the organizer, so the rows sort by month. */
+export const capacitySk = (month: string, classKey: string, organizerId: string) =>
+  `${month}#${classKey}#${organizerId}`
+
+/** A bound past every capacity sort key of the month, whatever class and organizer follow it. */
+const capacityMonthEnd = (month: string) => `${month}#\uffff`
+
 export const organizerStatsKey = (event: OrganizerStatsEvent) => ({
-  PK: `${STATS_KEY_PREFIX.organizer}${event.organizer.id}`,
+  PK: organizerPk(event.organizer.id),
   SK: `${event.startDate}#${event.id}`,
 })
 
@@ -157,7 +167,7 @@ export async function readOrganizerEventStats(
   from?: string,
   to?: string
 ): Promise<Required<JsonEventStatsItem>[]> {
-  const expressionValues: Record<string, string> = { ':pk': `${STATS_KEY_PREFIX.organizer}${organizerId}` }
+  const expressionValues: Record<string, string> = { ':pk': organizerPk(organizerId) }
   const { filterExpressions, expressionValues: dateValues } = buildDateRangeFilters(from, to)
   Object.assign(expressionValues, dateValues)
 
@@ -229,13 +239,13 @@ export async function readCapacityStats(
   if (from && to) {
     keyCondition += ' AND SK BETWEEN :from AND :to'
     values[':from'] = from
-    values[':to'] = `${to}#￿`
+    values[':to'] = capacityMonthEnd(to)
   } else if (from) {
     keyCondition += ' AND SK >= :from'
     values[':from'] = from
   } else if (to) {
     keyCondition += ' AND SK <= :to'
-    values[':to'] = `${to}#￿`
+    values[':to'] = capacityMonthEnd(to)
   }
 
   const items = await dynamoDB.query<JsonCapacityStatsItem>({

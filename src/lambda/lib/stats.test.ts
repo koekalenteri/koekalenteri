@@ -3,7 +3,7 @@ import type { JsonCapacityStatsItem, RegistrationStatsInput } from '../../types/
 import type * as eventStatsRepository from './repositories/eventStatsRepository'
 import type * as registrationRepository from './repositories/registrationRepository'
 import { vi } from 'vitest'
-import { asJsonRegistration } from '../test-utils/helpers'
+import { asJsonConfirmedEvent, asJsonRegistration } from '../test-utils/helpers'
 
 const mockReadOrganizerEventStats = vi.fn<typeof eventStatsRepository.readOrganizerEventStats>()
 const mockReadAllOrganizerEventStats = vi.fn<typeof eventStatsRepository.readAllOrganizerEventStats>()
@@ -113,7 +113,7 @@ describe('lib/stats', () => {
       startDate: '2024-06-01',
     } as JsonConfirmedEvent
     const withLease = (token: string) =>
-      ({ ...registration, newRegistrationLease: { expiresAt: Date.now() + 1000, token } }) as JsonRegistration
+      asJsonRegistration({ ...registration, newRegistrationLease: { expiresAt: Date.now() + 1000, token } })
 
     it('commits the new registration deltas with its lease in one transaction', async () => {
       await applyNewRegistrationStatsOnce(registration, event, 'lease-token')
@@ -296,9 +296,14 @@ describe('lib/stats', () => {
         owner: { email: 'owner@example.com' },
       })
       const updatedReg = { ...existingReg, notes: 'Updated notes' } as JsonRegistration
-      const nomeEvent = { eventType: 'NOME', id: 'e5', organizer: { id: 'org1' }, startDate: '2024-01-01' }
+      const nomeEvent = asJsonConfirmedEvent({
+        eventType: 'NOME',
+        id: 'e5',
+        organizer: { id: 'org1' },
+        startDate: '2024-01-01',
+      })
 
-      await updateEventStatsForRegistration(updatedReg, existingReg, nomeEvent as JsonConfirmedEvent)
+      await updateEventStatsForRegistration(updatedReg, existingReg, nomeEvent)
 
       expect(mockAddOrganizerEventStats).toHaveBeenCalledTimes(1)
       expect(mockAddOrganizerEventStats).toHaveBeenCalledWith(nomeEvent, expect.any(Object), expect.any(String))
