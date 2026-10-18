@@ -14,7 +14,7 @@ import { TZDate } from '@date-fns/tz'
 import { addDays } from 'date-fns'
 import i18n from 'i18next'
 import { eventWithEntryClosing, eventWithParticipantsInvited, eventWithStaticDates } from '../__mockData__/events'
-import { startOfFinnishDay } from '../test-utils/finnishDays'
+import { finnishDayOf, noonOfFinnishDay, startOfFinnishDay } from '../test-utils/finnishDays'
 import { freezeClockAt } from '../test-utils/freezeClock'
 import { describeInTimeZone } from '../test-utils/timeZone'
 import { addDays as addDaysToKey, dayStart, TIME_ZONE } from './day'
@@ -1414,6 +1414,90 @@ describe('newEventStartDay (KOE-1545)', () => {
         // The same moment is Saturday evening in New York: ninety days on is a Friday there.
         expect(newEventStartDay(sundayNight, 'America/New_York')).toBe('2027-01-16')
       })
+    })
+  }
+})
+
+describe('copyDogEvent across a change of time (KOE-1542)', () => {
+  /**
+   * An event on the Finnish days `days`, stored at their Finnish midnights: a class and an ap/ip pair
+   * of `dates` rows on each day, and places per day.
+   */
+  const eventOn = (days: DayKey[]): DogEvent => ({
+    ...eventWithEntryClosing,
+    classes: days.map((day) => ({ class: 'ALO', date: startOfFinnishDay(day), places: 10 })),
+    dates: days.flatMap((day) => [
+      { date: startOfFinnishDay(day), time: 'ap' },
+      { date: startOfFinnishDay(day), time: 'ip' },
+    ]),
+    endDate: startOfFinnishDay(days[days.length - 1]),
+    placesPerDay: Object.fromEntries(days.map((day, i) => [day, 10 + i])),
+    startDate: startOfFinnishDay(days[0]),
+  })
+
+  /** Every day the copy stores lands on the Finnish day it should, at that day's Finnish midnight. */
+  const expectOnDays = (copy: DogEvent, days: DayKey[]) => {
+    const midnights = days.map((day) => startOfFinnishDay(day))
+    expect(finnishDayOf(copy.startDate)).toBe(days[0])
+    expect(copy.startDate).toEqual(midnights[0])
+    expect(copy.endDate).toEqual(midnights[midnights.length - 1])
+    expect(copy.classes.map((c) => c.date)).toEqual(midnights)
+    expect(copy.dates?.map((d) => d.date)).toEqual(midnights.flatMap((midnight) => [midnight, midnight]))
+    expect(copy.dates?.map((d) => d.time)).toEqual(days.flatMap(() => ['ap', 'ip']))
+    expect(copy.placesPerDay).toEqual(Object.fromEntries(days.map((day, i) => [day, 10 + i])))
+  }
+
+  for (const zone of [TIME_ZONE, 'America/New_York', 'Asia/Tokyo']) {
+    describeInTimeZone(zone, () => {
+      it.each([
+        {
+          // 15.1.2026 + 90 days is Wednesday 15.4.2026, in summer time; the Saturday after it is the 18th.
+          copied: ['2026-04-18', '2026-04-19'],
+          now: '2026-01-15',
+          source: ['2025-11-15', '2025-11-16'],
+          title: 'a winter event to a summer start',
+        },
+        {
+          // On 14.3.2026 Finland is still on winter time but New York has already moved to summer time.
+          copied: ['2026-04-18', '2026-04-19'],
+          now: '2026-01-15',
+          source: ['2026-03-14', '2026-03-15'],
+          title: 'a March winter event to a summer start',
+        },
+        {
+          // 13.8.2026 + 90 days is Wednesday 11.11.2026, in winter time; the Saturday after it is the 14th.
+          copied: ['2026-11-14', '2026-11-15'],
+          now: '2026-08-13',
+          source: ['2025-06-14', '2025-06-15'],
+          title: 'a summer event to a winter start',
+        },
+      ] satisfies { copied: DayKey[]; now: DayKey; source: DayKey[]; title: string }[])(
+        'copies $title onto the same Finnish days of the week',
+        ({ copied, now, source }) => {
+          expectOnDays(copyDogEvent(eventOn(source), noonOfFinnishDay(now)), copied)
+        }
+      )
+
+      it.each([
+        {
+          // 15.6.2026: the copy starts on Saturday 19.9.2026, all in summer time.
+          copied: ['2026-09-19', '2026-09-20', '2026-09-21', '2026-09-22'],
+          now: '2026-06-15',
+          title: 'to summer time',
+        },
+        {
+          // 22.7.2026 + 90 days is Tuesday 20.10.2026; the copy starts on Saturday 24.10. and crosses 25.10.
+          copied: ['2026-10-24', '2026-10-25', '2026-10-26', '2026-10-27'],
+          now: '2026-07-22',
+          title: 'across the autumn change',
+        },
+      ] satisfies { copied: DayKey[]; now: DayKey; title: string }[])(
+        'keeps every day of 27.-30.3.2026, across the spring change, when copied $title',
+        ({ copied, now }) => {
+          const source: DayKey[] = ['2026-03-27', '2026-03-28', '2026-03-29', '2026-03-30']
+          expectOnDays(copyDogEvent(eventOn(source), noonOfFinnishDay(now)), copied)
+        }
+      )
     })
   }
 })
