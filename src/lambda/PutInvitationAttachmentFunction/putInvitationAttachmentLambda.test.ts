@@ -11,7 +11,7 @@ const mockParsePostFile = vi.fn()
 const mockDeleteFile = vi.fn()
 const mockGetRegistrationsByEventId = vi.fn()
 const mockUploadFile = vi.fn()
-const mockUpdate = vi.fn()
+const mockWriteEventFields = vi.fn()
 const mockPublishAdminEventPatch = vi.fn()
 
 vi.doMock('../lib/lambda', async () => ({
@@ -39,12 +39,8 @@ vi.doMock('../lib/registration', () => ({
   getRegistrationsByEventId: mockGetRegistrationsByEventId,
 }))
 
-vi.doMock('../utils/CustomDynamoClient', () => ({
-  default: vi.fn(function MockCustomDynamoClient() {
-    return {
-      update: mockUpdate,
-    }
-  }),
+vi.doMock('../lib/repositories/eventRepository', () => ({
+  writeEventFields: mockWriteEventFields,
 }))
 
 vi.doMock('../lib/ws/actions', () => ({
@@ -113,7 +109,7 @@ describe('putInvitationAttachmentLambda', () => {
 
     mockUploadFile.mockResolvedValue({})
 
-    mockUpdate.mockResolvedValue({})
+    mockWriteEventFields.mockResolvedValue({})
 
     // Mock nanoid to return a predictable value
     vi.spyOn(global.Math, 'random').mockReturnValue(0.123456789)
@@ -233,15 +229,12 @@ describe('putInvitationAttachmentLambda', () => {
     )
 
     // Verify event was updated with new attachment key
-    expect(mockUpdate).toHaveBeenCalledWith(
-      { id: 'event123' },
-      {
-        set: expect.objectContaining({
-          invitationAttachment: expect.any(String),
-          invitationAttachmentHistory: expect.any(Object),
-        }),
-      }
-    )
+    expect(mockWriteEventFields).toHaveBeenCalledWith('event123', {
+      set: expect.objectContaining({
+        invitationAttachment: expect.any(String),
+        invitationAttachmentHistory: expect.any(Object),
+      }),
+    })
     expect(mockPublishAdminEventPatch).toHaveBeenCalledWith(
       expect.objectContaining({
         eventId: 'event123',
@@ -250,8 +243,8 @@ describe('putInvitationAttachmentLambda', () => {
       }),
       'org789'
     )
-    expect(mockUpdate).toHaveBeenCalledWith(
-      { id: 'event123' },
+    expect(mockWriteEventFields).toHaveBeenCalledWith(
+      'event123',
       expect.objectContaining({
         set: expect.objectContaining({
           invitationAttachment: expect.any(String),
@@ -283,17 +276,14 @@ describe('putInvitationAttachmentLambda', () => {
 
     expect(mockDeleteFile).not.toHaveBeenCalled()
     expect(mockUploadFile).toHaveBeenCalledWith(expect.any(String), Buffer.from('%PDF-1.7 test-file-content'))
-    expect(mockUpdate).toHaveBeenCalledWith(
-      { id: 'event123' },
-      {
-        set: expect.objectContaining({
-          invitationAttachmentHistory: expect.any(Object),
-          invitationAttachments: {
-            AVO: expect.any(String),
-          },
-        }),
-      }
-    )
+    expect(mockWriteEventFields).toHaveBeenCalledWith('event123', {
+      set: expect.objectContaining({
+        invitationAttachmentHistory: expect.any(Object),
+        invitationAttachments: {
+          AVO: expect.any(String),
+        },
+      }),
+    })
     expect(mockResponse).toHaveBeenCalledWith(
       200,
       expect.objectContaining({
@@ -311,8 +301,8 @@ describe('putInvitationAttachmentLambda', () => {
     await putInvitationAttachmentLambda(event)
 
     expect(mockDeleteFile).toHaveBeenCalledWith('old-attachment-key')
-    expect(mockUpdate).toHaveBeenCalledWith(
-      { id: 'event123' },
+    expect(mockWriteEventFields).toHaveBeenCalledWith(
+      'event123',
       expect.objectContaining({
         set: expect.objectContaining({
           invitationAttachment: expect.any(String),
@@ -350,7 +340,7 @@ describe('putInvitationAttachmentLambda', () => {
 
     await putInvitationAttachmentLambda(event)
 
-    expect(mockUpdate).toHaveBeenCalled()
+    expect(mockWriteEventFields).toHaveBeenCalled()
     expect(mockPublishAdminEventPatch).toHaveBeenCalled()
     expect(loggedLines(errorSpy)).toContainEqual(
       expect.objectContaining({
@@ -398,15 +388,12 @@ describe('putInvitationAttachmentLambda', () => {
     )
 
     // Verify event was updated with new attachment key
-    expect(mockUpdate).toHaveBeenCalledWith(
-      { id: 'event123' },
-      {
-        set: expect.objectContaining({
-          invitationAttachment: expect.any(String),
-          invitationAttachmentHistory: expect.any(Object),
-        }),
-      }
-    )
+    expect(mockWriteEventFields).toHaveBeenCalledWith('event123', {
+      set: expect.objectContaining({
+        invitationAttachment: expect.any(String),
+        invitationAttachmentHistory: expect.any(Object),
+      }),
+    })
 
     // Verify response
     expect(mockResponse).toHaveBeenCalledWith(
@@ -442,7 +429,7 @@ describe('putInvitationAttachmentLambda', () => {
     expect(mockUploadFile).toHaveBeenCalled()
 
     // Verify event was updated with new attachment key
-    expect(mockUpdate).toHaveBeenCalled()
+    expect(mockWriteEventFields).toHaveBeenCalled()
 
     // Verify response
     expect(mockResponse).toHaveBeenCalledWith(

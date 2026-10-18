@@ -1,11 +1,12 @@
 import type CustomDynamoClient from '../utils/CustomDynamoClient'
-import type { EventStatsEvent } from './statsRebuild'
+import type { EventStatsEvent } from './repositories/eventRepository'
 import { vi } from 'vitest'
 import { loggedLines } from '../test-utils/logs'
 
 const mockBatchDelete = vi.fn<CustomDynamoClient['batchDelete']>()
 const mockBatchWrite = vi.fn<CustomDynamoClient['batchWrite']>()
 const mockReadAll = vi.fn<CustomDynamoClient['readAll']>()
+const mockReadEventsForStats = vi.fn()
 
 vi.doMock('../utils/CustomDynamoClient', () => ({
   default: class {
@@ -15,10 +16,13 @@ vi.doMock('../utils/CustomDynamoClient', () => ({
   },
 }))
 
+vi.doMock('./repositories/eventRepository', () => ({
+  readEventsForStats: mockReadEventsForStats,
+}))
+
 vi.doMock('../config', () => ({
   CONFIG: {
     eventStatsTable: 'event-stats-table',
-    eventTable: 'event-table',
     registrationTable: 'registration-table',
   },
 }))
@@ -88,11 +92,13 @@ describe('statsRebuild', () => {
   })
 
   it('does nothing when events, registrations, and stats are all absent', async () => {
+    mockReadEventsForStats.mockResolvedValue([])
     mockReadAll.mockResolvedValue([])
 
     await handler()
 
-    expect(mockReadAll).toHaveBeenCalledTimes(3)
+    expect(mockReadEventsForStats).toHaveBeenCalledTimes(1)
+    expect(mockReadAll).toHaveBeenCalledTimes(2)
     expect(mockBatchDelete).not.toHaveBeenCalled()
     expect(mockBatchWrite).not.toHaveBeenCalled()
   })
@@ -118,25 +124,19 @@ describe('statsRebuild', () => {
       { PK: 'TOTALS#2025', SK: 'dog' },
       { PK: 'TOTALS#2024', SK: 'dog' },
     ]
-    mockReadAll
-      .mockResolvedValueOnce([event2026, event2025])
-      .mockResolvedValueOnce([registration2026, registration2025, start2025])
-      .mockResolvedValueOnce(stats)
+    mockReadEventsForStats.mockResolvedValueOnce([event2026, event2025])
+    mockReadAll.mockResolvedValueOnce([registration2026, registration2025, start2025]).mockResolvedValueOnce(stats)
 
     await handler()
 
+    expect(mockReadEventsForStats).toHaveBeenCalledTimes(1)
     expect(mockReadAll).toHaveBeenNthCalledWith(1, {
-      names: { '#state': 'state' },
-      projection: 'id, organizer, startDate, endDate, eventType, classes, places, #state, judges',
-      table: 'event-table',
-    })
-    expect(mockReadAll).toHaveBeenNthCalledWith(2, {
       names: { '#class': 'class', '#group': 'group', '#handler': 'handler', '#key': 'key', '#owner': 'owner' },
       projection:
         'eventId, id, cancelled, paidAmount, refundAmount, eventType, dog.regNo, dog.breedCode, #handler.email, #handler.membership, #owner.membership, owners, ownerHandles, #class, #group.#key',
       table: 'registration-table',
     })
-    expect(mockReadAll).toHaveBeenNthCalledWith(3, { projection: 'PK, SK' })
+    expect(mockReadAll).toHaveBeenNthCalledWith(2, { projection: 'PK, SK' })
     // TOTALS#2024 has no counterpart in the rebuilt records, so it is pruned; TOTALS#2025 is
     // regenerated in place and must never be deleted -- deleting it would blank the year for
     // however long the write takes, and /stats caches that gap publicly.
@@ -1119,8 +1119,8 @@ describe('statsRebuild', () => {
 
   it('skips registrations whose events are missing or have invalid start dates', async () => {
     const invalidEvent = event('invalid-event', 'not-a-date')
+    mockReadEventsForStats.mockResolvedValueOnce([invalidEvent])
     mockReadAll
-      .mockResolvedValueOnce([invalidEvent])
       .mockResolvedValueOnce([
         registration('missing-registration', 'missing-event'),
         registration('invalid-registration', invalidEvent.id),
@@ -1143,10 +1143,8 @@ describe('statsRebuild', () => {
   })
 
   it('reports stats records that cannot be assigned to a year', async () => {
-    mockReadAll
-      .mockResolvedValueOnce([])
-      .mockResolvedValueOnce([])
-      .mockResolvedValueOnce([{ PK: 'NEW_STAT_FAMILY#2025', SK: 'id' }])
+    mockReadEventsForStats.mockResolvedValueOnce([])
+    mockReadAll.mockResolvedValueOnce([]).mockResolvedValueOnce([{ PK: 'NEW_STAT_FAMILY#2025', SK: 'id' }])
 
     await handler()
 
@@ -1178,14 +1176,12 @@ describe('statsRebuild', () => {
     })
 
     it('never deletes organizer records when they are out of scope', async () => {
-      mockReadAll
-        .mockResolvedValueOnce([])
-        .mockResolvedValueOnce([])
-        .mockResolvedValueOnce([
-          { PK: 'ORG#organizer-1', SK: '2025-06-01#event' },
-          { PK: 'TOTALS#2025', SK: 'dog' },
-          { PK: 'CAPACITY#NOME-B', SK: '2025-06#ALO' },
-        ])
+      mockReadEventsForStats.mockResolvedValueOnce([])
+      mockReadAll.mockResolvedValueOnce([]).mockResolvedValueOnce([
+        { PK: 'ORG#organizer-1', SK: '2025-06-01#event' },
+        { PK: 'TOTALS#2025', SK: 'dog' },
+        { PK: 'CAPACITY#NOME-B', SK: '2025-06#ALO' },
+      ])
 
       await rebuildHandler()
 
@@ -1249,10 +1245,8 @@ describe('statsRebuild', () => {
   })
 
   it('fails instead of reporting success when cleanup fails', async () => {
-    mockReadAll
-      .mockResolvedValueOnce([])
-      .mockResolvedValueOnce([])
-      .mockResolvedValueOnce([{ PK: 'TOTALS#2025', SK: 'dog' }])
+    mockReadEventsForStats.mockResolvedValueOnce([])
+    mockReadAll.mockResolvedValueOnce([]).mockResolvedValueOnce([{ PK: 'TOTALS#2025', SK: 'dog' }])
     mockBatchDelete.mockRejectedValueOnce(
       new Error('DynamoDB: 1 items of a batch write to event-stats-table were left unprocessed after 5 attempts')
     )

@@ -5,7 +5,9 @@ import { answerRejections, constructPartialAPIGwEvent } from '../test-utils/help
 const mockAuthorizeWithMemberOf = vi.fn()
 const mockLambda = vi.fn((_name, fn) => answerRejections(fn, mockResponse))
 const mockResponse = vi.fn()
-const mockQuery = vi.fn()
+const mockReadSeasonEvents = vi.fn()
+const mockReadSeasonEventsUpdatedSince = vi.fn()
+const mockReadOrganizerEvents = vi.fn()
 
 vi.doMock('../lib/auth', () => ({
   authorizeWithMemberOf: mockAuthorizeWithMemberOf,
@@ -15,12 +17,10 @@ vi.doMock('../lib/lambda', async () => ({
   lambda: mockLambda,
   response: mockResponse,
 }))
-vi.doMock('../utils/CustomDynamoClient', () => ({
-  default: vi.fn(function MockCustomDynamoClient() {
-    return {
-      query: mockQuery,
-    }
-  }),
+vi.doMock('../lib/repositories/eventRepository', () => ({
+  readOrganizerEvents: mockReadOrganizerEvents,
+  readSeasonEvents: mockReadSeasonEvents,
+  readSeasonEventsUpdatedSince: mockReadSeasonEventsUpdatedSince,
 }))
 
 const { default: getAdminEventsLambda } = await import('./handler')
@@ -47,12 +47,13 @@ describe('getAdminEventsLambda', () => {
 
     expect(mockAuthorizeWithMemberOf).toHaveBeenCalledWith(event)
     expect(mockResponse).toHaveBeenCalledWith(401, 'Unauthorized', event)
-    expect(mockQuery).not.toHaveBeenCalled()
+    expect(mockReadSeasonEvents).not.toHaveBeenCalled()
+    expect(mockReadOrganizerEvents).not.toHaveBeenCalled()
   })
 
   // A superadmin sees every club, so the list walks the seasons back from next year and stops once
   // two in a row are empty; nothing scans the table (KOE-1341).
-  it('reads every season through the index for a superadmin', async () => {
+  it('reads every season for a superadmin', async () => {
     vi.useFakeTimers()
     vi.setSystemTime(new Date('2026-05-12T00:00:00.000Z'))
     const user = { admin: true, id: 'admin1' }
@@ -63,26 +64,20 @@ describe('getAdminEventsLambda', () => {
     }
 
     mockAuthorizeWithMemberOf.mockResolvedValueOnce({ memberOf, user })
-    mockQuery.mockImplementation(
-      async ({ values }: { values: Record<string, string> }) => bySeason[values[':season']] ?? []
-    )
+    mockReadSeasonEvents.mockImplementation(async (season: number) => bySeason[season] ?? [])
 
     await getAdminEventsLambda(event)
 
     // 2027 (empty), 2026, 2025, 2024 (empty), 2023 (empty) -> stop
-    expect(mockQuery).toHaveBeenCalledTimes(5)
-    expect(mockQuery).toHaveBeenNthCalledWith(1, {
-      index: 'gsiSeasonStartDate',
-      key: 'season = :season',
-      table: expect.any(String),
-      values: { ':season': '2027' },
-    })
+    expect(mockReadSeasonEvents).toHaveBeenCalledTimes(5)
+    expect(mockReadSeasonEvents).toHaveBeenNthCalledWith(1, 2027)
+    expect(mockReadSeasonEvents).toHaveBeenNthCalledWith(5, 2023)
     expect(mockResponse).toHaveBeenCalledWith(200, [...bySeason['2026'], ...bySeason['2025']], event)
 
-    mockQuery.mockReset()
+    mockReadSeasonEvents.mockReset()
   })
 
-  it("reads a club administrator's clubs through the organizer index", async () => {
+  it("reads a club administrator's clubs by organizer", async () => {
     const user = { admin: false, id: 'user1' }
     const memberOf = ['org1', 'org3']
     const byOrganizer: Record<string, object[]> = {
@@ -91,22 +86,16 @@ describe('getAdminEventsLambda', () => {
     }
 
     mockAuthorizeWithMemberOf.mockResolvedValueOnce({ memberOf, user })
-    mockQuery.mockImplementation(
-      async ({ values }: { values: Record<string, string> }) => byOrganizer[values[':organizerId']] ?? []
-    )
+    mockReadOrganizerEvents.mockImplementation(async (organizerId: string) => byOrganizer[organizerId] ?? [])
 
     await getAdminEventsLambda(event)
 
-    expect(mockQuery).toHaveBeenCalledTimes(2)
-    expect(mockQuery).toHaveBeenNthCalledWith(1, {
-      index: 'gsiOrganizerStartDate',
-      key: 'organizerId = :organizerId',
-      table: expect.any(String),
-      values: { ':organizerId': 'org1' },
-    })
+    expect(mockReadOrganizerEvents).toHaveBeenCalledTimes(2)
+    expect(mockReadOrganizerEvents).toHaveBeenNthCalledWith(1, 'org1')
+    expect(mockReadOrganizerEvents).toHaveBeenNthCalledWith(2, 'org3')
     expect(mockResponse).toHaveBeenCalledWith(200, [...byOrganizer.org1, ...byOrganizer.org3], event)
 
-    mockQuery.mockReset()
+    mockReadOrganizerEvents.mockReset()
   })
 
   it('queries events with since parameter', async () => {
@@ -127,24 +116,15 @@ describe('getAdminEventsLambda', () => {
     const seasonEvents2 = [{ id: 'event2', organizer: { id: 'org2' } }]
 
     mockAuthorizeWithMemberOf.mockResolvedValueOnce({ memberOf, user })
-    mockQuery.mockResolvedValueOnce(seasonEvents1)
-    mockQuery.mockResolvedValueOnce(seasonEvents2)
+    mockReadSeasonEventsUpdatedSince.mockResolvedValueOnce(seasonEvents1)
+    mockReadSeasonEventsUpdatedSince.mockResolvedValueOnce(seasonEvents2)
 
     await getAdminEventsLambda(eventWithSince)
 
     // Check that query was called for each season
-    expect(mockQuery).toHaveBeenCalledTimes(endSeason - startSeason + 1)
-
-    // Check first query call
-    expect(mockQuery).toHaveBeenCalledWith({
-      index: 'gsiSeasonUpdatedAt',
-      key: 'season = :season AND updatedAt >= :updatedAfter',
-      table: expect.any(String),
-      values: {
-        ':season': startSeason.toString(),
-        ':updatedAfter': new Date(Number(since)).toISOString(),
-      },
-    })
+    expect(mockReadSeasonEventsUpdatedSince).toHaveBeenCalledTimes(endSeason - startSeason + 1)
+    expect(mockReadSeasonEventsUpdatedSince).toHaveBeenCalledWith(startSeason, new Date(Number(since)).toISOString())
+    expect(mockReadSeasonEvents).not.toHaveBeenCalled()
 
     // Check that response combines all season events
     expect(mockResponse).toHaveBeenCalledWith(200, [...seasonEvents1, ...seasonEvents2], eventWithSince)
@@ -156,7 +136,7 @@ describe('getAdminEventsLambda', () => {
     await getAdminEventsLambda({ ...event, queryStringParameters: { since: '-62135596800000' } })
 
     expect(mockResponse).toHaveBeenCalledWith(400, 'Bad request: since must be a valid time', expect.anything())
-    expect(mockQuery).not.toHaveBeenCalled()
+    expect(mockReadSeasonEventsUpdatedSince).not.toHaveBeenCalled()
   })
 
   // 22:30Z on 31.12.2025 is already 2026 in Finland: the seasons are Finnish years, as the events' are.
@@ -165,14 +145,12 @@ describe('getAdminEventsLambda', () => {
     vi.setSystemTime(new Date('2026-05-12T00:00:00.000Z'))
     const since = String(Date.parse('2025-12-31T22:30:00.000Z'))
     mockAuthorizeWithMemberOf.mockResolvedValueOnce({ memberOf: ['org1'], user: { admin: true, id: 'admin1' } })
-    mockQuery.mockResolvedValueOnce([])
+    mockReadSeasonEventsUpdatedSince.mockResolvedValueOnce([])
 
     await getAdminEventsLambda({ ...event, queryStringParameters: { since } })
 
-    expect(mockQuery).toHaveBeenCalledTimes(1)
-    expect(mockQuery).toHaveBeenCalledWith(
-      expect.objectContaining({ values: expect.objectContaining({ ':season': '2026' }) })
-    )
+    expect(mockReadSeasonEventsUpdatedSince).toHaveBeenCalledTimes(1)
+    expect(mockReadSeasonEventsUpdatedSince).toHaveBeenCalledWith(2026, '2025-12-31T22:30:00.000Z')
   })
 
   it('returns an empty array for a club with no events', async () => {
@@ -180,11 +158,11 @@ describe('getAdminEventsLambda', () => {
     const memberOf = ['org4']
 
     mockAuthorizeWithMemberOf.mockResolvedValueOnce({ memberOf, user })
-    mockQuery.mockResolvedValueOnce([])
+    mockReadOrganizerEvents.mockResolvedValueOnce([])
 
     await getAdminEventsLambda(event)
 
-    expect(mockQuery).toHaveBeenCalledTimes(1)
+    expect(mockReadOrganizerEvents).toHaveBeenCalledTimes(1)
     expect(mockResponse).toHaveBeenCalledWith(200, [], event)
   })
 
@@ -193,7 +171,7 @@ describe('getAdminEventsLambda', () => {
     const memberOf = ['org1']
 
     mockAuthorizeWithMemberOf.mockResolvedValueOnce({ memberOf, user })
-    mockQuery.mockResolvedValueOnce(undefined)
+    mockReadOrganizerEvents.mockResolvedValueOnce(undefined)
 
     await getAdminEventsLambda(event)
 

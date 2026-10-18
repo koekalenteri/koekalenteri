@@ -10,12 +10,8 @@ import type {
 import { randomUUID } from 'node:crypto'
 import { MAX_DOGS_AT_ONCE, resolveStation, stationPhases } from '../../lib/liveFormat'
 import { currentPhase, isBreakTurn, isWholeTurn, openTurn } from '../../lib/stationTurns'
-import { CONFIG } from '../config'
-import CustomDynamoClient from '../utils/CustomDynamoClient'
 import { LambdaError } from './lambda'
-
-const { eventTable } = CONFIG
-const dynamoDB = new CustomDynamoClient(eventTable)
+import { readEvent, writeStationTurns } from './repositories/eventRepository'
 
 const PAUSES: readonly StationTurnPause[] = ['coffee', 'lunch', 'weather', 'other']
 const MARKS: readonly LiveMark[] = ['onRetrieve', 'gotRetrieve', 'noRetrieve', 'eyeWipe', 'firstDogDown']
@@ -168,26 +164,16 @@ export const saveStationTurns = async (
   turns: JsonStationTurn[],
   now: Date = new Date()
 ): Promise<void> => {
-  const condition = expected
-    ? { expression: '#turns = :expected', names: { '#turns': 'turns' }, values: { ':expected': expected } }
-    : { expression: 'attribute_not_exists(#turns)', names: { '#turns': 'turns' } }
-
   // `updatedAt` moves so an incremental fetch of the calendar carries the new timeline; `modifiedAt`
   // stays, because a turn is the day happening, not an edit to the event.
-  await dynamoDB.update(
-    { id: eventId },
-    { set: { turns, updatedAt: now.toISOString() } },
-    eventTable,
-    undefined,
-    condition
-  )
+  await writeStationTurns(eventId, expected, turns, now.toISOString())
 }
 
 const isConditionalCheckFailed = (error: unknown): boolean =>
   typeof error === 'object' && error !== null && (error as { name?: string }).name === 'ConditionalCheckFailedException'
 
 const readStoredTurns = async (eventId: string): Promise<JsonStationTurn[] | undefined> => {
-  const stored = await dynamoDB.read<JsonConfirmedEvent>({ id: eventId }, eventTable)
+  const stored = await readEvent<JsonConfirmedEvent>(eventId)
   return stored?.turns
 }
 

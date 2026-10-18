@@ -5,7 +5,7 @@ import { asJsonConfirmedEvent } from '../test-utils/helpers'
 
 const mockUpdateRegistrationField = vi.fn()
 const mockRemoveRegistrationField = vi.fn()
-const mockUpdate = vi.fn()
+const mockWriteEventFields = vi.fn()
 const mockAudit = vi.fn()
 
 vi.doMock('./registration', () => ({
@@ -16,10 +16,8 @@ vi.doMock('./audit', () => ({
   audit: mockAudit,
   registrationAuditKey: ({ eventId, id }: JsonRegistration) => `${eventId}:${id}`,
 }))
-vi.doMock('../utils/CustomDynamoClient', () => ({
-  default: vi.fn(function MockCustomDynamoClient() {
-    return { update: mockUpdate }
-  }),
+vi.doMock('./repositories/eventRepository', () => ({
+  writeEventFields: mockWriteEventFields,
 }))
 
 const { assignStartNumbers, freezeStartNumbers, setStartNumbersPublishedState } = await import('./startNumbers')
@@ -536,11 +534,9 @@ describe('startNumbers', () => {
           .startNumbersPublished
       ).toEqual(['2026-09-12'])
       // `updatedAt` moves so the change reaches a browser that already holds the event (KOE-1352).
-      expect(mockUpdate).toHaveBeenCalledWith(
-        { id: 'event-1' },
-        { set: { startNumbersPublished: ['2026-09-12'], updatedAt: '2026-09-11T09:00:00.000Z' } },
-        expect.anything()
-      )
+      expect(mockWriteEventFields).toHaveBeenCalledWith('event-1', {
+        set: { startNumbersPublished: ['2026-09-12'], updatedAt: '2026-09-11T09:00:00.000Z' },
+      })
     })
 
     it('flips the class entry in the map and writes it to the event', async () => {
@@ -557,11 +553,9 @@ describe('startNumbers', () => {
         startNumbersPublished: { ALO: true, AVO: false },
         updatedAt: '2026-09-11T09:00:00.000Z',
       })
-      expect(mockUpdate).toHaveBeenCalledWith(
-        { id: 'event-1' },
-        { set: { startNumbersPublished: { ALO: true, AVO: false }, updatedAt: '2026-09-11T09:00:00.000Z' } },
-        expect.anything()
-      )
+      expect(mockWriteEventFields).toHaveBeenCalledWith('event-1', {
+        set: { startNumbersPublished: { ALO: true, AVO: false }, updatedAt: '2026-09-11T09:00:00.000Z' },
+      })
     })
   })
 })

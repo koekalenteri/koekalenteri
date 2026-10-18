@@ -324,6 +324,15 @@ export const updateRegistrationField = async <F extends keyof JsonRegistration>(
     }
   )
 
+/** Sets and removes the fields of a registration's group move, with no condition. */
+export const writeRegistrationGroup = async (
+  eventId: JsonRegistration['eventId'],
+  id: JsonRegistration['id'],
+  changes: Parameters<CustomDynamoClient['update']>[1]
+) => {
+  await dynamoDB.update({ eventId, id }, changes, registrationTable)
+}
+
 /**
  * Records what sending a dog's result to Kennelliitto came to (KOE-1140). The write lands only on the
  * record it was made from: `previousAt` is the `at` of the `kcResult` that was read (none when there

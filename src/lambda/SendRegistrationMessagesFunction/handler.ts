@@ -1,6 +1,5 @@
 import type { JsonConfirmedEvent, JsonRegistration, RegistrationMessage } from '../../types'
 import { isRegistrationClass } from '../../lib/registration'
-import { CONFIG } from '../config'
 import { getOrigin } from '../lib/api-gw'
 import { audit } from '../lib/audit'
 import { authorizeWithMemberOf } from '../lib/auth'
@@ -18,11 +17,8 @@ import {
   sendTemplatedEmailToEventRegistrations,
   setReserveNotified,
 } from '../lib/registration'
+import { readEvent, writeEventFields } from '../lib/repositories/eventRepository'
 import { publishEventPatch, publishRegistrationPatches } from '../lib/ws/actions'
-import CustomDynamoClient from '../utils/CustomDynamoClient'
-
-const { eventTable, registrationTable } = CONFIG
-const dynamoDB = new CustomDynamoClient(registrationTable)
 
 const updatesParticipantState = (template: RegistrationMessage['template']) =>
   template === 'picked' || template === 'invitation'
@@ -56,7 +52,7 @@ const updateMessageState = async (
 ) => {
   if (template === 'invitation' && confirmedEvent.startListPublished === undefined) {
     confirmedEvent.startListPublished = false
-    await dynamoDB.update({ id: eventId }, { set: { startListPublished: false } }, eventTable)
+    await writeEventFields(eventId, { set: { startListPublished: false } })
   }
 
   if (template === 'reserve') {
@@ -100,7 +96,7 @@ const sendMessagesLambda = lambda('sendMessages', async (event) => {
   const message: RegistrationMessage = parseJSONWithFallback(event.body)
   const { template, eventId, contactInfo, registrationIds, text } = message
 
-  let confirmedEvent = await dynamoDB.read<JsonConfirmedEvent>({ id: eventId }, eventTable)
+  let confirmedEvent = await readEvent<JsonConfirmedEvent>(eventId)
 
   if (!confirmedEvent) {
     throw httpError(404, 'Event not found')

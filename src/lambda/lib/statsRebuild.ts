@@ -5,7 +5,7 @@
 // ORG# is excluded from the scheduled run on purpose: it is the one partition still maintained
 // incrementally on registration writes, and a delete-then-write pass over it would race those
 // writes. Every other partition has exactly one writer — this module — so rebuilding is safe.
-import type { EventState, JsonDogEvent, JsonRegistration } from '../../types'
+import type { EventState, JsonRegistration } from '../../types'
 import type {
   JsonBreedStartStatsItem,
   JsonCapacityStatsItem,
@@ -14,6 +14,7 @@ import type {
   JsonJudgeWorkloadItem,
   YearlyStatTypes,
 } from '../../types/Stats'
+import type { EventStatsEvent } from './repositories/eventRepository'
 import type { RegistrationStatsInput } from './stats'
 import { isEventOver, OFFICIAL_EVENT_TYPES, storedMonthKey, uniqueClasses } from '../../lib/event'
 import { getRegistrationClass, isMember, isStarter } from '../../lib/registration'
@@ -22,6 +23,7 @@ import { ALL_EVENT_TYPES_FOR_CAPACITY, ALL_ORGANIZERS_FOR_EVENTS, YEARLY_BREAKDO
 import { CONFIG } from '../config'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 import { logger } from './log'
+import { readEventsForStats } from './repositories/eventRepository'
 import {
   bucketForCount,
   eventStatsYear,
@@ -35,16 +37,6 @@ interface EventStatKey {
   PK: string
   SK: string
 }
-
-// `judges` is optional: the projection can return items without the attribute, and the judge
-// workload seeding already treats a missing list as empty.
-export type EventStatsEvent = Pick<
-  JsonDogEvent,
-  'classes' | 'endDate' | 'eventType' | 'id' | 'places' | 'startDate' | 'state'
-> &
-  Partial<Pick<JsonDogEvent, 'judges'>> & {
-    organizer: { id: string }
-  }
 
 /**
  * An event with what the registration loop needs of it resolved once rather than once per
@@ -82,8 +74,6 @@ const REGISTRATION_STATS_PROJECTION_NAMES = {
 }
 const REGISTRATION_STATS_PROJECTION =
   'eventId, id, cancelled, paidAmount, refundAmount, eventType, dog.regNo, dog.breedCode, #handler.email, #handler.membership, #owner.membership, owners, ownerHandles, #class, #group.#key'
-const EVENT_STATS_PROJECTION_NAMES = { '#state': 'state' }
-const EVENT_STATS_PROJECTION = 'id, organizer, startDate, endDate, eventType, classes, places, #state, judges'
 const PARTICIPATION_TYPES: YearlyStatTypes[] = ['eventType', 'dog', 'breed', 'handler', 'dog#handler', 'class', 'event']
 // Draft/tentative/cancelled events aren't real committed capacity, so they're excluded from
 // capacity, participation and the club breakdown (unlike the organizer stats, which count every
@@ -902,11 +892,7 @@ export function createHandler(partitions: StatsPartition[] = ALL_STATS_PARTITION
     logger.info('starting stats regeneration', { partitions })
 
     const [allEvents, registrations, allStatKeys] = await Promise.all([
-      dynamoDB.readAll<EventStatsEvent>({
-        names: EVENT_STATS_PROJECTION_NAMES,
-        projection: EVENT_STATS_PROJECTION,
-        table: CONFIG.eventTable,
-      }),
+      readEventsForStats(),
       dynamoDB.readAll<CapacityRegistrationInput>({
         names: REGISTRATION_STATS_PROJECTION_NAMES,
         projection: REGISTRATION_STATS_PROJECTION,
