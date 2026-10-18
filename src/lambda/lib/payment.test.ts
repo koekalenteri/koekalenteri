@@ -788,12 +788,20 @@ describe('payment', () => {
       ])
     })
 
-    it('still sends the entrant the picture when the admin audience cannot be read', async () => {
-      mockOrganizerAudience.mockRejectedValueOnce(new Error('connection table down'))
+    it.each([
+      ['the admin audience cannot be read', () => mockOrganizerAudience.mockRejectedValueOnce(new Error('down'))],
+      [
+        'the admin send fails',
+        () =>
+          mockToAdmins.mockImplementationOnce(() => {
+            throw new Error('gateway refused')
+          }),
+      ],
+    ])('still sends the entrant the picture when %s', async (_name, failAdmins) => {
+      failAdmins()
 
       await expect(publishCancelledRegistration(cancelled)).resolves.toBeUndefined()
 
-      expect(mockToAdmins).not.toHaveBeenCalled()
       expect(mockToEntrant).toHaveBeenCalledTimes(1)
       expect(loggedLines(errorSpy)).toEqual([
         expect.objectContaining({

@@ -568,8 +568,8 @@ export const participantResponse = async (
 
 /**
  * The participant's payment patch of a stored registration, with its picture built the same way. The
- * subscribe answer, `settleFailedTransaction`'s cancel patch and PaymentSuccess's patches are built
- * through this: a row whose open set was just emptied loads nothing, which is exactly its state
+ * subscribe answer, `publishCancelledRegistration`'s entrant patch and the stored patches every
+ * other sender publishes (`storedParticipantPaymentPatch`) are built through this: a row whose open set was just emptied loads nothing, which is exactly its state
  * (KOE-1529).
  */
 export const participantPaymentPatch = async (registration: JsonRegistration, event: JsonConfirmedEvent) =>

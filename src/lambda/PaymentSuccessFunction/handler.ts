@@ -24,6 +24,7 @@ import {
 } from '../lib/event'
 import { lambda, response } from '../lib/lambda'
 import { createDynamoLease } from '../lib/lease'
+import { logger } from '../lib/log'
 import {
   applySuccessfulPayment,
   parseParams,
@@ -350,7 +351,11 @@ const handleSuccessfulPayment = async (
     if (workflow.postPaymentProcessedAt) return true
 
     const confirmedEvent = await updateRegistrations(registration.eventId)
-    await publishEventCounts(confirmedEvent)
+    // An early look for the admins only: the strict publication in the last phase sends the counts
+    // again, so a failed push here must not hold the receipt and confirmation back (KOE-1566).
+    await publishEventCounts(confirmedEvent).catch((error: unknown) => {
+      logger.error('payment event counts push failed', { error, eventId, registrationId })
+    })
 
     // send receipt
     if (!workflow.receiptSentAt) {

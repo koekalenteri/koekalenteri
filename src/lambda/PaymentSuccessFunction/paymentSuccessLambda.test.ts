@@ -130,7 +130,7 @@ vi.doMock('../lib/email', () => ({
   sendTemplatedMail: mockSendTemplatedMail,
 }))
 
-const mockPublishEventCounts = vi.fn()
+const mockPublishEventCounts = vi.fn().mockResolvedValue(undefined)
 vi.doMock('../lib/ws/actions', async () => ({
   publishEventCounts: mockPublishEventCounts,
   publishParticipantRegistrationPatches: (
@@ -748,6 +748,43 @@ describe('paymentSuccessLambda', () => {
     expect(mockResponse).toHaveBeenCalledWith(200, undefined, event)
     expect(loggedLines(errorSpy)).toEqual([
       expect.objectContaining({ eventId: 'event123', message: 'participant patch failed', registrationId: 'reg456' }),
+    ])
+    errorSpy.mockRestore()
+  })
+
+  // The counts go out again with the strict publication in the last phase; the early push must not
+  // hold the receipt and confirmation back (KOE-1566).
+  it('sends the receipt and confirmation when the event counts cannot be pushed', async () => {
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined)
+    mockPublishEventCounts.mockRejectedValueOnce(new Error('connection table down'))
+
+    await paymentSuccessLambda(event)
+
+    expect(mockSendTemplatedMail).toHaveBeenCalledWith(
+      'receipt',
+      'fi',
+      expect.any(String),
+      ['test@example.com'],
+      expect.any(Object),
+      expect.any(Array)
+    )
+    expect(mockSendTemplatedMail).toHaveBeenCalledWith(
+      'registration',
+      'fi',
+      expect.any(String),
+      ['test@example.com'],
+      expect.any(Object),
+      expect.any(Array)
+    )
+    expect(mockPublishEventCounts).toHaveBeenCalledTimes(2)
+    expect(mockUpdate).toHaveBeenCalledWith(...phaseUpdate('postPaymentProcessedAt'))
+    expect(mockResponse).toHaveBeenCalledWith(200, undefined, event)
+    expect(loggedLines(errorSpy)).toEqual([
+      expect.objectContaining({
+        error: expect.objectContaining({ message: 'connection table down' }),
+        message: 'payment event counts push failed',
+        registrationId: 'reg456',
+      }),
     ])
     errorSpy.mockRestore()
   })
