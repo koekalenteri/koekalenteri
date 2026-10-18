@@ -1,6 +1,8 @@
 import { atom, useAtom, useAtomValue, useSetAtom } from 'jotai'
 import { useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useLocation } from 'react-router'
+import { HiddenPageTitle } from './components/HiddenPageTitle'
 import { EventFilter } from './searchPage/EventFilter'
 import { EventList } from './searchPage/EventList'
 import {
@@ -28,6 +30,7 @@ const searchResultsAtom = atom(
 )
 
 export function SearchPage() {
+  const { t } = useTranslation()
   const [filter, setFilter] = useAtom(eventFilterAtom)
   const setSpa = useSetAtom(spaAtom)
   const [organizers, activeJudges, activeEventTypes, activeEventClasses, events] = useAtomValue(searchResultsAtom)
@@ -45,6 +48,7 @@ export function SearchPage() {
   return (
     <>
       <DateHandler />
+      <HiddenPageTitle>{t('events')}</HiddenPageTitle>
       <EventFilter
         eventTypes={activeEventTypes}
         eventClasses={activeEventClasses}
