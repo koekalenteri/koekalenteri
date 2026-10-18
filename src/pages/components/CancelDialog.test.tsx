@@ -105,6 +105,27 @@ describe('CancelDialog', () => {
       unpaidRegistrationWithStaticDatesAndClass,
       true,
     ],
+    // A trial that is not confirmed reads the mark of a payment, even when it costs nothing.
+    [
+      'an unpaid entry in a free tentative trial',
+      { ...publicEventWithStaticDatesAndClass, cost: 0, costMember: 0, state: 'tentative' as const },
+      unpaidRegistrationWithStaticDatesAndClass,
+      true,
+    ],
+    // A confirmed trial reads the picture of the secretary's row (KOE-1552): a fee of nothing counts
+    // as paid for the place, a fee not paid does not.
+    [
+      'an unpaid entry in a free confirmed trial',
+      { ...publicEventWithStaticDatesAndClass, cost: 0, costMember: 0 },
+      unpaidRegistrationWithStaticDatesAndClass,
+      false,
+    ],
+    [
+      'an unpaid entry in a confirmed trial with a fee',
+      publicEventWithStaticDatesAndClass,
+      unpaidRegistrationWithStaticDatesAndClass,
+      true,
+    ],
   ])('offers the unpaid reason for %s: %s', async (_name, event, registration, offered) => {
     const { user } = renderWithUserEvents(<CancelDialog admin event={event} open registration={registration} />)
 
@@ -114,7 +135,9 @@ describe('CancelDialog', () => {
   })
 
   // KOE-1530: the participant's dialog takes whether the place is paid for from the server's picture,
-  // whatever the row beside it says; the secretary's row has none and is read as above.
+  // whatever the row beside it says; the secretary's row has none and is read as above. Each row's
+  // own fields say the opposite of its picture: an unpaid row with a paid place's picture, and a
+  // paid row with an unpaid place's (KOE-1552).
   it.each([
     ['a paid place', paymentPictureWith(), false],
     ['an unpaid place', paymentPictureWith({ paidForPlace: false, standing: false, status: 'unpaid' }), true],

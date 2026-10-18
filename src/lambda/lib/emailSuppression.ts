@@ -1,11 +1,8 @@
 import type { JsonEmailSuppression, JsonRegistration, Patch } from '../../types'
 import { getRegistrationOwners } from '../../lib/registration'
-import { CONFIG } from '../config'
-import CustomDynamoClient from '../utils/CustomDynamoClient'
 import { normalizeEmail } from './email'
 import { LambdaError } from './lambda'
-
-const dynamoDB = new CustomDynamoClient(CONFIG.emailSuppressionTable)
+import { readEmailSuppression } from './repositories/emailSuppressionRepository'
 
 const getRegistrationEmails = (registration: JsonRegistration) =>
   Array.from(
@@ -57,7 +54,7 @@ export const shouldClearRegistrationEmailDeliveryStatus = (
 }
 
 const findEmailSuppressions = async (emails: string[]) => {
-  const suppressions = await Promise.all(emails.map((email) => dynamoDB.read<JsonEmailSuppression>({ email })))
+  const suppressions = await Promise.all(emails.map((email) => readEmailSuppression(email)))
 
   return suppressions.filter((suppression): suppression is JsonEmailSuppression => !!suppression)
 }

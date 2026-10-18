@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react'
-import type { ParticipantPaymentRegistration } from '../../lib/payment'
+import type { PaymentPictureRow } from '../../lib/payment'
 import type { MinimalEventForCost, PublicDogEvent } from '../../types'
 import Box from '@mui/material/Box'
 import Divider from '@mui/material/Divider'
@@ -8,7 +8,7 @@ import { useAtomValue } from 'jotai'
 import { useTranslation } from 'react-i18next'
 import { getCostSegmentName, hasDifferentMemberPrice } from '../../lib/cost'
 import { formatMoney } from '../../lib/money'
-import { getRegistrationPaymentDetails, getShownPaymentDue } from '../../lib/payment'
+import { getRegistrationPaymentDetails, getRowPaymentPicture } from '../../lib/payment'
 import { languageAtom } from '../state'
 import InfoTableContainerGrid from './InfoTableContainerGrid'
 import InfoTableNumberGrid from './InfoTableNumberGrid'
@@ -17,7 +17,7 @@ import InfoTableTextGrid from './InfoTableTextGrid'
 interface Props {
   /** The trial as the page holds it: what is to pay shows only once it is confirmed (KOE-1526). */
   readonly event: PublicDogEvent & MinimalEventForCost
-  readonly registration: ParticipantPaymentRegistration
+  readonly registration: PaymentPictureRow
   readonly includePayable?: boolean
   readonly includeTotal?: boolean
 }
@@ -49,12 +49,10 @@ export const PaymentDetails = ({ event, registration, includePayable, includeTot
   const language = useAtomValue(languageAtom)
   const details = getRegistrationPaymentDetails(event, registration)
   const costSegmentName = getCostSegmentName(details.strategy)
-  // The server's picture says what was paid and what went back; the shared form and the secretary's
-  // refund dialog hold rows without one and read the amounts themselves, until they take it too.
-  const { payment } = registration
-  const paidAmount = payment ? payment.paidAmount : (registration.paidAmount ?? 0)
-  const refundAmount = payment ? payment.refundedAmount : (registration.refundAmount ?? 0)
-  const refundHandlingCost = payment ? payment.keptFee : (registration.refundHandlingCost ?? 0)
+  // What was paid, what went back and what is to pay: the server's picture for the participant, the
+  // row's own for the shared form and the secretary's refund dialog (KOE-1552).
+  const payment = getRowPaymentPicture(event, registration)
+  const { keptFee: refundHandlingCost, paidAmount, refundedAmount: refundAmount } = payment
 
   // Only show "for members" when the member price actually differs from base price. It says that
   // about the participation fee alone: an optional service has no member price of its own to compare.
@@ -100,11 +98,7 @@ export const PaymentDetails = ({ event, registration, includePayable, includeTot
         ) : null}
         {includePayable ? (
           // What the payment link collects: a reserve's refunded fee is not asked for again (KOE-1526).
-          <PaymentRow
-            bold
-            name={t('registration.toBePaid')}
-            amount={payment ? payment.due : getShownPaymentDue(event, registration)}
-          />
+          <PaymentRow bold name={t('registration.toBePaid')} amount={payment.due} />
         ) : null}
       </InfoTableContainerGrid>
     </Box>

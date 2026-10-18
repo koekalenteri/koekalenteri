@@ -17,8 +17,8 @@ const mockResponse = vi.fn()
 const mockAuthorize = vi.fn()
 const mockGetUsername = vi.fn()
 const mockMarkdownToTemplate = vi.fn()
-const mockRead = vi.fn()
-const mockWrite = vi.fn()
+const mockReadEmailTemplate = vi.fn()
+const mockWriteEmailTemplate = vi.fn()
 const mockSend = vi.fn()
 
 vi.doMock('../lib/lambda', async () => ({
@@ -42,13 +42,9 @@ vi.doMock('../utils/email/markdown', () => ({
   markdownToTemplate: mockMarkdownToTemplate,
 }))
 
-vi.doMock('../utils/CustomDynamoClient', () => ({
-  default: vi.fn(function MockCustomDynamoClient() {
-    return {
-      read: mockRead,
-      write: mockWrite,
-    }
-  }),
+vi.doMock('../lib/repositories/emailTemplateRepository', () => ({
+  readEmailTemplate: mockReadEmailTemplate,
+  writeEmailTemplate: mockWriteEmailTemplate,
 }))
 
 // Mock AWS SES client
@@ -86,7 +82,6 @@ vi.doMock('@aws-sdk/client-ses', () => {
   // Mock CONFIG
   vi.doMock('../config', () => ({
     CONFIG: {
-      emailTemplateTable: 'email-template-table',
       stackName: 'stack-name',
     },
   }))
@@ -159,7 +154,7 @@ describe('putEmailTemplateLambda', () => {
       name: 'Test Template',
     })
 
-    mockRead.mockResolvedValue(null) // No existing template by default
+    mockReadEmailTemplate.mockResolvedValue(null) // No existing template by default
 
     mockMarkdownToTemplate.mockImplementation((templateName: string, _source: string) => {
       return Promise.resolve({
@@ -171,7 +166,7 @@ describe('putEmailTemplateLambda', () => {
     })
 
     mockSend.mockResolvedValue({})
-    mockWrite.mockResolvedValue(undefined)
+    mockWriteEmailTemplate.mockResolvedValue(undefined)
   })
 
   it('returns 403 if user is not an admin', async () => {
@@ -185,10 +180,10 @@ describe('putEmailTemplateLambda', () => {
 
     expect(mockAuthorize).toHaveBeenCalledWith(event)
     expect(mockResponse).toHaveBeenCalledWith(403, 'Forbidden', event)
-    expect(mockRead).not.toHaveBeenCalled()
+    expect(mockReadEmailTemplate).not.toHaveBeenCalled()
     expect(mockMarkdownToTemplate).not.toHaveBeenCalled()
     expect(mockSend).not.toHaveBeenCalled()
-    expect(mockWrite).not.toHaveBeenCalled()
+    expect(mockWriteEmailTemplate).not.toHaveBeenCalled()
   })
 
   it('creates a new email template successfully', async () => {
@@ -214,7 +209,7 @@ describe('putEmailTemplateLambda', () => {
     expect(mockGetUsername).toHaveBeenCalledWith(event)
 
     // Check if existing template was queried
-    expect(mockRead).toHaveBeenCalledWith({ id: 'test-template' })
+    expect(mockReadEmailTemplate).toHaveBeenCalledWith('test-template')
 
     // Check if markdown was converted to templates
     expect(mockMarkdownToTemplate).toHaveBeenCalledTimes(2)
@@ -232,7 +227,7 @@ describe('putEmailTemplateLambda', () => {
     expect(mockSend).toHaveBeenCalledTimes(2)
 
     // Check if data was written to DynamoDB
-    expect(mockWrite).toHaveBeenCalledWith(
+    expect(mockWriteEmailTemplate).toHaveBeenCalledWith(
       expect.objectContaining({
         en: '# English Template\n\nThis is a test template in English.',
         fi: '# Finnish Template\n\nThis is a test template in Finnish.',
@@ -264,7 +259,7 @@ describe('putEmailTemplateLambda', () => {
       name: 'Old Template Name',
     }
 
-    mockRead.mockResolvedValueOnce(existingTemplate)
+    mockReadEmailTemplate.mockResolvedValueOnce(existingTemplate)
 
     const fiTemplate = {
       HtmlPart: '<h1>Test HTML content</h1>',
@@ -285,10 +280,10 @@ describe('putEmailTemplateLambda', () => {
     await putEmailTemplateLambda(event)
 
     // Check if existing template was queried
-    expect(mockRead).toHaveBeenCalledWith({ id: 'test-template' })
+    expect(mockReadEmailTemplate).toHaveBeenCalledWith('test-template')
 
     // Check if data was written to DynamoDB with merged properties
-    expect(mockWrite).toHaveBeenCalledWith(
+    expect(mockWriteEmailTemplate).toHaveBeenCalledWith(
       expect.objectContaining({
         createdAt: '2022-01-01T00:00:00.000Z', // Preserved from existing
         createdBy: 'Previous Admin', // Preserved from existing
@@ -329,7 +324,7 @@ describe('putEmailTemplateLambda', () => {
     expect(mockSend).toHaveBeenCalled()
 
     // Check if data was written to DynamoDB
-    expect(mockWrite).toHaveBeenCalledWith(expect.any(Object))
+    expect(mockWriteEmailTemplate).toHaveBeenCalledWith(expect.any(Object))
 
     // Check if response was returned
     expect(mockResponse).toHaveBeenCalledWith(200, expect.any(Object), event)
@@ -345,7 +340,7 @@ describe('putEmailTemplateLambda', () => {
     expect(mockSend).toHaveBeenCalledTimes(1)
 
     // Check if data was not written to DynamoDB
-    expect(mockWrite).not.toHaveBeenCalled()
+    expect(mockWriteEmailTemplate).not.toHaveBeenCalled()
 
     // Check if error was logged
     expect(loggedLines(errorSpy)).toContainEqual(
@@ -375,7 +370,7 @@ describe('putEmailTemplateLambda', () => {
     expect(mockSend).toHaveBeenCalledTimes(2)
 
     // Check if data was not written to DynamoDB
-    expect(mockWrite).not.toHaveBeenCalled()
+    expect(mockWriteEmailTemplate).not.toHaveBeenCalled()
 
     // The error might be logged differently or not at all depending on the implementation
     // Just check that console.error was called
@@ -400,7 +395,7 @@ describe('putEmailTemplateLambda', () => {
       )
       expect(mockMarkdownToTemplate).not.toHaveBeenCalled()
       expect(mockSend).not.toHaveBeenCalled()
-      expect(mockWrite).not.toHaveBeenCalled()
+      expect(mockWriteEmailTemplate).not.toHaveBeenCalled()
       expect(errorSpy).not.toHaveBeenCalled()
     })
 
@@ -421,7 +416,7 @@ describe('putEmailTemplateLambda', () => {
         event
       )
       expect(mockSend).toHaveBeenCalledTimes(1)
-      expect(mockWrite).not.toHaveBeenCalled()
+      expect(mockWriteEmailTemplate).not.toHaveBeenCalled()
       expect(errorSpy).not.toHaveBeenCalled()
     })
 
@@ -449,7 +444,7 @@ describe('putEmailTemplateLambda', () => {
         { language: 'fi', message: '#if requires exactly one argument' },
         event
       )
-      expect(mockWrite).not.toHaveBeenCalled()
+      expect(mockWriteEmailTemplate).not.toHaveBeenCalled()
     })
 
     it('answers 400 for the English template too, after the Finnish one went through', async () => {
@@ -468,13 +463,13 @@ describe('putEmailTemplateLambda', () => {
         event
       )
       expect(mockSend).toHaveBeenCalledTimes(2)
-      expect(mockWrite).not.toHaveBeenCalled()
+      expect(mockWriteEmailTemplate).not.toHaveBeenCalled()
     })
   })
 
   it('throws an error if DynamoDB write fails', async () => {
     const error = new Error('DynamoDB write error')
-    mockWrite.mockRejectedValueOnce(error)
+    mockWriteEmailTemplate.mockRejectedValueOnce(error)
 
     await expect(putEmailTemplateLambda(event)).rejects.toThrow('DynamoDB write error')
 
@@ -482,7 +477,7 @@ describe('putEmailTemplateLambda', () => {
     expect(mockSend).toHaveBeenCalledTimes(2)
 
     // Check if write was attempted
-    expect(mockWrite).toHaveBeenCalledTimes(1)
+    expect(mockWriteEmailTemplate).toHaveBeenCalledTimes(1)
 
     // Check if response was not returned
     expect(mockResponse).not.toHaveBeenCalled()
@@ -501,6 +496,6 @@ describe('putEmailTemplateLambda', () => {
     expect(mockSend).not.toHaveBeenCalled()
 
     // Check if data was not written to DynamoDB
-    expect(mockWrite).not.toHaveBeenCalled()
+    expect(mockWriteEmailTemplate).not.toHaveBeenCalled()
   })
 })

@@ -31,6 +31,7 @@ import type { AuditActor } from './audit'
 import { nanoid } from 'nanoid'
 import { emptyBreeder, emptyDog, emptyPerson } from './data'
 import {
+  getEventStateForClass,
   groupKeyOf,
   hasSharedReserveList,
   isEntryClosed,
@@ -636,7 +637,7 @@ export const getSelectedAdditionalCosts = (
   return registration.optionalCosts?.map((n) => cost.optionalAdditionalCosts?.[n]).filter(isDefined) ?? []
 }
 
-export type InvitationAttachmentEvent = Partial<
+type InvitationAttachmentEvent = Partial<
   Pick<
     ConfirmedEvent | JsonConfirmedEvent,
     'entryEndDate' | 'invitationAttachment' | 'invitationAttachments' | 'startDate'
@@ -752,6 +753,50 @@ export const getParticipantMessageInfo = <T extends InvitationAttachmentRegistra
     templateId: 'invitation',
   }
 }
+
+type InvitationPaymentEvent = InvitationAttachmentEvent & Parameters<typeof getEventStateForClass>[0]
+
+type InvitationPaymentRegistration = InvitationAttachmentRegistration &
+  RegistrationPlacement &
+  Pick<JsonRegistration | Registration, 'cancelled'>
+
+/** Whether the place has been paid for, as the entry's payment picture says (`getPaymentPicture`). */
+type PaidForPlace = Pick<PaymentPicture, 'paidForPlace'>
+
+/**
+ * Whether the koekutsu round has been sent for this registration: its own class is invited, or the
+ * trial as a whole is. Both are what the group move reads when it decides to invite a dog it lifts.
+ */
+const isInvitedRound = (event: InvitationPaymentEvent, registration: InvitationPaymentRegistration): boolean =>
+  event.state === 'invited' || getEventStateForClass(event, getRegistrationClass(registration)) === 'invited'
+
+/**
+ * Whether this participant is still owed the koekutsu of a round that has already gone out: the
+ * dog lifted from the reserve list after the others were invited.
+ */
+const isInvitationDue = (event: InvitationPaymentEvent, registration: InvitationPaymentRegistration): boolean =>
+  isStarter(registration) &&
+  isInvitedRound(event, registration) &&
+  shouldSendInvitationToRegistration(event, registration)
+
+/**
+ * The koekutsu that the automatic send held back until the place is paid for (KOE-1191). The
+ * secretary can still send it by hand; this only says what the trial is waiting for. Whether the
+ * place is paid for is the payment picture's, worked out by the caller from the same row, so the
+ * secretary's views and the group move read one rule (KOE-1552).
+ */
+export const isInvitationAwaitingPayment = (
+  event: InvitationPaymentEvent,
+  registration: InvitationPaymentRegistration,
+  payment: PaidForPlace
+): boolean => isInvitationDue(event, registration) && !payment.paidForPlace
+
+/** The same koekutsu once the money is in: what the group move and the payment callback send. */
+export const shouldSendInvitationAfterPayment = (
+  event: InvitationPaymentEvent,
+  registration: InvitationPaymentRegistration,
+  payment: PaidForPlace
+): boolean => isInvitationDue(event, registration) && payment.paidForPlace
 
 interface RegistrationEmailTemplateOptions {
   previousGroup?: JsonRegistrationGroup

@@ -261,6 +261,29 @@ describe('RegistrationForm', () => {
     expect(screen.getByText(/registration\.paymentToBePaid/)).toHaveTextContent('7,00')
   })
 
+  // KOE-1552: the participant's row carries the saved row's picture, but the line reads the row being
+  // edited, so a service chosen before paying adds to what is owed at once (KOE-722).
+  it("shows what an added service leaves to pay on a row that carries the server's picture", async () => {
+    const event = {
+      ...eventWithStaticDates,
+      cost: { normal: 123, optionalAdditionalCosts: [{ cost: 15, description: { fi: 'Ruoka' } }] },
+    }
+    const { group: _group, ...participantRow } = unpaidRegistrationWithStaticDates
+    const saved = {
+      ...participantRow,
+      optionalCosts: [],
+      payment: paymentPictureWith({ due: 123, standing: false, status: 'unpaid' }),
+    }
+    const { rerender } = render(<RegistrationForm event={event} registration={saved} />, { wrapper: Wrapper })
+    await flushPromises()
+    expect(screen.getByText(/registration\.paymentToBePaid/)).toHaveTextContent('123,00')
+
+    rerender(<RegistrationForm event={event} registration={{ ...saved, optionalCosts: [0] }} />)
+    await flushPromises()
+
+    expect(screen.getByText(/registration\.paymentToBePaid/)).toHaveTextContent('138,00')
+  })
+
   // KOE-1526, KOE-1530: at confirmation-time payment the line follows the pay offer. The participant's
   // row has no group, so the server's picture says it: waiting for a place when paying is not offered
   // and no payment is held; the picture is the saved row's, as the server's answer was before it.

@@ -296,6 +296,10 @@ describe('copyEventHandler', () => {
       name: 'Original Event',
       placesPerDay: { [source.days[0]]: 10, [source.days[1]]: 15, 'not-a-day': 3 },
       startDate: source.startDate,
+      stations: [
+        { date: source.startDate, id: 'post-1', number: 1, tasks: 1 },
+        { date: source.endDate, id: 'post-2', number: 1, tasks: 1 },
+      ],
     })
     mockNanoid.mockReturnValueOnce('newid123')
     mockQuery.mockResolvedValueOnce([
@@ -322,6 +326,11 @@ describe('copyEventHandler', () => {
         // The places per day move with their days; a key that is not a day has no day to move to.
         placesPerDay: { [expected.days[0]]: 10, [expected.days[1]]: 15 },
         startDate: expected.startDate,
+        // Each post moves to the copy's day that corresponds to its own (KOE-1563).
+        stations: [
+          { date: expected.startDate, id: 'post-1', number: 1, tasks: 1 },
+          { date: expected.endDate, id: 'post-2', number: 1, tasks: 1 },
+        ],
       })
     )
     expect(mockBatchWrite).toHaveBeenCalledWith(

@@ -14,8 +14,8 @@ import Typography from '@mui/material/Typography'
 import { Fragment } from 'react'
 import { useTranslation } from 'react-i18next'
 import { invitationAttachmentFileName } from '@/lib/fileName'
-import { isInvitationAwaitingPayment } from '@/lib/payment'
-import { getInvitationRecipients, isRegistrationClass } from '@/lib/registration'
+import { getPaymentPicture } from '@/lib/payment'
+import { getInvitationRecipients, isInvitationAwaitingPayment, isRegistrationClass } from '@/lib/registration'
 import { Path } from '@/routeConfig'
 import { useOpenEventViewDialog } from '../../state'
 import { sectionSx } from './styles'
@@ -172,7 +172,11 @@ const InvitationDelivery = ({
               // Those the automatic send held back until the fee arrives (KOE-1191): they are still
               // recipients, since the secretary may invite them by hand.
               const awaitingPayment = selected.filter((registration) =>
-                isInvitationAwaitingPayment(eventWithCurrentAttachments, registration)
+                isInvitationAwaitingPayment(
+                  eventWithCurrentAttachments,
+                  registration,
+                  getPaymentPicture(eventWithCurrentAttachments, registration, [])
+                )
               )
               const invitationsSent = selected.length > 0 && recipients.length === 0
               const classState = stateByClass[className] ?? event.state

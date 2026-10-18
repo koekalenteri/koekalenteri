@@ -4,11 +4,10 @@ import { vi } from 'vitest'
 const mockAudit = vi.fn()
 const mockRegistrationAuditKey = vi.fn()
 const mockDynamoUpdate = vi.fn()
-const mockDynamoWrite = vi.fn()
+const mockWriteEmailSuppression = vi.fn()
 const mockDynamoClient = vi.fn(function MockCustomDynamoClient() {
   return {
     update: mockDynamoUpdate,
-    write: mockDynamoWrite,
   }
 })
 const mockGetEvent = vi.fn()
@@ -21,6 +20,10 @@ vi.doMock('../lib/audit', () => ({
 
 vi.doMock('../utils/CustomDynamoClient', () => ({
   default: mockDynamoClient,
+}))
+
+vi.doMock('../lib/repositories/emailSuppressionRepository', () => ({
+  writeEmailSuppression: mockWriteEmailSuppression,
 }))
 
 vi.doMock('../lib/event', () => ({
@@ -119,7 +122,7 @@ describe('sesNotificationLambda', () => {
       ],
       'org-1'
     )
-    expect(mockDynamoWrite).toHaveBeenCalledWith({
+    expect(mockWriteEmailSuppression).toHaveBeenCalledWith({
       email: 'handler@example.com',
       eventId: 'event123',
       reason: 'smtp; 550 5.1.1 user unknown',
@@ -187,7 +190,7 @@ describe('sesNotificationLambda', () => {
       undefined,
       registrationExists
     )
-    expect(mockDynamoWrite).toHaveBeenCalledWith({
+    expect(mockWriteEmailSuppression).toHaveBeenCalledWith({
       email: 'owner@example.com',
       eventId: 'event123',
       reason: 'abuse',
@@ -217,7 +220,7 @@ describe('sesNotificationLambda', () => {
     )
 
     expect(mockDynamoUpdate).not.toHaveBeenCalled()
-    expect(mockDynamoWrite).not.toHaveBeenCalled()
+    expect(mockWriteEmailSuppression).not.toHaveBeenCalled()
     expect(mockAudit).not.toHaveBeenCalled()
   })
 
@@ -228,7 +231,7 @@ describe('sesNotificationLambda', () => {
     )
 
     expect(mockDynamoUpdate).not.toHaveBeenCalled()
-    expect(mockDynamoWrite).not.toHaveBeenCalled()
+    expect(mockWriteEmailSuppression).not.toHaveBeenCalled()
     expect(mockPublishRegistrationPatches).not.toHaveBeenCalled()
     expect(mockAudit).not.toHaveBeenCalled()
   })
@@ -237,7 +240,7 @@ describe('sesNotificationLambda', () => {
     await sesNotificationLambda(bounceFor({ eventId: ['event123'], registrationId: ['reg456'], stack: ['local'] }))
 
     expect(mockDynamoUpdate).toHaveBeenCalledTimes(1)
-    expect(mockDynamoWrite).toHaveBeenCalledTimes(1)
+    expect(mockWriteEmailSuppression).toHaveBeenCalledTimes(1)
     expect(mockAudit).toHaveBeenCalledTimes(1)
   })
 
@@ -255,7 +258,7 @@ describe('sesNotificationLambda', () => {
       undefined,
       registrationExists
     )
-    expect(mockDynamoWrite).not.toHaveBeenCalled()
+    expect(mockWriteEmailSuppression).not.toHaveBeenCalled()
     expect(mockGetEvent).not.toHaveBeenCalled()
     expect(mockPublishRegistrationPatches).not.toHaveBeenCalled()
     expect(mockAudit).not.toHaveBeenCalled()
@@ -267,6 +270,6 @@ describe('sesNotificationLambda', () => {
     await expect(
       sesNotificationLambda(bounceFor({ eventId: ['event123'], registrationId: ['reg456'] }))
     ).rejects.toThrow('throttled')
-    expect(mockDynamoWrite).not.toHaveBeenCalled()
+    expect(mockWriteEmailSuppression).not.toHaveBeenCalled()
   })
 })

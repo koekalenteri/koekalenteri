@@ -1494,6 +1494,10 @@ export const copyDogEvent = (event: DogEvent, now = new Date()): DogEvent => {
   copy.dates?.forEach((d) => {
     d.date = moved(d.date)
   })
+  // The posts move with their days (KOE-1563).
+  copy.stations?.forEach((station) => {
+    station.date = moved(station.date)
+  })
 
   if (event.placesPerDay) copy.placesPerDay = shiftPlacesPerDay(event.placesPerDay, shift)
 
