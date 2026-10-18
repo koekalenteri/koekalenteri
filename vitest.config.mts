@@ -4,23 +4,8 @@ import { configDefaults, defineConfig } from 'vitest/config'
 import { a11yRatchet } from './scripts/a11yRatchet.mjs'
 import { platformFonts } from './scripts/platformFonts.mjs'
 import { resetMouse } from './scripts/resetMouse.mjs'
-import { DurationReporter, DurationSequencer } from './scripts/vitestShards.mjs'
 
 const backendProject = process.argv.includes('--project=backend')
-
-// CI's frontend-test shards record how long each file took, for the next run's split. Naming any
-// reporter drops Vitest's defaults, so they are named too; github-actions is the one that turns a
-// failure into an annotation.
-const durationsFile = process.env.VITEST_DURATIONS_OUT
-const reporters = durationsFile
-  ? {
-      reporters: [
-        'default',
-        ...(process.env.GITHUB_ACTIONS === 'true' ? ['github-actions'] : []),
-        new DurationReporter(durationsFile),
-      ],
-    }
-  : {}
 
 const coverage: { provider: 'v8' } & CoverageV8Options = {
   provider: 'v8',
@@ -53,8 +38,6 @@ export default defineConfig({
     passWithNoTests: true,
     testTimeout: 10_000,
     coverage,
-    ...reporters,
-    sequence: { sequencer: DurationSequencer },
     projects: [
       {
         test: {
