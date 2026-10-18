@@ -398,6 +398,72 @@ describe('copyEventHandler', () => {
     expect(mockSaveEvent).toHaveBeenCalledWith(expect.not.objectContaining({ kcId: expect.anything() }))
   })
 
+  const copyInvitedEvent = async () => {
+    mockAuthorize.mockResolvedValueOnce({ name: 'Test User' })
+    setEventBody(event, { id: 'event123', startDate: '2025-07-01T00:00:00.000Z' })
+    mockGetEvent.mockResolvedValueOnce({
+      classes: [],
+      endDate: '2025-06-12T00:00:00.000Z',
+      id: 'event123',
+      invitationAttachment: 'general-key',
+      invitationAttachmentHistory: {
+        'class-key': { className: 'ALO', uploadedAt: '2025-06-01T00:00:00.000Z' },
+        'general-key': { uploadedAt: '2025-06-01T00:00:00.000Z' },
+      },
+      invitationAttachments: { ALO: 'class-key' },
+      name: 'Original Event',
+      startDate: '2025-06-10T00:00:00.000Z',
+    })
+    mockNanoid.mockReturnValueOnce('newid123')
+    mockQuery.mockResolvedValueOnce([
+      {
+        class: 'ALO',
+        dates: [{ date: '2025-06-10T00:00:00.000Z' }],
+        eventId: 'event123',
+        eventType: 'NOU',
+        id: 'registration123',
+        // Invited to the source and read its class attachment: the copy has sent no invitation yet.
+        invitationAttachmentRead: 'class-key',
+        invitationAttachmentSent: 'class-key',
+        invitationRead: true,
+        messagesSent: { invitation: true, registration: true },
+      },
+    ])
+
+    await copyEventHandler(event)
+  }
+
+  it("does not carry the source's invitation attachments into the copy (KOE-1564)", async () => {
+    await copyInvitedEvent()
+
+    expect(mockSaveEvent).toHaveBeenCalledWith(expect.not.objectContaining({ invitationAttachment: expect.anything() }))
+    expect(mockSaveEvent).toHaveBeenCalledWith(
+      expect.not.objectContaining({ invitationAttachments: expect.anything() })
+    )
+    expect(mockSaveEvent).toHaveBeenCalledWith(
+      expect.not.objectContaining({ invitationAttachmentHistory: expect.anything() })
+    )
+  })
+
+  it("does not carry a registration's invitation to the source into the copy (KOE-1564)", async () => {
+    await copyInvitedEvent()
+
+    // Other messages the entry got stay recorded; only the invitation is the copy's to send.
+    expect(mockBatchWrite).toHaveBeenCalledWith(
+      [
+        {
+          class: 'ALO',
+          dates: [{ date: '2025-07-01T00:00:00.000Z' }],
+          eventId: 'newid123',
+          eventType: 'NOU',
+          id: 'registration123',
+          messagesSent: { registration: true },
+        },
+      ],
+      'registration-table-not-found-in-env'
+    )
+  })
+
   it('does not copy registration idempotency credentials, post-processing state or event outcomes', async () => {
     const user = { name: 'Test User' }
     mockAuthorize.mockResolvedValueOnce(user)

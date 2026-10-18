@@ -5,9 +5,10 @@ import {
   getEventSeason,
   isEventDateString,
   shiftPlacesPerDay,
+  stripInvitationAttachments,
   stripKennelliittoLink,
 } from '../../lib/event'
-import { getRegistrationGroupKey, isStarter } from '../../lib/registration'
+import { clearInvitationState, getRegistrationGroupKey, isStarter } from '../../lib/registration'
 import { saveEvent } from '../lib/event'
 import { authorizeEvent } from '../lib/eventAuth'
 import { removeEventRuntimeState } from '../lib/eventCopy'
@@ -35,6 +36,8 @@ const copyEventLambda = lambda('copyEvent', async (event) => {
   // The link to a Kennelliitto trial belongs to the event it was made for (KOE-1534): a second event
   // with the same GUID would send its results to the original's trial.
   stripKennelliittoLink(item)
+  // The invitation attachments were written for the source's dates and instructions (KOE-1564).
+  stripInvitationAttachments(item)
   item.id = nanoid(10)
   item.name = `Kopio - ${item.name ?? ''}`
   item.state = 'draft'
@@ -86,6 +89,8 @@ const copyEventLambda = lambda('copyEvent', async (event) => {
     delete reg.startGroup
     delete reg.eventResult
     delete reg.kcResult
+    // The entry was invited to the source event; the copy's secretary sends the copy's invitation.
+    clearInvitationState(reg)
     reg.dates.forEach((d) => {
       d.date = shift(d.date)
     })
