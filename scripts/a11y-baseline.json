@@ -1,8 +1,5 @@
 {
   "src/pages/SearchPage.visual.test.tsx": {
-    "debug-article0": {
-      "nested-interactive": 1
-    },
     "search-page-empty-desktop": {
       "nested-interactive": 1
     },
