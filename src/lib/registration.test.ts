@@ -8,7 +8,7 @@ import type {
   Registration,
   RegistrationClass,
 } from '../types'
-import type { SortableRegistration } from './registration'
+import type { InvitationAttachmentRegistration, SortableRegistration } from './registration'
 import i18n from 'i18next'
 import { eventWithStaticDates } from '../__mockData__/events'
 import { registrationWithStaticDates } from '../__mockData__/registrations'
@@ -16,6 +16,7 @@ import { getPaymentPicture } from './payment'
 import { PRIORITY_INVITED, PRIORITY_MEMBER, PRIORIZED_BREED_CODES } from './priority'
 import {
   canRefund,
+  clearInvitationState,
   compareRegistrationClasses,
   createRegistrationDraft,
   GROUP_KEY_CANCELLED,
@@ -1221,6 +1222,39 @@ describe('lib/registration', () => {
       ],
     ] as const)('derives invitation read status from attachment receipts', (registration, expected) => {
       expect(getInvitationReadStatus(registration)).toBe(expected)
+    })
+  })
+
+  describe('clearInvitationState (KOE-1564)', () => {
+    const event = { invitationAttachments: { ALO: 'copy-key' } }
+
+    it('forgets the invitation and its reading, keeps the other messages, and leaves the entry to be invited', () => {
+      const registration: InvitationAttachmentRegistration = {
+        class: 'ALO',
+        eventType: 'NOU',
+        invitationAttachmentRead: 'source-key',
+        invitationAttachmentSent: 'source-key',
+        invitationRead: true,
+        messagesSent: { invitation: true, picked: true },
+      }
+
+      expect(clearInvitationState(registration)).toEqual({
+        class: 'ALO',
+        eventType: 'NOU',
+        messagesSent: { picked: true },
+      })
+      expect(getInvitationReadStatus(registration)).toBe('not-sent')
+      expect(shouldSendInvitationToRegistration(event, registration)).toBe(true)
+      expect(getSentInvitationAttachment(event, registration)).toBe('copy-key')
+    })
+
+    it('leaves a registration that was never invited as it is', () => {
+      const registration: InvitationAttachmentRegistration = {
+        class: 'ALO',
+        eventType: 'NOU',
+      }
+
+      expect(clearInvitationState(registration)).toEqual({ class: 'ALO', eventType: 'NOU' })
     })
   })
 

@@ -650,12 +650,27 @@ export type InvitationAttachmentRegistration = Pick<
 
 type InvitationReadStatus = 'not-sent' | 'unread' | 'read-latest' | 'read-previous'
 
-export const getInvitationReadStatus = (
-  registration: Pick<
-    JsonRegistration | Registration,
-    'invitationAttachmentRead' | 'invitationAttachmentSent' | 'invitationRead' | 'messagesSent'
-  >
-): InvitationReadStatus => {
+/** What a registration records about the invitation sent to it and its reading. */
+type InvitationState = Pick<
+  JsonRegistration | Registration,
+  'invitationAttachmentRead' | 'invitationAttachmentSent' | 'invitationRead' | 'messagesSent'
+>
+
+/**
+ * Removes the record of an invitation: that it was sent, which attachment went with it and what the
+ * participant read. A registration copied into another event was invited to the source event, whose
+ * attachment the copy does not share (KOE-1564); the copy's secretary sends its own invitation. The
+ * other messages the registration got stay recorded.
+ */
+export const clearInvitationState = <T extends InvitationState>(registration: T): T => {
+  delete registration.invitationAttachmentRead
+  delete registration.invitationAttachmentSent
+  delete registration.invitationRead
+  delete registration.messagesSent?.invitation
+  return registration
+}
+
+export const getInvitationReadStatus = (registration: InvitationState): InvitationReadStatus => {
   if (!registration.messagesSent?.invitation && !registration.invitationAttachmentSent) {
     return registration.invitationRead ? 'read-latest' : 'not-sent'
   }

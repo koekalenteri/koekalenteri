@@ -54,6 +54,7 @@ import {
   hasMockTrialChoice,
   hasRetrieveTypeChoice,
   hasSharedReserveList,
+  INVITATION_ATTACHMENT_FIELDS,
   isDetaultEntryEndDate,
   isDetaultEntryStartDate,
   isEntryClosing,
@@ -91,6 +92,7 @@ import {
   startNumbersSlotKey,
   storedDayKey,
   storedMonthKey,
+  stripInvitationAttachments,
   stripKennelliittoLink,
   withResultsDay,
 } from './event'
@@ -1161,6 +1163,22 @@ describe('lib/event', () => {
       expect(copy.kcEvent).toBeUndefined()
       expect(copy.kcId).toBeUndefined()
     })
+    it("should not carry the source event's invitation attachments (KOE-1564)", () => {
+      // The attachment was written for the source's dates and instructions; the copy's secretary
+      // uploads its own.
+      const copy = copyNow({
+        ...eventWithParticipantsInvited,
+        invitationAttachment: 'general-key',
+        invitationAttachmentHistory: {
+          'class-key': { className: 'ALO', uploadedAt: now },
+          'general-key': { uploadedAt: now },
+        },
+        invitationAttachments: { ALO: 'class-key' },
+      })
+      expect(copy.invitationAttachment).toBeUndefined()
+      expect(copy.invitationAttachments).toBeUndefined()
+      expect(copy.invitationAttachmentHistory).toBeUndefined()
+    })
     it('should reset entries and members', () => {
       const copy = copyNow({ ...eventWithParticipantsInvited, entries: 15, members: 10 })
       expect(copy.entries).toBe(0)
@@ -1695,6 +1713,26 @@ describe('stripKennelliittoLink (KOE-1534)', () => {
     const event: { kcId?: number; name: string } = { name: 'Koe' }
 
     expect(stripKennelliittoLink(event)).toEqual({ name: 'Koe' })
+  })
+})
+
+describe('stripInvitationAttachments (KOE-1564)', () => {
+  it('removes the general and per-class attachments and their history, and nothing else', () => {
+    const event = {
+      invitationAttachment: 'general-key',
+      invitationAttachmentHistory: { 'general-key': { uploadedAt: '2026-06-01T00:00:00.000Z' } },
+      invitationAttachments: { ALO: 'class-key' },
+      name: 'Koe',
+    }
+
+    expect(stripInvitationAttachments(event)).toEqual({ name: 'Koe' })
+    expect(INVITATION_ATTACHMENT_FIELDS.every((field) => !Object.hasOwn(event, field))).toBe(true)
+  })
+
+  it('leaves an event without attachments as it is', () => {
+    const event: { invitationAttachment?: string; name: string } = { name: 'Koe' }
+
+    expect(stripInvitationAttachments(event)).toEqual({ name: 'Koe' })
   })
 })
 
