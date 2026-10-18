@@ -13,13 +13,14 @@ import { logger } from '../lib/log'
 import {
   applySuccessfulRefund,
   parseParams,
+  publishCancelledRegistration,
   publishParticipantPayments,
   settleFailedTransaction,
   updateTransactionStatus,
   verifyParams,
 } from '../lib/payment'
 import { clearRegistrationEmailDeliveryStatus, getRegistration, getRegistrationEditToken } from '../lib/registration'
-import { publishCancelledRegistration, publishRegistrationPatches } from '../lib/ws/actions'
+import { publishRegistrationPatches } from '../lib/ws/actions'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 
 const { frontendURL, emailFrom, registrationTable, transactionTable } = CONFIG

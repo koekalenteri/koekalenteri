@@ -1,3 +1,4 @@
+import type { CancelledRegistration } from '../lib/payment'
 import { vi } from 'vitest'
 import { answerRejections, constructPartialAPIGwEvent } from '../test-utils/helpers'
 import { loggedLines } from '../test-utils/logs'
@@ -44,6 +45,7 @@ vi.doMock('../lib/lambda', async () => ({
 vi.doMock('../lib/payment', () => ({
   applySuccessfulRefund: mockApplySuccessfulRefund,
   parseParams: mockParseParams,
+  publishCancelledRegistration: mockPublishCancelledRegistration,
   publishParticipantPayments: mockPublishParticipantPayments,
   settleFailedTransaction: mockSettleFailedTransaction,
   updateTransactionStatus: mockUpdateTransactionStatus,
@@ -76,7 +78,6 @@ vi.doMock('../utils/CustomDynamoClient', () => ({
 }))
 
 vi.doMock('../lib/ws/actions', () => ({
-  publishCancelledRegistration: mockPublishCancelledRegistration,
   publishRegistrationPatches: mockPublishRegistrationPatches,
 }))
 
@@ -212,11 +213,9 @@ describe('refundSuccessLambda', () => {
   it('settles a failed refund through the shared step and publishes whatever changed', async () => {
     const cancelled = {
       eventId: 'event123',
-      organizerId: 'org-1',
-      participantPatch: {},
-      patch: { eventId: 'event123', id: 'reg456', openRefunds: [] },
+      field: 'openRefunds',
       registrationId: 'reg456',
-    }
+    } satisfies CancelledRegistration
     mockParseParams.mockReturnValueOnce({
       eventId: 'event123',
       provider: 'paytrail',

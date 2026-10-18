@@ -1,5 +1,6 @@
 import type { AuditMessage } from '../../lib/audit'
 import type { JsonPaymentTransaction, JsonRegistration } from '../../types'
+import type { CancelledRegistration } from '../lib/payment'
 import { vi } from 'vitest'
 import { answerRejections, constructAPIGwEvent } from '../test-utils/helpers'
 
@@ -22,12 +23,9 @@ vi.doMock('../lib/lambda', async () => ({
 }))
 
 vi.doMock('../lib/payment', () => ({
+  publishCancelledRegistration: mockPublishCancelledRegistration,
   resolveCallbackTransaction: mockResolveCallbackTransaction,
   settleFailedTransaction: mockSettleFailedTransaction,
-}))
-
-vi.doMock('../lib/ws/actions', () => ({
-  publishCancelledRegistration: mockPublishCancelledRegistration,
 }))
 
 const { default: paymentCancelLambda } = await import('./handler')
@@ -91,11 +89,9 @@ describe('paymentCancelLambda', () => {
   it('publishes whatever the step found changed', async () => {
     const cancelled = {
       eventId: 'event123',
-      organizerId: 'org1',
-      participantPatch: {},
-      patch: {},
+      field: 'openPayments',
       registrationId: 'reg456',
-    }
+    } satisfies CancelledRegistration
     mockSettleFailedTransaction.mockResolvedValueOnce({ cancelled })
 
     await paymentCancelLambda(event)

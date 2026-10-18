@@ -49,9 +49,6 @@ export const registrationsAudience = async (eventId: string, registrationIds: re
   )
 }
 
-export const registrationAudience = (eventId: string, registrationId: string) =>
-  registrationsAudience(eventId, [registrationId])
-
 const includeConnection = (connections: WebSocketConnection[], connection?: WebSocketConnection) => {
   if (!connection || connections.some(({ connectionId }) => connectionId === connection.connectionId))
     return connections
