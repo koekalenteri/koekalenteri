@@ -1,18 +1,27 @@
 import type { DayKey } from '../types'
-import { dayEndOf, dayStartOf, isDayKey, monthOf, sameDay, toDayKey, yearOf } from '../lib/day'
 import { describeInTimeZone } from '../test-utils/timeZone'
 import {
   addDays,
   addMonths,
   dayEnd,
+  dayEndOf,
   dayOf,
   dayOfWeek,
   dayParts,
   dayStart,
+  dayStartOf,
   daysBetween,
   eachDay,
+  hasCalendarDay,
+  isDayKey,
+  monthOf,
+  sameDay,
   shiftDays,
   TIME_ZONE,
+  toDayKey,
+  yearEnd,
+  yearOf,
+  yearStart,
 } from './day'
 
 /** The zones the machine running the tests may be in; the module's answers must not depend on it. */
@@ -361,6 +370,18 @@ describe('toDayKey', () => {
   })
 })
 
+describe('hasCalendarDay', () => {
+  it.each([
+    { expected: true, instant: new Date('2026-10-17T12:00:00.000Z'), name: 'a day of the trials' },
+    { expected: true, instant: new Date('1000-01-01T12:00:00.000Z'), name: "the calendar's first year" },
+    { expected: false, instant: new Date('0001-01-01T00:00:00'), name: "the Kennel Club's empty date" },
+    { expected: false, instant: new Date('0500-06-01T00:00:00.000Z'), name: 'a year below 1000' },
+    { expected: false, instant: new Date(Number.NaN), name: 'an invalid Date' },
+  ])('is $expected for $name', ({ expected, instant }) => {
+    expect(hasCalendarDay(instant, TIME_ZONE)).toBe(expected)
+  })
+})
+
 describe('the readers of an instant', () => {
   // 23:30 on 31.12.2025 in Finland is 21:30Z: another year and month in UTC and New York.
   const lastMoments = new Date('2025-12-31T21:30:00.000Z')
@@ -370,6 +391,21 @@ describe('the readers of an instant', () => {
     expect(dayEndOf(lastMoments, TIME_ZONE).toISOString()).toBe('2025-12-31T21:59:59.999Z')
     expect(dayStartOf(lastMoments, 'UTC').toISOString()).toBe('2025-12-31T00:00:00.000Z')
     expect(dayEndOf(lastMoments, 'America/New_York').toISOString()).toBe('2026-01-01T04:59:59.999Z')
+  })
+
+  it('dayStartOf counts whole days from the day the instant falls on', () => {
+    // Over the change to summer time: 28.3. 23:30 Finnish time plus one day starts at 29.3. 00:00 (+02:00).
+    expect(dayStartOf(new Date('2026-03-28T21:30:00.000Z'), TIME_ZONE, 1).toISOString()).toBe(
+      '2026-03-28T22:00:00.000Z'
+    )
+    expect(dayStartOf(new Date('2026-03-28T21:30:00.000Z'), TIME_ZONE, 2).toISOString()).toBe(
+      '2026-03-29T21:00:00.000Z'
+    )
+  })
+
+  it('yearStart and yearEnd bound the year in the zone', () => {
+    expect(yearStart(2026, TIME_ZONE).toISOString()).toBe('2025-12-31T22:00:00.000Z')
+    expect(yearEnd(2026, TIME_ZONE).toISOString()).toBe('2026-12-31T21:59:59.999Z')
   })
 
   it('sameDay compares the days in the zone', () => {

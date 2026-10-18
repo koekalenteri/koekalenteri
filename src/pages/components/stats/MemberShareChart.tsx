@@ -1,15 +1,13 @@
 import type { EventStatsItem } from '@/types/Stats'
 import type { MonthlyRate } from './MonthlyRateChart'
 import { useTranslation } from 'react-i18next'
-import { monthOf, TIME_ZONE } from '@/lib/day'
 import MonthlyRateChart, { percentageOf } from './MonthlyRateChart'
+import { monthKey } from './monthKey'
 
 interface Props {
   readonly items: EventStatsItem[]
   readonly filters?: readonly string[]
 }
-
-const monthKey = (date?: Date): string | undefined => (date ? monthOf(date, TIME_ZONE) : undefined)
 
 /**
  * Share of starters (non-cancelled, non-reserve registrations) whose owner or handler is a

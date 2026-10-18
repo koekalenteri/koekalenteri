@@ -17,7 +17,14 @@ vi.mock('../../api/stats')
 vi.mock('../../api/user')
 vi.mock('../../api/organizer')
 
-const YEAR = new Date().getFullYear()
+// The page reads the year when its module loads, so the clock is frozen before the imports run.
+const FROZEN = vi.hoisted(() => {
+  const now = new Date('2026-05-12T09:00:00.000Z')
+  vi.useFakeTimers({ now, toFake: ['Date'] })
+  return now
+})
+
+const YEAR = 2026
 
 // From src/api/__mocks__/organizer.ts: '1' -> 'Järjestäjä 1', '2' -> 'Järjestäjä 2'.
 const payload = (eventBreakdown?: EventBreakdownEntry[]): AllYearlyStatsResponse => ({
@@ -48,7 +55,7 @@ const renderAsAdmin = () =>
   )
 
 describe('EventBreakdownPage', () => {
-  beforeAll(() => vi.useFakeTimers())
+  beforeAll(() => vi.useFakeTimers({ now: FROZEN }))
   afterEach(() => vi.runOnlyPendingTimers())
   afterAll(() => vi.useRealTimers())
 

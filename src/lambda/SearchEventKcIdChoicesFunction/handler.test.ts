@@ -183,9 +183,18 @@ describe('searchEventKcIdChoicesLambda', () => {
   it.each([
     { field: 'startDate', value: 'foo' },
     { field: 'endDate', value: '2026-13-45T00:00:00.000Z' },
+    { field: 'startDate', value: '0001-01-01T00:00:00.000Z' },
   ])('answers 400 to a $field that is not a date, instead of failing in the search', async ({ field, value }) => {
     await expect(search({ ...laukaaRequest, [field]: value })).rejects.toMatchObject({ status: 400 })
     expect(mockLueKokeet).not.toHaveBeenCalled()
+  })
+
+  it('leaves out a listing without a first day', async () => {
+    mockLueKokeet.mockResolvedValue({ json: [{ ...laukaa, alku: '' }], status: 200 })
+
+    await search()
+
+    expect(mockResponse).toHaveBeenCalledWith(200, { choices: [] }, expect.anything())
   })
 
   it('uses the number of the requested organizer', async () => {

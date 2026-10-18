@@ -24,9 +24,21 @@ import type {
   SanitizedPublicDogEvent,
   StartNumbersDayScope,
 } from '../types'
-import { isValid } from 'date-fns/isValid'
 import { LANGUAGES } from '../types'
-import { addDays, dayOf, dayOfWeek, dayStart, daysBetween, eachDay, isDayKey, sameDay, TIME_ZONE, yearOf } from './day'
+import {
+  addDays,
+  dayOf,
+  dayOfWeek,
+  dayStart,
+  dayStartOf,
+  daysBetween,
+  eachDay,
+  hasCalendarDay,
+  isDayKey,
+  sameDay,
+  TIME_ZONE,
+  yearOf,
+} from './day'
 import { isLiveNow, isStoredStationTurn, toPublicStationTurn } from './stationTurns'
 import { isConfirmedEvent } from './typeGuards'
 import { isObject, unique, uniqueDate } from './utils'
@@ -36,6 +48,9 @@ type EventVitals = Partial<
 >
 
 export const isValidForEntry = (state?: EventState) => !['draft', 'tentative', 'cancelled'].includes(state ?? '')
+
+/** A day as stored (a yyyy-MM-dd key), as the JSON reviver hands it over (a date), or not known. */
+type DayInput = Date | string | undefined
 
 /**
  * The Finnish day of a stored date. A day key passes through unchanged: parsed, it would be read as
@@ -53,15 +68,22 @@ const toInstant = (date: Date | string): Date => (typeof date === 'string' ? new
  * one that reads as neither a day nor an instant. The listings and the vitals read rows as they are,
  * and a bad or absent date must not turn a read into a 500.
  */
-const storedDayKey = (date: Date | string | undefined): DayKey | undefined => {
+export const storedDayKey = (date: DayInput): DayKey | undefined => {
   if (!date) return undefined
   if (isDayKey(date)) return date
   const instant = toInstant(date)
-  return Number.isNaN(instant.getTime()) ? undefined : dayOf(instant, TIME_ZONE)
+  return hasCalendarDay(instant, TIME_ZONE) ? dayOf(instant, TIME_ZONE) : undefined
 }
 
+/**
+ * Whether a request's date is an instant with a calendar day: what PutEvent, CopyEvent and the
+ * Kennel Club search accept, and answer 400 to anything else.
+ */
+export const isEventDateString = (value: unknown): value is string =>
+  typeof value === 'string' && hasCalendarDay(new Date(value), TIME_ZONE)
+
 /** Whether a stored date passes `test` as its Finnish day; a missing or unreadable date passes nothing. */
-const dayPasses = (date: Date | string | undefined, test: (day: DayKey) => boolean): boolean => {
+const dayPasses = (date: DayInput, test: (day: DayKey) => boolean): boolean => {
   const day = storedDayKey(date)
   return day !== undefined && test(day)
 }
@@ -123,7 +145,7 @@ export const linkedEventSubtitle = (
     .join(' ')
 
 export const isEntryUpcoming = ({ entryStartDate, state }: EventVitals, now = new Date()) =>
-  !!entryStartDate && entryStartDate > now && (isValidForEntry(state) || state === 'tentative')
+  dayPasses(entryStartDate, (day) => day > today(now)) && (isValidForEntry(state) || state === 'tentative')
 
 // The vitals compare Finnish days: a day has started once today is it or later, and is over once
 // today is after it, whatever the hour and wherever the browser is.
@@ -171,7 +193,7 @@ export const eventDates = (event?: Pick<PublicDogEvent, 'classes' | 'startDate' 
   const classes = Array.isArray(event.classes) ? event.classes : []
   return classes.length
     ? uniqueDate(classes.map((eventClass) => eventClass.date ?? event.startDate))
-    : eachDay(eventDayKey(event.startDate), eventDayKey(event.endDate)).map((day) => dayStart(day, TIME_ZONE))
+    : getEventDays(event)
 }
 
 /** Only `class` is read, so this accepts both the `Date`- and `string`-dated event shapes. */
@@ -309,8 +331,7 @@ const EntryStartWeeks = 6
 const EntryEndWeeks = 3
 
 /** The Finnish midnight whole Finnish weeks before the event's start, whatever zone this runs in (KOE-1539). */
-const finnishWeeksBefore = (eventStartDate: Date, weeks: number) =>
-  dayStart(addDays(dayOf(eventStartDate, TIME_ZONE), -7 * weeks), TIME_ZONE)
+const finnishWeeksBefore = (eventStartDate: Date, weeks: number) => dayStartOf(eventStartDate, TIME_ZONE, -7 * weeks)
 
 export const defaultEntryStartDate = (eventStartDate: Date) => finnishWeeksBefore(eventStartDate, EntryStartWeeks)
 export const defaultEntryEndDate = (eventStartDate: Date) => finnishWeeksBefore(eventStartDate, EntryEndWeeks)
@@ -414,7 +435,7 @@ export const canPublishResults = (
 ) => state === 'started' || state === 'ended' || state === 'completed' || hasReachedPhaseByDate(event, 'started', now)
 
 /** Whether the day has begun in the event's zone: before it, none of its dogs has run (KOE-1510). */
-export const hasDayStarted = (day: Date | string | undefined, now = new Date()) =>
+export const hasDayStarted = (day: DayInput, now = new Date()) =>
   dayPasses(day, (key) => dayStart(key, TIME_ZONE) <= now)
 
 export const isResultsPublishedClassMap = (
@@ -826,9 +847,6 @@ type AvailabilityEvent = {
 }
 type AvailabilityRegistration = { class?: string | null; group: { date?: Date | string; time?: RegistrationTime } }
 
-/** A day as stored (a yyyy-MM-dd key), as the JSON reviver hands it over (a date), or not known. */
-type DayInput = Date | string | undefined
-
 /**
  * The class entry a registration belongs to, matched on the day it runs.
  *
@@ -1224,13 +1242,13 @@ export const isEventDeletable = ({ state }: Partial<Pick<JsonDogEvent, 'state'>>
   state === 'draft' || state === 'tentative' || state === 'cancelled'
 
 /**
- * The year of the start date's Finnish day, or '' for no date or one that does not read as an instant:
- * the request validators (PutEvent, CopyEvent) answer 400 on that, so this never throws.
+ * The year of the start date's Finnish day, or '' for no date or one without a calendar day (not an
+ * instant, or the Kennel Club's year 1): stored rows are read through this, so it never throws.
  */
 export const getEventSeason = (startDate?: Date | string): string => {
   const date = typeof startDate === 'string' ? new Date(startDate) : startDate
 
-  if (!date || !isValid(date)) {
+  if (!date || !hasCalendarDay(date, TIME_ZONE)) {
     return ''
   }
 
@@ -1424,7 +1442,7 @@ export const copyDogEvent = (event: DogEvent, now = new Date()): DogEvent => {
   const newStartDay = newEventStartDay(now, TIME_ZONE)
   const shift = daysBetween(origStartDay, newStartDay)
   /** The Finnish midnight of the day `date` falls on, moved along with the start. */
-  const moved = (date: Date) => dayStart(addDays(dayOf(date, TIME_ZONE), shift), TIME_ZONE)
+  const moved = (date: Date) => dayStartOf(date, TIME_ZONE, shift)
   const days = daysBetween(origStartDay, dayOf(copy.endDate, TIME_ZONE))
 
   copy.id = ''

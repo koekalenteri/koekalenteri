@@ -14,7 +14,7 @@ import type {
   YearlyTotalStat,
 } from '../../types/Stats'
 import crypto from 'node:crypto'
-import { formatDate } from '../../i18n/dates'
+import { hasCalendarDay, monthOf, TIME_ZONE } from '../../lib/day'
 import { getEventSeason } from '../../lib/event'
 import { isMember, isStarter } from '../../lib/registration'
 import { CONFIG } from '../config'
@@ -62,8 +62,8 @@ export function eventStatsYear({ startDate }: { startDate: string }): number | u
  * string would bucket every event starting on the 1st into the previous month.
  */
 export function eventStatsMonth(date: string): string | undefined {
-  const month = formatDate(date, 'yyyy-MM')
-  return /^\d{4}-\d{2}$/.test(month) ? month : undefined
+  const instant = new Date(date)
+  return hasCalendarDay(instant, TIME_ZONE) ? monthOf(instant, TIME_ZONE) : undefined
 }
 
 /**

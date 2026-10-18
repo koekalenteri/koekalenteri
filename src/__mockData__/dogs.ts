@@ -1,5 +1,6 @@
 import type { Dog } from '../types'
-import { addMonths, dayOf, dayStart, TIME_ZONE } from '../lib/day'
+import { addMonths, dayOf, TIME_ZONE } from '../lib/day'
+import { noonOfFinnishDay } from '../test-utils/finnishDays'
 import { eventWithStaticDates } from './events'
 
 /**
@@ -8,9 +9,7 @@ import { eventWithStaticDates } from './events'
  * from UTC-9 to UTC+13.
  */
 const monthsBeforeStart = (months: number) =>
-  new Date(
-    dayStart(addMonths(dayOf(eventWithStaticDates.startDate, TIME_ZONE), -months), TIME_ZONE).getTime() + 12 * 3_600_000
-  )
+  noonOfFinnishDay(addMonths(dayOf(eventWithStaticDates.startDate, TIME_ZONE), -months))
 
 export const registrationDogAged10MonthsAndNoResults: Dog = {
   breedCode: '110',

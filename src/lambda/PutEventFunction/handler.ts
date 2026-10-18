@@ -4,6 +4,7 @@ import { nanoid } from 'nanoid'
 import {
   getEventSeason,
   isEntryOpen,
+  isEventDateString,
   isEventDeletable,
   isSameResultsPublished,
   isStartNumbersAvailable,
@@ -162,10 +163,7 @@ const initializeNewEvent = (item: Patch<JsonConfirmedEvent>, timestamp: string, 
 }
 
 const invalidEventDateField = (data: JsonConfirmedEvent) =>
-  (['startDate', 'endDate'] as const).find((field) => {
-    const date = data[field]
-    return date === undefined || date === '' || typeof date !== 'string' || !getEventSeason(date)
-  })
+  (['startDate', 'endDate'] as const).find((field) => !isEventDateString(data[field]))
 
 const updateEventDerivedFields = async (data: JsonConfirmedEvent) => {
   if (data.startDate) data.season = getEventSeason(data.startDate)

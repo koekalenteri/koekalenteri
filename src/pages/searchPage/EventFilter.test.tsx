@@ -184,10 +184,9 @@ describe('EventFilter', () => {
 
       // Results exist only on ended events; with the default range starting today the filter would
       // show nothing, so the start date moves back and stays visible for the user to adjust.
-      expect(changeHandler).toHaveBeenCalledWith(
-        expect.objectContaining({ start: dayStart(addMonths(today, -6), TIME_ZONE), withResults: true })
+      expect(changeHandler).toHaveBeenLastCalledWith(
+        expect.objectContaining({ start: new Date('2026-05-19T21:00:00.000Z'), withResults: true })
       )
-      expect(changeHandler.mock.lastCall?.[0].start.toISOString()).toBe('2026-05-19T21:00:00.000Z')
     } finally {
       vi.useRealTimers()
     }

@@ -29,6 +29,12 @@ const NO_RESULT = 'Ei tulosta'
  */
 const UNSUPPORTED_KOEMUOTO = 'Virheellinen koemuoto'
 
+/** The day a Kennel Club timestamp ('2026-09-26T00:00:00', Finnish local time with no zone) names. */
+const klDay = (local: string | undefined) => {
+  const day = local?.slice(0, 10)
+  return isDayKey(day) ? day : undefined
+}
+
 const normalize = (value?: string) =>
   (value ?? '')
     .toLocaleLowerCase('fi')
@@ -42,19 +48,16 @@ const normalize = (value?: string) =>
  * bare local date, so the event's day is read in the local zone. Comparing the first ten characters
  * of both strings never matched a start date.
  */
-const sameDate = (eventDate: string, klDate: string) =>
-  Boolean(klDate) && dayOf(new Date(eventDate), TIME_ZONE) === klDate.substring(0, 10)
-
-/** The day a Kennel Club timestamp ('2026-09-26T00:00:00', Finnish local time with no zone) names. */
-const klDay = (local: string | undefined) => {
-  const day = local?.slice(0, 10)
-  return isDayKey(day) ? day : undefined
+const sameDate = (eventDate: string, klDate: string) => {
+  const day = klDay(klDate)
+  return day !== undefined && dayOf(new Date(eventDate), TIME_ZONE) === day
 }
 
 /**
  * A Kennel Club timestamp sent on as the UTC instant its Finnish day starts at, so a browser anywhere
  * reads the same day: read as it comes it is the browser's own midnight, a day off east or west of
- * Finland (KOE-1545). Anything that is not a day goes on as it is.
+ * Finland (KOE-1545). Anything that is not a day goes on as it is (an end only; a listing without a
+ * first day is left out).
  */
 const klInstant = (local: string) => {
   const day = klDay(local)
@@ -242,6 +245,8 @@ export const searchKcTrials = async (
   const koemuoto = kcFormatOfEventType(criteria.eventType)
   let listed = await findEvents(klint, criteria, organizerKcId, 0, signal)
   if (!listed.length) listed = await findEvents(klint, criteria, organizerKcId, 7, signal)
+  // A listing without a first day has nothing to offer the secretary, and nothing a browser could read.
+  listed = listed.filter((item) => klDay(item.alku) !== undefined)
 
   const read = await mapWithConcurrency(listed, LUE_CONCURRENCY, (item) => readDetails(klint, koemuoto, item, signal))
   const candidates = read.filter((candidate): candidate is Candidate => candidate !== undefined)

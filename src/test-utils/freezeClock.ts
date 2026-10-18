@@ -1,9 +1,10 @@
-import { dayStart, isDayKey, TIME_ZONE } from '../lib/day'
+import { isDayKey } from '../lib/day'
+import { noonOfFinnishDay } from './finnishDays'
 
-/** Midday of `day` in Helsinki (twelve hours into its Finnish day), so no time zone lands it on a neighbour. */
+/** Midday of `day` in Helsinki, so no time zone lands it on a neighbour. */
 const middayOf = (day: string) => {
   if (!isDayKey(day)) throw new RangeError(`Not a day: ${day}`)
-  return dayStart(day, TIME_ZONE).getTime() + 12 * 3_600_000
+  return noonOfFinnishDay(day).getTime()
 }
 
 /**

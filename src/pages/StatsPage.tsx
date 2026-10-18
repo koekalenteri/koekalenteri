@@ -9,7 +9,7 @@ import { useTranslation } from 'react-i18next'
 import { useLocation, useSearchParams } from 'react-router'
 import { HEADER_HEIGHT } from '../assets/Theme'
 import { recordPageView } from '../lib/client/rum'
-import { TIME_ZONE, yearOf } from '../lib/day'
+import { currentYear, TIME_ZONE } from '../lib/day'
 import Header from './components/Header'
 import BreedDistributionChart from './components/stats/BreedDistributionChart'
 import BreedStartRateChart from './components/stats/BreedStartRateChart'
@@ -23,8 +23,7 @@ import RetentionChart from './components/stats/RetentionChart'
 import YearSelector from './components/stats/YearSelector'
 import { allYearlyStatsAtom, capacityStatsAtom, hasAdminAccessAtom, useUserActions } from './state'
 
-// Read when the module loads: the default year before the picker is touched.
-const CURRENT_YEAR = yearOf(new Date(), TIME_ZONE)
+const CURRENT_YEAR = currentYear(TIME_ZONE)
 const EMPTY_YEAR_STATS: YearlyStatsResponse = { dogHandlerBuckets: [], totals: [], year: CURRENT_YEAR }
 
 export function Component() {

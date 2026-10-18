@@ -26,6 +26,9 @@ vi.doMock('../utils/CustomDynamoClient', () => ({
 const { default: getAdminEventsLambda } = await import('./handler')
 
 describe('getAdminEventsLambda', () => {
+  // Several tests freeze the clock; none may leave it frozen for the next.
+  afterEach(() => vi.useRealTimers())
+
   const event = constructPartialAPIGwEvent({
     body: '',
     headers: {},
@@ -77,7 +80,6 @@ describe('getAdminEventsLambda', () => {
     expect(mockResponse).toHaveBeenCalledWith(200, [...bySeason['2026'], ...bySeason['2025']], event)
 
     mockQuery.mockReset()
-    vi.useRealTimers()
   })
 
   it("reads a club administrator's clubs through the organizer index", async () => {
@@ -146,6 +148,15 @@ describe('getAdminEventsLambda', () => {
 
     // Check that response combines all season events
     expect(mockResponse).toHaveBeenCalledWith(200, [...seasonEvents1, ...seasonEvents2], eventWithSince)
+  })
+
+  it('answers 400 to a since that has no calendar day', async () => {
+    mockAuthorizeWithMemberOf.mockResolvedValueOnce({ memberOf: ['org1'], user: { admin: true, id: 'admin1' } })
+
+    await getAdminEventsLambda({ ...event, queryStringParameters: { since: '-62135596800000' } })
+
+    expect(mockResponse).toHaveBeenCalledWith(400, 'Bad request: since must be a valid time', expect.anything())
+    expect(mockQuery).not.toHaveBeenCalled()
   })
 
   // 22:30Z on 31.12.2025 is already 2026 in Finland: the seasons are Finnish years, as the events' are.

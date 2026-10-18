@@ -450,8 +450,9 @@ describe('utils', () => {
   })
 
   describe('isEntryUpcoming', () => {
-    const now = new Date(1700000000000)
-    const future = new Date(1700000001000)
+    // The entry opens on a Finnish day: upcoming until that day begins (KOE-1545).
+    const now = new Date('2026-07-16T12:00:00+03:00')
+    const future = new Date('2026-07-17T00:00:00+03:00')
     it.each<EventState>(['confirmed', 'tentative'])(
       'should return true when entryStartDate is in the future and event state is %s',
       (state) => {
@@ -467,6 +468,11 @@ describe('utils', () => {
 
     it('should return false when entryStartDate is not in the future', () => {
       expect(isEntryUpcoming({ entryStartDate: now, state: 'confirmed' }, now)).toBe(false)
+    })
+
+    it('should return false later on the opening day itself', () => {
+      const laterToday = new Date('2026-07-16T20:00:00+03:00')
+      expect(isEntryUpcoming({ entryStartDate: laterToday, state: 'confirmed' }, now)).toBe(false)
     })
   })
 

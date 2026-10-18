@@ -1,6 +1,6 @@
 import { nanoid } from 'nanoid'
 import { dayOf, daysBetween, shiftDays, TIME_ZONE } from '../../lib/day'
-import { eventRegistrationDateKey, getEventSeason, stripKennelliittoLink } from '../../lib/event'
+import { eventRegistrationDateKey, getEventSeason, isEventDateString, stripKennelliittoLink } from '../../lib/event'
 import { getRegistrationGroupKey, isStarter } from '../../lib/registration'
 import { saveEvent } from '../lib/event'
 import { authorizeEvent } from '../lib/eventAuth'
@@ -12,7 +12,7 @@ import { publishEventChange } from '../lib/ws/actions'
 
 const copyEventLambda = lambda('copyEvent', async (event) => {
   const { id, startDate }: { id: string; startDate: string } = parseJSONWithFallback(event.body)
-  if (!getEventSeason(startDate)) {
+  if (!isEventDateString(startDate)) {
     throw httpError(400, { message: 'Bad request: startDate must be a valid date' })
   }
 
@@ -20,7 +20,7 @@ const copyEventLambda = lambda('copyEvent', async (event) => {
 
   const timestamp = new Date().toISOString()
 
-  if (!getEventSeason(item.startDate) || !getEventSeason(item.endDate)) {
+  if (!isEventDateString(item.startDate) || !isEventDateString(item.endDate)) {
     throw httpError(400, { message: 'Bad request: source event dates must be valid' })
   }
 

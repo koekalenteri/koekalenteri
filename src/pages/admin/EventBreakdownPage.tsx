@@ -14,7 +14,7 @@ import { useTranslation } from 'react-i18next'
 import { Navigate } from 'react-router'
 import { reportError } from '../../lib/client/error'
 import { downloadXlsx } from '../../lib/client/xlsx'
-import { TIME_ZONE, yearOf } from '../../lib/day'
+import { currentYear, TIME_ZONE } from '../../lib/day'
 import { buildEventBreakdownTable, eventBreakdownSpreadsheetRows } from '../../lib/eventBreakdown'
 import { eventBreakdownFileName } from '../../lib/fileName'
 import { Path } from '../../routeConfig'
@@ -22,8 +22,7 @@ import YearSelector from '../components/stats/YearSelector'
 import { allYearlyStatsAtom, isAdminAtom } from '../state'
 import { adminOrganizersAtom } from './state'
 
-// Read when the module loads: the default year before the picker is touched.
-const CURRENT_YEAR = yearOf(new Date(), TIME_ZONE)
+const CURRENT_YEAR = currentYear(TIME_ZONE)
 
 export default function EventBreakdownPage() {
   const { t } = useTranslation()

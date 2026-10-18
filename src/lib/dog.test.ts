@@ -43,14 +43,14 @@ describe('dog utility functions', () => {
     })
 
     it('should return true for valid dates', () => {
-      expect(isValidDob(new Date('2020-01-01'))).toBe(true)
-      expect(isValidDob(new Date('2010-05-15'))).toBe(true)
-      expect(isValidDob(new Date('2024-12-31'))).toBe(true)
+      expect(isValidDob(new Date('2020-01-01T12:00:00.000Z'))).toBe(true)
+      expect(isValidDob(new Date('2010-05-15T12:00:00.000Z'))).toBe(true)
+      expect(isValidDob(new Date('2024-12-31T12:00:00.000Z'))).toBe(true)
     })
 
-    it('should return true for very old but valid dates (year > 1)', () => {
-      expect(isValidDob(new Date('1990-01-01'))).toBe(true)
-      expect(isValidDob(new Date('0002-01-01'))).toBe(true)
+    it('reads an old birthday as valid and a year before the calendar as none, in any zone', () => {
+      expect(isValidDob(new Date('1990-01-01T12:00:00.000Z'))).toBe(true)
+      expect(isValidDob(new Date('0002-01-01T12:00:00.000Z'))).toBe(false)
     })
   })
 

@@ -30,13 +30,13 @@ import type {
 import type { AuditActor } from './audit'
 import { nanoid } from 'nanoid'
 import { emptyBreeder, emptyDog, emptyPerson } from './data'
-import { dayOf, TIME_ZONE } from './day'
 import {
   eventRegistrationDateKey,
   hasSharedReserveList,
   isEntryClosed,
   localizedEventDescription,
   localizedEventName,
+  storedDayKey,
 } from './event'
 import { formatMoney, getNetPaidAmount } from './money'
 import { PRIORITY_INVITED, PRIORITY_MEMBER, priorityValuesToPriority, RESTRICTION } from './priority'
@@ -533,10 +533,7 @@ const groupInstant = (date: GroupDate | undefined): Date | undefined => {
 }
 
 /** The trial's calendar day of a group's date, or '' when it has none (or none that reads as a date). */
-export const getRegistrationGroupDay = (date: GroupDate | undefined): string => {
-  const instant = groupInstant(date)
-  return instant ? dayOf(instant, TIME_ZONE) : ''
-}
+export const getRegistrationGroupDay = (date: GroupDate | undefined): string => storedDayKey(date) ?? ''
 
 /**
  * The one rule for which group a start belongs to: a participant group is named by the trial's day

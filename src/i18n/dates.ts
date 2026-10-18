@@ -7,7 +7,7 @@ import { isValid } from 'date-fns/isValid'
 import { enGB as en } from 'date-fns/locale/en-GB'
 import { fi } from 'date-fns/locale/fi'
 import { parseISO } from 'date-fns/parseISO'
-import { dayOf, dayStart, isDayKey, TIME_ZONE } from '../lib/day'
+import { dayOf, dayParts, dayStart, isDayKey, TIME_ZONE } from '../lib/day'
 
 interface DateFormatOptions {
   timeZone?: string
@@ -73,18 +73,21 @@ export function formatDateSpan(
   if (!isValid(end)) {
     end = start
   }
-  // The days the span runs between, in the zone: the same day, month and year are the same key prefix.
+  // The days the span runs between, in the zone.
   const startDay = dayOf(start, timeZone)
   const endDay = dayOf(end, timeZone)
+  const startParts = dayParts(startDay)
+  const endParts = dayParts(endDay)
+  const sameYear = startParts.year === endParts.year
   if (startDay === endDay) {
     return format(start, `${prefix}d.M.${y}${suffix}`, opts)
   }
-  if (startDay.slice(0, 7) === endDay.slice(0, 7)) {
+  if (sameYear && startParts.month === endParts.month) {
     const startFormat = `${prefix}d.`
     const endFormat = `d.M.${y}${suffix}`
     return `${format(start, startFormat, opts)}–${format(end, endFormat, opts)}`
   }
-  if (startDay.slice(0, 4) === endDay.slice(0, 4)) {
+  if (sameYear) {
     const startFormat = `${prefix}d.M.`
     const endFormat = `d.M.${y}${suffix}`
     return `${format(start, startFormat, opts)}–${format(end, endFormat, opts)}`

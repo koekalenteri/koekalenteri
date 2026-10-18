@@ -14,6 +14,12 @@ export const finnishDayOf = (value: Date | DayKey): DayKey => (isDayKey(value) ?
 export const startOfFinnishDay = (value: Date | DayKey): Date =>
   isDayKey(value) ? dayStart(value, TIME_ZONE) : dayStartOf(value, TIME_ZONE)
 
+/**
+ * Finnish noon of the day: twelve hours into it, which is the same calendar day from UTC-9 to UTC+13.
+ * For fixtures a browser-zone picker shows, and for a frozen clock that no host zone tips onto a neighbour.
+ */
+export const noonOfFinnishDay = (day: DayKey): Date => new Date(dayStart(day, TIME_ZONE).getTime() + 12 * 3_600_000)
+
 /** The last millisecond of the Finnish day, as a plain Date. */
 export const endOfFinnishDay = (value: Date | DayKey): Date =>
   isDayKey(value) ? dayEnd(value, TIME_ZONE) : dayEndOf(value, TIME_ZONE)

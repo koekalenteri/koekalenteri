@@ -48,6 +48,7 @@ import {
   hasAvailableResults,
   hasDayStarted,
   hasEntryEnded,
+  hasEntryStarted,
   hasExplicitPlacesForClass,
   hasMockTrialChoice,
   hasRetrieveTypeChoice,
@@ -57,6 +58,7 @@ import {
   isEntryClosing,
   isEntryEditingClosed,
   isEntryOpen,
+  isEntryUpcoming,
   isEventDeletable,
   isEventLive,
   isEventOver,
@@ -85,6 +87,7 @@ import {
   registrationDatesOutsideClass,
   sanitizeDogEvent,
   startNumbersSlotKey,
+  storedDayKey,
   stripKennelliittoLink,
   withResultsDay,
 } from './event'
@@ -839,6 +842,8 @@ describe('lib/event', () => {
       expect(getEventSeason('')).toEqual('')
       // The request validators (PutEvent, CopyEvent) answer 400 on this; a throw would make it a 500.
       expect(getEventSeason('foo')).toEqual('')
+      // The Kennel Club's empty date is a valid Date but has no calendar day.
+      expect(getEventSeason('0001-01-01T00:00:00.000Z')).toEqual('')
       expect(getEventSeason(new Date(Number.NaN))).toEqual('')
     })
   })
@@ -1294,11 +1299,34 @@ describe.each([TIME_ZONE, 'America/New_York', 'Asia/Tokyo'])('the default entry 
 })
 
 describe('a stored date that is neither a day nor an instant (KOE-1545)', () => {
+  it('has no stored day', () => {
+    expect(storedDayKey('0001-01-01T00:00:00.000Z')).toBeUndefined()
+    expect(storedDayKey(new Date(Number.NaN))).toBeUndefined()
+    expect(storedDayKey(undefined)).toBeUndefined()
+    expect(storedDayKey('2026-10-17')).toBe('2026-10-17')
+  })
+
   it('passes no vital, so a bad row is listed rather than a 500', () => {
     expect(hasEntryEnded({ entryEndDate: 'foo' })).toBe(false)
     expect(isEventOver({ endDate: new Date(Number.NaN) })).toBe(false)
     expect(isEntryOpen({ entryEndDate: '2099-01-01', entryStartDate: 'foo', state: 'confirmed' })).toBe(false)
     expect(hasDayStarted(undefined)).toBe(false)
+  })
+})
+
+describe('isEntryUpcoming counts Finnish days (KOE-1545)', () => {
+  const event = { entryStartDate: new Date('2026-10-20T07:00:00.000Z'), state: 'confirmed' as const }
+
+  it('is not upcoming on the opening day itself, before the hour of the stored moment', () => {
+    const morning = new Date('2026-10-20T05:00:00.000Z')
+    expect(isEntryUpcoming(event, morning)).toBe(false)
+    expect(hasEntryStarted(event, morning)).toBe(true)
+  })
+
+  it('is upcoming the day before, and reads the stored string form too', () => {
+    const dayBefore = new Date('2026-10-19T12:00:00.000Z')
+    expect(isEntryUpcoming(event, dayBefore)).toBe(true)
+    expect(isEntryUpcoming({ ...event, entryStartDate: '2026-10-20T07:00:00.000Z' }, dayBefore)).toBe(true)
   })
 })
 

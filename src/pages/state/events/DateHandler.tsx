@@ -1,7 +1,7 @@
 import { useAtomValue } from 'jotai'
 import { useCallback, useEffect, useState } from 'react'
 import { reportError } from '@/lib/client/error'
-import { addDays, dayOf, dayStart, dayStartOf, TIME_ZONE } from '@/lib/day'
+import { dayStartOf, TIME_ZONE } from '@/lib/day'
 import { eventFilterAtom, eventMetadataAtom } from './atoms'
 import { RANGE_INCREMENTAL_THROTTLE, useFetchEvents } from './hooks'
 
@@ -19,7 +19,7 @@ function useCurrentZonedStartOfDay() {
 
     const scheduleNextDay = () => {
       const now = new Date()
-      const nextDay = dayStart(addDays(dayOf(now, TIME_ZONE), 1), TIME_ZONE)
+      const nextDay = dayStartOf(now, TIME_ZONE, 1)
       const delay = Math.max(1000, nextDay.getTime() - now.getTime() + 1000)
 
       timeout = setTimeout(() => {

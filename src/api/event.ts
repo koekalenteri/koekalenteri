@@ -166,8 +166,8 @@ export async function putResultsPublished(
 
 /**
  * A one-day trial may come from Kennelliitto with the year 1 for its end: the end is the start then.
- * The server now sends the start instead (KOE-1545); an older server's 0001-01-01 is not a day the
- * reviver reads, so it arrives as the string it was.
+ * The server now sends the start instead (KOE-1545); an older server's 0001-01-01 still revives to a
+ * year-1 Date, which the year check catches. The type check is for a value the reviver left a string.
  */
 const normalizeEventKcIdChoice = (choice: EventKcIdChoice): EventKcIdChoice =>
   !(choice.endDate instanceof Date) || choice.endDate.getFullYear() <= 1

@@ -244,6 +244,9 @@ describe('lib/event', () => {
       { entryEndDate: '2026-03-28T21:59:59.999Z', expected: '2026-03-28T22:00:00.000Z' },
       { entryEndDate: '2026-10-24T23:59:59.999+03:00', expected: '2026-10-24T21:00:00.000Z' },
       { entryEndDate: '2026-10-25T23:59:59.999+02:00', expected: '2026-10-25T22:00:00.000Z' },
+      // Stored as the Finnish midnight that starts the day: a 24-hour step kept the wrong hour over the change.
+      { entryEndDate: '2026-10-24T21:00:00.000Z', expected: '2026-10-25T22:00:00.000Z' },
+      { entryEndDate: '2026-03-28T22:00:00.000Z', expected: '2026-03-29T21:00:00.000Z' },
     ])('starts the qualification the Finnish day after $entryEndDate', async ({ entryEndDate, expected }) => {
       mockQuery.mockResolvedValueOnce([{ entryEndDate }])
 

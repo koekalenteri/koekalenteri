@@ -16,6 +16,13 @@ import { idTokenAtom } from '../state'
 import OrganizerStatsPage from './OrganizerStatsPage'
 import { adminCapacityStatsEventTypeAtom, adminStatsOrganizerIdAtom } from './state'
 
+// The page reads the year when its module loads, so the clock is frozen before the imports run.
+const FROZEN = vi.hoisted(() => {
+  const now = new Date('2026-05-12T09:00:00.000Z')
+  vi.useFakeTimers({ now, toFake: ['Date'] })
+  return now
+})
+
 vi.mock('../../api/stats')
 vi.mock('../../api/organizer')
 vi.mock('../../api/user')
@@ -29,7 +36,7 @@ vi.mock('../../api/eventType', () => ({
 }))
 
 describe('OrganizerStatsPage', () => {
-  beforeAll(() => vi.useFakeTimers())
+  beforeAll(() => vi.useFakeTimers({ now: FROZEN }))
   afterEach(() => {
     vi.runOnlyPendingTimers()
     localStorage.clear()
@@ -59,7 +66,7 @@ describe('OrganizerStatsPage', () => {
     // The title carries the filters the chart is drawn for, so it still says what it shows once
     // the pickers have scrolled out of sight.
     // No organizer in it: none of them has any stats, so the picker offers none either.
-    expect(screen.getByText(`stats.admin.title – ${new Date().getFullYear()}`)).toBeInTheDocument()
+    expect(screen.getByText('stats.admin.title – 2026')).toBeInTheDocument()
     // No organizerId/date-range args: the whole dataset is fetched once and filtered in memory.
     expect(getOrganizerEventStats).toHaveBeenCalledTimes(1)
     expect(getOrganizerEventStats).toHaveBeenCalledWith(TEST_ID_TOKEN)
@@ -135,14 +142,13 @@ describe('OrganizerStatsPage', () => {
     await flushPromises()
     await screen.findByText('stats.admin.overviewTitle')
 
-    const currentYear = new Date().getFullYear()
-    expect(getAdminJudgeWorkload).toHaveBeenCalledWith(TEST_ID_TOKEN, currentYear, '1')
+    expect(getAdminJudgeWorkload).toHaveBeenCalledWith(TEST_ID_TOKEN, 2026, '1')
 
     // The organizer picker is honoured: a new selection fetches that organizer's figures.
     act(() => store?.set(adminStatsOrganizerIdAtom, '2'))
     await flushPromises()
 
-    expect(getAdminJudgeWorkload).toHaveBeenCalledWith(TEST_ID_TOKEN, currentYear, '2')
+    expect(getAdminJudgeWorkload).toHaveBeenCalledWith(TEST_ID_TOKEN, 2026, '2')
   })
 
   it('derives the selectable years from the organizer stats without fetching yearly stats', async () => {
@@ -169,7 +175,7 @@ describe('OrganizerStatsPage', () => {
     expect(getAllYearlyStats).not.toHaveBeenCalled()
     expect(screen.getByRole('button', { name: '2022' })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: '2024' })).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: `${new Date().getFullYear()}` })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: '2026' })).toBeInTheDocument()
     expect(screen.queryByRole('button', { name: '2023' })).not.toBeInTheDocument()
   })
 

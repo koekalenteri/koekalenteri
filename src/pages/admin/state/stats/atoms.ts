@@ -1,9 +1,8 @@
 import { atom } from 'jotai'
-import { TIME_ZONE, yearOf } from '@/lib/day'
+import { currentYear, TIME_ZONE } from '@/lib/day'
 import { atomWithLocalStorage } from '@/pages/state/storage'
 
-// Read when the module loads: the default year before the picker is touched (see freezeClockNow for tests).
-export const adminStatsYearAtom = atom<number>(yearOf(new Date(), TIME_ZONE))
+export const adminStatsYearAtom = atom<number>(currentYear(TIME_ZONE))
 
 /** Empty string means "all organizations the user has access to". */
 export const adminStatsOrganizerIdAtom = atomWithLocalStorage<string>('adminStatsOrganizerId', '')

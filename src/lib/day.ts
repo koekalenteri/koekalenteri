@@ -108,8 +108,20 @@ export const eachDay = (from: DayKey, to: DayKey): DayKey[] => {
 export const dayOfWeek = (day: DayKey): number => new Date(utcMidnight(day)).getUTCDay()
 
 /**
- * The day the instant falls on in `zone`. An invalid instant has no day and throws; a caller that
- * holds a value from storage or a request checks it first.
+ * Whether the instant has a day in the calendar's range in `zone`: a valid moment whose year there is
+ * 1000 to 9999. The Kennel Club's empty date (0001-01-01) is a valid Date but no calendar day.
+ */
+export const hasCalendarDay = (instant: Date | number, zone: string): boolean => {
+  const zoned = new TZDate(Number(instant), zone)
+  if (Number.isNaN(zoned.getTime())) return false
+  const year = zoned.getFullYear()
+  return year >= 1000 && year <= 9999
+}
+
+/**
+ * The day the instant falls on in `zone`. An instant without a calendar day (invalid, or outside the
+ * years 1000 to 9999) throws; a caller that holds a value from storage or a request checks it first
+ * with `hasCalendarDay`.
  */
 export const dayOf = (instant: Date | number, zone: string): DayKey => {
   const zoned = new TZDate(Number(instant), zone)
@@ -130,8 +142,9 @@ export const dayStart = (day: DayKey, zone: string): Date => {
 /** The last millisecond of the day in `zone`: a day of 23 or 25 hours ends where the next one starts. */
 export const dayEnd = (day: DayKey, zone: string): Date => new Date(dayStart(addDays(day, 1), zone).getTime() - 1)
 
-/** The first moment, in `zone`, of the day the instant falls on there. */
-export const dayStartOf = (instant: Date | number, zone: string): Date => dayStart(dayOf(instant, zone), zone)
+/** The first moment, in `zone`, of the day the instant falls on there, or of the day `days` days from it. */
+export const dayStartOf = (instant: Date | number, zone: string, days = 0): Date =>
+  dayStart(addDays(dayOf(instant, zone), days), zone)
 
 /** The last millisecond, in `zone`, of the day the instant falls on there. */
 export const dayEndOf = (instant: Date | number, zone: string): Date => dayEnd(dayOf(instant, zone), zone)
@@ -141,6 +154,18 @@ export const sameDay = (a: Date | number, b: Date | number, zone: string): boole
 
 /** The year the instant falls in, in `zone`. */
 export const yearOf = (instant: Date | number, zone: string): number => dayParts(dayOf(instant, zone)).year
+
+/** The first moment of the year in `zone`. */
+export const yearStart = (year: number, zone: string): Date => dayStart(toDayKey(year, 1, 1), zone)
+
+/** The last millisecond of the year in `zone`. */
+export const yearEnd = (year: number, zone: string): Date => dayEnd(toDayKey(year, 12, 31), zone)
+
+/**
+ * The year it is now in `zone`. The stats pages read it once, when their module loads, as the year
+ * picker's default; a test that needs another year freezes the clock before the import (freezeClockNow).
+ */
+export const currentYear = (zone: string): number => yearOf(new Date(), zone)
 
 /** The month the instant falls in, in `zone`, as `yyyy-MM`: the key the statistics bucket by. */
 export const monthOf = (instant: Date | number, zone: string): string => dayOf(instant, zone).slice(0, 7)

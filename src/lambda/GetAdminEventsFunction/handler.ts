@@ -1,8 +1,8 @@
 import type { JsonDogEvent, JsonUser } from '../../types'
-import { TIME_ZONE, yearOf } from '../../lib/day'
+import { hasCalendarDay, TIME_ZONE, yearOf } from '../../lib/day'
 import { CONFIG } from '../config'
 import { authorizeWithMemberOf } from '../lib/auth'
-import { lambda, response } from '../lib/lambda'
+import { httpError, lambda, response } from '../lib/lambda'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 
 const dynamoDB = new CustomDynamoClient(CONFIG.eventTable)
@@ -38,6 +38,7 @@ const querySeason = (season: number, updatedAfter?: string) =>
 /** What changed since the client last asked, every season the change can be in. */
 const queryChangedSince = async (since: string): Promise<JsonDogEvent[]> => {
   const sinceInstant = new Date(Number(since))
+  if (!hasCalendarDay(sinceInstant, TIME_ZONE)) throw httpError(400, 'Bad request: since must be a valid time')
   const updatedAfter = sinceInstant.toISOString()
   const startSeason = seasonOf(sinceInstant)
   const endSeason = seasonOf(new Date())
