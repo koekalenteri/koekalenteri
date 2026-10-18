@@ -253,10 +253,10 @@ export const shiftDays = (instant: Date, days: number, zone: string): Date =>
 /*
  * The browser's day. MUI's date pickers (AdapterDateFns) read and write a Date in the browser's zone
  * and have no zone of their own, so the day a picker shows is the Date's local year, month and date.
- * These three are the one place that reads or builds such a Date, until the dog's dates are stored as
- * days and the pickers take day keys (KOE-1547, KOE-1548). The callers are the pickers' own values
- * and the dog's birth date, which the typed boundary reads from Kennelliitto's zone-less stamp as a
- * local midnight and the dob picker writes as a local day.
+ * These three are the one place that reads or builds such a Date. The callers are the pickers' own
+ * values (DateRange turns them into day keys and back, KOE-1548) and, until the dog's dates are
+ * stored as days, the dog's birth date, which the typed boundary reads from Kennelliitto's zone-less
+ * stamp as a local midnight and the dob picker writes as a local day.
  */
 
 /**

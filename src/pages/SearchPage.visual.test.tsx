@@ -1,4 +1,5 @@
 import type { ConfirmedEvent, Language } from '../types'
+import type { FilterProps } from './state'
 import { TZDate } from '@date-fns/tz'
 import { createTheme, ThemeProvider } from '@mui/material/styles'
 import { LocalizationProvider } from '@mui/x-date-pickers'
@@ -72,13 +73,13 @@ const events = [
 ]
 
 // The default filter's start is "today" on the real clock; pin it so the list doesn't drift.
-const fixedFilter = {
+const fixedFilter: FilterProps = {
   end: null,
   eventClass: [],
   eventType: [],
   judge: [],
   organizer: [],
-  start: day('2026-09-01'),
+  start: '2026-09-01',
   withClosingEntry: false,
   withFreePlaces: false,
   withOpenEntry: false,

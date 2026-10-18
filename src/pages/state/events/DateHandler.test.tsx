@@ -1,8 +1,9 @@
-import type { PublicDogEvent } from '@/types'
+import type { DayKey, PublicDogEvent } from '@/types'
 import { act, render } from '@testing-library/react'
 import { addDays } from 'date-fns'
 import { TestProvider as Provider } from 'test-utils/AtomProvider'
 import { getEvents } from '@/api/event'
+import { dayEnd, dayStart, TIME_ZONE } from '@/lib/day'
 import { startOfFinnishDay } from '@/test-utils/finnishDays'
 import { eventFilterAtom, eventMetadataAtom, eventsAtom } from './atoms'
 import { DateHandler } from './DateHandler'
@@ -33,17 +34,20 @@ function makeEvent(id: string, startDate: string, endDate?: string): PublicDogEv
   } as PublicDogEvent
 }
 
-const start = new Date('2026-01-02T00:00:00.000Z')
-const end = new Date('2026-01-05T00:00:00.000Z')
+// The filter's days, and the range the handler asks for: from the start of the first to the end of the last.
+const startDay: DayKey = '2026-01-02'
+const endDay: DayKey = '2026-01-05'
+const start = dayStart(startDay, TIME_ZONE)
+const end = dayEnd(endDay, TIME_ZONE)
 const initialSystemTime = new Date('2026-01-02T12:00:00.000Z')
 
-function renderDateHandler(lastSyncAt: number, filterStart: Date | null = start) {
+function renderDateHandler(lastSyncAt: number, filterStart: DayKey | null = startDay) {
   return render(
     <Provider
       initializeState={({ set }) => {
         set(eventsAtom, [makeEvent('event-1', '2026-01-03T00:00:00.000Z')])
         set(eventFilterAtom, {
-          end,
+          end: endDay,
           eventClass: [],
           eventType: [],
           judge: [],

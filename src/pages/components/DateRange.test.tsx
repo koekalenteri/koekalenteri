@@ -1,13 +1,14 @@
-import type { DateValue, Props } from './DateRange'
+import type { DayKey } from '../../types'
+import type { DayValue, Props } from './DateRange'
 import { TZDate } from '@date-fns/tz'
 import { DatePicker } from '@mui/x-date-pickers'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
 import { screen } from '@testing-library/react'
-import { parseISO } from 'date-fns'
 import { useState } from 'react'
 import { locales } from '../../i18n'
-import { TIME_ZONE } from '../../lib/day'
+import { TIME_ZONE, toDayKey } from '../../lib/day'
+import { noonOfFinnishDay } from '../../test-utils/finnishDays'
 import { describeInTimeZone } from '../../test-utils/timeZone'
 import { flushPromises, renderWithUserEvents, typeDateKeyByKey } from '../../test-utils/utils'
 import DateRange from './DateRange'
@@ -29,20 +30,22 @@ const renderComponent = (props: Props) => {
 /** A parent that keeps what DateRange reports, as the search page and the event form do. */
 const StatefulDateRange = ({ onChange, ...props }: Props) => {
   const [range, setRange] = useState({ end: props.end, start: props.start })
-  const handleChange = (start: DateValue, end: DateValue) => {
+  const handleChange = (start: DayValue, end: DayValue) => {
     setRange({ end, start })
     onChange?.(start, end)
   }
   return <DateRange {...props} end={range.end} onChange={handleChange} start={range.start} />
 }
 
+/** A day of October 2026, the month the calendars open on. */
+const oct = (day: number): DayKey => toDayKey(2026, 10, day)
+
 describe('DateRange', () => {
   it('should render labels', () => {
     renderComponent({
-      end: parseISO('2021-02-01T12:00:00Z'),
+      end: '2021-02-01',
       endLabel: 'End Label',
-      // Avoid `parseISO('YYYY-MM-DD')` (timezone-dependent).
-      start: parseISO('2021-01-01T12:00:00Z'),
+      start: '2021-01-01',
       startLabel: 'Start Label',
     })
 
@@ -52,11 +55,10 @@ describe('DateRange', () => {
 
   it('should render labels when required', () => {
     renderComponent({
-      end: parseISO('2021-02-01T12:00:00Z'),
+      end: '2021-02-01',
       endLabel: 'End Label',
       required: true,
-      // Avoid `parseISO('YYYY-MM-DD')` (timezone-dependent).
-      start: parseISO('2021-01-01T12:00:00Z'),
+      start: '2021-01-01',
       startLabel: 'Start Label',
     })
 
@@ -65,23 +67,13 @@ describe('DateRange', () => {
     expect(screen.getAllByText('*')).toHaveLength(2)
   })
 
+  // The days have no zone, so a browser west or east of Finland shows and reports the same ones
+  // (KOE-1539, KOE-1548), whatever zone the machine running the tests is in.
   describe.each([TIME_ZONE, 'America/New_York', 'Asia/Tokyo'])('interactions in %s', (zone) => {
     describeInTimeZone(zone, () => {
-      /**
-       * A moment of a Finnish October 2026 day, as the callers' bounds are (startOfFinnishDay,
-       * endOfFinnishDay), as a plain Date: a TZDate would become the picker's reference and carry its
-       * zone into the typed value.
-       */
-      const finnish = (day: number, hours = 0, minutes = 0, seconds = 0) =>
-        new Date(new TZDate(2026, 9, day, hours, minutes, seconds, TIME_ZONE).getTime())
       // A fixed day, so that the calendar of an empty field opens on the month the tests click in.
-      beforeAll(() => vi.useFakeTimers({ now: finnish(10, 12) }))
+      beforeAll(() => vi.useFakeTimers({ now: noonOfFinnishDay(oct(10)) }))
       afterAll(() => vi.useRealTimers())
-      const start = finnish(1)
-      const day15 = finnish(15)
-      const day16 = finnish(16)
-      const day15String = '15.10.2026'
-      const day16String = '16.10.2026'
 
       it('should onChange when selecting dates by mouse', async () => {
         const changeHandler = vi.fn()
@@ -90,61 +82,68 @@ describe('DateRange', () => {
           end: null,
           endLabel: 'end',
           onChange: changeHandler,
-          start,
+          start: oct(1),
           startLabel: 'start',
         })
 
         await user.click(startCalendar)
 
         await screen.findByRole('dialog', { hidden: false })
-        const btn15 = screen.getByRole('gridcell', { name: '15' })
-        await user.click(btn15)
+        await user.click(screen.getByRole('gridcell', { name: '15' }))
         await flushPromises()
 
-        expect(changeHandler).toHaveBeenCalled()
-        expect(changeHandler).toHaveBeenCalledWith(day15, null)
+        expect(changeHandler).toHaveBeenCalledWith(oct(15), null)
 
         await user.click(endCalendar)
         await screen.findByRole('dialog', { hidden: false })
-        const btn16 = screen.getByRole('gridcell', { name: '16' })
-        await user.click(btn16)
+        await user.click(screen.getByRole('gridcell', { name: '16' }))
         await flushPromises()
 
         expect(changeHandler).toHaveBeenCalledTimes(2)
         // as we are not persisting the changes, start resets to original value
-        expect(changeHandler).toHaveBeenCalledWith(start, day16)
+        expect(changeHandler).toHaveBeenCalledWith(oct(1), oct(16))
       })
 
       it('should not allow selecting dates outside of range', async () => {
         const changeHandler = vi.fn()
-        const range = {
-          end: finnish(20),
-          start: finnish(10),
-        }
 
         const { startCalendar, user } = renderComponent({
           end: null,
           endLabel: 'end',
           onChange: changeHandler,
-          range,
-          start,
+          range: { end: oct(20), start: oct(10) },
+          start: oct(1),
           startLabel: 'start',
         })
 
         await user.click(startCalendar)
         await screen.findByRole('dialog', { hidden: false })
 
-        const btn9 = screen.getByRole('gridcell', { name: '9' })
-        expect(btn9).toBeDisabled()
+        expect(screen.getByRole('gridcell', { name: '9' })).toBeDisabled()
+        expect(screen.getByRole('gridcell', { name: '10' })).toBeEnabled()
+        expect(screen.getByRole('gridcell', { name: '20' })).toBeEnabled()
+        expect(screen.getByRole('gridcell', { name: '21' })).toBeDisabled()
 
-        const btn21 = screen.getByRole('gridcell', { name: '21' })
-        expect(btn21).toBeDisabled()
-
-        const btn15 = screen.getByRole('gridcell', { name: '15' })
-        await user.click(btn15)
+        await user.click(screen.getByRole('gridcell', { name: '15' }))
         await flushPromises()
 
-        expect(changeHandler).toHaveBeenCalledWith(day15, null)
+        expect(changeHandler).toHaveBeenCalledWith(oct(15), null)
+      })
+
+      it('marks the default day in the calendar of an empty field', async () => {
+        const { startCalendar, user } = renderComponent({
+          defaultStart: oct(20),
+          end: null,
+          endLabel: 'end',
+          start: null,
+          startLabel: 'start',
+        })
+
+        await user.click(startCalendar)
+        await screen.findByRole('dialog', { hidden: false })
+
+        expect(screen.getByRole('gridcell', { name: '20' })).toHaveStyle({ borderWidth: '2px' })
+        expect(screen.getByRole('gridcell', { name: '21' })).not.toHaveStyle({ borderWidth: '2px' })
       })
 
       it('should onChange when typing dates', async () => {
@@ -154,7 +153,7 @@ describe('DateRange', () => {
           end: null,
           endLabel: 'end',
           onChange: changeHandler,
-          start,
+          start: oct(1),
           startLabel: 'start',
         })
 
@@ -163,20 +162,40 @@ describe('DateRange', () => {
         const startDay = screen.getAllByRole('spinbutton')[0]
         await user.click(startDay)
         await user.keyboard('{Control>}a{/Control}')
-        await user.paste(day15String)
+        await user.paste('15.10.2026')
         await flushPromises()
 
-        expect(changeHandler).toHaveBeenLastCalledWith(day15, null)
+        expect(changeHandler).toHaveBeenLastCalledWith(oct(15), null)
 
         const endDay = screen.getByRole('group', { name: 'end' }).querySelector<HTMLElement>('[role="spinbutton"]')
         if (!endDay) throw new Error('End date day section not found')
         await user.click(endDay)
         await user.keyboard('{Control>}a{/Control}')
-        await user.paste(day16String)
+        await user.paste('16.10.2026')
         await flushPromises()
 
         // as we are not persisting the changes, start resets to original value
-        expect(changeHandler).toHaveBeenLastCalledWith(start, day16)
+        expect(changeHandler).toHaveBeenLastCalledWith(oct(1), oct(16))
+      })
+
+      it('shows a day key as that day and reports the picked day as a key (KOE-1548)', async () => {
+        const changeHandler = vi.fn()
+        const { startCalendar, user } = renderComponent({
+          end: null,
+          endLabel: 'end',
+          onChange: changeHandler,
+          start: '2026-10-06',
+          startLabel: 'start',
+        })
+
+        expect(screen.getByRole('group', { name: 'start' })).toHaveTextContent('06.10.2026')
+
+        await user.click(startCalendar)
+        await screen.findByRole('dialog', { hidden: false })
+        await user.click(screen.getByRole('gridcell', { name: '7' }))
+        await flushPromises()
+
+        expect(changeHandler).toHaveBeenLastCalledWith('2026-10-07', null)
       })
 
       /** Renders a StatefulDateRange and types `keys` into the field one key at a time, as a person does. */
@@ -195,42 +214,36 @@ describe('DateRange', () => {
       }
 
       it('keeps a date typed into the empty end date one key at a time (KOE-1481)', async () => {
-        const today = finnish(10)
-        const target = finnish(28)
         // A person's pace: the range's debounce runs out between the keys. The year's first digit
         // makes year 2, a whole date before the start, which used to empty the field (KOE-1481).
-        const { changeHandler, group } = await typeInto('end', '28102026', { end: null, start: today })
+        const { changeHandler, group } = await typeInto('end', '28102026', { end: null, start: oct(10) })
 
         expect(group).toHaveTextContent('28.10.2026')
-        expect(changeHandler).toHaveBeenLastCalledWith(today, target)
+        expect(changeHandler).toHaveBeenLastCalledWith(oct(10), oct(28))
       })
 
-      // The days are Finnish days, so a browser west or east of Finland reads and reports the same ones
-      // (KOE-1539), whatever zone the machine running the tests is in.
+      // A bound is a whole day, both ends included: no time of day can push a typed day out (KOE-1538).
       const sameDayCases = [
         {
-          // The search page: emptying the start and typing the year digit by digit leaves the start
-          // at 23:55:55 of the typed day (the year passes through 2, 20 and 202 in local mean time).
-          case: 'an end typed on the day of a start that has a late time',
-          expected: [finnish(31, 23, 55, 55), finnish(31)],
+          case: 'an end typed on the day of the start',
+          expected: [oct(31), oct(31)],
           field: 'end',
           keys: '31102026',
-          props: { end: null, start: finnish(31, 23, 55, 55) },
+          props: { end: null, start: oct(31) },
         },
         {
-          case: 'a start typed on the first day of a range that starts later that day',
-          expected: [finnish(31), null],
+          case: 'a start typed on the first day of the range',
+          expected: [oct(31), null],
           field: 'start',
           keys: '31102026',
-          props: { end: null, range: { start: finnish(31, 12) }, start: null },
+          props: { end: null, range: { start: oct(31) }, start: null },
         },
         {
-          // What is reported is the Finnish day's start, whatever time the field had.
-          case: 'a start moved to the last day of a range that ends earlier that day',
-          expected: [finnish(31), null],
+          case: 'a start moved to the last day of the range',
+          expected: [oct(31), null],
           field: 'start',
           keys: '31',
-          props: { end: null, range: { end: finnish(31, 12) }, start: finnish(30, 20) },
+          props: { end: null, range: { end: oct(31) }, start: oct(30) },
         },
       ] as const
 
@@ -244,51 +257,64 @@ describe('DateRange', () => {
         }
       )
 
-      // The day after the range ends is a case the old comparison got wrong in Tokyo (31.10. 00:00 there
-      // is 30.10. in Finland). The day before the range starts it refused anyway, as no zone's midnight
-      // is a later Finnish day than the one typed: a regression guard.
       it.each([
-        { case: 'the day before the range starts', keys: '30102026', range: { start: finnish(31, 12) } },
-        { case: 'the day after the range ends', keys: '31102026', range: { end: finnish(30, 12) } },
+        { case: 'the day before the range starts', keys: '30102026', range: { start: oct(31) } },
+        { case: 'the day after the range ends', keys: '31102026', range: { end: oct(30) } },
       ])('refuses a start typed on $case (KOE-1538)', async ({ keys, range }) => {
         const { changeHandler } = await typeInto('start', keys, { end: null, range, start: null })
 
-        expect(changeHandler).not.toHaveBeenCalledWith(expect.any(Date), null)
+        expect(changeHandler).not.toHaveBeenCalledWith(expect.any(String), null)
         expect(changeHandler).toHaveBeenLastCalledWith(null, null)
       })
 
-      it("shows the Finnish day of a value, not the browser zone's (KOE-1539)", () => {
-        renderComponent({ end: finnish(17, 23, 59, 59), endLabel: 'end', start: finnish(16), startLabel: 'start' })
+      it('shows the day of a value, not one of the browser zone (KOE-1539)', () => {
+        renderComponent({ end: oct(17), endLabel: 'end', start: oct(16), startLabel: 'start' })
 
         expect(screen.getByRole('group', { name: 'start' })).toHaveTextContent('16.10.2026')
         expect(screen.getByRole('group', { name: 'end' })).toHaveTextContent('17.10.2026')
       })
 
-      it('accepts the same Finnish day typed for the end as the start has (KOE-1538, KOE-1539)', async () => {
-        const { changeHandler, group } = await typeInto('end', '16102026', { end: null, start: finnish(16) })
+      it('accepts the same day typed for the end as the start has (KOE-1538, KOE-1539)', async () => {
+        const { changeHandler, group } = await typeInto('end', '16102026', { end: null, start: oct(16) })
 
         expect(group).toHaveTextContent('16.10.2026')
-        expect(changeHandler).toHaveBeenLastCalledWith(finnish(16), finnish(16))
+        expect(changeHandler).toHaveBeenLastCalledWith(oct(16), oct(16))
       })
 
-      it('refuses an end typed on the Finnish day before the start (KOE-1539)', async () => {
-        const { changeHandler } = await typeInto('end', '15102026', { end: null, start: finnish(16) })
+      it('refuses an end typed on the day before the start (KOE-1539)', async () => {
+        const { changeHandler } = await typeInto('end', '15102026', { end: null, start: oct(16) })
 
-        expect(changeHandler).toHaveBeenLastCalledWith(finnish(16), null)
+        expect(changeHandler).toHaveBeenLastCalledWith(oct(16), null)
+      })
+
+      it('refuses an end before a start that is later than the range start', async () => {
+        const { changeHandler } = await typeInto('end', '15102026', {
+          end: null,
+          range: { start: oct(10) },
+          start: oct(16),
+        })
+
+        expect(changeHandler).toHaveBeenLastCalledWith(oct(16), null)
+      })
+
+      it('refuses a whole date in a year no day key spells', async () => {
+        const { changeHandler } = await typeInto('start', '01011050', { end: null, start: null })
+
+        expect(changeHandler).not.toHaveBeenCalledWith(expect.any(String), null)
+        expect(changeHandler).toHaveBeenLastCalledWith(null, null)
       })
 
       it('should not allow setting the end date before the current start date', async () => {
         const changeHandler = vi.fn()
 
         const { user } = renderComponent({
-          end: day16,
+          end: oct(16),
           endLabel: 'end',
           onChange: changeHandler,
-          start: day15,
+          start: oct(15),
           startLabel: 'start',
         })
 
-        const earlierDate = finnish(1)
         const endDay = screen.getByRole('group', { name: 'end' }).querySelector<HTMLElement>('[role="spinbutton"]')
         if (!endDay) throw new Error('End date day section not found')
         await user.click(endDay)
@@ -296,8 +322,8 @@ describe('DateRange', () => {
         await flushPromises()
 
         // the invalid, out-of-order value is rejected: end falls back to its previous value
-        expect(changeHandler).toHaveBeenCalledWith(day15, day16)
-        expect(changeHandler).not.toHaveBeenCalledWith(day15, earlierDate)
+        expect(changeHandler).toHaveBeenCalledWith(oct(15), oct(16))
+        expect(changeHandler).not.toHaveBeenCalledWith(oct(15), oct(1))
       })
 
       it.runIf(zone === 'America/New_York')(
@@ -305,27 +331,17 @@ describe('DateRange', () => {
         () => {
           renderWithUserEvents(
             <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales.fi}>
-              <DatePicker label="day" timezone={TIME_ZONE} value={finnish(16)} />
+              <DatePicker
+                label="day"
+                timezone={TIME_ZONE}
+                value={new Date(new TZDate(2026, 9, 16, TIME_ZONE).getTime())}
+              />
             </LocalizationProvider>
           )
 
           expect(screen.getByRole('group', { name: 'day' })).toHaveTextContent('15.10.2026')
         }
       )
-
-      it('refuses a start typed on the Finnish day before the range starts (KOE-1538)', async () => {
-        // A regression guard: EntrySection's range starts at startOfFinnishDay(createdAt), 16.10. 00:00 in
-        // Finland, which is 15.10. 17:00 in New York, the same local day as the 15.10. typed there. The
-        // instant comparison refused this too; no zone's midnight is a later Finnish day than the one typed.
-        const { changeHandler } = await typeInto('start', '15102026', {
-          end: null,
-          range: { start: finnish(16) },
-          start: null,
-        })
-
-        expect(changeHandler).not.toHaveBeenCalledWith(finnish(15), null)
-        expect(changeHandler).toHaveBeenLastCalledWith(null, null)
-      })
     })
   })
 })
