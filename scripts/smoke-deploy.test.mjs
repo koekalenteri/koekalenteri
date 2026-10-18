@@ -1,5 +1,5 @@
 import { execFile, execFileSync, spawnSync } from 'node:child_process'
-import { mkdtempSync, rmSync, writeFileSync } from 'node:fs'
+import { mkdtempSync, realpathSync, rmSync, writeFileSync } from 'node:fs'
 import { createServer } from 'node:http'
 import { tmpdir } from 'node:os'
 import path from 'node:path'
@@ -411,20 +411,34 @@ describe('the command line against a server', () => {
 
   it('passes a dev deploy that Amplify built from a later commit on main with a bumped version', async () => {
     // A history of its own: CI's checkout is shallow, so the repo's own parent commit is not there.
-    const repo = mkdtempSync(path.join(tmpdir(), 'smoke-deploy-git-'))
-    // Without the GIT_* variables a git hook sets (the pre-commit hook runs these tests), which
-    // would otherwise point every command here at the repository being committed to.
-    const env = Object.fromEntries(Object.entries(process.env).filter(([name]) => !name.startsWith('GIT_')))
-    const config = ['-c', 'user.name=smoke', '-c', 'user.email=smoke@example.invalid', '-c', 'core.hooksPath=/dev/null']
+    // It must never reach the caller's repository. The pre-commit hook runs this file with GIT_DIR
+    // and GIT_INDEX_FILE set, and a `git init` that inherits them rewrites the repository being
+    // committed to (core.bare = true in its shared config). So git here gets a built environment,
+    // not the caller's: no GIT_* variable, an empty global config, no system config, and a ceiling
+    // that stops discovery above the throwaway directory.
+    const base = realpathSync(mkdtempSync(path.join(tmpdir(), 'smoke-deploy-git-')))
+    const repo = path.join(base, 'repo')
+    const globalConfig = path.join(base, 'gitconfig')
+    writeFileSync(globalConfig, '')
+    const env = {
+      GIT_CEILING_DIRECTORIES: base,
+      GIT_CONFIG_GLOBAL: globalConfig,
+      GIT_CONFIG_NOSYSTEM: '1',
+      HOME: base,
+      PATH: process.env.PATH,
+    }
+    const config = ['-c', 'user.name=smoke', '-c', 'user.email=smoke@example.invalid', '-c', 'commit.gpgsign=false']
     const git = (...args) => execFileSync('git', [...config, ...args], { cwd: repo, encoding: 'utf8', env }).trim()
     try {
-      git('init', '-q')
+      execFileSync('git', ['init', '-q', repo], { cwd: base, env })
+      // Every later command runs in `repo`; refuse to go on if git resolves anything else there.
+      expect(git('rev-parse', '--absolute-git-dir')).toBe(path.join(repo, '.git'))
       writeFileSync(path.join(repo, 'package.json'), '{ "version": "1.2.3" }')
       git('add', 'package.json')
-      git('commit', '-q', '--no-gpg-sign', '-m', 'checked out by deploy-frontend')
+      git('commit', '-q', '-m', 'checked out by deploy-frontend')
       const expected = git('rev-parse', 'HEAD')
       writeFileSync(path.join(repo, 'package.json'), '{ "version": "1.3.0" }')
-      git('commit', '-q', '--no-gpg-sign', '-am', 'pushed before Amplify cloned')
+      git('commit', '-q', '-am', 'pushed before Amplify cloned')
       stamp = { revision: git('rev-parse', 'HEAD'), version: '1.3.0' }
 
       const result = await runIn(
@@ -437,7 +451,7 @@ describe('the command line against a server', () => {
       expect(result.status).toBe(0)
       expect(result.stdout).toContain(`version 1.3.0, revision ${stamp.revision}`)
     } finally {
-      rmSync(repo, { force: true, recursive: true })
+      rmSync(base, { force: true, recursive: true })
     }
   })
 
