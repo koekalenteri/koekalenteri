@@ -46,7 +46,7 @@ const refreshEventTypes = async (user: JsonUser) => {
   const existing = await readEventTypes()
   const eventTypes = await getEventTypesFromKlapi(user)
 
-  const insert = eventTypes.filter((et) => !existing.find((ex) => ex.eventType === et.eventType))
+  const insert = eventTypes.filter((et) => !existing.some((ex) => ex.eventType === et.eventType))
 
   if (insert.length) {
     logger.info('new event types', { eventTypes: insert.map((et) => et.eventType) })

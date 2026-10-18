@@ -8,9 +8,13 @@ vi.doMock('../lib/ws/actions', () => ({
 
 import { constructAPIGwEvent } from '../test-utils/helpers'
 
+const mockKLAPI = {
+  lueKoemuodonKoetoimitsijat: vi.fn(),
+  lueKoemuodonYlituomarit: vi.fn(),
+}
 vi.doMock('../lib/KLAPI', () => ({
-  default: vi.fn(function MockCustomDynamoClient() {
-    return {}
+  default: vi.fn(function MockKLAPI() {
+    return mockKLAPI
   }),
 }))
 
@@ -24,8 +28,20 @@ vi.doMock('../lib/auth', () => ({
 }))
 
 const mockReadAll = vi.fn<() => Promise<Partial<JsonJudge>[]>>()
+const mockWriteAll = vi.fn<(items: JsonJudge[]) => Promise<void>>()
 vi.doMock('../lib/repositories/judgeRepository', () => ({
   readJudges: mockReadAll,
+  writeJudges: mockWriteAll,
+}))
+
+const mockReadEventTypes = vi.fn()
+vi.doMock('../lib/repositories/eventTypeRepository', () => ({
+  readEventTypes: mockReadEventTypes,
+}))
+
+const mockUpdateUsers = vi.fn()
+vi.doMock('../lib/user', () => ({
+  updateUsersFromOfficialsOrJudges: mockUpdateUsers,
 }))
 
 const { authorize } = await import('../lib/auth')
@@ -58,6 +74,41 @@ describe('getJudgesLambda', () => {
     const res = await getJudgesHandler(constructAPIGwEvent({}, { query: { refresh: 'true' } }))
 
     expect(res.statusCode).toEqual(401)
+  })
+
+  it('refreshes the judges from the Kennel Club and syncs them as judge users', async () => {
+    authorizeMock.mockResolvedValueOnce({ ...mockUser, admin: true })
+    mockReadEventTypes.mockResolvedValueOnce([{ active: true, eventType: 'NOME-B', official: true }])
+    mockKLAPI.lueKoemuodonYlituomarit.mockResolvedValueOnce({
+      json: [
+        {
+          jäsennumero: 7,
+          kennelpiiri: 'Helsinki',
+          koemuodot: [{ koemuoto: 'NOME-B', lyhenne: 'NOME-B' }],
+          nimi: 'henkilö testi',
+          paikkakunta: 'espoo',
+          puhelin: '040',
+          sähköposti: 'Testi@Example.com',
+        },
+      ],
+      status: 200,
+    })
+    mockReadAll.mockResolvedValue([])
+
+    const res = await getJudgesHandler(constructAPIGwEvent({}, { query: { refresh: 'true' } }))
+
+    const entry = expect.objectContaining({
+      email: 'testi@example.com',
+      eventTypes: ['NOME-B'],
+      id: 7,
+      official: true,
+    })
+    expect(res.statusCode).toEqual(200)
+    expect(mockKLAPI.lueKoemuodonYlituomarit).toHaveBeenCalledWith({ Kieli: 1, Koemuoto: 'NOME-B' })
+    expect(mockKLAPI.lueKoemuodonKoetoimitsijat).not.toHaveBeenCalled()
+    expect(mockWriteAll).toHaveBeenCalledWith([entry])
+    expect(mockUpdateUsers).toHaveBeenCalledWith([entry], 'judge')
+    expect(mockPublishAdminDataInvalidation).toHaveBeenCalledWith(['judges', 'users'])
   })
 
   it('should return all non-deleted officials', async () => {
