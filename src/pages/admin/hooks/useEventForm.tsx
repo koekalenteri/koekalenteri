@@ -28,6 +28,7 @@ type RefusalKey =
   | 'event.kcIdConflict'
   | 'event.kcGuidConflict'
   | 'event.kcGuidLocked'
+  | 'event.paymentLocked'
 
 /**
  * The notice for a refusal the secretary can act on: no right to this event, or a 409 the server
@@ -41,6 +42,7 @@ const knownRefusal = (error: unknown): RefusalKey | undefined => {
     if (error.body.error === 'kcIdConflict') return 'event.kcIdConflict'
     if (error.body.error === 'kcGuidConflict') return 'event.kcGuidConflict'
     if (error.body.error === 'kcGuidLocked') return 'event.kcGuidLocked'
+    if (error.body.error === 'paymentLocked') return 'event.paymentLocked'
   }
   return undefined
 }

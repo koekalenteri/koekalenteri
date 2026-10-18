@@ -11,6 +11,7 @@ import { NumberInput } from '@/pages/components/NumberInput'
 
 interface OptionalCostRowProps {
   event: PaymentEvent
+  readonly disabled?: boolean
   index: number
   error: boolean
   onRemove: (index: number) => void
@@ -19,6 +20,7 @@ interface OptionalCostRowProps {
 }
 
 export const OptionalCostRow = ({
+  disabled,
   event,
   index,
   error,
@@ -42,6 +44,7 @@ export const OptionalCostRow = ({
             <IconButton
               aria-label={t('edit')}
               data-testid={`edit-optional-${index}`}
+              disabled={disabled}
               size="small"
               onClick={() => onEditDescription(index)}
             >
@@ -53,6 +56,7 @@ export const OptionalCostRow = ({
           <NumberInput
             slotProps={{ input: { inputProps: { 'aria-label': `${optCost.description.fi} ${t('costAmount')}` } } }}
             data-testid={`cost.optionalAdditionalCosts.${index}`}
+            disabled={disabled}
             name={`cost.optionalAdditionalCosts.${index}`}
             value={optCost.cost}
             onChange={(v) => onCostChange('cost', index, v)}
@@ -65,6 +69,7 @@ export const OptionalCostRow = ({
               input: { inputProps: { 'aria-label': `${optCost.description.fi} ${t('costMemberAmount')}` } },
             }}
             data-testid={`costMember.optionalAdditionalCosts.${index}`}
+            disabled={disabled}
             name={`costMember.optionalAdditionalCosts.${index}`}
             value={(event.costMember as DogEventCost).optionalAdditionalCosts?.[index]?.cost ?? optCost.cost}
             onChange={(v) => onCostChange('costMember', index, v)}
@@ -72,7 +77,7 @@ export const OptionalCostRow = ({
           />
         </TableCell>
         <TableCell>
-          <IconButton aria-label={t('delete')} onClick={() => onRemove(index)}>
+          <IconButton aria-label={t('delete')} disabled={disabled} onClick={() => onRemove(index)}>
             <DeleteOutline />
           </IconButton>
         </TableCell>

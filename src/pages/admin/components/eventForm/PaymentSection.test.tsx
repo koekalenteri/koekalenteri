@@ -1419,4 +1419,44 @@ describe('PaymentSection', () => {
 
     expect(screen.getByText('Opt I')).toBeInTheDocument()
   })
+
+  // KOE-1568: once the event has registrations its payment terms stay as they are.
+  describe('when locked', () => {
+    // Untyped, as a stored row may hold a breed key the cleanup would drop: a locked event keeps it.
+    const lockedEvent = {
+      ...eventWithStaticDates,
+      cost: {
+        breed: { '110': 30, abc: 15 },
+        custom: { cost: 25, description: { fi: 'Muu' } },
+        earlyBird: { cost: 30, days: 7 },
+        normal: 40,
+        optionalAdditionalCosts: [{ cost: 5, description: { fi: 'Opt' } }],
+      },
+      costMember: { normal: 35 },
+      paymentTime: undefined,
+    }
+
+    it('lets no payment field change and says why', async () => {
+      const onChange = vi.fn()
+      renderPaymentSection(lockedEvent, onChange, { locked: true })
+      await flushPromises()
+
+      expect(screen.getByText('event.paymentLockedReason')).toBeInTheDocument()
+      for (const input of screen.getAllByRole('textbox')) expect(input).toBeDisabled()
+      for (const button of screen.getAllByRole('button')) expect(button).toBeDisabled()
+      expect(screen.getByRole('combobox', { name: 'paymentTime' })).toHaveAttribute('aria-disabled', 'true')
+      // Neither the breed-key cleanup nor the default payment time writes to a locked event.
+      expect(onChange).not.toHaveBeenCalled()
+    })
+
+    it('locks the fields of an event the form disables as a whole, without the reason', async () => {
+      const onChange = vi.fn()
+      renderPaymentSection(lockedEvent, onChange, { disabled: true })
+      await flushPromises()
+
+      expect(screen.queryByText('event.paymentLockedReason')).not.toBeInTheDocument()
+      for (const input of screen.getAllByRole('textbox')) expect(input).toBeDisabled()
+      expect(onChange).not.toHaveBeenCalled()
+    })
+  })
 })

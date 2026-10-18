@@ -11,6 +11,7 @@ import {
   isStartNumbersAvailableForClass,
   uniqueClasses,
 } from '../../lib/event'
+import { hasPaymentLockingRegistrations, paymentTermsDiffer } from '../../lib/payment'
 import { getStartListBlocker, isStartListFlagPublished } from '../../lib/publishing'
 import { groupParticipantsByClass } from '../../lib/registration'
 import { eventBodySchema } from '../../lib/schema/event'
@@ -297,6 +298,21 @@ const findKcGuidLock = async (
   return sent ? { error: 'kcGuidLocked', message: 'Results have been sent to the linked Kennel Club trial' } : undefined
 }
 
+/**
+ * The prices, the payment time and, with an early-bird rate, the entry start decide every entry's fee.
+ * Once the event has registrations they stay as they are (KOE-1568), by the rule the event form locks
+ * its fields with. The registrations are read only when a term actually changes.
+ */
+const checkPaymentLock = async (existing: JsonConfirmedEvent | undefined, data: JsonConfirmedEvent) => {
+  if (!existing || !paymentTermsDiffer(existing, data)) return
+  if (hasPaymentLockingRegistrations(await getRegistrationsByEventId(existing.id))) {
+    throw httpError(409, {
+      error: 'paymentLocked',
+      message: 'The event has registrations; its payment terms are locked',
+    })
+  }
+}
+
 const putEventLambda = lambda('putEvent', async (event) => {
   const user = await authorize(event)
   if (!user) {
@@ -341,6 +357,7 @@ const putEventLambda = lambda('putEvent', async (event) => {
   // The registration-group lock is server-owned. Never accept it from an
   // admin payload, including when the stored event currently has no lock.
   restoreServerOwnedLocks(data, existing)
+  await checkPaymentLock(existing, data)
   freezeAbsentStartNumbersState(data, existing, item)
   await checkPublishing(existing, item, data)
   await updateEventDerivedFields(data)

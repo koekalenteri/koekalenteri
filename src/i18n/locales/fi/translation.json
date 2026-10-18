@@ -307,6 +307,7 @@
     "entrySectionTitle": "Ilmoittautuminen",
     "entryStart": "Ilmoittautumisaika alkaa",
     "entryStartDate": "Ilmoittautumisen alkamispäivä",
+    "entryStartLockedReason": "Ilmoittautumisen alkamispäivää ei voi muuttaa, koska kokeeseen on jo ilmoittautumisia ja early bird -hinta lasketaan siitä.",
     "eventType": "Tyyppi",
     "headquarters": {
       "address": "Katuosoite",
@@ -369,6 +370,8 @@
     "names": "Nimen käännökset",
     "official": "Vastaava koetoimitsija",
     "organizer": "Järjestäjä",
+    "paymentLocked": "Kokeeseen on jo ilmoittautumisia, joten maksutietoja ei voi enää muuttaa. Lataa sivu uudelleen.",
+    "paymentLockedReason": "Kokeeseen on jo ilmoittautumisia, joten hintoja ja maksuajankohtaa ei voi enää muuttaa.",
     "phase": "Kokeen vaihe",
     "places": "Paikkoja",
     "placesEditor": {

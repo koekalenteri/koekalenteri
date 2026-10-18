@@ -381,9 +381,11 @@ describe('useEventForm', () => {
     consoleErrorSpy.mockRestore()
   })
 
-  it('should say the trial is already linked, without mentioning a koetunnus, for a kcGuid conflict (KOE-1534)', async () => {
+  // KOE-1534: the trial is already linked, said without mentioning a koetunnus. KOE-1568: the event's
+  // registrations lock its payment terms.
+  it.each(['kcGuidConflict', 'paymentLocked'])('should name the refusal for a %s conflict', async (refusal) => {
     const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
-    mockSave.mockRejectedValue(new APIError({ status: 409, statusText: '' } as Response, { error: 'kcGuidConflict' }))
+    mockSave.mockRejectedValue(new APIError({ status: 409, statusText: '' } as Response, { error: refusal }))
 
     const { result } = renderHook(() => useEventForm(), {
       wrapper: Provider,
@@ -393,7 +395,7 @@ describe('useEventForm', () => {
       await result.current.handleSave()
     })
 
-    expect(mockEnqueueSnackbar).toHaveBeenCalledWith('event.kcGuidConflict', errorSnackbarOptions)
+    expect(mockEnqueueSnackbar).toHaveBeenCalledWith(`event.${refusal}`, errorSnackbarOptions)
     expect(consoleErrorSpy).not.toHaveBeenCalled()
     expect(mockNavigate).not.toHaveBeenCalled()
 

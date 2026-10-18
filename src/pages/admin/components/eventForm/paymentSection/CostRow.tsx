@@ -16,6 +16,7 @@ interface CostRowProps {
   costKey: DogEventCostKey
   event: PaymentEvent
   breedCode?: BreedCode
+  readonly disabled?: boolean
   error?: boolean
   onEditDescription: (key: DogEventCostKey) => void
   onRemove: (key: DogEventCostKey, breedCode?: BreedCode) => void
@@ -27,6 +28,7 @@ export const CostRow = ({
   costKey,
   event,
   breedCode,
+  disabled,
   error,
   onEditDescription,
   onRemove,
@@ -60,6 +62,7 @@ export const CostRow = ({
               aria-label={t('edit')}
               size="small"
               data-testid={`${costPath}-edit`}
+              disabled={disabled}
               onClick={() => onEditDescription('custom')}
             >
               <EditIcon fontSize="small" />
@@ -84,6 +87,7 @@ export const CostRow = ({
               name="earlyBirdDays"
               slotProps={{ input: { inputProps: { 'aria-label': t('costDescription.earlyBirdDays') } } }}
               data-testid="earlyBirdDays"
+              disabled={disabled}
               value={cost?.earlyBird?.days ?? 0}
               onChange={onEarlyBirdDaysChange}
               sx={{ width: '6ch !important' }}
@@ -108,6 +112,7 @@ export const CostRow = ({
             name={costPath}
             slotProps={{ input: { inputProps: { 'aria-label': `${costName} ${t('costAmount')}` } } }}
             data-testid={costPath}
+            disabled={disabled}
             value={getCostValue(event.cost ?? 0, costKey, breedCode)}
             onChange={(v) => onCostChange(costPath, v)}
             error={error}
@@ -118,6 +123,7 @@ export const CostRow = ({
             name={memberCostPath}
             slotProps={{ input: { inputProps: { 'aria-label': `${costName} ${t('costMemberAmount')}` } } }}
             data-testid={memberCostPath}
+            disabled={disabled}
             value={getCostValue(event.costMember ?? 0, costKey, breedCode)}
             onChange={(v) => onCostChange(memberCostPath, v)}
             error={error}
@@ -126,7 +132,7 @@ export const CostRow = ({
         <TableCell>
           <IconButton
             aria-label={t('delete')}
-            disabled={costKey === 'normal'}
+            disabled={disabled || costKey === 'normal'}
             data-testid={`${costPath}-delete`}
             onClick={() => onRemove(costKey, breedCode)}
           >

@@ -3,6 +3,7 @@ import type { BreedCode } from '@/types'
 import type { DogEventCost, DogEventCostKey } from '@/types/Cost'
 import type { PartialEvent, PaymentEvent, SectionProps } from './types'
 import AddIcon from '@mui/icons-material/Add'
+import Alert from '@mui/material/Alert'
 import Button from '@mui/material/Button'
 import FormControl from '@mui/material/FormControl'
 import Grid from '@mui/material/Grid'
@@ -30,6 +31,7 @@ import { OptionalCostRow } from './paymentSection/OptionalCostRow'
 
 type PaymentTimeValue = 'registration' | 'confirmation'
 type EventCostInput = DogEventCost | number | undefined
+type CostValueData = Parameters<typeof setCostValue>[3]
 
 // Define the order for cost types
 const COST_TYPE_ORDER: Record<string, number> = {
@@ -119,10 +121,12 @@ function CostTableSection({
 
 interface Props extends Readonly<Omit<SectionProps, 'event'>> {
   readonly event: PaymentEvent
+  /** The event has registrations, so its payment terms stay as they are (KOE-1568). */
+  readonly locked?: boolean
 }
 
 function PaymentSection({
-  disabled: _disabled,
+  disabled: formDisabled,
   errorStates,
   event,
   fields: _fields,
@@ -130,8 +134,10 @@ function PaymentSection({
   open,
   onOpenChange,
   errors,
+  locked,
 }: Props) {
   const { t } = useTranslation()
+  const disabled = formDisabled || locked
   const [dialogMode, setDialogMode] = useState<'optional' | 'other' | null>(null)
   const [editDialogOpen, setEditDialogOpen] = useState(false)
   const [editingCostKey, setEditingCostKey] = useState<DogEventCostKey | null>(null)
@@ -150,6 +156,7 @@ function PaymentSection({
   const optionalAdditionalCosts = (typeof event.cost === 'object' && event.cost.optionalAdditionalCosts) || []
 
   useEffect(() => {
+    if (disabled) return
     const clean = (cost: DogEventCost | number | undefined) => {
       if (typeof cost !== 'object' || !cost.breed) {
         return cost
@@ -171,14 +178,14 @@ function PaymentSection({
     if (newCost !== event.cost || newCostMember !== event.costMember) {
       onChange?.({ cost: newCost, costMember: newCostMember })
     }
-  }, [event.cost, event.costMember, onChange])
+  }, [disabled, event.cost, event.costMember, onChange])
 
   // Set default payment time to 'registration' if not defined
   useEffect(() => {
-    if (event.paymentTime === undefined) {
+    if (!disabled && event.paymentTime === undefined) {
       onChange?.({ paymentTime: 'registration' })
     }
-  }, [event.paymentTime, onChange])
+  }, [disabled, event.paymentTime, onChange])
 
   const eventCostKeys: DogEventCostKey[] = useMemo(() => {
     const cost = event.cost
@@ -200,14 +207,14 @@ function PaymentSection({
   )
 
   const handleAdd = useCallback(
-    (key: DogEventCostKey, data?: any) => {
+    (key: DogEventCostKey, data?: CostValueData) => {
       const cost = toCostObject(event.cost)
       const costMember = toCostObject(event.costMember)
 
       if (key === 'optionalAdditionalCosts') {
         const newOptionalCost = {
           cost: 0,
-          description: data.description ?? {
+          description: (data && 'description' in data ? data.description : undefined) ?? {
             en: t('costOptionalNew', { lng: 'en' }),
             fi: t('costOptionalNew', { lng: 'fi' }),
           },
@@ -386,8 +393,13 @@ function PaymentSection({
           maxWidth: 1280,
         }}
       >
+        {locked && (
+          <Grid sx={{ width: '100%' }}>
+            <Alert severity="info">{t('event.paymentLockedReason')}</Alert>
+          </Grid>
+        )}
         <Grid sx={{ minWidth: { sm: 600 }, width: { sm: 'auto', xs: '100%' } }}>
-          <FormControl fullWidth>
+          <FormControl fullWidth disabled={disabled}>
             <InputLabel id="payment-time-label">{t('paymentTime')}</InputLabel>
             <Select
               labelId="payment-time-label"
@@ -405,7 +417,12 @@ function PaymentSection({
           <CostTableSection
             title={t('cost')}
             action={
-              <Button variant="outlined" onClick={() => setDialogMode('other')} startIcon={<AddIcon />}>
+              <Button
+                variant="outlined"
+                disabled={disabled}
+                onClick={() => setDialogMode('other')}
+                startIcon={<AddIcon />}
+              >
                 {t('costAdd')}
               </Button>
             }
@@ -422,6 +439,7 @@ function PaymentSection({
                       costKey={key}
                       event={event}
                       breedCode={breedCode as BreedCode}
+                      disabled={disabled}
                       onEditDescription={handleEditDescription}
                       onRemove={handleRemove}
                       onEarlyBirdDaysChange={handleEarlyBirdDaysChange}
@@ -434,6 +452,7 @@ function PaymentSection({
                   <CostRow
                     key={key}
                     costKey={key}
+                    disabled={disabled}
                     event={event}
                     onEditDescription={handleEditDescription}
                     onRemove={handleRemove}
@@ -448,7 +467,12 @@ function PaymentSection({
           <CostTableSection
             title={t('costNames.optionalAdditionalCosts')}
             action={
-              <Button variant="outlined" onClick={() => setDialogMode('optional')} startIcon={<AddIcon />}>
+              <Button
+                variant="outlined"
+                disabled={disabled}
+                onClick={() => setDialogMode('optional')}
+                startIcon={<AddIcon />}
+              >
                 {t('costAddOptional')}
               </Button>
             }
@@ -456,6 +480,7 @@ function PaymentSection({
             {optionalAdditionalCosts.map((optCost, index) => (
               <OptionalCostRow
                 key={`optional-${optCost.description.fi}`}
+                disabled={disabled}
                 event={event}
                 index={index}
                 onRemove={handleRemoveOptional}

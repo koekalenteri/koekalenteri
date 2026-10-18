@@ -1312,4 +1312,128 @@ describe('putEventLambda', () => {
     expect(JSON.parse(res.body)).toEqual({ message: `Bad request: ${field} must be a valid date` })
     expect(saveEventMock).not.toHaveBeenCalled()
   })
+
+  describe('the payment terms once the event has registrations (KOE-1568)', () => {
+    const earlyBird = { earlyBird: { cost: 30, days: 7 }, normal: 40 }
+    const priced: JsonDogEvent = {
+      ...mockEvent,
+      cost: { normal: 40 },
+      costMember: { normal: 35 },
+      entryStartDate: '2025-04-01T00:00:00.000+03:00',
+      paymentTime: 'registration',
+    }
+    const ready = { id: 'a', state: 'ready' }
+
+    // A value queued for a read that never came must not answer this block's reads.
+    beforeEach(() => mockGetRegistrationsByEventId.mockReset())
+
+    const put = async (stored: JsonDogEvent, change: Partial<JsonDogEvent>, method: 'PATCH' | 'PUT' = 'PUT') => {
+      authorizeMock.mockResolvedValueOnce(mockSecretary)
+      getEventMock.mockResolvedValueOnce(stored)
+      return putEventLambda(constructAPIGwEvent<Partial<JsonDogEvent>>({ id: 'existing', ...change }, { method }))
+    }
+
+    it.each<[string, Partial<JsonDogEvent>]>([
+      ['the price', { cost: { normal: 45 } }],
+      ['the member price', { costMember: { normal: 30 } }],
+      ['a breed price', { cost: { breed: { '110': 30 }, normal: 40 } }],
+      ['an optional cost', { cost: { normal: 40, optionalAdditionalCosts: [{ cost: 5, description: { fi: 'x' } }] } }],
+      ['the payment time', { paymentTime: 'confirmation' }],
+    ])('refuses a change to %s', async (_name, change) => {
+      mockGetRegistrationsByEventId.mockResolvedValue([ready])
+
+      const res = await put(priced, change)
+
+      expect(res.statusCode).toEqual(409)
+      expect(JSON.parse(res.body)).toMatchObject({ error: 'paymentLocked' })
+      expect(patchEventMock).not.toHaveBeenCalled()
+    })
+
+    it('refuses a change through PATCH too', async () => {
+      mockGetRegistrationsByEventId.mockResolvedValue([ready])
+
+      const res = await put(priced, { cost: { normal: 45 } }, 'PATCH')
+
+      expect(res.statusCode).toEqual(409)
+      expect(mockGetRegistrationsByEventId).toHaveBeenCalledWith('existing')
+    })
+
+    it('counts a cancelled registration, which can be put back into a class', async () => {
+      mockGetRegistrationsByEventId.mockResolvedValue([{ ...ready, cancelled: true }])
+
+      const res = await put(priced, { cost: { normal: 45 } })
+
+      expect(res.statusCode).toEqual(409)
+    })
+
+    it.each<[string, JsonDogEvent, Partial<JsonDogEvent>]>([
+      ['the same price as a new object', priced, { cost: { normal: 40 }, costMember: { normal: 35 } }],
+      ['a stored number as the same price object', { ...priced, cost: 40 }, { cost: { normal: 40 } }],
+      [
+        'the default payment time on an event without one',
+        { ...priced, paymentTime: undefined },
+        { paymentTime: 'registration' },
+      ],
+      ['an unrelated field', priced, { name: 'renamed' }],
+      ['the entry start without an early-bird price', priced, { entryStartDate: '2025-04-03T00:00:00.000+03:00' }],
+      [
+        'the same entry start written another way',
+        { ...priced, cost: earlyBird },
+        { entryStartDate: '2025-03-31T21:00:00.000Z' },
+      ],
+      [
+        'a moved entry start when the early-bird rate counts no days',
+        { ...priced, cost: { earlyBird: { cost: 30, days: 0 }, normal: 40 } },
+        { entryStartDate: '2025-04-03T00:00:00.000+03:00' },
+      ],
+      [
+        'a new entry end beside a legacy bare-day entry start',
+        { ...priced, cost: earlyBird, entryStartDate: '2025-04-01' },
+        { entryEndDate: '2025-05-20T23:59:59.999+03:00' },
+      ],
+    ])('accepts %s', async (_name, stored, change) => {
+      mockGetRegistrationsByEventId.mockResolvedValue([ready])
+
+      const res = await put(stored, change)
+
+      expect(res.statusCode).toEqual(200)
+      expect(patchEventMock).toHaveBeenCalled()
+    })
+
+    it.each<[string, Partial<JsonDogEvent>]>([
+      ['the price', { cost: earlyBird }],
+      ['the member price', { costMember: earlyBird }],
+    ])('refuses moving the entry start when %s has an early-bird rate', async (_name, terms) => {
+      mockGetRegistrationsByEventId.mockResolvedValue([ready])
+
+      const res = await put({ ...priced, ...terms }, { entryStartDate: '2025-04-03T00:00:00.000+03:00' })
+
+      expect(res.statusCode).toEqual(409)
+      expect(JSON.parse(res.body)).toMatchObject({ error: 'paymentLocked' })
+    })
+
+    it.each<[string, Array<Record<string, unknown>>]>([
+      ['no registrations', []],
+      ['only registrations still waiting for their payment', [{ id: 'a', state: 'creating' }]],
+    ])('accepts a change when the event has %s', async (_name, registrations) => {
+      mockGetRegistrationsByEventId.mockResolvedValue(registrations)
+
+      const res = await put(
+        { ...priced, cost: earlyBird },
+        {
+          cost: { normal: 45 },
+          entryStartDate: '2025-04-03T00:00:00.000+03:00',
+          paymentTime: 'confirmation',
+        }
+      )
+
+      expect(res.statusCode).toEqual(200)
+    })
+
+    it('does not read the registrations when the terms stay as they were', async () => {
+      await put(priced, { name: 'renamed' })
+
+      expect(mockGetRegistrationsByEventId).not.toHaveBeenCalled()
+    })
+  })
 })

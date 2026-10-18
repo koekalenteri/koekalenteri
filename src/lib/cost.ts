@@ -26,11 +26,20 @@ import { isMember, isReturnedReserve } from './registration'
 const earlyBirdEndDate = (entryStartDate: Date | string, days: number) =>
   shiftDays(new Date(entryStartDate), days - 1, TIME_ZONE)
 
+/**
+ * Whether the price has an early-bird rate that applies to anyone: one that counts no days (the add
+ * dialog starts it at 0) has no window, so no entry gets it and the entry start decides nothing.
+ */
+export const hasEarlyBirdWindow = (
+  cost: Pick<DogEventCost, 'earlyBird'>
+): cost is Pick<DogEventCost, 'earlyBird'> & { earlyBird: NonNullable<DogEventCost['earlyBird']> } =>
+  (cost.earlyBird?.days ?? 0) > 0
+
 export const getEarlyBirdEndDate = (
   event: Partial<Pick<PublicConfirmedEvent, 'entryStartDate'> | Pick<JsonPublicConfirmedEvent, 'entryStartDate'>>,
   cost: Pick<DogEventCost, 'earlyBird'>
 ) =>
-  cost.earlyBird && event.entryStartDate && cost.earlyBird?.days > 0
+  hasEarlyBirdWindow(cost) && event.entryStartDate
     ? earlyBirdEndDate(event.entryStartDate, cost.earlyBird.days)
     : undefined
 
@@ -38,7 +47,7 @@ export const getEarlyBirdDates = (
   event: Partial<Pick<PublicConfirmedEvent, 'entryStartDate'> | Pick<JsonPublicConfirmedEvent, 'entryStartDate'>>,
   cost: Pick<DogEventCost, 'earlyBird'>
 ): { start?: Date; end?: Date } => {
-  if (cost.earlyBird && event.entryStartDate && cost.earlyBird?.days > 0) {
+  if (hasEarlyBirdWindow(cost) && event.entryStartDate) {
     return {
       end: earlyBirdEndDate(event.entryStartDate, cost.earlyBird.days),
       start: new Date(event.entryStartDate),

@@ -1,6 +1,7 @@
 import type { Registration } from '@/types'
 import { atom } from 'jotai'
 import { atomFamily } from 'jotai-family'
+import { hasPaymentLockingRegistrations } from '@/lib/payment'
 import { deriveParticipantGroupKey } from '@/lib/registration'
 import { applyRegistrationGroupMoves } from '@/lib/registrationGroups'
 import { adminEventRegistrationsAtom, adminPendingRegistrationGroupMovesAtom } from './atoms'
@@ -29,6 +30,20 @@ export const adminEventRegistrationAtom = atomFamily(
         : registrations.find((registration) => registration.id === id)
     }),
   (left, right) => left.eventId === right.eventId && left.id === right.id
+)
+
+/**
+ * Whether the event's payment terms are locked by its registrations (KOE-1568), by the rule PutEvent
+ * refuses a change with. An event not yet saved has none, and nothing is fetched for it.
+ */
+export const adminEventPaymentLockedAtom = atomFamily((eventId: string) =>
+  atom((get) => {
+    if (!eventId) return false
+    const registrations = get(adminEventRegistrationsAtom(eventId))
+    return registrations instanceof Promise
+      ? registrations.then(hasPaymentLockingRegistrations)
+      : hasPaymentLockingRegistrations(registrations)
+  })
 )
 
 export const adminProjectedEventRegistrationsAtom = atomFamily((eventId: string) =>

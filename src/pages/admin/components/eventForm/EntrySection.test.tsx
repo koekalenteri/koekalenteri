@@ -228,9 +228,9 @@ describe('EntrySection', () => {
   describe.each([TIME_ZONE, 'America/New_York', 'Asia/Tokyo'])('the registration days in %s (KOE-1539)', (zone) => {
     describeInTimeZone(zone, () => {
       const eventStart = new Date(new TZDate(2026, 11, 5, TIME_ZONE).getTime())
-      const eventWith = (startDate: Date, entryStartDate?: Date) => ({
+      const eventWith = (startDate: Date, entryStartDate?: Date, entryEndDate?: Date) => ({
         ...eventWithStaticDates,
-        entryEndDate: undefined,
+        entryEndDate,
         entryStartDate,
         startDate,
       })
@@ -281,6 +281,69 @@ describe('EntrySection', () => {
         })
       })
 
+      // KOE-1568: a stored bare day key ('2026-11-02') reaches the form as UTC midnight, not the Finnish
+      // one. Rewriting it when only the end changes would move the early-bird window, which a trial with
+      // registrations refuses: the start is kept as it was stored.
+      it('keeps the stored entry start when only the end changes', async () => {
+        const stored = new Date('2026-11-02')
+        testEvent = eventWith(eventStart, stored)
+        const { onChange, user } = await renderEntrySection()
+
+        await typeDateKeyByKey(user, screen.getAllByRole('group')[1], '20112026')
+
+        expect(onChange).toHaveBeenLastCalledWith({
+          entryEndDate: endOfFinnishDay('2026-11-20'),
+          entryStartDate: stored,
+        })
+      })
+
+      it('keeps the stored entry end when only the start changes', async () => {
+        const stored = new Date('2026-11-20')
+        testEvent = eventWith(eventStart, undefined, stored)
+        const { onChange, user } = await renderEntrySection()
+
+        await typeDateKeyByKey(user, screen.getAllByRole('group')[0], '02112026')
+
+        expect(onChange).toHaveBeenLastCalledWith({
+          entryEndDate: stored,
+          entryStartDate: startOfFinnishDay('2026-11-02'),
+        })
+      })
+
+      // A stored day moved to another one (only its day typed over) takes the new day's bound; the other
+      // keeps its stored value.
+      it.each([
+        { field: 'start', group: 0, moved: { entryStartDate: startOfFinnishDay('2026-11-04') }, typed: '04' },
+        { field: 'end', group: 1, moved: { entryEndDate: endOfFinnishDay('2026-11-18') }, typed: '18' },
+      ])('moves a stored $field to the day typed', async ({ group, moved, typed }) => {
+        const start = startOfFinnishDay('2026-11-02')
+        const end = endOfFinnishDay('2026-11-20')
+        testEvent = eventWith(eventStart, start, end)
+        const { onChange, user } = await renderEntrySection()
+
+        await typeDateKeyByKey(user, screen.getAllByRole('group')[group], typed)
+
+        expect(onChange).toHaveBeenLastCalledWith({ entryEndDate: end, entryStartDate: start, ...moved })
+      })
+
+      // A cleared field empties its date, however the other one was stored.
+      it.each([
+        { calendar: 0, cleared: { entryStartDate: undefined }, field: 'start' },
+        { calendar: 1, cleared: { entryEndDate: undefined }, field: 'end' },
+      ])('empties the $field when it is cleared', async ({ calendar, cleared }) => {
+        const start = startOfFinnishDay('2026-11-02')
+        const end = endOfFinnishDay('2026-11-20')
+        testEvent = eventWith(eventStart, start, end)
+        const { onChange, user } = await renderEntrySection()
+
+        await user.click(screen.getAllByTestId('CalendarIcon')[calendar])
+        await flushPromises()
+        await user.click(within(await screen.findByRole('dialog')).getByRole('button', { name: 'Clear' }))
+        await flushPromises()
+
+        expect(onChange).toHaveBeenLastCalledWith({ entryEndDate: end, entryStartDate: start, ...cleared })
+      })
+
       // The default days are whole Finnish weeks before the trial. Counted in the browser's zone the
       // day lands a day early: over the end of summer time in New York (the changes of Finland and the
       // US are a week apart), over the start of it in Tokyo.
@@ -309,6 +372,51 @@ describe('EntrySection', () => {
           getComputedStyle(within(dialog).getByRole('gridcell', { name: String(day - 1) })).borderTopWidth
         ).not.toBe('2px')
       })
+    })
+  })
+
+  // KOE-1568: the early-bird rate counts its days from the entry start, so a registration fixes it.
+  describe('a locked entry start', () => {
+    const renderLocked = async (entryStartLocked: boolean) => {
+      renderWithUserEvents(
+        <ThemeProvider theme={theme}>
+          <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales.fi}>
+            <Provider>
+              <MemoryRouter>
+                <Suspense fallback={<div>loading...</div>}>
+                  <AppSnackbarProvider>
+                    <EntrySection
+                      entryStartLocked={entryStartLocked}
+                      event={eventWithStaticDates}
+                      onChange={vi.fn()}
+                      open
+                    />
+                  </AppSnackbarProvider>
+                </Suspense>
+              </MemoryRouter>
+            </Provider>
+          </LocalizationProvider>
+        </ThemeProvider>,
+        undefined,
+        { advanceTimers: vi.advanceTimersByTime }
+      )
+      await flushPromises()
+      return screen.getAllByTestId('CalendarIcon').map((icon) => icon.closest('button'))
+    }
+
+    it('disables the start, keeps the end, and says why', async () => {
+      const [start, end] = await renderLocked(true)
+
+      expect(start).toBeDisabled()
+      expect(end).toBeEnabled()
+      expect(screen.getByText('event.entryStartLockedReason')).toBeInTheDocument()
+    })
+
+    it('leaves the start editable when not locked', async () => {
+      const [start] = await renderLocked(false)
+
+      expect(start).toBeEnabled()
+      expect(screen.queryByText('event.entryStartLockedReason')).not.toBeInTheDocument()
     })
   })
 })
