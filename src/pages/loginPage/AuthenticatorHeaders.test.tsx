@@ -2,7 +2,7 @@ import type { UseAuthenticator } from '@aws-amplify/ui-react'
 import { Authenticator } from '@aws-amplify/ui-react'
 import { render, screen } from '@testing-library/react'
 import { flushPromises } from '../../test-utils/utils'
-import { authenticatorComponents } from './authenticatorHeaders'
+import { authenticatorComponents } from './AuthenticatorHeaders'
 
 // Where Cognito sent the sign-up code lives in the auth machine's context, which only a real sign-up
 // fills; the test sets it, and without it Amplify's own header would read "We Texted You".

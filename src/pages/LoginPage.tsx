@@ -8,7 +8,7 @@ import { useTranslation } from 'react-i18next'
 import { reportError } from '../lib/client/error'
 import Header from './components/Header'
 import { HiddenPageTitle } from './components/HiddenPageTitle'
-import { authenticatorComponents } from './loginPage/authenticatorHeaders'
+import { authenticatorComponents } from './loginPage/AuthenticatorHeaders'
 import { languageAtom } from './state'
 import { useUserActions } from './state/user/actions'
 
