@@ -21,6 +21,9 @@ declare module '@mui/material/styles/createPalette' {
 
 export const HEADER_HEIGHT = '36px'
 
+/** The keyboard focus ring: buttons draw it, and so does any control the theme's button rule misses. */
+export const FOCUS_RING = '2px solid #1565c0'
+
 /** MUI's own type scale, as this theme had it before it set its heading sizes (KOE-1506). */
 const muiTypography = responsiveFontSizes(createTheme()).typography
 
@@ -43,7 +46,7 @@ const theme = createTheme({
               display: 'none',
             },
             boxShadow: 'none',
-            outline: '2px solid #1565c0',
+            outline: FOCUS_RING,
             outlineOffset: 2,
           },
         },
