@@ -3,9 +3,10 @@ import { isConditionalCheckFailure } from './api-gw'
 /**
  * The condition of a write made from a reading: the row still exists, so an update never leaves a
  * stub row holding only the written fields, and the value at `path` is still the one read, or still
- * absent when it was. DynamoDB compares a list or a map by value: against DynamoDB-local, a condition
- * on either, and on one entry of a map, passed for an equal value and failed for a different one
- * (KOE-1510). Writes to the rest of the row never refuse it.
+ * absent when it was. DynamoDB compares a list or a map by value: a condition on either, and on one
+ * entry of a map, passes for an equal value and fails for a different one (KOE-1510), which
+ * `conditionalWrite.integration.test.ts` runs against DynamoDB-local. Writes to the rest of the row
+ * never refuse it.
  *
  * `path` is an expression path whose names `names` defines, `#results.#class` say.
  */

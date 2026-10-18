@@ -1,6 +1,6 @@
 import type { CoverageV8Options } from 'vitest/node'
 import { playwright } from '@vitest/browser-playwright'
-import { defineConfig } from 'vitest/config'
+import { configDefaults, defineConfig } from 'vitest/config'
 import { a11yRatchet } from './scripts/a11yRatchet.mjs'
 import { platformFonts } from './scripts/platformFonts.mjs'
 import { resetMouse } from './scripts/resetMouse.mjs'
@@ -50,7 +50,26 @@ export default defineConfig({
           // an i18next nobody has initialized yet. In the frontend project the setup file has
           // already initialized the shared instance, so the assertion would be vacuous there.
           include: ['src/lambda/**/*.{spec,test}.ts', 'src/i18n/lambda.test.ts'],
+          // The integration tests need a DynamoDB-local; they are the `integration` project below.
+          exclude: [...configDefaults.exclude, 'src/lambda/**/*.integration.test.ts'],
           setupFiles: ['./src/lambda/setupTests.ts'],
+        },
+      },
+      {
+        test: {
+          name: 'integration',
+          globals: true,
+          // Every file talks to one DynamoDB-local; a table reset in the global setup and a container
+          // under load are slower than a mocked client.
+          testTimeout: 20_000,
+          unstubEnvs: true,
+          environment: 'node',
+          // The lambda code against real tables, created from `template/tables` by the global setup
+          // (KOE-1369). Run through `npm run test-integration`, which sets the endpoint, the access
+          // key and the table names; never part of `npm test` or the pre-commit hook.
+          include: ['src/lambda/**/*.integration.test.ts'],
+          setupFiles: ['./src/lambda/setupTests.ts'],
+          globalSetup: ['./scripts/integration-global-setup.mjs'],
         },
       },
       {
