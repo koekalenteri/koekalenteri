@@ -50,7 +50,9 @@ describe('lib/qualification', () => {
         const startDate = '2026-03-15T22:00:00.000Z'
 
         it.each([
+          // 1 January is the trial's year: the result is compared by its year, not against a midnight.
           { date: '2026-01-01T00:00:00', qualifies: true },
+          { date: '2026-01-02T00:00:00', qualifies: true },
           { date: '2025-12-31T00:00:00', qualifies: false },
         ])('reads a result of $date in the year it was written: qualifies $qualifies', ({ date, qualifies }) => {
           const results = [NOU1, { ...ALO1, date }]

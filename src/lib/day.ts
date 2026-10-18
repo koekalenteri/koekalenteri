@@ -177,6 +177,10 @@ export const dayEnd = (day: DayKey, zone: string): Date => {
 /**
  * A stamp written without a zone (`2026-06-28T00:00:00`, or a bare day) as the wall-clock time it is in
  * `zone`; a stamp that carries a zone keeps it. A plain Date: copying the parse's TZDate drops its class.
+ *
+ * One limit: a wall-clock time the zone has twice (03:xx on the autumn change in Finland) is resolved by
+ * date-fns through the host's zone, so the hour, never the day, can differ between machines there.
+ * Kennelliitto's stamps are midnights, which no change of time repeats.
  */
 export const localStampToInstant = (stamp: string, zone: string): Date => new Date(parseISO(stamp, { in: tz(zone) }))
 
