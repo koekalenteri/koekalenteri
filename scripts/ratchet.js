@@ -1,12 +1,16 @@
-// Ratchets two things AGENTS.md forbids but no lint rule can gate outright, because hundreds of
-// them are already in the tree: type assertions (`x as T`, `<T>x`) outside tests, and explicit
-// `any` anywhere. Each count is compared with scripts/ratchet-baseline.json: a count above its
-// baseline fails, a count below it is written back as the new baseline, so the numbers only ever go
-// down. Runs as one of the pre-commit checks (which then stages the lowered baseline) and in the
-// CI lint steps.
+// Ratchets three things AGENTS.md forbids but no lint rule can gate outright, because many of
+// them are already in the tree: type assertions (`x as T`, `<T>x`) outside tests, explicit `any`
+// anywhere, and DynamoDB clients opened outside a table's repository. Each count is compared with
+// scripts/ratchet-baseline.json: a count above its baseline fails, a count below it is written back
+// as the new baseline, so the numbers only ever go down. Runs as one of the pre-commit checks
+// (which then stages the lowered baseline) and in the CI lint steps.
 //
 // `as const` is not an assertion and is not counted. Tests may assert freely -- AGENTS.md itself
 // recommends `fn as MockedFunction<typeof fn>` -- but `any` is off limits there too.
+//
+// A table is read and written through its module in src/lambda/lib/repositories/ (see the README
+// there), so `new CustomDynamoClient(` anywhere else in non-test code counts. The WebSocket
+// connection repository predates the directory and stays in the ws domain.
 const { execFileSync } = require('node:child_process')
 const fs = require('node:fs')
 const path = require('node:path')
@@ -24,16 +28,30 @@ const isTestSupport = (file) =>
 const isConstAssertion = (node) =>
   ts.isTypeReferenceNode(node.type) && ts.isIdentifier(node.type.typeName) && node.type.typeName.text === 'const'
 
+const isRepository = (file) =>
+  file.startsWith('src/lambda/lib/repositories/') || file === 'src/lambda/lib/ws/connectionRepository.ts'
+
+const ASSERTION_HINT = 'AGENTS.md forbids new type assertions and explicit any; model or narrow the value instead.'
+
 const METRICS = {
   asAssertions: {
     countsIn: (file) => !isTestSupport(file),
+    hint: ASSERTION_HINT,
     label: 'type assertions outside tests',
     matches: (node) => (ts.isAsExpression(node) && !isConstAssertion(node)) || ts.isTypeAssertionExpression(node),
   },
   explicitAny: {
     countsIn: () => true,
+    hint: ASSERTION_HINT,
     label: 'explicit any types',
     matches: (node) => node.kind === ts.SyntaxKind.AnyKeyword,
+  },
+  dynamoClientsOutsideRepositories: {
+    countsIn: (file) => !isTestSupport(file) && !isRepository(file),
+    hint: 'A table is accessed through its module in src/lambda/lib/repositories/ (README there), not a client of its own.',
+    label: 'DynamoDB clients outside repositories',
+    matches: (node) =>
+      ts.isNewExpression(node) && ts.isIdentifier(node.expression) && node.expression.text === 'CustomDynamoClient',
   },
 }
 
@@ -96,7 +114,7 @@ const headText = (file) => {
 // Lists, per changed file whose count grew since HEAD, the matches it now holds.
 function reportIncrease(name, metric, limit, locations, changed) {
   console.error(`ratchet: ${metric.label}: ${locations.length}, the baseline is ${limit}.`)
-  console.error('  AGENTS.md forbids new type assertions and explicit any; model or narrow the value instead.')
+  console.error(`  ${metric.hint}`)
   let grown = 0
   for (const file of [...changed].sort()) {
     const now = locations.filter((location) => location.startsWith(`${file}:`))

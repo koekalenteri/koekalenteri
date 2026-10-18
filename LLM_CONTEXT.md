@@ -27,8 +27,10 @@
 
 ## DynamoDB Guidelines
 - Access environment variables via `src/lambda/config.ts` (`CONFIG`)
-- Create only one DynamoDB client (`dynamoDB`) per Lambda handler
-- Always provide table name as parameter when accessing other tables
+- A table is read and written through its repository in `src/lambda/lib/repositories/`
+  (`src/lambda/lib/repositories/README.md`); new table access goes there, not into a handler.
+  Code not yet moved opens one client (`dynamoDB`) per handler and passes the table name to reach
+  another table.
 
 ## Development Guidelines
 - Follow existing patterns for consistency

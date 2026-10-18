@@ -5,11 +5,12 @@ import { CONFIG } from '../config'
 import KLAPI from '../lib/KLAPI'
 import { getParam, LambdaError, lambda, response } from '../lib/lambda'
 import { logger } from '../lib/log'
+import { deleteDog, readDog, writeDog } from '../lib/repositories/dogRepository'
 import { getKLAPIConfig } from '../lib/secrets'
 import { KLKieli } from '../types/KLAPI'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 
-const dynamoDB = new CustomDynamoClient(CONFIG.dogTable)
+const eventTypeDB = new CustomDynamoClient(CONFIG.eventTypeTable)
 
 export const filterDogResults = (
   dog: JsonDog,
@@ -142,7 +143,7 @@ const readDogFromKlapi = async (regNo: string, existing?: JsonDog) => {
 const getDogLambda = lambda('getDog', async (event) => {
   const regNo = getParam(event, 'regNo').replaceAll('~', '/')
 
-  let item = await dynamoDB.read<JsonDog>({ regNo })
+  let item = await readDog(regNo)
 
   const itemAge = item?.refreshDate ? differenceInMinutes(new Date(), new Date(item.refreshDate)) : 0
   const refresh = (event.queryStringParameters && 'refresh' in event.queryStringParameters) || itemAge > 60
@@ -157,17 +158,17 @@ const getDogLambda = lambda('getDog', async (event) => {
     }
 
     if (status === 404 && error === 'diseased') {
-      await dynamoDB.delete({ regNo })
+      await deleteDog(regNo)
 
       throw new LambdaError(status, `Upstream error: ${error}`)
     }
 
-    await dynamoDB.write(dog)
+    await writeDog(dog)
 
     item = dog
   }
 
-  const eventTypes = (await dynamoDB.readAll<JsonEventType>({ table: CONFIG.eventTypeTable })) ?? []
+  const eventTypes = (await eventTypeDB.readAll<JsonEventType>()) ?? []
   return response(200, filterDogResults(item, eventTypes), event)
 })
 
