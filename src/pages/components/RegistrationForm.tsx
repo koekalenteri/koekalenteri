@@ -57,6 +57,32 @@ import PaymentInfo from './registrationForm/PaymentInfo'
 import QualifyingResultsInfo from './registrationForm/QualifyingResultsInfo'
 import { validateRegistration } from './registrationForm/validation'
 
+/**
+ * Whether each section is open. The sections the form decides are always set, so none of them is
+ * left uncontrolled, which CollapsibleSection would render open. The payer's section and the
+ * secretary's notes start that way, open, until they are toggled.
+ */
+type SectionOpenState = Record<'breeder' | 'dog' | 'entry' | 'handler' | 'info' | 'owner' | 'qr', boolean> & {
+  internalNotes?: boolean
+  payer?: boolean
+}
+
+/**
+ * The sections' open state for a screen size. The form starts from it, so a section never renders
+ * open first and collapses after (KOE-1573), and returns to it when the screen size changes.
+ */
+function defaultSectionOpenState(large: boolean): SectionOpenState {
+  return {
+    breeder: large,
+    dog: large,
+    entry: true,
+    handler: large,
+    info: large,
+    owner: large,
+    qr: large,
+  }
+}
+
 interface Props {
   readonly admin?: boolean
   readonly changes?: boolean
@@ -93,7 +119,7 @@ export default function RegistrationForm({
   const language = useAtomValue(languageAtom)
   const large = useMediaQuery((theme: Theme) => theme.breakpoints.up('md'))
   const [errors, setErrors] = useState(() => validateRegistration(registration, event, savedRegistration))
-  const [open, setOpen] = useState<{ [key: string]: boolean | undefined }>({})
+  const [open, setOpen] = useState<SectionOpenState>(() => defaultSectionOpenState(large))
   const [rankingPeriod, setRankingPeriod] = useState<{ min?: Date; max?: Date }>({})
 
   const restriction = useMemo(() => getRestrictionNotice(event, registration, tBreed), [event, registration, tBreed])
@@ -162,7 +188,7 @@ export default function RegistrationForm({
   )
 
   const handleOpenChange = useCallback(
-    (id: keyof typeof open, value: boolean) => {
+    (id: keyof SectionOpenState, value: boolean) => {
       const newState = large
         ? {
             ...open,
@@ -210,15 +236,7 @@ export default function RegistrationForm({
   }, [])
 
   useEffect(() => {
-    setOpen({
-      breeder: large,
-      dog: large,
-      entry: true,
-      handler: large,
-      info: large,
-      owner: large,
-      qr: large,
-    })
+    setOpen(defaultSectionOpenState(large))
   }, [large])
 
   useEffect(() => {
