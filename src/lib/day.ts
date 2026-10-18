@@ -253,10 +253,9 @@ export const shiftDays = (instant: Date, days: number, zone: string): Date =>
 /*
  * The browser's day. MUI's date pickers (AdapterDateFns) read and write a Date in the browser's zone
  * and have no zone of their own, so the day a picker shows is the Date's local year, month and date.
- * These three are the one place that reads or builds such a Date. The callers are the pickers' own
- * values (DateRange turns them into day keys and back, KOE-1548) and, until the dog's dates are
- * stored as days, the dog's birth date, which the typed boundary reads from Kennelliitto's zone-less
- * stamp as a local midnight and the dob picker writes as a local day.
+ * These are the one place that reads or builds such a Date: the pickers turn their values into day
+ * keys and back through them (KOE-1548), and what a browser stored before that, a picker's local
+ * midnight, is read back the same way (`localCalendarDayOf`).
  */
 
 /**
@@ -275,3 +274,53 @@ export const localDateOf = (day: DayKey): Date => {
   const { year, month, day: date } = dayParts(day)
   return new Date(year, month - 1, date)
 }
+
+/**
+ * The day a picker's Date shows, or undefined for one that is no day a key can hold: a half-typed
+ * value (an Invalid Date), or a year outside the accepted ones.
+ */
+export const pickedDayOf = (date: Date): DayKey | undefined => {
+  if (!hasLocalDay(date)) return undefined
+  const day = localDayOf(date)
+  return isDayKey(day) ? day : undefined
+}
+
+/*
+ * A dog's birth date and a result's date are calendar days, stored in the forms they have had
+ * (KOE-1548): a key, Kennelliitto's stamp without a zone (`2021-01-01T00:00:00`), or an instant a
+ * browser or a lambda wrote (`2020-12-31T22:00:00.000Z`). These two read any of them as a day.
+ */
+
+/** A time of day without a zone: the time part of Kennelliitto's stamps. */
+const ZONELESS_TIME_RE = /^(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d{1,3})?)?$/
+
+/** Whether `value` names a day without a zone: a key, or a key, a `T` and a time with no zone. */
+const isZonelessDay = (value: string) => {
+  const [date, time, ...rest] = value.split('T')
+  return rest.length === 0 && DAY_KEY_RE.test(date) && (time === undefined || ZONELESS_TIME_RE.test(time))
+}
+
+const storedDay = (value: unknown, instantDay: (instant: Date) => DayKey | undefined): DayKey | undefined => {
+  // A stored row may hold anything: a request is JSON, and a hand-entered result may have no date.
+  if (typeof value !== 'string') return undefined
+  if (isZonelessDay(value)) {
+    const day = value.slice(0, 10)
+    return isDayKey(day) ? day : undefined
+  }
+  return isInstantString(value) ? instantDay(new Date(value)) : undefined
+}
+
+/**
+ * The day of a stored dog date: the day written on a key or a zone-less stamp, and the day an instant
+ * falls on in `zone`. Undefined for anything with no day there, Kennelliitto's empty 0001-01-01 in
+ * every form included, and for a value that is no text at all (none, a null): never a throw, since a
+ * list reads every row and a save reads every result.
+ */
+export const calendarDayOf = (value: unknown, zone: string): DayKey | undefined =>
+  storedDay(value, (instant) => (hasCalendarDay(instant, zone) ? dayOf(instant, zone) : undefined))
+
+/**
+ * As `calendarDayOf`, but an instant is read as the day it shows in the browser's zone: for what this
+ * browser itself stored, a picker's local midnight (a draft, the dog cache), which is the day it showed.
+ */
+export const localCalendarDayOf = (value: unknown): DayKey | undefined => storedDay(value, pickedDayOf)

@@ -21,7 +21,7 @@ const registration: PublicRegistration = {
   dog: {
     breedCode: '121',
     dam: { name: 'PORTLEDGE PENELOPE', titles: 'RO MVA' },
-    dob: new Date('2021-03-09T12:00:00Z'),
+    dob: '2021-03-09',
     gender: 'M',
     name: "FLATGOLD'S ROCKET MAN",
     regNo: 'FI13775/22',

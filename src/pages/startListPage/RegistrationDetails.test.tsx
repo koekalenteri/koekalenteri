@@ -38,7 +38,7 @@ describe('RegistrationDetails', () => {
         name: 'Dam Dog',
         titles: 'CH',
       },
-      dob: new Date('2020-01-01'),
+      dob: '2020-01-01',
       gender: 'M',
       name: 'Test Dog',
       regNo: 'REG123',

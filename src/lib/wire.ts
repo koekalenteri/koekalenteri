@@ -3,6 +3,7 @@ import type {
   ClassStartNumberDog,
   ClassStartNumbers,
   CollectionResponse,
+  DayKey,
   Dog,
   DogEvent,
   EmailTemplate,
@@ -80,7 +81,7 @@ import type {
   Transaction,
   User,
 } from '../types'
-import { localStampToInstant, TIME_ZONE } from './day'
+import { calendarDayOf, localCalendarDayOf, localStampToInstant, TIME_ZONE } from './day'
 
 /**
  * The boundary between what crosses the wire (an API response, a WebSocket message, a value read
@@ -115,12 +116,13 @@ type Rule<JV, MV> = (value: JV) => MV
 
 /**
  * A converter's field list: one rule for every key of the model that holds a `Date`, typed from the
- * wire value to the model value, and nothing else. A key missing from the list is a type error, and
- * so is a key that holds no `Date`.
+ * wire value to the model value. A key missing from the list is a type error. Another key may have a
+ * rule too, typed the same way, where the model reads its wire value differently: a dog's dates are
+ * day keys read from the forms they were stored in (KOE-1548), and may read as none.
  */
 type Spec<J extends object, M extends object> = {
   [K in DateKeys<M>]-?: K extends keyof J ? Rule<NonNullable<J[K]>, NonNullable<M[K]>> : never
-} & { [K in Exclude<keyof M, DateKeys<M>>]?: never }
+} & { [K in Exclude<keyof M, DateKeys<M>>]?: K extends keyof J ? Rule<NonNullable<J[K]>, M[K]> : never }
 
 /** A spec is only accepted for a wire type that holds no `Date`: a model type cannot stand in for one. */
 type WireSpec<J extends object, M extends object> = true extends HoldsDate<J> ? never : Spec<J, M>
@@ -240,24 +242,6 @@ export const toAuditRecord = converter<JsonAuditRecord, AuditRecord>()({ timesta
 
 export const toEventStatsItem = converter<JsonEventStatsItem, EventStatsItem>()({ date: timestamp })
 
-/**
- * A result's day and a dog's birthday are read as the browser's local time, as before this boundary:
- * Kennelliitto writes them without a zone (`2021-01-01T00:00:00`) and the date pickers that show
- * them read local day parts, so a Finnish-zone reading would move the day for every browser west of
- * Finland. The pickers move to day keys in KOE-1548, and the rule with them.
- */
-const toTestResult = converter<JsonTestResult, TestResult>()({ date: timestamp })
-
-const toQualifyingResult = converter<JsonQualifyingResult, QualifyingResult>()({ date: timestamp })
-
-export const toManualTestResult = converter<JsonManualTestResult, ManualTestResult>()({ date: timestamp })
-
-export const toDog = converter<JsonDog, Dog>()({
-  dob: timestamp,
-  refreshDate: timestamp,
-  results: arrayOf(toTestResult),
-})
-
 const toRegistrationDate = converter<JsonRegistrationDate, RegistrationDate>()({ date: timestamp })
 
 const toRegistrationGroup = converter<JsonRegistrationGroup, RegistrationGroup>()({ date: timestamp })
@@ -276,27 +260,61 @@ const toLastEmail = converter<JsonLastEmail, LastEmail>()({ sentAt: timestamp })
 /** `day` is a day key and stays the string it is (KOE-1140). */
 export const toKcResult = converter<JsonKcResult, KcResult>()({ at: timestamp })
 
-export const toRegistration = converter<JsonRegistration, Registration>()({
-  ...dbRecordRules,
-  dates: arrayOf(toRegistrationDate),
-  dog: toDog,
-  eventResult: toEventResult,
-  group: toRegistrationGroup,
-  invitationAttachmentUpdatedAt: timestamp,
-  kcResult: toKcResult,
-  // A message recorded before KOE-1454 is a finished sentence, kept as it was written.
-  lastEmail: (value) => (typeof value === 'string' ? value : toLastEmail(value)),
-  paidAt: timestamp,
-  qualifyingResults: arrayOf(toQualifyingResult),
-  refundAt: timestamp,
-  results: arrayOf(toManualTestResult),
-  startGroup: toRegistrationGroup,
-})
+/** How a stored dog date (a day key, a zone-less stamp, an instant) is read as a day. */
+type CalendarDayRule = (value: string) => DayKey | undefined
 
-export const toPublicRegistration = converter<JsonPublicRegistration, PublicRegistration>()({
-  dog: toDog,
-  group: toPublicRegistrationGroup,
-})
+/**
+ * The converters that hold a dog's dates, built on one reading of them (KOE-1548). The birth date and a
+ * result's date are calendar days: a key, Kennelliitto's stamp without a zone, or an instant written
+ * before they were keys. What the server sends reads an instant as its Finnish day, as the lambdas
+ * decide on it; what this browser stored reads it as its local day, the day its picker showed.
+ */
+const dogDateConverters = (calendarDay: CalendarDayRule) => {
+  const toTestResult = converter<JsonTestResult, TestResult>()({ date: calendarDay })
+  const toQualifyingResult = converter<JsonQualifyingResult, QualifyingResult>()({ date: calendarDay })
+  const toManualTestResult = converter<JsonManualTestResult, ManualTestResult>()({ date: calendarDay })
+  const toDog = converter<JsonDog, Dog>()({
+    dob: calendarDay,
+    refreshDate: timestamp,
+    results: arrayOf(toTestResult),
+  })
+  const toRegistration = converter<JsonRegistration, Registration>()({
+    ...dbRecordRules,
+    dates: arrayOf(toRegistrationDate),
+    dog: toDog,
+    eventResult: toEventResult,
+    group: toRegistrationGroup,
+    invitationAttachmentUpdatedAt: timestamp,
+    kcResult: toKcResult,
+    // A message recorded before KOE-1454 is a finished sentence, kept as it was written.
+    lastEmail: (value) => (typeof value === 'string' ? value : toLastEmail(value)),
+    paidAt: timestamp,
+    qualifyingResults: arrayOf(toQualifyingResult),
+    refundAt: timestamp,
+    results: arrayOf(toManualTestResult),
+    startGroup: toRegistrationGroup,
+  })
+  const toPublicRegistration = converter<JsonPublicRegistration, PublicRegistration>()({
+    dog: toDog,
+    group: toPublicRegistrationGroup,
+  })
+  return { toDog, toManualTestResult, toPublicRegistration, toRegistration }
+}
+
+/** The dog's dates as the server sends them. */
+export const { toDog, toManualTestResult, toPublicRegistration, toRegistration } = dogDateConverters((value) =>
+  calendarDayOf(value, TIME_ZONE)
+)
+
+/**
+ * The same shapes as this browser stored them (a draft, the dog cache): an instant there is a picker's
+ * local midnight, and its day is the one the picker showed.
+ */
+export const {
+  toDog: toStoredDog,
+  toManualTestResult: toStoredManualTestResult,
+  toRegistration: toStoredRegistration,
+} = dogDateConverters(localCalendarDayOf)
 
 export const toEventClass = converter<JsonEventClass, EventClass>()({ date: timestamp })
 

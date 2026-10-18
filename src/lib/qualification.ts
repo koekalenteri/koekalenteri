@@ -5,6 +5,7 @@ import type {
   EventResultRequirementsByDate,
   JsonConfirmedEvent,
   JsonRegistration,
+  JsonTestResult,
   ManualTestResult,
   QualifyingResult,
   QualifyingResults,
@@ -12,33 +13,26 @@ import type {
   TestResult,
 } from '../types'
 import { getRequirements } from '../rules'
-import { TIME_ZONE, yearOf } from './day'
+import { calendarDayOf, dayParts, TIME_ZONE, yearOf } from './day'
 import { getNextClass, isRegistrationClass } from './registration'
 
 export const objectContains = (obj: object, req: object) =>
   Object.entries(req).every(([key, value]) => key in obj && Reflect.get(obj, key) === value)
 
 /**
- * The year an official result was written in. Kennelliitto's `aika` has no zone, and both the browser's
- * typed boundary and the lambda's `new Date` read it as local time, so the local getter gives back the
- * year written on it in any host zone. Read in Finnish time, a 1 January result would move to the year
- * before east of UTC and not west of it.
+ * Whether the result is from the trial's own year or later: such a result does not move the dog up a
+ * class. The result's day is a key, the day written on it (KOE-1548); the trial's year is its Finnish one.
  */
-const officialResultYear = (date: Date) => date.getFullYear()
-
-/**
- * The year a hand-entered result counts for: its Finnish year. The form sends the picked date as an
- * instant (`toISOString`), so the browser and the lambda agree only when both read it in one zone.
- * The picker's own day moves to a day key in KOE-1547 and KOE-1548.
- */
-const manualResultYear = (date: Date) => yearOf(date, TIME_ZONE)
-
-/** Whether the result is from the trial's own year or later: such a result does not move the dog up a class. */
 const isFromTrialYear =
-  (resultYear: (date: Date) => number, startDate: Date) =>
+  (startDate: Date) =>
   (result: Partial<TestResult>): boolean =>
-    !!result.date && resultYear(result.date) >= yearOf(startDate, TIME_ZONE)
-const byDate = (a: TestResult, b: TestResult) => a.date.valueOf() - b.date.valueOf()
+    !!result.date && dayParts(result.date).year >= yearOf(startDate, TIME_ZONE)
+
+/** The earlier day first; a result with no day after every dated one. Equal days keep their order. */
+const byDate = (a: TestResult, b: TestResult) => {
+  if (!a.date || !b.date) return Number(!a.date) - Number(!b.date)
+  return a.date.localeCompare(b.date)
+}
 const CLASS_ORDER: Registration['class'][] = ['ALO', 'AVO', 'VOI']
 
 const isHigherClass = (resultClass: Partial<TestResult>['class'], regClass?: Registration['class']) =>
@@ -172,10 +166,9 @@ export function filterRelevantResults(
   }
 
   if (check.qualifies && check.relevant.length) {
-    const officialFromTrialYear = isFromTrialYear(officialResultYear, startDate)
-    const manualFromTrialYear = isFromTrialYear(manualResultYear, startDate)
-    const officialNotThisYear = officialResults?.filter((result) => !officialFromTrialYear(result))
-    const manualNotThisYear = manualValid?.filter((result) => !manualFromTrialYear(result))
+    const fromTrialYear = isFromTrialYear(startDate)
+    const officialNotThisYear = officialResults?.filter((result) => !fromTrialYear(result))
+    const manualNotThisYear = manualValid?.filter((result) => !fromTrialYear(result))
     const disqualifiedForNextClass =
       nextClass &&
       checkRequiredResults(
@@ -199,10 +192,17 @@ export function filterRelevantResults(
 
 const toDate = (date: string | undefined) => (date ? new Date(date) : undefined)
 
+/** A stored result's day: a key, or the older forms written before keys (KOE-1548), read as the Finnish day. */
+const withDay = <T extends JsonTestResult>({ date, ...result }: T) => ({
+  ...result,
+  date: calendarDayOf(date, TIME_ZONE),
+})
+
 /**
  * The qualification as a lambda stores it: the same decision as the form's, read off the wire
  * shapes. The official results are the dog's, the manual ones the owner's own claims, and the
- * relevant ones come back out as JSON.
+ * relevant ones come back out as JSON, their days as keys. A result with no day is written with an
+ * empty date, which every reader takes as none.
  */
 export const qualifyJsonRegistration = (
   registration: Pick<JsonRegistration, 'class' | 'dog' | 'results'>,
@@ -218,17 +218,12 @@ export const qualifyJsonRegistration = (
       startDate: new Date(event.startDate),
     },
     registration.class,
-    registration.dog.results?.map((result) => ({ ...result, date: new Date(result.date) })),
-    registration.results?.map((result) => ({
-      ...result,
-      date: new Date(result.date),
-      official: false,
-      regNo: registration.dog.regNo,
-    }))
+    registration.dog.results?.map(withDay),
+    registration.results?.map((result) => ({ ...withDay(result), official: false, regNo: registration.dog.regNo }))
   )
 
   return {
     qualifies,
-    qualifyingResults: relevant.map(({ date, ...result }) => ({ ...result, date: date.toISOString() })),
+    qualifyingResults: relevant.map(({ date, ...result }) => ({ ...result, date: date ?? '' })),
   }
 }

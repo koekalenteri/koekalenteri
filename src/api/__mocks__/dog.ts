@@ -7,7 +7,7 @@ import {
 
 const defaultDog = (regNo: string): Dog => ({
   breedCode: '121',
-  dob: new Date('20220101T00:00:00'),
+  dob: '2022-01-01',
   gender: 'M',
   name: 'Test Dog',
   regNo,

@@ -3,6 +3,7 @@ import type { PublicConfirmedEvent } from '../types/Event'
 import type { PublicRegistration } from '../types/Registration'
 import i18n from 'i18next'
 import { eventWithStaticDates } from '../__mockData__/events'
+import { describeInTimeZone } from '../test-utils/timeZone'
 import { emptyDog } from './data'
 import {
   isStartListUpToDate,
@@ -11,6 +12,7 @@ import {
   startListSpreadsheetRows,
   startListVersionOf,
 } from './startList'
+import { toPublicRegistration } from './wire'
 
 /**
  * The real translator. The test setup already initialises i18n, so there is no need for a hand-kept
@@ -70,13 +72,14 @@ describe('startListSpreadsheetRows', () => {
       class: 'ALO',
       dog: {
         dam: { name: 'Dam Dog', titles: 'FI MVA' },
-        dob: new Date('2020-01-02'),
+        dob: '2020-01-02',
         name: 'Test Dog',
         regNo: 'REG1',
+        results: [],
         sire: { name: 'Sire Dog', titles: 'C.I.B.' },
         titles: 'FI MVA',
       },
-      group: { number: 2, time: 'ap' },
+      group: { key: 'group', number: 2, time: 'ap' },
       handler: 'Test Handler',
       owner: 'Test Owner',
       ownerHandles: true,
@@ -182,5 +185,31 @@ describe('a published result on the exported list', () => {
 
     expect(row.at(-3)).toBe('AVO0')
     expect(row.at(-2)).toBe('Stopped')
+  })
+})
+
+// Kennelliitto's birth date has no zone, and the lists and the sheet show it in Finnish time: read as
+// the browser's midnight, it was 31.12.2020 east of Finland (KOE-1548).
+describe.each(['Europe/Helsinki', 'America/New_York', 'Asia/Tokyo'])("the dog's birth date in %s", (zone) => {
+  describeInTimeZone(zone, () => {
+    const registration = () =>
+      toPublicRegistration({
+        breeder: 'b',
+        dog: { dob: '2021-01-01T00:00:00', name: 'Dog', regNo: 'REG1' },
+        group: { key: 'group', number: 1 },
+        handler: 'h',
+        owner: 'o',
+      })
+
+    it('is 1.1.2021 on the list', () => {
+      expect(i18n.getFixedT('fi')('dateFormat.isodate', { date: registration().dog.dob })).toBe('01.01.2021')
+    })
+
+    it('is 1.1.2021 in the sheet', () => {
+      const event = { classes: [], startDate: eventWithStaticDates.startDate } as unknown as PublicConfirmedEvent
+      const [, row] = startListSpreadsheetRows([registration()], event, t)
+
+      expect(row[6]).toEqual(new Date(2021, 0, 1, 12))
+    })
   })
 })

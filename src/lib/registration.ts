@@ -2,6 +2,7 @@ import type { TFunction } from 'i18next'
 import type {
   ConfirmedEvent,
   CustomCost,
+  DayKey,
   EmailTemplateId,
   EventState,
   GroupDate,
@@ -30,6 +31,7 @@ import type {
 import type { AuditActor } from './audit'
 import { nanoid } from 'nanoid'
 import { emptyBreeder, emptyDog, emptyPerson } from './data'
+import { calendarDayOf, TIME_ZONE } from './day'
 import {
   getEventStateForClass,
   groupKeyOf,
@@ -199,7 +201,16 @@ export const hasInvalidRegistrationArrayFields = (registration: unknown, require
     return field.exists ? !Array.isArray(field.value) : requireRequired && required
   })
 
-export const NOME_B_CH_qualificationStartDate2023 = new Date('2023-08-17T21:00:00Z')
+/** The first day of the NOME-B SM ranking period for a trial that names none. */
+const NOME_B_CH_QUALIFICATION_START_DAY_2023: DayKey = '2023-08-18'
+
+/**
+ * The first Finnish day of the NOME-B SM ranking period: the trial's `qualificationStartDate`, a Date in
+ * the browser and its stored instant in a lambda, or 18.8.2023 for a trial that names none or one with
+ * no day. The ranking (`rules_ch.ts`) and the entry's priority read it from here alike.
+ */
+export const nomeBChQualificationStartDay = (qualificationStartDate: Date | string | undefined): DayKey =>
+  storedDayKey(qualificationStartDate) ?? NOME_B_CH_QUALIFICATION_START_DAY_2023
 
 export const REG_CLASSES = new Set<RegistrationClass>(['ALO', 'AVO', 'VOI'])
 
@@ -405,13 +416,11 @@ const hasNomeBSMPriority: PriorityCheckFn<false | 'b-sm.2' | 'b-sm.3'> = (event,
     const count = registration.qualifyingResults?.reduce((acc, r) => acc + (r.result === 'VOI1' ? 1 : 0), 0) ?? 0
     if (count >= 3) return 'b-sm.3'
 
-    const kvaDateOrString = registration.qualifyingResults?.find((r) => r.result === 'FI KVA-B')?.date
-    const kvaDate = typeof kvaDateOrString === 'string' ? new Date(kvaDateOrString) : kvaDateOrString
-    if (kvaDate && count === 2) {
-      const qStartDateOrString = event.qualificationStartDate ?? NOME_B_CH_qualificationStartDate2023
-      const qStartDate = typeof qStartDateOrString === 'string' ? new Date(qStartDateOrString) : qStartDateOrString
-
-      if (kvaDate.valueOf() < qStartDate.valueOf()) return 'b-sm.2'
+    // The KVA's day: a key, or the older stored forms of a registration written before keys (KOE-1548).
+    const kvaDate = registration.qualifyingResults?.find((r) => r.result === 'FI KVA-B')?.date
+    const kvaDay = kvaDate ? calendarDayOf(kvaDate, TIME_ZONE) : undefined
+    if (kvaDay && count === 2 && kvaDay < nomeBChQualificationStartDay(event.qualificationStartDate)) {
+      return 'b-sm.2'
     }
   }
   return false
@@ -862,10 +871,11 @@ export const getRegistrationEmailTemplateData = (
   const accessPath = editToken ? `/access/${encodeURIComponent(editToken)}` : ''
   const link = `${origin}/r/${registration.eventId}/${registration.id}${accessPath}`
   const paymentLink = `${origin}/p/${registration.eventId}/${registration.id}${accessPath}`
-  const qualifyingResults = registration.qualifyingResults.map((r) => ({
-    ...r,
-    date: t('dateFormat.date', { date: r.date }),
-  }))
+  // A result's day from any form it was stored in; none for one without a day (KOE-1548).
+  const qualifyingResults = registration.qualifyingResults.map((r) => {
+    const day = calendarDayOf(r.date, TIME_ZONE)
+    return { ...r, date: day ? t('dateFormat.date', { date: day }) : '' }
+  })
   const delayedPayment = confirmedEvent.paymentTime === 'confirmation'
 
   // Group information. Use previous group when provided.

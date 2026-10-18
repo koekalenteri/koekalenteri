@@ -1,4 +1,5 @@
 import type {
+  DayKey,
   EventResultRequirementsByDate,
   ManualTestResult,
   QualifyingResult,
@@ -20,7 +21,7 @@ import { createMissingResult, getResultId } from './qualifyingResultsInfo/utils'
 interface Props {
   readonly eventType?: string
   readonly regNo?: string
-  readonly dob?: Date
+  readonly dob?: DayKey
   readonly rankingPeriod?: { min?: Date; max?: Date }
   readonly results?: ManualTestResult[]
   readonly requirements?: EventResultRequirementsByDate

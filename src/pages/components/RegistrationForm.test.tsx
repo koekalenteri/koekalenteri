@@ -11,7 +11,14 @@ import { registrationWithStaticDates, unpaidRegistrationWithStaticDates } from '
 import theme from '../../assets/Theme'
 import { locales } from '../../i18n'
 import { frozenInstant } from '../../test-utils/freezeClock'
-import { createMatchMedia, flushPromises, renderWithUserEvents, runPendingTimers } from '../../test-utils/utils'
+import { describeInTimeZone } from '../../test-utils/timeZone'
+import {
+  createMatchMedia,
+  flushPromises,
+  renderWithUserEvents,
+  runPendingTimers,
+  typeDateKeyByKey,
+} from '../../test-utils/utils'
 import AppSnackbarProvider from './AppSnackbarProvider'
 import RegistrationForm from './RegistrationForm'
 
@@ -106,12 +113,9 @@ describe('RegistrationForm', () => {
     expect(screen.getByRole('combobox', { name: 'dog.regNo' })).toHaveValue('')
   })
 
-  it.each([
-    ["Kennelliitto's empty date", () => new Date('0001-01-01T00:00:00')],
-    ['a half-typed date', () => new Date(Number.NaN)],
-    ['a typed year 202', () => new Date('0202-12-28T00:00:00')],
-  ])('renders a dog whose birth date has no day, %s, as too young', async (_name, dob) => {
-    const registration = { ...registrationWithStaticDates, dog: { ...registrationWithStaticDates.dog, dob: dob() } }
+  // Kennelliitto's empty date reaches the form as no birth day (KOE-1548).
+  it('renders a dog without a birth day as too young', async () => {
+    const registration = { ...registrationWithStaticDates, dog: { ...registrationWithStaticDates.dog, dob: undefined } }
     render(<RegistrationForm event={eventWithStaticDates} registration={registration} />, { wrapper: Wrapper })
     await flushPromises()
 
@@ -129,7 +133,7 @@ describe('RegistrationForm', () => {
     const openDobPicker = async (eventType: string) => {
       const registration = {
         ...unpaidRegistrationWithStaticDates,
-        dog: { ...unpaidRegistrationWithStaticDates.dog, dob: new Date('0001-01-01T00:00:00') },
+        dog: { ...unpaidRegistrationWithStaticDates.dog, dob: undefined },
       }
       const { user } = renderWithUserEvents(
         <RegistrationForm event={{ ...eventWithStaticDates, eventType }} registration={registration} />,
@@ -170,6 +174,35 @@ describe('RegistrationForm', () => {
       const { daysIn, years } = await openDobPicker('NOU')
       expect(years[0]).toBe('2006')
       expect((await daysIn('2006', 0))[0]).toBe(1)
+    })
+
+    // Typed key by key, the year passes through 2, 20 and 202: whole dates but no days. The field keeps
+    // what is typed and the form gets the day as a key, in every zone (KOE-1481, KOE-1548).
+    describe.each(['Europe/Helsinki', 'America/New_York', 'Asia/Tokyo'])('typed in %s', (zone) => {
+      describeInTimeZone(zone, () => {
+        it('keeps a birth date typed into the empty field and stores it as a key', async () => {
+          const registration = {
+            ...unpaidRegistrationWithStaticDates,
+            dog: { ...unpaidRegistrationWithStaticDates.dog, dob: undefined },
+          }
+          const onChange = vi.fn()
+          const { user } = renderWithUserEvents(
+            <RegistrationForm event={eventWithStaticDates} registration={registration} onChange={onChange} />,
+            { wrapper: Wrapper },
+            { advanceTimers: vi.advanceTimersByTime }
+          )
+          await flushPromises()
+          const group = screen.getByRole('group', { name: 'dog.dob' })
+
+          await typeDateKeyByKey(user, group, '15032020')
+          await runPendingTimers()
+
+          expect(group).toHaveTextContent('15.03.2020')
+          expect(onChange).toHaveBeenLastCalledWith(
+            expect.objectContaining({ dog: expect.objectContaining({ dob: '2020-03-15' }) })
+          )
+        })
+      })
     })
   })
 

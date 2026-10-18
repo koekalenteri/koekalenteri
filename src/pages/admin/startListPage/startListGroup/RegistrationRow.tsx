@@ -35,7 +35,7 @@ const RegistrationRow = ({ reg, reserve, nameLen, numberPending, showClass }: Re
       </TableCell>
       {showClass ? <TableCell>{getRegistrationClass(reg)}</TableCell> : null}
       <TableCell>{reg.dog.regNo}</TableCell>
-      <TableCell>{t('dateFormat.isodate', { date: reg.dog.dob })}</TableCell>
+      <TableCell>{reg.dog.dob ? t('dateFormat.isodate', { date: reg.dog.dob }) : '?'}</TableCell>
       <TableCell>{reg.dog.rfid}</TableCell>
       <TableCell>{breedAbbreviation(t, reg.dog.breedCode, reg.dog.gender)}</TableCell>
       <TableCell>{reg.dog.name?.slice(0, nameLen).padEnd(nameLen) ?? ''}</TableCell>

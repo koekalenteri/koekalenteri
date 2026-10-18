@@ -1,5 +1,5 @@
 import type { ValidationResult, Validators2, WideValidationResult } from '@/i18n/validation'
-import type { BreedCode, Dog, PublicConfirmedEvent, Registration, TestResult } from '@/types'
+import type { BreedCode, DayKey, Dog, PublicConfirmedEvent, Registration, TestResult } from '@/types'
 import { dogAgeInMonths, minDogAgeFor } from '@/lib/dog'
 import { validName } from '@/lib/name'
 import { getOwnerRole, getRegistrationOwners, ownerKeyAt, resolveOwnerSelection } from '@/lib/registration'
@@ -102,8 +102,8 @@ export function validateRegistration(
   return errors
 }
 
-/** The minimum age the dog falls short of, in months; a birth date with no day falls short of it. */
-const validateDogAge = (event: { eventType: string; startDate: Date }, dog: { dob?: Date }) => {
+/** The minimum age the dog falls short of, in months; a dog with no birth day falls short of it. */
+const validateDogAge = (event: { eventType: string; startDate: Date }, dog: { dob?: DayKey }) => {
   const minAge = minDogAgeFor(event.eventType)
   const age = dog.dob ? dogAgeInMonths(dog.dob, event.startDate) : undefined
   if (age === undefined || age < minAge) return minAge

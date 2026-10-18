@@ -1,6 +1,6 @@
 import type { JsonDog, JsonEventType } from '../../types'
 import type KLAPI from '../lib/KLAPI'
-import type { KLKoira } from '../types/KLAPI'
+import type { KLKoetulos, KLKoira } from '../types/KLAPI'
 import { vi } from 'vitest'
 import { constructAPIGwEvent } from '../test-utils/helpers'
 import { loggedLines } from '../test-utils/logs'
@@ -158,7 +158,7 @@ describe('getDogHandler', () => {
 
     const refreshedDog = {
       breedCode: '122',
-      dob: '2021-01-01T00:00:00',
+      dob: '2021-01-01',
       gender: 'F',
       kcId: 123,
       name: 'koera',
@@ -182,6 +182,53 @@ describe('getDogHandler', () => {
     )
   })
 
+  // Kennelliitto's days are stored as day keys (KOE-1548); its empty date and a missing one leave no
+  // birth date, and the put replaces the row, so a birth date stored earlier does not linger.
+  describe("Kennelliitto's days", () => {
+    const refreshWith = async (syntymäaika: string | null, aika: string) => {
+      mockReadDog.mockResolvedValueOnce({ dob: '2020-05-05', refreshDate: '2023-01-01', regNo: 'FI12345/24' })
+      mockKLAPI.lueKoiranPerustiedot.mockResolvedValueOnce({
+        json: {
+          id: 123,
+          nimi: 'koera',
+          rekisterinumero: 'FI12345/24',
+          rotukoodi: '122',
+          sukupuoli: 'female',
+          // @ts-expect-error the old API's type says string; a missing birth date comes as null
+          syntymäaika,
+        },
+        status: 200,
+      })
+      mockKLAPI.lueKoiranKoetulokset.mockResolvedValueOnce({
+        json: [{ aika, koemuoto: 'NOU', luokka: '', paikkakunta: 'L', tulos: 'NOU1', tuomari: 'J' } as KLKoetulos],
+        status: 200,
+      })
+      await getDogHandler(constructAPIGwEvent('test', { pathParameters: { regNo: 'FI12345~24' } }))
+    }
+
+    it.each([
+      ['a stamp', '2021-01-01T00:00:00', '2024-06-01T00:00:00'],
+      ['a bare day', '2021-01-01', '2024-06-01'],
+    ])('stores the birth date and the result day of %s as keys', async (_name, syntymäaika, aika) => {
+      await refreshWith(syntymäaika, aika)
+
+      expect(mockWriteDog).toHaveBeenLastCalledWith(
+        expect.objectContaining({ dob: '2021-01-01', results: [expect.objectContaining({ date: '2024-06-01' })] })
+      )
+    })
+
+    it.each([
+      ['its empty date', '0001-01-01T00:00:00'],
+      ['no birth date', null],
+    ])('stores no birth date for %s, whatever the row held', async (_name, syntymäaika) => {
+      await refreshWith(syntymäaika, '0001-01-01T00:00:00')
+
+      expect(mockWriteDog).toHaveBeenLastCalledWith(
+        expect.objectContaining({ dob: undefined, results: [expect.objectContaining({ date: '' })] })
+      )
+    })
+  })
+
   it('should return dog with empty results when lueKoiranKoetulokset fails', async () => {
     mockReadDog.mockResolvedValueOnce(undefined)
     mockKLAPI.lueKoiranPerustiedot.mockResolvedValueOnce({
@@ -202,7 +249,7 @@ describe('getDogHandler', () => {
 
     const refreshedDog = {
       breedCode: '122',
-      dob: '2021-01-01T00:00:00',
+      dob: '2021-01-01',
       gender: 'F',
       kcId: 123,
       name: 'koera',
@@ -302,7 +349,7 @@ describe('getDogHandler', () => {
 
     const refreshedDog = {
       breedCode: '122',
-      dob: '2021-01-01T00:00:00',
+      dob: '2021-01-01',
       gender: 'F',
       kcId: 123,
       name: 'koera',
@@ -408,7 +455,7 @@ describe('getDogHandler', () => {
 
     const refreshedDog = {
       breedCode: '122',
-      dob: '2021-01-01T00:00:00',
+      dob: '2021-01-01',
       gender: 'F',
       kcId: 123,
       name: 'koera',
@@ -520,7 +567,7 @@ describe('getDogHandler', () => {
 
     const refreshedDog = {
       breedCode: '122',
-      dob: '2021-01-01T00:00:00',
+      dob: '2021-01-01',
       gender: 'F',
       kcId: 123,
       name: 'koera',
@@ -590,7 +637,7 @@ describe('getDogHandler', () => {
 
     const refreshedDog = {
       breedCode: '122',
-      dob: '2021-01-01T00:00:00',
+      dob: '2021-01-01',
       gender: 'F',
       kcId: 123,
       name: 'koera',
@@ -645,7 +692,7 @@ describe('getDogHandler', () => {
     const refreshedDog = {
       breedCode: '122',
       dam: { name: 'Dam Name' },
-      dob: '2021-01-01T00:00:00',
+      dob: '2021-01-01',
       gender: 'F',
       kcId: 123,
       name: 'koera',

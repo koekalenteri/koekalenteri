@@ -3,7 +3,7 @@ import { atom } from 'jotai'
 import { atomFamily } from 'jotai-family'
 import { getRegistrations } from '@/api/registration'
 import { createRegistrationDraft } from '@/lib/registration'
-import { toRegistration } from '@/lib/wire'
+import { toStoredRegistration } from '@/lib/wire'
 import { atomWithLocalStorage } from '@/pages/state'
 import { validIdTokenAtom } from '@/pages/state/user'
 
@@ -38,5 +38,5 @@ export const createAdminNewRegistration = (): Registration => createRegistration
 export const adminNewRegistrationAtom = atomWithLocalStorage<Registration | undefined, JsonRegistration>(
   'adminNewRegistration',
   createAdminNewRegistration(),
-  { revive: toRegistration }
+  { revive: toStoredRegistration }
 )

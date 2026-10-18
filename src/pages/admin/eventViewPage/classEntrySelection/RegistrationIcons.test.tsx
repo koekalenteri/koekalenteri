@@ -65,7 +65,7 @@ describe('RegistrationIcons component', () => {
       qualifyingResults: [
         {
           class: 'ALO',
-          date: new Date(),
+          date: '2024-01-01',
           id: '1',
           judge: 'Test Judge',
           location: 'Test Location',
@@ -224,7 +224,7 @@ describe('RegistrationIcons component', () => {
       qualifyingResults: [
         {
           class: 'ALO',
-          date: new Date(),
+          date: '2024-01-01',
           id: '1',
           judge: 'Test Judge',
           location: 'Test Location',
@@ -235,7 +235,7 @@ describe('RegistrationIcons component', () => {
         },
         {
           class: 'ALO',
-          date: new Date(),
+          date: '2024-01-01',
           id: '2',
           judge: 'Test Judge',
           location: 'Test Location',
@@ -246,7 +246,7 @@ describe('RegistrationIcons component', () => {
         },
         {
           class: 'ALO',
-          date: new Date(),
+          date: '2024-01-01',
           id: '3',
           judge: 'Test Judge',
           location: 'Test Location',
@@ -271,7 +271,7 @@ describe('RegistrationIcons component', () => {
       qualifyingResults: [
         {
           class: 'ALO',
-          date: new Date(),
+          date: '2024-01-01',
           id: '1',
           judge: 'Test Judge',
           location: 'Test Location',
@@ -283,7 +283,7 @@ describe('RegistrationIcons component', () => {
         },
         {
           class: 'ALO',
-          date: new Date(),
+          date: '2024-01-01',
           id: '2',
           judge: 'Test Judge',
           location: 'Test Location',
@@ -295,7 +295,7 @@ describe('RegistrationIcons component', () => {
         },
         {
           class: 'ALO',
-          date: new Date(),
+          date: '2024-01-01',
           id: '3',
           judge: 'Test Judge',
           // No ranking points for this result

@@ -230,7 +230,7 @@ describe('useRegistrationActions', () => {
     }
     const manualResult: ManualTestResult = {
       class: 'NOU',
-      date: new Date('2026-08-16T12:20:03.714Z'),
+      date: '2026-08-16',
       id: 'manual-result',
       judge: 'Judge',
       location: 'Location',

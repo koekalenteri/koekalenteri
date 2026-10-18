@@ -25,8 +25,94 @@ describe('lib/qualification', () => {
       )
 
       expect(qualification.qualifies).toBe(true)
-      expect(qualification.qualifyingResults).toEqual([
-        expect.objectContaining({ date: NOU1.date, official: true, result: 'NOU1' }),
+      expect(qualification.qualifyingResults).toEqual([expect.objectContaining({ official: true, result: 'NOU1' })])
+    })
+
+    // The results' days are written back as keys, whichever form they were read from (KOE-1548).
+    it.each([
+      ['an instant the lambda wrote', '2022-05-30T00:00:00.000Z'],
+      ["Kennelliitto's stamp", '2022-05-30T00:00:00'],
+      ['a key', '2022-05-30'],
+    ])('writes the day of a result read from %s as a key', (_name, date) => {
+      const qualification = inLambdaZone(() =>
+        qualifyJsonRegistration(
+          { class: 'ALO', dog: { regNo: 'FI12345/22', results: [{ ...NOU1, date }] } },
+          { eventType: 'NOME-B', startDate: '2022-08-01' }
+        )
+      )
+
+      expect(qualification.qualifyingResults).toEqual([expect.objectContaining({ date: '2022-05-30' })])
+    })
+
+    // The best results are the earliest three: given latest first, the earliest dated ones come first, a
+    // tie on a day keeps the given order, and an undated one comes after them. (Two undated ALO1s would
+    // count as results from before the trial's year and move the dog up a class.)
+    it('keeps the earliest three of the best results, a tie in the order given and the undated one last', () => {
+      const ALO1 = (date: string, location: string) => ({
+        ...NOU1,
+        class: 'ALO',
+        date,
+        location,
+        result: 'ALO1',
+        type: 'NOME-B',
+      })
+      const best = (results: JsonTestResult[]) =>
+        inLambdaZone(() =>
+          qualifyJsonRegistration(
+            { class: 'ALO', dog: { regNo: 'FI12345/22', results: [NOU1, ...results] } },
+            { eventType: 'NOME-B', startDate: '2022-08-01' }
+          )
+        ).qualifyingResults?.map((r) => r.location)
+
+      expect(
+        best([
+          ALO1('2022-07-01T00:00:00', 'Latest'),
+          ALO1('2022-06-01T00:00:00', 'Tie A'),
+          ALO1('', 'Undated'),
+          ALO1('2022-06-01T00:00:00', 'Tie B'),
+        ])
+      ).toEqual(['Test', 'Tie A', 'Tie B', 'Latest'])
+      expect(
+        best([ALO1('', 'Undated'), ALO1('2022-07-01T00:00:00', 'Latest'), ALO1('2022-06-01T00:00:00', 'Earliest')])
+      ).toEqual(['Test', 'Earliest', 'Latest', 'Undated'])
+    })
+
+    // A hand-entered result saved before its day was picked has no date at all; the schema allows it,
+    // and it is no valid claim, so it does not count and does not fail the save (KOE-1548).
+    it('passes over a hand-entered result that has no date', () => {
+      const { date: _date, ...undated } = { ...NOU1, id: 'manual-1' }
+      const qualification = inLambdaZone(() =>
+        qualifyJsonRegistration(
+          // A JSON body, as the request carries it: the field is missing, whatever the type says.
+          { class: 'ALO', dog: { regNo: 'FI12345/22', results: [] }, results: [JSON.parse(JSON.stringify(undated))] },
+          { eventType: 'NOME-B', startDate: '2022-08-01' }
+        )
+      )
+
+      expect(qualification).toEqual({ qualifies: false, qualifyingResults: [] })
+    })
+
+    // Kennelliitto's empty date is no day: such a result sorts after the dated ones, and is written
+    // back with an empty date rather than failing the save.
+    it('sorts a result with no day after the dated ones and writes it with an empty date', () => {
+      const ALO1 = { ...NOU1, class: 'ALO', result: 'ALO1', type: 'NOME-B' }
+      const qualification = inLambdaZone(() =>
+        qualifyJsonRegistration(
+          {
+            class: 'ALO',
+            dog: {
+              regNo: 'FI12345/22',
+              results: [NOU1, { ...ALO1, date: '0001-01-01T00:00:00' }, { ...ALO1, date: '2022-06-01T00:00:00' }],
+            },
+          },
+          { eventType: 'NOME-B', startDate: '2022-08-01' }
+        )
+      )
+
+      expect(qualification.qualifyingResults?.map((r) => [r.result, r.date])).toEqual([
+        ['NOU1', '2022-05-30'],
+        ['ALO1', '2022-06-01'],
+        ['ALO1', ''],
       ])
     })
 
@@ -73,9 +159,9 @@ describe('lib/qualification', () => {
           expect(inBrowser.qualifies).toBe(qualifies)
         })
 
-        // A hand-entered ALO1 picked in this browser, as the form sends it: the picked moment as an
-        // instant. It counts for its Finnish year in the browser and on the lambda alike; picked on
-        // 1 January in Tokyo, that is still 31 December in Finland.
+        // A hand-entered ALO1 stored before the results were day keys: the picked moment as an instant.
+        // It counts for its Finnish year in the browser and on the lambda alike; picked on 1 January in
+        // Tokyo, that is still 31 December in Finland. Such rows are read so until KOE-1547 migrates them.
         const pickedOnNewYear = zone !== 'Asia/Tokyo'
         it.each([
           { name: '1.1. at midnight', picked: () => new Date(2026, 0, 1), qualifies: pickedOnNewYear },
@@ -105,6 +191,25 @@ describe('lib/qualification', () => {
             expect(onLambda.qualifies).toBe(qualifies)
           }
         )
+
+        it('reads a hand-entered result of 1.1. sent as a key in the year it names', () => {
+          const manual: JsonManualTestResult = { ...ALO1, date: '2026-01-01', id: 'manual-1' }
+          const onLambda = inLambdaZone(() =>
+            qualifyJsonRegistration(
+              { class: 'ALO', dog: { regNo: 'FI12345/22', results: [NOU1] }, results: [manual] },
+              { eventType: 'NOME-B', startDate }
+            )
+          )
+          const inBrowser = filterRelevantResults(
+            { eventType: 'NOME-B', startDate: new Date(startDate) },
+            'ALO',
+            toDog({ regNo: 'FI12345/22', results: [NOU1] }).results,
+            [toManualTestResult(manual)]
+          )
+
+          expect(inBrowser.qualifies).toBe(true)
+          expect(onLambda.qualifies).toBe(true)
+        })
       })
     }
 

@@ -37,7 +37,7 @@ const registration: DeepPartial<Registration> = {
   dog: {
     breedCode: '110',
     dam: { name: 'Dam Name', titles: 'Dam titles' },
-    dob: new Date('2024-05-01'),
+    dob: '2024-05-01',
     gender: 'M',
     name: 'Dog Name 10',
     refreshDate: new Date('2026-06-01'),

@@ -14,6 +14,9 @@ import {
   toEventStatsItem,
   toPublicRegistration,
   toRegistration,
+  toStoredDog,
+  toStoredManualTestResult,
+  toStoredRegistration,
   toUser,
 } from './wire'
 
@@ -51,7 +54,7 @@ describe('wire', () => {
       expect(registration.createdAt).toEqual(new Date('2026-01-02T10:00:00.000Z'))
       expect(registration.paidAt).toEqual(new Date('2026-05-03T08:00:00.000Z'))
       expect(registration.dates[0].date).toEqual(new Date('2026-05-01T21:00:00.000Z'))
-      expect(registration.dog.dob).toEqual(new Date('2020-02-02T22:00:00.000Z'))
+      expect(registration.dog.dob).toBe('2020-02-03')
       expect(registration.lastEmail).toEqual({
         context: '',
         sentAt: new Date('2026-05-02T08:00:00.000Z'),
@@ -111,7 +114,7 @@ describe('wire', () => {
         owner: 'o',
       })
 
-      expect(row.dog.dob).toEqual(new Date('2020-02-02T22:00:00.000Z'))
+      expect(row.dog.dob).toBe('2020-02-03')
       expect(row.group).toEqual({ date: new Date('2026-09-11T21:00:00.000Z'), key: '2026-09-12', number: 1 })
     })
 
@@ -184,18 +187,60 @@ describe('wire', () => {
     describeInTimeZone('Asia/Tokyo', finnishLocalCases)
     describeInTimeZone('Pacific/Pago_Pago', finnishLocalCases)
 
-    it("passes a dog's zoned birthday and result day through as the instants they are", () => {
-      const dog = toDog({
-        dob: '2021-01-01T10:00:00.000Z',
-        regNo: 'FI1/21',
-        results: [
-          { class: 'ALO', date: '2025-09-11T21:00:00.000Z', judge: 'j', location: 'l', result: 'ALO1', type: 'NOME-B' },
-        ],
-      })
+    // A dog's dates are days (KOE-1548), read from every form they were stored in. What the server sends
+    // reads an instant as its Finnish day; what this browser stored, as the day its picker showed.
+    const result = (date: string) => ({ class: 'ALO', date, judge: 'j', location: 'l', result: 'ALO1', type: 'NOME-B' })
+    const tokyoMidnight = '2020-12-31T15:00:00.000Z' // 1.1.2021 00:00 in Tokyo, 31.12.2020 17:00 in Finland
 
-      expect(dog.dob).toEqual(new Date('2021-01-01T10:00:00.000Z'))
-      expect(dog.results[0].date).toEqual(new Date('2025-09-11T21:00:00.000Z'))
-    })
+    for (const zone of [TIME_ZONE, 'America/New_York', 'Asia/Tokyo']) {
+      describeInTimeZone(zone, () => {
+        it.each([
+          ['a day key', '2021-01-01', '2021-01-01'],
+          ["Kennelliitto's stamp", '2021-01-01T00:00:00', '2021-01-01'],
+          ['an instant, as its Finnish day', tokyoMidnight, '2020-12-31'],
+        ])("reads a dog's dates from the server, %s", (_name, value, expected) => {
+          const dog = toDog({ dob: value, regNo: 'FI1/21', results: [result(value)] })
+          const registration = toRegistration({
+            ...stamps,
+            dog: { dob: value, regNo: 'FI1/21', results: [result(value)] },
+            qualifyingResults: [{ ...result(value), official: true }],
+            results: [{ ...result(value), id: 'm1' }],
+          })
+
+          expect([dog.dob, dog.results[0].date]).toEqual([expected, expected])
+          expect(registration.dog?.dob).toBe(expected)
+          expect(registration.dog?.results[0].date).toBe(expected)
+          expect(registration.qualifyingResults?.[0].date).toBe(expected)
+          expect(registration.results?.[0].date).toBe(expected)
+        })
+
+        it('reads a draft this browser stored, an instant as the day its picker showed', () => {
+          const localMidnight = new Date(2021, 0, 1).toISOString()
+          const draft = toStoredRegistration({
+            ...stamps,
+            dog: { dob: localMidnight, regNo: 'FI1/21', results: [result(localMidnight)] },
+            qualifyingResults: [{ ...result(localMidnight), official: true }],
+            results: [{ ...result(localMidnight), id: 'm1' }],
+          })
+
+          expect(draft.dog?.dob).toBe('2021-01-01')
+          expect(draft.dog?.results[0].date).toBe('2021-01-01')
+          expect(draft.qualifyingResults?.[0].date).toBe('2021-01-01')
+          expect(draft.results?.[0].date).toBe('2021-01-01')
+          expect(toStoredDog({ dob: localMidnight, regNo: 'FI1/21' }).dob).toBe('2021-01-01')
+          expect(toStoredManualTestResult({ ...result(localMidnight), id: 'm1' }).date).toBe('2021-01-01')
+        })
+
+        it("reads Kennelliitto's empty date as no day in every form, without throwing", () => {
+          for (const empty of ['0001-01-01T00:00:00', '0001-01-01T00:00:00.000Z', '0000-12-31T22:00:00.000Z']) {
+            expect(toDog({ dob: empty, regNo: 'FI1/21', results: [result(empty)] })).toEqual(
+              expect.objectContaining({ dob: undefined, results: [expect.objectContaining({ date: undefined })] })
+            )
+            expect(toStoredDog({ dob: empty, regNo: 'FI1/21' }).dob).toBeUndefined()
+          }
+        })
+      })
+    }
 
     it('arrayOf and recordOf apply a converter to every element present', () => {
       const toItem = converter<{ at: string }, { at: Date }>()({ at: timestamp })
@@ -231,7 +276,7 @@ describe('wire', () => {
         modifiedAt: timestamp,
         updatedAt: timestamp,
       })
-      // @ts-expect-error `name` holds no Date.
+      // @ts-expect-error `name` holds no Date, and its rule makes one.
       converter<{ name: string }, { name: string }>()({ name: timestamp })
       const same = (date: Date) => date
       const sameUser = (user: Partial<User>) => user

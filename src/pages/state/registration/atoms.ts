@@ -3,14 +3,14 @@ import { atom } from 'jotai'
 import { atomFamily } from 'jotai-family'
 import { getRegistration } from '@/api/registration'
 import { createRegistrationDraft } from '@/lib/registration'
-import { toRegistration } from '@/lib/wire'
+import { toStoredRegistration } from '@/lib/wire'
 import { atomWithSessionStorage } from '../storage'
 
 export const createNewRegistration = (): Registration => createRegistrationDraft('participant')
 export const newRegistrationAtom = atomWithSessionStorage<Registration | undefined, JsonRegistration>(
   'newRegistration',
   createNewRegistration(),
-  { revive: toRegistration }
+  { revive: toStoredRegistration }
 )
 
 export const registrationByIdsAtom = atomFamily((ids: string) => {

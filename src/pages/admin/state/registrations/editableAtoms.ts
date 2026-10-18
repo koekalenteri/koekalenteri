@@ -2,7 +2,7 @@ import type { RESET } from 'jotai/utils'
 import type { JsonRegistration, Registration } from '@/types'
 import { atom } from 'jotai'
 import { atomFamily } from 'jotai-family'
-import { toRegistration } from '@/lib/wire'
+import { toStoredRegistration } from '@/lib/wire'
 import { atomWithSessionStorage } from '@/pages/state'
 import { adminEventRegistrationAtom } from './derivedAtoms'
 
@@ -11,7 +11,7 @@ export const adminEditableEventRegistrationByEventIdAndIdAtom = atomFamily(
     const storedAtom = atomWithSessionStorage<Registration | undefined, JsonRegistration>(
       `adminEditableEventRegistration/eventId+Id__${ids.eventId}__${ids.id}`,
       undefined,
-      { revive: toRegistration }
+      { revive: toStoredRegistration }
     )
     // Only await the initial hydration from adminEventRegistrationAtom. Once storedAtom holds a
     // value, read synchronously instead of via an `async` getter: an async function always
