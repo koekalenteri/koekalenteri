@@ -1,6 +1,12 @@
 import { nanoid } from 'nanoid'
 import { dayOf, daysBetween, shiftDays, TIME_ZONE } from '../../lib/day'
-import { eventRegistrationDateKey, getEventSeason, isEventDateString, stripKennelliittoLink } from '../../lib/event'
+import {
+  eventRegistrationDateKey,
+  getEventSeason,
+  isEventDateString,
+  shiftPlacesPerDay,
+  stripKennelliittoLink,
+} from '../../lib/event'
 import { getRegistrationGroupKey, isStarter } from '../../lib/registration'
 import { saveEvent } from '../lib/event'
 import { authorizeEvent } from '../lib/eventAuth'
@@ -56,6 +62,11 @@ const copyEventLambda = lambda('copyEvent', async (event) => {
   item.classes.forEach((c) => {
     if (c.date) c.date = shift(c.date)
   })
+  item.dates?.forEach((d) => {
+    d.date = shift(d.date)
+  })
+  // The places per day move with their days (KOE-1543).
+  if (item.placesPerDay) item.placesPerDay = shiftPlacesPerDay(item.placesPerDay, days)
 
   await publishEventChange(await saveEvent(item))
 
