@@ -6,10 +6,13 @@
  *   npm run init-tables              create what is missing, seed what was created
  *   npm run init-tables -- --plan    print the tables and indexes the templates declare, touch nothing
  *   npm run init-tables -- --reset   delete the tables first, then create and seed everything again
+ *   npm run init-tables -- --no-seed create the tables empty, whatever `_test_data_` holds
  *
  * Re-running is safe: an existing table is kept, and only the indexes the template has added since
  * are created on it. The endpoint is the dynamodb-local container `npm run init-dynamodb` starts;
- * DYNAMODB_ENDPOINT overrides it.
+ * DYNAMODB_ENDPOINT overrides it. DynamoDB-local keeps one database per access key, and the key
+ * here is `local` unless DYNAMODB_LOCAL_ACCESS_KEY names another: the integration tests run under
+ * their own key, so their reset never touches the developer's tables (KOE-1369).
  */
 import fs from 'node:fs/promises'
 import path from 'node:path'
@@ -25,9 +28,10 @@ import {
   waitUntilTableExists,
   waitUntilTableNotExists,
 } from '@aws-sdk/client-dynamodb'
+import { DYNAMODB_ENDPOINT as ENDPOINT, LOCAL_ACCESS_KEY } from './lib/local-dynamodb.mjs'
 import { readTableDefinitions } from './lib/tables.mjs'
 
-const ENDPOINT = process.env.DYNAMODB_ENDPOINT ?? 'http://127.0.0.1:8000'
+const ACCESS_KEY = process.env.DYNAMODB_LOCAL_ACCESS_KEY ?? LOCAL_ACCESS_KEY
 const DATA_DIR = './_test_data_'
 const BATCH_SIZE = 25
 
@@ -40,9 +44,10 @@ const ITEM_FILES = {
 const args = new Set(process.argv.slice(2))
 const plan = args.has('--plan')
 const reset = args.has('--reset')
+const noSeed = args.has('--no-seed')
 
 const client = new DynamoDBClient({
-  credentials: { accessKeyId: 'local', secretAccessKey: 'local' },
+  credentials: { accessKeyId: ACCESS_KEY, secretAccessKey: ACCESS_KEY },
   endpoint: ENDPOINT,
   region: 'eu-north-1',
 })
@@ -153,8 +158,8 @@ console.log(`DynamoDB at ${ENDPOINT}: ${tables.length} tables in the templates`)
 if (reset) {
   for (const { definition } of tables) await deleteTable(definition.TableName)
 }
-const batches = await readBatchSeeds()
+const batches = noSeed ? new Map() : await readBatchSeeds()
 for (const table of tables) {
   const created = await ensureTable(table)
-  if (created) await seed(table.definition.TableName, batches)
+  if (created && !noSeed) await seed(table.definition.TableName, batches)
 }

@@ -3,6 +3,7 @@
  * variables and the variables the lambda bundles run with. The Playwright config, the build script
  * and the servers all read it, so a port cannot mean one thing to the browser and another to the API.
  */
+import { DYNAMODB_ENDPOINT, LOCAL_ACCESS_KEY } from '../scripts/lib/local-dynamodb.mjs'
 
 export const FRONTEND_PORT = 3000
 export const API_PORT = 8080
@@ -17,7 +18,7 @@ export const STAGE = 'dev'
 export const API_URL = `http://localhost:${API_PORT}/${STAGE}`
 export const FAKES_URL = `http://127.0.0.1:${FAKES_PORT}`
 
-export const DYNAMODB_ENDPOINT = process.env.DYNAMODB_ENDPOINT ?? 'http://127.0.0.1:8000'
+export { DYNAMODB_ENDPOINT, LOCAL_ACCESS_KEY }
 
 /** The Cognito ids the frontend is built with. Nothing calls Cognito; they only have to be present. */
 const USER_POOL_ID = 'eu-north-1_e2e'
@@ -42,8 +43,11 @@ export const frontendBuildEnv = {
   REACT_APP_WS_API_URL: '',
 }
 
-/** The table variables as the template's Globals name them; CustomDynamoClient kebab-cases the values. */
-const tableEnv = {
+/**
+ * The table variables as the template's Globals name them; CustomDynamoClient kebab-cases the values.
+ * The integration tests (`scripts/test-integration.js`) run under the same names.
+ */
+export const tableEnv = {
   AUDIT_TABLE_NAME: 'AuditTable',
   DATA_VERSION_TABLE_NAME: 'DataVersionTable',
   DOG_TABLE_NAME: 'DogTable',
@@ -69,9 +73,9 @@ const tableEnv = {
  */
 export const lambdaEnv = {
   ...tableEnv,
-  // DynamoDB-local keeps one database per access key unless started with -sharedDb, which a CI
-  // service container cannot be; init-tables.mjs and fixtures/db.ts use the same key.
-  AWS_ACCESS_KEY_ID: 'local',
+  // The developer's database in DynamoDB-local (one per access key); init-tables.mjs and
+  // fixtures/db.ts use the same key.
+  AWS_ACCESS_KEY_ID: LOCAL_ACCESS_KEY,
   AWS_EMF_ENVIRONMENT: 'Local',
   // Anything not named here would go to AWS; point the rest at the fakes, which answer 501 and log the call.
   AWS_ENDPOINT_URL: `${FAKES_URL}/aws`,
@@ -79,7 +83,7 @@ export const lambdaEnv = {
   AWS_ENDPOINT_URL_SES: `${FAKES_URL}/ses`,
   AWS_ENDPOINT_URL_SSM: `${FAKES_URL}/ssm`,
   AWS_REGION: 'eu-north-1',
-  AWS_SECRET_ACCESS_KEY: 'local',
+  AWS_SECRET_ACCESS_KEY: LOCAL_ACCESS_KEY,
   CUSTOM_DOMAIN: `localhost:${FRONTEND_PORT}`,
   PAYTRAIL_API_ENDPOINT: `${FAKES_URL}/paytrail`,
   REGISTRATION_EDIT_TOKEN_SECRET: 'e2e-registration-edit-token-secret',

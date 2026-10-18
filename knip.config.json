@@ -3,6 +3,7 @@
     ".": {
       "ignore": [
         "aws/split.js",
+        "scripts/lib/tables.d.mts",
         "scripts/marshall.cjs",
         "scripts/precommit.js"
       ],
