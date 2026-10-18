@@ -33,6 +33,7 @@ import { cloneRegistrationPeople, normalizeRegistrationEmails } from './emailSup
 import { repairReadyRegistrationGroups, updateRegistrations } from './event'
 import { httpError } from './lambda'
 import { logger } from './log'
+import { publishParticipantPayments } from './payment'
 import {
   claimNewRegistrationPostProcessing,
   clearRegistrationEmailDeliveryStatus,
@@ -437,6 +438,10 @@ export const finalizeRegistrationUpdate = async ({
   const confirmedEvent = await recountRegistrations(registration.eventId)
   await updateEventStatsForRegistration(registration, existing, confirmedEvent)
   await publishRegistrationChange(confirmedEvent, registration, existing, groupPatches, false)
+  // A secretary's edit can change what the entrant owes or cancel the entry, and the entrant's open
+  // page must hear it (KOE-1553). The entrant's own save gets the same patch next to its response;
+  // both say what the row holds. The group repairs in `groupPatches` only renumber, which no picture reads.
+  await publishParticipantPayments(confirmedEvent, [registration.id])
 
   const entry = updateAuditEntry(flags, registration, existing, confirmedEvent)
   if (entry) await audit({ auditKey: registrationAuditKey(registration), ...entry, ...auditUser(user) })

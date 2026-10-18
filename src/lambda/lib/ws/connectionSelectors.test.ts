@@ -25,6 +25,7 @@ const {
   publicAudience,
   publicStartListAudience,
   registrationAudience,
+  registrationsAudience,
 } = await import('./connectionSelectors')
 
 describe('ws/connectionSelectors', () => {
@@ -137,6 +138,31 @@ describe('ws/connectionSelectors', () => {
       { connectionId: 'p1', registrationEventId: 'e1', registrationId: 'r1' },
       { connectionId: 'a1', registrationEventId: 'e1', registrationId: 'r1' },
     ])
+  })
+
+  it('selects the subscribers of several registrations of one event from one scan (KOE-1553)', async () => {
+    mockQueryPublicConnections.mockResolvedValueOnce([
+      { connectionId: 'p1', registrationEventId: 'e1', registrationId: 'r1' },
+      { connectionId: 'p2', registrationEventId: 'e1', registrationId: 'r2' },
+      { connectionId: 'other-reg', registrationEventId: 'e1', registrationId: 'r3' },
+      { connectionId: 'other-event', registrationEventId: 'e2', registrationId: 'r1' },
+      { connectionId: 'no-reg', publicEventId: 'e1' },
+    ])
+    mockQueryAdminConnections.mockResolvedValueOnce([
+      { connectionId: 'a1', registrationEventId: 'e1', registrationId: 'r2' },
+      { connectionId: 'expired', registrationEventId: 'e1', registrationId: 'r1' },
+    ])
+    mockIsConnectionExpired.mockImplementation(
+      (connection: { connectionId: string }) => connection.connectionId === 'expired'
+    )
+
+    await expect(registrationsAudience('e1', ['r1', 'r2'])).resolves.toEqual([
+      { connectionId: 'p1', registrationEventId: 'e1', registrationId: 'r1' },
+      { connectionId: 'p2', registrationEventId: 'e1', registrationId: 'r2' },
+      { connectionId: 'a1', registrationEventId: 'e1', registrationId: 'r2' },
+    ])
+    expect(mockQueryPublicConnections).toHaveBeenCalledTimes(1)
+    expect(mockQueryAdminConnections).toHaveBeenCalledTimes(1)
   })
 
   it('includes provided subscribed connection when index query has not caught up', async () => {
