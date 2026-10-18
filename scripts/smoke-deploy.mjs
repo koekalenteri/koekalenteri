@@ -26,7 +26,8 @@ const REQUEST_TIMEOUT_MS = 15_000
 
 /** The value of one attribute of a tag, quoted either way or not at all. */
 const attribute = (tag, name) =>
-  new RegExp(`\\b${name}=(?:"([^"]*)"|'([^']*)'|([^\\s"'>]+))`, 'i')
+  // The name must start the attribute: `\b` would also match the `src` of `data-src`.
+  new RegExp(`\\s${name}=(?:"([^"]*)"|'([^']*)'|([^\\s"'>]+))`, 'i')
     .exec(tag)
     ?.slice(1)
     .find((value) => value !== undefined)

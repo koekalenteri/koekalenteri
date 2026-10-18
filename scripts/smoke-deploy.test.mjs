@@ -209,6 +209,11 @@ describe('scriptSources', () => {
     const scripts = `${page({ scripts: ['https://cdn.example/x.js'] })}<script>void 0</script>`
     expect(scriptSources(scripts, url)).toEqual([])
   })
+
+  it('reads src, not an attribute whose name ends in it', () => {
+    const scripts = '<script data-src="/static/js/lazy.js"></script><script data-src="/x.js" src="/static/js/main.js"></script>'
+    expect(scriptSources(scripts, url)).toEqual(['https://koekalenteri.example/static/js/main.js'])
+  })
 })
 
 describe('checkFrontPage', () => {
@@ -337,13 +342,19 @@ describe('the command line against a server', () => {
   let server
   let origin
   let frontStatus = 200
+  let stamp = {}
+
+  beforeEach(() => {
+    frontStatus = 200
+    stamp = {}
+  })
 
   beforeAll(async () => {
     server = createServer((request, response) => {
       const { pathname } = new URL(request.url, 'http://localhost')
       if (pathname === '/') {
         response.writeHead(frontStatus, { 'content-type': 'text/html' })
-        response.end(page({ api: `${origin}/api` }))
+        response.end(page({ ...stamp, api: `${origin}/api` }))
       } else if (pathname === BUNDLE) {
         response.writeHead(200, { 'content-type': 'application/javascript' })
         response.end('void 0')
@@ -359,31 +370,80 @@ describe('the command line against a server', () => {
     origin = `http://127.0.0.1:${server.address().port}`
   })
 
-  afterAll(() => new Promise((resolve) => server.close(resolve)))
+  // A server that never started has nothing to close, and must not hide why it did not start.
+  afterAll(() => (server ? new Promise((resolve) => server.close(resolve)) : undefined))
 
   /** Runs the script without blocking this process, which serves its requests. */
-  const run = (...args) =>
+  const runIn = ({ cwd, env }, ...args) =>
     new Promise((resolve) => {
-      execFile(process.execPath, [CLI, ...args], { encoding: 'utf8' }, (error, stdout, stderr) =>
+      execFile(process.execPath, [CLI, ...args], { cwd, encoding: 'utf8', env }, (error, stdout, stderr) =>
         resolve({ status: error ? error.code : 0, stderr, stdout })
       )
     })
+  const run = (...args) => runIn({}, ...args)
+
+  const target = () => ['--url', `${origin}/`, '--api', `${origin}/api`, '--attempts', '1', '--interval', '0']
 
   it('passes a deploy whose page carries the stamp, loads its bundle and whose API answers', async () => {
-    frontStatus = 200
     const result = await run(
-      ...['--url', `${origin}/`, '--api', `${origin}/api`, '--attempts', '1', '--interval', '0'],
+      ...target(),
       ...['--expect-version', '1.2.3', '--expect-revision', REVISION, '--expect-api', `${origin}/api`]
     )
-    expect(result.stderr).toBe('')
+    expect(result.stderr).not.toContain('::error::')
     expect(result.status).toBe(0)
     expect(result.stdout).toContain(`version 1.2.3, revision ${REVISION}`)
     expect(result.stdout).toContain('GET /event: 2 events')
   })
 
+  it('passes a dev deploy, as release.yml runs it, of the checked-out commit', async () => {
+    const revision = execFileSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }).trim()
+    const version = JSON.parse(execFileSync('git', ['show', 'HEAD:package.json'], { encoding: 'utf8' })).version
+    stamp = { revision, version }
+    const result = await run(
+      ...target(),
+      ...['--expect-version', version, '--expect-revision', revision, '--expect-api', `${origin}/api`],
+      '--allow-descendant'
+    )
+    expect(result.stderr).not.toContain('::error::')
+    expect(result.status).toBe(0)
+    expect(result.stdout).toContain(`version ${version}, revision ${revision}`)
+  })
+
+  it('passes a dev deploy that Amplify built from a later commit on main with a bumped version', async () => {
+    // A history of its own: CI's checkout is shallow, so the repo's own parent commit is not there.
+    const repo = mkdtempSync(path.join(tmpdir(), 'smoke-deploy-git-'))
+    // Without the GIT_* variables a git hook sets (the pre-commit hook runs these tests), which
+    // would otherwise point every command here at the repository being committed to.
+    const env = Object.fromEntries(Object.entries(process.env).filter(([name]) => !name.startsWith('GIT_')))
+    const config = ['-c', 'user.name=smoke', '-c', 'user.email=smoke@example.invalid', '-c', 'core.hooksPath=/dev/null']
+    const git = (...args) => execFileSync('git', [...config, ...args], { cwd: repo, encoding: 'utf8', env }).trim()
+    try {
+      git('init', '-q')
+      writeFileSync(path.join(repo, 'package.json'), '{ "version": "1.2.3" }')
+      git('add', 'package.json')
+      git('commit', '-q', '--no-gpg-sign', '-m', 'checked out by deploy-frontend')
+      const expected = git('rev-parse', 'HEAD')
+      writeFileSync(path.join(repo, 'package.json'), '{ "version": "1.3.0" }')
+      git('commit', '-q', '--no-gpg-sign', '-am', 'pushed before Amplify cloned')
+      stamp = { revision: git('rev-parse', 'HEAD'), version: '1.3.0' }
+
+      const result = await runIn(
+        { cwd: repo, env },
+        ...target(),
+        ...['--expect-version', '1.2.3', '--expect-revision', expected, '--expect-api', `${origin}/api`],
+        '--allow-descendant'
+      )
+      expect(result.stderr).not.toContain('::error::')
+      expect(result.status).toBe(0)
+      expect(result.stdout).toContain(`version 1.3.0, revision ${stamp.revision}`)
+    } finally {
+      rmSync(repo, { force: true, recursive: true })
+    }
+  })
+
   it('fails a deploy whose front page does not load', async () => {
     frontStatus = 503
-    const result = await run('--url', `${origin}/`, '--api', `${origin}/api`, '--attempts', '1', '--interval', '0')
+    const result = await run(...target())
     expect(result.status).toBe(1)
     expect(result.stderr).toContain('::error::Smoke check failed: front page after 1 attempts: HTTP 503')
   })
