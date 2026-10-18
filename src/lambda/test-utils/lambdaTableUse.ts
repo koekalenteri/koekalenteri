@@ -43,11 +43,12 @@
  * only by being stored or returned first (`const f = make(); f()`, a callback kept in a variable and
  * handed on); a client method taken off the client (`const { read } = dynamoDB`,
  * `dynamoDB.read.call(...)`, `.apply`), or called as `x[key](...)` on a receiver neither typed as a
- * client nor known to hold one; and a field read from a base class through an instance the walk has
- * not seen built. Being flow-insensitive, it may also grant more than one run needs: after
- * `table ??= CONFIG.xTable` the variable still holds the undefined of its initializer, so the
- * client's default table counts too, and a function written out as an argument at import counts as
- * run there even where the callee only keeps it.
+ * client nor known to hold one; a getter or anything else import-time code only names
+ * (`Foo.instance` with a static getter), since that code reaches nothing by name; and a field read
+ * from a base class through an instance the walk has not seen built. Being flow-insensitive, it may
+ * also grant more than one run needs: after `table ??= CONFIG.xTable` the variable still holds the
+ * undefined of its initializer, so the client's default table counts too, and a function written out
+ * as an argument at import counts as run there even where the callee only keeps it.
  */
 import type { Action } from './dynamoActions'
 import path from 'node:path'
@@ -267,8 +268,8 @@ const configKeyOfBinding = (ctx: Context, element: ts.BindingElement): string | 
   const declaration = pattern.parent
   if (!ts.isObjectBindingPattern(pattern) || !ts.isVariableDeclaration(declaration)) return undefined
   if (!declaration.initializer || !isConfig(ctx, declaration.initializer)) return undefined
-  const name = element.propertyName ?? element.name
-  return ts.isIdentifier(name) ? name.text : undefined
+  if (element.propertyName) return keyOf(element.propertyName)
+  return ts.isIdentifier(element.name) ? element.name.text : undefined
 }
 
 const tableValue = (key: string): Values => (key.endsWith('Table') ? new Set([`T:${key}`]) : NONE)
@@ -290,8 +291,29 @@ const propertyNamed = (literal: ts.ObjectLiteralExpression, name: string) =>
  * undefined where it may be anything.
  */
 const keyNames = (ctx: Context, state: HandlerState, key: ts.Expression): string[] | undefined => {
+  if (!givesWholeNames(ctx, key)) return undefined
   const values = valuesOf(ctx, state, key)
   return values.size && onlyKinds(values, ['S:']) ? withPrefix(values, 'S') : undefined
+}
+
+/**
+ * Whether a key expression can only evaluate to one of the strings written in it: a string, a name
+ * whose initializer is such a key, a conditional of such keys. `valuesOf` unions the two sides of
+ * `'read' + 'All'`, which is no name at all, so a concatenation or a template is a key that may be
+ * anything.
+ */
+const givesWholeNames = (ctx: Context, key: ts.Expression, seen = new Set<ts.Node>()): boolean => {
+  const node = unwrap(key)
+  if (seen.has(node)) return true
+  seen.add(node)
+  if (ts.isStringLiteralLike(node)) return true
+  if (ts.isConditionalExpression(node)) {
+    return givesWholeNames(ctx, node.whenTrue, seen) && givesWholeNames(ctx, node.whenFalse, seen)
+  }
+  if (!ts.isIdentifier(node)) return false
+  return declarationsOf(ctx, node).every(
+    (d) => !ts.isVariableDeclaration(d) || !d.initializer || givesWholeNames(ctx, d.initializer, seen)
+  )
 }
 
 const literalsOf = (ctx: Context, values: Values) =>
@@ -408,7 +430,7 @@ const valuesOfDeclaration = (ctx: Context, state: HandlerState, declaration: ts.
   if (ts.isPropertyAssignment(declaration) || ts.isShorthandPropertyAssignment(declaration)) {
     return union(bound, valuesOfProperty(ctx, state, declaration))
   }
-  if (isFunctionLike(declaration) || ts.isClassDeclaration(declaration)) return new Set([nodeId(ctx, declaration)])
+  if (isFunctionLike(declaration) || ts.isClassLike(declaration)) return new Set([nodeId(ctx, declaration)])
   return bound
 }
 
@@ -505,7 +527,9 @@ const computeValues = (ctx: Context, state: HandlerState, node: ts.Node): Values
   if (ts.isBinaryExpression(node)) return union(valuesOf(ctx, state, node.left), valuesOf(ctx, state, node.right))
   if (ts.isStringLiteralLike(node)) return new Set([`S:${node.text}`])
   if (isUndefined(node)) return UNDEFINED
-  if (ts.isObjectLiteralExpression(node) || isFunctionLike(node)) return new Set([nodeId(ctx, node)])
+  if (ts.isObjectLiteralExpression(node) || isFunctionLike(node) || ts.isClassExpression(node)) {
+    return new Set([nodeId(ctx, node)])
+  }
   if (ts.isNewExpression(node)) return valuesOfClientConstruction(ctx, state, node)
   if (ts.isPropertyAccessExpression(node)) return valuesOfAccess(ctx, state, node)
   if (ts.isIdentifier(node)) {
@@ -554,7 +578,7 @@ const calleesOf = (ctx: Context, state: HandlerState, call: ts.CallExpression | 
     const node = ctx.nodes.get(value)
     if (!node) continue
     if (isFunctionLike(node)) callees.push(node)
-    if (ts.isClassDeclaration(node)) callees.push(...constructorsOf(ctx, node))
+    if (ts.isClassLike(node)) callees.push(...constructorsOf(ctx, node))
   }
   return callees
 }
@@ -563,7 +587,12 @@ const calleesOf = (ctx: Context, state: HandlerState, call: ts.CallExpression | 
 const baseClassOf = (ctx: Context, cls: ts.ClassLikeDeclaration): ts.ClassLikeDeclaration | undefined => {
   const extended = cls.heritageClauses?.find((clause) => clause.token === ts.SyntaxKind.ExtendsKeyword)
   const type = extended?.types[0]
-  return type ? declarationsOf(ctx, type.expression).find(ts.isClassLike) : undefined
+  if (!type) return undefined
+  // `class Top extends Mid` with `const Mid = class extends Base {}`: the base is the initializer.
+  const bases = declarationsOf(ctx, type.expression).map((d) =>
+    ts.isVariableDeclaration(d) && d.initializer ? unwrap(d.initializer) : d
+  )
+  return bases.find(ts.isClassLike)
 }
 
 /** A class and the classes it extends, nearest first. */
@@ -590,7 +619,7 @@ const instanceFieldsOf = (ctx: Context, call: ts.CallExpression | ts.NewExpressi
   ts.isNewExpression(call)
     ? [...valuesOf(ctx, state, call.expression)]
         .map((value) => ctx.nodes.get(value))
-        .filter((node): node is ts.ClassDeclaration => node !== undefined && ts.isClassDeclaration(node))
+        .filter((node): node is ts.ClassLikeDeclaration => node !== undefined && ts.isClassLike(node))
         .flatMap((cls) => classChain(ctx, cls))
         .flatMap((cls) => cls.members.filter(ts.isPropertyDeclaration))
         .filter((field) => field.initializer && !isStatic(field))
@@ -1110,10 +1139,11 @@ const collectItem = (
   const at = property ?? literal
   const action = itemAction(literal, at)
   const named = literalProperty(ctx, state, literal, 'TableName')
-  const values = property ? named : withoutUndefined(named)
-  const keys = tableKeys(values)
-  if ((property && !keys.length) || !onlyKinds(values, ['T:'])) cannotTell(at, 'the item')
-  for (const key of keys) record(state, uses, key, action, at, unit)
+  // Beside a written-out table, a computed key holding something else cannot be the table: it would
+  // fail the transaction, not reach another table. Only an unknown value may be one.
+  const own = property ? valuesOfProperty(ctx, state, property) : withoutUndefined(named)
+  if ((property && !tableKeys(own).length) || !onlyKinds(own, ['T:']) || hasUnknown(named)) cannotTell(at, 'the item')
+  for (const key of tableKeys(named)) record(state, uses, key, action, at, unit)
 }
 
 /** Whether a receiver can be a client: typed as one, or holding one the walk can name. */
