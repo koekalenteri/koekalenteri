@@ -1,17 +1,74 @@
 import type { BreedCode } from '../types'
 import { subMinutes } from 'date-fns'
 import { t } from 'i18next'
+import { startOfFinnishDay } from '../test-utils/finnishDays'
 import { describeInTimeZone } from '../test-utils/timeZone'
+import { localDayOf } from './day'
 import {
   breedAbbreviation,
   createDogUpdateFromFormValues,
+  dogAgeInMonths,
+  earliestResultDate,
   formatDogName,
   isValidDob,
-  manualResultDay,
-  officialResultDay,
+  latestDobForAge,
+  MIN_RESULT_AGE_MONTHS,
+  minDogAgeFor,
   shouldAllowRefresh,
 } from './dog'
 import { toDog } from './wire'
+
+describe("the dog's age", () => {
+  describe('minDogAgeFor', () => {
+    it.each([
+      ['NOU', 9],
+      ['NOME-B', 0],
+      ['NOWT', 0],
+      ['NOME-A', 0],
+      ['an unknown type', 0],
+    ])('%s needs a dog of %i months', (eventType, months) => {
+      expect(minDogAgeFor(eventType)).toBe(months)
+    })
+  })
+
+  it('needs a result to be nine months after birth', () => {
+    expect(MIN_RESULT_AGE_MONTHS).toBe(9)
+  })
+
+  for (const zone of ['UTC', 'Europe/Helsinki', 'America/New_York', 'Asia/Tokyo']) {
+    describeInTimeZone(zone, () => {
+      const born = (stamp: string) => new Date(`${stamp}T00:00:00`)
+
+      it('counts whole months from the day the birth date shows to the Finnish day of the trial', () => {
+        expect(dogAgeInMonths(born('2025-12-28'), startOfFinnishDay('2026-09-28'))).toBe(9)
+        expect(dogAgeInMonths(born('2025-12-28'), startOfFinnishDay('2026-09-27'))).toBe(8)
+        expect(dogAgeInMonths(born('2026-01-01'), startOfFinnishDay('2026-09-30'))).toBe(8)
+        expect(dogAgeInMonths(born('2026-09-29'), startOfFinnishDay('2026-09-28'))).toBe(-1)
+      })
+
+      it.each([
+        ["Kennelliitto's empty date", () => born('0001-01-01')],
+        ['an Invalid Date', () => new Date(Number.NaN)],
+        ['a typed year 202', () => born('0202-12-28')],
+      ])('has no age, and no earliest result date, for %s', (_name, dob) => {
+        expect(dogAgeInMonths(dob(), startOfFinnishDay('2026-09-28'))).toBeUndefined()
+        expect(earliestResultDate(dob())).toBeUndefined()
+      })
+
+      it('gives the latest birth date as the local midnight of the day', () => {
+        const latest = latestDobForAge(startOfFinnishDay('2026-04-30'), 9)
+        expect(localDayOf(latest)).toBe('2025-07-31')
+        expect(latest.getHours()).toBe(0)
+      })
+
+      it('gives the earliest result date nine months after the day of birth, as a local midnight', () => {
+        const earliest = earliestResultDate(born('2025-05-31'))
+        expect(earliest && localDayOf(earliest)).toBe('2026-02-28')
+        expect(earliest?.getHours()).toBe(0)
+      })
+    })
+  }
+})
 
 describe('dog utility functions', () => {
   describe('shouldAllowRefresh', () => {
@@ -160,28 +217,5 @@ describe('dog utility functions', () => {
         titles: 'CH',
       })
     })
-  })
-
-  // An official result's day is the one written on its zone-less stamp, a hand-entered one's its Finnish day.
-  for (const zone of ['UTC', 'America/New_York', 'Asia/Tokyo']) {
-    describeInTimeZone(zone, () => {
-      it('reads the day written on an official result', () => {
-        expect(officialResultDay(new Date('2026-01-01T00:00:00'))).toBe('2026-01-01')
-        expect(officialResultDay(new Date('2025-12-31T23:59:59'))).toBe('2025-12-31')
-      })
-
-      it('reads a hand-entered result in Finnish time', () => {
-        expect(manualResultDay(new Date('2025-12-31T22:00:00.000Z'))).toBe('2026-01-01')
-        expect(manualResultDay(new Date('2025-12-31T21:59:59.999Z'))).toBe('2025-12-31')
-      })
-    })
-  }
-
-  it.each([
-    { date: new Date('0001-01-01T00:00:00'), name: "the Kennel Club's empty date" },
-    { date: new Date(Number.NaN), name: 'an invalid date' },
-  ])('gives no day for $name', ({ date }) => {
-    expect(officialResultDay(date)).toBeUndefined()
-    expect(manualResultDay(date)).toBeUndefined()
   })
 })

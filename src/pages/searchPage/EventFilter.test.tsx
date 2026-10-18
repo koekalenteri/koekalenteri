@@ -123,6 +123,35 @@ describe('EventFilter', () => {
     expect(screen.getByText(/filter.results count/)).toBeInTheDocument()
   })
 
+  it('makes the filter header one button and one tab stop', async () => {
+    const { user } = renderComponent({
+      end: null,
+      eventClass: [],
+      eventType: [],
+      judge: [],
+      organizer: [],
+      start: null,
+    })
+
+    const header = screen.getByRole('button', { expanded: true, name: /filter.title/ })
+    // A focusable control inside the header is a button inside a button (axe nested-interactive,
+    // KOE-1560): a second tab stop that does nothing the header does not already do.
+    expect(within(header).queryByRole('button')).not.toBeInTheDocument()
+
+    await user.tab()
+    expect(header).toHaveFocus()
+    await user.tab()
+    expect(header).not.toHaveFocus()
+    expect(header.contains(document.activeElement)).toBe(false)
+
+    await user.tab({ shift: true })
+    expect(header).toHaveFocus()
+    await user.keyboard('{Enter}')
+    expect(header).toHaveAttribute('aria-expanded', 'false')
+    await user.keyboard(' ')
+    expect(header).toHaveAttribute('aria-expanded', 'true')
+  })
+
   // Helper function for AutocompleteMulti components
   async function changeAutocompleteValue(user: UserEvent, testId: string, value: string) {
     const autocomplete = screen.getByTestId(testId)

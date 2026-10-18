@@ -5,7 +5,7 @@ import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
 import { Suspense } from 'react'
 import { MemoryRouter } from 'react-router'
-import { page } from 'vitest/browser'
+import { page, userEvent } from 'vitest/browser'
 import { render } from 'vitest-browser-react'
 import { emptyEvent } from '../__mockData__/emptyEvent'
 import theme from '../assets/Theme'
@@ -153,6 +153,17 @@ it('shows the empty result on a phone', async () => {
 
   await expect.element(screen.getByText(/ei löytynyt tapahtumia/)).toBeVisible()
   await expect(screen.getByTestId('visual-root')).toMatchScreenshot('search-page-empty-phone')
+})
+
+it('rings the filter header when the keyboard reaches it', async () => {
+  const screen = await renderAt(PHONE, events)
+
+  await expect.element(screen.getByText('Syyskoe')).toBeVisible()
+  // The filter is the first thing on the page, and its header is one tab stop (KOE-1560).
+  await userEvent.keyboard('{Tab}')
+  const header = screen.getByRole('button', { name: /^Rajaa/ })
+  await expect.element(header).toHaveFocus()
+  await expect(screen.getByRole('navigation')).toMatchScreenshot('search-page-filter-focus-phone')
 })
 
 // The guide's English page shows the list in English (KOE-1437).

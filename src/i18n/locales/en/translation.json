@@ -658,8 +658,9 @@
     "event": "Event",
     "handler": "Handler",
     "open": "Open invitation",
-    "openingFailed": "Failed to open the event invitation",
-    "registeredDog": "Registered dog"
+    "openingFailed": "Failed to open the trial invitation",
+    "registeredDog": "Registered dog",
+    "title": "Trial invitation"
   },
   "judge": "Judge",
   "judgeActive": "Active",

@@ -71,7 +71,14 @@ Read `LLM_CONTEXT.md` for the project overview and architecture notes.
   stamp without a zone (Kennelliitto writes those) as the wall-clock time it is in the zone, and
   `isInstantString` accepts only an ISO instant with an explicit zone on a day there is. The zone is a required parameter, never a default; the trials' zone is
   `TIME_ZONE` from the same module. Day arithmetic (`addDays`, `addMonths`, `daysBetween`, `eachDay`,
-  `dayOfWeek`) needs no zone at all.
+  `dayOfWeek`, `monthsBetween`, `latestDayMonthsBefore`) needs no zone at all. `monthsBetween` counts
+  whole calendar months as `addMonths` steps them: a month is reached on the day of the month it
+  started on, or on the last day of a shorter month (31.7. to 30.4. is nine months), which is not how
+  date-fns `differenceInMonths` counts at month ends. `latestDayMonthsBefore(day, n)` is the last day
+  from which `n` months have passed by `day`, the bound a picker offers for the same rule.
+- The browser's day, which MUI's pickers read and write, is `localDayOf(date)` and `localDateOf(day)`
+  (a local midnight) in the same module; check `hasLocalDay(date)` first, since a half-typed picker
+  value or Kennelliitto's empty date has none.
 - `dayOf` throws on an instant without a calendar day. Check `hasCalendarDay(instant, zone)` first on
   anything stored or received: the Kennel Club's empty date (year 1) is a valid Date but no day, and
   the accepted years (1100 to 9899) leave room for every step the app takes from an accepted day.
@@ -91,12 +98,13 @@ Read `LLM_CONTEXT.md` for the project overview and architecture notes.
   `noRestrictedImports`.
 - `getFullYear`, `getMonth`, `getDate` and `getDay` on an instant are calendar calls too, in the
   machine's zone, and Biome has no rule for them: read the day with `dayOf`, `yearOf` and `dayParts`.
-  The deliberate exceptions, until KOE-1547/1548 make the dog's dates day keys: a dog's official result
-  date is a host-local stamp read with the local getter (the official-result year in
-  `qualification.ts`), and its birth date goes through the `biome-ignore`d date-fns calls (DogDetails,
-  QualifyingResultRow, the registration form's validation), while a hand-entered result, sent as an
-  instant, is read in Finnish time. Separately, DateRange's `fromPickerDay` reads the picker's own
-  browser-zone day.
+  `localDayOf` is the one sanctioned reader of a browser-zone day. The deliberate exceptions, until
+  KOE-1547/1548 make the dog's dates day keys: a dog's official result date is a host-local stamp read
+  with the local getter (the official-result year in `qualification.ts`), and its birth date is read
+  with `localDayOf` as the day its picker shows (the age rule in `src/lib/dog.ts`), never as its
+  Finnish day, while a hand-entered result, sent as an instant, is read in Finnish time. DateRange's
+  `toPickerDay`/`fromPickerDay` cross between the picker's browser-zone day and the Finnish day
+  through the same `localDateOf`/`localDayOf`.
 - Tests run in the machine's zone (Helsinki on a laptop, UTC in CI). A fixture is a Finnish day:
   `startOfFinnishDay('2026-10-17')` from `src/test-utils/finnishDays.ts`, never `new Date(2026, 9, 17)`.
   A test of zone handling runs under `describeInTimeZone` (`src/test-utils/timeZone.ts`).
@@ -138,6 +146,19 @@ Read `LLM_CONTEXT.md` for the project overview and architecture notes.
   hold the event. `modifiedAt` stays untouched: it records a user's edit, which a migration is not.
 - `scripts/migrate.sh` and `aws/README.md` cover a different job — copying whole tables between
   stacks — not changing data in place.
+
+## Post-deploy Smoke Check
+
+- Every deploy `release.yml` makes (dev from ci.yml's `deploy-dev`, test, prod) ends in the `smoke`
+  job (`scripts/smoke-deploy.mjs`, KOE-1368): the front page must answer 200, every script it loads
+  from its own origin must answer 200 as JavaScript, and `GET /event` must answer a JSON array. When the run built the frontend, the page must also carry the `app-version` and
+  `app-revision` metas of that build (written into `public/index.html` by `config/webpack.config.js`)
+  and preconnect to the stack's `KoekalenteriFunctionApi`. A red smoke on dev fails `deploy-dev`, so
+  `jira-testable` does not run.
+- Of the build's settings only `REACT_APP_API_BASE_URL` is compared (through the preconnect link). A
+  stale user pool, client id, OAuth domain, WebSocket URL or RUM setting passes the smoke check.
+- The CI `frontend` job checks the same stamp on its own build, so removing or renaming a meta fails
+  there first. Keep the names in step with the script.
 
 ## Visual Test Convention
 
@@ -242,11 +263,14 @@ Read `LLM_CONTEXT.md` for the project overview and architecture notes.
 - `src/lambda/template.test.ts` builds the template and compares its `CodeUri` values with the
   directories on disk, so a lambda in one and not the other fails a test instead of a deploy.
 - The function block's `Policies` must grant every table the handler's code reaches, and nothing
-  more. The same test follows the calls from each handler's default export through `src/lambda/lib`
-  (`src/lambda/test-utils/lambdaTableUse.ts`) and reads the block's policies
-  (`src/lambda/test-utils/templateGrants.ts`, KOE-1492). It fails on a table the code uses without a
-  policy for that action, naming the function, the action, the table (or the index, for a query on
-  one) and the call chain, like this one from PutEvent with its registration read policy taken out:
+  more. The same test follows the calls from each handler's default export, and from the module-level
+  code that runs when the handler and the files it imports load, through every file under `src` they
+  reach (`src/lambda/test-utils/lambdaTableUse.ts`, KOE-1557) and reads the block's policies
+  (`src/lambda/test-utils/templateGrants.ts`, KOE-1492). Code that runs at import counts without its
+  function bodies: a function it calls, or writes out as an argument, runs its own body there, and
+  one it stores or returns first is not followed; the module's header lists what it does not model.
+  It fails on a table the code uses without a policy for that action, naming the function, the
+  action, the table (or the index, for a query on one) and the call chain, like this one from PutEvent with its registration read policy taken out:
   `PutEventFunction Query on EventRegistrationTable without a policy: src/lambda/lib/registration.ts:617
   (putEventLambda > findKcGuidLock > getRegistrationsByEventId)`. It also fails on an excess grant,
   a read or write class on a table the code never touches (`PutJudgeFunction may read JudgeTable but

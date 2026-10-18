@@ -7,8 +7,8 @@ import type {
   TestResult,
 } from './types'
 import { addDays, addMonths, dayEnd, dayOf, dayStart, TIME_ZONE } from './lib/day'
-import { manualResultDay, officialResultDay } from './lib/dog'
 import { NOME_B_CH_qualificationStartDate2023 } from './lib/registration'
+import { manualResultDay, officialResultDay } from './lib/resultDay'
 
 /** A ranking period as the Finnish days it is made of, both included. */
 interface RankingDays {

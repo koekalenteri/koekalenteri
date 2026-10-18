@@ -14,6 +14,7 @@ import { invitationAttachmentFileName } from '../lib/fileName'
 import { createPatchOperations } from '../lib/patch'
 import { getInvitationReadStatus } from '../lib/registration'
 import { Path } from '../routeConfig'
+import { HiddenPageTitle } from './components/HiddenPageTitle'
 import LinkButton from './components/LinkButton'
 import { LoadingPage } from './LoadingPage'
 import { readStoredIdToken } from './state'
@@ -87,6 +88,7 @@ const Invitation = ({ event, registration, url }: InvitationProps) => {
 
   return (
     <main style={{ padding: '8px' }}>
+      <HiddenPageTitle>{t('invitation.title')}</HiddenPageTitle>
       <Paper sx={{ p: 1 }}>
         <Typography variant="caption">{t('invitation.event')}</Typography>
         <Typography>
@@ -138,7 +140,15 @@ export const Component = () => {
 
   return (
     <Suspense fallback={<LoadingPage />}>
-      <Await resolve={loaderData.data} errorElement={<div>{t('invitation.openingFailed')}</div>}>
+      <Await
+        resolve={loaderData.data}
+        errorElement={
+          <div>
+            <HiddenPageTitle>{t('invitation.title')}</HiddenPageTitle>
+            {t('invitation.openingFailed')}
+          </div>
+        }
+      >
         {({ url, event, registration }: DeferredData) =>
           url ? (
             <Invitation event={event} registration={registration} url={url} />
