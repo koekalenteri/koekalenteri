@@ -13,6 +13,8 @@
             TableName: !Ref EventTable
         - DynamoDBReadPolicy:
             TableName: !Ref UserTable
+        - DynamoDBReadPolicy:
+            TableName: !Ref TransactionTable
         - DynamoDBWritePolicy:
             TableName: !Ref AuditTable
         - !Ref AuthorizePolicy

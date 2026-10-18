@@ -131,6 +131,16 @@ const sendMessagesLambda = lambda('sendMessages', async (event) => {
     ''
   )
 
+  // The entrant's open page reads messagesSent (the confirmation request after picked, KOE-1567).
+  // Told right after the send, which stored it: this never rejects, so a failure in what follows
+  // cannot cost the entrant the news. Nothing after the send changes messagesSent or whether the
+  // event is open for payment (marking the classes keeps it confirmed).
+  const stillUnsentIds = notYetSentIds(registrations, template)
+  await publishParticipantPayments(
+    confirmedEvent,
+    [...unsentIds].filter((id) => !stillUnsentIds.has(id))
+  )
+
   confirmedEvent = await updateMessageState(eventId, template, confirmedEvent, registrations, eventRegistrations || [])
 
   await audit(
@@ -149,12 +159,6 @@ const sendMessagesLambda = lambda('sendMessages', async (event) => {
   // idempotency key must never be exposed to clients.
   const registrationPatches = registrations.map((registration) => createRegistrationPatch(registration))
   await publishMessageUpdates(eventId, template, confirmedEvent, registrationPatches)
-  // The entrant's open page reads messagesSent (the confirmation request after picked, KOE-1567).
-  const stillUnsentIds = notYetSentIds(registrations, template)
-  await publishParticipantPayments(
-    confirmedEvent,
-    [...unsentIds].filter((id) => !stillUnsentIds.has(id))
-  )
 
   const { state, classes, startListPublished } = confirmedEvent
   return response(200, { classes, failed, ok, registrations: registrationPatches, startListPublished, state }, event)
