@@ -10,7 +10,6 @@ import type {
   JsonRegistration,
   JsonRegistrationGroup,
 } from '../types'
-import { format } from 'date-fns/format'
 import { formatDate, zonedParseDate } from '../i18n/dates'
 import {
   GROUP_KEY_CANCELLED,
@@ -80,10 +79,10 @@ const dayParamName = (prefix: DayParamPrefix, part: DayParamPart) =>
   prefix ? `${prefix}${part}` : `${part.charAt(0).toLowerCase()}${part.slice(1)}`
 
 /** A bare yyyy-MM-dd is a day in Finnish time; anything else is an instant already. */
-const toDay = (date: string | Date) => (isDateOnlyString(date) ? zonedParseDate(date) : date)
+const toDay = (date: string) => (isDateOnlyString(date) ? zonedParseDate(date) : date)
 
 /** A day and a time as parameters: the day as yyyy-MM-dd in Finnish time, the time by its `audit.time.*` key. */
-const dayParams = (prefix: DayParamPrefix, date?: string | Date, time?: string): AuditMessageParams => ({
+const dayParams = (prefix: DayParamPrefix, date?: string, time?: string): AuditMessageParams => ({
   ...(date ? { [dayParamName(prefix, 'Date')]: formatDate(toDay(date), 'yyyy-MM-dd') } : {}),
   ...(time ? { [dayParamName(prefix, 'TimeKey')]: `audit.time.${time}` } : {}),
 })
@@ -378,41 +377,22 @@ const AUDIT_TRANSLATION_KEY = /^(audit|emailTemplate|eventManagement|registratio
 const isAuditTranslationKey = (value: unknown): value is ParseKeys<'translation'> =>
   typeof value === 'string' && AUDIT_TRANSLATION_KEY.test(value)
 
-const DAY_PARAMS = new Set(['date', 'fromDate', 'toDate'])
-
-/**
- * The API's JSON reviver turns a bare yyyy-MM-dd into local noon of that day (`parseDateOnlyString`);
- * that mark is how a revived day is told from a revived instant.
- */
-const isRevivedDay = (value: Date) =>
-  value.getHours() === 12 && value.getMinutes() === 0 && value.getSeconds() === 0 && value.getMilliseconds() === 0
-
 /**
  * A day parameter (`date`, `fromDate`, `toDate`) as a Date to format in Finnish time. `dayParams`
- * writes these only as yyyy-MM-dd, which arrives as that string over the WebSocket and as local noon
- * through the API; both are read as that day in Finnish time, so a reader west of UTC-10 sees the
- * same day. Only for these: an instant elsewhere is formatted as the instant it is.
+ * writes these as yyyy-MM-dd and that is how they arrive, from the API and over the WebSocket alike
+ * (KOE-1546), so the day is read in Finnish time and a reader west of UTC-10 sees the same day.
  */
-const auditDay = (value: unknown): Date | undefined => {
-  if (value instanceof Date) return zonedParseDate(format(value, 'yyyy-MM-dd'))
-  return isDateOnlyString(value) ? zonedParseDate(value) : undefined
-}
+const auditDay = (value: unknown): Date | undefined => (isDateOnlyString(value) ? zonedParseDate(value) : undefined)
 
-/** Text a parameter can stand for. A free text that happened to look like a date was revived too. */
-const paramText = (value: unknown) => {
-  if (value instanceof Date) return isRevivedDay(value) ? format(value, 'yyyy-MM-dd') : value.toISOString()
-  return typeof value === 'string' || typeof value === 'number' ? String(value) : ''
-}
+/** Text a parameter can stand for. */
+const paramText = (value: unknown) => (typeof value === 'string' || typeof value === 'number' ? String(value) : '')
 
 /**
  * The parameters as a translation reads them. A `<name>Key` parameter names a translation, and its
  * text in the reader's language becomes `<name>`; the value stored under `<name>` is the fallback.
  */
 const translateAuditParams = (t: TFunction, params: AuditReadParams = {}): AuditReadParams => {
-  const translated: AuditReadParams = {}
-  for (const [name, value] of Object.entries(params)) {
-    translated[name] = DAY_PARAMS.has(name) || !(value instanceof Date) ? value : paramText(value)
-  }
+  const translated: AuditReadParams = { ...params }
   for (const [name, value] of Object.entries(params)) {
     if (!name.endsWith('Key') || !isAuditTranslationKey(value)) continue
     const target = name.slice(0, -'Key'.length)
@@ -486,21 +466,15 @@ export const formatAuditMessage = (
 
 /**
  * A change label's parameters as its translation reads them. `eventDate` is an instant, the class
- * day's midnight in Finnish time (`getClassPlaceChanges`), and is formatted as that instant there,
- * never through the day reader above, which would take a UTC-10 reader's local noon for a bare day.
+ * day's midnight in Finnish time (`getClassPlaceChanges`) as the ISO text it was written, and is
+ * formatted as that instant.
  */
 export const auditLabelParams = (params?: AuditReadParams) => {
-  const eventDate = labelInstant(params?.eventDate)
+  const eventDate = params?.eventDate
   return {
     ...params,
-    ...(eventDate ? { eventDate: formatDate(eventDate, 'd.M.yyyy') } : {}),
+    ...(typeof eventDate === 'string' && eventDate ? { eventDate: formatDate(eventDate, 'd.M.yyyy') } : {}),
   }
-}
-
-/** The instant a label parameter names: a Date the reviver made, or the ISO text the WebSocket carries. */
-const labelInstant = (value: unknown): Date | undefined => {
-  if (value instanceof Date) return value
-  return typeof value === 'string' && value ? new Date(value) : undefined
 }
 
 /** A change's label in the reader's language, or its field when it has no label. */

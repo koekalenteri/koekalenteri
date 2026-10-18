@@ -419,7 +419,7 @@ describe('useKennelliittoResults', () => {
     vi.clearAllMocks()
   })
 
-  it('holds the stored result of a sent dog with its time and its day as Dates, as the client holds a response', async () => {
+  it('holds the stored result of a sent dog with its time as a Date and its day as the day key it is', async () => {
     const { result } = sendOne(sentResult)
 
     await act(async () => {
@@ -428,9 +428,7 @@ describe('useKennelliittoResults', () => {
 
     const { kcResult } = result.current.registrations[0]
     expect(kcResult?.at).toEqual(new Date('2026-09-26T10:00:00.000Z'))
-    expect(kcResult?.day).toEqual(new Date('2026-09-26'))
-    expect(kcResult?.at).toBeInstanceOf(Date)
-    expect(kcResult?.day).toBeInstanceOf(Date)
+    expect(kcResult?.day).toBe('2026-09-26')
   })
 
   it('has no day to convert when the stored result has none', async () => {

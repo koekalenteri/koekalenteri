@@ -55,7 +55,7 @@ export interface JsonEventStatsItem extends Partial<OrganizerEventStats> {
   count?: number
 }
 
-// Frontend domain shape: http.get revives date-only strings into Date objects
+// Frontend domain shape: `date` is the event's start, made a `Date` at the typed boundary (`lib/wire.ts`)
 export type EventStatsItem = ReplaceOptional<JsonEventStatsItem, 'date', Date>
 
 /**

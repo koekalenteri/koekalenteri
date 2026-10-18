@@ -86,3 +86,23 @@ test('getOrganizerEventStats without organizerId or date range', async () => {
   expect(fetchMock).toHaveBeenCalledTimes(1)
   expect(fetchMock).toHaveBeenCalledWith(`${API_BASE_URL}/admin/stats`, expect.any(Object))
 })
+
+test('getOrganizerEventStats makes the day of an event a Date and leaves the rest as written (KOE-1546)', async () => {
+  fetchMock.mockResponseOnce(
+    JSON.stringify([
+      {
+        count: 3,
+        date: '2026-09-11T21:00:00.000Z',
+        PK: 'ORG#1',
+        SK: '2026-09-12#e1',
+        updatedAt: '2026-09-13T08:00:00.000Z',
+      },
+    ])
+  )
+
+  const [item] = await getOrganizerEventStats('test-token')
+
+  expect(item.date).toEqual(new Date('2026-09-11T21:00:00.000Z'))
+  expect(item.updatedAt).toBe('2026-09-13T08:00:00.000Z')
+  expect(item.SK).toBe('2026-09-12#e1')
+})

@@ -151,7 +151,7 @@ describe('lib/publishing', () => {
       [true, true],
       [false, true],
       [['2026-09-12'], true],
-      [[new Date('2026-09-12')], true],
+      [['2026-09-11T21:00:00.000Z'], true],
       [{ ALO: true }, true],
       [{ ALO: ['2026-09-12'] }, true],
       [{ ALO: 'x' }, false],

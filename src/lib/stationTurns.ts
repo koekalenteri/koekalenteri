@@ -1,5 +1,6 @@
 import type { JsonStationTurn, StationTurn, StationTurnPause } from '../types'
 import type { LiveFlow } from './liveFormat'
+import { isDate } from 'date-fns/isDate'
 import { zonedDateString } from '../i18n/dates'
 
 /**
@@ -8,8 +9,8 @@ import { zonedDateString } from '../i18n/dates'
  * spans with this code, so they cannot disagree.
  *
  * Structural over the span, because the same spans travel as ISO strings (stored, lambda) and as
- * revived `Date`s (browser) — nothing here needs to know who exactly was in a turn, only when it ran
- * and whether it was a break.
+ * `Date`s (browser, made at the typed boundary): nothing here needs to know who exactly was in a
+ * turn, only when it ran and whether it was a break.
  */
 export interface StationTurnSpan {
   stationId: string
@@ -35,11 +36,11 @@ export const toPublicStationTurn = <T extends { registrationIds: unknown }>({
 /** A complete stored span, as opposed to the partial shapes a `Patch` may carry. */
 export const isStoredStationTurn = (turn: unknown): turn is JsonStationTurn | StationTurn => {
   if (typeof turn !== 'object' || turn === null) return false
-  const candidate = turn as JsonStationTurn | StationTurn
+  const candidate: Partial<Record<keyof JsonStationTurn, unknown>> = turn
   return (
     typeof candidate.id === 'string' &&
     typeof candidate.stationId === 'string' &&
-    (typeof candidate.startedAt === 'string' || candidate.startedAt instanceof Date) &&
+    (typeof candidate.startedAt === 'string' || isDate(candidate.startedAt)) &&
     Array.isArray(candidate.dogs) &&
     Array.isArray(candidate.registrationIds)
   )

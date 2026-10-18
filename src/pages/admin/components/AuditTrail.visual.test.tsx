@@ -2,7 +2,6 @@ import type { AuditRecord } from '@/types'
 import { ThemeProvider } from '@mui/material/styles'
 import { render } from 'vitest-browser-react'
 import theme from '@/assets/Theme'
-import { parseDateOnlyString } from '@/lib/utils'
 import { describeInLanguage } from '@/test-utils/language'
 import { AuditTrail } from './AuditTrail'
 
@@ -86,9 +85,8 @@ const keyedRows: AuditRecord[] = [
   {
     auditKey: 'event-1:reg-1',
     messageKey: 'audit.messages.groupChanged',
-    // As the API hands it over: its JSON reviver turns the bare day into a Date.
     messageParams: {
-      fromDate: parseDateOnlyString('2026-11-07'),
+      fromDate: '2026-11-07',
       fromNumber: 2,
       fromTimeKey: 'audit.time.ip',
       reasonKey: 'audit.groupReason.move',

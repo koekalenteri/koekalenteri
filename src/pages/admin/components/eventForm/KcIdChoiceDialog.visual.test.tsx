@@ -1,4 +1,4 @@
-import type { EventKcIdChoice } from '@/api/event'
+import type { EventKcIdChoice } from '@/types'
 import { TZDate } from '@date-fns/tz'
 import { ThemeProvider } from '@mui/material/styles'
 import { render } from 'vitest-browser-react'

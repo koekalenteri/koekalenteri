@@ -316,10 +316,7 @@ export const buildKcResult = (
   }
 }
 
-/**
- * A day as a person reads it, d.M.yyyy. A yyyy-MM-dd string in a response is revived into a Date by the
- * client, so a message that names a day carries this form instead.
- */
+/** A day as a person reads it, d.M.yyyy: the form a message that names a day carries. */
 export const finnishDay = (day: string): string => {
   const [year, month, date] = day.split('-')
   return `${Number(date)}.${Number(month)}.${year}`

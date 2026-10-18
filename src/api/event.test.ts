@@ -5,13 +5,18 @@ import { zonedDateString, zonedEndOfDay, zonedStartOfDay } from '../i18n/dates'
 import { isEntryClosing, isEntryOpen, isEntryUpcoming } from '../lib/event'
 import { API_BASE_URL } from '../routeConfig'
 import fetchMock from '../test-utils/fetchMock'
+import { describeInTimeZone } from '../test-utils/timeZone'
 import {
+  copyEventWithRegistrations,
+  getAdminEvent,
   getAdminEvents,
   getEvent,
   getEventAuditTrail,
   getEvents,
   putEvent,
+  putInvitationAttachment,
   putResultsPublished,
+  putStartNumbers,
   searchEventKcIdChoices,
 } from './event'
 
@@ -114,6 +119,52 @@ test('getEventAuditTrail', async () => {
   expect(fetchMock).toHaveBeenCalledWith(`${API_BASE_URL}/admin/event/audit/TestEventID`, expect.any(Object))
 })
 
+test('getEventAuditTrail makes the stamp a Date and leaves a day parameter and a change text as written (KOE-1546)', async () => {
+  fetchMock.mockResponseOnce(
+    JSON.stringify([
+      {
+        auditKey: 'event:TestEventID',
+        changes: [{ field: 'startDate', next: { text: '2026-05-01T21:00:00.000Z' }, previous: { state: 'empty' } }],
+        messageKey: 'audit.messages.groupChanged',
+        messageParams: { toDate: '2026-11-07', toNumber: 1 },
+        timestamp: '2026-05-01T08:00:00.000Z',
+        user: 'u',
+      },
+    ])
+  )
+
+  const auditTrail = await getEventAuditTrail('TestEventID', 'token')
+
+  expect(auditTrail).toEqual([
+    {
+      auditKey: 'event:TestEventID',
+      changes: [{ field: 'startDate', next: { text: '2026-05-01T21:00:00.000Z' }, previous: { state: 'empty' } }],
+      messageKey: 'audit.messages.groupChanged',
+      messageParams: { toDate: '2026-11-07', toNumber: 1 },
+      timestamp: new Date('2026-05-01T08:00:00.000Z'),
+      user: 'u',
+    },
+  ])
+})
+
+test('getAdminEvent reads the published-days lists as the day keys they are (KOE-1546)', async () => {
+  fetchMock.mockResponseOnce(
+    JSON.stringify({
+      ...emptyEvent,
+      resultsPublished: { ALO: ['2026-05-01'] },
+      startNumbersPublished: ['2026-05-01/ap'],
+    })
+  )
+
+  const event = await getAdminEvent('TestEventID', 'token')
+
+  expect(event).toMatchObject({
+    createdAt: emptyEvent.createdAt,
+    resultsPublished: { ALO: ['2026-05-01'] },
+    startNumbersPublished: ['2026-05-01/ap'],
+  })
+})
+
 test('getAdminEvents sends the incremental cursor', async () => {
   fetchMock.mockResponseOnce(JSON.stringify([]))
 
@@ -149,64 +200,67 @@ test('putEvent updates with PATCH', async () => {
   expect(updatedEvent.id).not.toBeUndefined()
 })
 
-test('searchEventKcIdChoices', async () => {
-  fetchMock.mockResponse((req) =>
-    req.method === 'POST'
-      ? Promise.resolve(
-          JSON.stringify({
-            choices: [
-              { endDate: '2026-07-02', kcGuid: 'guid-123', startDate: '2026-07-01' },
-              {
-                contactInfo: { secretary: { email: 'nome.maija@gmail.com', name: 'Parviainen Niina' } },
-                cost: 55,
-                description: 'Osallistumismaksu sisältää keittolounaan.',
-                endDate: '0001-01-01T00:00:00',
-                entryEndDate: '2026-06-07T00:00:00',
-                entryStartDate: '2026-05-17T00:00:00',
-                kcGuid: null,
-                startDate: '2026-06-28T00:00:00',
-              },
-            ],
-          })
-        )
-      : Promise.reject(new Error(`${req.method} !== 'POST'`))
-  )
+// East of Finland, so Kennelliitto's zone-less stamps read as local time would name the day before.
+describeInTimeZone('Asia/Tokyo', () => {
+  test('searchEventKcIdChoices', async () => {
+    fetchMock.mockResponse((req) =>
+      req.method === 'POST'
+        ? Promise.resolve(
+            JSON.stringify({
+              choices: [
+                { endDate: '2026-07-02', kcGuid: 'guid-123', startDate: '2026-07-01' },
+                {
+                  contactInfo: { secretary: { email: 'nome.maija@gmail.com', name: 'Parviainen Niina' } },
+                  cost: 55,
+                  description: 'Osallistumismaksu sisältää keittolounaan.',
+                  endDate: '0001-01-01T00:00:00',
+                  entryEndDate: '2026-06-07T00:00:00',
+                  entryStartDate: '2026-05-17T00:00:00',
+                  kcGuid: null,
+                  startDate: '2026-06-28T00:00:00',
+                },
+              ],
+            })
+          )
+        : Promise.reject(new Error(`${req.method} !== 'POST'`))
+    )
 
-  const request = {
-    classes: emptyEvent.classes,
-    endDate: emptyEvent.endDate,
-    eventType: emptyEvent.eventType,
-    location: emptyEvent.location,
-    name: emptyEvent.name,
-    organizer: { id: emptyEvent.organizer.id },
-    startDate: emptyEvent.startDate,
-  }
-  const response = await searchEventKcIdChoices(request)
-  expect(fetchMock.mock.calls).toHaveLength(1)
-  expect(fetchMock.mock.calls[0][0]).toEqual(`${API_BASE_URL}/admin/event/kcId/choices`)
-  expect(JSON.parse(fetchMock.mock.calls[0][1]?.body as string)).toEqual({
-    ...request,
-    classes: request.classes.map((c) => ({ ...c, date: c.date.toISOString() })),
-    endDate: emptyEvent.endDate.toISOString(),
-    startDate: emptyEvent.startDate.toISOString(),
-  })
-  expect(response.choices[0]?.kcGuid).toEqual('guid-123')
-  expect(response.choices[1]?.kcGuid).toBeNull()
-  expect(response.choices[0]?.startDate).toBeInstanceOf(Date)
-  expect(response.choices[0]?.endDate).toBeInstanceOf(Date)
-  expect(zonedDateString(response.choices[0]!.startDate)).toEqual('2026-07-01')
-  expect(zonedDateString(response.choices[0]!.endDate)).toEqual('2026-07-02')
-  expect(zonedDateString(response.choices[1]!.startDate)).toEqual('2026-06-28')
-  expect(zonedDateString(response.choices[1]!.endDate)).toEqual('2026-06-28')
-  expect(zonedDateString(response.choices[1]!.entryStartDate!)).toEqual('2026-05-17')
-  expect(zonedDateString(response.choices[1]!.entryEndDate!)).toEqual('2026-06-07')
-  expect(response.choices[1]).toEqual(
-    expect.objectContaining({
-      contactInfo: { secretary: { email: 'nome.maija@gmail.com', name: 'Parviainen Niina' } },
-      cost: 55,
-      description: 'Osallistumismaksu sisältää keittolounaan.',
+    const request = {
+      classes: emptyEvent.classes,
+      endDate: emptyEvent.endDate,
+      eventType: emptyEvent.eventType,
+      location: emptyEvent.location,
+      name: emptyEvent.name,
+      organizer: { id: emptyEvent.organizer.id },
+      startDate: emptyEvent.startDate,
+    }
+    const response = await searchEventKcIdChoices(request)
+    expect(fetchMock.mock.calls).toHaveLength(1)
+    expect(fetchMock.mock.calls[0][0]).toEqual(`${API_BASE_URL}/admin/event/kcId/choices`)
+    expect(JSON.parse(fetchMock.mock.calls[0][1]?.body as string)).toEqual({
+      ...request,
+      classes: request.classes.map((c) => ({ ...c, date: c.date.toISOString() })),
+      endDate: emptyEvent.endDate.toISOString(),
+      startDate: emptyEvent.startDate.toISOString(),
     })
-  )
+    expect(response.choices[0]?.kcGuid).toEqual('guid-123')
+    expect(response.choices[1]?.kcGuid).toBeNull()
+    expect(response.choices[0]?.startDate).toBeInstanceOf(Date)
+    expect(response.choices[0]?.endDate).toBeInstanceOf(Date)
+    expect(zonedDateString(response.choices[0]!.startDate)).toEqual('2026-07-01')
+    expect(zonedDateString(response.choices[0]!.endDate)).toEqual('2026-07-02')
+    expect(zonedDateString(response.choices[1]!.startDate)).toEqual('2026-06-28')
+    expect(zonedDateString(response.choices[1]!.endDate)).toEqual('2026-06-28')
+    expect(zonedDateString(response.choices[1]!.entryStartDate!)).toEqual('2026-05-17')
+    expect(zonedDateString(response.choices[1]!.entryEndDate!)).toEqual('2026-06-07')
+    expect(response.choices[1]).toEqual(
+      expect.objectContaining({
+        contactInfo: { secretary: { email: 'nome.maija@gmail.com', name: 'Parviainen Niina' } },
+        cost: 55,
+        description: 'Osallistumismaksu sisältää keittolounaan.',
+      })
+    )
+  })
 })
 
 test('putResultsPublished names one day of one class (KOE-1510)', async () => {
@@ -230,7 +284,7 @@ test('putResultsPublished names one day of one class (KOE-1510)', async () => {
       method: 'PUT',
     })
   )
-  expect(saved.resultsPublished).toEqual({ ALO: [expect.any(Date)] })
+  expect(saved.resultsPublished).toEqual({ ALO: ['2026-09-12'] })
 })
 
 /**
@@ -261,6 +315,65 @@ test.each([
     expect(isEntryUpcoming(event, parseISO(date))).toEqual(upcoming)
   }
 )
+
+test('putStartNumbers answers with the event as saved, its dates Dates and its day keys strings', async () => {
+  fetchMock.mockResponseOnce(
+    JSON.stringify({ event: { ...emptyEvent, startNumbersPublished: { ALO: ['2026-09-12', '2026-09-13/ap'] } } })
+  )
+
+  const { event: saved } = await putStartNumbers(
+    'TestEventID',
+    { date: '2026-09-12', eventClass: 'ALO', published: true },
+    'token'
+  )
+
+  expect(fetchMock).toHaveBeenCalledWith(
+    `${API_BASE_URL}/admin/startnumbers/TestEventID`,
+    expect.objectContaining({
+      body: JSON.stringify({ date: '2026-09-12', eventClass: 'ALO', published: true }),
+      method: 'PUT',
+    })
+  )
+  expect(saved.startDate).toEqual(emptyEvent.startDate)
+  expect(saved.startNumbersPublished).toEqual({ ALO: ['2026-09-12', '2026-09-13/ap'] })
+})
+
+test('putInvitationAttachment answers with the upload time and the history as Dates', async () => {
+  // The upload goes as FormData, which the fetch mock's Request cannot take from jsdom; answer the fetch itself.
+  const fetchSpy = vi.spyOn(globalThis, 'fetch').mockResolvedValueOnce(
+    new Response(
+      JSON.stringify({
+        invitationAttachmentHistory: { 'key-1': { className: 'ALO', uploadedAt: '2026-08-01T08:00:00.000Z' } },
+        key: 'key-1',
+        uploadedAt: '2026-08-01T08:00:00.000Z',
+      })
+    )
+  )
+
+  const response = await putInvitationAttachment('TestEventID', new File(['pdf'], 'kutsu.pdf'), 'ALO', 'token')
+
+  expect(fetchSpy).toHaveBeenCalledWith(
+    `${API_BASE_URL}/admin/file/invitation/TestEventID/ALO`,
+    expect.objectContaining({ method: 'POST' })
+  )
+  expect(response).toEqual({
+    invitationAttachmentHistory: { 'key-1': { className: 'ALO', uploadedAt: new Date('2026-08-01T08:00:00.000Z') } },
+    key: 'key-1',
+    uploadedAt: new Date('2026-08-01T08:00:00.000Z'),
+  })
+})
+
+test('copyEventWithRegistrations answers with the copy, its dates Dates', async () => {
+  fetchMock.mockResponseOnce(JSON.stringify({ ...emptyEvent, id: 'copy' }))
+
+  const copy = await copyEventWithRegistrations('TestEventID', 'token')
+
+  expect(fetchMock).toHaveBeenCalledWith(
+    `${API_BASE_URL}/admin/event/copy`,
+    expect.objectContaining({ method: 'POST' })
+  )
+  expect(copy).toEqual({ ...emptyEvent, id: 'copy' })
+})
 
 test('isEntryOpen with mocked date', () => {
   vi.useFakeTimers()

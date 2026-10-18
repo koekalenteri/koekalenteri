@@ -1,14 +1,16 @@
 import type { RESET } from 'jotai/utils'
-import type { EmailTemplate } from '@/types'
+import type { EmailTemplate, JsonEmailTemplate } from '@/types'
 import { atom } from 'jotai'
 import { atomFamily } from 'jotai-family'
+import { toEmailTemplate } from '@/lib/wire'
 import { atomWithSessionStorage } from '@/pages/state'
 import { adminEmailTemplateAtom } from './derivedAtoms'
 
 export const adminEditableTemplateByIdAtom = atomFamily((templateId: string | undefined) => {
-  const storedAtom = atomWithSessionStorage<EmailTemplate | undefined>(
+  const storedAtom = atomWithSessionStorage<EmailTemplate | undefined, JsonEmailTemplate>(
     `adminEditableEmailTemplate/Id__${templateId}`,
-    undefined
+    undefined,
+    { revive: toEmailTemplate }
   )
   return atom(
     // Only await the initial hydration from adminEmailTemplateAtom. Once storedAtom holds a
