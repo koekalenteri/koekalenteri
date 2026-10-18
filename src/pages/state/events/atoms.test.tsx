@@ -36,7 +36,9 @@ describe('eventsAtom storage', () => {
         { ...validEvent, classes: [{ class: 'ALO', date: validEvent.startDate }], description: '2026-01-01' },
       ])
     )
-    const setItem = vi.spyOn(Storage.prototype, 'setItem')
+    // The test's localStorage is a plain object of mocks, not a Storage: spy on the instance, after the seed.
+    const setItem = vi.spyOn(localStorage, 'setItem')
+    setItem.mockClear()
 
     const { result } = renderHook(() => useAtomValue(eventsAtom), { wrapper })
 

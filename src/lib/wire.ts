@@ -167,9 +167,10 @@ export const timestamp = (value: string): Date => new Date(value)
 
 /**
  * A stamp Kennelliitto writes without a zone (`2026-06-28T00:00:00`, or a bare day) as the Finnish
- * local time it is: read as the browser's local time, Tokyo would see the day before. A stamp that
- * carries a zone keeps it, so a value the form itself wrote is unaffected. A plain `Date`, not the
- * `TZDate` the parse answers with, so the model holds one kind of date.
+ * local time it is: read as the browser's local time, Tokyo would see the day before. For the trial
+ * days of the kcId search, whose readers all compare Finnish days; a dog's dates stay local for the
+ * pickers that show them. A stamp that carries a zone keeps it. A plain `Date`, not the `TZDate` the
+ * parse answers with, so the model holds one kind of date.
  */
 const finnishTimestamp = (value: string): Date => new Date(+parseISO(value, { in: tz(TIME_ZONE) }))
 
@@ -241,16 +242,20 @@ export const toAuditRecord = converter<JsonAuditRecord, AuditRecord>()({ timesta
 
 export const toEventStatsItem = converter<JsonEventStatsItem, EventStatsItem>()({ date: timestamp })
 
-/** A result's day comes from Kennelliitto as it wrote it (`aika`), zone-less; a manual result's day the form wrote, zoned. */
-const toTestResult = converter<JsonTestResult, TestResult>()({ date: finnishTimestamp })
+/**
+ * A result's day and a dog's birthday are read as the browser's local time, as before this boundary:
+ * Kennelliitto writes them without a zone (`2021-01-01T00:00:00`) and the date pickers that show
+ * them read local day parts, so a Finnish-zone reading would move the day for every browser west of
+ * Finland. The pickers move to day keys in KOE-1548, and the rule with them.
+ */
+const toTestResult = converter<JsonTestResult, TestResult>()({ date: timestamp })
 
-const toQualifyingResult = converter<JsonQualifyingResult, QualifyingResult>()({ date: finnishTimestamp })
+const toQualifyingResult = converter<JsonQualifyingResult, QualifyingResult>()({ date: timestamp })
 
-export const toManualTestResult = converter<JsonManualTestResult, ManualTestResult>()({ date: finnishTimestamp })
+export const toManualTestResult = converter<JsonManualTestResult, ManualTestResult>()({ date: timestamp })
 
-/** The birthday comes from Kennelliitto as it wrote it (`syntymäaika`, zone-less) or from the form (zoned). */
 export const toDog = converter<JsonDog, Dog>()({
-  dob: finnishTimestamp,
+  dob: timestamp,
   refreshDate: timestamp,
   results: arrayOf(toTestResult),
 })

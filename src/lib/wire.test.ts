@@ -151,8 +151,8 @@ describe('wire', () => {
 
     /**
      * Kennelliitto writes its stamps without a zone; read as the browser's local time, a browser east
-     * of Finland would see the evening before and one west of it the morning after. Run in a zone on
-     * each side, so the rule is checked whatever zone the machine is in.
+     * of Finland would see the evening before. Run in two zones, so the rule is checked whatever zone
+     * the machine is in and the result is seen not to depend on it.
      */
     const finnishLocalCases = () => {
       it("reads Kennelliitto's zone-less stamps of a trial as Finnish local time", () => {
@@ -175,25 +175,23 @@ describe('wire', () => {
         // Kennelliitto's "no end" is the year 1, which the search's normalizer reads by its year.
         expect(choice.endDate.getFullYear()).toBeLessThanOrEqual(1)
       })
-
-      it("reads a dog's birthday and results from Kennelliitto as Finnish days, and a form's zoned stamp as it is", () => {
-        const dog = toDog({
-          dob: '2021-01-01T00:00:00',
-          regNo: 'FI1/21',
-          results: [{ class: 'ALO', date: '2025-09-12', judge: 'j', location: 'l', result: 'ALO1', type: 'NOME-B' }],
-        })
-
-        // New Year's Day in Finland, not the evening of the 31st or the morning of the 2nd.
-        expect(dog.dob).toEqual(new Date('2020-12-31T22:00:00.000Z'))
-        expect(dog.results[0].date).toEqual(new Date('2025-09-11T21:00:00.000Z'))
-        expect(toDog({ dob: '2021-01-01T10:00:00.000Z', regNo: 'FI1/21' }).dob).toEqual(
-          new Date('2021-01-01T10:00:00.000Z')
-        )
-      })
     }
 
     describeInTimeZone('Asia/Tokyo', finnishLocalCases)
     describeInTimeZone('Pacific/Pago_Pago', finnishLocalCases)
+
+    it("passes a dog's zoned birthday and result day through as the instants they are", () => {
+      const dog = toDog({
+        dob: '2021-01-01T10:00:00.000Z',
+        regNo: 'FI1/21',
+        results: [
+          { class: 'ALO', date: '2025-09-11T21:00:00.000Z', judge: 'j', location: 'l', result: 'ALO1', type: 'NOME-B' },
+        ],
+      })
+
+      expect(dog.dob).toEqual(new Date('2021-01-01T10:00:00.000Z'))
+      expect(dog.results[0].date).toEqual(new Date('2025-09-11T21:00:00.000Z'))
+    })
 
     it('arrayOf and recordOf apply a converter to every element present', () => {
       const toItem = converter<{ at: string }, { at: Date }>()({ at: timestamp })
