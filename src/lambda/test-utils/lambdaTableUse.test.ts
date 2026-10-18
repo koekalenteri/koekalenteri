@@ -179,6 +179,15 @@ const retry = async (options: { attempt: number; index?: string }): Promise<unkn
 
 export default async () => retry({ attempt: 0, index: 'gsiEmail' })
 `,
+  SpreadShared: `${COMMON}
+const shared = { key: 'id = :id' }
+const withTable = { ...shared, table: CONFIG.judgeTable }
+const plain = { ...shared }
+
+export default async () => {
+  await dynamoDB.query({ ...(Date.now() > 0 ? withTable : plain) })
+}
+`,
   SpreadTable: `${COMMON}
 const options = { key: 'id = :id', table: CONFIG.judgeTable }
 
@@ -245,15 +254,69 @@ const first = (client: Pick<CustomDynamoClient, 'read'>) => client.read({ id: 1 
 
 export default async () => first(makeClient())
 `,
+  UnknownClientTable: `${COMMON}
+export default async () => {
+  const client = new CustomDynamoClient(Date.now() > 0 ? CONFIG.judgeTable : String(Date.now()))
+  await client.read({ id: 1 })
+}
+`,
+  UnknownEnvIndex: `${COMMON}
+export default async () => {
+  await dynamoDB.query({ index: Date.now() > 0 ? 'gsiEmail' : process.env.INDEX, key: 'email = :email' })
+}
+`,
+  UnknownEnvTable: `${COMMON}
+export default async () => {
+  await dynamoDB.readAll({ table: Date.now() > 0 ? CONFIG.judgeTable : process.env.OTHER_TABLE })
+}
+`,
+  UnknownEventOptions: `${COMMON}
+export default async (event: { options: { key: string; table?: string } }) => {
+  await dynamoDB.query(Date.now() > 0 ? { key: 'id = :id', table: CONFIG.judgeTable } : event.options)
+}
+`,
+  UnknownEventSpread: `${COMMON}
+export default async (event: { options: { table?: string } }) => {
+  await dynamoDB.readAll({ ...(Date.now() > 0 ? { table: CONFIG.judgeTable } : event.options) })
+}
+`,
+  UnknownEventTable: `${COMMON}
+export default async (event: { table: string }) => {
+  await dynamoDB.readAll({ table: Date.now() > 0 ? CONFIG.judgeTable : event.table })
+}
+`,
   UnknownItem: `${COMMON}
 const put = (TableName: string) => dynamoDB.documentTransaction([{ Put: { Item: { id: 1 }, TableName } }])
 
 export default async () => put(String(Date.now()))
 `,
+  UnknownItemHalf: `${COMMON}
+export default async () => {
+  await dynamoDB.documentTransaction([
+    { Put: { Item: { id: 1 }, TableName: Date.now() > 0 ? CONFIG.judgeTable : String(Date.now()) } },
+  ])
+}
+`,
+  UnknownMember: `${COMMON}
+export default async () => {
+  await dynamoDB.readAll({ table: Date.now() > 0 ? CONFIG.judgeTable : dynamoDB.table })
+}
+`,
   UnknownOptions: `${COMMON}
 const list = (options: { table?: string }) => dynamoDB.readAll(options)
 
 export default async () => list(JSON.parse('{}'))
+`,
+  UnknownParameter: `${COMMON}
+export default async (table: string) => {
+  await dynamoDB.readAll({ table: Date.now() > 0 ? CONFIG.judgeTable : table })
+}
+`,
+  UnknownReceiver: `${COMMON}
+export default async () => {
+  const options = Date.now() > 0 ? { table: CONFIG.judgeTable } : JSON.parse('{}')
+  await dynamoDB.readAll({ table: options.table })
+}
 `,
   UnknownTable: `${COMMON}
 const readTable = (table: string) => dynamoDB.readAll({ table })
@@ -262,6 +325,16 @@ export default async () => readTable(process.env.OTHER_TABLE ?? '')
 `,
   UnknownTableArgument: `${COMMON}
 export default async () => dynamoDB.read({ id: 1 }, String(Date.now()))
+`,
+  WrongKindIndex: `${COMMON}
+export default async () => {
+  await dynamoDB.query({ index: Date.now() > 0 ? 'gsiEmail' : CONFIG.judgeTable, key: 'email = :email' })
+}
+`,
+  WrongKindTable: `${COMMON}
+export default async () => {
+  await dynamoDB.read({ id: 1 }, Date.now() > 0 ? CONFIG.judgeTable : 'other-table')
+}
 `,
 }
 
@@ -381,6 +454,11 @@ describe('createTableUseAnalyzer', () => {
     expect(usesOf('SpreadOverride')).toEqual(['Query userTable/index/gsiName', 'Scan judgeTable'])
   })
 
+  // Two literals spreading one shared literal: the second visit of the shared one is not a cycle.
+  it('reads a literal that two spread sources share', () => {
+    expect(usesOf('SpreadShared')).toEqual(['Query judgeTable', 'Query userTable'])
+  })
+
   it('reads a literal that spreads itself through a parameter once', () => {
     expect(usesOf('SpreadSelf')).toEqual(['Query userTable/index/gsiEmail'])
   })
@@ -412,6 +490,27 @@ describe('createTableUseAnalyzer', () => {
     ['a table that may be null', 'TernaryTableNull', /cannot tell which table the table option/],
     ['a spread that may come from a call', 'TernarySpread', /cannot tell which table the table option/],
     ['a client that may come from a call', 'TernaryClient', /cannot tell which table the client \(client\) names/],
+    ['a table that may come from the environment', 'UnknownEnvTable', /cannot tell which table the table option/],
+    ['a table that may come from the event', 'UnknownEventTable', /cannot tell which table the table option/],
+    // An identifier nothing binds, and a member of a known value that nothing sets, each on its own.
+    ['a table that may be a parameter nothing binds', 'UnknownParameter', /cannot tell which table the table option/],
+    ['a table that may be a member nothing sets', 'UnknownMember', /cannot tell which table the table option/],
+    ['an index that may come from the environment', 'UnknownEnvIndex', /cannot tell which table the index option/],
+    ['options that may come from the event', 'UnknownEventOptions', /cannot tell which table the options/],
+    ['a spread that may come from the event', 'UnknownEventSpread', /cannot tell which table the table option/],
+    ['a transaction item whose table may come from a call', 'UnknownItemHalf', /cannot tell which table the item/],
+    ['a table that may be a plain string', 'WrongKindTable', /cannot tell which table the table argument/],
+    ['an index that may be a table', 'WrongKindIndex', /cannot tell which table the index option/],
+    [
+      'a client built on a table that may come from a call',
+      'UnknownClientTable',
+      /cannot tell which table the client \(client\) names/,
+    ],
+    [
+      'a table read from a receiver that may come from a call',
+      'UnknownReceiver',
+      /cannot tell which table the table option/,
+    ],
     [
       'a transaction item whose table it cannot name',
       'UnknownItem',

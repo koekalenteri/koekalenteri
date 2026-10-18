@@ -16,8 +16,16 @@
  * Tables and clients handed around as arguments (`createOfficialDirectoryLambda({ dynamoDB })`,
  * `syncOfficialDirectory(dynamoDB, entries, { table })`, `createDynamoLease({ client, table })`)
  * are followed through a flow-insensitive binding of parameters and interface properties to the
- * values the reached code passes them, iterated to a fixed point per handler. A table the walk
- * cannot name is an error, never a silent skip.
+ * values the reached code passes them, iterated to a fixed point per handler. A table, index,
+ * client or options object the walk cannot name is an error; so is one that may be something it
+ * can name or something it cannot (a call, `process.env`, a parameter nothing binds), which is
+ * refused rather than taken for the named half.
+ *
+ * What the walk does not model, and so can miss rather than refuse: compound assignments (`??=`,
+ * `||=`, `&&=`), destructuring assignments, assignments to a property (`options.table = ...`,
+ * `item.TableName = ...`), assignments in module-level statements nothing reaches, a CONFIG
+ * destructuring binding that is later reassigned, a `for (x of ...)` loop over an existing
+ * variable. A client stored on `this` is refused, not followed. KOE-1557 covers these.
  */
 import type { Action } from './dynamoActions'
 import path from 'node:path'
@@ -312,10 +320,13 @@ const valuesOfClientConstruction = (ctx: Context, state: HandlerState, node: ts.
   return new Set(tableKeys(tables).map((key) => `C:${key}`))
 }
 
+/** Nothing known about a name (`process.env.X`, an unbound parameter, a declaration outside src) is unknown, not empty. */
+const orUnknown = (values: Values): Values => (values.size ? values : UNKNOWN)
+
 const valuesOfAccess = (ctx: Context, state: HandlerState, node: ts.PropertyAccessExpression): Values => {
   if (isConfig(ctx, node.expression)) return tableValue(node.name.text)
   const own = declarationsOf(ctx, node.name).map((d) => valuesOfDeclaration(ctx, state, d))
-  return union(...own, propertyOf(ctx, state, valuesOf(ctx, state, node.expression), node.name.text))
+  return orUnknown(union(...own, propertyOf(ctx, state, valuesOf(ctx, state, node.expression), node.name.text)))
 }
 
 const computeValues = (ctx: Context, state: HandlerState, node: ts.Node): Values => {
@@ -333,7 +344,7 @@ const computeValues = (ctx: Context, state: HandlerState, node: ts.Node): Values
   if (ts.isNewExpression(node)) return valuesOfClientConstruction(ctx, state, node)
   if (ts.isPropertyAccessExpression(node)) return valuesOfAccess(ctx, state, node)
   if (ts.isIdentifier(node)) {
-    return union(...declarationsOf(ctx, node).map((d) => valuesOfDeclaration(ctx, state, d)))
+    return orUnknown(union(...declarationsOf(ctx, node).map((d) => valuesOfDeclaration(ctx, state, d))))
   }
   // A call, `null`, an element access, a template: anything the walk does not model is unknown, so
   // that a value it can name beside one it cannot is refused rather than taken for the named half.
@@ -503,8 +514,12 @@ const defaultTables = (ctx: Context, state: HandlerState, receiver: ts.Expressio
 }
 
 /** The tables an expression names, plus the receiver's default where it may be undefined. */
+/** Whether every value is of the given kinds: a table position holds tables or undefined, an index position names or undefined. */
+const onlyKinds = (values: Values, kinds: string[]) => [...values].every((value) => kinds.includes(value.slice(0, 2)))
+
 const tablesOrDefault = (ctx: Context, state: HandlerState, values: Values, call: ts.CallExpression) => {
-  if (hasUnknown(values)) return []
+  // A string, a client or a function in a table position is no CONFIG table: refused like an unknown.
+  if (!onlyKinds(values, ['T:', 'U:'])) return []
   const defaults = hasUndefined(values) ? defaultTables(ctx, state, receiverOf(call)) : []
   return [...tableKeys(values), ...defaults]
 }
@@ -531,7 +546,7 @@ const literalTables = (
   const values = literalProperty(ctx, state, literal, 'index')
   const names = withPrefix(values, 'S')
   const maybeUndefined = hasUndefined(values)
-  if (names.includes('') || hasUnknown(values) || (!names.length && !maybeUndefined)) {
+  if (names.includes('') || !onlyKinds(values, ['S:', 'U:']) || (!names.length && !maybeUndefined)) {
     cannotTell(propertyNamed(literal, 'index') ?? literal, 'the index option')
   }
   // An index that may be undefined leaves the query on the table itself for those calls.
@@ -596,8 +611,9 @@ const collect = (ctx: Context, state: HandlerState, unit: Unit, uses: TableUse) 
   }
   for (const property of info.tableNames) {
     const action = transactionAction(property)
-    const keys = tableKeys(valuesOfProperty(ctx, state, property))
-    if (!keys.length) cannotTell(property, 'the item')
+    const values = valuesOfProperty(ctx, state, property)
+    const keys = tableKeys(values)
+    if (!keys.length || !onlyKinds(values, ['T:'])) cannotTell(property, 'the item')
     for (const key of keys) record(state, uses, key, action, property, unit)
   }
 }
