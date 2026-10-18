@@ -1,10 +1,10 @@
 import type { Dispatch, SetStateAction } from 'react'
 import type {
   CustomCost,
-  DogEvent,
   EmailTemplateId,
   EventClassState,
   EventState,
+  PricedDogEvent,
   Registration,
   RegistrationDate,
 } from '@/types'
@@ -64,7 +64,7 @@ import MoveToPositionDialog from './MoveToPositionDialog'
 import SendMessageDialog from './SendMessageDialog'
 
 interface Props {
-  readonly event: DogEvent
+  readonly event: PricedDogEvent
   /** The class this list covers, or undefined for the whole trial - the WT tab (KOE-912). */
   readonly eventClass?: string
   readonly registrations?: Registration[]

@@ -12,6 +12,7 @@ import type { SortableRegistration } from './registration'
 import i18n from 'i18next'
 import { eventWithStaticDates } from '../__mockData__/events'
 import { registrationWithStaticDates } from '../__mockData__/registrations'
+import { getPaymentPicture } from './payment'
 import { PRIORITY_INVITED, PRIORITY_MEMBER, PRIORIZED_BREED_CODES } from './priority'
 import {
   canRefund,
@@ -38,6 +39,7 @@ import {
   hasPriority,
   hasRefundableBalance,
   isCompleteRegistration,
+  isInvitationAwaitingPayment,
   isKeyRespelling,
   isMember,
   isPayerTemplate,
@@ -52,6 +54,7 @@ import {
   resolveInvitationRead,
   resolveOwnerPerson,
   resolveOwnerSelection,
+  shouldSendInvitationAfterPayment,
   shouldSendInvitationToRegistration,
   sortRegistrationsByDateClassTimeAndNumber,
 } from './registration'
@@ -1411,6 +1414,76 @@ describe('lib/registration', () => {
       expect(result.paymentPaid).toBe('35,00\u00A0€')
       expect(result.paymentDue).toBe('5,00\u00A0€')
     })
+  })
+})
+
+describe('invitation payment gate', () => {
+  // The ALO class has been invited; the trial itself is only picked, as it is when one class is ahead.
+  const event = {
+    classes: [{ class: 'ALO' as const, state: 'invited' as const }],
+    cost: 40,
+    costMember: 40,
+    entryStartDate: new Date('2026-01-01'),
+    state: 'picked' as const,
+  }
+  const participant = {
+    class: 'ALO' as const,
+    createdAt: new Date('2026-01-02'),
+    dog: { breedCode: '110' as const },
+    eventType: 'NOME-B',
+    group: { key: 'ALO-AP', number: 3 },
+    messagesSent: { picked: true },
+    owner: { membership: false },
+    ownerHandles: true,
+  }
+  const paid = { ...participant, paidAmount: 40, paymentStatus: 'SUCCESS' as const }
+  type Row = Parameters<typeof getPaymentPicture>[1] & Parameters<typeof isInvitationAwaitingPayment>[1]
+  type GateEvent = Parameters<typeof getPaymentPicture>[0] & Parameters<typeof isInvitationAwaitingPayment>[0]
+  const awaits = (e: GateEvent, r: Row) => isInvitationAwaitingPayment(e, r, getPaymentPicture(e, r, []))
+  const sends = (e: GateEvent, r: Row) => shouldSendInvitationAfterPayment(e, r, getPaymentPicture(e, r, []))
+
+  it('waits for an unpaid place lifted into an invited class', () => {
+    expect(awaits(event, participant)).toBe(true)
+    expect(sends(event, participant)).toBe(false)
+  })
+
+  it('waits for a reserve whose fee was refunded and that is then lifted into a place (KOE-1526)', () => {
+    const refunded = { ...paid, refundAmount: 40, refundHandlingCost: 0 }
+    expect(awaits(event, refunded)).toBe(true)
+    expect(sends(event, refunded)).toBe(false)
+  })
+
+  it('sends once that place is paid for', () => {
+    expect(awaits(event, paid)).toBe(false)
+    expect(sends(event, paid)).toBe(true)
+  })
+
+  it('leaves a dog on the reserve list out of both', () => {
+    const reserve = { ...participant, group: { key: 'reserve', number: 1 } }
+
+    expect(awaits(event, reserve)).toBe(false)
+    expect(sends(event, { ...reserve, ...paid, group: reserve.group })).toBe(false)
+  })
+
+  it('leaves a cancelled entry out of both', () => {
+    const cancelled = { ...paid, cancelled: true }
+
+    expect(awaits(event, { ...participant, cancelled: true })).toBe(false)
+    expect(sends(event, cancelled)).toBe(false)
+  })
+
+  it('waits for the class to be invited', () => {
+    const pickedEvent = { ...event, classes: [{ class: 'ALO' as const, state: 'picked' as const }] }
+
+    expect(awaits(pickedEvent, participant)).toBe(false)
+    expect(sends(pickedEvent, paid)).toBe(false)
+  })
+
+  it('does not repeat an invitation that has been sent', () => {
+    const invited = { ...paid, messagesSent: { invitation: true, picked: true } }
+
+    expect(awaits(event, { ...participant, messagesSent: invited.messagesSent })).toBe(false)
+    expect(sends(event, invited)).toBe(false)
   })
 })
 

@@ -92,4 +92,18 @@ describe('PaymentIcon', () => {
     // react-i18next is mocked to echo the key back in this project (src/__mocks__/react-i18next).
     expect(screen.getByRole('img', { name: 'registration.paidExcess' })).toBeInTheDocument()
   })
+
+  // KOE-1552: only a confirmed trial carries the fee the marks compare against; in a cancelled one
+  // an overpaid or part paid fee shows the plain euro sign, though the excess can still be returned.
+  it.each([
+    ['paid over', 45],
+    ['part paid', 35],
+  ])('should render the plain EuroOutlined icon for a fee %s in a cancelled trial', (_label, paidAmount) => {
+    render(<PaymentIcon event={{ ...event, state: 'cancelled' }} reg={paid(paidAmount)} />)
+
+    expect(screen.queryByTestId('ProductionQuantityLimitsIcon')).not.toBeInTheDocument()
+    const icon = screen.getByTestId('EuroOutlinedIcon')
+    expect(icon).not.toHaveClass('MuiSvgIcon-colorWarning')
+    expect(icon).toHaveStyle('opacity: 1')
+  })
 })

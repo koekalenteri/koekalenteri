@@ -710,6 +710,18 @@ describe('RefundDialog', () => {
       })
     })
 
+    // KOE-1552: the overpaid part is the entrant's in a cancelled trial too, and the dialog offers it.
+    it('offers the overpaid part alone for a reserve in a cancelled trial', async () => {
+      const reserve = { ...participant, group: { key: 'reserve', number: 1 } }
+      render(<RefundDialog event={{ ...cheaperEvent, state: 'cancelled' }} registration={reserve} open={true} />, {
+        wrapper: Wrapper,
+      })
+      await flushPromises()
+
+      expect(screen.getByRole('radio', { name: /registration.refundDialog.excessOnly/ })).toBeChecked()
+      expect(screen.getByText('registration.refundDialog.excessText')).toBeInTheDocument()
+    })
+
     it('leaves a cancelled entry to the ordinary refund', async () => {
       render(
         <RefundDialog

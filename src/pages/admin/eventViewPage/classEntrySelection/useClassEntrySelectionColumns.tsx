@@ -1,6 +1,6 @@
 import type { GridActionsCellItemProps, GridColDef } from '@mui/x-data-grid'
 import type { ReactElement } from 'react'
-import type { DogEvent, Registration, RegistrationDate } from '@/types'
+import type { PricedDogEvent, Registration, RegistrationDate } from '@/types'
 import DragIndicatorOutlined from '@mui/icons-material/DragIndicatorOutlined'
 import EditOutlined from '@mui/icons-material/EditOutlined'
 import EmailOutlined from '@mui/icons-material/EmailOutlined'
@@ -17,9 +17,8 @@ import { useCallback, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { breedAbbreviation } from '@/lib/dog'
 import { eventDayKey, isEventOngoing, isEventOver, registrationDatesOutsideClass } from '@/lib/event'
-import { canRefundExcess, canRequestPaymentFor } from '@/lib/payment'
+import { getPaymentPicture } from '@/lib/payment'
 import {
-  canRefund,
   GROUP_KEY_CANCELLED,
   GROUP_KEY_RESERVE,
   getLastEmailText,
@@ -53,7 +52,7 @@ interface RegistrationActionCallbacks {
 interface RegistrationActionsOptions {
   available: RegistrationDate[]
   callbacks?: RegistrationActionCallbacks
-  event: DogEvent
+  event: PricedDogEvent
   row: Registration
   t: (key: string) => any
 }
@@ -159,10 +158,14 @@ const createRegistrationActions = (options: RegistrationActionsOptions): ReactEl
   const groupKey = getRegistrationGroupKey(row)
   const isPendingMove = callbacks?.pendingMoveId === row.id
   const actions = getMovementActions({ ...options, groupKey, isPendingMove })
+  // The secretary's row is read without its open payments loaded (the list does not BatchGet every
+  // registration's open transactions), so the picture never holds the payment request back on its
+  // own; PaymentCreate decides when the link is opened, with a 409 for a payment truly in progress.
+  const payment = getPaymentPicture(event, row, [])
 
   // The overpaid part of a participant's fee is refundable too, and the trial being over does not
   // close it (KOE-1382): the money is the entrant's regardless of what the calendar says.
-  const refundable = canRefund(row) || (isConfirmedEvent(event) && canRefundExcess(event, row))
+  const refundable = payment.canRefund || (isConfirmedEvent(event) && payment.canRefundExcess)
   if (refundable) {
     actions.push(
       <GridActionsCellItem
@@ -219,7 +222,7 @@ const createRegistrationActions = (options: RegistrationActionsOptions): ReactEl
     />
   )
 
-  if (canRequestPaymentFor(event, row)) {
+  if (payment.canPay) {
     actions.push(
       <GridActionsCellItem
         key="requestPayment"
@@ -237,7 +240,7 @@ const createRegistrationActions = (options: RegistrationActionsOptions): ReactEl
 
 export function useClassEntrySelectionColumns(
   available: RegistrationDate[],
-  event: DogEvent,
+  event: PricedDogEvent,
   callbacks?: RegistrationActionCallbacks,
   registrations: Registration[] = [],
   /** The grid spans every class, so each row has to name its own (KOE-912). */

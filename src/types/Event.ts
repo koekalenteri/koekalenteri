@@ -18,7 +18,7 @@ import type {
   ReplaceOptional,
   User,
 } from '.'
-import type { DogEventCost } from './Cost'
+import type { DogEventCost, MinimalEventForCost } from './Cost'
 
 export type PaymentTime = 'registration' | 'confirmation'
 /** What a B-trial's dogs retrieve (KOE-439): shot game, or dummies standing in for it. */
@@ -629,6 +629,12 @@ export interface PublicContactInfo {
 export type ConfirmedEvent = NotOptional<DogEvent, ConfirmedEventRequiredDates> & {
   state: 'confirmed' | EventClassState
 }
+
+/**
+ * A trial whose fee can be read, in whatever state: what the secretary's entry lists read the payment
+ * picture of (`getPaymentPicture`, KOE-1552). The event view shows only a confirmed trial.
+ */
+export type PricedDogEvent = DogEvent & MinimalEventForCost
 
 export type PublicConfirmedEvent = NotOptional<PublicDogEvent, ConfirmedEventRequiredDates> & {
   state: 'confirmed' | EventClassState

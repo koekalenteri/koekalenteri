@@ -1,5 +1,5 @@
 import type React from 'react'
-import type { DogEvent, Registration } from '@/types'
+import type { PricedDogEvent, Registration } from '@/types'
 import { render, screen } from '@testing-library/react'
 import RegistrationTooltipContent from './RegistrationTooltipContent'
 
@@ -13,12 +13,16 @@ vi.mock('@/pages/components/IconsTooltip', () => ({
 }))
 
 describe('RegistrationTooltipContent', () => {
-  // The tooltip reads only a few fields; the minimal fixtures convert at these boundaries.
+  // The tooltip reads only a few fields, the fee among them for the payment picture (KOE-1552); the
+  // minimal fixtures convert at these boundaries.
   const mockEvent = {
+    cost: 40,
+    costMember: 40,
+    entryStartDate: new Date('2026-01-01'),
     id: 'event-1',
     name: 'Test Event',
     priority: ['member'],
-  } as DogEvent
+  } as PricedDogEvent
 
   const mockRegistration = {
     confirmed: true,
@@ -241,7 +245,7 @@ describe('RegistrationTooltipContent', () => {
       cost: 40,
       entryStartDate: new Date('2026-01-01'),
       state: 'invited',
-    } as unknown as DogEvent
+    } as unknown as PricedDogEvent
 
     const unpaidParticipant = {
       ...mockRegistration,
@@ -304,7 +308,7 @@ describe('RegistrationTooltipContent', () => {
     it('says nothing before the class has been invited', () => {
       render(
         <RegistrationTooltipContent
-          event={{ ...invitedEvent, classes: [{ class: 'ALO', state: 'picked' }], state: 'picked' } as DogEvent}
+          event={{ ...invitedEvent, classes: [{ class: 'ALO', state: 'picked' }], state: 'picked' } as PricedDogEvent}
           reg={unpaidParticipant}
           priority={false}
           manualResultCount={0}
@@ -356,7 +360,7 @@ describe('RegistrationTooltipContent', () => {
       costMember: 35,
       entryStartDate: new Date('2026-01-01'),
       state: 'confirmed',
-    } as DogEvent
+    } as PricedDogEvent
     const paid = (paidAmount: number, membership: boolean) =>
       ({
         ...mockRegistration,

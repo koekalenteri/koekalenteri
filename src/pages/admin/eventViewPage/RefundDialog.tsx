@@ -23,7 +23,7 @@ import { errorSnackbarOptions } from '@/lib/client/snackbar'
 import { getPaymentBalance } from '@/lib/cost'
 import { rowSelectionModel } from '@/lib/datagrid'
 import { formatMoney } from '@/lib/money'
-import { canRefundExcess, isPaytrailRefusal, paytrailErrorText } from '@/lib/payment'
+import { getPaymentPicture, isPaytrailRefusal, paytrailErrorText } from '@/lib/payment'
 import { GROUP_KEY_RESERVE } from '@/lib/registration'
 import { isObject } from '@/lib/utils'
 import { NullComponent } from '../../components/NullComponent'
@@ -88,7 +88,8 @@ export const RefundDailog = ({ event, open, registration, onClose }: Props) => {
   const [handlingCost, setHandlingCost] = useState<number>(defaultHandlingCost(registration))
   const [internalNotes, setInternalNotes] = useState(registration.internalNotes ?? '')
   const balance = useMemo(() => getPaymentBalance(event, registration), [event, registration])
-  const excessAvailable = canRefundExcess(event, registration)
+  // In a cancelled trial too: the overpaid part is the entrant's whatever the trial's state (KOE-1552).
+  const excessAvailable = getPaymentPicture(event, registration, []).canRefundExcess
   const [refundMode, setRefundMode] = useState<RefundMode>(defaultRefundMode(excessAvailable))
   const excessOnly = excessAvailable && refundMode === 'excess'
   const excessCents = Math.round(balance.excess * 100)

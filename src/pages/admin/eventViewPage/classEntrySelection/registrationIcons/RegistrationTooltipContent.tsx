@@ -1,4 +1,4 @@
-import type { DogEvent, Registration } from '@/types'
+import type { PricedDogEvent, Registration } from '@/types'
 import AddTaskOutlinedIcon from '@mui/icons-material/AddTaskOutlined'
 import CheckOutlined from '@mui/icons-material/CheckOutlined'
 import CommentOutlined from '@mui/icons-material/CommentOutlined'
@@ -14,8 +14,13 @@ import SpeakerNotesOutlined from '@mui/icons-material/SpeakerNotesOutlined'
 import { useTranslation } from 'react-i18next'
 import { getPaymentBalance } from '@/lib/cost'
 import { formatMoney } from '@/lib/money'
-import { hasStandingPayment, isInvitationAwaitingPayment } from '@/lib/payment'
-import { getInvitationReadStatus, getRegistrationOwners, priorityDescriptionKey } from '@/lib/registration'
+import { getPaymentPicture } from '@/lib/payment'
+import {
+  getInvitationReadStatus,
+  getRegistrationOwners,
+  isInvitationAwaitingPayment,
+  priorityDescriptionKey,
+} from '@/lib/registration'
 import { isConfirmedEvent } from '@/lib/typeGuards'
 import { TooltipIcon } from '@/pages/components/IconsTooltip'
 import { PriorityIcon } from '@/pages/components/icons/PriorityIcon'
@@ -24,15 +29,15 @@ import RankingPoints from '@/pages/components/RankingPoints'
 const formatEmailDeliveryReason = (reason?: string) => (reason ? ` (${reason})` : '')
 
 /** Only a confirmed trial has places to invite to, and only it carries the fee to compare against. */
-const awaitsInvitationPayment = (event: DogEvent, reg: Registration): boolean =>
-  isConfirmedEvent(event) && isInvitationAwaitingPayment(event, reg)
+const awaitsInvitationPayment = (event: PricedDogEvent, reg: Registration): boolean =>
+  isConfirmedEvent(event) && isInvitationAwaitingPayment(event, reg, getPaymentPicture(event, reg, []))
 
 /**
  * The fee against what has been paid, once something has: a never-paid place is the dim euro sign,
  * not a shortfall. A missing part is what the secretary asks for (KOE-722); an excess is what they
  * give back (KOE-1382).
  */
-const paidBalance = (event: DogEvent, reg: Registration) =>
+const paidBalance = (event: PricedDogEvent, reg: Registration) =>
   reg.paidAt && isConfirmedEvent(event) ? getPaymentBalance(event, reg) : undefined
 
 export const hasRegistrationTooltipContent = ({
@@ -42,7 +47,7 @@ export const hasRegistrationTooltipContent = ({
   manualResultCount,
   rankingPoints,
 }: {
-  event: DogEvent
+  event: PricedDogEvent
   reg: Registration
   priority: boolean | 0.5
   manualResultCount: number
@@ -67,7 +72,7 @@ export const hasRegistrationTooltipContent = ({
 
 // Props for the RegistrationTooltipContent component
 interface RegistrationTooltipContentProps {
-  event: DogEvent
+  event: PricedDogEvent
   reg: Registration
   priority: boolean | 0.5
   manualResultCount: number
@@ -95,6 +100,7 @@ const RegistrationTooltipContent = ({
     context: priority === 0.5 ? halfContext : undefined,
     description: descr ?? '',
   })
+  const payment = getPaymentPicture(event, reg, [])
   const additionalCosts = event.cost && typeof event.cost !== 'number' ? (event.cost.optionalAdditionalCosts ?? []) : []
   const invitationReadStatus = getInvitationReadStatus(reg)
   const invitationReadText = (() => {
@@ -170,7 +176,7 @@ const RegistrationTooltipContent = ({
         key="payment-paid"
         // Paid while some of the payment still stands for the place, a refunded fee paid again too
         // (KOE-1526); a payment recorded before the amounts were kept counts as paid.
-        condition={!!reg.paidAt && hasStandingPayment(reg)}
+        condition={!!reg.paidAt && payment.standing}
         icon={<EuroOutlined fontSize="small" />}
         text={t('registration.tooltip.paid', { amount: formatMoney(reg.paidAmount ?? 0) })}
       />

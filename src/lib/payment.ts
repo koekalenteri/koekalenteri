@@ -1,8 +1,6 @@
 import type {
   CustomCost,
-  DogEvent,
   EventState,
-  JsonRegistration,
   JsonTransaction,
   MinimalEventForCost,
   MinimalRegistrationForCost,
@@ -11,13 +9,10 @@ import type {
   PaymentPictureStatus,
   PaymentTime,
   PaytrailRefusalBody,
-  PublicDogEvent,
   Registration,
   RegistrationPlacement,
-  RegistrationRefundAmounts,
 } from '../types'
 import type { AuditActor } from './audit'
-import type { InvitationAttachmentEvent, InvitationAttachmentRegistration } from './registration'
 import {
   additionalCost,
   calculateCost,
@@ -27,16 +22,7 @@ import {
   isPaymentWithoutAmount,
   selectCost,
 } from './cost'
-import { getEventStateForClass } from './event'
-import {
-  canRefund,
-  getRegistrationClass,
-  hasRefundableBalance,
-  isMember,
-  isPaymentReturned,
-  isStarter,
-  shouldSendInvitationToRegistration,
-} from './registration'
+import { canRefund, hasRefundableBalance, isMember, isPaymentReturned, isStarter } from './registration'
 import { capitalize } from './string'
 import { isConfirmedEvent } from './typeGuards'
 import { isObject } from './utils'
@@ -89,80 +75,10 @@ export const isPaymentOpenForPlace = (event: PaymentTimeEvent, registration: Reg
   event.paymentTime !== 'confirmation' || isStarter(registration)
 
 /**
- * Whether a fee paid at confirmation still waits for a place, which is what the pay offer reads: the
- * group says it, and a new entry has none (KOE-1526). The confirmation itself does not decide it: a
- * picked place may pay before confirming. A payment charged twice turns the offer off for its own
- * reason, so it says nothing of the place: it does not wait. The participant's pages read the
- * picture's status instead; this is the form's own reading for an entry with no picture yet.
- */
-export const isPaymentWaitingForPlace = (
-  event: PaymentTimeEvent,
-  registration: RegistrationPlacement & Pick<Registration, 'paymentStatus'>
-): boolean =>
-  event.paymentTime === 'confirmation' && registration.paymentStatus !== 'DUPLICATE' && !isStarter(registration)
-
-/**
- * Whether paying waits for a place, as the form reads it from the row it edits. The participant's row
- * has no group, so the server's picture says it, as its `shouldPay` and `paymentInProgress` did: paying
- * waits when it is not offered and no payment is held (in progress or charged twice). A row has the
- * picture or the group, never both: the participant's response strips the group
- * (`participantRegistrationResponse`) and the secretary's rows carry no picture. So a row without a
- * picture, the secretary's or a new entry, is read by the group (`isPaymentWaitingForPlace`).
- */
-export const isPaymentWaitingForPlaceInForm = (
-  event: PaymentTimeEvent,
-  registration: RegistrationPlacement & Pick<Registration, 'payment' | 'paymentStatus'>
-): boolean => {
-  const { payment } = registration
-  if (!payment) return isPaymentWaitingForPlace(event, registration)
-  const held = payment.status === 'inProgress' || payment.status === 'duplicate'
-  return event.paymentTime === 'confirmation' && !payment.canPay && !held
-}
-
-/**
- * Whether the place has been paid for. A trial that costs nothing has nothing to wait for, and a
- * part payment counts too: a missing remainder is the secretary's business, not the invitation's.
- * What counts is money still standing for the place: a payment refunded whole, or all but the
- * handling fee kept from it, has paid for nothing, so a reserve that had its fee back and is then
- * lifted into a place waits for its payment like any other (KOE-1526). A payment recorded before the
- * amounts were kept counts as paid, as it does for the balance. The picture's `paidForPlace`.
- */
-export const isRegistrationPaid = (
-  event: MinimalEventForCost,
-  registration: MinimalRegistrationForCost & Pick<Registration, 'paymentStatus'> & RegistrationRefundAmounts
-): boolean => hasStandingPayment(registration) || calculateCost(event, registration).amount <= 0
-
-/**
- * Whether some payment still stands for the place: money paid and not gone back, or a payment
- * recorded before the amounts were kept. What the paid rule and the secretary's paid line read.
- */
-export const hasStandingPayment = (
-  registration: RegistrationRefundAmounts & Pick<Registration, 'paymentStatus'>
-): boolean => isPaymentWithoutAmount(registration) || hasRefundableBalance(registration)
-
-/** A registration as the participant's own pages hold it: no group, and the server's picture of its payment. */
-export type ParticipantPaymentRegistration = PaymentBalanceRegistration & Pick<Registration, 'payment'>
-
-/**
  * Whether the trial asks for its fee at all: only once it is confirmed. A tentative or a cancelled
  * trial asks nothing of anyone (KOE-1526). It is `isConfirmedEvent` on the state.
  */
 export const isEventOpenForPayment = (event: EventStateHolder): boolean => isConfirmedEvent({ state: event.state })
-
-/**
- * What the form shows as still owed, as it is edited: a paid entry cannot change its price in the
- * form (KOE-1070), so every entry reads its balance here and a change before paying shows at once
- * (KOE-722). Only a fee that went back takes the server's picture, as it needs the group the page
- * does not have: a reserve owes nothing, and owes the fee again once lifted into a place (KOE-1526).
- * A trial that is not confirmed yet shows no amount. Without a picture a returned fee reads as a
- * reserve's, as an entry with no group does everywhere: nothing owed.
- */
-export const getShownPaymentDue = (event: PublicDogEvent, registration: ParticipantPaymentRegistration): number => {
-  if (!isConfirmedEvent(event)) return 0
-  return isPaymentReturned(registration) && registration.payment
-    ? registration.payment.due
-    : getPaymentBalance(event, registration).due
-}
 
 /** What the picture reads of a registration's open payment: whether it is still being worked on. */
 export type OpenPayment = Pick<JsonTransaction, 'createdAt' | 'status' | 'statusAt' | 'type'>
@@ -173,29 +89,35 @@ type PictureRegistration = PaymentBalanceRegistration & { paidAt?: Date | string
 /** What the picture reads of the trial: its fee, when it is paid and whether it is confirmed. */
 type PictureEvent = MinimalEventForCost & PaymentTimeEvent & EventStateHolder
 
+/** What the status reads besides the row: the amounts, and whether money is held or standing. */
+type PictureStatusFacts = { due: number; excess: number; inProgress: boolean; standing: boolean }
+
 const getPictureStatus = (
   event: PictureEvent,
   registration: PictureRegistration,
-  { due, excess, inProgress }: { due: number; excess: number; inProgress: boolean }
+  { due, excess, inProgress, standing }: PictureStatusFacts
 ): PaymentPictureStatus => {
   if (registration.paymentStatus === 'DUPLICATE') return 'duplicate'
   if (inProgress) return 'inProgress'
   if (isPaymentReturned(registration)) return due > 0 ? 'unpaid' : 'refunded'
-  if (hasStandingPayment(registration)) {
+  if (standing) {
     if (due > 0) return 'partial'
     return excess > 0 ? 'overpaid' : 'paid'
   }
   if (due <= 0) return 'notCharged'
-  return isPaymentWaitingForPlace(event, registration) ? 'waitingForPlace' : 'unpaid'
+  // A fee paid at confirmation waits for a place: the group says it, and a new entry has none
+  // (KOE-1526). The confirmation itself does not decide it: a picked place may pay before confirming.
+  return isPaymentOpenForPlace(event, registration) ? 'unpaid' : 'waitingForPlace'
 }
 
 /**
  * Where an entry's payment stands: one answer to what the icon, the tooltip, the status line, the
- * pay button, the payment page, PaymentCreate and the cancel dialog read (KOE-1530). It reads the
- * whole row, the group included, so it is worked out where the row is whole: the server sends it to
- * the participant, who never receives the group (KOE-1515). `openTransactions` are the registration's
- * open payment transactions, loaded; without them a payment in progress is invisible, so only a row
- * that has none to load (a fresh one) may pass an empty list.
+ * pay button, the payment page, PaymentCreate, the cancel dialog and the secretary's views read
+ * (KOE-1530, KOE-1552). It reads the whole row, the group included, so it is worked out where the
+ * row is whole: the server sends it to the participant, who never receives the group (KOE-1515), and
+ * the secretary's views work it out from the row they show. `openTransactions` are the
+ * registration's open payment transactions, loaded; without them a payment in progress is
+ * invisible, so only a row that has none to load (a fresh one, the secretary's) may pass an empty list.
  *
  * The status decides in this order, and the first that applies wins: a payment charged twice
  * (`duplicate`); a payment in progress; a fee that went back (`unpaid` when the place owes it again,
@@ -214,21 +136,66 @@ export const getPaymentPicture = (
   const due = open ? balance.due : 0
   const inProgress = openTransactions.some(isPaymentInProgress)
   const held = inProgress || registration.paymentStatus === 'DUPLICATE'
+  // Some payment still stands for the place: money paid and not gone back, or a payment recorded
+  // before the amounts were kept.
+  const standing = isPaymentWithoutAmount(registration) || hasRefundableBalance(registration)
 
   return {
     canPay: open && due > 0 && !held && isPaymentOpenForPlace(event, registration),
     canRefund: canRefund(registration),
-    canRefundExcess: open && canRefundExcess(event, registration),
+    // Unlike the ordinary refund this asks for no reserve or cancelled place, and for no confirmed
+    // trial either: the overpaid part is the entrant's after the trial and in a cancelled one too
+    // (KOE-1382, KOE-1552). The secretary's mark and menu add the confirmed trial themselves.
+    canRefundExcess: hasRefundableBalance(registration) && balance.excess > 0,
     due,
     excess: balance.excess,
     keptFee: registration.refundHandlingCost ?? 0,
     paidAmount: registration.paidAmount ?? 0,
-    paidForPlace: isRegistrationPaid(event, registration),
+    // A trial that costs nothing has nothing to wait for, and a part payment counts too: a missing
+    // remainder is the secretary's business, not the invitation's. A payment refunded whole, or all
+    // but the handling fee, has paid for nothing (KOE-1526).
+    paidForPlace: standing || calculateCost(event, registration).amount <= 0,
     refundedAmount: registration.refundAmount ?? 0,
-    standing: hasStandingPayment(registration),
-    status: getPictureStatus(event, registration, { due, excess: balance.excess, inProgress }),
-    unsettled: open && isPaymentUnsettled(event, registration),
+    standing,
+    status: getPictureStatus(event, registration, { due, excess: balance.excess, inProgress, standing }),
+    // A paid fee that no longer matches what the entry adds up to: a part missing or paid over. A
+    // never-paid place is not unsettled, just unpaid.
+    unsettled: open && Boolean(registration.paidAt) && (balance.due > 0 || balance.excess > 0),
   }
+}
+
+/** A row as a page holds it: the participant's carries the server's picture, the secretary's and a new entry's do not. */
+export type PaymentPictureRow = PictureRegistration & Pick<Registration, 'payment'>
+
+/**
+ * The picture a page shared by the participant and the secretary reads: the server's, which the
+ * participant's row carries, or the one worked out from the row, which is whole for the secretary
+ * and for a new entry (KOE-1552).
+ */
+export const getRowPaymentPicture = (event: PictureEvent, row: PaymentPictureRow): PaymentPicture =>
+  row.payment ?? getPaymentPicture(event, row, [])
+
+/** What the form says of the payment: the amount owed and whether paying it waits for a place. */
+type FormPayment = { due: number; waitsForPlace: boolean }
+
+/**
+ * What the form shows as still owed, and whether paying it waits for a place, as the row is edited.
+ * A paid entry cannot change its price in the form (KOE-1070), so the amount is read from the edited
+ * row and a change before paying shows at once (KOE-722). The one exception is a fee that went back
+ * on the participant's row: only the server knows the group, and read without it the row is a
+ * reserve's, owing nothing, so the server's picture says what is owed (KOE-1526). Whether paying
+ * waits is read from the picture the pay offer reads: nothing owed waits for nothing, and otherwise
+ * paying at confirmation waits while the link is not offered and no payment is held.
+ */
+export const getFormPayment = (event: PictureEvent, row: PaymentPictureRow): FormPayment => {
+  const picture = getRowPaymentPicture(event, row)
+  const due =
+    row.payment && isPaymentReturned(row) && isEventOpenForPayment(event)
+      ? row.payment.due
+      : getPaymentPicture(event, row, []).due
+  const held = picture.status === 'inProgress' || picture.status === 'duplicate'
+
+  return { due, waitsForPlace: due > 0 && event.paymentTime === 'confirmation' && !picture.canPay && !held }
 }
 
 /** How long a payment may stay unfinished at Paytrail before it no longer counts as in progress. */
@@ -254,79 +221,6 @@ export const isPaymentInProgress = (
   transaction.type === 'payment' &&
   transaction.status === 'pending' &&
   !isStalePendingPayment(transaction.createdAt, transaction.statusAt)
-
-/**
- * Whether the secretary may send a payment request: the participant's pay offer, read from the
- * secretary's row (KOE-1526). That row is read without its open payments loaded (the secretary's list
- * does not BatchGet every registration's open transactions), so it never holds the request back on
- * its own; PaymentCreate decides when the link is actually opened, with a 409 for a payment truly in
- * progress. A duplicate still waits for its refund (KOE-1529).
- */
-export const canRequestPaymentFor = (event: Partial<DogEvent>, row: PictureRegistration): boolean =>
-  isConfirmedEvent(event) && getPaymentPicture(event, row, []).canPay
-
-/**
- * Whether a paid fee no longer matches what the entry adds up to: a part missing or paid over. What
- * the secretary's payment mark turns amber for; a never-paid place is not unsettled, just unpaid.
- */
-export const isPaymentUnsettled = (
-  event: MinimalEventForCost,
-  registration: PaymentBalanceRegistration & { paidAt?: Date | string }
-): boolean => {
-  if (!registration.paidAt) return false
-  const { due, excess } = getPaymentBalance(event, registration)
-  return due > 0 || excess > 0
-}
-
-/**
- * Whether the fee has been paid over, and the overpaid part can still be returned. Unlike the
- * ordinary refund this does not ask for a reserve or cancelled place: the participant who paid the
- * full price and was a member all along gets the difference back, after the trial too (KOE-1382).
- */
-export const canRefundExcess = (
-  event: MinimalEventForCost,
-  registration: PaymentBalanceRegistration & Pick<Registration, 'refundHandlingCost'>
-): boolean => hasRefundableBalance(registration) && getPaymentBalance(event, registration).excess > 0
-
-type InvitationPaymentEvent = InvitationAttachmentEvent &
-  MinimalEventForCost &
-  Parameters<typeof getEventStateForClass>[0]
-
-type InvitationPaymentRegistration = InvitationAttachmentRegistration &
-  MinimalRegistrationForCost &
-  Pick<JsonRegistration | Registration, 'cancelled' | 'group' | 'paymentStatus'> &
-  RegistrationRefundAmounts
-
-/**
- * Whether the koekutsu round has been sent for this registration: its own class is invited, or the
- * trial as a whole is. Both are what the group move reads when it decides to invite a dog it lifts.
- */
-const isInvitedRound = (event: InvitationPaymentEvent, registration: InvitationPaymentRegistration): boolean =>
-  event.state === 'invited' || getEventStateForClass(event, getRegistrationClass(registration)) === 'invited'
-
-/**
- * Whether this participant is still owed the koekutsu of a round that has already gone out — the
- * dog lifted from the reserve list after the others were invited.
- */
-const isInvitationDue = (event: InvitationPaymentEvent, registration: InvitationPaymentRegistration): boolean =>
-  isStarter(registration) &&
-  isInvitedRound(event, registration) &&
-  shouldSendInvitationToRegistration(event, registration)
-
-/**
- * The koekutsu that the automatic send held back until the place is paid for (KOE-1191). The
- * secretary can still send it by hand; this only says what the trial is waiting for.
- */
-export const isInvitationAwaitingPayment = (
-  event: InvitationPaymentEvent,
-  registration: InvitationPaymentRegistration
-): boolean => isInvitationDue(event, registration) && !isRegistrationPaid(event, registration)
-
-/** The same koekutsu once the money is in: what the payment callback sends. */
-export const shouldSendInvitationAfterPayment = (
-  event: InvitationPaymentEvent,
-  registration: InvitationPaymentRegistration
-): boolean => isInvitationDue(event, registration) && isRegistrationPaid(event, registration)
 
 export const getRegistrationPaymentDetails = (event: MinimalEventForCost, registration: MinimalRegistrationForCost) => {
   const cost = selectCost(event, registration)

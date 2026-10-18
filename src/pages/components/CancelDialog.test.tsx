@@ -105,6 +105,13 @@ describe('CancelDialog', () => {
       unpaidRegistrationWithStaticDatesAndClass,
       true,
     ],
+    // A fee of nothing counts as paid for a place, but only in a confirmed trial (KOE-1552).
+    [
+      'an unpaid entry in a free tentative trial',
+      { ...publicEventWithStaticDatesAndClass, cost: 0, costMember: 0, state: 'tentative' as const },
+      unpaidRegistrationWithStaticDatesAndClass,
+      true,
+    ],
   ])('offers the unpaid reason for %s: %s', async (_name, event, registration, offered) => {
     const { user } = renderWithUserEvents(<CancelDialog admin event={event} open registration={registration} />)
 

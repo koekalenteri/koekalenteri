@@ -1,4 +1,4 @@
-import type { DogEvent, Registration } from '@/types'
+import type { PricedDogEvent, Registration } from '@/types'
 import AddTaskOutlinedIcon from '@mui/icons-material/AddTaskOutlined'
 import CheckOutlined from '@mui/icons-material/CheckOutlined'
 import CommentOutlined from '@mui/icons-material/CommentOutlined'
@@ -11,8 +11,8 @@ import ScheduleSendOutlined from '@mui/icons-material/ScheduleSendOutlined'
 import SpeakerNotesOutlined from '@mui/icons-material/SpeakerNotesOutlined'
 import Stack from '@mui/material/Stack'
 import { useMemo } from 'react'
-import { isInvitationAwaitingPayment } from '@/lib/payment'
-import { getInvitationReadStatus, hasPriority, isMember } from '@/lib/registration'
+import { getPaymentPicture } from '@/lib/payment'
+import { getInvitationReadStatus, hasPriority, isInvitationAwaitingPayment, isMember } from '@/lib/registration'
 import { isConfirmedEvent } from '@/lib/typeGuards'
 import { IconsTooltip } from '@/pages/components/IconsTooltip'
 import { PriorityIcon } from '@/pages/components/icons/PriorityIcon'
@@ -24,7 +24,7 @@ import RegistrationTooltipContent, {
 import StatusIcon from './registrationIcons/StatusIcon'
 
 interface RegistrationIconsProps {
-  event: DogEvent
+  event: PricedDogEvent
   reg: Registration
 }
 
@@ -79,7 +79,9 @@ const RegistrationIcons = ({ event, reg }: RegistrationIconsProps) => {
           }
         />
         <StatusIcon
-          condition={isConfirmedEvent(event) && isInvitationAwaitingPayment(event, reg)}
+          condition={
+            isConfirmedEvent(event) && isInvitationAwaitingPayment(event, reg, getPaymentPicture(event, reg, []))
+          }
           icon={<ScheduleSendOutlined color="warning" fontSize="small" />}
         />
         <StatusIcon condition={manualResultCount > 0} icon={<ErrorOutlineOutlined fontSize="small" />} />

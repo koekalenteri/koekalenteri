@@ -8,7 +8,7 @@ import { sendTemplatedEmail } from '@/api/email'
 import { APIError } from '@/api/http'
 import { createRefund } from '@/api/payment'
 import * as registrationApi from '@/api/registration'
-import { isPaymentUnsettled } from '@/lib/payment'
+import { getPaymentPicture } from '@/lib/payment'
 import { idTokenAtom } from '@/pages/state'
 import { TEST_ID_TOKEN } from '@/test-utils/utils'
 import { adminEventAtom, adminEventsAtom } from '../events'
@@ -386,7 +386,7 @@ describe('useAdminRegistrationActions', () => {
     const row = result.current.registrations.find((r) => r.id === reserve.id)
     expect(row).toMatchObject({ openRefunds: ['r-1'], refundAmount: 45, refundHandlingCost: 5 })
     expect(row?.refundStatus).toBe(isSynchronous ? 'SUCCESS' : undefined)
-    expect(row && isPaymentUnsettled(event, row)).toBe(false)
+    expect(row && getPaymentPicture(event, row, []).unsettled).toBe(false)
   })
 })
 

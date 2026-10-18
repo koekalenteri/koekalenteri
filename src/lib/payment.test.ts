@@ -1,34 +1,19 @@
-import type {
-  EventState,
-  MinimalEventForCost,
-  MinimalRegistrationForCost,
-  PaymentPicture,
-  PaymentTime,
-  Registration,
-} from '../types'
+import type { EventState, MinimalEventForCost, MinimalRegistrationForCost, PaymentPicture, PaymentTime } from '../types'
 import { eventWithStaticDates } from '../__mockData__/events'
 import { paymentPictureWith } from '../__mockData__/paymentPicture'
 import {
-  canRefundExcess,
-  canRequestPaymentFor,
+  getFormPayment,
   getPaymentPicture,
   getProviderName,
   getRegistrationPaymentDetails,
-  getShownPaymentDue,
-  isInvitationAwaitingPayment,
   isPaymentInProgress,
-  isPaymentUnsettled,
-  isPaymentWaitingForPlace,
-  isPaymentWaitingForPlaceInForm,
   isPaytrailRefusal,
-  isRegistrationPaid,
   isStalePendingPayment,
   PROVIDER_NAMES,
   paytrailErrorMessage,
   paytrailErrorText,
   paytrailRefusalBody,
   STALE_PENDING_PAYMENT_AGE_MS,
-  shouldSendInvitationAfterPayment,
   transactionActor,
 } from './payment'
 import { patchMerge } from './utils'
@@ -248,11 +233,11 @@ describe('payment', () => {
         { status: 'paid' },
       ],
       [
-        'a trial that is not confirmed holds an overpaid fee as overpaid',
+        'a trial that is not confirmed holds an overpaid fee as overpaid, its excess still returnable',
         { state: 'tentative' },
         { group: place, owner: { membership: true }, paidAmount: 40, paymentStatus: 'SUCCESS' },
         [],
-        { canRefundExcess: false, excess: 5, status: 'overpaid' },
+        { canRefundExcess: true, excess: 5, status: 'overpaid' },
       ],
       [
         'a paid fee in a trial that is not confirmed is not unsettled, whatever its mark',
@@ -400,15 +385,25 @@ describe('payment', () => {
       ['charged twice', {}, { group: place, paidAmount: 40, paymentStatus: 'DUPLICATE' }, true],
       ['returned', {}, { group: place, paidAmount: 40, paymentStatus: 'SUCCESS', refundAmount: 40 }, false],
       ['unpaid in a trial not confirmed', { state: 'tentative' }, { group: place }, false],
-    ])(
-      'reads paidForPlace for an entry that is %s as isRegistrationPaid does',
-      (_name, eventOverrides, registration, expected) => {
-        const event = { ...priced, ...eventOverrides }
-        const row = { ...entry, ...registration }
-        expect(getPaymentPicture(event, row, []).paidForPlace).toBe(expected)
-        expect(isRegistrationPaid(event, row)).toBe(expected)
-      }
-    )
+      ['only pending', {}, { group: place, paymentStatus: 'PENDING' }, false],
+      ['paid before the amounts were kept', {}, { group: place, paymentStatus: 'SUCCESS' }, true],
+      [
+        'refunded less a handling fee (KOE-1526)',
+        {},
+        { group: place, paidAmount: 40, paymentStatus: 'SUCCESS', refundAmount: 35, refundHandlingCost: 5 },
+        false,
+      ],
+      [
+        'left with part of the payment after a refund (KOE-1526)',
+        {},
+        { group: place, paidAmount: 50, paymentStatus: 'SUCCESS', refundAmount: 35, refundHandlingCost: 5 },
+        true,
+      ],
+    ])('reads paidForPlace for an entry that is %s', (_name, eventOverrides, registration, expected) => {
+      expect(getPaymentPicture({ ...priced, ...eventOverrides }, { ...entry, ...registration }, []).paidForPlace).toBe(
+        expected
+      )
+    })
 
     // The mark of a payment is what makes a fee unsettled: a never-paid place is just unpaid.
     it.each<[string, PictureRow, boolean]>([
@@ -440,8 +435,12 @@ describe('payment', () => {
     })
   })
 
-  describe('getShownPaymentDue', () => {
+  // KOE-1552: what the form says of the payment, read from the picture of the row it edits.
+  describe('getFormPayment', () => {
     const shown = { ...eventWithStaticDates, cost: 40, costMember: 35 }
+    const confirmed = { ...shown, state: 'confirmed' as const }
+    const atConfirmation = { ...confirmed, paymentTime: 'confirmation' as const }
+    const place = { key: '2026-08-15-ap', number: 1 }
     const member = {
       createdAt: new Date('2026-01-02'),
       dog: { breedCode: '110' as const },
@@ -464,83 +463,107 @@ describe('payment', () => {
       unsettled: false,
     })
 
-    it('shows what is owed once the trial is confirmed', () => {
-      expect(getShownPaymentDue({ ...shown, state: 'confirmed' }, unpaid)).toBe(40)
+    describe('due', () => {
+      it('shows what is owed once the trial is confirmed', () => {
+        expect(getFormPayment(confirmed, unpaid).due).toBe(40)
+      })
+
+      it('shows nothing owed before the trial is confirmed', () => {
+        expect(getFormPayment({ ...shown, state: 'tentative' }, unpaid).due).toBe(0)
+      })
+
+      it('reads a paid place as the form has it, so a change shows at once (KOE-722)', () => {
+        expect(getFormPayment(confirmed, { ...unpaid, paidAmount: 35 }).due).toBe(5)
+      })
+
+      // The participant's row carries the picture of the saved row; an edit before paying changes
+      // what is owed, and the form shows the edited row's amount, not the saved one (KOE-722, KOE-1070).
+      it("reads the edited row, not the saved row's picture, for a fee that did not go back", () => {
+        const withOptional = {
+          ...confirmed,
+          cost: { normal: 40, optionalAdditionalCosts: [{ cost: 15, description: { fi: 'Ruoka' } }] },
+        }
+        const saved = { ...unpaid, payment: paymentPictureWith({ due: 40, standing: false, status: 'unpaid' }) }
+
+        expect(getFormPayment(withOptional, { ...saved, optionalCosts: [0] }).due).toBe(55)
+      })
+
+      // For a fee that went back only the server knows the group; its due is taken as it is. Read
+      // here, the same row would be a reserve's (no group), owing nothing.
+      it.each([
+        ['nothing for a reserve, as the server says', 0, 0],
+        ['the fee again once it has a place, as the server says', 35, 35],
+      ])('reads a fee that went back as %s', (_name, due, expected) => {
+        const returned = { ...member, paidAmount: 35, payment: pictureOf(due), refundAmount: 35 }
+        expect(getFormPayment(confirmed, returned).due).toBe(expected)
+      })
+
+      it('reads a returned fee itself when a response came without the picture', () => {
+        expect(getFormPayment(confirmed, { ...member, paidAmount: 35, refundAmount: 35 }).due).toBe(0)
+      })
+
+      it('shows nothing owed for a returned fee before the trial is confirmed, whatever the picture says', () => {
+        const returned = { ...member, paidAmount: 35, payment: pictureOf(35), refundAmount: 35 }
+        expect(getFormPayment({ ...shown, state: 'tentative' }, returned).due).toBe(0)
+      })
     })
 
-    it('shows nothing owed before the trial is confirmed', () => {
-      expect(getShownPaymentDue({ ...shown, state: 'tentative' }, unpaid)).toBe(0)
-    })
+    describe('waitsForPlace', () => {
+      // The participant's row: no group, the picture decides.
+      it.each<[string, Partial<PaymentPicture>, boolean]>([
+        ['paying is offered', { canPay: true, status: 'unpaid' }, false],
+        ['paying is not offered', { canPay: false, status: 'waitingForPlace' }, true],
+        ['a free class (nothing owed yet)', { status: 'notCharged' }, true],
+        ['a payment in progress', { status: 'inProgress' }, false],
+        ['a payment charged twice', { status: 'duplicate' }, false],
+      ])('on a row with no group, when %s', (_name, overrides, expected) => {
+        expect(
+          getFormPayment(atConfirmation, { ...unpaid, payment: paymentPictureWith(overrides) }).waitsForPlace
+        ).toBe(expected)
+      })
 
-    it('reads a paid place as the form has it, so a change shows at once (KOE-722)', () => {
-      expect(getShownPaymentDue({ ...shown, state: 'confirmed' }, { ...unpaid, paidAmount: 35 })).toBe(5)
-    })
+      it('never waits on a row with a picture when the trial is paid at entry', () => {
+        const payment = paymentPictureWith({ canPay: false, status: 'unpaid' })
+        expect(
+          getFormPayment({ ...confirmed, paymentTime: 'registration' }, { ...unpaid, payment }).waitsForPlace
+        ).toBe(false)
+      })
 
-    // For a fee that went back only the server knows the group; its due is taken as it is. Read
-    // here, the same row would be a reserve's (no group), owing nothing.
-    it.each([
-      ['nothing for a reserve, as the server says', 0, 0],
-      ['the fee again once it has a place, as the server says', 35, 35],
-    ])('reads a fee that went back as %s', (_name, due, expected) => {
-      const returned = { ...member, paidAmount: 35, payment: pictureOf(due), refundAmount: 35 }
-      expect(getShownPaymentDue({ ...shown, state: 'confirmed' }, returned)).toBe(expected)
-    })
+      // The secretary's row, with its group, and a new entry: the group decides.
+      it.each([
+        ['a row in a place', { group: place }, false],
+        ['a row on the reserve list', { group: { key: 'reserve', number: 1 } }, true],
+        ['a new entry, with neither group nor picture', {}, true],
+        ['a payment charged twice', { paymentStatus: 'DUPLICATE' as const }, false],
+      ])('reads %s by the group', (_name, registration, expected) => {
+        expect(getFormPayment(atConfirmation, { ...unpaid, ...registration }).waitsForPlace).toBe(expected)
+      })
 
-    it('reads a returned fee itself when a response came without the picture', () => {
-      expect(
-        getShownPaymentDue({ ...shown, state: 'confirmed' }, { ...member, paidAmount: 35, refundAmount: 35 })
-      ).toBe(0)
-    })
-  })
+      it('never waits when the trial is paid at entry', () => {
+        expect(getFormPayment({ ...confirmed, paymentTime: 'registration' }, unpaid).waitsForPlace).toBe(false)
+      })
 
-  // The form's own reading of an entry that has no picture yet (a new one, the secretary's).
-  describe('isPaymentWaitingForPlaceInForm', () => {
-    const at = (paymentTime: PaymentTime, registration: Parameters<typeof isPaymentWaitingForPlaceInForm>[1]) =>
-      isPaymentWaitingForPlaceInForm({ paymentTime }, registration)
-    const picture = (overrides: Partial<PaymentPicture>) => paymentPictureWith(overrides)
-
-    // The participant's row: no group, the picture decides.
-    it.each<[string, Partial<PaymentPicture>, boolean]>([
-      ['paying is offered', { canPay: true, status: 'unpaid' }, false],
-      ['paying is not offered', { canPay: false, status: 'waitingForPlace' }, true],
-      ['a free class (nothing owed yet)', { status: 'notCharged' }, true],
-      ['a payment in progress', { status: 'inProgress' }, false],
-      ['a payment charged twice', { status: 'duplicate' }, false],
-    ])('on a row with no group, when %s', (_name, overrides, expected) => {
-      expect(at('confirmation', { payment: picture(overrides) })).toBe(expected)
-    })
-
-    it('never waits on a row with a picture when the trial is paid at entry', () => {
-      expect(at('registration', { payment: picture({ canPay: false, status: 'unpaid' }) })).toBe(false)
-    })
-
-    // The secretary's row, with its group, and a new entry: the group decides.
-    it.each([
-      ['a row in a place', { group: { key: '2026-08-15-ap' } }, false],
-      ['a row on the reserve list', { group: { key: 'reserve' } }, true],
-      ['a new entry, with neither group nor picture', {}, true],
-    ])('reads %s by the group', (_name, registration, expected) => {
-      expect(at('confirmation', registration)).toBe(expected)
-    })
-  })
-
-  describe('isPaymentWaitingForPlace', () => {
-    it.each<[string, Parameters<typeof isPaymentWaitingForPlace>[1], boolean]>([
-      ['a payment charged twice', { paymentStatus: 'DUPLICATE' }, false],
-      ["a secretary's row in a place", { group: { key: '2026-08-15-ap' } }, false],
-      ["a secretary's row on the reserve list", { group: { key: 'reserve' } }, true],
-      ['a new entry', {}, true],
-    ])('at confirmation-time payment, %s', (_name, registration, expected) => {
-      expect(isPaymentWaitingForPlace({ paymentTime: 'confirmation' }, registration)).toBe(expected)
-    })
-
-    it('never waits when the trial is paid at entry', () => {
-      expect(isPaymentWaitingForPlace({ paymentTime: 'registration' }, {})).toBe(false)
+      // Nothing owed waits for nothing, whatever the caller does with the amount.
+      it.each([
+        [
+          'a place in a trial that is not confirmed',
+          { ...atConfirmation, state: 'tentative' as const },
+          { group: place },
+        ],
+        ['a paid place', atConfirmation, { group: place, paidAmount: 40, paymentStatus: 'SUCCESS' as const }],
+        [
+          'a reserve in a trial that is not confirmed',
+          { ...atConfirmation, state: 'tentative' as const },
+          { group: { key: 'reserve', number: 1 } },
+        ],
+      ])('does not wait for %s', (_name, event, registration) => {
+        expect(getFormPayment(event, { ...unpaid, ...registration })).toEqual({ due: 0, waitsForPlace: false })
+      })
     })
   })
 
   // KOE-1526 review: the secretary's request is the pay offer read from a row without transactions.
-  describe('canRequestPaymentFor', () => {
+  describe('canPay on the secretary row', () => {
     const event = { cost: 40, costMember: 40, entryStartDate: new Date('2026-01-01'), state: 'confirmed' as const }
     const owing = {
       createdAt: new Date('2026-01-02'),
@@ -557,11 +580,11 @@ describe('payment', () => {
       ['a payment charged twice', { paymentStatus: 'DUPLICATE' as const }, false],
       ['a paid entry', { paidAmount: 40, paymentStatus: 'SUCCESS' as const }, false],
     ])('for %s: %s', (_name, overrides, expected) => {
-      expect(canRequestPaymentFor(event, { ...owing, ...overrides })).toBe(expected)
+      expect(getPaymentPicture(event, { ...owing, ...overrides }, []).canPay).toBe(expected)
     })
 
     it('asks nothing for a trial that is not confirmed', () => {
-      expect(canRequestPaymentFor({ ...event, state: 'cancelled' }, owing)).toBe(false)
+      expect(getPaymentPicture({ ...event, state: 'cancelled' }, owing, []).canPay).toBe(false)
     })
   })
 
@@ -637,128 +660,6 @@ describe('payment', () => {
 
     it('falls back to anonymous for a transaction without a user', () => {
       expect(transactionActor({})).toEqual({ name: 'anonymous' })
-    })
-  })
-
-  describe('isRegistrationPaid', () => {
-    const event: MinimalEventForCost = { cost: 40, costMember: 40, entryStartDate: new Date('2026-01-01') }
-    const registration: MinimalRegistrationForCost &
-      Pick<Registration, 'paymentStatus' | 'refundAmount' | 'refundHandlingCost'> = {
-      createdAt: new Date('2026-01-02'),
-      dog: { breedCode: '110' },
-      owner: { membership: false },
-      ownerHandles: true,
-    }
-
-    it('is not paid when nothing has been paid for a place that costs', () => {
-      expect(isRegistrationPaid(event, registration)).toBe(false)
-    })
-
-    it('is paid when the payment succeeded', () => {
-      expect(isRegistrationPaid(event, { ...registration, paidAmount: 40, paymentStatus: 'SUCCESS' })).toBe(true)
-    })
-
-    it('is paid when only part of the fee has arrived', () => {
-      expect(isRegistrationPaid(event, { ...registration, paidAmount: 10 })).toBe(true)
-    })
-
-    it('is paid when the place costs nothing', () => {
-      expect(isRegistrationPaid({ ...event, cost: 0, costMember: 0 }, registration)).toBe(true)
-    })
-
-    it('is not paid while the payment is only pending', () => {
-      expect(isRegistrationPaid(event, { ...registration, paymentStatus: 'PENDING' })).toBe(false)
-    })
-
-    it('is paid when a payment was recorded before the amounts were kept', () => {
-      expect(isRegistrationPaid(event, { ...registration, paymentStatus: 'SUCCESS' })).toBe(true)
-    })
-
-    it.each([
-      ['in full', { refundAmount: 40, refundHandlingCost: 0 }],
-      ['less a handling fee', { refundAmount: 35, refundHandlingCost: 5 }],
-    ])('is not paid once the payment was refunded %s (KOE-1526)', (_name, refund) => {
-      expect(isRegistrationPaid(event, { ...registration, paidAmount: 40, paymentStatus: 'SUCCESS', ...refund })).toBe(
-        false
-      )
-    })
-
-    it('is paid when part of the payment is left after a refund (KOE-1526)', () => {
-      expect(
-        isRegistrationPaid(event, {
-          ...registration,
-          paidAmount: 50,
-          paymentStatus: 'SUCCESS',
-          refundAmount: 35,
-          refundHandlingCost: 5,
-        })
-      ).toBe(true)
-    })
-  })
-
-  describe('invitation payment gate', () => {
-    // The ALO class has been invited; the trial itself is only picked, as it is when one class is ahead.
-    const event = {
-      classes: [{ class: 'ALO' as const, state: 'invited' as const }],
-      cost: 40,
-      costMember: 40,
-      entryStartDate: new Date('2026-01-01'),
-      state: 'picked' as const,
-    }
-    const participant = {
-      class: 'ALO' as const,
-      createdAt: new Date('2026-01-02'),
-      dog: { breedCode: '110' as const },
-      eventType: 'NOME-B',
-      group: { key: 'ALO-AP', number: 3 },
-      messagesSent: { picked: true },
-      owner: { membership: false },
-      ownerHandles: true,
-    }
-    const paid = { ...participant, paidAmount: 40, paymentStatus: 'SUCCESS' as const }
-
-    it('waits for an unpaid place lifted into an invited class', () => {
-      expect(isInvitationAwaitingPayment(event, participant)).toBe(true)
-      expect(shouldSendInvitationAfterPayment(event, participant)).toBe(false)
-    })
-
-    it('waits for a reserve whose fee was refunded and that is then lifted into a place (KOE-1526)', () => {
-      const refunded = { ...paid, refundAmount: 40, refundHandlingCost: 0 }
-      expect(isInvitationAwaitingPayment(event, refunded)).toBe(true)
-      expect(shouldSendInvitationAfterPayment(event, refunded)).toBe(false)
-    })
-
-    it('sends once that place is paid for', () => {
-      expect(isInvitationAwaitingPayment(event, paid)).toBe(false)
-      expect(shouldSendInvitationAfterPayment(event, paid)).toBe(true)
-    })
-
-    it('leaves a dog on the reserve list out of both', () => {
-      const reserve = { ...participant, group: { key: 'reserve', number: 1 } }
-
-      expect(isInvitationAwaitingPayment(event, reserve)).toBe(false)
-      expect(shouldSendInvitationAfterPayment(event, { ...reserve, ...paid, group: reserve.group })).toBe(false)
-    })
-
-    it('leaves a cancelled entry out of both', () => {
-      const cancelled = { ...paid, cancelled: true }
-
-      expect(isInvitationAwaitingPayment(event, { ...participant, cancelled: true })).toBe(false)
-      expect(shouldSendInvitationAfterPayment(event, cancelled)).toBe(false)
-    })
-
-    it('waits for the class to be invited', () => {
-      const pickedEvent = { ...event, classes: [{ class: 'ALO' as const, state: 'picked' as const }] }
-
-      expect(isInvitationAwaitingPayment(pickedEvent, participant)).toBe(false)
-      expect(shouldSendInvitationAfterPayment(pickedEvent, paid)).toBe(false)
-    })
-
-    it('does not repeat an invitation that has been sent', () => {
-      const invited = { ...paid, messagesSent: { invitation: true, picked: true } }
-
-      expect(isInvitationAwaitingPayment(event, { ...participant, messagesSent: invited.messagesSent })).toBe(false)
-      expect(shouldSendInvitationAfterPayment(event, invited)).toBe(false)
     })
   })
 
@@ -948,48 +849,53 @@ describe('payment', () => {
   })
 
   describe('overpaid fee', () => {
-    const event: MinimalEventForCost = { cost: 40, costMember: 35, entryStartDate: new Date('2026-01-01') }
+    const event = { cost: 40, costMember: 35, entryStartDate: new Date('2026-01-01'), state: 'confirmed' as const }
     const member: MinimalRegistrationForCost = {
       createdAt: new Date('2026-01-02'),
       dog: { breedCode: '110' },
       owner: { membership: true },
       ownerHandles: true,
     }
+    const pictureOf = (registration: Parameters<typeof getPaymentPicture>[1]) =>
+      getPaymentPicture(event, registration, [])
 
-    describe('canRefundExcess', () => {
+    describe('the overpaid part to return', () => {
       it('lets a participant who paid the full price as a member have the difference back (KOE-1382)', () => {
-        expect(canRefundExcess(event, { ...member, paidAmount: 40 })).toBe(true)
+        expect(pictureOf({ ...member, paidAmount: 40 }).canRefundExcess).toBe(true)
       })
 
       it('has nothing to return once the difference has been refunded', () => {
-        expect(canRefundExcess(event, { ...member, paidAmount: 40, refundAmount: 5 })).toBe(false)
+        expect(pictureOf({ ...member, paidAmount: 40, refundAmount: 5 }).canRefundExcess).toBe(false)
       })
 
       it('has nothing to return when the member price was paid', () => {
-        expect(canRefundExcess(event, { ...member, paidAmount: 35 })).toBe(false)
+        expect(pictureOf({ ...member, paidAmount: 35 }).canRefundExcess).toBe(false)
       })
 
       it('leaves a cancelled entry to the ordinary refund', () => {
-        expect(canRefundExcess(event, { ...member, cancelled: true, paidAmount: 40 })).toBe(false)
+        expect(pictureOf({ ...member, cancelled: true, paidAmount: 40 }).canRefundExcess).toBe(false)
+      })
+
+      // The overpaid part is the entrant's in a cancelled trial too (KOE-1552).
+      it.each(['cancelled', 'tentative'] as const)('returns the overpaid part in a %s trial', (state) => {
+        expect(getPaymentPicture({ ...event, state }, { ...member, paidAmount: 40 }, []).canRefundExcess).toBe(true)
       })
     })
 
-    describe('isPaymentUnsettled', () => {
+    describe('unsettled', () => {
       const paidAt = new Date('2026-01-03')
 
       it('is unsettled when a part is missing or paid over', () => {
-        expect(isPaymentUnsettled(event, { ...member, paidAmount: 40, paidAt })).toBe(true)
-        expect(isPaymentUnsettled(event, { ...member, owner: { membership: false }, paidAmount: 35, paidAt })).toBe(
-          true
-        )
+        expect(pictureOf({ ...member, paidAmount: 40, paidAt }).unsettled).toBe(true)
+        expect(pictureOf({ ...member, owner: { membership: false }, paidAmount: 35, paidAt }).unsettled).toBe(true)
       })
 
       it('is settled when the fee has been paid as it reads', () => {
-        expect(isPaymentUnsettled(event, { ...member, paidAmount: 35, paidAt })).toBe(false)
+        expect(pictureOf({ ...member, paidAmount: 35, paidAt }).unsettled).toBe(false)
       })
 
       it('is not unsettled, only unpaid, when nothing has been paid', () => {
-        expect(isPaymentUnsettled(event, member)).toBe(false)
+        expect(pictureOf(member).unsettled).toBe(false)
       })
 
       // The prod row of KOE-1526: reserve #1, paid 40 and had all of it back.
@@ -1005,7 +911,7 @@ describe('payment', () => {
       }
 
       it('is settled for a reserve whose fee was refunded (KOE-1526)', () => {
-        expect(isPaymentUnsettled(event, refundedReserve)).toBe(false)
+        expect(pictureOf(refundedReserve).unsettled).toBe(false)
       })
 
       it('is settled, with nothing to refund, once the lifted reserve has paid its fee again (KOE-1526)', () => {
@@ -1017,13 +923,13 @@ describe('payment', () => {
           refundAmount: 35,
           refundHandlingCost: 5,
         }
-        expect(isPaymentUnsettled(event, repaid)).toBe(false)
-        expect(canRefundExcess(event, repaid)).toBe(false)
+        expect(pictureOf(repaid).unsettled).toBe(false)
+        expect(pictureOf(repaid).canRefundExcess).toBe(false)
       })
 
       it('is unsettled when that reserve is lifted into a place (KOE-1526)', () => {
         const place = { key: '2026-08-15-ap', number: 1 }
-        expect(isPaymentUnsettled(event, { ...refundedReserve, group: place })).toBe(true)
+        expect(pictureOf({ ...refundedReserve, group: place }).unsettled).toBe(true)
       })
     })
   })
