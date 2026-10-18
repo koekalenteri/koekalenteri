@@ -143,8 +143,6 @@ jobs:
         if: steps.cache.outputs.cache-hit != 'true'
         run: npm ci
 
-      - name: Knip (unused files/exports/deps)
-        run: npm run knip
 
   backend:
     runs-on: ubuntu-latest
@@ -166,8 +164,6 @@ jobs:
       - name: Install packages
         if: steps.cache.outputs.cache-hit != 'true'
         run: npm ci
-      - name: Lint
-        run: npm run lint-backend && npm run lint-biome && npm run ratchet
       - name: Build
         run: npm run build-backend
       - uses: aws-actions/setup-sam@v3
@@ -221,44 +217,27 @@ jobs:
       - name: Install packages
         if: steps.cache.outputs.cache-hit != 'true'
         run: npm ci
-      - name: Lint
-        run: npm run lint-frontend && npm run lint-biome && npm run ratchet
+      # The production build, with the browser tests' environment baked in: nothing deploys this
+      # one (Amplify builds its own with the stack's), so it is built once here for the e2e shards.
       - name: Build
-        run: npm run build-frontend
+        run: npm run build-e2e-frontend
         env:
-          SKIP_TYPECHECK: 'true' # the lint step above ran the same tsc
+          SKIP_TYPECHECK: 'true' # the lint job type-checks the same sources
       # The post-deploy smoke check reads this stamp from the served page (KOE-1368); checking the
       # real minified build here means a template or minifier change cannot drop it unnoticed.
       - name: Check the build's version stamp
         run: |
-          node scripts/smoke-deploy.mjs --html build/index.html \
+          node scripts/smoke-deploy.mjs --html build-e2e/index.html \
             --expect-version "$(jq -r .version package.json)" --expect-revision "$(git rev-parse HEAD)"
-
-  # The guides bind to the code: a control named by a translation key, a picture that is a visual
-  # test's reference, a translation with its source's digest. A binding that no longer holds fails
-  # here, before the guide reaches a reader (KOE-1397).
-  docs:
-    runs-on: ubuntu-latest
-    needs: setup
-    if: ${{ needs.setup.outputs.frontend == 'true' }}
-    steps:
-      - uses: actions/checkout@v7
-      - uses: actions/setup-node@v7
+      - name: Upload the build for the browser tests
+        uses: actions/upload-artifact@v7
         with:
-          node-version: 24
-          cache: npm
-          cache-dependency-path: package-lock.json
-      - name: Cache node_modules
-        id: cache
-        uses: actions/cache@v6
-        with:
-          path: node_modules
-          key: ${{ runner.os }}-${{ hashFiles('package-lock.json') }}
-      - name: Install packages
-        if: steps.cache.outputs.cache-hit != 'true'
-        run: npm ci
-      - name: Check the guides
-        run: npm run check-docs
+          name: frontend-e2e-build
+          # stats.json is the bundle analyzer's, some 250 MB that the tests never read.
+          path: |
+            build-e2e
+            !build-e2e/stats.json
+          retention-days: 1
 
   frontend-test:
     runs-on: ubuntu-latest
@@ -283,6 +262,10 @@ jobs:
       - name: Install packages
         if: steps.cache-restore.outputs.cache-hit != 'true'
         run: npm ci
+      # Runners differ in speed by some 1.6 times, enough to make one shard of the same files twice
+      # as slow as another: this tells a slow machine from a slow shard.
+      - name: Runner CPU
+        run: grep -m1 'model name' /proc/cpuinfo
       - name: Test
         run: npm run test-frontend -- --coverage --shard=${{ matrix.shard }}/${{ strategy.job-total }}
       - name: Rename coverage
@@ -298,8 +281,9 @@ jobs:
     # these only ever compare against the linux baselines committed under __screenshots__; a diff is
     # uploaded on failure so the change can be reviewed rather than guessed at.
     runs-on: ubuntu-latest
-    needs: setup
-    if: ${{ needs.setup.outputs.frontend == 'true' }}
+    # Off sonar's path, so it waits for a short job rather than take a runner from one on it.
+    needs: [setup, integration]
+    if: ${{ !cancelled() && needs.setup.result == 'success' && needs.setup.outputs.frontend == 'true' }}
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-node@v7
@@ -342,15 +326,16 @@ jobs:
     # Browser tests of the main paths (KOE-396): the production frontend build against the built
     # lambda bundles, called in-process by e2e/server, with DynamoDB-local as the only container and
     # SES, SSM and Paytrail faked on localhost. Playwright starts and stops the servers itself.
-    # Sharded by test, one worker each; the `e2e` job below is the check the ruleset requires.
+    # Sharded by test, one worker each. Off sonar's path, so it waits for the frontend job, whose
+    # build it uses, rather than take runners from the jobs on it at the start.
     runs-on: ubuntu-latest
-    needs: setup
-    if: ${{ needs.setup.outputs.frontend == 'true' || needs.setup.outputs.backend == 'true' || needs.setup.outputs.e2e == 'true' }}
+    needs: [setup, frontend]
+    if: ${{ !cancelled() && needs.setup.result == 'success' && (needs.setup.outputs.frontend == 'true' || needs.setup.outputs.backend == 'true' || needs.setup.outputs.e2e == 'true') }}
     timeout-minutes: 15
     strategy:
       fail-fast: false
       matrix:
-        shard: [1, 2, 3]
+        shard: [1, 2]
     services:
       dynamodb:
         image: amazon/dynamodb-local
@@ -374,12 +359,22 @@ jobs:
       - name: Install packages
         if: steps.cache-restore.outputs.cache-hit != 'true'
         run: npm ci
+      - name: Runner CPU
+        run: grep -m1 'model name' /proc/cpuinfo
       - name: Build backend
         run: npm run build-backend
+      - name: Download the frontend build
+        if: ${{ needs.frontend.result == 'success' }}
+        uses: actions/download-artifact@v8
+        with:
+          name: frontend-e2e-build
+          path: build-e2e
+      # A change outside the frontend's scope skips the frontend job, and with it the build.
       - name: Build frontend
+        if: ${{ needs.frontend.result != 'success' }}
         run: npm run build-e2e-frontend
         env:
-          SKIP_TYPECHECK: 'true' # the frontend job type-checks the same sources
+          SKIP_TYPECHECK: 'true' # the lint job type-checks the same sources
       - name: Cache Playwright browsers
         id: playwright-cache
         uses: actions/cache@v6
@@ -403,29 +398,13 @@ jobs:
             test-results/e2e
           retention-days: 7
 
-  # The required check: one name for the sharded tests and their lint, failing when either did. A
-  # skipped run (nothing in scope) passes, as the skipped jobs themselves would.
-  e2e:
+  # Every lint in one job: the type-checks, biome and its ratchet once for all of src, the browser
+  # tests' sources and TESTS.md, knip, and the guides. Nothing waits for it, and it waits for the
+  # short frontend job so as not to take a runner from a job on sonar's path.
+  lint:
     runs-on: ubuntu-latest
-    needs: [setup, e2e-lint, e2e-test]
-    if: ${{ always() }}
-    steps:
-      - name: Check the e2e jobs
-        run: |
-          test "${{ needs.setup.result }}" = success || { echo "setup ended ${{ needs.setup.result }}"; exit 1; }
-          for result in ${{ needs.e2e-lint.result }} ${{ needs.e2e-test.result }}; do
-            case "$result" in
-              success | skipped) ;;
-              *) echo "an e2e job ended $result"; exit 1 ;;
-            esac
-          done
-
-  # The browser tests' own sources: no other lint covers e2e/, and TESTS.md must match the tests.
-  # Beside the e2e job rather than in it, so the browser tests do not wait for it.
-  e2e-lint:
-    runs-on: ubuntu-latest
-    needs: setup
-    if: ${{ needs.setup.outputs.frontend == 'true' || needs.setup.outputs.backend == 'true' || needs.setup.outputs.e2e == 'true' }}
+    needs: [setup, frontend]
+    if: ${{ !cancelled() && needs.setup.result == 'success' }}
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-node@v7
@@ -442,8 +421,37 @@ jobs:
       - name: Install packages
         if: steps.cache-restore.outputs.cache-hit != 'true'
         run: npm ci
-      - name: Lint
+      - name: Type-check the frontend
+        run: npm run lint-frontend
+      - name: Type-check the backend
+        run: npm run lint-backend
+      - name: Biome
+        run: npm run lint-biome
+      - name: Ratchet
+        run: npm run ratchet
+      - name: Lint the browser tests
         run: npm run lint-e2e
+      - name: Knip (unused files/exports/deps)
+        run: npm run knip
+      # The guides bind to the code: a control named by a translation key, a picture that is a visual
+      # test's reference, a translation with its source's digest. A binding that no longer holds fails
+      # here, before the guide reaches a reader (KOE-1397).
+      - name: Check the guides
+        run: npm run check-docs
+
+  # The check the ruleset requires: every job that tests the change, under one name. A job skipped
+  # for being out of the change's scope passes; one that failed, was cancelled or never ran fails it.
+  tests:
+    runs-on: ubuntu-latest
+    needs: [setup, lint, backend, frontend, frontend-test, visual-test, e2e-test, integration]
+    if: ${{ always() }}
+    steps:
+      - name: Check the jobs
+        env:
+          NEEDS: ${{ toJSON(needs) }}
+        run: |
+          echo "$NEEDS" | jq -r 'to_entries[] | "\(.key): \(.value.result)"'
+          echo "$NEEDS" | jq -e '.setup.result == "success" and all(.[]; .result == "success" or .result == "skipped")' > /dev/null
 
   integration:
     # The database layer against DynamoDB-local (KOE-1369): the tables are created from
@@ -498,7 +506,7 @@ jobs:
           key: ${{ github.ref_name }}-frontend-coverage-${{ github.run_id }}
 
   deploy-dev:
-    needs: [setup, backend, frontend, frontend-test, docs, integration]
+    needs: [setup, lint, backend, frontend, frontend-test, integration]
     if: ${{ always() && !failure() && !cancelled() && github.event_name == 'push' && (needs.setup.outputs.backend == 'true' || needs.setup.outputs.frontend == 'true') }}
     permissions:
       actions: read
