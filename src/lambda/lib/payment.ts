@@ -8,7 +8,6 @@ import type {
   JsonRegistration,
   JsonTransaction,
   Language,
-  Patch,
 } from '../../types'
 import type { PaytrailCallbackParams } from '../types/paytrail'
 import type { PaytrailError } from './paytrail'
@@ -25,7 +24,7 @@ import { LambdaError } from './lambda'
 import { logger } from './log'
 import { paytrail } from './paytrail'
 import { getRegistration, participantRegistrationResponse } from './registration'
-import { publishParticipantRegistrationPatches } from './ws/actions'
+import { publishParticipantRegistrationPatches, publishRegistrationPatches } from './ws/actions'
 import { buildParticipantPaymentPatch } from './ws/payloads'
 
 const { registrationTable, transactionTable } = CONFIG
@@ -104,24 +103,21 @@ export const releaseTransactionCreation = async (
 export const refundPaytrailErrorAudit = (error: PaytrailError) =>
   refundPaytrailFailedAudit(error.status, paytrailErrorText(error.error))
 
+/** The registration field a settled transaction's id is dropped from. */
+type OpenSetField = 'openPayments' | 'openRefunds'
+
 /**
  * A registration whose payment or refund was settled as failed, for whoever sends it on. The domain
- * writes the row and says what changed; broadcasting is the handler's job (KOE-1340, KOE-1529).
+ * writes the row and says which one changed; what the pages are told is read from the table when it
+ * is sent (`publishCancelledRegistration`), so no read after the settle's writes can fail it
+ * (KOE-1340, KOE-1529, KOE-1566).
  */
 export interface CancelledRegistration {
   eventId: string
-  organizerId: string
-  /**
-   * What the participant's page reads: the payment state of the settled row, built as PaymentSuccess
-   * builds its patch, so the pay offer comes back once nothing is open any more (KOE-1526, KOE-1529).
-   */
-  participantPatch: Patch<JsonRegistration>
-  patch: Patch<JsonRegistration> & { eventId: string; id: string }
+  /** The open set the transaction's id was dropped from: what the admins' patch carries. */
+  field: OpenSetField
   registrationId: string
 }
-
-/** The registration field a settled transaction's id is dropped from. */
-type OpenSetField = 'openPayments' | 'openRefunds'
 
 /**
  * True once the app itself has disposed of the transaction: applied it, marked it a duplicate, or
@@ -202,7 +198,7 @@ interface SettledTransaction {
   moved: boolean
   /** Whether this call's removal actually found the id still in the open set. */
   changed: boolean
-  /** Only set when `changed`: what to publish, built from a fresh, strongly consistent read. */
+  /** Only set when `changed`: which registration to publish, read fresh when it is sent. */
   cancelled?: CancelledRegistration
 }
 
@@ -219,9 +215,10 @@ interface SettleFailedTransactionAudit {
  * refusing to reuse it) still resolves correctly; the registration's open set is dropped
  * unconditionally second, so a repeat of either write changes nothing further. The audit row is
  * written only by the call whose own write moved the transaction (so two racing callbacks on the same
- * transaction write exactly one), and a patch is only built -- from a fresh, strongly consistent
- * re-read, never the row this call started with -- when this call's removal actually found the id
- * open, so only the call that changed something publishes.
+ * transaction write exactly one), and only the call whose removal actually found the id open answers
+ * `cancelled`, so only the call that changed something publishes. Nothing is read after the writes:
+ * the patches are built when they are sent, from a fresh, strongly consistent read, never the row
+ * this call started with (KOE-1566).
  */
 export const settleFailedTransaction = async (
   transaction: JsonTransaction,
@@ -245,33 +242,7 @@ export const settleFailedTransaction = async (
 
   if (!changed) return { changed, moved }
 
-  // Strongly consistent: another writer (recordDuplicatePayment, say) may be between its own two
-  // writes right now, and the patch must say what the row holds now, not what it held when this call
-  // started (KOE-1529).
-  const updatedRegistration = await dynamoDB.read<JsonRegistration>(
-    { eventId: registration.eventId, id: registration.id },
-    registrationTable,
-    true
-  )
-  if (!updatedRegistration) return { changed, moved }
-
-  const confirmedEvent = await getEvent<JsonConfirmedEvent>(registration.eventId)
-  return {
-    cancelled: {
-      eventId: registration.eventId,
-      organizerId: confirmedEvent.organizer.id,
-      participantPatch: await participantPaymentPatch(updatedRegistration, confirmedEvent),
-      patch: {
-        [field]: updatedRegistration[field],
-        eventId: registration.eventId,
-        id: registration.id,
-        updatedAt: updatedRegistration.updatedAt,
-      },
-      registrationId: registration.id,
-    },
-    changed,
-    moved,
-  }
+  return { cancelled: { eventId: registration.eventId, field, registrationId: registration.id }, changed, moved }
 }
 
 export const parseParams = (params: Partial<PaytrailCallbackParams>) => {
@@ -597,12 +568,16 @@ export const participantResponse = async (
 
 /**
  * The participant's payment patch of a stored registration, with its picture built the same way. The
- * subscribe answer, `settleFailedTransaction`'s cancel patch and PaymentSuccess's patches are built
- * through this: a row whose open set was just emptied loads nothing, which is exactly its state
+ * subscribe answer, `publishCancelledRegistration`'s entrant patch and the stored patches every
+ * other sender publishes (`storedParticipantPaymentPatch`) are built through this: a row whose open set was just emptied loads nothing, which is exactly its state
  * (KOE-1529).
  */
 export const participantPaymentPatch = async (registration: JsonRegistration, event: JsonConfirmedEvent) =>
   buildParticipantPaymentPatch(registration, event, await loadOpenPayments(registration.openPayments))
+
+/** The registration as stored now, read strongly consistent after the caller's own write. */
+const readStoredRegistration = (eventId: string, registrationId: string) =>
+  dynamoDB.read<JsonRegistration>({ eventId, id: registrationId }, registrationTable, true)
 
 /**
  * The participant's payment patch of a registration as it is stored now: read strongly consistent
@@ -610,22 +585,81 @@ export const participantPaymentPatch = async (registration: JsonRegistration, ev
  * changed meanwhile (KOE-1553). Undefined for a row that is not there.
  */
 export const storedParticipantPaymentPatch = async (event: JsonConfirmedEvent, registrationId: string) => {
-  const stored = await dynamoDB.read<JsonRegistration>(
-    { eventId: event.id, id: registrationId },
-    registrationTable,
-    true
-  )
+  const stored = await readStoredRegistration(event.id, registrationId)
   return stored ? participantPaymentPatch(stored, event) : undefined
 }
 
+const publishStoredParticipantPayments = (
+  eventId: string,
+  registrationIds: readonly string[],
+  loadEvent: () => Promise<JsonConfirmedEvent>
+) =>
+  publishParticipantRegistrationPatches(eventId, registrationIds, async (registrationId) =>
+    storedParticipantPaymentPatch(await loadEvent(), registrationId)
+  )
+
 /**
  * Tells the entrants of these registrations what their payment now looks like, each from the row as
- * stored (KOE-1553). Only the pages that are open get a patch, and only their rows are read.
+ * stored (KOE-1553). Only the pages that are open get a patch, and only their rows are read. Never
+ * rejects: a failure is logged and leaves the write before it as it was.
  */
 export const publishParticipantPayments = (event: JsonConfirmedEvent, registrationIds: readonly string[]) =>
-  publishParticipantRegistrationPatches(event.id, registrationIds, (registrationId) =>
-    storedParticipantPaymentPatch(event, registrationId)
-  )
+  publishStoredParticipantPayments(event.id, registrationIds, () => Promise.resolve(event))
+
+/**
+ * The same for a caller that holds only the event's id: the event is read inside the publisher's
+ * guard, and only when a page is open, so its read cannot fail the write before it either
+ * (PaymentSuccess, KOE-1566).
+ */
+export const publishParticipantPaymentsOfEvent = (eventId: string, registrationIds: readonly string[]) => {
+  let event: Promise<JsonConfirmedEvent> | undefined
+  return publishStoredParticipantPayments(eventId, registrationIds, () => {
+    event ??= getEvent<JsonConfirmedEvent>(eventId)
+    return event
+  })
+}
+
+/** The settled row and its event for `publishCancelledRegistration`; undefined when either cannot be had. */
+const readCancelledRegistration = async (eventId: string, registrationId: string) => {
+  try {
+    const [registration, event] = await Promise.all([
+      readStoredRegistration(eventId, registrationId),
+      getEvent<JsonConfirmedEvent>(eventId),
+    ])
+    return registration ? { event, registration } : undefined
+  } catch (error) {
+    logger.error('cancelled registration read failed', { error, eventId, registrationId })
+    return undefined
+  }
+}
+
+/**
+ * A registration whose payment or refund was settled as failed reaches two audiences: the
+ * organizer's admins watching the event get the open set and `updatedAt`, and the entrant looking at
+ * their own registration gets the payment picture (KOE-1526, KOE-1529). Both are built from one
+ * strongly consistent read taken after the settle's writes, so a writer caught between its own two
+ * writes (recordDuplicatePayment, say) is seen as the row holds it now. A live push never decides the outcome of
+ * the write before it: a failed read, audience lookup, build or send is logged, and this never
+ * rejects (KOE-1566).
+ */
+export const publishCancelledRegistration = async ({ eventId, field, registrationId }: CancelledRegistration) => {
+  const read = await readCancelledRegistration(eventId, registrationId)
+  if (!read) return
+  const { event, registration } = read
+
+  await Promise.all([
+    publishRegistrationPatches(
+      eventId,
+      [{ [field]: registration[field], eventId, id: registrationId, updatedAt: registration.updatedAt }],
+      event.organizer.id
+    ).catch((error: unknown) => {
+      logger.error('cancelled registration admin patch failed', { error, eventId, registrationId })
+    }),
+    publishParticipantRegistrationPatches(eventId, [registrationId], () =>
+      participantPaymentPatch(registration, event)
+    ),
+  ])
+}
 
 const shouldRefreshTransactionStatus = (transaction: JsonPaymentTransaction | JsonRefundTransaction) =>
   transaction.type === 'refund'

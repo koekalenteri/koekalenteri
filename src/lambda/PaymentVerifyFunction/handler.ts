@@ -7,9 +7,8 @@ import { CONFIG } from '../config'
 import { parseJSONWithFallback } from '../lib/json'
 import { lambda, response } from '../lib/lambda'
 import { logger } from '../lib/log'
-import { parseParams, settleFailedTransaction, verifyParams } from '../lib/payment'
+import { parseParams, publishCancelledRegistration, settleFailedTransaction, verifyParams } from '../lib/payment'
 import { getRegistration, getRegistrationEditToken } from '../lib/registration'
-import { publishCancelledRegistration } from '../lib/ws/actions'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 
 const dynamoDB = new CustomDynamoClient(CONFIG.transactionTable)

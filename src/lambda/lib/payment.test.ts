@@ -6,10 +6,12 @@ import type {
   JsonTransaction,
 } from '../../types'
 import type CustomDynamoClient from '../utils/CustomDynamoClient'
+import type { WebSocketConnection } from './ws/types'
 import { vi } from 'vitest'
 import { jsonEmptyEvent } from '../../__mockData__/emptyEvent'
 import { eventWithALOClassInvited, eventWithStaticDatesAnd3Classes } from '../../__mockData__/events'
 import { jsonRegistrationsToEventWithALOInvited } from '../../__mockData__/registrations'
+import { everyEntrantWatching } from '../test-utils/entrantPages'
 import { loggedLines } from '../test-utils/logs'
 
 const mockAudit = vi.fn<() => Promise<void>>()
@@ -26,17 +28,37 @@ vi.doMock('./audit', () => ({
   registrationAuditKey: (registration: { eventId: string; id: string }) => `${registration.eventId}:${registration.id}`,
 }))
 vi.doMock('./event', () => ({ getEvent: mockGetEvent }))
-// The entrants' publisher is the boundary: here every entrant named has the page open (KOE-1553).
+// The real publishers run, their failure handling included; the boundaries are the connection scans
+// and the broadcast. Every entrant named has the page open (KOE-1553), and the organizer has one
+// admin page open. Each payload sent reaches `mockToEntrant` or `mockToAdmins` by its scope.
 const mockToEntrant = vi.fn()
-vi.doMock('./ws/actions', () => ({
-  publishParticipantRegistrationPatches: async (
-    eventId: string,
-    registrationIds: readonly string[],
-    buildPatch: (registrationId: string) => Promise<unknown>
-  ) => {
-    for (const registrationId of registrationIds) {
-      mockToEntrant(eventId, registrationId, await buildPatch(registrationId))
+const mockToAdmins = vi.fn()
+const mockOrganizerAudience = vi.fn<() => Promise<WebSocketConnection[]>>()
+interface SentPayload {
+  eventId: string
+  patch: unknown
+  registrationId?: string
+  scope: string
+}
+vi.doMock('./ws/connectionSelectors', () => ({
+  organizerAudience: mockOrganizerAudience,
+  registrationsAudience: everyEntrantWatching,
+}))
+vi.doMock('./ws/broadcast', () => ({
+  broadcast: async ({
+    audience,
+    buildPayload,
+  }: {
+    audience: () => Promise<WebSocketConnection[]>
+    buildPayload: (audience: WebSocketConnection[], recipient: WebSocketConnection) => SentPayload
+  }) => {
+    const recipients = await audience()
+    for (const recipient of recipients) {
+      const { eventId, patch, registrationId, scope } = buildPayload(recipients, recipient)
+      if (scope === 'participant:registration-patch') mockToEntrant(eventId, registrationId, patch)
+      else mockToAdmins(eventId, patch)
     }
+    return { attempted: recipients.length, failed: 0, gone: 0, sent: recipients.length }
   },
 }))
 vi.doMock('./registration', async (importOriginal) => ({
@@ -66,7 +88,9 @@ const {
   participantPaymentPatch,
   participantResponse,
   paymentDescription,
+  publishCancelledRegistration,
   publishParticipantPayments,
+  publishParticipantPaymentsOfEvent,
   storedParticipantPaymentPatch,
   refundPaytrailErrorAudit,
   releaseTransactionCreation,
@@ -119,6 +143,7 @@ describe('payment', () => {
       state: 'confirmed',
     })
     mockAudit.mockResolvedValue(undefined)
+    mockOrganizerAudience.mockResolvedValue([{ connectionId: 'admin-page' }])
   })
 
   afterEach(() => {
@@ -502,6 +527,46 @@ describe('payment', () => {
       )
     })
 
+    it('publishParticipantPaymentsOfEvent reads the event once for the open pages (KOE-1566)', async () => {
+      const other: JsonRegistration = { ...withOpenPayment, id: 'other', openPayments: [], paidAmount: 50 }
+      mockGetEvent.mockResolvedValueOnce(event)
+      mockRead.mockResolvedValueOnce(withOpenPayment).mockResolvedValueOnce(other)
+      mockBatchGet.mockResolvedValueOnce([{ createdAt: minutesAgo(1), status: 'pending', type: 'payment' }])
+
+      await publishParticipantPaymentsOfEvent(event.id, [withOpenPayment.id, other.id])
+
+      expect(mockGetEvent).toHaveBeenCalledTimes(1)
+      expect(mockGetEvent).toHaveBeenCalledWith(event.id)
+      expect(mockRead).toHaveBeenCalledWith({ eventId: event.id, id: other.id }, expect.any(String), true)
+      expect(mockToEntrant).toHaveBeenCalledWith(
+        event.id,
+        withOpenPayment.id,
+        expect.objectContaining({ payment: expect.objectContaining({ canPay: false, status: 'inProgress' }) })
+      )
+      expect(mockToEntrant).toHaveBeenCalledWith(
+        event.id,
+        other.id,
+        expect.objectContaining({ payment: expect.objectContaining({ status: 'paid' }) })
+      )
+    })
+
+    it('publishParticipantPaymentsOfEvent logs a failed event read and never rejects (KOE-1566)', async () => {
+      const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined)
+      mockGetEvent.mockRejectedValueOnce(new Error('event table down'))
+
+      await expect(publishParticipantPaymentsOfEvent(event.id, [withOpenPayment.id])).resolves.toBeUndefined()
+
+      expect(mockToEntrant).not.toHaveBeenCalled()
+      expect(loggedLines(errorSpy)).toEqual([
+        expect.objectContaining({
+          eventId: event.id,
+          message: 'participant patch failed',
+          registrationId: withOpenPayment.id,
+        }),
+      ])
+      errorSpy.mockRestore()
+    })
+
     it('reads no open payments as not in progress, without calling batchGet', async () => {
       const registration: JsonRegistration = JSON.parse(JSON.stringify(jsonRegistrationsToEventWithALOInvited[0]))
 
@@ -530,7 +595,7 @@ describe('payment', () => {
       provider: 'paytrail',
     }
 
-    it('fails the transaction, drops it from the open set, audits once, and builds a fresh patch', async () => {
+    it('fails the transaction, drops it from the open set, audits once, and names what changed', async () => {
       // Not a frozen clock: with time frozen, two independent new Date() calls still read the same
       // instant, so a reverted shared `now` would pass this test too (round 3 finding, root-cause
       // reviewer). Spying new Date().toISOString()'s own return sequence is what actually falsifies
@@ -543,17 +608,11 @@ describe('payment', () => {
       vi.spyOn(Date.prototype, 'toISOString').mockReturnValueOnce(FIRST).mockReturnValueOnce(SECOND)
       mockUpdate.mockResolvedValueOnce({}) // failUnfinishedTransaction
       mockUpdate.mockResolvedValueOnce({ Attributes: { openPayments: ['transaction-1'] } }) // dropOpenTransaction
-      mockRead.mockResolvedValueOnce({ ...registration, openPayments: [] }) // the strongly consistent re-read
 
       const settled = await settleFailedTransaction(paymentTransaction, registration, 'openPayments', auditOptions)
 
       expect(settled.moved).toBe(true)
       expect(settled.changed).toBe(true)
-      expect(mockRead).toHaveBeenCalledWith(
-        { eventId: 'event-1', id: 'registration-1' },
-        expect.any(String),
-        true // strongly consistent (correction #2)
-      )
       // The secretary's incremental refresh reads updatedAt, and must see this as of the one moment
       // the failure actually happened (KOE-1529, round 1 part 2); both writes get FIRST, the one
       // value settleFailedTransaction actually computed, never SECOND.
@@ -580,16 +639,31 @@ describe('payment', () => {
         messageParams: { amount: 5000, provider: 'paytrail' },
         user: 'Test User',
       })
-      // What the caller broadcasts; sending it is the handler's job (KOE-1340).
-      expect(settled.cancelled).toMatchObject({
-        eventId: 'event-1',
-        organizerId: 'organizer-1',
-        participantPatch: expect.objectContaining({
-          payment: expect.objectContaining({ canPay: true, status: 'unpaid' }),
-        }),
-        patch: { eventId: 'event-1', id: 'registration-1', openPayments: [] },
-        registrationId: 'registration-1',
+      // Which registration the caller publishes; what it is told is read when it is sent (KOE-1566).
+      expect(settled.cancelled).toEqual({ eventId: 'event-1', field: 'openPayments', registrationId: 'registration-1' })
+      expect(mockRead).not.toHaveBeenCalled()
+      expect(mockGetEvent).not.toHaveBeenCalled()
+    })
+
+    // Nothing after the writes may fail the settle: the money write is done, and a callback answered
+    // with an error would only be retried into `changed=false` (KOE-1566).
+    it.each([
+      ['the event read', () => mockGetEvent.mockRejectedValue(new Error('event table down'))],
+      ['the strongly consistent registration read', () => mockRead.mockRejectedValue(new Error('read throttled'))],
+    ])('still settles when %s would fail', async (_name, failRead) => {
+      failRead()
+      mockUpdate.mockResolvedValueOnce({}) // failUnfinishedTransaction
+      mockUpdate.mockResolvedValueOnce({ Attributes: { openPayments: ['transaction-1'] } }) // dropOpenTransaction
+
+      const settled = await settleFailedTransaction(paymentTransaction, registration, 'openPayments', auditOptions)
+
+      expect(settled).toEqual({
+        cancelled: { eventId: 'event-1', field: 'openPayments', registrationId: 'registration-1' },
+        changed: true,
+        moved: true,
       })
+      expect(mockUpdate).toHaveBeenCalledTimes(2)
+      expect(mockAudit).toHaveBeenCalledTimes(1)
     })
 
     it('still drops and publishes a retry that finds the transaction already failed (rule 6, C12)', async () => {
@@ -597,7 +671,6 @@ describe('payment', () => {
       conflict.name = 'ConditionalCheckFailedException'
       mockUpdate.mockRejectedValueOnce(conflict) // failUnfinishedTransaction: already fail
       mockUpdate.mockResolvedValueOnce({ Attributes: { openPayments: ['transaction-1'] } }) // still open
-      mockRead.mockResolvedValueOnce({ ...registration, openPayments: [] })
 
       const settled = await settleFailedTransaction(paymentTransaction, registration, 'openPayments', auditOptions)
 
@@ -617,26 +690,125 @@ describe('payment', () => {
       expect(settled.cancelled).toBeUndefined()
       expect(mockRead).not.toHaveBeenCalled()
     })
+  })
 
-    it('reads the registration fresh, not the row it started with, so a racing recordDuplicatePayment wins', async () => {
-      // KOE-1529 correction: recordDuplicatePayment writes the transaction (duplicatePaymentAt) and the
-      // registration (paymentStatus: DUPLICATE) as two separate updates. A settle call racing into that
-      // gap sees the transaction already resolved (moved: false) but can still find the id open
-      // (changed: true) if it beats the registration write. The published patch must say DUPLICATE, not
-      // the stale row this call started with.
-      const conflict = new Error('conditional check failed')
-      conflict.name = 'ConditionalCheckFailedException'
-      mockUpdate.mockRejectedValueOnce(conflict)
-      mockUpdate.mockResolvedValueOnce({ Attributes: { openPayments: ['transaction-1'] } })
-      mockRead.mockResolvedValueOnce({
-        ...registration,
-        openPayments: [],
-        paymentStatus: 'DUPLICATE',
-      })
+  // Both audiences of a settled failure, from one strongly consistent read after the settle's writes
+  // (KOE-1529), and never failing the request (KOE-1566).
+  describe('publishCancelledRegistration', () => {
+    const cancelled = { eventId: 'event-1', field: 'openPayments', registrationId: 'registration-1' } as const
+    const settledRow: JsonRegistration = {
+      ...JSON.parse(JSON.stringify(jsonRegistrationsToEventWithALOInvited[0])),
+      eventId: 'event-1',
+      id: 'registration-1',
+      openPayments: [],
+      paidAmount: undefined,
+      updatedAt: '2026-08-16T12:00:00.000Z',
+    }
+    let errorSpy: ReturnType<typeof vi.spyOn>
 
-      const settled = await settleFailedTransaction(paymentTransaction, registration, 'openPayments', auditOptions)
+    beforeEach(() => {
+      errorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined)
+      mockRead.mockResolvedValue(settledRow)
+    })
 
-      expect(settled.cancelled?.participantPatch).toMatchObject({ paymentStatus: 'DUPLICATE' })
+    afterEach(() => {
+      errorSpy.mockRestore()
+    })
+
+    it('sends the admins the open set and the entrant the picture, from one consistent read', async () => {
+      await publishCancelledRegistration(cancelled)
+
+      expect(mockRead).toHaveBeenCalledTimes(1)
+      expect(mockRead).toHaveBeenCalledWith({ eventId: 'event-1', id: 'registration-1' }, expect.any(String), true)
+      expect(mockOrganizerAudience).toHaveBeenCalledWith('organizer-1', 'event-1')
+      expect(mockToAdmins).toHaveBeenCalledWith('event-1', [
+        { eventId: 'event-1', id: 'registration-1', openPayments: [], updatedAt: '2026-08-16T12:00:00.000Z' },
+      ])
+      expect(mockToEntrant).toHaveBeenCalledWith(
+        'event-1',
+        'registration-1',
+        expect.objectContaining({
+          payment: expect.objectContaining({ canPay: true, status: 'unpaid' }),
+          updatedAt: '2026-08-16T12:00:00.000Z',
+        })
+      )
+      expect(loggedLines(errorSpy)).toEqual([])
+    })
+
+    it('reads the registration fresh, so a racing recordDuplicatePayment wins', async () => {
+      // KOE-1529 correction: recordDuplicatePayment writes the transaction and the registration
+      // (paymentStatus: DUPLICATE) as two separate updates. A settle racing into that gap still finds
+      // the id open; what is published must say what the row holds when it is sent.
+      mockRead.mockResolvedValueOnce({ ...settledRow, paymentStatus: 'DUPLICATE' })
+
+      await publishCancelledRegistration(cancelled)
+
+      expect(mockToEntrant).toHaveBeenCalledWith(
+        'event-1',
+        'registration-1',
+        expect.objectContaining({ paymentStatus: 'DUPLICATE' })
+      )
+    })
+
+    it('sends nothing for a row that is gone', async () => {
+      mockRead.mockResolvedValueOnce(undefined)
+
+      await publishCancelledRegistration(cancelled)
+
+      expect(mockToAdmins).not.toHaveBeenCalled()
+      expect(mockToEntrant).not.toHaveBeenCalled()
+      expect(loggedLines(errorSpy)).toEqual([])
+    })
+
+    it.each([
+      ['the registration read', () => mockRead.mockRejectedValueOnce(new Error('read throttled'))],
+      ['the event read', () => mockGetEvent.mockRejectedValueOnce(new Error('event table down'))],
+    ])('logs and resolves when %s fails', async (_name, failRead) => {
+      failRead()
+
+      await expect(publishCancelledRegistration(cancelled)).resolves.toBeUndefined()
+
+      expect(mockToAdmins).not.toHaveBeenCalled()
+      expect(mockToEntrant).not.toHaveBeenCalled()
+      expect(loggedLines(errorSpy)).toEqual([
+        expect.objectContaining({ message: 'cancelled registration read failed', registrationId: 'registration-1' }),
+      ])
+    })
+
+    it('still sends the admins their patch when the entrant picture cannot be built', async () => {
+      mockRead.mockResolvedValueOnce({ ...settledRow, openPayments: ['transaction-2'] })
+      mockBatchGet.mockRejectedValueOnce(new Error('transaction table down'))
+
+      await expect(publishCancelledRegistration(cancelled)).resolves.toBeUndefined()
+
+      expect(mockToAdmins).toHaveBeenCalledTimes(1)
+      expect(mockToEntrant).not.toHaveBeenCalled()
+      expect(loggedLines(errorSpy)).toEqual([
+        expect.objectContaining({ message: 'participant patch failed', registrationId: 'registration-1' }),
+      ])
+    })
+
+    it.each([
+      ['the admin audience cannot be read', () => mockOrganizerAudience.mockRejectedValueOnce(new Error('down'))],
+      [
+        'the admin send fails',
+        () =>
+          mockToAdmins.mockImplementationOnce(() => {
+            throw new Error('gateway refused')
+          }),
+      ],
+    ])('still sends the entrant the picture when %s', async (_name, failAdmins) => {
+      failAdmins()
+
+      await expect(publishCancelledRegistration(cancelled)).resolves.toBeUndefined()
+
+      expect(mockToEntrant).toHaveBeenCalledTimes(1)
+      expect(loggedLines(errorSpy)).toEqual([
+        expect.objectContaining({
+          message: 'cancelled registration admin patch failed',
+          registrationId: 'registration-1',
+        }),
+      ])
     })
   })
 

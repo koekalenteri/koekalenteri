@@ -1,5 +1,6 @@
 import type { AuditMessage } from '../../lib/audit'
 import type { JsonRefundTransaction } from '../../types'
+import type { CancelledRegistration } from '../lib/payment'
 import { vi } from 'vitest'
 import { constructAPIGwEvent } from '../test-utils/helpers'
 import { loggedLines } from '../test-utils/logs'
@@ -13,12 +14,9 @@ const mockSettleFailedTransaction = vi.fn<(...args: unknown[]) => Promise<{ canc
 const mockPublishCancelledRegistration = vi.fn()
 
 vi.doMock('../lib/payment', () => ({
+  publishCancelledRegistration: mockPublishCancelledRegistration,
   resolveCallbackTransaction: mockResolveCallbackTransaction,
   settleFailedTransaction: mockSettleFailedTransaction,
-}))
-
-vi.doMock('../lib/ws/actions', () => ({
-  publishCancelledRegistration: mockPublishCancelledRegistration,
 }))
 
 const { default: refundCancelLambda } = await import('./handler')
@@ -106,11 +104,9 @@ describe('refundCancelLambda', () => {
   it('publishes whatever the step found changed', async () => {
     const cancelled = {
       eventId: 'event123',
-      organizerId: 'org1',
-      participantPatch: {},
-      patch: {},
+      field: 'openRefunds',
       registrationId: 'reg456',
-    }
+    } satisfies CancelledRegistration
     mockSettleFailedTransaction.mockResolvedValueOnce({ cancelled })
 
     await refundCancelLambda(constructAPIGwEvent('test', { query: { 'checkout-transaction-id': 'tx123' } }))

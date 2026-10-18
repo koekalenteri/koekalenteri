@@ -1,5 +1,4 @@
 import { vi } from 'vitest'
-import { paymentPictureWith } from '../../../__mockData__/paymentPicture'
 import { loggedLines } from '../../test-utils/logs'
 
 /** What a publish hands the broadcaster: who gets it, and what they get. */
@@ -18,7 +17,6 @@ const mockRemoveConnection = vi.fn().mockResolvedValue(undefined)
 const mockEventAudience = vi.fn().mockReturnValue([])
 const mockOrganizerAudience = vi.fn().mockReturnValue([])
 const mockPublicAudience = vi.fn().mockReturnValue([])
-const mockRegistrationAudience = vi.fn().mockReturnValue([])
 const mockRegistrationsAudience = vi.fn().mockResolvedValue([])
 const mockAdminAudience = vi.fn().mockReturnValue([])
 const mockBuildEventPatchPayload = vi.fn((eventId: string, patch: object) => ({ eventId, ...patch }))
@@ -50,7 +48,6 @@ vi.doMock('./connectionSelectors', () => ({
   eventAudience: mockEventAudience,
   organizerAudience: mockOrganizerAudience,
   publicAudience: mockPublicAudience,
-  registrationAudience: mockRegistrationAudience,
   registrationsAudience: mockRegistrationsAudience,
 }))
 
@@ -67,12 +64,10 @@ const {
   publishEventPatch,
   publishRegistrationPatches,
   publishRegistrationPatchesStrict,
-  publishParticipantRegistrationPatch,
   publishParticipantRegistrationPatches,
   publishAdminDataInvalidation,
   publishEventViewers,
   publishEventChange,
-  publishCancelledRegistration,
 } = await import('./actions')
 
 describe('ws/actions', () => {
@@ -211,22 +206,6 @@ describe('ws/actions', () => {
     )
   })
 
-  it('publishes participant registration patches only to matching subscribers', async () => {
-    const patch = { id: 'r1', paymentStatus: 'SUCCESS' as const }
-    await publishParticipantRegistrationPatch('e1', 'r1', patch)
-
-    const call = broadcastConfigurations[0] as { audience: () => Promise<unknown[]>; buildPayload: () => unknown }
-    await call.audience()
-
-    expect(mockRegistrationAudience).toHaveBeenCalledWith('e1', 'r1')
-    expect(call.buildPayload()).toEqual({
-      eventId: 'e1',
-      patch,
-      registrationId: 'r1',
-      scope: 'participant:registration-patch',
-    })
-  })
-
   describe('publishParticipantRegistrationPatches (KOE-1553)', () => {
     const connection = (connectionId: string, registrationId: string) => ({
       connectionId,
@@ -335,26 +314,6 @@ describe('ws/actions', () => {
         expect.objectContaining({ eventId: 'e1', message: 'participant patch audience failed' }),
       ])
       errorSpy.mockRestore()
-    })
-  })
-
-  // KOE-1526 review: the admins get what changed, the participant the payment state their page reads.
-  it('publishes a cancelled payment to the admins as a change and to the participant as payment state', async () => {
-    const patch = { eventId: 'e1', id: 'r1', paymentStatus: 'CANCEL' as const, updatedAt: '2026-08-01T00:00:00.000Z' }
-    const participantPatch = { ...patch, payment: paymentPictureWith({ canPay: true, due: 50 }) }
-    await publishCancelledRegistration({
-      eventId: 'e1',
-      organizerId: 'o1',
-      participantPatch,
-      patch,
-      registrationId: 'r1',
-    })
-
-    expect(broadcastConfigurations.at(-1)?.buildPayload()).toEqual({
-      eventId: 'e1',
-      patch: participantPatch,
-      registrationId: 'r1',
-      scope: 'participant:registration-patch',
     })
   })
 

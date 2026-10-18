@@ -5,8 +5,7 @@ import { formatMoney } from '../../lib/money'
 import { getProviderName, transactionActor } from '../../lib/payment'
 import { lambda, response } from '../lib/lambda'
 import { logger } from '../lib/log'
-import { resolveCallbackTransaction, settleFailedTransaction } from '../lib/payment'
-import { publishCancelledRegistration } from '../lib/ws/actions'
+import { publishCancelledRegistration, resolveCallbackTransaction, settleFailedTransaction } from '../lib/payment'
 
 /**
  * refundCancel is called by payment provider, to update cancelled refund status

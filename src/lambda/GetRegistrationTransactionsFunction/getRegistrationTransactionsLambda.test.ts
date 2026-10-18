@@ -1,3 +1,4 @@
+import type { CancelledRegistration } from '../lib/payment'
 import { vi } from 'vitest'
 import { httpError } from '../lib/lambda'
 import { answerRejections, constructPartialAPIGwEvent } from '../test-utils/helpers'
@@ -37,15 +38,12 @@ vi.doMock('../lib/event', () => ({
 
 vi.doMock('../lib/payment', () => ({
   getTransactionsByReference: mockGetTransactionsByReference,
+  publishCancelledRegistration: mockPublishCancelledRegistration,
   refreshTransactionStatusesFromPaytrail: mockRefreshTransactionStatusesFromPaytrail,
 }))
 
 vi.doMock('../lib/registration', () => ({
   getRegistration: mockGetRegistration,
-}))
-
-vi.doMock('../lib/ws/actions', () => ({
-  publishCancelledRegistration: mockPublishCancelledRegistration,
 }))
 
 const { default: getRegistrationTransactionsLambda } = await import('./handler')
@@ -160,11 +158,9 @@ describe('getRegistrationTransactionsLambda', () => {
     ]
     const cancelled = {
       eventId,
-      organizerId: 'org1',
-      participantPatch: {},
-      patch: { eventId, id: regId },
+      field: 'openPayments',
       registrationId: regId,
-    }
+    } satisfies CancelledRegistration
 
     mockGetParam.mockReturnValueOnce(eventId).mockReturnValueOnce(regId)
     mockGetTransactionsByReference.mockResolvedValueOnce(transactions)
