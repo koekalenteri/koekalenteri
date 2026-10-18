@@ -11,7 +11,6 @@ import { getEvent } from '../lib/event'
 import { LambdaError, lambda, response } from '../lib/lambda'
 import { logger } from '../lib/log'
 import {
-  applySuccessfulRefund,
   parseParams,
   publishCancelledRegistration,
   publishParticipantPayments,
@@ -20,11 +19,11 @@ import {
   verifyParams,
 } from '../lib/payment'
 import { clearRegistrationEmailDeliveryStatus, getRegistration, getRegistrationEditToken } from '../lib/registration'
+import { readRegistrationConsistently } from '../lib/repositories/registrationRepository'
+import { applySuccessfulRefund, readTransaction } from '../lib/repositories/transactionRepository'
 import { publishRegistrationPatches } from '../lib/ws/actions'
-import CustomDynamoClient from '../utils/CustomDynamoClient'
 
-const { frontendURL, emailFrom, registrationTable, transactionTable } = CONFIG
-const dynamoDB = new CustomDynamoClient(transactionTable)
+const { frontendURL, emailFrom } = CONFIG
 
 /**
  * refundSuccess is called by payment provider, to update successful refund status
@@ -41,7 +40,7 @@ const refundSuccessLambda = lambda('refundSuccess', async (event) => {
   }
   if (!transactionId) throw new LambdaError(400, 'Missing transaction id')
 
-  const storedTransaction = await dynamoDB.read<JsonRefundTransaction>({ transactionId })
+  const storedTransaction = await readTransaction<JsonRefundTransaction>(transactionId)
   const callbackAmount = Number.parseInt(params['checkout-amount'] ?? '', 10)
   if (!storedTransaction && status !== 'ok') {
     throw new LambdaError(404, `Transaction with id '${transactionId}' was not found`)
@@ -104,11 +103,7 @@ const refundSuccessLambda = lambda('refundSuccess', async (event) => {
   // just DELETEd this transaction's id from openRefunds in the same atomic write, and the admin
   // patch below must say so, or an open tab keeps showing "palautus kesken" until a reload
   // (KOE-1529).
-  const updatedRegistration = await dynamoDB.read<JsonRegistration>(
-    { eventId, id: registrationId },
-    registrationTable,
-    true
-  )
+  const updatedRegistration = await readRegistrationConsistently(eventId, registrationId)
 
   const t = getFixedT(registration.language)
   const amount = transaction.amount / 100

@@ -17,3 +17,7 @@ export const isAwsServiceError = (
 
 export const isConditionalCheckFailure = (error: unknown) =>
   isAwsServiceError(error) && error.name === 'ConditionalCheckFailedException'
+
+/** A transaction DynamoDB cancelled, a condition of one of its items failing among the reasons. */
+export const isTransactionCanceled = (error: unknown) =>
+  isAwsServiceError(error) && error.name === 'TransactionCanceledException'

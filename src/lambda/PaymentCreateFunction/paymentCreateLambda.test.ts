@@ -8,14 +8,12 @@ import { constructAPIGwEvent } from '../test-utils/helpers'
 const mockAuthorize = vi.fn<() => Promise<{ id: string; name: string } | null>>()
 const mockGetEvent = vi.fn<() => Promise<JsonDogEvent | undefined>>()
 const mockCreatePayment = vi.fn<() => Promise<CreatePaymentResponse | null>>()
-const mockGetTransactionsByReference = vi.fn<() => Promise<any[] | undefined>>()
+const mockReadTransactionsByReference = vi.fn<() => Promise<any[] | undefined>>()
 const mockFailUnfinishedTransaction = vi.fn<() => Promise<boolean>>()
 const mockDropOpenTransaction = vi.fn<() => Promise<boolean>>()
 const mockRead =
   vi.fn<(_key: Record<string, string>, _tableName: string) => Promise<JsonRegistration | Organizer | undefined>>()
-const mockWrite = vi.fn()
-const mockUpdate = vi.fn()
-const mockDocumentTransaction = vi.fn<() => Promise<unknown>>()
+const mockCreatePaymentTransaction = vi.fn<() => Promise<void>>()
 const mockClaimTransactionCreation = vi.fn<() => Promise<boolean>>(() => Promise.resolve(true))
 const mockReleaseTransactionCreation = vi.fn<() => Promise<void>>(() => Promise.resolve())
 const mockAuthorizeRegistrationEdit = vi.fn<() => string>(() => 'test-edit-token')
@@ -52,12 +50,8 @@ vi.doMock('../lib/paytrail', () => ({
 }))
 
 vi.doMock('../lib/payment', () => ({
-  claimTransactionCreation: mockClaimTransactionCreation,
   dropOpenTransaction: mockDropOpenTransaction,
-  failUnfinishedTransaction: mockFailUnfinishedTransaction,
-  getTransactionsByReference: mockGetTransactionsByReference,
   paymentDescription: vi.fn(() => 'Test Type 1.–2.1. Test Location Test Event'),
-  releaseTransactionCreation: mockReleaseTransactionCreation,
 }))
 
 vi.doMock('../lib/registration', () => ({
@@ -70,15 +64,15 @@ vi.doMock('../lib/repositories/organizerRepository', () => ({
   readOrganizer: async (id: string) => mockRead({ id }, 'organizer-table'),
 }))
 
-vi.doMock('../utils/CustomDynamoClient', () => ({
-  default: vi.fn(function MockCustomDynamoClient() {
-    return {
-      documentTransaction: mockDocumentTransaction,
-      read: mockRead,
-      update: mockUpdate,
-      write: mockWrite,
-    }
-  }),
+vi.doMock('../lib/repositories/registrationRepository', () => ({
+  claimTransactionCreation: mockClaimTransactionCreation,
+  releaseTransactionCreation: mockReleaseTransactionCreation,
+}))
+
+vi.doMock('../lib/repositories/transactionRepository', () => ({
+  createPaymentTransaction: mockCreatePaymentTransaction,
+  failUnfinishedTransaction: mockFailUnfinishedTransaction,
+  readTransactionsByReference: mockReadTransactionsByReference,
 }))
 
 const { default: paymentCreateLambda } = await import('./handler')
@@ -189,7 +183,7 @@ describe('paymentCreateLambda', () => {
       .mockResolvedValueOnce(createMockOrganizer()) // for organizer
     mockCreatePayment.mockResolvedValue(createMockPaymentResponse())
     mockAuthorize.mockResolvedValue({ id: 'user123', name: 'Test User' })
-    mockGetTransactionsByReference.mockResolvedValue([])
+    mockReadTransactionsByReference.mockResolvedValue([])
     mockFailUnfinishedTransaction.mockResolvedValue(true)
     mockDropOpenTransaction.mockResolvedValue(true)
   })
@@ -227,45 +221,35 @@ describe('paymentCreateLambda', () => {
       stamp: expect.any(String),
     })
 
-    expect(mockDocumentTransaction).toHaveBeenCalledWith([
-      {
-        Put: expect.objectContaining({
-          ConditionExpression: 'attribute_not_exists(transactionId)',
-          Item: expect.objectContaining({
+    // What the transaction holds; the write itself, with the registration's open set, is the
+    // repository's (transactionRepository.test.ts).
+    expect(mockCreatePaymentTransaction).toHaveBeenCalledWith(
+      expect.objectContaining({
+        amount: expectedAmount,
+        bankReference: 'ref123',
+        // What is kept is the application's own shape, not Paytrail's: the provider's line
+        // shape is built from this on the way out (KOE-1337).
+        items: [
+          {
             amount: expectedAmount,
-            bankReference: 'ref123',
-            // What is kept is the application's own shape, not Paytrail's: the provider's line
-            // shape is built from this on the way out (KOE-1337).
-            items: [
-              {
-                amount: expectedAmount,
-                description: 'Test Type 1.–2.1. Test Location Test Event',
-                eventId: 'event123',
-                merchantId: 'merchant123',
-                registrationId: 'reg456',
-                stamp: expect.any(String),
-              },
-            ],
-            paymentResponse: createMockPaymentResponse(),
-            reference: 'event123:reg456',
-            status: 'new',
-            transactionId: 'tx123',
-            type: 'payment',
-            user: 'Test User',
-          }),
-        }),
-      },
-      {
-        // Rule 1: opens, never writes paymentStatus PENDING any more (KOE-1529).
-        Update: expect.objectContaining({
-          ConditionExpression: 'attribute_exists(id)',
-          ExpressionAttributeValues: expect.objectContaining({ ':transactionId': new Set(['tx123']) }),
-          Key: { eventId: 'event123', id: 'reg456' },
-          UpdateExpression:
-            'SET updatedAt = :updatedAt REMOVE paymentCreationAt, paymentCreationStamp ADD openPayments :transactionId',
-        }),
-      },
-    ])
+            description: 'Test Type 1.–2.1. Test Location Test Event',
+            eventId: 'event123',
+            merchantId: 'merchant123',
+            registrationId: 'reg456',
+            stamp: expect.any(String),
+          },
+        ],
+        paymentResponse: createMockPaymentResponse(),
+        reference: 'event123:reg456',
+        status: 'new',
+        transactionId: 'tx123',
+        type: 'payment',
+        user: 'Test User',
+      }),
+      'event123',
+      'reg456',
+      expect.any(String)
+    )
 
     expect(result.statusCode).toEqual(200)
     expect(JSON.parse(result.body)).toEqual(createMockPaymentResponse())
@@ -321,10 +305,10 @@ describe('paymentCreateLambda', () => {
       expect(mockAuthorizeRegistrationEdit).toHaveBeenCalledWith(event, createMockRegistration())
       expect(mockGetEvent).not.toHaveBeenCalled()
       expect(mockRead).toHaveBeenCalledTimes(1)
-      expect(mockGetTransactionsByReference).not.toHaveBeenCalled()
+      expect(mockReadTransactionsByReference).not.toHaveBeenCalled()
       expect(mockClaimTransactionCreation).not.toHaveBeenCalled()
       expect(mockCreatePayment).not.toHaveBeenCalled()
-      expect(mockDocumentTransaction).not.toHaveBeenCalled()
+      expect(mockCreatePaymentTransaction).not.toHaveBeenCalled()
     } finally {
       errorSpy.mockRestore()
     }
@@ -338,9 +322,9 @@ describe('paymentCreateLambda', () => {
 
     expect(result.statusCode).toBe(409)
     expect(JSON.parse(result.body)).toEqual('Duplicate payment requires a refund')
-    expect(mockGetTransactionsByReference).not.toHaveBeenCalled()
+    expect(mockReadTransactionsByReference).not.toHaveBeenCalled()
     expect(mockCreatePayment).not.toHaveBeenCalled()
-    expect(mockDocumentTransaction).not.toHaveBeenCalled()
+    expect(mockCreatePaymentTransaction).not.toHaveBeenCalled()
   })
 
   it('rejects a concurrent payment creation before calling Paytrail', async () => {
@@ -488,8 +472,7 @@ describe('paymentCreateLambda', () => {
 
     expect(result.statusCode).toEqual(500)
     expect(result.body).toBeUndefined()
-    expect(mockWrite).not.toHaveBeenCalled()
-    expect(mockUpdate).not.toHaveBeenCalled()
+    expect(mockCreatePaymentTransaction).not.toHaveBeenCalled()
   })
 
   // Paytrail's own words at its own status, marked as Paytrail's: the payment page puts them in the
@@ -505,8 +488,7 @@ describe('paymentCreateLambda', () => {
     expect(result.statusCode).toEqual(status)
     expect(JSON.parse(result.body)).toEqual({ error: paytrailError, provider: 'paytrail' })
     expect(mockReleaseTransactionCreation).toHaveBeenCalledTimes(1)
-    expect(mockWrite).not.toHaveBeenCalled()
-    expect(mockUpdate).not.toHaveBeenCalled()
+    expect(mockCreatePaymentTransaction).not.toHaveBeenCalled()
   })
 
   it('marks a Paytrail 5xx without words as Paytrail, with an empty error', async () => {
@@ -550,14 +532,11 @@ describe('paymentCreateLambda', () => {
 
     await paymentCreateLambda(event)
 
-    expect(mockDocumentTransaction).toHaveBeenCalledWith(
-      expect.arrayContaining([
-        {
-          Put: expect.objectContaining({
-            Item: expect.objectContaining({ user: 'Test Payer', userSource: 'registration' }),
-          }),
-        },
-      ])
+    expect(mockCreatePaymentTransaction).toHaveBeenCalledWith(
+      expect.objectContaining({ user: 'Test Payer', userSource: 'registration' }),
+      'event123',
+      'reg456',
+      expect.any(String)
     )
   })
 
@@ -566,10 +545,11 @@ describe('paymentCreateLambda', () => {
 
     await paymentCreateLambda(event)
 
-    expect(mockDocumentTransaction).toHaveBeenCalledWith(
-      expect.arrayContaining([
-        { Put: expect.objectContaining({ Item: expect.not.objectContaining({ userSource: expect.anything() }) }) },
-      ])
+    expect(mockCreatePaymentTransaction).toHaveBeenCalledWith(
+      expect.not.objectContaining({ userSource: expect.anything() }),
+      'event123',
+      'reg456',
+      expect.any(String)
     )
   })
 
@@ -657,14 +637,14 @@ describe('paymentCreateLambda', () => {
       transactionId: 'oldTx',
       type: 'payment',
     }
-    mockGetTransactionsByReference.mockResolvedValue([existingTransaction])
+    mockReadTransactionsByReference.mockResolvedValue([existingTransaction])
 
     await paymentCreateLambda(event)
 
-    expect(mockGetTransactionsByReference).toHaveBeenCalledWith('event123:reg456')
+    expect(mockReadTransactionsByReference).toHaveBeenCalledWith('event123:reg456')
     // Resolved and dropped, with no audit row: nothing failed here, the attempt was simply never
     // finished (KOE-1529).
-    expect(mockFailUnfinishedTransaction).toHaveBeenCalledWith(existingTransaction)
+    expect(mockFailUnfinishedTransaction).toHaveBeenCalledWith(existingTransaction.transactionId)
     expect(mockDropOpenTransaction).toHaveBeenCalledWith(
       expect.objectContaining({ eventId: 'event123', id: 'reg456' }),
       'openPayments',
@@ -681,11 +661,11 @@ describe('paymentCreateLambda', () => {
       transactionId: 'oldPendingTx',
       type: 'payment',
     }
-    mockGetTransactionsByReference.mockResolvedValue([existingTransaction])
+    mockReadTransactionsByReference.mockResolvedValue([existingTransaction])
 
     await paymentCreateLambda(event)
 
-    expect(mockFailUnfinishedTransaction).toHaveBeenCalledWith(existingTransaction)
+    expect(mockFailUnfinishedTransaction).toHaveBeenCalledWith(existingTransaction.transactionId)
     expect(mockDropOpenTransaction).toHaveBeenCalledWith(
       expect.objectContaining({ eventId: 'event123', id: 'reg456' }),
       'openPayments',
@@ -716,12 +696,12 @@ describe('paymentCreateLambda', () => {
       transactionId: 'freshPendingTx',
       type: 'payment',
     }
-    mockGetTransactionsByReference.mockResolvedValue([staleTx1, staleTx2, freshPendingTx])
+    mockReadTransactionsByReference.mockResolvedValue([staleTx1, staleTx2, freshPendingTx])
 
     const result = await paymentCreateLambda(event)
 
-    expect(mockFailUnfinishedTransaction).toHaveBeenNthCalledWith(1, staleTx1)
-    expect(mockFailUnfinishedTransaction).toHaveBeenNthCalledWith(2, staleTx2)
+    expect(mockFailUnfinishedTransaction).toHaveBeenNthCalledWith(1, staleTx1.transactionId)
+    expect(mockFailUnfinishedTransaction).toHaveBeenNthCalledWith(2, staleTx2.transactionId)
     expect(mockDropOpenTransaction).toHaveBeenNthCalledWith(
       1,
       expect.objectContaining({ eventId: 'event123', id: 'reg456' }),
@@ -775,12 +755,12 @@ describe('paymentCreateLambda', () => {
       transactionId: 'reusableTx',
       type: 'payment',
     }
-    mockGetTransactionsByReference.mockResolvedValue([staleTx1, staleTx2, reusableTx])
+    mockReadTransactionsByReference.mockResolvedValue([staleTx1, staleTx2, reusableTx])
 
     const result = await paymentCreateLambda(event)
 
-    expect(mockFailUnfinishedTransaction).toHaveBeenNthCalledWith(1, staleTx1)
-    expect(mockFailUnfinishedTransaction).toHaveBeenNthCalledWith(2, staleTx2)
+    expect(mockFailUnfinishedTransaction).toHaveBeenNthCalledWith(1, staleTx1.transactionId)
+    expect(mockFailUnfinishedTransaction).toHaveBeenNthCalledWith(2, staleTx2.transactionId)
     expect(mockDropOpenTransaction).toHaveBeenNthCalledWith(
       1,
       expect.objectContaining({ eventId: 'event123', id: 'reg456' }),
@@ -814,7 +794,7 @@ describe('paymentCreateLambda', () => {
       transactionId: 'freshPendingTx',
       type: 'payment',
     }
-    mockGetTransactionsByReference.mockResolvedValue([existingTransaction])
+    mockReadTransactionsByReference.mockResolvedValue([existingTransaction])
 
     await paymentCreateLambda(event)
 
@@ -828,7 +808,7 @@ describe('paymentCreateLambda', () => {
     ['fresh', 2],
     ['stale', 10],
   ])('neither waits for nor touches a %s pending refund', async (_name, minutes) => {
-    mockGetTransactionsByReference.mockResolvedValue([
+    mockReadTransactionsByReference.mockResolvedValue([
       {
         createdAt: new Date(Date.now() - minutes * 60 * 1000).toISOString(),
         reference: 'event123:reg456',
@@ -841,9 +821,7 @@ describe('paymentCreateLambda', () => {
     const result = await paymentCreateLambda(event)
 
     expect(result.statusCode).toEqual(200)
-    expect(mockFailUnfinishedTransaction).not.toHaveBeenCalledWith(
-      expect.objectContaining({ transactionId: 'pendingRefundTx' })
-    )
+    expect(mockFailUnfinishedTransaction).not.toHaveBeenCalledWith('pendingRefundTx')
   })
 
   it('returns 409 if there is a non-stale pending transaction', async () => {
@@ -854,7 +832,7 @@ describe('paymentCreateLambda', () => {
       transactionId: 'freshPendingTx',
       type: 'payment',
     }
-    mockGetTransactionsByReference.mockResolvedValue([existingTransaction])
+    mockReadTransactionsByReference.mockResolvedValue([existingTransaction])
 
     const result = await paymentCreateLambda(event)
 
@@ -873,20 +851,19 @@ describe('paymentCreateLambda', () => {
       transactionId: 'existingTx',
       type: 'payment',
     }
-    mockGetTransactionsByReference.mockResolvedValue([existingTransaction])
+    mockReadTransactionsByReference.mockResolvedValue([existingTransaction])
 
     const result = await paymentCreateLambda(event)
 
     expect(result.statusCode).toEqual(200)
     expect(JSON.parse(result.body)).toEqual(existingResponse)
     expect(mockCreatePayment).not.toHaveBeenCalled()
-    expect(mockWrite).not.toHaveBeenCalled()
-    expect(mockUpdate).not.toHaveBeenCalled()
+    expect(mockCreatePaymentTransaction).not.toHaveBeenCalled()
   })
 
   it('prefers reusing a fresh new transaction over returning 409 when both fresh new and pending exist', async () => {
     const existingResponse = createMockPaymentResponse({ transactionId: 'existingTx' })
-    mockGetTransactionsByReference.mockResolvedValue([
+    mockReadTransactionsByReference.mockResolvedValue([
       {
         createdAt: new Date(Date.now() - 90 * 1000).toISOString(),
         paymentResponse: existingResponse,

@@ -63,14 +63,12 @@ const paymentTransaction = (overrides: Partial<JsonPaymentTransaction> = {}): Js
   ...overrides,
 })
 
-const mockBatchGet = vi.fn((): JsonTransaction[] => [])
+const mockReadPaymentTransactions = vi.fn((): JsonTransaction[] => [])
 
 // The open payment ids tell a payment in progress from one left at Paytrail
-// (loadOpenPayments BatchGets them through the client, KOE-1526, KOE-1529, KOE-1530).
-vi.doMock('../utils/CustomDynamoClient', () => ({
-  default: vi.fn(function MockCustomDynamoClient() {
-    return { batchGet: mockBatchGet }
-  }),
+// (loadOpenPayments reads them from the transaction repository, KOE-1526, KOE-1529, KOE-1530).
+vi.doMock('../lib/repositories/transactionRepository', () => ({
+  readPaymentTransactions: mockReadPaymentTransactions,
 }))
 
 const { default: getRegistrationLambda } = await import('./handler')
@@ -161,7 +159,7 @@ describe('getRegistration', () => {
     )
 
     expect(res.statusCode).toBe(404)
-    expect(mockBatchGet).not.toHaveBeenCalled()
+    expect(mockReadPaymentTransactions).not.toHaveBeenCalled()
   })
 
   it('falls back to event invitationAttachment when class attachment is missing', async () => {
@@ -237,7 +235,7 @@ describe('getRegistration', () => {
 
   const inProgressWhenPending = (paymentStatus: PaymentStatus | undefined) => {
     if (paymentStatus === 'PENDING') {
-      mockBatchGet.mockReturnValueOnce([paymentTransaction({ status: 'pending' })])
+      mockReadPaymentTransactions.mockReturnValueOnce([paymentTransaction({ status: 'pending' })])
     }
   }
 
@@ -247,7 +245,7 @@ describe('getRegistration', () => {
       ...registrationsToEventWithParticipantsInvited[0],
       openPayments: ['transaction-1'],
     })
-    mockBatchGet.mockReturnValueOnce([
+    mockReadPaymentTransactions.mockReturnValueOnce([
       paymentTransaction({ createdAt: new Date(Date.now() - 10 * 60 * 1000).toISOString(), status: 'pending' }),
     ])
 
@@ -277,7 +275,7 @@ describe('getRegistration', () => {
     expect(reg.paymentStatus).toEqual('PENDING')
     expect(reg.payment?.status).toBe('unpaid')
     expect(reg.payment?.canPay).toBe(true)
-    expect(mockBatchGet).not.toHaveBeenCalled()
+    expect(mockReadPaymentTransactions).not.toHaveBeenCalled()
   })
 
   it('reads a payment in progress from a fresh open payment, never sending its id', async () => {
@@ -285,7 +283,7 @@ describe('getRegistration', () => {
       ...registrationsToEventWithParticipantsInvited[0],
       openPayments: ['transaction-1'],
     })
-    mockBatchGet.mockReturnValueOnce([paymentTransaction({ status: 'pending' })])
+    mockReadPaymentTransactions.mockReturnValueOnce([paymentTransaction({ status: 'pending' })])
 
     const res = await getRegistrationLambda(
       constructAPIGwEvent('test', { pathParameters: { eventId: '123', id: '456' } })
@@ -297,7 +295,7 @@ describe('getRegistration', () => {
     expect(reg.payment?.status).toBe('inProgress')
     expect(reg.payment?.canPay).toBe(false)
     expect(reg).not.toHaveProperty('openPayments')
-    expect(mockBatchGet).toHaveBeenCalledWith([{ transactionId: 'transaction-1' }], expect.any(String))
+    expect(mockReadPaymentTransactions).toHaveBeenCalledWith(['transaction-1'])
   })
 
   it.each<[boolean, PaymentTime | undefined, PaymentStatus | undefined]>([

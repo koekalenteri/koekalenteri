@@ -11,100 +11,31 @@ import type {
 } from '../../types'
 import type { PaytrailCallbackParams } from '../types/paytrail'
 import type { PaytrailError } from './paytrail'
+import type { OpenSetField } from './repositories/registrationRepository'
 import { getFixedT } from '../../i18n/lambda'
 import { auditUser, paymentAudit, refundPaytrailFailedAudit } from '../../lib/audit'
 import { localizedEventName } from '../../lib/event'
 import { formatMoney } from '../../lib/money'
 import { getProviderName, paytrailErrorText, transactionActor } from '../../lib/payment'
-import { CONFIG } from '../config'
-import CustomDynamoClient from '../utils/CustomDynamoClient'
 import { audit, registrationAuditKey } from './audit'
 import { getEvent } from './event'
 import { LambdaError } from './lambda'
 import { logger } from './log'
 import { paytrail } from './paytrail'
 import { getRegistration, participantRegistrationResponse } from './registration'
+import { dropOpenTransactionId, readRegistrationConsistently } from './repositories/registrationRepository'
+import {
+  failUnfinishedTransaction,
+  readPaymentTransactions,
+  readTransaction,
+  updateUnresolvedTransaction,
+} from './repositories/transactionRepository'
 import { publishParticipantRegistrationPatches, publishRegistrationPatches } from './ws/actions'
 import { buildParticipantPaymentPatch } from './ws/payloads'
-
-const { registrationTable, transactionTable } = CONFIG
-const dynamoDB = new CustomDynamoClient(transactionTable)
-
-type CreationType = 'payment' | 'refund'
-type TransactionClient = Pick<CustomDynamoClient, 'documentTransaction'>
-
-const creationFields = (type: CreationType) => ({
-  at: `${type}CreationAt`,
-  stamp: `${type}CreationStamp`,
-})
-
-export const claimTransactionCreation = async (
-  client: TransactionClient,
-  type: CreationType,
-  eventId: string,
-  registrationId: string,
-  stamp: string,
-  staleAgeMs: number
-) => {
-  const fields = creationFields(type)
-  const creationAt = new Date().toISOString()
-  const creationAtValue = `:${fields.at}`
-
-  try {
-    await client.documentTransaction([
-      {
-        Update: {
-          ConditionExpression: `attribute_not_exists(${fields.at}) OR ${fields.at} < :staleBefore`,
-          ExpressionAttributeValues: {
-            [creationAtValue]: creationAt,
-            ':staleBefore': new Date(Date.now() - staleAgeMs).toISOString(),
-            ':stamp': stamp,
-          },
-          Key: { eventId, id: registrationId },
-          TableName: registrationTable,
-          UpdateExpression: `SET ${fields.at} = ${creationAtValue}, ${fields.stamp} = :stamp`,
-        },
-      },
-    ])
-    return true
-  } catch (error) {
-    if ((error as Error).name === 'TransactionCanceledException') return false
-    throw error
-  }
-}
-
-export const releaseTransactionCreation = async (
-  client: TransactionClient,
-  type: CreationType,
-  eventId: string,
-  registrationId: string,
-  stamp: string
-) => {
-  const fields = creationFields(type)
-
-  try {
-    await client.documentTransaction([
-      {
-        Update: {
-          ConditionExpression: `${fields.stamp} = :stamp`,
-          ExpressionAttributeValues: { ':stamp': stamp },
-          Key: { eventId, id: registrationId },
-          TableName: registrationTable,
-          UpdateExpression: `REMOVE ${fields.at}, ${fields.stamp}`,
-        },
-      },
-    ])
-  } catch (error) {
-    logger.error('failed to release creation claim', { error, registrationId, type })
-  }
-}
 
 /** A refund Paytrail refused, for the registration's trail. */
 export const refundPaytrailErrorAudit = (error: PaytrailError) =>
   refundPaytrailFailedAudit(error.status, paytrailErrorText(error.error))
-
-/** The registration field a settled transaction's id is dropped from. */
-type OpenSetField = 'openPayments' | 'openRefunds'
 
 /**
  * A registration whose payment or refund was settled as failed, for whoever sends it on. The domain
@@ -129,45 +60,6 @@ export const isTransactionSettled = (
 ): boolean =>
   Boolean(transaction.registrationAppliedAt) || Boolean(transaction.duplicatePaymentAt) || transaction.status === 'fail'
 
-/** The condition `isTransactionSettled` expresses in DynamoDB's own syntax, shared by every writer
- * that must never write over a settled transaction (KOE-1529). */
-const UNRESOLVED_CONDITION = {
-  expression:
-    'attribute_not_exists(registrationAppliedAt) AND attribute_not_exists(duplicatePaymentAt) AND #status <> :fail',
-  names: { '#status': 'status' },
-  values: { ':fail': 'fail' },
-}
-
-const isConditionalCheckFailed = (error: unknown): boolean =>
-  error instanceof Error && error.name === 'ConditionalCheckFailedException'
-
-/**
- * Conditional write on the transaction row: only a still-unresolved transaction becomes `fail`.
- * Returns whether this call was the one that moved it, which is what gates the audit row (KOE-1529).
- */
-export const failUnfinishedTransaction = async (
-  transaction: JsonTransaction,
-  provider?: string,
-  statusAt: string = new Date().toISOString()
-): Promise<boolean> => {
-  try {
-    await dynamoDB.update(
-      { transactionId: transaction.transactionId },
-      {
-        remove: ['paymentResponse'],
-        set: { status: 'fail', statusAt, ...(provider ? { provider } : {}) },
-      },
-      transactionTable,
-      undefined,
-      UNRESOLVED_CONDITION
-    )
-    return true
-  } catch (error) {
-    if (isConditionalCheckFailed(error)) return false
-    throw error
-  }
-}
-
 /**
  * Removes the transaction id from the registration's open set, unconditionally and repeatably: a
  * retry after a crash between this write and `failUnfinishedTransaction`'s still finishes (KOE-1529).
@@ -183,13 +75,7 @@ export const dropOpenTransaction = async (
   transactionId: string,
   updatedAt: string = new Date().toISOString()
 ): Promise<boolean> => {
-  const result = await dynamoDB.update(
-    { eventId: registration.eventId, id: registration.id },
-    { delete: { [field]: new Set([transactionId]) }, set: { updatedAt } },
-    registrationTable,
-    'UPDATED_OLD'
-  )
-  const before: string[] | undefined = result.Attributes?.[field]
+  const before = await dropOpenTransactionId(registration.eventId, registration.id, field, transactionId, updatedAt)
   return before?.includes(transactionId) ?? false
 }
 
@@ -229,7 +115,7 @@ export const settleFailedTransaction = async (
   // Shared between the transaction's own statusAt and the registration's updatedAt: one failure is
   // one moment, and the incremental refresh reading updatedAt should see it as of that moment.
   const now = new Date().toISOString()
-  const moved = await failUnfinishedTransaction(transaction, options.provider, now)
+  const moved = await failUnfinishedTransaction(transaction.transactionId, options.provider, now)
   const changed = await dropOpenTransaction(registration, field, transaction.transactionId, now)
 
   if (moved) {
@@ -281,7 +167,7 @@ export const resolveCallbackTransaction = async <T extends JsonTransaction>(
 
   await verifyParams(params)
 
-  const transaction = await dynamoDB.read<T>({ transactionId })
+  const transaction = await readTransaction<T>(transactionId)
   if (!transaction) throw new LambdaError(404, `Transaction with id '${transactionId}' was not found`)
 
   const registration = await getRegistration(eventId, registrationId)
@@ -326,190 +212,9 @@ export const updateTransactionStatus = async (
     updateObj.remove = ['paymentResponse']
   }
 
-  try {
-    await dynamoDB.update(
-      { transactionId: transaction.transactionId },
-      updateObj,
-      transactionTable,
-      undefined,
-      UNRESOLVED_CONDITION
-    )
-    return true
-  } catch (error) {
-    if (isConditionalCheckFailed(error)) {
-      logger.info('transaction already settled, ignoring status update', { transactionId: transaction.transactionId })
-      return false
-    }
-    throw error
-  }
-}
-
-const transactionWasAlreadyApplied = async (transactionId: string) => {
-  const current = await dynamoDB.read<JsonTransaction>({ transactionId }, transactionTable, true)
-  return Boolean(current?.registrationAppliedAt)
-}
-
-const runRegistrationTransaction = async (
-  transactionId: string,
-  items: Parameters<CustomDynamoClient['documentTransaction']>[0]
-) => {
-  try {
-    await dynamoDB.documentTransaction(items)
-    return true
-  } catch (error) {
-    if (
-      (error as Error).name === 'TransactionCanceledException' &&
-      (await transactionWasAlreadyApplied(transactionId))
-    ) {
-      logger.info('transaction was already applied to its registration', { transactionId })
-      return false
-    }
-    throw error
-  }
-}
-
-export const applySuccessfulPayment = async (
-  transaction: JsonTransaction,
-  eventId: string,
-  registrationId: string,
-  provider: string | undefined,
-  confirmed: boolean,
-  transactionExists = true,
-  previouslyPaid = 0
-) => {
-  const appliedAt = new Date().toISOString()
-  const transactionNames: Record<string, string> = { '#status': 'status' }
-  const transactionValues: Record<string, unknown> = {
-    ':appliedAt': appliedAt,
-    ':ok': 'ok',
-    ':receiptPreviouslyPaid': previouslyPaid,
-    ':receiptTotalPaid': previouslyPaid + transaction.amount / 100,
-  }
-  const transactionSet = [
-    '#status = :ok',
-    'statusAt = :appliedAt',
-    'registrationAppliedAt = :appliedAt',
-    'receiptPreviouslyPaid = :receiptPreviouslyPaid',
-    'receiptTotalPaid = :receiptTotalPaid',
-  ]
-  if (provider) {
-    transactionSet.push('#provider = :provider')
-    transactionNames['#provider'] = 'provider'
-    transactionValues[':provider'] = provider
-  }
-
-  const transactionOperation = transactionExists
-    ? {
-        Update: {
-          ConditionExpression: 'attribute_exists(transactionId) AND attribute_not_exists(registrationAppliedAt)',
-          ExpressionAttributeNames: transactionNames,
-          ExpressionAttributeValues: transactionValues,
-          Key: { transactionId: transaction.transactionId },
-          TableName: transactionTable,
-          UpdateExpression: `SET ${transactionSet.join(', ')} REMOVE paymentResponse`,
-        },
-      }
-    : {
-        Put: {
-          ConditionExpression: 'attribute_not_exists(transactionId)',
-          Item: {
-            ...transaction,
-            paymentResponse: undefined,
-            provider,
-            receiptPreviouslyPaid: previouslyPaid,
-            receiptTotalPaid: previouslyPaid + transaction.amount / 100,
-            registrationAppliedAt: appliedAt,
-            status: 'ok',
-            statusAt: appliedAt,
-          },
-          TableName: transactionTable,
-        },
-      }
-
-  const registrationValues: Record<string, unknown> = {
-    ':amount': transaction.amount / 100,
-    ':appliedAt': appliedAt,
-    ':paymentStatus': 'SUCCESS',
-    ':ready': 'ready',
-    // DynamoDB's set-difference action; this transaction is no longer open (KOE-1529).
-    ':transactionId': new Set([transaction.transactionId]),
-  }
-  const registrationSet = [
-    'paidAt = :appliedAt',
-    'paymentStatus = :paymentStatus',
-    '#state = :ready',
-    'updatedAt = :appliedAt',
-  ]
-  if (confirmed) {
-    registrationSet.unshift('confirmed = :confirmed')
-    registrationValues[':confirmed'] = true
-  }
-
-  const applied = await runRegistrationTransaction(transaction.transactionId, [
-    transactionOperation,
-    {
-      Update: {
-        ConditionExpression: 'attribute_exists(id)',
-        ExpressionAttributeNames: { '#state': 'state' },
-        ExpressionAttributeValues: registrationValues,
-        Key: { eventId, id: registrationId },
-        TableName: registrationTable,
-        UpdateExpression: `SET ${registrationSet.join(', ')} REMOVE paymentCreationAt, paymentCreationStamp ADD paidAmount :amount DELETE openPayments :transactionId`,
-      },
-    },
-  ])
-
-  return { applied, appliedAt }
-}
-
-export const applySuccessfulRefund = async (
-  transaction: JsonRefundTransaction,
-  eventId: string,
-  registrationId: string,
-  transactionExists = true
-) => {
-  const appliedAt = new Date().toISOString()
-  const transactionOperation = transactionExists
-    ? {
-        Update: {
-          ConditionExpression: 'attribute_exists(transactionId) AND attribute_not_exists(registrationAppliedAt)',
-          ExpressionAttributeNames: { '#status': 'status' },
-          ExpressionAttributeValues: { ':appliedAt': appliedAt, ':ok': 'ok' },
-          Key: { transactionId: transaction.transactionId },
-          TableName: transactionTable,
-          UpdateExpression:
-            'SET #status = :ok, statusAt = :appliedAt, registrationAppliedAt = :appliedAt REMOVE paymentResponse',
-        },
-      }
-    : {
-        Put: {
-          ConditionExpression: 'attribute_not_exists(transactionId)',
-          Item: { ...transaction, registrationAppliedAt: appliedAt, status: 'ok', statusAt: appliedAt },
-          TableName: transactionTable,
-        },
-      }
-  const applied = await runRegistrationTransaction(transaction.transactionId, [
-    transactionOperation,
-    {
-      Update: {
-        ConditionExpression: 'attribute_exists(id)',
-        ExpressionAttributeValues: {
-          ':amount': transaction.amount / 100,
-          ':appliedAt': appliedAt,
-          ':handlingCost': (transaction.handlingCost ?? 0) / 100,
-          ':refundStatus': 'SUCCESS',
-          // DynamoDB's set-difference action; this transaction is no longer open (KOE-1529).
-          ':transactionId': new Set([transaction.transactionId]),
-        },
-        Key: { eventId, id: registrationId },
-        TableName: registrationTable,
-        UpdateExpression:
-          'SET refundAt = :appliedAt, refundStatus = :refundStatus, updatedAt = :appliedAt REMOVE refundCreationAt, refundCreationStamp ADD refundAmount :amount, refundHandlingCost :handlingCost DELETE openRefunds :transactionId',
-      },
-    },
-  ])
-
-  return { applied, appliedAt }
+  if (await updateUnresolvedTransaction(transaction.transactionId, updateObj)) return true
+  logger.info('transaction already settled, ignoring status update', { transactionId: transaction.transactionId })
+  return false
 }
 
 export const paymentDescription = (
@@ -528,17 +233,6 @@ export const paymentDescription = (
     .join(' ')
 }
 
-export const getTransactionsByReference = async (reference: string) =>
-  dynamoDB.query<JsonPaymentTransaction | JsonRefundTransaction>({
-    index: 'gsiReference',
-    key: '#reference = :reference',
-    names: {
-      '#reference': 'reference',
-    },
-    table: transactionTable,
-    values: { ':reference': reference },
-  })
-
 /**
  * The payments still being worked on, loaded fresh from the registration's open payment ids rather
  * than read from a stored status (KOE-1529): the transactions the payment picture decides
@@ -549,10 +243,7 @@ export const getTransactionsByReference = async (reference: string) =>
  */
 export const loadOpenPayments = async (openPaymentIds: string[] | undefined): Promise<JsonPaymentTransaction[]> => {
   if (!openPaymentIds?.length) return []
-  return dynamoDB.batchGet<JsonPaymentTransaction>(
-    openPaymentIds.map((transactionId) => ({ transactionId })),
-    transactionTable
-  )
+  return readPaymentTransactions(openPaymentIds)
 }
 
 /**
@@ -575,17 +266,13 @@ export const participantResponse = async (
 export const participantPaymentPatch = async (registration: JsonRegistration, event: JsonConfirmedEvent) =>
   buildParticipantPaymentPatch(registration, event, await loadOpenPayments(registration.openPayments))
 
-/** The registration as stored now, read strongly consistent after the caller's own write. */
-const readStoredRegistration = (eventId: string, registrationId: string) =>
-  dynamoDB.read<JsonRegistration>({ eventId, id: registrationId }, registrationTable, true)
-
 /**
  * The participant's payment patch of a registration as it is stored now: read strongly consistent
  * after the caller's own write, so the patch carries that write's `updatedAt` and whatever a payment
  * changed meanwhile (KOE-1553). Undefined for a row that is not there.
  */
 export const storedParticipantPaymentPatch = async (event: JsonConfirmedEvent, registrationId: string) => {
-  const stored = await readStoredRegistration(event.id, registrationId)
+  const stored = await readRegistrationConsistently(event.id, registrationId)
   return stored ? participantPaymentPatch(stored, event) : undefined
 }
 
@@ -623,7 +310,7 @@ export const publishParticipantPaymentsOfEvent = (eventId: string, registrationI
 const readCancelledRegistration = async (eventId: string, registrationId: string) => {
   try {
     const [registration, event] = await Promise.all([
-      readStoredRegistration(eventId, registrationId),
+      readRegistrationConsistently(eventId, registrationId),
       getEvent<JsonConfirmedEvent>(eventId),
     ])
     return registration ? { event, registration } : undefined

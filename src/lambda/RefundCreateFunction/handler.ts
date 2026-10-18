@@ -11,25 +11,27 @@ import { nanoid } from 'nanoid'
 import { paymentAudit } from '../../lib/audit'
 import { formatMoney } from '../../lib/money'
 import { getProviderName, paytrailRefusalBody } from '../../lib/payment'
-import { CONFIG } from '../config'
 import { audit, registrationAuditKey } from '../lib/audit'
 import { authorizeWithMemberOf } from '../lib/auth'
 import { getAuthorizedEvent } from '../lib/eventAuth'
 import { parseJSONWithFallback } from '../lib/json'
 import { httpError, LambdaError, lambda, response } from '../lib/lambda'
-import { claimTransactionCreation, refundPaytrailErrorAudit, releaseTransactionCreation } from '../lib/payment'
+import { refundPaytrailErrorAudit } from '../lib/payment'
 import { PaytrailError, paytrail } from '../lib/paytrail'
 import { getRegistration } from '../lib/registration'
 import { readOrganizer } from '../lib/repositories/organizerRepository'
-import CustomDynamoClient from '../utils/CustomDynamoClient'
+import { claimTransactionCreation, releaseTransactionCreation } from '../lib/repositories/registrationRepository'
+import {
+  createPendingRefundTransaction,
+  createSettledRefundTransaction,
+  readTransaction,
+} from '../lib/repositories/transactionRepository'
 import { getApiHost } from '../utils/proxyEvent'
 
-const { registrationTable, transactionTable } = CONFIG
-const dynamoDB = new CustomDynamoClient(transactionTable)
 const STALE_REFUND_CREATION_AGE_MS = 5 * 60 * 1000
 
 const getData = async (transactionId: string, user: JsonUser, memberOf: string[]) => {
-  const paymentTransaction = await dynamoDB.read<JsonPaymentTransaction>({ transactionId }, transactionTable)
+  const paymentTransaction = await readTransaction<JsonPaymentTransaction>(transactionId)
 
   if (!paymentTransaction) {
     throw new LambdaError(404, `Transaction with id '${transactionId}' was not found`)
@@ -92,9 +94,7 @@ const refundCreateLambda = lambda('refundCreate', async (event) => {
     stamp: item.stamp,
   }))
 
-  if (
-    !(await claimTransactionCreation(dynamoDB, 'refund', eventId, registrationId, stamp, STALE_REFUND_CREATION_AGE_MS))
-  ) {
+  if (!(await claimTransactionCreation('refund', eventId, registrationId, stamp, STALE_REFUND_CREATION_AGE_MS))) {
     return response<string>(409, 'Refund already in progress', event)
   }
 
@@ -111,7 +111,7 @@ const refundCreateLambda = lambda('refundCreate', async (event) => {
       registration?.payer?.email
     )
   } catch (error: unknown) {
-    await releaseTransactionCreation(dynamoDB, 'refund', eventId, registrationId, stamp)
+    await releaseTransactionCreation('refund', eventId, registrationId, stamp)
     if (error instanceof PaytrailError) {
       await audit({
         auditKey: registrationAuditKey(registration),
@@ -127,7 +127,7 @@ const refundCreateLambda = lambda('refundCreate', async (event) => {
   }
 
   if (!result) {
-    await releaseTransactionCreation(dynamoDB, 'refund', eventId, registrationId, stamp)
+    await releaseTransactionCreation('refund', eventId, registrationId, stamp)
     throw new LambdaError(500, 'refundPayment did not return a result')
   }
 
@@ -149,40 +149,8 @@ const refundCreateLambda = lambda('refundCreate', async (event) => {
   // already-settled refund (KOE-1529): PENDING is never written any more, and a pending or email
   // refund's own SUCCESS comes later, from applySuccessfulRefund, once it has actually been applied.
   const isPendingRefund = result.status === 'pending' || result.provider === 'email refund'
-  const updatedAt = new Date().toISOString()
-  const registrationUpdate = isPendingRefund
-    ? {
-        ExpressionAttributeValues: { ':transactionId': new Set([transaction.transactionId]), ':updatedAt': updatedAt },
-        UpdateExpression:
-          'SET updatedAt = :updatedAt REMOVE refundCreationAt, refundCreationStamp ADD openRefunds :transactionId',
-      }
-    : {
-        ExpressionAttributeNames: { '#status': 'refundStatus' },
-        ExpressionAttributeValues: {
-          ':status': 'SUCCESS',
-          ':transactionId': new Set([transaction.transactionId]),
-          ':updatedAt': updatedAt,
-        },
-        UpdateExpression:
-          'SET #status = :status, updatedAt = :updatedAt REMOVE refundCreationAt, refundCreationStamp ADD openRefunds :transactionId',
-      }
-  await dynamoDB.documentTransaction([
-    {
-      Put: {
-        ConditionExpression: 'attribute_not_exists(transactionId)',
-        Item: transaction,
-        TableName: transactionTable,
-      },
-    },
-    {
-      Update: {
-        ConditionExpression: 'attribute_exists(id)',
-        Key: { eventId, id: registrationId },
-        TableName: registrationTable,
-        ...registrationUpdate,
-      },
-    },
-  ])
+  const createRefund = isPendingRefund ? createPendingRefundTransaction : createSettledRefundTransaction
+  await createRefund(transaction, eventId, registrationId, new Date().toISOString())
 
   if (isPendingRefund) {
     await audit({

@@ -17,17 +17,21 @@ const mockApplySuccessfulPayment = vi.fn()
 // are a fresh pending one for each id, so a test only has to override openPayments to pin the shape
 // (KOE-1529, round 1 part 3).
 const mockToEntrant = vi.fn()
-const mockBatchGet = vi.fn(async (keys: { transactionId: string }[]) =>
-  keys.map(() => ({ createdAt: new Date().toISOString(), status: 'pending', type: 'payment' }))
+const mockReadPaymentTransactions = vi.fn(async (transactionIds: string[]) =>
+  transactionIds.map(() => ({ createdAt: new Date().toISOString(), status: 'pending', type: 'payment' }))
 )
 const mockClearRegistrationEmailDeliveryStatus = vi.fn()
 const mockGetRegistration = vi.fn()
 const mockCreateRegistrationPatches = vi.fn(() => [])
 const mockAudit = vi.fn()
 const mockRegistrationAuditKey = vi.fn()
-const mockRead = vi.fn()
-const mockUpdate = vi.fn()
-const mockWrite = vi.fn()
+const mockReadTransaction = vi.fn()
+const mockClaimPostPaymentWorkflow = vi.fn()
+const mockMarkPostPaymentPhase = vi.fn()
+const mockReleasePostPaymentWorkflow = vi.fn()
+const mockMarkTransactionDuplicate = vi.fn()
+const mockWriteDuplicateTransaction = vi.fn()
+const mockMarkDuplicatePayment = vi.fn()
 const mockUpdateRegistrations = vi.fn()
 const mockGetEvent = vi.fn()
 const mockFixRegistrationGroups = vi.fn(async (registrations: unknown[]) => registrations)
@@ -42,14 +46,6 @@ const mockRegistrationEmailTemplateData = vi.fn()
 const mockPublishRegistrationPatches = vi.fn()
 const mockGetRegistrationEditToken = vi.fn().mockReturnValue('test-edit-token')
 const mockSendTemplatedEmailToEventRegistrations = vi.fn().mockResolvedValue({ failed: [], ok: [] })
-
-const phaseUpdate = (field: string) => [
-  { transactionId: 'tx123' },
-  { set: { [field]: expect.any(String) } },
-  'transaction-table-not-found-in-env',
-  undefined,
-  expect.objectContaining({ expression: '#postPaymentLease.#token = :token' }),
-]
 
 vi.doMock('../lib/lambda', async () => ({
   ...(await vi.importActual<typeof import('../lib/lambda')>('../lib/lambda')),
@@ -66,7 +62,6 @@ vi.doMock('../lib/lambda', async () => ({
 
 const mockPublishCancelledRegistration = vi.fn()
 vi.doMock('../lib/payment', async () => ({
-  applySuccessfulPayment: mockApplySuccessfulPayment,
   parseParams: mockParseParams,
   publishCancelledRegistration: mockPublishCancelledRegistration,
   publishParticipantPaymentsOfEvent: (await vi.importActual<typeof import('../lib/payment')>('../lib/payment'))
@@ -95,20 +90,21 @@ vi.doMock('../lib/audit', () => ({
   registrationAuditKey: mockRegistrationAuditKey,
 }))
 
-vi.doMock('../utils/CustomDynamoClient', () => ({
-  default: vi.fn(function MockCustomDynamoClient() {
-    return {
-      batchGet: mockBatchGet,
-      // A registration read (the publisher's strongly consistent one) answers as getRegistration
-      // does; every other read is the transaction's.
-      read: (key: Record<string, unknown>, ...rest: unknown[]) =>
-        typeof key.eventId === 'string' && typeof key.id === 'string'
-          ? mockGetRegistration(key.eventId, key.id, ...rest.slice(1))
-          : mockRead(key, ...rest),
-      update: mockUpdate,
-      write: mockWrite,
-    }
-  }),
+// The lease's conditions and the transaction writes are the repository's (transactionRepository.test.ts).
+vi.doMock('../lib/repositories/transactionRepository', () => ({
+  applySuccessfulPayment: mockApplySuccessfulPayment,
+  claimPostPaymentWorkflow: mockClaimPostPaymentWorkflow,
+  markPostPaymentPhase: mockMarkPostPaymentPhase,
+  markTransactionDuplicate: mockMarkTransactionDuplicate,
+  readPaymentTransactions: mockReadPaymentTransactions,
+  readTransaction: mockReadTransaction,
+  writeDuplicateTransaction: mockWriteDuplicateTransaction,
+}))
+
+// The publisher's strongly consistent registration read answers as getRegistration does.
+vi.doMock('../lib/repositories/registrationRepository', () => ({
+  markDuplicatePayment: mockMarkDuplicatePayment,
+  readRegistrationConsistently: (eventId: string, id: string) => mockGetRegistration(eventId, id),
 }))
 
 vi.doMock('../lib/event', () => ({
@@ -170,7 +166,7 @@ describe('paymentSuccessLambda', () => {
 
     mockVerifyParams.mockResolvedValue(undefined)
 
-    mockRead.mockResolvedValue({
+    mockReadTransaction.mockResolvedValue({
       amount: 5000,
       paymentResponse: { transactionId: 'tx123' },
       reference: 'event123:reg456',
@@ -197,7 +193,13 @@ describe('paymentSuccessLambda', () => {
     mockApplySuccessfulPayment.mockResolvedValue({ applied: true, appliedAt: '2025-01-01T00:00:00.000Z' })
     mockClearRegistrationEmailDeliveryStatus.mockResolvedValue(undefined)
 
-    mockUpdate.mockResolvedValue({})
+    // Once leased, the workflow reads the transaction again; that read answers as the first one does.
+    mockClaimPostPaymentWorkflow.mockImplementation(async (transactionId: string) => ({
+      release: mockReleasePostPaymentWorkflow,
+      token: 'lease-token',
+      transaction: await mockReadTransaction(transactionId),
+    }))
+    mockMarkPostPaymentPhase.mockResolvedValue({})
 
     mockRegistrationAuditKey.mockReturnValue('event123:reg456')
 
@@ -245,22 +247,9 @@ describe('paymentSuccessLambda', () => {
     expect(mockVerifyParams).toHaveBeenCalledWith(event.queryStringParameters)
 
     // Verify transaction was retrieved
-    expect(mockRead).toHaveBeenCalledWith({ transactionId: 'tx123' })
-    expect(mockRead).toHaveBeenCalledWith({ transactionId: 'tx123' }, 'transaction-table-not-found-in-env', true)
-
-    expect(mockUpdate).toHaveBeenCalledWith(
-      { transactionId: 'tx123' },
-      {
-        set: {
-          postPaymentLease: expect.objectContaining({ expiresAt: expect.any(Number), token: expect.any(String) }),
-        },
-      },
-      'transaction-table-not-found-in-env',
-      undefined,
-      expect.objectContaining({
-        expression: expect.stringContaining('attribute_not_exists(#postPaymentLease)'),
-      })
-    )
+    expect(mockReadTransaction).toHaveBeenCalledWith('tx123')
+    expect(mockClaimPostPaymentWorkflow).toHaveBeenCalledWith('tx123')
+    expect(mockReleasePostPaymentWorkflow).toHaveBeenCalledTimes(1)
 
     // Verify transaction and registration were updated atomically
     expect(mockApplySuccessfulPayment).toHaveBeenCalledWith(
@@ -283,7 +272,7 @@ describe('paymentSuccessLambda', () => {
     // Verify registration was retrieved
     expect(mockGetRegistration).toHaveBeenCalledWith('event123', 'reg456')
 
-    expect(mockUpdate).toHaveBeenCalledWith(...phaseUpdate('postPaymentProcessedAt'))
+    expect(mockMarkPostPaymentPhase).toHaveBeenCalledWith('tx123', 'lease-token', 'postPaymentProcessedAt')
 
     // Verify event registrations were updated
     expect(mockUpdateRegistrations).toHaveBeenCalledWith('event123')
@@ -447,7 +436,7 @@ describe('paymentSuccessLambda', () => {
     )
   })
 
-  it('records and acknowledges a captured duplicate payment without applying it', async () => {
+  const arrangeDuplicatePayment = () => {
     mockRegistrationAuditKey.mockImplementation(
       (registration: { eventId: string; id: string }) => `${registration.eventId}:${registration.id}`
     )
@@ -478,6 +467,10 @@ describe('paymentSuccessLambda', () => {
         paymentStatus: 'DUPLICATE',
         updatedAt: '2025-01-01T00:00:00.000Z',
       })
+  }
+
+  it('records and acknowledges a captured duplicate payment without applying it', async () => {
+    arrangeDuplicatePayment()
 
     await paymentSuccessLambda(event)
 
@@ -486,21 +479,14 @@ describe('paymentSuccessLambda', () => {
     expect(mockLockRegistrationPayments).toHaveBeenCalledWith('event123')
     expect(mockGetReadyRegistrationsByEventId).toHaveBeenCalledWith('event123', true)
     expect(mockGetRegistration).toHaveBeenCalledTimes(3)
-    expect(mockUpdate).toHaveBeenCalledWith(
-      { transactionId: 'tx123' },
-      expect.objectContaining({
-        set: expect.objectContaining({ duplicateOfRegistrationId: 'other-registration', status: 'ok' }),
-      }),
-      'transaction-table-not-found-in-env'
-    )
-    expect(mockUpdate).toHaveBeenCalledWith(
-      { eventId: 'event123', id: 'reg456' },
-      {
-        delete: { openPayments: new Set(['tx123']) },
-        set: { paymentStatus: 'DUPLICATE', updatedAt: expect.any(String) },
-      },
-      'registration-table-not-found-in-env'
-    )
+    expect(mockMarkTransactionDuplicate).toHaveBeenCalledWith('tx123', {
+      duplicateOfRegistrationId: 'other-registration',
+      duplicatePaymentAt: expect.any(String),
+      provider: 'paytrail',
+    })
+    expect(mockWriteDuplicateTransaction).not.toHaveBeenCalled()
+    expect(mockMarkDuplicatePayment).toHaveBeenCalledWith('event123', 'reg456', 'tx123', expect.any(String))
+    expect(mockClaimPostPaymentWorkflow).not.toHaveBeenCalled()
     // The same rule as GetRegistration: a payment charged twice offers no pay button (KOE-1526).
     expect(mockToEntrant).toHaveBeenCalledWith(
       'event123',
@@ -545,7 +531,7 @@ describe('paymentSuccessLambda', () => {
     expect(mockPublishRegistrationPatches).toHaveBeenCalled()
     expect(mockSendTemplatedMail).toHaveBeenCalled()
     expect(mockAudit).toHaveBeenCalled()
-    expect(mockUpdate).toHaveBeenCalledWith(...phaseUpdate('postPaymentProcessedAt'))
+    expect(mockMarkPostPaymentPhase).toHaveBeenCalledWith('tx123', 'lease-token', 'postPaymentProcessedAt')
 
     // Verify response was returned
     expect(mockResponse).toHaveBeenCalledWith(200, undefined, event)
@@ -570,7 +556,8 @@ describe('paymentSuccessLambda', () => {
     expect(mockGetRegistration).not.toHaveBeenCalled()
 
     // Verify registration payment status was NOT updated
-    expect(mockUpdate).not.toHaveBeenCalled()
+    expect(mockApplySuccessfulPayment).not.toHaveBeenCalled()
+    expect(mockClaimPostPaymentWorkflow).not.toHaveBeenCalled()
 
     // Verify event registrations were NOT updated
     expect(mockUpdateRegistrations).not.toHaveBeenCalled()
@@ -639,13 +626,29 @@ describe('paymentSuccessLambda', () => {
     expect(mockResponse).toHaveBeenCalledWith(200, undefined, event)
   })
 
+  it('writes a duplicate payment the callback found missing whole', async () => {
+    arrangeDuplicatePayment()
+    mockReadTransaction.mockResolvedValueOnce(null)
+
+    await paymentSuccessLambda(event)
+
+    expect(mockWriteDuplicateTransaction).toHaveBeenCalledWith(
+      expect.objectContaining({ amount: 5000, status: 'new', transactionId: 'tx123', type: 'payment' }),
+      { duplicateOfRegistrationId: 'other-registration', duplicatePaymentAt: expect.any(String), provider: 'paytrail' }
+    )
+    expect(mockMarkTransactionDuplicate).not.toHaveBeenCalled()
+    expect(mockMarkDuplicatePayment).toHaveBeenCalledWith('event123', 'reg456', 'tx123', expect.any(String))
+    expect(mockApplySuccessfulPayment).not.toHaveBeenCalled()
+    expect(mockResponse).toHaveBeenCalledWith(200, undefined, event)
+  })
+
   it('reconstructs a missing transaction from a verified success callback', async () => {
-    mockRead.mockResolvedValueOnce(null)
+    mockReadTransaction.mockResolvedValueOnce(null)
 
     await paymentSuccessLambda(event)
 
     // Verify transaction was attempted to be retrieved
-    expect(mockRead).toHaveBeenCalledWith({ transactionId: 'tx123' })
+    expect(mockReadTransaction).toHaveBeenCalledWith('tx123')
 
     expect(mockApplySuccessfulPayment).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -678,7 +681,7 @@ describe('paymentSuccessLambda', () => {
     expect(mockVerifyParams).toHaveBeenCalledWith(event.queryStringParameters)
 
     // Verify transaction was NOT retrieved
-    expect(mockRead).not.toHaveBeenCalled()
+    expect(mockReadTransaction).not.toHaveBeenCalled()
 
     // Verify transaction status was NOT updated
     expect(mockUpdateTransactionStatus).not.toHaveBeenCalled()
@@ -687,7 +690,8 @@ describe('paymentSuccessLambda', () => {
     expect(mockGetRegistration).not.toHaveBeenCalled()
 
     // Verify registration payment status was NOT updated
-    expect(mockUpdate).not.toHaveBeenCalled()
+    expect(mockApplySuccessfulPayment).not.toHaveBeenCalled()
+    expect(mockClaimPostPaymentWorkflow).not.toHaveBeenCalled()
 
     // Verify event registrations were NOT updated
     expect(mockUpdateRegistrations).not.toHaveBeenCalled()
@@ -719,7 +723,7 @@ describe('paymentSuccessLambda', () => {
           paymentStatus: 'PENDING',
           state: 'ready',
         })
-        mockBatchGet.mockRejectedValueOnce(new Error('transaction table down'))
+        mockReadPaymentTransactions.mockRejectedValueOnce(new Error('transaction table down'))
       },
     ],
   ])('sends the receipt and confirmation when %s for the entrant picture', async (_name, failPicture) => {
@@ -777,7 +781,7 @@ describe('paymentSuccessLambda', () => {
       expect.any(Array)
     )
     expect(mockPublishEventCounts).toHaveBeenCalledTimes(2)
-    expect(mockUpdate).toHaveBeenCalledWith(...phaseUpdate('postPaymentProcessedAt'))
+    expect(mockMarkPostPaymentPhase).toHaveBeenCalledWith('tx123', 'lease-token', 'postPaymentProcessedAt')
     expect(mockResponse).toHaveBeenCalledWith(200, undefined, event)
     expect(loggedLines(errorSpy)).toEqual([
       expect.objectContaining({
@@ -818,12 +822,12 @@ describe('paymentSuccessLambda', () => {
 
     // The completed marker is intentionally absent, so the provider retry
     // sends the receipt again.
-    expect(mockUpdate).not.toHaveBeenCalledWith(...phaseUpdate('receiptSentAt'))
+    expect(mockMarkPostPaymentPhase).not.toHaveBeenCalledWith('tx123', 'lease-token', 'receiptSentAt')
     expect(mockResponse).not.toHaveBeenCalled()
   })
 
   it('retries an interrupted receipt delivery', async () => {
-    mockRead.mockResolvedValue({
+    mockReadTransaction.mockResolvedValue({
       amount: 5000,
       receiptPreviouslyPaid: 50,
       receiptTotalPaid: 100,
@@ -844,11 +848,11 @@ describe('paymentSuccessLambda', () => {
       expect.any(Object),
       expect.any(Array)
     )
-    expect(mockUpdate).toHaveBeenCalledWith(...phaseUpdate('receiptSentAt'))
+    expect(mockMarkPostPaymentPhase).toHaveBeenCalledWith('tx123', 'lease-token', 'receiptSentAt')
   })
 
   it('uses the payment-time receipt balances after later payments changed the registration total', async () => {
-    mockRead.mockResolvedValue({
+    mockReadTransaction.mockResolvedValue({
       amount: 5000,
       receiptPreviouslyPaid: 50,
       receiptTotalPaid: 100,
@@ -880,7 +884,7 @@ describe('paymentSuccessLambda', () => {
   })
 
   it('does not repeat completed post-payment effects', async () => {
-    mockRead.mockResolvedValue({
+    mockReadTransaction.mockResolvedValue({
       amount: 5000,
       postPaymentProcessedAt: '2025-01-01T00:00:00.000Z',
       reference: 'event123:reg456',
@@ -899,11 +903,11 @@ describe('paymentSuccessLambda', () => {
   })
 
   it('acknowledges a concurrent callback while another worker owns the post-payment lease', async () => {
-    mockUpdate.mockReset().mockRejectedValueOnce({ name: 'ConditionalCheckFailedException' })
+    mockClaimPostPaymentWorkflow.mockResolvedValueOnce(undefined)
 
     await paymentSuccessLambda(event)
 
-    expect(mockRead).toHaveBeenCalledTimes(1)
+    expect(mockReadTransaction).toHaveBeenCalledTimes(1)
     expect(mockUpdateRegistrations).not.toHaveBeenCalled()
     expect(mockSendTemplatedMail).not.toHaveBeenCalled()
     expect(mockResponse).toHaveBeenCalledWith(200, undefined, event)
@@ -1056,7 +1060,7 @@ describe('paymentSuccessLambda', () => {
     })
 
     it('still confirms a first payment as a registration when its callback is retried', async () => {
-      mockRead.mockResolvedValue({
+      mockReadTransaction.mockResolvedValue({
         amount: 5000,
         receiptPreviouslyPaid: 0,
         receiptTotalPaid: 50,
@@ -1164,7 +1168,7 @@ describe('paymentSuccessLambda', () => {
         { name: 'user123' },
         ''
       )
-      expect(mockUpdate).toHaveBeenCalledWith(...phaseUpdate('invitationSentAt'))
+      expect(mockMarkPostPaymentPhase).toHaveBeenCalledWith('tx123', 'lease-token', 'invitationSentAt')
     })
 
     it('does not send the invitation before the class has been invited', async () => {

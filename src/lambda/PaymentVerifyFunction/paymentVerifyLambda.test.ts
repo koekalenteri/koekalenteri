@@ -13,7 +13,7 @@ const mockParseParams = vi.fn()
 const mockVerifyParams = vi.fn()
 const mockGetRegistration = vi.fn()
 const mockGetRegistrationEditToken = vi.fn()
-const mockRead = vi.fn()
+const mockReadTransaction = vi.fn()
 const mockGetEvent = vi.fn()
 const mockPublishCancelledRegistration = vi.fn()
 const mockSettleFailedTransaction = vi.fn()
@@ -43,12 +43,8 @@ vi.doMock('../lib/registration', () => ({
   getRegistrationEditToken: mockGetRegistrationEditToken,
 }))
 
-vi.doMock('../utils/CustomDynamoClient', () => ({
-  default: vi.fn(function MockCustomDynamoClient() {
-    return {
-      read: mockRead,
-    }
-  }),
+vi.doMock('../lib/repositories/transactionRepository', () => ({
+  readTransaction: mockReadTransaction,
 }))
 
 const { default: paymentVerifyLambda } = await import('./handler')
@@ -80,7 +76,7 @@ describe('paymentVerifyLambda', () => {
     mockVerifyParams.mockResolvedValue(undefined)
     mockGetEvent.mockResolvedValue({ organizer: { id: 'org-1' } })
 
-    mockRead.mockResolvedValue({
+    mockReadTransaction.mockResolvedValue({
       amount: 5000,
       reference: 'event123:reg456',
       status: 'pending',
@@ -118,7 +114,7 @@ describe('paymentVerifyLambda', () => {
     })
 
     // Verify transaction was retrieved
-    expect(mockRead).toHaveBeenCalledWith({ transactionId: 'tx123' })
+    expect(mockReadTransaction).toHaveBeenCalledWith('tx123')
 
     expect(mockGetRegistration).toHaveBeenCalledWith('event123', 'reg456')
     expect(mockGetRegistrationEditToken).toHaveBeenCalledWith({
@@ -171,7 +167,7 @@ describe('paymentVerifyLambda', () => {
     await paymentVerifyLambda(event)
 
     // Verify transaction was retrieved
-    expect(mockRead).toHaveBeenCalledWith({ transactionId: 'tx123' })
+    expect(mockReadTransaction).toHaveBeenCalledWith('tx123')
 
     // Verify registration was retrieved for a failed payment
     expect(mockGetRegistration).toHaveBeenCalledWith('event123', 'reg456')
@@ -247,13 +243,13 @@ describe('paymentVerifyLambda', () => {
   })
 
   it('throws error if transaction is not found', async () => {
-    mockRead.mockResolvedValueOnce(null)
+    mockReadTransaction.mockResolvedValueOnce(null)
     const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
 
     await paymentVerifyLambda(event)
 
     // Verify transaction was attempted to be retrieved
-    expect(mockRead).toHaveBeenCalledWith({ transactionId: 'tx123' })
+    expect(mockReadTransaction).toHaveBeenCalledWith('tx123')
 
     // Verify error was logged
     expect(consoleSpy).toHaveBeenCalled()
@@ -304,7 +300,7 @@ describe('paymentVerifyLambda', () => {
 
   it('handles other errors gracefully', async () => {
     const error = new Error('Unexpected error')
-    mockRead.mockRejectedValueOnce(error)
+    mockReadTransaction.mockRejectedValueOnce(error)
     const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
 
     await paymentVerifyLambda(event)
