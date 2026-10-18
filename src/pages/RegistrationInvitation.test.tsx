@@ -179,6 +179,8 @@ describe('RegistrationInvitation', () => {
     )
     await flushPromises()
 
+    expect(screen.getByRole('heading', { level: 1, name: 'invitation.title' })).toBeInTheDocument()
+
     // Check that event information is displayed
     expect(screen.getByText(eventWithStaticDates.eventType, { exact: false })).toBeInTheDocument()
 
@@ -200,6 +202,34 @@ describe('RegistrationInvitation', () => {
     expect(openButton).toHaveAttribute('href', invitationUrl)
     expect(downloadButton).toHaveAttribute('href', `${invitationUrl}?dl`)
     expect(downloadButton).toHaveAttribute('download', invitationAttachmentFileName(registrationWithStaticDates))
+  })
+
+  it('names the page with an h1 above the message when the invitation cannot be opened (KOE-1561)', async () => {
+    // The page's Await takes the rejection; the bare promise would otherwise be reported as unhandled
+    // before the page subscribes to it.
+    const failed = Promise.reject(new Error('not found'))
+    failed.catch(() => {})
+    const path = Path.invitation(registrationWithStaticDates)
+    const routes: RouteObject[] = [
+      {
+        element: <RegistrationInvitation />,
+        hydrateFallbackElement: <>hydrate fallback</>,
+        loader: async () => ({ data: failed }),
+        path,
+      },
+    ]
+
+    render(
+      <Provider>
+        <Suspense fallback={<LoadingPage />}>
+          <DataMemoryRouter initialEntries={[path]} routes={routes} />
+        </Suspense>
+      </Provider>
+    )
+    await flushPromises()
+
+    expect(screen.getByRole('heading', { level: 1, name: 'invitation.title' })).toBeInTheDocument()
+    expect(screen.getByText('invitation.openingFailed')).toBeInTheDocument()
   })
 
   it('shows the page in the registration language over the stored one (KOE-1508)', async () => {

@@ -658,8 +658,9 @@
     "event": "Tapahtuma",
     "handler": "Ohjaaja",
     "open": "Avaa koekutsu",
-    "openingFailed": "Koeutsun avaaminen epäonnistui",
-    "registeredDog": "Ilmoitettu koira"
+    "openingFailed": "Koekutsun avaaminen epäonnistui",
+    "registeredDog": "Ilmoitettu koira",
+    "title": "Koekutsu"
   },
   "judge": "Tuomari",
   "judgeActive": "Arvostelee",
