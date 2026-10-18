@@ -21,7 +21,11 @@ import { PaytrailError, paytrail } from '../lib/paytrail'
 import { getRegistration } from '../lib/registration'
 import { readOrganizer } from '../lib/repositories/organizerRepository'
 import { claimTransactionCreation, releaseTransactionCreation } from '../lib/repositories/registrationRepository'
-import { createRefundTransaction, readTransaction } from '../lib/repositories/transactionRepository'
+import {
+  createPendingRefundTransaction,
+  createSettledRefundTransaction,
+  readTransaction,
+} from '../lib/repositories/transactionRepository'
 import { getApiHost } from '../utils/proxyEvent'
 
 const STALE_REFUND_CREATION_AGE_MS = 5 * 60 * 1000
@@ -145,7 +149,8 @@ const refundCreateLambda = lambda('refundCreate', async (event) => {
   // already-settled refund (KOE-1529): PENDING is never written any more, and a pending or email
   // refund's own SUCCESS comes later, from applySuccessfulRefund, once it has actually been applied.
   const isPendingRefund = result.status === 'pending' || result.provider === 'email refund'
-  await createRefundTransaction(transaction, eventId, registrationId, new Date().toISOString(), isPendingRefund)
+  const createRefund = isPendingRefund ? createPendingRefundTransaction : createSettledRefundTransaction
+  await createRefund(transaction, eventId, registrationId, new Date().toISOString())
 
   if (isPendingRefund) {
     await audit({

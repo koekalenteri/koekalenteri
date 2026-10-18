@@ -17,7 +17,8 @@ const mockGetRegistration = vi.fn()
 const mockAudit = vi.fn()
 const mockRegistrationAuditKey = vi.fn()
 const mockRead = vi.fn()
-const mockCreateRefundTransaction = vi.fn()
+const mockCreatePendingRefundTransaction = vi.fn()
+const mockCreateSettledRefundTransaction = vi.fn()
 const mockNanoid = vi.fn()
 const mockClaimTransactionCreation = vi.fn<() => Promise<boolean>>(() => Promise.resolve(true))
 const mockReleaseTransactionCreation = vi.fn<() => Promise<void>>(() => Promise.resolve())
@@ -86,7 +87,8 @@ vi.doMock('../lib/repositories/registrationRepository', () => ({
 }))
 
 vi.doMock('../lib/repositories/transactionRepository', () => ({
-  createRefundTransaction: mockCreateRefundTransaction,
+  createPendingRefundTransaction: mockCreatePendingRefundTransaction,
+  createSettledRefundTransaction: mockCreateSettledRefundTransaction,
   readTransaction: async (transactionId: string) => mockRead({ transactionId }),
 }))
 
@@ -204,7 +206,8 @@ describe('refundCreateLambda', () => {
 
     expect(mockGetRegistration).not.toHaveBeenCalled()
     expect(mockRefundPayment).not.toHaveBeenCalled()
-    expect(mockCreateRefundTransaction).not.toHaveBeenCalled()
+    expect(mockCreatePendingRefundTransaction).not.toHaveBeenCalled()
+    expect(mockCreateSettledRefundTransaction).not.toHaveBeenCalled()
   })
 
   it('throws error if amount is invalid', async () => {
@@ -261,7 +264,8 @@ describe('refundCreateLambda', () => {
     mockRefundPayment.mockResolvedValueOnce(null)
 
     await expect(refundCreateLambda(event)).rejects.toThrow(/refundPayment did not return a result/)
-    expect(mockCreateRefundTransaction).not.toHaveBeenCalled()
+    expect(mockCreatePendingRefundTransaction).not.toHaveBeenCalled()
+    expect(mockCreateSettledRefundTransaction).not.toHaveBeenCalled()
   })
 
   it('audits a Paytrail refusal and rejects with its words', async () => {
@@ -286,7 +290,8 @@ describe('refundCreateLambda', () => {
     })
     // The claim is let go and the row written before the request is refused.
     expect(mockReleaseTransactionCreation).toHaveBeenCalledTimes(1)
-    expect(mockCreateRefundTransaction).not.toHaveBeenCalled()
+    expect(mockCreatePendingRefundTransaction).not.toHaveBeenCalled()
+    expect(mockCreateSettledRefundTransaction).not.toHaveBeenCalled()
   })
 
   it('marks a Paytrail refusal without words as Paytrail, with an empty error', async () => {
@@ -337,7 +342,7 @@ describe('refundCreateLambda', () => {
 
     // A settled refund: not pending, so its registration's refundStatus is written in the same
     // transaction (transactionRepository.test.ts pins the write).
-    expect(mockCreateRefundTransaction).toHaveBeenCalledWith(
+    expect(mockCreateSettledRefundTransaction).toHaveBeenCalledWith(
       expect.objectContaining({
         amount: 1000,
         handlingCost: 500,
@@ -351,9 +356,9 @@ describe('refundCreateLambda', () => {
       }),
       'event123',
       'reg456',
-      expect.any(String),
-      false
+      expect.any(String)
     )
+    expect(mockCreatePendingRefundTransaction).not.toHaveBeenCalled()
 
     // Verify audit was not called (since status is 'ok')
     expect(mockAudit).not.toHaveBeenCalled()
@@ -402,13 +407,13 @@ describe('refundCreateLambda', () => {
       'payer@example.com'
     )
 
-    expect(mockCreateRefundTransaction).toHaveBeenCalledWith(
+    expect(mockCreateSettledRefundTransaction).toHaveBeenCalledWith(
       expect.objectContaining({ amount: 1000, items: undefined, transactionId: 'refund123' }),
       'event123',
       'reg456',
-      expect.any(String),
-      false
+      expect.any(String)
     )
+    expect(mockCreatePendingRefundTransaction).not.toHaveBeenCalled()
   })
 
   it('creates audit entry for pending refunds', async () => {
@@ -444,13 +449,13 @@ describe('refundCreateLambda', () => {
 
     // No refundStatus is written: PENDING is never written any more, and a pending refund's own
     // SUCCESS comes later, from applySuccessfulRefund, once it has actually been applied (KOE-1529).
-    expect(mockCreateRefundTransaction).toHaveBeenCalledWith(
+    expect(mockCreatePendingRefundTransaction).toHaveBeenCalledWith(
       expect.objectContaining({ status: 'pending', transactionId: 'refund123' }),
       'event123',
       'reg456',
-      expect.any(String),
-      true
+      expect.any(String)
     )
+    expect(mockCreateSettledRefundTransaction).not.toHaveBeenCalled()
   })
 
   it('creates audit entry for email refunds', async () => {
@@ -485,13 +490,13 @@ describe('refundCreateLambda', () => {
     })
 
     // An email refund is pending until the customer's bank account has it.
-    expect(mockCreateRefundTransaction).toHaveBeenCalledWith(
+    expect(mockCreatePendingRefundTransaction).toHaveBeenCalledWith(
       expect.objectContaining({ provider: 'email refund', transactionId: 'refund123' }),
       'event123',
       'reg456',
-      expect.any(String),
-      true
+      expect.any(String)
     )
+    expect(mockCreateSettledRefundTransaction).not.toHaveBeenCalled()
   })
 
   it('handles unsupported transaction with multiple items', async () => {
@@ -544,12 +549,12 @@ describe('refundCreateLambda', () => {
       'payer@example.com'
     )
 
-    expect(mockCreateRefundTransaction).toHaveBeenCalledWith(
+    expect(mockCreateSettledRefundTransaction).toHaveBeenCalledWith(
       expect.objectContaining({ amount: partialRefundAmount, handlingCost: 500 }),
       'event123',
       'reg456',
-      expect.any(String),
-      false
+      expect.any(String)
     )
+    expect(mockCreatePendingRefundTransaction).not.toHaveBeenCalled()
   })
 })

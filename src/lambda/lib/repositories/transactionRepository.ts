@@ -61,33 +61,13 @@ export const createPaymentTransaction = async (
   ])
 }
 
-/**
- * Stores a new refund and opens it on its registration, in one transaction. A refund that is not
- * pending is already settled, and its registration's `refundStatus` becomes SUCCESS in the same write.
- */
-export const createRefundTransaction = async (
+/** Stores a new refund and opens it on its registration with the given update, in one transaction. */
+const createRefund = async (
   transaction: JsonRefundTransaction,
   eventId: string,
   registrationId: string,
-  updatedAt: string,
-  pending: boolean
+  registrationUpdate: Omit<Parameters<typeof registrationUpdateItem>[2], 'ConditionExpression'>
 ) => {
-  const registrationUpdate = pending
-    ? {
-        ExpressionAttributeValues: { ':transactionId': new Set([transaction.transactionId]), ':updatedAt': updatedAt },
-        UpdateExpression:
-          'SET updatedAt = :updatedAt REMOVE refundCreationAt, refundCreationStamp ADD openRefunds :transactionId',
-      }
-    : {
-        ExpressionAttributeNames: { '#status': 'refundStatus' },
-        ExpressionAttributeValues: {
-          ':status': 'SUCCESS',
-          ':transactionId': new Set([transaction.transactionId]),
-          ':updatedAt': updatedAt,
-        },
-        UpdateExpression:
-          'SET #status = :status, updatedAt = :updatedAt REMOVE refundCreationAt, refundCreationStamp ADD openRefunds :transactionId',
-      }
   await dynamoDB.documentTransaction([
     putNewTransaction(transaction),
     registrationUpdateItem(eventId, registrationId, {
@@ -96,6 +76,40 @@ export const createRefundTransaction = async (
     }),
   ])
 }
+
+/**
+ * Stores a refund that is still pending and opens it on its registration. Its `refundStatus` is
+ * written only once it is applied (`applySuccessfulRefund`).
+ */
+export const createPendingRefundTransaction = async (
+  transaction: JsonRefundTransaction,
+  eventId: string,
+  registrationId: string,
+  updatedAt: string
+) =>
+  createRefund(transaction, eventId, registrationId, {
+    ExpressionAttributeValues: { ':transactionId': new Set([transaction.transactionId]), ':updatedAt': updatedAt },
+    UpdateExpression:
+      'SET updatedAt = :updatedAt REMOVE refundCreationAt, refundCreationStamp ADD openRefunds :transactionId',
+  })
+
+/** Stores a refund that is already settled, opens it and marks its registration refunded, in one transaction. */
+export const createSettledRefundTransaction = async (
+  transaction: JsonRefundTransaction,
+  eventId: string,
+  registrationId: string,
+  updatedAt: string
+) =>
+  createRefund(transaction, eventId, registrationId, {
+    ExpressionAttributeNames: { '#status': 'refundStatus' },
+    ExpressionAttributeValues: {
+      ':status': 'SUCCESS',
+      ':transactionId': new Set([transaction.transactionId]),
+      ':updatedAt': updatedAt,
+    },
+    UpdateExpression:
+      'SET #status = :status, updatedAt = :updatedAt REMOVE refundCreationAt, refundCreationStamp ADD openRefunds :transactionId',
+  })
 
 /** `isTransactionSettled` in DynamoDB's own syntax: every writer that must never write over a
  * settled transaction is conditioned on it (KOE-1529). */

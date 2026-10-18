@@ -52,12 +52,6 @@ const mockSendTemplatedMail = vi.fn()
 const libEmail = await import('./email')
 vi.doMock('./email', () => ({ ...libEmail, sendTemplatedMail: mockSendTemplatedMail }))
 
-const mockRead = vi.fn()
-vi.doMock('../utils/CustomDynamoClient', () => ({
-  default: vi.fn(function MockCustomDynamoClient() {
-    return { read: mockRead }
-  }),
-}))
 // The registration row as stored, read back for the entrant's patch (KOE-1553).
 const mockReadRegistrationConsistently = vi.fn()
 vi.doMock('./repositories/registrationRepository', () => ({

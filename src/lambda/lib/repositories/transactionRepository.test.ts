@@ -33,7 +33,8 @@ const {
   applySuccessfulRefund,
   claimPostPaymentWorkflow,
   createPaymentTransaction,
-  createRefundTransaction,
+  createPendingRefundTransaction,
+  createSettledRefundTransaction,
   failUnfinishedTransaction,
   markPostPaymentPhase,
   markTransactionDuplicate,
@@ -158,7 +159,7 @@ describe('transactionRepository', () => {
     })
 
     it('stores a pending refund and only opens it on its registration', async () => {
-      await createRefundTransaction(refund, 'event-1', 'registration-1', NOW, true)
+      await createPendingRefundTransaction(refund, 'event-1', 'registration-1', NOW)
 
       expect(mockDocumentTransaction).toHaveBeenCalledWith([
         {
@@ -182,7 +183,7 @@ describe('transactionRepository', () => {
     })
 
     it('stores a settled refund and marks its registration refunded in the same transaction', async () => {
-      await createRefundTransaction(refund, 'event-1', 'registration-1', NOW, false)
+      await createSettledRefundTransaction(refund, 'event-1', 'registration-1', NOW)
 
       expect(mockDocumentTransaction).toHaveBeenCalledWith([
         {
