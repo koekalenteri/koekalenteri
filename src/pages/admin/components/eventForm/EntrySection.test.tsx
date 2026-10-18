@@ -228,9 +228,9 @@ describe('EntrySection', () => {
   describe.each([TIME_ZONE, 'America/New_York', 'Asia/Tokyo'])('the registration days in %s (KOE-1539)', (zone) => {
     describeInTimeZone(zone, () => {
       const eventStart = new Date(new TZDate(2026, 11, 5, TIME_ZONE).getTime())
-      const eventWith = (startDate: Date, entryStartDate?: Date) => ({
+      const eventWith = (startDate: Date, entryStartDate?: Date, entryEndDate?: Date) => ({
         ...eventWithStaticDates,
-        entryEndDate: undefined,
+        entryEndDate,
         entryStartDate,
         startDate,
       })
@@ -295,6 +295,37 @@ describe('EntrySection', () => {
           entryEndDate: endOfFinnishDay('2026-11-20'),
           entryStartDate: stored,
         })
+      })
+
+      it('keeps the stored entry end when only the start changes', async () => {
+        const stored = new Date('2026-11-20')
+        testEvent = eventWith(eventStart, undefined, stored)
+        const { onChange, user } = await renderEntrySection()
+
+        await typeDateKeyByKey(user, screen.getAllByRole('group')[0], '02112026')
+
+        expect(onChange).toHaveBeenLastCalledWith({
+          entryEndDate: stored,
+          entryStartDate: startOfFinnishDay('2026-11-02'),
+        })
+      })
+
+      // A cleared field empties its date, however the other one was stored.
+      it.each([
+        { calendar: 0, cleared: { entryStartDate: undefined }, field: 'start' },
+        { calendar: 1, cleared: { entryEndDate: undefined }, field: 'end' },
+      ])('empties the $field when it is cleared', async ({ calendar, cleared }) => {
+        const start = startOfFinnishDay('2026-11-02')
+        const end = endOfFinnishDay('2026-11-20')
+        testEvent = eventWith(eventStart, start, end)
+        const { onChange, user } = await renderEntrySection()
+
+        await user.click(screen.getAllByTestId('CalendarIcon')[calendar])
+        await flushPromises()
+        await user.click(within(await screen.findByRole('dialog')).getByRole('button', { name: 'Clear' }))
+        await flushPromises()
+
+        expect(onChange).toHaveBeenLastCalledWith({ entryEndDate: end, entryStartDate: start, ...cleared })
       })
 
       // The default days are whole Finnish weeks before the trial. Counted in the browser's zone the
