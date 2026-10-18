@@ -25,6 +25,10 @@ export const buildParticipantPaymentPatch = (
   event: JsonConfirmedEvent,
   openPayments: readonly OpenPayment[]
 ): Patch<JsonRegistration> => ({
+  // The page shows a cancelled entry from this flag, and a move between groups can cancel or restore
+  // one (KOE-1553). An undefined key is dropped on the wire and the merge would keep the old flag, so
+  // a row without one says false.
+  cancelled: registration.cancelled ?? false,
   confirmed: registration.confirmed,
   eventId: registration.eventId,
   id: registration.id,

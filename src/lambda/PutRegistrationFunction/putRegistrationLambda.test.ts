@@ -63,8 +63,10 @@ vi.doMock('../lib/stats', () => ({
 }))
 
 const mockPublishEventCounts = vi.fn()
+const mockPublishParticipantRegistrationPatches = vi.fn()
 vi.doMock('../lib/ws/actions', () => ({
   publishEventCounts: mockPublishEventCounts,
+  publishParticipantRegistrationPatches: mockPublishParticipantRegistrationPatches,
   publishRegistrationPatches: mockPublishRegistrationPatches,
   publishRegistrationPatchesStrict: mockPublishRegistrationPatches,
 }))
@@ -1013,6 +1015,12 @@ describe('putRegistrationLabmda', () => {
     expect(mockPatchRegistration).toHaveBeenCalledTimes(1)
     expect(mockSaveRegistration).not.toHaveBeenCalled()
     expect(mockUpdateEventStatsForRegistration).toHaveBeenCalledTimes(1)
+    // The entrant's own save tells their other open pages too, beside the response (KOE-1553).
+    expect(mockPublishParticipantRegistrationPatches).toHaveBeenCalledWith(
+      eventWithStaticDates.id,
+      [registrationWithStaticDates.id],
+      expect.any(Function)
+    )
 
     expect(mockDynamoDBWrite).toHaveBeenCalledWith(
       expect.objectContaining({

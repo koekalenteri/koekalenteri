@@ -64,6 +64,16 @@ const BATCH_WRITE_RETRY_BASE_MS = 50
 const waitForBatchWriteRetry = (attempt: number) =>
   new Promise<void>((resolve) => setTimeout(resolve, BATCH_WRITE_RETRY_BASE_MS * 2 ** (attempt - 2)))
 
+/** The actions of one `update`: fields to set, add to, remove, or take elements out of. */
+export interface UpdateActions {
+  set?: Record<string, any>
+  add?: Record<string, any>
+  remove?: string[]
+  /** DynamoDB's set-difference action: removes the given elements from a set attribute, unlike
+   * `remove`, which drops the whole attribute. Pass a native `Set` as the value (KOE-1529). */
+  delete?: Record<string, unknown>
+}
+
 type UpdateCondition = {
   expression: string
   names?: Record<string, string>
@@ -467,14 +477,7 @@ export default class CustomDynamoClient {
    */
   async update(
     key: Record<string, any>,
-    updates: {
-      set?: Record<string, any>
-      add?: Record<string, any>
-      remove?: string[]
-      /** DynamoDB's set-difference action: removes the given elements from a set attribute, unlike
-       * `remove`, which drops the whole attribute. Pass a native `Set` as the value (KOE-1529). */
-      delete?: Record<string, unknown>
-    },
+    updates: UpdateActions,
     table?: string,
     returnValues?: ReturnValue,
     condition?: UpdateCondition

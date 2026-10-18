@@ -1,5 +1,5 @@
 import type { ChangeEvent, SyntheticEvent } from 'react'
-import type { DateValue } from '@/pages/components/DateRange'
+import type { DayValue } from '@/pages/components/DateRange'
 import type {
   DayKey,
   DeepPartial,
@@ -124,13 +124,15 @@ function BasicInfoSection({
   // instead of showing "required" or an empty list (KOE-1473).
   const secretaryGuidance = !event.organizer?.id && !disabled ? t('event.secretaryRequiresOrganizer') : undefined
   const hasEntries = (event.entries ?? 0) > 0
+  // The event's days are Finnish days: counted and moved so, whatever zone the browser is in (KOE-1539).
+  // The range speaks days; the stored dates stay instants until they are stored as days (KOE-1547).
+  const eventStartDay = dayOf(event.startDate, TIME_ZONE)
+  const eventEndDay = dayOf(event.endDate, TIME_ZONE)
   const handleDateChange = useCallback(
-    (start: DateValue, end: DateValue) => {
-      // The event's days are Finnish days: counted and moved so, whatever zone the browser is in (KOE-1539).
-      const eventStartDay = dayOf(event.startDate, TIME_ZONE)
-      const eventEndDay = dayOf(event.endDate, TIME_ZONE)
-      const startDay = dayOf(start ?? event.startDate, TIME_ZONE)
-      let endDay = dayOf(end ?? event.endDate, TIME_ZONE)
+    (start: DayValue, end: DayValue) => {
+      // A cleared field keeps the day the event has.
+      const startDay = start ?? eventStartDay
+      let endDay = end ?? eventEndDay
       const startDate = dayStart(startDay, TIME_ZONE)
       // A picked end is stored as the end of its day; an end that follows a moved start as the start of
       // its day, as it has been. The time of day settles when the dates become days (KOE-1544).
@@ -159,7 +161,7 @@ function BasicInfoSection({
         startDate,
       })
     },
-    [event, onChange]
+    [event, eventEndDay, eventStartDay, onChange]
   )
   const handleTypeChange = useCallback(
     ({ eventType }: Partial<DogEvent>) => {
@@ -239,11 +241,11 @@ function BasicInfoSection({
             <DateRange
               startLabel={t('event.startDate')}
               endLabel={t('event.endDate')}
-              start={event.startDate}
+              start={eventStartDay}
               startDisabled={hasEntries || disabled}
               startError={errorStates?.startDate}
               startHelperText={helperTexts?.startDate}
-              end={event.endDate}
+              end={eventEndDay}
               endDisabled={disabled}
               endError={errorStates?.endDate}
               endHelperText={helperTexts?.endDate}

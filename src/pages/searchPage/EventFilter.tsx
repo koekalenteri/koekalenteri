@@ -1,7 +1,7 @@
 import type { Theme } from '@mui/material'
 import type { SyntheticEvent } from 'react'
-import type { Organizer, PublicJudge, RegistrationClass } from '../../types'
-import type { DateValue } from '../components/DateRange'
+import type { DayKey, Organizer, PublicJudge, RegistrationClass } from '../../types'
+import type { DayValue } from '../components/DateRange'
 import type { FilterProps } from '../state'
 import TuneOutlinedIcon from '@mui/icons-material/TuneOutlined'
 import { useMediaQuery } from '@mui/material'
@@ -18,7 +18,7 @@ import Typography from '@mui/material/Typography'
 import { useCallback, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { FOCUS_RING, HEADER_HEIGHT } from '../../assets/Theme'
-import { addMonths, dayEndOf, dayOf, dayStart, dayStartOf, hasCalendarDay, TIME_ZONE } from '../../lib/day'
+import { addMonths, dayOf, TIME_ZONE } from '../../lib/day'
 import AutocompleteMulti from '../components/AutocompleteMulti'
 import DateRange from '../components/DateRange'
 import SelectMulti from '../components/SelectMulti'
@@ -34,7 +34,9 @@ interface Props {
   readonly organizers: Organizer[]
 }
 
-const MIN_DATE = new Date(2020, 0, 1)
+/** The first day the range offers. A key: the browser's midnight of 1.1.2020 is 31.12.2019 in Finland east of it (KOE-1548). */
+const MIN_DAY: DayKey = '2020-01-01'
+const DATE_RANGE = { start: MIN_DAY }
 
 export const EventFilter = ({ judges, organizers, eventTypes, eventClasses, filter, onChange, eventCount }: Props) => {
   const { t } = useTranslation()
@@ -48,18 +50,8 @@ export const EventFilter = ({ judges, organizers, eventTypes, eventClasses, filt
     (props: Partial<FilterProps>) => onChange?.({ ...filter, ...props }),
     [filter, onChange]
   )
-  // Whole Finnish days, as the event form stores its dates and as a reload restores the filter: the
-  // picker can report a time of day, and the search drops an event that ended before the start moment.
-  // Kept as plain Dates: the filter goes back to the picker, and a TZDate held there rolls a typed
-  // 29.02 into 01.03 while the year it builds on has no leap day (KOE-1538).
-  const handleDateRangeChange = useCallback(
-    (start: DateValue, end: DateValue) =>
-      setFilter({
-        end: end && hasCalendarDay(end, TIME_ZONE) ? dayEndOf(end, TIME_ZONE) : null,
-        start: start && hasCalendarDay(start, TIME_ZONE) ? dayStartOf(start, TIME_ZONE) : null,
-      }),
-    [setFilter]
-  )
+  // The range gives whole days, as the URL holds them (KOE-1538, KOE-1548).
+  const handleDateRangeChange = useCallback((start: DayValue, end: DayValue) => setFilter({ end, start }), [setFilter])
   const handleEventTypeChange = useCallback(
     (value: readonly string[]) => setFilter({ eventType: [...value] }),
     [setFilter]
@@ -101,11 +93,11 @@ export const EventFilter = ({ judges, organizers, eventTypes, eventClasses, filt
       // with the default range would show nothing. Widen backwards; the moved date stays visible in
       // the range field, so the reader sees why past events appeared and can adjust it.
       const todayKey = dayOf(new Date(), TIME_ZONE)
-      const widen = checked && filter.start && filter.start >= dayStart(todayKey, TIME_ZONE)
+      const widen = checked && filter.start && filter.start >= todayKey
 
       setFilter({
         withResults: checked,
-        ...(widen ? { start: dayStart(addMonths(todayKey, -6), TIME_ZONE) } : {}),
+        ...(widen ? { start: addMonths(todayKey, -6) } : {}),
       })
     },
     [filter.start, setFilter]
@@ -208,7 +200,7 @@ export const EventFilter = ({ judges, organizers, eventTypes, eventClasses, filt
               <DateRange
                 start={filter.start}
                 end={filter.end}
-                range={{ start: MIN_DATE }}
+                range={DATE_RANGE}
                 startLabel={t('daterangeStart')}
                 endLabel={t('daterangeEnd')}
                 onChange={handleDateRangeChange}

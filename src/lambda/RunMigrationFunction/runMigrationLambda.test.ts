@@ -5,9 +5,9 @@ import { answerRejections, constructPartialAPIGwEvent } from '../test-utils/help
 const mockLambda = vi.fn((_name, fn) => answerRejections(fn, mockResponse))
 const mockResponse = vi.fn()
 const mockAuthorize = vi.fn()
-const mockReadAll = vi.fn()
-const mockRead = vi.fn()
-const mockUpdate = vi.fn()
+const mockReadAllEvents = vi.fn()
+const mockReadEvent = vi.fn()
+const mockWriteMigratedEvent = vi.fn()
 const mockReadApplied = vi.fn()
 const mockMarkApplied = vi.fn()
 
@@ -32,26 +32,20 @@ vi.doMock('../lib/dataVersions', () => ({
   readAppliedMigrations: mockReadApplied,
 }))
 
-vi.doMock('../utils/CustomDynamoClient', () => ({
-  default: vi.fn(function MockCustomDynamoClient() {
-    return {
-      read: mockRead,
-      readAll: mockReadAll,
-      update: mockUpdate,
-    }
-  }),
+vi.doMock('../lib/repositories/eventRepository', () => ({
+  readAllEvents: mockReadAllEvents,
+  readEvent: mockReadEvent,
+  writeMigratedEvent: mockWriteMigratedEvent,
 }))
 
 const { default: runMigrationLambda } = await import('./handler')
 
-/** What the lambda sends for a migrated row: its key, the changed fields only, and the condition. */
+/** What the lambda sends for a migrated row: its id, the changed fields only, and the updatedAt it was read with. */
 const updatedRow = (id: string | undefined, set: object = {}) =>
   [
-    id ? { id } : expect.anything(),
+    id ?? expect.any(String),
     { set: expect.objectContaining(set) },
-    undefined,
-    undefined,
-    expect.anything(),
+    expect.toBeOneOf([undefined, expect.any(String)]),
   ] as const
 
 describe('runMigrationLambda', () => {
@@ -79,7 +73,7 @@ describe('runMigrationLambda', () => {
       name: 'Test User',
     })
 
-    mockReadAll.mockResolvedValue([
+    mockReadAllEvents.mockResolvedValue([
       {
         id: 'event1',
         startDate: '2025-01-01',
@@ -100,7 +94,7 @@ describe('runMigrationLambda', () => {
       },
     ])
 
-    mockUpdate.mockResolvedValue({})
+    mockWriteMigratedEvent.mockResolvedValue({})
     mockReadApplied.mockResolvedValue(new Map())
     mockMarkApplied.mockResolvedValue(undefined)
   })
@@ -116,7 +110,7 @@ describe('runMigrationLambda', () => {
 
     expect(mockAuthorize).toHaveBeenCalledWith(event)
     expect(mockResponse).toHaveBeenCalledWith(403, 'Forbidden', event)
-    expect(mockReadAll).not.toHaveBeenCalled()
+    expect(mockReadAllEvents).not.toHaveBeenCalled()
   })
 
   it('returns 401 if not authorized', async () => {
@@ -126,23 +120,23 @@ describe('runMigrationLambda', () => {
 
     expect(mockAuthorize).toHaveBeenCalledWith(event)
     expect(mockResponse).toHaveBeenCalledWith(401, 'Unauthorized', event)
-    expect(mockReadAll).not.toHaveBeenCalled()
+    expect(mockReadAllEvents).not.toHaveBeenCalled()
   })
 
   it('adds season field to events that do not have it', async () => {
     await runMigrationLambda(event)
 
     // Verify events were retrieved
-    expect(mockReadAll).toHaveBeenCalled()
+    expect(mockReadAllEvents).toHaveBeenCalled()
 
     // Verify events without season field were updated
-    expect(mockUpdate).toHaveBeenCalledTimes(2)
+    expect(mockWriteMigratedEvent).toHaveBeenCalledTimes(2)
 
     // Verify first event was updated with correct season
-    expect(mockUpdate).toHaveBeenCalledWith(...updatedRow('event1', { season: '2025' }))
+    expect(mockWriteMigratedEvent).toHaveBeenCalledWith(...updatedRow('event1', { season: '2025' }))
 
     // Verify second event was updated with correct season
-    expect(mockUpdate).toHaveBeenCalledWith(...updatedRow('event2', { season: '2025' }))
+    expect(mockWriteMigratedEvent).toHaveBeenCalledWith(...updatedRow('event2', { season: '2025' }))
 
     // Verify response was returned with per-migration results
     expect(mockResponse).toHaveBeenCalledWith(200, migrationResults(0, 2), event)
@@ -152,14 +146,14 @@ describe('runMigrationLambda', () => {
     await runMigrationLambda(event)
 
     // Verify events were retrieved
-    expect(mockReadAll).toHaveBeenCalled()
+    expect(mockReadAllEvents).toHaveBeenCalled()
 
     // Verify event with season field was not updated
-    expect(mockUpdate).not.toHaveBeenCalledWith(...updatedRow('event3', {}))
+    expect(mockWriteMigratedEvent).not.toHaveBeenCalledWith(...updatedRow('event3', {}))
   })
 
   it('updates events that have incorrect season for start date', async () => {
-    mockReadAll.mockResolvedValueOnce([
+    mockReadAllEvents.mockResolvedValueOnce([
       {
         id: 'event1',
         season: '2024',
@@ -170,8 +164,8 @@ describe('runMigrationLambda', () => {
 
     await runMigrationLambda(event)
 
-    expect(mockUpdate).toHaveBeenCalledTimes(1)
-    expect(mockUpdate).toHaveBeenCalledWith(
+    expect(mockWriteMigratedEvent).toHaveBeenCalledTimes(1)
+    expect(mockWriteMigratedEvent).toHaveBeenCalledWith(
       ...updatedRow('event1', {
         season: '2025',
 
@@ -179,12 +173,12 @@ describe('runMigrationLambda', () => {
       })
     )
     // Every modified row gets the shared updatedAt bump, whatever migration touched it
-    expect(mockUpdate).not.toHaveBeenCalledWith(...updatedRow(undefined, { updatedAt: 'kept' }))
+    expect(mockWriteMigratedEvent).not.toHaveBeenCalledWith(...updatedRow(undefined, { updatedAt: 'kept' }))
     expect(mockResponse).toHaveBeenCalledWith(200, migrationResults(0, 1), event)
   })
 
   it('uses zoned date in TIME_ZONE to determine season year', async () => {
-    mockReadAll.mockResolvedValueOnce([
+    mockReadAllEvents.mockResolvedValueOnce([
       {
         id: 'event1',
         season: '2024',
@@ -195,13 +189,13 @@ describe('runMigrationLambda', () => {
 
     await runMigrationLambda(event)
 
-    expect(mockUpdate).toHaveBeenCalledTimes(1)
-    expect(mockUpdate).toHaveBeenCalledWith(...updatedRow('event1', { season: '2025' }))
+    expect(mockWriteMigratedEvent).toHaveBeenCalledTimes(1)
+    expect(mockWriteMigratedEvent).toHaveBeenCalledWith(...updatedRow('event1', { season: '2025' }))
     expect(mockResponse).toHaveBeenCalledWith(200, migrationResults(0, 1), event)
   })
 
   it('gives a missing updatedAt the shared bump value', async () => {
-    mockReadAll.mockResolvedValueOnce([
+    mockReadAllEvents.mockResolvedValueOnce([
       {
         id: 'event1',
         modifiedAt: '2026-01-01T10:00:00.000Z',
@@ -212,13 +206,13 @@ describe('runMigrationLambda', () => {
 
     await runMigrationLambda(event)
 
-    expect(mockUpdate).toHaveBeenCalledTimes(1)
-    expect(mockUpdate).toHaveBeenCalledWith(...updatedRow('event1', { updatedAt: expect.any(String) }))
+    expect(mockWriteMigratedEvent).toHaveBeenCalledTimes(1)
+    expect(mockWriteMigratedEvent).toHaveBeenCalledWith(...updatedRow('event1', { updatedAt: expect.any(String) }))
     expect(mockResponse).toHaveBeenCalledWith(200, migrationResults(1, 0), event)
   })
 
   it('does not touch an event that already has updatedAt', async () => {
-    mockReadAll.mockResolvedValueOnce([
+    mockReadAllEvents.mockResolvedValueOnce([
       {
         id: 'event1',
         modifiedAt: '2026-01-01T10:00:00.000Z',
@@ -230,12 +224,12 @@ describe('runMigrationLambda', () => {
 
     await runMigrationLambda(event)
 
-    expect(mockUpdate).not.toHaveBeenCalled()
+    expect(mockWriteMigratedEvent).not.toHaveBeenCalled()
     expect(mockResponse).toHaveBeenCalledWith(200, migrationResults(0, 0), event)
   })
 
   it('gives updatedAt the shared bump value even when modifiedAt is invalid', async () => {
-    mockReadAll.mockResolvedValueOnce([
+    mockReadAllEvents.mockResolvedValueOnce([
       {
         id: 'event1',
         modifiedAt: '',
@@ -252,14 +246,14 @@ describe('runMigrationLambda', () => {
 
     await runMigrationLambda(event)
 
-    expect(mockUpdate).toHaveBeenCalledTimes(2)
-    expect(mockUpdate).toHaveBeenCalledWith(...updatedRow('event1', { updatedAt: expect.any(String) }))
-    expect(mockUpdate).toHaveBeenCalledWith(...updatedRow('event2', { updatedAt: expect.any(String) }))
+    expect(mockWriteMigratedEvent).toHaveBeenCalledTimes(2)
+    expect(mockWriteMigratedEvent).toHaveBeenCalledWith(...updatedRow('event1', { updatedAt: expect.any(String) }))
+    expect(mockWriteMigratedEvent).toHaveBeenCalledWith(...updatedRow('event2', { updatedAt: expect.any(String) }))
     expect(mockResponse).toHaveBeenCalledWith(200, migrationResults(2, 0), event)
   })
 
   it('returns migration results with zero count if no events need updating', async () => {
-    mockReadAll.mockResolvedValueOnce([
+    mockReadAllEvents.mockResolvedValueOnce([
       {
         id: 'event1',
         season: '2025', // Already has season field
@@ -277,25 +271,25 @@ describe('runMigrationLambda', () => {
     await runMigrationLambda(event)
 
     // Verify events were retrieved
-    expect(mockReadAll).toHaveBeenCalled()
+    expect(mockReadAllEvents).toHaveBeenCalled()
 
     // Verify no events were updated
-    expect(mockUpdate).not.toHaveBeenCalled()
+    expect(mockWriteMigratedEvent).not.toHaveBeenCalled()
 
     // Verify response was returned with count of 0
     expect(mockResponse).toHaveBeenCalledWith(200, migrationResults(0, 0), event)
   })
 
   it('returns migration results with zero count if no events are found', async () => {
-    mockReadAll.mockResolvedValueOnce(null)
+    mockReadAllEvents.mockResolvedValueOnce([])
 
     await runMigrationLambda(event)
 
     // Verify events were attempted to be retrieved
-    expect(mockReadAll).toHaveBeenCalled()
+    expect(mockReadAllEvents).toHaveBeenCalled()
 
     // Verify no events were updated
-    expect(mockUpdate).not.toHaveBeenCalled()
+    expect(mockWriteMigratedEvent).not.toHaveBeenCalled()
 
     // Verify response was returned with count of 0
     expect(mockResponse).toHaveBeenCalledWith(200, migrationResults(0, 0), event)
@@ -307,7 +301,7 @@ describe('runMigrationLambda', () => {
   // invisible to a club administrator's list until the migration writes it (KOE-1341).
   describe('backfillOrganizerId', () => {
     it('copies organizer.id to the row where it is missing or stale', async () => {
-      mockReadAll.mockResolvedValue([
+      mockReadAllEvents.mockResolvedValue([
         { id: 'event1', organizer: { id: 'org1' }, season: '2025', startDate: '2025-01-01', updatedAt: 'x' },
         {
           id: 'event2',
@@ -329,32 +323,32 @@ describe('runMigrationLambda', () => {
 
       await runMigrationLambda(event)
 
-      expect(mockUpdate).toHaveBeenCalledTimes(2)
-      expect(mockUpdate).toHaveBeenCalledWith(...updatedRow('event1', { organizerId: 'org1' }))
-      expect(mockUpdate).toHaveBeenCalledWith(...updatedRow('event2', { organizerId: 'org2' }))
+      expect(mockWriteMigratedEvent).toHaveBeenCalledTimes(2)
+      expect(mockWriteMigratedEvent).toHaveBeenCalledWith(...updatedRow('event1', { organizerId: 'org1' }))
+      expect(mockWriteMigratedEvent).toHaveBeenCalledWith(...updatedRow('event2', { organizerId: 'org2' }))
       expect(mockResponse).toHaveBeenCalledWith(200, migrationResults(0, 0, 0, 2), event)
     })
   })
 
   describe('backfillStartNumbersPublished', () => {
     it('writes an explicit false when the start list is unpublished', async () => {
-      mockReadAll.mockResolvedValueOnce([
+      mockReadAllEvents.mockResolvedValueOnce([
         { id: 'event1', season: '2026', startDate: '2026-01-01', startListPublished: false, updatedAt: 'kept' },
       ])
 
       await runMigrationLambda(event)
 
-      expect(mockUpdate).toHaveBeenCalledTimes(1)
-      expect(mockUpdate).toHaveBeenCalledWith(
+      expect(mockWriteMigratedEvent).toHaveBeenCalledTimes(1)
+      expect(mockWriteMigratedEvent).toHaveBeenCalledWith(
         ...updatedRow('event1', { startNumbersPublished: false, updatedAt: expect.any(String) })
       )
       // The incremental fetch reads updatedAt, so the backfill must move it
-      expect(mockUpdate).not.toHaveBeenCalledWith(...updatedRow(undefined, { updatedAt: 'kept' }))
+      expect(mockWriteMigratedEvent).not.toHaveBeenCalledWith(...updatedRow(undefined, { updatedAt: 'kept' }))
       expect(mockResponse).toHaveBeenCalledWith(200, migrationResults(0, 0, 1), event)
     })
 
     it('mirrors a per-class list, holding back only the unpublished classes', async () => {
-      mockReadAll.mockResolvedValueOnce([
+      mockReadAllEvents.mockResolvedValueOnce([
         {
           id: 'event1',
           season: '2026',
@@ -366,7 +360,7 @@ describe('runMigrationLambda', () => {
 
       await runMigrationLambda(event)
 
-      expect(mockUpdate).toHaveBeenCalledWith(
+      expect(mockWriteMigratedEvent).toHaveBeenCalledWith(
         ...updatedRow(undefined, { startNumbersPublished: { ALO: true, AVO: false } })
       )
       expect(mockResponse).toHaveBeenCalledWith(200, migrationResults(0, 0, 1), event)
@@ -378,18 +372,18 @@ describe('runMigrationLambda', () => {
       ${undefined}                | ${'an absent flag means published'}
       ${{ ALO: true, AVO: true }} | ${'every class is already out'}
     `('leaves the event alone when $reason', async ({ startListPublished }) => {
-      mockReadAll.mockResolvedValueOnce([
+      mockReadAllEvents.mockResolvedValueOnce([
         { id: 'event1', season: '2026', startDate: '2026-01-01', startListPublished, updatedAt: 'kept' },
       ])
 
       await runMigrationLambda(event)
 
-      expect(mockUpdate).not.toHaveBeenCalled()
+      expect(mockWriteMigratedEvent).not.toHaveBeenCalled()
       expect(mockResponse).toHaveBeenCalledWith(200, migrationResults(0, 0, 0), event)
     })
 
     it('does not overwrite an existing startNumbersPublished', async () => {
-      mockReadAll.mockResolvedValueOnce([
+      mockReadAllEvents.mockResolvedValueOnce([
         {
           id: 'event1',
           season: '2026',
@@ -402,7 +396,7 @@ describe('runMigrationLambda', () => {
 
       await runMigrationLambda(event)
 
-      expect(mockUpdate).not.toHaveBeenCalled()
+      expect(mockWriteMigratedEvent).not.toHaveBeenCalled()
       expect(mockResponse).toHaveBeenCalledWith(200, migrationResults(0, 0, 0), event)
     })
   })
@@ -437,7 +431,7 @@ describe('runMigrationLambda', () => {
       mockMarkApplied.mockImplementation(async (name: string, _count: number, hash: string) => {
         hashes.set(name, hash)
       })
-      mockReadAll.mockResolvedValueOnce([])
+      mockReadAllEvents.mockResolvedValueOnce([])
       await runMigrationLambda(event)
       vi.clearAllMocks()
       mockMarkApplied.mockResolvedValue(undefined)
@@ -449,7 +443,7 @@ describe('runMigrationLambda', () => {
       await runMigrationLambda(event)
 
       expect(mockReadApplied).not.toHaveBeenCalled()
-      expect(mockReadAll).toHaveBeenCalledTimes(1)
+      expect(mockReadAllEvents).toHaveBeenCalledTimes(1)
       expect(mockResponse).toHaveBeenCalledWith(200, migrationResults(0, 2), event)
     })
 
@@ -474,15 +468,15 @@ describe('runMigrationLambda', () => {
 
       await runMigrationLambda(directEvent)
 
-      expect(mockReadAll).not.toHaveBeenCalled()
-      expect(mockUpdate).not.toHaveBeenCalled()
+      expect(mockReadAllEvents).not.toHaveBeenCalled()
+      expect(mockWriteMigratedEvent).not.toHaveBeenCalled()
       expect(mockMarkApplied).not.toHaveBeenCalled()
       expect(mockResponse).toHaveBeenCalledWith(200, [], directEvent)
     })
 
     it('runs a migration again when its stored hash differs from the code', async () => {
       mockReadApplied.mockResolvedValue(new Map([...registryWith(allNames), ['backfillOrganizerId', 'old-hash']]))
-      mockReadAll.mockResolvedValueOnce([organizerRow()])
+      mockReadAllEvents.mockResolvedValueOnce([organizerRow()])
 
       await runMigrationLambda(directEvent)
 
@@ -494,12 +488,12 @@ describe('runMigrationLambda', () => {
 
       await runMigrationLambda(directEvent)
 
-      expect(mockReadAll).not.toHaveBeenCalled()
+      expect(mockReadAllEvents).not.toHaveBeenCalled()
     })
 
     it('treats a registry row without a hash as pending', async () => {
       mockReadApplied.mockResolvedValue(new Map([...registryWith(allNames), ['backfillOrganizerId', undefined]]))
-      mockReadAll.mockResolvedValueOnce([organizerRow()])
+      mockReadAllEvents.mockResolvedValueOnce([organizerRow()])
 
       await runMigrationLambda(directEvent)
 
@@ -527,18 +521,18 @@ describe('runMigrationLambda', () => {
 
       expect(mockAuthorize).toHaveBeenCalledWith(apiEvent)
       expect(mockResponse).toHaveBeenCalledWith(401, 'Unauthorized', apiEvent)
-      expect(mockReadAll).not.toHaveBeenCalled()
+      expect(mockReadAllEvents).not.toHaveBeenCalled()
     })
 
     it('reads the event table once and runs only the missing migrations', async () => {
       mockReadApplied.mockResolvedValue(allButOrganizer())
-      mockReadAll.mockResolvedValueOnce([organizerRow(), { ...organizerRow(), id: 'event2', organizerId: 7 }])
+      mockReadAllEvents.mockResolvedValueOnce([organizerRow(), { ...organizerRow(), id: 'event2', organizerId: 7 }])
 
       await runMigrationLambda(directEvent)
 
-      expect(mockReadAll).toHaveBeenCalledTimes(1)
-      expect(mockUpdate).toHaveBeenCalledTimes(1)
-      expect(mockUpdate).toHaveBeenCalledWith(
+      expect(mockReadAllEvents).toHaveBeenCalledTimes(1)
+      expect(mockWriteMigratedEvent).toHaveBeenCalledTimes(1)
+      expect(mockWriteMigratedEvent).toHaveBeenCalledWith(
         ...updatedRow('event1', { organizerId: 7, updatedAt: expect.not.stringMatching(/^kept$/) })
       )
       expect(mockResponse).toHaveBeenCalledWith(200, [{ count: 1, name: 'backfillOrganizerId' }], directEvent)
@@ -546,16 +540,18 @@ describe('runMigrationLambda', () => {
 
     it('does not run an applied migration even when its rows would change', async () => {
       mockReadApplied.mockResolvedValue(registryWith(['fixSeasonFromStartDate']))
-      mockReadAll.mockResolvedValueOnce([{ id: 'event1', season: '2024', startDate: '2025-01-01', updatedAt: 'kept' }])
+      mockReadAllEvents.mockResolvedValueOnce([
+        { id: 'event1', season: '2024', startDate: '2025-01-01', updatedAt: 'kept' },
+      ])
 
       await runMigrationLambda(directEvent)
 
-      expect(mockUpdate).not.toHaveBeenCalledWith(...updatedRow('event1', {}))
+      expect(mockWriteMigratedEvent).not.toHaveBeenCalledWith(...updatedRow('event1', {}))
     })
 
     it('records each migration it ran, with its count, after the writes', async () => {
       mockReadApplied.mockResolvedValue(allButOrganizer())
-      mockReadAll.mockResolvedValueOnce([organizerRow()])
+      mockReadAllEvents.mockResolvedValueOnce([organizerRow()])
 
       await runMigrationLambda(directEvent)
 
@@ -565,8 +561,8 @@ describe('runMigrationLambda', () => {
 
     it('records nothing when a write fails', async () => {
       mockReadApplied.mockResolvedValue(allButOrganizer())
-      mockReadAll.mockResolvedValueOnce([organizerRow()])
-      mockUpdate.mockRejectedValueOnce(new Error('write failed'))
+      mockReadAllEvents.mockResolvedValueOnce([organizerRow()])
+      mockWriteMigratedEvent.mockRejectedValueOnce(new Error('write failed'))
 
       await expect(runMigrationLambda(directEvent)).rejects.toThrow('write failed')
 
@@ -575,13 +571,15 @@ describe('runMigrationLambda', () => {
 
     it('starts no further row after a write has failed', async () => {
       mockReadApplied.mockResolvedValue(allButOrganizer())
-      mockReadAll.mockResolvedValueOnce(Array.from({ length: 12 }, (_, i) => ({ ...organizerRow(), id: `event${i}` })))
-      mockUpdate.mockRejectedValueOnce(new Error('write failed'))
+      mockReadAllEvents.mockResolvedValueOnce(
+        Array.from({ length: 12 }, (_, i) => ({ ...organizerRow(), id: `event${i}` }))
+      )
+      mockWriteMigratedEvent.mockRejectedValueOnce(new Error('write failed'))
 
       await expect(runMigrationLambda(directEvent)).rejects.toThrow('write failed')
 
       // Only the rows already in flight (the concurrency limit) were written, not the other seven
-      expect(mockUpdate).toHaveBeenCalledTimes(5)
+      expect(mockWriteMigratedEvent).toHaveBeenCalledTimes(5)
     })
   })
 
@@ -597,101 +595,85 @@ describe('runMigrationLambda', () => {
       updatedAt: 'read',
     })
 
-    // The key attribute and the updatedAt the row had when it was read: a deleted row must not come
-    // back as a stub of the migrated fields, and a row someone moved must not be written over.
-    const existsAndUnchanged = (read: string) => ({
-      expression: 'attribute_exists(#id) AND #updatedAt = :foldedFrom',
-      names: { '#id': 'id', '#updatedAt': 'updatedAt' },
-      values: { ':foldedFrom': read },
-    })
-
     beforeEach(() => {
       mockReadApplied.mockResolvedValue(new Map())
     })
 
     it('sends only the fields the migrations changed, so fields written meanwhile are not undone', async () => {
-      mockReadAll.mockResolvedValueOnce([readRow()])
+      mockReadAllEvents.mockResolvedValueOnce([readRow()])
 
       await runMigrationLambda(directEvent)
 
-      expect(mockUpdate).toHaveBeenCalledTimes(1)
-      expect(mockUpdate).toHaveBeenCalledWith(
-        { id: 'event1' },
+      expect(mockWriteMigratedEvent).toHaveBeenCalledTimes(1)
+      // Held to the updatedAt the row had when it was read: a row someone moved must not be written over.
+      expect(mockWriteMigratedEvent).toHaveBeenCalledWith(
+        'event1',
         { set: { organizerId: 7, updatedAt: expect.any(String) } },
-        undefined,
-        undefined,
-        existsAndUnchanged('read')
+        'read'
       )
     })
 
-    it('requires the row to exist, and to have no updatedAt when it had none', async () => {
+    it('holds a row read without updatedAt to still having none', async () => {
       const { updatedAt: _updatedAt, ...withoutUpdatedAt } = readRow()
-      mockReadAll.mockResolvedValueOnce([withoutUpdatedAt])
+      mockReadAllEvents.mockResolvedValueOnce([withoutUpdatedAt])
 
       await runMigrationLambda(directEvent)
 
-      expect(mockUpdate).toHaveBeenCalledWith(
-        { id: 'event1' },
+      expect(mockWriteMigratedEvent).toHaveBeenCalledWith(
+        'event1',
         { set: { organizerId: 7, updatedAt: expect.any(String) } },
-        undefined,
-        undefined,
-        {
-          expression: 'attribute_exists(#id) AND attribute_not_exists(#updatedAt)',
-          names: { '#id': 'id', '#updatedAt': 'updatedAt' },
-        }
+        undefined
       )
     })
 
     it('migrates the fresh row again after a conflict and sends only its own changes', async () => {
-      mockReadAll.mockResolvedValueOnce([readRow()])
-      mockUpdate.mockRejectedValueOnce(conflict())
-      mockRead.mockResolvedValueOnce({ ...readRow(), name: 'saved by the secretary', updatedAt: 'secretary' })
+      mockReadAllEvents.mockResolvedValueOnce([readRow()])
+      mockWriteMigratedEvent.mockRejectedValueOnce(conflict())
+      mockReadEvent.mockResolvedValueOnce({ ...readRow(), name: 'saved by the secretary', updatedAt: 'secretary' })
 
       await runMigrationLambda(directEvent)
 
-      expect(mockRead).toHaveBeenCalledWith({ id: 'event1' }, undefined, true)
-      expect(mockUpdate).toHaveBeenCalledTimes(2)
-      expect(mockUpdate).toHaveBeenLastCalledWith(
-        { id: 'event1' },
+      expect(mockReadEvent).toHaveBeenCalledWith('event1', true)
+      expect(mockWriteMigratedEvent).toHaveBeenCalledTimes(2)
+      expect(mockWriteMigratedEvent).toHaveBeenLastCalledWith(
+        'event1',
         { set: { organizerId: 7, updatedAt: expect.any(String) } },
-        undefined,
-        undefined,
-        existsAndUnchanged('secretary')
+        'secretary'
       )
       expect(mockResponse).toHaveBeenCalledWith(200, migrationResults(0, 0, 0, 1), directEvent)
     })
 
     it('fails the invocation and records nothing after three conflicts', async () => {
-      mockReadAll.mockResolvedValueOnce([readRow()])
-      mockUpdate.mockRejectedValue(conflict())
-      mockRead.mockImplementation(async () => readRow())
+      mockReadAllEvents.mockResolvedValueOnce([readRow()])
+      mockWriteMigratedEvent.mockRejectedValue(conflict())
+      mockReadEvent.mockImplementation(async () => readRow())
 
       await runMigrationLambda(directEvent)
 
       expect(mockResponse).toHaveBeenCalledWith(409, { error: expect.stringContaining('kept changing') }, directEvent)
-      expect(mockUpdate).toHaveBeenCalledTimes(3)
+      expect(mockWriteMigratedEvent).toHaveBeenCalledTimes(3)
       expect(mockMarkApplied).not.toHaveBeenCalled()
     })
 
     it('does not write a row the other save already migrated', async () => {
-      mockReadAll.mockResolvedValueOnce([readRow()])
-      mockUpdate.mockRejectedValueOnce(conflict())
-      mockRead.mockResolvedValueOnce({ ...readRow(), organizerId: 7, updatedAt: 'secretary' })
+      mockReadAllEvents.mockResolvedValueOnce([readRow()])
+      mockWriteMigratedEvent.mockRejectedValueOnce(conflict())
+      mockReadEvent.mockResolvedValueOnce({ ...readRow(), organizerId: 7, updatedAt: 'secretary' })
 
       await runMigrationLambda(directEvent)
 
-      expect(mockUpdate).toHaveBeenCalledTimes(1)
+      expect(mockWriteMigratedEvent).toHaveBeenCalledTimes(1)
       expect(mockResponse).toHaveBeenCalledWith(200, migrationResults(0, 0, 0, 0), directEvent)
     })
 
     it('does not recreate a row that was deleted meanwhile', async () => {
-      mockReadAll.mockResolvedValueOnce([readRow()])
-      mockUpdate.mockRejectedValueOnce(conflict())
-      mockRead.mockResolvedValueOnce(undefined)
+      mockReadAllEvents.mockResolvedValueOnce([readRow()])
+      mockWriteMigratedEvent.mockRejectedValueOnce(conflict())
+      mockReadEvent.mockResolvedValueOnce(undefined)
 
       await runMigrationLambda(directEvent)
 
-      expect(mockUpdate).toHaveBeenCalledTimes(1)
+      expect(mockWriteMigratedEvent).toHaveBeenCalledTimes(1)
       expect(mockResponse).toHaveBeenCalledWith(200, migrationResults(0, 0, 0, 0), directEvent)
     })
   })

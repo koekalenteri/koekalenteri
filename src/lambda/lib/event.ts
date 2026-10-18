@@ -1,6 +1,5 @@
 import type { AuditActor, GroupChangeReason } from '../../lib/audit'
 import type {
-  ClassOrNone,
   ConfirmedEventStates,
   EventClassState,
   EventState,
@@ -13,30 +12,43 @@ import type {
   Patch,
   Registration,
   RegistrationClass,
-  ResultsPublishedState,
 } from '../../types'
+import type { EventWorkflowLock } from './repositories/eventRepository'
 import { randomUUID } from 'node:crypto'
 import { auditUser, groupChangeAudit } from '../../lib/audit'
 import { dayStartOf, TIME_ZONE } from '../../lib/day'
-import { isResultsPublishedClassMap, withResultsDay } from '../../lib/event'
+import { withResultsDay } from '../../lib/event'
 import { KC_STATE_HANDED_OVER } from '../../lib/kennelliittoResults'
 import { getResultsBlocker, isResultsPublishedState } from '../../lib/publishing'
 import { GROUP_KEY_CANCELLED, hasPriority, REGISTRATION_WRITE_CONCURRENCY } from '../../lib/registration'
 import { normalizeRegistrationGroups } from '../../lib/registrationGroups'
 import { mapWithConcurrency } from '../../lib/utils'
-import { CONFIG } from '../config'
-import CustomDynamoClient from '../utils/CustomDynamoClient'
 import { isConditionalCheckFailure } from './api-gw'
 import { audit, registrationAuditKey } from './audit'
-import { foldedFrom, retryOnConditionFailure } from './conditionalWrite'
+import { retryOnConditionFailure } from './conditionalWrite'
 import { httpError, LambdaError } from './lambda'
 import { createPatch } from './patch'
-import { createRegistrationPatches, getReadyRegistrationsByEventId, getRegistrationsByEventId } from './registration'
-
-type EventEntryEndDates = Pick<JsonDogEvent, 'id' | 'entryEndDate' | 'entryOrigEndDate'>
-
-const { eventTable, registrationTable } = CONFIG
-const dynamoDB = new CustomDynamoClient(eventTable)
+import {
+  createRegistrationPatches,
+  getReadyRegistrationsByEventId,
+  getRegistrationsByEventId,
+  writeRegistrationGroup,
+} from './registration'
+import {
+  clearWorkflowLock,
+  findEventIdsByKcGuid,
+  findEventIdsByKcId,
+  readEvent,
+  readLastEntryEndBefore,
+  restoreKcState,
+  writeEvent,
+  writeEventFields,
+  writeKcGuidLink,
+  writeKcStateLock,
+  writeKcStateReading,
+  writeResultsPublished,
+  writeWorkflowLock,
+} from './repositories/eventRepository'
 
 /**
  * Event fields the published start list is derived from. Every other event change reaches an open
@@ -75,7 +87,7 @@ const EVENT_STATES: EventState[] = ['confirmed', ...EVENT_CLASS_STATES] as const
 
 /** `consistent` reads the row as last written, for a caller about to write back what it folds from it. */
 export const getEvent = async <T extends JsonDogEvent = JsonDogEvent>(id: string, consistent = false): Promise<T> => {
-  const jsonEvent = await dynamoDB.read<T>({ id }, eventTable, consistent)
+  const jsonEvent = await readEvent<T>(id, consistent)
   if (!jsonEvent) {
     throw new LambdaError(404, `Event with id '${id}' was not found`)
   }
@@ -87,12 +99,7 @@ export const findEventWithKcId = async (
   kcId: number,
   excludeId?: string
 ): Promise<Pick<JsonDogEvent, 'id'> | undefined> => {
-  const matches = await dynamoDB.readAll<Pick<JsonDogEvent, 'id'>>({
-    filter: 'kcId = :kcId',
-    projection: 'id',
-    table: eventTable,
-    values: { ':kcId': kcId },
-  })
+  const matches = await findEventIdsByKcId(kcId)
   return matches?.find((match) => match.id !== excludeId)
 }
 
@@ -100,12 +107,7 @@ export const findEventWithKcGuid = async (
   kcGuid: string,
   excludeId?: string
 ): Promise<Pick<JsonDogEvent, 'id'> | undefined> => {
-  const matches = await dynamoDB.readAll<Pick<JsonDogEvent, 'id'>>({
-    filter: 'kcGuid = :kcGuid',
-    projection: 'id',
-    table: eventTable,
-    values: { ':kcGuid': kcGuid },
-  })
+  const matches = await findEventIdsByKcGuid(kcGuid)
   return matches?.find((match) => match.id !== excludeId)
 }
 
@@ -113,25 +115,18 @@ export const findQualificationStartDate = async (
   eventType: string,
   entryEndDate: string
 ): Promise<string | undefined> => {
-  const result = await dynamoDB.query<EventEntryEndDates>({
-    forward: false,
-    index: 'gsiEventTypeEntryEndDate',
-    key: 'eventType = :eventType AND entryEndDate < :entryEndDate',
-    limit: 1,
-    table: CONFIG.eventTable,
-    values: { ':entryEndDate': entryEndDate, ':eventType': eventType },
-  })
+  const previous = await readLastEntryEndBefore(eventType, entryEndDate)
 
-  if (result?.length === 1 && result[0]?.entryEndDate) {
+  if (previous?.entryEndDate) {
     // The Finnish day after the previous trial's entry closed, from its start.
-    const date = new Date(result[0].entryOrigEndDate ?? result[0].entryEndDate)
+    const date = new Date(previous.entryOrigEndDate ?? previous.entryEndDate)
     const qualificationStartDate = dayStartOf(date, TIME_ZONE, 1)
     return qualificationStartDate.toISOString()
   }
 }
 
 export const saveEvent = async (data: JsonDogEvent): Promise<EventChange> => {
-  await dynamoDB.write(data, eventTable)
+  await writeEvent(data)
 
   const patch = { ...data, eventId: data.id }
   if (data.state === 'draft') {
@@ -156,14 +151,10 @@ export const patchEvent = async (
     return { event: existing }
   }
 
-  await dynamoDB.update(
-    { id: eventId },
-    {
-      ...(set ? { set } : {}),
-      ...(remove ? { remove } : {}),
-    },
-    eventTable
-  )
+  await writeEventFields(eventId, {
+    ...(set ? { set } : {}),
+    ...(remove ? { remove } : {}),
+  })
 
   const change: EventChange = staysDraft
     ? { audience: 'admin', organizerId: next.organizer.id, patch: { eventId, ...changes } }
@@ -216,8 +207,6 @@ export const markParticipants = async (
   state: EventClassState,
   eventClass?: Registration['class']
 ) => {
-  const eventKey = { id: confirmedEvent.id }
-
   // Sending invitations must not implicitly publish the start list. Keep any
   // publication choice already made by the secretary.
   if (state === 'invited' && confirmedEvent.startListPublished === undefined) {
@@ -237,25 +226,19 @@ export const markParticipants = async (
     confirmedEvent.state = upgradeEventState(confirmedEvent.state, state)
   }
 
-  await dynamoDB.update(
-    eventKey,
-    {
-      set: {
-        classes: confirmedEvent.classes,
-        state: confirmedEvent.state,
-        ...(state === 'invited' ? { startListPublished: confirmedEvent.startListPublished } : {}),
-        updatedAt: new Date().toISOString(),
-      },
+  await writeEventFields(confirmedEvent.id, {
+    set: {
+      classes: confirmedEvent.classes,
+      state: confirmedEvent.state,
+      ...(state === 'invited' ? { startListPublished: confirmedEvent.startListPublished } : {}),
+      updatedAt: new Date().toISOString(),
     },
-    eventTable
-  )
+  })
 
   return confirmedEvent
 }
 
 export const updateRegistrations = async (eventId: string, updatedRegistrations?: JsonRegistration[]) => {
-  const eventKey = { id: eventId }
-
   const confirmedEvent = await getEvent<JsonConfirmedEvent>(eventId)
   if (!confirmedEvent) {
     throw new LambdaError(404, `Event with id "${eventId}" not found`)
@@ -291,18 +274,14 @@ export const updateRegistrations = async (eventId: string, updatedRegistrations?
 
   const updatedAt = new Date().toISOString()
 
-  await dynamoDB.update(
-    eventKey,
-    {
-      set: {
-        classes,
-        entries,
-        members,
-        updatedAt,
-      },
+  await writeEventFields(eventId, {
+    set: {
+      classes,
+      entries,
+      members,
+      updatedAt,
     },
-    eventTable
-  )
+  })
 
   confirmedEvent.entries = entries
   confirmedEvent.members = members
@@ -314,8 +293,6 @@ export const updateRegistrations = async (eventId: string, updatedRegistrations?
 
 const EVENT_WORKFLOW_LOCK_DURATION_MS = 90 * 1000
 
-type EventWorkflowLock = 'registrationGroupsLock' | 'registrationPaymentsLock'
-
 const lockEventWorkflow = async (
   eventId: string,
   field: EventWorkflowLock,
@@ -323,21 +300,10 @@ const lockEventWorkflow = async (
   conflictMessage: string
 ): Promise<() => Promise<void>> => {
   const token = randomUUID()
-  const lockName = `#${field}`
   for (let attempt = 0; ; attempt++) {
     const now = Date.now()
     try {
-      await dynamoDB.update(
-        { id: eventId },
-        { set: { [field]: { expiresAt: now + EVENT_WORKFLOW_LOCK_DURATION_MS, token } } },
-        eventTable,
-        undefined,
-        {
-          expression: `attribute_exists(#id) AND (attribute_not_exists(${lockName}) OR ${lockName}.#expiresAt < :now)`,
-          names: { '#expiresAt': 'expiresAt', '#id': 'id', [lockName]: field },
-          values: { ':now': now },
-        }
-      )
+      await writeWorkflowLock(eventId, field, token, now, now + EVENT_WORKFLOW_LOCK_DURATION_MS)
       break
     } catch (error) {
       if ((error as { name?: string }).name !== 'ConditionalCheckFailedException') throw error
@@ -349,11 +315,7 @@ const lockEventWorkflow = async (
 
   return async () => {
     try {
-      await dynamoDB.update({ id: eventId }, { remove: [field] }, eventTable, undefined, {
-        expression: `${lockName}.#token = :token`,
-        names: { [lockName]: field, '#token': 'token' },
-        values: { ':token': token },
-      })
+      await clearWorkflowLock(eventId, field, token)
     } catch (error) {
       if ((error as { name?: string }).name !== 'ConditionalCheckFailedException') throw error
     }
@@ -395,31 +357,23 @@ export const saveGroup = async (
   const cancelled = group?.key === GROUP_KEY_CANCELLED
   const updatedAt = new Date().toISOString()
   if (cancelled && cancelReason) {
-    await dynamoDB.update(
-      registrationKey,
-      {
-        set: {
-          cancelled,
-          cancelReason,
-          group: { ...group }, // https://stackoverflow.com/questions/37006008/typescript-index-signature-is-missing-in-type
-          updatedAt,
-        },
+    await writeRegistrationGroup(eventId, id, {
+      set: {
+        cancelled,
+        cancelReason,
+        group: { ...group }, // https://stackoverflow.com/questions/37006008/typescript-index-signature-is-missing-in-type
+        updatedAt,
       },
-      registrationTable
-    )
+    })
   } else {
-    await dynamoDB.update(
-      registrationKey,
-      {
-        set: {
-          cancelled,
-          group: { ...group }, // https://stackoverflow.com/questions/37006008/typescript-index-signature-is-missing-in-type
-          updatedAt,
-        },
-        ...(previous?.key === GROUP_KEY_CANCELLED && !cancelled ? { remove: ['cancelReason'] } : {}),
+    await writeRegistrationGroup(eventId, id, {
+      set: {
+        cancelled,
+        group: { ...group }, // https://stackoverflow.com/questions/37006008/typescript-index-signature-is-missing-in-type
+        updatedAt,
       },
-      registrationTable
-    )
+      ...(previous?.key === GROUP_KEY_CANCELLED && !cancelled ? { remove: ['cancelReason'] } : {}),
+    })
   }
   const groupAudit = groupChangeAudit(previous, group, reason)
   if (groupAudit) await audit({ auditKey: registrationAuditKey(registrationKey), ...groupAudit, ...auditUser(user) })
@@ -497,25 +451,6 @@ const publishBlocked = (confirmedEvent: JsonConfirmedEvent, { date, eventClass, 
   return reason && httpError(422, { error: 'publishBlocked', eventClass, publish: 'results', reason })
 }
 
-/** The write of one day's change: the class's own entry of a stored map, or else the whole flag. */
-const resultsWrite = (confirmedEvent: JsonConfirmedEvent, eventClass: ClassOrNone, next: ResultsPublishedState) => {
-  const stored = confirmedEvent.resultsPublished
-  if (eventClass && isResultsPublishedClassMap(stored) && isResultsPublishedClassMap(next)) {
-    return {
-      condition: foldedFrom(
-        '#resultsPublished.#resultsClass',
-        { '#resultsClass': eventClass, '#resultsPublished': 'resultsPublished' },
-        stored[eventClass]
-      ),
-      set: { [`resultsPublished.${eventClass}`]: next[eventClass] },
-    }
-  }
-  return {
-    condition: foldedFrom('#resultsPublished', { '#resultsPublished': 'resultsPublished' }, stored),
-    set: { resultsPublished: next },
-  }
-}
-
 /**
  * One attempt: judge the publish by the publishing rules, fold the day into the flag as read, and
  * write it on condition that the flag is still as read (see foldedFrom). Answers with the event as
@@ -530,20 +465,13 @@ const writeResultsDay = async (
   if (blocked) throw blocked
 
   const { date, eventClass, published } = request
-  const { condition, set } = resultsWrite(
-    confirmedEvent,
+  const resultsPublished = await writeResultsPublished(
+    confirmedEvent.id,
     eventClass,
-    withResultsDay(confirmedEvent, eventClass, date, published)
+    confirmedEvent.resultsPublished,
+    withResultsDay(confirmedEvent, eventClass, date, published),
+    updatedAt
   )
-  const output = await dynamoDB.update(
-    { id: confirmedEvent.id },
-    { set: { ...set, updatedAt } },
-    eventTable,
-    'ALL_NEW',
-    condition
-  )
-
-  const resultsPublished: unknown = output.Attributes?.resultsPublished
   if (!isResultsPublishedState(resultsPublished)) throw new Error('the written row holds no results flag')
   return { ...confirmedEvent, resultsPublished, updatedAt }
 }
@@ -602,17 +530,7 @@ const KC_LOCK_WINDOW_MS = 30_000
 export const writeKcState = async (eventId: string, kcState: JsonKcState, updatedAt: string): Promise<boolean> => {
   const freshAfter = new Date(Date.parse(kcState.readAt) - KC_LOCK_WINDOW_MS).toISOString()
   try {
-    await dynamoDB.update({ id: eventId }, { set: { kcState, updatedAt } }, eventTable, 'NONE', {
-      expression:
-        'attribute_exists(#id) AND (attribute_not_exists(#kcState) OR (#kcState.#readAt <= :readAt AND (:code = :handedOver OR #kcState.#code <> :handedOver OR #kcState.#readAt <= :freshAfter)))',
-      names: { '#code': 'code', '#id': 'id', '#kcState': 'kcState', '#readAt': 'readAt' },
-      values: {
-        ':code': kcState.code,
-        ':freshAfter': freshAfter,
-        ':handedOver': KC_STATE_HANDED_OVER,
-        ':readAt': kcState.readAt,
-      },
-    })
+    await writeKcStateReading(eventId, kcState, freshAfter, KC_STATE_HANDED_OVER, updatedAt)
     return true
   } catch (error) {
     if (isConditionalCheckFailure(error)) return false
@@ -628,12 +546,7 @@ export const writeKcState = async (eventId: string, kcState: JsonKcState, update
  */
 export const lockKcState = async (eventId: string, locked: JsonKcState, handedOver: number): Promise<boolean> => {
   try {
-    await dynamoDB.update({ id: eventId }, { set: { kcState: locked, updatedAt: locked.readAt } }, eventTable, 'NONE', {
-      expression:
-        'attribute_exists(#id) AND (attribute_not_exists(#kcState) OR (#kcState.#code <> :handedOver AND #kcState.#readAt <= :readAt))',
-      names: { '#code': 'code', '#id': 'id', '#kcState': 'kcState', '#readAt': 'readAt' },
-      values: { ':handedOver': handedOver, ':readAt': locked.readAt },
-    })
+    await writeKcStateLock(eventId, locked, handedOver)
     return true
   } catch (error) {
     if (isConditionalCheckFailure(error)) return false
@@ -653,11 +566,7 @@ export const releaseKcState = async (
   updatedAt: string
 ): Promise<boolean> => {
   try {
-    await dynamoDB.update({ id: eventId }, { set: { kcState: restored, updatedAt } }, eventTable, 'NONE', {
-      expression: 'attribute_exists(#id) AND #kcState.#readAt = :lockedAt',
-      names: { '#id': 'id', '#kcState': 'kcState', '#readAt': 'readAt' },
-      values: { ':lockedAt': lockedAt },
-    })
+    await restoreKcState(eventId, restored, lockedAt, updatedAt)
     return true
   } catch (error) {
     if (isConditionalCheckFailure(error)) return false
@@ -668,10 +577,7 @@ export const releaseKcState = async (
 /** Links an event that has none to the trial found for it. A link another save made first stays. */
 export const writeKcGuid = async (eventId: string, kcGuid: string, updatedAt: string): Promise<boolean> => {
   try {
-    await dynamoDB.update({ id: eventId }, { set: { kcGuid, updatedAt } }, eventTable, 'NONE', {
-      expression: 'attribute_exists(#id) AND attribute_not_exists(#kcGuid)',
-      names: { '#id': 'id', '#kcGuid': 'kcGuid' },
-    })
+    await writeKcGuidLink(eventId, kcGuid, updatedAt)
     return true
   } catch (error) {
     if (isConditionalCheckFailure(error)) return false

@@ -129,8 +129,10 @@ vi.doMock('../lib/stats', () => ({
 }))
 
 const mockPublishEventCounts = vi.fn()
+const mockPublishParticipantRegistrationPatches = vi.fn()
 vi.doMock('../lib/ws/actions', () => ({
   publishEventCounts: mockPublishEventCounts,
+  publishParticipantRegistrationPatches: mockPublishParticipantRegistrationPatches,
   publishRegistrationPatches: mockPublishRegistrationPatches,
   publishRegistrationPatchesStrict: mockPublishRegistrationPatches,
 }))
@@ -540,6 +542,8 @@ describe('putAdminRegistrationLambda', () => {
       expect.not.arrayContaining([expect.objectContaining({ dog: expect.anything() })]),
       'org-1'
     )
+    // The entrant's open page hears the secretary's edit too (KOE-1553).
+    expect(mockPublishParticipantRegistrationPatches).toHaveBeenCalledWith('event123', ['reg456'], expect.any(Function))
 
     expect(result.statusCode).toBe(200)
   })

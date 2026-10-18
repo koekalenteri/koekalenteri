@@ -4,7 +4,7 @@ import { isDate } from 'date-fns/isDate'
 import { isValid } from 'date-fns/isValid'
 import { atom } from 'jotai'
 import { atomWithLazy } from 'jotai/utils'
-import { dayStartOf, TIME_ZONE } from '@/lib/day'
+import { dayOf, TIME_ZONE } from '@/lib/day'
 import { arrayOf, toPublicDogEvent } from '@/lib/wire'
 import { atomWithLocalStorage } from '../storage'
 import { deserializeFilter, serializeFilter } from './filters'
@@ -62,7 +62,7 @@ const defaultFilter = (): FilterProps => ({
   eventType: [],
   judge: [],
   organizer: [],
-  start: dayStartOf(new Date(), TIME_ZONE),
+  start: dayOf(new Date(), TIME_ZONE),
   withClosingEntry: false,
   withFreePlaces: false,
   withOpenEntry: false,

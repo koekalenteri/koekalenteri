@@ -19,6 +19,9 @@
             TableName: !Ref EventStatsTable
         - DynamoDBReadPolicy:
             TableName: !Ref UserTable
+        # The entrant's payment picture after a secretary's edit reads the open payments (KOE-1553).
+        - DynamoDBReadPolicy:
+            TableName: !Ref TransactionTable
         - !Ref AuthorizePolicy
         - CloudWatchPutMetricPolicy: {}
         - Statement:

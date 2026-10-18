@@ -51,6 +51,7 @@ describe('ws/payloads', () => {
       updatedAt: undefined,
     }
     expect(buildParticipantPaymentPatch(row, event, [])).toEqual({
+      cancelled: false,
       confirmed: true,
       eventId: 'e1',
       id: 'r1',
@@ -98,6 +99,20 @@ describe('ws/payloads', () => {
     expect(unpaid.payment?.status).toBe('unpaid')
     expect(patchMerge({ payment: unpaid.payment }, { payment: paid.payment })).toEqual({ payment: paid.payment })
     expect(paid.payment?.status).toBe('paid')
+  })
+
+  // A secretary can move a cancelled entry back into a group (KOE-1553). The patch goes as JSON, which
+  // drops an undefined key, so a row with no flag must still clear the page's cancelled one.
+  it.each([
+    [undefined, false],
+    [false, false],
+    [true, true],
+  ])('sends cancelled %p as %p over the wire', (cancelled, shown) => {
+    const event: JsonConfirmedEvent = JSON.parse(JSON.stringify({ ...eventWithStaticDates, cost: 50, costMember: 50 }))
+    const row = { ...JSON.parse(JSON.stringify(registrationWithStaticDates)), cancelled, eventId: 'e1', id: 'r1' }
+    const wire = JSON.parse(JSON.stringify(buildParticipantPaymentPatch(row, event, [])))
+
+    expect(patchMerge({ cancelled: !shown }, { cancelled: wire.cancelled })).toEqual({ cancelled: shown })
   })
 
   it('buildEventViewersPayload returns admin scope payload', () => {

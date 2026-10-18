@@ -14,14 +14,10 @@ import {
 } from '../../lib/event'
 import { getRegistrationClass, isScorableRegistration, REGISTRATION_WRITE_CONCURRENCY } from '../../lib/registration'
 import { mapWithConcurrency } from '../../lib/utils'
-import { CONFIG } from '../config'
-import CustomDynamoClient from '../utils/CustomDynamoClient'
 import { audit, registrationAuditKey } from './audit'
 import { httpError, LambdaError } from './lambda'
 import { removeRegistrationField, updateRegistrationField } from './registration'
-
-const { eventTable } = CONFIG
-const dynamoDB = new CustomDynamoClient(eventTable)
+import { writeEventFields } from './repositories/eventRepository'
 
 /** One number as the secretary enters it — the on-site draw's result, not a reordering request. */
 export interface StartNumberEntry {
@@ -363,7 +359,7 @@ export const setStartNumbersPublishedState = async (
     : scope
 
   const updatedAt = now.toISOString()
-  await dynamoDB.update({ id: confirmedEvent.id }, { set: { startNumbersPublished, updatedAt } }, eventTable)
+  await writeEventFields(confirmedEvent.id, { set: { startNumbersPublished, updatedAt } })
 
   return { startNumbersPublished, updatedAt }
 }

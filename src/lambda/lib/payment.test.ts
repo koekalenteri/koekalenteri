@@ -26,6 +26,19 @@ vi.doMock('./audit', () => ({
   registrationAuditKey: (registration: { eventId: string; id: string }) => `${registration.eventId}:${registration.id}`,
 }))
 vi.doMock('./event', () => ({ getEvent: mockGetEvent }))
+// The entrants' publisher is the boundary: here every entrant named has the page open (KOE-1553).
+const mockToEntrant = vi.fn()
+vi.doMock('./ws/actions', () => ({
+  publishParticipantRegistrationPatches: async (
+    eventId: string,
+    registrationIds: readonly string[],
+    buildPatch: (registrationId: string) => Promise<unknown>
+  ) => {
+    for (const registrationId of registrationIds) {
+      mockToEntrant(eventId, registrationId, await buildPatch(registrationId))
+    }
+  },
+}))
 vi.doMock('./registration', async (importOriginal) => ({
   ...(await importOriginal<typeof import('./registration')>()),
   getRegistration: mockGetRegistration,
@@ -53,6 +66,8 @@ const {
   participantPaymentPatch,
   participantResponse,
   paymentDescription,
+  publishParticipantPayments,
+  storedParticipantPaymentPatch,
   refundPaytrailErrorAudit,
   releaseTransactionCreation,
   resolveCallbackTransaction,
@@ -446,6 +461,45 @@ describe('payment', () => {
       await expect(participantPaymentPatch(withOpenPayment, event)).resolves.toMatchObject({
         payment: { canPay: true, status: 'unpaid' },
       })
+    })
+
+    it('storedParticipantPaymentPatch builds from the row as stored, read strongly consistent (KOE-1553)', async () => {
+      mockRead.mockResolvedValueOnce({ ...withOpenPayment, updatedAt: '2030-01-01T00:00:00.500Z' })
+      mockBatchGet.mockResolvedValueOnce([{ createdAt: minutesAgo(1), status: 'pending', type: 'payment' }])
+
+      await expect(storedParticipantPaymentPatch(event, withOpenPayment.id)).resolves.toMatchObject({
+        id: withOpenPayment.id,
+        payment: { canPay: false, status: 'inProgress' },
+        updatedAt: '2030-01-01T00:00:00.500Z',
+      })
+      expect(mockRead).toHaveBeenCalledWith({ eventId: event.id, id: withOpenPayment.id }, expect.any(String), true)
+    })
+
+    it('storedParticipantPaymentPatch has nothing for a row that is gone', async () => {
+      mockRead.mockResolvedValueOnce(undefined)
+
+      await expect(storedParticipantPaymentPatch(event, 'gone')).resolves.toBeUndefined()
+      expect(mockBatchGet).not.toHaveBeenCalled()
+    })
+
+    it("publishParticipantPayments sends each entrant its own stored row's picture", async () => {
+      const other: JsonRegistration = { ...withOpenPayment, id: 'other', openPayments: [], paidAmount: 50 }
+      mockRead.mockResolvedValueOnce(withOpenPayment).mockResolvedValueOnce(other)
+      mockBatchGet.mockResolvedValueOnce([{ createdAt: minutesAgo(10), status: 'pending', type: 'payment' }])
+
+      await publishParticipantPayments(event, [withOpenPayment.id, other.id])
+
+      expect(mockToEntrant).toHaveBeenCalledTimes(2)
+      expect(mockToEntrant).toHaveBeenCalledWith(
+        event.id,
+        withOpenPayment.id,
+        expect.objectContaining({ payment: expect.objectContaining({ canPay: true, status: 'unpaid' }) })
+      )
+      expect(mockToEntrant).toHaveBeenCalledWith(
+        event.id,
+        other.id,
+        expect.objectContaining({ payment: expect.objectContaining({ canPay: false, status: 'paid' }) })
+      )
     })
 
     it('reads no open payments as not in progress, without calling batchGet', async () => {
