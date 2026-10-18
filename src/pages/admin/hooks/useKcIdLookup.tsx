@@ -4,7 +4,8 @@ import { enqueueSnackbar } from 'notistack'
 import { useCallback, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { searchEventKcIdChoices } from '@/api/event'
-import { dayEndOf, dayOf, dayStartOf, TIME_ZONE } from '@/lib/day'
+import { dayEndOf, dayStartOf, TIME_ZONE } from '@/lib/day'
+import { finnishDaySpan } from '@/lib/event'
 import { idTokenAtom } from '../../state'
 
 /** The event details the Kennelliitto search matches against. */
@@ -16,14 +17,6 @@ export interface KcIdLookupEvent {
   name?: string
   organizer?: { id?: string; name?: string }
   startDate: Date
-}
-
-const formatDateSpan = (start?: Date, end?: Date) => {
-  if (!start) return ''
-  const startDate = dayOf(start, TIME_ZONE)
-  const endDate = end ? dayOf(end, TIME_ZONE) : startDate
-
-  return startDate === endDate ? startDate : `${startDate} - ${endDate}`
 }
 
 /**
@@ -84,7 +77,7 @@ export const useKcIdLookup = (
   const search = useCallback(async () => {
     if (!organizerId) return
 
-    const criteria = [event.organizer?.name, event.eventType, formatDateSpan(event.startDate, event.endDate)]
+    const criteria = [event.organizer?.name, event.eventType, finnishDaySpan(event.startDate, event.endDate)]
       .filter(Boolean)
       .join(', ')
 

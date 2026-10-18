@@ -50,6 +50,12 @@ describe('getEventsLambda', () => {
     vi.clearAllMocks()
   })
 
+  // A test that fails before its own cleanup must not leave a frozen clock or queued answers behind.
+  afterEach(() => {
+    vi.useRealTimers()
+    mockQuery.mockReset()
+  })
+
   it('returns sanitized events', async () => {
     const allEvents = [
       { createdBy: 'user1', id: 'event1', name: 'Event 1', state: 'confirmed' },

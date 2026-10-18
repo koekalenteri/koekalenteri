@@ -14,7 +14,8 @@ import {
   eachDay,
   hasCalendarDay,
   isDayKey,
-  monthOf,
+  isInstantString,
+  monthKeyOf,
   sameDay,
   shiftDays,
   TIME_ZONE,
@@ -429,12 +430,40 @@ describe('the readers of an instant', () => {
     expect(sameDay(lastMoments, newYear, 'UTC')).toBe(true)
   })
 
-  it('yearOf and monthOf read the year and the month in the zone', () => {
+  it('yearOf reads the year in the zone', () => {
     expect(yearOf(lastMoments, TIME_ZONE)).toBe(2025)
     expect(yearOf(new Date('2025-12-31T22:30:00.000Z'), TIME_ZONE)).toBe(2026)
     expect(yearOf(lastMoments, 'America/New_York')).toBe(2025)
-    expect(monthOf(lastMoments, TIME_ZONE)).toBe('2025-12')
-    expect(monthOf(new Date('2025-12-31T22:30:00.000Z'), TIME_ZONE)).toBe('2026-01')
+  })
+
+  it("monthKeyOf is a day's yyyy-MM", () => {
+    expect(monthKeyOf('2026-01-01')).toBe('2026-01')
+    expect(monthKeyOf(dayOf(new Date('2025-12-31T22:30:00.000Z'), TIME_ZONE))).toBe('2026-01')
+  })
+})
+
+describe('isInstantString', () => {
+  it.each(['2016-09-18T17:34:02.666Z', '2021-05-10T09:05:12.000Z', '2018-06-19T04:06Z', '2026-06-28T00:00:00+03:00'])(
+    'accepts %s',
+    (value) => {
+      expect(isInstantString(value)).toBe(true)
+    }
+  )
+
+  it.each([
+    ['a day the month does not have', '2026-04-31T00:00:00.000Z'],
+    ['the 30th of February', '2026-02-30T00:00:00Z'],
+    ['a stamp without a zone', '2026-06-28T00:00'],
+    ['a stamp without a zone, with seconds', '2026-06-28T00:00:00'],
+    ['a bare day', '2026-06-28'],
+    ['an hour 24', '2021-01-10T24:05:12.000Z'],
+    ['a minute 70', '2021-01-10T23:70:12.000Z'],
+    ['two Ts', '2021-01-10T23:00T00Z'],
+    ["the Kennel Club's empty date", '0001-01-01T00:00:00.000Z'],
+    ['a number', 12],
+    ['a Date', new Date()],
+  ])('rejects %s', (_name, value) => {
+    expect(isInstantString(value)).toBe(false)
   })
 })
 

@@ -4,7 +4,8 @@ import Typography from '@mui/material/Typography'
 import { useAtom, useAtomValue } from 'jotai'
 import { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { currentYear, TIME_ZONE, yearOf } from '../../lib/day'
+import { currentYear, TIME_ZONE } from '../../lib/day'
+import { getEventSeason } from '../../lib/event'
 import AutocompleteSingle from '../components/AutocompleteSingle'
 import CancellationRateChart from '../components/stats/CancellationRateChart'
 import CapacityUtilizationChart, { ALL_CLASSES_ID } from '../components/stats/CapacityUtilizationChart'
@@ -47,9 +48,15 @@ export default function OrganizerStatsPage() {
   // Derived from the stats already loaded rather than from /stats: the global year list would
   // cost four queries per year, and years with no events of your own are not selectable anyway.
   const years = useMemo(() => {
-    const found = new Set(allOrganizerStats.flatMap((item) => (item.date ? [yearOf(item.date, TIME_ZONE)] : [])))
+    // A row without a calendar day (no date, or the year 1) has no year to offer.
+    const found = new Set(
+      allOrganizerStats.flatMap((item) => {
+        const season = getEventSeason(item.date)
+        return season ? [Number(season)] : []
+      })
+    )
     found.add(currentYear(TIME_ZONE))
-    return [...found].filter((year) => !Number.isNaN(year)).sort((a, b) => a - b)
+    return [...found].sort((a, b) => a - b)
   }, [allOrganizerStats])
 
   // Fetched once, unfiltered — the year/organizer pickers just filter this in memory.
@@ -57,7 +64,7 @@ export default function OrganizerStatsPage() {
     () =>
       allOrganizerStats.filter((item) => {
         if (organizerId && item.organizerId !== organizerId) return false
-        return !!item.date && yearOf(item.date, TIME_ZONE) === year
+        return getEventSeason(item.date) === String(year)
       }),
     [allOrganizerStats, organizerId, year]
   )

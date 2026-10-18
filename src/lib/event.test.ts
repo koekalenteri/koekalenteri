@@ -29,6 +29,7 @@ import {
   defaultEntryStartDate,
   eventRegistrationDateKey,
   eventTypeLabel,
+  finnishDaySpan,
   foldDayScope,
   getEventClassesByDays,
   getEventDays,
@@ -89,6 +90,7 @@ import {
   sanitizeDogEvent,
   startNumbersSlotKey,
   storedDayKey,
+  storedMonthKey,
   stripKennelliittoLink,
   withResultsDay,
 } from './event'
@@ -846,6 +848,7 @@ describe('lib/event', () => {
       expect(getEventSeason('foo')).toEqual('')
       // The Kennel Club's empty date is a valid Date but has no calendar day.
       expect(getEventSeason('0001-01-01T00:00:00.000Z')).toEqual('')
+      expect(getEventSeason(new Date(Number.NaN))).toEqual('')
     })
 
     it('accepts as a request date only an ISO instant or a day key with a calendar day', () => {
@@ -855,7 +858,31 @@ describe('lib/event', () => {
       expect(isEventDateString('12')).toBe(false)
       expect(isEventDateString('0001-01-01T00:00:00.000Z')).toBe(false)
       expect(isEventDateString(20261017)).toBe(false)
-      expect(getEventSeason(new Date(Number.NaN))).toEqual('')
+      // A day the month does not have, and a stamp without a zone, which every host reads differently.
+      expect(isEventDateString('2026-04-31T00:00:00.000Z')).toBe(false)
+      expect(isEventDateString('2026-06-28T00:00')).toBe(false)
+    })
+
+    it('reads the month of a stored date in Finnish time, and none without a day', () => {
+      expect(storedMonthKey('2025-06-15')).toBe('2025-06')
+      // 2025-06-01 00:00 Europe/Helsinki, stored as the previous day in UTC.
+      expect(storedMonthKey('2025-05-31T21:00:00.000Z')).toBe('2025-06')
+      expect(storedMonthKey('not-a-date')).toBeUndefined()
+      expect(storedMonthKey('0001-01-01T00:00:00.000Z')).toBeUndefined()
+      expect(storedMonthKey(undefined)).toBeUndefined()
+    })
+
+    it('spans Finnish days as keys for the Kennel Club lookup', () => {
+      expect(finnishDaySpan(new Date('2026-06-27T21:00:00.000Z'), new Date('2026-06-28T20:59:59.999Z'))).toBe(
+        '2026-06-28'
+      )
+      expect(finnishDaySpan(new Date('2026-06-27T21:00:00.000Z'), new Date('2026-06-28T21:00:00.000Z'))).toBe(
+        '2026-06-28 - 2026-06-29'
+      )
+      // The Kennel Club's empty end is the start; no start day is no span.
+      expect(finnishDaySpan(new Date('2026-06-27T21:00:00.000Z'), new Date('0001-01-01T00:00:00'))).toBe('2026-06-28')
+      expect(finnishDaySpan(new Date(Number.NaN))).toBe('')
+      expect(finnishDaySpan(undefined)).toBe('')
     })
   })
 

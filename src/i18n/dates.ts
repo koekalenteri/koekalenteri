@@ -6,8 +6,7 @@ import { formatDistanceToNowStrict } from 'date-fns/formatDistanceToNowStrict'
 import { isValid } from 'date-fns/isValid'
 import { enGB as en } from 'date-fns/locale/en-GB'
 import { fi } from 'date-fns/locale/fi'
-import { parseISO } from 'date-fns/parseISO'
-import { dayOf, dayParts, dayStart, hasCalendarDay, isDayKey, TIME_ZONE } from '../lib/day'
+import { dayOf, dayParts, hasCalendarDay, localStampToInstant, TIME_ZONE } from '../lib/day'
 
 interface DateFormatOptions {
   timeZone?: string
@@ -23,14 +22,12 @@ export const WEEKDAY_DAY_FORMAT = 'eeeeee d.M.'
 export const locales: Record<Language, Locale> = { en, fi }
 
 /**
- * The moment a formatter is given. A string is an ISO instant, or a bare `yyyy-MM-dd`: that is a day,
- * not a moment, and is read as the day it names in the zone, where parseISO would read it as the
- * host's midnight and a viewer east of Finland saw the day before (KOE-1545).
+ * The moment a formatter is given. A string with a zone is that instant; a zone-less stamp or a bare
+ * `yyyy-MM-dd` is read as the wall-clock time it names in the zone, where parseISO would read it as the
+ * host's and a viewer east of Finland saw the day before (KOE-1545).
  */
-const readMoment = (date: Date | string, timeZone: string): Date => {
-  if (typeof date !== 'string') return date
-  return isDayKey(date) ? dayStart(date, timeZone) : parseISO(date)
-}
+const readMoment = (date: Date | string, timeZone: string): Date =>
+  typeof date === 'string' ? localStampToInstant(date, timeZone) : date
 
 /** A moment formatted in `timeZone`; see `readMoment` for what a string stands for. */
 export function formatDate(

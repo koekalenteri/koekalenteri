@@ -12,16 +12,24 @@ import type {
   TestResult,
 } from '../types'
 import { getRequirements } from '../rules'
-import { TIME_ZONE, yearOf, yearStart } from './day'
+import { TIME_ZONE, yearOf } from './day'
 import { getNextClass, isRegistrationClass } from './registration'
 
 export const objectContains = (obj: object, req: object) =>
   Object.entries(req).every(([key, value]) => key in obj && Reflect.get(obj, key) === value)
 
-/** The first moment of the Finnish year `date` falls in. */
-const startOfFinnishYear = (date: Date) => yearStart(yearOf(date, TIME_ZONE), TIME_ZONE)
+/**
+ * The year a result's date was written in. Kennelliitto's `aika` has no zone, and both the browser's
+ * typed boundary and the lambda's `new Date` read it as local time, so the local getter gives back the
+ * year it was written with in any host zone, where reading it in Finnish time would move a 1 January
+ * result to the year before east of UTC and not west of it. A manual result is the date picker's local
+ * day; those readers move to day keys in KOE-1547 and KOE-1548.
+ */
+const resultYear = (date: Date) => date.getFullYear()
 
-const excludeByYear = (result: Partial<TestResult>, date: Date) => result.date && result.date > startOfFinnishYear(date)
+/** Whether the result is from the trial's own year or later: such a result does not move the dog up a class. */
+const isFromTrialYear = (result: Partial<TestResult>, startDate: Date) =>
+  !!result.date && resultYear(result.date) >= yearOf(startDate, TIME_ZONE)
 const byDate = (a: TestResult, b: TestResult) => a.date.valueOf() - b.date.valueOf()
 const CLASS_ORDER: Registration['class'][] = ['ALO', 'AVO', 'VOI']
 
@@ -156,8 +164,8 @@ export function filterRelevantResults(
   }
 
   if (check.qualifies && check.relevant.length) {
-    const officialNotThisYear = officialResults?.filter((result) => !excludeByYear(result, startDate))
-    const manualNotThisYear = manualValid?.filter((result) => !excludeByYear(result, startDate))
+    const officialNotThisYear = officialResults?.filter((result) => !isFromTrialYear(result, startDate))
+    const manualNotThisYear = manualValid?.filter((result) => !isFromTrialYear(result, startDate))
     const disqualifiedForNextClass =
       nextClass &&
       checkRequiredResults(

@@ -552,8 +552,8 @@ const RESULTS_WRITE_ATTEMPTS = 3
 
 /**
  * Publish or hide one day's results on the event record (KOE-1510). The request is a change of one
- * day, and the scope is folded here from the stored day keys, never from a client's copy, whose JSON
- * reviver has turned them into dates.
+ * day, and the scope is folded here from the stored day keys, never from a client's copy, which may be
+ * older than the row.
  *
  * Several secretaries publish at once, and one can hide two days in quick succession. Where the stored
  * flag already is a class map, only the class's own entry is written, so another class's publish made

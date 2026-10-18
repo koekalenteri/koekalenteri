@@ -23,7 +23,6 @@ import {
   getChanges,
   getPatchChangedIds,
   hasChanges,
-  isDateString,
   isEmpty,
   isObject,
   mapWithConcurrency,
@@ -83,34 +82,6 @@ describe('utils', () => {
           startDate: first,
         } as PublicDogEvent)
       ).toEqual([first, second])
-    })
-  })
-
-  describe('isDateString', () => {
-    it.each(['2016-09-18T17:34:02.666Z', '2021-05-10T09:05:12.000Z', '2016-12-31T23:59:60+00:00', '2018-06-19T04:06Z'])(
-      'should return true for valid date string: %p',
-      (dateStr) => {
-        expect(isDateString(dateStr)).toEqual(true)
-      }
-    )
-    it.each([
-      null,
-      undefined,
-      false,
-      true,
-      [],
-      {},
-      '',
-      '1T2',
-      new Date(),
-      '2021-05-10',
-      '2021-13-10T09:05:12.000Z',
-      '2021-11-32T09:05:12.000Z',
-      '2021-01-10T24:05:12.000Z',
-      '2021-01-10T23:70:12.000Z',
-      '2021-01-10T23:00:70.000Z',
-    ])('should return false for anythings not ISO8601 compatible: %p', (value) => {
-      expect(isDateString(value)).toEqual(false)
     })
   })
 

@@ -1,5 +1,6 @@
 import type { EventKcIdChoice, JsonAuditRecord, JsonDogEvent, JsonRegistration, JsonUser, Patch, User } from '../types'
 import { describeInTimeZone } from '../test-utils/timeZone'
+import { hasCalendarDay, TIME_ZONE } from './day'
 import {
   arrayOf,
   converter,
@@ -172,8 +173,9 @@ describe('wire', () => {
         expect(choice.entryEndDate).toEqual(new Date('2026-06-06T21:00:00.000Z'))
         // A bare day is that day in Finland.
         expect(choice.entryStartDate).toEqual(new Date('2026-05-16T21:00:00.000Z'))
-        // Kennelliitto's "no end" is the year 1, which the search's normalizer reads by its year.
-        expect(choice.endDate.getFullYear()).toBeLessThanOrEqual(1)
+        // Kennelliitto's "no end" is the year 1, which has no calendar day: the search's normalizer
+        // (normalizeEventKcIdChoice) takes the start for it.
+        expect(hasCalendarDay(choice.endDate, TIME_ZONE)).toBe(false)
       })
     }
 

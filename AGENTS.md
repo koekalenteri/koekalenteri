@@ -66,8 +66,10 @@ Read `LLM_CONTEXT.md` for the project overview and architecture notes.
 - A day becomes a moment, and a moment a day, only in `src/lib/day.ts`: `dayOf(instant, zone)`,
   `dayStart(day, zone)`, `dayEnd(day, zone)`, `shiftDays(instant, days, zone)`, and the readers of an
   instant built on them: `dayStartOf(instant, zone, days = 0)` (the start of the day the instant falls
-  on, or of one `days` from it), `dayEndOf`, `sameDay`, `yearOf`, `monthOf`, plus `yearStart`,
-  `yearEnd` and `currentYear`. The zone is a required parameter, never a default; the trials' zone is
+  on, or of one `days` from it), `dayEndOf`, `sameDay`, `yearOf`, plus `yearStart`, `yearEnd` and
+  `currentYear`. `monthKeyOf(day)` is a day's `yyyy-MM`. `localStampToInstant(stamp, zone)` reads a
+  stamp without a zone (Kennelliitto writes those) as the wall-clock time it is in the zone, and
+  `isInstantString` accepts only an ISO instant with an explicit zone on a day there is. The zone is a required parameter, never a default; the trials' zone is
   `TIME_ZONE` from the same module. Day arithmetic (`addDays`, `addMonths`, `daysBetween`, `eachDay`,
   `dayOfWeek`) needs no zone at all.
 - `dayOf` throws on an instant without a calendar day. Check `hasCalendarDay(instant, zone)` first on

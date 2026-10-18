@@ -36,12 +36,14 @@ import {
   eachDay,
   hasCalendarDay,
   isDayKey,
+  isInstantString,
+  monthKeyOf,
   sameDay,
   TIME_ZONE,
 } from './day'
 import { isLiveNow, isStoredStationTurn, toPublicStationTurn } from './stationTurns'
 import { isConfirmedEvent } from './typeGuards'
-import { isDateString, isObject, unique, uniqueDate } from './utils'
+import { isObject, unique, uniqueDate } from './utils'
 
 type EventVitals = Partial<
   Pick<PublicDogEvent | JsonPublicDogEvent, 'startDate' | 'endDate' | 'entryStartDate' | 'entryEndDate' | 'state'>
@@ -76,16 +78,27 @@ export const storedDayKey = (date: DayInput): DayKey | undefined => {
 }
 
 /**
- * Whether a request's date is an instant with a calendar day: what PutEvent, CopyEvent and the
- * Kennel Club search accept, and answer 400 to anything else.
+ * Whether a request's date is an ISO instant with an explicit zone, or a day key, with a calendar day:
+ * what PutEvent, CopyEvent and the Kennel Club search accept, and answer 400 to anything else.
  */
 export const isEventDateString = (value: unknown): value is string =>
-  (isDateString(value) || isDayKey(value)) && hasCalendarDay(new Date(value), TIME_ZONE)
+  (isInstantString(value) || isDayKey(value)) && hasCalendarDay(new Date(value), TIME_ZONE)
 
 /** The Finnish month of a stored date as `yyyy-MM`, the key the statistics bucket by; undefined without a day. */
 export const storedMonthKey = (date: DayInput): string | undefined => {
   const day = storedDayKey(date)
-  return day && `${day.slice(0, 7)}`
+  return day ? monthKeyOf(day) : undefined
+}
+
+/**
+ * A span of Finnish days as keys, `2026-06-28 - 2026-06-29`, or one key for a one-day span, as the
+ * Kennel Club lookup shows a trial's days; '' without a start day, and an end without a day is the start.
+ */
+export const finnishDaySpan = (start?: Date, end?: Date): string => {
+  if (!start || !hasCalendarDay(start, TIME_ZONE)) return ''
+  const first = dayOf(start, TIME_ZONE)
+  const last = end && hasCalendarDay(end, TIME_ZONE) ? dayOf(end, TIME_ZONE) : first
+  return first === last ? first : `${first} - ${last}`
 }
 
 /** Whether a stored date passes `test` as its Finnish day; a missing or unreadable date passes nothing. */
@@ -595,8 +608,8 @@ const publishedKeys = (scope: ResultsDayScope, days: string[]) => sortedDayKeys(
 
 /**
  * Whether a results flag publishes the same days of the event's classes, or of a classless event, as
- * the stored one (KOE-1510). Read through the day keys, so a client's copy whose days the JSON reviver
- * turned into dates, or that went back out as timestamps, still compares equal to what is stored, and
+ * the stored one (KOE-1510). Read through the day keys, so a client's copy whose days went back out as
+ * timestamps (as an older client's did) still compares equal to what is stored, and
  * `true` equals the list of every day.
  */
 export const isSameResultsPublished = (event: ResultsFoldEvent, sent: unknown): boolean => {

@@ -8,19 +8,6 @@ export const uniqueFn = <T>(arr: T[], cmp: (a: T, b: T) => boolean): T[] =>
 
 export const uniqueDate = (arr: Date[]) => [...new Set<number>(arr.map((d) => d.valueOf()))].map((v) => new Date(v))
 
-/** The date half of an instant: any four-digit year, the day key's own checks are `isDayKey`'s (lib/day). */
-const INSTANT_DATE_RE = /^\d{4}-(?:0[1-9]|1[0-2])-(?:0[1-9]|[12]\d|3[01])$/
-const TIME_RE = /^(?:[0-1]\d|2[0-3])(?::[0-6]\d)(?::[0-6]\d)?(?:\.\d{3})?(?:[+-][0-2]\d:[0-5]\d|Z)?$/
-
-/** Whether `value` is an ISO instant: a date, a `T` and a time. */
-export const isDateString = (value: unknown): value is string => {
-  if (typeof value !== 'string') {
-    return false
-  }
-  const [date, time] = value.split('T')
-  return INSTANT_DATE_RE.test(date) && TIME_RE.test(time)
-}
-
 /**
  * JSON as the server wrote it, nothing revived: a `Date` is made from a named field at the typed
  * boundary (`lib/wire.ts`, KOE-1546), never from what a string looks like.

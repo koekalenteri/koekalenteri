@@ -1,5 +1,8 @@
+import type { JsonTestResult } from '../types'
 import { describe, expect, it } from 'vitest'
-import { qualifyJsonRegistration } from './qualification'
+import { describeInTimeZone } from '../test-utils/timeZone'
+import { filterRelevantResults, qualifyJsonRegistration } from './qualification'
+import { toDog } from './wire'
 
 describe('lib/qualification', () => {
   describe('qualifyJsonRegistration', () => {
@@ -38,18 +41,34 @@ describe('lib/qualification', () => {
 
     // A result from the trial's own year does not put the dog above its class. 23:30 Finnish time on
     // 31.12.2025 is still 2025 in UTC, so a host-zone start of the year read a 2026 result as 2025 (KOE-1545).
-    it("tells the trial year's results apart by the Finnish year", () => {
-      const trial = { eventType: 'NOME-B', startDate: '2026-08-01T00:00:00.000Z' }
-      const ALO1 = { ...NOU1, class: 'ALO', result: 'ALO1', type: 'NOME-B' }
-      const qualify = (date: string) =>
-        qualifyJsonRegistration(
-          { class: 'ALO', dog: { regNo: 'FI12345/22', results: [NOU1, { ...ALO1, date }] } },
-          trial
-        )
+    // Kennelliitto's result stamps have no zone. A result from the trial's own year does not put the dog
+    // above its class, and the browser (through the typed boundary) and the lambda answer alike in any
+    // zone: 1 January is the trial's year, 31 December the year before (KOE-1545).
+    for (const zone of ['UTC', 'Europe/Helsinki', 'America/New_York', 'Asia/Tokyo']) {
+      describeInTimeZone(zone, () => {
+        const ALO1 = { ...NOU1, class: 'ALO', result: 'ALO1', type: 'NOME-B' }
+        const startDate = '2026-03-15T22:00:00.000Z'
 
-      expect(qualify('2025-12-31T21:30:00.000Z').qualifies).toBe(false)
-      expect(qualify('2025-12-31T22:30:00.000Z').qualifies).toBe(true)
-    })
+        it.each([
+          { date: '2026-01-01T00:00:00', qualifies: true },
+          { date: '2025-12-31T00:00:00', qualifies: false },
+        ])('reads a result of $date in the year it was written: qualifies $qualifies', ({ date, qualifies }) => {
+          const results = [NOU1, { ...ALO1, date }]
+          const onLambda = qualifyJsonRegistration(
+            { class: 'ALO', dog: { regNo: 'FI12345/22', results } },
+            { eventType: 'NOME-B', startDate }
+          )
+          const inBrowser = filterRelevantResults(
+            { eventType: 'NOME-B', startDate: new Date(startDate) },
+            'ALO',
+            toDog({ regNo: 'FI12345/22', results: results as JsonTestResult[] }).results
+          )
+
+          expect(onLambda.qualifies).toBe(qualifies)
+          expect(inBrowser.qualifies).toBe(qualifies)
+        })
+      })
+    }
 
     it('rejects a dog whose official results already put it above the class', () => {
       const ALO1 = { ...NOU1, class: 'ALO', result: 'ALO1', type: 'NOME-B' }

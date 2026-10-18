@@ -6,6 +6,14 @@ describe('formatDate', () => {
     describeInTimeZone(zone, () => {
       // A bare day used to be parsed as the machine's midnight, which is the evening before in Finland
       // east of it: release note 2026-10-17 read 16.10. in Tokyo (KOE-1545).
+      it('formats a stamp without a zone as the Finnish wall-clock time it names', () => {
+        expect(formatDate('2026-06-28T00:00:00', 'd.M.yyyy')).toBe('28.6.2026')
+      })
+
+      it('formats a span whose end has no calendar day as its start', () => {
+        expect(formatDateSpan('2026-06-28', 'fi', { end: '0001-01-01T00:00:00.000Z' })).toBe('28.6.2026')
+      })
+
       it('formats a bare day as the day it names', () => {
         expect(formatDate('2026-10-17', 'd.M.yyyy')).toBe('17.10.2026')
       })

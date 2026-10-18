@@ -14,7 +14,7 @@ import type {
   YearlyTotalStat,
 } from '../../types/Stats'
 import crypto from 'node:crypto'
-import { getEventSeason, storedMonthKey } from '../../lib/event'
+import { getEventSeason } from '../../lib/event'
 import { isMember, isStarter } from '../../lib/registration'
 import { CONFIG } from '../config'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
@@ -53,15 +53,6 @@ export type RegistrationStatsInput = Pick<
 export function eventStatsYear({ startDate }: { startDate: string }): number | undefined {
   const season = getEventSeason(startDate)
   return /^\d{4}$/.test(season) ? Number(season) : undefined
-}
-
-/**
- * Returns the yyyy-MM month of an instant in the event timezone. Dates are stored as UTC
- * instants (a Finnish midnight is `...T21:00:00.000Z` the day before), so slicing the raw
- * string would bucket every event starting on the 1st into the previous month.
- */
-export function eventStatsMonth(date: string): string | undefined {
-  return storedMonthKey(date)
 }
 
 /**

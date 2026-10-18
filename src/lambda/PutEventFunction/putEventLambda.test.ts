@@ -1249,12 +1249,19 @@ describe('putEventLambda', () => {
     ['startDate', '0001-01-01T00:00:00.000Z'],
     ['endDate', '0001-01-01T00:00:00.000Z'],
     ['startDate', '12'],
+    ['startDate', '2026-04-31T00:00:00.000Z'],
+    ['endDate', '2026-06-28T00:00'],
   ] as const)('rejects an invalid %s (%s) before saving', async (field, value) => {
     authorizeMock.mockResolvedValueOnce(mockSecretary)
+    // The other date is valid, so the refusal is this field's.
+    const valid = { endDate: '2026-06-02T20:59:59.999Z', startDate: '2026-06-01T21:00:00.000Z' }
 
-    const res = await putEventLambda(constructAPIGwEvent<Partial<JsonDogEvent>>({ [field]: value, eventType: 'TEST' }))
+    const res = await putEventLambda(
+      constructAPIGwEvent<Partial<JsonDogEvent>>({ ...valid, [field]: value, eventType: 'TEST' })
+    )
 
     expect(res.statusCode).toEqual(400)
+    expect(JSON.parse(res.body)).toEqual({ message: `Bad request: ${field} must be a valid date` })
     expect(saveEventMock).not.toHaveBeenCalled()
     expect(patchEventMock).not.toHaveBeenCalled()
   })

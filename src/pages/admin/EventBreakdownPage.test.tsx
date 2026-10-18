@@ -7,7 +7,6 @@ import { MemoryRouter } from 'react-router'
 import { TestProvider as Provider } from 'test-utils/AtomProvider'
 import { getAllYearlyStats } from '../../api/stats'
 import theme from '../../assets/Theme'
-import { TIME_ZONE, yearOf } from '../../lib/day'
 import { Path } from '../../routeConfig'
 import { frozenInstant } from '../../test-utils/freezeClock'
 import { DataMemoryRouter, flushPromises, renderSuspended, TEST_ID_TOKEN } from '../../test-utils/utils'
@@ -19,9 +18,10 @@ vi.mock('../../api/stats')
 vi.mock('../../api/user')
 vi.mock('../../api/organizer')
 
-const FROZEN = frozenInstant('2026-05-12')
+// A year the real clock is not in, so a page that read the year when its module loads would fail.
+const FROZEN = frozenInstant('2025-05-12')
 
-const YEAR = yearOf(FROZEN, TIME_ZONE)
+const YEAR = 2025
 
 // From src/api/__mocks__/organizer.ts: '1' -> 'Järjestäjä 1', '2' -> 'Järjestäjä 2'.
 const payload = (eventBreakdown?: EventBreakdownEntry[]): AllYearlyStatsResponse => ({

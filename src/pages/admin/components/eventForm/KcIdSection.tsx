@@ -7,7 +7,7 @@ import Typography from '@mui/material/Typography'
 import { memo, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { localeSortComparator } from '@/lib/datagrid'
-import { dayOf, TIME_ZONE } from '@/lib/day'
+import { finnishDaySpan } from '@/lib/event'
 import { unique } from '@/lib/utils'
 import CollapsibleSection from '@/pages/components/CollapsibleSection'
 import { useIsOfficialEventType } from '../../hooks/useIsOfficialEventType'
@@ -97,13 +97,6 @@ function linkText(event: BasicInfoEvent, t: TFunction) {
   return t('event.kcIdEmpty')
 }
 
-function formatDateSpan(start?: Date, end?: Date) {
-  if (!start) return ''
-  const startDate = dayOf(start, TIME_ZONE)
-  const endDate = end ? dayOf(end, TIME_ZONE) : startDate
-  return startDate === endDate ? startDate : `${startDate} - ${endDate}`
-}
-
 function joinSorted(values: readonly (string | undefined)[] | undefined) {
   return unique((values ?? []).filter((v): v is string => Boolean(v)))
     .sort(localeSortComparator)
@@ -146,8 +139,8 @@ function computeKcWarnings(event: BasicInfoEvent, t: TFunction) {
     warnings.push(t('event.kcIdWarningClasses', { classes, kcClasses }))
   }
 
-  const dates = formatDateSpan(event.startDate, event.endDate)
-  const kcDates = formatDateSpan(kcEvent.startDate, kcEvent.endDate)
+  const dates = finnishDaySpan(event.startDate, event.endDate)
+  const kcDates = finnishDaySpan(kcEvent.startDate, kcEvent.endDate)
   if (kcDates && dates !== kcDates) {
     warnings.push(t('event.kcIdWarningDates', { dates, kcDates }))
   }

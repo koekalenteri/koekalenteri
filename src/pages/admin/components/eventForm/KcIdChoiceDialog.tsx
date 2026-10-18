@@ -11,7 +11,7 @@ import TableHead from '@mui/material/TableHead'
 import TableRow from '@mui/material/TableRow'
 import Typography from '@mui/material/Typography'
 import { useTranslation } from 'react-i18next'
-import { dayOf, TIME_ZONE } from '@/lib/day'
+import { finnishDaySpan } from '@/lib/event'
 
 /** Text for screen readers only: the column of buttons has a name, and none to look at. */
 const VISUALLY_HIDDEN = {
@@ -63,7 +63,7 @@ export default function KcIdChoiceDialog({ choices, linkedKcGuids, onClose, onSe
                 <TableCell>{choice.kcTunnus ?? '-'}</TableCell>
                 <TableCell>{[choice.eventType, choice.name].filter(Boolean).join(' ')}</TableCell>
                 <TableCell>{choice.classes.join(', ')}</TableCell>
-                <TableCell>{formatDateSpan(choice)}</TableCell>
+                <TableCell>{finnishDaySpan(choice.startDate, choice.endDate)}</TableCell>
                 <TableCell>{choice.location}</TableCell>
                 <TableCell>{choice.organizer}</TableCell>
                 <TableCell>{choice.status}</TableCell>
@@ -109,11 +109,4 @@ function ChoiceAction({ choice, linkedKcGuids, onSelect }: ActionProps) {
       {t('event.kcIdSelect')}
     </Button>
   )
-}
-
-function formatDateSpan(choice: EventKcIdChoice) {
-  const startDate = dayOf(choice.startDate, TIME_ZONE)
-  const endDate = dayOf(choice.endDate, TIME_ZONE)
-
-  return startDate === endDate ? startDate : `${startDate} - ${endDate}`
 }

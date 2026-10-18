@@ -49,6 +49,20 @@ const isKeyIn = (value: unknown, years: { first: number; last: number }): value 
 /** Whether `value` is a `yyyy-MM-dd` that names a day there is, in the accepted years. */
 export const isDayKey = (value: unknown): value is DayKey => isKeyIn(value, ACCEPTED_YEARS)
 
+/** A time with an explicit zone, `Z` or `±hh:mm`: without one a stamp is a wall-clock time, not an instant. */
+const TIME_WITH_ZONE_RE = /^(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d{1,3})?)?(?:Z|[+-](?:[01]\d|2[0-3]):[0-5]\d)$/
+
+/**
+ * Whether `value` is an ISO instant: a day key, a `T` and a time with an explicit zone. A day the month
+ * does not have (`2026-02-30T...`) is none, and neither is a zone-less stamp, which reads differently
+ * on every host (`localStampToInstant` reads one in a named zone).
+ */
+export const isInstantString = (value: unknown): value is string => {
+  if (typeof value !== 'string') return false
+  const [date, time, ...rest] = value.split('T')
+  return rest.length === 0 && isDayKey(date) && time !== undefined && TIME_WITH_ZONE_RE.test(time)
+}
+
 /** Whether the parts spell a key: whole numbers, a four-digit year, a day the month has. */
 const isDayParts = (year: number, month: number, day: number) =>
   isYearIn(year, SPELLED_YEARS) && Number.isInteger(month) && Number.isInteger(day) && dayExists(year, month, day)
@@ -188,8 +202,8 @@ export const yearEnd = (year: number, zone: string): Date => dayEnd(toDayKey(yea
 /** The year it is now in `zone`: the stats pages' default year. */
 export const currentYear = (zone: string): number => yearOf(new Date(), zone)
 
-/** The month the instant falls in, in `zone`, as `yyyy-MM`: the key the statistics bucket by. */
-export const monthOf = (instant: Date | number, zone: string): string => dayOf(instant, zone).slice(0, 7)
+/** The month of a day as `yyyy-MM`: the key the statistics bucket by. */
+export const monthKeyOf = (day: DayKey): string => day.slice(0, 7)
 
 /**
  * The instant moved by whole calendar days of `zone`, keeping its wall-clock time there: midnight

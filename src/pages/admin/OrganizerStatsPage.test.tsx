@@ -17,7 +17,8 @@ import { idTokenAtom } from '../state'
 import OrganizerStatsPage from './OrganizerStatsPage'
 import { adminCapacityStatsEventTypeAtom, adminStatsOrganizerIdAtom } from './state'
 
-const FROZEN = frozenInstant('2026-05-12')
+// A year the real clock is not in, so a page that read the year when its module loads would fail.
+const FROZEN = frozenInstant('2025-05-12')
 
 vi.mock('../../api/stats')
 vi.mock('../../api/organizer')
@@ -62,7 +63,7 @@ describe('OrganizerStatsPage', () => {
     // The title carries the filters the chart is drawn for, so it still says what it shows once
     // the pickers have scrolled out of sight.
     // No organizer in it: none of them has any stats, so the picker offers none either.
-    expect(screen.getByText('stats.admin.title – 2026')).toBeInTheDocument()
+    expect(screen.getByText('stats.admin.title – 2025')).toBeInTheDocument()
     // No organizerId/date-range args: the whole dataset is fetched once and filtered in memory.
     expect(getOrganizerEventStats).toHaveBeenCalledTimes(1)
     expect(getOrganizerEventStats).toHaveBeenCalledWith(TEST_ID_TOKEN)
@@ -138,13 +139,13 @@ describe('OrganizerStatsPage', () => {
     await flushPromises()
     await screen.findByText('stats.admin.overviewTitle')
 
-    expect(getAdminJudgeWorkload).toHaveBeenCalledWith(TEST_ID_TOKEN, 2026, '1')
+    expect(getAdminJudgeWorkload).toHaveBeenCalledWith(TEST_ID_TOKEN, 2025, '1')
 
     // The organizer picker is honoured: a new selection fetches that organizer's figures.
     act(() => store?.set(adminStatsOrganizerIdAtom, '2'))
     await flushPromises()
 
-    expect(getAdminJudgeWorkload).toHaveBeenCalledWith(TEST_ID_TOKEN, 2026, '2')
+    expect(getAdminJudgeWorkload).toHaveBeenCalledWith(TEST_ID_TOKEN, 2025, '2')
   })
 
   it('derives the selectable years from the organizer stats without fetching yearly stats', async () => {
@@ -171,8 +172,33 @@ describe('OrganizerStatsPage', () => {
     expect(getAllYearlyStats).not.toHaveBeenCalled()
     expect(screen.getByRole('button', { name: '2022' })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: '2024' })).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: '2026' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: '2025' })).toBeInTheDocument()
     expect(screen.queryByRole('button', { name: '2023' })).not.toBeInTheDocument()
+  })
+
+  it('renders with a stats row whose date has no calendar day, offering no year for it', async () => {
+    vi.mocked(getOrganizerEventStats).mockResolvedValue([
+      { date: new Date('2024-03-10T22:00:00.000Z'), organizerId: '1', PK: 'ORG#1', SK: '2024-03-11#b' },
+      { date: new Date('0001-01-01T00:00:00'), organizerId: '1', PK: 'ORG#1', SK: '0001-01-01#c' },
+    ])
+
+    await renderSuspended(
+      <ThemeProvider theme={theme}>
+        <Provider initializeState={({ set }) => set(idTokenAtom, TEST_ID_TOKEN)}>
+          <MemoryRouter>
+            <Suspense fallback={<div>loading...</div>}>
+              <OrganizerStatsPage />
+            </Suspense>
+          </MemoryRouter>
+        </Provider>
+      </ThemeProvider>
+    )
+    await flushPromises()
+    await screen.findByText('stats.admin.overviewTitle')
+
+    expect(screen.getByRole('button', { name: '2024' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: '2025' })).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: '1' })).not.toBeInTheDocument()
   })
 
   it('excludes organizations without any recorded stats from the filter, correcting a stale selection', async () => {
