@@ -65,6 +65,10 @@ const copyEventLambda = lambda('copyEvent', async (event) => {
   item.dates?.forEach((d) => {
     d.date = shift(d.date)
   })
+  // The posts move with their days (KOE-1563).
+  item.stations?.forEach((station) => {
+    station.date = shift(station.date)
+  })
   // The places per day move with their days (KOE-1543).
   if (item.placesPerDay) item.placesPerDay = shiftPlacesPerDay(item.placesPerDay, days)
 
