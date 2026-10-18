@@ -122,8 +122,11 @@ describe('RegistrationForm', () => {
   describe("the dob picker's days (KOE-1556)", () => {
     // Today is 1.1.2021 and the trial starts on 10.2.2021. The dog has Kennelliitto's empty birth
     // date, so the dob is entered by hand and its picker is enabled; it opens on the year view.
+    beforeEach(() => vi.setSystemTime(frozenInstant('2021-01-01')))
+    // The file's fake timers started from the real time; later tests get it back.
+    afterEach(() => vi.setSystemTime(vi.getRealSystemTime()))
+
     const openDobPicker = async (eventType: string) => {
-      vi.setSystemTime(frozenInstant('2021-01-01'))
       const registration = {
         ...unpaidRegistrationWithStaticDates,
         dog: { ...unpaidRegistrationWithStaticDates.dog, dob: new Date('0001-01-01T00:00:00') },
