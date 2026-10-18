@@ -137,16 +137,17 @@ describe('BasicInfoSection', () => {
     })
 
     it.each([
-      ['a new trial becomes a B-trial with game', undefined, 'NOME-B', 'game'],
-      ['a B-trial keeps its choice in the championship', 'NOME-B' as const, 'NOME-B SM', 'dummies'],
-      ['a trial that is no B-trial drops the choice', 'NOME-B' as const, 'NOU', null],
-    ])('%s (KOE-1570)', async (_name, eventType, picked, retrieveType) => {
+      ['a new trial becomes a B-trial with game', undefined, undefined, 'NOME-B', 'game'],
+      ['a B-trial keeps its choice in the championship', 'NOME-B', 'dummies' as const, 'NOME-B SM', 'dummies'],
+      ['a B-trial without the choice gets game in the championship', 'NOME-B', undefined, 'NOME-B SM', 'game'],
+      ['a trial that is no B-trial drops the choice', 'NOME-B', 'dummies' as const, 'NOU', null],
+    ])('%s (KOE-1570)', async (_name, eventType, stored, picked, retrieveType) => {
       const testEvent: PartialEvent = {
         classes: [],
         endDate: newEventStartDate,
         eventType,
         judges: [],
-        retrieveType: eventType ? 'dummies' : undefined,
+        retrieveType: stored,
         startDate: newEventStartDate,
       }
       const changeHandler = vi.fn()
