@@ -1,8 +1,10 @@
-import type { RegistrationClass } from '@/types'
+import type { DayKey, RegistrationClass } from '@/types'
 
 export type FilterProps = {
-  start: Date | null
-  end: Date | null
+  /** The first Finnish day an event may end on, both ends included; the URL's `s`. */
+  start: DayKey | null
+  /** The last Finnish day an event may start on; the URL's `e`. */
+  end: DayKey | null
   withOpenEntry?: boolean
   withClosingEntry?: boolean
   withUpcomingEntry?: boolean

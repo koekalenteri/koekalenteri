@@ -103,9 +103,11 @@ Read `LLM_CONTEXT.md` for the project overview and architecture notes.
   KOE-1547/1548 make the dog's dates day keys: a dog's official result date is a host-local stamp read
   with the local getter (the official-result year in `qualification.ts`), and its birth date is read
   with `localDayOf` as the day its picker shows (the age rule in `src/lib/dog.ts`), never as its
-  Finnish day, while a hand-entered result, sent as an instant, is read in Finnish time. DateRange's
-  `toPickerDay`/`fromPickerDay` cross between the picker's browser-zone day and the Finnish day
-  through the same `localDateOf`/`localDayOf`.
+  Finnish day, while a hand-entered result, sent as an instant, is read in Finnish time. `DateRange`
+  takes and gives day keys: the picker gets `localDateOf(day)`, and only the day it shows comes back
+  (`localDayOf`), so no time of day or zone reaches the event form or the search filter (KOE-1548).
+  The search filter's `start` and `end` are the day keys of the URL; the event form converts its
+  stored instants at the section, until KOE-1547 stores them as days.
 - Tests run in the machine's zone (Helsinki on a laptop, UTC in CI). A fixture is a Finnish day:
   `startOfFinnishDay('2026-10-17')` from `src/test-utils/finnishDays.ts`, never `new Date(2026, 9, 17)`.
   A test of zone handling runs under `describeInTimeZone` (`src/test-utils/timeZone.ts`).

@@ -1,6 +1,6 @@
 import type { SyntheticEvent } from 'react'
 import type { Priority } from '@/lib/priority'
-import type { DateValue } from '@/pages/components/DateRange'
+import type { DayValue } from '@/pages/components/DateRange'
 import type { EventClass, RegistrationClass } from '@/types'
 import type { EntryEvent, SectionProps } from './types'
 import FormHelperText from '@mui/material/FormHelperText'
@@ -9,9 +9,9 @@ import { clamp } from 'date-fns/clamp'
 import { enqueueSnackbar } from 'notistack'
 import { memo, useCallback, useEffect, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
-import { dayEndOf, dayOf, dayStartOf, TIME_ZONE } from '@/lib/day'
+import { dayEnd, dayOf, dayStart, TIME_ZONE } from '@/lib/day'
 import { isDevEnv } from '@/lib/env'
-import { defaultEntryEndDate, defaultEntryStartDate } from '@/lib/event'
+import { defaultEntryEndDate, defaultEntryStartDate, storedDayKey } from '@/lib/event'
 import { getPrioritySort, PRIORITY, priorityValuesToPriority, RESTRICTION } from '@/lib/priority'
 import AutocompleteMulti from '@/pages/components/AutocompleteMulti'
 import CollapsibleSection from '@/pages/components/CollapsibleSection'
@@ -66,16 +66,12 @@ function EntrySection(props: Props) {
   )
   const sortedRestrictions = useMemo(() => RESTRICTION.slice().sort(prioritySort), [prioritySort])
   const allowPastRegistrationDates = isDevEnv()
-  let registrationStartDate: Date | undefined
-  if (!allowPastRegistrationDates) {
-    registrationStartDate = dayStartOf(event.createdAt ?? new Date(), TIME_ZONE)
-  }
+  // The range speaks Finnish days; the stored dates stay instants until they are stored as days (KOE-1547).
+  const registrationStartDay = allowPastRegistrationDates ? undefined : dayOf(event.createdAt ?? new Date(), TIME_ZONE)
+  const eventStartDay = dayOf(event.startDate, TIME_ZONE)
   const registrationDateRange = useMemo(
-    () => ({
-      end: dayEndOf(event.startDate, TIME_ZONE),
-      start: registrationStartDate,
-    }),
-    [event.startDate, registrationStartDate]
+    () => ({ end: eventStartDay, start: registrationStartDay }),
+    [eventStartDay, registrationStartDay]
   )
   const hasPastRegistrationDate = useMemo(() => {
     const today = dayOf(new Date(), TIME_ZONE)
@@ -86,10 +82,10 @@ function EntrySection(props: Props) {
   }, [event.entryEndDate, event.entryStartDate])
 
   const handleDateChange = useCallback(
-    (start: DateValue, end: DateValue) =>
+    (start: DayValue, end: DayValue) =>
       onChange?.({
-        entryEndDate: end ? dayEndOf(end, TIME_ZONE) : undefined,
-        entryStartDate: start ? dayStartOf(start, TIME_ZONE) : undefined,
+        entryEndDate: end ? dayEnd(end, TIME_ZONE) : undefined,
+        entryStartDate: start ? dayStart(start, TIME_ZONE) : undefined,
       }),
     [onChange]
   )
@@ -152,11 +148,11 @@ function EntrySection(props: Props) {
             startDisabled={disabled}
             startLabel={t('event.entryStart')}
             endLabel={t('event.entryEnd')}
-            start={event.entryStartDate ?? null}
-            defaultStart={defaultEntryStartDate(event.startDate)}
-            end={event.entryEndDate ?? null}
+            start={storedDayKey(event.entryStartDate) ?? null}
+            defaultStart={dayOf(defaultEntryStartDate(event.startDate), TIME_ZONE)}
+            end={storedDayKey(event.entryEndDate) ?? null}
             endDisabled={disabled}
-            defaultEnd={defaultEntryEndDate(event.startDate)}
+            defaultEnd={dayOf(defaultEntryEndDate(event.startDate), TIME_ZONE)}
             range={registrationDateRange}
             required={fields?.required.entryStartDate ?? fields?.required.entryEndDate}
             onChange={handleDateChange}

@@ -260,6 +260,35 @@ describe('BasicInfoSection', () => {
 
       const days = (dates: readonly (Date | undefined)[]) => dates.map((d) => d && finnishDayOf(d))
 
+      // A cleared field keeps the day the event has: the start stays the start of its first day and
+      // the end the end of its last (KOE-1548).
+      it.each([
+        { field: 0, name: 'start' },
+        { field: 1, name: 'end' },
+      ])('keeps both days when the $name is cleared', async ({ field }) => {
+        const event: PartialEvent = {
+          classes: [],
+          endDate: endOfFinnishDay(finnishDay(2026, 10, 18)),
+          judges: [],
+          startDate: finnishDay(2026, 10, 17),
+        }
+        const changeHandler = vi.fn()
+        const { user } = renderComponent({ event, onChange: changeHandler, open: true })
+        const day = screen.getAllByRole('group')[field].querySelector<HTMLElement>('[role="spinbutton"]')
+        if (!day) throw new Error('Date day section not found')
+
+        await user.click(day)
+        await user.keyboard('{Control>}a{/Control}{Backspace}')
+        await waitFor(() => expect(changeHandler).toHaveBeenCalledTimes(1))
+
+        expect(changeHandler).toHaveBeenLastCalledWith(
+          expect.objectContaining({
+            endDate: endOfFinnishDay(finnishDay(2026, 10, 18)),
+            startDate: finnishDay(2026, 10, 17),
+          })
+        )
+      })
+
       it('saves the typed day as the start, a day later than the shown one nowhere', async () => {
         const event: PartialEvent = {
           classes: [],
