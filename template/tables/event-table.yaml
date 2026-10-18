@@ -47,6 +47,11 @@
               KeyType: RANGE
           Projection:
             ProjectionType: ALL
+        # Replaced by gsiEventTypeEntryEndDateV2 and no longer queried. Its projection names
+        # `origEntryEndDate`, a field nothing writes, and a projection cannot change in place
+        # (KOE-1554). It stays for one release because CloudFormation adds or removes only one GSI
+        # per table update, and a Lambda version still running during the deploy may query it. A
+        # later release removes it.
         - IndexName: gsiEventTypeEntryEndDate
           KeySchema:
             - AttributeName: eventType
@@ -58,6 +63,18 @@
             NonKeyAttributes:
               - origEntryEndDate
               - entryEndDate
+        # The latest earlier entry end of an event type, for the NOME-B SM qualification period.
+        # Projects `entryOrigEndDate`, the entry end before an extension (KOE-1554).
+        - IndexName: gsiEventTypeEntryEndDateV2
+          KeySchema:
+            - AttributeName: eventType
+              KeyType: HASH
+            - AttributeName: entryEndDate
+              KeyType: RANGE
+          Projection:
+            ProjectionType: INCLUDE
+            NonKeyAttributes:
+              - entryOrigEndDate
       Tags:
         - Key: Env
           Value: !Ref AWS::StackName

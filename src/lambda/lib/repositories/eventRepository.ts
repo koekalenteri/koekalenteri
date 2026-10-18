@@ -67,7 +67,7 @@ export const readLastEntryEndBefore = async (
 ): Promise<EventEntryEndDates | undefined> => {
   const result = await dynamoDB.query<EventEntryEndDates>({
     forward: false,
-    index: 'gsiEventTypeEntryEndDate',
+    index: 'gsiEventTypeEntryEndDateV2',
     key: 'eventType = :eventType AND entryEndDate < :entryEndDate',
     limit: 1,
     table: eventTable,
