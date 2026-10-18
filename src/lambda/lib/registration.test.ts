@@ -78,6 +78,7 @@ const {
   publicRegistrationPatch,
   removeRegistrationCreationMetadata,
   saveRegistrations,
+  writeRegistrationGroup,
 } = await import('./registration')
 
 /**
@@ -745,6 +746,28 @@ describe('registration', () => {
       expect(mockDynamoDB.update).not.toHaveBeenCalled()
       expect(mockDynamoDB.read).not.toHaveBeenCalled()
       expect(result).toBe(existing)
+    })
+  })
+
+  describe('writeRegistrationGroup', () => {
+    beforeEach(() => {
+      vi.clearAllMocks()
+    })
+
+    it("writes the group move's fields to the registration, with no condition", async () => {
+      await writeRegistrationGroup('event-id', 'reg-id', {
+        remove: ['cancelReason'],
+        set: { cancelled: false, group: { key: 'reserve', number: 2 }, updatedAt: '2026-10-18T10:00:00.000Z' },
+      })
+
+      expect(mockDynamoDB.update).toHaveBeenCalledWith(
+        { eventId: 'event-id', id: 'reg-id' },
+        {
+          remove: ['cancelReason'],
+          set: { cancelled: false, group: { key: 'reserve', number: 2 }, updatedAt: '2026-10-18T10:00:00.000Z' },
+        },
+        'registration-table-not-found-in-env'
+      )
     })
   })
 

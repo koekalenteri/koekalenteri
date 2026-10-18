@@ -6,7 +6,9 @@ import type {
   QualifyingResult,
 } from '@/types'
 import { nanoid } from 'nanoid'
+import { localDateOf } from '@/lib/day'
 import { objectContains } from '@/lib/qualification'
+import { lastResultDay } from '@/lib/resultDay'
 import { unique } from '@/lib/utils'
 
 const asArray = (v: EventResultRequirements | EventResultRequirement) => (Array.isArray(v) ? v : [v])
@@ -82,14 +84,13 @@ export function createMissingResult(
   requirements: EventResultRequirementsByDate | undefined,
   results: Array<QualifyingResult | ManualTestResult>,
   regNo: string,
-  maxDate?: Date
+  periodEnd?: Date
 ): ManualTestResult {
   const rule = findFirstMissing(requirements, results)
-  const now = new Date()
   return {
     class: '',
-    // Default inside the qualification period: a date the rules will drop helps nobody (KOE-1270).
-    date: maxDate && maxDate < now ? maxDate : now,
+    // The last day the result's picker offers: a date the rules will drop helps nobody (KOE-1270, KOE-1548).
+    date: localDateOf(lastResultDay(periodEnd)),
     id: nanoid(10),
     judge: '',
     location: '',

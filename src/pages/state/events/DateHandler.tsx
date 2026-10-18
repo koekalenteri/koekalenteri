@@ -1,7 +1,7 @@
 import { useAtomValue } from 'jotai'
 import { useCallback, useEffect, useState } from 'react'
 import { reportError } from '@/lib/client/error'
-import { dayStartOf, TIME_ZONE } from '@/lib/day'
+import { dayEnd, dayStart, dayStartOf, TIME_ZONE } from '@/lib/day'
 import { eventFilterAtom, eventMetadataAtom } from './atoms'
 import { RANGE_INCREMENTAL_THROTTLE, useFetchEvents } from './hooks'
 
@@ -46,8 +46,9 @@ export function DateHandler() {
   const refreshCurrentRange = useCallback(() => {
     // Default start to "today" when missing.
     // This ensures pages that don't set a start date still get event data.
-    const start = filter.start ?? today
-    void fetchEvents(start, filter.end || undefined).catch(reportError)
+    // The filter's days are Finnish days: the range asked for runs from the start of the first to the end of the last.
+    const start = filter.start ? dayStart(filter.start, TIME_ZONE) : today
+    void fetchEvents(start, filter.end ? dayEnd(filter.end, TIME_ZONE) : undefined).catch(reportError)
   }, [filter.start, filter.end, fetchEvents, today])
 
   useEffect(() => {

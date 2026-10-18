@@ -1,18 +1,14 @@
 import type { JsonConfirmedEvent } from '../../types'
 import { nanoid } from 'nanoid'
 import { getRegistrationClass } from '../../lib/registration'
-import { CONFIG } from '../config'
 import { authorize } from '../lib/auth'
 import { getEvent } from '../lib/event'
 import { deleteFile, parsePostFile, uploadFile } from '../lib/file'
 import { getParam, httpError, lambda, response } from '../lib/lambda'
 import { logger } from '../lib/log'
 import { getRegistrationsByEventId } from '../lib/registration'
+import { writeEventFields } from '../lib/repositories/eventRepository'
 import { publishAdminEventPatch } from '../lib/ws/actions'
-import CustomDynamoClient from '../utils/CustomDynamoClient'
-
-const { eventTable } = CONFIG
-const dynamoDB = new CustomDynamoClient(eventTable)
 
 /**
  * The attachment being replaced can be dropped only when no registration still points at it, either
@@ -104,12 +100,7 @@ const putInvitationAttachmentLambda = lambda('putInvitationAttachment', async (e
         invitationAttachmentHistory,
       }
 
-  await dynamoDB.update(
-    { id: eventId },
-    {
-      set,
-    }
-  )
+  await writeEventFields(eventId, { set })
   await publishAdminEventPatch({ eventId, ...set }, existing.organizer.id)
 
   if (staleAttachment) await deleteStaleAttachment(staleAttachment)

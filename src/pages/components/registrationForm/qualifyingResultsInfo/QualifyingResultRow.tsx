@@ -8,7 +8,9 @@ import TextField from '@mui/material/TextField'
 import { DatePicker } from '@mui/x-date-pickers'
 import { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
+import { localDateOf } from '@/lib/day'
 import { earliestResultDate } from '@/lib/dog'
+import { lastResultDay } from '@/lib/resultDay'
 import AutocompleteSingle from '../../AutocompleteSingle'
 import RankingPoints from '../../RankingPoints'
 import { useLocalStateGroup } from '../hooks/useLocalStateGroup'
@@ -93,10 +95,8 @@ export default function QualifyingResultRow({
   onRemove,
 }: Props) {
   const { t } = useTranslation()
-  const now = new Date()
-  // A result after the qualification period can never count (rules window ends at entry end), so
-  // don't let the picker offer dates the rules will silently drop (KOE-1270).
-  const maxDate = rankingPeriod?.max && rankingPeriod.max < now ? rankingPeriod.max : now
+  // Don't let the picker offer dates the rules will silently drop (KOE-1270, KOE-1548).
+  const maxDate = localDateOf(lastResultDay(rankingPeriod?.max))
   const minDate = resultMinDate(dob, maxDate)
 
   // Group local state for all form fields with a single debounced update

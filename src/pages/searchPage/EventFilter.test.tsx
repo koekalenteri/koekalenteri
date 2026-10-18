@@ -1,7 +1,6 @@
 import type { UserEvent } from '@testing-library/user-event/dist/types/setup/setup'
 import type { Judge, Organizer, RegistrationClass } from '../../types'
 import type { FilterProps } from '../state'
-import { TZDate } from '@date-fns/tz'
 import { ThemeProvider } from '@mui/material'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
@@ -9,8 +8,7 @@ import { screen, within } from '@testing-library/react'
 import { useState } from 'react'
 import theme from '../../assets/Theme'
 import { locales } from '../../i18n'
-import { addMonths, dayOf, dayStart, TIME_ZONE } from '../../lib/day'
-import { endOfFinnishDay, startOfFinnishDay } from '../../test-utils/finnishDays'
+import { addMonths, dayOf, TIME_ZONE } from '../../lib/day'
 import { describeInTimeZone } from '../../test-utils/timeZone'
 import { createMatchMedia, flushPromises, renderWithUserEvents, typeDateKeyByKey } from '../../test-utils/utils'
 import { EventFilter } from './EventFilter'
@@ -69,7 +67,7 @@ const renderComponent = (
           eventTypes={eventTypes}
           eventClasses={eventClasses}
           onChange={onChange}
-        ></EventFilter>
+        />
       </LocalizationProvider>
     </ThemeProvider>,
     undefined,
@@ -205,7 +203,7 @@ describe('EventFilter', () => {
       const changeHandler = vi.fn()
       const today = dayOf(new Date(), TIME_ZONE)
       const { user } = renderComponent(
-        { end: null, eventClass: [], eventType: [], judge: [], organizer: [], start: dayStart(today, TIME_ZONE) },
+        { end: null, eventClass: [], eventType: [], judge: [], organizer: [], start: today },
         changeHandler
       )
 
@@ -214,7 +212,7 @@ describe('EventFilter', () => {
       // Results exist only on ended events; with the default range starting today the filter would
       // show nothing, so the start date moves back and stays visible for the user to adjust.
       expect(changeHandler).toHaveBeenLastCalledWith(
-        expect.objectContaining({ start: new Date('2026-05-19T21:00:00.000Z'), withResults: true })
+        expect.objectContaining({ start: '2026-05-20', withResults: true })
       )
     } finally {
       vi.useRealTimers()
@@ -223,7 +221,7 @@ describe('EventFilter', () => {
 
   it('leaves a range the user already widened alone', async () => {
     const changeHandler = vi.fn()
-    const start = dayStart(addMonths(dayOf(new Date(), TIME_ZONE), -1), TIME_ZONE)
+    const start = addMonths(dayOf(new Date(), TIME_ZONE), -1)
     const { user } = renderComponent(
       { end: null, eventClass: [], eventType: [], judge: [], organizer: [], start },
       changeHandler
@@ -259,27 +257,48 @@ describe('EventFilter', () => {
     vi.useRealTimers()
   })
 
+  // A boundary test: the range starts on 1.1.2020, so 31.12.2019 is refused and 1.1.2020 is taken. The
+  // bound used to be a local Date made when the module loaded, which fell on 31.12.2019 in Tokyo; the
+  // module loads here in the machine's zone, so this does not catch that (KOE-1548).
+  describe('the first day of the range', () => {
+    describeInTimeZone('Asia/Tokyo', () => {
+      beforeEach(() => vi.useFakeTimers())
+      afterEach(() => vi.useRealTimers())
+
+      it.each([
+        { expected: null, keys: '31122019' },
+        { expected: '2020-01-01', keys: '01012020' },
+      ])('takes $expected for a start typed as $keys (KOE-1548)', async ({ expected, keys }) => {
+        const changeHandler = vi.fn()
+        const { user } = renderComponent(
+          { end: null, eventClass: [], eventType: [], judge: [], organizer: [], start: null },
+          changeHandler,
+          true
+        )
+        await typeDateKeyByKey(user, screen.getByRole('group', { name: 'daterangeStart' }), keys)
+
+        expect(changeHandler).toHaveBeenLastCalledWith(expect.objectContaining({ start: expected }))
+      })
+    })
+  })
+
   // The picker's dates are midnight of the browser's day, so this reads as Finnish days in a browser
   // in Finland's time zone, whatever zone the machine running it is in.
   describeInTimeZone(TIME_ZONE, () => {
     beforeEach(() => vi.useFakeTimers())
     afterEach(() => vi.useRealTimers())
 
-    it('keeps whole Finnish days in the filter when the picker reports a time of day (KOE-1538)', async () => {
-      // Typing the start's year digit by digit after emptying it lands the start at 23:55:55, and
-      // the search drops an event that ended before the filter's start moment.
-      const lastDayOfOctober = new TZDate(2026, 9, 31, TIME_ZONE)
-      const lateStart = new Date(new TZDate(2026, 9, 31, 23, 55, 55, TIME_ZONE).getTime())
+    it('keeps the typed days in the filter, both ends of the same day (KOE-1538)', async () => {
       const changeHandler = vi.fn()
       const { user } = renderComponent(
-        { end: null, eventClass: [], eventType: [], judge: [], organizer: [], start: lateStart },
+        { end: null, eventClass: [], eventType: [], judge: [], organizer: [], start: '2026-10-31' },
         changeHandler,
         true
       )
       await typeDateKeyByKey(user, screen.getByRole('group', { name: 'daterangeEnd' }), '31102026')
 
       expect(changeHandler).toHaveBeenLastCalledWith(
-        expect.objectContaining({ end: endOfFinnishDay(lastDayOfOctober), start: startOfFinnishDay(lastDayOfOctober) })
+        expect.objectContaining({ end: '2026-10-31', start: '2026-10-31' })
       )
     })
 
@@ -292,7 +311,7 @@ describe('EventFilter', () => {
           eventType: [],
           judge: [],
           organizer: [],
-          start: new TZDate(2026, 9, 31, TIME_ZONE),
+          start: '2026-10-31',
         },
         changeHandler,
         true
@@ -318,7 +337,7 @@ describe('EventFilter', () => {
             eventType: [],
             judge: [],
             organizer: [],
-            start: new Date(2031, 0, 1),
+            start: '2031-01-01',
           }}
         />,
         undefined,

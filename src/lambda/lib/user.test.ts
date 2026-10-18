@@ -11,8 +11,8 @@ vi.doMock('nanoid', () => {
   return { nanoid: () => `test-id-${++i}` }
 })
 
-const mockEventReadAll = vi.fn()
-const mockEventUpdate = vi.fn()
+const mockReadAllEvents = vi.fn<() => Promise<unknown[]>>(async () => [])
+const mockWriteEventFields = vi.fn()
 const mockUserReadAll = vi.fn()
 const mockUserLinkReadAll = vi.fn()
 const mockUserQuery = vi.fn()
@@ -26,7 +26,12 @@ vi.doMock('./email', () => ({
   sendTemplatedMail: (...args: any[]) => mockSendTemplatedMail(...args),
 }))
 
-// `updateUsersFromOfficialsOrJudges()` creates a separate Dynamo client for events.
+vi.doMock('./repositories/eventRepository', () => ({
+  readAllEvents: mockReadAllEvents,
+  writeEventFields: mockWriteEventFields,
+}))
+
+// `updateUsersFromOfficialsOrJudges()` creates a separate Dynamo client for user links.
 // Mock it so tests stay fully in-memory.
 vi.doMock('../utils/CustomDynamoClient', () => ({
   default: class MockCustomDynamoClient {
@@ -37,7 +42,6 @@ vi.doMock('../utils/CustomDynamoClient', () => ({
     }
 
     readAll = ({ table }: { table?: string } = {}) => {
-      if (table?.includes('event')) return mockEventReadAll(table)
       if (table?.includes('user-link')) return mockUserLinkReadAll(table)
       return mockUserReadAll(table)
     }
@@ -50,11 +54,7 @@ vi.doMock('../utils/CustomDynamoClient', () => ({
 
     batchWrite: CustomDynamoClient['batchWrite'] = (...args) => mockUserBatchWrite(...args)
 
-    update = (...args: any[]) => {
-      const table = args[2]
-      if (typeof table === 'string' && table.includes('event')) return mockEventUpdate(...args)
-      return mockUserUpdate(...args)
-    }
+    update = (...args: any[]) => mockUserUpdate(...args)
   },
 }))
 
@@ -984,7 +984,7 @@ describe('lib/user', () => {
 
       mockReadAll.mockResolvedValueOnce([canonical, dupe])
 
-      mockEventReadAll.mockResolvedValueOnce(undefined)
+      mockReadAllEvents.mockResolvedValueOnce([])
 
       const fromKl: Official = {
         district: 'district',
@@ -1134,7 +1134,7 @@ describe('lib/user', () => {
       }
 
       mockReadAll.mockResolvedValueOnce([canonical, dupe])
-      mockEventReadAll.mockResolvedValueOnce([
+      mockReadAllEvents.mockResolvedValueOnce([
         {
           classes: [],
           cost: 0,
@@ -1188,17 +1188,69 @@ describe('lib/user', () => {
 
       await updateUsersFromOfficialsOrJudges([fromKl], 'officer')
 
-      expect(mockEventUpdate).toHaveBeenCalledTimes(1)
-      expect(mockEventUpdate).toHaveBeenCalledWith(
-        expect.anything(),
+      expect(mockWriteEventFields).toHaveBeenCalledTimes(1)
+      expect(mockWriteEventFields).toHaveBeenCalledWith(
+        expect.any(String),
         expect.objectContaining({
           set: expect.objectContaining({
             official: expect.objectContaining({ id: expect.any(String) }),
             secretary: expect.objectContaining({ id: expect.any(String), name: 'Official Person' }),
           }),
-        }),
-        expect.any(String)
+        })
       )
+    })
+
+    it('rewrites the events one at a time and stops at the first failed write', async () => {
+      const canonical: JsonUser = {
+        ...defaults,
+        email: 'canon@example.com',
+        id: 'canon',
+        kcId: 888,
+        name: 'Official Person',
+      }
+      const dupe: JsonUser = {
+        ...defaults,
+        email: 'dupe@example.com',
+        id: 'dupe',
+        kcId: 888,
+        name: 'Official Person',
+        roles: { testOrg: 'admin' },
+      }
+      const referencing = (id: string) => ({
+        classes: [],
+        cost: 0,
+        createdAt: defaults.createdAt,
+        createdBy: defaults.createdBy,
+        description: '',
+        endDate: '2024-06-01T00:00:00.000Z',
+        eventType: 'NOME-A',
+        id,
+        judges: [],
+        location: 'loc',
+        modifiedAt: defaults.modifiedAt,
+        modifiedBy: defaults.modifiedBy,
+        name: id,
+        official: { id: 'canon', name: 'Official Person' },
+        organizer: { id: 'org', name: 'org' },
+        places: 0,
+        startDate: '2024-06-01T00:00:00.000Z',
+        state: 'draft',
+      })
+      mockReadAll.mockResolvedValueOnce([canonical, dupe])
+      mockReadAllEvents.mockResolvedValueOnce([referencing('evt-first'), referencing('evt-second')])
+      mockWriteEventFields.mockRejectedValueOnce(new Error('write failed'))
+
+      const fromKl: Official = {
+        district: 'district',
+        email: 'latest@example.com',
+        eventTypes: ['NOME-A'],
+        id: 888,
+        name: 'person official',
+      }
+
+      await expect(updateUsersFromOfficialsOrJudges([fromKl], 'officer')).rejects.toThrow('write failed')
+      expect(mockWriteEventFields).toHaveBeenCalledTimes(1)
+      expect(mockWriteEventFields).toHaveBeenCalledWith('evt-first', expect.anything())
     })
 
     it('updates event official and keeps secretary as-is when no secretary mapping exists', async () => {
@@ -1219,7 +1271,7 @@ describe('lib/user', () => {
       }
 
       mockReadAll.mockResolvedValueOnce([canonical, dupe])
-      mockEventReadAll.mockResolvedValueOnce([
+      mockReadAllEvents.mockResolvedValueOnce([
         {
           classes: [],
           cost: 0,
@@ -1252,16 +1304,15 @@ describe('lib/user', () => {
 
       await updateUsersFromOfficialsOrJudges([fromKl], 'officer')
 
-      expect(mockEventUpdate).toHaveBeenCalledTimes(1)
-      expect(mockEventUpdate).toHaveBeenCalledWith(
-        expect.anything(),
+      expect(mockWriteEventFields).toHaveBeenCalledTimes(1)
+      expect(mockWriteEventFields).toHaveBeenCalledWith(
+        expect.any(String),
         expect.objectContaining({
           set: expect.objectContaining({
             official: expect.objectContaining({ id: 'dupe', name: 'Official Person' }),
             secretary: undefined,
           }),
-        }),
-        expect.any(String)
+        })
       )
     })
 
@@ -1284,7 +1335,7 @@ describe('lib/user', () => {
 
       mockReadAll.mockResolvedValueOnce([canonical, dupe])
       mockUserLinkReadAll.mockResolvedValueOnce([{ cognitoUser: 'sub-canon-sec', userId: 'canon-sec' }])
-      mockEventReadAll.mockResolvedValueOnce([
+      mockReadAllEvents.mockResolvedValueOnce([
         {
           classes: [],
           cost: 0,
@@ -1318,15 +1369,14 @@ describe('lib/user', () => {
       await updateUsersFromOfficialsOrJudges([fromKl], 'officer')
 
       expect(mockBatchWrite).toHaveBeenCalledTimes(1)
-      expect(mockEventUpdate).toHaveBeenCalledWith(
-        { id: 'evt-secretary-only' },
+      expect(mockWriteEventFields).toHaveBeenCalledWith(
+        'evt-secretary-only',
         expect.objectContaining({
           set: expect.objectContaining({
             official: undefined,
             secretary: expect.objectContaining({ id: 'canon-sec', name: 'Secretary Person' }),
           }),
-        }),
-        'event-table-not-found-in-env'
+        })
       )
     })
 
@@ -1429,7 +1479,7 @@ describe('lib/user', () => {
       }
 
       mockReadAll.mockResolvedValueOnce([kc1Dupe, kc1Canonical, kc2DupeSameIdAsKc1Canonical, kc2Canonical])
-      mockEventReadAll.mockResolvedValueOnce([
+      mockReadAllEvents.mockResolvedValueOnce([
         {
           classes: [],
           cost: 0,
@@ -1464,12 +1514,11 @@ describe('lib/user', () => {
 
       // The A -> B -> C chain is compressed before event references are rewritten.
       expect(mockBatchWrite).toHaveBeenCalled()
-      expect(mockEventUpdate).toHaveBeenCalledWith(
-        { id: 'evt-path-compress' },
+      expect(mockWriteEventFields).toHaveBeenCalledWith(
+        'evt-path-compress',
         expect.objectContaining({
           set: expect.objectContaining({ official: expect.objectContaining({ id: 'C' }) }),
-        }),
-        'event-table-not-found-in-env'
+        })
       )
     })
   })

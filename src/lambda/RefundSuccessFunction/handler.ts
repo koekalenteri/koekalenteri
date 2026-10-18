@@ -13,6 +13,7 @@ import { logger } from '../lib/log'
 import {
   applySuccessfulRefund,
   parseParams,
+  publishParticipantPayments,
   settleFailedTransaction,
   updateTransactionStatus,
   verifyParams,
@@ -189,6 +190,9 @@ const refundSuccessLambda = lambda('refundSuccess', async (event) => {
     ],
     confirmedEvent.organizer.id
   )
+  // The entrant's page learns the refund too, from the row as it stands after the write; a failed
+  // push is logged and never fails the callback (KOE-1553).
+  await publishParticipantPayments(confirmedEvent, [registrationId])
 
   return response(200, undefined, event)
 })

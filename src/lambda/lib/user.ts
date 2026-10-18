@@ -9,14 +9,16 @@ import { KNOWN_TLDS } from '../../lib/domains/topLevelDomains'
 import { validEmail } from '../../lib/email'
 import { reverseName } from '../../lib/string'
 import { scoreUser } from '../../lib/user'
+import { mapWithConcurrency } from '../../lib/utils'
 import { CONFIG } from '../config'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 import { bumpDataVersion } from './dataVersions'
 import { sendTemplatedMail } from './email'
 import { appendEmailHistory } from './emailHistory'
 import { hashIdentity, logger } from './log'
+import { readAllEvents, writeEventFields } from './repositories/eventRepository'
 
-const { userTable, userLinkTable, organizerTable, emailFrom, eventTable } = CONFIG
+const { userTable, userLinkTable, organizerTable, emailFrom } = CONFIG
 
 const dynamoDB = new CustomDynamoClient(userLinkTable)
 
@@ -493,7 +495,7 @@ const updateEventReferences = async (
   for (const u of allUsers) mergedUserMap.set(u.id, u)
   for (const u of mergeWrites) mergedUserMap.set(u.id, u)
 
-  const events = (await dynamoDB.readAll<JsonDogEvent>({ table: eventTable })) ?? []
+  const events = await readAllEvents()
 
   const mapEventUserRefs = (evt: JsonDogEvent) => {
     const oldOfficialId = normalizeUserId(evt.official?.id)
@@ -511,23 +513,22 @@ const updateEventReferences = async (
     return { updatedOfficial, updatedSecretary }
   }
 
-  for (const evt of events) {
+  const remapped = events.flatMap((evt) => {
     const mapped = mapEventUserRefs(evt)
-    if (!mapped) continue
+    return mapped ? [{ id: evt.id, ...mapped }] : []
+  })
 
-    await dynamoDB.update(
-      { id: evt.id },
-      {
-        set: {
-          modifiedAt: dateString,
-          modifiedBy: 'system',
-          official: mapped.updatedOfficial,
-          secretary: mapped.updatedSecretary,
-        },
+  // One event at a time, in table order, stopping at the first failed write.
+  await mapWithConcurrency(remapped, 1, ({ id, updatedOfficial, updatedSecretary }) =>
+    writeEventFields(id, {
+      set: {
+        modifiedAt: dateString,
+        modifiedBy: 'system',
+        official: updatedOfficial,
+        secretary: updatedSecretary,
       },
-      eventTable
-    )
-  }
+    })
+  )
 }
 
 const matchIncomingItems = (

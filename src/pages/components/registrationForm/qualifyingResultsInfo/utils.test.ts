@@ -1,5 +1,8 @@
 import type { ManualTestResult } from '@/types'
+import { dayEnd, TIME_ZONE } from '@/lib/day'
 import { getRequirements } from '@/rules'
+import { frozenInstant } from '@/test-utils/freezeClock'
+import { describeInTimeZone } from '@/test-utils/timeZone'
 import { availableResults, availableTypes, createMissingResult, resultBorderColor } from './utils'
 
 const ID_REGEXP = /^[0-9a-zA-Z_-]{10}$/
@@ -252,6 +255,26 @@ describe('QualifyingResultsInfo utils', () => {
           type: '',
         })
       )
+    })
+  })
+
+  // The new row's date is the last day its picker offers, as the picker's Date: the ranking period's
+  // last Finnish day, or today in Finland. 12.5. 23:59 in Finland is 13.5. in Tokyo (KOE-1548).
+  describe.each([TIME_ZONE, 'America/New_York', 'Asia/Tokyo'])('the default date in %s', (zone) => {
+    describeInTimeZone(zone, () => {
+      beforeEach(() => vi.useFakeTimers({ now: frozenInstant('2026-05-15'), toFake: ['Date'] }))
+      afterEach(() => vi.useRealTimers())
+
+      it.each([
+        { expected: [2026, 4, 12], periodEnd: '2026-05-12' },
+        { expected: [2026, 4, 15], periodEnd: '2026-06-30' },
+        { expected: [2026, 4, 15], periodEnd: undefined },
+      ] as const)('is $expected for a period ending on $periodEnd (KOE-1548)', ({ expected, periodEnd }) => {
+        const max = periodEnd ? dayEnd(periodEnd, TIME_ZONE) : undefined
+        const [year, month, day] = expected
+
+        expect(createMissingResult(undefined, [], 'test-reg-no', max).date).toEqual(new Date(year, month, day))
+      })
     })
   })
 

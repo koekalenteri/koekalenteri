@@ -1,37 +1,24 @@
 import type { PublicDogEvent } from '@/types'
 import { eventWithStaticDates } from '@/__mockData__/events'
+import { addDays } from '@/lib/day'
 import { endOfFinnishDay, startOfFinnishDay } from '@/test-utils/finnishDays'
-import {
-  deserializeFilter,
-  readDate,
-  serializeFilter,
-  withinDateFilters,
-  withinResultsFilter,
-  writeDate,
-} from './filters'
+import { deserializeFilter, serializeFilter, withinDateFilters, withinResultsFilter } from './filters'
 
 describe('state.events.filters', () => {
-  describe('readDate', () => {
-    it('should produce a date in finnish timezone', () => {
-      expect(readDate('2024-01-01')?.valueOf()).toEqual(1704060000000)
-      expect(readDate('2024-06-15')?.valueOf()).toEqual(1718398800000)
-    })
-
-    it('reads anything that is not a day as no date', () => {
-      expect(readDate('foo')).toBeNull()
-      expect(readDate('2024-06-15T00:00:00Z')).toBeNull()
-      expect(readDate(null)).toBeNull()
+  describe('the URL days', () => {
+    it('reads anything that is not a day as no day', () => {
+      expect(deserializeFilter('s=foo&e=2024-06-15T00:00:00Z')).toEqual(
+        expect.objectContaining({ end: null, start: null })
+      )
       // A day past the accepted years: its end would be a year no key can spell.
-      expect(readDate('9999-12-31')).toBeNull()
       expect(deserializeFilter('s=2026-10-17&e=9999-12-31').end).toBeNull()
     })
-  })
 
-  describe('writeDate', () => {
-    it('should produce a date string in finnish timezone', () => {
-      expect(writeDate(new Date(1704060000000))).toEqual('2024-01-01')
-      expect(writeDate(new Date(1704146399000))).toEqual('2024-01-01')
-      expect(writeDate(new Date(1718398800000))).toEqual('2024-06-15')
+    it('are the day keys of the filter, both ways (KOE-1548)', () => {
+      const filter = deserializeFilter('s=2026-04-06&e=2026-04-12')
+
+      expect(filter).toEqual(expect.objectContaining({ end: '2026-04-12', start: '2026-04-06' }))
+      expect(serializeFilter(filter)).toEqual('s=2026-04-06&e=2026-04-12')
     })
   })
 
@@ -52,12 +39,12 @@ describe('state.events.filters', () => {
     it('serializes all fields', () => {
       expect(
         serializeFilter({
-          end: endOfFinnishDay(new Date(1743449533000)),
+          end: '2025-03-31',
           eventClass: ['ALO'],
           eventType: ['NOME-B'],
           judge: ['Tuomari Risto'],
           organizer: ['bOkL76mduc'],
-          start: startOfFinnishDay(new Date(1742844733000)),
+          start: '2025-03-24',
           withClosingEntry: true,
           withFreePlaces: true,
           withOpenEntry: true,
@@ -69,16 +56,18 @@ describe('state.events.filters', () => {
   })
 
   describe('deserializeFilter', () => {
-    const today = new Date()
-    const startOfToday = startOfFinnishDay(today)
+    afterEach(() => vi.useRealTimers())
+
     it('ignores unknown params', () => {
+      // Without `s` the list starts today in Finland: 23:30 on 17.10. there, already the 18th in Tokyo.
+      vi.useFakeTimers({ now: new Date('2026-10-17T20:30:00.000Z'), toFake: ['Date'] })
       expect(deserializeFilter('fblcid=asdf')).toEqual({
         end: null,
         eventClass: [],
         eventType: [],
         judge: [],
         organizer: [],
-        start: startOfToday,
+        start: '2026-10-17',
         withClosingEntry: false,
         withFreePlaces: false,
         withOpenEntry: false,
@@ -91,12 +80,12 @@ describe('state.events.filters', () => {
       expect(
         deserializeFilter('s=2025-03-24&e=2025-03-31&c=ALO&t=NOME-B&j=Tuomari+Risto&o=bOkL76mduc&b=c&b=f&b=o&b=u&b=r')
       ).toEqual({
-        end: endOfFinnishDay(new Date(1743449533000)),
+        end: '2025-03-31',
         eventClass: ['ALO'],
         eventType: ['NOME-B'],
         judge: ['Tuomari Risto'],
         organizer: ['bOkL76mduc'],
-        start: startOfFinnishDay(new Date(1742844733000)),
+        start: '2025-03-24',
         withClosingEntry: true,
         withFreePlaces: true,
         withOpenEntry: true,
@@ -111,71 +100,39 @@ describe('state.events.filters', () => {
   })
 
   describe('withinDateFilters', () => {
+    const day = '2026-10-17'
+
     it('leaves out an event whose stored date has no calendar day, instead of failing the list', () => {
       const yearOne = new Date('0001-01-01T00:00:00')
-      const today = startOfFinnishDay('2026-10-17')
-      expect(withinDateFilters({ endDate: yearOne, startDate: yearOne }, { end: null, start: today })).toBe(false)
-      expect(withinDateFilters({ endDate: today, startDate: new Date(Number.NaN) }, { end: today, start: null })).toBe(
+      const stored = startOfFinnishDay(day)
+      expect(withinDateFilters({ endDate: yearOne, startDate: yearOne }, { end: null, start: day })).toBe(false)
+      expect(withinDateFilters({ endDate: stored, startDate: new Date(Number.NaN) }, { end: day, start: null })).toBe(
         false
       )
     })
 
-    const today = new Date()
-    const startOfToday = startOfFinnishDay(today)
-    const endOfToday = endOfFinnishDay(today)
-    describe.each`
-      endDate
-      ${today}
-      ${startOfToday}
-      ${endOfToday}
-    `('when endDate is $endDate', ({ endDate }) => {
-      it.each`
-        start
-        ${null}
-        ${today}
-        ${startOfToday}
-        ${endOfToday}
-      `('and start is $start, it should return true', ({ start }) => {
-        expect(withinDateFilters({ endDate }, { end: null, start })).toEqual(true)
-      })
+    // A stored date is any moment of its Finnish day; the filter's days include both ends.
+    const moments = [
+      { moment: startOfFinnishDay(day), name: 'start of day' },
+      { moment: new Date(startOfFinnishDay(day).getTime() + 12 * 3_600_000), name: 'noon' },
+      { moment: endOfFinnishDay(day), name: 'end of day' },
+    ]
+
+    it.each(moments)('keeps an event that ends at $name on the first day of the filter', ({ moment: endDate }) => {
+      expect(withinDateFilters({ endDate }, { end: null, start: day })).toBe(true)
+      expect(withinDateFilters({ endDate }, { end: null, start: null })).toBe(true)
+      expect(withinDateFilters({ endDate }, { end: null, start: addDays(day, 1) })).toBe(false)
     })
 
-    describe('when endDate is undefined', () => {
-      it.each`
-        start
-        ${today}
-        ${startOfToday}
-        ${endOfToday}
-      `('and start is $start, it should return false', ({ start }) => {
-        expect(withinDateFilters({ endDate: undefined }, { end: null, start })).toEqual(false)
-      })
+    it.each(moments)('keeps an event that starts at $name on the last day of the filter', ({ moment: startDate }) => {
+      expect(withinDateFilters({ startDate }, { end: day, start: null })).toBe(true)
+      expect(withinDateFilters({ startDate }, { end: null, start: null })).toBe(true)
+      expect(withinDateFilters({ startDate }, { end: addDays(day, -1), start: null })).toBe(false)
     })
 
-    describe.each`
-      startDate
-      ${today}
-      ${startOfToday}
-      ${endOfToday}
-    `('when startDate is $startDate', ({ startDate }) => {
-      it.each`
-        end
-        ${null}
-        ${today}
-        ${startOfToday}
-        ${endOfToday}
-      `('and end is $end, it should return true', ({ end }) => {
-        expect(withinDateFilters({ startDate }, { end, start: null })).toEqual(true)
-      })
-    })
-    describe('when startDate is undefined', () => {
-      it.each`
-        end
-        ${today}
-        ${startOfToday}
-        ${endOfToday}
-      `('and end is $end, it should return false', ({ end }) => {
-        expect(withinDateFilters({ startDate: undefined }, { end, start: null })).toEqual(false)
-      })
+    it('leaves out an event without the date a bound is compared with', () => {
+      expect(withinDateFilters({ endDate: undefined }, { end: null, start: day })).toBe(false)
+      expect(withinDateFilters({ startDate: undefined }, { end: day, start: null })).toBe(false)
     })
   })
 

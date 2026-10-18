@@ -3,6 +3,8 @@ import { vi } from 'vitest'
 import { eventWithStaticDates } from '../../__mockData__/events'
 import { registrationWithStaticDates } from '../../__mockData__/registrations'
 import { registrationCreatedAudit } from '../../lib/audit'
+import { deliverToEntrant, everyEntrantWatching } from '../test-utils/entrantPages'
+import { loggedLines } from '../test-utils/logs'
 
 const mockUpdateRegistrations = vi.fn<(eventId: string) => Promise<JsonConfirmedEvent>>()
 const mockRepairReadyRegistrationGroups = vi.fn<() => Promise<Partial<JsonRegistration>[]>>()
@@ -21,8 +23,15 @@ vi.doMock('./stats', () => ({
 const mockPublishEventCounts = vi.fn()
 const mockPublishRegistrationPatches = vi.fn()
 const mockPublishRegistrationPatchesStrict = vi.fn()
-vi.doMock('./ws/actions', () => ({
+// What each entrant's page receives. The real publisher runs, failure handling included; every
+// entrant has the page open (KOE-1553).
+const mockToEntrant = vi.fn()
+vi.doMock('./ws/connectionSelectors', () => ({ registrationsAudience: everyEntrantWatching }))
+vi.doMock('./ws/broadcast', () => ({ broadcast: deliverToEntrant(mockToEntrant) }))
+vi.doMock('./ws/actions', async () => ({
   publishEventCounts: mockPublishEventCounts,
+  publishParticipantRegistrationPatches: (await vi.importActual<typeof import('./ws/actions')>('./ws/actions'))
+    .publishParticipantRegistrationPatches,
   publishRegistrationPatches: mockPublishRegistrationPatches,
   publishRegistrationPatchesStrict: mockPublishRegistrationPatchesStrict,
 }))
@@ -43,9 +52,11 @@ const mockSendTemplatedMail = vi.fn()
 const libEmail = await import('./email')
 vi.doMock('./email', () => ({ ...libEmail, sendTemplatedMail: mockSendTemplatedMail }))
 
+// The registration row as stored, read back for the entrant's patch (KOE-1553).
+const mockRead = vi.fn()
 vi.doMock('../utils/CustomDynamoClient', () => ({
   default: vi.fn(function MockCustomDynamoClient() {
-    return {}
+    return { read: mockRead }
   }),
 }))
 
@@ -452,6 +463,51 @@ describe('registrationWorkflow', () => {
           },
         })
       )
+    })
+
+    // A secretary's edit can change what the entrant owes (the class, the membership) or cancel the
+    // entry; the entrant's open page hears it from the row as stored.
+    it('tells the entrant the payment as the stored row has it (KOE-1553)', async () => {
+      const saved = { ...registration, cancelled: true }
+      mockRead.mockResolvedValueOnce({ ...saved, updatedAt: '2030-01-01T00:00:00.500Z' })
+
+      await finalize(saved, registration)
+
+      expect(mockRead).toHaveBeenCalledWith({ eventId: saved.eventId, id: saved.id }, expect.any(String), true)
+      expect(mockToEntrant).toHaveBeenCalledTimes(1)
+      expect(mockToEntrant).toHaveBeenCalledWith(
+        saved.eventId,
+        saved.id,
+        expect.objectContaining({
+          cancelled: true,
+          payment: expect.objectContaining({ due: 0 }),
+          updatedAt: '2030-01-01T00:00:00.500Z',
+        })
+      )
+    })
+
+    // The edit is stored before the entrant hears of it: a failed push must not undo the rest.
+    it('audits and emails the edit even when the entrant patch cannot be built (KOE-1553)', async () => {
+      const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+      const saved = { ...registration, notes: 'changed' }
+      mockRead.mockRejectedValueOnce(new Error('read failed'))
+
+      await expect(finalize(saved, registration)).resolves.toBeUndefined()
+
+      expect(mockToEntrant).not.toHaveBeenCalled()
+      expect(mockAudit).toHaveBeenCalledWith(expect.objectContaining({ messageKey: 'audit.changed' }))
+      expect(mockSendTemplatedMail).toHaveBeenCalledWith(
+        'registration',
+        'fi',
+        expect.any(String),
+        ['handler@example.com', 'owner@example.com'],
+        expect.anything(),
+        expect.any(Array)
+      )
+      expect(loggedLines(errorSpy)).toEqual([
+        expect.objectContaining({ message: 'participant patch failed', registrationId: saved.id }),
+      ])
+      errorSpy.mockRestore()
     })
 
     it('says on the row when the actor was named from the registration', async () => {

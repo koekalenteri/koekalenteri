@@ -20,6 +20,7 @@ const mockDynamoRead = vi.fn()
 const mockDynamoUpdate = vi.fn()
 const mockPublishRegistrationPatches = vi.fn()
 const mockPublishCancelledRegistration = vi.fn()
+const mockPublishParticipantPayments = vi.fn()
 const mockDynamoClient = vi.fn(function MockCustomDynamoClient() {
   return {
     read: mockDynamoRead,
@@ -43,6 +44,7 @@ vi.doMock('../lib/lambda', async () => ({
 vi.doMock('../lib/payment', () => ({
   applySuccessfulRefund: mockApplySuccessfulRefund,
   parseParams: mockParseParams,
+  publishParticipantPayments: mockPublishParticipantPayments,
   settleFailedTransaction: mockSettleFailedTransaction,
   updateTransactionStatus: mockUpdateTransactionStatus,
   verifyParams: mockVerifyParams,
@@ -320,6 +322,33 @@ describe('refundSuccessLambda', () => {
 
     // Verify response was returned
     expect(mockResponse).toHaveBeenCalledWith(200, undefined, event)
+  })
+
+  // The picture is built from the row as stored, and a failed push is logged without failing the
+  // callback: both are publishParticipantPayments' own (lib/payment.test.ts, ws/actions.test.ts).
+  it('tells the entrant the refund once it is applied (KOE-1553)', async () => {
+    const steps: string[] = []
+    mockApplySuccessfulRefund.mockImplementationOnce(async () => {
+      steps.push('apply')
+      return { applied: true, appliedAt: '2023-01-01T12:30:00.000Z' }
+    })
+    mockPublishParticipantPayments.mockImplementationOnce(async () => {
+      steps.push('tell the entrant')
+    })
+
+    await refundSuccessLambda(event)
+
+    expect(mockPublishParticipantPayments).toHaveBeenCalledTimes(1)
+    expect(mockPublishParticipantPayments).toHaveBeenCalledWith(mockConfirmedEvent, ['reg456'])
+    expect(steps).toEqual(['apply', 'tell the entrant'])
+  })
+
+  it('tells the entrant nothing when the refund was already applied (KOE-1553)', async () => {
+    mockApplySuccessfulRefund.mockResolvedValueOnce({ applied: false, appliedAt: '2023-01-01T12:30:00.000Z' })
+
+    await refundSuccessLambda(event)
+
+    expect(mockPublishParticipantPayments).not.toHaveBeenCalled()
   })
 
   it('tells a partial refund without a handling fee as one without a fee (KOE-1459)', async () => {

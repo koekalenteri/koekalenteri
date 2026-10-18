@@ -9,6 +9,7 @@ import type {
   Patch,
   RegistrationTemplateContext,
 } from '../../types'
+import type { UpdateActions } from '../utils/CustomDynamoClient'
 import { createHmac, timingSafeEqual } from 'node:crypto'
 import {
   auditUser,
@@ -323,6 +324,15 @@ export const updateRegistrationField = async <F extends keyof JsonRegistration>(
       },
     }
   )
+
+/** Sets and removes the fields of a registration's group move, with no condition. */
+export const writeRegistrationGroup = async (
+  eventId: JsonRegistration['eventId'],
+  id: JsonRegistration['id'],
+  changes: UpdateActions
+) => {
+  await dynamoDB.update({ eventId, id }, changes, registrationTable)
+}
 
 /**
  * Records what sending a dog's result to Kennelliitto came to (KOE-1140). The write lands only on the

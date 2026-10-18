@@ -2,13 +2,12 @@ import type { TFunction } from 'i18next'
 import type { PublicDogEvent } from '@/types'
 import type { FilterProps } from './types'
 import { formatDate, formatDateSpan } from '@/i18n/dates'
-import { dayEnd, dayOf, dayStart, isDayKey, TIME_ZONE } from '@/lib/day'
+import { dayOf, isDayKey, TIME_ZONE } from '@/lib/day'
 import { hasAvailableResults, isEntryClosing, isEntryOpen, isEntryUpcoming, storedDayKey } from '@/lib/event'
 import { isRegistrationClass } from '@/lib/registration'
 
-/** The Finnish midnight of a day key from the URL; anything else, including nothing, is no date. */
-export const readDate = (date: string | null) => (isDayKey(date) ? dayStart(date, TIME_ZONE) : null)
-export const writeDate = (date: Date | null) => (date ? dayOf(date, TIME_ZONE) : '')
+/** A day key from the URL as it is; anything else, including nothing, is no day. */
+const readDay = (day: string | null) => (isDayKey(day) ? day : null)
 
 export function withinDateFilters(
   event: Partial<Pick<PublicDogEvent, 'startDate' | 'endDate'>>,
@@ -17,11 +16,11 @@ export function withinDateFilters(
   // A stored date without a calendar day is not in any range: the list skips the event rather than fail.
   if (start) {
     const endDay = storedDayKey(event.endDate)
-    if (!endDay || endDay < dayOf(start, TIME_ZONE)) return false
+    if (!endDay || endDay < start) return false
   }
   if (end) {
     const startDay = storedDayKey(event.startDate)
-    if (!startDay || startDay > dayOf(end, TIME_ZONE)) return false
+    if (!startDay || startDay > end) return false
   }
   return true
 }
@@ -104,9 +103,9 @@ export function serializeFilter(eventFilter: FilterProps): string {
   if (eventFilter.withResults) {
     bits.push('r')
   }
-  params.append('s', eventFilter.start ? writeDate(eventFilter.start) : '')
+  params.append('s', eventFilter.start ?? '')
   if (eventFilter.end) {
-    params.append('e', writeDate(eventFilter.end))
+    params.append('e', eventFilter.end)
   }
   eventFilter.eventClass.forEach((v) => {
     params.append('c', v)
@@ -130,15 +129,15 @@ export function serializeFilter(eventFilter: FilterProps): string {
 export function deserializeFilter(input: string) {
   const searchParams = new URLSearchParams(input)
   const bits = searchParams.getAll('b')
-  const end = searchParams.get('e')
-  const start = searchParams.has('s') ? searchParams.get('s') : writeDate(new Date())
+  // Without `s` the list starts today; an empty `s` is a list with no start.
+  const start = searchParams.has('s') ? readDay(searchParams.get('s')) : dayOf(new Date(), TIME_ZONE)
   const result: FilterProps = {
-    end: isDayKey(end) ? dayEnd(end, TIME_ZONE) : null,
+    end: readDay(searchParams.get('e')),
     eventClass: searchParams.getAll('c').filter(isRegistrationClass),
     eventType: searchParams.getAll('t'),
     judge: searchParams.getAll('j'),
     organizer: searchParams.getAll('o'),
-    start: isDayKey(start) ? dayStart(start, TIME_ZONE) : null,
+    start,
     withClosingEntry: bits.includes('c'),
     withFreePlaces: bits.includes('f'),
     withOpenEntry: bits.includes('o'),

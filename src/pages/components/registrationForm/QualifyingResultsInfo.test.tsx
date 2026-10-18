@@ -9,10 +9,12 @@ import {
   registrationWithStaticDatesAndClass,
 } from '@/__mockData__/registrations'
 import { locales } from '@/i18n'
+import { dayEnd, dayStart, TIME_ZONE } from '@/lib/day'
 import { filterRelevantResults } from '@/lib/qualification'
 import { getRequirements } from '@/rules'
 import { noonOfFinnishDay } from '@/test-utils/finnishDays'
 import { frozenInstant } from '@/test-utils/freezeClock'
+import { describeInTimeZone } from '@/test-utils/timeZone'
 import { renderWithUserEvents } from '@/test-utils/utils'
 import QualifyingResultsInfo from './QualifyingResultsInfo'
 
@@ -73,13 +75,14 @@ describe('QualifyingResultsInfo', () => {
     beforeEach(() => vi.useFakeTimers({ now: frozenInstant('2026-05-15'), toFake: ['Date'] }))
     afterEach(() => vi.useRealTimers())
 
-    const daysOffered = async (dob: Date | undefined) => {
+    const daysOffered = async (dob: Date | undefined, rankingPeriod?: { min?: Date; max?: Date }) => {
       const reg = registrationWithManualResults
       const requirements = getRequirements(reg.eventType, reg.class, reg.dates[0].date)
       const result = { ...(reg.results ?? [])[0], date: noonOfFinnishDay('2026-05-10') }
       const { user } = renderWithUserEvents(
         <QualifyingResultsInfo
           dob={dob}
+          rankingPeriod={rankingPeriod}
           regNo={reg.dog.regNo}
           requirements={requirements}
           results={[result]}
@@ -112,6 +115,24 @@ describe('QualifyingResultsInfo', () => {
 
     it('offers only today without a birth date', async () => {
       expect(await daysOffered(undefined)).toEqual([15])
+    })
+
+    // The period's last moment is 12.5. 23:59 in Finland, already 13.5. in Tokyo: the picker offered
+    // the day after the period there (KOE-1548).
+    describe.each([TIME_ZONE, 'America/New_York', 'Asia/Tokyo'])('in %s', (zone) => {
+      describeInTimeZone(zone, () => {
+        it('offers no day after the ranking period ends (KOE-1548)', async () => {
+          const rankingPeriod = { max: dayEnd('2026-05-12', TIME_ZONE), min: dayStart('2025-05-13', TIME_ZONE) }
+
+          expect(await daysOffered(new Date(2025, 7, 5), rankingPeriod)).toEqual(range(5, 12))
+        })
+
+        it('offers no day after today in a ranking period that ends later (KOE-1548)', async () => {
+          const rankingPeriod = { max: dayEnd('2026-06-30', TIME_ZONE), min: dayStart('2025-07-01', TIME_ZONE) }
+
+          expect(await daysOffered(new Date(2025, 7, 5), rankingPeriod)).toEqual(range(5, 15))
+        })
+      })
     })
   })
 
