@@ -13,12 +13,14 @@ import { useCallback, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { objectsDiffer } from '@/lib/diff'
 import { getEventSeason, isEventOver } from '@/lib/event'
+import { hasEarlyBirdPrice } from '@/lib/payment'
 import { merge, withTimeout } from '@/lib/utils'
 import { AsyncButton } from '../../components/AsyncButton'
 import AutocompleteSingle from '../../components/AutocompleteSingle'
 import {
   adminActiveEventTypesAtom,
   adminActiveJudgesAtom,
+  adminEventPaymentLockedAtom,
   adminEventTypeClassesAtom,
   adminLocationNamesAtom,
   adminUserOrganizersAtom,
@@ -75,6 +77,9 @@ export default function EventForm({ event, changes, canSave, disabled, onSave, o
   const md = useMediaQuery((theme: Theme) => theme.breakpoints.up('md'))
   const [activeEventTypes, activeJudges, eventTypeClasses, users, organizers, locations] =
     useAtomValue(eventFormOptionsAtom)
+  // The event's registrations lock its payment terms, as PutEvent does (KOE-1568).
+  const paymentLocked = useAtomValue(adminEventPaymentLockedAtom(event.id ?? ''))
+  const entryStartLocked = paymentLocked && hasEarlyBirdPrice(event)
   const [errors, setErrors] = useState(event ? validateEvent(event, { judges: activeJudges }) : [])
   const [open, setOpen] = useState<{ [key: string]: boolean | undefined }>({
     basic: true,
@@ -398,6 +403,7 @@ export default function EventForm({ event, changes, canSave, disabled, onSave, o
         <EntrySection
           disabled={allDisabled}
           entryDatesChanged={entryDatesChanged}
+          entryStartLocked={entryStartLocked}
           errorStates={errorStates}
           errors={errors}
           event={entryEvent}
@@ -414,6 +420,7 @@ export default function EventForm({ event, changes, canSave, disabled, onSave, o
           event={paymentEvent}
           errors={errors}
           fields={fields}
+          locked={paymentLocked}
           onChange={handleChange}
           onOpenChange={handlePaymentOpenChange}
           open={open.payment}

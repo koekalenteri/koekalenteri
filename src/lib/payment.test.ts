@@ -1,4 +1,5 @@
 import type { EventState, MinimalEventForCost, MinimalRegistrationForCost, PaymentPicture, PaymentTime } from '../types'
+import type { PaymentTerms } from './payment'
 import { eventWithStaticDates } from '../__mockData__/events'
 import { paymentPictureWith } from '../__mockData__/paymentPicture'
 import {
@@ -6,10 +7,13 @@ import {
   getPaymentPicture,
   getProviderName,
   getRegistrationPaymentDetails,
+  hasEarlyBirdPrice,
+  hasPaymentLockingRegistrations,
   isPaymentInProgress,
   isPaytrailRefusal,
   isStalePendingPayment,
   PROVIDER_NAMES,
+  paymentTermsDiffer,
   paytrailErrorMessage,
   paytrailErrorText,
   paytrailRefusalBody,
@@ -19,6 +23,78 @@ import {
 import { patchMerge } from './utils'
 
 describe('payment', () => {
+  // The rule the event form locks its payment fields by, and PutEvent refuses a change by (KOE-1568).
+  describe('payment terms lock', () => {
+    const earlyBird = { earlyBird: { cost: 30, days: 7 }, normal: 40 }
+    const terms = {
+      cost: { normal: 40 },
+      costMember: { normal: 35 },
+      entryStartDate: '2025-04-01T00:00:00.000+03:00',
+      paymentTime: 'registration' as const,
+    }
+
+    it.each([
+      ['no registrations', false, []],
+      ['a completed one', true, [{ state: 'ready' as const }]],
+      ['only ones waiting for their payment', false, [{ state: 'creating' as const }, {}]],
+    ])('hasPaymentLockingRegistrations with %s is %s', (_name, expected, registrations) => {
+      expect(hasPaymentLockingRegistrations(registrations)).toBe(expected)
+    })
+
+    it.each([
+      [{ cost: 40 }, false],
+      [{ cost: { normal: 40 } }, false],
+      [{ cost: earlyBird }, true],
+      [{ cost: 40, costMember: earlyBird }, true],
+      [{}, false],
+    ])('hasEarlyBirdPrice(%o) is %s', (input, expected) => {
+      expect(hasEarlyBirdPrice(input)).toBe(expected)
+    })
+
+    it.each<[string, PaymentTerms, PaymentTerms?]>([
+      ['the same terms in new objects', { ...terms, cost: { normal: 40 } }],
+      ['a legacy number price as its object', { ...terms }, { ...terms, cost: 40, costMember: 35 }],
+      ['no payment time as paid at registration', { ...terms, paymentTime: undefined }],
+      ['a moved entry start without an early-bird rate', { ...terms, entryStartDate: '2025-04-03T00:00:00.000+03:00' }],
+      [
+        'the entry start as a Date of the same moment',
+        { ...terms, cost: earlyBird, entryStartDate: new Date('2025-03-31T21:00:00.000Z') },
+        { ...terms, cost: earlyBird },
+      ],
+      [
+        'an early-bird event without an entry start on either side',
+        { ...terms, cost: earlyBird, entryStartDate: undefined },
+        { ...terms, cost: earlyBird, entryStartDate: null },
+      ],
+    ])('sees no change in %s', (_name, after, before = terms) => {
+      expect(paymentTermsDiffer(before, after)).toBe(false)
+    })
+
+    it.each([
+      ['the price', { ...terms, cost: { normal: 45 } }],
+      ['the member price', { ...terms, costMember: 30 }],
+      ['a breed price', { ...terms, cost: { breed: { '110': 30 }, normal: 40 } }],
+      [
+        'an optional cost',
+        { ...terms, cost: { normal: 40, optionalAdditionalCosts: [{ cost: 5, description: { fi: 'x' } }] } },
+      ],
+      ['a removed member price', { ...terms, costMember: undefined }],
+      ['the payment time', { ...terms, paymentTime: 'confirmation' as const }],
+      ['an early-bird rate added', { ...terms, cost: earlyBird }],
+    ])('sees a change in %s', (_name, after) => {
+      expect(paymentTermsDiffer(terms, after)).toBe(true)
+    })
+
+    it.each([
+      ['moved', '2025-04-03T00:00:00.000+03:00'],
+      ['removed', undefined],
+    ])('sees the entry start %s as a change when an early-bird rate is set on either side', (_name, entryStartDate) => {
+      const withEarlyBird = { ...terms, cost: earlyBird }
+      expect(paymentTermsDiffer(withEarlyBird, { ...withEarlyBird, entryStartDate })).toBe(true)
+      expect(paymentTermsDiffer({ ...terms, entryStartDate }, withEarlyBird)).toBe(true)
+    })
+  })
+
   // The one reading of a payment in progress, which PaymentCreate's 409 and the payment picture share.
   describe('isPaymentInProgress', () => {
     const now = new Date('2026-08-15T12:00:00.000Z')

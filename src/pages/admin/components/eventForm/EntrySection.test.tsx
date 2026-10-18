@@ -311,4 +311,49 @@ describe('EntrySection', () => {
       })
     })
   })
+
+  // KOE-1568: the early-bird rate counts its days from the entry start, so a registration fixes it.
+  describe('a locked entry start', () => {
+    const renderLocked = async (entryStartLocked: boolean) => {
+      renderWithUserEvents(
+        <ThemeProvider theme={theme}>
+          <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales.fi}>
+            <Provider>
+              <MemoryRouter>
+                <Suspense fallback={<div>loading...</div>}>
+                  <AppSnackbarProvider>
+                    <EntrySection
+                      entryStartLocked={entryStartLocked}
+                      event={eventWithStaticDates}
+                      onChange={vi.fn()}
+                      open
+                    />
+                  </AppSnackbarProvider>
+                </Suspense>
+              </MemoryRouter>
+            </Provider>
+          </LocalizationProvider>
+        </ThemeProvider>,
+        undefined,
+        { advanceTimers: vi.advanceTimersByTime }
+      )
+      await flushPromises()
+      return screen.getAllByTestId('CalendarIcon').map((icon) => icon.closest('button'))
+    }
+
+    it('disables the start, keeps the end, and says why', async () => {
+      const [start, end] = await renderLocked(true)
+
+      expect(start).toBeDisabled()
+      expect(end).toBeEnabled()
+      expect(screen.getByText('event.entryStartLockedReason')).toBeInTheDocument()
+    })
+
+    it('leaves the start editable when not locked', async () => {
+      const [start] = await renderLocked(false)
+
+      expect(start).toBeEnabled()
+      expect(screen.queryByText('event.entryStartLockedReason')).not.toBeInTheDocument()
+    })
+  })
 })

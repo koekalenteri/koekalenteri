@@ -1,6 +1,8 @@
 import type {
   CustomCost,
+  DogEventCost,
   EventState,
+  JsonRegistration,
   JsonTransaction,
   MinimalEventForCost,
   MinimalRegistrationForCost,
@@ -22,6 +24,7 @@ import {
   isPaymentWithoutAmount,
   selectCost,
 } from './cost'
+import { objectsDiffer } from './diff'
 import { canRefund, hasRefundableBalance, isMember, isPaymentReturned, isStarter } from './registration'
 import { capitalize } from './string'
 import { isConfirmedEvent } from './typeGuards'
@@ -79,6 +82,61 @@ export const isPaymentOpenForPlace = (event: PaymentTimeEvent, registration: Reg
  * trial asks nothing of anyone (KOE-1526). It is `isConfirmedEvent` on the state.
  */
 export const isEventOpenForPayment = (event: EventStateHolder): boolean => isConfirmedEvent({ state: event.state })
+
+/**
+ * What an entry's fee is decided by: the prices, when the fee is paid, and the entry start, from which
+ * the early-bird rate counts its days (`getEarlyBirdEndDate`). The event form's `PaymentEvent`.
+ */
+export interface PaymentTerms {
+  cost?: DogEventCost | number | null
+  costMember?: DogEventCost | number | null
+  entryStartDate?: Date | string | null
+  paymentTime?: PaymentTime | null
+}
+
+/**
+ * Whether the event has registrations that hold its payment terms: a price change would leave a paid
+ * entry part paid or paid over, as the balance is worked out from the price as it stands (KOE-1568).
+ * A cancelled entry counts, since it can be put back into a class. Only completed registrations
+ * count, the ones the secretary's list shows: a payment open at Paytrail at the moment of a change is
+ * not covered.
+ */
+export const hasPaymentLockingRegistrations = (
+  registrations: readonly Pick<Registration | JsonRegistration, 'state'>[]
+): boolean => registrations.some((registration) => registration.state === 'ready')
+
+/** Whether either price has an early-bird rate, which makes the entry start a payment term. */
+export const hasEarlyBirdPrice = (terms: Pick<PaymentTerms, 'cost' | 'costMember'>): boolean =>
+  [terms.cost, terms.costMember].some((cost) => typeof cost === 'object' && !!cost?.earlyBird)
+
+/** A legacy number price is the normal price it stands for, as `calculateCost` reads it. */
+const comparableCost = (cost: PaymentTerms['cost']) => (typeof cost === 'number' ? { normal: cost } : cost)
+
+/** An event without a payment time is paid at registration, as every reader of it takes it. */
+const comparablePaymentTime = (terms: PaymentTerms) => terms.paymentTime ?? 'registration'
+
+/** A form's Date and a stored string name the same moment when their times agree. */
+const sameMoment = (a: PaymentTerms['entryStartDate'], b: PaymentTerms['entryStartDate']) =>
+  a && b ? new Date(a).getTime() === new Date(b).getTime() : !a && !b
+
+/**
+ * Whether the payment terms of `after` differ from those of `before`, compared by value: a save
+ * repeating the stored prices, or writing a legacy number price as its object, is no change. The entry
+ * start is a term only when an early-bird rate is set on either side.
+ */
+export const paymentTermsDiffer = (before: PaymentTerms, after: PaymentTerms): boolean => {
+  if (comparablePaymentTime(before) !== comparablePaymentTime(after)) return true
+  if (
+    objectsDiffer(
+      { cost: comparableCost(before.cost), costMember: comparableCost(before.costMember) },
+      { cost: comparableCost(after.cost), costMember: comparableCost(after.costMember) }
+    )
+  ) {
+    return true
+  }
+  const earlyBird = hasEarlyBirdPrice(before) || hasEarlyBirdPrice(after)
+  return earlyBird && !sameMoment(before.entryStartDate, after.entryStartDate)
+}
 
 /** What the picture reads of a registration's open payment: whether it is still being worked on. */
 export type OpenPayment = Pick<JsonTransaction, 'createdAt' | 'status' | 'statusAt' | 'type'>

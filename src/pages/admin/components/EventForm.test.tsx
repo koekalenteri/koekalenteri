@@ -1,14 +1,16 @@
-import type { DogEvent } from '@/types'
+import type { DogEvent, Registration } from '@/types'
 import { ThemeProvider } from '@mui/material'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
-import { act, screen } from '@testing-library/react'
+import { act, screen, within } from '@testing-library/react'
 import { createStore, Provider } from 'jotai'
 import { Suspense } from 'react'
 import { eventWithEntryNotYetOpen, eventWithStaticDates } from '@/__mockData__/events'
+import { registrationWithStaticDates } from '@/__mockData__/registrations'
 import { getLocations } from '@/api/location'
 import theme from '@/assets/Theme'
 import { locales } from '@/i18n'
+import { adminEventRegistrationsAtom } from '@/pages/admin/state'
 import { idTokenAtom } from '@/pages/state'
 import { expectConsoleOutput } from '@/test-utils/consoleGuard'
 import {
@@ -154,5 +156,57 @@ describe('EventForm', () => {
     })
 
     expect(screen.getByText('error page')).toBeInTheDocument()
+  })
+
+  // KOE-1568: the event's registrations lock its payment terms, and with an early-bird rate the entry
+  // start the rate counts from.
+  describe('payment terms locked by registrations', () => {
+    const pricedEvent: DogEvent = {
+      ...eventWithEntryNotYetOpen,
+      cost: { earlyBird: { cost: 30, days: 7 }, normal: 40 },
+      costMember: { normal: 35 },
+      paymentTime: 'registration',
+    }
+
+    const ready: Registration = { ...registrationWithStaticDates, state: 'ready' }
+
+    const renderWithRegistrations = async (event: DogEvent, registrations: Registration[]) => {
+      const store = createStore()
+      store.set(idTokenAtom, TEST_ID_TOKEN)
+      store.set(adminEventRegistrationsAtom(event.id), registrations)
+      await renderSuspended(
+        <ThemeProvider theme={theme}>
+          <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales.fi}>
+            <Provider store={store}>
+              <DataMemoryRouter routes={[{ element: <EventForm event={event} canSave />, path: '/' }]} />
+            </Provider>
+          </LocalizationProvider>
+        </ThemeProvider>
+      )
+      await flushPromises()
+    }
+
+    it('locks the payment section and the entry start when the event has registrations', async () => {
+      await renderWithRegistrations(pricedEvent, [ready])
+
+      expect(screen.getByText('event.paymentLockedReason')).toBeInTheDocument()
+      expect(screen.getByText('event.entryStartLockedReason')).toBeInTheDocument()
+      expect(within(screen.getByTestId('cost.normal')).getByRole('textbox', { hidden: true })).toBeDisabled()
+    })
+
+    it('leaves the entry start open without an early-bird rate', async () => {
+      await renderWithRegistrations({ ...pricedEvent, cost: { normal: 40 } }, [ready])
+
+      expect(screen.getByText('event.paymentLockedReason')).toBeInTheDocument()
+      expect(screen.queryByText('event.entryStartLockedReason')).not.toBeInTheDocument()
+    })
+
+    it('leaves the payment terms open while the event has no registrations', async () => {
+      await renderWithRegistrations(pricedEvent, [])
+
+      expect(screen.queryByText('event.paymentLockedReason')).not.toBeInTheDocument()
+      expect(screen.queryByText('event.entryStartLockedReason')).not.toBeInTheDocument()
+      expect(within(screen.getByTestId('cost.normal')).getByRole('textbox', { hidden: true })).toBeEnabled()
+    })
   })
 })

@@ -23,6 +23,8 @@ interface Props extends Readonly<Omit<SectionProps, 'changes' | 'event'>> {
   readonly event: EntryEvent
   readonly eventTypeClasses?: RegistrationClass[]
   readonly entryDatesChanged?: boolean
+  /** The early-bird rate counts from the entry start, and the event has registrations (KOE-1568). */
+  readonly entryStartLocked?: boolean
 }
 
 function EntrySection(props: Props) {
@@ -30,6 +32,7 @@ function EntrySection(props: Props) {
   const {
     disabled,
     entryDatesChanged,
+    entryStartLocked,
     errors,
     event,
     eventTypeClasses,
@@ -145,7 +148,8 @@ function EntrySection(props: Props) {
           }}
         >
           <DateRange
-            startDisabled={disabled}
+            startDisabled={disabled || entryStartLocked}
+            startHelperText={entryStartLocked ? t('event.entryStartLockedReason') : undefined}
             startLabel={t('event.entryStart')}
             endLabel={t('event.entryEnd')}
             start={storedDayKey(event.entryStartDate) ?? null}

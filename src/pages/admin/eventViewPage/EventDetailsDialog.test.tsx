@@ -23,6 +23,7 @@ vi.mock('@/api/judge')
 vi.mock('@/api/location')
 vi.mock('@/api/official')
 vi.mock('@/api/organizer')
+vi.mock('@/api/registration')
 
 const named: ConfirmedEvent = { ...eventWithStaticDates, name: 'Kevätkoe', names: { en: 'Spring trial' } }
 const finnishOnly: ConfirmedEvent = { ...eventWithStaticDates, name: 'Kevätkoe' }

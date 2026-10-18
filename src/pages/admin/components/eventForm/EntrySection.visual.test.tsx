@@ -47,3 +47,14 @@ it('shows the entry restrictions as chips below the priorities (KOE-524)', async
   await expect.element(screen.getByText('labradorinnoutaja')).toBeVisible()
   await expect(screen.getByTestId('visual-root')).toMatchScreenshot('entry-section-restrictions')
 })
+
+it('locks the entry start, and says why, when an early-bird rate counts from it (KOE-1568)', async () => {
+  const screen = await render(
+    <Frame>
+      <EntrySection entryStartLocked event={event} eventTypeClasses={['ALO', 'AVO', 'VOI']} open />
+    </Frame>
+  )
+
+  await expect.element(screen.getByText(/early bird -hinta lasketaan siitä/)).toBeVisible()
+  await expect(screen.getByTestId('visual-root')).toMatchScreenshot('entry-section-start-locked')
+})

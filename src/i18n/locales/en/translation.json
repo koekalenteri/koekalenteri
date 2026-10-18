@@ -307,6 +307,7 @@
     "entrySectionTitle": "Registration",
     "entryStart": "Registration opens",
     "entryStartDate": "Entry start date",
+    "entryStartLockedReason": "The entry start date cannot be changed, as the event already has registrations and the early bird price counts from it.",
     "eventType": "Event type",
     "headquarters": {
       "address": "Street address",
@@ -369,6 +370,8 @@
     "names": "Name translations",
     "official": "Chief officer",
     "organizer": "Organizer",
+    "paymentLocked": "The event already has registrations, so its payment details can no longer be changed. Reload the page.",
+    "paymentLockedReason": "The event already has registrations, so its prices and payment time can no longer be changed.",
     "phase": "Event phase",
     "places": "Places",
     "placesEditor": {
