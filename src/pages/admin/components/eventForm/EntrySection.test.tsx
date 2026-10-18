@@ -13,7 +13,7 @@ import { locales } from '@/i18n'
 import { TIME_ZONE } from '@/lib/day'
 import * as env from '@/lib/env'
 import AppSnackbarProvider from '@/pages/components/AppSnackbarProvider'
-import { finnishDayOf } from '@/test-utils/finnishDays'
+import { endOfFinnishDay, finnishDayOf, startOfFinnishDay } from '@/test-utils/finnishDays'
 import { describeInTimeZone } from '@/test-utils/timeZone'
 import { flushPromises, renderWithUserEvents, runPendingTimers, typeDateKeyByKey } from '@/test-utils/utils'
 import EntrySection from './EntrySection'
@@ -228,10 +228,10 @@ describe('EntrySection', () => {
   describe.each([TIME_ZONE, 'America/New_York', 'Asia/Tokyo'])('the registration days in %s (KOE-1539)', (zone) => {
     describeInTimeZone(zone, () => {
       const eventStart = new Date(new TZDate(2026, 11, 5, TIME_ZONE).getTime())
-      const eventWith = (startDate: Date) => ({
+      const eventWith = (startDate: Date, entryStartDate?: Date) => ({
         ...eventWithStaticDates,
         entryEndDate: undefined,
-        entryStartDate: undefined,
+        entryStartDate,
         startDate,
       })
       let testEvent = eventWith(eventStart)
@@ -267,6 +267,18 @@ describe('EntrySection', () => {
         const [saved] = onChange.mock.lastCall ?? []
         expect(finnishDayOf(saved.entryStartDate)).toBe('2026-11-02')
         expect(saved.entryStartDate.getTime()).toBe(new TZDate(2026, 10, 2, TIME_ZONE).getTime())
+      })
+
+      it('stores the entry as open from the start of its first Finnish day to the end of its last (KOE-1548)', async () => {
+        testEvent = eventWith(eventStart, startOfFinnishDay('2026-11-02'))
+        const { onChange, user } = await renderEntrySection()
+
+        await typeDateKeyByKey(user, screen.getAllByRole('group')[1], '20112026')
+
+        expect(onChange).toHaveBeenLastCalledWith({
+          entryEndDate: endOfFinnishDay('2026-11-20'),
+          entryStartDate: startOfFinnishDay('2026-11-02'),
+        })
       })
 
       // The default days are whole Finnish weeks before the trial. Counted in the browser's zone the

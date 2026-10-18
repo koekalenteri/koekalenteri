@@ -297,6 +297,17 @@ describe('DateRange', () => {
         expect(changeHandler).toHaveBeenLastCalledWith(oct(16), null)
       })
 
+      it('refuses an end before the range start that is later than the start', async () => {
+        const { changeHandler } = await typeInto('end', '15102026', {
+          end: null,
+          range: { start: oct(20) },
+          start: oct(10),
+        })
+
+        expect(changeHandler).not.toHaveBeenCalledWith(oct(10), oct(15))
+        expect(changeHandler).toHaveBeenLastCalledWith(oct(10), null)
+      })
+
       it('refuses a whole date in a year no day key spells', async () => {
         const { changeHandler } = await typeInto('start', '01011050', { end: null, start: null })
 

@@ -1,5 +1,6 @@
 import { describeInTimeZone } from '../test-utils/timeZone'
-import { manualResultDay, officialResultDay } from './resultDay'
+import { dayEnd, TIME_ZONE } from './day'
+import { lastResultDay, manualResultDay, officialResultDay } from './resultDay'
 
 describe('lib/resultDay', () => {
   // An official result's day is the one written on its zone-less stamp, a hand-entered one's its Finnish day.
@@ -16,6 +17,24 @@ describe('lib/resultDay', () => {
       })
     })
   }
+
+  describe('lastResultDay', () => {
+    // 23:30 on 15.5.2026 in Finland, already the 16th in Tokyo: today is the Finnish day.
+    beforeEach(() => vi.useFakeTimers({ now: new Date('2026-05-15T20:30:00.000Z'), toFake: ['Date'] }))
+    afterEach(() => vi.useRealTimers())
+
+    it('is today in Finland without a ranking period', () => {
+      expect(lastResultDay(undefined)).toBe('2026-05-15')
+    })
+
+    it.each([
+      { expected: '2026-05-12', periodEnd: dayEnd('2026-05-12', TIME_ZONE) },
+      { expected: '2026-05-15', periodEnd: dayEnd('2026-05-15', TIME_ZONE) },
+      { expected: '2026-05-15', periodEnd: dayEnd('2026-06-30', TIME_ZONE) },
+    ])('is $expected for a period that ends at $periodEnd', ({ expected, periodEnd }) => {
+      expect(lastResultDay(periodEnd)).toBe(expected)
+    })
+  })
 
   it.each([
     { date: new Date('0001-01-01T00:00:00'), name: "the Kennel Club's empty date" },

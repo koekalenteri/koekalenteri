@@ -54,13 +54,12 @@ const renderComponent = (
   filter: FilterProps,
   onChange?: (filter: FilterProps) => void,
   fakeTimers: boolean = false,
-  eventCount: number = 0,
-  Filter: typeof EventFilter = EventFilter
+  eventCount: number = 0
 ) => {
   return renderWithUserEvents(
     <ThemeProvider theme={theme}>
       <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales.fi}>
-        <Filter
+        <EventFilter
           eventCount={eventCount}
           judges={judges}
           organizers={organizers}
@@ -262,12 +261,6 @@ describe('EventFilter', () => {
   // module loaded: 31.12.2019 in Finland for a browser east of it, and the range took that day (KOE-1548).
   describe('the first day of the range', () => {
     describeInTimeZone('Asia/Tokyo', () => {
-      // The module as a browser in Tokyo loads it: the file's own import was made in the machine's zone.
-      let TokyoEventFilter: typeof EventFilter
-      beforeAll(async () => {
-        vi.resetModules()
-        TokyoEventFilter = (await import('./EventFilter')).EventFilter
-      })
       beforeEach(() => vi.useFakeTimers())
       afterEach(() => vi.useRealTimers())
 
@@ -279,9 +272,7 @@ describe('EventFilter', () => {
         const { user } = renderComponent(
           { end: null, eventClass: [], eventType: [], judge: [], organizer: [], start: null },
           changeHandler,
-          true,
-          0,
-          TokyoEventFilter
+          true
         )
         await typeDateKeyByKey(user, screen.getByRole('group', { name: 'daterangeStart' }), keys)
 

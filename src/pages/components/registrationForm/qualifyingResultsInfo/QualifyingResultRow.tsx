@@ -1,4 +1,4 @@
-import type { DayKey, EventResultRequirementsByDate, ManualTestResult, QualifyingResult, TestResult } from '@/types'
+import type { EventResultRequirementsByDate, ManualTestResult, QualifyingResult, TestResult } from '@/types'
 import DeleteOutline from '@mui/icons-material/DeleteOutlined'
 import Button from '@mui/material/Button'
 import FormControl from '@mui/material/FormControl'
@@ -8,8 +8,9 @@ import TextField from '@mui/material/TextField'
 import { DatePicker } from '@mui/x-date-pickers'
 import { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
-import { dayOf, localDateOf, TIME_ZONE } from '@/lib/day'
+import { localDateOf } from '@/lib/day'
 import { earliestResultDate } from '@/lib/dog'
+import { lastResultDay } from '@/lib/resultDay'
 import AutocompleteSingle from '../../AutocompleteSingle'
 import RankingPoints from '../../RankingPoints'
 import { useLocalStateGroup } from '../hooks/useLocalStateGroup'
@@ -70,14 +71,6 @@ const parseResult = (result?: string): Partial<TestResult> => {
   }
 }
 
-/** The last day a result can have: today in Finland, or the ranking period's last Finnish day if that is earlier. */
-const lastResultDay = (periodEnd: Date | undefined): DayKey => {
-  const today = dayOf(new Date(), TIME_ZONE)
-  if (!periodEnd) return today
-  const periodLastDay = dayOf(periodEnd, TIME_ZONE)
-  return periodLastDay < today ? periodLastDay : today
-}
-
 /**
  * The earliest day the result date picker offers: nine months after the dog's birth, never after
  * `maxDate`. A birth date that is there but has no day (Kennelliitto's empty date, a half-typed value)
@@ -102,9 +95,7 @@ export default function QualifyingResultRow({
   onRemove,
 }: Props) {
   const { t } = useTranslation()
-  // A result after the qualification period can never count (rules window ends at entry end), so
-  // don't let the picker offer dates the rules will silently drop (KOE-1270). The period's end is a
-  // Finnish day: given to the picker as its instant, it was the day after east of Finland (KOE-1548).
+  // Don't let the picker offer dates the rules will silently drop (KOE-1270, KOE-1548).
   const maxDate = localDateOf(lastResultDay(rankingPeriod?.max))
   const minDate = resultMinDate(dob, maxDate)
 

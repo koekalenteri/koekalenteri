@@ -1,6 +1,6 @@
 import type { PublicDogEvent } from '@/types'
 import { eventWithStaticDates } from '@/__mockData__/events'
-import { addDays, dayOf, TIME_ZONE } from '@/lib/day'
+import { addDays } from '@/lib/day'
 import { endOfFinnishDay, startOfFinnishDay } from '@/test-utils/finnishDays'
 import { deserializeFilter, serializeFilter, withinDateFilters, withinResultsFilter } from './filters'
 
@@ -56,14 +56,18 @@ describe('state.events.filters', () => {
   })
 
   describe('deserializeFilter', () => {
+    afterEach(() => vi.useRealTimers())
+
     it('ignores unknown params', () => {
+      // Without `s` the list starts today in Finland: 23:30 on 17.10. there, already the 18th in Tokyo.
+      vi.useFakeTimers({ now: new Date('2026-10-17T20:30:00.000Z'), toFake: ['Date'] })
       expect(deserializeFilter('fblcid=asdf')).toEqual({
         end: null,
         eventClass: [],
         eventType: [],
         judge: [],
         organizer: [],
-        start: dayOf(new Date(), TIME_ZONE),
+        start: '2026-10-17',
         withClosingEntry: false,
         withFreePlaces: false,
         withOpenEntry: false,
