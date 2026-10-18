@@ -1,4 +1,4 @@
-import type { JsonDogEvent, JsonUser, Official, Organizer, UserRole } from '../../types'
+import type { JsonDogEvent, JsonUser, Official, UserRole } from '../../types'
 import type { UserLink } from './auth'
 import type { EmailHistoryEntry } from './emailHistory'
 import type { PartialJsonJudge } from './judge'
@@ -15,8 +15,9 @@ import { bumpDataVersion } from './dataVersions'
 import { sendTemplatedMail } from './email'
 import { appendEmailHistory } from './emailHistory'
 import { hashIdentity, logger } from './log'
+import { readOrganizer } from './repositories/organizerRepository'
 
-const { userTable, userLinkTable, organizerTable, emailFrom, eventTable } = CONFIG
+const { userTable, userLinkTable, emailFrom, eventTable } = CONFIG
 
 const dynamoDB = new CustomDynamoClient(userLinkTable)
 
@@ -239,7 +240,7 @@ export const setUserRole = async (
   // The role change moves the record between scopes, so both sides are invalidated.
   await bumpDataVersion('users', [...userScopes(user), ...userScopes({ ...user, roles })])
 
-  const org = await dynamoDB.read<Organizer>({ id: orgId }, organizerTable)
+  const org = await readOrganizer(orgId)
 
   if (role !== 'none') {
     await sendTemplatedMail('access', 'fi', emailFrom, [user.email], {

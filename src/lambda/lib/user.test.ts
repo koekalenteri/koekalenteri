@@ -16,10 +16,12 @@ const mockEventUpdate = vi.fn()
 const mockUserReadAll = vi.fn()
 const mockUserLinkReadAll = vi.fn()
 const mockUserQuery = vi.fn()
-const mockUserRead = vi.fn()
+const mockReadOrganizer = vi.fn()
 const mockUserWrite = vi.fn()
 const mockUserUpdate = vi.fn()
 const mockSendTemplatedMail = vi.fn()
+
+vi.doMock('./repositories/organizerRepository', () => ({ readOrganizer: mockReadOrganizer }))
 
 vi.doMock('./email', () => ({
   sendTemplatedMail: (...args: any[]) => mockSendTemplatedMail(...args),
@@ -42,8 +44,6 @@ vi.doMock('../utils/CustomDynamoClient', () => ({
     }
 
     query = (...args: any[]) => mockUserQuery(...args)
-
-    read = (...args: any[]) => mockUserRead(...args)
 
     write = (...args: any[]) => mockUserWrite(...args)
 
@@ -468,9 +468,11 @@ describe('lib/user', () => {
         name: 'Role User',
         roles: {},
       }
-      mockUserRead.mockResolvedValueOnce({ id: 'org1', name: 'Org One' })
+      mockReadOrganizer.mockResolvedValueOnce({ id: 'org1', name: 'Org One' })
 
       const result = await setUserRole(user, 'org1', 'admin', 'tester', 'https://app.example.com')
+
+      expect(mockReadOrganizer).toHaveBeenCalledWith('org1')
 
       expect(mockUserUpdate).toHaveBeenCalledWith(
         { id: 'role-user' },
@@ -506,7 +508,7 @@ describe('lib/user', () => {
         name: 'Role User 2',
         roles: { org1: 'secretary', org2: 'admin' },
       }
-      mockUserRead.mockResolvedValueOnce({ id: 'org1', name: 'Org One' })
+      mockReadOrganizer.mockResolvedValueOnce({ id: 'org1', name: 'Org One' })
 
       const result = await setUserRole(user, 'org1', 'none', 'tester')
 
@@ -522,7 +524,7 @@ describe('lib/user', () => {
         id: 'fallback-user',
         name: 'Fallback User',
       }
-      mockUserRead.mockResolvedValueOnce(undefined)
+      mockReadOrganizer.mockResolvedValueOnce(undefined)
 
       await setUserRole(user, 'missing-org', 'secretary', 'tester')
 

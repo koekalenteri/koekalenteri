@@ -1,4 +1,3 @@
-import type { Organizer } from '../../types'
 import type { CopyImportRequest, CopyImportResult } from '../lib/eventCopy'
 import { InvokeCommand, LambdaClient } from '@aws-sdk/client-lambda'
 import { eventCopiedToAudit } from '../../lib/audit'
@@ -18,10 +17,8 @@ import { copyFileToBucket } from '../lib/file'
 import { parseJSONWithFallback } from '../lib/json'
 import { httpError, lambda, response } from '../lib/lambda'
 import { getRegistrationsByEventId } from '../lib/registration'
-import CustomDynamoClient from '../utils/CustomDynamoClient'
+import { readOrganizer } from '../lib/repositories/organizerRepository'
 
-const { organizerTable } = CONFIG
-const dynamoDB = new CustomDynamoClient(organizerTable)
 const lambdaClient = new LambdaClient()
 
 /** A synchronous invocation takes at most 6 MB; a larger copy is refused with a reason, not a 500. */
@@ -58,7 +55,7 @@ const exportEventToStageLambda = lambda('exportEventToStage', async (event) => {
   }
 
   const source = await getEvent(eventId)
-  const organizer = await dynamoDB.read<Organizer>({ id: source.organizer.id }, organizerTable)
+  const organizer = await readOrganizer(source.organizer.id)
   if (!organizer?.kcId) {
     throw httpError(412, { message: `The organizer ${source.organizer.name} has no Kennel Club number to match by` })
   }

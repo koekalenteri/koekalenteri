@@ -4,7 +4,6 @@ import type {
   JsonPaymentTransaction,
   JsonRefundTransaction,
   JsonRegistration,
-  Organizer,
   PaymentItem,
   TransactionItem,
 } from '../../types'
@@ -40,11 +39,12 @@ import {
 } from '../lib/payment'
 import { PaytrailError, paytrail } from '../lib/paytrail'
 import { authorizeRegistrationEdit, getRegistration } from '../lib/registration'
+import { readOrganizer } from '../lib/repositories/organizerRepository'
 import { validateBody } from '../lib/request'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 import { getApiHost } from '../utils/proxyEvent'
 
-const { organizerTable, registrationTable, transactionTable } = CONFIG
+const { registrationTable, transactionTable } = CONFIG
 const dynamoDB = new CustomDynamoClient(transactionTable)
 
 /**
@@ -147,7 +147,7 @@ const paymentCreateLambda = lambda('paymentCreate', async (event) => {
     throw httpError(403, 'Payment not allowed - registration must be picked first')
   }
 
-  const organizer = await dynamoDB.read<Organizer>({ id: jsonEvent?.organizer.id }, organizerTable)
+  const organizer = await readOrganizer(jsonEvent.organizer.id)
   if (!organizer?.paytrailMerchantId) {
     throw httpError(412, `Organizer ${jsonEvent.organizer.id} does not have MerchantId!`)
   }

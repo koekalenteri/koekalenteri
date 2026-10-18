@@ -4,6 +4,7 @@ import { CONFIG } from '../config'
 import { GLOBAL_SCOPE, readStoredDataVersions, writeDataVersionFingerprint } from '../lib/dataVersions'
 import { LOCATIONS_ID } from '../lib/location'
 import { logger } from '../lib/log'
+import { readOrganizers } from '../lib/repositories/organizerRepository'
 import { userScopes } from '../lib/user'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 
@@ -24,7 +25,7 @@ interface Fingerprint {
 
 type TimestampedItem = { modifiedAt?: string }
 
-const fingerprintOf = (items: TimestampedItem[]): Fingerprint => ({
+const fingerprintOf = <T extends object>(items: (T & TimestampedItem)[]): Fingerprint => ({
   count: items.length,
   fingerprintAt: items.reduce<string | undefined>(
     (latest, item) => (item.modifiedAt && (!latest || item.modifiedAt > latest) ? item.modifiedAt : latest),
@@ -44,7 +45,7 @@ const collectFingerprints = async (): Promise<Map<string, Fingerprint>> => {
     readTable(CONFIG.officialTable),
     // Locations live in a single snapshot row that carries its own count and modifiedAt.
     dynamoDB.read<{ count?: number; modifiedAt?: string }>({ id: LOCATIONS_ID }, CONFIG.locationTable),
-    readTable(CONFIG.organizerTable),
+    readOrganizers(),
     readTable<JsonUser>(CONFIG.userTable),
   ])
 

@@ -41,4 +41,5 @@ The count can only go down; moving a table here lowers it.
 | Table | Module | Used by |
 | --- | --- | --- |
 | dog | `dogRepository.ts` | `GetDogFunction`, `PutRegistrationFunction` |
+| organizer | `organizerRepository.ts` | `GetOrganizersFunction`, `PutOrganizerFunction`, `SearchEventKcIdChoicesFunction`, `ExportEventToStageFunction`, `ImportCopiedEventFunction`, `KennelliittoResultsFunction`, `PaymentCreateFunction`, `RefundCreateFunction`, `RepairDataVersionsFunction`, `lib/user.ts` |
 | wsConnections | `../ws/connectionRepository.ts` | the WebSocket handlers and `lib/ws` |

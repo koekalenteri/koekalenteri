@@ -85,6 +85,11 @@ vi.doMock('../lib/audit', () => ({
   registrationAuditKey: mockRegistrationAuditKey,
 }))
 
+// The organizer read answers from the same read mock as the transaction read, told apart by the table.
+vi.doMock('../lib/repositories/organizerRepository', () => ({
+  readOrganizer: async (id: string) => mockDynamoRead({ id }, 'organizer'),
+}))
+
 vi.doMock('../utils/CustomDynamoClient', () => ({
   default: mockDynamoClient,
 }))
