@@ -4,12 +4,14 @@ import { TZDate } from '@date-fns/tz'
 import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
 import { screen, waitFor } from '@testing-library/react'
-import { add, format } from 'date-fns'
+import { add } from 'date-fns'
 import { TestProvider as Provider } from 'test-utils/AtomProvider'
 import { locales } from '@/i18n'
-import { TIME_ZONE, zonedDateString, zonedEndOfDay } from '@/i18n/dates'
-import { defaultEntryEndDate, defaultEntryStartDate, newEventStartDate } from '@/lib/event'
+import { formatDate } from '@/i18n/dates'
+import { TIME_ZONE } from '@/lib/day'
+import { defaultEntryEndDate, defaultEntryStartDate } from '@/lib/event'
 import { idTokenAtom } from '@/pages/state'
+import { endOfFinnishDay, finnishDayOf, startOfFinnishDay } from '@/test-utils/finnishDays'
 import { describeInTimeZone } from '@/test-utils/timeZone'
 import { renderWithUserEvents } from '@/test-utils/utils'
 import BasicInfoSection from './BasicInfoSection'
@@ -28,6 +30,9 @@ const renderComponent = (props: Props) => {
   const buttons = screen.getAllByTestId('CalendarIcon')
   return { ...res, endCalendar: buttons[1], endInput: inputs[1], startCalendar: buttons[0], startInput: inputs[0] }
 }
+
+/** A Saturday far ahead, as the form offers for a new event. */
+const newEventStartDate = startOfFinnishDay('2099-06-06')
 
 describe('BasicInfoSection', () => {
   beforeEach(() => {
@@ -175,7 +180,7 @@ describe('BasicInfoSection', () => {
         startDate: newEventStartDate,
       }
       const otherDate = add(newEventStartDate, { days: 1 })
-      const otherDateString = format(otherDate, 'dd.MM.yyyy')
+      const otherDateString = formatDate(otherDate, 'dd.MM.yyyy')
       const changeHandler = vi.fn()
       const { startInput, user } = renderComponent({ event: testEvent, onChange: changeHandler, open: true })
 
@@ -210,7 +215,7 @@ describe('BasicInfoSection', () => {
         startDate: newEventStartDate,
       }
       const otherDate = add(newEventStartDate, { days: 1 })
-      const otherDateString = format(otherDate, 'dd.MM.yyyy')
+      const otherDateString = formatDate(otherDate, 'dd.MM.yyyy')
       const changeHandler = vi.fn()
       const { startInput, user } = renderComponent({ event: testEvent, onChange: changeHandler, open: true })
 
@@ -253,12 +258,12 @@ describe('BasicInfoSection', () => {
         return changes
       }
 
-      const days = (dates: readonly (Date | undefined)[]) => dates.map((d) => d && zonedDateString(d))
+      const days = (dates: readonly (Date | undefined)[]) => dates.map((d) => d && finnishDayOf(d))
 
       it('saves the typed day as the start, a day later than the shown one nowhere', async () => {
         const event: PartialEvent = {
           classes: [],
-          endDate: zonedEndOfDay(finnishDay(2026, 10, 17)),
+          endDate: endOfFinnishDay(finnishDay(2026, 10, 17)),
           judges: [],
           startDate: finnishDay(2026, 10, 17),
         }
@@ -273,7 +278,7 @@ describe('BasicInfoSection', () => {
       it('moves the classes and the entry dates by Finnish days from 23.10. to 24.10.2026', async () => {
         const event: PartialEvent = {
           classes: [{ class: 'AVO', date: finnishDay(2026, 10, 25) }],
-          endDate: zonedEndOfDay(finnishDay(2026, 10, 25)),
+          endDate: endOfFinnishDay(finnishDay(2026, 10, 25)),
           entryEndDate: defaultEntryEndDate(finnishDay(2026, 10, 23)),
           entryStartDate: defaultEntryStartDate(finnishDay(2026, 10, 23)),
           judges: [],
@@ -291,7 +296,7 @@ describe('BasicInfoSection', () => {
       it('keeps a class on its day of the trial across the end of New York summer time', async () => {
         const event: PartialEvent = {
           classes: [{ class: 'AVO', date: finnishDay(2026, 11, 2) }],
-          endDate: zonedEndOfDay(finnishDay(2026, 11, 2)),
+          endDate: endOfFinnishDay(finnishDay(2026, 11, 2)),
           judges: [],
           startDate: finnishDay(2026, 10, 31),
         }
@@ -305,7 +310,7 @@ describe('BasicInfoSection', () => {
       it('keeps a class on its day of the trial across the start of summer time', async () => {
         const event: PartialEvent = {
           classes: [{ class: 'AVO', date: finnishDay(2027, 3, 29) }],
-          endDate: zonedEndOfDay(finnishDay(2027, 3, 29)),
+          endDate: endOfFinnishDay(finnishDay(2027, 3, 29)),
           judges: [],
           startDate: finnishDay(2027, 3, 27),
         }

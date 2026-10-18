@@ -159,6 +159,59 @@ describe('searchEventKcIdChoicesLambda', () => {
     })
   })
 
+  // The days go to the browser as the instants they start at in Finland, so a browser in another zone
+  // reads the same day; KL's own spelling is its local time with no zone (KOE-1545).
+  it.each([
+    { loppu: '', name: 'no end at all' },
+    { loppu: '0001-01-01T00:00:00', name: "KL's empty date as the end" },
+  ])('gives a listing with $name its first day as the last', async ({ loppu }) => {
+    mockLueKokeet.mockResolvedValue({ json: [{ ...laukaa, loppu }], status: 200 })
+
+    await search()
+
+    expect(mockResponse).toHaveBeenCalledWith(
+      200,
+      {
+        choices: [
+          expect.objectContaining({ endDate: '2026-09-25T21:00:00.000Z', startDate: '2026-09-25T21:00:00.000Z' }),
+        ],
+      },
+      expect.anything()
+    )
+  })
+
+  it.each([
+    { field: 'startDate', value: 'foo' },
+    { field: 'endDate', value: '2026-13-45T00:00:00.000Z' },
+    { field: 'startDate', value: '0001-01-01T00:00:00.000Z' },
+  ])('answers 400 to a $field that is not a date, instead of failing in the search', async ({ field, value }) => {
+    await expect(search({ ...laukaaRequest, [field]: value })).rejects.toMatchObject({ status: 400 })
+    expect(mockLueKokeet).not.toHaveBeenCalled()
+  })
+
+  it('leaves out a listing without a first day', async () => {
+    mockLueKokeet.mockResolvedValue({ json: [{ ...laukaa, alku: '' }], status: 200 })
+
+    await search()
+
+    expect(mockResponse).toHaveBeenCalledWith(200, { choices: [] }, expect.anything())
+  })
+
+  it("widens to the week's margin when the exact days list only listings without a first day", async () => {
+    mockLueKokeet
+      .mockResolvedValueOnce({ json: [{ ...laukaa, alku: '' }], status: 200 })
+      .mockResolvedValueOnce({ json: [laukaa], status: 200 })
+
+    await search()
+
+    expect(mockLueKokeet).toHaveBeenCalledTimes(2)
+    expect(mockResponse).toHaveBeenCalledWith(
+      200,
+      { choices: [expect.objectContaining({ kcGuid: LAUKAA_GUID })] },
+      expect.anything()
+    )
+  })
+
   it('uses the number of the requested organizer', async () => {
     mockAuthorizeWithMemberOf.mockResolvedValueOnce({ memberOf: ['org-id', 'org-2'], user })
     mockReadOrganizer.mockResolvedValueOnce(otherOrganizer)
@@ -184,9 +237,9 @@ describe('searchEventKcIdChoicesLambda', () => {
             cost: 50,
             description:
               'Etusija järjestävän yhdistyksen jäsenillä, sekä järjestäjän kutsumilla koirilla (max 1/3 osallistujista).Osallistumismaksu jäsenille 45e, muille 50e.\n\nEtusija järjestävän yhdistyksen jäsenillä\n\nMuu määrää koskeva rajoitus - järjestäjän kutsumat koirat max 1/3 osallistujista',
-            endDate: '2026-09-27T00:00:00',
-            entryEndDate: '2026-09-05T00:00:00',
-            entryStartDate: '2026-08-15T00:00:00',
+            endDate: '2026-09-26T21:00:00.000Z',
+            entryEndDate: '2026-09-04T21:00:00.000Z',
+            entryStartDate: '2026-08-14T21:00:00.000Z',
             eventType: 'NOU',
             judge: 'Testi Tuomari',
             judgeId: 1000001,
@@ -194,7 +247,7 @@ describe('searchEventKcIdChoicesLambda', () => {
             location: 'Laukaa',
             name: '',
             organizer: 'KESKI-SUOMEN NOUTAJAKOIRAYHDISTYS RY.',
-            startDate: '2026-09-26T00:00:00',
+            startDate: '2026-09-25T21:00:00.000Z',
             status: 'Hyväksytty',
           },
         ],
@@ -213,7 +266,7 @@ describe('searchEventKcIdChoicesLambda', () => {
       choices: [
         {
           classes: [],
-          endDate: '2026-06-06T00:00:00',
+          endDate: '2026-06-05T21:00:00.000Z',
           eventType: 'NOU',
           judge: 'Toinen Tuomari',
           judgeId: 1000002,
@@ -221,7 +274,7 @@ describe('searchEventKcIdChoicesLambda', () => {
           location: 'Tampere',
           name: '',
           organizer: 'PIRKANMAAN NOUTAJAKOIRAYHDISTYS r.y.',
-          startDate: '2026-06-06T00:00:00',
+          startDate: '2026-06-05T21:00:00.000Z',
           status: 'Valmistunut',
         },
       ],
@@ -323,7 +376,7 @@ describe('searchEventKcIdChoicesLambda', () => {
       choices: [
         expect.objectContaining({ kcGuid: LAUKAA_GUID, location: 'Laukaa' }),
         expect.objectContaining({ kcGuid: null, location: 'Tampere' }),
-        expect.objectContaining({ kcGuid: LAUKAA_GUID, startDate: '2026-09-20T00:00:00' }),
+        expect.objectContaining({ kcGuid: LAUKAA_GUID, startDate: '2026-09-19T21:00:00.000Z' }),
       ],
     })
   })

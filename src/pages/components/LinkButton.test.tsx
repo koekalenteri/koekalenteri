@@ -13,6 +13,13 @@ const renderAt = (element: React.ReactNode) =>
   )
 
 describe('LinkButton', () => {
+  it('is exposed as a link only, not a link inside a button', () => {
+    renderAt(<LinkButton to="/next" text="next" />)
+
+    expect(screen.getByRole('link', { name: 'next' })).toBeInTheDocument()
+    expect(screen.queryByRole('button')).toBeNull()
+  })
+
   it('follows its link', async () => {
     renderAt(<LinkButton to="/next" text="next" />)
 

@@ -1,5 +1,6 @@
 import { render, screen } from '@testing-library/react'
 import { eventWithStaticDates } from '@/__mockData__/events'
+import { finnishDayOf } from '@/test-utils/finnishDays'
 import { flushPromises, renderWithUserEvents } from '@/test-utils/utils'
 import DayPlacesTable from './DayPlacesTable'
 
@@ -67,7 +68,7 @@ describe('DayPlacesTable', () => {
       expect.objectContaining({ toISOString: expect.any(Function) }),
       8
     )
-    expect(changedDate?.toISOString().split('T')[0]).toBe('2021-02-10')
+    expect(changedDate && finnishDayOf(changedDate)).toBe('2021-02-10')
   })
 
   it('should always render day inputs as enabled', () => {

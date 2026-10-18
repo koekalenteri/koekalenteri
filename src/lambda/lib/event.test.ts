@@ -1,6 +1,7 @@
 import type { DeepPartial, JsonConfirmedEvent, JsonDogEvent, JsonRegistration } from '../../types'
 import { vi } from 'vitest'
 import { PRIORITY_MEMBER } from '../../lib/priority'
+import { describeInTimeZone } from '../../test-utils/timeZone'
 
 const mockQuery = vi.fn()
 const mockRead = vi.fn()
@@ -237,6 +238,24 @@ describe('lib/event', () => {
   })
 
   describe('findQualificationStartDate', () => {
+    // The next Finnish day's start, over both changes of time, run in the lambda's zone (UTC).
+    describeInTimeZone('UTC', () => {
+      it.each([
+        { entryEndDate: '2026-03-28T23:59:59.999+02:00', expected: '2026-03-28T22:00:00.000Z' },
+        { entryEndDate: '2026-03-28T21:59:59.999Z', expected: '2026-03-28T22:00:00.000Z' },
+        { entryEndDate: '2026-10-24T23:59:59.999+03:00', expected: '2026-10-24T21:00:00.000Z' },
+        { entryEndDate: '2026-10-25T23:59:59.999+02:00', expected: '2026-10-25T22:00:00.000Z' },
+        // Stored as the Finnish midnight that starts 25.10.: a 24-hour step in UTC landed on 25.10. 23:00,
+        // still the 25th, where the next Finnish day is the 26th.
+        { entryEndDate: '2026-10-24T21:00:00.000Z', expected: '2026-10-25T22:00:00.000Z' },
+        { entryEndDate: '2026-03-28T22:00:00.000Z', expected: '2026-03-29T21:00:00.000Z' },
+      ])('starts the qualification the Finnish day after $entryEndDate', async ({ entryEndDate, expected }) => {
+        mockQuery.mockResolvedValueOnce([{ entryEndDate }])
+
+        await expect(findQualificationStartDate('NOME-B SM', '2027-01-01T00:00:00.000Z')).resolves.toEqual(expected)
+      })
+    })
+
     it('should call query with proper arguments', async () => {
       await findQualificationStartDate('NOME-B SM', new Date('2025-03-22T17:00:00Z').toISOString())
 
@@ -260,7 +279,7 @@ describe('lib/event', () => {
       mockQuery.mockResolvedValueOnce([{ entryEndDate: '2024-08-20T23:59:59.999+03:00' }])
       await expect(
         findQualificationStartDate('NOME-B SM', new Date('2025-03-22T17:00:00Z').toISOString())
-      ).resolves.toEqual('2024-08-21T00:00:00.000+03:00')
+      ).resolves.toEqual('2024-08-20T21:00:00.000Z')
     })
 
     // The mocked query returns a field the index never projects (KOE-1554); the integration twin in
@@ -271,7 +290,7 @@ describe('lib/event', () => {
       ])
       await expect(
         findQualificationStartDate('NOME-B SM', new Date('2025-03-22T17:00:00Z').toISOString())
-      ).resolves.toEqual('2024-08-16T00:00:00.000+03:00')
+      ).resolves.toEqual('2024-08-15T21:00:00.000Z')
     })
   })
 

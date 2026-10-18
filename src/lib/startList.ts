@@ -1,7 +1,7 @@
 import type { TFunction } from 'i18next'
 import type { PublicConfirmedEvent } from '../types/Event'
 import type { PublicRegistration } from '../types/Registration'
-import { zonedDateString } from '../i18n/dates'
+import { dayOf, dayParts, TIME_ZONE } from './day'
 import { formatDogName } from './dog'
 import { formatResultMarks } from './results'
 
@@ -97,7 +97,9 @@ export function startListSpreadsheetRows(
   ]
 }
 
+/** The Finnish day of `date` as the sheet library takes a day: the host's local noon of it. */
 function spreadsheetDate(date: Date): Date {
-  const [year, month, day] = zonedDateString(date).split('-').map(Number)
+  // The sheet library writes a Date's local day parts, so the Finnish day is built at the host's noon.
+  const { year, month, day } = dayParts(dayOf(date, TIME_ZONE))
   return new Date(year, month - 1, day, 12)
 }

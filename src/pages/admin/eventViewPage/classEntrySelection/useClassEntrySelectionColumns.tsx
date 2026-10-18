@@ -16,7 +16,7 @@ import { GridActionsCellItem } from '@mui/x-data-grid'
 import { useCallback, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { breedAbbreviation } from '@/lib/dog'
-import { isEventOngoing, isEventOver, registrationDatesOutsideClass } from '@/lib/event'
+import { eventDayKey, isEventOngoing, isEventOver, registrationDatesOutsideClass } from '@/lib/event'
 import { canRefundExcess, canRequestPaymentFor } from '@/lib/payment'
 import {
   canRefund,
@@ -250,7 +250,7 @@ export function useClassEntrySelectionColumns(
   const drawnDates = useMemo(() => {
     const keys = new Set<string>()
     for (const reg of registrations) {
-      if (!reg.cancelled && reg.startGroup?.date) keys.add(new Date(reg.startGroup.date).toDateString())
+      if (!reg.cancelled && reg.startGroup?.date) keys.add(eventDayKey(reg.startGroup.date))
     }
     return keys
   }, [registrations])
@@ -303,7 +303,7 @@ export function useClassEntrySelectionColumns(
             !p.row.startGroup &&
             !p.row.cancelled &&
             p.row.group?.date != null &&
-            drawnDates.has(new Date(p.row.group.date).toDateString())
+            drawnDates.has(eventDayKey(p.row.group.date))
           if (!pending) return `${n}`
           return (
             <Tooltip title={t('startList.numberPending')}>

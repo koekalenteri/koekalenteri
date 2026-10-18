@@ -16,9 +16,8 @@ import type {
   ResultsPublishedState,
 } from '../../types'
 import { randomUUID } from 'node:crypto'
-import { addDays } from 'date-fns/addDays'
-import { zonedStartOfDay } from '../../i18n/dates'
 import { auditUser, groupChangeAudit } from '../../lib/audit'
+import { dayStartOf, TIME_ZONE } from '../../lib/day'
 import { isResultsPublishedClassMap, withResultsDay } from '../../lib/event'
 import { KC_STATE_HANDED_OVER } from '../../lib/kennelliittoResults'
 import { getResultsBlocker, isResultsPublishedState } from '../../lib/publishing'
@@ -124,8 +123,9 @@ export const findQualificationStartDate = async (
   })
 
   if (result?.length === 1 && result[0]?.entryEndDate) {
+    // The Finnish day after the previous trial's entry closed, from its start.
     const date = new Date(result[0].entryOrigEndDate ?? result[0].entryEndDate)
-    const qualificationStartDate = zonedStartOfDay(addDays(date, 1))
+    const qualificationStartDate = dayStartOf(date, TIME_ZONE, 1)
     return qualificationStartDate.toISOString()
   }
 }
@@ -552,8 +552,8 @@ const RESULTS_WRITE_ATTEMPTS = 3
 
 /**
  * Publish or hide one day's results on the event record (KOE-1510). The request is a change of one
- * day, and the scope is folded here from the stored day keys, never from a client's copy, whose JSON
- * reviver has turned them into dates.
+ * day, and the scope is folded here from the stored day keys, never from a client's copy, which may be
+ * older than the row.
  *
  * Several secretaries publish at once, and one can hide two days in quick succession. Where the stored
  * flag already is a class map, only the class's own entry is written, so another class's publish made

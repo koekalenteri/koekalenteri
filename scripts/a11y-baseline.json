@@ -1,55 +1,4 @@
 {
-  "src/pages/ErrorPage.visual.test.tsx": {
-    "error-page-404": {
-      "nested-interactive": 1
-    },
-    "error-page-500": {
-      "nested-interactive": 1
-    }
-  },
-  "src/pages/PaymentPage.visual.test.tsx": {
-    "payment-page-already-paid": {
-      "nested-interactive": 1
-    },
-    "payment-page-methods-desktop": {
-      "nested-interactive": 1
-    },
-    "payment-page-methods-desktop-en": {
-      "nested-interactive": 1
-    },
-    "payment-page-methods-phone": {
-      "nested-interactive": 1
-    },
-    "payment-page-paytrail-refusal": {
-      "nested-interactive": 1
-    },
-    "payment-page-paytrail-refusal-en": {
-      "nested-interactive": 1
-    }
-  },
-  "src/pages/RegistrationCreatePage.visual.test.tsx": {
-    "registration-create-page": {
-      "nested-interactive": 1
-    }
-  },
-  "src/pages/RegistrationEditPage.visual.test.tsx": {
-    "registration-edit-page-cancelled": {
-      "nested-interactive": 1
-    }
-  },
-  "src/pages/RegistrationInvitation.visual.test.tsx": {
-    "registration-invitation-open": {
-      "nested-interactive": 2
-    },
-    "registration-invitation-open-en": {
-      "nested-interactive": 2
-    }
-  },
-  "src/pages/RegistrationListPage.visual.test.tsx": {
-    "registration-list-page": {
-      "nested-interactive": 1
-    }
-  },
   "src/pages/SearchPage.visual.test.tsx": {
     "debug-article0": {
       "nested-interactive": 1
@@ -61,13 +10,13 @@
       "nested-interactive": 1
     },
     "search-page-full-desktop": {
-      "nested-interactive": 3
+      "nested-interactive": 1
     },
     "search-page-full-desktop-en": {
-      "nested-interactive": 3
+      "nested-interactive": 1
     },
     "search-page-full-phone": {
-      "nested-interactive": 3
+      "nested-interactive": 1
     }
   },
   "src/pages/admin/EventViewPage.visual.test.tsx": {
@@ -107,11 +56,6 @@
   "src/pages/admin/eventViewPage/classEntrySelection/groupColors/GroupColorTooltip.visual.test.tsx": {
     "group-color-tooltip-colors": {
       "aria-prohibited-attr": 1
-    }
-  },
-  "src/pages/searchPage/eventList/EventStateInfo.visual.test.tsx": {
-    "event-state-info-live": {
-      "nested-interactive": 1
     }
   }
 }

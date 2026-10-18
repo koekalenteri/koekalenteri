@@ -80,9 +80,7 @@ import type {
   Transaction,
   User,
 } from '../types'
-import { tz } from '@date-fns/tz'
-import { parseISO } from 'date-fns/parseISO'
-import { TIME_ZONE } from '../i18n/dates'
+import { localStampToInstant, TIME_ZONE } from './day'
 
 /**
  * The boundary between what crosses the wire (an API response, a WebSocket message, a value read
@@ -172,7 +170,7 @@ export const timestamp = (value: string): Date => new Date(value)
  * pickers that show them. A stamp that carries a zone keeps it. A plain `Date`, not the `TZDate` the
  * parse answers with, so the model holds one kind of date.
  */
-const finnishTimestamp = (value: string): Date => new Date(+parseISO(value, { in: tz(TIME_ZONE) }))
+const finnishTimestamp = (value: string): Date => localStampToInstant(value, TIME_ZONE)
 
 /**
  * `converter<J, M>()(spec)`: the wire and model types first, the spec in a call of its own, so that

@@ -1,5 +1,6 @@
 import type { JsonRegistration, Registration, RegistrationTime } from '../types'
 import { eventRegistrationDateKey } from '../lib/event'
+import { noonOfFinnishDay } from '../test-utils/finnishDays'
 import {
   registrationDogAged10MonthsAndNoResults,
   registrationDogAged20MonthsAndNoResults,
@@ -152,13 +153,19 @@ export const unpaidRegistrationWithStaticDatesAndClass: Registration = {
   paymentStatus: undefined,
 }
 
+/**
+ * The manual results' day as a noon instant: the result's date picker reads the moment in the
+ * browser's zone (KOE-1548), and noon in Finland is the same calendar day from UTC-9 to UTC+13.
+ */
+const MANUAL_RESULT_DATE = noonOfFinnishDay('2021-02-01')
+
 export const registrationWithManualResults: Registration = {
   ...registrationWithStaticDatesAndClass,
   class: 'AVO',
   results: [
     {
       class: 'ALO',
-      date: registrationWithStaticDatesAndClass.createdAt,
+      date: MANUAL_RESULT_DATE,
       id: 'manual-result-1',
       judge: 'Manual Judge',
       location: 'Somewhere',
@@ -169,7 +176,7 @@ export const registrationWithManualResults: Registration = {
     },
     {
       class: 'ALO',
-      date: registrationWithStaticDatesAndClass.createdAt,
+      date: MANUAL_RESULT_DATE,
       id: 'manual-result-2',
       judge: 'Manual Judge 2',
       location: 'Somewhere Else',

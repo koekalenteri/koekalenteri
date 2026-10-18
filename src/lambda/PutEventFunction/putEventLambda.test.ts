@@ -1243,15 +1243,60 @@ describe('putEventLambda', () => {
     expect(res.statusCode).toEqual(200)
   })
 
-  it.each(['startDate', 'endDate'] as const)('rejects an invalid %s before saving', async (field) => {
+  it.each([
+    ['startDate', 'not-a-date'],
+    ['endDate', 'not-a-date'],
+    ['startDate', '0001-01-01T00:00:00.000Z'],
+    ['endDate', '0001-01-01T00:00:00.000Z'],
+    ['startDate', '12'],
+    ['startDate', '2026-04-31T00:00:00.000Z'],
+    ['endDate', '2026-06-28T00:00'],
+  ] as const)('rejects an invalid %s (%s) before saving', async (field, value) => {
     authorizeMock.mockResolvedValueOnce(mockSecretary)
+    // The other date is valid, so the refusal is this field's.
+    const valid = { endDate: '2026-06-02T20:59:59.999Z', startDate: '2026-06-01T21:00:00.000Z' }
 
     const res = await putEventLambda(
-      constructAPIGwEvent<Partial<JsonDogEvent>>({ [field]: 'not-a-date', eventType: 'TEST' })
+      constructAPIGwEvent<Partial<JsonDogEvent>>({ ...valid, [field]: value, eventType: 'TEST' })
     )
 
     expect(res.statusCode).toEqual(400)
+    expect(JSON.parse(res.body)).toEqual({ message: `Bad request: ${field} must be a valid date` })
     expect(saveEventMock).not.toHaveBeenCalled()
+    expect(patchEventMock).not.toHaveBeenCalled()
+  })
+
+  // A row stored before the check, with zone-less stamps: a change that does not touch its dates goes
+  // through, and a bad date the request does carry is still refused.
+  it('takes a date-less change to a row whose stored dates the check would refuse', async () => {
+    authorizeMock.mockResolvedValueOnce(mockSecretary)
+    getEventMock.mockResolvedValueOnce({
+      ...mockEvent,
+      endDate: '2025-06-02T00:00:00',
+      startDate: '2025-06-01T00:00:00',
+    })
+
+    const res = await putEventLambda(
+      constructAPIGwEvent<Partial<JsonDogEvent>>({ id: 'existing', name: 'Uusi nimi' }, { method: 'PATCH' })
+    )
+
+    expect(res.statusCode).toEqual(200)
+  })
+
+  it('refuses a bad date the update carries', async () => {
+    authorizeMock.mockResolvedValueOnce(mockSecretary)
+    getEventMock.mockResolvedValueOnce({
+      ...mockEvent,
+      endDate: '2025-06-02T00:00:00',
+      startDate: '2025-06-01T00:00:00',
+    })
+
+    const res = await putEventLambda(
+      constructAPIGwEvent<Partial<JsonDogEvent>>({ id: 'existing', startDate: '12' }, { method: 'PATCH' })
+    )
+
+    expect(res.statusCode).toEqual(400)
+    expect(JSON.parse(res.body)).toEqual({ message: 'Bad request: startDate must be a valid date' })
     expect(patchEventMock).not.toHaveBeenCalled()
   })
 

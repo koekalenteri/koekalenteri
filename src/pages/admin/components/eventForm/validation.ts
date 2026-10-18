@@ -2,8 +2,8 @@ import type { ValidationResult, WideValidationResult } from '@/i18n/validation'
 import type { DogEvent, EventState, Judge, PublicContactInfo } from '@/types'
 import type { DogEventCost } from '@/types/Cost'
 import type { EventFlag, EventFlags, FieldRequirements, PartialEvent } from './types'
-import { zonedEndOfDay, zonedStartOfDay } from '@/i18n/dates'
 import { getCostValue } from '@/lib/cost'
+import { dayOf, TIME_ZONE } from '@/lib/day'
 import { isDevEnv } from '@/lib/env'
 import { OFFICIAL_EVENT_TYPES } from '@/lib/event'
 import { judgesMockTrialIndependently, MIN_INDEPENDENT_MOCK_TRIAL_JUDGES } from '@/lib/judge'
@@ -193,8 +193,11 @@ export const VALIDATORS: EventValidators = {
     const list = validateComplexCostMember(cost, costMember)
     return list.length ? { key: 'costMemberHigh', opts: { field: 'costMember', list } } : false
   },
+  // A day that ends today is not past yet; the Finnish days are compared, whatever zone the browser is in.
   endDate: (event, required) =>
-    required && !allowPastEventDates(event) && event.endDate < zonedEndOfDay(new Date()) ? 'endDate' : false,
+    required && !allowPastEventDates(event) && dayOf(event.endDate, TIME_ZONE) < dayOf(new Date(), TIME_ZONE)
+      ? 'endDate'
+      : false,
   headquarters: (event, _required) => {
     const headquarters = event.headquarters
     if (headquarters?.zipCode && !ZIPCODE_REGEXP.exec(headquarters.zipCode)) {
@@ -246,7 +249,9 @@ export const VALIDATORS: EventValidators = {
     return list.length ? { key: 'placesClass', opts: { field: 'places', length: list.length, list } } : false
   },
   startDate: (event, required) =>
-    required && !allowPastEventDates(event) && event.startDate < zonedStartOfDay(new Date()) ? 'startDate' : false,
+    required && !allowPastEventDates(event) && dayOf(event.startDate, TIME_ZONE) < dayOf(new Date(), TIME_ZONE)
+      ? 'startDate'
+      : false,
 }
 
 export function requiredFields(event: PartialEvent): FieldRequirements {

@@ -8,12 +8,6 @@ export const uniqueFn = <T>(arr: T[], cmp: (a: T, b: T) => boolean): T[] =>
 
 export const uniqueDate = (arr: Date[]) => [...new Set<number>(arr.map((d) => d.valueOf()))].map((v) => new Date(v))
 
-const DATE_ONLY_RE = /^\d{4}-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2]\d|3[01])$/
-
-/** A bare day key, yyyy-MM-dd. */
-export const isDateOnlyString = (value: unknown): value is string =>
-  typeof value === 'string' && DATE_ONLY_RE.test(value)
-
 /**
  * JSON as the server wrote it, nothing revived: a `Date` is made from a named field at the typed
  * boundary (`lib/wire.ts`, KOE-1546), never from what a string looks like.

@@ -1,23 +1,27 @@
 import type { TFunction } from 'i18next'
 import type { PublicDogEvent } from '@/types'
 import type { FilterProps } from './types'
-import { format } from 'date-fns'
-import { formatDateSpan, zonedDateString, zonedEndOfDay, zonedParseDate, zonedStartOfDay } from '@/i18n/dates'
-import { hasAvailableResults, isEntryClosing, isEntryOpen, isEntryUpcoming } from '@/lib/event'
+import { formatDate, formatDateSpan } from '@/i18n/dates'
+import { dayEnd, dayOf, dayStart, isDayKey, TIME_ZONE } from '@/lib/day'
+import { hasAvailableResults, isEntryClosing, isEntryOpen, isEntryUpcoming, storedDayKey } from '@/lib/event'
 import { isRegistrationClass } from '@/lib/registration'
 
-export const readDate = (date: string | null) => (date ? zonedParseDate(date) : null)
-export const writeDate = (date: Date | null) => (date ? zonedDateString(date) : '')
+/** The Finnish midnight of a day key from the URL; anything else, including nothing, is no date. */
+export const readDate = (date: string | null) => (isDayKey(date) ? dayStart(date, TIME_ZONE) : null)
+export const writeDate = (date: Date | null) => (date ? dayOf(date, TIME_ZONE) : '')
 
 export function withinDateFilters(
   event: Partial<Pick<PublicDogEvent, 'startDate' | 'endDate'>>,
   { start, end }: Pick<FilterProps, 'start' | 'end'>
 ) {
-  if (start && (!event.endDate || zonedEndOfDay(event.endDate) < zonedEndOfDay(start))) {
-    return false
+  // A stored date without a calendar day is not in any range: the list skips the event rather than fail.
+  if (start) {
+    const endDay = storedDayKey(event.endDate)
+    if (!endDay || endDay < dayOf(start, TIME_ZONE)) return false
   }
-  if (end && (!event.startDate || zonedStartOfDay(event.startDate) > zonedStartOfDay(end))) {
-    return false
+  if (end) {
+    const startDay = storedDayKey(event.startDate)
+    if (!startDay || startDay > dayOf(end, TIME_ZONE)) return false
   }
   return true
 }
@@ -129,12 +133,12 @@ export function deserializeFilter(input: string) {
   const end = searchParams.get('e')
   const start = searchParams.has('s') ? searchParams.get('s') : writeDate(new Date())
   const result: FilterProps = {
-    end: end ? zonedEndOfDay(end) : null,
+    end: isDayKey(end) ? dayEnd(end, TIME_ZONE) : null,
     eventClass: searchParams.getAll('c').filter(isRegistrationClass),
     eventType: searchParams.getAll('t'),
     judge: searchParams.getAll('j'),
     organizer: searchParams.getAll('o'),
-    start: start ? zonedStartOfDay(start) : null,
+    start: isDayKey(start) ? dayStart(start, TIME_ZONE) : null,
     withClosingEntry: bits.includes('c'),
     withFreePlaces: bits.includes('f'),
     withOpenEntry: bits.includes('o'),
@@ -151,10 +155,10 @@ export function filterStrings(filter: FilterProps, t: TFunction): string[] {
     if (filter.end) {
       filters.push(`${t('daterangeBoth')}: ${formatDateSpan(filter.start, undefined, { end: filter.end })}`)
     } else {
-      filters.push(`${t('daterangeStart')}: ${format(filter.start, 'dd.MM.yyyy')}`)
+      filters.push(`${t('daterangeStart')}: ${formatDate(filter.start, 'dd.MM.yyyy')}`)
     }
   } else if (filter.end) {
-    filters.push(`${t('daterangeEnd')}: ${format(filter.end, 'dd.MM.yyyy')}`)
+    filters.push(`${t('daterangeEnd')}: ${formatDate(filter.end, 'dd.MM.yyyy')}`)
   }
   if (filter.eventType?.length) {
     filters.push(`${t('eventTypes')}: ${filter.eventType.join(', ')}`)

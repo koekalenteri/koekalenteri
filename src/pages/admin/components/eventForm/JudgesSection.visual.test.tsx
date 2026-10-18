@@ -4,7 +4,7 @@ import { TZDate } from '@date-fns/tz'
 import { ThemeProvider } from '@mui/material/styles'
 import { render } from 'vitest-browser-react'
 import theme from '@/assets/Theme'
-import { TIME_ZONE } from '@/i18n/dates'
+import { TIME_ZONE } from '@/lib/day'
 import JudgesSection from './JudgesSection'
 
 /** Wrapper the screenshot is taken of: a fixed width and an opaque background keep captures stable. */

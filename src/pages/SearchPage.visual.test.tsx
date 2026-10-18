@@ -10,7 +10,7 @@ import { render } from 'vitest-browser-react'
 import { emptyEvent } from '../__mockData__/emptyEvent'
 import theme from '../assets/Theme'
 import { locales } from '../i18n'
-import { TIME_ZONE } from '../i18n/dates'
+import { TIME_ZONE } from '../lib/day'
 import AppSnackbarProvider from './components/AppSnackbarProvider'
 // The register link's black/bold/underlined look is a global class, not a theme override; without
 // it the link falls back to the browser's default blue (KOE-1324, caught against a real device).

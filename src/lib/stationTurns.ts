@@ -1,7 +1,7 @@
 import type { JsonStationTurn, StationTurn, StationTurnPause } from '../types'
 import type { LiveFlow } from './liveFormat'
 import { isDate } from 'date-fns/isDate'
-import { zonedDateString } from '../i18n/dates'
+import { dayOf, TIME_ZONE } from './day'
 
 /**
  * Derivations over a post's timeline (KOE-1259). Shared between the lambdas and the browser on
@@ -181,8 +181,8 @@ export const isLiveNow = (
   turns: readonly Pick<StationTurnSpan, 'startedAt' | 'endedAt'>[],
   now: Date = new Date()
 ): boolean => {
-  const today = zonedDateString(now)
-  return turns.some((turn) => !turn.endedAt || zonedDateString(new Date(turn.startedAt)) === today)
+  const today = dayOf(now, TIME_ZONE)
+  return turns.some((turn) => !turn.endedAt || dayOf(new Date(turn.startedAt), TIME_ZONE) === today)
 }
 
 /** The post ids that have any live spans, in first-seen order — what the live view iterates. */

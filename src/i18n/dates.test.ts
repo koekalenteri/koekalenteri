@@ -1,11 +1,34 @@
-import {
-  addFinnishDays,
-  currentFinnishTime,
-  finnishDaysBetween,
-  formatDateSpan,
-  zonedEndOfDay,
-  zonedStartOfDay,
-} from './dates'
+import { describeInTimeZone } from '../test-utils/timeZone'
+import { currentFinnishTime, formatDate, formatDateSpan } from './dates'
+
+describe('formatDate', () => {
+  for (const zone of ['Asia/Tokyo', 'America/New_York']) {
+    describeInTimeZone(zone, () => {
+      // A bare day used to be parsed as the machine's midnight, which is the evening before in Finland
+      // east of it: release note 2026-10-17 read 16.10. in Tokyo (KOE-1545).
+      it('formats a stamp without a zone as the Finnish wall-clock time it names', () => {
+        expect(formatDate('2026-06-28T00:00:00', 'd.M.yyyy')).toBe('28.6.2026')
+      })
+
+      it('formats a span whose end has no calendar day as its start', () => {
+        expect(formatDateSpan('2026-06-28', 'fi', { end: '0001-01-01T00:00:00.000Z' })).toBe('28.6.2026')
+      })
+
+      it('formats a bare day as the day it names', () => {
+        expect(formatDate('2026-10-17', 'd.M.yyyy')).toBe('17.10.2026')
+      })
+
+      it('formats an instant in Finnish time', () => {
+        expect(formatDate('2026-10-17T20:59:59.999Z', 'd.M.yyyy HH:mm')).toBe('17.10.2026 23:59')
+        expect(formatDate(new Date('2026-10-17T21:00:00.000Z'), 'd.M.yyyy HH:mm')).toBe('18.10.2026 00:00')
+      })
+
+      it('formats nothing for a string that is neither', () => {
+        expect(formatDate('foo', 'd.M.yyyy')).toBe('')
+      })
+    })
+  }
+})
 
 describe('formatDateSpan', () => {
   it.each([
@@ -22,6 +45,8 @@ describe('formatDateSpan', () => {
     { end: '2021-02-02', noYear: true, result: '31.1.–2.2.', start: '2021-01-31' },
     { end: '2022-01-15', noYear: true, result: '15.12.–15.1.', start: '2021-12-15' },
     { end: '2022-01-15T23:59:59Z', noYear: true, result: '15.12.–16.1.', start: '2021-12-14T22:00:00Z' },
+    // The year is told apart in Finnish time: the last moment of 2021 is 2022 in UTC.
+    { end: '2021-12-31T21:59:59Z', result: '30.–31.12.2021', start: '2021-12-29T22:00:00Z' },
   ])('formats properly %p', (test) => {
     expect(formatDateSpan(test.start, 'fi', { end: test.end, noYear: test.noYear })).toEqual(test.result)
     expect(formatDateSpan(new Date(test.start), 'fi', { end: test.end, noYear: test.noYear })).toEqual(test.result)
@@ -59,47 +84,5 @@ describe('currentFinnishTime', () => {
 
   it('formats correctly', () => {
     expect(currentFinnishTime()).toEqual('2020-04-01T13:20:30+03:00')
-  })
-})
-
-describe('zonedStartOfDay', () => {
-  it('should use Europe/Helsinki by default', () => {
-    expect(zonedStartOfDay('2024-01-01').toISOString()).toEqual('2024-01-01T00:00:00.000+02:00')
-    expect(zonedStartOfDay('2024-06-02').toISOString()).toEqual('2024-06-02T00:00:00.000+03:00')
-  })
-})
-
-describe('zonedEndOfDay', () => {
-  it('should use Europe/Helsinki by default', () => {
-    expect(zonedEndOfDay('2024-01-01').toISOString()).toEqual('2024-01-01T23:59:59.999+02:00')
-    expect(zonedEndOfDay('2024-06-02').toISOString()).toEqual('2024-06-02T23:59:59.999+03:00')
-  })
-})
-
-describe('finnishDaysBetween', () => {
-  it.each([
-    { expected: 0, from: '2026-03-26T22:00:00.000Z', name: 'the same day', to: '2026-03-26T22:00:00.000Z' },
-    {
-      expected: 77,
-      from: '2026-03-26T22:00:00.000Z',
-      name: 'across the spring change',
-      to: '2026-06-11T21:00:00.000Z',
-    },
-    { expected: 90, from: '2026-02-14T22:00:00.000Z', name: 'winter to summer', to: '2026-05-15T21:00:00.000Z' },
-    { expected: 169, from: '2026-05-14T21:00:00.000Z', name: 'summer to winter', to: '2026-10-30T22:00:00.000Z' },
-    { expected: -90, from: '2026-05-15T21:00:00.000Z', name: 'backwards', to: '2026-02-14T22:00:00.000Z' },
-  ])('counts Finnish calendar days $name', ({ expected, from, to }) => {
-    expect(finnishDaysBetween(from, to)).toBe(expected)
-  })
-})
-
-describe('addFinnishDays', () => {
-  it.each([
-    { days: 0, expected: '2026-03-26T22:00:00.000Z', from: '2026-03-26T22:00:00.000Z', name: 'zero days' },
-    { days: 169, expected: '2026-10-30T22:00:00.000Z', from: '2026-05-14T21:00:00.000Z', name: 'into winter time' },
-    { days: 90, expected: '2026-05-15T21:00:00.000Z', from: '2026-02-14T22:00:00.000Z', name: 'into summer time' },
-    { days: -1, expected: '2026-03-28T22:00:00.000Z', from: '2026-03-29T21:00:00.000Z', name: 'backwards' },
-  ])('keeps the Finnish wall clock: $name', ({ days, expected, from }) => {
-    expect(addFinnishDays(from, days)).toBe(expected)
   })
 })

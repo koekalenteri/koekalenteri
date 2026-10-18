@@ -11,8 +11,9 @@ import {
 } from '@/__mockData__/events'
 import { registrationsToEventWithParticipantsInvited, registrationWithStaticDates } from '@/__mockData__/registrations'
 import { APIError } from '@/api/http'
-import { zonedDateString } from '@/i18n/dates'
+import { dayStartOf, TIME_ZONE } from '@/lib/day'
 import { eventRegistrationDateKey } from '@/lib/event'
+import { finnishDayOf } from '@/test-utils/finnishDays'
 import { renderWithUserEvents, TEST_ID_TOKEN } from '@/test-utils/utils'
 import { adminEventsAtom } from '../../state'
 import InfoPanel from '../InfoPanel'
@@ -388,7 +389,7 @@ describe('InfoPanel>', () => {
   it('publishes a two-day class one day at a time (KOE-1304)', async () => {
     const onSetStartNumbersPublished = vi.fn().mockResolvedValue(undefined)
     const [aloDay, avoDay] = eventWithParticipantsInvited.classes
-    const saturday = addDays(aloDay.date, 1)
+    const saturday = dayStartOf(aloDay.date, TIME_ZONE, 1)
     const wrapper = ({ children }: { children: React.ReactNode }) => (
       <Provider initializeState={({ set }) => set(adminEventsAtom, [eventWithParticipantsInvited])}>
         {children}
@@ -403,7 +404,7 @@ describe('InfoPanel>', () => {
           invitationAttachments: { ALO: 'alo-key' },
           startListPublished: true,
           // Friday's draw is out; Saturday's is tomorrow morning.
-          startNumbersPublished: { ALO: [zonedDateString(aloDay.date)], AVO: false },
+          startNumbersPublished: { ALO: [finnishDayOf(aloDay.date)], AVO: false },
         }}
         onSetStartListPublished={vi.fn().mockResolvedValue(undefined)}
         onSetStartNumbersPublished={onSetStartNumbersPublished}
@@ -433,14 +434,14 @@ describe('InfoPanel>', () => {
     await user.click(publishButtons[0])
 
     await waitFor(() => {
-      expect(onSetStartNumbersPublished).toHaveBeenCalledWith('ALO', true, zonedDateString(saturday), undefined)
+      expect(onSetStartNumbersPublished).toHaveBeenCalledWith('ALO', true, finnishDayOf(saturday), undefined)
     })
 
     // The halves come morning first: hiding the morning names it.
     await user.click(hideFriday[0])
 
     await waitFor(() => {
-      expect(onSetStartNumbersPublished).toHaveBeenCalledWith('ALO', false, zonedDateString(aloDay.date), 'ap')
+      expect(onSetStartNumbersPublished).toHaveBeenCalledWith('ALO', false, finnishDayOf(aloDay.date), 'ap')
     })
   })
 

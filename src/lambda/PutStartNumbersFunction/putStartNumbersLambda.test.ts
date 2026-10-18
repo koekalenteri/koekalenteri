@@ -221,8 +221,8 @@ describe('putStartNumbersLambda', () => {
     expect(mockUpdate).not.toHaveBeenCalled()
   })
 
-  it('refuses a malformed day', async () => {
-    await putStartNumbersLambda(apiEvent({ date: '12.9.2026', eventClass: 'ALO', published: true }))
+  it.each(['12.9.2026', '2026-02-30', '2026-13-45'])('refuses a malformed day: %s', async (date) => {
+    await putStartNumbersLambda(apiEvent({ date, eventClass: 'ALO', published: true }))
 
     expect(mockResponse).toHaveBeenCalledWith(422, 'invalid date', expect.anything())
     expect(mockLockRegistrationGroups).not.toHaveBeenCalled()

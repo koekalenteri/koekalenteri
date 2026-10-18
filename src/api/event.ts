@@ -16,8 +16,8 @@ import type {
   RegistrationClass,
   Replace,
 } from '../types'
-import { addDays, nextSaturday } from 'date-fns'
-import { zonedStartOfDay } from '../i18n/dates'
+import { hasCalendarDay, TIME_ZONE } from '../lib/day'
+import { newEventDates } from '../lib/event'
 import { latestCollectionUpdate } from '../lib/incremental'
 import {
   converter,
@@ -173,9 +173,13 @@ export async function putResultsPublished(
   )
 }
 
-/** A one-day trial may come from Kennelliitto with the year 1 for its end: the end is the start then. */
+/**
+ * A one-day trial may come from Kennelliitto with the year 1 for its end: the end is the start then.
+ * The server now sends the start instead (KOE-1545); an older server's 0001-01-01 still becomes a
+ * year-1 Date at the typed boundary (`toEventKcIdChoice`), which has no calendar day.
+ */
 const normalizeEventKcIdChoice = (choice: EventKcIdChoice): EventKcIdChoice =>
-  choice.endDate.getFullYear() <= 1 ? { ...choice, endDate: choice.startDate } : choice
+  hasCalendarDay(choice.endDate, TIME_ZONE) ? choice : { ...choice, endDate: choice.startDate }
 
 export async function searchEventKcIdChoices(
   request: SearchEventKcIdChoicesRequest,
@@ -243,7 +247,7 @@ export async function copyEventWithRegistrations(eventId: string, token?: string
     (
       await http.post<{ id: string; startDate: Date }, JsonDogEvent>(
         `${ADMIN_PATH}copy`,
-        { id: eventId, startDate: zonedStartOfDay(nextSaturday(addDays(Date.now(), 90))) },
+        { id: eventId, startDate: newEventDates(new Date()).startDate },
         withToken({ signal }, token)
       )
     ).data

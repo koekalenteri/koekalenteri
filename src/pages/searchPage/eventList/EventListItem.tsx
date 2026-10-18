@@ -4,10 +4,10 @@ import Typography from '@mui/material/Typography'
 import { useAtomValue } from 'jotai'
 import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
-import { zonedStartOfDay } from '@/i18n/dates'
 import {
   eventTypeLabel,
   getParticipantsPhase,
+  hasEntryStarted,
   isEntryClosed,
   isEntryOpen,
   isEntryUpcoming,
@@ -68,11 +68,7 @@ const EventHeader = ({ event }: Props) => {
     return null
   }, [event, t])
 
-  const showPlaces = useMemo(
-    (): boolean =>
-      !!event.entryStartDate && zonedStartOfDay(event.entryStartDate) <= new Date() && isValidForEntry(event.state),
-    [event]
-  )
+  const showPlaces = useMemo((): boolean => hasEntryStarted(event) && isValidForEntry(event.state), [event])
 
   return (
     <>

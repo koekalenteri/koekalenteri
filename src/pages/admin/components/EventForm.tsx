@@ -12,7 +12,7 @@ import { atom, useAtomValue } from 'jotai'
 import { useCallback, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { objectsDiffer } from '@/lib/diff'
-import { isEventOver } from '@/lib/event'
+import { getEventSeason, isEventOver } from '@/lib/event'
 import { merge, withTimeout } from '@/lib/utils'
 import { AsyncButton } from '../../components/AsyncButton'
 import AutocompleteSingle from '../../components/AutocompleteSingle'
@@ -252,7 +252,7 @@ export default function EventForm({ event, changes, canSave, disabled, onSave, o
       }
       // Keep season in sync with startDate year
       if (props.startDate) {
-        newState.season = String(newState.startDate.getFullYear())
+        newState.season = getEventSeason(newState.startDate)
       }
       // The next change merges into this one, even when it comes before the form renders again: two
       // debounced fields delivering back to back, or a click landing before the render (KOE-1483).

@@ -10,8 +10,8 @@
 import type { JsonDogEvent, JsonUser } from '../../types'
 import { randomUUID } from 'node:crypto'
 import { DescribeTableCommand, DescribeTimeToLiveCommand, DynamoDBClient } from '@aws-sdk/client-dynamodb'
-import { addDays } from 'date-fns/addDays'
 import { eventWithParticipantsInvited } from '../../__mockData__/events'
+import { dayStartOf, TIME_ZONE } from '../../lib/day'
 import { getEventSeason } from '../../lib/event'
 
 /** A value unique to one test, readable in a failure: `event-1a2b3c4d`. */
@@ -48,7 +48,7 @@ export const storedUser = (overrides: Partial<JsonUser> = {}): JsonUser => {
  * stores them.
  */
 export const storedEvent = (overrides: Partial<JsonDogEvent> = {}): JsonDogEvent => {
-  const startDate = overrides.startDate ?? addDays(new Date(), 14).toISOString()
+  const startDate = overrides.startDate ?? dayStartOf(new Date(), TIME_ZONE, 14).toISOString()
   const organizerId = overrides.organizerId ?? uniqueId('org')
   return {
     ...JSON.parse(JSON.stringify(eventWithParticipantsInvited)),

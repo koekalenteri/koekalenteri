@@ -58,6 +58,49 @@ Read `LLM_CONTEXT.md` for the project overview and architecture notes.
 - Create a new library file only when it represents a clearly separate, reusable responsibility or a meaningful dependency boundary. Name it after the domain concept rather than a one-off operation or implementation detail.
 - `@/` is the source root (`tsconfig` paths, the webpack alias and the vitest alias all declare it). Under `src/pages`, an import that would climb three or more directories names the file from `@/` instead (`@/types`, `@/lib/event`, `@/__mockData__/events`); one or two levels stay relative. Lambda code does not use the alias: esbuild reads `src/lambda/tsconfig.json`, which does not declare it.
 
+## Calendar Days
+
+- A calendar day (the day a trial runs, an entry opens or closes, a dog is placed on) is a `DayKey`
+  (`src/types/Day.ts`): `yyyy-MM-dd`, no zone. `isDayKey` (`src/lib/day.ts`) narrows what comes from
+  storage or a URL, `toDayKey(year, month, day)` builds one. Days compare and sort as text.
+- A day becomes a moment, and a moment a day, only in `src/lib/day.ts`: `dayOf(instant, zone)`,
+  `dayStart(day, zone)`, `dayEnd(day, zone)`, `shiftDays(instant, days, zone)`, and the readers of an
+  instant built on them: `dayStartOf(instant, zone, days = 0)` (the start of the day the instant falls
+  on, or of one `days` from it), `dayEndOf`, `sameDay`, `yearOf`, plus `yearStart`, `yearEnd` and
+  `currentYear`. `monthKeyOf(day)` is a day's `yyyy-MM`. `localStampToInstant(stamp, zone)` reads a
+  stamp without a zone (Kennelliitto writes those) as the wall-clock time it is in the zone, and
+  `isInstantString` accepts only an ISO instant with an explicit zone on a day there is. The zone is a required parameter, never a default; the trials' zone is
+  `TIME_ZONE` from the same module. Day arithmetic (`addDays`, `addMonths`, `daysBetween`, `eachDay`,
+  `dayOfWeek`) needs no zone at all.
+- `dayOf` throws on an instant without a calendar day. Check `hasCalendarDay(instant, zone)` first on
+  anything stored or received: the Kennel Club's empty date (year 1) is a valid Date but no day, and
+  the accepted years (1100 to 9899) leave room for every step the app takes from an accepted day.
+- The stored `Date | string` fields (class and group dates, the published-day scopes) are read through
+  `src/lib/event.ts`: `storedDayKey` for a row whose date may be missing or unreadable (undefined
+  then), `eventDayKey` where the date must be there (it throws on one it cannot read). They are the
+  bridge until story 3 of KOE-1544 types the fields as days.
+- date-fns' calendar functions (`isSameDay`, `startOfDay`, `addDays`, `nextSaturday`, `subWeeks`,
+  ...) read the day in the machine's zone, and so do `format` with day tokens and `parseISO` of a day
+  key. Biome's `noRestrictedImports` bans them outside `src/lib/day.ts` (`format` and `parseISO` also
+  in `src/i18n/dates.ts`); format a moment with `formatDate`, read a day key with `dayStart` after
+  `isDayKey`. Instant functions (`isValid`, `isAfter`, `differenceInMinutes`,
+  `formatDistanceToNowStrict`, `lightFormat` of a build time) stay allowed. A line that must keep a
+  calendar call carries a `biome-ignore` with the reason and the issue that moves it. `*.test.*` files
+  are exempt; `src/__mockData__` and `src/test-utils` are not. Biome override options replace rather
+  than merge, which is why `biome.json` repeats the date-fns block in every override that sets
+  `noRestrictedImports`.
+- `getFullYear`, `getMonth`, `getDate` and `getDay` on an instant are calendar calls too, in the
+  machine's zone, and Biome has no rule for them: read the day with `dayOf`, `yearOf` and `dayParts`.
+  The deliberate exceptions, until KOE-1547/1548 make the dog's dates day keys: a dog's official result
+  date is a host-local stamp read with the local getter (the official-result year in
+  `qualification.ts`), and its birth date goes through the `biome-ignore`d date-fns calls (DogDetails,
+  QualifyingResultRow, the registration form's validation), while a hand-entered result, sent as an
+  instant, is read in Finnish time. Separately, DateRange's `fromPickerDay` reads the picker's own
+  browser-zone day.
+- Tests run in the machine's zone (Helsinki on a laptop, UTC in CI). A fixture is a Finnish day:
+  `startOfFinnishDay('2026-10-17')` from `src/test-utils/finnishDays.ts`, never `new Date(2026, 9, 17)`.
+  A test of zone handling runs under `describeInTimeZone` (`src/test-utils/timeZone.ts`).
+
 ## Data Migrations
 
 - A one-off data migration is an entry in the `migrations` array of

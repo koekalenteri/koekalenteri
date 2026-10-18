@@ -58,7 +58,6 @@ const {
   getRetentionStats,
   getJudgeWorkload,
   getEventBreakdown,
-  eventStatsMonth,
   moveOrganizerEventStats,
 } = await import('./stats')
 
@@ -81,21 +80,6 @@ describe('lib/stats', () => {
 
     it('returns undefined for an invalid date', () => {
       expect(eventStatsYear({ startDate: 'not-a-date' })).toBeUndefined()
-    })
-  })
-
-  describe('eventStatsMonth', () => {
-    it('derives the month for a regular event date', () => {
-      expect(eventStatsMonth('2025-06-15')).toBe('2025-06')
-    })
-
-    it('derives the month in the Finnish timezone', () => {
-      // 2025-06-01 00:00 Europe/Helsinki, stored as the previous day in UTC
-      expect(eventStatsMonth('2025-05-31T21:00:00.000Z')).toBe('2025-06')
-    })
-
-    it('returns undefined for an invalid date', () => {
-      expect(eventStatsMonth('not-a-date')).toBeUndefined()
     })
   })
 

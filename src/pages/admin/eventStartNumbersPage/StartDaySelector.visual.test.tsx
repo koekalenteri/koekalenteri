@@ -4,6 +4,7 @@ import Tab from '@mui/material/Tab'
 import Tabs from '@mui/material/Tabs'
 import { render } from 'vitest-browser-react'
 import theme from '@/assets/Theme'
+import { TIME_ZONE } from '@/lib/day'
 import { StartDaySelector } from '../components/StartDaySelector'
 import { StartNumbersTable } from './StartNumbersTable'
 
@@ -15,8 +16,8 @@ const Frame = ({ children, width = 760 }: { readonly children: React.ReactNode; 
 )
 
 // Pinned: the labels are weekdays and dates, and a moving clock would move the screenshot.
-const friday = new TZDate(2026, 8, 4, 'Europe/Helsinki')
-const saturday = new TZDate(2026, 8, 5, 'Europe/Helsinki')
+const friday = new TZDate(2026, 8, 4, TIME_ZONE)
+const saturday = new TZDate(2026, 8, 5, TIME_ZONE)
 const days = [
   { date: friday, key: '2026-09-04' },
   { date: saturday, key: '2026-09-05' },

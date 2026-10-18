@@ -1,7 +1,7 @@
 import Box from '@mui/material/Box'
 import Grid from '@mui/material/Grid'
 import Typography from '@mui/material/Typography'
-import { isPast, subDays } from 'date-fns'
+import { isPast } from 'date-fns/isPast'
 import { useAtom, useAtomValue } from 'jotai'
 import { enqueueSnackbar } from 'notistack'
 import { useCallback, useEffect, useMemo, useState } from 'react'
@@ -11,6 +11,7 @@ import { useRegistrationLanguage } from '../hooks/useRegistrationLanguage'
 import { useRegistrationSubscription } from '../hooks/useRegistrationSubscription'
 import { redirectTo } from '../lib/client/navigation'
 import { errorSnackbarOptions } from '../lib/client/snackbar'
+import { addDays, dayOf, TIME_ZONE } from '../lib/day'
 import { getEventStateForClass } from '../lib/event'
 import { getRegistrationClass, getRegistrationEmails, hasPaymentPicture } from '../lib/registration'
 import { isConfirmedEvent } from '../lib/typeGuards'
@@ -67,7 +68,8 @@ export function RegistrationListPage({ cancel, confirm, invitation }: Registrati
   const paymentVerificationInProgress = paymentFlow === 'verifying' && !paymentSettled && reloadCount < 5
   const allDisabled = useMemo(() => !event || !isConfirmedEvent(event) || isPast(event.endDate), [event])
   const cancelDisabled = useMemo(
-    () => !event || allDisabled || isPast(subDays(event.startDate, 1)),
+    // Cancelling closes with the Finnish day before the trial: from then on the dog is expected.
+    () => !event || allDisabled || dayOf(new Date(), TIME_ZONE) >= addDays(dayOf(event.startDate, TIME_ZONE), -1),
     [allDisabled, event]
   )
   // What the page shows as owed: the server's word, which needs the group this page does not have

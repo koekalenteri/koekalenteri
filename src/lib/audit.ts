@@ -10,7 +10,9 @@ import type {
   JsonRegistration,
   JsonRegistrationGroup,
 } from '../types'
-import { formatDate, zonedParseDate } from '../i18n/dates'
+import { formatDate } from '../i18n/dates'
+import { dayStart, isDayKey, TIME_ZONE } from './day'
+import { eventDayKey } from './event'
 import {
   GROUP_KEY_CANCELLED,
   GROUP_KEY_RESERVE,
@@ -18,7 +20,6 @@ import {
   isPredefinedReason,
   isRegistrationClass,
 } from './registration'
-import { isDateOnlyString } from './utils'
 
 /**
  * Whom an audit row is attributed to. An authenticated user has no `source`; a name taken from the
@@ -78,12 +79,9 @@ type DayParamPart = 'Date' | 'Time' | 'TimeKey'
 const dayParamName = (prefix: DayParamPrefix, part: DayParamPart) =>
   prefix ? `${prefix}${part}` : `${part.charAt(0).toLowerCase()}${part.slice(1)}`
 
-/** A bare yyyy-MM-dd is a day in Finnish time; anything else is an instant already. */
-const toDay = (date: string) => (isDateOnlyString(date) ? zonedParseDate(date) : date)
-
 /** A day and a time as parameters: the day as yyyy-MM-dd in Finnish time, the time by its `audit.time.*` key. */
 const dayParams = (prefix: DayParamPrefix, date?: string, time?: string): AuditMessageParams => ({
-  ...(date ? { [dayParamName(prefix, 'Date')]: formatDate(toDay(date), 'yyyy-MM-dd') } : {}),
+  ...(date ? { [dayParamName(prefix, 'Date')]: eventDayKey(date) } : {}),
   ...(time ? { [dayParamName(prefix, 'TimeKey')]: `audit.time.${time}` } : {}),
 })
 
@@ -382,7 +380,7 @@ const isAuditTranslationKey = (value: unknown): value is ParseKeys<'translation'
  * writes these as yyyy-MM-dd and that is how they arrive, from the API and over the WebSocket alike
  * (KOE-1546), so the day is read in Finnish time and a reader west of UTC-10 sees the same day.
  */
-const auditDay = (value: unknown): Date | undefined => (isDateOnlyString(value) ? zonedParseDate(value) : undefined)
+const auditDay = (value: unknown): Date | undefined => (isDayKey(value) ? dayStart(value, TIME_ZONE) : undefined)
 
 /** Text a parameter can stand for. */
 const paramText = (value: unknown) => (typeof value === 'string' || typeof value === 'number' ? String(value) : '')

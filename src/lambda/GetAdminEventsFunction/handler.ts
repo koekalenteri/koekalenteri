@@ -1,7 +1,9 @@
 import type { JsonDogEvent, JsonUser } from '../../types'
+import { currentYear, TIME_ZONE, yearOf } from '../../lib/day'
 import { CONFIG } from '../config'
 import { authorizeWithMemberOf } from '../lib/auth'
-import { lambda, response } from '../lib/lambda'
+import { parseDateParam } from '../lib/incremental'
+import { httpError, lambda, response } from '../lib/lambda'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 
 const dynamoDB = new CustomDynamoClient(CONFIG.eventTable)
@@ -33,9 +35,12 @@ const querySeason = (season: number, updatedAfter?: string) =>
 
 /** What changed since the client last asked, every season the change can be in. */
 const queryChangedSince = async (since: string): Promise<JsonDogEvent[]> => {
-  const updatedAfter = new Date(Number(since)).toISOString()
-  const startSeason = Number(updatedAfter.substring(0, 4))
-  const endSeason = Number(new Date().toISOString().substring(0, 4))
+  const sinceInstant = parseDateParam(since)
+  if (!sinceInstant) throw httpError(400, 'Bad request: since must be a valid time')
+  const updatedAfter = sinceInstant.toISOString()
+  // The seasons are Finnish years, as the events' are (GetEventsFunction).
+  const startSeason = yearOf(sinceInstant, TIME_ZONE)
+  const endSeason = currentYear(TIME_ZONE)
   const seasons = Array.from({ length: endSeason - startSeason + 1 }, (_, index) => startSeason + index)
 
   const perSeason = await Promise.all(seasons.map((season) => querySeason(season, updatedAfter)))
@@ -54,7 +59,7 @@ const queryAllSeasons = async (): Promise<JsonDogEvent[]> => {
     return [...seasonEvents, ...earlier]
   }
 
-  return walkBack(new Date().getFullYear() + 1, 0)
+  return walkBack(currentYear(TIME_ZONE) + 1, 0)
 }
 
 /**

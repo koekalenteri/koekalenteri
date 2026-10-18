@@ -1,6 +1,7 @@
 export * from './Cost'
 export * from './countries'
 export * from './Database'
+export * from './Day'
 export * from './Dog'
 export * from './Email'
 export * from './Event'

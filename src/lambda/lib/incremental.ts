@@ -1,11 +1,17 @@
+import { hasCalendarDay, TIME_ZONE } from '../../lib/day'
 import { itemStamp } from '../../lib/incremental'
 
+/**
+ * A date query parameter as an instant: epoch milliseconds or an ISO string. Undefined for no value
+ * and for one without a calendar day (not an instant, or a year the calendar does not read), which a
+ * handler treats as not given: nothing past here has to guard a year-1 or a year-10000 date.
+ */
 export function parseDateParam(value: string | undefined): Date | undefined {
   if (!value) return undefined
 
   const asNumber = Number(value)
   const d = Number.isFinite(asNumber) ? new Date(asNumber) : new Date(value)
-  return Number.isNaN(d.getTime()) ? undefined : d
+  return hasCalendarDay(d, TIME_ZONE) ? d : undefined
 }
 
 type TimestampedItem = Parameters<typeof itemStamp>[0]

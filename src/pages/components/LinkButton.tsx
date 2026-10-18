@@ -27,7 +27,7 @@ export default function LinkButton({ to, text, sx, back, loading = false, onClic
   }
 
   return (
-    <Box sx={{ px: 1, ...sx }} role="button">
+    <Box sx={{ px: 1, ...sx }}>
       <Link
         aria-busy={loading || undefined}
         aria-disabled={loading || undefined}
