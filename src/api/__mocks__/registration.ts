@@ -11,7 +11,6 @@ import type {
   RegistrationPatchRequest,
 } from '../../types'
 import type { EventResultSubmission } from '../registration'
-import { parseISO } from 'date-fns'
 import { withPaymentPicture } from '../../__mockData__/paymentPicture'
 import { mockRegistrationData } from '../../__mockData__/registrations'
 import { applyPatchOperations } from '../../lib/patch'
@@ -25,8 +24,8 @@ export const mockRegistrations: { [key: string]: Registration[] } = {
       breeder: {
         name: 'breeder name',
       },
-      // NOTE: Avoid `parseISO('YYYY-MM-DD')` (timezone-dependent). Use a stable instant.
-      createdAt: parseISO('2021-02-01T12:00:00Z'),
+      // Stable instants: a bare day would be read in the machine's zone.
+      createdAt: new Date('2021-02-01T12:00:00Z'),
       createdBy: 'some user',
       dates: [],
       dog: {
@@ -45,7 +44,7 @@ export const mockRegistrations: { [key: string]: Registration[] } = {
       },
       id: 'reg1',
       language: 'fi',
-      modifiedAt: parseISO('2021-02-01T12:00:00Z'),
+      modifiedAt: new Date('2021-02-01T12:00:00Z'),
       modifiedBy: 'some user',
       notes: 'notes',
       owner: {

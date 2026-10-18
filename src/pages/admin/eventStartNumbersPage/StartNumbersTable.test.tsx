@@ -1,6 +1,7 @@
 import type { StartNumberRow } from './StartNumbersTable'
 import { TZDate } from '@date-fns/tz'
 import { render, screen } from '@testing-library/react'
+import { TIME_ZONE } from '@/lib/day'
 import { StartNumbersTable } from './StartNumbersTable'
 
 vi.mock('react-i18next', () => ({
@@ -14,7 +15,7 @@ vi.mock('react-i18next', () => ({
   }),
 }))
 
-const friday = new TZDate(2026, 8, 4, 'Europe/Helsinki')
+const friday = new TZDate(2026, 8, 4, TIME_ZONE)
 
 const row = (id: string, time: 'ap' | 'ip'): StartNumberRow => ({
   dog: { name: `Dog ${id}`, regNo: `REG-${id}` },

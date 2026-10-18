@@ -15,16 +15,23 @@ import type {
   PaymentBalanceRegistration,
   PublicConfirmedEvent,
 } from '../types'
-import { addDays } from 'date-fns/addDays'
+import { shiftDays, TIME_ZONE } from './day'
 import { getNetPaidAmount, toCents } from './money'
 import { isMember, isReturnedReserve } from './registration'
+
+/**
+ * The moment the early-bird price ends: the entry's start moved `days - 1` Finnish days on, keeping
+ * its time of day, as the rate is decided against a registration's own moment (`isApplicable`).
+ */
+const earlyBirdEndDate = (entryStartDate: Date | string, days: number) =>
+  shiftDays(new Date(entryStartDate), days - 1, TIME_ZONE)
 
 export const getEarlyBirdEndDate = (
   event: Partial<Pick<PublicConfirmedEvent, 'entryStartDate'> | Pick<JsonPublicConfirmedEvent, 'entryStartDate'>>,
   cost: Pick<DogEventCost, 'earlyBird'>
 ) =>
   cost.earlyBird && event.entryStartDate && cost.earlyBird?.days > 0
-    ? addDays(new Date(event.entryStartDate), cost.earlyBird.days - 1)
+    ? earlyBirdEndDate(event.entryStartDate, cost.earlyBird.days)
     : undefined
 
 export const getEarlyBirdDates = (
@@ -33,7 +40,7 @@ export const getEarlyBirdDates = (
 ): { start?: Date; end?: Date } => {
   if (cost.earlyBird && event.entryStartDate && cost.earlyBird?.days > 0) {
     return {
-      end: addDays(new Date(event.entryStartDate), cost.earlyBird.days - 1),
+      end: earlyBirdEndDate(event.entryStartDate, cost.earlyBird.days),
       start: new Date(event.entryStartDate),
     }
   }

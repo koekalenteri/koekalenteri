@@ -6,7 +6,6 @@ import type {
   PaymentTime,
   Registration,
 } from '../types'
-import { addDays } from 'date-fns'
 import { eventWithStaticDates } from '../__mockData__/events'
 import { paymentPictureWith } from '../__mockData__/paymentPicture'
 import {
@@ -833,7 +832,8 @@ describe('payment', () => {
       })
     })
     it('should return details for early bird', () => {
-      const entryStartDate = new Date()
+      // A Finnish midnight in winter time; the window's end keeps that time of day ten days on.
+      const entryStartDate = new Date('2026-01-01T22:00:00.000Z')
       const eventWithOptional = {
         ...event,
         cost: {
@@ -847,7 +847,7 @@ describe('payment', () => {
       }
       const registrationWithOptional = {
         ...registration,
-        createdAt: new Date(),
+        createdAt: new Date('2026-01-03T10:00:00.000Z'),
         owner: { membership: false },
       }
       expect(getRegistrationPaymentDetails(eventWithOptional, registrationWithOptional)).toEqual({
@@ -865,7 +865,7 @@ describe('payment', () => {
         total: 7,
         translationOptions: {
           code: undefined,
-          end: addDays(entryStartDate, 9),
+          end: new Date('2026-01-10T22:00:00.000Z'),
           start: entryStartDate,
         },
       })

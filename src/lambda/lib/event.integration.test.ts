@@ -27,11 +27,12 @@ describe('findQualificationStartDate against DynamoDB-local', () => {
       seed(uniqueId('other-type'), '2026-05-20T20:59:59.999Z'),
     ])
 
+    // The Finnish day after the entry closed, from its start, as the UTC instant the events store.
     await expect(findQualificationStartDate(eventType, '2026-06-01T20:59:59.999Z')).resolves.toBe(
-      '2026-05-02T00:00:00.000+03:00'
+      '2026-05-01T21:00:00.000Z'
     )
     await expect(findQualificationStartDate(eventType, '2026-04-01T20:59:59.999Z')).resolves.toBe(
-      '2026-03-02T00:00:00.000+02:00'
+      '2026-03-01T22:00:00.000Z'
     )
   })
 
@@ -52,8 +53,9 @@ describe('findQualificationStartDate against DynamoDB-local', () => {
     const eventType = uniqueId('type')
     await client.write(seed(eventType, '2026-05-20T20:59:59.999Z', '2026-05-10T20:59:59.999Z'))
 
+    // The start of 11.5. in Finland, the day after the original entry end.
     await expect(findQualificationStartDate(eventType, '2026-06-01T20:59:59.999Z')).resolves.toBe(
-      '2026-05-11T00:00:00.000+03:00'
+      '2026-05-10T21:00:00.000Z'
     )
   })
 })

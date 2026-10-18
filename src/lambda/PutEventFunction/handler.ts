@@ -4,6 +4,7 @@ import { nanoid } from 'nanoid'
 import {
   getEventSeason,
   isEntryOpen,
+  isEventDateString,
   isEventDeletable,
   isSameResultsPublished,
   isStartNumbersAvailable,
@@ -161,11 +162,15 @@ const initializeNewEvent = (item: Patch<JsonConfirmedEvent>, timestamp: string, 
   item.startNumbersPublished = false
 }
 
-const invalidEventDateField = (data: JsonConfirmedEvent) =>
-  (['startDate', 'endDate'] as const).find((field) => {
-    const date = data[field]
-    return date === undefined || date === '' || typeof date !== 'string' || !getEventSeason(date)
-  })
+/**
+ * The first date field that is not a valid date. A new event's dates are all checked; an update checks
+ * only the dates it carries, so a stored row from before this check (a zone-less stamp, say) still takes
+ * a change that does not touch its dates.
+ */
+const invalidEventDateField = (data: JsonConfirmedEvent, item: Patch<JsonConfirmedEvent>, isUpdate: boolean) =>
+  (['startDate', 'endDate'] as const).find(
+    (field) => (!isUpdate || item[field] !== undefined) && !isEventDateString(data[field])
+  )
 
 const updateEventDerivedFields = async (data: JsonConfirmedEvent) => {
   if (data.startDate) data.season = getEventSeason(data.startDate)
@@ -328,7 +333,7 @@ const putEventLambda = lambda('putEvent', async (event) => {
   const data = existing && patchRequest ? patchMerge(existing, item) : ({ ...existing, ...item } as JsonConfirmedEvent)
   // The index key for the club's own list; a copy, because an index cannot key on a map's field (KOE-1341).
   data.organizerId = data.organizer?.id
-  const invalidDateField = invalidEventDateField(data)
+  const invalidDateField = invalidEventDateField(data, item, !!existing)
   if (invalidDateField) {
     throw httpError(400, { message: `Bad request: ${invalidDateField} must be a valid date` })
   }

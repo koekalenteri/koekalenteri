@@ -7,7 +7,7 @@ import Typography from '@mui/material/Typography'
 import { nanoid } from 'nanoid'
 import { memo, useCallback, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
-import { zonedDateString } from '@/i18n/dates'
+import { dayOf, TIME_ZONE } from '@/lib/day'
 import { getEventDays } from '@/lib/event'
 import { StationRow } from './StationRow'
 
@@ -27,7 +27,7 @@ const renumber = (stations: EventStation[]): EventStation[] => {
   const perDay = new Map<string, number>()
 
   return stations.map((station) => {
-    const day = zonedDateString(station.date)
+    const day = dayOf(station.date, TIME_ZONE)
     const number = (perDay.get(day) ?? 0) + 1
     perDay.set(day, number)
 
@@ -43,7 +43,7 @@ function StationsEditor({ event, disabled, onChange }: Props) {
   const stationsByDay = useMemo(() => {
     const byDay = new Map<string, EventStation[]>()
     for (const station of stations) {
-      const day = zonedDateString(station.date)
+      const day = dayOf(station.date, TIME_ZONE)
       byDay.set(day, [...(byDay.get(day) ?? []), station])
     }
     return byDay
@@ -58,7 +58,7 @@ function StationsEditor({ event, disabled, onChange }: Props) {
       const station: EventStation = {
         date,
         id: nanoid(10),
-        number: (stationsByDay.get(zonedDateString(date))?.length ?? 0) + 1,
+        number: (stationsByDay.get(dayOf(date, TIME_ZONE))?.length ?? 0) + 1,
         tasks: 1,
       }
       setStations([...stations, station])
@@ -86,14 +86,14 @@ function StationsEditor({ event, disabled, onChange }: Props) {
       }}
     >
       {days.map((day) => (
-        <Box key={zonedDateString(day)} sx={{ width: '100%' }}>
+        <Box key={dayOf(day, TIME_ZONE)} sx={{ width: '100%' }}>
           {days.length > 1 && (
             <Typography variant="subtitle2" component="h2" sx={{ mb: 0.5 }}>
               {t('dateFormat.wdshort', { date: day })}
             </Typography>
           )}
           <Grid container spacing={1}>
-            {(stationsByDay.get(zonedDateString(day)) ?? []).map((station) => (
+            {(stationsByDay.get(dayOf(day, TIME_ZONE)) ?? []).map((station) => (
               <StationRow
                 disabled={disabled}
                 event={event}

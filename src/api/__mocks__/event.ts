@@ -1,6 +1,5 @@
 import type { AuditRecord, DogEvent, InvitationAttachmentVersion, Patch } from '../../types'
 import type { PublicEventsDeltaResponse, SearchEventKcIdChoicesRequest, SearchEventKcIdChoicesResponse } from '../event'
-import { parseISO } from 'date-fns'
 import { emptyEvent } from '../../__mockData__/emptyEvent'
 import {
   eventWithEntryClosed,
@@ -21,11 +20,11 @@ export const mockEvents: DogEvent[] = [
   eventWithStaticDatesAnd3Classes,
   {
     ...emptyEvent,
-    // NOTE: Avoid `parseISO('YYYY-MM-DD')` (timezone-dependent). Use a stable instant.
-    classes: [{ class: 'AVO', date: parseISO('2021-02-12T12:00:00Z') }],
-    endDate: parseISO('2021-02-13T12:00:00Z'),
-    entryEndDate: parseISO('2021-02-12T12:00:00Z'),
-    entryStartDate: parseISO('2021-02-01T12:00:00Z'),
+    // Stable instants: a bare day would be read in the machine's zone.
+    classes: [{ class: 'AVO', date: new Date('2021-02-12T12:00:00Z') }],
+    endDate: new Date('2021-02-13T12:00:00Z'),
+    entryEndDate: new Date('2021-02-12T12:00:00Z'),
+    entryStartDate: new Date('2021-02-01T12:00:00Z'),
     eventType: 'NOME-B',
     id: 'test2',
     judges: [{ id: 223, name: 'Tuomari 2' }],
@@ -33,7 +32,7 @@ export const mockEvents: DogEvent[] = [
       id: '2',
       name: 'Järjestäjä 2',
     },
-    startDate: parseISO('2021-02-12T12:00:00Z'),
+    startDate: new Date('2021-02-12T12:00:00Z'),
   },
   eventWithEntryOpen,
   eventWithEntryNotYetOpen,

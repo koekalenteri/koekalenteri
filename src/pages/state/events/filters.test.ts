@@ -1,6 +1,6 @@
 import type { PublicDogEvent } from '@/types'
 import { eventWithStaticDates } from '@/__mockData__/events'
-import { zonedEndOfDay, zonedStartOfDay } from '@/i18n/dates'
+import { endOfFinnishDay, startOfFinnishDay } from '@/test-utils/finnishDays'
 import {
   deserializeFilter,
   readDate,
@@ -15,6 +15,15 @@ describe('state.events.filters', () => {
     it('should produce a date in finnish timezone', () => {
       expect(readDate('2024-01-01')?.valueOf()).toEqual(1704060000000)
       expect(readDate('2024-06-15')?.valueOf()).toEqual(1718398800000)
+    })
+
+    it('reads anything that is not a day as no date', () => {
+      expect(readDate('foo')).toBeNull()
+      expect(readDate('2024-06-15T00:00:00Z')).toBeNull()
+      expect(readDate(null)).toBeNull()
+      // A day past the accepted years: its end would be a year no key can spell.
+      expect(readDate('9999-12-31')).toBeNull()
+      expect(deserializeFilter('s=2026-10-17&e=9999-12-31').end).toBeNull()
     })
   })
 
@@ -43,12 +52,12 @@ describe('state.events.filters', () => {
     it('serializes all fields', () => {
       expect(
         serializeFilter({
-          end: zonedEndOfDay(new Date(1743449533000)),
+          end: endOfFinnishDay(new Date(1743449533000)),
           eventClass: ['ALO'],
           eventType: ['NOME-B'],
           judge: ['Tuomari Risto'],
           organizer: ['bOkL76mduc'],
-          start: zonedStartOfDay(new Date(1742844733000)),
+          start: startOfFinnishDay(new Date(1742844733000)),
           withClosingEntry: true,
           withFreePlaces: true,
           withOpenEntry: true,
@@ -61,7 +70,7 @@ describe('state.events.filters', () => {
 
   describe('deserializeFilter', () => {
     const today = new Date()
-    const startOfToday = zonedStartOfDay(today)
+    const startOfToday = startOfFinnishDay(today)
     it('ignores unknown params', () => {
       expect(deserializeFilter('fblcid=asdf')).toEqual({
         end: null,
@@ -82,12 +91,12 @@ describe('state.events.filters', () => {
       expect(
         deserializeFilter('s=2025-03-24&e=2025-03-31&c=ALO&t=NOME-B&j=Tuomari+Risto&o=bOkL76mduc&b=c&b=f&b=o&b=u&b=r')
       ).toEqual({
-        end: zonedEndOfDay(new Date(1743449533000)),
+        end: endOfFinnishDay(new Date(1743449533000)),
         eventClass: ['ALO'],
         eventType: ['NOME-B'],
         judge: ['Tuomari Risto'],
         organizer: ['bOkL76mduc'],
-        start: zonedStartOfDay(new Date(1742844733000)),
+        start: startOfFinnishDay(new Date(1742844733000)),
         withClosingEntry: true,
         withFreePlaces: true,
         withOpenEntry: true,
@@ -102,9 +111,18 @@ describe('state.events.filters', () => {
   })
 
   describe('withinDateFilters', () => {
+    it('leaves out an event whose stored date has no calendar day, instead of failing the list', () => {
+      const yearOne = new Date('0001-01-01T00:00:00')
+      const today = startOfFinnishDay('2026-10-17')
+      expect(withinDateFilters({ endDate: yearOne, startDate: yearOne }, { end: null, start: today })).toBe(false)
+      expect(withinDateFilters({ endDate: today, startDate: new Date(Number.NaN) }, { end: today, start: null })).toBe(
+        false
+      )
+    })
+
     const today = new Date()
-    const startOfToday = zonedStartOfDay(today)
-    const endOfToday = zonedEndOfDay(today)
+    const startOfToday = startOfFinnishDay(today)
+    const endOfToday = endOfFinnishDay(today)
     describe.each`
       endDate
       ${today}

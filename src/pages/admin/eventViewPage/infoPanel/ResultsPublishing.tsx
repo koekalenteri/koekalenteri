@@ -1,4 +1,4 @@
-import type { ClassOrNone, ConfirmedEvent } from '@/types'
+import type { ClassOrNone, ConfirmedEvent, DayKey } from '@/types'
 import EditNoteOutlined from '@mui/icons-material/EditNoteOutlined'
 import PlaceOutlined from '@mui/icons-material/PlaceOutlined'
 import Box from '@mui/material/Box'
@@ -12,8 +12,8 @@ import { enqueueSnackbar } from 'notistack'
 import { useCallback, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { refusalCode } from '@/api/http'
-import { zonedParseDate } from '@/i18n/dates'
 import { errorSnackbarOptions } from '@/lib/client/snackbar'
+import { dayStart, TIME_ZONE } from '@/lib/day'
 import { getClassDays, isResultsPublishedForDay, uniqueClasses } from '@/lib/event'
 import { getResultsBlocker, isStartListPublished } from '@/lib/publishing'
 import { scoresAtPosts } from '@/lib/results'
@@ -37,8 +37,8 @@ interface ResultsRow {
   readonly name: string
   /** The class the publish request is for; undefined for the classless event. */
   readonly eventClass: ClassOrNone
-  /** The day the row publishes, yyyy-MM-dd (KOE-1510). */
-  readonly day: string
+  /** The day the row publishes (KOE-1510). */
+  readonly day: DayKey
   /** Whether the trial runs on several days, so the row names its day. */
   readonly multiDay: boolean
 }
@@ -85,7 +85,7 @@ const ResultsPublishing = ({ event, eventStarted, onSetResultsPublished }: Props
   const confirm = useConfirm()
   const rows = getResultsRows(event)
 
-  const dayLabel = useCallback((day: string) => t('dateFormat.wdshort', { date: zonedParseDate(day) }), [t])
+  const dayLabel = useCallback((day: DayKey) => t('dateFormat.wdshort', { date: dayStart(day, TIME_ZONE) }), [t])
   // The rows whose request is on its way: a second click would only race the first (KOE-1510).
   const [inFlight, setInFlight] = useState<ReadonlySet<string>>(() => new Set())
   const markInFlight = useCallback((key: string, pending: boolean) => {

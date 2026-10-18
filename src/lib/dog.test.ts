@@ -2,6 +2,7 @@ import type { BreedCode } from '../types'
 import { subMinutes } from 'date-fns'
 import { t } from 'i18next'
 import { breedAbbreviation, createDogUpdateFromFormValues, formatDogName, isValidDob, shouldAllowRefresh } from './dog'
+import { toDog } from './wire'
 
 describe('dog utility functions', () => {
   describe('shouldAllowRefresh', () => {
@@ -35,15 +36,21 @@ describe('dog utility functions', () => {
       expect(isValidDob(emptyKlDate)).toBe(false)
     })
 
-    it('should return true for valid dates', () => {
-      expect(isValidDob(new Date('2020-01-01'))).toBe(true)
-      expect(isValidDob(new Date('2010-05-15'))).toBe(true)
-      expect(isValidDob(new Date('2024-12-31'))).toBe(true)
+    it('reads the empty date as the API hands it to the form, through the typed boundary (KOE-1545)', () => {
+      expect(isValidDob(toDog({ dob: '0001-01-01T00:00:00' }).dob)).toBe(false)
+      expect(isValidDob(toDog({ dob: '0000-12-31T22:20:11.000Z' }).dob)).toBe(false)
+      expect(isValidDob(toDog({ dob: '2020-06-01T00:00:00' }).dob)).toBe(true)
     })
 
-    it('should return true for very old but valid dates (year > 1)', () => {
-      expect(isValidDob(new Date('1990-01-01'))).toBe(true)
-      expect(isValidDob(new Date('0002-01-01'))).toBe(true)
+    it('should return true for valid dates', () => {
+      expect(isValidDob(new Date('2020-01-01T12:00:00.000Z'))).toBe(true)
+      expect(isValidDob(new Date('2010-05-15T12:00:00.000Z'))).toBe(true)
+      expect(isValidDob(new Date('2024-12-31T12:00:00.000Z'))).toBe(true)
+    })
+
+    it('reads an old birthday as valid and a year before the calendar as none, in any zone', () => {
+      expect(isValidDob(new Date('1990-01-01T12:00:00.000Z'))).toBe(true)
+      expect(isValidDob(new Date('0002-01-01T12:00:00.000Z'))).toBe(false)
     })
   })
 

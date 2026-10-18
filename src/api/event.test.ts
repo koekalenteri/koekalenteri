@@ -1,10 +1,10 @@
 import type { DogEvent } from '../types'
 import { parseISO } from 'date-fns'
 import { emptyEvent } from '../__mockData__/emptyEvent'
-import { zonedDateString, zonedEndOfDay, zonedStartOfDay } from '../i18n/dates'
 import { isEntryClosing, isEntryOpen, isEntryUpcoming } from '../lib/event'
 import { API_BASE_URL } from '../routeConfig'
 import fetchMock from '../test-utils/fetchMock'
+import { endOfFinnishDay, finnishDayOf, startOfFinnishDay } from '../test-utils/finnishDays'
 import { describeInTimeZone } from '../test-utils/timeZone'
 import {
   copyEventWithRegistrations,
@@ -247,12 +247,12 @@ describeInTimeZone('Asia/Tokyo', () => {
     expect(response.choices[1]?.kcGuid).toBeNull()
     expect(response.choices[0]?.startDate).toBeInstanceOf(Date)
     expect(response.choices[0]?.endDate).toBeInstanceOf(Date)
-    expect(zonedDateString(response.choices[0]!.startDate)).toEqual('2026-07-01')
-    expect(zonedDateString(response.choices[0]!.endDate)).toEqual('2026-07-02')
-    expect(zonedDateString(response.choices[1]!.startDate)).toEqual('2026-06-28')
-    expect(zonedDateString(response.choices[1]!.endDate)).toEqual('2026-06-28')
-    expect(zonedDateString(response.choices[1]!.entryStartDate!)).toEqual('2026-05-17')
-    expect(zonedDateString(response.choices[1]!.entryEndDate!)).toEqual('2026-06-07')
+    expect(finnishDayOf(response.choices[0]!.startDate)).toEqual('2026-07-01')
+    expect(finnishDayOf(response.choices[0]!.endDate)).toEqual('2026-07-02')
+    expect(finnishDayOf(response.choices[1]!.startDate)).toEqual('2026-06-28')
+    expect(finnishDayOf(response.choices[1]!.endDate)).toEqual('2026-06-28')
+    expect(finnishDayOf(response.choices[1]!.entryStartDate!)).toEqual('2026-05-17')
+    expect(finnishDayOf(response.choices[1]!.entryEndDate!)).toEqual('2026-06-07')
     expect(response.choices[1]).toEqual(
       expect.objectContaining({
         contactInfo: { secretary: { email: 'nome.maija@gmail.com', name: 'Parviainen Niina' } },
@@ -288,15 +288,15 @@ test('putResultsPublished names one day of one class (KOE-1510)', async () => {
 })
 
 /**
- * Using zonedStartOfDay / zonedEndOfDay here, because new Date() for a date without time defaults to midnight in GMT.
+ * Using startOfFinnishDay / endOfFinnishDay here, because new Date() for a date without time defaults to midnight in GMT.
  * new Date() could also be inconsistent between browsers.
  * We want midnight in Europe/Helsinki timezone.
  */
 
 const event: DogEvent = {
   ...emptyEvent,
-  entryEndDate: zonedEndOfDay('2021-01-13'),
-  entryStartDate: zonedStartOfDay('2021-01-02'),
+  entryEndDate: endOfFinnishDay('2021-01-13'),
+  entryStartDate: startOfFinnishDay('2021-01-02'),
 }
 
 test.each([
@@ -378,10 +378,10 @@ test('copyEventWithRegistrations answers with the copy, its dates Dates', async 
 test('isEntryOpen with mocked date', () => {
   vi.useFakeTimers()
 
-  vi.setSystemTime(zonedEndOfDay('2021-01-01'))
+  vi.setSystemTime(endOfFinnishDay('2021-01-01'))
   expect(isEntryOpen(event)).toEqual(false)
 
-  vi.setSystemTime(zonedStartOfDay('2021-01-02'))
+  vi.setSystemTime(startOfFinnishDay('2021-01-02'))
   expect(isEntryOpen(event)).toEqual(true)
 
   vi.useRealTimers()

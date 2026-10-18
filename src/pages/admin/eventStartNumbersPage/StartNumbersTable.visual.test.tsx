@@ -2,6 +2,7 @@ import { TZDate } from '@date-fns/tz'
 import { ThemeProvider } from '@mui/material/styles'
 import { render } from 'vitest-browser-react'
 import theme from '@/assets/Theme'
+import { TIME_ZONE } from '@/lib/day'
 import { StartNumbersTable } from './StartNumbersTable'
 
 /** Wrapper the screenshot is taken of: a fixed width and an opaque background keep captures stable. */
@@ -12,7 +13,7 @@ const Frame = ({ children, width = 760 }: { readonly children: React.ReactNode; 
 )
 
 // Pinned: the label is a weekday and a date, and a moving clock would move the screenshot.
-const placement = { date: new TZDate(2026, 8, 4, 'Europe/Helsinki'), time: 'ap' as const }
+const placement = { date: new TZDate(2026, 8, 4, TIME_ZONE), time: 'ap' as const }
 
 // One frozen number, one fresh entry, and a duplicate pair flagged as it is typed (KOE-1218). Each
 // row names its start day (KOE-1303), and the sheet is headed by its halves: two dogs in the

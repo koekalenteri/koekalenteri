@@ -274,8 +274,7 @@ interface Evaluated {
 /**
  * What the dog's day says against sending: the day has not begun, or the result was sent for another day.
  * The day is part of what Kennelliitto keys a result by, so a dog moved after sending would leave a second
- * result behind; the old one has to go first (KOE-1220). Days are named d.M.yyyy: a yyyy-MM-dd string in a
- * response is revived into a Date by the client.
+ * result behind; the old one has to go first (KOE-1220). Days are named d.M.yyyy, as a person reads them.
  */
 const dayProblems = (registration: JsonRegistration, now: Date): KcProblem[] => {
   const day = kcResultDay(registration)

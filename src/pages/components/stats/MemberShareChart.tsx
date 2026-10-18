@@ -1,15 +1,13 @@
 import type { EventStatsItem } from '@/types/Stats'
 import type { MonthlyRate } from './MonthlyRateChart'
 import { useTranslation } from 'react-i18next'
-import { zonedDateString } from '@/i18n/dates'
+import { storedMonthKey as monthKey } from '@/lib/event'
 import MonthlyRateChart, { percentageOf } from './MonthlyRateChart'
 
 interface Props {
   readonly items: EventStatsItem[]
   readonly filters?: readonly string[]
 }
-
-const monthKey = (date?: Date): string | undefined => (date ? zonedDateString(date).slice(0, 7) : undefined)
 
 /**
  * Share of starters (non-cancelled, non-reserve registrations) whose owner or handler is a

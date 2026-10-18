@@ -10,7 +10,7 @@ import Typography from '@mui/material/Typography'
 import { enqueueSnackbar } from 'notistack'
 import { useCallback, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { formatDate } from '@/i18n/dates'
+import { dayOf, TIME_ZONE } from '@/lib/day'
 import { getEventDays } from '@/lib/event'
 import { compareEventClass } from '../components/EventClasses'
 import {
@@ -71,7 +71,7 @@ export default function EventFormPlaces({ event, disabled, helperTexts, onChange
 
   const handleDayChange = useCallback(
     (date: Date, value?: number) => {
-      const dateStr = formatDate(date, 'yyyy-MM-dd')
+      const dateStr = dayOf(date, TIME_ZONE)
       const newPlacesPerDay = event.placesPerDay ? { ...event.placesPerDay } : {}
 
       if (value && value > 0) {

@@ -15,7 +15,7 @@ import type {
   YearlyStatTypes,
 } from '../../types/Stats'
 import type { RegistrationStatsInput } from './stats'
-import { isEventOver, OFFICIAL_EVENT_TYPES, uniqueClasses } from '../../lib/event'
+import { isEventOver, OFFICIAL_EVENT_TYPES, storedMonthKey, uniqueClasses } from '../../lib/event'
 import { getRegistrationClass, isMember, isStarter } from '../../lib/registration'
 import { splitEvenly } from '../../lib/utils'
 import { ALL_EVENT_TYPES_FOR_CAPACITY, ALL_ORGANIZERS_FOR_EVENTS, YEARLY_BREAKDOWN_TYPES } from '../../types/Stats'
@@ -24,7 +24,6 @@ import CustomDynamoClient from '../utils/CustomDynamoClient'
 import { logger } from './log'
 import {
   bucketForCount,
-  eventStatsMonth,
   eventStatsYear,
   hashStatValue,
   organizerStatsKey,
@@ -404,7 +403,7 @@ const classMonth = (event: EventStatsEvent, classKey: string): string | undefine
     )
     .map((eventClass) => eventClass.date)
     .sort((a, b) => a.localeCompare(b))
-  return eventStatsMonth(dates[0] ?? event.startDate) ?? eventStatsMonth(event.startDate)
+  return storedMonthKey(dates[0] ?? event.startDate) ?? storedMonthKey(event.startDate)
 }
 
 /**

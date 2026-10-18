@@ -4,7 +4,8 @@ import Typography from '@mui/material/Typography'
 import { useAtom, useAtomValue } from 'jotai'
 import { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { zonedDateString } from '../../i18n/dates'
+import { currentYear, TIME_ZONE } from '../../lib/day'
+import { storedYear } from '../../lib/event'
 import AutocompleteSingle from '../components/AutocompleteSingle'
 import CancellationRateChart from '../components/stats/CancellationRateChart'
 import CapacityUtilizationChart, { ALL_CLASSES_ID } from '../components/stats/CapacityUtilizationChart'
@@ -25,8 +26,6 @@ import {
   adminStatsOrganizersAtom,
   adminStatsYearAtom,
 } from './state'
-
-const CURRENT_YEAR = new Date().getFullYear()
 
 export default function OrganizerStatsPage() {
   const { t, i18n } = useTranslation()
@@ -49,11 +48,15 @@ export default function OrganizerStatsPage() {
   // Derived from the stats already loaded rather than from /stats: the global year list would
   // cost four queries per year, and years with no events of your own are not selectable anyway.
   const years = useMemo(() => {
+    // A row without a calendar day (no date, or the year 1) has no year to offer.
     const found = new Set(
-      allOrganizerStats.flatMap((item) => (item.date ? [Number(zonedDateString(item.date).slice(0, 4))] : []))
+      allOrganizerStats.flatMap((item) => {
+        const itemYear = storedYear(item.date)
+        return itemYear === undefined ? [] : [itemYear]
+      })
     )
-    found.add(CURRENT_YEAR)
-    return [...found].filter((year) => !Number.isNaN(year)).sort((a, b) => a - b)
+    found.add(currentYear(TIME_ZONE))
+    return [...found].sort((a, b) => a - b)
   }, [allOrganizerStats])
 
   // Fetched once, unfiltered — the year/organizer pickers just filter this in memory.
@@ -61,7 +64,7 @@ export default function OrganizerStatsPage() {
     () =>
       allOrganizerStats.filter((item) => {
         if (organizerId && item.organizerId !== organizerId) return false
-        return !!item.date && zonedDateString(item.date).startsWith(`${year}`)
+        return storedYear(item.date) === year
       }),
     [allOrganizerStats, organizerId, year]
   )

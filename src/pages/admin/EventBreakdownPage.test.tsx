@@ -8,6 +8,7 @@ import { TestProvider as Provider } from 'test-utils/AtomProvider'
 import { getAllYearlyStats } from '../../api/stats'
 import theme from '../../assets/Theme'
 import { Path } from '../../routeConfig'
+import { frozenInstant } from '../../test-utils/freezeClock'
 import { DataMemoryRouter, flushPromises, renderSuspended, TEST_ID_TOKEN } from '../../test-utils/utils'
 import { ALL_EVENT_TYPES_FOR_CAPACITY, ALL_ORGANIZERS_FOR_EVENTS } from '../../types/Stats'
 import { idTokenAtom } from '../state'
@@ -17,7 +18,10 @@ vi.mock('../../api/stats')
 vi.mock('../../api/user')
 vi.mock('../../api/organizer')
 
-const YEAR = new Date().getFullYear()
+// A year the real clock is not in, so a page that read the year when its module loads would fail.
+const FROZEN = frozenInstant('2025-05-12')
+
+const YEAR = 2025
 
 // From src/api/__mocks__/organizer.ts: '1' -> 'Järjestäjä 1', '2' -> 'Järjestäjä 2'.
 const payload = (eventBreakdown?: EventBreakdownEntry[]): AllYearlyStatsResponse => ({
@@ -48,7 +52,7 @@ const renderAsAdmin = () =>
   )
 
 describe('EventBreakdownPage', () => {
-  beforeAll(() => vi.useFakeTimers())
+  beforeAll(() => vi.useFakeTimers({ now: FROZEN }))
   afterEach(() => vi.runOnlyPendingTimers())
   afterAll(() => vi.useRealTimers())
 

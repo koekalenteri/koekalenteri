@@ -4,7 +4,8 @@ import { enqueueSnackbar } from 'notistack'
 import { useCallback, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { searchEventKcIdChoices } from '@/api/event'
-import { zonedDateString, zonedEndOfDay, zonedStartOfDay } from '@/i18n/dates'
+import { dayEndOf, dayStartOf, TIME_ZONE } from '@/lib/day'
+import { finnishDaySpan } from '@/lib/event'
 import { idTokenAtom } from '../../state'
 
 /** The event details the Kennelliitto search matches against. */
@@ -18,14 +19,6 @@ export interface KcIdLookupEvent {
   startDate: Date
 }
 
-const formatDateSpan = (start?: Date, end?: Date) => {
-  if (!start) return ''
-  const startDate = zonedDateString(start)
-  const endDate = end ? zonedDateString(end) : startDate
-
-  return startDate === endDate ? startDate : `${startDate} - ${endDate}`
-}
-
 /**
  * What selecting a trial stores. The server merges `kcEvent` into the stored one and deletes a key
  * only on an explicit null, so a field the new trial lacks is sent as null: switching from a trial
@@ -36,12 +29,12 @@ const applyKcChoice = (choice: EventKcIdChoice): Patch<DogEvent> => {
   return {
     kcEvent: {
       classes: choice.classes,
-      endDate: zonedEndOfDay(choice.endDate),
+      endDate: dayEndOf(choice.endDate, TIME_ZONE),
       eventType: choice.eventType,
       judge: choice.judge ?? null,
       judgeId: choice.judgeId ?? null,
       location: choice.location ?? null,
-      startDate: zonedStartOfDay(choice.startDate),
+      startDate: dayStartOf(choice.startDate, TIME_ZONE),
     },
     kcGuid: choice.kcGuid,
   }
@@ -84,7 +77,7 @@ export const useKcIdLookup = (
   const search = useCallback(async () => {
     if (!organizerId) return
 
-    const criteria = [event.organizer?.name, event.eventType, formatDateSpan(event.startDate, event.endDate)]
+    const criteria = [event.organizer?.name, event.eventType, finnishDaySpan(event.startDate, event.endDate)]
       .filter(Boolean)
       .join(', ')
 

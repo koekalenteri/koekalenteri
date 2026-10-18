@@ -29,14 +29,14 @@ import type {
 } from '../types'
 import type { AuditActor } from './audit'
 import { nanoid } from 'nanoid'
-import { zonedDateString } from '../i18n/dates'
 import { emptyBreeder, emptyDog, emptyPerson } from './data'
 import {
-  eventRegistrationDateKey,
+  groupKeyOf,
   hasSharedReserveList,
   isEntryClosed,
   localizedEventDescription,
   localizedEventName,
+  storedDayKey,
 } from './event'
 import { formatMoney, getNetPaidAmount } from './money'
 import { PRIORITY_INVITED, PRIORITY_MEMBER, priorityValuesToPriority, RESTRICTION } from './priority'
@@ -528,17 +528,8 @@ export const getRegistrationNumberingGroupKey = <T extends JsonRegistration | Re
 export const isParticipantGroup = (group?: string): boolean =>
   Boolean(group) && group !== GROUP_KEY_RESERVE && group !== GROUP_KEY_CANCELLED
 
-const groupInstant = (date: GroupDate | undefined): Date | undefined => {
-  if (!date) return undefined
-  const instant = new Date(date)
-  return Number.isNaN(instant.getTime()) ? undefined : instant
-}
-
 /** The trial's calendar day of a group's date, or '' when it has none (or none that reads as a date). */
-export const getRegistrationGroupDay = (date: GroupDate | undefined): string => {
-  const instant = groupInstant(date)
-  return instant ? zonedDateString(instant) : ''
-}
+export const getRegistrationGroupDay = (date: GroupDate | undefined): string => storedDayKey(date) ?? ''
 
 /**
  * The one rule for which group a start belongs to: a participant group is named by the trial's day
@@ -547,9 +538,9 @@ export const getRegistrationGroupDay = (date: GroupDate | undefined): string => 
  * midnight (KOE-1541). Reserve, cancelled and a group without a usable date and time keep their key.
  */
 export const deriveParticipantGroupKey = (group: NonNullable<RegistrationPlacement['group']>): string => {
-  const date = groupInstant(group.date)
-  if (!isParticipantGroup(group.key) || !date || !group.time) return group.key
-  return eventRegistrationDateKey({ date, time: group.time })
+  const day = storedDayKey(group.date)
+  if (!isParticipantGroup(group.key) || !day || !group.time) return group.key
+  return groupKeyOf(day, group.time)
 }
 
 type PlacedGroup = NonNullable<RegistrationPlacement['group']> & { number?: number }

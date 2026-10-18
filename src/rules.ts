@@ -1,7 +1,5 @@
 import type { Dog, EventClassRequirement, EventRequirement, EventResultRequirementsByDate, Registration } from './types'
-import { tz } from '@date-fns/tz'
-import { parseISO } from 'date-fns/parseISO'
-import { TIME_ZONE } from './i18n/dates'
+import { dayStart, TIME_ZONE } from './lib/day'
 import { keysOf } from './lib/typeGuards'
 import { isModernFinnishRegNo } from './lib/validation'
 import { NOME_A_CH_requirements, NOME_B_CH_requirements, NOWT_CH_requirements } from './rules_ch'
@@ -23,7 +21,7 @@ export function getRuleDate(date: Date | string, available: Readonly<RuleDate[]>
   if (typeof date === 'string') {
     date = new Date(date)
   }
-  const asDates = available.map((v) => parseISO(v, { in: tz(TIME_ZONE) }))
+  const asDates = available.map((v) => dayStart(v, TIME_ZONE))
   for (let i = 0; i < asDates.length; i++) {
     if (i > 0 && asDates[i] > date) {
       return available[i - 1]

@@ -10,9 +10,10 @@ import { MemoryRouter } from 'react-router'
 import { eventWithStaticDates, eventWithStaticDatesAnd3Classes } from '@/__mockData__/events'
 import theme from '@/assets/Theme'
 import { locales } from '@/i18n'
-import { TIME_ZONE, zonedDateString } from '@/i18n/dates'
+import { TIME_ZONE } from '@/lib/day'
 import * as env from '@/lib/env'
 import AppSnackbarProvider from '@/pages/components/AppSnackbarProvider'
+import { finnishDayOf } from '@/test-utils/finnishDays'
 import { describeInTimeZone } from '@/test-utils/timeZone'
 import { flushPromises, renderWithUserEvents, runPendingTimers, typeDateKeyByKey } from '@/test-utils/utils'
 import EntrySection from './EntrySection'
@@ -264,7 +265,7 @@ describe('EntrySection', () => {
         await typeDateKeyByKey(user, screen.getAllByRole('group')[0], '02112026')
 
         const [saved] = onChange.mock.lastCall ?? []
-        expect(zonedDateString(saved.entryStartDate)).toBe('2026-11-02')
+        expect(finnishDayOf(saved.entryStartDate)).toBe('2026-11-02')
         expect(saved.entryStartDate.getTime()).toBe(new TZDate(2026, 10, 2, TIME_ZONE).getTime())
       })
 

@@ -1,7 +1,7 @@
 import type { CustomCost, DogEvent, Registration, RegistrationGroup, RegistrationGroupMove } from '@/types'
 import type { RegistrationWithGroups } from './types'
-import { isSameDay } from 'date-fns'
-import { eventRegistrationDateKey } from '@/lib/event'
+import { sameDay, TIME_ZONE } from '@/lib/day'
+import { eventDayKey, eventRegistrationDateKey } from '@/lib/event'
 import {
   GROUP_KEY_CANCELLED,
   GROUP_KEY_RESERVE,
@@ -94,7 +94,9 @@ export const buildRegistrationsByGroup = (
     byGroup[key] = byGroup[key] ?? []
     byGroup[key].push({
       ...reg,
-      dropGroups: groups.filter((g) => regDates.some((d) => !g.date || isSameDay(g.date, d))).map((g) => g.key),
+      dropGroups: groups
+        .filter((g) => regDates.some((d) => !g.date || sameDay(g.date, d, TIME_ZONE)))
+        .map((g) => g.key),
       groups: reg.dates.map((rd) => eventRegistrationDateKey(rd)),
     })
   }
@@ -108,7 +110,8 @@ export const buildRegistrationsByGroup = (
   return byGroup
 }
 
-const drawDayKey = (date: Date) => date.toDateString()
+/** The Finnish day a draw belongs to, as the start list keys its days. */
+const drawDayKey = eventDayKey
 
 const registrationDrawDay = (registration: Registration): string | undefined => {
   const date = registration.startGroup?.date ?? registration.group?.date

@@ -1,5 +1,6 @@
 import type { EventClass, EventState, PublicDogEvent } from '../types'
 import type { AnyObject } from './utils'
+import { startOfFinnishDay } from '../test-utils/finnishDays'
 import {
   eventDates,
   hasEntryEnded,
@@ -22,7 +23,6 @@ import {
   getChanges,
   getPatchChangedIds,
   hasChanges,
-  isDateOnlyString,
   isEmpty,
   isObject,
   mapWithConcurrency,
@@ -60,8 +60,12 @@ describe('utils', () => {
 
     it('returns each day of the event when it has no classes', () => {
       expect(
-        eventDates({ classes: [] as EventClass[], endDate: new Date(2020, 1, 3), startDate: new Date(2020, 1, 1) })
-      ).toEqual([new Date(2020, 1, 1), new Date(2020, 1, 2), new Date(2020, 1, 3)])
+        eventDates({
+          classes: [] as EventClass[],
+          endDate: startOfFinnishDay('2020-02-03'),
+          startDate: startOfFinnishDay('2020-02-01'),
+        })
+      ).toEqual([startOfFinnishDay('2020-02-01'), startOfFinnishDay('2020-02-02'), startOfFinnishDay('2020-02-03')])
     })
 
     it('returns the unique class dates when the event has classes', () => {
@@ -79,19 +83,6 @@ describe('utils', () => {
         } as PublicDogEvent)
       ).toEqual([first, second])
     })
-  })
-
-  describe('isDateOnlyString', () => {
-    it.each(['2021-05-10', '2016-09-18'])('should return true for valid date-only string: %p', (dateStr) => {
-      expect(isDateOnlyString(dateStr)).toEqual(true)
-    })
-
-    it.each([null, undefined, false, true, [], {}, '', '2021-05-10T00:00:00Z', '2021-13-10', '2021-05-32'])(
-      'should return false for invalid date-only values: %p',
-      (value) => {
-        expect(isDateOnlyString(value)).toEqual(false)
-      }
-    )
   })
 
   describe('parseJSON', () => {
@@ -134,12 +125,12 @@ describe('utils', () => {
     it('falls back to the event dates for a classless event, keyed by its event type', () => {
       const event = {
         classes: [] as EventClass[],
-        endDate: new Date(2020, 1, 2),
+        endDate: startOfFinnishDay('2020-02-02'),
         eventType: 'NOU',
-        startDate: new Date(2020, 1, 1),
+        startDate: startOfFinnishDay('2020-02-01'),
       } as PublicDogEvent
 
-      expect(uniqueClassDates(event, 'NOU')).toEqual([new Date(2020, 1, 1), new Date(2020, 1, 2)])
+      expect(uniqueClassDates(event, 'NOU')).toEqual([startOfFinnishDay('2020-02-01'), startOfFinnishDay('2020-02-02')])
     })
 
     it('should return each possible registration date for event without classes', () => {
@@ -397,8 +388,9 @@ describe('utils', () => {
   })
 
   describe('isEntryUpcoming', () => {
-    const now = new Date(1700000000000)
-    const future = new Date(1700000001000)
+    // The entry opens on a Finnish day: upcoming until that day begins (KOE-1545).
+    const now = new Date('2026-07-16T12:00:00+03:00')
+    const future = new Date('2026-07-17T00:00:00+03:00')
     it.each<EventState>(['confirmed', 'tentative'])(
       'should return true when entryStartDate is in the future and event state is %s',
       (state) => {
@@ -414,6 +406,11 @@ describe('utils', () => {
 
     it('should return false when entryStartDate is not in the future', () => {
       expect(isEntryUpcoming({ entryStartDate: now, state: 'confirmed' }, now)).toBe(false)
+    })
+
+    it('should return false later on the opening day itself', () => {
+      const laterToday = new Date('2026-07-16T20:00:00+03:00')
+      expect(isEntryUpcoming({ entryStartDate: laterToday, state: 'confirmed' }, now)).toBe(false)
     })
   })
 

@@ -26,6 +26,9 @@ vi.doMock('../utils/CustomDynamoClient', () => ({
 const { default: getAdminEventsLambda } = await import('./handler')
 
 describe('getAdminEventsLambda', () => {
+  // Several tests freeze the clock; none may leave it frozen for the next.
+  afterEach(() => vi.useRealTimers())
+
   const event = constructPartialAPIGwEvent({
     body: '',
     headers: {},
@@ -77,7 +80,6 @@ describe('getAdminEventsLambda', () => {
     expect(mockResponse).toHaveBeenCalledWith(200, [...bySeason['2026'], ...bySeason['2025']], event)
 
     mockQuery.mockReset()
-    vi.useRealTimers()
   })
 
   it("reads a club administrator's clubs through the organizer index", async () => {
@@ -108,16 +110,18 @@ describe('getAdminEventsLambda', () => {
   })
 
   it('queries events with since parameter', async () => {
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date('2026-05-12T00:00:00.000Z'))
     const user = { admin: true, id: 'admin1' }
     const memberOf = ['org1']
-    const since = '1717171717171'
+    const since = '1717171717171' // 31.5.2024 16:08Z
     const eventWithSince = {
       ...event,
       queryStringParameters: { since },
     }
 
-    const startSeason = 2024 // Assuming the date corresponds to 2024
-    const endSeason = new Date().getFullYear()
+    const startSeason = 2024
+    const endSeason = 2026
 
     const seasonEvents1 = [{ id: 'event1', organizer: { id: 'org1' } }]
     const seasonEvents2 = [{ id: 'event2', organizer: { id: 'org2' } }]
@@ -144,6 +148,31 @@ describe('getAdminEventsLambda', () => {
 
     // Check that response combines all season events
     expect(mockResponse).toHaveBeenCalledWith(200, [...seasonEvents1, ...seasonEvents2], eventWithSince)
+  })
+
+  it('answers 400 to a since that has no calendar day', async () => {
+    mockAuthorizeWithMemberOf.mockResolvedValueOnce({ memberOf: ['org1'], user: { admin: true, id: 'admin1' } })
+
+    await getAdminEventsLambda({ ...event, queryStringParameters: { since: '-62135596800000' } })
+
+    expect(mockResponse).toHaveBeenCalledWith(400, 'Bad request: since must be a valid time', expect.anything())
+    expect(mockQuery).not.toHaveBeenCalled()
+  })
+
+  // 22:30Z on 31.12.2025 is already 2026 in Finland: the seasons are Finnish years, as the events' are.
+  it('starts the since walk from the Finnish season of the instant', async () => {
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date('2026-05-12T00:00:00.000Z'))
+    const since = String(Date.parse('2025-12-31T22:30:00.000Z'))
+    mockAuthorizeWithMemberOf.mockResolvedValueOnce({ memberOf: ['org1'], user: { admin: true, id: 'admin1' } })
+    mockQuery.mockResolvedValueOnce([])
+
+    await getAdminEventsLambda({ ...event, queryStringParameters: { since } })
+
+    expect(mockQuery).toHaveBeenCalledTimes(1)
+    expect(mockQuery).toHaveBeenCalledWith(
+      expect.objectContaining({ values: expect.objectContaining({ ':season': '2026' }) })
+    )
   })
 
   it('returns an empty array for a club with no events', async () => {

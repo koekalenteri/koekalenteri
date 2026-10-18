@@ -1,7 +1,7 @@
 import type { SnackbarKey } from 'notistack'
 import type { VersionChange } from '../../serviceWorkerRegistration'
 import Button from '@mui/material/Button'
-import { lightFormat } from 'date-fns'
+import { lightFormat } from 'date-fns/lightFormat'
 import { useSnackbar } from 'notistack'
 import { useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'

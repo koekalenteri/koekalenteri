@@ -1,6 +1,7 @@
 import type { JsonConfirmedEvent, JsonRegistration, Patch, RegistrationClass } from '../../types'
 import type { StartNumberEntry } from '../lib/startNumbers'
 import { startNumbersEnteredAudit, startNumbersPublishedAudit } from '../../lib/audit'
+import { isDayKey } from '../../lib/day'
 import { getStartNumbersDayTimes, isStartNumbersTime } from '../../lib/event'
 import { getStartNumbersBlocker } from '../../lib/publishing'
 import {
@@ -38,8 +39,6 @@ interface StartNumbersRequest {
   numbers?: StartNumberEntry[]
 }
 
-const DAY_KEY = /^\d{4}-\d{2}-\d{2}$/
-
 /**
  * The one endpoint that writes start numbers (KOE-1017, KOE-1218). Publishing freezes each
  * participant's current group into `startGroup` in the same locked request that flips the flag, so
@@ -57,7 +56,7 @@ const putStartNumbersLambda = lambda('putStartNumbers', async (event) => {
   if (typeof body.published !== 'boolean' && numbers.length === 0) {
     throw httpError(422, 'nothing to do')
   }
-  if (body.date !== undefined && (typeof body.date !== 'string' || !DAY_KEY.test(body.date))) {
+  if (body.date !== undefined && !isDayKey(body.date)) {
     throw httpError(422, 'invalid date')
   }
   const date = body.date

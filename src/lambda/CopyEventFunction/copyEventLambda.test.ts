@@ -94,17 +94,25 @@ describe('copyEventHandler', () => {
     expect(mockBatchWrite).not.toHaveBeenCalled()
   })
 
-  it('rejects an invalid copy start date before reading the source event', async () => {
-    mockAuthorize.mockResolvedValueOnce({ name: 'Test User' })
-    setEventBody(event, { id: 'event123', startDate: 'not-a-date' })
+  it.each(['not-a-date', '0001-01-01T00:00:00.000Z'])(
+    'rejects an invalid copy start date %s before reading the source event',
+    async (startDate) => {
+      mockAuthorize.mockResolvedValueOnce({ name: 'Test User' })
+      setEventBody(event, { id: 'event123', startDate })
 
-    await copyEventHandler(event)
+      await copyEventHandler(event)
 
-    expect(mockResponse).toHaveBeenCalledWith(400, { message: 'Bad request: startDate must be a valid date' }, event)
-    expect(mockGetEvent).not.toHaveBeenCalled()
-  })
+      expect(mockResponse).toHaveBeenCalledWith(400, { message: 'Bad request: startDate must be a valid date' }, event)
+      expect(mockGetEvent).not.toHaveBeenCalled()
+    }
+  )
 
-  it.each(['startDate', 'endDate'] as const)('rejects an invalid source event %s before saving', async (field) => {
+  it.each([
+    ['startDate', 'not-a-date'],
+    ['endDate', 'not-a-date'],
+    ['startDate', '0001-01-01T00:00:00.000Z'],
+    ['endDate', '0001-01-01T00:00:00.000Z'],
+  ] as const)('rejects an invalid source event %s (%s) before saving', async (field, value) => {
     mockAuthorize.mockResolvedValueOnce({ name: 'Test User' })
     setEventBody(event, { id: 'event123', startDate: '2025-07-01T00:00:00.000Z' })
     mockGetEvent.mockResolvedValueOnce({
@@ -113,7 +121,7 @@ describe('copyEventHandler', () => {
       id: 'event123',
       name: 'Original Event',
       startDate: '2025-06-10T00:00:00.000Z',
-      [field]: 'not-a-date',
+      [field]: value,
     })
 
     await copyEventHandler(event)

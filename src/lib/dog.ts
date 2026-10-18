@@ -1,6 +1,7 @@
 import type { TFunction } from 'i18next'
 import type { BreedCode, DeepPartial, Dog, DogGender } from '../types'
 import { differenceInMinutes } from 'date-fns/differenceInMinutes'
+import { hasCalendarDay, TIME_ZONE } from './day'
 
 /**
  * Determines if a dog's data should be allowed to be refreshed
@@ -27,8 +28,8 @@ export function isValidDob(dob?: Date): boolean {
   if (!dob) {
     return false
   }
-  // Check if the date is the KL empty value (0001-01-01)
-  return dob.getFullYear() > 1
+  // The KL empty value (0001-01-01) has no calendar day, in any zone the browser is in.
+  return hasCalendarDay(dob, TIME_ZONE)
 }
 
 /** How many leading characters of a breed name to use when the breed has no official abbreviation. */

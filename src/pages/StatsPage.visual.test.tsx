@@ -12,8 +12,8 @@ import { DataMemoryRouter, TEST_ID_TOKEN } from '../test-utils/utils'
 import { Component as StatsPage } from './StatsPage'
 import { idTokenAtom } from './state'
 
-// The page reads the year when its module loads; see freezeClockNow for why the clock is frozen here,
-// ahead of the imports.
+// The page's default year is this year, read when it renders; the clock is frozen ahead of the imports so
+// the fixtures and the page agree on what that is.
 await vi.hoisted(async () => {
   const { freezeClockNow } = await import('../test-utils/freezeClock')
   freezeClockNow('2026-10-07')
