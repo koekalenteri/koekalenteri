@@ -242,11 +242,14 @@ Read `LLM_CONTEXT.md` for the project overview and architecture notes.
 - `src/lambda/template.test.ts` builds the template and compares its `CodeUri` values with the
   directories on disk, so a lambda in one and not the other fails a test instead of a deploy.
 - The function block's `Policies` must grant every table the handler's code reaches, and nothing
-  more. The same test follows the calls from each handler's default export through `src/lambda/lib`
-  (`src/lambda/test-utils/lambdaTableUse.ts`) and reads the block's policies
-  (`src/lambda/test-utils/templateGrants.ts`, KOE-1492). It fails on a table the code uses without a
-  policy for that action, naming the function, the action, the table (or the index, for a query on
-  one) and the call chain, like this one from PutEvent with its registration read policy taken out:
+  more. The same test follows the calls from each handler's default export, and from the module-level
+  code that runs when the handler and the files it imports load, through every file under `src` they
+  reach (`src/lambda/test-utils/lambdaTableUse.ts`, KOE-1557) and reads the block's policies
+  (`src/lambda/test-utils/templateGrants.ts`, KOE-1492). Code that runs at import counts without its
+  function bodies: a function it calls, or writes out as an argument, runs its own body there, and
+  one it stores or returns first is not followed; the module's header lists what it does not model.
+  It fails on a table the code uses without a policy for that action, naming the function, the
+  action, the table (or the index, for a query on one) and the call chain, like this one from PutEvent with its registration read policy taken out:
   `PutEventFunction Query on EventRegistrationTable without a policy: src/lambda/lib/registration.ts:617
   (putEventLambda > findKcGuidLock > getRegistrationsByEventId)`. It also fails on an excess grant,
   a read or write class on a table the code never touches (`PutJudgeFunction may read JudgeTable but
