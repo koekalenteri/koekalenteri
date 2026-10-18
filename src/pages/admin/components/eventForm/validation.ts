@@ -5,7 +5,7 @@ import type { EventFlag, EventFlags, FieldRequirements, PartialEvent } from './t
 import { getCostValue } from '@/lib/cost'
 import { dayOf, TIME_ZONE } from '@/lib/day'
 import { isDevEnv } from '@/lib/env'
-import { OFFICIAL_EVENT_TYPES } from '@/lib/event'
+import { hasRetrieveTypeChoice, OFFICIAL_EVENT_TYPES } from '@/lib/event'
 import { judgesMockTrialIndependently, MIN_INDEPENDENT_MOCK_TRIAL_JUDGES } from '@/lib/judge'
 import { keysOf } from '@/lib/typeGuards'
 import { unique } from '@/lib/utils'
@@ -60,6 +60,8 @@ const REQUIRED_BY_STATE: Record<EventState, EventFlags> = {
     endDate: true,
     eventType: true,
     organizer: true,
+    // A B-trial says whether it runs on game or dummies (KOE-439); a new one starts with game (KOE-1570).
+    retrieveType: (event: PartialEvent) => hasRetrieveTypeChoice(event.eventType),
     secretary: true,
     startDate: true,
   },
@@ -248,6 +250,8 @@ export const VALIDATORS: EventValidators = {
     }
     return list.length ? { key: 'placesClass', opts: { field: 'places', length: list.length, list } } : false
   },
+  // A stored null is as missing as an absent value, which the default validator would let through.
+  retrieveType: (event, required) => required && !event.retrieveType,
   startDate: (event, required) =>
     required && !allowPastEventDates(event) && dayOf(event.startDate, TIME_ZONE) < dayOf(new Date(), TIME_ZONE)
       ? 'startDate'

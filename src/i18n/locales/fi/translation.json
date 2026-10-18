@@ -1209,7 +1209,6 @@
         "noPlacement": "Palkitulla koiralla ei ole sijoitusta, koska sillä ei ole pisteitä",
         "noResult": "Tulosta ei ole kirjattu",
         "resultNotAllowed": "Kennelliitto ei tunne tulosta {{detail}} tässä koemuodossa",
-        "retrieveTypeMissing": "Kokeelta puuttuu valinta, pidetäänkö se riistalla vai dameilla",
         "retrieveTypeNotAllowed": "Kennelliitto ei tunne koetyyppiä {{detail}}",
         "stopNotAllowed": "Tuomarin keskeytystä ei voi lähettää tuloksella {{detail}}",
         "tooManyJudges": "Palkintotuomareita on yli neljä"

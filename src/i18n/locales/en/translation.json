@@ -1209,7 +1209,6 @@
         "noPlacement": "The awarded dog has no placement, because it has no points",
         "noResult": "No result has been recorded",
         "resultNotAllowed": "The Kennel Club does not know the result {{detail}} in this format",
-        "retrieveTypeMissing": "The trial lacks the choice of whether it is run with game or dummies",
         "retrieveTypeNotAllowed": "The Kennel Club does not know the trial type {{detail}}",
         "stopNotAllowed": "The judge's stop cannot be sent with the result {{detail}}",
         "tooManyJudges": "There are more than four prize judges"

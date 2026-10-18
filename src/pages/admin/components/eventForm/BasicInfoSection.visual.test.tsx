@@ -2,6 +2,7 @@ import { TZDate } from '@date-fns/tz'
 import { ThemeProvider } from '@mui/material/styles'
 import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
+import i18next from 'i18next'
 import { render } from 'vitest-browser-react'
 import theme from '@/assets/Theme'
 import { locales } from '@/i18n'
@@ -9,6 +10,7 @@ import { TIME_ZONE } from '@/lib/day'
 import { idTokenAtom } from '@/pages/state'
 import { TestProvider } from '@/test-utils/AtomProvider'
 import BasicInfoSection from './BasicInfoSection'
+import { requiredFields, validateEventField } from './validation'
 
 /** Wrapper the screenshot is taken of: a fixed width and an opaque background keep captures stable. */
 const Frame = ({ children }: { readonly children: React.ReactNode }) => (
@@ -77,6 +79,51 @@ it('lets a B-trial choose between game and dummies (KOE-439)', async () => {
   await expect.element(screen.getByRole('radio', { name: 'riistoilla' })).toBeChecked()
   await expect.element(screen.getByRole('radio', { name: 'dameilla' })).not.toBeChecked()
   await expect(screen.getByTestId('visual-root')).toMatchScreenshot('basic-info-section-retrieve-type')
+})
+
+it('asks a B-trial without the choice to make it (KOE-1570)', async () => {
+  // Everything else a draft needs is there, so the choice is the one field asked for.
+  const organizer = { id: 'org1', name: 'Suomen Noutajakoirajärjestö ry' }
+  const secretary = { email: 'minsu@example.com', id: 'u1', name: 'Minsu Rauramo' }
+  const event = {
+    classes: [],
+    description: '',
+    endDate: new TZDate('2026-06-02', TIME_ZONE),
+    eventType: 'NOME-B',
+    id: 'test',
+    judges: [],
+    name: 'Kevätkoe',
+    organizer,
+    secretary,
+    startDate: new TZDate('2026-06-01', TIME_ZONE),
+    state: 'draft' as const,
+  }
+  // The form's own validation, translated as EventForm translates it.
+  const fields = requiredFields(event)
+  const error = validateEventField(event, 'retrieveType', !!fields.required.retrieveType)
+  if (!error) throw new Error('a B-trial without the choice should not validate')
+
+  const screen = await render(
+    <TestProvider initializeState={({ set }) => set(idTokenAtom, 'id-token')}>
+      <Frame>
+        <BasicInfoSection
+          errorStates={{ retrieveType: true }}
+          event={event}
+          eventTypes={['NOME-B']}
+          fields={fields}
+          helperTexts={{ retrieveType: i18next.t(`validation.event.${error.key}`, error.opts) }}
+          open
+          organizers={[organizer]}
+          secretaries={[secretary]}
+        />
+      </Frame>
+    </TestProvider>
+  )
+
+  await expect.element(screen.getByRole('radio', { name: 'riistoilla' })).not.toBeChecked()
+  await expect.element(screen.getByRole('radio', { name: 'dameilla' })).not.toBeChecked()
+  await expect.element(screen.getByText('Tila "Luonnos": Koe pidetään on vaadittu tieto.')).toBeVisible()
+  await expect(screen.getByTestId('visual-root')).toMatchScreenshot('basic-info-section-retrieve-type-required')
 })
 
 it('lets a NOWT say it is a Mock trial, run in AVO and VOI (KOE-308)', async () => {
