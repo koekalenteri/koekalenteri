@@ -3,13 +3,14 @@ import type {
   AuditRecord,
   ConfirmedEvent,
   EventResult,
+  EventResultsResponse,
   PublicStartList,
   Registration,
   RegistrationCreateRequest,
   RegistrationGroupMove,
   RegistrationPatchRequest,
 } from '../../types'
-import type { EventResultSubmission, EventResultsResponse } from '../registration'
+import type { EventResultSubmission } from '../registration'
 import { withPaymentPicture } from '../../__mockData__/paymentPicture'
 import { mockRegistrationData } from '../../__mockData__/registrations'
 import { applyPatchOperations } from '../../lib/patch'

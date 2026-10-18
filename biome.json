@@ -83,10 +83,10 @@
                   {
                     "group": [
                       "date-fns/**",
-                      "!date-fns/lightFormat", "!date-fns/isValid", "!date-fns/isAfter", "!date-fns/isBefore",
-                      "!date-fns/isEqual", "!date-fns/isPast", "!date-fns/isFuture", "!date-fns/compareAsc",
-                      "!date-fns/compareDesc", "!date-fns/max", "!date-fns/min", "!date-fns/clamp",
-                      "!date-fns/differenceInMilliseconds", "!date-fns/differenceInSeconds",
+                      "!date-fns/lightFormat", "!date-fns/isValid", "!date-fns/isDate", "!date-fns/isAfter",
+                      "!date-fns/isBefore", "!date-fns/isEqual", "!date-fns/isPast", "!date-fns/isFuture",
+                      "!date-fns/compareAsc", "!date-fns/compareDesc", "!date-fns/max", "!date-fns/min",
+                      "!date-fns/clamp", "!date-fns/differenceInMilliseconds", "!date-fns/differenceInSeconds",
                       "!date-fns/differenceInMinutes", "!date-fns/differenceInHours", "!date-fns/addMilliseconds",
                       "!date-fns/addSeconds", "!date-fns/addMinutes", "!date-fns/addHours",
                       "!date-fns/subMilliseconds", "!date-fns/subSeconds", "!date-fns/subMinutes",
@@ -132,10 +132,10 @@
                   {
                     "group": [
                       "date-fns/**",
-                      "!date-fns/lightFormat", "!date-fns/isValid", "!date-fns/isAfter", "!date-fns/isBefore",
-                      "!date-fns/isEqual", "!date-fns/isPast", "!date-fns/isFuture", "!date-fns/compareAsc",
-                      "!date-fns/compareDesc", "!date-fns/max", "!date-fns/min", "!date-fns/clamp",
-                      "!date-fns/differenceInMilliseconds", "!date-fns/differenceInSeconds",
+                      "!date-fns/lightFormat", "!date-fns/isValid", "!date-fns/isDate", "!date-fns/isAfter",
+                      "!date-fns/isBefore", "!date-fns/isEqual", "!date-fns/isPast", "!date-fns/isFuture",
+                      "!date-fns/compareAsc", "!date-fns/compareDesc", "!date-fns/max", "!date-fns/min",
+                      "!date-fns/clamp", "!date-fns/differenceInMilliseconds", "!date-fns/differenceInSeconds",
                       "!date-fns/differenceInMinutes", "!date-fns/differenceInHours", "!date-fns/addMilliseconds",
                       "!date-fns/addSeconds", "!date-fns/addMinutes", "!date-fns/addHours",
                       "!date-fns/subMilliseconds", "!date-fns/subSeconds", "!date-fns/subMinutes",
@@ -214,10 +214,10 @@
                   {
                     "group": [
                       "date-fns/**",
-                      "!date-fns/lightFormat", "!date-fns/isValid", "!date-fns/isAfter", "!date-fns/isBefore",
-                      "!date-fns/isEqual", "!date-fns/isPast", "!date-fns/isFuture", "!date-fns/compareAsc",
-                      "!date-fns/compareDesc", "!date-fns/max", "!date-fns/min", "!date-fns/clamp",
-                      "!date-fns/differenceInMilliseconds", "!date-fns/differenceInSeconds",
+                      "!date-fns/lightFormat", "!date-fns/isValid", "!date-fns/isDate", "!date-fns/isAfter",
+                      "!date-fns/isBefore", "!date-fns/isEqual", "!date-fns/isPast", "!date-fns/isFuture",
+                      "!date-fns/compareAsc", "!date-fns/compareDesc", "!date-fns/max", "!date-fns/min",
+                      "!date-fns/clamp", "!date-fns/differenceInMilliseconds", "!date-fns/differenceInSeconds",
                       "!date-fns/differenceInMinutes", "!date-fns/differenceInHours", "!date-fns/addMilliseconds",
                       "!date-fns/addSeconds", "!date-fns/addMinutes", "!date-fns/addHours",
                       "!date-fns/subMilliseconds", "!date-fns/subSeconds", "!date-fns/subMinutes",

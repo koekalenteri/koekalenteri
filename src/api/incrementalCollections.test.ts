@@ -1,7 +1,7 @@
 import { API_BASE_URL } from '../routeConfig'
 import fetchMock from '../test-utils/fetchMock'
 import { getEmailTemplates } from './email'
-import { getEventTypes } from './eventType'
+import { getEventTypes, putEventType } from './eventType'
 import { getJudges } from './judge'
 import { getOfficials } from './official'
 import { getUsers } from './user'
@@ -37,5 +37,46 @@ describe('incremental admin collections', () => {
 
     expect(fetchMock).toHaveBeenCalledTimes(1)
     expect(fetchMock).toHaveBeenCalledWith(`${API_BASE_URL}/admin/judge/?refresh&since=123`, expect.any(Object))
+  })
+})
+
+describe('the collections with stamps in their model', () => {
+  beforeEach(() => {
+    fetchMock.resetMocks()
+    fetchMock.enableMocks()
+  })
+
+  it('getEventTypes makes the stamps Dates, in the incremental response too (KOE-1546)', async () => {
+    const wireEventType = {
+      createdAt: '2026-01-02T10:00:00.000Z',
+      createdBy: 'seed',
+      description: { en: 'e', fi: 'f', sv: 's' },
+      eventType: 'NOME-B',
+      modifiedAt: '2026-01-03T10:00:00.000Z',
+      modifiedBy: 'seed',
+    }
+    const modelEventType = {
+      ...wireEventType,
+      createdAt: new Date('2026-01-02T10:00:00.000Z'),
+      modifiedAt: new Date('2026-01-03T10:00:00.000Z'),
+    }
+    fetchMock.mockResponseOnce(JSON.stringify([wireEventType]))
+    await expect(getEventTypes('token')).resolves.toEqual([modelEventType])
+
+    fetchMock.mockResponseOnce(JSON.stringify({ cursor: 123, deletedIds: ['x'], items: [wireEventType] }))
+    await expect(getEventTypes('token', false, undefined, new Date(123))).resolves.toEqual({
+      cursor: 123,
+      deletedIds: ['x'],
+      items: [modelEventType],
+    })
+
+    fetchMock.mockResponseOnce(JSON.stringify(wireEventType))
+    await expect(
+      putEventType({ description: wireEventType.description, eventType: 'NOME-B' }, 'token')
+    ).resolves.toEqual(modelEventType)
+    expect(fetchMock).toHaveBeenLastCalledWith(
+      `${API_BASE_URL}/admin/eventType/`,
+      expect.objectContaining({ method: 'POST' })
+    )
   })
 })

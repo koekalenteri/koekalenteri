@@ -1,6 +1,13 @@
 import type { Theme } from '@mui/material'
-import type { EventResultsResponse, StoredEventResult } from '../../api/registration'
-import type { DogEvent, EventResult, EventStation, Patch, PublicJudge } from '../../types'
+import type {
+  DogEvent,
+  EventResult,
+  EventResultsResponse,
+  EventStation,
+  Patch,
+  PublicJudge,
+  StoredEventResult,
+} from '../../types'
 import type { ResultEdit } from '../components/stationScoring/types'
 import type { ConflictChoice, ResultConflict } from './eventResultsPage/ConflictDialog'
 import type { KcSendPhase, KcSendScope } from './eventResultsPage/KennelliittoSendDialog'

@@ -13,7 +13,6 @@ import { registrationsToEventWithParticipantsInvited, registrationWithStaticDate
 import { APIError } from '@/api/http'
 import { dayStartOf, TIME_ZONE } from '@/lib/day'
 import { eventRegistrationDateKey } from '@/lib/event'
-import { parseDateOnlyString } from '@/lib/utils'
 import { finnishDayOf } from '@/test-utils/finnishDays'
 import { renderWithUserEvents, TEST_ID_TOKEN } from '@/test-utils/utils'
 import { adminEventsAtom } from '../../state'
@@ -404,9 +403,8 @@ describe('InfoPanel>', () => {
           endDate: saturday,
           invitationAttachments: { ALO: 'alo-key' },
           startListPublished: true,
-          // Friday's draw is out; Saturday's is tomorrow morning. The API hands the browser a date
-          // here, not the stored string: its JSON reviver turns a bare yyyy-MM-dd into one.
-          startNumbersPublished: { ALO: [parseDateOnlyString(finnishDayOf(aloDay.date))], AVO: false },
+          // Friday's draw is out; Saturday's is tomorrow morning.
+          startNumbersPublished: { ALO: [finnishDayOf(aloDay.date)], AVO: false },
         }}
         onSetStartListPublished={vi.fn().mockResolvedValue(undefined)}
         onSetStartNumbersPublished={onSetStartNumbersPublished}

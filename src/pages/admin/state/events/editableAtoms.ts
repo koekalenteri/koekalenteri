@@ -1,8 +1,9 @@
 import type { RESET } from 'jotai/utils'
-import type { DogEvent, RegistrationClass } from '@/types'
+import type { DogEvent, JsonDogEvent, RegistrationClass } from '@/types'
 import { atom } from 'jotai'
 import { atomFamily } from 'jotai-family'
 import { uniqueClasses } from '@/lib/event'
+import { toDogEvent } from '@/lib/wire'
 import { atomWithSessionStorage } from '@/pages/state'
 import { adminCurrentEventAtom, adminEventAtom } from './derivedAtoms'
 
@@ -24,7 +25,11 @@ export const adminEventClassAtom = atom(
 )
 
 export const adminEditableEventByIdAtom = atomFamily((eventId: string) => {
-  const storedAtom = atomWithSessionStorage<DogEvent | undefined>(`adminEditableEvent/Id__${eventId}`, undefined)
+  const storedAtom = atomWithSessionStorage<DogEvent | undefined, JsonDogEvent>(
+    `adminEditableEvent/Id__${eventId}`,
+    undefined,
+    { revive: toDogEvent }
+  )
   return atom(
     // Only await the initial hydration from adminEventAtom. Once storedAtom holds a value,
     // read synchronously instead of via an `async` getter: an async function always returns a

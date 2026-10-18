@@ -467,14 +467,14 @@ describe('useWebSocket', () => {
       mockWebSocketInstance.onmessage?.({
         data: JSON.stringify({
           eventId: 'event-1',
-          patch: { paymentStatus: 'SUCCESS' },
+          patch: { paidAt: '2026-05-03T08:00:00.000Z', paymentStatus: 'SUCCESS' },
           registrationId: 'registration-1',
           scope: 'participant:registration-patch',
         }),
       })
     })
 
-    expect(listener).toHaveBeenCalledWith({ paymentStatus: 'SUCCESS' })
+    expect(listener).toHaveBeenCalledWith({ paidAt: new Date('2026-05-03T08:00:00.000Z'), paymentStatus: 'SUCCESS' })
   })
 
   it('ignores participant registration patches for another registration', () => {
@@ -514,7 +514,13 @@ describe('useWebSocket', () => {
       mockWebSocketInstance.onmessage?.({
         data: JSON.stringify({
           eventId: 'event-1',
-          participants: [{ class: 'ALO', dog: { name: 'Aapo', regNo: 'REG1' }, group: { key: 'ALO', number: 1 } }],
+          participants: [
+            {
+              class: 'ALO',
+              dog: { name: 'Aapo', regNo: 'REG1' },
+              group: { date: '2026-09-11T21:00:00.000Z', key: 'ALO', number: 1 },
+            },
+          ],
           scope: 'public:start-list',
           version: 200,
         }),
@@ -523,7 +529,13 @@ describe('useWebSocket', () => {
 
     // The version goes with the rows: the page orders them against its fetches by it (KOE-1516).
     expect(listener).toHaveBeenCalledWith(
-      [{ class: 'ALO', dog: { name: 'Aapo', regNo: 'REG1' }, group: { key: 'ALO', number: 1 } }],
+      [
+        {
+          class: 'ALO',
+          dog: { name: 'Aapo', regNo: 'REG1' },
+          group: { date: new Date('2026-09-11T21:00:00.000Z'), key: 'ALO', number: 1 },
+        },
+      ],
       200,
       'event-1'
     )
@@ -844,7 +856,7 @@ describe('useWebSocket', () => {
     })
   })
 
-  it('should revive date strings in admin event patch messages as Date objects', async () => {
+  it('makes the named date fields of an admin event patch Dates and leaves a text that looks like a day alone (KOE-1546)', async () => {
     const event = {
       classes: [],
       endDate: new Date('2026-01-02'),
@@ -874,18 +886,23 @@ describe('useWebSocket', () => {
     act(() => {
       mockWebSocketInstance.onmessage?.({
         data: JSON.stringify({
-          endDate: '2026-03-15',
+          // A description the secretary typed, and a published-days list of day keys: strings, as written.
+          description: '2024-05-01',
+          endDate: '2026-03-14T22:00:00.000Z',
           eventId: 'event-1',
           scope: 'admin:event-patch',
-          startDate: '2026-03-10',
+          startDate: '2026-03-09T22:00:00.000Z',
+          startNumbersPublished: { ALO: ['2026-03-10'] },
         }),
       })
     })
 
     await waitFor(() => {
       const updated = result.current[0]
-      expect(updated?.startDate).toBeInstanceOf(Date)
-      expect(updated?.endDate).toBeInstanceOf(Date)
+      expect(updated?.startDate).toEqual(new Date('2026-03-09T22:00:00.000Z'))
+      expect(updated?.endDate).toEqual(new Date('2026-03-14T22:00:00.000Z'))
+      expect(updated?.description).toBe('2024-05-01')
+      expect(updated?.startNumbersPublished).toEqual({ ALO: ['2026-03-10'] })
     })
   })
 
@@ -981,12 +998,18 @@ describe('useWebSocket', () => {
 
     act(() => {
       mockWebSocketInstance.onmessage?.({
-        data: JSON.stringify({ entries: 2, eventId: 'event-1', scope: 'public:event-patch' }),
+        data: JSON.stringify({
+          entries: 2,
+          eventId: 'event-1',
+          scope: 'public:event-patch',
+          startDate: '2026-03-09T22:00:00.000Z',
+        }),
       })
     })
 
     await waitFor(() => {
       expect(result.current.events[0]?.entries).toBe(2)
+      expect(result.current.events[0]?.startDate).toEqual(new Date('2026-03-09T22:00:00.000Z'))
       expect(result.current.recentlyUpdated['public:event:event-1']).toEqual(expect.any(Number))
     })
   })
@@ -1251,14 +1274,16 @@ describe('useWebSocket', () => {
       mockWebSocketInstance.onmessage?.({
         data: JSON.stringify({
           eventId: 'event-1',
-          patch: [{ id: 'reg-1', notes: 'updated' }],
+          // A note that looks like a day stays the text it is; the payment stamp is made a Date.
+          patch: [{ id: 'reg-1', notes: '2024-05-01', paidAt: '2026-05-03T08:00:00.000Z' }],
           scope: 'admin:event-registrations',
         }),
       })
     })
 
     await waitFor(() => {
-      expect(result.current.registrations[0]?.notes).toBe('updated')
+      expect(result.current.registrations[0]?.notes).toBe('2024-05-01')
+      expect(result.current.registrations[0]?.paidAt).toEqual(new Date('2026-05-03T08:00:00.000Z'))
       expect(result.current.recentlyUpdated['admin:registration:reg-1']).toEqual(expect.any(Number))
     })
   })

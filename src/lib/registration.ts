@@ -488,8 +488,10 @@ export const getRegistrationPlacement = <T extends SortableRegistration>(
 const placementOf = (registration: SortableRegistration): SortablePlacement | undefined =>
   getRegistrationPlacement(registration)
 
-const sortableDate = (date: GroupDate | undefined): string =>
-  date instanceof Date ? date.toISOString() : (date ?? '\uffff')
+const sortableDate = (date: GroupDate | undefined): string => {
+  if (!date) return '\uffff'
+  return typeof date === 'string' ? date : date.toISOString()
+}
 
 export const getRegistrationGroupTime = (registration: SortableRegistration): RegistrationTime =>
   placementOf(registration)?.time ?? 'kp'

@@ -133,7 +133,7 @@ describe('ResultsPublishing', () => {
         { class: 'ALO', date: new Date('2021-02-10') },
         { class: 'ALO', date: new Date('2021-02-11') },
       ],
-      resultsPublished: { ALO: [new Date('2021-02-10')] },
+      resultsPublished: { ALO: ['2021-02-10'] },
     }
     const dayRows = () => screen.getAllByRole('row')
 

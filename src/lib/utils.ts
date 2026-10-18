@@ -1,5 +1,4 @@
-import type { DayKey, JsonValue, Patch, PublicContactInfo } from '../types'
-import { dayParts, isDayKey } from './day'
+import type { Patch, PublicContactInfo } from '../types'
 import { getNestedChanges, objectsDiffer } from './diff'
 
 export const unique = <T = string>(arr: T[]): T[] => arr.filter((c, i, a) => a.indexOf(c) === i)
@@ -9,11 +8,7 @@ export const uniqueFn = <T>(arr: T[], cmp: (a: T, b: T) => boolean): T[] =>
 
 export const uniqueDate = (arr: Date[]) => [...new Set<number>(arr.map((d) => d.valueOf()))].map((v) => new Date(v))
 
-/**
- * The date half of an instant: any four-digit year, where a day key starts at 1000. The Kennel Club's
- * empty birth date is `0001-01-01T00:00:00`, stored as it came (GetDogFunction), and the registration
- * form reads it as the year-1 Date it revives to (`isValidDob`).
- */
+/** The date half of an instant: any four-digit year, the day key's own checks are `isDayKey`'s (lib/day). */
 const INSTANT_DATE_RE = /^\d{4}-(?:0[1-9]|1[0-2])-(?:0[1-9]|[12]\d|3[01])$/
 const TIME_RE = /^(?:[0-1]\d|2[0-3])(?::[0-6]\d)(?::[0-6]\d)?(?:\.\d{3})?(?:[+-][0-2]\d:[0-5]\d|Z)?$/
 
@@ -27,34 +22,13 @@ export const isDateString = (value: unknown): value is string => {
 }
 
 /**
- * The reviver's reading of a bare day: the host's local noon of it, a Date that `isRevivedDay`
- * (lib/audit.ts) tells from an instant by its 12:00. Stays until the reviver leaves bare days as
- * `DayKey`s (KOE-1544).
+ * JSON as the server wrote it, nothing revived: a `Date` is made from a named field at the typed
+ * boundary (`lib/wire.ts`, KOE-1546), never from what a string looks like.
  */
-export const parseDateOnlyString = (value: DayKey): Date => {
-  const { year, month, day } = dayParts(value)
-  return new Date(year, month - 1, day, 12)
-}
-
-function dateReviver(_key: string, value: JsonValue): JsonValue | Date {
-  if (isDayKey(value)) {
-    return parseDateOnlyString(value)
-  }
-  if (isDateString(value)) {
-    const dateObj = new Date(value)
-    if (!Number.isNaN(+dateObj)) {
-      return dateObj
-    }
-  }
-  return value
-}
-
-export const parseJSON = (json: string, reviveDates: boolean = true) => {
+export const parseJSON = (json: string) => {
   if (!json) return undefined
 
-  const reviver = reviveDates ? dateReviver : undefined
-
-  return JSON.parse(json, reviver)
+  return JSON.parse(json)
 }
 
 export type AnyObject = Record<string, any>

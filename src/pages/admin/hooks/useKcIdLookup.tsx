@@ -1,5 +1,4 @@
-import type { EventKcIdChoice } from '@/api/event'
-import type { DogEvent, Patch } from '@/types'
+import type { DogEvent, EventKcIdChoice, Patch } from '@/types'
 import { useAtomValue } from 'jotai'
 import { enqueueSnackbar } from 'notistack'
 import { useCallback, useState } from 'react'

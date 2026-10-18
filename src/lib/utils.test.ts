@@ -28,7 +28,6 @@ import {
   isObject,
   mapWithConcurrency,
   merge,
-  parseDateOnlyString,
   parseJSON,
   patchMerge,
   splitEvenly,
@@ -104,6 +103,7 @@ describe('utils', () => {
       '',
       '1T2',
       new Date(),
+      '2021-05-10',
       '2021-13-10T09:05:12.000Z',
       '2021-11-32T09:05:12.000Z',
       '2021-01-10T24:05:12.000Z',
@@ -111,17 +111,6 @@ describe('utils', () => {
       '2021-01-10T23:00:70.000Z',
     ])('should return false for anythings not ISO8601 compatible: %p', (value) => {
       expect(isDateString(value)).toEqual(false)
-    })
-  })
-
-  describe('parseDateOnlyString', () => {
-    it('should parse date-only strings as local midday to avoid timezone day shifts', () => {
-      const result = parseDateOnlyString('2021-05-10')
-
-      expect(result.getFullYear()).toEqual(2021)
-      expect(result.getMonth()).toEqual(4)
-      expect(result.getDate()).toEqual(10)
-      expect(result.getHours()).toEqual(12)
     })
   })
 
@@ -134,33 +123,11 @@ describe('utils', () => {
       expect(parseJSON(undefined)).toBeUndefined()
     })
 
-    it('should revive dates', () => {
-      expect(parseJSON('{"pvm":"2021-05-10T09:05:12.000Z"}')).toEqual({
-        pvm: new Date('2021-05-10T09:05:12.000Z'),
+    it('parses JSON as written: a string that looks like a date stays a string (KOE-1546)', () => {
+      expect(parseJSON('{"pvm":"2021-05-10T09:05:12.000Z","date":"2021-05-10"}')).toEqual({
+        date: '2021-05-10',
+        pvm: '2021-05-10T09:05:12.000Z',
       })
-      expect(parseJSON('{"date":"2021-05-10T00:00:00"}').date).toBeInstanceOf(Date)
-    })
-
-    it("revives the Kennel Club's empty birth date into the year-1 Date the form expects (KOE-1545)", () => {
-      // GetDogFunction stores `syntymäaika` as it comes; a dog with no birthday has 0001-01-01T00:00:00.
-      const parsed = parseJSON('{"dob":"0001-01-01T00:00:00"}')
-
-      expect(parsed.dob).toBeInstanceOf(Date)
-      expect(parsed.dob.getFullYear()).toBe(1)
-    })
-
-    it('should revive date-only strings as local calendar dates', () => {
-      const parsed = parseJSON('{"date":"2021-05-10"}')
-
-      expect(parsed.date).toBeInstanceOf(Date)
-      expect(parsed.date.getFullYear()).toEqual(2021)
-      expect(parsed.date.getMonth()).toEqual(4)
-      expect(parsed.date.getDate()).toEqual(10)
-      expect(parsed.date.getHours()).toEqual(12)
-    })
-
-    it('should not revive dates when 2nd argument is false', () => {
-      expect(parseJSON('{"date":"2021-05-10T00:00:00"}', false).date).toBe('2021-05-10T00:00:00')
     })
   })
 

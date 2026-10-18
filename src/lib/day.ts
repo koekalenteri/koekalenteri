@@ -1,6 +1,7 @@
 import type { DayKey } from '../types'
 import { TZDate, tz } from '@date-fns/tz'
 import { addDays as addDaysInZone } from 'date-fns/addDays'
+import { parseISO } from 'date-fns/parseISO'
 
 /**
  * The trials' zone. Every day the calendar stores or shows is a Finnish day, so this is the zone the
@@ -158,6 +159,12 @@ export const dayEnd = (day: DayKey, zone: string): Date => {
   const { year, month, day: date } = dayParts(day)
   return new Date(new TZDate(year, month - 1, date + 1, zone).getTime() - 1)
 }
+
+/**
+ * A stamp written without a zone (`2026-06-28T00:00:00`, or a bare day) as the wall-clock time it is in
+ * `zone`; a stamp that carries a zone keeps it. A plain Date: copying the parse's TZDate drops its class.
+ */
+export const localStampToInstant = (stamp: string, zone: string): Date => new Date(parseISO(stamp, { in: tz(zone) }))
 
 /** The first moment, in `zone`, of the day the instant falls on there, or of the day `days` days from it. */
 export const dayStartOf = (instant: Date | number, zone: string, days = 0): Date =>

@@ -326,8 +326,8 @@ export const useAdminEventActions = () => {
 
   /**
    * One day's results of a class, or of a classless event, published or hidden (KOE-1510). The request
-   * names the day and the server folds it into the stored flag: a client's copy has been through the
-   * JSON reviver, so its stored days are dates and would not go back as the day keys they were.
+   * names the day and the server folds it into the stored flag, so two secretaries publishing
+   * different days never overwrite each other's list.
    */
   async function setResultsPublished(
     event: DogEvent,
