@@ -10,6 +10,7 @@ import type {
 import { randomUUID } from 'node:crypto'
 import { MAX_DOGS_AT_ONCE, resolveStation, stationPhases } from '../../lib/liveFormat'
 import { currentPhase, isBreakTurn, isWholeTurn, openTurn } from '../../lib/stationTurns'
+import { isConditionalCheckFailure } from './api-gw'
 import { LambdaError } from './lambda'
 import { readEvent, writeStationTurns } from './repositories/eventRepository'
 
@@ -169,9 +170,6 @@ export const saveStationTurns = async (
   await writeStationTurns(eventId, expected, turns, now.toISOString())
 }
 
-const isConditionalCheckFailed = (error: unknown): boolean =>
-  typeof error === 'object' && error !== null && (error as { name?: string }).name === 'ConditionalCheckFailedException'
-
 const readStoredTurns = async (eventId: string): Promise<JsonStationTurn[] | undefined> => {
   const stored = await readEvent<JsonConfirmedEvent>(eventId)
   return stored?.turns
@@ -199,7 +197,7 @@ export const writeStationTurn = async (
       await saveStationTurns(confirmedEvent.id, expected, turns, now)
       return turns
     } catch (error) {
-      if (!isConditionalCheckFailed(error) || attempt >= TURN_WRITE_ATTEMPTS) throw error
+      if (!isConditionalCheckFailure(error) || attempt >= TURN_WRITE_ATTEMPTS) throw error
       expected = await readStoredTurns(confirmedEvent.id)
     }
   }

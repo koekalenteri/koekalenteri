@@ -1,5 +1,6 @@
 import type CustomDynamoClient from '../utils/CustomDynamoClient'
 import { randomUUID } from 'node:crypto'
+import { isConditionalCheckFailure } from './api-gw'
 
 interface DynamoLeaseOptions<Item extends object> {
   client: CustomDynamoClient
@@ -13,9 +14,6 @@ interface ClaimOptions {
   key: Record<string, number | string | undefined>
   missingItemMessage: string
 }
-
-const isConditionalCheckFailure = (error: unknown) =>
-  typeof error === 'object' && error !== null && 'name' in error && error.name === 'ConditionalCheckFailedException'
 
 export const createDynamoLease = <Item extends object, Phase extends Extract<keyof Item, string>>({
   client,

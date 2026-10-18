@@ -14,7 +14,7 @@ import type {
   UpdateCommandInput,
 } from '@aws-sdk/lib-dynamodb'
 import { isDeepStrictEqual } from 'node:util'
-import { DynamoDBClient, TransactionCanceledException, TransactWriteItemsCommand } from '@aws-sdk/client-dynamodb'
+import { DynamoDBClient, TransactWriteItemsCommand } from '@aws-sdk/client-dynamodb'
 import {
   BatchGetCommand,
   BatchWriteCommand,
@@ -27,6 +27,7 @@ import {
   TransactWriteCommand,
   UpdateCommand,
 } from '@aws-sdk/lib-dynamodb'
+import { isTransactionCanceled } from '../lib/api-gw'
 import { logger } from '../lib/log'
 
 interface QueryParams {
@@ -205,13 +206,6 @@ const denormalizeSets = <T extends object>(item: T): T => {
   }
   return item
 }
-
-/**
- * The SDK error may cross a bundling boundary where instanceof fails, so fall back to
- * matching the error name, as the AWS SDK documentation recommends.
- */
-const isTransactionCanceled = (err: unknown): err is TransactionCanceledException =>
-  err instanceof TransactionCanceledException || (err instanceof Error && err.name === 'TransactionCanceledException')
 
 const logDb = (operation: string, payload: unknown) => {
   // The operation stays the message, so a CloudWatch filter on it still works (e.g. "DB.batchWrite").

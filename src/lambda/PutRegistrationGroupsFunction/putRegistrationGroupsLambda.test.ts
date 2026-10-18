@@ -31,9 +31,9 @@ const constructAPIGwEvent = (body: unknown, options?: Parameters<typeof construc
     options
   )
 
-vi.doMock('../lib/api-gw', () => ({
+vi.doMock('../lib/api-gw', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('../lib/api-gw')>()),
   getOrigin: vi.fn(),
-  isAwsServiceError: vi.fn(),
 }))
 
 vi.doMock('../lib/auth', () => ({
