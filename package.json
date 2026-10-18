@@ -98,6 +98,7 @@
     "test-visual": "node scripts/test-visual.js",
     "test-visual-linux": "bash scripts/test-visual-linux.sh",
     "test-frontend": "node scripts/test-frontend.js",
+    "test-integration": "node scripts/test-integration.js",
     "test": "node scripts/test.js",
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "i18n-compare": "node scripts/compare-translations.js src/i18n/locales/fi/translation.json src/i18n/locales/en/translation.json",
