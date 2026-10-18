@@ -10,22 +10,29 @@
  * client on some table at load (`lib/dataVersions`, `lib/email`, `lib/ws/connectionRepository`),
  * so an import graph would grant every lambda every table. Instead the walk starts at the
  * handler's default export and follows each identifier to its declaration: a function it calls,
- * a module-level variable it reads, a class member it uses. Only code reached that way counts,
- * and a table counts only where a client method is called on it (or a transaction item names it).
+ * a module-level variable it reads, a class member it uses. A table counts only where code reached
+ * that way calls a client method on it (or a transaction item names it).
  *
  * Tables and clients handed around as arguments (`createOfficialDirectoryLambda({ dynamoDB })`,
  * `syncOfficialDirectory(dynamoDB, entries, { table })`, `createDynamoLease({ client, table })`)
  * are followed through a flow-insensitive binding of parameters and interface properties to the
- * values the reached code passes them, iterated to a fixed point per handler. A table, index,
- * client or options object the walk cannot name is an error; so is one that may be something it
- * can name or something it cannot (a call, `process.env`, a parameter nothing binds), which is
- * refused rather than taken for the named half.
+ * values the reached code passes them, iterated to a fixed point per handler. A variable, a class
+ * field or a property of an object literal also holds what is written to it later: `=`, `??=`,
+ * `||=`, `&&=`, a destructuring assignment, a `for (x of ...)` loop, `delete`. A write counts where
+ * it runs for this handler: in the code the walk reaches, and in the module-level statements that
+ * run at import, in every file the handler imports (KOE-1557). A write inside a function nothing
+ * reached calls does not count, so a setter only another lambda calls changes only that lambda.
  *
- * What the walk does not model, and so can miss rather than refuse: compound assignments (`??=`,
- * `||=`, `&&=`), destructuring assignments, assignments to a property (`options.table = ...`,
- * `item.TableName = ...`), assignments in module-level statements nothing reaches, a CONFIG
- * destructuring binding that is later reassigned, a `for (x of ...)` loop over an existing
- * variable. A client stored on `this` is refused, not followed. KOE-1557 covers these.
+ * A table, index, client or options object the walk cannot name is an error; so is one that may be
+ * something it can name or something it cannot (a call, `process.env`, a parameter nothing binds),
+ * which is refused rather than taken for the named half. A write to a `table`, `index`, `TableName`
+ * or `client` property of something that is no object literal is refused the same way.
+ *
+ * What the walk does not model, and so can miss rather than refuse: a mutation through a call other
+ * than `Object.assign` (a setter method, `Reflect.set`), and a client on `this` read from a base
+ * class through an instance the walk has not seen built. Being flow-insensitive, it may also grant
+ * more than one run needs: after `table ??= CONFIG.xTable` the variable still holds the undefined
+ * of its initializer, so the client's default table counts too.
  */
 import type { Action } from './dynamoActions'
 import path from 'node:path'
@@ -67,6 +74,9 @@ const CLIENT_METHODS = new Map<string, MethodSpec>([
   ['write', { actions: ['PutItem'], table: { arg: 1 } }],
 ])
 
+/** The properties the walk reads a table, an index or a client from: a write to one of them through something it cannot name is refused. */
+const READ_PROPERTIES = new Set(['client', 'index', 'table', 'TableName'])
+
 const CONFIG_FILE = /[\\/]src[\\/]lambda[\\/]config\.ts$/
 const CLIENT_FILE = /[\\/]src[\\/]lambda[\\/]utils[\\/]CustomDynamoClient\.ts$/
 const CLIENT_CLASS = 'CustomDynamoClient'
@@ -96,13 +106,16 @@ type Unit = ts.Node
 
 type TableNameProperty = ts.PropertyAssignment | ts.ShorthandPropertyAssignment
 
+/** The left side of a write to a property: `options.table = ...`, `item['TableName'] = ...`, `delete options.index`. */
+type PropertyTarget = ts.PropertyAccessExpression | ts.ElementAccessExpression
+
 /** What one unit contains, computed once and shared by every handler that reaches it. */
 interface UnitInfo {
   /** The units the identifiers in this one declare. */
   targets: Set<Unit>
   calls: (ts.CallExpression | ts.NewExpression)[]
-  /** `x = expr` on an identifier: what else the variable can hold after its initializer. */
-  assignments: ts.BinaryExpression[]
+  /** Assignments, `for` loops, `delete` and `Object.assign` calls: what else a variable or property can hold after its initializer. */
+  writes: ts.Node[]
   literals: ts.ObjectLiteralExpression[]
   /** Calls of a CustomDynamoClient method, with the method's name. */
   clientCalls: { call: ts.CallExpression; method: string }[]
@@ -115,18 +128,30 @@ interface Context {
   /** `export const CONFIG = {...}` in config.ts. */
   config: ts.VariableDeclaration
   clientClass: ts.ClassDeclaration
+  /** The program's own source files: no declaration files, nothing from node_modules. */
+  files: ts.SourceFile[]
   nodes: Map<string, ts.Node>
   symbols: Map<ts.Node, ts.Symbol | undefined>
   units: Map<Unit, UnitInfo>
   /** The declaration each property of an object literal is written against, by property name. */
   literalProperties: Map<ts.ObjectLiteralExpression, Map<string, ts.Declaration>>
+  /** The source files each file imports, for the statements that run at import. */
+  imports: Map<ts.SourceFile, ts.SourceFile[]>
+  /** Each class to the classes that extend it directly; built on the first `this.x` the walk reads. */
+  subclasses?: Map<ts.ClassLikeDeclaration, ts.ClassLikeDeclaration[]>
 }
 
 interface HandlerState {
   /** Each reached unit and the unit that first reached it (the start has none). */
   via: Map<Unit, Unit | undefined>
-  /** Declaration (parameter, binding element, property) to the values the reached code passes it. */
-  env: Map<ts.Node, Values>
+  /**
+   * Declaration (parameter, binding element, variable, class field) to the values the reached code
+   * passes or writes it, and `<literal id>.<property>` to what is written to a property of one object
+   * literal (`.[]` for a computed key).
+   */
+  env: Map<ts.Node | string, Values>
+  /** Each property write that no class field takes, and what it writes, checked once the fixed point is reached. */
+  written: Map<PropertyTarget, Values>
   /** `valuesOf` results, valid until the environment grows. */
   memo: Map<ts.Node, Values>
   changed: boolean
@@ -187,7 +212,7 @@ const unitName = (unit: Unit): string => {
   return ts.isConstructorDeclaration(unit) ? `new ${unit.parent.name?.text ?? 'class'}` : unit.getText().slice(0, 40)
 }
 
-const addValues = (state: HandlerState, key: ts.Node, values: Values) => {
+const addValues = (state: HandlerState, key: ts.Node | string, values: Values) => {
   if (!values.size) return
   const existing = state.env.get(key) ?? new Set<Value>()
   const before = existing.size
@@ -208,6 +233,10 @@ const isFunctionLike = (node: ts.Node): node is ts.SignatureDeclaration =>
   ts.isArrowFunction(node) ||
   ts.isMethodDeclaration(node) ||
   ts.isConstructorDeclaration(node)
+
+/** The text of a property name the walk can read without evaluating anything: `table`, `'table'`, `0`. */
+const staticName = (name: ts.Node): string | undefined =>
+  ts.isIdentifier(name) || ts.isStringLiteralLike(name) || ts.isNumericLiteral(name) ? name.text : undefined
 
 /** The CONFIG key a binding element of `const { xTable } = CONFIG` names, if it is one. */
 const configKeyOfBinding = (ctx: Context, element: ts.BindingElement): string | undefined => {
@@ -235,11 +264,26 @@ const withoutUndefined = (values: Values): Values => new Set([...values].filter(
 
 const isUndefined = (node: ts.Node) => ts.isIdentifier(node) && node.text === 'undefined'
 
+/** Stands for every property written through a computed key (`options[key] = ...`). */
+const ANY_PROPERTY = '[]'
+
+/** The environment key of one property of one object literal. */
+const propertyKey = (ctx: Context, literal: ts.ObjectLiteralExpression, name: string) =>
+  `${nodeId(ctx, literal)}.${name}`
+
+/** What the counted code writes to the property `name` of one object literal, by name or through a computed key. */
+const writtenProperty = (ctx: Context, state: HandlerState, literal: ts.ObjectLiteralExpression, name: string) =>
+  union(
+    state.env.get(propertyKey(ctx, literal, name)) ?? NONE,
+    state.env.get(propertyKey(ctx, literal, ANY_PROPERTY)) ?? NONE
+  )
+
 /**
  * The property `name` of one object literal, read in source order: a later property wins over an
  * earlier one, a spread brings the property of each literal it can stand for (or leaves the value as
  * it was where that literal lacks it), and a spread of something that is no literal makes it UNKNOWN.
  * A literal without the property has it UNDEFINED, which matters for an optional index or table.
+ * Whatever the counted code writes to the property later is added: the walk is flow-insensitive.
  */
 const literalProperty = (
   ctx: Context,
@@ -275,7 +319,7 @@ const literalProperty = (
     }
   }
   visiting.delete(literal)
-  return current
+  return union(current, writtenProperty(ctx, state, literal, name))
 }
 
 const hasUnknown = (values: Values) => values.has('?:')
@@ -298,7 +342,7 @@ const valuesOfDeclaration = (ctx: Context, state: HandlerState, declaration: ts.
   const bound = state.env.get(declaration) ?? NONE
   if (ts.isBindingElement(declaration)) {
     const key = configKeyOfBinding(ctx, declaration)
-    return key === undefined ? bound : tableValue(key)
+    return key === undefined ? bound : union(bound, tableValue(key))
   }
   if (ts.isVariableDeclaration(declaration) || ts.isPropertyDeclaration(declaration)) {
     return declaration.initializer ? union(bound, valuesOf(ctx, state, declaration.initializer)) : bound
@@ -320,13 +364,76 @@ const valuesOfClientConstruction = (ctx: Context, state: HandlerState, node: ts.
   return new Set(tableKeys(tables).map((key) => `C:${key}`))
 }
 
+/** The expression inside parentheses, `as`, `satisfies` and `!`. */
+const unwrap = (node: ts.Expression): ts.Expression =>
+  ts.isParenthesizedExpression(node) ||
+  ts.isAsExpression(node) ||
+  ts.isSatisfiesExpression(node) ||
+  ts.isNonNullExpression(node)
+    ? unwrap(node.expression)
+    : node
+
 /** Nothing known about a name (`process.env.X`, an unbound parameter, a declaration outside src) is unknown, not empty. */
 const orUnknown = (values: Values): Values => (values.size ? values : UNKNOWN)
 
+/** Whether a node gives `this` a value of its own: a function that is no arrow, a class field or a static block. */
+const bindsThis = (node: ts.Node) =>
+  (ts.isFunctionLike(node) && !ts.isArrowFunction(node)) ||
+  ts.isPropertyDeclaration(node) ||
+  ts.isClassStaticBlockDeclaration(node)
+
+/** The class whose instance a `this` stands for, when it is written in a class member; undefined anywhere else. */
+const thisClass = (node: ts.Node): ts.ClassLikeDeclaration | undefined => {
+  let current = node.parent
+  while (current && !bindsThis(current)) current = current.parent
+  return current?.parent && ts.isClassLike(current.parent) ? current.parent : undefined
+}
+
+const subclassesOf = (ctx: Context): Map<ts.ClassLikeDeclaration, ts.ClassLikeDeclaration[]> => {
+  if (ctx.subclasses) return ctx.subclasses
+  const subclasses = new Map<ts.ClassLikeDeclaration, ts.ClassLikeDeclaration[]>()
+  const visit = (node: ts.Node) => {
+    if (ts.isClassLike(node)) {
+      const extended = node.heritageClauses?.find((clause) => clause.token === ts.SyntaxKind.ExtendsKeyword)
+      for (const type of extended?.types ?? []) {
+        for (const base of declarationsOf(ctx, type.expression).filter(ts.isClassLike)) {
+          subclasses.set(base, [...(subclasses.get(base) ?? []), node])
+        }
+      }
+    }
+    ts.forEachChild(node, visit)
+  }
+  for (const file of ctx.files) visit(file)
+  ctx.subclasses = subclasses
+  return subclasses
+}
+
+/** The members named `name` of every class that extends `base`, at any depth: what `this.name` may also be. */
+const overridesOf = (ctx: Context, base: ts.ClassLikeDeclaration, name: string): ts.ClassElement[] => {
+  const members: ts.ClassElement[] = []
+  const seen = new Set<ts.ClassLikeDeclaration>()
+  const pending = [...(subclassesOf(ctx).get(base) ?? [])]
+  for (let sub = pending.pop(); sub; sub = pending.pop()) {
+    if (seen.has(sub)) continue
+    seen.add(sub)
+    members.push(...sub.members.filter((member) => member.name && staticName(member.name) === name))
+    pending.push(...(subclassesOf(ctx).get(sub) ?? []))
+  }
+  return members
+}
+
 const valuesOfAccess = (ctx: Context, state: HandlerState, node: ts.PropertyAccessExpression): Values => {
   if (isConfig(ctx, node.expression)) return tableValue(node.name.text)
-  const own = declarationsOf(ctx, node.name).map((d) => valuesOfDeclaration(ctx, state, d))
-  return orUnknown(union(...own, propertyOf(ctx, state, valuesOf(ctx, state, node.expression), node.name.text)))
+  const own = declarationsOf(ctx, node.name)
+  // `this.x` in a class member is the field: its initializer, what the class writes to it, and the
+  // same of every subclass that declares it again. Any other `this` stays unknown.
+  const owner = node.expression.kind === ts.SyntaxKind.ThisKeyword ? thisClass(node.expression) : undefined
+  if (owner) {
+    const members = [...own, ...overridesOf(ctx, owner, node.name.text)]
+    return orUnknown(union(...members.map((d) => valuesOfDeclaration(ctx, state, d))))
+  }
+  const values = own.map((d) => valuesOfDeclaration(ctx, state, d))
+  return orUnknown(union(...values, propertyOf(ctx, state, valuesOf(ctx, state, node.expression), node.name.text)))
 }
 
 const computeValues = (ctx: Context, state: HandlerState, node: ts.Node): Values => {
@@ -362,6 +469,21 @@ const valuesOf = (ctx: Context, state: HandlerState, node: ts.Node): Values => {
   return values
 }
 
+/**
+ * What a `for (x of ...)` loop gives its variable: the elements of an array written out in the loop
+ * head. Anything else (a variable holding an array, a call, a set) is unknown, never empty.
+ */
+const elementsOf = (ctx: Context, state: HandlerState, node: ts.Expression): Values => {
+  const array = unwrap(node)
+  if (!ts.isArrayLiteralExpression(array)) return UNKNOWN
+  return union(
+    ...array.elements.map((element) => {
+      if (ts.isSpreadElement(element)) return elementsOf(ctx, state, element.expression)
+      return ts.isOmittedExpression(element) ? NONE : valuesOf(ctx, state, element)
+    })
+  )
+}
+
 /** The functions a call can land in: the declaration the callee names, or whatever was bound to it. */
 const calleesOf = (ctx: Context, state: HandlerState, call: ts.CallExpression | ts.NewExpression) => {
   const callees: ts.SignatureDeclaration[] = []
@@ -380,23 +502,101 @@ const withDefault = (ctx: Context, state: HandlerState, values: Values, initiali
   return union(withoutUndefined(values), valuesOf(ctx, state, initializer))
 }
 
+/** The property a write names: `options.table`, `options['table']`; undefined for a computed key (`options[key]`). */
+const writtenName = (target: PropertyTarget): string | undefined => {
+  if (ts.isPropertyAccessExpression(target)) return target.name.text
+  const key = target.argumentExpression
+  return ts.isStringLiteralLike(key) || ts.isNumericLiteral(key) ? key.text : undefined
+}
+
+const isClassMember = (declaration: ts.Declaration) => ts.isClassLike(declaration.parent)
+
+/**
+ * A write to a property. A class field takes it whole, whichever instance it is written on. Otherwise
+ * it goes to that property of each object literal the receiver can be, so that one handler's
+ * `options.table = ...` never reaches another handler's literal of the same type; the receivers are
+ * checked once the fixed point is reached (`checkWrites`).
+ */
+const writeProperty = (ctx: Context, state: HandlerState, target: PropertyTarget, values: Values) => {
+  const name = writtenName(target)
+  const fields = ts.isPropertyAccessExpression(target) ? declarationsOf(ctx, target.name).filter(isClassMember) : []
+  for (const field of fields) addValues(state, field, values)
+  if (fields.length) return
+  for (const literal of literalsOf(ctx, valuesOf(ctx, state, target.expression))) {
+    addValues(state, propertyKey(ctx, literal, name ?? ANY_PROPERTY), values)
+  }
+  state.written.set(target, union(state.written.get(target) ?? NONE, values))
+}
+
+/** `x = default` in an assignment pattern: the target and its default. */
+const splitDefault = (node: ts.Expression): [ts.Expression, ts.Expression | undefined] =>
+  ts.isBinaryExpression(node) && node.operatorToken.kind === ts.SyntaxKind.EqualsToken
+    ? [node.left, node.right]
+    : [node, undefined]
+
+const bindObjectBinding = (ctx: Context, state: HandlerState, pattern: ts.ObjectBindingPattern, values: Values) => {
+  for (const element of pattern.elements) {
+    const property = element.dotDotDotToken ? undefined : staticName(element.propertyName ?? element.name)
+    const bound = property === undefined ? UNKNOWN : propertyOf(ctx, state, values, property)
+    bindPattern(ctx, state, element.name, bound, element.initializer)
+  }
+}
+
+const bindObjectAssignment = (
+  ctx: Context,
+  state: HandlerState,
+  pattern: ts.ObjectLiteralExpression,
+  values: Values
+) => {
+  for (const property of pattern.properties) {
+    if (ts.isShorthandPropertyAssignment(property)) {
+      const bound = propertyOf(ctx, state, values, property.name.text)
+      bindPattern(ctx, state, property.name, bound, property.objectAssignmentInitializer)
+    } else if (ts.isPropertyAssignment(property)) {
+      const name = staticName(property.name)
+      const [target, initializer] = splitDefault(property.initializer)
+      bindPattern(ctx, state, target, name === undefined ? UNKNOWN : propertyOf(ctx, state, values, name), initializer)
+    } else if (ts.isSpreadAssignment(property)) {
+      bindPattern(ctx, state, property.expression, UNKNOWN)
+    }
+  }
+}
+
+/** The elements of an array pattern: positions are not followed, so each is unknown. */
+const bindArray = (ctx: Context, state: HandlerState, pattern: ts.ArrayBindingPattern | ts.ArrayLiteralExpression) => {
+  for (const element of pattern.elements) {
+    if (ts.isOmittedExpression(element)) continue
+    if (ts.isBindingElement(element)) bindPattern(ctx, state, element.name, UNKNOWN)
+    else if (ts.isSpreadElement(element)) bindPattern(ctx, state, element.expression, UNKNOWN)
+    else bindPattern(ctx, state, splitDefault(element)[0], UNKNOWN)
+  }
+}
+
+/**
+ * Gives a target the values: a parameter or variable name, a binding pattern of either, or the left
+ * side of an assignment (a name, a property, a destructuring pattern). A default in a pattern stands in
+ * for undefined only; it is no write of its own.
+ */
 const bindPattern = (
   ctx: Context,
   state: HandlerState,
-  name: ts.BindingName,
+  target: ts.BindingName | ts.Expression,
   values: Values,
-  initializer: ts.Expression | undefined
-) => {
+  initializer?: ts.Expression
+): void => {
   const bound = withDefault(ctx, state, values, initializer)
-  if (ts.isIdentifier(name)) {
-    for (const declaration of declarationsOf(ctx, name)) addValues(state, declaration, bound)
-    return
-  }
-  if (!ts.isObjectBindingPattern(name)) return
-  for (const element of name.elements) {
-    const property = element.propertyName ?? element.name
-    if (!ts.isIdentifier(property)) continue
-    bindPattern(ctx, state, element.name, propertyOf(ctx, state, bound, property.text), element.initializer)
+  if (ts.isParenthesizedExpression(target)) {
+    bindPattern(ctx, state, target.expression, bound)
+  } else if (ts.isIdentifier(target)) {
+    for (const declaration of declarationsOf(ctx, target)) addValues(state, declaration, bound)
+  } else if (ts.isPropertyAccessExpression(target) || ts.isElementAccessExpression(target)) {
+    writeProperty(ctx, state, target, bound)
+  } else if (ts.isObjectBindingPattern(target)) {
+    bindObjectBinding(ctx, state, target, bound)
+  } else if (ts.isObjectLiteralExpression(target)) {
+    bindObjectAssignment(ctx, state, target, bound)
+  } else if (ts.isArrayBindingPattern(target) || ts.isArrayLiteralExpression(target)) {
+    bindArray(ctx, state, target)
   }
 }
 
@@ -446,6 +646,44 @@ const bindObjectLiteral = (ctx: Context, state: HandlerState, literal: ts.Object
   }
 }
 
+const LOGICAL_ASSIGNMENTS = new Set([
+  ts.SyntaxKind.EqualsToken,
+  ts.SyntaxKind.QuestionQuestionEqualsToken,
+  ts.SyntaxKind.BarBarEqualsToken,
+  ts.SyntaxKind.AmpersandAmpersandEqualsToken,
+])
+
+const isAssignment = (node: ts.Node): node is ts.AssignmentExpression<ts.AssignmentOperatorToken> =>
+  ts.isBinaryExpression(node) &&
+  node.operatorToken.kind >= ts.SyntaxKind.FirstAssignment &&
+  node.operatorToken.kind <= ts.SyntaxKind.LastAssignment
+
+const isObjectAssign = (node: ts.Node): node is ts.CallExpression =>
+  ts.isCallExpression(node) && node.expression.getText() === 'Object.assign'
+
+/** Applies one write of the counted code to the environment. */
+const applyWrite = (ctx: Context, state: HandlerState, node: ts.Node) => {
+  if (isAssignment(node)) {
+    // `x = y`, `x ??= y`, `x ||= y` and `x &&= y` leave x holding y or what it held; `+=` and the
+    // other arithmetic ones compute something the walk does not follow.
+    const values = LOGICAL_ASSIGNMENTS.has(node.operatorToken.kind) ? valuesOf(ctx, state, node.right) : UNKNOWN
+    bindPattern(ctx, state, node.left, values)
+  } else if (ts.isForOfStatement(node) || ts.isForInStatement(node)) {
+    const values = ts.isForOfStatement(node) ? elementsOf(ctx, state, node.expression) : UNKNOWN
+    const targets = ts.isVariableDeclarationList(node.initializer)
+      ? node.initializer.declarations.map((declaration) => declaration.name)
+      : [node.initializer]
+    for (const target of targets) bindPattern(ctx, state, target, values)
+  } else if (ts.isDeleteExpression(node)) {
+    bindPattern(ctx, state, node.expression, UNDEFINED)
+  } else if (isObjectAssign(node) && node.arguments[0]) {
+    // The properties it copies in are not followed: any of the target's may be anything now.
+    for (const literal of literalsOf(ctx, valuesOf(ctx, state, node.arguments[0]))) {
+      addValues(state, propertyKey(ctx, literal, ANY_PROPERTY), UNKNOWN)
+    }
+  }
+}
+
 /** The client method a call invokes, when the callee is a CustomDynamoClient member called on something other than `this`. */
 const clientMethod = (ctx: Context, call: ts.CallExpression): string | undefined => {
   const callee = call.expression
@@ -462,18 +700,47 @@ const isTableNameProperty = (node: ts.Node): node is TableNameProperty =>
   node.name.text === 'TableName' &&
   !CLIENT_FILE.test(node.getSourceFile().fileName)
 
-/** One pass over a unit's syntax, done once: what it names, calls and builds. */
+/** The defaults in an assignment pattern (`{ table = CONFIG.xTable } = ...`), which are no writes of their own. */
+const patternDefaults = (node: ts.Node, defaults: Set<ts.Node>) => {
+  if (ts.isBinaryExpression(node) && node.operatorToken.kind === ts.SyntaxKind.EqualsToken) {
+    defaults.add(node)
+    patternDefaults(node.left, defaults)
+  } else if (ts.isObjectLiteralExpression(node) || ts.isArrayLiteralExpression(node)) {
+    ts.forEachChild(node, (child) => patternDefaults(child, defaults))
+  } else if (ts.isPropertyAssignment(node) || ts.isSpreadAssignment(node) || ts.isSpreadElement(node)) {
+    patternDefaults(ts.isPropertyAssignment(node) ? node.initializer : node.expression, defaults)
+  }
+}
+
+/** The left side of a write that may be a destructuring pattern: an assignment's, or a `for` loop's over an existing variable. */
+const patternOf = (node: ts.Node): ts.Node | undefined => {
+  if (isAssignment(node)) return node.left
+  if ((ts.isForOfStatement(node) || ts.isForInStatement(node)) && !ts.isVariableDeclarationList(node.initializer)) {
+    return node.initializer
+  }
+  return undefined
+}
+
+const isWrite = (node: ts.Node) =>
+  isAssignment(node) ||
+  ts.isForOfStatement(node) ||
+  ts.isForInStatement(node) ||
+  ts.isDeleteExpression(node) ||
+  isObjectAssign(node)
+
+/** One pass over a unit's syntax, done once: what it names, calls, builds and writes. */
 const unitInfo = (ctx: Context, unit: Unit): UnitInfo => {
   const cached = ctx.units.get(unit)
   if (cached) return cached
   const info: UnitInfo = {
-    assignments: [],
     calls: [],
     clientCalls: [],
     literals: [],
     tableNames: [],
     targets: new Set(),
+    writes: [],
   }
+  const defaults = new Set<ts.Node>()
   const visit = (node: ts.Node) => {
     if (ts.isTypeNode(node) || ts.isImportDeclaration(node)) return
     if (ts.isIdentifier(node)) {
@@ -488,12 +755,10 @@ const unitInfo = (ctx: Context, unit: Unit): UnitInfo => {
       if (method !== undefined) info.clientCalls.push({ call: node, method })
     }
     if (ts.isObjectLiteralExpression(node)) info.literals.push(node)
-    if (
-      ts.isBinaryExpression(node) &&
-      node.operatorToken.kind === ts.SyntaxKind.EqualsToken &&
-      ts.isIdentifier(node.left)
-    ) {
-      info.assignments.push(node)
+    if (isWrite(node) && !defaults.has(node)) {
+      info.writes.push(node)
+      const pattern = patternOf(node)
+      if (pattern) patternDefaults(pattern, defaults)
     }
     if (isTableNameProperty(node)) info.tableNames.push(node)
     ts.forEachChild(node, visit)
@@ -513,10 +778,10 @@ const defaultTables = (ctx: Context, state: HandlerState, receiver: ts.Expressio
   return keys.length && !hasUnknown(values) ? keys : cannotTell(receiver, 'the client')
 }
 
-/** The tables an expression names, plus the receiver's default where it may be undefined. */
 /** Whether every value is of the given kinds: a table position holds tables or undefined, an index position names or undefined. */
 const onlyKinds = (values: Values, kinds: string[]) => [...values].every((value) => kinds.includes(value.slice(0, 2)))
 
+/** The tables an expression names, plus the receiver's default where it may be undefined. */
 const tablesOrDefault = (ctx: Context, state: HandlerState, values: Values, call: ts.CallExpression) => {
   // A string, a client or a function in a table position is no CONFIG table: refused like an unknown.
   if (!onlyKinds(values, ['T:', 'U:'])) return []
@@ -590,12 +855,11 @@ const record = (state: HandlerState, uses: TableUse, key: string, action: Action
   uses.set(key, byAction)
 }
 
-/** The action of the transaction item a `TableName:` property sits in: `{ Put: { TableName } }` is a PutItem. */
-const transactionAction = (property: TableNameProperty): Action => {
-  const item = property.parent.parent
-  const kind = ts.isPropertyAssignment(item) && ts.isIdentifier(item.name) ? item.name.text : undefined
-  const action = kind === undefined ? undefined : TRANSACTION_ACTIONS[kind]
-  if (!action) throw new Error(`${location(property)}: TableName outside a transaction item`)
+/** The action of the transaction item an object literal is: `{ Put: { TableName } }` is a PutItem. */
+const itemAction = (item: ts.ObjectLiteralExpression, at: ts.Node): Action => {
+  const key = ts.isPropertyAssignment(item.parent) ? staticName(item.parent.name) : undefined
+  const action = key === undefined ? undefined : TRANSACTION_ACTIONS[key]
+  if (!action) throw new Error(`${location(at)}: TableName outside a transaction item`)
   return action
 }
 
@@ -610,11 +874,38 @@ const collect = (ctx: Context, state: HandlerState, unit: Unit, uses: TableUse) 
     }
   }
   for (const property of info.tableNames) {
-    const action = transactionAction(property)
-    const values = valuesOfProperty(ctx, state, property)
+    const action = itemAction(property.parent, property)
+    const values = literalProperty(ctx, state, property.parent, 'TableName')
     const keys = tableKeys(values)
     if (!keys.length || !onlyKinds(values, ['T:'])) cannotTell(property, 'the item')
     for (const key of keys) record(state, uses, key, action, property, unit)
+  }
+}
+
+/** Whether every value a receiver can be is an object literal (or undefined, which would throw before writing). */
+const onlyLiterals = (ctx: Context, values: Values) => {
+  const literals = literalsOf(ctx, values).length
+  return literals > 0 && literals + (hasUndefined(values) ? 1 : 0) === values.size
+}
+
+/**
+ * The property writes, once the fixed point is reached: one to a property the walk reads a table,
+ * an index or a client from must land on object literals it can name; a `TableName` written onto a
+ * transaction item is a use of that table, like one written out in it.
+ */
+const checkWrites = (ctx: Context, state: HandlerState, uses: TableUse) => {
+  for (const [target, written] of state.written) {
+    const name = writtenName(target)
+    if (name === undefined || !READ_PROPERTIES.has(name) || CLIENT_FILE.test(target.getSourceFile().fileName)) continue
+    const receiver = valuesOf(ctx, state, target.expression)
+    if (!onlyLiterals(ctx, receiver)) cannotTell(target, 'the write')
+    if (name !== 'TableName') continue
+    const values = withoutUndefined(written)
+    if (!onlyKinds(values, ['T:'])) cannotTell(target, 'the item')
+    for (const item of literalsOf(ctx, receiver)) {
+      const action = itemAction(item, target)
+      for (const key of tableKeys(values)) record(state, uses, key, action, target, unitOf(target) ?? target)
+    }
   }
 }
 
@@ -623,27 +914,87 @@ const isDefaultExport = (statement: ts.Statement) =>
   (ts.isFunctionDeclaration(statement) &&
     Boolean(ts.getCombinedModifierFlags(statement) & ts.ModifierFlags.ExportDefault))
 
+/** The source files a file imports or re-exports from, type-only imports left out. */
+const importsOf = (ctx: Context, file: ts.SourceFile): ts.SourceFile[] => {
+  const cached = ctx.imports.get(file)
+  if (cached) return cached
+  const imported: ts.SourceFile[] = []
+  for (const statement of file.statements) {
+    const typeOnly = ts.isImportDeclaration(statement) ? statement.importClause?.isTypeOnly : undefined
+    const specifier =
+      (ts.isImportDeclaration(statement) || ts.isExportDeclaration(statement)) && !typeOnly
+        ? statement.moduleSpecifier
+        : undefined
+    if (!specifier || (ts.isExportDeclaration(statement) && statement.isTypeOnly)) continue
+    const declarations = ctx.checker.getSymbolAtLocation(specifier)?.declarations ?? []
+    imported.push(...declarations.filter(ts.isSourceFile).filter(isSourceNode))
+  }
+  ctx.imports.set(file, imported)
+  return imported
+}
+
+const isFunctionInitializer = (declaration: ts.VariableDeclaration) =>
+  declaration.initializer !== undefined && isFunctionLike(unwrap(declaration.initializer))
+
+/** A module-level statement that runs when its file is imported: no declaration of a function, class or type. */
+const runsAtImport = (statement: ts.Statement) => {
+  if (ts.isVariableStatement(statement)) return !statement.declarationList.declarations.every(isFunctionInitializer)
+  if (ts.isExportAssignment(statement)) return !isFunctionLike(unwrap(statement.expression))
+  return !(
+    ts.isFunctionDeclaration(statement) ||
+    ts.isClassDeclaration(statement) ||
+    ts.isInterfaceDeclaration(statement) ||
+    ts.isTypeAliasDeclaration(statement) ||
+    ts.isImportDeclaration(statement) ||
+    ts.isExportDeclaration(statement)
+  )
+}
+
+/** The statements that run when the handler is loaded: those of its own file and of every file it imports. */
+const importTimeUnits = (ctx: Context, start: ts.SourceFile): Unit[] => {
+  const seen = new Set<ts.SourceFile>()
+  const pending = [start]
+  for (let file = pending.pop(); file; file = pending.pop()) {
+    if (seen.has(file)) continue
+    seen.add(file)
+    pending.push(...importsOf(ctx, file))
+  }
+  return [...seen].flatMap((file) => file.statements.filter(runsAtImport))
+}
+
+/** One round over what the handler has reached so far: it reaches further, binds calls and literals, and applies the writes. */
+const step = (ctx: Context, state: HandlerState, importTime: Unit[]) => {
+  for (const unit of [...state.via.keys()]) {
+    const info = unitInfo(ctx, unit)
+    for (const target of info.targets) reach(state, target, unit)
+    for (const call of info.calls) bindCall(ctx, state, call, unit)
+    for (const literal of info.literals) bindObjectLiteral(ctx, state, literal)
+    for (const write of info.writes) applyWrite(ctx, state, write)
+  }
+  // The statements that run at import write whether or not anything reaches them; their calls and
+  // literals count only once something does.
+  for (const unit of importTime) for (const write of unitInfo(ctx, unit).writes) applyWrite(ctx, state, write)
+}
+
 const analyzeHandler = (ctx: Context, file: ts.SourceFile): TableUse => {
   const start = file.statements.find(isDefaultExport)
   if (!start) throw new Error(`${file.fileName}: no default export`)
-  const state: HandlerState = { changed: true, env: new Map(), memo: new Map(), via: new Map([[start, undefined]]) }
+  const state: HandlerState = {
+    changed: true,
+    env: new Map(),
+    memo: new Map(),
+    via: new Map([[start, undefined]]),
+    written: new Map(),
+  }
+  const importTime = importTimeUnits(ctx, file)
   while (state.changed) {
     state.changed = false
     state.memo.clear()
-    for (const unit of [...state.via.keys()]) {
-      const info = unitInfo(ctx, unit)
-      for (const target of info.targets) reach(state, target, unit)
-      for (const call of info.calls) bindCall(ctx, state, call, unit)
-      for (const literal of info.literals) bindObjectLiteral(ctx, state, literal)
-      for (const assignment of info.assignments) {
-        for (const declaration of declarationsOf(ctx, assignment.left)) {
-          addValues(state, declaration, valuesOf(ctx, state, assignment.right))
-        }
-      }
-    }
+    step(ctx, state, importTime)
   }
   const uses: TableUse = new Map()
   for (const unit of state.via.keys()) collect(ctx, state, unit, uses)
+  checkWrites(ctx, state, uses)
   return uses
 }
 
@@ -684,6 +1035,8 @@ const createContext = (program: ts.Program): Context => {
     checker: program.getTypeChecker(),
     clientClass: findDeclaration(clientFile, ts.isClassDeclaration, CLIENT_CLASS),
     config: findDeclaration(configFile, ts.isVariableDeclaration, 'CONFIG'),
+    files: files.filter(isSourceNode),
+    imports: new Map(),
     literalProperties: new Map(),
     nodes: new Map(),
     symbols: new Map(),
