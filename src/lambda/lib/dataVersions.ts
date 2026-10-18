@@ -1,9 +1,20 @@
 import type { DataVersion, DataVersions } from '../../types'
+import type {
+  Revision,
+  VersionedCollection,
+  VersionRecord,
+  VersionRecordRef,
+} from './repositories/dataVersionRepository'
 import { nanoid } from 'nanoid'
-import { CONFIG } from '../config'
-import CustomDynamoClient from '../utils/CustomDynamoClient'
-import { isConditionalCheckFailure } from './api-gw'
 import { logger } from './log'
+import {
+  readAllVersionRecords,
+  readMigrationHashes,
+  readVersionRecords,
+  recordMigration,
+  writeFingerprint,
+  writeRevision,
+} from './repositories/dataVersionRepository'
 
 /** Every collection but `users` has a single version; see `userScopes()` in lib/user.ts. */
 export const GLOBAL_SCOPE = '*'
@@ -18,9 +29,6 @@ export const GLOBAL_SCOPE = '*'
  * write inflates it and every browser then refetches until something repairs the number), while a
  * needless remint costs exactly one extra fetch.
  */
-const client = new CustomDynamoClient(CONFIG.dataVersionTable)
-
-export type VersionedCollection = keyof DataVersions
 
 /** Collections with a single global version. `users` is scoped per organization instead. */
 const GLOBAL_VERSIONED_COLLECTIONS = [
@@ -38,16 +46,8 @@ const GLOBAL_VERSIONED_COLLECTIONS = [
  */
 const INITIAL_REVISION = 'initial'
 
-export interface VersionRecord extends DataVersion {
-  collection: VersionedCollection
-  scope: string
-  /**
-   * Fingerprint of the data as of the last repair run. Only the weekly repair reads or writes
-   * these: an ordinary bump does not know the row count, which is the whole point of the token.
-   */
-  count?: number
-  fingerprintAt?: string
-}
+/** A new opaque revision token, stamped with the time it was minted. */
+const mintRevision = (): Revision => ({ modifiedAt: new Date().toISOString(), revision: nanoid(10) })
 
 const recordKey = (collection: string, scope: string) => `${collection}#${scope}`
 
@@ -75,9 +75,9 @@ const composeVersion = (records: Map<string, VersionRecord>, collection: Version
  * @param userScopes the scopes the caller's user list is assembled from, from `callerScopes()`
  */
 export async function getDataVersions(userScopes: string[]): Promise<DataVersions> {
-  const records = await client.batchGet<VersionRecord>([
+  const records = await readVersionRecords([
     ...GLOBAL_VERSIONED_COLLECTIONS.map((collection) => ({ collection, scope: GLOBAL_SCOPE })),
-    ...userScopes.map((scope) => ({ collection: 'users', scope })),
+    ...userScopes.map((scope): VersionRecordRef => ({ collection: 'users', scope })),
   ])
   const byKey = new Map(records.map((record) => [recordKey(record.collection, record.scope), record]))
   const global = (collection: VersionedCollection) => composeVersion(byKey, collection, [GLOBAL_SCOPE])
@@ -101,76 +101,34 @@ export async function bumpDataVersion(collection: VersionedCollection, scopes: s
   const unique = [...new Set(scopes)]
   if (!unique.length) return
 
-  const modifiedAt = new Date().toISOString()
-  const revision = nanoid(10)
+  const revision = mintRevision()
 
   try {
-    await Promise.all(unique.map((scope) => client.update({ collection, scope }, { set: { modifiedAt, revision } })))
+    await Promise.all(unique.map((scope) => writeRevision(collection, scope, revision)))
   } catch (error) {
     logger.error('failed to bump data version', { collection, error, scopes: unique })
   }
 }
 
 /**
- * The registry of applied data migrations shares this table: `scope` is the migration's name, and
- * the row says when it ran and how many rows it changed. They are not versions, so the weekly
- * repair must not measure them (`readStoredDataVersions` leaves them out).
+ * The stored code hash of each named migration that is recorded as applied. A row written before
+ * hashes existed maps to undefined, as does one never written, and a caller compares the current hash
+ * against the value so both read as pending.
  */
-const MIGRATIONS_COLLECTION = 'migrations'
-
-interface MigrationRecord {
-  appliedAt: string
-  collection: typeof MIGRATIONS_COLLECTION
-  count: number
-  /** Digest of the migration's code when it ran; absent on rows from before hashes existed. */
-  hash?: string
-  scope: string
-}
-
-/**
- * The stored code hash of each named migration that is recorded as applied; one batchGet, whatever
- * the number. A row written before hashes existed maps to undefined, as does one never written, and
- * a caller compares the current hash against the value so both read as pending.
- */
-export const readAppliedMigrations = async (names: string[]): Promise<Map<string, string | undefined>> => {
-  const records = await client.batchGet<MigrationRecord>(
-    names.map((scope) => ({ collection: MIGRATIONS_COLLECTION, scope }))
-  )
-  return new Map(records.map((record) => [record.scope, record.hash]))
-}
+export const readAppliedMigrations = async (names: string[]) => readMigrationHashes(names)
 
 /**
  * Records a migration unless a concurrent run already did: its mark, with the larger count, must
- * not be overwritten by a run that found nothing left to change. The mark lands when the row has no
- * hash (no row at all, or one from before hashes existed) or a different one (the migration's code
- * changed); an equal hash is "someone already recorded it". The four row states (no row, no hash and
- * a different hash write, an equal hash is refused) run against DynamoDB-local in
- * `dataVersions.integration.test.ts`.
+ * not be overwritten by a run that found nothing left to change.
  */
 export const markMigrationApplied = async (name: string, count: number, hash: string) => {
-  try {
-    await client.update(
-      { collection: MIGRATIONS_COLLECTION, scope: name },
-      { set: { appliedAt: new Date().toISOString(), count, hash } },
-      undefined,
-      undefined,
-      {
-        expression: 'attribute_not_exists(#hash) OR #hash <> :hash',
-        names: { '#hash': 'hash' },
-        values: { ':hash': hash },
-      }
-    )
-  } catch (error) {
-    if (!isConditionalCheckFailure(error)) throw error
+  if (!(await recordMigration(name, count, hash, new Date().toISOString()))) {
     logger.info('migration already recorded', { name })
   }
 }
 
-export const readStoredDataVersions = async () =>
-  ((await client.readAll<VersionRecord | MigrationRecord>()) ?? []).filter(isVersionRecord)
-
-const isVersionRecord = (record: VersionRecord | MigrationRecord): record is VersionRecord =>
-  record.collection !== MIGRATIONS_COLLECTION
+/** The version rows the weekly repair measures against. */
+export const readStoredDataVersions = async () => readAllVersionRecords()
 
 /**
  * Records the fingerprint the weekly repair measured, reminting the revision when the data moved
@@ -182,14 +140,4 @@ export const writeDataVersionFingerprint = async (
   scope: string,
   fingerprint: Pick<VersionRecord, 'count' | 'fingerprintAt'>,
   remint: boolean
-) =>
-  client.update(
-    { collection, scope },
-    {
-      set: {
-        count: fingerprint.count,
-        fingerprintAt: fingerprint.fingerprintAt ?? '',
-        ...(remint ? { modifiedAt: new Date().toISOString(), revision: nanoid(10) } : {}),
-      },
-    }
-  )
+) => writeFingerprint(collection, scope, fingerprint, remint ? mintRevision() : undefined)

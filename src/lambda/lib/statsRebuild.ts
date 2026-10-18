@@ -15,28 +15,22 @@ import type {
   YearlyStatTypes,
 } from '../../types/Stats'
 import type { EventStatsEvent } from './repositories/eventRepository'
+import type { EventStatKey } from './repositories/eventStatsRepository'
 import type { RegistrationStatsInput } from './stats'
 import { isEventOver, OFFICIAL_EVENT_TYPES, storedMonthKey, uniqueClasses } from '../../lib/event'
 import { getRegistrationClass, isMember, isStarter } from '../../lib/registration'
 import { splitEvenly } from '../../lib/utils'
 import { ALL_EVENT_TYPES_FOR_CAPACITY, ALL_ORGANIZERS_FOR_EVENTS, YEARLY_BREAKDOWN_TYPES } from '../../types/Stats'
-import { CONFIG } from '../config'
-import CustomDynamoClient from '../utils/CustomDynamoClient'
 import { logger } from './log'
 import { readEventsForStats } from './repositories/eventRepository'
 import {
-  bucketForCount,
-  eventStatsYear,
-  hashStatValue,
+  deleteStatRecords,
   organizerStatsKey,
-  participationIdentifiers,
-  statIdentifier,
-} from './stats'
-
-interface EventStatKey {
-  PK: string
-  SK: string
-}
+  readAllStatKeys,
+  writeStatRecords,
+} from './repositories/eventStatsRepository'
+import { readRegistrationsForStats } from './repositories/registrationRepository'
+import { bucketForCount, eventStatsYear, hashStatValue, participationIdentifiers, statIdentifier } from './stats'
 
 /**
  * An event with what the registration loop needs of it resolved once rather than once per
@@ -65,15 +59,6 @@ const dateStatsEvents = (eventsById: Map<string, EventStatsEvent>, now: Date): M
 
 type CapacityRegistrationInput = RegistrationStatsInput & Pick<JsonRegistration, 'group'>
 
-const REGISTRATION_STATS_PROJECTION_NAMES = {
-  '#class': 'class',
-  '#group': 'group',
-  '#handler': 'handler',
-  '#key': 'key',
-  '#owner': 'owner',
-}
-const REGISTRATION_STATS_PROJECTION =
-  'eventId, id, cancelled, paidAmount, refundAmount, eventType, dog.regNo, dog.breedCode, #handler.email, #handler.membership, #owner.membership, owners, ownerHandles, #class, #group.#key'
 const PARTICIPATION_TYPES: YearlyStatTypes[] = ['eventType', 'dog', 'breed', 'handler', 'dog#handler', 'class', 'event']
 // Draft/tentative/cancelled events aren't real committed capacity, so they're excluded from
 // capacity, participation and the club breakdown (unlike the organizer stats, which count every
@@ -93,8 +78,6 @@ const isHeldEvent = ({ event, ended }: Pick<DatedStatsEvent, 'event' | 'ended'>)
 /** A held event of an official type: the scope of the participation and breed start stats. */
 const isHeldOfficialEvent = (dated: Pick<DatedStatsEvent, 'event' | 'ended'>): boolean =>
   isHeldEvent(dated) && OFFICIAL_EVENT_TYPES.includes(dated.event.eventType)
-
-const dynamoDB = new CustomDynamoClient(CONFIG.eventStatsTable)
 
 /**
  * Which group of stats records a key belongs to. `organizer` is the only partition also written
@@ -891,18 +874,12 @@ export function createHandler(partitions: StatsPartition[] = ALL_STATS_PARTITION
     const wanted = new Set(partitions)
     logger.info('starting stats regeneration', { partitions })
 
-    const [allEvents, registrations, allStatKeys] = await Promise.all([
+    const [allEvents, registrationRecords, everyStatKey] = await Promise.all([
       readEventsForStats(),
-      dynamoDB.readAll<CapacityRegistrationInput>({
-        names: REGISTRATION_STATS_PROJECTION_NAMES,
-        projection: REGISTRATION_STATS_PROJECTION,
-        table: CONFIG.registrationTable,
-      }),
-      dynamoDB.readAll<EventStatKey>({ projection: 'PK, SK' }),
+      readRegistrationsForStats(),
+      readAllStatKeys(),
     ])
     const events = allEvents || []
-    const registrationRecords = registrations || []
-    const everyStatKey = allStatKeys || []
     // Only ever delete keys in the partitions this run owns; anything else is left untouched.
     const statKeys = everyStatKey.filter((key) => {
       const partition = getStatsRecordPartition(key)
@@ -940,8 +917,8 @@ export function createHandler(partitions: StatsPartition[] = ALL_STATS_PARTITION
       const newKeys = new Set(newRecords.map((record) => `${record.PK}\u0000${record.SK}`))
       const staleRecords = oldRecords.filter((record) => !newKeys.has(`${record.PK}\u0000${record.SK}`))
       // Keep each year independently regenerable if a manual run fails midway.
-      if (newRecords.length > 0) await dynamoDB.batchWrite(newRecords)
-      if (staleRecords.length > 0) await dynamoDB.batchDelete(staleRecords.map(({ PK, SK }) => ({ PK, SK })))
+      if (newRecords.length > 0) await writeStatRecords(newRecords)
+      if (staleRecords.length > 0) await deleteStatRecords(staleRecords)
       logger.info('regenerated stats for year', { removed: staleRecords.length, wrote: newRecords.length, year })
     }
 

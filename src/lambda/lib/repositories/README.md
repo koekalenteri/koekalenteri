@@ -40,13 +40,16 @@ The count can only go down; moving a table here lowers it.
 
 | Table | Module | Used by |
 | --- | --- | --- |
+| dataVersion | `dataVersionRepository.ts` | `lib/dataVersions.ts` (the version registry and the applied migrations) |
 | dog | `dogRepository.ts` | `GetDogFunction`, `PutRegistrationFunction` |
 | emailSuppression | `emailSuppressionRepository.ts` | `SesNotificationFunction`, `lib/emailSuppression` |
-| emailTemplate | `emailTemplateRepository.ts` | `GetEmailTemplatesFunction`, `PutEmailTemplateFunction` |
+| emailTemplate | `emailTemplateRepository.ts` | `GetEmailTemplatesFunction`, `PutEmailTemplateFunction`, `RepairDataVersionsFunction` |
 | event | `eventRepository.ts` | `lib/event.ts`, `lib/startNumbers.ts`, `lib/stationTurns.ts`, `lib/statsRebuild.ts`, `lib/user.ts`, `GetEventsFunction`, `GetAdminEventsFunction`, `PutInvitationAttachmentFunction`, `RunMigrationFunction`, `SendRegistrationMessagesFunction` |
+| eventStats | `eventStatsRepository.ts` | `lib/stats.ts`, `lib/statsRebuild.ts` |
 | eventType | `eventTypeRepository.ts` | `GetDogFunction`, `GetEventTypesFunction`, `PutEventTypeFunction`, `KennelliittoResultsFunction`, `SearchEventKcIdChoicesFunction`, `RepairDataVersionsFunction`, `lib/officialDirectory` (`GetJudgesFunction`, `GetOfficialsFunction`), `lib/stats` |
 | judge | `judgeRepository.ts` | `GetJudgesFunction` (through `lib/judge`), `PutJudgeFunction`, `PutEventTypeFunction`, `ImportCopiedEventFunction`, `RepairDataVersionsFunction` |
 | official | `officialRepository.ts` | `GetOfficialsFunction` (through `lib/official`), `PutEventTypeFunction`, `RepairDataVersionsFunction` |
 | location | `locationRepository.ts` | `GetLocationsFunction`, `RefreshLocationsFunction` (through `lib/location`), `RepairDataVersionsFunction` |
 | organizer | `organizerRepository.ts` | `GetOrganizersFunction`, `PutOrganizerFunction`, `SearchEventKcIdChoicesFunction`, `ExportEventToStageFunction`, `ImportCopiedEventFunction`, `KennelliittoResultsFunction`, `PaymentCreateFunction`, `RefundCreateFunction`, `RepairDataVersionsFunction`, `lib/user.ts` |
+| registration | `registrationRepository.ts` | `lib/stats.ts`, `lib/statsRebuild.ts`; only their reads so far, [KOE-1409](https://koekalenteri.atlassian.net/browse/KOE-1409) moves the rest of the table here |
 | wsConnections | `../ws/connectionRepository.ts` | the WebSocket handlers and `lib/ws` |
