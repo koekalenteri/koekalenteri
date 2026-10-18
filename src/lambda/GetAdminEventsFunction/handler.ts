@@ -1,12 +1,13 @@
 import type { JsonDogEvent, JsonUser } from '../../types'
 import { currentYear, TIME_ZONE, yearOf } from '../../lib/day'
-import { CONFIG } from '../config'
 import { authorizeWithMemberOf } from '../lib/auth'
 import { parseDateParam } from '../lib/incremental'
 import { httpError, lambda, response } from '../lib/lambda'
-import CustomDynamoClient from '../utils/CustomDynamoClient'
-
-const dynamoDB = new CustomDynamoClient(CONFIG.eventTable)
+import {
+  readOrganizerEvents,
+  readSeasonEvents,
+  readSeasonEventsUpdatedSince,
+} from '../lib/repositories/eventRepository'
 
 /**
  * The seasons a superadmin's list walks back through: from next season down, stopping once two
@@ -17,21 +18,7 @@ const EARLIEST_SEASON = 2020
 const EMPTY_SEASONS_TO_STOP = 2
 
 const querySeason = (season: number, updatedAfter?: string) =>
-  dynamoDB.query<JsonDogEvent>(
-    updatedAfter
-      ? {
-          index: 'gsiSeasonUpdatedAt',
-          key: 'season = :season AND updatedAt >= :updatedAfter',
-          table: CONFIG.eventTable,
-          values: { ':season': season.toString(), ':updatedAfter': updatedAfter },
-        }
-      : {
-          index: 'gsiSeasonStartDate',
-          key: 'season = :season',
-          table: CONFIG.eventTable,
-          values: { ':season': season.toString() },
-        }
-  )
+  updatedAfter ? readSeasonEventsUpdatedSince(season, updatedAfter) : readSeasonEvents(season)
 
 /** What changed since the client last asked, every season the change can be in. */
 const queryChangedSince = async (since: string): Promise<JsonDogEvent[]> => {
@@ -63,20 +50,11 @@ const queryAllSeasons = async (): Promise<JsonDogEvent[]> => {
 }
 
 /**
- * A club's administrator reads the club's events through gsiOrganizerStartDate, one query per
- * club, and nothing of anyone else's (KOE-1341).
+ * A club's administrator reads the club's events by organizer, one query per club, and nothing of
+ * anyone else's (KOE-1341).
  */
 const queryOrganizers = async (organizerIds: string[]): Promise<JsonDogEvent[]> => {
-  const perOrganizer = await Promise.all(
-    organizerIds.map((organizerId) =>
-      dynamoDB.query<JsonDogEvent>({
-        index: 'gsiOrganizerStartDate',
-        key: 'organizerId = :organizerId',
-        table: CONFIG.eventTable,
-        values: { ':organizerId': organizerId },
-      })
-    )
-  )
+  const perOrganizer = await Promise.all(organizerIds.map((organizerId) => readOrganizerEvents(organizerId)))
   return perOrganizer.flatMap((organizerEvents) => organizerEvents ?? [])
 }
 

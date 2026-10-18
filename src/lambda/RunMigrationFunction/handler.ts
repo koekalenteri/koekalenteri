@@ -2,16 +2,13 @@ import type { JsonDogEvent, RegistrationClass } from '../../types'
 import { createHash } from 'node:crypto'
 import { getEventSeason } from '../../lib/event'
 import { mapWithConcurrency } from '../../lib/utils'
-import { CONFIG } from '../config'
 import { authorizeAdmin } from '../lib/auth'
-import { foldedFrom, retryOnConditionFailure } from '../lib/conditionalWrite'
+import { retryOnConditionFailure } from '../lib/conditionalWrite'
 import { markMigrationApplied, readAppliedMigrations } from '../lib/dataVersions'
 import { isDirectInvoke, LambdaError, lambda, response } from '../lib/lambda'
 import { logger } from '../lib/log'
 import { createPatch } from '../lib/patch'
-import CustomDynamoClient from '../utils/CustomDynamoClient'
-
-const dynamoDB = new CustomDynamoClient(CONFIG.eventTable)
+import { readAllEvents, readEvent, writeMigratedEvent } from '../lib/repositories/eventRepository'
 
 type EventMigration = {
   name: string
@@ -25,8 +22,8 @@ const migrations: EventMigration[] = [
     run: (event) => event.updatedAt === undefined,
   },
   {
-    // `gsiOrganizerStartDate` is keyed on a top-level copy of organizer.id; rows written before
-    // the copy existed are not in the index until they carry it (KOE-1341).
+    // The organizer index (readOrganizerEvents) is keyed on a top-level copy of organizer.id; rows
+    // written before the copy existed are not in the index until they carry it (KOE-1341).
     name: 'backfillOrganizerId',
     run: (event) => {
       const organizerId = event.organizer?.id
@@ -117,13 +114,6 @@ const migrateRow = (item: JsonDogEvent, pending: Pending[]): ReadRow => {
 }
 
 /**
- * The write only lands on a row that still exists and that nobody moved since it was read. Without
- * the existence check an update of a deleted row would create a stub holding only the migrated fields.
- */
-const existsAndUnchangedSince = (readUpdatedAt: string | undefined) =>
-  foldedFrom('#updatedAt', { '#updatedAt': 'updatedAt' }, readUpdatedAt)
-
-/**
  * Writes only the fields the migrations changed, plus the bump. A whole-row Put would also write back
  * every other field as read, and some writers move fields without touching `updatedAt` (a start list
  * publication, the registration group lock), so the condition could not see them and the Put would
@@ -142,12 +132,10 @@ const writeMigratedRow = async (row: ReadRow): Promise<boolean[]> => {
   if (!row.changed.some(Boolean)) return row.changed
 
   const { remove, set } = createPatch(row.item, row.before)
-  await dynamoDB.update(
-    { id: row.item.id },
+  await writeMigratedEvent(
+    row.item.id,
     { ...(remove ? { remove } : {}), set: { ...set, updatedAt: new Date().toISOString() } },
-    undefined,
-    undefined,
-    existsAndUnchangedSince(row.readUpdatedAt)
+    row.readUpdatedAt
   )
   return row.changed
 }
@@ -158,7 +146,7 @@ const writeRow = (row: ReadRow, pending: Pending[]): Promise<boolean[]> =>
     initial: row,
     maxAttempts: MAX_WRITE_ATTEMPTS,
     reread: async () => {
-      const fresh = await dynamoDB.read<JsonDogEvent>({ id: row.item.id }, undefined, true)
+      const fresh = await readEvent(row.item.id, true)
       return fresh && migrateRow(fresh, pending)
     },
     // A row deleted meanwhile needs nothing any more.
@@ -185,7 +173,7 @@ const runMigrationLambda = lambda('runMigration', async (event) => {
     return response(200, [], event)
   }
 
-  const events = (await dynamoDB.readAll<JsonDogEvent>()) ?? []
+  const events = await readAllEvents()
   const modifiedRows = events.map((item) => migrateRow(item, pending)).filter(({ changed }) => changed.some(Boolean))
 
   // After a failed write no further row is started (mapWithConcurrency stops there), and the

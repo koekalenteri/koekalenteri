@@ -2,13 +2,12 @@ import type { JsonConfirmedEvent, JsonRegistration, JsonStationTurn, StationTurn
 import { vi } from 'vitest'
 import { stationPhases } from '../../lib/liveFormat'
 
-const mockRead = vi.fn()
-const mockUpdate = vi.fn()
+const mockReadEvent = vi.fn()
+const mockWriteStationTurns = vi.fn()
 
-vi.doMock('../utils/CustomDynamoClient', () => ({
-  default: vi.fn(function MockCustomDynamoClient() {
-    return { read: mockRead, update: mockUpdate }
-  }),
+vi.doMock('./repositories/eventRepository', () => ({
+  readEvent: mockReadEvent,
+  writeStationTurns: mockWriteStationTurns,
 }))
 
 const { applyStationTurnOp, parseStationTurnOp, saveStationTurns, writeStationTurn } = await import('./stationTurns')
@@ -272,40 +271,21 @@ describe('stationTurns', () => {
   })
 
   describe('saveStationTurns', () => {
-    it('conditions the write on the timeline it was derived from', async () => {
+    it('stores the timeline held to the one it was derived from, moving updatedAt', async () => {
       const expected = [storedTurn()]
       const next = [storedTurn({ endedAt: NOW.toISOString() })]
 
       await saveStationTurns('event-1', expected, next, NOW)
 
-      expect(mockUpdate).toHaveBeenCalledWith(
-        { id: 'event-1' },
-        { set: { turns: next, updatedAt: NOW.toISOString() } },
-        'event-table-not-found-in-env',
-        undefined,
-        {
-          expression: '#turns = :expected',
-          names: { '#turns': 'turns' },
-          values: { ':expected': expected },
-        }
-      )
+      expect(mockWriteStationTurns).toHaveBeenCalledWith('event-1', expected, next, NOW.toISOString())
     })
 
-    it('requires the attribute to be absent for the first span of the day', async () => {
+    it('holds the first span of the day to there being no timeline', async () => {
       const next = [storedTurn()]
 
       await saveStationTurns('event-1', undefined, next, NOW)
 
-      expect(mockUpdate).toHaveBeenCalledWith(
-        { id: 'event-1' },
-        { set: { turns: next, updatedAt: NOW.toISOString() } },
-        'event-table-not-found-in-env',
-        undefined,
-        {
-          expression: 'attribute_not_exists(#turns)',
-          names: { '#turns': 'turns' },
-        }
-      )
+      expect(mockWriteStationTurns).toHaveBeenCalledWith('event-1', undefined, next, NOW.toISOString())
     })
   })
 
@@ -314,34 +294,39 @@ describe('stationTurns', () => {
 
     it('re-reads and re-applies after losing the race, keeping both spans', async () => {
       const winner = storedTurn({ id: 'winner' })
-      mockUpdate.mockRejectedValueOnce(Object.assign(new Error('nope'), { name: 'ConditionalCheckFailedException' }))
-      mockRead.mockResolvedValueOnce({ id: 'event-1', turns: [winner] })
+      mockWriteStationTurns.mockRejectedValueOnce(
+        Object.assign(new Error('nope'), { name: 'ConditionalCheckFailedException' })
+      )
+      mockReadEvent.mockResolvedValueOnce({ id: 'event-1', turns: [winner] })
 
       const turns = await writeStationTurn(confirmedEvent, [], 'post-1', { pause: 'coffee', type: 'break' }, NOW)
 
       // The break closed the racing winner's open span instead of overwriting it away.
       expect(turns[0]).toEqual({ ...winner, endedAt: NOW.toISOString() })
       expect(turns[1].pause).toBe('coffee')
-      expect(mockUpdate).toHaveBeenCalledTimes(2)
+      expect(mockWriteStationTurns).toHaveBeenCalledTimes(2)
+      expect(mockReadEvent).toHaveBeenCalledWith('event-1')
     })
 
     it('gives up after repeated lost races', async () => {
-      mockUpdate.mockRejectedValue(Object.assign(new Error('nope'), { name: 'ConditionalCheckFailedException' }))
-      mockRead.mockResolvedValue({ id: 'event-1', turns: [] })
+      mockWriteStationTurns.mockRejectedValue(
+        Object.assign(new Error('nope'), { name: 'ConditionalCheckFailedException' })
+      )
+      mockReadEvent.mockResolvedValue({ id: 'event-1', turns: [] })
 
       await expect(
         writeStationTurn(confirmedEvent, [], 'post-1', { pause: 'coffee', type: 'break' }, NOW)
       ).rejects.toThrow('nope')
-      expect(mockUpdate).toHaveBeenCalledTimes(3)
+      expect(mockWriteStationTurns).toHaveBeenCalledTimes(3)
     })
 
     it('passes other errors through untouched', async () => {
-      mockUpdate.mockRejectedValueOnce(new Error('boom'))
+      mockWriteStationTurns.mockRejectedValueOnce(new Error('boom'))
 
       await expect(
         writeStationTurn(confirmedEvent, [], 'post-1', { pause: 'lunch', type: 'break' }, NOW)
       ).rejects.toThrow('boom')
-      expect(mockUpdate).toHaveBeenCalledTimes(1)
+      expect(mockWriteStationTurns).toHaveBeenCalledTimes(1)
     })
   })
 })

@@ -3,23 +3,48 @@ import { vi } from 'vitest'
 import { PRIORITY_MEMBER } from '../../lib/priority'
 import { describeInTimeZone } from '../../test-utils/timeZone'
 
+// The registration table is still reached through lib/registration's own client (KOE-1409).
 const mockQuery = vi.fn()
-const mockRead = vi.fn()
-const mockReadAll = vi.fn()
 const mockUpdate = vi.fn()
-const mockWrite = vi.fn()
 
 vi.doMock('../utils/CustomDynamoClient', () => ({
   __esModule: true,
   default: vi.fn(function MockCustomDynamoClient() {
     return {
       query: mockQuery,
-      read: mockRead,
-      readAll: mockReadAll,
       update: mockUpdate,
-      write: mockWrite,
     }
   }),
+}))
+
+const mockReadEvent = vi.fn()
+const mockFindEventIdsByKcGuid = vi.fn()
+const mockFindEventIdsByKcId = vi.fn()
+const mockReadLastEntryEndBefore = vi.fn()
+const mockWriteEvent = vi.fn()
+const mockWriteEventFields = vi.fn()
+const mockWriteWorkflowLock = vi.fn()
+const mockClearWorkflowLock = vi.fn()
+const mockWriteResultsPublished = vi.fn()
+const mockWriteKcStateReading = vi.fn()
+const mockWriteKcStateLock = vi.fn()
+const mockRestoreKcState = vi.fn()
+const mockWriteKcGuidLink = vi.fn()
+
+vi.doMock('./repositories/eventRepository', () => ({
+  clearWorkflowLock: mockClearWorkflowLock,
+  findEventIdsByKcGuid: mockFindEventIdsByKcGuid,
+  findEventIdsByKcId: mockFindEventIdsByKcId,
+  readEvent: mockReadEvent,
+  readLastEntryEndBefore: mockReadLastEntryEndBefore,
+  restoreKcState: mockRestoreKcState,
+  writeEvent: mockWriteEvent,
+  writeEventFields: mockWriteEventFields,
+  writeKcGuidLink: mockWriteKcGuidLink,
+  writeKcStateLock: mockWriteKcStateLock,
+  writeKcStateReading: mockWriteKcStateReading,
+  writeResultsPublished: mockWriteResultsPublished,
+  writeWorkflowLock: mockWriteWorkflowLock,
 }))
 
 const mockAudit = vi.fn()
@@ -32,12 +57,14 @@ vi.doMock('./audit', () => ({
 
 const {
   findEventWithKcGuid,
+  findEventWithKcId,
   findQualificationStartDate,
   fixRegistrationGroups,
   getEvent,
   getStateFromTemplate,
   lockKcState,
   lockRegistrationGroups,
+  lockRegistrationPayments,
   markParticipants,
   patchEvent,
   releaseKcState,
@@ -64,95 +91,61 @@ describe('the state read from Kennelliitto (KOE-1140)', () => {
   const state = { code: 1253, name: 'Ylituomarin hyväksyttäväksi', readAt: '2026-09-26T10:00:00.000Z' }
 
   beforeEach(() => {
-    mockUpdate.mockReset()
-  })
-
-  afterEach(() => {
-    mockUpdate.mockReset()
+    mockWriteKcStateReading.mockReset()
+    mockWriteKcStateLock.mockReset()
+    mockRestoreKcState.mockReset()
+    mockWriteKcGuidLink.mockReset()
   })
 
   describe('writeKcState', () => {
-    it('writes the state field by field, on condition that no newer reading is stored and no fresh lock is lifted', async () => {
-      mockUpdate.mockResolvedValueOnce(undefined)
-
+    it('writes the reading, with no fresh lock lifted by a reading of another state', async () => {
       await expect(writeKcState('event-1', state, state.readAt)).resolves.toBe(true)
 
-      expect(mockUpdate).toHaveBeenCalledWith(
-        { id: 'event-1' },
-        { set: { kcState: state, updatedAt: state.readAt } },
-        expect.anything(),
-        'NONE',
-        {
-          expression:
-            'attribute_exists(#id) AND (attribute_not_exists(#kcState) OR (#kcState.#readAt <= :readAt AND (:code = :handedOver OR #kcState.#code <> :handedOver OR #kcState.#readAt <= :freshAfter)))',
-          names: { '#code': 'code', '#id': 'id', '#kcState': 'kcState', '#readAt': 'readAt' },
-          // A handed-over state younger than thirty seconds (longer than a request lives) stays against a reading of another state.
-          values: {
-            ':code': 1253,
-            ':freshAfter': '2026-09-26T09:59:30.000Z',
-            ':handedOver': 1253,
-            ':readAt': state.readAt,
-          },
-        }
+      // A handed-over state younger than thirty seconds (longer than a request lives) stays against a reading of another state.
+      expect(mockWriteKcStateReading).toHaveBeenCalledWith(
+        'event-1',
+        state,
+        '2026-09-26T09:59:30.000Z',
+        1253,
+        state.readAt
       )
     })
 
     it('measures the window from the reading it writes, for a reading of another state', async () => {
-      mockUpdate.mockResolvedValueOnce(undefined)
       const open = { code: 754, name: 'Hyväksytty', readAt: '2026-09-26T10:01:00.000Z' }
 
       await writeKcState('event-1', open, open.readAt)
 
-      expect(mockUpdate).toHaveBeenCalledWith(
-        { id: 'event-1' },
-        expect.anything(),
-        expect.anything(),
-        'NONE',
-        expect.objectContaining({
-          values: {
-            ':code': 754,
-            ':freshAfter': '2026-09-26T10:00:30.000Z',
-            ':handedOver': 1253,
-            ':readAt': open.readAt,
-          },
-        })
+      expect(mockWriteKcStateReading).toHaveBeenCalledWith(
+        'event-1',
+        open,
+        '2026-09-26T10:00:30.000Z',
+        1253,
+        open.readAt
       )
     })
 
     it('answers false when a newer reading is stored, and lets any other failure through', async () => {
-      mockUpdate.mockRejectedValueOnce({ name: 'ConditionalCheckFailedException' })
+      mockWriteKcStateReading.mockRejectedValueOnce({ name: 'ConditionalCheckFailedException' })
       await expect(writeKcState('event-1', state, state.readAt)).resolves.toBe(false)
 
-      mockUpdate.mockRejectedValueOnce(new Error('throttled'))
+      mockWriteKcStateReading.mockRejectedValueOnce(new Error('throttled'))
       await expect(writeKcState('event-1', state, state.readAt)).rejects.toThrow('throttled')
     })
   })
 
   describe('lockKcState', () => {
-    it('takes the lock only where no handed-over state is stored and no newer reading is', async () => {
-      mockUpdate.mockResolvedValueOnce(undefined)
-
+    it('takes the lock with the handed-over code it is given', async () => {
       await expect(lockKcState('event-1', state, 1253)).resolves.toBe(true)
 
-      expect(mockUpdate).toHaveBeenCalledWith(
-        { id: 'event-1' },
-        { set: { kcState: state, updatedAt: state.readAt } },
-        expect.anything(),
-        'NONE',
-        {
-          expression:
-            'attribute_exists(#id) AND (attribute_not_exists(#kcState) OR (#kcState.#code <> :handedOver AND #kcState.#readAt <= :readAt))',
-          names: { '#code': 'code', '#id': 'id', '#kcState': 'kcState', '#readAt': 'readAt' },
-          values: { ':handedOver': 1253, ':readAt': state.readAt },
-        }
-      )
+      expect(mockWriteKcStateLock).toHaveBeenCalledWith('event-1', state, 1253)
     })
 
     it('answers false when another hand-over holds the lock, and lets any other failure through', async () => {
-      mockUpdate.mockRejectedValueOnce({ name: 'ConditionalCheckFailedException' })
+      mockWriteKcStateLock.mockRejectedValueOnce({ name: 'ConditionalCheckFailedException' })
       await expect(lockKcState('event-1', state, 1253)).resolves.toBe(false)
 
-      mockUpdate.mockRejectedValueOnce(new Error('throttled'))
+      mockWriteKcStateLock.mockRejectedValueOnce(new Error('throttled'))
       await expect(lockKcState('event-1', state, 1253)).rejects.toThrow('throttled')
     })
   })
@@ -160,49 +153,27 @@ describe('the state read from Kennelliitto (KOE-1140)', () => {
   describe('releaseKcState', () => {
     const restored = { code: 754, name: 'Hyväksytty', readAt: '2026-09-26T10:00:05.000Z' }
 
-    it('gives the state back only while the stored one is the lock it wrote', async () => {
-      mockUpdate.mockResolvedValueOnce(undefined)
-
+    it('gives the state back held to the lock it wrote', async () => {
       await expect(releaseKcState('event-1', restored, state.readAt, restored.readAt)).resolves.toBe(true)
 
-      expect(mockUpdate).toHaveBeenCalledWith(
-        { id: 'event-1' },
-        { set: { kcState: restored, updatedAt: restored.readAt } },
-        expect.anything(),
-        'NONE',
-        {
-          expression: 'attribute_exists(#id) AND #kcState.#readAt = :lockedAt',
-          names: { '#id': 'id', '#kcState': 'kcState', '#readAt': 'readAt' },
-          values: { ':lockedAt': state.readAt },
-        }
-      )
+      expect(mockRestoreKcState).toHaveBeenCalledWith('event-1', restored, state.readAt, restored.readAt)
     })
 
     it('answers false when the stored state is not the lock, and lets any other failure through', async () => {
-      mockUpdate.mockRejectedValueOnce({ name: 'ConditionalCheckFailedException' })
+      mockRestoreKcState.mockRejectedValueOnce({ name: 'ConditionalCheckFailedException' })
       await expect(releaseKcState('event-1', restored, state.readAt, restored.readAt)).resolves.toBe(false)
 
-      mockUpdate.mockRejectedValueOnce(new Error('throttled'))
+      mockRestoreKcState.mockRejectedValueOnce(new Error('throttled'))
       await expect(releaseKcState('event-1', restored, state.readAt, restored.readAt)).rejects.toThrow('throttled')
     })
   })
 
   describe('writeKcGuid', () => {
-    it('links only an event that has no link, and answers false when it has one', async () => {
-      mockUpdate.mockResolvedValueOnce(undefined)
+    it('links the event, and answers false when it has a link already', async () => {
       await expect(writeKcGuid('event-1', 'guid-1', '2026-09-26T10:00:00.000Z')).resolves.toBe(true)
-      expect(mockUpdate).toHaveBeenCalledWith(
-        { id: 'event-1' },
-        { set: { kcGuid: 'guid-1', updatedAt: '2026-09-26T10:00:00.000Z' } },
-        expect.anything(),
-        'NONE',
-        {
-          expression: 'attribute_exists(#id) AND attribute_not_exists(#kcGuid)',
-          names: { '#id': 'id', '#kcGuid': 'kcGuid' },
-        }
-      )
+      expect(mockWriteKcGuidLink).toHaveBeenCalledWith('event-1', 'guid-1', '2026-09-26T10:00:00.000Z')
 
-      mockUpdate.mockRejectedValueOnce({ name: 'ConditionalCheckFailedException' })
+      mockWriteKcGuidLink.mockRejectedValueOnce({ name: 'ConditionalCheckFailedException' })
       await expect(writeKcGuid('event-1', 'guid-2', '2026-09-26T10:00:00.000Z')).resolves.toBe(false)
     })
   })
@@ -210,34 +181,99 @@ describe('the state read from Kennelliitto (KOE-1140)', () => {
 
 describe('lib/event', () => {
   describe('lockRegistrationGroups', () => {
+    beforeEach(() => {
+      mockWriteWorkflowLock.mockReset()
+      mockClearWorkflowLock.mockReset()
+    })
+
     afterEach(() => {
       vi.useRealTimers()
     })
 
     it('retries acquisition with backoff and ignores release after lease takeover', async () => {
-      vi.useFakeTimers()
-      mockUpdate.mockRejectedValueOnce({ name: 'ConditionalCheckFailedException' }).mockResolvedValueOnce(undefined)
+      vi.useFakeTimers({ now: 1_000_000 })
+      mockWriteWorkflowLock
+        .mockRejectedValueOnce({ name: 'ConditionalCheckFailedException' })
+        .mockResolvedValueOnce(undefined)
 
       const lockPromise = lockRegistrationGroups('event-1', 1)
       await vi.advanceTimersByTimeAsync(100)
       const release = await lockPromise
 
-      expect(mockUpdate).toHaveBeenCalledTimes(2)
-      expect(mockUpdate).toHaveBeenNthCalledWith(
-        1,
-        { id: 'event-1' },
-        expect.objectContaining({ set: expect.objectContaining({ registrationGroupsLock: expect.anything() }) }),
-        expect.anything(),
-        undefined,
-        expect.objectContaining({ expression: expect.stringContaining('attribute_not_exists') })
+      expect(mockWriteWorkflowLock).toHaveBeenCalledTimes(2)
+      // The lock lasts ninety seconds from the attempt that took it.
+      expect(mockWriteWorkflowLock).toHaveBeenNthCalledWith(
+        2,
+        'event-1',
+        'registrationGroupsLock',
+        expect.any(String),
+        1_000_100,
+        1_090_100
       )
 
-      mockUpdate.mockRejectedValueOnce({ name: 'ConditionalCheckFailedException' })
+      mockClearWorkflowLock.mockRejectedValueOnce({ name: 'ConditionalCheckFailedException' })
       await expect(release()).resolves.toBeUndefined()
+      expect(mockClearWorkflowLock).toHaveBeenCalledWith('event-1', 'registrationGroupsLock', expect.any(String))
+    })
+
+    it('answers busy once the retries run out, and lets any other failure through', async () => {
+      mockWriteWorkflowLock.mockRejectedValueOnce({ name: 'ConditionalCheckFailedException' })
+      await expect(lockRegistrationGroups('event-1')).rejects.toMatchObject({ status: 409 })
+
+      mockWriteWorkflowLock.mockRejectedValueOnce(new Error('throttled'))
+      await expect(lockRegistrationGroups('event-1')).rejects.toThrow('throttled')
+    })
+
+    it('lets a failed release through when it is not a lost lock', async () => {
+      const release = await lockRegistrationGroups('event-1')
+
+      mockClearWorkflowLock.mockRejectedValueOnce(new Error('throttled'))
+      await expect(release()).rejects.toThrow('throttled')
+    })
+  })
+
+  describe('lockRegistrationPayments', () => {
+    beforeEach(() => {
+      mockWriteWorkflowLock.mockReset()
+    })
+
+    afterEach(() => {
+      vi.useRealTimers()
+    })
+
+    it('takes the payments lock, not the groups lock', async () => {
+      await lockRegistrationPayments('event-1')
+
+      expect(mockWriteWorkflowLock).toHaveBeenCalledWith(
+        'event-1',
+        'registrationPaymentsLock',
+        expect.any(String),
+        expect.any(Number),
+        expect.any(Number)
+      )
+    })
+
+    it('retries eight times by default, then answers with the payments conflict', async () => {
+      vi.useFakeTimers()
+      mockWriteWorkflowLock.mockRejectedValue({ name: 'ConditionalCheckFailedException' })
+
+      const lock = lockRegistrationPayments('event-1')
+      const refused = expect(lock).rejects.toMatchObject({
+        error: 'Registration payments are being updated. Please retry.',
+        status: 409,
+      })
+      await vi.runAllTimersAsync()
+      await refused
+
+      expect(mockWriteWorkflowLock).toHaveBeenCalledTimes(9)
     })
   })
 
   describe('findQualificationStartDate', () => {
+    beforeEach(() => {
+      mockReadLastEntryEndBefore.mockReset()
+    })
+
     // The next Finnish day's start, over both changes of time, run in the lambda's zone (UTC).
     describeInTimeZone('UTC', () => {
       it.each([
@@ -250,44 +286,39 @@ describe('lib/event', () => {
         { entryEndDate: '2026-10-24T21:00:00.000Z', expected: '2026-10-25T22:00:00.000Z' },
         { entryEndDate: '2026-03-28T22:00:00.000Z', expected: '2026-03-29T21:00:00.000Z' },
       ])('starts the qualification the Finnish day after $entryEndDate', async ({ entryEndDate, expected }) => {
-        mockQuery.mockResolvedValueOnce([{ entryEndDate }])
+        mockReadLastEntryEndBefore.mockResolvedValueOnce({ entryEndDate })
 
         await expect(findQualificationStartDate('NOME-B SM', '2027-01-01T00:00:00.000Z')).resolves.toEqual(expected)
       })
     })
 
-    it('should call query with proper arguments', async () => {
+    it('asks for the last entry end of the type before the one given', async () => {
       await findQualificationStartDate('NOME-B SM', new Date('2025-03-22T17:00:00Z').toISOString())
 
-      expect(mockQuery).toHaveBeenCalledWith({
-        forward: false,
-        index: 'gsiEventTypeEntryEndDate',
-        key: 'eventType = :eventType AND entryEndDate < :entryEndDate',
-        limit: 1,
-        table: 'event-table-not-found-in-env',
-        values: { ':entryEndDate': '2025-03-22T17:00:00.000Z', ':eventType': 'NOME-B SM' },
-      })
+      expect(mockReadLastEntryEndBefore).toHaveBeenCalledWith('NOME-B SM', '2025-03-22T17:00:00.000Z')
     })
-    it.each([undefined, [], [{}], [1, 2]])('should return undefined when query returns %p', async (result) => {
-      mockQuery.mockResolvedValueOnce(result)
+
+    it.each([undefined, {}])('should return undefined when the previous event is %p', async (result) => {
+      mockReadLastEntryEndBefore.mockResolvedValueOnce(result)
       await expect(
         findQualificationStartDate('NOME-B SM', new Date('2025-03-22T17:00:00Z').toISOString())
       ).resolves.toBeUndefined()
     })
 
     it('should return start of next day from the entryEndDate', async () => {
-      mockQuery.mockResolvedValueOnce([{ entryEndDate: '2024-08-20T23:59:59.999+03:00' }])
+      mockReadLastEntryEndBefore.mockResolvedValueOnce({ entryEndDate: '2024-08-20T23:59:59.999+03:00' })
       await expect(
         findQualificationStartDate('NOME-B SM', new Date('2025-03-22T17:00:00Z').toISOString())
       ).resolves.toEqual('2024-08-20T21:00:00.000Z')
     })
 
-    // The mocked query returns a field the index never projects (KOE-1554); the integration twin in
+    // The mocked read returns a field the index never projects (KOE-1554); the integration twin in
     // event.integration.test.ts is marked as failing until the projection is fixed, and the two must agree.
     it('should prefer entryOrigEndDate when available ', async () => {
-      mockQuery.mockResolvedValueOnce([
-        { entryEndDate: '2024-08-20T23:59:59.999+03:00', entryOrigEndDate: '2024-08-15T23:59:59.999+03:00' },
-      ])
+      mockReadLastEntryEndBefore.mockResolvedValueOnce({
+        entryEndDate: '2024-08-20T23:59:59.999+03:00',
+        entryOrigEndDate: '2024-08-15T23:59:59.999+03:00',
+      })
       await expect(
         findQualificationStartDate('NOME-B SM', new Date('2025-03-22T17:00:00Z').toISOString())
       ).resolves.toEqual('2024-08-15T21:00:00.000Z')
@@ -298,33 +329,47 @@ describe('lib/event', () => {
     const GUID = '2b81e6a1-559b-407c-87c7-b8a9b89b1987'
 
     beforeEach(() => {
-      mockReadAll.mockReset()
+      mockFindEventIdsByKcGuid.mockReset()
     })
 
-    it('scans the event table for the GUID', async () => {
-      mockReadAll.mockResolvedValueOnce([])
+    it('looks the GUID up', async () => {
+      mockFindEventIdsByKcGuid.mockResolvedValueOnce([])
 
       await findEventWithKcGuid(GUID)
 
-      expect(mockReadAll).toHaveBeenCalledWith({
-        filter: 'kcGuid = :kcGuid',
-        projection: 'id',
-        table: expect.any(String),
-        values: { ':kcGuid': GUID },
-      })
+      expect(mockFindEventIdsByKcGuid).toHaveBeenCalledWith(GUID)
     })
 
     it('returns the other event that has the GUID', async () => {
-      mockReadAll.mockResolvedValueOnce([{ id: 'this' }, { id: 'other' }])
+      mockFindEventIdsByKcGuid.mockResolvedValueOnce([{ id: 'this' }, { id: 'other' }])
 
       await expect(findEventWithKcGuid(GUID, 'this')).resolves.toEqual({ id: 'other' })
     })
 
     it('finds no conflict when the only match is the event itself or nothing matches', async () => {
-      mockReadAll.mockResolvedValueOnce([{ id: 'this' }]).mockResolvedValueOnce(undefined)
+      mockFindEventIdsByKcGuid.mockResolvedValueOnce([{ id: 'this' }]).mockResolvedValueOnce(undefined)
 
       await expect(findEventWithKcGuid(GUID, 'this')).resolves.toBeUndefined()
       await expect(findEventWithKcGuid(GUID, 'this')).resolves.toBeUndefined()
+    })
+  })
+
+  describe('findEventWithKcId', () => {
+    beforeEach(() => {
+      mockFindEventIdsByKcId.mockReset()
+    })
+
+    it('looks the trial number up and returns the other event that has it', async () => {
+      mockFindEventIdsByKcId.mockResolvedValueOnce([{ id: 'this' }, { id: 'other' }])
+
+      await expect(findEventWithKcId(123, 'this')).resolves.toEqual({ id: 'other' })
+      expect(mockFindEventIdsByKcId).toHaveBeenCalledWith(123)
+    })
+
+    it('finds nothing when nothing matches', async () => {
+      mockFindEventIdsByKcId.mockResolvedValueOnce(undefined)
+
+      await expect(findEventWithKcId(123, 'this')).resolves.toBeUndefined()
     })
   })
 
@@ -333,24 +378,24 @@ describe('lib/event', () => {
     const eventObj = { id: eventId, name: 'Test Event' }
 
     beforeEach(() => {
-      mockRead.mockReset()
+      mockReadEvent.mockReset()
     })
 
     it('returns the event when found', async () => {
-      mockRead.mockResolvedValueOnce(eventObj)
+      mockReadEvent.mockResolvedValueOnce(eventObj)
       const result = await getEvent(eventId)
       expect(result).toEqual(eventObj)
-      expect(mockRead).toHaveBeenCalledWith({ id: eventId }, expect.anything(), false)
+      expect(mockReadEvent).toHaveBeenCalledWith(eventId, false)
     })
 
     it('reads the row as last written when asked to (KOE-1510)', async () => {
-      mockRead.mockResolvedValueOnce(eventObj)
+      mockReadEvent.mockResolvedValueOnce(eventObj)
       await getEvent(eventId, true)
-      expect(mockRead).toHaveBeenCalledWith({ id: eventId }, expect.anything(), true)
+      expect(mockReadEvent).toHaveBeenCalledWith(eventId, true)
     })
 
     it('throws LambdaError(404) when not found', async () => {
-      mockRead.mockResolvedValueOnce(undefined)
+      mockReadEvent.mockResolvedValueOnce(undefined)
       await expect(getEvent(eventId)).rejects.toThrow(LambdaError)
       await expect(getEvent(eventId)).rejects.toThrow(/not found/i)
     })
@@ -359,7 +404,7 @@ describe('lib/event', () => {
   // markParticipants
   describe('markParticipants', () => {
     beforeEach(() => {
-      mockUpdate.mockReset()
+      mockWriteEventFields.mockReset()
     })
 
     it('updates all classes and event state if all invited', async () => {
@@ -375,18 +420,14 @@ describe('lib/event', () => {
       await markParticipants(event, 'invited', 'AVO')
       expect(event.state).toBe('invited')
       expect(event.classes.every((c) => c.state === 'invited')).toBe(true)
-      expect(mockUpdate).toHaveBeenCalledWith(
-        { id: 'e1' },
-        {
-          set: {
-            classes: event.classes,
-            startListPublished: false,
-            state: event.state,
-            updatedAt: expect.any(String),
-          },
+      expect(mockWriteEventFields).toHaveBeenCalledWith('e1', {
+        set: {
+          classes: event.classes,
+          startListPublished: false,
+          state: event.state,
+          updatedAt: expect.any(String),
         },
-        expect.anything()
-      )
+      })
     })
 
     it('updates only one class if eventClass is given', async () => {
@@ -416,18 +457,14 @@ describe('lib/event', () => {
       await markParticipants(event, 'invited', 'ALO')
 
       expect(event.startListPublished).toBe(false)
-      expect(mockUpdate).toHaveBeenCalledWith(
-        { id: 'new-event' },
-        {
-          set: {
-            classes: event.classes,
-            startListPublished: false,
-            state: event.state,
-            updatedAt: expect.any(String),
-          },
+      expect(mockWriteEventFields).toHaveBeenCalledWith('new-event', {
+        set: {
+          classes: event.classes,
+          startListPublished: false,
+          state: event.state,
+          updatedAt: expect.any(String),
         },
-        expect.anything()
-      )
+      })
     })
 
     it('sets a missing publication value to false even when another class is already invited', async () => {
@@ -521,7 +558,7 @@ describe('lib/event', () => {
       expect(event.state).toBe('invited')
 
       // Verify update was called twice
-      expect(mockUpdate).toHaveBeenCalledTimes(2)
+      expect(mockWriteEventFields).toHaveBeenCalledTimes(2)
     })
 
     it('does not downgrade state when lower state is provided', async () => {
@@ -560,9 +597,9 @@ describe('lib/event', () => {
   // updateRegistrations
   describe('updateRegistrations', () => {
     beforeEach(() => {
-      mockUpdate.mockReset()
+      mockWriteEventFields.mockReset()
       mockQuery.mockReset()
-      mockRead.mockReset()
+      mockReadEvent.mockReset()
     })
 
     it('updates event entries and members', async () => {
@@ -572,7 +609,7 @@ describe('lib/event', () => {
         organizer: { id: 'org-1' },
         state: 'ready',
       }
-      mockRead.mockResolvedValueOnce(event)
+      mockReadEvent.mockResolvedValueOnce(event)
       const regs = [
         { cancelled: false, class: 'ALO', eventId: 'e3', id: 'r1', paidAmount: 1, state: 'ready' },
         { cancelled: false, class: 'AVO', eventId: 'e3', id: 'r2', paidAmount: 0, state: 'ready' },
@@ -583,18 +620,14 @@ describe('lib/event', () => {
       expect(result.entries).toBe(2)
       expect(result.modifiedAt).toBeUndefined()
       expect(result.updatedAt).toEqual(expect.any(String))
-      expect(mockUpdate).toHaveBeenCalledWith(
-        { id: 'e3' },
-        {
-          set: {
-            classes: result.classes,
-            entries: 2,
-            members: 0,
-            updatedAt: result.updatedAt,
-          },
+      expect(mockWriteEventFields).toHaveBeenCalledWith('e3', {
+        set: {
+          classes: result.classes,
+          entries: 2,
+          members: 0,
+          updatedAt: result.updatedAt,
         },
-        expect.anything()
-      )
+      })
       // The counts the caller broadcasts come off what this returns (KOE-1277, KOE-1340).
       expect(result).toMatchObject({ entries: 2, id: 'e3', members: 0 })
     })
@@ -612,7 +645,7 @@ describe('lib/event', () => {
         priority: [PRIORITY_MEMBER],
         state: 'confirmed',
       }
-      mockRead.mockResolvedValueOnce(event)
+      mockReadEvent.mockResolvedValueOnce(event)
 
       // Set up registrations that would result in the same counts
       const regs = [
@@ -624,7 +657,7 @@ describe('lib/event', () => {
       await updateRegistrations('e4')
 
       // Verify that no update was performed
-      expect(mockUpdate).not.toHaveBeenCalled()
+      expect(mockWriteEventFields).not.toHaveBeenCalled()
     })
 
     it('uses provided updatedRegistrations parameter when available', async () => {
@@ -638,7 +671,7 @@ describe('lib/event', () => {
         priority: [PRIORITY_MEMBER],
         state: 'ready',
       }
-      mockRead.mockResolvedValueOnce(event)
+      mockReadEvent.mockResolvedValueOnce(event)
 
       // These registrations should be used directly without querying the database
       const updatedRegs = asJsonRegistrations([
@@ -673,18 +706,14 @@ describe('lib/event', () => {
       expect(avoClass?.members).toBe(1)
 
       // Verify update was called with correct parameters
-      expect(mockUpdate).toHaveBeenCalledWith(
-        { id: 'e5' },
-        {
-          set: {
-            classes: result.classes,
-            entries: 3,
-            members: 1,
-            updatedAt: result.updatedAt,
-          },
+      expect(mockWriteEventFields).toHaveBeenCalledWith('e5', {
+        set: {
+          classes: result.classes,
+          entries: 3,
+          members: 1,
+          updatedAt: result.updatedAt,
         },
-        expect.anything()
-      )
+      })
 
       expect(result.modifiedAt).toBeUndefined()
       expect(result.updatedAt).toEqual(expect.any(String))
@@ -703,7 +732,7 @@ describe('lib/event', () => {
         organizer: { id: 'org-1' },
         state: 'ready',
       }
-      mockRead.mockResolvedValueOnce(event)
+      mockReadEvent.mockResolvedValueOnce(event)
 
       // Empty registrations array
       const updatedRegs: JsonRegistration[] = []
@@ -726,23 +755,19 @@ describe('lib/event', () => {
       expect(avoClass?.members).toBe(0)
 
       // Verify update was called with correct parameters
-      expect(mockUpdate).toHaveBeenCalledWith(
-        { id: 'e6' },
-        {
-          set: {
-            classes: result.classes,
-            entries: 0,
-            members: 0,
-            updatedAt: result.updatedAt,
-          },
+      expect(mockWriteEventFields).toHaveBeenCalledWith('e6', {
+        set: {
+          classes: result.classes,
+          entries: 0,
+          members: 0,
+          updatedAt: result.updatedAt,
         },
-        expect.anything()
-      )
+      })
       expect(result.updatedAt).toEqual(expect.any(String))
     })
 
     it('throws LambdaError when event is not found', async () => {
-      mockRead.mockResolvedValueOnce(undefined)
+      mockReadEvent.mockResolvedValueOnce(undefined)
 
       await expect(updateRegistrations('nonexistent-id')).rejects.toThrow(LambdaError)
       await expect(updateRegistrations('nonexistent-id')).rejects.toThrow(/not found/i)
@@ -1126,8 +1151,8 @@ describe('lib/event', () => {
 
   describe('patchEvent', () => {
     beforeEach(() => {
-      mockUpdate.mockReset()
-      mockRead.mockReset()
+      mockWriteEventFields.mockReset()
+      mockReadEvent.mockReset()
     })
 
     it('returns existing event and does nothing for no-op patch', async () => {
@@ -1136,8 +1161,8 @@ describe('lib/event', () => {
       const result = await patchEvent(existing.id, existing, { ...existing })
 
       expect(result).toEqual({ event: existing })
-      expect(mockUpdate).not.toHaveBeenCalled()
-      expect(mockRead).not.toHaveBeenCalled()
+      expect(mockWriteEventFields).not.toHaveBeenCalled()
+      expect(mockReadEvent).not.toHaveBeenCalled()
     })
 
     it('reports the start list when the change is one its readers can see', async () => {
@@ -1149,7 +1174,7 @@ describe('lib/event', () => {
         state: 'invited',
       } as JsonDogEvent
       const next = { ...existing, startListPublished: { ALO: true } } as JsonDogEvent
-      mockRead.mockResolvedValueOnce(next)
+      mockReadEvent.mockResolvedValueOnce(next)
 
       const { change } = await patchEvent(existing.id, existing, next)
 
@@ -1164,7 +1189,7 @@ describe('lib/event', () => {
         state: 'confirmed',
       } as JsonDogEvent
       const next = { ...existing, name: 'New name' } as JsonDogEvent
-      mockRead.mockResolvedValueOnce(next)
+      mockReadEvent.mockResolvedValueOnce(next)
 
       const { change } = await patchEvent(existing.id, existing, next)
 
@@ -1184,18 +1209,14 @@ describe('lib/event', () => {
         qualificationStartDate: undefined,
       } as JsonDogEvent
       const persisted = { ...next } as JsonDogEvent
-      mockRead.mockResolvedValueOnce(persisted)
+      mockReadEvent.mockResolvedValueOnce(persisted)
 
       const result = await patchEvent(existing.id, existing, next)
 
-      expect(mockUpdate).toHaveBeenCalledWith(
-        { id: existing.id },
-        {
-          remove: ['qualificationStartDate'],
-          set: { name: 'New name' },
-        },
-        expect.anything()
-      )
+      expect(mockWriteEventFields).toHaveBeenCalledWith(existing.id, {
+        remove: ['qualificationStartDate'],
+        set: { name: 'New name' },
+      })
       expect(result.change).toEqual({
         audience: 'public',
         organizerId: 'org-1',
@@ -1220,19 +1241,15 @@ describe('lib/event', () => {
         },
       } as JsonDogEvent
 
-      mockRead.mockResolvedValueOnce(next)
+      mockReadEvent.mockResolvedValueOnce(next)
 
       const { change } = await patchEvent(existing.id, existing, next)
 
-      expect(mockUpdate).toHaveBeenCalledWith(
-        { id: existing.id },
-        {
-          set: {
-            'contactInfo.secretary.email': 'new@example.com',
-          },
+      expect(mockWriteEventFields).toHaveBeenCalledWith(existing.id, {
+        set: {
+          'contactInfo.secretary.email': 'new@example.com',
         },
-        expect.anything()
-      )
+      })
 
       expect(change).toEqual({
         audience: 'public',
@@ -1259,19 +1276,15 @@ describe('lib/event', () => {
         ],
       } as JsonDogEvent
 
-      mockRead.mockResolvedValueOnce(next)
+      mockReadEvent.mockResolvedValueOnce(next)
 
       const { change } = await patchEvent(existing.id, existing, next)
 
-      expect(mockUpdate).toHaveBeenCalledWith(
-        { id: existing.id },
-        {
-          set: {
-            classes: next.classes,
-          },
+      expect(mockWriteEventFields).toHaveBeenCalledWith(existing.id, {
+        set: {
+          classes: next.classes,
         },
-        expect.anything()
-      )
+      })
       expect(change).toEqual({
         audience: 'public',
         organizerId: 'org-1',
@@ -1297,7 +1310,7 @@ describe('lib/event', () => {
         ],
       } as JsonDogEvent
 
-      mockRead.mockResolvedValueOnce(next)
+      mockReadEvent.mockResolvedValueOnce(next)
 
       const { change } = await patchEvent(existing.id, existing, next)
 
@@ -1333,7 +1346,7 @@ describe('lib/event', () => {
         ],
       } as JsonDogEvent
 
-      mockRead.mockResolvedValueOnce(next)
+      mockReadEvent.mockResolvedValueOnce(next)
 
       const { change } = await patchEvent(existing.id, existing, next)
 
@@ -1368,17 +1381,13 @@ describe('lib/event', () => {
         state: 'tentative',
       } as JsonDogEvent
 
-      mockRead.mockResolvedValueOnce(next)
+      mockReadEvent.mockResolvedValueOnce(next)
 
       const { change } = await patchEvent(existing.id, existing, next)
 
-      expect(mockUpdate).toHaveBeenCalledWith(
-        { id: existing.id },
-        {
-          set: { state: 'tentative' },
-        },
-        expect.anything()
-      )
+      expect(mockWriteEventFields).toHaveBeenCalledWith(existing.id, {
+        set: { state: 'tentative' },
+      })
       expect(change).toEqual({
         audience: 'public',
         organizerId: 'org-1',
@@ -1399,7 +1408,7 @@ describe('lib/event', () => {
         name: 'Updated draft event',
       } as JsonDogEvent
 
-      mockRead.mockResolvedValueOnce(next)
+      mockReadEvent.mockResolvedValueOnce(next)
 
       const { change } = await patchEvent(existing.id, existing, next)
 
@@ -1422,7 +1431,7 @@ describe('lib/event', () => {
         state: 'draft',
       } as JsonDogEvent
 
-      mockRead.mockResolvedValueOnce(next)
+      mockReadEvent.mockResolvedValueOnce(next)
 
       const { change } = await patchEvent(existing.id, existing, next)
 
@@ -1439,14 +1448,14 @@ describe('lib/event', () => {
   // saveEvent
   describe('saveEvent', () => {
     beforeEach(() => {
-      mockWrite.mockReset()
+      mockWriteEvent.mockReset()
     })
     it("writes the event and reports a draft as the organizer's business alone", async () => {
       const event = { id: 'e6', name: 'Event', organizer: { id: 'org-1' }, state: 'draft' } as JsonDogEvent
 
       const change = await saveEvent(event)
 
-      expect(mockWrite).toHaveBeenCalledWith(event, expect.anything())
+      expect(mockWriteEvent).toHaveBeenCalledWith(event)
       expect(change).toEqual({
         audience: 'admin',
         organizerId: 'org-1',
@@ -1556,21 +1565,20 @@ describe('lib/event', () => {
       updatedAt: '2026-09-13T04:00:00.000Z',
     })
     const now = new Date('2026-09-13T15:00:00.000Z')
-    const written = (resultsPublished: unknown) => ({ Attributes: { id: 'event-1', resultsPublished } })
     const conflict = () => Object.assign(new Error('failed'), { name: 'ConditionalCheckFailedException' })
 
     beforeEach(() => {
-      mockUpdate.mockReset()
-      mockRead.mockReset()
+      mockWriteResultsPublished.mockReset()
+      mockReadEvent.mockReset()
       vi.useFakeTimers({ now, toFake: ['Date'] })
     })
     afterEach(() => {
       vi.useRealTimers()
     })
 
-    it('writes only the class entry of a stored map, held to the entry it was folded from (KOE-1510)', async () => {
+    it('folds the day into the flag as read and answers with the flag the row holds (KOE-1510)', async () => {
       // Another secretary's AVO publish landed meanwhile: the stored row has it, the reading did not.
-      mockUpdate.mockResolvedValueOnce(written({ ALO: ['2026-09-12', '2026-09-13'], AVO: true }))
+      mockWriteResultsPublished.mockResolvedValueOnce({ ALO: ['2026-09-12', '2026-09-13'], AVO: true })
 
       const saved = await setResultsPublishedState(
         twoDays,
@@ -1578,16 +1586,12 @@ describe('lib/event', () => {
         now
       )
 
-      expect(mockUpdate).toHaveBeenCalledWith(
-        { id: 'event-1' },
-        { set: { 'resultsPublished.ALO': ['2026-09-12', '2026-09-13'], updatedAt: '2026-09-13T15:00:00.000Z' } },
-        expect.any(String),
-        'ALL_NEW',
-        {
-          expression: 'attribute_exists(#id) AND #resultsPublished.#resultsClass = :foldedFrom',
-          names: { '#id': 'id', '#resultsClass': 'ALO', '#resultsPublished': 'resultsPublished' },
-          values: { ':foldedFrom': ['2026-09-12'] },
-        }
+      expect(mockWriteResultsPublished).toHaveBeenCalledWith(
+        'event-1',
+        'ALO',
+        { ALO: ['2026-09-12'] },
+        { ALO: ['2026-09-12', '2026-09-13'] },
+        '2026-09-13T15:00:00.000Z'
       )
       expect(saved).toMatchObject({
         id: 'event-1',
@@ -1596,30 +1600,8 @@ describe('lib/event', () => {
       })
     })
 
-    it('holds a class missing from the map to still being missing', async () => {
-      // An entry never written is absent, not false: a condition on false would never hold.
-      const withAvo = asJsonConfirmedEvent({
-        ...twoDays,
-        classes: [...twoDays.classes, { class: 'AVO', date: '2026-09-12' }],
-      })
-      mockUpdate.mockResolvedValueOnce(written({ ALO: ['2026-09-12'], AVO: ['2026-09-12'] }))
-
-      await setResultsPublishedState(withAvo, { date: '2026-09-12', eventClass: 'AVO', published: true }, now)
-
-      expect(mockUpdate).toHaveBeenCalledWith(
-        { id: 'event-1' },
-        { set: { 'resultsPublished.AVO': ['2026-09-12'], updatedAt: '2026-09-13T15:00:00.000Z' } },
-        expect.any(String),
-        'ALL_NEW',
-        {
-          expression: 'attribute_exists(#id) AND attribute_not_exists(#resultsPublished.#resultsClass)',
-          names: { '#id': 'id', '#resultsClass': 'AVO', '#resultsPublished': 'resultsPublished' },
-        }
-      )
-    })
-
-    it('writes a flag that is not yet a map whole, held to the flag as read', async () => {
-      mockUpdate.mockResolvedValueOnce(written({ ALO: ['2026-09-12'] }))
+    it('hands a flag that is not yet a map over as read', async () => {
+      mockWriteResultsPublished.mockResolvedValueOnce({ ALO: ['2026-09-12'] })
 
       await setResultsPublishedState(
         { ...twoDays, resultsPublished: true },
@@ -1627,23 +1609,19 @@ describe('lib/event', () => {
         now
       )
 
-      expect(mockUpdate).toHaveBeenCalledWith(
-        { id: 'event-1' },
-        { set: { resultsPublished: { ALO: ['2026-09-12'] }, updatedAt: '2026-09-13T15:00:00.000Z' } },
-        expect.any(String),
-        'ALL_NEW',
-        {
-          expression: 'attribute_exists(#id) AND #resultsPublished = :foldedFrom',
-          names: { '#id': 'id', '#resultsPublished': 'resultsPublished' },
-          values: { ':foldedFrom': true },
-        }
+      expect(mockWriteResultsPublished).toHaveBeenCalledWith(
+        'event-1',
+        'ALO',
+        true,
+        { ALO: ['2026-09-12'] },
+        '2026-09-13T15:00:00.000Z'
       )
     })
 
     it('reads the row again after a conflict and folds the day into it afresh', async () => {
       // Someone hid Saturday meanwhile; publishing Sunday must not bring Saturday back.
-      mockUpdate.mockRejectedValueOnce(conflict()).mockResolvedValueOnce(written({ ALO: ['2026-09-13'] }))
-      mockRead.mockResolvedValueOnce({ ...twoDays, resultsPublished: { ALO: false } })
+      mockWriteResultsPublished.mockRejectedValueOnce(conflict()).mockResolvedValueOnce({ ALO: ['2026-09-13'] })
+      mockReadEvent.mockResolvedValueOnce({ ...twoDays, resultsPublished: { ALO: false } })
 
       const saved = await setResultsPublishedState(
         twoDays,
@@ -1651,40 +1629,40 @@ describe('lib/event', () => {
         now
       )
 
-      expect(mockRead).toHaveBeenCalledWith({ id: 'event-1' }, expect.any(String), true)
-      expect(mockUpdate).toHaveBeenLastCalledWith(
-        { id: 'event-1' },
-        { set: { 'resultsPublished.ALO': ['2026-09-13'], updatedAt: '2026-09-13T15:00:00.000Z' } },
-        expect.any(String),
-        'ALL_NEW',
-        expect.objectContaining({ values: { ':foldedFrom': false } })
+      expect(mockReadEvent).toHaveBeenCalledWith('event-1', true)
+      expect(mockWriteResultsPublished).toHaveBeenLastCalledWith(
+        'event-1',
+        'ALO',
+        { ALO: false },
+        { ALO: ['2026-09-13'] },
+        '2026-09-13T15:00:00.000Z'
       )
       expect(saved.resultsPublished).toEqual({ ALO: ['2026-09-13'] })
     })
 
     it('judges the rules again on the row read after a conflict', async () => {
       // The start list was hidden meanwhile: the publish is refused rather than written.
-      mockUpdate.mockRejectedValueOnce(conflict())
-      mockRead.mockResolvedValueOnce({ ...twoDays, startListPublished: false })
+      mockWriteResultsPublished.mockRejectedValueOnce(conflict())
+      mockReadEvent.mockResolvedValueOnce({ ...twoDays, startListPublished: false })
 
       await expect(
         setResultsPublishedState(twoDays, { date: '2026-09-13', eventClass: 'ALO', published: true }, now)
       ).rejects.toMatchObject({ body: { publish: 'results', reason: 'startList' }, status: 422 })
-      expect(mockUpdate).toHaveBeenCalledTimes(1)
+      expect(mockWriteResultsPublished).toHaveBeenCalledTimes(1)
     })
 
     it('refuses as a conflict only once the attempts run out', async () => {
-      mockUpdate.mockRejectedValue(conflict())
-      mockRead.mockResolvedValue(twoDays)
+      mockWriteResultsPublished.mockRejectedValue(conflict())
+      mockReadEvent.mockResolvedValue(twoDays)
 
       await expect(
         setResultsPublishedState(twoDays, { date: '2026-09-12', eventClass: 'ALO', published: false }, now)
       ).rejects.toMatchObject({ body: { error: 'resultsPublishedChanged' }, status: 409 })
-      expect(mockUpdate).toHaveBeenCalledTimes(3)
+      expect(mockWriteResultsPublished).toHaveBeenCalledTimes(3)
     })
 
     it('lets any other failed write through rather than claiming the change', async () => {
-      mockUpdate.mockRejectedValueOnce(new Error('throttled'))
+      mockWriteResultsPublished.mockRejectedValueOnce(new Error('throttled'))
 
       await expect(
         setResultsPublishedState(twoDays, { date: '2026-09-13', eventClass: 'ALO', published: true }, now)
@@ -1692,7 +1670,7 @@ describe('lib/event', () => {
     })
 
     it('does not answer for a row that came back without a flag', async () => {
-      mockUpdate.mockResolvedValueOnce({ Attributes: { id: 'event-1' } })
+      mockWriteResultsPublished.mockResolvedValueOnce(undefined)
 
       await expect(
         setResultsPublishedState(twoDays, { date: '2026-09-13', eventClass: 'ALO', published: true }, now)

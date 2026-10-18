@@ -16,8 +16,8 @@ const mockSetReserveNotified = vi.fn()
 const mockGetReadyRegistrationsByEventId = vi.fn()
 const mockMarkParticipants = vi.fn()
 const mockQuery = vi.fn()
-const mockRead = vi.fn()
-const mockUpdate = vi.fn()
+const mockReadEvent = vi.fn()
+const mockWriteEventFields = vi.fn()
 const mockAudit = vi.fn()
 const mockEventAuditKey = vi.fn()
 const mockPublishEventPatch = vi.fn()
@@ -70,14 +70,18 @@ vi.doMock('../lib/event', () => ({
   markParticipants: mockMarkParticipants,
 }))
 
+// lib/registration still reads the registration table through its own client (KOE-1409).
 vi.doMock('../utils/CustomDynamoClient', () => ({
   default: vi.fn(function MockCustomDynamoClient() {
     return {
       query: mockQuery,
-      read: mockRead,
-      update: mockUpdate,
     }
   }),
+}))
+
+vi.doMock('../lib/repositories/eventRepository', () => ({
+  readEvent: mockReadEvent,
+  writeEventFields: mockWriteEventFields,
 }))
 
 const { default: sendMessagesLambda } = await import('./handler')
@@ -140,7 +144,7 @@ describe('sendMessagesLambda', () => {
     })
 
     mockGetReadyRegistrationsByEventId.mockResolvedValue(mockRegistrations)
-    mockRead.mockResolvedValue({ ...mockEvent })
+    mockReadEvent.mockResolvedValue({ ...mockEvent })
 
     // Set up the messagesSent property for the mock registrations
     mockRegistrations.forEach((reg) => {
@@ -170,7 +174,7 @@ describe('sendMessagesLambda', () => {
   })
 
   it('rejects users outside the event organizer before reading registrations or sending messages', async () => {
-    mockRead.mockResolvedValueOnce({ ...mockEvent, organizer: { id: 'org-2' } })
+    mockReadEvent.mockResolvedValueOnce({ ...mockEvent, organizer: { id: 'org-2' } })
 
     await expect(sendMessagesLambda(event)).rejects.toMatchObject({ message: 'Forbidden', statusCode: 403 })
 
@@ -190,11 +194,11 @@ describe('sendMessagesLambda', () => {
   })
 
   it('returns 404 if event not found', async () => {
-    mockRead.mockResolvedValueOnce(null)
+    mockReadEvent.mockResolvedValueOnce(null)
 
     await sendMessagesLambda(event)
 
-    expect(mockRead).toHaveBeenCalledWith({ id: 'event123' }, expect.any(String))
+    expect(mockReadEvent).toHaveBeenCalledWith('event123')
     expect(mockResponse).toHaveBeenCalledWith(404, 'Event not found', event)
     expect(mockSendTemplatedEmailToEventRegistrations).not.toHaveBeenCalled()
   })
@@ -242,11 +246,7 @@ describe('sendMessagesLambda', () => {
       user: 'Test User',
     })
     expect(mockPublishRegistrationPatches).toHaveBeenCalledWith('event123', mockRegistrations, 'org-1')
-    expect(mockUpdate).toHaveBeenCalledWith(
-      { id: 'event123' },
-      { set: { startListPublished: false } },
-      expect.any(String)
-    )
+    expect(mockWriteEventFields).toHaveBeenCalledWith('event123', { set: { startListPublished: false } })
     expect(mockPublishEventPatch).toHaveBeenCalledWith(
       {
         classes: mockEvent.classes,
@@ -305,7 +305,7 @@ describe('sendMessagesLambda', () => {
 
     // Verify participants were marked
     expect(mockMarkParticipants).toHaveBeenCalledWith(mockEvent, 'picked', 'ALO')
-    expect(mockUpdate).not.toHaveBeenCalled()
+    expect(mockWriteEventFields).not.toHaveBeenCalled()
     expect(mockAudit).toHaveBeenCalledWith({
       auditKey: 'event:event123',
       messageKey: 'audit.messages.classEmailSent',
@@ -321,11 +321,11 @@ describe('sendMessagesLambda', () => {
   })
 
   it('preserves an existing start list publication value when sending invitations', async () => {
-    mockRead.mockResolvedValueOnce({ ...mockEvent, startListPublished: true })
+    mockReadEvent.mockResolvedValueOnce({ ...mockEvent, startListPublished: true })
 
     await sendMessagesLambda(event)
 
-    expect(mockUpdate).not.toHaveBeenCalled()
+    expect(mockWriteEventFields).not.toHaveBeenCalled()
     expect(mockPublishEventPatch).toHaveBeenCalledWith(expect.objectContaining({ startListPublished: true }), 'org-1')
   })
 
@@ -575,14 +575,10 @@ describe('sendMessagesLambda', () => {
     expect(mockSendTemplatedEmailToEventRegistrations).not.toHaveBeenCalled()
   })
 
-  it('uses the correct event table when reading the event', async () => {
+  it('reads the event the messages are sent for', async () => {
     await sendMessagesLambda(event)
 
-    // Verify the read operation used the correct table
-    expect(mockRead).toHaveBeenCalledWith(
-      { id: 'event123' },
-      expect.stringContaining('event') // The table name should contain 'event'
-    )
+    expect(mockReadEvent).toHaveBeenCalledWith('event123')
   })
 
   it('handles registrations with different classes correctly', async () => {
@@ -617,7 +613,7 @@ describe('sendMessagesLambda', () => {
       organizer: { id: 'org-1' },
       state: 'draft',
     }
-    mockRead.mockResolvedValueOnce(testEvent)
+    mockReadEvent.mockResolvedValueOnce(testEvent)
 
     await sendMessagesLambda(event)
 
@@ -884,7 +880,7 @@ describe('sendMessagesLambda', () => {
       text: 'Test message',
     })
     mockGetReadyRegistrationsByEventId.mockResolvedValueOnce(mockRegistrations)
-    mockRead.mockResolvedValueOnce(mockEvent)
+    mockReadEvent.mockResolvedValueOnce(mockEvent)
     mockSendTemplatedEmailToEventRegistrations.mockResolvedValueOnce({
       failed: [],
       ok: ['recipient@example.com'],

@@ -1,12 +1,9 @@
 import type { JsonDogEvent } from '../../types'
 import { currentYear, TIME_ZONE, yearEnd, yearOf, yearStart } from '../../lib/day'
 import { sanitizeDogEvent } from '../../lib/event'
-import { CONFIG } from '../config'
 import { changedSince, collectionCursor, parseDateParam } from '../lib/incremental'
 import { lambda, response } from '../lib/lambda'
-import CustomDynamoClient from '../utils/CustomDynamoClient'
-
-const dynamoDB = new CustomDynamoClient(CONFIG.eventTable)
+import { readPublicSeasonEvents } from '../lib/repositories/eventRepository'
 
 function inRequestedRange(item: { startDate: string; endDate?: string }, start?: Date, end?: Date) {
   const eventStart = new Date(item.startDate)
@@ -34,7 +31,7 @@ function getUpperBoundYear(end: Date | undefined, lowerBoundYear: number): numbe
 }
 
 /**
- * The seasons the range spans, read through gsiSeasonStartDate. A request with no range gets the
+ * The seasons the range spans, read by season and start date. A request with no range gets the
  * current season and the next, which is what the calendar's front page shows; nothing reads the
  * whole table any more (KOE-1341). Drafts are left out by the query rather than in memory: the
  * public list never needs them, so they are not carried over the wire from the database either.
@@ -49,22 +46,7 @@ async function queryEventsForRange(start?: Date, end?: Date): Promise<JsonDogEve
 
   // The seasons are independent queries: asked together, the calendar waits for the slowest one
   // instead of their sum. Promise.all keeps the season order.
-  const perSeason = await Promise.all(
-    seasons.map((season) =>
-      dynamoDB.query<JsonDogEvent>({
-        filterExpression: '#state <> :draft',
-        index: 'gsiSeasonStartDate',
-        key: 'season = :season AND startDate <= :endDate',
-        names: { '#state': 'state' },
-        table: CONFIG.eventTable,
-        values: {
-          ':draft': 'draft',
-          ':endDate': upperBound.toISOString(),
-          ':season': season,
-        },
-      })
-    )
-  )
+  const perSeason = await Promise.all(seasons.map((season) => readPublicSeasonEvents(season, upperBound.toISOString())))
 
   return perSeason.flatMap((seasonEvents) => seasonEvents ?? [])
 }
