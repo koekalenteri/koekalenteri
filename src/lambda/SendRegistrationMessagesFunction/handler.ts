@@ -7,6 +7,7 @@ import { getStateFromTemplate, markParticipants } from '../lib/event'
 import { assertEventOrganizerAccess } from '../lib/eventAuth'
 import { parseJSONWithFallback } from '../lib/json'
 import { httpError, lambda, response } from '../lib/lambda'
+import { publishParticipantPayments } from '../lib/payment'
 import {
   createRegistrationPatch,
   createSentRegistrationMessagesAudit,
@@ -88,6 +89,10 @@ const publishMessageUpdates = async (
   )
 }
 
+/** The registrations that have not had this message yet; a send that goes through marks them. */
+const notYetSentIds = (registrations: JsonRegistration[], template: RegistrationMessage['template']) =>
+  new Set(registrations.filter((registration) => !registration.messagesSent?.[template]).map(({ id }) => id))
+
 const sendMessagesLambda = lambda('sendMessages', async (event) => {
   const origin = getOrigin(event)
 
@@ -112,6 +117,10 @@ const sendMessagesLambda = lambda('sendMessages', async (event) => {
     throw httpError(400, 'Not all registrations were found, aborting!')
   }
 
+  // The sender updates each registration's messagesSent in place, so what was there before is kept
+  // as ids, not as the objects.
+  const unsentIds = notYetSentIds(registrations, template)
+
   const { ok, failed } = await sendTemplatedEmailToEventRegistrations(
     template,
     { ...confirmedEvent, contactInfo },
@@ -120,6 +129,16 @@ const sendMessagesLambda = lambda('sendMessages', async (event) => {
     text,
     user,
     ''
+  )
+
+  // The entrant's open page reads messagesSent (the confirmation request after picked, KOE-1567).
+  // Told right after the send, which stored it: this never rejects, so a failure in what follows
+  // cannot cost the entrant the news. Nothing after the send changes messagesSent or whether the
+  // event is open for payment (marking the classes keeps it confirmed).
+  const stillUnsentIds = notYetSentIds(registrations, template)
+  await publishParticipantPayments(
+    confirmedEvent,
+    [...unsentIds].filter((id) => !stillUnsentIds.has(id))
   )
 
   confirmedEvent = await updateMessageState(eventId, template, confirmedEvent, registrations, eventRegistrations || [])

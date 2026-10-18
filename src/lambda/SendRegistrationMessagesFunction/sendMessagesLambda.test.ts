@@ -1,6 +1,7 @@
-import type { JsonConfirmedEvent, Registration } from '../../types'
+import type { JsonConfirmedEvent, JsonRegistration, Registration } from '../../types'
 import { vi } from 'vitest'
 import { httpError } from '../lib/lambda'
+import { deliverToEntrant, everyEntrantWatching } from '../test-utils/entrantPages'
 import { answerRejections, constructPartialAPIGwEvent } from '../test-utils/helpers'
 
 const setEventBody = (event: { body: string | null }, body: unknown) => {
@@ -16,6 +17,7 @@ const mockSetReserveNotified = vi.fn()
 const mockGetReadyRegistrationsByEventId = vi.fn()
 const mockMarkParticipants = vi.fn()
 const mockQuery = vi.fn()
+const mockRead = vi.fn()
 const mockReadEvent = vi.fn()
 const mockWriteEventFields = vi.fn()
 const mockAudit = vi.fn()
@@ -50,8 +52,15 @@ vi.doMock('../lib/audit', () => ({
   eventAuditKey: mockEventAuditKey,
 }))
 
-vi.doMock('../lib/ws/actions', () => ({
+// What each entrant's page receives. The real publisher runs; every entrant has the page open (KOE-1567).
+const mockToEntrant = vi.fn()
+vi.doMock('../lib/ws/connectionSelectors', () => ({ registrationsAudience: everyEntrantWatching }))
+vi.doMock('../lib/ws/broadcast', () => ({ broadcast: deliverToEntrant(mockToEntrant) }))
+vi.doMock('../lib/ws/actions', async () => ({
   publishEventPatch: mockPublishEventPatch,
+  publishParticipantRegistrationPatches: (
+    await vi.importActual<typeof import('../lib/ws/actions')>('../lib/ws/actions')
+  ).publishParticipantRegistrationPatches,
   publishRegistrationPatches: mockPublishRegistrationPatches,
 }))
 
@@ -70,11 +79,13 @@ vi.doMock('../lib/event', () => ({
   markParticipants: mockMarkParticipants,
 }))
 
-// lib/registration still reads the registration table through its own client (KOE-1409).
+// lib/registration still reads the registration table through its own client (KOE-1409), and
+// lib/payment reads the stored row the entrant's patch is built from.
 vi.doMock('../utils/CustomDynamoClient', () => ({
   default: vi.fn(function MockCustomDynamoClient() {
     return {
       query: mockQuery,
+      read: mockRead,
     }
   }),
 }))
@@ -888,5 +899,77 @@ describe('sendMessagesLambda', () => {
 
     await sendMessagesLambda(event)
     expect(mockMarkParticipants).toHaveBeenCalledWith(expect.anything(), 'picked', expect.anything())
+  })
+  describe('the entrant pages (KOE-1567)', () => {
+    const storedAt = '2030-01-01T00:00:00.500Z'
+
+    /** Sends picked to three entries: one new, one that already had it, one whose send fails. */
+    const sendPicked = async () => {
+      const registrations: Partial<JsonRegistration>[] = [
+        { class: 'ALO', eventId: 'event123', group: { key: 'group1', number: 1 }, id: 'reg-new', state: 'ready' },
+        {
+          class: 'ALO',
+          eventId: 'event123',
+          group: { key: 'group1', number: 2 },
+          id: 'reg-had',
+          messagesSent: { picked: true },
+          state: 'ready',
+        },
+        { class: 'ALO', eventId: 'event123', group: { key: 'group1', number: 3 }, id: 'reg-failed', state: 'ready' },
+      ]
+      mockGetReadyRegistrationsByEventId.mockResolvedValueOnce(registrations)
+      // The entrant's patch carries the payment picture, worked out from the event's cost.
+      mockReadEvent.mockResolvedValueOnce({ ...mockEvent, cost: 50 })
+      // As the real sender: a sent message is stored in messagesSent, on the row and in memory alike.
+      mockSendTemplatedEmailToEventRegistrations.mockImplementationOnce(
+        async (template: 'picked', _event: unknown, sentTo: Partial<JsonRegistration>[]) => {
+          for (const registration of sentTo) {
+            if (registration.id === 'reg-failed') continue
+            const messagesSent = registration.messagesSent ?? {}
+            messagesSent[template] = true
+            registration.messagesSent = messagesSent
+          }
+          return { failed: ['failed@example.com'], ok: ['new@example.com', 'had@example.com'] }
+        }
+      )
+      mockRead.mockImplementation(async (key: { id: string }) => ({
+        ...registrations.find((registration) => registration.id === key.id),
+        updatedAt: storedAt,
+      }))
+      setEventBody(event, {
+        contactInfo: { email: 'contact@example.com' },
+        eventId: 'event123',
+        registrationIds: ['reg-new', 'reg-had', 'reg-failed'],
+        template: 'picked',
+        text: 'Test message',
+      })
+
+      return sendMessagesLambda(event)
+    }
+
+    const expectOnlyNewEntrantTold = () => {
+      expect(mockToEntrant).toHaveBeenCalledTimes(1)
+      expect(mockToEntrant).toHaveBeenCalledWith(
+        'event123',
+        'reg-new',
+        expect.objectContaining({ id: 'reg-new', messagesSent: { picked: true }, updatedAt: storedAt })
+      )
+    }
+
+    it('tells each entrant whose picked message went out that it was sent, from the stored row', async () => {
+      await sendPicked()
+
+      expectOnlyNewEntrantTold()
+    })
+
+    // The mails are sent and stored before the admins hear of it; a failed admin push must not
+    // leave the entrant's page without the confirmation request.
+    it('tells the entrant although the admin publish fails', async () => {
+      mockPublishRegistrationPatches.mockRejectedValueOnce(new Error('connection scan failed'))
+
+      await expect(sendPicked()).rejects.toThrow('connection scan failed')
+
+      expectOnlyNewEntrantTold()
+    })
   })
 })
