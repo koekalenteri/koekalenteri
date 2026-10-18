@@ -5,7 +5,7 @@ import { answerRejections, constructPartialAPIGwEvent } from '../test-utils/help
 const mockAuthorizeWithMemberOf = vi.fn()
 const mockLambda = vi.fn((_name, fn) => answerRejections(fn, mockResponse))
 const mockResponse = vi.fn()
-const mockReadAll = vi.fn()
+const mockReadEmailTemplates = vi.fn()
 
 vi.doMock('../lib/auth', () => ({
   authorizeWithMemberOf: mockAuthorizeWithMemberOf,
@@ -17,12 +17,8 @@ vi.doMock('../lib/lambda', async () => ({
   response: mockResponse,
 }))
 
-vi.doMock('../utils/CustomDynamoClient', () => ({
-  default: vi.fn(function MockCustomDynamoClient() {
-    return {
-      readAll: mockReadAll,
-    }
-  }),
+vi.doMock('../lib/repositories/emailTemplateRepository', () => ({
+  readEmailTemplates: mockReadEmailTemplates,
 }))
 
 const { default: getEmailTemplatesLambda } = await import('./handler')
@@ -44,7 +40,7 @@ describe('getEmailTemplatesLambda', () => {
     await getEmailTemplatesLambda(event)
 
     expect(mockAuthorizeWithMemberOf).toHaveBeenCalledWith(event)
-    expect(mockReadAll).not.toHaveBeenCalled()
+    expect(mockReadEmailTemplates).not.toHaveBeenCalled()
   })
 
   it('returns 403 if the user is neither an admin nor an organizer member', async () => {
@@ -53,7 +49,7 @@ describe('getEmailTemplatesLambda', () => {
     await getEmailTemplatesLambda(event)
 
     expect(mockAuthorizeWithMemberOf).toHaveBeenCalledWith(event)
-    expect(mockReadAll).not.toHaveBeenCalled()
+    expect(mockReadEmailTemplates).not.toHaveBeenCalled()
   })
 
   it('returns all email templates if authorized', async () => {
@@ -62,24 +58,24 @@ describe('getEmailTemplatesLambda', () => {
       { body: 'Body 2', id: 'template2', name: 'Template 2', subject: 'Subject 2' },
     ]
 
-    mockReadAll.mockResolvedValueOnce(templates)
+    mockReadEmailTemplates.mockResolvedValueOnce(templates)
 
     await getEmailTemplatesLambda(event)
 
     expect(mockAuthorizeWithMemberOf).toHaveBeenCalledWith(event)
-    expect(mockReadAll).toHaveBeenCalled()
+    expect(mockReadEmailTemplates).toHaveBeenCalled()
     expect(mockResponse).toHaveBeenCalledWith(200, templates, event)
   })
 
   it('returns empty array if no templates found', async () => {
     const templates: any[] = []
 
-    mockReadAll.mockResolvedValueOnce(templates)
+    mockReadEmailTemplates.mockResolvedValueOnce(templates)
 
     await getEmailTemplatesLambda(event)
 
     expect(mockAuthorizeWithMemberOf).toHaveBeenCalledWith(event)
-    expect(mockReadAll).toHaveBeenCalled()
+    expect(mockReadEmailTemplates).toHaveBeenCalled()
     expect(mockResponse).toHaveBeenCalledWith(200, templates, event)
   })
 
@@ -89,7 +85,7 @@ describe('getEmailTemplatesLambda', () => {
       { id: 'old', modifiedAt: '2024-01-01T00:00:00.000Z' },
       { id: 'new', modifiedAt: '2024-01-03T00:00:00.000Z' },
     ]
-    mockReadAll.mockResolvedValueOnce(templates)
+    mockReadEmailTemplates.mockResolvedValueOnce(templates)
 
     await getEmailTemplatesLambda(incrementalEvent)
 
@@ -105,24 +101,24 @@ describe('getEmailTemplatesLambda', () => {
   })
 
   it('returns undefined if readAll returns undefined', async () => {
-    mockReadAll.mockResolvedValueOnce(undefined)
+    mockReadEmailTemplates.mockResolvedValueOnce(undefined)
 
     await getEmailTemplatesLambda(event)
 
     expect(mockAuthorizeWithMemberOf).toHaveBeenCalledWith(event)
-    expect(mockReadAll).toHaveBeenCalled()
+    expect(mockReadEmailTemplates).toHaveBeenCalled()
     expect(mockResponse).toHaveBeenCalledWith(200, undefined, event)
   })
 
   it('passes through errors from readAll', async () => {
     const error = new Error('Database error')
 
-    mockReadAll.mockRejectedValueOnce(error)
+    mockReadEmailTemplates.mockRejectedValueOnce(error)
 
     await expect(getEmailTemplatesLambda(event)).rejects.toThrow(error)
 
     expect(mockAuthorizeWithMemberOf).toHaveBeenCalledWith(event)
-    expect(mockReadAll).toHaveBeenCalled()
+    expect(mockReadEmailTemplates).toHaveBeenCalled()
     expect(mockResponse).not.toHaveBeenCalled()
   })
 })

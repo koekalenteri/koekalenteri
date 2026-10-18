@@ -1,16 +1,15 @@
 import type { SNSEvent } from 'aws-lambda'
-import type { EmailTemplateId, JsonConfirmedEvent, JsonEmailDeliveryStatus, JsonEmailSuppression } from '../../types'
+import type { EmailTemplateId, JsonConfirmedEvent, JsonEmailDeliveryStatus } from '../../types'
 import { emailDeliveryFailedAudit } from '../../lib/audit'
 import { CONFIG } from '../config'
 import { audit, registrationAuditKey } from '../lib/audit'
 import { getEvent } from '../lib/event'
 import { logger } from '../lib/log'
+import { writeEmailSuppression } from '../lib/repositories/emailSuppressionRepository'
 import { publishRegistrationPatches } from '../lib/ws/actions'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 
-const { emailSuppressionTable, registrationTable } = CONFIG
-const dynamoDB = new CustomDynamoClient(registrationTable)
-const emailSuppressionDynamoDB = new CustomDynamoClient(emailSuppressionTable)
+const dynamoDB = new CustomDynamoClient(CONFIG.registrationTable)
 
 type SesNotification = {
   bounce?: {
@@ -77,8 +76,8 @@ const buildDeliveryStatus = (notification: SesNotification): JsonEmailDeliverySt
   return undefined
 }
 
-const writeEmailSuppression = async (eventId: string, registrationId: string, status: JsonEmailDeliveryStatus) => {
-  const emailSuppression: JsonEmailSuppression = {
+const suppressAddress = async (eventId: string, registrationId: string, status: JsonEmailDeliveryStatus) =>
+  writeEmailSuppression({
     email: status.email.trim().toLowerCase(),
     eventId,
     registrationId,
@@ -86,10 +85,7 @@ const writeEmailSuppression = async (eventId: string, registrationId: string, st
     updatedAt: status.at,
     ...(status.reason ? { reason: status.reason } : undefined),
     ...(status.template ? { template: status.template } : undefined),
-  }
-
-  await emailSuppressionDynamoDB.write(emailSuppression)
-}
+  })
 
 const isConditionalCheckFailed = (error: unknown) =>
   typeof error === 'object' && error !== null && 'name' in error && error.name === 'ConditionalCheckFailedException'
@@ -139,7 +135,7 @@ const handleNotification = async (notification: SesNotification) => {
     logger.info('SES notification for a registration not in this stack', { eventId, registrationId })
     return
   }
-  await writeEmailSuppression(eventId, registrationId, status)
+  await suppressAddress(eventId, registrationId, status)
   const confirmedEvent = await getEvent<JsonConfirmedEvent>(eventId)
   await publishRegistrationPatches(
     eventId,

@@ -1,5 +1,5 @@
 {
   "asAssertions": 158,
   "explicitAny": 160,
-  "dynamoClientsOutsideRepositories": 37
+  "dynamoClientsOutsideRepositories": 33
 }

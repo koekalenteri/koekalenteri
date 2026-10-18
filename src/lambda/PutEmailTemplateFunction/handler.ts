@@ -12,11 +12,10 @@ import { authorizeAdmin, getUsername } from '../lib/auth'
 import { parseJSONWithFallback } from '../lib/json'
 import { httpError, lambda, response } from '../lib/lambda'
 import { logger } from '../lib/log'
+import { readEmailTemplate, writeEmailTemplate } from '../lib/repositories/emailTemplateRepository'
 import { publishAdminDataInvalidation } from '../lib/ws/actions'
-import CustomDynamoClient from '../utils/CustomDynamoClient'
 import { markdownToTemplate } from '../utils/email/markdown'
 
-const dynamoDB = new CustomDynamoClient(CONFIG.emailTemplateTable)
 const ses = new SESClient()
 
 /**
@@ -63,7 +62,7 @@ const putEmailTemplateLambda = lambda('putEmailTemplate', async (event) => {
   const username = await getUsername(event)
 
   const item: JsonEmailTemplate = parseJSONWithFallback(event.body)
-  const existing = await dynamoDB.read<JsonEmailTemplate>({ id: item.id })
+  const existing = await readEmailTemplate(item.id)
 
   // modification info is always updated
   item.modifiedAt = timestamp
@@ -87,7 +86,7 @@ const putEmailTemplateLambda = lambda('putEmailTemplate', async (event) => {
     await updateOrCreateTemplate('en', data.ses.en)
   }
 
-  await dynamoDB.write(data)
+  await writeEmailTemplate(data)
   await publishAdminDataInvalidation(['emailTemplates'])
 
   return response(200, data, event)
