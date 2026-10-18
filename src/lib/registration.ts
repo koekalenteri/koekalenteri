@@ -771,7 +771,7 @@ const isInvitedRound = (event: InvitationPaymentEvent, registration: InvitationP
   event.state === 'invited' || getEventStateForClass(event, getRegistrationClass(registration)) === 'invited'
 
 /**
- * Whether this participant is still owed the koekutsu of a round that has already gone out — the
+ * Whether this participant is still owed the koekutsu of a round that has already gone out: the
  * dog lifted from the reserve list after the others were invited.
  */
 const isInvitationDue = (event: InvitationPaymentEvent, registration: InvitationPaymentRegistration): boolean =>

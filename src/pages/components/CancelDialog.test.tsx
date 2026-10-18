@@ -105,10 +105,24 @@ describe('CancelDialog', () => {
       unpaidRegistrationWithStaticDatesAndClass,
       true,
     ],
-    // A fee of nothing counts as paid for a place, but only in a confirmed trial (KOE-1552).
+    // A trial that is not confirmed reads the mark of a payment, even when it costs nothing.
     [
       'an unpaid entry in a free tentative trial',
       { ...publicEventWithStaticDatesAndClass, cost: 0, costMember: 0, state: 'tentative' as const },
+      unpaidRegistrationWithStaticDatesAndClass,
+      true,
+    ],
+    // A confirmed trial reads the picture of the secretary's row (KOE-1552): a fee of nothing counts
+    // as paid for the place, a fee not paid does not.
+    [
+      'an unpaid entry in a free confirmed trial',
+      { ...publicEventWithStaticDatesAndClass, cost: 0, costMember: 0 },
+      unpaidRegistrationWithStaticDatesAndClass,
+      false,
+    ],
+    [
+      'an unpaid entry in a confirmed trial with a fee',
+      publicEventWithStaticDatesAndClass,
       unpaidRegistrationWithStaticDatesAndClass,
       true,
     ],

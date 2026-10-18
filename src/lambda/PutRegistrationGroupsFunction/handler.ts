@@ -239,12 +239,13 @@ const putRegistrationGroupsLambda = lambda('putRegistrationGroups', async (event
      * must not hold an invitation to a place it never paid (KOE-1191). The rest get theirs from the
      * payment callback once the money is in, and the secretary can always send one by hand before that.
      */
-    const invitedParticipants = newParticipants.filter((reg) =>
-      shouldSendInvitationAfterPayment(confirmedEvent, reg, getPaymentPicture(confirmedEvent, reg, []))
-    )
-    const awaitingPayment = newParticipants.filter((reg) =>
-      isInvitationAwaitingPayment(confirmedEvent, reg, getPaymentPicture(confirmedEvent, reg, []))
-    )
+    const withPayment = newParticipants.map((reg) => ({ payment: getPaymentPicture(confirmedEvent, reg, []), reg }))
+    const invitedParticipants = withPayment
+      .filter(({ payment, reg }) => shouldSendInvitationAfterPayment(confirmedEvent, reg, payment))
+      .map(({ reg }) => reg)
+    const awaitingPayment = withPayment
+      .filter(({ payment, reg }) => isInvitationAwaitingPayment(confirmedEvent, reg, payment))
+      .map(({ reg }) => reg)
 
     const { ok: invitedOk, failed: invitedFailed } = invited
       ? await sendTemplatedEmailToEventRegistrations(

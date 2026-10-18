@@ -188,14 +188,14 @@ type FormPayment = { due: number; waitsForPlace: boolean }
  * paying at confirmation waits while the link is not offered and no payment is held.
  */
 export const getFormPayment = (event: PictureEvent, row: PaymentPictureRow): FormPayment => {
-  const picture = getRowPaymentPicture(event, row)
-  const due =
-    row.payment && isPaymentReturned(row) && isEventOpenForPayment(event)
-      ? row.payment.due
-      : getPaymentPicture(event, row, []).due
-  const held = picture.status === 'inProgress' || picture.status === 'duplicate'
+  const edited = getPaymentPicture(event, row, [])
+  // The pay offer is the server's where the row carries its picture: only it knows the participant's
+  // group and open payments.
+  const offer = row.payment ?? edited
+  const due = row.payment && isPaymentReturned(row) && isEventOpenForPayment(event) ? row.payment.due : edited.due
+  const held = offer.status === 'inProgress' || offer.status === 'duplicate'
 
-  return { due, waitsForPlace: due > 0 && event.paymentTime === 'confirmation' && !picture.canPay && !held }
+  return { due, waitsForPlace: due > 0 && event.paymentTime === 'confirmation' && !offer.canPay && !held }
 }
 
 /** How long a payment may stay unfinished at Paytrail before it no longer counts as in progress. */
