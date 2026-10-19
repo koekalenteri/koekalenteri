@@ -37,9 +37,14 @@ The epic was [KOE-1405](https://koekalenteri.atlassian.net/browse/KOE-1405), clo
 `npm run ratchet` fails a commit that opens a DynamoDB client anywhere else
 (`dynamoClientsOutsideRepositories` in `scripts/ratchet-baseline.json`, which is 0). It reads the
 static imports and exports of each non-test file. It counts a `CustomDynamoClient` built,
-subclassed or exported on (re-exported, or imported and exported again) outside this directory and
-`connectionRepository.ts`, under whatever name the file imports it as, and an SDK client built,
-subclassed or exported on directly
+subclassed or exported on (re-exported, or imported and exported again), under whatever name the
+file imports it as, except one client per repository on its own table: `<x>Repository.ts` may
+build `new CustomDynamoClient(CONFIG.<x>Table)` once, and `lib/ws/connectionRepository.ts`
+`new CustomDynamoClient(CONFIG.wsConnectionsTable)`, with `CONFIG` imported from
+`src/lambda/config.ts` under any name. Another table, a second client, a subclass, an export, or the
+table name in a variable or a string counts, so each table has exactly one client, in the
+repository named after it ([KOE-1576](https://koekalenteri.atlassian.net/browse/KOE-1576)). It
+also counts an SDK client built, subclassed or exported on directly
 (`new DynamoDBClient(`, `new DynamoDB(`, `DynamoDBDocumentClient.from(`, `DynamoDBDocument.from(`)
 in the lambda code but `utils/CustomDynamoClient.ts`, here included. A class first stored in a
 variable, or loaded with `import()` or `require`, is not followed.

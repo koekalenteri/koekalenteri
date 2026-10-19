@@ -9,7 +9,7 @@ import { logger } from '../log'
 import { registrationUpdateItem } from './registrationRepository'
 
 const { transactionTable } = CONFIG
-const dynamoDB = new CustomDynamoClient(transactionTable)
+const dynamoDB = new CustomDynamoClient(CONFIG.transactionTable)
 
 type TransactionItem = NonNullable<TransactWriteCommandInput['TransactItems']>[number]
 
