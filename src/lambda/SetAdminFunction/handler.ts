@@ -1,12 +1,8 @@
-import type { JsonUser } from '../../types'
-import { CONFIG } from '../config'
 import { authorize } from '../lib/auth'
 import { parseJSONWithFallback } from '../lib/json'
 import { httpError, lambda, response } from '../lib/lambda'
+import { readUser, writeUserAdmin } from '../lib/repositories/userRepository'
 import { publishAdminDataInvalidation } from '../lib/ws/actions'
-import CustomDynamoClient from '../utils/CustomDynamoClient'
-
-const dynamoDB = new CustomDynamoClient(CONFIG.userTable)
 
 const setAdminLambda = lambda('setAdmin', async (event) => {
   const user = await authorize(event)
@@ -24,22 +20,13 @@ const setAdminLambda = lambda('setAdmin', async (event) => {
     throw httpError(403, 'Forbidden')
   }
 
-  const existing = await dynamoDB.read<JsonUser>({ id: item.userId })
+  const existing = await readUser(item.userId)
 
   if (!existing) {
     throw httpError(404, 'Not found')
   }
 
-  await dynamoDB.update(
-    { id: item.userId },
-    {
-      set: {
-        admin: item.admin,
-        modifiedAt: new Date().toISOString(),
-        modifiedBy: user.name,
-      },
-    }
-  )
+  await writeUserAdmin(item.userId, item.admin, new Date().toISOString(), user.name)
   await publishAdminDataInvalidation(['users'])
 
   return response(200, { ...existing, ...item }, event)

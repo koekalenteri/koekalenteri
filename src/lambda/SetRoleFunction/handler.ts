@@ -1,15 +1,12 @@
-import type { JsonUser, UserRole } from '../../types'
-import { CONFIG } from '../config'
+import type { UserRole } from '../../types'
 import { getFrontendOrigin } from '../lib/api-gw'
 import { authorize } from '../lib/auth'
 import { parseJSONWithFallback } from '../lib/json'
 import { httpError, lambda, response } from '../lib/lambda'
 import { logger } from '../lib/log'
+import { readUser } from '../lib/repositories/userRepository'
 import { setUserRole } from '../lib/user'
 import { publishAdminDataInvalidation } from '../lib/ws/actions'
-import CustomDynamoClient from '../utils/CustomDynamoClient'
-
-const dynamoDB = new CustomDynamoClient(CONFIG.userTable)
 
 const setRoleLambda = lambda('setRole', async (event) => {
   const user = await authorize(event)
@@ -41,7 +38,7 @@ const setRoleLambda = lambda('setRole', async (event) => {
     throw httpError(403, 'Forbidden')
   }
 
-  const existing = await dynamoDB.read<JsonUser>({ id: item.userId })
+  const existing = await readUser(item.userId)
 
   if (!existing) {
     throw httpError(404, 'Not found')

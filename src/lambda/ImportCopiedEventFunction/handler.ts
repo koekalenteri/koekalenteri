@@ -1,4 +1,4 @@
-import type { JsonDogEvent, JsonUser } from '../../types'
+import type { JsonDogEvent } from '../../types'
 import type { CopyImportRequest, CopyImportResult } from '../lib/eventCopy'
 import { nanoid } from 'nanoid'
 import { eventCopiedFromAudit } from '../../lib/audit'
@@ -12,21 +12,13 @@ import { logger } from '../lib/log'
 import { saveRegistrations } from '../lib/registration'
 import { readJudges } from '../lib/repositories/judgeRepository'
 import { readOrganizers } from '../lib/repositories/organizerRepository'
+import { queryUsersByEmail } from '../lib/repositories/userRepository'
 import { sumNewRegistrationStatDeltas, updateOrganizerEventStats } from '../lib/stats'
 import { publishEventChange } from '../lib/ws/actions'
-import CustomDynamoClient from '../utils/CustomDynamoClient'
-
-const { userTable } = CONFIG
-const dynamoDB = new CustomDynamoClient(userTable)
 
 const findAdmin = async (email: string) => {
-  const users = await dynamoDB.query<JsonUser>({
-    index: 'gsiEmail',
-    key: 'email = :email',
-    table: userTable,
-    values: { ':email': withoutPlusTag(email) },
-  })
-  return users?.find((user) => !user.deletedAt && user.admin)
+  const users = await queryUsersByEmail(withoutPlusTag(email))
+  return users.find((user) => !user.deletedAt && user.admin)
 }
 
 /**

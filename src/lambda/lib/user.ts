@@ -1,5 +1,4 @@
 import type { JsonDogEvent, JsonUser, Official, UserRole } from '../../types'
-import type { UserLink } from './auth'
 import type { EmailHistoryEntry } from './emailHistory'
 import type { PartialJsonJudge } from './judge'
 import { nanoid } from 'nanoid'
@@ -11,17 +10,16 @@ import { reverseName } from '../../lib/string'
 import { scoreUser } from '../../lib/user'
 import { mapWithConcurrency } from '../../lib/utils'
 import { CONFIG } from '../config'
-import CustomDynamoClient from '../utils/CustomDynamoClient'
 import { bumpDataVersion } from './dataVersions'
 import { sendTemplatedMail } from './email'
 import { appendEmailHistory } from './emailHistory'
 import { hashIdentity, logger } from './log'
 import { readAllEvents, writeEventFields } from './repositories/eventRepository'
 import { readOrganizer } from './repositories/organizerRepository'
+import { readAllUserLinks } from './repositories/userLinkRepository'
+import { queryUsersByEmail, readAllUsers, writeUser, writeUserRoles, writeUsers } from './repositories/userRepository'
 
-const { userTable, userLinkTable, emailFrom } = CONFIG
-
-const dynamoDB = new CustomDynamoClient(userLinkTable)
+const { emailFrom } = CONFIG
 
 const normalizeUserId = (id: string | number | undefined): string | undefined => {
   if (id === undefined || id === null) return undefined
@@ -150,11 +148,7 @@ export const filterRelevantUsers = (users: JsonUser[], user: JsonUser, orgs: str
   return users.filter((u) => userScopes(u).some((scope) => scopes.has(scope)))
 }
 
-export const getAllUsers = async (): Promise<JsonUser[]> => {
-  const users = await dynamoDB.readAll<JsonUser>({ table: userTable })
-
-  return users ?? []
-}
+export const getAllUsers = async (): Promise<JsonUser[]> => readAllUsers()
 
 export const findUserByEmail = async (email?: string): Promise<JsonUser | undefined> => {
   if (!email) {
@@ -166,22 +160,17 @@ export const findUserByEmail = async (email?: string): Promise<JsonUser | undefi
   // Callers may pass mixed-case emails (e.g. from external IdPs).
   const normalizedEmail = email.toLocaleLowerCase().trim()
 
-  const users = await dynamoDB.query<JsonUser>({
-    index: 'gsiEmail',
-    key: 'email = :email',
-    table: userTable,
-    values: { ':email': normalizedEmail },
-  })
+  const users = await queryUsersByEmail(normalizedEmail)
 
-  const activeUsers = users?.filter((user) => !user.deletedAt)
+  const activeUsers = users.filter((user) => !user.deletedAt)
 
-  const exact = activeUsers?.find((user) => user.email === normalizedEmail)
+  const exact = activeUsers.find((user) => user.email === normalizedEmail)
 
   // Observability: a missing user is a meaningful condition in several flows.
   // Log a warning to make it visible in CloudWatch while keeping it non-fatal.
   if (!exact) {
     // If we got items back but none match exactly, highlight possible data-normalization issues.
-    if (activeUsers?.length) {
+    if (activeUsers.length) {
       logger.error('findUserByEmail: queried users but none matched normalized email', {
         emailHash: hashIdentity(normalizedEmail),
         resultCount: activeUsers.length,
@@ -201,7 +190,7 @@ export const findUserByEmail = async (email?: string): Promise<JsonUser | undefi
  * deliberately not a version change.
  */
 export const updateUser = async (user: JsonUser, previous?: JsonUser) => {
-  const result = await dynamoDB.write(user, userTable)
+  const result = await writeUser(user)
 
   if (!previous || previous.modifiedAt !== user.modifiedAt) {
     await bumpDataVersion('users', [...userScopes(user), ...(previous ? userScopes(previous) : [])])
@@ -227,17 +216,7 @@ export const setUserRole = async (
 
   const timestamp = new Date().toISOString()
 
-  await dynamoDB.update(
-    { id: user.id },
-    {
-      set: {
-        modifiedAt: timestamp,
-        modifiedBy,
-        roles,
-      },
-    },
-    userTable
-  )
+  await writeUserRoles(user.id, roles, timestamp, modifiedBy)
 
   // The role change moves the record between scopes, so both sides are invalidated.
   await bumpDataVersion('users', [...userScopes(user), ...userScopes({ ...user, roles })])
@@ -581,11 +560,10 @@ type UserSyncPlan = {
 
 const loadSyncContext = async (items: Official[] | PartialJsonJudge[]): Promise<UserSyncContext> => {
   const dateString = new Date().toISOString()
-  const allUsers = (await dynamoDB.readAll<JsonUser>({ table: userTable })) ?? []
+  const allUsers = await readAllUsers()
 
   // Prefer keeping user records that have actually been used to log in.
-  const userLinksDb = new CustomDynamoClient(userLinkTable)
-  const userLinks = (await userLinksDb.readAll<UserLink>({ table: userLinkTable })) ?? []
+  const userLinks = await readAllUserLinks()
   const linkedUserIds = new Set<string>(userLinks.map((l) => String(l.userId)))
 
   const itemsWithEmail = normalizeItemsWithEmail(items)
@@ -630,7 +608,7 @@ const applyUserSyncPlan = async (ctx: UserSyncContext, plan: UserSyncPlan) => {
 
   if (write.length) {
     try {
-      await dynamoDB.batchWrite(write, userTable)
+      await writeUsers(write)
     } catch (e) {
       logger.error('failed to batch write user sync', { error: e, userCount: write.length })
       throw e

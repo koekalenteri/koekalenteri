@@ -3,14 +3,10 @@ import { jsonRegistrationsToEventWithParticipantsInvited } from '../../__mockDat
 import { loggedLines } from '../test-utils/logs'
 
 const mockSend = vi.fn<() => Promise<void>>()
-const mockQuery = vi.fn<(params: { values: Record<string, string> }) => Promise<unknown[] | undefined>>()
+const mockQueryUsersByEmail = vi.fn<(email: string) => Promise<unknown[]>>()
 const mockAudit = vi.fn()
 
-vi.doMock('../utils/CustomDynamoClient', () => ({
-  default: vi.fn(function MockCustomDynamoClient() {
-    return { query: mockQuery }
-  }),
-}))
+vi.doMock('./repositories/userRepository', () => ({ queryUsersByEmail: mockQueryUsersByEmail }))
 
 vi.doMock('./audit', async (importOriginal) => ({
   ...(await importOriginal<typeof import('./audit')>()),
@@ -47,7 +43,7 @@ describe('email', () => {
     __resetStaffAddressCache()
     CONFIG.stageName = 'prod'
     mockSend.mockResolvedValue(undefined)
-    mockQuery.mockImplementation(async ({ values }) => users[values[':email']] ?? [])
+    mockQueryUsersByEmail.mockImplementation(async (email) => users[email] ?? [])
   })
 
   afterAll(() => {
@@ -140,7 +136,7 @@ describe('email', () => {
       await sendTemplatedMail('registration', 'fi', 'sender@example.com', ['admin@example.com'], {})
       await sendTemplatedMail('registration', 'fi', 'sender@example.com', ['admin@example.com'], {})
 
-      expect(mockQuery).toHaveBeenCalledTimes(1)
+      expect(mockQueryUsersByEmail).toHaveBeenCalledTimes(1)
       expect(mockSend).toHaveBeenCalledTimes(2)
     })
 
@@ -150,7 +146,7 @@ describe('email', () => {
       await sendTemplatedMail('registration', 'fi', 'sender@example.com', ['stranger@example.com'], {})
 
       sentTo(['stranger@example.com'])
-      expect(mockQuery).not.toHaveBeenCalled()
+      expect(mockQueryUsersByEmail).not.toHaveBeenCalled()
     })
 
     it('delivers to the SES mailbox simulator without looking it up (KOE-1381)', async () => {
@@ -163,8 +159,8 @@ describe('email', () => {
       )
 
       sentTo(['bounce@simulator.amazonses.com', ' Bounce+Riikka1@Simulator.AmazonSES.com'])
-      expect(mockQuery).toHaveBeenCalledTimes(1)
-      expect(mockQuery).toHaveBeenCalledWith(expect.objectContaining({ values: { ':email': 'stranger@example.com' } }))
+      expect(mockQueryUsersByEmail).toHaveBeenCalledTimes(1)
+      expect(mockQueryUsersByEmail).toHaveBeenCalledWith('stranger@example.com')
     })
 
     it('does not take a look-alike of the simulator domain for it', async () => {

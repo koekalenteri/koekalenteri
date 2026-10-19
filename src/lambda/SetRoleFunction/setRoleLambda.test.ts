@@ -16,7 +16,7 @@ const mockResponse = vi.fn()
 const mockAuthorize = vi.fn()
 const mockGetFrontendOrigin = vi.fn()
 const mockSetUserRole = vi.fn()
-const mockRead = vi.fn()
+const mockReadUser = vi.fn()
 
 vi.doMock('../lib/lambda', async () => ({
   ...(await vi.importActual<typeof import('../lib/lambda')>('../lib/lambda')),
@@ -36,12 +36,8 @@ vi.doMock('../lib/user', () => ({
   setUserRole: mockSetUserRole,
 }))
 
-vi.doMock('../utils/CustomDynamoClient', () => ({
-  default: vi.fn(function MockCustomDynamoClient() {
-    return {
-      read: mockRead,
-    }
-  }),
+vi.doMock('../lib/repositories/userRepository', () => ({
+  readUser: mockReadUser,
 }))
 
 const { default: setRoleLambda } = await import('./handler')
@@ -82,7 +78,7 @@ describe('setRoleLambda', () => {
       userId: 'user456',
     })
 
-    mockRead.mockResolvedValue({
+    mockReadUser.mockResolvedValue({
       email: 'test@example.com',
       id: 'user456',
       name: 'Test User',
@@ -106,7 +102,7 @@ describe('setRoleLambda', () => {
 
     expect(mockAuthorize).toHaveBeenCalledWith(event)
     expect(mockResponse).toHaveBeenCalledWith(401, 'Unauthorized', event)
-    expect(mockRead).not.toHaveBeenCalled()
+    expect(mockReadUser).not.toHaveBeenCalled()
   })
 
   it('returns 400 if orgId is missing', async () => {
@@ -119,7 +115,7 @@ describe('setRoleLambda', () => {
 
     expect(mockAuthorize).toHaveBeenCalledWith(event)
     expect(mockResponse).toHaveBeenCalledWith(400, 'Bad request', event)
-    expect(mockRead).not.toHaveBeenCalled()
+    expect(mockReadUser).not.toHaveBeenCalled()
   })
 
   it('returns 403 if trying to set own role', async () => {
@@ -133,7 +129,7 @@ describe('setRoleLambda', () => {
 
     expect(mockAuthorize).toHaveBeenCalledWith(event)
     expect(mockResponse).toHaveBeenCalledWith(403, 'Forbidden', event)
-    expect(mockRead).not.toHaveBeenCalled()
+    expect(mockReadUser).not.toHaveBeenCalled()
   })
 
   it('returns 403 if not an admin or organizer admin', async () => {
@@ -150,16 +146,16 @@ describe('setRoleLambda', () => {
 
     expect(mockAuthorize).toHaveBeenCalledWith(event)
     expect(mockResponse).toHaveBeenCalledWith(403, 'Forbidden', event)
-    expect(mockRead).not.toHaveBeenCalled()
+    expect(mockReadUser).not.toHaveBeenCalled()
   })
 
   it('returns 404 if user is not found', async () => {
-    mockRead.mockResolvedValueOnce(null)
+    mockReadUser.mockResolvedValueOnce(null)
 
     await setRoleLambda(event)
 
     expect(mockAuthorize).toHaveBeenCalledWith(event)
-    expect(mockRead).toHaveBeenCalledWith({ id: 'user456' })
+    expect(mockReadUser).toHaveBeenCalledWith('user456')
     expect(mockResponse).toHaveBeenCalledWith(404, 'Not found', event)
     expect(mockSetUserRole).not.toHaveBeenCalled()
   })
@@ -171,7 +167,7 @@ describe('setRoleLambda', () => {
     expect(mockGetFrontendOrigin).toHaveBeenCalledWith(event)
 
     // Verify user was retrieved
-    expect(mockRead).toHaveBeenCalledWith({ id: 'user456' })
+    expect(mockReadUser).toHaveBeenCalledWith('user456')
 
     // Verify user role was set
     expect(mockSetUserRole).toHaveBeenCalledWith(
@@ -234,7 +230,7 @@ describe('setRoleLambda', () => {
       userId: 'user456',
     })
 
-    mockRead.mockResolvedValueOnce({
+    mockReadUser.mockResolvedValueOnce({
       email: 'test@example.com',
       id: 'user456',
       name: 'Test User',

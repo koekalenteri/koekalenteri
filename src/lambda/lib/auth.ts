@@ -2,23 +2,15 @@ import type { APIGatewayProxyEvent } from 'aws-lambda'
 import type { JsonUser } from '../../types'
 import { nanoid } from 'nanoid'
 import { getChangedTopLevelKeys } from '../../lib/diff'
-import { CONFIG } from '../config'
 import { httpError } from '../lib/lambda'
-import CustomDynamoClient from '../utils/CustomDynamoClient'
 import { normalizeEmail } from './email'
 import { appendEmailHistory } from './emailHistory'
 import { logger } from './log'
+import { readUserLink, writeUserLink } from './repositories/userLinkRepository'
+import { readUser } from './repositories/userRepository'
 import { findUserByEmail, updateUser, userIsMemberOf } from './user'
 
-export interface UserLink {
-  cognitoUser: string
-  userId: string
-}
-
-const { userTable, userLinkTable } = CONFIG
 const LAST_SEEN_UPDATE_INTERVAL_MS = 15 * 60 * 1000
-
-const dynamoDB = new CustomDynamoClient(userLinkTable)
 
 export async function authorize(event?: Partial<APIGatewayProxyEvent>, updateLastSeen?: boolean) {
   const user = await getOrCreateUserFromEvent(event, updateLastSeen)
@@ -109,7 +101,7 @@ async function getOrCreateUserFromEvent(event?: Partial<APIGatewayProxyEvent>, u
     return null
   }
 
-  const link = await dynamoDB.read<UserLink>({ cognitoUser: String(cognitoUser) })
+  const link = await readUserLink(String(cognitoUser))
   const { name, email } = claims
   // Cognito passes booleans as strings in authorizer claims.
   const emailVerified = claims.email_verified === true || claims.email_verified === 'true'
@@ -117,7 +109,7 @@ async function getOrCreateUserFromEvent(event?: Partial<APIGatewayProxyEvent>, u
   if (link) {
     // IMPORTANT: When the cognito user is already linked, honor the link.
     // Do not re-resolve the user by email, as email may change in KL / IdP claims.
-    user = await dynamoDB.read<JsonUser>({ id: link.userId }, userTable)
+    user = await readUser(link.userId)
     if (user) {
       user = await updateExistingUser(user, { name }, false, updateLastSeen)
     }
@@ -148,11 +140,11 @@ async function getOrCreateUserFromEvent(event?: Partial<APIGatewayProxyEvent>, u
 
       // Update lastSeen/name on the existing user record.
       user = await updateExistingUser(existingByEmail, { name }, false, updateLastSeen)
-      await dynamoDB.write({ cognitoUser, userId: existingByEmail.id }, userLinkTable)
+      await writeUserLink({ cognitoUser, userId: existingByEmail.id })
       logger.info('added user link', { cognitoUser, userId: existingByEmail.id })
     } else {
       user = await getAndUpdateUserByEmail(email, { name }, false, updateLastSeen)
-      await dynamoDB.write({ cognitoUser, userId: user.id }, userLinkTable)
+      await writeUserLink({ cognitoUser, userId: user.id })
       logger.info('added user link', { cognitoUser, userId: user.id })
     }
   }

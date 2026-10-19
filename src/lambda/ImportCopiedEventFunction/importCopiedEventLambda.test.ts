@@ -6,7 +6,7 @@ import { jsonRegistrationsToEventWithParticipantsInvited } from '../../__mockDat
 import { CONFIG } from '../config'
 import { createEventCopy } from '../lib/eventCopy'
 
-const mockQuery = vi.fn()
+const mockQueryUsersByEmail = vi.fn()
 const mockReadJudges = vi.fn()
 const mockReadOrganizers = vi.fn()
 const mockSaveEvent = vi.fn()
@@ -15,11 +15,7 @@ const mockSaveRegistrations = vi.fn()
 const mockUpdateOrganizerEventStats = vi.fn()
 const mockAudit = vi.fn()
 
-vi.doMock('../utils/CustomDynamoClient', () => ({
-  default: vi.fn(function MockCustomDynamoClient() {
-    return { query: mockQuery }
-  }),
-}))
+vi.doMock('../lib/repositories/userRepository', () => ({ queryUsersByEmail: mockQueryUsersByEmail }))
 vi.doMock('../lib/repositories/judgeRepository', () => ({ readJudges: mockReadJudges }))
 vi.doMock('../lib/repositories/organizerRepository', () => ({ readOrganizers: mockReadOrganizers }))
 vi.doMock('../lib/event', () => ({ saveEvent: mockSaveEvent }))
@@ -70,7 +66,7 @@ describe('importCopiedEvent', () => {
     vi.clearAllMocks()
     vi.useFakeTimers({ now: new Date('2026-09-29T12:00:00.000Z') })
     CONFIG.stageName = 'test'
-    mockQuery.mockResolvedValue([{ admin: true, email: 'jukka@example.com', id: 'u1' }])
+    mockQueryUsersByEmail.mockResolvedValue([{ admin: true, email: 'jukka@example.com', id: 'u1' }])
     mockReadOrganizers.mockResolvedValue([{ id: 'org-test', kcId: 1234, name: 'Seura' }])
     mockReadJudges.mockResolvedValue([judge])
     mockSaveEvent.mockImplementation(async (event: JsonDogEvent) => ({ audience: 'public', patch: event }))
@@ -98,6 +94,7 @@ describe('importCopiedEvent', () => {
       })
     )
     expect(mockPublishEventChange).toHaveBeenCalledTimes(1)
+    expect(mockQueryUsersByEmail).toHaveBeenCalledWith('jukka@example.com')
     expect(mockSaveRegistrations).toHaveBeenCalledWith([
       expect.objectContaining({ eventId: 'copy-1', updatedAt: '2026-09-29T12:00:00.000Z' }),
       expect.objectContaining({ eventId: 'copy-1', updatedAt: '2026-09-29T12:00:00.000Z' }),
@@ -158,7 +155,9 @@ describe('importCopiedEvent', () => {
   })
 
   it('needs the copier to be an admin here, where the copy mails them', async () => {
-    mockQuery.mockResolvedValueOnce([{ email: 'jukka@example.com', id: 'u1', roles: { 'org-test': 'secretary' } }])
+    mockQueryUsersByEmail.mockResolvedValueOnce([
+      { email: 'jukka@example.com', id: 'u1', roles: { 'org-test': 'secretary' } },
+    ])
 
     await expect(importCopiedEvent(request())).rejects.toThrow('The copier is not an admin in the target environment')
     expect(mockSaveEvent).not.toHaveBeenCalled()
