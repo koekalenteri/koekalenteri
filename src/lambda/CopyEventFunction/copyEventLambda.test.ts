@@ -384,6 +384,59 @@ describe('copyEventHandler', () => {
     ])
   })
 
+  // A copy writes new rows from a stored one, so it decodes as the migrations do: an event's day by the
+  // day it was stored for, a Kennelliitto stamp included, and a dog's dates by the day they fall on.
+  it('decodes the source row as the migrations do: an event day by the day it was stored for, a dog date as it falls', async () => {
+    mockAuthorize.mockResolvedValueOnce({ name: 'Test User' })
+    setEventBody(event, { id: 'event123', startDate: '2026-08-01' })
+    mockGetEvent.mockResolvedValueOnce({
+      classes: [],
+      dates: [],
+      endDate: '2026-06-13T21:00:00.000Z',
+      // Kennelliitto's stamp without a zone, which no request sends.
+      entryEndDate: '2026-05-31T00:00:00',
+      id: 'event123',
+      name: 'Original Event',
+      // Fri 23:00 in Helsinki, stored for Sat 13.6.: the copy moves the trial by 49 days, not 50.
+      startDate: '2026-06-12T20:00:00.000Z',
+    })
+    mockNanoid.mockReturnValueOnce('newid123')
+    mockReadEventRegistrations.mockResolvedValueOnce([
+      {
+        dates: [],
+        dog: {
+          // A browser's local noon of the birth day (KOE-1131).
+          dob: '2021-01-01T10:00:00.000Z',
+          regNo: 'FI1/21',
+          results: [
+            { class: 'ALO', date: '2021-03-01T00:00:00', type: 'NOME-B' },
+            { class: 'AVO', date: '2026-06-12T20:00:00.000Z', type: 'NOME-B' },
+          ],
+        },
+        eventId: 'event123',
+        id: 'registration123',
+      },
+    ])
+
+    await copyEventHandler(event)
+
+    expect(mockSaveEvent).toHaveBeenCalledWith(
+      expect.objectContaining({ endDate: '2026-08-02', entryEndDate: '2026-07-19', startDate: '2026-08-01' })
+    )
+    expect(mockWriteRegistrations).toHaveBeenCalledWith([
+      expect.objectContaining({
+        dog: {
+          dob: '2021-01-01',
+          regNo: 'FI1/21',
+          results: [
+            { class: 'ALO', date: '2021-03-01', type: 'NOME-B' },
+            { class: 'AVO', date: '2026-06-12', type: 'NOME-B' },
+          ],
+        },
+      }),
+    ])
+  })
+
   it('sets season using Finnish timezone when copying an event near year boundary', async () => {
     const user = { name: 'Test User' }
     const input = { id: 'event123', startDate: '2025-01-01' }

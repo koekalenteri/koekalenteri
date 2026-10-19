@@ -93,12 +93,14 @@ Read `LLM_CONTEXT.md` for the project overview and architecture notes.
   `src/lib/day.ts`); a dog's date is the day its instant falls on. Until every environment has run
   them and every browser sends keys, the readers accept both forms: `storedDayKey` and `eventDayKey`
   (`src/lib/event.ts`) and `calendarDayOf` read either, all as the day the instant falls on, so they
-  agree with each other on a row not yet migrated. What is written as a key uses the event rule: a
-  request boundary puts what it receives into keys with `rekeyEventDays` and `rekeyRegistrationDays`
-  (`src/lib/storedDays.ts`), reading a request with `requestDay` (a key or an instant with a zone) and
-  a stored row with `legacyEventDay` and `legacyDogDay`, as the migrations do. A no-day result date is stored as `''`, a no-day birth date not at all. The
-  browser model still holds each day as the start of its Finnish day (`finnishDay` in `lib/wire.ts`)
-  until it is given keys too.
+  agree with each other on a row not yet migrated. A request boundary puts what it receives and the
+  stored row it read into keys with `rekeyEventDays` and `rekeyRegistrationDays`
+  (`src/lib/storedDays.ts`) by the same reading, as the browser showed them: `requestDay` (a key or an
+  instant with a zone) and `storedDay`. Only the migrations and a copy (CopyEvent, ImportCopiedEvent) decode by the rules above
+  (`legacyEventDay`, `legacyDogDay`). So an hour-off day saved between a deploy and the end of its
+  migration keeps the day it falls on: the migration then sees a key. A no-day result date is stored
+  as `''`, a no-day birth date not at all. The browser model still holds each day as the start of its
+  Finnish day (`finnishDay` in `lib/wire.ts`) until it is given keys too.
 - The day key indexes (`gsiSeasonStartDate`, `gsiEventTypeEntryEndDateV2`) are queried with day keys,
   which sort by day as text; the organizer stats rows' upper bound is padded past the event id
   (`yyyy-MM-dd#id`).

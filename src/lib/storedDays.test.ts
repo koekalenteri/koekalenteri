@@ -1,6 +1,7 @@
 import type { JsonDog, JsonDogEvent, JsonRegistration, Patch } from '../types'
 import { legacyDayValue } from '../test-utils/finnishDays'
 import { describeInTimeZone } from '../test-utils/timeZone'
+import { storedDayKey } from './event'
 import {
   legacyDogDay,
   legacyEventDay,
@@ -9,6 +10,8 @@ import {
   rekeyEventDays,
   rekeyRegistrationDays,
   requestDay,
+  storedDay,
+  storedRegistrationDays,
   withRegistrationDayKeys,
 } from './storedDays'
 
@@ -18,8 +21,11 @@ const SUMMER_MIDNIGHT = '2026-05-31T21:00:00.000Z' // 1.6.2026 00:00 in Finland
 const WINTER_MIDNIGHT = '2026-01-31T22:00:00.000Z' // 1.2.2026 00:00 in Finland
 const END_OF_DAY = '2026-05-17T20:59:59.999Z' // 17.5.2026 23:59:59.999 in Finland
 
-/** Both decoders of an event's or an entry's day: a stored row's and a request's. */
-const eventDayReaders = [legacyEventDay, requestDay]
+/** Every decoder of an event's or an entry's day: the migrations', a stored row's in a request, a request's. */
+const eventDayReaders = [legacyEventDay, storedDay, requestDay]
+
+/** A request's decoders: the day an instant falls on, as the browser showed it and the readers read it. */
+const requestReaders = [storedDay, requestDay]
 
 for (const zone of ['UTC', 'Europe/Helsinki', 'America/New_York', 'Asia/Tokyo']) {
   describeInTimeZone(zone, () => {
@@ -28,7 +34,10 @@ for (const zone of ['UTC', 'Europe/Helsinki', 'America/New_York', 'Asia/Tokyo'])
         ['a day key', '2026-06-01', '2026-06-01'],
         ['a Finnish midnight', SUMMER_MIDNIGHT, '2026-06-01'],
         ['the end of a Finnish day', END_OF_DAY, '2026-05-17'],
+        // Stored on dev in offset form (KOE-1547): 84 event starts and 49 organizer stats keys.
         ['an instant with an offset', '2026-06-01T00:00:00.000+03:00', '2026-06-01'],
+        ['a winter instant with an offset', '2026-02-01T00:00:00.000+02:00', '2026-02-01'],
+        ['an end of day with an offset', '2026-09-02T23:59:59.999+03:00', '2026-09-02'],
       ])('reads %s as its Finnish day, however it is read', (_name, value, expected) => {
         for (const read of [...eventDayReaders, legacyDogDay]) expect(read(value)).toBe(expected)
       })
@@ -43,9 +52,24 @@ for (const zone of ['UTC', 'Europe/Helsinki', 'America/New_York', 'Asia/Tokyo'])
         ['an end of day at Mon 00:59:59.999 for Sun 27.9.', '2026-09-27T21:59:59.999Z', '2026-09-27'],
         ['an end of day at Thu 22:59:59.999 for Thu 1.1.', '2026-01-01T20:59:59.999Z', '2026-01-01'],
         ['a UTC midnight', '2026-05-20T00:00:00.000Z', '2026-05-20'],
-      ])("reads an event's day stored an hour off as the day it was stored for: %s", (_name, value, expected) => {
-        for (const read of eventDayReaders) expect(read(value)).toBe(expected)
+      ])("migrates an event's day stored an hour off as the day it was stored for: %s", (_name, value, expected) => {
+        expect(legacyEventDay(value)).toBe(expected)
       })
+
+      // A request reads a day as the browser showed it, so it compares and writes what the user saw. A
+      // row saved before its migration keeps that day, an hour-off day included (the window between a
+      // deploy and its migration).
+      it.each([
+        ['Fri 23:00', '2026-11-06T21:00:00.000Z', '2026-11-06'],
+        ['an end of day at Mon 00:59:59.999', '2026-09-27T21:59:59.999Z', '2026-09-28'],
+        ['an end of day at Thu 22:59:59.999', '2026-01-01T20:59:59.999Z', '2026-01-01'],
+      ])(
+        "reads an event's day an hour off in a request as the day it falls on, as the readers do: %s",
+        (_name, value, expected) => {
+          for (const read of requestReaders) expect(read(value)).toBe(expected)
+          expect(storedDayKey(value)).toBe(expected)
+        }
+      )
 
       // A dog's dates carry a real time of day: they are read as the day the instant falls on.
       it.each([
@@ -57,6 +81,7 @@ for (const zone of ['UTC', 'Europe/Helsinki', 'America/New_York', 'Asia/Tokyo'])
 
       it("reads Kennelliitto's stamp in a stored row, and refuses it in a request, which never sent one", () => {
         expect(legacyEventDay('2021-01-01T00:00:00')).toBe('2021-01-01')
+        expect(storedDay('2021-01-01T00:00:00')).toBe('2021-01-01')
         expect(legacyDogDay('2021-01-01T00:00:00')).toBe('2021-01-01')
         expect(requestDay('2021-01-01T00:00:00')).toBeUndefined()
       })
@@ -356,15 +381,30 @@ describe('rekeyDogDays', () => {
 })
 
 describe('withRegistrationDayKeys', () => {
-  it("reads an entry's day an hour off by the event rule and a dog's date by the day it falls on", () => {
+  // A save compares by the days the browser showed and the event's are read as (`storedDayKey`).
+  it("reads an entry's day an hour off and a dog's Friday 23:00 as the days they fall on", () => {
     const registration: Partial<JsonRegistration> = {
       dates: [{ date: legacyDayValue('2025-12-12T21:00:00.000Z'), time: 'ap' }],
       dog: { dob: legacyDayValue('2026-11-06T21:00:00.000Z'), regNo: 'FI1/21' },
     }
 
     expect(withRegistrationDayKeys(registration)).toEqual({
-      dates: [{ date: '2025-12-13', time: 'ap' }],
+      dates: [{ date: '2025-12-12', time: 'ap' }],
       dog: { dob: '2026-11-06', regNo: 'FI1/21' },
+    })
+  })
+
+  it("reads a request's days as the days they fall on, a group named by that day", () => {
+    const registration: Partial<JsonRegistration> = {
+      dates: [{ date: legacyDayValue('2025-12-12T21:00:00.000Z'), time: 'ap' }],
+      group: { date: legacyDayValue('2025-12-12T21:00:00.000Z'), key: '2025-12-12-ap', number: 1, time: 'ap' },
+    }
+
+    rekeyRegistrationDays(registration, storedRegistrationDays)
+
+    expect(registration).toEqual({
+      dates: [{ date: '2025-12-12', time: 'ap' }],
+      group: { date: '2025-12-12', key: '2025-12-12-ap', number: 1, time: 'ap' },
     })
   })
 

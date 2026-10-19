@@ -420,6 +420,38 @@ describe('lib/stats', () => {
         )
       })
 
+      it('picks up no row an unrelated instant of the same day keys, only the forms a start was stored in', async () => {
+        const offKeyed = { ...keyed, startDate: '2026-11-07' }
+        mockReadOrganizerEventStatsRow.mockImplementation(async (source) =>
+          source.startDate === '2026-11-07T00:00:00.000Z' ? stats : undefined
+        )
+
+        await moveOrganizerEventStats(offKeyed, later)
+
+        expect(mockReadOrganizerEventStatsRow).toHaveBeenCalledTimes(4)
+        expect(mockMoveOrganizerEventStatsRow).not.toHaveBeenCalled()
+      })
+
+      // Dev holds starts in offset form, as e2e runs wrote them: the row is found under the start as stored.
+      it.each(['2026-09-02T00:00:00.000+03:00', '2026-02-01T00:00:00.000+02:00'])(
+        'reads a start stored in offset form %s first, as the row stores it',
+        async (startDate) => {
+          const offset = { ...keyed, startDate }
+          mockReadOrganizerEventStatsRow.mockResolvedValueOnce({ ...stats, SK: `${startDate}#e5` })
+
+          await moveOrganizerEventStats(offset, later)
+
+          expect(mockReadOrganizerEventStatsRow).toHaveBeenCalledTimes(1)
+          expect(mockReadOrganizerEventStatsRow).toHaveBeenCalledWith(offset)
+          expect(mockMoveOrganizerEventStatsRow).toHaveBeenCalledWith(
+            offset,
+            later,
+            { ...stats, SK: `${startDate}#e5` },
+            expect.any(String)
+          )
+        }
+      )
+
       it('reads the start an hour off first, as the row stores it, before its day key', async () => {
         const offHour = { ...keyed, startDate: '2026-11-06T21:00:00.000Z' }
         mockReadOrganizerEventStatsRow.mockResolvedValueOnce(stats)

@@ -1304,6 +1304,94 @@ describe('runMigrationLambda', () => {
       )
     })
 
+    // Dev holds days in offset form, as e2e runs wrote them: 84 event starts and 49 stats keys.
+    describe('a day stored in offset form', () => {
+      it('writes an event day in offset form as its day: summer and winter starts and an end of day', async () => {
+        mockReadApplied.mockResolvedValue(pendingOnly('storeEventDaysAsKeys'))
+        mockReadAllEvents.mockResolvedValueOnce([
+          {
+            endDate: '2026-09-03T00:00:00.000+03:00',
+            entryEndDate: '2026-08-20T23:59:59.999+03:00',
+            entryStartDate: '2026-02-01T00:00:00.000+02:00',
+            id: 'event1',
+            startDate: '2026-09-02T00:00:00.000+03:00',
+            updatedAt: 'read',
+          },
+        ])
+
+        await runMigrationLambda(directEvent)
+
+        expect(mockWriteMigratedEvent).toHaveBeenCalledWith(
+          'event1',
+          {
+            set: {
+              endDate: '2026-09-03',
+              entryEndDate: '2026-08-20',
+              entryStartDate: '2026-02-01',
+              startDate: '2026-09-02',
+              updatedAt: expect.any(String),
+            },
+          },
+          'read'
+        )
+      })
+
+      it("writes an entry's days and its group in offset form as their days", async () => {
+        mockReadApplied.mockResolvedValue(pendingOnly('storeRegistrationDaysAsKeys'))
+        mockReadRegistrationEventIds.mockResolvedValueOnce(['event1'])
+        mockReadEventRegistrations.mockResolvedValueOnce([
+          {
+            dates: [
+              { date: '2026-09-02T00:00:00.000+03:00', time: 'ap' },
+              { date: '2026-02-01T00:00:00.000+02:00', time: 'ip' },
+            ],
+            eventId: 'event1',
+            group: { date: '2026-09-02T00:00:00.000+03:00', key: '2026-09-01-ap', number: 1, time: 'ap' },
+            id: 'reg1',
+            updatedAt: 'read',
+          },
+        ])
+
+        await runMigrationLambda(directEvent)
+
+        expect(mockWriteMigratedRegistration).toHaveBeenCalledWith(
+          'event1',
+          'reg1',
+          {
+            set: {
+              dates: [
+                { date: '2026-09-02', time: 'ap' },
+                { date: '2026-02-01', time: 'ip' },
+              ],
+              'group.date': '2026-09-02',
+              'group.key': '2026-09-02-ap',
+              updatedAt: expect.any(String),
+            },
+          },
+          'read'
+        )
+      })
+
+      it.each([
+        ['a summer start', '2026-09-02T00:00:00.000+03:00', '2026-09-02'],
+        ['a winter start', '2026-02-01T00:00:00.000+02:00', '2026-02-01'],
+      ])('moves a stats row keyed by %s in offset form to the key of its day', async (_name, startDate, day) => {
+        mockReadApplied.mockResolvedValue(pendingOnly('storeOrganizerStatsDaysAsKeys'))
+        const row = { count: 1, organizerId: 'org1', PK: 'ORG#org1', SK: `${startDate}#event1` }
+        mockReadAllOrganizerEventStats.mockResolvedValueOnce([structuredClone(row)])
+
+        await runMigrationLambda(directEvent)
+
+        const from = { id: 'event1', organizer: { id: 'org1' }, startDate }
+        expect(mockMoveOrganizerEventStatsRow).toHaveBeenCalledWith(
+          from,
+          { ...from, startDate: day },
+          row,
+          expect.any(String)
+        )
+      })
+    })
+
     it("moves an organizer's stats row keyed by an instant to the key of its day", async () => {
       mockReadApplied.mockResolvedValue(pendingOnly('storeOrganizerStatsDaysAsKeys'))
       const instantRow = {

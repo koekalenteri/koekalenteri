@@ -1207,6 +1207,53 @@ describe('putEventLambda', () => {
     )
   })
 
+  // A day a row not yet migrated holds an hour off is read as the day the browser showed (the day it
+  // falls on), so sending it back unchanged is no change: no extended entry, no date audited, and the
+  // save keeps that day.
+  it('reads a stored day an hour off as the day the browser showed it, so an unchanged save changes nothing', async () => {
+    authorizeMock.mockResolvedValueOnce(mockSecretary)
+    getEventMock.mockResolvedValueOnce({
+      ...mockEvent,
+      endDate: legacyDayValue('2026-11-07T21:00:00.000Z'),
+      entryEndDate: legacyDayValue('2026-07-06T21:59:59.999Z'),
+      entryStartDate: legacyDayValue('2026-06-01T21:00:00.000Z'),
+      startDate: legacyDayValue('2026-11-06T21:00:00.000Z'),
+      state: 'confirmed',
+    })
+    const shown: Partial<JsonDogEvent> = {
+      endDate: '2026-11-07',
+      entryEndDate: '2026-07-07',
+      entryStartDate: '2026-06-02',
+      startDate: '2026-11-06',
+    }
+    const stats = {
+      count: 1,
+      organizerId: mockEvent.organizer.id,
+      PK: 'ORG#x',
+      SK: '2026-11-06T21:00:00.000Z#existing',
+    }
+    mockReadOrganizerEventStatsRow.mockResolvedValueOnce(stats)
+
+    const res = await putEventLambda(constructAPIGwEvent<Partial<JsonDogEvent>>({ id: 'existing', ...shown }))
+
+    expect(res.statusCode).toEqual(200)
+    const keyed = expect.objectContaining(shown)
+    expect(mockGetEventAuditMessages).toHaveBeenCalledWith(keyed, keyed)
+    expect(patchEventMock).toHaveBeenCalledWith('existing', expect.anything(), keyed)
+    expect(patchEventMock).toHaveBeenCalledWith(
+      'existing',
+      expect.anything(),
+      expect.not.objectContaining({ entryOrigEndDate: expect.anything() })
+    )
+    // The stats row counted under the start as stored moves to the key of the day the save keeps.
+    expect(mockMoveOrganizerEventStatsRow).toHaveBeenCalledWith(
+      expect.objectContaining({ startDate: '2026-11-06T21:00:00.000Z' }),
+      expect.objectContaining({ startDate: '2026-11-06' }),
+      stats,
+      expect.any(String)
+    )
+  })
+
   // The stored row is read as a stored row, not as a request: forms no request sends are days there.
   it.each([
     ['a stamp without a zone, as Kennelliitto writes its days', '2025-06-01T00:00:00'],

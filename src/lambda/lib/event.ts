@@ -23,7 +23,7 @@ import { KC_STATE_HANDED_OVER } from '../../lib/kennelliittoResults'
 import { getResultsBlocker, isResultsPublishedState } from '../../lib/publishing'
 import { GROUP_KEY_CANCELLED, hasPriority, REGISTRATION_WRITE_CONCURRENCY } from '../../lib/registration'
 import { normalizeRegistrationGroups } from '../../lib/registrationGroups'
-import { legacyEventDay } from '../../lib/storedDays'
+import { storedDay } from '../../lib/storedDays'
 import { mapWithConcurrency } from '../../lib/utils'
 import { isConditionalCheckFailure } from './api-gw'
 import { audit, registrationAuditKey } from './audit'
@@ -121,7 +121,7 @@ export const findQualificationStartDate = async (
 ): Promise<DayKey | undefined> => {
   if (!entryEndDate) return undefined
   const previous = await readLastEntryEndBefore(eventType, entryEndDate)
-  const closed = legacyEventDay(previous?.entryOrigEndDate) ?? legacyEventDay(previous?.entryEndDate)
+  const closed = storedDay(previous?.entryOrigEndDate) ?? storedDay(previous?.entryEndDate)
   return closed ? addDays(closed, 1) : undefined
 }
 

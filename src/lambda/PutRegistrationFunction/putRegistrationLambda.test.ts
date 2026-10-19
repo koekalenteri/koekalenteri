@@ -325,6 +325,45 @@ describe('putRegistrationLabmda', () => {
     expect(mockWriteAudit).toHaveBeenCalledTimes(2)
   })
 
+  // KOE-1547: a class day a row not yet migrated holds an hour off (Wed 23:00 for Thu 11.2.) reads as
+  // the day it falls on, and so does the same instant an older browser sends for the entry: the two
+  // agree, as the browser showed them, and nothing is audited as outside the class.
+  it("reads an entry's day an hour off as the event's day is read, so it is no day outside the class", async () => {
+    vi.setSystemTime(eventWithStaticDatesAnd3Classes.entryStartDate)
+    const offHour = legacyDayValue('2021-02-10T21:00:00.000Z')
+    const event = JSON.parse(JSON.stringify(eventWithStaticDatesAnd3Classes))
+    event.classes = [{ class: 'VOI', date: offHour }]
+    mockGetEvent.mockResolvedValueOnce(event)
+    const { id: _1, paidAmount: _2, paidAt: _3, paymentStatus: _4, ...registration } = registrationWithStaticDates
+    const sent = {
+      ...JSON.parse(JSON.stringify(registration)),
+      class: 'VOI',
+      dates: [{ date: offHour, time: 'kp' }],
+      eventId: event.id,
+      eventType: event.eventType,
+    }
+    // The post-processing claims the row as the save wrote it.
+    let written: JsonRegistration | undefined
+    mockWriteRegistration.mockImplementationOnce(async (registration: JsonRegistration) => {
+      written = structuredClone(registration)
+    })
+    mockClaimNewRegistrationPostProcessing.mockImplementationOnce(async () => ({
+      registration: { ...written, state: 'ready' },
+      release: async () => undefined,
+      token: 'test-token',
+    }))
+
+    const res = await putRegistrationLabmda(constructAPIGwEvent(sent))
+
+    expect(res.statusCode).toEqual(200)
+    expect(mockWriteRegistration).toHaveBeenCalledWith(
+      expect.objectContaining({ dates: [{ date: '2021-02-10', time: 'kp' }] })
+    )
+    expect(mockWriteAudit).not.toHaveBeenCalledWith(
+      expect.objectContaining({ messageKey: 'audit.messages.registrationDaysOutsideClass' })
+    )
+  })
+
   it('rejects an update when edit-token authorization fails', async () => {
     const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined)
     mockGetEvent.mockResolvedValueOnce(JSON.parse(JSON.stringify(eventWithStaticDates)))

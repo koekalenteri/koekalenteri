@@ -86,9 +86,10 @@ export const storedDayKey = (date: DayInput): DayKey | undefined => {
   if (isDayKey(date)) return date
   const instant = toInstant(date)
   // The day the instant falls on, as every reader of a stored day reads it (`eventDayKey`, the group
-  // keys, the wire), so the readers agree with each other. A day a row not yet migrated holds an hour
-  // off reads as the day before or after until its migration, which writes the day it was stored for,
-  // as a save in the meantime does (`storedEventDayOf` in the decoders of lib/storedDays.ts).
+  // keys, the wire, a request's decoders in lib/storedDays.ts), so they agree with each other. A day a
+  // row not yet migrated holds an hour off reads as the day before or after until its migration, which
+  // writes the day it was stored for (`storedEventDayOf`). A save in the window between the deploy and
+  // the end of that migration keeps the day read here: the migration then sees a key.
   return hasCalendarDay(instant, TIME_ZONE) ? dayOf(instant, TIME_ZONE) : undefined
 }
 

@@ -1,5 +1,5 @@
 import type { DayKey, RegistrationTime } from '../types'
-import { isDayKey, legacyStoredDay, legacyStoredEventDay, storedEventDayOf, TIME_ZONE } from './day'
+import { calendarDayOf, legacyStoredDay, legacyStoredEventDay, TIME_ZONE } from './day'
 import { isNoDay } from './dog'
 import { groupKeyOf, isEventDateString } from './event'
 import { isParticipantGroup } from './registration'
@@ -9,13 +9,14 @@ import { isParticipantGroup } from './registration'
  * row holds is stored as a `DayKey`; rows written before held instants (a Finnish midnight, the end of
  * a Finnish day, a browser's local midnight or noon of a dog's date) or Kennelliitto's stamps. The
  * functions below put each day field of a row into a key in place, reading the old value with the
- * decoders they are given: `requestDay` for what a browser sends, and the legacy ones for a stored
- * row, in the migrations, the import of a copied event and a save of a row not yet migrated.
+ * decoders they are given.
  *
- * Two rules read an instant. An event's or an entry's day was stored as the start or the end of the
- * day, some of them an hour off, and is read as the day it was stored for (`storedEventDayOf`). A
- * dog's birth date and a result's date carry a real time of day and are read as the day the instant
- * falls on (`calendarDayOf`).
+ * Two rules read an instant. The rows the migrations or a copy write decode by the day each was stored
+ * for: an event's or an entry's day was stored as the start or the end of the day, some of them an hour
+ * off (`storedEventDayOf`), and a dog's birth date and a result's date carry a real time of day and are
+ * the day the instant falls on (the legacy decoders). A request reads every day as the day the instant
+ * falls on, as the browser showed it and as the readers read it (`storedDayKey`), so what it compares
+ * and writes agrees with what the user saw (`requestDay`, `storedDay`).
  *
  * A value with no day to read is left as it is and reported, so the migration can count it and a
  * request's own check can refuse it. Kennelliitto's empty date is no day rather than an unreadable
@@ -27,10 +28,9 @@ import { isParticipantGroup } from './registration'
 type DayDecode = (value: unknown) => DayKey | undefined
 
 /**
- * The reading of a stored event or entry day that is to be written as a key: every form rows were ever
- * stored in, for good (`legacyStoredEventDay`, which says why it never narrows). The migrations and the
- * copy import decode with it, and so does a save that rewrites a row not yet migrated, so it writes the
- * day the migration would. A reader of a stored day uses `storedDayKey` instead.
+ * The reading of a stored event or entry day that the migrations, the import of a copied event and a
+ * copy write as a key: every form rows were ever stored in, for good (`legacyStoredEventDay`, which
+ * says why it never narrows). A request uses `storedDay` instead.
  */
 export const legacyEventDay: DayDecode = (value) => legacyStoredEventDay(value, TIME_ZONE)
 
@@ -38,14 +38,19 @@ export const legacyEventDay: DayDecode = (value) => legacyStoredEventDay(value, 
 export const legacyDogDay: DayDecode = (value) => legacyStoredDay(value, TIME_ZONE)
 
 /**
- * A day as a request may send it: a key, or, from a browser loaded before KOE-1547, the instant the
- * day was stored as, read as the day it was stored for. A stamp without a zone is no day here, as a
- * request's date never was.
+ * A day of a stored row a request reads, compares and writes back: a key, or, until every environment
+ * is migrated, an older form read as the day it falls on, as the browser showed it (`storedDayKey`).
+ * A row saved in the window between the deploy and the end of its migration keeps that day, an hour-off
+ * day included: the migration then sees a key.
  */
-export const requestDay: DayDecode = (value) => {
-  if (!isEventDateString(value)) return undefined
-  return isDayKey(value) ? value : storedEventDayOf(new Date(value), TIME_ZONE)
-}
+export const storedDay: DayDecode = (value) => calendarDayOf(value, TIME_ZONE)
+
+/**
+ * A day as a request may send it: a key, or, from a browser loaded before KOE-1547, an instant, read as
+ * the day it falls on, as that browser showed it (`storedDay`). A stamp without a zone is no day here,
+ * as a request's date never was.
+ */
+export const requestDay: DayDecode = (value) => (isEventDateString(value) ? storedDay(value) : undefined)
 
 /** How a registration's days are read: an entry's days and groups' days, and the dog's dates. */
 interface RegistrationDecoders {
@@ -59,8 +64,11 @@ interface RegistrationDecoders {
  */
 export const legacyDecoder = (kind: 'event' | 'dog'): DayDecode => (kind === 'event' ? legacyEventDay : legacyDogDay)
 
-/** The reading of a registration's stored days that are to be written as keys. */
+/** The migrations' and a copy's reading of a registration's stored days. */
 export const legacyRegistrationDays: RegistrationDecoders = { dogDay: legacyDogDay, eventDay: legacyEventDay }
+
+/** A request's reading of a registration's days, stored or sent: each the day it falls on. */
+export const storedRegistrationDays: RegistrationDecoders = { dogDay: storedDay, eventDay: storedDay }
 
 /** What putting a row's days into keys came to. */
 export interface DayRekeying {
@@ -291,12 +299,12 @@ export const rekeyRegistrationDays = (
 }
 
 /**
- * A copy of the registration with its days as keys, read as a stored row's are: what a save is
+ * A copy of the registration with its days as keys, read as a request reads them: what a save is
  * compared by, so the same days in another form (a row stored before KOE-1547, an older browser's
  * instants) are no change, while a value with no day still differs from a day and from another one.
  */
 export const withRegistrationDayKeys = <R extends RegistrationDays>(registration: R): R => {
   const copy = structuredClone(registration)
-  rekeyRegistrationDays(copy, legacyRegistrationDays)
+  rekeyRegistrationDays(copy, storedRegistrationDays)
   return copy
 }
