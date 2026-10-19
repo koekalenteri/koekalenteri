@@ -59,16 +59,19 @@ vi.doMock('../lib/ws/actions', () => ({
 
 const mockReadOrganizerEventStatsRow = vi.fn()
 const mockMoveOrganizerEventStatsRow = vi.fn()
-// Whether the row moves is the repository's pure key comparison, run as it is.
-vi.doMock('../lib/repositories/eventStatsRepository', async () => ({
-  isSameOrganizerStatsRow: (
-    await vi.importActual<typeof import('../lib/repositories/eventStatsRepository')>(
-      '../lib/repositories/eventStatsRepository'
-    )
-  ).isSameOrganizerStatsRow,
-  moveOrganizerEventStatsRow: mockMoveOrganizerEventStatsRow,
-  readOrganizerEventStatsRow: mockReadOrganizerEventStatsRow,
-}))
+// Whether the row moves is the repository's pure key comparison, and how it is retried its policy,
+// both run as they are.
+vi.doMock('../lib/repositories/eventStatsRepository', async () => {
+  const actual = await vi.importActual<typeof import('../lib/repositories/eventStatsRepository')>(
+    '../lib/repositories/eventStatsRepository'
+  )
+  return {
+    isSameOrganizerStatsRow: actual.isSameOrganizerStatsRow,
+    moveOrganizerEventStatsRow: mockMoveOrganizerEventStatsRow,
+    ORGANIZER_STATS_MOVE_RETRY: actual.ORGANIZER_STATS_MOVE_RETRY,
+    readOrganizerEventStatsRow: mockReadOrganizerEventStatsRow,
+  }
+})
 
 const { authorize } = await import('../lib/auth')
 const authorizeMock = authorize as import('vitest').Mock<typeof authorize>
@@ -1201,6 +1204,28 @@ describe('putEventLambda', () => {
     // The organizer stats row is keyed by the start as stored, and moves to the key of its day.
     expect(mockReadOrganizerEventStatsRow).toHaveBeenCalledWith(
       expect.objectContaining({ startDate: '2025-05-31T21:00:00.000Z' })
+    )
+  })
+
+  // The stored row is read as a stored row, not as a request: forms no request sends are days there.
+  it.each([
+    ['a stamp without a zone, as Kennelliitto writes its days', '2025-06-01T00:00:00'],
+    ['a noon instant', '2025-06-01T09:00:00.000Z'],
+  ])('reads a stored start held as %s as its day: no change to audit, the day kept', async (_name, stamp) => {
+    authorizeMock.mockResolvedValueOnce(mockSecretary)
+    getEventMock.mockResolvedValueOnce({ ...mockEvent, startDate: legacyDayValue(stamp) })
+
+    const res = await putEventLambda(
+      constructAPIGwEvent<Partial<JsonDogEvent>>({ id: 'existing', startDate: '2025-06-01' }, { method: 'PATCH' })
+    )
+
+    expect(res.statusCode).toEqual(200)
+    const keyed = expect.objectContaining({ startDate: '2025-06-01' })
+    expect(mockGetEventAuditMessages).toHaveBeenCalledWith(keyed, expect.objectContaining({ startDate: '2025-06-01' }))
+    expect(patchEventMock).toHaveBeenCalledWith(
+      'existing',
+      expect.objectContaining({ startDate: stamp }),
+      expect.objectContaining({ season: '2025', startDate: '2025-06-01' })
     )
   })
 

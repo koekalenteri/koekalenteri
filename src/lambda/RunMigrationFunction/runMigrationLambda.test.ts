@@ -69,6 +69,7 @@ vi.doMock('../lib/repositories/eventStatsRepository', async () => {
   )
   return {
     moveOrganizerEventStatsRow: mockMoveOrganizerEventStatsRow,
+    ORGANIZER_STATS_MOVE_RETRY: actual.ORGANIZER_STATS_MOVE_RETRY,
     organizerStatsKey: actual.organizerStatsKey,
     organizerStatsRowEvent: actual.organizerStatsRowEvent,
     readAllOrganizerEventStats: mockReadAllOrganizerEventStats,
@@ -828,6 +829,29 @@ describe('runMigrationLambda', () => {
       expect(mockResponse).toHaveBeenCalledWith(200, [{ count: 0, name: 'storeEventDaysAsKeys' }], directEvent)
     })
 
+    it("removes the Kennelliitto trial's end that is its empty date, and records the migration", async () => {
+      mockReadApplied.mockResolvedValue(pendingOnly('storeEventDaysAsKeys'))
+      mockReadAllEvents.mockResolvedValueOnce([
+        {
+          endDate: '2026-06-01',
+          id: 'event1',
+          kcEvent: { classes: [], endDate: '0001-01-01T00:00:00', eventType: 'NOU', startDate: '2026-06-01' },
+          startDate: '2026-06-01',
+          updatedAt: 'read',
+        },
+      ])
+
+      await runMigrationLambda(directEvent)
+
+      expect(mockWriteMigratedEvent).toHaveBeenCalledWith(
+        'event1',
+        { remove: ['kcEvent.endDate'], set: { updatedAt: expect.any(String) } },
+        'read'
+      )
+      expect(mockResponse).toHaveBeenCalledWith(200, [{ count: 1, name: 'storeEventDaysAsKeys' }], directEvent)
+      expect(mockMarkApplied).toHaveBeenCalledWith('storeEventDaysAsKeys', 1, hashes.get('storeEventDaysAsKeys'))
+    })
+
     it('leaves a day it cannot read as it is, counts the row and names it in the log', async () => {
       const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
       mockReadApplied.mockResolvedValue(pendingOnly('storeEventDaysAsKeys'))
@@ -1155,10 +1179,15 @@ describe('runMigrationLambda', () => {
       )
       mockReadOrganizerEventStatsRow.mockImplementation(async () => structuredClone(instantRow))
 
+      // The jittered wait between the moves is no wait at all.
+      const random = vi.spyOn(Math, 'random').mockReturnValue(0)
+
       await runMigrationLambda(directEvent)
 
+      random.mockRestore()
       expect(mockResponse).toHaveBeenCalledWith(409, { error: expect.stringContaining('kept changing') }, directEvent)
-      expect(mockMoveOrganizerEventStatsRow).toHaveBeenCalledTimes(3)
+      // As many moves as a save makes of the row (ORGANIZER_STATS_MOVE_RETRY).
+      expect(mockMoveOrganizerEventStatsRow).toHaveBeenCalledTimes(8)
       expect(mockMarkApplied).not.toHaveBeenCalled()
       mockMoveOrganizerEventStatsRow.mockReset()
       mockReadOrganizerEventStatsRow.mockReset()

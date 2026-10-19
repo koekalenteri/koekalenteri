@@ -27,14 +27,28 @@ interface ConditionalWrite<R, T> {
   /** Works out the write from a reading and makes it, on condition the row is still as read. */
   work: (reading: R) => Promise<T>
   maxAttempts: number
-  /** The caller's own conflict, thrown once the attempts run out. */
-  exhausted: () => Error
+  /** What is thrown once the attempts run out: the caller's own conflict, or the last one as it came. */
+  exhausted: (lastConflict: unknown) => unknown
   /**
    * Whether a failure means the row moved meanwhile: a failed condition, unless the write is a
    * transaction, whose failed condition cancels it.
    */
   isConflict?: (error: unknown) => boolean
+  /** Waits before the next attempt (after the `attempt`th failed), so concurrent writers spread out. */
+  wait?: (attempt: number) => Promise<void>
 }
+
+/**
+ * A wait of a random length up to `baseMs` doubled per attempt and capped at `maxMs`: writers that
+ * collided do not collide again at once.
+ */
+export const jitteredWait =
+  (baseMs: number, maxMs: number) =>
+  (attempt: number): Promise<void> => {
+    const maximumDelay = Math.min(baseMs * 2 ** (attempt - 1), maxMs)
+    const delay = Math.floor(Math.random() * maximumDelay)
+    return new Promise<void>((resolve) => setTimeout(resolve, delay))
+  }
 
 /**
  * Runs a conditional write, and again when its condition failed because the row moved meanwhile: the
@@ -49,13 +63,15 @@ export const retryOnConditionFailure = <R, T>({
   maxAttempts,
   exhausted,
   isConflict = isConditionalCheckFailure,
+  wait,
 }: ConditionalWrite<R, T>): Promise<T> => {
   const attempt = async (reading: R, number: number): Promise<T> => {
     try {
       return await work(reading)
     } catch (error) {
       if (!isConflict(error)) throw error
-      if (number >= maxAttempts) throw exhausted()
+      if (number >= maxAttempts) throw exhausted(error)
+      if (wait) await wait(number)
       return attempt(await reread(), number + 1)
     }
   }

@@ -120,6 +120,36 @@ describe('rekeyEventDays', () => {
     expect(event).toEqual({ endDate: '2026-06-01', resultsPublished: ['not-a-dayTx'], startDate: 'not-a-date' })
   })
 
+  // Kennelliitto lists a one-day trial's end as its empty date (year 1); stored raw, or as the instant
+  // a browser made of it, it is no day, and the field goes.
+  it("removes an optional day that is Kennelliitto's empty date, and counts the event as changed", () => {
+    const event: Partial<JsonDogEvent> = {
+      endDate: '2026-06-01',
+      entryEndDate: legacyDayValue('0000-12-31T22:20:11.000Z'),
+      kcEvent: {
+        classes: [],
+        endDate: legacyDayValue('0001-01-01T00:00:00'),
+        eventType: 'NOU',
+        startDate: '2026-06-01',
+      },
+      startDate: '2026-06-01',
+    }
+
+    expect(rekeyEventDays(event, legacyDay)).toEqual({ changed: true, unreadable: false })
+    expect(event).toEqual({
+      endDate: '2026-06-01',
+      kcEvent: { classes: [], eventType: 'NOU', startDate: '2026-06-01' },
+      startDate: '2026-06-01',
+    })
+  })
+
+  it("keeps a required day that is Kennelliitto's empty date, as one it cannot read", () => {
+    const event: Partial<JsonDogEvent> = { endDate: legacyDayValue('0001-01-01T00:00:00'), startDate: '2026-06-01' }
+
+    expect(rekeyEventDays(event, legacyDay)).toEqual({ changed: false, unreadable: true })
+    expect(event.endDate).toBe('0001-01-01T00:00:00')
+  })
+
   it('takes a patch, whose deleted fields are null and whose lists may hold null', () => {
     const patch: Patch<JsonDogEvent> = {
       classes: [null, { class: 'ALO', date: legacyDayValue(SUMMER_MIDNIGHT) }],

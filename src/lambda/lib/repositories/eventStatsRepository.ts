@@ -10,6 +10,8 @@ import type {
 } from '../../../types/Stats'
 import { CONFIG } from '../../config'
 import CustomDynamoClient from '../../utils/CustomDynamoClient'
+import { isTransactionCanceled } from '../api-gw'
+import { jitteredWait } from '../conditionalWrite'
 import { newRegistrationStatsMarkItem } from './registrationRepository'
 
 const dynamoDB = new CustomDynamoClient(CONFIG.eventStatsTable)
@@ -120,6 +122,17 @@ export const organizerStatsRowEvent = (
     organizer: { id: row.PK.slice(STATS_KEY_PREFIX.organizer.length) },
     startDate: row.SK.slice(0, at),
   }
+}
+
+/**
+ * How a move of an organizer stats row is retried: a registration counted on the row meanwhile cancels
+ * the move's transaction, and in a burst of registrations the moves spread out with a jittered wait.
+ * The one rule for a save that moves the row and for the migration that rekeys it.
+ */
+export const ORGANIZER_STATS_MOVE_RETRY = {
+  isConflict: isTransactionCanceled,
+  maxAttempts: 8,
+  wait: jitteredWait(10, 500),
 }
 
 /** Whether the two versions of an event keep their organizer stats in the same row. */

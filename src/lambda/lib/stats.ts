@@ -17,11 +17,13 @@ import { dayStart, isDayKey, TIME_ZONE } from '../../lib/day'
 import { storedDayKey, storedYear } from '../../lib/event'
 import { isMember, isStarter } from '../../lib/registration'
 import { isTransactionCanceled } from './api-gw'
+import { jitteredWait, retryOnConditionFailure } from './conditionalWrite'
 import {
   addOrganizerEventStats,
   commitNewRegistrationStats,
   isSameOrganizerStatsRow,
   moveOrganizerEventStatsRow,
+  ORGANIZER_STATS_MOVE_RETRY,
   readAllOrganizerEventStats,
   readBreedStarts,
   readBuckets,
@@ -41,16 +43,7 @@ import { readRegistration } from './repositories/registrationRepository'
 const NEW_REGISTRATION_STATS_MAX_ATTEMPTS = 12
 const NEW_REGISTRATION_STATS_RETRY_BASE_MS = 10
 const NEW_REGISTRATION_STATS_RETRY_MAX_MS = 500
-const MOVE_ORGANIZER_STATS_MAX_ATTEMPTS = 8
-
-const waitForStatsRetry = (attempt: number) => {
-  const maximumDelay = Math.min(
-    NEW_REGISTRATION_STATS_RETRY_BASE_MS * 2 ** (attempt - 1),
-    NEW_REGISTRATION_STATS_RETRY_MAX_MS
-  )
-  const delay = Math.floor(Math.random() * maximumDelay)
-  return new Promise<void>((resolve) => setTimeout(resolve, delay))
-}
+const waitForStatsRetry = jitteredWait(NEW_REGISTRATION_STATS_RETRY_BASE_MS, NEW_REGISTRATION_STATS_RETRY_MAX_MS)
 
 /** The Finnish year of an event's stored start date, or undefined for one without a calendar day. */
 export function eventStatsYear({ startDate }: { startDate: string }): number | undefined {
@@ -374,22 +367,21 @@ export async function moveOrganizerEventStats(
 ): Promise<void> {
   if (isSameOrganizerStatsRow(existing, updated)) return
 
-  for (let attempt = 1; attempt <= MOVE_ORGANIZER_STATS_MAX_ATTEMPTS; attempt++) {
-    // No record yet means no registrations have been counted for this event; the first
-    // registration will simply create it under the new key.
-    const found = await readOrganizerStatsSource(existing)
-    if (!found || isSameOrganizerStatsRow(found.source, updated)) return
-
-    try {
+  await retryOnConditionFailure({
+    ...ORGANIZER_STATS_MOVE_RETRY,
+    // The last cancelled transaction goes to the caller as it came.
+    exhausted: (lastConflict) => lastConflict,
+    initial: await readOrganizerStatsSource(existing),
+    reread: () => readOrganizerStatsSource(existing),
+    work: async (found) => {
+      // No record yet means no registrations have been counted for this event; the first
+      // registration will simply create it under the new key.
+      if (!found || isSameOrganizerStatsRow(found.source, updated)) return
       // One transaction, because a half-finished move either double-counts the event in the
       // organizer's totals or drops it, and no scheduled job would notice either.
       await moveOrganizerEventStatsRow(found.source, updated, found.stats, new Date().toISOString())
-      return
-    } catch (error) {
-      if (!isTransactionCanceled(error) || attempt === MOVE_ORGANIZER_STATS_MAX_ATTEMPTS) throw error
-      await waitForStatsRetry(attempt)
-    }
-  }
+    },
+  })
 }
 
 /**

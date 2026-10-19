@@ -5,7 +5,6 @@ import { createHash } from 'node:crypto'
 import { getEventSeason } from '../../lib/event'
 import { legacyDay, rekeyDogDays, rekeyEventDays, rekeyRegistrationDays } from '../../lib/storedDays'
 import { mapWithConcurrency } from '../../lib/utils'
-import { isConditionalCheckFailure, isTransactionCanceled } from '../lib/api-gw'
 import { authorizeAdmin } from '../lib/auth'
 import { retryOnConditionFailure } from '../lib/conditionalWrite'
 import { markMigrationApplied, readAppliedMigrations } from '../lib/dataVersions'
@@ -16,6 +15,7 @@ import { readAllDogs, readDog, writeMigratedDog } from '../lib/repositories/dogR
 import { readAllEvents, readEvent, writeMigratedEvent } from '../lib/repositories/eventRepository'
 import {
   moveOrganizerEventStatsRow,
+  ORGANIZER_STATS_MOVE_RETRY,
   organizerStatsKey,
   organizerStatsRowEvent,
   readAllOrganizerEventStats,
@@ -195,6 +195,10 @@ interface MigratedTable<T extends object> {
   id: (row: T) => string
   /** Whether a failed write means the row moved meanwhile; a failed condition unless said otherwise. */
   isConflict?: (error: unknown) => boolean
+  /** The writes of a row before the run gives up; MAX_WRITE_ATTEMPTS unless said otherwise. */
+  maxAttempts?: number
+  /** The wait before a row is read and written again; none unless said otherwise. */
+  wait?: (attempt: number) => Promise<void>
 }
 
 /**
@@ -249,8 +253,9 @@ const dogTable: MigratedTable<JsonDog> = {
 
 const organizerStatsTable: MigratedTable<JsonEventStatsItem> = {
   id: (row) => `${row.PK}/${row.SK}`,
-  // The move is a transaction: a registration counted on the row since it was read cancels it.
-  isConflict: (error) => isConditionalCheckFailure(error) || isTransactionCanceled(error),
+  // The move is a transaction: a registration counted on the row since it was read cancels it. It is
+  // retried as a save's move of the row is, with a wait, since registrations come in bursts.
+  ...ORGANIZER_STATS_MOVE_RETRY,
   loaders: () => Promise.resolve([() => readAllOrganizerEventStats()]),
   migrations: organizerStatsMigrations,
   name: 'organizer stats',
@@ -274,19 +279,20 @@ const WRITE_CONCURRENCY = 10
 
 /**
  * Writes a migrated row. A row changed by someone else since it was read is read again and migrated
- * afresh, up to MAX_WRITE_ATTEMPTS writes. Returns what the migrations did to the row that was finally
- * written, nothing when the row is gone or needs nothing any more.
+ * afresh, up to the table's attempts (MAX_WRITE_ATTEMPTS unless it says). Returns what the migrations
+ * did to the row that was finally written, nothing when the row is gone or needs nothing any more.
  */
 const writeRow = <T extends object>(table: MigratedTable<T>, row: ReadRow<T>, pending: Pending<T>[]) =>
   retryOnConditionFailure<ReadRow<T> | undefined, DayRekeying[]>({
     exhausted: () => new LambdaError(409, `${table.name} ${table.id(row.item)} kept changing while it was migrated`),
     initial: row,
     isConflict: table.isConflict,
-    maxAttempts: MAX_WRITE_ATTEMPTS,
+    maxAttempts: table.maxAttempts ?? MAX_WRITE_ATTEMPTS,
     reread: async () => {
       const fresh = await table.reread(row)
       return fresh && migrateRow(fresh, pending)
     },
+    wait: table.wait,
     work: async (current) => {
       // A row deleted meanwhile needs nothing any more.
       if (!current) return pending.map(() => ({ changed: false, unreadable: false }))
@@ -364,11 +370,10 @@ const pendingRun = <T extends object>(
     // Only after every write of the table went through: a failed run records nothing and the next one
     // starts over. A migration that left values it could not read is not recorded either, so the next
     // deploy runs it again (it changes nothing it changed already) and reports them again.
-    await Promise.all(
-      results.map(({ count, name, unreadable }, index) =>
-        unreadable ? undefined : markMigrationApplied(name, count, pending[index].hash)
-      )
-    )
+    const applied = results
+      .map((result, index) => ({ ...result, hash: pending[index].hash }))
+      .filter(({ unreadable }) => !unreadable)
+    await Promise.all(applied.map(({ count, hash, name }) => markMigrationApplied(name, count, hash)))
     return results
   }
 }

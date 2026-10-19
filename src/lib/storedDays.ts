@@ -97,9 +97,15 @@ interface RegistrationDays {
   results?: OrNull<DatedResult[]>
 }
 
-const EVENT_DAY_FIELDS = [
-  'startDate',
-  'endDate',
+/** The days every event has: one it cannot read stays as it is. */
+const EVENT_DAY_FIELDS = ['startDate', 'endDate'] as const
+
+/**
+ * The days an event may be without. The entry days came from Kennelliitto's trial listing too, as the
+ * Kennelliitto trial's own days did, and its empty date (year 1, the end of a one-day trial) is no day:
+ * it removes the field.
+ */
+const OPTIONAL_EVENT_DAY_FIELDS = [
   'entryStartDate',
   'entryEndDate',
   'entryOrigEndDate',
@@ -157,15 +163,13 @@ export const rekeyEventDays = (event: EventDays, decode: DayDecode): DayRekeying
     const value = event[field]
     if (value) event[field] = rekeyDay(value, decode, state)
   }
+  for (const field of OPTIONAL_EVENT_DAY_FIELDS) rekeyOptionalDay(event, field, decode, state)
   rekeyParts(event.classes, decode, state)
   rekeyParts(event.dates, decode, state)
   rekeyParts(event.stations, decode, state)
   const kcEvent = event.kcEvent
   if (kcEvent) {
-    for (const field of KC_EVENT_DAY_FIELDS) {
-      const value = kcEvent[field]
-      if (value) kcEvent[field] = rekeyDay(value, decode, state)
-    }
+    for (const field of KC_EVENT_DAY_FIELDS) rekeyOptionalDay(kcEvent, field, decode, state)
   }
   if (event.startNumbersPublished) event.startNumbersPublished = rekeyScope(event.startNumbersPublished, decode, state)
   if (event.resultsPublished) event.resultsPublished = rekeyScope(event.resultsPublished, decode, state)
@@ -195,10 +199,10 @@ const rekeyGroup = (group: DatedGroup | undefined, decode: DayDecode, state: Day
 }
 
 /**
- * A dog date's key; `null` for Kennelliitto's empty date, which is no day at all; `undefined` for a
- * value with no day to read, which is left as it is.
+ * A day's key; `null` for Kennelliitto's empty date, which is no day at all; `undefined` for a value
+ * with no day to read, which is left as it is.
  */
-const rekeyDogDate = (value: string, decode: DayDecode, state: DayRekeying): DayKey | null | undefined => {
+const rekeyDayOrNone = (value: string, decode: DayDecode, state: DayRekeying): DayKey | null | undefined => {
   const day = decode(value)
   if (day !== undefined) {
     if (day !== value) state.changed = true
@@ -212,11 +216,25 @@ const rekeyDogDate = (value: string, decode: DayDecode, state: DayRekeying): Day
   return undefined
 }
 
+/** A day a row may be without, as a key; Kennelliitto's empty date removes it. */
+const rekeyOptionalDay = <K extends string>(
+  holder: { [P in K]?: OrNull<DayKey> },
+  field: K,
+  decode: DayDecode,
+  state: DayRekeying
+) => {
+  const value = holder[field]
+  if (!value) return
+  const day = rekeyDayOrNone(value, decode, state)
+  if (day === null) delete holder[field]
+  else if (day) holder[field] = day
+}
+
 /** A result's day as a key, or '' for Kennelliitto's empty date. */
 const rekeyResults = (results: Nullable<DatedResult[]>, decode: DayDecode, state: DayRekeying) => {
   for (const result of results ?? []) {
     if (!result?.date) continue
-    const day = rekeyDogDate(result.date, decode, state)
+    const day = rekeyDayOrNone(result.date, decode, state)
     if (day !== undefined) result.date = day ?? ''
   }
 }
@@ -224,7 +242,7 @@ const rekeyResults = (results: Nullable<DatedResult[]>, decode: DayDecode, state
 /** The birth date as a key, or none for Kennelliitto's empty date; and the results' days. */
 const rekeyDogInto = (dog: DogDays, decode: DayDecode, state: DayRekeying) => {
   if (dog.dob) {
-    const day = rekeyDogDate(dog.dob, decode, state)
+    const day = rekeyDayOrNone(dog.dob, decode, state)
     if (day === null) delete dog.dob
     else if (day) dog.dob = day
   }
