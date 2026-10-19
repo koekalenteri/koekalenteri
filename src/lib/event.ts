@@ -39,7 +39,6 @@ import {
   isInstantString,
   monthKeyOf,
   sameDay,
-  storedEventDayOf,
   TIME_ZONE,
 } from './day'
 import { isLiveNow, isStoredStationTurn, toPublicStationTurn } from './stationTurns'
@@ -86,9 +85,11 @@ export const storedDayKey = (date: DayInput): DayKey | undefined => {
   if (!date) return undefined
   if (isDayKey(date)) return date
   const instant = toInstant(date)
-  // An instant a row stored before KOE-1547 holds is read as the day it was stored for, as the
-  // migration reads it, so the row names the same day before and after it (`storedEventDayOf`).
-  return hasCalendarDay(instant, TIME_ZONE) ? storedEventDayOf(instant, TIME_ZONE) : undefined
+  // The day the instant falls on, as every reader of a stored day reads it (`eventDayKey`, the group
+  // keys, the wire), so the readers agree with each other. A day a row not yet migrated holds an hour
+  // off reads as the day before or after until its migration, which writes the day it was stored for,
+  // as a save in the meantime does (`storedEventDayOf` in the decoders of lib/storedDays.ts).
+  return hasCalendarDay(instant, TIME_ZONE) ? dayOf(instant, TIME_ZONE) : undefined
 }
 
 /**

@@ -1079,6 +1079,22 @@ describe('runMigrationLambda', () => {
       expect(mockWriteMigratedDog).toHaveBeenCalledWith(dog, { remove: ['dob'] })
     })
 
+    it("writes a dog's date stored at 23:00 as the day it falls on, not as the next", async () => {
+      mockReadApplied.mockResolvedValue(pendingOnly('storeDogDaysAsKeys'))
+      const dog = {
+        dob: '2026-11-06T21:00:00.000Z',
+        regNo: 'FI1/21',
+        results: [{ class: 'ALO', date: '2026-11-06T21:00:00.000Z', type: 'NOME-B' }],
+      }
+      mockReadAllDogs.mockResolvedValueOnce([structuredClone(dog)])
+
+      await runMigrationLambda(directEvent)
+
+      expect(mockWriteMigratedDog).toHaveBeenCalledWith(dog, {
+        set: { dob: '2026-11-06', results: [{ class: 'ALO', date: '2026-11-06', type: 'NOME-B' }] },
+      })
+    })
+
     it('leaves a dog whose dates are keys as it is, and counts nothing', async () => {
       mockReadApplied.mockResolvedValue(pendingOnly('storeDogDaysAsKeys'))
       mockReadAllDogs.mockResolvedValueOnce([
@@ -1228,15 +1244,24 @@ describe('runMigrationLambda', () => {
       )
     })
 
-    it("names a start's group by the day its date was stored for", async () => {
+    // The entry's days follow the event rule; the dog's dates are the day the instant falls on, so the
+    // same Friday 23:00 is Saturday for a group and Friday for a birth date or a result.
+    it("names a start's group by the day its date was stored for, and a dog's date by the day it falls on", async () => {
       mockReadApplied.mockResolvedValue(pendingOnly('storeRegistrationDaysAsKeys'))
       mockReadRegistrationEventIds.mockResolvedValueOnce(['event1'])
       mockReadEventRegistrations.mockResolvedValueOnce([
         {
           dates: [{ date: '2025-12-12T21:00:00.000Z', time: 'ap' }],
+          dog: {
+            dob: '2026-11-06T21:00:00.000Z',
+            regNo: 'FI1/21',
+            results: [{ class: 'ALO', date: '2026-11-06T21:00:00.000Z', type: 'NOME-B' }],
+          },
           eventId: 'event1',
           group: { date: '2025-12-12T21:00:00.000Z', key: '2025-12-12-ap', number: 1, time: 'ap' },
           id: 'reg1',
+          results: [{ class: 'ALO', date: '2026-11-06T21:00:00.000Z', id: 'm1', type: 'NOME-B' }],
+          startGroup: { date: '2025-12-12T21:00:00.000Z', key: '2025-12-12-ap', number: 1, time: 'ap' },
           updatedAt: 'read',
         },
       ])
@@ -1249,8 +1274,13 @@ describe('runMigrationLambda', () => {
         {
           set: {
             dates: [{ date: '2025-12-13', time: 'ap' }],
+            'dog.dob': '2026-11-06',
+            'dog.results': [{ class: 'ALO', date: '2026-11-06', type: 'NOME-B' }],
             'group.date': '2025-12-13',
             'group.key': '2025-12-13-ap',
+            results: [{ class: 'ALO', date: '2026-11-06', id: 'm1', type: 'NOME-B' }],
+            'startGroup.date': '2025-12-13',
+            'startGroup.key': '2025-12-13-ap',
             updatedAt: expect.any(String),
           },
         },

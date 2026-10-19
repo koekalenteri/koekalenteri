@@ -18,7 +18,7 @@ import { registrationWithStaticDates, registrationWithStaticDatesAndClass } from
 import { dayStart, dayStartOf, TIME_ZONE } from '../../lib/day'
 import { qualifyJsonRegistration } from '../../lib/qualification'
 import { GROUP_KEY_RESERVE } from '../../lib/registration'
-import { rekeyRegistrationDays, storedRegistrationDays } from '../../lib/storedDays'
+import { legacyRegistrationDays, rekeyRegistrationDays } from '../../lib/storedDays'
 import { finnishDayOf, legacyDayValue } from '../../test-utils/finnishDays'
 import { CONFIG } from '../config'
 import { LambdaError } from '../lib/lambda'
@@ -1424,7 +1424,7 @@ describe('putRegistrationLabmda', () => {
   ])('answers an unchanged save of %s with 304', async (_name, sentAsInstants, storedAsInstants) => {
     const event = JSON.parse(JSON.stringify(eventWithStaticDates))
     const base: JsonRegistration = JSON.parse(JSON.stringify({ ...registrationWithStaticDates, confirmed: true }))
-    rekeyRegistrationDays(base, storedRegistrationDays)
+    rekeyRegistrationDays(base, legacyRegistrationDays)
     // The entry's days as keys, or as the instants their Finnish days start at.
     const withDays = (asInstants: boolean): JsonRegistration => {
       const form = (day: DayKey) => (asInstants ? legacyDayValue(dayStart(day, TIME_ZONE).toISOString()) : day)

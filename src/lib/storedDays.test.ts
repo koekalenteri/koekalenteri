@@ -9,8 +9,6 @@ import {
   rekeyEventDays,
   rekeyRegistrationDays,
   requestDay,
-  storedDogDay,
-  storedEventDay,
   withRegistrationDayKeys,
 } from './storedDays'
 
@@ -20,8 +18,8 @@ const SUMMER_MIDNIGHT = '2026-05-31T21:00:00.000Z' // 1.6.2026 00:00 in Finland
 const WINTER_MIDNIGHT = '2026-01-31T22:00:00.000Z' // 1.2.2026 00:00 in Finland
 const END_OF_DAY = '2026-05-17T20:59:59.999Z' // 17.5.2026 23:59:59.999 in Finland
 
-/** Every reader of an event's or an entry's day: the migration's, a stored row's, a request's. */
-const eventDayReaders = [legacyEventDay, storedEventDay, requestDay]
+/** Both decoders of an event's or an entry's day: a stored row's and a request's. */
+const eventDayReaders = [legacyEventDay, requestDay]
 
 for (const zone of ['UTC', 'Europe/Helsinki', 'America/New_York', 'Asia/Tokyo']) {
   describeInTimeZone(zone, () => {
@@ -32,7 +30,7 @@ for (const zone of ['UTC', 'Europe/Helsinki', 'America/New_York', 'Asia/Tokyo'])
         ['the end of a Finnish day', END_OF_DAY, '2026-05-17'],
         ['an instant with an offset', '2026-06-01T00:00:00.000+03:00', '2026-06-01'],
       ])('reads %s as its Finnish day, however it is read', (_name, value, expected) => {
-        for (const read of [...eventDayReaders, legacyDogDay, storedDogDay]) expect(read(value)).toBe(expected)
+        for (const read of [...eventDayReaders, legacyDogDay]) expect(read(value)).toBe(expected)
       })
 
       // Days measured on dev (KOE-1547): a winter day's midnight worked out with the summer offset is
@@ -55,14 +53,11 @@ for (const zone of ['UTC', 'Europe/Helsinki', 'America/New_York', 'Asia/Tokyo'])
         ['a Friday 23:00 in Helsinki', '2026-11-06T21:00:00.000Z', '2026-11-06'],
       ])("reads a dog's date at %s as the day it falls on", (_name, value, expected) => {
         expect(legacyDogDay(value)).toBe(expected)
-        expect(storedDogDay(value)).toBe(expected)
       })
 
       it("reads Kennelliitto's stamp in a stored row, and refuses it in a request, which never sent one", () => {
         expect(legacyEventDay('2021-01-01T00:00:00')).toBe('2021-01-01')
-        expect(storedEventDay('2021-01-01T00:00:00')).toBe('2021-01-01')
         expect(legacyDogDay('2021-01-01T00:00:00')).toBe('2021-01-01')
-        expect(storedDogDay('2021-01-01T00:00:00')).toBe('2021-01-01')
         expect(requestDay('2021-01-01T00:00:00')).toBeUndefined()
       })
 
@@ -74,7 +69,7 @@ for (const zone of ['UTC', 'Europe/Helsinki', 'America/New_York', 'Asia/Tokyo'])
         ['a day the month does not have', '2026-02-30'],
         ['no text at all', 42],
       ])('reads %s as no day', (_name, value) => {
-        for (const read of [...eventDayReaders, legacyDogDay, storedDogDay]) expect(read(value)).toBeUndefined()
+        for (const read of [...eventDayReaders, legacyDogDay]) expect(read(value)).toBeUndefined()
       })
     })
   })
@@ -264,6 +259,36 @@ describe('rekeyRegistrationDays', () => {
     })
   })
 
+  // An entry's days and groups' days are read by the event rule, the dog's dates by the day the
+  // instant falls on: the same Friday 23:00 is Saturday for the one and Friday for the other.
+  it("reads the entry's days by the event rule and the dog's dates by the day they fall on", () => {
+    const friday23 = legacyDayValue('2026-11-06T21:00:00.000Z')
+    const registration: Partial<JsonRegistration> = {
+      dates: [{ date: friday23, time: 'ap' }],
+      dog: {
+        dob: friday23,
+        regNo: 'FI1/21',
+        results: [{ class: 'ALO', date: friday23, judge: 'J', location: 'L', result: 'ALO1', type: 'NOME-B' }],
+      },
+      group: { date: friday23, key: '2026-11-06-ap', number: 1, time: 'ap' },
+      qualifyingResults: [
+        { class: 'ALO', date: friday23, judge: 'J', location: 'L', official: true, result: 'ALO1', type: 'NOME-B' },
+      ],
+      results: [{ class: 'ALO', date: friday23, id: 'm1', judge: 'J', location: 'L', result: 'ALO1', type: 'NOME-B' }],
+      startGroup: { date: legacyDayValue('2025-12-12T21:00:00.000Z'), key: '2025-12-12-ap', number: 1, time: 'ap' },
+    }
+
+    rekeyRegistrationDays(registration, legacyRegistrationDays)
+
+    expect(registration.dates).toEqual([{ date: '2026-11-07', time: 'ap' }])
+    expect(registration.group).toEqual({ date: '2026-11-07', key: '2026-11-07-ap', number: 1, time: 'ap' })
+    expect(registration.startGroup).toEqual({ date: '2025-12-13', key: '2025-12-13-ap', number: 1, time: 'ap' })
+    expect(registration.dog?.dob).toBe('2026-11-06')
+    expect(registration.dog?.results?.[0].date).toBe('2026-11-06')
+    expect(registration.qualifyingResults?.[0].date).toBe('2026-11-06')
+    expect(registration.results?.[0].date).toBe('2026-11-06')
+  })
+
   it('leaves a registration whose days are keys as it is', () => {
     const registration = storedRegistration()
     rekeyRegistrationDays(registration, legacyRegistrationDays)
@@ -331,6 +356,18 @@ describe('rekeyDogDays', () => {
 })
 
 describe('withRegistrationDayKeys', () => {
+  it("reads an entry's day an hour off by the event rule and a dog's date by the day it falls on", () => {
+    const registration: Partial<JsonRegistration> = {
+      dates: [{ date: legacyDayValue('2025-12-12T21:00:00.000Z'), time: 'ap' }],
+      dog: { dob: legacyDayValue('2026-11-06T21:00:00.000Z'), regNo: 'FI1/21' },
+    }
+
+    expect(withRegistrationDayKeys(registration)).toEqual({
+      dates: [{ date: '2025-12-13', time: 'ap' }],
+      dog: { dob: '2026-11-06', regNo: 'FI1/21' },
+    })
+  })
+
   it('answers a copy with the days as keys and leaves the registration as it was', () => {
     const registration: Partial<JsonRegistration> = { dates: [{ date: legacyDayValue(SUMMER_MIDNIGHT), time: 'ap' }] }
 

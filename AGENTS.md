@@ -92,10 +92,11 @@ Read `LLM_CONTEXT.md` for the project overview and architecture notes.
   out in summer time is 23:00 the evening before) is the day it was stored for (`storedEventDayOf` in
   `src/lib/day.ts`); a dog's date is the day its instant falls on. Until every environment has run
   them and every browser sends keys, the readers accept both forms: `storedDayKey` and `eventDayKey`
-  (`src/lib/event.ts`) and `calendarDayOf` read either, and a request boundary puts what it receives
-  into keys with `rekeyEventDays` and `rekeyRegistrationDays` (`src/lib/storedDays.ts`), reading a
-  request with `requestDay` (a key or an instant with a zone) and a stored row with `storedEventDay`
-  and `storedDogDay`. A no-day result date is stored as `''`, a no-day birth date not at all. The
+  (`src/lib/event.ts`) and `calendarDayOf` read either, all as the day the instant falls on, so they
+  agree with each other on a row not yet migrated. What is written as a key uses the event rule: a
+  request boundary puts what it receives into keys with `rekeyEventDays` and `rekeyRegistrationDays`
+  (`src/lib/storedDays.ts`), reading a request with `requestDay` (a key or an instant with a zone) and
+  a stored row with `legacyEventDay` and `legacyDogDay`, as the migrations do. A no-day result date is stored as `''`, a no-day birth date not at all. The
   browser model still holds each day as the start of its Finnish day (`finnishDay` in `lib/wire.ts`)
   until it is given keys too.
 - The day key indexes (`gsiSeasonStartDate`, `gsiEventTypeEntryEndDateV2`) are queried with day keys,

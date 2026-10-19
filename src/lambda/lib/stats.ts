@@ -14,8 +14,9 @@ import type {
 import type { OrganizerStatsEvent, StatDeltas } from './repositories/eventStatsRepository'
 import crypto from 'node:crypto'
 import { dayStart, isDayKey, TIME_ZONE } from '../../lib/day'
-import { storedDayKey, storedYear } from '../../lib/event'
+import { storedYear } from '../../lib/event'
 import { isMember, isStarter } from '../../lib/registration'
+import { legacyEventDay } from '../../lib/storedDays'
 import { isTransactionCanceled } from './api-gw'
 import { jitteredWait, retryOnConditionFailure } from './conditionalWrite'
 import {
@@ -384,25 +385,37 @@ export async function moveOrganizerEventStats(
   })
 }
 
-/**
- * The start an organizer stats row may be keyed by besides the event's own while KOE-1547's migrations
- * run: the instant a day key's Finnish day starts at (the form a row was counted under before), or the
- * day key of a stored instant. The event and its stats rows are migrated one after the other, so for
- * a while either one may still hold the old form.
- */
-const otherStoredStart = (startDate: string): string | undefined =>
-  isDayKey(startDate) ? dayStart(startDate, TIME_ZONE).toISOString() : storedDayKey(startDate)
+const HOUR_MS = 3_600_000
 
-/** The event's organizer stats row, under the event's own start or under the other form of it. */
-const readOrganizerStatsSource = async (existing: OrganizerStatsEvent) => {
-  const stats = await readOrganizerEventStatsRow(existing)
-  if (stats) return { source: existing, stats }
-  const other = otherStoredStart(existing.startDate)
-  if (!other) return undefined
-  const source = { ...existing, startDate: other }
-  const legacy = await readOrganizerEventStatsRow(source)
-  return legacy ? { source, stats: legacy } : undefined
+/**
+ * The starts an organizer stats row may be keyed by while KOE-1547's migrations run, the start as
+ * stored first. The event and its stats rows are migrated one after the other, so for a while either
+ * may hold the old form: for a stored instant, the key of the day it was stored for; for a key, the
+ * instant its Finnish day starts at, and the instants an hour either side of it, which a winter or a
+ * summer day's start worked out with the other offset was stored as.
+ */
+const storedStartForms = (startDate: string): string[] => {
+  if (!isDayKey(startDate)) {
+    const day = legacyEventDay(startDate)
+    return day ? [startDate, day] : [startDate]
+  }
+  const midnight = dayStart(startDate, TIME_ZONE).getTime()
+  return [startDate, ...[0, -HOUR_MS, HOUR_MS].map((offset) => new Date(midnight + offset).toISOString())]
 }
+
+/** The first of the event's possible stats rows that is there, read one after the other. */
+const readFirstStatsRow = async (
+  sources: OrganizerStatsEvent[]
+): Promise<{ source: OrganizerStatsEvent; stats: JsonEventStatsItem } | undefined> => {
+  const [source, ...rest] = sources
+  if (!source) return undefined
+  const stats = await readOrganizerEventStatsRow(source)
+  return stats ? { source, stats } : readFirstStatsRow(rest)
+}
+
+/** The event's organizer stats row, under the start as stored or under the first other form that has one. */
+const readOrganizerStatsSource = (existing: OrganizerStatsEvent) =>
+  readFirstStatsRow(storedStartForms(existing.startDate).map((startDate) => ({ ...existing, startDate })))
 
 /**
  * Helper for bucket calculation

@@ -397,6 +397,40 @@ describe('lib/stats', () => {
         expect(mockMoveOrganizerEventStatsRow).not.toHaveBeenCalled()
       })
 
+      // A start worked out with the other season's offset was stored an hour off the Finnish midnight.
+      it.each([
+        ['an hour before', '2026-11-07', '2026-11-06T22:00:00.000Z', '2026-11-06T21:00:00.000Z'],
+        ['an hour after', '2026-06-15', '2026-06-14T21:00:00.000Z', '2026-06-14T22:00:00.000Z'],
+      ])('moves the row keyed by a start stored %s its day', async (_name, day, midnight, offHour) => {
+        const offKeyed = { ...keyed, startDate: day }
+        mockReadOrganizerEventStatsRow.mockImplementation(async (source) =>
+          source.startDate === offHour ? stats : undefined
+        )
+
+        await moveOrganizerEventStats(offKeyed, later)
+
+        expect(mockReadOrganizerEventStatsRow).toHaveBeenNthCalledWith(1, offKeyed)
+        expect(mockReadOrganizerEventStatsRow).toHaveBeenNthCalledWith(2, { ...keyed, startDate: midnight })
+        expect(mockReadOrganizerEventStatsRow).toHaveBeenCalledWith({ ...keyed, startDate: offHour })
+        expect(mockMoveOrganizerEventStatsRow).toHaveBeenCalledWith(
+          { ...keyed, startDate: offHour },
+          later,
+          stats,
+          expect.any(String)
+        )
+      })
+
+      it('reads the start an hour off first, as the row stores it, before its day key', async () => {
+        const offHour = { ...keyed, startDate: '2026-11-06T21:00:00.000Z' }
+        mockReadOrganizerEventStatsRow.mockResolvedValueOnce(stats)
+
+        await moveOrganizerEventStats(offHour, later)
+
+        expect(mockReadOrganizerEventStatsRow).toHaveBeenCalledTimes(1)
+        expect(mockReadOrganizerEventStatsRow).toHaveBeenCalledWith(offHour)
+        expect(mockMoveOrganizerEventStatsRow).toHaveBeenCalledWith(offHour, later, stats, expect.any(String))
+      })
+
       it('reads no other form of a start with no day', async () => {
         mockReadOrganizerEventStatsRow.mockResolvedValueOnce(undefined)
 

@@ -7,7 +7,7 @@ import {
   isAdminRegistrationOperationField,
   withoutRegistrationMoney,
 } from '../../lib/registration'
-import { rekeyRegistrationDays, storedRegistrationDays } from '../../lib/storedDays'
+import { legacyRegistrationDays, rekeyRegistrationDays } from '../../lib/storedDays'
 import { getOrigin } from '../lib/api-gw'
 import { authorizeWithMemberOf } from '../lib/auth'
 import {
@@ -76,7 +76,7 @@ const saveAdminRegistration = async (
   { timestamp, user }: AdminRegistrationRequest
 ) => {
   // Days are stored as keys (KOE-1547); a browser loaded before that sends instants.
-  rekeyRegistrationDays(data, storedRegistrationDays)
+  rekeyRegistrationDays(data, legacyRegistrationDays)
   data.modifiedAt = timestamp
   data.modifiedBy = user.name
   data.updatedAt = timestamp

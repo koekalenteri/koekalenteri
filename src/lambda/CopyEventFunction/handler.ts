@@ -10,11 +10,11 @@ import {
 } from '../../lib/event'
 import { clearInvitationState, getRegistrationGroupKey, isStarter } from '../../lib/registration'
 import {
+  legacyEventDay,
+  legacyRegistrationDays,
   rekeyEventDays,
   rekeyRegistrationDays,
   requestDay,
-  storedEventDay,
-  storedRegistrationDays,
 } from '../../lib/storedDays'
 import { saveEvent } from '../lib/event'
 import { authorizeEvent } from '../lib/eventAuth'
@@ -38,7 +38,7 @@ const copyEventLambda = lambda('copyEvent', async (event) => {
   const timestamp = new Date().toISOString()
 
   // The source's days as keys: a row not yet migrated holds them as instants (KOE-1547).
-  rekeyEventDays(item, storedEventDay)
+  rekeyEventDays(item, legacyEventDay)
   if (!isDayKey(item.startDate) || !isDayKey(item.endDate)) {
     throw httpError(400, { message: 'Bad request: source event dates must be valid' })
   }
@@ -104,7 +104,7 @@ const copyEventLambda = lambda('copyEvent', async (event) => {
     delete reg.kcResult
     // The entry was invited to the source event; the copy's secretary sends the copy's invitation.
     clearInvitationState(reg)
-    rekeyRegistrationDays(reg, storedRegistrationDays)
+    rekeyRegistrationDays(reg, legacyRegistrationDays)
     reg.dates.forEach((d) => {
       d.date = shift(d.date)
     })

@@ -27,6 +27,7 @@ import {
   copyDogEvent,
   defaultEntryEndDate,
   defaultEntryStartDate,
+  eventDayKey,
   eventRegistrationDateKey,
   eventTypeLabel,
   finnishDaySpan,
@@ -1354,15 +1355,16 @@ describe.each([TIME_ZONE, 'America/New_York', 'Asia/Tokyo'])('the default entry 
   })
 })
 
-// KOE-1547: a row not yet migrated names the day the migration will write, so it shows the same day
-// before and after it, a day stored an hour off included.
+// KOE-1547: the readers of a stored day read an instant as the day it falls on, all alike, so they
+// agree on a row not yet migrated; its migration writes the day it was stored for.
 describe('a stored day held as an instant', () => {
   it.each([
-    ['a Friday 23:00 stored for Saturday', '2026-11-06T21:00:00.000Z', '2026-11-07'],
-    ['an end of day at 00:59:59.999 stored for the day before', '2026-09-27T21:59:59.999Z', '2026-09-27'],
-  ])('is read as the day it was stored for: %s', (_name, value, expected) => {
+    ['a Friday 23:00 stored for Saturday', '2026-11-06T21:00:00.000Z', '2026-11-06'],
+    ['an end of day at 00:59:59.999 stored for the day before', '2026-09-27T21:59:59.999Z', '2026-09-28'],
+  ])('is read as the day it falls on, as every reader reads it: %s', (_name, value, expected) => {
     expect(storedDayKey(value)).toBe(expected)
     expect(storedDayKey(new Date(value))).toBe(expected)
+    expect(eventDayKey(value)).toBe(expected)
   })
 })
 

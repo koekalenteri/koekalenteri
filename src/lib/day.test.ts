@@ -632,6 +632,10 @@ for (const hostZone of HOST_ZONES) {
         ['noon', '2026-06-01T09:00:00.000Z', '2026-06-01'],
         ['22:30 the evening before', '2026-05-31T19:30:00.000Z', '2026-05-31'],
         ['an end of the hour at 15:59:59.999', '2026-06-01T12:59:59.999Z', '2026-06-01'],
+        // Only the last millisecond of an hour is an end: these are starts half an hour into the day.
+        ['a start at 00:30:59.000', '2026-05-31T21:30:59.000Z', '2026-06-01'],
+        ['a start at 00:30:59.999', '2026-05-31T21:30:59.999Z', '2026-06-01'],
+        ['a start at 00:59:00.999', '2026-05-31T21:59:00.999Z', '2026-06-01'],
       ])('reads %s as the day it was stored for', (_name, value, expected) => {
         expect(storedEventDayOf(new Date(value), TIME_ZONE)).toBe(expected)
         expect(legacyStoredEventDay(value, TIME_ZONE)).toBe(expected)

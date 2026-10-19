@@ -3,14 +3,7 @@ import type { JsonDog, JsonDogEvent, JsonRegistration, RegistrationClass } from 
 import type { JsonEventStatsItem } from '../../types/Stats'
 import { createHash } from 'node:crypto'
 import { getEventSeason } from '../../lib/event'
-import {
-  legacyDogDay,
-  legacyEventDay,
-  legacyRegistrationDays,
-  rekeyDogDays,
-  rekeyEventDays,
-  rekeyRegistrationDays,
-} from '../../lib/storedDays'
+import { legacyDecoder, rekeyDogDays, rekeyEventDays, rekeyRegistrationDays } from '../../lib/storedDays'
 import { mapWithConcurrency } from '../../lib/utils'
 import { authorizeAdmin } from '../lib/auth'
 import { retryOnConditionFailure } from '../lib/conditionalWrite'
@@ -117,10 +110,11 @@ const eventMigrations: Migration<JsonDogEvent>[] = [
   {
     // KOE-1547: every calendar day of the event as a key: the trial's and the entry's days, the
     // classes', the dates', the posts', the Kennelliitto trial's, and the published-day lists.
-    // `legacyEventDay` reads each form ever stored, a start or an end of day an hour off as the day it
-    // was stored for, and is never narrowed (see `legacyStoredEventDay`).
+    // The event rule reads each form ever stored, a start or an end of day an hour off as the day it
+    // was stored for, and is never narrowed (see `legacyStoredEventDay`). The rule is named in a
+    // literal, so the hash of this body names it whatever a rebuild calls the functions.
     name: 'storeEventDaysAsKeys',
-    run: (event) => rekeyEventDays(event, legacyEventDay),
+    run: (event) => rekeyEventDays(event, legacyDecoder('event')),
   },
 ]
 
@@ -129,7 +123,8 @@ const registrationMigrations: Migration<JsonRegistration>[] = [
     // KOE-1547: the entry's days, its group's and its frozen start group's (and the starts' keys
     // that name the day), and the dog's birth date and results' days, as keys.
     name: 'storeRegistrationDaysAsKeys',
-    run: (registration) => rekeyRegistrationDays(registration, legacyRegistrationDays),
+    run: (registration) =>
+      rekeyRegistrationDays(registration, { dogDay: legacyDecoder('dog'), eventDay: legacyDecoder('event') }),
   },
 ]
 
@@ -137,7 +132,7 @@ const dogMigrations: Migration<JsonDog>[] = [
   {
     // KOE-1547: the birth date and the results' days of the dogs the Kennel Club lookup stored.
     name: 'storeDogDaysAsKeys',
-    run: (dog) => rekeyDogDays(dog, legacyDogDay),
+    run: (dog) => rekeyDogDays(dog, legacyDecoder('dog')),
   },
 ]
 
@@ -151,7 +146,7 @@ const organizerStatsMigrations: Migration<JsonEventStatsItem>[] = [
     run: (row) => {
       const event = organizerStatsRowEvent(row)
       if (!event) return false
-      const day = legacyEventDay(event.startDate)
+      const day = legacyDecoder('event')(event.startDate)
       if (!day) return { changed: false, unreadable: true }
       if (day === event.startDate) return false
       row.SK = organizerStatsKey({ ...event, startDate: day }).SK
