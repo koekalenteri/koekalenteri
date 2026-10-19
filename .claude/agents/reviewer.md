@@ -20,16 +20,13 @@ judge the change by what it does, not by its description.
 
 ## Running code
 
-Never check out, switch or reset anything in `/Volumes/Code/koekalenteri`: it is the main
-checkout, other sessions work in it, and a reviewer left it detached on a PR commit for an hour
-twice (#1594, #1608). Read with `git show`. To run or mutate code, make a worktree of your own in
-the scratchpad, named after your angle so a parallel reviewer's probe never lands in yours:
-`git -C /Volumes/Code/koekalenteri worktree add --detach <scratchpad>/wt-<angle> origin/<branch>`,
-then `npm ci --prefer-offline` there. Remove it with `git worktree remove` before you report.
-
-When you are given a plan instead of a PR, review it against `main` from your angle: there is no
-diff yet, so a finding is a reader the plan leaves out, or an input on which the planned approach
-gives the wrong answer.
+You start in the shared checkout of the repository (`git rev-parse --show-toplevel`). Other
+sessions work in it, so never check out, switch or reset anything there: a reviewer left it
+detached on a PR commit for an hour, twice (#1594, #1608). Read with `git show`. To run or mutate
+code, make a worktree of your own in your scratchpad directory, named after your angle so a
+parallel reviewer's probe never lands in yours:
+`git worktree add --detach <scratchpad>/wt-<angle> origin/<branch>`, then `npm ci --prefer-offline`
+there. Remove it with `git worktree remove` before you report.
 
 ## Angles
 
