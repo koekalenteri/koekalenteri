@@ -1,12 +1,4 @@
-import { vi } from 'vitest'
-
-vi.doMock('../utils/CustomDynamoClient', () => ({
-  default: vi.fn(function MockCustomDynamoClient() {
-    return { read: vi.fn(), update: vi.fn() }
-  }),
-}))
-
-const { stationScopedSubmission } = await import('./eventResults')
+import { stationScopedSubmission } from './eventResults'
 
 describe('eventResults', () => {
   describe('stationScopedSubmission', () => {

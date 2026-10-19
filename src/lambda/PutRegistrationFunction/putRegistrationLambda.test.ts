@@ -34,9 +34,9 @@ const mockApplyNewRegistrationStatsOnce = vi.fn()
 const mockUpdateEventStatsForRegistration = vi.fn()
 const mockUpdateRegistrations = vi.fn()
 const mockPublishRegistrationPatches = vi.fn()
-const mockDynamoDBQuery = vi.fn().mockResolvedValue([])
-const mockDynamoDBWrite = vi.fn()
-const mockDynamoDBUpdate = vi.fn()
+const mockQueryUsersByEmail = vi.fn().mockResolvedValue([])
+// Every audit record written, through either writer (lib/audit owns the audit table until KOE-1415).
+const mockWriteAudit = vi.fn()
 const mockFixRegistrationGroups = vi.fn(async (registrations: JsonRegistration[]) => registrations)
 const mockLockRegistrationGroups = vi.fn().mockResolvedValue(async () => undefined)
 const mockLockRegistrationPayments = vi.fn().mockResolvedValue(async () => undefined)
@@ -78,14 +78,18 @@ vi.doMock('../lib/repositories/dogRepository', () => ({
   readOfficialResults: mockReadOfficialResults,
 }))
 
-vi.doMock('../utils/CustomDynamoClient', () => ({
-  default: vi.fn(function MockCustomDynamoClient() {
-    return {
-      query: mockDynamoDBQuery,
-      update: mockDynamoDBUpdate,
-      write: mockDynamoDBWrite,
-    }
-  }),
+vi.doMock('../lib/audit', async () => ({
+  ...(await vi.importActual<typeof import('../lib/audit')>('../lib/audit')),
+  audit: async (item: unknown) => mockWriteAudit(item),
+  auditStrict: async (item: unknown) => mockWriteAudit(item),
+}))
+
+// Nobody has the public start list open.
+vi.doMock('../lib/ws/publicStartList', () => ({ publishPublicStartList: vi.fn() }))
+
+// Outside prod mail goes to staff only; nobody is staff unless a test says so (KOE-1469).
+vi.doMock('../lib/repositories/userRepository', () => ({
+  queryUsersByEmail: mockQueryUsersByEmail,
 }))
 
 const mockGetRegistration = vi.fn<(eventId: string, registrationId: string) => Promise<JsonRegistration>>()
@@ -108,6 +112,16 @@ vi.doMock('../lib/auth', () => ({
   authorize: mockAuthorize,
 }))
 
+const mockClearRegistrationEmailDeliveryStatus = vi.fn()
+const mockUpdateRegistrationField = vi.fn()
+vi.doMock('../lib/repositories/registrationRepository', () => ({
+  claimNewRegistrationPostProcessing: mockClaimNewRegistrationPostProcessing,
+  clearRegistrationEmailDeliveryStatus: mockClearRegistrationEmailDeliveryStatus,
+  markNewRegistrationPhase: mockMarkNewRegistrationPhase,
+  updateRegistrationField: mockUpdateRegistrationField,
+  writeRegistration: mockWriteRegistration,
+}))
+
 const libRegistration = await import('../lib/registration')
 const mockAuthorizeRegistrationEdit = vi.fn(() => 'test-edit-token')
 
@@ -118,14 +132,6 @@ vi.doMock('../lib/registration', () => ({
   getReadyRegistrationsByEventId: mockGetReadyRegistrationsByEventId,
   getRegistration: mockGetRegistration,
   patchRegistration: mockPatchRegistration,
-}))
-vi.doMock('../lib/repositories/registrationRepository', async () => ({
-  ...(await vi.importActual<typeof import('../lib/repositories/registrationRepository')>(
-    '../lib/repositories/registrationRepository'
-  )),
-  claimNewRegistrationPostProcessing: mockClaimNewRegistrationPostProcessing,
-  markNewRegistrationPhase: mockMarkNewRegistrationPhase,
-  writeRegistration: mockWriteRegistration,
 }))
 
 vi.doMock('../lib/emailSuppression', () => ({
@@ -255,16 +261,15 @@ describe('putRegistrationLabmda', () => {
     )
     expect(mockUpdateEventStatsForRegistration).not.toHaveBeenCalled()
 
-    expect(mockDynamoDBWrite).toHaveBeenCalledWith(
+    expect(mockWriteAudit).toHaveBeenCalledWith(
       expect.objectContaining({
         auditKey: expect.any(String),
         messageKey: 'audit.messages.registrationCreated',
         user: 'Owner Name',
         userSource: 'registration',
-      }),
-      'audit-table-not-found-in-env'
+      })
     )
-    expect(mockDynamoDBWrite).toHaveBeenCalledTimes(1)
+    expect(mockWriteAudit).toHaveBeenCalledTimes(1)
 
     expect(mockSES.send).not.toHaveBeenCalled()
     // Pending-payment registrations are intentionally absent from the admin
@@ -299,18 +304,16 @@ describe('putRegistrationLabmda', () => {
     const res = await putRegistrationLabmda(constructAPIGwEvent(mismatching))
 
     expect(res.statusCode).toEqual(200)
-    expect(mockDynamoDBWrite).toHaveBeenCalledWith(
-      expect.objectContaining({ messageKey: 'audit.messages.registrationCreated' }),
-      'audit-table-not-found-in-env'
+    expect(mockWriteAudit).toHaveBeenCalledWith(
+      expect.objectContaining({ messageKey: 'audit.messages.registrationCreated' })
     )
-    expect(mockDynamoDBWrite).toHaveBeenCalledWith(
+    expect(mockWriteAudit).toHaveBeenCalledWith(
       expect.objectContaining({
         messageKey: 'audit.messages.registrationDaysOutsideClass',
         messageParams: { days: '10.2.2021', eventClass: 'VOI' },
-      }),
-      'audit-table-not-found-in-env'
+      })
     )
-    expect(mockDynamoDBWrite).toHaveBeenCalledTimes(2)
+    expect(mockWriteAudit).toHaveBeenCalledTimes(2)
   })
 
   it('rejects an update when edit-token authorization fails', async () => {
@@ -397,9 +400,7 @@ describe('putRegistrationLabmda', () => {
     const originalStageName = CONFIG.stageName
     CONFIG.stageName = 'dev'
     // Outside prod only staff get mail: make every recipient an admin of this environment
-    mockDynamoDBQuery.mockImplementation(async ({ index }: { index?: string }) =>
-      index === 'gsiEmail' ? [{ admin: true }] : []
-    )
+    mockQueryUsersByEmail.mockResolvedValue([{ admin: true }])
     mockGetEvent.mockResolvedValueOnce(
       JSON.parse(JSON.stringify({ ...eventWithStaticDates, paymentTime: 'confirmation' }))
     )
@@ -429,7 +430,7 @@ describe('putRegistrationLabmda', () => {
       )
     } finally {
       CONFIG.stageName = originalStageName
-      mockDynamoDBQuery.mockReset().mockResolvedValue([])
+      mockQueryUsersByEmail.mockReset().mockResolvedValue([])
     }
   })
 
@@ -705,27 +706,25 @@ describe('putRegistrationLabmda', () => {
     expect(mockWriteRegistration).not.toHaveBeenCalled()
     expect(mockUpdateEventStatsForRegistration).toHaveBeenCalledTimes(1)
 
-    expect(mockDynamoDBWrite).toHaveBeenCalledWith(
+    expect(mockWriteAudit).toHaveBeenCalledWith(
       expect.objectContaining({
         auditKey: `${eventWithStaticDates.id}:${registrationWithStaticDates.id}`,
         messageKey: 'audit.messages.registrationCancelled',
         messageParams,
         user: 'Owner Name',
         userSource: 'registration',
-      }),
-      'audit-table-not-found-in-env'
+      })
     )
-    expect(mockDynamoDBWrite).toHaveBeenCalledWith(
+    expect(mockWriteAudit).toHaveBeenCalledWith(
       expect.objectContaining({
         auditKey: `${eventWithStaticDates.id}:${registrationWithStaticDates.id}`,
         messageKey: 'audit.messages.emailSentTo',
         messageParams: expect.objectContaining({ recipients: 'handler@example.com, owner@example.com' }),
         user: 'Owner Name',
         userSource: 'registration',
-      }),
-      'audit-table-not-found-in-env'
+      })
     )
-    expect(mockDynamoDBWrite).toHaveBeenCalledTimes(2)
+    expect(mockWriteAudit).toHaveBeenCalledTimes(2)
 
     expect(mockSES.send).toHaveBeenCalledWith({
       ConfigurationSetName: 'Koekalenteri',
@@ -796,26 +795,24 @@ describe('putRegistrationLabmda', () => {
     expect(mockWriteRegistration).not.toHaveBeenCalled()
     expect(mockUpdateEventStatsForRegistration).toHaveBeenCalledTimes(1)
 
-    expect(mockDynamoDBWrite).toHaveBeenCalledWith(
+    expect(mockWriteAudit).toHaveBeenCalledWith(
       expect.objectContaining({
         auditKey: `${eventWithStaticDates.id}:${registrationWithStaticDates.id}`,
         messageKey: 'audit.messages.registrationCancelled',
         user: 'Owner Name',
         userSource: 'registration',
-      }),
-      'audit-table-not-found-in-env'
+      })
     )
-    expect(mockDynamoDBWrite).toHaveBeenCalledWith(
+    expect(mockWriteAudit).toHaveBeenCalledWith(
       expect.objectContaining({
         auditKey: `${eventWithStaticDates.id}:${registrationWithStaticDates.id}`,
         messageKey: 'audit.messages.emailSentTo',
         messageParams: expect.objectContaining({ recipients: 'handler@example.com, owner@example.com' }),
         user: 'Owner Name',
         userSource: 'registration',
-      }),
-      'audit-table-not-found-in-env'
+      })
     )
-    expect(mockDynamoDBWrite).toHaveBeenCalledTimes(2)
+    expect(mockWriteAudit).toHaveBeenCalledTimes(2)
 
     expect(mockSES.send).toHaveBeenCalledWith({
       ConfigurationSetName: 'Koekalenteri',
@@ -874,26 +871,24 @@ describe('putRegistrationLabmda', () => {
     expect(mockWriteRegistration).not.toHaveBeenCalled()
     expect(mockUpdateEventStatsForRegistration).toHaveBeenCalledTimes(1)
 
-    expect(mockDynamoDBWrite).toHaveBeenCalledWith(
+    expect(mockWriteAudit).toHaveBeenCalledWith(
       expect.objectContaining({
         auditKey: `${eventWithStaticDates.id}:${registrationWithStaticDates.id}`,
         messageKey: 'audit.messages.registrationCancelled',
         user: 'Owner Name',
         userSource: 'registration',
-      }),
-      'audit-table-not-found-in-env'
+      })
     )
-    expect(mockDynamoDBWrite).toHaveBeenCalledWith(
+    expect(mockWriteAudit).toHaveBeenCalledWith(
       expect.objectContaining({
         auditKey: `${eventWithStaticDates.id}:${registrationWithStaticDates.id}`,
         messageKey: 'audit.messages.emailSentTo',
         messageParams: expect.objectContaining({ recipients: 'handler@example.com, owner@example.com' }),
         user: 'Owner Name',
         userSource: 'registration',
-      }),
-      'audit-table-not-found-in-env'
+      })
     )
-    expect(mockDynamoDBWrite).toHaveBeenCalledTimes(2)
+    expect(mockWriteAudit).toHaveBeenCalledTimes(2)
 
     expect(mockSES.send).toHaveBeenCalledWith({
       ConfigurationSetName: 'Koekalenteri',
@@ -952,26 +947,24 @@ describe('putRegistrationLabmda', () => {
     expect(mockWriteRegistration).not.toHaveBeenCalled()
     expect(mockUpdateEventStatsForRegistration).toHaveBeenCalledTimes(1)
 
-    expect(mockDynamoDBWrite).toHaveBeenCalledWith(
+    expect(mockWriteAudit).toHaveBeenCalledWith(
       expect.objectContaining({
         auditKey: `${eventWithStaticDates.id}:${registrationWithStaticDates.id}`,
         messageKey: 'audit.messages.registrationCancelled',
         user: 'Owner Name',
         userSource: 'registration',
-      }),
-      'audit-table-not-found-in-env'
+      })
     )
-    expect(mockDynamoDBWrite).toHaveBeenCalledWith(
+    expect(mockWriteAudit).toHaveBeenCalledWith(
       expect.objectContaining({
         auditKey: `${eventWithStaticDates.id}:${registrationWithStaticDates.id}`,
         messageKey: 'audit.messages.emailSentTo',
         messageParams: expect.objectContaining({ recipients: 'handler@example.com, owner@example.com' }),
         user: 'Owner Name',
         userSource: 'registration',
-      }),
-      'audit-table-not-found-in-env'
+      })
     )
-    expect(mockDynamoDBWrite).toHaveBeenCalledTimes(2)
+    expect(mockWriteAudit).toHaveBeenCalledTimes(2)
 
     expect(mockSES.send).toHaveBeenCalledWith({
       ConfigurationSetName: 'Koekalenteri',
@@ -1046,7 +1039,7 @@ describe('putRegistrationLabmda', () => {
       expect.any(Function)
     )
 
-    expect(mockDynamoDBWrite).toHaveBeenCalledWith(
+    expect(mockWriteAudit).toHaveBeenCalledWith(
       expect.objectContaining({
         auditKey: expect.any(String),
         changes: [
@@ -1060,18 +1053,16 @@ describe('putRegistrationLabmda', () => {
         messageKey: 'audit.changed',
         user: 'Owner Name',
         userSource: 'registration',
-      }),
-      'audit-table-not-found-in-env'
+      })
     )
-    expect(mockDynamoDBWrite).toHaveBeenCalledWith(
+    expect(mockWriteAudit).toHaveBeenCalledWith(
       expect.objectContaining({
         auditKey: `${eventWithStaticDates.id}:${registrationWithStaticDates.id}`,
         user: 'Owner Name',
         userSource: 'registration',
-      }),
-      'audit-table-not-found-in-env'
+      })
     )
-    expect(mockDynamoDBWrite).toHaveBeenCalledTimes(2)
+    expect(mockWriteAudit).toHaveBeenCalledTimes(2)
 
     expect(mockSES.send).toHaveBeenCalledWith({
       ConfigurationSetName: 'Koekalenteri',
@@ -1116,12 +1107,11 @@ describe('putRegistrationLabmda', () => {
       existingJson,
       expect.objectContaining({ modifiedBy: 'New Payer', payer: expect.objectContaining({ name: 'New Payer' }) })
     )
-    expect(mockDynamoDBWrite).toHaveBeenCalledWith(
+    expect(mockWriteAudit).toHaveBeenCalledWith(
       expect.objectContaining({
         user: 'New Payer',
         userSource: 'registration',
-      }),
-      'audit-table-not-found-in-env'
+      })
     )
     expect(res.statusCode).toEqual(200)
   })
@@ -1147,9 +1137,8 @@ describe('putRegistrationLabmda', () => {
       existingJson,
       expect.objectContaining({ modifiedBy: 'Second Owner' })
     )
-    expect(mockDynamoDBWrite).toHaveBeenCalledWith(
-      expect.objectContaining({ user: 'Second Owner', userSource: 'registration' }),
-      'audit-table-not-found-in-env'
+    expect(mockWriteAudit).toHaveBeenCalledWith(
+      expect.objectContaining({ user: 'Second Owner', userSource: 'registration' })
     )
     expect(res.statusCode).toEqual(200)
   })
@@ -1169,14 +1158,10 @@ describe('putRegistrationLabmda', () => {
       existingJson,
       expect.objectContaining({ modifiedBy: 'Kirjautunut Käyttäjä' })
     )
-    expect(mockDynamoDBWrite).toHaveBeenCalledWith(
-      expect.objectContaining({ messageKey: 'audit.changed', user: 'Kirjautunut Käyttäjä' }),
-      'audit-table-not-found-in-env'
+    expect(mockWriteAudit).toHaveBeenCalledWith(
+      expect.objectContaining({ messageKey: 'audit.changed', user: 'Kirjautunut Käyttäjä' })
     )
-    expect(mockDynamoDBWrite).not.toHaveBeenCalledWith(
-      expect.objectContaining({ userSource: expect.anything() }),
-      'audit-table-not-found-in-env'
-    )
+    expect(mockWriteAudit).not.toHaveBeenCalledWith(expect.objectContaining({ userSource: expect.anything() }))
     expect(res.statusCode).toEqual(200)
   })
 
@@ -1309,24 +1294,22 @@ describe('putRegistrationLabmda', () => {
     expect(mockWriteRegistration).not.toHaveBeenCalled()
     expect(mockUpdateEventStatsForRegistration).toHaveBeenCalledTimes(1)
 
-    expect(mockDynamoDBWrite).toHaveBeenCalledWith(
+    expect(mockWriteAudit).toHaveBeenCalledWith(
       expect.objectContaining({
         auditKey: expect.any(String),
         messageKey: 'audit.messages.registrationConfirmed',
         user: 'Owner Name',
         userSource: 'registration',
-      }),
-      'audit-table-not-found-in-env'
+      })
     )
-    expect(mockDynamoDBWrite).toHaveBeenCalledWith(
+    expect(mockWriteAudit).toHaveBeenCalledWith(
       expect.objectContaining({
         auditKey: `${eventWithStaticDates.id}:${registrationWithStaticDates.id}`,
         user: 'Owner Name',
         userSource: 'registration',
-      }),
-      'audit-table-not-found-in-env'
+      })
     )
-    expect(mockDynamoDBWrite).toHaveBeenCalledTimes(2)
+    expect(mockWriteAudit).toHaveBeenCalledTimes(2)
 
     expect(mockSES.send).toHaveBeenCalledWith({
       ConfigurationSetName: 'Koekalenteri',
@@ -1361,7 +1344,7 @@ describe('putRegistrationLabmda', () => {
     expect(mockPatchRegistration).not.toHaveBeenCalled()
     expect(mockUpdateEventStatsForRegistration).not.toHaveBeenCalled()
     expect(mockUpdateRegistrations).not.toHaveBeenCalled()
-    expect(mockDynamoDBWrite).not.toHaveBeenCalled()
+    expect(mockWriteAudit).not.toHaveBeenCalled()
     expect(mockSES.send).not.toHaveBeenCalled()
 
     expect(res.statusCode).toEqual(304)
@@ -1459,7 +1442,7 @@ describe('putRegistrationLabmda', () => {
     expect(mockWriteRegistration).not.toHaveBeenCalled()
 
     // No audit message for confirmation
-    expect(mockDynamoDBWrite).not.toHaveBeenCalledWith(
+    expect(mockWriteAudit).not.toHaveBeenCalledWith(
       expect.objectContaining({
         messageKey: 'audit.messages.registrationConfirmed',
       })
@@ -1714,7 +1697,7 @@ describe('putRegistrationLabmda', () => {
     expect(mockUpdateEventStatsForRegistration).not.toHaveBeenCalled()
     expect(mockUpdateRegistrations).not.toHaveBeenCalled()
     expect(mockSES.send).not.toHaveBeenCalled()
-    expect(mockDynamoDBWrite).not.toHaveBeenCalled()
+    expect(mockWriteAudit).not.toHaveBeenCalled()
   })
 
   it('should return 410 when creating new registration after entry window closes', async () => {
@@ -1732,7 +1715,7 @@ describe('putRegistrationLabmda', () => {
     expect(mockUpdateEventStatsForRegistration).not.toHaveBeenCalled()
     expect(mockUpdateRegistrations).not.toHaveBeenCalled()
     expect(mockSES.send).not.toHaveBeenCalled()
-    expect(mockDynamoDBWrite).not.toHaveBeenCalled()
+    expect(mockWriteAudit).not.toHaveBeenCalled()
   })
 
   // KOE-525: the entry restrictions (KOE-524) gate the API as they gate the form. The mock dog is a
@@ -1751,7 +1734,7 @@ describe('putRegistrationLabmda', () => {
     expect(mockUpdateEventStatsForRegistration).not.toHaveBeenCalled()
     expect(mockUpdateRegistrations).not.toHaveBeenCalled()
     expect(mockSES.send).not.toHaveBeenCalled()
-    expect(mockDynamoDBWrite).not.toHaveBeenCalled()
+    expect(mockWriteAudit).not.toHaveBeenCalled()
   })
 
   it.each`

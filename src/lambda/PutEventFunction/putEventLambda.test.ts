@@ -56,12 +56,17 @@ vi.doMock('../lib/ws/actions', () => ({
   publishEventCounts: mockPublishEventCounts,
 }))
 
-const mockStatsRead = vi.fn()
-const mockStatsTransaction = vi.fn()
-vi.doMock('../utils/CustomDynamoClient', () => ({
-  default: vi.fn(function MockCustomDynamoClient() {
-    return { documentTransaction: mockStatsTransaction, read: mockStatsRead, write: vi.fn() }
-  }),
+const mockReadOrganizerEventStatsRow = vi.fn()
+const mockMoveOrganizerEventStatsRow = vi.fn()
+// Whether the row moves is the repository's pure key comparison, run as it is.
+vi.doMock('../lib/repositories/eventStatsRepository', async () => ({
+  isSameOrganizerStatsRow: (
+    await vi.importActual<typeof import('../lib/repositories/eventStatsRepository')>(
+      '../lib/repositories/eventStatsRepository'
+    )
+  ).isSameOrganizerStatsRow,
+  moveOrganizerEventStatsRow: mockMoveOrganizerEventStatsRow,
+  readOrganizerEventStatsRow: mockReadOrganizerEventStatsRow,
 }))
 
 const { authorize } = await import('../lib/auth')
@@ -1127,38 +1132,39 @@ describe('putEventLambda', () => {
   it('moves the organizer stats record when startDate changes', async () => {
     authorizeMock.mockResolvedValueOnce(mockSecretary)
     getEventMock.mockResolvedValueOnce({ ...mockEvent, season: '2024', startDate: '2024-06-15T00:00:00.000Z' })
-    mockStatsRead.mockResolvedValueOnce({
+    const stats = {
       count: 7,
       date: '2024-06-15T00:00:00.000Z',
       organizerId: mockEvent.organizer.id,
       PK: `ORG#${mockEvent.organizer.id}`,
       paidAmount: 350,
       SK: `2024-06-15T00:00:00.000Z#existing`,
-    })
+    }
+    mockReadOrganizerEventStatsRow.mockResolvedValueOnce(stats)
 
     await putEventLambda(
       constructAPIGwEvent<Partial<JsonDogEvent>>({ id: 'existing', startDate: '2024-12-31T22:00:00.000Z' })
     )
 
-    // Counters carry across (added, so a registration already counted under the new key is kept);
-    // the old key is removed in the same transaction.
-    expect(mockStatsTransaction).toHaveBeenCalledWith([
-      {
-        Update: expect.objectContaining({
-          ExpressionAttributeValues: expect.objectContaining({
-            ':count': 7,
-            ':date': '2024-12-31T22:00:00.000Z',
-            ':paidAmount': 350,
-          }),
-          Key: { PK: `ORG#${mockEvent.organizer.id}`, SK: `2024-12-31T22:00:00.000Z#existing` },
-        }),
-      },
-      {
-        Delete: expect.objectContaining({
-          Key: { PK: `ORG#${mockEvent.organizer.id}`, SK: `2024-06-15T00:00:00.000Z#existing` },
-        }),
-      },
-    ])
+    // The row of the event as stored is read, and its counters move onto the row of the new start
+    // date in one transaction; the keys and the transaction are the repository test's.
+    const stored = expect.objectContaining({
+      id: 'existing',
+      organizer: mockEvent.organizer,
+      startDate: '2024-06-15T00:00:00.000Z',
+    })
+    expect(mockReadOrganizerEventStatsRow).toHaveBeenCalledWith(stored)
+    expect(mockMoveOrganizerEventStatsRow).toHaveBeenCalledTimes(1)
+    expect(mockMoveOrganizerEventStatsRow).toHaveBeenCalledWith(
+      stored,
+      expect.objectContaining({
+        id: 'existing',
+        organizer: mockEvent.organizer,
+        startDate: '2024-12-31T22:00:00.000Z',
+      }),
+      stats,
+      expect.any(String)
+    )
   })
 
   it('does not touch the organizer stats record when the key is unchanged', async () => {
@@ -1167,8 +1173,8 @@ describe('putEventLambda', () => {
 
     await putEventLambda(constructAPIGwEvent<Partial<JsonDogEvent>>({ id: 'existing', name: 'Renamed but same dates' }))
 
-    expect(mockStatsRead).not.toHaveBeenCalled()
-    expect(mockStatsTransaction).not.toHaveBeenCalled()
+    expect(mockReadOrganizerEventStatsRow).not.toHaveBeenCalled()
+    expect(mockMoveOrganizerEventStatsRow).not.toHaveBeenCalled()
   })
 
   it('should not update season when startDate is unchanged', async () => {

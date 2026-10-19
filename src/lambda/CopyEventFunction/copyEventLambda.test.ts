@@ -15,8 +15,7 @@ const mockSaveEvent = vi.fn(async (event: { id?: string; organizer?: { id?: stri
   patch: { ...event, eventId: event.id ?? '' },
 }))
 const mockNanoid = vi.fn()
-const mockWrite = vi.fn()
-const mockBatchWrite = vi.fn()
+const mockWriteRegistrations = vi.fn()
 const mockResponse = vi.fn()
 const mockLambda = vi.fn((_name, fn) => answerRejections(fn, mockResponse))
 
@@ -47,16 +46,11 @@ vi.doMock('../lib/lambda', async () => ({
   lambda: mockLambda,
   response: mockResponse,
 }))
-const mockQuery = vi.fn()
+const mockReadEventRegistrations = vi.fn()
 
-vi.doMock('../utils/CustomDynamoClient', () => ({
-  default: vi.fn(function MockCustomDynamoClient() {
-    return {
-      batchWrite: mockBatchWrite,
-      query: mockQuery,
-      write: mockWrite,
-    }
-  }),
+vi.doMock('../lib/repositories/registrationRepository', () => ({
+  readEventRegistrations: mockReadEventRegistrations,
+  writeRegistrations: mockWriteRegistrations,
 }))
 
 const { default: copyEventHandler } = await import('./handler')
@@ -66,7 +60,7 @@ describe('copyEventHandler', () => {
 
   beforeEach(() => {
     vi.clearAllMocks()
-    mockQuery.mockResolvedValue([])
+    mockReadEventRegistrations.mockResolvedValue([])
     mockAuthorizeEvent.mockImplementation(async (_event: unknown, eventId: string) => ({
       item: await mockGetEvent(eventId),
       user: { name: 'Test User' },
@@ -90,8 +84,8 @@ describe('copyEventHandler', () => {
     expect(mockResponse).toHaveBeenCalledWith(403, 'Forbidden', event)
 
     expect(mockSaveEvent).not.toHaveBeenCalled()
-    expect(mockWrite).not.toHaveBeenCalled()
-    expect(mockBatchWrite).not.toHaveBeenCalled()
+    expect(mockReadEventRegistrations).not.toHaveBeenCalled()
+    expect(mockWriteRegistrations).not.toHaveBeenCalled()
   })
 
   it.each(['not-a-date', '0001-01-01T00:00:00.000Z'])(
@@ -302,7 +296,7 @@ describe('copyEventHandler', () => {
       ],
     })
     mockNanoid.mockReturnValueOnce('newid123')
-    mockQuery.mockResolvedValueOnce([
+    mockReadEventRegistrations.mockResolvedValueOnce([
       {
         dates: [{ date: source.startDate }, { date: source.endDate }],
         eventId: 'event123',
@@ -333,7 +327,8 @@ describe('copyEventHandler', () => {
         ],
       })
     )
-    expect(mockBatchWrite).toHaveBeenCalledWith([
+    expect(mockReadEventRegistrations).toHaveBeenCalledWith('event123')
+    expect(mockWriteRegistrations).toHaveBeenCalledWith([
       {
         dates: [{ date: expected.startDate }, { date: expected.endDate }],
         eventId: 'newid123',
@@ -412,7 +407,7 @@ describe('copyEventHandler', () => {
       startDate: '2025-06-10T00:00:00.000Z',
     })
     mockNanoid.mockReturnValueOnce('newid123')
-    mockQuery.mockResolvedValueOnce([
+    mockReadEventRegistrations.mockResolvedValueOnce([
       {
         class: 'ALO',
         dates: [{ date: '2025-06-10T00:00:00.000Z' }],
@@ -446,7 +441,7 @@ describe('copyEventHandler', () => {
     await copyInvitedEvent()
 
     // Other messages the entry got stay recorded; only the invitation is the copy's to send.
-    expect(mockBatchWrite).toHaveBeenCalledWith([
+    expect(mockWriteRegistrations).toHaveBeenCalledWith([
       {
         class: 'ALO',
         dates: [{ date: '2025-07-01T00:00:00.000Z' }],
@@ -470,7 +465,7 @@ describe('copyEventHandler', () => {
       startDate: '2025-06-10T00:00:00.000Z',
     })
     mockNanoid.mockReturnValueOnce('newid123')
-    mockQuery.mockResolvedValueOnce([
+    mockReadEventRegistrations.mockResolvedValueOnce([
       {
         creationIdempotencyKey: 'source-secret',
         dates: [{ date: '2025-06-10T00:00:00.000Z' }],
@@ -491,7 +486,7 @@ describe('copyEventHandler', () => {
 
     await copyEventHandler(event)
 
-    expect(mockBatchWrite).toHaveBeenCalledWith([
+    expect(mockWriteRegistrations).toHaveBeenCalledWith([
       {
         dates: [{ date: '2025-07-01T00:00:00.000Z' }],
         eventId: 'newid123',
@@ -510,7 +505,7 @@ describe('copyEventHandler', () => {
       startDate: '2025-06-10T00:00:00.000Z',
     })
     mockNanoid.mockReturnValueOnce('newid123')
-    mockQuery.mockResolvedValueOnce([
+    mockReadEventRegistrations.mockResolvedValueOnce([
       {
         dates: [{ date: '2025-06-10T00:00:00.000Z', time: 'kp' }],
         eventId: 'event123',
@@ -542,7 +537,7 @@ describe('copyEventHandler', () => {
 
     await copyEventHandler(event)
 
-    expect(mockBatchWrite).toHaveBeenCalledWith([
+    expect(mockWriteRegistrations).toHaveBeenCalledWith([
       {
         dates: [{ date: '2025-07-01T00:00:00.000Z', time: 'kp' }],
         eventId: 'newid123',
@@ -582,7 +577,7 @@ describe('copyEventHandler', () => {
       startDate: '2026-08-14T21:00:00.000Z',
     })
     mockNanoid.mockReturnValueOnce('newid123')
-    mockQuery.mockResolvedValueOnce([
+    mockReadEventRegistrations.mockResolvedValueOnce([
       {
         dates: [{ date: '2026-08-14T21:00:00.000Z', time: 'ap' }],
         eventId: 'event123',
@@ -594,7 +589,7 @@ describe('copyEventHandler', () => {
 
     await copyEventHandler(event)
 
-    expect(mockBatchWrite).toHaveBeenCalledWith([
+    expect(mockWriteRegistrations).toHaveBeenCalledWith([
       {
         dates: [{ date: '2026-08-21T21:00:00.000Z', time: 'ap' }],
         eventId: 'newid123',

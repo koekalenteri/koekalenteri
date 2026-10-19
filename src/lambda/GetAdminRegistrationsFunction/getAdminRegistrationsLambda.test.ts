@@ -7,7 +7,7 @@ const mockGetParam = vi.fn()
 const mockGetEvent = vi.fn()
 const mockLambda = vi.fn((_name, fn) => answerRejections(fn, mockResponse))
 const mockResponse = vi.fn()
-const mockQuery = vi.fn()
+const mockReadEventRegistrations = vi.fn()
 
 vi.doMock('../lib/auth', () => ({
   authorizeWithMemberOf: mockAuthorizeWithMemberOf,
@@ -28,12 +28,8 @@ vi.doMock('../lib/lambda', async () => ({
   response: mockResponse,
 }))
 
-vi.doMock('../utils/CustomDynamoClient', () => ({
-  default: vi.fn(function MockCustomDynamoClient() {
-    return {
-      query: mockQuery,
-    }
-  }),
+vi.doMock('../lib/repositories/registrationRepository', () => ({
+  readEventRegistrations: mockReadEventRegistrations,
 }))
 
 vi.doMock('../lib/event', () => ({ getEvent: mockGetEvent }))
@@ -64,7 +60,7 @@ describe('getAdminRegistrationsLambda', () => {
 
     expect(mockAuthorizeWithMemberOf).toHaveBeenCalledWith(event)
     expect(mockGetParam).not.toHaveBeenCalled()
-    expect(mockQuery).not.toHaveBeenCalled()
+    expect(mockReadEventRegistrations).not.toHaveBeenCalled()
   })
 
   it('rejects users outside the event organizer before reading registrations', async () => {
@@ -78,7 +74,7 @@ describe('getAdminRegistrationsLambda', () => {
     await expect(getAdminRegistrationsLambda(event)).rejects.toMatchObject({ message: 'Forbidden', statusCode: 403 })
 
     expect(mockGetEvent).toHaveBeenCalledWith('event123')
-    expect(mockQuery).not.toHaveBeenCalled()
+    expect(mockReadEventRegistrations).not.toHaveBeenCalled()
   })
 
   it('allows admins to read registrations for any organizer', async () => {
@@ -88,11 +84,11 @@ describe('getAdminRegistrationsLambda', () => {
     })
     mockGetParam.mockReturnValueOnce('event123')
     mockGetEvent.mockResolvedValueOnce({ organizer: { id: 'org2' } })
-    mockQuery.mockResolvedValueOnce([])
+    mockReadEventRegistrations.mockResolvedValueOnce([])
 
     await getAdminRegistrationsLambda(event)
 
-    expect(mockQuery).toHaveBeenCalled()
+    expect(mockReadEventRegistrations).toHaveBeenCalledWith('event123')
     expect(mockResponse).toHaveBeenCalledWith(200, [], event)
   })
 
@@ -115,16 +111,13 @@ describe('getAdminRegistrationsLambda', () => {
       { class: 'AVO', eventId, id: 'reg3', state: 'ready' },
     ]
     mockGetParam.mockReturnValueOnce(eventId)
-    mockQuery.mockResolvedValueOnce(allRegistrations)
+    mockReadEventRegistrations.mockResolvedValueOnce(allRegistrations)
 
     await getAdminRegistrationsLambda(event)
 
     expect(mockAuthorizeWithMemberOf).toHaveBeenCalledWith(event)
     expect(mockGetParam).toHaveBeenCalledWith(event, 'eventId')
-    expect(mockQuery).toHaveBeenCalledWith({
-      key: 'eventId = :eventId',
-      values: { ':eventId': eventId },
-    })
+    expect(mockReadEventRegistrations).toHaveBeenCalledWith(eventId)
     expect(mockResponse).toHaveBeenCalledWith(
       200,
       filteredRegistrations.map((registration) => ({ ...registration, editToken: expect.any(String) })),
@@ -137,34 +130,13 @@ describe('getAdminRegistrationsLambda', () => {
     const emptyRegistrations: unknown[] = []
 
     mockGetParam.mockReturnValueOnce(eventId)
-    mockQuery.mockResolvedValueOnce(emptyRegistrations)
+    mockReadEventRegistrations.mockResolvedValueOnce(emptyRegistrations)
 
     await getAdminRegistrationsLambda(event)
 
     expect(mockAuthorizeWithMemberOf).toHaveBeenCalledWith(event)
     expect(mockGetParam).toHaveBeenCalledWith(event, 'eventId')
-    expect(mockQuery).toHaveBeenCalledWith({
-      key: 'eventId = :eventId',
-      values: { ':eventId': eventId },
-    })
-    expect(mockResponse).toHaveBeenCalledWith(200, emptyRegistrations, event)
-  })
-
-  it('handles undefined query results', async () => {
-    const eventId = 'event123'
-    const emptyRegistrations: unknown[] = []
-
-    mockGetParam.mockReturnValueOnce(eventId)
-    mockQuery.mockResolvedValueOnce(undefined)
-
-    await getAdminRegistrationsLambda(event)
-
-    expect(mockAuthorizeWithMemberOf).toHaveBeenCalledWith(event)
-    expect(mockGetParam).toHaveBeenCalledWith(event, 'eventId')
-    expect(mockQuery).toHaveBeenCalledWith({
-      key: 'eventId = :eventId',
-      values: { ':eventId': eventId },
-    })
+    expect(mockReadEventRegistrations).toHaveBeenCalledWith(eventId)
     expect(mockResponse).toHaveBeenCalledWith(200, emptyRegistrations, event)
   })
 
@@ -178,16 +150,13 @@ describe('getAdminRegistrationsLambda', () => {
     const filteredRegistrations: unknown[] = [] // All registrations are filtered out
 
     mockGetParam.mockReturnValueOnce(eventId)
-    mockQuery.mockResolvedValueOnce(allRegistrations)
+    mockReadEventRegistrations.mockResolvedValueOnce(allRegistrations)
 
     await getAdminRegistrationsLambda(event)
 
     expect(mockAuthorizeWithMemberOf).toHaveBeenCalledWith(event)
     expect(mockGetParam).toHaveBeenCalledWith(event, 'eventId')
-    expect(mockQuery).toHaveBeenCalledWith({
-      key: 'eventId = :eventId',
-      values: { ':eventId': eventId },
-    })
+    expect(mockReadEventRegistrations).toHaveBeenCalledWith(eventId)
     expect(mockResponse).toHaveBeenCalledWith(200, filteredRegistrations, event)
   })
 
@@ -214,7 +183,7 @@ describe('getAdminRegistrationsLambda', () => {
     const changedRegistrations = allRegistrations.slice(1, 4)
 
     mockGetParam.mockReturnValueOnce(eventId)
-    mockQuery.mockResolvedValueOnce(allRegistrations)
+    mockReadEventRegistrations.mockResolvedValueOnce(allRegistrations)
 
     await getAdminRegistrationsLambda(eventWithSince)
 
@@ -237,16 +206,13 @@ describe('getAdminRegistrationsLambda', () => {
     const error = new Error('Database error')
 
     mockGetParam.mockReturnValueOnce(eventId)
-    mockQuery.mockRejectedValueOnce(error)
+    mockReadEventRegistrations.mockRejectedValueOnce(error)
 
     await expect(getAdminRegistrationsLambda(event)).rejects.toThrow(error)
 
     expect(mockAuthorizeWithMemberOf).toHaveBeenCalledWith(event)
     expect(mockGetParam).toHaveBeenCalledWith(event, 'eventId')
-    expect(mockQuery).toHaveBeenCalledWith({
-      key: 'eventId = :eventId',
-      values: { ':eventId': eventId },
-    })
+    expect(mockReadEventRegistrations).toHaveBeenCalledWith(eventId)
     expect(mockResponse).not.toHaveBeenCalled()
   })
 })

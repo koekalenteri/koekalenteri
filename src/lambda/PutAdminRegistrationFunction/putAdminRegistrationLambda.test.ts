@@ -42,21 +42,28 @@ const mockClaimNewRegistrationPostProcessing = vi.fn().mockResolvedValue({
 })
 const mockMarkNewRegistrationPhase = vi.fn()
 
-const mockDynamoDB = {
-  batchWrite: vi.fn(),
-  delete: vi.fn(),
-  query: vi.fn(),
-  read: vi.fn(),
-  readAll: vi.fn(),
-  update: vi.fn(),
-  write: vi.fn(),
-}
-
-vi.doMock('../utils/CustomDynamoClient', () => ({
-  default: vi.fn(function MockCustomDynamoClient() {
-    return mockDynamoDB
-  }),
+// Every audit record written, through either writer (lib/audit owns the audit table until KOE-1415).
+const mockWriteAudit = vi.fn()
+vi.doMock('../lib/audit', async () => ({
+  ...(await vi.importActual<typeof import('../lib/audit')>('../lib/audit')),
+  audit: async (item: unknown) => mockWriteAudit(item),
+  auditStrict: async (item: unknown) => mockWriteAudit(item),
 }))
+
+// Mounted before lib/registration and lib/email load below, so that they bind these.
+const mockClearRegistrationEmailDeliveryStatus = vi.fn()
+const mockUpdateRegistrationField = vi.fn()
+vi.doMock('../lib/repositories/registrationRepository', () => ({
+  claimNewRegistrationPostProcessing: mockClaimNewRegistrationPostProcessing,
+  clearRegistrationEmailDeliveryStatus: mockClearRegistrationEmailDeliveryStatus,
+  markNewRegistrationPhase: mockMarkNewRegistrationPhase,
+  updateRegistrationField: mockUpdateRegistrationField,
+  writeRegistration: mockWriteRegistration,
+}))
+// Outside prod mail goes to staff only; nobody is staff here (KOE-1469).
+vi.doMock('../lib/repositories/userRepository', () => ({ queryUsersByEmail: vi.fn().mockResolvedValue([]) }))
+// Nobody has the public start list open.
+vi.doMock('../lib/ws/publicStartList', () => ({ publishPublicStartList: vi.fn() }))
 
 vi.doMock('../lib/auth', () => ({
   authorizeWithMemberOf: mockAuthorizeWithMemberOf,
@@ -110,14 +117,6 @@ vi.doMock('../lib/registration', () => ({
   getReadyRegistrationsByEventId: mockGetReadyRegistrationsByEventId,
   getRegistration: mockGetRegistration,
   patchRegistration: mockPatchRegistration,
-}))
-vi.doMock('../lib/repositories/registrationRepository', async () => ({
-  ...(await vi.importActual<typeof import('../lib/repositories/registrationRepository')>(
-    '../lib/repositories/registrationRepository'
-  )),
-  claimNewRegistrationPostProcessing: mockClaimNewRegistrationPostProcessing,
-  markNewRegistrationPhase: mockMarkNewRegistrationPhase,
-  writeRegistration: mockWriteRegistration,
 }))
 
 vi.doMock('../lib/event', () => ({
@@ -231,15 +230,6 @@ describe('putAdminRegistrationLambda', () => {
     mockUpdateEventStatsForRegistration.mockResolvedValue({})
 
     mockSendTemplatedMail.mockResolvedValue(undefined)
-
-    // Mock DynamoDB responses
-    mockDynamoDB.read.mockResolvedValue({
-      classes: [{ class: 'ALO', entries: 10 }],
-      endDate: '2024-01-02',
-      id: 'event123',
-      name: 'Test Event',
-      startDate: '2024-01-01',
-    })
 
     vi.spyOn(console, 'debug').mockImplementation(() => {})
     vi.spyOn(console, 'log').mockImplementation(() => {})
@@ -387,12 +377,11 @@ describe('putAdminRegistrationLambda', () => {
     )
     expect(mockUpdateEventStatsForRegistration).not.toHaveBeenCalled()
     // The secretary's entry is named by its key in the trail (KOE-1442).
-    expect(mockDynamoDB.write).toHaveBeenCalledWith(
+    expect(mockWriteAudit).toHaveBeenCalledWith(
       expect.objectContaining({
         messageKey: 'audit.messages.registrationAdded',
         user: 'Test User',
-      }),
-      expect.any(String)
+      })
     )
 
     expect(result.statusCode).toBe(200)

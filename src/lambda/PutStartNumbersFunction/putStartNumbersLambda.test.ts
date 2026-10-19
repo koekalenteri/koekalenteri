@@ -15,7 +15,7 @@ const mockLockRegistrationGroups = vi.fn()
 const mockReleaseLock = vi.fn()
 const mockReadEventRegistrations = vi.fn()
 const mockUpdateRegistrationField = vi.fn()
-const mockUpdate = vi.fn()
+const mockWriteEventFields = vi.fn()
 const mockPublishRegistrationPatches = vi.fn()
 const mockPublishEventPatch = vi.fn()
 const mockPublishPublicStartList = vi.fn()
@@ -47,11 +47,7 @@ vi.doMock('../lib/repositories/registrationRepository', () => ({
   readEventRegistrations: mockReadEventRegistrations,
   updateRegistrationField: mockUpdateRegistrationField,
 }))
-vi.doMock('../utils/CustomDynamoClient', () => ({
-  default: vi.fn(function MockCustomDynamoClient() {
-    return { update: mockUpdate }
-  }),
-}))
+vi.doMock('../lib/repositories/eventRepository', () => ({ writeEventFields: mockWriteEventFields }))
 vi.doMock('../lib/ws/actions', () => ({
   publishEventPatch: mockPublishEventPatch,
   publishRegistrationPatches: mockPublishRegistrationPatches,
@@ -107,11 +103,9 @@ describe('putStartNumbersLambda', () => {
       'startGroup',
       expect.objectContaining({ number: 1 })
     )
-    expect(mockUpdate).toHaveBeenCalledWith(
-      { id: 'event-1' },
-      { set: { startNumbersPublished: { ALO: true }, updatedAt: expect.any(String) } },
-      expect.anything()
-    )
+    expect(mockWriteEventFields).toHaveBeenCalledWith('event-1', {
+      set: { startNumbersPublished: { ALO: true }, updatedAt: expect.any(String) },
+    })
     expect(mockAudit).toHaveBeenCalledWith(
       expect.objectContaining({
         messageKey: 'audit.messages.classStartNumbersPublished',
@@ -167,11 +161,9 @@ describe('putStartNumbersLambda', () => {
       'startGroup',
       expect.objectContaining({ number: 1 })
     )
-    expect(mockUpdate).toHaveBeenCalledWith(
-      { id: 'event-1' },
-      { set: { startNumbersPublished: { ALO: ['2026-09-12'] }, updatedAt: expect.any(String) } },
-      expect.anything()
-    )
+    expect(mockWriteEventFields).toHaveBeenCalledWith('event-1', {
+      set: { startNumbersPublished: { ALO: ['2026-09-12'] }, updatedAt: expect.any(String) },
+    })
     expect(mockAudit).toHaveBeenCalledWith(
       expect.objectContaining({
         messageKey: 'audit.messages.classStartNumbersPublishedDay',
@@ -199,11 +191,9 @@ describe('putStartNumbersLambda', () => {
       'startGroup',
       expect.objectContaining({ number: 1 })
     )
-    expect(mockUpdate).toHaveBeenCalledWith(
-      { id: 'event-1' },
-      { set: { startNumbersPublished: { ALO: ['2026-09-12/ap'] }, updatedAt: expect.any(String) } },
-      expect.anything()
-    )
+    expect(mockWriteEventFields).toHaveBeenCalledWith('event-1', {
+      set: { startNumbersPublished: { ALO: ['2026-09-12/ap'] }, updatedAt: expect.any(String) },
+    })
     expect(mockAudit).toHaveBeenCalledWith(
       expect.objectContaining({
         messageKey: 'audit.messages.classStartNumbersPublishedDay',
@@ -218,7 +208,7 @@ describe('putStartNumbersLambda', () => {
 
     await putStartNumbersLambda(apiEvent({ date: '2026-09-12', eventClass: 'ALO', published: true, time: 'kp' }))
     expect(mockResponse).toHaveBeenLastCalledWith(422, 'invalid time', expect.anything())
-    expect(mockUpdate).not.toHaveBeenCalled()
+    expect(mockWriteEventFields).not.toHaveBeenCalled()
   })
 
   it.each(['12.9.2026', '2026-02-30', '2026-13-45'])('refuses a malformed day: %s', async (date) => {
@@ -255,7 +245,7 @@ describe('putStartNumbersLambda', () => {
       expect.objectContaining({ publish: 'startNumbers', reason: 'invitations' }),
       expect.anything()
     )
-    expect(mockUpdate).not.toHaveBeenCalled()
+    expect(mockWriteEventFields).not.toHaveBeenCalled()
   })
 
   it('hiding only flips the flag: the frozen numbers stay put', async () => {
@@ -267,11 +257,9 @@ describe('putStartNumbersLambda', () => {
     await putStartNumbersLambda(apiEvent({ eventClass: 'ALO', published: false }))
 
     expect(mockUpdateRegistrationField).not.toHaveBeenCalled()
-    expect(mockUpdate).toHaveBeenCalledWith(
-      { id: 'event-1' },
-      { set: { startNumbersPublished: { ALO: false }, updatedAt: expect.any(String) } },
-      expect.anything()
-    )
+    expect(mockWriteEventFields).toHaveBeenCalledWith('event-1', {
+      set: { startNumbersPublished: { ALO: false }, updatedAt: expect.any(String) },
+    })
     // Withdrawing has to reach an open list as surely as publishing: its rows are still showing
     // numbers the public may no longer see (KOE-1352).
     expect(mockPublishEventPatch).toHaveBeenCalledWith(
@@ -290,7 +278,7 @@ describe('putStartNumbersLambda', () => {
       steps.push(name)
     }
     mockUpdateRegistrationField.mockImplementation(step('write number'))
-    mockUpdate.mockImplementation(step('write flag'))
+    mockWriteEventFields.mockImplementation(step('write flag'))
     mockReleaseLock.mockImplementation(step('release lock'))
     mockPublishPublicStartList.mockImplementation(step('publish start list'))
 
@@ -326,7 +314,7 @@ describe('putStartNumbersLambda', () => {
     })
     // Entering the draw changes no publication state, so the event is left where it stands.
     expect(mockPublishEventPatch).not.toHaveBeenCalled()
-    expect(mockUpdate).not.toHaveBeenCalled()
+    expect(mockWriteEventFields).not.toHaveBeenCalled()
     // The numbers are on the rows, though, so a published list has to be sent again.
     expect(mockPublishPublicStartList).toHaveBeenCalledWith('event-1')
   })

@@ -15,13 +15,11 @@ const mockUnsubscribePublicEventConnection = vi.fn()
 const mockUnsubscribeRegistrationConnection = vi.fn()
 const mockGetRegistration = vi.fn()
 const mockVerifyRegistrationEditToken = vi.fn()
-const mockBatchGet = vi.fn()
+const mockReadPaymentTransactions = vi.fn()
 
 // The open payment ids tell a payment in progress from one left at Paytrail (KOE-1529).
-vi.doMock('../../utils/CustomDynamoClient', () => ({
-  default: vi.fn(function MockCustomDynamoClient() {
-    return { batchGet: mockBatchGet }
-  }),
+vi.doMock('../repositories/transactionRepository', () => ({
+  readPaymentTransactions: mockReadPaymentTransactions,
 }))
 
 vi.doMock('../../lib/event', () => ({
@@ -275,7 +273,7 @@ describe('ws/subscriptionService', () => {
       state: 'confirmed',
     })
     mockGetRegistration.mockResolvedValueOnce(registration).mockResolvedValueOnce(registration)
-    mockBatchGet.mockResolvedValueOnce([
+    mockReadPaymentTransactions.mockResolvedValueOnce([
       { createdAt: new Date().toISOString(), reference: 'e1:r1', status: 'new', transactionId: 't1', type: 'payment' },
     ])
 
@@ -286,6 +284,7 @@ describe('ws/subscriptionService', () => {
         }),
       })
     )
+    expect(mockReadPaymentTransactions).toHaveBeenCalledWith(['t1'])
   })
 
   it('unsubscribes from a registration', async () => {
