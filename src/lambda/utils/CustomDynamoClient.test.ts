@@ -1,4 +1,4 @@
-import { vi } from 'vitest'
+import { expectTypeOf, vi } from 'vitest'
 import { loggedLines } from '../test-utils/logs'
 
 // Mock AWS SDK v3
@@ -87,19 +87,17 @@ describe('CustomDynamoClient', () => {
       expect(client.table).toBe('test-table')
     })
 
-    // KOE-1415: a client reaches its constructor's table and no other. Neither the table nor the
-    // SDK clients underneath can be swapped or used past the methods; the checks are tsc's.
+    // KOE-1415: a type test, checked by tsc (`npm run lint-backend`), which fails on an expected
+    // error that does not occur. A client reaches its constructor's table and no other: neither the
+    // table nor the SDK clients underneath can be swapped or used past the methods.
     it('keeps its table and SDK clients to itself', () => {
       const client = new CustomDynamoClient('TestTable')
-      const reachAround = () => {
-        // @ts-expect-error the table is fixed at construction
-        client.table = 'other-table'
-        // @ts-expect-error the document client is private
-        return client.docClient
-      }
 
-      expect(reachAround).toBeTypeOf('function')
-      expect(client.table).toBe('test-table')
+      // @ts-expect-error the table is fixed at construction
+      client.table = 'other-table'
+      // @ts-expect-error the document client is private
+      expectTypeOf(client.docClient).toBeObject()
+      expectTypeOf(client).not.toHaveProperty('client')
     })
 
     it('handles SAM local environment', () => {

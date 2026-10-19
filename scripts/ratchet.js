@@ -9,10 +9,12 @@
 //
 // Every table is read and written through its module in src/lambda/lib/repositories/ (see the
 // README there; the WebSocket connection repository stays in lib/ws/), and the client count is 0
-// since KOE-1415, so that metric is a ban rather than a ratchet. Outside the repositories it counts
-// a CustomDynamoClient built or subclassed under whatever name the file imports it as; anywhere in
-// the lambda code but CustomDynamoClient.ts it counts an SDK client built directly
-// (`new DynamoDBClient(`, `DynamoDBDocumentClient.from(`), which would bypass the class altogether.
+// since KOE-1415, so that metric is a ban rather than a ratchet. It reads the static imports of
+// each file: outside the repositories it counts a CustomDynamoClient built or subclassed under
+// whatever name the file imports it as; anywhere in the lambda code but CustomDynamoClient.ts it
+// counts an SDK client built directly (`new DynamoDBClient(`, `new DynamoDB(`,
+// `DynamoDBDocumentClient.from(`, `DynamoDBDocument.from(`), which would bypass the class. A class
+// first stored in a variable, or loaded with `import()` or `require`, is not followed.
 const { execFileSync } = require('node:child_process')
 const fs = require('node:fs')
 const path = require('node:path')
@@ -36,11 +38,13 @@ const isRepository = (file) =>
 const CLIENT_FILE = 'src/lambda/utils/CustomDynamoClient.ts'
 
 // The DynamoDB client constructors a file can reach, by what it imports: the default export of
-// utils/CustomDynamoClient, and DynamoDBClient and DynamoDBDocumentClient of the AWS SDK.
+// utils/CustomDynamoClient, and the client classes of the AWS SDK's two DynamoDB packages.
 const CLIENT_EXPORTS = [
   { kind: 'custom', module: /(^|\/)CustomDynamoClient$/, name: 'default' },
   { kind: 'sdk', module: /^@aws-sdk\/client-dynamodb$/, name: 'DynamoDBClient' },
+  { kind: 'sdk', module: /^@aws-sdk\/client-dynamodb$/, name: 'DynamoDB' },
   { kind: 'sdk', module: /^@aws-sdk\/lib-dynamodb$/, name: 'DynamoDBDocumentClient' },
+  { kind: 'sdk', module: /^@aws-sdk\/lib-dynamodb$/, name: 'DynamoDBDocument' },
 ]
 
 // Local name -> 'custom' | 'sdk' for every import of a client constructor, and namespace name ->
@@ -116,7 +120,7 @@ const METRICS = {
   },
   dynamoClientsOutsideRepositories: {
     countsIn: (file) => !isTestSupport(file),
-    hint: 'New table access goes into the repository of its table in src/lambda/lib/repositories/ (README there); nothing else opens a DynamoDB client.',
+    hint: 'New table access goes into the repository of its table in src/lambda/lib/repositories/ (README there), never into a client of its own.',
     label: 'DynamoDB clients outside repositories',
     matches: opensClient,
   },
@@ -232,4 +236,7 @@ function main() {
   process.exit(failed ? 1 : 0)
 }
 
-main()
+// Run as a script, the gate; required (by its test), only the matcher.
+if (require.main === module) main()
+
+module.exports = { locate }
