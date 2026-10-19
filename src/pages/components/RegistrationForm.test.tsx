@@ -113,6 +113,84 @@ describe('RegistrationForm', () => {
     expect(screen.getByRole('combobox', { name: 'dog.regNo' })).toHaveValue('')
   })
 
+  // The sections start in the state the screen size gives them, so a section that stays closed
+  // without a dog never renders open first and collapses after (KOE-1573). The timers do not run
+  // here: a section that opened and is closing is still visible until its exit transition ends.
+  it('renders the breeder and owner sections closed from the start when no dog is chosen', () => {
+    render(
+      <RegistrationForm
+        event={eventWithStaticDates}
+        // @ts-expect-error Type 'undefined' is not assignable to type 'Dog'.ts(2322)
+        registration={{ ...registrationWithStaticDates, dog: undefined }}
+      />,
+      { wrapper: Wrapper }
+    )
+
+    for (const id of ['breeder_name', 'owner_0_name']) {
+      expect(document.getElementById(id)).toBeInTheDocument()
+      expect(document.getElementById(id)).not.toBeVisible()
+    }
+  })
+
+  it('renders the dog section closed from the start on a small screen', () => {
+    window.matchMedia = createMatchMedia(400)
+    try {
+      render(<RegistrationForm event={eventWithStaticDates} registration={registrationWithStaticDates} />, {
+        wrapper: Wrapper,
+      })
+
+      // A hidden field has no accessible name, so the registration number field is found by its id.
+      expect(document.getElementById('txtReknro')).toBeInTheDocument()
+      expect(document.getElementById('txtReknro')).not.toBeVisible()
+    } finally {
+      window.matchMedia = createMatchMedia(window.innerWidth)
+    }
+  })
+
+  // On a small screen a toggle closes the other sections; the secretary's notes keep what the
+  // secretary last chose for them (KOE-1573). Toggling the notes twice in a row is what used to
+  // lose it: the second toggle was not recorded in the section itself, and the next toggle of
+  // another section handed the notes back to the section's own, stale state.
+  describe("the secretary's notes on a small screen", () => {
+    const notesToggle = 'registration.secretaryNotes'
+    const classToggle = 'registration.class'
+
+    it.each([
+      { clicks: [notesToggle, notesToggle, classToggle], visible: true, when: 'reopened' },
+      { clicks: [notesToggle, classToggle, notesToggle, notesToggle, classToggle], visible: false, when: 'closed' },
+    ])('stay $when when another section is toggled', async ({ clicks, visible }) => {
+      window.matchMedia = createMatchMedia(400)
+      try {
+        const { user } = renderWithUserEvents(
+          <RegistrationForm
+            admin
+            event={eventWithStaticDates}
+            onInternalNotesChange={vi.fn()}
+            registration={{ ...registrationWithStaticDates, id: 'reg-1' }}
+          />,
+          { wrapper: Wrapper },
+          { advanceTimers: vi.advanceTimersByTime }
+        )
+        await flushPromises()
+        const notes = document.querySelector('textarea[name="internalNotes"]')
+        expect(notes).toBeVisible()
+
+        for (const name of clicks) {
+          await user.click(screen.getByRole('button', { name }))
+        }
+        await runPendingTimers()
+
+        if (visible) {
+          expect(notes).toBeVisible()
+        } else {
+          expect(notes).not.toBeVisible()
+        }
+      } finally {
+        window.matchMedia = createMatchMedia(window.innerWidth)
+      }
+    })
+  })
+
   // Kennelliitto's empty date reaches the form as no birth day (KOE-1548).
   it('renders a dog without a birth day as too young', async () => {
     const registration = { ...registrationWithStaticDates, dog: { ...registrationWithStaticDates.dog, dob: undefined } }
