@@ -1,5 +1,5 @@
 import type { EventKcIdChoice, JsonAuditRecord, JsonDogEvent, JsonRegistration, JsonUser, Patch, User } from '../types'
-import { beforeDayKeys } from '../test-utils/finnishDays'
+import { legacyDayValue } from '../test-utils/finnishDays'
 import { describeInTimeZone } from '../test-utils/timeZone'
 import { hasCalendarDay, TIME_ZONE } from './day'
 import {
@@ -110,8 +110,8 @@ describe('wire', () => {
     it('makes the dog and the placement of a start list row Dates', () => {
       const row = toPublicRegistration({
         breeder: 'b',
-        dog: { dob: beforeDayKeys('2020-02-02T22:00:00.000Z'), regNo: 'FI1/20', results: [] },
-        group: { date: beforeDayKeys('2026-09-11T21:00:00.000Z'), key: '2026-09-12', number: 1 },
+        dog: { dob: legacyDayValue('2020-02-02T22:00:00.000Z'), regNo: 'FI1/20', results: [] },
+        group: { date: legacyDayValue('2026-09-11T21:00:00.000Z'), key: '2026-09-12', number: 1 },
         handler: 'h',
         owner: 'o',
       })
@@ -131,7 +131,7 @@ describe('wire', () => {
             dates: [{ date: '2026-05-20', time: 'ap' }],
             endDate: '2026-05-21',
             entryEndDate: '2026-05-10',
-            startDate: beforeDayKeys('2026-05-19T21:00:00.000Z'),
+            startDate: legacyDayValue('2026-05-19T21:00:00.000Z'),
           })
           const group = toRegistration({ group: { date: '2026-05-20', key: '2026-05-20-ap', number: 1, time: 'ap' } })
 
@@ -218,7 +218,7 @@ describe('wire', () => {
     // reads an instant as its Finnish day; what this browser stored, as the day its picker showed.
     const result = (date: string) => ({
       class: 'ALO',
-      date: beforeDayKeys(date),
+      date: legacyDayValue(date),
       judge: 'j',
       location: 'l',
       result: 'ALO1',
@@ -233,10 +233,10 @@ describe('wire', () => {
           ["Kennelliitto's stamp", '2021-01-01T00:00:00', '2021-01-01'],
           ['an instant, as its Finnish day', tokyoMidnight, '2020-12-31'],
         ])("reads a dog's dates from the server, %s", (_name, value, expected) => {
-          const dog = toDog({ dob: beforeDayKeys(value), regNo: 'FI1/21', results: [result(value)] })
+          const dog = toDog({ dob: legacyDayValue(value), regNo: 'FI1/21', results: [result(value)] })
           const registration = toRegistration({
             ...stamps,
-            dog: { dob: beforeDayKeys(value), regNo: 'FI1/21', results: [result(value)] },
+            dog: { dob: legacyDayValue(value), regNo: 'FI1/21', results: [result(value)] },
             qualifyingResults: [{ ...result(value), official: true }],
             results: [{ ...result(value), id: 'm1' }],
           })
@@ -252,7 +252,7 @@ describe('wire', () => {
           const localMidnight = new Date(2021, 0, 1).toISOString()
           const draft = toStoredRegistration({
             ...stamps,
-            dog: { dob: beforeDayKeys(localMidnight), regNo: 'FI1/21', results: [result(localMidnight)] },
+            dog: { dob: legacyDayValue(localMidnight), regNo: 'FI1/21', results: [result(localMidnight)] },
             qualifyingResults: [{ ...result(localMidnight), official: true }],
             results: [{ ...result(localMidnight), id: 'm1' }],
           })
@@ -261,16 +261,16 @@ describe('wire', () => {
           expect(draft.dog?.results[0].date).toBe('2021-01-01')
           expect(draft.qualifyingResults?.[0].date).toBe('2021-01-01')
           expect(draft.results?.[0].date).toBe('2021-01-01')
-          expect(toStoredDog({ dob: beforeDayKeys(localMidnight), regNo: 'FI1/21' }).dob).toBe('2021-01-01')
+          expect(toStoredDog({ dob: legacyDayValue(localMidnight), regNo: 'FI1/21' }).dob).toBe('2021-01-01')
           expect(toStoredManualTestResult({ ...result(localMidnight), id: 'm1' }).date).toBe('2021-01-01')
         })
 
         it("reads Kennelliitto's empty date as no day in every form, without throwing", () => {
           for (const empty of ['0001-01-01T00:00:00', '0001-01-01T00:00:00.000Z', '0000-12-31T22:00:00.000Z']) {
-            expect(toDog({ dob: beforeDayKeys(empty), regNo: 'FI1/21', results: [result(empty)] })).toEqual(
+            expect(toDog({ dob: legacyDayValue(empty), regNo: 'FI1/21', results: [result(empty)] })).toEqual(
               expect.objectContaining({ dob: undefined, results: [expect.objectContaining({ date: undefined })] })
             )
-            expect(toStoredDog({ dob: beforeDayKeys(empty), regNo: 'FI1/21' }).dob).toBeUndefined()
+            expect(toStoredDog({ dob: legacyDayValue(empty), regNo: 'FI1/21' }).dob).toBeUndefined()
           }
         })
       })

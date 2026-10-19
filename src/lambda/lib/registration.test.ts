@@ -13,7 +13,7 @@ import {
   jsonRegistrationsToEventWithParticipantsInvited,
   registrationsToEventWithParticipantsInvited,
 } from '../../__mockData__/registrations'
-import { beforeDayKeys } from '../../test-utils/finnishDays'
+import { legacyDayValue } from '../../test-utils/finnishDays'
 import { CONFIG } from '../config'
 
 const mockReadRegistration = vi.fn<typeof registrationRepository.readRegistration>()
@@ -525,7 +525,7 @@ describe('registration', () => {
       const base: JsonRegistration = { ...stored, dog: dogWithoutDob }
       const result = (date: string) => ({
         class: 'ALO',
-        date: beforeDayKeys(date),
+        date: legacyDayValue(date),
         judge: 'J',
         location: 'L',
         result: 'ALO1',
@@ -540,7 +540,7 @@ describe('registration', () => {
         ...base,
         dog: {
           ...base.dog,
-          ...(dob === undefined ? {} : { dob: beforeDayKeys(dob) }),
+          ...(dob === undefined ? {} : { dob: legacyDayValue(dob) }),
           results: official === undefined ? [] : [result(official)],
         },
         qualifyingResults: qualifying === undefined ? [] : [{ ...result(qualifying), official: true }],

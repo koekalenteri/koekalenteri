@@ -1,3 +1,4 @@
+import type { JsonEventStatsItem } from '../../../types/Stats'
 import type CustomDynamoClient from '../../utils/CustomDynamoClient'
 import { vi } from 'vitest'
 
@@ -38,6 +39,7 @@ const {
   moveOrganizerEventStatsRow,
   organizerPk,
   organizerStatsKey,
+  organizerStatsRowEvent,
   readAllOrganizerEventStats,
   readAllStatKeys,
   readBreedStarts,
@@ -100,6 +102,32 @@ describe('eventStatsRepository', () => {
     expect(organizerStatsKey({ id: 'e1', organizer: { id: 'org1' }, startDate: '2024-06-01' })).toEqual({
       PK: 'ORG#org1',
       SK: '2024-06-01#e1',
+    })
+  })
+
+  describe('organizerStatsRowEvent', () => {
+    it.each([
+      ['a day key', '2024-06-01#e1', '2024-06-01'],
+      [
+        'the instant a row counted before KOE-1547 is keyed by',
+        '2024-05-31T21:00:00.000Z#e1',
+        '2024-05-31T21:00:00.000Z',
+      ],
+    ])('reads the event a row counts from its key, with %s', (_name, SK, startDate) => {
+      expect(organizerStatsRowEvent({ PK: 'ORG#org1', SK })).toEqual({ id: 'e1', organizer: { id: 'org1' }, startDate })
+    })
+
+    it('reads the key it builds back to the event', () => {
+      const event = { id: 'e1', organizer: { id: 'org1' }, startDate: '2024-06-01' }
+      expect(organizerStatsRowEvent(organizerStatsKey(event))).toEqual(event)
+    })
+
+    it.each<[string, Partial<Pick<JsonEventStatsItem, 'PK' | 'SK'>>]>([
+      ['a key without an event', { PK: 'ORG#org1', SK: '2024-06-01' }],
+      ['a row of another partition', { PK: 'TOTALS#2024', SK: '2024-06-01#e1' }],
+      ['no key', {}],
+    ])('reads no event from %s', (_name, row) => {
+      expect(organizerStatsRowEvent(row)).toBeUndefined()
     })
   })
 
@@ -327,8 +355,9 @@ describe('eventStatsRepository', () => {
   })
 
   describe('moveOrganizerEventStatsRow', () => {
+    // A row counted before KOE-1547 is keyed by the instant the start was stored as; it moves to a key.
     const existing = { id: 'e5', organizer: { id: 'org1' }, startDate: '2024-06-15T00:00:00.000Z' }
-    const updated = { id: 'e5', organizer: { id: 'org2' }, startDate: '2025-01-01T00:00:00.000Z' }
+    const updated = { id: 'e5', organizer: { id: 'org2' }, startDate: '2025-01-01' }
     const stats = {
       cancelledRegistrations: 1,
       count: 7,
@@ -347,7 +376,7 @@ describe('eventStatsRepository', () => {
         ExpressionAttributeValues: {
           ':cancelledRegistrations': 1,
           ':count': 7,
-          ':date': '2025-01-01T00:00:00.000Z',
+          ':date': '2025-01-01',
           ':memberRegistrations': 2,
           ':organizerId': 'org2',
           ':paidAmount': 350,
@@ -357,7 +386,7 @@ describe('eventStatsRepository', () => {
           ':reserveRegistrations': 4,
           ':updatedAt': NOW,
         },
-        Key: { PK: 'ORG#org2', SK: '2025-01-01T00:00:00.000Z#e5' },
+        Key: { PK: 'ORG#org2', SK: '2025-01-01#e5' },
         TableName: 'event-stats-table',
         UpdateExpression:
           'ADD #cancelledRegistrations :cancelledRegistrations, #count :count, #memberRegistrations :memberRegistrations, #paidAmount :paidAmount, #paidRegistrations :paidRegistrations, #refundedAmount :refundedAmount, #refundedRegistrations :refundedRegistrations, #reserveRegistrations :reserveRegistrations SET #date = :date, #organizerId = :organizerId, #updatedAt = :updatedAt',
@@ -407,7 +436,7 @@ describe('eventStatsRepository', () => {
             ExpressionAttributeValues: {
               ':cancelledRegistrations': 0,
               ':count': 0,
-              ':date': '2025-01-01T00:00:00.000Z',
+              ':date': '2025-01-01',
               ':memberRegistrations': 0,
               ':organizerId': 'org2',
               ':paidAmount': 0,

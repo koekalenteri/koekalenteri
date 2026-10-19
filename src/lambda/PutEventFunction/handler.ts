@@ -335,8 +335,10 @@ const putEventLambda = lambda('putEvent', async (event) => {
   checkPutEventRequestShape(patchRequest, item)
 
   const existing = item.id ? await getEvent<JsonConfirmedEvent>(item.id) : undefined
-  // The organizer stats row is keyed by the start date as stored, which an unmigrated row holds as an instant.
-  const storedStatsEvent = existing && { id: existing.id, organizer: existing.organizer, startDate: existing.startDate }
+  // The row as stored, whose days an unmigrated row holds as instants: the save writes it from this, so
+  // the days the save keeps are written as keys too, together with the organizer stats row's move to
+  // the key of the start. The checks, the merge and the audit read the days as keys.
+  const stored = existing && structuredClone(existing)
   if (existing) rekeyEventDays(existing, storedDay)
 
   checkPutEventAgainstExisting(user, item, existing, clientModifiedAt)
@@ -376,13 +378,13 @@ const putEventLambda = lambda('putEvent', async (event) => {
   data.updatedAt = timestamp
 
   // Update registrations in case the secretary version was out of date.
-  const result = await persistEventWithRegistrations(existing, data)
+  const result = await persistEventWithRegistrations(stored, data)
 
   // Organizer stats are keyed by organizer + start date, so an edit to either has to carry the
   // already-counted registrations across rather than leave them under the old key. This and the
   // audit trail touch different tables and don't depend on each other, so they run together.
   await Promise.all([
-    storedStatsEvent ? moveOrganizerEventStats(storedStatsEvent, data) : undefined,
+    stored ? moveOrganizerEventStats(stored, data) : undefined,
     auditEventChanges(existing, item, result, user.name),
   ])
 

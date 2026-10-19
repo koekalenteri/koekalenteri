@@ -585,10 +585,12 @@ export const getRegistrationPlacement = <T extends SortableRegistration>(
 const placementOf = (registration: SortableRegistration): SortablePlacement | undefined =>
   getRegistrationPlacement(registration)
 
-const sortableDate = (date: GroupDate | undefined): string => {
-  if (!date) return '\uffff'
-  return typeof date === 'string' ? date : date.toISOString()
-}
+/**
+ * A placement's day as it sorts: the trial's calendar day, the one rule `getRegistrationGroupDay` reads
+ * (a stored key, the instant a row stored before KOE-1547 holds, the browser's Date of the same day),
+ * and after every day for none.
+ */
+const sortableDate = (date: GroupDate | undefined): string => getRegistrationGroupDay(date) || '\uffff'
 
 export const getRegistrationGroupTime = (registration: SortableRegistration): RegistrationTime =>
   placementOf(registration)?.time ?? 'kp'

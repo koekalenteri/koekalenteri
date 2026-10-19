@@ -3,7 +3,7 @@ import type { AuditMessage } from './audit'
 import i18next from 'i18next'
 import { i18nInitOptions } from '../i18n/config'
 import { registerFormatters } from '../i18n/formatters'
-import { beforeDayKeys } from '../test-utils/finnishDays'
+import { legacyDayValue } from '../test-utils/finnishDays'
 import {
   auditLabelParams,
   auditUser,
@@ -76,7 +76,7 @@ describe('mergeAuditTrail', () => {
 
 describe('groupChangeAudit', () => {
   const dayGroup = {
-    date: beforeDayKeys('2024-08-02T21:00:00.000Z'),
+    date: legacyDayValue('2024-08-02T21:00:00.000Z'),
     key: '2024-08-02-ip',
     number: 2,
     time: 'ip' as const,
@@ -98,7 +98,7 @@ describe('groupChangeAudit', () => {
 
   it('writes no row for a group that only has its key respelled (KOE-1541)', () => {
     const utcKeyed = {
-      date: beforeDayKeys('2026-08-14T21:00:00.000Z'),
+      date: legacyDayValue('2026-08-14T21:00:00.000Z'),
       key: '2026-08-14-ap',
       number: 2,
       time: 'ap' as const,
@@ -269,13 +269,13 @@ const groupRow = (...args: Parameters<typeof groupChangeAudit>): AuditMessage =>
 }
 
 const dayGroup = {
-  date: beforeDayKeys('2024-08-02T21:00:00.000Z'),
+  date: legacyDayValue('2024-08-02T21:00:00.000Z'),
   key: '2024-08-02-ip',
   number: 2,
   time: 'ip' as const,
 }
 const kpGroup = {
-  date: beforeDayKeys('2024-08-02T21:00:00.000Z'),
+  date: legacyDayValue('2024-08-02T21:00:00.000Z'),
   key: '2024-08-02-kp',
   number: 4,
   time: 'kp' as const,
@@ -403,7 +403,7 @@ describe('formatAuditMessage', () => {
     [groupRow(dayGroup, { key: 'reserve', number: 1 }, 'move'), 'Ryhmä: la 3.8. ip #2 -> Ilmoittautuneet #1 siirto'],
     [
       groupRow(
-        { date: beforeDayKeys('2026-10-31T22:00:00.000Z'), key: '2026-11-01-ap', number: 3, time: 'ap' },
+        { date: legacyDayValue('2026-10-31T22:00:00.000Z'), key: '2026-11-01-ap', number: 3, time: 'ap' },
         { key: 'reserve', number: 1 },
         'move'
       ),

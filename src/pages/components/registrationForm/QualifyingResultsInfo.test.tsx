@@ -16,7 +16,7 @@ import { getRequirements } from '@/rules'
 import { frozenInstant } from '@/test-utils/freezeClock'
 import { describeInTimeZone } from '@/test-utils/timeZone'
 import { renderWithUserEvents, runPendingTimers, typeDateKeyByKey } from '@/test-utils/utils'
-import { beforeDayKeys } from '../../../test-utils/finnishDays'
+import { legacyDayValue } from '../../../test-utils/finnishDays'
 import QualifyingResultsInfo from './QualifyingResultsInfo'
 
 const Provider = ({ children }: { readonly children: ReactNode }) => (
@@ -230,7 +230,7 @@ describe('QualifyingResultsInfo', () => {
         const [official] = toDog({
           regNo: reg.dog.regNo,
           results: [
-            { class: 'ALO', date: beforeDayKeys(aika), judge: 'J', location: 'L', result: 'ALO1', type: 'NOME-B' },
+            { class: 'ALO', date: legacyDayValue(aika), judge: 'J', location: 'L', result: 'ALO1', type: 'NOME-B' },
           ],
         }).results
         render(

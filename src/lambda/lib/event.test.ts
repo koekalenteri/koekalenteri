@@ -1,9 +1,9 @@
 import type { DeepPartial, JsonConfirmedEvent, JsonDogEvent, JsonRegistration } from '../../types'
 import { vi } from 'vitest'
 import { PRIORITY_MEMBER } from '../../lib/priority'
-import { beforeDayKeys } from '../../test-utils/finnishDays'
+import { legacyDayValue } from '../../test-utils/finnishDays'
 import { describeInTimeZone } from '../../test-utils/timeZone'
-import { asJsonDogEvent, asJsonRegistration } from '../test-utils/helpers'
+import { asJsonRegistration } from '../test-utils/helpers'
 
 const mockReadEventRegistrations = vi.fn()
 const mockWriteRegistrationFields = vi.fn()
@@ -275,15 +275,15 @@ describe('lib/event', () => {
     describeInTimeZone('UTC', () => {
       it.each([
         { entryEndDate: '2026-03-28' as const, expected: '2026-03-29' },
-        { entryEndDate: beforeDayKeys('2026-03-28T23:59:59.999+02:00'), expected: '2026-03-29' },
-        { entryEndDate: beforeDayKeys('2026-03-28T21:59:59.999Z'), expected: '2026-03-29' },
-        { entryEndDate: beforeDayKeys('2026-10-24T23:59:59.999+03:00'), expected: '2026-10-25' },
-        { entryEndDate: beforeDayKeys('2026-10-25T23:59:59.999+02:00'), expected: '2026-10-26' },
+        { entryEndDate: legacyDayValue('2026-03-28T23:59:59.999+02:00'), expected: '2026-03-29' },
+        { entryEndDate: legacyDayValue('2026-03-28T21:59:59.999Z'), expected: '2026-03-29' },
+        { entryEndDate: legacyDayValue('2026-10-24T23:59:59.999+03:00'), expected: '2026-10-25' },
+        { entryEndDate: legacyDayValue('2026-10-25T23:59:59.999+02:00'), expected: '2026-10-26' },
         // Stored as the Finnish midnight that starts 25.10.: the next Finnish day is the 26th.
-        { entryEndDate: beforeDayKeys('2026-10-24T21:00:00.000Z'), expected: '2026-10-26' },
-        { entryEndDate: beforeDayKeys('2026-03-28T22:00:00.000Z'), expected: '2026-03-30' },
+        { entryEndDate: legacyDayValue('2026-10-24T21:00:00.000Z'), expected: '2026-10-26' },
+        { entryEndDate: legacyDayValue('2026-03-28T22:00:00.000Z'), expected: '2026-03-30' },
       ])('starts the qualification the Finnish day after $entryEndDate', async ({ entryEndDate, expected }) => {
-        mockReadLastEntryEndBefore.mockResolvedValueOnce({ entryEndDate: beforeDayKeys(entryEndDate) })
+        mockReadLastEntryEndBefore.mockResolvedValueOnce({ entryEndDate: legacyDayValue(entryEndDate) })
 
         await expect(findQualificationStartDate('NOME-B SM', '2027-01-01')).resolves.toEqual(expected)
       })
@@ -315,8 +315,8 @@ describe('lib/event', () => {
       ['a key entry end beside an instant', '2024-08-20', '2024-08-15T20:59:59.999Z'],
     ])('should prefer entryOrigEndDate when available: %s', async (_name, entryEndDate, entryOrigEndDate) => {
       mockReadLastEntryEndBefore.mockResolvedValueOnce({
-        entryEndDate: beforeDayKeys(entryEndDate),
-        entryOrigEndDate: beforeDayKeys(entryOrigEndDate),
+        entryEndDate: legacyDayValue(entryEndDate),
+        entryOrigEndDate: legacyDayValue(entryOrigEndDate),
       })
       await expect(findQualificationStartDate('NOME-B SM', '2025-03-22')).resolves.toEqual('2024-08-16')
     })
@@ -1127,6 +1127,30 @@ describe('lib/event', () => {
   })
 
   describe('patchEvent', () => {
+    /** A stored event of the fields the test names, the others as an empty draft holds them. */
+    const storedEvent = (fields: Partial<JsonDogEvent>): JsonDogEvent => ({
+      classes: [],
+      cost: 0,
+      createdAt: '2026-01-01T00:00:00.000Z',
+      createdBy: 'test',
+      description: '',
+      endDate: '2026-06-01',
+      eventType: 'NOME-B',
+      id: 'event',
+      judges: [],
+      location: '',
+      modifiedAt: '2026-01-01T00:00:00.000Z',
+      modifiedBy: 'test',
+      name: '',
+      official: {},
+      organizer: { id: 'org-1', name: 'Org' },
+      places: 0,
+      secretary: {},
+      startDate: '2026-06-01',
+      state: 'confirmed',
+      ...fields,
+    })
+
     beforeEach(() => {
       mockWriteEventFields.mockReset()
       mockReadEvent.mockReset()
@@ -1143,8 +1167,8 @@ describe('lib/event', () => {
     })
 
     it('reports the start list when the change is one its readers can see', async () => {
-      const existing = asJsonDogEvent({
-        classes: [{ class: 'ALO', state: 'invited' }],
+      const existing = storedEvent({
+        classes: [{ class: 'ALO', date: '2026-06-01', state: 'invited' }],
         id: 'e-published',
         organizer: { id: 'org-1', name: 'Org' },
         startListPublished: { ALO: false },
@@ -1159,7 +1183,7 @@ describe('lib/event', () => {
     })
 
     it('leaves the start list out of a change no reader of it can see', async () => {
-      const existing = asJsonDogEvent({
+      const existing = storedEvent({
         id: 'e-renamed',
         name: 'Old name',
         organizer: { id: 'org-1', name: 'Org' },
@@ -1174,13 +1198,13 @@ describe('lib/event', () => {
     })
 
     it('updates set/remove fields and reports the patch', async () => {
-      const existing = asJsonDogEvent({
+      const existing = storedEvent({
         id: 'e2',
         name: 'Old name',
         organizer: { id: 'org-1', name: 'Org' },
         qualificationStartDate: '2024-01-01' as const,
       })
-      const next = asJsonDogEvent({
+      const next = storedEvent({
         ...existing,
         name: 'New name',
         qualificationStartDate: undefined,
@@ -1203,7 +1227,7 @@ describe('lib/event', () => {
     })
 
     it('updates nested field changes partially and reports the nested patch', async () => {
-      const existing = asJsonDogEvent({
+      const existing = storedEvent({
         contactInfo: {
           secretary: { email: 'old@example.com', name: 'Secretary' },
         },
@@ -1211,7 +1235,7 @@ describe('lib/event', () => {
         organizer: { id: 'org-1', name: 'Org' },
       })
 
-      const next = asJsonDogEvent({
+      const next = storedEvent({
         ...existing,
         contactInfo: {
           secretary: { email: 'new@example.com', name: 'Secretary' },
@@ -1236,20 +1260,20 @@ describe('lib/event', () => {
     })
 
     it('replaces changed arrays instead of persisting sparse array diffs', async () => {
-      const existing = asJsonDogEvent({
+      const existing = storedEvent({
         classes: [
-          { class: 'ALO', entries: 1, members: 0 },
-          { class: 'AVO', entries: 2, members: 0 },
+          { class: 'ALO', date: '2026-06-01', entries: 1, members: 0 },
+          { class: 'AVO', date: '2026-06-01', entries: 2, members: 0 },
         ],
         id: 'e4',
         organizer: { id: 'org-1', name: 'Org' },
       })
 
-      const next = asJsonDogEvent({
+      const next = storedEvent({
         ...existing,
         classes: [
-          { class: 'ALO', entries: 3, members: 0 },
-          { class: 'AVO', entries: 2, members: 0 },
+          { class: 'ALO', date: '2026-06-01', entries: 3, members: 0 },
+          { class: 'AVO', date: '2026-06-01', entries: 2, members: 0 },
         ],
       })
 
@@ -1271,14 +1295,14 @@ describe('lib/event', () => {
     })
 
     it('reports full replacement arrays when array length changes', async () => {
-      const existing = asJsonDogEvent({
-        classes: [{ class: 'ALO', entries: 1, members: 0 }],
+      const existing = storedEvent({
+        classes: [{ class: 'ALO', date: '2026-06-01', entries: 1, members: 0 }],
         id: 'e5',
         judges: [{ id: 842408, name: 'Fontell Ari-Pekka', official: true }],
         organizer: { id: 'org-1', name: 'Org' },
       })
 
-      const next = asJsonDogEvent({
+      const next = storedEvent({
         ...existing,
         classes: [],
         judges: [
@@ -1300,26 +1324,27 @@ describe('lib/event', () => {
     })
 
     it('reports full nested replacement arrays', async () => {
-      const existing = asJsonDogEvent({
+      const existing = storedEvent({
         classes: [
-          { class: 'ALO', judge: [{ id: 842408, name: 'Fontell Ari-Pekka', official: true }] },
-          { class: 'AVO', judge: [{ id: 653323, name: 'Uusimäki Pekka', official: true }] },
+          { class: 'ALO', date: '2026-06-01', judge: [{ id: 842408, name: 'Fontell Ari-Pekka', official: true }] },
+          { class: 'AVO', date: '2026-06-01', judge: [{ id: 653323, name: 'Uusimäki Pekka', official: true }] },
         ],
         id: 'e6',
         organizer: { id: 'org-1', name: 'Org' },
       })
 
-      const next = asJsonDogEvent({
+      const next = storedEvent({
         ...existing,
         classes: [
           {
             class: 'ALO',
+            date: '2026-06-01',
             judge: [
               { id: 842408, name: 'Fontell Ari-Pekka', official: true },
               { id: 653323, name: 'Uusimäki Pekka', official: true },
             ],
           },
-          { class: 'AVO', judge: [{ id: 653323, name: 'Uusimäki Pekka', official: true }] },
+          { class: 'AVO', date: '2026-06-01', judge: [{ id: 653323, name: 'Uusimäki Pekka', official: true }] },
         ],
       })
 
@@ -1336,7 +1361,7 @@ describe('lib/event', () => {
     })
 
     it('reports the whole event when a draft becomes public', async () => {
-      const existing = asJsonDogEvent({
+      const existing = storedEvent({
         classes: [{ class: 'ALO', date: '2026-06-01' as const, entries: 0, members: 0 }],
         cost: 10,
         description: 'Description',
@@ -1353,7 +1378,7 @@ describe('lib/event', () => {
         startDate: '2026-06-01' as const,
         state: 'draft',
       })
-      const next = asJsonDogEvent({
+      const next = storedEvent({
         ...existing,
         state: 'tentative',
       })
@@ -1374,13 +1399,13 @@ describe('lib/event', () => {
     })
 
     it('reports an admin-only change when a draft stays a draft', async () => {
-      const existing = asJsonDogEvent({
+      const existing = storedEvent({
         id: 'e8',
         name: 'Draft event',
         organizer: { id: 'org-1', name: 'Org' },
         state: 'draft',
       })
-      const next = asJsonDogEvent({
+      const next = storedEvent({
         ...existing,
         name: 'Updated draft event',
       })
@@ -1397,13 +1422,13 @@ describe('lib/event', () => {
     })
 
     it('reports a public change when a public event becomes a draft', async () => {
-      const existing = asJsonDogEvent({
+      const existing = storedEvent({
         id: 'e9',
         name: 'Public event',
         organizer: { id: 'org-1', name: 'Org' },
         state: 'tentative',
       })
-      const next = asJsonDogEvent({
+      const next = storedEvent({
         ...existing,
         state: 'draft',
       })

@@ -29,6 +29,11 @@ interface ConditionalWrite<R, T> {
   maxAttempts: number
   /** The caller's own conflict, thrown once the attempts run out. */
   exhausted: () => Error
+  /**
+   * Whether a failure means the row moved meanwhile: a failed condition, unless the write is a
+   * transaction, whose failed condition cancels it.
+   */
+  isConflict?: (error: unknown) => boolean
 }
 
 /**
@@ -43,12 +48,13 @@ export const retryOnConditionFailure = <R, T>({
   work,
   maxAttempts,
   exhausted,
+  isConflict = isConditionalCheckFailure,
 }: ConditionalWrite<R, T>): Promise<T> => {
   const attempt = async (reading: R, number: number): Promise<T> => {
     try {
       return await work(reading)
     } catch (error) {
-      if (!isConditionalCheckFailure(error)) throw error
+      if (!isConflict(error)) throw error
       if (number >= maxAttempts) throw exhausted()
       return attempt(await reread(), number + 1)
     }

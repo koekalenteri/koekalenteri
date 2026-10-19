@@ -1,5 +1,5 @@
 import type { APIGatewayProxyEvent, APIGatewayProxyEventPathParameters } from 'aws-lambda'
-import type { DeepPartial, JsonConfirmedEvent, JsonDogEvent, JsonRegistration } from '../../types'
+import type { DeepPartial, JsonConfirmedEvent, JsonRegistration } from '../../types'
 import { legacyDay, rekeyRegistrationDays } from '../../lib/storedDays'
 import { LambdaError } from '../lib/lambda'
 
@@ -85,7 +85,6 @@ export const constructPartialAPIGwEvent = (
  */
 export const asJsonConfirmedEvent = (event: DeepPartial<JsonConfirmedEvent>) => event as JsonConfirmedEvent
 export const asJsonRegistration = (reg: DeepPartial<JsonRegistration>) => reg as JsonRegistration
-export const asJsonDogEvent = (event: DeepPartial<JsonDogEvent>) => event as JsonDogEvent
 
 /**
  * A registration fixture (a browser-model mock, say) as the table stores it since KOE-1547: its JSON,

@@ -1,6 +1,6 @@
 import type { JsonManualTestResult, JsonTestResult } from '../types'
 import { describe, expect, it } from 'vitest'
-import { beforeDayKeys } from '../test-utils/finnishDays'
+import { legacyDayValue } from '../test-utils/finnishDays'
 import { describeInTimeZone, withTimeZone } from '../test-utils/timeZone'
 import { filterRelevantResults, qualifyJsonRegistration } from './qualification'
 import { toDog, toManualTestResult } from './wire'
@@ -12,7 +12,7 @@ describe('lib/qualification', () => {
   describe('qualifyJsonRegistration', () => {
     const NOU1 = {
       class: '',
-      date: beforeDayKeys('2022-05-30T00:00:00.000Z'),
+      date: legacyDayValue('2022-05-30T00:00:00.000Z'),
       judge: 'Test Judge',
       location: 'Test',
       result: 'NOU1',
@@ -37,7 +37,7 @@ describe('lib/qualification', () => {
     ])('writes the day of a result read from %s as a key', (_name, date) => {
       const qualification = inLambdaZone(() =>
         qualifyJsonRegistration(
-          { class: 'ALO', dog: { regNo: 'FI12345/22', results: [{ ...NOU1, date: beforeDayKeys(date) }] } },
+          { class: 'ALO', dog: { regNo: 'FI12345/22', results: [{ ...NOU1, date: legacyDayValue(date) }] } },
           { eventType: 'NOME-B', startDate: '2022-08-01' as const }
         )
       )
@@ -52,7 +52,7 @@ describe('lib/qualification', () => {
       const ALO1 = (date: string, location: string) => ({
         ...NOU1,
         class: 'ALO',
-        date: beforeDayKeys(date),
+        date: legacyDayValue(date),
         location,
         result: 'ALO1',
         type: 'NOME-B',
@@ -105,8 +105,8 @@ describe('lib/qualification', () => {
               regNo: 'FI12345/22',
               results: [
                 NOU1,
-                { ...ALO1, date: beforeDayKeys('0001-01-01T00:00:00') },
-                { ...ALO1, date: beforeDayKeys('2022-06-01T00:00:00') },
+                { ...ALO1, date: legacyDayValue('0001-01-01T00:00:00') },
+                { ...ALO1, date: legacyDayValue('2022-06-01T00:00:00') },
               ],
             },
           },
@@ -139,13 +139,13 @@ describe('lib/qualification', () => {
     for (const zone of ['UTC', 'Europe/Helsinki', 'America/New_York', 'Asia/Tokyo']) {
       describeInTimeZone(zone, () => {
         const ALO1 = { ...NOU1, class: 'ALO', result: 'ALO1', type: 'NOME-B' }
-        const startDate = beforeDayKeys('2026-03-15T22:00:00.000Z')
+        const startDate = legacyDayValue('2026-03-15T22:00:00.000Z')
 
         it.each([
           // 1 January is the trial's year: the result is compared by its year, not against a midnight.
-          { date: beforeDayKeys('2026-01-01T00:00:00'), qualifies: true },
-          { date: beforeDayKeys('2026-01-02T00:00:00'), qualifies: true },
-          { date: beforeDayKeys('2025-12-31T00:00:00'), qualifies: false },
+          { date: legacyDayValue('2026-01-01T00:00:00'), qualifies: true },
+          { date: legacyDayValue('2026-01-02T00:00:00'), qualifies: true },
+          { date: legacyDayValue('2025-12-31T00:00:00'), qualifies: false },
         ])('reads a result of $date in the year it was written: qualifies $qualifies', ({ date, qualifies }) => {
           const results: JsonTestResult[] = [NOU1, { ...ALO1, date }]
           const onLambda = inLambdaZone(() =>

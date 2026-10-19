@@ -12,7 +12,7 @@ import type { InvitationAttachmentRegistration, SortableRegistration } from './r
 import i18n from 'i18next'
 import { eventWithStaticDates } from '../__mockData__/events'
 import { registrationWithStaticDates } from '../__mockData__/registrations'
-import { beforeDayKeys } from '../test-utils/finnishDays'
+import { legacyDayValue } from '../test-utils/finnishDays'
 import { getPaymentPicture } from './payment'
 import { PRIORITY_INVITED, PRIORITY_MEMBER, PRIORIZED_BREED_CODES } from './priority'
 import {
@@ -293,8 +293,8 @@ describe('lib/registration', () => {
       it.each([
         { date: '2023-08-17' as const, expected: true },
         { date: '2023-08-18' as const, expected: false },
-        { date: beforeDayKeys('2023-08-16T21:00:00.000Z'), expected: true },
-        { date: beforeDayKeys('2023-08-17T21:00:00.000Z'), expected: false },
+        { date: legacyDayValue('2023-08-16T21:00:00.000Z'), expected: true },
+        { date: legacyDayValue('2023-08-17T21:00:00.000Z'), expected: false },
       ])('reads a FI KVA-B of $date as won before the period: $expected', ({ date, expected }) => {
         const qualifyingResults: JsonQualifyingResult[] = JSON.parse(
           JSON.stringify([NOME_B_VOI1, NOME_B_VOI1, { ...NOME_B_KVA_NEW, date }])
@@ -306,7 +306,7 @@ describe('lib/registration', () => {
 
       it.each([
         { expected: '2025-02-01', qualificationStartDate: new Date('2025-01-31T22:00:00.000Z') },
-        { expected: '2025-02-01', qualificationStartDate: beforeDayKeys('2025-01-31T22:00:00.000Z') },
+        { expected: '2025-02-01', qualificationStartDate: legacyDayValue('2025-01-31T22:00:00.000Z') },
         { expected: '2023-08-18', qualificationStartDate: undefined },
       ])('starts the period on $expected', ({ expected, qualificationStartDate }) => {
         expect(nomeBChQualificationStartDay(qualificationStartDate)).toBe(expected)
@@ -538,18 +538,47 @@ describe('lib/registration', () => {
       ])
     })
 
+    // KOE-1547: an event's rows may hold one day in two forms until the migration has run: the key,
+    // and the instant its Finnish day starts at. The day decides, then the class, time and number.
+    it('sorts one day held as a key and as an instant as the same day', () => {
+      const regs: Array<SortableRegistration & { id: string }> = [
+        {
+          class: 'AVO',
+          group: { key: 'g', number: 1, time: 'ap' },
+          id: 'avo-instant',
+          startGroup: { date: legacyDayValue('2026-05-31T21:00:00.000Z'), key: 'g', number: 1, time: 'ap' },
+        },
+        {
+          class: 'ALO',
+          group: { key: 'g', number: 2, time: 'ap' },
+          id: 'alo-key',
+          startGroup: { date: '2026-06-01', key: 'g', number: 2, time: 'ap' },
+        },
+        {
+          class: 'ALO',
+          group: { key: 'g', number: 3, time: 'ap' },
+          id: 'alo-next-day',
+          startGroup: { date: legacyDayValue('2026-06-01T21:00:00.000Z'), key: 'g', number: 3, time: 'ap' },
+        },
+      ]
+
+      regs.sort(sortRegistrationsByDateClassTimeAndNumber)
+
+      expect(regs.map(({ id }) => id)).toEqual(['alo-key', 'avo-instant', 'alo-next-day'])
+    })
+
     it('uses the whole-day group when time is missing', () => {
       expect(getRegistrationGroupTime({ group: { key: 'reserve', number: 1 } })).toBe('kp')
     })
 
     it('should sort registrations properly', () => {
       const regs: SortableRegistration[] = [
-        { group: { date: beforeDayKeys('2024-08-02T21:00:00.000Z'), key: '2024-08-02-ip', number: 19, time: 'ip' } },
-        { group: { date: beforeDayKeys('2024-08-02T21:00:00.000Z'), key: '2024-08-02-ip', number: 20, time: 'ip' } },
-        { group: { date: beforeDayKeys('2024-08-02T21:00:00.000Z'), key: '2024-08-02-ip', number: 23.5, time: 'ip' } },
-        { group: { date: beforeDayKeys('2024-08-02T21:00:00.000Z'), key: '2024-08-02-ip', number: 22, time: 'ip' } },
-        { group: { date: beforeDayKeys('2024-08-02T21:00:00.000Z'), key: '2024-08-02-ip', number: 23, time: 'ip' } },
-        { group: { date: beforeDayKeys('2024-08-02T21:00:00.000Z'), key: '2024-08-02-ip', number: 24, time: 'ip' } },
+        { group: { date: legacyDayValue('2024-08-02T21:00:00.000Z'), key: '2024-08-02-ip', number: 19, time: 'ip' } },
+        { group: { date: legacyDayValue('2024-08-02T21:00:00.000Z'), key: '2024-08-02-ip', number: 20, time: 'ip' } },
+        { group: { date: legacyDayValue('2024-08-02T21:00:00.000Z'), key: '2024-08-02-ip', number: 23.5, time: 'ip' } },
+        { group: { date: legacyDayValue('2024-08-02T21:00:00.000Z'), key: '2024-08-02-ip', number: 22, time: 'ip' } },
+        { group: { date: legacyDayValue('2024-08-02T21:00:00.000Z'), key: '2024-08-02-ip', number: 23, time: 'ip' } },
+        { group: { date: legacyDayValue('2024-08-02T21:00:00.000Z'), key: '2024-08-02-ip', number: 24, time: 'ip' } },
       ]
       regs.sort(sortRegistrationsByDateClassTimeAndNumber)
       expect(regs.map((r) => r.group?.number)).toEqual([19, 20, 22, 23, 23.5, 24])
@@ -557,18 +586,18 @@ describe('lib/registration', () => {
 
     it('should value null and undefined class the same as missing class', () => {
       const regs2: SortableRegistration[] = [
-        { group: { date: beforeDayKeys('2024-08-02T21:00:00.000Z'), key: '2024-08-02-ip', number: 19, time: 'ip' } },
+        { group: { date: legacyDayValue('2024-08-02T21:00:00.000Z'), key: '2024-08-02-ip', number: 19, time: 'ip' } },
         {
           class: undefined,
-          group: { date: beforeDayKeys('2024-08-02T21:00:00.000Z'), key: '2024-08-02-ip', number: 20, time: 'ip' },
+          group: { date: legacyDayValue('2024-08-02T21:00:00.000Z'), key: '2024-08-02-ip', number: 20, time: 'ip' },
         },
         {
           class: null,
-          group: { date: beforeDayKeys('2024-08-02T21:00:00.000Z'), key: '2024-08-02-ip', number: 23.5, time: 'ip' },
+          group: { date: legacyDayValue('2024-08-02T21:00:00.000Z'), key: '2024-08-02-ip', number: 23.5, time: 'ip' },
         },
-        { group: { date: beforeDayKeys('2024-08-02T21:00:00.000Z'), key: '2024-08-02-ip', number: 22, time: 'ip' } },
-        { group: { date: beforeDayKeys('2024-08-02T21:00:00.000Z'), key: '2024-08-02-ip', number: 23, time: 'ip' } },
-        { group: { date: beforeDayKeys('2024-08-02T21:00:00.000Z'), key: '2024-08-02-ip', number: 24, time: 'ip' } },
+        { group: { date: legacyDayValue('2024-08-02T21:00:00.000Z'), key: '2024-08-02-ip', number: 22, time: 'ip' } },
+        { group: { date: legacyDayValue('2024-08-02T21:00:00.000Z'), key: '2024-08-02-ip', number: 23, time: 'ip' } },
+        { group: { date: legacyDayValue('2024-08-02T21:00:00.000Z'), key: '2024-08-02-ip', number: 24, time: 'ip' } },
       ]
       regs2.sort(sortRegistrationsByDateClassTimeAndNumber)
       expect(regs2.map((r) => r.group?.number)).toEqual([19, 20, 22, 23, 23.5, 24])
@@ -642,7 +671,7 @@ describe('lib/registration', () => {
     })
 
     describe('a start stored with another spelling of its day (KOE-1541)', () => {
-      const midnight = beforeDayKeys('2026-08-14T21:00:00.000Z') // 15.8. 00:00 in Helsinki
+      const midnight = legacyDayValue('2026-08-14T21:00:00.000Z') // 15.8. 00:00 in Helsinki
 
       it.each([
         ['an ISO string', midnight],
@@ -657,15 +686,15 @@ describe('lib/registration', () => {
         ['the turn of the year', '2026-12-31T22:00:00.000Z', '2027-01-01-ap'],
       ])('names the group by the Helsinki day in %s', (_name, date, expected) => {
         expect(
-          getRegistrationGroupKey({ group: { date: beforeDayKeys(date), key: 'utc-spelling', time: 'ap' } })
+          getRegistrationGroupKey({ group: { date: legacyDayValue(date), key: 'utc-spelling', time: 'ap' } })
         ).toEqual(expected)
       })
 
       it.each([
         ['no time', { date: midnight, key: 'stored' }],
         ['no date', { key: 'stored', time: 'ap' as const }],
-        ['an unreadable date', { date: beforeDayKeys('not a date'), key: 'stored', time: 'ap' as const }],
-        ['an empty date', { date: beforeDayKeys(''), key: 'stored', time: 'ap' as const }],
+        ['an unreadable date', { date: legacyDayValue('not a date'), key: 'stored', time: 'ap' as const }],
+        ['an empty date', { date: legacyDayValue(''), key: 'stored', time: 'ap' as const }],
         ['the reserve key', { date: midnight, key: GROUP_KEY_RESERVE, time: 'ap' as const }],
         ['the cancelled key', { date: midnight, key: GROUP_KEY_CANCELLED, time: 'ap' as const }],
       ])('keeps the stored key with %s', (_name, group) => {
@@ -694,7 +723,7 @@ describe('lib/registration', () => {
 
   describe('isKeyRespelling', () => {
     const utc = {
-      date: beforeDayKeys('2026-08-14T21:00:00.000Z'),
+      date: legacyDayValue('2026-08-14T21:00:00.000Z'),
       key: '2026-08-14-ap',
       number: 2,
       time: 'ap' as const,
@@ -707,7 +736,7 @@ describe('lib/registration', () => {
     it.each([
       ['another number', { ...utc, key: '2026-08-15-ap', number: 3 }],
       ['another time', { ...utc, key: '2026-08-15-ip', time: 'ip' as const }],
-      ['another day', { ...utc, date: beforeDayKeys('2026-08-15T21:00:00.000Z'), key: '2026-08-16-ap' }],
+      ['another day', { ...utc, date: legacyDayValue('2026-08-15T21:00:00.000Z'), key: '2026-08-16-ap' }],
       ['the same key', utc],
       ['the reserve list', { key: GROUP_KEY_RESERVE, number: 2 }],
     ])('is false for %s', (_name, group) => {

@@ -1,6 +1,6 @@
 import type { JsonAuditRecord, JsonConfirmedEvent } from '../../types'
 import { vi } from 'vitest'
-import { beforeDayKeys } from '../../test-utils/finnishDays'
+import { legacyDayValue } from '../../test-utils/finnishDays'
 import { loggedLines } from '../test-utils/logs'
 
 const mockQuery = vi.fn()
@@ -43,9 +43,9 @@ describe('audit', () => {
       createdAt: '',
       createdBy: '',
       description: '',
-      endDate: beforeDayKeys(''),
-      entryEndDate: beforeDayKeys(''),
-      entryStartDate: beforeDayKeys(''),
+      endDate: legacyDayValue(''),
+      entryEndDate: legacyDayValue(''),
+      entryStartDate: legacyDayValue(''),
       eventType: '',
       id: 'event-id',
       judges: [],
@@ -57,7 +57,7 @@ describe('audit', () => {
       organizer: { id: 'org-id', name: 'Org' },
       places: 0,
       secretary: {},
-      startDate: beforeDayKeys(''),
+      startDate: legacyDayValue(''),
       state: 'confirmed',
     }
 
@@ -97,8 +97,8 @@ describe('audit', () => {
         {
           ...event,
           classes: [
-            { class: 'ALO', date: beforeDayKeys('') },
-            { class: 'AVO', date: beforeDayKeys('') },
+            { class: 'ALO', date: legacyDayValue('') },
+            { class: 'AVO', date: legacyDayValue('') },
           ],
           startListPublished: { ALO: false, AVO: true },
         },
@@ -127,12 +127,12 @@ describe('audit', () => {
     it('records class place changes without derived or no-op fields', () => {
       const existing = {
         ...event,
-        classes: [{ class: 'VOI' as const, date: beforeDayKeys('2026-09-18T21:00:00.000Z'), places: 5 }],
+        classes: [{ class: 'VOI' as const, date: legacyDayValue('2026-09-18T21:00:00.000Z'), places: 5 }],
         places: 5,
       }
 
       const messages = getEventAuditMessages(existing, {
-        classes: [{ class: 'VOI', date: beforeDayKeys('2026-09-18T21:00:00.000Z'), places: 6 }],
+        classes: [{ class: 'VOI', date: legacyDayValue('2026-09-18T21:00:00.000Z'), places: 6 }],
         id: event.id,
         places: 6,
         placesPerDay: null,

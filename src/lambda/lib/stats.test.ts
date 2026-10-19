@@ -3,7 +3,7 @@ import type { JsonCapacityStatsItem, RegistrationStatsInput } from '../../types/
 import type * as eventStatsRepository from './repositories/eventStatsRepository'
 import type * as registrationRepository from './repositories/registrationRepository'
 import { vi } from 'vitest'
-import { beforeDayKeys } from '../../test-utils/finnishDays'
+import { legacyDayValue } from '../../test-utils/finnishDays'
 import { asJsonConfirmedEvent, asJsonRegistration } from '../test-utils/helpers'
 
 const mockReadOrganizerEventStats = vi.fn<typeof eventStatsRepository.readOrganizerEventStats>()
@@ -142,7 +142,11 @@ describe('lib/stats', () => {
 
     it('refuses an event without a stats year before writing anything', async () => {
       await expect(
-        applyNewRegistrationStatsOnce(registration, { ...event, startDate: beforeDayKeys('not-a-date') }, 'lease-token')
+        applyNewRegistrationStatsOnce(
+          registration,
+          { ...event, startDate: legacyDayValue('not-a-date') },
+          'lease-token'
+        )
       ).rejects.toThrow('Cannot derive stats year from event start date: not-a-date')
 
       expect(mockCommitNewRegistrationStats).not.toHaveBeenCalled()
@@ -258,7 +262,7 @@ describe('lib/stats', () => {
       const reg = { cancelled: false, paidAmount: 10, refundAmount: 0 } as JsonRegistration
 
       await expect(
-        updateEventStatsForRegistration(reg, undefined, { ...event, startDate: beforeDayKeys('not-a-date') })
+        updateEventStatsForRegistration(reg, undefined, { ...event, startDate: legacyDayValue('not-a-date') })
       ).rejects.toThrow('Cannot derive stats year from event start date: not-a-date')
 
       expect(mockAddOrganizerEventStats).not.toHaveBeenCalled()
@@ -344,6 +348,50 @@ describe('lib/stats', () => {
 
       expect(mockReadOrganizerEventStatsRow).toHaveBeenCalledWith(event)
       expect(mockMoveOrganizerEventStatsRow).toHaveBeenCalledWith(event, moved, stats, expect.any(String))
+    })
+
+    // KOE-1547: the event's row and its stats rows are migrated to day keys one after the other, so
+    // a save in between finds the stats row under the other form of the start.
+    describe('while the start is migrated to a day key', () => {
+      const keyed = { id: 'e5', organizer: { id: 'org1' }, startDate: '2024-06-15' }
+      const instant = { ...keyed, startDate: '2024-06-14T21:00:00.000Z' }
+      const later = { ...keyed, startDate: '2025-01-01' }
+
+      it('moves the row still keyed by the instant the start was stored as', async () => {
+        mockReadOrganizerEventStatsRow.mockResolvedValueOnce(undefined).mockResolvedValueOnce(stats)
+
+        await moveOrganizerEventStats(keyed, later)
+
+        expect(mockReadOrganizerEventStatsRow).toHaveBeenNthCalledWith(1, keyed)
+        expect(mockReadOrganizerEventStatsRow).toHaveBeenNthCalledWith(2, instant)
+        expect(mockMoveOrganizerEventStatsRow).toHaveBeenCalledWith(instant, later, stats, expect.any(String))
+      })
+
+      it('moves the row the stats migration keyed already when the stored start is still an instant', async () => {
+        mockReadOrganizerEventStatsRow.mockResolvedValueOnce(undefined).mockResolvedValueOnce(stats)
+
+        await moveOrganizerEventStats(instant, later)
+
+        expect(mockReadOrganizerEventStatsRow).toHaveBeenNthCalledWith(2, keyed)
+        expect(mockMoveOrganizerEventStatsRow).toHaveBeenCalledWith(keyed, later, stats, expect.any(String))
+      })
+
+      it('leaves a row already keyed by the day the save keeps', async () => {
+        mockReadOrganizerEventStatsRow.mockResolvedValueOnce(undefined).mockResolvedValueOnce(stats)
+
+        await moveOrganizerEventStats(instant, keyed)
+
+        expect(mockMoveOrganizerEventStatsRow).not.toHaveBeenCalled()
+      })
+
+      it('reads no other form of a start with no day', async () => {
+        mockReadOrganizerEventStatsRow.mockResolvedValueOnce(undefined)
+
+        await moveOrganizerEventStats({ ...keyed, startDate: 'not-a-date' }, later)
+
+        expect(mockReadOrganizerEventStatsRow).toHaveBeenCalledTimes(1)
+        expect(mockMoveOrganizerEventStatsRow).not.toHaveBeenCalled()
+      })
     })
 
     it('also moves the record across partitions when the organizer changes', async () => {

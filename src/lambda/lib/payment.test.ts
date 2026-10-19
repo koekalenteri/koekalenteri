@@ -10,7 +10,7 @@ import { vi } from 'vitest'
 import { jsonEmptyEvent } from '../../__mockData__/emptyEvent'
 import { eventWithALOClassInvited, eventWithStaticDatesAnd3Classes } from '../../__mockData__/events'
 import { jsonRegistrationsToEventWithALOInvited } from '../../__mockData__/registrations'
-import { beforeDayKeys } from '../../test-utils/finnishDays'
+import { legacyDayValue } from '../../test-utils/finnishDays'
 import { everyEntrantWatching } from '../test-utils/entrantPages'
 import { loggedLines } from '../test-utils/logs'
 
@@ -135,7 +135,7 @@ describe('payment', () => {
     mockReadPaymentTransactions.mockResolvedValue([])
     mockGetEvent.mockResolvedValue({
       cost: 50,
-      entryStartDate: beforeDayKeys('2026-07-01T00:00:00.000Z'),
+      entryStartDate: legacyDayValue('2026-07-01T00:00:00.000Z'),
       organizer: { id: 'organizer-1', name: 'Organizer' },
       paymentTime: 'registration',
       state: 'confirmed',

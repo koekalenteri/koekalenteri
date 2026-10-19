@@ -19,7 +19,7 @@ import { dayStart, dayStartOf, TIME_ZONE } from '../../lib/day'
 import { qualifyJsonRegistration } from '../../lib/qualification'
 import { GROUP_KEY_RESERVE } from '../../lib/registration'
 import { rekeyRegistrationDays, storedDay } from '../../lib/storedDays'
-import { beforeDayKeys, finnishDayOf } from '../../test-utils/finnishDays'
+import { finnishDayOf, legacyDayValue } from '../../test-utils/finnishDays'
 import { CONFIG } from '../config'
 import { LambdaError } from '../lib/lambda'
 import { ISO8601DateTimeRE } from '../test-utils/constants'
@@ -1366,7 +1366,14 @@ describe('putRegistrationLabmda', () => {
   it('answers an unchanged save of a row stored before the dog dates were day keys with 304 (KOE-1548)', async () => {
     const event = JSON.parse(JSON.stringify(eventWithStaticDates))
     const official: JsonTestResult[] = [
-      { class: '', date: beforeDayKeys('2021-03-01T00:00:00'), judge: 'J', location: 'L', result: 'NOU1', type: 'NOU' },
+      {
+        class: '',
+        date: legacyDayValue('2021-03-01T00:00:00'),
+        judge: 'J',
+        location: 'L',
+        result: 'NOU1',
+        type: 'NOU',
+      },
     ]
     const manual: JsonManualTestResult[] = [
       {
@@ -1390,13 +1397,13 @@ describe('putRegistrationLabmda', () => {
     const qualification = qualifyJsonRegistration({ ...body, dog: { ...body.dog, results: official } }, event)
     const existingJson: JsonRegistration = {
       ...body,
-      dog: { ...body.dog, dob: beforeDayKeys('2019-12-31T22:00:00.000Z'), results: official },
+      dog: { ...body.dog, dob: legacyDayValue('2019-12-31T22:00:00.000Z'), results: official },
       qualifies: qualification.qualifies,
       qualifyingResults: qualification.qualifyingResults.map((r) => ({
         ...r,
-        date: beforeDayKeys(`${r.date}T00:00:00.000Z`),
+        date: legacyDayValue(`${r.date}T00:00:00.000Z`),
       })),
-      results: manual.map((r) => ({ ...r, date: beforeDayKeys('2021-01-31T22:00:00.000Z') })),
+      results: manual.map((r) => ({ ...r, date: legacyDayValue('2021-01-31T22:00:00.000Z') })),
     }
     mockGetEvent.mockResolvedValueOnce(event)
     mockGetRegistration.mockResolvedValueOnce(existingJson)
@@ -1420,7 +1427,7 @@ describe('putRegistrationLabmda', () => {
     rekeyRegistrationDays(base, storedDay)
     // The entry's days as keys, or as the instants their Finnish days start at.
     const withDays = (asInstants: boolean): JsonRegistration => {
-      const form = (day: DayKey) => (asInstants ? beforeDayKeys(dayStart(day, TIME_ZONE).toISOString()) : day)
+      const form = (day: DayKey) => (asInstants ? legacyDayValue(dayStart(day, TIME_ZONE).toISOString()) : day)
       const copy: JsonRegistration = structuredClone(base)
       copy.dates = copy.dates.map((date) => ({ ...date, date: form(date.date) }))
       if (copy.group?.date) copy.group = { ...copy.group, date: form(copy.group.date) }

@@ -25,10 +25,10 @@ export const endOfFinnishDay = (value: Date | DayKey): Date =>
   isDayKey(value) ? dayEnd(value, TIME_ZONE) : dayEndOf(value, TIME_ZONE)
 
 /**
- * A day in a form a row held, or a browser sent, before KOE-1547 made every stored day a key (an
- * instant, a Kennelliitto stamp, an unreadable value), typed as the key the field now is: for the
- * tests of the migrations and of the readers and request boundaries that still accept those forms. The
- * round trip through JSON is what a row or a request body goes through, and it gives the value the
- * field's type without a cast.
+ * A value a day field held, or a request sent, before KOE-1547 made every stored day a key: an instant,
+ * a Kennelliitto stamp, an unreadable value. It is not a key; it is typed as the `DayKey` the field now
+ * claims, so a fixture of an unmigrated row or an older browser's request can hold it, for the tests of
+ * the migrations and of the readers and request boundaries that still accept those forms. The value is
+ * returned as it is (a JSON round trip, which a stored row also goes through, gives it the type).
  */
-export const beforeDayKeys = (value: string): DayKey => JSON.parse(JSON.stringify(value))
+export const legacyDayValue = (value: string): DayKey => JSON.parse(JSON.stringify(value))

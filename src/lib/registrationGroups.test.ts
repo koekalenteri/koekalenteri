@@ -1,5 +1,5 @@
 import type { JsonRegistration } from '../types'
-import { beforeDayKeys } from '../test-utils/finnishDays'
+import { legacyDayValue } from '../test-utils/finnishDays'
 import { GROUP_KEY_CANCELLED } from './registration'
 import { applyRegistrationGroupMoves, normalizeRegistrationGroups } from './registrationGroups'
 
@@ -286,13 +286,13 @@ describe('normalizeRegistrationGroups', () => {
 // (eventRegistrationDateKey) names the group '2026-08-15-ap' (KOE-1541).
 describe('a start stored with the UTC day key', () => {
   const HELSINKI_KEY = '2026-08-15-ap'
-  const HELSINKI_GROUP = { date: beforeDayKeys('2026-08-14T21:00:00.000Z'), key: HELSINKI_KEY, time: 'ap' as const }
+  const HELSINKI_GROUP = { date: legacyDayValue('2026-08-14T21:00:00.000Z'), key: HELSINKI_KEY, time: 'ap' as const }
 
   const start = (
     id: string,
     number: number,
     key = '2026-08-14-ap',
-    date = beforeDayKeys('2026-08-14T21:00:00.000Z')
+    date = legacyDayValue('2026-08-14T21:00:00.000Z')
   ) => ({
     ...registration(id, number),
     group: { date, key, number, time: 'ap' as const },
@@ -350,7 +350,7 @@ describe('a start stored with the UTC day key', () => {
 
   it('treats two instants of the same Helsinki day and time as one group', () => {
     const result = applyRegistrationGroupMoves(
-      [start('a', 1), start('b', 2, HELSINKI_KEY, beforeDayKeys('2026-08-15T00:00:00.000Z')), reserve('c')],
+      [start('a', 1), start('b', 2, HELSINKI_KEY, legacyDayValue('2026-08-15T00:00:00.000Z')), reserve('c')],
       [{ group: HELSINKI_GROUP, id: 'c' }]
     )
 
@@ -364,7 +364,7 @@ describe('a start stored with the UTC day key', () => {
 
   it('accepts as the anchor a start whose date is another instant of the same day', () => {
     const result = applyRegistrationGroupMoves(
-      [start('a', 1), start('b', 2, HELSINKI_KEY, beforeDayKeys('2026-08-15T00:00:00.000Z')), reserve('c')],
+      [start('a', 1), start('b', 2, HELSINKI_KEY, legacyDayValue('2026-08-15T00:00:00.000Z')), reserve('c')],
       [{ beforeId: 'b', group: HELSINKI_GROUP, id: 'c' }]
     )
 
@@ -394,7 +394,7 @@ describe('a start stored with the UTC day key', () => {
   it('keeps the key of a start without a time, and a cancelled entry in the cancelled group', () => {
     const noTime = {
       ...registration('n', 1),
-      group: { date: beforeDayKeys('2026-08-14T21:00:00.000Z'), key: 'x-key', number: 1 },
+      group: { date: legacyDayValue('2026-08-14T21:00:00.000Z'), key: 'x-key', number: 1 },
     }
     const cancelled = { ...start('k', 1), cancelled: true }
 

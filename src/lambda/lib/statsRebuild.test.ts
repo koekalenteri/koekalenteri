@@ -2,7 +2,7 @@ import type { EventStatsEvent } from './repositories/eventRepository'
 import type * as eventStatsRepository from './repositories/eventStatsRepository'
 import type * as registrationRepository from './repositories/registrationRepository'
 import { vi } from 'vitest'
-import { beforeDayKeys } from '../../test-utils/finnishDays'
+import { legacyDayValue } from '../../test-utils/finnishDays'
 import { loggedLines } from '../test-utils/logs'
 
 const mockDeleteStatRecords = vi.fn<typeof eventStatsRepository.deleteStatRecords>()
@@ -39,12 +39,12 @@ const rebuildHandler = createHandler(REBUILDABLE_STATS_PARTITIONS)
 
 const event = (id: string, start: string, eventType = 'NOU'): EventStatsEvent => ({
   classes: [],
-  endDate: beforeDayKeys(start),
+  endDate: legacyDayValue(start),
   eventType,
   id,
   organizer: { id: `organizer-${id}` },
   places: 0,
-  startDate: beforeDayKeys(start),
+  startDate: legacyDayValue(start),
   state: 'confirmed',
 })
 
@@ -483,13 +483,13 @@ describe('statsRebuild', () => {
   it('buckets capacity by the event timezone, not the stored UTC instant', () => {
     // 2025-06-01 00:00 Europe/Helsinki is stored as the previous day in UTC.
     const juneFirst: EventStatsEvent = {
-      classes: [{ class: 'ALO', date: beforeDayKeys('2025-05-31T21:00:00.000Z'), places: 6 }],
-      endDate: beforeDayKeys('2025-05-31T21:00:00.000Z'),
+      classes: [{ class: 'ALO', date: legacyDayValue('2025-05-31T21:00:00.000Z'), places: 6 }],
+      endDate: legacyDayValue('2025-05-31T21:00:00.000Z'),
       eventType: 'NOME-B',
       id: 'june-first-event',
       organizer: { id: 'organizer-1' },
       places: 0,
-      startDate: beforeDayKeys('2025-05-31T21:00:00.000Z'),
+      startDate: legacyDayValue('2025-05-31T21:00:00.000Z'),
       state: 'confirmed',
     }
     const registrations = [

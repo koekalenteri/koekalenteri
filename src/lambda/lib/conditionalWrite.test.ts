@@ -72,4 +72,16 @@ describe('retryOnConditionFailure', () => {
     expect(work).toHaveBeenCalledTimes(1)
     expect(reread).not.toHaveBeenCalled()
   })
+
+  it('retries on the conflict the caller names, a cancelled transaction say', async () => {
+    const canceled = Object.assign(new Error('cancelled'), { name: 'TransactionCanceledException' })
+    const reread = vi.fn().mockResolvedValueOnce('second reading')
+    const work = vi.fn().mockRejectedValueOnce(canceled).mockResolvedValueOnce('written')
+    const isConflict = (error: unknown) => error === canceled
+
+    await expect(
+      retryOnConditionFailure({ exhausted, initial: 'first', isConflict, maxAttempts: 3, reread, work })
+    ).resolves.toBe('written')
+    expect(work).toHaveBeenNthCalledWith(2, 'second reading')
+  })
 })

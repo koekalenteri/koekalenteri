@@ -1,6 +1,6 @@
 import type { JsonDogEvent, JsonUser } from '../../types'
 import { vi } from 'vitest'
-import { beforeDayKeys } from '../../test-utils/finnishDays'
+import { legacyDayValue } from '../../test-utils/finnishDays'
 import { constructAPIGwEvent } from '../test-utils/helpers'
 // Loaded before the clock is faked: @date-fns/tz's TZDate extends the Date it finds at load, and on a
 // fake Date it formats in the host zone, so a CI runner in UTC read Finnish midnight as the day before.
@@ -975,8 +975,8 @@ describe('putEventLambda', () => {
     updateRegistrationsMock.mockResolvedValueOnce({
       ...mockEvent,
       entries: 11,
-      entryEndDate: beforeDayKeys(''),
-      entryStartDate: beforeDayKeys(''),
+      entryEndDate: legacyDayValue(''),
+      entryStartDate: legacyDayValue(''),
       state: 'confirmed',
     })
 
@@ -1181,9 +1181,9 @@ describe('putEventLambda', () => {
   it('reads the stored and the sent days as keys before comparing, merging or auditing them', async () => {
     authorizeMock.mockResolvedValueOnce(mockSecretary)
     const asInstants = () => ({
-      classes: [{ class: 'ALO' as const, date: beforeDayKeys('2025-05-31T21:00:00.000Z') }],
-      endDate: beforeDayKeys('2025-06-01T21:00:00.000Z'),
-      startDate: beforeDayKeys('2025-05-31T21:00:00.000Z'),
+      classes: [{ class: 'ALO' as const, date: legacyDayValue('2025-05-31T21:00:00.000Z') }],
+      endDate: legacyDayValue('2025-06-01T21:00:00.000Z'),
+      startDate: legacyDayValue('2025-05-31T21:00:00.000Z'),
     })
     getEventMock.mockResolvedValueOnce({ ...mockEvent, ...asInstants() })
 
@@ -1196,7 +1196,8 @@ describe('putEventLambda', () => {
       startDate: '2025-06-01',
     })
     expect(mockGetEventAuditMessages).toHaveBeenCalledWith(keyed, keyed)
-    expect(patchEventMock).toHaveBeenCalledWith('existing', keyed, keyed)
+    // The save is worked out from the row as stored, so the days it keeps are written as keys too.
+    expect(patchEventMock).toHaveBeenCalledWith('existing', expect.objectContaining(asInstants()), keyed)
     // The organizer stats row is keyed by the start as stored, and moves to the key of its day.
     expect(mockReadOrganizerEventStatsRow).toHaveBeenCalledWith(
       expect.objectContaining({ startDate: '2025-05-31T21:00:00.000Z' })
@@ -1290,7 +1291,7 @@ describe('putEventLambda', () => {
     const valid: Pick<JsonDogEvent, 'endDate' | 'startDate'> = { endDate: '2026-06-02', startDate: '2026-06-02' }
 
     const res = await putEventLambda(
-      constructAPIGwEvent<Partial<JsonDogEvent>>({ ...valid, [field]: beforeDayKeys(value), eventType: 'TEST' })
+      constructAPIGwEvent<Partial<JsonDogEvent>>({ ...valid, [field]: legacyDayValue(value), eventType: 'TEST' })
     )
 
     expect(res.statusCode).toEqual(400)
@@ -1305,8 +1306,8 @@ describe('putEventLambda', () => {
     authorizeMock.mockResolvedValueOnce(mockSecretary)
     getEventMock.mockResolvedValueOnce({
       ...mockEvent,
-      endDate: beforeDayKeys('2025-06-02T00:00:00'),
-      startDate: beforeDayKeys('2025-06-01T00:00:00'),
+      endDate: legacyDayValue('2025-06-02T00:00:00'),
+      startDate: legacyDayValue('2025-06-01T00:00:00'),
     })
 
     const res = await putEventLambda(
@@ -1320,13 +1321,13 @@ describe('putEventLambda', () => {
     authorizeMock.mockResolvedValueOnce(mockSecretary)
     getEventMock.mockResolvedValueOnce({
       ...mockEvent,
-      endDate: beforeDayKeys('2025-06-02T00:00:00'),
-      startDate: beforeDayKeys('2025-06-01T00:00:00'),
+      endDate: legacyDayValue('2025-06-02T00:00:00'),
+      startDate: legacyDayValue('2025-06-01T00:00:00'),
     })
 
     const res = await putEventLambda(
       constructAPIGwEvent<Partial<JsonDogEvent>>(
-        { id: 'existing', startDate: beforeDayKeys('12') },
+        { id: 'existing', startDate: legacyDayValue('12') },
         { method: 'PATCH' }
       )
     )
@@ -1337,8 +1338,8 @@ describe('putEventLambda', () => {
   })
 
   it.each([
-    [{ endDate: beforeDayKeys('2025-06-02'), state: 'draft' as const }, 'startDate'],
-    [{ endDate: beforeDayKeys(''), startDate: beforeDayKeys('2025-06-01'), state: 'draft' as const }, 'endDate'],
+    [{ endDate: legacyDayValue('2025-06-02'), state: 'draft' as const }, 'startDate'],
+    [{ endDate: legacyDayValue(''), startDate: legacyDayValue('2025-06-01'), state: 'draft' as const }, 'endDate'],
   ])('rejects a draft event with a missing or empty %s before saving', async (payload, field) => {
     authorizeMock.mockResolvedValueOnce(mockSecretary)
 
@@ -1415,11 +1416,11 @@ describe('putEventLambda', () => {
       [
         'the same entry start as the instant a browser loaded before KOE-1547 sends',
         { ...priced, cost: earlyBird },
-        { entryStartDate: beforeDayKeys('2025-03-31T21:00:00.000Z') },
+        { entryStartDate: legacyDayValue('2025-03-31T21:00:00.000Z') },
       ],
       [
         'the key of an entry start a row not yet migrated holds as an instant',
-        { ...priced, cost: earlyBird, entryStartDate: beforeDayKeys('2025-03-31T21:00:00.000Z') },
+        { ...priced, cost: earlyBird, entryStartDate: legacyDayValue('2025-03-31T21:00:00.000Z') },
         { entryStartDate: '2025-04-01' },
       ],
       [

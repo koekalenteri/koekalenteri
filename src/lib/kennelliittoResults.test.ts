@@ -5,7 +5,7 @@ import koemuotoNOME_A from '../lambda/lib/KLIntegraatio-fixtures/koemuoto-NOME-A
 import koemuotoNOME_B from '../lambda/lib/KLIntegraatio-fixtures/koemuoto-NOME-B.json'
 import koemuotoNOU from '../lambda/lib/KLIntegraatio-fixtures/koemuoto-NOU.json'
 import koemuotoNOWT from '../lambda/lib/KLIntegraatio-fixtures/koemuoto-NOWT.json'
-import { beforeDayKeys } from '../test-utils/finnishDays'
+import { legacyDayValue } from '../test-utils/finnishDays'
 import {
   buildKcResult,
   finnishDay,
@@ -42,7 +42,7 @@ const dog = (
 ): KcResultRegistration => ({
   dog: { name: 'Hukka', regNo: 'FI12345/21' },
   eventResult,
-  group: { date: beforeDayKeys('2026-09-25T21:00:00.000Z'), key: '2026-09-26-ap', number: 3 },
+  group: { date: legacyDayValue('2026-09-25T21:00:00.000Z'), key: '2026-09-26-ap', number: 3 },
   id: 'reg-1',
   ...fields,
 })
@@ -161,14 +161,14 @@ describe('kennelliittoResults', () => {
 
     it('is the frozen start group where one exists', () => {
       const registration = dog(undefined, {
-        startGroup: { date: beforeDayKeys('2026-09-26T21:00:00.000Z'), key: 'k', number: 1 },
+        startGroup: { date: legacyDayValue('2026-09-26T21:00:00.000Z'), key: 'k', number: 1 },
       })
       expect(kcResultDay(registration)).toEqual('2026-09-27')
     })
 
     it('is none for a group whose date does not read as one', () => {
       expect(
-        kcResultDay(dog(undefined, { group: { date: beforeDayKeys('eilen'), key: 'k', number: 1 } }))
+        kcResultDay(dog(undefined, { group: { date: legacyDayValue('eilen'), key: 'k', number: 1 } }))
       ).toBeUndefined()
     })
 
@@ -295,7 +295,7 @@ describe('kennelliittoResults', () => {
       const body = sent(
         nowt(
           { percentage: 70, result: 'VOI2' },
-          { classes: [{ class: 'VOI', date: beforeDayKeys('x'), judge: chief }] }
+          { classes: [{ class: 'VOI', date: legacyDayValue('x'), judge: chief }] }
         )
       )
       expect([body.tuomarit, body.palkintotuomarit]).toEqual([[chief.id], [second.id, third.id]])
@@ -404,7 +404,9 @@ describe('kennelliittoResults', () => {
 
   describe('the day, in Finnish time', () => {
     it('is the next day for a winter evening instant that is already past midnight in Finland (UTC+2)', () => {
-      const winter = dog(undefined, { group: { date: beforeDayKeys('2026-01-15T22:30:00.000Z'), key: 'k', number: 1 } })
+      const winter = dog(undefined, {
+        group: { date: legacyDayValue('2026-01-15T22:30:00.000Z'), key: 'k', number: 1 },
+      })
 
       expect(kcResultDay(winter)).toEqual('2026-01-16')
       expect(isKcDayReached('2026-01-16', new Date('2026-01-15T22:30:00.000Z'))).toEqual(true)
@@ -412,7 +414,9 @@ describe('kennelliittoResults', () => {
     })
 
     it('is the next day for a summer evening instant that is already past midnight in Finland (UTC+3)', () => {
-      const summer = dog(undefined, { group: { date: beforeDayKeys('2026-09-26T21:30:00.000Z'), key: 'k', number: 1 } })
+      const summer = dog(undefined, {
+        group: { date: legacyDayValue('2026-09-26T21:30:00.000Z'), key: 'k', number: 1 },
+      })
 
       expect(kcResultDay(summer)).toEqual('2026-09-27')
       expect(isKcDayReached('2026-09-27', new Date('2026-09-26T21:30:00.000Z'))).toEqual(true)

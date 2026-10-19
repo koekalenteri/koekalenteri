@@ -1,5 +1,5 @@
 import type { JsonDog, JsonDogEvent, JsonRegistration, Patch } from '../types'
-import { beforeDayKeys } from '../test-utils/finnishDays'
+import { legacyDayValue } from '../test-utils/finnishDays'
 import { describeInTimeZone } from '../test-utils/timeZone'
 import {
   legacyDay,
@@ -55,25 +55,25 @@ for (const zone of ['UTC', 'Europe/Helsinki', 'America/New_York', 'Asia/Tokyo'])
 describe('rekeyEventDays', () => {
   const storedEvent = (): Partial<JsonDogEvent> => ({
     classes: [
-      { class: 'ALO', date: beforeDayKeys(SUMMER_MIDNIGHT) },
+      { class: 'ALO', date: legacyDayValue(SUMMER_MIDNIGHT) },
       { class: 'AVO', date: '2026-06-02' },
     ],
-    dates: [{ date: beforeDayKeys(SUMMER_MIDNIGHT), time: 'ap' }],
-    endDate: beforeDayKeys('2026-06-01T21:00:00.000Z'),
-    entryEndDate: beforeDayKeys(END_OF_DAY),
-    entryOrigEndDate: beforeDayKeys('2026-05-10T20:59:59.999Z'),
-    entryStartDate: beforeDayKeys(WINTER_MIDNIGHT),
+    dates: [{ date: legacyDayValue(SUMMER_MIDNIGHT), time: 'ap' }],
+    endDate: legacyDayValue('2026-06-01T21:00:00.000Z'),
+    entryEndDate: legacyDayValue(END_OF_DAY),
+    entryOrigEndDate: legacyDayValue('2026-05-10T20:59:59.999Z'),
+    entryStartDate: legacyDayValue(WINTER_MIDNIGHT),
     kcEvent: {
       classes: [],
-      endDate: beforeDayKeys('2026-06-01T21:00:00.000Z'),
+      endDate: legacyDayValue('2026-06-01T21:00:00.000Z'),
       eventType: 'NOME-B',
-      startDate: beforeDayKeys(SUMMER_MIDNIGHT),
+      startDate: legacyDayValue(SUMMER_MIDNIGHT),
     },
-    qualificationStartDate: beforeDayKeys('2025-08-18T21:00:00.000Z'),
+    qualificationStartDate: legacyDayValue('2025-08-18T21:00:00.000Z'),
     resultsPublished: { ALO: [SUMMER_MIDNIGHT], AVO: true },
-    startDate: beforeDayKeys(SUMMER_MIDNIGHT),
+    startDate: legacyDayValue(SUMMER_MIDNIGHT),
     startNumbersPublished: ['2026-06-01/ap', '2026-06-01T21:00:00.000Z'],
-    stations: [{ date: beforeDayKeys(SUMMER_MIDNIGHT), id: 'post-1', number: 1, tasks: 1 }],
+    stations: [{ date: legacyDayValue(SUMMER_MIDNIGHT), id: 'post-1', number: 1, tasks: 1 }],
   })
 
   it('writes every day of the event as the key of its Finnish day', () => {
@@ -111,9 +111,9 @@ describe('rekeyEventDays', () => {
 
   it('leaves a day it cannot read as it is and says so', () => {
     const event: Partial<JsonDogEvent> = {
-      endDate: beforeDayKeys(SUMMER_MIDNIGHT),
+      endDate: legacyDayValue(SUMMER_MIDNIGHT),
       resultsPublished: ['not-a-dayTx'],
-      startDate: beforeDayKeys('not-a-date'),
+      startDate: legacyDayValue('not-a-date'),
     }
 
     expect(rekeyEventDays(event, legacyDay)).toEqual({ changed: true, unreadable: true })
@@ -122,7 +122,7 @@ describe('rekeyEventDays', () => {
 
   it('takes a patch, whose deleted fields are null and whose lists may hold null', () => {
     const patch: Patch<JsonDogEvent> = {
-      classes: [null, { class: 'ALO', date: beforeDayKeys(SUMMER_MIDNIGHT) }],
+      classes: [null, { class: 'ALO', date: legacyDayValue(SUMMER_MIDNIGHT) }],
       entryEndDate: null,
       startNumbersPublished: { ALO: [null, SUMMER_MIDNIGHT], AVO: null },
     }
@@ -139,15 +139,15 @@ describe('rekeyEventDays', () => {
 
 describe('rekeyRegistrationDays', () => {
   const storedRegistration = (): Partial<JsonRegistration> => ({
-    dates: [{ date: beforeDayKeys(SUMMER_MIDNIGHT), time: 'ap' }],
+    dates: [{ date: legacyDayValue(SUMMER_MIDNIGHT), time: 'ap' }],
     dog: {
       // A browser's local noon of the birth day, as the JSON reviver made of a bare day (KOE-1131).
-      dob: beforeDayKeys('2021-01-01T10:00:00.000Z'),
+      dob: legacyDayValue('2021-01-01T10:00:00.000Z'),
       regNo: 'FI1/21',
       results: [
         {
           class: 'ALO',
-          date: beforeDayKeys('2025-06-01T00:00:00'),
+          date: legacyDayValue('2025-06-01T00:00:00'),
           judge: 'J',
           location: 'L',
           result: 'ALO1',
@@ -156,11 +156,11 @@ describe('rekeyRegistrationDays', () => {
       ],
     },
     // An older copy keyed the start by the UTC day (KOE-1541).
-    group: { date: beforeDayKeys(SUMMER_MIDNIGHT), key: '2026-05-31-ap', number: 1, time: 'ap' },
+    group: { date: legacyDayValue(SUMMER_MIDNIGHT), key: '2026-05-31-ap', number: 1, time: 'ap' },
     qualifyingResults: [
       {
         class: 'ALO',
-        date: beforeDayKeys('0001-01-01T00:00:00'),
+        date: legacyDayValue('0001-01-01T00:00:00'),
         judge: 'J',
         location: 'L',
         official: true,
@@ -171,7 +171,7 @@ describe('rekeyRegistrationDays', () => {
     results: [
       {
         class: 'ALO',
-        date: beforeDayKeys('2025-05-31T21:00:00.000Z'),
+        date: legacyDayValue('2025-05-31T21:00:00.000Z'),
         id: 'm1',
         judge: 'J',
         location: 'L',
@@ -179,7 +179,7 @@ describe('rekeyRegistrationDays', () => {
         type: 'NOME-B',
       },
     ],
-    startGroup: { date: beforeDayKeys(SUMMER_MIDNIGHT), key: '2026-05-31-ap', number: 1, time: 'ap' },
+    startGroup: { date: legacyDayValue(SUMMER_MIDNIGHT), key: '2026-05-31-ap', number: 1, time: 'ap' },
   })
 
   it("writes the entry's days, its starts' keys and the dog's dates as keys", () => {
@@ -217,7 +217,7 @@ describe('rekeyRegistrationDays', () => {
     ['the cancelled list', 'cancelled'],
   ])('keeps the key of %s, which names no day', (_name, key) => {
     const registration: Partial<JsonRegistration> = {
-      group: { date: beforeDayKeys(SUMMER_MIDNIGHT), key, number: 3, time: 'ap' },
+      group: { date: legacyDayValue(SUMMER_MIDNIGHT), key, number: 3, time: 'ap' },
     }
 
     rekeyRegistrationDays(registration, legacyDay)
@@ -227,9 +227,9 @@ describe('rekeyRegistrationDays', () => {
 
   it("removes a birth date that is Kennelliitto's empty date, and keeps one it cannot read", () => {
     const empty: Partial<JsonRegistration> = {
-      dog: { dob: beforeDayKeys('0000-12-31T22:00:00.000Z'), regNo: 'FI1/21' },
+      dog: { dob: legacyDayValue('0000-12-31T22:00:00.000Z'), regNo: 'FI1/21' },
     }
-    const unreadable: Partial<JsonRegistration> = { dog: { dob: beforeDayKeys('31.12.2020'), regNo: 'FI1/21' } }
+    const unreadable: Partial<JsonRegistration> = { dog: { dob: legacyDayValue('31.12.2020'), regNo: 'FI1/21' } }
 
     expect(rekeyRegistrationDays(empty, legacyDay)).toEqual({ changed: true, unreadable: false })
     expect(empty.dog).toEqual({ regNo: 'FI1/21' })
@@ -239,7 +239,7 @@ describe('rekeyRegistrationDays', () => {
 
   it('leaves a group whose day it cannot read, and its key, as they are', () => {
     const registration: Partial<JsonRegistration> = {
-      group: { date: beforeDayKeys('eilen'), key: 'stored', number: 1, time: 'ap' },
+      group: { date: legacyDayValue('eilen'), key: 'stored', number: 1, time: 'ap' },
     }
 
     expect(rekeyRegistrationDays(registration, legacyDay)).toEqual({ changed: false, unreadable: true })
@@ -250,12 +250,12 @@ describe('rekeyRegistrationDays', () => {
 describe('rekeyDogDays', () => {
   it("writes the dog's birth date and results' days as keys", () => {
     const dog: JsonDog = {
-      dob: beforeDayKeys('2021-01-01T00:00:00'),
+      dob: legacyDayValue('2021-01-01T00:00:00'),
       regNo: 'FI1/21',
       results: [
         {
           class: 'ALO',
-          date: beforeDayKeys('2025-06-01T00:00:00'),
+          date: legacyDayValue('2025-06-01T00:00:00'),
           judge: 'J',
           location: 'L',
           result: 'ALO1',
@@ -273,7 +273,7 @@ describe('rekeyDogDays', () => {
 
 describe('withRegistrationDayKeys', () => {
   it('answers a copy with the days as keys and leaves the registration as it was', () => {
-    const registration: Partial<JsonRegistration> = { dates: [{ date: beforeDayKeys(SUMMER_MIDNIGHT), time: 'ap' }] }
+    const registration: Partial<JsonRegistration> = { dates: [{ date: legacyDayValue(SUMMER_MIDNIGHT), time: 'ap' }] }
 
     expect(withRegistrationDayKeys(registration)).toEqual({ dates: [{ date: '2026-06-01', time: 'ap' }] })
     expect(registration).toEqual({ dates: [{ date: SUMMER_MIDNIGHT, time: 'ap' }] })

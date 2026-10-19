@@ -83,8 +83,8 @@ Read `LLM_CONTEXT.md` for the project overview and architecture notes.
 - `dayOf` throws on an instant without a calendar day. Check `hasCalendarDay(instant, zone)` first on
   anything stored or received: the Kennel Club's empty date (year 1) is a valid Date but no day, and
   the accepted years (1100 to 9899) leave room for every step the app takes from an accepted day.
-- Every calendar day a row stores is a `DayKey` (KOE-1547): an event's days (its own, the entry's,
-  the classes', the dates', the posts', the Kennelliitto trial's, the published-day lists), a
+- Every calendar day a row stores is a `DayKey` (KOE-1547): an event's days (its own, the entry's, the
+  classes', the dates', the posts', the Kennelliitto trial's, the published-day lists), a
   registration's days and groups' days, a dog's birth date and results' days, and an organizer stats
   row's key. Rows stored before held instants (a Finnish midnight, the end of a Finnish day, a
   browser's local midnight or noon of a dog's date) or Kennelliitto's stamps; the `store...DaysAsKeys`
@@ -93,8 +93,8 @@ Read `LLM_CONTEXT.md` for the project overview and architecture notes.
   read either, and a request boundary puts what it receives into keys with `rekeyEventDays` and
   `rekeyRegistrationDays` (`src/lib/storedDays.ts`), reading a request with `requestDay` (a key or an
   instant with a zone) and a stored row with `storedDay`. A no-day result date is stored as `''`, a
-  no-day birth date not at all. The browser model still holds each day as the start of its Finnish
-  day (`finnishDay` in `lib/wire.ts`) until it is given keys too.
+  no-day birth date not at all. The browser model still holds each day as the start of its Finnish day
+  (`finnishDay` in `lib/wire.ts`) until it is given keys too.
 - The day key indexes (`gsiSeasonStartDate`, `gsiEventTypeEntryEndDateV2`) are queried with day keys,
   which sort by day as text; the organizer stats rows' upper bound is padded past the event id
   (`yyyy-MM-dd#id`).
@@ -130,14 +130,16 @@ Read `LLM_CONTEXT.md` for the project overview and architecture notes.
 
 ## Data Migrations
 
-- A one-off data migration is an entry in one of the table's migration lists of
-  `src/lambda/RunMigrationFunction/handler.ts` (events, registrations, dogs, organizer stats rows): a
-  `name` plus an idempotent `run(row)` that mutates the row and returns whether it changed (or a
-  `DayRekeying`, which also counts the rows with a day it could not read: `unreadable` in the answer,
-  their ids in the log). Only the tables with a pending migration are read; the registration table
-  an event's rows at a time. A migration that decodes the old stored days does it with `legacyDay`
-  (`legacyStoredDay` in `src/lib/day.ts`), which never narrows: the hash below covers the migration's
-  own text, not a helper's.
+- A one-off data migration is an entry in one of the migration lists of
+  `src/lambda/RunMigrationFunction/handler.ts`, one per table (events, registrations, dogs, organizer
+  stats rows): a `name` plus an idempotent `run(row)` that mutates the row and returns whether it
+  changed, or a `DayRekeying`, which also says the row held a day it could not read. Only the tables
+  with a pending migration are read, and the registration table is read an event's rows at a time. A
+  migration that left values it could not read answers with `unreadable`, names the rows in the log
+  and is not recorded as applied, so the next deploy runs it again; the deploy step warns about it. A
+  migration that decodes the old stored days does it with `legacyDay` (`legacyStoredDay` in
+  `src/lib/day.ts`), which never narrows: the hash below covers the migration's own text, not a
+  helper's.
 - The deploy runs it, nobody runs it by hand: after `sam deploy`, the `Run data migrations` step of
   `deploy-backend` in `release.yml` invokes the function directly (`aws lambda invoke`, no
   `requestContext`, so no Cognito check) and prints the counters. A failed run fails the job before
@@ -146,16 +148,18 @@ Read `LLM_CONTEXT.md` for the project overview and architecture notes.
 - Applied migrations are recorded in the data version table (collection `migrations`, scope = the
   migration's name, fields `appliedAt`, `count` and `hash`; every environment has its own table). A
   deploy runs only the migrations whose row is missing or whose stored `hash` differs from the hash of
-  `run.toString()`, and with none pending it reads the registry once and never touches a table. So an applied migration does not run again, and **a changed migration body reruns by
-  itself**. Two limits are accepted: the hashed text is the bundled code, so an esbuild or dependency
-  change can alter it without a source change and rerun a migration once (harmless, migrations are
-  idempotent); and a change inside a helper the migration calls (`getEventSeason`, say) does not alter
-  it, so a migration whose behaviour changes through a helper **needs a new name**.
+  `run.toString()`, and with none pending it reads the registry once and never touches a table. So an
+  applied migration does not run again, and **a changed migration body reruns by itself**. Two limits
+  are accepted: the hashed text is the bundled code, so an esbuild or dependency change can alter it
+  without a source change and rerun a migration once (harmless, migrations are idempotent); and a
+  change inside a helper the migration calls (`getEventSeason`, say) does not alter it, so a migration
+  whose behaviour changes through a helper **needs a new name**.
 - Each modified row is written with the condition that its `updatedAt` is still the one read (or that
-  it had none), so a secretary's save is never overwritten: on a conflict the row is read again,
-  migrated again and retried, at most three attempts. If they run out the invocation fails (non-200),
-  records nothing, and the next deploy picks the migrations up. A mark never overwrites an earlier one
-  with the same hash.
+  it had none; a dog row, which has none, with its dates as read, and an organizer stats row moved in
+  a transaction a concurrent count cancels), so a secretary's save is never overwritten: on a conflict
+  the row is read again, migrated again and retried, at most three attempts. If they run out the
+  invocation fails (non-200), records nothing, and the next deploy picks the migrations up. A mark
+  never overwrites an earlier one with the same hash.
 - `POST /admin/migrate` (admin-only) stays a forced run of every migration, for a correction run
   (a wrong season, say), and leaves the registry as it is when the hashes match. A migration must therefore stay safe to re-run.
 - Copying events from prod into dev or test never copies the data version table, so the receiving

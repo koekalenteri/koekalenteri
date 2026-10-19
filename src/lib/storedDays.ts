@@ -47,50 +47,54 @@ export interface DayRekeying {
   unreadable: boolean
 }
 
-type Nullable<T> = T | null | undefined
+/** A field as a stored row, a request or a patch may hold it: a patch deletes a field with null. */
+type OrNull<T> = T | null
+
+/** An element of a list a patch holds, or an argument, which may also be absent. */
+type Nullable<T> = OrNull<T> | undefined
 
 /** A row part holding one day, as a stored row, a request or a patch has it. */
-type DatedPart = Nullable<{ date?: Nullable<DayKey> }>
+type DatedPart = Nullable<{ date?: OrNull<DayKey> }>
 
 /** A published-days list as stored, or as a patch holds it. */
 type DayList = Array<Nullable<string>>
 
-type DayScope = Nullable<boolean | DayList | Partial<Record<string, Nullable<boolean | DayList>>>>
+type DayScope = OrNull<boolean | DayList | Partial<Record<string, OrNull<boolean | DayList>>>>
 
 /** The day fields of an event, as a stored row, a request body or a patch holds them. */
 interface EventDays {
-  startDate?: Nullable<DayKey>
-  endDate?: Nullable<DayKey>
-  entryStartDate?: Nullable<DayKey>
-  entryEndDate?: Nullable<DayKey>
-  entryOrigEndDate?: Nullable<DayKey>
-  qualificationStartDate?: Nullable<DayKey>
-  classes?: Nullable<DatedPart[]>
-  dates?: Nullable<DatedPart[]>
-  stations?: Nullable<DatedPart[]>
-  kcEvent?: Nullable<{ startDate?: Nullable<DayKey>; endDate?: Nullable<DayKey> }>
+  startDate?: OrNull<DayKey>
+  endDate?: OrNull<DayKey>
+  entryStartDate?: OrNull<DayKey>
+  entryEndDate?: OrNull<DayKey>
+  entryOrigEndDate?: OrNull<DayKey>
+  qualificationStartDate?: OrNull<DayKey>
+  classes?: OrNull<DatedPart[]>
+  dates?: OrNull<DatedPart[]>
+  stations?: OrNull<DatedPart[]>
+  kcEvent?: OrNull<{ startDate?: OrNull<DayKey>; endDate?: OrNull<DayKey> }>
   startNumbersPublished?: DayScope
   resultsPublished?: DayScope
 }
 
-type DatedGroup = Nullable<{ date?: Nullable<DayKey>; key?: Nullable<string>; time?: Nullable<RegistrationTime> }>
+type DatedGroup = OrNull<{ date?: OrNull<DayKey>; key?: OrNull<string>; time?: OrNull<RegistrationTime> }>
 
-type DatedResult = Nullable<{ date?: Nullable<DayKey | ''> }>
+type DatedResult = Nullable<{ date?: OrNull<DayKey | ''> }>
 
 /** The day fields of a dog, as the dog table and a registration's copy of it hold them. */
 interface DogDays {
-  dob?: Nullable<DayKey>
-  results?: Nullable<DatedResult[]>
+  dob?: OrNull<DayKey>
+  results?: OrNull<DatedResult[]>
 }
 
 /** The day fields of a registration, as a stored row or a request body holds them. */
 interface RegistrationDays {
-  dates?: Nullable<DatedPart[]>
+  dates?: OrNull<DatedPart[]>
   group?: DatedGroup
   startGroup?: DatedGroup
-  dog?: Nullable<DogDays>
-  qualifyingResults?: Nullable<DatedResult[]>
-  results?: Nullable<DatedResult[]>
+  dog?: OrNull<DogDays>
+  qualifyingResults?: OrNull<DatedResult[]>
+  results?: OrNull<DatedResult[]>
 }
 
 const EVENT_DAY_FIELDS = [
@@ -139,7 +143,7 @@ const rekeyScopeList = (list: DayList, decode: DayDecode, state: DayRekeying) =>
 const rekeyScope = (scope: DayScope, decode: DayDecode, state: DayRekeying): DayScope => {
   if (Array.isArray(scope)) return rekeyScopeList(scope, decode, state)
   if (!scope || typeof scope !== 'object') return scope
-  const perClass: Partial<Record<string, Nullable<boolean | DayList>>> = {}
+  const perClass: Partial<Record<string, OrNull<boolean | DayList>>> = {}
   for (const [eventClass, classScope] of Object.entries(scope)) {
     perClass[eventClass] = Array.isArray(classScope) ? rekeyScopeList(classScope, decode, state) : classScope
   }
@@ -172,7 +176,7 @@ export const rekeyEventDays = (event: EventDays, decode: DayDecode): DayRekeying
  * A group's day as a key, and a start's key named by that day and the time (KOE-1541): a row an older
  * copy wrote carries the UTC day in its key. Reserve and cancelled keep theirs.
  */
-const rekeyGroup = (group: DatedGroup, decode: DayDecode, state: DayRekeying) => {
+const rekeyGroup = (group: DatedGroup | undefined, decode: DayDecode, state: DayRekeying) => {
   if (!group?.date) return
   const day = decode(group.date)
   if (day === undefined) {

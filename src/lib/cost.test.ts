@@ -1,7 +1,7 @@
 import type { BreedCode } from '../types'
 import type { DogEventCost, DogEventCostSegment, MinimalEventForCost, MinimalRegistrationForCost } from '../types/Cost'
 import { startOfDay } from 'date-fns'
-import { beforeDayKeys } from '../test-utils/finnishDays'
+import { legacyDayValue } from '../test-utils/finnishDays'
 import {
   additionalCost,
   calculateCost,
@@ -272,9 +272,12 @@ describe('getEarlyBirdEndDate', () => {
     ['the Date the browser holds', new Date('2025-12-31T22:00:00.000Z')],
     ['a UTC midnight, read as its Finnish day', new Date('2026-01-01T00:00:00.000Z')],
   ])('should return the end date as entryStartDate + (days - 1), from %s', (_name, entryStartDate) => {
-    const result = getEarlyBirdEndDate(entryStartDate instanceof Date ? { entryStartDate } : { entryStartDate }, {
-      earlyBird: { cost: 40, days: 5 },
-    })
+    const result = getEarlyBirdEndDate(
+      { entryStartDate },
+      {
+        earlyBird: { cost: 40, days: 5 },
+      }
+    )
     expect(result?.toISOString()).toBe('2026-01-04T22:00:00.000Z')
   })
 
@@ -282,7 +285,7 @@ describe('getEarlyBirdEndDate', () => {
     // 27.3.2026 00:00 Finnish time plus four Finnish days is 31.3. 00:00, 21:00Z in summer time; a
     // 24-hour step in the lambda's zone (UTC) gave 22:00Z, an hour into the last day.
     const result = getEarlyBirdEndDate(
-      { entryStartDate: beforeDayKeys('2026-03-26T22:00:00.000Z') },
+      { entryStartDate: legacyDayValue('2026-03-26T22:00:00.000Z') },
       {
         earlyBird: { cost: 40, days: 5 },
       }
@@ -302,7 +305,7 @@ describe('getEarlyBirdEndDate', () => {
 
   it('should work when entryStartDate is the instant a row stored before KOE-1547 holds', () => {
     const result = getEarlyBirdEndDate(
-      { entryStartDate: beforeDayKeys('2025-12-31T22:00:00.000Z') },
+      { entryStartDate: legacyDayValue('2025-12-31T22:00:00.000Z') },
       {
         earlyBird: { cost: 40, days: 3 },
       }
@@ -545,7 +548,7 @@ describe('calculateCost', () => {
         earlyBird: { cost: 40, days: 5 },
         normal: 50,
       },
-      entryStartDate: beforeDayKeys(startDate.toISOString()),
+      entryStartDate: legacyDayValue(startDate.toISOString()),
     }
     const registration = {
       ...makeRegistration(false, false, '110', undefined, earlyDate),

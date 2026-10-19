@@ -13,7 +13,8 @@ import type {
 } from '../../types/Stats'
 import type { OrganizerStatsEvent, StatDeltas } from './repositories/eventStatsRepository'
 import crypto from 'node:crypto'
-import { storedYear } from '../../lib/event'
+import { dayStart, isDayKey, TIME_ZONE } from '../../lib/day'
+import { storedDayKey, storedYear } from '../../lib/event'
 import { isMember, isStarter } from '../../lib/registration'
 import { isTransactionCanceled } from './api-gw'
 import {
@@ -376,19 +377,39 @@ export async function moveOrganizerEventStats(
   for (let attempt = 1; attempt <= MOVE_ORGANIZER_STATS_MAX_ATTEMPTS; attempt++) {
     // No record yet means no registrations have been counted for this event; the first
     // registration will simply create it under the new key.
-    const stats = await readOrganizerEventStatsRow(existing)
-    if (!stats) return
+    const found = await readOrganizerStatsSource(existing)
+    if (!found || isSameOrganizerStatsRow(found.source, updated)) return
 
     try {
       // One transaction, because a half-finished move either double-counts the event in the
       // organizer's totals or drops it, and no scheduled job would notice either.
-      await moveOrganizerEventStatsRow(existing, updated, stats, new Date().toISOString())
+      await moveOrganizerEventStatsRow(found.source, updated, found.stats, new Date().toISOString())
       return
     } catch (error) {
       if (!isTransactionCanceled(error) || attempt === MOVE_ORGANIZER_STATS_MAX_ATTEMPTS) throw error
       await waitForStatsRetry(attempt)
     }
   }
+}
+
+/**
+ * The start an organizer stats row may be keyed by besides the event's own while KOE-1547's migrations
+ * run: the instant a day key's Finnish day starts at (the form a row was counted under before), or the
+ * day key of a stored instant. The event and its stats rows are migrated one after the other, so for
+ * a while either one may still hold the old form.
+ */
+const otherStoredStart = (startDate: string): string | undefined =>
+  isDayKey(startDate) ? dayStart(startDate, TIME_ZONE).toISOString() : storedDayKey(startDate)
+
+/** The event's organizer stats row, under the event's own start or under the other form of it. */
+const readOrganizerStatsSource = async (existing: OrganizerStatsEvent) => {
+  const stats = await readOrganizerEventStatsRow(existing)
+  if (stats) return { source: existing, stats }
+  const other = otherStoredStart(existing.startDate)
+  if (!other) return undefined
+  const source = { ...existing, startDate: other }
+  const legacy = await readOrganizerEventStatsRow(source)
+  return legacy ? { source, stats: legacy } : undefined
 }
 
 /**

@@ -1,8 +1,9 @@
 import type { JsonDog } from '../../../types'
-import { beforeDayKeys } from '../../../test-utils/finnishDays'
+import { legacyDayValue } from '../../../test-utils/finnishDays'
 import { uniqueId } from '../../test-utils/integration'
 import CustomDynamoClient from '../../utils/CustomDynamoClient'
 import { readDog, writeMigratedDog } from './dogRepository'
+import { moveOrganizerEventStatsRow, organizerStatsKey, readOrganizerEventStatsRow } from './eventStatsRepository'
 import { readRegistration, readRegistrationEventIds, writeMigratedRegistration } from './registrationRepository'
 
 const conditionFailure = expect.objectContaining({ name: 'ConditionalCheckFailedException' })
@@ -11,6 +12,7 @@ const conditionFailure = expect.objectContaining({ name: 'ConditionalCheckFailed
 describe('the conditional writes of a data migration against DynamoDB-local', () => {
   const registrations = new CustomDynamoClient('EventRegistrationTable')
   const dogs = new CustomDynamoClient('DogTable')
+  const stats = new CustomDynamoClient('EventStatsTable')
 
   const registration = (eventId: string, updatedAt?: string) => ({
     dates: [{ date: '2026-05-31T21:00:00.000Z', time: 'ap' }],
@@ -63,11 +65,51 @@ describe('the conditional writes of a data migration against DynamoDB-local', ()
     await dogs.write(dog)
     // The rows as they were read, with the days a row stored before KOE-1547 holds.
     const read: JsonDog = JSON.parse(JSON.stringify(dog))
-    const stale: JsonDog = { ...read, dob: beforeDayKeys('2020-01-01T00:00:00') }
+    const stale: JsonDog = { ...read, dob: legacyDayValue('2020-01-01T00:00:00') }
 
     await expect(writeMigratedDog(stale, { set: { dob: '2020-01-01' } })).rejects.toEqual(conditionFailure)
     await writeMigratedDog(read, { set: { dob: '2021-01-01' } })
 
     await expect(readDog(dog.regNo)).resolves.toMatchObject({ dob: '2021-01-01' })
+  })
+
+  it("removes a dog's birth date that is Kennelliitto's empty date", async () => {
+    const dog: JsonDog = { dob: legacyDayValue('0001-01-01T00:00:00'), regNo: uniqueId('FI'), results: [] }
+    await dogs.write(dog)
+
+    await writeMigratedDog(dog, { remove: ['dob'] })
+
+    await expect(readDog(dog.regNo)).resolves.toEqual({ regNo: dog.regNo, results: [] })
+  })
+
+  // KOE-1547: an organizer stats row counted before is keyed by the instant the start was stored as;
+  // a registration counted after the event's migration may have opened the row of the day key already.
+  it('moves an organizer stats row keyed by an instant onto the row of its day, adding the counters', async () => {
+    const organizerId = uniqueId('org')
+    const eventId = uniqueId('event')
+    const from = { id: eventId, organizer: { id: organizerId }, startDate: '2026-05-31T21:00:00.000Z' }
+    const to = { ...from, startDate: '2026-06-01' }
+    const instantRow = {
+      ...organizerStatsKey(from),
+      count: 3,
+      date: from.startDate,
+      organizerId,
+      paidAmount: 100,
+      updatedAt: 'read',
+    }
+    await stats.batchWrite([
+      instantRow,
+      { ...organizerStatsKey(to), count: 1, date: to.startDate, organizerId, paidAmount: 50, updatedAt: 'counted' },
+    ])
+
+    await moveOrganizerEventStatsRow(from, to, instantRow, 'moved')
+
+    await expect(readOrganizerEventStatsRow(from)).resolves.toBeUndefined()
+    await expect(readOrganizerEventStatsRow(to)).resolves.toMatchObject({
+      count: 4,
+      date: '2026-06-01',
+      paidAmount: 150,
+      updatedAt: 'moved',
+    })
   })
 })

@@ -184,6 +184,9 @@ jobs:
           jq -e '.statusCode == 200' migration-result.json > /dev/null \
             || { echo "::error::Data migrations failed"; exit 1; }
           jq -r '.body | fromjson | if length == 0 then "No migrations pending" else .[] | "\(.name): \(.count) rows" + (if .unreadable then ", \(.unreadable) unreadable" else "" end) end' migration-result.json
+          # A migration that left values it could not read is not recorded as applied: it runs again on
+          # the next deploy, and the function's log names the rows. A warning, not a failure.
+          jq -r '.body | fromjson | .[] | select(.unreadable) | "::warning::\(.name) left \(.unreadable) rows with a value it could not read; it runs again on the next deploy"' migration-result.json
 
   deploy-frontend:
     # After the backend, never beside it: the Amplify build reads its configuration from environment

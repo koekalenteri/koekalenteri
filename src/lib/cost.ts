@@ -6,14 +6,12 @@ import type {
   DogEventCost,
   DogEventCostKey,
   DogEventCostSegment,
-  JsonPublicConfirmedEvent,
   Language,
   MinimalEventForCost,
   MinimalRegistrationForCost,
   MinimalRegistrationForMembership,
   PaymentBalance,
   PaymentBalanceRegistration,
-  PublicConfirmedEvent,
 } from '../types'
 import { addDays, dayStart, TIME_ZONE } from './day'
 import { storedDayKey } from './event'
@@ -36,6 +34,9 @@ const entryDayStart = (entryStartDate: Date | string, days: number): Date | unde
  */
 const earlyBirdEndDate = (entryStartDate: Date | string, days: number) => entryDayStart(entryStartDate, days - 1)
 
+/** An event's entry start in any form a reader holds it: a stored key or instant, or the browser's Date. */
+type EntryStartHolder = { entryStartDate?: Date | string }
+
 /**
  * Whether the price has an early-bird rate that applies to anyone: one that counts no days (the add
  * dialog starts it at 0) has no window, so no entry gets it and the entry start decides nothing.
@@ -45,16 +46,13 @@ export const hasEarlyBirdWindow = (
 ): cost is Pick<DogEventCost, 'earlyBird'> & { earlyBird: NonNullable<DogEventCost['earlyBird']> } =>
   (cost.earlyBird?.days ?? 0) > 0
 
-export const getEarlyBirdEndDate = (
-  event: Partial<Pick<PublicConfirmedEvent, 'entryStartDate'> | Pick<JsonPublicConfirmedEvent, 'entryStartDate'>>,
-  cost: Pick<DogEventCost, 'earlyBird'>
-) =>
+export const getEarlyBirdEndDate = (event: EntryStartHolder, cost: Pick<DogEventCost, 'earlyBird'>) =>
   hasEarlyBirdWindow(cost) && event.entryStartDate
     ? earlyBirdEndDate(event.entryStartDate, cost.earlyBird.days)
     : undefined
 
 export const getEarlyBirdDates = (
-  event: Partial<Pick<PublicConfirmedEvent, 'entryStartDate'> | Pick<JsonPublicConfirmedEvent, 'entryStartDate'>>,
+  event: EntryStartHolder,
   cost: Pick<DogEventCost, 'earlyBird'>
 ): { start?: Date; end?: Date } => {
   if (hasEarlyBirdWindow(cost) && event.entryStartDate) {
@@ -299,7 +297,7 @@ export const getCostSegmentName = (segment: DogEventCostSegment | 'legacy'): Cos
 export const getCostSegmentNameOptions = (
   segment: DogEventCostSegment,
   cost: DogEventCost,
-  event: Partial<Pick<PublicConfirmedEvent, 'entryStartDate'> | Pick<JsonPublicConfirmedEvent, 'entryStartDate'>>,
+  event: EntryStartHolder,
   breedCode: BreedCode | undefined,
   language: Language
 ): Record<string, unknown> => {

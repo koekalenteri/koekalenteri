@@ -1,11 +1,11 @@
 import type { DayRekeying } from '../../lib/storedDays'
 import type { JsonDog, JsonDogEvent, JsonRegistration, RegistrationClass } from '../../types'
 import type { JsonEventStatsItem } from '../../types/Stats'
-import type { OrganizerStatsEvent } from '../lib/repositories/eventStatsRepository'
 import { createHash } from 'node:crypto'
 import { getEventSeason } from '../../lib/event'
 import { legacyDay, rekeyDogDays, rekeyEventDays, rekeyRegistrationDays } from '../../lib/storedDays'
 import { mapWithConcurrency } from '../../lib/utils'
+import { isConditionalCheckFailure, isTransactionCanceled } from '../lib/api-gw'
 import { authorizeAdmin } from '../lib/auth'
 import { retryOnConditionFailure } from '../lib/conditionalWrite'
 import { markMigrationApplied, readAppliedMigrations } from '../lib/dataVersions'
@@ -16,6 +16,8 @@ import { readAllDogs, readDog, writeMigratedDog } from '../lib/repositories/dogR
 import { readAllEvents, readEvent, writeMigratedEvent } from '../lib/repositories/eventRepository'
 import {
   moveOrganizerEventStatsRow,
+  organizerStatsKey,
+  organizerStatsRowEvent,
   readAllOrganizerEventStats,
   readOrganizerEventStatsRow,
 } from '../lib/repositories/eventStatsRepository'
@@ -131,26 +133,20 @@ const dogMigrations: Migration<JsonDog>[] = [
   },
 ]
 
-/** An organizer stats row's sort key, `<start day>#<event id>`, split. */
-const splitOrganizerStatsKey = (sk: string) => {
-  const at = sk.indexOf('#')
-  return at < 0 ? undefined : { day: sk.slice(0, at), eventId: sk.slice(at + 1) }
-}
-
 const organizerStatsMigrations: Migration<JsonEventStatsItem>[] = [
   {
     // KOE-1547: an organizer's event row is keyed by the event's start day; a row counted before the
     // event's days were keys is keyed by the instant, and registrations counted after the migration
     // would open a second row beside it. The row is moved to the key of the day.
     name: 'storeOrganizerStatsDaysAsKeys',
+    // The move writes the row's `date` from the key it moves to.
     run: (row) => {
-      const key = row.SK ? splitOrganizerStatsKey(row.SK) : undefined
-      if (!key) return false
-      const day = legacyDay(key.day)
+      const event = organizerStatsRowEvent(row)
+      if (!event) return false
+      const day = legacyDay(event.startDate)
       if (!day) return { changed: false, unreadable: true }
-      if (day === key.day) return false
-      row.SK = `${day}#${key.eventId}`
-      row.date = day
+      if (day === event.startDate) return false
+      row.SK = organizerStatsKey({ ...event, startDate: day }).SK
       return true
     },
   },
@@ -197,6 +193,8 @@ interface MigratedTable<T extends object> {
   write: (row: ReadRow<T>) => Promise<void>
   /** Names the row in a conflict and in the log. */
   id: (row: T) => string
+  /** Whether a failed write means the row moved meanwhile; a failed condition unless said otherwise. */
+  isConflict?: (error: unknown) => boolean
 }
 
 /**
@@ -217,7 +215,7 @@ const bumpedChanges = <T extends object>(row: ReadRow<T>) => {
 
 const eventTable: MigratedTable<JsonDogEvent> = {
   id: (event) => event.id,
-  loaders: async () => [() => readAllEvents(true)],
+  loaders: () => Promise.resolve([() => readAllEvents(true)]),
   migrations: eventMigrations,
   name: 'event',
   reread: ({ item }) => readEvent(item.id, true),
@@ -238,7 +236,7 @@ const registrationTable: MigratedTable<JsonRegistration> = {
 
 const dogTable: MigratedTable<JsonDog> = {
   id: (dog) => dog.regNo,
-  loaders: async () => [readAllDogs],
+  loaders: () => Promise.resolve([readAllDogs]),
   migrations: dogMigrations,
   name: 'dog',
   reread: ({ item }) => readDog(item.regNo),
@@ -249,28 +247,22 @@ const dogTable: MigratedTable<JsonDog> = {
   },
 }
 
-/** The event an organizer stats row counts, as its key names it. */
-const organizerStatsEvent = (row: JsonEventStatsItem): OrganizerStatsEvent | undefined => {
-  const key = row.SK ? splitOrganizerStatsKey(row.SK) : undefined
-  const organizerId = row.organizerId ?? row.PK?.slice('ORG#'.length)
-  if (!key || !organizerId) return undefined
-  return { id: key.eventId, organizer: { id: organizerId }, startDate: key.day }
-}
-
 const organizerStatsTable: MigratedTable<JsonEventStatsItem> = {
   id: (row) => `${row.PK}/${row.SK}`,
-  loaders: async () => [readAllOrganizerEventStats],
+  // The move is a transaction: a registration counted on the row since it was read cancels it.
+  isConflict: (error) => isConditionalCheckFailure(error) || isTransactionCanceled(error),
+  loaders: () => Promise.resolve([() => readAllOrganizerEventStats()]),
   migrations: organizerStatsMigrations,
   name: 'organizer stats',
   reread: async ({ before }) => {
-    const event = organizerStatsEvent(before)
+    const event = organizerStatsRowEvent(before)
     return event && readOrganizerEventStatsRow(event)
   },
   // A move: the counters are added to the row of the day's key, which a registration counted since
   // the migration may have opened already, and the old row is deleted on condition it is as read.
   write: async ({ before, item }) => {
-    const from = organizerStatsEvent(before)
-    const to = organizerStatsEvent(item)
+    const from = organizerStatsRowEvent(before)
+    const to = organizerStatsRowEvent(item)
     if (from && to) await moveOrganizerEventStatsRow(from, to, before, new Date().toISOString())
   },
 }
@@ -289,6 +281,7 @@ const writeRow = <T extends object>(table: MigratedTable<T>, row: ReadRow<T>, pe
   retryOnConditionFailure<ReadRow<T> | undefined, DayRekeying[]>({
     exhausted: () => new LambdaError(409, `${table.name} ${table.id(row.item)} kept changing while it was migrated`),
     initial: row,
+    isConflict: table.isConflict,
     maxAttempts: MAX_WRITE_ATTEMPTS,
     reread: async () => {
       const fresh = await table.reread(row)
@@ -369,8 +362,13 @@ const pendingRun = <T extends object>(
   return async () => {
     const results = await migrateTable(table, pending)
     // Only after every write of the table went through: a failed run records nothing and the next one
-    // starts over.
-    await Promise.all(results.map(({ count, name }, index) => markMigrationApplied(name, count, pending[index].hash)))
+    // starts over. A migration that left values it could not read is not recorded either, so the next
+    // deploy runs it again (it changes nothing it changed already) and reports them again.
+    await Promise.all(
+      results.map(({ count, name, unreadable }, index) =>
+        unreadable ? undefined : markMigrationApplied(name, count, pending[index].hash)
+      )
+    )
     return results
   }
 }

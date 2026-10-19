@@ -1,6 +1,6 @@
 import type { JsonDog, JsonTestResult } from '../../../types'
 import { vi } from 'vitest'
-import { beforeDayKeys } from '../../../test-utils/finnishDays'
+import { legacyDayValue } from '../../../test-utils/finnishDays'
 
 const mockRead = vi.fn()
 const mockWrite = vi.fn()
@@ -114,7 +114,7 @@ describe('dogRepository', () => {
     const changes = { set: { dob: '2021-01-01' as const } }
 
     await writeMigratedDog(
-      { dob: beforeDayKeys('2021-01-01T00:00:00'), regNo: 'FI12345/24', results: [result] },
+      { dob: legacyDayValue('2021-01-01T00:00:00'), regNo: 'FI12345/24', results: [result] },
       changes
     )
 

@@ -47,18 +47,21 @@ import { isObject, unique, uniqueDate } from './utils'
 
 export const isValidForEntry = (state?: EventState) => !['draft', 'tentative', 'cancelled'].includes(state ?? '')
 
-/** A day as stored (a yyyy-MM-dd key or an ISO instant), as the typed boundary hands an instant over (a Date), or not known. */
-type DayInput = Date | string | undefined
+/** A day as stored (a yyyy-MM-dd key or an ISO instant), or as the typed boundary hands an instant over (a Date). */
+type StoredDay = Date | string
+
+/** A stored day, or not known. */
+type DayInput = StoredDay | undefined
 
 /**
  * What the entry and progress questions read of an event: its days in any form a reader may hold them
  * (a stored key, an instant on a row stored before KOE-1547, the browser's Date), and its state.
  */
 type EventVitals = {
-  startDate?: DayInput
-  endDate?: DayInput
-  entryStartDate?: DayInput
-  entryEndDate?: DayInput
+  startDate?: StoredDay
+  endDate?: StoredDay
+  entryStartDate?: StoredDay
+  entryEndDate?: StoredDay
   state?: EventState
 }
 

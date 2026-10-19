@@ -103,6 +103,25 @@ export const organizerStatsKey = (event: OrganizerStatsEvent) => ({
   SK: `${event.startDate}#${event.id}`,
 })
 
+/**
+ * The event an organizer stats row counts, as its key names it: the organizer of the partition, and the
+ * start day and the event of the sort key (`<start day>#<event id>`). The start is the event's start as
+ * it was stored when the row was keyed, a day key or, for a row counted before KOE-1547, an instant.
+ * Undefined for a row whose key names no organizer or no event.
+ */
+export const organizerStatsRowEvent = (
+  row: Partial<Pick<JsonEventStatsItem, 'PK' | 'SK'>>
+): OrganizerStatsEvent | undefined => {
+  if (!row.PK?.startsWith(STATS_KEY_PREFIX.organizer) || !row.SK) return undefined
+  const at = row.SK.indexOf('#')
+  if (at < 0) return undefined
+  return {
+    id: row.SK.slice(at + 1),
+    organizer: { id: row.PK.slice(STATS_KEY_PREFIX.organizer.length) },
+    startDate: row.SK.slice(0, at),
+  }
+}
+
 /** Whether the two versions of an event keep their organizer stats in the same row. */
 export const isSameOrganizerStatsRow = (a: OrganizerStatsEvent, b: OrganizerStatsEvent) => {
   const keyA = organizerStatsKey(a)
