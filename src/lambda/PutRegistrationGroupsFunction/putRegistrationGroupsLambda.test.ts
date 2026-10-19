@@ -7,7 +7,6 @@ import {
 } from '../../__mockData__/registrations'
 import { formatDate } from '../../i18n/dates'
 import { eventRegistrationDateKey } from '../../lib/event'
-import { expectConsoleOutput } from '../../test-utils/consoleGuard'
 import { finnishDayOf, legacyDayValue } from '../../test-utils/finnishDays'
 import { httpError } from '../lib/lambda'
 import { deliverToEntrant, everyEntrantWatching } from '../test-utils/entrantPages'
@@ -266,51 +265,6 @@ describe('putRegistrationGroupsLambda', () => {
     )
     expect(mockWriteRegistrationFields).not.toHaveBeenCalled()
     expect(mockClearWorkflowLock).not.toHaveBeenCalled()
-  })
-
-  // KOE-1547: a day a stored row holds an hour off reads as one day here and as another in its
-  // migration; a move now would leave the event and its entries on different days, so it is refused
-  // until the migration has run. The fixtures' exact Finnish midnights are the same day either way, and
-  // the other tests move them as usual.
-  describe('a stored row holding a day an hour off', () => {
-    const reserveMove = (id: string | undefined) => [{ group: { key: 'reserve' }, id }]
-
-    it('refuses a move in an event holding one, before taking the lock', async () => {
-      expectConsoleOutput('request deferred')
-      const event = JSON.parse(JSON.stringify(eventWithParticipantsInvited))
-      authorizeWithMemberOfMock.mockResolvedValueOnce({ memberOf: [], user: mockUser })
-      mockReadEvent.mockResolvedValueOnce({ ...event, startDate: '2025-12-12T21:00:00.000Z' })
-
-      const res = await putRegistrationGroupsLambda(
-        constructAPIGwEvent(reserveMove('testInvited6'), { pathParameters: { eventId: event.id } })
-      )
-
-      expect(res.statusCode).toBe(503)
-      expect(mockWriteWorkflowLock).not.toHaveBeenCalled()
-      expect(mockReadEventRegistrations).not.toHaveBeenCalled()
-      expectNothingWritten()
-    })
-
-    it('refuses a move when an entry of the event holds one, and releases the lock', async () => {
-      expectConsoleOutput('request deferred')
-      const event = JSON.parse(JSON.stringify(eventWithParticipantsInvited))
-      authorizeWithMemberOfMock.mockResolvedValueOnce({ memberOf: [], user: mockUser })
-      mockReadEvent.mockResolvedValueOnce(event)
-      const [first, ...rest] = structuredClone(jsonRegistrationsToEventWithParticipantsInvited)
-      mockReadEventRegistrations.mockResolvedValueOnce([
-        { ...first, dates: [{ date: '2025-12-12T21:00:00.000Z', time: 'ap' }] },
-        ...rest,
-      ])
-
-      const res = await putRegistrationGroupsLambda(
-        constructAPIGwEvent(reserveMove(first.id), { pathParameters: { eventId: event.id } })
-      )
-
-      expect(res.statusCode).toBe(503)
-      expect(mockClearWorkflowLock).toHaveBeenCalledTimes(1)
-      expect(mockWriteRegistrationFields).not.toHaveBeenCalled()
-      expect(mockWriteEventFields).not.toHaveBeenCalled()
-    })
   })
 
   it('rejects moves from multiple classes before applying any registration changes', async () => {

@@ -7,10 +7,9 @@ import {
   isAdminRegistrationOperationField,
   withoutRegistrationMoney,
 } from '../../lib/registration'
-import { rekeyRegistrationDays, storedRegistrationDays } from '../../lib/storedDays'
+import { legacyRegistrationDays, rekeyRegistrationDays } from '../../lib/storedDays'
 import { getOrigin } from '../lib/api-gw'
 import { authorizeWithMemberOf } from '../lib/auth'
-import { refuseDaysAwaitingMigration } from '../lib/dayMigration'
 import {
   assertRegistrationEmailsNotSuppressed,
   normalizeRegistrationEmails,
@@ -77,7 +76,7 @@ const saveAdminRegistration = async (
   { timestamp, user }: AdminRegistrationRequest
 ) => {
   // Days are stored as keys (KOE-1547); a browser loaded before that sends instants.
-  rekeyRegistrationDays(data, storedRegistrationDays)
+  rekeyRegistrationDays(data, legacyRegistrationDays)
   data.modifiedAt = timestamp
   data.modifiedBy = user.name
   data.updatedAt = timestamp
@@ -101,10 +100,9 @@ const updateAdminRegistration = async (
   if (!operationRequest.eventId || !operationRequest.id) {
     throw httpError(400, { message: 'Bad request: PATCH requires eventId and id' })
   }
-  const confirmedEvent = await getAuthorizedEvent<JsonConfirmedEvent>(user, memberOf, operationRequest.eventId)
+  await getAuthorizedEvent<JsonConfirmedEvent>(user, memberOf, operationRequest.eventId)
 
   const { data, existing } = await applyAdminRegistrationOperations(operationRequest)
-  refuseDaysAwaitingMigration({ event: confirmedEvent, registrations: [existing] })
   const { groupPatches, savedData } = await saveAdminRegistration(data, existing, request)
 
   await finalizeRegistrationUpdate({ existing, groupPatches, origin, registration: savedData, user })
@@ -128,7 +126,6 @@ const createAdminRegistration = async (body: Patch<JsonRegistration>, request: A
   normalizeRegistrationEmails(registration)
 
   const confirmedEvent = await getAuthorizedEvent<JsonConfirmedEvent>(user, memberOf, registration.eventId ?? '')
-  refuseDaysAwaitingMigration({ event: confirmedEvent })
 
   const retried = await completeDuplicateRegistration({
     auditMessage: CREATED_AUDIT_MESSAGE,

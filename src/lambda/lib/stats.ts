@@ -394,8 +394,8 @@ const HOUR_MS = 3_600_000
  * instant its Finnish day starts at, and the instants an hour either side of it, which a winter or a
  * summer day's start worked out with the other offset was stored as.
  *
- * The one request-path use of the migrations' event rule: the stats migration keys a row by the day
- * its start was stored for (`legacyEventDay`), so that is where a moved row may already be.
+ * The stats migration keys a row by the day its start was stored for (`legacyEventDay`), so that is
+ * where a moved row may already be.
  */
 const storedStartForms = (startDate: string): string[] => {
   if (!isDayKey(startDate)) {

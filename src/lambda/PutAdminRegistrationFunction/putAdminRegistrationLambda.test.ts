@@ -1,7 +1,6 @@
 import type { JsonRegistration, PatchOperation } from '../../types'
 import { vi } from 'vitest'
 import { ADMIN_PROTECTED_REGISTRATION_FIELDS, REGISTRATION_MONEY_FIELDS } from '../../lib/registration'
-import { expectConsoleOutput } from '../../test-utils/consoleGuard'
 import { httpError, LambdaError } from '../lib/lambda'
 import { constructPartialAPIGwEvent } from '../test-utils/helpers'
 
@@ -388,16 +387,17 @@ describe('putAdminRegistrationLambda', () => {
     expect(result.statusCode).toBe(200)
   })
 
-  // KOE-1547: days are stored as keys. A browser loaded before that sends instants, each read as the
-  // day it falls on, as that browser showed it: Fri 23:00 is Friday, for the entry and the dog alike.
-  it('writes the days a browser sends as instants as the keys of the days they fall on', async () => {
+  // KOE-1547: days are stored as keys. A browser loaded before that sends instants, decoded as the
+  // migration decodes them: Fri 23:00 is the Saturday it was stored for in an entry's day and group,
+  // and Friday in the dog's birth date, which is the day it falls on.
+  it('writes the days a browser sends as instants as the keys the migration would write', async () => {
     const offHour = '2025-12-12T21:00:00.000Z'
     const result = await putAdminRegistrationLambda({
       ...event,
       body: JSON.stringify({
         ...newRegistrationBody,
         dates: [{ date: offHour, time: 'ap' }],
-        dog: { ...newRegistrationBody.dog, dob: '2021-01-01T10:00:00.000Z' },
+        dog: { ...newRegistrationBody.dog, dob: offHour },
         group: { date: offHour, key: '2025-12-12-ap', number: 1, time: 'ap' },
       }),
     })
@@ -405,63 +405,11 @@ describe('putAdminRegistrationLambda', () => {
     expect(result.statusCode).toBe(200)
     expect(mockWriteRegistration).toHaveBeenCalledWith(
       expect.objectContaining({
-        dates: [{ date: '2025-12-12', time: 'ap' }],
-        dog: expect.objectContaining({ dob: '2021-01-01' }),
-        group: expect.objectContaining({ date: '2025-12-12', key: '2025-12-12-ap' }),
+        dates: [{ date: '2025-12-13', time: 'ap' }],
+        dog: expect.objectContaining({ dob: '2025-12-12' }),
+        group: expect.objectContaining({ date: '2025-12-13', key: '2025-12-13-ap' }),
       })
     )
-  })
-
-  // KOE-1547: a day a stored row holds an hour off reads as one day here and as another in its
-  // migration; a save now would leave the event and its entries on different days, so it is refused
-  // until the migration has run. An exact Finnish midnight is the same day either way.
-  describe('a stored row holding a day an hour off', () => {
-    const storedEntry = { ...JSON.parse(event.body ?? ''), state: 'draft' }
-
-    it('refuses a new entry to an event holding one, and writes nothing', async () => {
-      expectConsoleOutput('request deferred')
-      mockGetEvent.mockResolvedValueOnce({
-        cost: 40,
-        organizer: { id: 'org-1' },
-        startDate: '2025-12-12T21:00:00.000Z',
-      })
-
-      const result = await putAdminRegistrationLambda({ ...event, body: JSON.stringify(newRegistrationBody) })
-
-      expect(result.statusCode).toBe(503)
-      expect(mockWriteRegistration).not.toHaveBeenCalled()
-    })
-
-    it('refuses a change to an entry holding one, and writes nothing', async () => {
-      expectConsoleOutput('request deferred')
-      mockGetRegistration.mockResolvedValueOnce({
-        ...storedEntry,
-        dates: [{ date: '2025-12-12T21:00:00.000Z', time: 'ap' }],
-      })
-
-      const result = await putAdminRegistrationLambda(notesEdit)
-
-      expect(result.statusCode).toBe(503)
-      expect(mockPatchRegistration).not.toHaveBeenCalled()
-      expect(mockWriteRegistration).not.toHaveBeenCalled()
-    })
-
-    it('saves a change to an entry holding an exact midnight, as its day', async () => {
-      mockGetRegistration.mockResolvedValueOnce({
-        ...storedEntry,
-        dates: [{ date: '2025-12-12T22:00:00.000Z', time: 'ap' }],
-      })
-
-      const result = await putAdminRegistrationLambda(notesEdit)
-
-      expect(result.statusCode).toBe(200)
-      expect(mockPatchRegistration).toHaveBeenCalledWith(
-        'event123',
-        'reg456',
-        expect.anything(),
-        expect.objectContaining({ dates: [{ date: '2025-12-13', time: 'ap' }], notes: 'updated notes' })
-      )
-    })
   })
 
   it('rejects a concurrent create that wins after the initial duplicate check', async () => {

@@ -97,7 +97,7 @@ import {
   stripKennelliittoLink,
   withResultsDay,
 } from './event'
-import { storedDay } from './storedDays'
+import { legacyDogDay } from './storedDays'
 
 /** A moment to stand for now where a test needs one: Monday 15.6.2026 at noon in Finland. */
 const NOON_2026_06_15 = new Date('2026-06-15T09:00:00.000Z')
@@ -1370,7 +1370,7 @@ describe('a stored day held as an instant', () => {
 
   // A stamp without a zone names its day. Parsed with `new Date` it would be read in the host's zone,
   // UTC on Lambda, where 23:30 on the 10th is the 11th in Finland; every reader goes through
-  // `calendarDayOf` instead, as a request's `storedDay` does.
+  // `calendarDayOf` instead, the rule the decoders read a stamp by too.
   describeInTimeZone('UTC', () => {
     it.each([
       ['late in the evening', '2026-06-10T23:30:00', '2026-06-10'],
@@ -1378,7 +1378,7 @@ describe('a stored day held as an instant', () => {
     ])('reads a stamp without a zone %s as the day it names', (_name, value, expected) => {
       expect(storedDayKey(value)).toBe(expected)
       expect(eventDayKey(value)).toBe(expected)
-      expect(storedDay(value)).toBe(expected)
+      expect(legacyDogDay(value)).toBe(expected)
     })
   })
 })

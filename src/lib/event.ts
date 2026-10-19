@@ -88,12 +88,11 @@ const toInstant = (date: Date | string): Date => (typeof date === 'string' ? new
  */
 export const storedDayKey = (date: DayInput): DayKey | undefined => {
   if (!date) return undefined
-  // The day the instant falls on, and a stamp without a zone the day it names, as every reader of a
-  // stored day reads it (`eventDayKey`, the group keys, the wire, a request's `storedDay`), so they
-  // agree with each other: a string goes through the one reader, `calendarDayOf`, never the host's
-  // zone. A day a row not yet migrated holds an hour off reads as the day before or after until its
-  // migration writes the day it was stored for (`storedEventDayOf`); until then a request refuses to
-  // save that row (`refuseDaysAwaitingMigration`).
+  // The day the instant falls on, and a stamp without a zone the day it names, as every display
+  // reader of a stored day reads it (`eventDayKey`, the group keys, the wire): a string goes through
+  // the one reader, `calendarDayOf`, never the host's zone. A day a row not yet migrated holds an hour
+  // off shows as the day before or after until its migration, which runs right after the deploy,
+  // writes the day it was stored for (`storedEventDayOf`, as every decode to a key reads it).
   if (typeof date === 'string') return calendarDayOf(date, TIME_ZONE)
   return hasCalendarDay(date, TIME_ZONE) ? dayOf(date, TIME_ZONE) : undefined
 }

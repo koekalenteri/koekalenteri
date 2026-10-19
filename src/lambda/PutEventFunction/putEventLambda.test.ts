@@ -1,6 +1,5 @@
 import type { JsonDogEvent, JsonUser } from '../../types'
 import { vi } from 'vitest'
-import { expectConsoleOutput } from '../../test-utils/consoleGuard'
 import { legacyDayValue } from '../../test-utils/finnishDays'
 import { constructAPIGwEvent } from '../test-utils/helpers'
 // Loaded before the clock is faked: @date-fns/tz's TZDate extends the Date it finds at load, and on a
@@ -1206,30 +1205,6 @@ describe('putEventLambda', () => {
     expect(mockReadOrganizerEventStatsRow).toHaveBeenCalledWith(
       expect.objectContaining({ startDate: '2025-05-31T21:00:00.000Z' })
     )
-  })
-
-  // A day a row not yet migrated holds an hour off reads as one day here and as another in its
-  // migration, which also migrates the event's registrations: a save now would leave them on different
-  // days, so it is refused until the migration has run. An exact midnight is no such day (above).
-  it('refuses to save a row holding a day an hour off until its migration has run, and writes nothing', async () => {
-    expectConsoleOutput('request deferred')
-    authorizeMock.mockResolvedValueOnce(mockSecretary)
-    getEventMock.mockResolvedValueOnce({
-      ...mockEvent,
-      endDate: legacyDayValue('2026-11-07T22:00:00.000Z'),
-      entryEndDate: legacyDayValue('2026-07-06T21:59:59.999Z'),
-      startDate: legacyDayValue('2026-11-06T22:00:00.000Z'),
-      state: 'confirmed',
-    })
-
-    const res = await putEventLambda(
-      constructAPIGwEvent<Partial<JsonDogEvent>>({ entryEndDate: '2026-07-07', id: 'existing', location: 'New' })
-    )
-
-    expect(res.statusCode).toEqual(503)
-    expect(patchEventMock).not.toHaveBeenCalled()
-    expect(mockReadOrganizerEventStatsRow).not.toHaveBeenCalled()
-    expect(mockMoveOrganizerEventStatsRow).not.toHaveBeenCalled()
   })
 
   // The stored row is read as a stored row, not as a request: forms no request sends are days there.

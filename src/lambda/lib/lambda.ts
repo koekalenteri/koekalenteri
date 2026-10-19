@@ -64,12 +64,10 @@ const lambdaErrorBody = (err: LambdaError) => {
 
 /**
  * A 4xx is the request's fault and the handler's answer, not a failure of ours: it gets a line at
- * info level. A 503 is a deliberate "try again later" (a row awaiting its migration, KOE-1547): a
- * warning, not a failure. Any other 5xx thrown by us goes to the error log.
+ * info level, and only a 5xx thrown by us goes to the error log.
  */
 const logRejection = (err: LambdaError) => {
   if (err.status < 500) logger.info('request rejected', { error: err.error, status: err.status })
-  else if (err.status === 503) logger.warn('request deferred', { error: err.error, status: err.status })
   else logger.error('unhandled error', { error: err })
 }
 

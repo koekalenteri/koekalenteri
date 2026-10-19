@@ -97,20 +97,6 @@ describe('lambda wrapper', () => {
 
     expect(loggedLines(errorSpy)).toContainEqual(expect.objectContaining({ message: 'unhandled error' }))
   })
-
-  // A deliberate "try again later" (KOE-1547) is a warning, not a failure of ours.
-  it('logs a 503 as a warning and answers it', async () => {
-    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => undefined)
-
-    const result = await lambda('test', async () => {
-      throw httpError(503, { message: 'Try again later.' })
-    })(event)
-
-    expect(result.statusCode).toBe(503)
-    expect(loggedLines(warnSpy)).toContainEqual(expect.objectContaining({ message: 'request deferred', status: 503 }))
-    expect(errorSpy).not.toHaveBeenCalled()
-    warnSpy.mockRestore()
-  })
 })
 
 describe('wsLambda', () => {

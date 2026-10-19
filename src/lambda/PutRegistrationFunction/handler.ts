@@ -13,11 +13,10 @@ import {
   resolveInvitationRead,
 } from '../../lib/registration'
 import { registrationBodySchema } from '../../lib/schema/registration'
-import { rekeyRegistrationDays, storedRegistrationDays } from '../../lib/storedDays'
+import { legacyRegistrationDays, rekeyRegistrationDays } from '../../lib/storedDays'
 import { patchMerge } from '../../lib/utils'
 import { getFrontendOrigin } from '../lib/api-gw'
 import { authorize } from '../lib/auth'
-import { refuseDaysAwaitingMigration } from '../lib/dayMigration'
 import {
   assertRegistrationEmailsNotSuppressed,
   normalizeRegistrationEmails,
@@ -170,9 +169,10 @@ const putRegistrationLambda = lambda('putRegistration', async (event) => {
     throw httpError(404, { message: 'Not found' })
   }
 
-  if (existing) authorizeRegistrationEdit(event, existing)
-  refuseDaysAwaitingMigration({ event: confirmedEvent, registrations: [existing] })
-  if (existing && operationRequest) registration = applyPublicPatchRequest(existing, operationRequest)
+  if (existing) {
+    authorizeRegistrationEdit(event, existing)
+    if (operationRequest) registration = applyPublicPatchRequest(existing, operationRequest)
+  }
 
   // On the logged-in route the authorizer names the participant (KOE-1418); on the public one the
   // audit rows and the created/modified stamps carry the name of the person the registration says
@@ -207,7 +207,7 @@ const putRegistrationLambda = lambda('putRegistration', async (event) => {
   data.dog.results = await readOfficialResults(data.dog.regNo)
   // Days are stored as keys (KOE-1547): a browser loaded before that sends instants, and the dog row
   // the official results come from may not be migrated yet.
-  rekeyRegistrationDays(data, storedRegistrationDays)
+  rekeyRegistrationDays(data, legacyRegistrationDays)
   Object.assign(data, qualifyJsonRegistration(data, confirmedEvent))
 
   if (existing && !hasRegistrationChanges(existing, data)) {

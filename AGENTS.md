@@ -91,23 +91,19 @@ Read `LLM_CONTEXT.md` for the project overview and architecture notes.
   migrations rewrite them. An event's or an entry's day stored an hour off (a winter midnight worked
   out in summer time is 23:00 the evening before) is the day it was stored for (`storedEventDayOf` in
   `src/lib/day.ts`); a dog's date is the day its instant falls on. Until every environment has run
-  them and every browser sends keys, the readers accept both forms: `storedDayKey` and `eventDayKey`
-  (`src/lib/event.ts`) and `calendarDayOf` read either, a string always through `calendarDayOf`, as
-  the day the instant falls on or the day a stamp without a zone names, so they agree with each other
-  on a row not yet migrated. A request boundary puts what it receives and the stored row it read into
-  keys with `rekeyEventDays` and `rekeyRegistrationDays` (`src/lib/storedDays.ts`) by the same reading,
-  as the browser showed them: `requestDay` (a key or an instant with a zone) and `storedDay`. Only the
-  migrations and a copy (CopyEvent, ImportCopiedEvent) decode by the rules above (`legacyEventDay`,
-  `legacyDogDay`). A dog's date reads the same either way: `storedDay` and `legacyDogDay` are one rule,
-  written once in `legacyStoredDay`, which `calendarDayOf` calls until the readers narrow. The one
-  request-path use of the event rule is the organizer stats move (`storedStartForms` in
-  `lambda/lib/stats.ts`): it looks a row up where the stats migration keys it. An event day stored an
-  hour off reads as one day in a request and another in its migration, so PutEvent, PutRegistration,
-  PutAdminRegistration and the group moves answer 503 for a stored event or registration holding one
-  (`refuseDaysAwaitingMigration`, `eventHasDayReadApart`) until its migration has run: a save would
-  leave the event and its entries on different days. A no-day result date is stored as `''`, a no-day
-  birth date not at all. The browser model still holds each day as the start of its Finnish day
-  (`finnishDay` in `lib/wire.ts`) until it is given keys too.
+  them and every browser sends keys, the readers accept both forms. Two rules read them. Everything
+  that decodes a day into a key uses the migrations' rule: the migrations, a copy, and a request
+  reading its stored row and what it receives (`legacyEventDay`, `requestDay`,
+  `legacyRegistrationDays` in `src/lib/storedDays.ts`), so a request writes the day the migration
+  would. A browser on the bundle before KOE-1547 sends back the Dates it read, and the rule reads each
+  as that day: an unmigrated row's instant, a key read as UTC midnight, a picker's Finnish midnight.
+  The display readers, `storedDayKey` and `eventDayKey` (`src/lib/event.ts`) and `calendarDayOf`, read
+  the day an instant falls on and the day a stamp without a zone names; a dog's date is decoded by
+  that rule too (`legacyStoredDay`, the one body both use). The migrations run right after
+  `sam deploy`; until they finish, a few minutes, an hour-off row may show or compare by its old day,
+  which is accepted. A no-day result date is stored as `''`, a no-day birth date not at all. The
+  browser model still holds each day as the start of its Finnish day (`finnishDay` in `lib/wire.ts`)
+  until it is given keys too.
 - The day key indexes (`gsiSeasonStartDate`, `gsiEventTypeEntryEndDateV2`) are queried with day keys,
   which sort by day as text; the organizer stats rows' upper bound is padded past the event id
   (`yyyy-MM-dd#id`).
