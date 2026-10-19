@@ -42,8 +42,8 @@ interface ConditionalWrite<R, T> {
 /** The bound of the integers `randomInt` draws a fraction from: below its limit of 2^48. */
 const FRACTION_STEPS = 2 ** 47
 
-/** A fraction in [0, 1) from the platform's cryptographic source. */
-const secureFraction = () => randomInt(FRACTION_STEPS) / FRACTION_STEPS
+/** A fraction in [0, 1) from the platform's cryptographic source; `draw` gives an integer below its bound. */
+export const secureFraction = (draw: (max: number) => number = randomInt) => draw(FRACTION_STEPS) / FRACTION_STEPS
 
 /**
  * A wait of a random length up to `baseMs` doubled per attempt and capped at `maxMs`: writers that

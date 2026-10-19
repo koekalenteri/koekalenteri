@@ -1,4 +1,4 @@
-import { foldedFrom, jitteredWait, retryOnConditionFailure } from './conditionalWrite'
+import { foldedFrom, jitteredWait, retryOnConditionFailure, secureFraction } from './conditionalWrite'
 
 const conflict = () =>
   Object.assign(new Error('The conditional request failed'), { name: 'ConditionalCheckFailedException' })
@@ -153,5 +153,50 @@ describe('jitteredWait', () => {
     const wait = jitteredWait(10, 500, () => 0.5)
 
     await expect(waitedFor(wait, attempt, ms)).resolves.toEqual({ before: false, done: true })
+  })
+
+  it('rounds a part of a millisecond down', async () => {
+    // 0.55 of 10 ms is 5.5 ms: the wait is 5 ms.
+    const wait = jitteredWait(10, 500, () => 0.55)
+
+    await expect(waitedFor(wait, 1, 5)).resolves.toEqual({ before: false, done: true })
+  })
+
+  it('draws the delay from the cryptographic source by default, below the cap', async () => {
+    const wait = jitteredWait(10, 500)
+    let done = 0
+    const waits = Array.from({ length: 20 }, () =>
+      wait(7).then(() => {
+        done += 1
+      })
+    )
+
+    // A delay of nothing for every one of twenty draws below 500 is a source that gives nothing.
+    await vi.advanceTimersByTimeAsync(0)
+    expect(done).toBeLessThan(20)
+    await vi.advanceTimersByTimeAsync(499)
+    await Promise.all(waits)
+    expect(done).toBe(20)
+  })
+})
+
+describe('secureFraction', () => {
+  it('divides an integer drawn below 2^47 by 2^47', () => {
+    const draw = vi.fn((max: number) => max - 1)
+
+    const fraction = secureFraction(draw)
+
+    expect(draw).toHaveBeenCalledWith(2 ** 47)
+    expect(fraction).toBe((2 ** 47 - 1) / 2 ** 47)
+    expect(secureFraction(() => 0)).toBe(0)
+  })
+
+  it('draws fractions in [0, 1) that are neither all nothing nor coarse', () => {
+    const fractions = Array.from({ length: 50 }, () => secureFraction())
+
+    expect(fractions.every((fraction) => fraction >= 0 && fraction < 1)).toBe(true)
+    expect(fractions.some((fraction) => fraction > 0)).toBe(true)
+    // A source of a few steps only would give multiples of their size.
+    expect(fractions.some((fraction) => !Number.isInteger(fraction * 8))).toBe(true)
   })
 })
