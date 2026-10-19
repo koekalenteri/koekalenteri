@@ -19,6 +19,7 @@ import { rekeyEventDays, requestDay, storedDay } from '../../lib/storedDays'
 import { patchMerge } from '../../lib/utils'
 import { audit, eventAuditKey, getEventAuditMessages } from '../lib/audit'
 import { authorize } from '../lib/auth'
+import { refuseDaysAwaitingMigration } from '../lib/dayMigration'
 import {
   findEventWithKcGuid,
   findEventWithKcId,
@@ -342,6 +343,7 @@ const putEventLambda = lambda('putEvent', async (event) => {
   if (existing) rekeyEventDays(existing, storedDay)
 
   checkPutEventAgainstExisting(user, item, existing, clientModifiedAt)
+  refuseDaysAwaitingMigration({ event: stored })
   dropResultsPublished(item, existing)
 
   const kcConflict = (await findKcGuidLock(item, existing)) ?? (await findKcLinkConflict(item, existing))

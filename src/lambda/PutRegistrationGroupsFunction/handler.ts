@@ -25,6 +25,7 @@ import { mapWithConcurrency } from '../../lib/utils'
 import { getOrigin } from '../lib/api-gw'
 import { audit, registrationAuditKey } from '../lib/audit'
 import { authorizeWithMemberOf } from '../lib/auth'
+import { refuseDaysAwaitingMigration } from '../lib/dayMigration'
 import { emailTo } from '../lib/email'
 import { lockRegistrationGroups, saveGroup, updateRegistrations } from '../lib/event'
 import { getAuthorizedEvent } from '../lib/eventAuth'
@@ -169,6 +170,7 @@ const putRegistrationGroupsLambda = lambda('putRegistrationGroups', async (event
   }
 
   const authorizedEvent = await getAuthorizedEvent(user, memberOf, eventId)
+  refuseDaysAwaitingMigration({ event: authorizedEvent })
   // A WT trial's reserve list is the whole trial's (KOE-912), so raising one dog shifts every class's
   // reserves up and the updated reserve notice can not stay inside the moved dog's class.
   const sharedReserve = hasSharedReserveList(authorizedEvent.eventType)
@@ -186,6 +188,7 @@ const putRegistrationGroupsLambda = lambda('putRegistrationGroups', async (event
 
   try {
     oldItems = await getReadyRegistrationsByEventId(eventId, true)
+    refuseDaysAwaitingMigration({ registrations: oldItems })
 
     const affectedClasses = new Set(
       moves

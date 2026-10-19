@@ -10,6 +10,7 @@ import {
 import { rekeyRegistrationDays, storedRegistrationDays } from '../../lib/storedDays'
 import { getOrigin } from '../lib/api-gw'
 import { authorizeWithMemberOf } from '../lib/auth'
+import { refuseDaysAwaitingMigration } from '../lib/dayMigration'
 import {
   assertRegistrationEmailsNotSuppressed,
   normalizeRegistrationEmails,
@@ -100,9 +101,10 @@ const updateAdminRegistration = async (
   if (!operationRequest.eventId || !operationRequest.id) {
     throw httpError(400, { message: 'Bad request: PATCH requires eventId and id' })
   }
-  await getAuthorizedEvent<JsonConfirmedEvent>(user, memberOf, operationRequest.eventId)
+  const confirmedEvent = await getAuthorizedEvent<JsonConfirmedEvent>(user, memberOf, operationRequest.eventId)
 
   const { data, existing } = await applyAdminRegistrationOperations(operationRequest)
+  refuseDaysAwaitingMigration({ event: confirmedEvent, registrations: [existing] })
   const { groupPatches, savedData } = await saveAdminRegistration(data, existing, request)
 
   await finalizeRegistrationUpdate({ existing, groupPatches, origin, registration: savedData, user })
@@ -126,6 +128,7 @@ const createAdminRegistration = async (body: Patch<JsonRegistration>, request: A
   normalizeRegistrationEmails(registration)
 
   const confirmedEvent = await getAuthorizedEvent<JsonConfirmedEvent>(user, memberOf, registration.eventId ?? '')
+  refuseDaysAwaitingMigration({ event: confirmedEvent })
 
   const retried = await completeDuplicateRegistration({
     auditMessage: CREATED_AUDIT_MESSAGE,

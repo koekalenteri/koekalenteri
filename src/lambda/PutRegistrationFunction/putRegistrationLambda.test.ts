@@ -19,6 +19,7 @@ import { dayStart, dayStartOf, TIME_ZONE } from '../../lib/day'
 import { qualifyJsonRegistration } from '../../lib/qualification'
 import { GROUP_KEY_RESERVE } from '../../lib/registration'
 import { legacyRegistrationDays, rekeyRegistrationDays } from '../../lib/storedDays'
+import { expectConsoleOutput } from '../../test-utils/consoleGuard'
 import { finnishDayOf, legacyDayValue } from '../../test-utils/finnishDays'
 import { CONFIG } from '../config'
 import { LambdaError } from '../lib/lambda'
@@ -325,43 +326,71 @@ describe('putRegistrationLabmda', () => {
     expect(mockWriteAudit).toHaveBeenCalledTimes(2)
   })
 
-  // KOE-1547: a class day a row not yet migrated holds an hour off (Wed 23:00 for Thu 11.2.) reads as
-  // the day it falls on, and so does the same instant an older browser sends for the entry: the two
-  // agree, as the browser showed them, and nothing is audited as outside the class.
-  it("reads an entry's day an hour off as the event's day is read, so it is no day outside the class", async () => {
-    vi.setSystemTime(eventWithStaticDatesAnd3Classes.entryStartDate)
+  // KOE-1547: a day a row not yet migrated holds an hour off (Wed 23:00 for Thu 11.2.) reads as one day
+  // in a request and as another in its migration. A save over it now would leave the event and its
+  // entries on different days, so it is refused until the migration has run, and nothing is written.
+  describe('a stored row holding a day an hour off', () => {
     const offHour = legacyDayValue('2021-02-10T21:00:00.000Z')
-    const event = JSON.parse(JSON.stringify(eventWithStaticDatesAnd3Classes))
-    event.classes = [{ class: 'VOI', date: offHour }]
-    mockGetEvent.mockResolvedValueOnce(event)
-    const { id: _1, paidAmount: _2, paidAt: _3, paymentStatus: _4, ...registration } = registrationWithStaticDates
-    const sent = {
-      ...JSON.parse(JSON.stringify(registration)),
-      class: 'VOI',
-      dates: [{ date: offHour, time: 'kp' }],
-      eventId: event.id,
-      eventType: event.eventType,
-    }
-    // The post-processing claims the row as the save wrote it.
-    let written: JsonRegistration | undefined
-    mockWriteRegistration.mockImplementationOnce(async (registration: JsonRegistration) => {
-      written = structuredClone(registration)
+    const { id: _1, paidAmount: _2, paidAt: _3, paymentStatus: _4, ...newRegistration } = registrationWithStaticDates
+
+    it('refuses a new entry to an event holding one', async () => {
+      expectConsoleOutput('request deferred')
+      vi.setSystemTime(eventWithStaticDatesAnd3Classes.entryStartDate)
+      const event = JSON.parse(JSON.stringify(eventWithStaticDatesAnd3Classes))
+      event.classes = [{ class: 'VOI', date: offHour }]
+      mockGetEvent.mockResolvedValueOnce(event)
+
+      const res = await putRegistrationLabmda(
+        constructAPIGwEvent({ ...newRegistration, class: 'VOI', eventId: event.id, eventType: event.eventType })
+      )
+
+      expect(res.statusCode).toEqual(503)
+      expect(mockWriteRegistration).not.toHaveBeenCalled()
+      expect(mockPatchRegistration).not.toHaveBeenCalled()
     })
-    mockClaimNewRegistrationPostProcessing.mockImplementationOnce(async () => ({
-      registration: { ...written, state: 'ready' },
-      release: async () => undefined,
-      token: 'test-token',
-    }))
 
-    const res = await putRegistrationLabmda(constructAPIGwEvent(sent))
+    it('refuses a change to an entry holding one', async () => {
+      expectConsoleOutput('request deferred')
+      mockGetEvent.mockResolvedValueOnce(JSON.parse(JSON.stringify(eventWithStaticDates)))
+      const existingJson = storedRegistrationJson(registrationWithStaticDates)
+      mockGetRegistration.mockResolvedValueOnce({ ...existingJson, dates: [{ date: offHour, time: 'ap' }] })
 
-    expect(res.statusCode).toEqual(200)
-    expect(mockWriteRegistration).toHaveBeenCalledWith(
-      expect.objectContaining({ dates: [{ date: '2021-02-10', time: 'kp' }] })
-    )
-    expect(mockWriteAudit).not.toHaveBeenCalledWith(
-      expect.objectContaining({ messageKey: 'audit.messages.registrationDaysOutsideClass' })
-    )
+      const res = await putRegistrationLabmda(
+        constructAPIGwEvent({
+          eventId: registrationWithStaticDates.eventId,
+          id: registrationWithStaticDates.id,
+          notes: 'x',
+        })
+      )
+
+      expect(res.statusCode).toEqual(503)
+      expect(mockWriteRegistration).not.toHaveBeenCalled()
+      expect(mockPatchRegistration).not.toHaveBeenCalled()
+    })
+
+    // An exact Finnish midnight is the same day either way: the entry is saved, by that day.
+    it('saves a new entry to an event holding an exact midnight', async () => {
+      vi.setSystemTime(eventWithStaticDatesAnd3Classes.entryStartDate)
+      const midnight = legacyDayValue('2021-02-10T22:00:00.000Z')
+      const event = JSON.parse(JSON.stringify(eventWithStaticDatesAnd3Classes))
+      event.classes = [{ class: 'VOI', date: midnight }]
+      mockGetEvent.mockResolvedValueOnce(event)
+
+      const res = await putRegistrationLabmda(
+        constructAPIGwEvent({
+          ...newRegistration,
+          class: 'VOI',
+          dates: [{ date: midnight, time: 'kp' }],
+          eventId: event.id,
+          eventType: event.eventType,
+        })
+      )
+
+      expect(res.statusCode).toEqual(200)
+      expect(mockWriteRegistration).toHaveBeenCalledWith(
+        expect.objectContaining({ dates: [{ date: '2021-02-11', time: 'kp' }] })
+      )
+    })
   })
 
   it('rejects an update when edit-token authorization fails', async () => {

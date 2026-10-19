@@ -27,6 +27,7 @@ import type {
 import { LANGUAGES } from '../types'
 import {
   addDays,
+  calendarDayOf,
   dayOf,
   dayOfWeek,
   dayParts,
@@ -68,10 +69,14 @@ type EventVitals = {
 /**
  * The Finnish day of a stored date. A day key passes through unchanged: parsed, it would be read as
  * midnight where the browser is, which east of Finland falls on the day before (KOE-1510). An instant,
- * as a Date or the ISO string the stored form is, is read in the trial's zone. The one bridge for the
- * `Date | string` fields until they are typed as days (KOE-1544).
+ * as a Date or the ISO string the stored form is, is read in the trial's zone, and a stamp without a
+ * zone as the day it names, as every reader of a stored day reads them (`calendarDayOf`). The one
+ * bridge for the `Date | string` fields until they are typed as days (KOE-1544).
  */
-export const eventDayKey = (date: Date | string): DayKey => (isDayKey(date) ? date : dayOf(toInstant(date), TIME_ZONE))
+export const eventDayKey = (date: Date | string): DayKey => {
+  if (isDayKey(date)) return date
+  return (typeof date === 'string' && calendarDayOf(date, TIME_ZONE)) || dayOf(toInstant(date), TIME_ZONE)
+}
 
 /** A stored instant as a Date: the ISO string the stored form is, or the Date the client's typed boundary made of it. */
 const toInstant = (date: Date | string): Date => (typeof date === 'string' ? new Date(date) : date)
@@ -83,14 +88,14 @@ const toInstant = (date: Date | string): Date => (typeof date === 'string' ? new
  */
 export const storedDayKey = (date: DayInput): DayKey | undefined => {
   if (!date) return undefined
-  if (isDayKey(date)) return date
-  const instant = toInstant(date)
-  // The day the instant falls on, as every reader of a stored day reads it (`eventDayKey`, the group
-  // keys, the wire, a request's decoders in lib/storedDays.ts), so they agree with each other. A day a
-  // row not yet migrated holds an hour off reads as the day before or after until its migration, which
-  // writes the day it was stored for (`storedEventDayOf`). A save in the window between the deploy and
-  // the end of that migration keeps the day read here: the migration then sees a key.
-  return hasCalendarDay(instant, TIME_ZONE) ? dayOf(instant, TIME_ZONE) : undefined
+  // The day the instant falls on, and a stamp without a zone the day it names, as every reader of a
+  // stored day reads it (`eventDayKey`, the group keys, the wire, a request's `storedDay`), so they
+  // agree with each other: a string goes through the one reader, `calendarDayOf`, never the host's
+  // zone. A day a row not yet migrated holds an hour off reads as the day before or after until its
+  // migration writes the day it was stored for (`storedEventDayOf`); until then a request refuses to
+  // save that row (`refuseDaysAwaitingMigration`).
+  if (typeof date === 'string') return calendarDayOf(date, TIME_ZONE)
+  return hasCalendarDay(date, TIME_ZONE) ? dayOf(date, TIME_ZONE) : undefined
 }
 
 /**

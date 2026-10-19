@@ -30,7 +30,9 @@ type DayDecode = (value: unknown) => DayKey | undefined
 /**
  * The reading of a stored event or entry day that the migrations, the import of a copied event and a
  * copy write as a key: every form rows were ever stored in, for good (`legacyStoredEventDay`, which
- * says why it never narrows). A request uses `storedDay` instead.
+ * says why it never narrows). A request uses `storedDay` instead, with one exception: the organizer
+ * stats move looks a row up under the key the stats migration gives it (`storedStartForms` in
+ * lambda/lib/stats.ts), which names where a row may be, not a day the request writes.
  */
 export const legacyEventDay: DayDecode = (value) => legacyStoredEventDay(value, TIME_ZONE)
 
@@ -40,8 +42,9 @@ export const legacyDogDay: DayDecode = (value) => legacyStoredDay(value, TIME_ZO
 /**
  * A day of a stored row a request reads, compares and writes back: a key, or, until every environment
  * is migrated, an older form read as the day it falls on, as the browser showed it (`storedDayKey`).
- * A row saved in the window between the deploy and the end of its migration keeps that day, an hour-off
- * day included: the migration then sees a key.
+ * The same rule as `legacyDogDay`, written once (`calendarDayOf`); it narrows when the readers do, the
+ * migrations' does not. A row holding an event day this reads apart from the migration (an hour off)
+ * is refused until its migration has run (`eventHasDayReadApart`).
  */
 export const storedDay: DayDecode = (value) => calendarDayOf(value, TIME_ZONE)
 
@@ -296,6 +299,36 @@ export const rekeyRegistrationDays = (
   rekeyResults(registration.qualifyingResults, dogDay, state)
   rekeyResults(registration.results, dogDay, state)
   return state
+}
+
+/**
+ * A decoder that reads as a request does (`storedDay`) and notes a day the migration will write as
+ * another (`legacyEventDay`). Only an instant an hour off a Finnish midnight or end of day, on a row not
+ * yet migrated, reads apart; a key, an exact midnight and an exact end of day never do.
+ */
+const noteDaysReadApart =
+  (found: { apart: boolean }): DayDecode =>
+  (value) => {
+    if (legacyEventDay(value) !== storedDay(value)) found.apart = true
+    return storedDay(value)
+  }
+
+/**
+ * Whether a stored event holds a day a request and its migration read as different days (KOE-1547).
+ * A save of it before the migration has run would write one day, while the rows sharing that day (its
+ * registrations) are later migrated to the other, so a request refuses it until then.
+ */
+export const eventHasDayReadApart = (event: EventDays): boolean => {
+  const found = { apart: false }
+  rekeyEventDays(structuredClone(event), noteDaysReadApart(found))
+  return found.apart
+}
+
+/** As `eventHasDayReadApart`, for a stored registration's entry and group days. */
+export const registrationHasDayReadApart = (registration: RegistrationDays): boolean => {
+  const found = { apart: false }
+  rekeyRegistrationDays(structuredClone(registration), { dogDay: storedDay, eventDay: noteDaysReadApart(found) })
+  return found.apart
 }
 
 /**

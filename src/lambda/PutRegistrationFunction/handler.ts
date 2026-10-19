@@ -17,6 +17,7 @@ import { rekeyRegistrationDays, storedRegistrationDays } from '../../lib/storedD
 import { patchMerge } from '../../lib/utils'
 import { getFrontendOrigin } from '../lib/api-gw'
 import { authorize } from '../lib/auth'
+import { refuseDaysAwaitingMigration } from '../lib/dayMigration'
 import {
   assertRegistrationEmailsNotSuppressed,
   normalizeRegistrationEmails,
@@ -169,10 +170,9 @@ const putRegistrationLambda = lambda('putRegistration', async (event) => {
     throw httpError(404, { message: 'Not found' })
   }
 
-  if (existing) {
-    authorizeRegistrationEdit(event, existing)
-    if (operationRequest) registration = applyPublicPatchRequest(existing, operationRequest)
-  }
+  if (existing) authorizeRegistrationEdit(event, existing)
+  refuseDaysAwaitingMigration({ event: confirmedEvent, registrations: [existing] })
+  if (existing && operationRequest) registration = applyPublicPatchRequest(existing, operationRequest)
 
   // On the logged-in route the authorizer names the participant (KOE-1418); on the public one the
   // audit rows and the created/modified stamps carry the name of the person the registration says

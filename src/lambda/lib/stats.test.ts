@@ -389,6 +389,23 @@ describe('lib/stats', () => {
         expect(mockMoveOrganizerEventStatsRow).toHaveBeenCalledWith(keyed, later, stats, expect.any(String))
       })
 
+      // The stats migration keys a row by the day its start was stored for: Fri 23:00 is Saturday there,
+      // though a request reads it as Friday.
+      it('moves the row the stats migration keyed by the day an hour-off start was stored for', async () => {
+        const offHour = { ...keyed, startDate: '2026-11-06T21:00:00.000Z' }
+        mockReadOrganizerEventStatsRow.mockResolvedValueOnce(undefined).mockResolvedValueOnce(stats)
+
+        await moveOrganizerEventStats(offHour, later)
+
+        expect(mockReadOrganizerEventStatsRow).toHaveBeenNthCalledWith(2, { ...keyed, startDate: '2026-11-07' })
+        expect(mockMoveOrganizerEventStatsRow).toHaveBeenCalledWith(
+          { ...keyed, startDate: '2026-11-07' },
+          later,
+          stats,
+          expect.any(String)
+        )
+      })
+
       it('leaves a row already keyed by the day the save keeps', async () => {
         mockReadOrganizerEventStatsRow.mockResolvedValueOnce(undefined).mockResolvedValueOnce(stats)
 

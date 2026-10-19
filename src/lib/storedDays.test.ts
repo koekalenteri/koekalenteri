@@ -3,9 +3,11 @@ import { legacyDayValue } from '../test-utils/finnishDays'
 import { describeInTimeZone } from '../test-utils/timeZone'
 import { storedDayKey } from './event'
 import {
+  eventHasDayReadApart,
   legacyDogDay,
   legacyEventDay,
   legacyRegistrationDays,
+  registrationHasDayReadApart,
   rekeyDogDays,
   rekeyEventDays,
   rekeyRegistrationDays,
@@ -57,8 +59,8 @@ for (const zone of ['UTC', 'Europe/Helsinki', 'America/New_York', 'Asia/Tokyo'])
       })
 
       // A request reads a day as the browser showed it, so it compares and writes what the user saw. A
-      // row saved before its migration keeps that day, an hour-off day included (the window between a
-      // deploy and its migration).
+      // stored row holding an hour-off day, which these read apart from its migration, is refused until
+      // the migration has run (`eventHasDayReadApart`).
       it.each([
         ['Fri 23:00', '2026-11-06T21:00:00.000Z', '2026-11-06'],
         ['an end of day at Mon 00:59:59.999', '2026-09-27T21:59:59.999Z', '2026-09-28'],
@@ -377,6 +379,58 @@ describe('rekeyDogDays', () => {
     expect(rekeyDogDays(dog, legacyDogDay)).toEqual({ changed: true, unreadable: false })
     expect(dog.dob).toBe('2021-01-01')
     expect(dog.results?.map(({ date }) => date)).toEqual(['2025-06-01', ''])
+  })
+})
+
+/** An event's days in the forms a row stored before KOE-1547 holds them, typed as the row's days are. */
+const legacyDays = (days: object): Parameters<typeof eventHasDayReadApart>[0] => JSON.parse(JSON.stringify(days))
+
+// KOE-1547: a day a request and its migration read as different days. Only an instant an hour off a
+// Finnish midnight or end of day reads apart; a save over it is refused until the migration has run.
+describe('a stored day read apart', () => {
+  it.each([
+    ['a start at Fri 23:00', { startDate: '2026-11-06T21:00:00.000Z' }],
+    ['an end of day at Mon 00:59:59.999', { entryEndDate: '2026-09-27T21:59:59.999Z' }],
+    ["a class's day at Fri 23:00 in winter", { classes: [{ date: '2026-01-02T21:00:00.000Z' }] }],
+    ['a published day an hour off', { resultsPublished: ['2026-11-06T21:00:00.000Z'] }],
+  ])('is found in an event holding %s', (_name, days) => {
+    expect(eventHasDayReadApart({ endDate: '2026-11-08', startDate: '2026-11-07', ...legacyDays(days) })).toBe(true)
+  })
+
+  it.each([
+    ['keys', { endDate: '2026-11-08', startDate: '2026-11-07' }],
+    ['exact Finnish midnights', { endDate: '2026-11-07T22:00:00.000Z', startDate: '2026-11-06T22:00:00.000Z' }],
+    ['an exact end of day', { entryEndDate: END_OF_DAY, startDate: SUMMER_MIDNIGHT }],
+    ['offset forms', { entryEndDate: '2026-09-02T23:59:59.999+03:00', startDate: '2026-09-02T00:00:00.000+03:00' }],
+    ["Kennelliitto's stamps", { endDate: '2026-11-08T00:00:00', startDate: '2026-11-07T00:00:00' }],
+  ])('is not found in an event holding %s', (_name, days) => {
+    expect(eventHasDayReadApart(legacyDays(days))).toBe(false)
+  })
+
+  it.each([
+    ['an entry day', { dates: [{ date: legacyDayValue('2025-12-12T21:00:00.000Z') }] }],
+    ['a group day', { group: { date: legacyDayValue('2025-12-12T21:00:00.000Z'), key: '2025-12-12-ap' } }],
+  ])('is found in a registration holding %s an hour off', (_name, registration) => {
+    expect(registrationHasDayReadApart(registration)).toBe(true)
+  })
+
+  // A dog's dates are read the same way by both, the day they fall on.
+  it("is not found in a registration's exact midnights, nor in a dog's date at Fri 23:00", () => {
+    expect(
+      registrationHasDayReadApart({
+        dates: [{ date: legacyDayValue(SUMMER_MIDNIGHT) }],
+        dog: {
+          dob: legacyDayValue('2026-11-06T21:00:00.000Z'),
+          results: [{ date: legacyDayValue('2026-11-06T21:00:00.000Z') }],
+        },
+      })
+    ).toBe(false)
+  })
+
+  it('leaves the row it reads as it was', () => {
+    const event = legacyDays({ startDate: '2026-11-06T21:00:00.000Z' })
+    eventHasDayReadApart(event)
+    expect(event).toEqual({ startDate: '2026-11-06T21:00:00.000Z' })
   })
 })
 

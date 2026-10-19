@@ -311,13 +311,16 @@ const storedDay = (value: unknown, instantDay: (instant: Date) => DayKey | undef
 }
 
 /**
- * The day of a stored dog date: the day written on a key or a zone-less stamp, and the day an instant
- * falls on in `zone`. Undefined for anything with no day there, Kennelliitto's empty 0001-01-01 in
- * every form included, and for a value that is no text at all (none, a null): never a throw, since a
- * list reads every row and a save reads every result.
+ * The day of a stored date as every reader reads it: the day written on a key or a zone-less stamp, and
+ * the day an instant falls on in `zone`. Undefined for anything with no day there, Kennelliitto's empty
+ * 0001-01-01 in every form included, and for a value that is no text at all (none, a null): never a
+ * throw, since a list reads every row and a save reads every result.
+ *
+ * Today this is the rule the migrations read a dog's date by, written once in `legacyStoredDay`. When
+ * the readers stop accepting the old forms, this function gets a narrower body of its own; the
+ * migrations' rule stays as it is.
  */
-export const calendarDayOf = (value: unknown, zone: string): DayKey | undefined =>
-  storedDay(value, (instant) => (hasCalendarDay(instant, zone) ? dayOf(instant, zone) : undefined))
+export const calendarDayOf = (value: unknown, zone: string): DayKey | undefined => legacyStoredDay(value, zone)
 
 /**
  * As `calendarDayOf`, but an instant is read as the day it shows in the browser's zone: for what this
@@ -338,16 +341,8 @@ export const localCalendarDayOf = (value: unknown): DayKey | undefined => stored
  * The readers' tolerance of the old forms (`calendarDayOf`, `storedDayKey`) goes once every
  * environment has been migrated; this function stays as it is.
  */
-export const legacyStoredDay = (value: unknown, zone: string): DayKey | undefined => {
-  if (typeof value !== 'string') return undefined
-  if (isZonelessDay(value)) {
-    const day = value.slice(0, 10)
-    return isDayKey(day) ? day : undefined
-  }
-  if (!isInstantString(value)) return undefined
-  const instant = new Date(value)
-  return hasCalendarDay(instant, zone) ? dayOf(instant, zone) : undefined
-}
+export const legacyStoredDay = (value: unknown, zone: string): DayKey | undefined =>
+  storedDay(value, (instant) => (hasCalendarDay(instant, zone) ? dayOf(instant, zone) : undefined))
 
 /** Whether the instant is the last millisecond of an hour: an end of day stored as an instant. */
 const isEndOfHour = (instant: Date) =>
@@ -395,13 +390,5 @@ export const storedEventDayOf = (instant: Date | number, zone: string): DayKey =
  * day, Kennelliitto's empty date included. Like `legacyStoredDay`, this is the migrations' reading and
  * must keep reading every one of those forms; the readers' tolerance goes, this stays.
  */
-export const legacyStoredEventDay = (value: unknown, zone: string): DayKey | undefined => {
-  if (typeof value !== 'string') return undefined
-  if (isZonelessDay(value)) {
-    const day = value.slice(0, 10)
-    return isDayKey(day) ? day : undefined
-  }
-  if (!isInstantString(value)) return undefined
-  const instant = new Date(value)
-  return hasCalendarDay(instant, zone) ? storedEventDayOf(instant, zone) : undefined
-}
+export const legacyStoredEventDay = (value: unknown, zone: string): DayKey | undefined =>
+  storedDay(value, (instant) => (hasCalendarDay(instant, zone) ? storedEventDayOf(instant, zone) : undefined))

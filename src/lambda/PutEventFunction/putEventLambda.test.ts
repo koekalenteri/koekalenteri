@@ -1,5 +1,6 @@
 import type { JsonDogEvent, JsonUser } from '../../types'
 import { vi } from 'vitest'
+import { expectConsoleOutput } from '../../test-utils/consoleGuard'
 import { legacyDayValue } from '../../test-utils/finnishDays'
 import { constructAPIGwEvent } from '../test-utils/helpers'
 // Loaded before the clock is faked: @date-fns/tz's TZDate extends the Date it finds at load, and on a
@@ -1207,51 +1208,28 @@ describe('putEventLambda', () => {
     )
   })
 
-  // A day a row not yet migrated holds an hour off is read as the day the browser showed (the day it
-  // falls on), so sending it back unchanged is no change: no extended entry, no date audited, and the
-  // save keeps that day.
-  it('reads a stored day an hour off as the day the browser showed it, so an unchanged save changes nothing', async () => {
+  // A day a row not yet migrated holds an hour off reads as one day here and as another in its
+  // migration, which also migrates the event's registrations: a save now would leave them on different
+  // days, so it is refused until the migration has run. An exact midnight is no such day (above).
+  it('refuses to save a row holding a day an hour off until its migration has run, and writes nothing', async () => {
+    expectConsoleOutput('request deferred')
     authorizeMock.mockResolvedValueOnce(mockSecretary)
     getEventMock.mockResolvedValueOnce({
       ...mockEvent,
-      endDate: legacyDayValue('2026-11-07T21:00:00.000Z'),
+      endDate: legacyDayValue('2026-11-07T22:00:00.000Z'),
       entryEndDate: legacyDayValue('2026-07-06T21:59:59.999Z'),
-      entryStartDate: legacyDayValue('2026-06-01T21:00:00.000Z'),
-      startDate: legacyDayValue('2026-11-06T21:00:00.000Z'),
+      startDate: legacyDayValue('2026-11-06T22:00:00.000Z'),
       state: 'confirmed',
     })
-    const shown: Partial<JsonDogEvent> = {
-      endDate: '2026-11-07',
-      entryEndDate: '2026-07-07',
-      entryStartDate: '2026-06-02',
-      startDate: '2026-11-06',
-    }
-    const stats = {
-      count: 1,
-      organizerId: mockEvent.organizer.id,
-      PK: 'ORG#x',
-      SK: '2026-11-06T21:00:00.000Z#existing',
-    }
-    mockReadOrganizerEventStatsRow.mockResolvedValueOnce(stats)
 
-    const res = await putEventLambda(constructAPIGwEvent<Partial<JsonDogEvent>>({ id: 'existing', ...shown }))
+    const res = await putEventLambda(
+      constructAPIGwEvent<Partial<JsonDogEvent>>({ entryEndDate: '2026-07-07', id: 'existing', location: 'New' })
+    )
 
-    expect(res.statusCode).toEqual(200)
-    const keyed = expect.objectContaining(shown)
-    expect(mockGetEventAuditMessages).toHaveBeenCalledWith(keyed, keyed)
-    expect(patchEventMock).toHaveBeenCalledWith('existing', expect.anything(), keyed)
-    expect(patchEventMock).toHaveBeenCalledWith(
-      'existing',
-      expect.anything(),
-      expect.not.objectContaining({ entryOrigEndDate: expect.anything() })
-    )
-    // The stats row counted under the start as stored moves to the key of the day the save keeps.
-    expect(mockMoveOrganizerEventStatsRow).toHaveBeenCalledWith(
-      expect.objectContaining({ startDate: '2026-11-06T21:00:00.000Z' }),
-      expect.objectContaining({ startDate: '2026-11-06' }),
-      stats,
-      expect.any(String)
-    )
+    expect(res.statusCode).toEqual(503)
+    expect(patchEventMock).not.toHaveBeenCalled()
+    expect(mockReadOrganizerEventStatsRow).not.toHaveBeenCalled()
+    expect(mockMoveOrganizerEventStatsRow).not.toHaveBeenCalled()
   })
 
   // The stored row is read as a stored row, not as a request: forms no request sends are days there.
