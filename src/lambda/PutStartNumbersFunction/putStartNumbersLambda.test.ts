@@ -13,7 +13,7 @@ const mockAuthorizeWithMemberOf = vi.fn()
 const mockGetAuthorizedEvent = vi.fn()
 const mockLockRegistrationGroups = vi.fn()
 const mockReleaseLock = vi.fn()
-const mockGetRegistrationsByEventId = vi.fn()
+const mockReadEventRegistrations = vi.fn()
 const mockUpdateRegistrationField = vi.fn()
 const mockUpdate = vi.fn()
 const mockPublishRegistrationPatches = vi.fn()
@@ -43,8 +43,8 @@ vi.doMock('../lib/audit', () => ({
 vi.doMock('../lib/auth', () => ({ authorizeWithMemberOf: mockAuthorizeWithMemberOf }))
 vi.doMock('../lib/eventAuth', () => ({ getAuthorizedEvent: mockGetAuthorizedEvent }))
 vi.doMock('../lib/event', () => ({ lockRegistrationGroups: mockLockRegistrationGroups }))
-vi.doMock('../lib/registration', () => ({
-  getRegistrationsByEventId: mockGetRegistrationsByEventId,
+vi.doMock('../lib/repositories/registrationRepository', () => ({
+  readEventRegistrations: mockReadEventRegistrations,
   updateRegistrationField: mockUpdateRegistrationField,
 }))
 vi.doMock('../utils/CustomDynamoClient', () => ({
@@ -92,7 +92,7 @@ describe('putStartNumbersLambda', () => {
     mockAuthorizeWithMemberOf.mockResolvedValue({ memberOf: ['org-1'], user: { id: 'u1', name: 'Sihteeri' } })
     mockGetAuthorizedEvent.mockResolvedValue(confirmedEvent())
     mockLockRegistrationGroups.mockResolvedValue(mockReleaseLock)
-    mockGetRegistrationsByEventId.mockResolvedValue([registration('run-1'), registration('run-2')])
+    mockReadEventRegistrations.mockResolvedValue([registration('run-1'), registration('run-2')])
   })
 
   it('publishing freezes the class and flips the flag in the same locked request', async () => {
@@ -152,7 +152,7 @@ describe('putStartNumbersLambda', () => {
         startDate: '2026-09-12',
       })
     )
-    mockGetRegistrationsByEventId.mockResolvedValue([
+    mockReadEventRegistrations.mockResolvedValue([
       registration('run-1'),
       registration('run-2', { group: { date: '2026-09-13', key: 'ALO-AP', number: 2, time: 'ap' } }),
     ])
@@ -184,7 +184,7 @@ describe('putStartNumbersLambda', () => {
     mockGetAuthorizedEvent.mockResolvedValue(
       asJsonConfirmedEvent({ ...confirmedEvent(), classes: [{ class: 'ALO', date: '2026-09-12' }] })
     )
-    mockGetRegistrationsByEventId.mockResolvedValue([
+    mockReadEventRegistrations.mockResolvedValue([
       registration('run-1'),
       registration('run-2', { group: { date: '2026-09-12', key: 'ALO-IP', number: 2, time: 'ip' } }),
     ])
@@ -246,10 +246,7 @@ describe('putStartNumbersLambda', () => {
   })
 
   it('refuses to publish numbers while an invitation is still to go (KOE-1466)', async () => {
-    mockGetRegistrationsByEventId.mockResolvedValue([
-      registration('run-1'),
-      registration('run-2', { messagesSent: {} }),
-    ])
+    mockReadEventRegistrations.mockResolvedValue([registration('run-1'), registration('run-2', { messagesSent: {} })])
 
     await putStartNumbersLambda(apiEvent({ eventClass: 'ALO', published: true }))
 
@@ -303,7 +300,7 @@ describe('putStartNumbersLambda', () => {
   })
 
   it('writes drawn numbers through the same endpoint', async () => {
-    mockGetRegistrationsByEventId.mockResolvedValue([
+    mockReadEventRegistrations.mockResolvedValue([
       registration('run-1', { startGroup: { date: '2026-09-12', key: 'ALO-AP', number: 1, time: 'ap' } }),
     ])
 

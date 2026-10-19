@@ -35,7 +35,7 @@ import {
   readYearlyTotals,
 } from './repositories/eventStatsRepository'
 import { readEventTypes } from './repositories/eventTypeRepository'
-import { readRegistrationConsistently } from './repositories/registrationRepository'
+import { readRegistration } from './repositories/registrationRepository'
 
 const NEW_REGISTRATION_STATS_MAX_ATTEMPTS = 12
 const NEW_REGISTRATION_STATS_RETRY_BASE_MS = 10
@@ -468,7 +468,7 @@ export const applyNewRegistrationStatsOnce = async (
     } catch (error) {
       if (!isTransactionCanceled(error)) throw error
 
-      const saved = await readRegistrationConsistently(registration.eventId, registration.id)
+      const saved = await readRegistration(registration.eventId, registration.id, true)
       if (saved?.newRegistrationStatsAt) return
       if (saved?.newRegistrationLease?.token !== leaseToken || attempt === NEW_REGISTRATION_STATS_MAX_ATTEMPTS) {
         throw error

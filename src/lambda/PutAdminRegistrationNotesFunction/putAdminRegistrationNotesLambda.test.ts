@@ -42,7 +42,7 @@ vi.doMock('../lib/event', () => ({
   getEvent: mockGetEvent,
 }))
 
-vi.doMock('../lib/registration', () => ({
+vi.doMock('../lib/repositories/registrationRepository', () => ({
   updateRegistrationField: mockUpdateRegistrationField,
 }))
 

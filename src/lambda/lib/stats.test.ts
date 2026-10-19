@@ -20,7 +20,7 @@ const mockAddOrganizerEventStats = vi.fn<typeof eventStatsRepository.addOrganize
 const mockReadOrganizerEventStatsRow = vi.fn<typeof eventStatsRepository.readOrganizerEventStatsRow>()
 const mockMoveOrganizerEventStatsRow = vi.fn<typeof eventStatsRepository.moveOrganizerEventStatsRow>()
 const mockCommitNewRegistrationStats = vi.fn<typeof eventStatsRepository.commitNewRegistrationStats>()
-const mockReadRegistrationConsistently = vi.fn<typeof registrationRepository.readRegistrationConsistently>()
+const mockReadRegistration = vi.fn<typeof registrationRepository.readRegistration>()
 
 // The key builder is the real one; only the table access is replaced.
 vi.doMock('./repositories/eventStatsRepository', async (importOriginal) => ({
@@ -43,7 +43,7 @@ vi.doMock('./repositories/eventStatsRepository', async (importOriginal) => ({
 }))
 
 vi.doMock('./repositories/registrationRepository', () => ({
-  readRegistrationConsistently: mockReadRegistrationConsistently,
+  readRegistration: mockReadRegistration,
 }))
 
 const mockReadEventTypes = vi.fn<() => Promise<JsonEventType[]>>()
@@ -136,7 +136,7 @@ describe('lib/stats', () => {
         'lease-token',
         expect.any(String)
       )
-      expect(mockReadRegistrationConsistently).not.toHaveBeenCalled()
+      expect(mockReadRegistration).not.toHaveBeenCalled()
     })
 
     it('refuses an event without a stats year before writing anything', async () => {
@@ -149,7 +149,7 @@ describe('lib/stats', () => {
 
     it('treats an already committed marker as success after a cancelled transaction', async () => {
       mockCommitNewRegistrationStats.mockRejectedValueOnce({ name: 'TransactionCanceledException' })
-      mockReadRegistrationConsistently.mockResolvedValueOnce({
+      mockReadRegistration.mockResolvedValueOnce({
         ...registration,
         newRegistrationStatsAt: '2024-01-01T00:00:00.000Z',
       } as JsonRegistration)
@@ -158,7 +158,7 @@ describe('lib/stats', () => {
         applyNewRegistrationStatsOnce(registration, { ...event, eventType: 'other' }, 'lease-token')
       ).resolves.toBe(undefined)
 
-      expect(mockReadRegistrationConsistently).toHaveBeenCalledWith('event-1', 'registration-1')
+      expect(mockReadRegistration).toHaveBeenCalledWith('event-1', 'registration-1', true)
       expect(mockCommitNewRegistrationStats).toHaveBeenCalledTimes(1)
     })
 
@@ -170,7 +170,7 @@ describe('lib/stats', () => {
       mockCommitNewRegistrationStats
         .mockRejectedValueOnce({ name: 'TransactionCanceledException' })
         .mockResolvedValueOnce(undefined)
-      mockReadRegistrationConsistently.mockResolvedValue(withLease('lease-token'))
+      mockReadRegistration.mockResolvedValue(withLease('lease-token'))
 
       await applyNewRegistrationStatsOnce(registration, event, 'lease-token')
 
@@ -183,7 +183,7 @@ describe('lib/stats', () => {
         mockCommitNewRegistrationStats.mockRejectedValueOnce({ name: 'TransactionCanceledException' })
       }
       mockCommitNewRegistrationStats.mockResolvedValueOnce(undefined)
-      mockReadRegistrationConsistently.mockResolvedValue(withLease('lease-token'))
+      mockReadRegistration.mockResolvedValue(withLease('lease-token'))
 
       await applyNewRegistrationStatsOnce(registration, event, 'lease-token')
 
@@ -193,7 +193,7 @@ describe('lib/stats', () => {
     it('gives up after the last attempt even while the lease is still its own', async () => {
       vi.spyOn(Math, 'random').mockReturnValue(0)
       mockCommitNewRegistrationStats.mockRejectedValue({ name: 'TransactionCanceledException' })
-      mockReadRegistrationConsistently.mockResolvedValue(withLease('lease-token'))
+      mockReadRegistration.mockResolvedValue(withLease('lease-token'))
 
       await expect(applyNewRegistrationStatsOnce(registration, event, 'lease-token')).rejects.toEqual({
         name: 'TransactionCanceledException',
@@ -203,7 +203,7 @@ describe('lib/stats', () => {
 
     it('gives up once the lease has moved on to another attempt', async () => {
       mockCommitNewRegistrationStats.mockRejectedValueOnce({ name: 'TransactionCanceledException' })
-      mockReadRegistrationConsistently.mockResolvedValueOnce(withLease('someone-elses-token'))
+      mockReadRegistration.mockResolvedValueOnce(withLease('someone-elses-token'))
 
       await expect(applyNewRegistrationStatsOnce(registration, event, 'lease-token')).rejects.toEqual({
         name: 'TransactionCanceledException',
@@ -216,7 +216,7 @@ describe('lib/stats', () => {
       mockCommitNewRegistrationStats.mockRejectedValueOnce(failure)
 
       await expect(applyNewRegistrationStatsOnce(registration, event, 'lease-token')).rejects.toThrow(failure)
-      expect(mockReadRegistrationConsistently).not.toHaveBeenCalled()
+      expect(mockReadRegistration).not.toHaveBeenCalled()
     })
   })
 

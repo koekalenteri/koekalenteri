@@ -35,7 +35,8 @@ import { getKLIntegraatio } from './KLIntegraatio'
 import { searchKcTrials } from './kcTrial'
 import { LambdaError } from './lambda'
 import { logger } from './log'
-import { getReadyRegistrationsByEventId, getRegistration, writeKcResult } from './registration'
+import { getReadyRegistrationsByEventId, getRegistration } from './registration'
+import { writeKcResult } from './repositories/registrationRepository'
 
 /**
  * Sending a trial's results to Kennelliitto's Omakoira (KOE-1140): the checks that need no write, the

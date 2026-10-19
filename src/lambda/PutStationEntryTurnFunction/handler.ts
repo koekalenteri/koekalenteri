@@ -2,7 +2,7 @@ import type { JsonConfirmedEvent } from '../../types'
 import { getEvent } from '../lib/event'
 import { parseJSONWithFallback } from '../lib/json'
 import { getParam, lambda, response } from '../lib/lambda'
-import { getRegistrationsByEventId } from '../lib/registration'
+import { readEventRegistrations } from '../lib/repositories/registrationRepository'
 import { authorizeStationEntry, publicStationTurns } from '../lib/stationEntry'
 import { parseStationTurnOp, writeStationTurn } from '../lib/stationTurns'
 import { publishEventPatch } from '../lib/ws/actions'
@@ -20,7 +20,7 @@ const putStationEntryTurnLambda = lambda('putStationEntryTurn', async (event) =>
   const station = authorizeStationEntry(event, eventId, confirmedEvent, stationId)
   const op = parseStationTurnOp(parseJSONWithFallback(event.body, {}))
 
-  const registrations = await getRegistrationsByEventId(eventId)
+  const registrations = await readEventRegistrations(eventId)
   const turns = await writeStationTurn(confirmedEvent, registrations, station.id, op)
 
   await publishEventPatch({ eventId, turns }, confirmedEvent.organizer.id)

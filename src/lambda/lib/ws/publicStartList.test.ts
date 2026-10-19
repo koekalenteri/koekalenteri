@@ -4,7 +4,7 @@ import { vi } from 'vitest'
 import { asJsonConfirmedEvent, asJsonRegistration } from '../../test-utils/helpers'
 
 const mockPublicStartListAudience = vi.fn()
-const mockGetRegistrationsByEventId = vi.fn()
+const mockReadEventRegistrations = vi.fn()
 const mockGetEvent = vi.fn()
 const mockRemoveConnection = vi.fn()
 
@@ -23,7 +23,9 @@ const mockBroadcast = vi.fn(async ({ audience, buildPayload }: BroadcastArgs) =>
 vi.doMock('./broadcast', () => ({ broadcast: mockBroadcast }))
 vi.doMock('./connectionRepository', () => ({ removeConnection: mockRemoveConnection }))
 vi.doMock('./connectionSelectors', () => ({ publicStartListAudience: mockPublicStartListAudience }))
-vi.doMock('../registration', () => ({ getRegistrationsByEventId: mockGetRegistrationsByEventId }))
+vi.doMock('../repositories/registrationRepository', () => ({
+  readEventRegistrations: mockReadEventRegistrations,
+}))
 vi.doMock('../event', () => ({ getEvent: mockGetEvent }))
 
 const { buildPublicStartListPayload, publishPublicStartList } = await import('./publicStartList')
@@ -55,7 +57,7 @@ describe('ws/publicStartList', () => {
     vi.clearAllMocks()
     sentPayload = undefined
     mockPublicStartListAudience.mockResolvedValue([{ connectionId: 'reader' }])
-    mockGetRegistrationsByEventId.mockResolvedValue([registration('Aapo', 1)])
+    mockReadEventRegistrations.mockResolvedValue([registration('Aapo', 1)])
     mockGetEvent.mockResolvedValue(publishedEvent)
     vi.useFakeTimers({ now: new Date('2025-01-01T10:00:00.000Z'), toFake: ['Date'] })
   })
@@ -72,7 +74,7 @@ describe('ws/publicStartList', () => {
       sent: 1,
     })
 
-    expect(mockGetRegistrationsByEventId).toHaveBeenCalledWith('event-1', true)
+    expect(mockReadEventRegistrations).toHaveBeenCalledWith('event-1', true)
     expect(sentPayload).toEqual({
       eventId: 'event-1',
       participants: [
@@ -96,7 +98,7 @@ describe('ws/publicStartList', () => {
     await publishPublicStartList('event-1')
 
     expect(mockGetEvent).toHaveBeenCalledWith('event-1', true)
-    expect(mockGetRegistrationsByEventId).not.toHaveBeenCalled()
+    expect(mockReadEventRegistrations).not.toHaveBeenCalled()
     expect(sentPayload).toEqual({
       eventId: 'event-1',
       participants: [],
@@ -127,7 +129,7 @@ describe('ws/publicStartList', () => {
     })
 
     expect(mockGetEvent).not.toHaveBeenCalled()
-    expect(mockGetRegistrationsByEventId).not.toHaveBeenCalled()
+    expect(mockReadEventRegistrations).not.toHaveBeenCalled()
     expect(mockBroadcast).not.toHaveBeenCalled()
   })
 

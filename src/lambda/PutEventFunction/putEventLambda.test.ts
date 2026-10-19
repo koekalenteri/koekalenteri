@@ -36,9 +36,9 @@ vi.doMock('../lib/event', () => ({
   updateRegistrations: vi.fn(),
 }))
 
-const mockGetRegistrationsByEventId = vi.fn()
-vi.doMock('../lib/registration', () => ({
-  getRegistrationsByEventId: mockGetRegistrationsByEventId,
+const mockReadEventRegistrations = vi.fn()
+vi.doMock('../lib/repositories/registrationRepository', () => ({
+  readEventRegistrations: mockReadEventRegistrations,
 }))
 
 /** A dog picked into a group of the class, and invited: nothing left for the start list to wait on. */
@@ -151,7 +151,7 @@ describe('putEventLambda', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     patchEventMock.mockImplementation(async (_id, _existing, next) => ({ event: next }))
-    mockGetRegistrationsByEventId.mockResolvedValue([
+    mockReadEventRegistrations.mockResolvedValue([
       invitedParticipant(),
       invitedParticipant('ALO'),
       invitedParticipant('AVO'),
@@ -424,7 +424,7 @@ describe('putEventLambda', () => {
       it('refuses a changed link once a result has been sent for any dog', async () => {
         authorizeMock.mockResolvedValueOnce(mockSecretary)
         getEventMock.mockResolvedValueOnce(linked)
-        mockGetRegistrationsByEventId.mockResolvedValueOnce([
+        mockReadEventRegistrations.mockResolvedValueOnce([
           { id: 'a' },
           { id: 'b', kcResult: { at: 'x', by: 'y', status: 'failed' } },
         ])
@@ -438,7 +438,7 @@ describe('putEventLambda', () => {
       it('lets the link change while nothing has been sent or read', async () => {
         authorizeMock.mockResolvedValueOnce(mockSecretary)
         getEventMock.mockResolvedValueOnce(linked)
-        mockGetRegistrationsByEventId.mockResolvedValueOnce([{ id: 'a' }])
+        mockReadEventRegistrations.mockResolvedValueOnce([{ id: 'a' }])
         patchEventMock.mockResolvedValueOnce({ event: { ...mockEvent, kcGuid: 'another-guid' } })
 
         const res = await putEventLambda(constructAPIGwEvent({ id: 'existing', kcGuid: 'another-guid' }))
@@ -735,7 +735,7 @@ describe('putEventLambda', () => {
     it('refuses a start list whose participants have not had the invitation', async () => {
       authorizeMock.mockResolvedValueOnce(mockSecretary)
       getEventMock.mockResolvedValueOnce(classless)
-      mockGetRegistrationsByEventId.mockResolvedValueOnce([{ ...invitedParticipant(), messagesSent: {} }])
+      mockReadEventRegistrations.mockResolvedValueOnce([{ ...invitedParticipant(), messagesSent: {} }])
 
       const res = await publish({ startListPublished: true })
 
@@ -747,7 +747,7 @@ describe('putEventLambda', () => {
     it('refuses a start list with nobody picked', async () => {
       authorizeMock.mockResolvedValueOnce(mockSecretary)
       getEventMock.mockResolvedValueOnce(classless)
-      mockGetRegistrationsByEventId.mockResolvedValueOnce([])
+      mockReadEventRegistrations.mockResolvedValueOnce([])
 
       const res = await publish({ startListPublished: true })
 
@@ -758,7 +758,7 @@ describe('putEventLambda', () => {
     it("lets a past trial's start list out though its invitations never went (KOE-1465)", async () => {
       authorizeMock.mockResolvedValueOnce(mockSecretary)
       getEventMock.mockResolvedValueOnce({ ...classless, endDate: '2025-03-01', startDate: '2025-03-01' })
-      mockGetRegistrationsByEventId.mockResolvedValueOnce([{ ...invitedParticipant(), messagesSent: {} }])
+      mockReadEventRegistrations.mockResolvedValueOnce([{ ...invitedParticipant(), messagesSent: {} }])
 
       const res = await publish({ startListPublished: true })
 
@@ -777,7 +777,7 @@ describe('putEventLambda', () => {
       }
       authorizeMock.mockResolvedValueOnce(mockSecretary)
       getEventMock.mockResolvedValueOnce(pastPicked)
-      mockGetRegistrationsByEventId.mockResolvedValueOnce([])
+      mockReadEventRegistrations.mockResolvedValueOnce([])
 
       const res = await publish({ startListPublished: true })
 
@@ -795,7 +795,7 @@ describe('putEventLambda', () => {
       }
       authorizeMock.mockResolvedValueOnce(mockSecretary)
       getEventMock.mockResolvedValueOnce(pastPicked)
-      mockGetRegistrationsByEventId.mockResolvedValueOnce([{ ...invitedParticipant(), messagesSent: {} }])
+      mockReadEventRegistrations.mockResolvedValueOnce([{ ...invitedParticipant(), messagesSent: {} }])
 
       const res = await publish({ startListPublished: true })
 
@@ -810,12 +810,12 @@ describe('putEventLambda', () => {
     it('always lets a start list be hidden', async () => {
       authorizeMock.mockResolvedValueOnce(mockSecretary)
       getEventMock.mockResolvedValueOnce({ ...classless, startListPublished: true })
-      mockGetRegistrationsByEventId.mockResolvedValueOnce([])
+      mockReadEventRegistrations.mockResolvedValueOnce([])
 
       const res = await publish({ startListPublished: false })
 
       expect(res.statusCode).toEqual(200)
-      expect(mockGetRegistrationsByEventId).not.toHaveBeenCalled()
+      expect(mockReadEventRegistrations).not.toHaveBeenCalled()
     })
 
     /**
@@ -1326,7 +1326,7 @@ describe('putEventLambda', () => {
     const ready = { id: 'a', state: 'ready' }
 
     // A value queued for a read that never came must not answer this block's reads.
-    beforeEach(() => mockGetRegistrationsByEventId.mockReset())
+    beforeEach(() => mockReadEventRegistrations.mockReset())
 
     const put = async (stored: JsonDogEvent, change: Partial<JsonDogEvent>, method: 'PATCH' | 'PUT' = 'PUT') => {
       authorizeMock.mockResolvedValueOnce(mockSecretary)
@@ -1341,7 +1341,7 @@ describe('putEventLambda', () => {
       ['an optional cost', { cost: { normal: 40, optionalAdditionalCosts: [{ cost: 5, description: { fi: 'x' } }] } }],
       ['the payment time', { paymentTime: 'confirmation' }],
     ])('refuses a change to %s', async (_name, change) => {
-      mockGetRegistrationsByEventId.mockResolvedValue([ready])
+      mockReadEventRegistrations.mockResolvedValue([ready])
 
       const res = await put(priced, change)
 
@@ -1351,16 +1351,16 @@ describe('putEventLambda', () => {
     })
 
     it('refuses a change through PATCH too', async () => {
-      mockGetRegistrationsByEventId.mockResolvedValue([ready])
+      mockReadEventRegistrations.mockResolvedValue([ready])
 
       const res = await put(priced, { cost: { normal: 45 } }, 'PATCH')
 
       expect(res.statusCode).toEqual(409)
-      expect(mockGetRegistrationsByEventId).toHaveBeenCalledWith('existing')
+      expect(mockReadEventRegistrations).toHaveBeenCalledWith('existing')
     })
 
     it('counts a cancelled registration, which can be put back into a class', async () => {
-      mockGetRegistrationsByEventId.mockResolvedValue([{ ...ready, cancelled: true }])
+      mockReadEventRegistrations.mockResolvedValue([{ ...ready, cancelled: true }])
 
       const res = await put(priced, { cost: { normal: 45 } })
 
@@ -1393,7 +1393,7 @@ describe('putEventLambda', () => {
         { entryEndDate: '2025-05-20T23:59:59.999+03:00' },
       ],
     ])('accepts %s', async (_name, stored, change) => {
-      mockGetRegistrationsByEventId.mockResolvedValue([ready])
+      mockReadEventRegistrations.mockResolvedValue([ready])
 
       const res = await put(stored, change)
 
@@ -1405,7 +1405,7 @@ describe('putEventLambda', () => {
       ['the price', { cost: earlyBird }],
       ['the member price', { costMember: earlyBird }],
     ])('refuses moving the entry start when %s has an early-bird rate', async (_name, terms) => {
-      mockGetRegistrationsByEventId.mockResolvedValue([ready])
+      mockReadEventRegistrations.mockResolvedValue([ready])
 
       const res = await put({ ...priced, ...terms }, { entryStartDate: '2025-04-03T00:00:00.000+03:00' })
 
@@ -1417,7 +1417,7 @@ describe('putEventLambda', () => {
       ['no registrations', []],
       ['only registrations still waiting for their payment', [{ id: 'a', state: 'creating' }]],
     ])('accepts a change when the event has %s', async (_name, registrations) => {
-      mockGetRegistrationsByEventId.mockResolvedValue(registrations)
+      mockReadEventRegistrations.mockResolvedValue(registrations)
 
       const res = await put(
         { ...priced, cost: earlyBird },
@@ -1434,7 +1434,7 @@ describe('putEventLambda', () => {
     it('does not read the registrations when the terms stay as they were', async () => {
       await put(priced, { name: 'renamed' })
 
-      expect(mockGetRegistrationsByEventId).not.toHaveBeenCalled()
+      expect(mockReadEventRegistrations).not.toHaveBeenCalled()
     })
   })
 })

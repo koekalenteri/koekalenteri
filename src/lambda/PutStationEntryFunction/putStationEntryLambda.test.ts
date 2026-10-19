@@ -10,7 +10,7 @@ const mockGetParam = vi.fn()
 const mockAudit = vi.fn()
 const mockRegistrationAuditKey = vi.fn()
 const mockGetEvent = vi.fn()
-const mockGetRegistrationsByEventId = vi.fn()
+const mockReadEventRegistrations = vi.fn()
 const mockUpdateRegistrationField = vi.fn()
 const mockPublishRegistrationPatches = vi.fn()
 
@@ -31,8 +31,8 @@ vi.doMock('../lib/lambda', async () => ({
 
 vi.doMock('../lib/audit', () => ({ audit: mockAudit, registrationAuditKey: mockRegistrationAuditKey }))
 vi.doMock('../lib/event', () => ({ getEvent: mockGetEvent }))
-vi.doMock('../lib/registration', () => ({
-  getRegistrationsByEventId: mockGetRegistrationsByEventId,
+vi.doMock('../lib/repositories/registrationRepository', () => ({
+  readEventRegistrations: mockReadEventRegistrations,
   updateRegistrationField: mockUpdateRegistrationField,
 }))
 vi.doMock('../lib/ws/actions', () => ({ publishRegistrationPatches: mockPublishRegistrationPatches }))
@@ -68,7 +68,7 @@ describe('putStationEntryLambda', () => {
     vi.clearAllMocks()
     mockGetParam.mockImplementation((_event, name: string) => (name === 'eventId' ? 'event-1' : 'post-1'))
     mockGetEvent.mockResolvedValue(confirmedEvent)
-    mockGetRegistrationsByEventId.mockResolvedValue([registration('reg-1')])
+    mockReadEventRegistrations.mockResolvedValue([registration('reg-1')])
   })
 
   it('refuses a wrong token before touching anything', async () => {
@@ -76,7 +76,7 @@ describe('putStationEntryLambda', () => {
       putStationEntryLambda(apiEvent([{ eventResult: { tasks: [] }, id: 'reg-1' }], 'wrong'))
     ).rejects.toThrow('not found')
 
-    expect(mockGetRegistrationsByEventId).not.toHaveBeenCalled()
+    expect(mockReadEventRegistrations).not.toHaveBeenCalled()
     expect(mockUpdateRegistrationField).not.toHaveBeenCalled()
   })
 
@@ -148,7 +148,7 @@ describe('putStationEntryLambda', () => {
   })
 
   it('echoes back only what the link may see', async () => {
-    mockGetRegistrationsByEventId.mockResolvedValue([
+    mockReadEventRegistrations.mockResolvedValue([
       {
         ...registration('reg-1'),
         eventResult: {

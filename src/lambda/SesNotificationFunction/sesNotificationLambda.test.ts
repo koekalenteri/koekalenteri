@@ -1,15 +1,11 @@
 import type { SNSEvent } from 'aws-lambda'
+import type * as registrationRepository from '../lib/repositories/registrationRepository'
 import { vi } from 'vitest'
 
 const mockAudit = vi.fn()
 const mockRegistrationAuditKey = vi.fn()
-const mockDynamoUpdate = vi.fn()
+const mockWriteEmailDeliveryStatus = vi.fn<typeof registrationRepository.writeEmailDeliveryStatus>()
 const mockWriteEmailSuppression = vi.fn()
-const mockDynamoClient = vi.fn(function MockCustomDynamoClient() {
-  return {
-    update: mockDynamoUpdate,
-  }
-})
 const mockGetEvent = vi.fn()
 const mockPublishRegistrationPatches = vi.fn()
 
@@ -18,8 +14,8 @@ vi.doMock('../lib/audit', () => ({
   registrationAuditKey: mockRegistrationAuditKey,
 }))
 
-vi.doMock('../utils/CustomDynamoClient', () => ({
-  default: mockDynamoClient,
+vi.doMock('../lib/repositories/registrationRepository', () => ({
+  writeEmailDeliveryStatus: mockWriteEmailDeliveryStatus,
 }))
 
 vi.doMock('../lib/repositories/emailSuppressionRepository', () => ({
@@ -38,8 +34,6 @@ const { default: sesNotificationLambda } = await import('./handler')
 
 /** The handler reads only Records[].Sns.Message; minimal events convert at this boundary. */
 const asSNSEvent = (event: { Records: { Sns: { Message: string } }[] }) => event as SNSEvent
-
-const registrationExists = { expression: 'attribute_exists(#id)', names: { '#id': 'id' } }
 
 const bounceFor = (tags: Record<string, string[]>) =>
   asSNSEvent({
@@ -61,6 +55,7 @@ describe('sesNotificationLambda', () => {
     vi.clearAllMocks()
     mockRegistrationAuditKey.mockReturnValue('event123:reg456')
     mockGetEvent.mockResolvedValue({ organizer: { id: 'org-1' } })
+    mockWriteEmailDeliveryStatus.mockResolvedValue(true)
   })
 
   it('stores bounce details for the tagged registration', async () => {
@@ -94,23 +89,13 @@ describe('sesNotificationLambda', () => {
       })
     )
 
-    expect(mockDynamoUpdate).toHaveBeenCalledWith(
-      { eventId: 'event123', id: 'reg456' },
-      {
-        set: {
-          emailDeliveryStatus: {
-            at: '2026-05-27T10:00:00.000Z',
-            email: 'Handler@Example.com',
-            reason: 'smtp; 550 5.1.1 user unknown',
-            status: 'bounce',
-            template: 'invitation',
-          },
-        },
-      },
-      undefined,
-      undefined,
-      registrationExists
-    )
+    expect(mockWriteEmailDeliveryStatus).toHaveBeenCalledWith('event123', 'reg456', {
+      at: '2026-05-27T10:00:00.000Z',
+      email: 'Handler@Example.com',
+      reason: 'smtp; 550 5.1.1 user unknown',
+      status: 'bounce',
+      template: 'invitation',
+    })
     expect(mockPublishRegistrationPatches).toHaveBeenCalledWith(
       'event123',
       [
@@ -173,23 +158,13 @@ describe('sesNotificationLambda', () => {
       })
     )
 
-    expect(mockDynamoUpdate).toHaveBeenCalledWith(
-      { eventId: 'event123', id: 'reg456' },
-      {
-        set: {
-          emailDeliveryStatus: {
-            at: '2026-05-27T11:00:00.000Z',
-            email: 'owner@example.com',
-            reason: 'abuse',
-            status: 'complaint',
-            template: 'registration',
-          },
-        },
-      },
-      undefined,
-      undefined,
-      registrationExists
-    )
+    expect(mockWriteEmailDeliveryStatus).toHaveBeenCalledWith('event123', 'reg456', {
+      at: '2026-05-27T11:00:00.000Z',
+      email: 'owner@example.com',
+      reason: 'abuse',
+      status: 'complaint',
+      template: 'registration',
+    })
     expect(mockWriteEmailSuppression).toHaveBeenCalledWith({
       email: 'owner@example.com',
       eventId: 'event123',
@@ -219,7 +194,7 @@ describe('sesNotificationLambda', () => {
       })
     )
 
-    expect(mockDynamoUpdate).not.toHaveBeenCalled()
+    expect(mockWriteEmailDeliveryStatus).not.toHaveBeenCalled()
     expect(mockWriteEmailSuppression).not.toHaveBeenCalled()
     expect(mockAudit).not.toHaveBeenCalled()
   })
@@ -230,7 +205,7 @@ describe('sesNotificationLambda', () => {
       bounceFor({ eventId: ['event123'], registrationId: ['reg456'], stack: ['koekalenteri-test'] })
     )
 
-    expect(mockDynamoUpdate).not.toHaveBeenCalled()
+    expect(mockWriteEmailDeliveryStatus).not.toHaveBeenCalled()
     expect(mockWriteEmailSuppression).not.toHaveBeenCalled()
     expect(mockPublishRegistrationPatches).not.toHaveBeenCalled()
     expect(mockAudit).not.toHaveBeenCalled()
@@ -239,33 +214,25 @@ describe('sesNotificationLambda', () => {
   it("stores this stack's notification", async () => {
     await sesNotificationLambda(bounceFor({ eventId: ['event123'], registrationId: ['reg456'], stack: ['local'] }))
 
-    expect(mockDynamoUpdate).toHaveBeenCalledTimes(1)
+    expect(mockWriteEmailDeliveryStatus).toHaveBeenCalledTimes(1)
     expect(mockWriteEmailSuppression).toHaveBeenCalledTimes(1)
     expect(mockAudit).toHaveBeenCalledTimes(1)
   })
 
   it('creates nothing for a registration this stack does not have', async () => {
-    mockDynamoUpdate.mockRejectedValueOnce(
-      Object.assign(new Error('The conditional request failed'), { name: 'ConditionalCheckFailedException' })
-    )
+    mockWriteEmailDeliveryStatus.mockResolvedValueOnce(false)
 
     await sesNotificationLambda(bounceFor({ eventId: ['event123'], registrationId: ['reg456'] }))
 
-    expect(mockDynamoUpdate).toHaveBeenCalledWith(
-      { eventId: 'event123', id: 'reg456' },
-      expect.anything(),
-      undefined,
-      undefined,
-      registrationExists
-    )
+    expect(mockWriteEmailDeliveryStatus).toHaveBeenCalledWith('event123', 'reg456', expect.anything())
     expect(mockWriteEmailSuppression).not.toHaveBeenCalled()
     expect(mockGetEvent).not.toHaveBeenCalled()
     expect(mockPublishRegistrationPatches).not.toHaveBeenCalled()
     expect(mockAudit).not.toHaveBeenCalled()
   })
 
-  it('rethrows any other update failure', async () => {
-    mockDynamoUpdate.mockRejectedValueOnce(new Error('throttled'))
+  it('rethrows a failure to store the status', async () => {
+    mockWriteEmailDeliveryStatus.mockRejectedValueOnce(new Error('throttled'))
 
     await expect(
       sesNotificationLambda(bounceFor({ eventId: ['event123'], registrationId: ['reg456'] }))

@@ -30,7 +30,7 @@ import {
 import { parseJSONWithFallback } from '../lib/json'
 import { httpError, isPatchRequest, lambda, response } from '../lib/lambda'
 import { logger } from '../lib/log'
-import { getRegistrationsByEventId } from '../lib/registration'
+import { readEventRegistrations } from '../lib/repositories/registrationRepository'
 import { validateBody } from '../lib/request'
 import { moveOrganizerEventStats } from '../lib/stats'
 import { publishEventChange, publishEventCounts } from '../lib/ws/actions'
@@ -115,7 +115,7 @@ const checkPublishing = async (
     ? newlyPublished(data, isStartListFlagPublished, existing)
     : []
   if (startLists.length) {
-    const participants = groupParticipantsByClass(await getRegistrationsByEventId(data.id))
+    const participants = groupParticipantsByClass(await readEventRegistrations(data.id))
     for (const eventClass of startLists) {
       const reason = getStartListBlocker(data, eventClass, participants[eventClass ?? data.eventType] ?? [])
       if (reason) throw httpError(422, { error: 'publishBlocked', eventClass, publish: 'startList', reason })
@@ -294,7 +294,7 @@ const findKcGuidLock = async (
   if (!existing?.kcGuid || !Object.hasOwn(item, 'kcGuid') || (item.kcGuid ?? undefined) === existing.kcGuid) {
     return undefined
   }
-  const sent = existing.kcState || (await getRegistrationsByEventId(existing.id)).some((reg) => reg.kcResult)
+  const sent = existing.kcState || (await readEventRegistrations(existing.id)).some((reg) => reg.kcResult)
   return sent ? { error: 'kcGuidLocked', message: 'Results have been sent to the linked Kennel Club trial' } : undefined
 }
 
@@ -305,7 +305,7 @@ const findKcGuidLock = async (
  */
 const checkPaymentLock = async (existing: JsonConfirmedEvent | undefined, data: JsonConfirmedEvent) => {
   if (!existing || !paymentTermsDiffer(existing, data)) return
-  if (hasPaymentLockingRegistrations(await getRegistrationsByEventId(existing.id))) {
+  if (hasPaymentLockingRegistrations(await readEventRegistrations(existing.id))) {
     throw httpError(409, {
       error: 'paymentLocked',
       message: 'The event has registrations; its payment terms are locked',

@@ -14,7 +14,8 @@ import { authorizeEvent } from '../lib/eventAuth'
 import { removeEventRuntimeState } from '../lib/eventCopy'
 import { parseJSONWithFallback } from '../lib/json'
 import { httpError, lambda, response } from '../lib/lambda'
-import { getRegistrationsByEventId, removeRegistrationCreationMetadata, saveRegistrations } from '../lib/registration'
+import { removeRegistrationCreationMetadata } from '../lib/registration'
+import { readEventRegistrations, writeRegistrations } from '../lib/repositories/registrationRepository'
 import { publishEventChange } from '../lib/ws/actions'
 
 const copyEventLambda = lambda('copyEvent', async (event) => {
@@ -77,7 +78,7 @@ const copyEventLambda = lambda('copyEvent', async (event) => {
 
   await publishEventChange(await saveEvent(item))
 
-  const registrations = await getRegistrationsByEventId(id)
+  const registrations = await readEventRegistrations(id)
 
   const copies = (registrations ?? []).map((reg) => {
     reg.eventId = item.id
@@ -105,7 +106,7 @@ const copyEventLambda = lambda('copyEvent', async (event) => {
     }
     return reg
   })
-  await saveRegistrations(copies)
+  await writeRegistrations(copies)
 
   return response(200, item, event)
 })

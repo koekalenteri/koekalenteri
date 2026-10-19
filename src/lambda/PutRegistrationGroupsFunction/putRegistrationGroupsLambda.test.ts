@@ -251,8 +251,6 @@ describe('putRegistrationGroupsLambda', () => {
     expect(mockDynamoDB.update).toHaveBeenCalledTimes(2)
     expect(mockDynamoDB.update).not.toHaveBeenCalledWith(
       expect.objectContaining({ eventId: event.id }),
-      expect.anything(),
-      'registration-table-not-found-in-env',
       expect.anything()
     )
   })
@@ -307,8 +305,7 @@ describe('putRegistrationGroupsLambda', () => {
           group: { key: 'reserve', number: 3 },
           updatedAt: expect.any(String),
         },
-      },
-      'registration-table-not-found-in-env'
+      }
     )
     expect(mockDynamoDB.update).toHaveBeenNthCalledWith(
       3,
@@ -431,8 +428,7 @@ describe('putRegistrationGroupsLambda', () => {
           group: { key: 'reserve', number: 1 },
           updatedAt: expect.any(String),
         },
-      },
-      'registration-table-not-found-in-env'
+      }
     )
     expect(mockDynamoDB.update).toHaveBeenNthCalledWith(
       3,
@@ -443,8 +439,7 @@ describe('putRegistrationGroupsLambda', () => {
           group: { key: 'reserve', number: 2 },
           updatedAt: expect.any(String),
         },
-      },
-      'registration-table-not-found-in-env'
+      }
     )
     expect(mockDynamoDB.update).toHaveBeenNthCalledWith(
       4,
@@ -499,8 +494,7 @@ describe('putRegistrationGroupsLambda', () => {
             group: { date, key: '2026-08-15-ap', number: index + 1, time: 'ap' },
             updatedAt: expect.any(String),
           },
-        },
-        'registration-table-not-found-in-env'
+        }
       )
     }
     // Only the move of the reserve dog is in the trail, none of the respelled starts
@@ -631,8 +625,7 @@ describe('putRegistrationGroupsLambda', () => {
       // Both reserves changed their number, and so their row; neither changed its place.
       expect(mockDynamoDB.update).toHaveBeenCalledWith(
         { eventId: event.id, id: second.id },
-        expect.objectContaining({ set: expect.objectContaining({ group: expect.objectContaining({ number: 1 }) }) }),
-        expect.anything()
+        expect.objectContaining({ set: expect.objectContaining({ group: expect.objectContaining({ number: 1 }) }) })
       )
       expect(mockToEntrant).not.toHaveBeenCalled()
     })
@@ -1109,8 +1102,7 @@ describe('putRegistrationGroupsLambda', () => {
           group: { key: 'cancelled', number: 1 },
           updatedAt: expect.any(String),
         },
-      },
-      'registration-table-not-found-in-env'
+      }
     )
     expect(mockDynamoDB.update).toHaveBeenNthCalledWith(
       3,

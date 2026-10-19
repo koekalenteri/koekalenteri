@@ -333,17 +333,14 @@ describe('copyEventHandler', () => {
         ],
       })
     )
-    expect(mockBatchWrite).toHaveBeenCalledWith(
-      [
-        {
-          dates: [{ date: expected.startDate }, { date: expected.endDate }],
-          eventId: 'newid123',
-          group: { date: expected.groupDate, key: expected.groupKey, number: 1, time: 'ip' },
-          id: 'registration123',
-        },
-      ],
-      'registration-table-not-found-in-env'
-    )
+    expect(mockBatchWrite).toHaveBeenCalledWith([
+      {
+        dates: [{ date: expected.startDate }, { date: expected.endDate }],
+        eventId: 'newid123',
+        group: { date: expected.groupDate, key: expected.groupKey, number: 1, time: 'ip' },
+        id: 'registration123',
+      },
+    ])
   })
 
   it('sets season using Finnish timezone when copying an event near year boundary', async () => {
@@ -449,19 +446,16 @@ describe('copyEventHandler', () => {
     await copyInvitedEvent()
 
     // Other messages the entry got stay recorded; only the invitation is the copy's to send.
-    expect(mockBatchWrite).toHaveBeenCalledWith(
-      [
-        {
-          class: 'ALO',
-          dates: [{ date: '2025-07-01T00:00:00.000Z' }],
-          eventId: 'newid123',
-          eventType: 'NOU',
-          id: 'registration123',
-          messagesSent: { registration: true },
-        },
-      ],
-      'registration-table-not-found-in-env'
-    )
+    expect(mockBatchWrite).toHaveBeenCalledWith([
+      {
+        class: 'ALO',
+        dates: [{ date: '2025-07-01T00:00:00.000Z' }],
+        eventId: 'newid123',
+        eventType: 'NOU',
+        id: 'registration123',
+        messagesSent: { registration: true },
+      },
+    ])
   })
 
   it('does not copy registration idempotency credentials, post-processing state or event outcomes', async () => {
@@ -497,16 +491,13 @@ describe('copyEventHandler', () => {
 
     await copyEventHandler(event)
 
-    expect(mockBatchWrite).toHaveBeenCalledWith(
-      [
-        {
-          dates: [{ date: '2025-07-01T00:00:00.000Z' }],
-          eventId: 'newid123',
-          id: 'registration123',
-        },
-      ],
-      'registration-table-not-found-in-env'
-    )
+    expect(mockBatchWrite).toHaveBeenCalledWith([
+      {
+        dates: [{ date: '2025-07-01T00:00:00.000Z' }],
+        eventId: 'newid123',
+        id: 'registration123',
+      },
+    ])
   })
 
   it('shifts the group date of every entry and gives a participant group key only to a start (KOE-1537)', async () => {
@@ -551,37 +542,34 @@ describe('copyEventHandler', () => {
 
     await copyEventHandler(event)
 
-    expect(mockBatchWrite).toHaveBeenCalledWith(
-      [
-        {
-          dates: [{ date: '2025-07-01T00:00:00.000Z', time: 'kp' }],
-          eventId: 'newid123',
-          group: { date: '2025-07-01T00:00:00.000Z', key: '2025-07-01-kp', number: 1, time: 'kp' },
-          id: 'starter',
-        },
-        {
-          cancelled: true,
-          dates: [{ date: '2025-07-01T00:00:00.000Z', time: 'kp' }],
-          eventId: 'newid123',
-          group: { date: '2025-07-01T00:00:00.000Z', key: 'cancelled', number: 2, time: 'kp' },
-          id: 'cancelled',
-        },
-        {
-          cancelled: true,
-          dates: [{ date: '2025-07-01T00:00:00.000Z', time: 'kp' }],
-          eventId: 'newid123',
-          group: { date: '2025-07-01T00:00:00.000Z', key: 'cancelled', number: 3, time: 'kp' },
-          id: 'legacy-cancelled',
-        },
-        {
-          dates: [{ date: '2025-07-01T00:00:00.000Z', time: 'kp' }],
-          eventId: 'newid123',
-          group: { date: '2025-07-01T00:00:00.000Z', key: 'reserve', number: 1, time: 'kp' },
-          id: 'reserve',
-        },
-      ],
-      'registration-table-not-found-in-env'
-    )
+    expect(mockBatchWrite).toHaveBeenCalledWith([
+      {
+        dates: [{ date: '2025-07-01T00:00:00.000Z', time: 'kp' }],
+        eventId: 'newid123',
+        group: { date: '2025-07-01T00:00:00.000Z', key: '2025-07-01-kp', number: 1, time: 'kp' },
+        id: 'starter',
+      },
+      {
+        cancelled: true,
+        dates: [{ date: '2025-07-01T00:00:00.000Z', time: 'kp' }],
+        eventId: 'newid123',
+        group: { date: '2025-07-01T00:00:00.000Z', key: 'cancelled', number: 2, time: 'kp' },
+        id: 'cancelled',
+      },
+      {
+        cancelled: true,
+        dates: [{ date: '2025-07-01T00:00:00.000Z', time: 'kp' }],
+        eventId: 'newid123',
+        group: { date: '2025-07-01T00:00:00.000Z', key: 'cancelled', number: 3, time: 'kp' },
+        id: 'legacy-cancelled',
+      },
+      {
+        dates: [{ date: '2025-07-01T00:00:00.000Z', time: 'kp' }],
+        eventId: 'newid123',
+        group: { date: '2025-07-01T00:00:00.000Z', key: 'reserve', number: 1, time: 'kp' },
+        id: 'reserve',
+      },
+    ])
   })
 
   it("keys a copied start by the trial's day in Finnish time, not the UTC day (KOE-1537)", async () => {
@@ -606,17 +594,14 @@ describe('copyEventHandler', () => {
 
     await copyEventHandler(event)
 
-    expect(mockBatchWrite).toHaveBeenCalledWith(
-      [
-        {
-          dates: [{ date: '2026-08-21T21:00:00.000Z', time: 'ap' }],
-          eventId: 'newid123',
-          group: { date: '2026-08-21T21:00:00.000Z', key: '2026-08-22-ap', number: 1, time: 'ap' },
-          id: 'starter',
-        },
-      ],
-      'registration-table-not-found-in-env'
-    )
+    expect(mockBatchWrite).toHaveBeenCalledWith([
+      {
+        dates: [{ date: '2026-08-21T21:00:00.000Z', time: 'ap' }],
+        eventId: 'newid123',
+        group: { date: '2026-08-21T21:00:00.000Z', key: '2026-08-22-ap', number: 1, time: 'ap' },
+        id: 'starter',
+      },
+    ])
   })
 
   it('returns 500 if getEvent throws', async () => {

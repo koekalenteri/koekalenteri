@@ -10,6 +10,7 @@ import type {
 } from '../../../types/Stats'
 import { CONFIG } from '../../config'
 import CustomDynamoClient from '../../utils/CustomDynamoClient'
+import { newRegistrationStatsMarkItem } from './registrationRepository'
 
 const dynamoDB = new CustomDynamoClient(CONFIG.eventStatsTable)
 
@@ -393,23 +394,7 @@ export async function commitNewRegistrationStats(
 ): Promise<void> {
   await dynamoDB.documentTransaction([
     organizerStatsTransactionItem(event, deltas, updatedAt),
-    // The registration's key and its lease and marker attributes are written here because the
-    // transaction belongs to this table's repository; the registration's own access is KOE-1409's.
-    {
-      Update: {
-        ConditionExpression: 'attribute_exists(#id) AND attribute_not_exists(#statsAt) AND #lease.#token = :leaseToken',
-        ExpressionAttributeNames: {
-          '#id': 'id',
-          '#lease': 'newRegistrationLease',
-          '#statsAt': 'newRegistrationStatsAt',
-          '#token': 'token',
-        },
-        ExpressionAttributeValues: { ':leaseToken': leaseToken, ':statsAt': updatedAt },
-        Key: { eventId: registration.eventId, id: registration.id },
-        TableName: CONFIG.registrationTable,
-        UpdateExpression: 'SET #statsAt = :statsAt',
-      },
-    },
+    newRegistrationStatsMarkItem(registration.eventId, registration.id, leaseToken, updatedAt),
   ])
 }
 

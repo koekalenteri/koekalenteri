@@ -12,7 +12,7 @@ const mockRegistrationAuditKey = vi.fn()
 const mockEventAuditKey = vi.fn()
 const mockGetEvent = vi.fn()
 const mockLockRegistrationGroups = vi.fn()
-const mockGetRegistrationsByEventId = vi.fn()
+const mockReadEventRegistrations = vi.fn()
 const mockUpdateRegistrationField = vi.fn()
 const mockRemoveRegistrationField = vi.fn()
 const mockPublishRegistrationPatches = vi.fn()
@@ -39,8 +39,8 @@ vi.doMock('../lib/audit', () => ({
   registrationAuditKey: mockRegistrationAuditKey,
 }))
 vi.doMock('../lib/event', () => ({ getEvent: mockGetEvent, lockRegistrationGroups: mockLockRegistrationGroups }))
-vi.doMock('../lib/registration', () => ({
-  getRegistrationsByEventId: mockGetRegistrationsByEventId,
+vi.doMock('../lib/repositories/registrationRepository', () => ({
+  readEventRegistrations: mockReadEventRegistrations,
   removeRegistrationField: mockRemoveRegistrationField,
   updateRegistrationField: mockUpdateRegistrationField,
 }))
@@ -82,7 +82,7 @@ describe('putClassStartNumbersLambda', () => {
     mockGetParam.mockImplementation((_event, name: string) => (name === 'eventId' ? 'event-1' : 'ALO'))
     mockGetEvent.mockResolvedValue(confirmedEvent)
     mockLockRegistrationGroups.mockResolvedValue(vi.fn())
-    mockGetRegistrationsByEventId.mockResolvedValue([
+    mockReadEventRegistrations.mockResolvedValue([
       registration('alo-1', 'ALO', 1),
       registration('alo-2', 'ALO', 2),
       registration('avo-1', 'AVO', 3),
@@ -164,7 +164,7 @@ describe('putClassStartNumbersLambda', () => {
       putClassStartNumbersLambda(apiEvent({ numbers: [{ id: 'alo-1', startNumber: 2 }] }, 'wrong'))
     ).rejects.toThrow('not found')
 
-    expect(mockGetRegistrationsByEventId).not.toHaveBeenCalled()
+    expect(mockReadEventRegistrations).not.toHaveBeenCalled()
   })
 
   it('has nothing to do without numbers', async () => {

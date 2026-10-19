@@ -2,7 +2,7 @@ import type { JsonConfirmedEvent } from '../../types'
 import { getEvent } from '../lib/event'
 import { parseSubmissions, processResultSubmissions, stationScopedSubmission } from '../lib/eventResults'
 import { getParam, httpError, lambda, response } from '../lib/lambda'
-import { getRegistrationsByEventId } from '../lib/registration'
+import { readEventRegistrations } from '../lib/repositories/registrationRepository'
 import { authorizeStationEntry, scopeResultToStation } from '../lib/stationEntry'
 import { publishRegistrationPatches } from '../lib/ws/actions'
 
@@ -24,7 +24,7 @@ const putStationEntryLambda = lambda('putStationEntry', async (event) => {
   )
   if (submissions.length === 0) throw httpError(422, 'no results')
 
-  const registrations = await getRegistrationsByEventId(eventId)
+  const registrations = await readEventRegistrations(eventId)
   const { conflicts, locked, patches, saved, unchanged } = await processResultSubmissions(
     eventId,
     confirmedEvent,

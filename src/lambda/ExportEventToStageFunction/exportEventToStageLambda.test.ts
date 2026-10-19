@@ -30,10 +30,7 @@ vi.doMock('../lib/auth', () => ({
   },
 }))
 vi.doMock('../lib/event', () => ({ getEvent: mockGetEvent }))
-vi.doMock('../lib/registration', async () => ({
-  ...(await vi.importActual<typeof import('../lib/registration')>('../lib/registration')),
-  getRegistrationsByEventId: mockGetRegistrations,
-}))
+vi.doMock('../lib/repositories/registrationRepository', () => ({ readEventRegistrations: mockGetRegistrations }))
 vi.doMock('../lib/file', () => ({ copyFileToBucket: mockCopyFile }))
 vi.doMock('../lib/audit', async () => ({
   ...(await vi.importActual<typeof import('../lib/audit')>('../lib/audit')),

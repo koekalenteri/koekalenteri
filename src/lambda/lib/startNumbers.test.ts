@@ -8,7 +8,7 @@ const mockRemoveRegistrationField = vi.fn()
 const mockWriteEventFields = vi.fn()
 const mockAudit = vi.fn()
 
-vi.doMock('./registration', () => ({
+vi.doMock('./repositories/registrationRepository', () => ({
   removeRegistrationField: mockRemoveRegistrationField,
   updateRegistrationField: mockUpdateRegistrationField,
 }))

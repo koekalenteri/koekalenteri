@@ -16,8 +16,8 @@ import {
 import { copyFileToBucket } from '../lib/file'
 import { parseJSONWithFallback } from '../lib/json'
 import { httpError, lambda, response } from '../lib/lambda'
-import { getRegistrationsByEventId } from '../lib/registration'
 import { readOrganizer } from '../lib/repositories/organizerRepository'
+import { readEventRegistrations } from '../lib/repositories/registrationRepository'
 
 const lambdaClient = new LambdaClient()
 
@@ -61,7 +61,7 @@ const exportEventToStageLambda = lambda('exportEventToStage', async (event) => {
   }
 
   const copier = { email: user.email, name: user.name, ...(user.phone ? { phone: user.phone } : {}) }
-  const registrations = await getRegistrationsByEventId(eventId)
+  const registrations = await readEventRegistrations(eventId)
   const { copy, originals } = createEventCopy({ event: source, registrations }, copier)
   try {
     assertCopyIsScrubbed(copy, copier, originals)

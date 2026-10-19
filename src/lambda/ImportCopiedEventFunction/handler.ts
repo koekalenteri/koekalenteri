@@ -9,9 +9,9 @@ import { withoutPlusTag } from '../lib/email'
 import { saveEvent } from '../lib/event'
 import { findCopyLeaks, judgeNotices } from '../lib/eventCopy'
 import { logger } from '../lib/log'
-import { saveRegistrations } from '../lib/registration'
 import { readJudges } from '../lib/repositories/judgeRepository'
 import { readOrganizers } from '../lib/repositories/organizerRepository'
+import { writeRegistrations } from '../lib/repositories/registrationRepository'
 import { queryUsersByEmail } from '../lib/repositories/userRepository'
 import { sumNewRegistrationStatDeltas, updateOrganizerEventStats } from '../lib/stats'
 import { publishEventChange } from '../lib/ws/actions'
@@ -63,7 +63,7 @@ export default async function importCopiedEvent(request: CopyImportRequest): Pro
   const registrations = copy.registrations.map((registration) => ({ ...registration, eventId, updatedAt: now }))
 
   await publishEventChange(await saveEvent(event))
-  await saveRegistrations(registrations)
+  await writeRegistrations(registrations)
   if (registrations.length) await updateOrganizerEventStats(event, sumNewRegistrationStatDeltas(registrations))
 
   await audit({

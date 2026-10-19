@@ -89,7 +89,7 @@ vi.doMock('../utils/CustomDynamoClient', () => ({
 }))
 
 const mockGetRegistration = vi.fn<(eventId: string, registrationId: string) => Promise<JsonRegistration>>()
-const mockSaveRegistration = vi.fn()
+const mockWriteRegistration = vi.fn()
 const mockPatchRegistration = vi.fn<
   (
     eventId: JsonRegistration['eventId'],
@@ -114,13 +114,18 @@ const mockAuthorizeRegistrationEdit = vi.fn(() => 'test-edit-token')
 vi.doMock('../lib/registration', () => ({
   ...libRegistration,
   authorizeRegistrationEdit: mockAuthorizeRegistrationEdit,
-  claimNewRegistrationPostProcessing: mockClaimNewRegistrationPostProcessing,
   findExistingRegistrationToEventForDog: mockfindExistingRegistrationToEventForDog,
   getReadyRegistrationsByEventId: mockGetReadyRegistrationsByEventId,
   getRegistration: mockGetRegistration,
-  markNewRegistrationPhase: mockMarkNewRegistrationPhase,
   patchRegistration: mockPatchRegistration,
-  saveRegistration: mockSaveRegistration,
+}))
+vi.doMock('../lib/repositories/registrationRepository', async () => ({
+  ...(await vi.importActual<typeof import('../lib/repositories/registrationRepository')>(
+    '../lib/repositories/registrationRepository'
+  )),
+  claimNewRegistrationPostProcessing: mockClaimNewRegistrationPostProcessing,
+  markNewRegistrationPhase: mockMarkNewRegistrationPhase,
+  writeRegistration: mockWriteRegistration,
 }))
 
 vi.doMock('../lib/emailSuppression', () => ({
@@ -227,7 +232,7 @@ describe('putRegistrationLabmda', () => {
       })
     )
 
-    expect(mockSaveRegistration).toHaveBeenCalledWith(
+    expect(mockWriteRegistration).toHaveBeenCalledWith(
       expect.objectContaining({
         ...JSON.parse(JSON.stringify(registration)),
         createdAt: expect.stringMatching(ISO8601DateTimeRE),
@@ -241,8 +246,8 @@ describe('putRegistrationLabmda', () => {
         updatedAt: expect.stringMatching(ISO8601DateTimeRE),
       })
     )
-    expect(mockSaveRegistration).toHaveBeenCalledWith(expect.objectContaining({ state: 'creating' }))
-    expect(mockSaveRegistration).toHaveBeenCalledTimes(1)
+    expect(mockWriteRegistration).toHaveBeenCalledWith(expect.objectContaining({ state: 'creating' }))
+    expect(mockWriteRegistration).toHaveBeenCalledTimes(1)
     expect(mockApplyNewRegistrationStatsOnce).toHaveBeenCalledWith(
       registrationWithStaticDates,
       expect.objectContaining({ id: eventWithStaticDates.id }),
@@ -346,7 +351,7 @@ describe('putRegistrationLabmda', () => {
       )
     )
 
-    expect(mockSaveRegistration).toHaveBeenCalledWith(
+    expect(mockWriteRegistration).toHaveBeenCalledWith(
       expect.objectContaining({
         state: 'ready',
       })
@@ -441,7 +446,7 @@ describe('putRegistrationLabmda', () => {
 
     expect(res.statusCode).toBe(409)
     expect(mockLockRegistrationPayments).toHaveBeenCalledWith(eventWithStaticDates.id)
-    expect(mockSaveRegistration).not.toHaveBeenCalled()
+    expect(mockWriteRegistration).not.toHaveBeenCalled()
     expect(mockfindExistingRegistrationToEventForDog).toHaveBeenNthCalledWith(
       2,
       eventWithStaticDates.id,
@@ -466,7 +471,7 @@ describe('putRegistrationLabmda', () => {
     const res = await putRegistrationLabmda(constructAPIGwEvent(request))
 
     expect(res.statusCode).toBe(409)
-    expect(mockSaveRegistration).not.toHaveBeenCalled()
+    expect(mockWriteRegistration).not.toHaveBeenCalled()
   })
 
   it('resumes a same-key confirmation-time create that wins while waiting for the lock', async () => {
@@ -486,7 +491,7 @@ describe('putRegistrationLabmda', () => {
     const res = await putRegistrationLabmda(constructAPIGwEvent(request))
 
     expect(res.statusCode).toBe(200)
-    expect(mockSaveRegistration).not.toHaveBeenCalled()
+    expect(mockWriteRegistration).not.toHaveBeenCalled()
     const body = JSON.parse(res.body)
     expect(body.id).toBe(winner.id)
     expect(body.editToken).toBe(await libRegistration.getRegistrationEditToken(winner))
@@ -518,7 +523,7 @@ describe('putRegistrationLabmda', () => {
       }),
       undefined
     )
-    expect(mockSaveRegistration).not.toHaveBeenCalled()
+    expect(mockWriteRegistration).not.toHaveBeenCalled()
     expect(res.statusCode).toEqual(409)
     expect(JSON.parse(res.body)).toEqual({
       email: 'owner@example.com',
@@ -560,7 +565,7 @@ describe('putRegistrationLabmda', () => {
       }),
       existingJson
     )
-    expect(mockSaveRegistration).not.toHaveBeenCalled()
+    expect(mockWriteRegistration).not.toHaveBeenCalled()
     expect(res.statusCode).toEqual(409)
     expect(JSON.parse(res.body)).toEqual({
       email: 'handler@example.com',
@@ -697,7 +702,7 @@ describe('putRegistrationLabmda', () => {
       }
     )
     expect(mockPatchRegistration).toHaveBeenCalledTimes(1)
-    expect(mockSaveRegistration).not.toHaveBeenCalled()
+    expect(mockWriteRegistration).not.toHaveBeenCalled()
     expect(mockUpdateEventStatsForRegistration).toHaveBeenCalledTimes(1)
 
     expect(mockDynamoDBWrite).toHaveBeenCalledWith(
@@ -788,7 +793,7 @@ describe('putRegistrationLabmda', () => {
       }
     )
     expect(mockPatchRegistration).toHaveBeenCalledTimes(1)
-    expect(mockSaveRegistration).not.toHaveBeenCalled()
+    expect(mockWriteRegistration).not.toHaveBeenCalled()
     expect(mockUpdateEventStatsForRegistration).toHaveBeenCalledTimes(1)
 
     expect(mockDynamoDBWrite).toHaveBeenCalledWith(
@@ -866,7 +871,7 @@ describe('putRegistrationLabmda', () => {
       }
     )
     expect(mockPatchRegistration).toHaveBeenCalledTimes(1)
-    expect(mockSaveRegistration).not.toHaveBeenCalled()
+    expect(mockWriteRegistration).not.toHaveBeenCalled()
     expect(mockUpdateEventStatsForRegistration).toHaveBeenCalledTimes(1)
 
     expect(mockDynamoDBWrite).toHaveBeenCalledWith(
@@ -944,7 +949,7 @@ describe('putRegistrationLabmda', () => {
       }
     )
     expect(mockPatchRegistration).toHaveBeenCalledTimes(1)
-    expect(mockSaveRegistration).not.toHaveBeenCalled()
+    expect(mockWriteRegistration).not.toHaveBeenCalled()
     expect(mockUpdateEventStatsForRegistration).toHaveBeenCalledTimes(1)
 
     expect(mockDynamoDBWrite).toHaveBeenCalledWith(
@@ -1032,7 +1037,7 @@ describe('putRegistrationLabmda', () => {
       }
     )
     expect(mockPatchRegistration).toHaveBeenCalledTimes(1)
-    expect(mockSaveRegistration).not.toHaveBeenCalled()
+    expect(mockWriteRegistration).not.toHaveBeenCalled()
     expect(mockUpdateEventStatsForRegistration).toHaveBeenCalledTimes(1)
     // The entrant's own save tells their other open pages too, beside the response (KOE-1553).
     expect(mockPublishParticipantRegistrationPatches).toHaveBeenCalledWith(
@@ -1204,7 +1209,7 @@ describe('putRegistrationLabmda', () => {
         notes: 'patched notes',
       })
     )
-    expect(mockSaveRegistration).not.toHaveBeenCalled()
+    expect(mockWriteRegistration).not.toHaveBeenCalled()
     expect(mockPublishRegistrationPatches).toHaveBeenCalledWith(
       eventWithStaticDates.id,
       [
@@ -1301,7 +1306,7 @@ describe('putRegistrationLabmda', () => {
       }
     )
     expect(mockPatchRegistration).toHaveBeenCalledTimes(1)
-    expect(mockSaveRegistration).not.toHaveBeenCalled()
+    expect(mockWriteRegistration).not.toHaveBeenCalled()
     expect(mockUpdateEventStatsForRegistration).toHaveBeenCalledTimes(1)
 
     expect(mockDynamoDBWrite).toHaveBeenCalledWith(
@@ -1352,7 +1357,7 @@ describe('putRegistrationLabmda', () => {
 
     const res = await putRegistrationLabmda(constructAPIGwEvent({ ...registrationWithStaticDates, confirmed: true }))
 
-    expect(mockSaveRegistration).not.toHaveBeenCalled()
+    expect(mockWriteRegistration).not.toHaveBeenCalled()
     expect(mockPatchRegistration).not.toHaveBeenCalled()
     expect(mockUpdateEventStatsForRegistration).not.toHaveBeenCalled()
     expect(mockUpdateRegistrations).not.toHaveBeenCalled()
@@ -1396,7 +1401,7 @@ describe('putRegistrationLabmda', () => {
 
     const res = await putRegistrationLabmda(constructAPIGwEvent(body))
 
-    expect(mockSaveRegistration).not.toHaveBeenCalled()
+    expect(mockWriteRegistration).not.toHaveBeenCalled()
     expect(mockSES.send).not.toHaveBeenCalled()
     expect(res.statusCode).toEqual(304)
   })
@@ -1451,7 +1456,7 @@ describe('putRegistrationLabmda', () => {
       }
     )
     expect(mockPatchRegistration).toHaveBeenCalledTimes(1)
-    expect(mockSaveRegistration).not.toHaveBeenCalled()
+    expect(mockWriteRegistration).not.toHaveBeenCalled()
 
     // No audit message for confirmation
     expect(mockDynamoDBWrite).not.toHaveBeenCalledWith(
@@ -1661,7 +1666,7 @@ describe('putRegistrationLabmda', () => {
     expect(res.statusCode).toEqual(400)
     expect(JSON.parse(res.body)).toEqual({ message: 'Bad request: PATCH requires eventId and id' })
     expect(mockGetEvent).not.toHaveBeenCalled()
-    expect(mockSaveRegistration).not.toHaveBeenCalled()
+    expect(mockWriteRegistration).not.toHaveBeenCalled()
     expect(mockPatchRegistration).not.toHaveBeenCalled()
   })
 
@@ -1678,7 +1683,7 @@ describe('putRegistrationLabmda', () => {
     expect(res.statusCode).toEqual(400)
     expect(JSON.parse(res.body).message).toEqual(`Bad request: ${message}`)
     expect(mockGetEvent).not.toHaveBeenCalled()
-    expect(mockSaveRegistration).not.toHaveBeenCalled()
+    expect(mockWriteRegistration).not.toHaveBeenCalled()
     expect(mockPatchRegistration).not.toHaveBeenCalled()
   })
 
@@ -1705,7 +1710,7 @@ describe('putRegistrationLabmda', () => {
     expect(res.body).toContain('Entry is not open')
 
     // No writes or side effects should occur
-    expect(mockSaveRegistration).not.toHaveBeenCalled()
+    expect(mockWriteRegistration).not.toHaveBeenCalled()
     expect(mockUpdateEventStatsForRegistration).not.toHaveBeenCalled()
     expect(mockUpdateRegistrations).not.toHaveBeenCalled()
     expect(mockSES.send).not.toHaveBeenCalled()
@@ -1723,7 +1728,7 @@ describe('putRegistrationLabmda', () => {
     expect(res.body).toContain('Entry is not open')
 
     // No writes or side effects should occur
-    expect(mockSaveRegistration).not.toHaveBeenCalled()
+    expect(mockWriteRegistration).not.toHaveBeenCalled()
     expect(mockUpdateEventStatsForRegistration).not.toHaveBeenCalled()
     expect(mockUpdateRegistrations).not.toHaveBeenCalled()
     expect(mockSES.send).not.toHaveBeenCalled()
@@ -1742,7 +1747,7 @@ describe('putRegistrationLabmda', () => {
     expect(res.body).toContain('restricted to members or named breeds')
 
     // No writes or side effects should occur
-    expect(mockSaveRegistration).not.toHaveBeenCalled()
+    expect(mockWriteRegistration).not.toHaveBeenCalled()
     expect(mockUpdateEventStatsForRegistration).not.toHaveBeenCalled()
     expect(mockUpdateRegistrations).not.toHaveBeenCalled()
     expect(mockSES.send).not.toHaveBeenCalled()
@@ -1760,7 +1765,7 @@ describe('putRegistrationLabmda', () => {
     const res = await putRegistrationLabmda(constructAPIGwEvent({ ...registration, id: undefined }))
 
     expect(res.statusCode).toEqual(200)
-    expect(mockSaveRegistration).toHaveBeenCalledTimes(1)
+    expect(mockWriteRegistration).toHaveBeenCalledTimes(1)
   })
 
   it('should return 400 when an update no longer meets the entry restrictions', async () => {
@@ -1784,7 +1789,7 @@ describe('putRegistrationLabmda', () => {
 
     expect(res.statusCode).toEqual(400)
     expect(res.body).toContain('restricted to members or named breeds')
-    expect(mockSaveRegistration).not.toHaveBeenCalled()
+    expect(mockWriteRegistration).not.toHaveBeenCalled()
     expect(mockPatchRegistration).not.toHaveBeenCalled()
   })
 
@@ -1819,7 +1824,7 @@ describe('putRegistrationLabmda', () => {
 
     // ensure patchRegistration received payment fields preserved from existing, not client-supplied values
     expect(mockPatchRegistration).toHaveBeenCalledTimes(1)
-    expect(mockSaveRegistration).not.toHaveBeenCalled()
+    expect(mockWriteRegistration).not.toHaveBeenCalled()
     expect(mockPatchRegistration).toHaveBeenCalledWith(
       expect.anything(),
       expect.anything(),
@@ -1872,7 +1877,7 @@ describe('putRegistrationLabmda', () => {
 
       expect(res.statusCode).toBe(200)
       expect(mockReadOfficialResults).toHaveBeenCalledWith(registrationDogAged28MonthsWithNOUResult.regNo)
-      expect(mockSaveRegistration).toHaveBeenCalledWith(
+      expect(mockWriteRegistration).toHaveBeenCalledWith(
         expect.objectContaining({
           dog: expect.objectContaining({ results: [] }),
           qualifies: false,
@@ -1889,7 +1894,7 @@ describe('putRegistrationLabmda', () => {
       )
 
       expect(res.statusCode).toBe(200)
-      expect(mockSaveRegistration).toHaveBeenCalledWith(
+      expect(mockWriteRegistration).toHaveBeenCalledWith(
         expect.objectContaining({
           dog: expect.objectContaining({ results: jsonDog.results }),
           qualifies: true,

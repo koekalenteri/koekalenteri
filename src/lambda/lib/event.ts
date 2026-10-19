@@ -28,12 +28,7 @@ import { audit, registrationAuditKey } from './audit'
 import { retryOnConditionFailure } from './conditionalWrite'
 import { httpError, LambdaError } from './lambda'
 import { createPatch } from './patch'
-import {
-  createRegistrationPatches,
-  getReadyRegistrationsByEventId,
-  getRegistrationsByEventId,
-  writeRegistrationGroup,
-} from './registration'
+import { createRegistrationPatches, getReadyRegistrationsByEventId } from './registration'
 import {
   clearWorkflowLock,
   findEventIdsByKcGuid,
@@ -49,6 +44,7 @@ import {
   writeResultsPublished,
   writeWorkflowLock,
 } from './repositories/eventRepository'
+import { readEventRegistrations, writeRegistrationFields } from './repositories/registrationRepository'
 
 /**
  * Event fields the published start list is derived from. Every other event change reaches an open
@@ -62,7 +58,7 @@ const START_LIST_EVENT_FIELDS = [
   'state',
 ] as const
 
-export const affectsPublicStartList = (patch: object) => START_LIST_EVENT_FIELDS.some((field) => field in patch)
+const affectsPublicStartList = (patch: object) => START_LIST_EVENT_FIELDS.some((field) => field in patch)
 
 /**
  * What changed about an event, for whoever sends it on. The domain decides what happened and who
@@ -244,7 +240,7 @@ export const updateRegistrations = async (eventId: string, updatedRegistrations?
     throw new LambdaError(404, `Event with id "${eventId}" not found`)
   }
 
-  const allRegistrations = updatedRegistrations ?? (await getRegistrationsByEventId(eventId))
+  const allRegistrations = updatedRegistrations ?? (await readEventRegistrations(eventId))
 
   // ignore cancelled or unpaid registrations
   const registrations = allRegistrations?.filter((r) => r.state === 'ready' && !r.cancelled)
@@ -357,7 +353,7 @@ export const saveGroup = async (
   const cancelled = group?.key === GROUP_KEY_CANCELLED
   const updatedAt = new Date().toISOString()
   if (cancelled && cancelReason) {
-    await writeRegistrationGroup(eventId, id, {
+    await writeRegistrationFields(eventId, id, {
       set: {
         cancelled,
         cancelReason,
@@ -366,7 +362,7 @@ export const saveGroup = async (
       },
     })
   } else {
-    await writeRegistrationGroup(eventId, id, {
+    await writeRegistrationFields(eventId, id, {
       set: {
         cancelled,
         group: { ...group }, // https://stackoverflow.com/questions/37006008/typescript-index-signature-is-missing-in-type

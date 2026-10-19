@@ -8,7 +8,7 @@ const mockAuthorizeWithMemberOf = vi.fn()
 const mockGetEvent = vi.fn()
 const mockSendTemplatedMail = vi.fn()
 const mockGetRegistration = vi.fn()
-const mockSaveRegistration = vi.fn()
+const mockWriteRegistration = vi.fn()
 const mockPatchRegistration = vi.fn<
   (
     eventId: JsonRegistration['eventId'],
@@ -106,13 +106,18 @@ const libRegistration = await import('../lib/registration')
 
 vi.doMock('../lib/registration', () => ({
   ...libRegistration,
-  claimNewRegistrationPostProcessing: mockClaimNewRegistrationPostProcessing,
   findExistingRegistrationToEventForDog: mockfindExistingRegistrationToEventForDog,
   getReadyRegistrationsByEventId: mockGetReadyRegistrationsByEventId,
   getRegistration: mockGetRegistration,
-  markNewRegistrationPhase: mockMarkNewRegistrationPhase,
   patchRegistration: mockPatchRegistration,
-  saveRegistration: mockSaveRegistration,
+}))
+vi.doMock('../lib/repositories/registrationRepository', async () => ({
+  ...(await vi.importActual<typeof import('../lib/repositories/registrationRepository')>(
+    '../lib/repositories/registrationRepository'
+  )),
+  claimNewRegistrationPostProcessing: mockClaimNewRegistrationPostProcessing,
+  markNewRegistrationPhase: mockMarkNewRegistrationPhase,
+  writeRegistration: mockWriteRegistration,
 }))
 
 vi.doMock('../lib/event', () => ({
@@ -221,7 +226,7 @@ describe('putAdminRegistrationLambda', () => {
       state: 'draft',
     })
 
-    mockSaveRegistration.mockResolvedValue({})
+    mockWriteRegistration.mockResolvedValue({})
 
     mockUpdateEventStatsForRegistration.mockResolvedValue({})
 
@@ -263,7 +268,7 @@ describe('putAdminRegistrationLambda', () => {
     expect(mockAuthorizeWithMemberOf).toHaveBeenCalledWith(malformedPatchEvent)
     expect(result.statusCode).toBe(401)
     expect(mockGetEvent).not.toHaveBeenCalled()
-    expect(mockSaveRegistration).not.toHaveBeenCalled()
+    expect(mockWriteRegistration).not.toHaveBeenCalled()
   })
 
   describe('an existing registration changes only through operations (KOE-1575)', () => {
@@ -291,7 +296,7 @@ describe('putAdminRegistrationLambda', () => {
       expect(JSON.parse(result.body)).toEqual({ message })
       expect(mockGetEvent).not.toHaveBeenCalled()
       expect(mockGetRegistration).not.toHaveBeenCalled()
-      expect(mockSaveRegistration).not.toHaveBeenCalled()
+      expect(mockWriteRegistration).not.toHaveBeenCalled()
       expect(mockPatchRegistration).not.toHaveBeenCalled()
     })
   })
@@ -308,7 +313,7 @@ describe('putAdminRegistrationLambda', () => {
     expect(result.statusCode).toBe(403)
     expect(mockGetEvent).toHaveBeenCalledWith('event123')
     expect(mockGetRegistration).not.toHaveBeenCalled()
-    expect(mockSaveRegistration).not.toHaveBeenCalled()
+    expect(mockWriteRegistration).not.toHaveBeenCalled()
     expect(mockPatchRegistration).not.toHaveBeenCalled()
   })
 
@@ -355,7 +360,7 @@ describe('putAdminRegistrationLambda', () => {
     const result = await putAdminRegistrationLambda(newEvent)
 
     // Verify registration was saved with new ID and state 'ready'
-    expect(mockSaveRegistration).toHaveBeenCalledWith(
+    expect(mockWriteRegistration).toHaveBeenCalledWith(
       expect.objectContaining({
         createdAt: expect.any(String),
         createdBy: 'Test User',
@@ -407,7 +412,7 @@ describe('putAdminRegistrationLambda', () => {
 
     expect(result.statusCode).toBe(409)
     expect(mockLockRegistrationPayments).toHaveBeenCalledWith('event123')
-    expect(mockSaveRegistration).not.toHaveBeenCalled()
+    expect(mockWriteRegistration).not.toHaveBeenCalled()
     expect(mockfindExistingRegistrationToEventForDog).toHaveBeenNthCalledWith(
       2,
       'event123',
@@ -427,7 +432,7 @@ describe('putAdminRegistrationLambda', () => {
     const result = await putAdminRegistrationLambda({ ...event, body: JSON.stringify(request) })
 
     expect(result.statusCode).toBe(409)
-    expect(mockSaveRegistration).not.toHaveBeenCalled()
+    expect(mockWriteRegistration).not.toHaveBeenCalled()
   })
 
   it('resumes a same-key create that wins while waiting for the lock', async () => {
@@ -441,7 +446,7 @@ describe('putAdminRegistrationLambda', () => {
     const result = await putAdminRegistrationLambda({ ...event, body: JSON.stringify(request) })
 
     expect(result.statusCode).toBe(200)
-    expect(mockSaveRegistration).not.toHaveBeenCalled()
+    expect(mockWriteRegistration).not.toHaveBeenCalled()
   })
 
   it('rejects a new registration with suppressed email address', async () => {
@@ -486,7 +491,7 @@ describe('putAdminRegistrationLambda', () => {
       error: 'emailSuppressed',
       reason: 'smtp; 550 user unknown',
     })
-    expect(mockSaveRegistration).not.toHaveBeenCalled()
+    expect(mockWriteRegistration).not.toHaveBeenCalled()
     // A rejected request is the request's fault and logs at info, not as an error of ours (KOE-1342).
     expect(errorSpy).not.toHaveBeenCalled()
   })
@@ -523,7 +528,7 @@ describe('putAdminRegistrationLambda', () => {
       error: 'emailSuppressed',
       reason: 'smtp; 550 user unknown',
     })
-    expect(mockSaveRegistration).not.toHaveBeenCalled()
+    expect(mockWriteRegistration).not.toHaveBeenCalled()
     // A rejected request is the request's fault and logs at info, not as an error of ours (KOE-1342).
     expect(errorSpy).not.toHaveBeenCalled()
   })
@@ -556,7 +561,7 @@ describe('putAdminRegistrationLambda', () => {
         state: 'draft', // Preserved from existing
       })
     )
-    expect(mockSaveRegistration).not.toHaveBeenCalled()
+    expect(mockWriteRegistration).not.toHaveBeenCalled()
     expect(mockPublishRegistrationPatches).toHaveBeenCalledWith(
       'event123',
       [expect.objectContaining({ eventId: 'event123', id: 'reg456', modifiedBy: 'Test User' })],
@@ -696,9 +701,9 @@ describe('putAdminRegistrationLambda', () => {
       })
 
       expect(result.statusCode).toBe(200)
-      expect(mockSaveRegistration).toHaveBeenCalledTimes(1)
+      expect(mockWriteRegistration).toHaveBeenCalledTimes(1)
       for (const field of REGISTRATION_MONEY_FIELDS) {
-        expect(mockSaveRegistration).toHaveBeenCalledWith(expect.not.objectContaining({ [field]: expect.anything() }))
+        expect(mockWriteRegistration).toHaveBeenCalledWith(expect.not.objectContaining({ [field]: expect.anything() }))
       }
     })
   })
@@ -717,7 +722,7 @@ describe('putAdminRegistrationLambda', () => {
         notes: 'updated notes',
       })
     )
-    expect(mockSaveRegistration).not.toHaveBeenCalled()
+    expect(mockWriteRegistration).not.toHaveBeenCalled()
     expect(mockPublishRegistrationPatches).toHaveBeenCalledWith(
       'event123',
       [
@@ -803,7 +808,7 @@ describe('putAdminRegistrationLambda', () => {
 
     // Verify registration was still patched.
     expect(mockPatchRegistration).toHaveBeenCalled()
-    expect(mockSaveRegistration).not.toHaveBeenCalled()
+    expect(mockWriteRegistration).not.toHaveBeenCalled()
 
     expect(result.statusCode).toBe(200)
   })
@@ -916,7 +921,7 @@ describe('putAdminRegistrationLambda', () => {
     const result = await putAdminRegistrationLambda(newEventWithExistingDog)
 
     expect(result.statusCode).toBe(409)
-    expect(mockSaveRegistration).not.toHaveBeenCalled()
+    expect(mockWriteRegistration).not.toHaveBeenCalled()
   })
 
   it('returns 400 for patch operations without eventId and id', async () => {
@@ -929,7 +934,7 @@ describe('putAdminRegistrationLambda', () => {
     expect(result.statusCode).toBe(400)
     expect(JSON.parse(result.body)).toEqual({ message: 'Bad request: PATCH requires eventId and id' })
     expect(mockGetRegistration).not.toHaveBeenCalled()
-    expect(mockSaveRegistration).not.toHaveBeenCalled()
+    expect(mockWriteRegistration).not.toHaveBeenCalled()
     expect(mockPatchRegistration).not.toHaveBeenCalled()
   })
 
@@ -976,7 +981,7 @@ describe('putAdminRegistrationLambda', () => {
       expect(result.statusCode).toBe(400)
       expect(JSON.parse(result.body)).toEqual({ message: 'Bad request: registration array fields must be arrays' })
       expect(mockGetEvent).not.toHaveBeenCalled()
-      expect(mockSaveRegistration).not.toHaveBeenCalled()
+      expect(mockWriteRegistration).not.toHaveBeenCalled()
     }
   )
 
@@ -1057,7 +1062,7 @@ describe('putAdminRegistrationLambda', () => {
       cancelled: true,
       message: 'Conflict: Dog already registered to this event',
     })
-    expect(mockSaveRegistration).not.toHaveBeenCalled()
+    expect(mockWriteRegistration).not.toHaveBeenCalled()
   })
 
   it('returns a concurrent idempotent retry while the original request holds the workflow lease', async () => {
@@ -1095,7 +1100,7 @@ describe('putAdminRegistrationLambda', () => {
 
     // Verify registration was still patched.
     expect(mockPatchRegistration).toHaveBeenCalled()
-    expect(mockSaveRegistration).not.toHaveBeenCalled()
+    expect(mockWriteRegistration).not.toHaveBeenCalled()
 
     expect(result.statusCode).toBe(200)
   })

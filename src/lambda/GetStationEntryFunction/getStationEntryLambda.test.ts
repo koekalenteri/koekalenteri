@@ -7,7 +7,7 @@ const mockLambda = vi.fn((_name, fn) => fn)
 const mockResponse = vi.fn()
 const mockGetParam = vi.fn()
 const mockGetEvent = vi.fn()
-const mockGetRegistrationsByEventId = vi.fn()
+const mockReadEventRegistrations = vi.fn()
 
 vi.doMock('../lib/lambda', async () => ({
   ...(await vi.importActual<typeof import('../lib/lambda')>('../lib/lambda')),
@@ -25,7 +25,9 @@ vi.doMock('../lib/lambda', async () => ({
 }))
 
 vi.doMock('../lib/event', () => ({ getEvent: mockGetEvent }))
-vi.doMock('../lib/registration', () => ({ getRegistrationsByEventId: mockGetRegistrationsByEventId }))
+vi.doMock('../lib/repositories/registrationRepository', () => ({
+  readEventRegistrations: mockReadEventRegistrations,
+}))
 
 const { default: getStationEntryLambda } = await import('./handler')
 
@@ -53,7 +55,7 @@ describe('getStationEntryLambda', () => {
     vi.clearAllMocks()
     mockGetParam.mockImplementation((_event, name: string) => (name === 'eventId' ? 'event-1' : 'post-1'))
     mockGetEvent.mockResolvedValue(confirmedEvent)
-    mockGetRegistrationsByEventId.mockResolvedValue([
+    mockReadEventRegistrations.mockResolvedValue([
       asJsonRegistration({
         class: 'AVO',
         dog: { name: 'Rekku', regNo: 'REG-1' },
@@ -80,6 +82,6 @@ describe('getStationEntryLambda', () => {
   it('refuses a wrong token without reading the registrations', async () => {
     await expect(getStationEntryLambda(apiEvent('wrong'))).rejects.toThrow('not found')
 
-    expect(mockGetRegistrationsByEventId).not.toHaveBeenCalled()
+    expect(mockReadEventRegistrations).not.toHaveBeenCalled()
   })
 })

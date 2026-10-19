@@ -3,18 +3,12 @@ import { vi } from 'vitest'
 import { PRIORITY_MEMBER } from '../../lib/priority'
 import { describeInTimeZone } from '../../test-utils/timeZone'
 
-// The registration table is still reached through lib/registration's own client (KOE-1409).
-const mockQuery = vi.fn()
-const mockUpdate = vi.fn()
+const mockReadEventRegistrations = vi.fn()
+const mockWriteRegistrationFields = vi.fn()
 
-vi.doMock('../utils/CustomDynamoClient', () => ({
-  __esModule: true,
-  default: vi.fn(function MockCustomDynamoClient() {
-    return {
-      query: mockQuery,
-      update: mockUpdate,
-    }
-  }),
+vi.doMock('./repositories/registrationRepository', () => ({
+  readEventRegistrations: mockReadEventRegistrations,
+  writeRegistrationFields: mockWriteRegistrationFields,
 }))
 
 const mockReadEvent = vi.fn()
@@ -598,7 +592,7 @@ describe('lib/event', () => {
   describe('updateRegistrations', () => {
     beforeEach(() => {
       mockWriteEventFields.mockReset()
-      mockQuery.mockReset()
+      mockReadEventRegistrations.mockReset()
       mockReadEvent.mockReset()
     })
 
@@ -614,7 +608,7 @@ describe('lib/event', () => {
         { cancelled: false, class: 'ALO', eventId: 'e3', id: 'r1', paidAmount: 1, state: 'ready' },
         { cancelled: false, class: 'AVO', eventId: 'e3', id: 'r2', paidAmount: 0, state: 'ready' },
       ] as JsonRegistration[]
-      mockQuery.mockResolvedValueOnce(regs)
+      mockReadEventRegistrations.mockResolvedValueOnce(regs)
 
       const result = await updateRegistrations('e3')
       expect(result.entries).toBe(2)
@@ -652,7 +646,7 @@ describe('lib/event', () => {
         { cancelled: false, class: 'ALO', paidAmount: 1, state: 'ready' },
         { cancelled: false, class: 'AVO', handler: { membership: true }, paidAmount: 0, state: 'ready' },
       ]
-      mockQuery.mockResolvedValueOnce(regs)
+      mockReadEventRegistrations.mockResolvedValueOnce(regs)
 
       await updateRegistrations('e4')
 
@@ -691,7 +685,7 @@ describe('lib/event', () => {
       const result = await updateRegistrations('e5', updatedRegs)
 
       // Verify database was not queried for registrations
-      expect(mockQuery).not.toHaveBeenCalled()
+      expect(mockReadEventRegistrations).not.toHaveBeenCalled()
 
       // Verify correct counts
       expect(result.entries).toBe(3)
@@ -740,7 +734,7 @@ describe('lib/event', () => {
       const result = await updateRegistrations('e6', updatedRegs)
 
       // Verify database was not queried for registrations
-      expect(mockQuery).not.toHaveBeenCalled()
+      expect(mockReadEventRegistrations).not.toHaveBeenCalled()
 
       // Verify counts were updated to zero
       expect(result.entries).toBe(0)
@@ -777,7 +771,7 @@ describe('lib/event', () => {
   // saveGroup
   describe('saveGroup', () => {
     beforeEach(() => {
-      mockUpdate.mockReset()
+      mockWriteRegistrationFields.mockReset()
       mockAudit.mockReset()
     })
 
@@ -786,18 +780,14 @@ describe('lib/event', () => {
       await saveGroup(group, { key: 'reserve', number: 1 }, { name: 'user' }, 'move', 'cancelled by user')
 
       // Verify update was called with correct parameters
-      expect(mockUpdate).toHaveBeenCalledWith(
-        { eventId: 'e4', id: 'r1' },
-        {
-          set: {
-            cancelled: true,
-            cancelReason: 'cancelled by user',
-            group: { key: 'cancelled', number: 1 },
-            updatedAt: expect.any(String),
-          },
+      expect(mockWriteRegistrationFields).toHaveBeenCalledWith('e4', 'r1', {
+        set: {
+          cancelled: true,
+          cancelReason: 'cancelled by user',
+          group: { key: 'cancelled', number: 1 },
+          updatedAt: expect.any(String),
         },
-        expect.anything()
-      )
+      })
 
       // Verify audit was called
       expect(mockAudit).toHaveBeenCalled()
@@ -808,7 +798,7 @@ describe('lib/event', () => {
     it('writes no group row when neither side has a group', async () => {
       await saveGroup({ eventId: 'e6', id: 'r6' }, undefined, { name: 'user' }, 'move')
 
-      expect(mockUpdate).toHaveBeenCalledTimes(1)
+      expect(mockWriteRegistrationFields).toHaveBeenCalledTimes(1)
       expect(mockAudit).not.toHaveBeenCalled()
     })
 
@@ -824,17 +814,13 @@ describe('lib/event', () => {
       await saveGroup(group, previousGroup, user, 'move')
 
       // Verify update was called with correct parameters (no cancelReason)
-      expect(mockUpdate).toHaveBeenCalledWith(
-        { eventId: 'e5', id: 'r2' },
-        {
-          set: {
-            cancelled: false,
-            group: { date: '2024-08-02T21:00:00.000Z', key: '2024-08-02-ip', number: 3, time: 'ip' },
-            updatedAt: expect.any(String),
-          },
+      expect(mockWriteRegistrationFields).toHaveBeenCalledWith('e5', 'r2', {
+        set: {
+          cancelled: false,
+          group: { date: '2024-08-02T21:00:00.000Z', key: '2024-08-02-ip', number: 3, time: 'ip' },
+          updatedAt: expect.any(String),
         },
-        expect.anything()
-      )
+      })
 
       // The Finnish sentence for old readers, and the parts the trail names in the reader's language (KOE-1442)
       expect(mockAudit).toHaveBeenCalledWith({
@@ -857,18 +843,14 @@ describe('lib/event', () => {
 
       await saveGroup(group, { key: 'cancelled', number: 1 }, { name: 'admin' }, 'move')
 
-      expect(mockUpdate).toHaveBeenCalledWith(
-        { eventId: 'e5', id: 'r2' },
-        {
-          remove: ['cancelReason'],
-          set: {
-            cancelled: false,
-            group: { key: 'reserve', number: 1 },
-            updatedAt: expect.any(String),
-          },
+      expect(mockWriteRegistrationFields).toHaveBeenCalledWith('e5', 'r2', {
+        remove: ['cancelReason'],
+        set: {
+          cancelled: false,
+          group: { key: 'reserve', number: 1 },
+          updatedAt: expect.any(String),
         },
-        expect.anything()
-      )
+      })
     })
 
     it('handles case with no previous group', async () => {
@@ -878,17 +860,13 @@ describe('lib/event', () => {
       await saveGroup(group, undefined, user, 'automatic')
 
       // Verify update was called
-      expect(mockUpdate).toHaveBeenCalledWith(
-        { eventId: 'e6', id: 'r3' },
-        {
-          set: {
-            cancelled: false,
-            group: { key: 'reserve', number: 2 },
-            updatedAt: expect.any(String),
-          },
+      expect(mockWriteRegistrationFields).toHaveBeenCalledWith('e6', 'r3', {
+        set: {
+          cancelled: false,
+          group: { key: 'reserve', number: 2 },
+          updatedAt: expect.any(String),
         },
-        expect.anything()
-      )
+      })
 
       // Verify audit was called without the previous group info
       expect(mockAudit).toHaveBeenCalledWith({
@@ -911,17 +889,13 @@ describe('lib/event', () => {
       await saveGroup(group, previousGroup, user)
 
       // Verify update was called without cancelReason
-      expect(mockUpdate).toHaveBeenCalledWith(
-        { eventId: 'e7', id: 'r4' },
-        {
-          set: {
-            cancelled: true,
-            group: { key: 'cancelled', number: 5 },
-            updatedAt: expect.any(String),
-          },
+      expect(mockWriteRegistrationFields).toHaveBeenCalledWith('e7', 'r4', {
+        set: {
+          cancelled: true,
+          group: { key: 'cancelled', number: 5 },
+          updatedAt: expect.any(String),
         },
-        expect.anything()
-      )
+      })
 
       // Verify audit was called
       expect(mockAudit).toHaveBeenCalledWith({
@@ -942,7 +916,7 @@ describe('lib/event', () => {
   // fixRegistrationGroups
   describe('fixRegistrationGroups', () => {
     beforeEach(() => {
-      mockUpdate.mockReset()
+      mockWriteRegistrationFields.mockReset()
       mockAudit.mockReset()
     })
 

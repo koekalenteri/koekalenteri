@@ -9,7 +9,6 @@ import type {
   Patch,
   RegistrationTemplateContext,
 } from '../../types'
-import type { UpdateActions } from '../utils/CustomDynamoClient'
 import { createHmac, timingSafeEqual } from 'node:crypto'
 import {
   auditUser,
@@ -32,19 +31,21 @@ import {
 } from '../../lib/registration'
 import { isObject, mapWithConcurrency } from '../../lib/utils'
 import { CONFIG } from '../config'
-import CustomDynamoClient from '../utils/CustomDynamoClient'
-import { isConditionalCheckFailure } from './api-gw'
 import { audit, eventAuditKey, registrationAuditKey } from './audit'
 import { emailTo, registrationEmailTags, registrationEmailTemplateData, sendTemplatedMail } from './email'
 import { LambdaError } from './lambda'
-import { createDynamoLease } from './lease'
 import { logger } from './log'
 import { createPatch } from './patch'
+import {
+  clearRegistrationEmailDeliveryStatus,
+  readEventRegistrations,
+  readRegistration,
+  updateRegistrationField,
+  writeRegistrationFields,
+} from './repositories/registrationRepository'
 import { getRegistrationEditTokenSecret } from './secrets'
 
-const { emailFrom, registrationTable } = CONFIG
-const dynamoDB = new CustomDynamoClient(registrationTable)
-const NEW_REGISTRATION_LEASE_DURATION_MS = 90 * 1000
+const { emailFrom } = CONFIG
 
 type SentRegistrationMessagesAudit = Parameters<typeof emailsSentAudit>[0] & {
   event: Pick<JsonConfirmedEvent, 'id'>
@@ -81,36 +82,9 @@ export const removeRegistrationCreationMetadata = <T extends object>(registratio
   return registration
 }
 
-type NewRegistrationPhase =
-  | 'newRegistrationPublishedAt'
-  | 'newRegistrationAuditAt'
-  | 'newRegistrationEmailSentAt'
-  | 'newRegistrationProcessedAt'
-
-const newRegistrationPostProcessingLease = createDynamoLease<JsonRegistration, NewRegistrationPhase>({
-  client: dynamoDB,
-  durationMs: NEW_REGISTRATION_LEASE_DURATION_MS,
-  itemExistsField: 'id',
-  leaseField: 'newRegistrationLease',
-  table: registrationTable,
-})
-
 export const DEFAULT_REGISTRATION_EDIT_TOKEN_VERSION = 1
 
 type RegistrationEditTokenFields = Pick<JsonRegistration, 'editTokenVersion' | 'eventId' | 'id'>
-
-export const claimNewRegistrationPostProcessing = async (eventId: string, id: string) => {
-  const claim = await newRegistrationPostProcessingLease.claim({
-    key: { eventId, id },
-    missingItemMessage: `Registration '${id}' disappeared while claiming post-processing`,
-  })
-  if (!claim) return undefined
-
-  return { registration: claim.item, release: claim.release, token: claim.token }
-}
-
-export const markNewRegistrationPhase = (eventId: string, id: string, token: string, phase: NewRegistrationPhase) =>
-  newRegistrationPostProcessingLease.markPhase({ eventId, id }, token, phase)
 
 export const deriveRegistrationEditToken = (registration: RegistrationEditTokenFields, secret: string): string =>
   createHmac('sha256', secret)
@@ -256,35 +230,18 @@ export const participantRegistrationResponse = <T extends JsonRegistration>(
   return { ...visible, payment }
 }
 
-/**
- * `consistent` asks for a strongly consistent read: the convention every writer that just changed
- * the row and must publish its current state uses, rather than publish from a possibly stale,
- * eventually consistent copy (KOE-1529).
- */
+/** The registration, or a 404 when there is none. `consistent` as in `readRegistration`. */
 export const getRegistration = async (
   eventId: string,
   registrationId: string,
   consistent = false
 ): Promise<JsonRegistration> => {
-  const registration = await dynamoDB.read<JsonRegistration>(
-    {
-      eventId: eventId,
-      id: registrationId,
-    },
-    registrationTable,
-    consistent
-  )
+  const registration = await readRegistration(eventId, registrationId, consistent)
   if (!registration) {
     throw new LambdaError(404, `Registration with id '${registrationId}' for event with id '${eventId}' was not found`)
   }
   return registration
 }
-
-export const saveRegistration = async (data: JsonRegistration) => dynamoDB.write(data, registrationTable)
-
-/** Puts the registrations in batches, retrying what DynamoDB leaves unprocessed. */
-export const saveRegistrations = async (registrations: JsonRegistration[]) =>
-  dynamoDB.batchWrite(registrations, registrationTable)
 
 export const patchRegistration = async (
   eventId: JsonRegistration['eventId'],
@@ -298,85 +255,13 @@ export const patchRegistration = async (
     return existing
   }
 
-  await dynamoDB.update(
-    { eventId, id },
-    {
-      ...(set ? { set } : {}),
-      ...(remove ? { remove } : {}),
-    },
-    registrationTable
-  )
+  await writeRegistrationFields(eventId, id, {
+    ...(set ? { set } : {}),
+    ...(remove ? { remove } : {}),
+  })
 
   return getRegistration(eventId, id)
 }
-
-export const updateRegistrationField = async <F extends keyof JsonRegistration>(
-  eventId: JsonRegistration['eventId'],
-  id: JsonRegistration['id'],
-  field: F,
-  value: JsonRegistration[F]
-) =>
-  dynamoDB.update(
-    { eventId, id },
-    {
-      set: {
-        [field]: value,
-        updatedAt: new Date().toISOString(),
-      },
-    }
-  )
-
-/** Sets and removes the fields of a registration's group move, with no condition. */
-export const writeRegistrationGroup = async (
-  eventId: JsonRegistration['eventId'],
-  id: JsonRegistration['id'],
-  changes: UpdateActions
-) => {
-  await dynamoDB.update({ eventId, id }, changes, registrationTable)
-}
-
-/**
- * Records what sending a dog's result to Kennelliitto came to (KOE-1140). The write lands only on the
- * record it was made from: `previousAt` is the `at` of the `kcResult` that was read (none when there
- * was none), so two secretaries sending the same dog at once cannot both claim the last word. Answers
- * whether it was written.
- */
-export const writeKcResult = async (
-  eventId: JsonRegistration['eventId'],
-  id: JsonRegistration['id'],
-  kcResult: NonNullable<JsonRegistration['kcResult']>,
-  previousAt: string | undefined,
-  updatedAt: string
-): Promise<boolean> => {
-  try {
-    await dynamoDB.update({ eventId, id }, { set: { kcResult, updatedAt } }, undefined, 'NONE', {
-      expression:
-        previousAt === undefined
-          ? 'attribute_exists(#id) AND attribute_not_exists(#kcResult)'
-          : 'attribute_exists(#id) AND #kcResult.#at = :at',
-      names: { '#at': 'at', '#id': 'id', '#kcResult': 'kcResult' },
-      ...(previousAt === undefined ? {} : { values: { ':at': previousAt } }),
-    })
-    return true
-  } catch (error) {
-    if (isConditionalCheckFailure(error)) return false
-    throw error
-  }
-}
-
-/** Remove a field outright. DynamoDB refuses `SET x = :undefined`, so clearing is its own expression. */
-export const removeRegistrationField = async (
-  eventId: JsonRegistration['eventId'],
-  id: JsonRegistration['id'],
-  field: Extract<keyof JsonRegistration, string>
-) =>
-  dynamoDB.update(
-    { eventId, id },
-    {
-      remove: [field],
-      set: { updatedAt: new Date().toISOString() },
-    }
-  )
 
 const setInvitationAttachmentSent = async (registration: JsonRegistration, attachment: string) => {
   const hasUnversionedLegacyRead = registration.invitationRead && !registration.invitationAttachmentRead
@@ -392,16 +277,11 @@ const setInvitationAttachmentSent = async (registration: JsonRegistration, attac
   // cannot be recovered. Do not let the legacy boolean mark the new attachment read.
   if (hasUnversionedLegacyRead && !legacyReadAttachment) set.invitationRead = false
 
-  await dynamoDB.update({ eventId: registration.eventId, id: registration.id }, { set })
+  await writeRegistrationFields(registration.eventId, registration.id, { set })
   registration.invitationAttachmentSent = attachment
   if (invitationAttachmentRead) registration.invitationAttachmentRead = invitationAttachmentRead
   if (set.invitationRead === false) registration.invitationRead = false
 }
-
-export const clearRegistrationEmailDeliveryStatus = async (
-  eventId: JsonRegistration['eventId'],
-  id: JsonRegistration['id']
-) => dynamoDB.update({ eventId, id }, { remove: ['emailDeliveryStatus'], set: { updatedAt: new Date().toISOString() } })
 
 const setLastEmail = async (reg: JsonRegistration, value: JsonLastEmail) => {
   // update the in-memory object too
@@ -621,23 +501,11 @@ export const findClassesToMark = (
   return classesToMark
 }
 
-export const getRegistrationsByEventId = async (
-  eventId: string,
-  consistent: boolean = false
-): Promise<JsonRegistration[]> => {
-  const registrations = await dynamoDB.query<JsonRegistration>({
-    ...(consistent ? { consistent: true } : {}),
-    key: 'eventId = :eventId',
-    values: { ':eventId': eventId },
-  })
-  return registrations ?? []
-}
-
 export const getReadyRegistrationsByEventId = async (
   eventId: string,
   consistent: boolean = false
 ): Promise<JsonRegistration[]> => {
-  const registrations = await getRegistrationsByEventId(eventId, consistent)
+  const registrations = await readEventRegistrations(eventId, consistent)
 
   return registrations.filter((r) => r.state === 'ready')
 }
@@ -661,7 +529,7 @@ export const findExistingRegistrationToEventForDog = async (
   creationIdempotencyKey?: string,
   consistent: boolean = false
 ): Promise<JsonRegistration | undefined> => {
-  const registrationsForDog = (await getRegistrationsByEventId(eventId, consistent)).filter(
+  const registrationsForDog = (await readEventRegistrations(eventId, consistent)).filter(
     (registration) => registration.dog.regNo === regNo
   )
   const ready = registrationsForDog.find((registration) => registration.state === 'ready')

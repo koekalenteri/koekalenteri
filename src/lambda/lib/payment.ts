@@ -23,7 +23,7 @@ import { LambdaError } from './lambda'
 import { logger } from './log'
 import { paytrail } from './paytrail'
 import { getRegistration, participantRegistrationResponse } from './registration'
-import { dropOpenTransactionId, readRegistrationConsistently } from './repositories/registrationRepository'
+import { dropOpenTransactionId, readRegistration } from './repositories/registrationRepository'
 import {
   failUnfinishedTransaction,
   readPaymentTransactions,
@@ -272,7 +272,7 @@ export const participantPaymentPatch = async (registration: JsonRegistration, ev
  * changed meanwhile (KOE-1553). Undefined for a row that is not there.
  */
 export const storedParticipantPaymentPatch = async (event: JsonConfirmedEvent, registrationId: string) => {
-  const stored = await readRegistrationConsistently(event.id, registrationId)
+  const stored = await readRegistration(event.id, registrationId, true)
   return stored ? participantPaymentPatch(stored, event) : undefined
 }
 
@@ -310,7 +310,7 @@ export const publishParticipantPaymentsOfEvent = (eventId: string, registrationI
 const readCancelledRegistration = async (eventId: string, registrationId: string) => {
   try {
     const [registration, event] = await Promise.all([
-      readRegistrationConsistently(eventId, registrationId),
+      readRegistration(eventId, registrationId, true),
       getEvent<JsonConfirmedEvent>(eventId),
     ])
     return registration ? { event, registration } : undefined

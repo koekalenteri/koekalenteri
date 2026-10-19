@@ -84,6 +84,8 @@ vi.doMock('./kcTrial', () => ({ searchKcTrials: mockSearchKcTrials }))
 vi.doMock('./registration', () => ({
   getReadyRegistrationsByEventId: mockGetReady,
   getRegistration: mockGetRegistration,
+}))
+vi.doMock('./repositories/registrationRepository', () => ({
   writeKcResult: mockWriteKcResult,
 }))
 

@@ -33,7 +33,6 @@ import {
   verifyParams,
 } from '../lib/payment'
 import {
-  clearRegistrationEmailDeliveryStatus,
   createRegistrationPatch,
   createRegistrationPatches,
   getReadyRegistrationsByEventId,
@@ -41,6 +40,7 @@ import {
   getRegistrationEditToken,
   sendTemplatedEmailToEventRegistrations,
 } from '../lib/registration'
+import { clearRegistrationEmailDeliveryStatus } from '../lib/repositories/registrationRepository'
 import {
   applySuccessfulPayment,
   claimPostPaymentWorkflow,

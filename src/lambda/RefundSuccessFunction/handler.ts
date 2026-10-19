@@ -18,8 +18,8 @@ import {
   updateTransactionStatus,
   verifyParams,
 } from '../lib/payment'
-import { clearRegistrationEmailDeliveryStatus, getRegistration, getRegistrationEditToken } from '../lib/registration'
-import { readRegistrationConsistently } from '../lib/repositories/registrationRepository'
+import { getRegistration, getRegistrationEditToken } from '../lib/registration'
+import { clearRegistrationEmailDeliveryStatus, readRegistration } from '../lib/repositories/registrationRepository'
 import { applySuccessfulRefund, readTransaction } from '../lib/repositories/transactionRepository'
 import { publishRegistrationPatches } from '../lib/ws/actions'
 
@@ -103,7 +103,7 @@ const refundSuccessLambda = lambda('refundSuccess', async (event) => {
   // just DELETEd this transaction's id from openRefunds in the same atomic write, and the admin
   // patch below must say so, or an open tab keeps showing "palautus kesken" until a reload
   // (KOE-1529).
-  const updatedRegistration = await readRegistrationConsistently(eventId, registrationId)
+  const updatedRegistration = await readRegistration(eventId, registrationId, true)
 
   const t = getFixedT(registration.language)
   const amount = transaction.amount / 100

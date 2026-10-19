@@ -9,7 +9,7 @@ const mockGetParam = vi.fn()
 const mockGetEvent = vi.fn()
 const mockParsePostFile = vi.fn()
 const mockDeleteFile = vi.fn()
-const mockGetRegistrationsByEventId = vi.fn()
+const mockReadEventRegistrations = vi.fn()
 const mockUploadFile = vi.fn()
 const mockWriteEventFields = vi.fn()
 const mockPublishAdminEventPatch = vi.fn()
@@ -35,8 +35,8 @@ vi.doMock('../lib/file', () => ({
   uploadFile: mockUploadFile,
 }))
 
-vi.doMock('../lib/registration', () => ({
-  getRegistrationsByEventId: mockGetRegistrationsByEventId,
+vi.doMock('../lib/repositories/registrationRepository', () => ({
+  readEventRegistrations: mockReadEventRegistrations,
 }))
 
 vi.doMock('../lib/repositories/eventRepository', () => ({
@@ -102,7 +102,7 @@ describe('putInvitationAttachmentLambda', () => {
     })
 
     mockDeleteFile.mockResolvedValue({})
-    mockGetRegistrationsByEventId.mockResolvedValue([
+    mockReadEventRegistrations.mockResolvedValue([
       { invitationAttachmentSent: 'old-attachment-key' },
       { invitationAttachmentRead: 'old-avo-attachment-key' },
     ])
@@ -296,7 +296,7 @@ describe('putInvitationAttachmentLambda', () => {
   })
 
   it('deletes an old attachment that has never been sent', async () => {
-    mockGetRegistrationsByEventId.mockResolvedValueOnce([])
+    mockReadEventRegistrations.mockResolvedValueOnce([])
 
     await putInvitationAttachmentLambda(event)
 
@@ -313,7 +313,7 @@ describe('putInvitationAttachmentLambda', () => {
   })
 
   it('preserves an old attachment when a legacy invitation has no recorded attachment key', async () => {
-    mockGetRegistrationsByEventId.mockResolvedValueOnce([{ invitationRead: true, messagesSent: { invitation: true } }])
+    mockReadEventRegistrations.mockResolvedValueOnce([{ invitationRead: true, messagesSent: { invitation: true } }])
 
     await putInvitationAttachmentLambda(event)
 
@@ -324,7 +324,7 @@ describe('putInvitationAttachmentLambda', () => {
     mockGetParam.mockImplementation((_event: unknown, name: string) =>
       name === 'eventId' ? 'event123' : name === 'className' ? 'AVO' : ''
     )
-    mockGetRegistrationsByEventId.mockResolvedValueOnce([
+    mockReadEventRegistrations.mockResolvedValueOnce([
       { class: 'ALO', invitationRead: true, messagesSent: { invitation: true } },
     ])
 
@@ -335,7 +335,7 @@ describe('putInvitationAttachmentLambda', () => {
 
   it('keeps the new attachment active if deleting the unused old file fails', async () => {
     const error = new Error('delete failed')
-    mockGetRegistrationsByEventId.mockResolvedValueOnce([])
+    mockReadEventRegistrations.mockResolvedValueOnce([])
     mockDeleteFile.mockRejectedValueOnce(error)
 
     await putInvitationAttachmentLambda(event)

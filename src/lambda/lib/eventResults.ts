@@ -32,7 +32,7 @@ import { audit, registrationAuditKey } from './audit'
 import { getEvent } from './event'
 import { parseJSONWithFallback } from './json'
 import { LambdaError } from './lambda'
-import { updateRegistrationField } from './registration'
+import { updateRegistrationField } from './repositories/registrationRepository'
 
 /** The outcome dropdown's Finnish labels, for the audit line (KOE-1284). */
 const ELIMINATING_FAULT_TEXT: Record<EventResultElimination['fault'], string> = {

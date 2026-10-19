@@ -5,7 +5,7 @@ const mockGetPayment = vi.fn()
 const mockUpdateUnresolvedTransaction = vi.fn()
 const mockFailUnfinishedTransaction = vi.fn()
 const mockDropOpenTransactionId = vi.fn()
-const mockReadRegistrationConsistently = vi.fn()
+const mockReadRegistration = vi.fn()
 const mockReadPaymentTransactions = vi.fn()
 const mockAudit = vi.fn()
 const mockGetEvent = vi.fn()
@@ -29,7 +29,7 @@ vi.doMock('./repositories/transactionRepository', () => ({
 
 vi.doMock('./repositories/registrationRepository', () => ({
   dropOpenTransactionId: mockDropOpenTransactionId,
-  readRegistrationConsistently: mockReadRegistrationConsistently,
+  readRegistration: mockReadRegistration,
 }))
 
 const { refreshTransactionStatusesFromPaytrail } = await import('./payment')
@@ -105,7 +105,7 @@ describe('refreshTransactionStatusesFromPaytrail', () => {
     })
     mockFailUnfinishedTransaction.mockResolvedValueOnce(true)
     mockDropOpenTransactionId.mockResolvedValueOnce(['refund123'])
-    mockReadRegistrationConsistently.mockResolvedValueOnce({ ...registration, openRefunds: [] })
+    mockReadRegistration.mockResolvedValueOnce({ ...registration, openRefunds: [] })
     mockGetEvent.mockResolvedValueOnce({
       cost: 50,
       costMember: 50,
