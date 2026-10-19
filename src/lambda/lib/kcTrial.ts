@@ -65,11 +65,11 @@ const klInstant = (local: string) => {
 }
 
 /**
- * A trial's last day as KL lists it, or its first day where the listing has no readable end: the
- * client reads both as days, and an empty `loppu`, or the Kennel Club's empty date 0001-01-01 (not a
- * day to `klDay`), would give it nothing to read.
+ * A trial's last day as KL lists it, or its first day where the listing has no readable end: an empty
+ * `loppu`, or the Kennel Club's empty date 0001-01-01 (not a day to `klDay`), is a one-day trial. The
+ * choice the client reads and the score that ranks it both take the end from here (KOE-1577).
  */
-const endDateOf = (listed: KLIntKoeListassa) => (klDay(listed.loppu) ? klInstant(listed.loppu) : klInstant(listed.alku))
+const endOf = (listed: KLIntKoeListassa) => klDay(listed.loppu) ?? listed.alku
 
 const classOverlap = (event: KcIdLookupCriteria, koe?: KLIntKoe) => {
   const localClasses = new Set<string>(event.classes.map((c) => c.class))
@@ -79,7 +79,7 @@ const classOverlap = (event: KcIdLookupCriteria, koe?: KLIntKoe) => {
 const scoreMatch = (event: KcIdLookupCriteria, { koe, listed }: Candidate) => {
   let score = 0
   if (sameDate(event.startDate, listed.alku)) score += 4
-  if (sameDate(event.endDate, listed.loppu)) score += 2
+  if (sameDate(event.endDate, endOf(listed))) score += 2
   if (normalize(event.location) && normalize(event.location) === normalize(listed.paikkakunta)) score += 2
   if (normalize(event.name) && normalize(listed.tapahtuma).includes(normalize(event.name))) score += 1
   if (classOverlap(event, koe)) score += 1
@@ -161,7 +161,7 @@ const toChoice = (koemuoto: string, candidate: Candidate) => {
     ...toDetails(koe),
     ...toLocation(candidate),
     classes: [...new Set(koe?.luokat ?? [])],
-    endDate: endDateOf(listed),
+    endDate: klInstant(endOf(listed)),
     eventType: toEventType(koemuoto, listed),
     ...(judge ? { judge } : undefined),
     ...(listed.ylituomariNumero ? { judgeId: listed.ylituomariNumero } : undefined),

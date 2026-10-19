@@ -91,3 +91,45 @@ describe('searchKcTrials under the caller’s time', () => {
     expect(choices.some((choice) => choice.kcGuid)).toEqual(true)
   })
 })
+
+describe('searchKcTrials ranking a one-day trial', () => {
+  const oneDay: KcIdLookupCriteria = {
+    ...criteria,
+    endDate: '2026-09-26T20:59:59.999Z',
+    name: 'Syyskoe',
+    startDate: '2026-09-25T21:00:00.000Z',
+  }
+  const listing = { ...kokeetNOU[0], alku: '2026-09-26T00:00:00', koeGUID: null }
+  // Two days at the event's place: it scores on the place, and misses on the last day.
+  const twoDaysAtTheEventsPlace = {
+    ...listing,
+    loppu: '2026-09-27T00:00:00',
+    paikkakunta: 'Laukaa',
+    tapahtuma: 'Kevät',
+  }
+
+  /** The token comes and the list is the listings given; none has a GUID, so nothing is read with Koe/Lue. */
+  const listFetch = (listings: unknown[]) => (input: string | URL | Request) =>
+    Promise.resolve(
+      String(input).includes('sso.example.test')
+        ? Response.json({ access_token: 't', expires_in: 3600, token_type: 'Bearer' })
+        : Response.json(listings)
+    )
+
+  afterEach(() => {
+    vi.unstubAllGlobals()
+  })
+
+  it.each([
+    { loppu: '2026-09-26T00:00:00', name: 'its first day as the end' },
+    { loppu: '', name: 'no end at all' },
+    { loppu: '0001-01-01T00:00:00', name: "KL's empty date as the end" },
+  ])('ranks a listing with $name as ending on its first day', async ({ loppu }) => {
+    const oneDayElsewhere = { ...listing, loppu, paikkakunta: 'Jyväskylä', tapahtuma: 'Syyskoe' }
+    vi.stubGlobal('fetch', listFetch([twoDaysAtTheEventsPlace, oneDayElsewhere]))
+
+    const choices = await searchKcTrials(new KLIntegraatio(async () => config), oneDay, 400294)
+
+    expect(choices.map((choice) => choice.name)).toEqual(['Syyskoe', 'Kevät'])
+  })
+})
