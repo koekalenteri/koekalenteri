@@ -36,9 +36,10 @@ The epic was [KOE-1405](https://koekalenteri.atlassian.net/browse/KOE-1405), clo
 
 `npm run ratchet` fails a commit that opens a DynamoDB client anywhere else
 (`dynamoClientsOutsideRepositories` in `scripts/ratchet-baseline.json`, which is 0). It reads the
-static imports and re-exports of each non-test file. It counts a `CustomDynamoClient` built,
-subclassed or re-exported outside this directory and `connectionRepository.ts`, under whatever name
-the file imports it as, and an SDK client built, subclassed or re-exported directly
+static imports and exports of each non-test file. It counts a `CustomDynamoClient` built,
+subclassed or exported on (re-exported, or imported and exported again) outside this directory and
+`connectionRepository.ts`, under whatever name the file imports it as, and an SDK client built,
+subclassed or exported on directly
 (`new DynamoDBClient(`, `new DynamoDB(`, `DynamoDBDocumentClient.from(`, `DynamoDBDocument.from(`)
 in the lambda code but `utils/CustomDynamoClient.ts`, here included. A class first stored in a
 variable, or loaded with `import()` or `require`, is not followed.

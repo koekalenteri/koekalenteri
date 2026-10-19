@@ -10,11 +10,11 @@
 // Every table is read and written through its module in src/lambda/lib/repositories/ (see the
 // README there; the WebSocket connection repository stays in lib/ws/), and the client count is 0
 // since KOE-1415, so that metric is a ban rather than a ratchet. It reads the static imports and
-// re-exports of each non-test file. Outside the repositories it counts a CustomDynamoClient built,
-// subclassed or re-exported under whatever name the file imports it as. In the lambda code but
-// CustomDynamoClient.ts it counts an SDK client built, subclassed or re-exported directly
-// (`new DynamoDBClient(`, `new DynamoDB(`, `DynamoDBDocumentClient.from(`,
-// `DynamoDBDocument.from(`), which would bypass the class. Not followed: a class first stored in a
+// exports of each non-test file. Outside the repositories it counts a CustomDynamoClient built,
+// subclassed or exported on (re-exported, or imported and exported again) under whatever name the
+// file imports it as. In the lambda code but CustomDynamoClient.ts it counts an SDK client built,
+// subclassed or exported on directly (`new DynamoDBClient(`, `new DynamoDB(`,
+// `DynamoDBDocumentClient.from(`, `DynamoDBDocument.from(`), which would bypass the class. Not followed: a class first stored in a
 // variable or wrapped in parentheses (`new (C)()`), one loaded with `import()`, `require` or
 // `import x = require()`, and a module named with a `.js` extension.
 const { execFileSync } = require('node:child_process')
@@ -84,10 +84,19 @@ function clientKind(expression, bindings) {
   return undefined
 }
 
-// The kind of client constructor a re-export hands on: `export * from` a client module, or a named
-// export of one of its constructors. `export type` hands on none.
-function reExportKind(node) {
-  if (node.isTypeOnly || !node.moduleSpecifier || !ts.isStringLiteral(node.moduleSpecifier)) return undefined
+// The kind of client constructor an export declaration hands on: `export { C }` of a name the file
+// imported a constructor under, `export * from` a client module, or a named export of one of its
+// constructors. `export type` hands on none.
+function exportKind(node, bindings) {
+  if (node.isTypeOnly) return undefined
+  if (!node.moduleSpecifier) {
+    const elements = node.exportClause && ts.isNamedExports(node.exportClause) ? node.exportClause.elements : []
+    return elements
+      .filter((element) => !element.isTypeOnly)
+      .map((element) => bindings.names.get((element.propertyName ?? element.name).text))
+      .find(Boolean)
+  }
+  if (!ts.isStringLiteral(node.moduleSpecifier)) return undefined
   const exports = CLIENT_EXPORTS.filter((entry) => entry.module.test(node.moduleSpecifier.text))
   const clause = node.exportClause
   const named =
@@ -100,12 +109,12 @@ function reExportKind(node) {
 }
 
 // A DynamoDB client opened where it should not be: a CustomDynamoClient built, extended or
-// re-exported outside the repositories, or an SDK client built, extended or re-exported anywhere
+// exported on outside the repositories, or an SDK client built, extended or exported on anywhere
 // in the lambda code but CustomDynamoClient.ts.
 function opensClient(node, { bindings, file }) {
   let kind
-  if (ts.isNewExpression(node)) kind = clientKind(node.expression, bindings)
-  else if (ts.isExportDeclaration(node)) kind = reExportKind(node)
+  if (ts.isNewExpression(node) || ts.isExportAssignment(node)) kind = clientKind(node.expression, bindings)
+  else if (ts.isExportDeclaration(node)) kind = exportKind(node, bindings)
   else if (ts.isHeritageClause(node) && node.token === ts.SyntaxKind.ExtendsKeyword) {
     kind = node.types.map((type) => clientKind(type.expression, bindings)).find(Boolean)
   } else if (
@@ -116,7 +125,7 @@ function opensClient(node, { bindings, file }) {
   ) {
     kind = 'sdk'
   }
-  if (kind === 'custom') return !isRepository(file) && file !== CLIENT_FILE
+  if (kind === 'custom') return !isRepository(file)
   return kind === 'sdk' && file.startsWith('src/lambda/') && file !== CLIENT_FILE
 }
 

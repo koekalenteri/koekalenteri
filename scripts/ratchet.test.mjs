@@ -78,6 +78,18 @@ describe('ratchet: DynamoDB clients outside repositories', () => {
     ],
     ['re-exported as a type only', LIB, ["export type { DynamoDBClient } from '@aws-sdk/client-dynamodb'"]],
     ['re-exported from another module', LIB, ["export * from './other'"]],
+    [
+      're-exported by name when it is no client class',
+      LIB,
+      ["export { DynamoDBServiceException } from '@aws-sdk/client-dynamodb'"],
+    ],
+    ['re-exported through a type-only specifier', LIB, ["export { type DynamoDBClient } from '@aws-sdk/client-dynamodb'"]],
+    ['in a local export of something else', LIB, ['const a = 1', 'export { a }']],
+    [
+      'in a local type-only export',
+      LIB,
+      ["import { DynamoDBClient } from '@aws-sdk/client-dynamodb'", 'export { type DynamoDBClient }'],
+    ],
   ])('does not count a client %s', (_, file, lines) => {
     expect(clients(file, lines)).toEqual([])
   })
@@ -91,5 +103,20 @@ describe('ratchet: DynamoDB clients outside repositories', () => {
     ['an SDK package as a namespace', ["export * as sdk from '@aws-sdk/client-dynamodb'"]],
   ])('counts a re-export of %s', (_, lines) => {
     expect(clients(LIB, lines)).toEqual([`${LIB}:1`])
+  })
+
+  // An imported constructor exported on from the file hands it on just the same.
+  it.each([
+    ['CustomDynamoClient by name', ["import C from '../utils/CustomDynamoClient'", 'export { C }']],
+    ['an SDK client under an alias', ["import { DynamoDBClient } from '@aws-sdk/client-dynamodb'", 'export { DynamoDBClient as X }']],
+    ['CustomDynamoClient as the default export', ["import C from '../utils/CustomDynamoClient'", 'export default C']],
+  ])('counts a local export of %s', (_, lines) => {
+    expect(clients(LIB, lines)).toEqual([`${LIB}:2`])
+  })
+
+  it('does not count a local export of CustomDynamoClient by a repository', () => {
+    expect(clients(REPOSITORY, ["import C from '../../utils/CustomDynamoClient'", 'export { C }', 'export default C'])).toEqual(
+      []
+    )
   })
 })
