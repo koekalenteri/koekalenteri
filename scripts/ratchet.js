@@ -9,12 +9,14 @@
 //
 // Every table is read and written through its module in src/lambda/lib/repositories/ (see the
 // README there; the WebSocket connection repository stays in lib/ws/), and the client count is 0
-// since KOE-1415, so that metric is a ban rather than a ratchet. It reads the static imports of
-// each file: outside the repositories it counts a CustomDynamoClient built or subclassed under
-// whatever name the file imports it as; anywhere in the lambda code but CustomDynamoClient.ts it
-// counts an SDK client built directly (`new DynamoDBClient(`, `new DynamoDB(`,
-// `DynamoDBDocumentClient.from(`, `DynamoDBDocument.from(`), which would bypass the class. A class
-// first stored in a variable, or loaded with `import()` or `require`, is not followed.
+// since KOE-1415, so that metric is a ban rather than a ratchet. It reads the static imports and
+// re-exports of each non-test file. Outside the repositories it counts a CustomDynamoClient built,
+// subclassed or re-exported under whatever name the file imports it as. In the lambda code but
+// CustomDynamoClient.ts it counts an SDK client built, subclassed or re-exported directly
+// (`new DynamoDBClient(`, `new DynamoDB(`, `DynamoDBDocumentClient.from(`,
+// `DynamoDBDocument.from(`), which would bypass the class. Not followed: a class first stored in a
+// variable or wrapped in parentheses (`new (C)()`), one loaded with `import()`, `require` or
+// `import x = require()`, and a module named with a `.js` extension.
 const { execFileSync } = require('node:child_process')
 const fs = require('node:fs')
 const path = require('node:path')
@@ -71,12 +73,10 @@ function clientBindings(source) {
   return { names, namespaces }
 }
 
-// The kind of client constructor an expression names: `CustomDynamoClient`, an alias it was
-// imported as, or `sdk.DynamoDBClient` through a namespace import.
+// The kind of client constructor an expression names: the name it was imported under, or
+// `sdk.DynamoDBClient` through a namespace import.
 function clientKind(expression, bindings) {
-  if (ts.isIdentifier(expression)) {
-    return bindings.names.get(expression.text) ?? (expression.text === 'CustomDynamoClient' ? 'custom' : undefined)
-  }
+  if (ts.isIdentifier(expression)) return bindings.names.get(expression.text)
   if (ts.isPropertyAccessExpression(expression) && ts.isIdentifier(expression.expression)) {
     const exports = bindings.namespaces.get(expression.expression.text) ?? []
     return exports.find((entry) => entry.name === expression.name.text)?.kind
@@ -84,13 +84,30 @@ function clientKind(expression, bindings) {
   return undefined
 }
 
-// A DynamoDB client opened where it should not be: a CustomDynamoClient built or extended outside
-// the repositories, or an SDK client built anywhere in the lambda code but CustomDynamoClient.ts.
+// The kind of client constructor a re-export hands on: `export * from` a client module, or a named
+// export of one of its constructors. `export type` hands on none.
+function reExportKind(node) {
+  if (node.isTypeOnly || !node.moduleSpecifier || !ts.isStringLiteral(node.moduleSpecifier)) return undefined
+  const exports = CLIENT_EXPORTS.filter((entry) => entry.module.test(node.moduleSpecifier.text))
+  const clause = node.exportClause
+  const named =
+    clause && ts.isNamedExports(clause)
+      ? exports.filter((entry) =>
+          clause.elements.some((element) => !element.isTypeOnly && (element.propertyName ?? element.name).text === entry.name)
+        )
+      : exports
+  return named[0]?.kind
+}
+
+// A DynamoDB client opened where it should not be: a CustomDynamoClient built, extended or
+// re-exported outside the repositories, or an SDK client built, extended or re-exported anywhere
+// in the lambda code but CustomDynamoClient.ts.
 function opensClient(node, { bindings, file }) {
   let kind
   if (ts.isNewExpression(node)) kind = clientKind(node.expression, bindings)
+  else if (ts.isExportDeclaration(node)) kind = reExportKind(node)
   else if (ts.isHeritageClause(node) && node.token === ts.SyntaxKind.ExtendsKeyword) {
-    kind = node.types.some((type) => clientKind(type.expression, bindings) === 'custom') ? 'custom' : undefined
+    kind = node.types.map((type) => clientKind(type.expression, bindings)).find(Boolean)
   } else if (
     ts.isCallExpression(node) &&
     ts.isPropertyAccessExpression(node.expression) &&
@@ -99,7 +116,7 @@ function opensClient(node, { bindings, file }) {
   ) {
     kind = 'sdk'
   }
-  if (kind === 'custom') return !isRepository(file)
+  if (kind === 'custom') return !isRepository(file) && file !== CLIENT_FILE
   return kind === 'sdk' && file.startsWith('src/lambda/') && file !== CLIENT_FILE
 }
 

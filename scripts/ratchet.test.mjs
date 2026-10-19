@@ -29,6 +29,8 @@ describe('ratchet: DynamoDB clients outside repositories', () => {
     ],
     ['DynamoDBDocument.from', ["import { DynamoDBDocument } from '@aws-sdk/lib-dynamodb'", 'DynamoDBDocument.from(client)']],
     ['new DynamoDBDocument', ["import { DynamoDBDocument } from '@aws-sdk/lib-dynamodb'", 'new DynamoDBDocument(client)']],
+    ['a subclass of DynamoDBClient', ["import { DynamoDBClient } from '@aws-sdk/client-dynamodb'", 'class X extends DynamoDBClient {}']],
+    ['a subclass of DynamoDB', ["import { DynamoDB } from '@aws-sdk/client-dynamodb'", 'class X extends DynamoDB {}']],
   ])('counts %s', (_, lines) => {
     expect(clients(LIB, lines)).toEqual([`${LIB}:2`])
   })
@@ -65,7 +67,29 @@ describe('ratchet: DynamoDB clients outside repositories', () => {
       ["import { type DynamoDBClient } from '@aws-sdk/client-dynamodb'", 'new DynamoDBClient({})'],
     ],
     ['a class of another module under the same name', LIB, ["import { DynamoDB } from './other'", 'new DynamoDB({})']],
+    // Code that compiles imports the class; a name nothing imports is some other class.
+    ['under a name the file does not import', LIB, ["const CustomDynamoClient = class {}", "new CustomDynamoClient('x')"]],
+    // The SDK clause covers the lambda code only.
+    ['outside the lambda code', 'src/lib/x.ts', ["import { DynamoDBClient } from '@aws-sdk/client-dynamodb'", 'new DynamoDBClient({})']],
+    [
+      're-exported by a repository',
+      REPOSITORY,
+      ["export { default as Client } from '../../utils/CustomDynamoClient'"],
+    ],
+    ['re-exported as a type only', LIB, ["export type { DynamoDBClient } from '@aws-sdk/client-dynamodb'"]],
+    ['re-exported from another module', LIB, ["export * from './other'"]],
   ])('does not count a client %s', (_, file, lines) => {
     expect(clients(file, lines)).toEqual([])
+  })
+
+  // A re-export hands the constructor on to a file the ban then cannot see build it.
+  it.each([
+    ['an SDK client by name', ["export { DynamoDBClient } from '@aws-sdk/client-dynamodb'"]],
+    ['an SDK client under an alias', ["export { DynamoDBDocument as Doc } from '@aws-sdk/lib-dynamodb'"]],
+    ['CustomDynamoClient under a name', ["export { default as Client } from '../utils/CustomDynamoClient'"]],
+    ['every export of an SDK package', ["export * from '@aws-sdk/lib-dynamodb'"]],
+    ['an SDK package as a namespace', ["export * as sdk from '@aws-sdk/client-dynamodb'"]],
+  ])('counts a re-export of %s', (_, lines) => {
+    expect(clients(LIB, lines)).toEqual([`${LIB}:1`])
   })
 })
