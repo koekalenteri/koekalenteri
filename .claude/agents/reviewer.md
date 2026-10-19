@@ -18,6 +18,10 @@ judge the change by what it does, not by its description.
   (`git show origin/<branch>:<path>`), not the local checkout, which may be behind.
 - `AGENTS.md` and `LLM_CONTEXT.md`: they are the rules you review against.
 
+When you are given a plan instead of a PR, review it against `main` from your angle: there is no
+diff yet, so a finding is a reader the plan leaves out, or an input on which the planned approach
+gives the wrong answer.
+
 ## Running code
 
 You start in the shared checkout of the repository (`git rev-parse --show-toplevel`). Other
