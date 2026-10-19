@@ -663,7 +663,7 @@ describe('putAdminRegistrationLambda', () => {
   })
 
   // Results (KOE-1140), money (KOE-1531) and the row's own bookkeeping are other writers' to move,
-  // and an operation on one of them is refused before anything is read from it (KOE-1574).
+  // and an operation on one of them is refused: nothing is applied or stored (KOE-1574).
   it.each(ADMIN_PROTECTED_REGISTRATION_FIELDS)('refuses an operation on %s and names it', async (field) => {
     const result = await putAdminRegistrationLambda(edit([{ path: [field], type: 'CHANGE', value: 0 }]))
 
