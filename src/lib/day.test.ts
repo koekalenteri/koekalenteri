@@ -19,6 +19,7 @@ import {
   isDayKey,
   isInstantString,
   latestDayMonthsBefore,
+  legacyStoredDay,
   localCalendarDayOf,
   localDateOf,
   localDayOf,
@@ -617,10 +618,14 @@ for (const hostZone of HOST_ZONES) {
         ["Kennelliitto's stamp", '2021-01-01T00:00:00', '2021-01-01'],
         ['a stamp with seconds and milliseconds', '2021-01-01T00:00:00.000', '2021-01-01'],
         ['a Finnish midnight a browser wrote', '2020-12-31T22:00:00.000Z', '2021-01-01'],
+        // From KOE-1131 (29.3.2026) to KOE-1546 the browser's JSON reviver made a bare day its local noon.
+        ['a Finnish noon a browser wrote', '2024-05-10T09:00:00.000Z', '2024-05-10'],
         ['a midnight a lambda wrote in UTC', '2024-01-01T00:00:00.000Z', '2024-01-01'],
         ['an instant with an offset', '2021-01-01T00:30:00+02:00', '2021-01-01'],
       ])('reads %s as its Finnish day', (_name, value, expected) => {
         expect(calendarDayOf(value, TIME_ZONE)).toBe(expected)
+        // The migrations' own reading, which keeps every one of these forms (KOE-1547).
+        expect(legacyStoredDay(value, TIME_ZONE)).toBe(expected)
       })
 
       it.each([
@@ -638,6 +643,7 @@ for (const hostZone of HOST_ZONES) {
       ])('reads %s as no day, without throwing', (_name, value) => {
         expect(calendarDayOf(value, TIME_ZONE)).toBeUndefined()
         expect(localCalendarDayOf(value)).toBeUndefined()
+        expect(legacyStoredDay(value, TIME_ZONE)).toBeUndefined()
       })
 
       // The empty date's instants are no instants of an accepted day to begin with; an instant whose own

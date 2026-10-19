@@ -45,14 +45,22 @@ import { isLiveNow, isStoredStationTurn, toPublicStationTurn } from './stationTu
 import { isConfirmedEvent } from './typeGuards'
 import { isObject, unique, uniqueDate } from './utils'
 
-type EventVitals = Partial<
-  Pick<PublicDogEvent | JsonPublicDogEvent, 'startDate' | 'endDate' | 'entryStartDate' | 'entryEndDate' | 'state'>
->
-
 export const isValidForEntry = (state?: EventState) => !['draft', 'tentative', 'cancelled'].includes(state ?? '')
 
 /** A day as stored (a yyyy-MM-dd key or an ISO instant), as the typed boundary hands an instant over (a Date), or not known. */
 type DayInput = Date | string | undefined
+
+/**
+ * What the entry and progress questions read of an event: its days in any form a reader may hold them
+ * (a stored key, an instant on a row stored before KOE-1547, the browser's Date), and its state.
+ */
+type EventVitals = {
+  startDate?: DayInput
+  endDate?: DayInput
+  entryStartDate?: DayInput
+  entryEndDate?: DayInput
+  state?: EventState
+}
 
 /**
  * The Finnish day of a stored date. A day key passes through unchanged: parsed, it would be read as
@@ -118,15 +126,21 @@ const today = (now: Date) => dayOf(now, TIME_ZONE)
 
 type EventDateSortKey = { id: string; startDate?: Date | string; endDate?: Date | string }
 
-/** The calendar's order: start date, then end date, with the id as a stable tiebreaker. */
-export const compareEventsByDate = (a: EventDateSortKey, b: EventDateSortKey): number => {
-  const aStart = a.startDate ? new Date(a.startDate).getTime() : 0
-  const bStart = b.startDate ? new Date(b.startDate).getTime() : 0
-  if (aStart !== bStart) return aStart - bStart
+/** A day as it sorts: its key, or '' (first) for none. */
+const sortDay = (date: DayInput) => storedDayKey(date) ?? ''
 
-  const aEnd = a.endDate ? new Date(a.endDate).getTime() : 0
-  const bEnd = b.endDate ? new Date(b.endDate).getTime() : 0
-  if (aEnd !== bEnd) return aEnd - bEnd
+/**
+ * The calendar's order: start day, then end day, with the id as a stable tiebreaker. Days compare as
+ * keys, so a stored key and the instant of the same Finnish day sort as one (KOE-1547).
+ */
+export const compareEventsByDate = (a: EventDateSortKey, b: EventDateSortKey): number => {
+  const aStart = sortDay(a.startDate)
+  const bStart = sortDay(b.startDate)
+  if (aStart !== bStart) return aStart.localeCompare(bStart)
+
+  const aEnd = sortDay(a.endDate)
+  const bEnd = sortDay(b.endDate)
+  if (aEnd !== bEnd) return aEnd.localeCompare(bEnd)
 
   return a.id.localeCompare(b.id)
 }
@@ -550,7 +564,7 @@ export const isResultsAvailableForClass = (
   canPublishResults(eventClass.state ?? event.state, event) &&
   isResultsPublishedForDay(event, eventClass.class, eventClass.date ?? event.startDate)
 
-type ResultsFoldEvent = Pick<JsonDogEvent, 'resultsPublished' | 'classes' | 'startDate' | 'endDate'>
+type ResultsFoldEvent = Pick<JsonDogEvent, 'resultsPublished'> & ClassDaysEvent
 
 type ResultsDayChange = { day: string; published: boolean }
 

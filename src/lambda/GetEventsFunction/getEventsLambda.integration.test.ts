@@ -1,4 +1,5 @@
 import { addDays } from 'date-fns'
+import { addDays as addDayKeys, dayOf, TIME_ZONE } from '../../lib/day'
 import { constructAPIGwEvent } from '../test-utils/helpers'
 import { idsIn, storedEvent } from '../test-utils/integration'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
@@ -25,8 +26,9 @@ describe('getEventsLambda against DynamoDB-local', () => {
   })
 
   it('keeps an asked range to the events in it', async () => {
-    const inRange = storedEvent({ startDate: addDays(new Date(), 30).toISOString() })
-    const later = storedEvent({ startDate: addDays(new Date(), 60).toISOString() })
+    const today = dayOf(new Date(), TIME_ZONE)
+    const inRange = storedEvent({ startDate: addDayKeys(today, 30) })
+    const later = storedEvent({ startDate: addDayKeys(today, 60) })
     await client.batchWrite([inRange, later])
 
     const result = await getEventsLambda(

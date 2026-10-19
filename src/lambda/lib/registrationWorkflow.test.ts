@@ -3,6 +3,7 @@ import { vi } from 'vitest'
 import { eventWithStaticDates } from '../../__mockData__/events'
 import { registrationWithStaticDates } from '../../__mockData__/registrations'
 import { registrationCreatedAudit } from '../../lib/audit'
+import { beforeDayKeys } from '../../test-utils/finnishDays'
 import { deliverToEntrant, everyEntrantWatching } from '../test-utils/entrantPages'
 import { loggedLines } from '../test-utils/logs'
 
@@ -312,7 +313,10 @@ describe('registrationWorkflow', () => {
     })
 
     it('records dates that fall outside the event in the audit trail', async () => {
-      const saved = { ...registration, dates: [{ date: '2030-01-01T10:00:00.000Z', time: 'ap' as const }] }
+      const saved = {
+        ...registration,
+        dates: [{ date: beforeDayKeys('2030-01-01T10:00:00.000Z'), time: 'ap' as const }],
+      }
       mockClaimNewRegistrationPostProcessing.mockResolvedValueOnce(claimOf(saved))
 
       await complete(saved)
@@ -590,7 +594,10 @@ describe('registrationWorkflow', () => {
     })
 
     it('records a move to dates outside the class', async () => {
-      const saved = { ...registration, dates: [{ date: '2030-01-01T10:00:00.000Z', time: 'ap' as const }] }
+      const saved = {
+        ...registration,
+        dates: [{ date: beforeDayKeys('2030-01-01T10:00:00.000Z'), time: 'ap' as const }],
+      }
 
       await finalize(saved, registration)
 

@@ -1,4 +1,5 @@
 import type { EventKcIdChoice, JsonAuditRecord, JsonDogEvent, JsonRegistration, JsonUser, Patch, User } from '../types'
+import { beforeDayKeys } from '../test-utils/finnishDays'
 import { describeInTimeZone } from '../test-utils/timeZone'
 import { hasCalendarDay, TIME_ZONE } from './day'
 import {
@@ -38,8 +39,8 @@ describe('wire', () => {
         agreeToTerms: true,
         breeder: { name: 'b' },
         cancelReason: '2024-05-01',
-        dates: [{ date: '2026-05-01T21:00:00.000Z', time: 'ap' }],
-        dog: { dob: '2020-02-02T22:00:00.000Z', regNo: 'FI1/20', results: [] },
+        dates: [{ date: '2026-05-02', time: 'ap' }],
+        dog: { dob: '2020-02-03', regNo: 'FI1/20', results: [] },
         eventId: 'e1',
         eventType: 'NOME-B',
         id: 'r1',
@@ -53,6 +54,7 @@ describe('wire', () => {
 
       expect(registration.createdAt).toEqual(new Date('2026-01-02T10:00:00.000Z'))
       expect(registration.paidAt).toEqual(new Date('2026-05-03T08:00:00.000Z'))
+      // A day key is the start of its Finnish day in the model (KOE-1547).
       expect(registration.dates[0].date).toEqual(new Date('2026-05-01T21:00:00.000Z'))
       expect(registration.dog.dob).toBe('2020-02-03')
       expect(registration.lastEmail).toEqual({
@@ -79,7 +81,7 @@ describe('wire', () => {
 
     it('leaves a null element of a list and a null entry of a map as they are', () => {
       const patch = toDogEvent({
-        classes: [{ class: 'ALO', date: '2026-05-01T21:00:00.000Z' }, null],
+        classes: [{ class: 'ALO', date: '2026-05-02' }, null],
         invitationAttachmentHistory: { key1: { uploadedAt: '2026-05-01T08:00:00.000Z' }, key2: null },
       } satisfies Patch<JsonDogEvent>)
 
@@ -108,8 +110,8 @@ describe('wire', () => {
     it('makes the dog and the placement of a start list row Dates', () => {
       const row = toPublicRegistration({
         breeder: 'b',
-        dog: { dob: '2020-02-02T22:00:00.000Z', regNo: 'FI1/20', results: [] },
-        group: { date: '2026-09-11T21:00:00.000Z', key: '2026-09-12', number: 1 },
+        dog: { dob: beforeDayKeys('2020-02-02T22:00:00.000Z'), regNo: 'FI1/20', results: [] },
+        group: { date: beforeDayKeys('2026-09-11T21:00:00.000Z'), key: '2026-09-12', number: 1 },
         handler: 'h',
         owner: 'o',
       })
@@ -117,6 +119,31 @@ describe('wire', () => {
       expect(row.dog.dob).toBe('2020-02-03')
       expect(row.group).toEqual({ date: new Date('2026-09-11T21:00:00.000Z'), key: '2026-09-12', number: 1 })
     })
+
+    // KOE-1547: the server stores and sends an event's days, a registration's days and a group's day as
+    // keys. The model holds the start of each Finnish day, the moment a row stored before held, in every
+    // host zone: `new Date` of a key would be the UTC midnight, which the model's day comparisons miss.
+    for (const zone of [TIME_ZONE, 'America/New_York', 'Asia/Tokyo']) {
+      describeInTimeZone(zone, () => {
+        it('reads a day key as the start of its Finnish day, and an instant a row not yet migrated holds as itself', () => {
+          const event = toDogEvent({
+            classes: [{ class: 'ALO', date: '2026-05-20' }],
+            dates: [{ date: '2026-05-20', time: 'ap' }],
+            endDate: '2026-05-21',
+            entryEndDate: '2026-05-10',
+            startDate: beforeDayKeys('2026-05-19T21:00:00.000Z'),
+          })
+          const group = toRegistration({ group: { date: '2026-05-20', key: '2026-05-20-ap', number: 1, time: 'ap' } })
+
+          expect(event.startDate).toEqual(new Date('2026-05-19T21:00:00.000Z'))
+          expect(event.endDate).toEqual(new Date('2026-05-20T21:00:00.000Z'))
+          expect(event.entryEndDate).toEqual(new Date('2026-05-09T21:00:00.000Z'))
+          expect(event.classes?.[0].date).toEqual(new Date('2026-05-19T21:00:00.000Z'))
+          expect(event.dates?.[0].date).toEqual(new Date('2026-05-19T21:00:00.000Z'))
+          expect(group.group?.date).toEqual(new Date('2026-05-19T21:00:00.000Z'))
+        })
+      })
+    }
 
     it("makes an event's Kennelliitto state and a stats row's day Dates", () => {
       const event = toDogEvent({ kcState: { code: 1253, name: 'Luovutettu', readAt: '2026-09-13T08:00:00.000Z' } })
@@ -189,7 +216,14 @@ describe('wire', () => {
 
     // A dog's dates are days (KOE-1548), read from every form they were stored in. What the server sends
     // reads an instant as its Finnish day; what this browser stored, as the day its picker showed.
-    const result = (date: string) => ({ class: 'ALO', date, judge: 'j', location: 'l', result: 'ALO1', type: 'NOME-B' })
+    const result = (date: string) => ({
+      class: 'ALO',
+      date: beforeDayKeys(date),
+      judge: 'j',
+      location: 'l',
+      result: 'ALO1',
+      type: 'NOME-B',
+    })
     const tokyoMidnight = '2020-12-31T15:00:00.000Z' // 1.1.2021 00:00 in Tokyo, 31.12.2020 17:00 in Finland
 
     for (const zone of [TIME_ZONE, 'America/New_York', 'Asia/Tokyo']) {
@@ -199,10 +233,10 @@ describe('wire', () => {
           ["Kennelliitto's stamp", '2021-01-01T00:00:00', '2021-01-01'],
           ['an instant, as its Finnish day', tokyoMidnight, '2020-12-31'],
         ])("reads a dog's dates from the server, %s", (_name, value, expected) => {
-          const dog = toDog({ dob: value, regNo: 'FI1/21', results: [result(value)] })
+          const dog = toDog({ dob: beforeDayKeys(value), regNo: 'FI1/21', results: [result(value)] })
           const registration = toRegistration({
             ...stamps,
-            dog: { dob: value, regNo: 'FI1/21', results: [result(value)] },
+            dog: { dob: beforeDayKeys(value), regNo: 'FI1/21', results: [result(value)] },
             qualifyingResults: [{ ...result(value), official: true }],
             results: [{ ...result(value), id: 'm1' }],
           })
@@ -218,7 +252,7 @@ describe('wire', () => {
           const localMidnight = new Date(2021, 0, 1).toISOString()
           const draft = toStoredRegistration({
             ...stamps,
-            dog: { dob: localMidnight, regNo: 'FI1/21', results: [result(localMidnight)] },
+            dog: { dob: beforeDayKeys(localMidnight), regNo: 'FI1/21', results: [result(localMidnight)] },
             qualifyingResults: [{ ...result(localMidnight), official: true }],
             results: [{ ...result(localMidnight), id: 'm1' }],
           })
@@ -227,16 +261,16 @@ describe('wire', () => {
           expect(draft.dog?.results[0].date).toBe('2021-01-01')
           expect(draft.qualifyingResults?.[0].date).toBe('2021-01-01')
           expect(draft.results?.[0].date).toBe('2021-01-01')
-          expect(toStoredDog({ dob: localMidnight, regNo: 'FI1/21' }).dob).toBe('2021-01-01')
+          expect(toStoredDog({ dob: beforeDayKeys(localMidnight), regNo: 'FI1/21' }).dob).toBe('2021-01-01')
           expect(toStoredManualTestResult({ ...result(localMidnight), id: 'm1' }).date).toBe('2021-01-01')
         })
 
         it("reads Kennelliitto's empty date as no day in every form, without throwing", () => {
           for (const empty of ['0001-01-01T00:00:00', '0001-01-01T00:00:00.000Z', '0000-12-31T22:00:00.000Z']) {
-            expect(toDog({ dob: empty, regNo: 'FI1/21', results: [result(empty)] })).toEqual(
+            expect(toDog({ dob: beforeDayKeys(empty), regNo: 'FI1/21', results: [result(empty)] })).toEqual(
               expect.objectContaining({ dob: undefined, results: [expect.objectContaining({ date: undefined })] })
             )
-            expect(toStoredDog({ dob: empty, regNo: 'FI1/21' }).dob).toBeUndefined()
+            expect(toStoredDog({ dob: beforeDayKeys(empty), regNo: 'FI1/21' }).dob).toBeUndefined()
           }
         })
       })

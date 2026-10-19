@@ -1,5 +1,6 @@
 import type { JsonConfirmedEvent } from '../types'
 import { freezeClockAt } from '../test-utils/freezeClock'
+import { addDays, dayOf, TIME_ZONE } from './day'
 import {
   classEntry,
   getResultsBlocker,
@@ -12,7 +13,7 @@ import {
 import { groupParticipantsByClass } from './registration'
 
 const now = new Date()
-const inDays = (days: number) => new Date(now.getTime() + days * 86_400_000).toISOString().slice(0, 10)
+const inDays = (days: number) => addDays(dayOf(now, TIME_ZONE), days)
 
 const event = (overrides: Partial<JsonConfirmedEvent> = {}) =>
   ({
@@ -110,11 +111,11 @@ describe('lib/publishing', () => {
       it('refuses a day that has not begun, though the trial is under way', () => {
         const running = event({
           classes: [
-            { class: 'ALO', date: '2026-09-12' },
-            { class: 'ALO', date: '2026-09-13' },
+            { class: 'ALO', date: '2026-09-12' as const },
+            { class: 'ALO', date: '2026-09-13' as const },
           ],
-          endDate: '2026-09-13',
-          startDate: '2026-09-12',
+          endDate: '2026-09-13' as const,
+          startDate: '2026-09-12' as const,
           startListPublished: { ALO: true },
         })
 
@@ -129,11 +130,11 @@ describe('lib/publishing', () => {
       it('lets each day be published once the list is', () => {
         const picked = event({
           classes: [
-            { class: 'ALO', date: '2026-09-12', state: 'picked' },
-            { class: 'ALO', date: '2026-09-13', state: 'picked' },
+            { class: 'ALO', date: '2026-09-12' as const, state: 'picked' },
+            { class: 'ALO', date: '2026-09-13' as const, state: 'picked' },
           ],
-          endDate: '2026-09-13',
-          startDate: '2026-09-12',
+          endDate: '2026-09-13' as const,
+          startDate: '2026-09-12' as const,
           startListPublished: { ALO: true },
           state: 'picked',
         })
@@ -169,11 +170,11 @@ describe('lib/publishing', () => {
 
     // A one-day NOME-B with only ALO: the place notices went, the invitations never did.
     const picked = event({
-      classes: [{ class: 'ALO', date: '2026-06-13', state: 'picked' }],
-      endDate: '2026-06-13',
-      entryEndDate: '2026-05-23',
-      entryStartDate: '2026-05-02',
-      startDate: '2026-06-13',
+      classes: [{ class: 'ALO', date: '2026-06-13' as const, state: 'picked' }],
+      endDate: '2026-06-13' as const,
+      entryEndDate: '2026-05-23' as const,
+      entryStartDate: '2026-05-02' as const,
+      startDate: '2026-06-13' as const,
       startListPublished: { ALO: true },
       state: 'picked',
     })

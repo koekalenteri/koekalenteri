@@ -83,10 +83,21 @@ Read `LLM_CONTEXT.md` for the project overview and architecture notes.
 - `dayOf` throws on an instant without a calendar day. Check `hasCalendarDay(instant, zone)` first on
   anything stored or received: the Kennel Club's empty date (year 1) is a valid Date but no day, and
   the accepted years (1100 to 9899) leave room for every step the app takes from an accepted day.
-- The stored `Date | string` fields (class and group dates, the published-day scopes) are read through
-  `src/lib/event.ts`: `storedDayKey` for a row whose date may be missing or unreadable (undefined
-  then), `eventDayKey` where the date must be there (it throws on one it cannot read). They are the
-  bridge until story 3 of KOE-1544 types the fields as days.
+- Every calendar day a row stores is a `DayKey` (KOE-1547): an event's days (its own, the entry's,
+  the classes', the dates', the posts', the Kennelliitto trial's, the published-day lists), a
+  registration's days and groups' days, a dog's birth date and results' days, and an organizer stats
+  row's key. Rows stored before held instants (a Finnish midnight, the end of a Finnish day, a
+  browser's local midnight or noon of a dog's date) or Kennelliitto's stamps; the `store...DaysAsKeys`
+  migrations rewrite them. Until every environment has run them and every browser sends keys, the
+  readers accept both forms: `storedDayKey` and `eventDayKey` (`src/lib/event.ts`) and `calendarDayOf`
+  read either, and a request boundary puts what it receives into keys with `rekeyEventDays` and
+  `rekeyRegistrationDays` (`src/lib/storedDays.ts`), reading a request with `requestDay` (a key or an
+  instant with a zone) and a stored row with `storedDay`. A no-day result date is stored as `''`, a
+  no-day birth date not at all. The browser model still holds each day as the start of its Finnish
+  day (`finnishDay` in `lib/wire.ts`) until it is given keys too.
+- The day key indexes (`gsiSeasonStartDate`, `gsiEventTypeEntryEndDateV2`) are queried with day keys,
+  which sort by day as text; the organizer stats rows' upper bound is padded past the event id
+  (`yyyy-MM-dd#id`).
 - date-fns' calendar functions (`isSameDay`, `startOfDay`, `addDays`, `nextSaturday`, `subWeeks`,
   ...) read the day in the machine's zone, and so do `format` with day tokens and `parseISO` of a day
   key. Biome's `noRestrictedImports` bans them outside `src/lib/day.ts` (`format` and `parseISO` also
@@ -103,8 +114,8 @@ Read `LLM_CONTEXT.md` for the project overview and architecture notes.
   (KOE-1548): a picker gets `localDateOf(day)`, and only the day it shows comes back (`pickedDayOf`),
   so no time of day or zone reaches the event form, the search filter or the registration form;
   `src/pages/components/dayPicker.ts` holds what they share. The search filter's `start` and `end` are
-  the day keys of the URL; the event form converts its stored instants at the section, until KOE-1547
-  stores them as days.
+  the day keys of the URL; the event form converts the model's Dates at the section, until the browser
+  model holds the days as keys too (KOE-1547).
 - A dog's birth date (`Dog.dob`) and a result's date (`TestResult.date`, and so the qualifying and the
   hand-entered results) are day keys in the browser and are written as keys. Rows stored before hold
   older forms: Kennelliitto's stamp without a zone, a bare day, an instant a browser or a lambda wrote.
@@ -119,18 +130,23 @@ Read `LLM_CONTEXT.md` for the project overview and architecture notes.
 
 ## Data Migrations
 
-- A one-off data migration is an entry in the `migrations` array of
-  `src/lambda/RunMigrationFunction/handler.ts`: a `name` plus an idempotent `run(event)` that
-  mutates the item and returns whether it changed.
+- A one-off data migration is an entry in one of the table's migration lists of
+  `src/lambda/RunMigrationFunction/handler.ts` (events, registrations, dogs, organizer stats rows): a
+  `name` plus an idempotent `run(row)` that mutates the row and returns whether it changed (or a
+  `DayRekeying`, which also counts the rows with a day it could not read: `unreadable` in the answer,
+  their ids in the log). Only the tables with a pending migration are read; the registration table
+  an event's rows at a time. A migration that decodes the old stored days does it with `legacyDay`
+  (`legacyStoredDay` in `src/lib/day.ts`), which never narrows: the hash below covers the migration's
+  own text, not a helper's.
 - The deploy runs it, nobody runs it by hand: after `sam deploy`, the `Run data migrations` step of
   `deploy-backend` in `release.yml` invokes the function directly (`aws lambda invoke`, no
   `requestContext`, so no Cognito check) and prints the counters. A failed run fails the job before
-  the frontend is published.
+  the frontend is published. The step makes one attempt (`AWS_MAX_ATTEMPTS=1`): the CLI retries a
+  read that timed out, which would start a second run beside the first.
 - Applied migrations are recorded in the data version table (collection `migrations`, scope = the
   migration's name, fields `appliedAt`, `count` and `hash`; every environment has its own table). A
   deploy runs only the migrations whose row is missing or whose stored `hash` differs from the hash of
-  `run.toString()`, and with none pending it reads the registry once and never touches the event
-  table. So an applied migration does not run again, and **a changed migration body reruns by
+  `run.toString()`, and with none pending it reads the registry once and never touches a table. So an applied migration does not run again, and **a changed migration body reruns by
   itself**. Two limits are accepted: the hashed text is the bundled code, so an esbuild or dependency
   change can alter it without a source change and rerun a migration once (harmless, migrations are
   idempotent); and a change inside a helper the migration calls (`getEventSeason`, say) does not alter

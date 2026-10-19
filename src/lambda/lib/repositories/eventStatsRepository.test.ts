@@ -124,6 +124,8 @@ describe('eventStatsRepository', () => {
   })
 
   describe('readOrganizerEventStats', () => {
+    // A row's key is `<start day>#<event id>` (KOE-1547): the upper bound is padded past the id, so the
+    // events of the range's last day are in it.
     it('queries the organizer partition with the date filters', async () => {
       const rows = [{ count: 10, organizerId: 'org1' }]
       mockQuery.mockResolvedValueOnce(rows)
@@ -133,7 +135,7 @@ describe('eventStatsRepository', () => {
         filterExpression: 'SK >= :from AND SK <= :to',
         key: '#pk = :pk',
         names: { '#pk': 'PK' },
-        values: { ':from': '2024-01-01', ':pk': 'ORG#org1', ':to': '2024-12-31' },
+        values: { ':from': '2024-01-01', ':pk': 'ORG#org1', ':to': '2024-12-31\uffff' },
       })
     })
 
@@ -159,7 +161,7 @@ describe('eventStatsRepository', () => {
       expect(mockReadAll).toHaveBeenCalledWith({
         filter: 'begins_with(#pk, :orgPrefix) AND SK >= :from AND SK <= :to',
         names: { '#pk': 'PK' },
-        values: { ':from': '2024-01-01', ':orgPrefix': 'ORG#', ':to': '2024-12-31' },
+        values: { ':from': '2024-01-01', ':orgPrefix': 'ORG#', ':to': '2024-12-31\uffff' },
       })
     })
 

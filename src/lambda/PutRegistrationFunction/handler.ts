@@ -13,6 +13,7 @@ import {
   resolveInvitationRead,
 } from '../../lib/registration'
 import { registrationBodySchema } from '../../lib/schema/registration'
+import { rekeyRegistrationDays, storedDay } from '../../lib/storedDays'
 import { patchMerge } from '../../lib/utils'
 import { getFrontendOrigin } from '../lib/api-gw'
 import { authorize } from '../lib/auth'
@@ -204,6 +205,9 @@ const putRegistrationLambda = lambda('putRegistration', async (event) => {
   // can write anything into its copy, and the eligibility rests on these (KOE-1346). The manual
   // results stay what they are, the owner's own claims, and are stored and shown as such.
   data.dog.results = await readOfficialResults(data.dog.regNo)
+  // Days are stored as keys (KOE-1547): a browser loaded before that sends instants, and the dog row
+  // the official results come from may not be migrated yet.
+  rekeyRegistrationDays(data, storedDay)
   Object.assign(data, qualifyJsonRegistration(data, confirmedEvent))
 
   if (existing && !hasRegistrationChanges(existing, data)) {

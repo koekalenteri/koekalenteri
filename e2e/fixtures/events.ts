@@ -5,7 +5,7 @@
  */
 import type { JsonConfirmedEvent } from '../../src/types'
 import { randomUUID } from 'node:crypto'
-import { endOfDay, helsinkiYear, startOfDay } from './dates'
+import { helsinkiDay, helsinkiYear } from './dates'
 
 /** An event row with the keys PutEvent derives, which the indexes are built on. */
 export type EventRow = JsonConfirmedEvent & { organizerId: string; season: string }
@@ -20,7 +20,7 @@ export const uniqueId = (prefix: string) => `${prefix}-${randomUUID().slice(0, 8
  */
 export const buildEvent = (overrides: Partial<JsonConfirmedEvent> = {}): EventRow => {
   const id = overrides.id ?? uniqueId('e2e')
-  const startDate = overrides.startDate ?? startOfDay(14)
+  const startDate = overrides.startDate ?? helsinkiDay(14)
   const now = new Date().toISOString()
   return {
     classes: [{ class: 'ALO', date: startDate, places: 20 }],
@@ -39,8 +39,8 @@ export const buildEvent = (overrides: Partial<JsonConfirmedEvent> = {}): EventRo
     description: 'Selaintestin koe',
     endDate: startDate,
     entries: 0,
-    entryEndDate: endOfDay(7),
-    entryStartDate: startOfDay(-1),
+    entryEndDate: helsinkiDay(7),
+    entryStartDate: helsinkiDay(-1),
     eventType: 'NOME-B',
     headquarters: { address: 'Koetie 1', name: 'Kokoontumispaikka', postalDistrict: 'Tampere', zipCode: '33100' },
     id,

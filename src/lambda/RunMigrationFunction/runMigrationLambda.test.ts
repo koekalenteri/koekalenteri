@@ -1,6 +1,7 @@
 import { vi } from 'vitest'
 import { httpError } from '../lib/lambda'
 import { answerRejections, constructPartialAPIGwEvent } from '../test-utils/helpers'
+import { loggedLines } from '../test-utils/logs'
 
 const mockLambda = vi.fn((_name, fn) => answerRejections(fn, mockResponse))
 const mockResponse = vi.fn()
@@ -10,6 +11,16 @@ const mockReadEvent = vi.fn()
 const mockWriteMigratedEvent = vi.fn()
 const mockReadApplied = vi.fn()
 const mockMarkApplied = vi.fn()
+const mockReadRegistrationEventIds = vi.fn()
+const mockReadEventRegistrations = vi.fn()
+const mockReadRegistration = vi.fn()
+const mockWriteMigratedRegistration = vi.fn()
+const mockReadAllDogs = vi.fn()
+const mockReadDog = vi.fn()
+const mockWriteMigratedDog = vi.fn()
+const mockReadAllOrganizerEventStats = vi.fn()
+const mockReadOrganizerEventStatsRow = vi.fn()
+const mockMoveOrganizerEventStatsRow = vi.fn()
 
 vi.doMock('../lib/lambda', async () => ({
   ...(await vi.importActual<typeof import('../lib/lambda')>('../lib/lambda')),
@@ -38,6 +49,25 @@ vi.doMock('../lib/repositories/eventRepository', () => ({
   writeMigratedEvent: mockWriteMigratedEvent,
 }))
 
+vi.doMock('../lib/repositories/registrationRepository', () => ({
+  readEventRegistrations: mockReadEventRegistrations,
+  readRegistration: mockReadRegistration,
+  readRegistrationEventIds: mockReadRegistrationEventIds,
+  writeMigratedRegistration: mockWriteMigratedRegistration,
+}))
+
+vi.doMock('../lib/repositories/dogRepository', () => ({
+  readAllDogs: mockReadAllDogs,
+  readDog: mockReadDog,
+  writeMigratedDog: mockWriteMigratedDog,
+}))
+
+vi.doMock('../lib/repositories/eventStatsRepository', () => ({
+  moveOrganizerEventStatsRow: mockMoveOrganizerEventStatsRow,
+  readAllOrganizerEventStats: mockReadAllOrganizerEventStats,
+  readOrganizerEventStatsRow: mockReadOrganizerEventStatsRow,
+}))
+
 const { default: runMigrationLambda } = await import('./handler')
 
 /** What the lambda sends for a migrated row: its id, the changed fields only, and the updatedAt it was read with. */
@@ -49,11 +79,15 @@ const updatedRow = (id: string | undefined, set: object = {}) =>
   ] as const
 
 describe('runMigrationLambda', () => {
-  const migrationResults = (updatedAt: number, season: number, startNumbers = 0, organizerId = 0) => [
+  const migrationResults = (updatedAt: number, season: number, startNumbers = 0, organizerId = 0, eventDays = 0) => [
     { count: updatedAt, name: 'populateUpdatedAt' },
     { count: organizerId, name: 'backfillOrganizerId' },
     { count: season, name: 'fixSeasonFromStartDate' },
     { count: startNumbers, name: 'backfillStartNumbersPublished' },
+    { count: eventDays, name: 'storeEventDaysAsKeys' },
+    { count: 0, name: 'storeRegistrationDaysAsKeys' },
+    { count: 0, name: 'storeDogDaysAsKeys' },
+    { count: 0, name: 'storeOrganizerStatsDaysAsKeys' },
   ]
 
   // An API Gateway request: it always carries a requestContext, which is what tells it from a direct invoke.
@@ -97,6 +131,9 @@ describe('runMigrationLambda', () => {
     mockWriteMigratedEvent.mockResolvedValue({})
     mockReadApplied.mockResolvedValue(new Map())
     mockMarkApplied.mockResolvedValue(undefined)
+    mockReadRegistrationEventIds.mockResolvedValue([])
+    mockReadAllDogs.mockResolvedValue([])
+    mockReadAllOrganizerEventStats.mockResolvedValue([])
   })
 
   it('returns 403 if authenticated user is not an admin', async () => {
@@ -190,8 +227,10 @@ describe('runMigrationLambda', () => {
     await runMigrationLambda(event)
 
     expect(mockWriteMigratedEvent).toHaveBeenCalledTimes(1)
-    expect(mockWriteMigratedEvent).toHaveBeenCalledWith(...updatedRow('event1', { season: '2025' }))
-    expect(mockResponse).toHaveBeenCalledWith(200, migrationResults(0, 1), event)
+    expect(mockWriteMigratedEvent).toHaveBeenCalledWith(
+      ...updatedRow('event1', { season: '2025', startDate: '2025-01-01' })
+    )
+    expect(mockResponse).toHaveBeenCalledWith(200, migrationResults(0, 1, 0, 0, 1), event)
   })
 
   it('gives a missing updatedAt the shared bump value', async () => {
@@ -406,6 +445,10 @@ describe('runMigrationLambda', () => {
       'backfillOrganizerId',
       'fixSeasonFromStartDate',
       'backfillStartNumbersPublished',
+      'storeEventDaysAsKeys',
+      'storeRegistrationDaysAsKeys',
+      'storeDogDaysAsKeys',
+      'storeOrganizerStatsDaysAsKeys',
     ]
 
     // What `aws lambda invoke` delivers: no API Gateway around it, so no requestContext.
@@ -450,10 +493,10 @@ describe('runMigrationLambda', () => {
     it('records every migration of a forced run, with the hash of its code', async () => {
       await runMigrationLambda(event)
 
-      expect(mockMarkApplied).toHaveBeenCalledTimes(4)
+      expect(mockMarkApplied).toHaveBeenCalledTimes(8)
       expect(mockMarkApplied).toHaveBeenCalledWith('fixSeasonFromStartDate', 2, hashes.get('fixSeasonFromStartDate'))
       expect(mockMarkApplied).toHaveBeenCalledWith('populateUpdatedAt', 0, hashes.get('populateUpdatedAt'))
-      expect(new Set(hashes.values()).size).toBe(4)
+      expect(new Set(hashes.values()).size).toBe(8)
     })
 
     it('reads the registry once, for every migration in the code', async () => {
@@ -578,8 +621,8 @@ describe('runMigrationLambda', () => {
 
       await expect(runMigrationLambda(directEvent)).rejects.toThrow('write failed')
 
-      // Only the rows already in flight (the concurrency limit) were written, not the other seven
-      expect(mockWriteMigratedEvent).toHaveBeenCalledTimes(5)
+      // Only the rows already in flight (the concurrency limit) were written, not the other two
+      expect(mockWriteMigratedEvent).toHaveBeenCalledTimes(10)
     })
   })
 
@@ -675,6 +718,277 @@ describe('runMigrationLambda', () => {
 
       expect(mockWriteMigratedEvent).toHaveBeenCalledTimes(1)
       expect(mockResponse).toHaveBeenCalledWith(200, migrationResults(0, 0, 0, 0), directEvent)
+    })
+  })
+  // KOE-1547: every stored calendar day becomes a key. The days were stored as the instants they start
+  // at in Finland (21:00 or 22:00 UTC the evening before), the entry end as the last millisecond of
+  // its Finnish day, and a dog's dates in whatever form a browser or Kennelliitto gave them.
+  describe('the calendar days as keys (KOE-1547)', () => {
+    const directEvent = constructPartialAPIGwEvent({})
+    const conflict = () =>
+      Object.assign(new Error('The conditional request failed'), { name: 'ConditionalCheckFailedException' })
+
+    // The registry lists every migration as applied but the one named.
+    let hashes: Map<string, string>
+    const pendingOnly = (name: string) => new Map([...hashes].filter(([applied]) => applied !== name))
+
+    beforeEach(async () => {
+      hashes = new Map()
+      mockMarkApplied.mockImplementation(async (name: string, _count: number, hash: string) => {
+        hashes.set(name, hash)
+      })
+      mockReadAllEvents.mockResolvedValueOnce([])
+      await runMigrationLambda(event)
+      vi.clearAllMocks()
+      mockMarkApplied.mockResolvedValue(undefined)
+      mockReadRegistrationEventIds.mockResolvedValue([])
+      mockReadAllDogs.mockResolvedValue([])
+      mockReadAllOrganizerEventStats.mockResolvedValue([])
+    })
+
+    const storedEvent = () => ({
+      classes: [
+        { class: 'ALO', date: '2026-05-31T21:00:00.000Z' },
+        { class: 'AVO', date: '2026-06-01' },
+      ],
+      dates: [{ date: '2026-05-31T21:00:00.000Z', time: 'ap' }],
+      endDate: '2026-06-01T21:00:00.000Z',
+      entryEndDate: '2026-05-17T20:59:59.999Z',
+      entryOrigEndDate: '2026-05-10T20:59:59.999Z',
+      entryStartDate: '2026-01-31T22:00:00.000Z',
+      id: 'event1',
+      kcEvent: { endDate: '2026-06-01T21:00:00.000Z', startDate: '2026-05-31T21:00:00.000Z' },
+      organizer: { id: 'org1' },
+      organizerId: 'org1',
+      qualificationStartDate: '2025-08-18T21:00:00.000Z',
+      resultsPublished: { ALO: ['2026-05-31T21:00:00.000Z'], AVO: true },
+      season: '2026',
+      startDate: '2026-05-31T21:00:00.000Z',
+      startNumbersPublished: ['2026-06-01/ap', '2026-06-01T21:00:00.000Z'],
+      stations: [{ date: '2026-05-31T21:00:00.000Z', id: 'post-1', number: 1, tasks: 1 }],
+      updatedAt: 'read',
+    })
+
+    it('writes every day of an event as the key of its Finnish day, and bumps updatedAt', async () => {
+      mockReadApplied.mockResolvedValue(pendingOnly('storeEventDaysAsKeys'))
+      mockReadAllEvents.mockResolvedValueOnce([storedEvent()])
+
+      await runMigrationLambda(directEvent)
+
+      expect(mockReadAllEvents).toHaveBeenCalledWith(true)
+      expect(mockWriteMigratedEvent).toHaveBeenCalledTimes(1)
+      expect(mockWriteMigratedEvent).toHaveBeenCalledWith(
+        'event1',
+        {
+          // An array is written whole.
+          set: {
+            classes: [
+              { class: 'ALO', date: '2026-06-01' },
+              { class: 'AVO', date: '2026-06-01' },
+            ],
+            dates: [{ date: '2026-06-01', time: 'ap' }],
+            endDate: '2026-06-02',
+            entryEndDate: '2026-05-17',
+            entryOrigEndDate: '2026-05-10',
+            entryStartDate: '2026-02-01',
+            'kcEvent.endDate': '2026-06-02',
+            'kcEvent.startDate': '2026-06-01',
+            qualificationStartDate: '2025-08-19',
+            'resultsPublished.ALO': ['2026-06-01'],
+            startDate: '2026-06-01',
+            // A half day stays as it is.
+            startNumbersPublished: ['2026-06-01/ap', '2026-06-02'],
+            stations: [{ date: '2026-06-01', id: 'post-1', number: 1, tasks: 1 }],
+            updatedAt: expect.not.stringMatching(/^read$/),
+          },
+        },
+        'read'
+      )
+      expect(mockResponse).toHaveBeenCalledWith(200, [{ count: 1, name: 'storeEventDaysAsKeys' }], directEvent)
+      expect(mockMarkApplied).toHaveBeenCalledWith('storeEventDaysAsKeys', 1, hashes.get('storeEventDaysAsKeys'))
+    })
+
+    it('leaves an event whose days are keys as it is, so a second run changes nothing', async () => {
+      mockReadApplied.mockResolvedValue(pendingOnly('storeEventDaysAsKeys'))
+      mockReadAllEvents.mockResolvedValueOnce([
+        { endDate: '2026-06-02', entryEndDate: '2026-05-17', id: 'event1', startDate: '2026-06-01', updatedAt: 'read' },
+      ])
+
+      await runMigrationLambda(directEvent)
+
+      expect(mockWriteMigratedEvent).not.toHaveBeenCalled()
+      expect(mockResponse).toHaveBeenCalledWith(200, [{ count: 0, name: 'storeEventDaysAsKeys' }], directEvent)
+    })
+
+    it('leaves a day it cannot read as it is, counts the row and names it in the log', async () => {
+      const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+      mockReadApplied.mockResolvedValue(pendingOnly('storeEventDaysAsKeys'))
+      mockReadAllEvents.mockResolvedValueOnce([
+        { endDate: '2026-06-01T21:00:00.000Z', id: 'event1', startDate: 'not-a-date', updatedAt: 'read' },
+      ])
+
+      await runMigrationLambda(directEvent)
+
+      expect(mockWriteMigratedEvent).toHaveBeenCalledWith(
+        'event1',
+        { set: { endDate: '2026-06-02', updatedAt: expect.any(String) } },
+        'read'
+      )
+      expect(mockResponse).toHaveBeenCalledWith(
+        200,
+        [{ count: 1, name: 'storeEventDaysAsKeys', unreadable: 1 }],
+        directEvent
+      )
+      expect(loggedLines(warn)).toEqual([
+        expect.objectContaining({
+          ids: ['event1'],
+          message: 'migration left unreadable values',
+          migration: 'storeEventDaysAsKeys',
+        }),
+      ])
+      warn.mockRestore()
+    })
+
+    const storedRegistration = () => ({
+      dates: [{ date: '2026-05-31T21:00:00.000Z', time: 'ap' }],
+      // A browser's local noon of the birth day, as the JSON reviver made of a bare day (KOE-1131).
+      dog: {
+        dob: '2021-01-01T10:00:00.000Z',
+        regNo: 'FI1/21',
+        results: [{ class: 'ALO', date: '2025-06-01T00:00:00', type: 'NOME-B' }],
+      },
+      eventId: 'event1',
+      // An older copy keyed the group by the UTC day (KOE-1541).
+      group: { date: '2026-05-31T21:00:00.000Z', key: '2026-05-31-ap', number: 1, time: 'ap' },
+      id: 'reg1',
+      qualifyingResults: [{ class: 'ALO', date: '0001-01-01T00:00:00', official: true, type: 'NOME-B' }],
+      results: [{ class: 'ALO', date: '2025-05-31T21:00:00.000Z', id: 'm1', type: 'NOME-B' }],
+      startGroup: { date: '2026-05-31T21:00:00.000Z', key: '2026-05-31-ap', number: 1, time: 'ap' },
+      updatedAt: 'read',
+    })
+
+    it("writes an entry's days, its groups' keys and the dog's dates as keys, an event's rows at a time", async () => {
+      mockReadApplied.mockResolvedValue(pendingOnly('storeRegistrationDaysAsKeys'))
+      mockReadRegistrationEventIds.mockResolvedValueOnce(['event1', 'event2'])
+      mockReadEventRegistrations.mockResolvedValueOnce([storedRegistration()]).mockResolvedValueOnce([])
+
+      await runMigrationLambda(directEvent)
+
+      // Only the table with a pending migration is read.
+      expect(mockReadAllEvents).not.toHaveBeenCalled()
+      expect(mockReadAllDogs).not.toHaveBeenCalled()
+      expect(mockReadEventRegistrations).toHaveBeenCalledWith('event1', true)
+      expect(mockReadEventRegistrations).toHaveBeenCalledWith('event2', true)
+      expect(mockWriteMigratedRegistration).toHaveBeenCalledTimes(1)
+      expect(mockWriteMigratedRegistration).toHaveBeenCalledWith(
+        'event1',
+        'reg1',
+        {
+          set: {
+            dates: [{ date: '2026-06-01', time: 'ap' }],
+            'dog.dob': '2021-01-01',
+            'dog.results': [{ class: 'ALO', date: '2025-06-01', type: 'NOME-B' }],
+            'group.date': '2026-06-01',
+            'group.key': '2026-06-01-ap',
+            // Kennelliitto's empty date is a result without a day.
+            qualifyingResults: [{ class: 'ALO', date: '', official: true, type: 'NOME-B' }],
+            results: [{ class: 'ALO', date: '2025-06-01', id: 'm1', type: 'NOME-B' }],
+            'startGroup.date': '2026-06-01',
+            'startGroup.key': '2026-06-01-ap',
+            updatedAt: expect.not.stringMatching(/^read$/),
+          },
+        },
+        'read'
+      )
+      expect(mockResponse).toHaveBeenCalledWith(200, [{ count: 1, name: 'storeRegistrationDaysAsKeys' }], directEvent)
+    })
+
+    it("removes a dog's birth date that is Kennelliitto's empty date", async () => {
+      mockReadApplied.mockResolvedValue(pendingOnly('storeRegistrationDaysAsKeys'))
+      mockReadRegistrationEventIds.mockResolvedValueOnce(['event1'])
+      mockReadEventRegistrations.mockResolvedValueOnce([
+        {
+          dates: [],
+          dog: { dob: '0000-12-31T22:00:00.000Z', regNo: 'FI1/21' },
+          eventId: 'event1',
+          id: 'reg1',
+          updatedAt: 'read',
+        },
+      ])
+
+      await runMigrationLambda(directEvent)
+
+      expect(mockWriteMigratedRegistration).toHaveBeenCalledWith(
+        'event1',
+        'reg1',
+        { remove: ['dog.dob'], set: { updatedAt: expect.any(String) } },
+        'read'
+      )
+    })
+
+    it('migrates a registration afresh after a conflict, read as last written', async () => {
+      mockReadApplied.mockResolvedValue(pendingOnly('storeRegistrationDaysAsKeys'))
+      mockReadRegistrationEventIds.mockResolvedValueOnce(['event1'])
+      mockReadEventRegistrations.mockResolvedValueOnce([storedRegistration()])
+      mockWriteMigratedRegistration.mockRejectedValueOnce(conflict())
+      mockReadRegistration.mockResolvedValueOnce({ ...storedRegistration(), notes: 'saved', updatedAt: 'saved' })
+
+      await runMigrationLambda(directEvent)
+
+      expect(mockReadRegistration).toHaveBeenCalledWith('event1', 'reg1', true)
+      expect(mockWriteMigratedRegistration).toHaveBeenCalledTimes(2)
+      expect(mockWriteMigratedRegistration).toHaveBeenLastCalledWith('event1', 'reg1', expect.anything(), 'saved')
+    })
+
+    it("writes a dog's birth date and results' days as keys, held to the values read", async () => {
+      mockReadApplied.mockResolvedValue(pendingOnly('storeDogDaysAsKeys'))
+      const dog = {
+        dob: '2021-01-01T00:00:00',
+        regNo: 'FI1/21',
+        results: [
+          { class: 'ALO', date: '2025-06-01T00:00:00', type: 'NOME-B' },
+          { class: 'AVO', date: '2025-07-01', type: 'NOME-B' },
+        ],
+      }
+      mockReadAllDogs.mockResolvedValueOnce([structuredClone(dog)])
+
+      await runMigrationLambda(directEvent)
+
+      expect(mockWriteMigratedDog).toHaveBeenCalledWith(dog, {
+        set: {
+          dob: '2021-01-01',
+          results: [
+            { class: 'ALO', date: '2025-06-01', type: 'NOME-B' },
+            { class: 'AVO', date: '2025-07-01', type: 'NOME-B' },
+          ],
+        },
+      })
+      expect(mockResponse).toHaveBeenCalledWith(200, [{ count: 1, name: 'storeDogDaysAsKeys' }], directEvent)
+    })
+
+    it("moves an organizer's stats row keyed by an instant to the key of its day", async () => {
+      mockReadApplied.mockResolvedValue(pendingOnly('storeOrganizerStatsDaysAsKeys'))
+      const instantRow = {
+        count: 3,
+        date: '2026-05-31T21:00:00.000Z',
+        organizerId: 'org1',
+        PK: 'ORG#org1',
+        SK: '2026-05-31T21:00:00.000Z#event1',
+        updatedAt: 'read',
+      }
+      const keyRow = { ...instantRow, date: '2026-07-01', SK: '2026-07-01#event2' }
+      mockReadAllOrganizerEventStats.mockResolvedValueOnce([structuredClone(instantRow), keyRow])
+
+      await runMigrationLambda(directEvent)
+
+      expect(mockMoveOrganizerEventStatsRow).toHaveBeenCalledTimes(1)
+      expect(mockMoveOrganizerEventStatsRow).toHaveBeenCalledWith(
+        { id: 'event1', organizer: { id: 'org1' }, startDate: '2026-05-31T21:00:00.000Z' },
+        { id: 'event1', organizer: { id: 'org1' }, startDate: '2026-06-01' },
+        instantRow,
+        expect.any(String)
+      )
+      expect(mockResponse).toHaveBeenCalledWith(200, [{ count: 1, name: 'storeOrganizerStatsDaysAsKeys' }], directEvent)
     })
   })
 })

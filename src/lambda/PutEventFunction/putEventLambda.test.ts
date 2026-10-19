@@ -1,5 +1,6 @@
 import type { JsonDogEvent, JsonUser } from '../../types'
 import { vi } from 'vitest'
+import { beforeDayKeys } from '../../test-utils/finnishDays'
 import { constructAPIGwEvent } from '../test-utils/helpers'
 // Loaded before the clock is faked: @date-fns/tz's TZDate extends the Date it finds at load, and on a
 // fake Date it formats in the host zone, so a CI runner in UTC read Finnish midnight as the day before.
@@ -148,7 +149,7 @@ const mockEvent: JsonDogEvent = {
   startDate: '2025-06-01',
   state: 'draft',
 }
-const confirmedDates = { endDate: '2025-06-02', startDate: '2025-06-01' }
+const confirmedDates: Pick<JsonDogEvent, 'endDate' | 'startDate'> = { endDate: '2025-06-02', startDate: '2025-06-01' }
 
 describe('putEventLambda', () => {
   vi.spyOn(console, 'debug').mockImplementation(() => undefined)
@@ -974,8 +975,8 @@ describe('putEventLambda', () => {
     updateRegistrationsMock.mockResolvedValueOnce({
       ...mockEvent,
       entries: 11,
-      entryEndDate: '',
-      entryStartDate: '',
+      entryEndDate: beforeDayKeys(''),
+      entryStartDate: beforeDayKeys(''),
       state: 'confirmed',
     })
 
@@ -1003,13 +1004,13 @@ describe('putEventLambda', () => {
     getEventMock.mockResolvedValueOnce({
       ...mockEvent,
       ...confirmedDates,
-      entryEndDate: '2025-03-25T00:00:00Z',
-      entryStartDate: '2025-03-01T00:00:00Z',
+      entryEndDate: '2025-03-25',
+      entryStartDate: '2025-03-01',
       state: 'confirmed',
     })
 
     const res = await putEventLambda(
-      constructAPIGwEvent<Partial<JsonDogEvent>>({ entryEndDate: '2025-04-01T00:00:00Z', id: 'existing' })
+      constructAPIGwEvent<Partial<JsonDogEvent>>({ entryEndDate: '2025-04-01', id: 'existing' })
     )
 
     expect(patchEventMock).toHaveBeenCalledWith(
@@ -1017,16 +1018,16 @@ describe('putEventLambda', () => {
       expect.objectContaining({
         ...mockEvent,
         ...confirmedDates,
-        entryEndDate: '2025-03-25T00:00:00Z',
-        entryStartDate: '2025-03-01T00:00:00Z',
+        entryEndDate: '2025-03-25',
+        entryStartDate: '2025-03-01',
         state: 'confirmed',
       }),
       {
         ...mockEvent,
         ...confirmedDates,
-        entryEndDate: '2025-04-01T00:00:00Z',
-        entryOrigEndDate: '2025-03-25T00:00:00Z',
-        entryStartDate: '2025-03-01T00:00:00Z',
+        entryEndDate: '2025-04-01',
+        entryOrigEndDate: '2025-03-25',
+        entryStartDate: '2025-03-01',
         modifiedAt: '2025-03-22T10:45:33.000Z',
         modifiedBy: 'Test User',
         season: '2025',
@@ -1042,12 +1043,12 @@ describe('putEventLambda', () => {
     getEventMock.mockResolvedValueOnce({
       ...mockEvent,
       ...confirmedDates,
-      entryEndDate: '2025-02-02T00:00:00Z',
+      entryEndDate: '2025-02-02',
       state: 'confirmed',
     })
 
     const res = await putEventLambda(
-      constructAPIGwEvent<Partial<JsonDogEvent>>({ entryEndDate: '2025-01-01T00:00:00Z', id: 'existing' })
+      constructAPIGwEvent<Partial<JsonDogEvent>>({ entryEndDate: '2025-01-01', id: 'existing' })
     )
 
     expect(patchEventMock).toHaveBeenCalledWith(
@@ -1055,13 +1056,13 @@ describe('putEventLambda', () => {
       {
         ...mockEvent,
         ...confirmedDates,
-        entryEndDate: '2025-02-02T00:00:00Z',
+        entryEndDate: '2025-02-02',
         state: 'confirmed',
       },
       {
         ...mockEvent,
         ...confirmedDates,
-        entryEndDate: '2025-01-01T00:00:00Z',
+        entryEndDate: '2025-01-01',
         modifiedAt: '2025-03-22T10:45:33.000Z',
         modifiedBy: 'Test User',
         season: '2025',
@@ -1077,13 +1078,13 @@ describe('putEventLambda', () => {
     getEventMock.mockResolvedValueOnce({
       ...mockEvent,
       ...confirmedDates,
-      entryEndDate: '2025-01-01T00:00:00Z',
-      entryOrigEndDate: '2024-06-01T00:00:00Z',
+      entryEndDate: '2025-01-01',
+      entryOrigEndDate: '2024-06-01',
       state: 'confirmed',
     })
 
     const res = await putEventLambda(
-      constructAPIGwEvent<Partial<JsonDogEvent>>({ entryEndDate: '2025-02-02T00:00:00Z', id: 'existing' })
+      constructAPIGwEvent<Partial<JsonDogEvent>>({ entryEndDate: '2025-02-02', id: 'existing' })
     )
 
     expect(patchEventMock).toHaveBeenCalledWith(
@@ -1091,15 +1092,15 @@ describe('putEventLambda', () => {
       {
         ...mockEvent,
         ...confirmedDates,
-        entryEndDate: '2025-01-01T00:00:00Z',
-        entryOrigEndDate: '2024-06-01T00:00:00Z',
+        entryEndDate: '2025-01-01',
+        entryOrigEndDate: '2024-06-01',
         state: 'confirmed',
       },
       {
         ...mockEvent,
         ...confirmedDates,
-        entryEndDate: '2025-02-02T00:00:00Z',
-        entryOrigEndDate: '2024-06-01T00:00:00Z',
+        entryEndDate: '2025-02-02',
+        entryOrigEndDate: '2024-06-01',
         modifiedAt: '2025-03-22T10:45:33.000Z',
         modifiedBy: 'Test User',
         season: '2025',
@@ -1112,18 +1113,18 @@ describe('putEventLambda', () => {
 
   it('should update season when startDate is changed', async () => {
     authorizeMock.mockResolvedValueOnce(mockSecretary)
-    getEventMock.mockResolvedValueOnce({ ...mockEvent, season: '2024', startDate: '2024-06-15T00:00:00.000Z' })
+    getEventMock.mockResolvedValueOnce({ ...mockEvent, season: '2024', startDate: '2024-06-15' })
 
     const res = await putEventLambda(
-      constructAPIGwEvent<Partial<JsonDogEvent>>({ id: 'existing', startDate: '2024-12-31T22:00:00.000Z' })
+      constructAPIGwEvent<Partial<JsonDogEvent>>({ id: 'existing', startDate: '2025-01-01' })
     )
 
     expect(patchEventMock).toHaveBeenCalledWith(
       'existing',
-      expect.objectContaining({ ...mockEvent, season: '2024', startDate: '2024-06-15T00:00:00.000Z' }),
+      expect.objectContaining({ ...mockEvent, season: '2024', startDate: '2024-06-15' }),
       expect.objectContaining({
         season: '2025',
-        startDate: '2024-12-31T22:00:00.000Z',
+        startDate: '2025-01-01',
       })
     )
     expect(res.statusCode).toEqual(200)
@@ -1131,10 +1132,10 @@ describe('putEventLambda', () => {
 
   it('moves the organizer stats record when startDate changes', async () => {
     authorizeMock.mockResolvedValueOnce(mockSecretary)
-    getEventMock.mockResolvedValueOnce({ ...mockEvent, season: '2024', startDate: '2024-06-15T00:00:00.000Z' })
+    getEventMock.mockResolvedValueOnce({ ...mockEvent, season: '2024', startDate: '2024-06-15' })
     const stats = {
       count: 7,
-      date: '2024-06-15T00:00:00.000Z',
+      date: '2024-06-15',
       organizerId: mockEvent.organizer.id,
       PK: `ORG#${mockEvent.organizer.id}`,
       paidAmount: 350,
@@ -1142,16 +1143,14 @@ describe('putEventLambda', () => {
     }
     mockReadOrganizerEventStatsRow.mockResolvedValueOnce(stats)
 
-    await putEventLambda(
-      constructAPIGwEvent<Partial<JsonDogEvent>>({ id: 'existing', startDate: '2024-12-31T22:00:00.000Z' })
-    )
+    await putEventLambda(constructAPIGwEvent<Partial<JsonDogEvent>>({ id: 'existing', startDate: '2025-01-01' }))
 
     // The row of the event as stored is read, and its counters move onto the row of the new start
     // date in one transaction; the keys and the transaction are the repository test's.
     const stored = expect.objectContaining({
       id: 'existing',
       organizer: mockEvent.organizer,
-      startDate: '2024-06-15T00:00:00.000Z',
+      startDate: '2024-06-15',
     })
     expect(mockReadOrganizerEventStatsRow).toHaveBeenCalledWith(stored)
     expect(mockMoveOrganizerEventStatsRow).toHaveBeenCalledTimes(1)
@@ -1160,7 +1159,7 @@ describe('putEventLambda', () => {
       expect.objectContaining({
         id: 'existing',
         organizer: mockEvent.organizer,
-        startDate: '2024-12-31T22:00:00.000Z',
+        startDate: '2025-01-01',
       }),
       stats,
       expect.any(String)
@@ -1169,7 +1168,7 @@ describe('putEventLambda', () => {
 
   it('does not touch the organizer stats record when the key is unchanged', async () => {
     authorizeMock.mockResolvedValueOnce(mockSecretary)
-    getEventMock.mockResolvedValueOnce({ ...mockEvent, season: '2024', startDate: '2024-06-15T00:00:00.000Z' })
+    getEventMock.mockResolvedValueOnce({ ...mockEvent, season: '2024', startDate: '2024-06-15' })
 
     await putEventLambda(constructAPIGwEvent<Partial<JsonDogEvent>>({ id: 'existing', name: 'Renamed but same dates' }))
 
@@ -1177,9 +1176,36 @@ describe('putEventLambda', () => {
     expect(mockMoveOrganizerEventStatsRow).not.toHaveBeenCalled()
   })
 
+  // KOE-1547: a row not yet migrated holds its days as instants, and a browser loaded before the
+  // change sends them so; the same days in the other form are no change.
+  it('reads the stored and the sent days as keys before comparing, merging or auditing them', async () => {
+    authorizeMock.mockResolvedValueOnce(mockSecretary)
+    const asInstants = () => ({
+      classes: [{ class: 'ALO' as const, date: beforeDayKeys('2025-05-31T21:00:00.000Z') }],
+      endDate: beforeDayKeys('2025-06-01T21:00:00.000Z'),
+      startDate: beforeDayKeys('2025-05-31T21:00:00.000Z'),
+    })
+    getEventMock.mockResolvedValueOnce({ ...mockEvent, ...asInstants() })
+
+    const res = await putEventLambda(constructAPIGwEvent<Partial<JsonDogEvent>>({ id: 'existing', ...asInstants() }))
+
+    expect(res.statusCode).toEqual(200)
+    const keyed = expect.objectContaining({
+      classes: [{ class: 'ALO', date: '2025-06-01' }],
+      endDate: '2025-06-02',
+      startDate: '2025-06-01',
+    })
+    expect(mockGetEventAuditMessages).toHaveBeenCalledWith(keyed, keyed)
+    expect(patchEventMock).toHaveBeenCalledWith('existing', keyed, keyed)
+    // The organizer stats row is keyed by the start as stored, and moves to the key of its day.
+    expect(mockReadOrganizerEventStatsRow).toHaveBeenCalledWith(
+      expect.objectContaining({ startDate: '2025-05-31T21:00:00.000Z' })
+    )
+  })
+
   it('should not update season when startDate is unchanged', async () => {
     authorizeMock.mockResolvedValueOnce(mockSecretary)
-    getEventMock.mockResolvedValueOnce({ ...mockEvent, season: '2024', startDate: '2024-06-15T00:00:00.000Z' })
+    getEventMock.mockResolvedValueOnce({ ...mockEvent, season: '2024', startDate: '2024-06-15' })
 
     const res = await putEventLambda(
       constructAPIGwEvent<Partial<JsonDogEvent>>({ id: 'existing', location: 'New Location' })
@@ -1187,10 +1213,10 @@ describe('putEventLambda', () => {
 
     expect(patchEventMock).toHaveBeenCalledWith(
       'existing',
-      expect.objectContaining({ ...mockEvent, season: '2024', startDate: '2024-06-15T00:00:00.000Z' }),
+      expect.objectContaining({ ...mockEvent, season: '2024', startDate: '2024-06-15' }),
       expect.objectContaining({
         season: '2024',
-        startDate: '2024-06-15T00:00:00.000Z',
+        startDate: '2024-06-15',
       })
     )
     expect(res.statusCode).toEqual(200)
@@ -1198,7 +1224,7 @@ describe('putEventLambda', () => {
 
   it('should add missing season when updating without changing startDate', async () => {
     authorizeMock.mockResolvedValueOnce(mockSecretary)
-    getEventMock.mockResolvedValueOnce({ ...mockEvent, startDate: '2024-12-31T22:00:00.000Z' })
+    getEventMock.mockResolvedValueOnce({ ...mockEvent, startDate: '2025-01-01' })
 
     const res = await putEventLambda(
       constructAPIGwEvent<Partial<JsonDogEvent>>({ id: 'existing', location: 'New Location' })
@@ -1206,19 +1232,19 @@ describe('putEventLambda', () => {
 
     expect(patchEventMock).toHaveBeenCalledWith(
       'existing',
-      expect.objectContaining({ ...mockEvent, startDate: '2024-12-31T22:00:00.000Z' }),
+      expect.objectContaining({ ...mockEvent, startDate: '2025-01-01' }),
       expect.objectContaining({
         location: 'New Location',
         season: '2025',
-        startDate: '2024-12-31T22:00:00.000Z',
+        startDate: '2025-01-01',
       })
     )
     expect(res.statusCode).toEqual(200)
   })
 
   it('should set qualificationStartDate for existing NOME-B SM', async () => {
-    const qualificationStartDate = '2024-02-02T00:00:00Z'
-    const entryEndDate = '2025-01-01T00:00:00Z'
+    const qualificationStartDate = '2024-02-02'
+    const entryEndDate = '2025-01-01'
     authorizeMock.mockResolvedValueOnce(mockSecretary)
     getEventMock.mockResolvedValueOnce({ ...mockEvent, entryEndDate, eventType: 'NOME-B SM' })
     findQualificationStartDateMock.mockResolvedValueOnce(qualificationStartDate)
@@ -1261,10 +1287,10 @@ describe('putEventLambda', () => {
   ] as const)('rejects an invalid %s (%s) before saving', async (field, value) => {
     authorizeMock.mockResolvedValueOnce(mockSecretary)
     // The other date is valid, so the refusal is this field's.
-    const valid = { endDate: '2026-06-02T20:59:59.999Z', startDate: '2026-06-01T21:00:00.000Z' }
+    const valid: Pick<JsonDogEvent, 'endDate' | 'startDate'> = { endDate: '2026-06-02', startDate: '2026-06-02' }
 
     const res = await putEventLambda(
-      constructAPIGwEvent<Partial<JsonDogEvent>>({ ...valid, [field]: value, eventType: 'TEST' })
+      constructAPIGwEvent<Partial<JsonDogEvent>>({ ...valid, [field]: beforeDayKeys(value), eventType: 'TEST' })
     )
 
     expect(res.statusCode).toEqual(400)
@@ -1279,8 +1305,8 @@ describe('putEventLambda', () => {
     authorizeMock.mockResolvedValueOnce(mockSecretary)
     getEventMock.mockResolvedValueOnce({
       ...mockEvent,
-      endDate: '2025-06-02T00:00:00',
-      startDate: '2025-06-01T00:00:00',
+      endDate: beforeDayKeys('2025-06-02T00:00:00'),
+      startDate: beforeDayKeys('2025-06-01T00:00:00'),
     })
 
     const res = await putEventLambda(
@@ -1294,12 +1320,15 @@ describe('putEventLambda', () => {
     authorizeMock.mockResolvedValueOnce(mockSecretary)
     getEventMock.mockResolvedValueOnce({
       ...mockEvent,
-      endDate: '2025-06-02T00:00:00',
-      startDate: '2025-06-01T00:00:00',
+      endDate: beforeDayKeys('2025-06-02T00:00:00'),
+      startDate: beforeDayKeys('2025-06-01T00:00:00'),
     })
 
     const res = await putEventLambda(
-      constructAPIGwEvent<Partial<JsonDogEvent>>({ id: 'existing', startDate: '12' }, { method: 'PATCH' })
+      constructAPIGwEvent<Partial<JsonDogEvent>>(
+        { id: 'existing', startDate: beforeDayKeys('12') },
+        { method: 'PATCH' }
+      )
     )
 
     expect(res.statusCode).toEqual(400)
@@ -1308,8 +1337,8 @@ describe('putEventLambda', () => {
   })
 
   it.each([
-    [{ endDate: '2025-06-02', state: 'draft' as const }, 'startDate'],
-    [{ endDate: '', startDate: '2025-06-01', state: 'draft' as const }, 'endDate'],
+    [{ endDate: beforeDayKeys('2025-06-02'), state: 'draft' as const }, 'startDate'],
+    [{ endDate: beforeDayKeys(''), startDate: beforeDayKeys('2025-06-01'), state: 'draft' as const }, 'endDate'],
   ])('rejects a draft event with a missing or empty %s before saving', async (payload, field) => {
     authorizeMock.mockResolvedValueOnce(mockSecretary)
 
@@ -1326,7 +1355,7 @@ describe('putEventLambda', () => {
       ...mockEvent,
       cost: { normal: 40 },
       costMember: { normal: 35 },
-      entryStartDate: '2025-04-01T00:00:00.000+03:00',
+      entryStartDate: '2025-04-01',
       paymentTime: 'registration',
     }
     const ready = { id: 'a', state: 'ready' }
@@ -1382,21 +1411,26 @@ describe('putEventLambda', () => {
         { paymentTime: 'registration' },
       ],
       ['an unrelated field', priced, { name: 'renamed' }],
-      ['the entry start without an early-bird price', priced, { entryStartDate: '2025-04-03T00:00:00.000+03:00' }],
+      ['the entry start without an early-bird price', priced, { entryStartDate: '2025-04-03' }],
       [
-        'the same entry start written another way',
+        'the same entry start as the instant a browser loaded before KOE-1547 sends',
         { ...priced, cost: earlyBird },
-        { entryStartDate: '2025-03-31T21:00:00.000Z' },
+        { entryStartDate: beforeDayKeys('2025-03-31T21:00:00.000Z') },
+      ],
+      [
+        'the key of an entry start a row not yet migrated holds as an instant',
+        { ...priced, cost: earlyBird, entryStartDate: beforeDayKeys('2025-03-31T21:00:00.000Z') },
+        { entryStartDate: '2025-04-01' },
       ],
       [
         'a moved entry start when the early-bird rate counts no days',
         { ...priced, cost: { earlyBird: { cost: 30, days: 0 }, normal: 40 } },
-        { entryStartDate: '2025-04-03T00:00:00.000+03:00' },
+        { entryStartDate: '2025-04-03' },
       ],
       [
         'a new entry end beside a legacy bare-day entry start',
         { ...priced, cost: earlyBird, entryStartDate: '2025-04-01' },
-        { entryEndDate: '2025-05-20T23:59:59.999+03:00' },
+        { entryEndDate: '2025-05-20' },
       ],
     ])('accepts %s', async (_name, stored, change) => {
       mockReadEventRegistrations.mockResolvedValue([ready])
@@ -1413,7 +1447,7 @@ describe('putEventLambda', () => {
     ])('refuses moving the entry start when %s has an early-bird rate', async (_name, terms) => {
       mockReadEventRegistrations.mockResolvedValue([ready])
 
-      const res = await put({ ...priced, ...terms }, { entryStartDate: '2025-04-03T00:00:00.000+03:00' })
+      const res = await put({ ...priced, ...terms }, { entryStartDate: '2025-04-03' })
 
       expect(res.statusCode).toEqual(409)
       expect(JSON.parse(res.body)).toMatchObject({ error: 'paymentLocked' })
@@ -1429,7 +1463,7 @@ describe('putEventLambda', () => {
         { ...priced, cost: earlyBird },
         {
           cost: { normal: 45 },
-          entryStartDate: '2025-04-03T00:00:00.000+03:00',
+          entryStartDate: '2025-04-03',
           paymentTime: 'confirmation',
         }
       )

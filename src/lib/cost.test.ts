@@ -1,6 +1,7 @@
 import type { BreedCode } from '../types'
 import type { DogEventCost, DogEventCostSegment, MinimalEventForCost, MinimalRegistrationForCost } from '../types/Cost'
 import { startOfDay } from 'date-fns'
+import { beforeDayKeys } from '../test-utils/finnishDays'
 import {
   additionalCost,
   calculateCost,
@@ -265,22 +266,23 @@ describe('getEarlyBirdEndDate', () => {
     ).toBeUndefined()
   })
 
-  it('should return the end date as entryStartDate + (days - 1)', () => {
-    const entryStartDate = new Date('2026-01-01T00:00:00.000Z')
-    const result = getEarlyBirdEndDate(
-      { entryStartDate },
-      {
-        earlyBird: { cost: 40, days: 5 },
-      }
-    )
-    expect(result?.toISOString()).toBe('2026-01-05T00:00:00.000Z')
+  // The start of the Finnish day the entry opened plus (days - 1), whatever form the day is held in.
+  it.each([
+    ['a stored day key', '2026-01-01' as const],
+    ['the Date the browser holds', new Date('2025-12-31T22:00:00.000Z')],
+    ['a UTC midnight, read as its Finnish day', new Date('2026-01-01T00:00:00.000Z')],
+  ])('should return the end date as entryStartDate + (days - 1), from %s', (_name, entryStartDate) => {
+    const result = getEarlyBirdEndDate(entryStartDate instanceof Date ? { entryStartDate } : { entryStartDate }, {
+      earlyBird: { cost: 40, days: 5 },
+    })
+    expect(result?.toISOString()).toBe('2026-01-04T22:00:00.000Z')
   })
 
   it('counts the days in Finnish time over the change to summer time (KOE-1545)', () => {
     // 27.3.2026 00:00 Finnish time plus four Finnish days is 31.3. 00:00, 21:00Z in summer time; a
     // 24-hour step in the lambda's zone (UTC) gave 22:00Z, an hour into the last day.
     const result = getEarlyBirdEndDate(
-      { entryStartDate: '2026-03-26T22:00:00.000Z' },
+      { entryStartDate: beforeDayKeys('2026-03-26T22:00:00.000Z') },
       {
         earlyBird: { cost: 40, days: 5 },
       }
@@ -289,24 +291,23 @@ describe('getEarlyBirdEndDate', () => {
   })
 
   it('should treat days=1 as ending on the same day as entryStartDate', () => {
-    const entryStartDate = new Date('2026-01-01T00:00:00.000Z')
     const result = getEarlyBirdEndDate(
-      { entryStartDate },
+      { entryStartDate: '2026-01-01' },
       {
         earlyBird: { cost: 40, days: 1 },
       }
     )
-    expect(result?.toISOString()).toBe('2026-01-01T00:00:00.000Z')
+    expect(result?.toISOString()).toBe('2025-12-31T22:00:00.000Z')
   })
 
-  it('should work when entryStartDate is an ISO string', () => {
+  it('should work when entryStartDate is the instant a row stored before KOE-1547 holds', () => {
     const result = getEarlyBirdEndDate(
-      { entryStartDate: '2026-01-01T00:00:00.000Z' },
+      { entryStartDate: beforeDayKeys('2025-12-31T22:00:00.000Z') },
       {
         earlyBird: { cost: 40, days: 3 },
       }
     )
-    expect(result?.toISOString()).toBe('2026-01-03T00:00:00.000Z')
+    expect(result?.toISOString()).toBe('2026-01-02T22:00:00.000Z')
   })
 })
 
@@ -544,7 +545,7 @@ describe('calculateCost', () => {
         earlyBird: { cost: 40, days: 5 },
         normal: 50,
       },
-      entryStartDate: startDate.toISOString(),
+      entryStartDate: beforeDayKeys(startDate.toISOString()),
     }
     const registration = {
       ...makeRegistration(false, false, '110', undefined, earlyDate),
@@ -599,8 +600,8 @@ describe('getCostSegmentNameOptions', () => {
 
   it('carries the early-bird window', () => {
     expect(getCostSegmentNameOptions('earlyBird', cost, event, undefined, 'fi')).toEqual({
-      end: new Date('2021-02-03T00:00:00.000Z'),
-      start: new Date('2021-02-01T00:00:00.000Z'),
+      end: new Date('2021-02-02T22:00:00.000Z'),
+      start: new Date('2021-01-31T22:00:00.000Z'),
     })
   })
 

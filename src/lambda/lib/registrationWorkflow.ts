@@ -25,6 +25,7 @@ import {
   hasInvalidRegistrationArrayFields,
   isParticipantGroup,
 } from '../../lib/registration'
+import { withRegistrationDayKeys } from '../../lib/storedDays'
 import { isObject, unique } from '../../lib/utils'
 import { CONFIG } from '../config'
 import { audit, auditStrict, registrationAuditKey } from './audit'
@@ -448,8 +449,11 @@ export const finalizeRegistrationUpdate = async ({
   const entry = updateAuditEntry(flags, registration, existing, confirmedEvent)
   if (entry) await audit({ auditKey: registrationAuditKey(registration), ...entry, ...auditUser(user) })
 
+  // By day: a row stored before KOE-1547 holds its days as instants, a save sends them as keys.
   const datesChanged =
-    existing.class !== registration.class || JSON.stringify(existing.dates) !== JSON.stringify(registration.dates)
+    existing.class !== registration.class ||
+    JSON.stringify(withRegistrationDayKeys({ dates: existing.dates }).dates) !==
+      JSON.stringify(withRegistrationDayKeys({ dates: registration.dates }).dates)
   if (datesChanged && !registration.cancelled) await auditDateMismatch(registration, confirmedEvent, user)
 
   if (hasEmailRecipients(registration)) {

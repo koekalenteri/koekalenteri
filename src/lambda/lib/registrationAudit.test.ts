@@ -1,5 +1,6 @@
 import type { JsonConfirmedEvent, JsonRegistration } from '../../types'
 import { registrationWithStaticDates } from '../../__mockData__/registrations'
+import { beforeDayKeys } from '../../test-utils/finnishDays'
 import { loggedLines } from '../test-utils/logs'
 import { getRegistrationChanges } from './registrationAudit'
 
@@ -14,7 +15,7 @@ const event: Pick<JsonConfirmedEvent, 'cost' | 'costMember' | 'entryStartDate'> 
     ],
   },
   costMember: undefined,
-  entryStartDate: '2021-02-01T00:00:00.000Z',
+  entryStartDate: beforeDayKeys('2021-02-01T00:00:00.000Z'),
 }
 
 const existing = (): JsonRegistration => JSON.parse(JSON.stringify(registrationWithStaticDates))
@@ -67,7 +68,7 @@ describe('getRegistrationChanges', () => {
   // Kennelliitto's empty date is no birth day (KOE-1548): an old row storing it, saved with the date
   // now absent and another change, reports only the other change.
   it("reads Kennelliitto's empty birth date as none, not as 1.1.1", () => {
-    const before = { ...existing(), dog: { ...existing().dog, dob: '0001-01-01T00:00:00' } }
+    const before = { ...existing(), dog: { ...existing().dog, dob: beforeDayKeys('0001-01-01T00:00:00') } }
     const { dob: _dob, ...dogWithoutDob } = before.dog
     const updated = { ...before, dog: { ...dogWithoutDob, name: 'Changed name' } }
 
@@ -79,7 +80,7 @@ describe('getRegistrationChanges', () => {
   it("prints a result with Kennelliitto's empty date without a day", () => {
     const result = {
       class: 'ALO',
-      date: '0001-01-01T00:00:00',
+      date: beforeDayKeys('0001-01-01T00:00:00'),
       judge: 'J',
       location: 'L',
       result: 'ALO1',
@@ -91,7 +92,7 @@ describe('getRegistrationChanges', () => {
   })
 
   it('shows the chosen days as the participant sees them', () => {
-    expect(changesOf({ dates: [{ date: '2021-02-11T00:00:00.000Z', time: 'ip' }] })).toEqual(
+    expect(changesOf({ dates: [{ date: beforeDayKeys('2021-02-11T00:00:00.000Z'), time: 'ip' }] })).toEqual(
       expect.objectContaining({
         changes: [
           {
@@ -152,7 +153,7 @@ describe('getRegistrationChanges', () => {
       results: [
         {
           class: 'ALO',
-          date: '2020-08-15T00:00:00.000Z',
+          date: beforeDayKeys('2020-08-15T00:00:00.000Z'),
           id: 'r1',
           judge: 'Tuomari Testi',
           location: 'Hyvinkää',
@@ -161,7 +162,7 @@ describe('getRegistrationChanges', () => {
         },
         {
           class: 'ALO',
-          date: '2020-09-05T00:00:00.000Z',
+          date: beforeDayKeys('2020-09-05T00:00:00.000Z'),
           id: 'r2',
           judge: '',
           location: 'Lahti',

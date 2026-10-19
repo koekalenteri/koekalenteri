@@ -162,17 +162,18 @@ type LooseRule = (value: unknown) => unknown
  */
 const isPresent = (value: unknown): boolean => value !== undefined && value !== null
 
-/** An ISO timestamp (an instant, or a day stored as Finnish midnight) as a `Date`. */
+/** An ISO instant as a `Date`. */
 export const timestamp = (value: string): Date => new Date(value)
 
 /**
- * A stamp Kennelliitto writes without a zone (`2026-06-28T00:00:00`, or a bare day) as the Finnish
- * local time it is: read as the browser's local time, Tokyo would see the day before. For the trial
- * days of the kcId search, whose readers all compare Finnish days; a dog's dates stay local for the
- * pickers that show them. A stamp that carries a zone keeps it. A plain `Date`, not the `TZDate` the
- * parse answers with, so the model holds one kind of date.
+ * A stored calendar day as the moment the browser's model holds it: the start of its Finnish day. The
+ * server stores and sends days as keys (KOE-1547), and a row not yet migrated sends the instant it
+ * holds, which keeps its own moment. `new Date` of a key would be the UTC midnight, a moment no other
+ * day of the model has, and the model compares days by their moments. A stamp without a zone (an old
+ * row's Kennelliitto stamp) is read as the Finnish wall-clock time it names, and one with a zone keeps
+ * it. A plain `Date`, not the `TZDate` the parse answers with, so the model holds one kind of date.
  */
-const finnishTimestamp = (value: string): Date => localStampToInstant(value, TIME_ZONE)
+const finnishDay = (value: string): Date => localStampToInstant(value, TIME_ZONE)
 
 /**
  * `converter<J, M>()(spec)`: the wire and model types first, the spec in a call of its own, so that
@@ -240,13 +241,15 @@ export const toTransaction = converter<JsonTransaction, Transaction>()({ created
 
 export const toAuditRecord = converter<JsonAuditRecord, AuditRecord>()({ timestamp })
 
-export const toEventStatsItem = converter<JsonEventStatsItem, EventStatsItem>()({ date: timestamp })
+export const toEventStatsItem = converter<JsonEventStatsItem, EventStatsItem>()({ date: finnishDay })
 
-const toRegistrationDate = converter<JsonRegistrationDate, RegistrationDate>()({ date: timestamp })
+const toRegistrationDate = converter<JsonRegistrationDate, RegistrationDate>()({ date: finnishDay })
 
-const toRegistrationGroup = converter<JsonRegistrationGroup, RegistrationGroup>()({ date: timestamp })
+const toRegistrationGroup = converter<JsonRegistrationGroup, RegistrationGroup>()({ date: finnishDay })
 
-const toPublicRegistrationGroup = converter<JsonPublicRegistrationGroup, PublicRegistrationGroup>()({ date: timestamp })
+const toPublicRegistrationGroup = converter<JsonPublicRegistrationGroup, PublicRegistrationGroup>()({
+  date: finnishDay,
+})
 
 const toEventResultTask = converter<JsonEventResultTask, EventResultTask>()({ updatedAt: timestamp })
 
@@ -316,11 +319,11 @@ export const {
   toRegistration: toStoredRegistration,
 } = dogDateConverters(localCalendarDayOf)
 
-export const toEventClass = converter<JsonEventClass, EventClass>()({ date: timestamp })
+export const toEventClass = converter<JsonEventClass, EventClass>()({ date: finnishDay })
 
-const toEventStation = converter<JsonEventStation, EventStation>()({ date: timestamp })
+const toEventStation = converter<JsonEventStation, EventStation>()({ date: finnishDay })
 
-const toKcEventInfo = converter<JsonKcEventInfo, KcEventInfo>()({ endDate: timestamp, startDate: timestamp })
+const toKcEventInfo = converter<JsonKcEventInfo, KcEventInfo>()({ endDate: finnishDay, startDate: finnishDay })
 
 const toKcState = converter<JsonKcState, KcState>()({ readAt: timestamp })
 
@@ -336,16 +339,16 @@ export const toStationTurn = converter<JsonStationTurn, StationTurn>()(turnRules
 
 export const toPublicStationTurn = converter<JsonPublicStationTurn, PublicStationTurn>()(turnRules)
 
-/** The days of an event: stored as Finnish midnight until KOE-1547 gives them a day type of their own. */
+/** The days of an event: day keys on the wire, the starts of their Finnish days in the model (KOE-1547). */
 const eventDayRules = {
   classes: arrayOf(toEventClass),
   dates: arrayOf(toRegistrationDate),
-  endDate: timestamp,
-  entryEndDate: timestamp,
-  entryOrigEndDate: timestamp,
-  entryStartDate: timestamp,
-  qualificationStartDate: timestamp,
-  startDate: timestamp,
+  endDate: finnishDay,
+  entryEndDate: finnishDay,
+  entryOrigEndDate: finnishDay,
+  entryStartDate: finnishDay,
+  qualificationStartDate: finnishDay,
+  startDate: finnishDay,
   stations: arrayOf(toEventStation),
 }
 
@@ -378,8 +381,8 @@ export const toPublicDogEvent = converter<JsonPublicDogEvent, PublicDogEvent>()(
 
 const toLinkedEvent = converter<JsonLinkedEvent, LinkedEvent>()({
   classes: arrayOf(toEventClass),
-  endDate: timestamp,
-  startDate: timestamp,
+  endDate: finnishDay,
+  startDate: finnishDay,
 })
 
 const toStationEntryDog = converter<JsonStationEntryDog, StationEntryDog>()({
@@ -409,10 +412,10 @@ export const toStartNumberPatch = converter<JsonStartNumberPatch, StartNumberPat
 })
 
 export const toEventKcIdChoice = converter<JsonEventKcIdChoice, EventKcIdChoice>()({
-  endDate: finnishTimestamp,
-  entryEndDate: finnishTimestamp,
-  entryStartDate: finnishTimestamp,
-  startDate: finnishTimestamp,
+  endDate: finnishDay,
+  entryEndDate: finnishDay,
+  entryStartDate: finnishDay,
+  startDate: finnishDay,
 })
 
 const toStoredEventResult = converter<JsonStoredEventResult, StoredEventResult>()({ eventResult: toEventResult })

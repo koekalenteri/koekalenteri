@@ -1,6 +1,7 @@
 import type { KcIdLookupCriteria } from '../lib/kcTrial'
-import { isEventDateString, isOfficialEventType } from '../../lib/event'
+import { isOfficialEventType } from '../../lib/event'
 import { kcFormatOfEventType } from '../../lib/kennelliittoResults'
+import { requestDay } from '../../lib/storedDays'
 import { authorizeWithMemberOf } from '../lib/auth'
 import { parseJSONWithFallback } from '../lib/json'
 import { getKLIntegraatio } from '../lib/KLIntegraatio'
@@ -19,7 +20,10 @@ const searchEventKcIdChoicesLambda = lambda('searchEventKcIdChoices', async (eve
   if (!isLookupCriteria(criteria)) {
     throw new LambdaError(400, 'Organizer ID, event type, classes, start date, and end date are required')
   }
-  if (!isEventDateString(criteria.startDate) || !isEventDateString(criteria.endDate)) {
+  // Day keys; a browser loaded before KOE-1547 sends the instants the Finnish days start at.
+  const startDate = requestDay(criteria.startDate)
+  const endDate = requestDay(criteria.endDate)
+  if (!startDate || !endDate) {
     throw new LambdaError(400, 'Start date and end date must be valid dates')
   }
 
@@ -41,7 +45,7 @@ const searchEventKcIdChoicesLambda = lambda('searchEventKcIdChoices', async (eve
     throw new LambdaError(400, 'Event organizer does not have Kennel Club ID')
   }
 
-  const choices = await searchKcTrials(getKLIntegraatio(), criteria, organizer.kcId)
+  const choices = await searchKcTrials(getKLIntegraatio(), { ...criteria, endDate, startDate }, organizer.kcId)
 
   return response(200, { choices }, event)
 })

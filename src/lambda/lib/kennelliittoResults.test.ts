@@ -3,6 +3,7 @@ import type { KLIntegraatioConfig } from '../types/KLIntegraatio'
 import { createHash } from 'node:crypto'
 import { vi } from 'vitest'
 import { isResultsLocked } from '../../lib/kennelliittoResults'
+import { beforeDayKeys } from '../../test-utils/finnishDays'
 import { asJsonConfirmedEvent, asJsonRegistration } from '../test-utils/helpers'
 import KLIntegraatio from './KLIntegraatio'
 import koemuotoNOME_A from './KLIntegraatio-fixtures/koemuoto-NOME-A.json'
@@ -190,7 +191,7 @@ const dog = (id: string, regNo: string, result?: string, fields: Partial<JsonReg
     eventResult: result
       ? { judge: chief, result, updatedAt: '2026-09-26T09:00:00.000Z', updatedBy: 'Sihteeri' }
       : undefined,
-    group: { date: '2026-09-25T21:00:00.000Z', key: '2026-09-26-ap', number: 1 },
+    group: { date: beforeDayKeys('2026-09-25T21:00:00.000Z'), key: '2026-09-26-ap', number: 1 },
     id,
     state: 'ready',
     ...fields,
@@ -775,8 +776,8 @@ describe('kennelliittoResults', () => {
     it('ranks a dog moved after the start list was frozen among the dogs of its frozen day, and sends it for that day', async () => {
       // Moved to the second day in the working order, while its published number stands on the first: it runs
       // on the first, so it ranks among the first day's dogs and is sent for that day, not the other way round.
-      const moved = { date: '2026-09-26T21:00:00.000Z', key: '2026-09-27-ap', number: 1 }
-      const frozen = { date: '2026-09-25T21:00:00.000Z', key: '2026-09-26-ap', number: 4 }
+      const moved = { date: beforeDayKeys('2026-09-26T21:00:00.000Z'), key: '2026-09-27-ap', number: 1 }
+      const frozen = { date: beforeDayKeys('2026-09-25T21:00:00.000Z'), key: '2026-09-26-ap', number: 4 }
       registrations = [
         ...registrations,
         nowtDog('moved', 'FI20006/20', 'ALO1', 80, { group: moved, startGroup: frozen }),
@@ -1205,7 +1206,7 @@ describe('kennelliittoResults', () => {
   describe('a dog moved to another day after its result was sent', () => {
     const moved = async () => {
       await sendKennelliittoResults(ctx(), ['d1'], { force: false })
-      registrations[0].group = { date: '2026-09-26T21:00:00.000Z', key: '2026-09-27-ap', number: 1 }
+      registrations[0].group = { date: beforeDayKeys('2026-09-26T21:00:00.000Z'), key: '2026-09-27-ap', number: 1 }
       now = Date.parse('2026-09-28T10:00:00.000Z')
       calls = []
     }

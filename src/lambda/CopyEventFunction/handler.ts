@@ -1,14 +1,15 @@
+import type { DayKey } from '../../types'
 import { nanoid } from 'nanoid'
-import { dayOf, daysBetween, shiftDays, TIME_ZONE } from '../../lib/day'
+import { addDays, daysBetween, isDayKey } from '../../lib/day'
 import {
-  eventRegistrationDateKey,
   getEventSeason,
-  isEventDateString,
+  groupKeyOf,
   shiftPlacesPerDay,
   stripInvitationAttachments,
   stripKennelliittoLink,
 } from '../../lib/event'
 import { clearInvitationState, getRegistrationGroupKey, isStarter } from '../../lib/registration'
+import { rekeyEventDays, rekeyRegistrationDays, requestDay, storedDay } from '../../lib/storedDays'
 import { saveEvent } from '../lib/event'
 import { authorizeEvent } from '../lib/eventAuth'
 import { removeEventRuntimeState } from '../lib/eventCopy'
@@ -19,8 +20,10 @@ import { readEventRegistrations, writeRegistrations } from '../lib/repositories/
 import { publishEventChange } from '../lib/ws/actions'
 
 const copyEventLambda = lambda('copyEvent', async (event) => {
-  const { id, startDate }: { id: string; startDate: string } = parseJSONWithFallback(event.body)
-  if (!isEventDateString(startDate)) {
+  const { id, startDate }: { id: string; startDate: unknown } = parseJSONWithFallback(event.body)
+  // A day key; a browser loaded before KOE-1547 sends the instant its Finnish day starts at.
+  const newStartDay = requestDay(startDate)
+  if (!newStartDay) {
     throw httpError(400, { message: 'Bad request: startDate must be a valid date' })
   }
 
@@ -28,7 +31,9 @@ const copyEventLambda = lambda('copyEvent', async (event) => {
 
   const timestamp = new Date().toISOString()
 
-  if (!isEventDateString(item.startDate) || !isEventDateString(item.endDate)) {
+  // The source's days as keys: a row not yet migrated holds them as instants (KOE-1547).
+  rekeyEventDays(item, storedDay)
+  if (!isDayKey(item.startDate) || !isDayKey(item.endDate)) {
     throw httpError(400, { message: 'Bad request: source event dates must be valid' })
   }
 
@@ -54,9 +59,10 @@ const copyEventLambda = lambda('copyEvent', async (event) => {
   item.modifiedAt = timestamp
   item.modifiedBy = user.name
 
-  // Whole Finnish calendar days, so the copy keeps each date's Finnish wall-clock time across the change of time.
-  const days = daysBetween(dayOf(new Date(item.startDate), TIME_ZONE), dayOf(new Date(startDate), TIME_ZONE))
-  const shift = (date: string) => shiftDays(new Date(date), days, TIME_ZONE).toISOString()
+  // Whole calendar days: a day key has no time of day for a change of time to move.
+  const days = daysBetween(item.startDate, newStartDay)
+  // A day the source holds no readable day in (a stored row from before the dates were checked) stays as it is.
+  const shift = (day: DayKey) => (isDayKey(day) ? addDays(day, days) : day)
   item.startDate = shift(item.startDate)
   item.season = getEventSeason(item.startDate)
   item.endDate = shift(item.endDate)
@@ -92,6 +98,7 @@ const copyEventLambda = lambda('copyEvent', async (event) => {
     delete reg.kcResult
     // The entry was invited to the source event; the copy's secretary sends the copy's invitation.
     clearInvitationState(reg)
+    rekeyRegistrationDays(reg, storedDay)
     reg.dates.forEach((d) => {
       d.date = shift(d.date)
     })
@@ -100,9 +107,7 @@ const copyEventLambda = lambda('copyEvent', async (event) => {
       // Only a start's key names its day, in the trial's time zone as every other writer keys it. A
       // cancelled entry gets the cancelled key even when the source row still carried a participant
       // key, and a reserve entry keeps its own (KOE-1537).
-      reg.group.key = isStarter(reg)
-        ? eventRegistrationDateKey({ date: new Date(reg.group.date), time: reg.group.time })
-        : getRegistrationGroupKey(reg)
+      reg.group.key = isStarter(reg) ? groupKeyOf(reg.group.date, reg.group.time) : getRegistrationGroupKey(reg)
     }
     return reg
   })

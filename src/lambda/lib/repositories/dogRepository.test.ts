@@ -1,9 +1,12 @@
-import type { JsonDog } from '../../../types'
+import type { JsonDog, JsonTestResult } from '../../../types'
 import { vi } from 'vitest'
+import { beforeDayKeys } from '../../../test-utils/finnishDays'
 
 const mockRead = vi.fn()
 const mockWrite = vi.fn()
 const mockDelete = vi.fn()
+const mockReadAll = vi.fn()
+const mockUpdate = vi.fn()
 const mockConstructor = vi.fn()
 
 vi.doMock('../../config', () => ({
@@ -18,14 +21,18 @@ vi.doMock('../../utils/CustomDynamoClient', () => ({
     read = (...args: unknown[]) => mockRead(...args)
     write = (...args: unknown[]) => mockWrite(...args)
     delete = (...args: unknown[]) => mockDelete(...args)
+    readAll = (...args: unknown[]) => mockReadAll(...args)
+    update = (...args: unknown[]) => mockUpdate(...args)
   },
 }))
 
-const { deleteDog, readDog, readOfficialResults, writeDog } = await import('./dogRepository')
+const { deleteDog, readAllDogs, readDog, readOfficialResults, writeDog, writeMigratedDog } = await import(
+  './dogRepository'
+)
 
-const result = {
+const result: JsonTestResult = {
   class: 'ALO',
-  date: '2024-01-01',
+  date: '2024-01-01' as const,
   judge: 'Judge',
   location: 'Helsinki',
   result: 'ALO1',
@@ -92,5 +99,40 @@ describe('dogRepository', () => {
     mockRead.mockRejectedValueOnce(new Error('read failed'))
 
     await expect(readOfficialResults('FI12345/24')).rejects.toThrow('read failed')
+  })
+
+  it('readAllDogs scans the whole table and answers an empty list for nothing', async () => {
+    mockReadAll.mockResolvedValueOnce([dog]).mockResolvedValueOnce(undefined)
+
+    await expect(readAllDogs()).resolves.toEqual([dog])
+    await expect(readAllDogs()).resolves.toEqual([])
+    expect(mockReadAll).toHaveBeenCalledWith({ includeDeleted: true })
+  })
+
+  // A dog row has no updatedAt: the condition is that the dates it changes still hold what was read.
+  it('writeMigratedDog writes on condition the row and the dates it read are still there', async () => {
+    const changes = { set: { dob: '2021-01-01' as const } }
+
+    await writeMigratedDog(
+      { dob: beforeDayKeys('2021-01-01T00:00:00'), regNo: 'FI12345/24', results: [result] },
+      changes
+    )
+
+    expect(mockUpdate).toHaveBeenCalledWith({ regNo: 'FI12345/24' }, changes, undefined, undefined, {
+      expression: 'attribute_exists(#regNo) AND #dob = :readDob AND #results = :readResults',
+      names: { '#dob': 'dob', '#regNo': 'regNo', '#results': 'results' },
+      values: { ':readDob': '2021-01-01T00:00:00', ':readResults': [result] },
+    })
+  })
+
+  it('writeMigratedDog holds a field read as absent to still being absent', async () => {
+    const changes = { set: { 'results.0.date': '2024-01-01' } }
+
+    await writeMigratedDog({ regNo: 'FI12345/24' }, changes)
+
+    expect(mockUpdate).toHaveBeenCalledWith({ regNo: 'FI12345/24' }, changes, undefined, undefined, {
+      expression: 'attribute_exists(#regNo) AND attribute_not_exists(#dob) AND attribute_not_exists(#results)',
+      names: { '#dob': 'dob', '#regNo': 'regNo', '#results': 'results' },
+    })
   })
 })

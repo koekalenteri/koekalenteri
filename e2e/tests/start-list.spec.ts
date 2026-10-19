@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test'
 import { API_URL } from '../env.mjs'
-import { startOfDay } from '../fixtures/dates'
+import { helsinkiDay } from '../fixtures/dates'
 import { seedEvent } from '../fixtures/db'
 import { issue } from '../fixtures/issue'
 
@@ -8,7 +8,7 @@ test('the public start list answers with a version the page can read across orig
   annotation: issue('KOE-1516', 'the page orders its fetches against the live updates by it'),
   tag: '@public',
 }, async ({ page }) => {
-  const startDate = startOfDay(14)
+  const startDate = helsinkiDay(14)
   const event = await seedEvent({
     classes: [{ class: 'ALO', date: startDate, places: 20, state: 'invited' }],
     startDate,

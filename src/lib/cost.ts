@@ -15,16 +15,26 @@ import type {
   PaymentBalanceRegistration,
   PublicConfirmedEvent,
 } from '../types'
-import { shiftDays, TIME_ZONE } from './day'
+import { addDays, dayStart, TIME_ZONE } from './day'
+import { storedDayKey } from './event'
 import { getNetPaidAmount, toCents } from './money'
 import { isMember, isReturnedReserve } from './registration'
 
 /**
- * The moment the early-bird price ends: the entry's start moved `days - 1` Finnish days on, keeping
- * its time of day, as the rate is decided against a registration's own moment (`isApplicable`).
+ * The first moment of the Finnish day `days` days from the one the entry starts on, or undefined for
+ * an entry start with no day. The entry start is a day key as stored (KOE-1547), or the instant a form
+ * or a row stored before that holds.
  */
-const earlyBirdEndDate = (entryStartDate: Date | string, days: number) =>
-  shiftDays(new Date(entryStartDate), days - 1, TIME_ZONE)
+const entryDayStart = (entryStartDate: Date | string, days: number): Date | undefined => {
+  const day = storedDayKey(entryStartDate)
+  return day ? dayStart(addDays(day, days), TIME_ZONE) : undefined
+}
+
+/**
+ * The moment the early-bird price ends: the start of the Finnish day `days - 1` days after the entry
+ * opens, as the rate is decided against a registration's own moment (`isApplicable`).
+ */
+const earlyBirdEndDate = (entryStartDate: Date | string, days: number) => entryDayStart(entryStartDate, days - 1)
 
 /**
  * Whether the price has an early-bird rate that applies to anyone: one that counts no days (the add
@@ -50,7 +60,7 @@ export const getEarlyBirdDates = (
   if (hasEarlyBirdWindow(cost) && event.entryStartDate) {
     return {
       end: earlyBirdEndDate(event.entryStartDate, cost.earlyBird.days),
-      start: new Date(event.entryStartDate),
+      start: entryDayStart(event.entryStartDate, 0),
     }
   }
   return { end: undefined, start: undefined }

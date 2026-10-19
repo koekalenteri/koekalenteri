@@ -28,8 +28,11 @@ export interface StatCountRow {
   count: number
 }
 
-/** Identifies an event's organizer stats row. Both key parts are editable event fields. */
-export type OrganizerStatsEvent = Pick<JsonConfirmedEvent, 'id' | 'startDate'> & { organizer: { id: string } }
+/**
+ * Identifies an event's organizer stats row. Both key parts are editable event fields. The start day is
+ * a key; a row counted before KOE-1547 is keyed by the instant the event's start was stored as.
+ */
+export type OrganizerStatsEvent = Pick<JsonConfirmedEvent, 'id'> & { organizer: { id: string }; startDate: string }
 
 /** How much one registration change moves each organizer counter. */
 export interface StatDeltas {
@@ -125,7 +128,11 @@ const ORGANIZER_STATS_NAMES = {
 const queryPartition = async <T extends object>(pk: string): Promise<T[]> =>
   (await dynamoDB.query<T>({ key: 'PK = :pk', values: { ':pk': pk } })) ?? []
 
-/** Date range filter on the organizer rows' sort key, which starts with the event's start date. */
+/**
+ * Date range filter on the organizer rows' sort key, which starts with the event's start day
+ * (`yyyy-MM-dd#eventId`, KOE-1547). The upper bound is padded past the event id, so the events of the
+ * range's last day are in it.
+ */
 function buildDateRangeFilters(from?: string, to?: string) {
   const filterExpressions: string[] = []
   const expressionValues: Record<string, string> = {}
@@ -137,7 +144,7 @@ function buildDateRangeFilters(from?: string, to?: string) {
 
   if (to) {
     filterExpressions.push('SK <= :to')
-    expressionValues[':to'] = to
+    expressionValues[':to'] = `${to}\uffff`
   }
 
   return { expressionValues, filterExpressions }

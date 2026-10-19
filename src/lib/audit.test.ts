@@ -3,6 +3,7 @@ import type { AuditMessage } from './audit'
 import i18next from 'i18next'
 import { i18nInitOptions } from '../i18n/config'
 import { registerFormatters } from '../i18n/formatters'
+import { beforeDayKeys } from '../test-utils/finnishDays'
 import {
   auditLabelParams,
   auditUser,
@@ -74,7 +75,12 @@ describe('mergeAuditTrail', () => {
 })
 
 describe('groupChangeAudit', () => {
-  const dayGroup = { date: '2024-08-02T21:00:00.000Z', key: '2024-08-02-ip', number: 2, time: 'ip' as const }
+  const dayGroup = {
+    date: beforeDayKeys('2024-08-02T21:00:00.000Z'),
+    key: '2024-08-02-ip',
+    number: 2,
+    time: 'ip' as const,
+  }
 
   it('gives a move its groups as parts and its reason as a key, and no text of its own (KOE-1511)', () => {
     expect(groupChangeAudit(dayGroup, { key: 'reserve', number: 1 }, 'move')).toEqual({
@@ -91,7 +97,12 @@ describe('groupChangeAudit', () => {
   })
 
   it('writes no row for a group that only has its key respelled (KOE-1541)', () => {
-    const utcKeyed = { date: '2026-08-14T21:00:00.000Z', key: '2026-08-14-ap', number: 2, time: 'ap' as const }
+    const utcKeyed = {
+      date: beforeDayKeys('2026-08-14T21:00:00.000Z'),
+      key: '2026-08-14-ap',
+      number: 2,
+      time: 'ap' as const,
+    }
 
     expect(groupChangeAudit(utcKeyed, { ...utcKeyed, key: '2026-08-15-ap' }, 'consequence')).toBeUndefined()
     expect(groupChangeAudit(utcKeyed, { ...utcKeyed, key: '2026-08-15-ap', number: 3 }, 'consequence')).toBeDefined()
@@ -147,18 +158,18 @@ describe('startNumbersPublishedAudit', () => {
     [true, {}, 'audit.messages.startNumbersPublished', undefined],
     [false, {}, 'audit.messages.startNumbersHidden', undefined],
     [true, { eventClass: 'ALO' }, 'audit.messages.classStartNumbersPublished', { eventClass: 'ALO' }],
-    [false, { date: '2026-09-12' }, 'audit.messages.startNumbersHiddenDay', { date: '2026-09-12' }],
+    [false, { date: '2026-09-12' as const }, 'audit.messages.startNumbersHiddenDay', { date: '2026-09-12' as const }],
     [
       true,
-      { date: '2026-09-12', eventClass: 'ALO', time: 'ap' },
+      { date: '2026-09-12' as const, eventClass: 'ALO', time: 'ap' },
       'audit.messages.classStartNumbersPublishedDay',
-      { date: '2026-09-12', eventClass: 'ALO', timeKey: 'audit.time.ap' },
+      { date: '2026-09-12' as const, eventClass: 'ALO', timeKey: 'audit.time.ap' },
     ],
     [
       false,
-      { date: '2026-09-12', eventClass: 'ALO' },
+      { date: '2026-09-12' as const, eventClass: 'ALO' },
       'audit.messages.classStartNumbersHiddenDay',
-      { date: '2026-09-12', eventClass: 'ALO' },
+      { date: '2026-09-12' as const, eventClass: 'ALO' },
     ],
   ])('published %s in %j', (published, scope, messageKey, messageParams) => {
     expect(startNumbersPublishedAudit(published, scope)).toEqual({
@@ -257,8 +268,18 @@ const groupRow = (...args: Parameters<typeof groupChangeAudit>): AuditMessage =>
   return row
 }
 
-const dayGroup = { date: '2024-08-02T21:00:00.000Z', key: '2024-08-02-ip', number: 2, time: 'ip' as const }
-const kpGroup = { date: '2024-08-02T21:00:00.000Z', key: '2024-08-02-kp', number: 4, time: 'kp' as const }
+const dayGroup = {
+  date: beforeDayKeys('2024-08-02T21:00:00.000Z'),
+  key: '2024-08-02-ip',
+  number: 2,
+  time: 'ip' as const,
+}
+const kpGroup = {
+  date: beforeDayKeys('2024-08-02T21:00:00.000Z'),
+  key: '2024-08-02-kp',
+  number: 4,
+  time: 'kp' as const,
+}
 
 const messages: Array<[string, AuditMessage & Pick<JsonAuditRecord, 'changes'>]> = [
   ['startNumberPublished', startNumberPublishedAudit(1)],
@@ -267,19 +288,19 @@ const messages: Array<[string, AuditMessage & Pick<JsonAuditRecord, 'changes'>]>
   ['startNumberChanged', startNumberSavedAudit(3, 2)],
   ['startNumbersPublished', startNumbersPublishedAudit(true)],
   ['classStartNumbersPublished', startNumbersPublishedAudit(true, { eventClass: 'ALO' })],
-  ['startNumbersHiddenDay', startNumbersPublishedAudit(false, { date: '2026-09-12' })],
-  ['startNumbersPublishedDay', startNumbersPublishedAudit(true, { date: '2026-09-12', time: 'kp' })],
+  ['startNumbersHiddenDay', startNumbersPublishedAudit(false, { date: '2026-09-12' as const })],
+  ['startNumbersPublishedDay', startNumbersPublishedAudit(true, { date: '2026-09-12' as const, time: 'kp' })],
   ['startNumbersHidden', startNumbersPublishedAudit(false)],
   ['classStartNumbersHidden', startNumbersPublishedAudit(false, { eventClass: 'ALO' })],
-  ['classStartNumbersHiddenDay', startNumbersPublishedAudit(false, { date: '2026-09-12', eventClass: 'ALO' })],
+  ['classStartNumbersHiddenDay', startNumbersPublishedAudit(false, { date: '2026-09-12' as const, eventClass: 'ALO' })],
   [
     'classStartNumbersPublishedDay',
-    startNumbersPublishedAudit(true, { date: '2026-09-12', eventClass: 'ALO', time: 'ip' }),
+    startNumbersPublishedAudit(true, { date: '2026-09-12' as const, eventClass: 'ALO', time: 'ip' }),
   ],
-  ['classResultsPublishedDay', resultsPublishedAudit(true, { date: '2026-09-12', eventClass: 'ALO' })],
-  ['classResultsHiddenDay', resultsPublishedAudit(false, { date: '2026-09-12', eventClass: 'ALO' })],
-  ['resultsPublishedDay', resultsPublishedAudit(true, { date: '2026-09-12' })],
-  ['resultsHiddenDay', resultsPublishedAudit(false, { date: '2026-09-12' })],
+  ['classResultsPublishedDay', resultsPublishedAudit(true, { date: '2026-09-12' as const, eventClass: 'ALO' })],
+  ['classResultsHiddenDay', resultsPublishedAudit(false, { date: '2026-09-12' as const, eventClass: 'ALO' })],
+  ['resultsPublishedDay', resultsPublishedAudit(true, { date: '2026-09-12' as const })],
+  ['resultsHiddenDay', resultsPublishedAudit(false, { date: '2026-09-12' as const })],
   ['startNumbersEntered', startNumbersEnteredAudit(5)],
   ['startNumbersEntered (one)', startNumbersEnteredAudit(1)],
   ['startNumbersEnteredClass', startNumbersEnteredAudit(1, 'AVO')],
@@ -382,7 +403,7 @@ describe('formatAuditMessage', () => {
     [groupRow(dayGroup, { key: 'reserve', number: 1 }, 'move'), 'Ryhmä: la 3.8. ip #2 -> Ilmoittautuneet #1 siirto'],
     [
       groupRow(
-        { date: '2026-10-31T22:00:00.000Z', key: '2026-11-01-ap', number: 3, time: 'ap' },
+        { date: beforeDayKeys('2026-10-31T22:00:00.000Z'), key: '2026-11-01-ap', number: 3, time: 'ap' },
         { key: 'reserve', number: 1 },
         'move'
       ),
@@ -390,8 +411,14 @@ describe('formatAuditMessage', () => {
     ],
     [groupRow(kpGroup, { key: 'cancelled', number: 5 }), 'Ryhmä: la 3.8. kp #4 -> Peruneet #5'],
     [groupRow({ key: 'reserve', number: 1 }, undefined, 'consequence'), 'Ryhmä: Ilmoittautuneet #1 poistettu seuraus'],
-    [startNumbersPublishedAudit(true, { date: '2026-09-14', time: 'ip' }), 'Starttinumerot julkaistu ma 14.9. ip'],
-    [resultsPublishedAudit(true, { date: '2026-09-12', eventClass: 'ALO' }), 'ALO tulokset julkaistu la 12.9.'],
+    [
+      startNumbersPublishedAudit(true, { date: '2026-09-14' as const, time: 'ip' }),
+      'Starttinumerot julkaistu ma 14.9. ip',
+    ],
+    [
+      resultsPublishedAudit(true, { date: '2026-09-12' as const, eventClass: 'ALO' }),
+      'ALO tulokset julkaistu la 12.9.',
+    ],
     [registrationCancelledAudit('dog-heat'), 'Ilmoittautuminen peruttiin, syy: Koiran juoksut'],
     [registrationCancelledAudit(), 'Ilmoittautuminen peruttiin, syy: (ei täytetty)'],
     [refundPaytrailFailedAudit(500), 'Maksun palautus epäonnistui Paytrailissa (500): Tuntematon virhe'],
@@ -410,14 +437,14 @@ describe('formatAuditMessage', () => {
     [groupRow({ key: 'reserve', number: 1 }, undefined, 'consequence'), 'Group: Registered #1 removed knock-on'],
     [startNumbersEnteredAudit(1, 'ALO'), 'Start number entered for 1 dog (ALO)'],
     [startNumbersEnteredAudit(3), 'Start numbers entered for 3 dogs'],
-    [resultsPublishedAudit(false, { date: '2026-09-13' }), 'Results hidden Sun 13.9.'],
+    [resultsPublishedAudit(false, { date: '2026-09-13' as const }), 'Results hidden Sun 13.9.'],
     [emailBlockedAudit(1), 'Message blocked in the test environment (1 recipient)'],
     [registrationCancelledAudit(), 'Registration cancelled, reason: (not filled in)'],
     [registrationCancelledAudit('auto hajosi'), 'Registration cancelled, reason: auto hajosi'],
     [refundPaytrailFailedAudit(400, 'Revert failed'), 'Refund failed at Paytrail (400): Revert failed'],
     [refundPaytrailFailedAudit(500), 'Refund failed at Paytrail (500): Unknown error'],
     [
-      startNumbersPublishedAudit(true, { date: '2026-09-12', eventClass: 'ALO', time: 'ap' }),
+      startNumbersPublishedAudit(true, { date: '2026-09-12' as const, eventClass: 'ALO', time: 'ap' }),
       'ALO start numbers published Sat 12.9. am',
     ],
     [

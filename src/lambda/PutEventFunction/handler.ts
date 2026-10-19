@@ -15,6 +15,7 @@ import { hasPaymentLockingRegistrations, paymentTermsDiffer } from '../../lib/pa
 import { getStartListBlocker, isStartListFlagPublished } from '../../lib/publishing'
 import { groupParticipantsByClass } from '../../lib/registration'
 import { eventBodySchema } from '../../lib/schema/event'
+import { rekeyEventDays, requestDay, storedDay } from '../../lib/storedDays'
 import { patchMerge } from '../../lib/utils'
 import { audit, eventAuditKey, getEventAuditMessages } from '../lib/audit'
 import { authorize } from '../lib/auth'
@@ -324,12 +325,19 @@ const putEventLambda = lambda('putEvent', async (event) => {
 
   const item: Patch<JsonConfirmedEvent> = parseJSONWithFallback(event.body)
   validateBody(eventBodySchema, item)
+  // Days are stored as keys (KOE-1547). A browser loaded before that sends instants, and a row not yet
+  // migrated holds them: both are read as keys before anything compares, merges or audits them, so
+  // the same day in the other form is no change.
+  rekeyEventDays(item, requestDay)
 
   const clientModifiedAt = item.modifiedAt
 
   checkPutEventRequestShape(patchRequest, item)
 
   const existing = item.id ? await getEvent<JsonConfirmedEvent>(item.id) : undefined
+  // The organizer stats row is keyed by the start date as stored, which an unmigrated row holds as an instant.
+  const storedStatsEvent = existing && { id: existing.id, organizer: existing.organizer, startDate: existing.startDate }
+  if (existing) rekeyEventDays(existing, storedDay)
 
   checkPutEventAgainstExisting(user, item, existing, clientModifiedAt)
   dropResultsPublished(item, existing)
@@ -374,7 +382,7 @@ const putEventLambda = lambda('putEvent', async (event) => {
   // already-counted registrations across rather than leave them under the old key. This and the
   // audit trail touch different tables and don't depend on each other, so they run together.
   await Promise.all([
-    existing ? moveOrganizerEventStats(existing, data) : undefined,
+    storedStatsEvent ? moveOrganizerEventStats(storedStatsEvent, data) : undefined,
     auditEventChanges(existing, item, result, user.name),
   ])
 

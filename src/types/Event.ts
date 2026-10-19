@@ -1,4 +1,5 @@
 import type {
+  DayKey,
   DbRecord,
   EventResult,
   JsonDbRecord,
@@ -97,11 +98,11 @@ export interface JsonDogEvent extends JsonDbRecord {
    * fallback; keying the translations by language makes a new language a key, not a schema change.
    */
   descriptions?: Partial<Record<Language, string>>
-  endDate: string
+  endDate: DayKey
   entries?: number
-  entryEndDate?: string
-  entryOrigEndDate?: string
-  entryStartDate?: string
+  entryEndDate?: DayKey
+  entryOrigEndDate?: DayKey
+  entryStartDate?: DayKey
   eventType: string
   dates?: JsonRegistrationDate[]
   headquarters?: Partial<Headquarters>
@@ -150,7 +151,7 @@ export interface JsonDogEvent extends JsonDbRecord {
    * A priority favours a group when places run short; a restriction keeps everyone else out.
    */
   restrictions?: string[]
-  qualificationStartDate?: string
+  qualificationStartDate?: DayKey
   /**
    * Whether the trial is run with game or with dummies (KOE-439). A B-trial's choice, made when the
    * trial is created and shown in the calendar; absent where the format does not choose, and on
@@ -159,7 +160,7 @@ export interface JsonDogEvent extends JsonDbRecord {
   retrieveType?: RetrieveType
   season?: string
   secretary: Partial<JsonUser>
-  startDate: string
+  startDate: DayKey
   state: EventState
   startListPublished?: StartListPublishedState
   /**
@@ -206,7 +207,7 @@ export type JsonEventStation = {
   id: string
   /** Posts are never named, only numbered 1..n within their own day. */
   number: number
-  date: string
+  date: DayKey
   /**
    * Several judges may work one post (§5.7). Always an array: `classes[].judge` carries a legacy
    * single-judge shape, but this field is new and has no such history to accommodate.
@@ -456,8 +457,8 @@ export type JsonEventClassStation = {
 export type JsonKcEventInfo = {
   classes: string[]
   eventType: string
-  startDate: string
-  endDate: string
+  startDate: DayKey
+  endDate: DayKey
   /** Absent when Kennelliitto's details of the trial could not be read, so no false warning follows. */
   location?: string
   judge?: string
@@ -579,7 +580,7 @@ export type SanitizedPublicDogEvent = PublicDogEvent & {
 
 export type JsonEventClass = {
   class: RegistrationClass
-  date: string
+  date: DayKey
   groups?: RegistrationTime[]
   judge?: PublicJudge | PublicJudge[]
   places?: number

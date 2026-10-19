@@ -62,21 +62,21 @@ const user: JsonUser = {
 
 // The trial of the real Testi2 samples: Laukaa 26-27.9.2026, organizer 400294, with a GUID.
 const laukaaRequest = {
-  classes: [{ class: 'ALO', date: '2026-09-25T21:00:00.000Z' }],
-  endDate: '2026-09-27T20:59:59.999Z',
+  classes: [{ class: 'ALO', date: '2026-09-26' }],
+  endDate: '2026-09-27',
   eventType: 'NOU',
   location: 'Laukaa',
   name: '',
   organizer: { id: 'org-id', name: 'Org' },
-  startDate: '2026-09-25T21:00:00.000Z',
+  startDate: '2026-09-26',
 }
 
 const lookupRequest = {
   ...laukaaRequest,
-  endDate: '2026-07-02T20:59:59.999Z',
+  endDate: '2026-07-02',
   eventType: 'NOME-B',
   location: 'Espoo',
-  startDate: '2026-07-01T00:00:00.000Z',
+  startDate: '2026-07-01',
 }
 
 const organizer: Organizer = {
@@ -156,8 +156,14 @@ describe('searchEventKcIdChoicesLambda', () => {
     })
   })
 
-  // The days go to the browser as the instants they start at in Finland, so a browser in another zone
-  // reads the same day; KL's own spelling is its local time with no zone (KOE-1545).
+  it('reads the instants a browser loaded before KOE-1547 sends as the Finnish days they start', async () => {
+    await search({ ...laukaaRequest, endDate: '2026-09-26T21:00:00.000Z', startDate: '2026-09-25T21:00:00.000Z' })
+
+    expect(mockLueKokeet).toHaveBeenCalledWith(expect.objectContaining({ alku: '2026-09-26', loppu: '2026-09-27' }))
+  })
+
+  // The days go to the browser as day keys (KOE-1547), so a browser in any zone reads the same day;
+  // KL's own spelling is its local time with no zone (KOE-1545).
   it.each([
     { loppu: '', name: 'no end at all' },
     { loppu: '0001-01-01T00:00:00', name: "KL's empty date as the end" },
@@ -169,9 +175,7 @@ describe('searchEventKcIdChoicesLambda', () => {
     expect(mockResponse).toHaveBeenCalledWith(
       200,
       {
-        choices: [
-          expect.objectContaining({ endDate: '2026-09-25T21:00:00.000Z', startDate: '2026-09-25T21:00:00.000Z' }),
-        ],
+        choices: [expect.objectContaining({ endDate: '2026-09-26', startDate: '2026-09-26' })],
       },
       expect.anything()
     )
@@ -234,9 +238,9 @@ describe('searchEventKcIdChoicesLambda', () => {
             cost: 50,
             description:
               'Etusija järjestävän yhdistyksen jäsenillä, sekä järjestäjän kutsumilla koirilla (max 1/3 osallistujista).Osallistumismaksu jäsenille 45e, muille 50e.\n\nEtusija järjestävän yhdistyksen jäsenillä\n\nMuu määrää koskeva rajoitus - järjestäjän kutsumat koirat max 1/3 osallistujista',
-            endDate: '2026-09-26T21:00:00.000Z',
-            entryEndDate: '2026-09-04T21:00:00.000Z',
-            entryStartDate: '2026-08-14T21:00:00.000Z',
+            endDate: '2026-09-27',
+            entryEndDate: '2026-09-05',
+            entryStartDate: '2026-08-15',
             eventType: 'NOU',
             judge: 'Testi Tuomari',
             judgeId: 1000001,
@@ -244,7 +248,7 @@ describe('searchEventKcIdChoicesLambda', () => {
             location: 'Laukaa',
             name: '',
             organizer: 'KESKI-SUOMEN NOUTAJAKOIRAYHDISTYS RY.',
-            startDate: '2026-09-25T21:00:00.000Z',
+            startDate: '2026-09-26',
             status: 'Hyväksytty',
           },
         ],
@@ -256,14 +260,14 @@ describe('searchEventKcIdChoicesLambda', () => {
   it('shows a trial without a GUID with kcGuid null and asks Koe/Lue nothing for it', async () => {
     mockLueKokeet.mockResolvedValue({ json: [tamperePast], status: 200 })
 
-    await search({ ...laukaaRequest, endDate: '2026-06-06T20:59:59.999Z', startDate: '2026-06-05T21:00:00.000Z' })
+    await search({ ...laukaaRequest, endDate: '2026-06-06', startDate: '2026-06-06' })
 
     expect(mockLueKoe).not.toHaveBeenCalled()
     expectResponse({
       choices: [
         {
           classes: [],
-          endDate: '2026-06-05T21:00:00.000Z',
+          endDate: '2026-06-06',
           eventType: 'NOU',
           judge: 'Toinen Tuomari',
           judgeId: 1000002,
@@ -271,7 +275,7 @@ describe('searchEventKcIdChoicesLambda', () => {
           location: 'Tampere',
           name: '',
           organizer: 'PIRKANMAAN NOUTAJAKOIRAYHDISTYS r.y.',
-          startDate: '2026-06-05T21:00:00.000Z',
+          startDate: '2026-06-06',
           status: 'Valmistunut',
         },
       ],
@@ -373,7 +377,7 @@ describe('searchEventKcIdChoicesLambda', () => {
       choices: [
         expect.objectContaining({ kcGuid: LAUKAA_GUID, location: 'Laukaa' }),
         expect.objectContaining({ kcGuid: null, location: 'Tampere' }),
-        expect.objectContaining({ kcGuid: LAUKAA_GUID, startDate: '2026-09-19T21:00:00.000Z' }),
+        expect.objectContaining({ kcGuid: LAUKAA_GUID, startDate: '2026-09-20' }),
       ],
     })
   })
@@ -399,7 +403,7 @@ describe('searchEventKcIdChoicesLambda', () => {
 
     // 2.4.2026 is the Thursday after the clocks went forward (29.3.). Seven 24-hour steps back from
     // its midnight, taken in UTC, land on the 25th in Helsinki; seven Finnish days back is the 26th.
-    await search({ ...laukaaRequest, endDate: '2026-04-02T20:59:59.999Z', startDate: '2026-04-01T21:00:00.000Z' })
+    await search({ ...laukaaRequest, endDate: '2026-04-02', startDate: '2026-04-02' })
 
     expect(mockLueKokeet).toHaveBeenNthCalledWith(
       1,
@@ -467,9 +471,9 @@ describe('searchEventKcIdChoicesLambda', () => {
     mockLueKokeet.mockResolvedValue({ json: [tamperePast], status: 200 })
     await search({
       ...lookupRequest,
-      classes: [{ class: 'ALO', date: '2026-05-20T00:00:00.000Z' }],
-      endDate: '2026-05-21T20:59:59.999Z',
-      startDate: '2026-05-20T00:00:00.000Z',
+      classes: [{ class: 'ALO', date: '2026-05-20' }],
+      endDate: '2026-05-21',
+      startDate: '2026-05-20',
     })
 
     expect(mockLueKokeet).toHaveBeenCalled()

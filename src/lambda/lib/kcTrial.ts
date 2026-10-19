@@ -1,7 +1,7 @@
-import type { JsonDogEvent } from '../../types'
+import type { DayKey, JsonDogEvent } from '../../types'
 import type { KLIntegraatioResult, KLIntHenkilö, KLIntKoe, KLIntKoeListassa } from '../types/KLIntegraatio'
 import type KLIntegraatio from './KLIntegraatio'
-import { addDays, dayOf, dayStart, isDayKey, TIME_ZONE } from '../../lib/day'
+import { addDays, isDayKey } from '../../lib/day'
 import { OFFICIAL_EVENT_TYPES } from '../../lib/event'
 import { kcFormatOfEventType } from '../../lib/kennelliittoResults'
 import { mapWithConcurrency } from '../../lib/utils'
@@ -43,33 +43,18 @@ const normalize = (value?: string) =>
     .replace(/[^\p{Letter}\p{Number}]+/gu, ' ')
     .trim()
 
-/**
- * The event stores an instant (the start of its day in Finland, the evening before in UTC) and KL a
- * bare local date, so the event's day is read in the local zone. Comparing the first ten characters
- * of both strings never matched a start date.
- */
-const sameDate = (eventDate: string, klDate: string) => {
+/** Whether the event's day (a key, KOE-1547) is the day KL's local date names. */
+const sameDate = (eventDate: DayKey, klDate: string) => {
   const day = klDay(klDate)
-  return day !== undefined && dayOf(new Date(eventDate), TIME_ZONE) === day
-}
-
-/**
- * A Kennel Club timestamp sent on as the UTC instant its Finnish day starts at, so a browser anywhere
- * reads the same day: read as it comes it is the browser's own midnight, a day off east or west of
- * Finland (KOE-1545). Anything that is not a day goes on as it is (an end only; a listing without a
- * first day is left out).
- */
-const klInstant = (local: string) => {
-  const day = klDay(local)
-  return day ? dayStart(day, TIME_ZONE).toISOString() : local
+  return day !== undefined && eventDate === day
 }
 
 /**
  * A trial's last day as KL lists it, or its first day where the listing has no readable end: the
  * client reads both as days, and an empty `loppu`, or the Kennel Club's empty date 0001-01-01 (not a
- * day to `klDay`), would give it nothing to read.
+ * day to `klDay`), would give it nothing to read. Only listings with a first day get here.
  */
-const endDateOf = (listed: KLIntKoeListassa) => (klDay(listed.loppu) ? klInstant(listed.loppu) : klInstant(listed.alku))
+const endDateOf = (listed: KLIntKoeListassa) => klDay(listed.loppu) ?? klDay(listed.alku)
 
 const classOverlap = (event: KcIdLookupCriteria, koe?: KLIntKoe) => {
   const localClasses = new Set<string>(event.classes.map((c) => c.class))
@@ -126,6 +111,12 @@ const toContactInfo = (koe: KLIntKoe) => {
   return Object.values(secretary).some(Boolean) ? { secretary } : undefined
 }
 
+/** An entry day KL gives, as a key; nothing for none or for one that names no day. */
+const optionalDay = <K extends string>(field: K, local?: string | null) => {
+  const day = klDay(clean(local))
+  return day ? { [field]: day } : undefined
+}
+
 /** What Koe/Lue adds to the choice: the fields Koe/Kokeet does not carry. */
 const toDetails = (koe?: KLIntKoe) => {
   if (!koe) return {}
@@ -135,8 +126,8 @@ const toDetails = (koe?: KLIntKoe) => {
     ...(contactInfo ? { contactInfo } : undefined),
     ...(koe.osallistumismaksu === undefined ? undefined : { cost: koe.osallistumismaksu }),
     ...(description ? { description } : undefined),
-    ...(clean(koe.ilmoittautuminen_Loppu) ? { entryEndDate: klInstant(koe.ilmoittautuminen_Loppu) } : undefined),
-    ...(clean(koe.ilmoittautuminen_Alku) ? { entryStartDate: klInstant(koe.ilmoittautuminen_Alku) } : undefined),
+    ...optionalDay('entryEndDate', koe.ilmoittautuminen_Loppu),
+    ...optionalDay('entryStartDate', koe.ilmoittautuminen_Alku),
     location: [koe.paikkakunta, koe.paikka].filter(Boolean).join(', '),
   }
 }
@@ -169,7 +160,7 @@ const toChoice = (koemuoto: string, candidate: Candidate) => {
     ...(kcTunnus ? { kcTunnus } : undefined),
     name: clean(listed.tapahtuma) ?? clean(listed.tarkenne) ?? '',
     organizer: listed.yhdistysNimi,
-    startDate: klInstant(listed.alku),
+    startDate: klDay(listed.alku),
     ...(status ? { status } : undefined),
   }
 }
@@ -184,13 +175,6 @@ const upstreamError = ({ error, status, virheet }: KLIntegraatioResult<unknown>)
   // Status 0 is a call that never got an answer: a bad gateway, not a status KL gave.
   new LambdaError(status || 502, `Upstream error: ${virheet?.join(', ') ?? error ?? 'Kennel Club event search failed'}`)
 
-/**
- * The Finnish day `days` days from the one the instant falls on. The step is taken in Finnish time:
- * stepping the instant by 24 hours in the Lambda's own zone (UTC) is a day off across the change
- * to or from summer time.
- */
-const shiftedDay = (instant: string, days: number) => addDays(dayOf(new Date(instant), TIME_ZONE), days)
-
 const findEvents = async (
   klint: KLIntegraatio,
   item: KcIdLookupCriteria,
@@ -200,9 +184,9 @@ const findEvents = async (
 ): Promise<KLIntKoeListassa[]> => {
   const result = await klint.lueKokeet(
     {
-      alku: shiftedDay(item.startDate, -dateMarginDays),
+      alku: addDays(item.startDate, -dateMarginDays),
       koemuoto: kcFormatOfEventType(item.eventType),
-      loppu: shiftedDay(item.endDate, dateMarginDays),
+      loppu: addDays(item.endDate, dateMarginDays),
       yhdistys: organizerKcId,
     },
     ...callOptions(signal)

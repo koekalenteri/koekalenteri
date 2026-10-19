@@ -113,10 +113,10 @@ describe('createEventCopy', () => {
           ...sourceEvent(),
           kcEvent: {
             classes: ['ALO'],
-            endDate: '2026-09-27',
+            endDate: '2026-09-27' as const,
             eventType: 'NOU',
             location: 'Laukaa',
-            startDate: '2026-09-26',
+            startDate: '2026-09-26' as const,
           },
           kcGuid: '2b81e6a1-559b-407c-87c7-b8a9b89b1987',
         },
@@ -324,7 +324,10 @@ describe('findCopyLeaks', () => {
     ['kcGuid', { kcGuid: '2b81e6a1-559b-407c-87c7-b8a9b89b1987' }],
     ['kcState', { kcState: { code: 1253, name: 'x', readAt: 'y' } }],
     ['kcId', { kcId: 451859 }],
-    ['kcEvent', { kcEvent: { classes: [], endDate: '2026-09-27', eventType: 'NOU', startDate: '2026-09-26' } }],
+    [
+      'kcEvent',
+      { kcEvent: { classes: [], endDate: '2026-09-27' as const, eventType: 'NOU', startDate: '2026-09-26' as const } },
+    ],
   ])('refuses a copy that still carries %s', (_name, link) => {
     const { copy } = clean()
     copy.event = { ...copy.event, ...link }

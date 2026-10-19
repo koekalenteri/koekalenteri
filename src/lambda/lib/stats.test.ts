@@ -1,8 +1,9 @@
-import type { JsonConfirmedEvent, JsonEventType, JsonRegistration } from '../../types'
+import type { JsonEventType, JsonRegistration } from '../../types'
 import type { JsonCapacityStatsItem, RegistrationStatsInput } from '../../types/Stats'
 import type * as eventStatsRepository from './repositories/eventStatsRepository'
 import type * as registrationRepository from './repositories/registrationRepository'
 import { vi } from 'vitest'
+import { beforeDayKeys } from '../../test-utils/finnishDays'
 import { asJsonConfirmedEvent, asJsonRegistration } from '../test-utils/helpers'
 
 const mockReadOrganizerEventStats = vi.fn<typeof eventStatsRepository.readOrganizerEventStats>()
@@ -106,12 +107,12 @@ describe('lib/stats', () => {
       id: 'registration-1',
       owner: { email: 'owner@example.com' },
     } as JsonRegistration
-    const event = {
+    const event = asJsonConfirmedEvent({
       eventType: 'NOME-B',
       id: 'event-1',
       organizer: { id: 'organizer-1' },
       startDate: '2024-06-01',
-    } as JsonConfirmedEvent
+    })
     const withLease = (token: string) =>
       asJsonRegistration({ ...registration, newRegistrationLease: { expiresAt: Date.now() + 1000, token } })
 
@@ -141,7 +142,7 @@ describe('lib/stats', () => {
 
     it('refuses an event without a stats year before writing anything', async () => {
       await expect(
-        applyNewRegistrationStatsOnce(registration, { ...event, startDate: 'not-a-date' }, 'lease-token')
+        applyNewRegistrationStatsOnce(registration, { ...event, startDate: beforeDayKeys('not-a-date') }, 'lease-token')
       ).rejects.toThrow('Cannot derive stats year from event start date: not-a-date')
 
       expect(mockCommitNewRegistrationStats).not.toHaveBeenCalled()
@@ -222,12 +223,12 @@ describe('lib/stats', () => {
 
   // Test moved from event.test.ts
   describe('updateEventStatsForRegistration', () => {
-    const event = {
+    const event = asJsonConfirmedEvent({
       endDate: '2024-01-02',
       id: 'e5',
       organizer: { id: 'org1' },
       startDate: '2024-01-01',
-    } as JsonConfirmedEvent
+    })
 
     it('adds the deltas of a new registration to the organizer stats', async () => {
       const reg = { cancelled: false, paidAmount: 10, refundAmount: 0 } as JsonRegistration
@@ -257,7 +258,7 @@ describe('lib/stats', () => {
       const reg = { cancelled: false, paidAmount: 10, refundAmount: 0 } as JsonRegistration
 
       await expect(
-        updateEventStatsForRegistration(reg, undefined, { ...event, startDate: 'not-a-date' })
+        updateEventStatsForRegistration(reg, undefined, { ...event, startDate: beforeDayKeys('not-a-date') })
       ).rejects.toThrow('Cannot derive stats year from event start date: not-a-date')
 
       expect(mockAddOrganizerEventStats).not.toHaveBeenCalled()
@@ -901,11 +902,11 @@ describe('lib/stats', () => {
 
   describe('updateOrganizerEventStats', () => {
     it('adds the deltas to the organizer stats of the event', async () => {
-      const event = {
+      const event = asJsonConfirmedEvent({
         id: 'event456',
         organizer: { id: 'org123' },
         startDate: '2024-06-15',
-      } as JsonConfirmedEvent
+      })
 
       const deltas = {
         cancelledDelta: 0,

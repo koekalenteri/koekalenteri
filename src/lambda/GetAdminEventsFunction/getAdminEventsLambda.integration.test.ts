@@ -1,7 +1,6 @@
 import type { JsonUser } from '../../types'
-import { addDays } from 'date-fns'
 import { vi } from 'vitest'
-import { dayStart, TIME_ZONE, toDayKey } from '../../lib/day'
+import { addDays, dayOf, TIME_ZONE, toDayKey } from '../../lib/day'
 import { freezeClockAt } from '../../test-utils/freezeClock'
 import { constructAPIGwEvent } from '../test-utils/helpers'
 import { idsIn, storedEvent, storedUser, uniqueId } from '../test-utils/integration'
@@ -22,7 +21,7 @@ describe('getAdminEventsLambda against DynamoDB-local', () => {
   // Pinned mid-year, so every fixture two weeks ahead (the helper's default) is this season's. The
   // fixtures are built inside the tests, so the helper's defaults read the frozen clock.
   const now = freezeClockAt('2026-06-15')
-  const inDays = (days: number) => addDays(new Date(now), days).toISOString()
+  const inDays = (days: number) => addDays(dayOf(new Date(now), TIME_ZONE), days)
 
   beforeEach(() => {
     vi.clearAllMocks()
@@ -79,7 +78,7 @@ describe('getAdminEventsLambda against DynamoDB-local at year end', () => {
   })
 
   it("reads a change to next season's event through gsiSeasonUpdatedAt", async () => {
-    const nextSeason = storedEvent({ startDate: dayStart(toDayKey(2027, 1, 3), TIME_ZONE).toISOString() })
+    const nextSeason = storedEvent({ startDate: toDayKey(2027, 1, 3) })
     expect(nextSeason.season).toBe('2027')
     await client.write(nextSeason)
     mockAuthorizeWithMemberOf.mockResolvedValue({ memberOf: [], user: storedUser({ admin: true }) })

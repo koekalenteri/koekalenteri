@@ -2,6 +2,7 @@ import type { EventStatsEvent } from './repositories/eventRepository'
 import type * as eventStatsRepository from './repositories/eventStatsRepository'
 import type * as registrationRepository from './repositories/registrationRepository'
 import { vi } from 'vitest'
+import { beforeDayKeys } from '../../test-utils/finnishDays'
 import { loggedLines } from '../test-utils/logs'
 
 const mockDeleteStatRecords = vi.fn<typeof eventStatsRepository.deleteStatRecords>()
@@ -36,14 +37,14 @@ const {
 const handler = createHandler()
 const rebuildHandler = createHandler(REBUILDABLE_STATS_PARTITIONS)
 
-const event = (id: string, startDate: string, eventType = 'NOU'): EventStatsEvent => ({
+const event = (id: string, start: string, eventType = 'NOU'): EventStatsEvent => ({
   classes: [],
-  endDate: startDate,
+  endDate: beforeDayKeys(start),
   eventType,
   id,
   organizer: { id: `organizer-${id}` },
   places: 0,
-  startDate,
+  startDate: beforeDayKeys(start),
   state: 'confirmed',
 })
 
@@ -376,15 +377,15 @@ describe('statsRebuild', () => {
   it('builds monthly capacity-vs-starters records per event type and class', () => {
     const nomeB: EventStatsEvent = {
       classes: [
-        { class: 'ALO', date: '2025-06-01', places: 10 },
-        { class: 'AVO', date: '2025-06-01', places: 8 },
+        { class: 'ALO', date: '2025-06-01' as const, places: 10 },
+        { class: 'AVO', date: '2025-06-01' as const, places: 8 },
       ],
-      endDate: '2025-06-01',
+      endDate: '2025-06-01' as const,
       eventType: 'NOME-B',
       id: 'nome-b-event',
       organizer: { id: 'organizer-1' },
       places: 0,
-      startDate: '2025-06-01',
+      startDate: '2025-06-01' as const,
       state: 'confirmed',
     }
     const registrations = [
@@ -431,12 +432,12 @@ describe('statsRebuild', () => {
   it('falls back to the event type as the class key for classless event types', () => {
     const nou: EventStatsEvent = {
       classes: [],
-      endDate: '2025-04-10',
+      endDate: '2025-04-10' as const,
       eventType: 'NOU',
       id: 'nou-event',
       organizer: { id: 'organizer-1' },
       places: 15,
-      startDate: '2025-04-10',
+      startDate: '2025-04-10' as const,
       state: 'confirmed',
     }
     const registrations = [registration('starter', nou.id, { eventType: 'NOU', group: { key: 'kp' } })]
@@ -462,13 +463,13 @@ describe('statsRebuild', () => {
 
   it('buckets a class by its own scheduled date, not the event start date', () => {
     const multiDay: EventStatsEvent = {
-      classes: [{ class: 'VOI', date: '2025-07-15', places: 5 }],
-      endDate: '2025-07-10',
+      classes: [{ class: 'VOI', date: '2025-07-15' as const, places: 5 }],
+      endDate: '2025-07-10' as const,
       eventType: 'NOWT',
       id: 'multi-day-event',
       organizer: { id: 'organizer-1' },
       places: 0,
-      startDate: '2025-07-10',
+      startDate: '2025-07-10' as const,
       state: 'confirmed',
     }
 
@@ -482,13 +483,13 @@ describe('statsRebuild', () => {
   it('buckets capacity by the event timezone, not the stored UTC instant', () => {
     // 2025-06-01 00:00 Europe/Helsinki is stored as the previous day in UTC.
     const juneFirst: EventStatsEvent = {
-      classes: [{ class: 'ALO', date: '2025-05-31T21:00:00.000Z', places: 6 }],
-      endDate: '2025-05-31T21:00:00.000Z',
+      classes: [{ class: 'ALO', date: beforeDayKeys('2025-05-31T21:00:00.000Z'), places: 6 }],
+      endDate: beforeDayKeys('2025-05-31T21:00:00.000Z'),
       eventType: 'NOME-B',
       id: 'june-first-event',
       organizer: { id: 'organizer-1' },
       places: 0,
-      startDate: '2025-05-31T21:00:00.000Z',
+      startDate: beforeDayKeys('2025-05-31T21:00:00.000Z'),
       state: 'confirmed',
     }
     const registrations = [
@@ -511,16 +512,16 @@ describe('statsRebuild', () => {
   it('splits the event total over classes that have no places of their own', () => {
     const noClassPlaces: EventStatsEvent = {
       classes: [
-        { class: 'ALO', date: '2025-09-06' },
-        { class: 'AVO', date: '2025-09-06' },
-        { class: 'VOI', date: '2025-09-06' },
+        { class: 'ALO', date: '2025-09-06' as const },
+        { class: 'AVO', date: '2025-09-06' as const },
+        { class: 'VOI', date: '2025-09-06' as const },
       ],
-      endDate: '2025-09-06',
+      endDate: '2025-09-06' as const,
       eventType: 'NOME-B',
       id: 'no-class-places-event',
       organizer: { id: 'organizer-1' },
       places: 31,
-      startDate: '2025-09-06',
+      startDate: '2025-09-06' as const,
       state: 'confirmed',
     }
 
@@ -541,15 +542,15 @@ describe('statsRebuild', () => {
   it('tops up only the classes missing places when some are set', () => {
     const mixed: EventStatsEvent = {
       classes: [
-        { class: 'ALO', date: '2025-09-06', places: 12 },
-        { class: 'AVO', date: '2025-09-06' },
+        { class: 'ALO', date: '2025-09-06' as const, places: 12 },
+        { class: 'AVO', date: '2025-09-06' as const },
       ],
-      endDate: '2025-09-06',
+      endDate: '2025-09-06' as const,
       eventType: 'NOME-B',
       id: 'mixed-places-event',
       organizer: { id: 'organizer-1' },
       places: 20,
-      startDate: '2025-09-06',
+      startDate: '2025-09-06' as const,
       state: 'confirmed',
     }
 
@@ -565,13 +566,13 @@ describe('statsRebuild', () => {
 
   it('counts a registration as a starter only when its group is a participant group', () => {
     const nomeB: EventStatsEvent = {
-      classes: [{ class: 'ALO', date: '2025-06-01', places: 10 }],
-      endDate: '2025-06-01',
+      classes: [{ class: 'ALO', date: '2025-06-01' as const, places: 10 }],
+      endDate: '2025-06-01' as const,
       eventType: 'NOME-B',
       id: 'group-event',
       organizer: { id: 'organizer-1' },
       places: 0,
-      startDate: '2025-06-01',
+      startDate: '2025-06-01' as const,
       state: 'confirmed',
     }
     const registrations = [
@@ -590,12 +591,12 @@ describe('statsRebuild', () => {
   it("attributes a registration with an unknown class to the event's only class", () => {
     const nou: EventStatsEvent = {
       classes: [],
-      endDate: '2025-04-10',
+      endDate: '2025-04-10' as const,
       eventType: 'NOU',
       id: 'single-class-event',
       organizer: { id: 'organizer-1' },
       places: 15,
-      startDate: '2025-04-10',
+      startDate: '2025-04-10' as const,
       state: 'confirmed',
     }
     // Registration carries a class the (classless) event does not offer.
@@ -616,15 +617,15 @@ describe('statsRebuild', () => {
   it('drops a registration whose class is ambiguous rather than inventing a zero-places bucket', () => {
     const nomeB: EventStatsEvent = {
       classes: [
-        { class: 'ALO', date: '2025-06-01', places: 10 },
-        { class: 'AVO', date: '2025-06-01', places: 8 },
+        { class: 'ALO', date: '2025-06-01' as const, places: 10 },
+        { class: 'AVO', date: '2025-06-01' as const, places: 8 },
       ],
-      endDate: '2025-06-01',
+      endDate: '2025-06-01' as const,
       eventType: 'NOME-B',
       id: 'ambiguous-event',
       organizer: { id: 'organizer-1' },
       places: 0,
-      startDate: '2025-06-01',
+      startDate: '2025-06-01' as const,
       state: 'confirmed',
     }
     // No class on the registration, and the event offers more than one.
@@ -645,13 +646,13 @@ describe('statsRebuild', () => {
 
   it('excludes draft, tentative and cancelled events from capacity stats', () => {
     const draft: EventStatsEvent = {
-      classes: [{ class: 'ALO', date: '2025-08-01', places: 5 }],
-      endDate: '2025-08-01',
+      classes: [{ class: 'ALO', date: '2025-08-01' as const, places: 5 }],
+      endDate: '2025-08-01' as const,
       eventType: 'NOME-B',
       id: 'draft-event',
       organizer: { id: 'organizer-1' },
       places: 0,
-      startDate: '2025-08-01',
+      startDate: '2025-08-01' as const,
       state: 'draft',
     }
     const cancelled: EventStatsEvent = { ...draft, id: 'cancelled-event', state: 'cancelled' }
@@ -1043,8 +1044,8 @@ describe('statsRebuild', () => {
       const nomeB: EventStatsEvent = {
         ...event('nome-b-event', '2025-06-01'),
         classes: [
-          { class: 'ALO', date: '2025-06-01', judge: { id: 1, name: 'Matti Meikäläinen' } },
-          { class: 'AVO', date: '2025-06-01', judge: { id: 1, name: 'Matti Meikäläinen' } },
+          { class: 'ALO', date: '2025-06-01' as const, judge: { id: 1, name: 'Matti Meikäläinen' } },
+          { class: 'AVO', date: '2025-06-01' as const, judge: { id: 1, name: 'Matti Meikäläinen' } },
         ],
         judges: [{ id: 1, name: 'Matti Meikäläinen' }],
       }
@@ -1194,13 +1195,13 @@ describe('statsRebuild', () => {
 
     it('writes no organizer records when they are out of scope', () => {
       const nomeB: EventStatsEvent = {
-        classes: [{ class: 'ALO', date: '2025-06-01', places: 10 }],
-        endDate: '2025-06-01',
+        classes: [{ class: 'ALO', date: '2025-06-01' as const, places: 10 }],
+        endDate: '2025-06-01' as const,
         eventType: 'NOME-B',
         id: 'scoped-event',
         organizer: { id: 'organizer-1' },
         places: 0,
-        startDate: '2025-06-01',
+        startDate: '2025-06-01' as const,
         state: 'confirmed',
       }
       const registrations = [
@@ -1222,13 +1223,13 @@ describe('statsRebuild', () => {
 
     it('rebuilds every partition by default', () => {
       const nomeB: EventStatsEvent = {
-        classes: [{ class: 'ALO', date: '2025-06-01', places: 10 }],
-        endDate: '2025-06-01',
+        classes: [{ class: 'ALO', date: '2025-06-01' as const, places: 10 }],
+        endDate: '2025-06-01' as const,
         eventType: 'NOME-B',
         id: 'full-event',
         organizer: { id: 'organizer-1' },
         places: 0,
-        startDate: '2025-06-01',
+        startDate: '2025-06-01' as const,
         state: 'confirmed',
       }
       const registrations = [
@@ -1324,21 +1325,21 @@ describe('statsRebuild', () => {
     // event day is over.
     const now = new Date('2025-05-15T12:00:00.000Z')
     const upcoming: EventStatsEvent = {
-      classes: [{ class: 'ALO', date: '2025-06-01', places: 10 }],
-      endDate: '2025-06-01',
+      classes: [{ class: 'ALO', date: '2025-06-01' as const, places: 10 }],
+      endDate: '2025-06-01' as const,
       eventType: 'NOME-B',
       id: 'upcoming',
       organizer: { id: 'organizer-1' },
       places: 10,
-      startDate: '2025-06-01',
+      startDate: '2025-06-01' as const,
       state: 'confirmed',
     }
     const done: EventStatsEvent = {
       ...upcoming,
-      classes: [{ class: 'ALO', date: '2025-05-01', places: 10 }],
-      endDate: '2025-05-01',
+      classes: [{ class: 'ALO', date: '2025-05-01' as const, places: 10 }],
+      endDate: '2025-05-01' as const,
       id: 'done',
-      startDate: '2025-05-01',
+      startDate: '2025-05-01' as const,
     }
     const entries = (eventId: string) => [
       registration(`${eventId}-starter`, eventId, {

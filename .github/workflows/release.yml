@@ -166,8 +166,12 @@ jobs:
       # Data migrations (KOE-1502): the function applies the ones its registry does not list yet and
       # answers with their counters. The lambda wrapper turns a failure into a non-200 answer instead of
       # a function error, so the answer is checked here; a failed run fails the job and with it
-      # deploy-frontend, which needs this job.
+      # deploy-frontend, which needs this job. The CLI retries a read that timed out, which would start
+      # a second run beside the first, so it makes one attempt (AWS_MAX_ATTEMPTS); a run cut short by the
+      # function's own timeout records nothing, and the next deploy runs its migrations again.
       - name: Run data migrations
+        env:
+          AWS_MAX_ATTEMPTS: 1
         run: |
           function_name=$(aws cloudformation describe-stack-resource \
             --stack-name "${{ env.environment }}" \
@@ -179,7 +183,7 @@ jobs:
           cat migration-result.json
           jq -e '.statusCode == 200' migration-result.json > /dev/null \
             || { echo "::error::Data migrations failed"; exit 1; }
-          jq -r '.body | fromjson | if length == 0 then "No migrations pending" else .[] | "\(.name): \(.count) rows" end' migration-result.json
+          jq -r '.body | fromjson | if length == 0 then "No migrations pending" else .[] | "\(.name): \(.count) rows" + (if .unreadable then ", \(.unreadable) unreadable" else "" end) end' migration-result.json
 
   deploy-frontend:
     # After the backend, never beside it: the Amplify build reads its configuration from environment

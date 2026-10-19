@@ -13,6 +13,7 @@ import {
   jsonRegistrationsToEventWithParticipantsInvited,
   registrationsToEventWithParticipantsInvited,
 } from '../../__mockData__/registrations'
+import { beforeDayKeys } from '../../test-utils/finnishDays'
 import { CONFIG } from '../config'
 
 const mockReadRegistration = vi.fn<typeof registrationRepository.readRegistration>()
@@ -524,7 +525,7 @@ describe('registration', () => {
       const base: JsonRegistration = { ...stored, dog: dogWithoutDob }
       const result = (date: string) => ({
         class: 'ALO',
-        date,
+        date: beforeDayKeys(date),
         judge: 'J',
         location: 'L',
         result: 'ALO1',
@@ -539,7 +540,7 @@ describe('registration', () => {
         ...base,
         dog: {
           ...base.dog,
-          ...(dob === undefined ? {} : { dob }),
+          ...(dob === undefined ? {} : { dob: beforeDayKeys(dob) }),
           results: official === undefined ? [] : [result(official)],
         },
         qualifyingResults: qualifying === undefined ? [] : [{ ...result(qualifying), official: true }],
@@ -570,10 +571,10 @@ describe('registration', () => {
       )
 
       it('reads a value with no day against a day, or two different ones, as a change', () => {
-        expect(differ({ dob: 'unknown' }, { dob: '2021-01-01' })).toBe(true)
+        expect(differ({ dob: 'unknown' }, { dob: '2021-01-01' as const })).toBe(true)
         expect(differ({ dob: 'unknown' }, { dob: 'not known' })).toBe(true)
         expect(differ({ official: '0001-01-01T00:00:00' }, { official: '2021-01-01' })).toBe(true)
-        expect(differ({ dob: undefined }, { dob: '2021-01-01' })).toBe(true)
+        expect(differ({ dob: undefined }, { dob: '2021-01-01' as const })).toBe(true)
       })
     })
   })
@@ -1102,7 +1103,7 @@ describe('registration access', () => {
   })
 
   describe('the fields only the secretary sees', () => {
-    const group = { date: '2026-08-01', key: '2026-08-01-ap', number: 3, time: 'ap' as const }
+    const group = { date: '2026-08-01' as const, key: '2026-08-01-ap', number: 3, time: 'ap' as const }
     const stored = {
       ...storedRow,
       editTokenVersion: 3,

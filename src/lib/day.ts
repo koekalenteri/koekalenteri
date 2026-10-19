@@ -324,3 +324,27 @@ export const calendarDayOf = (value: unknown, zone: string): DayKey | undefined 
  * browser itself stored, a picker's local midnight (a draft, the dog cache), which is the day it showed.
  */
 export const localCalendarDayOf = (value: unknown): DayKey | undefined => storedDay(value, pickedDayOf)
+
+/**
+ * The day of a stored value in any form a calendar day was stored in before KOE-1547 made every stored
+ * day a key: a key, Kennelliitto's stamp without a zone (the day it names), or an instant (the day it
+ * falls on in `zone`: a Finnish midnight or end of day a browser or a lambda wrote, a browser's local
+ * noon of a dog's date). Undefined for anything with no day, Kennelliitto's empty date included.
+ *
+ * The KOE-1547 migrations and the import of a copied event decode with this function alone, and it
+ * must keep reading every one of those forms: a migration's hash covers its own text and not the
+ * helpers it calls ("Data Migrations" in AGENTS.md), so a narrower rule here would turn the
+ * migrations into silent no-ops where they run again, on an environment restored from a copy, say.
+ * The readers' tolerance of the old forms (`calendarDayOf`, `storedDayKey`) goes once every
+ * environment has been migrated; this function stays as it is.
+ */
+export const legacyStoredDay = (value: unknown, zone: string): DayKey | undefined => {
+  if (typeof value !== 'string') return undefined
+  if (isZonelessDay(value)) {
+    const day = value.slice(0, 10)
+    return isDayKey(day) ? day : undefined
+  }
+  if (!isInstantString(value)) return undefined
+  const instant = new Date(value)
+  return hasCalendarDay(instant, zone) ? dayOf(instant, zone) : undefined
+}

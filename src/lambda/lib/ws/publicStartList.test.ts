@@ -34,7 +34,7 @@ const publishedEvent = asJsonConfirmedEvent({
   classes: [{ class: 'ALO', state: 'invited' }],
   id: 'event-1',
   organizer: { id: 'org-1', name: 'Org' },
-  startDate: '2025-01-01',
+  startDate: '2025-01-01' as const,
   startListPublished: { ALO: true },
   startNumbersPublished: { ALO: true },
   state: 'invited',
@@ -46,10 +46,10 @@ const registration = (name: string, number: number) =>
     class: 'ALO',
     dog: { name, regNo: `REG-${number}` },
     eventId: 'event-1',
-    group: { date: '2025-01-01', key: 'ALO', number },
+    group: { date: '2025-01-01' as const, key: 'ALO', number },
     handler: { name: 'Handler' },
     owner: { name: 'Owner' },
-    startGroup: { date: '2025-01-01', key: 'ALO', number },
+    startGroup: { date: '2025-01-01' as const, key: 'ALO', number },
   })
 
 describe('ws/publicStartList', () => {
@@ -81,7 +81,7 @@ describe('ws/publicStartList', () => {
         expect.objectContaining({
           class: 'ALO',
           dog: { name: 'Aapo', regNo: 'REG-1' },
-          group: { date: '2025-01-01', key: 'ALO', number: 1 },
+          group: { date: '2025-01-01' as const, key: 'ALO', number: 1 },
           handler: 'Handler',
           owner: 'Owner',
         }),
@@ -152,7 +152,7 @@ describe('ws/publicStartList', () => {
       breeder: 'Kasvattaja',
       class: 'ALO',
       dog: { name: `Koira ${index}`, regNo: `FI${index}/25` },
-      group: { date: '2025-01-01', key: 'ALO', number: index },
+      group: { date: '2025-01-01' as const, key: 'ALO', number: index },
       handler: 'Ohjaaja',
       owner: 'Omistaja',
     }))

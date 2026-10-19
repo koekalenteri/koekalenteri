@@ -15,12 +15,12 @@ const config = {
 
 const criteria: KcIdLookupCriteria = {
   classes: [],
-  endDate: '2026-09-27T20:59:59.999Z',
+  endDate: '2026-09-27',
   eventType: 'NOU',
   location: 'Laukaa',
   name: '',
   organizer: { id: 'org-id' },
-  startDate: '2026-09-25T21:00:00.000Z',
+  startDate: '2026-09-26',
 }
 
 /** A server that takes the request and says nothing until the caller gives up. */

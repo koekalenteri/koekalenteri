@@ -1,4 +1,5 @@
 import type { JsonRegistration } from '../types'
+import { beforeDayKeys } from '../test-utils/finnishDays'
 import { GROUP_KEY_CANCELLED } from './registration'
 import { applyRegistrationGroupMoves, normalizeRegistrationGroups } from './registrationGroups'
 
@@ -50,16 +51,16 @@ describe('applyRegistrationGroupMoves', () => {
     const source = [
       {
         ...registration('target', 1),
-        group: { date: '2026-06-01', key: '2026-06-01-ap', number: 1, time: 'ap' as const },
+        group: { date: '2026-06-01' as const, key: '2026-06-01-ap', number: 1, time: 'ap' as const },
       },
       {
         ...registration('anchor', 1),
-        group: { date: '2026-06-01', key: '2026-06-01-ip', number: 1, time: 'ip' as const },
+        group: { date: '2026-06-01' as const, key: '2026-06-01-ip', number: 1, time: 'ip' as const },
       },
     ]
     const move = {
       beforeId: 'anchor',
-      group: { date: '2026-06-01', key: '2026-06-01-ap', time: 'ap' as const },
+      group: { date: '2026-06-01' as const, key: '2026-06-01-ap', time: 'ap' as const },
       id: 'target',
     }
 
@@ -105,7 +106,7 @@ describe('applyRegistrationGroupMoves', () => {
   })
 
   it('keeps the established ordering when registrations have no class', () => {
-    const participantGroup = { date: '2026-06-01', key: '2026-06-01-ap', time: 'ap' as const }
+    const participantGroup = { date: '2026-06-01' as const, key: '2026-06-01-ap', time: 'ap' as const }
     const source = [
       { ...registration('first', 1), class: undefined, eventType: 'ZZZ', group: { ...participantGroup, number: 1 } },
       { ...registration('second', 2), class: undefined, eventType: 'AAA', group: { ...participantGroup, number: 2 } },
@@ -155,7 +156,7 @@ describe('applyRegistrationGroupMoves', () => {
    * list, it showed on the reserve list as the dog's number and sorted the queue by it (KOE-1428).
    */
   it('drops the drawn start number when a dog is moved to the reserve list (KOE-1428)', () => {
-    const startGroup = { date: '2026-09-12', key: 'ALO-AP', number: 2, time: 'ap' as const }
+    const startGroup = { date: '2026-09-12' as const, key: 'ALO-AP', number: 2, time: 'ap' as const }
     const source: JsonRegistration[] = [
       { ...registration('a', 1), group: { ...startGroup, number: 1 } },
       { ...registration('b', 2), group: { ...startGroup }, startGroup },
@@ -170,7 +171,7 @@ describe('applyRegistrationGroupMoves', () => {
   })
 
   it('keeps the drawn start number on a cancellation and on a move within the list', () => {
-    const startGroup = { date: '2026-09-12', key: 'ALO-AP', number: 2, time: 'ap' as const }
+    const startGroup = { date: '2026-09-12' as const, key: 'ALO-AP', number: 2, time: 'ap' as const }
     const source: JsonRegistration[] = [
       { ...registration('a', 1), group: { ...startGroup, number: 1 } },
       { ...registration('b', 2), group: { ...startGroup }, startGroup },
@@ -180,7 +181,7 @@ describe('applyRegistrationGroupMoves', () => {
     expect(cancelled.items.find((item) => item.id === 'b')?.startGroup).toEqual(startGroup)
 
     const moved = applyRegistrationGroupMoves(source, [
-      { beforeId: 'a', group: { date: '2026-09-12', key: 'ALO-AP', time: 'ap' as const }, id: 'b' },
+      { beforeId: 'a', group: { date: '2026-09-12' as const, key: 'ALO-AP', time: 'ap' as const }, id: 'b' },
     ])
     expect(moved.items.find((item) => item.id === 'b')?.startGroup).toEqual(startGroup)
   })
@@ -247,7 +248,7 @@ describe("a WT trial's shared reserve list", () => {
   it('closes the gap in the other classes when a dog is raised into its own class', () => {
     const result = applyRegistrationGroupMoves(
       [wtRegistration('alo-1', 'ALO', 1), wtRegistration('avo-1', 'AVO', 2), wtRegistration('voi-1', 'VOI', 3)],
-      [{ group: { date: '2021-02-10', key: '2021-02-10-kp', time: 'kp' }, id: 'alo-1' }]
+      [{ group: { date: '2021-02-10' as const, key: '2021-02-10-kp', time: 'kp' }, id: 'alo-1' }]
     )
 
     expect(result.invalid).toEqual([])
@@ -285,9 +286,14 @@ describe('normalizeRegistrationGroups', () => {
 // (eventRegistrationDateKey) names the group '2026-08-15-ap' (KOE-1541).
 describe('a start stored with the UTC day key', () => {
   const HELSINKI_KEY = '2026-08-15-ap'
-  const HELSINKI_GROUP = { date: '2026-08-14T21:00:00.000Z', key: HELSINKI_KEY, time: 'ap' as const }
+  const HELSINKI_GROUP = { date: beforeDayKeys('2026-08-14T21:00:00.000Z'), key: HELSINKI_KEY, time: 'ap' as const }
 
-  const start = (id: string, number: number, key = '2026-08-14-ap', date = '2026-08-14T21:00:00.000Z') => ({
+  const start = (
+    id: string,
+    number: number,
+    key = '2026-08-14-ap',
+    date = beforeDayKeys('2026-08-14T21:00:00.000Z')
+  ) => ({
     ...registration(id, number),
     group: { date, key, number, time: 'ap' as const },
   })
@@ -344,7 +350,7 @@ describe('a start stored with the UTC day key', () => {
 
   it('treats two instants of the same Helsinki day and time as one group', () => {
     const result = applyRegistrationGroupMoves(
-      [start('a', 1), start('b', 2, HELSINKI_KEY, '2026-08-15T00:00:00.000Z'), reserve('c')],
+      [start('a', 1), start('b', 2, HELSINKI_KEY, beforeDayKeys('2026-08-15T00:00:00.000Z')), reserve('c')],
       [{ group: HELSINKI_GROUP, id: 'c' }]
     )
 
@@ -358,7 +364,7 @@ describe('a start stored with the UTC day key', () => {
 
   it('accepts as the anchor a start whose date is another instant of the same day', () => {
     const result = applyRegistrationGroupMoves(
-      [start('a', 1), start('b', 2, HELSINKI_KEY, '2026-08-15T00:00:00.000Z'), reserve('c')],
+      [start('a', 1), start('b', 2, HELSINKI_KEY, beforeDayKeys('2026-08-15T00:00:00.000Z')), reserve('c')],
       [{ beforeId: 'b', group: HELSINKI_GROUP, id: 'c' }]
     )
 
@@ -386,7 +392,10 @@ describe('a start stored with the UTC day key', () => {
   })
 
   it('keeps the key of a start without a time, and a cancelled entry in the cancelled group', () => {
-    const noTime = { ...registration('n', 1), group: { date: '2026-08-14T21:00:00.000Z', key: 'x-key', number: 1 } }
+    const noTime = {
+      ...registration('n', 1),
+      group: { date: beforeDayKeys('2026-08-14T21:00:00.000Z'), key: 'x-key', number: 1 },
+    }
     const cancelled = { ...start('k', 1), cancelled: true }
 
     const normalized = normalizeRegistrationGroups([noTime, cancelled])
