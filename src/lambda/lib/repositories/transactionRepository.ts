@@ -154,49 +154,127 @@ interface DuplicatePayment {
   provider: string | undefined
 }
 
-/** The fields that mark a payment a duplicate of another registration's: it is `ok`, and kept for a refund. */
-const duplicateFields = ({ duplicateOfRegistrationId, duplicatePaymentAt, provider }: DuplicatePayment) => ({
-  duplicateOfRegistrationId,
-  duplicatePaymentAt,
-  ...(provider ? { provider } : {}),
-  status: 'ok' as const,
-  statusAt: duplicatePaymentAt,
-})
-
-/** Marks a stored transaction a duplicate of another registration's payment. */
-export const markTransactionDuplicate = async (transactionId: string, duplicate: DuplicatePayment) => {
-  await dynamoDB.update({ transactionId }, { remove: ['paymentResponse'], set: duplicateFields(duplicate) })
-}
-
-/** Writes a payment the success callback found missing whole, as a duplicate of another registration's. */
-export const writeDuplicateTransaction = async (transaction: JsonTransaction, duplicate: DuplicatePayment) => {
-  await dynamoDB.write({ ...transaction, ...duplicateFields(duplicate) })
-}
-
-const transactionWasAlreadyApplied = async (transactionId: string) => {
+/**
+ * Whether the transaction's outcome is already on its registration: applied, or recorded as a
+ * duplicate. Narrower than `isTransactionSettled`: a `fail` status is not an outcome on the
+ * registration, so a refusal on a failed transaction is not taken for a retry (KOE-1531).
+ */
+const transactionWasAlreadySettled = async (transactionId: string) => {
   const current = await dynamoDB.read<JsonTransaction>({ transactionId }, undefined, true)
-  return Boolean(current?.registrationAppliedAt)
+  return Boolean(current?.registrationAppliedAt ?? current?.duplicatePaymentAt)
 }
 
-/** The transaction and its registration in one write. False when a retry finds it already applied. */
+/** The transaction and its registration in one write. False when a retry finds it already settled. */
 const runRegistrationTransaction = async (transactionId: string, items: TransactionItem[]) => {
   try {
     await dynamoDB.documentTransaction(items)
     return true
   } catch (error) {
-    if (isTransactionCanceled(error) && (await transactionWasAlreadyApplied(transactionId))) {
-      logger.info('transaction was already applied to its registration', { transactionId })
+    if (isTransactionCanceled(error) && (await transactionWasAlreadySettled(transactionId))) {
+      logger.info('transaction was already settled on its registration', { transactionId })
       return false
     }
     throw error
   }
 }
 
+/** Adds the provider that captured the payment to a transaction's SET, when there is one. */
+const setProvider = (
+  provider: string | undefined,
+  set: string[],
+  names: Record<string, string>,
+  values: Record<string, unknown>
+) => {
+  if (!provider) return
+  set.push('#provider = :provider')
+  names['#provider'] = 'provider'
+  values[':provider'] = provider
+}
+
+/** A stored payment's condition for either outcome: it is there, and neither outcome is written yet. */
+const UNSETTLED_PAYMENT_CONDITION =
+  'attribute_exists(transactionId) AND attribute_not_exists(registrationAppliedAt) AND attribute_not_exists(duplicatePaymentAt)'
+
+/**
+ * Records a payment as a duplicate of another registration's, in one transaction: the transaction
+ * becomes `ok` and is kept for a refund, and its registration's payment reads DUPLICATE with the
+ * transaction out of its open payments. A transaction the success callback found missing is written
+ * whole. As for `applySuccessfulPayment`, the condition is only that neither outcome is written yet,
+ * so a payment this app had failed is still recorded (KOE-1529). Answers `recorded: false` when a
+ * retry finds the outcome already written.
+ */
+export const recordDuplicatePayment = async (
+  transaction: JsonTransaction,
+  eventId: string,
+  registrationId: string,
+  { duplicateOfRegistrationId, duplicatePaymentAt, provider }: DuplicatePayment,
+  transactionExists = true
+) => {
+  const transactionNames: Record<string, string> = { '#status': 'status' }
+  const transactionValues: Record<string, unknown> = {
+    ':duplicateOfRegistrationId': duplicateOfRegistrationId,
+    ':duplicatePaymentAt': duplicatePaymentAt,
+    ':ok': 'ok',
+  }
+  const transactionSet = [
+    'duplicateOfRegistrationId = :duplicateOfRegistrationId',
+    'duplicatePaymentAt = :duplicatePaymentAt',
+    '#status = :ok',
+    'statusAt = :duplicatePaymentAt',
+  ]
+  setProvider(provider, transactionSet, transactionNames, transactionValues)
+
+  const transactionOperation: TransactionItem = transactionExists
+    ? {
+        Update: {
+          ConditionExpression: UNSETTLED_PAYMENT_CONDITION,
+          ExpressionAttributeNames: transactionNames,
+          ExpressionAttributeValues: transactionValues,
+          Key: { transactionId: transaction.transactionId },
+          TableName: transactionTable,
+          UpdateExpression: `SET ${transactionSet.join(', ')} REMOVE paymentResponse`,
+        },
+      }
+    : {
+        Put: {
+          ConditionExpression: 'attribute_not_exists(transactionId)',
+          Item: {
+            ...transaction,
+            duplicateOfRegistrationId,
+            duplicatePaymentAt,
+            paymentResponse: undefined,
+            ...(provider ? { provider } : {}),
+            status: 'ok',
+            statusAt: duplicatePaymentAt,
+          },
+          TableName: transactionTable,
+        },
+      }
+
+  const recorded = await runRegistrationTransaction(transaction.transactionId, [
+    transactionOperation,
+    registrationUpdateItem(eventId, registrationId, {
+      ConditionExpression: 'attribute_exists(id)',
+      ExpressionAttributeValues: {
+        ':duplicate': 'DUPLICATE',
+        ':duplicatePaymentAt': duplicatePaymentAt,
+        // DynamoDB's set-difference action; this transaction is no longer open (KOE-1529).
+        ':transactionId': new Set([transaction.transactionId]),
+      },
+      UpdateExpression:
+        'SET paymentStatus = :duplicate, updatedAt = :duplicatePaymentAt DELETE openPayments :transactionId',
+    }),
+  ])
+
+  return { recorded }
+}
+
 /**
  * Applies a successful payment: the transaction becomes `ok` and applied, and the registration paid,
  * in one transaction. A transaction the success callback found missing is written whole. The
- * transaction's condition is only that it is not applied yet, not the "unresolved" one: money that
- * arrived is money, even for a payment this app had already failed (KOE-1529).
+ * transaction's condition is only that neither outcome is written yet, not the "unresolved" one:
+ * money that arrived is money, even for a payment this app had already failed (KOE-1529). A payment
+ * recorded as a duplicate waits for its refund and is never applied on top of it (KOE-1531).
  */
 export const applySuccessfulPayment = async (
   transaction: JsonTransaction,
@@ -222,16 +300,12 @@ export const applySuccessfulPayment = async (
     'receiptPreviouslyPaid = :receiptPreviouslyPaid',
     'receiptTotalPaid = :receiptTotalPaid',
   ]
-  if (provider) {
-    transactionSet.push('#provider = :provider')
-    transactionNames['#provider'] = 'provider'
-    transactionValues[':provider'] = provider
-  }
+  setProvider(provider, transactionSet, transactionNames, transactionValues)
 
   const transactionOperation = transactionExists
     ? {
         Update: {
-          ConditionExpression: 'attribute_exists(transactionId) AND attribute_not_exists(registrationAppliedAt)',
+          ConditionExpression: UNSETTLED_PAYMENT_CONDITION,
           ExpressionAttributeNames: transactionNames,
           ExpressionAttributeValues: transactionValues,
           Key: { transactionId: transaction.transactionId },

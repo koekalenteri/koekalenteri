@@ -52,6 +52,7 @@ import {
   meetsRestrictions,
   nomeBChQualificationStartDay,
   priorityDescriptionKey,
+  REGISTRATION_MONEY_FIELDS,
   registrationActor,
   resolveInvitationRead,
   resolveOwnerPerson,
@@ -59,6 +60,7 @@ import {
   shouldSendInvitationAfterPayment,
   shouldSendInvitationToRegistration,
   sortRegistrationsByDateClassTimeAndNumber,
+  withoutRegistrationMoney,
 } from './registration'
 
 describe('lib/registration', () => {
@@ -1702,5 +1704,40 @@ describe('getLastEmailText', () => {
 
   it('is empty when no message has been sent', () => {
     expect(getLastEmailText(undefined, en)).toBe('')
+  })
+})
+
+describe('withoutRegistrationMoney', () => {
+  const money = {
+    openPayments: ['payment-1'],
+    openRefunds: ['refund-1'],
+    paidAmount: 50,
+    paidAt: '2026-10-19T09:00:00.000Z',
+    paymentCreationAt: '2026-10-19T08:59:00.000Z',
+    paymentCreationStamp: 'stamp-1',
+    paymentStatus: 'SUCCESS' as const,
+    refundAmount: 10,
+    refundAt: '2026-10-19T10:00:00.000Z',
+    refundCreationAt: '2026-10-19T09:59:00.000Z',
+    refundCreationStamp: 'stamp-2',
+    refundHandlingCost: 2.5,
+    refundStatus: 'SUCCESS' as const,
+  }
+
+  it('names every money field of a registration', () => {
+    expect(REGISTRATION_MONEY_FIELDS.toSorted((a, b) => a.localeCompare(b))).toEqual(Object.keys(money))
+  })
+
+  it('leaves out the money and keeps the rest, without changing the registration it was given', () => {
+    const registration = { eventId: 'event-1', id: 'registration-1', notes: 'notes', ...money }
+
+    expect(withoutRegistrationMoney(registration)).toEqual({ eventId: 'event-1', id: 'registration-1', notes: 'notes' })
+    expect(registration).toMatchObject(money)
+  })
+
+  it('answers a registration without money as it is', () => {
+    const registration: Partial<JsonRegistration> = { id: 'registration-1' }
+
+    expect(withoutRegistrationMoney(registration)).toEqual({ id: 'registration-1' })
   })
 })

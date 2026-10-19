@@ -29,9 +29,7 @@ const mockReadTransaction = vi.fn()
 const mockClaimPostPaymentWorkflow = vi.fn()
 const mockMarkPostPaymentPhase = vi.fn()
 const mockReleasePostPaymentWorkflow = vi.fn()
-const mockMarkTransactionDuplicate = vi.fn()
-const mockWriteDuplicateTransaction = vi.fn()
-const mockMarkDuplicatePayment = vi.fn()
+const mockRecordDuplicatePayment = vi.fn()
 const mockUpdateRegistrations = vi.fn()
 const mockGetEvent = vi.fn()
 const mockFixRegistrationGroups = vi.fn(async (registrations: unknown[]) => registrations)
@@ -95,15 +93,13 @@ vi.doMock('../lib/repositories/transactionRepository', () => ({
   applySuccessfulPayment: mockApplySuccessfulPayment,
   claimPostPaymentWorkflow: mockClaimPostPaymentWorkflow,
   markPostPaymentPhase: mockMarkPostPaymentPhase,
-  markTransactionDuplicate: mockMarkTransactionDuplicate,
   readPaymentTransactions: mockReadPaymentTransactions,
   readTransaction: mockReadTransaction,
-  writeDuplicateTransaction: mockWriteDuplicateTransaction,
+  recordDuplicatePayment: mockRecordDuplicatePayment,
 }))
 
 // The publisher's strongly consistent registration read answers as getRegistration does.
 vi.doMock('../lib/repositories/registrationRepository', () => ({
-  markDuplicatePayment: mockMarkDuplicatePayment,
   readRegistrationConsistently: (eventId: string, id: string) => mockGetRegistration(eventId, id),
 }))
 
@@ -191,6 +187,7 @@ describe('paymentSuccessLambda', () => {
     mockUpdateTransactionStatus.mockResolvedValue(true)
     mockSettleFailedTransaction.mockResolvedValue({ changed: false, moved: false })
     mockApplySuccessfulPayment.mockResolvedValue({ applied: true, appliedAt: '2025-01-01T00:00:00.000Z' })
+    mockRecordDuplicatePayment.mockResolvedValue({ recorded: true })
     mockClearRegistrationEmailDeliveryStatus.mockResolvedValue(undefined)
 
     // Once leased, the workflow reads the transaction again; that read answers as the first one does.
@@ -445,7 +442,7 @@ describe('paymentSuccessLambda', () => {
     ])
     // getRegistration is called three times here: handleSuccessfulPayment's own fetch,
     // applyPaymentToRegistration's re-fetch (whose result decides the duplicate), and
-    // recordDuplicatePayment's strongly consistent re-read after its own DELETE from openPayments --
+    // the publisher's strongly consistent re-read after recordDuplicatePayment's DELETE from openPayments --
     // only the third reflects it (KOE-1529, round 2 part 3).
     const beforeApply = {
       dog: { regNo: 'FI12345' },
@@ -479,13 +476,15 @@ describe('paymentSuccessLambda', () => {
     expect(mockLockRegistrationPayments).toHaveBeenCalledWith('event123')
     expect(mockGetReadyRegistrationsByEventId).toHaveBeenCalledWith('event123', true)
     expect(mockGetRegistration).toHaveBeenCalledTimes(3)
-    expect(mockMarkTransactionDuplicate).toHaveBeenCalledWith('tx123', {
-      duplicateOfRegistrationId: 'other-registration',
-      duplicatePaymentAt: expect.any(String),
-      provider: 'paytrail',
-    })
-    expect(mockWriteDuplicateTransaction).not.toHaveBeenCalled()
-    expect(mockMarkDuplicatePayment).toHaveBeenCalledWith('event123', 'reg456', 'tx123', expect.any(String))
+    // The transaction and the registration in one write (KOE-1531).
+    expect(mockRecordDuplicatePayment).toHaveBeenCalledTimes(1)
+    expect(mockRecordDuplicatePayment).toHaveBeenCalledWith(
+      expect.objectContaining({ transactionId: 'tx123' }),
+      'event123',
+      'reg456',
+      { duplicateOfRegistrationId: 'other-registration', duplicatePaymentAt: expect.any(String), provider: 'paytrail' },
+      true
+    )
     expect(mockClaimPostPaymentWorkflow).not.toHaveBeenCalled()
     // The same rule as GetRegistration: a payment charged twice offers no pay button (KOE-1526).
     expect(mockToEntrant).toHaveBeenCalledWith(
@@ -632,13 +631,31 @@ describe('paymentSuccessLambda', () => {
 
     await paymentSuccessLambda(event)
 
-    expect(mockWriteDuplicateTransaction).toHaveBeenCalledWith(
+    expect(mockRecordDuplicatePayment).toHaveBeenCalledWith(
       expect.objectContaining({ amount: 5000, status: 'new', transactionId: 'tx123', type: 'payment' }),
-      { duplicateOfRegistrationId: 'other-registration', duplicatePaymentAt: expect.any(String), provider: 'paytrail' }
+      'event123',
+      'reg456',
+      { duplicateOfRegistrationId: 'other-registration', duplicatePaymentAt: expect.any(String), provider: 'paytrail' },
+      false
     )
-    expect(mockMarkTransactionDuplicate).not.toHaveBeenCalled()
-    expect(mockMarkDuplicatePayment).toHaveBeenCalledWith('event123', 'reg456', 'tx123', expect.any(String))
     expect(mockApplySuccessfulPayment).not.toHaveBeenCalled()
+    expect(mockResponse).toHaveBeenCalledWith(200, undefined, event)
+  })
+
+  it('publishes a duplicate a retried callback finds already recorded, without auditing it again', async () => {
+    arrangeDuplicatePayment()
+    mockRecordDuplicatePayment.mockResolvedValueOnce({ recorded: false })
+
+    await paymentSuccessLambda(event)
+
+    expect(mockApplySuccessfulPayment).not.toHaveBeenCalled()
+    expect(mockToEntrant).toHaveBeenCalledWith(
+      'event123',
+      'reg456',
+      expect.objectContaining({ paymentStatus: 'DUPLICATE' })
+    )
+    expect(mockAudit).not.toHaveBeenCalled()
+    expect(mockClaimPostPaymentWorkflow).not.toHaveBeenCalled()
     expect(mockResponse).toHaveBeenCalledWith(200, undefined, event)
   })
 

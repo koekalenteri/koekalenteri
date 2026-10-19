@@ -41,20 +41,18 @@ import {
   getRegistrationEditToken,
   sendTemplatedEmailToEventRegistrations,
 } from '../lib/registration'
-import { markDuplicatePayment } from '../lib/repositories/registrationRepository'
 import {
   applySuccessfulPayment,
   claimPostPaymentWorkflow,
   markPostPaymentPhase,
-  markTransactionDuplicate,
   readTransaction,
-  writeDuplicateTransaction,
+  recordDuplicatePayment,
 } from '../lib/repositories/transactionRepository'
 import { publishEventCounts, publishRegistrationPatchesStrict } from '../lib/ws/actions'
 
 const { frontendURL, emailFrom } = CONFIG
 
-const recordDuplicatePayment = async (
+const handleDuplicatePayment = async (
   transaction: JsonTransaction,
   duplicateOf: Pick<JsonRegistration, 'eventId' | 'id'>,
   provider: string | undefined,
@@ -65,18 +63,21 @@ const recordDuplicatePayment = async (
   const duplicatePaymentAt = new Date().toISOString()
   const providerName = getProviderName(provider)
   const amount = formatMoney(transaction.amount / 100)
-  const duplicate = { duplicateOfRegistrationId, duplicatePaymentAt, provider }
-  if (transactionExists) {
-    await markTransactionDuplicate(transaction.transactionId, duplicate)
-  } else {
-    await writeDuplicateTransaction(transaction, duplicate)
-  }
-  await markDuplicatePayment(registration.eventId, registration.id, transaction.transactionId, duplicatePaymentAt)
+  const { recorded } = await recordDuplicatePayment(
+    transaction,
+    registration.eventId,
+    registration.id,
+    { duplicateOfRegistrationId, duplicatePaymentAt, provider },
+    transactionExists
+  )
   // The pay button follows the same rule as GetRegistration's: a duplicate waits for its refund.
   // The picture is built from the row read strongly consistent after the DELETE above, not a local
   // guess at what it now looks like (KOE-1529, round 2 part 3). It never fails the callback: the
-  // duplicate is already recorded, and the audits below must not wait for a retry (KOE-1566).
+  // duplicate is already recorded, and the audits below must not wait for a retry (KOE-1566). A
+  // retry that finds the duplicate already recorded publishes again but does not audit it twice:
+  // the audits belong to the call that wrote it (KOE-1531).
   await publishParticipantPaymentsOfEvent(registration.eventId, [registration.id])
+  if (!recorded) return
   await audit({
     auditKey: registrationAuditKey(registration),
     ...duplicatePaymentAudit(providerName, amount, duplicateOfRegistrationId),
@@ -110,7 +111,7 @@ const applyPaymentToRegistration = async (
         (item) => item.id !== registration.id && item.dog.regNo === registration.dog.regNo
       )
       if (duplicate) {
-        await recordDuplicatePayment(transaction, duplicate, provider, transactionExists, registration)
+        await handleDuplicatePayment(transaction, duplicate, provider, transactionExists, registration)
         duplicatePayment = true
       }
     }

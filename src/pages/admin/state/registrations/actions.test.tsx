@@ -134,6 +134,38 @@ describe('useAdminRegistrationActions', () => {
     )
   })
 
+  it('sends no money operations for a save after an optimistic refund (KOE-1531)', async () => {
+    vi.mocked(createRefund).mockResolvedValueOnce({ provider: 'nordea', status: 'ok', transactionId: 'refund-1' })
+    vi.spyOn(registrationApi, 'patchAdminRegistration').mockResolvedValueOnce({
+      ...registrationWithStaticDates,
+      notes: 'changed notes',
+    })
+    const { result } = renderHook(
+      () => ({
+        actions: useAdminRegistrationActions(eventWithStaticDates.id),
+        registrations: useAtomValue(adminEventRegistrationsAtom(eventWithStaticDates.id)),
+      }),
+      { wrapper }
+    )
+
+    await act(async () => {
+      await result.current.actions.refund(registrationWithStaticDates, 'payment-1', 1000, 250)
+    })
+    // The dialog's row follows the list until the first edit, so the edit starts from the refunded row,
+    // while the base it is compared with is the row as the dialog opened.
+    const refunded = result.current.registrations.find(({ id }) => id === registrationWithStaticDates.id)
+    expect(refunded).toMatchObject({ openRefunds: ['refund-1'], refundAmount: 10, refundHandlingCost: 2.5 })
+
+    await act(async () => {
+      await result.current.actions.save({ ...refunded!, notes: 'changed notes' }, registrationWithStaticDates)
+    })
+
+    expect(registrationApi.patchAdminRegistration).toHaveBeenCalledWith(
+      expect.objectContaining({ operations: [{ path: ['notes'], type: 'CHANGE', value: 'changed notes' }] }),
+      TEST_ID_TOKEN
+    )
+  })
+
   it('does not store pending group placement when updating an unrelated field', () => {
     const eventId = eventWithStaticDates.id
     const { result } = renderHook(

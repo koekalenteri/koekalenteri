@@ -317,6 +317,13 @@ export interface JsonRegistration extends JsonDbRecord {
   paidAmount?: number
   paidAt?: string
   payer?: Omit<RegistrationPerson, 'location' | 'membership'>
+  /**
+   * When a payment was claimed for creation and by which attempt (`claimTransactionCreation`): the
+   * mark that keeps two payments from being created at once. Server-owned; the creation's own
+   * transaction or its release removes it.
+   */
+  paymentCreationAt?: string
+  paymentCreationStamp?: string
   paymentStatus?: PaymentStatus
   /**
    * Ids of payment transactions whose outcome (applied, duplicate, or failed) has not been written
@@ -332,6 +339,9 @@ export interface JsonRegistration extends JsonDbRecord {
   qualifyingResults: JsonQualifyingResult[]
   refundAmount?: number
   refundAt?: string
+  /** Same as `paymentCreationAt`/`paymentCreationStamp`, for a refund. */
+  refundCreationAt?: string
+  refundCreationStamp?: string
   refundHandlingCost?: number
   refundStatus?: PaymentStatus
   reserve: ReserveChoise | ''

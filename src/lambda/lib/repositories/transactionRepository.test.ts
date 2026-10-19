@@ -37,12 +37,11 @@ const {
   createSettledRefundTransaction,
   failUnfinishedTransaction,
   markPostPaymentPhase,
-  markTransactionDuplicate,
   readPaymentTransactions,
   readTransaction,
   readTransactionsByReference,
+  recordDuplicatePayment,
   updateUnresolvedTransaction,
-  writeDuplicateTransaction,
 } = await import('./transactionRepository')
 
 const NOW = '2026-10-19T12:00:00.000Z'
@@ -276,73 +275,142 @@ describe('transactionRepository', () => {
     })
   })
 
-  describe('duplicate payments', () => {
-    it('marks a stored transaction a duplicate of the other registration', async () => {
-      await markTransactionDuplicate('transaction-1', {
-        duplicateOfRegistrationId: 'registration-0',
-        duplicatePaymentAt: NOW,
-        provider: 'nordea',
-      })
+  describe('recordDuplicatePayment', () => {
+    const duplicate = { duplicateOfRegistrationId: 'registration-0', duplicatePaymentAt: NOW, provider: 'nordea' }
+    const registrationItem = {
+      Update: {
+        ConditionExpression: 'attribute_exists(id)',
+        ExpressionAttributeValues: {
+          ':duplicate': 'DUPLICATE',
+          ':duplicatePaymentAt': NOW,
+          // DynamoDB's set-difference action; this transaction is no longer open (KOE-1529).
+          ':transactionId': new Set(['transaction-1']),
+        },
+        Key: { eventId: 'event-1', id: 'registration-1' },
+        TableName: 'registration-table',
+        UpdateExpression:
+          'SET paymentStatus = :duplicate, updatedAt = :duplicatePaymentAt DELETE openPayments :transactionId',
+      },
+    }
 
-      expect(mockUpdate).toHaveBeenCalledWith(
-        { transactionId: 'transaction-1' },
+    it('marks a stored transaction and its registration a duplicate in one transaction', async () => {
+      mockDocumentTransaction.mockResolvedValueOnce(undefined)
+
+      await expect(recordDuplicatePayment(payment, 'event-1', 'registration-1', duplicate)).resolves.toEqual({
+        recorded: true,
+      })
+      expect(mockDocumentTransaction).toHaveBeenCalledWith([
         {
-          remove: ['paymentResponse'],
-          set: {
-            duplicateOfRegistrationId: 'registration-0',
-            duplicatePaymentAt: NOW,
-            provider: 'nordea',
-            status: 'ok',
-            statusAt: NOW,
+          Update: {
+            // Not the unresolved condition: a payment this app had failed is still money that arrived,
+            // as for applySuccessfulPayment (KOE-1529). Only one outcome is ever written.
+            ConditionExpression:
+              'attribute_exists(transactionId) AND attribute_not_exists(registrationAppliedAt) AND attribute_not_exists(duplicatePaymentAt)',
+            ExpressionAttributeNames: { '#provider': 'provider', '#status': 'status' },
+            ExpressionAttributeValues: {
+              ':duplicateOfRegistrationId': 'registration-0',
+              ':duplicatePaymentAt': NOW,
+              ':ok': 'ok',
+              ':provider': 'nordea',
+            },
+            Key: { transactionId: 'transaction-1' },
+            TableName: 'transaction-table',
+            UpdateExpression:
+              'SET duplicateOfRegistrationId = :duplicateOfRegistrationId, duplicatePaymentAt = :duplicatePaymentAt, #status = :ok, statusAt = :duplicatePaymentAt, #provider = :provider REMOVE paymentResponse',
           },
-        }
-      )
+        },
+        registrationItem,
+      ])
+      expect(mockUpdate).not.toHaveBeenCalled()
       expect(mockWrite).not.toHaveBeenCalled()
     })
 
-    it('marks a stored transaction a duplicate without naming a provider it was not given', async () => {
-      await markTransactionDuplicate('transaction-1', {
-        duplicateOfRegistrationId: 'registration-0',
-        duplicatePaymentAt: NOW,
-        provider: undefined,
-      })
+    it('names no provider it was not given', async () => {
+      mockDocumentTransaction.mockResolvedValueOnce(undefined)
 
-      expect(mockUpdate).toHaveBeenCalledWith(
-        { transactionId: 'transaction-1' },
+      await recordDuplicatePayment(payment, 'event-1', 'registration-1', { ...duplicate, provider: undefined })
+
+      expect(mockDocumentTransaction).toHaveBeenCalledWith([
         {
-          remove: ['paymentResponse'],
-          set: { duplicateOfRegistrationId: 'registration-0', duplicatePaymentAt: NOW, status: 'ok', statusAt: NOW },
-        }
-      )
+          Update: expect.objectContaining({
+            ExpressionAttributeNames: { '#status': 'status' },
+            ExpressionAttributeValues: {
+              ':duplicateOfRegistrationId': 'registration-0',
+              ':duplicatePaymentAt': NOW,
+              ':ok': 'ok',
+            },
+            UpdateExpression:
+              'SET duplicateOfRegistrationId = :duplicateOfRegistrationId, duplicatePaymentAt = :duplicatePaymentAt, #status = :ok, statusAt = :duplicatePaymentAt REMOVE paymentResponse',
+          }),
+        },
+        registrationItem,
+      ])
     })
 
-    it('writes a missing transaction whole, as a duplicate', async () => {
-      await writeDuplicateTransaction(payment, {
-        duplicateOfRegistrationId: 'registration-0',
-        duplicatePaymentAt: NOW,
-        provider: undefined,
-      })
+    it('writes a transaction the callback found missing whole, as a duplicate, with its registration', async () => {
+      mockDocumentTransaction.mockResolvedValueOnce(undefined)
 
-      expect(mockWrite).toHaveBeenCalledWith({
-        ...payment,
-        duplicateOfRegistrationId: 'registration-0',
-        duplicatePaymentAt: NOW,
-        status: 'ok',
-        statusAt: NOW,
+      await expect(recordDuplicatePayment(payment, 'event-1', 'registration-1', duplicate, false)).resolves.toEqual({
+        recorded: true,
       })
-      expect(mockUpdate).not.toHaveBeenCalled()
+      expect(mockDocumentTransaction).toHaveBeenCalledWith([
+        {
+          Put: {
+            ConditionExpression: 'attribute_not_exists(transactionId)',
+            Item: {
+              ...payment,
+              duplicateOfRegistrationId: 'registration-0',
+              duplicatePaymentAt: NOW,
+              paymentResponse: undefined,
+              provider: 'nordea',
+              status: 'ok',
+              statusAt: NOW,
+            },
+            TableName: 'transaction-table',
+          },
+        },
+        registrationItem,
+      ])
     })
 
-    it('writes a missing transaction whole with the provider that captured it', async () => {
-      await writeDuplicateTransaction(payment, {
-        duplicateOfRegistrationId: 'registration-0',
-        duplicatePaymentAt: NOW,
-        provider: 'nordea',
-      })
+    it.each([
+      ['already a duplicate', { duplicatePaymentAt: '2026-10-19T11:00:00.000Z' }],
+      ['already applied', { registrationAppliedAt: '2026-10-19T11:00:00.000Z' }],
+    ])('answers not recorded when a consistent read finds the transaction %s', async (_, settled) => {
+      const infoSpy = vi.spyOn(console, 'info').mockImplementation(() => {})
+      mockDocumentTransaction.mockRejectedValueOnce(namedError('TransactionCanceledException'))
+      mockRead.mockResolvedValueOnce({ ...payment, ...settled })
 
-      expect(mockWrite).toHaveBeenCalledWith(
-        expect.objectContaining({ provider: 'nordea', transactionId: 'transaction-1' })
+      await expect(recordDuplicatePayment(payment, 'event-1', 'registration-1', duplicate)).resolves.toEqual({
+        recorded: false,
+      })
+      expect(mockRead).toHaveBeenCalledWith({ transactionId: 'transaction-1' }, undefined, true)
+      expect(loggedLines(infoSpy)).toContainEqual(
+        expect.objectContaining({
+          message: 'transaction was already settled on its registration',
+          transactionId: 'transaction-1',
+        })
       )
+      infoSpy.mockRestore()
+    })
+
+    it.each([
+      ['still open', payment],
+      ['failed earlier, with neither outcome written', { ...payment, status: 'fail' }],
+    ])('rethrows a refused transaction the consistent read finds %s', async (_, current) => {
+      const error = namedError('TransactionCanceledException')
+      mockDocumentTransaction.mockRejectedValueOnce(error)
+      mockRead.mockResolvedValueOnce(current)
+
+      await expect(recordDuplicatePayment(payment, 'event-1', 'registration-1', duplicate)).rejects.toBe(error)
+    })
+
+    it('rethrows any other failure without reading the transaction', async () => {
+      const error = namedError('ProvisionedThroughputExceededException')
+      mockDocumentTransaction.mockRejectedValueOnce(error)
+
+      await expect(recordDuplicatePayment(payment, 'event-1', 'registration-1', duplicate)).rejects.toBe(error)
+      expect(mockRead).not.toHaveBeenCalled()
     })
   })
 
@@ -356,9 +424,11 @@ describe('transactionRepository', () => {
       expect(mockDocumentTransaction).toHaveBeenCalledWith([
         {
           Update: {
-            // Only "not applied yet": money that arrived is money, even for a payment this app had
-            // already failed, so not the unresolved condition (KOE-1529).
-            ConditionExpression: 'attribute_exists(transactionId) AND attribute_not_exists(registrationAppliedAt)',
+            // Only "not settled yet": money that arrived is money, even for a payment this app had
+            // already failed, so not the unresolved condition (KOE-1529). A payment recorded as a
+            // duplicate waits for its refund and is never applied on top (KOE-1531).
+            ConditionExpression:
+              'attribute_exists(transactionId) AND attribute_not_exists(registrationAppliedAt) AND attribute_not_exists(duplicatePaymentAt)',
             ExpressionAttributeNames: { '#provider': 'provider', '#status': 'status' },
             ExpressionAttributeValues: {
               ':appliedAt': NOW,
@@ -437,9 +507,12 @@ describe('transactionRepository', () => {
       ])
     })
 
-    it('treats a refused transaction as an idempotent retry once a consistent read finds it applied', async () => {
+    it.each([
+      ['applied', { registrationAppliedAt: '2026-10-19T11:00:00.000Z' }],
+      ['recorded as a duplicate', { duplicatePaymentAt: '2026-10-19T11:00:00.000Z' }],
+    ])('answers a refused transaction not applied once a consistent read finds it %s', async (_, settled) => {
       mockDocumentTransaction.mockRejectedValueOnce(namedError('TransactionCanceledException'))
-      mockRead.mockResolvedValueOnce({ ...payment, registrationAppliedAt: '2026-10-19T11:00:00.000Z' })
+      mockRead.mockResolvedValueOnce({ ...payment, ...settled })
 
       await expect(applySuccessfulPayment(payment, 'event-1', 'registration-1', undefined, false)).resolves.toEqual({
         applied: false,
@@ -448,10 +521,15 @@ describe('transactionRepository', () => {
       expect(mockRead).toHaveBeenCalledWith({ transactionId: 'transaction-1' }, undefined, true)
     })
 
-    it('rethrows a refused transaction the consistent read does not find applied', async () => {
+    it.each([
+      ['still open', payment],
+      // A failure is not an outcome on the registration: money that arrived after it is applied, and a
+      // refusal for some other reason must not pass as a retry (KOE-1531).
+      ['failed earlier, with neither outcome written', { ...payment, status: 'fail' }],
+    ])('rethrows a refused transaction the consistent read finds %s', async (_, current) => {
       const error = namedError('TransactionCanceledException')
       mockDocumentTransaction.mockRejectedValueOnce(error)
-      mockRead.mockResolvedValueOnce(payment)
+      mockRead.mockResolvedValueOnce(current)
 
       await expect(applySuccessfulPayment(payment, 'event-1', 'registration-1', undefined, false)).rejects.toBe(error)
     })
@@ -539,7 +617,7 @@ describe('transactionRepository', () => {
       })
       expect(loggedLines(infoSpy)).toContainEqual(
         expect.objectContaining({
-          message: 'transaction was already applied to its registration',
+          message: 'transaction was already settled on its registration',
           transactionId: 'refund-1',
         })
       )
