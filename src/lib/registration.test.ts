@@ -15,6 +15,7 @@ import { registrationWithStaticDates } from '../__mockData__/registrations'
 import { getPaymentPicture } from './payment'
 import { PRIORITY_INVITED, PRIORITY_MEMBER, PRIORIZED_BREED_CODES } from './priority'
 import {
+  ADMIN_PROTECTED_REGISTRATION_FIELDS,
   canRefund,
   clearInvitationState,
   compareRegistrationClasses,
@@ -39,6 +40,7 @@ import {
   hasInvalidRegistrationArrayFields,
   hasPriority,
   hasRefundableBalance,
+  isAdminRegistrationOperationField,
   isCompleteRegistration,
   isInvitationAwaitingPayment,
   isKeyRespelling,
@@ -60,6 +62,7 @@ import {
   shouldSendInvitationAfterPayment,
   shouldSendInvitationToRegistration,
   sortRegistrationsByDateClassTimeAndNumber,
+  withoutAdminProtectedFields,
   withoutRegistrationMoney,
 } from './registration'
 
@@ -1739,5 +1742,41 @@ describe('withoutRegistrationMoney', () => {
     const registration: Partial<JsonRegistration> = { id: 'registration-1' }
 
     expect(withoutRegistrationMoney(registration)).toEqual({ id: 'registration-1' })
+  })
+})
+
+describe('isAdminRegistrationOperationField', () => {
+  it.each(ADMIN_PROTECTED_REGISTRATION_FIELDS)('refuses %s', (field) => {
+    expect(isAdminRegistrationOperationField(field)).toBe(false)
+  })
+
+  it.each(['notes', 'class', 'dog'])('accepts %s', (field) => {
+    expect(isAdminRegistrationOperationField(field)).toBe(true)
+  })
+
+  it.each([0, undefined])('leaves a path segment that is no field name (%s) to the patch itself', (field) => {
+    expect(isAdminRegistrationOperationField(field)).toBe(true)
+  })
+})
+
+describe('withoutAdminProtectedFields', () => {
+  it('leaves out what other writers move and keeps the edit, without changing the registration it was given', () => {
+    const registration = {
+      ...registrationWithStaticDates,
+      kcResult: { at: new Date('2026-10-19T08:00:00.000Z'), by: 'secretary', status: 'sent' as const },
+      notes: 'notes',
+      openRefunds: ['refund-1'],
+      updatedAt: new Date('2026-10-19T08:00:00.000Z'),
+    }
+
+    const result = withoutAdminProtectedFields(registration)
+
+    for (const field of ADMIN_PROTECTED_REGISTRATION_FIELDS) expect(result).not.toHaveProperty(field)
+    expect(result).toMatchObject({ dog: registrationWithStaticDates.dog, notes: 'notes' })
+    expect(registration).toMatchObject({
+      id: registrationWithStaticDates.id,
+      kcResult: { status: 'sent' },
+      openRefunds: ['refund-1'],
+    })
   })
 })

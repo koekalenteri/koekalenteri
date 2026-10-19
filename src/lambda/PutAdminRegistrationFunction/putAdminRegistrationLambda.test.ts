@@ -1,6 +1,6 @@
 import type { JsonRegistration } from '../../types'
 import { vi } from 'vitest'
-import { REGISTRATION_MONEY_FIELDS } from '../../lib/registration'
+import { ADMIN_PROTECTED_REGISTRATION_FIELDS, REGISTRATION_MONEY_FIELDS } from '../../lib/registration'
 import { httpError, LambdaError } from '../lib/lambda'
 import { constructPartialAPIGwEvent } from '../test-utils/helpers'
 
@@ -631,19 +631,6 @@ describe('putAdminRegistrationLambda', () => {
         httpMethod: 'PATCH',
       })
 
-    it.each([
-      ['eventResult', stale],
-      ['kcResult', { ...storedKc, status: 'failed' }],
-    ])('refuses an operation on %s and names it', async (field, value) => {
-      mockGetRegistration.mockResolvedValueOnce(stored)
-
-      const result = await operation(field, value)
-
-      expect(result.statusCode).toBe(400)
-      expect(JSON.parse(result.body).message).toContain(`protected registration field: ${field}`)
-      expect(mockPatchRegistration).not.toHaveBeenCalled()
-    })
-
     it('accepts the same operation on a field a registration form may change', async () => {
       mockGetRegistration.mockResolvedValueOnce(stored)
 
@@ -727,24 +714,6 @@ describe('putAdminRegistrationLambda', () => {
       )
     })
 
-    it.each(REGISTRATION_MONEY_FIELDS)('refuses an operation on %s and names it', async (field) => {
-      mockGetRegistration.mockResolvedValueOnce(stored)
-
-      const result = await putAdminRegistrationLambda({
-        ...event,
-        body: JSON.stringify({
-          eventId: 'event123',
-          id: 'reg456',
-          operations: [{ path: [field], type: field in stored ? 'CHANGE' : 'CREATE', value: 0 }],
-        }),
-        httpMethod: 'PATCH',
-      })
-
-      expect(result.statusCode).toBe(400)
-      expect(JSON.parse(result.body).message).toContain(`protected registration field: ${field}`)
-      expect(mockPatchRegistration).not.toHaveBeenCalled()
-    })
-
     it('starts a new registration without the money its body carries', async () => {
       const { id: _id, ...newRegistration } = JSON.parse(event.body ?? '')
 
@@ -759,6 +728,24 @@ describe('putAdminRegistrationLambda', () => {
         expect(mockSaveRegistration).toHaveBeenCalledWith(expect.not.objectContaining({ [field]: expect.anything() }))
       }
     })
+  })
+
+  // Results (KOE-1140), money (KOE-1531) and the row's own bookkeeping are other writers' to move,
+  // and an operation on one of them is refused before anything is read from it (KOE-1574).
+  it.each(ADMIN_PROTECTED_REGISTRATION_FIELDS)('refuses an operation on %s and names it', async (field) => {
+    const result = await putAdminRegistrationLambda({
+      ...event,
+      body: JSON.stringify({
+        eventId: 'event123',
+        id: 'reg456',
+        operations: [{ path: [field], type: 'CHANGE', value: 0 }],
+      }),
+      httpMethod: 'PATCH',
+    })
+
+    expect(result.statusCode).toBe(400)
+    expect(JSON.parse(result.body).message).toContain(`protected registration field: ${field}`)
+    expect(mockPatchRegistration).not.toHaveBeenCalled()
   })
 
   it('merges partial patch payloads before saving existing registrations', async () => {
