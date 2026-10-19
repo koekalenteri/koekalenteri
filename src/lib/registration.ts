@@ -159,6 +159,39 @@ export const PUBLIC_REGISTRATION_FIELDS: ReadonlyArray<PublicRegistrationField> 
   'selectedCost',
 ]
 
+/**
+ * A registration's money and its payments' bookkeeping. Written only by the payment and refund
+ * transactions in the lambdas' `transactionRepository` (and the creation mark by
+ * `registrationRepository`), never from a registration form: a secretary's save keeps what is
+ * stored, and the admin client leaves these out of the operations it sends (KOE-1531).
+ */
+export const REGISTRATION_MONEY_FIELDS = [
+  'openPayments',
+  'openRefunds',
+  'paidAmount',
+  'paidAt',
+  'paymentCreationAt',
+  'paymentCreationStamp',
+  'paymentStatus',
+  'refundAmount',
+  'refundAt',
+  'refundCreationAt',
+  'refundCreationStamp',
+  'refundHandlingCost',
+  'refundStatus',
+] as const satisfies ReadonlyArray<keyof JsonRegistration>
+
+type RegistrationMoneyField = (typeof REGISTRATION_MONEY_FIELDS)[number]
+
+/** A copy of the registration without its money fields (`REGISTRATION_MONEY_FIELDS`). */
+export const withoutRegistrationMoney = <T extends Partial<Record<RegistrationMoneyField, unknown>>>(
+  registration: T
+): T => {
+  const result = { ...registration }
+  for (const field of REGISTRATION_MONEY_FIELDS) delete result[field]
+  return result
+}
+
 const PUBLIC_REGISTRATION_UPDATE_CANDIDATES: ReadonlyArray<PublicRegistrationField> = [
   ...PUBLIC_REGISTRATION_FIELDS,
   'id',

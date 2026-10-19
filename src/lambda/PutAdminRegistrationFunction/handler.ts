@@ -1,7 +1,11 @@
 import type { JsonConfirmedEvent, JsonRegistration, JsonRegistrationPatchRequest, Patch } from '../../types'
 import { registrationAddedAudit } from '../../lib/audit'
 import { InvalidPatchError } from '../../lib/patch'
-import { hasInvalidRegistrationArrayFields } from '../../lib/registration'
+import {
+  hasInvalidRegistrationArrayFields,
+  REGISTRATION_MONEY_FIELDS,
+  withoutRegistrationMoney,
+} from '../../lib/registration'
 import { patchMerge } from '../../lib/utils'
 import { getOrigin } from '../lib/api-gw'
 import { authorizeWithMemberOf } from '../lib/auth'
@@ -56,6 +60,8 @@ const PROTECTED_PATCH_FIELDS = new Set([
   'newRegistrationPublishedAt',
   'newRegistrationStatsAt',
   'updatedAt',
+  // Written only with the payment or refund they come from (KOE-1531).
+  ...REGISTRATION_MONEY_FIELDS,
 ])
 
 const isAdminEditableField = (field: unknown) => !PROTECTED_PATCH_FIELDS.has(String(field))
@@ -105,8 +111,11 @@ const putAdminRegistrationLambda = lambda('putAdminRegistration', async (event) 
 
   const request = parseRegistrationRequest(parseJSONWithFallback(event.body), patchRequest)
   if ('invalid' in request) throw httpError(400, { message: `Bad request: ${request.invalid}` })
-  let { registration } = request
   const { operationRequest } = request
+  // The money is the payment and refund transactions' to write, and a form's copy of it is as old as
+  // the form: a full save or a merge keeps what is stored, and a new registration starts with none.
+  // Money writes move only `updatedAt`, which the stale check below does not compare (KOE-1531).
+  let registration = operationRequest ? request.registration : withoutRegistrationMoney(request.registration)
   if (!operationRequest && hasInvalidRegistrationArrayFields(registration)) {
     throw httpError(400, { message: 'Bad request: registration array fields must be arrays' })
   }

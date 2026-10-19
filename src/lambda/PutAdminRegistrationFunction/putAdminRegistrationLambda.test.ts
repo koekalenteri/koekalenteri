@@ -1,5 +1,6 @@
 import type { JsonRegistration } from '../../types'
 import { vi } from 'vitest'
+import { REGISTRATION_MONEY_FIELDS } from '../../lib/registration'
 import { httpError, LambdaError } from '../lib/lambda'
 import { constructPartialAPIGwEvent } from '../test-utils/helpers'
 
@@ -655,6 +656,108 @@ describe('putAdminRegistrationLambda', () => {
         expect.anything(),
         expect.objectContaining({ class: 'AVO', eventResult: storedResult, kcResult: storedKc })
       )
+    })
+  })
+
+  describe('what only the payment and refund transactions write (KOE-1531)', () => {
+    const storedMoney = {
+      openPayments: ['tx-open'],
+      paidAmount: 50,
+      paidAt: '2026-10-19T09:00:00.000Z',
+      paymentStatus: 'SUCCESS' as const,
+      refundAmount: 10,
+      refundAt: '2026-10-19T10:00:00.000Z',
+      refundHandlingCost: 2.5,
+      refundStatus: 'SUCCESS' as const,
+    }
+    const stored = {
+      class: 'ALO',
+      dates: [],
+      dog: { breedCode: '111', regNo: 'DOG123' },
+      eventId: 'event123',
+      handler: { email: 'handler@example.com' },
+      id: 'reg456',
+      language: 'fi',
+      modifiedAt: '2026-10-18T12:00:00.000Z',
+      owner: { email: 'owner@example.com' },
+      qualifyingResults: [],
+      reserve: 'ANY',
+      state: 'ready',
+      ...storedMoney,
+    }
+    /** The copy a secretary loaded before the payment and the refund were applied. */
+    const staleMoney = {
+      openRefunds: ['tx-stale'],
+      paidAmount: 0,
+      paymentCreationAt: '2026-10-18T11:00:00.000Z',
+      paymentStatus: 'PENDING',
+      refundAmount: 0,
+    }
+
+    it.each([
+      ['a full save', 'PUT'],
+      ['a merge patch', 'PATCH'],
+    ])('keeps the stored money when %s carries an old copy of it', async (_name, httpMethod) => {
+      mockGetRegistration.mockResolvedValueOnce(stored)
+
+      const result = await putAdminRegistrationLambda({
+        ...event,
+        body: JSON.stringify({ ...JSON.parse(event.body ?? ''), ...staleMoney, modifiedAt: stored.modifiedAt }),
+        httpMethod,
+      })
+
+      expect(result.statusCode).toBe(200)
+      expect(mockPatchRegistration).toHaveBeenCalledWith(
+        'event123',
+        'reg456',
+        expect.anything(),
+        expect.objectContaining(storedMoney)
+      )
+      expect(mockPatchRegistration).toHaveBeenCalledWith(
+        'event123',
+        'reg456',
+        expect.anything(),
+        expect.not.objectContaining({ openRefunds: expect.anything() })
+      )
+      expect(mockPatchRegistration).toHaveBeenCalledWith(
+        'event123',
+        'reg456',
+        expect.anything(),
+        expect.not.objectContaining({ paymentCreationAt: expect.anything() })
+      )
+    })
+
+    it.each(REGISTRATION_MONEY_FIELDS)('refuses an operation on %s and names it', async (field) => {
+      mockGetRegistration.mockResolvedValueOnce(stored)
+
+      const result = await putAdminRegistrationLambda({
+        ...event,
+        body: JSON.stringify({
+          eventId: 'event123',
+          id: 'reg456',
+          operations: [{ path: [field], type: field in stored ? 'CHANGE' : 'CREATE', value: 0 }],
+        }),
+        httpMethod: 'PATCH',
+      })
+
+      expect(result.statusCode).toBe(400)
+      expect(JSON.parse(result.body).message).toContain(`protected registration field: ${field}`)
+      expect(mockPatchRegistration).not.toHaveBeenCalled()
+    })
+
+    it('starts a new registration without the money its body carries', async () => {
+      const { id: _id, ...newRegistration } = JSON.parse(event.body ?? '')
+
+      const result = await putAdminRegistrationLambda({
+        ...event,
+        body: JSON.stringify({ ...newRegistration, ...storedMoney, ...staleMoney }),
+      })
+
+      expect(result.statusCode).toBe(200)
+      expect(mockSaveRegistration).toHaveBeenCalledTimes(1)
+      for (const field of REGISTRATION_MONEY_FIELDS) {
+        expect(mockSaveRegistration).toHaveBeenCalledWith(expect.not.objectContaining({ [field]: expect.anything() }))
+      }
     })
   })
 

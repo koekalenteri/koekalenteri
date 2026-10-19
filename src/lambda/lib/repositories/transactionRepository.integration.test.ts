@@ -1,7 +1,12 @@
-import type { JsonPaymentTransaction, JsonRefundTransaction } from '../../../types'
+import type { JsonPaymentTransaction, JsonRefundTransaction, JsonRegistration } from '../../../types'
 import { uniqueId } from '../../test-utils/integration'
 import CustomDynamoClient from '../../utils/CustomDynamoClient'
-import { readTransactionsByReference } from './transactionRepository'
+import {
+  applySuccessfulPayment,
+  readTransaction,
+  readTransactionsByReference,
+  recordDuplicatePayment,
+} from './transactionRepository'
 
 describe('readTransactionsByReference against DynamoDB-local', () => {
   const client = new CustomDynamoClient('TransactionTable')
@@ -41,5 +46,165 @@ describe('readTransactionsByReference against DynamoDB-local', () => {
 
   it('reads nothing for a reference without transactions', async () => {
     await expect(readTransactionsByReference(uniqueId('reference'))).resolves.toEqual([])
+  })
+})
+
+describe('the outcome of a payment against DynamoDB-local', () => {
+  const transactions = new CustomDynamoClient('TransactionTable')
+  const registrations = new CustomDynamoClient('EventRegistrationTable')
+
+  /**
+   * A payment still open on a registration still being created, under ids of their own. Unstored, the
+   * transaction is only on the registration: the success callback found it missing.
+   */
+  const arrangeOpenPayment = async (stored = true) => {
+    const eventId = uniqueId('event')
+    const registrationId = uniqueId('registration')
+    const transaction: JsonPaymentTransaction = {
+      amount: 5000,
+      createdAt: '2026-05-01T10:00:00.000Z',
+      reference: `${eventId}:${registrationId}`,
+      stamp: uniqueId('stamp'),
+      status: 'pending',
+      transactionId: uniqueId('payment'),
+      type: 'payment',
+    }
+    if (stored) await transactions.write(transaction)
+    await registrations.write({
+      eventId,
+      id: registrationId,
+      openPayments: new Set([transaction.transactionId]),
+      paymentStatus: 'PENDING',
+      state: 'creating',
+    })
+    return { eventId, registrationId, transaction }
+  }
+
+  const readRegistration = (eventId: string, id: string) =>
+    registrations.read<JsonRegistration>({ eventId, id }, undefined, true)
+
+  const duplicateOf = (registrationId: string, duplicatePaymentAt = '2026-05-01T10:05:00.000Z') => ({
+    duplicateOfRegistrationId: registrationId,
+    duplicatePaymentAt,
+    provider: 'nordea',
+  })
+
+  it('records a duplicate on the transaction and its registration once, and a retry writes nothing', async () => {
+    const { eventId, registrationId, transaction } = await arrangeOpenPayment()
+
+    await expect(
+      recordDuplicatePayment(transaction, eventId, registrationId, duplicateOf('registration-0'))
+    ).resolves.toEqual({ recorded: true })
+    await expect(
+      recordDuplicatePayment(
+        transaction,
+        eventId,
+        registrationId,
+        duplicateOf('registration-1', '2026-05-01T10:06:00.000Z')
+      )
+    ).resolves.toEqual({ recorded: false })
+
+    expect(await readTransaction(transaction.transactionId)).toMatchObject({
+      duplicateOfRegistrationId: 'registration-0',
+      duplicatePaymentAt: '2026-05-01T10:05:00.000Z',
+      provider: 'nordea',
+      status: 'ok',
+    })
+    const registration = await readRegistration(eventId, registrationId)
+    expect(registration).toMatchObject({ paymentStatus: 'DUPLICATE', updatedAt: '2026-05-01T10:05:00.000Z' })
+    expect(registration?.openPayments).toBeUndefined()
+  })
+
+  it('does not apply a payment recorded as a duplicate', async () => {
+    const { eventId, registrationId, transaction } = await arrangeOpenPayment()
+    await recordDuplicatePayment(transaction, eventId, registrationId, duplicateOf('registration-0'))
+
+    // `duplicate` is what the success callback branches on: no receipt, confirmation or audit.
+    await expect(applySuccessfulPayment(transaction, eventId, registrationId, 'nordea', false)).resolves.toEqual({
+      applied: false,
+      appliedAt: expect.any(String),
+      duplicate: true,
+    })
+
+    const registration = await readRegistration(eventId, registrationId)
+    expect(registration).toMatchObject({ paymentStatus: 'DUPLICATE', state: 'creating' })
+    expect(registration?.paidAmount).toBeUndefined()
+    expect(await readTransaction(transaction.transactionId)).not.toHaveProperty('registrationAppliedAt')
+  })
+
+  it('writes a duplicate the callback found missing whole, once', async () => {
+    const { eventId, registrationId, transaction } = await arrangeOpenPayment(false)
+
+    await expect(
+      recordDuplicatePayment(transaction, eventId, registrationId, duplicateOf('registration-0'), false)
+    ).resolves.toEqual({ recorded: true })
+    const written = {
+      ...transaction,
+      duplicateOfRegistrationId: 'registration-0',
+      duplicatePaymentAt: '2026-05-01T10:05:00.000Z',
+      provider: 'nordea',
+      status: 'ok',
+      statusAt: '2026-05-01T10:05:00.000Z',
+    }
+    expect(await readTransaction(transaction.transactionId)).toStrictEqual(written)
+    const registration = await readRegistration(eventId, registrationId)
+    expect(registration).toMatchObject({ paymentStatus: 'DUPLICATE', updatedAt: '2026-05-01T10:05:00.000Z' })
+    expect(registration?.openPayments).toBeUndefined()
+
+    // A second callback that also found it missing is refused by the Put's condition and changes nothing.
+    await expect(
+      recordDuplicatePayment(
+        transaction,
+        eventId,
+        registrationId,
+        duplicateOf('registration-1', '2026-05-01T10:06:00.000Z'),
+        false
+      )
+    ).resolves.toEqual({ recorded: false })
+    expect(await readTransaction(transaction.transactionId)).toStrictEqual(written)
+    expect(await readRegistration(eventId, registrationId)).toStrictEqual(registration)
+  })
+
+  it('applies a payment the callback found missing whole, once', async () => {
+    const { eventId, registrationId, transaction } = await arrangeOpenPayment(false)
+
+    const first = await applySuccessfulPayment(transaction, eventId, registrationId, 'nordea', false, false)
+    expect(first).toEqual({ applied: true, appliedAt: expect.any(String), duplicate: false })
+    const written = {
+      ...transaction,
+      provider: 'nordea',
+      receiptPreviouslyPaid: 0,
+      receiptTotalPaid: 50,
+      registrationAppliedAt: first.appliedAt,
+      status: 'ok',
+      statusAt: first.appliedAt,
+    }
+    expect(await readTransaction(transaction.transactionId)).toStrictEqual(written)
+    const registration = await readRegistration(eventId, registrationId)
+    expect(registration).toMatchObject({ paidAmount: 50, paymentStatus: 'SUCCESS', state: 'ready' })
+    expect(registration?.openPayments).toBeUndefined()
+
+    // A retried callback that also found it missing finds it applied and adds nothing.
+    await expect(applySuccessfulPayment(transaction, eventId, registrationId, 'nordea', false, false)).resolves.toEqual(
+      { applied: false, appliedAt: expect.any(String), duplicate: false }
+    )
+    expect(await readTransaction(transaction.transactionId)).toStrictEqual(written)
+    expect(await readRegistration(eventId, registrationId)).toStrictEqual(registration)
+  })
+
+  it('does not record an applied payment as a duplicate', async () => {
+    const { eventId, registrationId, transaction } = await arrangeOpenPayment()
+    await applySuccessfulPayment(transaction, eventId, registrationId, 'nordea', false)
+
+    await expect(
+      recordDuplicatePayment(transaction, eventId, registrationId, duplicateOf('registration-0'))
+    ).resolves.toEqual({ recorded: false })
+
+    expect(await readTransaction(transaction.transactionId)).not.toHaveProperty('duplicatePaymentAt')
+    expect(await readRegistration(eventId, registrationId)).toMatchObject({
+      paidAmount: 50,
+      paymentStatus: 'SUCCESS',
+      state: 'ready',
+    })
   })
 })

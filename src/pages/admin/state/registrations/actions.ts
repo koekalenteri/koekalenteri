@@ -33,7 +33,7 @@ import { reportError } from '@/lib/client/error'
 import { isTestEnv } from '@/lib/env'
 import { latestCollectionUpdate, reconcileCollection } from '@/lib/incremental'
 import { createPatchOperations } from '@/lib/patch'
-import { GROUP_KEY_CANCELLED, withRegistrationOverrides } from '@/lib/registration'
+import { GROUP_KEY_CANCELLED, withoutRegistrationMoney, withRegistrationOverrides } from '@/lib/registration'
 import { isObject } from '@/lib/utils'
 import { toKcResult } from '@/lib/wire'
 import { validIdTokenAtom } from '@/pages/state'
@@ -598,7 +598,13 @@ export const useAdminRegistrationActions = (eventId: string) => {
               eventId: reg.eventId,
               id: reg.id,
               modifiedAt: savedRegistration.modifiedAt,
-              operations: createPatchOperations(savedRegistration, regWithOverrides),
+              // The money is never the form's to change: the server refuses an operation on it, and
+              // the row the edit started from may already hold an optimistic refund the base does
+              // not (KOE-1531).
+              operations: createPatchOperations(
+                withoutRegistrationMoney(savedRegistration),
+                withoutRegistrationMoney(regWithOverrides)
+              ),
             },
             token
           )

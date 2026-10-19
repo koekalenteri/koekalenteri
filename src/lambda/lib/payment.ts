@@ -325,7 +325,7 @@ const readCancelledRegistration = async (eventId: string, registrationId: string
  * organizer's admins watching the event get the open set and `updatedAt`, and the entrant looking at
  * their own registration gets the payment picture (KOE-1526, KOE-1529). Both are built from one
  * strongly consistent read taken after the settle's writes, so a writer caught between its own two
- * writes (recordDuplicatePayment, say) is seen as the row holds it now. A live push never decides the outcome of
+ * writes (settleFailedTransaction's failUnfinishedTransaction and dropOpenTransaction, say) is seen as the row holds it now. A live push never decides the outcome of
  * the write before it: a failed read, audience lookup, build or send is logged, and this never
  * rejects (KOE-1566).
  */

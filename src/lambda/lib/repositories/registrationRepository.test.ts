@@ -26,7 +26,6 @@ vi.doMock('../../utils/CustomDynamoClient', () => ({
 const {
   claimTransactionCreation,
   dropOpenTransactionId,
-  markDuplicatePayment,
   readRegistrationConsistently,
   readRegistrationsForStats,
   registrationUpdateItem,
@@ -205,22 +204,6 @@ describe('registrationRepository', () => {
       await expect(
         dropOpenTransactionId('e1', 'r1', 'openPayments', 't1', '2026-10-19T12:00:00.000Z')
       ).resolves.toBeUndefined()
-    })
-  })
-
-  describe('markDuplicatePayment', () => {
-    it('marks the payment a duplicate and takes the id out of the open payments', async () => {
-      mockUpdate.mockResolvedValueOnce({})
-
-      await markDuplicatePayment('e1', 'r1', 't1', '2026-10-19T12:00:00.000Z')
-
-      expect(mockUpdate).toHaveBeenCalledWith(
-        { eventId: 'e1', id: 'r1' },
-        {
-          delete: { openPayments: new Set(['t1']) },
-          set: { paymentStatus: 'DUPLICATE', updatedAt: '2026-10-19T12:00:00.000Z' },
-        }
-      )
     })
   })
 })

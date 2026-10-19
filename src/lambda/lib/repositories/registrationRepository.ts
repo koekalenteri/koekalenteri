@@ -129,19 +129,3 @@ export const dropOpenTransactionId = async (
   )
   return result.Attributes?.[field]
 }
-
-/** Marks the registration's payment a duplicate and takes the transaction id out of its open payments. */
-export const markDuplicatePayment = async (
-  eventId: string,
-  id: string,
-  transactionId: string,
-  duplicatePaymentAt: string
-) => {
-  await dynamoDB.update(
-    { eventId, id },
-    {
-      delete: { openPayments: new Set([transactionId]) },
-      set: { paymentStatus: 'DUPLICATE', updatedAt: duplicatePaymentAt },
-    }
-  )
-}
