@@ -164,6 +164,11 @@ describe('ratchet: one repository per table', () => {
       'src/lambda/lib/repositories/someHelpers.ts',
       [...IMPORTS, 'new CustomDynamoClient(CONFIG.someHelpersTable)'],
     ],
+    [
+      'the WebSocket connections table outside lib/ws',
+      'src/lambda/lib/repositories/wsConnectionsRepository.ts',
+      [...IMPORTS, 'new CustomDynamoClient(CONFIG.wsConnectionsTable)'],
+    ],
     ['a subclass', REPOSITORY, [...IMPORTS, 'class Judges extends CustomDynamoClient {}']],
     ['a re-export', REPOSITORY, ['', '', "export { default as Client } from '../../utils/CustomDynamoClient'"]],
     ['a local export', REPOSITORY, [...IMPORTS, 'export { CustomDynamoClient }']],

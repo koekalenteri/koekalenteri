@@ -41,11 +41,14 @@ const isConstAssertion = (node) =>
   ts.isTypeReferenceNode(node.type) && ts.isIdentifier(node.type.typeName) && node.type.typeName.text === 'const'
 
 // The CONFIG key of the one table a repository file may open a client on: `<x>Table` for
-// repositories/<x>Repository.ts, wsConnectionsTable for the WebSocket connection repository.
+// repositories/<x>Repository.ts, wsConnectionsTable for the WebSocket connection repository only,
+// so a repositories/wsConnectionsRepository.ts has no table of its own.
+const WS_TABLE = 'wsConnectionsTable'
 const ownTable = (file) => {
-  if (file === 'src/lambda/lib/ws/connectionRepository.ts') return 'wsConnectionsTable'
+  if (file === 'src/lambda/lib/ws/connectionRepository.ts') return WS_TABLE
   const name = /^src\/lambda\/lib\/repositories\/(\w+)Repository\.ts$/.exec(file)?.[1]
-  return name && `${name}Table`
+  const table = name && `${name}Table`
+  return table === WS_TABLE ? undefined : table
 }
 
 const CLIENT_FILE = 'src/lambda/utils/CustomDynamoClient.ts'
