@@ -133,6 +133,10 @@ const applyPaymentToRegistration = async (
       previouslyPaid
     )
     appliedPayment = applied.applied
+    // A redelivered callback of a payment recorded as a duplicate, whose twin has been cancelled since:
+    // it was not credited, so it is acknowledged like the duplicate it is, with no receipt,
+    // confirmation or audit (KOE-1531).
+    if (applied.duplicate) return { appliedPayment, duplicatePayment: true, previouslyPaid, registration }
     if (appliedPayment) {
       registration.paidAmount = storedPaid + transaction.amount / 100
       registration.paidAt = applied.appliedAt

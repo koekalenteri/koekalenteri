@@ -517,8 +517,33 @@ describe('paymentSuccessLambda', () => {
     expect(mockResponse).toHaveBeenCalledWith(200, undefined, event)
   })
 
+  it('acknowledges a redelivered duplicate whose twin was cancelled since, without a receipt or an audit', async () => {
+    // T1 was recorded as a duplicate of a ready twin; the twin is cancelled, so the redelivery finds no
+    // twin and tries to apply the payment, which the repository refuses as already a duplicate (KOE-1531).
+    mockGetReadyRegistrationsByEventId.mockResolvedValueOnce([])
+    mockApplySuccessfulPayment.mockResolvedValueOnce({
+      applied: false,
+      appliedAt: '2025-01-01T00:00:00.000Z',
+      duplicate: true,
+    })
+
+    await paymentSuccessLambda(event)
+
+    expect(mockApplySuccessfulPayment).toHaveBeenCalledTimes(1)
+    expect(mockClaimPostPaymentWorkflow).not.toHaveBeenCalled()
+    expect(mockSendTemplatedMail).not.toHaveBeenCalled()
+    expect(mockSendTemplatedEmailToEventRegistrations).not.toHaveBeenCalled()
+    expect(mockAudit).not.toHaveBeenCalled()
+    expect(mockRecordDuplicatePayment).not.toHaveBeenCalled()
+    expect(mockResponse).toHaveBeenCalledWith(200, undefined, event)
+  })
+
   it('retries post-payment processing if the transaction was already applied', async () => {
-    mockApplySuccessfulPayment.mockResolvedValueOnce({ applied: false, appliedAt: '2025-01-01T00:00:00.000Z' })
+    mockApplySuccessfulPayment.mockResolvedValueOnce({
+      applied: false,
+      appliedAt: '2025-01-01T00:00:00.000Z',
+      duplicate: false,
+    })
 
     await paymentSuccessLambda(event)
 

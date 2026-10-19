@@ -154,27 +154,34 @@ interface DuplicatePayment {
   provider: string | undefined
 }
 
+/** What a transaction's write came to: written now, or found settled earlier as applied or as a duplicate. */
+type RegistrationWrite = 'written' | 'applied' | 'duplicate'
+
 /**
- * Whether the transaction's outcome is already on its registration: applied, or recorded as a
- * duplicate. Narrower than `isTransactionSettled`: a `fail` status is not an outcome on the
- * registration, so a refusal on a failed transaction is not taken for a retry (KOE-1531).
+ * The outcome already on the transaction's registration: applied, recorded as a duplicate, or none.
+ * Narrower than `isTransactionSettled`: a `fail` status is not an outcome on the registration, so a
+ * refusal on a failed transaction is not taken for a retry (KOE-1531).
  */
-const transactionWasAlreadySettled = async (transactionId: string) => {
+const settledOutcome = async (transactionId: string): Promise<Exclude<RegistrationWrite, 'written'> | undefined> => {
   const current = await dynamoDB.read<JsonTransaction>({ transactionId }, undefined, true)
-  return Boolean(current?.registrationAppliedAt ?? current?.duplicatePaymentAt)
+  if (current?.registrationAppliedAt) return 'applied'
+  if (current?.duplicatePaymentAt) return 'duplicate'
+  return undefined
 }
 
-/** The transaction and its registration in one write. False when a retry finds it already settled. */
-const runRegistrationTransaction = async (transactionId: string, items: TransactionItem[]) => {
+/** The transaction and its registration in one write, or the outcome a retry finds settled earlier. */
+const runRegistrationTransaction = async (
+  transactionId: string,
+  items: TransactionItem[]
+): Promise<RegistrationWrite> => {
   try {
     await dynamoDB.documentTransaction(items)
-    return true
+    return 'written'
   } catch (error) {
-    if (isTransactionCanceled(error) && (await transactionWasAlreadySettled(transactionId))) {
-      logger.info('transaction was already settled on its registration', { transactionId })
-      return false
-    }
-    throw error
+    const settled = isTransactionCanceled(error) ? await settledOutcome(transactionId) : undefined
+    if (!settled) throw error
+    logger.info('transaction was already settled on its registration', { settled, transactionId })
+    return settled
   }
 }
 
@@ -251,7 +258,7 @@ export const recordDuplicatePayment = async (
         },
       }
 
-  const recorded = await runRegistrationTransaction(transaction.transactionId, [
+  const written = await runRegistrationTransaction(transaction.transactionId, [
     transactionOperation,
     registrationUpdateItem(eventId, registrationId, {
       ConditionExpression: 'attribute_exists(id)',
@@ -266,7 +273,7 @@ export const recordDuplicatePayment = async (
     }),
   ])
 
-  return { recorded }
+  return { recorded: written === 'written' }
 }
 
 /**
@@ -349,7 +356,7 @@ export const applySuccessfulPayment = async (
     registrationValues[':confirmed'] = true
   }
 
-  const applied = await runRegistrationTransaction(transaction.transactionId, [
+  const written = await runRegistrationTransaction(transaction.transactionId, [
     transactionOperation,
     registrationUpdateItem(eventId, registrationId, {
       ConditionExpression: 'attribute_exists(id)',
@@ -359,7 +366,9 @@ export const applySuccessfulPayment = async (
     }),
   ])
 
-  return { applied, appliedAt }
+  // `duplicate`: a retry found the payment recorded as a duplicate, so nothing was credited and no
+  // receipt or confirmation is owed (KOE-1531).
+  return { applied: written === 'written', appliedAt, duplicate: written === 'duplicate' }
 }
 
 /** Applies a successful refund to its transaction and its registration, in one transaction. */
@@ -389,7 +398,7 @@ export const applySuccessfulRefund = async (
           TableName: transactionTable,
         },
       }
-  const applied = await runRegistrationTransaction(transaction.transactionId, [
+  const written = await runRegistrationTransaction(transaction.transactionId, [
     transactionOperation,
     registrationUpdateItem(eventId, registrationId, {
       ConditionExpression: 'attribute_exists(id)',
@@ -406,7 +415,7 @@ export const applySuccessfulRefund = async (
     }),
   ])
 
-  return { applied, appliedAt }
+  return { applied: written === 'written', appliedAt }
 }
 
 /** The steps after a payment that must each run once, however many callbacks arrive. */
