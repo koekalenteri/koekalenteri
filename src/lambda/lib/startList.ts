@@ -14,7 +14,7 @@ import {
 } from '../../lib/registration'
 import { placementsFor, resultMarks } from '../../lib/results'
 import { getEvent } from './event'
-import { getRegistrationsByEventId } from './registration'
+import { readEventRegistrations } from './repositories/registrationRepository'
 
 /**
  * `ownerHandles` collapses the public row to "owner & handler", which only reads correctly when the
@@ -182,7 +182,7 @@ export const readPublishedStartList = async (
   checkEvent?.(confirmedEvent)
   const available = preview || isStartListAvailable(confirmedEvent)
   const participants = available
-    ? buildPublicStartList(confirmedEvent, await getRegistrationsByEventId(eventId, true), preview)
+    ? buildPublicStartList(confirmedEvent, await readEventRegistrations(eventId, true), preview)
     : []
 
   return { available, participants, version }

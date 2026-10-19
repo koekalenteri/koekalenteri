@@ -4,7 +4,7 @@ import { authorizeWithMemberOf } from '../lib/auth'
 import { getAuthorizedEvent } from '../lib/eventAuth'
 import { parseJSONWithFallback } from '../lib/json'
 import { getParam, LambdaError, lambda, response } from '../lib/lambda'
-import { getRegistrationsByEventId } from '../lib/registration'
+import { readEventRegistrations } from '../lib/repositories/registrationRepository'
 import { parseStationTurnOp, writeStationTurn } from '../lib/stationTurns'
 import { publishEventPatch } from '../lib/ws/actions'
 
@@ -26,7 +26,7 @@ const putStationTurnLambda = lambda('putStationTurn', async (event) => {
   const stationId = typeof body.stationId === 'string' && body.stationId ? body.stationId : IMPLICIT_STATION_ID
   if (!resolveStation(confirmedEvent, stationId)) throw new LambdaError(404, 'not found')
 
-  const registrations = await getRegistrationsByEventId(eventId)
+  const registrations = await readEventRegistrations(eventId)
   const turns = await writeStationTurn(confirmedEvent, registrations, stationId, op)
 
   await publishEventPatch({ eventId, turns }, confirmedEvent.organizer.id)

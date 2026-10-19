@@ -15,8 +15,7 @@ const mockSaveEvent = vi.fn(async (event: { id?: string; organizer?: { id?: stri
   patch: { ...event, eventId: event.id ?? '' },
 }))
 const mockNanoid = vi.fn()
-const mockWrite = vi.fn()
-const mockBatchWrite = vi.fn()
+const mockWriteRegistrations = vi.fn()
 const mockResponse = vi.fn()
 const mockLambda = vi.fn((_name, fn) => answerRejections(fn, mockResponse))
 
@@ -47,16 +46,11 @@ vi.doMock('../lib/lambda', async () => ({
   lambda: mockLambda,
   response: mockResponse,
 }))
-const mockQuery = vi.fn()
+const mockReadEventRegistrations = vi.fn()
 
-vi.doMock('../utils/CustomDynamoClient', () => ({
-  default: vi.fn(function MockCustomDynamoClient() {
-    return {
-      batchWrite: mockBatchWrite,
-      query: mockQuery,
-      write: mockWrite,
-    }
-  }),
+vi.doMock('../lib/repositories/registrationRepository', () => ({
+  readEventRegistrations: mockReadEventRegistrations,
+  writeRegistrations: mockWriteRegistrations,
 }))
 
 const { default: copyEventHandler } = await import('./handler')
@@ -66,7 +60,7 @@ describe('copyEventHandler', () => {
 
   beforeEach(() => {
     vi.clearAllMocks()
-    mockQuery.mockResolvedValue([])
+    mockReadEventRegistrations.mockResolvedValue([])
     mockAuthorizeEvent.mockImplementation(async (_event: unknown, eventId: string) => ({
       item: await mockGetEvent(eventId),
       user: { name: 'Test User' },
@@ -90,8 +84,8 @@ describe('copyEventHandler', () => {
     expect(mockResponse).toHaveBeenCalledWith(403, 'Forbidden', event)
 
     expect(mockSaveEvent).not.toHaveBeenCalled()
-    expect(mockWrite).not.toHaveBeenCalled()
-    expect(mockBatchWrite).not.toHaveBeenCalled()
+    expect(mockReadEventRegistrations).not.toHaveBeenCalled()
+    expect(mockWriteRegistrations).not.toHaveBeenCalled()
   })
 
   it.each(['not-a-date', '0001-01-01T00:00:00.000Z'])(
@@ -302,7 +296,7 @@ describe('copyEventHandler', () => {
       ],
     })
     mockNanoid.mockReturnValueOnce('newid123')
-    mockQuery.mockResolvedValueOnce([
+    mockReadEventRegistrations.mockResolvedValueOnce([
       {
         dates: [{ date: source.startDate }, { date: source.endDate }],
         eventId: 'event123',
@@ -333,17 +327,15 @@ describe('copyEventHandler', () => {
         ],
       })
     )
-    expect(mockBatchWrite).toHaveBeenCalledWith(
-      [
-        {
-          dates: [{ date: expected.startDate }, { date: expected.endDate }],
-          eventId: 'newid123',
-          group: { date: expected.groupDate, key: expected.groupKey, number: 1, time: 'ip' },
-          id: 'registration123',
-        },
-      ],
-      'registration-table-not-found-in-env'
-    )
+    expect(mockReadEventRegistrations).toHaveBeenCalledWith('event123')
+    expect(mockWriteRegistrations).toHaveBeenCalledWith([
+      {
+        dates: [{ date: expected.startDate }, { date: expected.endDate }],
+        eventId: 'newid123',
+        group: { date: expected.groupDate, key: expected.groupKey, number: 1, time: 'ip' },
+        id: 'registration123',
+      },
+    ])
   })
 
   it('sets season using Finnish timezone when copying an event near year boundary', async () => {
@@ -415,7 +407,7 @@ describe('copyEventHandler', () => {
       startDate: '2025-06-10T00:00:00.000Z',
     })
     mockNanoid.mockReturnValueOnce('newid123')
-    mockQuery.mockResolvedValueOnce([
+    mockReadEventRegistrations.mockResolvedValueOnce([
       {
         class: 'ALO',
         dates: [{ date: '2025-06-10T00:00:00.000Z' }],
@@ -449,19 +441,16 @@ describe('copyEventHandler', () => {
     await copyInvitedEvent()
 
     // Other messages the entry got stay recorded; only the invitation is the copy's to send.
-    expect(mockBatchWrite).toHaveBeenCalledWith(
-      [
-        {
-          class: 'ALO',
-          dates: [{ date: '2025-07-01T00:00:00.000Z' }],
-          eventId: 'newid123',
-          eventType: 'NOU',
-          id: 'registration123',
-          messagesSent: { registration: true },
-        },
-      ],
-      'registration-table-not-found-in-env'
-    )
+    expect(mockWriteRegistrations).toHaveBeenCalledWith([
+      {
+        class: 'ALO',
+        dates: [{ date: '2025-07-01T00:00:00.000Z' }],
+        eventId: 'newid123',
+        eventType: 'NOU',
+        id: 'registration123',
+        messagesSent: { registration: true },
+      },
+    ])
   })
 
   it('does not copy registration idempotency credentials, post-processing state or event outcomes', async () => {
@@ -476,7 +465,7 @@ describe('copyEventHandler', () => {
       startDate: '2025-06-10T00:00:00.000Z',
     })
     mockNanoid.mockReturnValueOnce('newid123')
-    mockQuery.mockResolvedValueOnce([
+    mockReadEventRegistrations.mockResolvedValueOnce([
       {
         creationIdempotencyKey: 'source-secret',
         dates: [{ date: '2025-06-10T00:00:00.000Z' }],
@@ -497,16 +486,13 @@ describe('copyEventHandler', () => {
 
     await copyEventHandler(event)
 
-    expect(mockBatchWrite).toHaveBeenCalledWith(
-      [
-        {
-          dates: [{ date: '2025-07-01T00:00:00.000Z' }],
-          eventId: 'newid123',
-          id: 'registration123',
-        },
-      ],
-      'registration-table-not-found-in-env'
-    )
+    expect(mockWriteRegistrations).toHaveBeenCalledWith([
+      {
+        dates: [{ date: '2025-07-01T00:00:00.000Z' }],
+        eventId: 'newid123',
+        id: 'registration123',
+      },
+    ])
   })
 
   it('shifts the group date of every entry and gives a participant group key only to a start (KOE-1537)', async () => {
@@ -519,7 +505,7 @@ describe('copyEventHandler', () => {
       startDate: '2025-06-10T00:00:00.000Z',
     })
     mockNanoid.mockReturnValueOnce('newid123')
-    mockQuery.mockResolvedValueOnce([
+    mockReadEventRegistrations.mockResolvedValueOnce([
       {
         dates: [{ date: '2025-06-10T00:00:00.000Z', time: 'kp' }],
         eventId: 'event123',
@@ -551,37 +537,34 @@ describe('copyEventHandler', () => {
 
     await copyEventHandler(event)
 
-    expect(mockBatchWrite).toHaveBeenCalledWith(
-      [
-        {
-          dates: [{ date: '2025-07-01T00:00:00.000Z', time: 'kp' }],
-          eventId: 'newid123',
-          group: { date: '2025-07-01T00:00:00.000Z', key: '2025-07-01-kp', number: 1, time: 'kp' },
-          id: 'starter',
-        },
-        {
-          cancelled: true,
-          dates: [{ date: '2025-07-01T00:00:00.000Z', time: 'kp' }],
-          eventId: 'newid123',
-          group: { date: '2025-07-01T00:00:00.000Z', key: 'cancelled', number: 2, time: 'kp' },
-          id: 'cancelled',
-        },
-        {
-          cancelled: true,
-          dates: [{ date: '2025-07-01T00:00:00.000Z', time: 'kp' }],
-          eventId: 'newid123',
-          group: { date: '2025-07-01T00:00:00.000Z', key: 'cancelled', number: 3, time: 'kp' },
-          id: 'legacy-cancelled',
-        },
-        {
-          dates: [{ date: '2025-07-01T00:00:00.000Z', time: 'kp' }],
-          eventId: 'newid123',
-          group: { date: '2025-07-01T00:00:00.000Z', key: 'reserve', number: 1, time: 'kp' },
-          id: 'reserve',
-        },
-      ],
-      'registration-table-not-found-in-env'
-    )
+    expect(mockWriteRegistrations).toHaveBeenCalledWith([
+      {
+        dates: [{ date: '2025-07-01T00:00:00.000Z', time: 'kp' }],
+        eventId: 'newid123',
+        group: { date: '2025-07-01T00:00:00.000Z', key: '2025-07-01-kp', number: 1, time: 'kp' },
+        id: 'starter',
+      },
+      {
+        cancelled: true,
+        dates: [{ date: '2025-07-01T00:00:00.000Z', time: 'kp' }],
+        eventId: 'newid123',
+        group: { date: '2025-07-01T00:00:00.000Z', key: 'cancelled', number: 2, time: 'kp' },
+        id: 'cancelled',
+      },
+      {
+        cancelled: true,
+        dates: [{ date: '2025-07-01T00:00:00.000Z', time: 'kp' }],
+        eventId: 'newid123',
+        group: { date: '2025-07-01T00:00:00.000Z', key: 'cancelled', number: 3, time: 'kp' },
+        id: 'legacy-cancelled',
+      },
+      {
+        dates: [{ date: '2025-07-01T00:00:00.000Z', time: 'kp' }],
+        eventId: 'newid123',
+        group: { date: '2025-07-01T00:00:00.000Z', key: 'reserve', number: 1, time: 'kp' },
+        id: 'reserve',
+      },
+    ])
   })
 
   it("keys a copied start by the trial's day in Finnish time, not the UTC day (KOE-1537)", async () => {
@@ -594,7 +577,7 @@ describe('copyEventHandler', () => {
       startDate: '2026-08-14T21:00:00.000Z',
     })
     mockNanoid.mockReturnValueOnce('newid123')
-    mockQuery.mockResolvedValueOnce([
+    mockReadEventRegistrations.mockResolvedValueOnce([
       {
         dates: [{ date: '2026-08-14T21:00:00.000Z', time: 'ap' }],
         eventId: 'event123',
@@ -606,17 +589,14 @@ describe('copyEventHandler', () => {
 
     await copyEventHandler(event)
 
-    expect(mockBatchWrite).toHaveBeenCalledWith(
-      [
-        {
-          dates: [{ date: '2026-08-21T21:00:00.000Z', time: 'ap' }],
-          eventId: 'newid123',
-          group: { date: '2026-08-21T21:00:00.000Z', key: '2026-08-22-ap', number: 1, time: 'ap' },
-          id: 'starter',
-        },
-      ],
-      'registration-table-not-found-in-env'
-    )
+    expect(mockWriteRegistrations).toHaveBeenCalledWith([
+      {
+        dates: [{ date: '2026-08-21T21:00:00.000Z', time: 'ap' }],
+        eventId: 'newid123',
+        group: { date: '2026-08-21T21:00:00.000Z', key: '2026-08-22-ap', number: 1, time: 'ap' },
+        id: 'starter',
+      },
+    ])
   })
 
   it('returns 500 if getEvent throws', async () => {

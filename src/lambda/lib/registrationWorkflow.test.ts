@@ -53,9 +53,12 @@ const libEmail = await import('./email')
 vi.doMock('./email', () => ({ ...libEmail, sendTemplatedMail: mockSendTemplatedMail }))
 
 // The registration row as stored, read back for the entrant's patch (KOE-1553).
-const mockReadRegistrationConsistently = vi.fn()
+const mockReadRegistration = vi.fn()
 vi.doMock('./repositories/registrationRepository', () => ({
-  readRegistrationConsistently: mockReadRegistrationConsistently,
+  claimNewRegistrationPostProcessing: mockClaimNewRegistrationPostProcessing,
+  clearRegistrationEmailDeliveryStatus: mockClearRegistrationEmailDeliveryStatus,
+  markNewRegistrationPhase: mockMarkNewRegistrationPhase,
+  readRegistration: mockReadRegistration,
 }))
 
 const mockClaimNewRegistrationPostProcessing = vi.fn()
@@ -70,10 +73,7 @@ const mockRecordLastEmail = vi.fn(async () => recordedLastEmail)
 const libRegistration = await import('./registration')
 vi.doMock('./registration', () => ({
   ...libRegistration,
-  claimNewRegistrationPostProcessing: mockClaimNewRegistrationPostProcessing,
-  clearRegistrationEmailDeliveryStatus: mockClearRegistrationEmailDeliveryStatus,
   getRegistrationEditToken: () => 'edit-token',
-  markNewRegistrationPhase: mockMarkNewRegistrationPhase,
   recordLastEmail: mockRecordLastEmail,
 }))
 
@@ -467,11 +467,11 @@ describe('registrationWorkflow', () => {
     // entry; the entrant's open page hears it from the row as stored.
     it('tells the entrant the payment as the stored row has it (KOE-1553)', async () => {
       const saved = { ...registration, cancelled: true }
-      mockReadRegistrationConsistently.mockResolvedValueOnce({ ...saved, updatedAt: '2030-01-01T00:00:00.500Z' })
+      mockReadRegistration.mockResolvedValueOnce({ ...saved, updatedAt: '2030-01-01T00:00:00.500Z' })
 
       await finalize(saved, registration)
 
-      expect(mockReadRegistrationConsistently).toHaveBeenCalledWith(saved.eventId, saved.id)
+      expect(mockReadRegistration).toHaveBeenCalledWith(saved.eventId, saved.id, true)
       expect(mockToEntrant).toHaveBeenCalledTimes(1)
       expect(mockToEntrant).toHaveBeenCalledWith(
         saved.eventId,
@@ -488,7 +488,7 @@ describe('registrationWorkflow', () => {
     it('audits and emails the edit even when the entrant patch cannot be built (KOE-1553)', async () => {
       const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
       const saved = { ...registration, notes: 'changed' }
-      mockReadRegistrationConsistently.mockRejectedValueOnce(new Error('read failed'))
+      mockReadRegistration.mockRejectedValueOnce(new Error('read failed'))
 
       await expect(finalize(saved, registration)).resolves.toBeUndefined()
 

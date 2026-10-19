@@ -16,7 +16,7 @@ import { lockRegistrationGroups } from '../lib/event'
 import { getAuthorizedEvent } from '../lib/eventAuth'
 import { parseJSONWithFallback } from '../lib/json'
 import { getParam, httpError, lambda, response } from '../lib/lambda'
-import { getRegistrationsByEventId } from '../lib/registration'
+import { readEventRegistrations } from '../lib/repositories/registrationRepository'
 import {
   assignStartNumbers,
   freezeStartNumbers,
@@ -71,7 +71,7 @@ const putStartNumbersLambda = lambda('putStartNumbers', async (event) => {
   const patches: Patch<JsonRegistration>[] = []
   let publicationChanged = false
   try {
-    const registrations = await getRegistrationsByEventId(eventId)
+    const registrations = await readEventRegistrations(eventId)
 
     // Numbers ride the start list, and wait on everything it does: the same rules the panel greys its
     // buttons by (KOE-1466). Hiding is always allowed.

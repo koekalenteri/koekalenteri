@@ -5,30 +5,29 @@ import type {
   JsonRegistration,
   RegistrationTemplateContext,
 } from '../../types'
-import type CustomDynamoClient from '../utils/CustomDynamoClient'
+import type * as registrationRepository from './repositories/registrationRepository'
 import { vi } from 'vitest'
 import { eventWithALOClassInvited } from '../../__mockData__/events'
 import {
   jsonRegistrationsToEventWithALOInvited,
+  jsonRegistrationsToEventWithParticipantsInvited,
   registrationsToEventWithParticipantsInvited,
 } from '../../__mockData__/registrations'
 import { CONFIG } from '../config'
 
-const mockDynamoDB: import('vitest').Mocked<CustomDynamoClient> = {
-  batchWrite: vi.fn(),
-  delete: vi.fn(),
-  // @ts-expect-error types don't quite match
-  query: vi.fn(),
-  // @ts-expect-error types don't quite match
-  read: vi.fn(),
-  update: vi.fn(),
-  write: vi.fn(),
-}
+const mockReadRegistration = vi.fn<typeof registrationRepository.readRegistration>()
+const mockReadEventRegistrations = vi.fn<typeof registrationRepository.readEventRegistrations>()
+const mockWriteRegistrationFields = vi.fn<typeof registrationRepository.writeRegistrationFields>()
+const mockUpdateRegistrationField = vi.fn<typeof registrationRepository.updateRegistrationField>()
+const mockClearRegistrationEmailDeliveryStatus =
+  vi.fn<typeof registrationRepository.clearRegistrationEmailDeliveryStatus>()
 
-vi.doMock('../utils/CustomDynamoClient', () => ({
-  default: vi.fn(function MockCustomDynamoClient() {
-    return mockDynamoDB
-  }),
+vi.doMock('./repositories/registrationRepository', () => ({
+  clearRegistrationEmailDeliveryStatus: mockClearRegistrationEmailDeliveryStatus,
+  readEventRegistrations: mockReadEventRegistrations,
+  readRegistration: mockReadRegistration,
+  updateRegistrationField: mockUpdateRegistrationField,
+  writeRegistrationFields: mockWriteRegistrationFields,
 }))
 
 const mockSendTemplatedMail = vi.fn()
@@ -57,15 +56,12 @@ const {
   applyOwnerOverrides,
   authorizeRegistrationEdit,
   authorizeRegistrationRead,
-  claimNewRegistrationPostProcessing,
   deriveRegistrationEditToken,
   getLastEmail,
   findClassesToMark,
   findExistingRegistrationToEventForDog,
   hasRegistrationChanges,
-  markNewRegistrationPhase,
   getRegistration,
-  getRegistrationsByEventId,
   getReadyRegistrationsByEventId,
   groupRegistrationsByClass,
   groupRegistrationsByClassAndGroup,
@@ -77,8 +73,6 @@ const {
   participantRegistrationResponse,
   publicRegistrationPatch,
   removeRegistrationCreationMetadata,
-  saveRegistrations,
-  writeRegistrationGroup,
 } = await import('./registration')
 
 /**
@@ -149,16 +143,6 @@ describe('createSentRegistrationMessagesAudit', () => {
   })
 })
 
-describe('saveRegistrations', () => {
-  it('puts the registrations into the registration table in batches', async () => {
-    const [first, second] = jsonRegistrationsToEventWithALOInvited
-
-    await saveRegistrations([first, second])
-
-    expect(mockDynamoDB.batchWrite).toHaveBeenCalledWith([first, second], 'registration-table-not-found-in-env')
-  })
-})
-
 describe('removeRegistrationCreationMetadata', () => {
   it('removes the retry credential and every new-registration workflow field', () => {
     const registration = {
@@ -202,93 +186,6 @@ describe('applyOwnerOverrides', () => {
     expect(Object.hasOwn(data, 'handler')).toBe(false)
     expect(Object.hasOwn(data, 'payer')).toBe(false)
     expect(hasRegistrationChanges({ ...data }, data)).toBe(false)
-  })
-})
-
-describe('registration post-processing', () => {
-  const registration = jsonRegistrationsToEventWithALOInvited[0]
-
-  beforeEach(() => {
-    vi.clearAllMocks()
-    vi.useFakeTimers().setSystemTime(new Date('2026-07-27T12:00:00.000Z'))
-  })
-
-  afterEach(() => {
-    vi.useRealTimers()
-  })
-
-  it('claims an expired or absent lease and reads the registration consistently', async () => {
-    mockDynamoDB.update.mockResolvedValueOnce({ $metadata: {} })
-    mockDynamoDB.read.mockResolvedValueOnce(registration)
-
-    const claim = await claimNewRegistrationPostProcessing('event-1', 'registration-1')
-
-    expect(claim).toBeDefined()
-    expect(mockDynamoDB.update).toHaveBeenNthCalledWith(
-      1,
-      { eventId: 'event-1', id: 'registration-1' },
-      { set: { newRegistrationLease: { expiresAt: Date.now() + 90_000, token: claim?.token } } },
-      expect.anything(),
-      undefined,
-      {
-        expression:
-          'attribute_exists(#id) AND (attribute_not_exists(#newRegistrationLease) OR #newRegistrationLease.#expiresAt < :now)',
-        names: { '#expiresAt': 'expiresAt', '#id': 'id', '#newRegistrationLease': 'newRegistrationLease' },
-        values: { ':now': Date.now() },
-      }
-    )
-    expect(mockDynamoDB.read).toHaveBeenCalledWith(
-      { eventId: 'event-1', id: 'registration-1' },
-      expect.anything(),
-      true
-    )
-    expect(claim?.registration).toBe(registration)
-  })
-
-  it('returns undefined when another worker owns the lease', async () => {
-    mockDynamoDB.update.mockRejectedValueOnce({ name: 'ConditionalCheckFailedException' })
-
-    await expect(claimNewRegistrationPostProcessing('event-1', 'registration-1')).resolves.toBeUndefined()
-    expect(mockDynamoDB.read).not.toHaveBeenCalled()
-  })
-
-  it('releases only its own lease and ignores a lease that was taken over', async () => {
-    mockDynamoDB.update.mockResolvedValueOnce({ $metadata: {} })
-    mockDynamoDB.read.mockResolvedValueOnce(registration)
-    const claim = await claimNewRegistrationPostProcessing('event-1', 'registration-1')
-    mockDynamoDB.update.mockRejectedValueOnce({ name: 'ConditionalCheckFailedException' })
-
-    await expect(claim?.release()).resolves.toBeUndefined()
-
-    expect(mockDynamoDB.update).toHaveBeenLastCalledWith(
-      { eventId: 'event-1', id: 'registration-1' },
-      { remove: ['newRegistrationLease'] },
-      expect.anything(),
-      undefined,
-      {
-        expression: '#newRegistrationLease.#token = :token',
-        names: { '#newRegistrationLease': 'newRegistrationLease', '#token': 'token' },
-        values: { ':token': claim?.token },
-      }
-    )
-  })
-
-  it('marks a phase only while the caller owns the lease', async () => {
-    mockDynamoDB.update.mockResolvedValueOnce({ $metadata: {} })
-
-    await markNewRegistrationPhase('event-1', 'registration-1', 'lease-token', 'newRegistrationEmailSentAt')
-
-    expect(mockDynamoDB.update).toHaveBeenCalledWith(
-      { eventId: 'event-1', id: 'registration-1' },
-      { set: { newRegistrationEmailSentAt: '2026-07-27T12:00:00.000Z' } },
-      expect.anything(),
-      undefined,
-      {
-        expression: '#newRegistrationLease.#token = :token',
-        names: { '#newRegistrationLease': 'newRegistrationLease', '#token': 'token' },
-        values: { ':token': 'lease-token' },
-      }
-    )
   })
 })
 
@@ -342,9 +239,11 @@ describe('registration', () => {
 
       await expect(recordLastEmail(registration, 'registration', 'cancel')).resolves.toEqual(expected)
 
-      expect(mockDynamoDB.update).toHaveBeenCalledWith(
-        { eventId: registration.eventId, id: registration.id },
-        { set: { lastEmail: expected, updatedAt: expect.any(String) } }
+      expect(mockUpdateRegistrationField).toHaveBeenCalledWith(
+        registration.eventId,
+        registration.id,
+        'lastEmail',
+        expected
       )
       expect(registration.lastEmail).toBe(jsonRegistrationsToEventWithALOInvited[0].lastEmail)
     })
@@ -352,93 +251,57 @@ describe('registration', () => {
 
   describe('findExistingRegistrationToEventForDog', () => {
     it('should return undefined when dog is not found in existing registrations', async () => {
-      mockDynamoDB.query.mockResolvedValueOnce([])
+      mockReadEventRegistrations.mockResolvedValueOnce([])
 
       expect(await findExistingRegistrationToEventForDog('event-id', 'reg-no')).toBeUndefined()
     })
 
     it('should return the existing registration when dong is already registered', async () => {
-      mockDynamoDB.query.mockResolvedValueOnce(registrationsToEventWithParticipantsInvited)
-      const reg = registrationsToEventWithParticipantsInvited[0]
+      mockReadEventRegistrations.mockResolvedValueOnce(jsonRegistrationsToEventWithParticipantsInvited)
+      const reg = jsonRegistrationsToEventWithParticipantsInvited[0]
 
       expect(await findExistingRegistrationToEventForDog(reg.eventId, reg.dog.regNo)).toEqual(reg)
     })
 
     it('should return a payment-pending registration for an idempotent creation retry', async () => {
       const reg = {
-        ...registrationsToEventWithParticipantsInvited[0],
+        ...jsonRegistrationsToEventWithParticipantsInvited[0],
         creationIdempotencyKey: 'same-attempt',
         state: 'creating' as const,
       }
-      mockDynamoDB.query.mockResolvedValueOnce([reg])
+      mockReadEventRegistrations.mockResolvedValueOnce([reg])
 
       expect(await findExistingRegistrationToEventForDog(reg.eventId, reg.dog.regNo, 'same-attempt')).toEqual(reg)
     })
 
     it('should reserve a recent payment-pending registration against a new attempt', async () => {
       const reg = {
-        ...registrationsToEventWithParticipantsInvited[0],
+        ...jsonRegistrationsToEventWithParticipantsInvited[0],
         createdAt: new Date(Date.now() - 10 * 60 * 1000).toISOString(),
         creationIdempotencyKey: 'original-attempt',
         state: 'creating' as const,
       }
-      mockDynamoDB.query.mockResolvedValueOnce([reg])
+      mockReadEventRegistrations.mockResolvedValueOnce([reg])
 
       expect(await findExistingRegistrationToEventForDog(reg.eventId, reg.dog.regNo, 'new-attempt')).toEqual(reg)
     })
 
     it('should ignore an abandoned payment-pending registration for a new attempt', async () => {
       const reg = {
-        ...registrationsToEventWithParticipantsInvited[0],
+        ...jsonRegistrationsToEventWithParticipantsInvited[0],
         createdAt: new Date(Date.now() - 16 * 60 * 1000).toISOString(),
         creationIdempotencyKey: 'original-attempt',
         state: 'creating' as const,
       }
-      mockDynamoDB.query.mockResolvedValueOnce([reg])
+      mockReadEventRegistrations.mockResolvedValueOnce([reg])
 
       expect(await findExistingRegistrationToEventForDog(reg.eventId, reg.dog.regNo, 'new-attempt')).toBeUndefined()
     })
   })
 
-  describe('getRegistrationsByEventId', () => {
-    it('should return empty array when query returns undefined', async () => {
-      mockDynamoDB.query.mockResolvedValueOnce(undefined)
-
-      const result = await getRegistrationsByEventId('event-id')
-
-      expect(result).toEqual([])
-      expect(mockDynamoDB.query).toHaveBeenCalledWith({
-        key: 'eventId = :eventId',
-        values: { ':eventId': 'event-id' },
-      })
-    })
-
-    it('should return empty array when query returns empty array', async () => {
-      mockDynamoDB.query.mockResolvedValueOnce([])
-
-      const result = await getRegistrationsByEventId('event-id')
-
-      expect(result).toEqual([])
-    })
-
-    it('should return all registrations regardless of state', async () => {
-      const registrations = [
-        { eventId: 'event-id', id: 'reg1', state: 'ready' },
-        { eventId: 'event-id', id: 'reg2', state: 'cancelled' },
-        { eventId: 'event-id', id: 'reg3', state: 'pending' },
-      ]
-      mockDynamoDB.query.mockResolvedValueOnce(registrations)
-
-      const result = await getRegistrationsByEventId('event-id')
-
-      expect(result).toEqual(registrations)
-      expect(result).toHaveLength(3)
-    })
-  })
-
   describe('getReadyRegistrationsByEventId', () => {
     it('should return empty array when no registrations exist', async () => {
-      mockDynamoDB.query.mockResolvedValueOnce([])
+      mockReadEventRegistrations.mockResolvedValueOnce([])
 
       const result = await getReadyRegistrationsByEventId('event-id')
 
@@ -446,13 +309,13 @@ describe('registration', () => {
     })
 
     it('should return only ready registrations', async () => {
-      const registrations = [
+      const registrations: DeepPartial<JsonRegistration>[] = [
         { eventId: 'event-id', id: 'reg1', state: 'ready' },
-        { eventId: 'event-id', id: 'reg2', state: 'cancelled' },
+        { eventId: 'event-id', id: 'reg2', state: 'creating' },
         { eventId: 'event-id', id: 'reg3', state: 'ready' },
-        { eventId: 'event-id', id: 'reg4', state: 'pending' },
+        { eventId: 'event-id', id: 'reg4', state: 'creating' },
       ]
-      mockDynamoDB.query.mockResolvedValueOnce(registrations)
+      mockReadEventRegistrations.mockResolvedValueOnce(asJsonRegistrations(registrations))
 
       const result = await getReadyRegistrationsByEventId('event-id')
 
@@ -462,11 +325,11 @@ describe('registration', () => {
     })
 
     it('should return empty array when all registrations are non-ready', async () => {
-      const registrations = [
-        { eventId: 'event-id', id: 'reg1', state: 'cancelled' },
-        { eventId: 'event-id', id: 'reg2', state: 'pending' },
+      const registrations: DeepPartial<JsonRegistration>[] = [
+        { eventId: 'event-id', id: 'reg1', state: 'creating' },
+        { eventId: 'event-id', id: 'reg2', state: 'creating' },
       ]
-      mockDynamoDB.query.mockResolvedValueOnce(registrations)
+      mockReadEventRegistrations.mockResolvedValueOnce(asJsonRegistrations(registrations))
 
       const result = await getReadyRegistrationsByEventId('event-id')
 
@@ -721,34 +584,27 @@ describe('registration', () => {
     })
 
     it('reads eventually consistent by default', async () => {
-      mockDynamoDB.read.mockResolvedValueOnce(asJsonRegistration({ eventId: 'event-id', id: 'reg-id' }))
+      const registration = asJsonRegistration({ eventId: 'event-id', id: 'reg-id' })
+      mockReadRegistration.mockResolvedValueOnce(registration)
 
-      await getRegistration('event-id', 'reg-id')
+      await expect(getRegistration('event-id', 'reg-id')).resolves.toBe(registration)
 
-      expect(mockDynamoDB.read).toHaveBeenCalledWith(
-        { eventId: 'event-id', id: 'reg-id' },
-        CONFIG.registrationTable,
-        false
-      )
+      expect(mockReadRegistration).toHaveBeenCalledWith('event-id', 'reg-id', false)
     })
 
     // Every writer that just changed the row and must publish its current state asks for this
     // (KOE-1529): an eventually consistent read could still answer with the row from before the
     // write.
     it('reads strongly consistently when asked', async () => {
-      mockDynamoDB.read.mockResolvedValueOnce(asJsonRegistration({ eventId: 'event-id', id: 'reg-id' }))
+      mockReadRegistration.mockResolvedValueOnce(asJsonRegistration({ eventId: 'event-id', id: 'reg-id' }))
 
       await getRegistration('event-id', 'reg-id', true)
 
-      expect(mockDynamoDB.read).toHaveBeenCalledWith(
-        { eventId: 'event-id', id: 'reg-id' },
-        CONFIG.registrationTable,
-        true
-      )
+      expect(mockReadRegistration).toHaveBeenCalledWith('event-id', 'reg-id', true)
     })
 
     it('throws a 404 when the registration does not exist', async () => {
-      mockDynamoDB.read.mockResolvedValueOnce(undefined)
+      mockReadRegistration.mockResolvedValueOnce(undefined)
 
       await expect(getRegistration('event-id', 'missing-id')).rejects.toMatchObject({ status: 404 })
     })
@@ -773,29 +629,18 @@ describe('registration', () => {
         emailDeliveryStatus: undefined,
         notes: 'new',
       })
-      mockDynamoDB.read.mockResolvedValueOnce(next)
+      mockReadRegistration.mockResolvedValueOnce(next)
 
       const result = await patchRegistration(existing.eventId, existing.id, existing, next)
 
-      expect(mockDynamoDB.update).toHaveBeenCalledWith(
-        { eventId: 'event-id', id: 'reg-id' },
-        {
-          remove: ['emailDeliveryStatus'],
-          set: {
-            'dog.name': 'New name',
-            notes: 'new',
-          },
+      expect(mockWriteRegistrationFields).toHaveBeenCalledWith('event-id', 'reg-id', {
+        remove: ['emailDeliveryStatus'],
+        set: {
+          'dog.name': 'New name',
+          notes: 'new',
         },
-        'registration-table-not-found-in-env'
-      )
-      expect(mockDynamoDB.read).toHaveBeenCalledWith(
-        {
-          eventId: 'event-id',
-          id: 'reg-id',
-        },
-        'registration-table-not-found-in-env',
-        false
-      )
+      })
+      expect(mockReadRegistration).toHaveBeenCalledWith('event-id', 'reg-id', false)
       expect(result).toEqual(next)
     })
 
@@ -804,31 +649,9 @@ describe('registration', () => {
 
       const result = await patchRegistration(existing.eventId, existing.id, existing, { ...existing })
 
-      expect(mockDynamoDB.update).not.toHaveBeenCalled()
-      expect(mockDynamoDB.read).not.toHaveBeenCalled()
+      expect(mockWriteRegistrationFields).not.toHaveBeenCalled()
+      expect(mockReadRegistration).not.toHaveBeenCalled()
       expect(result).toBe(existing)
-    })
-  })
-
-  describe('writeRegistrationGroup', () => {
-    beforeEach(() => {
-      vi.clearAllMocks()
-    })
-
-    it("writes the group move's fields to the registration, with no condition", async () => {
-      await writeRegistrationGroup('event-id', 'reg-id', {
-        remove: ['cancelReason'],
-        set: { cancelled: false, group: { key: 'reserve', number: 2 }, updatedAt: '2026-10-18T10:00:00.000Z' },
-      })
-
-      expect(mockDynamoDB.update).toHaveBeenCalledWith(
-        { eventId: 'event-id', id: 'reg-id' },
-        {
-          remove: ['cancelReason'],
-          set: { cancelled: false, group: { key: 'reserve', number: 2 }, updatedAt: '2026-10-18T10:00:00.000Z' },
-        },
-        'registration-table-not-found-in-env'
-      )
     })
   })
 
@@ -855,7 +678,6 @@ describe('registration', () => {
       })
 
       mockSendTemplatedMail.mockResolvedValue(undefined)
-      mockDynamoDB.update.mockResolvedValue({ $metadata: {} })
     })
 
     it('should send emails to all registrations successfully', async () => {
@@ -897,36 +719,26 @@ describe('registration', () => {
         user: 'admin-user',
       })
 
+      // The previous delivery status goes before the send (a bounce of the new one sets it again)
+      expect(mockClearRegistrationEmailDeliveryStatus).toHaveBeenCalledWith('testALOInvited', 'testALOInvited1')
+
       // Check lastEmail updates
-      expect(mockDynamoDB.update).toHaveBeenCalledWith(
-        { eventId: 'testALOInvited', id: 'testALOInvited1' },
-        {
-          set: {
-            lastEmail: { context: '', sentAt: '2023-01-01T12:00:00.000Z', template: 'invitation' },
-            updatedAt: expect.any(String),
-          },
-        }
-      )
+      expect(mockUpdateRegistrationField).toHaveBeenCalledWith('testALOInvited', 'testALOInvited1', 'lastEmail', {
+        context: '',
+        sentAt: '2023-01-01T12:00:00.000Z',
+        template: 'invitation',
+      })
 
       // Check messagesSent updates
-      expect(mockDynamoDB.update).toHaveBeenCalledWith(
-        { eventId: 'testALOInvited', id: 'testALOInvited1' },
-        {
-          set: {
-            messagesSent: { invitation: true },
-            updatedAt: expect.any(String),
-          },
-        }
-      )
-      expect(mockDynamoDB.update).toHaveBeenCalledWith(
-        { eventId: 'testALOInvited', id: 'testALOInvited1' },
-        {
-          set: {
-            invitationAttachmentSent: 'alo-attachment',
-            updatedAt: expect.any(String),
-          },
-        }
-      )
+      expect(mockUpdateRegistrationField).toHaveBeenCalledWith('testALOInvited', 'testALOInvited1', 'messagesSent', {
+        invitation: true,
+      })
+      expect(mockWriteRegistrationFields).toHaveBeenCalledWith('testALOInvited', 'testALOInvited1', {
+        set: {
+          invitationAttachmentSent: 'alo-attachment',
+          updatedAt: expect.any(String),
+        },
+      })
 
       vi.useRealTimers()
     })
@@ -946,15 +758,11 @@ describe('registration', () => {
         'cancel'
       )
 
-      expect(mockDynamoDB.update).toHaveBeenCalledWith(
-        { eventId: 'testALOInvited', id: 'testALOInvited1' },
-        {
-          set: {
-            lastEmail: { context: 'cancel', sentAt: '2023-01-01T12:00:00.000Z', template: 'registration' },
-            updatedAt: expect.any(String),
-          },
-        }
-      )
+      expect(mockUpdateRegistrationField).toHaveBeenCalledWith('testALOInvited', 'testALOInvited1', 'lastEmail', {
+        context: 'cancel',
+        sentAt: '2023-01-01T12:00:00.000Z',
+        template: 'registration',
+      })
       // The trail names it by the cancellation subject's key too (KOE-1442).
       expect(mockAudit).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -982,15 +790,12 @@ describe('registration', () => {
         ''
       )
 
-      expect(mockDynamoDB.update).toHaveBeenCalledWith(
-        { eventId: registration.eventId, id: registration.id },
-        {
-          set: {
-            invitationAttachmentSent: 'common-attachment',
-            updatedAt: expect.any(String),
-          },
-        }
-      )
+      expect(mockWriteRegistrationFields).toHaveBeenCalledWith(registration.eventId, registration.id, {
+        set: {
+          invitationAttachmentSent: 'common-attachment',
+          updatedAt: expect.any(String),
+        },
+      })
       expect(registration.invitationAttachmentSent).toBe('common-attachment')
     })
 
@@ -1012,16 +817,13 @@ describe('registration', () => {
         ''
       )
 
-      expect(mockDynamoDB.update).toHaveBeenCalledWith(
-        { eventId: registration.eventId, id: registration.id },
-        {
-          set: {
-            invitationAttachmentRead: 'old-attachment',
-            invitationAttachmentSent: 'new-attachment',
-            updatedAt: expect.any(String),
-          },
-        }
-      )
+      expect(mockWriteRegistrationFields).toHaveBeenCalledWith(registration.eventId, registration.id, {
+        set: {
+          invitationAttachmentRead: 'old-attachment',
+          invitationAttachmentSent: 'new-attachment',
+          updatedAt: expect.any(String),
+        },
+      })
       expect(registration.invitationAttachmentRead).toBe('old-attachment')
       expect(registration.invitationAttachmentSent).toBe('new-attachment')
     })
@@ -1043,16 +845,13 @@ describe('registration', () => {
         ''
       )
 
-      expect(mockDynamoDB.update).toHaveBeenCalledWith(
-        { eventId: registration.eventId, id: registration.id },
-        {
-          set: {
-            invitationAttachmentSent: 'new-attachment',
-            invitationRead: false,
-            updatedAt: expect.any(String),
-          },
-        }
-      )
+      expect(mockWriteRegistrationFields).toHaveBeenCalledWith(registration.eventId, registration.id, {
+        set: {
+          invitationAttachmentSent: 'new-attachment',
+          invitationRead: false,
+          updatedAt: expect.any(String),
+        },
+      })
       expect(registration.invitationRead).toBe(false)
     })
 
@@ -1130,9 +929,11 @@ describe('registration', () => {
       })
 
       // Check that messagesSent was not updated for the failed email
-      expect(mockDynamoDB.update).not.toHaveBeenCalledWith(
-        { id: 'reg-2' },
-        expect.objectContaining({ set: expect.objectContaining({ messagesSent: expect.anything() }) })
+      expect(mockUpdateRegistrationField).not.toHaveBeenCalledWith(
+        'testALOInvited',
+        'testALOInvited2',
+        'messagesSent',
+        expect.anything()
       )
       expect(errorSpy).toHaveBeenCalledTimes(1)
     })
@@ -1155,15 +956,10 @@ describe('registration', () => {
       )
 
       // Check that messagesSent was properly updated
-      expect(mockDynamoDB.update).toHaveBeenCalledWith(
-        { eventId: 'testALOInvited', id: 'testALOInvited1' },
-        {
-          set: {
-            messagesSent: { invitation: true, registration: true },
-            updatedAt: expect.any(String),
-          },
-        }
-      )
+      expect(mockUpdateRegistrationField).toHaveBeenCalledWith('testALOInvited', 'testALOInvited1', 'messagesSent', {
+        invitation: true,
+        registration: true,
+      })
 
       // Check that the in-memory object was updated
       expect(registrationWithExistingMessages.messagesSent).toEqual({
@@ -1187,27 +983,16 @@ describe('registration', () => {
       )
 
       // Check lastEmail format for reserve template
-      expect(mockDynamoDB.update).toHaveBeenCalledWith(
-        { eventId: 'testALOInvited', id: 'testALOInvited1' },
-        {
-          set: {
-            lastEmail: { context: '', groupNumber: 1, sentAt: '2023-01-01T12:00:00.000Z', template: 'reserve' },
-            updatedAt: expect.any(String),
-          },
-        }
-      )
+      expect(mockUpdateRegistrationField).toHaveBeenCalledWith('testALOInvited', 'testALOInvited1', 'lastEmail', {
+        context: '',
+        groupNumber: 1,
+        sentAt: '2023-01-01T12:00:00.000Z',
+        template: 'reserve',
+      })
 
-      expect(mockDynamoDB.update).toHaveBeenCalledWith(
-        { eventId: 'testALOInvited', id: 'testALOInvited1' },
-        {
-          set: {
-            messagesSent: {
-              reserve: true,
-            },
-            updatedAt: expect.any(String),
-          },
-        }
-      )
+      expect(mockUpdateRegistrationField).toHaveBeenCalledWith('testALOInvited', 'testALOInvited1', 'messagesSent', {
+        reserve: true,
+      })
 
       vi.useRealTimers()
     })

@@ -1,13 +1,14 @@
 import type { TransactWriteCommandInput } from '@aws-sdk/lib-dynamodb'
-import type { JsonRegistration } from '../../../types'
+import type { JsonEmailDeliveryStatus, JsonRegistration } from '../../../types'
 import type { RegistrationStatsInput } from '../../../types/Stats'
+import type { UpdateActions } from '../../utils/CustomDynamoClient'
 import { CONFIG } from '../../config'
 import CustomDynamoClient from '../../utils/CustomDynamoClient'
-import { isTransactionCanceled } from '../api-gw'
+import { isConditionalCheckFailure, isTransactionCanceled } from '../api-gw'
+import { createDynamoLease } from '../lease'
 import { logger } from '../log'
 
-// Partial: the reads the stats code needs and the payment path's writes (KOE-1408). KOE-1409 moves
-// the rest of the table here.
+// Every read and write of the registration table, and the registration's key, are here (KOE-1409).
 const dynamoDB = new CustomDynamoClient(CONFIG.registrationTable)
 
 const REGISTRATION_STATS_PROJECTION_NAMES = {
@@ -27,9 +28,145 @@ export const readRegistrationsForStats = async (): Promise<RegistrationStatsInpu
     projection: REGISTRATION_STATS_PROJECTION,
   })) ?? []
 
-/** The registration as last written, or undefined when there is none. */
-export const readRegistrationConsistently = async (eventId: string, id: string) =>
-  dynamoDB.read<JsonRegistration>({ eventId, id }, undefined, true)
+/**
+ * The registration, or undefined when there is none. `consistent` asks for the row as last written:
+ * the convention every writer that just changed the row and must publish its current state uses,
+ * rather than publish from a possibly stale, eventually consistent copy (KOE-1529).
+ */
+export const readRegistration = async (eventId: string, id: string, consistent = false) =>
+  dynamoDB.read<JsonRegistration>({ eventId, id }, undefined, consistent)
+
+/** Every registration of the event, whatever its state. */
+export const readEventRegistrations = async (eventId: string, consistent = false): Promise<JsonRegistration[]> =>
+  (await dynamoDB.query<JsonRegistration>({
+    ...(consistent ? { consistent: true } : {}),
+    key: 'eventId = :eventId',
+    values: { ':eventId': eventId },
+  })) ?? []
+
+/** Stores the whole registration, replacing the row. */
+export const writeRegistration = async (registration: JsonRegistration) => {
+  await dynamoDB.write(registration)
+}
+
+/** Puts the registrations in batches, retrying what DynamoDB leaves unprocessed. */
+export const writeRegistrations = async (registrations: JsonRegistration[]) => dynamoDB.batchWrite(registrations)
+
+/** Sets and removes fields of the registration, with no condition. */
+export const writeRegistrationFields = async (eventId: string, id: string, changes: UpdateActions) => {
+  await dynamoDB.update({ eventId, id }, changes)
+}
+
+/** Sets one field of the registration and bumps `updatedAt`. */
+export const updateRegistrationField = async <F extends keyof JsonRegistration>(
+  eventId: JsonRegistration['eventId'],
+  id: JsonRegistration['id'],
+  field: F,
+  value: JsonRegistration[F]
+) => writeRegistrationFields(eventId, id, { set: { [field]: value, updatedAt: new Date().toISOString() } })
+
+/** Remove a field outright. DynamoDB refuses `SET x = :undefined`, so clearing is its own expression. */
+export const removeRegistrationField = async (
+  eventId: JsonRegistration['eventId'],
+  id: JsonRegistration['id'],
+  field: Extract<keyof JsonRegistration, string>
+) => writeRegistrationFields(eventId, id, { remove: [field], set: { updatedAt: new Date().toISOString() } })
+
+/** Forgets how the last email to the registration was delivered, before a new one is sent. */
+export const clearRegistrationEmailDeliveryStatus = async (
+  eventId: JsonRegistration['eventId'],
+  id: JsonRegistration['id']
+) => removeRegistrationField(eventId, id, 'emailDeliveryStatus')
+
+/**
+ * Stores how SES says an email to the registration went (a bounce or a complaint), only if the
+ * registration exists: an unconditional update is an upsert, and would leave a row holding nothing
+ * but `emailDeliveryStatus` in this stack's table. Answers whether it was written.
+ */
+export const writeEmailDeliveryStatus = async (
+  eventId: JsonRegistration['eventId'],
+  id: JsonRegistration['id'],
+  emailDeliveryStatus: JsonEmailDeliveryStatus
+): Promise<boolean> => {
+  try {
+    await dynamoDB.update({ eventId, id }, { set: { emailDeliveryStatus } }, undefined, undefined, {
+      expression: 'attribute_exists(#id)',
+      names: { '#id': 'id' },
+    })
+    return true
+  } catch (error) {
+    if (isConditionalCheckFailure(error)) return false
+    throw error
+  }
+}
+
+/**
+ * Records what sending a dog's result to Kennelliitto came to (KOE-1140). The write lands only on the
+ * record it was made from: `previousAt` is the `at` of the `kcResult` that was read (none when there
+ * was none), so two secretaries sending the same dog at once cannot both claim the last word. Answers
+ * whether it was written.
+ */
+export const writeKcResult = async (
+  eventId: JsonRegistration['eventId'],
+  id: JsonRegistration['id'],
+  kcResult: NonNullable<JsonRegistration['kcResult']>,
+  previousAt: string | undefined,
+  updatedAt: string
+): Promise<boolean> => {
+  try {
+    await dynamoDB.update({ eventId, id }, { set: { kcResult, updatedAt } }, undefined, 'NONE', {
+      expression:
+        previousAt === undefined
+          ? 'attribute_exists(#id) AND attribute_not_exists(#kcResult)'
+          : 'attribute_exists(#id) AND #kcResult.#at = :at',
+      names: { '#at': 'at', '#id': 'id', '#kcResult': 'kcResult' },
+      ...(previousAt === undefined ? {} : { values: { ':at': previousAt } }),
+    })
+    return true
+  } catch (error) {
+    if (isConditionalCheckFailure(error)) return false
+    throw error
+  }
+}
+
+/** The steps after a new registration is stored that must each run once, however many attempts arrive. */
+export type NewRegistrationPhase =
+  | 'newRegistrationPublishedAt'
+  | 'newRegistrationAuditAt'
+  | 'newRegistrationEmailSentAt'
+  | 'newRegistrationProcessedAt'
+
+const NEW_REGISTRATION_LEASE_DURATION_MS = 90 * 1000
+
+// Built where it is used, not at import: the lease holds no state of its own, and a lease built at
+// import would count, for the policy check (lambdaTableUse), as reaching this table from every
+// lambda that imports this module.
+const newRegistrationLease = () =>
+  createDynamoLease<JsonRegistration, NewRegistrationPhase>({
+    client: dynamoDB,
+    durationMs: NEW_REGISTRATION_LEASE_DURATION_MS,
+    itemExistsField: 'id',
+    leaseField: 'newRegistrationLease',
+    table: CONFIG.registrationTable,
+  })
+
+/**
+ * Leases the new registration's post-processing to this attempt. Undefined while another attempt
+ * holds it; otherwise the registration as stored once leased, its phase markers included.
+ */
+export const claimNewRegistrationPostProcessing = async (eventId: string, id: string) => {
+  const claim = await newRegistrationLease().claim({
+    key: { eventId, id },
+    missingItemMessage: `Registration '${id}' disappeared while claiming post-processing`,
+  })
+  if (!claim) return undefined
+
+  return { registration: claim.item, release: claim.release, token: claim.token }
+}
+
+/** Marks a post-processing phase done, as long as this attempt still holds the lease. */
+export const markNewRegistrationPhase = (eventId: string, id: string, token: string, phase: NewRegistrationPhase) =>
+  newRegistrationLease().markPhase({ eventId, id }, token, phase)
 
 type TransactionItem = NonNullable<TransactWriteCommandInput['TransactItems']>[number]
 type RegistrationUpdate = Omit<NonNullable<TransactionItem['Update']>, 'Key' | 'TableName'>
@@ -42,6 +179,29 @@ type RegistrationUpdate = Omit<NonNullable<TransactionItem['Update']>, 'Key' | '
 export const registrationUpdateItem = (eventId: string, id: string, update: RegistrationUpdate): TransactionItem => ({
   Update: { ...update, Key: { eventId, id }, TableName: CONFIG.registrationTable },
 })
+
+/**
+ * The new registration's stats marker as an item of the stats transaction
+ * (`commitNewRegistrationStats` in `eventStatsRepository`): conditioned on the registration
+ * existing, not being counted yet and still holding the caller's lease.
+ */
+export const newRegistrationStatsMarkItem = (
+  eventId: string,
+  id: string,
+  leaseToken: string,
+  statsAt: string
+): TransactionItem =>
+  registrationUpdateItem(eventId, id, {
+    ConditionExpression: 'attribute_exists(#id) AND attribute_not_exists(#statsAt) AND #lease.#token = :leaseToken',
+    ExpressionAttributeNames: {
+      '#id': 'id',
+      '#lease': 'newRegistrationLease',
+      '#statsAt': 'newRegistrationStatsAt',
+      '#token': 'token',
+    },
+    ExpressionAttributeValues: { ':leaseToken': leaseToken, ':statsAt': statsAt },
+    UpdateExpression: 'SET #statsAt = :statsAt',
+  })
 
 type CreationType = 'payment' | 'refund'
 

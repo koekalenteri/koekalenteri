@@ -12,7 +12,7 @@ const mockAudit = vi.fn()
 const mockRegistrationAuditKey = vi.fn(({ eventId, id }: { eventId: string; id: string }) => `${eventId}:${id}`)
 const mockGetAuthorizedEvent = vi.fn()
 const mockGetEvent = vi.fn()
-const mockGetRegistrationsByEventId = vi.fn()
+const mockReadEventRegistrations = vi.fn()
 const mockUpdateRegistrationField = vi.fn()
 const mockPublishRegistrationPatches = vi.fn()
 const mockPublishPublicStartList = vi.fn()
@@ -36,8 +36,8 @@ vi.doMock('../lib/auth', () => ({ authorizeWithMemberOf: mockAuthorizeWithMember
 vi.doMock('../lib/audit', () => ({ audit: mockAudit, registrationAuditKey: mockRegistrationAuditKey }))
 vi.doMock('../lib/eventAuth', () => ({ getAuthorizedEvent: mockGetAuthorizedEvent }))
 vi.doMock('../lib/event', () => ({ getEvent: mockGetEvent }))
-vi.doMock('../lib/registration', () => ({
-  getRegistrationsByEventId: mockGetRegistrationsByEventId,
+vi.doMock('../lib/repositories/registrationRepository', () => ({
+  readEventRegistrations: mockReadEventRegistrations,
   updateRegistrationField: mockUpdateRegistrationField,
 }))
 vi.doMock('../lib/ws/actions', () => ({ publishRegistrationPatches: mockPublishRegistrationPatches }))
@@ -83,7 +83,7 @@ describe('putEventResultsLambda', () => {
     mockAuthorizeWithMemberOf.mockResolvedValue({ memberOf: ['org-1'], user: { id: 'u1', name: 'Sihteeri' } })
     mockGetAuthorizedEvent.mockResolvedValue(nowtEvent)
     mockGetEvent.mockResolvedValue(nowtEvent)
-    mockGetRegistrationsByEventId.mockResolvedValue([registration('reg-1'), registration('reg-2')])
+    mockReadEventRegistrations.mockResolvedValue([registration('reg-1'), registration('reg-2')])
   })
 
   const savedResult = () => mockUpdateRegistrationField.mock.calls[0][3]
@@ -117,7 +117,7 @@ describe('putEventResultsLambda', () => {
       classes: [{ class: 'ALO', date: '2026-09-12', stations: [{ stationId: 'post-1', tasks: 2 }] }],
       stations: [nowtEvent.stations?.[0]],
     })
-    mockGetRegistrationsByEventId.mockResolvedValue([registration('reg-1', 'ALO')])
+    mockReadEventRegistrations.mockResolvedValue([registration('reg-1', 'ALO')])
 
     await putEventResultsLambda(
       apiEvent([
@@ -199,7 +199,7 @@ describe('putEventResultsLambda', () => {
   })
 
   it('audits a changed result as a change', async () => {
-    mockGetRegistrationsByEventId.mockResolvedValue([
+    mockReadEventRegistrations.mockResolvedValue([
       { ...registration('reg-1'), eventResult: { points: 40, result: 'AVO3', tasks: scores(10, 10, 10, 10) } },
     ])
 
@@ -218,7 +218,7 @@ describe('putEventResultsLambda', () => {
 
     expect(mockResponse).toHaveBeenCalledWith(422, 'no results', expect.anything())
     // The event itself is read first — parsing validates against its round — but nothing is written.
-    expect(mockGetRegistrationsByEventId).not.toHaveBeenCalled()
+    expect(mockReadEventRegistrations).not.toHaveBeenCalled()
     expect(mockUpdateRegistrationField).not.toHaveBeenCalled()
   })
 
@@ -295,7 +295,7 @@ describe('putEventResultsLambda', () => {
     ['a dog that never got a place at all', { group: undefined }],
     ['an entry that was cancelled', { cancelled: true }],
   ])('refuses a result for %s', async (_case, state) => {
-    mockGetRegistrationsByEventId.mockResolvedValue([{ ...registration('reg-1'), ...state }])
+    mockReadEventRegistrations.mockResolvedValue([{ ...registration('reg-1'), ...state }])
 
     // The views never offer these a row, so a submission naming one is a client working from a list
     // that has moved on. Believing it would attribute a round to a dog that did not run it.
@@ -329,7 +329,7 @@ describe('putEventResultsLambda', () => {
 
     it('treats a resubmission of an already stored result as nothing new', async () => {
       // The venue's connection drops, the secretary saves again, and the first attempt had landed.
-      mockGetRegistrationsByEventId.mockResolvedValue([
+      mockReadEventRegistrations.mockResolvedValue([
         { ...registration('reg-1'), eventResult: stored('2026-09-12T10:00:00.000Z', 40) },
       ])
 
@@ -347,7 +347,7 @@ describe('putEventResultsLambda', () => {
     })
 
     it('reports a conflict when someone else changed the result meanwhile', async () => {
-      mockGetRegistrationsByEventId.mockResolvedValue([
+      mockReadEventRegistrations.mockResolvedValue([
         { ...registration('reg-1'), eventResult: stored('2026-09-12T11:00:00.000Z', 80) },
       ])
 
@@ -371,7 +371,7 @@ describe('putEventResultsLambda', () => {
     })
 
     it('saves the dogs that do not conflict rather than losing the screenful', async () => {
-      mockGetRegistrationsByEventId.mockResolvedValue([
+      mockReadEventRegistrations.mockResolvedValue([
         { ...registration('reg-1'), eventResult: stored('2026-09-12T11:00:00.000Z', 80) },
         registration('reg-2'),
       ])
@@ -392,7 +392,7 @@ describe('putEventResultsLambda', () => {
     })
 
     it('accepts an edit made against the version that is actually stored', async () => {
-      mockGetRegistrationsByEventId.mockResolvedValue([
+      mockReadEventRegistrations.mockResolvedValue([
         { ...registration('reg-1'), eventResult: stored('2026-09-12T10:00:00.000Z', 40) },
       ])
 
@@ -413,7 +413,7 @@ describe('putEventResultsLambda', () => {
 
     beforeEach(() => {
       mockGetAuthorizedEvent.mockResolvedValue(nomeB)
-      mockGetRegistrationsByEventId.mockResolvedValue([
+      mockReadEventRegistrations.mockResolvedValue([
         {
           ...registration('reg-1', 'ALO'),
           eventResult: { judge, result: 'ALO1', updatedAt: '2026-09-12T10:00:00.000Z', updatedBy: 'Sihteeri' },
@@ -472,7 +472,7 @@ describe('putEventResultsLambda', () => {
     })
 
     const withStored = (...tasks: ReturnType<typeof scoredAt>[]) =>
-      mockGetRegistrationsByEventId.mockResolvedValue([
+      mockReadEventRegistrations.mockResolvedValue([
         {
           ...registration('reg-1'),
           eventResult: { tasks, updatedAt: '2026-09-12T10:00:00.000Z', updatedBy: 'Rasti 1' },
@@ -618,7 +618,7 @@ describe('putEventResultsLambda', () => {
     })
 
     it('builds on what a post already recorded, when working from the current version', async () => {
-      mockGetRegistrationsByEventId.mockResolvedValue([
+      mockReadEventRegistrations.mockResolvedValue([
         {
           ...registration('reg-1'),
           eventResult: {
@@ -638,7 +638,7 @@ describe('putEventResultsLambda', () => {
 
     it('will not silently overwrite a post it never saw', async () => {
       // A stale page believing nothing was stored must not wipe the post someone entered meanwhile.
-      mockGetRegistrationsByEventId.mockResolvedValue([
+      mockReadEventRegistrations.mockResolvedValue([
         {
           ...registration('reg-1'),
           eventResult: {
@@ -660,7 +660,7 @@ describe('putEventResultsLambda', () => {
       await putEventResultsLambda(apiEvent([{ eventResult: { tasks: scores(17, 18, 16, 14) }, id: 'reg-1' }]))
 
       const afterRound = mockUpdateRegistrationField.mock.calls[0][3]
-      mockGetRegistrationsByEventId.mockResolvedValue([{ ...registration('reg-1'), eventResult: afterRound }])
+      mockReadEventRegistrations.mockResolvedValue([{ ...registration('reg-1'), eventResult: afterRound }])
       mockUpdateRegistrationField.mockClear()
 
       await putEventResultsLambda(
@@ -695,7 +695,7 @@ describe('putEventResultsLambda', () => {
         (task: { stationId: string }) => task.stationId === 'post-2'
       ).updatedAt
 
-      mockGetRegistrationsByEventId.mockResolvedValue([
+      mockReadEventRegistrations.mockResolvedValue([
         { ...registration('reg-1'), eventResult: first.saved[0].eventResult },
       ])
       mockUpdateRegistrationField.mockClear()
@@ -722,7 +722,7 @@ describe('putEventResultsLambda', () => {
         eventType: 'NOU',
         organizer: { id: 'org-1', name: 'Org' },
       })
-      mockGetRegistrationsByEventId.mockResolvedValue([{ ...registration('reg-1'), class: undefined }])
+      mockReadEventRegistrations.mockResolvedValue([{ ...registration('reg-1'), class: undefined }])
 
       await putEventResultsLambda(apiEvent([{ eventResult: { resultCode: '1' }, id: 'reg-1' }]))
 
@@ -735,7 +735,7 @@ describe('putEventResultsLambda', () => {
         eventType: 'NOU',
         organizer: { id: 'org-1', name: 'Org' },
       })
-      mockGetRegistrationsByEventId.mockResolvedValue([{ ...registration('reg-1'), class: undefined }])
+      mockReadEventRegistrations.mockResolvedValue([{ ...registration('reg-1'), class: undefined }])
 
       // A pass/fail test has no prizes: a '2' can only be a client working from the wrong alphabet.
       await expect(
@@ -794,7 +794,7 @@ describe('putEventResultsLambda', () => {
 
     it('refuses a disputed save too, as locked rather than as a conflict', async () => {
       mockGetEvent.mockResolvedValue(handedOver)
-      mockGetRegistrationsByEventId.mockResolvedValue([{ ...registration('reg-1'), eventResult: stored }])
+      mockReadEventRegistrations.mockResolvedValue([{ ...registration('reg-1'), eventResult: stored }])
 
       await putEventResultsLambda(
         apiEvent([{ basedOn: '2026-09-12T09:00:00.000Z', eventResult: { tasks: scores(17, 18, 16, 14) }, id: 'reg-1' }])
@@ -809,7 +809,7 @@ describe('putEventResultsLambda', () => {
 
     it('still answers a retry of a save that already landed', async () => {
       mockGetEvent.mockResolvedValue(handedOver)
-      mockGetRegistrationsByEventId.mockResolvedValue([{ ...registration('reg-1'), eventResult: stored }])
+      mockReadEventRegistrations.mockResolvedValue([{ ...registration('reg-1'), eventResult: stored }])
 
       await putEventResultsLambda(apiEvent([{ eventResult: { tasks: scores(10, 10, 10, 10) }, id: 'reg-1' }]))
 

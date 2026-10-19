@@ -3,7 +3,7 @@ import { authorizeWithMemberOf } from '../lib/auth'
 import { getAuthorizedEvent } from '../lib/eventAuth'
 import { parseSubmissions, processResultSubmissions } from '../lib/eventResults'
 import { getParam, httpError, lambda, response } from '../lib/lambda'
-import { getRegistrationsByEventId } from '../lib/registration'
+import { readEventRegistrations } from '../lib/repositories/registrationRepository'
 import { publishRegistrationPatches } from '../lib/ws/actions'
 import { publishPublicStartList } from '../lib/ws/publicStartList'
 
@@ -16,7 +16,7 @@ const putEventResultsLambda = lambda('putEventResults', async (event) => {
 
   if (submissions.length === 0) throw httpError(422, 'no results')
 
-  const registrations = await getRegistrationsByEventId(eventId)
+  const registrations = await readEventRegistrations(eventId)
 
   const { conflicts, locked, patches, saved, unchanged } = await processResultSubmissions(
     eventId,

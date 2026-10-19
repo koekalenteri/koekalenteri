@@ -16,8 +16,8 @@ import { getRegistrationClass, isScorableRegistration, REGISTRATION_WRITE_CONCUR
 import { mapWithConcurrency } from '../../lib/utils'
 import { audit, registrationAuditKey } from './audit'
 import { httpError, LambdaError } from './lambda'
-import { removeRegistrationField, updateRegistrationField } from './registration'
 import { writeEventFields } from './repositories/eventRepository'
+import { removeRegistrationField, updateRegistrationField } from './repositories/registrationRepository'
 
 /** One number as the secretary enters it — the on-site draw's result, not a reordering request. */
 export interface StartNumberEntry {

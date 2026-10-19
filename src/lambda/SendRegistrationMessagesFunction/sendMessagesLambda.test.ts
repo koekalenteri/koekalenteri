@@ -16,8 +16,8 @@ const mockSendTemplatedEmailToEventRegistrations = vi.fn()
 const mockSetReserveNotified = vi.fn()
 const mockGetReadyRegistrationsByEventId = vi.fn()
 const mockMarkParticipants = vi.fn()
-const mockQuery = vi.fn()
-const mockRead = vi.fn()
+const mockReadEventRegistrations = vi.fn()
+const mockReadRegistration = vi.fn()
 const mockReadEvent = vi.fn()
 const mockWriteEventFields = vi.fn()
 const mockAudit = vi.fn()
@@ -65,30 +65,22 @@ vi.doMock('../lib/ws/actions', async () => ({
   publishRegistrationPatches: mockPublishRegistrationPatches,
 }))
 
-import * as eventLib from '../lib/event'
-import * as regLib from '../lib/registration'
-
-vi.doMock('../lib/registration', () => ({
-  ...regLib,
+vi.doMock('../lib/registration', async () => ({
+  ...(await vi.importActual<typeof import('../lib/registration')>('../lib/registration')),
   getReadyRegistrationsByEventId: mockGetReadyRegistrationsByEventId,
   sendTemplatedEmailToEventRegistrations: mockSendTemplatedEmailToEventRegistrations,
   setReserveNotified: mockSetReserveNotified,
 }))
 
-vi.doMock('../lib/event', () => ({
-  ...eventLib,
+vi.doMock('../lib/event', async () => ({
+  ...(await vi.importActual<typeof import('../lib/event')>('../lib/event')),
   markParticipants: mockMarkParticipants,
 }))
 
-// lib/registration still reads the registration table through its own client (KOE-1409), and
 // lib/payment reads the stored row the entrant's patch is built from.
-vi.doMock('../utils/CustomDynamoClient', () => ({
-  default: vi.fn(function MockCustomDynamoClient() {
-    return {
-      query: mockQuery,
-      read: mockRead,
-    }
-  }),
+vi.doMock('../lib/repositories/registrationRepository', () => ({
+  readEventRegistrations: mockReadEventRegistrations,
+  readRegistration: mockReadRegistration,
 }))
 
 vi.doMock('../lib/repositories/eventRepository', () => ({
@@ -182,7 +174,7 @@ describe('sendMessagesLambda', () => {
     await sendMessagesLambda(event)
 
     expect(mockAuthorizeWithMemberOf).toHaveBeenCalledWith(event)
-    expect(mockQuery).not.toHaveBeenCalled()
+    expect(mockReadEventRegistrations).not.toHaveBeenCalled()
   })
 
   it('rejects users outside the event organizer before reading registrations or sending messages', async () => {
@@ -933,8 +925,8 @@ describe('sendMessagesLambda', () => {
           return { failed: ['failed@example.com'], ok: ['new@example.com', 'had@example.com'] }
         }
       )
-      mockRead.mockImplementation(async (key: { id: string }) => ({
-        ...registrations.find((registration) => registration.id === key.id),
+      mockReadRegistration.mockImplementation(async (_eventId: string, id: string) => ({
+        ...registrations.find((registration) => registration.id === id),
         updatedAt: storedAt,
       }))
       setEventBody(event, {

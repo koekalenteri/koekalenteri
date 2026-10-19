@@ -2,15 +2,12 @@ import type { SNSEvent } from 'aws-lambda'
 import type { EmailTemplateId, JsonConfirmedEvent, JsonEmailDeliveryStatus } from '../../types'
 import { emailDeliveryFailedAudit } from '../../lib/audit'
 import { CONFIG } from '../config'
-import { isConditionalCheckFailure } from '../lib/api-gw'
 import { audit, registrationAuditKey } from '../lib/audit'
 import { getEvent } from '../lib/event'
 import { logger } from '../lib/log'
 import { writeEmailSuppression } from '../lib/repositories/emailSuppressionRepository'
+import { writeEmailDeliveryStatus } from '../lib/repositories/registrationRepository'
 import { publishRegistrationPatches } from '../lib/ws/actions'
-import CustomDynamoClient from '../utils/CustomDynamoClient'
-
-const dynamoDB = new CustomDynamoClient(CONFIG.registrationTable)
 
 type SesNotification = {
   bounce?: {
@@ -88,30 +85,6 @@ const suppressAddress = async (eventId: string, registrationId: string, status: 
     ...(status.template ? { template: status.template } : undefined),
   })
 
-/**
- * Stores the status on the registration only if the registration exists: an unconditional update is
- * an upsert, and would leave a row holding nothing but `emailDeliveryStatus` in this stack's table.
- */
-const storeDeliveryStatus = async (eventId: string, registrationId: string, status: JsonEmailDeliveryStatus) => {
-  try {
-    await dynamoDB.update(
-      { eventId, id: registrationId },
-      {
-        set: {
-          emailDeliveryStatus: status,
-        },
-      },
-      undefined,
-      undefined,
-      { expression: 'attribute_exists(#id)', names: { '#id': 'id' } }
-    )
-    return true
-  } catch (error) {
-    if (!isConditionalCheckFailure(error)) throw error
-    return false
-  }
-}
-
 const handleNotification = async (notification: SesNotification) => {
   const eventId = getTag(notification, 'eventId')
   const registrationId = getTag(notification, 'registrationId')
@@ -129,7 +102,7 @@ const handleNotification = async (notification: SesNotification) => {
     return
   }
 
-  if (!(await storeDeliveryStatus(eventId, registrationId, status))) {
+  if (!(await writeEmailDeliveryStatus(eventId, registrationId, status))) {
     logger.info('SES notification for a registration not in this stack', { eventId, registrationId })
     return
   }

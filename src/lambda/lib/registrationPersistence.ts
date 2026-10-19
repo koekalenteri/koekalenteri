@@ -6,8 +6,8 @@ import {
   findExistingRegistrationToEventForDog,
   getReadyRegistrationsByEventId,
   patchRegistration,
-  saveRegistration,
 } from './registration'
+import { writeRegistration } from './repositories/registrationRepository'
 
 interface PersistedRegistration {
   groupPatches: Patch<JsonRegistration>[]
@@ -50,7 +50,7 @@ const saveRegistrationData = async (
 ): Promise<JsonRegistration> => {
   if (savedData !== data) return savedData
   if (existing) return patchRegistration(data.eventId, data.id, existing, data)
-  await saveRegistration(data)
+  await writeRegistration(data)
   return data
 }
 

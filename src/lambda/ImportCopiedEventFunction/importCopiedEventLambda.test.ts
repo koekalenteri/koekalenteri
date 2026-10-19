@@ -11,7 +11,7 @@ const mockReadJudges = vi.fn()
 const mockReadOrganizers = vi.fn()
 const mockSaveEvent = vi.fn()
 const mockPublishEventChange = vi.fn()
-const mockSaveRegistrations = vi.fn()
+const mockWriteRegistrations = vi.fn()
 const mockUpdateOrganizerEventStats = vi.fn()
 const mockAudit = vi.fn()
 
@@ -20,9 +20,11 @@ vi.doMock('../lib/repositories/judgeRepository', () => ({ readJudges: mockReadJu
 vi.doMock('../lib/repositories/organizerRepository', () => ({ readOrganizers: mockReadOrganizers }))
 vi.doMock('../lib/event', () => ({ saveEvent: mockSaveEvent }))
 vi.doMock('../lib/ws/actions', () => ({ publishEventChange: mockPublishEventChange }))
-vi.doMock('../lib/registration', async () => ({
-  ...(await vi.importActual<typeof import('../lib/registration')>('../lib/registration')),
-  saveRegistrations: mockSaveRegistrations,
+vi.doMock('../lib/repositories/registrationRepository', async () => ({
+  ...(await vi.importActual<typeof import('../lib/repositories/registrationRepository')>(
+    '../lib/repositories/registrationRepository'
+  )),
+  writeRegistrations: mockWriteRegistrations,
 }))
 vi.doMock('../lib/stats', async () => ({
   ...(await vi.importActual<typeof import('../lib/stats')>('../lib/stats')),
@@ -95,7 +97,7 @@ describe('importCopiedEvent', () => {
     )
     expect(mockPublishEventChange).toHaveBeenCalledTimes(1)
     expect(mockQueryUsersByEmail).toHaveBeenCalledWith('jukka@example.com')
-    expect(mockSaveRegistrations).toHaveBeenCalledWith([
+    expect(mockWriteRegistrations).toHaveBeenCalledWith([
       expect.objectContaining({ eventId: 'copy-1', updatedAt: '2026-09-29T12:00:00.000Z' }),
       expect.objectContaining({ eventId: 'copy-1', updatedAt: '2026-09-29T12:00:00.000Z' }),
     ])
@@ -175,7 +177,7 @@ describe('importCopiedEvent', () => {
   it('leaves the stats alone for an event without registrations', async () => {
     await importCopiedEvent({ ...request(), copy: { event: request().copy.event, registrations: [] } })
 
-    expect(mockSaveRegistrations).toHaveBeenCalledWith([])
+    expect(mockWriteRegistrations).toHaveBeenCalledWith([])
     expect(mockUpdateOrganizerEventStats).not.toHaveBeenCalled()
   })
 })

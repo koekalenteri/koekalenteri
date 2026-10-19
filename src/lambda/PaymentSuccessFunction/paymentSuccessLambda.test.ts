@@ -70,7 +70,6 @@ vi.doMock('../lib/payment', async () => ({
 }))
 
 vi.doMock('../lib/registration', () => ({
-  clearRegistrationEmailDeliveryStatus: mockClearRegistrationEmailDeliveryStatus,
   createRegistrationPatch: vi.fn((registration: Record<string, unknown>, existing: Record<string, unknown> = {}) => ({
     eventId: registration.eventId,
     id: registration.id,
@@ -100,7 +99,8 @@ vi.doMock('../lib/repositories/transactionRepository', () => ({
 
 // The publisher's strongly consistent registration read answers as getRegistration does.
 vi.doMock('../lib/repositories/registrationRepository', () => ({
-  readRegistrationConsistently: (eventId: string, id: string) => mockGetRegistration(eventId, id),
+  clearRegistrationEmailDeliveryStatus: mockClearRegistrationEmailDeliveryStatus,
+  readRegistration: (eventId: string, id: string) => mockGetRegistration(eventId, id),
 }))
 
 vi.doMock('../lib/event', () => ({

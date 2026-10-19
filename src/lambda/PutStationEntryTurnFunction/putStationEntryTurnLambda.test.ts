@@ -8,7 +8,7 @@ const mockLambda = vi.fn((_name, fn) => fn)
 const mockResponse = vi.fn()
 const mockGetParam = vi.fn()
 const mockGetEvent = vi.fn()
-const mockGetRegistrationsByEventId = vi.fn()
+const mockReadEventRegistrations = vi.fn()
 const mockWriteStationTurn = vi.fn()
 const mockParseStationTurnOp = vi.fn()
 const mockPublishEventPatch = vi.fn()
@@ -29,7 +29,9 @@ vi.doMock('../lib/lambda', async () => ({
 }))
 
 vi.doMock('../lib/event', () => ({ getEvent: mockGetEvent }))
-vi.doMock('../lib/registration', () => ({ getRegistrationsByEventId: mockGetRegistrationsByEventId }))
+vi.doMock('../lib/repositories/registrationRepository', () => ({
+  readEventRegistrations: mockReadEventRegistrations,
+}))
 vi.doMock('../lib/stationTurns', () => ({
   parseStationTurnOp: mockParseStationTurnOp,
   writeStationTurn: mockWriteStationTurn,
@@ -72,7 +74,7 @@ describe('putStationEntryTurnLambda', () => {
     vi.clearAllMocks()
     mockGetParam.mockImplementation((_event, name: string) => (name === 'eventId' ? 'event-1' : 'post-1'))
     mockGetEvent.mockResolvedValue(confirmedEvent)
-    mockGetRegistrationsByEventId.mockResolvedValue([])
+    mockReadEventRegistrations.mockResolvedValue([])
     mockParseStationTurnOp.mockReturnValue({ type: 'end' })
     mockWriteStationTurn.mockResolvedValue([storedTurn])
   })

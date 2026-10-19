@@ -268,6 +268,27 @@ describe('eventRepository', () => {
       )
     })
 
+    it('holds a hidden class to its stored false entry, not to the entry being missing', async () => {
+      // A hidden class's entry is there and false; a condition on it being absent would never hold.
+      mockUpdate.mockResolvedValueOnce({ Attributes: { resultsPublished: { ALO: ['2026-09-12'] } } })
+
+      await expect(
+        writeResultsPublished('event-1', 'ALO', { ALO: false }, { ALO: ['2026-09-12'] }, updatedAt)
+      ).resolves.toEqual({ ALO: ['2026-09-12'] })
+
+      expect(mockUpdate).toHaveBeenCalledWith(
+        { id: 'event-1' },
+        { set: { 'resultsPublished.ALO': ['2026-09-12'], updatedAt } },
+        'event-table',
+        'ALL_NEW',
+        {
+          expression: 'attribute_exists(#id) AND #resultsPublished.#resultsClass = :foldedFrom',
+          names: { '#id': 'id', '#resultsClass': 'ALO', '#resultsPublished': 'resultsPublished' },
+          values: { ':foldedFrom': false },
+        }
+      )
+    })
+
     it('holds a class missing from the map to still being missing', async () => {
       // An entry never written is absent, not false: a condition on false would never hold.
       mockUpdate.mockResolvedValueOnce({ Attributes: {} })

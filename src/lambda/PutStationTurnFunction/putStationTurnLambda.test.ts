@@ -9,7 +9,7 @@ const mockResponse = vi.fn()
 const mockGetParam = vi.fn()
 const mockAuthorizeWithMemberOf = vi.fn()
 const mockGetAuthorizedEvent = vi.fn()
-const mockGetRegistrationsByEventId = vi.fn()
+const mockReadEventRegistrations = vi.fn()
 const mockParseStationTurnOp = vi.fn()
 const mockWriteStationTurn = vi.fn()
 const mockPublishEventPatch = vi.fn()
@@ -31,7 +31,9 @@ vi.doMock('../lib/lambda', async () => ({
 
 vi.doMock('../lib/auth', () => ({ authorizeWithMemberOf: mockAuthorizeWithMemberOf }))
 vi.doMock('../lib/eventAuth', () => ({ getAuthorizedEvent: mockGetAuthorizedEvent }))
-vi.doMock('../lib/registration', () => ({ getRegistrationsByEventId: mockGetRegistrationsByEventId }))
+vi.doMock('../lib/repositories/registrationRepository', () => ({
+  readEventRegistrations: mockReadEventRegistrations,
+}))
 vi.doMock('../lib/stationTurns', () => ({
   parseStationTurnOp: mockParseStationTurnOp,
   writeStationTurn: mockWriteStationTurn,
@@ -69,7 +71,7 @@ describe('putStationTurnLambda', () => {
     mockGetParam.mockReturnValue('event-1')
     mockAuthorizeWithMemberOf.mockResolvedValue({ memberOf: ['org-1'], user: { name: 'Test User' } })
     mockGetAuthorizedEvent.mockResolvedValue(confirmedEvent())
-    mockGetRegistrationsByEventId.mockResolvedValue([])
+    mockReadEventRegistrations.mockResolvedValue([])
     mockParseStationTurnOp.mockReturnValue({ pause: 'coffee', type: 'break' })
     mockWriteStationTurn.mockResolvedValue([storedTurn])
   })

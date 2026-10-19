@@ -19,7 +19,7 @@ const mockRegistrationEmailTags = vi.fn()
 const mockAudit = vi.fn()
 const mockRegistrationAuditKey = vi.fn()
 const mockReadTransaction = vi.fn()
-const mockReadRegistrationConsistently = vi.fn()
+const mockReadRegistration = vi.fn()
 const mockPublishRegistrationPatches = vi.fn().mockResolvedValue({ attempted: 0, failed: 0, gone: 0, sent: 0 })
 const mockPublishCancelledRegistration = vi.fn()
 const mockPublishParticipantPayments = vi.fn()
@@ -47,7 +47,6 @@ vi.doMock('../lib/payment', () => ({
 }))
 
 vi.doMock('../lib/registration', () => ({
-  clearRegistrationEmailDeliveryStatus: mockClearRegistrationEmailDeliveryStatus,
   getRegistration: mockGetRegistration,
   getRegistrationEditToken: vi.fn(() => 'test-edit-token'),
 }))
@@ -73,7 +72,8 @@ vi.doMock('../lib/repositories/transactionRepository', () => ({
 }))
 
 vi.doMock('../lib/repositories/registrationRepository', () => ({
-  readRegistrationConsistently: mockReadRegistrationConsistently,
+  clearRegistrationEmailDeliveryStatus: mockClearRegistrationEmailDeliveryStatus,
+  readRegistration: mockReadRegistration,
 }))
 
 vi.doMock('../lib/ws/actions', () => ({
@@ -142,7 +142,7 @@ describe('refundSuccessLambda', () => {
 
     mockReadTransaction.mockResolvedValue(mockTransaction)
     // The registration is read again, strongly consistent, after applying (KOE-1529).
-    mockReadRegistrationConsistently.mockResolvedValue({ ...mockRegistration, openRefunds: [] })
+    mockReadRegistration.mockResolvedValue({ ...mockRegistration, openRefunds: [] })
     mockGetRegistration.mockImplementation(() => Promise.resolve(structuredClone(mockRegistration)))
     mockGetEvent.mockResolvedValue(mockConfirmedEvent)
     mockUpdateTransactionStatus.mockResolvedValue(true)
@@ -277,7 +277,7 @@ describe('refundSuccessLambda', () => {
       'org-1'
     )
 
-    expect(mockReadRegistrationConsistently).toHaveBeenCalledWith('event123', 'reg456')
+    expect(mockReadRegistration).toHaveBeenCalledWith('event123', 'reg456', true)
 
     // Verify email was sent
     expect(mockSendTemplatedMail).toHaveBeenCalledWith(
@@ -411,7 +411,7 @@ describe('refundSuccessLambda', () => {
     await refundSuccessLambda(event)
 
     // Verify the registration was not read again for a patch
-    expect(mockReadRegistrationConsistently).not.toHaveBeenCalled()
+    expect(mockReadRegistration).not.toHaveBeenCalled()
 
     // Verify email was not sent
     expect(mockSendTemplatedMail).not.toHaveBeenCalled()

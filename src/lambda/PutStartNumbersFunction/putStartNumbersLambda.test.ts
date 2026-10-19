@@ -13,9 +13,9 @@ const mockAuthorizeWithMemberOf = vi.fn()
 const mockGetAuthorizedEvent = vi.fn()
 const mockLockRegistrationGroups = vi.fn()
 const mockReleaseLock = vi.fn()
-const mockGetRegistrationsByEventId = vi.fn()
+const mockReadEventRegistrations = vi.fn()
 const mockUpdateRegistrationField = vi.fn()
-const mockUpdate = vi.fn()
+const mockWriteEventFields = vi.fn()
 const mockPublishRegistrationPatches = vi.fn()
 const mockPublishEventPatch = vi.fn()
 const mockPublishPublicStartList = vi.fn()
@@ -43,15 +43,11 @@ vi.doMock('../lib/audit', () => ({
 vi.doMock('../lib/auth', () => ({ authorizeWithMemberOf: mockAuthorizeWithMemberOf }))
 vi.doMock('../lib/eventAuth', () => ({ getAuthorizedEvent: mockGetAuthorizedEvent }))
 vi.doMock('../lib/event', () => ({ lockRegistrationGroups: mockLockRegistrationGroups }))
-vi.doMock('../lib/registration', () => ({
-  getRegistrationsByEventId: mockGetRegistrationsByEventId,
+vi.doMock('../lib/repositories/registrationRepository', () => ({
+  readEventRegistrations: mockReadEventRegistrations,
   updateRegistrationField: mockUpdateRegistrationField,
 }))
-vi.doMock('../utils/CustomDynamoClient', () => ({
-  default: vi.fn(function MockCustomDynamoClient() {
-    return { update: mockUpdate }
-  }),
-}))
+vi.doMock('../lib/repositories/eventRepository', () => ({ writeEventFields: mockWriteEventFields }))
 vi.doMock('../lib/ws/actions', () => ({
   publishEventPatch: mockPublishEventPatch,
   publishRegistrationPatches: mockPublishRegistrationPatches,
@@ -92,7 +88,7 @@ describe('putStartNumbersLambda', () => {
     mockAuthorizeWithMemberOf.mockResolvedValue({ memberOf: ['org-1'], user: { id: 'u1', name: 'Sihteeri' } })
     mockGetAuthorizedEvent.mockResolvedValue(confirmedEvent())
     mockLockRegistrationGroups.mockResolvedValue(mockReleaseLock)
-    mockGetRegistrationsByEventId.mockResolvedValue([registration('run-1'), registration('run-2')])
+    mockReadEventRegistrations.mockResolvedValue([registration('run-1'), registration('run-2')])
   })
 
   it('publishing freezes the class and flips the flag in the same locked request', async () => {
@@ -107,11 +103,9 @@ describe('putStartNumbersLambda', () => {
       'startGroup',
       expect.objectContaining({ number: 1 })
     )
-    expect(mockUpdate).toHaveBeenCalledWith(
-      { id: 'event-1' },
-      { set: { startNumbersPublished: { ALO: true }, updatedAt: expect.any(String) } },
-      expect.anything()
-    )
+    expect(mockWriteEventFields).toHaveBeenCalledWith('event-1', {
+      set: { startNumbersPublished: { ALO: true }, updatedAt: expect.any(String) },
+    })
     expect(mockAudit).toHaveBeenCalledWith(
       expect.objectContaining({
         messageKey: 'audit.messages.classStartNumbersPublished',
@@ -152,7 +146,7 @@ describe('putStartNumbersLambda', () => {
         startDate: '2026-09-12',
       })
     )
-    mockGetRegistrationsByEventId.mockResolvedValue([
+    mockReadEventRegistrations.mockResolvedValue([
       registration('run-1'),
       registration('run-2', { group: { date: '2026-09-13', key: 'ALO-AP', number: 2, time: 'ap' } }),
     ])
@@ -167,11 +161,9 @@ describe('putStartNumbersLambda', () => {
       'startGroup',
       expect.objectContaining({ number: 1 })
     )
-    expect(mockUpdate).toHaveBeenCalledWith(
-      { id: 'event-1' },
-      { set: { startNumbersPublished: { ALO: ['2026-09-12'] }, updatedAt: expect.any(String) } },
-      expect.anything()
-    )
+    expect(mockWriteEventFields).toHaveBeenCalledWith('event-1', {
+      set: { startNumbersPublished: { ALO: ['2026-09-12'] }, updatedAt: expect.any(String) },
+    })
     expect(mockAudit).toHaveBeenCalledWith(
       expect.objectContaining({
         messageKey: 'audit.messages.classStartNumbersPublishedDay',
@@ -184,7 +176,7 @@ describe('putStartNumbersLambda', () => {
     mockGetAuthorizedEvent.mockResolvedValue(
       asJsonConfirmedEvent({ ...confirmedEvent(), classes: [{ class: 'ALO', date: '2026-09-12' }] })
     )
-    mockGetRegistrationsByEventId.mockResolvedValue([
+    mockReadEventRegistrations.mockResolvedValue([
       registration('run-1'),
       registration('run-2', { group: { date: '2026-09-12', key: 'ALO-IP', number: 2, time: 'ip' } }),
     ])
@@ -199,11 +191,9 @@ describe('putStartNumbersLambda', () => {
       'startGroup',
       expect.objectContaining({ number: 1 })
     )
-    expect(mockUpdate).toHaveBeenCalledWith(
-      { id: 'event-1' },
-      { set: { startNumbersPublished: { ALO: ['2026-09-12/ap'] }, updatedAt: expect.any(String) } },
-      expect.anything()
-    )
+    expect(mockWriteEventFields).toHaveBeenCalledWith('event-1', {
+      set: { startNumbersPublished: { ALO: ['2026-09-12/ap'] }, updatedAt: expect.any(String) },
+    })
     expect(mockAudit).toHaveBeenCalledWith(
       expect.objectContaining({
         messageKey: 'audit.messages.classStartNumbersPublishedDay',
@@ -218,7 +208,7 @@ describe('putStartNumbersLambda', () => {
 
     await putStartNumbersLambda(apiEvent({ date: '2026-09-12', eventClass: 'ALO', published: true, time: 'kp' }))
     expect(mockResponse).toHaveBeenLastCalledWith(422, 'invalid time', expect.anything())
-    expect(mockUpdate).not.toHaveBeenCalled()
+    expect(mockWriteEventFields).not.toHaveBeenCalled()
   })
 
   it.each(['12.9.2026', '2026-02-30', '2026-13-45'])('refuses a malformed day: %s', async (date) => {
@@ -246,10 +236,7 @@ describe('putStartNumbersLambda', () => {
   })
 
   it('refuses to publish numbers while an invitation is still to go (KOE-1466)', async () => {
-    mockGetRegistrationsByEventId.mockResolvedValue([
-      registration('run-1'),
-      registration('run-2', { messagesSent: {} }),
-    ])
+    mockReadEventRegistrations.mockResolvedValue([registration('run-1'), registration('run-2', { messagesSent: {} })])
 
     await putStartNumbersLambda(apiEvent({ eventClass: 'ALO', published: true }))
 
@@ -258,7 +245,7 @@ describe('putStartNumbersLambda', () => {
       expect.objectContaining({ publish: 'startNumbers', reason: 'invitations' }),
       expect.anything()
     )
-    expect(mockUpdate).not.toHaveBeenCalled()
+    expect(mockWriteEventFields).not.toHaveBeenCalled()
   })
 
   it('hiding only flips the flag: the frozen numbers stay put', async () => {
@@ -270,11 +257,9 @@ describe('putStartNumbersLambda', () => {
     await putStartNumbersLambda(apiEvent({ eventClass: 'ALO', published: false }))
 
     expect(mockUpdateRegistrationField).not.toHaveBeenCalled()
-    expect(mockUpdate).toHaveBeenCalledWith(
-      { id: 'event-1' },
-      { set: { startNumbersPublished: { ALO: false }, updatedAt: expect.any(String) } },
-      expect.anything()
-    )
+    expect(mockWriteEventFields).toHaveBeenCalledWith('event-1', {
+      set: { startNumbersPublished: { ALO: false }, updatedAt: expect.any(String) },
+    })
     // Withdrawing has to reach an open list as surely as publishing: its rows are still showing
     // numbers the public may no longer see (KOE-1352).
     expect(mockPublishEventPatch).toHaveBeenCalledWith(
@@ -293,7 +278,7 @@ describe('putStartNumbersLambda', () => {
       steps.push(name)
     }
     mockUpdateRegistrationField.mockImplementation(step('write number'))
-    mockUpdate.mockImplementation(step('write flag'))
+    mockWriteEventFields.mockImplementation(step('write flag'))
     mockReleaseLock.mockImplementation(step('release lock'))
     mockPublishPublicStartList.mockImplementation(step('publish start list'))
 
@@ -303,7 +288,7 @@ describe('putStartNumbersLambda', () => {
   })
 
   it('writes drawn numbers through the same endpoint', async () => {
-    mockGetRegistrationsByEventId.mockResolvedValue([
+    mockReadEventRegistrations.mockResolvedValue([
       registration('run-1', { startGroup: { date: '2026-09-12', key: 'ALO-AP', number: 1, time: 'ap' } }),
     ])
 
@@ -329,7 +314,7 @@ describe('putStartNumbersLambda', () => {
     })
     // Entering the draw changes no publication state, so the event is left where it stands.
     expect(mockPublishEventPatch).not.toHaveBeenCalled()
-    expect(mockUpdate).not.toHaveBeenCalled()
+    expect(mockWriteEventFields).not.toHaveBeenCalled()
     // The numbers are on the rows, though, so a published list has to be sent again.
     expect(mockPublishPublicStartList).toHaveBeenCalledWith('event-1')
   })

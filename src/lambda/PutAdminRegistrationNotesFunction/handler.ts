@@ -5,7 +5,7 @@ import { authorizeWithMemberOf } from '../lib/auth'
 import { getAuthorizedEvent } from '../lib/eventAuth'
 import { parseJSONWithFallback } from '../lib/json'
 import { lambda, response } from '../lib/lambda'
-import { updateRegistrationField } from '../lib/registration'
+import { updateRegistrationField } from '../lib/repositories/registrationRepository'
 import { publishRegistrationPatches } from '../lib/ws/actions'
 
 const putAdminRegistrationNotesLambda = lambda('putRegistrationNotes', async (event) => {

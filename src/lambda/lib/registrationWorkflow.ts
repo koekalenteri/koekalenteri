@@ -35,18 +35,20 @@ import { httpError } from './lambda'
 import { logger } from './log'
 import { publishParticipantPayments } from './payment'
 import {
-  claimNewRegistrationPostProcessing,
-  clearRegistrationEmailDeliveryStatus,
   createRegistrationPatch,
   DEFAULT_REGISTRATION_EDIT_TOKEN_VERSION,
   findExistingRegistrationToEventForDog,
   getCancelAuditMessage,
   getRegistrationEditToken,
-  markNewRegistrationPhase,
   recordLastEmail,
   registrationConflictBody,
 } from './registration'
 import { getRegistrationChanges } from './registrationAudit'
+import {
+  claimNewRegistrationPostProcessing,
+  clearRegistrationEmailDeliveryStatus,
+  markNewRegistrationPhase,
+} from './repositories/registrationRepository'
 import { applyNewRegistrationStatsOnce, updateEventStatsForRegistration } from './stats'
 import { publishEventCounts, publishRegistrationPatches, publishRegistrationPatchesStrict } from './ws/actions'
 import { publishPublicStartList } from './ws/publicStartList'

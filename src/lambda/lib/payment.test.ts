@@ -17,7 +17,7 @@ const mockAudit = vi.fn<() => Promise<void>>()
 const mockGetEvent = vi.fn<() => Promise<Partial<JsonConfirmedEvent>>>()
 const mockGetRegistration = vi.fn<() => Promise<Partial<JsonRegistration>>>()
 const mockReadTransaction = vi.fn<() => Promise<JsonPaymentTransaction | JsonRefundTransaction | undefined>>()
-const mockReadRegistrationConsistently = vi.fn<() => Promise<JsonRegistration | undefined>>()
+const mockReadRegistration = vi.fn<() => Promise<JsonRegistration | undefined>>()
 const mockFailUnfinishedTransaction = vi.fn<() => Promise<boolean>>()
 const mockUpdateUnresolvedTransaction = vi.fn<() => Promise<boolean>>()
 const mockDropOpenTransactionId = vi.fn<() => Promise<string[] | undefined>>()
@@ -76,7 +76,7 @@ vi.doMock('./repositories/transactionRepository', () => ({
 }))
 vi.doMock('./repositories/registrationRepository', () => ({
   dropOpenTransactionId: mockDropOpenTransactionId,
-  readRegistrationConsistently: mockReadRegistrationConsistently,
+  readRegistration: mockReadRegistration,
 }))
 const {
   dropOpenTransaction,
@@ -382,7 +382,7 @@ describe('payment', () => {
     })
 
     it('storedParticipantPaymentPatch builds from the row as stored, read strongly consistent (KOE-1553)', async () => {
-      mockReadRegistrationConsistently.mockResolvedValueOnce({
+      mockReadRegistration.mockResolvedValueOnce({
         ...withOpenPayment,
         updatedAt: '2030-01-01T00:00:00.500Z',
       })
@@ -395,11 +395,11 @@ describe('payment', () => {
         payment: { canPay: false, status: 'inProgress' },
         updatedAt: '2030-01-01T00:00:00.500Z',
       })
-      expect(mockReadRegistrationConsistently).toHaveBeenCalledWith(event.id, withOpenPayment.id)
+      expect(mockReadRegistration).toHaveBeenCalledWith(event.id, withOpenPayment.id, true)
     })
 
     it('storedParticipantPaymentPatch has nothing for a row that is gone', async () => {
-      mockReadRegistrationConsistently.mockResolvedValueOnce(undefined)
+      mockReadRegistration.mockResolvedValueOnce(undefined)
 
       await expect(storedParticipantPaymentPatch(event, 'gone')).resolves.toBeUndefined()
       expect(mockReadPaymentTransactions).not.toHaveBeenCalled()
@@ -407,7 +407,7 @@ describe('payment', () => {
 
     it("publishParticipantPayments sends each entrant its own stored row's picture", async () => {
       const other: JsonRegistration = { ...withOpenPayment, id: 'other', openPayments: [], paidAmount: 50 }
-      mockReadRegistrationConsistently.mockResolvedValueOnce(withOpenPayment).mockResolvedValueOnce(other)
+      mockReadRegistration.mockResolvedValueOnce(withOpenPayment).mockResolvedValueOnce(other)
       mockReadPaymentTransactions.mockResolvedValueOnce([
         { createdAt: minutesAgo(10), status: 'pending', type: 'payment' },
       ])
@@ -430,7 +430,7 @@ describe('payment', () => {
     it('publishParticipantPaymentsOfEvent reads the event once for the open pages (KOE-1566)', async () => {
       const other: JsonRegistration = { ...withOpenPayment, id: 'other', openPayments: [], paidAmount: 50 }
       mockGetEvent.mockResolvedValueOnce(event)
-      mockReadRegistrationConsistently.mockResolvedValueOnce(withOpenPayment).mockResolvedValueOnce(other)
+      mockReadRegistration.mockResolvedValueOnce(withOpenPayment).mockResolvedValueOnce(other)
       mockReadPaymentTransactions.mockResolvedValueOnce([
         { createdAt: minutesAgo(1), status: 'pending', type: 'payment' },
       ])
@@ -439,7 +439,7 @@ describe('payment', () => {
 
       expect(mockGetEvent).toHaveBeenCalledTimes(1)
       expect(mockGetEvent).toHaveBeenCalledWith(event.id)
-      expect(mockReadRegistrationConsistently).toHaveBeenCalledWith(event.id, other.id)
+      expect(mockReadRegistration).toHaveBeenCalledWith(event.id, other.id, true)
       expect(mockToEntrant).toHaveBeenCalledWith(
         event.id,
         withOpenPayment.id,
@@ -535,7 +535,7 @@ describe('payment', () => {
       })
       // Which registration the caller publishes; what it is told is read when it is sent (KOE-1566).
       expect(settled.cancelled).toEqual({ eventId: 'event-1', field: 'openPayments', registrationId: 'registration-1' })
-      expect(mockReadRegistrationConsistently).not.toHaveBeenCalled()
+      expect(mockReadRegistration).not.toHaveBeenCalled()
       expect(mockGetEvent).not.toHaveBeenCalled()
     })
 
@@ -545,7 +545,7 @@ describe('payment', () => {
       ['the event read', () => mockGetEvent.mockRejectedValue(new Error('event table down'))],
       [
         'the strongly consistent registration read',
-        () => mockReadRegistrationConsistently.mockRejectedValue(new Error('read throttled')),
+        () => mockReadRegistration.mockRejectedValue(new Error('read throttled')),
       ],
     ])('still settles when %s would fail', async (_name, failRead) => {
       failRead()
@@ -582,7 +582,7 @@ describe('payment', () => {
 
       expect(settled.changed).toBe(false)
       expect(settled.cancelled).toBeUndefined()
-      expect(mockReadRegistrationConsistently).not.toHaveBeenCalled()
+      expect(mockReadRegistration).not.toHaveBeenCalled()
     })
   })
 
@@ -602,7 +602,7 @@ describe('payment', () => {
 
     beforeEach(() => {
       errorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined)
-      mockReadRegistrationConsistently.mockResolvedValue(settledRow)
+      mockReadRegistration.mockResolvedValue(settledRow)
     })
 
     afterEach(() => {
@@ -612,8 +612,8 @@ describe('payment', () => {
     it('sends the admins the open set and the entrant the picture, from one consistent read', async () => {
       await publishCancelledRegistration(cancelled)
 
-      expect(mockReadRegistrationConsistently).toHaveBeenCalledTimes(1)
-      expect(mockReadRegistrationConsistently).toHaveBeenCalledWith('event-1', 'registration-1')
+      expect(mockReadRegistration).toHaveBeenCalledTimes(1)
+      expect(mockReadRegistration).toHaveBeenCalledWith('event-1', 'registration-1', true)
       expect(mockOrganizerAudience).toHaveBeenCalledWith('organizer-1', 'event-1')
       expect(mockToAdmins).toHaveBeenCalledWith('event-1', [
         { eventId: 'event-1', id: 'registration-1', openPayments: [], updatedAt: '2026-08-16T12:00:00.000Z' },
@@ -633,7 +633,7 @@ describe('payment', () => {
       // KOE-1529 correction: recordDuplicatePayment writes the transaction and the registration
       // (paymentStatus: DUPLICATE) as two separate updates. A settle racing into that gap still finds
       // the id open; what is published must say what the row holds when it is sent.
-      mockReadRegistrationConsistently.mockResolvedValueOnce({ ...settledRow, paymentStatus: 'DUPLICATE' })
+      mockReadRegistration.mockResolvedValueOnce({ ...settledRow, paymentStatus: 'DUPLICATE' })
 
       await publishCancelledRegistration(cancelled)
 
@@ -645,7 +645,7 @@ describe('payment', () => {
     })
 
     it('sends nothing for a row that is gone', async () => {
-      mockReadRegistrationConsistently.mockResolvedValueOnce(undefined)
+      mockReadRegistration.mockResolvedValueOnce(undefined)
 
       await publishCancelledRegistration(cancelled)
 
@@ -655,10 +655,7 @@ describe('payment', () => {
     })
 
     it.each([
-      [
-        'the registration read',
-        () => mockReadRegistrationConsistently.mockRejectedValueOnce(new Error('read throttled')),
-      ],
+      ['the registration read', () => mockReadRegistration.mockRejectedValueOnce(new Error('read throttled'))],
       ['the event read', () => mockGetEvent.mockRejectedValueOnce(new Error('event table down'))],
     ])('logs and resolves when %s fails', async (_name, failRead) => {
       failRead()
@@ -673,7 +670,7 @@ describe('payment', () => {
     })
 
     it('still sends the admins their patch when the entrant picture cannot be built', async () => {
-      mockReadRegistrationConsistently.mockResolvedValueOnce({ ...settledRow, openPayments: ['transaction-2'] })
+      mockReadRegistration.mockResolvedValueOnce({ ...settledRow, openPayments: ['transaction-2'] })
       mockReadPaymentTransactions.mockRejectedValueOnce(new Error('transaction table down'))
 
       await expect(publishCancelledRegistration(cancelled)).resolves.toBeUndefined()

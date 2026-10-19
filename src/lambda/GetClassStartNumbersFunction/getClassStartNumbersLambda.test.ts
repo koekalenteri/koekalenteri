@@ -7,7 +7,7 @@ const mockLambda = vi.fn((_name, fn) => fn)
 const mockResponse = vi.fn()
 const mockGetParam = vi.fn()
 const mockGetEvent = vi.fn()
-const mockGetRegistrationsByEventId = vi.fn()
+const mockReadEventRegistrations = vi.fn()
 
 vi.doMock('../lib/lambda', async () => ({
   ...(await vi.importActual<typeof import('../lib/lambda')>('../lib/lambda')),
@@ -25,7 +25,9 @@ vi.doMock('../lib/lambda', async () => ({
 }))
 
 vi.doMock('../lib/event', () => ({ getEvent: mockGetEvent }))
-vi.doMock('../lib/registration', () => ({ getRegistrationsByEventId: mockGetRegistrationsByEventId }))
+vi.doMock('../lib/repositories/registrationRepository', () => ({
+  readEventRegistrations: mockReadEventRegistrations,
+}))
 
 const { default: getClassStartNumbersLambda } = await import('./handler')
 
@@ -61,7 +63,7 @@ describe('getClassStartNumbersLambda', () => {
     vi.clearAllMocks()
     mockGetParam.mockImplementation((_event, name: string) => (name === 'eventId' ? 'event-1' : 'ALO'))
     mockGetEvent.mockResolvedValue(confirmedEvent)
-    mockGetRegistrationsByEventId.mockResolvedValue([dog('alo-1', 'ALO', 1), dog('avo-1', 'AVO', 2)])
+    mockReadEventRegistrations.mockResolvedValue([dog('alo-1', 'ALO', 1), dog('avo-1', 'AVO', 2)])
   })
 
   it('serves the class sheet for the right token, and only that class', async () => {
@@ -79,6 +81,6 @@ describe('getClassStartNumbersLambda', () => {
   it('refuses a wrong token without reading the registrations', async () => {
     await expect(getClassStartNumbersLambda(apiEvent('wrong'))).rejects.toThrow('not found')
 
-    expect(mockGetRegistrationsByEventId).not.toHaveBeenCalled()
+    expect(mockReadEventRegistrations).not.toHaveBeenCalled()
   })
 })

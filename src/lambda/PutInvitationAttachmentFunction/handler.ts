@@ -6,8 +6,8 @@ import { getEvent } from '../lib/event'
 import { deleteFile, parsePostFile, uploadFile } from '../lib/file'
 import { getParam, httpError, lambda, response } from '../lib/lambda'
 import { logger } from '../lib/log'
-import { getRegistrationsByEventId } from '../lib/registration'
 import { writeEventFields } from '../lib/repositories/eventRepository'
+import { readEventRegistrations } from '../lib/repositories/registrationRepository'
 import { publishAdminEventPatch } from '../lib/ws/actions'
 
 /**
@@ -21,7 +21,7 @@ const findStaleAttachment = async (
 ): Promise<string | undefined> => {
   if (!oldAttachment) return undefined
 
-  const referenced = (await getRegistrationsByEventId(eventId)).some(
+  const referenced = (await readEventRegistrations(eventId)).some(
     (registration) =>
       registration.invitationAttachmentSent === oldAttachment ||
       registration.invitationAttachmentRead === oldAttachment ||

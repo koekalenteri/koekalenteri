@@ -4,7 +4,7 @@ import { audit, eventAuditKey } from '../lib/audit'
 import { getEvent, lockRegistrationGroups } from '../lib/event'
 import { parseJSONWithFallback } from '../lib/json'
 import { getParam, httpError, lambda, response } from '../lib/lambda'
-import { getRegistrationsByEventId } from '../lib/registration'
+import { readEventRegistrations } from '../lib/repositories/registrationRepository'
 import { assertEntriesInClassSpace, authorizeStartNumberLink } from '../lib/startNumberLink'
 import { assignStartNumbers, parseStartNumberEntries } from '../lib/startNumbers'
 import { publishRegistrationPatches } from '../lib/ws/actions'
@@ -32,7 +32,7 @@ const putClassStartNumbersLambda = lambda('putClassStartNumbers', async (event) 
   const releaseGroupsLock = await lockRegistrationGroups(eventId, 8)
   let patches: Patch<JsonRegistration>[] = []
   try {
-    const registrations = await getRegistrationsByEventId(eventId)
+    const registrations = await readEventRegistrations(eventId)
     assertEntriesInClassSpace(registrations, eventClass, numbers)
 
     patches = await assignStartNumbers(eventId, registrations, numbers, user)
