@@ -1,4 +1,4 @@
-import type { JsonRegistration } from '../../types'
+import type { JsonRegistration, PatchOperation } from '../../types'
 import { vi } from 'vitest'
 import { ADMIN_PROTECTED_REGISTRATION_FIELDS, REGISTRATION_MONEY_FIELDS } from '../../lib/registration'
 import { httpError, LambdaError } from '../lib/lambda'
@@ -177,6 +177,18 @@ describe('putAdminRegistrationLambda', () => {
     },
   })
 
+  /** The new registration the form sends: the same body without an id. */
+  const { id: _id, ...newRegistrationBody } = JSON.parse(event.body ?? '')
+
+  /** A secretary's edit of the stored registration reg456, as the admin form sends it. */
+  const edit = (operations: PatchOperation[], modifiedAt?: string) => ({
+    ...event,
+    body: JSON.stringify({ eventId: 'event123', id: 'reg456', modifiedAt, operations }),
+    httpMethod: 'PATCH',
+  })
+  const notesOperation: PatchOperation = { path: ['notes'], type: 'CREATE', value: 'updated notes' }
+  const notesEdit = edit([notesOperation])
+
   beforeEach(() => {
     vi.clearAllMocks()
 
@@ -254,6 +266,36 @@ describe('putAdminRegistrationLambda', () => {
     expect(mockSaveRegistration).not.toHaveBeenCalled()
   })
 
+  describe('an existing registration changes only through operations (KOE-1575)', () => {
+    /** A copy of the registration read before a payment set it ready and confirmed. */
+    const staleCopy = { ...JSON.parse(event.body ?? ''), confirmed: false, state: 'creating' }
+
+    it.each([
+      [
+        'a full save with its id',
+        'POST',
+        staleCopy,
+        'Bad request: an existing registration is changed only with patch operations',
+      ],
+      ['a PATCH without operations', 'PATCH', staleCopy, 'Bad request: PATCH requires patch operations'],
+      [
+        'a PATCH without operations or an id',
+        'PATCH',
+        { notes: 'patched' },
+        'Bad request: PATCH requires patch operations',
+      ],
+    ])('refuses %s before reading or writing anything', async (_name, httpMethod, body, message) => {
+      const result = await putAdminRegistrationLambda({ ...event, body: JSON.stringify(body), httpMethod })
+
+      expect(result.statusCode).toBe(400)
+      expect(JSON.parse(result.body)).toEqual({ message })
+      expect(mockGetEvent).not.toHaveBeenCalled()
+      expect(mockGetRegistration).not.toHaveBeenCalled()
+      expect(mockSaveRegistration).not.toHaveBeenCalled()
+      expect(mockPatchRegistration).not.toHaveBeenCalled()
+    })
+  })
+
   it('rejects users outside the event organizer before reading or writing registration data', async () => {
     mockAuthorizeWithMemberOf.mockResolvedValueOnce({
       memberOf: ['org-1'],
@@ -261,7 +303,7 @@ describe('putAdminRegistrationLambda', () => {
     })
     mockGetEvent.mockResolvedValueOnce({ cost: 40, organizer: { id: 'org-2' } })
 
-    const result = await putAdminRegistrationLambda(event)
+    const result = await putAdminRegistrationLambda(notesEdit)
 
     expect(result.statusCode).toBe(403)
     expect(mockGetEvent).toHaveBeenCalledWith('event123')
@@ -277,7 +319,7 @@ describe('putAdminRegistrationLambda', () => {
     })
     mockGetEvent.mockResolvedValueOnce({ cost: 40, organizer: { id: 'org-2' } })
 
-    const result = await putAdminRegistrationLambda(event)
+    const result = await putAdminRegistrationLambda(notesEdit)
 
     expect(result.statusCode).toBe(200)
     expect(mockPatchRegistration).toHaveBeenCalled()
@@ -461,29 +503,10 @@ describe('putAdminRegistrationLambda', () => {
         })
       )
     )
-    const updateEvent = {
-      ...event,
-      body: JSON.stringify({
-        class: 'ALO',
-        dates: [],
-        dog: {
-          breedCode: '111',
-          regNo: 'DOG123',
-        },
-        eventId: 'event123',
-        handler: {
-          email: ' Handler@Example.com ',
-        },
-        id: 'reg456',
-        language: 'fi',
-        notes: 'updated notes',
-        owner: {
-          email: 'owner@example.com',
-        },
-        qualifyingResults: [],
-        reserve: 'ANY',
-      }),
-    }
+    const updateEvent = edit([
+      { path: ['handler', 'email'], type: 'CHANGE', value: ' Handler@Example.com ' },
+      notesOperation,
+    ])
 
     const result = await putAdminRegistrationLambda(updateEvent)
 
@@ -506,12 +529,12 @@ describe('putAdminRegistrationLambda', () => {
   })
 
   it('updates an existing registration', async () => {
-    const result = await putAdminRegistrationLambda(event)
+    const result = await putAdminRegistrationLambda(notesEdit)
 
     // Verify existing registration was retrieved
     expect(mockGetRegistration).toHaveBeenCalledWith('event123', 'reg456')
 
-    // Verify existing registration was patched with merged updated data.
+    // Verify existing registration was patched with the operations applied.
     expect(mockPatchRegistration).toHaveBeenCalledWith(
       'event123',
       'reg456',
@@ -526,6 +549,7 @@ describe('putAdminRegistrationLambda', () => {
         language: 'fi',
         modifiedAt: expect.any(String),
         modifiedBy: 'Test User',
+        notes: 'updated notes',
         owner: {
           email: 'owner@example.com',
         },
@@ -557,21 +581,13 @@ describe('putAdminRegistrationLambda', () => {
       state: 'draft',
     })
 
-    const result = await putAdminRegistrationLambda({
-      ...event,
-      body: JSON.stringify({
-        ...JSON.parse(event.body ?? ''),
-        creationIdempotencyKey: 'attacker-controlled-key',
-      }),
-    })
-
-    expect(mockPatchRegistration).toHaveBeenCalledWith(
-      'event123',
-      'reg456',
-      expect.objectContaining({ creationIdempotencyKey: 'stored-create-key' }),
-      expect.objectContaining({ creationIdempotencyKey: 'stored-create-key' })
+    const result = await putAdminRegistrationLambda(
+      edit([{ path: ['creationIdempotencyKey'], type: 'CHANGE', value: 'attacker-controlled-key' }])
     )
-    expect(result.statusCode).toBe(200)
+
+    expect(result.statusCode).toBe(400)
+    expect(JSON.parse(result.body).message).toContain('protected registration field: creationIdempotencyKey')
+    expect(mockPatchRegistration).not.toHaveBeenCalled()
   })
 
   describe('what only the results endpoints write (KOE-1140)', () => {
@@ -592,44 +608,10 @@ describe('putAdminRegistrationLambda', () => {
       reserve: 'ANY',
       state: 'draft',
     }
-    const stale = { ...storedResult, result: 'ALO3' }
-
-    it.each([
-      ['a full save', 'PUT'],
-      ['a merge patch', 'PATCH'],
-    ])('keeps the stored result and the sending when %s carries old copies of them', async (_name, httpMethod) => {
-      mockGetRegistration.mockResolvedValueOnce(stored)
-
-      const result = await putAdminRegistrationLambda({
-        ...event,
-        body: JSON.stringify({
-          ...JSON.parse(event.body ?? ''),
-          eventResult: stale,
-          kcResult: { ...storedKc, status: 'failed' },
-        }),
-        httpMethod,
-      })
-
-      expect(result.statusCode).toBe(200)
-      expect(mockPatchRegistration).toHaveBeenCalledWith(
-        'event123',
-        'reg456',
-        expect.anything(),
-        expect.objectContaining({ eventResult: storedResult, kcResult: storedKc })
-      )
-    })
 
     /** A well-formed operations request: only the field it names decides whether it is accepted. */
     const operation = (field: string, value: unknown) =>
-      putAdminRegistrationLambda({
-        ...event,
-        body: JSON.stringify({
-          eventId: 'event123',
-          id: 'reg456',
-          operations: [{ path: [field], type: 'CHANGE', value }],
-        }),
-        httpMethod: 'PATCH',
-      })
+      putAdminRegistrationLambda(edit([{ path: [field], type: 'CHANGE', value }]))
 
     it('accepts the same operation on a field a registration form may change', async () => {
       mockGetRegistration.mockResolvedValueOnce(stored)
@@ -657,21 +639,6 @@ describe('putAdminRegistrationLambda', () => {
       refundHandlingCost: 2.5,
       refundStatus: 'SUCCESS' as const,
     }
-    const stored = {
-      class: 'ALO',
-      dates: [],
-      dog: { breedCode: '111', regNo: 'DOG123' },
-      eventId: 'event123',
-      handler: { email: 'handler@example.com' },
-      id: 'reg456',
-      language: 'fi',
-      modifiedAt: '2026-10-18T12:00:00.000Z',
-      owner: { email: 'owner@example.com' },
-      qualifyingResults: [],
-      reserve: 'ANY',
-      state: 'ready',
-      ...storedMoney,
-    }
     /** The copy a secretary loaded before the payment and the refund were applied. */
     const staleMoney = {
       openRefunds: ['tx-stale'],
@@ -681,45 +648,10 @@ describe('putAdminRegistrationLambda', () => {
       refundAmount: 0,
     }
 
-    it.each([
-      ['a full save', 'PUT'],
-      ['a merge patch', 'PATCH'],
-    ])('keeps the stored money when %s carries an old copy of it', async (_name, httpMethod) => {
-      mockGetRegistration.mockResolvedValueOnce(stored)
-
-      const result = await putAdminRegistrationLambda({
-        ...event,
-        body: JSON.stringify({ ...JSON.parse(event.body ?? ''), ...staleMoney, modifiedAt: stored.modifiedAt }),
-        httpMethod,
-      })
-
-      expect(result.statusCode).toBe(200)
-      expect(mockPatchRegistration).toHaveBeenCalledWith(
-        'event123',
-        'reg456',
-        expect.anything(),
-        expect.objectContaining(storedMoney)
-      )
-      expect(mockPatchRegistration).toHaveBeenCalledWith(
-        'event123',
-        'reg456',
-        expect.anything(),
-        expect.not.objectContaining({ openRefunds: expect.anything() })
-      )
-      expect(mockPatchRegistration).toHaveBeenCalledWith(
-        'event123',
-        'reg456',
-        expect.anything(),
-        expect.not.objectContaining({ paymentCreationAt: expect.anything() })
-      )
-    })
-
     it('starts a new registration without the money its body carries', async () => {
-      const { id: _id, ...newRegistration } = JSON.parse(event.body ?? '')
-
       const result = await putAdminRegistrationLambda({
         ...event,
-        body: JSON.stringify({ ...newRegistration, ...storedMoney, ...staleMoney }),
+        body: JSON.stringify({ ...newRegistrationBody, ...storedMoney, ...staleMoney }),
       })
 
       expect(result.statusCode).toBe(200)
@@ -733,32 +665,17 @@ describe('putAdminRegistrationLambda', () => {
   // Results (KOE-1140), money (KOE-1531) and the row's own bookkeeping are other writers' to move,
   // and an operation on one of them is refused before anything is read from it (KOE-1574).
   it.each(ADMIN_PROTECTED_REGISTRATION_FIELDS)('refuses an operation on %s and names it', async (field) => {
-    const result = await putAdminRegistrationLambda({
-      ...event,
-      body: JSON.stringify({
-        eventId: 'event123',
-        id: 'reg456',
-        operations: [{ path: [field], type: 'CHANGE', value: 0 }],
-      }),
-      httpMethod: 'PATCH',
-    })
+    const result = await putAdminRegistrationLambda(edit([{ path: [field], type: 'CHANGE', value: 0 }]))
 
     expect(result.statusCode).toBe(400)
     expect(JSON.parse(result.body).message).toContain(`protected registration field: ${field}`)
     expect(mockPatchRegistration).not.toHaveBeenCalled()
   })
 
-  it('merges partial patch payloads before saving existing registrations', async () => {
-    const result = await putAdminRegistrationLambda({
-      ...event,
-      body: JSON.stringify({
-        dog: { name: 'Patched dog name' },
-        eventId: 'event123',
-        id: 'reg456',
-        notes: 'patched notes',
-      }),
-      httpMethod: 'PATCH',
-    })
+  it('publishes the change an operation made to a nested field', async () => {
+    const result = await putAdminRegistrationLambda(
+      edit([{ path: ['dog', 'name'], type: 'CREATE', value: 'Patched dog name' }, notesOperation])
+    )
 
     expect(mockPatchRegistration).toHaveBeenCalledWith(
       'event123',
@@ -766,7 +683,7 @@ describe('putAdminRegistrationLambda', () => {
       expect.objectContaining({ dog: { breedCode: '111', regNo: 'DOG123' }, eventId: 'event123', id: 'reg456' }),
       expect.objectContaining({
         dog: { breedCode: '111', name: 'Patched dog name', regNo: 'DOG123' },
-        notes: 'patched notes',
+        notes: 'updated notes',
       })
     )
     expect(mockSaveRegistration).not.toHaveBeenCalled()
@@ -776,7 +693,7 @@ describe('putAdminRegistrationLambda', () => {
         expect.objectContaining({
           dog: { name: 'Patched dog name' },
           id: 'reg456',
-          notes: 'patched notes',
+          notes: 'updated notes',
         }),
       ],
       'org-1'
@@ -787,17 +704,12 @@ describe('putAdminRegistrationLambda', () => {
   describe('answers with the fields only the secretary sees (KOE-1515)', () => {
     it('on an update', async () => {
       mockGetRegistration.mockResolvedValueOnce({
-        eventId: 'event123',
-        id: 'reg456',
+        ...JSON.parse(event.body ?? ''),
         state: 'ready',
         ...secretaryOnlyFields,
       })
 
-      const result = await putAdminRegistrationLambda({
-        ...event,
-        body: JSON.stringify({ eventId: 'event123', id: 'reg456', notes: 'patched notes' }),
-        httpMethod: 'PATCH',
-      })
+      const result = await putAdminRegistrationLambda(notesEdit)
 
       expect(result.statusCode).toBe(200)
       expect(JSON.parse(result.body)).toMatchObject(secretaryOnlyFields)
@@ -835,43 +747,23 @@ describe('putAdminRegistrationLambda', () => {
 
   it('clears email delivery status from response after sending update email', async () => {
     mockGetRegistration.mockResolvedValueOnce({
+      ...JSON.parse(event.body ?? ''),
       emailDeliveryStatus: {
         at: '2026-05-27T10:00:00.000Z',
         email: 'handler@example.com',
         status: 'bounce',
       },
-      eventId: 'event123',
-      id: 'reg456',
       state: 'draft',
     })
 
-    const result = await putAdminRegistrationLambda(event)
+    const result = await putAdminRegistrationLambda(notesEdit)
 
     expect(result.statusCode).toBe(200)
     expect(JSON.parse(result.body)).not.toHaveProperty('emailDeliveryStatus')
   })
 
   it('does not send email if handler or owner email is missing', async () => {
-    const eventWithoutEmail = {
-      ...event,
-      body: JSON.stringify({
-        class: 'ALO',
-        dates: [],
-        dog: {
-          breedCode: '111',
-          regNo: 'DOG123',
-        },
-        eventId: 'event123',
-        handler: {}, // No email
-        id: 'reg456',
-        language: 'fi',
-        owner: {
-          email: 'owner@example.com',
-        },
-        qualifyingResults: [],
-        reserve: 'ANY',
-      }),
-    }
+    const eventWithoutEmail = edit([{ path: ['handler', 'email'], type: 'REMOVE' }])
 
     const result = await putAdminRegistrationLambda(eventWithoutEmail)
 
@@ -887,36 +779,15 @@ describe('putAdminRegistrationLambda', () => {
 
   it('clears email delivery status when email changes even if email is not sent', async () => {
     mockGetRegistration.mockResolvedValueOnce({
+      ...JSON.parse(event.body ?? ''),
       emailDeliveryStatus: {
         at: '2026-05-27T10:00:00.000Z',
         email: 'handler@example.com',
         status: 'bounce',
       },
-      eventId: 'event123',
-      handler: { email: 'handler@example.com' },
-      id: 'reg456',
       state: 'draft',
     })
-    const eventWithoutHandlerEmail = {
-      ...event,
-      body: JSON.stringify({
-        class: 'ALO',
-        dates: [],
-        dog: {
-          breedCode: '111',
-          regNo: 'DOG123',
-        },
-        eventId: 'event123',
-        handler: {},
-        id: 'reg456',
-        language: 'fi',
-        owner: {
-          email: 'owner@example.com',
-        },
-        qualifyingResults: [],
-        reserve: 'ANY',
-      }),
-    }
+    const eventWithoutHandlerEmail = edit([{ path: ['handler', 'email'], type: 'REMOVE' }])
 
     const result = await putAdminRegistrationLambda(eventWithoutHandlerEmail)
 
@@ -1017,10 +888,10 @@ describe('putAdminRegistrationLambda', () => {
     expect(mockSaveRegistration).not.toHaveBeenCalled()
   })
 
-  it('returns 400 for patch registration without eventId and id', async () => {
+  it('returns 400 for patch operations without eventId and id', async () => {
     const result = await putAdminRegistrationLambda({
       ...event,
-      body: JSON.stringify({ notes: 'patched' }),
+      body: JSON.stringify({ eventId: '', id: '', operations: [notesOperation] }),
       httpMethod: 'PATCH',
     })
 
@@ -1064,30 +935,22 @@ describe('putAdminRegistrationLambda', () => {
   })
 
   it.each([{ dates: {} }, { dog: { results: {} } }, { optionalCosts: {} }, { qualifyingResults: {} }, { results: {} }])(
-    'rejects legacy patches with object-shaped array fields: %p',
-    async (patch) => {
+    'rejects a new registration with object-shaped array fields: %p',
+    async (fields) => {
       const result = await putAdminRegistrationLambda({
         ...event,
-        body: JSON.stringify({ eventId: 'event123', id: 'reg456', ...patch }),
-        httpMethod: 'PATCH',
+        body: JSON.stringify({ ...newRegistrationBody, ...fields }),
       })
 
       expect(result.statusCode).toBe(400)
-      expect(mockGetRegistration).not.toHaveBeenCalled()
-      expect(mockPatchRegistration).not.toHaveBeenCalled()
+      expect(JSON.parse(result.body)).toEqual({ message: 'Bad request: registration array fields must be arrays' })
+      expect(mockGetEvent).not.toHaveBeenCalled()
+      expect(mockSaveRegistration).not.toHaveBeenCalled()
     }
   )
 
   it('rejects an operation that changes an array field into an object', async () => {
-    const result = await putAdminRegistrationLambda({
-      ...event,
-      body: JSON.stringify({
-        eventId: 'event123',
-        id: 'reg456',
-        operations: [{ path: ['dates'], type: 'CHANGE', value: {} }],
-      }),
-      httpMethod: 'PATCH',
-    })
+    const result = await putAdminRegistrationLambda(edit([{ path: ['dates'], type: 'CHANGE', value: {} }]))
 
     expect(result.statusCode).toBe(400)
     expect(mockPatchRegistration).not.toHaveBeenCalled()
@@ -1099,13 +962,7 @@ describe('putAdminRegistrationLambda', () => {
       modifiedAt: '2025-03-22T09:00:00.000Z',
     })
 
-    const result = await putAdminRegistrationLambda({
-      ...event,
-      body: JSON.stringify({
-        ...JSON.parse(event.body ?? ''),
-        modifiedAt: '2025-03-22T08:00:00.000Z',
-      }),
-    })
+    const result = await putAdminRegistrationLambda(edit([notesOperation], '2025-03-22T08:00:00.000Z'))
 
     expect(result.statusCode).toBe(409)
     expect(JSON.parse(result.body)).toEqual({
@@ -1198,26 +1055,7 @@ describe('putAdminRegistrationLambda', () => {
   })
 
   it('does not send email if owner email is missing', async () => {
-    const eventWithoutOwnerEmail = {
-      ...event,
-      body: JSON.stringify({
-        class: 'ALO',
-        dates: [],
-        dog: {
-          breedCode: '111',
-          regNo: 'DOG123',
-        },
-        eventId: 'event123',
-        handler: {
-          email: 'handler@example.com',
-        },
-        id: 'reg456',
-        language: 'fi',
-        owner: {}, // No email
-        qualifyingResults: [],
-        reserve: 'ANY',
-      }),
-    }
+    const eventWithoutOwnerEmail = edit([{ path: ['owner', 'email'], type: 'REMOVE' }])
 
     const result = await putAdminRegistrationLambda(eventWithoutOwnerEmail)
 
