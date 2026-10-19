@@ -166,6 +166,35 @@ describe('useAdminRegistrationActions', () => {
     )
   })
 
+  it('sends no operations on fields the server moved after the dialog opened (KOE-1574)', async () => {
+    vi.spyOn(registrationApi, 'patchAdminRegistration').mockResolvedValueOnce({
+      ...registrationWithStaticDates,
+      notes: 'changed notes',
+    })
+    const { result } = renderHook(() => useAdminRegistrationActions(eventWithStaticDates.id), { wrapper })
+    // The dialog's row follows the list until the first edit, so a result sent to Kennelliitto (or a
+    // payment) that lands meanwhile reaches the edit, while the base stays the row as the dialog opened.
+    const movedByServer = {
+      ...registrationWithStaticDates,
+      kcResult: { at: new Date('2026-10-19T08:00:00.000Z'), by: 'secretary', status: 'sent' as const },
+      updatedAt: new Date('2026-10-19T08:00:00.000Z'),
+    }
+
+    await act(async () => {
+      await result.current.save({ ...movedByServer, notes: 'changed notes' }, registrationWithStaticDates)
+    })
+
+    expect(registrationApi.patchAdminRegistration).toHaveBeenCalledWith(
+      {
+        eventId: registrationWithStaticDates.eventId,
+        id: registrationWithStaticDates.id,
+        modifiedAt: registrationWithStaticDates.modifiedAt,
+        operations: [{ path: ['notes'], type: 'CHANGE', value: 'changed notes' }],
+      },
+      TEST_ID_TOKEN
+    )
+  })
+
   it('does not store pending group placement when updating an unrelated field', () => {
     const eventId = eventWithStaticDates.id
     const { result } = renderHook(

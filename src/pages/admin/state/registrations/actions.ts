@@ -33,7 +33,7 @@ import { reportError } from '@/lib/client/error'
 import { isTestEnv } from '@/lib/env'
 import { latestCollectionUpdate, reconcileCollection } from '@/lib/incremental'
 import { createPatchOperations } from '@/lib/patch'
-import { GROUP_KEY_CANCELLED, withoutRegistrationMoney, withRegistrationOverrides } from '@/lib/registration'
+import { GROUP_KEY_CANCELLED, withoutAdminProtectedFields, withRegistrationOverrides } from '@/lib/registration'
 import { isObject } from '@/lib/utils'
 import { toKcResult } from '@/lib/wire'
 import { validIdTokenAtom } from '@/pages/state'
@@ -598,12 +598,13 @@ export const useAdminRegistrationActions = (eventId: string) => {
               eventId: reg.eventId,
               id: reg.id,
               modifiedAt: savedRegistration.modifiedAt,
-              // The money is never the form's to change: the server refuses an operation on it, and
-              // the row the edit started from may already hold an optimistic refund the base does
-              // not (KOE-1531).
+              // The edit continues from the row as it is in the list, which payments, refunds and
+              // results move after the dialog opened (updatedAt, kcResult, an optimistic refund) while
+              // the base stays as it was. The server refuses an operation on any of those fields, so
+              // none is sent (KOE-1574; the money KOE-1531).
               operations: createPatchOperations(
-                withoutRegistrationMoney(savedRegistration),
-                withoutRegistrationMoney(regWithOverrides)
+                withoutAdminProtectedFields(savedRegistration),
+                withoutAdminProtectedFields(regWithOverrides)
               ),
             },
             token

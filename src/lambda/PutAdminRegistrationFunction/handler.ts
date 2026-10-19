@@ -4,7 +4,7 @@ import { registrationAddedAudit } from '../../lib/audit'
 import { InvalidPatchError } from '../../lib/patch'
 import {
   hasInvalidRegistrationArrayFields,
-  REGISTRATION_MONEY_FIELDS,
+  isAdminRegistrationOperationField,
   withoutRegistrationMoney,
 } from '../../lib/registration'
 import { getOrigin } from '../lib/api-gw'
@@ -38,33 +38,6 @@ import {
 /** What the audit trail says of a registration an organizer made. */
 const CREATED_AUDIT_MESSAGE = registrationAddedAudit()
 
-const PROTECTED_PATCH_FIELDS = new Set([
-  'createdAt',
-  'createdBy',
-  'creationIdempotencyKey',
-  'editToken',
-  'editTokenVersion',
-  'eventId',
-  // Results are written by the results endpoints and the sending to Kennelliitto, which know the
-  // lock; a registration form carries a copy that is old by the time it is saved (KOE-1140).
-  'eventResult',
-  'id',
-  'kcResult',
-  'modifiedAt',
-  'modifiedBy',
-  'newRegistrationAuditAt',
-  'newRegistrationEmailSentAt',
-  'newRegistrationLease',
-  'newRegistrationProcessedAt',
-  'newRegistrationPublishedAt',
-  'newRegistrationStatsAt',
-  'updatedAt',
-  // Written only with the payment or refund they come from (KOE-1531).
-  ...REGISTRATION_MONEY_FIELDS,
-])
-
-const isAdminEditableField = (field: unknown) => !PROTECTED_PATCH_FIELDS.has(String(field))
-
 interface AdminRegistrationRequest {
   event: APIGatewayProxyEvent
   memberOf: string[]
@@ -85,7 +58,10 @@ const applyAdminRegistrationOperations = async (operationRequest: JsonRegistrati
   }
 
   try {
-    return { data: applyRegistrationPatchRequest(existing, operationRequest, isAdminEditableField), existing }
+    return {
+      data: applyRegistrationPatchRequest(existing, operationRequest, isAdminRegistrationOperationField),
+      existing,
+    }
   } catch (error) {
     if (error instanceof InvalidPatchError) throw httpError(400, { message: `Bad request: ${error.message}` })
     throw error

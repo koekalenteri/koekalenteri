@@ -25,6 +25,7 @@ import {
   getRegistrationClass,
   getRegistrationGroupKey,
   isStarter,
+  NEW_REGISTRATION_WORKFLOW_FIELDS,
   PUBLIC_REGISTRATION_FIELDS,
   PUBLIC_REGISTRATION_UPDATE_FIELDS,
   resolveOwnerPerson,
@@ -59,19 +60,10 @@ export const createSentRegistrationMessagesAudit = ({ event, user, ...sent }: Se
   user,
 })
 
-const newRegistrationWorkflowFields = [
-  'newRegistrationAuditAt',
-  'newRegistrationEmailSentAt',
-  'newRegistrationLease',
-  'newRegistrationProcessedAt',
-  'newRegistrationPublishedAt',
-  'newRegistrationStatsAt',
-] as const satisfies ReadonlyArray<keyof JsonRegistration>
-
 /** Removes durable and leased state that belongs only to one creation attempt. */
 export const removeNewRegistrationWorkflowMetadata = <T extends object>(registration: T): T => {
   const mutable = registration as T & Record<string, unknown>
-  for (const field of newRegistrationWorkflowFields) delete mutable[field]
+  for (const field of NEW_REGISTRATION_WORKFLOW_FIELDS) delete mutable[field]
   return registration
 }
 
