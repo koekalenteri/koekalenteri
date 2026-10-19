@@ -56,7 +56,7 @@ Read `LLM_CONTEXT.md` for the project overview and architecture notes.
 - Before adding a file under `src/lib/` or `src/lambda/lib/`, look for an existing module that owns the same domain and extend it when the responsibility remains cohesive.
 - Avoid narrowly named parallel helper files for variants of one workflow, such as `paymentCreation.ts` and `paymentCancellation.ts`, when the code belongs naturally in `payment.ts`.
 - Create a new library file only when it represents a clearly separate, reusable responsibility or a meaningful dependency boundary. Name it after the domain concept rather than a one-off operation or implementation detail.
-- New table access goes into the table's repository in `src/lambda/lib/repositories/`, not into a handler or a domain module: one module per table with its client at module level, functions named by purpose, keys and indexes written only there. Add the function to the existing repository, or create `<table>Repository.ts` for a table that has none yet; `src/lambda/lib/repositories/README.md` has the convention and the list. `npm run ratchet` fails a commit that raises the number of `CustomDynamoClient`s opened outside the repositories, so that number can only go down (KOE-1405).
+- New table access goes into the table's repository in `src/lambda/lib/repositories/`, not into a handler or a domain module: one module per table with its client at module level, functions named by purpose, keys and indexes written only there. Add the function to the existing repository, or create `<table>Repository.ts` for a table that has none yet; `src/lambda/lib/repositories/README.md` has the convention and the list of all 17 tables. A `CustomDynamoClient` reaches only the table it was built on; a write across tables is `documentTransaction` in the primary table's repository. `npm run ratchet` fails a commit that opens a DynamoDB client outside the repositories, whether a `CustomDynamoClient` or an SDK client built directly, as far as the file's static imports show it; the count is 0 (KOE-1405, KOE-1415).
 - `@/` is the source root (`tsconfig` paths, the webpack alias and the vitest alias all declare it). Under `src/pages`, an import that would climb three or more directories names the file from `@/` instead (`@/types`, `@/lib/event`, `@/__mockData__/events`); one or two levels stay relative. Lambda code does not use the alias: esbuild reads `src/lambda/tsconfig.json`, which does not declare it.
 
 ## Calendar Days
@@ -470,9 +470,9 @@ clear a rule.
 
 `npm run ratchet` (`scripts/ratchet.js`) parses every `.ts`/`.tsx` under `src/` and counts three
 things AGENTS.md forbids: type assertions (`x as T`, `<T>x`; `as const` does not count) outside
-tests, explicit `any` anywhere, and `new CustomDynamoClient(` in non-test code outside the
-repositories (see "Library Organization"). Each number is compared with
-`scripts/ratchet-baseline.json`.
+tests, explicit `any` anywhere, and DynamoDB clients opened in non-test code outside the
+repositories (see "Library Organization"; that count is 0, so any new one fails). Each number is
+compared with `scripts/ratchet-baseline.json`.
 
 - **How a commit fails.** A count above its baseline fails the ratchet, which runs alongside the
   other pre-commit checks and in both CI lint steps. The message lists the matches in the files

@@ -44,7 +44,7 @@ export const writeMigratedDog = async (read: Pick<JsonDog, 'dob' | 'regNo' | 're
   const values: Record<string, unknown> = {}
   if (read.dob !== undefined) values[':readDob'] = read.dob
   if (read.results !== undefined) values[':readResults'] = read.results
-  await dynamoDB.update({ regNo: read.regNo }, changes, undefined, undefined, {
+  await dynamoDB.update({ regNo: read.regNo }, changes, undefined, {
     expression: [
       'attribute_exists(#regNo)',
       stillAsRead('#dob', ':readDob', read.dob),

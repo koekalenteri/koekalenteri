@@ -118,7 +118,7 @@ describe('dogRepository', () => {
       changes
     )
 
-    expect(mockUpdate).toHaveBeenCalledWith({ regNo: 'FI12345/24' }, changes, undefined, undefined, {
+    expect(mockUpdate).toHaveBeenCalledWith({ regNo: 'FI12345/24' }, changes, undefined, {
       expression: 'attribute_exists(#regNo) AND #dob = :readDob AND #results = :readResults',
       names: { '#dob': 'dob', '#regNo': 'regNo', '#results': 'results' },
       values: { ':readDob': '2021-01-01T00:00:00', ':readResults': [result] },
@@ -130,7 +130,7 @@ describe('dogRepository', () => {
 
     await writeMigratedDog({ regNo: 'FI12345/24' }, changes)
 
-    expect(mockUpdate).toHaveBeenCalledWith({ regNo: 'FI12345/24' }, changes, undefined, undefined, {
+    expect(mockUpdate).toHaveBeenCalledWith({ regNo: 'FI12345/24' }, changes, undefined, {
       expression: 'attribute_exists(#regNo) AND attribute_not_exists(#dob) AND attribute_not_exists(#results)',
       names: { '#dob': 'dob', '#regNo': 'regNo', '#results': 'results' },
     })

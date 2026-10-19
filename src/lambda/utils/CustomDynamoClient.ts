@@ -1,6 +1,6 @@
 // Create a DocumentClient that represents the query to add an item
 
-import type { ConditionCheck, Delete, Put, ReturnValue, TransactWriteItem, Update } from '@aws-sdk/client-dynamodb'
+import type { ReturnValue } from '@aws-sdk/client-dynamodb'
 import type {
   BatchGetCommandInput,
   BatchWriteCommandInput,
@@ -14,7 +14,7 @@ import type {
   UpdateCommandInput,
 } from '@aws-sdk/lib-dynamodb'
 import { isDeepStrictEqual } from 'node:util'
-import { DynamoDBClient, TransactWriteItemsCommand } from '@aws-sdk/client-dynamodb'
+import { DynamoDBClient } from '@aws-sdk/client-dynamodb'
 import {
   BatchGetCommand,
   BatchWriteCommand,
@@ -27,14 +27,18 @@ import {
   TransactWriteCommand,
   UpdateCommand,
 } from '@aws-sdk/lib-dynamodb'
-import { isTransactionCanceled } from '../lib/api-gw'
 import { logger } from '../lib/log'
 
+/**
+ * A client reaches only the table it was built on (KOE-1415). `table: never` turns a stray table
+ * key away even from an options object held in a variable, which the excess-property check of a
+ * literal does not reach.
+ */
 interface QueryParams {
   key: string
   values: Record<string, any>
   consistent?: boolean
-  table?: string
+  table?: never
   index?: string
   names?: Record<string, string>
   forward?: boolean
@@ -48,14 +52,9 @@ interface ReadAllOptions {
   includeDeleted?: boolean
   names?: Record<string, string>
   projection?: string
-  table?: string
+  table?: never
   values?: Record<string, any>
 }
-
-type PutWithOptionalTable = Omit<Put, 'TableName'> & { TableName?: string }
-type UpdateWithOptionalTable = Omit<Update, 'TableName'> & { TableName?: string }
-type DeleteWithOptionalTable = Omit<Delete, 'TableName'> & { TableName?: string }
-type ConditionCheckWithOptionalTable = Omit<ConditionCheck, 'TableName'> & { TableName?: string }
 
 type BatchWriteRequest = NonNullable<BatchWriteCommandInput['RequestItems']>[string][number]
 
@@ -81,14 +80,6 @@ type UpdateCondition = {
   expression: string
   names?: Record<string, string>
   values?: Record<string, any>
-}
-
-// Union of the valid stripped operations
-export type TransactWriteItemWithoutTable = {
-  Put?: PutWithOptionalTable
-  Update?: UpdateWithOptionalTable
-  Delete?: DeleteWithOptionalTable
-  ConditionCheck?: ConditionCheckWithOptionalTable
 }
 
 /**
@@ -218,10 +209,15 @@ const logDb = (operation: string, payload: unknown) => {
 const liveRowsFilter = (filter?: string) =>
   filter ? `(attribute_not_exists(deletedAt)) AND (${filter})` : 'attribute_not_exists(deletedAt)'
 
+/**
+ * The DynamoDB access of one table: every method reads or writes the table the client was built on,
+ * and only `documentTransaction`, whose items each name their table, writes across tables
+ * (KOE-1415). Neither the table nor the SDK clients underneath can be changed or reached from outside.
+ */
 export default class CustomDynamoClient {
-  table: string
-  client: DynamoDBClient
-  docClient: DynamoDBDocumentClient
+  readonly table: string
+  private readonly client: DynamoDBClient
+  private readonly docClient: DynamoDBDocumentClient
 
   constructor(tableName: string) {
     const options: { endpoint?: string } = {}
@@ -244,7 +240,6 @@ export default class CustomDynamoClient {
   }
 
   async readAll<T extends object>({
-    table,
     filter,
     includeDeleted,
     values,
@@ -252,7 +247,7 @@ export default class CustomDynamoClient {
     projection,
   }: ReadAllOptions = {}): Promise<T[] | undefined> {
     const params: ScanCommandInput = {
-      TableName: table ? fromSamLocalTable(table) : this.table,
+      TableName: this.table,
     }
 
     const filterExpression = includeDeleted ? filter : liveRowsFilter(filter)
@@ -300,10 +295,10 @@ export default class CustomDynamoClient {
    * Point lookups for a known set of keys in one round trip. DynamoDB caps a request at 100 keys
    * and may return some of them as unprocessed, so both are handled here.
    */
-  async batchGet<T extends object>(keys: Record<string, number | string>[], table?: string): Promise<T[]> {
+  async batchGet<T extends object>(keys: Record<string, number | string>[]): Promise<T[]> {
     if (!keys.length) return []
 
-    const tableName = table ? fromSamLocalTable(table) : this.table
+    const tableName = this.table
     const items: T[] = []
 
     for (let i = 0; i < keys.length; i += 100) {
@@ -323,7 +318,6 @@ export default class CustomDynamoClient {
 
   async read<T extends object>(
     key: Record<string, number | string | undefined> | null,
-    table?: string,
     consistent = false
   ): Promise<T | undefined> {
     if (!key) {
@@ -332,7 +326,7 @@ export default class CustomDynamoClient {
     }
     const params: GetCommandInput = {
       Key: key,
-      TableName: table ? fromSamLocalTable(table) : this.table,
+      TableName: this.table,
     }
     if (consistent) params.ConsistentRead = true
     logDb('DB.get', params)
@@ -359,7 +353,7 @@ export default class CustomDynamoClient {
       KeyConditionExpression: params.key,
       Limit: params.limit,
       ScanIndexForward: params.forward,
-      TableName: params.table ? fromSamLocalTable(params.table) : this.table,
+      TableName: this.table,
     }
 
     const items: T[] = []
@@ -389,10 +383,10 @@ export default class CustomDynamoClient {
   }
 
   /** With a condition, a Put that fails it rejects with `ConditionalCheckFailedException`. */
-  async write<T extends object>(Item: T, table?: string, condition?: UpdateCondition): Promise<unknown> {
+  async write<T extends object>(Item: T, condition?: UpdateCondition): Promise<unknown> {
     const params: PutCommandInput = {
       Item,
-      TableName: table ? fromSamLocalTable(table) : this.table,
+      TableName: this.table,
     }
     if (condition) {
       params.ConditionExpression = condition.expression
@@ -408,19 +402,17 @@ export default class CustomDynamoClient {
    * mostly) is retried with the leftovers until they are all written or the attempts run out --
    * silently dropping them would leave the table with whatever the keys held before.
    */
-  async batchWrite<T extends object>(items: T[], table?: string): Promise<void> {
-    const tableName = table ? fromSamLocalTable(table) : this.table
+  async batchWrite<T extends object>(items: T[]): Promise<void> {
     await this.sendBatchWrites(
-      tableName,
+      this.table,
       items.map((item) => ({ PutRequest: { Item: item } }))
     )
   }
 
   /** Deletes the keys in requests of 25, with the same retry of unprocessed leftovers as batchWrite. */
-  async batchDelete(keys: Record<string, number | string>[], table?: string): Promise<void> {
-    const tableName = table ? fromSamLocalTable(table) : this.table
+  async batchDelete(keys: Record<string, number | string>[]): Promise<void> {
     await this.sendBatchWrites(
-      tableName,
+      this.table,
       keys.map((key) => ({ DeleteRequest: { Key: key } }))
     )
   }
@@ -457,8 +449,8 @@ export default class CustomDynamoClient {
    * Updates an item in the table using a structured object format
    * @param key - The key of the item to update
    * @param updates - Object containing set and/or add operations
-   * @param table - Optional table name
    * @param returnValues - Optional return values specification
+   * @param condition - Optional condition the item must meet
    * @returns Promise with the update result
    *
    * Example:
@@ -475,7 +467,6 @@ export default class CustomDynamoClient {
   async update(
     key: Record<string, any>,
     updates: UpdateActions,
-    table?: string,
     returnValues?: ReturnValue,
     condition?: UpdateCondition
   ) {
@@ -523,7 +514,7 @@ export default class CustomDynamoClient {
     const params: UpdateCommandInput = {
       ExpressionAttributeNames: { ...conditionNames, ...names },
       Key: key,
-      TableName: table ? fromSamLocalTable(table) : this.table,
+      TableName: this.table,
       UpdateExpression: expressionParts.join(' '),
     }
 
@@ -545,14 +536,14 @@ export default class CustomDynamoClient {
     return result
   }
 
-  async delete(key: Record<string, number | string | undefined> | null, table?: string): Promise<boolean> {
+  async delete(key: Record<string, number | string | undefined> | null): Promise<boolean> {
     if (!key) {
       logger.warn('CustomDynamoClient.delete: no key provided, returning false')
       return false
     }
     const params: DeleteCommandInput = {
       Key: key,
-      TableName: table ? fromSamLocalTable(table) : this.table,
+      TableName: this.table,
     }
     logDb('DB.delete', params)
 
@@ -562,39 +553,6 @@ export default class CustomDynamoClient {
     } catch (error) {
       logger.error('error deleting item', { error, key })
       return false
-    }
-  }
-
-  async transaction(items: TransactWriteItemWithoutTable[], table?: string) {
-    const defaultTableName = table ? fromSamLocalTable(table) : this.table
-    const withTableName = <T extends { TableName?: string }>(operation: T | undefined) =>
-      operation && {
-        ...operation,
-        TableName: operation.TableName ? fromSamLocalTable(operation.TableName) : defaultTableName,
-      }
-    const itemsWithTable: TransactWriteItem[] = items.map((item) => ({
-      ConditionCheck: withTableName(item.ConditionCheck),
-      Delete: withTableName(item.Delete),
-      Put: withTableName(item.Put),
-      Update: withTableName(item.Update),
-    }))
-    logDb('DB.transaction', itemsWithTable)
-
-    try {
-      await this.docClient.send(
-        new TransactWriteItemsCommand({
-          TransactItems: itemsWithTable,
-        })
-      )
-    } catch (err) {
-      if (isTransactionCanceled(err)) {
-        // One line per transaction rather than three per operation: the reasons are in the order the
-        // items were sent, so the index in the array is the operation the reason belongs to.
-        logger.error('transaction was canceled', { reasons: err.CancellationReasons ?? [] })
-      } else {
-        logger.error('unexpected error in transaction', { error: err })
-      }
-      throw err
     }
   }
 

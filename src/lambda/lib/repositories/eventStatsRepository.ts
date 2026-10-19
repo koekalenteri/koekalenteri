@@ -346,7 +346,7 @@ export async function addOrganizerEventStats(
 
 /** The event's organizer stats row as last written, or undefined when nothing has been counted yet. */
 export const readOrganizerEventStatsRow = async (event: OrganizerStatsEvent) =>
-  dynamoDB.read<JsonEventStatsItem>(organizerStatsKey(event), undefined, true)
+  dynamoDB.read<JsonEventStatsItem>(organizerStatsKey(event), true)
 
 /**
  * Moves the counters read from the existing event's row onto the updated event's row in one

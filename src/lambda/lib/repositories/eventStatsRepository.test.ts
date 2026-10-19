@@ -387,7 +387,7 @@ describe('eventStatsRepository', () => {
       await expect(
         readOrganizerEventStatsRow({ id: 'e5', organizer: { id: 'org1' }, startDate: '2024-06-15' })
       ).resolves.toBe(row)
-      expect(mockRead).toHaveBeenCalledWith({ PK: 'ORG#org1', SK: '2024-06-15#e5' }, undefined, true)
+      expect(mockRead).toHaveBeenCalledWith({ PK: 'ORG#org1', SK: '2024-06-15#e5' }, true)
     })
   })
 

@@ -26,7 +26,6 @@ describe('createDynamoLease', () => {
     durationMs: 30_000,
     itemExistsField: 'id',
     leaseField: 'processingLease',
-    table: 'item-table',
   })
 
   beforeEach(() => {
@@ -49,7 +48,6 @@ describe('createDynamoLease', () => {
     expect(mockUpdate).toHaveBeenCalledWith(
       { id: 'item-1' },
       { set: { processingLease: { expiresAt: Date.now() + 30_000, token: claim?.token } } },
-      'item-table',
       undefined,
       {
         expression:
@@ -58,7 +56,7 @@ describe('createDynamoLease', () => {
         values: { ':now': Date.now() },
       }
     )
-    expect(mockRead).toHaveBeenCalledWith({ id: 'item-1' }, 'item-table', true)
+    expect(mockRead).toHaveBeenCalledWith({ id: 'item-1' }, true)
   })
 
   it('returns undefined when another worker owns the lease', async () => {
@@ -93,17 +91,11 @@ describe('createDynamoLease', () => {
     mockUpdate.mockRejectedValueOnce({ name: 'ConditionalCheckFailedException' })
 
     await expect(claim?.release()).resolves.toBeUndefined()
-    expect(mockUpdate).toHaveBeenLastCalledWith(
-      { id: 'item-1' },
-      { remove: ['processingLease'] },
-      'item-table',
-      undefined,
-      {
-        expression: '#processingLease.#token = :token',
-        names: { '#processingLease': 'processingLease', '#token': 'token' },
-        values: { ':token': claim?.token },
-      }
-    )
+    expect(mockUpdate).toHaveBeenLastCalledWith({ id: 'item-1' }, { remove: ['processingLease'] }, undefined, {
+      expression: '#processingLease.#token = :token',
+      names: { '#processingLease': 'processingLease', '#token': 'token' },
+      values: { ':token': claim?.token },
+    })
   })
 
   it('propagates a release failure that is not a lease takeover', async () => {
@@ -124,7 +116,6 @@ describe('createDynamoLease', () => {
     expect(mockUpdate).toHaveBeenCalledWith(
       { id: 'item-1' },
       { set: { processedAt: '2026-08-16T12:00:00.000Z' } },
-      'item-table',
       undefined,
       {
         expression: '#processingLease.#token = :token',

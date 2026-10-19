@@ -80,8 +80,7 @@ describe('the outcome of a payment against DynamoDB-local', () => {
     return { eventId, registrationId, transaction }
   }
 
-  const readRegistration = (eventId: string, id: string) =>
-    registrations.read<JsonRegistration>({ eventId, id }, undefined, true)
+  const readRegistration = (eventId: string, id: string) => registrations.read<JsonRegistration>({ eventId, id }, true)
 
   const duplicateOf = (registrationId: string, duplicatePaymentAt = '2026-05-01T10:05:00.000Z') => ({
     duplicateOfRegistrationId: registrationId,

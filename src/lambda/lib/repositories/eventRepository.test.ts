@@ -73,8 +73,8 @@ describe('eventRepository', () => {
       await expect(readEvent('event-1')).resolves.toEqual(event)
       await expect(readEvent('event-2', true)).resolves.toBeUndefined()
 
-      expect(mockRead).toHaveBeenNthCalledWith(1, { id: 'event-1' }, 'event-table', false)
-      expect(mockRead).toHaveBeenNthCalledWith(2, { id: 'event-2' }, 'event-table', true)
+      expect(mockRead).toHaveBeenNthCalledWith(1, { id: 'event-1' }, false)
+      expect(mockRead).toHaveBeenNthCalledWith(2, { id: 'event-2' }, true)
     })
 
     it('readAllEvents scans the table and answers an empty list for nothing', async () => {
@@ -82,7 +82,7 @@ describe('eventRepository', () => {
 
       await expect(readAllEvents()).resolves.toEqual([event])
       await expect(readAllEvents()).resolves.toEqual([])
-      expect(mockReadAll).toHaveBeenCalledWith({ includeDeleted: false, table: 'event-table' })
+      expect(mockReadAll).toHaveBeenCalledWith({ includeDeleted: false })
     })
 
     it('readAllEvents reads the deleted rows too when asked, for a data migration', async () => {
@@ -90,7 +90,7 @@ describe('eventRepository', () => {
 
       await readAllEvents(true)
 
-      expect(mockReadAll).toHaveBeenCalledWith({ includeDeleted: true, table: 'event-table' })
+      expect(mockReadAll).toHaveBeenCalledWith({ includeDeleted: true })
     })
 
     it('readEventsForStats reads only the fields the stats count from', async () => {
@@ -100,7 +100,6 @@ describe('eventRepository', () => {
       expect(mockReadAll).toHaveBeenCalledWith({
         names: { '#state': 'state' },
         projection: 'id, organizer, startDate, endDate, eventType, classes, places, #state, judges',
-        table: 'event-table',
       })
     })
 
@@ -113,13 +112,11 @@ describe('eventRepository', () => {
       expect(mockReadAll).toHaveBeenNthCalledWith(1, {
         filter: 'kcId = :kcId',
         projection: 'id',
-        table: 'event-table',
         values: { ':kcId': 123 },
       })
       expect(mockReadAll).toHaveBeenNthCalledWith(2, {
         filter: 'kcGuid = :kcGuid',
         projection: 'id',
-        table: 'event-table',
         values: { ':kcGuid': 'guid-1' },
       })
     })
@@ -136,7 +133,6 @@ describe('eventRepository', () => {
         index: 'gsiEventTypeEntryEndDateV2',
         key: 'eventType = :eventType AND entryEndDate < :entryEndDate',
         limit: 1,
-        table: 'event-table',
         values: { ':entryEndDate': '2025-03-22', ':eventType': 'NOME-B SM' },
       })
     })
@@ -150,7 +146,6 @@ describe('eventRepository', () => {
         index: 'gsiSeasonStartDate',
         key: 'season = :season AND startDate <= :endDate',
         names: { '#state': 'state' },
-        table: 'event-table',
         values: { ':draft': 'draft', ':endDate': '2026-12-31', ':season': '2026' },
       })
     })
@@ -164,13 +159,11 @@ describe('eventRepository', () => {
       expect(mockQuery).toHaveBeenNthCalledWith(1, {
         index: 'gsiSeasonStartDate',
         key: 'season = :season',
-        table: 'event-table',
         values: { ':season': '2026' },
       })
       expect(mockQuery).toHaveBeenNthCalledWith(2, {
         index: 'gsiSeasonUpdatedAt',
         key: 'season = :season AND updatedAt >= :updatedAfter',
-        table: 'event-table',
         values: { ':season': '2025', ':updatedAfter': '2025-06-01T00:00:00.000Z' },
       })
     })
@@ -182,7 +175,6 @@ describe('eventRepository', () => {
       expect(mockQuery).toHaveBeenCalledWith({
         index: 'gsiOrganizerStartDate',
         key: 'organizerId = :organizerId',
-        table: 'event-table',
         values: { ':organizerId': 'org-1' },
       })
     })
@@ -191,16 +183,12 @@ describe('eventRepository', () => {
   describe('writes', () => {
     it('writeEvent puts the whole row', async () => {
       await writeEvent(event)
-      expect(mockWrite).toHaveBeenCalledWith(event, 'event-table')
+      expect(mockWrite).toHaveBeenCalledWith(event)
     })
 
     it('writeEventFields updates the fields with no condition', async () => {
       await writeEventFields('event-1', { remove: ['note'], set: { name: 'Uusi' } })
-      expect(mockUpdate).toHaveBeenCalledWith(
-        { id: 'event-1' },
-        { remove: ['note'], set: { name: 'Uusi' } },
-        'event-table'
-      )
+      expect(mockUpdate).toHaveBeenCalledWith({ id: 'event-1' }, { remove: ['note'], set: { name: 'Uusi' } })
     })
 
     it('writeWorkflowLock takes a lock nobody holds, or one that has expired', async () => {
@@ -209,7 +197,6 @@ describe('eventRepository', () => {
       expect(mockUpdate).toHaveBeenCalledWith(
         { id: 'event-1' },
         { set: { registrationGroupsLock: { expiresAt: 91_000, token: 'token-1' } } },
-        'event-table',
         undefined,
         {
           expression:
@@ -223,17 +210,11 @@ describe('eventRepository', () => {
     it('clearWorkflowLock removes only the lock its token took', async () => {
       await clearWorkflowLock('event-1', 'registrationPaymentsLock', 'token-1')
 
-      expect(mockUpdate).toHaveBeenCalledWith(
-        { id: 'event-1' },
-        { remove: ['registrationPaymentsLock'] },
-        'event-table',
-        undefined,
-        {
-          expression: '#registrationPaymentsLock.#token = :token',
-          names: { '#registrationPaymentsLock': 'registrationPaymentsLock', '#token': 'token' },
-          values: { ':token': 'token-1' },
-        }
-      )
+      expect(mockUpdate).toHaveBeenCalledWith({ id: 'event-1' }, { remove: ['registrationPaymentsLock'] }, undefined, {
+        expression: '#registrationPaymentsLock.#token = :token',
+        names: { '#registrationPaymentsLock': 'registrationPaymentsLock', '#token': 'token' },
+        values: { ':token': 'token-1' },
+      })
     })
 
     it('lets a failed condition through to the caller, which decides what it means', async () => {
@@ -266,7 +247,6 @@ describe('eventRepository', () => {
       expect(mockUpdate).toHaveBeenCalledWith(
         { id: 'event-1' },
         { set: { 'resultsPublished.ALO': ['2026-09-12', '2026-09-13'], updatedAt } },
-        'event-table',
         'ALL_NEW',
         {
           expression: 'attribute_exists(#id) AND #resultsPublished.#resultsClass = :foldedFrom',
@@ -287,7 +267,6 @@ describe('eventRepository', () => {
       expect(mockUpdate).toHaveBeenCalledWith(
         { id: 'event-1' },
         { set: { 'resultsPublished.ALO': ['2026-09-12'], updatedAt } },
-        'event-table',
         'ALL_NEW',
         {
           expression: 'attribute_exists(#id) AND #resultsPublished.#resultsClass = :foldedFrom',
@@ -314,7 +293,6 @@ describe('eventRepository', () => {
       expect(mockUpdate).toHaveBeenCalledWith(
         { id: 'event-1' },
         { set: { 'resultsPublished.AVO': ['2026-09-12'], updatedAt } },
-        'event-table',
         'ALL_NEW',
         {
           expression: 'attribute_exists(#id) AND attribute_not_exists(#resultsPublished.#resultsClass)',
@@ -334,7 +312,6 @@ describe('eventRepository', () => {
       expect(mockUpdate).toHaveBeenCalledWith(
         { id: 'event-1' },
         { set: { resultsPublished: next, updatedAt } },
-        'event-table',
         'ALL_NEW',
         {
           expression: 'attribute_exists(#id) AND #resultsPublished = :foldedFrom',
@@ -352,7 +329,6 @@ describe('eventRepository', () => {
       expect(mockUpdate).toHaveBeenCalledWith(
         { id: 'event-1' },
         { set: { resultsPublished: true, updatedAt } },
-        'event-table',
         'ALL_NEW',
         {
           expression: 'attribute_exists(#id) AND attribute_not_exists(#resultsPublished)',
@@ -371,7 +347,6 @@ describe('eventRepository', () => {
       expect(mockUpdate).toHaveBeenCalledWith(
         { id: 'event-1' },
         { set: { kcState: state, updatedAt: state.readAt } },
-        'event-table',
         'NONE',
         {
           expression:
@@ -393,7 +368,6 @@ describe('eventRepository', () => {
       expect(mockUpdate).toHaveBeenCalledWith(
         { id: 'event-1' },
         { set: { kcState: state, updatedAt: state.readAt } },
-        'event-table',
         'NONE',
         {
           expression:
@@ -412,7 +386,6 @@ describe('eventRepository', () => {
       expect(mockUpdate).toHaveBeenCalledWith(
         { id: 'event-1' },
         { set: { kcState: restored, updatedAt: restored.readAt } },
-        'event-table',
         'NONE',
         {
           expression: 'attribute_exists(#id) AND #kcState.#readAt = :lockedAt',
@@ -428,7 +401,6 @@ describe('eventRepository', () => {
       expect(mockUpdate).toHaveBeenCalledWith(
         { id: 'event-1' },
         { set: { kcGuid: 'guid-1', updatedAt: '2026-09-26T10:00:00.000Z' } },
-        'event-table',
         'NONE',
         {
           expression: 'attribute_exists(#id) AND attribute_not_exists(#kcGuid)',
@@ -453,7 +425,6 @@ describe('eventRepository', () => {
       expect(mockUpdate).toHaveBeenCalledWith(
         { id: 'event-1' },
         { set: { turns: [turn, { ...turn, id: 'turn-2' }], updatedAt: '2026-09-26T10:05:00.000Z' } },
-        'event-table',
         undefined,
         { expression: '#turns = :expected', names: { '#turns': 'turns' }, values: { ':expected': [turn] } }
       )
@@ -465,7 +436,6 @@ describe('eventRepository', () => {
       expect(mockUpdate).toHaveBeenCalledWith(
         { id: 'event-1' },
         { set: { turns: [turn], updatedAt: '2026-09-26T10:05:00.000Z' } },
-        'event-table',
         undefined,
         { expression: 'attribute_not_exists(#turns)', names: { '#turns': 'turns' } }
       )
@@ -476,17 +446,11 @@ describe('eventRepository', () => {
     it('lands only on a row that still exists and still has the updatedAt it was read with', async () => {
       await writeMigratedEvent('event-1', { set: { season: '2026' } }, '2026-01-01T00:00:00.000Z')
 
-      expect(mockUpdate).toHaveBeenCalledWith(
-        { id: 'event-1' },
-        { set: { season: '2026' } },
-        'event-table',
-        undefined,
-        {
-          expression: 'attribute_exists(#id) AND #updatedAt = :foldedFrom',
-          names: { '#id': 'id', '#updatedAt': 'updatedAt' },
-          values: { ':foldedFrom': '2026-01-01T00:00:00.000Z' },
-        }
-      )
+      expect(mockUpdate).toHaveBeenCalledWith({ id: 'event-1' }, { set: { season: '2026' } }, undefined, {
+        expression: 'attribute_exists(#id) AND #updatedAt = :foldedFrom',
+        names: { '#id': 'id', '#updatedAt': 'updatedAt' },
+        values: { ':foldedFrom': '2026-01-01T00:00:00.000Z' },
+      })
     })
 
     it('holds a row read without updatedAt to still having none', async () => {
@@ -495,7 +459,6 @@ describe('eventRepository', () => {
       expect(mockUpdate).toHaveBeenCalledWith(
         { id: 'event-1' },
         { remove: ['old'], set: { season: '2026' } },
-        'event-table',
         undefined,
         {
           expression: 'attribute_exists(#id) AND attribute_not_exists(#updatedAt)',

@@ -23,7 +23,7 @@ describe('foldedFrom against DynamoDB-local', () => {
   }
 
   const writeNote = (row: Row, condition: ReturnType<typeof foldedFrom>) =>
-    client.update({ id: row.id }, { set: { note: 'written' } }, undefined, undefined, condition)
+    client.update({ id: row.id }, { set: { note: 'written' } }, undefined, condition)
 
   // Every name must be used in the expression, so each path defines its own.
   it.each([

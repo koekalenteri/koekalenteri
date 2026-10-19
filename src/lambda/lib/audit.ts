@@ -20,13 +20,9 @@ import {
 import { getStartListPublishedClassMap, isStartListPublishedClassMap } from '../../lib/event'
 import { isStartListFlagPublished } from '../../lib/publishing'
 import { patchMerge } from '../../lib/utils'
-import { CONFIG } from '../config'
-import CustomDynamoClient from '../utils/CustomDynamoClient'
 import { logger } from './log'
+import { readAuditTrail, writeAuditRecord } from './repositories/auditRepository'
 import { publishAuditRecord } from './ws/auditPublisher'
-
-const { auditTable } = CONFIG
-const dynamoDB = new CustomDynamoClient(auditTable)
 
 export const registrationAuditKey = (reg: Pick<JsonRegistration, 'eventId' | 'id'>) => `${reg.eventId}:${reg.id}`
 export const eventAuditKey = (event: Pick<JsonDogEvent, 'id'>) => `event:${event.id}`
@@ -220,7 +216,7 @@ export const getEventAuditMessages = (
 export const audit = async (item: Omit<JsonAuditRecord, 'timestamp'>) => {
   try {
     const record = { ...item, timestamp: new Date().toISOString() }
-    await dynamoDB.write(record, auditTable)
+    await writeAuditRecord(record)
     await publishAuditRecord(record)
   } catch (e) {
     logger.error('failed to write audit record', { auditKey: item.auditKey, error: e })
@@ -236,18 +232,13 @@ export const auditStrict = async (item: Omit<JsonAuditRecord, 'timestamp'>, effe
   // stable effect id here, so retrying after publication/marker failure
   // overwrites the same audit item instead of creating another record.
   const record = { ...item, timestamp: effectId ?? new Date().toISOString() }
-  await dynamoDB.write(record, auditTable)
+  await writeAuditRecord(record)
   await publishAuditRecord(record)
 }
 
 export const auditTrail = async (auditKey: string) => {
   try {
-    const items = await dynamoDB.query<JsonAuditRecord>({
-      key: 'auditKey = :auditKey',
-      table: auditTable,
-      values: { ':auditKey': auditKey },
-    })
-    return items ?? []
+    return await readAuditTrail(auditKey)
   } catch (e) {
     logger.error('failed to read audit trail', { auditKey, error: e })
   }

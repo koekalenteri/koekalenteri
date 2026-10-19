@@ -3,23 +3,18 @@ import { vi } from 'vitest'
 import { legacyDayValue } from '../../test-utils/finnishDays'
 import { loggedLines } from '../test-utils/logs'
 
-const mockQuery = vi.fn()
-const mockWrite = vi.fn()
+const mockReadAuditTrail = vi.fn()
+const mockWriteAuditRecord = vi.fn()
 const mockPublishAuditRecord = vi.fn()
-vi.doMock('../utils/CustomDynamoClient', () => ({
-  __esModule: true,
-  default: vi.fn(function MockCustomDynamoClient() {
-    return {
-      query: mockQuery,
-      write: mockWrite,
-    }
-  }),
+vi.doMock('./repositories/auditRepository', () => ({
+  readAuditTrail: mockReadAuditTrail,
+  writeAuditRecord: mockWriteAuditRecord,
 }))
 vi.doMock('./ws/auditPublisher', () => ({ publishAuditRecord: mockPublishAuditRecord }))
 
-process.env.AUDIT_TABLE_NAME = 'audit-table-name'
-
-const { eventAuditKey, registrationAuditKey, getEventAuditMessages, audit, auditTrail } = await import('./audit')
+const { eventAuditKey, registrationAuditKey, getEventAuditMessages, audit, auditStrict, auditTrail } = await import(
+  './audit'
+)
 
 describe('audit', () => {
   afterEach(() => vi.clearAllMocks())
@@ -179,11 +174,8 @@ describe('audit', () => {
 
       await audit(record)
 
-      expect(mockWrite).toHaveBeenCalledWith(
-        expect.objectContaining({ ...record, timestamp: expect.any(String) }),
-        'audit-table-name'
-      )
-      expect(mockWrite).toHaveBeenCalledTimes(1)
+      expect(mockWriteAuditRecord).toHaveBeenCalledWith({ ...record, timestamp: expect.any(String) })
+      expect(mockWriteAuditRecord).toHaveBeenCalledTimes(1)
       expect(mockPublishAuditRecord).toHaveBeenCalledWith(expect.objectContaining(record))
     })
 
@@ -191,7 +183,7 @@ describe('audit', () => {
       const error = new Error('DB error')
       const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined)
 
-      mockWrite.mockRejectedValueOnce(error)
+      mockWriteAuditRecord.mockRejectedValueOnce(error)
 
       await audit({ auditKey: 'key', message: 'msg', user: 'user' })
 
@@ -202,6 +194,32 @@ describe('audit', () => {
           message: 'failed to write audit record',
         }),
       ])
+      expect(mockPublishAuditRecord).not.toHaveBeenCalled()
+    })
+  })
+
+  describe('auditStrict', () => {
+    const record: Omit<JsonAuditRecord, 'timestamp'> = { auditKey: 'key', message: 'message', user: 'user' }
+
+    it('writes the record under the effect id and publishes it', async () => {
+      await auditStrict(record, 'effect-1')
+
+      expect(mockWriteAuditRecord).toHaveBeenCalledWith({ ...record, timestamp: 'effect-1' })
+      expect(mockPublishAuditRecord).toHaveBeenCalledWith({ ...record, timestamp: 'effect-1' })
+    })
+
+    it('stamps the record with the time without an effect id', async () => {
+      await auditStrict(record)
+
+      expect(mockWriteAuditRecord).toHaveBeenCalledWith({ ...record, timestamp: expect.any(String) })
+    })
+
+    it('rejects, unpublished, when the write fails', async () => {
+      const error = new Error('DB error')
+      mockWriteAuditRecord.mockRejectedValueOnce(error)
+
+      await expect(auditStrict(record, 'effect-1')).rejects.toBe(error)
+      expect(mockPublishAuditRecord).not.toHaveBeenCalled()
     })
   })
 
@@ -211,26 +229,19 @@ describe('audit', () => {
         { auditKey: 'key', message: 'message', timestamp: '2021-01-01T00:00:00Z', user: 'user' },
       ]
 
-      mockQuery.mockResolvedValueOnce(records)
+      mockReadAuditTrail.mockResolvedValueOnce(records)
 
       const res = await auditTrail('key')
 
       expect(res).toBe(records)
-    })
-
-    it('returns empty array if no records are found', async () => {
-      mockQuery.mockResolvedValueOnce(undefined)
-
-      const res = await auditTrail('key')
-
-      expect(res).toStrictEqual([])
+      expect(mockReadAuditTrail).toHaveBeenCalledWith('key')
     })
 
     it('logs database error to console and returns empty array', async () => {
       const error = new Error('DB error')
       const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined)
 
-      mockQuery.mockRejectedValueOnce(error)
+      mockReadAuditTrail.mockRejectedValueOnce(error)
 
       const res = await auditTrail('key')
 

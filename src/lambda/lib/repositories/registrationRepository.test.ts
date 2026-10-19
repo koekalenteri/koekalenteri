@@ -101,7 +101,7 @@ describe('registrationRepository', () => {
       mockRead.mockResolvedValueOnce(registration)
 
       await expect(readRegistration('e1', 'r1', consistent)).resolves.toBe(registration)
-      expect(mockRead).toHaveBeenCalledWith({ eventId: 'e1', id: 'r1' }, undefined, consistent)
+      expect(mockRead).toHaveBeenCalledWith({ eventId: 'e1', id: 'r1' }, consistent)
     })
 
     it('reads eventually consistent by default', async () => {
@@ -109,7 +109,7 @@ describe('registrationRepository', () => {
 
       await readRegistration('e1', 'r1')
 
-      expect(mockRead).toHaveBeenCalledWith({ eventId: 'e1', id: 'r1' }, undefined, false)
+      expect(mockRead).toHaveBeenCalledWith({ eventId: 'e1', id: 'r1' }, false)
     })
 
     it('reads a missing registration as undefined', async () => {
@@ -171,7 +171,7 @@ describe('registrationRepository', () => {
     it('writes on condition the row exists and still has the updatedAt read', async () => {
       await writeMigratedRegistration('e1', 'r1', changes, 'read')
 
-      expect(mockUpdate).toHaveBeenCalledWith({ eventId: 'e1', id: 'r1' }, changes, undefined, undefined, {
+      expect(mockUpdate).toHaveBeenCalledWith({ eventId: 'e1', id: 'r1' }, changes, undefined, {
         expression: 'attribute_exists(#id) AND #updatedAt = :foldedFrom',
         names: { '#id': 'id', '#updatedAt': 'updatedAt' },
         values: { ':foldedFrom': 'read' },
@@ -181,7 +181,7 @@ describe('registrationRepository', () => {
     it('holds a row read without updatedAt to still having none', async () => {
       await writeMigratedRegistration('e1', 'r1', changes, undefined)
 
-      expect(mockUpdate).toHaveBeenCalledWith({ eventId: 'e1', id: 'r1' }, changes, undefined, undefined, {
+      expect(mockUpdate).toHaveBeenCalledWith({ eventId: 'e1', id: 'r1' }, changes, undefined, {
         expression: 'attribute_exists(#id) AND attribute_not_exists(#updatedAt)',
         names: { '#id': 'id', '#updatedAt': 'updatedAt' },
       })
@@ -261,7 +261,6 @@ describe('registrationRepository', () => {
         { eventId: 'e1', id: 'r1' },
         { set: { emailDeliveryStatus: status } },
         undefined,
-        undefined,
         { expression: 'attribute_exists(#id)', names: { '#id': 'id' } }
       )
     })
@@ -288,33 +287,21 @@ describe('registrationRepository', () => {
       mockUpdate.mockResolvedValueOnce({})
 
       await expect(writeKcResult('e1', 'r1', kcResult, undefined, updatedAt)).resolves.toBe(true)
-      expect(mockUpdate).toHaveBeenCalledWith(
-        { eventId: 'e1', id: 'r1' },
-        { set: { kcResult, updatedAt } },
-        undefined,
-        'NONE',
-        {
-          expression: 'attribute_exists(#id) AND attribute_not_exists(#kcResult)',
-          names: { '#at': 'at', '#id': 'id', '#kcResult': 'kcResult' },
-        }
-      )
+      expect(mockUpdate).toHaveBeenCalledWith({ eventId: 'e1', id: 'r1' }, { set: { kcResult, updatedAt } }, 'NONE', {
+        expression: 'attribute_exists(#id) AND attribute_not_exists(#kcResult)',
+        names: { '#at': 'at', '#id': 'id', '#kcResult': 'kcResult' },
+      })
     })
 
     it('writes over the result it was read from only', async () => {
       mockUpdate.mockResolvedValueOnce({})
 
       await expect(writeKcResult('e1', 'r1', kcResult, '2026-10-18T12:00:00.000Z', updatedAt)).resolves.toBe(true)
-      expect(mockUpdate).toHaveBeenCalledWith(
-        { eventId: 'e1', id: 'r1' },
-        { set: { kcResult, updatedAt } },
-        undefined,
-        'NONE',
-        {
-          expression: 'attribute_exists(#id) AND #kcResult.#at = :at',
-          names: { '#at': 'at', '#id': 'id', '#kcResult': 'kcResult' },
-          values: { ':at': '2026-10-18T12:00:00.000Z' },
-        }
-      )
+      expect(mockUpdate).toHaveBeenCalledWith({ eventId: 'e1', id: 'r1' }, { set: { kcResult, updatedAt } }, 'NONE', {
+        expression: 'attribute_exists(#id) AND #kcResult.#at = :at',
+        names: { '#at': 'at', '#id': 'id', '#kcResult': 'kcResult' },
+        values: { ':at': '2026-10-18T12:00:00.000Z' },
+      })
     })
 
     it('answers false when another send wrote first', async () => {
@@ -355,7 +342,6 @@ describe('registrationRepository', () => {
       expect(mockUpdate).toHaveBeenCalledWith(
         { eventId: 'event-1', id: 'registration-1' },
         { set: { newRegistrationLease: { expiresAt: Date.now() + 90_000, token: claim?.token } } },
-        'registration-table',
         undefined,
         {
           expression:
@@ -364,7 +350,7 @@ describe('registrationRepository', () => {
           values: { ':now': Date.now() },
         }
       )
-      expect(mockRead).toHaveBeenCalledWith({ eventId: 'event-1', id: 'registration-1' }, 'registration-table', true)
+      expect(mockRead).toHaveBeenCalledWith({ eventId: 'event-1', id: 'registration-1' }, true)
       expect(claim?.registration).toBe(registration)
     })
 
@@ -395,7 +381,6 @@ describe('registrationRepository', () => {
       expect(mockUpdate).toHaveBeenLastCalledWith(
         { eventId: 'event-1', id: 'registration-1' },
         { remove: ['newRegistrationLease'] },
-        'registration-table',
         undefined,
         { ...leaseCondition, values: { ':token': claim?.token } }
       )
@@ -409,7 +394,6 @@ describe('registrationRepository', () => {
       expect(mockUpdate).toHaveBeenCalledWith(
         { eventId: 'event-1', id: 'registration-1' },
         { set: { newRegistrationEmailSentAt: '2026-07-27T12:00:00.000Z' } },
-        'registration-table',
         undefined,
         { ...leaseCondition, values: { ':token': 'lease-token' } }
       )
@@ -544,7 +528,6 @@ describe('registrationRepository', () => {
       expect(mockUpdate).toHaveBeenCalledWith(
         { eventId: 'e1', id: 'r1' },
         { delete: { openRefunds: new Set(['t1']) }, set: { updatedAt: '2026-10-19T12:00:00.000Z' } },
-        undefined,
         'UPDATED_OLD'
       )
     })
