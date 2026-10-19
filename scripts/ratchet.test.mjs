@@ -48,12 +48,6 @@ describe('ratchet: DynamoDB clients outside repositories', () => {
   })
 
   it.each([
-    ['in a repository', REPOSITORY, ["import CustomDynamoClient from '../../utils/CustomDynamoClient'", "new CustomDynamoClient('x')"]],
-    [
-      'in the WebSocket connection repository',
-      'src/lambda/lib/ws/connectionRepository.ts',
-      ["import CustomDynamoClient from '../../utils/CustomDynamoClient'", "new CustomDynamoClient('x')"],
-    ],
     ['in a test', 'src/lambda/lib/someDomain.test.ts', ["import Client from '../utils/CustomDynamoClient'", "new Client('x')"]],
     ['in test support', 'src/lambda/test-utils/integration.ts', ["import { DynamoDBClient } from '@aws-sdk/client-dynamodb'", 'new DynamoDBClient({})']],
     [
@@ -71,11 +65,6 @@ describe('ratchet: DynamoDB clients outside repositories', () => {
     ['under a name the file does not import', LIB, ["const CustomDynamoClient = class {}", "new CustomDynamoClient('x')"]],
     // The SDK clause covers the lambda code only.
     ['outside the lambda code', 'src/lib/x.ts', ["import { DynamoDBClient } from '@aws-sdk/client-dynamodb'", 'new DynamoDBClient({})']],
-    [
-      're-exported by a repository',
-      REPOSITORY,
-      ["export { default as Client } from '../../utils/CustomDynamoClient'"],
-    ],
     ['re-exported as a type only', LIB, ["export type { DynamoDBClient } from '@aws-sdk/client-dynamodb'"]],
     ['re-exported from another module', LIB, ["export * from './other'"]],
     [
@@ -114,9 +103,75 @@ describe('ratchet: DynamoDB clients outside repositories', () => {
     expect(clients(LIB, lines)).toEqual([`${LIB}:2`])
   })
 
-  it('does not count a local export of CustomDynamoClient by a repository', () => {
-    expect(clients(REPOSITORY, ["import C from '../../utils/CustomDynamoClient'", 'export { C }', 'export default C'])).toEqual(
-      []
-    )
+})
+
+// KOE-1576: a repository opens one client, on its own table: `<x>Table` in `<x>Repository.ts`,
+// `wsConnectionsTable` in the WebSocket connection repository. Only the file named after a table
+// may open it, so no table gets a second client in another file either.
+describe('ratchet: one repository per table', () => {
+  const WS = 'src/lambda/lib/ws/connectionRepository.ts'
+  const CLIENT_IMPORT = "import CustomDynamoClient from '../../utils/CustomDynamoClient'"
+  const IMPORTS = ["import { CONFIG } from '../../config'", CLIENT_IMPORT]
+  const OWN_CLIENT = 'new CustomDynamoClient(CONFIG.someTable)'
+
+  it.each([
+    ['its own table', REPOSITORY, [...IMPORTS, `const dynamoDB = ${OWN_CLIENT}`]],
+    [
+      'its own table under aliased imports',
+      REPOSITORY,
+      [
+        "import { CONFIG as config } from '../../config'",
+        "import { default as Client } from '../../utils/CustomDynamoClient'",
+        'new Client(config.someTable)',
+      ],
+    ],
+    ['the WebSocket connections table', WS, [...IMPORTS, 'new CustomDynamoClient(CONFIG.wsConnectionsTable)']],
+  ])('does not count a repository client on %s', (_, file, lines) => {
+    expect(clients(file, lines)).toEqual([])
+  })
+
+  it.each([
+    ["another repository's table", REPOSITORY, [...IMPORTS, 'new CustomDynamoClient(CONFIG.registrationTable)']],
+    ['another table in the WebSocket connection repository', WS, [...IMPORTS, 'new CustomDynamoClient(CONFIG.eventTable)']],
+    ['a table name in a string', REPOSITORY, [...IMPORTS, "new CustomDynamoClient('some-table')"]],
+    ['a table name in a variable', REPOSITORY, [...IMPORTS, 'new CustomDynamoClient(someTable)']],
+    ['a table read with brackets', REPOSITORY, [...IMPORTS, "new CustomDynamoClient(CONFIG['someTable'])"]],
+    ['a second argument', REPOSITORY, [...IMPORTS, 'new CustomDynamoClient(CONFIG.someTable, x)']],
+    ['no argument', REPOSITORY, [...IMPORTS, 'new CustomDynamoClient()']],
+    [
+      'a CONFIG of another module',
+      REPOSITORY,
+      ["import { CONFIG } from './config'", CLIENT_IMPORT, OWN_CLIENT],
+    ],
+    [
+      'a CONFIG the file defines',
+      REPOSITORY,
+      ["const CONFIG = { someTable: 'x' }", CLIENT_IMPORT, OWN_CLIENT],
+    ],
+    [
+      'another export of the config module',
+      REPOSITORY,
+      ["import { OTHER as CONFIG } from '../../config'", CLIENT_IMPORT, OWN_CLIENT],
+    ],
+    ['a type-only CONFIG import', REPOSITORY, ["import type { CONFIG } from '../../config'", CLIENT_IMPORT, OWN_CLIENT]],
+    [
+      'the config module through a namespace',
+      REPOSITORY,
+      ["import * as config from '../../config'", CLIENT_IMPORT, 'new CustomDynamoClient(config.CONFIG.someTable)'],
+    ],
+    [
+      'a table of a file not named after one',
+      'src/lambda/lib/repositories/someHelpers.ts',
+      [...IMPORTS, 'new CustomDynamoClient(CONFIG.someHelpersTable)'],
+    ],
+    ['a subclass', REPOSITORY, [...IMPORTS, 'class Judges extends CustomDynamoClient {}']],
+    ['a re-export', REPOSITORY, ['', '', "export { default as Client } from '../../utils/CustomDynamoClient'"]],
+    ['a local export', REPOSITORY, [...IMPORTS, 'export { CustomDynamoClient }']],
+  ])('counts a repository client on %s', (_, file, lines) => {
+    expect(clients(file, lines)).toEqual([`${file}:3`])
+  })
+
+  it('counts a second client on its own table', () => {
+    expect(clients(REPOSITORY, [...IMPORTS, `const a = ${OWN_CLIENT}`, `const b = ${OWN_CLIENT}`])).toEqual([`${REPOSITORY}:4`])
   })
 })

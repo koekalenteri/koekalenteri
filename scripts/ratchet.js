@@ -1,5 +1,6 @@
 // Gates three things AGENTS.md forbids but no lint rule can: type assertions (`x as T`, `<T>x`)
-// outside tests, explicit `any` anywhere, and DynamoDB clients opened outside a table's repository.
+// outside tests, explicit `any` anywhere, and DynamoDB clients opened outside their table's
+// repository.
 // Each count is compared with scripts/ratchet-baseline.json: a count above its baseline fails, a
 // count below it is written back as the new baseline, so the numbers only ever go down. Runs as one
 // of the pre-commit checks (which then stages the lowered baseline) and in the CI lint steps.
@@ -10,9 +11,14 @@
 // Every table is read and written through its module in src/lambda/lib/repositories/ (see the
 // README there; the WebSocket connection repository stays in lib/ws/), and the client count is 0
 // since KOE-1415, so that metric is a ban rather than a ratchet. It reads the static imports and
-// exports of each non-test file. Outside the repositories it counts a CustomDynamoClient built,
-// subclassed or exported on (re-exported, or imported and exported again) under whatever name the
-// file imports it as. In the lambda code but CustomDynamoClient.ts it counts an SDK client built,
+// exports of each non-test file. It counts a CustomDynamoClient built, subclassed or exported on
+// (re-exported, or imported and exported again) under whatever name the file imports it as, except
+// one construction per repository on its own table (KOE-1576):
+// `new CustomDynamoClient(CONFIG.<x>Table)` in repositories/<x>Repository.ts, or on
+// CONFIG.wsConnectionsTable in ws/connectionRepository.ts, with CONFIG imported from
+// src/lambda/config.ts under any name. A second one, another table, or the table name written any
+// other way counts, so each table has exactly one client, in the file named after it. In the lambda
+// code but CustomDynamoClient.ts it counts an SDK client built,
 // subclassed or exported on directly (`new DynamoDBClient(`, `new DynamoDB(`,
 // `DynamoDBDocumentClient.from(`, `DynamoDBDocument.from(`), which would bypass the class. Not followed: a class first stored in a
 // variable or wrapped in parentheses (`new (C)()`), one loaded with `import()`, `require` or
@@ -34,8 +40,13 @@ const isTestSupport = (file) =>
 const isConstAssertion = (node) =>
   ts.isTypeReferenceNode(node.type) && ts.isIdentifier(node.type.typeName) && node.type.typeName.text === 'const'
 
-const isRepository = (file) =>
-  file.startsWith('src/lambda/lib/repositories/') || file === 'src/lambda/lib/ws/connectionRepository.ts'
+// The CONFIG key of the one table a repository file may open a client on: `<x>Table` for
+// repositories/<x>Repository.ts, wsConnectionsTable for the WebSocket connection repository.
+const ownTable = (file) => {
+  if (file === 'src/lambda/lib/ws/connectionRepository.ts') return 'wsConnectionsTable'
+  const name = /^src\/lambda\/lib\/repositories\/(\w+)Repository\.ts$/.exec(file)?.[1]
+  return name && `${name}Table`
+}
 
 const CLIENT_FILE = 'src/lambda/utils/CustomDynamoClient.ts'
 
@@ -49,9 +60,10 @@ const CLIENT_EXPORTS = [
   { kind: 'sdk', module: /^@aws-sdk\/lib-dynamodb$/, name: 'DynamoDBDocument' },
 ]
 
-// Local name -> 'custom' | 'sdk' for every import of a client constructor, and namespace name ->
-// the exports above it holds. `import type` imports build nothing and are left out.
-function clientBindings(source) {
+// Local name -> 'custom' | 'sdk' for every import of a client constructor, namespace name -> the
+// exports above it holds, and the names CONFIG is imported under. `import type` imports build
+// nothing and are left out.
+function clientBindings(source, file) {
   const names = new Map()
   const namespaces = new Map()
   for (const statement of source.statements) {
@@ -70,7 +82,39 @@ function clientBindings(source) {
       }
     }
   }
-  return { names, namespaces }
+  return { configs: configBindings(source, file), names, namespaces }
+}
+
+const LAMBDA_CONFIG = 'src/lambda/config'
+
+// The local names the file imports the CONFIG of src/lambda/config.ts under.
+function configBindings(source, file) {
+  const configs = new Set()
+  for (const statement of source.statements) {
+    const clause = ts.isImportDeclaration(statement) ? statement.importClause : undefined
+    const bindings = clause && !clause.isTypeOnly ? clause.namedBindings : undefined
+    const specifier = statement.moduleSpecifier?.text ?? ''
+    if (!bindings || !ts.isNamedImports(bindings)) continue
+    if (path.posix.join(path.posix.dirname(file), specifier) !== LAMBDA_CONFIG) continue
+    for (const element of bindings.elements) {
+      if ((element.propertyName ?? element.name).text === 'CONFIG') configs.add(element.name.text)
+    }
+  }
+  return configs
+}
+
+// The first `new CustomDynamoClient(CONFIG.<table>)` of a repository file on its own table, the
+// one client the file may open. Any other argument, or a second construction, is no such client.
+function isOwnClient(node, scope) {
+  if (scope.ownClientOpened || !ts.isNewExpression(node) || node.arguments?.length !== 1) return false
+  const [table] = node.arguments
+  const own =
+    ts.isPropertyAccessExpression(table) &&
+    ts.isIdentifier(table.expression) &&
+    scope.bindings.configs.has(table.expression.text) &&
+    table.name.text === ownTable(scope.file)
+  scope.ownClientOpened = own
+  return own
 }
 
 // The kind of client constructor an expression names: the name it was imported under, or
@@ -109,9 +153,10 @@ function exportKind(node, bindings) {
 }
 
 // A DynamoDB client opened where it should not be: a CustomDynamoClient built, extended or
-// exported on outside the repositories, or an SDK client built, extended or exported on anywhere
-// in the lambda code but CustomDynamoClient.ts.
-function opensClient(node, { bindings, file }) {
+// exported on anywhere but the one client a repository builds on its own table, or an SDK client
+// built, extended or exported on anywhere in the lambda code but CustomDynamoClient.ts.
+function opensClient(node, scope) {
+  const { bindings, file } = scope
   let kind
   if (ts.isNewExpression(node) || ts.isExportAssignment(node)) kind = clientKind(node.expression, bindings)
   else if (ts.isExportDeclaration(node)) kind = exportKind(node, bindings)
@@ -125,7 +170,7 @@ function opensClient(node, { bindings, file }) {
   ) {
     kind = 'sdk'
   }
-  if (kind === 'custom') return !isRepository(file)
+  if (kind === 'custom') return !isOwnClient(node, scope)
   return kind === 'sdk' && file.startsWith('src/lambda/') && file !== CLIENT_FILE
 }
 
@@ -147,7 +192,7 @@ const METRICS = {
   dynamoClientsOutsideRepositories: {
     countsIn: (file) => !isTestSupport(file),
     hint: 'New table access goes into the repository of its table in src/lambda/lib/repositories/ (README there), never into a client of its own.',
-    label: 'DynamoDB clients outside repositories',
+    label: "DynamoDB clients outside their table's repository",
     matches: opensClient,
   },
 }
@@ -168,7 +213,7 @@ function locate(file, text) {
   const source = ts.createSourceFile(file, text, ts.ScriptTarget.Latest, false, kind)
   const metrics = Object.entries(METRICS).filter(([, metric]) => metric.countsIn(file))
   const found = Object.fromEntries(Object.keys(METRICS).map((name) => [name, []]))
-  const scope = { bindings: clientBindings(source), file }
+  const scope = { bindings: clientBindings(source, file), file, ownClientOpened: false }
   const visit = (node) => {
     for (const [name, metric] of metrics) {
       if (metric.matches(node, scope)) {
