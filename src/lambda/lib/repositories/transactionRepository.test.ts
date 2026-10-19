@@ -223,7 +223,6 @@ describe('transactionRepository', () => {
           set: { provider: 'nordea', status: 'fail', statusAt: '2026-10-19T12:00:01.000Z' },
         },
         undefined,
-        undefined,
         UNRESOLVED_CONDITION
       )
     })
@@ -235,7 +234,6 @@ describe('transactionRepository', () => {
       expect(mockUpdate).toHaveBeenCalledWith(
         { transactionId: 'transaction-1' },
         { remove: ['paymentResponse'], set: { status: 'fail', statusAt: NOW } },
-        undefined,
         undefined,
         UNRESOLVED_CONDITION
       )
@@ -255,7 +253,6 @@ describe('transactionRepository', () => {
       expect(mockUpdate).toHaveBeenCalledWith(
         { transactionId: 'transaction-1' },
         actions,
-        undefined,
         undefined,
         UNRESOLVED_CONDITION
       )
@@ -399,7 +396,7 @@ describe('transactionRepository', () => {
       await expect(recordDuplicatePayment(payment, 'event-1', 'registration-1', duplicate)).resolves.toEqual({
         recorded: false,
       })
-      expect(mockRead).toHaveBeenCalledWith({ transactionId: 'transaction-1' }, undefined, true)
+      expect(mockRead).toHaveBeenCalledWith({ transactionId: 'transaction-1' }, true)
       expect(loggedLines(infoSpy)).toContainEqual(
         expect.objectContaining({
           message: 'transaction was already settled on its registration',
@@ -538,7 +535,7 @@ describe('transactionRepository', () => {
           appliedAt: NOW,
           duplicate,
         })
-        expect(mockRead).toHaveBeenCalledWith({ transactionId: 'transaction-1' }, undefined, true)
+        expect(mockRead).toHaveBeenCalledWith({ transactionId: 'transaction-1' }, true)
       }
     )
 
@@ -670,17 +667,15 @@ describe('transactionRepository', () => {
       expect(mockUpdate).toHaveBeenCalledWith(
         { transactionId: 'transaction-1' },
         { set: { postPaymentLease: { expiresAt: Date.parse(NOW) + 90_000, token } } },
-        'transaction-table',
         undefined,
         leaseCondition
       )
-      expect(mockRead).toHaveBeenCalledWith({ transactionId: 'transaction-1' }, 'transaction-table', true)
+      expect(mockRead).toHaveBeenCalledWith({ transactionId: 'transaction-1' }, true)
 
       await markPostPaymentPhase('transaction-1', token, 'receiptSentAt')
       expect(mockUpdate).toHaveBeenCalledWith(
         { transactionId: 'transaction-1' },
         { set: { receiptSentAt: NOW } },
-        'transaction-table',
         undefined,
         tokenCondition(token)
       )
@@ -689,7 +684,6 @@ describe('transactionRepository', () => {
       expect(mockUpdate).toHaveBeenLastCalledWith(
         { transactionId: 'transaction-1' },
         { remove: ['postPaymentLease'] },
-        'transaction-table',
         undefined,
         tokenCondition(token)
       )

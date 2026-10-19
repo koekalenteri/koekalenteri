@@ -19,7 +19,11 @@
  * names is not reached. A table counts only where
  * code reached or run that way calls a client method on it (or a transaction item names it).
  *
- * Tables, clients and functions handed around as arguments (`createDynamoLease({ client, table })`,
+ * A client reaches the table its constructor names and no other (KOE-1415). A method call counts for
+ * the tables of the clients it may be called on, a query's `index` option for the index of each, and
+ * only a `documentTransaction` item names a table of its own.
+ *
+ * Tables, clients and functions handed around as arguments (`createDynamoLease({ client })`,
  * a repository function passed as `readAll` to `createOfficialDirectoryLambda`) are followed
  * through a flow-insensitive binding of parameters and interface properties to the values the
  * reached code passes them, iterated to a fixed point per handler. A variable, a class
@@ -34,8 +38,8 @@
  *
  * A table, index, client or options object the walk cannot name is an error; so is one that may be
  * something it can name or something it cannot (a call, `process.env`, a parameter nothing binds),
- * which is refused rather than taken for the named half. A write to a `table`, `index`, `TableName`
- * or `client` property of something that is no object literal is refused the same way, and so is a
+ * which is refused rather than taken for the named half. A write to an `index`, `TableName` or
+ * `client` property of something that is no object literal is refused the same way, and so is a
  * write of a table or a client through a computed key, or an `Object.assign`, onto such a thing.
  *
  * What the walk does not model, and so can miss rather than refuse: a mutation through a setter
@@ -45,10 +49,10 @@
  * `dynamoDB.read.call(...)`, `.apply`), or called as `x[key](...)` on a receiver neither typed as a
  * client nor known to hold one; a getter or anything else import-time code only names
  * (`Foo.instance` with a static getter), since that code reaches nothing by name; and a field read
- * from a base class through an instance the walk has not seen built. Being flow-insensitive, it may
- * also grant more than one run needs: after `table ??= CONFIG.xTable` the variable still holds the
- * undefined of its initializer, so the client's default table counts too, and a function written out
- * as an argument at import counts as run there even where the callee only keeps it.
+ * from a base class through an instance the walk has not seen built; a table carried to a client's
+ * constructor in a property other than those three, written through something that is no literal.
+ * Being flow-insensitive, it may also grant more than one run needs: a function written out as an
+ * argument at import counts as run there even where the callee only keeps it.
  */
 import type { Action } from './dynamoActions'
 import path from 'node:path'
@@ -63,8 +67,11 @@ type TableUse = Map<string, Map<Action, string[]>>
 
 interface MethodSpec {
   actions: Action[]
-  /** Where the call names its table: a positional argument, the `table` property of an options argument, or only in its items. */
-  table: { arg: number } | { option: number } | 'items'
+  /**
+   * Where the call's table comes from: the client it is called on, that client's table or an index
+   * of it named by the `index` of an options argument, or only its items (KOE-1415).
+   */
+  table: 'client' | { indexOption: number } | 'items'
 }
 
 const TRANSACTION_ACTIONS: Record<string, Action> = {
@@ -76,22 +83,20 @@ const TRANSACTION_ACTIONS: Record<string, Action> = {
 
 /** The CustomDynamoClient methods, the action each sends and where each takes its table. A method missing here fails the analysis. */
 const CLIENT_METHODS = new Map<string, MethodSpec>([
-  ['batchDelete', { actions: ['BatchWriteItem'], table: { arg: 1 } }],
-  ['batchGet', { actions: ['BatchGetItem'], table: { arg: 1 } }],
-  ['batchWrite', { actions: ['BatchWriteItem'], table: { arg: 1 } }],
-  ['delete', { actions: ['DeleteItem'], table: { arg: 1 } }],
+  ['batchDelete', { actions: ['BatchWriteItem'], table: 'client' }],
+  ['batchGet', { actions: ['BatchGetItem'], table: 'client' }],
+  ['batchWrite', { actions: ['BatchWriteItem'], table: 'client' }],
+  ['delete', { actions: ['DeleteItem'], table: 'client' }],
   ['documentTransaction', { actions: [], table: 'items' }],
-  ['query', { actions: ['Query'], table: { option: 0 } }],
-  ['read', { actions: ['GetItem'], table: { arg: 1 } }],
-  ['readAll', { actions: ['Scan'], table: { option: 0 } }],
-  // The items that name no table take the call's default; which of the four they are is not followed.
-  ['transaction', { actions: Object.values(TRANSACTION_ACTIONS), table: { arg: 1 } }],
-  ['update', { actions: ['UpdateItem'], table: { arg: 2 } }],
-  ['write', { actions: ['PutItem'], table: { arg: 1 } }],
+  ['query', { actions: ['Query'], table: { indexOption: 0 } }],
+  ['read', { actions: ['GetItem'], table: 'client' }],
+  ['readAll', { actions: ['Scan'], table: 'client' }],
+  ['update', { actions: ['UpdateItem'], table: 'client' }],
+  ['write', { actions: ['PutItem'], table: 'client' }],
 ])
 
-/** The properties the walk reads a table, an index or a client from: a write to one of them through something it cannot name is refused. */
-const READ_PROPERTIES = new Set(['client', 'index', 'table', 'TableName'])
+/** The properties the walk reads an index, a client or a transaction item's table from: a write to one of them through something it cannot name is refused. */
+const READ_PROPERTIES = new Set(['client', 'index', 'TableName'])
 
 const CONFIG_FILE = /[\\/]src[\\/]lambda[\\/]config\.ts$/
 const CLIENT_FILE = /[\\/]src[\\/]lambda[\\/]utils[\\/]CustomDynamoClient\.ts$/
@@ -439,8 +444,12 @@ const isClientConstruction = (ctx: Context, node: ts.NewExpression) =>
 
 const valuesOfClientConstruction = (ctx: Context, state: HandlerState, node: ts.NewExpression): Values => {
   if (!isClientConstruction(ctx, node) || !node.arguments?.[0]) return NONE
-  const tables = valuesOf(ctx, state, node.arguments[0])
-  if (hasUnknown(tables)) return UNKNOWN
+  // The constructor is the one place a client's table is named (KOE-1415), so it takes CONFIG tables
+  // only: anything else, even beside one, makes a client the walk cannot name. An undefined is
+  // dropped: tsc builds no client on one, so it is only what the flow-insensitive walk keeps of an
+  // initializer that a later `??=` replaced.
+  const tables = withoutUndefined(valuesOf(ctx, state, node.arguments[0]))
+  if (hasUnknown(tables) || !onlyKinds(tables, ['T:'])) return UNKNOWN
   return new Set(tableKeys(tables).map((key) => `C:${key}`))
 }
 
@@ -1006,21 +1015,8 @@ const defaultTables = (ctx: Context, state: HandlerState, receiver: ts.Expressio
   return keys.length && !hasUnknown(values) ? keys : cannotTell(receiver, 'the client')
 }
 
-/** Whether every value is of the given kinds: a table position holds tables or undefined, an index position names or undefined. */
+/** Whether every value is of the given kinds: a table position holds tables, an index position names or undefined. */
 const onlyKinds = (values: Values, kinds: string[]) => [...values].every((value) => kinds.includes(value.slice(0, 2)))
-
-/** The tables an expression names, plus the receiver's default where it may be undefined. */
-const tablesOrDefault = (ctx: Context, state: HandlerState, values: Values, call: ts.CallExpression) => {
-  // A string, a client or a function in a table position is no CONFIG table: refused like an unknown.
-  if (!onlyKinds(values, ['T:', 'U:'])) return []
-  const defaults = hasUndefined(values) ? defaultTables(ctx, state, receiverOf(call)) : []
-  return [...tableKeys(values), ...defaults]
-}
-
-const explicitTables = (ctx: Context, state: HandlerState, call: ts.CallExpression, argument: ts.Expression) => {
-  const keys = tablesOrDefault(ctx, state, valuesOf(ctx, state, argument), call)
-  return keys.length ? keys : cannotTell(argument, 'the table argument')
-}
 
 const receiverOf = (call: ts.CallExpression): ts.Expression => {
   const callee = call.expression
@@ -1030,15 +1026,14 @@ const receiverOf = (call: ts.CallExpression): ts.Expression => {
   return callee.expression
 }
 
-/** The tables one options literal names: its `table`, or the client's default; with `index`, the index of each. */
+/** The client's tables, or with an `index` in the options literal, the index of each. */
 const literalTables = (
   ctx: Context,
   state: HandlerState,
   call: ts.CallExpression,
   literal: ts.ObjectLiteralExpression
 ) => {
-  const keys = tablesOrDefault(ctx, state, literalProperty(ctx, state, literal, 'table'), call)
-  if (!keys.length) cannotTell(propertyNamed(literal, 'table') ?? literal, 'the table option')
+  const keys = defaultTables(ctx, state, receiverOf(call))
   const values = literalProperty(ctx, state, literal, 'index')
   const names = withPrefix(values, 'S')
   const maybeUndefined = hasUndefined(values)
@@ -1050,8 +1045,8 @@ const literalTables = (
   return [...tables, ...keys.flatMap((key) => names.map((name) => indexKey(key, name)))]
 }
 
-/** The tables of a call that takes its table in an options object: the literal's `table`, or the client's default. */
-const optionTables = (
+/** The tables of a call that may name an index in an options object: the client's table, or an index of it. */
+const indexTables = (
   ctx: Context,
   state: HandlerState,
   call: ts.CallExpression,
@@ -1066,9 +1061,8 @@ const optionTables = (
 
 const callTables = (ctx: Context, state: HandlerState, call: ts.CallExpression, spec: MethodSpec): string[] => {
   if (spec.table === 'items') return []
-  if ('option' in spec.table) return optionTables(ctx, state, call, call.arguments[spec.table.option])
-  const argument = call.arguments[spec.table.arg]
-  return argument ? explicitTables(ctx, state, call, argument) : defaultTables(ctx, state, receiverOf(call))
+  if (spec.table === 'client') return defaultTables(ctx, state, receiverOf(call))
+  return indexTables(ctx, state, call, call.arguments[spec.table.indexOption])
 }
 
 /** How the handler got to a unit: the names of the units on the way, innermost last. */

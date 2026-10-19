@@ -126,7 +126,7 @@ const UNRESOLVED_CONDITION = {
  */
 export const updateUnresolvedTransaction = async (transactionId: string, actions: UpdateActions): Promise<boolean> => {
   try {
-    await dynamoDB.update({ transactionId }, actions, undefined, undefined, UNRESOLVED_CONDITION)
+    await dynamoDB.update({ transactionId }, actions, undefined, UNRESOLVED_CONDITION)
     return true
   } catch (error) {
     if (isConditionalCheckFailure(error)) return false
@@ -163,7 +163,7 @@ type RegistrationWrite = 'written' | 'applied' | 'duplicate'
  * refusal on a failed transaction is not taken for a retry (KOE-1531).
  */
 const settledOutcome = async (transactionId: string): Promise<Exclude<RegistrationWrite, 'written'> | undefined> => {
-  const current = await dynamoDB.read<JsonTransaction>({ transactionId }, undefined, true)
+  const current = await dynamoDB.read<JsonTransaction>({ transactionId }, true)
   if (current?.registrationAppliedAt) return 'applied'
   if (current?.duplicatePaymentAt) return 'duplicate'
   return undefined
@@ -438,7 +438,6 @@ const postPaymentLease = () =>
     durationMs: POST_PAYMENT_LEASE_DURATION_MS,
     itemExistsField: 'transactionId',
     leaseField: 'postPaymentLease',
-    table: transactionTable,
   })
 
 /**

@@ -7,7 +7,6 @@ interface DynamoLeaseOptions<Item extends object> {
   durationMs: number
   itemExistsField: Extract<keyof Item, string>
   leaseField: Extract<keyof Item, string>
-  table: string
 }
 
 interface ClaimOptions {
@@ -20,7 +19,6 @@ export const createDynamoLease = <Item extends object, Phase extends Extract<key
   durationMs,
   itemExistsField,
   leaseField,
-  table,
 }: DynamoLeaseOptions<Item>) => {
   const leaseName = `#${leaseField}`
   const itemExistsName = `#${itemExistsField}`
@@ -29,7 +27,7 @@ export const createDynamoLease = <Item extends object, Phase extends Extract<key
     const token = randomUUID()
     const now = Date.now()
     try {
-      await client.update(key, { set: { [leaseField]: { expiresAt: now + durationMs, token } } }, table, undefined, {
+      await client.update(key, { set: { [leaseField]: { expiresAt: now + durationMs, token } } }, undefined, {
         expression: `attribute_exists(${itemExistsName}) AND (attribute_not_exists(${leaseName}) OR ${leaseName}.#expiresAt < :now)`,
         names: {
           '#expiresAt': 'expiresAt',
@@ -43,12 +41,12 @@ export const createDynamoLease = <Item extends object, Phase extends Extract<key
       throw error
     }
 
-    const item = await client.read<Item>(key, table, true)
+    const item = await client.read<Item>(key, true)
     if (!item) throw new Error(missingItemMessage)
 
     const release = async () => {
       try {
-        await client.update(key, { remove: [leaseField] }, table, undefined, {
+        await client.update(key, { remove: [leaseField] }, undefined, {
           expression: `${leaseName}.#token = :token`,
           names: { [leaseName]: leaseField, '#token': 'token' },
           values: { ':token': token },
@@ -64,7 +62,7 @@ export const createDynamoLease = <Item extends object, Phase extends Extract<key
   }
 
   const markPhase = (key: Record<string, number | string | undefined>, token: string, phase: Phase) =>
-    client.update(key, { set: { [phase]: new Date().toISOString() } }, table, undefined, {
+    client.update(key, { set: { [phase]: new Date().toISOString() } }, undefined, {
       expression: `${leaseName}.#token = :token`,
       names: { [leaseName]: leaseField, '#token': 'token' },
       values: { ':token': token },

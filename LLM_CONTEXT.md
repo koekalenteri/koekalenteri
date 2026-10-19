@@ -29,8 +29,8 @@
 - Access environment variables via `src/lambda/config.ts` (`CONFIG`)
 - A table is read and written through its repository in `src/lambda/lib/repositories/`
   (`src/lambda/lib/repositories/README.md`); new table access goes there, not into a handler.
-  Code not yet moved opens one client (`dynamoDB`) per handler and passes the table name to reach
-  another table.
+  A `CustomDynamoClient` reaches only the table it was built on; a write across tables is
+  `documentTransaction`, whose items name their tables.
 
 ## Development Guidelines
 - Follow existing patterns for consistency
