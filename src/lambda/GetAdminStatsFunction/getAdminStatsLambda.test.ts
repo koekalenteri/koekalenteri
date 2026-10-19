@@ -1,4 +1,4 @@
-import type { APIGatewayProxyResult } from 'aws-lambda'
+import type { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
 import type { JsonUser } from '../../types'
 import type { authorizeWithMemberOf } from '../lib/auth'
 import { vi } from 'vitest'
@@ -39,6 +39,16 @@ vi.doMock('../lib/repositories/eventStatsRepository', () => ({
 }))
 const { default: getAdminStatsLambda } = await import('./handler')
 
+const isProxyResult = (value: unknown): value is APIGatewayProxyResult =>
+  typeof value === 'object' && value !== null && 'statusCode' in value && 'body' in value
+
+/** The handler's answer: the metrics wrapper does not type what it hands back. */
+const invoke = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
+  const result: unknown = await getAdminStatsLambda(event)
+  if (!isProxyResult(result)) throw new Error('the handler answered something other than a proxy result')
+  return result
+}
+
 const expectNothingRead = () => {
   expect(mockReadOrganizerEventStats).not.toHaveBeenCalled()
   expect(mockReadAllOrganizerEventStats).not.toHaveBeenCalled()
@@ -67,7 +77,7 @@ describe('getAdminStatsLambda', () => {
     mockReadAllOrganizerEventStats.mockResolvedValueOnce(statsWithPK)
 
     const event = constructAPIGwEvent({}, {})
-    const result = (await getAdminStatsLambda(event)) as APIGatewayProxyResult
+    const result = await invoke(event)
 
     expect(mockReadAllOrganizerEventStats).toHaveBeenCalledWith(undefined, undefined)
     expect(mockReadOrganizerEventStats).not.toHaveBeenCalled()
@@ -80,7 +90,7 @@ describe('getAdminStatsLambda', () => {
     mockReadOrganizerEventStats.mockResolvedValueOnce([baseStats[1]])
 
     const event = constructAPIGwEvent({}, {})
-    const result = (await getAdminStatsLambda(event)) as APIGatewayProxyResult
+    const result = await invoke(event)
 
     expect(mockReadOrganizerEventStats).toHaveBeenCalledTimes(1)
     expect(mockReadOrganizerEventStats).toHaveBeenCalledWith('org2', undefined, undefined)
@@ -95,7 +105,7 @@ describe('getAdminStatsLambda', () => {
       baseStats.filter((stat) => stat.organizerId === organizerId)
     )
 
-    const result = (await getAdminStatsLambda(constructAPIGwEvent({}, {}))) as APIGatewayProxyResult
+    const result = await invoke(constructAPIGwEvent({}, {}))
 
     expect(mockReadOrganizerEventStats).toHaveBeenCalledWith('org3', undefined, undefined)
     expect(mockReadOrganizerEventStats).toHaveBeenCalledWith('org1', undefined, undefined)
@@ -108,7 +118,7 @@ describe('getAdminStatsLambda', () => {
     mockReadAllOrganizerEventStats.mockResolvedValueOnce(filteredStats)
 
     const event = constructAPIGwEvent({}, { query: { from: '2024-02-01', to: '2024-02-28' } })
-    const result = (await getAdminStatsLambda(event)) as APIGatewayProxyResult
+    const result = await invoke(event)
 
     expect(mockReadAllOrganizerEventStats).toHaveBeenCalledWith('2024-02-01', '2024-02-28')
     expect(JSON.parse(result.body)).toEqual(filteredStats)
@@ -120,7 +130,7 @@ describe('getAdminStatsLambda', () => {
     mockReadOrganizerEventStats.mockResolvedValueOnce([baseStats[0]])
 
     const event = constructAPIGwEvent({}, { query: { organizerId: 'org1' } })
-    const result = (await getAdminStatsLambda(event)) as APIGatewayProxyResult
+    const result = await invoke(event)
 
     expect(mockReadOrganizerEventStats).toHaveBeenCalledTimes(1)
     expect(mockReadOrganizerEventStats).toHaveBeenCalledWith('org1', undefined, undefined)
@@ -132,7 +142,7 @@ describe('getAdminStatsLambda', () => {
     mockAuthorizeWithMemberOf.mockResolvedValue({ memberOf: ['org1', 'org2'], user: mockUser })
 
     const event = constructAPIGwEvent({}, { query: { organizerId: 'org3' } })
-    const result = (await getAdminStatsLambda(event)) as APIGatewayProxyResult
+    const result = await invoke(event)
 
     expect(result.statusCode).toBe(403)
     expectNothingRead()
@@ -143,7 +153,7 @@ describe('getAdminStatsLambda', () => {
     mockReadOrganizerEventStats.mockResolvedValueOnce([baseStats[2]])
 
     const event = constructAPIGwEvent({}, { query: { organizerId: 'org3' } })
-    const result = (await getAdminStatsLambda(event)) as APIGatewayProxyResult
+    const result = await invoke(event)
 
     expect(mockReadOrganizerEventStats).toHaveBeenCalledWith('org3', undefined, undefined)
     expect(JSON.parse(result.body)).toEqual([baseStats[2]])
@@ -153,7 +163,7 @@ describe('getAdminStatsLambda', () => {
   it('answers the auth refusal without reading anything', async () => {
     mockAuthorizeWithMemberOf.mockRejectedValue(httpError(401, 'Unauthorized'))
     const event = constructAPIGwEvent({}, {})
-    const result = (await getAdminStatsLambda(event)) as APIGatewayProxyResult
+    const result = await invoke(event)
 
     expect(result.statusCode).toBe(401)
     expect(JSON.parse(result.body)).toBe('Unauthorized')
@@ -165,7 +175,7 @@ describe('getAdminStatsLambda', () => {
     mockReadAllOrganizerEventStats.mockResolvedValueOnce([])
 
     const event = constructAPIGwEvent({}, {})
-    const result = (await getAdminStatsLambda(event)) as APIGatewayProxyResult
+    const result = await invoke(event)
 
     expect(mockReadAllOrganizerEventStats).toHaveBeenCalledWith(undefined, undefined)
     expect(JSON.parse(result.body)).toEqual([])
@@ -187,7 +197,7 @@ describe('getAdminStatsLambda', () => {
       ])
 
       const event = constructAPIGwEvent({}, { query: { eventType: 'NOME-B' } })
-      const result = (await getAdminStatsLambda(event)) as APIGatewayProxyResult
+      const result = await invoke(event)
 
       expect(mockReadCapacityStats).toHaveBeenCalledWith('NOME-B', ['org2'], undefined, undefined)
       expect(JSON.parse(result.body)).toEqual({
@@ -211,7 +221,7 @@ describe('getAdminStatsLambda', () => {
       mockReadCapacityStats.mockResolvedValueOnce([])
 
       const event = constructAPIGwEvent({}, { query: { eventType: 'NOME-B', organizerId: 'org-elsewhere' } })
-      const result = (await getAdminStatsLambda(event)) as APIGatewayProxyResult
+      const result = await invoke(event)
 
       expect(result.statusCode).toBe(200)
       expect(mockReadCapacityStats).toHaveBeenCalledWith('NOME-B', ['org-elsewhere'], undefined, undefined)
@@ -221,7 +231,7 @@ describe('getAdminStatsLambda', () => {
       mockAuthorizeWithMemberOf.mockResolvedValue({ memberOf: ['org1'], user: mockUser })
 
       const event = constructAPIGwEvent({}, { query: { eventType: 'NOME-B', organizerId: 'org-elsewhere' } })
-      const result = (await getAdminStatsLambda(event)) as APIGatewayProxyResult
+      const result = await invoke(event)
 
       expect(result.statusCode).toBe(403)
       expectNothingRead()
@@ -236,7 +246,7 @@ describe('getAdminStatsLambda', () => {
       mockReadJudgeWorkload.mockResolvedValueOnce([judgeRow])
 
       const event = constructAPIGwEvent({}, { query: { judges: '2025' } })
-      const result = (await getAdminStatsLambda(event)) as APIGatewayProxyResult
+      const result = await invoke(event)
 
       expect(mockReadJudgeWorkload).toHaveBeenCalledWith(2025, undefined)
       expect(JSON.parse(result.body)).toEqual({
@@ -250,7 +260,7 @@ describe('getAdminStatsLambda', () => {
       mockReadJudgeWorkload.mockResolvedValueOnce([judgeRow])
 
       const event = constructAPIGwEvent({}, { query: { judges: '2025' } })
-      const result = (await getAdminStatsLambda(event)) as APIGatewayProxyResult
+      const result = await invoke(event)
 
       expect(mockReadJudgeWorkload).toHaveBeenCalledWith(2025, ['org1', 'org2'])
       expect(result.statusCode).toBe(200)
@@ -261,7 +271,7 @@ describe('getAdminStatsLambda', () => {
       mockReadJudgeWorkload.mockResolvedValueOnce([judgeRow])
 
       const event = constructAPIGwEvent({}, { query: { judges: '2025', organizerId: 'org1' } })
-      const result = (await getAdminStatsLambda(event)) as APIGatewayProxyResult
+      const result = await invoke(event)
 
       expect(mockReadJudgeWorkload).toHaveBeenCalledWith(2025, ['org1'])
       expect(result.statusCode).toBe(200)
@@ -271,7 +281,7 @@ describe('getAdminStatsLambda', () => {
       mockAuthorizeWithMemberOf.mockResolvedValue({ memberOf: ['org1'], user: mockUser })
 
       const event = constructAPIGwEvent({}, { query: { judges: '2025', organizerId: 'org-elsewhere' } })
-      const result = (await getAdminStatsLambda(event)) as APIGatewayProxyResult
+      const result = await invoke(event)
 
       expect(result.statusCode).toBe(403)
       expectNothingRead()
@@ -281,7 +291,7 @@ describe('getAdminStatsLambda', () => {
       mockAuthorizeWithMemberOf.mockResolvedValue({ memberOf: [], user: mockUser })
 
       const event = constructAPIGwEvent({}, { query: { judges: '2025' } })
-      const result = (await getAdminStatsLambda(event)) as APIGatewayProxyResult
+      const result = await invoke(event)
 
       expect(result.statusCode).toBe(200)
       expect(JSON.parse(result.body)).toEqual({ judgeWorkload: [] })
@@ -296,7 +306,7 @@ describe('getAdminStatsLambda', () => {
         mockAuthorizeWithMemberOf.mockResolvedValue({ memberOf: [], user: mockUser })
 
         const event = constructAPIGwEvent({}, { query: { judges } })
-        const result = (await getAdminStatsLambda(event)) as APIGatewayProxyResult
+        const result = await invoke(event)
 
         expect(result.statusCode).toBe(400)
         expectNothingRead()
@@ -313,7 +323,7 @@ describe('getAdminStatsLambda', () => {
       const all = withKeys(baseStats)
       mockReadAllOrganizerEventStats.mockResolvedValueOnce(all)
 
-      const result = (await getAdminStatsLambda(constructAPIGwEvent({}, {}))) as APIGatewayProxyResult
+      const result = await invoke(constructAPIGwEvent({}, {}))
 
       expect(mockReadAllOrganizerEventStats).toHaveBeenCalledWith(undefined, undefined)
       expect(JSON.parse(result.body)).toEqual(all)
@@ -326,7 +336,7 @@ describe('getAdminStatsLambda', () => {
     it("gets no event stats rather than every organizer's", async () => {
       mockAuthorizeWithMemberOf.mockResolvedValue({ memberOf: [], user: mockUser })
 
-      const result = (await getAdminStatsLambda(constructAPIGwEvent({}, {}))) as APIGatewayProxyResult
+      const result = await invoke(constructAPIGwEvent({}, {}))
 
       expectNothingRead()
       expect(JSON.parse(result.body)).toEqual([])
@@ -336,7 +346,7 @@ describe('getAdminStatsLambda', () => {
       mockAuthorizeWithMemberOf.mockResolvedValue({ memberOf: [], user: mockUser })
 
       const event = constructAPIGwEvent({}, { query: { eventType: 'NOME-B' } })
-      const result = (await getAdminStatsLambda(event)) as APIGatewayProxyResult
+      const result = await invoke(event)
 
       expectNothingRead()
       expect(JSON.parse(result.body)).toEqual({ capacityStats: [] })

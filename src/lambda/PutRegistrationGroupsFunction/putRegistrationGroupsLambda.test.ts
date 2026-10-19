@@ -63,17 +63,26 @@ vi.doMock('../lib/repositories/registrationRepository', () => ({
   writeRegistrationFields: mockWriteRegistrationFields,
 }))
 
-/** Every write the moves make, whatever its table. */
-const writeMocks = [
-  mockWriteWorkflowLock,
-  mockWriteRegistrationFields,
-  mockUpdateRegistrationField,
-  mockRemoveRegistrationField,
-  mockWriteEventFields,
-  mockClearWorkflowLock,
-]
+/** Every write the moves make, whatever its table, named by the step it is. */
+const writeMocks = {
+  'release lock': mockClearWorkflowLock,
+  'remove registration field': mockRemoveRegistrationField,
+  'take lock': mockWriteWorkflowLock,
+  'update registration field': mockUpdateRegistrationField,
+  'write event': mockWriteEventFields,
+  'write registration': mockWriteRegistrationFields,
+}
 const expectNothingWritten = () => {
-  for (const write of writeMocks) expect(write).not.toHaveBeenCalled()
+  for (const write of Object.values(writeMocks)) expect(write).not.toHaveBeenCalled()
+}
+/** Records each write by its step, in the order the writes land. */
+const recordWrites = (steps: string[]) => {
+  for (const [step, write] of Object.entries(writeMocks)) {
+    write.mockImplementation(async () => {
+      await Promise.resolve()
+      steps.push(step)
+    })
+  }
 }
 
 const libAudit = await import('../lib/audit')
@@ -142,6 +151,7 @@ describe('putRegistrationGroupsLambda', () => {
 
   afterEach(() => {
     vi.clearAllMocks()
+    for (const write of Object.values(writeMocks)) write.mockReset()
     mockSend.mockImplementation(() => ({ failed: [], ok: [] }))
   })
 
@@ -300,6 +310,8 @@ describe('putRegistrationGroupsLambda', () => {
 
     reg.group = { key: 'reserve', number: 3 }
     reg.cancelled = false
+    const steps: string[] = []
+    recordWrites(steps)
 
     const res = await putRegistrationGroupsLambda(
       constructAPIGwEvent(
@@ -316,9 +328,9 @@ describe('putRegistrationGroupsLambda', () => {
       expect.any(Number),
       expect.any(Number)
     )
-    expect(mockWriteRegistrationFields).toHaveBeenCalledTimes(1)
-    expect(mockWriteEventFields).toHaveBeenCalledTimes(1)
     expect(mockClearWorkflowLock).toHaveBeenCalledWith(event.id, 'registrationGroupsLock', expect.any(String))
+    // The lock is taken before the first write and released after the last.
+    expect(steps).toEqual(['take lock', 'write registration', 'write event', 'release lock'])
     expect(mockWriteRegistrationFields).toHaveBeenNthCalledWith(1, 'testInvited', 'testInvited5', {
       remove: ['cancelReason'],
       set: {
@@ -378,12 +390,7 @@ describe('putRegistrationGroupsLambda', () => {
   it('publishes the start list only after every write, the lock release included (KOE-1516)', async () => {
     // The published list's version is the time it was read, so it has to be read after the writes.
     const steps: string[] = []
-    for (const write of writeMocks) {
-      write.mockImplementation(async () => {
-        await Promise.resolve()
-        steps.push('write')
-      })
-    }
+    recordWrites(steps)
     mockPublishPublicStartList.mockImplementation(async () => {
       steps.push('publish start list')
     })
@@ -401,9 +408,15 @@ describe('putRegistrationGroupsLambda', () => {
         )
       )
 
-      expect(steps).toEqual(['write', 'write', 'write', 'write', 'write', 'publish start list'])
+      expect(steps).toEqual([
+        'take lock',
+        'write registration',
+        'write registration',
+        'write event',
+        'release lock',
+        'publish start list',
+      ])
     } finally {
-      for (const write of writeMocks) write.mockReset()
       mockPublishPublicStartList.mockReset()
     }
   })

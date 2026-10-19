@@ -211,8 +211,10 @@ describe('putResultsPublishedLambda', () => {
     expect(mockPublishEventPatch).not.toHaveBeenCalled()
   })
 
-  it('holds the write to the flag alone, so a write to the rest of the row does not refuse it', async () => {
-    // A registration or an invitation moves updatedAt between the read and the write; the flag is as read.
+  it("passes a class's stored false entry on as the flag the publish was folded from", async () => {
+    // A hidden class is an entry of its own, not a missing one: the write is held to `false`. That the
+    // condition names only the flag, so a write to the rest of the row cannot refuse it, is the
+    // repository's (eventRepository.test.ts, writeResultsPublished).
     store(twoDays({ resultsPublished: { ALO: false } }))
 
     await putResultsPublishedLambda(apiEvent({ date: '2026-09-12', eventClass: 'ALO', published: true }))
