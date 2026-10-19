@@ -966,6 +966,26 @@ describe('runMigrationLambda', () => {
       expect(mockResponse).toHaveBeenCalledWith(200, [{ count: 1, name: 'storeDogDaysAsKeys' }], directEvent)
     })
 
+    it('leaves a stats row whose key names no day, or no event, where it is, and counts the first', async () => {
+      const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+      mockReadApplied.mockResolvedValue(pendingOnly('storeOrganizerStatsDaysAsKeys'))
+      mockReadAllOrganizerEventStats.mockResolvedValueOnce([
+        { count: 1, organizerId: 'org1', PK: 'ORG#org1', SK: 'not-a-day#event1' },
+        { count: 1, organizerId: 'org1', PK: 'ORG#org1', SK: 'no-event-id' },
+      ])
+
+      await runMigrationLambda(directEvent)
+
+      expect(mockMoveOrganizerEventStatsRow).not.toHaveBeenCalled()
+      expect(mockResponse).toHaveBeenCalledWith(
+        200,
+        [{ count: 0, name: 'storeOrganizerStatsDaysAsKeys', unreadable: 1 }],
+        directEvent
+      )
+      expect(loggedLines(warn)).toEqual([expect.objectContaining({ ids: ['ORG#org1/not-a-day#event1'] })])
+      warn.mockRestore()
+    })
+
     it("moves an organizer's stats row keyed by an instant to the key of its day", async () => {
       mockReadApplied.mockResolvedValue(pendingOnly('storeOrganizerStatsDaysAsKeys'))
       const instantRow = {
