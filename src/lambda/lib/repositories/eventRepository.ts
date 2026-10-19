@@ -5,8 +5,7 @@ import { CONFIG } from '../../config'
 import CustomDynamoClient from '../../utils/CustomDynamoClient'
 import { foldedFrom } from '../conditionalWrite'
 
-const { eventTable } = CONFIG
-const dynamoDB = new CustomDynamoClient(eventTable)
+const dynamoDB = new CustomDynamoClient(CONFIG.eventTable)
 
 /** The registration workflows one event serializes, each with a lock of its own on the event row. */
 export type EventWorkflowLock = 'registrationGroupsLock' | 'registrationPaymentsLock'
@@ -28,18 +27,16 @@ const EVENT_STATS_PROJECTION = 'id, organizer, startDate, endDate, eventType, cl
 
 /** `consistent` reads the row as last written, for a caller about to write back what it folds from it. */
 export const readEvent = async <T extends JsonDogEvent = JsonDogEvent>(eventId: string, consistent = false) =>
-  dynamoDB.read<T>({ id: eventId }, eventTable, consistent)
+  dynamoDB.read<T>({ id: eventId }, consistent)
 
 /** Every event in the table, for the jobs that walk them all (the data migrations, the user merge). */
-export const readAllEvents = async (): Promise<JsonDogEvent[]> =>
-  (await dynamoDB.readAll<JsonDogEvent>({ table: eventTable })) ?? []
+export const readAllEvents = async (): Promise<JsonDogEvent[]> => (await dynamoDB.readAll<JsonDogEvent>()) ?? []
 
 /** Every event, with only the fields the stats rebuild counts from. */
 export const readEventsForStats = async () =>
   dynamoDB.readAll<EventStatsEvent>({
     names: EVENT_STATS_PROJECTION_NAMES,
     projection: EVENT_STATS_PROJECTION,
-    table: eventTable,
   })
 
 /** The ids of the events linked to the Kennel Club trial number. */
@@ -47,7 +44,6 @@ export const findEventIdsByKcId = async (kcId: number) =>
   dynamoDB.readAll<Pick<JsonDogEvent, 'id'>>({
     filter: 'kcId = :kcId',
     projection: 'id',
-    table: eventTable,
     values: { ':kcId': kcId },
   })
 
@@ -56,7 +52,6 @@ export const findEventIdsByKcGuid = async (kcGuid: string) =>
   dynamoDB.readAll<Pick<JsonDogEvent, 'id'>>({
     filter: 'kcGuid = :kcGuid',
     projection: 'id',
-    table: eventTable,
     values: { ':kcGuid': kcGuid },
   })
 
@@ -70,7 +65,6 @@ export const readLastEntryEndBefore = async (
     index: 'gsiEventTypeEntryEndDateV2',
     key: 'eventType = :eventType AND entryEndDate < :entryEndDate',
     limit: 1,
-    table: eventTable,
     values: { ':entryEndDate': entryEndDate, ':eventType': eventType },
   })
   return result?.[0]
@@ -83,7 +77,6 @@ export const readPublicSeasonEvents = async (season: string, startsBy: string) =
     index: 'gsiSeasonStartDate',
     key: 'season = :season AND startDate <= :endDate',
     names: { '#state': 'state' },
-    table: eventTable,
     values: {
       ':draft': 'draft',
       ':endDate': startsBy,
@@ -96,7 +89,6 @@ export const readSeasonEvents = async (season: number) =>
   dynamoDB.query<JsonDogEvent>({
     index: 'gsiSeasonStartDate',
     key: 'season = :season',
-    table: eventTable,
     values: { ':season': season.toString() },
   })
 
@@ -105,7 +97,6 @@ export const readSeasonEventsUpdatedSince = async (season: number, updatedAfter:
   dynamoDB.query<JsonDogEvent>({
     index: 'gsiSeasonUpdatedAt',
     key: 'season = :season AND updatedAt >= :updatedAfter',
-    table: eventTable,
     values: { ':season': season.toString(), ':updatedAfter': updatedAfter },
   })
 
@@ -114,18 +105,17 @@ export const readOrganizerEvents = async (organizerId: string) =>
   dynamoDB.query<JsonDogEvent>({
     index: 'gsiOrganizerStartDate',
     key: 'organizerId = :organizerId',
-    table: eventTable,
     values: { ':organizerId': organizerId },
   })
 
 /** Stores the whole event, replacing the row. */
 export const writeEvent = async (event: JsonDogEvent) => {
-  await dynamoDB.write(event, eventTable)
+  await dynamoDB.write(event)
 }
 
 /** Sets and removes fields of the event, with no condition. */
 export const writeEventFields = async (eventId: string, changes: UpdateActions) => {
-  await dynamoDB.update({ id: eventId }, changes, eventTable)
+  await dynamoDB.update({ id: eventId }, changes)
 }
 
 /**
@@ -140,7 +130,7 @@ export const writeWorkflowLock = async (
   expiresAt: number
 ) => {
   const lockName = `#${field}`
-  await dynamoDB.update({ id: eventId }, { set: { [field]: { expiresAt, token } } }, eventTable, undefined, {
+  await dynamoDB.update({ id: eventId }, { set: { [field]: { expiresAt, token } } }, undefined, {
     expression: `attribute_exists(#id) AND (attribute_not_exists(${lockName}) OR ${lockName}.#expiresAt < :now)`,
     names: { '#expiresAt': 'expiresAt', '#id': 'id', [lockName]: field },
     values: { ':now': now },
@@ -150,7 +140,7 @@ export const writeWorkflowLock = async (
 /** Removes the workflow lock while it is still the one `token` took. Throws the condition failure otherwise. */
 export const clearWorkflowLock = async (eventId: string, field: EventWorkflowLock, token: string) => {
   const lockName = `#${field}`
-  await dynamoDB.update({ id: eventId }, { remove: [field] }, eventTable, undefined, {
+  await dynamoDB.update({ id: eventId }, { remove: [field] }, undefined, {
     expression: `${lockName}.#token = :token`,
     names: { [lockName]: field, '#token': 'token' },
     values: { ':token': token },
@@ -192,13 +182,7 @@ export const writeResultsPublished = async (
   updatedAt: string
 ): Promise<unknown> => {
   const { condition, set } = resultsWrite(stored, eventClass, next)
-  const output = await dynamoDB.update(
-    { id: eventId },
-    { set: { ...set, updatedAt } },
-    eventTable,
-    'ALL_NEW',
-    condition
-  )
+  const output = await dynamoDB.update({ id: eventId }, { set: { ...set, updatedAt } }, 'ALL_NEW', condition)
   return output.Attributes?.resultsPublished
 }
 
@@ -214,7 +198,7 @@ export const writeKcStateReading = async (
   handedOver: number,
   updatedAt: string
 ) => {
-  await dynamoDB.update({ id: eventId }, { set: { kcState, updatedAt } }, eventTable, 'NONE', {
+  await dynamoDB.update({ id: eventId }, { set: { kcState, updatedAt } }, 'NONE', {
     expression:
       'attribute_exists(#id) AND (attribute_not_exists(#kcState) OR (#kcState.#readAt <= :readAt AND (:code = :handedOver OR #kcState.#code <> :handedOver OR #kcState.#readAt <= :freshAfter)))',
     names: { '#code': 'code', '#id': 'id', '#kcState': 'kcState', '#readAt': 'readAt' },
@@ -232,7 +216,7 @@ export const writeKcStateReading = async (
  * failure otherwise.
  */
 export const writeKcStateLock = async (eventId: string, locked: JsonKcState, handedOver: number) => {
-  await dynamoDB.update({ id: eventId }, { set: { kcState: locked, updatedAt: locked.readAt } }, eventTable, 'NONE', {
+  await dynamoDB.update({ id: eventId }, { set: { kcState: locked, updatedAt: locked.readAt } }, 'NONE', {
     expression:
       'attribute_exists(#id) AND (attribute_not_exists(#kcState) OR (#kcState.#code <> :handedOver AND #kcState.#readAt <= :readAt))',
     names: { '#code': 'code', '#id': 'id', '#kcState': 'kcState', '#readAt': 'readAt' },
@@ -242,7 +226,7 @@ export const writeKcStateLock = async (eventId: string, locked: JsonKcState, han
 
 /** Puts `restored` back while the stored state is still the lock read at `lockedAt`. Throws the condition failure otherwise. */
 export const restoreKcState = async (eventId: string, restored: JsonKcState, lockedAt: string, updatedAt: string) => {
-  await dynamoDB.update({ id: eventId }, { set: { kcState: restored, updatedAt } }, eventTable, 'NONE', {
+  await dynamoDB.update({ id: eventId }, { set: { kcState: restored, updatedAt } }, 'NONE', {
     expression: 'attribute_exists(#id) AND #kcState.#readAt = :lockedAt',
     names: { '#id': 'id', '#kcState': 'kcState', '#readAt': 'readAt' },
     values: { ':lockedAt': lockedAt },
@@ -251,7 +235,7 @@ export const restoreKcState = async (eventId: string, restored: JsonKcState, loc
 
 /** Links the event to the Kennel Club trial where it has no link yet. Throws the condition failure otherwise. */
 export const writeKcGuidLink = async (eventId: string, kcGuid: string, updatedAt: string) => {
-  await dynamoDB.update({ id: eventId }, { set: { kcGuid, updatedAt } }, eventTable, 'NONE', {
+  await dynamoDB.update({ id: eventId }, { set: { kcGuid, updatedAt } }, 'NONE', {
     expression: 'attribute_exists(#id) AND attribute_not_exists(#kcGuid)',
     names: { '#id': 'id', '#kcGuid': 'kcGuid' },
   })
@@ -271,7 +255,7 @@ export const writeStationTurns = async (
     ? { expression: '#turns = :expected', names: { '#turns': 'turns' }, values: { ':expected': expected } }
     : { expression: 'attribute_not_exists(#turns)', names: { '#turns': 'turns' } }
 
-  await dynamoDB.update({ id: eventId }, { set: { turns, updatedAt } }, eventTable, undefined, condition)
+  await dynamoDB.update({ id: eventId }, { set: { turns, updatedAt } }, undefined, condition)
 }
 
 /**
@@ -287,7 +271,6 @@ export const writeMigratedEvent = async (
   await dynamoDB.update(
     { id: eventId },
     changes,
-    eventTable,
     undefined,
     foldedFrom('#updatedAt', { '#updatedAt': 'updatedAt' }, readUpdatedAt)
   )

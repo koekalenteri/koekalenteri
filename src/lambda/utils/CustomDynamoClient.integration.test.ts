@@ -198,7 +198,7 @@ describe('CustomDynamoClient against DynamoDB-local', () => {
       const item = row()
       await client.write(item)
 
-      const result = await client.update({ id: item.id }, { set: { name: 'Renamed' } }, undefined, 'ALL_NEW')
+      const result = await client.update({ id: item.id }, { set: { name: 'Renamed' } }, 'ALL_NEW')
 
       expect(result.Attributes).toEqual({ ...item, name: 'Renamed' })
     })
@@ -208,7 +208,7 @@ describe('CustomDynamoClient against DynamoDB-local', () => {
       await client.write(item)
 
       await expect(
-        client.update({ id: item.id }, { set: { name: 'Changed' } }, undefined, undefined, {
+        client.update({ id: item.id }, { set: { name: 'Changed' } }, undefined, {
           expression: '#name = :expected',
           names: { '#name': 'name' },
           values: { ':expected': 'Something else' },

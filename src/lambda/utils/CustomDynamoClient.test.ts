@@ -1,5 +1,4 @@
-import type { TransactWriteItemWithoutTable } from './CustomDynamoClient'
-import { vi } from 'vitest'
+import { expectTypeOf, vi } from 'vitest'
 import { loggedLines } from '../test-utils/logs'
 
 // Mock AWS SDK v3
@@ -16,23 +15,8 @@ const mockFrom = vi.fn().mockImplementation((_client) => ({
 }))
 
 // Mock the DynamoDB client and commands
-// Create a custom TransactionCanceledException class
-class MockTransactionCanceledException extends Error {
-  CancellationReasons?: { Code: string; Message?: string }[]
-
-  constructor(message: string, reasons?: { Code: string; Message?: string }[]) {
-    super(message)
-    this.name = 'TransactionCanceledException'
-    this.CancellationReasons = reasons
-  }
-}
-
 vi.mock('@aws-sdk/client-dynamodb', () => ({
   DynamoDBClient: mockDynamoDBClient,
-  TransactionCanceledException: MockTransactionCanceledException,
-  TransactWriteItemsCommand: vi.fn().mockImplementation(function TransactWriteItemsCommand(params) {
-    return params
-  }),
 }))
 
 vi.mock('@aws-sdk/lib-dynamodb', () => ({
@@ -103,6 +87,19 @@ describe('CustomDynamoClient', () => {
       expect(client.table).toBe('test-table')
     })
 
+    // KOE-1415: a type test, checked by tsc (`npm run lint-backend`), which fails on an expected
+    // error that does not occur. A client reaches its constructor's table and no other: neither the
+    // table nor the SDK clients underneath can be swapped or used past the methods.
+    it('keeps its table and SDK clients to itself', () => {
+      const client = new CustomDynamoClient('TestTable')
+
+      // @ts-expect-error the table is fixed at construction
+      client.table = 'other-table'
+      // @ts-expect-error the document client is private
+      expectTypeOf(client.docClient).toBeObject()
+      expectTypeOf(client).not.toHaveProperty('client')
+    })
+
     it('handles SAM local environment', () => {
       process.env = { ...originalEnv, AWS_SAM_LOCAL: 'true' }
 
@@ -151,18 +148,15 @@ describe('CustomDynamoClient', () => {
       })
     })
 
-    it('uses provided table name', async () => {
+    it('scans only its own table, whatever options it is handed', async () => {
       const client = new CustomDynamoClient('DefaultTable')
       mockSend.mockResolvedValueOnce({ Items: [] })
+      const options = { filter: '#a = :a', table: 'CustomTable' }
 
-      await client.readAll({ table: 'CustomTable' })
+      // @ts-expect-error a table option is no option, not even through a variable
+      await client.readAll(options)
 
-      expect(mockSend).toHaveBeenCalledWith(
-        expect.objectContaining({
-          ExclusiveStartKey: undefined,
-          TableName: 'custom-table',
-        })
-      )
+      expect(mockSend).toHaveBeenCalledWith(expect.objectContaining({ TableName: 'default-table' }))
     })
 
     it('includes expression attribute names when provided', async () => {
@@ -292,17 +286,23 @@ describe('CustomDynamoClient', () => {
       expect(result).toBeUndefined()
     })
 
-    it('uses provided table name', async () => {
+    it('reads strongly consistent from its own table', async () => {
       const client = new CustomDynamoClient('DefaultTable')
       mockSend.mockResolvedValueOnce({ Item: {} })
 
+      await client.read({ id: '1' }, true)
+
+      expect(mockSend).toHaveBeenCalledWith({ ConsistentRead: true, Key: { id: '1' }, TableName: 'default-table' })
+    })
+
+    it('takes no table argument', async () => {
+      const client = new CustomDynamoClient('DefaultTable')
+      mockSend.mockResolvedValueOnce({ Item: {} })
+
+      // @ts-expect-error the second argument is the consistency flag
       await client.read({ id: '1' }, 'CustomTable')
 
-      expect(mockSend).toHaveBeenCalledWith(
-        expect.objectContaining({
-          TableName: 'custom-table',
-        })
-      )
+      expect(mockSend).toHaveBeenCalledWith(expect.objectContaining({ TableName: 'default-table' }))
     })
   })
 
@@ -370,7 +370,6 @@ describe('CustomDynamoClient', () => {
         key: 'id = :id',
         limit: 10,
         names: { '#name': 'name' },
-        table: 'CustomTable',
         values: { ':id': '1' },
       })
 
@@ -382,8 +381,19 @@ describe('CustomDynamoClient', () => {
         KeyConditionExpression: 'id = :id',
         Limit: 10,
         ScanIndexForward: false,
-        TableName: 'custom-table',
+        TableName: 'test-table',
       })
+    })
+
+    it('queries only its own table, whatever parameters it is handed', async () => {
+      const client = new CustomDynamoClient('TestTable')
+      mockSend.mockResolvedValueOnce({ Items: [] })
+      const params = { key: 'id = :id', table: 'CustomTable', values: { ':id': '1' } }
+
+      // @ts-expect-error a table parameter is no parameter, not even through a variable
+      await client.query(params)
+
+      expect(mockSend).toHaveBeenCalledWith(expect.objectContaining({ TableName: 'test-table' }))
     })
 
     it('continues querying until all pages are read', async () => {
@@ -461,11 +471,14 @@ describe('CustomDynamoClient', () => {
       const client = new CustomDynamoClient('TestTable')
       mockSend.mockResolvedValueOnce({})
 
-      await client.write({ id: '1' }, undefined, {
-        expression: '#u = :read',
-        names: { '#u': 'updatedAt' },
-        values: { ':read': 'then' },
-      })
+      await client.write(
+        { id: '1' },
+        {
+          expression: '#u = :read',
+          names: { '#u': 'updatedAt' },
+          values: { ':read': 'then' },
+        }
+      )
 
       expect(mockSend).toHaveBeenCalledWith({
         ConditionExpression: '#u = :read',
@@ -480,7 +493,7 @@ describe('CustomDynamoClient', () => {
       const client = new CustomDynamoClient('TestTable')
       mockSend.mockResolvedValueOnce({})
 
-      await client.write({ id: '1' }, undefined, { expression: 'attribute_not_exists(updatedAt)' })
+      await client.write({ id: '1' }, { expression: 'attribute_not_exists(updatedAt)' })
 
       expect(mockSend).toHaveBeenCalledWith({
         ConditionExpression: 'attribute_not_exists(updatedAt)',
@@ -489,20 +502,14 @@ describe('CustomDynamoClient', () => {
       })
     })
 
-    it('uses provided table name', async () => {
+    it('takes no table argument', async () => {
       const client = new CustomDynamoClient('DefaultTable')
-      mockSend.mockImplementationOnce((command: Record<string, any>) => {
-        sentCommand = command
-        return Promise.resolve({})
-      })
+      mockSend.mockResolvedValueOnce({})
 
+      // @ts-expect-error the second argument is the condition
       await client.write({ id: '1' }, 'CustomTable')
 
-      expect(mockSend).toHaveBeenCalledWith(
-        expect.objectContaining({
-          TableName: 'custom-table',
-        })
-      )
+      expect(mockSend).toHaveBeenCalledWith({ Item: { id: '1' }, TableName: 'default-table' })
     })
 
     it('supports nested dot-path SET operations', async () => {
@@ -691,11 +698,13 @@ describe('CustomDynamoClient', () => {
       expect(mockSend).toHaveBeenCalledTimes(3)
     })
 
-    it('uses provided table name', async () => {
+    it('takes no table argument', async () => {
       const client = new CustomDynamoClient('DefaultTable')
-      mockSend.mockResolvedValueOnce({ Responses: { 'custom-table': [{ id: '1' }] } })
+      mockSend.mockResolvedValueOnce({ Responses: { 'default-table': [{ id: '1' }] } })
 
+      // @ts-expect-error the keys are the only argument
       await expect(client.batchGet([{ id: '1' }], 'CustomTable')).resolves.toEqual([{ id: '1' }])
+      expect(mockSend).toHaveBeenCalledWith({ RequestItems: { 'default-table': { Keys: [{ id: '1' }] } } })
     })
   })
 
@@ -728,21 +737,16 @@ describe('CustomDynamoClient', () => {
       // which confirms our batching logic is working
     })
 
-    it('uses provided table name', async () => {
+    it('takes no table argument', async () => {
       const client = new CustomDynamoClient('DefaultTable')
       mockSend.mockResolvedValueOnce({})
 
-      // Create a typed array to avoid TypeScript errors
-      const items = [{ id: '1' }]
-      await client.batchWrite(items, 'CustomTable')
+      // @ts-expect-error the items are the only argument
+      await client.batchWrite([{ id: '1' }], 'CustomTable')
 
-      expect(mockSend).toHaveBeenCalledWith(
-        expect.objectContaining({
-          RequestItems: {
-            'custom-table': expect.any(Array),
-          },
-        })
-      )
+      expect(mockSend).toHaveBeenCalledWith({
+        RequestItems: { 'default-table': [{ PutRequest: { Item: { id: '1' } } }] },
+      })
     })
 
     it('logs one summary line per request instead of the items', async () => {
@@ -816,13 +820,14 @@ describe('CustomDynamoClient', () => {
       })
     })
 
-    it('uses provided table name', async () => {
+    it('takes no table argument', async () => {
       const client = new CustomDynamoClient('DefaultTable')
 
+      // @ts-expect-error the keys are the only argument
       await client.batchDelete([{ id: '1' }], 'CustomTable')
 
       expect(mockSend).toHaveBeenCalledWith({
-        RequestItems: { 'custom-table': [{ DeleteRequest: { Key: { id: '1' } } }] },
+        RequestItems: { 'default-table': [{ DeleteRequest: { Key: { id: '1' } } }] },
       })
     })
 
@@ -885,12 +890,7 @@ describe('CustomDynamoClient', () => {
       const client = new CustomDynamoClient('TestTable')
       mockSend.mockResolvedValueOnce({ Attributes: { openPayments: new Set(['b', 'a']) } })
 
-      const result = await client.update(
-        { id: '1' },
-        { delete: { openPayments: new Set(['t1']) } },
-        undefined,
-        'UPDATED_OLD'
-      )
+      const result = await client.update({ id: '1' }, { delete: { openPayments: new Set(['t1']) } }, 'UPDATED_OLD')
 
       expect(result.Attributes).toEqual({ openPayments: ['a', 'b'] })
     })
@@ -1065,11 +1065,12 @@ describe('CustomDynamoClient', () => {
       const client = new CustomDynamoClient('TestTable')
       mockSend.mockResolvedValueOnce({})
 
-      await client.update({ id: '1' }, { set: { name: 'Updated' } }, undefined, 'ALL_NEW')
+      await client.update({ id: '1' }, { set: { name: 'Updated' } }, 'ALL_NEW')
 
       expect(mockSend).toHaveBeenCalledWith(
         expect.objectContaining({
           ReturnValues: 'ALL_NEW',
+          TableName: 'test-table',
         })
       )
     })
@@ -1078,7 +1079,7 @@ describe('CustomDynamoClient', () => {
       const client = new CustomDynamoClient('TestTable')
       mockSend.mockResolvedValueOnce({})
 
-      await client.update({ id: '1' }, { set: { registrationGroupsLock: { token: 'token' } } }, undefined, undefined, {
+      await client.update({ id: '1' }, { set: { registrationGroupsLock: { token: 'token' } } }, undefined, {
         expression: 'attribute_not_exists(#registrationGroupsLock)',
         names: { '#registrationGroupsLock': 'registrationGroupsLock' },
       })
@@ -1095,24 +1096,21 @@ describe('CustomDynamoClient', () => {
       const client = new CustomDynamoClient('TestTable')
 
       await expect(
-        client.update({ id: '1' }, { set: { registrationGroupsLock: 'locked' } }, undefined, undefined, {
+        client.update({ id: '1' }, { set: { registrationGroupsLock: 'locked' } }, undefined, {
           expression: 'attribute_not_exists(#registrationGroupsLock)',
           names: { '#registrationGroupsLock': 'anotherField' },
         })
       ).rejects.toThrow('DynamoDB: duplicate condition attribute: #registrationGroupsLock')
     })
 
-    it('uses provided table name', async () => {
+    it('takes no table argument', async () => {
       const client = new CustomDynamoClient('DefaultTable')
       mockSend.mockResolvedValueOnce({})
 
+      // @ts-expect-error the third argument is the return values
       await client.update({ id: '1' }, { set: { name: 'Updated' } }, 'CustomTable')
 
-      expect(mockSend).toHaveBeenCalledWith(
-        expect.objectContaining({
-          TableName: 'custom-table',
-        })
-      )
+      expect(mockSend).toHaveBeenCalledWith(expect.objectContaining({ TableName: 'default-table' }))
     })
   })
 
@@ -1153,17 +1151,20 @@ describe('CustomDynamoClient', () => {
       )
     })
 
-    it('uses provided table name', async () => {
+    it('takes no table argument', async () => {
       const client = new CustomDynamoClient('DefaultTable')
       mockSend.mockResolvedValueOnce({})
 
+      // @ts-expect-error the key is the only argument
       await client.delete({ id: '1' }, 'CustomTable')
 
-      expect(mockSend).toHaveBeenCalledWith(
-        expect.objectContaining({
-          TableName: 'custom-table',
-        })
-      )
+      expect(mockSend).toHaveBeenCalledWith({ Key: { id: '1' }, TableName: 'default-table' })
+    })
+
+    it('has no transaction of its own: a write across tables names them in documentTransaction', () => {
+      const client = new CustomDynamoClient('DefaultTable')
+
+      expect('transaction' in client).toBe(false)
     })
   })
 
@@ -1179,178 +1180,6 @@ describe('CustomDynamoClient', () => {
 
       const client2 = new CustomDynamoClient('UserProfileTable')
       expect(client2.table).toBe('user-profile-table')
-    })
-  })
-
-  describe('transaction', () => {
-    it('sends transaction with default table name', async () => {
-      const client = new CustomDynamoClient('TestTable')
-      const items = [
-        { Put: { Item: { id: { S: '1' } } } },
-        {
-          Update: {
-            ExpressionAttributeNames: { '#name': 'name' },
-            ExpressionAttributeValues: { ':name': { S: 'value' } },
-            Key: { id: { S: '2' } },
-            UpdateExpression: 'SET #name = :name',
-          },
-        },
-      ]
-      mockSend.mockResolvedValueOnce({})
-
-      await client.transaction(items)
-
-      expect(mockSend).toHaveBeenCalledWith(
-        expect.objectContaining({
-          TransactItems: [
-            { Put: { Item: { id: { S: '1' } }, TableName: 'test-table' } },
-            {
-              Update: {
-                ExpressionAttributeNames: { '#name': 'name' },
-                ExpressionAttributeValues: { ':name': { S: 'value' } },
-                Key: { id: { S: '2' } },
-                TableName: 'test-table',
-                UpdateExpression: 'SET #name = :name',
-              },
-            },
-          ],
-        })
-      )
-    })
-
-    it('sends transaction with provided table name', async () => {
-      const client = new CustomDynamoClient('DefaultTable')
-      const items = [{ Delete: { Key: { id: { S: '3' } } } }]
-      mockSend.mockResolvedValueOnce({})
-
-      await client.transaction(items, 'CustomTable')
-
-      expect(mockSend).toHaveBeenCalledWith(
-        expect.objectContaining({
-          TransactItems: [{ Delete: { Key: { id: { S: '3' } }, TableName: 'custom-table' } }],
-        })
-      )
-    })
-
-    it('includes ConditionCheck operations in transaction', async () => {
-      const client = new CustomDynamoClient('TestTable')
-      const items = [
-        {
-          ConditionCheck: {
-            ConditionExpression: 'attribute_exists(id)',
-            ExpressionAttributeNames: { '#id': 'id' },
-            Key: { id: { S: '1' } },
-          },
-        },
-      ]
-      mockSend.mockResolvedValueOnce({})
-
-      await client.transaction(items)
-
-      expect(mockSend).toHaveBeenCalledWith(
-        expect.objectContaining({
-          TransactItems: [
-            {
-              ConditionCheck: {
-                ConditionExpression: 'attribute_exists(id)',
-                ExpressionAttributeNames: { '#id': 'id' },
-                Key: { id: { S: '1' } },
-                TableName: 'test-table',
-              },
-            },
-          ],
-        })
-      )
-    })
-
-    it('handles empty operation objects in transaction items', async () => {
-      const client = new CustomDynamoClient('TestTable')
-      const items: TransactWriteItemWithoutTable[] = [
-        { Delete: { Key: { id: { S: '3' } } } },
-        { Put: undefined },
-        { Update: undefined },
-      ]
-      mockSend.mockResolvedValueOnce({})
-
-      await client.transaction(items)
-
-      // Check that the transaction was sent with the correct items
-      expect(mockSend).toHaveBeenCalledWith(
-        expect.objectContaining({
-          TransactItems: expect.arrayContaining([
-            expect.objectContaining({
-              Delete: expect.objectContaining({
-                Key: { id: { S: '3' } },
-                TableName: 'test-table',
-              }),
-            }),
-          ]),
-        })
-      )
-    })
-
-    it('handles TransactionCanceledException', async () => {
-      const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
-
-      const client = new CustomDynamoClient('TestTable')
-      const items = [{ Put: { Item: { id: { S: '1' } } } }]
-
-      // Create a TransactionCanceledException with cancellation reasons using our mock class
-      const error = new MockTransactionCanceledException('Transaction canceled', [
-        { Code: 'ConditionalCheckFailed', Message: 'Condition check failed' },
-      ])
-
-      mockSend.mockRejectedValueOnce(error)
-
-      await expect(client.transaction(items)).rejects.toBe(error)
-
-      expect(loggedLines(errorSpy)).toContainEqual(
-        expect.objectContaining({
-          message: 'transaction was canceled',
-          reasons: [{ Code: 'ConditionalCheckFailed', Message: 'Condition check failed' }],
-        })
-      )
-    })
-
-    it('handles TransactionCanceledException without reasons', async () => {
-      const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
-
-      const client = new CustomDynamoClient('TestTable')
-      const items = [{ Put: { Item: { id: { S: '1' } } } }]
-
-      // Create a TransactionCanceledException without cancellation reasons using our mock class
-      const error = new MockTransactionCanceledException('Transaction canceled')
-
-      mockSend.mockRejectedValueOnce(error)
-
-      await expect(client.transaction(items)).rejects.toBe(error)
-
-      expect(loggedLines(errorSpy)).toContainEqual(
-        expect.objectContaining({ message: 'transaction was canceled', reasons: [] })
-      )
-    })
-
-    it('handles unexpected errors in transaction', async () => {
-      const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
-
-      const client = new CustomDynamoClient('TestTable')
-      const items = [{ Put: { Item: { id: { S: '1' } } } }]
-
-      // Create an error that is definitely not a TransactionCanceledException
-      const error = new Error('Unexpected error')
-      // Explicitly set name to something other than TransactionCanceledException
-      error.name = 'SomeOtherError'
-
-      mockSend.mockRejectedValueOnce(error)
-
-      await expect(client.transaction(items)).rejects.toBe(error)
-
-      expect(loggedLines(errorSpy)).toContainEqual(
-        expect.objectContaining({
-          error: expect.objectContaining({ message: 'Unexpected error' }),
-          message: 'unexpected error in transaction',
-        })
-      )
     })
   })
 

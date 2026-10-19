@@ -146,7 +146,6 @@ describe('dataVersionRepository', () => {
         { collection: 'migrations', scope: 'backfillOrganizerId' },
         { set: { appliedAt: NOW, count: 4, hash: 'abc123' } },
         undefined,
-        undefined,
         {
           expression: 'attribute_not_exists(#hash) OR #hash <> :hash',
           names: { '#hash': 'hash' },

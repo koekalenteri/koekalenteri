@@ -1,11 +1,11 @@
 # Repositories
 
-The target is that every DynamoDB table the lambdas use is read and written through one module
-here: a handler or a `lambda/lib` module that needs a table calls the table's repository and does
-not open a `CustomDynamoClient` of its own. Most tables are not here yet; the
-`dynamoClientsOutsideRepositories` count in `scripts/ratchet-baseline.json` is the remaining work,
-and the table below lists what has moved. New table access goes into a repository from the start.
-The epic is [KOE-1405](https://koekalenteri.atlassian.net/browse/KOE-1405).
+Every DynamoDB table the lambdas use is read and written through one module here, and the
+WebSocket connections through `../ws/connectionRepository.ts`: a handler or a `lambda/lib` module
+that needs a table calls the table's repository and opens no client of its own. New table access
+goes into the table's repository, or into a new `<table>Repository.ts` for a table that has none.
+The epic was [KOE-1405](https://koekalenteri.atlassian.net/browse/KOE-1405), closed by
+[KOE-1415](https://koekalenteri.atlassian.net/browse/KOE-1415).
 
 ## Convention
 
@@ -17,8 +17,10 @@ The epic is [KOE-1405](https://koekalenteri.atlassian.net/browse/KOE-1405).
   `getItem`.
 - Keys, index names and projections are written only here. A caller passes domain values (`regNo`,
   `eventId`), never a `{ pk, sk }` object or an index name.
-- A transaction over several tables is a function of the repository whose table is the primary one,
-  and it uses `documentTransaction`.
+- A client reaches only the table it was built on: no method of `CustomDynamoClient` takes another
+  table, and its table and SDK clients cannot be changed or reached from outside. A write across
+  tables is a function of the repository whose table is the primary one, and it uses
+  `documentTransaction`, whose items each name their table.
 - `src/lambda/lib/ws/connectionRepository.ts` follows the same convention and stays in the ws
   domain.
 
@@ -32,14 +34,21 @@ The epic is [KOE-1405](https://koekalenteri.atlassian.net/browse/KOE-1405).
 
 ## Gate
 
-`npm run ratchet` counts `new CustomDynamoClient(` in non-test files outside this directory and
-`connectionRepository.ts` (`dynamoClientsOutsideRepositories` in `scripts/ratchet-baseline.json`).
-The count can only go down; moving a table here lowers it.
+`npm run ratchet` fails a commit that opens a DynamoDB client anywhere else
+(`dynamoClientsOutsideRepositories` in `scripts/ratchet-baseline.json`, which is 0). It reads the
+static imports and exports of each non-test file. It counts a `CustomDynamoClient` built,
+subclassed or exported on (re-exported, or imported and exported again) outside this directory and
+`connectionRepository.ts`, under whatever name the file imports it as, and an SDK client built,
+subclassed or exported on directly
+(`new DynamoDBClient(`, `new DynamoDB(`, `DynamoDBDocumentClient.from(`, `DynamoDBDocument.from(`)
+in the lambda code but `utils/CustomDynamoClient.ts`, here included. A class first stored in a
+variable, or loaded with `import()` or `require`, is not followed.
 
 ## Repositories
 
 | Table | Module | Used by |
 | --- | --- | --- |
+| audit | `auditRepository.ts` | `lib/audit.ts`, which builds the records and publishes them (`ws/auditPublisher`): `audit` and `auditStrict` for every lambda that audits, `auditTrail` for `GetEventAuditTrailFunction` and `GetRegistrationAuditTrailFunction` ([KOE-1415](https://koekalenteri.atlassian.net/browse/KOE-1415)) |
 | dataVersion | `dataVersionRepository.ts` | `lib/dataVersions.ts` (the version registry and the applied migrations), `RepairDataVersionsFunction` (its types) |
 | dog | `dogRepository.ts` | `GetDogFunction`, `PutRegistrationFunction` |
 | emailSuppression | `emailSuppressionRepository.ts` | `SesNotificationFunction`, `lib/emailSuppression` |

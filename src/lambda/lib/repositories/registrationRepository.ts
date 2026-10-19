@@ -34,7 +34,7 @@ export const readRegistrationsForStats = async (): Promise<RegistrationStatsInpu
  * rather than publish from a possibly stale, eventually consistent copy (KOE-1529).
  */
 export const readRegistration = async (eventId: string, id: string, consistent = false) =>
-  dynamoDB.read<JsonRegistration>({ eventId, id }, undefined, consistent)
+  dynamoDB.read<JsonRegistration>({ eventId, id }, consistent)
 
 /** Every registration of the event, whatever its state. */
 export const readEventRegistrations = async (eventId: string, consistent = false): Promise<JsonRegistration[]> =>
@@ -89,7 +89,7 @@ export const writeEmailDeliveryStatus = async (
   emailDeliveryStatus: JsonEmailDeliveryStatus
 ): Promise<boolean> => {
   try {
-    await dynamoDB.update({ eventId, id }, { set: { emailDeliveryStatus } }, undefined, undefined, {
+    await dynamoDB.update({ eventId, id }, { set: { emailDeliveryStatus } }, undefined, {
       expression: 'attribute_exists(#id)',
       names: { '#id': 'id' },
     })
@@ -114,7 +114,7 @@ export const writeKcResult = async (
   updatedAt: string
 ): Promise<boolean> => {
   try {
-    await dynamoDB.update({ eventId, id }, { set: { kcResult, updatedAt } }, undefined, 'NONE', {
+    await dynamoDB.update({ eventId, id }, { set: { kcResult, updatedAt } }, 'NONE', {
       expression:
         previousAt === undefined
           ? 'attribute_exists(#id) AND attribute_not_exists(#kcResult)'
@@ -147,7 +147,6 @@ const newRegistrationLease = () =>
     durationMs: NEW_REGISTRATION_LEASE_DURATION_MS,
     itemExistsField: 'id',
     leaseField: 'newRegistrationLease',
-    table: CONFIG.registrationTable,
   })
 
 /**
@@ -284,7 +283,6 @@ export const dropOpenTransactionId = async (
   const result = await dynamoDB.update(
     { eventId, id },
     { delete: { [field]: new Set([transactionId]) }, set: { updatedAt } },
-    undefined,
     'UPDATED_OLD'
   )
   return result.Attributes?.[field]

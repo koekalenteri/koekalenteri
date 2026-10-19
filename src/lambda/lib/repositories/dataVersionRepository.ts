@@ -109,7 +109,6 @@ export const recordMigration = async (name: string, count: number, hash: string,
       { collection: MIGRATIONS_COLLECTION, scope: name },
       { set: { appliedAt, count, hash } },
       undefined,
-      undefined,
       {
         expression: 'attribute_not_exists(#hash) OR #hash <> :hash',
         names: { '#hash': 'hash' },
