@@ -1760,23 +1760,20 @@ describe('isAdminRegistrationOperationField', () => {
 })
 
 describe('withoutAdminProtectedFields', () => {
-  it('leaves out what other writers move and keeps the edit, without changing the registration it was given', () => {
-    const registration = {
-      ...registrationWithStaticDates,
-      kcResult: { at: new Date('2026-10-19T08:00:00.000Z'), by: 'secretary', status: 'sent' as const },
+  it('leaves out every protected field and keeps the edit, without changing the registration it was given', () => {
+    // A value on every protected field, so a field the copier missed would still be there.
+    const protectedValues = Object.fromEntries(
+      ADMIN_PROTECTED_REGISTRATION_FIELDS.map((field) => [field, `stored ${field}`])
+    )
+    const registration: Record<string, unknown> = {
+      dog: registrationWithStaticDates.dog,
       notes: 'notes',
-      openRefunds: ['refund-1'],
-      updatedAt: new Date('2026-10-19T08:00:00.000Z'),
+      ...protectedValues,
     }
 
     const result = withoutAdminProtectedFields(registration)
 
-    for (const field of ADMIN_PROTECTED_REGISTRATION_FIELDS) expect(result).not.toHaveProperty(field)
-    expect(result).toMatchObject({ dog: registrationWithStaticDates.dog, notes: 'notes' })
-    expect(registration).toMatchObject({
-      id: registrationWithStaticDates.id,
-      kcResult: { status: 'sent' },
-      openRefunds: ['refund-1'],
-    })
+    expect(result).toEqual({ dog: registrationWithStaticDates.dog, notes: 'notes' })
+    expect(registration).toEqual({ dog: registrationWithStaticDates.dog, notes: 'notes', ...protectedValues })
   })
 })
