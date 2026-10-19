@@ -157,9 +157,11 @@ Read `LLM_CONTEXT.md` for the project overview and architecture notes.
 - Each modified row is written with the condition that its `updatedAt` is still the one read (or that
   it had none; a dog row, which has none, with its dates as read, and an organizer stats row moved in
   a transaction a concurrent count cancels), so a secretary's save is never overwritten: on a conflict
-  the row is read again, migrated again and retried, at most three attempts. If they run out the
-  invocation fails (non-200), records nothing, and the next deploy picks the migrations up. A mark
-  never overwrites an earlier one with the same hash.
+  the row is read again, migrated again and retried, at most three attempts. The organizer stats table
+  is the exception: its move is retried as a save's move of the row is, by `ORGANIZER_STATS_MOVE_RETRY`
+  (eight attempts with a jittered wait between them). If they run out the invocation fails (non-200),
+  records nothing, and the next deploy picks the migrations up. A mark never overwrites an earlier one
+  with the same hash.
 - `POST /admin/migrate` (admin-only) stays a forced run of every migration, for a correction run
   (a wrong season, say), and leaves the registry as it is when the hashes match. A migration must therefore stay safe to re-run.
 - Copying events from prod into dev or test never copies the data version table, so the receiving
