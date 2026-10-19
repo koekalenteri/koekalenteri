@@ -15,7 +15,7 @@ import { hasPaymentLockingRegistrations, paymentTermsDiffer } from '../../lib/pa
 import { getStartListBlocker, isStartListFlagPublished } from '../../lib/publishing'
 import { groupParticipantsByClass } from '../../lib/registration'
 import { eventBodySchema } from '../../lib/schema/event'
-import { rekeyEventDays, requestDay, storedDay } from '../../lib/storedDays'
+import { rekeyEventDays, requestDay, storedEventDay } from '../../lib/storedDays'
 import { patchMerge } from '../../lib/utils'
 import { audit, eventAuditKey, getEventAuditMessages } from '../lib/audit'
 import { authorize } from '../lib/auth'
@@ -339,7 +339,7 @@ const putEventLambda = lambda('putEvent', async (event) => {
   // the days the save keeps are written as keys too, together with the organizer stats row's move to
   // the key of the start. The checks, the merge and the audit read the days as keys.
   const stored = existing && structuredClone(existing)
-  if (existing) rekeyEventDays(existing, storedDay)
+  if (existing) rekeyEventDays(existing, storedEventDay)
 
   checkPutEventAgainstExisting(user, item, existing, clientModifiedAt)
   dropResultsPublished(item, existing)

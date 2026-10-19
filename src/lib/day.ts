@@ -348,3 +348,60 @@ export const legacyStoredDay = (value: unknown, zone: string): DayKey | undefine
   const instant = new Date(value)
   return hasCalendarDay(instant, zone) ? dayOf(instant, zone) : undefined
 }
+
+/** Whether the instant is the last millisecond of an hour: an end of day stored as an instant. */
+const isEndOfHour = (instant: Date) =>
+  instant.getUTCMinutes() === 59 && instant.getUTCSeconds() === 59 && instant.getUTCMilliseconds() === 999
+
+/** How far from a midnight a stored start of day may be: the hour a wrong summer or winter offset moves it. */
+const MIDNIGHT_SLACK_MS = 3_600_000
+
+/**
+ * The day of the midnight in `zone` the moment lies within an hour of, or undefined for a moment
+ * further from every midnight.
+ */
+const nearMidnightDay = (ms: number, zone: string): DayKey | undefined => {
+  const day = dayOf(ms, zone)
+  if (ms - dayStart(day, zone).getTime() <= MIDNIGHT_SLACK_MS) return day
+  const next = addDays(day, 1)
+  return dayStart(next, zone).getTime() - ms <= MIDNIGHT_SLACK_MS ? next : undefined
+}
+
+/**
+ * The calendar day an instant stored for a day names (KOE-1547): the start of the day, or for an end of
+ * day (the last millisecond of an hour) the end of it. Rows stored before day keys hold these as
+ * instants, mostly the exact Finnish midnight or end of day, but some an hour off: a winter day's
+ * midnight worked out with the summer offset is 23:00 the evening before, and the reverse 01:00. So a
+ * start within an hour of a midnight in `zone` is the day of that midnight, the nearest one, and an end
+ * whose next moment is within an hour of one the day before it; any other instant is the day it falls
+ * on. Check `hasCalendarDay` first, as for `dayOf`.
+ *
+ * Only for a stored day of an event or an entry. A dog's birth date and a result's date carry real
+ * times of day and are read as the day they fall on (`calendarDayOf`), and a moment such as now is read
+ * with `dayOf`.
+ */
+export const storedEventDayOf = (instant: Date | number, zone: string): DayKey => {
+  const at = new Date(instant)
+  if (isEndOfHour(at)) {
+    const midnight = nearMidnightDay(at.getTime() + 1, zone)
+    return midnight ? addDays(midnight, -1) : dayOf(at, zone)
+  }
+  return nearMidnightDay(at.getTime(), zone) ?? dayOf(at, zone)
+}
+
+/**
+ * The day of a stored event or entry day in any form it was stored in before KOE-1547: a key, a stamp
+ * without a zone (the day it names), or an instant (`storedEventDayOf`). Undefined for anything with no
+ * day, Kennelliitto's empty date included. Like `legacyStoredDay`, this is the migrations' reading and
+ * must keep reading every one of those forms; the readers' tolerance goes, this stays.
+ */
+export const legacyStoredEventDay = (value: unknown, zone: string): DayKey | undefined => {
+  if (typeof value !== 'string') return undefined
+  if (isZonelessDay(value)) {
+    const day = value.slice(0, 10)
+    return isDayKey(day) ? day : undefined
+  }
+  if (!isInstantString(value)) return undefined
+  const instant = new Date(value)
+  return hasCalendarDay(instant, zone) ? storedEventDayOf(instant, zone) : undefined
+}

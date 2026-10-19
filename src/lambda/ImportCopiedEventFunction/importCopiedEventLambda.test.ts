@@ -3,7 +3,7 @@ import type { CopyImportRequest } from '../lib/eventCopy'
 import { vi } from 'vitest'
 import { eventWithParticipantsInvited } from '../../__mockData__/events'
 import { jsonRegistrationsToEventWithParticipantsInvited } from '../../__mockData__/registrations'
-import { legacyDay } from '../../lib/storedDays'
+import { legacyEventDay } from '../../lib/storedDays'
 import { finnishDayOf } from '../../test-utils/finnishDays'
 import { CONFIG } from '../config'
 import { createEventCopy } from '../lib/eventCopy'
@@ -135,7 +135,7 @@ describe('importCopiedEvent', () => {
     const [first] = jsonRegistrationsToEventWithParticipantsInvited
     expect(mockWriteRegistrations).toHaveBeenCalledWith(
       expect.arrayContaining([
-        expect.objectContaining({ dates: first.dates.map((date) => ({ ...date, date: legacyDay(date.date) })) }),
+        expect.objectContaining({ dates: first.dates.map((date) => ({ ...date, date: legacyEventDay(date.date) })) }),
       ])
     )
   })

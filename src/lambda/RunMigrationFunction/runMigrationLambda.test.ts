@@ -1194,6 +1194,86 @@ describe('runMigrationLambda', () => {
       mockReadOrganizerEventStatsRow.mockReset()
     })
 
+    // Measured on dev: some days were stored an hour off, a winter day's midnight worked out with the
+    // summer offset (23:00 the evening before in Helsinki) and the reverse (01:00), and ends of day too.
+    it('writes a day stored an hour off as the day it was stored for (GQ6rUY8RpY, WrGaAW3OCz)', async () => {
+      mockReadApplied.mockResolvedValue(pendingOnly('storeEventDaysAsKeys'))
+      mockReadAllEvents.mockResolvedValueOnce([
+        {
+          classes: [{ class: 'ALO', date: '2026-11-06T21:00:00.000Z' }],
+          endDate: '2026-11-07T21:00:00.000Z',
+          entryEndDate: '2026-09-27T21:59:59.999Z',
+          entryStartDate: '2026-10-01T22:00:00.000Z',
+          id: 'GQ6rUY8RpY',
+          startDate: '2026-11-06T21:00:00.000Z',
+          updatedAt: 'read',
+        },
+      ])
+
+      await runMigrationLambda(directEvent)
+
+      expect(mockWriteMigratedEvent).toHaveBeenCalledWith(
+        'GQ6rUY8RpY',
+        {
+          set: {
+            classes: [{ class: 'ALO', date: '2026-11-07' }],
+            endDate: '2026-11-08',
+            entryEndDate: '2026-09-27',
+            entryStartDate: '2026-10-02',
+            startDate: '2026-11-07',
+            updatedAt: expect.any(String),
+          },
+        },
+        'read'
+      )
+    })
+
+    it("names a start's group by the day its date was stored for", async () => {
+      mockReadApplied.mockResolvedValue(pendingOnly('storeRegistrationDaysAsKeys'))
+      mockReadRegistrationEventIds.mockResolvedValueOnce(['event1'])
+      mockReadEventRegistrations.mockResolvedValueOnce([
+        {
+          dates: [{ date: '2025-12-12T21:00:00.000Z', time: 'ap' }],
+          eventId: 'event1',
+          group: { date: '2025-12-12T21:00:00.000Z', key: '2025-12-12-ap', number: 1, time: 'ap' },
+          id: 'reg1',
+          updatedAt: 'read',
+        },
+      ])
+
+      await runMigrationLambda(directEvent)
+
+      expect(mockWriteMigratedRegistration).toHaveBeenCalledWith(
+        'event1',
+        'reg1',
+        {
+          set: {
+            dates: [{ date: '2025-12-13', time: 'ap' }],
+            'group.date': '2025-12-13',
+            'group.key': '2025-12-13-ap',
+            updatedAt: expect.any(String),
+          },
+        },
+        'read'
+      )
+    })
+
+    it('moves a stats row keyed an hour off to the key of the day it was stored for', async () => {
+      mockReadApplied.mockResolvedValue(pendingOnly('storeOrganizerStatsDaysAsKeys'))
+      const row = { count: 2, organizerId: 'org1', PK: 'ORG#org1', SK: '2026-01-02T21:00:00.000Z#E8vPbdTCXn' }
+      mockReadAllOrganizerEventStats.mockResolvedValueOnce([structuredClone(row)])
+
+      await runMigrationLambda(directEvent)
+
+      const from = { id: 'E8vPbdTCXn', organizer: { id: 'org1' }, startDate: '2026-01-02T21:00:00.000Z' }
+      expect(mockMoveOrganizerEventStatsRow).toHaveBeenCalledWith(
+        from,
+        { ...from, startDate: '2026-01-03' },
+        row,
+        expect.any(String)
+      )
+    })
+
     it("moves an organizer's stats row keyed by an instant to the key of its day", async () => {
       mockReadApplied.mockResolvedValue(pendingOnly('storeOrganizerStatsDaysAsKeys'))
       const instantRow = {

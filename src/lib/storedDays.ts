@@ -1,7 +1,7 @@
 import type { DayKey, RegistrationTime } from '../types'
-import { calendarDayOf, legacyStoredDay, TIME_ZONE } from './day'
+import { calendarDayOf, isDayKey, legacyStoredDay, legacyStoredEventDay, storedEventDayOf, TIME_ZONE } from './day'
 import { isNoDay } from './dog'
-import { eventDayKey, groupKeyOf, isEventDateString } from './event'
+import { groupKeyOf, isEventDateString, storedDayKey } from './event'
 import { isParticipantGroup } from './registration'
 
 /**
@@ -9,8 +9,13 @@ import { isParticipantGroup } from './registration'
  * row holds is stored as a `DayKey`; rows written before held instants (a Finnish midnight, the end of
  * a Finnish day, a browser's local midnight or noon of a dog's date) or Kennelliitto's stamps. The
  * functions below put each day field of a row into a key in place, reading the old value with the
- * `decode` they are given: the migrations and the import of a copied event pass `legacyDay`, a
- * request boundary `requestDay` for what a browser sends and `storedDay` for a row it read.
+ * decoders they are given: the migrations and the import of a copied event pass the legacy ones, a
+ * request boundary `requestDay` for what a browser sends and the stored ones for a row it read.
+ *
+ * Two rules read an instant. An event's or an entry's day was stored as the start or the end of the
+ * day, some of them an hour off, and is read as the day it was stored for (`storedEventDayOf`). A
+ * dog's birth date and a result's date carry a real time of day and are read as the day the instant
+ * falls on (`calendarDayOf`).
  *
  * A value with no day to read is left as it is and reported, so the migration can count it and a
  * request's own check can refuse it. Kennelliitto's empty date is no day rather than an unreadable
@@ -22,22 +27,46 @@ import { isParticipantGroup } from './registration'
 type DayDecode = (value: unknown) => DayKey | undefined
 
 /**
- * The migrations' and the copy import's reading of a stored day: every form rows were ever stored in,
- * for good (`legacyStoredDay`, which says why it never narrows).
+ * The migrations' and the copy import's reading of a stored event or entry day: every form rows were
+ * ever stored in, for good (`legacyStoredEventDay`, which says why it never narrows).
  */
-export const legacyDay: DayDecode = (value) => legacyStoredDay(value, TIME_ZONE)
+export const legacyEventDay: DayDecode = (value) => legacyStoredEventDay(value, TIME_ZONE)
+
+/** The migrations' and the copy import's reading of a dog's stored date, for good (`legacyStoredDay`). */
+export const legacyDogDay: DayDecode = (value) => legacyStoredDay(value, TIME_ZONE)
 
 /**
- * A day as a row read now may hold it: a key, or, until every environment is migrated, the older
- * forms (`calendarDayOf`). Also for a request that mixes what the browser sent with stored values.
+ * An event or entry day as a row read now may hold it: a key, or, until every environment is
+ * migrated, the older forms, read as the migration reads them; a Date the browser holds as
+ * `storedDayKey` reads it. Also for a request that mixes what the browser sent with stored values.
  */
-export const storedDay: DayDecode = (value) => calendarDayOf(value, TIME_ZONE)
+export const storedEventDay: DayDecode = (value) =>
+  value instanceof Date ? storedDayKey(value) : legacyStoredEventDay(value, TIME_ZONE)
+
+/** A dog's date as a row read now may hold it: a key, or the older forms (`calendarDayOf`). */
+export const storedDogDay: DayDecode = (value) => calendarDayOf(value, TIME_ZONE)
 
 /**
- * A day as a request may send it: a key, or, from a browser loaded before KOE-1547, the ISO instant
- * its Finnish day starts at. A stamp without a zone is no day here, as a request's date never was.
+ * A day as a request may send it: a key, or, from a browser loaded before KOE-1547, the instant the
+ * day was stored as, read as the day it was stored for. A stamp without a zone is no day here, as a
+ * request's date never was.
  */
-export const requestDay: DayDecode = (value) => (isEventDateString(value) ? eventDayKey(value) : undefined)
+export const requestDay: DayDecode = (value) => {
+  if (!isEventDateString(value)) return undefined
+  return isDayKey(value) ? value : storedEventDayOf(new Date(value), TIME_ZONE)
+}
+
+/** How a registration's days are read: an entry's days and groups' days, and the dog's dates. */
+interface RegistrationDecoders {
+  eventDay: DayDecode
+  dogDay: DayDecode
+}
+
+/** The migrations' and the copy import's reading of a registration's days. */
+export const legacyRegistrationDays: RegistrationDecoders = { dogDay: legacyDogDay, eventDay: legacyEventDay }
+
+/** The reading of a registration's days a row read now, or a request mixed with one, may hold. */
+export const storedRegistrationDays: RegistrationDecoders = { dogDay: storedDogDay, eventDay: storedEventDay }
 
 /** What putting a row's days into keys came to. */
 export interface DayRekeying {
@@ -253,24 +282,27 @@ export const rekeyDogDays = (dog: DogDays, decode: DayDecode): DayRekeying => {
 }
 
 /** Puts every day of a registration into a key, in place: its days, its groups, and the dog's dates. */
-export const rekeyRegistrationDays = (registration: RegistrationDays, decode: DayDecode): DayRekeying => {
+export const rekeyRegistrationDays = (
+  registration: RegistrationDays,
+  { dogDay, eventDay }: RegistrationDecoders
+): DayRekeying => {
   const state = newRekeying()
-  rekeyParts(registration.dates, decode, state)
-  rekeyGroup(registration.group, decode, state)
-  rekeyGroup(registration.startGroup, decode, state)
-  if (registration.dog) rekeyDogInto(registration.dog, decode, state)
-  rekeyResults(registration.qualifyingResults, decode, state)
-  rekeyResults(registration.results, decode, state)
+  rekeyParts(registration.dates, eventDay, state)
+  rekeyGroup(registration.group, eventDay, state)
+  rekeyGroup(registration.startGroup, eventDay, state)
+  if (registration.dog) rekeyDogInto(registration.dog, dogDay, state)
+  rekeyResults(registration.qualifyingResults, dogDay, state)
+  rekeyResults(registration.results, dogDay, state)
   return state
 }
 
 /**
- * A copy of the registration with its days as keys, read as `storedDay` reads them: what a save is
+ * A copy of the registration with its days as keys, read as a stored row's are: what a save is
  * compared by, so the same days in another form (a row stored before KOE-1547, an older browser's
  * instants) are no change, while a value with no day still differs from a day and from another one.
  */
 export const withRegistrationDayKeys = <R extends RegistrationDays>(registration: R): R => {
   const copy = structuredClone(registration)
-  rekeyRegistrationDays(copy, storedDay)
+  rekeyRegistrationDays(copy, storedRegistrationDays)
   return copy
 }

@@ -20,6 +20,7 @@ import {
   isInstantString,
   latestDayMonthsBefore,
   legacyStoredDay,
+  legacyStoredEventDay,
   localCalendarDayOf,
   localDateOf,
   localDayOf,
@@ -28,6 +29,7 @@ import {
   pickedDayOf,
   sameDay,
   shiftDays,
+  storedEventDayOf,
   TIME_ZONE,
   toDayKey,
   yearEnd,
@@ -604,6 +606,52 @@ for (const hostZone of HOST_ZONES) {
         ['a birth date', () => new Date('2025-12-28T00:00:00'), true],
       ])('%s has a day: %s', (_name, date, expected) => {
         expect(hasLocalDay(date())).toBe(expected)
+      })
+    })
+  })
+}
+
+// An event's or an entry's day stored as an instant (KOE-1547): the start or the end of the day, some
+// an hour off, read as the day it was stored for, in every host zone.
+for (const hostZone of HOST_ZONES) {
+  describeInTimeZone(hostZone, () => {
+    describe('a stored event day', () => {
+      it.each([
+        ['an exact Finnish midnight', '2026-05-31T21:00:00.000Z', '2026-06-01'],
+        [
+          "a winter day's midnight worked out in summer time, 23:00 the evening before",
+          '2026-11-06T21:00:00.000Z',
+          '2026-11-07',
+        ],
+        ["a summer day's midnight worked out in winter time, 01:00", '2026-10-01T22:00:00.000Z', '2026-10-02'],
+        ['a UTC midnight, 02:00 in winter', '2026-01-20T00:00:00.000Z', '2026-01-20'],
+        ['an exact Finnish end of day', '2026-05-17T20:59:59.999Z', '2026-05-17'],
+        ['an end of day an hour late, 00:59:59.999', '2026-09-27T21:59:59.999Z', '2026-09-27'],
+        ['an end of day an hour early, 22:59:59.999', '2026-01-01T20:59:59.999Z', '2026-01-01'],
+        // Further than an hour from every midnight, an instant is the day it falls on.
+        ['noon', '2026-06-01T09:00:00.000Z', '2026-06-01'],
+        ['22:30 the evening before', '2026-05-31T19:30:00.000Z', '2026-05-31'],
+        ['an end of the hour at 15:59:59.999', '2026-06-01T12:59:59.999Z', '2026-06-01'],
+      ])('reads %s as the day it was stored for', (_name, value, expected) => {
+        expect(storedEventDayOf(new Date(value), TIME_ZONE)).toBe(expected)
+        expect(legacyStoredEventDay(value, TIME_ZONE)).toBe(expected)
+      })
+
+      it.each([
+        ["Kennelliitto's stamp", '2021-01-01T00:00:00', '2021-01-01'],
+        ['a day key', '2021-01-01', '2021-01-01'],
+      ])('reads %s as the day written on it', (_name, value, expected) => {
+        expect(legacyStoredEventDay(value, TIME_ZONE)).toBe(expected)
+      })
+
+      it.each([
+        ["Kennelliitto's empty date", '0001-01-01T00:00:00'],
+        ['its empty date written by a browser in Finland', '0000-12-31T22:20:11.000Z'],
+        ['a day the month does not have', '2021-02-30'],
+        ['text', 'tomorrow'],
+        ['no text', 42],
+      ])('reads %s as no day', (_name, value) => {
+        expect(legacyStoredEventDay(value, TIME_ZONE)).toBeUndefined()
       })
     })
   })

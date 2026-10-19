@@ -13,7 +13,7 @@ import {
   resolveInvitationRead,
 } from '../../lib/registration'
 import { registrationBodySchema } from '../../lib/schema/registration'
-import { rekeyRegistrationDays, storedDay } from '../../lib/storedDays'
+import { rekeyRegistrationDays, storedRegistrationDays } from '../../lib/storedDays'
 import { patchMerge } from '../../lib/utils'
 import { getFrontendOrigin } from '../lib/api-gw'
 import { authorize } from '../lib/auth'
@@ -207,7 +207,7 @@ const putRegistrationLambda = lambda('putRegistration', async (event) => {
   data.dog.results = await readOfficialResults(data.dog.regNo)
   // Days are stored as keys (KOE-1547): a browser loaded before that sends instants, and the dog row
   // the official results come from may not be migrated yet.
-  rekeyRegistrationDays(data, storedDay)
+  rekeyRegistrationDays(data, storedRegistrationDays)
   Object.assign(data, qualifyJsonRegistration(data, confirmedEvent))
 
   if (existing && !hasRegistrationChanges(existing, data)) {

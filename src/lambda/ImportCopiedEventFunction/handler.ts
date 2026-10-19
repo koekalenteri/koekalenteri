@@ -3,7 +3,7 @@ import type { CopyImportRequest, CopyImportResult } from '../lib/eventCopy'
 import { nanoid } from 'nanoid'
 import { eventCopiedFromAudit } from '../../lib/audit'
 import { getEventSeason, stripKennelliittoLink } from '../../lib/event'
-import { legacyDay, rekeyEventDays, rekeyRegistrationDays } from '../../lib/storedDays'
+import { legacyEventDay, legacyRegistrationDays, rekeyEventDays, rekeyRegistrationDays } from '../../lib/storedDays'
 import { CONFIG } from '../config'
 import { audit, eventAuditKey } from '../lib/audit'
 import { withoutPlusTag } from '../lib/email'
@@ -48,8 +48,8 @@ export default async function importCopiedEvent(request: CopyImportRequest): Pro
 
   // Days are stored as keys (KOE-1547), and a copy from an environment not yet migrated still holds
   // instants: decoded here as the migration decodes them, since this environment's migration has run.
-  rekeyEventDays(copy.event, legacyDay)
-  for (const registration of copy.registrations) rekeyRegistrationDays(registration, legacyDay)
+  rekeyEventDays(copy.event, legacyEventDay)
+  for (const registration of copy.registrations) rekeyRegistrationDays(registration, legacyRegistrationDays)
 
   const now = new Date().toISOString()
   const eventId = nanoid(10)

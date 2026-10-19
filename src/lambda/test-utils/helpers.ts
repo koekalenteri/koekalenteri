@@ -1,6 +1,6 @@
 import type { APIGatewayProxyEvent, APIGatewayProxyEventPathParameters } from 'aws-lambda'
 import type { DeepPartial, JsonConfirmedEvent, JsonRegistration } from '../../types'
-import { legacyDay, rekeyRegistrationDays } from '../../lib/storedDays'
+import { legacyRegistrationDays, rekeyRegistrationDays } from '../../lib/storedDays'
 import { LambdaError } from '../lib/lambda'
 
 interface Options {
@@ -93,7 +93,7 @@ export const asJsonRegistration = (reg: DeepPartial<JsonRegistration>) => reg as
  */
 export const storedRegistrationJson = (registration: object): JsonRegistration => {
   const json: JsonRegistration = JSON.parse(JSON.stringify(registration))
-  rekeyRegistrationDays(json, legacyDay)
+  rekeyRegistrationDays(json, legacyRegistrationDays)
   return json
 }
 

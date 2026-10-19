@@ -13,7 +13,7 @@ import { DescribeTableCommand, DescribeTimeToLiveCommand, DynamoDBClient } from 
 import { eventWithParticipantsInvited } from '../../__mockData__/events'
 import { addDays, dayOf, TIME_ZONE } from '../../lib/day'
 import { getEventSeason } from '../../lib/event'
-import { legacyDay, rekeyEventDays } from '../../lib/storedDays'
+import { legacyEventDay, rekeyEventDays } from '../../lib/storedDays'
 
 /** A value unique to one test, readable in a failure: `event-1a2b3c4d`. */
 export const uniqueId = (prefix: string) => `${prefix}-${randomUUID().slice(0, 8)}`
@@ -53,7 +53,7 @@ export const storedEvent = (overrides: Partial<JsonDogEvent> = {}): JsonDogEvent
   const organizerId = overrides.organizerId ?? uniqueId('org')
   // The mock event's days as the table stores them: keys (KOE-1547).
   const base: JsonDogEvent = JSON.parse(JSON.stringify(eventWithParticipantsInvited))
-  rekeyEventDays(base, legacyDay)
+  rekeyEventDays(base, legacyEventDay)
   return {
     ...base,
     endDate: startDate,
