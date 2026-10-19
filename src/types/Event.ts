@@ -457,15 +457,19 @@ export type JsonEventClassStation = {
 export type JsonKcEventInfo = {
   classes: string[]
   eventType: string
-  startDate: DayKey
-  endDate: DayKey
+  /**
+   * The trial's days as Kennelliitto lists them. Either may be missing: its empty date (year 1, which it
+   * gives as a one-day trial's end) was stored as it came before KOE-1547, and the migration removed it.
+   */
+  startDate?: DayKey
+  endDate?: DayKey
   /** Absent when Kennelliitto's details of the trial could not be read, so no false warning follows. */
   location?: string
   judge?: string
   /** The chief judge's member number (ylituomariNumero); the judge warning compares numbers. */
   judgeId?: number
 }
-export type KcEventInfo = Replace<JsonKcEventInfo, 'startDate' | 'endDate', Date>
+export type KcEventInfo = ReplaceOptional<JsonKcEventInfo, 'startDate' | 'endDate', Date>
 
 export type JsonKcState = {
   code: number

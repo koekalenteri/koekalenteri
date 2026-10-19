@@ -24,24 +24,29 @@ const mockCommitNewRegistrationStats = vi.fn<typeof eventStatsRepository.commitN
 const mockReadRegistration = vi.fn<typeof registrationRepository.readRegistration>()
 
 // The key builder is the real one; only the table access is replaced.
-vi.doMock('./repositories/eventStatsRepository', async (importOriginal) => ({
-  ...(await importOriginal<typeof eventStatsRepository>()),
-  addOrganizerEventStats: mockAddOrganizerEventStats,
-  commitNewRegistrationStats: mockCommitNewRegistrationStats,
-  moveOrganizerEventStatsRow: mockMoveOrganizerEventStatsRow,
-  readAllOrganizerEventStats: mockReadAllOrganizerEventStats,
-  readBreedStarts: mockReadBreedStarts,
-  readBuckets: mockReadBuckets,
-  readCapacityStats: mockReadCapacityStats,
-  readEventBreakdown: mockReadEventBreakdown,
-  readJudgeWorkload: mockReadJudgeWorkload,
-  readOrganizerEventStats: mockReadOrganizerEventStats,
-  readOrganizerEventStatsRow: mockReadOrganizerEventStatsRow,
-  readRetention: mockReadRetention,
-  readStatsYears: mockReadStatsYears,
-  readYearlyBreakdown: mockReadYearlyBreakdown,
-  readYearlyTotals: mockReadYearlyTotals,
-}))
+vi.doMock('./repositories/eventStatsRepository', async (importOriginal) => {
+  const original = await importOriginal<typeof eventStatsRepository>()
+  return {
+    ...original,
+    addOrganizerEventStats: mockAddOrganizerEventStats,
+    commitNewRegistrationStats: mockCommitNewRegistrationStats,
+    moveOrganizerEventStatsRow: mockMoveOrganizerEventStatsRow,
+    // The move's retry as it is, with a jitter of nothing: the moves follow each other at once.
+    ORGANIZER_STATS_MOVE_RETRY: original.organizerStatsMoveRetry(() => 0),
+    readAllOrganizerEventStats: mockReadAllOrganizerEventStats,
+    readBreedStarts: mockReadBreedStarts,
+    readBuckets: mockReadBuckets,
+    readCapacityStats: mockReadCapacityStats,
+    readEventBreakdown: mockReadEventBreakdown,
+    readJudgeWorkload: mockReadJudgeWorkload,
+    readOrganizerEventStats: mockReadOrganizerEventStats,
+    readOrganizerEventStatsRow: mockReadOrganizerEventStatsRow,
+    readRetention: mockReadRetention,
+    readStatsYears: mockReadStatsYears,
+    readYearlyBreakdown: mockReadYearlyBreakdown,
+    readYearlyTotals: mockReadYearlyTotals,
+  }
+})
 
 vi.doMock('./repositories/registrationRepository', () => ({
   readRegistration: mockReadRegistration,
@@ -81,6 +86,7 @@ describe('lib/stats', () => {
   afterEach(() => {
     vi.resetAllMocks()
     vi.restoreAllMocks()
+    vi.useRealTimers()
   })
 
   describe('eventStatsYear', () => {
@@ -171,38 +177,45 @@ describe('lib/stats', () => {
       // The ORG# item has no condition of its own, so a burst of registrations for the same
       // event can cancel each other's transactions with TransactionConflict, not just via the
       // registration's own condition. That's contention worth retrying, not a real failure.
-      vi.spyOn(Math, 'random').mockReturnValue(0)
+      vi.useFakeTimers()
       mockCommitNewRegistrationStats
         .mockRejectedValueOnce({ name: 'TransactionCanceledException' })
         .mockResolvedValueOnce(undefined)
       mockReadRegistration.mockResolvedValue(withLease('lease-token'))
 
-      await applyNewRegistrationStatsOnce(registration, event, 'lease-token')
+      // The jittered waits between the attempts pass at once.
+      const applying = applyNewRegistrationStatsOnce(registration, event, 'lease-token')
+      await vi.runAllTimersAsync()
+      await applying
 
       expect(mockCommitNewRegistrationStats).toHaveBeenCalledTimes(2)
     })
 
     it('survives a burst of contention on the shared organizer counters', async () => {
-      vi.spyOn(Math, 'random').mockReturnValue(0)
+      vi.useFakeTimers()
       for (let attempt = 0; attempt < 8; attempt++) {
         mockCommitNewRegistrationStats.mockRejectedValueOnce({ name: 'TransactionCanceledException' })
       }
       mockCommitNewRegistrationStats.mockResolvedValueOnce(undefined)
       mockReadRegistration.mockResolvedValue(withLease('lease-token'))
 
-      await applyNewRegistrationStatsOnce(registration, event, 'lease-token')
+      const applying = applyNewRegistrationStatsOnce(registration, event, 'lease-token')
+      await vi.runAllTimersAsync()
+      await applying
 
       expect(mockCommitNewRegistrationStats).toHaveBeenCalledTimes(9)
     })
 
     it('gives up after the last attempt even while the lease is still its own', async () => {
-      vi.spyOn(Math, 'random').mockReturnValue(0)
+      vi.useFakeTimers()
       mockCommitNewRegistrationStats.mockRejectedValue({ name: 'TransactionCanceledException' })
       mockReadRegistration.mockResolvedValue(withLease('lease-token'))
 
-      await expect(applyNewRegistrationStatsOnce(registration, event, 'lease-token')).rejects.toEqual({
+      const refused = expect(applyNewRegistrationStatsOnce(registration, event, 'lease-token')).rejects.toEqual({
         name: 'TransactionCanceledException',
       })
+      await vi.runAllTimersAsync()
+      await refused
       expect(mockCommitNewRegistrationStats).toHaveBeenCalledTimes(12)
     })
 
@@ -407,7 +420,6 @@ describe('lib/stats', () => {
       // A registration write landing on the old key between the read and the delete bumps its
       // updatedAt, failing the delete's condition; the move must pick up that fresh increment
       // instead of silently discarding it.
-      vi.spyOn(Math, 'random').mockReturnValue(0)
       const fresh = { ...stats, count: 8, updatedAt: '2024-06-20T00:05:00.000Z' }
       mockReadOrganizerEventStatsRow
         .mockResolvedValueOnce({ ...stats, count: 7, updatedAt: '2024-06-20T00:00:00.000Z' })
@@ -424,7 +436,6 @@ describe('lib/stats', () => {
     })
 
     it('gives up after exhausting the retry budget', async () => {
-      vi.spyOn(Math, 'random').mockReturnValue(0)
       mockReadOrganizerEventStatsRow.mockResolvedValue({ ...stats, updatedAt: '2024-06-20T00:00:00.000Z' })
       mockMoveOrganizerEventStatsRow.mockRejectedValue({ name: 'TransactionCanceledException' })
 

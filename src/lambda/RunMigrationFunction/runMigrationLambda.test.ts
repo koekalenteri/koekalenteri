@@ -21,6 +21,7 @@ const mockWriteMigratedDog = vi.fn()
 const mockReadAllOrganizerEventStats = vi.fn()
 const mockReadOrganizerEventStatsRow = vi.fn()
 const mockMoveOrganizerEventStatsRow = vi.fn()
+const mockStatsMoveWait = vi.fn(async (_attempt: number) => undefined)
 
 vi.doMock('../lib/lambda', async () => ({
   ...(await vi.importActual<typeof import('../lib/lambda')>('../lib/lambda')),
@@ -69,7 +70,8 @@ vi.doMock('../lib/repositories/eventStatsRepository', async () => {
   )
   return {
     moveOrganizerEventStatsRow: mockMoveOrganizerEventStatsRow,
-    ORGANIZER_STATS_MOVE_RETRY: actual.ORGANIZER_STATS_MOVE_RETRY,
+    // The move's retry as it is, with a wait the tests see and that waits for nothing.
+    ORGANIZER_STATS_MOVE_RETRY: { ...actual.ORGANIZER_STATS_MOVE_RETRY, wait: mockStatsMoveWait },
     organizerStatsKey: actual.organizerStatsKey,
     organizerStatsRowEvent: actual.organizerStatsRowEvent,
     readAllOrganizerEventStats: mockReadAllOrganizerEventStats,
@@ -1160,6 +1162,9 @@ describe('runMigrationLambda', () => {
 
       const from = { id: 'event1', organizer: { id: 'org1' }, startDate: '2026-05-31T21:00:00.000Z' }
       expect(mockReadOrganizerEventStatsRow).toHaveBeenCalledWith(from)
+      // The move waits before it reads the row again, as a save's move does.
+      expect(mockStatsMoveWait).toHaveBeenCalledWith(1)
+      expect(mockStatsMoveWait).toHaveBeenCalledBefore(mockReadOrganizerEventStatsRow)
       expect(mockMoveOrganizerEventStatsRow).toHaveBeenCalledTimes(2)
       expect(mockMoveOrganizerEventStatsRow).toHaveBeenLastCalledWith(
         from,
@@ -1179,12 +1184,8 @@ describe('runMigrationLambda', () => {
       )
       mockReadOrganizerEventStatsRow.mockImplementation(async () => structuredClone(instantRow))
 
-      // The jittered wait between the moves is no wait at all.
-      const random = vi.spyOn(Math, 'random').mockReturnValue(0)
-
       await runMigrationLambda(directEvent)
 
-      random.mockRestore()
       expect(mockResponse).toHaveBeenCalledWith(409, { error: expect.stringContaining('kept changing') }, directEvent)
       // As many moves as a save makes of the row (ORGANIZER_STATS_MOVE_RETRY).
       expect(mockMoveOrganizerEventStatsRow).toHaveBeenCalledTimes(8)

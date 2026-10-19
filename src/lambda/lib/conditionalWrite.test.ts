@@ -1,4 +1,4 @@
-import { foldedFrom, retryOnConditionFailure } from './conditionalWrite'
+import { foldedFrom, jitteredWait, retryOnConditionFailure } from './conditionalWrite'
 
 const conflict = () =>
   Object.assign(new Error('The conditional request failed'), { name: 'ConditionalCheckFailedException' })
@@ -83,5 +83,75 @@ describe('retryOnConditionFailure', () => {
       retryOnConditionFailure({ exhausted, initial: 'first', isConflict, maxAttempts: 3, reread, work })
     ).resolves.toBe('written')
     expect(work).toHaveBeenNthCalledWith(2, 'second reading')
+  })
+
+  it('waits after each conflict, before the row is read again, and not after the last attempt', async () => {
+    const order: string[] = []
+    const wait = vi.fn(async (attempt: number) => {
+      order.push(`wait ${attempt}`)
+      await Promise.resolve()
+      order.push(`waited ${attempt}`)
+    })
+    const reread = vi.fn(async () => {
+      order.push('reread')
+      return 'again'
+    })
+    const work = vi.fn(async () => {
+      order.push('work')
+      throw conflict()
+    })
+
+    await expect(
+      retryOnConditionFailure({ exhausted, initial: 'first', maxAttempts: 3, reread, wait, work })
+    ).rejects.toThrow('kept changing')
+    expect(order).toEqual(['work', 'wait 1', 'waited 1', 'reread', 'work', 'wait 2', 'waited 2', 'reread', 'work'])
+  })
+
+  it('hands the last conflict to exhausted', async () => {
+    const last = conflict()
+    const work = vi.fn().mockRejectedValueOnce(conflict()).mockRejectedValueOnce(last)
+
+    await expect(
+      retryOnConditionFailure({
+        exhausted: (lastConflict) => lastConflict,
+        initial: 'first',
+        maxAttempts: 2,
+        reread: async () => 'again',
+        work,
+      })
+    ).rejects.toBe(last)
+  })
+})
+
+describe('jitteredWait', () => {
+  beforeEach(() => {
+    vi.useFakeTimers()
+  })
+  afterEach(() => {
+    vi.useRealTimers()
+  })
+
+  /** The milliseconds the wait takes: it is still pending one millisecond before. */
+  const waitedFor = async (wait: (attempt: number) => Promise<void>, attempt: number, ms: number) => {
+    let done = false
+    const waiting = wait(attempt).then(() => {
+      done = true
+    })
+    await vi.advanceTimersByTimeAsync(ms - 1)
+    const before = done
+    await vi.advanceTimersByTimeAsync(1)
+    await waiting
+    return { before, done }
+  }
+
+  it.each([
+    // Half of 10 ms, of 20 ms after doubling, and of the 500 ms cap the seventh attempt reaches.
+    [1, 5],
+    [2, 10],
+    [7, 250],
+  ])('waits a random part of the base doubled per attempt and capped: attempt %i takes %i ms', async (attempt, ms) => {
+    const wait = jitteredWait(10, 500, () => 0.5)
+
+    await expect(waitedFor(wait, attempt, ms)).resolves.toEqual({ before: false, done: true })
   })
 })

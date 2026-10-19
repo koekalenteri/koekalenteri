@@ -241,11 +241,7 @@ const rekeyResults = (results: Nullable<DatedResult[]>, decode: DayDecode, state
 
 /** The birth date as a key, or none for Kennelliitto's empty date; and the results' days. */
 const rekeyDogInto = (dog: DogDays, decode: DayDecode, state: DayRekeying) => {
-  if (dog.dob) {
-    const day = rekeyDayOrNone(dog.dob, decode, state)
-    if (day === null) delete dog.dob
-    else if (day) dog.dob = day
-  }
+  rekeyOptionalDay(dog, 'dob', decode, state)
   rekeyResults(dog.results, decode, state)
 }
 

@@ -136,7 +136,8 @@ describe('rekeyEventDays', () => {
     }
 
     expect(rekeyEventDays(event, legacyDay)).toEqual({ changed: true, unreadable: false })
-    expect(event).toEqual({
+    // The fields are gone, not set to undefined.
+    expect(event).toStrictEqual({
       endDate: '2026-06-01',
       kcEvent: { classes: [], eventType: 'NOU', startDate: '2026-06-01' },
       startDate: '2026-06-01',
@@ -262,7 +263,7 @@ describe('rekeyRegistrationDays', () => {
     const unreadable: Partial<JsonRegistration> = { dog: { dob: legacyDayValue('31.12.2020'), regNo: 'FI1/21' } }
 
     expect(rekeyRegistrationDays(empty, legacyDay)).toEqual({ changed: true, unreadable: false })
-    expect(empty.dog).toEqual({ regNo: 'FI1/21' })
+    expect(empty.dog).toStrictEqual({ regNo: 'FI1/21' })
     expect(rekeyRegistrationDays(unreadable, legacyDay)).toEqual({ changed: false, unreadable: true })
     expect(unreadable.dog).toEqual({ dob: '31.12.2020', regNo: 'FI1/21' })
   })

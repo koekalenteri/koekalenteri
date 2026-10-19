@@ -145,6 +145,14 @@ describe('wire', () => {
       })
     }
 
+    // The migration removes a Kennelliitto trial's end that was its empty date (KOE-1547).
+    it('leaves a Kennelliitto trial without an end without one', () => {
+      const event = toDogEvent({ kcEvent: { classes: [], eventType: 'NOU', startDate: '2026-06-01' } })
+
+      expect(event.kcEvent).toEqual({ classes: [], eventType: 'NOU', startDate: new Date('2026-05-31T21:00:00.000Z') })
+      expect(event.kcEvent && 'endDate' in event.kcEvent).toBe(false)
+    })
+
     it("makes an event's Kennelliitto state and a stats row's day Dates", () => {
       const event = toDogEvent({ kcState: { code: 1253, name: 'Luovutettu', readAt: '2026-09-13T08:00:00.000Z' } })
       expect(event.kcState).toEqual({ code: 1253, name: 'Luovutettu', readAt: new Date('2026-09-13T08:00:00.000Z') })

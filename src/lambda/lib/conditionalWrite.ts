@@ -1,3 +1,4 @@
+import { randomInt } from 'node:crypto'
 import { isConditionalCheckFailure } from './api-gw'
 
 /**
@@ -38,15 +39,21 @@ interface ConditionalWrite<R, T> {
   wait?: (attempt: number) => Promise<void>
 }
 
+/** The bound of the integers `randomInt` draws a fraction from: below its limit of 2^48. */
+const FRACTION_STEPS = 2 ** 47
+
+/** A fraction in [0, 1) from the platform's cryptographic source. */
+const secureFraction = () => randomInt(FRACTION_STEPS) / FRACTION_STEPS
+
 /**
  * A wait of a random length up to `baseMs` doubled per attempt and capped at `maxMs`: writers that
- * collided do not collide again at once.
+ * collided do not collide again at once. `random` gives a fraction in [0, 1); a test gives its own.
  */
 export const jitteredWait =
-  (baseMs: number, maxMs: number) =>
+  (baseMs: number, maxMs: number, random: () => number = secureFraction) =>
   (attempt: number): Promise<void> => {
     const maximumDelay = Math.min(baseMs * 2 ** (attempt - 1), maxMs)
-    const delay = Math.floor(Math.random() * maximumDelay)
+    const delay = Math.floor(random() * maximumDelay)
     return new Promise<void>((resolve) => setTimeout(resolve, delay))
   }
 

@@ -38,7 +38,9 @@ const {
   isSameOrganizerStatsRow,
   moveOrganizerEventStatsRow,
   organizerPk,
+  ORGANIZER_STATS_MOVE_RETRY,
   organizerStatsKey,
+  organizerStatsMoveRetry,
   organizerStatsRowEvent,
   readAllOrganizerEventStats,
   readAllStatKeys,
@@ -102,6 +104,41 @@ describe('eventStatsRepository', () => {
     expect(organizerStatsKey({ id: 'e1', organizer: { id: 'org1' }, startDate: '2024-06-01' })).toEqual({
       PK: 'ORG#org1',
       SK: '2024-06-01#e1',
+    })
+  })
+
+  describe('organizerStatsMoveRetry', () => {
+    afterEach(() => {
+      vi.useRealTimers()
+    })
+
+    it('retries a cancelled move eight times', () => {
+      const retry = organizerStatsMoveRetry()
+
+      expect(retry.maxAttempts).toBe(8)
+      expect(retry.isConflict({ name: 'TransactionCanceledException' })).toBe(true)
+      expect(retry.isConflict({ name: 'ConditionalCheckFailedException' })).toBe(false)
+      expect(ORGANIZER_STATS_MOVE_RETRY.maxAttempts).toBe(8)
+    })
+
+    // From 10 ms doubled per attempt up to 500 ms; a fraction of a half halves each.
+    it.each([
+      [1, 5],
+      [8, 250],
+    ])('waits after the attempt %i for %i ms', async (attempt, ms) => {
+      vi.useFakeTimers()
+      let done = false
+      const waiting = organizerStatsMoveRetry(() => 0.5)
+        .wait(attempt)
+        .then(() => {
+          done = true
+        })
+
+      await vi.advanceTimersByTimeAsync(ms - 1)
+      expect(done).toBe(false)
+      await vi.advanceTimersByTimeAsync(1)
+      await waiting
+      expect(done).toBe(true)
     })
   })
 

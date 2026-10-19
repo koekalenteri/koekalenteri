@@ -127,13 +127,17 @@ export const organizerStatsRowEvent = (
 /**
  * How a move of an organizer stats row is retried: a registration counted on the row meanwhile cancels
  * the move's transaction, and in a burst of registrations the moves spread out with a jittered wait.
- * The one rule for a save that moves the row and for the migration that rekeys it.
+ * The one rule for a save that moves the row and for the migration that rekeys it. `random` gives the
+ * jitter's fraction in [0, 1), for a test.
  */
-export const ORGANIZER_STATS_MOVE_RETRY = {
+export const organizerStatsMoveRetry = (random?: () => number) => ({
   isConflict: isTransactionCanceled,
   maxAttempts: 8,
-  wait: jitteredWait(10, 500),
-}
+  wait: jitteredWait(10, 500, random),
+})
+
+/** The move's retry with the jitter drawn from the platform's cryptographic source. */
+export const ORGANIZER_STATS_MOVE_RETRY = organizerStatsMoveRetry()
 
 /** Whether the two versions of an event keep their organizer stats in the same row. */
 export const isSameOrganizerStatsRow = (a: OrganizerStatsEvent, b: OrganizerStatsEvent) => {
