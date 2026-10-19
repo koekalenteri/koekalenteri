@@ -1,6 +1,6 @@
 import type { JsonRegistration, PatchOperation } from '../../types'
 import { vi } from 'vitest'
-import { REGISTRATION_MONEY_FIELDS } from '../../lib/registration'
+import { ADMIN_PROTECTED_REGISTRATION_FIELDS, REGISTRATION_MONEY_FIELDS } from '../../lib/registration'
 import { httpError, LambdaError } from '../lib/lambda'
 import { constructPartialAPIGwEvent } from '../test-utils/helpers'
 
@@ -608,24 +608,10 @@ describe('putAdminRegistrationLambda', () => {
       reserve: 'ANY',
       state: 'draft',
     }
-    const stale = { ...storedResult, result: 'ALO3' }
 
     /** A well-formed operations request: only the field it names decides whether it is accepted. */
     const operation = (field: string, value: unknown) =>
       putAdminRegistrationLambda(edit([{ path: [field], type: 'CHANGE', value }]))
-
-    it.each([
-      ['eventResult', stale],
-      ['kcResult', { ...storedKc, status: 'failed' }],
-    ])('refuses an operation on %s and names it', async (field, value) => {
-      mockGetRegistration.mockResolvedValueOnce(stored)
-
-      const result = await operation(field, value)
-
-      expect(result.statusCode).toBe(400)
-      expect(JSON.parse(result.body).message).toContain(`protected registration field: ${field}`)
-      expect(mockPatchRegistration).not.toHaveBeenCalled()
-    })
 
     it('accepts the same operation on a field a registration form may change', async () => {
       mockGetRegistration.mockResolvedValueOnce(stored)
@@ -653,21 +639,6 @@ describe('putAdminRegistrationLambda', () => {
       refundHandlingCost: 2.5,
       refundStatus: 'SUCCESS' as const,
     }
-    const stored = {
-      class: 'ALO',
-      dates: [],
-      dog: { breedCode: '111', regNo: 'DOG123' },
-      eventId: 'event123',
-      handler: { email: 'handler@example.com' },
-      id: 'reg456',
-      language: 'fi',
-      modifiedAt: '2026-10-18T12:00:00.000Z',
-      owner: { email: 'owner@example.com' },
-      qualifyingResults: [],
-      reserve: 'ANY',
-      state: 'ready',
-      ...storedMoney,
-    }
     /** The copy a secretary loaded before the payment and the refund were applied. */
     const staleMoney = {
       openRefunds: ['tx-stale'],
@@ -676,18 +647,6 @@ describe('putAdminRegistrationLambda', () => {
       paymentStatus: 'PENDING',
       refundAmount: 0,
     }
-
-    it.each(REGISTRATION_MONEY_FIELDS)('refuses an operation on %s and names it', async (field) => {
-      mockGetRegistration.mockResolvedValueOnce(stored)
-
-      const result = await putAdminRegistrationLambda(
-        edit([{ path: [field], type: field in stored ? 'CHANGE' : 'CREATE', value: 0 }])
-      )
-
-      expect(result.statusCode).toBe(400)
-      expect(JSON.parse(result.body).message).toContain(`protected registration field: ${field}`)
-      expect(mockPatchRegistration).not.toHaveBeenCalled()
-    })
 
     it('starts a new registration without the money its body carries', async () => {
       const result = await putAdminRegistrationLambda({
@@ -701,6 +660,16 @@ describe('putAdminRegistrationLambda', () => {
         expect(mockSaveRegistration).toHaveBeenCalledWith(expect.not.objectContaining({ [field]: expect.anything() }))
       }
     })
+  })
+
+  // Results (KOE-1140), money (KOE-1531) and the row's own bookkeeping are other writers' to move,
+  // and an operation on one of them is refused: nothing is applied or stored (KOE-1574).
+  it.each(ADMIN_PROTECTED_REGISTRATION_FIELDS)('refuses an operation on %s and names it', async (field) => {
+    const result = await putAdminRegistrationLambda(edit([{ path: [field], type: 'CHANGE', value: 0 }]))
+
+    expect(result.statusCode).toBe(400)
+    expect(JSON.parse(result.body).message).toContain(`protected registration field: ${field}`)
+    expect(mockPatchRegistration).not.toHaveBeenCalled()
   })
 
   it('publishes the change an operation made to a nested field', async () => {

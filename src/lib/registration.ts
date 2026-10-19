@@ -183,14 +183,68 @@ export const REGISTRATION_MONEY_FIELDS = [
 
 type RegistrationMoneyField = (typeof REGISTRATION_MONEY_FIELDS)[number]
 
+const withoutFields = <F extends string, T extends Partial<Record<F, unknown>>>(
+  registration: T,
+  fields: ReadonlyArray<F>
+): T => {
+  const result = { ...registration }
+  for (const field of fields) delete result[field]
+  return result
+}
+
 /** A copy of the registration without its money fields (`REGISTRATION_MONEY_FIELDS`). */
 export const withoutRegistrationMoney = <T extends Partial<Record<RegistrationMoneyField, unknown>>>(
   registration: T
-): T => {
-  const result = { ...registration }
-  for (const field of REGISTRATION_MONEY_FIELDS) delete result[field]
-  return result
-}
+): T => withoutFields(registration, REGISTRATION_MONEY_FIELDS)
+
+/** The durable and leased state of one creation attempt of a registration. */
+export const NEW_REGISTRATION_WORKFLOW_FIELDS = [
+  'newRegistrationAuditAt',
+  'newRegistrationEmailSentAt',
+  'newRegistrationLease',
+  'newRegistrationProcessedAt',
+  'newRegistrationPublishedAt',
+  'newRegistrationStatsAt',
+] as const satisfies ReadonlyArray<keyof JsonRegistration>
+
+/**
+ * The fields an organizer's edit never writes: the identity, the bookkeeping of the row and of its
+ * creation, and what other writers own. The server refuses a patch operation on any of them, and the
+ * admin client leaves them out of the operations it sends, since the row the edit continues from
+ * may have been moved by those writers after the edit started (KOE-1574).
+ */
+export const ADMIN_PROTECTED_REGISTRATION_FIELDS = [
+  'createdAt',
+  'createdBy',
+  'creationIdempotencyKey',
+  'editToken',
+  'editTokenVersion',
+  'eventId',
+  // Results are written by the results endpoints and the sending to Kennelliitto, which know the
+  // lock; a registration form carries a copy that is old by the time it is saved (KOE-1140).
+  'eventResult',
+  'id',
+  'kcResult',
+  'modifiedAt',
+  'modifiedBy',
+  'updatedAt',
+  ...NEW_REGISTRATION_WORKFLOW_FIELDS,
+  // Written only with the payment or refund they come from (KOE-1531).
+  ...REGISTRATION_MONEY_FIELDS,
+] as const satisfies ReadonlyArray<keyof JsonRegistration>
+
+type AdminProtectedRegistrationField = (typeof ADMIN_PROTECTED_REGISTRATION_FIELDS)[number]
+
+const ADMIN_PROTECTED_REGISTRATION_FIELD_SET: ReadonlySet<string> = new Set(ADMIN_PROTECTED_REGISTRATION_FIELDS)
+
+/** Whether a patch operation's first path segment is a field an organizer's edit may write. */
+export const isAdminRegistrationOperationField = (field: unknown): boolean =>
+  typeof field !== 'string' || !ADMIN_PROTECTED_REGISTRATION_FIELD_SET.has(field)
+
+/** A copy of the registration without the fields an organizer's edit never writes. */
+export const withoutAdminProtectedFields = <T extends Partial<Record<AdminProtectedRegistrationField, unknown>>>(
+  registration: T
+): T => withoutFields(registration, ADMIN_PROTECTED_REGISTRATION_FIELDS)
 
 const PUBLIC_REGISTRATION_UPDATE_CANDIDATES: ReadonlyArray<PublicRegistrationField> = [
   ...PUBLIC_REGISTRATION_FIELDS,
