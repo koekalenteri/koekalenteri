@@ -590,6 +590,30 @@ describe('runMigrationLambda', () => {
       expect(mockWriteMigratedUserRoles).toHaveBeenCalledBefore(mockWriteMigratedEvent)
     })
 
+    it('bumps the scopes of the users written before a later write failed', async () => {
+      mockReadAllUsers.mockResolvedValueOnce([
+        { ...userWith({ '-ZC1Jcewbn': 'secretary' }), id: 'user-a' },
+        { ...userWith({ '-ZC1Jcewbn': 'admin', third: 'secretary' }), id: 'user-b' },
+        { ...userWith({ '-ZC1Jcewbn': 'secretary', fourth: 'admin' }), id: 'user-c' },
+      ])
+      mockWriteMigratedUserRoles
+        .mockResolvedValueOnce(undefined)
+        .mockResolvedValueOnce(undefined)
+        .mockRejectedValueOnce(new Error('write failed'))
+
+      await expect(runMigrationLambda(directEvent)).rejects.toThrow('write failed')
+
+      expect(mockBumpDataVersion).toHaveBeenCalledTimes(1)
+      expect(mockBumpDataVersion).toHaveBeenCalledWith(
+        'users',
+        expect.arrayContaining(['-ZC1Jcewbn', 'aikpqWfqeB', 'third'])
+      )
+      // The user whose write failed is still as read: its scopes have not moved
+      expect(mockBumpDataVersion).toHaveBeenCalledWith('users', expect.not.arrayContaining(['fourth']))
+      expect(mockWriteMigratedEvent).not.toHaveBeenCalled()
+      expect(mockMarkApplied).not.toHaveBeenCalled()
+    })
+
     it('writes no user and bumps nothing when no role is on an orphan id', async () => {
       mockReadAllUsers.mockResolvedValueOnce([userWith({ aikpqWfqeB: 'admin' })])
 

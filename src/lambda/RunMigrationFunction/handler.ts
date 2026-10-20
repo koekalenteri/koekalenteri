@@ -302,26 +302,46 @@ const outcomeOf = <T>(
  * write no further row is started (mapWithConcurrency stops there), and the run answers with the
  * failure only once the rows already being written have finished. A half-done run is safe because
  * every migration can be run again.
+ *
+ * Each row is added to `written` as its write lands, so the caller still knows which rows changed
+ * when a later write fails and this throws.
  */
 const migrateTable = async <T extends { id: string }>(
   table: MigratedTable<T>,
   rows: T[],
   pending: Pending<T>[],
-  context: MigrationContext
-) => {
+  context: MigrationContext,
+  written: ReadRow<T>[] = []
+): Promise<MigrationOutcome[]> => {
   // As read, for the skip reports: the migrations change the rows in place.
   const asRead = structuredClone(rows)
   const modifiedRows = rows
     .map((item) => migrateRow(item, pending, context))
     .filter(({ changed }) => changed.some(Boolean))
-  const written = (
-    await mapWithConcurrency(modifiedRows, WRITE_CONCURRENCY, (row) => writeRow(table, row, pending, context))
-  ).filter((row): row is ReadRow<T> => row !== undefined)
+  await mapWithConcurrency(modifiedRows, WRITE_CONCURRENCY, async (row) => {
+    const landed = await writeRow(table, row, pending, context)
+    if (landed) written.push(landed)
+  })
 
-  const outcomes = pending.map(({ migration }, index) =>
+  return pending.map(({ migration }, index) =>
     outcomeOf(migration, written.filter(({ changed }) => changed[index]).length, asRead, context)
   )
-  return { outcomes, written }
+}
+
+/**
+ * Runs the user migrations. The users whose roles were written move between cached user lists, so
+ * their scopes get one version bump, also when a later write fails and the run throws: a rerun leaves
+ * the rows already written alone and would never bump them.
+ */
+const migrateUsers = async (pending: Pending<JsonUser>[], context: MigrationContext) => {
+  if (!pending.length) return []
+
+  const written: ReadRow<JsonUser>[] = []
+  try {
+    return await migrateTable(userTable, await readAllUsers(), pending, context, written)
+  } finally {
+    if (written.length) await bumpDataVersion('users', changedUserScopes(written))
+  }
 }
 
 /**
@@ -371,14 +391,10 @@ const runMigrationLambda = lambda('runMigration', async (event) => {
 
   // The users first: their roles are mapped from the events as read, so a run that fails after them
   // still finds the orphan events, and the mapping, the next time. The events first would leave none.
-  const users = pendingUsers.length
-    ? await migrateTable(userTable, await readAllUsers(), pendingUsers, context)
-    : { outcomes: [], written: [] }
-  if (users.written.length) await bumpDataVersion('users', changedUserScopes(users.written))
+  const userOutcomes = await migrateUsers(pendingUsers, context)
+  const eventOutcomes = await migrateTable(eventTable, events, pendingEvents, context)
 
-  const { outcomes: eventOutcomes } = await migrateTable(eventTable, events, pendingEvents, context)
-
-  const outcomes = [...eventOutcomes, ...users.outcomes]
+  const outcomes = [...eventOutcomes, ...userOutcomes]
   const hashes = [...pendingEvents, ...pendingUsers].map(({ hash }) => hash)
 
   // Only after every write went through: a failed run records nothing and the next one starts over.
