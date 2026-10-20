@@ -1661,7 +1661,7 @@ describe('putRegistrationLabmda', () => {
 
     beforeEach(() => {
       vi.setSystemTime(now)
-      mockGetEvent.mockResolvedValueOnce(event())
+      mockGetLiveEvent.mockResolvedValueOnce(event())
       mockGetRegistration.mockResolvedValueOnce(existingJson())
     })
 
@@ -1730,7 +1730,7 @@ describe('putRegistrationLabmda', () => {
     ['AVO', 200],
   ] as const)('answers an edit of an entry in %s once ALO has ended with %s (KOE-1584)', async (eventClass, status) => {
     vi.setSystemTime(addMinutes(dayStart(eventWithStaticDatesAndClass.startDate, TIME_ZONE), 720))
-    mockGetEvent.mockResolvedValueOnce({
+    mockGetLiveEvent.mockResolvedValueOnce({
       ...JSON.parse(JSON.stringify(eventWithStaticDatesAndClass)),
       classes: [
         { class: 'ALO', date: '2021-02-10', state: 'ended' },
@@ -1761,7 +1761,7 @@ describe('putRegistrationLabmda', () => {
 
   it('answers an edit sent as the whole registration after the trial with 404 (KOE-1584)', async () => {
     vi.setSystemTime(dayStart(addDays(eventWithStaticDates.endDate, 1), TIME_ZONE))
-    mockGetEvent.mockResolvedValueOnce(JSON.parse(JSON.stringify(eventWithStaticDates)))
+    mockGetLiveEvent.mockResolvedValueOnce(JSON.parse(JSON.stringify(eventWithStaticDates)))
     mockGetRegistration.mockResolvedValueOnce(storedRegistrationJson(registrationWithStaticDates))
 
     const res = await putRegistrationLabmda(constructAPIGwEvent({ ...registrationWithStaticDates, notes: 'late edit' }))
@@ -1772,7 +1772,7 @@ describe('putRegistrationLabmda', () => {
 
   it('saves an edit of what the entry says on the second day of a started trial (KOE-1584)', async () => {
     vi.setSystemTime(addMinutes(dayStart(eventWithStaticDates.endDate, TIME_ZONE), 720))
-    mockGetEvent.mockResolvedValueOnce({ ...JSON.parse(JSON.stringify(eventWithStaticDates)), state: 'started' })
+    mockGetLiveEvent.mockResolvedValueOnce({ ...JSON.parse(JSON.stringify(eventWithStaticDates)), state: 'started' })
     mockGetRegistration.mockResolvedValueOnce(storedRegistrationJson(registrationWithStaticDates))
 
     const res = await putRegistrationLabmda(
