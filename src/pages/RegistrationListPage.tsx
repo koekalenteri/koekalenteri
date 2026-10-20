@@ -11,11 +11,12 @@ import { useRegistrationSubscription } from '../hooks/useRegistrationSubscriptio
 import { redirectTo } from '../lib/client/navigation'
 import { errorSnackbarOptions } from '../lib/client/snackbar'
 import { addDays, dayOf, TIME_ZONE } from '../lib/day'
-import { getEventStateForClass, isEntryClosed } from '../lib/event'
+import { getEventStateForClass } from '../lib/event'
 import {
   getRegistrationClass,
   getRegistrationEmails,
   hasPaymentPicture,
+  isRegistrationContentLocked,
   isRegistrationEditingClosed,
 } from '../lib/registration'
 import { isConfirmedEvent } from '../lib/typeGuards'
@@ -76,9 +77,12 @@ export function RegistrationListPage({ cancel, confirm, invitation }: Registrati
     () => !event || !isConfirmedEvent(event) || !registration || isRegistrationEditingClosed(event, registration),
     [event, registration]
   )
-  // Editing what the entry says is also closed from the close of entry to the trial, as the edit
-  // form is (`isRegistrationContentLocked`); confirming and paying happen in exactly that time.
-  const editDisabled = useMemo(() => allDisabled || !event || isEntryClosed(event), [allDisabled, event])
+  // Editing what the entry says closes by the edit form's own rule, which also holds from the close
+  // of entry to the trial; confirming and paying happen in exactly that time.
+  const editDisabled = useMemo(
+    () => !event || !isConfirmedEvent(event) || !registration || isRegistrationContentLocked(event, registration),
+    [event, registration]
+  )
   const cancelDisabled = useMemo(
     // Cancelling closes with the Finnish day before the trial: from then on the dog is expected.
     () => !event || allDisabled || dayOf(new Date(), TIME_ZONE) >= addDays(event.startDate, -1),

@@ -1678,6 +1678,43 @@ describe('putRegistrationLabmda', () => {
         expect.objectContaining(fields)
       )
     })
+
+    // A full body carries every field the browser holds, and so every field the server derives or
+    // stores on its own besides the request's (KOE-1584).
+    it.each([
+      ['a confirmation', { confirmed: true }],
+      ['a cancellation', { cancelled: true, cancelReason: 'sick' }],
+    ] as const)('saves %s sent as the whole registration', async (_kind, fields) => {
+      const res = await putRegistrationLabmda(constructAPIGwEvent({ ...registrationWithStaticDates, ...fields }))
+
+      expect(res.statusCode).toBe(200)
+      expect(mockPatchRegistration).toHaveBeenCalledWith(
+        registrationWithStaticDates.eventId,
+        registrationWithStaticDates.id,
+        existingJson(),
+        expect.objectContaining(fields)
+      )
+    })
+
+    it('refuses an edit sent as the whole registration with 410', async () => {
+      const res = await putRegistrationLabmda(
+        constructAPIGwEvent({ ...registrationWithStaticDates, confirmed: true, notes: 'late edit' })
+      )
+
+      expect(res.statusCode).toBe(410)
+      expect(mockPatchRegistration).not.toHaveBeenCalled()
+    })
+  })
+
+  it('answers an edit sent as the whole registration after the trial with 404 (KOE-1584)', async () => {
+    vi.setSystemTime(dayStart(addDays(eventWithStaticDates.endDate, 1), TIME_ZONE))
+    mockGetEvent.mockResolvedValueOnce(JSON.parse(JSON.stringify(eventWithStaticDates)))
+    mockGetRegistration.mockResolvedValueOnce(storedRegistrationJson(registrationWithStaticDates))
+
+    const res = await putRegistrationLabmda(constructAPIGwEvent({ ...registrationWithStaticDates, notes: 'late edit' }))
+
+    expect(res.statusCode).toBe(404)
+    expect(mockPatchRegistration).not.toHaveBeenCalled()
   })
 
   it('saves an edit of what the entry says on the second day of a started trial (KOE-1584)', async () => {

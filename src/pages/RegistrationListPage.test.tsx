@@ -8,9 +8,17 @@ import { createStore, Provider } from 'jotai'
 import { enqueueSnackbar } from 'notistack'
 import { Suspense } from 'react'
 import { Link, useLocation, useParams } from 'react-router'
-import { eventWithParticipantsInvited, eventWithStaticDates } from '../__mockData__/events'
+import {
+  eventWithParticipantsInvited,
+  eventWithStaticDates,
+  eventWithStaticDatesAndClass,
+} from '../__mockData__/events'
 import { paymentPictureWith } from '../__mockData__/paymentPicture'
-import { registrationWithStaticDates, unpaidRegistrationWithStaticDates } from '../__mockData__/registrations'
+import {
+  registrationWithStaticDates,
+  registrationWithStaticDatesAndClass,
+  unpaidRegistrationWithStaticDates,
+} from '../__mockData__/registrations'
 import * as eventApi from '../api/event'
 import { APIError } from '../api/http'
 import * as registrationApi from '../api/registration'
@@ -366,6 +374,38 @@ describe('RegistrationListPage', () => {
 
       expect(screen.queryByRole('dialog', { name: 'registration.confirmDialog.title' })).not.toBeInTheDocument()
     })
+  })
+
+  // The entry's own class decides, not the event's state: ALO has been judged on the first day while
+  // AVO still runs on the second (KOE-1584).
+  it.each([
+    ['closes', 'ALO', true],
+    ['keeps open', 'AVO', false],
+  ] as const)('%s editing for an entry in %s once ALO has ended', async (_label, eventClass, closed) => {
+    vi.setSystemTime(new Date('2021-02-10T12:00:00.000+02:00'))
+    vi.spyOn(eventApi, 'getEvent').mockResolvedValue({
+      ...eventWithStaticDatesAndClass,
+      classes: [
+        { class: 'ALO', date: '2021-02-10', state: 'ended' },
+        { class: 'AVO', date: '2021-02-11', state: 'started' },
+      ],
+      state: 'started',
+    })
+    vi.spyOn(registrationApi, 'getRegistration').mockResolvedValue({
+      ...registrationWithStaticDatesAndClass,
+      class: eventClass,
+      payment: paymentPictureWith(),
+    })
+    const { user } = await renderWithRouter(
+      `/r/${registrationWithStaticDatesAndClass.eventId}/${registrationWithStaticDatesAndClass.id}`
+    )
+    await flushPromises()
+
+    await user.click(screen.getByRole('button', { name: 'more' }))
+
+    const edit = await screen.findByRole('menuitem', { name: 'registration.actions.edit' })
+    if (closed) expect(edit).toHaveAttribute('aria-disabled', 'true')
+    else expect(edit).not.toHaveAttribute('aria-disabled', 'true')
   })
 
   it('itemizes what the registration bought and what has been paid for it', async () => {

@@ -108,17 +108,25 @@ const buildPublicRegistrationData = (
 }
 
 /**
- * Refuses a change to what the entry says once that has closed for the participant, by the rule
- * their form reads (KOE-1584). Confirming, cancelling and reading an invitation stay open until the
- * trial is over: a request that changes only those passes, and one that changes anything else
- * besides them does not.
+ * Refuses a change to what an existing entry says once that has closed for the participant, by the
+ * rule their edit form reads (`isRegistrationContentLocked`, KOE-1584): from the close of entry to
+ * the trial, and once the entry's class has been judged. A new registration has its own gate
+ * (`isEntryOpen`) and passes here.
+ *
+ * Confirming, cancelling and reading an invitation are not edits of the entry. A request that
+ * changes only those passes, also after the class has been judged, until the trial is over
+ * (`isEventOver`, the 404 above); one that changes anything else besides them is refused. Refusing an
+ * invitation read would strand RegistrationInvitation's loader and the list page's `?invitation`
+ * redirect, which only log a failed read and never navigate on. Cancelling closing from the day
+ * before the trial is the client's rule only (`cancelDisabled` on the list page); the server takes a
+ * cancellation until the trial is over.
  */
 const assertEntryContentEditable = (
-  existing: JsonRegistration,
+  existing: JsonRegistration | undefined,
   data: JsonRegistration,
   confirmedEvent: JsonConfirmedEvent
 ) => {
-  if (!isRegistrationContentLocked(confirmedEvent, existing)) return
+  if (!existing || !isRegistrationContentLocked(confirmedEvent, existing)) return
   if (hasRegistrationChanges(withoutParticipantResponses(existing), withoutParticipantResponses(data))) {
     throw httpError(410, { message: 'Gone: the entry can no longer be edited' })
   }
@@ -212,7 +220,7 @@ const putRegistrationLambda = lambda('putRegistration', async (event) => {
   registration.updatedAt = timestamp
 
   const { data, flags } = buildPublicRegistrationData(registration, existing, confirmedEvent)
-  if (existing) assertEntryContentEditable(existing, data, confirmedEvent)
+  assertEntryContentEditable(existing, data, confirmedEvent)
 
   applyOwnerOverrides(data)
   // The entry restrictions (KOE-525) are a gate, not a note to the secretary: the form does not
