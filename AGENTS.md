@@ -127,8 +127,9 @@ Read `LLM_CONTEXT.md` for the project overview and architecture notes.
   context)`: the run answers and logs their ids in one warning, and still records the migration.
 - `userMigrations` in the same file migrate the user table the same way, applied, hashed and
   recorded alike, and may change only `roles`, which is all the runner writes of a user (on
-  condition the roles are still the ones read); the changed users' scopes get one `users` data
-  version bump. They run before the event migrations.
+  condition the roles are still the ones read) besides an `updatedAt` bump, so the user list's
+  incremental fetch hands the row to clients that cache it; `modifiedAt` stays. The changed users'
+  scopes get one `users` data version bump. They run before the event migrations.
 - An event migration that changes the organizer or the start date moves the organizer stats row
   (ORG#) before the event is written, so a failed move leaves the event for the next run to find.
 - The deploy runs it, nobody runs it by hand: after `sam deploy`, the `Run data migrations` step of

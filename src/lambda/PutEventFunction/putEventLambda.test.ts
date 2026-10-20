@@ -337,6 +337,21 @@ describe('putEventLambda', () => {
       expect(mockReadOrganizer).toHaveBeenCalledWith('org-id')
     })
 
+    it('does not read the organizer when a patch renames the organizer it keeps', async () => {
+      authorizeMock.mockResolvedValueOnce(mockSecretary)
+      getEventMock.mockResolvedValueOnce(mockEvent)
+
+      const res = await putEventLambda(
+        constructAPIGwEvent<Partial<JsonDogEvent>>(
+          { id: 'existing', organizer: { id: 'org-id', name: 'renamed org' } },
+          { method: 'PATCH' }
+        )
+      )
+
+      expect(res.statusCode).toEqual(200)
+      expect(mockReadOrganizer).not.toHaveBeenCalled()
+    })
+
     it('does not read the organizer when the event keeps its own', async () => {
       authorizeMock.mockResolvedValueOnce(mockSecretary)
       getEventMock.mockResolvedValueOnce(mockEvent)

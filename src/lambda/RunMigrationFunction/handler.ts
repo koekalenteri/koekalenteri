@@ -218,9 +218,12 @@ const writeMigratedEventRow = async (row: ReadRow<JsonDogEvent>): Promise<void> 
   )
 }
 
-/** Writes the roles the migrations gave the user, on condition they are still the ones read. */
+/**
+ * Writes the roles the migrations gave the user, on condition they are still the ones read, with the
+ * bump that lets the user list's incremental fetch hand the row to clients that already cache it.
+ */
 const writeMigratedUserRow = async ({ before, item }: ReadRow<JsonUser>): Promise<void> => {
-  await writeMigratedUserRoles(item.id, item.roles ?? {}, before.roles)
+  await writeMigratedUserRoles(item.id, item.roles ?? {}, before.roles, new Date().toISOString())
 }
 
 /** How the runner reads a row again and writes it, for one table. */

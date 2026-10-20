@@ -49,15 +49,22 @@ export const writeUserRoles = async (
 
 /**
  * A data migration's change of the user's organization roles: lands only on a row that still exists
- * and still holds the roles it was read with, and leaves the modification stamp alone, since no user
- * made the change. Throws the condition failure otherwise.
+ * and still holds the roles it was read with. `updatedAt` moves, so the user list's incremental fetch
+ * (`changedItemsSince`) hands the row to clients that already cache it; `modifiedAt` stays, since no
+ * user made the change. Throws the condition failure otherwise.
  */
 export const writeMigratedUserRoles = async (
   id: string,
   roles: NonNullable<JsonUser['roles']>,
-  readRoles: JsonUser['roles']
+  readRoles: JsonUser['roles'],
+  updatedAt: string
 ) => {
-  await dynamoDB.update({ id }, { set: { roles } }, undefined, foldedFrom('#roles', { '#roles': 'roles' }, readRoles))
+  await dynamoDB.update(
+    { id },
+    { set: { roles, updatedAt } },
+    undefined,
+    foldedFrom('#roles', { '#roles': 'roles' }, readRoles)
+  )
 }
 
 /** Grants or takes away the user's admin rights. */

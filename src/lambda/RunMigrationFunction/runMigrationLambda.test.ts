@@ -554,7 +554,8 @@ describe('runMigrationLambda', () => {
       expect(mockWriteMigratedUserRoles).toHaveBeenCalledWith(
         'user-1',
         { aikpqWfqeB: 'secretary' },
-        { '-ZC1Jcewbn': 'secretary' }
+        { '-ZC1Jcewbn': 'secretary' },
+        expect.any(String)
       )
       expect(mockResponse).toHaveBeenCalledWith(200, migrationResults(0, 0, 0, 0, 1, 1), directEvent)
     })
@@ -567,7 +568,8 @@ describe('runMigrationLambda', () => {
       expect(mockWriteMigratedUserRoles).toHaveBeenCalledWith(
         'user-1',
         { aikpqWfqeB: 'admin' },
-        { '-ZC1Jcewbn': 'admin', aikpqWfqeB: 'secretary' }
+        { '-ZC1Jcewbn': 'admin', aikpqWfqeB: 'secretary' },
+        expect.any(String)
       )
     })
 
@@ -611,8 +613,35 @@ describe('runMigrationLambda', () => {
       expect(mockWriteMigratedUserRoles).toHaveBeenLastCalledWith(
         'user-1',
         { aikpqWfqeB: 'secretary', other: 'admin' },
-        { '-ZC1Jcewbn': 'secretary', other: 'admin' }
+        { '-ZC1Jcewbn': 'secretary', other: 'admin' },
+        expect.any(String)
       )
+    })
+
+    it('repoints the roles from all the events when only the role migration is pending', async () => {
+      const applied = new Map<string, string>()
+      mockMarkApplied.mockImplementation(async (name: string, _count: number, hash: string) => {
+        applied.set(name, hash)
+      })
+      // A forced run on an empty table records every hash
+      mockReadAllEvents.mockResolvedValueOnce([])
+      await runMigrationLambda(event)
+      applied.delete('repointOrphanOrganizerRoles')
+      vi.clearAllMocks()
+      mockReadApplied.mockResolvedValue(applied)
+      mockReadAllUsers.mockResolvedValueOnce([userWith({ '-ZC1Jcewbn': 'secretary' })])
+
+      await runMigrationLambda(directEvent)
+
+      expect(mockReadAllEvents).toHaveBeenCalledTimes(1)
+      expect(mockWriteMigratedEvent).not.toHaveBeenCalled()
+      expect(mockWriteMigratedUserRoles).toHaveBeenCalledWith(
+        'user-1',
+        { aikpqWfqeB: 'secretary' },
+        { '-ZC1Jcewbn': 'secretary' },
+        expect.any(String)
+      )
+      expect(mockResponse).toHaveBeenCalledWith(200, [{ count: 1, name: 'repointOrphanOrganizerRoles' }], directEvent)
     })
 
     it('reports a role on an id no organizer row and no single match accounts for', async () => {

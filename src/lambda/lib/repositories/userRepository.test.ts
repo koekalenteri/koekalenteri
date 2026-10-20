@@ -137,10 +137,11 @@ describe('userRepository', () => {
     )
   })
 
-  it('writeMigratedUserRoles sets only the roles, on a row that still has the roles it was read with', async () => {
-    await writeMigratedUserRoles('user-1', { live: 'admin' }, { orphan: 'admin' })
+  it('writeMigratedUserRoles sets the roles and updatedAt, on a row that still has the roles it was read with', async () => {
+    await writeMigratedUserRoles('user-1', { live: 'admin' }, { orphan: 'admin' }, '2026-10-20T00:00:00.000Z')
 
-    expect(mockUpdate).toHaveBeenCalledWith({ id: 'user-1' }, { set: { roles: { live: 'admin' } } }, undefined, {
+    const set = { roles: { live: 'admin' }, updatedAt: '2026-10-20T00:00:00.000Z' }
+    expect(mockUpdate).toHaveBeenCalledWith({ id: 'user-1' }, { set }, undefined, {
       expression: 'attribute_exists(#id) AND #roles = :foldedFrom',
       names: { '#id': 'id', '#roles': 'roles' },
       values: { ':foldedFrom': { orphan: 'admin' } },
