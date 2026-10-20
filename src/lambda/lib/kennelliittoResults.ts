@@ -495,8 +495,13 @@ const keepVersion = async (req: KcRequest, { registration }: Evaluated, patches:
   const version = registration.eventResult?.updatedAt
   if (!kcResult || !version || kcResult.resultVersion === version) return
   const next: JsonKcResult = { ...kcResult, resultVersion: version }
-  if (await writeKcResult(req.event.id, registration.id, next, kcResult.at, nowOf(req).toISOString())) {
-    patches.push({ id: registration.id, kcResult: next })
+  // Nothing was sent, so a failed write loses nothing: the dog stays unchanged and the request goes on.
+  try {
+    if (await writeKcResult(req.event.id, registration.id, next, kcResult.at, nowOf(req).toISOString())) {
+      patches.push({ id: registration.id, kcResult: next })
+    }
+  } catch (error) {
+    logger.error('kcResult version write failed', { error, eventId: req.event.id, registrationId: registration.id })
   }
 }
 

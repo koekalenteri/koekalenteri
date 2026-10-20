@@ -605,6 +605,29 @@ describe('kennelliittoResults', () => {
       expect(registrations[0].kcResult?.resultVersion).toEqual('edited-and-back')
     })
 
+    it('reports an unchanged dog whose version could not be kept as unchanged, and the others as they went', async () => {
+      registrations.push(dog('d3', 'FI10003/20', 'NOME-A3'))
+      await sendKennelliittoResults(ctx(), ['d2'], { force: false })
+      registrations[1].eventResult = { ...registrations[1].eventResult, updatedAt: 'edited-and-back', updatedBy: 'S' }
+      const write = mockWriteKcResult.getMockImplementation()
+      onTestFinished(() => {
+        if (write) mockWriteKcResult.mockImplementation(write)
+      })
+      mockWriteKcResult.mockImplementation(async (eventId, id, kcResult, previousAt) => {
+        if (id === 'd2') throw new Error('ProvisionedThroughputExceededException')
+        return write ? write(eventId, id, kcResult, previousAt) : false
+      })
+
+      const result = await sendKennelliittoResults(ctx(), ['d1', 'd2', 'd3'], { force: false })
+
+      expect(result.reports.map((report) => [report.id, report.outcome])).toEqual([
+        ['d1', 'sent'],
+        ['d2', 'unchanged'],
+        ['d3', 'sent'],
+      ])
+      expect(result.patches.map((patch) => patch.id)).toEqual(['d1', 'd3'])
+    })
+
     it("does not let one dog's refusal stop the others, and keeps Kennelliitto's reasons", async () => {
       tallennaReply['FI10001/20'] = { body: { virheet: ['Koiran nimi ei täsmää.'] }, status: 400 }
 
