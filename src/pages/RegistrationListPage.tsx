@@ -12,7 +12,13 @@ import { redirectTo } from '../lib/client/navigation'
 import { errorSnackbarOptions } from '../lib/client/snackbar'
 import { addDays, dayOf, TIME_ZONE } from '../lib/day'
 import { getEventStateForClass } from '../lib/event'
-import { getRegistrationClass, getRegistrationEmails, hasPaymentPicture } from '../lib/registration'
+import {
+  getRegistrationClass,
+  getRegistrationEmails,
+  hasPaymentPicture,
+  isRegistrationContentLocked,
+  isRegistrationEditingClosed,
+} from '../lib/registration'
 import { isConfirmedEvent } from '../lib/typeGuards'
 import { Path } from '../routeConfig'
 import CancelDialog from './components/CancelDialog'
@@ -65,10 +71,17 @@ export function RegistrationListPage({ cancel, confirm, invitation }: Registrati
   const payment = registration?.payment
   const paymentSettled = Boolean(payment?.standing) || payment?.status === 'duplicate'
   const paymentVerificationInProgress = paymentFlow === 'verifying' && !paymentSettled && reloadCount < 5
-  // Closed once the trial's last day has begun in Finland.
+  // Confirming, paying and cancelling close with the shared rule: once the trial's last Finnish day
+  // has gone, or the class the entry sits in has been judged (KOE-1388, KOE-1584).
   const allDisabled = useMemo(
-    () => !event || !isConfirmedEvent(event) || event.endDate <= dayOf(new Date(), TIME_ZONE),
-    [event]
+    () => !event || !isConfirmedEvent(event) || !registration || isRegistrationEditingClosed(event, registration),
+    [event, registration]
+  )
+  // Editing what the entry says closes by the edit form's own rule, which also holds from the close
+  // of entry to the trial; confirming and paying happen in exactly that time.
+  const editDisabled = useMemo(
+    () => !event || !isConfirmedEvent(event) || !registration || isRegistrationContentLocked(event, registration),
+    [event, registration]
   )
   const cancelDisabled = useMemo(
     // Cancelling closes with the Finnish day before the trial: from then on the dog is expected.
@@ -230,10 +243,10 @@ export function RegistrationListPage({ cancel, confirm, invitation }: Registrati
   useEffect(() => {
     if (!event || !registration || registration.cancelled || registration.confirmed) return
 
-    if (confirm && isConfirmedEvent(event) && event.endDate > dayOf(new Date(), TIME_ZONE)) {
+    if (confirm && !allDisabled) {
       setConfirmOpen((current) => current ?? true)
     }
-  }, [confirm, event, registration])
+  }, [allDisabled, confirm, event, registration])
 
   // A page with nothing but a sentence to show still has a name for a screen reader (KOE-1519).
   if (eventNotFound || registration === null) {
@@ -300,6 +313,7 @@ export function RegistrationListPage({ cancel, confirm, invitation }: Registrati
         />
         <RegistrationList
           disabled={allDisabled}
+          editDisabled={editDisabled}
           event={event}
           paymentVerificationInProgress={paymentVerificationInProgress}
           rows={registration ? [registration] : []}

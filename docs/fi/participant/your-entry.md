@@ -9,6 +9,8 @@ covers:
   - src/pages/RegistrationInvitation.tsx
   - src/pages/components/CancelDialog.tsx
   - src/pages/components/RegistrationEventInfo.tsx
+  - src/pages/components/RegistrationForm.tsx
+  - src/lib/registration.ts
 ---
 
 Vahvistusviestin linkki vie ilmoittautumisesi omalle sivulle, jonka otsikko on **{t:entryList}**.
@@ -78,10 +80,14 @@ vie maksamaan. Koekutsu lähtee sinulle vasta, kun koepaikka on maksettu.
 
 Koiran rivin oikean laidan valikosta (⋮) valinta **{t:registration.actions.edit}** avaa saman
 lomakkeen, jolla ilmoittauduit. Muutokset tallennetaan painikkeella
-**{t:registration.cta.saveChanges}**. Lomake on muokattavissa ilmoittautumisajan; kun aika on
-päättynyt tai koe on alkanut, tiedot näkyvät mutta niitä ei voi enää muuttaa — silloin muutokset
-hoidetaan koesihteerin kanssa. Peruttu ilmoittautuminen avautuu otsikolla
-*{t:registration.state.cancelled}*.
+**{t:registration.cta.saveChanges}**. Lomake on muokattavissa ilmoittautumisaikana ja uudelleen
+koepäivinä kokeen viimeisen päivän loppuun asti. Ilmoittautumisajan päättymisestä kokeen alkuun,
+jolloin koepaikkoja jaetaan, sekä kokeen päätyttyä tai kun luokkasi on arvosteltu, tiedot näkyvät
+mutta niitä ei voi muuttaa. Kun koira on saanut koepaikan, luokkaa, koepäiviä, varasijalta
+osallistumisen valintaa, kasvattajaa, omistajaa, ohjaajaa ja koetuloksia ei voi enää muuttaa itse. Kun ilmoittautuminen on maksettu, koiraa,
+jäsenyystietoja, osallistumismaksun valintaa ja lisäpalveluja ei voi enää muuttaa itse, vaikka
+ilmoittautumisaikaa olisi jäljellä. Näissä tapauksissa muutokset hoidetaan koesihteerin kanssa.
+Peruttu ilmoittautuminen avautuu otsikolla *{t:registration.state.cancelled}*.
 
 ## Ilmoittautumisen peruminen
 
@@ -94,9 +100,9 @@ palautusta varten koesihteerille toimitetaan lääkärin- tai eläinlääkärint
 
 !shot[CancelDialog/cancel-dialog-open] Perumisen syy valitaan ennen vahvistusta
 
-Kokeen alkamispäivänä ja sitä edeltävänä päivänä perumista ei voi tehdä kalenterissa, vaan
-ikkuna pyytää ottamaan yhteyttä suoraan koesihteeriin. Palautusehdot ovat Kennelliiton
-säännöissä; ikkunan alalaidan linkki vie niihin.
+Kokeen alkamista edeltävästä päivästä kokeen viimeiseen päivään asti perumista ei voi tehdä
+kalenterissa, vaan ikkuna pyytää ottamaan yhteyttä suoraan koesihteeriin. Palautusehdot ovat
+Kennelliiton säännöissä; ikkunan alalaidan linkki vie niihin.
 
 ## Koekutsu
 
