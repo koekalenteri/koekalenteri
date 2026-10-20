@@ -674,8 +674,8 @@ const takeLock = async (req: KcRequest, event: JsonConfirmedEvent) => {
     if (!previous) return
     const at = nowOf(req).toISOString()
     // Giving the lock back follows an answer that is the request's: Kennelliitto's refusal, or the dogs that
-    // are not ready. A thrown write must not turn that answer into a 500; the lock it leaves is opened by the
-    // next preview once it is older than a request lives (KOE-1582).
+    // are not ready. A thrown write must not turn that answer into a 500. The lock then stays stored, and
+    // result saves stay refused, until a preview after the lock window opens it (KOE-1582).
     try {
       await releaseKcState(event.id, { ...previous, readAt: at }, handed.readAt, at)
     } catch (error) {
