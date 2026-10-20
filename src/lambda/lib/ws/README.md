@@ -16,7 +16,9 @@ A push follows a write that has already succeeded, so it never decides the outco
 (KOE-1583). Every publisher (`actions.ts`, `publishAuditRecord`, `publishCancelledRegistration` and
 the participant payment publishers in `lib/payment.ts`) runs its push through `bestEffort` in
 `livePush.ts`: whatever fails in it, an audience scan, a read it makes or a send, is logged as
-`live push failed` with the publication's name, and the request still succeeds. The rule is written
+`live push failed` with the publication's name, and the request still succeeds. The event viewer
+pushes after a subscribe, an unsubscribe or a disconnect (`subscriptionService.ts`,
+`connectionLifecycle.ts`) run through it too, with the event read behind them. The rule is written
 there and nowhere else.
 
 The exceptions are the durable workflows whose retry is what delivers a failed push:

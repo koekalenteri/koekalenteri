@@ -583,6 +583,14 @@ describe('ws/actions', () => {
       await expect(publicHalf?.audience()).resolves.toEqual([{ connectionId: 'public-1' }])
     })
 
+    it('publishEventCountsStrict rejects when the public half cannot be sent', async () => {
+      mockBroadcast.mockImplementationOnce(recordBroadcast).mockRejectedValueOnce(new Error('public scan failed'))
+
+      await expect(publishEventCountsStrict(event)).rejects.toThrow('public scan failed')
+
+      expect(mockBroadcast).toHaveBeenCalledTimes(2)
+    })
+
     it('publishEventCountsStrict rejects when the admins cannot be looked up', async () => {
       mockOrganizerAudience.mockRejectedValue(new Error('scan failed'))
 
