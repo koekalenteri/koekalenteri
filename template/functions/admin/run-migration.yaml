@@ -11,6 +11,16 @@
         # The registry of applied migrations (collection `migrations`) lives in the version table.
         - DynamoDBCrudPolicy:
             TableName: !Ref DataVersionTable
+        # The organizer repoint (KOE-1580): which ids the organizer table holds, the stats that move
+        # with a repointed event (a transaction with a Delete), and the roles on the orphan ids.
+        - DynamoDBReadPolicy:
+            TableName: !Ref OrganizerTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref EventStatsTable
+        - DynamoDBReadPolicy:
+            TableName: !Ref UserTable
+        - DynamoDBWritePolicy:
+            TableName: !Ref UserTable
         - !Ref AuthorizePolicy
         - CloudWatchPutMetricPolicy: {}
       Events:

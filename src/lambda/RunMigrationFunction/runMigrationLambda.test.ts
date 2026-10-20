@@ -1,6 +1,7 @@
 import { vi } from 'vitest'
 import { httpError } from '../lib/lambda'
 import { answerRejections, constructPartialAPIGwEvent } from '../test-utils/helpers'
+import { loggedLines } from '../test-utils/logs'
 
 const mockLambda = vi.fn((_name, fn) => answerRejections(fn, mockResponse))
 const mockResponse = vi.fn()
@@ -10,6 +11,12 @@ const mockReadEvent = vi.fn()
 const mockWriteMigratedEvent = vi.fn()
 const mockReadApplied = vi.fn()
 const mockMarkApplied = vi.fn()
+const mockBumpDataVersion = vi.fn()
+const mockReadOrganizers = vi.fn()
+const mockMoveOrganizerEventStats = vi.fn()
+const mockReadAllUsers = vi.fn()
+const mockReadUser = vi.fn()
+const mockWriteMigratedUserRoles = vi.fn()
 
 vi.doMock('../lib/lambda', async () => ({
   ...(await vi.importActual<typeof import('../lib/lambda')>('../lib/lambda')),
@@ -28,8 +35,25 @@ vi.doMock('../lib/auth', () => ({
 }))
 
 vi.doMock('../lib/dataVersions', () => ({
+  bumpDataVersion: mockBumpDataVersion,
   markMigrationApplied: mockMarkApplied,
   readAppliedMigrations: mockReadApplied,
+}))
+
+vi.doMock('../lib/repositories/organizerRepository', () => ({
+  readOrganizersIncludingDeleted: mockReadOrganizers,
+}))
+
+vi.doMock('../lib/repositories/userRepository', () => ({
+  readAllUsers: mockReadAllUsers,
+  readUser: mockReadUser,
+  writeMigratedUserRoles: mockWriteMigratedUserRoles,
+}))
+
+// Whether the stats row moves is the repository's pure key comparison, run as it is; the move itself
+// is persistence, tested in lib/stats.
+vi.doMock('../lib/stats', () => ({
+  moveOrganizerEventStats: mockMoveOrganizerEventStats,
 }))
 
 vi.doMock('../lib/repositories/eventRepository', () => ({
@@ -49,11 +73,20 @@ const updatedRow = (id: string | undefined, set: object = {}) =>
   ] as const
 
 describe('runMigrationLambda', () => {
-  const migrationResults = (updatedAt: number, season: number, startNumbers = 0, organizerId = 0) => [
+  const migrationResults = (
+    updatedAt: number,
+    season: number,
+    startNumbers = 0,
+    organizerId = 0,
+    repointed = 0,
+    roles = 0
+  ) => [
     { count: updatedAt, name: 'populateUpdatedAt' },
     { count: organizerId, name: 'backfillOrganizerId' },
     { count: season, name: 'fixSeasonFromStartDate' },
     { count: startNumbers, name: 'backfillStartNumbersPublished' },
+    { count: repointed, name: 'repointOrphanOrganizer' },
+    { count: roles, name: 'repointOrphanOrganizerRoles' },
   ]
 
   // An API Gateway request: it always carries a requestContext, which is what tells it from a direct invoke.
@@ -97,6 +130,11 @@ describe('runMigrationLambda', () => {
     mockWriteMigratedEvent.mockResolvedValue({})
     mockReadApplied.mockResolvedValue(new Map())
     mockMarkApplied.mockResolvedValue(undefined)
+    // Every organizer id the rows below carry is one the table holds, so the repoint leaves them be.
+    mockReadOrganizers.mockResolvedValue([7, 'org1', 'org2', 'org3'].map((id) => ({ id, kcId: 1, name: `Club ${id}` })))
+    mockReadAllUsers.mockResolvedValue([])
+    mockMoveOrganizerEventStats.mockResolvedValue(undefined)
+    mockWriteMigratedUserRoles.mockResolvedValue(undefined)
   })
 
   it('returns 403 if authenticated user is not an admin', async () => {
@@ -330,6 +368,334 @@ describe('runMigrationLambda', () => {
     })
   })
 
+  // KOE-1580: rows copied from another environment carry that environment's organizer ids, which the
+  // organizer table here does not hold. The admin list then shows the club twice.
+  describe('repointOrphanOrganizer', () => {
+    const directEvent = constructPartialAPIGwEvent({})
+    const liveOrganizer = { id: 'aikpqWfqeB', kcId: 9, name: 'AURAN NUUSKUT RY' }
+    const orphanRow = (id = 'ia-JHnOtVO') => ({
+      id,
+      organizer: { id: '-ZC1Jcewbn', name: 'AURAN NUUSKUT RY' },
+      organizerId: '-ZC1Jcewbn',
+      season: '2024',
+      startDate: '2024-03-29',
+      updatedAt: 'read',
+    })
+    const repointed = { id: 'aikpqWfqeB', name: 'AURAN NUUSKUT RY' }
+
+    beforeEach(() => {
+      mockReadOrganizers.mockResolvedValue([liveOrganizer])
+    })
+
+    it('points an event on an id the table does not hold to the live organizer of the same name', async () => {
+      mockReadAllEvents.mockResolvedValueOnce([orphanRow()])
+
+      await runMigrationLambda(directEvent)
+
+      expect(mockWriteMigratedEvent).toHaveBeenCalledWith(
+        'ia-JHnOtVO',
+        // The name is the same, so only the id is written
+        { set: { 'organizer.id': 'aikpqWfqeB', organizerId: 'aikpqWfqeB', updatedAt: expect.any(String) } },
+        'read'
+      )
+      expect(mockResponse).toHaveBeenCalledWith(200, migrationResults(0, 0, 0, 0, 1), directEvent)
+    })
+
+    it('moves the organizer stats before it writes the event', async () => {
+      mockReadAllEvents.mockResolvedValueOnce([orphanRow()])
+
+      await runMigrationLambda(directEvent)
+
+      expect(mockMoveOrganizerEventStats).toHaveBeenCalledTimes(1)
+      expect(mockMoveOrganizerEventStats).toHaveBeenCalledWith(
+        expect.objectContaining({ organizer: { id: '-ZC1Jcewbn', name: 'AURAN NUUSKUT RY' } }),
+        expect.objectContaining({ organizer: repointed })
+      )
+      expect(mockMoveOrganizerEventStats).toHaveBeenCalledBefore(mockWriteMigratedEvent)
+    })
+
+    it('moves the stats again on the rerun after the event write failed', async () => {
+      mockReadAllEvents.mockResolvedValueOnce([orphanRow()])
+      mockWriteMigratedEvent.mockRejectedValueOnce(new Error('write failed'))
+
+      await expect(runMigrationLambda(directEvent)).rejects.toThrow('write failed')
+      expect(mockMoveOrganizerEventStats).toHaveBeenCalledTimes(1)
+      expect(mockMarkApplied).not.toHaveBeenCalled()
+
+      // The row still carries the orphan id, so the next run finds it again and carries the
+      // counters across: the move answers at once when the old row is already gone.
+      mockReadAllEvents.mockResolvedValueOnce([orphanRow()])
+      await runMigrationLambda(directEvent)
+
+      expect(mockMoveOrganizerEventStats).toHaveBeenCalledTimes(2)
+      expect(mockWriteMigratedEvent).toHaveBeenLastCalledWith(
+        'ia-JHnOtVO',
+        // The name is the same, so only the id is written
+        { set: { 'organizer.id': 'aikpqWfqeB', organizerId: 'aikpqWfqeB', updatedAt: expect.any(String) } },
+        'read'
+      )
+      expect(mockMarkApplied).toHaveBeenCalledWith('repointOrphanOrganizer', 1, expect.any(String))
+    })
+
+    it('writes no event whose stats could not be moved', async () => {
+      mockReadAllEvents.mockResolvedValueOnce([orphanRow()])
+      mockMoveOrganizerEventStats.mockRejectedValueOnce(new Error('move failed'))
+
+      await expect(runMigrationLambda(directEvent)).rejects.toThrow('move failed')
+
+      expect(mockWriteMigratedEvent).not.toHaveBeenCalled()
+      expect(mockMarkApplied).not.toHaveBeenCalled()
+    })
+
+    it('does not move the stats of a row whose organizer stays', async () => {
+      mockReadAllEvents.mockResolvedValueOnce([{ ...orphanRow(), organizer: repointed, organizerId: undefined }])
+
+      await runMigrationLambda(directEvent)
+
+      expect(mockWriteMigratedEvent).toHaveBeenCalledTimes(1)
+      expect(mockMoveOrganizerEventStats).not.toHaveBeenCalled()
+    })
+
+    it('leaves an event on a soft-deleted organizer as it is', async () => {
+      mockReadOrganizers.mockResolvedValue([
+        liveOrganizer,
+        { deletedAt: '2025-01-01T00:00:00.000Z', id: '-ZC1Jcewbn', name: 'AURAN NUUSKUT RY' },
+      ])
+      mockReadAllEvents.mockResolvedValueOnce([orphanRow()])
+
+      await runMigrationLambda(directEvent)
+
+      expect(mockWriteMigratedEvent).not.toHaveBeenCalled()
+      expect(mockResponse).toHaveBeenCalledWith(200, migrationResults(0, 0), directEvent)
+    })
+
+    it.each([
+      ['no live organizer has its name', [{ id: 'other', name: 'Toinen seura' }]],
+      ['two live organizers have its name', [liveOrganizer, { id: 'twin', name: 'Auran Nuuskut ry' }]],
+    ])('reports the events it left alone when %s, in one warning', async (_label, organizers) => {
+      const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+      mockReadOrganizers.mockResolvedValue(organizers)
+      mockReadAllEvents.mockResolvedValueOnce([orphanRow(), orphanRow('qM0H5WG_5C')])
+
+      await runMigrationLambda(directEvent)
+
+      expect(mockWriteMigratedEvent).not.toHaveBeenCalled()
+      const skipped = { count: 2, ids: ['ia-JHnOtVO', 'qM0H5WG_5C'] }
+      expect(mockResponse).toHaveBeenCalledWith(
+        200,
+        expect.arrayContaining([{ count: 0, name: 'repointOrphanOrganizer', skipped }]),
+        directEvent
+      )
+      expect(loggedLines(warn)).toEqual([
+        expect.objectContaining({
+          message: 'migrations left rows as they were',
+          skipped: [
+            expect.objectContaining({
+              ...skipped,
+              detail: [expect.objectContaining({ eventIds: skipped.ids, organizerId: '-ZC1Jcewbn' })],
+              name: 'repointOrphanOrganizer',
+            }),
+          ],
+        }),
+      ])
+      // Reported, then recorded: a rerun would find the same rows and leave them again.
+      expect(mockMarkApplied).toHaveBeenCalledWith('repointOrphanOrganizer', 0, expect.any(String))
+      warn.mockRestore()
+    })
+
+    it('fails without recording anything when the organizer table holds no live organizer', async () => {
+      mockReadOrganizers.mockResolvedValue([{ deletedAt: '2025-01-01T00:00:00.000Z', id: 'x', name: 'Seura' }])
+      mockReadAllEvents.mockResolvedValueOnce([orphanRow()])
+
+      await runMigrationLambda(directEvent)
+
+      expect(mockResponse).toHaveBeenCalledWith(
+        500,
+        { error: expect.stringContaining('no live organizer') },
+        directEvent
+      )
+      expect(mockWriteMigratedEvent).not.toHaveBeenCalled()
+      expect(mockMarkApplied).not.toHaveBeenCalled()
+    })
+
+    it('runs on an empty table without the organizer check', async () => {
+      mockReadOrganizers.mockResolvedValue([])
+      mockReadAllEvents.mockResolvedValueOnce([])
+
+      await runMigrationLambda(directEvent)
+
+      expect(mockResponse).toHaveBeenCalledWith(200, migrationResults(0, 0), directEvent)
+    })
+  })
+
+  describe('repointOrphanOrganizerRoles', () => {
+    const directEvent = constructPartialAPIGwEvent({})
+    // A function: the migrations change the rows they are given.
+    const orphanRow = () => ({
+      id: 'ia-JHnOtVO',
+      organizer: { id: '-ZC1Jcewbn', name: 'AURAN NUUSKUT RY' },
+      organizerId: '-ZC1Jcewbn',
+      season: '2024',
+      startDate: '2024-03-29',
+      updatedAt: 'read',
+    })
+    const userWith = (roles: Record<string, string>) => ({ email: 'u@example.com', id: 'user-1', roles })
+
+    beforeEach(() => {
+      mockReadOrganizers.mockResolvedValue([{ id: 'aikpqWfqeB', kcId: 9, name: 'AURAN NUUSKUT RY' }])
+      mockReadAllEvents.mockImplementation(async () => [orphanRow()])
+    })
+
+    it('moves a role on the orphan id to the live id, held to the roles it was read with', async () => {
+      mockReadAllUsers.mockResolvedValueOnce([userWith({ '-ZC1Jcewbn': 'secretary' })])
+
+      await runMigrationLambda(directEvent)
+
+      expect(mockWriteMigratedUserRoles).toHaveBeenCalledWith(
+        'user-1',
+        { aikpqWfqeB: 'secretary' },
+        { '-ZC1Jcewbn': 'secretary' },
+        expect.any(String)
+      )
+      expect(mockResponse).toHaveBeenCalledWith(200, migrationResults(0, 0, 0, 0, 1, 1), directEvent)
+    })
+
+    it('keeps the stronger role when the user already has one on the live id', async () => {
+      mockReadAllUsers.mockResolvedValueOnce([userWith({ '-ZC1Jcewbn': 'admin', aikpqWfqeB: 'secretary' })])
+
+      await runMigrationLambda(directEvent)
+
+      expect(mockWriteMigratedUserRoles).toHaveBeenCalledWith(
+        'user-1',
+        { aikpqWfqeB: 'admin' },
+        { '-ZC1Jcewbn': 'admin', aikpqWfqeB: 'secretary' },
+        expect.any(String)
+      )
+    })
+
+    it('invalidates the cached user lists of both organizers', async () => {
+      mockReadAllUsers.mockResolvedValueOnce([userWith({ '-ZC1Jcewbn': 'secretary' })])
+
+      await runMigrationLambda(directEvent)
+
+      expect(mockBumpDataVersion).toHaveBeenCalledTimes(1)
+      expect(mockBumpDataVersion).toHaveBeenCalledWith('users', expect.arrayContaining(['-ZC1Jcewbn', 'aikpqWfqeB']))
+    })
+
+    it('moves the roles before it repoints the events, which the mapping is read from', async () => {
+      mockReadAllUsers.mockResolvedValueOnce([userWith({ '-ZC1Jcewbn': 'secretary' })])
+
+      await runMigrationLambda(directEvent)
+
+      expect(mockWriteMigratedUserRoles).toHaveBeenCalledBefore(mockWriteMigratedEvent)
+    })
+
+    it('bumps the scopes of the users written before a later write failed', async () => {
+      mockReadAllUsers.mockResolvedValueOnce([
+        { ...userWith({ '-ZC1Jcewbn': 'secretary' }), id: 'user-a' },
+        { ...userWith({ '-ZC1Jcewbn': 'admin', third: 'secretary' }), id: 'user-b' },
+        { ...userWith({ '-ZC1Jcewbn': 'secretary', fourth: 'admin' }), id: 'user-c' },
+      ])
+      mockWriteMigratedUserRoles
+        .mockResolvedValueOnce(undefined)
+        .mockResolvedValueOnce(undefined)
+        .mockRejectedValueOnce(new Error('write failed'))
+
+      await expect(runMigrationLambda(directEvent)).rejects.toThrow('write failed')
+
+      expect(mockBumpDataVersion).toHaveBeenCalledTimes(1)
+      expect(mockBumpDataVersion).toHaveBeenCalledWith(
+        'users',
+        expect.arrayContaining(['-ZC1Jcewbn', 'aikpqWfqeB', 'third'])
+      )
+      // The user whose write failed is still as read: its scopes have not moved
+      expect(mockBumpDataVersion).toHaveBeenCalledWith('users', expect.not.arrayContaining(['fourth']))
+      expect(mockWriteMigratedEvent).not.toHaveBeenCalled()
+      expect(mockMarkApplied).not.toHaveBeenCalled()
+    })
+
+    it('writes no user and bumps nothing when no role is on an orphan id', async () => {
+      mockReadAllUsers.mockResolvedValueOnce([userWith({ aikpqWfqeB: 'admin' })])
+
+      await runMigrationLambda(directEvent)
+
+      expect(mockWriteMigratedUserRoles).not.toHaveBeenCalled()
+      expect(mockBumpDataVersion).not.toHaveBeenCalled()
+    })
+
+    it('migrates the fresh row again after a conflict', async () => {
+      const conflict = Object.assign(new Error('The conditional request failed'), {
+        name: 'ConditionalCheckFailedException',
+      })
+      mockReadAllUsers.mockResolvedValueOnce([userWith({ '-ZC1Jcewbn': 'secretary' })])
+      mockWriteMigratedUserRoles.mockRejectedValueOnce(conflict)
+      mockReadUser.mockResolvedValueOnce(userWith({ '-ZC1Jcewbn': 'secretary', other: 'admin' }))
+
+      await runMigrationLambda(directEvent)
+
+      expect(mockReadUser).toHaveBeenCalledWith('user-1', true)
+      expect(mockWriteMigratedUserRoles).toHaveBeenLastCalledWith(
+        'user-1',
+        { aikpqWfqeB: 'secretary', other: 'admin' },
+        { '-ZC1Jcewbn': 'secretary', other: 'admin' },
+        expect.any(String)
+      )
+    })
+
+    it('repoints the roles from all the events when only the role migration is pending', async () => {
+      const applied = new Map<string, string>()
+      mockMarkApplied.mockImplementation(async (name: string, _count: number, hash: string) => {
+        applied.set(name, hash)
+      })
+      // A forced run on an empty table records every hash
+      mockReadAllEvents.mockResolvedValueOnce([])
+      await runMigrationLambda(event)
+      applied.delete('repointOrphanOrganizerRoles')
+      vi.clearAllMocks()
+      mockReadApplied.mockResolvedValue(applied)
+      mockReadAllUsers.mockResolvedValueOnce([userWith({ '-ZC1Jcewbn': 'secretary' })])
+
+      await runMigrationLambda(directEvent)
+
+      expect(mockReadAllEvents).toHaveBeenCalledTimes(1)
+      expect(mockWriteMigratedEvent).not.toHaveBeenCalled()
+      expect(mockWriteMigratedUserRoles).toHaveBeenCalledWith(
+        'user-1',
+        { aikpqWfqeB: 'secretary' },
+        { '-ZC1Jcewbn': 'secretary' },
+        expect.any(String)
+      )
+      expect(mockResponse).toHaveBeenCalledWith(200, [{ count: 1, name: 'repointOrphanOrganizerRoles' }], directEvent)
+    })
+
+    it('reports a role on an id no organizer row and no single match accounts for', async () => {
+      const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+      mockReadAllUsers.mockResolvedValueOnce([userWith({ aikpqWfqeB: 'admin', nowhere: 'secretary' })])
+
+      await runMigrationLambda(directEvent)
+
+      expect(mockWriteMigratedUserRoles).not.toHaveBeenCalled()
+      expect(mockResponse).toHaveBeenCalledWith(
+        200,
+        expect.arrayContaining([
+          { count: 0, name: 'repointOrphanOrganizerRoles', skipped: { count: 1, ids: ['user-1'] } },
+        ]),
+        directEvent
+      )
+      expect(loggedLines(warn)).toEqual([
+        expect.objectContaining({
+          skipped: [
+            expect.objectContaining({
+              detail: [{ organizerIds: ['nowhere'], userId: 'user-1' }],
+              name: 'repointOrphanOrganizerRoles',
+            }),
+          ],
+        }),
+      ])
+      warn.mockRestore()
+    })
+  })
+
   describe('backfillStartNumbersPublished', () => {
     it('writes an explicit false when the start list is unpublished', async () => {
       mockReadAllEvents.mockResolvedValueOnce([
@@ -406,6 +772,8 @@ describe('runMigrationLambda', () => {
       'backfillOrganizerId',
       'fixSeasonFromStartDate',
       'backfillStartNumbersPublished',
+      'repointOrphanOrganizer',
+      'repointOrphanOrganizerRoles',
     ]
 
     // What `aws lambda invoke` delivers: no API Gateway around it, so no requestContext.
@@ -450,10 +818,10 @@ describe('runMigrationLambda', () => {
     it('records every migration of a forced run, with the hash of its code', async () => {
       await runMigrationLambda(event)
 
-      expect(mockMarkApplied).toHaveBeenCalledTimes(4)
+      expect(mockMarkApplied).toHaveBeenCalledTimes(6)
       expect(mockMarkApplied).toHaveBeenCalledWith('fixSeasonFromStartDate', 2, hashes.get('fixSeasonFromStartDate'))
       expect(mockMarkApplied).toHaveBeenCalledWith('populateUpdatedAt', 0, hashes.get('populateUpdatedAt'))
-      expect(new Set(hashes.values()).size).toBe(4)
+      expect(new Set(hashes.values()).size).toBe(6)
     })
 
     it('reads the registry once, for every migration in the code', async () => {
@@ -469,6 +837,8 @@ describe('runMigrationLambda', () => {
       await runMigrationLambda(directEvent)
 
       expect(mockReadAllEvents).not.toHaveBeenCalled()
+      expect(mockReadOrganizers).not.toHaveBeenCalled()
+      expect(mockReadAllUsers).not.toHaveBeenCalled()
       expect(mockWriteMigratedEvent).not.toHaveBeenCalled()
       expect(mockMarkApplied).not.toHaveBeenCalled()
       expect(mockResponse).toHaveBeenCalledWith(200, [], directEvent)
@@ -531,6 +901,9 @@ describe('runMigrationLambda', () => {
       await runMigrationLambda(directEvent)
 
       expect(mockReadAllEvents).toHaveBeenCalledTimes(1)
+      expect(mockReadOrganizers).toHaveBeenCalledTimes(1)
+      // The role migration is applied, so the user table is not read
+      expect(mockReadAllUsers).not.toHaveBeenCalled()
       expect(mockWriteMigratedEvent).toHaveBeenCalledTimes(1)
       expect(mockWriteMigratedEvent).toHaveBeenCalledWith(
         ...updatedRow('event1', { organizerId: 7, updatedAt: expect.not.stringMatching(/^kept$/) })

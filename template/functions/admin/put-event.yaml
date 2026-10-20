@@ -10,6 +10,9 @@
         # without this the save of a start list flag died in AccessDenied (KOE-1465).
         - DynamoDBReadPolicy:
             TableName: !Ref EventRegistrationTable
+        # A new or changed organizer must be one this environment holds (KOE-1580).
+        - DynamoDBReadPolicy:
+            TableName: !Ref OrganizerTable
         - DynamoDBWritePolicy:
             TableName: !Ref AuditTable
         - DynamoDBCrudPolicy:

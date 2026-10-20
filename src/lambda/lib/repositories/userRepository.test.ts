@@ -27,8 +27,16 @@ vi.doMock('../../utils/CustomDynamoClient', () => ({
   },
 }))
 
-const { queryUsersByEmail, readAllUsers, readUser, writeUser, writeUserAdmin, writeUserRoles, writeUsers } =
-  await import('./userRepository')
+const {
+  queryUsersByEmail,
+  readAllUsers,
+  readUser,
+  writeMigratedUserRoles,
+  writeUser,
+  writeUserAdmin,
+  writeUserRoles,
+  writeUsers,
+} = await import('./userRepository')
 
 const user: JsonUser = {
   createdAt: '2024-01-01T00:00:00.000Z',
@@ -59,7 +67,15 @@ describe('userRepository', () => {
     mockRead.mockResolvedValueOnce(user)
 
     await expect(readUser('user-1')).resolves.toEqual(user)
-    expect(mockRead).toHaveBeenCalledWith({ id: 'user-1' })
+    expect(mockRead).toHaveBeenCalledWith({ id: 'user-1' }, false)
+  })
+
+  it('readUser reads the row as last written when asked to', async () => {
+    mockRead.mockResolvedValueOnce(user)
+
+    await readUser('user-1', true)
+
+    expect(mockRead).toHaveBeenCalledWith({ id: 'user-1' }, true)
   })
 
   it('readUser answers undefined for a missing user', async () => {
@@ -119,6 +135,17 @@ describe('userRepository', () => {
       { id: 'user-1' },
       { set: { modifiedAt: '2024-02-01T00:00:00.000Z', modifiedBy: 'Admin', roles: { org1: 'admin' } } }
     )
+  })
+
+  it('writeMigratedUserRoles sets the roles and updatedAt, on a row that still has the roles it was read with', async () => {
+    await writeMigratedUserRoles('user-1', { live: 'admin' }, { orphan: 'admin' }, '2026-10-20T00:00:00.000Z')
+
+    const set = { roles: { live: 'admin' }, updatedAt: '2026-10-20T00:00:00.000Z' }
+    expect(mockUpdate).toHaveBeenCalledWith({ id: 'user-1' }, { set }, undefined, {
+      expression: 'attribute_exists(#id) AND #roles = :foldedFrom',
+      names: { '#id': 'id', '#roles': 'roles' },
+      values: { ':foldedFrom': { orphan: 'admin' } },
+    })
   })
 
   it('writeUserAdmin sets the admin flag with the modification stamp', async () => {
