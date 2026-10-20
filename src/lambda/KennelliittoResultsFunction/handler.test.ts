@@ -44,6 +44,19 @@ const confirmedEvent = asJsonConfirmedEvent({
 
 const call = (body: unknown) => kennelliittoResultsLambda(constructAPIGwEvent(body, { method: 'POST' }))
 
+/** Every publish to the open pages fails for this test; answers the spy its error lines are read from. */
+const publishFails = () => {
+  const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+  mockPublishRegistrationPatches.mockRejectedValue(new Error('ProvisionedThroughputExceededException'))
+  mockPublishEventChange.mockRejectedValue(new Error('ProvisionedThroughputExceededException'))
+  onTestFinished(() => {
+    errorSpy.mockRestore()
+    mockPublishRegistrationPatches.mockReset()
+    mockPublishEventChange.mockReset()
+  })
+  return errorSpy
+}
+
 describe('kennelliittoResultsLambda', () => {
   beforeEach(() => {
     vi.clearAllMocks()
@@ -90,6 +103,18 @@ describe('kennelliittoResultsLambda', () => {
     // A championship is looked up as its plain format.
     expect(mockReadEventType).toHaveBeenCalledWith('NOME-A')
     expect(mockReadOrganizer).toHaveBeenCalledWith('org-1')
+  })
+
+  it('answers with the preview when telling the open pages fails', async () => {
+    const errorSpy = publishFails()
+    mockPreview.mockResolvedValue({ blockers: [], dogs: [], eventPatch: { kcState: { code: 754 }, updatedAt: 'x' } })
+
+    await call({ action: 'preview' })
+
+    expect(mockResponse).toHaveBeenCalledWith(200, { blockers: [], dogs: [] }, expect.anything())
+    expect(loggedLines(errorSpy)).toEqual([
+      expect.objectContaining({ eventId: 'event-1', message: 'kennelliitto event change not published' }),
+    ])
   })
 
   it('refuses an action it does not know', async () => {
@@ -161,12 +186,7 @@ describe('kennelliittoResultsLambda', () => {
     // The dogs are sent and recorded by then: telling the open pages is a notification, and its failure
     // must not lose the answer (KOE-1140).
     it('answers with the reports when telling the open pages fails', async () => {
-      const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
-      onTestFinished(() => {
-        errorSpy.mockRestore()
-        mockPublishRegistrationPatches.mockReset()
-        mockPublishEventChange.mockReset()
-      })
+      const errorSpy = publishFails()
       mockSend.mockResolvedValue({
         blockers: [],
         eventPatch: { kcGuid: 'g', updatedAt: 'x' },
@@ -174,8 +194,6 @@ describe('kennelliittoResultsLambda', () => {
         patches: [{ id: 'r0', kcResult: { status: 'sent' } }],
         reports: [{ id: 'r0', outcome: 'sent' }],
       })
-      mockPublishRegistrationPatches.mockRejectedValueOnce(new Error('ProvisionedThroughputExceededException'))
-      mockPublishEventChange.mockRejectedValueOnce(new Error('ProvisionedThroughputExceededException'))
 
       await call({ action: 'send', registrationIds: ['r0'] })
 
@@ -285,6 +303,20 @@ describe('kennelliittoResultsLambda', () => {
       expect(mockPublishEventChange).toHaveBeenCalledWith(
         expect.objectContaining({ patch: { eventId: 'event-1', kcState: { code: 1253 } } })
       )
+    })
+
+    // Kennelliitto took the hand-over and it is written: a failed notification must not tell the
+    // secretary it failed (KOE-1140).
+    it('answers a hand-over as done when telling the open pages fails', async () => {
+      const errorSpy = publishFails()
+      mockHandOver.mockResolvedValue({ blockers: [], eventPatch: { kcState: { code: 1253 } }, handedOver: true })
+
+      await call({ action: 'handOver' })
+
+      expect(mockResponse).toHaveBeenCalledWith(200, { handedOver: true }, expect.anything())
+      expect(loggedLines(errorSpy)).toEqual([
+        expect.objectContaining({ eventId: 'event-1', message: 'kennelliitto event change not published' }),
+      ])
     })
   })
 })

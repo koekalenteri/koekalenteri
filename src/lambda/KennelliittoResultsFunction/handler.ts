@@ -51,21 +51,25 @@ interface Run {
   organizerId: string
 }
 
-/** Tells the open pages what changed on the trial. */
-const publishEvent = async ({ eventId, organizerId }: Run, patch: Omit<EventPatch, 'eventId'> | undefined) => {
-  if (patch) await publishEventChange({ audience: 'admin', organizerId, patch: { ...patch, eventId } })
-}
-
 /**
- * Tells the open pages after a sending, whose dogs are sent and recorded by then: a notification, so
- * its failure (the audience lookup is a query of its own) is logged and never costs the answer (KOE-1140).
+ * Tells the open pages after an action, whose work (the dogs sent and recorded, the trial handed over,
+ * what the preview found) is done and written by then: a notification, so its failure (the audience
+ * lookup is a query of its own) is logged and never costs the answer (KOE-1140).
  */
-const notifyAfterSending = async (message: string, eventId: string, publish: () => Promise<unknown>) => {
+const notifyAfter = async (message: string, eventId: string, publish: () => Promise<unknown>) => {
   try {
     await publish()
   } catch (error) {
     logger.error(message, { error, eventId })
   }
+}
+
+/** Tells the open pages what changed on the trial. */
+const publishEvent = async ({ eventId, organizerId }: Run, patch: Omit<EventPatch, 'eventId'> | undefined) => {
+  if (!patch) return
+  await notifyAfter('kennelliitto event change not published', eventId, () =>
+    publishEventChange({ audience: 'admin', organizerId, patch: { ...patch, eventId } })
+  )
 }
 
 const previewAction = async (run: Run) => {
@@ -83,11 +87,11 @@ const sendAction = async (run: Run) => {
     force: run.body.force === true,
   })
   if (patches.length) {
-    await notifyAfterSending('kennelliitto registration patches not published', run.eventId, () =>
+    await notifyAfter('kennelliitto registration patches not published', run.eventId, () =>
       publishRegistrationPatches(run.eventId, patches, run.organizerId)
     )
   }
-  await notifyAfterSending('kennelliitto event change not published', run.eventId, () => publishEvent(run, eventPatch))
+  await publishEvent(run, eventPatch)
   if (sent.blockers.length) throw httpError(409, { blockers: sent.blockers, error: 'blocked' })
   return { ...sent, kcResults: patches }
 }

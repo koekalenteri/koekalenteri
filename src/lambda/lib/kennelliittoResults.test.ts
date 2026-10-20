@@ -570,23 +570,25 @@ describe('kennelliittoResults', () => {
       )
     })
 
-    it('keeps the outcome of a dog whose audit row could not be written', async () => {
-      registrations.push(dog('d3', 'FI10003/20', 'NOME-A3'))
+    it('reports a dog as not recorded when another sending wrote it in between twice', async () => {
+      const write = mockWriteKcResult.getMockImplementation()
       onTestFinished(() => {
-        mockAudit.mockReset()
+        if (write) mockWriteKcResult.mockImplementation(write)
       })
-      mockAudit.mockImplementation(async ({ auditKey }: { auditKey: string }) => {
-        if (auditKey === 'event-1:d2') throw new Error('audit table down')
+      mockWriteKcResult.mockImplementation(async (eventId, id, kcResult, previousAt) => {
+        if (id === 'd1') return false
+        return write ? write(eventId, id, kcResult, previousAt) : false
       })
 
-      const result = await sendKennelliittoResults(ctx(), ['d1', 'd2', 'd3'], { force: false })
+      const result = await sendKennelliittoResults(ctx(), ['d1', 'd2'], { force: false })
 
-      expect(result.reports.map((report) => [report.id, report.outcome])).toEqual([
-        ['d1', 'sent'],
-        ['d2', 'sent'],
-        ['d3', 'sent'],
+      expect(mockWriteKcResult).toHaveBeenCalledTimes(3)
+      expect(result.reports).toEqual([
+        { id: 'd1', name: 'Koira d1', notRecorded: true, outcome: 'failed', regNo: 'FI10001/20' },
+        expect.objectContaining({ id: 'd2', outcome: 'sent' }),
       ])
-      expect(registrations[1].kcResult).toMatchObject({ status: 'sent' })
+      expect(result.patches.map((patch) => patch.id)).toEqual(['d2'])
+      expect(registrations[0].kcResult).toBeUndefined()
     })
 
     it('audits each dog sent', async () => {
