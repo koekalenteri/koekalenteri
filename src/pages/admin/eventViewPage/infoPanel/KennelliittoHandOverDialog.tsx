@@ -1,4 +1,4 @@
-import type { KcHandOverOutcome } from '../state/registrations/actions'
+import type { KcHandOverOutcome } from '../../state/registrations/actions'
 import Alert from '@mui/material/Alert'
 import Button from '@mui/material/Button'
 import Checkbox from '@mui/material/Checkbox'

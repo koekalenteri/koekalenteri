@@ -1,5 +1,5 @@
 import type { UserEvent } from '@testing-library/user-event/dist/types/setup/setup'
-import type { AuditRecord, ConfirmedEvent, Registration } from '@/types'
+import type { AuditRecord, ConfirmedEvent, EventType, Registration } from '@/types'
 import { screen, waitFor } from '@testing-library/react'
 import { TestProvider as Provider } from 'test-utils/AtomProvider'
 import { eventWithEntryClosed, eventWithStaticDates, eventWithStaticDatesAndClass } from '@/__mockData__/events'
@@ -8,6 +8,7 @@ import { getEventAuditTrail } from '@/api/event'
 import { eventRegistrationDateKey } from '@/lib/event'
 import { renderWithUserEvents, TEST_ID_TOKEN } from '@/test-utils/utils'
 import { idTokenAtom } from '../../state'
+import { adminEventTypesAtom } from '../state'
 import InfoPanel from './InfoPanel'
 
 const activeEventWithStaticDates: ConfirmedEvent = {
@@ -15,6 +16,8 @@ const activeEventWithStaticDates: ConfirmedEvent = {
   endDate: '2099-12-31',
 }
 vi.mock('@/api/event')
+vi.mock('@/api/eventType')
+vi.mock('@/api/user')
 
 function getGroupKey(r: Registration, i: number) {
   if (r.cancelled) return 'cancelled'
@@ -174,6 +177,53 @@ describe('InfoPanel>', () => {
 
     expect(screen.queryByText('Koetunnus')).not.toBeInTheDocument()
     expect(screen.queryByText('12345')).not.toBeInTheDocument()
+  })
+
+  describe('the Omakoira step (KOE-1579)', () => {
+    it('is a section of its own for a trial whose results go to Kennelliitto', async () => {
+      const { user } = renderWithUserEvents(<InfoPanel event={eventWithStaticDates} registrations={[]} />, {
+        wrapper: Provider,
+      })
+      await openInfoPanel(user)
+
+      expect(screen.getByText('results.kennelliitto.title')).toBeInTheDocument()
+      expect(screen.getByRole('button', { name: 'results.kennelliitto.send' })).toBeEnabled()
+    })
+
+    it('is not there for an event type the Kennel Club does not run', async () => {
+      const { user } = renderWithUserEvents(
+        <InfoPanel event={{ ...eventWithStaticDates, eventType: 'TEST1' }} registrations={[]} />,
+        { wrapper: Provider }
+      )
+      await openInfoPanel(user)
+
+      expect(screen.getByText('eventManagement.results.title')).toBeInTheDocument()
+      expect(screen.queryByText('results.kennelliitto.title')).not.toBeInTheDocument()
+    })
+
+    it('is there for an event type the Kennel Club knows, though not one of the built-in ones', async () => {
+      const eventType: EventType = {
+        active: true,
+        createdAt: new Date(),
+        createdBy: 'test',
+        description: { en: '', fi: '', sv: '' },
+        eventType: 'TEST1',
+        modifiedAt: new Date(),
+        modifiedBy: 'test',
+        official: true,
+      }
+      const { user } = renderWithUserEvents(
+        <InfoPanel event={{ ...eventWithStaticDates, eventType: 'TEST1' }} registrations={[]} />,
+        {
+          wrapper: ({ children }) => (
+            <Provider initializeState={({ set }) => void set(adminEventTypesAtom, [eventType])}>{children}</Provider>
+          ),
+        }
+      )
+      await openInfoPanel(user)
+
+      expect(await screen.findByText('results.kennelliitto.title')).toBeInTheDocument()
+    })
   })
 
   it('expands and collapses correctly', async () => {

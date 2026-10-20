@@ -10,6 +10,8 @@ import StepLabel from '@mui/material/StepLabel'
 import Stepper from '@mui/material/Stepper'
 import { useTranslation } from 'react-i18next'
 import { EVENT_PROGRESS_PHASES, getEventProgress, isEntryOpen } from '@/lib/event'
+import { isResultsLocked } from '@/lib/kennelliittoResults'
+import { useIsOfficialEventType } from '../hooks/useIsOfficialEventType'
 
 /** Two short words side by side, or one long one on two lines: what a phase label needs. */
 const STEP_MIN_WIDTH = 84
@@ -78,13 +80,25 @@ const getPhaseProgressText = ({
   })})`
 }
 
+interface PhaseLabelOptions {
+  entryCompleted: boolean
+  entryOpen: boolean
+  kennelliittoCompleted: boolean
+  resultsCompleted: boolean
+  startListCompleted: boolean
+  startNumbersCompleted: boolean
+}
+
 const getPhaseLabel = (
   phase: EventProgressStep,
-  entryCompleted: boolean,
-  entryOpen: boolean,
-  startListCompleted: boolean,
-  startNumbersCompleted: boolean,
-  resultsCompleted: boolean,
+  {
+    entryCompleted,
+    entryOpen,
+    kennelliittoCompleted,
+    resultsCompleted,
+    startListCompleted,
+    startNumbersCompleted,
+  }: PhaseLabelOptions,
   t: TFunction
 ) => {
   if (phase === 'confirmed_entryOpen') return getEntryPhaseLabel(entryCompleted, entryOpen, t)
@@ -98,15 +112,23 @@ const getPhaseLabel = (
   if (phase === 'resultsPublished') {
     return t(`event.states.${resultsCompleted ? 'resultsPublished' : 'publishResults'}`)
   }
+  if (phase === 'resultsHandedOver') {
+    return t(`event.states.${kennelliittoCompleted ? 'resultsHandedOver' : 'sendResultsToKennelliitto'}`)
+  }
   return t(`event.states.${phase}`)
 }
 
 export default function EventStateStepper({ event }: { readonly event: ConfirmedEvent }) {
   const { t } = useTranslation()
+  // Only a trial whose results go to Kennelliitto has the hand-over as its last step (KOE-1579).
+  const official = useIsOfficialEventType(event.eventType)
   const {
     classPhases,
     entryStarted,
     eventClasses,
+    kennelliittoActionable,
+    kennelliittoCompleted,
+    phases,
     publishedStartListClasses,
     publishedStartNumbersClasses,
     reachedPhaseIndex,
@@ -118,11 +140,11 @@ export default function EventStateStepper({ event }: { readonly event: Confirmed
     startNumbersActionable,
     startNumbersCompleted,
     temporalPhaseIndex,
-  } = getEventProgress(event)
+  } = getEventProgress(event, new Date(), official ? { handedOver: isResultsLocked(event) } : undefined)
   const entryOpen = isEntryOpen(event)
 
   return (
-    // Nine phases do not fit a phone, and stacking them would spend rows on the page that has least
+    // Nine or ten phases do not fit a phone, and stacking them would spend rows on the page that has least
     // of them to spare, so the strip scrolls. A scrolling strip of plain text and icons holds nothing
     // to tab to, though, which left a keyboard or screen reader user unable to reach its right-hand
     // end at all (KOE-1427). The list itself scrolls and takes the focus — one element that is the
@@ -162,7 +184,7 @@ export default function EventStateStepper({ event }: { readonly event: Confirmed
         width: '100%',
       }}
     >
-      {EVENT_PROGRESS_PHASES.map((phase, index) => {
+      {phases.map((phase, index) => {
         const showClassProgress =
           eventClasses.length > 1 &&
           temporalPhaseIndex <= EVENT_PROGRESS_PHASES.indexOf('invited') &&
@@ -179,20 +201,26 @@ export default function EventStateStepper({ event }: { readonly event: Confirmed
         // The publishing state is the truth for this step, like the start list steps above: once
         // every class's results are out, the step is done even while 'ended' still waits (KOE-1292).
         else if (phase === 'resultsPublished') completed = resultsCompleted
+        // Handed to the chief judge is the only thing that finishes it; every dog sent does not.
+        else if (phase === 'resultsHandedOver') completed = kennelliittoCompleted
         else if (showClassProgress) completed = completedClasses.length === eventClasses.length
         const active =
           (phase === 'confirmed_entryOpen' && entryOpen && !entryCompleted) ||
           (phase === 'startListPublished' && startListActionable && !startListCompleted) ||
           (phase === 'startNumbersPublished' && startNumbersActionable && !startNumbersCompleted) ||
           (phase === 'resultsPublished' && resultsActionable && !resultsCompleted) ||
+          (phase === 'resultsHandedOver' && kennelliittoActionable) ||
           (showClassProgress && completedClasses.length > 0 && completedClasses.length < eventClasses.length)
         const label = getPhaseLabel(
           phase,
-          entryCompleted,
-          entryOpen,
-          startListCompleted,
-          startNumbersCompleted,
-          resultsCompleted,
+          {
+            entryCompleted,
+            entryOpen,
+            kennelliittoCompleted,
+            resultsCompleted,
+            startListCompleted,
+            startNumbersCompleted,
+          },
           t
         )
         const progressText = getPhaseProgressText({

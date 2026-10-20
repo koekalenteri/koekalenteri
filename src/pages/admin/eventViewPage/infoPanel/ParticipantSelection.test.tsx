@@ -30,6 +30,7 @@ const _activeEventWithStaticDatesAndClass = {
 // Mock the API calls
 vi.mock('@/api/event')
 vi.mock('@/api/user')
+vi.mock('@/api/eventType')
 
 // Mock the notistack enqueueSnackbar
 vi.mock('notistack', () => ({

@@ -2539,6 +2539,64 @@ describe('the results step in the progress', () => {
   })
 })
 
+describe('the Kennelliitto hand-over step in the progress (KOE-1579)', () => {
+  const endedFields: Partial<ConfirmedEvent> = {
+    classes: [{ class: 'AVO', date: '2026-09-12', state: 'ended' }],
+    endDate: '2026-09-12',
+    entryEndDate: '2026-09-01',
+    entryStartDate: '2026-08-01',
+    startDate: '2026-09-12',
+    startListPublished: true,
+    state: 'ended',
+  }
+  const ended = endedFields as ConfirmedEvent
+  const before = new Date('2026-09-05')
+  const after = new Date('2026-09-20')
+
+  it('is the last step only where the results go to Kennelliitto', () => {
+    expect(getEventProgress(ended, after, { handedOver: false }).phases.at(-1)).toBe('resultsHandedOver')
+    expect(getEventProgress(ended, after).phases).not.toContain('resultsHandedOver')
+    expect(getEventProgress(ended, after).phases.at(-1)).toBe('resultsPublished')
+  })
+
+  it('waits for the sending once results can be entered, and not before', () => {
+    expect(getEventProgress(ended, after, { handedOver: false })).toMatchObject({
+      kennelliittoActionable: true,
+      kennelliittoCompleted: false,
+    })
+    expect(
+      getEventProgress(
+        { ...ended, classes: [{ class: 'AVO', date: '2026-09-12', state: 'invited' }], state: 'invited' },
+        before,
+        {
+          handedOver: false,
+        }
+      ).kennelliittoActionable
+    ).toBe(false)
+  })
+
+  it('is done once the trial is handed to the chief judge', () => {
+    expect(getEventProgress(ended, after, { handedOver: true })).toMatchObject({
+      kennelliittoActionable: false,
+      kennelliittoCompleted: true,
+    })
+  })
+
+  it('is neither actionable nor done for a trial whose results do not go there', () => {
+    expect(getEventProgress(ended, after)).toMatchObject({
+      kennelliittoActionable: false,
+      kennelliittoCompleted: false,
+    })
+  })
+
+  it('keeps the phase a trial handed over before its results are published had', () => {
+    // Handing over and publishing happen in either order: the event list must still say the results are not out.
+    expect(getEventProgress(ended, after, { handedOver: true }).phase).toBe('ended')
+    const published = { ...ended, resultsPublished: { AVO: true } }
+    expect(getEventProgress(published, after, { handedOver: true }).phase).toBe('resultsPublished')
+  })
+})
+
 describe('isResultsAvailableForRegistration', () => {
   const event = {
     classes: [

@@ -13,7 +13,6 @@ import { getStationLink } from '../../api/station'
 import { useEventSubscription } from '../../hooks/useEventSubscription'
 import { reportError } from '../../lib/client/error'
 import { localizedEventName } from '../../lib/event'
-import { isResultsLocked } from '../../lib/kennelliittoResults'
 import { liveFormat, resolveStation } from '../../lib/liveFormat'
 import { isScorableRegistration } from '../../lib/registration'
 import { Path } from '../../routeConfig'
@@ -21,7 +20,7 @@ import { StationScoring } from '../components/stationScoring/StationScoring'
 import { idTokenAtom, languageAtom } from '../state'
 import EventNotFound from './components/EventNotFound'
 import { StationPhasesEditor } from './eventResultsPage/StationPhasesEditor'
-import { useReadStateWhileLocked } from './hooks/useReadStateWhileLocked'
+import { useResultsLock } from './hooks/useReadStateWhileLocked'
 import { adminConfirmedEventAtom, adminEventRegistrationsAtom, useAdminEventActions } from './state'
 import { useAdminEventScope } from './state/eventScope'
 import { useKennelliittoResults, useSaveEventResults } from './state/registrations/actions'
@@ -47,9 +46,7 @@ export default function StationResultsPage() {
 
   // The state Kennelliitto reports is what locks, so a page that opens locked reads it afresh: a judge who
   // has sent the trial back opens the post again without anyone asking for it.
-  const locked = event ? isResultsLocked(event) : false
-  const refreshState = useCallback(() => kc.preview([]), [kc])
-  useReadStateWhileLocked(locked, refreshState)
+  const { locked, refreshState } = useResultsLock(event, kc.preview)
   // A save found the trial locked, or a dog it named gone: the page learns it the same way the results page does.
   const handleLocked = useCallback(() => {
     refreshState().catch(reportError)

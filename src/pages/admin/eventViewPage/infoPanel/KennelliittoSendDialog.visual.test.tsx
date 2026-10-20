@@ -36,15 +36,12 @@ const preview: KcPreviewResponse = {
 }
 
 const sendProps: ComponentProps<typeof KennelliittoSendDialog> = {
-  eventClass: 'AVO',
   force: false,
   onClose: noop,
   onForce: noop,
-  onScope: noop,
   onSend: noop,
   open: true,
   phase: { kind: 'preview', preview },
-  scope: 'class',
 }
 
 // The dialogs render through a portal, so a capture is the dialog itself.

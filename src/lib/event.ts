@@ -657,7 +657,8 @@ export type EventProgressStep =
   | 'startListPublished'
   | 'startNumbersPublished'
   | 'resultsPublished'
-type EventProgressPhase = EventProgressStep | 'confirmed_entryClosed'
+  | 'resultsHandedOver'
+type EventProgressPhase = Exclude<EventProgressStep, 'resultsHandedOver'> | 'confirmed_entryClosed'
 
 export const EVENT_PROGRESS_PHASES: readonly EventProgressStep[] = [
   'confirmed',
@@ -669,7 +670,21 @@ export const EVENT_PROGRESS_PHASES: readonly EventProgressStep[] = [
   'started',
   'ended',
   'resultsPublished',
+  'resultsHandedOver',
 ]
+
+/** The steps of a trial whose results never go to Kennelliitto: all but the hand-over, which is last. */
+const PHASES_WITHOUT_KENNELLIITTO = EVENT_PROGRESS_PHASES.filter((phase) => phase !== 'resultsHandedOver')
+
+/**
+ * Where a trial stands with Kennelliitto, for a trial whose results go there. The caller answers it,
+ * because whether the event type is official is read from the event types the browser has loaded, and
+ * the lock from `isResultsLocked`, which lives with the rest of the Kennelliitto rules.
+ */
+interface KennelliittoProgressInput {
+  /** The trial is with the chief judge, or done: Kennelliitto's state says so (KOE-1579). */
+  readonly handedOver: boolean
+}
 
 const getProgressPhaseIndex = (phase: EventProgressPhase | 'completed'): number => {
   if (phase === 'completed') return EVENT_PROGRESS_PHASES.indexOf('ended')
@@ -719,7 +734,13 @@ const getProgressPhaseAtIndex = (event: ConfirmedEvent, phaseIndex: number, now:
   return 'confirmed'
 }
 
-export const getEventProgress = (event: ConfirmedEvent, now = new Date()) => {
+/**
+ * How far the trial has got, step by step. `kennelliitto` is given for a trial whose results go to
+ * Kennelliitto, and adds the hand-over as the last step. That step is the stepper's only: handing over
+ * and publishing the results happen in either order, so it never moves `phase`, which the event list
+ * reads, past a step still undone (KOE-1579).
+ */
+export const getEventProgress = (event: ConfirmedEvent, now = new Date(), kennelliitto?: KennelliittoProgressInput) => {
   const entryStarted = hasEntryStarted(event, now)
   const eventClasses = [...new Set(event.classes.map(({ class: eventClass }) => eventClass))]
   const classPhases = eventClasses.map((eventClass) => {
@@ -754,6 +775,10 @@ export const getEventProgress = (event: ConfirmedEvent, now = new Date()) => {
   )
   const resultsCompleted = resultsActionable && hasAllResultsPublished(event)
 
+  // Sent dogs alone do not finish it: the step is done when the trial is handed to the chief judge.
+  const kennelliittoCompleted = kennelliitto?.handedOver === true
+  const kennelliittoActionable = !!kennelliitto && resultsActionable && !kennelliittoCompleted
+
   const phaseIndex = Math.max(
     statePhaseIndex,
     startListCompleted ? getProgressPhaseIndex('startListPublished') : -1,
@@ -771,7 +796,10 @@ export const getEventProgress = (event: ConfirmedEvent, now = new Date()) => {
     classPhases,
     entryStarted,
     eventClasses,
+    kennelliittoActionable,
+    kennelliittoCompleted,
     phase: getProgressPhaseAtIndex(event, phaseIndex, now),
+    phases: kennelliitto ? EVENT_PROGRESS_PHASES : PHASES_WITHOUT_KENNELLIITTO,
     publishedStartListClasses,
     publishedStartNumbersClasses,
     reachedPhaseIndex,

@@ -26,9 +26,11 @@ import { canPublishResults, hasEntryEnded, isEventOver } from '@/lib/event'
 import { invitationAttachmentFileName } from '@/lib/fileName'
 import { validIdTokenAtom } from '../../state'
 import { AuditTrail } from '../components/AuditTrail'
+import { useIsOfficialEventType } from '../hooks/useIsOfficialEventType'
 import { useAdminEventActions } from '../state'
 import EventActions from './infoPanel/EventActions'
 import InvitationDelivery from './infoPanel/InvitationDelivery'
+import KennelliittoSubmission from './infoPanel/KennelliittoSubmission'
 import ParticipantSelection from './infoPanel/ParticipantSelection'
 import ResultsPublishing from './infoPanel/ResultsPublishing'
 import StartListPublishing from './infoPanel/StartListPublishing'
@@ -76,6 +78,8 @@ const InfoPanel = ({
   // Nothing to score until the dogs are running. The date-based phase keeps the gate open for an
   // event whose workflow states were never advanced past 'confirmed' (KOE-1279).
   const eventStarted = eventFinished || canPublishResults(event.state, event)
+  // Only the results of a trial the Kennel Club runs go to Omakoira (KOE-1579).
+  const official = useIsOfficialEventType(event.eventType)
   const eventWithCurrentAttachments = useMemo(
     () => ({ ...event, invitationAttachment: attachmentKey, invitationAttachments: classAttachmentKeys }),
     [attachmentKey, classAttachmentKeys, event]
@@ -297,6 +301,9 @@ const InfoPanel = ({
             selectedByClass={selectedByClass}
           />
           <ResultsPublishing event={event} eventStarted={eventStarted} onSetResultsPublished={onSetResultsPublished} />
+          {official && (
+            <KennelliittoSubmission event={event} eventStarted={eventStarted} registrations={registrations} />
+          )}
           <EventActions eventFinished={eventFinished} eventId={event.id} hasRegistrations={registrations.length > 0} />
         </Box>
         <Box sx={{ display: activeTab === 1 ? 'flex' : 'none', flex: 1, minHeight: 0, p: 1.5 }}>
