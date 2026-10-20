@@ -147,7 +147,9 @@ const eventMigrations: Migration<JsonDogEvent>[] = [
     },
     skipped: (events, { organizerRepoints }) => ({
       detail: [...organizerRepoints.unmatched].map(([organizerId, unmatched]) => ({ organizerId, ...unmatched })),
-      ids: events.filter(({ organizer }) => organizerRepoints.unmatched.has(organizer?.id ?? '')).map(({ id }) => id),
+      ids: events
+        .filter(({ deletedAt, organizer }) => !deletedAt && organizerRepoints.unmatched.has(organizer?.id ?? ''))
+        .map(({ id }) => id),
     }),
   },
   {
@@ -385,7 +387,7 @@ const organizerStatsTable: MigratedTable<JsonEventStatsItem> = {
 const MAX_WRITE_ATTEMPTS = 3
 
 /** Rows are independent partitions; a modest fan-out keeps a large table well inside the timeout. */
-const WRITE_CONCURRENCY = 10
+const WRITE_CONCURRENCY = 5
 
 /**
  * Writes a migrated row. A row changed by someone else since it was read is read again and migrated
@@ -567,7 +569,11 @@ const pendingRuns = async (applied: Map<string, string | undefined>) => {
   const pendingUsers = pendingOf(userTable, applied)
   const needsEvents = Boolean(pendingEvents || pendingUsers)
   const events = needsEvents ? await readAllEvents(true) : []
-  const context = needsEvents ? await readMigrationContext(events) : { organizerRepoints: NO_REPOINTS }
+  // The repoint decides from the live events, as before the day migrations read the deleted ones too:
+  // a deleted event's name must not split an orphan id's match. A deleted event on a matched id moves
+  // with the live ones; one on an id with no live event stays as it is, unreported.
+  const live = events.filter(({ deletedAt }) => !deletedAt)
+  const context = needsEvents ? await readMigrationContext(live) : { organizerRepoints: NO_REPOINTS }
   // The users first: their roles are mapped from the events as read, so a run that fails after them
   // still finds the orphan events, and the mapping, the next time. The events first would leave none.
   const runs = [

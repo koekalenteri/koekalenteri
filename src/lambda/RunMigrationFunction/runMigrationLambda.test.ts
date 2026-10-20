@@ -503,6 +503,54 @@ describe('runMigrationLambda', () => {
       expect(mockMarkApplied).toHaveBeenCalledWith('repointOrphanOrganizerRoles', 0, expect.any(String))
     })
 
+    // The day migrations read the deleted events too; the repoint decides from the live ones, so a
+    // deleted event's other spelling of the name does not leave the orphan id unmatched.
+    it("repoints an orphan id by its live events' name, a deleted event of another name with them", async () => {
+      const deleted = {
+        ...orphanRow('deleted-1'),
+        deletedAt: '2024-01-01T00:00:00.000Z',
+        organizer: { id: '-ZC1Jcewbn', name: 'Auran Nuuskut' },
+      }
+      mockReadAllEvents.mockResolvedValueOnce([orphanRow(), deleted])
+      const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+
+      await runMigrationLambda(directEvent)
+
+      expect(mockWriteMigratedEvent).toHaveBeenCalledWith(
+        'ia-JHnOtVO',
+        { set: { 'organizer.id': 'aikpqWfqeB', organizerId: 'aikpqWfqeB', updatedAt: expect.any(String) } },
+        'read'
+      )
+      expect(mockWriteMigratedEvent).toHaveBeenCalledWith(
+        'deleted-1',
+        {
+          set: {
+            'organizer.id': 'aikpqWfqeB',
+            'organizer.name': 'AURAN NUUSKUT RY',
+            organizerId: 'aikpqWfqeB',
+            updatedAt: expect.any(String),
+          },
+        },
+        'read'
+      )
+      expect(mockResponse).toHaveBeenCalledWith(200, migrationResults(0, 0, 0, 0, 2), directEvent)
+      expect(warn).not.toHaveBeenCalled()
+      warn.mockRestore()
+    })
+
+    it('leaves a deleted event on an orphan id no live event carries as it is, unreported', async () => {
+      const deleted = { ...orphanRow('deleted-1'), deletedAt: '2024-01-01T00:00:00.000Z' }
+      mockReadAllEvents.mockResolvedValueOnce([deleted])
+      const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+
+      await runMigrationLambda(directEvent)
+
+      expect(mockWriteMigratedEvent).not.toHaveBeenCalled()
+      expect(mockResponse).toHaveBeenCalledWith(200, migrationResults(0, 0, 0, 0, 0), directEvent)
+      expect(warn).not.toHaveBeenCalled()
+      warn.mockRestore()
+    })
+
     // KOE-1547 and KOE-1580 in one write: the stats row goes from the start as stored, under the orphan
     // id, to the start's key under the live one.
     it('moves the stats to the new organizer and the key of the start when both change in one write', async () => {
@@ -1040,8 +1088,8 @@ describe('runMigrationLambda', () => {
 
       await expect(runMigrationLambda(directEvent)).rejects.toThrow('write failed')
 
-      // Only the rows already in flight (the concurrency limit) were written, not the other two
-      expect(mockWriteMigratedEvent).toHaveBeenCalledTimes(10)
+      // Only the rows already in flight (the concurrency limit) were written, not the other seven
+      expect(mockWriteMigratedEvent).toHaveBeenCalledTimes(5)
     })
   })
 
