@@ -51,8 +51,13 @@ import {
   markNewRegistrationPhase,
 } from './repositories/registrationRepository'
 import { applyNewRegistrationStatsOnce, updateEventStatsForRegistration } from './stats'
-import { publishEventCounts, publishRegistrationPatches, publishRegistrationPatchesStrict } from './ws/actions'
-import { publishPublicStartList } from './ws/publicStartList'
+import {
+  publishEventCounts,
+  publishPublicStartList,
+  publishPublicStartListStrict,
+  publishRegistrationPatches,
+  publishRegistrationPatchesStrict,
+} from './ws/actions'
 
 /**
  * What the participant's and the organizer's registration endpoints share: how a body is read, how
@@ -156,9 +161,13 @@ const publishRegistrationChange = async (
     createRegistrationPatch(registration, existing),
     ...groupPatches.filter((patch) => patch.id !== registration.id),
   ]
-  const publish = strict ? publishRegistrationPatchesStrict : publishRegistrationPatches
-  await publish(registration.eventId, patches, confirmedEvent.organizer.id)
-  await publishPublicStartList(confirmedEvent.id)
+  if (strict) {
+    await publishRegistrationPatchesStrict(registration.eventId, patches, confirmedEvent.organizer.id)
+    await publishPublicStartListStrict(confirmedEvent.id)
+  } else {
+    await publishRegistrationPatches(registration.eventId, patches, confirmedEvent.organizer.id)
+    await publishPublicStartList(confirmedEvent.id)
+  }
 }
 
 /**

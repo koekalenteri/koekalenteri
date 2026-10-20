@@ -79,6 +79,9 @@ const mockPublishParticipantRegistrationPatches = vi.fn()
 vi.doMock('../lib/ws/actions', () => ({
   publishEventCounts: mockPublishEventCounts,
   publishParticipantRegistrationPatches: mockPublishParticipantRegistrationPatches,
+  // Nobody has the public start list open.
+  publishPublicStartList: vi.fn(),
+  publishPublicStartListStrict: vi.fn(),
   publishRegistrationPatches: mockPublishRegistrationPatches,
   publishRegistrationPatchesStrict: mockPublishRegistrationPatches,
 }))
@@ -94,9 +97,6 @@ vi.doMock('../lib/audit', async () => ({
   audit: async (item: unknown) => mockWriteAudit(item),
   auditStrict: async (item: unknown) => mockWriteAudit(item),
 }))
-
-// Nobody has the public start list open.
-vi.doMock('../lib/ws/publicStartList', () => ({ publishPublicStartList: vi.fn() }))
 
 // Outside prod mail goes to staff only; nobody is staff unless a test says so (KOE-1469).
 vi.doMock('../lib/repositories/userRepository', () => ({

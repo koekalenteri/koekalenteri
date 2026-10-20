@@ -117,6 +117,7 @@ const mockPublishEventCounts = vi.fn()
 const mockToEntrant = vi.fn()
 vi.doMock('../lib/ws/connectionSelectors', () => ({ registrationsAudience: everyEntrantWatching }))
 vi.doMock('../lib/ws/broadcast', () => ({ broadcast: deliverToEntrant(mockToEntrant) }))
+const mockPublishPublicStartList = vi.fn()
 vi.doMock('../lib/ws/actions', async () => ({
   __esModule: true,
   publishAdminEventPatch: vi.fn(),
@@ -126,11 +127,9 @@ vi.doMock('../lib/ws/actions', async () => ({
     await vi.importActual<typeof import('../lib/ws/actions')>('../lib/ws/actions')
   ).publishParticipantRegistrationPatches,
   publishPublicEvent: mockBroadcastPublicEvent,
+  publishPublicStartList: mockPublishPublicStartList,
   publishRegistrationPatches: mockBroadcastEventRegistrations,
 }))
-
-const mockPublishPublicStartList = vi.fn()
-vi.doMock('../lib/ws/publicStartList', () => ({ publishPublicStartList: mockPublishPublicStartList }))
 
 const { default: putRegistrationGroupsLambda } = await import('./handler')
 

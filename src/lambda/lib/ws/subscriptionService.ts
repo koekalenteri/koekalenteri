@@ -15,6 +15,7 @@ import {
   unsubscribePublicEventConnection,
   unsubscribeRegistrationConnection,
 } from './connectionRepository'
+import { bestEffort } from './livePush'
 
 type PublishEventViewers = (
   eventId: string,
@@ -53,9 +54,13 @@ export const subscribeToEvent = async (
   await subscribeConnection(connection.connectionId, eventId)
   const subscribedConnection = { ...connection, eventId }
 
+  // The subscription is stored by now. The previous event's read belongs to its viewer push: a
+  // deleted or unreadable previous event costs only that list.
   if (previousEventId && previousEventId !== eventId) {
-    const previousEvent = await getEvent<JsonDogEvent>(previousEventId)
-    await publishEventViewers(previousEventId, previousEvent.organizer.id)
+    await bestEffort('event viewers', async () => {
+      const previousEvent = await getEvent<JsonDogEvent>(previousEventId)
+      await publishEventViewers(previousEventId, previousEvent.organizer.id)
+    })
   }
 
   await publishEventViewers(eventId, event.organizer.id, { include: subscribedConnection })
@@ -71,9 +76,13 @@ export const unsubscribeFromEvent = async (
 
   await unsubscribeConnection(connectionId)
 
-  if (connection?.eventId) {
-    const event = await getEvent<JsonDogEvent>(connection.eventId)
-    await publishEventViewers(connection.eventId, event.organizer.id, { excludeConnectionId: connectionId })
+  const { eventId } = connection
+  if (eventId) {
+    // A live push after the stored unsubscribe, the event's read with it.
+    await bestEffort('event viewers', async () => {
+      const event = await getEvent<JsonDogEvent>(eventId)
+      await publishEventViewers(eventId, event.organizer.id, { excludeConnectionId: connectionId })
+    })
   }
 }
 

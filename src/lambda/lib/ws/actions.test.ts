@@ -1,4 +1,5 @@
 import { vi } from 'vitest'
+import { asJsonConfirmedEvent } from '../../test-utils/helpers'
 import { loggedLines } from '../../test-utils/logs'
 
 /** What a publish hands the broadcaster: who gets it, and what they get. */
@@ -9,10 +10,11 @@ interface BroadcastConfiguration {
 }
 
 const broadcastConfigurations: BroadcastConfiguration[] = []
-const mockBroadcast = vi.fn((configuration: BroadcastConfiguration) => {
+const recordBroadcast = (configuration: BroadcastConfiguration) => {
   broadcastConfigurations.push(configuration)
   return Promise.resolve({ attempted: 0, failed: 0, gone: 0, sent: 0 })
-})
+}
+const mockBroadcast = vi.fn(recordBroadcast)
 const mockRemoveConnection = vi.fn().mockResolvedValue(undefined)
 const mockEventAudience = vi.fn().mockReturnValue([])
 const mockOrganizerAudience = vi.fn().mockReturnValue([])
@@ -32,7 +34,7 @@ vi.doMock('../dataVersions', () => ({
 }))
 
 vi.doMock('./publicStartList', () => ({
-  publishPublicStartList: mockPublishPublicStartList,
+  sendPublicStartList: mockPublishPublicStartList,
 }))
 
 vi.doMock('./broadcast', () => ({
@@ -68,7 +70,21 @@ const {
   publishAdminDataInvalidation,
   publishEventViewers,
   publishEventChange,
+  publishEventCounts,
+  publishEventCountsStrict,
+  publishPublicStartList,
+  publishPublicStartListStrict,
 } = await import('./actions')
+
+/** An event as recounted: what the counts publishers send on. */
+const event = asJsonConfirmedEvent({
+  classes: [],
+  entries: 3,
+  id: 'e1',
+  members: 1,
+  organizer: { id: 'org-1', name: 'Org' },
+  updatedAt: '2026-10-21T00:00:00.000Z',
+})
 
 describe('ws/actions', () => {
   beforeEach(() => {
@@ -311,7 +327,7 @@ describe('ws/actions', () => {
       expect(buildPatch).not.toHaveBeenCalled()
       expect(mockBroadcast).not.toHaveBeenCalled()
       expect(loggedLines(errorSpy)).toEqual([
-        expect.objectContaining({ eventId: 'e1', message: 'participant patch audience failed' }),
+        expect.objectContaining({ message: 'live push failed', publication: 'participant registration patches' }),
       ])
       errorSpy.mockRestore()
     })
@@ -431,6 +447,153 @@ describe('ws/actions', () => {
       await publishEventChange({ audience: 'public', organizerId: 'org-1', patch: { eventId: 'event-1', name: 'x' } })
 
       expect(mockPublishPublicStartList).not.toHaveBeenCalled()
+    })
+  })
+
+  describe('a push after a write never fails it (KOE-1583)', () => {
+    const scanFailed = new Error('scan failed')
+    const failEveryBroadcast = () => mockBroadcast.mockRejectedValue(scanFailed)
+
+    afterEach(() => {
+      mockBroadcast.mockImplementation(recordBroadcast)
+      mockOrganizerAudience.mockReset().mockReturnValue([])
+      mockBumpDataVersion.mockReset().mockResolvedValue(undefined)
+      mockPublishPublicStartList.mockReset().mockResolvedValue(undefined)
+    })
+
+    it.each([
+      ['public event patch', failEveryBroadcast, () => publishPublicEvent({ entries: 1, eventId: 'e1' })],
+      ['admin event patch', failEveryBroadcast, () => publishAdminEventPatch({ entries: 1, eventId: 'e1' }, 'org-1')],
+      ['registration patches', failEveryBroadcast, () => publishRegistrationPatches('e1', [{ id: 'r1' }], 'org-1')],
+      ['event viewers', failEveryBroadcast, () => publishEventViewers('e1', 'org-1')],
+      ['admin data invalidation', failEveryBroadcast, () => publishAdminDataInvalidation(['judges'])],
+      [
+        'public start list',
+        () => mockPublishPublicStartList.mockRejectedValue(scanFailed),
+        () => publishPublicStartList('e1'),
+      ],
+      [
+        'participant registration patches',
+        () => mockRegistrationsAudience.mockRejectedValue(scanFailed),
+        () => publishParticipantRegistrationPatches('e1', ['r1'], vi.fn()),
+      ],
+      [
+        'admin event patch',
+        () => mockOrganizerAudience.mockRejectedValue(scanFailed),
+        () => publishEventPatch({ entries: 1, eventId: 'e1' }, 'org-1'),
+      ],
+      ['public event patch', failEveryBroadcast, () => publishEventCounts(event)],
+      [
+        'public start list',
+        () => mockPublishPublicStartList.mockRejectedValue(scanFailed),
+        () =>
+          publishEventChange({
+            audience: 'public',
+            organizerId: 'org-1',
+            patch: { eventId: 'e1', resultsPublished: { ALO: false } },
+            startList: true,
+          }),
+      ],
+    ])('%s: logs the failure and resolves', async (publication, fail, publish) => {
+      const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+      fail()
+
+      await expect(publish()).resolves.toBeUndefined()
+
+      expect(loggedLines(errorSpy)).toContainEqual(
+        expect.objectContaining({ message: 'live push failed', publication })
+      )
+      errorSpy.mockRestore()
+    })
+
+    it('sends the public half to every public page when the admins cannot be looked up', async () => {
+      const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+      mockOrganizerAudience.mockRejectedValue(scanFailed)
+      mockPublicAudience.mockResolvedValueOnce([{ connectionId: 'admin-1' }, { connectionId: 'public-1' }])
+
+      await publishEventPatch({ entries: 4, eventId: 'e1' }, 'org-1')
+
+      expect(broadcastConfigurations).toHaveLength(1)
+      const [publicHalf] = broadcastConfigurations
+      await expect(publicHalf?.audience()).resolves.toEqual([{ connectionId: 'admin-1' }, { connectionId: 'public-1' }])
+      expect(publicHalf?.buildPayload()).toEqual({ entries: 4, eventId: 'e1', scope: 'public:event-patch' })
+      expect(loggedLines(errorSpy)).toEqual([
+        expect.objectContaining({ message: 'live push failed', publication: 'admin event patch' }),
+      ])
+      errorSpy.mockRestore()
+    })
+
+    it('sends the public half to the admins too when their own half could not be sent', async () => {
+      const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+      mockOrganizerAudience.mockResolvedValue([{ connectionId: 'admin-1' }])
+      mockPublicAudience.mockResolvedValueOnce([{ connectionId: 'admin-1' }, { connectionId: 'public-1' }])
+      mockBroadcast.mockRejectedValueOnce(scanFailed)
+
+      await publishEventPatch({ entries: 4, eventId: 'e1' }, 'org-1')
+
+      const [publicHalf] = broadcastConfigurations
+      await expect(publicHalf?.audience()).resolves.toEqual([{ connectionId: 'admin-1' }, { connectionId: 'public-1' }])
+      expect(loggedLines(errorSpy)).toEqual([
+        expect.objectContaining({ message: 'live push failed', publication: 'admin event patch' }),
+      ])
+      errorSpy.mockRestore()
+    })
+
+    it('still rejects when the stored data version cannot be bumped, before any push', async () => {
+      mockBumpDataVersion.mockRejectedValue(new Error('version table down'))
+
+      await expect(publishAdminDataInvalidation(['judges'])).rejects.toThrow('version table down')
+      expect(mockBroadcast).not.toHaveBeenCalled()
+    })
+  })
+
+  describe('strict variants for durable workflows', () => {
+    afterEach(() => {
+      mockBroadcast.mockImplementation(recordBroadcast)
+      mockOrganizerAudience.mockReset().mockReturnValue([])
+      mockPublishPublicStartList.mockReset().mockResolvedValue(undefined)
+    })
+
+    it('publishRegistrationPatchesStrict resolves with the counts of a push that went through', async () => {
+      mockBroadcast.mockResolvedValueOnce({ attempted: 2, failed: 0, gone: 1, sent: 1 })
+
+      await expect(publishRegistrationPatchesStrict('e1', [{ id: 'r1' }], 'org-1')).resolves.toEqual({
+        attempted: 2,
+        failed: 0,
+        gone: 1,
+        sent: 1,
+      })
+    })
+
+    it('publishRegistrationPatchesStrict rejects when the audience cannot be looked up', async () => {
+      mockBroadcast.mockRejectedValueOnce(new Error('scan failed'))
+
+      await expect(publishRegistrationPatchesStrict('e1', [{ id: 'r1' }], 'org-1')).rejects.toThrow('scan failed')
+    })
+
+    it('publishEventCountsStrict sends the admins and the public their halves', async () => {
+      mockOrganizerAudience.mockResolvedValueOnce([{ connectionId: 'admin-1' }])
+      mockPublicAudience.mockResolvedValueOnce([{ connectionId: 'admin-1' }, { connectionId: 'public-1' }])
+
+      await expect(publishEventCountsStrict(event)).resolves.toBeUndefined()
+
+      expect(broadcastConfigurations).toHaveLength(2)
+      const [adminHalf, publicHalf] = broadcastConfigurations
+      expect(adminHalf?.buildPayload()).toEqual(expect.objectContaining({ entries: 3, scope: 'admin:event-patch' }))
+      await expect(publicHalf?.audience()).resolves.toEqual([{ connectionId: 'public-1' }])
+    })
+
+    it('publishEventCountsStrict rejects when the admins cannot be looked up', async () => {
+      mockOrganizerAudience.mockRejectedValue(new Error('scan failed'))
+
+      await expect(publishEventCountsStrict(event)).rejects.toThrow('scan failed')
+      expect(mockBroadcast).not.toHaveBeenCalled()
+    })
+
+    it('publishPublicStartListStrict rejects when the list cannot be sent', async () => {
+      mockPublishPublicStartList.mockRejectedValueOnce(new Error('read failed'))
+
+      await expect(publishPublicStartListStrict('e1')).rejects.toThrow('read failed')
     })
   })
 })

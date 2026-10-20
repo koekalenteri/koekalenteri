@@ -666,7 +666,7 @@ describe('payment', () => {
       expect(mockToAdmins).not.toHaveBeenCalled()
       expect(mockToEntrant).not.toHaveBeenCalled()
       expect(loggedLines(errorSpy)).toEqual([
-        expect.objectContaining({ message: 'cancelled registration read failed', registrationId: 'registration-1' }),
+        expect.objectContaining({ message: 'live push failed', publication: 'cancelled registration' }),
       ])
     })
 
@@ -699,10 +699,7 @@ describe('payment', () => {
 
       expect(mockToEntrant).toHaveBeenCalledTimes(1)
       expect(loggedLines(errorSpy)).toEqual([
-        expect.objectContaining({
-          message: 'cancelled registration admin patch failed',
-          registrationId: 'registration-1',
-        }),
+        expect.objectContaining({ message: 'live push failed', publication: 'registration patches' }),
       ])
     })
   })

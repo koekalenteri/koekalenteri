@@ -4,8 +4,7 @@ import { getAuthorizedEvent } from '../lib/eventAuth'
 import { parseSubmissions, processResultSubmissions } from '../lib/eventResults'
 import { getParam, httpError, lambda, response } from '../lib/lambda'
 import { readEventRegistrations } from '../lib/repositories/registrationRepository'
-import { publishRegistrationPatches } from '../lib/ws/actions'
-import { publishPublicStartList } from '../lib/ws/publicStartList'
+import { publishPublicStartList, publishRegistrationPatches } from '../lib/ws/actions'
 
 const putEventResultsLambda = lambda('putEventResults', async (event) => {
   const { user, memberOf } = await authorizeWithMemberOf(event)

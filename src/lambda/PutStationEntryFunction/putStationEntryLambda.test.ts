@@ -1,8 +1,8 @@
 import type { APIGatewayProxyEvent } from 'aws-lambda'
 import type { EventStation, JsonRegistration } from '../../types'
 import { vi } from 'vitest'
-import { getStationEntryToken } from '../lib/stationEntry'
 import { asJsonConfirmedEvent, deletedEvent, eventNotFound } from '../test-utils/helpers'
+import { loggedLines } from '../test-utils/logs'
 
 const mockLambda = vi.fn((_name, fn) => fn)
 const mockResponse = vi.fn()
@@ -36,9 +36,19 @@ vi.doMock('../lib/repositories/registrationRepository', () => ({
   readEventRegistrations: mockReadEventRegistrations,
   updateRegistrationField: mockUpdateRegistrationField,
 }))
+// The real publishers run, their guard included (KOE-1583); the connection scan below them is the boundary.
+const mockQueryAdminConnections = vi.fn()
+vi.doMock('../lib/ws/connectionRepository', () => ({
+  queryAdminConnections: mockQueryAdminConnections,
+  queryPublicConnections: vi.fn().mockResolvedValue([]),
+  removeConnection: vi.fn(),
+}))
 vi.doMock('../lib/ws/actions', () => ({ publishRegistrationPatches: mockPublishRegistrationPatches }))
 
 const { default: putStationEntryLambda } = await import('./handler')
+// Imported after the mocks: its own imports reach the publishers, which must load on the mocked scan.
+const { getStationEntryToken } = await import('../lib/stationEntry')
+const actualActions = await vi.importActual<typeof import('../lib/ws/actions')>('../lib/ws/actions')
 
 const station: EventStation = { date: '2026-09-12', id: 'post-1', number: 1, tasks: 1 as const }
 
@@ -72,6 +82,23 @@ describe('putStationEntryLambda', () => {
     // The results write reads the event again, consistently, for its lock.
     mockGetEvent.mockResolvedValue(confirmedEvent)
     mockReadEventRegistrations.mockResolvedValue([registration('reg-1')])
+    mockQueryAdminConnections.mockResolvedValue([])
+    mockPublishRegistrationPatches.mockImplementation(actualActions.publishRegistrationPatches)
+  })
+
+  it('answers with the saved scores when the live push after the write fails (KOE-1583)', async () => {
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined)
+    mockQueryAdminConnections.mockRejectedValueOnce(new Error('scan failed'))
+
+    await putStationEntryLambda(
+      apiEvent([{ eventResult: { tasks: [{ index: 0, points: 17, stationId: 'post-1' }] }, id: 'reg-1' }])
+    )
+
+    expect(mockUpdateRegistrationField).toHaveBeenCalledTimes(1)
+    expect(mockResponse).toHaveBeenCalledWith(200, expect.anything(), expect.anything())
+    expect(loggedLines(errorSpy)).toEqual([
+      expect.objectContaining({ message: 'live push failed', publication: 'registration patches' }),
+    ])
   })
 
   it('refuses a wrong token before touching anything', async () => {

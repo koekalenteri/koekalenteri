@@ -1,8 +1,8 @@
 import type { APIGatewayProxyEvent } from 'aws-lambda'
 import type { RegistrationClass } from '../../types'
 import { vi } from 'vitest'
-import { getStartNumberLinkToken } from '../lib/startNumberLink'
 import { asJsonConfirmedEvent, asJsonRegistration, deletedEvent, eventNotFound } from '../test-utils/helpers'
+import { loggedLines } from '../test-utils/logs'
 
 const mockLambda = vi.fn((_name, fn) => fn)
 const mockResponse = vi.fn()
@@ -49,10 +49,22 @@ vi.doMock('../lib/repositories/registrationRepository', () => ({
   removeRegistrationField: mockRemoveRegistrationField,
   updateRegistrationField: mockUpdateRegistrationField,
 }))
-vi.doMock('../lib/ws/actions', () => ({ publishRegistrationPatches: mockPublishRegistrationPatches }))
-vi.doMock('../lib/ws/publicStartList', () => ({ publishPublicStartList: mockPublishPublicStartList }))
+// The real publishers run, their guard included (KOE-1583); the connection scan below them is the boundary.
+const mockQueryAdminConnections = vi.fn()
+vi.doMock('../lib/ws/connectionRepository', () => ({
+  queryAdminConnections: mockQueryAdminConnections,
+  queryPublicConnections: vi.fn().mockResolvedValue([]),
+  removeConnection: vi.fn(),
+}))
+vi.doMock('../lib/ws/actions', () => ({
+  publishPublicStartList: mockPublishPublicStartList,
+  publishRegistrationPatches: mockPublishRegistrationPatches,
+}))
 
 const { default: putClassStartNumbersLambda } = await import('./handler')
+// Imported after the mocks: its own imports reach the publishers, which must load on the mocked scan.
+const { getStartNumberLinkToken } = await import('../lib/startNumberLink')
+const actualActions = await vi.importActual<typeof import('../lib/ws/actions')>('../lib/ws/actions')
 
 const confirmedEvent = asJsonConfirmedEvent({
   classes: [{ class: 'ALO' }, { class: 'AVO' }],
@@ -91,6 +103,23 @@ describe('putClassStartNumbersLambda', () => {
       registration('alo-1', 'ALO', 1),
       registration('alo-2', 'ALO', 2),
       registration('avo-1', 'AVO', 3),
+    ])
+    mockQueryAdminConnections.mockResolvedValue([])
+    mockPublishRegistrationPatches.mockImplementation(actualActions.publishRegistrationPatches)
+    mockPublishPublicStartList.mockImplementation(actualActions.publishPublicStartList)
+  })
+
+  it('answers with the written draw when the live pushes after the write fail (KOE-1583)', async () => {
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined)
+    mockQueryAdminConnections.mockRejectedValue(new Error('scan failed'))
+
+    await putClassStartNumbersLambda(apiEvent({ numbers: [{ id: 'alo-1', startNumber: 2 }] }))
+
+    expect(mockUpdateRegistrationField).toHaveBeenCalledWith('event-1', 'alo-1', 'startGroup', expect.anything())
+    expect(mockResponse).toHaveBeenCalledWith(200, expect.anything(), expect.anything())
+    expect(loggedLines(errorSpy)).toEqual([
+      expect.objectContaining({ message: 'live push failed', publication: 'registration patches' }),
+      expect.objectContaining({ message: 'live push failed', publication: 'public start list' }),
     ])
   })
 

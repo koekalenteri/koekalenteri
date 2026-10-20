@@ -1,4 +1,5 @@
 import { vi } from 'vitest'
+import { loggedLines } from '../../test-utils/logs'
 
 let broadcastConfiguration: unknown
 const mockBroadcast = vi.fn((configuration: unknown) => {
@@ -38,5 +39,18 @@ describe('ws/auditPublisher', () => {
     await call.audience()
     expect(mockEventSubscriberAudience).toHaveBeenCalledWith(eventId)
     expect(call.buildPayload()).toEqual({ eventId, record, scope: 'admin:audit-record' })
+  })
+
+  it('logs a failed push and resolves: the record is already written (KOE-1583)', async () => {
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined)
+    mockBroadcast.mockRejectedValueOnce(new Error('scan failed'))
+
+    await expect(
+      publishAuditRecord({ auditKey: 'event:event-1', message: 'changed', timestamp: 't', user: 'admin' })
+    ).resolves.toBeUndefined()
+
+    expect(loggedLines(errorSpy)).toEqual([
+      expect.objectContaining({ message: 'live push failed', publication: 'audit record' }),
+    ])
   })
 })

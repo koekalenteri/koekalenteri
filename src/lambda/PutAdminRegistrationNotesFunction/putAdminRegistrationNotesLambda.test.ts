@@ -1,6 +1,7 @@
 import { vi } from 'vitest'
 import { httpError } from '../lib/lambda'
 import { answerRejections, constructPartialAPIGwEvent } from '../test-utils/helpers'
+import { loggedLines } from '../test-utils/logs'
 
 const setEventBody = (event: { body: string | null }, body: unknown) => {
   event.body = JSON.stringify(body)
@@ -46,11 +47,19 @@ vi.doMock('../lib/repositories/registrationRepository', () => ({
   updateRegistrationField: mockUpdateRegistrationField,
 }))
 
+// The real publishers run, their guard included (KOE-1583); the connection scan below them is the boundary.
+const mockQueryAdminConnections = vi.fn()
+vi.doMock('../lib/ws/connectionRepository', () => ({
+  queryAdminConnections: mockQueryAdminConnections,
+  queryPublicConnections: vi.fn().mockResolvedValue([]),
+  removeConnection: vi.fn(),
+}))
 vi.doMock('../lib/ws/actions', () => ({
   publishRegistrationPatches: mockPublishRegistrationPatches,
 }))
 
 const { default: putAdminRegistrationNotesLambda } = await import('./handler')
+const actualActions = await vi.importActual<typeof import('../lib/ws/actions')>('../lib/ws/actions')
 
 describe('putAdminRegistrationNotesLambda', () => {
   const event = constructPartialAPIGwEvent({
@@ -81,6 +90,8 @@ describe('putAdminRegistrationNotesLambda', () => {
 
     mockGetEvent.mockResolvedValue({ organizer: { id: 'org-1' } })
     mockUpdateRegistrationField.mockResolvedValue({})
+    mockQueryAdminConnections.mockResolvedValue([])
+    mockPublishRegistrationPatches.mockImplementation(actualActions.publishRegistrationPatches)
   })
 
   it('returns 401 if not authorized', async () => {
@@ -193,13 +204,22 @@ describe('putAdminRegistrationNotesLambda', () => {
     expect(mockAudit).not.toHaveBeenCalled()
   })
 
-  it('passes through errors from publishRegistrationPatches', async () => {
-    const error = new Error('Broadcast error')
-    mockPublishRegistrationPatches.mockRejectedValueOnce(error)
+  it('answers ok and audits when the live push after the write fails (KOE-1583)', async () => {
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined)
+    mockQueryAdminConnections.mockRejectedValueOnce(new Error('scan failed'))
 
-    await expect(putAdminRegistrationNotesLambda(event)).rejects.toThrow(error)
+    await putAdminRegistrationNotesLambda(event)
 
-    expect(mockUpdateRegistrationField).toHaveBeenCalled()
-    expect(mockAudit).not.toHaveBeenCalled()
+    expect(mockUpdateRegistrationField).toHaveBeenCalledWith(
+      'event123',
+      'reg456',
+      'internalNotes',
+      'Test internal notes'
+    )
+    expect(mockAudit).toHaveBeenCalledTimes(1)
+    expect(mockResponse).toHaveBeenCalledWith(200, 'ok', event)
+    expect(loggedLines(errorSpy)).toEqual([
+      expect.objectContaining({ message: 'live push failed', publication: 'registration patches' }),
+    ])
   })
 })

@@ -43,8 +43,7 @@ import {
   updateReserveNotified,
 } from '../lib/registration'
 import { releaseStartNumber } from '../lib/startNumbers'
-import { publishEventCounts, publishRegistrationPatches } from '../lib/ws/actions'
-import { publishPublicStartList } from '../lib/ws/publicStartList'
+import { publishEventCounts, publishPublicStartList, publishRegistrationPatches } from '../lib/ws/actions'
 
 const isEventOrClassState = (event: JsonConfirmedEvent, cls: string | null | undefined, state: EventState): boolean =>
   Boolean(event.state === state || (cls && event.classes.some((c) => c.class === cls && c.state === state)))

@@ -33,8 +33,10 @@ vi.doMock('../lib/repositories/eventRepository', () => ({
   readEvent: mockReadEvent,
   writeResultsPublished: mockWriteResultsPublished,
 }))
-vi.doMock('../lib/ws/actions', () => ({ publishEventPatch: mockPublishEventPatch }))
-vi.doMock('../lib/ws/publicStartList', () => ({ publishPublicStartList: mockPublishPublicStartList }))
+vi.doMock('../lib/ws/actions', () => ({
+  publishEventPatch: mockPublishEventPatch,
+  publishPublicStartList: mockPublishPublicStartList,
+}))
 
 const { default: putResultsPublishedLambda } = await import('./handler')
 

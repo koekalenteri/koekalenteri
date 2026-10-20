@@ -27,6 +27,13 @@ vi.doMock('../lib/kennelliittoResults', () => ({
   previewKennelliittoResults: mockPreview,
   sendKennelliittoResults: mockSend,
 }))
+// The real publishers run, their guard included (KOE-1583); the connection scan below them is the boundary.
+const mockQueryAdminConnections = vi.fn()
+vi.doMock('../lib/ws/connectionRepository', () => ({
+  queryAdminConnections: mockQueryAdminConnections,
+  queryPublicConnections: vi.fn().mockResolvedValue([]),
+  removeConnection: vi.fn(),
+}))
 vi.doMock('../lib/ws/actions', () => ({
   publishEventChange: mockPublishEventChange,
   publishRegistrationPatches: mockPublishRegistrationPatches,
@@ -35,6 +42,7 @@ vi.doMock('../lib/repositories/eventTypeRepository', () => ({ readEventType: moc
 vi.doMock('../lib/repositories/organizerRepository', () => ({ readOrganizer: mockReadOrganizer }))
 
 const { default: kennelliittoResultsLambda } = await import('./handler')
+const actualActions = await vi.importActual<typeof import('../lib/ws/actions')>('../lib/ws/actions')
 
 const confirmedEvent = asJsonConfirmedEvent({
   eventType: 'NOME-A SM',
@@ -47,12 +55,9 @@ const call = (body: unknown) => kennelliittoResultsLambda(constructAPIGwEvent(bo
 /** Every publish to the open pages fails for this test; answers the spy its error lines are read from. */
 const publishFails = () => {
   const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
-  mockPublishRegistrationPatches.mockRejectedValue(new Error('ProvisionedThroughputExceededException'))
-  mockPublishEventChange.mockRejectedValue(new Error('ProvisionedThroughputExceededException'))
+  mockQueryAdminConnections.mockRejectedValue(new Error('ProvisionedThroughputExceededException'))
   onTestFinished(() => {
     errorSpy.mockRestore()
-    mockPublishRegistrationPatches.mockReset()
-    mockPublishEventChange.mockReset()
   })
   return errorSpy
 }
@@ -68,6 +73,9 @@ describe('kennelliittoResultsLambda', () => {
     mockPreview.mockResolvedValue({ blockers: [], dogs: [] })
     mockSend.mockResolvedValue({ blockers: [], notAttempted: [], patches: [], reports: [] })
     mockHandOver.mockResolvedValue({ blockers: [], handedOver: true })
+    mockQueryAdminConnections.mockResolvedValue([])
+    mockPublishRegistrationPatches.mockImplementation(actualActions.publishRegistrationPatches)
+    mockPublishEventChange.mockImplementation(actualActions.publishEventChange)
   })
 
   it('is for the organizer of the trial and an administrator, like saving the results', async () => {
@@ -113,7 +121,7 @@ describe('kennelliittoResultsLambda', () => {
 
     expect(mockResponse).toHaveBeenCalledWith(200, { blockers: [], dogs: [] }, expect.anything())
     expect(loggedLines(errorSpy)).toEqual([
-      expect.objectContaining({ eventId: 'event-1', message: 'kennelliitto event change not published' }),
+      expect.objectContaining({ message: 'live push failed', publication: 'admin event patch' }),
     ])
   })
 
@@ -208,8 +216,8 @@ describe('kennelliittoResultsLambda', () => {
         expect.anything()
       )
       expect(loggedLines(errorSpy)).toEqual([
-        expect.objectContaining({ eventId: 'event-1', message: 'kennelliitto registration patches not published' }),
-        expect.objectContaining({ eventId: 'event-1', message: 'kennelliitto event change not published' }),
+        expect.objectContaining({ message: 'live push failed', publication: 'registration patches' }),
+        expect.objectContaining({ message: 'live push failed', publication: 'admin event patch' }),
       ])
     })
 
@@ -315,7 +323,7 @@ describe('kennelliittoResultsLambda', () => {
 
       expect(mockResponse).toHaveBeenCalledWith(200, { handedOver: true }, expect.anything())
       expect(loggedLines(errorSpy)).toEqual([
-        expect.objectContaining({ eventId: 'event-1', message: 'kennelliitto event change not published' }),
+        expect.objectContaining({ message: 'live push failed', publication: 'admin event patch' }),
       ])
     })
   })
