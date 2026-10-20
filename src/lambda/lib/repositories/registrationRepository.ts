@@ -1,7 +1,7 @@
 import type { TransactWriteCommandInput } from '@aws-sdk/lib-dynamodb'
 import type { JsonEmailDeliveryStatus, JsonRegistration } from '../../../types'
 import type { RegistrationStatsInput } from '../../../types/Stats'
-import type { UpdateActions } from '../../utils/CustomDynamoClient'
+import type { UpdateActions, UpdateCondition } from '../../utils/CustomDynamoClient'
 import { CONFIG } from '../../config'
 import CustomDynamoClient from '../../utils/CustomDynamoClient'
 import { isConditionalCheckFailure, isTransactionCanceled } from '../api-gw'
@@ -145,15 +145,20 @@ export const writeKcResult = async (
   previousAt: string | undefined,
   updatedAt: string
 ): Promise<boolean> => {
+  // DynamoDB refuses a name or a value the expression does not use, so each branch declares its own.
+  const condition: UpdateCondition =
+    previousAt === undefined
+      ? {
+          expression: 'attribute_exists(#id) AND attribute_not_exists(#kcResult)',
+          names: { '#id': 'id', '#kcResult': 'kcResult' },
+        }
+      : {
+          expression: 'attribute_exists(#id) AND #kcResult.#at = :at',
+          names: { '#at': 'at', '#id': 'id', '#kcResult': 'kcResult' },
+          values: { ':at': previousAt },
+        }
   try {
-    await dynamoDB.update({ eventId, id }, { set: { kcResult, updatedAt } }, 'NONE', {
-      expression:
-        previousAt === undefined
-          ? 'attribute_exists(#id) AND attribute_not_exists(#kcResult)'
-          : 'attribute_exists(#id) AND #kcResult.#at = :at',
-      names: { '#at': 'at', '#id': 'id', '#kcResult': 'kcResult' },
-      ...(previousAt === undefined ? {} : { values: { ':at': previousAt } }),
-    })
+    await dynamoDB.update({ eventId, id }, { set: { kcResult, updatedAt } }, 'NONE', condition)
     return true
   } catch (error) {
     if (isConditionalCheckFailure(error)) return false

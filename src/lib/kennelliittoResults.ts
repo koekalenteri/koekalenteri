@@ -374,6 +374,11 @@ export interface KcBlocker {
 export type KcSendOutcome = 'sent' | 'failed' | 'skipped' | 'unchanged'
 
 export interface KcSendReport {
+  /**
+   * What Kennelliitto answered could not be stored here (a `failed` outcome): the dog's stored state is
+   * as it was, so it reads as unsent and sending it again updates what Kennelliitto holds.
+   */
+  answerNotStored?: true
   /** Where a dog that was asked for and not sent stood, and why (a `skipped` outcome). */
   dogStatus?: KcDogStatus
   errors?: string[]

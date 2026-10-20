@@ -1143,6 +1143,7 @@
     "interruption": "Keskeytys",
     "judge": "Tuomari",
     "kennelliitto": {
+      "answerNotStored": "Kennelliiton vastausta ei saatu tallennettua Koekalenteriin. Lähetä koira uudelleen.",
       "badge": {
         "changed": "Muuttunut",
         "changedNote": "Tulosta on muutettu lähetyksen jälkeen: lähetä se uudelleen",
@@ -1224,6 +1225,7 @@
       "sending": "Lähetetään... {{done}} / {{total}}",
       "sentNotHandedOver_one": "Tulokset on lähetetty Omakoiraan {{count}} koiralle, mutta niitä ei ole luovutettu tuomarille.",
       "sentNotHandedOver_other": "Tulokset on lähetetty Omakoiraan {{count}} koiralle, mutta niitä ei ole luovutettu tuomarille.",
+      "serverError": "Lähetys keskeytyi, koska palvelin vastasi virheellä (virhekoodi {{status}}). Koirakohtainen tila on luettu palvelimelta ja näkyy taulukossa.",
       "skipped_one": "{{count}} koiran tulosta ei lähetetty:",
       "skipped_other": "{{count}} koiran tulosta ei lähetetty:",
       "statusUnknown": "Kennelliitto ei vastannut selvästi (tila {{status}}). Yritä uudelleen.",

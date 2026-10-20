@@ -1143,6 +1143,7 @@
     "interruption": "Interruption",
     "judge": "Judge",
     "kennelliitto": {
+      "answerNotStored": "Kennelliitto’s answer could not be stored in Koekalenteri. Send the dog again.",
       "badge": {
         "changed": "Changed",
         "changedNote": "The result was changed after sending: send it again",
@@ -1224,6 +1225,7 @@
       "sending": "Sending... {{done}} / {{total}}",
       "sentNotHandedOver_one": "The results have been sent to Omakoira for {{count}} dog, but they have not been handed over to the judge.",
       "sentNotHandedOver_other": "The results have been sent to Omakoira for {{count}} dogs, but they have not been handed over to the judge.",
+      "serverError": "The sending stopped because the server answered with an error (status {{status}}). The state of each dog has been read from the server and shows in the table.",
       "skipped_one": "The result of {{count}} dog was not sent:",
       "skipped_other": "The results of {{count}} dogs were not sent:",
       "statusUnknown": "The Kennel Club did not answer clearly (status {{status}}). Try again.",

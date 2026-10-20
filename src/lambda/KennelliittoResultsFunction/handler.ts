@@ -11,6 +11,7 @@ import {
   sendKennelliittoResults,
 } from '../lib/kennelliittoResults'
 import { getParam, httpError, lambda, response } from '../lib/lambda'
+import { logger } from '../lib/log'
 import { readEventType } from '../lib/repositories/eventTypeRepository'
 import { readOrganizer } from '../lib/repositories/organizerRepository'
 import { publishEventChange, publishRegistrationPatches } from '../lib/ws/actions'
@@ -50,9 +51,25 @@ interface Run {
   organizerId: string
 }
 
+/**
+ * Tells the open pages after an action, whose work (the dogs sent and recorded, the trial handed over,
+ * what the preview found) is done and written by then: a notification, so its failure (the audience
+ * lookup is a query of its own) is logged and never costs the answer (KOE-1140).
+ */
+const notifyAfter = async (message: string, eventId: string, publish: () => Promise<unknown>) => {
+  try {
+    await publish()
+  } catch (error) {
+    logger.error(message, { error, eventId })
+  }
+}
+
 /** Tells the open pages what changed on the trial. */
 const publishEvent = async ({ eventId, organizerId }: Run, patch: Omit<EventPatch, 'eventId'> | undefined) => {
-  if (patch) await publishEventChange({ audience: 'admin', organizerId, patch: { ...patch, eventId } })
+  if (!patch) return
+  await notifyAfter('kennelliitto event change not published', eventId, () =>
+    publishEventChange({ audience: 'admin', organizerId, patch: { ...patch, eventId } })
+  )
 }
 
 const previewAction = async (run: Run) => {
@@ -69,7 +86,11 @@ const sendAction = async (run: Run) => {
   const { eventPatch, patches, ...sent } = await sendKennelliittoResults(run.ctx, ids, {
     force: run.body.force === true,
   })
-  if (patches.length) await publishRegistrationPatches(run.eventId, patches, run.organizerId)
+  if (patches.length) {
+    await notifyAfter('kennelliitto registration patches not published', run.eventId, () =>
+      publishRegistrationPatches(run.eventId, patches, run.organizerId)
+    )
+  }
   await publishEvent(run, eventPatch)
   if (sent.blockers.length) throw httpError(409, { blockers: sent.blockers, error: 'blocked' })
   return { ...sent, kcResults: patches }

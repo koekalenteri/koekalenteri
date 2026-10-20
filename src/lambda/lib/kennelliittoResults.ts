@@ -410,22 +410,25 @@ const nextKcResult = (
   return { at, by, status: 'failed', ...kept }
 }
 
-/** Writes what a sending came to; when another sending got in first, what Kennelliitto holds is unknown. */
+/**
+ * Writes what a sending came to; when another sending got in first, what Kennelliitto holds is unknown.
+ * Undefined when nothing could be written, another sending having got in again: the table holds none
+ * of it, so it must not be reported or patched as recorded.
+ */
 const recordKcResult = async (
   req: KcRequest,
   registration: JsonRegistration,
   next: JsonKcResult
-): Promise<JsonKcResult> => {
+): Promise<JsonKcResult | undefined> => {
   const { event } = req
   const updatedAt = next.at
   if (await writeKcResult(event.id, registration.id, next, registration.kcResult?.at, updatedAt)) return next
 
   const { payloadHash: _unknown, resultVersion: _version, ...unknown } = next
   const latest = (await getRegistration(event.id, registration.id, true)).kcResult?.at
-  if (!(await writeKcResult(event.id, registration.id, unknown, latest, updatedAt))) {
-    logger.warn('kcResult could not be recorded', { eventId: event.id, registrationId: registration.id })
-  }
-  return unknown
+  if (await writeKcResult(event.id, registration.id, unknown, latest, updatedAt)) return unknown
+  logger.warn('kcResult could not be recorded', { eventId: event.id, registrationId: registration.id })
+  return undefined
 }
 
 const sendOne = async (
@@ -446,24 +449,48 @@ const sendOne = async (
     nowOf(req).toISOString()
   )
 
-  const recorded = await recordKcResult(req, registration, next)
-  patches.push({ id: registration.id, kcResult: recorded })
-
-  const auditKey = registrationAuditKey({ eventId: event.id, id: registration.id })
-  if (next.status === 'sent') {
-    await audit({ auditKey, ...resultSentToKennelliittoAudit(), user: userName })
-  } else {
-    await audit({ auditKey, ...resultSendFailedAudit(next.errors?.join('; ') ?? `${call.status}`), user: userName })
+  // From here on a failure is this dog's, never the request's: one thrown write would turn the whole
+  // request into a 500 and lose the reports of the dogs Kennelliitto saved and this app recorded (KOE-1140).
+  let recorded: JsonKcResult | undefined
+  try {
+    recorded = await recordKcResult(req, registration, next)
+  } catch (error) {
+    logger.error('kcResult write failed', { error, eventId: event.id, registrationId: registration.id })
   }
+  if (recorded) patches.push({ id: registration.id, kcResult: recorded })
 
+  // The change history follows what Kennelliitto holds, recorded here or not. `audit` logs its own
+  // failures and never throws.
+  const auditKey = registrationAuditKey({ eventId: event.id, id: registration.id })
+  const auditEntry =
+    next.status === 'sent'
+      ? resultSentToKennelliittoAudit()
+      : resultSendFailedAudit(next.errors?.join('; ') ?? `${call.status}`)
+  await audit({ auditKey, ...auditEntry, user: userName })
+
+  return sentReport(registration, next, call.status, recorded !== undefined)
+}
+
+/**
+ * What one dog's sending came to. A dog whose outcome could not be stored here is `failed` with
+ * `answerNotStored`, and keeps Kennelliitto's reasons for a refusal: sending it again only repeats one.
+ */
+const sentReport = (
+  registration: JsonRegistration,
+  next: JsonKcResult,
+  callStatus: number,
+  recorded: boolean
+): KcSendReport => {
+  const sent = next.status === 'sent'
   return {
     id: registration.id,
     name: registration.dog.name ?? '',
-    outcome: next.status === 'sent' ? 'sent' : 'failed',
+    ...(recorded ? {} : { answerNotStored: true }),
+    outcome: sent && recorded ? 'sent' : 'failed',
     regNo: registration.dog.regNo,
     ...(next.errors ? { errors: next.errors } : {}),
-    ...(next.status === 'sent' ? {} : { status: call.status }),
-    ...(next.tulosId === undefined ? {} : { tulosId: next.tulosId }),
+    ...(sent ? {} : { status: callStatus }),
+    ...(recorded && next.tulosId !== undefined ? { tulosId: next.tulosId } : {}),
   }
 }
 
@@ -476,8 +503,13 @@ const keepVersion = async (req: KcRequest, { registration }: Evaluated, patches:
   const version = registration.eventResult?.updatedAt
   if (!kcResult || !version || kcResult.resultVersion === version) return
   const next: JsonKcResult = { ...kcResult, resultVersion: version }
-  if (await writeKcResult(req.event.id, registration.id, next, kcResult.at, nowOf(req).toISOString())) {
-    patches.push({ id: registration.id, kcResult: next })
+  // Nothing was sent, so a failed write loses nothing: the dog stays unchanged and the request goes on.
+  try {
+    if (await writeKcResult(req.event.id, registration.id, next, kcResult.at, nowOf(req).toISOString())) {
+      patches.push({ id: registration.id, kcResult: next })
+    }
+  } catch (error) {
+    logger.error('kcResult version write failed', { error, eventId: req.event.id, registrationId: registration.id })
   }
 }
 

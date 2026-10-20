@@ -95,6 +95,7 @@ it('reports who was saved and who was refused, with Kennelliitto’s own words',
               status: 400,
             },
             { id: '10005', name: 'Nelli', outcome: 'failed', regNo: 'FI10005/21', status: 0 },
+            { answerNotStored: true, id: '10007', name: 'Mirri', outcome: 'failed', regNo: 'FI10007/21' },
             {
               dogStatus: 'blocked',
               id: '10006',
@@ -109,6 +110,26 @@ it('reports who was saved and who was refused, with Kennelliitto’s own words',
     />,
     'Tulokset on tallennettu Omakoiraan 2 koiralle',
     'kennelliitto-send-report'
+  )
+})
+
+it('says the server failed, with its status, when it answered a sending with an error (KOE-1140)', async () => {
+  await shoot(
+    <KennelliittoSendDialog
+      {...sendProps}
+      phase={{
+        kind: 'report',
+        summary: {
+          blockers: [],
+          errorStatus: 500,
+          interrupted: true,
+          notAttempted: ['10001', '10002'],
+          reports: [],
+        },
+      }}
+    />,
+    'Lähetys keskeytyi, koska palvelin vastasi virheellä (virhekoodi 500). Koirakohtainen tila on luettu palvelimelta ja näkyy taulukossa.',
+    'kennelliitto-send-server-error'
   )
 })
 
