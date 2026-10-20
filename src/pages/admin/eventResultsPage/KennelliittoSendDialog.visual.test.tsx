@@ -112,6 +112,26 @@ it('reports who was saved and who was refused, with Kennelliitto’s own words',
   )
 })
 
+it('says the server failed, with its status, when it answered a sending with an error (KOE-1140)', async () => {
+  await shoot(
+    <KennelliittoSendDialog
+      {...sendProps}
+      phase={{
+        kind: 'report',
+        summary: {
+          blockers: [],
+          errorStatus: 500,
+          interrupted: true,
+          notAttempted: ['10001', '10002'],
+          reports: [],
+        },
+      }}
+    />,
+    'Lähetys keskeytyi, koska palvelin vastasi virheellä (virhekoodi 500). Koirakohtainen tila on luettu palvelimelta ja näkyy taulukossa.',
+    'kennelliitto-send-server-error'
+  )
+})
+
 it('asks for the hand-over by saying what it means, and lists the dogs that stay out', async () => {
   await shoot(
     <KennelliittoHandOverDialog

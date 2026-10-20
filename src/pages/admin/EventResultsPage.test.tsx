@@ -1172,6 +1172,25 @@ describe('EventResultsPage and Kennelliitto (KOE-1140)', () => {
       expect(screen.getByText('results.kennelliitto.interrupted')).toBeInTheDocument()
       expect(screen.queryByText('results.kennelliitto.failure count')).not.toBeInTheDocument()
     })
+
+    it('says the server failed, not the connection, when the server answered with an error (KOE-1140)', async () => {
+      vi.mocked(previewKennelliittoResults).mockResolvedValueOnce({ blockers: [], dogs: [dogReport('run-1', 'ready')] })
+      vi.mocked(sendKennelliittoResults).mockRejectedValueOnce(
+        new APIError(new Response(null, { status: 500 }), { message: 'Internal Server Error' })
+      )
+      const { user } = await renderQualitativePage('fi', { 'run-1': stored('NOU1') })
+      await flushPromises()
+
+      await user.click(screen.getByRole('button', { name: 'results.kennelliitto.send' }))
+      await flushPromises()
+      await user.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'results.kennelliitto.send' }))
+      await flushPromises()
+
+      // Read from the server all the same: the dogs before the failing one may have been sent.
+      expect(screen.queryByText('Ensimmainen')).not.toBeInTheDocument()
+      expect(screen.getByText('results.kennelliitto.serverError status')).toBeInTheDocument()
+      expect(screen.queryByText('results.kennelliitto.interrupted')).not.toBeInTheDocument()
+    })
   })
 
   describe('the answers of a sending', () => {

@@ -504,6 +504,33 @@ describe('useKennelliittoResults', () => {
     expect(result.current.registrations[0].kcResult).not.toHaveProperty('day')
   })
 
+  // Some of the dogs may have been sent either way, so the list is read from the server in both cases;
+  // only an answer the server gave says its status (KOE-1140).
+  it.each([
+    ['no answer came', new TypeError('Failed to fetch'), undefined],
+    ['the browser stopped waiting', new APIError(new Response(null, { status: 408 }), {}), undefined],
+    ['the gateway timed out', new APIError(new Response(null, { status: 504 }), {}), undefined],
+    ['the server failed', new APIError(new Response(null, { status: 500 }), {}), 500],
+    ['the server refused the request', new APIError(new Response(null, { status: 400 }), {}), 400],
+  ])('reports a sending cut short when %s, and reads the list again', async (_case, error, errorStatus) => {
+    vi.mocked(registrationApi.sendKennelliittoResults).mockRejectedValueOnce(error)
+    const { result } = renderHook(() => useKennelliittoResults(id), { wrapper })
+
+    let summary: Awaited<ReturnType<typeof result.current.send>> | undefined
+    await act(async () => {
+      summary = await result.current.send([registrationWithStaticDates.id], false)
+    })
+
+    expect(summary).toEqual({
+      blockers: [],
+      ...(errorStatus === undefined ? {} : { errorStatus }),
+      interrupted: true,
+      notAttempted: [registrationWithStaticDates.id],
+      reports: [],
+    })
+    expect(registrationApi.getRegistrations).toHaveBeenCalledWith(id, expect.any(String))
+  })
+
   it('does not read the list of a trial without a token, since an empty answer would say it has no dogs', async () => {
     const { result } = renderHook(() => useKennelliittoResults(id), {
       wrapper: ({ children }: { readonly children: React.ReactNode }) => (

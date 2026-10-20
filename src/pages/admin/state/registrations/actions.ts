@@ -143,6 +143,8 @@ const chunksOf = (ids: readonly string[]): string[][] =>
 
 export interface KcSendSummary {
   blockers: KcBlocker[]
+  /** The status of the error the server answered with, when the sending was cut short by one. */
+  errorStatus?: number
   /**
    * The sending was cut short by an error or no answer. What the dogs came to is then read from the
    * server instead of guessed, and the dogs not tried are in `notAttempted`.
@@ -176,6 +178,16 @@ const blockersOf = (error: unknown): KcBlocker[] | undefined => {
   const body = bodyOf(error)
   return error instanceof APIError && error.status === 409 && isBlockers(body?.blockers) ? body.blockers : undefined
 }
+
+/**
+ * Statuses that are no answer from the lambda: the browser's own timeout (`http.ts` reports it as a 408)
+ * and the gateway's at 29 s.
+ */
+const NO_ANSWER_STATUSES = new Set([408, 504])
+
+/** The status of an error the server answered with; undefined when no answer came (KOE-1140). */
+const errorStatusOf = (error: unknown): number | undefined =>
+  error instanceof APIError && !NO_ANSWER_STATUSES.has(error.status) ? error.status : undefined
 
 /** What the endpoint's refusals of a hand-over say, by the name it gives them. */
 const HAND_OVER_REFUSALS: Record<string, (body: Record<string, unknown>) => KcHandOverOutcome | undefined> = {
@@ -286,9 +298,16 @@ export const useKennelliittoResults = (eventId: string) => {
       const blockers = blockersOf(answer.error)
       if (blockers) return { ...summary, blockers, notAttempted: undelivered }
       // No answer, a gateway timeout or an error: some of the dogs may have been sent. Read what the
-      // server holds rather than report a failure that may not be one.
+      // server holds rather than report a failure that may not be one, and keep the status of an error
+      // the server answered with, so a failure of its own is not told as a broken connection.
       await reload().catch(reportError)
-      return { ...summary, interrupted: true, notAttempted: undelivered }
+      const errorStatus = errorStatusOf(answer.error)
+      return {
+        ...summary,
+        ...(errorStatus === undefined ? {} : { errorStatus }),
+        interrupted: true,
+        notAttempted: undelivered,
+      }
     },
     [eventId, reload, store, token]
   )

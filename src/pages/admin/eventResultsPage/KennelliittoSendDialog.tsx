@@ -115,6 +115,16 @@ const Preview = ({
   )
 }
 
+/**
+ * A sending cut short: by no answer, which may be the connection, or by an error the server answered
+ * with, which is not, and says its status (KOE-1140).
+ */
+const Interrupted = ({ errorStatus }: { readonly errorStatus: KcSendSummary['errorStatus'] }) => {
+  const { t } = useTranslation()
+  if (errorStatus === undefined) return <Alert severity="warning">{t('results.kennelliitto.interrupted')}</Alert>
+  return <Alert severity="error">{t('results.kennelliitto.serverError', { status: errorStatus })}</Alert>
+}
+
 const Report = ({ summary }: { readonly summary: KcSendSummary }) => {
   const { t } = useTranslation()
   const sent = summary.reports.filter((report) => report.outcome === 'sent')
@@ -128,7 +138,7 @@ const Report = ({ summary }: { readonly summary: KcSendSummary }) => {
           {blockerText(t, blocker)}
         </Alert>
       ))}
-      {summary.interrupted && <Alert severity="warning">{t('results.kennelliitto.interrupted')}</Alert>}
+      {summary.interrupted && <Interrupted errorStatus={summary.errorStatus} />}
       {sent.length > 0 && (
         <Alert severity="success">
           <Typography sx={{ fontWeight: 600 }} variant="body2">

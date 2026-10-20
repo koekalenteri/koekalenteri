@@ -8,12 +8,14 @@ import {
   getRegistrationTransactions,
   getStartList,
   getStartListPreview,
+  handOverKennelliittoResults,
   patchAdminRegistration,
   patchRegistration,
   postAdminRegistration,
   postRegistration,
   putEventResults,
   putRegistrationGroups,
+  sendKennelliittoResults,
 } from './registration'
 
 const mockRegistration: Registration = {
@@ -389,5 +391,35 @@ test('putEventResults answers with the results as stored, their stamps Dates', a
     conflicts: [{ id: 'r2', stored: modelResult, submitted: modelResult }],
     saved: [{ eventResult: modelResult, id: 'r1' }],
     unchanged: [{ eventResult: modelResult, id: 'r3' }],
+  })
+})
+
+describe('the Kennelliitto send and hand-over', () => {
+  afterEach(() => {
+    vi.runOnlyPendingTimers()
+    vi.useRealTimers()
+  })
+
+  // The lambda spends up to its 25 s budget and the gateway answers at 29 s: the browser must still
+  // be listening then, or it reports a broken connection for a request the server finished (KOE-1140).
+  it.each([
+    ['send', () => sendKennelliittoResults('test-id', ['r1'], false, 'token')],
+    ['handOver', () => handOverKennelliittoResults('test-id', false, 'token')],
+  ])('waits for the answer the gateway gives at 29 s: %s', async (_action, request) => {
+    vi.useFakeTimers({ toFake: ['Date', 'setTimeout', 'clearTimeout'] })
+    fetchMock.mockImplementationOnce(
+      () =>
+        new Promise((resolve) =>
+          setTimeout(
+            () => resolve(new Response(JSON.stringify({ message: 'Endpoint request timed out' }), { status: 504 })),
+            29_000
+          )
+        )
+    )
+
+    expectConsoleOutput(/504 Endpoint request timed out/)
+    const expectation = expect(request()).rejects.toEqual(expect.objectContaining({ status: 504 }))
+    await vi.advanceTimersByTimeAsync(29_000)
+    await expectation
   })
 })

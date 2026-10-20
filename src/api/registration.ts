@@ -270,17 +270,25 @@ type KennelliittoRequest =
   | { action: 'preview'; registrationIds?: string[] }
   | { action: 'send'; force?: boolean; registrationIds: string[] }
 
+/**
+ * How long the browser waits for a send or a hand-over. The lambda spends up to its 25 s budget on
+ * Kennelliitto by design and the gateway answers at 29 s, so the browser must listen past both: at
+ * the 10 s default it gave up on requests the server went on to finish and reported a broken
+ * connection (KOE-1140). Above 29 s, the answer is always the server's own, a gateway timeout included.
+ */
+const KENNELLIITTO_WRITE_TIMEOUT_MS = 35_000
+
 const kennelliittoResults = async <R>(
   eventId: string,
   request: KennelliittoRequest,
   token: string,
-  signal?: AbortSignal
+  init: { signal?: AbortSignal; timeoutMs?: number }
 ): Promise<R> =>
   (
     await http.post<KennelliittoRequest, R>(
       `/admin/event-results/${eventId}/kennelliitto`,
       request,
-      withToken({ signal }, token)
+      withToken(init, token)
     )
   ).data
 
@@ -290,7 +298,7 @@ export const previewKennelliittoResults = (
   registrationIds: string[] | undefined,
   token: string,
   signal?: AbortSignal
-) => kennelliittoResults<KcPreviewResponse>(eventId, { action: 'preview', registrationIds }, token, signal)
+) => kennelliittoResults<KcPreviewResponse>(eventId, { action: 'preview', registrationIds }, token, { signal })
 
 /** At most ten dogs at a time; the server refuses more. */
 export const sendKennelliittoResults = (
@@ -299,11 +307,19 @@ export const sendKennelliittoResults = (
   force: boolean,
   token: string,
   signal?: AbortSignal
-) => kennelliittoResults<KcSendResponse>(eventId, { action: 'send', force, registrationIds }, token, signal)
+) =>
+  kennelliittoResults<KcSendResponse>(eventId, { action: 'send', force, registrationIds }, token, {
+    signal,
+    timeoutMs: KENNELLIITTO_WRITE_TIMEOUT_MS,
+  })
 
 export const handOverKennelliittoResults = (
   eventId: string,
   withoutBlocked: boolean,
   token: string,
   signal?: AbortSignal
-) => kennelliittoResults<{ handedOver: boolean }>(eventId, { action: 'handOver', withoutBlocked }, token, signal)
+) =>
+  kennelliittoResults<{ handedOver: boolean }>(eventId, { action: 'handOver', withoutBlocked }, token, {
+    signal,
+    timeoutMs: KENNELLIITTO_WRITE_TIMEOUT_MS,
+  })
