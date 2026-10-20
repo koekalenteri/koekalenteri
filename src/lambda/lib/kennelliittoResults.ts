@@ -449,21 +449,15 @@ const sendOne = async (
   // From here on a failure is this dog's, never the request's: one thrown write would turn the whole
   // request into a 500 and lose the reports of the dogs Kennelliitto saved and this app recorded (KOE-1140).
   const logContext = { eventId: event.id, registrationId: registration.id }
-  let recorded: JsonKcResult
+  let recorded: JsonKcResult | undefined
   try {
     recorded = await recordKcResult(req, registration, next)
+    patches.push({ id: registration.id, kcResult: recorded })
   } catch (error) {
     logger.error('kcResult write failed', { ...logContext, error })
-    return {
-      id: registration.id,
-      name: registration.dog.name ?? '',
-      notRecorded: true,
-      outcome: 'failed',
-      regNo: registration.dog.regNo,
-    }
   }
-  patches.push({ id: registration.id, kcResult: recorded })
 
+  // The change history follows what Kennelliitto holds, recorded here or not.
   const auditKey = registrationAuditKey({ eventId: event.id, id: registration.id })
   const auditEntry =
     next.status === 'sent'
@@ -475,14 +469,29 @@ const sendOne = async (
     logger.error('kennelliitto send audit failed', { ...logContext, error })
   }
 
+  return sentReport(registration, next, call.status, recorded !== undefined)
+}
+
+/**
+ * What one dog's sending came to. A dog whose outcome could not be stored here is `failed` with
+ * `notRecorded`, and keeps Kennelliitto's reasons for a refusal: sending it again only repeats one.
+ */
+const sentReport = (
+  registration: JsonRegistration,
+  next: JsonKcResult,
+  callStatus: number,
+  recorded: boolean
+): KcSendReport => {
+  const sent = next.status === 'sent'
   return {
     id: registration.id,
     name: registration.dog.name ?? '',
-    outcome: next.status === 'sent' ? 'sent' : 'failed',
+    ...(recorded ? {} : { notRecorded: true }),
+    outcome: sent && recorded ? 'sent' : 'failed',
     regNo: registration.dog.regNo,
     ...(next.errors ? { errors: next.errors } : {}),
-    ...(next.status === 'sent' ? {} : { status: call.status }),
-    ...(next.tulosId === undefined ? {} : { tulosId: next.tulosId }),
+    ...(sent ? {} : { status: callStatus }),
+    ...(recorded && next.tulosId !== undefined ? { tulosId: next.tulosId } : {}),
   }
 }
 

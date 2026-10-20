@@ -528,6 +528,46 @@ describe('kennelliittoResults', () => {
       // Its stored state stays as it was, so it reads as unsent and is sent again next time.
       expect(registrations[1].kcResult).toBeUndefined()
       expect(result.patches.map((patch) => patch.id)).toEqual(['d1', 'd3'])
+      // Kennelliitto holds it all the same, so the change history says so.
+      expect(mockAudit).toHaveBeenCalledWith({
+        auditKey: 'event-1:d2',
+        messageKey: 'audit.messages.resultSentToKennelliitto',
+        user: 'Sihteeri',
+      })
+    })
+
+    it('keeps Kennelliitto’s reasons for a refused dog whose outcome could not be recorded', async () => {
+      tallennaReply['FI10002/20'] = { body: { virheet: ['Koiran nimi ei täsmää.'] }, status: 400 }
+      const write = mockWriteKcResult.getMockImplementation()
+      onTestFinished(() => {
+        if (write) mockWriteKcResult.mockImplementation(write)
+      })
+      mockWriteKcResult.mockImplementation(async (eventId, id, kcResult, previousAt) => {
+        if (id === 'd2') throw new Error('ValidationException')
+        return write ? write(eventId, id, kcResult, previousAt) : false
+      })
+
+      const result = await sendKennelliittoResults(ctx(), ['d1', 'd2'], { force: false })
+
+      expect(result.reports).toEqual([
+        expect.objectContaining({ id: 'd1', outcome: 'sent' }),
+        {
+          errors: ['Koiran nimi ei täsmää.'],
+          id: 'd2',
+          name: 'Koira d2',
+          notRecorded: true,
+          outcome: 'failed',
+          regNo: 'FI10002/20',
+          status: 400,
+        },
+      ])
+      expect(mockAudit).toHaveBeenCalledWith(
+        expect.objectContaining({
+          auditKey: 'event-1:d2',
+          messageKey: 'audit.messages.resultSendFailed',
+          messageParams: { reason: 'Koiran nimi ei täsmää.' },
+        })
+      )
     })
 
     it('keeps the outcome of a dog whose audit row could not be written', async () => {

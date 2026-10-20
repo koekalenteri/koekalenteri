@@ -11,6 +11,7 @@ import {
   sendKennelliittoResults,
 } from '../lib/kennelliittoResults'
 import { getParam, httpError, lambda, response } from '../lib/lambda'
+import { logger } from '../lib/log'
 import { readEventType } from '../lib/repositories/eventTypeRepository'
 import { readOrganizer } from '../lib/repositories/organizerRepository'
 import { publishEventChange, publishRegistrationPatches } from '../lib/ws/actions'
@@ -55,6 +56,18 @@ const publishEvent = async ({ eventId, organizerId }: Run, patch: Omit<EventPatc
   if (patch) await publishEventChange({ audience: 'admin', organizerId, patch: { ...patch, eventId } })
 }
 
+/**
+ * Tells the open pages after a sending, whose dogs are sent and recorded by then: a notification, so
+ * its failure (the audience lookup is a query of its own) is logged and never costs the answer (KOE-1140).
+ */
+const notifyAfterSending = async (message: string, eventId: string, publish: () => Promise<unknown>) => {
+  try {
+    await publish()
+  } catch (error) {
+    logger.error(message, { error, eventId })
+  }
+}
+
 const previewAction = async (run: Run) => {
   const { eventPatch, ...preview } = await previewKennelliittoResults(run.ctx, run.ids)
   await publishEvent(run, eventPatch)
@@ -69,8 +82,12 @@ const sendAction = async (run: Run) => {
   const { eventPatch, patches, ...sent } = await sendKennelliittoResults(run.ctx, ids, {
     force: run.body.force === true,
   })
-  if (patches.length) await publishRegistrationPatches(run.eventId, patches, run.organizerId)
-  await publishEvent(run, eventPatch)
+  if (patches.length) {
+    await notifyAfterSending('kennelliitto registration patches not published', run.eventId, () =>
+      publishRegistrationPatches(run.eventId, patches, run.organizerId)
+    )
+  }
+  await notifyAfterSending('kennelliitto event change not published', run.eventId, () => publishEvent(run, eventPatch))
   if (sent.blockers.length) throw httpError(409, { blockers: sent.blockers, error: 'blocked' })
   return { ...sent, kcResults: patches }
 }

@@ -1,5 +1,6 @@
-import { vi } from 'vitest'
+import { onTestFinished, vi } from 'vitest'
 import { answerRejections, asJsonConfirmedEvent, constructAPIGwEvent } from '../test-utils/helpers'
+import { loggedLines } from '../test-utils/logs'
 
 const mockResponse = vi.fn()
 const mockAuthorizeWithMemberOf = vi.fn()
@@ -155,6 +156,43 @@ describe('kennelliittoResultsLambda', () => {
         },
         expect.anything()
       )
+    })
+
+    // The dogs are sent and recorded by then: telling the open pages is a notification, and its failure
+    // must not lose the answer (KOE-1140).
+    it('answers with the reports when telling the open pages fails', async () => {
+      const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+      onTestFinished(() => {
+        errorSpy.mockRestore()
+        mockPublishRegistrationPatches.mockReset()
+        mockPublishEventChange.mockReset()
+      })
+      mockSend.mockResolvedValue({
+        blockers: [],
+        eventPatch: { kcGuid: 'g', updatedAt: 'x' },
+        notAttempted: [],
+        patches: [{ id: 'r0', kcResult: { status: 'sent' } }],
+        reports: [{ id: 'r0', outcome: 'sent' }],
+      })
+      mockPublishRegistrationPatches.mockRejectedValueOnce(new Error('ProvisionedThroughputExceededException'))
+      mockPublishEventChange.mockRejectedValueOnce(new Error('ProvisionedThroughputExceededException'))
+
+      await call({ action: 'send', registrationIds: ['r0'] })
+
+      expect(mockResponse).toHaveBeenCalledWith(
+        200,
+        {
+          blockers: [],
+          kcResults: [{ id: 'r0', kcResult: { status: 'sent' } }],
+          notAttempted: [],
+          reports: [{ id: 'r0', outcome: 'sent' }],
+        },
+        expect.anything()
+      )
+      expect(loggedLines(errorSpy)).toEqual([
+        expect.objectContaining({ eventId: 'event-1', message: 'kennelliitto registration patches not published' }),
+        expect.objectContaining({ eventId: 'event-1', message: 'kennelliitto event change not published' }),
+      ])
     })
 
     it('does not force unless asked to', async () => {

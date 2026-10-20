@@ -89,6 +89,11 @@ describe('the messages of a sending', () => {
       'Hukka (FI1/20): Kennelliitto ei vastannut selvästi (tila 500). Yritä uudelleen.',
     ],
     [
+      'with Kennelliitto’s own words when its refusal could not be recorded either (KOE-1140)',
+      { errors: ['Koiran nimi ei täsmää.'], notRecorded: true as const, status: 400 },
+      'Hukka (FI1/20): Koiran nimi ei täsmää.',
+    ],
+    [
       'as not stored here when Kennelliitto’s answer could not be recorded (KOE-1140)',
       { notRecorded: true as const },
       'Hukka (FI1/20): Kennelliiton vastausta ei saatu tallennettua Koekalenteriin. Lähetä koira uudelleen.',
