@@ -1,7 +1,7 @@
 import { storedUser } from '../../test-utils/integration'
 import CustomDynamoClient from '../../utils/CustomDynamoClient'
 import { changedItemsSince } from '../incremental'
-import { readUser, writeMigratedUserRoles } from './userRepository'
+import { queryUsersByEmail, readUser, writeMigratedUserRoles } from './userRepository'
 
 /**
  * The organizer repoint (KOE-1580) writes a user's roles on condition the map is still the one read:
@@ -64,5 +64,22 @@ describe('writeMigratedUserRoles against DynamoDB-local', () => {
       name: 'ConditionalCheckFailedException',
     })
     await expect(readUser(user.id, true)).resolves.toBeUndefined()
+  })
+})
+
+// KOE-1585: query leaves deleted rows out by default; the email lookup asks for them, and its callers
+// tell a deleted user from a live one.
+describe('queryUsersByEmail against DynamoDB-local', () => {
+  const client = new CustomDynamoClient('UserTable')
+
+  it('hands back the deleted users stored under the address with the live ones', async () => {
+    const live = storedUser()
+    const deleted = storedUser({ deletedAt: '2026-10-01T10:00:00.000Z', email: live.email })
+    await client.batchWrite([live, deleted])
+
+    const users = await queryUsersByEmail(live.email)
+
+    expect(users).toHaveLength(2)
+    expect(users).toEqual(expect.arrayContaining([live, deleted]))
   })
 })

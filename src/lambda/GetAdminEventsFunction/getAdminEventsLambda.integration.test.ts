@@ -66,6 +66,43 @@ describe('getAdminEventsLambda against DynamoDB-local', () => {
     expect(ids).toContain(changed.id)
     expect(ids).not.toContain(unchanged.id)
   })
+
+  // KOE-1585: the admin list hides a deleted event itself, and its since fetch learns of the deletion
+  // from the row, so every admin read hands the deleted rows back with their deletedAt.
+  describe('a deleted event', () => {
+    const deletedEvent = (organizerId?: string) =>
+      storedEvent({
+        deletedAt: new Date(now).toISOString(),
+        deletedBy: 'secretary',
+        ...(organizerId ? { organizerId } : {}),
+      })
+    const deletedAtOf = (body: string, id: string) =>
+      JSON.parse(body).find((item: { id: string }) => item.id === id)?.deletedAt
+
+    it.each([
+      ['the season walk', undefined],
+      ['the since read', now - 60_000],
+    ])('comes back with its deletedAt from %s', async (_, since) => {
+      const deleted = deletedEvent()
+      await client.write(deleted)
+      mockAuthorizeWithMemberOf.mockResolvedValue({ memberOf: [], user: storedUser({ admin: true }) })
+
+      const result = await adminEvents(since)
+
+      expect(deletedAtOf(result.body, deleted.id)).toBe(deleted.deletedAt)
+    })
+
+    it("comes back with its deletedAt from a club administrator's read", async () => {
+      const organizerId = uniqueId('org')
+      const deleted = deletedEvent(organizerId)
+      await client.write(deleted)
+      mockAuthorizeWithMemberOf.mockResolvedValue({ memberOf: [organizerId], user: storedUser() })
+
+      const result = await adminEvents()
+
+      expect(deletedAtOf(result.body, deleted.id)).toBe(deleted.deletedAt)
+    })
+  })
 })
 
 // Before New Year an event in early January is next season's: the since walk reads that season too,

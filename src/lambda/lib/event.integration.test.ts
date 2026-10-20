@@ -42,6 +42,21 @@ describe('findQualificationStartDate against DynamoDB-local', () => {
     await expect(findQualificationStartDate(eventType, '2026-06-01')).resolves.toBe('2026-03-02')
   })
 
+  it('takes a live event whose entry closed the same day as a deleted one', async () => {
+    const eventType = uniqueId('type')
+    // The index answers rows with the same entry end in no set order. Whichever comes first, the live
+    // one must answer; with four deleted beside it, a deleted one mostly comes first, and a bound of
+    // `<` its day alone would pass over the live one. The unit test pins that path.
+    const deleted = [1, 2, 3, 4].map(() => ({
+      ...seed(eventType, '2026-05-01'),
+      deletedAt: '2026-04-20T10:00:00.000Z',
+    }))
+    await client.batchWrite([seed(eventType, '2026-03-01'), ...deleted, seed(eventType, '2026-05-01', '2026-04-25')])
+
+    // 26.4., the day after the live one's original entry end.
+    await expect(findQualificationStartDate(eventType, '2026-06-01')).resolves.toBe('2026-04-26')
+  })
+
   it('finds nothing when no entry of the type ended on an earlier day', async () => {
     const eventType = uniqueId('type')
     await client.write(seed(eventType, '2026-05-01'))
