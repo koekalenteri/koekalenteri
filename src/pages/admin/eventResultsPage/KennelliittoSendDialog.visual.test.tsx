@@ -95,7 +95,7 @@ it('reports who was saved and who was refused, with Kennelliitto’s own words',
               status: 400,
             },
             { id: '10005', name: 'Nelli', outcome: 'failed', regNo: 'FI10005/21', status: 0 },
-            { id: '10007', name: 'Mirri', notRecorded: true, outcome: 'failed', regNo: 'FI10007/21' },
+            { answerNotStored: true, id: '10007', name: 'Mirri', outcome: 'failed', regNo: 'FI10007/21' },
             {
               dogStatus: 'blocked',
               id: '10006',

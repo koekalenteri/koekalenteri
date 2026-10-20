@@ -36,10 +36,14 @@ export const skippedLine = (t: TFunction, report: KcSendReport): DogLine => ({
   }`,
 })
 
-/** Why a sent dog failed: Kennelliitto's own words, the status of a refusal without them, or that its answer was not stored here. */
+/**
+ * Why a sent dog failed: Kennelliitto's own words; else the status of a call it did not accept, since
+ * then there was no answer to store and sending again is the advice; else, for a dog it accepted, that
+ * its answer was not stored here (KOE-1140).
+ */
 const failureText = (t: TFunction, report: KcSendReport): string => {
   if (report.errors) return report.errors.join(' ')
-  if (report.notRecorded) return t('results.kennelliitto.notRecorded')
+  if (report.answerNotStored && report.status === undefined) return t('results.kennelliitto.answerNotStored')
   return t('results.kennelliitto.statusUnknown', { status: report.status ?? 0 })
 }
 

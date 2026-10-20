@@ -522,7 +522,7 @@ describe('kennelliittoResults', () => {
 
       expect(result.reports).toEqual([
         { id: 'd1', name: 'Koira d1', outcome: 'sent', regNo: 'FI10001/20', tulosId: expect.any(Number) },
-        { id: 'd2', name: 'Koira d2', notRecorded: true, outcome: 'failed', regNo: 'FI10002/20' },
+        { answerNotStored: true, id: 'd2', name: 'Koira d2', outcome: 'failed', regNo: 'FI10002/20' },
         { id: 'd3', name: 'Koira d3', outcome: 'sent', regNo: 'FI10003/20', tulosId: expect.any(Number) },
       ])
       // Its stored state stays as it was, so it reads as unsent and is sent again next time.
@@ -552,10 +552,10 @@ describe('kennelliittoResults', () => {
       expect(result.reports).toEqual([
         expect.objectContaining({ id: 'd1', outcome: 'sent' }),
         {
+          answerNotStored: true,
           errors: ['Koiran nimi ei täsmää.'],
           id: 'd2',
           name: 'Koira d2',
-          notRecorded: true,
           outcome: 'failed',
           regNo: 'FI10002/20',
           status: 400,
@@ -584,7 +584,7 @@ describe('kennelliittoResults', () => {
 
       expect(mockWriteKcResult).toHaveBeenCalledTimes(3)
       expect(result.reports).toEqual([
-        { id: 'd1', name: 'Koira d1', notRecorded: true, outcome: 'failed', regNo: 'FI10001/20' },
+        { answerNotStored: true, id: 'd1', name: 'Koira d1', outcome: 'failed', regNo: 'FI10001/20' },
         expect.objectContaining({ id: 'd2', outcome: 'sent' }),
       ])
       expect(result.patches.map((patch) => patch.id)).toEqual(['d2'])

@@ -1143,6 +1143,7 @@
     "interruption": "Interruption",
     "judge": "Judge",
     "kennelliitto": {
+      "answerNotStored": "Kennelliitto’s answer could not be stored in Koekalenteri. Send the dog again.",
       "badge": {
         "changed": "Changed",
         "changedNote": "The result was changed after sending: send it again",
@@ -1200,7 +1201,6 @@
       "notAttempted_one": "There was no time to try sending for {{count}} dog. Send again.",
       "notAttempted_other": "There was no time to try sending for {{count}} dogs. Send again.",
       "nothingToSend": "Nothing to send.",
-      "notRecorded": "Kennelliitto’s answer could not be stored in Koekalenteri. Send the dog again.",
       "problem": {
         "additionalInfoNotAllowed": "The additional info \"{{detail}}\" cannot be sent in this format",
         "dayChanged": "The result was sent for {{detail}}, but the dog's day has changed: remove the old result in Omakoira first",

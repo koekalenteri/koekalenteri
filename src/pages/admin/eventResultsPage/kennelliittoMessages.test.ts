@@ -65,6 +65,12 @@ describe('the messages of a sending', () => {
     expect(line.text).toEqual('Musti (FI3/20): Ei tulosta')
   })
 
+  it('says a skipped dog without a state as one without a result', () => {
+    const line = skippedLine(finnish.t, { id: 'c', name: 'Musti', outcome: 'skipped', regNo: 'FI3/20' })
+
+    expect(line.text).toEqual('Musti (FI3/20): Ei tulosta')
+  })
+
   it('says a skipped dog that is not on the trial by its id', () => {
     const line = skippedLine(finnish.t, {
       dogStatus: 'notRecorded',
@@ -89,14 +95,24 @@ describe('the messages of a sending', () => {
       'Hukka (FI1/20): Kennelliitto ei vastannut selvästi (tila 500). Yritä uudelleen.',
     ],
     [
-      'with Kennelliitto’s own words when its refusal could not be recorded either (KOE-1140)',
-      { errors: ['Koiran nimi ei täsmää.'], notRecorded: true as const, status: 400 },
+      'with Kennelliitto’s own words when its refusal could not be stored either (KOE-1140)',
+      { answerNotStored: true as const, errors: ['Koiran nimi ei täsmää.'], status: 400 },
       'Hukka (FI1/20): Koiran nimi ei täsmää.',
     ],
     [
-      'as not stored here when Kennelliitto’s answer could not be recorded (KOE-1140)',
-      { notRecorded: true as const },
+      'by the status when Kennelliitto gave no usable answer, stored here or not (KOE-1140)',
+      { answerNotStored: true as const, status: 503 },
+      'Hukka (FI1/20): Kennelliitto ei vastannut selvästi (tila 503). Yritä uudelleen.',
+    ],
+    [
+      'as not stored here when Kennelliitto accepted it and its answer could not be stored (KOE-1140)',
+      { answerNotStored: true as const },
       'Hukka (FI1/20): Kennelliiton vastausta ei saatu tallennettua Koekalenteriin. Lähetä koira uudelleen.',
+    ],
+    [
+      'as an unclear answer when the report says nothing more',
+      {},
+      'Hukka (FI1/20): Kennelliitto ei vastannut selvästi (tila 0). Yritä uudelleen.',
     ],
   ])('says a failed dog %s', (_case, fields, text) => {
     const line = failedLine(finnish.t, { id: 'a', name: 'Hukka', outcome: 'failed', regNo: 'FI1/20', ...fields })

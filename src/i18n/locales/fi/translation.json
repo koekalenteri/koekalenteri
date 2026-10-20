@@ -1143,6 +1143,7 @@
     "interruption": "Keskeytys",
     "judge": "Tuomari",
     "kennelliitto": {
+      "answerNotStored": "Kennelliiton vastausta ei saatu tallennettua Koekalenteriin. Lähetä koira uudelleen.",
       "badge": {
         "changed": "Muuttunut",
         "changedNote": "Tulosta on muutettu lähetyksen jälkeen: lähetä se uudelleen",
@@ -1200,7 +1201,6 @@
       "notAttempted_one": "{{count}} koiralle ei ehditty yrittää lähetystä. Lähetä uudelleen.",
       "notAttempted_other": "{{count}} koiralle ei ehditty yrittää lähetystä. Lähetä uudelleen.",
       "nothingToSend": "Ei lähetettävää.",
-      "notRecorded": "Kennelliiton vastausta ei saatu tallennettua Koekalenteriin. Lähetä koira uudelleen.",
       "problem": {
         "additionalInfoNotAllowed": "Lisätietoa \"{{detail}}\" ei voi lähettää tässä koemuodossa",
         "dayChanged": "Tulos on lähetetty päivälle {{detail}}, mutta koiran päivä on vaihtunut: poista vanha tulos Omakoirasta ensin",

@@ -473,7 +473,7 @@ const sendOne = async (
 
 /**
  * What one dog's sending came to. A dog whose outcome could not be stored here is `failed` with
- * `notRecorded`, and keeps Kennelliitto's reasons for a refusal: sending it again only repeats one.
+ * `answerNotStored`, and keeps Kennelliitto's reasons for a refusal: sending it again only repeats one.
  */
 const sentReport = (
   registration: JsonRegistration,
@@ -485,7 +485,7 @@ const sentReport = (
   return {
     id: registration.id,
     name: registration.dog.name ?? '',
-    ...(recorded ? {} : { notRecorded: true }),
+    ...(recorded ? {} : { answerNotStored: true }),
     outcome: sent && recorded ? 'sent' : 'failed',
     regNo: registration.dog.regNo,
     ...(next.errors ? { errors: next.errors } : {}),
