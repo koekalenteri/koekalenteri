@@ -730,12 +730,21 @@ describe('useConfirmedEvent', () => {
       new APIError(new Response(null, { status: 503, statusText: 'Service Unavailable' }), '')
     )
 
-    const { result } = renderHook(() => useConfirmedEvent('event-1'), {
-      wrapper: wrapperWithState([stored as PublicDogEvent], { singles: { 'event-1': Date.now() - 10 * 60 * 1000 } }),
-    })
+    const stale = Date.now() - 10 * 60 * 1000
+    const { result } = renderHook(
+      () => ({
+        event: useConfirmedEvent('event-1'),
+        events: useAtomValue(eventsAtom),
+        metadata: useAtomValue(eventMetadataAtom),
+      }),
+      { wrapper: wrapperWithState([stored as PublicDogEvent], { singles: { 'event-1': stale } }) }
+    )
 
-    await waitFor(() => expect(getEvent).toHaveBeenCalledWith('event-1'))
-    await waitFor(() => expect(result.current).toEqual(stored))
+    // Settled: the failed fetch marks the event as fetched, and only then is the cache decided.
+    await waitFor(() => expect(result.current.metadata.singles['event-1']).toBeGreaterThan(stale))
+    expect(getEvent).toHaveBeenCalledWith('event-1')
+    expect(result.current.events.map(({ id }) => id)).toEqual(['event-1'])
+    expect(result.current.event).toEqual(stored)
   })
 
   it('fetches an event that is not stored at all', async () => {

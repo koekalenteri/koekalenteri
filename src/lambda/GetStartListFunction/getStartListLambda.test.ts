@@ -1,12 +1,11 @@
 import { vi } from 'vitest'
 import { httpError } from '../lib/lambda'
-import { constructPartialAPIGwEvent, deletedEvent, eventNotFound } from '../test-utils/helpers'
+import { constructPartialAPIGwEvent, eventNotFound } from '../test-utils/helpers'
 
 const mockGetParam = vi.fn()
 const mockLambda = vi.fn((_name, fn) => fn)
 const mockResponse = vi.fn()
 const mockAuthorizeWithMemberOf = vi.fn()
-const mockGetEvent = vi.fn()
 const mockGetLiveEvent = vi.fn()
 const mockReadEventRegistrations = vi.fn()
 
@@ -26,7 +25,6 @@ vi.doMock('../lib/lambda', async () => ({
 }))
 
 vi.doMock('../lib/event', () => ({
-  getEvent: mockGetEvent,
   getLiveEvent: mockGetLiveEvent,
 }))
 
@@ -402,7 +400,7 @@ describe('getStartListLambda', () => {
     }
 
     mockGetParam.mockReturnValueOnce('event123')
-    mockGetEvent.mockResolvedValueOnce(confirmedEvent)
+    mockGetLiveEvent.mockResolvedValueOnce(confirmedEvent)
     mockReadEventRegistrations.mockResolvedValueOnce([
       registration,
       {
@@ -454,7 +452,7 @@ describe('getStartListLambda', () => {
     }
 
     mockGetParam.mockReturnValueOnce('event123')
-    mockGetEvent.mockResolvedValueOnce(confirmedEvent)
+    mockGetLiveEvent.mockResolvedValueOnce(confirmedEvent)
     mockReadEventRegistrations.mockResolvedValueOnce([
       {
         ...base,
@@ -490,14 +488,14 @@ describe('getStartListLambda', () => {
 
     await expect(getStartListLambda(previewEvent)).rejects.toMatchObject({ status: 401 })
 
-    expect(mockGetEvent).not.toHaveBeenCalled()
+    expect(mockGetLiveEvent).not.toHaveBeenCalled()
     expect(mockReadEventRegistrations).not.toHaveBeenCalled()
   })
 
   it("forbids previewing another organizer's event", async () => {
     const previewEvent = { ...event, resource: '/admin/startlist/{eventId}' }
     mockGetParam.mockReturnValueOnce('event123')
-    mockGetEvent.mockResolvedValueOnce({ id: 'event123', organizer: { id: 'another-org' } })
+    mockGetLiveEvent.mockResolvedValueOnce({ id: 'event123', organizer: { id: 'another-org' } })
 
     await expect(getStartListLambda(previewEvent)).rejects.toThrow('Forbidden')
 
@@ -508,7 +506,7 @@ describe('getStartListLambda', () => {
     const previewEvent = { ...event, resource: '/admin/startlist/{eventId}' }
     mockAuthorizeWithMemberOf.mockResolvedValueOnce({ memberOf: [], user: { admin: true, id: 'admin1', roles: {} } })
     mockGetParam.mockReturnValueOnce('event123')
-    mockGetEvent.mockResolvedValueOnce({ id: 'event123', organizer: { id: 'another-org' } })
+    mockGetLiveEvent.mockResolvedValueOnce({ id: 'event123', organizer: { id: 'another-org' } })
     mockReadEventRegistrations.mockResolvedValueOnce([])
 
     await getStartListLambda(previewEvent)
@@ -755,9 +753,7 @@ describe('getStartListLambda', () => {
 
   // KOE-1586: the public list of a deleted event was still served.
   it('answers a deleted event as a missing one, without reading the registrations', async () => {
-    const confirmedEvent = { id: 'event123', startListPublished: true, state: 'invited' }
     mockGetParam.mockReturnValueOnce('event123')
-    mockGetEvent.mockResolvedValueOnce(deletedEvent(confirmedEvent))
     mockGetLiveEvent.mockRejectedValueOnce(eventNotFound('event123'))
 
     await expect(getStartListLambda(event)).rejects.toMatchObject({ status: 404 })

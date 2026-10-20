@@ -1,7 +1,8 @@
 import type { JsonDogEvent } from '../../../types'
 import type { WebSocketConnection } from './types'
 import { vi } from 'vitest'
-import { asJsonConfirmedEvent, asJsonRegistration } from '../../test-utils/helpers'
+import { asJsonConfirmedEvent, asJsonRegistration, eventNotFound } from '../../test-utils/helpers'
+import { LambdaError } from '../lambda'
 
 const mockPublicStartListAudience = vi.fn()
 const mockReadEventRegistrations = vi.fn()
@@ -130,6 +131,29 @@ describe('ws/publicStartList', () => {
 
     expect(mockGetLiveEvent).not.toHaveBeenCalled()
     expect(mockReadEventRegistrations).not.toHaveBeenCalled()
+    expect(mockBroadcast).not.toHaveBeenCalled()
+  })
+
+  // KOE-1586: an organizer's write on a deleted event asks for the broadcast after it has landed.
+  it('sends nothing for a deleted or missing event, and does not throw', async () => {
+    mockGetLiveEvent.mockRejectedValueOnce(eventNotFound('event-1'))
+
+    await expect(publishPublicStartList('event-1')).resolves.toEqual({
+      attempted: 0,
+      failed: 0,
+      gone: 0,
+      sent: 0,
+    })
+
+    expect(mockGetLiveEvent).toHaveBeenCalledWith('event-1', true)
+    expect(mockReadEventRegistrations).not.toHaveBeenCalled()
+    expect(mockBroadcast).not.toHaveBeenCalled()
+  })
+
+  it('passes on any other failure to read the list', async () => {
+    mockGetLiveEvent.mockRejectedValueOnce(new LambdaError(500, 'boom'))
+
+    await expect(publishPublicStartList('event-1')).rejects.toMatchObject({ status: 500 })
     expect(mockBroadcast).not.toHaveBeenCalled()
   })
 

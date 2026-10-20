@@ -1,4 +1,5 @@
 import type { JsonPublicRegistration } from '../../../types'
+import { LambdaError } from '../lambda'
 import { readPublishedStartList } from '../startList'
 import { broadcast } from './broadcast'
 import { removeConnection } from './connectionRepository'
@@ -10,6 +11,22 @@ import { publicStartListAudience } from './connectionSelectors'
 const MAX_MESSAGE_BYTES = 120_000
 
 const PUBLIC_START_LIST_SCOPE = 'public:start-list'
+
+const NOTHING_SENT = { attempted: 0, failed: 0, gone: 0, sent: 0 }
+
+/**
+ * The list to send, or undefined for an event that is missing or deleted (KOE-1586): the public
+ * reader answers those with a 404, and the organizer's write that asked for the broadcast has
+ * already landed, so there is nothing to send rather than an error to throw.
+ */
+const readBroadcastList = async (eventId: string) => {
+  try {
+    return await readPublishedStartList(eventId)
+  } catch (error) {
+    if (error instanceof LambdaError && error.status === 404) return undefined
+    throw error
+  }
+}
 
 export const buildPublicStartListPayload = (
   eventId: string,
@@ -38,11 +55,14 @@ export const buildPublicStartListPayload = (
  */
 export const publishPublicStartList = async (eventId: string) => {
   const audience = await publicStartListAudience(eventId)
-  if (!audience.length) return { attempted: 0, failed: 0, gone: 0, sent: 0 }
+  if (!audience.length) return NOTHING_SENT
 
   // A start list that is not available is published as empty rather than skipped: unpublishing has
   // to take the rows away from the readers who already have them.
-  const { participants, version } = await readPublishedStartList(eventId)
+  const list = await readBroadcastList(eventId)
+  if (!list) return NOTHING_SENT
+
+  const { participants, version } = list
   const payload = buildPublicStartListPayload(eventId, participants, version)
 
   return broadcast({

@@ -1,11 +1,10 @@
 import { vi } from 'vitest'
-import { asJsonConfirmedEvent, asJsonRegistration, deletedEvent, eventNotFound } from '../test-utils/helpers'
+import { asJsonConfirmedEvent, asJsonRegistration, eventNotFound } from '../test-utils/helpers'
 
-const mockGetEvent = vi.fn()
 const mockGetLiveEvent = vi.fn()
 const mockReadEventRegistrations = vi.fn()
 
-vi.doMock('./event', () => ({ getEvent: mockGetEvent, getLiveEvent: mockGetLiveEvent }))
+vi.doMock('./event', () => ({ getLiveEvent: mockGetLiveEvent }))
 vi.doMock('./repositories/registrationRepository', () => ({
   readEventRegistrations: mockReadEventRegistrations,
 }))
@@ -79,18 +78,16 @@ describe('readPublishedStartList (KOE-1516)', () => {
   })
 
   it('composes an unpublished list for a preview', async () => {
-    mockGetEvent.mockResolvedValueOnce({ ...publishedEvent, startListPublished: { ALO: false } })
+    mockGetLiveEvent.mockResolvedValueOnce({ ...publishedEvent, startListPublished: { ALO: false } })
 
     await expect(readPublishedStartList('event-1', { preview: true })).resolves.toEqual(
       expect.objectContaining({ available: true, participants: [expect.objectContaining({ handler: 'Handler' })] })
     )
-    expect(mockGetEvent).toHaveBeenCalledWith('event-1', true)
-    expect(mockGetLiveEvent).not.toHaveBeenCalled()
+    expect(mockGetLiveEvent).toHaveBeenCalledWith('event-1', true)
   })
 
   // KOE-1586: the public list of a deleted event was still served.
   it('answers a deleted event as a missing one, without reading the registrations', async () => {
-    mockGetEvent.mockResolvedValue(deletedEvent(publishedEvent))
     mockGetLiveEvent.mockRejectedValueOnce(eventNotFound('event-1'))
 
     await expect(readPublishedStartList('event-1')).rejects.toMatchObject({ status: 404 })
@@ -99,12 +96,11 @@ describe('readPublishedStartList (KOE-1516)', () => {
     expect(mockReadEventRegistrations).not.toHaveBeenCalled()
   })
 
-  it("previews a deleted event's list for its organizer", async () => {
-    mockGetEvent.mockResolvedValueOnce(deletedEvent(publishedEvent))
+  it('answers a deleted event as a missing one for the preview too', async () => {
+    mockGetLiveEvent.mockRejectedValueOnce(eventNotFound('event-1'))
 
-    await expect(readPublishedStartList('event-1', { preview: true })).resolves.toEqual(
-      expect.objectContaining({ available: true })
-    )
+    await expect(readPublishedStartList('event-1', { preview: true })).rejects.toMatchObject({ status: 404 })
+    expect(mockReadEventRegistrations).not.toHaveBeenCalled()
   })
 
   it('lets the caller refuse the event before any registration is read', async () => {

@@ -428,7 +428,8 @@ describe('lib/event', () => {
       const missing = await getEvent(eventId).catch((error: unknown) => error)
 
       expect(live).toBeInstanceOf(LambdaError)
-      expect(live).toEqual(missing)
+      expect(live).toMatchObject({ error: "Event with id 'test-id' was not found", status: 404 })
+      expect(missing).toMatchObject({ error: "Event with id 'test-id' was not found", status: 404 })
     })
   })
 
