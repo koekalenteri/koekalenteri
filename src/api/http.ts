@@ -36,7 +36,7 @@ const NETWORK_RETRY_DELAY_MS = 400
 
 const getDefaultHttpTimeoutMs = () => {
   const configuredHttpTimeoutMs = Number(process.env.REACT_APP_HTTP_TIMEOUT_MS)
-  return Number.isFinite(configuredHttpTimeoutMs) && configuredHttpTimeoutMs > 0 ? configuredHttpTimeoutMs : 10_000
+  return Number.isFinite(configuredHttpTimeoutMs) && configuredHttpTimeoutMs > 0 ? configuredHttpTimeoutMs : 30_000
 }
 
 const getCoalesceKey = (path: string, init: HttpRequestInit | undefined): string | undefined => {

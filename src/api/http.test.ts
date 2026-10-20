@@ -237,16 +237,18 @@ describe('http', () => {
       expect(enqueueSnackbar).not.toHaveBeenCalled()
     })
 
-    it('uses the configured default timeout', async () => {
+    const expectTimeoutAfter = async (timeoutMs: number, configuredTimeout: string | undefined) => {
       vi.useFakeTimers({ toFake: ['Date', 'setTimeout', 'clearTimeout'] })
       let fetchSignal: AbortSignal | null | undefined
       const originalTimeout = Object.getOwnPropertyDescriptor(process.env, 'REACT_APP_HTTP_TIMEOUT_MS')
-      Object.defineProperty(process.env, 'REACT_APP_HTTP_TIMEOUT_MS', {
-        configurable: true,
-        enumerable: true,
-        value: '60',
-        writable: true,
-      })
+      if (configuredTimeout === undefined) Reflect.deleteProperty(process.env, 'REACT_APP_HTTP_TIMEOUT_MS')
+      else
+        Object.defineProperty(process.env, 'REACT_APP_HTTP_TIMEOUT_MS', {
+          configurable: true,
+          enumerable: true,
+          value: configuredTimeout,
+          writable: true,
+        })
 
       try {
         fetchMock.mockImplementationOnce(
@@ -263,7 +265,7 @@ describe('http', () => {
           expect.objectContaining({ status: 408, statusText: `timeout loading ${API_BASE_URL}/test/` })
         )
 
-        await vi.advanceTimersByTimeAsync(59)
+        await vi.advanceTimersByTimeAsync(timeoutMs - 1)
         expect(fetchSignal?.aborted).toBe(false)
 
         await vi.advanceTimersByTimeAsync(1)
@@ -274,6 +276,14 @@ describe('http', () => {
         vi.runOnlyPendingTimers()
         vi.useRealTimers()
       }
+    }
+
+    it('waits 30 seconds by default, longer than API Gateway answers', async () => {
+      await expectTimeoutAfter(30_000, undefined)
+    })
+
+    it('uses the configured default timeout', async () => {
+      await expectTimeoutAfter(60, '60')
     })
 
     it('supports a per-request timeout override', async () => {
