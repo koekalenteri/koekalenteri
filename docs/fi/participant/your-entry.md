@@ -9,6 +9,8 @@ covers:
   - src/pages/RegistrationInvitation.tsx
   - src/pages/components/CancelDialog.tsx
   - src/pages/components/RegistrationEventInfo.tsx
+  - src/pages/components/RegistrationForm.tsx
+  - src/lib/registration.ts
 ---
 
 Vahvistusviestin linkki vie ilmoittautumisesi omalle sivulle, jonka otsikko on **{t:entryList}**.
@@ -79,10 +81,10 @@ vie maksamaan. Koekutsu lähtee sinulle vasta, kun koepaikka on maksettu.
 Koiran rivin oikean laidan valikosta (⋮) valinta **{t:registration.actions.edit}** avaa saman
 lomakkeen, jolla ilmoittauduit. Muutokset tallennetaan painikkeella
 **{t:registration.cta.saveChanges}**. Lomake on muokattavissa ilmoittautumisaikana ja uudelleen
-koepäivinä kokeen viimeisen päivän loppuun asti. Ilmoittautumisajan päätyttyä ennen kokeen alkua,
-kun koepaikkoja jaetaan, sekä kokeen päätyttyä tai kun luokkasi on arvosteltu, tiedot näkyvät mutta
-niitä ei voi muuttaa. Kun koira on saanut koepaikan, luokkaa, koepäiviä, kasvattajaa, omistajaa,
-ohjaajaa ja koetuloksia ei voi enää muuttaa itse. Kun ilmoittautuminen on maksettu, koiraa,
+koepäivinä kokeen viimeisen päivän loppuun asti. Ilmoittautumisajan päättymisestä kokeen alkuun,
+jolloin koepaikkoja jaetaan, sekä kokeen päätyttyä tai kun luokkasi on arvosteltu, tiedot näkyvät
+mutta niitä ei voi muuttaa. Kun koira on saanut koepaikan, luokkaa, koepäiviä, varasijalta
+osallistumisen valintaa, kasvattajaa, omistajaa, ohjaajaa ja koetuloksia ei voi enää muuttaa itse. Kun ilmoittautuminen on maksettu, koiraa,
 jäsenyystietoja, osallistumismaksun valintaa ja lisäpalveluja ei voi enää muuttaa itse, vaikka
 ilmoittautumisaikaa olisi jäljellä. Näissä tapauksissa muutokset hoidetaan koesihteerin kanssa.
 Peruttu ilmoittautuminen avautuu otsikolla *{t:registration.state.cancelled}*.
