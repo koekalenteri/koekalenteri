@@ -25,9 +25,8 @@ vi.doMock('../../utils/CustomDynamoClient', () => ({
   },
 }))
 
-const { addOrganizers, readOrganizer, readOrganizers, renameOrganizer, saveOrganizer } = await import(
-  './organizerRepository'
-)
+const { addOrganizers, readOrganizer, readOrganizers, readOrganizersIncludingDeleted, renameOrganizer, saveOrganizer } =
+  await import('./organizerRepository')
 
 const organizer: Organizer = { id: 'org1', kcId: 400294, name: 'Seura', paytrailMerchantId: 'm-1' }
 
@@ -56,6 +55,20 @@ describe('organizerRepository', () => {
     mockReadAll.mockResolvedValueOnce(undefined)
 
     await expect(readOrganizers()).resolves.toEqual([])
+  })
+
+  it('readOrganizersIncludingDeleted returns the soft-deleted rows too', async () => {
+    const deleted = { ...organizer, deletedAt: '2025-01-01T00:00:00.000Z', id: 'org-deleted' }
+    mockReadAll.mockResolvedValueOnce([organizer, deleted])
+
+    await expect(readOrganizersIncludingDeleted()).resolves.toEqual([organizer, deleted])
+    expect(mockReadAll).toHaveBeenCalledWith({ includeDeleted: true })
+  })
+
+  it('readOrganizersIncludingDeleted returns an empty list when the scan returns nothing', async () => {
+    mockReadAll.mockResolvedValueOnce(undefined)
+
+    await expect(readOrganizersIncludingDeleted()).resolves.toEqual([])
   })
 
   it('readOrganizer reads the organizer by its id', async () => {

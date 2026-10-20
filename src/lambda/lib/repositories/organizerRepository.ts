@@ -1,4 +1,4 @@
-import type { Organizer } from '../../../types'
+import type { JsonDbRecord, Organizer } from '../../../types'
 import { CONFIG } from '../../config'
 import CustomDynamoClient from '../../utils/CustomDynamoClient'
 
@@ -9,6 +9,16 @@ type OrganizerChanges = Partial<Organizer> & Pick<Organizer, 'id'>
 
 /** Every organizer the table holds. */
 export const readOrganizers = async (): Promise<Organizer[]> => (await dynamoDB.readAll<Organizer>()) ?? []
+
+/** An organizer row as the table holds it, a soft-deleted one included. */
+export type StoredOrganizer = Organizer & Pick<JsonDbRecord, 'deletedAt'>
+
+/**
+ * Every organizer row, the soft-deleted ones too: what decides whether an id is one this table has
+ * ever held (KOE-1580).
+ */
+export const readOrganizersIncludingDeleted = async (): Promise<StoredOrganizer[]> =>
+  (await dynamoDB.readAll<StoredOrganizer>({ includeDeleted: true })) ?? []
 
 /** The organizer by its id, or undefined for one the table does not hold. */
 export const readOrganizer = async (id: string) => dynamoDB.read<Organizer>({ id })

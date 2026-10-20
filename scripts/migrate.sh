@@ -1,3 +1,12 @@
+# Copies every row of one table into another, as it is.
+#
+# WARNING: organizer ids are minted per environment (GetOrganizersFunction gives each new Kennel Club
+# organizer a fresh nanoid), and events (organizer.id, organizerId) and users (the keys of roles) carry
+# them. Copying the event or user table between environments without the organizer table leaves rows
+# naming organizers the target does not hold: the club shows twice in the admin list (KOE-1580). To
+# copy single events between environments use the admin "Kopioi ympäristöön" action, which matches the
+# organizer by its Kennel Club number; after a table copy, run the forced migration (POST /admin/migrate).
+
 # exit on error
 set -eo pipefail
 

@@ -120,8 +120,17 @@ Read `LLM_CONTEXT.md` for the project overview and architecture notes.
 ## Data Migrations
 
 - A one-off data migration is an entry in the `migrations` array of
-  `src/lambda/RunMigrationFunction/handler.ts`: a `name` plus an idempotent `run(event)` that
-  mutates the item and returns whether it changed.
+  `src/lambda/RunMigrationFunction/handler.ts`: a `name` plus an idempotent, synchronous
+  `run(event, context)` that mutates the item and returns whether it changed. `context` is what the
+  run reads once before any row (today the organizer repoint of KOE-1580, from the organizer table
+  and the events as read). A migration that leaves rows it cannot decide about adds `skipped(rows,
+  context)`: the run answers and logs their ids in one warning, and still records the migration.
+- `userMigrations` in the same file migrate the user table the same way, applied, hashed and
+  recorded alike, and may change only `roles`, which is all the runner writes of a user (on
+  condition the roles are still the ones read); the changed users' scopes get one `users` data
+  version bump. They run before the event migrations.
+- An event migration that changes the organizer or the start date moves the organizer stats row
+  (ORG#) before the event is written, so a failed move leaves the event for the next run to find.
 - The deploy runs it, nobody runs it by hand: after `sam deploy`, the `Run data migrations` step of
   `deploy-backend` in `release.yml` invokes the function directly (`aws lambda invoke`, no
   `requestContext`, so no Cognito check) and prints the counters. A failed run fails the job before
