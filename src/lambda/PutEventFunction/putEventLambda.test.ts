@@ -50,6 +50,11 @@ const invitedParticipant = (eventClass?: string) => ({
   messagesSent: { invitation: true },
 })
 
+const mockReadOrganizer = vi.fn()
+vi.doMock('../lib/repositories/organizerRepository', () => ({
+  readOrganizer: mockReadOrganizer,
+}))
+
 const mockPublishEventChange = vi.fn()
 const mockPublishEventCounts = vi.fn()
 vi.doMock('../lib/ws/actions', () => ({
@@ -159,6 +164,7 @@ describe('putEventLambda', () => {
 
   beforeEach(() => {
     vi.clearAllMocks()
+    mockReadOrganizer.mockImplementation(async (id: string) => ({ id, kcId: 1, name: `Club ${id}` }))
     patchEventMock.mockImplementation(async (_id, _existing, next) => ({ event: next }))
     mockReadEventRegistrations.mockResolvedValue([
       invitedParticipant(),
@@ -283,6 +289,88 @@ describe('putEventLambda', () => {
       user: 'Test User',
     })
     expect(res.statusCode).toEqual(200)
+  })
+
+  // KOE-1580: an event on an organizer id this environment's table does not hold shows the club twice
+  // in the admin list and has no merchant for its payments.
+  describe('the organizer must be one the table holds', () => {
+    it('refuses a new event on an organizer the table does not hold', async () => {
+      authorizeMock.mockResolvedValueOnce(mockAdmin)
+      mockReadOrganizer.mockResolvedValueOnce(undefined)
+
+      const res = await putEventLambda(
+        constructAPIGwEvent<Partial<JsonDogEvent>>({
+          ...confirmedDates,
+          eventType: 'TEST',
+          organizer: { id: 'prod-id', name: 'AURAN NUUSKUT RY' },
+        })
+      )
+
+      expect(res.statusCode).toEqual(400)
+      expect(JSON.parse(res.body)).toEqual({ error: 'unknownOrganizer', message: expect.stringContaining('prod-id') })
+      expect(mockReadOrganizer).toHaveBeenCalledWith('prod-id')
+      expect(saveEventMock).not.toHaveBeenCalled()
+    })
+
+    it('refuses moving an event to an organizer the table does not hold', async () => {
+      authorizeMock.mockResolvedValueOnce(mockAdmin)
+      getEventMock.mockResolvedValueOnce(mockEvent)
+      mockReadOrganizer.mockResolvedValueOnce(undefined)
+
+      const res = await putEventLambda(
+        constructAPIGwEvent<Partial<JsonDogEvent>>({ id: 'existing', organizer: { id: 'prod-id', name: 'Seura' } })
+      )
+
+      expect(res.statusCode).toEqual(400)
+      expect(patchEventMock).not.toHaveBeenCalled()
+      expect(saveEventMock).not.toHaveBeenCalled()
+    })
+
+    it('saves a new event on an organizer the table holds', async () => {
+      authorizeMock.mockResolvedValueOnce(mockSecretary)
+
+      const res = await putEventLambda(
+        constructAPIGwEvent<Partial<JsonDogEvent>>({
+          ...confirmedDates,
+          eventType: 'TEST',
+          organizer: { id: 'org-id', name: 'org name' },
+        })
+      )
+
+      expect(res.statusCode).toEqual(200)
+      expect(mockReadOrganizer).toHaveBeenCalledWith('org-id')
+    })
+
+    it('does not read the organizer when a patch renames the organizer it keeps', async () => {
+      authorizeMock.mockResolvedValueOnce(mockSecretary)
+      getEventMock.mockResolvedValueOnce(mockEvent)
+
+      const res = await putEventLambda(
+        constructAPIGwEvent<Partial<JsonDogEvent>>(
+          { id: 'existing', organizer: { id: 'org-id', name: 'renamed org' } },
+          { method: 'PATCH' }
+        )
+      )
+
+      expect(res.statusCode).toEqual(200)
+      expect(mockReadOrganizer).not.toHaveBeenCalled()
+    })
+
+    it('does not read the organizer when the event keeps its own', async () => {
+      authorizeMock.mockResolvedValueOnce(mockSecretary)
+      getEventMock.mockResolvedValueOnce(mockEvent)
+
+      const res = await putEventLambda(
+        constructAPIGwEvent<Partial<JsonDogEvent>>({
+          eventType: 'TEST',
+          id: 'existing',
+          organizer: mockEvent.organizer,
+        })
+      )
+
+      expect(res.statusCode).toEqual(200)
+      expect(mockReadOrganizer).not.toHaveBeenCalled()
+    })
   })
 
   it('creates a new event without the results flag a copy carried (KOE-1510)', async () => {

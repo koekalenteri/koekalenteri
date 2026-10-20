@@ -31,6 +31,7 @@ import {
 import { parseJSONWithFallback } from '../lib/json'
 import { httpError, isPatchRequest, lambda, response } from '../lib/lambda'
 import { logger } from '../lib/log'
+import { readOrganizer } from '../lib/repositories/organizerRepository'
 import { readEventRegistrations } from '../lib/repositories/registrationRepository'
 import { validateBody } from '../lib/request'
 import { moveOrganizerEventStats } from '../lib/stats'
@@ -314,6 +315,20 @@ const checkPaymentLock = async (existing: JsonConfirmedEvent | undefined, data: 
   }
 }
 
+/**
+ * An event names an organizer this environment's table holds. Organizer ids are minted per
+ * environment, so an id from another one (a copied row) makes the club show twice in the admin list
+ * and leaves the event without the club's members and merchant (KOE-1580). Read only when the id is
+ * new to the event: on a create or a change of organizer.
+ */
+const checkOrganizerExists = async (existing: JsonConfirmedEvent | undefined, data: JsonConfirmedEvent) => {
+  const organizerId = data.organizer?.id
+  if (!organizerId || organizerId === existing?.organizer?.id) return
+  if (!(await readOrganizer(organizerId))) {
+    throw httpError(400, { error: 'unknownOrganizer', message: `No organizer ${organizerId} in this environment` })
+  }
+}
+
 const putEventLambda = lambda('putEvent', async (event) => {
   const user = await authorize(event)
   if (!user) {
@@ -367,6 +382,7 @@ const putEventLambda = lambda('putEvent', async (event) => {
   // The registration-group lock is server-owned. Never accept it from an
   // admin payload, including when the stored event currently has no lock.
   restoreServerOwnedLocks(data, existing)
+  await checkOrganizerExists(existing, data)
   await checkPaymentLock(existing, data)
   freezeAbsentStartNumbersState(data, existing, item)
   await checkPublishing(existing, item, data)

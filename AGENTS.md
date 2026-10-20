@@ -140,15 +140,28 @@ Read `LLM_CONTEXT.md` for the project overview and architecture notes.
 ## Data Migrations
 
 - A one-off data migration is an entry in one of the migration lists of
-  `src/lambda/RunMigrationFunction/handler.ts`, one per table (events, registrations, dogs, organizer
-  stats rows): a `name` plus an idempotent `run(row)` that mutates the row and returns whether it
-  changed, or a `DayRekeying`, which also says the row held a day it could not read. Only the tables
-  with a pending migration are read, and the registration table is read an event's rows at a time. A
-  migration that left values it could not read answers with `unreadable`, names the rows in the log
-  and is not recorded as applied, so the next deploy runs it again; the deploy step warns about it. A
-  migration that decodes the old stored days does it with `legacyDay` (`legacyStoredDay` in
-  `src/lib/day.ts`), which never narrows: the hash below covers the migration's own text, not a
-  helper's.
+  `src/lambda/RunMigrationFunction/handler.ts`, one per table (events, users, registrations, dogs,
+  organizer stats rows): a `name` plus an idempotent, synchronous `run(row, context)` that mutates the
+  row and returns whether it changed, or a `DayRekeying`, which also says the row held a day it could
+  not read. `context` is what the run reads once before any row (today the organizer repoint of
+  KOE-1580, from the organizer table and the events as read). Only the tables with a pending
+  migration are read, and the registration table is read an event's rows at a time. Each table's
+  migrations are recorded when that table's run has written every row.
+- A migration that left values it could not read answers with `unreadable`, names the rows in the
+  log and is not recorded as applied, so the next deploy runs it again; the deploy step warns about
+  it. A migration that leaves rows it cannot decide about adds `skipped(rows, context)`: the run
+  answers and logs their ids in one warning, and still records the migration.
+- A migration that decodes the old stored days does it with `legacyDecoder` (`legacyStoredEventDay`
+  and `legacyStoredDay` in `src/lib/day.ts`), which never narrows: the hash below covers the
+  migration's own text, not a helper's.
+- `userMigrations` in the same file migrate the user table, applied, hashed and recorded alike, and
+  may change only `roles`, which is all the runner writes of a user (on condition the roles are still
+  the ones read) besides an `updatedAt` bump, so the user list's incremental fetch hands the row to
+  clients that cache it; `modifiedAt` stays. The changed users' scopes get one `users` data version
+  bump, also when a later write fails. The users run first, before the event migrations.
+- An event migration that changes the organizer moves the organizer stats row (ORG#) to the new
+  organizer and the event's start as migrated before the event is written, so a failed move leaves the
+  event for the next run to find. A start rekeyed alone is moved by `storeOrganizerStatsDaysAsKeys`.
 - The deploy runs it, nobody runs it by hand: after `sam deploy`, the `Run data migrations` step of
   `deploy-backend` in `release.yml` invokes the function directly (`aws lambda invoke`, no
   `requestContext`, so no Cognito check) and prints the counters. A failed run fails the job before

@@ -1,11 +1,16 @@
 import type { JsonUser } from '../../../types'
 import { CONFIG } from '../../config'
 import CustomDynamoClient from '../../utils/CustomDynamoClient'
+import { foldedFrom } from '../conditionalWrite'
 
 const dynamoDB = new CustomDynamoClient(CONFIG.userTable)
 
-/** The user with this id, or undefined when there is none. */
-export const readUser = async (id: string): Promise<JsonUser | undefined> => dynamoDB.read<JsonUser>({ id })
+/**
+ * The user with this id, or undefined when there is none. `consistent` reads the row as last
+ * written, for a caller about to write back what it worked out from it.
+ */
+export const readUser = async (id: string, consistent = false): Promise<JsonUser | undefined> =>
+  dynamoDB.read<JsonUser>({ id }, consistent)
 
 /**
  * Every live user the table holds. A full scan, kept on purpose for the user list and the judge and
@@ -40,6 +45,26 @@ export const writeUserRoles = async (
   modifiedBy: string
 ) => {
   await dynamoDB.update({ id }, { set: { modifiedAt, modifiedBy, roles } })
+}
+
+/**
+ * A data migration's change of the user's organization roles: lands only on a row that still exists
+ * and still holds the roles it was read with. `updatedAt` moves, so the user list's incremental fetch
+ * (`changedItemsSince`) hands the row to clients that already cache it; `modifiedAt` stays, since no
+ * user made the change. Throws the condition failure otherwise.
+ */
+export const writeMigratedUserRoles = async (
+  id: string,
+  roles: NonNullable<JsonUser['roles']>,
+  readRoles: JsonUser['roles'],
+  updatedAt: string
+) => {
+  await dynamoDB.update(
+    { id },
+    { set: { roles, updatedAt } },
+    undefined,
+    foldedFrom('#roles', { '#roles': 'roles' }, readRoles)
+  )
 }
 
 /** Grants or takes away the user's admin rights. */
