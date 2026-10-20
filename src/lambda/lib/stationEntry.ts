@@ -1,8 +1,8 @@
 import type { APIGatewayProxyEvent } from 'aws-lambda'
 import type {
+  EventStation,
   JsonConfirmedEvent,
   JsonEventResult,
-  JsonEventStation,
   JsonPublicStationTurn,
   JsonRegistration,
   JsonStationEntry,
@@ -18,7 +18,7 @@ import { LambdaError } from './lambda'
 import { DEFAULT_LINK_TOKEN_VERSION, deriveLinkToken, getBearerToken, linkTokensMatch } from './linkToken'
 import { getRegistrationEditTokenSecret } from './secrets'
 
-type StationTokenFields = Pick<JsonEventStation, 'id' | 'tokenVersion'>
+type StationTokenFields = Pick<EventStation, 'id' | 'tokenVersion'>
 
 /**
  * The station link's token: an HMAC over a domain-prefixed message, revoked by bumping the station's
@@ -43,7 +43,7 @@ export const authorizeStationEntry = (
   eventId: string,
   confirmedEvent: JsonConfirmedEvent,
   stationId: string
-): JsonEventStation => {
+): EventStation => {
   // The implicit post of a single-post format opens like any other; its version lives on the event
   // only once a revocation has written it there.
   const station = resolveStation(confirmedEvent, stationId)
@@ -113,7 +113,7 @@ export const publicStationTurns = (turns: JsonStationTurn[] | undefined, station
 
 export const stationEntryResponse = (
   confirmedEvent: JsonConfirmedEvent,
-  station: JsonEventStation,
+  station: EventStation,
   registrations: JsonRegistration[]
 ): JsonStationEntry => {
   const { tokenVersion: _tokenVersion, ...publicStation } = station

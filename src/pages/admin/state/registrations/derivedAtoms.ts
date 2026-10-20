@@ -6,9 +6,12 @@ import { deriveParticipantGroupKey } from '@/lib/registration'
 import { applyRegistrationGroupMoves } from '@/lib/registrationGroups'
 import { adminEventRegistrationsAtom, adminPendingRegistrationGroupMovesAtom } from './atoms'
 
-// The key is compared by the group it names, not by its spelling: the projection respells a stored
-// UTC-day key (KOE-1541), and a row that only differs in that must not look moved.
-const placementKey = (registration: Registration) =>
+/**
+ * Where a registration is placed, as one comparable string. The key is compared by the group it names,
+ * not by its spelling: the projection respells a stored UTC-day key (KOE-1541), and a row that only
+ * differs in that must not look moved. The group's day is the key it holds (KOE-1547).
+ */
+export const placementKey = (registration: Registration) =>
   JSON.stringify({
     cancelled: registration.cancelled,
     cancelReason: registration.cancelReason,

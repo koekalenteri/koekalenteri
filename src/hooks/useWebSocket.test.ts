@@ -945,6 +945,53 @@ describe('useWebSocket', () => {
     })
   })
 
+  // An admin patch of an event the public calendar does not hold yet is inserted there only whole, its
+  // days the keys they are (KOE-1547): a day missing or unreadable keeps it out.
+  it.each([
+    ['both days', { endDate: '2026-03-15', startDate: '2026-03-14' }, 1],
+    ['no start', { endDate: '2026-03-15' }, 0],
+    ['an unreadable start', { endDate: '2026-03-15', startDate: 'garbage' }, 0],
+    ['no end', { startDate: '2026-03-14' }, 0],
+    ['an unreadable end', { endDate: 'garbage', startDate: '2026-03-14' }, 0],
+  ])('inserts a new event into the public calendar from an admin patch with %s: %s', async (_label, days, count) => {
+    const wrapper = function Wrapper({ children }: { readonly children: ReactNode }) {
+      return createElement(Provider, {
+        children,
+        initializeState: ({ set }: TestStore) => {
+          set(idTokenAtom, 'id-token')
+          set(adminEventsAtom, [])
+          set(eventsAtom, [])
+        },
+      })
+    }
+    const { result } = renderHook(
+      () => {
+        useWebSocket()
+        return { admin: useAtomValue(adminEventsAtom), events: useAtomValue(eventsAtom) }
+      },
+      { wrapper }
+    )
+
+    act(() => {
+      mockWebSocketInstance.onmessage?.({
+        data: JSON.stringify({
+          classes: [],
+          eventId: 'event-2',
+          eventType: 'NOME-A',
+          judges: [],
+          location: 'Somewhere',
+          organizer: { id: 'org-1', name: 'Organizer' },
+          scope: 'admin:event-patch',
+          state: 'confirmed',
+          ...days,
+        }),
+      })
+    })
+
+    await waitFor(() => expect(result.current.admin).toHaveLength(1))
+    expect(result.current.events).toHaveLength(count)
+  })
+
   it('drops an admin event patch when the admin event list failed to load', async () => {
     // The patch has nothing to apply to; it must not turn into an unhandled rejection either.
     const failedLoad = Promise.reject(new Error('admin events failed to load'))

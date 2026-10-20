@@ -9,7 +9,6 @@ import type {
   InvitationAttachmentVersion,
   JsonAuditRecord,
   JsonDogEvent,
-  JsonEventKcIdChoice,
   JsonInvitationAttachmentVersion,
   JsonPublicDogEvent,
   Patch,
@@ -187,7 +186,7 @@ export async function searchEventKcIdChoices(
   signal?: AbortSignal
 ): Promise<SearchEventKcIdChoicesResponse> {
   const response = (
-    await http.post<SearchEventKcIdChoicesRequest, { choices: JsonEventKcIdChoice[] }>(
+    await http.post<SearchEventKcIdChoicesRequest, { choices: EventKcIdChoice[] }>(
       `${ADMIN_PATH}kcId/choices`,
       request,
       withToken({ signal }, token)

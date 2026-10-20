@@ -23,17 +23,13 @@ import type {
   JsonDog,
   JsonDogEvent,
   JsonEmailTemplate,
-  JsonEventClass,
-  JsonEventKcIdChoice,
   JsonEventResult,
   JsonEventResultConflict,
   JsonEventResultsResponse,
   JsonEventResultTask,
-  JsonEventStation,
   JsonEventStatsItem,
   JsonEventType,
   JsonInvitationAttachmentVersion,
-  JsonKcEventInfo,
   JsonKcResult,
   JsonKcState,
   JsonLastEmail,
@@ -319,11 +315,11 @@ export const {
   toRegistration: toStoredRegistration,
 } = dogDateConverters(localCalendarDayOf)
 
-export const toEventClass = converter<JsonEventClass, EventClass>()({ date: eventDay })
+export const toEventClass = converter<EventClass, EventClass>()({ date: eventDay })
 
-const toEventStation = converter<JsonEventStation, EventStation>()({ date: eventDay })
+const toEventStation = converter<EventStation, EventStation>()({ date: eventDay })
 
-const toKcEventInfo = converter<JsonKcEventInfo, KcEventInfo>()({ endDate: eventDay, startDate: eventDay })
+const toKcEventInfo = converter<KcEventInfo, KcEventInfo>()({ endDate: eventDay, startDate: eventDay })
 
 const toKcState = converter<JsonKcState, KcState>()({ readAt: timestamp })
 
@@ -411,7 +407,7 @@ export const toStartNumberPatch = converter<JsonStartNumberPatch, StartNumberPat
   startGroup: toRegistrationGroup,
 })
 
-export const toEventKcIdChoice = converter<JsonEventKcIdChoice, EventKcIdChoice>()({
+export const toEventKcIdChoice = converter<EventKcIdChoice, EventKcIdChoice>()({
   endDate: eventDay,
   entryEndDate: eventDay,
   entryStartDate: eventDay,

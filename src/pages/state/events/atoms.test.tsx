@@ -60,6 +60,11 @@ describe('eventsAtom storage', () => {
         validEvent,
         { id: 'event-2', name: 'Broken event' },
         { ...validEvent, id: 'event-3', organizer: undefined },
+        // A day missing, or one with no day to read, which the converter passes on as it came (KOE-1547).
+        { ...validEvent, id: 'event-4', startDate: undefined },
+        { ...validEvent, id: 'event-5', startDate: 'garbage' },
+        { ...validEvent, endDate: undefined, id: 'event-6' },
+        { ...validEvent, endDate: 'garbage', id: 'event-7' },
       ])
     )
     localStorage.setItem('eventMetadata', JSON.stringify({ lastSyncAt: Date.now(), singles: {} }))

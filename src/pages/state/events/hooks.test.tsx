@@ -4,8 +4,9 @@ import { act, renderHook, waitFor } from '@testing-library/react'
 import { useAtomValue } from 'jotai'
 import { TestProvider as Provider } from 'test-utils/AtomProvider'
 import { getEvent, getEvents } from '@/api/event'
+import { legacyDayValue } from '@/test-utils/finnishDays'
 import { EVENT_METADATA_INVALIDATED_STORAGE_KEY, eventMetadataAtom, eventsAtom, eventsLoadingAtom } from './atoms'
-import { useConfirmedEvent, useFetchEvents } from './hooks'
+import { overlapsRange, pruneBeforeDate, useConfirmedEvent, useFetchEvents } from './hooks'
 
 vi.mock('@/api/event', () => ({
   getEvent: vi.fn(),
@@ -50,6 +51,53 @@ function wrapperWithState(initialEvents: PublicDogEvent[], metadata: Partial<Eve
 function wrapper({ children }: { readonly children: React.ReactNode }) {
   return <Provider>{children}</Provider>
 }
+
+// The calendar's range and retention bounds are moments; the events' days are keys (KOE-1547). Each
+// moment counts as the Finnish day it falls on, which late in the UTC evening is already the next one.
+describe('pruneBeforeDate', () => {
+  // 21:30 UTC on 10.6. is 00:30 on 11.6. in Finland.
+  const cutoff = new Date('2026-06-10T21:30:00.000Z')
+
+  it.each([
+    ['the day before the Finnish day of the cutoff', '2026-06-10', false],
+    ['the Finnish day of the cutoff', '2026-06-11', true],
+    ['the day after it', '2026-06-12', true],
+  ] as const)('keeps an event ending on %s: %s', (_label, endDate, kept) => {
+    const event = makeEvent('e', endDate, endDate)
+    expect(pruneBeforeDate([event], cutoff)).toEqual(kept ? [event] : [])
+  })
+
+  it('keeps an event a cache holds without an end', () => {
+    const event = { ...makeEvent('e', '2026-01-01'), endDate: legacyDayValue('') }
+    expect(pruneBeforeDate([event], cutoff)).toEqual([event])
+  })
+})
+
+describe('overlapsRange', () => {
+  // 21:30 UTC on 10.6. is the Finnish 11.6.; 22:59 UTC on 12.6. is 01:59 on 13.6. in Finland.
+  const start = new Date('2026-06-10T21:30:00.000Z')
+  const end = new Date('2026-06-12T22:59:00.000Z')
+
+  it.each([
+    ['ends the day before the range starts', '2026-06-09', '2026-06-10', false],
+    ['ends on the first day of the range', '2026-06-09', '2026-06-11', true],
+    ['starts and ends on the first day', '2026-06-11', '2026-06-11', true],
+    ['starts on the last day of the range', '2026-06-13', '2026-06-14', true],
+    ['starts the day after the range ends', '2026-06-14', '2026-06-14', false],
+  ] as const)('an event that %s: %s', (_label, startDate, endDate, overlaps) => {
+    expect(overlapsRange({ endDate, startDate }, start, end)).toBe(overlaps)
+  })
+
+  it('reads an event without an end as its start day', () => {
+    expect(overlapsRange({ startDate: '2026-06-11' }, start, end)).toBe(true)
+    expect(overlapsRange({ startDate: '2026-06-10' }, start, end)).toBe(false)
+  })
+
+  it('runs on without an end', () => {
+    expect(overlapsRange({ endDate: '2030-01-02', startDate: '2030-01-01' }, start)).toBe(true)
+    expect(overlapsRange({ endDate: '2026-06-10', startDate: '2026-06-10' }, start)).toBe(false)
+  })
+})
 
 describe('useFetchEvents', () => {
   beforeEach(() => {

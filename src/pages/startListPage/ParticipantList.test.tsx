@@ -478,6 +478,37 @@ describe('ParticipantList', () => {
     expect(writeText).toHaveBeenCalledWith(expect.stringContaining('2. startList.absent'))
   })
 
+  // The same class on two days, judged by different people: each day's heading names its own judge,
+  // the class's day key matched to the dog's (KOE-1547).
+  it("copies each day's judge under the same class on two days", async () => {
+    const user = userEvent.setup()
+    mockClipboard()
+    const twoDays: PublicConfirmedEvent = {
+      ...mockEvent,
+      classes: [
+        { class: 'AVO', date: '2023-01-01', judge: { id: 1, name: 'Judge One' }, state: 'invited' },
+        { class: 'AVO', date: '2023-01-02', judge: { id: 4, name: 'Judge Four' }, state: 'invited' },
+        { class: 'VOI', date: '2023-01-02', judge: { id: 2, name: 'Judge Two' }, state: 'invited' },
+      ],
+    }
+    const participants = [
+      createMockRegistration('AVO', 'Dog 1', 1, '2023-01-01', 'ap'),
+      createMockRegistration('AVO', 'Dog 2', 2, '2023-01-02', 'ap'),
+      createMockRegistration('VOI', 'Dog 3', 3, '2023-01-02', 'ap'),
+    ]
+
+    render(<ParticipantList participants={participants} event={twoDays} showExportActions />)
+
+    await user.click(screen.getByRole('button', { name: /copy|kopioi/i }))
+
+    expect(writeText).toHaveBeenCalledWith(
+      expect.stringMatching(/AVO Judge One\n[\s\S]*AVO Judge Four\n[\s\S]*VOI Judge Two/)
+    )
+    expect(writeText).not.toHaveBeenCalledWith(expect.stringContaining('Judge One, Judge Four'))
+    // One row per dog, each under its own day and class (the React keys hold them apart).
+    expect(screen.getAllByTestId('registration-details')).toHaveLength(3)
+  })
+
   it('carries the result and the placement into the copied text', async () => {
     const user = userEvent.setup()
     mockClipboard()

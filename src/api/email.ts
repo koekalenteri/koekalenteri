@@ -6,7 +6,6 @@ import type {
   EventState,
   IncrementalCollectionResponse,
   JsonEmailTemplate,
-  JsonEventClass,
   JsonRegistration,
   Registration,
   RegistrationMessage,
@@ -47,7 +46,7 @@ interface JsonEmailSendResponse {
   ok: string[]
   failed: string[]
   state: EventState
-  classes: JsonEventClass[]
+  classes: EventClass[]
   registrations: JsonRegistration[]
   /**
    * The start list flag as the server left it: sending the invitations settles an absent flag to

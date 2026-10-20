@@ -16,7 +16,7 @@ import { eventAtom } from './derivedAtoms'
 
 type DogEventSortKey = Pick<DogEvent, 'id' | 'startDate' | 'endDate'>
 type DogEventPruneKey = Pick<DogEvent, 'endDate'>
-type DogEventRangeKey = Pick<DogEvent, 'startDate' | 'endDate'>
+type DogEventRangeKey = Pick<DogEvent, 'startDate'> & Partial<Pick<DogEvent, 'endDate'>>
 
 export const RANGE_INCREMENTAL_THROTTLE = 5 * 60 * 1000 // 5 min
 const SINGLE_FRESHNESS = 5 * 60 * 1000 // 5 min
@@ -46,13 +46,13 @@ function mergeAndSortByDate<T extends DogEventSortKey>(existing: T[], incoming: 
 }
 
 /** The events that end on the Finnish day of `cutoff` or later; an event without an end stays. */
-function pruneBeforeDate<T extends DogEventPruneKey>(events: T[], cutoff: Date): T[] {
+export function pruneBeforeDate<T extends DogEventPruneKey>(events: T[], cutoff: Date): T[] {
   const cutoffDay = dayOf(cutoff, TIME_ZONE)
   return events.filter((e) => !e.endDate || e.endDate >= cutoffDay)
 }
 
 /** Whether the event's days meet the Finnish days the range's moments fall on; a range without an end runs on. */
-function overlapsRange<T extends DogEventRangeKey>(event: T, start: Date, end?: Date): boolean {
+export function overlapsRange<T extends DogEventRangeKey>(event: T, start: Date, end?: Date): boolean {
   const eventEnd = event.endDate ?? event.startDate
   const endDay = end ? dayOf(end, TIME_ZONE) : undefined
 

@@ -82,7 +82,7 @@ export interface JsonDogEvent extends JsonDbRecord {
   /** Short-lived server-side lock used for dog-unique payment transitions. */
   registrationPaymentsLock?: { expiresAt: number; token: string }
   paymentTime?: PaymentTime
-  classes: Array<JsonEventClass>
+  classes: Array<EventClass>
   /**
    * Where a copy in test or dev came from (KOE-1471): the environment, the event there, when and by
    * whom. Its people are stand-ins; absent on every event that is not such a copy.
@@ -116,7 +116,7 @@ export interface JsonDogEvent extends JsonDbRecord {
    * to one KL environment (Testi2 or production) and never travels with a copy of the event.
    */
   kcGuid?: string
-  kcEvent?: JsonKcEventInfo
+  kcEvent?: KcEventInfo
   /**
    * What Kennelliitto last said of the linked trial's state (Koe/Lue), refreshed whenever results are
    * previewed, sent or handed over. Server-owned: an event save never writes it. A trial handed to the
@@ -179,7 +179,7 @@ export interface JsonDogEvent extends JsonDbRecord {
   startNumberLinkVersions?: Record<string, number>
   resultsPublished?: ResultsPublishedState
   /** Scoring posts, for event types that score at posts (NOWT). */
-  stations?: JsonEventStation[]
+  stations?: EventStation[]
   /**
    * The live timeline of the trial day (KOE-1259): every span a post has run, turns and breaks alike,
    * appended as the day goes. Server-owned — written only through the turn endpoint, never by an
@@ -201,7 +201,7 @@ type ConfirmedEventRequiredDates = EventRequiredDates | EventEntryDates
  * tasks, never the maximum — deriving each task's ceiling from the split rather than storing it means a
  * post's tasks cannot fail to add up to the post.
  */
-export type JsonEventStation = {
+export type EventStation = {
   id: string
   /** Posts are never named, only numbered 1..n within their own day. */
   number: number
@@ -229,7 +229,6 @@ export type JsonEventStation = {
    */
   phases?: string[]
 }
-export type EventStation = JsonEventStation
 
 /** A break is labeled with a code rather than free text, so the day's pauses can be counted later. */
 export type StationTurnPause = 'coffee' | 'lunch' | 'weather' | 'other'
@@ -367,7 +366,7 @@ interface StationEntryLock {
 export interface JsonStationEntry {
   event: JsonLinkedEvent & StationEntryLock
   /** Without `tokenVersion`: the link must not reveal its own revocation counter. */
-  station: Omit<JsonEventStation, 'tokenVersion'>
+  station: Omit<EventStation, 'tokenVersion'>
   registrations: JsonStationEntryDog[]
   /** This post's own timeline (KOE-1259), in the public shape — the link runs the turns it sees. */
   turns?: JsonPublicStationTurn[]
@@ -443,7 +442,7 @@ export type StartNumberPatch = ReplaceOptional<JsonStartNumberPatch, 'startGroup
  * How many tasks one class runs at a post, where that differs from the post's own layout.
  *
  * A course is normally built once and every class runs it as laid out, so this is an override rather
- * than a requirement: absent an entry, the class follows `JsonEventStation.tasks`. Keeping the two
+ * than a requirement: absent an entry, the class follows `EventStation.tasks`. Keeping the two
  * separate leaves room for a class to split a post the others do not, without duplicating the whole
  * course per class.
  */
@@ -452,7 +451,7 @@ export type JsonEventClassStation = {
   tasks: 1 | 2
 }
 
-export type JsonKcEventInfo = {
+export type KcEventInfo = {
   classes: string[]
   eventType: string
   /**
@@ -467,7 +466,6 @@ export type JsonKcEventInfo = {
   /** The chief judge's member number (ylituomariNumero); the judge warning compares numbers. */
   judgeId?: number
 }
-export type KcEventInfo = JsonKcEventInfo
 
 export type JsonKcState = {
   code: number
@@ -477,7 +475,7 @@ export type JsonKcState = {
 export type KcState = Replace<JsonKcState, 'readAt', Date>
 
 /** A trial as Kennelliitto lists it, as the kcId search answers: its days as ISO timestamps. */
-export type JsonEventKcIdChoice = {
+export type EventKcIdChoice = {
   classes: string[]
   contactInfo?: NonNullable<JsonDogEvent['contactInfo']>
   cost?: JsonDogEvent['cost']
@@ -499,8 +497,6 @@ export type JsonEventKcIdChoice = {
   location?: string
   status?: string
 }
-
-export type EventKcIdChoice = JsonEventKcIdChoice
 
 /** The browser's event: its days are the day keys the server sends (KOE-1547), its moments `Date`s. */
 export type DogEvent = DbRecord &
@@ -550,7 +546,7 @@ export type SanitizedPublicDogEvent = PublicDogEvent & {
   [K in NonPublicDogEventProperties]?: never
 }
 
-export type JsonEventClass = {
+export type EventClass = {
   class: RegistrationClass
   date: DayKey
   groups?: RegistrationTime[]
@@ -562,7 +558,6 @@ export type JsonEventClass = {
   /** Posts this class splits differently from the course as built. Absent entries follow the post. */
   stations?: JsonEventClassStation[]
 }
-export type EventClass = JsonEventClass
 
 export type EventClassState = 'picked' | 'invited' | 'started' | 'ended' | 'completed'
 export type ConfirmedEventStates = 'confirmed' | EventClassState

@@ -1,4 +1,4 @@
-import type { JsonConfirmedEvent, JsonEventStation } from '../../types'
+import type { EventStation, JsonConfirmedEvent } from '../../types'
 import { vi } from 'vitest'
 import { httpError } from '../lib/lambda'
 import { getStationEntryToken } from '../lib/stationEntry'
@@ -30,7 +30,7 @@ vi.doMock('../lib/eventAuth', () => ({ getAuthorizedEvent: mockGetAuthorizedEven
 
 const { default: getStationLinkLambda } = await import('./handler')
 
-const station: JsonEventStation = { date: '2026-09-12', id: 'post-1', number: 1, tasks: 1 as const, tokenVersion: 3 }
+const station: EventStation = { date: '2026-09-12', id: 'post-1', number: 1, tasks: 1 as const, tokenVersion: 3 }
 
 const confirmedEvent = (overrides: Partial<JsonConfirmedEvent> = {}) =>
   asJsonConfirmedEvent({

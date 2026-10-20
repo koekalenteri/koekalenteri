@@ -1,5 +1,5 @@
 import type { TFunction } from 'i18next'
-import type { JsonEventStation, LiveMark } from '../types'
+import type { EventStation, LiveMark } from '../types'
 
 /**
  * How an event type runs its day at a post (KOE-1259, phase 4).
@@ -108,7 +108,7 @@ export const MAX_DOGS_AT_ONCE = 10
  * The format's own number wins where it has one — NOME-A is four whatever anyone configures — and
  * otherwise it is the post's own form, which is where a walk-up is described. One when neither says.
  */
-export const stationDogsAtOnce = (eventType?: string, station?: Pick<JsonEventStation, 'dogsAtOnce'>): number => {
+export const stationDogsAtOnce = (eventType?: string, station?: Pick<EventStation, 'dogsAtOnce'>): number => {
   const fixed = liveFormat(eventType).dogsAtOnce
   if (fixed) return fixed
 
@@ -121,7 +121,7 @@ export const stationDogsAtOnce = (eventType?: string, station?: Pick<JsonEventSt
 export const IMPLICIT_STATION_ID = '1'
 
 /** A post as either side holds it: the lambdas with the date as a string, the browser as a `Date`. */
-type StationOf<D> = Omit<JsonEventStation, 'date'> & { date: D }
+type StationOf<D> = Omit<EventStation, 'date'> & { date: D }
 
 interface StationHost<D> {
   eventType: string
@@ -160,7 +160,7 @@ export const livePhaseLabel = (phase: LivePhase, t: TFunction<'translation'>): s
  * The phases a turn at this post may name: the format's fixed list where it has one, otherwise what
  * the post's secretary wrote down, and nothing at all where the format has no phases to speak of.
  */
-export const stationPhases = (eventType?: string, station?: Pick<JsonEventStation, 'phases'>): LivePhase[] => {
+export const stationPhases = (eventType?: string, station?: Pick<EventStation, 'phases'>): LivePhase[] => {
   const format = liveFormat(eventType)
   if (format.tasks !== 'phases') return []
   if (format.phases) return [...format.phases]

@@ -185,6 +185,50 @@ describe('EntrySection', () => {
     expect(screen.getAllByText('validation.event.classesGroups field, length, list')).toHaveLength(1)
   })
 
+  // KOE-808: a class dated outside the trial's days moves to its nearest day, and the secretary is told.
+  // The days are keys (KOE-1547), clamped as text.
+  it('moves a class dated before the start or after the end onto the trial, and says so', async () => {
+    const onChange = vi.fn()
+    const testEvent: ConfirmedEvent = {
+      ...eventWithStaticDatesAnd3Classes,
+      classes: [
+        { class: 'ALO', date: '2021-02-09' },
+        { class: 'AVO', date: '2021-02-10' },
+        { class: 'VOI', date: '2021-02-12' },
+      ],
+      endDate: '2021-02-11',
+      startDate: '2021-02-10',
+    }
+    renderWithUserEvents(
+      <ThemeProvider theme={theme}>
+        <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales.fi}>
+          <Provider>
+            <MemoryRouter>
+              <Suspense fallback={<div>loading...</div>}>
+                <AppSnackbarProvider>
+                  <EntrySection event={testEvent} onChange={onChange} open />
+                </AppSnackbarProvider>
+              </Suspense>
+            </MemoryRouter>
+          </Provider>
+        </LocalizationProvider>
+      </ThemeProvider>,
+      undefined,
+      { advanceTimers: vi.advanceTimersByTime }
+    )
+    await flushPromises()
+
+    expect(onChange).toHaveBeenCalledWith({
+      classes: [
+        { class: 'ALO', date: '2021-02-10' },
+        { class: 'AVO', date: '2021-02-10' },
+        { class: 'VOI', date: '2021-02-11' },
+      ],
+    })
+    // The snackbar shows the same text once, however many classes moved.
+    expect(await screen.findByText('event.classMoved from, to')).toBeInTheDocument()
+  })
+
   it('lets the secretary restrict the entry to members and named breeds (KOE-524)', async () => {
     const onChange = vi.fn()
     const testEvent = { ...eventWithStaticDates, restrictions: ['member'] }
