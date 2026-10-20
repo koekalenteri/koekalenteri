@@ -446,14 +446,33 @@ const sendOne = async (
     nowOf(req).toISOString()
   )
 
-  const recorded = await recordKcResult(req, registration, next)
+  // From here on a failure is this dog's, never the request's: one thrown write would turn the whole
+  // request into a 500 and lose the reports of the dogs Kennelliitto saved and this app recorded (KOE-1140).
+  const logContext = { eventId: event.id, registrationId: registration.id }
+  let recorded: JsonKcResult
+  try {
+    recorded = await recordKcResult(req, registration, next)
+  } catch (error) {
+    logger.error('kcResult write failed', { ...logContext, error })
+    return {
+      id: registration.id,
+      name: registration.dog.name ?? '',
+      notRecorded: true,
+      outcome: 'failed',
+      regNo: registration.dog.regNo,
+    }
+  }
   patches.push({ id: registration.id, kcResult: recorded })
 
   const auditKey = registrationAuditKey({ eventId: event.id, id: registration.id })
-  if (next.status === 'sent') {
-    await audit({ auditKey, ...resultSentToKennelliittoAudit(), user: userName })
-  } else {
-    await audit({ auditKey, ...resultSendFailedAudit(next.errors?.join('; ') ?? `${call.status}`), user: userName })
+  const auditEntry =
+    next.status === 'sent'
+      ? resultSentToKennelliittoAudit()
+      : resultSendFailedAudit(next.errors?.join('; ') ?? `${call.status}`)
+  try {
+    await audit({ auditKey, ...auditEntry, user: userName })
+  } catch (error) {
+    logger.error('kennelliitto send audit failed', { ...logContext, error })
   }
 
   return {

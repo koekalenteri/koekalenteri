@@ -15,7 +15,7 @@ import Stack from '@mui/material/Stack'
 import Typography from '@mui/material/Typography'
 import { useTranslation } from 'react-i18next'
 import { KennelliittoDogList } from './KennelliittoDogList'
-import { blockerText, dogLabel, dogLine, skippedLine } from './kennelliittoMessages'
+import { blockerText, dogLabel, dogLine, failedLine, skippedLine } from './kennelliittoMessages'
 
 export type KcSendPhase =
   | { kind: 'loading' }
@@ -152,12 +152,7 @@ const Report = ({ summary }: { readonly summary: KcSendSummary }) => {
           <Typography sx={{ fontWeight: 600 }} variant="body2">
             {t('results.kennelliitto.failure', { count: failed.length })}
           </Typography>
-          <KennelliittoDogList
-            lines={failed.map((report) => ({
-              id: report.id,
-              text: `${dogLabel(report)}: ${report.errors?.join(' ') ?? t('results.kennelliitto.statusUnknown', { status: report.status ?? 0 })}`,
-            }))}
-          />
+          <KennelliittoDogList lines={failed.map((report) => failedLine(t, report))} />
         </Alert>
       )}
       {skipped.length > 0 && (

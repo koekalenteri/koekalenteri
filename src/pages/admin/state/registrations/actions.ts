@@ -180,10 +180,11 @@ const blockersOf = (error: unknown): KcBlocker[] | undefined => {
 }
 
 /**
- * Statuses that are no answer from the lambda: the browser's own timeout (`http.ts` reports it as a 408)
- * and the gateway's at 29 s.
+ * Statuses that are no answer from the lambda: the browser's own timeout (`http.ts` reports it as a 408),
+ * and API Gateway's own answers for a lambda it could not reach or that gave it nothing usable (502, 503)
+ * or that ran past its 29 s (504).
  */
-const NO_ANSWER_STATUSES = new Set([408, 504])
+const NO_ANSWER_STATUSES = new Set([408, 502, 503, 504])
 
 /** The status of an error the server answered with; undefined when no answer came (KOE-1140). */
 const errorStatusOf = (error: unknown): number | undefined =>

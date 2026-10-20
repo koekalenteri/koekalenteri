@@ -1,7 +1,7 @@
 import type { JsonConfirmedEvent, JsonKcState, JsonRegistration } from '../../types'
 import type { KLIntegraatioConfig } from '../types/KLIntegraatio'
 import { createHash } from 'node:crypto'
-import { vi } from 'vitest'
+import { onTestFinished, vi } from 'vitest'
 import { isResultsLocked } from '../../lib/kennelliittoResults'
 import { asJsonConfirmedEvent, asJsonRegistration } from '../test-utils/helpers'
 import KLIntegraatio from './KLIntegraatio'
@@ -503,6 +503,50 @@ describe('kennelliittoResults', () => {
       expect(result.reports).toEqual([
         { id: 'd1', name: 'Koira d1', outcome: 'sent', regNo: 'FI10001/20', tulosId: 100 },
       ])
+    })
+
+    // One dog's failed write is that dog's, never the request's: a 500 would lose the reports of the dogs
+    // Kennelliitto saved and this app recorded, as it hid the first-write failure of KOE-1140.
+    it('reports a dog whose outcome could not be recorded as failed, and the others as they went', async () => {
+      registrations.push(dog('d3', 'FI10003/20', 'NOME-A3'))
+      const write = mockWriteKcResult.getMockImplementation()
+      onTestFinished(() => {
+        if (write) mockWriteKcResult.mockImplementation(write)
+      })
+      mockWriteKcResult.mockImplementation(async (eventId, id, kcResult, previousAt) => {
+        if (id === 'd2') throw new Error('ValidationException')
+        return write ? write(eventId, id, kcResult, previousAt) : false
+      })
+
+      const result = await sendKennelliittoResults(ctx(), ['d1', 'd2', 'd3'], { force: false })
+
+      expect(result.reports).toEqual([
+        { id: 'd1', name: 'Koira d1', outcome: 'sent', regNo: 'FI10001/20', tulosId: expect.any(Number) },
+        { id: 'd2', name: 'Koira d2', notRecorded: true, outcome: 'failed', regNo: 'FI10002/20' },
+        { id: 'd3', name: 'Koira d3', outcome: 'sent', regNo: 'FI10003/20', tulosId: expect.any(Number) },
+      ])
+      // Its stored state stays as it was, so it reads as unsent and is sent again next time.
+      expect(registrations[1].kcResult).toBeUndefined()
+      expect(result.patches.map((patch) => patch.id)).toEqual(['d1', 'd3'])
+    })
+
+    it('keeps the outcome of a dog whose audit row could not be written', async () => {
+      registrations.push(dog('d3', 'FI10003/20', 'NOME-A3'))
+      onTestFinished(() => {
+        mockAudit.mockReset()
+      })
+      mockAudit.mockImplementation(async ({ auditKey }: { auditKey: string }) => {
+        if (auditKey === 'event-1:d2') throw new Error('audit table down')
+      })
+
+      const result = await sendKennelliittoResults(ctx(), ['d1', 'd2', 'd3'], { force: false })
+
+      expect(result.reports.map((report) => [report.id, report.outcome])).toEqual([
+        ['d1', 'sent'],
+        ['d2', 'sent'],
+        ['d3', 'sent'],
+      ])
+      expect(registrations[1].kcResult).toMatchObject({ status: 'sent' })
     })
 
     it('audits each dog sent', async () => {

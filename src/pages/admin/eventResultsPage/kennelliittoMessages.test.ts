@@ -3,7 +3,7 @@ import i18next from 'i18next'
 import fi from '@/i18n/locales/fi/translation.json'
 import { finnishDay } from '@/lib/kennelliittoResults'
 import { parseJSON } from '@/lib/utils'
-import { dogLine, skippedLine } from './kennelliittoMessages'
+import { dogLine, failedLine, skippedLine } from './kennelliittoMessages'
 
 const finnish = i18next.createInstance()
 beforeAll(() =>
@@ -75,5 +75,27 @@ describe('the messages of a sending', () => {
     })
 
     expect(line.text).toEqual('gone: Ei tulosta')
+  })
+
+  it.each([
+    [
+      'with Kennelliitto’s own words',
+      { errors: ['Koiran nimi ei täsmää.'], status: 400 },
+      'Hukka (FI1/20): Koiran nimi ei täsmää.',
+    ],
+    [
+      'by the status of a refusal without reasons',
+      { status: 500 },
+      'Hukka (FI1/20): Kennelliitto ei vastannut selvästi (tila 500). Yritä uudelleen.',
+    ],
+    [
+      'as not stored here when Kennelliitto’s answer could not be recorded (KOE-1140)',
+      { notRecorded: true as const },
+      'Hukka (FI1/20): Kennelliiton vastausta ei saatu tallennettua Koekalenteriin. Lähetä koira uudelleen.',
+    ],
+  ])('says a failed dog %s', (_case, fields, text) => {
+    const line = failedLine(finnish.t, { id: 'a', name: 'Hukka', outcome: 'failed', regNo: 'FI1/20', ...fields })
+
+    expect(line).toEqual({ id: 'a', text })
   })
 })

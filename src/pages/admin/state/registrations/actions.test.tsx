@@ -509,6 +509,8 @@ describe('useKennelliittoResults', () => {
   it.each([
     ['no answer came', new TypeError('Failed to fetch'), undefined],
     ['the browser stopped waiting', new APIError(new Response(null, { status: 408 }), {}), undefined],
+    ['the gateway got a broken answer', new APIError(new Response(null, { status: 502 }), {}), undefined],
+    ['the gateway could not reach the server', new APIError(new Response(null, { status: 503 }), {}), undefined],
     ['the gateway timed out', new APIError(new Response(null, { status: 504 }), {}), undefined],
     ['the server failed', new APIError(new Response(null, { status: 500 }), {}), 500],
     ['the server refused the request', new APIError(new Response(null, { status: 400 }), {}), 400],

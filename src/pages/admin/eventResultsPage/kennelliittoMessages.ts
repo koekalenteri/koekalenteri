@@ -35,3 +35,16 @@ export const skippedLine = (t: TFunction, report: KcSendReport): DogLine => ({
       : t(`results.kennelliitto.dogStatus.${report.dogStatus ?? 'notRecorded'}`)
   }`,
 })
+
+/** Why a sent dog failed: Kennelliitto's own words, the status of a refusal without them, or that its answer was not stored here. */
+const failureText = (t: TFunction, report: KcSendReport): string => {
+  if (report.errors) return report.errors.join(' ')
+  if (report.notRecorded) return t('results.kennelliitto.notRecorded')
+  return t('results.kennelliitto.statusUnknown', { status: report.status ?? 0 })
+}
+
+/** A dog whose sending failed, with why. */
+export const failedLine = (t: TFunction, report: KcSendReport): DogLine => ({
+  id: report.id,
+  text: `${dogLabel(report)}: ${failureText(t, report)}`,
+})
