@@ -29,7 +29,7 @@ describe('storage atoms', () => {
 
     const events = createStore().get(valueAtom)
 
-    expect(events[0].startDate).toEqual(new Date('2026-05-01T21:00:00.000Z'))
+    expect(events[0].startDate).toBe('2026-05-02')
     expect(events[0].description).toBe('2024-05-01')
     expect(setItem).not.toHaveBeenCalled()
     expect(onRefined).not.toHaveBeenCalled()

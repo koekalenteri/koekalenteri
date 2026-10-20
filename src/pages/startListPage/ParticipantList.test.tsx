@@ -1,4 +1,5 @@
 import type { TFunction } from 'i18next'
+import type { DayKey } from '../../types/Day'
 import type { PublicConfirmedEvent } from '../../types/Event'
 import type { PublicRegistration } from '../../types/Registration'
 import { render, screen, waitFor } from '@testing-library/react'
@@ -39,9 +40,9 @@ const mockDownloadXlsx = vi.mocked(downloadXlsx)
 
 // Mock the child components
 vi.mock('./DateHeader', () => ({
-  DateHeader: ({ date }: { date: Date }) => (
+  DateHeader: ({ date }: { date: DayKey }) => (
     <tr data-testid="date-header">
-      <td>{date.toISOString()}</td>
+      <td>{date}</td>
     </tr>
   ),
 }))
@@ -102,13 +103,13 @@ describe('ParticipantList', () => {
     classes: [
       {
         class: 'AVO',
-        date: new Date('2023-01-01'),
+        date: '2023-01-01',
         judge: { id: 1, name: 'Judge One' },
         state: 'invited',
       },
       {
         class: 'VOI',
-        date: new Date('2023-01-01'),
+        date: '2023-01-01',
         judge: [
           { id: 2, name: 'Judge Two' },
           { id: 3, name: 'Judge Three' },
@@ -120,9 +121,9 @@ describe('ParticipantList', () => {
     costMember: 0,
     createdAt: new Date(),
     description: '',
-    endDate: new Date('2023-01-02'),
-    entryEndDate: new Date('2022-12-31'),
-    entryStartDate: new Date('2022-12-01'),
+    endDate: '2023-01-02',
+    entryEndDate: '2022-12-31',
+    entryStartDate: '2022-12-01',
     eventType: 'Test Event Type',
     id: 'event-1',
     judges: [],
@@ -131,7 +132,7 @@ describe('ParticipantList', () => {
     name: 'Test Name',
     organizer: { id: 'org-1', name: 'Test Organizer' },
     places: 0,
-    startDate: new Date('2023-01-01'),
+    startDate: '2023-01-01',
     state: 'confirmed',
   }
 
@@ -139,7 +140,7 @@ describe('ParticipantList', () => {
     classValue: string,
     dogName: string,
     groupNumber: number,
-    date: Date,
+    date: DayKey,
     time?: 'ap' | 'ip' | 'kp',
     cancelled = false
   ): PublicRegistration => ({
@@ -192,10 +193,10 @@ describe('ParticipantList', () => {
 
   it('renders participants list correctly', () => {
     const mockParticipants: PublicRegistration[] = [
-      createMockRegistration('AVO', 'Dog 1', 1, new Date('2023-01-01'), 'ap'),
-      createMockRegistration('AVO', 'Dog 2', 2, new Date('2023-01-01'), 'ap'),
-      createMockRegistration('VOI', 'Dog 3', 3, new Date('2023-01-01'), 'ip'),
-      createMockRegistration('AVO', 'Dog 4', 4, new Date('2023-01-02'), 'ap'),
+      createMockRegistration('AVO', 'Dog 1', 1, '2023-01-01', 'ap'),
+      createMockRegistration('AVO', 'Dog 2', 2, '2023-01-01', 'ap'),
+      createMockRegistration('VOI', 'Dog 3', 3, '2023-01-01', 'ip'),
+      createMockRegistration('AVO', 'Dog 4', 4, '2023-01-02', 'ap'),
     ]
 
     render(<ParticipantList participants={mockParticipants} event={mockEvent} />)
@@ -214,7 +215,7 @@ describe('ParticipantList', () => {
   })
 
   it('does not repeat class headers when an event has no time groups', () => {
-    const date = new Date('2023-01-01')
+    const date = '2023-01-01'
     const mockParticipants: PublicRegistration[] = [
       createMockRegistration('AVO', 'AVO Dog 1', 1, date),
       createMockRegistration('VOI', 'VOI Dog 1', 1, date),
@@ -234,14 +235,13 @@ describe('ParticipantList', () => {
     ])
   })
 
-  it('uses one date header for different instants on the same local event date', () => {
-    const firstInstant = new Date('2026-10-01T21:00:00.000Z')
-    const secondInstant = new Date('2026-10-01T22:00:00.000Z')
-    const first = createMockRegistration('', 'Dog 1', 1, firstInstant, 'ap')
-    const second = createMockRegistration('', 'Dog 2', 2, secondInstant, 'ap')
+  it('uses one date header for two groups of the same day', () => {
+    const first = createMockRegistration('', 'Dog 1', 1, '2026-10-02', 'ap')
+    const second = createMockRegistration('', 'Dog 2', 2, '2026-10-02', 'ap')
     first.class = undefined
     second.class = undefined
     first.group.key = '2026-10-02-ap'
+    // An older copy's key named the UTC day (KOE-1541); the group is still the day's.
     second.group.key = '2026-10-01-ap'
 
     render(<ParticipantList participants={[first, second]} event={{ ...mockEvent, classes: [] }} />)
@@ -252,7 +252,7 @@ describe('ParticipantList', () => {
   })
 
   it('renders participants with a class for a classless event', () => {
-    const participant = createMockRegistration('AVO', 'Dog 1', 1, new Date('2023-01-01'), 'ap')
+    const participant = createMockRegistration('AVO', 'Dog 1', 1, '2023-01-01', 'ap')
 
     render(<ParticipantList participants={[participant]} event={{ ...mockEvent, classes: [] }} />)
 
@@ -261,7 +261,7 @@ describe('ParticipantList', () => {
 
   it('notes withheld start numbers under the date for a classless event', () => {
     // KOE-1006 feedback: a NOU has no class header to carry the note, so it hangs off the date.
-    const participant = createMockRegistration('', 'Dog 1', 1, new Date('2023-01-01'), 'ap')
+    const participant = createMockRegistration('', 'Dog 1', 1, '2023-01-01', 'ap')
     participant.class = undefined
 
     render(
@@ -278,7 +278,7 @@ describe('ParticipantList', () => {
   it('copies the withheld-numbers note for a classless event', async () => {
     const user = userEvent.setup()
     mockClipboard()
-    const participant = createMockRegistration('', 'Dog 1', 1, new Date('2023-01-01'), 'ap')
+    const participant = createMockRegistration('', 'Dog 1', 1, '2023-01-01', 'ap')
     participant.class = undefined
 
     render(
@@ -295,9 +295,7 @@ describe('ParticipantList', () => {
   })
 
   it('renders an unpublished event class as a header on the public start list', () => {
-    const mockParticipants: PublicRegistration[] = [
-      createMockRegistration('AVO', 'Dog 1', 1, new Date('2023-01-01'), 'ap'),
-    ]
+    const mockParticipants: PublicRegistration[] = [createMockRegistration('AVO', 'Dog 1', 1, '2023-01-01', 'ap')]
 
     render(
       <ParticipantList
@@ -311,8 +309,8 @@ describe('ParticipantList', () => {
 
   it('does not render groups or participants for an unpublished class on the public start list', () => {
     const mockParticipants: PublicRegistration[] = [
-      createMockRegistration('AVO', 'AVO Dog', 1, new Date('2023-01-01'), 'ap'),
-      createMockRegistration('VOI', 'VOI Dog', 2, new Date('2023-01-01'), 'ip'),
+      createMockRegistration('AVO', 'AVO Dog', 1, '2023-01-01', 'ap'),
+      createMockRegistration('VOI', 'VOI Dog', 2, '2023-01-01', 'ip'),
     ]
 
     render(
@@ -328,8 +326,8 @@ describe('ParticipantList', () => {
   })
 
   it('does not show a later unpublished class date when the same class is published on another date', () => {
-    const firstDate = new Date('2023-01-01')
-    const secondDate = new Date('2023-01-02')
+    const firstDate = '2023-01-01'
+    const secondDate = '2023-01-02'
     const mockParticipants: PublicRegistration[] = [
       createMockRegistration('AVO', 'Day 1 Dog', 1, firstDate, 'ap'),
       createMockRegistration('AVO', 'Day 2 Dog', 2, secondDate, 'ip'),
@@ -359,8 +357,8 @@ describe('ParticipantList', () => {
   })
 
   it('uses the matching class state when a registration date is missing from the event classes', () => {
-    const eventDate = new Date('2023-01-01')
-    const registrationDate = new Date('2023-01-02')
+    const eventDate = '2023-01-01'
+    const registrationDate = '2023-01-02'
     const participant = createMockRegistration('AVO', 'Dog 1', 1, registrationDate, 'ap')
 
     render(
@@ -379,9 +377,7 @@ describe('ParticipantList', () => {
   })
 
   it('renders unpublished empty classes in preview mode', () => {
-    const mockParticipants: PublicRegistration[] = [
-      createMockRegistration('AVO', 'Dog 1', 1, new Date('2023-01-01'), 'ap'),
-    ]
+    const mockParticipants: PublicRegistration[] = [createMockRegistration('AVO', 'Dog 1', 1, '2023-01-01', 'ap')]
 
     render(
       <ParticipantList
@@ -395,9 +391,7 @@ describe('ParticipantList', () => {
   })
 
   it('marks unpublished classes with participants in preview mode', () => {
-    const mockParticipants: PublicRegistration[] = [
-      createMockRegistration('AVO', 'Dog 1', 1, new Date('2023-01-01'), 'ap'),
-    ]
+    const mockParticipants: PublicRegistration[] = [createMockRegistration('AVO', 'Dog 1', 1, '2023-01-01', 'ap')]
 
     render(
       <ParticipantList
@@ -411,9 +405,7 @@ describe('ParticipantList', () => {
   })
 
   it('renders a published event class even when it has no public participants', () => {
-    const mockParticipants: PublicRegistration[] = [
-      createMockRegistration('AVO', 'Dog 1', 1, new Date('2023-01-01'), 'ap'),
-    ]
+    const mockParticipants: PublicRegistration[] = [createMockRegistration('AVO', 'Dog 1', 1, '2023-01-01', 'ap')]
 
     render(
       <ParticipantList
@@ -427,9 +419,7 @@ describe('ParticipantList', () => {
   })
 
   it('renders an empty same-class entry on another date', () => {
-    const mockParticipants: PublicRegistration[] = [
-      createMockRegistration('AVO', 'Dog 1', 1, new Date('2023-01-01'), 'ap'),
-    ]
+    const mockParticipants: PublicRegistration[] = [createMockRegistration('AVO', 'Dog 1', 1, '2023-01-01', 'ap')]
 
     render(
       <ParticipantList
@@ -437,10 +427,10 @@ describe('ParticipantList', () => {
         event={{
           ...mockEvent,
           classes: [
-            { class: 'AVO', date: new Date('2023-01-01'), state: 'invited' },
-            { class: 'AVO', date: new Date('2023-01-02'), state: 'invited' },
+            { class: 'AVO', date: '2023-01-01', state: 'invited' },
+            { class: 'AVO', date: '2023-01-02', state: 'invited' },
           ],
-          endDate: new Date('2023-01-02'),
+          endDate: '2023-01-02',
           startListPublished: { AVO: true },
         }}
       />
@@ -452,8 +442,8 @@ describe('ParticipantList', () => {
 
   it('renders cancelled registrations correctly', () => {
     const mockParticipants: PublicRegistration[] = [
-      createMockRegistration('AVO', 'Dog 1', 1, new Date('2023-01-01'), 'ap'),
-      createMockRegistration('AVO', 'Dog 2', 2, new Date('2023-01-01'), 'ap', true),
+      createMockRegistration('AVO', 'Dog 1', 1, '2023-01-01', 'ap'),
+      createMockRegistration('AVO', 'Dog 2', 2, '2023-01-01', 'ap', true),
     ]
 
     render(<ParticipantList participants={mockParticipants} event={mockEvent} />)
@@ -469,12 +459,12 @@ describe('ParticipantList', () => {
   it('copies a plain text start list', async () => {
     const user = userEvent.setup()
     mockClipboard()
-    const participantWithoutParentTitles = createMockRegistration('AVO', 'Dog 1', 1, new Date('2023-01-01'), 'ap')
+    const participantWithoutParentTitles = createMockRegistration('AVO', 'Dog 1', 1, '2023-01-01', 'ap')
     participantWithoutParentTitles.dog.sire = { name: 'Sire Dog', titles: ' ' }
     participantWithoutParentTitles.dog.dam = { name: 'Dam Dog', titles: '  ' }
     const mockParticipants: PublicRegistration[] = [
       participantWithoutParentTitles,
-      createMockRegistration('AVO', 'Dog 2', 2, new Date('2023-01-01'), 'ap', true),
+      createMockRegistration('AVO', 'Dog 2', 2, '2023-01-01', 'ap', true),
     ]
 
     render(<ParticipantList participants={mockParticipants} event={mockEvent} showExportActions />)
@@ -492,7 +482,7 @@ describe('ParticipantList', () => {
     const user = userEvent.setup()
     mockClipboard()
     const participant = {
-      ...createMockRegistration('AVO', 'Dog 1', 1, new Date('2023-01-01'), 'ap'),
+      ...createMockRegistration('AVO', 'Dog 1', 1, '2023-01-01', 'ap'),
       placement: 2,
       result: 'AVO1',
     }
@@ -508,9 +498,7 @@ describe('ParticipantList', () => {
     const user = userEvent.setup()
     mockClipboard()
     writeText.mockRejectedValue(new DOMException('denied', 'NotAllowedError'))
-    const mockParticipants: PublicRegistration[] = [
-      createMockRegistration('AVO', 'Dog 1', 1, new Date('2023-01-01'), 'ap'),
-    ]
+    const mockParticipants: PublicRegistration[] = [createMockRegistration('AVO', 'Dog 1', 1, '2023-01-01', 'ap')]
 
     render(<ParticipantList participants={mockParticipants} event={mockEvent} showExportActions />)
 
@@ -527,8 +515,8 @@ describe('ParticipantList', () => {
     const user = userEvent.setup()
     mockClipboard()
     const mockParticipants: PublicRegistration[] = [
-      createMockRegistration('AVO', 'Dog 1', 1, new Date('2023-01-01'), 'ap'),
-      createMockRegistration('VOI', 'Dog 2', 2, new Date('2023-01-01'), 'ip'),
+      createMockRegistration('AVO', 'Dog 1', 1, '2023-01-01', 'ap'),
+      createMockRegistration('VOI', 'Dog 2', 2, '2023-01-01', 'ip'),
     ]
 
     render(
@@ -558,8 +546,8 @@ describe('ParticipantList', () => {
   it('does not export unpublished participants from the public start list', async () => {
     const user = userEvent.setup()
     const mockParticipants: PublicRegistration[] = [
-      createMockRegistration('AVO', 'AVO Dog', 1, new Date('2023-01-01'), 'ap'),
-      createMockRegistration('VOI', 'VOI Dog', 2, new Date('2023-01-01'), 'ip'),
+      createMockRegistration('AVO', 'AVO Dog', 1, '2023-01-01', 'ap'),
+      createMockRegistration('VOI', 'VOI Dog', 2, '2023-01-01', 'ip'),
     ]
 
     render(
@@ -581,7 +569,7 @@ describe('ParticipantList', () => {
   })
 
   it('formats the public start list for an Excel spreadsheet', () => {
-    const participant = createMockRegistration('AVO', 'Dog; One', 1, new Date('2023-01-01'), 'ap')
+    const participant = createMockRegistration('AVO', 'Dog; One', 1, '2023-01-01', 'ap')
     const rows = startListSpreadsheetRows([participant], mockEvent, t)
 
     expect(rows).toEqual([

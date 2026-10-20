@@ -1,7 +1,7 @@
 import type { BreedCode } from '../types'
 import { subMinutes } from 'date-fns'
 import { t } from 'i18next'
-import { legacyDayValue, startOfFinnishDay } from '../test-utils/finnishDays'
+import { legacyDayValue } from '../test-utils/finnishDays'
 import { describeInTimeZone } from '../test-utils/timeZone'
 import {
   breedAbbreviation,
@@ -34,18 +34,18 @@ describe("the dog's age", () => {
     expect(MIN_RESULT_AGE_MONTHS).toBe(9)
   })
 
-  // The birth date is a day key (KOE-1548), the trial's day its Finnish day: no host zone moves either.
+  // The birth date and the trial's day are day keys (KOE-1548, KOE-1547): no host zone moves either.
   for (const zone of ['UTC', 'Europe/Helsinki', 'America/New_York', 'Asia/Tokyo']) {
     describeInTimeZone(zone, () => {
       it('counts whole months from the birth day to the Finnish day of the trial', () => {
-        expect(dogAgeInMonths('2025-12-28', startOfFinnishDay('2026-09-28'))).toBe(9)
-        expect(dogAgeInMonths('2025-12-28', startOfFinnishDay('2026-09-27'))).toBe(8)
-        expect(dogAgeInMonths('2026-01-01', startOfFinnishDay('2026-09-30'))).toBe(8)
-        expect(dogAgeInMonths('2026-09-29', startOfFinnishDay('2026-09-28'))).toBe(-1)
+        expect(dogAgeInMonths('2025-12-28', '2026-09-28')).toBe(9)
+        expect(dogAgeInMonths('2025-12-28', '2026-09-27')).toBe(8)
+        expect(dogAgeInMonths('2026-01-01', '2026-09-30')).toBe(8)
+        expect(dogAgeInMonths('2026-09-29', '2026-09-28')).toBe(-1)
       })
 
       it('gives the latest birth day for an age on the Finnish day of the trial', () => {
-        expect(latestDobForAge(startOfFinnishDay('2026-04-30'), 9)).toBe('2025-07-31')
+        expect(latestDobForAge('2026-04-30', 9)).toBe('2025-07-31')
       })
 
       it('gives the earliest result day nine months after the day of birth', () => {

@@ -1,4 +1,4 @@
-import type { DogEvent } from '@/types'
+import type { DayKey, DogEvent } from '@/types'
 import { createStore } from 'jotai'
 import { getAdminEvents } from '@/api/event'
 import { idTokenAtom } from '@/pages/state'
@@ -10,8 +10,8 @@ vi.mock('@/api/event', () => ({
 }))
 vi.mock('@/api/user')
 
-const event = (id: string, startDate: string, updatedAt: string): DogEvent =>
-  ({ id, startDate: new Date(startDate), updatedAt: new Date(updatedAt) }) as DogEvent
+const event = (id: string, startDate: DayKey, updatedAt: string): DogEvent =>
+  ({ id, startDate, updatedAt: new Date(updatedAt) }) as DogEvent
 
 describe('reconcileAdminEvents', () => {
   it('merges changed and new events into the cached collection', () => {

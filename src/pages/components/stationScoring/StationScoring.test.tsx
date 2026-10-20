@@ -9,7 +9,7 @@ import { StationScoring } from './StationScoring'
 const judge = { id: 223, name: 'Tuomari 2' }
 const otherJudge = { id: 224, name: 'Tuomari 3' }
 const station = { id: '1', judges: [judge], number: 1, tasks: 1 as const }
-const group = { date: new Date('2026-09-12'), key: 'ALO-AP', time: 'ap' as const }
+const group = { date: '2026-09-12' as const, key: 'ALO-AP', time: 'ap' as const }
 
 /** A NOME-B: judged, not scored — the post is the whole trial, and the result is the judge's word. */
 const dogs = [

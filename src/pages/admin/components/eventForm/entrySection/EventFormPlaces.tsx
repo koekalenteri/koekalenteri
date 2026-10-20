@@ -1,5 +1,5 @@
 import type { MouseEvent } from 'react'
-import type { DeepPartial, EventClass } from '@/types'
+import type { DayKey, DeepPartial, EventClass } from '@/types'
 import type { EntryEvent, SectionProps } from '../types'
 import Box from '@mui/material/Box'
 import FormHelperText from '@mui/material/FormHelperText'
@@ -10,7 +10,6 @@ import Typography from '@mui/material/Typography'
 import { enqueueSnackbar } from 'notistack'
 import { useCallback, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { dayOf, TIME_ZONE } from '@/lib/day'
 import { getEventDays } from '@/lib/event'
 import { compareEventClass } from '../components/EventClasses'
 import {
@@ -70,8 +69,7 @@ export default function EventFormPlaces({ event, disabled, helperTexts, onChange
   }
 
   const handleDayChange = useCallback(
-    (date: Date, value?: number) => {
-      const dateStr = dayOf(date, TIME_ZONE)
+    (dateStr: DayKey, value?: number) => {
       const newPlacesPerDay = event.placesPerDay ? { ...event.placesPerDay } : {}
 
       if (value && value > 0) {

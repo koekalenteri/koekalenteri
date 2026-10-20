@@ -1,5 +1,6 @@
 import type { TFunction } from 'i18next'
 import type React from 'react'
+import type { DayKey } from '../../types/Day'
 import type { EventClass, PublicConfirmedEvent } from '../../types/Event'
 import type { PublicRegistration } from '../../types/Registration'
 import ContentCopyOutlined from '@mui/icons-material/ContentCopyOutlined'
@@ -13,7 +14,6 @@ import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { reportError } from '../../lib/client/error'
 import { downloadXlsx } from '../../lib/client/xlsx'
-import { dayOf, TIME_ZONE } from '../../lib/day'
 import { breedAbbreviation, formatDogName } from '../../lib/dog'
 import {
   eventRegistrationDateKey,
@@ -40,8 +40,8 @@ interface ParticipantListProps {
 }
 
 type StartListItem =
-  | { date: Date; order: number; registration: PublicRegistration; type: 'registration' }
-  | { date: Date; eventClass: EventClass; order: number; type: 'emptyClass' }
+  | { date: DayKey; order: number; registration: PublicRegistration; type: 'registration' }
+  | { date: DayKey; eventClass: EventClass; order: number; type: 'emptyClass' }
 
 export const ParticipantList = ({
   participants,
@@ -70,7 +70,7 @@ export const ParticipantList = ({
     }
     return keys
   }, [event.startDate, participants])
-  let lastDate: Date | undefined
+  let lastDate: DayKey | undefined
   let lastClass: PublicRegistration['class']
   let lastGroup: string | undefined
   let index = 0
@@ -121,7 +121,7 @@ export const ParticipantList = ({
 
             // Add date header if date changed
             if (startListDateKey(date) !== startListDateKey(lastDate)) {
-              result.push(<DateHeader key={date.toISOString()} date={date} />)
+              result.push(<DateHeader key={date} date={date} />)
               // A classless event never gets a class header, so its publishing notes hang off the date.
               if (item.type === 'registration' && !item.registration.class) {
                 const published = isStartListAvailableForRegistration(event, item.registration)
@@ -129,7 +129,7 @@ export const ParticipantList = ({
                 if (!published || !numbersPublished) {
                   result.push(
                     <ClassHeader
-                      key={`notes-${date.valueOf()}`}
+                      key={`notes-${date}`}
                       classValue=""
                       event={event}
                       lastDate={date}
@@ -148,7 +148,7 @@ export const ParticipantList = ({
             if (item.type === 'emptyClass') {
               result.push(
                 <ClassHeader
-                  key={`empty-${item.eventClass.class}-${item.date.valueOf()}`}
+                  key={`empty-${item.eventClass.class}-${item.date}`}
                   classValue={item.eventClass.class}
                   event={event}
                   lastDate={item.date}
@@ -169,7 +169,7 @@ export const ParticipantList = ({
               if (reg.class) {
                 result.push(
                   <ClassHeader
-                    key={`${reg.class}-${date.valueOf()}`}
+                    key={`${reg.class}-${date}`}
                     classValue={reg.class}
                     event={event}
                     lastDate={lastDate}
@@ -187,11 +187,7 @@ export const ParticipantList = ({
             if (lastGroup !== group) {
               if (reg.group.time) {
                 result.push(
-                  <TimeHeader
-                    key={`${lastDate?.toISOString()} ${reg.group.time}`}
-                    time={reg.group.time}
-                    lastDate={lastDate}
-                  />
+                  <TimeHeader key={`${lastDate} ${reg.group.time}`} time={reg.group.time} lastDate={lastDate} />
                 )
               }
               lastGroup = group
@@ -230,7 +226,7 @@ export const ParticipantList = ({
 }
 
 function formatStartList(participants: PublicRegistration[], event: PublicConfirmedEvent, t: TFunction) {
-  let lastDate: Date | undefined
+  let lastDate: DayKey | undefined
   let lastClass: PublicRegistration['class']
   let lastGroup: string | undefined
   const lines: string[] = []
@@ -351,19 +347,19 @@ function startListItemNumber(item: StartListItem): number {
     : Number.MAX_SAFE_INTEGER
 }
 
-function classDateKey(classValue: string | null | undefined, date: Date | undefined): string {
+function classDateKey(classValue: string | null | undefined, date: DayKey | undefined): string {
   return `${classValue ?? ''}:${startListDateKey(date)}`
 }
 
-function startListDateKey(date: Date | undefined): string {
-  return date ? dayOf(date, TIME_ZONE) : ''
+function startListDateKey(date: DayKey | undefined): string {
+  return date ?? ''
 }
 
-function startListGroupKey(date: Date, time: PublicRegistration['group']['time']): string {
+function startListGroupKey(date: DayKey, time: PublicRegistration['group']['time']): string {
   return time ? eventRegistrationDateKey({ date, time }) : startListDateKey(date)
 }
 
-function formatClassJudges(event: PublicConfirmedEvent, eventClass: string, date: Date | undefined, t: TFunction) {
+function formatClassJudges(event: PublicConfirmedEvent, eventClass: string, date: DayKey | undefined, t: TFunction) {
   return event.classes
     .filter((c) => c.class === eventClass && startListDateKey(c.date) === startListDateKey(date))
     .map((c) => (Array.isArray(c.judge) ? c.judge.map((j) => judgeName(j, t)).join(', ') : judgeName(c.judge, t)))

@@ -1,5 +1,5 @@
 import type React from 'react'
-import type { Registration } from '@/types'
+import type { Registration, RegistrationGroupMove } from '@/types'
 import { act, renderHook } from '@testing-library/react'
 import { createStore, useAtomValue, useSetAtom } from 'jotai'
 import { TestProvider as Provider } from 'test-utils/AtomProvider'
@@ -20,7 +20,7 @@ const HELSINKI_KEY = '2026-08-15-ap'
 const start = (id: string, number: number, key: string): Registration => ({
   ...registrationWithStaticDates,
   class: 'AVO',
-  group: { date: new Date('2026-08-14T21:00:00.000Z'), key, number, time: 'ap' },
+  group: { date: '2026-08-15', key, number, time: 'ap' },
   id,
 })
 const reserve: Registration = {
@@ -29,7 +29,7 @@ const reserve: Registration = {
   group: { key: 'reserve', number: 1 },
   id: 'c',
 }
-const move = { group: { date: new Date('2026-08-14T21:00:00.000Z'), key: HELSINKI_KEY, time: 'ap' as const }, id: 'c' }
+const move: RegistrationGroupMove = { group: { date: '2026-08-15', key: HELSINKI_KEY, time: 'ap' }, id: 'c' }
 
 describe('adminProjectedEventRegistrationsAtom', () => {
   it('keeps the server row of an unmoved start whose key only differs in spelling from the projection', () => {

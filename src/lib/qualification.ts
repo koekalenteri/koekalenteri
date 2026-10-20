@@ -1,4 +1,5 @@
 import type {
+  DayKey,
   DogEvent,
   EventResultRequirement,
   EventResultRequirements,
@@ -13,7 +14,7 @@ import type {
   TestResult,
 } from '../types'
 import { getRequirements } from '../rules'
-import { calendarDayOf, dayParts, dayStart, TIME_ZONE, yearOf } from './day'
+import { calendarDayOf, dayParts, TIME_ZONE } from './day'
 import { storedDayKey } from './event'
 import { getNextClass, isRegistrationClass } from './registration'
 
@@ -25,9 +26,9 @@ export const objectContains = (obj: object, req: object) =>
  * class. The result's day is a key, the day written on it (KOE-1548); the trial's year is its Finnish one.
  */
 const isFromTrialYear =
-  (startDate: Date) =>
+  (startDate: DayKey) =>
   (result: Partial<TestResult>): boolean =>
-    !!result.date && dayParts(result.date).year >= yearOf(startDate, TIME_ZONE)
+    !!result.date && dayParts(result.date).year >= dayParts(startDate).year
 
 /** The earlier day first; a result with no day after every dated one. Equal days keep their order. */
 const byDate = (a: TestResult, b: TestResult) => {
@@ -76,8 +77,8 @@ const checkRequiredResults = (
   requirements: EventResultRequirementsByDate | undefined,
   officialResults: TestResult[],
   manualResults: ManualTestResult[],
-  entryEndDate: Date | undefined,
-  qualificationStartDate: Date | undefined,
+  entryEndDate: DayKey | undefined,
+  qualificationStartDate: DayKey | undefined,
   qualifying = true
 ): QualifyingResults => {
   if (!requirements) return { qualifies: qualifying, relevant: [] }
@@ -191,15 +192,6 @@ export function filterRelevantResults(
   return check
 }
 
-/**
- * A stored day as the moment the browser's model holds for it, the start of its Finnish day: a key
- * (KOE-1547), or an instant on a row stored before that.
- */
-const toDate = (date: string | undefined) => {
-  const day = storedDayKey(date)
-  return day ? dayStart(day, TIME_ZONE) : undefined
-}
-
 /** A stored result's day: a key, or the older forms written before keys (KOE-1548), read as the Finnish day. */
 const withDay = <T extends JsonTestResult>({ date, ...result }: T) => ({
   ...result,
@@ -219,11 +211,13 @@ export const qualifyJsonRegistration = (
 ): Pick<JsonRegistration, 'qualifies' | 'qualifyingResults'> => {
   const { qualifies, relevant } = filterRelevantResults(
     {
-      entryEndDate: toDate(event.entryEndDate),
-      entryOrigEndDate: toDate(event.entryOrigEndDate),
+      entryEndDate: storedDayKey(event.entryEndDate),
+      entryOrigEndDate: storedDayKey(event.entryOrigEndDate),
       eventType: event.eventType,
-      qualificationStartDate: toDate(event.qualificationStartDate),
-      startDate: toDate(event.startDate) ?? new Date(Number.NaN),
+      qualificationStartDate: storedDayKey(event.qualificationStartDate),
+      // A stored row's day is a key, or an instant on a row stored before KOE-1547; an unreadable one is
+      // passed on as it is, and the rule date and the trial year then read as none.
+      startDate: storedDayKey(event.startDate) ?? event.startDate,
     },
     registration.class,
     registration.dog.results?.map(withDay),

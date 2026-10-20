@@ -56,9 +56,9 @@ describe('useEventForm', () => {
     createdAt: new Date(),
     createdBy: 'test',
     description: 'Test description',
-    endDate: new Date('2023-01-02'),
-    entryEndDate: new Date('2022-12-31'),
-    entryStartDate: new Date('2022-12-01'),
+    endDate: '2023-01-02',
+    entryEndDate: '2022-12-31',
+    entryStartDate: '2022-12-01',
     eventType: 'test',
     id: 'test-event-id',
     judges: [],
@@ -70,7 +70,7 @@ describe('useEventForm', () => {
     organizer: { id: 'org1', name: 'Test Organizer' },
     places: 10,
     secretary: {},
-    startDate: new Date('2023-01-01'),
+    startDate: '2023-01-01',
     state: 'draft',
   }
 
@@ -170,10 +170,10 @@ describe('useEventForm', () => {
     expect(result.current.canSave).toBe(false)
 
     act(() => {
-      result.current.handleChange({ ...mockEvent, entryStartDate: new Date('2022-11-30') })
+      result.current.handleChange({ ...mockEvent, entryStartDate: '2022-11-30' })
     })
 
-    expect(result.current.changes).toEqual({ entryStartDate: new Date('2022-11-30') })
+    expect(result.current.changes).toEqual({ entryStartDate: '2022-11-30' })
     expect(result.current.canSave).toBe(true)
   })
 
@@ -189,9 +189,9 @@ describe('useEventForm', () => {
     )
 
     act(() => {
-      result.current.handleChange({ ...mockEvent, entryStartDate: new Date('2022-11-30') })
+      result.current.handleChange({ ...mockEvent, entryStartDate: '2022-11-30' })
     })
-    expect(result.current.changes).toEqual({ entryStartDate: new Date('2022-11-30') })
+    expect(result.current.changes).toEqual({ entryStartDate: '2022-11-30' })
     expect(result.current.canSave).toBe(true)
 
     act(() => {

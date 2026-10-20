@@ -28,7 +28,7 @@ const registration: PublicRegistration = {
     results: [],
     sire: { name: "FLATGOLD'S LADIES LOVE COUNTRY BOYS" },
   },
-  group: { date: new Date('2026-09-12T12:00:00Z'), key: 'AVO-AP', number: 1, time: 'ap' },
+  group: { date: '2026-09-12', key: 'AVO-AP', number: 1, time: 'ap' },
   handler: 'Minsu Rauramo',
   owner: 'Minsu Rauramo',
   ownerHandles: true,

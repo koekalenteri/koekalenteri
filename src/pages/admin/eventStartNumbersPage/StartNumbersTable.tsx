@@ -1,5 +1,5 @@
 import type { TFunction } from 'i18next'
-import type { RegistrationTime } from '@/types'
+import type { DayKey, RegistrationTime } from '@/types'
 import Paper from '@mui/material/Paper'
 import Table from '@mui/material/Table'
 import TableBody from '@mui/material/TableBody'
@@ -21,7 +21,7 @@ export interface StartNumberRow {
   /** The working-order number, shown as a hint while nothing is frozen. */
   groupNumber?: number
   /** Where the dog runs: the day and its part, as the start list groups them (KOE-1303). */
-  placement?: { date?: Date; time?: RegistrationTime }
+  placement?: { date?: DayKey; time?: RegistrationTime }
 }
 
 interface Props {

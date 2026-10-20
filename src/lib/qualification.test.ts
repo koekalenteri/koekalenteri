@@ -139,7 +139,9 @@ describe('lib/qualification', () => {
     for (const zone of ['UTC', 'Europe/Helsinki', 'America/New_York', 'Asia/Tokyo']) {
       describeInTimeZone(zone, () => {
         const ALO1 = { ...NOU1, class: 'ALO', result: 'ALO1', type: 'NOME-B' }
+        // The lambda reads a row stored before KOE-1547; the browser holds that day as its key.
         const startDate = legacyDayValue('2026-03-15T22:00:00.000Z')
+        const startDay = '2026-03-16'
 
         it.each([
           // 1 January is the trial's year: the result is compared by its year, not against a midnight.
@@ -155,7 +157,7 @@ describe('lib/qualification', () => {
             )
           )
           const inBrowser = filterRelevantResults(
-            { eventType: 'NOME-B', startDate: new Date(startDate) },
+            { eventType: 'NOME-B', startDate: startDay },
             'ALO',
             toDog({ regNo: 'FI12345/22', results }).results
           )
@@ -186,7 +188,7 @@ describe('lib/qualification', () => {
               )
             )
             const inBrowser = filterRelevantResults(
-              { eventType: 'NOME-B', startDate: new Date(startDate) },
+              { eventType: 'NOME-B', startDate: startDay },
               'ALO',
               toDog({ regNo: 'FI12345/22', results: official }).results,
               [toManualTestResult(manual)]
@@ -206,7 +208,7 @@ describe('lib/qualification', () => {
             )
           )
           const inBrowser = filterRelevantResults(
-            { eventType: 'NOME-B', startDate: new Date(startDate) },
+            { eventType: 'NOME-B', startDate: startDay },
             'ALO',
             toDog({ regNo: 'FI12345/22', results: [NOU1] }).results,
             [toManualTestResult(manual)]

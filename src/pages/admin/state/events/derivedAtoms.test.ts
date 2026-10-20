@@ -1,4 +1,4 @@
-import type { DogEvent } from '@/types'
+import type { DayKey, DogEvent } from '@/types'
 import { createStore } from 'jotai'
 import { emptyEvent } from '@/__mockData__/emptyEvent'
 import { adminEventFilterTextAtom, adminEventIdAtom, adminEventsAtom, adminShowPastEventsAtom } from './atoms'
@@ -10,7 +10,7 @@ import {
   adminLinkedKcGuidsAtom,
 } from './derivedAtoms'
 
-const event = (id: string, endDate: Date): DogEvent => ({
+const event = (id: string, endDate: DayKey): DogEvent => ({
   ...emptyEvent,
   endDate,
   id,
@@ -30,8 +30,8 @@ describe('admin event derived atoms', () => {
   })
 
   it('keeps events ending today visible when past events are hidden', async () => {
-    const today = event('today', new Date('2026-05-28T00:00:00.000+03:00'))
-    const yesterday = event('yesterday', new Date('2026-05-27T00:00:00.000+03:00'))
+    const today = event('today', '2026-05-28')
+    const yesterday = event('yesterday', '2026-05-27')
 
     const store = createStore()
     store.set(adminEventsAtom, [today, yesterday])
@@ -45,13 +45,13 @@ describe('admin event derived atoms', () => {
   // name in any language, whatever the UI language, and a search may span the name and the fields
   // beside it in the list, as it did before translations.
   const named: DogEvent = {
-    ...event('named', new Date('2026-06-10T00:00:00.000+03:00')),
+    ...event('named', '2026-06-10'),
     eventType: 'NOME-B',
     location: 'Vaasa',
     name: 'Syyskoe',
     names: { en: 'Autumn trial' },
   }
-  const other = event('other', new Date('2026-06-10T00:00:00.000+03:00'))
+  const other = event('other', '2026-06-10')
 
   const search = (filter: string) => {
     const store = createStore()
@@ -77,8 +77,8 @@ describe('admin event derived atoms', () => {
   })
 
   it('serves the selected event synchronously once the events have loaded', () => {
-    const selected = event('selected', new Date('2026-05-28T00:00:00.000+03:00'))
-    const other = event('other', new Date('2026-05-29T00:00:00.000+03:00'))
+    const selected = event('selected', '2026-05-28')
+    const other = event('other', '2026-05-29')
 
     const store = createStore()
     store.set(adminEventsAtom, [other, selected])
@@ -89,9 +89,9 @@ describe('admin event derived atoms', () => {
   })
 
   it('puts a newly saved event in date order instead of at the end of the list (KOE-1302)', async () => {
-    const june = event('june', new Date('2026-06-10T00:00:00.000+03:00'))
-    const august = event('august', new Date('2026-08-10T00:00:00.000+03:00'))
-    const july = event('july', new Date('2026-07-10T00:00:00.000+03:00'))
+    const june = event('june', '2026-06-10')
+    const august = event('august', '2026-08-10')
+    const july = event('july', '2026-07-10')
 
     const store = createStore()
     store.set(adminEventsAtom, [june, august])
@@ -102,14 +102,14 @@ describe('admin event derived atoms', () => {
   })
 
   it('moves a redated event to its new place in the list (KOE-1302)', async () => {
-    const june = event('june', new Date('2026-06-10T00:00:00.000+03:00'))
-    const july = event('july', new Date('2026-07-10T00:00:00.000+03:00'))
-    const august = event('august', new Date('2026-08-10T00:00:00.000+03:00'))
+    const june = event('june', '2026-06-10')
+    const july = event('july', '2026-07-10')
+    const august = event('august', '2026-08-10')
 
     const store = createStore()
     store.set(adminEventsAtom, [june, july, august])
 
-    const redated = event('june', new Date('2026-09-10T00:00:00.000+03:00'))
+    const redated = event('june', '2026-09-10')
     await store.set(adminEventAtom(redated.id), redated)
 
     expect((await store.get(adminEventsAtom)).map((item) => item.id)).toEqual(['july', 'august', 'june'])
@@ -117,7 +117,7 @@ describe('admin event derived atoms', () => {
 
   describe('Kennelliitto trials already linked (KOE-1534)', () => {
     const linked = (id: string, kcGuid: string, deletedAt?: Date): DogEvent => ({
-      ...event(id, new Date('2026-06-10T00:00:00.000+03:00')),
+      ...event(id, '2026-06-10'),
       deletedAt,
       kcGuid,
     })
@@ -139,11 +139,11 @@ describe('admin event derived atoms', () => {
 
   it('ignores events with missing organizers when listing event organizers', async () => {
     const valid = {
-      ...event('valid', new Date('2026-05-28T00:00:00.000+03:00')),
+      ...event('valid', '2026-05-28'),
       organizer: { id: 'org-1', name: 'Organizer' },
     }
     const missingOrganizer = {
-      ...event('missing-organizer', new Date('2026-05-28T00:00:00.000+03:00')),
+      ...event('missing-organizer', '2026-05-28'),
       organizer: undefined,
       // Deliberately missing the organizer, to cover the defensive path
     } as unknown as DogEvent

@@ -13,7 +13,7 @@ const testEvent: DogEvent = {
   classes: [
     {
       class: 'ALO',
-      date: new Date('2021-02-10'),
+      date: '2021-02-10',
       entries: 22,
       judge: { id: 1, name: 'Test Judge' },
       members: 2,
@@ -21,10 +21,10 @@ const testEvent: DogEvent = {
     },
   ],
   description: 'event description text',
-  endDate: new Date('2021-02-11'),
+  endDate: '2021-02-11',
   entries: 22,
-  entryEndDate: new Date('2021-02-04'),
-  entryStartDate: new Date('2021-01-20'),
+  entryEndDate: '2021-02-04',
+  entryStartDate: '2021-01-20',
   location: 'location',
   members: 2,
   name: 'name',
@@ -33,7 +33,7 @@ const testEvent: DogEvent = {
     name: 'test organization',
   },
   places: 11,
-  startDate: new Date('2021-02-10'),
+  startDate: '2021-02-10',
 }
 
 describe('EventInfo', () => {
@@ -60,7 +60,7 @@ describe('EventInfo', () => {
   })
 
   it('should render ranking period', async () => {
-    const event: DogEvent = { ...testEvent, entryOrigEndDate: new Date('2021-02-02'), eventType: 'NOME-A SM' }
+    const event: DogEvent = { ...testEvent, entryOrigEndDate: '2021-02-02', eventType: 'NOME-A SM' }
     render(
       <Provider>
         <Suspense fallback={<div>loading...</div>}>

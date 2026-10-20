@@ -1,5 +1,5 @@
 import type { UserEvent } from '@testing-library/user-event/dist/types/setup/setup'
-import type { AuditRecord, Registration } from '@/types'
+import type { AuditRecord, ConfirmedEvent, Registration } from '@/types'
 import { screen, waitFor } from '@testing-library/react'
 import { TestProvider as Provider } from 'test-utils/AtomProvider'
 import { eventWithEntryClosed, eventWithStaticDates, eventWithStaticDatesAndClass } from '@/__mockData__/events'
@@ -10,9 +10,9 @@ import { renderWithUserEvents, TEST_ID_TOKEN } from '@/test-utils/utils'
 import { idTokenAtom } from '../../state'
 import InfoPanel from './InfoPanel'
 
-const activeEventWithStaticDates = {
+const activeEventWithStaticDates: ConfirmedEvent = {
   ...eventWithStaticDates,
-  endDate: new Date('2099-12-31'),
+  endDate: '2099-12-31',
 }
 vi.mock('@/api/event')
 

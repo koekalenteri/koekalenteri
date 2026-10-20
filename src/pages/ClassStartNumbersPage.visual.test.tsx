@@ -1,12 +1,10 @@
 import type { RouteObject } from 'react-router'
-import type { ClassStartNumbers } from '../types'
-import { TZDate } from '@date-fns/tz'
+import type { ClassStartNumbers, DayKey } from '../types'
 import CssBaseline from '@mui/material/CssBaseline'
 import { ThemeProvider } from '@mui/material/styles'
 import { page } from 'vitest/browser'
 import { render } from 'vitest-browser-react'
 import theme from '../assets/Theme'
-import { TIME_ZONE } from '../lib/day'
 import { Path } from '../routeConfig'
 import { TestProvider } from '../test-utils/AtomProvider'
 import { freezeClockAt } from '../test-utils/freezeClock'
@@ -17,7 +15,7 @@ import AppSnackbarProvider from './components/AppSnackbarProvider'
 // The draw is done the week before the trial; a day of its own keeps the sheet from moving (KOE-1423).
 freezeClockAt('2026-09-07')
 
-const DAY = new TZDate(2026, 8, 12, TIME_ZONE)
+const DAY: DayKey = '2026-09-12'
 
 const sheet: ClassStartNumbers = {
   event: {

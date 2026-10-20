@@ -1,6 +1,5 @@
-import type { ConfirmedEvent, Language } from '../types'
+import type { ConfirmedEvent, DayKey, Language } from '../types'
 import type { FilterProps } from './state'
-import { TZDate } from '@date-fns/tz'
 import { createTheme, ThemeProvider } from '@mui/material/styles'
 import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
@@ -11,7 +10,6 @@ import { render } from 'vitest-browser-react'
 import { emptyEvent } from '../__mockData__/emptyEvent'
 import theme from '../assets/Theme'
 import { locales } from '../i18n'
-import { TIME_ZONE } from '../lib/day'
 import AppSnackbarProvider from './components/AppSnackbarProvider'
 // The register link's black/bold/underlined look is a global class, not a theme override; without
 // it the link falls back to the browser's default blue (KOE-1324, caught against a real device).
@@ -40,14 +38,14 @@ const DESKTOP = { height: 1000, width: 1200 }
 // The filter accordion slides open; a capture mid-slide is not a layout anyone gets.
 const stillTheme = createTheme(theme, { transitions: { getAutoHeightDuration: () => 0 } })
 
-const day = (iso: string) => new TZDate(iso, TIME_ZONE)
+const day = (iso: DayKey): DayKey => iso
 
 const trial = (
   id: string,
   name: string,
   eventType: string,
-  start: string,
-  end: string,
+  start: DayKey,
+  end: DayKey,
   location: string,
   classes: string[]
 ): ConfirmedEvent => ({

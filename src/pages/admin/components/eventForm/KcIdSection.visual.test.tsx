@@ -1,12 +1,10 @@
 import type { PartialEvent } from './types'
-import { TZDate } from '@date-fns/tz'
 import { ThemeProvider } from '@mui/material/styles'
 import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
 import { render } from 'vitest-browser-react'
 import theme from '@/assets/Theme'
 import { locales } from '@/i18n'
-import { TIME_ZONE } from '@/lib/day'
 import { idTokenAtom } from '@/pages/state'
 import { TestProvider } from '@/test-utils/AtomProvider'
 import KcIdSection from './KcIdSection'
@@ -23,14 +21,14 @@ const Frame = ({ children }: { readonly children: React.ReactNode }) => (
 )
 
 const event: PartialEvent = {
-  classes: [{ class: 'ALO', date: new TZDate('2026-09-26', TIME_ZONE) }],
-  endDate: new TZDate('2026-09-27', TIME_ZONE),
+  classes: [{ class: 'ALO', date: '2026-09-26' }],
+  endDate: '2026-09-27',
   eventType: 'NOU',
   id: 'test',
   judges: [{ id: 1000001, name: 'Testi Tuomari' }],
   location: 'Laukaa',
   organizer: { id: 'org1', name: 'Keski-Suomen Noutajakoirayhdistys' },
-  startDate: new TZDate('2026-09-26', TIME_ZONE),
+  startDate: '2026-09-26',
 }
 
 const renderSection = (props: Partial<PartialEvent>) =>
@@ -46,12 +44,12 @@ it('says the event is linked to a Kennelliitto trial, and warns where the trial 
   const screen = await renderSection({
     kcEvent: {
       classes: ['ALO'],
-      endDate: new TZDate('2026-09-27', TIME_ZONE),
+      endDate: '2026-09-27',
       eventType: 'NOU',
       judge: 'Joku Muu',
       judgeId: 4114852,
       location: 'Laukaa',
-      startDate: new TZDate('2026-09-26', TIME_ZONE),
+      startDate: '2026-09-26',
     },
     kcGuid: '2b81e6a1-559b-407c-87c7-b8a9b89b1987',
   })

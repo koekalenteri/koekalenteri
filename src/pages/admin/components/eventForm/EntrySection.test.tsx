@@ -1,5 +1,4 @@
-import type { ConfirmedEvent } from '@/types'
-import { TZDate } from '@date-fns/tz'
+import type { ConfirmedEvent, DayKey } from '@/types'
 import { ThemeProvider } from '@mui/material'
 import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
@@ -13,7 +12,6 @@ import { locales } from '@/i18n'
 import { TIME_ZONE } from '@/lib/day'
 import * as env from '@/lib/env'
 import AppSnackbarProvider from '@/pages/components/AppSnackbarProvider'
-import { endOfFinnishDay, finnishDayOf, startOfFinnishDay } from '@/test-utils/finnishDays'
 import { describeInTimeZone } from '@/test-utils/timeZone'
 import { flushPromises, renderWithUserEvents, runPendingTimers, typeDateKeyByKey } from '@/test-utils/utils'
 import EntrySection from './EntrySection'
@@ -227,8 +225,8 @@ describe('EntrySection', () => {
 
   describe.each([TIME_ZONE, 'America/New_York', 'Asia/Tokyo'])('the registration days in %s (KOE-1539)', (zone) => {
     describeInTimeZone(zone, () => {
-      const eventStart = new Date(new TZDate(2026, 11, 5, TIME_ZONE).getTime())
-      const eventWith = (startDate: Date, entryStartDate?: Date, entryEndDate?: Date) => ({
+      const eventStart: DayKey = '2026-12-05'
+      const eventWith = (startDate: DayKey, entryStartDate?: DayKey, entryEndDate?: DayKey) => ({
         ...eventWithStaticDates,
         entryEndDate,
         entryStartDate,
@@ -264,41 +262,38 @@ describe('EntrySection', () => {
 
         await typeDateKeyByKey(user, screen.getAllByRole('group')[0], '02112026')
 
-        const [saved] = onChange.mock.lastCall ?? []
-        expect(finnishDayOf(saved.entryStartDate)).toBe('2026-11-02')
-        expect(saved.entryStartDate.getTime()).toBe(new TZDate(2026, 10, 2, TIME_ZONE).getTime())
+        expect(onChange).toHaveBeenLastCalledWith(expect.objectContaining({ entryStartDate: '2026-11-02' }))
       })
 
       it('stores the entry as open from the start of its first Finnish day to the end of its last (KOE-1548)', async () => {
-        testEvent = eventWith(eventStart, startOfFinnishDay('2026-11-02'))
+        testEvent = eventWith(eventStart, '2026-11-02')
         const { onChange, user } = await renderEntrySection()
 
         await typeDateKeyByKey(user, screen.getAllByRole('group')[1], '20112026')
 
         expect(onChange).toHaveBeenLastCalledWith({
-          entryEndDate: endOfFinnishDay('2026-11-20'),
-          entryStartDate: startOfFinnishDay('2026-11-02'),
+          entryEndDate: '2026-11-20',
+          entryStartDate: '2026-11-02',
         })
       })
 
-      // KOE-1568: a stored bare day key ('2026-11-02') reaches the form as UTC midnight, not the Finnish
-      // one. Rewriting it when only the end changes would move the early-bird window, which a trial with
-      // registrations refuses: the start is kept as it was stored.
+      // KOE-1568: rewriting the start when only the end changes would move the early-bird window, which a
+      // trial with registrations refuses: the start is kept as it was stored.
       it('keeps the stored entry start when only the end changes', async () => {
-        const stored = new Date('2026-11-02')
+        const stored: DayKey = '2026-11-02'
         testEvent = eventWith(eventStart, stored)
         const { onChange, user } = await renderEntrySection()
 
         await typeDateKeyByKey(user, screen.getAllByRole('group')[1], '20112026')
 
         expect(onChange).toHaveBeenLastCalledWith({
-          entryEndDate: endOfFinnishDay('2026-11-20'),
+          entryEndDate: '2026-11-20',
           entryStartDate: stored,
         })
       })
 
       it('keeps the stored entry end when only the start changes', async () => {
-        const stored = new Date('2026-11-20')
+        const stored: DayKey = '2026-11-20'
         testEvent = eventWith(eventStart, undefined, stored)
         const { onChange, user } = await renderEntrySection()
 
@@ -306,18 +301,18 @@ describe('EntrySection', () => {
 
         expect(onChange).toHaveBeenLastCalledWith({
           entryEndDate: stored,
-          entryStartDate: startOfFinnishDay('2026-11-02'),
+          entryStartDate: '2026-11-02',
         })
       })
 
       // A stored day moved to another one (only its day typed over) takes the new day's bound; the other
       // keeps its stored value.
       it.each([
-        { field: 'start', group: 0, moved: { entryStartDate: startOfFinnishDay('2026-11-04') }, typed: '04' },
-        { field: 'end', group: 1, moved: { entryEndDate: endOfFinnishDay('2026-11-18') }, typed: '18' },
+        { field: 'start', group: 0, moved: { entryStartDate: '2026-11-04' }, typed: '04' },
+        { field: 'end', group: 1, moved: { entryEndDate: '2026-11-18' }, typed: '18' },
       ])('moves a stored $field to the day typed', async ({ group, moved, typed }) => {
-        const start = startOfFinnishDay('2026-11-02')
-        const end = endOfFinnishDay('2026-11-20')
+        const start: DayKey = '2026-11-02'
+        const end: DayKey = '2026-11-20'
         testEvent = eventWith(eventStart, start, end)
         const { onChange, user } = await renderEntrySection()
 
@@ -331,8 +326,8 @@ describe('EntrySection', () => {
         { calendar: 0, cleared: { entryStartDate: undefined }, field: 'start' },
         { calendar: 1, cleared: { entryEndDate: undefined }, field: 'end' },
       ])('empties the $field when it is cleared', async ({ calendar, cleared }) => {
-        const start = startOfFinnishDay('2026-11-02')
-        const end = endOfFinnishDay('2026-11-20')
+        const start: DayKey = '2026-11-02'
+        const end: DayKey = '2026-11-20'
         testEvent = eventWith(eventStart, start, end)
         const { onChange, user } = await renderEntrySection()
 
@@ -352,16 +347,16 @@ describe('EntrySection', () => {
           calendar: 0,
           case: 'start over the end of summer time',
           day: 29,
-          eventDay: new TZDate(2026, 11, 10, TIME_ZONE),
+          eventDay: '2026-12-10' as const,
         },
         {
           calendar: 1,
           case: 'end over the start of summer time',
           day: 27,
-          eventDay: new TZDate(2027, 3, 17, TIME_ZONE),
+          eventDay: '2027-04-17' as const,
         },
       ])('marks the default $case in the calendar', async ({ calendar, day, eventDay }) => {
-        testEvent = eventWith(new Date(eventDay.getTime()))
+        testEvent = eventWith(eventDay)
         const { user } = await renderEntrySection()
 
         await user.click(screen.getAllByTestId('CalendarIcon')[calendar])

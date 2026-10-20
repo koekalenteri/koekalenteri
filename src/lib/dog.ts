@@ -2,7 +2,7 @@ import type { TFunction } from 'i18next'
 import type { BreedCode, DayKey, DeepPartial, Dog, DogGender } from '../types'
 import { differenceInMinutes } from 'date-fns/differenceInMinutes'
 import { REQUIREMENTS } from '../rules'
-import { addMonths, dayOf, isDayKey, latestDayMonthsBefore, monthsBetween, TIME_ZONE } from './day'
+import { addMonths, isDayKey, latestDayMonthsBefore, monthsBetween } from './day'
 
 /** A result cannot predate the dog being this many months old, whatever the trial it is entered in. */
 export const MIN_RESULT_AGE_MONTHS = 9
@@ -15,16 +15,14 @@ export const minDogAgeFor = (eventType: string): number => {
 
 /*
  * The dog's birth date is a day key (KOE-1548), the day Kennelliitto wrote or the dob picker showed.
- * The trial's day is its Finnish day.
+ * The trial's day is a day key too (KOE-1547).
  */
 
-/** The dog's age in whole months (`monthsBetween`) on the Finnish day the trial starts. */
-export const dogAgeInMonths = (dob: DayKey, eventStart: Date): number =>
-  monthsBetween(dob, dayOf(eventStart, TIME_ZONE))
+/** The dog's age in whole months (`monthsBetween`) on the day the trial starts. */
+export const dogAgeInMonths = (dob: DayKey, eventStart: DayKey): number => monthsBetween(dob, eventStart)
 
 /** The latest birth day of a dog that is `months` old on the trial's first day. */
-export const latestDobForAge = (eventStart: Date, months: number): DayKey =>
-  latestDayMonthsBefore(dayOf(eventStart, TIME_ZONE), months)
+export const latestDobForAge = (eventStart: DayKey, months: number): DayKey => latestDayMonthsBefore(eventStart, months)
 
 /** The earliest day a result of the dog can have. */
 export const earliestResultDay = (dob: DayKey): DayKey => addMonths(dob, MIN_RESULT_AGE_MONTHS)

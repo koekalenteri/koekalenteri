@@ -81,12 +81,13 @@ import type {
   Transaction,
   User,
 } from '../types'
-import { calendarDayOf, localCalendarDayOf, localStampToInstant, TIME_ZONE } from './day'
+import { calendarDayOf, legacyStoredEventDay, localCalendarDayOf, TIME_ZONE } from './day'
 
 /**
  * The boundary between what crosses the wire (an API response, a WebSocket message, a value read
  * back from browser storage) and the browser model (KOE-1546). On the wire every instant and every
- * day is a string; in the model the named fields are `Date`s. A converter per type makes them so,
+ * day is a string; in the model the named instants are `Date`s and the days day keys, each read by
+ * its rule (KOE-1547). A converter per type makes them so,
  * from the field's name, never from what a value looks like: a cancellation reason the entrant typed
  * as "2024-05-01" stays the text it is.
  *
@@ -166,14 +167,13 @@ const isPresent = (value: unknown): boolean => value !== undefined && value !== 
 export const timestamp = (value: string): Date => new Date(value)
 
 /**
- * A stored calendar day as the moment the browser's model holds it: the start of its Finnish day. The
- * server stores and sends days as keys (KOE-1547), and a row not yet migrated sends the instant it
- * holds, which keeps its own moment. `new Date` of a key would be the UTC midnight, a moment no other
- * day of the model has, and the model compares days by their moments. A stamp without a zone (an old
- * row's Kennelliitto stamp) is read as the Finnish wall-clock time it names, and one with a zone keeps
- * it. A plain `Date`, not the `TZDate` the parse answers with, so the model holds one kind of date.
+ * An event's or an entry's day as the browser's model holds it: the day key the server sends
+ * (KOE-1547). A row not yet migrated sends the instant it holds, and a cache or a draft this browser
+ * stored before holds the Finnish midnight or end of day it was given: each is read as the day the
+ * migration writes for it (`legacyStoredEventDay`), so the key a save sends back is that day, an hour-off
+ * row's included. A value with no day stays as it came, and the readers take it for none.
  */
-const finnishDay = (value: string): Date => localStampToInstant(value, TIME_ZONE)
+const eventDay = <T extends string>(value: T): DayKey | T => legacyStoredEventDay(value, TIME_ZONE) ?? value
 
 /**
  * `converter<J, M>()(spec)`: the wire and model types first, the spec in a call of its own, so that
@@ -241,14 +241,14 @@ export const toTransaction = converter<JsonTransaction, Transaction>()({ created
 
 export const toAuditRecord = converter<JsonAuditRecord, AuditRecord>()({ timestamp })
 
-export const toEventStatsItem = converter<JsonEventStatsItem, EventStatsItem>()({ date: finnishDay })
+export const toEventStatsItem = converter<JsonEventStatsItem, EventStatsItem>()({ date: eventDay })
 
-const toRegistrationDate = converter<JsonRegistrationDate, RegistrationDate>()({ date: finnishDay })
+const toRegistrationDate = converter<JsonRegistrationDate, RegistrationDate>()({ date: eventDay })
 
-const toRegistrationGroup = converter<JsonRegistrationGroup, RegistrationGroup>()({ date: finnishDay })
+const toRegistrationGroup = converter<JsonRegistrationGroup, RegistrationGroup>()({ date: eventDay })
 
 const toPublicRegistrationGroup = converter<JsonPublicRegistrationGroup, PublicRegistrationGroup>()({
-  date: finnishDay,
+  date: eventDay,
 })
 
 const toEventResultTask = converter<JsonEventResultTask, EventResultTask>()({ updatedAt: timestamp })
@@ -319,11 +319,11 @@ export const {
   toRegistration: toStoredRegistration,
 } = dogDateConverters(localCalendarDayOf)
 
-export const toEventClass = converter<JsonEventClass, EventClass>()({ date: finnishDay })
+export const toEventClass = converter<JsonEventClass, EventClass>()({ date: eventDay })
 
-const toEventStation = converter<JsonEventStation, EventStation>()({ date: finnishDay })
+const toEventStation = converter<JsonEventStation, EventStation>()({ date: eventDay })
 
-const toKcEventInfo = converter<JsonKcEventInfo, KcEventInfo>()({ endDate: finnishDay, startDate: finnishDay })
+const toKcEventInfo = converter<JsonKcEventInfo, KcEventInfo>()({ endDate: eventDay, startDate: eventDay })
 
 const toKcState = converter<JsonKcState, KcState>()({ readAt: timestamp })
 
@@ -339,16 +339,16 @@ export const toStationTurn = converter<JsonStationTurn, StationTurn>()(turnRules
 
 export const toPublicStationTurn = converter<JsonPublicStationTurn, PublicStationTurn>()(turnRules)
 
-/** The days of an event: day keys on the wire, the starts of their Finnish days in the model (KOE-1547). */
+/** The days of an event: day keys on the wire and in the model (KOE-1547). */
 const eventDayRules = {
   classes: arrayOf(toEventClass),
   dates: arrayOf(toRegistrationDate),
-  endDate: finnishDay,
-  entryEndDate: finnishDay,
-  entryOrigEndDate: finnishDay,
-  entryStartDate: finnishDay,
-  qualificationStartDate: finnishDay,
-  startDate: finnishDay,
+  endDate: eventDay,
+  entryEndDate: eventDay,
+  entryOrigEndDate: eventDay,
+  entryStartDate: eventDay,
+  qualificationStartDate: eventDay,
+  startDate: eventDay,
   stations: arrayOf(toEventStation),
 }
 
@@ -381,8 +381,8 @@ export const toPublicDogEvent = converter<JsonPublicDogEvent, PublicDogEvent>()(
 
 const toLinkedEvent = converter<JsonLinkedEvent, LinkedEvent>()({
   classes: arrayOf(toEventClass),
-  endDate: finnishDay,
-  startDate: finnishDay,
+  endDate: eventDay,
+  startDate: eventDay,
 })
 
 const toStationEntryDog = converter<JsonStationEntryDog, StationEntryDog>()({
@@ -412,10 +412,10 @@ export const toStartNumberPatch = converter<JsonStartNumberPatch, StartNumberPat
 })
 
 export const toEventKcIdChoice = converter<JsonEventKcIdChoice, EventKcIdChoice>()({
-  endDate: finnishDay,
-  entryEndDate: finnishDay,
-  entryStartDate: finnishDay,
-  startDate: finnishDay,
+  endDate: eventDay,
+  entryEndDate: eventDay,
+  entryStartDate: eventDay,
+  startDate: eventDay,
 })
 
 const toStoredEventResult = converter<JsonStoredEventResult, StoredEventResult>()({ eventResult: toEventResult })

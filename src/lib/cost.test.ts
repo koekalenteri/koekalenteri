@@ -1,7 +1,6 @@
-import type { BreedCode } from '../types'
+import type { BreedCode, DayKey } from '../types'
 import type { DogEventCost, DogEventCostSegment, MinimalEventForCost, MinimalRegistrationForCost } from '../types/Cost'
-import { startOfDay } from 'date-fns'
-import { legacyDayValue } from '../test-utils/finnishDays'
+import { legacyDayValue, startOfFinnishDay } from '../test-utils/finnishDays'
 import {
   additionalCost,
   calculateCost,
@@ -17,11 +16,15 @@ import {
   selectCost,
   setCostValue,
 } from './cost'
+import { dayOf, TIME_ZONE } from './day'
+
+/** The Finnish day it is now: the entry opens today. */
+const todayKey = () => dayOf(new Date(), TIME_ZONE)
 
 const makeEvent = (
   cost: number | DogEventCost,
   costMember: number | DogEventCost | undefined,
-  entryStartDate = new Date()
+  entryStartDate: DayKey = todayKey()
 ) => ({ cost, costMember, entryStartDate })
 
 const makeRegistration = (
@@ -235,9 +238,7 @@ describe('additionalCost', () => {
 
 describe('getEarlyBirdEndDate', () => {
   it('should return undefined when earlyBird is missing', () => {
-    expect(
-      getEarlyBirdEndDate({ entryStartDate: new Date('2026-01-01T00:00:00.000Z') }, { earlyBird: undefined })
-    ).toBeUndefined()
+    expect(getEarlyBirdEndDate({ entryStartDate: '2026-01-01' }, { earlyBird: undefined })).toBeUndefined()
   })
 
   it('should return undefined when entryStartDate is missing', () => {
@@ -247,7 +248,7 @@ describe('getEarlyBirdEndDate', () => {
   it('should return undefined when earlyBird.days is 0', () => {
     expect(
       getEarlyBirdEndDate(
-        { entryStartDate: new Date('2026-01-01T00:00:00.000Z') },
+        { entryStartDate: '2026-01-01' },
         {
           earlyBird: { cost: 40, days: 0 },
         }
@@ -258,7 +259,7 @@ describe('getEarlyBirdEndDate', () => {
   it('should return undefined when earlyBird.days is negative', () => {
     expect(
       getEarlyBirdEndDate(
-        { entryStartDate: new Date('2026-01-01T00:00:00.000Z') },
+        { entryStartDate: '2026-01-01' },
         {
           earlyBird: { cost: 40, days: -2 },
         }
@@ -361,26 +362,26 @@ describe('getCostValue', () => {
 
 describe('calculateCost', () => {
   it('should work with legacy costs', () => {
-    const event = { cost: 10, entryStartDate: new Date() }
+    const event = { cost: 10, entryStartDate: todayKey() }
     const registration = makeRegistration(false, false)
     expect(calculateCost(event, registration)).toEqual({
       amount: 10,
       segment: 'legacy',
     })
     expect(
-      calculateCost({ cost: 10, costMember: 5, entryStartDate: new Date() }, makeRegistration(true, false))
+      calculateCost({ cost: 10, costMember: 5, entryStartDate: todayKey() }, makeRegistration(true, false))
     ).toEqual({
       amount: 5,
       segment: 'legacy',
     })
     expect(
-      calculateCost({ cost: 10, costMember: 5, entryStartDate: new Date() }, makeRegistration(false, true))
+      calculateCost({ cost: 10, costMember: 5, entryStartDate: todayKey() }, makeRegistration(false, true))
     ).toEqual({
       amount: 5,
       segment: 'legacy',
     })
     expect(
-      calculateCost({ cost: 10, costMember: 5, entryStartDate: new Date() }, makeRegistration(true, true))
+      calculateCost({ cost: 10, costMember: 5, entryStartDate: todayKey() }, makeRegistration(true, true))
     ).toEqual({
       amount: 5,
       segment: 'legacy',
@@ -389,7 +390,7 @@ describe('calculateCost', () => {
 
   it('should work with new costs', () => {
     const cost = { normal: 10 }
-    const event = { cost, entryStartDate: new Date() }
+    const event = { cost, entryStartDate: todayKey() }
     const registration = makeRegistration(false, false)
     expect(calculateCost(event, registration)).toEqual({
       amount: 10,
@@ -398,7 +399,7 @@ describe('calculateCost', () => {
     })
     expect(
       calculateCost(
-        { cost: { normal: 10 }, costMember: { normal: 8 }, entryStartDate: new Date() },
+        { cost: { normal: 10 }, costMember: { normal: 8 }, entryStartDate: todayKey() },
         makeRegistration(true, false)
       )
     ).toEqual({
@@ -419,7 +420,7 @@ describe('calculateCost', () => {
               { cost: 10, description: { fi: 'Option 2' } },
             ],
           },
-          entryStartDate: new Date(),
+          entryStartDate: todayKey(),
         },
         makeRegistration(false, false, '110', undefined, new Date(), [0])
       )
@@ -437,8 +438,8 @@ describe('calculateCost', () => {
   })
 
   it('should use early bird cost when applicable', () => {
-    const startDate = startOfDay(new Date())
-    const earlyDate = startDate
+    const startDate = todayKey()
+    const earlyDate = startOfFinnishDay(startDate)
     expect(
       calculateCost(
         {
@@ -468,7 +469,7 @@ describe('calculateCost', () => {
             breed: { '110': 45 },
             normal: 50,
           },
-          entryStartDate: new Date(),
+          entryStartDate: todayKey(),
         },
         makeRegistration(false, false, '110')
       )
@@ -490,7 +491,7 @@ describe('calculateCost', () => {
             custom: { cost: 30, description: { fi: 'Custom' } },
             normal: 50,
           },
-          entryStartDate: new Date(),
+          entryStartDate: todayKey(),
         },
         makeRegistration(false, false, '110', 'custom')
       )
@@ -505,8 +506,8 @@ describe('calculateCost', () => {
   })
 
   it('should handle complex cost scenario with multiple options', () => {
-    const startDate = startOfDay(new Date())
-    const earlyDate = startDate
+    const startDate = todayKey()
+    const earlyDate = startOfFinnishDay(startDate)
     expect(
       calculateCost(
         {
@@ -541,14 +542,14 @@ describe('calculateCost', () => {
   })
 
   it('should use early bird cost when applicable with string dates', () => {
-    const startDate = startOfDay(new Date())
-    const earlyDate = startDate
+    const startDate = todayKey()
+    const earlyDate = startOfFinnishDay(startDate)
     const event = {
       cost: {
         earlyBird: { cost: 40, days: 5 },
         normal: 50,
       },
-      entryStartDate: legacyDayValue(startDate.toISOString()),
+      entryStartDate: legacyDayValue(earlyDate.toISOString()),
     }
     const registration = {
       ...makeRegistration(false, false, '110', undefined, earlyDate),
@@ -582,7 +583,7 @@ describe('getCostSegmentNameOptions', () => {
     earlyBird: { cost: 30, days: 3 },
     normal: 40,
   }
-  const event = { entryStartDate: new Date('2021-02-01T00:00:00.000Z') }
+  const event = { entryStartDate: '2021-02-01' }
 
   it('names a custom fee in the given language, falling back to Finnish', () => {
     expect(getCostSegmentNameOptions('custom', cost, event, undefined, 'en')).toEqual({ name: 'Junior fee' })
@@ -688,15 +689,15 @@ describe('getApplicableStrategy', () => {
   })
 
   it('should fall back to cheapest when selected strategy is not applicable', () => {
-    const event = makeEvent({ earlyBird: { cost: 40, days: 5 }, normal: 50 }, undefined, startOfDay(new Date()))
+    const event = makeEvent({ earlyBird: { cost: 40, days: 5 }, normal: 50 }, undefined, todayKey())
     // Custom is selected but not available, so it should fall back to earlyBird (cheapest)
-    const registration = makeRegistration(false, false, '110', 'custom', startOfDay(new Date()))
+    const registration = makeRegistration(false, false, '110', 'custom', startOfFinnishDay(todayKey()))
     const strategy = getApplicableStrategy(event, registration)
     expect(strategy.key).toBe('earlyBird')
   })
 
   it('should find the cheapest applicable strategy', () => {
-    const startDate = startOfDay(new Date())
+    const startDate = todayKey()
     const event = makeEvent(
       {
         breed: { '110': 35 },
@@ -706,7 +707,7 @@ describe('getApplicableStrategy', () => {
       undefined,
       startDate
     )
-    const registration = makeRegistration(false, false, '110', undefined, startDate)
+    const registration = makeRegistration(false, false, '110', undefined, startOfFinnishDay(startDate))
     const strategy = getApplicableStrategy(event, registration)
     expect(strategy.key).toBe('breed')
   })
@@ -757,9 +758,9 @@ describe('setCostValue edge cases', () => {
 describe('invalid input handling', () => {
   it('should handle null or undefined registration in calculateCost', () => {
     // @ts-expect-error testing invalid input
-    expect(calculateCost({ cost: 10, entryStartDate: new Date() }, null)).toEqual({ amount: 10, segment: 'legacy' })
+    expect(calculateCost({ cost: 10, entryStartDate: todayKey() }, null)).toEqual({ amount: 10, segment: 'legacy' })
     // @ts-expect-error testing invalid input
-    expect(calculateCost({ cost: 10, entryStartDate: new Date() }, undefined)).toEqual({
+    expect(calculateCost({ cost: 10, entryStartDate: todayKey() }, undefined)).toEqual({
       amount: 10,
       segment: 'legacy',
     })
@@ -778,7 +779,7 @@ describe('invalid input handling', () => {
       dog: { breedCode: undefined },
     }
 
-    const result = calculateCost({ cost: 10, entryStartDate: new Date() }, invalidRegistration)
+    const result = calculateCost({ cost: 10, entryStartDate: todayKey() }, invalidRegistration)
     expect(result.amount).toBe(10)
     expect(result.segment).toBe('legacy')
   })
@@ -788,7 +789,7 @@ describe('invalid input handling', () => {
       ...makeRegistration(false, false),
       createdAt: undefined,
     }
-    const event = makeEvent({ earlyBird: { cost: 40, days: 5 }, normal: 50 }, undefined, new Date())
+    const event = makeEvent({ earlyBird: { cost: 40, days: 5 }, normal: 50 }, undefined, todayKey())
     // @ts-expect-error testing invalid input
     const result = calculateCost(event, invalidRegistration)
     expect(result.amount).toBe(50) // Should fall back to normal cost
@@ -817,7 +818,7 @@ describe('calculateCost with complex scenarios', () => {
       { earlyBird: { cost: 40, days: 5 }, normal: 50 },
       { normal: 40 } // No earlyBird for members
     )
-    const registration = makeRegistration(true, false, '110', undefined, startOfDay(new Date()))
+    const registration = makeRegistration(true, false, '110', undefined, startOfFinnishDay(todayKey()))
     const result = calculateCost(event, registration)
     expect(result.amount).toBe(40)
     expect(result.segment).toBe('normal')

@@ -1,4 +1,5 @@
 import type { DayKey, JsonRegistration, Registration, RegistrationTime } from '../types'
+import { dayStart, TIME_ZONE } from '../lib/day'
 import { eventRegistrationDateKey } from '../lib/event'
 import {
   registrationDogAged10MonthsAndNoResults,
@@ -60,7 +61,7 @@ export const registrationWithStaticDates: Registration = {
   breeder: {
     name: 'Breeder Name',
   },
-  createdAt: eventWithStaticDates.entryStartDate,
+  createdAt: dayStart(eventWithStaticDates.entryStartDate, TIME_ZONE),
   createdBy: 'anonymous',
   dates: [{ date: eventWithStaticDates.startDate, time: 'ap' }],
   dog: registrationDogAged10MonthsAndNoResults,
@@ -75,7 +76,7 @@ export const registrationWithStaticDates: Registration = {
   },
   id: 'nou-registration',
   language: 'fi',
-  modifiedAt: eventWithStaticDates.entryStartDate,
+  modifiedAt: dayStart(eventWithStaticDates.entryStartDate, TIME_ZONE),
   modifiedBy: 'anonymous',
   notes: 'additional notes',
   owner: {
@@ -88,7 +89,7 @@ export const registrationWithStaticDates: Registration = {
   ownerHandles: false,
   ownerPays: false,
   paidAmount: 123,
-  paidAt: eventWithStaticDates.entryStartDate,
+  paidAt: dayStart(eventWithStaticDates.entryStartDate, TIME_ZONE),
   payer: {
     email: 'owner@example.com',
     name: 'Owner Name',
@@ -133,13 +134,13 @@ const invitationAttachmentRegistration: Registration = {
 export const registrationWithStaticDatesAndClass: Registration = {
   ...registrationWithStaticDates,
   class: 'ALO',
-  createdAt: eventWithStaticDatesAndClass.entryStartDate,
+  createdAt: dayStart(eventWithStaticDatesAndClass.entryStartDate, TIME_ZONE),
   dog: registrationDogAged28MonthsWithNOUResult,
   eventId: eventWithStaticDatesAndClass.id,
   eventType: eventWithStaticDatesAndClass.eventType,
 
   id: 'nome-b-alo-registration',
-  modifiedAt: eventWithStaticDatesAndClass.entryStartDate,
+  modifiedAt: dayStart(eventWithStaticDatesAndClass.entryStartDate, TIME_ZONE),
   qualifies: true,
   qualifyingResults: registrationDogAged28MonthsWithNOUResult.results.map((r) => ({ ...r, official: true })),
 }
@@ -194,11 +195,11 @@ export const registrationWithStaticDatesCancelled: Registration = {
 
 const registrationToEventWithEntryClosedBase: Omit<Registration, 'id' | 'dates'> = {
   ...mockRegistrationDefaults,
-  createdAt: eventWithEntryClosed.entryStartDate,
+  createdAt: dayStart(eventWithEntryClosed.entryStartDate, TIME_ZONE),
   dog: registrationDogAged28MonthsWithNOUResult,
   eventId: eventWithEntryClosed.id,
   eventType: eventWithEntryClosed.eventType,
-  modifiedAt: eventWithEntryClosed.entryEndDate,
+  modifiedAt: dayStart(eventWithEntryClosed.entryEndDate, TIME_ZONE),
 }
 
 export const registrationsToEventWithEntryClosed: Registration[] = [
@@ -241,11 +242,11 @@ export const registrationsToEventWithEntryClosed: Registration[] = [
 
 const registrationToEventWithParticipantsInvitedBase = {
   ...mockRegistrationDefaults,
-  createdAt: eventWithParticipantsInvited.entryStartDate,
+  createdAt: dayStart(eventWithParticipantsInvited.entryStartDate, TIME_ZONE),
   dog: registrationDogAged28MonthsWithNOUResult,
   eventId: eventWithParticipantsInvited.id,
   eventType: eventWithParticipantsInvited.eventType,
-  modifiedAt: eventWithParticipantsInvited.entryEndDate,
+  modifiedAt: dayStart(eventWithParticipantsInvited.entryEndDate, TIME_ZONE),
 }
 
 export const registrationsToEventWithParticipantsInvited: Registration[] = [

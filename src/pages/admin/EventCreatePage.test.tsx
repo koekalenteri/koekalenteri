@@ -1,3 +1,4 @@
+import type { DayKey } from '@/types'
 import type { Language } from '../../i18n'
 import { ThemeProvider } from '@mui/material'
 import { LocalizationProvider } from '@mui/x-date-pickers'
@@ -48,14 +49,14 @@ describe('EventEditPage', () => {
     const { i18n } = useTranslation()
     const language = i18n.language as Language
 
-    const eventDate = new Date('2021-04-23')
+    const eventDate: DayKey = '2021-04-23'
     const defaultValue = await createStore().get(adminNewEventAtom)
-    const initialValue = {
+    const initialValue: typeof defaultValue = {
       ...defaultValue,
       cost: { normal: 0 },
       endDate: eventDate,
-      entryEndDate: new Date('2021-04-09'),
-      entryStartDate: new Date('2021-03-23'),
+      entryEndDate: '2021-04-09',
+      entryStartDate: '2021-03-23',
       startDate: eventDate,
     }
 

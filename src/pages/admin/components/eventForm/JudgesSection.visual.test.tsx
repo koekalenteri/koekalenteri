@@ -1,10 +1,9 @@
-import type { EventType, Judge } from '@/types'
+import type { DayKey, EventType, Judge } from '@/types'
 import type { FieldRequirements, JudgesEvent, PartialEvent } from './types'
-import { TZDate } from '@date-fns/tz'
 import { ThemeProvider } from '@mui/material/styles'
 import { render } from 'vitest-browser-react'
 import theme from '@/assets/Theme'
-import { TIME_ZONE } from '@/lib/day'
+import { dayStart, TIME_ZONE } from '@/lib/day'
 import JudgesSection from './JudgesSection'
 
 /** Wrapper the screenshot is taken of: a fixed width and an opaque background keep captures stable. */
@@ -14,7 +13,7 @@ const Frame = ({ children }: { readonly children: React.ReactNode }) => (
   </div>
 )
 
-const day = new TZDate('2026-06-01', TIME_ZONE)
+const day: DayKey = '2026-06-01'
 
 const judge = (id: number, name: string, eventTypes: string[], mockTrial?: boolean): Judge => ({
   active: true,
@@ -36,11 +35,11 @@ const judges = [
 ]
 
 const nowt: EventType = {
-  createdAt: day,
+  createdAt: dayStart(day, TIME_ZONE),
   createdBy: 'test',
   description: { en: 'Working test', fi: 'Working test', sv: 'Working test' },
   eventType: 'NOWT',
-  modifiedAt: day,
+  modifiedAt: dayStart(day, TIME_ZONE),
   modifiedBy: 'test',
   official: true,
 }
@@ -78,14 +77,14 @@ it('tells a Mock trial short of judges who may judge it on their own (KOE-1357)'
 it('assigns a judge to only some of the classes', async () => {
   const testEvent: PartialEvent = {
     classes: [
-      { class: 'ALO', date: new Date('2026-06-01') },
-      { class: 'AVO', date: new Date('2026-06-01') },
-      { class: 'VOI', date: new Date('2026-06-01'), judge: [{ id: 1, name: 'Aino A-tuomari' }] },
+      { class: 'ALO', date: '2026-06-01' },
+      { class: 'AVO', date: '2026-06-01' },
+      { class: 'VOI', date: '2026-06-01', judge: [{ id: 1, name: 'Aino A-tuomari' }] },
     ],
-    endDate: new Date('2026-06-01'),
+    endDate: '2026-06-01',
     id: 'test',
     judges: [{ id: 1, name: 'Aino A-tuomari' }],
-    startDate: new Date('2026-06-01'),
+    startDate: '2026-06-01',
   }
 
   const screen = await render(
@@ -101,10 +100,10 @@ it('assigns a judge to only some of the classes', async () => {
 it('flags a judge id that is no longer available', async () => {
   const testEvent: PartialEvent = {
     classes: [],
-    endDate: new Date('2026-06-01'),
+    endDate: '2026-06-01',
     id: 'test',
     judges: [{ id: 99, name: 'Poistunut Tuomari', official: true }],
-    startDate: new Date('2026-06-01'),
+    startDate: '2026-06-01',
   }
 
   const screen = await render(

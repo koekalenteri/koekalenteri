@@ -26,9 +26,9 @@ describe('EventFormPlaces', () => {
   it('should render with minimal information', () => {
     const event: PartialEvent = {
       classes: [],
-      endDate: new Date('2023-06-14T12:00:00Z'),
+      endDate: '2023-06-14',
       judges: [],
-      startDate: new Date('2023-06-14T12:00:00Z'),
+      startDate: '2023-06-14',
     }
 
     render(<EventFormPlaces event={event} />)
@@ -96,7 +96,7 @@ describe('EventFormPlaces', () => {
     it('infers per-class mode when any class has places', () => {
       const event: PartialEvent = {
         ...eventWithStaticDatesAndClass,
-        classes: [{ class: 'ALO', date: new Date('2021-02-10'), places: 10 }],
+        classes: [{ class: 'ALO', date: '2021-02-10', places: 10 }],
       }
       render(<EventFormPlaces event={event} />)
       expect(isPressed('perClass')).toBe(true)

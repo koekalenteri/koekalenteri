@@ -1,10 +1,9 @@
-import { TZDate } from '@date-fns/tz'
+import type { DayKey } from '@/types'
 import { ThemeProvider } from '@mui/material/styles'
 import Tab from '@mui/material/Tab'
 import Tabs from '@mui/material/Tabs'
 import { render } from 'vitest-browser-react'
 import theme from '@/assets/Theme'
-import { TIME_ZONE } from '@/lib/day'
 import { StartDaySelector } from '../components/StartDaySelector'
 import { StartNumbersTable } from './StartNumbersTable'
 
@@ -16,8 +15,8 @@ const Frame = ({ children, width = 760 }: { readonly children: React.ReactNode; 
 )
 
 // Pinned: the labels are weekdays and dates, and a moving clock would move the screenshot.
-const friday = new TZDate(2026, 8, 4, TIME_ZONE)
-const saturday = new TZDate(2026, 8, 5, TIME_ZONE)
+const friday: DayKey = '2026-09-04'
+const saturday: DayKey = '2026-09-05'
 const days = [
   { date: friday, key: '2026-09-04' },
   { date: saturday, key: '2026-09-05' },

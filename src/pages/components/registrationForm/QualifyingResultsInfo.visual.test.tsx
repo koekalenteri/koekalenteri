@@ -1,3 +1,4 @@
+import type { DayKey } from '@/types'
 import { createTheme, ThemeProvider } from '@mui/material/styles'
 import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
@@ -6,9 +7,9 @@ import { render } from 'vitest-browser-react'
 import { registrationWithManualResults, registrationWithStaticDatesAndClass } from '@/__mockData__/registrations'
 import theme from '@/assets/Theme'
 import { locales, muiLocales } from '@/i18n'
+import { dayOf, TIME_ZONE } from '@/lib/day'
 import { getRequirements } from '@/rules'
 import { NOWT_CH_requirements } from '@/rules_ch'
-import { endOfFinnishDay } from '@/test-utils/finnishDays'
 import { freezeClockAt } from '@/test-utils/freezeClock'
 import QualifyingResultsInfo from './QualifyingResultsInfo'
 
@@ -28,7 +29,11 @@ const Frame = ({ children, width = 1000 }: { readonly children: React.ReactNode;
 
 it('shows the official result the registry counted towards qualification', async () => {
   const reg = registrationWithStaticDatesAndClass
-  const requirements = getRequirements(reg.eventType, reg.class, reg.dates?.length ? reg.dates[0].date : new Date())
+  const requirements = getRequirements(
+    reg.eventType,
+    reg.class,
+    reg.dates?.length ? reg.dates[0].date : dayOf(new Date(), TIME_ZONE)
+  )
 
   const screen = await render(
     <Frame>
@@ -48,7 +53,11 @@ it('shows the official result the registry counted towards qualification', async
 
 it('lists manually entered results alongside the official one, each editable', async () => {
   const reg = registrationWithManualResults
-  const requirements = getRequirements(reg.eventType, reg.class, reg.dates?.length ? reg.dates[0].date : new Date())
+  const requirements = getRequirements(
+    reg.eventType,
+    reg.class,
+    reg.dates?.length ? reg.dates[0].date : dayOf(new Date(), TIME_ZONE)
+  )
 
   const screen = await render(
     <Frame>
@@ -68,7 +77,11 @@ it('lists manually entered results alongside the official one, each editable', a
 
 it('stacks each result row in a single column on a phone', async () => {
   const reg = registrationWithManualResults
-  const requirements = getRequirements(reg.eventType, reg.class, reg.dates?.length ? reg.dates[0].date : new Date())
+  const requirements = getRequirements(
+    reg.eventType,
+    reg.class,
+    reg.dates?.length ? reg.dates[0].date : dayOf(new Date(), TIME_ZONE)
+  )
 
   // The section's Grid sizes its columns off the real browser viewport (MUI Grid v2 media
   // queries, not a container query), so a narrow wrapper div alone never triggers its phone
@@ -101,7 +114,11 @@ describe('the date picker on a phone', () => {
 
   it("opens a result's date picker on a phone with the chosen date at its full size", async () => {
     const reg = registrationWithManualResults
-    const requirements = getRequirements(reg.eventType, reg.class, reg.dates?.length ? reg.dates[0].date : new Date())
+    const requirements = getRequirements(
+      reg.eventType,
+      reg.class,
+      reg.dates?.length ? reg.dates[0].date : dayOf(new Date(), TIME_ZONE)
+    )
 
     await page.viewport(392, 900)
 
@@ -135,12 +152,12 @@ describe('the ranking period of a championship', () => {
   freezeClockAt('2026-05-20')
 
   it('shows the first and the last day the period counts', async () => {
-    const entryEndDate = endOfFinnishDay('2026-05-17')
+    const entryEndDate: DayKey = '2026-05-17'
     const official = [
       {
         class: 'VOI',
         // The day Kennelliitto wrote, as the typed boundary reads it: a key (KOE-1548).
-        date: '2026-04-25',
+        date: '2026-04-25' as const,
         judge: 'Test Judge',
         location: 'Hollola',
         result: 'VOI1',

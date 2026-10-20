@@ -1,7 +1,7 @@
 import type { ConfirmedEvent, JsonDogEvent } from '../types'
 
 export const emptyEvent: ConfirmedEvent = {
-  classes: [{ class: 'ALO', date: new Date('1990-01-01') }],
+  classes: [{ class: 'ALO', date: '1990-01-01' }],
   contactInfo: {
     official: {
       email: 'official@example.com',
@@ -19,10 +19,10 @@ export const emptyEvent: ConfirmedEvent = {
   createdAt: new Date('1989-01-01'),
   createdBy: 'test',
   description: 'test',
-  endDate: new Date('1990-01-01'),
+  endDate: '1990-01-01',
   entries: 0,
-  entryEndDate: new Date('1990-01-01'),
-  entryStartDate: new Date('1990-01-01'),
+  entryEndDate: '1990-01-01',
+  entryStartDate: '1990-01-01',
   eventType: 'test',
   headquarters: { zipCode: '33101' },
   id: 'test',
@@ -47,7 +47,7 @@ export const emptyEvent: ConfirmedEvent = {
     id: '2',
     name: 'Siiri Sihteeri',
   },
-  startDate: new Date('1990-01-01'),
+  startDate: '1990-01-01',
   state: 'confirmed' as const,
 }
 

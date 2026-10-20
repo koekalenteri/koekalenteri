@@ -1,3 +1,4 @@
+import type { DayKey } from '@/types'
 import type { EntryEvent } from './types'
 import { TZDate } from '@date-fns/tz'
 import { ThemeProvider } from '@mui/material/styles'
@@ -20,15 +21,15 @@ const Frame = ({ children }: { readonly children: React.ReactNode }) => (
   </div>
 )
 
-const day = new TZDate('2026-06-06', TIME_ZONE)
+const day: DayKey = '2026-06-06'
 
 // Pinned dates: the section renders the entry period and the trial dates, so nothing may follow the clock.
 const event: EntryEvent = {
   classes: [{ class: 'AVO', date: day, places: 12 }],
   createdAt: new TZDate('2026-03-01', TIME_ZONE),
   endDate: day,
-  entryEndDate: new TZDate('2026-05-17', TIME_ZONE),
-  entryStartDate: new TZDate('2026-04-25', TIME_ZONE),
+  entryEndDate: '2026-05-17',
+  entryStartDate: '2026-04-25',
   eventType: 'NOME-B',
   places: 12,
   priority: ['member'],

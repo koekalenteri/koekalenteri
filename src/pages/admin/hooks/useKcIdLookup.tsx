@@ -1,22 +1,21 @@
-import type { DogEvent, EventKcIdChoice, Patch } from '@/types'
+import type { DayKey, DogEvent, EventKcIdChoice, Patch } from '@/types'
 import { useAtomValue } from 'jotai'
 import { enqueueSnackbar } from 'notistack'
 import { useCallback, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { searchEventKcIdChoices } from '@/api/event'
-import { dayEndOf, dayStartOf, TIME_ZONE } from '@/lib/day'
 import { finnishDaySpan } from '@/lib/event'
 import { idTokenAtom } from '../../state'
 
 /** The event details the Kennelliitto search matches against. */
 export interface KcIdLookupEvent {
   classes: DogEvent['classes']
-  endDate: Date
+  endDate: DayKey
   eventType?: string
   location?: string
   name?: string
   organizer?: { id?: string; name?: string }
-  startDate: Date
+  startDate: DayKey
 }
 
 /**
@@ -29,12 +28,12 @@ const applyKcChoice = (choice: EventKcIdChoice): Patch<DogEvent> => {
   return {
     kcEvent: {
       classes: choice.classes,
-      endDate: dayEndOf(choice.endDate, TIME_ZONE),
+      endDate: choice.endDate,
       eventType: choice.eventType,
       judge: choice.judge ?? null,
       judgeId: choice.judgeId ?? null,
       location: choice.location ?? null,
-      startDate: dayStartOf(choice.startDate, TIME_ZONE),
+      startDate: choice.startDate,
     },
     kcGuid: choice.kcGuid,
   }

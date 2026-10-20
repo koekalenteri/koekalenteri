@@ -13,6 +13,7 @@ import type {
 import type { EventResultSubmission } from '../registration'
 import { withPaymentPicture } from '../../__mockData__/paymentPicture'
 import { mockRegistrationData } from '../../__mockData__/registrations'
+import { dayOf, TIME_ZONE } from '../../lib/day'
 import { applyPatchOperations } from '../../lib/patch'
 import { isConfirmedEvent } from '../../lib/typeGuards'
 import { mockEvents } from './event'
@@ -105,7 +106,7 @@ export const getRegistration = vi.fn(
             : {
                 cost: event?.cost ?? 0,
                 costMember: event?.costMember ?? event?.cost ?? 0,
-                entryStartDate: event?.entryStartDate ?? registration.createdAt,
+                entryStartDate: event?.entryStartDate ?? dayOf(registration.createdAt, TIME_ZONE),
                 paymentTime: event?.paymentTime,
                 state: event?.state,
               }

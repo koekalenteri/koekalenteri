@@ -1,10 +1,8 @@
-import type { ConfirmedEvent } from '@/types'
+import type { ConfirmedEvent, DayKey } from '@/types'
 import { ThemeProvider } from '@mui/material/styles'
-import { parseISO } from 'date-fns'
 import { render } from 'vitest-browser-react'
 import { eventWithStations } from '@/__mockData__/resultsEvent'
 import theme from '@/assets/Theme'
-import { startOfFinnishDay } from '@/test-utils/finnishDays'
 import { describeInLanguage } from '@/test-utils/language'
 import EventStateStepper from './EventStateStepper'
 
@@ -16,7 +14,7 @@ const Frame = ({ children }: { readonly children: React.ReactNode }) => (
 )
 
 // A far-future event day keeps the temporal steps pending no matter when the test runs.
-const EVENT_DAY = startOfFinnishDay(parseISO('2099-06-05T12:00:00Z'))
+const EVENT_DAY: DayKey = '2099-06-05'
 
 // Start lists out for both classes, numbers out for one: the start number step (KOE-1006 feedback)
 // is the active instruction, with its class progress on show.

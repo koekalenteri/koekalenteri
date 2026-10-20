@@ -7,11 +7,11 @@ const testEvent: PartialEvent = {
   classes: [],
   createdAt: new Date(),
   createdBy: 'test',
-  endDate: new Date(),
+  endDate: '2026-10-20',
   judges: [],
   modifiedAt: new Date(),
   name: 'test',
-  startDate: new Date(),
+  startDate: '2026-10-20',
 }
 
 describe('EventProperty', () => {

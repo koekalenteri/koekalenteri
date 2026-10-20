@@ -13,11 +13,7 @@ const placementKey = (registration: Registration) =>
     cancelled: registration.cancelled,
     cancelReason: registration.cancelReason,
     group: registration.group
-      ? {
-          ...registration.group,
-          date: registration.group.date ? new Date(registration.group.date).toISOString() : undefined,
-          key: deriveParticipantGroupKey(registration.group),
-        }
+      ? { ...registration.group, key: deriveParticipantGroupKey(registration.group) }
       : undefined,
   })
 

@@ -1,3 +1,4 @@
+import type { DayKey } from '../../types/Day'
 import type { PublicConfirmedEvent } from '../../types/Event'
 import { render, screen } from '@testing-library/react'
 import { ClassHeader } from './ClassHeader'
@@ -10,7 +11,7 @@ vi.mock('react-i18next', () => ({
 }))
 
 describe('ClassHeader', () => {
-  const mockDate = new Date('2023-01-01')
+  const mockDate: DayKey = '2023-01-01'
 
   const mockEvent: PublicConfirmedEvent = {
     classes: [
@@ -29,7 +30,7 @@ describe('ClassHeader', () => {
       },
       {
         class: 'AVO',
-        date: new Date('2023-01-02'),
+        date: '2023-01-02',
         judge: { id: 4, name: 'Judge Four' },
       },
     ],
@@ -37,9 +38,9 @@ describe('ClassHeader', () => {
     costMember: 0,
     createdAt: new Date(),
     description: '',
-    endDate: new Date('2023-01-02'),
-    entryEndDate: new Date('2022-12-31'),
-    entryStartDate: new Date('2022-12-01'),
+    endDate: '2023-01-02',
+    entryEndDate: '2022-12-31',
+    entryStartDate: '2022-12-01',
     eventType: 'Test Event Type',
     id: 'event-1',
     judges: [],
@@ -48,7 +49,7 @@ describe('ClassHeader', () => {
     name: 'Test Name',
     organizer: { id: 'org-1', name: 'Test Organizer' },
     places: 0,
-    startDate: new Date('2023-01-01'),
+    startDate: '2023-01-01',
     state: 'confirmed',
   }
 
@@ -82,7 +83,7 @@ describe('ClassHeader', () => {
     render(
       <table>
         <tbody>
-          <ClassHeader classValue="AVO" event={mockEvent} lastDate={new Date('2023-01-02')} />
+          <ClassHeader classValue="AVO" event={mockEvent} lastDate={'2023-01-02'} />
         </tbody>
       </table>
     )
@@ -91,9 +92,9 @@ describe('ClassHeader', () => {
     expect(screen.getByText(/^AVO Judge Four$/)).toBeInTheDocument()
   })
 
-  it('matches judges by local event date instead of the exact instant', () => {
-    const eventClassDate = new Date('2026-10-01T21:00:00.000Z')
-    const registrationDate = new Date('2026-10-01T22:00:00.000Z')
+  it("matches judges by the class's day", () => {
+    const eventClassDate: DayKey = '2026-10-02'
+    const registrationDate: DayKey = '2026-10-02'
 
     render(
       <table>

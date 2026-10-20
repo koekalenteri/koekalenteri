@@ -1,7 +1,6 @@
-import type { DogEvent } from '@/types'
+import type { DogEvent, KcEventInfo } from '@/types'
 import type { Props } from './KcIdSection'
 import type { PartialEvent } from './types'
-import { TZDate } from '@date-fns/tz'
 import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
 import { screen } from '@testing-library/react'
@@ -10,7 +9,6 @@ import { TestProvider as Provider } from 'test-utils/AtomProvider'
 import { eventWithStaticDates } from '@/__mockData__/events'
 import * as eventApi from '@/api/event'
 import { locales } from '@/i18n'
-import { TIME_ZONE } from '@/lib/day'
 import { patchMerge } from '@/lib/utils'
 import { idTokenAtom } from '@/pages/state'
 import { finnishDayOf } from '@/test-utils/finnishDays'
@@ -53,12 +51,12 @@ describe('KcIdSection', () => {
   it('should render', async () => {
     const testEvent: PartialEvent = {
       classes: [],
-      endDate: new TZDate('2022-06-02', TIME_ZONE),
+      endDate: '2022-06-02',
       eventType: 'NOME-B',
       id: 'test',
       judges: [],
       organizer: { id: 'org-id', name: 'Organizer' },
-      startDate: new TZDate('2022-06-01', TIME_ZONE),
+      startDate: '2022-06-01',
     }
     await renderComponent({ event: testEvent, onChange: vi.fn(), open: true })
 
@@ -68,11 +66,11 @@ describe('KcIdSection', () => {
   it('should tell the user to pick an organizer before a lookup is possible', async () => {
     const testEvent: PartialEvent = {
       classes: [],
-      endDate: new TZDate('2022-06-02', TIME_ZONE),
+      endDate: '2022-06-02',
       eventType: 'NOME-B',
       id: 'test',
       judges: [],
-      startDate: new TZDate('2022-06-01', TIME_ZONE),
+      startDate: '2022-06-01',
     }
 
     await renderComponent({ event: testEvent, onChange: vi.fn(), open: true })
@@ -84,12 +82,12 @@ describe('KcIdSection', () => {
   it('should not show the organizer hint once an organizer is selected', async () => {
     const testEvent: PartialEvent = {
       classes: [],
-      endDate: new TZDate('2022-06-02', TIME_ZONE),
+      endDate: '2022-06-02',
       eventType: 'NOME-B',
       id: 'test',
       judges: [],
       organizer: { id: 'org-id', name: 'Organizer' },
-      startDate: new TZDate('2022-06-01', TIME_ZONE),
+      startDate: '2022-06-01',
     }
 
     await renderComponent({ event: testEvent, onChange: vi.fn(), open: true })
@@ -103,25 +101,25 @@ describe('KcIdSection', () => {
       choices: [
         {
           classes: ['ALO', 'AVO'],
-          endDate: new TZDate('2026-07-02', TIME_ZONE),
+          endDate: '2026-07-02',
           eventType: 'NOME-B',
           kcGuid: 'guid-222',
           location: 'Espoo',
           name: 'Toinen koe',
           organizer: 'Järjestäjä',
-          startDate: new TZDate('2026-07-01', TIME_ZONE),
+          startDate: '2026-07-01',
         },
       ],
     })
     const changeHandler = vi.fn()
     const testEvent: PartialEvent = {
-      classes: [{ class: 'ALO', date: new TZDate('2026-06-01', TIME_ZONE) }],
-      endDate: new TZDate('2026-06-01', TIME_ZONE),
+      classes: [{ class: 'ALO', date: '2026-06-01' }],
+      endDate: '2026-06-01',
       eventType: 'NOME-B',
       id: 'test',
       judges: [],
       organizer: { id: 'org-id', name: 'Organizer' },
-      startDate: new TZDate('2026-06-01', TIME_ZONE),
+      startDate: '2026-06-01',
     }
 
     const { user } = await renderComponent({ event: testEvent, onChange: changeHandler, open: true })
@@ -160,35 +158,35 @@ describe('KcIdSection', () => {
       choices: [
         {
           classes: ['ALO', 'AVO'],
-          endDate: new TZDate('2026-07-02', TIME_ZONE),
+          endDate: '2026-07-02',
           eventType: 'NOME-B',
           kcGuid: 'guid-222',
           location: 'Espoo',
           name: 'Toinen koe',
           organizer: 'Järjestäjä',
-          startDate: new TZDate('2026-07-01', TIME_ZONE),
+          startDate: '2026-07-01',
         },
         {
           classes: ['VOI'],
-          endDate: new TZDate('2026-08-02', TIME_ZONE),
+          endDate: '2026-08-02',
           eventType: 'NOME-B',
           kcGuid: 'guid-333',
           location: 'Vantaa',
           name: 'Kolmas koe',
           organizer: 'Järjestäjä',
-          startDate: new TZDate('2026-08-01', TIME_ZONE),
+          startDate: '2026-08-01',
         },
       ],
     })
     const changeHandler = vi.fn()
     const testEvent: PartialEvent = {
-      classes: [{ class: 'ALO', date: new TZDate('2026-06-01', TIME_ZONE) }],
-      endDate: new TZDate('2026-06-01', TIME_ZONE),
+      classes: [{ class: 'ALO', date: '2026-06-01' }],
+      endDate: '2026-06-01',
       eventType: 'NOME-B',
       id: 'test',
       judges: [],
       organizer: { id: 'org-id', name: 'Organizer' },
-      startDate: new TZDate('2026-06-01', TIME_ZONE),
+      startDate: '2026-06-01',
     }
 
     const { user } = await renderComponent({ event: testEvent, onChange: changeHandler, open: true })
@@ -218,25 +216,25 @@ describe('KcIdSection', () => {
       choices: [
         {
           classes: ['ALO', 'AVO'],
-          endDate: new TZDate('2026-07-02', TIME_ZONE),
+          endDate: '2026-07-02',
           eventType: 'NOME-B',
           kcGuid: 'guid-222',
           location: 'Espoo',
           name: 'Toinen koe',
           organizer: 'Järjestäjä',
-          startDate: new TZDate('2026-07-01', TIME_ZONE),
+          startDate: '2026-07-01',
         },
       ],
     })
     const changeHandler = vi.fn()
     const testEvent: PartialEvent = {
-      classes: [{ class: 'ALO', date: new TZDate('2026-06-01', TIME_ZONE) }],
-      endDate: new TZDate('2026-06-01', TIME_ZONE),
+      classes: [{ class: 'ALO', date: '2026-06-01' }],
+      endDate: '2026-06-01',
       eventType: 'NOME-B',
       id: 'test',
       judges: [],
       organizer: { id: 'org-id', name: 'Organizer' },
-      startDate: new TZDate('2026-06-01', TIME_ZONE),
+      startDate: '2026-06-01',
     }
 
     const { user } = await renderComponent({ event: testEvent, onChange: changeHandler, open: true }, [
@@ -256,35 +254,35 @@ describe('KcIdSection', () => {
       choices: [
         {
           classes: ['ALO', 'AVO'],
-          endDate: new TZDate('2026-07-02', TIME_ZONE),
+          endDate: '2026-07-02',
           eventType: 'NOME-B',
           kcGuid: 'guid-222',
           location: 'Espoo',
           name: 'Toinen koe',
           organizer: 'Järjestäjä',
-          startDate: new TZDate('2026-07-01', TIME_ZONE),
+          startDate: '2026-07-01',
         },
         {
           classes: ['VOI'],
-          endDate: new TZDate('2026-08-02', TIME_ZONE),
+          endDate: '2026-08-02',
           eventType: 'NOME-B',
           kcGuid: 'guid-333',
           location: 'Vantaa',
           name: 'Kolmas koe',
           organizer: 'Järjestäjä',
-          startDate: new TZDate('2026-08-01', TIME_ZONE),
+          startDate: '2026-08-01',
         },
       ],
     })
     const changeHandler = vi.fn()
     const testEvent: PartialEvent = {
-      classes: [{ class: 'ALO', date: new TZDate('2026-06-01', TIME_ZONE) }],
-      endDate: new TZDate('2026-06-01', TIME_ZONE),
+      classes: [{ class: 'ALO', date: '2026-06-01' }],
+      endDate: '2026-06-01',
       eventType: 'NOME-B',
       id: 'test',
       judges: [],
       organizer: { id: 'org-id', name: 'Organizer' },
-      startDate: new TZDate('2026-06-01', TIME_ZONE),
+      startDate: '2026-06-01',
     }
 
     const { user } = await renderComponent({ event: testEvent, onChange: changeHandler, open: true }, [
@@ -313,24 +311,24 @@ describe('KcIdSection', () => {
       vi.spyOn(eventApi, 'searchEventKcIdChoices').mockResolvedValueOnce({
         choices: kcTunnukset.map((kcTunnus) => ({
           classes: [],
-          endDate: new TZDate('2026-06-01', TIME_ZONE),
+          endDate: '2026-06-01',
           eventType: 'NOME-B',
           kcGuid: null,
           kcTunnus,
           location: 'Espoo',
           name: 'Koe',
           organizer: 'Järjestäjä',
-          startDate: new TZDate('2026-06-01', TIME_ZONE),
+          startDate: '2026-06-01',
         })),
       })
     const testEvent: PartialEvent = {
-      classes: [{ class: 'ALO', date: new TZDate('2026-06-01', TIME_ZONE) }],
-      endDate: new TZDate('2026-06-01', TIME_ZONE),
+      classes: [{ class: 'ALO', date: '2026-06-01' }],
+      endDate: '2026-06-01',
       eventType: 'NOME-B',
       id: 'test',
       judges: [],
       organizer: { id: 'org-id', name: 'Organizer' },
-      startDate: new TZDate('2026-06-01', TIME_ZONE),
+      startDate: '2026-06-01',
     }
 
     it('is shown, not applied, when it is the only match, and cannot be selected', async () => {
@@ -362,23 +360,23 @@ describe('KcIdSection', () => {
         choices: [
           {
             classes: [],
-            endDate: new TZDate('2026-06-01', TIME_ZONE),
+            endDate: '2026-06-01',
             eventType: 'NOME-B',
             kcGuid: null,
             location: 'Espoo',
             name: 'Koe',
             organizer: 'Järjestäjä',
-            startDate: new TZDate('2026-06-01', TIME_ZONE),
+            startDate: '2026-06-01',
           },
           {
             classes: [],
-            endDate: new TZDate('2026-06-01', TIME_ZONE),
+            endDate: '2026-06-01',
             eventType: 'NOME-B',
             kcGuid: 'guid-1',
             location: 'Espoo',
             name: 'Koe',
             organizer: 'Järjestäjä',
-            startDate: new TZDate('2026-06-01', TIME_ZONE),
+            startDate: '2026-06-01',
           },
         ],
       })
@@ -396,34 +394,34 @@ describe('KcIdSection', () => {
       choices: [
         {
           classes: ['ALO'],
-          endDate: new TZDate('2026-07-02', TIME_ZONE),
+          endDate: '2026-07-02',
           eventType: 'NOME-B',
           kcGuid: 'guid-b',
           name: 'Koe B',
           organizer: 'Järjestäjä',
-          startDate: new TZDate('2026-07-01', TIME_ZONE),
+          startDate: '2026-07-01',
         },
       ],
     })
     const changeHandler = vi.fn()
     const testEvent: PartialEvent = {
-      classes: [{ class: 'ALO', date: new TZDate('2026-06-01', TIME_ZONE) }],
-      endDate: new TZDate('2026-06-01', TIME_ZONE),
+      classes: [{ class: 'ALO', date: '2026-06-01' }],
+      endDate: '2026-06-01',
       eventType: 'NOME-B',
       id: 'test',
       judges: [],
       kcEvent: {
         classes: ['AVO'],
-        endDate: new TZDate('2026-06-01', TIME_ZONE),
+        endDate: '2026-06-01',
         eventType: 'NOME-B',
         judge: 'Tuomari A',
         judgeId: 1000001,
         location: 'Vantaa',
-        startDate: new TZDate('2026-06-01', TIME_ZONE),
+        startDate: '2026-06-01',
       },
       kcGuid: 'guid-a',
       organizer: { id: 'org-id', name: 'Organizer' },
-      startDate: new TZDate('2026-06-01', TIME_ZONE),
+      startDate: '2026-06-01',
     }
 
     const { user } = await renderComponent({ event: testEvent, onChange: changeHandler, open: true })
@@ -443,13 +441,13 @@ describe('KcIdSection', () => {
   it('should say that the event is linked, without showing the GUID', async () => {
     const testEvent: PartialEvent = {
       classes: [],
-      endDate: new TZDate('2026-06-01', TIME_ZONE),
+      endDate: '2026-06-01',
       eventType: 'NOME-B',
       id: 'test',
       judges: [],
       kcGuid: 'guid-222',
       organizer: { id: 'org-id', name: 'Organizer' },
-      startDate: new TZDate('2026-06-01', TIME_ZONE),
+      startDate: '2026-06-01',
     }
 
     await renderComponent({ event: testEvent, onChange: vi.fn(), open: true })
@@ -462,13 +460,13 @@ describe('KcIdSection', () => {
   it('should show the old koetunnus of an event without a GUID, and offer the lookup', async () => {
     const testEvent: PartialEvent = {
       classes: [],
-      endDate: new TZDate('2026-06-01', TIME_ZONE),
+      endDate: '2026-06-01',
       eventType: 'NOME-B',
       id: 'test',
       judges: [],
       kcId: 222,
       organizer: { id: 'org-id', name: 'Organizer' },
-      startDate: new TZDate('2026-06-01', TIME_ZONE),
+      startDate: '2026-06-01',
     }
 
     await renderComponent({ event: testEvent, onChange: vi.fn(), open: true })
@@ -482,8 +480,8 @@ describe('KcIdSection', () => {
   it('should clear the link, and only the link, when remove is selected', async () => {
     const changeHandler = vi.fn()
     const testEvent: PartialEvent = {
-      classes: [{ class: 'ALO', date: new TZDate('2026-06-01', TIME_ZONE) }],
-      endDate: new TZDate('2026-06-01', TIME_ZONE),
+      classes: [{ class: 'ALO', date: '2026-06-01' }],
+      endDate: '2026-06-01',
       eventType: 'NOME-B',
       id: 'test',
       judges: [],
@@ -491,7 +489,7 @@ describe('KcIdSection', () => {
       kcId: 111,
       name: 'Koe',
       organizer: { id: 'org-id', name: 'Organizer' },
-      startDate: new TZDate('2026-06-01', TIME_ZONE),
+      startDate: '2026-06-01',
     }
 
     const { rerender, user } = await renderComponent({ event: testEvent, onChange: changeHandler, open: true })
@@ -518,12 +516,12 @@ describe('KcIdSection', () => {
     vi.spyOn(eventApi, 'searchEventKcIdChoices').mockResolvedValueOnce({ choices: [] })
     const testEvent: PartialEvent = {
       classes: [],
-      endDate: new TZDate('2026-06-01', TIME_ZONE),
+      endDate: '2026-06-01',
       eventType: 'NOME-B',
       id: 'test',
       judges: [],
       organizer: { id: 'org-id', name: 'Organizer' },
-      startDate: new TZDate('2026-06-01', TIME_ZONE),
+      startDate: '2026-06-01',
     }
 
     const { user } = await renderComponent({ event: testEvent, onChange: vi.fn(), open: true })
@@ -539,13 +537,13 @@ describe('KcIdSection', () => {
     vi.spyOn(eventApi, 'searchEventKcIdChoices').mockRejectedValueOnce(error)
     const consoleError = vi.spyOn(console, 'error').mockImplementation(() => undefined)
     const testEvent: PartialEvent = {
-      classes: [{ class: 'ALO', date: new TZDate('2026-06-01', TIME_ZONE) }],
-      endDate: new TZDate('2026-06-01', TIME_ZONE),
+      classes: [{ class: 'ALO', date: '2026-06-01' }],
+      endDate: '2026-06-01',
       eventType: 'NOME-B',
       id: 'test',
       judges: [],
       organizer: { id: 'org-id', name: 'Organizer' },
-      startDate: new TZDate('2026-06-01', TIME_ZONE),
+      startDate: '2026-06-01',
     }
 
     try {
@@ -562,17 +560,17 @@ describe('KcIdSection', () => {
   })
 
   describe('drift warnings', () => {
-    const kcEvent = {
+    const kcEvent: KcEventInfo = {
       classes: ['ALO'],
-      endDate: new TZDate('2026-06-01', TIME_ZONE),
+      endDate: '2026-06-01',
       eventType: 'NOME-B',
       judge: 'Tuomari Testi',
       location: 'Espoo',
-      startDate: new TZDate('2026-06-01', TIME_ZONE),
+      startDate: '2026-06-01',
     }
     const baseEvent: PartialEvent = {
-      classes: [{ class: 'ALO', date: new TZDate('2026-06-01', TIME_ZONE) }],
-      endDate: new TZDate('2026-06-01', TIME_ZONE),
+      classes: [{ class: 'ALO', date: '2026-06-01' }],
+      endDate: '2026-06-01',
       eventType: 'NOME-B',
       id: 'test',
       judges: [{ id: 1, name: 'Tuomari Testi' }],
@@ -580,7 +578,7 @@ describe('KcIdSection', () => {
       kcGuid: 'guid-222',
       location: 'Espoo',
       organizer: { id: 'org-id', name: 'Organizer' },
-      startDate: new TZDate('2026-06-01', TIME_ZONE),
+      startDate: '2026-06-01',
     }
 
     it('should show no warnings when the event matches the linked Kennel Club event', async () => {
@@ -607,8 +605,8 @@ describe('KcIdSection', () => {
         event: {
           ...baseEvent,
           classes: [
-            { class: 'ALO', date: new TZDate('2026-06-01', TIME_ZONE) },
-            { class: 'AVO', date: new TZDate('2026-06-01', TIME_ZONE) },
+            { class: 'ALO', date: '2026-06-01' },
+            { class: 'AVO', date: '2026-06-01' },
           ],
         },
         onChange: vi.fn(),
@@ -620,7 +618,7 @@ describe('KcIdSection', () => {
 
     it('should warn when the dates differ from the linked Kennel Club event', async () => {
       await renderComponent({
-        event: { ...baseEvent, endDate: new TZDate('2026-06-02', TIME_ZONE) },
+        event: { ...baseEvent, endDate: '2026-06-02' },
         onChange: vi.fn(),
         open: true,
       })

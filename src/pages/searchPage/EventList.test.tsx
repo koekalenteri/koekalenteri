@@ -1,7 +1,6 @@
 import type { DogEvent } from '../../types'
 import { ThemeProvider } from '@mui/material'
 import { render, screen, within } from '@testing-library/react'
-import { parseISO } from 'date-fns'
 import { Provider } from 'jotai'
 import { MemoryRouter } from 'react-router'
 import { emptyEvent } from '../../__mockData__/emptyEvent'
@@ -27,8 +26,8 @@ describe('EventList', () => {
     const event: DogEvent = {
       ...emptyEvent,
       // Avoid `parseISO('YYYY-MM-DD')` in tests (timezone-dependent).
-      endDate: parseISO('2021-02-11T12:00:00Z'),
-      startDate: parseISO('2021-02-10T12:00:00Z'),
+      endDate: '2021-02-11',
+      startDate: '2021-02-10',
     }
     render(
       <ThemeProvider theme={theme}>
@@ -62,10 +61,10 @@ describe('EventList', () => {
   it('should strike through the location/name but not the organizer or cancelled label', async () => {
     const event: DogEvent = {
       ...emptyEvent,
-      endDate: parseISO('2021-02-11T12:00:00Z'),
+      endDate: '2021-02-11',
       location: 'Test Location',
       name: 'Test Event Name',
-      startDate: parseISO('2021-02-10T12:00:00Z'),
+      startDate: '2021-02-10',
       state: 'cancelled',
     }
     render(

@@ -1,7 +1,7 @@
 import type { GridColDef } from '@mui/x-data-grid'
 import type React from 'react'
 import type { MouseEventHandler, ReactElement, ReactNode } from 'react'
-import type { Registration, RegistrationDate, RegistrationGroup } from '@/types'
+import type { ConfirmedEvent, DayKey, Registration, RegistrationDate, RegistrationGroup } from '@/types'
 import CircularProgress from '@mui/material/CircularProgress'
 import { useGridApiRef } from '@mui/x-data-grid'
 import { renderHook } from '@testing-library/react'
@@ -1034,7 +1034,7 @@ describe('fee against what was paid', () => {
   })
 
   it('offers refunding the overpaid part of a participant, even after the trial (KOE-1382)', () => {
-    const endedEvent = { ...eventWithStaticDatesAnd3Classes, endDate: new Date('2020-01-01'), state: 'ended' as const }
+    const endedEvent: ConfirmedEvent = { ...eventWithStaticDatesAnd3Classes, endDate: '2020-01-01', state: 'ended' }
     const { result } = renderHook(() => useClassEntrySelectionColumns(mockAvailableDates, endedEvent))
     const actionsColumn = result.current.participantColumns.find((col) => col.field === 'actions')
     const participant = { group: { key: 'testing', number: 1 } }
@@ -1118,16 +1118,16 @@ describe('lastEmail column', () => {
 })
 
 describe('placement column', () => {
-  const day = new Date('2021-02-10T12:00:00Z')
+  const day: DayKey = '2021-02-10'
   const scored = (id: string, result: string, points: number) =>
     asRegistration({
       class: 'ALO',
-      eventResult: { maxPoints: 100, points, result, updatedAt: day, updatedBy: '' },
+      eventResult: { maxPoints: 100, points, result, updatedAt: new Date('2021-02-10T12:00:00Z'), updatedBy: '' },
       eventType: 'NOWT',
       group: { date: day, key: 'ALO-AP', number: 1 },
       id,
     })
-  const nowtEvent = { ...eventWithStaticDatesAnd3Classes, endDate: new Date('2020-01-01'), eventType: 'NOWT' }
+  const nowtEvent: ConfirmedEvent = { ...eventWithStaticDatesAnd3Classes, endDate: '2020-01-01', eventType: 'NOWT' }
 
   it('shows the rank among the awarded dogs, ties sharing one, and nothing for a prize 0', () => {
     const registrations = [

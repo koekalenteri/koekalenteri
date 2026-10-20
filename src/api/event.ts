@@ -1,6 +1,7 @@
 import type { StartNumbersTime } from '../lib/event'
 import type {
   AuditRecord,
+  DayKey,
   DogEvent,
   EventClass,
   EventCopyResult,
@@ -16,7 +17,7 @@ import type {
   RegistrationClass,
   Replace,
 } from '../types'
-import { hasCalendarDay, TIME_ZONE } from '../lib/day'
+import { isDayKey } from '../lib/day'
 import { newEventDates } from '../lib/event'
 import { latestCollectionUpdate } from '../lib/incremental'
 import {
@@ -175,11 +176,10 @@ export async function putResultsPublished(
 
 /**
  * A one-day trial may come from Kennelliitto with the year 1 for its end: the end is the start then.
- * The server now sends the start instead (KOE-1545); an older server's 0001-01-01 still becomes a
- * year-1 Date at the typed boundary (`toEventKcIdChoice`), which has no calendar day.
+ * The server now sends the start instead (KOE-1545); an older server's 0001-01-01 is no day.
  */
 const normalizeEventKcIdChoice = (choice: EventKcIdChoice): EventKcIdChoice =>
-  hasCalendarDay(choice.endDate, TIME_ZONE) ? choice : { ...choice, endDate: choice.startDate }
+  isDayKey(choice.endDate) ? choice : { ...choice, endDate: choice.startDate }
 
 export async function searchEventKcIdChoices(
   request: SearchEventKcIdChoicesRequest,
@@ -245,7 +245,7 @@ export async function exportEventToStage(eventId: string, target: string, token?
 export async function copyEventWithRegistrations(eventId: string, token?: string, signal?: AbortSignal) {
   return toDogEvent(
     (
-      await http.post<{ id: string; startDate: Date }, JsonDogEvent>(
+      await http.post<{ id: string; startDate: DayKey }, JsonDogEvent>(
         `${ADMIN_PATH}copy`,
         { id: eventId, startDate: newEventDates(new Date()).startDate },
         withToken({ signal }, token)

@@ -15,7 +15,7 @@ import {
   eventWithStaticDatesAndClass,
 } from '../../__mockData__/events'
 import { registrationWithStaticDates, registrationWithStaticDatesAndClass } from '../../__mockData__/registrations'
-import { dayStart, dayStartOf, TIME_ZONE } from '../../lib/day'
+import { addDays, dayEnd, dayStart, TIME_ZONE } from '../../lib/day'
 import { qualifyJsonRegistration } from '../../lib/qualification'
 import { GROUP_KEY_RESERVE } from '../../lib/registration'
 import { legacyRegistrationDays, rekeyRegistrationDays } from '../../lib/storedDays'
@@ -851,7 +851,7 @@ describe('putRegistrationLabmda', () => {
   })
 
   it('should notify secretary when cancelling from reserve and it was not notified', async () => {
-    vi.setSystemTime(addMinutes(eventWithStaticDates.entryEndDate, 1))
+    vi.setSystemTime(addMinutes(dayEnd(eventWithStaticDates.entryEndDate, TIME_ZONE), 1))
 
     const registration: Registration = {
       ...registrationWithStaticDates,
@@ -927,7 +927,7 @@ describe('putRegistrationLabmda', () => {
   })
 
   it('should notify secretary when cancelling from participants', async () => {
-    vi.setSystemTime(addMinutes(eventWithStaticDates.entryEndDate, 1))
+    vi.setSystemTime(addMinutes(dayEnd(eventWithStaticDates.entryEndDate, TIME_ZONE), 1))
 
     const registration: Registration = {
       ...registrationWithStaticDates,
@@ -1595,7 +1595,7 @@ describe('putRegistrationLabmda', () => {
   })
 
   it('should return 404 when updating a registration after the event has ended', async () => {
-    vi.setSystemTime(dayStartOf(eventWithStaticDates.endDate, TIME_ZONE, 1))
+    vi.setSystemTime(dayStart(addDays(eventWithStaticDates.endDate, 1), TIME_ZONE))
     mockGetEvent.mockResolvedValueOnce(JSON.parse(JSON.stringify(eventWithStaticDates)))
     mockGetRegistration.mockResolvedValueOnce(storedRegistrationJson(registrationWithStaticDates))
 
@@ -1735,7 +1735,7 @@ describe('putRegistrationLabmda', () => {
 
   it('should return 410 when creating new registration before entry window opens', async () => {
     // Move current time 1 minute before entryStartDate
-    vi.setSystemTime(addMinutes(eventWithStaticDates.entryStartDate, -1))
+    vi.setSystemTime(addMinutes(dayStart(eventWithStaticDates.entryStartDate, TIME_ZONE), -1))
 
     mockGetEvent.mockResolvedValueOnce(JSON.parse(JSON.stringify(eventWithStaticDates)))
     const res = await putRegistrationLabmda(constructAPIGwEvent({ ...registrationWithStaticDates, id: undefined }))
@@ -1753,7 +1753,7 @@ describe('putRegistrationLabmda', () => {
 
   it('should return 410 when creating new registration after entry window closes', async () => {
     // Move current time 1 minute after entryEndDate
-    vi.setSystemTime(addMinutes(eventWithStaticDates.entryEndDate, 1))
+    vi.setSystemTime(addMinutes(dayEnd(eventWithStaticDates.entryEndDate, TIME_ZONE), 1))
 
     mockGetEvent.mockResolvedValueOnce(JSON.parse(JSON.stringify(eventWithStaticDates)))
     const res = await putRegistrationLabmda(constructAPIGwEvent({ ...registrationWithStaticDates, id: undefined }))

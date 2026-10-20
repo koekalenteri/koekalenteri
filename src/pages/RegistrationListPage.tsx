@@ -1,7 +1,6 @@
 import Box from '@mui/material/Box'
 import Grid from '@mui/material/Grid'
 import Typography from '@mui/material/Typography'
-import { isPast } from 'date-fns/isPast'
 import { useAtom, useAtomValue } from 'jotai'
 import { enqueueSnackbar } from 'notistack'
 import { useCallback, useEffect, useMemo, useState } from 'react'
@@ -66,10 +65,14 @@ export function RegistrationListPage({ cancel, confirm, invitation }: Registrati
   const payment = registration?.payment
   const paymentSettled = Boolean(payment?.standing) || payment?.status === 'duplicate'
   const paymentVerificationInProgress = paymentFlow === 'verifying' && !paymentSettled && reloadCount < 5
-  const allDisabled = useMemo(() => !event || !isConfirmedEvent(event) || isPast(event.endDate), [event])
+  // Closed once the trial's last day has begun in Finland.
+  const allDisabled = useMemo(
+    () => !event || !isConfirmedEvent(event) || event.endDate <= dayOf(new Date(), TIME_ZONE),
+    [event]
+  )
   const cancelDisabled = useMemo(
     // Cancelling closes with the Finnish day before the trial: from then on the dog is expected.
-    () => !event || allDisabled || dayOf(new Date(), TIME_ZONE) >= addDays(dayOf(event.startDate, TIME_ZONE), -1),
+    () => !event || allDisabled || dayOf(new Date(), TIME_ZONE) >= addDays(event.startDate, -1),
     [allDisabled, event]
   )
   // What the page shows as owed: the server's word, which needs the group this page does not have
@@ -227,7 +230,7 @@ export function RegistrationListPage({ cancel, confirm, invitation }: Registrati
   useEffect(() => {
     if (!event || !registration || registration.cancelled || registration.confirmed) return
 
-    if (confirm && isConfirmedEvent(event) && !isPast(event.endDate)) {
+    if (confirm && isConfirmedEvent(event) && event.endDate > dayOf(new Date(), TIME_ZONE)) {
       setConfirmOpen((current) => current ?? true)
     }
   }, [confirm, event, registration])

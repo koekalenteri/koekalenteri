@@ -1,4 +1,4 @@
-import type { StationTurn } from '@/types'
+import type { ConfirmedEvent, StationTurn } from '@/types'
 import { act, renderHook } from '@testing-library/react'
 import { createStore, Provider } from 'jotai'
 import { createElement } from 'react'
@@ -121,11 +121,11 @@ describe('buildStartListPublishedPatch', () => {
 
 describe('useAdminEventActions.setResultsPublished', () => {
   const classless = { ...eventWithStaticDates, id: 'classless-results' }
-  const twoDays = {
+  const twoDays: ConfirmedEvent = {
     ...eventWithStaticDates,
     classes: [
-      { class: 'ALO' as const, date: new Date('2021-02-10') },
-      { class: 'ALO' as const, date: new Date('2021-02-11') },
+      { class: 'ALO' as const, date: '2021-02-10' },
+      { class: 'ALO' as const, date: '2021-02-11' },
     ],
     id: 'two-day-results',
   }

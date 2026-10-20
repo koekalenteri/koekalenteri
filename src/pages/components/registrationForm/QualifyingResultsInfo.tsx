@@ -22,7 +22,7 @@ interface Props {
   readonly eventType?: string
   readonly regNo?: string
   readonly dob?: DayKey
-  readonly rankingPeriod?: { min?: Date; max?: Date }
+  readonly rankingPeriod?: { min?: DayKey; max?: DayKey }
   readonly results?: ManualTestResult[]
   readonly requirements?: EventResultRequirementsByDate
   readonly qualifyingResults?: QualifyingResult[]

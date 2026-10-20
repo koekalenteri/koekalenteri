@@ -1,9 +1,7 @@
 import type { EventKcIdChoice } from '@/types'
-import { TZDate } from '@date-fns/tz'
 import { ThemeProvider } from '@mui/material/styles'
 import { render } from 'vitest-browser-react'
 import theme from '@/assets/Theme'
-import { TIME_ZONE } from '@/lib/day'
 import KcIdChoiceDialog from './KcIdChoiceDialog'
 
 const LINKED_GUID = '0a0b27bc-f651-4575-b0aa-b0b16a5ce52d'
@@ -13,38 +11,38 @@ const LINKED_GUID = '0a0b27bc-f651-4575-b0aa-b0b16a5ce52d'
 const choices: EventKcIdChoice[] = [
   {
     classes: ['ALO', 'AVO'],
-    endDate: new TZDate('2026-09-27', TIME_ZONE),
+    endDate: '2026-09-27',
     eventType: 'NOU',
     judge: 'Testi Tuomari',
     kcGuid: '2b81e6a1-559b-407c-87c7-b8a9b89b1987',
     location: 'Laukaa',
     name: '',
     organizer: 'KESKI-SUOMEN NOUTAJAKOIRAYHDISTYS RY.',
-    startDate: new TZDate('2026-09-26', TIME_ZONE),
+    startDate: '2026-09-26',
     status: 'Hyväksytty',
   },
   {
     classes: [],
-    endDate: new TZDate('2026-09-13', TIME_ZONE),
+    endDate: '2026-09-13',
     eventType: 'NOU',
     judge: 'Toinen Tuomari',
     kcGuid: LINKED_GUID,
     location: 'Raasepori',
     name: '',
     organizer: 'UUDENMAAN NOUTAJAKOIRAYHDISTYS',
-    startDate: new TZDate('2026-09-12', TIME_ZONE),
+    startDate: '2026-09-12',
     status: 'Hyväksytty',
   },
   {
     classes: [],
-    endDate: new TZDate('2026-09-05', TIME_ZONE),
+    endDate: '2026-09-05',
     eventType: 'NOU',
     judge: 'Kolmas Tuomari',
     kcGuid: null,
     location: 'Heinola',
     name: '',
     organizer: 'PÄIJÄT-HÄMEEN NOUTAJAKOIRAYHDISTYS',
-    startDate: new TZDate('2026-09-05', TIME_ZONE),
+    startDate: '2026-09-05',
     status: 'Hyväksytty',
   },
 ]

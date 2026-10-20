@@ -1,6 +1,6 @@
 import type { Theme } from '@mui/material'
 import type { ParseKeys, TFunction } from 'i18next'
-import type { DeepPartial, ManualTestResult, PublicConfirmedEvent, Registration, TestResult } from '../../types'
+import type { DayKey, DeepPartial, ManualTestResult, PublicConfirmedEvent, Registration, TestResult } from '../../types'
 import Cancel from '@mui/icons-material/Cancel'
 import CheckOutlined from '@mui/icons-material/CheckOutlined'
 import ExpandMore from '@mui/icons-material/ExpandMore'
@@ -24,6 +24,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Trans, useTranslation } from 'react-i18next'
 import { loadKnownTlds } from '../../lib/client/tlds'
 import { calculateCost } from '../../lib/cost'
+import { dayOf, TIME_ZONE } from '../../lib/day'
 import { getDiffOperations } from '../../lib/diff'
 import { minDogAgeFor } from '../../lib/dog'
 import { isDevEnv } from '../../lib/env'
@@ -121,7 +122,7 @@ export default function RegistrationForm({
   const large = useMediaQuery((theme: Theme) => theme.breakpoints.up('md'))
   const [errors, setErrors] = useState(() => validateRegistration(registration, event, savedRegistration))
   const [open, setOpen] = useState<SectionOpenState>(() => defaultSectionOpenState(large))
-  const [rankingPeriod, setRankingPeriod] = useState<{ min?: Date; max?: Date }>({})
+  const [rankingPeriod, setRankingPeriod] = useState<{ min?: DayKey; max?: DayKey }>({})
 
   const restriction = useMemo(() => getRestrictionNotice(event, registration, tBreed), [event, registration, tBreed])
   // The restriction gates the registrant; the secretary sees the same notice but decides for
@@ -150,7 +151,7 @@ export default function RegistrationForm({
       getRequirements(
         registration?.eventType ?? '',
         registration?.class,
-        registration?.dates?.length ? registration.dates[0].date : new Date()
+        registration?.dates?.length ? registration.dates[0].date : dayOf(new Date(), TIME_ZONE)
       ),
     [registration?.eventType, registration?.class, registration?.dates]
   )

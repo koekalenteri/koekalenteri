@@ -1,19 +1,19 @@
 import type { RouteObject } from 'react-router'
 import type { Language } from '../../i18n'
-import type { Registration, RegistrationClass } from '../../types'
+import type { DayKey, Registration, RegistrationClass } from '../../types'
 import { ThemeProvider } from '@mui/material'
 import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
 import { cleanup, screen, within } from '@testing-library/react'
-import { addDays } from 'date-fns'
 import { Suspense } from 'react'
 import { useTranslation } from 'react-i18next'
 import { TestProvider as Provider } from 'test-utils/AtomProvider'
-import { eventWithStations, registrationsToEventWithStations } from '../../__mockData__/resultsEvent'
+import { eventWithStations, RESULTS_EVENT_DAY, registrationsToEventWithStations } from '../../__mockData__/resultsEvent'
 import { putEvent, putStartNumbers } from '../../api/event'
 import { getStartNumberLink } from '../../api/startNumbers'
 import theme from '../../assets/Theme'
 import { locales } from '../../i18n'
+import { addDays } from '../../lib/day'
 import { Path } from '../../routeConfig'
 import { DataMemoryRouter, flushPromises, renderSuspendedWithUserEvents, TEST_ID_TOKEN } from '../../test-utils/utils'
 import AppSnackbarProvider from '../components/AppSnackbarProvider'
@@ -108,7 +108,7 @@ describe('EventStartNumbersPage', () => {
   it('lists a multi-day class one day at a time, and names the day on each row', async () => {
     const { i18n } = useTranslation()
     const [first, second] = registrationsToEventWithStations
-    const nextDay = addDays(first.group?.date ?? new Date(), 1)
+    const nextDay = addDays(first.group?.date ?? RESULTS_EVENT_DAY, 1)
     const { user } = await renderPage(i18n.language as Language, [
       first,
       second,
@@ -162,13 +162,13 @@ describe('EventStartNumbersPage', () => {
   it('picks the day before the class, and holds it while the classes are worked through (KOE-1350)', async () => {
     const { i18n } = useTranslation()
     const [first] = registrationsToEventWithStations
-    const friday = first.group?.date ?? new Date()
+    const friday = first.group?.date ?? RESULTS_EVENT_DAY
     const saturday = addDays(friday, 1)
     const dog = (
       id: string,
       name: string,
       eventClass: RegistrationClass,
-      date: Date,
+      date: DayKey,
       number: number
     ): Registration => ({
       ...first,
@@ -211,7 +211,7 @@ describe('EventStartNumbersPage', () => {
   it('offers only the classes that run on the chosen day (KOE-1350)', async () => {
     const { i18n } = useTranslation()
     const [first] = registrationsToEventWithStations
-    const friday = first.group?.date ?? new Date()
+    const friday = first.group?.date ?? RESULTS_EVENT_DAY
     const saturday = addDays(friday, 1)
 
     const { user } = await renderPage(i18n.language as Language, [

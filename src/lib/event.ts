@@ -32,19 +32,17 @@ import {
   dayOfWeek,
   dayParts,
   dayStart,
-  dayStartOf,
   daysBetween,
   eachDay,
   hasCalendarDay,
   isDayKey,
   isInstantString,
   monthKeyOf,
-  sameDay,
   TIME_ZONE,
 } from './day'
 import { isLiveNow, isStoredStationTurn, toPublicStationTurn } from './stationTurns'
 import { isConfirmedEvent } from './typeGuards'
-import { isObject, unique, uniqueDate } from './utils'
+import { isObject, unique } from './utils'
 
 export const isValidForEntry = (state?: EventState) => !['draft', 'tentative', 'cancelled'].includes(state ?? '')
 
@@ -120,10 +118,10 @@ export const storedMonthKey = (date: DayInput): string | undefined => {
  * A span of Finnish days as keys, `2026-06-28 - 2026-06-29`, or one key for a one-day span, as the
  * Kennel Club lookup shows a trial's days; '' without a start day, and an end without a day is the start.
  */
-export const finnishDaySpan = (start?: Date, end?: Date): string => {
-  if (!start || !hasCalendarDay(start, TIME_ZONE)) return ''
-  const first = dayOf(start, TIME_ZONE)
-  const last = end && hasCalendarDay(end, TIME_ZONE) ? dayOf(end, TIME_ZONE) : first
+export const finnishDaySpan = (start?: DayKey, end?: DayKey): string => {
+  const first = storedDayKey(start)
+  if (!first) return ''
+  const last = storedDayKey(end) ?? first
   return first === last ? first : `${first} - ${last}`
 }
 
@@ -242,9 +240,7 @@ export const isEntryEditingClosed = (
 export const eventDates = (event?: Pick<PublicDogEvent, 'classes' | 'startDate' | 'endDate'> | null) => {
   if (!event) return []
   const classes = Array.isArray(event.classes) ? event.classes : []
-  return classes.length
-    ? uniqueDate(classes.map((eventClass) => eventClass.date ?? event.startDate))
-    : getEventDays(event)
+  return classes.length ? unique(classes.map((eventClass) => eventClass.date ?? event.startDate)) : getEventDays(event)
 }
 
 /** Only `class` is read, so this accepts both the `Date`- and `string`-dated event shapes. */
@@ -302,7 +298,7 @@ export const placesForClass = (
 export const uniqueClassDates = (event: PublicDogEvent, eventClass: string) => {
   if (eventClass === event.eventType) return eventDates(event)
   const classes = Array.isArray(event.classes) ? event.classes : []
-  return uniqueDate(classes.filter((item) => item.class === eventClass).map((item) => item.date ?? event.startDate))
+  return unique(classes.filter((item) => item.class === eventClass).map((item) => item.date ?? event.startDate))
 }
 
 /**
@@ -381,11 +377,11 @@ export const isOfficialEventType = (eventType?: string | null, official?: boolea
 const EntryStartWeeks = 6
 const EntryEndWeeks = 3
 
-/** The Finnish midnight whole Finnish weeks before the event's start, whatever zone this runs in (KOE-1539). */
-const finnishWeeksBefore = (eventStartDate: Date, weeks: number) => dayStartOf(eventStartDate, TIME_ZONE, -7 * weeks)
+/** The day whole weeks before the event's start (KOE-1539). */
+const weeksBefore = (eventStartDate: DayKey, weeks: number) => addDays(eventStartDate, -7 * weeks)
 
-export const defaultEntryStartDate = (eventStartDate: Date) => finnishWeeksBefore(eventStartDate, EntryStartWeeks)
-export const defaultEntryEndDate = (eventStartDate: Date) => finnishWeeksBefore(eventStartDate, EntryEndWeeks)
+export const defaultEntryStartDate = (eventStartDate: DayKey) => weeksBefore(eventStartDate, EntryStartWeeks)
+export const defaultEntryEndDate = (eventStartDate: DayKey) => weeksBefore(eventStartDate, EntryEndWeeks)
 
 const SATURDAY = 6
 const DAYS_IN_WEEK = 7
@@ -404,7 +400,7 @@ export const newEventStartDay = (now: Date, zone: string): DayKey => {
 
 /** The dates a new event starts with: its day, and the default entry period before it. */
 export const newEventDates = (now: Date) => {
-  const startDate = dayStart(newEventStartDay(now, TIME_ZONE), TIME_ZONE)
+  const startDate = newEventStartDay(now, TIME_ZONE)
   return {
     endDate: startDate,
     entryEndDate: defaultEntryEndDate(startDate),
@@ -1299,39 +1295,39 @@ export const isEventDeletable = ({ state }: Partial<Pick<JsonDogEvent, 'state'>>
  */
 export const getEventSeason = (startDate?: Date | string): string => String(storedYear(startDate) ?? '')
 
-export const isDetaultEntryStartDate = (date: Date | undefined, eventStartDate: Date) =>
-  !date || sameDay(defaultEntryStartDate(eventStartDate), date, TIME_ZONE)
-export const isDetaultEntryEndDate = (date: Date | undefined, eventStartDate: Date) =>
-  !date || sameDay(defaultEntryEndDate(eventStartDate), date, TIME_ZONE)
+export const isDetaultEntryStartDate = (date: DayKey | undefined, eventStartDate: DayKey) =>
+  !date || defaultEntryStartDate(eventStartDate) === date
+export const isDetaultEntryEndDate = (date: DayKey | undefined, eventStartDate: DayKey) =>
+  !date || defaultEntryEndDate(eventStartDate) === date
 
-/** The event's days as their Finnish midnights, first to last. */
+/** The event's days, first to last. */
 export const getEventDays = ({ startDate, endDate }: Pick<DogEvent, 'startDate' | 'endDate'>) =>
-  eachDay(dayOf(startDate, TIME_ZONE), dayOf(endDate, TIME_ZONE)).map((day) => dayStart(day, TIME_ZONE))
+  eachDay(startDate, endDate)
 
 export const getUniqueEventClasses = ({ classes }: Pick<DogEvent, 'classes'>) =>
   unique(classes?.map((c) => c?.class) ?? []).filter(Boolean)
 
 export const applySingleDayNowtGroups = <T extends object>(
   eventType: string | undefined,
-  startDate: Date,
-  endDate: Date,
+  startDate: DayKey,
+  endDate: DayKey,
   classes: readonly T[]
 ): T[] =>
-  eventType === 'NOWT' && sameDay(startDate, endDate, TIME_ZONE)
+  eventType === 'NOWT' && startDate === endDate
     ? classes.map((eventClass) => ({ ...eventClass, groups: ['kp'] }))
     : [...classes]
 
 export const getEventClassesByDays = (event: Pick<DogEvent, 'startDate' | 'endDate' | 'classes'>) =>
   getEventDays(event).map((day) => ({
-    classes: event.classes?.filter((c) => sameDay(c.date ?? event.startDate, day, TIME_ZONE)) ?? [],
+    classes: event.classes?.filter((c) => (c.date ?? event.startDate) === day) ?? [],
     day,
   }))
 
 /** A group's key from its Finnish day and its time. */
 export const groupKeyOf = (day: DayKey, time: RegistrationDate['time']) => `${day}-${time}`
 
-/** A group's key: the Finnish day and the time, so a browser in another zone names the same group. */
-export const eventRegistrationDateKey = (rd: RegistrationDate) => groupKeyOf(dayOf(rd.date, TIME_ZONE), rd.time)
+/** A group's key: its day and its time. */
+export const eventRegistrationDateKey = (rd: RegistrationDate) => groupKeyOf(rd.date, rd.time)
 
 export function sanitizeDogEvent(event: JsonDogEvent): SanitizedJsonPublicDogEvent
 export function sanitizeDogEvent(event: ConfirmedEvent): SanitizedPublicConfirmedDogEvent
@@ -1378,19 +1374,14 @@ export function sanitizeDogEvent(
   return { ...publicFields, liveTurns } as SanitizedJsonPublicDogEvent | SanitizedPublicDogEvent
 }
 
-const groupDates = (dates: RegistrationDate[]): Record<number, RegistrationTime[]> =>
-  dates.reduce(
-    (acc, cur) => {
-      if (!cur.time) return acc
-
-      const dateValue = cur.date.valueOf()
-      if (!acc[dateValue]) acc[dateValue] = []
-      const group = acc[dateValue]
-      group.push(cur.time)
-      return acc
-    },
-    {} as Record<number, RegistrationTime[]>
-  )
+const groupDates = (dates: RegistrationDate[]): Map<DayKey, RegistrationTime[]> =>
+  dates.reduce((acc, cur) => {
+    if (!cur.time) return acc
+    const group = acc.get(cur.date) ?? []
+    group.push(cur.time)
+    acc.set(cur.date, group)
+    return acc
+  }, new Map<DayKey, RegistrationTime[]>())
 
 const resolveTimes = (newTimes: RegistrationTime[], oldTimes?: RegistrationTime[]): RegistrationTime[] => {
   // 'kp' is a special group that can not exist with other groups
@@ -1418,22 +1409,17 @@ export const applyNewGroupsToDogEventClass = (
     groups: c.class === eventClass ? [] : (c.groups ?? defaultGroups),
   }))
 
-  for (const [dateString, newTimes] of Object.entries(newByDate)) {
-    const dateValue = +dateString
-    const nc = newClasses.find((c) => c.class === eventClass && c.date.valueOf() === dateValue)
+  for (const [day, newTimes] of newByDate) {
+    const nc = newClasses.find((c) => c.class === eventClass && c.date === day)
     if (!nc) continue
-    const oc = classes.find((c) => c.class === eventClass && c.date.valueOf() === dateValue)
+    const oc = classes.find((c) => c.class === eventClass && c.date === day)
     nc.groups = resolveTimes(newTimes, oc?.groups)
   }
 
   // for dates that do not have any times selected, use defaults or 'kp' if last removed value vas something else than 'kp'
   for (const nc of newClasses) {
     if (!nc.groups.length) {
-      if (
-        classes
-          .find((c) => c.class === nc.class && c.date.valueOf() === nc.date.valueOf())
-          ?.groups?.filter((t) => t !== 'kp').length
-      )
+      if (classes.find((c) => c.class === nc.class && c.date === nc.date)?.groups?.filter((t) => t !== 'kp').length)
         nc.groups = ['kp']
       else nc.groups = [...defaultGroups]
     }
@@ -1447,26 +1433,21 @@ export const applyNewGroupsToDogEventDates = (
   defaultGroups: RegistrationTime[],
   newDates: RegistrationDate[]
 ): Pick<DogEvent, 'classes' | 'dates'> => {
-  const dateValues = getEventDays({ endDate, startDate }).map((date) => date.valueOf())
+  const eventDays = getEventDays({ endDate, startDate })
   const oldByDate = groupDates(dates ?? [])
   const newByDate = groupDates(newDates)
   const finalDates: RegistrationDate[] = []
 
-  for (const [dateString, newTimes] of Object.entries(newByDate)) {
-    const dateValue = +dateString
-    if (!dateValues.includes(dateValue)) continue
-    const date = new Date(dateValue)
-    const oldTimes = oldByDate[dateValue]
-
-    resolveTimes(newTimes, oldTimes).forEach((time) => {
+  for (const [date, newTimes] of newByDate) {
+    if (!eventDays.includes(date)) continue
+    resolveTimes(newTimes, oldByDate.get(date)).forEach((time) => {
       finalDates.push({ date, time })
     })
   }
   // for dates that do not have any times selected, use defaults or 'kp' if last removed value vas something else than 'kp'
-  for (const dateValue of dateValues) {
-    if (!newByDate[dateValue]?.length) {
-      const date = new Date(dateValue)
-      if (oldByDate[dateValue]?.filter((t) => t !== 'kp').length) finalDates.push({ date, time: 'kp' })
+  for (const date of eventDays) {
+    if (!newByDate.get(date)?.length) {
+      if (oldByDate.get(date)?.filter((t) => t !== 'kp').length) finalDates.push({ date, time: 'kp' })
       else
         defaultGroups.forEach((time) => {
           finalDates.push({ date, time })
@@ -1475,9 +1456,7 @@ export const applyNewGroupsToDogEventDates = (
   }
 
   finalDates.sort((a, b) =>
-    a.date.valueOf() === b.date.valueOf()
-      ? (a.time?.localeCompare(b.time ?? '') ?? 0)
-      : a.date.valueOf() - b.date.valueOf()
+    a.date === b.date ? (a.time?.localeCompare(b.time ?? '') ?? 0) : a.date.localeCompare(b.date)
   )
 
   return { classes: [], dates: finalDates }
@@ -1497,12 +1476,12 @@ export const shiftPlacesPerDay = (placesPerDay: Record<string, number>, days: nu
 
 export const copyDogEvent = (event: DogEvent, now = new Date()): DogEvent => {
   const copy = structuredClone(event)
-  const origStartDay = dayOf(event.startDate, TIME_ZONE)
+  const origStartDay = event.startDate
   const newStartDay = newEventStartDay(now, TIME_ZONE)
   const shift = daysBetween(origStartDay, newStartDay)
-  /** The Finnish midnight of the day `date` falls on, moved along with the start. */
-  const moved = (date: Date) => dayStartOf(date, TIME_ZONE, shift)
-  const days = daysBetween(origStartDay, dayOf(copy.endDate, TIME_ZONE))
+  /** The day, moved along with the start. */
+  const moved = (date: DayKey) => addDays(date, shift)
+  const days = daysBetween(origStartDay, copy.endDate)
 
   copy.id = ''
   copy.name = `Kopio - ${copy.name ?? ''}`
@@ -1529,7 +1508,7 @@ export const copyDogEvent = (event: DogEvent, now = new Date()): DogEvent => {
 
   const newDates = newEventDates(now)
   copy.startDate = newDates.startDate
-  copy.endDate = dayStart(addDays(newStartDay, days), TIME_ZONE)
+  copy.endDate = addDays(newStartDay, days)
   copy.entryStartDate = newDates.entryStartDate
   copy.entryEndDate = newDates.entryEndDate
   copy.season = getEventSeason(newDates.startDate)

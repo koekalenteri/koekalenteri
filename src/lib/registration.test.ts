@@ -100,7 +100,7 @@ describe('lib/registration', () => {
     const event = {
       cost: { normal: 30, optionalAdditionalCosts: [first, second] },
       costMember: 25,
-      entryStartDate: new Date('2026-01-01'),
+      entryStartDate: '2026-01-01' as const,
     }
     const registration = {
       createdAt: new Date('2026-01-02'),
@@ -305,7 +305,7 @@ describe('lib/registration', () => {
       })
 
       it.each([
-        { expected: '2025-02-01', qualificationStartDate: new Date('2025-01-31T22:00:00.000Z') },
+        { expected: '2025-02-01', qualificationStartDate: '2025-02-01' },
         { expected: '2025-02-01', qualificationStartDate: legacyDayValue('2025-01-31T22:00:00.000Z') },
         { expected: '2023-08-18', qualificationStartDate: undefined },
       ])('starts the period on $expected', ({ expected, qualificationStartDate }) => {
@@ -490,8 +490,8 @@ describe('lib/registration', () => {
 
   describe('sortRegistrationsByDateClassTimeAndNumber', () => {
     it('sorts hydrated registrations and leaves reserves last', () => {
-      const firstDate = new Date('2026-08-08T00:00:00.000Z')
-      const secondDate = new Date('2026-08-09T00:00:00.000Z')
+      const firstDate = '2026-08-08' as const
+      const secondDate = '2026-08-09' as const
       const regs: Array<SortableRegistration & { id: string }> = [
         { class: 'AVO', eventType: 'NOME-B', group: { key: 'reserve', number: 1 }, id: 'reserve' },
         {
@@ -617,7 +617,7 @@ describe('lib/registration', () => {
         getRegistrationNumberingGroupKey({
           class: 'AVO',
           eventType: 'NOME-B',
-          group: { date: new Date(), key: 'test', number: 1 },
+          group: { date: '2026-08-15', key: 'test', number: 1 },
         })
       ).toEqual('participants')
     })
@@ -675,7 +675,6 @@ describe('lib/registration', () => {
 
       it.each([
         ['an ISO string', midnight],
-        ['a Date', new Date(midnight)],
         ['a bare day', '2026-08-15' as const],
       ])('names the group by the Helsinki day when the date is %s', (_name, date) => {
         expect(getRegistrationGroupKey({ group: { date, key: '2026-08-14-ap', time: 'ap' } })).toEqual('2026-08-15-ap')
@@ -1411,10 +1410,10 @@ describe('lib/registration', () => {
   describe('getParticipantMessageInfo', () => {
     const now = new Date('2024-01-10T12:00:00.000Z')
     const event = {
-      entryEndDate: new Date('2024-01-05T12:00:00.000Z'),
+      entryEndDate: '2024-01-05' as const,
       invitationAttachment: 'common-attachment',
       invitationAttachments: { ALO: 'alo-attachment' },
-      startDate: new Date('2024-01-20T12:00:00.000Z'),
+      startDate: '2024-01-20' as const,
     }
     const aloSent = {
       class: 'ALO' as const,
@@ -1531,7 +1530,7 @@ describe('invitation payment gate', () => {
     classes: [{ class: 'ALO' as const, state: 'invited' as const }],
     cost: 40,
     costMember: 40,
-    entryStartDate: new Date('2026-01-01'),
+    entryStartDate: '2026-01-01' as const,
     state: 'picked' as const,
   }
   const participant = {

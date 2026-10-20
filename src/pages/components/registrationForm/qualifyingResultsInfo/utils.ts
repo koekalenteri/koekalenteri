@@ -1,4 +1,5 @@
 import type {
+  DayKey,
   EventResultRequirement,
   EventResultRequirements,
   EventResultRequirementsByDate,
@@ -83,7 +84,7 @@ export function createMissingResult(
   requirements: EventResultRequirementsByDate | undefined,
   results: Array<QualifyingResult | ManualTestResult>,
   regNo: string,
-  periodEnd?: Date
+  periodEnd?: DayKey
 ): ManualTestResult {
   const rule = findFirstMissing(requirements, results)
   return {

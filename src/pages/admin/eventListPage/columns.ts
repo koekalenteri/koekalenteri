@@ -1,11 +1,11 @@
 import type { GridColDef } from '@mui/x-data-grid'
-import type { DogEvent, EventClass } from '@/types'
+import type { DayKey, DogEvent, EventClass } from '@/types'
 import { useTranslation } from 'react-i18next'
 import { stringToLang } from '@/i18n/language'
 import { localeSortComparator } from '@/lib/datagrid'
 import { eventTypeLabel, getEventTitle, localizedEventName } from '@/lib/event'
 
-type StartEndDate = { start: Date; end: Date }
+type StartEndDate = { start: DayKey; end: DayKey }
 
 type EventWithDate = DogEvent & {
   date: StartEndDate
@@ -21,7 +21,7 @@ export default function useEventListColumns(): GridColDef<EventWithDate>[] {
       field: 'date',
       headerName: t('date'),
       hideable: false,
-      sortComparator: (a, b) => (b as StartEndDate).start.valueOf() - (a as StartEndDate).start.valueOf(),
+      sortComparator: (a, b) => (b as StartEndDate).start.localeCompare((a as StartEndDate).start),
       valueFormatter: (value) => t('dateFormat.datespan', value as StartEndDate),
       valueGetter: (_value, row) => ({ end: row.endDate, start: row.startDate }),
       width: 120,

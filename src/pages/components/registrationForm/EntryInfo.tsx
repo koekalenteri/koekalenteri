@@ -1,5 +1,6 @@
 import type { SyntheticEvent } from 'react'
 import type {
+  DayKey,
   PublicConfirmedEvent,
   Registration,
   RegistrationClass,
@@ -13,10 +14,9 @@ import { useTranslation } from 'react-i18next'
 import { useAdminEventRegistrationDates } from '@/hooks/useAdminEventRegistrationDates'
 import { useLocalState } from '@/hooks/useLocalState'
 import { formatDate } from '@/i18n/dates'
-import { sameDay, TIME_ZONE } from '@/lib/day'
 import { eventDates, registrationDates, uniqueClasses } from '@/lib/event'
 import { getRegistrationClass, isRegistrationClass } from '@/lib/registration'
-import { unique, uniqueDate } from '@/lib/utils'
+import { unique } from '@/lib/utils'
 import AutocompleteMulti from '../AutocompleteMulti'
 import AutocompleteSingle from '../AutocompleteSingle'
 import CollapsibleSection from '../CollapsibleSection'
@@ -24,7 +24,7 @@ import CollapsibleSection from '../CollapsibleSection'
 // Helper to sort registration dates
 const sortRegistrationDates = (dates: RegistrationDate[]): RegistrationDate[] => {
   return [...dates].sort((a, b) => {
-    if (a.date !== b.date) return a.date.valueOf() - b.date.valueOf()
+    if (a.date !== b.date) return a.date.localeCompare(b.date)
     if (a.time && b.time) return a.time.localeCompare(b.time)
     return 0
   })
@@ -60,7 +60,7 @@ export function EntryInfo({
   const { t } = useTranslation()
 
   // Extract label formatters
-  const getRegDateLabel = useCallback((o: Date) => t('dateFormat.wdshort', { date: o }), [t])
+  const getRegDateLabel = useCallback((o: DayKey) => t('dateFormat.wdshort', { date: o }), [t])
   const getTimeSuffix = useCallback(
     (time?: RegistrationTime) => {
       if (!time) return ''
@@ -86,17 +86,14 @@ export function EntryInfo({
   // Extract date and class calculations
   const classes = useMemo(() => uniqueClasses(event), [event])
   const regDates = useAdminEventRegistrationDates(event, reg.class ?? className)
-  const dates = uniqueDate(regDates.map((rd) => rd.date))
+  const dates = unique(regDates.map((rd) => rd.date))
 
   // Helper function to determine initial filter dates
   const getInitialFilterDates = useCallback(() => {
-    const selectedDates =
-      reg.eventId === event.id
-        ? (reg.dates?.filter((rd) => dates.some((d) => sameDay(d, rd.date, TIME_ZONE))) ?? [])
-        : []
+    const selectedDates = reg.eventId === event.id ? (reg.dates?.filter((rd) => dates.includes(rd.date)) ?? []) : []
     const tmpDates = selectedDates.length ? selectedDates.map((rd) => rd.date) : dates
 
-    return uniqueDate(
+    return unique(
       classDate ? regDates.filter((d) => formatDate(d.date, 'dd.MM.') === classDate).map((rd) => rd.date) : tmpDates
     )
   }, [classDate, dates, event.id, reg.dates, reg.eventId, regDates])
@@ -122,13 +119,10 @@ export function EntryInfo({
     setSelectedReserve(reg.reserve)
   }, [reg.class, reg.dates, reg.reserve])
 
-  const [filterDates, setFilterDates] = useState<Date[]>(() => getInitialFilterDates())
+  const [filterDates, setFilterDates] = useState<DayKey[]>(() => getInitialFilterDates())
 
   // Helper functions for date filtering
-  const isValidRegistrationDate = useCallback(
-    (rd: RegistrationDate) => filterDates.some((fd) => sameDay(fd, rd.date, TIME_ZONE)),
-    [filterDates]
-  )
+  const isValidRegistrationDate = useCallback((rd: RegistrationDate) => filterDates.includes(rd.date), [filterDates])
 
   const datesAndTimes = useMemo(() => regDates.filter(isValidRegistrationDate), [regDates, isValidRegistrationDate])
   const groups = useMemo(
@@ -157,7 +151,7 @@ export function EntryInfo({
   // Update filter dates when dates change
   useEffect(() => {
     if (!showDatesFilter) {
-      const validFilters = filterDates.filter((fd) => dates.some((d) => d.valueOf() === fd.valueOf()))
+      const validFilters = filterDates.filter((fd) => dates.includes(fd))
       if (!validFilters.length && dates.length) {
         setFilterDates(dates)
       }
@@ -205,9 +199,7 @@ export function EntryInfo({
       }
 
       // Find dates in filter that aren't in current selection
-      const missingFilterDates = filterDates.filter(
-        (filterDate) => !currentDates.some((ud) => sameDay(ud.date, filterDate, TIME_ZONE))
-      )
+      const missingFilterDates = filterDates.filter((filterDate) => !currentDates.some((ud) => ud.date === filterDate))
 
       // No missing dates, no changes needed
       if (!missingFilterDates.length) {
@@ -215,9 +207,7 @@ export function EntryInfo({
       }
 
       // Add available dates that match missing filter dates
-      const datesToAdd = availableDates.filter((availableDate) =>
-        missingFilterDates.some((date) => sameDay(date, availableDate.date, TIME_ZONE))
-      )
+      const datesToAdd = availableDates.filter((availableDate) => missingFilterDates.includes(availableDate.date))
 
       return datesToAdd.length ? [...currentDates, ...datesToAdd] : undefined
     },
@@ -238,7 +228,7 @@ export function EntryInfo({
     const validDates = getValidDates(changes.class)
 
     const validCurrentDates =
-      reg.dates?.filter((rd) => validDates.some((d) => sameDay(d.date, rd.date, TIME_ZONE) && d.time === rd.time)) ?? []
+      reg.dates?.filter((rd) => validDates.some((d) => d.date === rd.date && d.time === rd.time)) ?? []
 
     // Update dates if current selection is invalid
     if (!validCurrentDates.length || validCurrentDates.length !== reg.dates?.length) {
@@ -325,9 +315,9 @@ export function EntryInfo({
             helperText={t('registration.datesFilterInfo')}
             label={t('registration.datesFilter')}
             onChange={(_, value) => {
-              setFilterDates([...value].sort((a, b) => a.valueOf() - b.valueOf()))
+              setFilterDates([...value].sort((a, b) => a.localeCompare(b)))
             }}
-            isOptionEqualToValue={(o, v) => o.valueOf() === v.valueOf()}
+            isOptionEqualToValue={(o, v) => o === v}
             getOptionLabel={getRegDateLabel}
             options={dates}
             value={filterDates}
@@ -340,7 +330,7 @@ export function EntryInfo({
             helperText={t('registration.datesInfo')}
             label={t('registration.dates')}
             onChange={handleDatesAndTimesChange}
-            isOptionEqualToValue={(o, v) => o.date?.valueOf() === v.date?.valueOf() && o.time === v.time}
+            isOptionEqualToValue={(o, v) => o.date === v.date && o.time === v.time}
             getOptionLabel={getRegDateTimeLabel}
             options={datesAndTimes}
             value={selectedDates}

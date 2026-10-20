@@ -17,7 +17,7 @@ vi.mock('react-i18next', () => ({
 }))
 
 describe('DateHeader', () => {
-  const mockDate = new Date('2023-01-01')
+  const mockDate = '2023-01-01' as const
 
   it('renders date header correctly', () => {
     render(

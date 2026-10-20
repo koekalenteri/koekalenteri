@@ -1,3 +1,4 @@
+import type { DayKey } from '@/types'
 import { TZDate } from '@date-fns/tz'
 import { ThemeProvider } from '@mui/material/styles'
 import { MemoryRouter } from 'react-router'
@@ -16,7 +17,7 @@ const Frame = ({ children }: { readonly children: React.ReactNode }) => (
   </div>
 )
 
-const day = (iso: string) => new TZDate(iso, TIME_ZONE)
+const day = (iso: DayKey): DayKey => iso
 
 /**
  * The row has to hold still in two ways at once, and pinning the event's dates only gave one of
@@ -26,7 +27,7 @@ const day = (iso: string) => new TZDate(iso, TIME_ZONE)
  * invitations were out and started saying the trial was over. The test names its own today, so
  * neither the wording nor the pixels depend on the day it runs.
  */
-const TODAY = day('2026-09-02T12:00:00')
+const TODAY = new TZDate('2026-09-02T12:00:00', TIME_ZONE)
 
 beforeAll(() => {
   // Date alone. The screenshot matcher polls on real timers and MUI's transitions need them too, so

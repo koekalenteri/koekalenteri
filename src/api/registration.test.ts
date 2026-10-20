@@ -25,7 +25,7 @@ const mockRegistration: Registration = {
   class: 'AVO',
   createdAt: new Date(),
   createdBy: 'test-user',
-  dates: [{ date: new Date(), time: 'ap' }],
+  dates: [{ date: '2026-06-01', time: 'ap' }],
   dog: {
     regNo: 'test-reg',
     results: [],
@@ -332,7 +332,7 @@ test('getStartList reads the dogs and the placements of the rows (KOE-1546, KOE-
   // An instant from before the birth date was a day key is read as its Finnish day.
   expect(participants[0].dog.dob).toBe('2020-02-03')
   expect(participants[0].group).toEqual({
-    date: new Date('2026-09-11T21:00:00.000Z'),
+    date: '2026-09-12',
     key: '2026-09-12-ap',
     number: 1,
     time: 'ap',

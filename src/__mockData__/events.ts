@@ -1,14 +1,14 @@
 import type { ConfirmedEvent, DayKey } from '../types'
-import { addDays, dayEnd, dayOf, dayStart, TIME_ZONE } from '../lib/day'
+import { addDays, dayOf, TIME_ZONE } from '../lib/day'
 import { emptyEvent } from './emptyEvent'
 
 // "Today" is the Finnish day, as the app reads it, and the days around it are counted as Finnish days:
 // keyed by the UTC day the fixtures flipped at 00:00Z, and stepped by 24 hours they drifted an hour
 // across a change of time, onto the wrong Finnish day.
 const todayKey = dayOf(new Date(), TIME_ZONE)
-/** The Finnish midnight `days` days from today. */
-const day = (days: number) => dayStart(addDays(todayKey, days), TIME_ZONE)
-const parseDate = (iso: DayKey) => dayStart(iso, TIME_ZONE)
+/** The Finnish day `days` days from today. */
+const day = (days: number) => addDays(todayKey, days)
+const parseDate = (iso: DayKey) => iso
 const today = day(0)
 
 export const eventWithStaticDates: ConfirmedEvent = {
@@ -21,7 +21,7 @@ export const eventWithStaticDates: ConfirmedEvent = {
     { date: parseDate('2021-02-11'), time: 'ip' },
   ],
   endDate: parseDate('2021-02-11'),
-  entryEndDate: dayEnd('2021-02-07', TIME_ZONE),
+  entryEndDate: parseDate('2021-02-07'),
   entryStartDate: parseDate('2021-02-01'),
   eventType: 'NOU',
   id: 'test1',

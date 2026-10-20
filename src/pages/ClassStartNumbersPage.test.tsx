@@ -1,5 +1,5 @@
 import type { RouteObject } from 'react-router'
-import type { ClassStartNumbers } from '../types'
+import type { ClassStartNumbers, DayKey } from '../types'
 import { ThemeProvider } from '@mui/material'
 import { cleanup, screen, within } from '@testing-library/react'
 import { getClassStartNumbers, putClassStartNumbers } from '../api/startNumbers'
@@ -11,7 +11,7 @@ import AppSnackbarProvider from './components/AppSnackbarProvider'
 
 vi.mock('../api/startNumbers')
 
-const day = new Date('2026-09-12T12:00:00Z')
+const day: DayKey = '2026-09-12'
 
 /** ALO holds 1–2 of the working order; AVO's 3–4 are not this link's to see. */
 const entry = (): ClassStartNumbers => ({

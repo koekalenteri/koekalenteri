@@ -1,7 +1,6 @@
 import type { UserEvent } from '@testing-library/user-event/dist/types/setup/setup'
-import type { Registration } from '@/types'
+import type { ConfirmedEvent, Registration } from '@/types'
 import { screen, waitFor, within } from '@testing-library/react'
-import { addDays } from 'date-fns'
 import { TestProvider as Provider } from 'test-utils/AtomProvider'
 import {
   eventWithEntryOpen,
@@ -11,20 +10,20 @@ import {
 } from '@/__mockData__/events'
 import { registrationsToEventWithParticipantsInvited, registrationWithStaticDates } from '@/__mockData__/registrations'
 import { APIError } from '@/api/http'
-import { dayStartOf, TIME_ZONE } from '@/lib/day'
+import { addDays, dayOf, TIME_ZONE } from '@/lib/day'
 import { eventRegistrationDateKey } from '@/lib/event'
 import { finnishDayOf } from '@/test-utils/finnishDays'
 import { renderWithUserEvents, TEST_ID_TOKEN } from '@/test-utils/utils'
 import { adminEventsAtom } from '../../state'
 import InfoPanel from '../InfoPanel'
 
-const activeEventWithStaticDates = {
+const activeEventWithStaticDates: ConfirmedEvent = {
   ...eventWithStaticDates,
-  endDate: new Date('2099-12-31'),
+  endDate: '2099-12-31',
 }
-const _activeEventWithStaticDatesAndClass = {
+const _activeEventWithStaticDatesAndClass: ConfirmedEvent = {
   ...eventWithStaticDatesAndClass,
-  endDate: new Date('2099-12-31'),
+  endDate: '2099-12-31',
 }
 
 // Mock the API calls
@@ -142,8 +141,8 @@ describe('InfoPanel>', () => {
     // start list, and the results riding on it, unpublishable for good.
     const pastEvent = {
       ...eventWithParticipantsInvited,
-      endDate: addDays(new Date(), -30),
-      startDate: addDays(new Date(), -31),
+      endDate: addDays(dayOf(new Date(), TIME_ZONE), -30),
+      startDate: addDays(dayOf(new Date(), TIME_ZONE), -31),
       startListPublished: { ALO: false, AVO: false },
     }
     const onSetStartListPublished = vi.fn().mockResolvedValue(undefined)
@@ -389,7 +388,7 @@ describe('InfoPanel>', () => {
   it('publishes a two-day class one day at a time (KOE-1304)', async () => {
     const onSetStartNumbersPublished = vi.fn().mockResolvedValue(undefined)
     const [aloDay, avoDay] = eventWithParticipantsInvited.classes
-    const saturday = dayStartOf(aloDay.date, TIME_ZONE, 1)
+    const saturday = addDays(aloDay.date, 1)
     const wrapper = ({ children }: { children: React.ReactNode }) => (
       <Provider initializeState={({ set }) => set(adminEventsAtom, [eventWithParticipantsInvited])}>
         {children}

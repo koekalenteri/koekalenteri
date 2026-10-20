@@ -50,7 +50,7 @@ describe('ClassPlacesTable', () => {
     await flushPromises()
 
     // Verify handleChange was called with the correct class and value
-    expect(handleChange).toHaveBeenCalledWith(expect.objectContaining({ class: 'ALO', date: expect.any(Date) }), 15)
+    expect(handleChange).toHaveBeenCalledWith(expect.objectContaining({ class: 'ALO', date: '2021-02-10' }), 15)
   })
 
   it('should display the computed total, not an editable field', () => {

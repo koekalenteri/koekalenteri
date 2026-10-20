@@ -1,9 +1,7 @@
 import type { PaymentEvent } from './types'
-import { TZDate } from '@date-fns/tz'
 import { ThemeProvider } from '@mui/material/styles'
 import { render } from 'vitest-browser-react'
 import theme from '@/assets/Theme'
-import { TIME_ZONE } from '@/lib/day'
 import { freezeClockAt } from '@/test-utils/freezeClock'
 import PaymentSection from './PaymentSection'
 
@@ -30,7 +28,7 @@ const event: PaymentEvent = {
     normal: 35,
     optionalAdditionalCosts: [{ cost: 10, description: { fi: 'Ruokailu' } }],
   },
-  entryStartDate: new TZDate('2026-04-25', TIME_ZONE),
+  entryStartDate: '2026-04-25',
   paymentTime: 'registration',
 }
 

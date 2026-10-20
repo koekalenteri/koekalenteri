@@ -45,8 +45,9 @@ describe('eventsAtom storage', () => {
     // Refined before converting, `isStoredPublicDogEvent` would drop the event for its string dates
     // and invalidate the metadata on every load.
     expect(result.current).toHaveLength(1)
-    expect(result.current[0]?.startDate).toEqual(new Date(validEvent.startDate))
-    expect(result.current[0]?.classes[0]?.date).toEqual(new Date(validEvent.startDate))
+    // A calendar cached by the bundle before KOE-1547 holds instants: each is read as its Finnish day.
+    expect(result.current[0]?.startDate).toBe('2026-01-01')
+    expect(result.current[0]?.classes[0]?.date).toBe('2026-01-01')
     expect(result.current[0]?.description).toBe('2026-01-01')
     expect(setItem).not.toHaveBeenCalled()
     expect(localStorage.getItem(EVENT_METADATA_INVALIDATED_STORAGE_KEY)).toBeNull()
@@ -67,7 +68,7 @@ describe('eventsAtom storage', () => {
 
     expect(result.current).toHaveLength(1)
     expect(result.current[0]?.id).toBe('event-1')
-    expect(result.current[0]?.startDate).toBeInstanceOf(Date)
+    expect(result.current[0]?.startDate).toBe('2026-01-01')
     expect(localStorage.getItem('eventMetadata')).toBeNull()
     expect(JSON.parse(localStorage.getItem('events') ?? '[]')).toHaveLength(1)
   })

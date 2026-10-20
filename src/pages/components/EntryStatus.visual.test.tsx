@@ -18,7 +18,7 @@ it('shows the tentative, cancelled, and extended notes stacked', async () => {
     <Frame>
       <EntryStatus event={{ state: 'tentative' }} />
       <EntryStatus event={{ state: 'cancelled' }} />
-      <EntryStatus event={{ entryOrigEndDate: new Date('2026-06-01'), state: 'confirmed' }} />
+      <EntryStatus event={{ entryOrigEndDate: '2026-06-01', state: 'confirmed' }} />
     </Frame>
   )
 

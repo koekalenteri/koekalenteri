@@ -26,7 +26,7 @@ import TextField from '@mui/material/TextField'
 import { memo, useCallback, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useLocalState } from '@/hooks/useLocalState'
-import { addDays, dayEnd, dayOf, dayStart, daysBetween, eachDay, TIME_ZONE } from '@/lib/day'
+import { addDays, daysBetween, eachDay } from '@/lib/day'
 import {
   applySingleDayNowtGroups,
   defaultEntryEndDate,
@@ -111,7 +111,7 @@ function BasicInfoSection({
     false
   const helperText = error
     ? t('validation.event.errors')
-    : t('validation.event.effectiveRules', { date: new Date(getRuleDate(event.startDate)) })
+    : t('validation.event.effectiveRules', { date: getRuleDate(event.startDate) })
   const availableOfficials = useMemo(
     () =>
       officials?.filter(
@@ -126,37 +126,31 @@ function BasicInfoSection({
   // instead of showing "required" or an empty list (KOE-1473).
   const secretaryGuidance = !event.organizer?.id && !disabled ? t('event.secretaryRequiresOrganizer') : undefined
   const hasEntries = (event.entries ?? 0) > 0
-  // The event's days are Finnish days: counted and moved so, whatever zone the browser is in (KOE-1539).
-  // The range speaks days; the stored dates stay instants until they are stored as days (KOE-1547).
-  const eventStartDay = dayOf(event.startDate, TIME_ZONE)
-  const eventEndDay = dayOf(event.endDate, TIME_ZONE)
+  // The event's days are day keys (KOE-1547), counted and moved as days whatever zone the browser is in.
+  const eventStartDay = event.startDate
+  const eventEndDay = event.endDate
   const handleDateChange = useCallback(
     (start: DayValue, end: DayValue) => {
       // A cleared field keeps the day the event has.
-      const startDay = start ?? eventStartDay
-      let endDay = end ?? eventEndDay
-      const startDate = dayStart(startDay, TIME_ZONE)
-      // A picked end is stored as the end of its day; an end that follows a moved start as the start of
-      // its day, as it has been. The time of day settles when the dates become days (KOE-1544).
-      let endDate = dayEnd(endDay, TIME_ZONE)
+      const startDate = start ?? eventStartDay
+      let endDate = end ?? eventEndDay
 
       let { entryEndDate, entryStartDate } = event
 
-      if (startDay !== eventStartDay) {
-        if (endDay === eventEndDay) {
+      if (startDate !== eventStartDay) {
+        if (endDate === eventEndDay) {
           // startDate changed and endDate remained the same => keep the distance between the days
-          endDay = addDays(startDay, daysBetween(eventStartDay, eventEndDay))
-          endDate = dayStart(endDay, TIME_ZONE)
+          endDate = addDays(startDate, daysBetween(eventStartDay, eventEndDay))
         }
-        if (isDetaultEntryStartDate(entryStartDate, event.startDate)) {
+        if (isDetaultEntryStartDate(entryStartDate, eventStartDay)) {
           entryStartDate = defaultEntryStartDate(startDate)
         }
-        if (isDetaultEntryEndDate(entryEndDate, event.startDate)) {
+        if (isDetaultEntryEndDate(entryEndDate, eventStartDay)) {
           entryEndDate = defaultEntryEndDate(startDate)
         }
       }
       onChange?.({
-        classes: updateClassDates(event, startDay, endDay),
+        classes: updateClassDates(event, startDate, endDate),
         endDate,
         entryEndDate,
         entryStartDate,
@@ -439,14 +433,13 @@ function eventClassOptions(event: PartialEvent | undefined, typeClasses: Registr
   if (!event?.startDate || !event?.endDate) {
     return []
   }
-  const startDay = dayOf(event.startDate, TIME_ZONE)
-  const endDay = dayOf(event.endDate, TIME_ZONE)
+  const startDay = event.startDate
+  const endDay = event.endDate
   if (startDay > endDay) {
     return []
   }
   const result: EventClass[] = []
-  for (const day of eachDay(startDay, endDay)) {
-    const date = dayStart(day, TIME_ZONE)
+  for (const date of eachDay(startDay, endDay)) {
     result.push(
       ...typeClasses.map((c) => ({
         class: c,
@@ -459,12 +452,11 @@ function eventClassOptions(event: PartialEvent | undefined, typeClasses: Registr
 
 /** The classes moved along with the start, each the same number of days from it; a class past the end is dropped. */
 function updateClassDates(event: PartialEvent, startDay: DayKey, endDay: DayKey) {
-  const eventStartDay = dayOf(event.startDate, TIME_ZONE)
   const result: EventClass[] = []
   for (const c of event.classes) {
-    const day = addDays(startDay, daysBetween(eventStartDay, dayOf(c.date ?? event.startDate, TIME_ZONE)))
+    const day = addDays(startDay, daysBetween(event.startDate, c.date ?? event.startDate))
     if (day <= endDay) {
-      result.push({ ...c, date: dayStart(day, TIME_ZONE) })
+      result.push({ ...c, date: day })
     }
   }
   return result

@@ -10,10 +10,9 @@ import type {
 } from '@/types'
 import { eventWithStaticDates } from '@/__mockData__/events'
 import { registrationWithStaticDates } from '@/__mockData__/registrations'
-import { addDays } from '@/lib/day'
+import { addDays, dayOf, TIME_ZONE } from '@/lib/day'
 import { latestDobForAge } from '@/lib/dog'
 import { filterRelevantResults, objectContains } from '@/lib/qualification'
-import { startOfFinnishDay } from '@/test-utils/finnishDays'
 import { describeInTimeZone } from '@/test-utils/timeZone'
 import { validateDog, validateRegistration } from './validation'
 
@@ -31,26 +30,26 @@ const testDog: Dog = {
 describe('validation', () => {
   describe('validateDog', () => {
     it('should validate registration number', () => {
-      const testEvent = { eventType: 'NOU', startDate: new Date('2020-10-15') }
+      const testEvent = { eventType: 'NOU', startDate: '2020-10-15' as const }
       expect(validateDog(testEvent, { dog: testDog })).toEqual(false)
       expect(validateDog(testEvent, { dog: { ...testDog, regNo: '' } })).toEqual('required')
     })
 
     it('should validate identification number', () => {
-      const testEvent = { eventType: 'NOU', startDate: new Date('2020-10-15') }
+      const testEvent = { eventType: 'NOU', startDate: '2020-10-15' as const }
       expect(validateDog(testEvent, { dog: testDog })).toEqual(false)
       expect(validateDog(testEvent, { dog: { ...testDog, rfid: '' } })).toEqual('required')
       expect(validateDog(testEvent, { dog: { ...testDog, rfid: '   ' } })).toEqual('required')
     })
 
     it('should validate name', () => {
-      const testEvent = { eventType: 'NOU', startDate: new Date('2020-10-15') }
+      const testEvent = { eventType: 'NOU', startDate: '2020-10-15' as const }
       expect(validateDog(testEvent, { dog: testDog })).toEqual(false)
       expect(validateDog(testEvent, { dog: { ...testDog, name: '' } })).toEqual('required')
     })
 
     it.each(['dam', 'sire'] as const)('should reject a %s name containing only whitespace', (parent) => {
-      const testEvent = { eventType: 'NOU', startDate: new Date('2020-10-15') }
+      const testEvent = { eventType: 'NOU', startDate: '2020-10-15' as const }
       expect(
         validateDog(testEvent, {
           dog: { ...testDog, [parent]: { name: '   ' } },
@@ -61,7 +60,7 @@ describe('validation', () => {
     it.each<BreedCode>(['110', '111', '121', '122', '263', '312'])(
       'should allow breed %p for NOU event',
       (breedCode) => {
-        const testEvent = { eventType: 'NOU', startDate: new Date('2020-10-15') }
+        const testEvent = { eventType: 'NOU', startDate: '2020-10-15' as const }
         expect(validateDog(testEvent, { dog: { ...testDog, breedCode } })).toEqual(false)
       }
     )
@@ -69,7 +68,7 @@ describe('validation', () => {
     it.each<BreedCode | '' | undefined>(['1', '13', '148.1P', '', undefined])(
       'should not allow breed %p for NOU event',
       (testBreed) => {
-        const testEvent = { eventType: 'NOU', startDate: new Date('2020-10-15') }
+        const testEvent = { eventType: 'NOU', startDate: '2020-10-15' as const }
         const breedCode = testBreed || '0'
         expect(validateDog(testEvent, { dog: { ...testDog, breedCode } })).toEqual({
           key: 'dogBreed',
@@ -84,14 +83,14 @@ describe('validation', () => {
       ['2020-01-15', false],
       ['2010-01-01', false],
     ])('when event is at 2020-10-15 and dog dob is %p, should return %p', (dob, result) => {
-      const testEvent = { eventType: 'NOU', startDate: startOfFinnishDay('2020-10-15') }
+      const testEvent = { eventType: 'NOU', startDate: '2020-10-15' as const }
       expect(validateDog(testEvent, { dog: { ...testDog, dob } })).toEqual(result)
     })
 
-    // The birth date is a day key (KOE-1548); the trial's first day is its Finnish day in every zone.
+    // The birth date and the trial's first day are day keys (KOE-1548, KOE-1547), the same in every zone.
     describe.each(['Asia/Tokyo', 'America/New_York', 'Europe/Helsinki'])('the age limit (KOE-1556)', (zone) => {
       const tooYoung = { key: 'dogAge', opts: { field: 'dog', length: 9 } }
-      const nouOn = (day: DayKey) => ({ eventType: 'NOU', startDate: startOfFinnishDay(day) })
+      const nouOn = (day: DayKey) => ({ eventType: 'NOU', startDate: day })
 
       describeInTimeZone(zone, () => {
         it('counts a dog born 28.12.2025 as nine months old on a NOU trial on 28.9.2026', () => {
@@ -105,7 +104,7 @@ describe('validation', () => {
         })
 
         it('reads no birth day as no age limit failure where the type has none', () => {
-          const event = { eventType: 'NOME-B', startDate: startOfFinnishDay('2026-09-28') }
+          const event = { eventType: 'NOME-B', startDate: '2026-09-28' as const }
           expect(validateDog(event, { dog: { ...testDog, dob: undefined } })).toBe(false)
         })
 
@@ -157,7 +156,7 @@ describe('validation', () => {
         validateDog(
           {
             eventType,
-            startDate: new Date('2024-10-15'),
+            startDate: '2024-10-15' as const,
           },
           { dog: { ...testDog, kcId: 123, regNo } }
         )
@@ -169,7 +168,7 @@ describe('validation', () => {
         validateDog(
           {
             eventType,
-            startDate: new Date('2024-10-15'),
+            startDate: '2024-10-15' as const,
           },
           { dog: { ...testDog, kcId: 123, regNo: 'KCSB4027CU' } }
         )
@@ -180,12 +179,12 @@ describe('validation', () => {
       describe('NOU', () => {
         it('Should allow a dog with no results', () => {
           expect(
-            filterRelevantResults({ eventType: 'NOU', startDate: new Date('2022-08-01') }, undefined, []).qualifies
+            filterRelevantResults({ eventType: 'NOU', startDate: '2022-08-01' as const }, undefined, []).qualifies
           ).toEqual(true)
         })
 
         it('Should reject a dog with ALO result from NOME-B', () => {
-          const testEvent = { eventType: 'NOU', startDate: new Date('2022-08-01') }
+          const testEvent = { eventType: 'NOU', startDate: '2022-08-01' as const }
           const ALO1: TestResult = {
             class: 'ALO',
             date: '2022-05-30',
@@ -199,7 +198,7 @@ describe('validation', () => {
         })
 
         it('Should reject a dog with AVO result from NOME-B', () => {
-          const testEvent = { eventType: 'NOU', startDate: new Date('2022-08-01') }
+          const testEvent = { eventType: 'NOU', startDate: '2022-08-01' as const }
           const AVO1: TestResult = {
             class: 'AVO',
             date: '2022-05-30',
@@ -213,7 +212,7 @@ describe('validation', () => {
         })
 
         it('Should reject a dog with VOI result from NOME-B', () => {
-          const testEvent = { eventType: 'NOU', startDate: new Date('2022-08-01') }
+          const testEvent = { eventType: 'NOU', startDate: '2022-08-01' as const }
           const VOI1: TestResult = {
             class: 'VOI',
             date: '2022-05-30',
@@ -229,7 +228,7 @@ describe('validation', () => {
 
       describe('NOME-B - ALO', () => {
         it('Should allow a dog with NOU1', () => {
-          const testEvent = { eventType: 'NOME-B', startDate: new Date('2022-08-01') }
+          const testEvent = { eventType: 'NOME-B', startDate: '2022-08-01' as const }
           const NOU1: TestResult = {
             class: '',
             date: '2022-05-30',
@@ -242,7 +241,7 @@ describe('validation', () => {
         })
 
         it('Should reject a dog with NOU0', () => {
-          const testEvent = { eventType: 'NOME-B', startDate: new Date('2022-08-01') }
+          const testEvent = { eventType: 'NOME-B', startDate: '2022-08-01' as const }
           const NOU0: TestResult = {
             class: '',
             date: '2022-05-30',
@@ -255,7 +254,7 @@ describe('validation', () => {
         })
 
         it('Should allow a dog with 2xALO1 the same year 2016..2022', () => {
-          const testEvent = { eventType: 'NOME-B', startDate: new Date('2018-08-01') }
+          const testEvent = { eventType: 'NOME-B', startDate: '2018-08-01' as const }
           const NOU1: TestResult = {
             class: '',
             date: '2015-05-30',
@@ -284,7 +283,7 @@ describe('validation', () => {
         })
 
         it('Should reject a dog with 2xALO1 the next year 2016..2022', () => {
-          const testEvent = { eventType: 'NOME-B', startDate: new Date('2019-08-01') }
+          const testEvent = { eventType: 'NOME-B', startDate: '2019-08-01' as const }
           const NOU1: TestResult = {
             class: '',
             date: '2022-05-30',
@@ -313,7 +312,7 @@ describe('validation', () => {
         })
 
         it('Should reject a dog with any AVO result', () => {
-          const testEvent = { eventType: 'NOME-B', startDate: new Date('2022-08-01') }
+          const testEvent = { eventType: 'NOME-B', startDate: '2022-08-01' as const }
           const NOU1: TestResult = {
             class: '',
             date: '2022-05-30',
@@ -334,7 +333,7 @@ describe('validation', () => {
         })
 
         it('Should change result.qualifying from false to undefined when manual results are updated back and forth', () => {
-          const testEvent = { eventType: 'NOME-B', startDate: new Date('2018-08-01') }
+          const testEvent = { eventType: 'NOME-B', startDate: '2018-08-01' as const }
           const NOU1: TestResult = {
             class: '',
             date: '2015-05-30',
@@ -377,7 +376,7 @@ describe('validation', () => {
 
       describe('NOME-B - AVO', () => {
         it('Should allow a dog with 2xALO1 2016..2022', () => {
-          const testEvent = { eventType: 'NOME-B', startDate: new Date('2022-08-01') }
+          const testEvent = { eventType: 'NOME-B', startDate: '2022-08-01' as const }
           const ALO1_1: TestResult = {
             class: 'ALO',
             date: '2016-05-30',
@@ -398,7 +397,7 @@ describe('validation', () => {
         })
 
         it('Should allow two qualifying results on the same day', () => {
-          const testEvent = { eventType: 'NOME-B', startDate: new Date('2022-08-01') }
+          const testEvent = { eventType: 'NOME-B', startDate: '2022-08-01' as const }
           const ALO1_1: TestResult = {
             class: 'ALO',
             date: '2016-05-30',
@@ -420,7 +419,7 @@ describe('validation', () => {
         })
 
         it('Should reject a dog with only 1xALO1 2016..2022', () => {
-          const testEvent = { eventType: 'NOME-B', startDate: new Date('2022-08-01') }
+          const testEvent = { eventType: 'NOME-B', startDate: '2022-08-01' as const }
           const ALO2: TestResult = {
             class: 'ALO',
             date: '2016-05-30',
@@ -442,7 +441,7 @@ describe('validation', () => {
         })
 
         it('Should allow a dog with 2xAVO1 the same year 2016..2022', () => {
-          const testEvent = { eventType: 'NOME-B', startDate: new Date('2018-08-01') }
+          const testEvent = { eventType: 'NOME-B', startDate: '2018-08-01' as const }
           const ALO1_1: TestResult = {
             class: 'ALO',
             date: '2016-05-30',
@@ -479,7 +478,7 @@ describe('validation', () => {
         })
 
         it('Should reject a dog with 2xAVO1 the next year 2016..2022', () => {
-          const testEvent = { eventType: 'NOME-B', startDate: new Date('2019-08-01') }
+          const testEvent = { eventType: 'NOME-B', startDate: '2019-08-01' as const }
           const ALO1_1: TestResult = {
             class: 'ALO',
             date: '2016-05-30',
@@ -516,7 +515,7 @@ describe('validation', () => {
         })
 
         it('Should reject a dog with any VOI result', () => {
-          const testEvent = { eventType: 'NOME-B', startDate: new Date('2022-08-01') }
+          const testEvent = { eventType: 'NOME-B', startDate: '2022-08-01' as const }
           const ALO1_1: TestResult = {
             class: 'ALO',
             date: '2016-05-30',
@@ -545,7 +544,7 @@ describe('validation', () => {
         })
 
         it('Should allow a dog with only VOI1 result', () => {
-          const testEvent = { eventType: 'NOME-B', startDate: new Date('2022-08-01') }
+          const testEvent = { eventType: 'NOME-B', startDate: '2022-08-01' as const }
           const VOI1: TestResult = {
             class: 'VOI',
             date: '2022-06-15',
@@ -559,7 +558,7 @@ describe('validation', () => {
         })
 
         it('Should include same-class result in relevant qualifying results', () => {
-          const testEvent = { eventType: 'NOME-B', startDate: new Date('2022-08-01') }
+          const testEvent = { eventType: 'NOME-B', startDate: '2022-08-01' as const }
           const VOI2: TestResult = {
             class: 'VOI',
             date: '2022-06-15',
@@ -573,7 +572,7 @@ describe('validation', () => {
         })
 
         it('Should allow a dog with only an AVO0 result to enter AVO (KOE-688)', () => {
-          const testEvent = { eventType: 'NOME-B', startDate: new Date('2024-08-01') }
+          const testEvent = { eventType: 'NOME-B', startDate: '2024-08-01' as const }
           const AVO0: TestResult = {
             class: 'AVO',
             date: '2023-06-15',
@@ -595,7 +594,7 @@ describe('validation', () => {
         })
 
         it('Should allow a dog with 1xALO1 2009..2015', () => {
-          const testEvent = { eventType: 'NOME-B', startDate: new Date('2015-06-01') }
+          const testEvent = { eventType: 'NOME-B', startDate: '2015-06-01' as const }
           const ALO1: TestResult = {
             class: 'ALO',
             date: '2014-05-30',
@@ -608,7 +607,7 @@ describe('validation', () => {
         })
 
         it('Should allow a dog with 1xALO1 2005..2008', () => {
-          const testEvent = { eventType: 'NOME-B', startDate: new Date('2008-06-01') }
+          const testEvent = { eventType: 'NOME-B', startDate: '2008-06-01' as const }
           const ALO1: TestResult = {
             class: 'ALO',
             date: '2007-07-12',
@@ -623,7 +622,7 @@ describe('validation', () => {
 
       describe('NOME-B - VOI', () => {
         it('Should allow a dog with 2xAVO1 2016..2022', () => {
-          const testEvent = { eventType: 'NOME-B', startDate: new Date('2022-06-01') }
+          const testEvent = { eventType: 'NOME-B', startDate: '2022-06-01' as const }
           const AVO1_1: TestResult = {
             class: 'AVO',
             date: '2016-05-30',
@@ -647,7 +646,7 @@ describe('validation', () => {
         })
 
         it('Should reject a dog with only 1xAVO1 2016..2022', () => {
-          const testEvent = { eventType: 'NOME-B', startDate: new Date('2022-08-01') }
+          const testEvent = { eventType: 'NOME-B', startDate: '2022-08-01' as const }
           const AVO2: TestResult = {
             class: 'AVO',
             date: '2016-05-30',
@@ -669,7 +668,7 @@ describe('validation', () => {
         })
 
         it('Should allow a dog with 1xAVO1 2006..2008', () => {
-          const testEvent = { eventType: 'NOME-B', startDate: new Date('2007-08-01') }
+          const testEvent = { eventType: 'NOME-B', startDate: '2007-08-01' as const }
           const AVO2: TestResult = {
             class: 'AVO',
             date: '2006-05-30',
@@ -693,7 +692,7 @@ describe('validation', () => {
 
       describe('NOWT - ALO', () => {
         it('Should allow a dog with NOU1', () => {
-          const testEvent = { eventType: 'NOWT', startDate: new Date('2022-08-01') }
+          const testEvent = { eventType: 'NOWT', startDate: '2022-08-01' as const }
           const NOU1: TestResult = {
             class: '',
             date: '2022-05-30',
@@ -707,7 +706,7 @@ describe('validation', () => {
         })
 
         it('Should reject a dog with NOU0', () => {
-          const testEvent = { eventType: 'NOWT', startDate: new Date('2022-08-01') }
+          const testEvent = { eventType: 'NOWT', startDate: '2022-08-01' as const }
           const NOU0: TestResult = {
             class: '',
             date: '2022-05-30',
@@ -721,7 +720,7 @@ describe('validation', () => {
         })
 
         it('Should allow a dog with ALO1 the same year 2016..2022', () => {
-          const testEvent = { eventType: 'NOWT', startDate: new Date('2018-08-01') }
+          const testEvent = { eventType: 'NOWT', startDate: '2018-08-01' as const }
           const NOU1: TestResult = {
             class: '',
             date: '2022-05-30',
@@ -743,7 +742,7 @@ describe('validation', () => {
         })
 
         it('Should reject a dog with ALO1 the next year 2016..2022', () => {
-          const testEvent = { eventType: 'NOWT', startDate: new Date('2019-08-01') }
+          const testEvent = { eventType: 'NOWT', startDate: '2019-08-01' as const }
           const NOU1: TestResult = {
             class: '',
             date: '2022-05-30',
@@ -765,7 +764,7 @@ describe('validation', () => {
         })
 
         it('Should reject a dog with any AVO result', () => {
-          const testEvent = { eventType: 'NOWT', startDate: new Date('2022-08-01') }
+          const testEvent = { eventType: 'NOWT', startDate: '2022-08-01' as const }
           const NOU1: TestResult = {
             class: '',
             date: '2022-05-30',
@@ -789,7 +788,7 @@ describe('validation', () => {
 
       describe('NOWT - AVO', () => {
         it('Should allow a dog with 1xALO1', () => {
-          const testEvent = { eventType: 'NOWT', startDate: new Date('2022-08-01') }
+          const testEvent = { eventType: 'NOWT', startDate: '2022-08-01' as const }
           const ALO1_1: TestResult = {
             class: 'ALO',
             date: '2016-05-30',
@@ -813,7 +812,7 @@ describe('validation', () => {
         })
 
         it('Should reject a dog with no ALO1', () => {
-          const testEvent = { eventType: 'NOWT', startDate: new Date('2022-08-01') }
+          const testEvent = { eventType: 'NOWT', startDate: '2022-08-01' as const }
           const ALO2: TestResult = {
             class: 'ALO',
             date: '2016-05-30',
@@ -827,7 +826,7 @@ describe('validation', () => {
         })
 
         it('Should allow a dog with AVO1 the same year', () => {
-          const testEvent = { eventType: 'NOWT', startDate: new Date('2018-08-01') }
+          const testEvent = { eventType: 'NOWT', startDate: '2018-08-01' as const }
           const ALO1: TestResult = {
             class: 'ALO',
             date: '2016-05-30',
@@ -848,7 +847,7 @@ describe('validation', () => {
         })
 
         it('Should reject a dog with 2xAVO1 the next year', () => {
-          const testEvent = { eventType: 'NOWT', startDate: new Date('2019-08-01') }
+          const testEvent = { eventType: 'NOWT', startDate: '2019-08-01' as const }
           const ALO1: TestResult = {
             class: 'ALO',
             date: '2016-05-30',
@@ -869,7 +868,7 @@ describe('validation', () => {
         })
 
         it('Should reject a dog with any VOI result', () => {
-          const testEvent = { eventType: 'NOWT', startDate: new Date('2022-08-01') }
+          const testEvent = { eventType: 'NOWT', startDate: '2022-08-01' as const }
           const ALO1: TestResult = {
             class: 'ALO',
             date: '2016-05-30',
@@ -892,7 +891,7 @@ describe('validation', () => {
 
       describe('NOWT - VOI', () => {
         it('Should allow a dog with AVO1', () => {
-          const testEvent = { eventType: 'NOWT', startDate: new Date('2022-06-01') }
+          const testEvent = { eventType: 'NOWT', startDate: '2022-06-01' as const }
           const AVO1: TestResult = {
             class: 'AVO',
             date: '2016-05-30',
@@ -905,7 +904,7 @@ describe('validation', () => {
         })
 
         it('Should reject a dog with no AVO1', () => {
-          const testEvent = { eventType: 'NOWT', startDate: new Date('2022-08-01') }
+          const testEvent = { eventType: 'NOWT', startDate: '2022-08-01' as const }
           const AVO2: TestResult = {
             class: 'AVO',
             date: '2016-05-30',
@@ -918,7 +917,7 @@ describe('validation', () => {
         })
 
         it('Should allow a dog with only VOI1 result', () => {
-          const testEvent = { eventType: 'NOWT', startDate: new Date('2022-08-01') }
+          const testEvent = { eventType: 'NOWT', startDate: '2022-08-01' as const }
           const VOI1: TestResult = {
             class: 'VOI',
             date: '2022-06-15',
@@ -932,7 +931,7 @@ describe('validation', () => {
         })
 
         it('Should include same-class result in relevant qualifying results', () => {
-          const testEvent = { eventType: 'NOWT', startDate: new Date('2022-08-01') }
+          const testEvent = { eventType: 'NOWT', startDate: '2022-08-01' as const }
           const VOI0: TestResult = {
             class: 'VOI',
             date: '2022-06-15',
@@ -948,7 +947,7 @@ describe('validation', () => {
 
       describe('NOME-A', () => {
         it('Should allow a dog with 2x NOME-B AVO1', () => {
-          const testEvent = { eventType: 'NOME-A', startDate: new Date('2022-06-01') }
+          const testEvent = { eventType: 'NOME-A', startDate: '2022-06-01' as const }
           const AVO1_1: TestResult = {
             class: 'AVO',
             date: '2016-05-30',
@@ -969,7 +968,7 @@ describe('validation', () => {
         })
 
         it('Should allow a dog with 2x NOWT AVO1', () => {
-          const testEvent = { eventType: 'NOME-A', startDate: new Date('2022-06-01') }
+          const testEvent = { eventType: 'NOME-A', startDate: '2022-06-01' as const }
           const AVO1_1: TestResult = {
             class: 'AVO',
             date: '2016-05-30',
@@ -990,7 +989,7 @@ describe('validation', () => {
         })
 
         it('Should allow a dog rewarded in international field trial', () => {
-          const testEvent = { eventType: 'NOME-A', startDate: new Date('2023-04-15') }
+          const testEvent = { eventType: 'NOME-A', startDate: '2023-04-15' as const }
           const kvResult: TestResult = {
             class: '',
             date: '2023-03-01',
@@ -1006,7 +1005,7 @@ describe('validation', () => {
 
       describe('NKM', () => {
         it('Should allow a dog with 2x NOME-B VOI1', () => {
-          const testEvent = { eventType: 'NKM', startDate: new Date('2022-08-20') }
+          const testEvent = { eventType: 'NKM', startDate: '2022-08-20' as const }
           const VOI1_1: TestResult = {
             class: 'VOI',
             date: '2016-05-30',
@@ -1027,7 +1026,7 @@ describe('validation', () => {
         })
 
         it('Should allow a dog with 2x CERT from NOWT', () => {
-          const testEvent = { eventType: 'NKM', startDate: new Date('2022-08-20') }
+          const testEvent = { eventType: 'NKM', startDate: '2022-08-20' as const }
           const VOI1_1: TestResult = {
             cert: true,
             class: 'VOI',
@@ -1050,7 +1049,7 @@ describe('validation', () => {
         })
 
         it('Should reject a dog with only 1x NOME-B VOI1 + 1x CERT from NOWT', () => {
-          const testEvent = { eventType: 'NKM', startDate: new Date('2022-08-20') }
+          const testEvent = { eventType: 'NKM', startDate: '2022-08-20' as const }
           const RES1: TestResult = {
             class: 'VOI',
             date: '2016-05-30',
@@ -1072,7 +1071,7 @@ describe('validation', () => {
         })
 
         it('Should reject a dog with only 1x CERT from NOWT', () => {
-          const testEvent = { eventType: 'NKM', startDate: new Date('2022-08-20') }
+          const testEvent = { eventType: 'NKM', startDate: '2022-08-20' as const }
           const VOI1_1: TestResult = {
             cert: false,
             class: 'VOI',
@@ -1098,10 +1097,10 @@ describe('validation', () => {
       describe('NOME-A SM', () => {
         it('Should include relevant results', () => {
           const testEvent = {
-            entryEndDate: new Date('2022-05-20'),
-            entryOrigEndDate: new Date('2022-04-20'),
+            entryEndDate: '2022-05-20' as const,
+            entryOrigEndDate: '2022-04-20' as const,
             eventType: 'NOME-A SM',
-            startDate: new Date('2022-06-01'),
+            startDate: '2022-06-01' as const,
           }
 
           const OLD_A1: TestResult = {
@@ -1166,13 +1165,13 @@ describe('validation', () => {
       ...eventWithStaticDates,
       classes: [],
       eventType: 'NOU',
-      startDate: new Date('2020-10-15'),
+      startDate: '2020-10-15' as const,
     }
 
     const regWithOwnerNamed = (name: string): Registration => ({
       ...registrationWithStaticDates,
       agreeToTerms: true,
-      dates: [{ date: new Date('2020-10-15'), time: 'ap' }],
+      dates: [{ date: '2020-10-15', time: 'ap' }],
       dog: testDog,
       ownerHandles: 'owner-1',
       ownerPays: 'owner-1',
@@ -1218,7 +1217,7 @@ describe('validation', () => {
         ...eventWithStaticDates,
         classes: [],
         eventType: 'NOU',
-        startDate: new Date('2020-10-15'),
+        startDate: '2020-10-15' as const,
       }
 
       const mockReg: Registration = {
@@ -1226,7 +1225,7 @@ describe('validation', () => {
         agreeToTerms: false,
         createdAt: new Date(),
         createdBy: 'user1',
-        dates: [{ date: new Date('2020-10-15'), time: 'ap' }],
+        dates: [{ date: '2020-10-15', time: 'ap' }],
         deletedAt: undefined,
         deletedBy: undefined,
         dog: testDog,
@@ -1254,9 +1253,9 @@ describe('validation', () => {
     it('should collect all validation errors', () => {
       const mockEvent: PublicConfirmedEvent = {
         ...eventWithStaticDates,
-        classes: [{ class: 'ALO', date: new Date('2020-10-15') }],
+        classes: [{ class: 'ALO', date: '2020-10-15' }],
         eventType: 'NOU',
-        startDate: new Date('2020-10-15'),
+        startDate: '2020-10-15' as const,
       }
 
       const mockReg: Registration = {
@@ -1285,13 +1284,13 @@ describe('validation', () => {
         ...eventWithStaticDates,
         classes: [],
         eventType: 'NOU',
-        startDate: new Date('2020-10-15'),
+        startDate: '2020-10-15' as const,
       }
 
       const mockReg: Registration = {
         ...registrationWithStaticDates,
         agreeToTerms: true,
-        dates: [{ date: new Date('2020-10-15'), time: 'ap' }],
+        dates: [{ date: '2020-10-15', time: 'ap' }],
         dog: testDog,
         owner: {
           email: 'owner@example.com',
@@ -1345,7 +1344,11 @@ describe('validation', () => {
   describe('validateBreeder', () => {
     // We need to test the validateBreeder function indirectly through VALIDATORS.breeder
     it('should validate breeder correctly', () => {
-      const mockEvent: PublicConfirmedEvent = { ...eventWithStaticDates, eventType: 'NOU', startDate: new Date() }
+      const mockEvent: PublicConfirmedEvent = {
+        ...eventWithStaticDates,
+        eventType: 'NOU',
+        startDate: dayOf(new Date(), TIME_ZONE),
+      }
 
       // Test with undefined breeder. The type requires a breeder, but legacy records may lack one,
       // and the key must stay present for validateRegistration to visit the field.
@@ -1366,7 +1369,7 @@ describe('validation', () => {
         ...registrationWithStaticDates,
         agreeToTerms: true,
         breeder: { name: 'Test Breeder' },
-        dates: [{ date: new Date('2020-10-15'), time: 'ap' }],
+        dates: [{ date: '2020-10-15', time: 'ap' }],
         dog: testDog,
         owner: { email: 'owner@example.com', membership: false, name: 'Owner' },
         ownerHandles: true,
@@ -1385,7 +1388,11 @@ describe('validation', () => {
     })
 
     it('should validate handler correctly', () => {
-      const mockEvent: PublicConfirmedEvent = { ...eventWithStaticDates, eventType: 'NOU', startDate: new Date() }
+      const mockEvent: PublicConfirmedEvent = {
+        ...eventWithStaticDates,
+        eventType: 'NOU',
+        startDate: dayOf(new Date(), TIME_ZONE),
+      }
 
       const owner = {
         email: 'owner@example.com',
@@ -1452,7 +1459,11 @@ describe('validation', () => {
     })
 
     it('should validate payer correctly', () => {
-      const mockEvent: PublicConfirmedEvent = { ...eventWithStaticDates, eventType: 'NOU', startDate: new Date() }
+      const mockEvent: PublicConfirmedEvent = {
+        ...eventWithStaticDates,
+        eventType: 'NOU',
+        startDate: dayOf(new Date(), TIME_ZONE),
+      }
 
       const owner = {
         email: 'owner@example.com',
@@ -1492,7 +1503,11 @@ describe('validation', () => {
     })
 
     describe('owner contact details (KOE-1351)', () => {
-      const mockEvent: PublicConfirmedEvent = { ...eventWithStaticDates, eventType: 'NOU', startDate: new Date() }
+      const mockEvent: PublicConfirmedEvent = {
+        ...eventWithStaticDates,
+        eventType: 'NOU',
+        startDate: dayOf(new Date(), TIME_ZONE),
+      }
       const fullOwner = {
         email: 'owner@example.com',
         key: 'owner-1',
@@ -1583,7 +1598,11 @@ describe('validation', () => {
     })
 
     it('should validate id, notes, results, and optionalCosts fields', () => {
-      const mockEvent: PublicConfirmedEvent = { ...eventWithStaticDates, eventType: 'NOU', startDate: new Date() }
+      const mockEvent: PublicConfirmedEvent = {
+        ...eventWithStaticDates,
+        eventType: 'NOU',
+        startDate: dayOf(new Date(), TIME_ZONE),
+      }
 
       // These validators always return false, so they should not produce errors
       const reg: Registration = {
@@ -1604,7 +1623,11 @@ describe('validation', () => {
 
   describe('validateRegistrationField edge cases', () => {
     it('should handle default validator for unknown fields', () => {
-      const mockEvent: PublicConfirmedEvent = { ...eventWithStaticDates, eventType: 'NOU', startDate: new Date() }
+      const mockEvent: PublicConfirmedEvent = {
+        ...eventWithStaticDates,
+        eventType: 'NOU',
+        startDate: dayOf(new Date(), TIME_ZONE),
+      }
 
       // Test with a field that doesn't exist in VALIDATORS. The fields under test cannot exist on
       // Registration by definition, so this is a deliberate boundary conversion.

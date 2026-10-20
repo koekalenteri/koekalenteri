@@ -6,7 +6,7 @@ import type {
   QualifyingResults,
   TestResult,
 } from './types'
-import { addDays, addMonths, dayEnd, dayOf, dayStart, TIME_ZONE } from './lib/day'
+import { addDays, addMonths, dayOf, TIME_ZONE } from './lib/day'
 import { nomeBChQualificationStartDay } from './lib/registration'
 
 /** A ranking period as the Finnish days it is made of, both included. */
@@ -16,6 +16,9 @@ interface RankingDays {
 }
 
 type ChampionshipResult = TestResult | ManualTestResult
+
+/** The Finnish day it is now: a ranking period without an entry end closes today. */
+const today = () => dayOf(new Date(), TIME_ZONE)
 
 /** A result with the day it counts for: its own day key (KOE-1548). */
 interface DatedResult {
@@ -71,32 +74,32 @@ const getRelevantRankingResults = ({
     .slice(0, maxResults)
     .map(({ official, points, result }) => toQualifyingResult(result, official, points))
 
-/** The period's bounds as the instants the form shows: the start of its first day and the end of its last. */
+/** The period's bounds as the form shows them: its first day and its last. */
 const toResultDates = (days: RankingDays) => ({
-  maxResultDate: dayEnd(days.last, TIME_ZONE),
-  minResultDate: dayStart(days.first, TIME_ZONE),
+  maxResultDate: days.last,
+  minResultDate: days.first,
 })
 
 /** The ranking period that closes with the entry: from the day after the same day `years` back. */
-const yearsBeforeEntryEnd = (entryEndDate: Date, years: number): RankingDays => {
-  const last = dayOf(entryEndDate, TIME_ZONE)
+const yearsBeforeEntryEnd = (entryEndDate: DayKey, years: number): RankingDays => {
+  const last = entryEndDate
 
   return { first: addDays(addMonths(last, -12 * years), 1), last }
 }
 
-const getNOME_B_CH_RankingDays = (entryEndDate: Date, qualificationStartDate?: Date): RankingDays => ({
+const getNOME_B_CH_RankingDays = (entryEndDate: DayKey, qualificationStartDate?: DayKey): RankingDays => ({
   first: nomeBChQualificationStartDay(qualificationStartDate),
-  last: dayOf(entryEndDate, TIME_ZONE),
+  last: entryEndDate,
 })
 
-const getNOME_A_CH_RankingDays = (entryEndDate: Date) => yearsBeforeEntryEnd(entryEndDate, 2)
+const getNOME_A_CH_RankingDays = (entryEndDate: DayKey) => yearsBeforeEntryEnd(entryEndDate, 2)
 
-const getNOWT_CH_RankingDays = (entryEndDate: Date) => yearsBeforeEntryEnd(entryEndDate, 1)
+const getNOWT_CH_RankingDays = (entryEndDate: DayKey) => yearsBeforeEntryEnd(entryEndDate, 1)
 
 export const getRankingPeriod = (
   eventType: string,
-  entryEndDate: Date | undefined,
-  qualificationStartDate: Date | undefined
+  entryEndDate: DayKey | undefined,
+  qualificationStartDate: DayKey | undefined
 ) => {
   if (!entryEndDate) return
 
@@ -117,7 +120,7 @@ export const NOME_B_CH_requirements: EventResultRequirementFn = (
   qualificationStartDate
 ): QualifyingResults => {
   const maxResults = 5
-  const days = getNOME_B_CH_RankingDays(entryEndDate ?? new Date(), qualificationStartDate)
+  const days = getNOME_B_CH_RankingDays(entryEndDate ?? today(), qualificationStartDate)
 
   const resultFilter = (r: ChampionshipResult, inPeriod: boolean) =>
     r.type === 'NOME-B' &&
@@ -181,7 +184,7 @@ export const NOME_A_CH_requirements: EventResultRequirementFn = (
    * jotka on saatu kokeen ilmoittautumisajan päättymistä edeltävän kahden vuoden aikana.
    */
   const maxResults = 5
-  const days = getNOME_A_CH_RankingDays(entryEndDate ?? new Date())
+  const days = getNOME_A_CH_RankingDays(entryEndDate ?? today())
 
   const resultFilter = (result: ChampionshipResult, inPeriod: boolean) =>
     ['NOME-A', 'NOME-A KV'].includes(result.type) &&
@@ -252,7 +255,7 @@ export const NOWT_CH_requirements: EventResultRequirementFn = (
    */
 
   const maxResults = 5
-  const days = getNOWT_CH_RankingDays(entryEndDate ?? new Date())
+  const days = getNOWT_CH_RankingDays(entryEndDate ?? today())
 
   const isNOWTChampionTitle = (result: ChampionshipResult) =>
     result.type === 'NOWT' && result.class === 'VOI' && result.result === 'FI KVA-WT'

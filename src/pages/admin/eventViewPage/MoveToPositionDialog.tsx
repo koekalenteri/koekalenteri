@@ -1,4 +1,4 @@
-import type { Registration, RegistrationGroup } from '@/types'
+import type { DayKey, Registration, RegistrationGroup } from '@/types'
 import Button from '@mui/material/Button'
 import Dialog from '@mui/material/Dialog'
 import DialogActions from '@mui/material/DialogActions'
@@ -16,7 +16,7 @@ import { isStarter } from '@/lib/registration'
 
 /** A day a reserve dog can be placed on; the dialog labels it the way the group dialog does. */
 interface MoveToPositionDayOption {
-  date: Date
+  date: DayKey
   key: string
   time?: NonNullable<RegistrationGroup['time']>
 }

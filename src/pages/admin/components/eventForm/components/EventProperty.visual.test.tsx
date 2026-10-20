@@ -18,11 +18,11 @@ const testEvent: PartialEvent = {
   classes: [],
   createdAt: new Date(),
   createdBy: 'test',
-  endDate: new Date(),
+  endDate: '2026-06-01',
   judges: [],
   modifiedAt: new Date(),
   name: 'Syyskoe',
-  startDate: new Date(),
+  startDate: '2026-06-01',
 }
 
 const requireName: FieldRequirements = { required: { name: true }, state: {} }

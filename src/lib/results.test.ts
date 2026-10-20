@@ -609,8 +609,8 @@ describe('per-post entry', () => {
 })
 
 describe('placementsFor', () => {
-  const day1 = new Date('2026-08-01T05:00:00Z')
-  const day2 = new Date('2026-08-02T05:00:00Z')
+  const day1 = '2026-08-01'
+  const day2 = '2026-08-02'
 
   type Row = Parameters<typeof placementsFor>[0][number]
   const dog = (
@@ -680,7 +680,7 @@ describe('placementsFor', () => {
   it('ranks a time of day on the same date together', () => {
     const placements = placementsFor([
       dog('a', 'ALO1', 90),
-      dog('b', 'ALO1', 85, { group: { date: new Date('2026-08-01T15:00:00Z'), key: 'participants', number: 2 } }),
+      dog('b', 'ALO1', 85, { group: { date: '2026-08-01', key: 'participants', number: 2 } }),
     ])
     expect(Object.fromEntries(placements)).toEqual({ a: 1, b: 2 })
   })
@@ -701,7 +701,7 @@ describe('placementsFor', () => {
     it('keeps a bare day string on the day it names, with an instant of that day', () => {
       const placements = placementsFor([
         dog('a', 'ALO1', 90, { group: { date: '2026-08-01', key: 'participants', number: 1 } }),
-        dog('b', 'ALO1', 85, { group: { date: new Date('2026-08-01T10:00:00Z'), key: 'participants', number: 2 } }),
+        dog('b', 'ALO1', 85, { group: { date: '2026-08-01', key: 'participants', number: 2 } }),
       ])
       expect(Object.fromEntries(placements)).toEqual({ a: 1, b: 2 })
     })
@@ -710,7 +710,7 @@ describe('placementsFor', () => {
   it('ranks a bare date string and an ISO instant of the same day together', () => {
     const placements = placementsFor([
       dog('a', 'ALO1', 90, { group: { date: '2026-08-01', key: 'participants', number: 1 } }),
-      dog('b', 'ALO1', 85, { group: { date: new Date('2026-08-01T10:00:00Z'), key: 'participants', number: 2 } }),
+      dog('b', 'ALO1', 85, { group: { date: '2026-08-01', key: 'participants', number: 2 } }),
     ])
     expect(Object.fromEntries(placements)).toEqual({ a: 1, b: 2 })
   })

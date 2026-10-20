@@ -103,7 +103,7 @@ export function validateRegistration(
 }
 
 /** The minimum age the dog falls short of, in months; a dog with no birth day falls short of it. */
-const validateDogAge = (event: { eventType: string; startDate: Date }, dog: { dob?: DayKey }) => {
+const validateDogAge = (event: { eventType: string; startDate: DayKey }, dog: { dob?: DayKey }) => {
   const minAge = minDogAgeFor(event.eventType)
   const age = dog.dob ? dogAgeInMonths(dog.dob, event.startDate) : undefined
   if (age === undefined || age < minAge) return minAge
@@ -122,7 +122,7 @@ const validateDogForEvent = (event: { eventType: string }, dog: Partial<Dog>) =>
 }
 
 export function validateDog(
-  event: { eventType: string; startDate: Date },
+  event: { eventType: string; startDate: DayKey },
   reg: { class?: Exclude<Registration['class'], undefined>; dog?: Dog; results?: Partial<TestResult>[] }
 ): WideValidationResult<Registration, 'registration'> {
   const dog = reg.dog

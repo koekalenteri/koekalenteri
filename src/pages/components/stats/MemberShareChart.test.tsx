@@ -20,7 +20,7 @@ vi.mock('./StatsBarChart', () => ({
 }))
 
 const item = (
-  date: Date,
+  date: string,
   count: number,
   cancelledRegistrations: number,
   reserveRegistrations: number,
@@ -32,7 +32,7 @@ const item = (
   memberRegistrations,
   PK: 'ORG#1',
   reserveRegistrations,
-  SK: `${date.toISOString()}#event`,
+  SK: `${date}#event`,
 })
 
 const chart = () => {
@@ -46,38 +46,26 @@ const chart = () => {
 describe('MemberShareChart', () => {
   it('divides members by starters, to one decimal', () => {
     // 10 registrations, 2 cancelled, 1 reserve -> 7 starters, 3 of them members = 42.9 %
-    render(<MemberShareChart items={[item(new Date('2025-03-15T12:00:00Z'), 10, 2, 1, 3)]} />)
+    render(<MemberShareChart items={[item('2025-03-15', 10, 2, 1, 3)]} />)
 
     expect(chart().rates).toEqual([42.9])
   })
 
   it('pools several events of the same month before taking the rate', () => {
-    render(
-      <MemberShareChart
-        items={[
-          item(new Date('2025-03-05T12:00:00Z'), 10, 0, 0, 5),
-          item(new Date('2025-03-20T12:00:00Z'), 10, 0, 0, 0),
-        ]}
-      />
-    )
+    render(<MemberShareChart items={[item('2025-03-05', 10, 0, 0, 5), item('2025-03-20', 10, 0, 0, 0)]} />)
 
     expect(chart()).toEqual({ months: ['2025-03'], rates: [25] })
   })
 
   it('reports no rate rather than zero when there were no starters', () => {
-    render(<MemberShareChart items={[item(new Date('2025-03-15T12:00:00Z'), 2, 2, 0, 0)]} />)
+    render(<MemberShareChart items={[item('2025-03-15', 2, 2, 0, 0)]} />)
 
     expect(chart().rates).toEqual([null])
   })
 
   it('sorts the months and shows a placeholder when there is nothing to plot', () => {
     const { rerender } = render(
-      <MemberShareChart
-        items={[
-          item(new Date('2025-05-01T12:00:00Z'), 10, 0, 0, 2),
-          item(new Date('2025-03-01T12:00:00Z'), 10, 0, 0, 2),
-        ]}
-      />
+      <MemberShareChart items={[item('2025-05-01', 10, 0, 0, 2), item('2025-03-01', 10, 0, 0, 2)]} />
     )
     expect(chart().months).toEqual(['2025-03', '2025-05'])
 

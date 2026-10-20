@@ -1,5 +1,4 @@
-import type { ConfirmedEvent, Registration } from '../../types'
-import { TZDate } from '@date-fns/tz'
+import type { ConfirmedEvent, DayKey, Registration } from '../../types'
 import { ThemeProvider } from '@mui/material/styles'
 import { ConfirmProvider } from 'material-ui-confirm'
 import { Suspense } from 'react'
@@ -7,7 +6,6 @@ import { render } from 'vitest-browser-react'
 import { emptyEvent } from '../../__mockData__/emptyEvent'
 import { registrationWithStaticDates } from '../../__mockData__/registrations'
 import theme from '../../assets/Theme'
-import { TIME_ZONE } from '../../lib/day'
 import { Path } from '../../routeConfig'
 import { TestProvider } from '../../test-utils/AtomProvider'
 import { expectConsoleOutput } from '../../test-utils/consoleGuard'
@@ -38,7 +36,7 @@ vi.mock(import('../../api/email'), async (importOriginal) => ({
   getEmailTemplates: async () => [],
 }))
 
-const day = (iso: string) => new TZDate(iso, TIME_ZONE)
+const day = (iso: DayKey): DayKey => iso
 const start = day('2026-10-10')
 const end = day('2026-10-11')
 

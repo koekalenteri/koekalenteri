@@ -7,6 +7,7 @@ import { useAtomCallback } from 'jotai/utils'
 import { useCallback, useEffect, useRef } from 'react'
 import { getEvent, getEvents } from '@/api/event'
 import { reportError } from '@/lib/client/error'
+import { dayOf, TIME_ZONE } from '@/lib/day'
 import { compareEventsByDate } from '@/lib/event'
 import { itemStamp } from '@/lib/incremental'
 import { isConfirmedEvent } from '@/lib/typeGuards'
@@ -44,24 +45,18 @@ function mergeAndSortByDate<T extends DogEventSortKey>(existing: T[], incoming: 
   return [...byId.values()].sort(compareEventsByDate)
 }
 
+/** The events that end on the Finnish day of `cutoff` or later; an event without an end stays. */
 function pruneBeforeDate<T extends DogEventPruneKey>(events: T[], cutoff: Date): T[] {
-  const cutoffTime = cutoff.getTime()
-  return events.filter((e) => {
-    if (!e.endDate) {
-      return true
-    }
-    const endTime = new Date(e.endDate).getTime()
-    return endTime >= cutoffTime
-  })
+  const cutoffDay = dayOf(cutoff, TIME_ZONE)
+  return events.filter((e) => !e.endDate || e.endDate >= cutoffDay)
 }
 
+/** Whether the event's days meet the Finnish days the range's moments fall on; a range without an end runs on. */
 function overlapsRange<T extends DogEventRangeKey>(event: T, start: Date, end?: Date): boolean {
-  const eventStart = new Date(event.startDate).getTime()
-  const eventEnd = new Date(event.endDate ?? event.startDate).getTime()
-  const startTime = start.getTime()
-  const endTime = end?.getTime() ?? Number.POSITIVE_INFINITY
+  const eventEnd = event.endDate ?? event.startDate
+  const endDay = end ? dayOf(end, TIME_ZONE) : undefined
 
-  return eventEnd >= startTime && eventStart <= endTime
+  return eventEnd >= dayOf(start, TIME_ZONE) && (!endDay || event.startDate <= endDay)
 }
 
 function reconcileRange<T extends DogEventSortKey & DogEventRangeKey>(

@@ -1,15 +1,14 @@
-import type { RegistrationGroup } from '@/types'
+import type { DayKey, RegistrationGroup } from '@/types'
 import Stack from '@mui/material/Stack'
 import ToggleButton from '@mui/material/ToggleButton'
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup'
 import Typography from '@mui/material/Typography'
 import { useTranslation } from 'react-i18next'
-import { dayOf, TIME_ZONE } from '@/lib/day'
 import { getRegistrationPlacement } from '@/lib/registration'
 
 /** One day of a multi-day event, keyed the way the server scopes number uniqueness (yyyy-MM-dd). */
 export interface StartDay {
-  date: Date
+  date: DayKey
   key: string
 }
 
@@ -20,17 +19,15 @@ export interface StartDay {
 export type PlacedRegistration = { group?: RegistrationGroup; startGroup?: RegistrationGroup }
 
 /** The day a dog is placed on, or undefined for one that has no placement yet (a reserve). */
-export const startDayKey = (registration: PlacedRegistration): string | undefined => {
-  const date = getRegistrationPlacement(registration)?.date
-  return date ? dayOf(date, TIME_ZONE) : undefined
-}
+export const startDayKey = (registration: PlacedRegistration): string | undefined =>
+  getRegistrationPlacement(registration)?.date
 
 /** The days these dogs run on, in order. The screens that work day by day share this reading. */
 export const startDaysOf = (registrations: PlacedRegistration[]): StartDay[] =>
   registrations
     .map((registration) => getRegistrationPlacement(registration)?.date)
-    .filter((date): date is Date => !!date)
-    .map((date) => ({ date, key: dayOf(date, TIME_ZONE) }))
+    .filter((date): date is DayKey => !!date)
+    .map((date) => ({ date, key: date }))
     .filter((day, index, all) => all.findIndex((other) => other.key === day.key) === index)
     .sort((a, b) => a.key.localeCompare(b.key))
 

@@ -14,9 +14,9 @@ import { TZDate } from '@date-fns/tz'
 import { addDays } from 'date-fns'
 import i18n from 'i18next'
 import { eventWithEntryClosing, eventWithParticipantsInvited, eventWithStaticDates } from '../__mockData__/events'
-import { finnishDayOf, noonOfFinnishDay, startOfFinnishDay } from '../test-utils/finnishDays'
+import { finnishDayOf, legacyDayValue, noonOfFinnishDay } from '../test-utils/finnishDays'
 import { freezeClockAt } from '../test-utils/freezeClock'
-import { describeInTimeZone } from '../test-utils/timeZone'
+import { describeInTimeZone, withTimeZone } from '../test-utils/timeZone'
 import { addDays as addDaysToKey, dayStart, TIME_ZONE } from './day'
 import {
   applyNewGroupsToDogEventClass,
@@ -102,6 +102,9 @@ import { legacyDogDay } from './storedDays'
 /** A moment to stand for now where a test needs one: Monday 15.6.2026 at noon in Finland. */
 const NOON_2026_06_15 = new Date('2026-06-15T09:00:00.000Z')
 
+/** The Finnish day `days` days from the one `now` falls on, as the model holds a day (KOE-1547). */
+const dayAfter = (now: Date, days: number): DayKey => addDaysToKey(finnishDayOf(now), days)
+
 describe('lib/event', () => {
   describe('getEventSavedMessage', () => {
     // The real i18next, not the key-echoing stub the other tests use: the bug was in what i18next
@@ -138,20 +141,20 @@ describe('lib/event', () => {
     // A trial whose entry closed yesterday and which starts the day after tomorrow, as seen from `now`.
     const event = (overrides: Partial<DogEvent>): DogEvent => ({
       ...eventWithEntryClosing,
-      endDate: addDays(now, 3),
-      entryEndDate: addDays(now, -1),
-      entryStartDate: addDays(now, -3),
-      startDate: addDays(now, 2),
+      endDate: dayAfter(now, 3),
+      entryEndDate: dayAfter(now, -1),
+      entryStartDate: dayAfter(now, -3),
+      startDate: dayAfter(now, 2),
       ...overrides,
     })
 
     it('returns the current progress phase directly', () => {
       const confirmedEvent: ConfirmedEvent = {
         ...eventWithEntryClosing,
-        endDate: addDays(now, 3),
-        entryEndDate: addDays(now, -1),
-        entryStartDate: addDays(now, -3),
-        startDate: addDays(now, 2),
+        endDate: dayAfter(now, 3),
+        entryEndDate: dayAfter(now, -1),
+        entryStartDate: dayAfter(now, -3),
+        startDate: dayAfter(now, 2),
         state: 'picked',
       }
 
@@ -161,35 +164,35 @@ describe('lib/event', () => {
     it.each([
       {
         expected: 'event.states.ended',
-        overrides: { endDate: addDays(now, -1), state: 'confirmed' as const },
+        overrides: { endDate: dayAfter(now, -1), state: 'confirmed' as const },
       },
       {
         expected: 'event.states.confirmed_entryOpen',
         overrides: {
-          endDate: addDays(now, 3),
-          entryEndDate: addDays(now, 1),
-          entryStartDate: addDays(now, -1),
-          startDate: addDays(now, 2),
+          endDate: dayAfter(now, 3),
+          entryEndDate: dayAfter(now, 1),
+          entryStartDate: dayAfter(now, -1),
+          startDate: dayAfter(now, 2),
           state: 'confirmed' as const,
         },
       },
       {
         expected: 'event.states.confirmed_entryClosed',
         overrides: {
-          endDate: addDays(now, 3),
-          entryEndDate: addDays(now, -1),
-          entryStartDate: addDays(now, -3),
-          startDate: addDays(now, 2),
+          endDate: dayAfter(now, 3),
+          entryEndDate: dayAfter(now, -1),
+          entryStartDate: dayAfter(now, -3),
+          startDate: dayAfter(now, 2),
           state: 'confirmed' as const,
         },
       },
       {
         expected: 'event.states.started',
         overrides: {
-          endDate: addDays(now, 1),
-          entryEndDate: addDays(now, -2),
-          entryStartDate: addDays(now, -3),
-          startDate: addDays(now, -1),
+          endDate: dayAfter(now, 1),
+          entryEndDate: dayAfter(now, -2),
+          entryStartDate: dayAfter(now, -3),
+          startDate: dayAfter(now, -1),
           state: 'started' as const,
         },
       },
@@ -201,10 +204,10 @@ describe('lib/event', () => {
       expect(
         getEventTitle(
           event({
-            endDate: addDays(now, 3),
-            entryEndDate: addDays(now, 2),
-            entryStartDate: addDays(now, 1),
-            startDate: addDays(now, 2),
+            endDate: dayAfter(now, 3),
+            entryEndDate: dayAfter(now, 2),
+            entryStartDate: dayAfter(now, 1),
+            startDate: dayAfter(now, 2),
             state,
           }),
           t,
@@ -218,13 +221,13 @@ describe('lib/event', () => {
         getEventTitle(
           event({
             classes: [
-              { class: 'ALO', date: addDays(now, 2), state: 'picked' },
-              { class: 'AVO', date: addDays(now, 2), state: 'invited' },
+              { class: 'ALO', date: dayAfter(now, 2), state: 'picked' },
+              { class: 'AVO', date: dayAfter(now, 2), state: 'invited' },
             ],
-            endDate: addDays(now, 3),
-            entryEndDate: addDays(now, -1),
-            entryStartDate: addDays(now, -3),
-            startDate: addDays(now, 2),
+            endDate: dayAfter(now, 3),
+            entryEndDate: dayAfter(now, -1),
+            entryStartDate: dayAfter(now, -3),
+            startDate: dayAfter(now, 2),
             state: 'confirmed',
           }),
           t,
@@ -268,13 +271,13 @@ describe('lib/event', () => {
           getEventTitle(
             event({
               classes: [
-                { class: 'ALO', date: addDays(now, 2), state: 'picked' },
-                { class: 'AVO', date: addDays(now, 2), state: 'invited' },
+                { class: 'ALO', date: dayAfter(now, 2), state: 'picked' },
+                { class: 'AVO', date: dayAfter(now, 2), state: 'invited' },
               ],
-              endDate: addDays(now, 3),
-              entryEndDate: addDays(now, -1),
-              entryStartDate: addDays(now, -3),
-              startDate: addDays(now, 2),
+              endDate: dayAfter(now, 3),
+              entryEndDate: dayAfter(now, -1),
+              entryStartDate: dayAfter(now, -3),
+              startDate: dayAfter(now, 2),
               startListPublished,
               startNumbersPublished,
               state: 'invited',
@@ -291,10 +294,10 @@ describe('lib/event', () => {
         getEventTitle(
           event({
             classes: [],
-            endDate: addDays(now, 3),
-            entryEndDate: addDays(now, -1),
-            entryStartDate: addDays(now, -3),
-            startDate: addDays(now, 2),
+            endDate: dayAfter(now, 3),
+            entryEndDate: dayAfter(now, -1),
+            entryStartDate: dayAfter(now, -3),
+            startDate: dayAfter(now, 2),
             startListPublished: true,
             startNumbersPublished: false,
             state: 'invited',
@@ -310,10 +313,10 @@ describe('lib/event', () => {
         getEventTitle(
           event({
             classes: [],
-            endDate: addDays(now, 3),
-            entryEndDate: addDays(now, -1),
-            entryStartDate: addDays(now, -3),
-            startDate: addDays(now, 2),
+            endDate: dayAfter(now, 3),
+            entryEndDate: dayAfter(now, -1),
+            entryStartDate: dayAfter(now, -3),
+            startDate: dayAfter(now, 2),
             startListPublished: true,
             startNumbersPublished: true,
             state: 'invited',
@@ -807,7 +810,7 @@ describe('lib/event', () => {
     it('expands an absent flag only for the classes the workflow carried to invited', () => {
       // Read as the public list reads it: a past trial whose invitations were never sent has nothing
       // published, so publishing one class must not publish the others with it (KOE-1465).
-      const lastYear = startOfFinnishDay('2025-06-15')
+      const lastYear = '2025-06-15'
       expect(
         getStartListPublishedClassMap({
           classes: [{ class: 'ALO', state: 'invited' }, { class: 'AVO' }, { class: 'VOI', state: 'picked' }],
@@ -877,15 +880,13 @@ describe('lib/event', () => {
     })
 
     it('spans Finnish days as keys for the Kennel Club lookup', () => {
-      expect(finnishDaySpan(new Date('2026-06-27T21:00:00.000Z'), new Date('2026-06-28T20:59:59.999Z'))).toBe(
-        '2026-06-28'
-      )
-      expect(finnishDaySpan(new Date('2026-06-27T21:00:00.000Z'), new Date('2026-06-28T21:00:00.000Z'))).toBe(
-        '2026-06-28 - 2026-06-29'
-      )
+      expect(finnishDaySpan('2026-06-28', '2026-06-28')).toBe('2026-06-28')
+      expect(finnishDaySpan('2026-06-28', '2026-06-29')).toBe('2026-06-28 - 2026-06-29')
+      // A row not yet migrated holds a Finnish midnight: its day.
+      expect(finnishDaySpan(legacyDayValue('2026-06-27T21:00:00.000Z'))).toBe('2026-06-28')
       // The Kennel Club's empty end is the start; no start day is no span.
-      expect(finnishDaySpan(new Date('2026-06-27T21:00:00.000Z'), new Date('0001-01-01T00:00:00'))).toBe('2026-06-28')
-      expect(finnishDaySpan(new Date(Number.NaN))).toBe('')
+      expect(finnishDaySpan('2026-06-28', legacyDayValue('0001-01-01T00:00:00'))).toBe('2026-06-28')
+      expect(finnishDaySpan(legacyDayValue('not-a-day'))).toBe('')
       expect(finnishDaySpan(undefined)).toBe('')
     })
   })
@@ -899,21 +900,14 @@ describe('lib/event', () => {
       { days: ['2026-03-28', '2026-03-29', '2026-03-30'], end: '2026-03-30', start: '2026-03-28' },
       { days: ['2026-10-24', '2026-10-25', '2026-10-26'], end: '2026-10-26', start: '2026-10-24' },
     ] satisfies Array<{ days: DayKey[]; end: DayKey; start: DayKey }>)(
-      'returns the Finnish midnights from $start to $end',
+      'returns the days from $start to $end',
       ({ days, end, start }) => {
-        expect(getEventDays({ endDate: startOfFinnishDay(end), startDate: startOfFinnishDay(start) })).toEqual(
-          days.map(startOfFinnishDay)
-        )
+        expect(getEventDays({ endDate: end, startDate: start })).toEqual(days)
       }
     )
 
-    it('reads the days the moments fall on, late in the Finnish evening too', () => {
-      const lateStart = new Date('2023-03-10T21:30:00.000Z')
-      const lateEnd = new Date('2023-03-11T21:30:00.000Z')
-      expect(getEventDays({ endDate: lateEnd, startDate: lateStart })).toEqual([
-        startOfFinnishDay('2023-03-10'),
-        startOfFinnishDay('2023-03-11'),
-      ])
+    it('returns no days for an end before the start', () => {
+      expect(getEventDays({ endDate: '2023-03-10', startDate: '2023-03-11' })).toEqual([])
     })
   })
 
@@ -938,7 +932,7 @@ describe('lib/event', () => {
 
   describe('getEventClassesByDays', () => {
     describe('for single day event', () => {
-      const date = new TZDate(2023, 11, 24, TIME_ZONE)
+      const date = '2023-12-24'
 
       it.each`
         classes                     | expected
@@ -960,8 +954,8 @@ describe('lib/event', () => {
     })
 
     describe('for two day event', () => {
-      const startDate = new TZDate(2023, 11, 23, TIME_ZONE)
-      const endDate = new TZDate(2023, 11, 24, TIME_ZONE)
+      const startDate = '2023-12-23'
+      const endDate = '2023-12-24'
 
       it.each`
         classes                                                                 | expected
@@ -986,7 +980,7 @@ describe('lib/event', () => {
     })
 
     it('should return empty empty array as classes when classes is missing', () => {
-      const date = new TZDate(2025, 2, 27, TIME_ZONE)
+      const date = '2025-03-27'
       // Legacy data can lack classes even though the type requires them
       expect(
         getEventClassesByDays({ endDate: date, startDate: date } as unknown as Pick<
@@ -998,8 +992,8 @@ describe('lib/event', () => {
   })
 
   describe('applySingleDayNowtGroups', () => {
-    const date = new TZDate(2024, 3, 1, TIME_ZONE)
-    const date2 = new TZDate(2024, 3, 2, TIME_ZONE)
+    const date = '2024-04-01'
+    const date2 = '2024-04-02'
     const classes: EventClass[] = [
       { class: 'ALO', date },
       { class: 'AVO', date },
@@ -1015,14 +1009,17 @@ describe('lib/event', () => {
     it.each([
       ['NOWT', date2],
       ['NOME-B', date],
-    ])('does not change groups for %s ending on a different or non-NOWT date', (eventType, endDate) => {
-      expect(applySingleDayNowtGroups(eventType, date, endDate, classes)).toEqual(classes)
-    })
+    ] satisfies Array<[string, DayKey]>)(
+      'does not change groups for %s ending on a different or non-NOWT date',
+      (eventType, endDate) => {
+        expect(applySingleDayNowtGroups(eventType, date, endDate, classes)).toEqual(classes)
+      }
+    )
   })
 
   describe('applyNewGroupsToDogEventClass and applyNewGroupsToDogEventDates', () => {
-    const date = new TZDate(2024, 3, 1, TIME_ZONE)
-    const date2 = new TZDate(2024, 3, 2, TIME_ZONE)
+    const date = '2024-04-01'
+    const date2 = '2024-04-02'
     const defaultGroups: RegistrationTime[] = ['ap', 'ip']
 
     it.each`
@@ -1153,10 +1150,10 @@ describe('lib/event', () => {
         ...eventWithParticipantsInvited,
         kcEvent: {
           classes: ['ALO'],
-          endDate: now,
+          endDate: '2026-06-15',
           eventType: 'NOU',
           location: 'Laukaa',
-          startDate: now,
+          startDate: '2026-06-15',
         },
         kcGuid: '2b81e6a1-559b-407c-87c7-b8a9b89b1987',
         kcId: 12345,
@@ -1190,9 +1187,9 @@ describe('lib/event', () => {
       expect(copyNow(eventWithParticipantsInvited).startDate).toEqual(newDates.startDate))
     it('should set endDate', () => expect(copyNow(eventWithParticipantsInvited).endDate).toEqual(newDates.startDate))
     it('should set endDate on two day event', () =>
-      expect(copyNow(eventWithEntryClosing).endDate).toEqual(dayStart(addDaysToKey(newStartDay, 1), TIME_ZONE)))
+      expect(copyNow(eventWithEntryClosing).endDate).toEqual(addDaysToKey(newStartDay, 1)))
     it('should set entryStartDate / entryEndDate', () => {
-      const copy = copyNow({ ...eventWithParticipantsInvited, entryOrigEndDate: now })
+      const copy = copyNow({ ...eventWithParticipantsInvited, entryOrigEndDate: '2026-06-15' })
       expect(copy.entryStartDate).toEqual(newDates.entryStartDate)
       expect(copy.entryEndDate).toEqual(newDates.entryEndDate)
       expect(copy.entryOrigEndDate).toBeUndefined()
@@ -1235,11 +1232,11 @@ describe('lib/event', () => {
 
     it('should copy and adjust placesPerDay', () => {
       // A two-day trial on 15.-16.6.2023; the places move along with the days, as keys of Finnish days.
-      const event = {
+      const event: DogEvent = {
         ...eventWithEntryClosing,
-        endDate: startOfFinnishDay('2023-06-16'),
+        endDate: '2023-06-16',
         placesPerDay: { '2023-06-15': 10, '2023-06-16': 15, 'not-a-day': 3 },
-        startDate: startOfFinnishDay('2023-06-15'),
+        startDate: '2023-06-15',
       }
 
       const copy = copyNow(event)
@@ -1250,53 +1247,53 @@ describe('lib/event', () => {
 })
 
 describe('defaultEntryStartDate and defaultEntryEndDate', () => {
-  // The defaults are Finnish midnights, six and three weeks before the trial's Finnish day.
-  const eventStartDate = startOfFinnishDay('2023-06-15')
+  // The defaults are the days six and three weeks before the trial's day.
+  const eventStartDate = '2023-06-15'
 
   it('should calculate correct entry start date', () => {
-    expect(defaultEntryStartDate(eventStartDate)).toEqual(startOfFinnishDay('2023-05-04'))
+    expect(defaultEntryStartDate(eventStartDate)).toEqual('2023-05-04')
   })
 
   it('should calculate correct entry end date', () => {
-    expect(defaultEntryEndDate(eventStartDate)).toEqual(startOfFinnishDay('2023-05-25'))
+    expect(defaultEntryEndDate(eventStartDate)).toEqual('2023-05-25')
   })
 
-  it('reads the trial day in Finnish time, late in the evening too', () => {
-    expect(defaultEntryEndDate(new Date('2023-06-14T21:30:00.000Z'))).toEqual(startOfFinnishDay('2023-05-25'))
+  it('counts whole weeks back across the turn of a month', () => {
+    expect(defaultEntryEndDate('2023-06-01')).toEqual('2023-05-11')
   })
 })
 
 describe('isDetaultEntryStartDate and isDetaultEntryEndDate', () => {
   it('should return true when date is undefined', () => {
-    const eventStartDate = new Date(2023, 5, 15)
+    const eventStartDate = '2023-06-15'
     expect(isDetaultEntryStartDate(undefined, eventStartDate)).toBe(true)
     expect(isDetaultEntryEndDate(undefined, eventStartDate)).toBe(true)
   })
 
   it('should return true when date matches default entry start date', () => {
-    const eventStartDate = new Date(2023, 5, 15)
+    const eventStartDate = '2023-06-15'
     const entryStartDate = defaultEntryStartDate(eventStartDate)
 
     expect(isDetaultEntryStartDate(entryStartDate, eventStartDate)).toBe(true)
   })
 
   it('should return true when date matches default entry end date', () => {
-    const eventStartDate = new Date(2023, 5, 15)
+    const eventStartDate = '2023-06-15'
     const entryEndDate = defaultEntryEndDate(eventStartDate)
 
     expect(isDetaultEntryEndDate(entryEndDate, eventStartDate)).toBe(true)
   })
 
   it('should return false when date does not match default entry start date', () => {
-    const eventStartDate = new Date(2023, 5, 15)
-    const nonDefaultDate = new Date(2023, 4, 1) // May 1, 2023
+    const eventStartDate = '2023-06-15'
+    const nonDefaultDate = '2023-05-01'
 
     expect(isDetaultEntryStartDate(nonDefaultDate, eventStartDate)).toBe(false)
   })
 
   it('should return false when date does not match default entry end date', () => {
-    const eventStartDate = new Date(2023, 5, 15)
-    const nonDefaultDate = new Date(2023, 4, 1) // May 1, 2023
+    const eventStartDate = '2023-06-15'
+    const nonDefaultDate = '2023-05-01'
 
     expect(isDetaultEntryEndDate(nonDefaultDate, eventStartDate)).toBe(false)
   })
@@ -1304,54 +1301,25 @@ describe('isDetaultEntryStartDate and isDetaultEntryEndDate', () => {
 
 describe.each([TIME_ZONE, 'America/New_York', 'Asia/Tokyo'])('the default entry dates in %s (KOE-1539)', (zone) => {
   describeInTimeZone(zone, () => {
-    const midnight = (year: number, month: number, day: number) =>
-      new Date(new TZDate(year, month - 1, day, TIME_ZONE).getTime())
-
-    // Finland leaves summer time on 25.10.2026 and enters it on 28.3.2027: the weeks are Finnish
-    // weeks, so the entry dates are Finnish midnights on either side of the change.
+    // Finland leaves summer time on 25.10.2026 and enters it on 28.3.2027: the weeks are weeks of days,
+    // whatever change of time falls between, and the browser's zone does not enter.
     it.each([
-      {
-        case: 'over the end of summer time',
-        end: midnight(2026, 11, 14),
-        eventStart: midnight(2026, 12, 5),
-        start: midnight(2026, 10, 24),
-      },
-      {
-        case: 'over the start of summer time',
-        end: midnight(2027, 3, 27),
-        eventStart: midnight(2027, 4, 17),
-        start: midnight(2027, 3, 6),
-      },
-      {
-        case: 'from winter back to summer time',
-        end: midnight(2026, 10, 24),
-        eventStart: midnight(2026, 11, 14),
-        start: midnight(2026, 10, 3),
-      },
-    ])('are Finnish midnights $case', ({ eventStart, start, end }) => {
-      expect(defaultEntryStartDate(eventStart).getTime()).toEqual(start.getTime())
-      expect(defaultEntryEndDate(eventStart).getTime()).toEqual(end.getTime())
-      expect(isDetaultEntryStartDate(start, eventStart)).toBe(true)
-      expect(isDetaultEntryEndDate(end, eventStart)).toBe(true)
-    })
+      { case: 'over the end of summer time', end: '2026-11-14', eventStart: '2026-12-05', start: '2026-10-24' },
+      { case: 'over the start of summer time', end: '2027-03-27', eventStart: '2027-04-17', start: '2027-03-06' },
+      { case: 'from winter back to summer time', end: '2026-10-24', eventStart: '2026-11-14', start: '2026-10-03' },
+    ] satisfies Array<{ case: string; end: DayKey; eventStart: DayKey; start: DayKey }>)(
+      'are the days $case',
+      ({ eventStart, start, end }) => {
+        expect(defaultEntryStartDate(eventStart)).toBe(start)
+        expect(defaultEntryEndDate(eventStart)).toBe(end)
+        expect(isDetaultEntryStartDate(start, eventStart)).toBe(true)
+        expect(isDetaultEntryEndDate(end, eventStart)).toBe(true)
+      }
+    )
 
-    it('does not take the next Finnish day for the default', () => {
-      const eventStart = midnight(2026, 12, 5)
-
-      expect(isDetaultEntryStartDate(midnight(2026, 10, 25), eventStart)).toBe(false)
-    })
-
-    // 23:30 in Finland is the next morning in Tokyo, so the default's day in the browser's zone is
-    // another day than its Finnish one.
-    it('tells the default day by its Finnish day, late in the evening too', () => {
-      const eventStart = midnight(2026, 12, 5)
-      const late = (year: number, month: number, day: number) =>
-        new Date(new TZDate(year, month - 1, day, 23, 30, TIME_ZONE).getTime())
-
-      expect(isDetaultEntryEndDate(late(2026, 11, 14), eventStart)).toBe(true)
-      expect(isDetaultEntryEndDate(late(2026, 11, 13), eventStart)).toBe(false)
-      expect(isDetaultEntryStartDate(late(2026, 10, 24), eventStart)).toBe(true)
-      expect(isDetaultEntryStartDate(late(2026, 10, 23), eventStart)).toBe(false)
+    it('does not take the next day for the default', () => {
+      expect(isDetaultEntryStartDate('2026-10-25', '2026-12-05')).toBe(false)
+      expect(isDetaultEntryEndDate('2026-11-13', '2026-12-05')).toBe(false)
     })
   })
 })
@@ -1400,7 +1368,7 @@ describe('a stored date that is neither a day nor an instant (KOE-1545)', () => 
 })
 
 describe('isEntryUpcoming counts Finnish days (KOE-1545)', () => {
-  const event = { entryStartDate: new Date('2026-10-20T07:00:00.000Z'), state: 'confirmed' as const }
+  const event = { entryStartDate: '2026-10-20', state: 'confirmed' as const }
 
   it('is not upcoming on the opening day itself, before the hour of the stored moment', () => {
     const morning = new Date('2026-10-20T05:00:00.000Z')
@@ -1420,8 +1388,8 @@ describe('isEntryClosing counts Finnish days (KOE-1545)', () => {
   // the instant back seven days in the browser's own zone made it begin an evening early west of Finland,
   // as the step kept the browser's wall clock over Finland's change of time.
   const event = {
-    entryEndDate: new Date('2026-04-01T21:00:00.000Z'),
-    entryStartDate: new Date('2026-03-01T22:00:00.000Z'),
+    entryEndDate: '2026-04-02',
+    entryStartDate: '2026-03-02',
     state: 'confirmed' as const,
   }
 
@@ -1467,34 +1435,32 @@ describe('newEventStartDay (KOE-1545)', () => {
 
 describe('copyDogEvent across a change of time (KOE-1542)', () => {
   /**
-   * An event on the Finnish days `days`, stored at their Finnish midnights: a class, an ap/ip pair
-   * of `dates` rows and a post on each day, and places per day.
+   * An event on the days `days`: a class, an ap/ip pair of `dates` rows and a post on each day, and
+   * places per day.
    */
   const eventOn = (days: DayKey[]): DogEvent => ({
     ...eventWithEntryClosing,
-    classes: days.map((day) => ({ class: 'ALO', date: startOfFinnishDay(day), places: 10 })),
+    classes: days.map((day) => ({ class: 'ALO', date: day, places: 10 })),
     dates: days.flatMap((day) => [
-      { date: startOfFinnishDay(day), time: 'ap' },
-      { date: startOfFinnishDay(day), time: 'ip' },
+      { date: day, time: 'ap' },
+      { date: day, time: 'ip' },
     ]),
-    endDate: startOfFinnishDay(days[days.length - 1]),
+    endDate: days[days.length - 1],
     placesPerDay: Object.fromEntries(days.map((day, i) => [day, 10 + i])),
-    startDate: startOfFinnishDay(days[0]),
-    stations: days.map((day) => ({ date: startOfFinnishDay(day), id: `post-${day}`, number: 1, tasks: 1 })),
+    startDate: days[0],
+    stations: days.map((day) => ({ date: day, id: `post-${day}`, number: 1, tasks: 1 })),
   })
 
-  /** Every day the copy stores lands on the Finnish day it should, at that day's Finnish midnight. */
+  /** Every day the copy stores lands on the day it should. */
   const expectOnDays = (copy: DogEvent, days: DayKey[]) => {
-    const midnights = days.map((day) => startOfFinnishDay(day))
-    expect(finnishDayOf(copy.startDate)).toBe(days[0])
-    expect(copy.startDate).toEqual(midnights[0])
-    expect(copy.endDate).toEqual(midnights[midnights.length - 1])
-    expect(copy.classes.map((c) => c.date)).toEqual(midnights)
-    expect(copy.dates?.map((d) => d.date)).toEqual(midnights.flatMap((midnight) => [midnight, midnight]))
+    expect(copy.startDate).toBe(days[0])
+    expect(copy.endDate).toBe(days[days.length - 1])
+    expect(copy.classes.map((c) => c.date)).toEqual(days)
+    expect(copy.dates?.map((d) => d.date)).toEqual(days.flatMap((day) => [day, day]))
     expect(copy.dates?.map((d) => d.time)).toEqual(days.flatMap(() => ['ap', 'ip']))
     expect(copy.placesPerDay).toEqual(Object.fromEntries(days.map((day, i) => [day, 10 + i])))
     // Each post moves to the copy's day that corresponds to its own (KOE-1563).
-    expect(copy.stations?.map((station) => station.date)).toEqual(midnights)
+    expect(copy.stations?.map((station) => station.date)).toEqual(days)
   }
 
   for (const zone of [TIME_ZONE, 'America/New_York', 'Asia/Tokyo']) {
@@ -1554,7 +1520,7 @@ describe('copyDogEvent across a change of time (KOE-1542)', () => {
 
 describe('eventRegistrationDateKey', () => {
   it('should generate a key in the format date-time', () => {
-    const date = new Date(2023, 5, 15, 12) // June 15, 2023
+    const date = '2023-06-15'
     const time = 'ap'
     const registrationDate: RegistrationDate = { date, time }
 
@@ -1564,17 +1530,16 @@ describe('eventRegistrationDateKey', () => {
     expect(eventRegistrationDateKey(registrationDate)).toEqual(expected)
   })
 
-  it('should use event timezone (Europe/Helsinki) day, not UTC day', () => {
-    // Helsinki summer time is +03:00.
-    // This instant is June 15th in Helsinki, but still June 14th in UTC.
-    const date = new Date('2023-06-15T00:30:00+03:00')
-    expect(date.toISOString().slice(0, 10)).toEqual('2023-06-14') // would be wrong key if used
-
-    expect(eventRegistrationDateKey({ date, time: 'ap' })).toEqual('2023-06-15-ap')
+  it('names the group by its day key in any host zone (KOE-1547)', () => {
+    for (const zone of ['UTC', TIME_ZONE, 'Asia/Tokyo']) {
+      withTimeZone(zone, () =>
+        expect(eventRegistrationDateKey({ date: '2023-06-15', time: 'ap' })).toEqual('2023-06-15-ap')
+      )
+    }
   })
 
   it('should handle different times', () => {
-    const date = new Date(2023, 5, 15, 12)
+    const date = '2023-06-15'
 
     expect(eventRegistrationDateKey({ date, time: 'ap' })).toEqual('2023-06-15-ap')
     expect(eventRegistrationDateKey({ date, time: 'ip' })).toEqual('2023-06-15-ip')
@@ -1584,8 +1549,8 @@ describe('eventRegistrationDateKey', () => {
   it('should handle different dates', () => {
     const time = 'ap'
 
-    expect(eventRegistrationDateKey({ date: new Date(2023, 0, 1, 12), time })).toEqual('2023-01-01-ap')
-    expect(eventRegistrationDateKey({ date: new Date(2023, 11, 31, 12), time })).toEqual('2023-12-31-ap')
+    expect(eventRegistrationDateKey({ date: '2023-01-01', time })).toEqual('2023-01-01-ap')
+    expect(eventRegistrationDateKey({ date: '2023-12-31', time })).toEqual('2023-12-31-ap')
   })
 })
 
@@ -1788,8 +1753,8 @@ describe('placesForClass', () => {
     // per day (placesPerDay) instead of per class.
     const event = {
       classes: [
-        { class: 'ALO' as const, date: new Date('2026-11-07') },
-        { class: 'VOI' as const, date: new Date('2026-11-08') },
+        { class: 'ALO' as const, date: '2026-11-07' as const },
+        { class: 'VOI' as const, date: '2026-11-08' as const },
       ],
       places: 13,
       placesPerDay: { '2026-11-07': 10, '2026-11-08': 3 },
@@ -1801,8 +1766,8 @@ describe('placesForClass', () => {
   it('sums day totals across all of a class’s dates', () => {
     const event = {
       classes: [
-        { class: 'ALO' as const, date: new Date('2026-11-07') },
-        { class: 'ALO' as const, date: new Date('2026-11-08') },
+        { class: 'ALO' as const, date: '2026-11-07' as const },
+        { class: 'ALO' as const, date: '2026-11-08' as const },
       ],
       places: 13,
       placesPerDay: { '2026-11-07': 10, '2026-11-08': 3 },
@@ -1841,7 +1806,7 @@ describe('hasExplicitPlacesForClass', () => {
 
   it('returns true when the class has a day total via placesPerDay', () => {
     const event = {
-      classes: [{ class: 'ALO' as const, date: new Date('2026-11-07') }],
+      classes: [{ class: 'ALO' as const, date: '2026-11-07' as const }],
       placesPerDay: { '2026-11-07': 10 },
     }
     expect(hasExplicitPlacesForClass(event, 'ALO')).toBe(true)
@@ -1849,7 +1814,7 @@ describe('hasExplicitPlacesForClass', () => {
 
   it('returns false when neither the class nor its days have an explicit total', () => {
     const event = {
-      classes: [{ class: 'ALO' as const, date: new Date('2026-11-07') }],
+      classes: [{ class: 'ALO' as const, date: '2026-11-07' as const }],
       placesPerDay: { '2026-11-08': 10 },
     }
     expect(hasExplicitPlacesForClass(event, 'ALO')).toBe(false)
@@ -1885,15 +1850,13 @@ describe('registrationDatesOutsideClass', () => {
 
   it('accepts Date-typed dates too', () => {
     const dateEvent = {
-      classes: [{ class: 'VOI', date: new Date('2026-09-26T21:00:00.000Z') }],
-      endDate: new Date('2026-09-27T20:59:59.999Z'),
-      startDate: new Date('2026-09-25T21:00:00.000Z'),
+      classes: [{ class: 'VOI', date: '2026-09-27' }],
+      endDate: '2026-09-27',
+      startDate: '2026-09-26',
     }
-    const mismatch = [{ date: new Date('2026-09-25T21:00:00.000Z') }]
+    const mismatch = [{ date: '2026-09-26' }]
     expect(registrationDatesOutsideClass(dateEvent, 'VOI', mismatch)).toEqual(mismatch)
-    expect(registrationDatesOutsideClass(dateEvent, 'VOI', [{ date: new Date('2026-09-26T21:00:00.000Z') }])).toEqual(
-      []
-    )
+    expect(registrationDatesOutsideClass(dateEvent, 'VOI', [{ date: '2026-09-27' }])).toEqual([])
   })
 
   it('falls back to the whole event range when the event has no classes for the registration', () => {
@@ -2015,7 +1978,7 @@ describe('publishing results', () => {
 
   describe('hasAvailableResults', () => {
     // Held in 2021 and left 'picked': only the dates and the flags open anything.
-    const past = { endDate: new Date('2021-02-11'), startDate: new Date('2021-02-10'), state: 'picked' as const }
+    const past = { endDate: '2021-02-11', startDate: '2021-02-10', state: 'picked' as const }
     const classes = [{ class: 'ALO' as const }, { class: 'AVO' as const }]
 
     it('needs the list and the results of a classless event public', () => {
@@ -2026,8 +1989,8 @@ describe('publishing results', () => {
 
     it('waits for the dogs to have run', () => {
       const ahead = {
-        endDate: startOfFinnishDay('2099-06-06'),
-        startDate: startOfFinnishDay('2099-06-05'),
+        endDate: '2099-06-06',
+        startDate: '2099-06-05',
         state: 'picked' as const,
       }
       expect(hasAvailableResults({ ...ahead, resultsPublished: true, startListPublished: true })).toBe(false)
@@ -2098,7 +2061,7 @@ describe('publishing results', () => {
 
   describe('canPublishStartList', () => {
     it('opens on the calendar too, so a finished event can still publish its list', () => {
-      const lastYear = startOfFinnishDay('2025-06-15')
+      const lastYear = '2025-06-15'
 
       // Results reach the public on the start list's rows, and they are entered after the dogs have
       // run — so a finished event is exactly when publishing the list is needed.
@@ -2113,7 +2076,7 @@ describe('publishing results', () => {
   })
 
   describe('a start list the calendar alone opened', () => {
-    const lastYear = startOfFinnishDay('2025-06-15')
+    const lastYear = '2025-06-15'
     const past = { endDate: lastYear, startDate: lastYear, state: 'confirmed' as const }
 
     it('still has to be published on purpose', () => {
@@ -2467,16 +2430,16 @@ describe('results published day by day', () => {
 
     const classless = {
       classes: [],
-      endDate: new Date('2026-09-27'),
+      endDate: '2026-09-27',
       resultsPublished: ['2026-09-26'],
-      startDate: new Date('2026-09-26'),
+      startDate: '2026-09-26',
       startListPublished: true,
       state: 'invited' as const,
     }
 
     it('shows the dog of the published day only', () => {
-      expect(isResultsAvailableForRegistration(classless, { group: { date: new Date('2026-09-26') } })).toBe(true)
-      expect(isResultsAvailableForRegistration(classless, { group: { date: new Date('2026-09-27') } })).toBe(false)
+      expect(isResultsAvailableForRegistration(classless, { group: { date: '2026-09-26' } })).toBe(true)
+      expect(isResultsAvailableForRegistration(classless, { group: { date: '2026-09-27' } })).toBe(false)
     })
 
     it('reads a dog without a day of its own as running on the first day', () => {
@@ -2531,18 +2494,20 @@ describe('the start list step in the progress', () => {
 })
 
 describe('the results step in the progress', () => {
-  const ended = {
+  // Only the fields the progress reads.
+  const endedFields: Partial<ConfirmedEvent> = {
     classes: [
-      { class: 'ALO' as const, date: new Date('2026-09-12'), state: 'ended' as const },
-      { class: 'AVO' as const, date: new Date('2026-09-12'), state: 'ended' as const },
+      { class: 'ALO', date: '2026-09-12', state: 'ended' },
+      { class: 'AVO', date: '2026-09-12', state: 'ended' },
     ],
-    endDate: new Date('2026-09-12'),
-    entryEndDate: new Date('2026-09-01'),
-    entryStartDate: new Date('2026-08-01'),
-    startDate: new Date('2026-09-12'),
+    endDate: '2026-09-12',
+    entryEndDate: '2026-09-01',
+    entryStartDate: '2026-08-01',
+    startDate: '2026-09-12',
     startListPublished: true,
-    state: 'ended' as const,
-  } as ConfirmedEvent
+    state: 'ended',
+  }
+  const ended = endedFields as ConfirmedEvent
 
   const after = new Date('2026-09-20')
 
@@ -2555,8 +2520,8 @@ describe('the results step in the progress', () => {
   it('stops at ended while a class has only its first day published (KOE-1510)', () => {
     const twoDays = {
       ...ended,
-      classes: [...ended.classes, { class: 'ALO' as const, date: new Date('2026-09-13'), state: 'ended' as const }],
-      endDate: new Date('2026-09-13'),
+      classes: [...ended.classes, { class: 'ALO' as const, date: '2026-09-13' as const, state: 'ended' as const }],
+      endDate: '2026-09-13' as const,
       resultsPublished: { ALO: ['2026-09-12'], AVO: true },
     }
 
@@ -2577,14 +2542,14 @@ describe('the results step in the progress', () => {
 describe('isResultsAvailableForRegistration', () => {
   const event = {
     classes: [
-      { class: 'ALO' as const, date: new Date('2026-09-12'), state: 'ended' as const },
-      { class: 'AVO' as const, date: new Date('2026-09-12'), state: 'ended' as const },
+      { class: 'ALO' as const, date: '2026-09-12', state: 'ended' as const },
+      { class: 'AVO' as const, date: '2026-09-12', state: 'ended' as const },
     ],
-    endDate: new Date('2026-09-12'),
-    startDate: new Date('2026-09-12'),
+    endDate: '2026-09-12',
+    startDate: '2026-09-12',
     state: 'ended' as const,
   }
-  const dog = (eventClass: string) => ({ class: eventClass, group: { date: new Date('2026-09-12') } })
+  const dog = (eventClass: string) => ({ class: eventClass, group: { date: '2026-09-12' } })
 
   it('does not let a published start list carry an unpublished result out with it', () => {
     // The two gates are independent: a start list is public long before any result is.
@@ -2607,23 +2572,19 @@ describe('isResultsAvailableForRegistration', () => {
     // Its invitations never went out, so both entries stay 'picked'; the list was published on purpose.
     const picked = {
       classes: [
-        { class: 'ALO' as const, date: new Date('2026-09-12'), state: 'picked' as const },
-        { class: 'ALO' as const, date: new Date('2026-09-13'), state: 'picked' as const },
+        { class: 'ALO' as const, date: '2026-09-12', state: 'picked' as const },
+        { class: 'ALO' as const, date: '2026-09-13', state: 'picked' as const },
       ],
-      endDate: new Date('2026-09-13'),
+      endDate: '2026-09-13',
       resultsPublished: { ALO: ['2026-09-12'] },
-      startDate: new Date('2026-09-12'),
+      startDate: '2026-09-12',
       startListPublished: { ALO: true },
       state: 'picked' as const,
     }
 
     it('shows each day by its own publish', () => {
-      expect(isResultsAvailableForRegistration(picked, { class: 'ALO', group: { date: new Date('2026-09-12') } })).toBe(
-        true
-      )
-      expect(isResultsAvailableForRegistration(picked, { class: 'ALO', group: { date: new Date('2026-09-13') } })).toBe(
-        false
-      )
+      expect(isResultsAvailableForRegistration(picked, { class: 'ALO', group: { date: '2026-09-12' } })).toBe(true)
+      expect(isResultsAvailableForRegistration(picked, { class: 'ALO', group: { date: '2026-09-13' } })).toBe(false)
     })
   })
 
@@ -2634,16 +2595,16 @@ describe('isResultsAvailableForRegistration', () => {
     // calendar has the trial under way and only the flag can tell the two days apart.
     const twoDays = {
       classes: [
-        { class: 'ALO' as const, date: new Date('2026-09-12'), state: 'invited' as const },
-        { class: 'ALO' as const, date: new Date('2026-09-13'), state: 'invited' as const },
+        { class: 'ALO' as const, date: '2026-09-12', state: 'invited' as const },
+        { class: 'ALO' as const, date: '2026-09-13', state: 'invited' as const },
       ],
-      endDate: new Date('2026-09-13'),
-      startDate: new Date('2026-09-12'),
+      endDate: '2026-09-13',
+      startDate: '2026-09-12',
       startListPublished: true,
       state: 'invited' as const,
     }
-    const firstDayDog = { class: 'ALO', group: { date: new Date('2026-09-12') } }
-    const secondDayDog = { class: 'ALO', group: { date: new Date('2026-09-13') } }
+    const firstDayDog = { class: 'ALO', group: { date: '2026-09-12' } }
+    const secondDayDog = { class: 'ALO', group: { date: '2026-09-13' } }
 
     it('shows the first day only once that day is published', () => {
       const firstDay = { ...twoDays, resultsPublished: { ALO: ['2026-09-12'] } }
@@ -2672,12 +2633,12 @@ describe('isResultsAvailableForRegistration', () => {
     // A tolling aptitude trial (NOU) has no classes; its dogs carry no class either.
     const classless = {
       classes: [],
-      endDate: new Date('2026-09-26'),
-      startDate: new Date('2026-09-26'),
+      endDate: '2026-09-26',
+      startDate: '2026-09-26',
       startListPublished: true,
       state: 'ended' as const,
     }
-    const noClassDog = { group: { date: new Date('2026-09-26') } }
+    const noClassDog = { group: { date: '2026-09-26' } }
 
     expect(isResultsAvailableForRegistration({ ...classless, resultsPublished: true }, noClassDog)).toBe(true)
     expect(isResultsAvailableForRegistration(classless, noClassDog)).toBe(false)
@@ -2750,7 +2711,7 @@ describe('isEventLive', () => {
 
 describe('getParticipantsPhase', () => {
   const classes = (...states: Array<EventClassState | undefined>) =>
-    states.map((state, index): EventClass => ({ class: index ? 'AVO' : 'ALO', date: NOON_2026_06_15, state }))
+    states.map((state, index): EventClass => ({ class: index ? 'AVO' : 'ALO', date: '2026-06-15', state }))
 
   it('reads the event state where there are no classes', () => {
     expect(getParticipantsPhase({ classes: [], state: 'confirmed' })).toBeUndefined()
@@ -2778,8 +2739,8 @@ describe('getParticipantsPhase', () => {
 })
 
 describe('isEntryEditingClosed', () => {
-  const past = { endDate: new Date('2020-01-02'), startDate: new Date('2020-01-01') }
-  const future = { endDate: new Date('2100-01-02'), startDate: new Date('2100-01-01') }
+  const past = { endDate: '2020-01-02', startDate: '2020-01-01' }
+  const future = { endDate: '2100-01-02', startDate: '2100-01-01' }
 
   it('closes once the trial day has gone', () => {
     expect(isEntryEditingClosed(past)).toBe(true)

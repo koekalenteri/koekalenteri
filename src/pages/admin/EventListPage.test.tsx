@@ -13,6 +13,7 @@ import {
 import { putEvent } from '../../api/event'
 import { getUser } from '../../api/user'
 import theme from '../../assets/Theme'
+import { dayStart, TIME_ZONE } from '../../lib/day'
 import { Path } from '../../routeConfig'
 import { expectConsoleOutput } from '../../test-utils/consoleGuard'
 import { describeInLanguage } from '../../test-utils/language'
@@ -246,19 +247,25 @@ describe('EventListPage', () => {
   })
 
   it('selects the double-click destination based on entry start and event state', () => {
-    expect(getEventDoubleClickPath(eventWithEntryOpenButNoEntries, eventWithEntryOpenButNoEntries.entryStartDate)).toBe(
-      '/admin/event/view/test3'
-    )
+    expect(
+      getEventDoubleClickPath(
+        eventWithEntryOpenButNoEntries,
+        dayStart(eventWithEntryOpenButNoEntries.entryStartDate, TIME_ZONE)
+      )
+    ).toBe('/admin/event/view/test3')
     expect(getEventDoubleClickPath(eventWithEntryClosed)).toBe('/admin/event/view/testEntryClosed')
 
-    const justBeforeEntryStarts = new Date(eventWithEntryNotYetOpen.entryStartDate.valueOf() - 1)
+    const justBeforeEntryStarts = new Date(dayStart(eventWithEntryNotYetOpen.entryStartDate, TIME_ZONE).getTime() - 1)
     expect(getEventDoubleClickPath(eventWithEntryNotYetOpen, justBeforeEntryStarts)).toBe('/admin/event/edit/test4')
     expect(getEventDoubleClickPath({ ...eventWithEntryNotYetOpen, entries: 1 }, justBeforeEntryStarts)).toBe(
       '/admin/event/view/test4'
     )
-    expect(getEventDoubleClickPath(eventWithParticipantsInvited, eventWithParticipantsInvited.entryStartDate)).toBe(
-      '/admin/event/view/testInvited'
-    )
+    expect(
+      getEventDoubleClickPath(
+        eventWithParticipantsInvited,
+        dayStart(eventWithParticipantsInvited.entryStartDate, TIME_ZONE)
+      )
+    ).toBe('/admin/event/view/testInvited')
 
     expect(getEventDoubleClickPath({ ...eventWithEntryOpenButNoEntries, state: 'draft' })).toBe(
       '/admin/event/edit/test3'

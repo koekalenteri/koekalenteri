@@ -1,17 +1,13 @@
 import type { JsonPublicDogEvent, PublicDogEvent } from '@/types'
 import type { EventMetadata, FilterProps } from './types'
-import { isDate } from 'date-fns/isDate'
-import { isValid } from 'date-fns/isValid'
 import { atom } from 'jotai'
 import { atomWithLazy } from 'jotai/utils'
-import { dayOf, TIME_ZONE } from '@/lib/day'
+import { dayOf, isDayKey, TIME_ZONE } from '@/lib/day'
 import { arrayOf, toPublicDogEvent } from '@/lib/wire'
 import { atomWithLocalStorage } from '../storage'
 import { deserializeFilter, serializeFilter } from './filters'
 
 export const EVENT_METADATA_INVALIDATED_STORAGE_KEY = 'eventMetadataInvalidated'
-
-const isValidDate = (value: unknown): value is Date => isDate(value) && isValid(value)
 
 const isStoredPublicDogEvent = (value: unknown): value is PublicDogEvent => {
   if (!value || typeof value !== 'object') return false
@@ -24,8 +20,8 @@ const isStoredPublicDogEvent = (value: unknown): value is PublicDogEvent => {
     typeof event.eventType === 'string' &&
     typeof event.state === 'string' &&
     event.state !== 'draft' &&
-    isValidDate(event.startDate) &&
-    isValidDate(event.endDate) &&
+    isDayKey(event.startDate) &&
+    isDayKey(event.endDate) &&
     !!event.organizer?.id
   )
 }

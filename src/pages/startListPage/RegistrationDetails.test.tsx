@@ -50,7 +50,7 @@ describe('RegistrationDetails', () => {
       titles: 'CH',
     },
     group: {
-      date: new Date('2023-01-01'),
+      date: '2023-01-01',
       key: 'group-123',
       number: 123,
       time: 'ap',

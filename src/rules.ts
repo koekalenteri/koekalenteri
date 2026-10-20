@@ -1,5 +1,12 @@
-import type { Dog, EventClassRequirement, EventRequirement, EventResultRequirementsByDate, Registration } from './types'
-import { dayStart, TIME_ZONE } from './lib/day'
+import type {
+  DayKey,
+  Dog,
+  EventClassRequirement,
+  EventRequirement,
+  EventResultRequirementsByDate,
+  Registration,
+} from './types'
+import { calendarDayOf, TIME_ZONE } from './lib/day'
 import { keysOf } from './lib/typeGuards'
 import { isModernFinnishRegNo } from './lib/validation'
 import { NOME_A_CH_requirements, NOME_B_CH_requirements, NOWT_CH_requirements } from './rules_ch'
@@ -17,13 +24,14 @@ export const RULE_DATES = [
 
 export type RuleDate = (typeof RULE_DATES)[number]
 
-export function getRuleDate(date: Date | string, available: Readonly<RuleDate[]> = RULE_DATES): RuleDate {
-  if (typeof date === 'string') {
-    date = new Date(date)
-  }
-  const asDates = available.map((v) => dayStart(v, TIME_ZONE))
-  for (let i = 0; i < asDates.length; i++) {
-    if (i > 0 && asDates[i] > date) {
+/**
+ * The rules in force on a trial's day: the latest rule date on or before it. A day is a key; a stored
+ * row's instant is read as its Finnish day, and a value with no day gets the latest rules.
+ */
+export function getRuleDate(date: string, available: Readonly<RuleDate[]> = RULE_DATES): RuleDate {
+  const day = calendarDayOf(date, TIME_ZONE)
+  for (let i = 1; day && i < available.length; i++) {
+    if (available[i] > day) {
       return available[i - 1]
     }
   }
@@ -35,7 +43,7 @@ export function getRuleDate(date: Date | string, available: Readonly<RuleDate[]>
 const validateDogForSM = (dog: Partial<Dog>) =>
   dog.regNo && dog.kcId && isModernFinnishRegNo(dog.regNo) ? false : 'dogSM'
 
-export function getRequirements(eventType: string, regClass: Registration['class'], date: Date) {
+export function getRequirements(eventType: string, regClass: Registration['class'], date: DayKey) {
   const eventRequirements = REQUIREMENTS[eventType] || {}
   const classRequirements = regClass && (eventRequirements as EventClassRequirement)[regClass]
   const requirements = classRequirements ?? (eventRequirements as EventRequirement)

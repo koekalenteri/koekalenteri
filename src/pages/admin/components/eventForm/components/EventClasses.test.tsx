@@ -1,11 +1,10 @@
+import type { DayKey } from '@/types'
 import { render, screen } from '@testing-library/react'
-import { parseISO } from 'date-fns'
 import { flushPromises, renderWithUserEvents } from '@/test-utils/utils'
 import EventClasses from './EventClasses'
 
-// Avoid `parseISO('YYYY-MM-DD')` in tests (timezone-dependent).
-const date = parseISO('2023-01-17T12:00:00Z')
-const date2 = parseISO('2023-01-18T12:00:00Z')
+const date: DayKey = '2023-01-17'
+const date2: DayKey = '2023-01-18'
 
 describe('EventClasses', () => {
   beforeAll(() => vi.useFakeTimers())

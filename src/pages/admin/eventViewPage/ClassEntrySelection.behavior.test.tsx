@@ -1,5 +1,5 @@
 import type { ComponentProps, ReactNode } from 'react'
-import type { Registration, RegistrationDate } from '@/types'
+import type { ConfirmedEvent, Registration, RegistrationDate } from '@/types'
 import type DroppableDataGrid from './classEntrySelection/DroppableDataGrid'
 import type { useClassEntrySelectionColumns } from './classEntrySelection/useClassEntrySelectionColumns'
 import { act, render, screen } from '@testing-library/react'
@@ -16,9 +16,9 @@ import ClassEntrySelection from './ClassEntrySelection'
 const mockSaveGroups = vi.fn().mockResolvedValue(undefined)
 const mockHandleOpen = vi.fn()
 const mockHandleCancel = vi.fn()
-const activeEvent = {
+const activeEvent: ConfirmedEvent = {
   ...eventWithStaticDatesAnd3Classes,
-  endDate: new Date('2099-12-31'),
+  endDate: '2099-12-31',
 }
 const mockedGroups: RegistrationDate[] = [
   { date: eventWithStaticDatesAnd3Classes.startDate, key: '2021-02-10-ap', time: 'ap' } as RegistrationDate,

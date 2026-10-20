@@ -1,3 +1,4 @@
+import type { DayKey } from '@/types'
 import { screen } from '@testing-library/react'
 import { renderWithUserEvents } from '@/test-utils/utils'
 import GroupHeader from './GroupHeader'
@@ -15,7 +16,7 @@ vi.mock('./GroupColors', () => ({
 }))
 
 describe('GroupHeader', () => {
-  const mockDate = new Date('2023-01-01')
+  const mockDate: DayKey = '2023-01-01'
   const mockAvailable = [
     { date: mockDate, time: 'ap' as const },
     { date: mockDate, time: 'ip' as const },

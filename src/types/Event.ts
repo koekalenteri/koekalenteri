@@ -12,7 +12,6 @@ import type {
   PublicJudge,
   PublicOrganizer,
   RegistrationClass,
-  RegistrationDate,
   RegistrationGroup,
   RegistrationTime,
   Replace,
@@ -191,7 +190,6 @@ export interface JsonDogEvent extends JsonDbRecord {
 
 type EventRequiredDates = 'startDate' | 'endDate'
 type EventEntryDates = 'entryStartDate' | 'entryEndDate'
-type EventOptionalDates = EventEntryDates | 'entryOrigEndDate' | 'qualificationStartDate'
 type ConfirmedEventRequiredDates = EventRequiredDates | EventEntryDates
 
 /**
@@ -231,7 +229,7 @@ export type JsonEventStation = {
    */
   phases?: string[]
 }
-export type EventStation = Replace<JsonEventStation, 'date', Date>
+export type EventStation = JsonEventStation
 
 /** A break is labeled with a code rather than free text, so the day's pauses can be counted later. */
 export type StationTurnPause = 'coffee' | 'lunch' | 'weather' | 'other'
@@ -469,7 +467,7 @@ export type JsonKcEventInfo = {
   /** The chief judge's member number (ylituomariNumero); the judge warning compares numbers. */
   judgeId?: number
 }
-export type KcEventInfo = ReplaceOptional<JsonKcEventInfo, 'startDate' | 'endDate', Date>
+export type KcEventInfo = JsonKcEventInfo
 
 export type JsonKcState = {
   code: number
@@ -492,54 +490,24 @@ export type JsonEventKcIdChoice = {
   kcTunnus?: string
   name: string
   eventType: string
-  startDate: string
-  endDate: string
-  entryStartDate?: string
-  entryEndDate?: string
+  startDate: DayKey
+  endDate: DayKey
+  entryStartDate?: DayKey
+  entryEndDate?: DayKey
   organizer: string
   /** Absent when the trial's details could not be read from Kennelliitto. */
   location?: string
   status?: string
 }
 
-export type EventKcIdChoice = Replace<
-  ReplaceOptional<JsonEventKcIdChoice, 'entryStartDate' | 'entryEndDate', Date>,
-  'startDate' | 'endDate',
-  Date
->
+export type EventKcIdChoice = JsonEventKcIdChoice
 
+/** The browser's event: its days are the day keys the server sends (KOE-1547), its moments `Date`s. */
 export type DogEvent = DbRecord &
-  Replace<
-    Replace<
-      ReplaceOptional<
-        ReplaceOptional<
-          ReplaceOptional<
-            ReplaceOptional<
-              ReplaceOptional<
-                Omit<
-                  JsonDogEvent,
-                  keyof JsonDbRecord | 'invitationAttachmentHistory' | 'kcState' | 'official' | 'secretary'
-                >,
-                EventOptionalDates,
-                Date
-              >,
-              'dates',
-              RegistrationDate[]
-            >,
-            'kcEvent',
-            KcEventInfo
-          >,
-          'stations',
-          Array<EventStation>
-        >,
-        'turns',
-        Array<StationTurn>
-      >,
-      EventRequiredDates,
-      Date
-    >,
-    'classes',
-    Array<EventClass>
+  ReplaceOptional<
+    Omit<JsonDogEvent, keyof JsonDbRecord | 'invitationAttachmentHistory' | 'kcState' | 'official' | 'secretary'>,
+    'turns',
+    Array<StationTurn>
   > & {
     invitationAttachmentHistory?: Record<string, InvitationAttachmentVersion>
     kcState?: KcState
@@ -594,7 +562,7 @@ export type JsonEventClass = {
   /** Posts this class splits differently from the course as built. Absent entries follow the post. */
   stations?: JsonEventClassStation[]
 }
-export type EventClass = Replace<JsonEventClass, 'date', Date>
+export type EventClass = JsonEventClass
 
 export type EventClassState = 'picked' | 'invited' | 'started' | 'ended' | 'completed'
 export type ConfirmedEventStates = 'confirmed' | EventClassState

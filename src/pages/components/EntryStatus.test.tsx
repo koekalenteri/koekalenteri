@@ -46,7 +46,7 @@ describe('EntryStatus', () => {
     ],
     [
       {
-        entryOrigEndDate: new Date(),
+        entryOrigEndDate: '2026-10-20',
         state: 'confirmed',
       },
       '(event.states.extended_info)',

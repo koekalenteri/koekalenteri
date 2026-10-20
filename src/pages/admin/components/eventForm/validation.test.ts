@@ -3,7 +3,6 @@ import type { PartialEvent } from './types'
 import { emptyEvent } from '@/__mockData__/emptyEvent'
 import * as env from '@/lib/env'
 import { merge } from '@/lib/utils'
-import { startOfFinnishDay } from '@/test-utils/finnishDays'
 import { requiredFields, VALIDATORS, validateEvent, validateEventField } from './validation'
 
 describe('validation', () => {
@@ -573,9 +572,9 @@ describe('validation', () => {
       // 23:30 Finnish time on 17.10.2026, and the trial's last day is the 17th.
       vi.setSystemTime(new Date('2026-10-17T20:30:00.000Z'))
       try {
-        const event: PartialEvent = { ...emptyEvent, endDate: startOfFinnishDay('2026-10-17') }
+        const event: PartialEvent = { ...emptyEvent, endDate: '2026-10-17' }
         expect(VALIDATORS.endDate?.(event, true)).toBe(false)
-        expect(VALIDATORS.endDate?.({ ...event, endDate: startOfFinnishDay('2026-10-16') }, true)).toBe('endDate')
+        expect(VALIDATORS.endDate?.({ ...event, endDate: '2026-10-16' }, true)).toBe('endDate')
       } finally {
         vi.useRealTimers()
       }

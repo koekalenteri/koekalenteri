@@ -26,31 +26,31 @@ const nowtResult = (result: string, date: DayKey, props: Partial<TestResult> = {
   })
 
 describe('championship ranking rules', () => {
-  // The period runs from the start of its first counted day to the end of its last, both in Finland: the
-  // NOME-A and NOWT periods start the day after the entry's last day two years and a year back.
+  // The period runs from its first counted day to its last, both included: the NOME-A and NOWT periods
+  // start the day after the entry's last day two years and a year back.
   it('returns ranking periods for supported championship event types', () => {
-    const entryEndDate = new Date('2025-08-15T12:00:00.000Z')
-    const qualificationStartDate = new Date('2024-08-01T00:00:00.000Z')
-    const maxResultDate = new Date('2025-08-15T20:59:59.999Z')
+    const entryEndDate = '2025-08-15'
+    const qualificationStartDate = '2024-08-01'
+    const maxResultDate = '2025-08-15'
 
     expect(getRankingPeriod('NOME-B SM', entryEndDate, qualificationStartDate)).toEqual({
       maxResultDate,
-      minResultDate: new Date('2024-07-31T21:00:00.000Z'),
+      minResultDate: '2024-08-01',
     })
     expect(getRankingPeriod('NOME-A SM', entryEndDate, qualificationStartDate)).toEqual({
       maxResultDate,
-      minResultDate: new Date('2023-08-15T21:00:00.000Z'),
+      minResultDate: '2023-08-16',
     })
     expect(getRankingPeriod('NOWT SM', entryEndDate, qualificationStartDate)).toEqual({
       maxResultDate,
-      minResultDate: new Date('2024-08-15T21:00:00.000Z'),
+      minResultDate: '2024-08-16',
     })
     expect(getRankingPeriod('NOME-B SM', undefined, qualificationStartDate)).toBeUndefined()
   })
 
   it('aggregates official and manual NOME-B results, orders by points and limits to five', () => {
-    const entryEndDate = new Date('2025-08-15T12:00:00.000Z')
-    const qualificationStartDate = new Date('2024-08-01T00:00:00.000Z')
+    const entryEndDate = '2025-08-15'
+    const qualificationStartDate = '2024-08-01'
 
     const officialResults: TestResult[] = [
       officialResult({
@@ -114,7 +114,7 @@ describe('championship ranking rules', () => {
   })
 
   it('keeps NOME-A qualification logic and ranking point ordering intact', () => {
-    const entryEndDate = new Date('2025-08-15T12:00:00.000Z')
+    const entryEndDate = '2025-08-15'
 
     const officialResults: TestResult[] = [
       officialResult({
@@ -147,7 +147,7 @@ describe('championship ranking rules', () => {
   })
 
   it('keeps NOWT qualification logic and ranking point ordering intact', () => {
-    const entryEndDate = new Date('2025-08-15T12:00:00.000Z')
+    const entryEndDate = '2025-08-15'
 
     const officialResults: TestResult[] = [
       officialResult({
@@ -179,7 +179,7 @@ describe('championship ranking rules', () => {
   })
 
   it('qualifies NOWT championship entry with FI KVA-WT achieved before the ranking period', () => {
-    const entryEndDate = new Date('2025-08-15T12:00:00.000Z')
+    const entryEndDate = '2025-08-15'
 
     const result = NOWT_CH_requirements(
       [
@@ -226,7 +226,7 @@ describe('championship ranking rules', () => {
     ['VOI2', {}, false, 2],
     ['VOI3', {}, false, 1],
   ])('scores NOWT championship result %s with %p as %i points', (resultName, props, qualifies, rankingPoints) => {
-    const entryEndDate = new Date('2025-08-15T12:00:00.000Z')
+    const entryEndDate = '2025-08-15'
 
     const result = NOWT_CH_requirements([nowtResult(resultName, '2025-06-01', props)], [], entryEndDate, undefined)
 
@@ -241,7 +241,7 @@ describe('championship ranking rules', () => {
   })
 
   it('ignores non-champion NOWT results outside the ranking period', () => {
-    const entryEndDate = new Date('2025-08-15T12:00:00.000Z')
+    const entryEndDate = '2025-08-15'
 
     const result = NOWT_CH_requirements(
       [nowtResult('VOI1', '2024-01-15'), nowtResult('VOI2', '2024-01-16'), nowtResult('VOI3', '2024-01-17')],
@@ -255,7 +255,7 @@ describe('championship ranking rules', () => {
   })
 
   it('ignores NOWT championship results from wrong type, class or result value', () => {
-    const entryEndDate = new Date('2025-08-15T12:00:00.000Z')
+    const entryEndDate = '2025-08-15'
 
     const result = NOWT_CH_requirements(
       [
@@ -273,7 +273,7 @@ describe('championship ranking rules', () => {
   })
 
   it('orders NOWT ranking results by points and date and limits ranking results to five', () => {
-    const entryEndDate = new Date('2025-08-15T12:00:00.000Z')
+    const entryEndDate = '2025-08-15'
 
     const result = NOWT_CH_requirements(
       [
@@ -317,9 +317,13 @@ describe('championship ranking rules', () => {
 const inLambdaZone = <T>(run: () => T): T => withTimeZone('UTC', run)
 
 const REG_NO = 'FI12345/22'
+// A row stored before KOE-1547 holds its days as instants; the browser holds them as their keys.
 const ENTRY_END = legacyDayValue('2026-02-15T21:59:59.999Z') // the end of 15.2.2026 in Finland
 const QUALIFICATION_START = legacyDayValue('2025-01-31T22:00:00.000Z') // the start of 1.2.2025 in Finland
 const START_DATE = legacyDayValue('2026-03-07T22:00:00.000Z')
+const ENTRY_END_DAY: DayKey = '2026-02-15'
+const QUALIFICATION_START_DAY: DayKey = '2025-02-01'
+const START_DAY: DayKey = '2026-03-08'
 
 const smEvent = (eventType: string) => ({
   entryEndDate: ENTRY_END,
@@ -332,10 +336,10 @@ const smEvent = (eventType: string) => ({
 const decideInBrowser = (eventType: string, official: JsonTestResult[], manual: JsonManualTestResult[] = []) =>
   filterRelevantResults(
     {
-      entryEndDate: new Date(ENTRY_END),
+      entryEndDate: ENTRY_END_DAY,
       eventType,
-      qualificationStartDate: new Date(QUALIFICATION_START),
-      startDate: new Date(START_DATE),
+      qualificationStartDate: QUALIFICATION_START_DAY,
+      startDate: START_DAY,
     },
     undefined,
     toDog({ regNo: REG_NO, results: official }).results,
@@ -488,7 +492,7 @@ describe('the ranking period in days', () => {
           date: undefined,
         },
       ],
-      new Date(ENTRY_END),
+      ENTRY_END_DAY,
       undefined
     )
 
@@ -503,8 +507,8 @@ describe('the ranking period in days', () => {
     const result = NOME_B_CH_requirements(
       [nomeB('VOI1', '2025-06-01'), nomeB('FI KVA-B', undefined), nomeB('VOI1', '2025-07-01')],
       [],
-      new Date(ENTRY_END),
-      new Date(QUALIFICATION_START)
+      ENTRY_END_DAY,
+      QUALIFICATION_START_DAY
     )
 
     expect(result.relevant.map((r) => r.result)).toEqual(['VOI1', 'VOI1', 'FI KVA-B'])
