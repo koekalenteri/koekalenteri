@@ -1,11 +1,6 @@
-// Rebuilds statistics from scratch out of the events and registrations tables.
-//
-// Two callers with different scopes share this: the manual RebuildAllStatsFunction rebuilds
-// everything, and the scheduled RebuildStatsFunction rebuilds every partition except ORG#.
-// ORG# is excluded from the scheduled run on purpose: it is the one partition still maintained
-// incrementally on registration writes, and a delete-then-write pass over it would race those
-// writes. Every other partition has exactly one writer — this module — so rebuilding is safe.
-import type { EventState, JsonRegistration } from '../../types'
+// Rebuilds statistics from scratch out of the events and registrations tables. Which partitions
+// each caller rebuilds, and why the scheduled run leaves ORG# alone: README.md in this folder.
+import type { EventState, JsonRegistration } from '../../../types'
 import type {
   JsonBreedStartStatsItem,
   JsonCapacityStatsItem,
@@ -14,15 +9,15 @@ import type {
   JsonJudgeWorkloadItem,
   RegistrationStatsInput,
   YearlyStatTypes,
-} from '../../types/Stats'
-import type { EventStatsEvent } from './repositories/eventRepository'
-import type { EventStatKey } from './repositories/eventStatsRepository'
-import { isEventOver, OFFICIAL_EVENT_TYPES, storedMonthKey, uniqueClasses } from '../../lib/event'
-import { getRegistrationClass, isMember, isStarter } from '../../lib/registration'
-import { mapWithConcurrency, splitEvenly } from '../../lib/utils'
-import { ALL_EVENT_TYPES_FOR_CAPACITY, ALL_ORGANIZERS_FOR_EVENTS, YEARLY_BREAKDOWN_TYPES } from '../../types/Stats'
-import { logger } from './log'
-import { readEventsForStats } from './repositories/eventRepository'
+} from '../../../types/Stats'
+import type { EventStatsEvent } from '../repositories/eventRepository'
+import type { EventStatKey } from '../repositories/eventStatsRepository'
+import { isEventOver, OFFICIAL_EVENT_TYPES, storedMonthKey, uniqueClasses } from '../../../lib/event'
+import { getRegistrationClass, isMember, isStarter } from '../../../lib/registration'
+import { mapWithConcurrency, splitEvenly } from '../../../lib/utils'
+import { ALL_EVENT_TYPES_FOR_CAPACITY, ALL_ORGANIZERS_FOR_EVENTS, YEARLY_BREAKDOWN_TYPES } from '../../../types/Stats'
+import { logger } from '../log'
+import { readEventsForStats } from '../repositories/eventRepository'
 import {
   bucketsPk,
   capacityPk,
@@ -38,8 +33,8 @@ import {
   YEARS_PK,
   yearlyStatPk,
   yearlyTotalsPk,
-} from './repositories/eventStatsRepository'
-import { readRegistrationsForStats } from './repositories/registrationRepository'
+} from '../repositories/eventStatsRepository'
+import { readRegistrationsForStats } from '../repositories/registrationRepository'
 import { bucketForCount, eventStatsYear, hashStatValue, participationIdentifiers, statIdentifier } from './stats'
 
 /**
@@ -89,10 +84,7 @@ const isHeldEvent = ({ event, ended }: Pick<DatedStatsEvent, 'event' | 'ended'>)
 const isHeldOfficialEvent = (dated: Pick<DatedStatsEvent, 'event' | 'ended'>): boolean =>
   isHeldEvent(dated) && OFFICIAL_EVENT_TYPES.includes(dated.event.eventType)
 
-/**
- * Which group of stats records a key belongs to. `organizer` is the only partition also written
- * incrementally on registration writes; the rest are owned solely by this module.
- */
+/** Which group of stats records a key belongs to; README.md names each partition's writers. */
 type StatsPartition = 'organizer' | 'participation' | 'capacity' | 'judges' | 'eventBreakdown'
 
 export const ALL_STATS_PARTITIONS: StatsPartition[] = [

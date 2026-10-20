@@ -1,7 +1,7 @@
 import type { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
 import { authorizeWithMemberOf } from '../lib/auth'
 import { httpError, lambda, response } from '../lib/lambda'
-import { getCapacityStats, getJudgeWorkload, getOrganizerStats } from '../lib/stats'
+import { getCapacityStats, getJudgeWorkload, getOrganizerStats } from '../lib/stats/stats'
 
 /**
  * Authorized counterpart to the public /stats route, and shaped the same way: the query

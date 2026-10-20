@@ -1,6 +1,4 @@
-  # Manual invoke only. Rebuilds every stats partition including ORG#, which registration
-  # writes also maintain, so run it when writes are quiet. The nightly RebuildStatsFunction
-  # covers the partitions that can be rebuilt safely at any time.
+  # Manual invoke only: rebuilds every stats partition, ORG# included; see src/lambda/lib/stats/README.md.
   RebuildAllStatsFunction:
     Type: AWS::Serverless::Function
     Properties:

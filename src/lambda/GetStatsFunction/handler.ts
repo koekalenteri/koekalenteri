@@ -11,7 +11,7 @@ import {
   getRetentionStats,
   getYearlyBreakdown,
   getYearlyTotalStats,
-} from '../lib/stats'
+} from '../lib/stats/stats'
 
 // Both partitions are only refreshed by the nightly RebuildStatsFunction, not on registration
 // writes, so a short cache age doesn't buy freshness here — it just bounds how long a bad

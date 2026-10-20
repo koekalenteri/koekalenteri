@@ -28,8 +28,8 @@ vi.doMock('../lib/repositories/registrationRepository', async () => ({
   )),
   writeRegistrations: mockWriteRegistrations,
 }))
-vi.doMock('../lib/stats', async () => ({
-  ...(await vi.importActual<typeof import('../lib/stats')>('../lib/stats')),
+vi.doMock('../lib/stats/stats', async () => ({
+  ...(await vi.importActual<typeof import('../lib/stats/stats')>('../lib/stats/stats')),
   updateOrganizerEventStats: mockUpdateOrganizerEventStats,
 }))
 vi.doMock('../lib/audit', async () => ({

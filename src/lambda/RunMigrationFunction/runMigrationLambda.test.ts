@@ -62,8 +62,8 @@ vi.doMock('../lib/repositories/userRepository', () => ({
 }))
 
 // Whether the stats row moves is the repository's pure key comparison, run as it is; the move itself
-// is persistence, tested in lib/stats.
-vi.doMock('../lib/stats', () => ({
+// is persistence, tested in lib/stats/stats.
+vi.doMock('../lib/stats/stats', () => ({
   moveOrganizerEventStats: mockMoveOrganizerEventStats,
 }))
 

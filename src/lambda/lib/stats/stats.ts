@@ -1,4 +1,4 @@
-import type { JsonConfirmedEvent, JsonRegistration } from '../../types'
+import type { JsonConfirmedEvent, JsonRegistration } from '../../../types'
 import type {
   BreedStartRateEntry,
   CapacityStatsEntry,
@@ -10,15 +10,15 @@ import type {
   YearlyBreakdownType,
   YearlyStatTypes,
   YearlyTotalStat,
-} from '../../types/Stats'
-import type { OrganizerStatsEvent, StatDeltas } from './repositories/eventStatsRepository'
+} from '../../../types/Stats'
+import type { OrganizerStatsEvent, StatDeltas } from '../repositories/eventStatsRepository'
 import crypto from 'node:crypto'
-import { dayStart, isDayKey, TIME_ZONE } from '../../lib/day'
-import { storedYear } from '../../lib/event'
-import { isMember, isStarter } from '../../lib/registration'
-import { legacyEventDay } from '../../lib/storedDays'
-import { isTransactionCanceled } from './api-gw'
-import { jitteredWait, retryOnConditionFailure } from './conditionalWrite'
+import { dayStart, isDayKey, TIME_ZONE } from '../../../lib/day'
+import { storedYear } from '../../../lib/event'
+import { isMember, isStarter } from '../../../lib/registration'
+import { legacyEventDay } from '../../../lib/storedDays'
+import { isTransactionCanceled } from '../api-gw'
+import { jitteredWait, retryOnConditionFailure } from '../conditionalWrite'
 import {
   addOrganizerEventStats,
   commitNewRegistrationStats,
@@ -37,9 +37,9 @@ import {
   readStatsYears,
   readYearlyBreakdown,
   readYearlyTotals,
-} from './repositories/eventStatsRepository'
-import { readEventTypes } from './repositories/eventTypeRepository'
-import { readRegistration } from './repositories/registrationRepository'
+} from '../repositories/eventStatsRepository'
+import { readEventTypes } from '../repositories/eventTypeRepository'
+import { readRegistration } from '../repositories/registrationRepository'
 
 const NEW_REGISTRATION_STATS_MAX_ATTEMPTS = 12
 const NEW_REGISTRATION_STATS_RETRY_BASE_MS = 10
@@ -351,8 +351,8 @@ export async function updateOrganizerEventStats(event: OrganizerStatsEvent, delt
  * The key embeds both the organizer and the start date, so editing either would strand the
  * counters under the old key: the orphan keeps showing up in the organizer's finance chart
  * (and the event vanishes from its real date) until someone runs RebuildAllStatsFunction.
- * ORG# is the one partition the nightly rebuild deliberately leaves alone, so nothing else
- * repairs this. See src/lambda/lib/statsRebuild.ts.
+ * The nightly rebuild leaves ORG# alone (README.md in this folder), so nothing else repairs
+ * this.
  *
  * A registration write can land on `from` between the read below and the transaction commit
  * (it applies a blind ADD to the same key). The delete is conditioned on the `updatedAt` we
@@ -528,8 +528,7 @@ export const updateEventStatsForRegistration = async (
     throw new Error(`Cannot derive stats year from event start date: ${event.startDate}`)
   }
 
-  // Organizer stats are the only partition maintained here; participation, capacity and the
-  // YEARS markers are recomputed nightly by RebuildStatsFunction.
+  // Only the organizer partition is maintained here; README.md names the other partitions' writer.
   const deltas = calculateStatDeltas(registration, existingRegistration)
   await updateOrganizerEventStats(event, deltas)
 }

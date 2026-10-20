@@ -1,9 +1,9 @@
-import type { EventStatsEvent } from './repositories/eventRepository'
-import type * as eventStatsRepository from './repositories/eventStatsRepository'
-import type * as registrationRepository from './repositories/registrationRepository'
+import type { EventStatsEvent } from '../repositories/eventRepository'
+import type * as eventStatsRepository from '../repositories/eventStatsRepository'
+import type * as registrationRepository from '../repositories/registrationRepository'
 import { vi } from 'vitest'
-import { legacyDayValue } from '../../test-utils/finnishDays'
-import { loggedLines } from '../test-utils/logs'
+import { legacyDayValue } from '../../../test-utils/finnishDays'
+import { loggedLines } from '../../test-utils/logs'
 
 const mockDeleteStatRecords = vi.fn<typeof eventStatsRepository.deleteStatRecords>()
 const mockWriteStatRecords = vi.fn<typeof eventStatsRepository.writeStatRecords>()
@@ -12,18 +12,18 @@ const mockReadRegistrationsForStats = vi.fn<typeof registrationRepository.readRe
 const mockReadEventsForStats = vi.fn()
 
 // The key builder is the real one; only the table access is replaced.
-vi.doMock('./repositories/eventStatsRepository', async (importOriginal) => ({
+vi.doMock('../repositories/eventStatsRepository', async (importOriginal) => ({
   ...(await importOriginal<typeof eventStatsRepository>()),
   deleteStatRecords: mockDeleteStatRecords,
   readAllStatKeys: mockReadAllStatKeys,
   writeStatRecords: mockWriteStatRecords,
 }))
 
-vi.doMock('./repositories/registrationRepository', () => ({
+vi.doMock('../repositories/registrationRepository', () => ({
   readRegistrationsForStats: mockReadRegistrationsForStats,
 }))
 
-vi.doMock('./repositories/eventRepository', () => ({
+vi.doMock('../repositories/eventRepository', () => ({
   readEventsForStats: mockReadEventsForStats,
 }))
 
@@ -33,7 +33,7 @@ const {
   getEventStatsRecordYear,
   getStatsRecordPartition,
   REBUILDABLE_STATS_PARTITIONS,
-} = await import('./statsRebuild')
+} = await import('./rebuild')
 const handler = createHandler()
 const rebuildHandler = createHandler(REBUILDABLE_STATS_PARTITIONS)
 
@@ -62,7 +62,7 @@ const registration = (id: string, eventId: string, overrides = {}) => ({
 const start = (id: string, eventId: string, overrides = {}) =>
   registration(id, eventId, { group: { key: 'kp' }, ...overrides })
 
-describe('statsRebuild', () => {
+describe('stats/rebuild', () => {
   const mockLog = vi.spyOn(console, 'info').mockImplementation(() => undefined)
 
   beforeEach(() => {

@@ -1,10 +1,10 @@
-import type { JsonEventType, JsonRegistration } from '../../types'
-import type { JsonCapacityStatsItem, RegistrationStatsInput } from '../../types/Stats'
-import type * as eventStatsRepository from './repositories/eventStatsRepository'
-import type * as registrationRepository from './repositories/registrationRepository'
+import type { JsonEventType, JsonRegistration } from '../../../types'
+import type { JsonCapacityStatsItem, RegistrationStatsInput } from '../../../types/Stats'
+import type * as eventStatsRepository from '../repositories/eventStatsRepository'
+import type * as registrationRepository from '../repositories/registrationRepository'
 import { vi } from 'vitest'
-import { legacyDayValue } from '../../test-utils/finnishDays'
-import { asJsonConfirmedEvent, asJsonRegistration } from '../test-utils/helpers'
+import { legacyDayValue } from '../../../test-utils/finnishDays'
+import { asJsonConfirmedEvent, asJsonRegistration } from '../../test-utils/helpers'
 
 const mockReadOrganizerEventStats = vi.fn<typeof eventStatsRepository.readOrganizerEventStats>()
 const mockReadAllOrganizerEventStats = vi.fn<typeof eventStatsRepository.readAllOrganizerEventStats>()
@@ -24,7 +24,7 @@ const mockCommitNewRegistrationStats = vi.fn<typeof eventStatsRepository.commitN
 const mockReadRegistration = vi.fn<typeof registrationRepository.readRegistration>()
 
 // The key builder is the real one; only the table access is replaced.
-vi.doMock('./repositories/eventStatsRepository', async (importOriginal) => {
+vi.doMock('../repositories/eventStatsRepository', async (importOriginal) => {
   const original = await importOriginal<typeof eventStatsRepository>()
   return {
     ...original,
@@ -48,12 +48,12 @@ vi.doMock('./repositories/eventStatsRepository', async (importOriginal) => {
   }
 })
 
-vi.doMock('./repositories/registrationRepository', () => ({
+vi.doMock('../repositories/registrationRepository', () => ({
   readRegistration: mockReadRegistration,
 }))
 
 const mockReadEventTypes = vi.fn<() => Promise<JsonEventType[]>>()
-vi.doMock('./repositories/eventTypeRepository', () => ({
+vi.doMock('../repositories/eventTypeRepository', () => ({
   readEventTypes: mockReadEventTypes,
 }))
 
@@ -82,7 +82,7 @@ const {
   moveOrganizerEventStats,
 } = await import('./stats')
 
-describe('lib/stats', () => {
+describe('lib/stats/stats', () => {
   afterEach(() => {
     vi.resetAllMocks()
     vi.restoreAllMocks()
