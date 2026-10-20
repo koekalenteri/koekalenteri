@@ -5,8 +5,7 @@ import { useResetAtom } from 'jotai/utils'
 import { useCallback, useEffect, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate, useParams } from 'react-router'
-import { isEntryClosed, isEventOngoing, isEventOver } from '../lib/event'
-import { getRegistrationClass } from '../lib/registration'
+import { getRegistrationClass, isRegistrationContentLocked } from '../lib/registration'
 import { hasChanges } from '../lib/utils'
 import { HiddenPageTitle } from './components/HiddenPageTitle'
 import LinkButton from './components/LinkButton'
@@ -27,8 +26,11 @@ export default function RegistrationEditPage() {
   const resetRegistration = useResetAtom(editableRegistrationByIdsAtom(ids))
   const spa = useAtomValue(spaAtom)
   const actions = useRegistrationActions()
+  // The rule the server refuses a change by (KOE-1584): closed from the close of entry to the trial,
+  // open on the trial days, and closed once the last day has gone or the class has been judged. What a
+  // picked or paid entrant may still change there is the form's own business.
   const disabled =
-    !event || isEntryClosed(event) || isEventOngoing(event) || isEventOver(event) || savedRegistration?.cancelled
+    !event || !savedRegistration || isRegistrationContentLocked(event, savedRegistration) || savedRegistration.cancelled
   const changes = useMemo(
     () => !disabled && !!savedRegistration && hasChanges(savedRegistration, registration),
     [registration, savedRegistration, disabled]

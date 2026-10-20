@@ -1615,6 +1615,92 @@ describe('putRegistrationLabmda', () => {
     expect(mockPatchRegistration).not.toHaveBeenCalled()
   })
 
+  // The participant's own form and the server read one rule (KOE-1584): what the entry says is closed
+  // from the close of entry to the trial and once the class has been judged; confirming, cancelling and
+  // reading an invitation are not edits of it and stay open until the trial's last day has gone.
+  describe.each([
+    [
+      'between the close of entry and the trial',
+      addMinutes(dayEnd(eventWithStaticDates.entryEndDate, TIME_ZONE), 1),
+      'invited',
+    ],
+    [
+      'on a trial day once the class has ended',
+      addMinutes(dayStart(eventWithStaticDates.startDate, TIME_ZONE), 720),
+      'ended',
+    ],
+  ] as const)('%s', (_label, now, state) => {
+    const event = () => ({ ...JSON.parse(JSON.stringify(eventWithStaticDates)), state })
+    const existingJson = () => ({
+      ...storedRegistrationJson(registrationWithStaticDates),
+      invitationAttachmentSent: 'sent-attachment',
+      messagesSent: { invitation: true, picked: true },
+    })
+    const patch = (fields: Partial<JsonRegistration>) =>
+      constructAPIGwEvent(
+        { eventId: registrationWithStaticDates.eventId, id: registrationWithStaticDates.id, ...fields },
+        { method: 'PATCH' }
+      )
+
+    beforeEach(() => {
+      vi.setSystemTime(now)
+      mockGetEvent.mockResolvedValueOnce(event())
+      mockGetRegistration.mockResolvedValueOnce(existingJson())
+    })
+
+    it('refuses an edit of what the entry says with 410', async () => {
+      const res = await putRegistrationLabmda(patch({ notes: 'late edit' }))
+
+      expect(res.statusCode).toBe(410)
+      expect(JSON.parse(res.body)).toEqual({ message: 'Gone: the entry can no longer be edited' })
+      expect(mockPatchRegistration).not.toHaveBeenCalled()
+    })
+
+    it('refuses an edit that comes with a cancellation', async () => {
+      const res = await putRegistrationLabmda(patch({ cancelled: true, notes: 'late edit' }))
+
+      expect(res.statusCode).toBe(410)
+      expect(mockPatchRegistration).not.toHaveBeenCalled()
+    })
+
+    it.each([
+      ['a confirmation', { confirmed: true }],
+      ['a cancellation', { cancelled: true, cancelReason: 'sick' }],
+      ['an invitation read', { invitationRead: true }],
+    ] as const)('saves %s', async (_kind, fields) => {
+      const res = await putRegistrationLabmda(patch(fields))
+
+      expect(res.statusCode).toBe(200)
+      expect(mockPatchRegistration).toHaveBeenCalledWith(
+        registrationWithStaticDates.eventId,
+        registrationWithStaticDates.id,
+        existingJson(),
+        expect.objectContaining(fields)
+      )
+    })
+  })
+
+  it('saves an edit of what the entry says on the second day of a started trial (KOE-1584)', async () => {
+    vi.setSystemTime(addMinutes(dayStart(eventWithStaticDates.endDate, TIME_ZONE), 720))
+    mockGetEvent.mockResolvedValueOnce({ ...JSON.parse(JSON.stringify(eventWithStaticDates)), state: 'started' })
+    mockGetRegistration.mockResolvedValueOnce(storedRegistrationJson(registrationWithStaticDates))
+
+    const res = await putRegistrationLabmda(
+      constructAPIGwEvent(
+        { eventId: registrationWithStaticDates.eventId, id: registrationWithStaticDates.id, notes: 'day two' },
+        { method: 'PATCH' }
+      )
+    )
+
+    expect(res.statusCode).toBe(200)
+    expect(mockPatchRegistration).toHaveBeenCalledWith(
+      registrationWithStaticDates.eventId,
+      registrationWithStaticDates.id,
+      storedRegistrationJson(registrationWithStaticDates),
+      expect.objectContaining({ notes: 'day two' })
+    )
+  })
+
   it('does not expose an existing registration for a duplicate submission', async () => {
     vi.setSystemTime(eventWithStaticDates.entryStartDate)
     mockGetEvent.mockResolvedValueOnce(JSON.parse(JSON.stringify(eventWithStaticDates)))

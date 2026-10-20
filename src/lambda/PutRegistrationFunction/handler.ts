@@ -8,9 +8,11 @@ import { qualifyJsonRegistration } from '../../lib/qualification'
 import {
   isCompleteRegistration,
   isPublicRegistrationOperationField,
+  isRegistrationContentLocked,
   meetsRestrictions,
   registrationActor,
   resolveInvitationRead,
+  withoutParticipantResponses,
 } from '../../lib/registration'
 import { registrationBodySchema } from '../../lib/schema/registration'
 import { legacyRegistrationDays, rekeyRegistrationDays } from '../../lib/storedDays'
@@ -105,6 +107,23 @@ const buildPublicRegistrationData = (
   return { data, flags: { cancel, confirm, invitation: invitation.read } }
 }
 
+/**
+ * Refuses a change to what the entry says once that has closed for the participant, by the rule
+ * their form reads (KOE-1584). Confirming, cancelling and reading an invitation stay open until the
+ * trial is over: a request that changes only those passes, and one that changes anything else
+ * besides them does not.
+ */
+const assertEntryContentEditable = (
+  existing: JsonRegistration,
+  data: JsonRegistration,
+  confirmedEvent: JsonConfirmedEvent
+) => {
+  if (!isRegistrationContentLocked(confirmedEvent, existing)) return
+  if (hasRegistrationChanges(withoutParticipantResponses(existing), withoutParticipantResponses(data))) {
+    throw httpError(410, { message: 'Gone: the entry can no longer be edited' })
+  }
+}
+
 /** The request body as the registration to store, or as the operations to apply to a stored one. */
 const parsePublicRegistrationBody = (event: APIGatewayProxyEvent) => {
   const patchRequest = isPatchRequest(event)
@@ -193,6 +212,7 @@ const putRegistrationLambda = lambda('putRegistration', async (event) => {
   registration.updatedAt = timestamp
 
   const { data, flags } = buildPublicRegistrationData(registration, existing, confirmedEvent)
+  if (existing) assertEntryContentEditable(existing, data, confirmedEvent)
 
   applyOwnerOverrides(data)
   // The entry restrictions (KOE-525) are a gate, not a note to the secretary: the form does not
