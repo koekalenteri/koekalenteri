@@ -29,6 +29,7 @@ import type {
   RegistrationTime,
 } from '../types'
 import type { AuditActor } from './audit'
+import type { EventVitals } from './event'
 import { nanoid } from 'nanoid'
 import { emptyBreeder, emptyDog, emptyPerson } from './data'
 import { calendarDayOf, TIME_ZONE } from './day'
@@ -37,6 +38,7 @@ import {
   groupKeyOf,
   hasSharedReserveList,
   isEntryClosed,
+  isEntryEditingClosed,
   localizedEventDescription,
   localizedEventName,
   storedDayKey,
@@ -197,6 +199,25 @@ export const withoutRegistrationMoney = <T extends Partial<Record<RegistrationMo
   registration: T
 ): T => withoutFields(registration, REGISTRATION_MONEY_FIELDS)
 
+/**
+ * What a participant's cancellation, confirmation and reading of an invitation write. The rest of the
+ * public fields are what the entry says, which closes earlier (`isRegistrationContentLocked`, KOE-1584).
+ */
+const PARTICIPANT_RESPONSE_FIELDS = [
+  'cancelReason',
+  'cancelled',
+  'confirmed',
+  'invitationAttachmentRead',
+  'invitationRead',
+] as const satisfies ReadonlyArray<keyof JsonRegistration>
+
+type ParticipantResponseField = (typeof PARTICIPANT_RESPONSE_FIELDS)[number]
+
+/** A copy of the registration without what a participant's response writes (`PARTICIPANT_RESPONSE_FIELDS`). */
+export const withoutParticipantResponses = <T extends Partial<Record<ParticipantResponseField, unknown>>>(
+  registration: T
+): T => withoutFields(registration, PARTICIPANT_RESPONSE_FIELDS)
+
 /** The durable and leased state of one creation attempt of a registration. */
 export const NEW_REGISTRATION_WORKFLOW_FIELDS = [
   'newRegistrationAuditAt',
@@ -323,6 +344,31 @@ export function getRegistrationClass(registration: { class?: string | null; even
 export function getRegistrationClass(registration: { class?: string | null; eventType?: string }) {
   return registration.class ?? registration.eventType
 }
+
+type RegistrationEditingEvent = EventVitals & Parameters<typeof getEventStateForClass>[0]
+type RegistrationClassFields = Parameters<typeof getRegistrationClass>[0]
+
+/**
+ * Whether the participant's own entry is past changing: the trial's last day has gone, or the class
+ * the entry sits in has been judged. Confirming, cancelling and reading an invitation close here
+ * (KOE-1388, KOE-1584).
+ */
+export const isRegistrationEditingClosed = (
+  event: RegistrationEditingEvent,
+  registration: RegistrationClassFields,
+  now = new Date()
+): boolean => isEntryEditingClosed(event, getEventStateForClass(event, getRegistrationClass(registration)), now)
+
+/**
+ * Whether the participant may no longer change what the entry says: from the close of entry to the
+ * trial, while the entries are picked, and once editing has closed. On the trial days the form is
+ * open again; what a picked or paid entrant may change is the form's own business (KOE-1584).
+ */
+export const isRegistrationContentLocked = (
+  event: RegistrationEditingEvent,
+  registration: RegistrationClassFields,
+  now = new Date()
+): boolean => isEntryClosed(event, now) || isRegistrationEditingClosed(event, registration, now)
 
 export const isRegistrationClass = (cls?: string | null): cls is RegistrationClass =>
   !!(cls && REG_CLASSES.has(cls as RegistrationClass))

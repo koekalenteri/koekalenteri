@@ -9,7 +9,9 @@ covers:
   - src/pages/RegistrationInvitation.tsx
   - src/pages/components/CancelDialog.tsx
   - src/pages/components/RegistrationEventInfo.tsx
-sourceHash: 03d1c3
+  - src/pages/components/RegistrationForm.tsx
+  - src/lib/registration.ts
+sourceHash: 0a8ef5
 ---
 
 The link in your confirmation email opens your entry's own page, headed **{t:entryList}**. The
@@ -81,9 +83,15 @@ takes you to pay. The invitation is sent to you only once the place has been pai
 
 In the menu at the right end of the dog's row (⋮), **{t:registration.actions.edit}** opens the
 same form you entered with. Changes are saved with **{t:registration.cta.saveChanges}**. The form
-can be edited while entry is open; once entry has closed or the trial has started, the details
-are shown but can no longer be changed — changes are then arranged with the secretary. A cancelled
-entry opens under the heading *{t:registration.state.cancelled}*.
+can be edited while entry is open, and again on the trial days until the end of the last one.
+From the close of entry until the trial starts, while the places are given out, and once the trial
+is over or your class has been judged, the details are shown but cannot be changed. Once the dog
+has a place, you can no longer change its class, days, reserve choice, breeder, owner, handler or
+results. Once
+the entry has been paid, you can no longer change the dog, the membership details, the cost chosen
+or the additional services, even while entry is still open. In these cases changes are arranged
+with the secretary. A cancelled entry opens under the heading
+*{t:registration.state.cancelled}*.
 
 ## Cancelling the entry
 
@@ -96,7 +104,7 @@ told.
 
 !shot[CancelDialog/cancel-dialog-open] The reason is picked before confirming
 
-On the trial's first day and the day before it, cancelling cannot be done in the calendar; the
+From the day before the trial to its last day, cancelling cannot be done in the calendar; the
 dialog asks you to contact the secretary directly. The refund terms are in the Kennel Club's
 rules, which the link at the foot of the dialog opens.
 

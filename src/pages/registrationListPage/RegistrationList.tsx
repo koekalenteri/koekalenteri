@@ -24,6 +24,8 @@ type StrippedRegistration = Omit<Registration, 'group' | 'internalNotes'> & { pa
 
 interface Props {
   readonly disabled?: boolean
+  /** Editing closes earlier than cancelling and paying: from the close of entry to the trial (KOE-1584). */
+  readonly editDisabled?: boolean
   readonly event: PublicDogEvent
   readonly paymentVerificationInProgress?: boolean
   readonly rows: StrippedRegistration[]
@@ -85,6 +87,7 @@ const RegistrationListItemIcons = ({
 export default function RegistrationList({
   event,
   disabled,
+  editDisabled = disabled,
   rows,
   onUnregister,
   paymentVerificationInProgress = false,
@@ -154,7 +157,7 @@ export default function RegistrationList({
         // it only appears when there is something to pay, so it says what the icons were mistaken for.
         const always = [
           <GridActionsCellItem
-            disabled={disabled}
+            disabled={editDisabled}
             key="edit"
             icon={<EditOutlined color="info" />}
             label={t('registration.actions.edit')}

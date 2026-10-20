@@ -50,6 +50,8 @@ import {
   isPredefinedReason,
   isPublicRegistrationOperationField,
   isRegistrationClass,
+  isRegistrationContentLocked,
+  isRegistrationEditingClosed,
   isScorableRegistration,
   isStarter,
   meetsRestrictions,
@@ -64,6 +66,7 @@ import {
   shouldSendInvitationToRegistration,
   sortRegistrationsByDateClassTimeAndNumber,
   withoutAdminProtectedFields,
+  withoutParticipantResponses,
   withoutRegistrationMoney,
 } from './registration'
 
@@ -161,6 +164,59 @@ describe('lib/registration', () => {
       expect(getRegistrationClass({ class: 'ALO', eventType: 'NOME-B' })).toBe('ALO')
       expect(getRegistrationClass({ eventType: 'NOU' })).toBe('NOU')
       expect(getRegistrationClass({})).toBeUndefined()
+    })
+  })
+
+  // A two-day trial whose ALO class has been judged while AVO still runs (KOE-1388, KOE-1584).
+  describe('registration editing rules', () => {
+    const event = {
+      classes: [
+        { class: 'ALO' as const, state: 'ended' as const },
+        { class: 'AVO' as const, state: 'started' as const },
+      ],
+      endDate: '2021-02-11',
+      entryEndDate: '2021-02-07',
+      entryStartDate: '2021-02-01',
+      startDate: '2021-02-10',
+      state: 'started' as const,
+    }
+    const avo = { class: 'AVO', eventType: 'NOME-B' }
+    const alo = { class: 'ALO', eventType: 'NOME-B' }
+    const at = (stamp: string) => new Date(`${stamp}+02:00`)
+
+    it.each([
+      ['while entry is open', '2021-02-05T12:00:00', false, false],
+      ['between the close of entry and the trial', '2021-02-08T12:00:00', false, true],
+      ['on the first day', '2021-02-10T12:00:00', false, false],
+      ['on the last day', '2021-02-11T23:59:00', false, false],
+      ['the day after the last day', '2021-02-12T00:00:01', true, true],
+    ])('reads the days for a class still running %s', (_label, stamp, editingClosed, contentLocked) => {
+      expect(isRegistrationEditingClosed(event, avo, at(stamp))).toBe(editingClosed)
+      expect(isRegistrationContentLocked(event, avo, at(stamp))).toBe(contentLocked)
+    })
+
+    it('closes both for an entry whose class has been judged', () => {
+      expect(isRegistrationEditingClosed(event, alo, at('2021-02-10T12:00:00'))).toBe(true)
+      expect(isRegistrationContentLocked(event, alo, at('2021-02-10T12:00:00'))).toBe(true)
+    })
+
+    it('reads the event state for an entry with no class of its own', () => {
+      const ended = { ...event, state: 'ended' as const }
+      expect(isRegistrationEditingClosed(ended, { eventType: 'NOU' }, at('2021-02-10T12:00:00'))).toBe(true)
+      expect(isRegistrationEditingClosed(event, { eventType: 'NOU' }, at('2021-02-10T12:00:00'))).toBe(false)
+    })
+
+    it('leaves out only what a response writes', () => {
+      expect(
+        withoutParticipantResponses({
+          cancelled: true,
+          cancelReason: 'sick',
+          confirmed: true,
+          invitationAttachmentRead: 'a',
+          invitationRead: true,
+          notes: 'kept',
+        })
+      ).toEqual({ notes: 'kept' })
     })
   })
 

@@ -56,7 +56,7 @@ type DayInput = StoredDay | undefined
  * What the entry and progress questions read of an event: its days in any form a reader may hold them
  * (a stored key, an instant on a row stored before KOE-1547, the browser's Date), and its state.
  */
-type EventVitals = {
+export type EventVitals = {
   startDate?: StoredDay
   endDate?: StoredDay
   entryStartDate?: StoredDay
