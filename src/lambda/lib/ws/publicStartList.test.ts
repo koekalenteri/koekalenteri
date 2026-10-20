@@ -1,11 +1,12 @@
 import type { JsonDogEvent } from '../../../types'
 import type { WebSocketConnection } from './types'
 import { vi } from 'vitest'
-import { asJsonConfirmedEvent, asJsonRegistration } from '../../test-utils/helpers'
+import { asJsonConfirmedEvent, asJsonRegistration, eventNotFound } from '../../test-utils/helpers'
+import { LambdaError } from '../lambda'
 
 const mockPublicStartListAudience = vi.fn()
 const mockReadEventRegistrations = vi.fn()
-const mockGetEvent = vi.fn()
+const mockGetLiveEvent = vi.fn()
 const mockRemoveConnection = vi.fn()
 
 type BroadcastArgs = {
@@ -26,7 +27,7 @@ vi.doMock('./connectionSelectors', () => ({ publicStartListAudience: mockPublicS
 vi.doMock('../repositories/registrationRepository', () => ({
   readEventRegistrations: mockReadEventRegistrations,
 }))
-vi.doMock('../event', () => ({ getEvent: mockGetEvent }))
+vi.doMock('../event', () => ({ getLiveEvent: mockGetLiveEvent }))
 
 const { buildPublicStartListPayload, publishPublicStartList } = await import('./publicStartList')
 
@@ -58,7 +59,7 @@ describe('ws/publicStartList', () => {
     sentPayload = undefined
     mockPublicStartListAudience.mockResolvedValue([{ connectionId: 'reader' }])
     mockReadEventRegistrations.mockResolvedValue([registration('Aapo', 1)])
-    mockGetEvent.mockResolvedValue(publishedEvent)
+    mockGetLiveEvent.mockResolvedValue(publishedEvent)
     vi.useFakeTimers({ now: new Date('2025-01-01T10:00:00.000Z'), toFake: ['Date'] })
   })
 
@@ -93,11 +94,11 @@ describe('ws/publicStartList', () => {
 
   it('composes the rows from what is stored, read consistently, not from a copy the caller holds (KOE-1516)', async () => {
     // A hide that landed while the sender was still working: the stored event already says so.
-    mockGetEvent.mockResolvedValueOnce({ ...publishedEvent, startListPublished: { ALO: false } })
+    mockGetLiveEvent.mockResolvedValueOnce({ ...publishedEvent, startListPublished: { ALO: false } })
 
     await publishPublicStartList('event-1')
 
-    expect(mockGetEvent).toHaveBeenCalledWith('event-1', true)
+    expect(mockGetLiveEvent).toHaveBeenCalledWith('event-1', true)
     expect(mockReadEventRegistrations).not.toHaveBeenCalled()
     expect(sentPayload).toEqual({
       eventId: 'event-1',
@@ -108,7 +109,7 @@ describe('ws/publicStartList', () => {
   })
 
   it('stamps the version before reading, so a later stamp never describes an earlier read (KOE-1516)', async () => {
-    mockGetEvent.mockImplementationOnce(async () => {
+    mockGetLiveEvent.mockImplementationOnce(async () => {
       vi.setSystemTime(new Date('2025-01-01T10:00:05.000Z'))
       return publishedEvent
     })
@@ -128,14 +129,37 @@ describe('ws/publicStartList', () => {
       sent: 0,
     })
 
-    expect(mockGetEvent).not.toHaveBeenCalled()
+    expect(mockGetLiveEvent).not.toHaveBeenCalled()
     expect(mockReadEventRegistrations).not.toHaveBeenCalled()
+    expect(mockBroadcast).not.toHaveBeenCalled()
+  })
+
+  // KOE-1586: an organizer's write on a deleted event asks for the broadcast after it has landed.
+  it('sends nothing for a deleted or missing event, and does not throw', async () => {
+    mockGetLiveEvent.mockRejectedValueOnce(eventNotFound('event-1'))
+
+    await expect(publishPublicStartList('event-1')).resolves.toEqual({
+      attempted: 0,
+      failed: 0,
+      gone: 0,
+      sent: 0,
+    })
+
+    expect(mockGetLiveEvent).toHaveBeenCalledWith('event-1', true)
+    expect(mockReadEventRegistrations).not.toHaveBeenCalled()
+    expect(mockBroadcast).not.toHaveBeenCalled()
+  })
+
+  it('passes on any other failure to read the list', async () => {
+    mockGetLiveEvent.mockRejectedValueOnce(new LambdaError(500, 'boom'))
+
+    await expect(publishPublicStartList('event-1')).rejects.toMatchObject({ status: 500 })
     expect(mockBroadcast).not.toHaveBeenCalled()
   })
 
   it('takes the rows away when the list is no longer available', async () => {
     const hidden: JsonDogEvent = { ...publishedEvent, startListPublished: { ALO: false } }
-    mockGetEvent.mockResolvedValueOnce(hidden)
+    mockGetLiveEvent.mockResolvedValueOnce(hidden)
 
     await publishPublicStartList('event-1')
 

@@ -37,6 +37,7 @@ import {
   findEventIdsByKcId,
   readEvent,
   readLastEntryEndBefore,
+  readLiveEvent,
   restoreKcState,
   writeEvent,
   writeEventFields,
@@ -83,15 +84,27 @@ export interface EventChange {
 const EVENT_CLASS_STATES: EventClassState[] = ['picked', 'invited', 'started', 'ended'] as const
 const EVENT_STATES: EventState[] = ['confirmed', ...EVENT_CLASS_STATES] as const
 
-/** `consistent` reads the row as last written, for a caller about to write back what it folds from it. */
-export const getEvent = async <T extends JsonDogEvent = JsonDogEvent>(id: string, consistent = false): Promise<T> => {
-  const jsonEvent = await readEvent<T>(id, consistent)
+const foundEvent = <T extends JsonDogEvent>(id: string, jsonEvent: T | undefined): T => {
   if (!jsonEvent) {
     throw new LambdaError(404, `Event with id '${id}' was not found`)
   }
 
   return jsonEvent
 }
+
+/**
+ * The event for the admin and system readers, a deleted one included. `consistent` reads the row as
+ * last written, for a caller about to write back what it folds from it.
+ */
+export const getEvent = async <T extends JsonDogEvent = JsonDogEvent>(id: string, consistent = false): Promise<T> =>
+  foundEvent(id, await readEvent<T>(id, consistent))
+
+/**
+ * The event for a caller that is not the organizer's (the public pages and the token links): a
+ * deleted event answers the 404 of a missing one (KOE-1586).
+ */
+export const getLiveEvent = async <T extends JsonDogEvent = JsonDogEvent>(id: string, consistent = false): Promise<T> =>
+  foundEvent(id, await readLiveEvent<T>(id, consistent))
 
 export const findEventWithKcId = async (
   kcId: number,

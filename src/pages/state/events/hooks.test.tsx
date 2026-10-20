@@ -4,6 +4,7 @@ import { act, renderHook, waitFor } from '@testing-library/react'
 import { useAtomValue } from 'jotai'
 import { TestProvider as Provider } from 'test-utils/AtomProvider'
 import { getEvent, getEvents } from '@/api/event'
+import { APIError } from '@/api/http'
 import { legacyDayValue } from '@/test-utils/finnishDays'
 import { EVENT_METADATA_INVALIDATED_STORAGE_KEY, eventMetadataAtom, eventsAtom, eventsLoadingAtom } from './atoms'
 import { overlapsRange, pruneBeforeDate, useConfirmedEvent, useFetchEvents } from './hooks'
@@ -707,6 +708,43 @@ describe('useConfirmedEvent', () => {
 
     await waitFor(() => expect(result.current).toEqual(stored))
     expect(getEvent).not.toHaveBeenCalled()
+  })
+
+  it('drops the stored copy of an event the server answers as missing, a deleted one (KOE-1586)', async () => {
+    ;(getEvent as import('vitest').Mock).mockRejectedValue(
+      new APIError(new Response(null, { status: 404, statusText: 'Not Found' }), '')
+    )
+
+    const { result } = renderHook(() => ({ event: useConfirmedEvent('event-1'), events: useAtomValue(eventsAtom) }), {
+      wrapper: wrapperWithState([stored as PublicDogEvent, makeEvent('event-2', '2026-09-06')], {
+        singles: { 'event-1': Date.now() - 10 * 60 * 1000 },
+      }),
+    })
+
+    await waitFor(() => expect(result.current.event).toBeNull())
+    expect(result.current.events.map(({ id }) => id)).toEqual(['event-2'])
+  })
+
+  it('keeps the stored copy when the fetch fails for another reason', async () => {
+    ;(getEvent as import('vitest').Mock).mockRejectedValue(
+      new APIError(new Response(null, { status: 503, statusText: 'Service Unavailable' }), '')
+    )
+
+    const stale = Date.now() - 10 * 60 * 1000
+    const { result } = renderHook(
+      () => ({
+        event: useConfirmedEvent('event-1'),
+        events: useAtomValue(eventsAtom),
+        metadata: useAtomValue(eventMetadataAtom),
+      }),
+      { wrapper: wrapperWithState([stored as PublicDogEvent], { singles: { 'event-1': stale } }) }
+    )
+
+    // Settled: the failed fetch marks the event as fetched, and only then is the cache decided.
+    await waitFor(() => expect(result.current.metadata.singles['event-1']).toBeGreaterThan(stale))
+    expect(getEvent).toHaveBeenCalledWith('event-1')
+    expect(result.current.events.map(({ id }) => id)).toEqual(['event-1'])
+    expect(result.current.event).toEqual(stored)
   })
 
   it('fetches an event that is not stored at all', async () => {

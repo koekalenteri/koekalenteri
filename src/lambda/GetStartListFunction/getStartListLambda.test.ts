@@ -1,12 +1,12 @@
 import { vi } from 'vitest'
 import { httpError } from '../lib/lambda'
-import { constructPartialAPIGwEvent } from '../test-utils/helpers'
+import { constructPartialAPIGwEvent, eventNotFound } from '../test-utils/helpers'
 
 const mockGetParam = vi.fn()
 const mockLambda = vi.fn((_name, fn) => fn)
 const mockResponse = vi.fn()
 const mockAuthorizeWithMemberOf = vi.fn()
-const mockGetEvent = vi.fn()
+const mockGetLiveEvent = vi.fn()
 const mockReadEventRegistrations = vi.fn()
 
 vi.doMock('../lib/lambda', async () => ({
@@ -25,7 +25,7 @@ vi.doMock('../lib/lambda', async () => ({
 }))
 
 vi.doMock('../lib/event', () => ({
-  getEvent: mockGetEvent,
+  getLiveEvent: mockGetLiveEvent,
 }))
 
 vi.doMock('../lib/auth', () => ({
@@ -58,7 +58,7 @@ describe('getStartListLambda', () => {
   it('reads consistently and says when it read, so a live update older than this fetch cannot replace it (KOE-1516)', async () => {
     vi.useFakeTimers({ now: new Date('2025-01-01T10:00:00.000Z'), toFake: ['Date'] })
     mockGetParam.mockReturnValueOnce('event123')
-    mockGetEvent.mockImplementationOnce(async () => {
+    mockGetLiveEvent.mockImplementationOnce(async () => {
       // The stamp is taken before the reads: a clock that moved during them must not show.
       vi.setSystemTime(new Date('2025-01-01T10:00:05.000Z'))
       return {
@@ -78,7 +78,7 @@ describe('getStartListLambda', () => {
       vi.useRealTimers()
     }
 
-    expect(mockGetEvent).toHaveBeenCalledWith('event123', true)
+    expect(mockGetLiveEvent).toHaveBeenCalledWith('event123', true)
     expect(mockReadEventRegistrations).toHaveBeenCalledWith('event123', true)
     expect(mockResponse).toHaveBeenCalledWith(200, [], event, {
       headers: { 'X-Start-List-Version': String(Date.parse('2025-01-01T10:00:00.000Z')) },
@@ -104,7 +104,7 @@ describe('getStartListLambda', () => {
     }
 
     mockGetParam.mockReturnValueOnce('event123')
-    mockGetEvent.mockResolvedValueOnce(confirmedEvent)
+    mockGetLiveEvent.mockResolvedValueOnce(confirmedEvent)
     mockReadEventRegistrations.mockResolvedValueOnce([
       { ...base, dog: { name: 'Vieno', regNo: 'REG1' }, group: { date: '2025-01-01', key: 'ALO', number: 1 } },
       { ...base, dog: { name: 'Aapo', regNo: 'REG2' }, group: { date: '2025-01-01', key: 'ALO', number: 2 } },
@@ -139,7 +139,7 @@ describe('getStartListLambda', () => {
     }
 
     mockGetParam.mockReturnValueOnce('event123')
-    mockGetEvent.mockResolvedValueOnce(confirmedEvent)
+    mockGetLiveEvent.mockResolvedValueOnce(confirmedEvent)
     mockReadEventRegistrations.mockResolvedValueOnce([
       { ...base, dog: { name: 'Vieno', regNo: 'REG1' }, group: { date: '2025-01-01', key: 'ALO', number: 1 } },
       { ...base, dog: { name: 'Aapo', regNo: 'REG2' }, group: { date: '2025-01-01', key: 'ALO', number: 2 } },
@@ -171,7 +171,7 @@ describe('getStartListLambda', () => {
     }
 
     mockGetParam.mockReturnValueOnce('event123')
-    mockGetEvent.mockResolvedValueOnce(confirmedEvent)
+    mockGetLiveEvent.mockResolvedValueOnce(confirmedEvent)
     mockReadEventRegistrations.mockResolvedValueOnce([
       {
         ...base,
@@ -235,7 +235,7 @@ describe('getStartListLambda', () => {
     }
 
     mockGetParam.mockReturnValueOnce('event123')
-    mockGetEvent.mockResolvedValueOnce(confirmedEvent)
+    mockGetLiveEvent.mockResolvedValueOnce(confirmedEvent)
     mockReadEventRegistrations.mockResolvedValueOnce([
       {
         ...base,
@@ -280,7 +280,7 @@ describe('getStartListLambda', () => {
     }
 
     mockGetParam.mockReturnValueOnce('event123')
-    mockGetEvent.mockResolvedValueOnce(confirmedEvent)
+    mockGetLiveEvent.mockResolvedValueOnce(confirmedEvent)
     mockReadEventRegistrations.mockResolvedValueOnce([
       {
         ...base,
@@ -324,7 +324,7 @@ describe('getStartListLambda', () => {
     }
 
     mockGetParam.mockReturnValueOnce('event123')
-    mockGetEvent.mockResolvedValueOnce(confirmedEvent)
+    mockGetLiveEvent.mockResolvedValueOnce(confirmedEvent)
     mockReadEventRegistrations.mockResolvedValueOnce([
       {
         ...base,
@@ -367,7 +367,7 @@ describe('getStartListLambda', () => {
     }
 
     mockGetParam.mockReturnValueOnce('event123')
-    mockGetEvent.mockResolvedValueOnce(confirmedEvent)
+    mockGetLiveEvent.mockResolvedValueOnce(confirmedEvent)
     mockReadEventRegistrations.mockResolvedValueOnce([
       { ...base, dog: { name: 'Vieno', regNo: 'REG1' }, group: { date: '2025-01-01', key: 'ALO-AP', number: 1 } },
       { ...base, dog: { name: 'Aapo', regNo: 'REG2' }, group: { date: '2025-01-01', key: 'ALO-AP', number: 2 } },
@@ -400,7 +400,7 @@ describe('getStartListLambda', () => {
     }
 
     mockGetParam.mockReturnValueOnce('event123')
-    mockGetEvent.mockResolvedValueOnce(confirmedEvent)
+    mockGetLiveEvent.mockResolvedValueOnce(confirmedEvent)
     mockReadEventRegistrations.mockResolvedValueOnce([
       registration,
       {
@@ -452,7 +452,7 @@ describe('getStartListLambda', () => {
     }
 
     mockGetParam.mockReturnValueOnce('event123')
-    mockGetEvent.mockResolvedValueOnce(confirmedEvent)
+    mockGetLiveEvent.mockResolvedValueOnce(confirmedEvent)
     mockReadEventRegistrations.mockResolvedValueOnce([
       {
         ...base,
@@ -488,14 +488,14 @@ describe('getStartListLambda', () => {
 
     await expect(getStartListLambda(previewEvent)).rejects.toMatchObject({ status: 401 })
 
-    expect(mockGetEvent).not.toHaveBeenCalled()
+    expect(mockGetLiveEvent).not.toHaveBeenCalled()
     expect(mockReadEventRegistrations).not.toHaveBeenCalled()
   })
 
   it("forbids previewing another organizer's event", async () => {
     const previewEvent = { ...event, resource: '/admin/startlist/{eventId}' }
     mockGetParam.mockReturnValueOnce('event123')
-    mockGetEvent.mockResolvedValueOnce({ id: 'event123', organizer: { id: 'another-org' } })
+    mockGetLiveEvent.mockResolvedValueOnce({ id: 'event123', organizer: { id: 'another-org' } })
 
     await expect(getStartListLambda(previewEvent)).rejects.toThrow('Forbidden')
 
@@ -506,7 +506,7 @@ describe('getStartListLambda', () => {
     const previewEvent = { ...event, resource: '/admin/startlist/{eventId}' }
     mockAuthorizeWithMemberOf.mockResolvedValueOnce({ memberOf: [], user: { admin: true, id: 'admin1', roles: {} } })
     mockGetParam.mockReturnValueOnce('event123')
-    mockGetEvent.mockResolvedValueOnce({ id: 'event123', organizer: { id: 'another-org' } })
+    mockGetLiveEvent.mockResolvedValueOnce({ id: 'event123', organizer: { id: 'another-org' } })
     mockReadEventRegistrations.mockResolvedValueOnce([])
 
     await getStartListLambda(previewEvent)
@@ -520,12 +520,12 @@ describe('getStartListLambda', () => {
     const confirmedEvent = { id: eventId, startListPublished: false, state: 'draft' }
 
     mockGetParam.mockReturnValueOnce(eventId)
-    mockGetEvent.mockResolvedValueOnce(confirmedEvent)
+    mockGetLiveEvent.mockResolvedValueOnce(confirmedEvent)
 
     await getStartListLambda(event)
 
     expect(mockGetParam).toHaveBeenCalledWith(event, 'eventId')
-    expect(mockGetEvent).toHaveBeenCalledWith(eventId, true)
+    expect(mockGetLiveEvent).toHaveBeenCalledWith(eventId, true)
     expect(mockReadEventRegistrations).not.toHaveBeenCalled()
     expect(mockResponse).toHaveBeenCalledWith(404, [], event, versionHeader)
   })
@@ -602,13 +602,13 @@ describe('getStartListLambda', () => {
     ]
 
     mockGetParam.mockReturnValueOnce(eventId)
-    mockGetEvent.mockResolvedValueOnce(confirmedEvent)
+    mockGetLiveEvent.mockResolvedValueOnce(confirmedEvent)
     mockReadEventRegistrations.mockResolvedValueOnce(registrations)
 
     await getStartListLambda(event)
 
     expect(mockGetParam).toHaveBeenCalledWith(event, 'eventId')
-    expect(mockGetEvent).toHaveBeenCalledWith(eventId, true)
+    expect(mockGetLiveEvent).toHaveBeenCalledWith(eventId, true)
     expect(mockReadEventRegistrations).toHaveBeenCalledWith(eventId, true)
     expect(mockResponse).toHaveBeenCalledWith(200, expectedPublicRegs, event, versionHeader)
   })
@@ -641,7 +641,7 @@ describe('getStartListLambda', () => {
     ]
 
     mockGetParam.mockReturnValueOnce(eventId)
-    mockGetEvent.mockResolvedValueOnce(confirmedEvent)
+    mockGetLiveEvent.mockResolvedValueOnce(confirmedEvent)
     mockReadEventRegistrations.mockResolvedValueOnce(registrations)
 
     await getStartListLambda(event)
@@ -689,7 +689,7 @@ describe('getStartListLambda', () => {
     ]
 
     mockGetParam.mockReturnValueOnce(eventId)
-    mockGetEvent.mockResolvedValueOnce(confirmedEvent)
+    mockGetLiveEvent.mockResolvedValueOnce(confirmedEvent)
     mockReadEventRegistrations.mockResolvedValueOnce(registrations)
 
     await getStartListLambda(event)
@@ -740,28 +740,40 @@ describe('getStartListLambda', () => {
     ]
 
     mockGetParam.mockReturnValueOnce(eventId)
-    mockGetEvent.mockResolvedValueOnce(confirmedEvent)
+    mockGetLiveEvent.mockResolvedValueOnce(confirmedEvent)
     mockReadEventRegistrations.mockResolvedValueOnce(registrations)
 
     await getStartListLambda(event)
 
     expect(mockGetParam).toHaveBeenCalledWith(event, 'eventId')
-    expect(mockGetEvent).toHaveBeenCalledWith(eventId, true)
+    expect(mockGetLiveEvent).toHaveBeenCalledWith(eventId, true)
     expect(mockReadEventRegistrations).toHaveBeenCalledWith(eventId, true)
     expect(mockResponse).toHaveBeenCalledWith(200, [], event, versionHeader)
   })
 
-  it('passes through errors from getEvent', async () => {
+  // KOE-1586: the public list of a deleted event was still served.
+  it('answers a deleted event as a missing one, without reading the registrations', async () => {
+    mockGetParam.mockReturnValueOnce('event123')
+    mockGetLiveEvent.mockRejectedValueOnce(eventNotFound('event123'))
+
+    await expect(getStartListLambda(event)).rejects.toMatchObject({ status: 404 })
+
+    expect(mockGetLiveEvent).toHaveBeenCalledWith('event123', true)
+    expect(mockReadEventRegistrations).not.toHaveBeenCalled()
+    expect(mockResponse).not.toHaveBeenCalled()
+  })
+
+  it('passes through errors from getLiveEvent', async () => {
     const eventId = 'event123'
     const error = new Error('Event not found')
 
     mockGetParam.mockReturnValueOnce(eventId)
-    mockGetEvent.mockRejectedValueOnce(error)
+    mockGetLiveEvent.mockRejectedValueOnce(error)
 
     await expect(getStartListLambda(event)).rejects.toThrow(error)
 
     expect(mockGetParam).toHaveBeenCalledWith(event, 'eventId')
-    expect(mockGetEvent).toHaveBeenCalledWith(eventId, true)
+    expect(mockGetLiveEvent).toHaveBeenCalledWith(eventId, true)
     expect(mockReadEventRegistrations).not.toHaveBeenCalled()
     expect(mockResponse).not.toHaveBeenCalled()
   })
@@ -772,13 +784,13 @@ describe('getStartListLambda', () => {
     const error = new Error('Database error')
 
     mockGetParam.mockReturnValueOnce(eventId)
-    mockGetEvent.mockResolvedValueOnce(confirmedEvent)
+    mockGetLiveEvent.mockResolvedValueOnce(confirmedEvent)
     mockReadEventRegistrations.mockRejectedValueOnce(error)
 
     await expect(getStartListLambda(event)).rejects.toThrow(error)
 
     expect(mockGetParam).toHaveBeenCalledWith(event, 'eventId')
-    expect(mockGetEvent).toHaveBeenCalledWith(eventId, true)
+    expect(mockGetLiveEvent).toHaveBeenCalledWith(eventId, true)
     expect(mockReadEventRegistrations).toHaveBeenCalledWith(eventId, true)
     expect(mockResponse).not.toHaveBeenCalled()
   })
@@ -808,7 +820,7 @@ describe('getStartListLambda', () => {
     })
 
     mockGetParam.mockReturnValueOnce(eventId)
-    mockGetEvent.mockResolvedValueOnce(confirmedEvent)
+    mockGetLiveEvent.mockResolvedValueOnce(confirmedEvent)
     mockReadEventRegistrations.mockResolvedValueOnce([reg('ALO', 1), reg('AVO', 2)])
 
     await getStartListLambda(event)
@@ -835,7 +847,7 @@ describe('getStartListLambda', () => {
     }
 
     mockGetParam.mockReturnValueOnce(eventId)
-    mockGetEvent.mockResolvedValueOnce(confirmedEvent)
+    mockGetLiveEvent.mockResolvedValueOnce(confirmedEvent)
     mockReadEventRegistrations.mockResolvedValueOnce([
       {
         cancelled: false,
@@ -886,7 +898,7 @@ describe('getStartListLambda', () => {
     })
 
     mockGetParam.mockReturnValueOnce(eventId)
-    mockGetEvent.mockResolvedValueOnce(confirmedEvent)
+    mockGetLiveEvent.mockResolvedValueOnce(confirmedEvent)
     mockReadEventRegistrations.mockResolvedValueOnce([reg('ALO', 1), reg('AVO', 2)])
 
     await getStartListLambda(event)
@@ -911,7 +923,7 @@ describe('getStartListLambda', () => {
     }
 
     mockGetParam.mockReturnValueOnce(eventId)
-    mockGetEvent.mockResolvedValueOnce(confirmedEvent)
+    mockGetLiveEvent.mockResolvedValueOnce(confirmedEvent)
     mockReadEventRegistrations.mockResolvedValueOnce([
       {
         cancelled: false,

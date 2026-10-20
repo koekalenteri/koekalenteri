@@ -1,6 +1,6 @@
 import type { JsonConfirmedEvent, JsonDogEvent } from '../../../types'
 import type { WebSocketConnection } from './types'
-import { getEvent } from '../../lib/event'
+import { getEvent, getLiveEvent } from '../../lib/event'
 import { LambdaError } from '../../lib/lambda'
 import { participantPaymentPatch } from '../../lib/payment'
 import { getRegistration, verifyRegistrationEditToken } from '../../lib/registration'
@@ -107,10 +107,11 @@ export const subscribeToRegistration = async (
 
   const registration = await getRegistration(eventId, registrationId)
   verifyRegistrationEditToken(registration, editToken)
+  // The entrant's page, which a deleted event no longer has: refused before anything is stored (KOE-1586).
+  const dogEvent = await getLiveEvent<JsonConfirmedEvent>(eventId)
   await subscribeRegistrationConnection(connection.connectionId, eventId, registrationId)
   // A payment left at Paytrail is not in progress, as GetRegistration reads it (KOE-1526).
   const currentRegistration = await getRegistration(eventId, registrationId)
-  const dogEvent = await getEvent<JsonConfirmedEvent>(eventId)
 
   return {
     eventId,

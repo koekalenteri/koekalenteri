@@ -1,12 +1,19 @@
 import type { APIGatewayProxyEvent } from 'aws-lambda'
 import { vi } from 'vitest'
 import { getStartNumberLinkToken } from '../lib/startNumberLink'
-import { asJsonConfirmedEvent, asJsonRegistration, constructPartialAPIGwEvent } from '../test-utils/helpers'
+import {
+  asJsonConfirmedEvent,
+  asJsonRegistration,
+  constructPartialAPIGwEvent,
+  deletedEvent,
+  eventNotFound,
+} from '../test-utils/helpers'
 
 const mockLambda = vi.fn((_name, fn) => fn)
 const mockResponse = vi.fn()
 const mockGetParam = vi.fn()
 const mockGetEvent = vi.fn()
+const mockGetLiveEvent = vi.fn()
 const mockReadEventRegistrations = vi.fn()
 
 vi.doMock('../lib/lambda', async () => ({
@@ -24,7 +31,7 @@ vi.doMock('../lib/lambda', async () => ({
   response: mockResponse,
 }))
 
-vi.doMock('../lib/event', () => ({ getEvent: mockGetEvent }))
+vi.doMock('../lib/event', () => ({ getEvent: mockGetEvent, getLiveEvent: mockGetLiveEvent }))
 vi.doMock('../lib/repositories/registrationRepository', () => ({
   readEventRegistrations: mockReadEventRegistrations,
 }))
@@ -62,7 +69,7 @@ describe('getClassStartNumbersLambda', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     mockGetParam.mockImplementation((_event, name: string) => (name === 'eventId' ? 'event-1' : 'ALO'))
-    mockGetEvent.mockResolvedValue(confirmedEvent)
+    mockGetLiveEvent.mockResolvedValue(confirmedEvent)
     mockReadEventRegistrations.mockResolvedValue([dog('alo-1', 'ALO', 1), dog('avo-1', 'AVO', 2)])
   })
 
@@ -82,5 +89,17 @@ describe('getClassStartNumbersLambda', () => {
     await expect(getClassStartNumbersLambda(apiEvent('wrong'))).rejects.toThrow('not found')
 
     expect(mockReadEventRegistrations).not.toHaveBeenCalled()
+  })
+
+  // KOE-1586: the link of a deleted event served its class sheet.
+  it('answers a deleted event as a missing one, without reading the registrations', async () => {
+    mockGetEvent.mockResolvedValue(deletedEvent(confirmedEvent))
+    mockGetLiveEvent.mockRejectedValue(eventNotFound('event-1'))
+
+    await expect(getClassStartNumbersLambda(apiEvent())).rejects.toMatchObject({ status: 404 })
+
+    expect(mockGetLiveEvent).toHaveBeenCalledWith('event-1')
+    expect(mockReadEventRegistrations).not.toHaveBeenCalled()
+    expect(mockResponse).not.toHaveBeenCalled()
   })
 })

@@ -2,7 +2,7 @@ import type { APIGatewayProxyEvent } from 'aws-lambda'
 import type { RegistrationClass } from '../../types'
 import { vi } from 'vitest'
 import { getStartNumberLinkToken } from '../lib/startNumberLink'
-import { asJsonConfirmedEvent, asJsonRegistration } from '../test-utils/helpers'
+import { asJsonConfirmedEvent, asJsonRegistration, deletedEvent, eventNotFound } from '../test-utils/helpers'
 
 const mockLambda = vi.fn((_name, fn) => fn)
 const mockResponse = vi.fn()
@@ -11,6 +11,7 @@ const mockAudit = vi.fn()
 const mockRegistrationAuditKey = vi.fn()
 const mockEventAuditKey = vi.fn()
 const mockGetEvent = vi.fn()
+const mockGetLiveEvent = vi.fn()
 const mockLockRegistrationGroups = vi.fn()
 const mockReadEventRegistrations = vi.fn()
 const mockUpdateRegistrationField = vi.fn()
@@ -38,7 +39,11 @@ vi.doMock('../lib/audit', () => ({
   eventAuditKey: mockEventAuditKey,
   registrationAuditKey: mockRegistrationAuditKey,
 }))
-vi.doMock('../lib/event', () => ({ getEvent: mockGetEvent, lockRegistrationGroups: mockLockRegistrationGroups }))
+vi.doMock('../lib/event', () => ({
+  getEvent: mockGetEvent,
+  getLiveEvent: mockGetLiveEvent,
+  lockRegistrationGroups: mockLockRegistrationGroups,
+}))
 vi.doMock('../lib/repositories/registrationRepository', () => ({
   readEventRegistrations: mockReadEventRegistrations,
   removeRegistrationField: mockRemoveRegistrationField,
@@ -80,7 +85,7 @@ describe('putClassStartNumbersLambda', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     mockGetParam.mockImplementation((_event, name: string) => (name === 'eventId' ? 'event-1' : 'ALO'))
-    mockGetEvent.mockResolvedValue(confirmedEvent)
+    mockGetLiveEvent.mockResolvedValue(confirmedEvent)
     mockLockRegistrationGroups.mockResolvedValue(vi.fn())
     mockReadEventRegistrations.mockResolvedValue([
       registration('alo-1', 'ALO', 1),
@@ -165,6 +170,20 @@ describe('putClassStartNumbersLambda', () => {
     ).rejects.toThrow('not found')
 
     expect(mockReadEventRegistrations).not.toHaveBeenCalled()
+  })
+
+  // KOE-1586: the link of a deleted event still took a draw.
+  it('answers a deleted event as a missing one, and writes nothing', async () => {
+    mockGetEvent.mockResolvedValue(deletedEvent(confirmedEvent))
+    mockGetLiveEvent.mockRejectedValue(eventNotFound('event-1'))
+
+    await expect(
+      putClassStartNumbersLambda(apiEvent({ numbers: [{ id: 'alo-1', startNumber: 2 }] }))
+    ).rejects.toMatchObject({ status: 404 })
+
+    expect(mockGetLiveEvent).toHaveBeenCalledWith('event-1')
+    expect(mockReadEventRegistrations).not.toHaveBeenCalled()
+    expect(mockUpdateRegistrationField).not.toHaveBeenCalled()
   })
 
   it('has nothing to do without numbers', async () => {

@@ -1,7 +1,7 @@
 import type { JsonConfirmedEvent, JsonRegistration, Patch } from '../../types'
 import { startNumbersEnteredAudit } from '../../lib/audit'
 import { audit, eventAuditKey } from '../lib/audit'
-import { getEvent, lockRegistrationGroups } from '../lib/event'
+import { getLiveEvent, lockRegistrationGroups } from '../lib/event'
 import { parseJSONWithFallback } from '../lib/json'
 import { getParam, httpError, lambda, response } from '../lib/lambda'
 import { readEventRegistrations } from '../lib/repositories/registrationRepository'
@@ -21,7 +21,7 @@ const putClassStartNumbersLambda = lambda('putClassStartNumbers', async (event) 
   const eventId = getParam(event, 'eventId')
   const eventClass = getParam(event, 'eventClass')
 
-  const confirmedEvent = await getEvent<JsonConfirmedEvent>(eventId)
+  const confirmedEvent = await getLiveEvent<JsonConfirmedEvent>(eventId)
   authorizeStartNumberLink(event, eventId, confirmedEvent, eventClass)
 
   const body = parseJSONWithFallback<{ numbers?: unknown }>(event.body, {})

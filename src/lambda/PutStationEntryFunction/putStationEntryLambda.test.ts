@@ -2,7 +2,7 @@ import type { APIGatewayProxyEvent } from 'aws-lambda'
 import type { EventStation, JsonRegistration } from '../../types'
 import { vi } from 'vitest'
 import { getStationEntryToken } from '../lib/stationEntry'
-import { asJsonConfirmedEvent } from '../test-utils/helpers'
+import { asJsonConfirmedEvent, deletedEvent, eventNotFound } from '../test-utils/helpers'
 
 const mockLambda = vi.fn((_name, fn) => fn)
 const mockResponse = vi.fn()
@@ -10,6 +10,7 @@ const mockGetParam = vi.fn()
 const mockAudit = vi.fn()
 const mockRegistrationAuditKey = vi.fn()
 const mockGetEvent = vi.fn()
+const mockGetLiveEvent = vi.fn()
 const mockReadEventRegistrations = vi.fn()
 const mockUpdateRegistrationField = vi.fn()
 const mockPublishRegistrationPatches = vi.fn()
@@ -30,7 +31,7 @@ vi.doMock('../lib/lambda', async () => ({
 }))
 
 vi.doMock('../lib/audit', () => ({ audit: mockAudit, registrationAuditKey: mockRegistrationAuditKey }))
-vi.doMock('../lib/event', () => ({ getEvent: mockGetEvent }))
+vi.doMock('../lib/event', () => ({ getEvent: mockGetEvent, getLiveEvent: mockGetLiveEvent }))
 vi.doMock('../lib/repositories/registrationRepository', () => ({
   readEventRegistrations: mockReadEventRegistrations,
   updateRegistrationField: mockUpdateRegistrationField,
@@ -67,6 +68,8 @@ describe('putStationEntryLambda', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     mockGetParam.mockImplementation((_event, name: string) => (name === 'eventId' ? 'event-1' : 'post-1'))
+    mockGetLiveEvent.mockResolvedValue(confirmedEvent)
+    // The results write reads the event again, consistently, for its lock.
     mockGetEvent.mockResolvedValue(confirmedEvent)
     mockReadEventRegistrations.mockResolvedValue([registration('reg-1')])
   })
@@ -76,6 +79,22 @@ describe('putStationEntryLambda', () => {
       putStationEntryLambda(apiEvent([{ eventResult: { tasks: [] }, id: 'reg-1' }], 'wrong'))
     ).rejects.toThrow('not found')
 
+    expect(mockReadEventRegistrations).not.toHaveBeenCalled()
+    expect(mockUpdateRegistrationField).not.toHaveBeenCalled()
+  })
+
+  // KOE-1586: the station link of a deleted event still saved results.
+  it('answers a deleted event as a missing one, and writes nothing', async () => {
+    mockGetEvent.mockResolvedValue(deletedEvent(confirmedEvent))
+    mockGetLiveEvent.mockRejectedValue(eventNotFound('event-1'))
+
+    await expect(
+      putStationEntryLambda(
+        apiEvent([{ eventResult: { tasks: [{ index: 0, points: 17, stationId: 'post-1' }] }, id: 'reg-1' }])
+      )
+    ).rejects.toMatchObject({ status: 404 })
+
+    expect(mockGetLiveEvent).toHaveBeenCalledWith('event-1')
     expect(mockReadEventRegistrations).not.toHaveBeenCalled()
     expect(mockUpdateRegistrationField).not.toHaveBeenCalled()
   })
@@ -179,7 +198,9 @@ describe('putStationEntryLambda', () => {
     expect(payload.saved[0].eventResult).not.toHaveProperty('points')
   })
   it('refuses the post once the trial is handed to the chief judge, with its own status and code', async () => {
-    mockGetEvent.mockResolvedValue({ ...confirmedEvent, kcState: { code: 1253, name: 'x', readAt: 'y' } })
+    const handedOver = { ...confirmedEvent, kcState: { code: 1253, name: 'x', readAt: 'y' } }
+    mockGetLiveEvent.mockResolvedValue(handedOver)
+    mockGetEvent.mockResolvedValue(handedOver)
 
     await expect(
       putStationEntryLambda(

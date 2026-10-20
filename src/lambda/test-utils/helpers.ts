@@ -97,6 +97,12 @@ export const storedRegistrationJson = (registration: object): JsonRegistration =
   return json
 }
 
+/** A deleted event as the admin reader (`getEvent`) still hands it out. */
+export const deletedEvent = <T extends object>(event: T) => ({ ...event, deletedAt: '2026-10-20T10:00:00.000Z' })
+
+/** What `getLiveEvent` rejects with for a deleted event: the 404 of a missing one (KOE-1586). */
+export const eventNotFound = (id: string) => new LambdaError(404, `Event with id '${id}' was not found`)
+
 /**
  * What the real `lambda` wrapper does with a thrown `LambdaError`, for the tests that replace the
  * wrapper with a passthrough: the rejection becomes the response the test asserts on, so a handler

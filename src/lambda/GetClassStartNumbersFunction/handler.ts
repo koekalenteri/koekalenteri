@@ -1,5 +1,5 @@
 import type { JsonConfirmedEvent } from '../../types'
-import { getEvent } from '../lib/event'
+import { getLiveEvent } from '../lib/event'
 import { getParam, lambda, response } from '../lib/lambda'
 import { readEventRegistrations } from '../lib/repositories/registrationRepository'
 import { authorizeStartNumberLink, classStartNumbersResponse } from '../lib/startNumberLink'
@@ -13,7 +13,7 @@ const getClassStartNumbersLambda = lambda('getClassStartNumbers', async (event) 
   const eventId = getParam(event, 'eventId')
   const eventClass = getParam(event, 'eventClass')
 
-  const confirmedEvent = await getEvent<JsonConfirmedEvent>(eventId)
+  const confirmedEvent = await getLiveEvent<JsonConfirmedEvent>(eventId)
   authorizeStartNumberLink(event, eventId, confirmedEvent, eventClass)
   const registrations = await readEventRegistrations(eventId)
 

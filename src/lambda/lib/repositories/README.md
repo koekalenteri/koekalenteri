@@ -25,6 +25,10 @@ The epic was [KOE-1405](https://koekalenteri.atlassian.net/browse/KOE-1405), clo
   `includeDeleted: true`, with a one-line comment saying why it needs them. An index that does not
   project `deletedAt` refuses the filter, so its query opts in and decides by the row
   (`readLastEntryEndBefore`, [KOE-1585](https://koekalenteri.atlassian.net/browse/KOE-1585)).
+- `read` by key answers a soft-deleted row as it is stored. An event read for a caller that is not
+  the organizer's (the public pages, the token links) goes through `readLiveEvent`, which answers a
+  deleted event as no event; `getLiveEvent` in `lib/event.ts` turns that into the 404 of a missing
+  one ([KOE-1586](https://koekalenteri.atlassian.net/browse/KOE-1586)).
 - `src/lambda/lib/ws/connectionRepository.ts` follows the same convention and stays in the ws
   domain.
 

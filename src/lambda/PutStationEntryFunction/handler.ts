@@ -1,5 +1,5 @@
 import type { JsonConfirmedEvent } from '../../types'
-import { getEvent } from '../lib/event'
+import { getLiveEvent } from '../lib/event'
 import { parseSubmissions, processResultSubmissions, stationScopedSubmission } from '../lib/eventResults'
 import { getParam, httpError, lambda, response } from '../lib/lambda'
 import { readEventRegistrations } from '../lib/repositories/registrationRepository'
@@ -16,7 +16,7 @@ const putStationEntryLambda = lambda('putStationEntry', async (event) => {
   const eventId = getParam(event, 'eventId')
   const stationId = getParam(event, 'stationId')
 
-  const confirmedEvent = await getEvent<JsonConfirmedEvent>(eventId)
+  const confirmedEvent = await getLiveEvent<JsonConfirmedEvent>(eventId)
   const station = authorizeStationEntry(event, eventId, confirmedEvent, stationId)
 
   const submissions = parseSubmissions(event.body, confirmedEvent).map((submission) =>
