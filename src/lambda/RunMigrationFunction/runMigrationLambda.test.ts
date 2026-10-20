@@ -387,6 +387,18 @@ describe('runMigrationLambda', () => {
 
   // gsiOrganizerStartDate is keyed on a top-level copy of organizer.id; a row without the copy is
   // invisible to a club administrator's list until the migration writes it (KOE-1341).
+  // KOE-1585: a season puts the row into gsiSeasonStartDate, which the public list reads.
+  it('gives no season to a deleted event', async () => {
+    mockReadAllEvents.mockResolvedValueOnce([
+      { deletedAt: '2023-05-01T10:00:00.000Z', id: 'event1', startDate: '2025-01-01', updatedAt: 'x' },
+    ])
+
+    await runMigrationLambda(event)
+
+    expect(mockWriteMigratedEvent).not.toHaveBeenCalled()
+    expect(mockResponse).toHaveBeenCalledWith(200, migrationResults(0, 0), event)
+  })
+
   describe('backfillOrganizerId', () => {
     it('copies organizer.id to the row where it is missing or stale', async () => {
       mockReadAllEvents.mockResolvedValue([
@@ -415,6 +427,25 @@ describe('runMigrationLambda', () => {
       expect(mockWriteMigratedEvent).toHaveBeenCalledWith(...updatedRow('event1', { organizerId: 'org1' }))
       expect(mockWriteMigratedEvent).toHaveBeenCalledWith(...updatedRow('event2', { organizerId: 'org2' }))
       expect(mockResponse).toHaveBeenCalledWith(200, migrationResults(0, 0, 0, 2), event)
+    })
+
+    // KOE-1585: an organizerId puts the row into gsiOrganizerStartDate.
+    it('leaves a deleted row out of the organizer index', async () => {
+      mockReadAllEvents.mockResolvedValue([
+        {
+          deletedAt: '2023-05-01T10:00:00.000Z',
+          id: 'event1',
+          organizer: { id: 'org1' },
+          season: '2025',
+          startDate: '2025-01-01',
+          updatedAt: 'x',
+        },
+      ])
+
+      await runMigrationLambda(event)
+
+      expect(mockWriteMigratedEvent).not.toHaveBeenCalled()
+      expect(mockResponse).toHaveBeenCalledWith(200, migrationResults(0, 0), event)
     })
   })
 

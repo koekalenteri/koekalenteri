@@ -319,7 +319,7 @@ describe('CustomDynamoClient', () => {
       expect(mockSend).toHaveBeenCalledWith({
         ExpressionAttributeNames: undefined,
         ExpressionAttributeValues: { ':id': '1' },
-        FilterExpression: undefined,
+        FilterExpression: 'attribute_not_exists(deletedAt)',
         IndexName: undefined,
         KeyConditionExpression: 'id = :id',
         Limit: undefined,
@@ -327,6 +327,19 @@ describe('CustomDynamoClient', () => {
         TableName: 'test-table',
       })
       expect(result).toEqual([{ id: '1' }, { id: '2' }])
+    })
+
+    // KOE-1585: a query leaves the soft-deleted rows out, as readAll does, unless it asks for them.
+    it.each([
+      [{}, undefined],
+      [{ filterExpression: '#state <> :draft' }, '#state <> :draft'],
+    ])('sends the caller filter as it is when the deleted rows are asked for: %o', async (filter, expected) => {
+      const client = new CustomDynamoClient('TestTable')
+      mockSend.mockResolvedValueOnce({ Items: [] })
+
+      await client.query({ ...filter, includeDeleted: true, key: 'id = :id', values: { ':id': '1' } })
+
+      expect(mockSend).toHaveBeenCalledWith(expect.objectContaining({ FilterExpression: expected }))
     })
 
     it('normalizes a string set attribute on each item into a sorted plain array', async () => {
@@ -376,7 +389,7 @@ describe('CustomDynamoClient', () => {
       expect(mockSend).toHaveBeenCalledWith({
         ExpressionAttributeNames: { '#name': 'name' },
         ExpressionAttributeValues: { ':id': '1' },
-        FilterExpression: '#attr = :value',
+        FilterExpression: '(attribute_not_exists(deletedAt)) AND (#attr = :value)',
         IndexName: 'GSI1',
         KeyConditionExpression: 'id = :id',
         Limit: 10,
@@ -410,7 +423,7 @@ describe('CustomDynamoClient', () => {
       expect(mockSend).toHaveBeenNthCalledWith(1, {
         ExpressionAttributeNames: undefined,
         ExpressionAttributeValues: { ':type': 'registration' },
-        FilterExpression: undefined,
+        FilterExpression: 'attribute_not_exists(deletedAt)',
         IndexName: undefined,
         KeyConditionExpression: 'type = :type',
         Limit: undefined,
@@ -421,7 +434,7 @@ describe('CustomDynamoClient', () => {
         ExclusiveStartKey: { id: '1' },
         ExpressionAttributeNames: undefined,
         ExpressionAttributeValues: { ':type': 'registration' },
-        FilterExpression: undefined,
+        FilterExpression: 'attribute_not_exists(deletedAt)',
         IndexName: undefined,
         KeyConditionExpression: 'type = :type',
         Limit: undefined,

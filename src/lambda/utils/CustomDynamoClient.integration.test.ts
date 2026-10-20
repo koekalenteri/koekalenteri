@@ -102,6 +102,40 @@ describe('CustomDynamoClient against DynamoDB-local', () => {
     })
   })
 
+  describe('query of deleted rows', () => {
+    // KOE-1585: the public season list is a query; a deleted event kept its season.
+    it('leaves deleted rows out unless they are asked for', async () => {
+      const organizerId = uniqueId('org')
+      const live = row({ organizerId })
+      const deleted = row({ deletedAt: '2026-06-02T09:00:00.000Z', organizerId })
+      const byOrganizer = {
+        index: 'gsiOrganizerStartDate',
+        key: 'organizerId = :organizerId',
+        values: { ':organizerId': organizerId },
+      }
+      await client.batchWrite([live, deleted])
+
+      await expect(client.query<Row>(byOrganizer)).resolves.toEqual([live])
+      const withDeleted = await client.query<Row>({ ...byOrganizer, includeDeleted: true })
+      expect(withDeleted).toHaveLength(2)
+      expect(withDeleted).toEqual(expect.arrayContaining([live, deleted]))
+    })
+
+    it('is refused by the database on an index that does not project deletedAt, unless they are asked for', async () => {
+      const byType = {
+        index: 'gsiEventTypeEntryEndDateV2',
+        key: 'eventType = :eventType',
+        values: { ':eventType': uniqueId('type') },
+      }
+
+      await expect(client.query<Row>(byType)).rejects.toMatchObject({
+        message: expect.stringContaining('does not project one or more filter attributes'),
+        name: 'ValidationException',
+      })
+      await expect(client.query<Row>({ ...byType, includeDeleted: true })).resolves.toEqual([])
+    })
+  })
+
   describe('readAll', () => {
     // KOE-1569: a since query has to see the deleted rows to report them as deletedIds.
     it('leaves deleted rows out unless they are asked for', async () => {

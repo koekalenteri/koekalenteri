@@ -121,23 +121,79 @@ describe('eventRepository', () => {
       })
     })
 
-    it('readLastEntryEndBefore asks the entry end index for the latest one before the day', async () => {
+    const entryEndQuery = (bound: string) => ({
+      forward: false,
+      includeDeleted: true,
+      index: 'gsiEventTypeEntryEndDateV2',
+      key: 'eventType = :eventType AND entryEndDate < :entryEndDate',
+      limit: 1,
+      values: { ':entryEndDate': bound, ':eventType': 'NOME-B SM' },
+    })
+    const sameDayQuery = (day: string) => ({
+      includeDeleted: true,
+      index: 'gsiEventTypeEntryEndDateV2',
+      key: 'eventType = :eventType AND entryEndDate = :entryEndDate',
+      values: { ':entryEndDate': day, ':eventType': 'NOME-B SM' },
+    })
+    const deletedRow = (id: string) => ({ deletedAt: '2024-09-01T10:00:00.000Z', id })
+
+    it('readLastEntryEndBefore asks the entry end index for the latest one before the day, and reads its row', async () => {
       const previous = { entryEndDate: '2024-08-20', id: 'previous' }
       mockQuery.mockResolvedValueOnce([previous]).mockResolvedValueOnce(undefined)
+      mockRead.mockResolvedValueOnce({ id: 'previous' })
 
       await expect(readLastEntryEndBefore('NOME-B SM', '2025-03-22')).resolves.toEqual(previous)
       await expect(readLastEntryEndBefore('NOME-B SM', '2025-03-22')).resolves.toBeUndefined()
 
-      expect(mockQuery).toHaveBeenCalledWith({
-        forward: false,
-        index: 'gsiEventTypeEntryEndDateV2',
-        key: 'eventType = :eventType AND entryEndDate < :entryEndDate',
-        limit: 1,
-        values: { ':entryEndDate': '2025-03-22', ':eventType': 'NOME-B SM' },
-      })
+      expect(mockQuery).toHaveBeenCalledTimes(2)
+      expect(mockQuery).toHaveBeenNthCalledWith(1, entryEndQuery('2025-03-22'))
+      expect(mockRead).toHaveBeenCalledTimes(1)
+      expect(mockRead).toHaveBeenCalledWith({ id: 'previous' }, false)
     })
 
-    it('readPublicSeasonEvents queries the season by start date and leaves the drafts out', async () => {
+    // KOE-1585: the index projects no deletedAt, so each row it answers with decides.
+    it.each([
+      ['deleted', deletedRow('skipped')],
+      ['gone', undefined],
+    ])('readLastEntryEndBefore passes a %s row over to the days before its own', async (_, row) => {
+      const skipped = { entryEndDate: '2024-08-20', id: 'skipped' }
+      const earlier = { entryEndDate: '2024-05-01', id: 'earlier' }
+      mockQuery.mockResolvedValueOnce([skipped]).mockResolvedValueOnce([skipped]).mockResolvedValueOnce([earlier])
+      mockRead.mockResolvedValueOnce(row).mockResolvedValueOnce({ id: 'earlier' })
+
+      await expect(readLastEntryEndBefore('NOME-B SM', '2025-03-22')).resolves.toEqual(earlier)
+
+      expect(mockQuery).toHaveBeenNthCalledWith(2, sameDayQuery('2024-08-20'))
+      expect(mockQuery).toHaveBeenNthCalledWith(3, entryEndQuery('2024-08-20'))
+    })
+
+    // A strict bound after the skipped row would pass over a live row closing the same day.
+    it('readLastEntryEndBefore takes a live row stored with the same entry end as the deleted one', async () => {
+      const skipped = { entryEndDate: '2024-08-20', id: 'skipped' }
+      const alsoDeleted = { entryEndDate: '2024-08-20', id: 'also-deleted' }
+      const live = { entryEndDate: '2024-08-20', id: 'live' }
+      mockQuery.mockResolvedValueOnce([skipped]).mockResolvedValueOnce([alsoDeleted, skipped, live])
+      mockRead
+        .mockResolvedValueOnce(deletedRow('skipped'))
+        .mockResolvedValueOnce(deletedRow('also-deleted'))
+        .mockResolvedValueOnce({ id: 'live' })
+
+      await expect(readLastEntryEndBefore('NOME-B SM', '2025-03-22')).resolves.toEqual(live)
+
+      expect(mockQuery).toHaveBeenCalledTimes(2)
+      expect(mockRead).toHaveBeenCalledTimes(3)
+    })
+
+    it('readLastEntryEndBefore finds nothing when every earlier row is deleted', async () => {
+      const skipped = { entryEndDate: '2024-08-20', id: 'skipped' }
+      mockQuery.mockResolvedValueOnce([skipped]).mockResolvedValueOnce(undefined).mockResolvedValueOnce([])
+      mockRead.mockResolvedValueOnce(deletedRow('skipped'))
+
+      await expect(readLastEntryEndBefore('NOME-B SM', '2025-03-22')).resolves.toBeUndefined()
+      expect(mockQuery).toHaveBeenNthCalledWith(3, entryEndQuery('2024-08-20'))
+    })
+
+    it('readPublicSeasonEvents queries the season by start date and leaves the drafts out, and the deleted ones by default', async () => {
       mockQuery.mockResolvedValueOnce([event])
 
       await expect(readPublicSeasonEvents('2026', '2026-12-31')).resolves.toEqual([event])
@@ -157,11 +213,13 @@ describe('eventRepository', () => {
       await expect(readSeasonEventsUpdatedSince(2025, '2025-06-01T00:00:00.000Z')).resolves.toEqual([])
 
       expect(mockQuery).toHaveBeenNthCalledWith(1, {
+        includeDeleted: true,
         index: 'gsiSeasonStartDate',
         key: 'season = :season',
         values: { ':season': '2026' },
       })
       expect(mockQuery).toHaveBeenNthCalledWith(2, {
+        includeDeleted: true,
         index: 'gsiSeasonUpdatedAt',
         key: 'season = :season AND updatedAt >= :updatedAfter',
         values: { ':season': '2025', ':updatedAfter': '2025-06-01T00:00:00.000Z' },
@@ -173,6 +231,7 @@ describe('eventRepository', () => {
 
       await expect(readOrganizerEvents('org-1')).resolves.toEqual([event])
       expect(mockQuery).toHaveBeenCalledWith({
+        includeDeleted: true,
         index: 'gsiOrganizerStartDate',
         key: 'organizerId = :organizerId',
         values: { ':organizerId': 'org-1' },
