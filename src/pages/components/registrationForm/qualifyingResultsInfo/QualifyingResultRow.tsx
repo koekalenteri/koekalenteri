@@ -23,7 +23,7 @@ interface Props {
   readonly result: QualifyingResult | ManualTestResult
   readonly manualResults?: ManualTestResult[]
   readonly disabled?: boolean
-  readonly rankingPeriod?: { min?: Date; max?: Date }
+  readonly rankingPeriod?: { min?: DayKey; max?: DayKey }
   readonly requirements?: EventResultRequirementsByDate
   readonly onChange?: (result: ManualTestResult, props: Partial<ManualTestResult>) => void
   readonly onRemove?: (result: ManualTestResult) => void

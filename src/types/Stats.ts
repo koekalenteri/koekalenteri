@@ -1,5 +1,4 @@
 import type { JsonRegistration } from './Registration'
-import type { ReplaceOptional } from './utility'
 
 interface OrganizerEventStats {
   organizerId: string
@@ -68,7 +67,7 @@ export interface JsonEventStatsItem extends Partial<OrganizerEventStats> {
 }
 
 // Frontend domain shape: `date` is the event's start, made a `Date` at the typed boundary (`lib/wire.ts`)
-export type EventStatsItem = ReplaceOptional<JsonEventStatsItem, 'date', Date>
+export type EventStatsItem = JsonEventStatsItem
 
 /**
  * Sentinel `eventType` value for the public capacity endpoint: aggregates every active event

@@ -2,7 +2,7 @@ import type { TFunction } from 'i18next'
 import type { DayKey } from '../types/Day'
 import type { PublicConfirmedEvent } from '../types/Event'
 import type { PublicRegistration } from '../types/Registration'
-import { dayOf, dayParts, TIME_ZONE } from './day'
+import { dayParts } from './day'
 import { formatDogName } from './dog'
 import { formatResultMarks } from './results'
 
@@ -69,7 +69,7 @@ export function startListSpreadsheetRows(
       // A cancelled row carries its frozen number and the mark, nothing else (KOE-1017).
       registration.cancelled
         ? [
-            spreadsheetDate(registration.group.date ?? event.startDate),
+            spreadsheetDay(registration.group.date ?? event.startDate),
             registration.group.time ? t(`registration.timeLong.${registration.group.time}`) : '',
             registration.class ?? '',
             registration.group.number ?? '',
@@ -77,7 +77,7 @@ export function startListSpreadsheetRows(
             ...Array.from({ length: 10 }, () => ''),
           ]
         : [
-            spreadsheetDate(registration.group.date ?? event.startDate),
+            spreadsheetDay(registration.group.date ?? event.startDate),
             registration.group.time ? t(`registration.timeLong.${registration.group.time}`) : '',
             registration.class ?? '',
             registration.group.number ?? '',
@@ -102,9 +102,4 @@ export function startListSpreadsheetRows(
 function spreadsheetDay(day: DayKey): Date {
   const { year, month, day: date } = dayParts(day)
   return new Date(year, month - 1, date, 12)
-}
-
-/** The Finnish day of `date` as the sheet library takes a day. */
-function spreadsheetDate(date: Date): Date {
-  return spreadsheetDay(dayOf(date, TIME_ZONE))
 }

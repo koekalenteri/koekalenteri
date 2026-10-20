@@ -38,7 +38,7 @@ const modelResult = {
   updatedBy: 'u',
 }
 
-test('getStationEntry makes the dates of the trial, the post, the dogs and the turns Dates (KOE-1546)', async () => {
+test('getStationEntry reads the days of the trial, the post and the dogs as keys, and the moments of the turns as Dates (KOE-1547)', async () => {
   fetchMock.mockResponseOnce(
     JSON.stringify({
       event: {
@@ -71,12 +71,12 @@ test('getStationEntry makes the dates of the trial, the post, the dogs and the t
     `${API_BASE_URL}/station-entry/e1/1`,
     expect.objectContaining({ headers: expect.objectContaining({ Authorization: 'Bearer station-token' }) })
   )
-  expect(entry.event.startDate).toEqual(new Date('2026-09-11T21:00:00.000Z'))
-  expect(entry.event.classes[0].date).toEqual(new Date('2026-09-11T21:00:00.000Z'))
+  expect(entry.event.startDate).toEqual('2026-09-12')
+  expect(entry.event.classes[0].date).toEqual('2026-09-12')
   // The name the secretary typed looks like a day and stays text.
   expect(entry.event.name).toBe('2026-09-12')
-  expect(entry.station.date).toEqual(new Date('2026-09-11T21:00:00.000Z'))
-  expect(entry.registrations[0].group?.date).toEqual(new Date('2026-09-11T21:00:00.000Z'))
+  expect(entry.station.date).toEqual('2026-09-12')
+  expect(entry.registrations[0].group?.date).toEqual('2026-09-12')
   // The group's key is a day key and stays one.
   expect(entry.registrations[0].group?.key).toBe('2026-09-12')
   expect(entry.registrations[0].eventResult).toEqual(modelResult)

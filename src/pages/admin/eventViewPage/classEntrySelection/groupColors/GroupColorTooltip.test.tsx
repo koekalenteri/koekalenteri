@@ -1,9 +1,10 @@
+import type { DayKey } from '@/types'
 import { screen } from '@testing-library/react'
 import { renderWithUserEvents } from '@/test-utils/utils'
 import GroupColorTooltip from './GroupColorTooltip'
 
 describe('GroupColorTooltip', () => {
-  const mockDate = new Date('2023-01-01')
+  const mockDate: DayKey = '2023-01-01'
   const mockSelected = [{ date: mockDate, time: 'ap' as const }]
 
   it('renders', async () => {

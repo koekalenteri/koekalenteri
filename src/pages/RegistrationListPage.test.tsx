@@ -269,6 +269,37 @@ describe('RegistrationListPage', () => {
     expect(screen.getByRole('menuitem', { name: 'registration.actions.cancel' })).toBeVisible()
   })
 
+  // The page closes from the start of the trial's last Finnish day (test1 ends on 11.2.2021). The day
+  // is the key and today is Finland's: 22:30 UTC on 10.2. is already 11.2. there (KOE-1547).
+  it.each([
+    ['the day before the last day', '2021-02-10T12:00:00.000+02:00', false],
+    ['the last day', '2021-02-11T12:00:00.000+02:00', true],
+    ['the last day, late in the UTC evening before it', '2021-02-10T22:30:00.000Z', true],
+  ])('closes editing on %s: %s', async (_label, now, closed) => {
+    vi.setSystemTime(new Date(now))
+    const { user } = await renderWithRouter('/r/test1/nou-registration')
+    await flushPromises()
+
+    await user.click(screen.getByRole('button', { name: 'more' }))
+
+    const edit = await screen.findByRole('menuitem', { name: 'registration.actions.edit' })
+    if (closed) expect(edit).toHaveAttribute('aria-disabled', 'true')
+    else expect(edit).not.toHaveAttribute('aria-disabled', 'true')
+  })
+
+  it.each([
+    ['the trial ends tomorrow', '2021-02-10T12:00:00.000+02:00', true],
+    ['the trial ends today', '2021-02-11T12:00:00.000+02:00', false],
+  ])('opens the confirm dialog on the confirm route when %s: %s', async (_label, now, opens) => {
+    vi.setSystemTime(new Date(now))
+    await renderWithRouter('/r/test1/nou-registration/confirm')
+    await flushPromises()
+
+    const dialog = screen.queryByRole('dialog', { name: 'registration.confirmDialog.title' })
+    if (opens) expect(dialog).toBeVisible()
+    else expect(dialog).not.toBeInTheDocument()
+  })
+
   it('itemizes what the registration bought and what has been paid for it', async () => {
     await renderWithRouter('/r/test1/nou-registration')
     await flushPromises()

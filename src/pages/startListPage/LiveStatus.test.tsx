@@ -8,8 +8,8 @@ const baseEvent = {
   eventType: 'NOWT',
   id: 'event-1',
   stations: [
-    { date: new Date('2026-09-12'), id: 'post-1', number: 1, tasks: 1 },
-    { date: new Date('2026-09-12'), id: 'post-2', number: 2, tasks: 2 },
+    { date: '2026-09-12', id: 'post-1', number: 1, tasks: 1 },
+    { date: '2026-09-12', id: 'post-2', number: 2, tasks: 2 },
   ],
   // The live view reads only the fields above; the minimal event converts here.
 } as unknown as PublicConfirmedEvent
@@ -41,7 +41,7 @@ describe('LiveStatus', () => {
   it('leaves the page to the results once every class has them published', () => {
     const finished: PublicConfirmedEvent = {
       ...baseEvent,
-      classes: [{ class: 'ALO', date: new Date('2026-09-12') }],
+      classes: [{ class: 'ALO', date: '2026-09-12' }],
       liveTurns: [turn({})],
       resultsPublished: { ALO: true },
     }

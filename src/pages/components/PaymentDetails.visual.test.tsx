@@ -33,7 +33,7 @@ const event: PublicDogEvent & MinimalEventForCost = {
     earlyBird: { cost: 30, days: 7 },
     normal: 40,
   },
-  entryStartDate: new Date('2025-08-01T00:00:00Z'),
+  entryStartDate: '2025-08-01',
 }
 
 /** Registered on the first entry day, so the early bird price is the one that applies. */

@@ -1,6 +1,5 @@
-import type { CustomCost, DogEvent, Registration, RegistrationGroup, RegistrationGroupMove } from '@/types'
+import type { CustomCost, DayKey, DogEvent, Registration, RegistrationGroup, RegistrationGroupMove } from '@/types'
 import type { RegistrationWithGroups } from './types'
-import { sameDay, TIME_ZONE } from '@/lib/day'
 import { eventDayKey, eventRegistrationDateKey } from '@/lib/event'
 import {
   GROUP_KEY_CANCELLED,
@@ -10,7 +9,7 @@ import {
   isParticipantGroup,
   isStarter,
 } from '@/lib/registration'
-import { uniqueDate } from '@/lib/utils'
+import { unique } from '@/lib/utils'
 
 interface NouGroupRuleIssues {
   duplicateHandlers: Array<{ count: number; email: string; name: string }>
@@ -89,14 +88,12 @@ export const buildRegistrationsByGroup = (
   const byGroup: Record<string, RegistrationWithGroups[]> = { cancelled: [], reserve: [] }
   for (const reg of registrations) {
     const key = listKey(reg, groups)
-    const regDates = uniqueDate(reg.dates.map((rd) => rd.date)) ?? []
+    const regDates = unique(reg.dates.map((rd) => rd.date))
 
     byGroup[key] = byGroup[key] ?? []
     byGroup[key].push({
       ...reg,
-      dropGroups: groups
-        .filter((g) => regDates.some((d) => !g.date || sameDay(g.date, d, TIME_ZONE)))
-        .map((g) => g.key),
+      dropGroups: groups.filter((g) => regDates.some((d) => !g.date || g.date === d)).map((g) => g.key),
       groups: reg.dates.map((rd) => eventRegistrationDateKey(rd)),
     })
   }
@@ -146,7 +143,7 @@ export const isDrawnNumberMove = (registration: Registration | undefined, drawnD
 export const buildDrawnNumberOptions = (
   registration: Registration,
   registrations: Registration[],
-  date?: Date
+  date?: DayKey
 ): number[] => {
   const day = date ? drawDayKey(date) : registrationDrawDay(registration)
   if (!day) return []
@@ -181,7 +178,7 @@ const getAllowedParticipantGroups = (registration: Registration, groups: Registr
 
 /** A day a reserve dog can be placed on from the position dialog, and whether its draw has begun. */
 interface MoveToPositionDay {
-  date: Date
+  date: DayKey
   drawn: boolean
   key: string
   time?: NonNullable<RegistrationGroup['time']>

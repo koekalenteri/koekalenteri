@@ -1,4 +1,11 @@
-import type { EventState, MinimalEventForCost, MinimalRegistrationForCost, PaymentPicture, PaymentTime } from '../types'
+import type {
+  DayKey,
+  EventState,
+  MinimalEventForCost,
+  MinimalRegistrationForCost,
+  PaymentPicture,
+  PaymentTime,
+} from '../types'
 import type { PaymentTerms } from './payment'
 import { eventWithStaticDates } from '../__mockData__/events'
 import { paymentPictureWith } from '../__mockData__/paymentPicture'
@@ -164,13 +171,13 @@ describe('payment', () => {
     const priced: {
       cost: number
       costMember: number
-      entryStartDate: Date
+      entryStartDate: DayKey
       paymentTime: PaymentTime
       state: EventState
     } = {
       cost: 40,
       costMember: 35,
-      entryStartDate: new Date('2026-01-01'),
+      entryStartDate: '2026-01-01',
       paymentTime: 'registration',
       state: 'confirmed',
     }
@@ -658,7 +665,8 @@ describe('payment', () => {
 
   // KOE-1526 review: the secretary's request is the pay offer read from a row without transactions.
   describe('canPay on the secretary row', () => {
-    const event = { cost: 40, costMember: 40, entryStartDate: new Date('2026-01-01'), state: 'confirmed' as const }
+    const entryStartDate: DayKey = '2026-01-01'
+    const event = { cost: 40, costMember: 40, entryStartDate, state: 'confirmed' as const }
     const owing = {
       createdAt: new Date('2026-01-02'),
       dog: { breedCode: '110' as const },
@@ -761,7 +769,7 @@ describe('payment', () => {
     const event: MinimalEventForCost = {
       cost: 10,
       costMember: 5,
-      entryStartDate: new Date('2026-01-01'),
+      entryStartDate: '2026-01-01',
     }
     const registration: MinimalRegistrationForCost = {
       createdAt: new Date('2026-01-02'),
@@ -827,8 +835,8 @@ describe('payment', () => {
       })
     })
     it('should return details for early bird', () => {
-      // A Finnish midnight in winter time; the window's end keeps that time of day ten days on.
-      const entryStartDate = new Date('2026-01-01T22:00:00.000Z')
+      // A winter day: the window starts at its Finnish midnight and ends ten Finnish days on.
+      const entryStartDate: DayKey = '2026-01-02'
       const eventWithOptional = {
         ...event,
         cost: {
@@ -861,7 +869,7 @@ describe('payment', () => {
         translationOptions: {
           code: undefined,
           end: new Date('2026-01-10T22:00:00.000Z'),
-          start: entryStartDate,
+          start: new Date('2026-01-01T22:00:00.000Z'),
         },
       })
     })
@@ -943,7 +951,8 @@ describe('payment', () => {
   })
 
   describe('overpaid fee', () => {
-    const event = { cost: 40, costMember: 35, entryStartDate: new Date('2026-01-01'), state: 'confirmed' as const }
+    const entryStartDate: DayKey = '2026-01-01'
+    const event = { cost: 40, costMember: 35, entryStartDate, state: 'confirmed' as const }
     const member: MinimalRegistrationForCost = {
       createdAt: new Date('2026-01-02'),
       dog: { breedCode: '110' },

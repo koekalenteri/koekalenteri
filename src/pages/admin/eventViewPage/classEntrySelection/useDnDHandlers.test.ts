@@ -1,4 +1,4 @@
-import type { Registration, RegistrationGroup, RegistrationGroupInfo, RegistrationGroupMove } from '@/types'
+import type { DayKey, Registration, RegistrationGroup, RegistrationGroupInfo, RegistrationGroupMove } from '@/types'
 import type { DragItem } from './types'
 import { renderHook } from '@testing-library/react'
 import { eventWithStaticDatesAnd3Classes } from '@/__mockData__/events'
@@ -50,7 +50,7 @@ describe('useDnDHandlers', () => {
   const mockRegistrations: Registration[] = [mockRegistration]
 
   const mockGroup: RegistrationGroup = {
-    date: new Date(),
+    date: '2026-10-20',
     key: 'group2',
     number: 2,
     time: 'ap',
@@ -189,7 +189,7 @@ describe('useDnDHandlers', () => {
     })
 
     describe('over starts stored with the UTC day key (KOE-1541)', () => {
-      const date = new Date('2026-08-14T21:00:00.000Z') // 15.8. 00:00 in Helsinki
+      const date: DayKey = '2026-08-15' // its start, 2026-08-14T21:00Z, is the UTC day 14.8.
       const group: RegistrationGroup = { date, key: '2026-08-15-ap', number: 0, time: 'ap' }
       const start = (id: string, number: number): Registration => ({
         ...mockRegistration,

@@ -1,7 +1,7 @@
+import type { DayKey } from '../../types/Day'
 import type { PublicConfirmedEvent } from '../../types/Event'
 import type { PublicRegistration } from '../../types/Registration'
 import { ThemeProvider } from '@mui/material/styles'
-import { parseISO } from 'date-fns'
 import { render } from 'vitest-browser-react'
 import theme from '../../assets/Theme'
 import { startOfFinnishDay } from '../../test-utils/finnishDays'
@@ -14,14 +14,14 @@ const Frame = ({ children }: { readonly children: React.ReactNode }) => (
   </div>
 )
 
-const EVENT_DAY = startOfFinnishDay(parseISO('2026-10-02T12:00:00Z'))
+const EVENT_DAY: DayKey = '2026-10-02'
 
 // A NOU: no classes, so the withheld-numbers note hangs off the date header (KOE-1006 feedback).
 const event: PublicConfirmedEvent = {
   classes: [],
   cost: 0,
   costMember: 0,
-  createdAt: EVENT_DAY,
+  createdAt: startOfFinnishDay(EVENT_DAY),
   description: '',
   endDate: EVENT_DAY,
   entryEndDate: EVENT_DAY,
@@ -30,7 +30,7 @@ const event: PublicConfirmedEvent = {
   id: 'event-nou',
   judges: [],
   location: 'Akaa',
-  modifiedAt: EVENT_DAY,
+  modifiedAt: startOfFinnishDay(EVENT_DAY),
   name: 'NOU Akaa',
   organizer: { id: 'org-1', name: 'Testiyhdistys' },
   places: 0,

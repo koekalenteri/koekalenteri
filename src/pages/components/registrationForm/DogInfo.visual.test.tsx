@@ -53,7 +53,7 @@ const renderFetched = (frame: Omit<FrameProps, 'children'> = {}) =>
   render(
     <TestProvider>
       <Frame {...frame}>
-        <DogInfo reg={registration} eventDate={new Date('2026-06-06')} minDogAgeMonths={9} orgId="org" open />
+        <DogInfo reg={registration} eventDate="2026-06-06" minDogAgeMonths={9} orgId="org" open />
       </Frame>
     </TestProvider>
   )

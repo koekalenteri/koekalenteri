@@ -1,5 +1,4 @@
-import type { ConfirmedEvent, Language } from '@/types'
-import { TZDate } from '@date-fns/tz'
+import type { ConfirmedEvent, DayKey, Language } from '@/types'
 import { createTheme, ThemeProvider } from '@mui/material/styles'
 import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
@@ -9,7 +8,7 @@ import { render } from 'vitest-browser-react'
 import { emptyEvent } from '@/__mockData__/emptyEvent'
 import theme from '@/assets/Theme'
 import { locales } from '@/i18n'
-import { TIME_ZONE } from '@/lib/day'
+import { dayStart, TIME_ZONE } from '@/lib/day'
 import { TestProvider } from '@/test-utils/AtomProvider'
 import { freezeClockAt } from '@/test-utils/freezeClock'
 import { describeInLanguage } from '@/test-utils/language'
@@ -27,7 +26,7 @@ const DESKTOP = { height: 3000, width: 1200 }
 // The sections slide open; a capture mid-slide is not a layout anyone gets.
 const stillTheme = createTheme(theme, { transitions: { getAutoHeightDuration: () => 0 } })
 
-const day = (iso: string) => new TZDate(iso, TIME_ZONE)
+const day = (iso: DayKey): DayKey => iso
 
 /** A trial still ahead, so the form is editable: a past one locks itself. */
 const event: ConfirmedEvent = {
@@ -58,11 +57,11 @@ const event: ConfirmedEvent = {
 const eventTypes = [
   {
     active: true,
-    createdAt: day('2020-01-01'),
+    createdAt: dayStart('2020-01-01', TIME_ZONE),
     createdBy: 'test',
     description: { en: '', fi: '', sv: '' },
     eventType: 'NOME-B',
-    modifiedAt: day('2020-01-01'),
+    modifiedAt: dayStart('2020-01-01', TIME_ZONE),
     modifiedBy: 'test',
   },
 ]

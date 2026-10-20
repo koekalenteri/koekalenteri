@@ -9,7 +9,7 @@ import {
   registrationWithStaticDatesAndClass,
 } from '@/__mockData__/registrations'
 import { locales } from '@/i18n'
-import { dayEnd, dayStart, TIME_ZONE } from '@/lib/day'
+import { dayOf, TIME_ZONE } from '@/lib/day'
 import { filterRelevantResults } from '@/lib/qualification'
 import { toDog } from '@/lib/wire'
 import { getRequirements } from '@/rules'
@@ -35,7 +35,11 @@ describe('QualifyingResultsInfo', () => {
 
   it('should render a NOME-B ALO registraton', () => {
     const reg = registrationWithStaticDatesAndClass
-    const requirements = getRequirements(reg.eventType, reg.class, reg.dates?.length ? reg.dates[0].date : new Date())
+    const requirements = getRequirements(
+      reg.eventType,
+      reg.class,
+      reg.dates?.length ? reg.dates[0].date : dayOf(new Date(), TIME_ZONE)
+    )
     render(
       <QualifyingResultsInfo
         regNo={reg.dog.regNo}
@@ -54,7 +58,11 @@ describe('QualifyingResultsInfo', () => {
 
   it('should render a NOME-B AVO registraton with manual results', () => {
     const reg = registrationWithManualResults
-    const requirements = getRequirements(reg.eventType, reg.class, reg.dates?.length ? reg.dates[0].date : new Date())
+    const requirements = getRequirements(
+      reg.eventType,
+      reg.class,
+      reg.dates?.length ? reg.dates[0].date : dayOf(new Date(), TIME_ZONE)
+    )
     render(
       <QualifyingResultsInfo
         regNo={reg.dog.regNo}
@@ -76,7 +84,7 @@ describe('QualifyingResultsInfo', () => {
     beforeEach(() => vi.useFakeTimers({ now: frozenInstant('2026-05-15'), toFake: ['Date'] }))
     afterEach(() => vi.useRealTimers())
 
-    const daysOffered = async (dob: DayKey | undefined, rankingPeriod?: { min?: Date; max?: Date }) => {
+    const daysOffered = async (dob: DayKey | undefined, rankingPeriod?: { min?: DayKey; max?: DayKey }) => {
       const reg = registrationWithManualResults
       const requirements = getRequirements(reg.eventType, reg.class, reg.dates[0].date)
       const result: ManualTestResult = { ...(reg.results ?? [])[0], date: '2026-05-10' as const }
@@ -116,13 +124,13 @@ describe('QualifyingResultsInfo', () => {
     describe.each([TIME_ZONE, 'America/New_York', 'Asia/Tokyo'])('in %s', (zone) => {
       describeInTimeZone(zone, () => {
         it('offers no day after the ranking period ends (KOE-1548)', async () => {
-          const rankingPeriod = { max: dayEnd('2026-05-12', TIME_ZONE), min: dayStart('2025-05-13', TIME_ZONE) }
+          const rankingPeriod = { max: '2026-05-12' as const, min: '2025-05-13' as const }
 
           expect(await daysOffered('2025-08-05', rankingPeriod)).toEqual(range(5, 12))
         })
 
         it('offers no day after today in a ranking period that ends later (KOE-1548)', async () => {
-          const rankingPeriod = { max: dayEnd('2026-06-30', TIME_ZONE), min: dayStart('2025-07-01', TIME_ZONE) }
+          const rankingPeriod = { max: '2026-06-30' as const, min: '2025-07-01' as const }
 
           expect(await daysOffered('2025-08-05', rankingPeriod)).toEqual(range(5, 15))
         })
@@ -132,7 +140,11 @@ describe('QualifyingResultsInfo', () => {
 
   it('should not allow entering results for NOU test', async () => {
     const reg = registrationWithStaticDates
-    const requirements = getRequirements(reg.eventType, reg.class, reg.dates?.length ? reg.dates[0].date : new Date())
+    const requirements = getRequirements(
+      reg.eventType,
+      reg.class,
+      reg.dates?.length ? reg.dates[0].date : dayOf(new Date(), TIME_ZONE)
+    )
     render(
       <QualifyingResultsInfo
         regNo={reg.dog.regNo}
@@ -149,7 +161,11 @@ describe('QualifyingResultsInfo', () => {
 
   it('should allow entering results for NOME-B rest', async () => {
     const reg = registrationWithStaticDatesAndClass
-    const requirements = getRequirements(reg.eventType, reg.class, reg.dates?.length ? reg.dates[0].date : new Date())
+    const requirements = getRequirements(
+      reg.eventType,
+      reg.class,
+      reg.dates?.length ? reg.dates[0].date : dayOf(new Date(), TIME_ZONE)
+    )
     render(
       <QualifyingResultsInfo
         regNo={reg.dog.regNo}
@@ -166,9 +182,9 @@ describe('QualifyingResultsInfo', () => {
 
   it('should only count the five best results towards the total ranking points', () => {
     const event = {
-      entryEndDate: new Date('2024-06-01'),
+      entryEndDate: '2024-06-01' as const,
       eventType: 'NOWT SM',
-      startDate: new Date('2024-08-01'),
+      startDate: '2024-08-01' as const,
     }
     const regNo = 'FI12345/20'
     // rankingPoints is what an earlier save persisted on the manual result, so a result that has

@@ -1,3 +1,4 @@
+import type { DayKey } from '@/types'
 import { ThemeProvider } from '@mui/material/styles'
 import { render } from 'vitest-browser-react'
 import theme from '@/assets/Theme'
@@ -14,7 +15,7 @@ const Frame = ({ children }: { readonly children: React.ReactNode }) => (
 // which it always renders as its child in real use. A DOM dump of the tooltip alone says
 // nothing about a color -- a screenshot of the two together does.
 it('gives each available slot its own color, leaving unselected ones transparent', async () => {
-  const dates = [new Date('2026-06-01'), new Date('2026-06-02')]
+  const dates: DayKey[] = ['2026-06-01', '2026-06-02']
   const available = availableGroups(dates)
   const selected = [available[0], available[2]]
 

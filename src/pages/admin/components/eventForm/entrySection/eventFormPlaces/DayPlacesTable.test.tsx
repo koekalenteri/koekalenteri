@@ -1,6 +1,5 @@
 import { render, screen } from '@testing-library/react'
 import { eventWithStaticDates } from '@/__mockData__/events'
-import { finnishDayOf } from '@/test-utils/finnishDays'
 import { flushPromises, renderWithUserEvents } from '@/test-utils/utils'
 import DayPlacesTable from './DayPlacesTable'
 
@@ -42,10 +41,7 @@ describe('DayPlacesTable', () => {
   })
 
   it('should call handleDayPlacesChange when day places are changed', async () => {
-    let changedDate: Date | undefined
-    const handleDayPlacesChange = vi.fn((date) => {
-      changedDate = date
-    })
+    const handleDayPlacesChange = vi.fn()
 
     const { user } = renderWithUserEvents(
       <DayPlacesTable event={eventWithPlacesPerDay} disabled={false} handleDayPlacesChange={handleDayPlacesChange} />,
@@ -64,11 +60,7 @@ describe('DayPlacesTable', () => {
     await user.type(inputs[0], '8')
     await flushPromises()
 
-    expect(handleDayPlacesChange).toHaveBeenCalledWith(
-      expect.objectContaining({ toISOString: expect.any(Function) }),
-      8
-    )
-    expect(changedDate && finnishDayOf(changedDate)).toBe('2021-02-10')
+    expect(handleDayPlacesChange).toHaveBeenCalledWith('2021-02-10', 8)
   })
 
   it('should always render day inputs as enabled', () => {

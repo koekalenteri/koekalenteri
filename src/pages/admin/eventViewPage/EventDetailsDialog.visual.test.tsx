@@ -1,5 +1,4 @@
-import type { ConfirmedEvent } from '@/types'
-import { TZDate } from '@date-fns/tz'
+import type { ConfirmedEvent, DayKey } from '@/types'
 import { ThemeProvider } from '@mui/material/styles'
 import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
@@ -9,7 +8,6 @@ import { render } from 'vitest-browser-react'
 import { emptyEvent } from '@/__mockData__/emptyEvent'
 import theme from '@/assets/Theme'
 import { locales } from '@/i18n'
-import { TIME_ZONE } from '@/lib/day'
 import { Path } from '@/routeConfig'
 import { TestProvider } from '@/test-utils/AtomProvider'
 import { freezeClockAt } from '@/test-utils/freezeClock'
@@ -22,7 +20,7 @@ import EventDetailsDialog from './EventDetailsDialog'
 // The fixture carries absolute dates; a trial still ahead keeps the form editable.
 freezeClockAt('2026-09-07')
 
-const day = (iso: string) => new TZDate(iso, TIME_ZONE)
+const day = (iso: DayKey): DayKey => iso
 
 const event: ConfirmedEvent = {
   ...emptyEvent,

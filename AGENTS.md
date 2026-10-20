@@ -102,8 +102,12 @@ Read `LLM_CONTEXT.md` for the project overview and architecture notes.
   that rule too (`legacyStoredDay`, the one body both use). The migrations run right after
   `sam deploy`; until they finish, a few minutes, an hour-off row may show or compare by its old day,
   which is accepted. A no-day result date is stored as `''`, a no-day birth date not at all. The
-  browser model still holds each day as the start of its Finnish day (`finnishDay` in `lib/wire.ts`)
-  until it is given keys too.
+  browser model holds the same keys (KOE-1547), and so the bodies it sends are keys. The wire reads an
+  event's or an entry's day by the migrations' rule (`eventDay` in `lib/wire.ts`, `legacyStoredEventDay`),
+  so an unmigrated row's instant, or one a cache or a draft of the bundle before held, comes into the
+  model as the key the migration writes. The model compares days as keys and today as
+  `dayOf(new Date(), TIME_ZONE)`; a moment is made of a day only where one is needed, such as the
+  countdown to the end of the entry's last day (`dayEnd`).
 - The day key indexes (`gsiSeasonStartDate`, `gsiEventTypeEntryEndDateV2`) are queried with day keys,
   which sort by day as text; the organizer stats rows' upper bound is padded past the event id
   (`yyyy-MM-dd#id`).
@@ -123,8 +127,7 @@ Read `LLM_CONTEXT.md` for the project overview and architecture notes.
   (KOE-1548): a picker gets `localDateOf(day)`, and only the day it shows comes back (`pickedDayOf`),
   so no time of day or zone reaches the event form, the search filter or the registration form;
   `src/pages/components/dayPicker.ts` holds what they share. The search filter's `start` and `end` are
-  the day keys of the URL; the event form converts the model's Dates at the section, until the browser
-  model holds the days as keys too (KOE-1547).
+  the day keys of the URL, and the event form stores the picked keys as they are (KOE-1547).
 - A dog's birth date (`Dog.dob`) and a result's date (`TestResult.date`, and so the qualifying and the
   hand-entered results) are day keys in the browser and are written as keys. Rows stored before hold
   older forms: Kennelliitto's stamp without a zone, a bare day, an instant a browser or a lambda wrote.

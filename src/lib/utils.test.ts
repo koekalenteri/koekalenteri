@@ -1,6 +1,6 @@
-import type { EventClass, EventState, PublicDogEvent } from '../types'
+import type { DayKey, EventClass, EventState, PublicDogEvent } from '../types'
 import type { AnyObject } from './utils'
-import { startOfFinnishDay } from '../test-utils/finnishDays'
+import { toDayKey } from './day'
 import {
   eventDates,
   hasEntryEnded,
@@ -33,6 +33,9 @@ import {
   withTimeout,
 } from './utils'
 
+/** A day of February 2020, typed as the model's day key. */
+const feb = (day: number): DayKey => toDayKey(2020, 2, day)
+
 describe('utils', () => {
   describe('uniqueClasses', () => {
     it('returns each class once', () => {
@@ -62,15 +65,15 @@ describe('utils', () => {
       expect(
         eventDates({
           classes: [] as EventClass[],
-          endDate: startOfFinnishDay('2020-02-03'),
-          startDate: startOfFinnishDay('2020-02-01'),
+          endDate: '2020-02-03',
+          startDate: '2020-02-01',
         })
-      ).toEqual([startOfFinnishDay('2020-02-01'), startOfFinnishDay('2020-02-02'), startOfFinnishDay('2020-02-03')])
+      ).toEqual(['2020-02-01', '2020-02-02', '2020-02-03'])
     })
 
     it('returns the unique class dates when the event has classes', () => {
-      const first = new Date(2020, 1, 1)
-      const second = new Date(2020, 1, 2)
+      const first = feb(1)
+      const second = feb(2)
       expect(
         eventDates({
           classes: [
@@ -104,8 +107,8 @@ describe('utils', () => {
 
   describe('registrationDates', () => {
     it('returns unique dates for the requested class', () => {
-      const first = new Date(2020, 1, 1)
-      const second = new Date(2020, 1, 2)
+      const first = feb(1)
+      const second = feb(2)
       const event = {
         classes: [
           { class: 'ALO', date: first },
@@ -125,19 +128,19 @@ describe('utils', () => {
     it('falls back to the event dates for a classless event, keyed by its event type', () => {
       const event = {
         classes: [] as EventClass[],
-        endDate: startOfFinnishDay('2020-02-02'),
+        endDate: feb(2),
         eventType: 'NOU',
-        startDate: startOfFinnishDay('2020-02-01'),
+        startDate: feb(1),
       } as PublicDogEvent
 
-      expect(uniqueClassDates(event, 'NOU')).toEqual([startOfFinnishDay('2020-02-01'), startOfFinnishDay('2020-02-02')])
+      expect(uniqueClassDates(event, 'NOU')).toEqual(['2020-02-01', '2020-02-02'])
     })
 
     it('should return each possible registration date for event without classes', () => {
       const event = {
         classes: [] as EventClass[],
-        endDate: new Date(2020, 1, 2),
-        startDate: new Date(2020, 1, 1),
+        endDate: feb(2),
+        startDate: feb(1),
       } as PublicDogEvent
       expect(registrationDates(event, ['ap', 'ip'])).toHaveLength(4)
     })
@@ -147,11 +150,11 @@ describe('utils', () => {
         classes: [
           {
             class: 'ALO',
-            date: new Date(2020, 1, 2),
+            date: feb(2),
           },
         ],
-        endDate: new Date(2020, 1, 3),
-        startDate: new Date(2020, 1, 1),
+        endDate: feb(3),
+        startDate: feb(1),
       } as PublicDogEvent
       expect(registrationDates(event, ['ap', 'ip'])).toHaveLength(2)
     })
@@ -161,23 +164,23 @@ describe('utils', () => {
         classes: [
           {
             class: 'ALO',
-            date: new Date(2020, 1, 1),
+            date: feb(1),
           },
           {
             class: 'ALO',
-            date: new Date(2020, 1, 2),
+            date: feb(2),
           },
           {
             class: 'ALO',
-            date: new Date(2020, 1, 3),
+            date: feb(3),
           },
           {
             class: 'VOI',
-            date: new Date(2020, 1, 3),
+            date: feb(3),
           },
         ],
-        endDate: new Date(2020, 1, 3),
-        startDate: new Date(2020, 1, 1),
+        endDate: feb(3),
+        startDate: feb(1),
       } as PublicDogEvent
       expect(registrationDates(event, ['ap', 'ip'], 'ALO')).toHaveLength(6)
       expect(registrationDates(event, ['ap', 'ip'], 'VOI')).toHaveLength(2)
@@ -308,10 +311,10 @@ describe('utils', () => {
       expect(
         isEntryClosing(
           {
-            endDate: new Date('2026-07-21T12:00:00+03:00'),
-            entryEndDate: new Date('2026-07-20T12:00:00+03:00'),
+            endDate: '2026-07-21',
+            entryEndDate: '2026-07-20',
             entryStartDate,
-            startDate: new Date('2026-07-21T12:00:00+03:00'),
+            startDate: '2026-07-21',
             state: 'cancelled',
           },
           now
@@ -323,10 +326,10 @@ describe('utils', () => {
       expect(
         isEntryClosing(
           {
-            endDate: new Date('2026-07-21T12:00:00+03:00'),
-            entryEndDate: new Date('2026-07-20T12:00:00+03:00'),
+            endDate: '2026-07-21',
+            entryEndDate: '2026-07-20',
             entryStartDate,
-            startDate: new Date('2026-07-21T12:00:00+03:00'),
+            startDate: '2026-07-21',
             state: 'confirmed',
           },
           now
@@ -338,10 +341,10 @@ describe('utils', () => {
       expect(
         isEntryClosing(
           {
-            endDate: new Date('2026-07-31T12:00:00+03:00'),
-            entryEndDate: new Date('2026-07-30T12:00:00+03:00'),
+            endDate: '2026-07-31',
+            entryEndDate: '2026-07-30',
             entryStartDate,
-            startDate: new Date('2026-07-31T12:00:00+03:00'),
+            startDate: '2026-07-31',
             state: 'confirmed',
           },
           now
@@ -355,35 +358,20 @@ describe('utils', () => {
 
     it('returns false without a startDate or entryEndDate', () => {
       expect(isEntryClosed({}, now)).toBe(false)
-      expect(isEntryClosed({ startDate: new Date('2026-07-20T12:00:00+03:00') }, now)).toBe(false)
-      expect(isEntryClosed({ entryEndDate: new Date('2026-07-10T12:00:00+03:00') }, now)).toBe(false)
+      expect(isEntryClosed({ startDate: '2026-07-20' }, now)).toBe(false)
+      expect(isEntryClosed({ entryEndDate: '2026-07-10' }, now)).toBe(false)
     })
 
     it('returns true between the entry end date and the event start date', () => {
-      expect(
-        isEntryClosed(
-          { entryEndDate: new Date('2026-07-10T12:00:00+03:00'), startDate: new Date('2026-07-20T12:00:00+03:00') },
-          now
-        )
-      ).toBe(true)
+      expect(isEntryClosed({ entryEndDate: '2026-07-10', startDate: '2026-07-20' }, now)).toBe(true)
     })
 
     it('returns false once the event has started', () => {
-      expect(
-        isEntryClosed(
-          { entryEndDate: new Date('2026-07-01T12:00:00+03:00'), startDate: new Date('2026-07-10T12:00:00+03:00') },
-          now
-        )
-      ).toBe(false)
+      expect(isEntryClosed({ entryEndDate: '2026-07-01', startDate: '2026-07-10' }, now)).toBe(false)
     })
 
     it('returns false before the entry end date', () => {
-      expect(
-        isEntryClosed(
-          { entryEndDate: new Date('2026-07-20T12:00:00+03:00'), startDate: new Date('2026-07-25T12:00:00+03:00') },
-          now
-        )
-      ).toBe(false)
+      expect(isEntryClosed({ entryEndDate: '2026-07-20', startDate: '2026-07-25' }, now)).toBe(false)
     })
   })
 
@@ -418,12 +406,12 @@ describe('utils', () => {
     const now = new Date('2026-07-16T12:00:00+03:00')
 
     it('returns true from the entry start date onwards', () => {
-      expect(hasEntryStarted({ entryStartDate: new Date('2026-07-16T12:00:00+03:00') }, now)).toBe(true)
-      expect(hasEntryStarted({ entryStartDate: new Date('2026-07-15T12:00:00+03:00') }, now)).toBe(true)
+      expect(hasEntryStarted({ entryStartDate: '2026-07-16' }, now)).toBe(true)
+      expect(hasEntryStarted({ entryStartDate: '2026-07-15' }, now)).toBe(true)
     })
 
     it('returns false before the entry start date or without one', () => {
-      expect(hasEntryStarted({ entryStartDate: new Date('2026-07-17T12:00:00+03:00') }, now)).toBe(false)
+      expect(hasEntryStarted({ entryStartDate: '2026-07-17' }, now)).toBe(false)
       expect(hasEntryStarted({}, now)).toBe(false)
     })
   })
@@ -432,12 +420,12 @@ describe('utils', () => {
     const now = new Date('2026-07-16T12:00:00+03:00')
 
     it('returns true after the entry end date', () => {
-      expect(hasEntryEnded({ entryEndDate: new Date('2026-07-15T12:00:00+03:00') }, now)).toBe(true)
+      expect(hasEntryEnded({ entryEndDate: '2026-07-15' }, now)).toBe(true)
     })
 
     it('returns false during or before the entry end date or without one', () => {
-      expect(hasEntryEnded({ entryEndDate: new Date('2026-07-16T12:00:00+03:00') }, now)).toBe(false)
-      expect(hasEntryEnded({ entryEndDate: new Date('2026-07-17T12:00:00+03:00') }, now)).toBe(false)
+      expect(hasEntryEnded({ entryEndDate: '2026-07-16' }, now)).toBe(false)
+      expect(hasEntryEnded({ entryEndDate: '2026-07-17' }, now)).toBe(false)
       expect(hasEntryEnded({}, now)).toBe(false)
     })
   })

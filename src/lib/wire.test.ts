@@ -1,7 +1,7 @@
-import type { EventKcIdChoice, JsonAuditRecord, JsonDogEvent, JsonRegistration, JsonUser, Patch, User } from '../types'
+import type { JsonAuditRecord, JsonDogEvent, JsonRegistration, JsonUser, KcState, Patch, User } from '../types'
 import { legacyDayValue } from '../test-utils/finnishDays'
 import { describeInTimeZone } from '../test-utils/timeZone'
-import { hasCalendarDay, TIME_ZONE } from './day'
+import { isDayKey, TIME_ZONE } from './day'
 import {
   arrayOf,
   converter,
@@ -54,8 +54,8 @@ describe('wire', () => {
 
       expect(registration.createdAt).toEqual(new Date('2026-01-02T10:00:00.000Z'))
       expect(registration.paidAt).toEqual(new Date('2026-05-03T08:00:00.000Z'))
-      // A day key is the start of its Finnish day in the model (KOE-1547).
-      expect(registration.dates[0].date).toEqual(new Date('2026-05-01T21:00:00.000Z'))
+      // A day key stays the key it is in the model (KOE-1547).
+      expect(registration.dates[0].date).toBe('2026-05-02')
       expect(registration.dog.dob).toBe('2020-02-03')
       expect(registration.lastEmail).toEqual({
         context: '',
@@ -85,7 +85,7 @@ describe('wire', () => {
         invitationAttachmentHistory: { key1: { uploadedAt: '2026-05-01T08:00:00.000Z' }, key2: null },
       } satisfies Patch<JsonDogEvent>)
 
-      expect(patch.classes).toEqual([{ class: 'ALO', date: new Date('2026-05-01T21:00:00.000Z') }, null])
+      expect(patch.classes).toEqual([{ class: 'ALO', date: '2026-05-02' }, null])
       expect(patch.invitationAttachmentHistory).toEqual({
         key1: { uploadedAt: new Date('2026-05-01T08:00:00.000Z') },
         key2: null,
@@ -107,7 +107,7 @@ describe('wire', () => {
       })
     })
 
-    it('makes the dog and the placement of a start list row Dates', () => {
+    it("reads a start list row's dog dates and placement as day keys", () => {
       const row = toPublicRegistration({
         breeder: 'b',
         dog: { dob: legacyDayValue('2020-02-02T22:00:00.000Z'), regNo: 'FI1/20', results: [] },
@@ -117,15 +117,15 @@ describe('wire', () => {
       })
 
       expect(row.dog.dob).toBe('2020-02-03')
-      expect(row.group).toEqual({ date: new Date('2026-09-11T21:00:00.000Z'), key: '2026-09-12', number: 1 })
+      expect(row.group).toEqual({ date: '2026-09-12', key: '2026-09-12', number: 1 })
     })
 
     // KOE-1547: the server stores and sends an event's days, a registration's days and a group's day as
-    // keys. The model holds the start of each Finnish day, the moment a row stored before held, in every
-    // host zone: `new Date` of a key would be the UTC midnight, which the model's day comparisons miss.
+    // keys, and the model holds them as keys in every host zone. A row not yet migrated sends the Finnish
+    // midnight it holds, which the model holds as its day.
     for (const zone of [TIME_ZONE, 'America/New_York', 'Asia/Tokyo']) {
       describeInTimeZone(zone, () => {
-        it('reads a day key as the start of its Finnish day, and an instant a row not yet migrated holds as itself', () => {
+        it('holds a day key as it is, and the Finnish midnight a row not yet migrated holds as its day', () => {
           const event = toDogEvent({
             classes: [{ class: 'ALO', date: '2026-05-20' }],
             dates: [{ date: '2026-05-20', time: 'ap' }],
@@ -135,26 +135,55 @@ describe('wire', () => {
           })
           const group = toRegistration({ group: { date: '2026-05-20', key: '2026-05-20-ap', number: 1, time: 'ap' } })
 
-          expect(event.startDate).toEqual(new Date('2026-05-19T21:00:00.000Z'))
-          expect(event.endDate).toEqual(new Date('2026-05-20T21:00:00.000Z'))
-          expect(event.entryEndDate).toEqual(new Date('2026-05-09T21:00:00.000Z'))
-          expect(event.classes?.[0].date).toEqual(new Date('2026-05-19T21:00:00.000Z'))
-          expect(event.dates?.[0].date).toEqual(new Date('2026-05-19T21:00:00.000Z'))
-          expect(group.group?.date).toEqual(new Date('2026-05-19T21:00:00.000Z'))
+          expect(event.startDate).toBe('2026-05-20')
+          expect(event.endDate).toBe('2026-05-21')
+          expect(event.entryEndDate).toBe('2026-05-10')
+          expect(event.classes?.[0].date).toBe('2026-05-20')
+          expect(event.dates?.[0].date).toBe('2026-05-20')
+          expect(group.group?.date).toBe('2026-05-20')
         })
       })
     }
 
-    it("makes a Kennelliitto trial's days the starts of their Finnish days", () => {
+    // KOE-1547 part 2: the browser model holds the days as the keys the server sends, so the bodies it
+    // sends back are keys. A row not yet migrated, or a value this browser cached before, holds an
+    // instant: it is read as the day the migration writes, an hour-off midnight and end of day included.
+    for (const zone of [TIME_ZONE, 'America/New_York', 'Asia/Tokyo']) {
+      describeInTimeZone(zone, () => {
+        it('holds a day key as the key, and an instant as the day the migration writes', () => {
+          const event = toDogEvent({
+            classes: [{ class: 'ALO', date: '2026-11-07' }],
+            dates: [{ date: legacyDayValue('2026-11-06T21:00:00.000Z'), time: 'ap' }],
+            endDate: '2026-11-08',
+            entryEndDate: legacyDayValue('2026-09-27T21:59:59.999Z'),
+            startDate: legacyDayValue('2026-11-06T21:00:00.000Z'),
+          })
+          const draft = toStoredRegistration({
+            dates: [{ date: legacyDayValue('2026-11-06T22:00:00.000Z'), time: 'ap' }],
+          })
+
+          expect(JSON.parse(JSON.stringify(event))).toMatchObject({
+            classes: [{ class: 'ALO', date: '2026-11-07' }],
+            dates: [{ date: '2026-11-07', time: 'ap' }],
+            endDate: '2026-11-08',
+            entryEndDate: '2026-09-27',
+            startDate: '2026-11-07',
+          })
+          expect(JSON.parse(JSON.stringify(draft))).toEqual({ dates: [{ date: '2026-11-07', time: 'ap' }] })
+        })
+      })
+    }
+
+    it("keeps a Kennelliitto trial's days as their keys", () => {
       const event = toDogEvent({
         kcEvent: { classes: [], endDate: '2026-06-02', eventType: 'NOU', startDate: '2026-06-01' },
       })
 
       expect(event.kcEvent).toEqual({
         classes: [],
-        endDate: new Date('2026-06-01T21:00:00.000Z'),
+        endDate: '2026-06-02',
         eventType: 'NOU',
-        startDate: new Date('2026-05-31T21:00:00.000Z'),
+        startDate: '2026-06-01',
       })
     })
 
@@ -162,16 +191,17 @@ describe('wire', () => {
     it('leaves a Kennelliitto trial without an end without one', () => {
       const event = toDogEvent({ kcEvent: { classes: [], eventType: 'NOU', startDate: '2026-06-01' } })
 
-      expect(event.kcEvent).toEqual({ classes: [], eventType: 'NOU', startDate: new Date('2026-05-31T21:00:00.000Z') })
+      expect(event.kcEvent).toEqual({ classes: [], eventType: 'NOU', startDate: '2026-06-01' })
       expect(event.kcEvent && 'endDate' in event.kcEvent).toBe(false)
     })
 
-    it("makes an event's Kennelliitto state and a stats row's day Dates", () => {
+    it("makes an event's Kennelliitto state a Date, and a stats row's day its key", () => {
       const event = toDogEvent({ kcState: { code: 1253, name: 'Luovutettu', readAt: '2026-09-13T08:00:00.000Z' } })
       expect(event.kcState).toEqual({ code: 1253, name: 'Luovutettu', readAt: new Date('2026-09-13T08:00:00.000Z') })
 
       const row = toEventStatsItem({ date: '2026-09-11T21:00:00.000Z', PK: 'ORG#1', SK: '2026-09-12#e1' })
-      expect(row.date).toEqual(new Date('2026-09-11T21:00:00.000Z'))
+      // A row stored before KOE-1547 holds the Finnish midnight of its day.
+      expect(row.date).toBe('2026-09-12')
     })
 
     it('reads a day key list as the strings they are', () => {
@@ -207,28 +237,26 @@ describe('wire', () => {
      * the machine is in and the result is seen not to depend on it.
      */
     const finnishLocalCases = () => {
-      it("reads Kennelliitto's zone-less stamps of a trial as Finnish local time", () => {
+      it("reads Kennelliitto's zone-less stamps of a trial as the days they name", () => {
         const choice = toEventKcIdChoice({
           classes: [],
-          endDate: '0001-01-01T00:00:00',
-          entryEndDate: '2026-06-07T00:00:00',
+          endDate: legacyDayValue('0001-01-01T00:00:00'),
+          entryEndDate: legacyDayValue('2026-06-07T00:00:00'),
           entryStartDate: '2026-05-17',
           eventType: 'NOME-B',
           kcGuid: null,
           name: 'n',
           organizer: 'o',
-          startDate: '2026-06-28T00:00:00',
+          startDate: legacyDayValue('2026-06-28T00:00:00'),
         })
 
-        expect(choice.startDate).toEqual(new Date('2026-06-27T21:00:00.000Z'))
-        expect(choice.entryEndDate).toEqual(new Date('2026-06-06T21:00:00.000Z'))
-        // A bare day is that day in Finland.
-        expect(choice.entryStartDate).toEqual(new Date('2026-05-16T21:00:00.000Z'))
-        // Kennelliitto's "no end" is the year 1, which has no calendar day: the search's normalizer
-        // (normalizeEventKcIdChoice) takes the start for it.
-        expect(hasCalendarDay(choice.endDate, TIME_ZONE)).toBe(false)
-        // A real instant in year 1 (or the last hours of year 0 in UTC), not an Invalid Date.
-        expect(choice.endDate.getUTCFullYear()).toBeLessThanOrEqual(1)
+        expect(choice.startDate).toBe('2026-06-28')
+        expect(choice.entryEndDate).toBe('2026-06-07')
+        expect(choice.entryStartDate).toBe('2026-05-17')
+        // Kennelliitto's "no end" is the year 1, which is no day: it stays as sent, and the search's
+        // normalizer (normalizeEventKcIdChoice) takes the start for it.
+        expect(choice.endDate).toBe('0001-01-01T00:00:00')
+        expect(isDayKey(choice.endDate)).toBe(false)
       })
     }
 
@@ -336,12 +364,7 @@ describe('wire', () => {
       const same = (date: Date) => date
       const sameUser = (user: Partial<User>) => user
       // @ts-expect-error A full spec cannot make a model its own wire type.
-      converter<EventKcIdChoice, EventKcIdChoice>()({
-        endDate: same,
-        entryEndDate: same,
-        entryStartDate: same,
-        startDate: same,
-      })
+      converter<KcState, KcState>()({ readAt: same })
       // @ts-expect-error A full spec cannot make a wire type that holds Partial<User>.
       converter<{ official: Partial<User> }, { official: Partial<User> }>()({ official: sameUser })
       // @ts-expect-error A key the model does not have is refused even when it is spread in.

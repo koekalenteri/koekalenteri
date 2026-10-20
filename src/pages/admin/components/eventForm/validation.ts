@@ -197,9 +197,7 @@ export const VALIDATORS: EventValidators = {
   },
   // A day that ends today is not past yet; the Finnish days are compared, whatever zone the browser is in.
   endDate: (event, required) =>
-    required && !allowPastEventDates(event) && dayOf(event.endDate, TIME_ZONE) < dayOf(new Date(), TIME_ZONE)
-      ? 'endDate'
-      : false,
+    required && !allowPastEventDates(event) && event.endDate < dayOf(new Date(), TIME_ZONE) ? 'endDate' : false,
   headquarters: (event, _required) => {
     const headquarters = event.headquarters
     if (headquarters?.zipCode && !ZIPCODE_REGEXP.exec(headquarters.zipCode)) {
@@ -253,9 +251,7 @@ export const VALIDATORS: EventValidators = {
   // A stored null is as missing as an absent value, which the default validator would let through.
   retrieveType: (event, required) => required && !event.retrieveType,
   startDate: (event, required) =>
-    required && !allowPastEventDates(event) && dayOf(event.startDate, TIME_ZONE) < dayOf(new Date(), TIME_ZONE)
-      ? 'startDate'
-      : false,
+    required && !allowPastEventDates(event) && event.startDate < dayOf(new Date(), TIME_ZONE) ? 'startDate' : false,
 }
 
 export function requiredFields(event: PartialEvent): FieldRequirements {

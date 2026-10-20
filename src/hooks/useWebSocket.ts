@@ -22,6 +22,7 @@ import { getOfficials } from '../api/official'
 import { getAdminOrganizers } from '../api/organizer'
 import { getUsers } from '../api/user'
 import { compareByLocalizedString } from '../lib/client/sort'
+import { isDayKey } from '../lib/day'
 import { sanitizeDogEvent } from '../lib/event'
 import { collectionResponseCursor, collectionSince, reconcileCollection } from '../lib/incremental'
 import { getIdTokenDiagnostics } from '../lib/token'
@@ -160,10 +161,8 @@ const isInsertablePublicEventPatch = (
   !!patch.location &&
   !!patch.organizer?.id &&
   !!patch.organizer.name &&
-  !!patch.startDate &&
-  isValid(patch.startDate) &&
-  !!patch.endDate &&
-  isValid(patch.endDate) &&
+  isDayKey(patch.startDate) &&
+  isDayKey(patch.endDate) &&
   Array.isArray(patch.classes) &&
   Array.isArray(patch.judges)
 

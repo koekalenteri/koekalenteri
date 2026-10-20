@@ -1,10 +1,8 @@
 import type { PublicDogEvent } from '@/types'
-import { TZDate } from '@date-fns/tz'
 import { ThemeProvider } from '@mui/material/styles'
 import { render } from 'vitest-browser-react'
 import { emptyEvent } from '@/__mockData__/emptyEvent'
 import theme from '@/assets/Theme'
-import { TIME_ZONE } from '@/lib/day'
 import { sanitizeDogEvent } from '@/lib/event'
 import { TestProvider } from '@/test-utils/AtomProvider'
 import { freezeClockAt } from '@/test-utils/freezeClock'
@@ -22,17 +20,17 @@ const Frame = ({ children }: { readonly children: React.ReactNode }) => (
 const event: PublicDogEvent = {
   ...sanitizeDogEvent(emptyEvent),
   classes: [
-    { class: 'ALO', date: new TZDate('2026-06-06', TIME_ZONE), places: 12 },
-    { class: 'AVO', date: new TZDate('2026-06-06', TIME_ZONE), places: 12 },
+    { class: 'ALO', date: '2026-06-06', places: 12 },
+    { class: 'AVO', date: '2026-06-06', places: 12 },
   ],
-  endDate: new TZDate('2026-06-06', TIME_ZONE),
-  entryEndDate: new TZDate('2026-05-17', TIME_ZONE),
-  entryStartDate: new TZDate('2026-04-25', TIME_ZONE),
+  endDate: '2026-06-06',
+  entryEndDate: '2026-05-17',
+  entryStartDate: '2026-04-25',
   eventType: 'NOME-B',
   location: 'Hollola',
   places: 24,
   retrieveType: 'game',
-  startDate: new TZDate('2026-06-06', TIME_ZONE),
+  startDate: '2026-06-06',
 }
 
 it('tells whether a B-trial is run with game or dummies (KOE-439)', async () => {

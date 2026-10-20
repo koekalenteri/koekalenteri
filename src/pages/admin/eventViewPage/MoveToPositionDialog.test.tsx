@@ -1,4 +1,4 @@
-import type { Registration } from '@/types'
+import type { DayKey, Registration } from '@/types'
 import { render, screen } from '@testing-library/react'
 import { enqueueSnackbar } from 'notistack'
 import { registrationWithStaticDates } from '@/__mockData__/registrations'
@@ -44,7 +44,7 @@ describe('MoveToPositionDialog', () => {
     const onMove = vi.fn().mockResolvedValue(undefined)
     const registration: Registration = {
       ...registrationWithStaticDates,
-      group: { date: new Date('2026-08-14T21:00:00.000Z'), key: '2026-08-15-ap', number: 1, time: 'ap' },
+      group: { date: '2026-08-15', key: '2026-08-15-ap', number: 1, time: 'ap' },
     }
 
     const { user } = renderWithUserEvents(
@@ -80,7 +80,7 @@ describe('MoveToPositionDialog', () => {
     const onMove = vi.fn().mockResolvedValue(undefined)
     const registration: Registration = {
       ...registrationWithStaticDates,
-      group: { date: new Date('2026-08-14T21:00:00.000Z'), key: '2026-08-15-ap', number: 1, time: 'ap' },
+      group: { date: '2026-08-15', key: '2026-08-15-ap', number: 1, time: 'ap' },
     }
 
     const { user } = renderWithUserEvents(
@@ -112,7 +112,7 @@ describe('MoveToPositionDialog', () => {
     const onMove = vi.fn().mockResolvedValue(undefined)
     const registration: Registration = {
       ...registrationWithStaticDates,
-      group: { date: new Date('2026-08-14T21:00:00.000Z'), key: '2026-08-15-ap', number: 3, time: 'ap' },
+      group: { date: '2026-08-15', key: '2026-08-15-ap', number: 3, time: 'ap' },
     }
 
     const { user } = renderWithUserEvents(
@@ -146,7 +146,7 @@ describe('MoveToPositionDialog', () => {
       'a cancelled entry left in a participant group',
       {
         cancelled: true,
-        group: { date: new Date('2026-08-14T21:00:00.000Z'), key: '2026-08-15-ap', number: 1, time: 'ap' },
+        group: { date: '2026-08-15', key: '2026-08-15-ap', number: 1, time: 'ap' },
       },
     ],
   ])('moves %s before the selected participant position', async (_name, placement) => {
@@ -188,9 +188,9 @@ describe('MoveToPositionDialog', () => {
       ...registrationWithStaticDates,
       group: { key: 'reserve', number: 1 },
     }
-    const days = [
-      { date: new Date('2026-08-14T21:00:00.000Z'), key: '2026-08-15-ap', time: 'ap' as const },
-      { date: new Date('2026-08-15T21:00:00.000Z'), key: '2026-08-16-ip', time: 'ip' as const },
+    const days: Array<{ date: DayKey; key: string; time: 'ap' | 'ip' }> = [
+      { date: '2026-08-15', key: '2026-08-15-ap', time: 'ap' },
+      { date: '2026-08-16', key: '2026-08-16-ip', time: 'ip' },
     ]
 
     const { user } = renderWithUserEvents(
@@ -238,7 +238,7 @@ describe('MoveToPositionDialog', () => {
         registration={registration}
         positions={[2]}
         assignNumber
-        days={[{ date: new Date('2026-08-14T21:00:00.000Z'), key: '2026-08-15-ap', time: 'ap' }]}
+        days={[{ date: '2026-08-15', key: '2026-08-15-ap', time: 'ap' }]}
         selectedDay="2026-08-15-ap"
         onMove={vi.fn()}
       />

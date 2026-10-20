@@ -74,7 +74,7 @@ export const ClassGroups = ({ disabled, error, event, eventClass, helperText, on
         helperText={helperText}
         label={t('registration.dates')}
         onChange={handleChange}
-        isOptionEqualToValue={(o, v) => o.date?.valueOf() === v.date?.valueOf() && o.time === v.time}
+        isOptionEqualToValue={(o, v) => o.date === v.date && o.time === v.time}
         getOptionLabel={getGroupLabel}
         options={options}
         value={value}

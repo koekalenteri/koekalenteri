@@ -1,5 +1,5 @@
 import type { APIGatewayProxyEvent } from 'aws-lambda'
-import type { JsonEventStation } from '../../types'
+import type { EventStation } from '../../types'
 import { vi } from 'vitest'
 import { getStationEntryToken } from '../lib/stationEntry'
 import { asJsonConfirmedEvent, asJsonRegistration, constructPartialAPIGwEvent } from '../test-utils/helpers'
@@ -32,7 +32,7 @@ vi.doMock('../lib/repositories/registrationRepository', () => ({
 
 const { default: getStationEntryLambda } = await import('./handler')
 
-const station: JsonEventStation = { date: '2026-09-12', id: 'post-1', number: 1, tasks: 1 as const }
+const station: EventStation = { date: '2026-09-12', id: 'post-1', number: 1, tasks: 1 as const }
 
 const confirmedEvent = asJsonConfirmedEvent({
   classes: [{ class: 'AVO' }],

@@ -16,30 +16,30 @@ vi.mock('../api/station')
 const entry = (): StationEntry => ({
   event: {
     classes: [],
-    endDate: new Date('2026-09-12T12:00:00Z'),
+    endDate: '2026-09-12',
     eventType: 'NOWT',
     id: 'event-1',
     location: 'Ranua',
     name: 'Syyskoe',
-    startDate: new Date('2026-09-12T12:00:00Z'),
+    startDate: '2026-09-12',
   },
   registrations: [
     {
       class: 'AVO',
       dog: { name: 'Ensimmainen' },
       eventType: 'NOWT',
-      group: { date: new Date('2026-09-12T12:00:00Z'), key: 'AVO-AP', number: 1, time: 'ap' },
+      group: { date: '2026-09-12', key: 'AVO-AP', number: 1, time: 'ap' },
       id: 'run-1',
     },
     {
       class: 'AVO',
       dog: { name: 'Toinen' },
       eventType: 'NOWT',
-      group: { date: new Date('2026-09-12T12:00:00Z'), key: 'AVO-AP', number: 2, time: 'ap' },
+      group: { date: '2026-09-12', key: 'AVO-AP', number: 2, time: 'ap' },
       id: 'run-2',
     },
   ],
-  station: { date: new Date('2026-09-12T12:00:00Z'), id: 'post-1', number: 1, tasks: 1 },
+  station: { date: '2026-09-12', id: 'post-1', number: 1, tasks: 1 },
 })
 
 const renderPage = () => {

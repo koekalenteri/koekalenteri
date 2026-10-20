@@ -150,8 +150,8 @@ describe('OrganizerStatsPage', () => {
 
   it('derives the selectable years from the organizer stats without fetching yearly stats', async () => {
     vi.mocked(getOrganizerEventStats).mockResolvedValue([
-      { date: new Date('2022-05-20T21:00:00.000Z'), organizerId: '1', PK: 'ORG#1', SK: '2022-05-21#a' },
-      { date: new Date('2024-03-10T22:00:00.000Z'), organizerId: '1', PK: 'ORG#1', SK: '2024-03-11#b' },
+      { date: '2022-05-21', organizerId: '1', PK: 'ORG#1', SK: '2022-05-21#a' },
+      { date: '2024-03-11', organizerId: '1', PK: 'ORG#1', SK: '2024-03-11#b' },
     ])
 
     await renderSuspended(
@@ -178,8 +178,8 @@ describe('OrganizerStatsPage', () => {
 
   it('renders with a stats row whose date has no calendar day, offering no year for it', async () => {
     vi.mocked(getOrganizerEventStats).mockResolvedValue([
-      { date: new Date('2024-03-10T22:00:00.000Z'), organizerId: '1', PK: 'ORG#1', SK: '2024-03-11#b' },
-      { date: new Date('0001-01-01T00:00:00'), organizerId: '1', PK: 'ORG#1', SK: '0001-01-01#c' },
+      { date: '2024-03-11', organizerId: '1', PK: 'ORG#1', SK: '2024-03-11#b' },
+      { date: '0001-01-01', organizerId: '1', PK: 'ORG#1', SK: '0001-01-01#c' },
     ])
 
     await renderSuspended(

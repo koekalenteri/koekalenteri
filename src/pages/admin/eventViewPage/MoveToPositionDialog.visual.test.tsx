@@ -1,6 +1,5 @@
 import type { Registration } from '@/types'
 import { ThemeProvider } from '@mui/material/styles'
-import { parseISO } from 'date-fns'
 import { render } from 'vitest-browser-react'
 import { registrationWithStaticDates } from '@/__mockData__/registrations'
 import theme from '@/assets/Theme'
@@ -16,8 +15,8 @@ const reserveDog: Registration = {
   group: { key: 'reserve', number: 1 },
 }
 const days = [
-  { date: parseISO('2026-09-19T09:00:00Z'), key: '2026-09-19-ap', time: 'ap' as const },
-  { date: parseISO('2026-09-20T09:00:00Z'), key: '2026-09-20-ap', time: 'ap' as const },
+  { date: '2026-09-19' as const, key: '2026-09-19-ap', time: 'ap' as const },
+  { date: '2026-09-20' as const, key: '2026-09-20-ap', time: 'ap' as const },
 ]
 
 it('names the day before the number for a reserve dog on a drawn day', async () => {

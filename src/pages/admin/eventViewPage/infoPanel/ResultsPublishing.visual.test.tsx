@@ -66,13 +66,13 @@ it('offers publishing each day of a two-day trial on its own row', async () => {
   const twoDays: ConfirmedEvent = {
     ...eventWithStations,
     classes: [
-      { class: 'ALO', date: new Date('2026-09-12') },
-      { class: 'ALO', date: new Date('2026-09-13') },
-      { class: 'AVO', date: new Date('2026-09-12') },
+      { class: 'ALO', date: '2026-09-12' },
+      { class: 'ALO', date: '2026-09-13' },
+      { class: 'AVO', date: '2026-09-12' },
     ],
-    endDate: new Date('2026-09-13'),
+    endDate: '2026-09-13',
     resultsPublished: { ALO: ['2026-09-12'] },
-    startDate: new Date('2026-09-12'),
+    startDate: '2026-09-12',
     startListPublished: true,
     state: 'invited',
   }

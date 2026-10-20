@@ -66,7 +66,7 @@ describe('parseStartListVersion', () => {
 
 describe('startListSpreadsheetRows', () => {
   it('creates localized headers and typed date cells for registrations', () => {
-    const event = { eventType: 'NOU', startDate: new Date('2023-02-01') } as PublicConfirmedEvent
+    const event: PublicConfirmedEvent = { ...eventWithStaticDates, eventType: 'NOU', startDate: '2023-02-01' }
     const registration = {
       breeder: 'Test Breeder',
       cancelled: true,
@@ -130,7 +130,7 @@ describe('startListSpreadsheetRows', () => {
 describe('a published result on the exported list', () => {
   it('travels with the row, so the file matches what the screen shows', () => {
     // The exporter reads only classes and startDate; the minimal event converts here.
-    const event = { classes: [], startDate: new Date('2023-02-01') } as unknown as PublicConfirmedEvent
+    const event = { classes: [], startDate: '2023-02-01' } as unknown as PublicConfirmedEvent
     const registration = {
       breeder: 'Test Breeder',
       class: 'ALO',
@@ -170,7 +170,7 @@ describe('a published result on the exported list', () => {
   })
 
   it("keeps a stopped trial's mark in its own column, the way Koiranet asks for it", () => {
-    const event = { classes: [], startDate: new Date('2023-02-01') } as unknown as PublicConfirmedEvent
+    const event = { classes: [], startDate: '2023-02-01' } as unknown as PublicConfirmedEvent
     const registration = {
       breeder: 'Test Breeder',
       class: 'AVO',

@@ -9,7 +9,7 @@ beforeEach(() => {
   fetchMock.enableMocks()
 })
 
-test('getClassStartNumbers makes the days of the trial and the placements Dates (KOE-1546)', async () => {
+test('getClassStartNumbers reads the days of the trial and the placements as keys (KOE-1547)', async () => {
   fetchMock.mockResponseOnce(
     JSON.stringify({
       event: {
@@ -42,15 +42,15 @@ test('getClassStartNumbers makes the days of the trial and the placements Dates 
     `${API_BASE_URL}/start-numbers/e1/ALO`,
     expect.objectContaining({ headers: expect.objectContaining({ Authorization: 'Bearer class-token' }) })
   )
-  expect(sheet.event.startDate).toEqual(new Date('2026-09-11T21:00:00.000Z'))
-  expect(sheet.event.classes[0].date).toEqual(new Date('2026-09-11T21:00:00.000Z'))
-  expect(sheet.registrations[0].group?.date).toEqual(new Date('2026-09-11T21:00:00.000Z'))
-  expect(sheet.registrations[0].startGroup?.date).toEqual(new Date('2026-09-11T21:00:00.000Z'))
+  expect(sheet.event.startDate).toEqual('2026-09-12')
+  expect(sheet.event.classes[0].date).toEqual('2026-09-12')
+  expect(sheet.registrations[0].group?.date).toEqual('2026-09-12')
+  expect(sheet.registrations[0].startGroup?.date).toEqual('2026-09-12')
   expect(sheet.registrations[0].startGroup?.key).toBe('2026-09-12-ap')
   expect(sheet.reserved).toEqual([{ eventClass: 'AVO', number: 2 }])
 })
 
-test('putClassStartNumbers answers with the frozen placements as Dates, and a yielded one as null', async () => {
+test('putClassStartNumbers answers with the frozen placements on their day keys, and a yielded one as null', async () => {
   fetchMock.mockResponseOnce(
     JSON.stringify({
       patches: [
@@ -69,7 +69,7 @@ test('putClassStartNumbers answers with the frozen placements as Dates, and a yi
   expect(patches).toEqual([
     {
       id: 'r1',
-      startGroup: { date: new Date('2026-09-11T21:00:00.000Z'), key: '2026-09-12-ap', number: 1, time: 'ap' },
+      startGroup: { date: '2026-09-12', key: '2026-09-12-ap', number: 1, time: 'ap' },
     },
     { id: 'r2', startGroup: null },
   ])

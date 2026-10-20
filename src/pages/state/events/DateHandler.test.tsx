@@ -14,13 +14,13 @@ vi.mock('@/api/event', () => ({
   getEvents: vi.fn(),
 }))
 
-function makeEvent(id: string, startDate: string, endDate?: string): PublicDogEvent {
+function makeEvent(id: string, startDate: DayKey, endDate?: DayKey): PublicDogEvent {
   return {
     classes: [],
     cost: 0,
     createdAt: new Date('2026-01-01T00:00:00.000Z'),
     description: '',
-    endDate: endDate ? new Date(endDate) : new Date(startDate),
+    endDate: endDate ?? startDate,
     eventType: 'TEST',
     id,
     judges: [],
@@ -29,7 +29,7 @@ function makeEvent(id: string, startDate: string, endDate?: string): PublicDogEv
     name: id,
     organizer: { id: 'org-1', name: 'Organizer' },
     places: 0,
-    startDate: new Date(startDate),
+    startDate,
     state: 'confirmed',
   } as PublicDogEvent
 }
@@ -45,7 +45,7 @@ function renderDateHandler(lastSyncAt: number, filterStart: DayKey | null = star
   return render(
     <Provider
       initializeState={({ set }) => {
-        set(eventsAtom, [makeEvent('event-1', '2026-01-03T00:00:00.000Z')])
+        set(eventsAtom, [makeEvent('event-1', '2026-01-03')])
         set(eventFilterAtom, {
           end: endDay,
           eventClass: [],

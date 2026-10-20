@@ -1,11 +1,9 @@
-import type { ConfirmedEvent, Registration } from '@/types'
-import { TZDate } from '@date-fns/tz'
+import type { ConfirmedEvent, DayKey, Registration } from '@/types'
 import { ThemeProvider } from '@mui/material/styles'
 import { render } from 'vitest-browser-react'
 import { registrationWithStaticDates } from '@/__mockData__/registrations'
 import { eventWithStations } from '@/__mockData__/resultsEvent'
 import theme from '@/assets/Theme'
-import { TIME_ZONE } from '@/lib/day'
 import { freezeClockAt } from '@/test-utils/freezeClock'
 import { describeInLanguage } from '@/test-utils/language'
 import StartNumbersPublishing from './StartNumbersPublishing'
@@ -50,8 +48,8 @@ it('is its own step, with the draw entry under it', async () => {
 
 // A two-day class publishes its draw one morning at a time (KOE-1304): Friday is out, Saturday is
 // still to come, and the caption says which. Pinned dates keep the weekday labels still.
-const friday = new TZDate(2026, 8, 4, TIME_ZONE)
-const saturday = new TZDate(2026, 8, 5, TIME_ZONE)
+const friday: DayKey = '2026-09-04'
+const saturday: DayKey = '2026-09-05'
 const twoDayEvent: ConfirmedEvent = {
   ...eventWithStations,
   classes: [

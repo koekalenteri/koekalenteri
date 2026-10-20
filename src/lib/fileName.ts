@@ -1,10 +1,10 @@
-import type { ConfirmedEvent, Registration, RegistrationClass } from '../types'
+import type { ConfirmedEvent, DayKey, Registration, RegistrationClass } from '../types'
 import { formatDate } from '../i18n/dates'
 
 export type InvitationAttachmentItem = Pick<ConfirmedEvent | Registration, 'eventType' | 'invitationAttachment'> & {
   class?: RegistrationClass | null
-  dates?: Array<{ date: Date }>
-  startDate?: Date
+  dates?: Array<{ date: DayKey }>
+  startDate?: DayKey
 }
 
 export const invitationAttachmentFileName = (item: InvitationAttachmentItem): string => {

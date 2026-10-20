@@ -93,13 +93,13 @@ describe('places', () => {
     it('should update placesPerDay based on classes', () => {
       const event: PartialEvent = {
         classes: [
-          { class: 'ALO', date: new Date('2023-01-01'), places: 5 },
-          { class: 'AVO', date: new Date('2023-01-01'), places: 10 },
-          { class: 'VOI', date: new Date('2023-01-02'), places: 15 },
+          { class: 'ALO', date: '2023-01-01', places: 5 },
+          { class: 'AVO', date: '2023-01-01', places: 10 },
+          { class: 'VOI', date: '2023-01-02', places: 15 },
         ],
-        endDate: new Date('2023-01-02'),
+        endDate: '2023-01-02',
         judges: [],
-        startDate: new Date('2023-01-01'),
+        startDate: '2023-01-01',
       }
       const result = updatePlacesPerDayFromClasses(event)
       expect(result).toEqual({
@@ -113,12 +113,12 @@ describe('places', () => {
         classes: [
           // @ts-expect-error deliberately invalid data
           { class: 'ALO', places: 5 }, // no date
-          { class: 'AVO', date: new Date('2023-01-01'), places: 10 },
-          { class: 'VOI', date: new Date('2023-01-02'), places: 15 },
+          { class: 'AVO', date: '2023-01-01', places: 10 },
+          { class: 'VOI', date: '2023-01-02', places: 15 },
         ],
-        endDate: new Date('2023-01-02'),
+        endDate: '2023-01-02',
         judges: [],
-        startDate: new Date('2023-01-01'),
+        startDate: '2023-01-01',
       }
       const result = updatePlacesPerDayFromClasses(event)
       expect(result).toEqual({
@@ -130,13 +130,13 @@ describe('places', () => {
     it('should handle classes with 0 places', () => {
       const event: PartialEvent = {
         classes: [
-          { class: 'ALO', date: new Date('2023-01-01'), places: 0 },
-          { class: 'AVO', date: new Date('2023-01-01'), places: 10 },
-          { class: 'VOI', date: new Date('2023-01-02'), places: 0 },
+          { class: 'ALO', date: '2023-01-01', places: 0 },
+          { class: 'AVO', date: '2023-01-01', places: 10 },
+          { class: 'VOI', date: '2023-01-02', places: 0 },
         ],
-        endDate: new Date('2023-01-02'),
+        endDate: '2023-01-02',
         judges: [],
-        startDate: new Date('2023-01-01'),
+        startDate: '2023-01-01',
       }
       const result = updatePlacesPerDayFromClasses(event)
       expect(result).toEqual({
@@ -148,14 +148,14 @@ describe('places', () => {
     it('should use provided classes if given', () => {
       const event: PartialEvent = {
         classes: [
-          { class: 'ALO', date: new Date('2023-01-01'), places: 5 },
-          { class: 'AVO', date: new Date('2023-01-01'), places: 10 },
+          { class: 'ALO', date: '2023-01-01', places: 5 },
+          { class: 'AVO', date: '2023-01-01', places: 10 },
         ],
-        endDate: new Date('2023-01-02'),
+        endDate: '2023-01-02',
         judges: [],
-        startDate: new Date('2023-01-01'),
+        startDate: '2023-01-01',
       }
-      const newClasses: DeepPartial<EventClass>[] = [{ class: 'VOI', date: new Date('2023-01-02'), places: 15 }]
+      const newClasses: DeepPartial<EventClass>[] = [{ class: 'VOI', date: '2023-01-02', places: 15 }]
       const result = updatePlacesPerDayFromClasses(event, newClasses)
       expect(result).toEqual({
         '2023-01-02': 15,
@@ -167,10 +167,10 @@ describe('places', () => {
     it('should distribute places evenly among days', () => {
       const event: PartialEvent = {
         classes: [],
-        endDate: new Date('2023-01-03T12:00:00Z'),
+        endDate: '2023-01-03',
         judges: [],
         places: 30,
-        startDate: new Date('2023-01-01T12:00:00Z'),
+        startDate: '2023-01-01',
       }
       const result = distributePlacesAmongDays(event)
       expect(result).toEqual({
@@ -183,10 +183,10 @@ describe('places', () => {
     it('should handle uneven distribution with remainder going to first day', () => {
       const event: PartialEvent = {
         classes: [],
-        endDate: new Date('2023-01-03'),
+        endDate: '2023-01-03',
         judges: [],
         places: 32,
-        startDate: new Date('2023-01-01'),
+        startDate: '2023-01-01',
       }
       const result = distributePlacesAmongDays(event)
       expect(result).toEqual({
@@ -199,10 +199,10 @@ describe('places', () => {
     it('should handle 0 places', () => {
       const event: PartialEvent = {
         classes: [],
-        endDate: new Date('2023-01-03'),
+        endDate: '2023-01-03',
         judges: [],
         places: 0,
-        startDate: new Date('2023-01-01'),
+        startDate: '2023-01-01',
       }
       const result = distributePlacesAmongDays(event)
       expect(result).toEqual({
@@ -215,9 +215,9 @@ describe('places', () => {
     it('should handle undefined places', () => {
       const event: PartialEvent = {
         classes: [],
-        endDate: new Date('2023-01-03'),
+        endDate: '2023-01-03',
         judges: [],
-        startDate: new Date('2023-01-01'),
+        startDate: '2023-01-01',
       }
       const result = distributePlacesAmongDays(event)
       expect(result).toEqual({
@@ -267,13 +267,13 @@ describe('places', () => {
 
     it('should preserve existing class properties', () => {
       const classes: DeepPartial<EventClass>[] = [
-        { class: 'ALO', date: new Date('2023-01-01') },
+        { class: 'ALO', date: '2023-01-01' },
         { class: 'AVO', judge: { id: 123, name: 'Judge 1' } },
         { class: 'VOI', entries: 5 },
       ]
       const result = distributePlacesAmongClasses(classes, 30)
       expect(result).toEqual([
-        { class: 'ALO', date: new Date('2023-01-01'), places: 10 },
+        { class: 'ALO', date: '2023-01-01', places: 10 },
         { class: 'AVO', judge: { id: 123, name: 'Judge 1' }, places: 10 },
         { class: 'VOI', entries: 5, places: 10 },
       ])
@@ -310,18 +310,18 @@ describe('places', () => {
 
     it('should split each day’s total evenly among that day’s classes', () => {
       const classes: DeepPartial<EventClass>[] = [
-        { class: 'ALO', date: new Date('2023-01-01') },
-        { class: 'AVO', date: new Date('2023-01-01') },
-        { class: 'VOI', date: new Date('2023-01-02') },
+        { class: 'ALO', date: '2023-01-01' },
+        { class: 'AVO', date: '2023-01-01' },
+        { class: 'VOI', date: '2023-01-02' },
       ]
       const result = distributePlacesAmongClassesPerDay(classes, {
         '2023-01-01': 6,
         '2023-01-02': 4,
       })
       expect(result).toEqual([
-        { class: 'ALO', date: new Date('2023-01-01'), places: 3 },
-        { class: 'AVO', date: new Date('2023-01-01'), places: 3 },
-        { class: 'VOI', date: new Date('2023-01-02'), places: 4 },
+        { class: 'ALO', date: '2023-01-01', places: 3 },
+        { class: 'AVO', date: '2023-01-01', places: 3 },
+        { class: 'VOI', date: '2023-01-02', places: 4 },
       ])
     })
 
@@ -329,23 +329,23 @@ describe('places', () => {
       // Regression: reusing distributePlacesAmongClasses (grand-total split) here would
       // discard the day-specific numbers the user just set.
       const classes: DeepPartial<EventClass>[] = [
-        { class: 'ALO', date: new Date('2023-01-01') },
-        { class: 'VOI', date: new Date('2023-01-02') },
+        { class: 'ALO', date: '2023-01-01' },
+        { class: 'VOI', date: '2023-01-02' },
       ]
       const result = distributePlacesAmongClassesPerDay(classes, {
         '2023-01-01': 2,
         '2023-01-02': 8,
       })
       expect(result).toEqual([
-        { class: 'ALO', date: new Date('2023-01-01'), places: 2 },
-        { class: 'VOI', date: new Date('2023-01-02'), places: 8 },
+        { class: 'ALO', date: '2023-01-01', places: 2 },
+        { class: 'VOI', date: '2023-01-02', places: 8 },
       ])
     })
 
     it('should treat a missing day total as 0', () => {
-      const classes: DeepPartial<EventClass>[] = [{ class: 'ALO', date: new Date('2023-01-01') }]
+      const classes: DeepPartial<EventClass>[] = [{ class: 'ALO', date: '2023-01-01' }]
       const result = distributePlacesAmongClassesPerDay(classes, {})
-      expect(result).toEqual([{ class: 'ALO', date: new Date('2023-01-01'), places: 0 }])
+      expect(result).toEqual([{ class: 'ALO', date: '2023-01-01', places: 0 }])
     })
 
     it('should leave classes without a date unchanged', () => {
@@ -356,25 +356,25 @@ describe('places', () => {
 
     it('should cap places at 200 per class', () => {
       const classes: DeepPartial<EventClass>[] = [
-        { class: 'ALO', date: new Date('2023-01-01') },
-        { class: 'AVO', date: new Date('2023-01-01') },
+        { class: 'ALO', date: '2023-01-01' },
+        { class: 'AVO', date: '2023-01-01' },
       ]
       const result = distributePlacesAmongClassesPerDay(classes, { '2023-01-01': 500 })
       expect(result).toEqual([
-        { class: 'ALO', date: new Date('2023-01-01'), places: 200 },
-        { class: 'AVO', date: new Date('2023-01-01'), places: 200 },
+        { class: 'ALO', date: '2023-01-01', places: 200 },
+        { class: 'AVO', date: '2023-01-01', places: 200 },
       ])
     })
 
     it('should split a day’s total only among that day’s active classes, zeroing deselected ones', () => {
       const classes: DeepPartial<EventClass>[] = [
-        { class: 'ALO', date: new Date('2023-01-01'), groups: ['kp'] },
-        { class: 'VOI', date: new Date('2023-01-01'), groups: [] }, // deselected for this day
+        { class: 'ALO', date: '2023-01-01', groups: ['kp'] },
+        { class: 'VOI', date: '2023-01-01', groups: [] }, // deselected for this day
       ]
       const result = distributePlacesAmongClassesPerDay(classes, { '2023-01-01': 10 })
       expect(result).toEqual([
-        { class: 'ALO', date: new Date('2023-01-01'), groups: ['kp'], places: 10 },
-        { class: 'VOI', date: new Date('2023-01-01'), groups: [], places: 0 },
+        { class: 'ALO', date: '2023-01-01', groups: ['kp'], places: 10 },
+        { class: 'VOI', date: '2023-01-01', groups: [], places: 0 },
       ])
     })
   })

@@ -19,7 +19,7 @@ import { useLocalStateGroup } from './hooks/useLocalStateGroup'
 
 interface Props {
   readonly reg: DeepPartial<Registration>
-  readonly eventDate: Date
+  readonly eventDate: DayKey
   readonly minDogAgeMonths: number
   readonly disabled?: boolean
   readonly error?: boolean

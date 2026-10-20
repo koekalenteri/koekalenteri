@@ -28,7 +28,7 @@ export default function ClassPlacesTable({ event, disabled, handleChange }: Read
       {classesByDays.map(({ day, classes }) => {
         const dayTotal = calculateTotalFromClasses(classes)
         return (
-          <TableRow key={day.toISOString()}>
+          <TableRow key={day}>
             <TableCell component="th" scope="row">
               {t('dateFormat.wdshort', { date: day })}
             </TableCell>

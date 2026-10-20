@@ -1,24 +1,25 @@
-import type { PublicDogEvent } from '@/types'
+import type { DayKey, PublicDogEvent } from '@/types'
 import type { EventMetadata } from './types'
 import { act, renderHook, waitFor } from '@testing-library/react'
 import { useAtomValue } from 'jotai'
 import { TestProvider as Provider } from 'test-utils/AtomProvider'
 import { getEvent, getEvents } from '@/api/event'
+import { legacyDayValue } from '@/test-utils/finnishDays'
 import { EVENT_METADATA_INVALIDATED_STORAGE_KEY, eventMetadataAtom, eventsAtom, eventsLoadingAtom } from './atoms'
-import { useConfirmedEvent, useFetchEvents } from './hooks'
+import { overlapsRange, pruneBeforeDate, useConfirmedEvent, useFetchEvents } from './hooks'
 
 vi.mock('@/api/event', () => ({
   getEvent: vi.fn(),
   getEvents: vi.fn(),
 }))
 
-function makeEvent(id: string, startDate: string, endDate?: string): PublicDogEvent {
+function makeEvent(id: string, startDate: DayKey, endDate?: DayKey): PublicDogEvent {
   return {
     classes: [],
     cost: 0,
     createdAt: new Date('2026-01-01T00:00:00.000Z'),
     description: '',
-    endDate: endDate ? new Date(endDate) : new Date(startDate),
+    endDate: endDate ?? startDate,
     eventType: 'TEST',
     id,
     judges: [],
@@ -27,7 +28,7 @@ function makeEvent(id: string, startDate: string, endDate?: string): PublicDogEv
     name: id,
     organizer: { id: 'org-1', name: 'Organizer' },
     places: 0,
-    startDate: new Date(startDate),
+    startDate,
     state: 'confirmed',
   } as PublicDogEvent
 }
@@ -51,6 +52,53 @@ function wrapper({ children }: { readonly children: React.ReactNode }) {
   return <Provider>{children}</Provider>
 }
 
+// The calendar's range and retention bounds are moments; the events' days are keys (KOE-1547). Each
+// moment counts as the Finnish day it falls on, which late in the UTC evening is already the next one.
+describe('pruneBeforeDate', () => {
+  // 21:30 UTC on 10.6. is 00:30 on 11.6. in Finland.
+  const cutoff = new Date('2026-06-10T21:30:00.000Z')
+
+  it.each([
+    ['the day before the Finnish day of the cutoff', '2026-06-10', false],
+    ['the Finnish day of the cutoff', '2026-06-11', true],
+    ['the day after it', '2026-06-12', true],
+  ] as const)('keeps an event ending on %s: %s', (_label, endDate, kept) => {
+    const event = makeEvent('e', endDate, endDate)
+    expect(pruneBeforeDate([event], cutoff)).toEqual(kept ? [event] : [])
+  })
+
+  it('keeps an event a cache holds without an end', () => {
+    const event = { ...makeEvent('e', '2026-01-01'), endDate: legacyDayValue('') }
+    expect(pruneBeforeDate([event], cutoff)).toEqual([event])
+  })
+})
+
+describe('overlapsRange', () => {
+  // 21:30 UTC on 10.6. is the Finnish 11.6.; 22:59 UTC on 12.6. is 01:59 on 13.6. in Finland.
+  const start = new Date('2026-06-10T21:30:00.000Z')
+  const end = new Date('2026-06-12T22:59:00.000Z')
+
+  it.each([
+    ['ends the day before the range starts', '2026-06-09', '2026-06-10', false],
+    ['ends on the first day of the range', '2026-06-09', '2026-06-11', true],
+    ['starts and ends on the first day', '2026-06-11', '2026-06-11', true],
+    ['starts on the last day of the range', '2026-06-13', '2026-06-14', true],
+    ['starts the day after the range ends', '2026-06-14', '2026-06-14', false],
+  ] as const)('an event that %s: %s', (_label, startDate, endDate, overlaps) => {
+    expect(overlapsRange({ endDate, startDate }, start, end)).toBe(overlaps)
+  })
+
+  it('reads an event without an end as its start day', () => {
+    expect(overlapsRange({ startDate: '2026-06-11' }, start, end)).toBe(true)
+    expect(overlapsRange({ startDate: '2026-06-10' }, start, end)).toBe(false)
+  })
+
+  it('runs on without an end', () => {
+    expect(overlapsRange({ endDate: '2030-01-02', startDate: '2030-01-01' }, start)).toBe(true)
+    expect(overlapsRange({ endDate: '2026-06-10', startDate: '2026-06-10' }, start)).toBe(false)
+  })
+})
+
 describe('useFetchEvents', () => {
   beforeEach(() => {
     vi.clearAllMocks()
@@ -60,10 +108,10 @@ describe('useFetchEvents', () => {
   it('prunes stale in-range events that are missing from incremental response membership', async () => {
     const start = new Date('2026-01-02T00:00:00.000Z')
     const end = new Date('2026-01-05T00:00:00.000Z')
-    const kept = makeEvent('kept', '2026-01-03T00:00:00.000Z', '2026-01-03T00:00:00.000Z')
-    const stale = makeEvent('stale', '2026-01-04T00:00:00.000Z', '2026-01-04T00:00:00.000Z')
-    const outside = makeEvent('outside', '2026-01-10T00:00:00.000Z', '2026-01-10T00:00:00.000Z')
-    const changed = makeEvent('changed', '2026-01-05T00:00:00.000Z', '2026-01-05T00:00:00.000Z')
+    const kept = makeEvent('kept', '2026-01-03', '2026-01-03')
+    const stale = makeEvent('stale', '2026-01-04', '2026-01-04')
+    const outside = makeEvent('outside', '2026-01-10', '2026-01-10')
+    const changed = makeEvent('changed', '2026-01-05', '2026-01-05')
 
     ;(getEvents as import('vitest').Mock).mockResolvedValue({
       events: [changed],
@@ -96,9 +144,9 @@ describe('useFetchEvents', () => {
   it('replaces cached event with changed payload when event stays in range', async () => {
     const start = new Date('2026-01-02T00:00:00.000Z')
     const end = new Date('2026-01-05T00:00:00.000Z')
-    const original = makeEvent('event-1', '2026-01-03T00:00:00.000Z', '2026-01-03T00:00:00.000Z')
+    const original = makeEvent('event-1', '2026-01-03', '2026-01-03')
     const changed = {
-      ...makeEvent('event-1', '2026-01-03T00:00:00.000Z', '2026-01-03T00:00:00.000Z'),
+      ...makeEvent('event-1', '2026-01-03', '2026-01-03'),
       name: 'Updated name',
     }
 
@@ -133,10 +181,10 @@ describe('useFetchEvents', () => {
   it('falls back to a full range fetch when delta unchanged ids are missing locally', async () => {
     const start = new Date('2026-01-02T00:00:00.000Z')
     const end = new Date('2026-01-05T00:00:00.000Z')
-    const cached = makeEvent('cached', '2026-01-03T00:00:00.000Z', '2026-01-03T00:00:00.000Z')
-    const outside = makeEvent('outside', '2026-01-10T00:00:00.000Z', '2026-01-10T00:00:00.000Z')
-    const changed = makeEvent('changed', '2026-01-04T00:00:00.000Z', '2026-01-04T00:00:00.000Z')
-    const missingUnchanged = makeEvent('missing-unchanged', '2026-01-05T00:00:00.000Z', '2026-01-05T00:00:00.000Z')
+    const cached = makeEvent('cached', '2026-01-03', '2026-01-03')
+    const outside = makeEvent('outside', '2026-01-10', '2026-01-10')
+    const changed = makeEvent('changed', '2026-01-04', '2026-01-04')
+    const missingUnchanged = makeEvent('missing-unchanged', '2026-01-05', '2026-01-05')
     const lastSyncAt = Date.now() - 10 * 60 * 1000
 
     ;(getEvents as import('vitest').Mock)
@@ -184,7 +232,7 @@ describe('useFetchEvents', () => {
     const start = new Date('2026-04-05T00:00:00.000Z')
     // Cached in May with makeEvent's January stamp; the server's row has been updated since, but
     // before the last sync, so the server rightly lists it as unchanged
-    const staleCopy = makeEvent('may', '2026-05-10T00:00:00.000Z')
+    const staleCopy = makeEvent('may', '2026-05-10')
     const current = { ...staleCopy, modifiedAt: new Date('2026-06-01T00:00:00.000Z') }
     const lastSyncAt = Date.now() - 60 * 60 * 1000
 
@@ -217,7 +265,7 @@ describe('useFetchEvents', () => {
 
   it('keeps a copy the server stamps the same as the one it holds', async () => {
     const start = new Date('2026-04-05T00:00:00.000Z')
-    const copy = makeEvent('may', '2026-05-10T00:00:00.000Z')
+    const copy = makeEvent('may', '2026-05-10')
     const lastSyncAt = Date.now() - 60 * 60 * 1000
 
     ;(getEvents as import('vitest').Mock).mockResolvedValueOnce({
@@ -246,7 +294,7 @@ describe('useFetchEvents', () => {
 
   it('refetches in full when the server sends unchanged ids without their stamps (KOE-1501)', async () => {
     const start = new Date('2026-04-05T00:00:00.000Z')
-    const copy = makeEvent('may', '2026-05-10T00:00:00.000Z')
+    const copy = makeEvent('may', '2026-05-10')
     const lastSyncAt = Date.now() - 60 * 60 * 1000
 
     ;(getEvents as import('vitest').Mock)
@@ -272,7 +320,7 @@ describe('useFetchEvents', () => {
 
   it('refetches in full when the stamp the server gives an unchanged event is unreadable (KOE-1501)', async () => {
     const start = new Date('2026-04-05T00:00:00.000Z')
-    const copy = makeEvent('may', '2026-05-10T00:00:00.000Z')
+    const copy = makeEvent('may', '2026-05-10')
     const lastSyncAt = Date.now() - 60 * 60 * 1000
 
     ;(getEvents as import('vitest').Mock)
@@ -303,7 +351,7 @@ describe('useFetchEvents', () => {
 
   it('keeps a copy newer than the server stamps it, an edit the server has not caught up with', async () => {
     const start = new Date('2026-04-05T00:00:00.000Z')
-    const newer = { ...makeEvent('may', '2026-05-10T00:00:00.000Z'), modifiedAt: new Date('2026-07-01T00:00:00.000Z') }
+    const newer = { ...makeEvent('may', '2026-05-10'), modifiedAt: new Date('2026-07-01T00:00:00.000Z') }
     const lastSyncAt = Date.now() - 60 * 60 * 1000
 
     ;(getEvents as import('vitest').Mock).mockResolvedValueOnce({
@@ -332,7 +380,7 @@ describe('useFetchEvents', () => {
 
   it('fetches in full when the metadata has no server cursor, never asking since the client clock (KOE-1501)', async () => {
     const start = new Date('2026-04-05T00:00:00.000Z')
-    const copy = makeEvent('may', '2026-05-10T00:00:00.000Z')
+    const copy = makeEvent('may', '2026-05-10')
     const lastSyncAt = Date.now() - 60 * 60 * 1000
 
     ;(getEvents as import('vitest').Mock).mockResolvedValueOnce({ events: [copy], unchangedIds: [] })
@@ -354,7 +402,7 @@ describe('useFetchEvents', () => {
 
   it("asks from the server's cursor, not the client clock, and stores the next one (KOE-1501)", async () => {
     const start = new Date('2026-01-02T00:00:00.000Z')
-    const cached = makeEvent('cached', '2026-01-03T00:00:00.000Z')
+    const cached = makeEvent('cached', '2026-01-03')
     const cursor = Date.parse('2026-01-01T12:00:00.000Z')
     const nextCursor = Date.parse('2026-01-02T12:00:00.000Z')
     const lastSyncAt = Date.now() - 10 * 60 * 1000
@@ -390,7 +438,7 @@ describe('useFetchEvents', () => {
   it('sets eventsLoadingAtom to true before the API call and false after', async () => {
     const start = new Date('2026-01-02T00:00:00.000Z')
     const end = new Date('2026-01-05T00:00:00.000Z')
-    const fetched = makeEvent('fetched', '2026-01-03T00:00:00.000Z', '2026-01-03T00:00:00.000Z')
+    const fetched = makeEvent('fetched', '2026-01-03', '2026-01-03')
 
     let resolveGetEvents!: (value: { events: (typeof fetched)[]; unchangedIds: string[] }) => void
     ;(getEvents as import('vitest').Mock).mockImplementation(
@@ -478,7 +526,7 @@ describe('useFetchEvents', () => {
   it('skips incremental fetch for throttled same-range requests and only refreshes metadata', async () => {
     const start = new Date('2026-01-02T00:00:00.000Z')
     const end = new Date('2026-01-05T00:00:00.000Z')
-    const original = makeEvent('event-1', '2026-01-03T00:00:00.000Z', '2026-01-03T00:00:00.000Z')
+    const original = makeEvent('event-1', '2026-01-03', '2026-01-03')
 
     const { result } = renderHook(
       () => ({
@@ -511,8 +559,8 @@ describe('useFetchEvents', () => {
   it('uses cold-start full fetch when stored events invalidate already-loaded metadata', async () => {
     const start = new Date('2026-01-02T00:00:00.000Z')
     const end = new Date('2026-01-05T00:00:00.000Z')
-    const cached = makeEvent('cached', '2026-01-03T00:00:00.000Z', '2026-01-03T00:00:00.000Z')
-    const fetched = makeEvent('fetched', '2026-01-04T00:00:00.000Z', '2026-01-04T00:00:00.000Z')
+    const cached = makeEvent('cached', '2026-01-03', '2026-01-03')
+    const fetched = makeEvent('fetched', '2026-01-04', '2026-01-04')
 
     localStorage.setItem(
       'eventMetadata',
@@ -556,7 +604,7 @@ describe('useFetchEvents', () => {
     const start = new Date('2026-01-02T00:00:00.000Z')
     const end = new Date('2026-01-05T00:00:00.000Z')
     const updatedByWebSocket = {
-      ...makeEvent('event-1', '2026-01-03T00:00:00.000Z', '2026-01-03T00:00:00.000Z'),
+      ...makeEvent('event-1', '2026-01-03', '2026-01-03'),
       entries: 12,
       members: 7,
       name: 'Updated by websocket',
@@ -594,7 +642,7 @@ describe('useFetchEvents', () => {
   it('uses cold-start full fetch when sync watermark is missing', async () => {
     const start = new Date('2026-01-02T00:00:00.000Z')
     const end = new Date('2026-01-05T00:00:00.000Z')
-    const fetched = makeEvent('fetched', '2026-01-03T00:00:00.000Z', '2026-01-03T00:00:00.000Z')
+    const fetched = makeEvent('fetched', '2026-01-03', '2026-01-03')
 
     ;(getEvents as import('vitest').Mock).mockResolvedValue({
       events: [fetched],
@@ -633,7 +681,7 @@ describe('useConfirmedEvent', () => {
     localStorage.clear()
   })
 
-  const stored = { ...makeEvent('event-1', '2026-09-04T00:00:00.000Z', '2026-09-05T00:00:00.000Z'), state: 'invited' }
+  const stored = { ...makeEvent('event-1', '2026-09-04', '2026-09-05'), state: 'invited' }
 
   it('revalidates a stored copy whose start numbers may have been published since', async () => {
     const fresh = { ...stored, startNumbersPublished: { VOI: ['2026-09-04'] } }

@@ -50,7 +50,7 @@ export const EventGroups = ({ disabled, event, onChange }: Readonly<Props>) => {
     if (typeGroups.length <= 1) return
 
     const lengthChanged = event.dates?.length !== value.length
-    const dateChanged = !lengthChanged && event.dates?.some((v, i) => value[i].date.valueOf() !== v.date.valueOf())
+    const dateChanged = !lengthChanged && event.dates?.some((v, i) => value[i].date !== v.date)
     if (lengthChanged || dateChanged) {
       onChange?.({ classes: [], dates: value })
     }
@@ -70,7 +70,7 @@ export const EventGroups = ({ disabled, event, onChange }: Readonly<Props>) => {
         disabled={disabled}
         label={t('registration.dates')}
         getOptionLabel={getGroupLabel}
-        isOptionEqualToValue={(o, v) => o.date?.valueOf() === v.date?.valueOf() && o.time === v.time}
+        isOptionEqualToValue={(o, v) => o.date === v.date && o.time === v.time}
         onChange={handleChange}
         options={options}
         value={value}

@@ -1,4 +1,3 @@
-import { dayEnd, TIME_ZONE } from './day'
 import { lastResultDay } from './resultDay'
 
 describe('lib/resultDay', () => {
@@ -25,7 +24,7 @@ describe('lib/resultDay', () => {
       { expected: '2026-05-15', last: '2026-05-15' },
       { expected: '2026-05-15', last: '2026-06-30' },
     ] as const)('is $expected for a period whose last day is $last', ({ expected, last }) => {
-      expect(lastResultDay(dayEnd(last, TIME_ZONE))).toBe(expected)
+      expect(lastResultDay(last)).toBe(expected)
     })
   })
 })

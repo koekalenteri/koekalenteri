@@ -1,5 +1,5 @@
 import type React from 'react'
-import type { Registration } from '@/types'
+import type { Registration, RegistrationGroupMove } from '@/types'
 import { act, renderHook } from '@testing-library/react'
 import { createStore, useAtomValue, useSetAtom } from 'jotai'
 import { TestProvider as Provider } from 'test-utils/AtomProvider'
@@ -9,7 +9,7 @@ import { getRegistrations } from '@/api/registration'
 import { idTokenAtom } from '@/pages/state'
 import { TEST_ID_TOKEN } from '@/test-utils/utils'
 import { adminEventRegistrationsAtom, adminPendingRegistrationGroupMovesAtom } from './atoms'
-import { adminEventPaymentLockedAtom, adminProjectedEventRegistrationsAtom } from './derivedAtoms'
+import { adminEventPaymentLockedAtom, adminProjectedEventRegistrationsAtom, placementKey } from './derivedAtoms'
 
 vi.mock('@/api/registration')
 
@@ -20,7 +20,7 @@ const HELSINKI_KEY = '2026-08-15-ap'
 const start = (id: string, number: number, key: string): Registration => ({
   ...registrationWithStaticDates,
   class: 'AVO',
-  group: { date: new Date('2026-08-14T21:00:00.000Z'), key, number, time: 'ap' },
+  group: { date: '2026-08-15', key, number, time: 'ap' },
   id,
 })
 const reserve: Registration = {
@@ -29,7 +29,7 @@ const reserve: Registration = {
   group: { key: 'reserve', number: 1 },
   id: 'c',
 }
-const move = { group: { date: new Date('2026-08-14T21:00:00.000Z'), key: HELSINKI_KEY, time: 'ap' as const }, id: 'c' }
+const move: RegistrationGroupMove = { group: { date: '2026-08-15', key: HELSINKI_KEY, time: 'ap' }, id: 'c' }
 
 describe('adminProjectedEventRegistrationsAtom', () => {
   it('keeps the server row of an unmoved start whose key only differs in spelling from the projection', () => {
@@ -58,6 +58,25 @@ describe('adminProjectedEventRegistrationsAtom', () => {
 
     const base = result.current.base
     expect(Array.isArray(base) && base.find((registration) => registration.id === 'a')?.group?.key).toBe(HELSINKI_KEY)
+  })
+})
+
+describe('placementKey', () => {
+  const placed = start('a', 1, HELSINKI_KEY)
+
+  it('reads a start whose key only differs in spelling as the same placement', () => {
+    expect(placementKey(start('a', 1, '2026-08-14-ap'))).toBe(placementKey(placed))
+  })
+
+  // A group without a time keeps the key it has, so the day alone tells the two apart (KOE-1547).
+  it('reads a group moved to another day as another placement', () => {
+    const untimed: Registration = { ...placed, group: { date: '2026-08-15', key: 'day', number: 1 } }
+    const nextDay: Registration = { ...placed, group: { date: '2026-08-16', key: 'day', number: 1 } }
+    expect(placementKey(nextDay)).not.toBe(placementKey(untimed))
+  })
+
+  it('reads a cancelled registration as another placement', () => {
+    expect(placementKey({ ...placed, cancelled: true })).not.toBe(placementKey(placed))
   })
 })
 

@@ -32,7 +32,7 @@ interface DogDetailsProps {
   disabled?: boolean
   mode: DogMode
   reg: DeepPartial<Registration>
-  eventDate: Date
+  eventDate: DayKey
   minDogAgeMonths: number
 }
 

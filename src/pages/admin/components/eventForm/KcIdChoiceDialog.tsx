@@ -59,7 +59,7 @@ export default function KcIdChoiceDialog({ choices, linkedKcGuids, onClose, onSe
             {choices.map((choice, index) => (
               // The index is part of the key: two trials without a GUID can be alike in everything shown.
               // biome-ignore lint/suspicious/noArrayIndexKey: the list is never reordered while it is open
-              <TableRow key={`${choice.kcGuid ?? choice.kcTunnus ?? ''}|${choice.startDate.getTime()}|${index}`}>
+              <TableRow key={`${choice.kcGuid ?? choice.kcTunnus ?? ''}|${choice.startDate}|${index}`}>
                 <TableCell>{choice.kcTunnus ?? '-'}</TableCell>
                 <TableCell>{[choice.eventType, choice.name].filter(Boolean).join(' ')}</TableCell>
                 <TableCell>{choice.classes.join(', ')}</TableCell>

@@ -1,6 +1,5 @@
 import type { DeepPartial, EventClass } from '@/types'
 import type { PartialEvent } from './types'
-import { dayOf, TIME_ZONE } from '@/lib/day'
 import { getEventDays } from '@/lib/event'
 import { splitEvenly } from '@/lib/utils'
 
@@ -43,7 +42,7 @@ export function updatePlacesPerDayFromClasses(
   for (const cls of classes) {
     if (!cls.date) continue
 
-    const dateStr = dayOf(cls.date, TIME_ZONE)
+    const dateStr = cls.date
     const dayClasses = classesByDay.get(dateStr) || []
     dayClasses.push(cls)
     classesByDay.set(dateStr, dayClasses)
@@ -64,7 +63,7 @@ export function distributePlacesAmongDays(event: DaysEvent): Record<string, numb
   const shares = splitEvenly(event.places ?? 0, days.length)
   const placesPerDay: Record<string, number> = {}
   days.forEach((day, index) => {
-    placesPerDay[dayOf(day, TIME_ZONE)] = shares[index]
+    placesPerDay[day] = shares[index]
   })
 
   return placesPerDay
@@ -99,7 +98,7 @@ export function distributePlacesAmongClassesPerDay(
   for (const cls of result) {
     if (!cls.date) continue
 
-    const dateStr = dayOf(cls.date, TIME_ZONE)
+    const dateStr = cls.date
     const dayClasses = classesByDay.get(dateStr) || []
     dayClasses.push(cls)
     classesByDay.set(dateStr, dayClasses)

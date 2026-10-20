@@ -5,13 +5,12 @@ import type { DayKey, EventClass, RegistrationClass } from '@/types'
 import type { EntryEvent, SectionProps } from './types'
 import FormHelperText from '@mui/material/FormHelperText'
 import Grid from '@mui/material/Grid'
-import { clamp } from 'date-fns/clamp'
 import { enqueueSnackbar } from 'notistack'
 import { memo, useCallback, useEffect, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
-import { dayEnd, dayOf, dayStart, TIME_ZONE } from '@/lib/day'
+import { dayOf, TIME_ZONE } from '@/lib/day'
 import { isDevEnv } from '@/lib/env'
-import { defaultEntryEndDate, defaultEntryStartDate, storedDayKey } from '@/lib/event'
+import { defaultEntryEndDate, defaultEntryStartDate } from '@/lib/event'
 import { getPrioritySort, PRIORITY, priorityValuesToPriority, RESTRICTION } from '@/lib/priority'
 import AutocompleteMulti from '@/pages/components/AutocompleteMulti'
 import CollapsibleSection from '@/pages/components/CollapsibleSection'
@@ -27,14 +26,10 @@ interface Props extends Readonly<Omit<SectionProps, 'changes' | 'event'>> {
   readonly entryStartLocked?: boolean
 }
 
-/** The stored instant while its day is the one picked, else the picked day's bound in Finnish time. */
-const keepStoredDay = (
-  stored: Date | undefined,
-  day: DayValue,
-  toInstant: (day: DayKey, zone: string) => Date
-): Date | undefined => {
-  if (!day) return undefined
-  return stored && storedDayKey(stored) === day ? stored : toInstant(day, TIME_ZONE)
+/** The day kept within the event's days: the first or the last one for a day outside them. */
+const clampDay = (day: DayKey, first: DayKey, last: DayKey): DayKey => {
+  if (day < first) return first
+  return day > last ? last : day
 }
 
 function EntrySection(props: Props) {
@@ -52,7 +47,6 @@ function EntrySection(props: Props) {
     onOpenChange,
     open,
   } = props
-  const { entryEndDate, entryStartDate } = event
   const prioritySort = getPrioritySort(t)
   const classesGroupsError = errors?.find(
     (validationError) => validationError && validationError.key === 'classesGroups'
@@ -80,9 +74,9 @@ function EntrySection(props: Props) {
   )
   const sortedRestrictions = useMemo(() => RESTRICTION.slice().sort(prioritySort), [prioritySort])
   const allowPastRegistrationDates = isDevEnv()
-  // The range speaks Finnish days; the stored dates stay instants until they are stored as days (KOE-1547).
+  // The range and the event speak days (KOE-1547); the event was created at a moment, read as its Finnish day.
   const registrationStartDay = allowPastRegistrationDates ? undefined : dayOf(event.createdAt ?? new Date(), TIME_ZONE)
-  const eventStartDay = dayOf(event.startDate, TIME_ZONE)
+  const eventStartDay = event.startDate
   const registrationDateRange = useMemo(
     () => ({ end: eventStartDay, start: registrationStartDay }),
     [eventStartDay, registrationStartDay]
@@ -90,21 +84,18 @@ function EntrySection(props: Props) {
   const hasPastRegistrationDate = useMemo(() => {
     const today = dayOf(new Date(), TIME_ZONE)
     return (
-      (!!event.entryStartDate && dayOf(event.entryStartDate, TIME_ZONE) < today) ||
-      (!!event.entryEndDate && dayOf(event.entryEndDate, TIME_ZONE) < today)
+      (!!event.entryStartDate && event.entryStartDate < today) || (!!event.entryEndDate && event.entryEndDate < today)
     )
   }, [event.entryEndDate, event.entryStartDate])
 
-  // The range hands back both days on every change. A day left as it was keeps the stored instant: a
-  // legacy bare day key reaches the form as UTC midnight, and rewriting it as the Finnish one would move
-  // the early-bird window, which an event with registrations refuses (KOE-1568).
+  // The range hands back both days on every change; a cleared one is none.
   const handleDateChange = useCallback(
     (start: DayValue, end: DayValue) =>
       onChange?.({
-        entryEndDate: keepStoredDay(entryEndDate, end, dayEnd),
-        entryStartDate: keepStoredDay(entryStartDate, start, dayStart),
+        entryEndDate: end ?? undefined,
+        entryStartDate: start ?? undefined,
       }),
-    [entryEndDate, entryStartDate, onChange]
+    [onChange]
   )
   const handlePriorityChange = useCallback(
     (_e: SyntheticEvent<Element, Event>, value: readonly Priority[]) =>
@@ -122,10 +113,9 @@ function EntrySection(props: Props) {
     if (!event.classes.some((c) => c.date < event.startDate || c.date > event.endDate)) return
 
     const newClasses: EventClass[] = []
-    const interval = { end: event.endDate, start: event.startDate }
     for (const cls of event.classes) {
-      if (cls.date < interval.start || cls.date > interval.end) {
-        const date = clamp(cls.date, interval)
+      if (cls.date < event.startDate || cls.date > event.endDate) {
+        const date = clampDay(cls.date, event.startDate, event.endDate)
         newClasses.push({ ...cls, date })
         enqueueSnackbar(
           t('event.classMoved', {
@@ -166,11 +156,11 @@ function EntrySection(props: Props) {
             startHelperText={entryStartLocked ? t('event.entryStartLockedReason') : undefined}
             startLabel={t('event.entryStart')}
             endLabel={t('event.entryEnd')}
-            start={storedDayKey(event.entryStartDate) ?? null}
-            defaultStart={dayOf(defaultEntryStartDate(event.startDate), TIME_ZONE)}
-            end={storedDayKey(event.entryEndDate) ?? null}
+            start={event.entryStartDate ?? null}
+            defaultStart={defaultEntryStartDate(event.startDate)}
+            end={event.entryEndDate ?? null}
             endDisabled={disabled}
-            defaultEnd={dayOf(defaultEntryEndDate(event.startDate), TIME_ZONE)}
+            defaultEnd={defaultEntryEndDate(event.startDate)}
             range={registrationDateRange}
             required={fields?.required.entryStartDate ?? fields?.required.entryEndDate}
             onChange={handleDateChange}

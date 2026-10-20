@@ -6,8 +6,6 @@ export const unique = <T = string>(arr: T[]): T[] => arr.filter((c, i, a) => a.i
 export const uniqueFn = <T>(arr: T[], cmp: (a: T, b: T) => boolean): T[] =>
   arr.filter((c, i, a) => a.findIndex((f) => cmp(f, c)) === i)
 
-export const uniqueDate = (arr: Date[]) => [...new Set<number>(arr.map((d) => d.valueOf()))].map((v) => new Date(v))
-
 /**
  * JSON as the server wrote it, nothing revived: a `Date` is made from a named field at the typed
  * boundary (`lib/wire.ts`, KOE-1546), never from what a string looks like.

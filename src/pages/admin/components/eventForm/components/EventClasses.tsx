@@ -1,6 +1,6 @@
 import type { AutocompleteChangeReason } from '@mui/material'
 import type { SyntheticEvent } from 'react'
-import type { DeepPartial, DogEvent, EventClass, EventState } from '@/types'
+import type { DayKey, DeepPartial, DogEvent, EventClass, EventState } from '@/types'
 import CheckBox from '@mui/icons-material/CheckBox'
 import CheckBoxOutlineBlank from '@mui/icons-material/CheckBoxOutlineBlank'
 import Autocomplete from '@mui/material/Autocomplete'
@@ -10,12 +10,12 @@ import Chip from '@mui/material/Chip'
 import TextField from '@mui/material/TextField'
 import { useCallback, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
-import { sameDay, TIME_ZONE } from '@/lib/day'
+import { dayOf, TIME_ZONE } from '@/lib/day'
 
 interface Props {
   readonly id: string
-  readonly eventStartDate: Date
-  readonly eventEndDate: Date
+  readonly eventStartDate: DayKey
+  readonly eventEndDate: DayKey
   readonly value: DeepPartial<EventClass>[] | undefined
   readonly classes: DeepPartial<EventClass>[]
   readonly label: string
@@ -32,13 +32,16 @@ interface Props {
   ) => void
 }
 
-/** Whether two class dates fall on the same Finnish day; a class with no date is read as today. */
-const sameClassDay = (a?: Date, b?: Date) => sameDay(a ?? new Date(), b ?? new Date(), TIME_ZONE)
+/** Whether two classes run on the same day; a class with no date is read as today. */
+const sameClassDay = (a?: DayKey, b?: DayKey) => {
+  const today = dayOf(new Date(), TIME_ZONE)
+  return (a ?? today) === (b ?? today)
+}
 
 export const compareEventClass = (a: DeepPartial<EventClass>, b: DeepPartial<EventClass>) =>
   sameClassDay(a.date, b.date)
     ? (a.class?.localeCompare(b.class ?? '') ?? 0)
-    : (a.date?.valueOf() ?? 0) - (b.date?.valueOf() ?? 0)
+    : (a.date ?? '').localeCompare(b.date ?? '')
 
 type EventClassValue = DeepPartial<EventClass>
 
@@ -62,13 +65,13 @@ export default function EventClasses(props: Props) {
   const error = errorStates?.classes
   const helperText = helperTexts?.classes ?? ''
   const sortedValue = useMemo(() => value?.slice().sort(compareEventClass), [value])
-  const groupByWeekday = useCallback((c: { date?: Date }) => t('dateFormat.wdshort', { date: c.date }), [t])
+  const groupByWeekday = useCallback((c: { date?: DayKey }) => t('dateFormat.wdshort', { date: c.date }), [t])
   const getLabel = useCallback((c: { class?: string }) => c.class ?? '', [])
   const isEqual = useCallback(
     (a: DeepPartial<EventClass>, b: DeepPartial<EventClass>) => compareEventClass(a, b) === 0,
     []
   )
-  const groupBy = !sameDay(eventStartDate, eventEndDate, TIME_ZONE)
+  const groupBy = eventStartDate !== eventEndDate
   const hasJudge = useCallback(
     (option: DeepPartial<EventClass>) => (Array.isArray(option.judge) ? option.judge.length : option.judge?.id),
     []
@@ -113,9 +116,8 @@ export default function EventClasses(props: Props) {
                 groupBy ? (
                   <Avatar
                     sx={{
-                      bgcolor: sameDay(option.date || eventStartDate, eventStartDate, TIME_ZONE)
-                        ? 'secondary.light'
-                        : 'secondary.dark',
+                      bgcolor:
+                        (option.date || eventStartDate) === eventStartDate ? 'secondary.light' : 'secondary.dark',
                       fontWeight: 'bold',
                     }}
                   >

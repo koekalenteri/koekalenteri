@@ -1,8 +1,8 @@
+import type { DayKey } from '@/types'
 import type { EntryEvent } from '../../types'
 import TableCell from '@mui/material/TableCell'
 import TableRow from '@mui/material/TableRow'
 import { useTranslation } from 'react-i18next'
-import { dayOf, TIME_ZONE } from '@/lib/day'
 import { getEventDays } from '@/lib/event'
 import { NumberInput } from '@/pages/components/NumberInput'
 import { calculateTotalFromDays } from '../../places'
@@ -12,7 +12,7 @@ import PlacesDisplay from './PlacesDisplay'
 interface DayPlacesTableProps {
   event: EntryEvent
   disabled: boolean
-  handleDayPlacesChange: (date: Date, value?: number) => void
+  handleDayPlacesChange: (date: DayKey, value?: number) => void
 }
 
 export default function DayPlacesTable({ event, disabled, handleDayPlacesChange }: Readonly<DayPlacesTableProps>) {
@@ -24,11 +24,10 @@ export default function DayPlacesTable({ event, disabled, handleDayPlacesChange 
   return (
     <BasePlacesTable headers={headers}>
       {eventDays.map((day) => {
-        const dateStr = dayOf(day, TIME_ZONE)
-        const places = event.placesPerDay?.[dateStr] ?? 0
+        const places = event.placesPerDay?.[day] ?? 0
 
         return (
-          <TableRow key={dateStr}>
+          <TableRow key={day}>
             <TableCell component="th" scope="row">
               {t('dateFormat.wdshort', { date: day })}
             </TableCell>

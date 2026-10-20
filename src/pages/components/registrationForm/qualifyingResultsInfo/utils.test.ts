@@ -1,5 +1,5 @@
-import type { ManualTestResult, QualifyingResult } from '@/types'
-import { dayEnd, dayStart, TIME_ZONE } from '@/lib/day'
+import type { DayKey, ManualTestResult, QualifyingResult } from '@/types'
+import { TIME_ZONE } from '@/lib/day'
 import { getRequirements } from '@/rules'
 import { NOME_B_CH_requirements } from '@/rules_ch'
 import { frozenInstant } from '@/test-utils/freezeClock'
@@ -8,7 +8,7 @@ import { availableResults, availableTypes, createMissingResult, getResultId, res
 
 const ID_REGEXP = /^[0-9a-zA-Z_-]{10}$/
 // SM rules are in force from 15.4.2023 onwards
-const SM_RULE_DATE = new Date('2024-01-01')
+const SM_RULE_DATE: DayKey = '2024-01-01'
 
 describe('QualifyingResultsInfo utils', () => {
   describe('availableTypes', () => {
@@ -271,16 +271,14 @@ describe('QualifyingResultsInfo utils', () => {
         { expected: '2026-05-15', periodEnd: '2026-06-30' },
         { expected: '2026-05-15', periodEnd: undefined },
       ] as const)('is $expected for a period ending on $periodEnd (KOE-1548)', ({ expected, periodEnd }) => {
-        const max = periodEnd ? dayEnd(periodEnd, TIME_ZONE) : undefined
-
-        expect(createMissingResult(undefined, [], 'test-reg-no', max).date).toBe(expected)
+        expect(createMissingResult(undefined, [], 'test-reg-no', periodEnd).date).toBe(expected)
       })
 
       // A NOME-B SM ranking period of one day, 12.5.2026: the new row's default, filled in as a VOI1,
       // must count in it. As a local midnight it was 11.5. in Finland in Tokyo, outside the period.
       it('counts a new result on its default day in the ranking period (KOE-1548)', () => {
-        const entryEndDate = dayEnd('2026-05-12', TIME_ZONE)
-        const qualificationStartDate = dayStart('2026-05-12', TIME_ZONE)
+        const entryEndDate: DayKey = '2026-05-12'
+        const qualificationStartDate: DayKey = '2026-05-12'
         const manual: ManualTestResult = {
           ...createMissingResult(undefined, [], 'test-reg-no', entryEndDate),
           class: 'VOI',

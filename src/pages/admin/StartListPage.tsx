@@ -53,7 +53,7 @@ export default function StartListPage() {
   const regsToPrint = allRegistrations.filter((reg) => !reg.cancelled).sort(sortRegistrationsByDateClassTimeAndNumber)
   const nameLen = regsToPrint.reduce((acc, reg) => Math.min(38, Math.max(acc, reg.dog.name?.length ?? 0)), 0)
   const grouped = regsToPrint.reduce<GroupedRegs>((acc, reg) => {
-    const date = reg.group?.date ? `${reg.group.date.valueOf()}` : RESERVE_KEY
+    const date = reg.group?.date ?? RESERVE_KEY
     const shared = date === RESERVE_KEY && hasSharedReserveList(reg.eventType)
     const eventClass = shared ? SHARED_RESERVE_CLASS : getRegistrationClass(reg)
     const time = getRegistrationGroupTime(reg)
@@ -71,7 +71,7 @@ export default function StartListPage() {
   groupKeys.sort((a, b) => {
     if (a === RESERVE_KEY) return 1
     if (b === RESERVE_KEY) return -1
-    return Number(a) - Number(b)
+    return a.localeCompare(b)
   })
 
   useEffect(() => {
@@ -96,7 +96,7 @@ export default function StartListPage() {
           const reserve = groupKey === RESERVE_KEY
           const cols = reserve ? 10 : 8
           const group = grouped[groupKey]
-          const heading = reserve ? t('startList.reserve') : t('dateFormat.wdshort', { date: new Date(+groupKey) })
+          const heading = reserve ? t('startList.reserve') : t('dateFormat.wdshort', { date: groupKey })
 
           return (
             <Table key={groupKey} size="small">

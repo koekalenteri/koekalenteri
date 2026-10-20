@@ -1,14 +1,14 @@
+import type { DayKey } from '../../types/Day'
 import type { PublicConfirmedEvent } from '../../types/Event'
 import TableCell from '@mui/material/TableCell'
 import { useTranslation } from 'react-i18next'
-import { sameDay, TIME_ZONE } from '../../lib/day'
 import { judgeName } from '../../lib/judge'
 import { StyledTableRow } from './StyledTableRow'
 
 interface ClassHeaderProps {
   classValue: string
   event: PublicConfirmedEvent
-  lastDate?: Date
+  lastDate?: DayKey
   published?: boolean
   /** False while the class's start numbers are unpublished: the rows below run alphabetically. */
   numbersPublished?: boolean
@@ -30,7 +30,7 @@ export const ClassHeader = ({
       <TableCell colSpan={6} sx={{ fontWeight: 'bold' }}>
         {classValue}{' '}
         {event.classes
-          .filter((c) => c.class === classValue && !!c.date && !!lastDate && sameDay(c.date, lastDate, TIME_ZONE))
+          .filter((c) => c.class === classValue && !!c.date && c.date === lastDate)
           .map((c) => (Array.isArray(c.judge) ? c.judge.map((j) => judgeName(j, t)).join(', ') : judgeName(c.judge, t)))
           .filter(Boolean)
           .join(', ')}

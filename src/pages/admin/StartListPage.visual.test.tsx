@@ -1,4 +1,4 @@
-import { TZDate } from '@date-fns/tz'
+import type { DayKey } from '../../types'
 import { ThemeProvider } from '@mui/material/styles'
 import { Suspense } from 'react'
 import { MemoryRouter, Route, Routes } from 'react-router'
@@ -7,7 +7,6 @@ import { render } from 'vitest-browser-react'
 import { eventWithParticipantsInvited } from '../../__mockData__/events'
 import { registrationsToEventWithParticipantsInvited } from '../../__mockData__/registrations'
 import theme from '../../assets/Theme'
-import { TIME_ZONE } from '../../lib/day'
 import { TestProvider } from '../../test-utils/AtomProvider'
 import { TEST_ID_TOKEN } from '../../test-utils/utils'
 import { idTokenAtom } from '../state'
@@ -23,7 +22,7 @@ vi.mock(import('../../api/user'), async (importOriginal) => ({
 
 const DESKTOP = { height: 1600, width: 1000 }
 
-const day = (iso: string) => new TZDate(iso, TIME_ZONE)
+const day = (iso: DayKey): DayKey => iso
 
 // The mock data's dates are relative to "today"; a screenshot needs them pinned instead.
 const start = day('2026-10-10')

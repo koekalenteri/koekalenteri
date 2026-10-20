@@ -21,7 +21,7 @@ function Wrapper({ children }: { readonly children: ReactNode }) {
 
 describe('EventStateInfo', () => {
   it('should render without classes', () => {
-    const event = { classes: [], entries: 2, members: 1, places: 3, startDate: new Date() }
+    const event: MinimalEvent = { classes: [], entries: 2, members: 1, places: 3, startDate: '2026-11-07' }
     render(<EventClassPlaces event={event} eventClass={''} />, {
       wrapper: Wrapper,
     })
@@ -34,11 +34,11 @@ describe('EventStateInfo', () => {
   it('should render with one class', () => {
     const event: MinimalEvent = {
       // class places, members and entries should be ignored when only one class
-      classes: [{ class: 'ALO', date: new Date(), entries: 0, members: 0, places: 0 }],
+      classes: [{ class: 'ALO', date: '2026-11-07', entries: 0, members: 0, places: 0 }],
       entries: 2,
       members: 1,
       places: 3,
-      startDate: new Date(),
+      startDate: '2026-11-07',
     }
     render(<EventClassPlaces event={event} eventClass={''} />, {
       wrapper: Wrapper,
@@ -53,13 +53,13 @@ describe('EventStateInfo', () => {
     const event: MinimalEvent = {
       // class places, members and entries should be ignored when only one class
       classes: [
-        { class: 'ALO', date: new Date(), entries: 2, members: 1, places: 3 },
-        { class: 'AVO', date: new Date(), entries: 12, members: 11, places: 13 },
+        { class: 'ALO', date: '2026-11-07', entries: 2, members: 1, places: 3 },
+        { class: 'AVO', date: '2026-11-07', entries: 12, members: 11, places: 13 },
       ],
       entries: 0,
       members: 0,
       places: 0,
-      startDate: new Date(),
+      startDate: '2026-11-07',
     }
     render(
       <>
@@ -85,8 +85,8 @@ describe('EventStateInfo', () => {
   it('should fall back to the class’s day totals when capacity is tracked per day, not per class', () => {
     // Regression: an event with classes but no per-class places (capacity tracked per
     // day instead) used to show 0 places for every class row.
-    const day1 = new Date('2026-11-07')
-    const day2 = new Date('2026-11-08')
+    const day1 = '2026-11-07' as const
+    const day2 = '2026-11-08' as const
     const event: MinimalEvent = {
       classes: [
         { class: 'ALO', date: day1 },

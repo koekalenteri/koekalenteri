@@ -1,4 +1,4 @@
-import type { Registration, RegistrationGroup } from '@/types'
+import type { DayKey, Registration, RegistrationGroup } from '@/types'
 import { render, screen } from '@testing-library/react'
 import { enqueueSnackbar } from 'notistack'
 import { eventWithStaticDates } from '@/__mockData__/events'
@@ -7,7 +7,7 @@ import { eventRegistrationDateKey } from '@/lib/event'
 import { flushPromises, renderWithUserEvents } from '@/test-utils/utils'
 import MoveToGroupDialog from './MoveToGroupDialog'
 
-type TestRegistrationGroup = RegistrationGroup & { date: Date }
+type TestRegistrationGroup = RegistrationGroup & { date: DayKey }
 
 vi.mock('notistack', () => ({
   enqueueSnackbar: vi.fn(),
@@ -21,7 +21,7 @@ describe('MoveToGroupDialog', () => {
   })
   afterAll(() => vi.useRealTimers())
 
-  const makeGroup = (date: Date, time: 'ap' | 'ip'): TestRegistrationGroup => ({
+  const makeGroup = (date: DayKey, time: 'ap' | 'ip'): TestRegistrationGroup => ({
     date,
     key: eventRegistrationDateKey({ date, time }),
     number: 0,

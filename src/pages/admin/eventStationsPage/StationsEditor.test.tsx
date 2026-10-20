@@ -1,13 +1,11 @@
-import type { EventStation } from '@/types'
+import type { DayKey, EventStation } from '@/types'
 import type { Props, StationsEditorEvent } from './StationsEditor'
-import { TZDate } from '@date-fns/tz'
 import { screen } from '@testing-library/react'
-import { TIME_ZONE } from '@/lib/day'
 import { renderWithUserEvents } from '@/test-utils/utils'
 import StationsEditor from './StationsEditor'
 
 const station = (id: string, number: number, overrides: Partial<EventStation> = {}): EventStation => ({
-  date: new TZDate('2026-09-12', TIME_ZONE),
+  date: '2026-09-12',
   id,
   number,
   tasks: 1,
@@ -15,10 +13,10 @@ const station = (id: string, number: number, overrides: Partial<EventStation> = 
 })
 
 const testEvent = (overrides: Partial<StationsEditorEvent> = {}): StationsEditorEvent => ({
-  endDate: new TZDate('2026-09-12', TIME_ZONE),
+  endDate: '2026-09-12',
   eventType: 'NOWT',
   judges: [],
-  startDate: new TZDate('2026-09-12', TIME_ZONE),
+  startDate: '2026-09-12',
   ...overrides,
 })
 
@@ -61,8 +59,8 @@ describe('StationsEditor', () => {
 
   it('numbers each day from one, since every day is built as its own course', async () => {
     const onChange = vi.fn()
-    const saturday = new TZDate('2026-09-12', TIME_ZONE)
-    const sunday = new TZDate('2026-09-13', TIME_ZONE)
+    const saturday: DayKey = '2026-09-12'
+    const sunday: DayKey = '2026-09-13'
     const { user } = renderComponent({
       event: testEvent({
         endDate: sunday,
@@ -85,8 +83,8 @@ describe('StationsEditor', () => {
 
   it('renumbers only within the day a post was removed from', async () => {
     const onChange = vi.fn()
-    const saturday = new TZDate('2026-09-12', TIME_ZONE)
-    const sunday = new TZDate('2026-09-13', TIME_ZONE)
+    const saturday: DayKey = '2026-09-12'
+    const sunday: DayKey = '2026-09-13'
     const { user } = renderComponent({
       event: testEvent({
         endDate: sunday,

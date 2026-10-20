@@ -1,9 +1,9 @@
 import type { Dog } from '../types'
-import { addMonths, dayOf, TIME_ZONE } from '../lib/day'
+import { addMonths, dayStart, TIME_ZONE } from '../lib/day'
 import { eventWithStaticDates } from './events'
 
 /** The day `months` months before the static event's first Finnish day: the dog's dates are days (KOE-1548). */
-const monthsBeforeStart = (months: number) => addMonths(dayOf(eventWithStaticDates.startDate, TIME_ZONE), -months)
+const monthsBeforeStart = (months: number) => addMonths(eventWithStaticDates.startDate, -months)
 
 export const registrationDogAged10MonthsAndNoResults: Dog = {
   breedCode: '110',
@@ -15,7 +15,7 @@ export const registrationDogAged10MonthsAndNoResults: Dog = {
   dob: monthsBeforeStart(10),
   gender: 'M',
   name: 'Dog Name 10',
-  refreshDate: eventWithStaticDates.entryStartDate,
+  refreshDate: dayStart(eventWithStaticDates.entryStartDate, TIME_ZONE),
   regNo: 'TESTDOG-0010',
   results: [],
   rfid: '1234567890123456',
@@ -36,7 +36,7 @@ export const registrationDogAged20MonthsAndNoResults: Dog = {
   dob: monthsBeforeStart(20),
   gender: 'M',
   name: 'Dog Name 20',
-  refreshDate: eventWithStaticDates.entryStartDate,
+  refreshDate: dayStart(eventWithStaticDates.entryStartDate, TIME_ZONE),
   regNo: 'TESTDOG-0020',
   results: [],
   rfid: '1234567890123457',
@@ -57,7 +57,7 @@ export const registrationDogAged28MonthsWithNOUResult: Dog = {
   dob: monthsBeforeStart(28),
   gender: 'M',
   name: 'Dog Name 20',
-  refreshDate: eventWithStaticDates.entryStartDate,
+  refreshDate: dayStart(eventWithStaticDates.entryStartDate, TIME_ZONE),
   regNo: 'TESTDOG-0030',
   results: [
     {

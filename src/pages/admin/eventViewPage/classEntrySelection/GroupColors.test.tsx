@@ -1,9 +1,9 @@
-import type { RegistrationDate } from '@/types'
+import type { DayKey, RegistrationDate } from '@/types'
 import { render } from '@testing-library/react'
 import GroupColors, { availableGroups, GROUP_COLORS } from './GroupColors'
 
 describe('GroupColors', () => {
-  const dates = [new Date(2020, 1, 1, 12), new Date(2020, 1, 2, 12), new Date(2020, 1, 3, 12)]
+  const dates: DayKey[] = ['2020-02-01', '2020-02-02', '2020-02-03']
   const regDates = dates.flatMap<RegistrationDate>((date) => [
     { date, time: 'ap' },
     { date, time: 'ip' },
@@ -37,9 +37,7 @@ describe('GroupColors', () => {
 
       // Check that selected dates have the correct colors
       d.forEach((date, index) => {
-        const isSelected = !!s.find(
-          (selected) => selected.date.getTime() === date.date.getTime() && selected.time === date.time
-        )
+        const isSelected = !!s.find((selected) => selected.date === date.date && selected.time === date.time)
 
         const box = colorBoxes[index]
         if (isSelected) {
@@ -60,9 +58,7 @@ describe('GroupColors', () => {
 
     // Should render a single box with the color of the selected date
     const colorBox = container.querySelector('[class*="MuiBox-root"]')
-    const selectedIndex = available.findIndex(
-      (dt) => selected[0].date.getTime() === dt.date.getTime() && selected[0].time === dt.time
-    )
+    const selectedIndex = available.findIndex((dt) => selected[0].date === dt.date && selected[0].time === dt.time)
     const expectedColor = GROUP_COLORS[selectedIndex % GROUP_COLORS.length]
 
     expect(colorBox).toHaveStyle(`background-color: ${expectedColor}`)
@@ -75,7 +71,7 @@ describe('availableGroups', () => {
   })
 
   it('generates ap and ip for each date', () => {
-    const dates = [new Date('2020-02-01T10:00:00.000Z'), new Date('2020-07-08T09:00:00.000Z')]
+    const dates: DayKey[] = ['2020-02-01', '2020-07-08']
     const groups = availableGroups(dates)
 
     expect(groups).toEqual([

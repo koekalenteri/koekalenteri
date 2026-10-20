@@ -381,8 +381,8 @@ export interface JsonRegistrationGroup extends Partial<JsonRegistrationDate> {
   key: string
 }
 
-/** A group's day as stored (a day key) or as the browser holds it (a Date). */
-export type GroupDate = DayKey | Date
+/** A group's day: a day key, as stored and as the browser holds it (KOE-1547). */
+export type GroupDate = DayKey
 
 /** An entry as a decision that asks only which group it is in reads it: a stored and a parsed group alike. */
 interface RegistrationGroupHolder {
@@ -545,8 +545,8 @@ export interface QualifyingResult extends TestResult {
 export type QualifyingResults = {
   relevant: QualifyingResult[]
   qualifies: boolean
-  minResultDate?: Date
-  maxResultDate?: Date
+  minResultDate?: DayKey
+  maxResultDate?: DayKey
 }
 
 export interface JsonRegistrationDate {
@@ -554,7 +554,7 @@ export interface JsonRegistrationDate {
   time?: RegistrationTime
 }
 
-export type RegistrationDate = Replace<JsonRegistrationDate, 'date', Date>
+export type RegistrationDate = JsonRegistrationDate
 
 export type RegistrationTime = 'ap' | 'ip' | 'kp'
 

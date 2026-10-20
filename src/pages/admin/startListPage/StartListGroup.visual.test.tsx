@@ -22,7 +22,7 @@ const Frame = ({ children }: { readonly children: React.ReactNode }) => (
 const entry = (id: string, name: string, number: number, overrides: Partial<Registration> = {}): Registration => ({
   ...registrationWithStaticDates,
   dog: { ...registrationWithStaticDates.dog, name, regNo: `REG-${id}` },
-  group: { date: new Date('2021-02-10T10:00:00Z'), key: 'ALO-AP', number, time: 'ap' },
+  group: { date: '2021-02-10', key: 'ALO-AP', number, time: 'ap' },
   id,
   ...overrides,
 })
@@ -68,7 +68,7 @@ describeInLanguage('en', () => {
 it('shows entered numbers and flags a dog whose number is still undrawn', async () => {
   const regs = [
     entry('drawn-1', 'Arvottu', 1, {
-      startGroup: { date: new Date('2021-02-10T10:00:00Z'), key: 'ALO-AP', number: 2, time: 'ap' },
+      startGroup: { date: '2021-02-10', key: 'ALO-AP', number: 2, time: 'ap' },
     }),
     // Added after the draw: still on its working-order number, so the row carries the warning (KOE-1287).
     entry('pending-1', 'Arpomaton', 2),

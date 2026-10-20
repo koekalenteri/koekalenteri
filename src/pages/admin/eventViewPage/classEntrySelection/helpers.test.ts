@@ -1,6 +1,5 @@
-import type { CustomCost, DogEvent, Registration, RegistrationGroup, RegistrationPerson } from '@/types'
+import type { CustomCost, DayKey, DogEvent, Registration, RegistrationGroup, RegistrationPerson } from '@/types'
 import type { RegistrationWithGroups } from './types'
-import { parseISO } from 'date-fns'
 import { registrationWithStaticDates } from '@/__mockData__/registrations'
 import { eventRegistrationDateKey } from '@/lib/event'
 import { GROUP_KEY_CANCELLED, GROUP_KEY_RESERVE } from '@/lib/registration'
@@ -141,8 +140,8 @@ describe('helpers', () => {
 
   describe('listKey', () => {
     const mockEventGroups: RegistrationGroup[] = [
-      { date: parseISO('2023-01-01T12:00:00Z'), key: 'group1', number: 1, time: 'ap' },
-      { date: parseISO('2023-01-02T12:00:00Z'), key: 'group2', number: 2, time: 'ip' },
+      { date: '2023-01-01', key: 'group1', number: 1, time: 'ap' },
+      { date: '2023-01-02', key: 'group2', number: 2, time: 'ip' },
     ]
 
     const mockRegistration = {
@@ -182,7 +181,7 @@ describe('helpers', () => {
     })
 
     it('should fall back to derived key from group date+time when backend key does not match', () => {
-      const date = parseISO('2023-01-01T12:00:00Z')
+      const date: DayKey = '2023-01-01'
       const time = 'ap' as const
       const derivedKey = eventRegistrationDateKey({ date, time })
 
@@ -202,16 +201,18 @@ describe('helpers', () => {
 
   describe('buildRegistrationsByGroup', () => {
     const mockGroups: RegistrationGroup[] = [
-      { date: parseISO('2023-01-01T12:00:00Z'), key: 'group1', number: 1, time: 'ap' },
-      { date: parseISO('2023-01-02T12:00:00Z'), key: 'group2', number: 2, time: 'ip' },
+      { date: '2023-01-01', key: 'group1', number: 1, time: 'ap' },
+      { date: '2023-01-02', key: 'group2', number: 2, time: 'ip' },
     ]
 
+    const firstDay: DayKey = '2023-01-01'
+    const secondDay: DayKey = '2023-01-02'
     const mockRegistrations: Registration[] = [
       {
         createdAt: new Date(),
         dates: [
-          { date: parseISO('2023-01-01T12:00:00Z'), time: 'ap' },
-          { date: parseISO('2023-01-02T12:00:00Z'), time: 'ip' },
+          { date: firstDay, time: 'ap' },
+          { date: secondDay, time: 'ip' },
         ],
         dog: { regNo: 'dog1' },
         eventId: 'event1',
@@ -222,7 +223,7 @@ describe('helpers', () => {
         owner: { name: 'Owner 1' },
       } as Partial<Registration> as Registration,
       {
-        dates: [{ date: parseISO('2023-01-01T12:00:00Z'), time: 'ap' }],
+        dates: [{ date: firstDay, time: 'ap' }],
         dog: { regNo: 'dog2' },
         eventId: 'event1',
         group: { key: 'group2', number: 2 },
@@ -338,14 +339,14 @@ describe('helpers', () => {
 
     it('should populate dropGroups when group has no date', () => {
       const groupsWithNoDate: RegistrationGroup[] = [
-        { date: parseISO('2023-01-01T12:00:00Z'), key: 'group1', number: 1, time: 'ap' },
+        { date: '2023-01-01', key: 'group1', number: 1, time: 'ap' },
         { date: undefined, key: 'group2', number: 2, time: 'ip' },
       ]
 
       const registrationsWithDates: Registration[] = [
         {
           ...mockRegistrations[0],
-          dates: [{ date: parseISO('2023-01-03T12:00:00Z'), time: 'ap' }], // Date doesn't match any group
+          dates: [{ date: '2023-01-03', time: 'ap' }], // Date doesn't match any group
           group: { key: 'group1', number: 1 },
           id: 'reg1',
         } as Registration,
@@ -359,14 +360,14 @@ describe('helpers', () => {
 
     it('should populate dropGroups when registration date matches group date', () => {
       const groupsWithDates: RegistrationGroup[] = [
-        { date: parseISO('2023-01-01T12:00:00Z'), key: 'group1', number: 1, time: 'ap' },
-        { date: parseISO('2023-01-02T12:00:00Z'), key: 'group2', number: 2, time: 'ip' },
+        { date: '2023-01-01', key: 'group1', number: 1, time: 'ap' },
+        { date: '2023-01-02', key: 'group2', number: 2, time: 'ip' },
       ]
 
       const registrationsWithMatchingDates: Registration[] = [
         {
           ...mockRegistrations[0],
-          dates: [{ date: parseISO('2023-01-02T12:00:00Z'), time: 'ap' }], // Date matches group2
+          dates: [{ date: '2023-01-02', time: 'ap' }], // Date matches group2
           group: { key: 'group1', number: 1 },
           id: 'reg1',
         } as Registration,
@@ -380,7 +381,7 @@ describe('helpers', () => {
   })
 
   describe('drawn number helpers (KOE-1273)', () => {
-    const day = parseISO('2023-01-01T12:00:00Z')
+    const day: DayKey = '2023-01-01'
     const groupKey = '2023-01-01-ap'
     const dog = (id: string, number: number, startNumber?: number, extra: Partial<Registration> = {}): Registration =>
       ({
@@ -451,7 +452,7 @@ describe('helpers', () => {
 
     describe('buildMoveToPositionDays', () => {
       const drawnDays = new Set([finnishDayOf(day)])
-      const otherDay = parseISO('2023-01-02T12:00:00Z')
+      const otherDay: DayKey = '2023-01-02'
       const groups: RegistrationGroup[] = [
         { date: day, key: groupKey, number: 1, time: 'ap' },
         { date: otherDay, key: '2023-01-02-ap', number: 2, time: 'ap' },
@@ -486,8 +487,8 @@ describe('helpers', () => {
 
   describe('buildMoveToPositionOptions', () => {
     const mockGroups: RegistrationGroup[] = [
-      { date: parseISO('2023-01-01T12:00:00Z'), key: 'group1', number: 1, time: 'ap' },
-      { date: parseISO('2023-01-02T12:00:00Z'), key: 'group2', number: 2, time: 'ip' },
+      { date: '2023-01-01', key: 'group1', number: 1, time: 'ap' },
+      { date: '2023-01-02', key: 'group2', number: 2, time: 'ip' },
     ]
 
     it('should return position 1 when no registration is selected', () => {
@@ -498,7 +499,7 @@ describe('helpers', () => {
 
     it('should include one more than the last participant position for reserve moves', () => {
       const selectedRegistration = {
-        dates: [{ date: parseISO('2023-01-01T12:00:00Z'), time: 'ap' }],
+        dates: [{ date: '2023-01-01', time: 'ap' }],
         group: { key: GROUP_KEY_RESERVE, number: 1 },
       } as Partial<Registration> as Registration
       const registrationsByGroup: Record<string, RegistrationWithGroups[]> = {
@@ -516,8 +517,8 @@ describe('helpers', () => {
     it('should include participant positions from all dates allowed by a reserve registration', () => {
       const selectedRegistration = {
         dates: [
-          { date: parseISO('2023-01-01T12:00:00Z'), time: 'ap' },
-          { date: parseISO('2023-01-02T12:00:00Z'), time: 'ip' },
+          { date: '2023-01-01', time: 'ap' },
+          { date: '2023-01-02', time: 'ip' },
         ],
         group: { key: GROUP_KEY_RESERVE, number: 1 },
       } as Partial<Registration> as Registration
@@ -533,7 +534,7 @@ describe('helpers', () => {
 
     it('should offer position 1 for reserve moves when there are no participants', () => {
       const selectedRegistration = {
-        dates: [{ date: parseISO('2023-01-01T12:00:00Z'), time: 'ap' }],
+        dates: [{ date: '2023-01-01', time: 'ap' }],
         group: { key: GROUP_KEY_RESERVE, number: 1 },
       } as Partial<Registration> as Registration
 
@@ -544,7 +545,7 @@ describe('helpers', () => {
 
     it('should return allowed participant positions except the current position', () => {
       const selectedRegistration = {
-        dates: [{ date: parseISO('2023-01-01T12:00:00Z'), time: 'ap' }],
+        dates: [{ date: '2023-01-01', time: 'ap' }],
         group: { key: 'group1', number: 2 },
       } as Partial<Registration> as Registration
       const registrationsByGroup: Record<string, RegistrationWithGroups[]> = {
@@ -564,13 +565,13 @@ describe('helpers', () => {
 
   describe('findMoveToPositionTargetGroup', () => {
     const mockGroups: RegistrationGroup[] = [
-      { date: parseISO('2023-01-01T12:00:00Z'), key: 'group1', number: 1, time: 'ap' },
-      { date: parseISO('2023-01-02T12:00:00Z'), key: 'group2', number: 2, time: 'ip' },
+      { date: '2023-01-01', key: 'group1', number: 1, time: 'ap' },
+      { date: '2023-01-02', key: 'group2', number: 2, time: 'ip' },
     ]
     const selectedRegistration = {
       dates: [
-        { date: parseISO('2023-01-01T12:00:00Z'), time: 'ap' },
-        { date: parseISO('2023-01-02T12:00:00Z'), time: 'ip' },
+        { date: '2023-01-01', time: 'ap' },
+        { date: '2023-01-02', time: 'ip' },
       ],
       group: { key: GROUP_KEY_RESERVE, number: 1 },
     } as Partial<Registration> as Registration
@@ -624,7 +625,7 @@ describe('helpers', () => {
   })
 
   describe('a start stored with the UTC day key (KOE-1541)', () => {
-    const date = new Date('2026-08-14T21:00:00.000Z') // 15.8. 00:00 in Helsinki
+    const date: DayKey = '2026-08-15' // its start, 2026-08-14T21:00Z, is the UTC day 14.8.
     const groups: RegistrationGroup[] = [{ date, key: '2026-08-15-ap', number: 0, time: 'ap' }]
     const start = (id: string, number: number): Registration => ({
       ...registrationWithStaticDates,
@@ -652,16 +653,16 @@ describe('helpers', () => {
 
   describe('buildMoveToPositionGroupChange', () => {
     const mockGroups: RegistrationGroup[] = [
-      { date: parseISO('2023-01-01T12:00:00Z'), key: 'group1', number: 1, time: 'ap' },
-      { date: parseISO('2023-01-02T12:00:00Z'), key: 'group2', number: 2, time: 'ip' },
+      { date: '2023-01-01', key: 'group1', number: 1, time: 'ap' },
+      { date: '2023-01-02', key: 'group2', number: 2, time: 'ip' },
     ]
     const registrationsByGroup: Record<string, RegistrationWithGroups[]> = {
       group1: [{ group: { key: 'group1', number: 1 } } as RegistrationWithGroups],
       group2: [{ group: { key: 'group2', number: 3 } } as RegistrationWithGroups],
     }
     const allowedDates = [
-      { date: parseISO('2023-01-01T12:00:00Z'), time: 'ap' },
-      { date: parseISO('2023-01-02T12:00:00Z'), time: 'ip' },
+      { date: '2023-01-01', time: 'ap' },
+      { date: '2023-01-02', time: 'ip' },
     ]
 
     it('should build a participant move change using the selected position target group', () => {
@@ -749,8 +750,8 @@ describe('helpers', () => {
 
   describe('buildMoveToGroupChange', () => {
     const mockGroups: RegistrationGroup[] = [
-      { date: parseISO('2023-01-01T12:00:00Z'), key: 'group1', number: 1, time: 'ap' },
-      { date: parseISO('2023-01-02T12:00:00Z'), key: 'group2', number: 2, time: 'ip' },
+      { date: '2023-01-01', key: 'group1', number: 1, time: 'ap' },
+      { date: '2023-01-02', key: 'group2', number: 2, time: 'ip' },
     ]
 
     it('should move to the end of a non-empty target group', () => {
@@ -822,8 +823,8 @@ describe('helpers', () => {
 
   describe('buildSelectedAdditionalCostsByGroup', () => {
     const mockGroups: RegistrationGroup[] = [
-      { date: parseISO('2023-01-01T12:00:00Z'), key: 'group1', number: 1, time: 'ap' },
-      { date: parseISO('2023-01-02T12:00:00Z'), key: 'group2', number: 2, time: 'ip' },
+      { date: '2023-01-01', key: 'group1', number: 1, time: 'ap' },
+      { date: '2023-01-02', key: 'group2', number: 2, time: 'ip' },
     ]
 
     const mockCosts: CustomCost[] = [
@@ -941,8 +942,8 @@ describe('helpers', () => {
 
   describe('buildSelectedAdditionalCostsTotal', () => {
     const mockGroups: RegistrationGroup[] = [
-      { date: parseISO('2023-01-01T12:00:00Z'), key: 'group1', number: 1, time: 'ap' },
-      { date: parseISO('2023-01-02T12:00:00Z'), key: 'group2', number: 2, time: 'ip' },
+      { date: '2023-01-01', key: 'group1', number: 1, time: 'ap' },
+      { date: '2023-01-02', key: 'group2', number: 2, time: 'ip' },
     ]
 
     const mockCosts: CustomCost[] = [

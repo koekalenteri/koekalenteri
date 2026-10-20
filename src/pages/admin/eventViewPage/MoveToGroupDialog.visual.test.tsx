@@ -1,6 +1,5 @@
-import type { Registration, RegistrationGroup } from '@/types'
+import type { DayKey, Registration, RegistrationGroup } from '@/types'
 import { ThemeProvider } from '@mui/material/styles'
-import { parseISO } from 'date-fns'
 import { render } from 'vitest-browser-react'
 import { eventWithStaticDatesAnd3Classes } from '@/__mockData__/events'
 import { registrationWithStaticDates } from '@/__mockData__/registrations'
@@ -9,8 +8,8 @@ import MoveToGroupDialog from './MoveToGroupDialog'
 
 const noop = async () => undefined
 
-const saturday = parseISO('2026-09-19T09:00:00Z')
-const sunday = parseISO('2026-09-20T09:00:00Z')
+const saturday: DayKey = '2026-09-19'
+const sunday: DayKey = '2026-09-20'
 
 // The days a secretary chooses between when raising a dog off the reserve list (KOE-289). The dog
 // is entered for both mornings but not the Sunday afternoon, which the dialog offers greyed out.

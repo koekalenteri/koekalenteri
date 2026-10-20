@@ -1,5 +1,5 @@
 import type { UserEvent } from '@testing-library/user-event/dist/types/setup/setup'
-import type { Registration } from '@/types'
+import type { ConfirmedEvent, Registration } from '@/types'
 import { screen, within } from '@testing-library/react'
 import { Provider } from 'jotai'
 import { eventWithStaticDates, eventWithStaticDatesAndClass } from '@/__mockData__/events'
@@ -15,13 +15,13 @@ vi.mock('../../state', async (importOriginal) => ({
   useOpenEventViewDialog: () => mockOpenDialog,
 }))
 
-const activeEventWithStaticDates = {
+const activeEventWithStaticDates: ConfirmedEvent = {
   ...eventWithStaticDates,
-  endDate: new Date('2099-12-31'),
+  endDate: '2099-12-31',
 }
-const _activeEventWithStaticDatesAndClass = {
+const _activeEventWithStaticDatesAndClass: ConfirmedEvent = {
   ...eventWithStaticDatesAndClass,
-  endDate: new Date('2099-12-31'),
+  endDate: '2099-12-31',
 }
 
 // Mock the API calls

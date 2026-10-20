@@ -1,11 +1,10 @@
+import type { DayKey } from '@/types'
 import type { StartNumberDog } from './StartNumbersEntry'
-import { TZDate } from '@date-fns/tz'
 import { ThemeProvider } from '@mui/material/styles'
 import Typography from '@mui/material/Typography'
 import { createMemoryRouter, RouterProvider } from 'react-router'
 import { render } from 'vitest-browser-react'
 import theme from '@/assets/Theme'
-import { TIME_ZONE } from '@/lib/day'
 import { describeInLanguage } from '@/test-utils/language'
 import { ClassLinksTab } from './ClassLinksTab'
 import { StartNumbersEntry } from './StartNumbersEntry'
@@ -28,7 +27,7 @@ const renderSheet = (children: React.ReactNode) =>
   render(<RouterProvider router={createMemoryRouter([{ element: <Frame>{children}</Frame>, path: '/' }])} />)
 
 // Pinned so the day labels stay still whenever this runs.
-const DAY = new TZDate(2026, 8, 12, TIME_ZONE)
+const DAY: DayKey = '2026-09-12'
 
 const dog = (id: string, eventClass: string, number: number, name: string): StartNumberDog => ({
   class: eventClass,

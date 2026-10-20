@@ -4,7 +4,7 @@ import { emptyEvent } from '../__mockData__/emptyEvent'
 import { isEntryClosing, isEntryOpen, isEntryUpcoming } from '../lib/event'
 import { API_BASE_URL } from '../routeConfig'
 import fetchMock from '../test-utils/fetchMock'
-import { endOfFinnishDay, finnishDayOf, startOfFinnishDay } from '../test-utils/finnishDays'
+import { endOfFinnishDay, startOfFinnishDay } from '../test-utils/finnishDays'
 import { describeInTimeZone } from '../test-utils/timeZone'
 import {
   copyEventWithRegistrations,
@@ -165,6 +165,43 @@ test('getAdminEvent reads the published-days lists as the day keys they are (KOE
   })
 })
 
+// KOE-1547: the event a secretary opens and saves goes back with its days as keys, the day the migration
+// writes for each, also for a row not yet migrated that holds them an hour off.
+for (const zone of ['Europe/Helsinki', 'America/New_York']) {
+  describeInTimeZone(zone, () => {
+    test('putEvent sends back the days of an event it read as day keys', async () => {
+      fetchMock.mockResponseOnce(
+        JSON.stringify({
+          ...emptyEvent,
+          classes: [{ class: 'ALO', date: '2026-11-06T21:00:00.000Z' }],
+          dates: [{ date: '2026-11-07', time: 'ap' }],
+          endDate: '2026-11-08',
+          entryEndDate: '2026-09-27T21:59:59.999Z',
+          entryStartDate: '2026-09-01',
+          id: 'TestEventID',
+          startDate: '2026-11-06T21:00:00.000Z',
+        })
+      )
+      const event = await getAdminEvent('TestEventID', 'token')
+      fetchMock.mockResponseOnce(JSON.stringify({ ...emptyEvent, id: 'TestEventID' }))
+
+      await putEvent(event, 'token')
+
+      const sent = (text: string) =>
+        expect(fetchMock).toHaveBeenLastCalledWith(
+          `${API_BASE_URL}/admin/event/`,
+          expect.objectContaining({ body: expect.stringContaining(text) })
+        )
+      sent('"classes":[{"class":"ALO","date":"2026-11-07"}]')
+      sent('"dates":[{"date":"2026-11-07","time":"ap"}]')
+      sent('"endDate":"2026-11-08"')
+      sent('"entryEndDate":"2026-09-27"')
+      sent('"entryStartDate":"2026-09-01"')
+      sent('"startDate":"2026-11-07"')
+    })
+  })
+}
+
 test('getAdminEvents sends the incremental cursor', async () => {
   fetchMock.mockResponseOnce(JSON.stringify([]))
 
@@ -237,22 +274,16 @@ describeInTimeZone('Asia/Tokyo', () => {
     const response = await searchEventKcIdChoices(request)
     expect(fetchMock.mock.calls).toHaveLength(1)
     expect(fetchMock.mock.calls[0][0]).toEqual(`${API_BASE_URL}/admin/event/kcId/choices`)
-    expect(JSON.parse(fetchMock.mock.calls[0][1]?.body as string)).toEqual({
-      ...request,
-      classes: request.classes.map((c) => ({ ...c, date: c.date.toISOString() })),
-      endDate: emptyEvent.endDate.toISOString(),
-      startDate: emptyEvent.startDate.toISOString(),
-    })
+    // The days go as the keys the model holds (KOE-1547).
+    expect(JSON.parse(fetchMock.mock.calls[0][1]?.body as string)).toEqual(request)
     expect(response.choices[0]?.kcGuid).toEqual('guid-123')
     expect(response.choices[1]?.kcGuid).toBeNull()
-    expect(response.choices[0]?.startDate).toBeInstanceOf(Date)
-    expect(response.choices[0]?.endDate).toBeInstanceOf(Date)
-    expect(finnishDayOf(response.choices[0]!.startDate)).toEqual('2026-07-01')
-    expect(finnishDayOf(response.choices[0]!.endDate)).toEqual('2026-07-02')
-    expect(finnishDayOf(response.choices[1]!.startDate)).toEqual('2026-06-28')
-    expect(finnishDayOf(response.choices[1]!.endDate)).toEqual('2026-06-28')
-    expect(finnishDayOf(response.choices[1]!.entryStartDate!)).toEqual('2026-05-17')
-    expect(finnishDayOf(response.choices[1]!.entryEndDate!)).toEqual('2026-06-07')
+    expect(response.choices[0]?.startDate).toBe('2026-07-01')
+    expect(response.choices[0]?.endDate).toBe('2026-07-02')
+    expect(response.choices[1]?.startDate).toBe('2026-06-28')
+    expect(response.choices[1]?.endDate).toBe('2026-06-28')
+    expect(response.choices[1]?.entryStartDate).toBe('2026-05-17')
+    expect(response.choices[1]?.entryEndDate).toBe('2026-06-07')
     expect(response.choices[1]).toEqual(
       expect.objectContaining({
         contactInfo: { secretary: { email: 'nome.maija@gmail.com', name: 'Parviainen Niina' } },
@@ -288,15 +319,14 @@ test('putResultsPublished names one day of one class (KOE-1510)', async () => {
 })
 
 /**
- * Using startOfFinnishDay / endOfFinnishDay here, because new Date() for a date without time defaults to midnight in GMT.
- * new Date() could also be inconsistent between browsers.
- * We want midnight in Europe/Helsinki timezone.
+ * The entry days are day keys (KOE-1547); the clock is set to moments of Finnish days with
+ * startOfFinnishDay / endOfFinnishDay, since new Date() of a bare day is midnight in UTC.
  */
 
 const event: DogEvent = {
   ...emptyEvent,
-  entryEndDate: endOfFinnishDay('2021-01-13'),
-  entryStartDate: startOfFinnishDay('2021-01-02'),
+  entryEndDate: '2021-01-13',
+  entryStartDate: '2021-01-02',
 }
 
 test.each([

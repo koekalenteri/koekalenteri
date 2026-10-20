@@ -533,7 +533,7 @@ describe('useWebSocket', () => {
         {
           class: 'ALO',
           dog: { name: 'Aapo', regNo: 'REG1' },
-          group: { date: new Date('2026-09-11T21:00:00.000Z'), key: 'ALO', number: 1 },
+          group: { date: '2026-09-12', key: 'ALO', number: 1 },
         },
       ],
       200,
@@ -811,14 +811,14 @@ describe('useWebSocket', () => {
   })
 
   it('should update admin events from scoped admin event patch messages', async () => {
-    const event = {
+    const event: Partial<DogEvent> = {
       classes: [],
-      endDate: new Date('2026-01-02'),
+      endDate: '2026-01-02',
       eventType: 'NOME-B',
       id: 'event-1',
       judges: [{ id: 1, name: 'Old Judge', official: true }],
       organizer: { id: 'org-1', name: 'Organizer' },
-      startDate: new Date('2026-01-01'),
+      startDate: '2026-01-01',
     }
     const wrapper = function Wrapper({ children }: { readonly children: ReactNode }) {
       return createElement(Provider, {
@@ -856,15 +856,15 @@ describe('useWebSocket', () => {
     })
   })
 
-  it('makes the named date fields of an admin event patch Dates and leaves a text that looks like a day alone (KOE-1546)', async () => {
-    const event = {
+  it('reads the days of an admin event patch as day keys and leaves a text that looks like a day alone (KOE-1546, KOE-1547)', async () => {
+    const event: Partial<DogEvent> = {
       classes: [],
-      endDate: new Date('2026-01-02'),
+      endDate: '2026-01-02',
       eventType: 'NOME-B',
       id: 'event-1',
       judges: [],
       organizer: { id: 'org-1', name: 'Organizer' },
-      startDate: new Date('2026-01-01'),
+      startDate: '2026-01-01',
     }
     const wrapper = function Wrapper({ children }: { readonly children: ReactNode }) {
       return createElement(Provider, {
@@ -899,8 +899,9 @@ describe('useWebSocket', () => {
 
     await waitFor(() => {
       const updated = result.current[0]
-      expect(updated?.startDate).toEqual(new Date('2026-03-09T22:00:00.000Z'))
-      expect(updated?.endDate).toEqual(new Date('2026-03-14T22:00:00.000Z'))
+      // A row not yet migrated sends its Finnish midnights; the model holds their days.
+      expect(updated?.startDate).toBe('2026-03-10')
+      expect(updated?.endDate).toBe('2026-03-15')
       expect(updated?.description).toBe('2024-05-01')
       expect(updated?.startNumbersPublished).toEqual({ ALO: ['2026-03-10'] })
     })
@@ -942,6 +943,53 @@ describe('useWebSocket', () => {
         expect.objectContaining({ eventType: 'NOME-A', id: 'event-2', organizer: { id: 'org-1', name: 'Organizer' } })
       )
     })
+  })
+
+  // An admin patch of an event the public calendar does not hold yet is inserted there only whole, its
+  // days the keys they are (KOE-1547): a day missing or unreadable keeps it out.
+  it.each([
+    ['both days', { endDate: '2026-03-15', startDate: '2026-03-14' }, 1],
+    ['no start', { endDate: '2026-03-15' }, 0],
+    ['an unreadable start', { endDate: '2026-03-15', startDate: 'garbage' }, 0],
+    ['no end', { startDate: '2026-03-14' }, 0],
+    ['an unreadable end', { endDate: 'garbage', startDate: '2026-03-14' }, 0],
+  ])('inserts a new event into the public calendar from an admin patch with %s: %s', async (_label, days, count) => {
+    const wrapper = function Wrapper({ children }: { readonly children: ReactNode }) {
+      return createElement(Provider, {
+        children,
+        initializeState: ({ set }: TestStore) => {
+          set(idTokenAtom, 'id-token')
+          set(adminEventsAtom, [])
+          set(eventsAtom, [])
+        },
+      })
+    }
+    const { result } = renderHook(
+      () => {
+        useWebSocket()
+        return { admin: useAtomValue(adminEventsAtom), events: useAtomValue(eventsAtom) }
+      },
+      { wrapper }
+    )
+
+    act(() => {
+      mockWebSocketInstance.onmessage?.({
+        data: JSON.stringify({
+          classes: [],
+          eventId: 'event-2',
+          eventType: 'NOME-A',
+          judges: [],
+          location: 'Somewhere',
+          organizer: { id: 'org-1', name: 'Organizer' },
+          scope: 'admin:event-patch',
+          state: 'confirmed',
+          ...days,
+        }),
+      })
+    })
+
+    await waitFor(() => expect(result.current.admin).toHaveLength(1))
+    expect(result.current.events).toHaveLength(count)
   })
 
   it('drops an admin event patch when the admin event list failed to load', async () => {
@@ -1009,7 +1057,7 @@ describe('useWebSocket', () => {
 
     await waitFor(() => {
       expect(result.current.events[0]?.entries).toBe(2)
-      expect(result.current.events[0]?.startDate).toEqual(new Date('2026-03-09T22:00:00.000Z'))
+      expect(result.current.events[0]?.startDate).toBe('2026-03-10')
       expect(result.current.recentlyUpdated['public:event:event-1']).toEqual(expect.any(Number))
     })
   })

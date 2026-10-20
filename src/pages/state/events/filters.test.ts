@@ -1,7 +1,7 @@
-import type { PublicDogEvent } from '@/types'
+import type { DayKey, PublicDogEvent } from '@/types'
 import { eventWithStaticDates } from '@/__mockData__/events'
 import { addDays } from '@/lib/day'
-import { endOfFinnishDay, startOfFinnishDay } from '@/test-utils/finnishDays'
+import { endOfFinnishDay, legacyDayValue, startOfFinnishDay } from '@/test-utils/finnishDays'
 import { deserializeFilter, serializeFilter, withinDateFilters, withinResultsFilter } from './filters'
 
 describe('state.events.filters', () => {
@@ -100,22 +100,26 @@ describe('state.events.filters', () => {
   })
 
   describe('withinDateFilters', () => {
-    const day = '2026-10-17'
+    const day: DayKey = '2026-10-17'
 
     it('leaves out an event whose stored date has no calendar day, instead of failing the list', () => {
-      const yearOne = new Date('0001-01-01T00:00:00')
-      const stored = startOfFinnishDay(day)
+      const yearOne = legacyDayValue('0001-01-01T00:00:00')
       expect(withinDateFilters({ endDate: yearOne, startDate: yearOne }, { end: null, start: day })).toBe(false)
-      expect(withinDateFilters({ endDate: stored, startDate: new Date(Number.NaN) }, { end: day, start: null })).toBe(
-        false
-      )
+      expect(
+        withinDateFilters({ endDate: day, startDate: legacyDayValue('not a day') }, { end: day, start: null })
+      ).toBe(false)
     })
 
-    // A stored date is any moment of its Finnish day; the filter's days include both ends.
+    // A row not yet migrated holds any moment of its Finnish day (KOE-1547); a key is the day itself.
+    // The filter's days include both ends.
     const moments = [
-      { moment: startOfFinnishDay(day), name: 'start of day' },
-      { moment: new Date(startOfFinnishDay(day).getTime() + 12 * 3_600_000), name: 'noon' },
-      { moment: endOfFinnishDay(day), name: 'end of day' },
+      { moment: day, name: 'the day key' },
+      { moment: legacyDayValue(startOfFinnishDay(day).toISOString()), name: 'start of day' },
+      {
+        moment: legacyDayValue(new Date(startOfFinnishDay(day).getTime() + 12 * 3_600_000).toISOString()),
+        name: 'noon',
+      },
+      { moment: legacyDayValue(endOfFinnishDay(day).toISOString()), name: 'end of day' },
     ]
 
     it.each(moments)('keeps an event that ends at $name on the first day of the filter', ({ moment: endDate }) => {

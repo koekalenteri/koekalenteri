@@ -1,4 +1,3 @@
-import { TZDate } from '@date-fns/tz'
 import { ThemeProvider } from '@mui/material/styles'
 import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
@@ -6,7 +5,6 @@ import i18next from 'i18next'
 import { render } from 'vitest-browser-react'
 import theme from '@/assets/Theme'
 import { locales } from '@/i18n'
-import { TIME_ZONE } from '@/lib/day'
 import { idTokenAtom } from '@/pages/state'
 import { TestProvider } from '@/test-utils/AtomProvider'
 import BasicInfoSection from './BasicInfoSection'
@@ -30,13 +28,13 @@ it('shows a name field per language, Finnish first (KOE-1263)', async () => {
   const event = {
     classes: [],
     description: '',
-    endDate: new TZDate('2026-06-02', TIME_ZONE),
+    endDate: '2026-06-02' as const,
     id: 'test',
     judges: [],
     name: 'Kevätkoe',
     names: { en: 'Spring trial' },
     organizer,
-    startDate: new TZDate('2026-06-01', TIME_ZONE),
+    startDate: '2026-06-01' as const,
   }
 
   const screen = await render(
@@ -59,13 +57,13 @@ it('lets a B-trial choose between game and dummies (KOE-439)', async () => {
   const event = {
     classes: [],
     description: '',
-    endDate: new TZDate('2026-06-02', TIME_ZONE),
+    endDate: '2026-06-02' as const,
     eventType: 'NOME-B',
     id: 'test',
     judges: [],
     name: 'Kevätkoe',
     retrieveType: 'game' as const,
-    startDate: new TZDate('2026-06-01', TIME_ZONE),
+    startDate: '2026-06-01' as const,
   }
 
   const screen = await render(
@@ -88,14 +86,14 @@ it('asks a B-trial without the choice to make it (KOE-1570)', async () => {
   const event = {
     classes: [],
     description: '',
-    endDate: new TZDate('2026-06-02', TIME_ZONE),
+    endDate: '2026-06-02' as const,
     eventType: 'NOME-B',
     id: 'test',
     judges: [],
     name: 'Kevätkoe',
     organizer,
     secretary,
-    startDate: new TZDate('2026-06-01', TIME_ZONE),
+    startDate: '2026-06-01' as const,
     state: 'draft' as const,
   }
   // The form's own validation, translated as EventForm translates it.
@@ -129,17 +127,17 @@ it('asks a B-trial without the choice to make it (KOE-1570)', async () => {
 it('lets a NOWT say it is a Mock trial, run in AVO and VOI (KOE-308)', async () => {
   const event = {
     classes: [
-      { class: 'AVO' as const, date: new TZDate('2026-06-01', TIME_ZONE) },
-      { class: 'VOI' as const, date: new TZDate('2026-06-01', TIME_ZONE) },
+      { class: 'AVO' as const, date: '2026-06-01' as const },
+      { class: 'VOI' as const, date: '2026-06-01' as const },
     ],
     description: '',
-    endDate: new TZDate('2026-06-01', TIME_ZONE),
+    endDate: '2026-06-01' as const,
     eventType: 'NOWT',
     id: 'test',
     judges: [],
     mockTrial: true,
     name: 'Harjoituskoe',
-    startDate: new TZDate('2026-06-01', TIME_ZONE),
+    startDate: '2026-06-01' as const,
   }
 
   const screen = await render(
@@ -158,12 +156,12 @@ it('tells to choose the organizer before the secretary (KOE-1473)', async () => 
   const event = {
     classes: [],
     description: '',
-    endDate: new TZDate('2026-06-02', TIME_ZONE),
+    endDate: '2026-06-02' as const,
     eventType: 'NOU',
     id: 'test',
     judges: [],
     name: 'Kevätkoe',
-    startDate: new TZDate('2026-06-01', TIME_ZONE),
+    startDate: '2026-06-01' as const,
   }
 
   const screen = await render(

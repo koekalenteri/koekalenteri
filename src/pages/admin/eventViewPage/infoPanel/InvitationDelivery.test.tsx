@@ -1,5 +1,5 @@
 import type { UserEvent } from '@testing-library/user-event/dist/types/setup/setup'
-import type { Registration } from '@/types'
+import type { ConfirmedEvent, Registration } from '@/types'
 import { screen, waitFor } from '@testing-library/react'
 import { enqueueSnackbar } from 'notistack'
 import { TestProvider as Provider } from 'test-utils/AtomProvider'
@@ -29,13 +29,13 @@ vi.mock('../../state', async (importOriginal) => ({
   useOpenEventViewDialog: () => mockOpenDialog,
 }))
 
-const activeEventWithStaticDates = {
+const activeEventWithStaticDates: ConfirmedEvent = {
   ...eventWithStaticDates,
-  endDate: new Date('2099-12-31'),
+  endDate: '2099-12-31',
 }
-const activeEventWithStaticDatesAndClass = {
+const activeEventWithStaticDatesAndClass: ConfirmedEvent = {
   ...eventWithStaticDatesAndClass,
-  endDate: new Date('2099-12-31'),
+  endDate: '2099-12-31',
 }
 
 // Mock the API calls
@@ -80,7 +80,7 @@ describe('InfoPanel>', () => {
   it('does not show entry period guidance after the event has ended', async () => {
     const { user } = renderWithUserEvents(
       <InfoPanel
-        event={{ ...eventWithParticipantsInvited, endDate: new Date(0) }}
+        event={{ ...eventWithParticipantsInvited, endDate: '1970-01-01' }}
         registrations={registrationsToEventWithParticipantsInvited}
       />,
       { wrapper: Provider }

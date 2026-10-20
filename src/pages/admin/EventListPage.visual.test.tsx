@@ -1,5 +1,4 @@
-import type { ConfirmedEvent, Language } from '../../types'
-import { TZDate } from '@date-fns/tz'
+import type { ConfirmedEvent, DayKey, Language } from '../../types'
 import { createTheme, ThemeProvider } from '@mui/material/styles'
 import { ConfirmProvider } from 'material-ui-confirm'
 import { Suspense } from 'react'
@@ -9,7 +8,6 @@ import { render } from 'vitest-browser-react'
 import { emptyEvent } from '../../__mockData__/emptyEvent'
 import theme from '../../assets/Theme'
 import { muiLocales } from '../../i18n'
-import { TIME_ZONE } from '../../lib/day'
 import { TestProvider } from '../../test-utils/AtomProvider'
 import { freezeClockAt } from '../../test-utils/freezeClock'
 import { describeInLanguage } from '../../test-utils/language'
@@ -46,14 +44,14 @@ const localizedTheme = (language: Language) => createTheme(theme, muiLocales[lan
 // before the first trial (10.10), every row reads "entry closed", as the baselines show.
 freezeClockAt('2026-09-29')
 
-const day = (iso: string) => new TZDate(iso, TIME_ZONE)
+const day = (iso: DayKey): DayKey => iso
 
 const trial = (
   id: string,
   name: string,
   eventType: string,
-  start: string,
-  end: string,
+  start: DayKey,
+  end: DayKey,
   location: string,
   classes: string[]
 ): ConfirmedEvent => ({

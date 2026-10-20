@@ -82,9 +82,9 @@ describe('StartListPage', () => {
     costMember: 0,
     createdAt: new Date(),
     description: '',
-    endDate: new Date('2023-01-02'),
-    entryEndDate: new Date('2022-12-31'),
-    entryStartDate: new Date('2022-12-01'),
+    endDate: '2023-01-02',
+    entryEndDate: '2022-12-31',
+    entryStartDate: '2022-12-01',
     eventType: 'Test Event Type',
     id: 'event-1',
     judges: [],
@@ -93,7 +93,7 @@ describe('StartListPage', () => {
     name: 'Test Name',
     organizer: { id: 'org-1', name: 'Test Organizer' },
     places: 0,
-    startDate: new Date('2023-01-01'),
+    startDate: '2023-01-01',
     startListPublished: true,
     state: 'invited',
   }
@@ -121,7 +121,7 @@ describe('StartListPage', () => {
         titles: 'CH',
       },
       group: {
-        date: new Date('2023-01-01'),
+        date: '2023-01-01',
         key: 'group-123',
         number: 123,
         time: 'ap',
@@ -239,7 +239,7 @@ describe('StartListPage', () => {
     mockUseLoaderData.mockReturnValue({ participants: [] })
     ;(pageState.useConfirmedEvent as import('vitest').Mock).mockReturnValue({
       ...mockEvent,
-      classes: [{ class: 'AVO', date: new Date('2023-01-01') }],
+      classes: [{ class: 'AVO', date: '2023-01-01' }],
       startListPublished: { AVO: true },
     })
 
@@ -252,7 +252,7 @@ describe('StartListPage', () => {
     mockUseLoaderData.mockReturnValue({ participants: [] })
     ;(pageState.useConfirmedEvent as import('vitest').Mock).mockReturnValue({
       ...mockEvent,
-      classes: [{ class: 'AVO', date: new Date('2023-01-01') }],
+      classes: [{ class: 'AVO', date: '2023-01-01' }],
       startListPublished: { AVO: false },
     })
 
@@ -266,8 +266,8 @@ describe('StartListPage', () => {
     ;(pageState.useConfirmedEvent as import('vitest').Mock).mockReturnValue({
       ...mockEvent,
       classes: [
-        { class: 'AVO', date: new Date('2023-01-01') },
-        { class: 'VOI', date: new Date('2023-01-01') },
+        { class: 'AVO', date: '2023-01-01' },
+        { class: 'VOI', date: '2023-01-01' },
       ],
       startListPublished: { AVO: true, VOI: false },
     })
@@ -282,8 +282,8 @@ describe('StartListPage', () => {
     ;(pageState.useConfirmedEvent as import('vitest').Mock).mockReturnValue({
       ...mockEvent,
       classes: [
-        { class: 'AVO', date: new Date('2023-01-01'), state: 'invited' },
-        { class: 'VOI', date: new Date('2023-01-01'), state: 'picked' },
+        { class: 'AVO', date: '2023-01-01', state: 'invited' },
+        { class: 'VOI', date: '2023-01-01', state: 'picked' },
       ],
       startListPublished: { AVO: true, VOI: true },
       state: 'confirmed',

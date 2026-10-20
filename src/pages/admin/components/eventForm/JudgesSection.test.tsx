@@ -43,10 +43,10 @@ describe('JudgeSection', () => {
   it('should render properly with one judge selected', () => {
     const testEvent: PartialEvent = {
       classes: [],
-      endDate: new Date('2022-06-02'),
+      endDate: '2022-06-02',
       id: 'test',
       judges: [{ id: 1, name: 'Test Judge 1' }],
-      startDate: new Date('2022-06-01'),
+      startDate: '2022-06-01',
     }
     render(<JudgesSection event={testEvent} judges={JUDGES} />)
 
@@ -57,13 +57,13 @@ describe('JudgeSection', () => {
   it('should render properly with two judges selected', () => {
     const testEvent: PartialEvent = {
       classes: [],
-      endDate: new Date('2022-06-02'),
+      endDate: '2022-06-02',
       id: 'test',
       judges: [
         { id: 1, name: 'Test Judge 1' },
         { id: 2, name: 'Test Judge 2' },
       ],
-      startDate: new Date('2022-06-01'),
+      startDate: '2022-06-01',
     }
     render(<JudgesSection event={testEvent} judges={JUDGES} />)
 
@@ -75,14 +75,14 @@ describe('JudgeSection', () => {
   it('should render properly with three judges selected', () => {
     const testEvent: PartialEvent = {
       classes: [],
-      endDate: new Date('2022-06-02'),
+      endDate: '2022-06-02',
       id: 'test',
       judges: [
         { id: 1, name: 'Test Judge 1' },
         { id: 2, name: 'Test Judge 2' },
         { id: 3, name: 'Test Judge 3' },
       ],
-      startDate: new Date('2022-06-01'),
+      startDate: '2022-06-01',
     }
     render(<JudgesSection event={testEvent} judges={JUDGES} />)
 
@@ -94,10 +94,10 @@ describe('JudgeSection', () => {
   it('should not warn about judge 0 not beign available (KOE-357)', () => {
     const testEvent: PartialEvent = {
       classes: [],
-      endDate: new Date('2022-06-02'),
+      endDate: '2022-06-02',
       id: 'test',
       judges: [{ id: 0, name: '' }],
-      startDate: new Date('2022-06-01'),
+      startDate: '2022-06-01',
     }
     render(<JudgesSection event={testEvent} judges={JUDGES} />)
 
@@ -108,12 +108,12 @@ describe('JudgeSection', () => {
 
   it('should hide classes for NOWT event (KOE-317)', () => {
     const testEvent: PartialEvent = {
-      classes: [{ class: 'AVO', date: new Date('2022-06-01') }],
-      endDate: new Date('2022-06-02'),
+      classes: [{ class: 'AVO', date: '2022-06-01' }],
+      endDate: '2022-06-02',
       eventType: 'NOWT',
       id: 'test',
       judges: [{ id: 0, name: '' }],
-      startDate: new Date('2022-06-01'),
+      startDate: '2022-06-01',
     }
     render(<JudgesSection event={testEvent} judges={JUDGES} />)
 
@@ -123,18 +123,18 @@ describe('JudgeSection', () => {
   it('should fire onChange', async () => {
     let testEvent: PartialEvent = {
       classes: [
-        { class: 'ALO', date: new Date('2022-06-01') },
-        { class: 'AVO', date: new Date('2022-06-01') },
-        { class: 'VOI', date: new Date('2022-06-01') },
-        { class: 'ALO', date: new Date('2022-06-02') },
-        { class: 'AVO', date: new Date('2022-06-02') },
-        { class: 'VOI', date: new Date('2022-06-02') },
+        { class: 'ALO', date: '2022-06-01' },
+        { class: 'AVO', date: '2022-06-01' },
+        { class: 'VOI', date: '2022-06-01' },
+        { class: 'ALO', date: '2022-06-02' },
+        { class: 'AVO', date: '2022-06-02' },
+        { class: 'VOI', date: '2022-06-02' },
       ],
-      endDate: new Date('2022-06-02'),
+      endDate: '2022-06-02',
       eventType: 'NOWT',
       id: 'test',
       judges: [{ id: 1, name: 'Test Judge 1', official: true }],
-      startDate: new Date('2022-06-01'),
+      startDate: '2022-06-01',
     }
 
     // JudgesSection is memoized, so `event` must get a new object reference on every change

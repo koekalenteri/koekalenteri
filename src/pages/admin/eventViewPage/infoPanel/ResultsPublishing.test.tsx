@@ -130,8 +130,8 @@ describe('ResultsPublishing', () => {
     const twoDays: ConfirmedEvent = {
       ...classless,
       classes: [
-        { class: 'ALO', date: new Date('2021-02-10') },
-        { class: 'ALO', date: new Date('2021-02-11') },
+        { class: 'ALO', date: '2021-02-10' },
+        { class: 'ALO', date: '2021-02-11' },
       ],
       resultsPublished: { ALO: ['2021-02-10'] },
     }

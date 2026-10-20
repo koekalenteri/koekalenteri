@@ -16,7 +16,7 @@ export const EventClassPlaces = ({ event, eventClass }: { event: MinimalEvent; e
 
   const { dates, entryStatus, showPlaces } = useMemo(() => {
     const classes = event.classes.filter((c) => c.class === eventClass)
-    const dates = classes.map((c) => c.date ?? event.startDate ?? new Date())
+    const dates = classes.map((c) => c.date ?? event.startDate)
 
     const entryStatus = classes.reduce(
       (acc, c) => {

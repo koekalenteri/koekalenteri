@@ -1,6 +1,6 @@
 import type React from 'react'
 import type { ComponentProps } from 'react'
-import type { PricedDogEvent, Registration } from '@/types'
+import type { DayKey, PricedDogEvent, Registration } from '@/types'
 import { render, screen } from '@testing-library/react'
 import { withRowPaymentPicture } from '@/__mockData__/paymentPicture'
 import RegistrationTooltipContent from './RegistrationTooltipContent'
@@ -21,10 +21,11 @@ vi.mock('@/pages/components/IconsTooltip', () => ({
 describe('RegistrationTooltipContent', () => {
   // The tooltip reads only a few fields, the fee among them for the payment picture (KOE-1552); the
   // minimal fixtures convert at these boundaries.
+  const entryStartDate: DayKey = '2026-01-01'
   const mockEvent = {
     cost: 40,
     costMember: 40,
-    entryStartDate: new Date('2026-01-01'),
+    entryStartDate,
     id: 'event-1',
     name: 'Test Event',
     priority: ['member'],
@@ -189,7 +190,7 @@ describe('RegistrationTooltipContent', () => {
       ...mockEvent,
       classes: [{ class: 'ALO', state: 'invited' }],
       cost: 40,
-      entryStartDate: new Date('2026-01-01'),
+      entryStartDate: '2026-01-01',
       state: 'invited',
     } as unknown as PricedDogEvent
 
@@ -304,7 +305,7 @@ describe('RegistrationTooltipContent', () => {
       ...mockEvent,
       cost: 40,
       costMember: 35,
-      entryStartDate: new Date('2026-01-01'),
+      entryStartDate: '2026-01-01',
       state: 'confirmed',
     } as PricedDogEvent
     const paid = (paidAmount: number, membership: boolean) =>

@@ -1,12 +1,13 @@
 import type { RuleDate } from '../rules'
+import type { DayKey } from './Day'
 import type { Dog, TestResult } from './Dog'
 import type { ManualTestResult, QualifyingResults } from './Registration'
 
 export type EventResultRequirementFn = (
   officialResults: TestResult[],
   manualResults: ManualTestResult[],
-  entryEndDate: Date | undefined,
-  qualificationStartDate: Date | undefined
+  entryEndDate: DayKey | undefined,
+  qualificationStartDate: DayKey | undefined
 ) => QualifyingResults
 
 export type EventResultRequirement = Partial<TestResult> & { count: number; excludeCurrentYear?: boolean }

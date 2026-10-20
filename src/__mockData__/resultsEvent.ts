@@ -1,9 +1,8 @@
-import type { ConfirmedEvent, Registration } from '../types'
-import { dayStart, TIME_ZONE } from '../lib/day'
+import type { ConfirmedEvent, DayKey, Registration } from '../types'
 import { emptyEvent } from './emptyEvent'
 import { registrationWithStaticDates } from './registrations'
 
-export const RESULTS_EVENT_DAY = dayStart('2021-02-10', TIME_ZONE)
+export const RESULTS_EVENT_DAY: DayKey = '2021-02-10'
 
 /**
  * A working test with a course to score against: two posts, one splitting its 20 points into two
@@ -16,8 +15,8 @@ export const eventWithStations: ConfirmedEvent = {
     { class: 'AVO', date: RESULTS_EVENT_DAY },
   ],
   endDate: RESULTS_EVENT_DAY,
-  entryEndDate: dayStart('2021-02-07', TIME_ZONE),
-  entryStartDate: dayStart('2021-02-01', TIME_ZONE),
+  entryEndDate: '2021-02-07',
+  entryStartDate: '2021-02-01',
   eventType: 'NOWT',
   id: 'test-results',
   judges: [{ id: 223, name: 'Tuomari 2' }],

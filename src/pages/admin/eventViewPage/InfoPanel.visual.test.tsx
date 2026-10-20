@@ -1,6 +1,5 @@
-import type { ConfirmedEvent, Registration } from '@/types'
+import type { ConfirmedEvent, DayKey, Registration } from '@/types'
 import { ThemeProvider } from '@mui/material/styles'
-import { parseISO } from 'date-fns'
 import { ConfirmProvider } from 'material-ui-confirm'
 import { MemoryRouter } from 'react-router'
 import { page } from 'vitest/browser'
@@ -8,7 +7,6 @@ import { render } from 'vitest-browser-react'
 import { eventWithStations, registrationsToEventWithStations } from '@/__mockData__/resultsEvent'
 import theme from '@/assets/Theme'
 import { TestProvider } from '@/test-utils/AtomProvider'
-import { startOfFinnishDay } from '@/test-utils/finnishDays'
 import { describeInLanguage } from '@/test-utils/language'
 import { TEST_ID_TOKEN } from '@/test-utils/utils'
 import { idTokenAtom } from '../../state'
@@ -19,7 +17,7 @@ import InfoPanel from './InfoPanel'
 // section's capture never can (KOE-1356).
 
 // A far-future trial day keeps the entry closed and the trial still ahead no matter when this runs.
-const EVENT_DAY = startOfFinnishDay(parseISO('2099-06-05T12:00:00Z'))
+const EVENT_DAY: DayKey = '2099-06-05'
 
 // Entry is over (the fixture's entry dates are in the past) and the places are picked: the busiest
 // the panel gets, with every step live rather than greyed out.

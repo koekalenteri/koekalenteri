@@ -51,7 +51,7 @@ test('putEmailTemplate answers with the template as stored', async () => {
   )
 })
 
-test('sendTemplatedEmail answers with the classes and the registrations as stored, their dates Dates', async () => {
+test('sendTemplatedEmail answers with the classes and the registrations as stored, their days keys and their moments Dates', async () => {
   fetchMock.mockResponseOnce(
     JSON.stringify({
       classes: [{ class: 'ALO', date: '2026-09-11T21:00:00.000Z', state: 'invited' }],
@@ -80,10 +80,10 @@ test('sendTemplatedEmail answers with the classes and the registrations as store
     `${API_BASE_URL}/admin/email-send`,
     expect.objectContaining({ method: 'POST' })
   )
-  expect(response.classes).toEqual([{ class: 'ALO', date: new Date('2026-09-11T21:00:00.000Z'), state: 'invited' }])
+  expect(response.classes).toEqual([{ class: 'ALO', date: '2026-09-12', state: 'invited' }])
   expect(response.registrations).toEqual([
     {
-      dates: [{ date: new Date('2026-09-11T21:00:00.000Z'), time: 'ap' }],
+      dates: [{ date: '2026-09-12', time: 'ap' }],
       id: 'r1',
       lastEmail: { context: '', sentAt: new Date('2026-09-01T08:00:00.000Z'), template: 'invitation' },
       modifiedAt: new Date('2026-09-01T08:00:00.000Z'),

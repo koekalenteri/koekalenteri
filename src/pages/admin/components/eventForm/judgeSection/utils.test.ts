@@ -1,4 +1,4 @@
-import type { EventClass, EventType, Judge, PublicJudge } from '@/types'
+import type { DayKey, EventClass, EventType, Judge, PublicJudge } from '@/types'
 import type { PartialEvent } from '../types'
 import { filterClassesByJudgeId, filterJudges, hasJudge, updateJudge } from './utils'
 
@@ -8,7 +8,7 @@ describe('judgeSection utils', () => {
   const judge2: PublicJudge = { id: 2, name: 'Judge Two', official: true }
   const judge3: PublicJudge = { id: 3, name: 'Judge Three', official: true }
 
-  const startDate = new Date('2023-01-01')
+  const startDate: DayKey = '2023-01-01'
   const class1: EventClass = { class: 'ALO', date: startDate }
   const class2: EventClass = { class: 'AVO', date: startDate }
   const class3: EventClass = { class: 'VOI', date: startDate }
@@ -30,11 +30,11 @@ describe('judgeSection utils', () => {
     const bTrialJudge = judge(3, ['NOME-B'])
     const directory = [aTrialJudge, nowtJudge, bTrialJudge]
     const eventType = (type: string, official: boolean): EventType => ({
-      createdAt: startDate,
+      createdAt: new Date('2023-01-01T00:00:00Z'),
       createdBy: 'test',
       description: { en: '', fi: '', sv: '' },
       eventType: type,
-      modifiedAt: startDate,
+      modifiedAt: new Date('2023-01-01T00:00:00Z'),
       modifiedBy: 'test',
       official,
     })
