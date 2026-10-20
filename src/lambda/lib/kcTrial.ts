@@ -50,7 +50,6 @@ const sameDate = (eventDate: DayKey, klDate: string | undefined) => {
 }
 
 /**
-/**
  * A trial's last day as KL lists it, or its first day where the listing has no readable end: an empty
  * `loppu`, or the Kennel Club's empty date 0001-01-01 (not a day to `klDay`), is a one-day trial. The
  * choice the client reads and the score that ranks it both take the end from here (KOE-1577). Only
