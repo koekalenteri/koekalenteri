@@ -5,6 +5,7 @@ import { onTestFinished, vi } from 'vitest'
 import { isResultsLocked } from '../../lib/kennelliittoResults'
 import { legacyDayValue } from '../../test-utils/finnishDays'
 import { asJsonConfirmedEvent, asJsonRegistration } from '../test-utils/helpers'
+import { loggedLines } from '../test-utils/logs'
 import KLIntegraatio from './KLIntegraatio'
 import koemuotoNOME_A from './KLIntegraatio-fixtures/koemuoto-NOME-A.json'
 import koemuotoNOU from './KLIntegraatio-fixtures/koemuoto-NOU.json'
@@ -1054,6 +1055,93 @@ describe('kennelliittoResults', () => {
       })
     })
   })
+
+  describe('this app’s own writes after Kennelliitto has answered the hand-over (KOE-1582)', () => {
+    const sendAll = () => sendKennelliittoResults(ctx(), ['d1', 'd2'], { force: false })
+    const errorLines = (message: string) =>
+      loggedLines(vi.mocked(console.error)).filter((line) => line.message === message)
+
+    it.each([
+      { asetaTila: { status: 200 }, route: 'AsetaTila accepted it' },
+      {
+        asetaTila: { body: { virheet: ['Tila on jo asetettu.'] }, status: 400 },
+        route: 'Koe/Lue reads it as handed over after an unclear answer',
+      },
+    ])('answers a hand-over as handed over when the state write after it throws: $route', async ({ asetaTila }) => {
+      await sendAll()
+      const lockedAt = new Date(now).toISOString()
+      asetaTilaReply = asetaTila
+      hooks.asetaTila = () => {
+        // Kennelliitto takes the hand-over a moment after the lock, so the state written now is not the lock.
+        tila = 1253
+        now += 1000
+      }
+      mockWriteKcState.mockRejectedValueOnce(new Error('ProvisionedThroughputExceededException'))
+
+      const result = await handOverKennelliittoResults(ctx(), { withoutBlocked: false })
+
+      expect(result.handedOver).toEqual(true)
+      expect(result.refused).toBeUndefined()
+      // The lock is what the table holds, and it already says handed over: the page is told that, not a write that never landed.
+      expect(storedState).toMatchObject({ code: 1253, readAt: lockedAt })
+      expect(result.eventPatch).toEqual({ kcState: storedState, updatedAt: lockedAt })
+      expect(result.eventPatch?.updatedAt).not.toEqual(new Date(now).toISOString())
+      expect(mockAudit).toHaveBeenCalledWith(
+        expect.objectContaining({ messageKey: 'audit.messages.resultsHandedOver' })
+      )
+      expect(errorLines('kcState write failed')).toEqual([
+        expect.objectContaining({
+          error: expect.objectContaining({ message: 'ProvisionedThroughputExceededException' }),
+          eventId: 'event-1',
+        }),
+      ])
+    })
+
+    it('answers with Kennelliitto’s refusal when giving the lock back throws', async () => {
+      await sendAll()
+      asetaTilaReply = { body: { virheet: ['Tila ei kelpaa.'] }, status: 400 }
+      const lockedAt = new Date(now).toISOString()
+      mockReleaseKcState.mockRejectedValueOnce(new Error('ProvisionedThroughputExceededException'))
+
+      const result = await handOverKennelliittoResults(ctx(), { withoutBlocked: false })
+
+      expect(result.handedOver).toEqual(false)
+      expect(result.refused).toEqual({ status: 400, virheet: ['Tila ei kelpaa.'] })
+      // The lock stays, and result saves with it, until a preview after the lock window opens it.
+      expect(storedState).toMatchObject({ code: 1253, readAt: lockedAt })
+      expect(errorLines('kcState release failed')).toEqual([
+        expect.objectContaining({
+          error: expect.objectContaining({ message: 'ProvisionedThroughputExceededException' }),
+          eventId: 'event-1',
+        }),
+      ])
+    })
+
+    it('answers with the dogs that are not ready when giving the lock back throws', async () => {
+      await sendAll()
+      calls = []
+      secondRead = () => {
+        registrations[0].eventResult = {
+          ...registrations[0].eventResult,
+          result: 'NOME-A3',
+          updatedAt: 'late',
+          updatedBy: 'S',
+        }
+      }
+      readsOfRegistrations = 0
+      const lockedAt = new Date(now).toISOString()
+      mockReleaseKcState.mockRejectedValueOnce(new Error('ProvisionedThroughputExceededException'))
+
+      const result = await handOverKennelliittoResults(ctx(), { withoutBlocked: false })
+
+      expect(result.handedOver).toEqual(false)
+      expect(result.unsent?.map((dog) => dog.id)).toEqual(['d1'])
+      expect(posts()).toEqual([])
+      expect(storedState).toMatchObject({ code: 1253, readAt: lockedAt })
+      expect(errorLines('kcState release failed')).toHaveLength(1)
+    })
+  })
+
   describe('what counts as Kennelliitto taking a write', () => {
     it.each([200, 201, 204])('takes a %s from Tallenna as a result that was sent', async (status) => {
       tallennaReply['FI10001/20'] = { body: { TulosId: 9 }, status }

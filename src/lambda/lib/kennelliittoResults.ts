@@ -673,7 +673,14 @@ const takeLock = async (req: KcRequest, event: JsonConfirmedEvent) => {
   const release = async () => {
     if (!previous) return
     const at = nowOf(req).toISOString()
-    await releaseKcState(event.id, { ...previous, readAt: at }, handed.readAt, at)
+    // Giving the lock back follows an answer that is the request's: Kennelliitto's refusal, or the dogs that
+    // are not ready. A thrown write must not turn that answer into a 500. The lock then stays stored, and
+    // result saves stay refused, until a preview after the lock window opens it (KOE-1582).
+    try {
+      await releaseKcState(event.id, { ...previous, readAt: at }, handed.readAt, at)
+    } catch (error) {
+      logger.error('kcState release failed', { error, eventId: event.id })
+    }
   }
   return { handed, release }
 }
@@ -687,11 +694,24 @@ const takeLock = async (req: KcRequest, event: JsonConfirmedEvent) => {
  * read the trial as open just before the hand-over cannot put 754 back over it. A judge who returns the trial
  * within that time is seen at the next read after it.
  */
-const confirmHandOver = async (req: KcRequest, event: JsonConfirmedEvent): Promise<KcHandOverResult> => {
+const confirmHandOver = async (
+  req: KcRequest,
+  event: JsonConfirmedEvent,
+  handed: JsonKcState
+): Promise<KcHandOverResult> => {
   const confirmed = toState(KC_STATE_HANDED_OVER, HANDED_OVER_NAME, nowOf(req))
-  await writeKcState(event.id, confirmed, confirmed.readAt)
+  // Kennelliitto has taken the hand-over, and that is the answer: a thrown write here would turn it into a 500
+  // and tell the secretary the trial is not with the judge when it is. The lock is still stored and already
+  // says handed over, so the pages are told the lock, the row as it stands (KOE-1582).
+  let eventPatch: Patch<JsonDogEvent> = { kcState: confirmed, updatedAt: confirmed.readAt }
+  try {
+    await writeKcState(event.id, confirmed, confirmed.readAt)
+  } catch (error) {
+    logger.error('kcState write failed', { error, eventId: event.id })
+    eventPatch = { kcState: handed, updatedAt: handed.readAt }
+  }
   await audit({ auditKey: eventAuditKey(event), ...resultsHandedOverAudit(), user: req.userName })
-  return { blockers: [], eventPatch: { kcState: confirmed, updatedAt: confirmed.readAt }, handedOver: true }
+  return { blockers: [], eventPatch, handedOver: true }
 }
 
 /**
@@ -708,7 +728,7 @@ const settleUncertain = async (
   call: { status: number; virheet?: string[] }
 ): Promise<KcHandOverResult> => {
   const read = await klintOf(req).lueKoe({ koeGuid: kcGuid }, { signal: req.signal })
-  if (read.status === 200 && read.json?.tila === KC_STATE_HANDED_OVER) return confirmHandOver(req, event)
+  if (read.status === 200 && read.json?.tila === KC_STATE_HANDED_OVER) return confirmHandOver(req, event, lock.handed)
   if (read.status === 200 && read.json) await lock.release()
   return { blockers: [], handedOver: false, ...refusedBy(call) }
 }
@@ -747,7 +767,7 @@ export const handOverKennelliittoResults = async (
   }
 
   const call = await klintOf(req).asetaTila({ koeGUID: kcGuid, tila: KC_STATE_HANDED_OVER }, { signal: req.signal })
-  if (isKlAccepted(call.status)) return confirmHandOver(req, event)
+  if (isKlAccepted(call.status)) return confirmHandOver(req, event, lock.handed)
   // A refusal with reasons may also be Kennelliitto saying the trial is in that state already, because
   // another hand-over of the same trial got there first: Koe/Lue says which before the lock goes back.
   return settleUncertain(req, event, kcGuid, lock, call)
