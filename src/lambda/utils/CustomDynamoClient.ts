@@ -76,7 +76,7 @@ export interface UpdateActions {
   delete?: Record<string, unknown>
 }
 
-type UpdateCondition = {
+export type UpdateCondition = {
   expression: string
   names?: Record<string, string>
   values?: Record<string, any>

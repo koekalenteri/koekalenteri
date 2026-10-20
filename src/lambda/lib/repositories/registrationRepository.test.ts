@@ -249,7 +249,7 @@ describe('registrationRepository', () => {
       await expect(writeKcResult('e1', 'r1', kcResult, undefined, updatedAt)).resolves.toBe(true)
       expect(mockUpdate).toHaveBeenCalledWith({ eventId: 'e1', id: 'r1' }, { set: { kcResult, updatedAt } }, 'NONE', {
         expression: 'attribute_exists(#id) AND attribute_not_exists(#kcResult)',
-        names: { '#at': 'at', '#id': 'id', '#kcResult': 'kcResult' },
+        names: { '#id': 'id', '#kcResult': 'kcResult' },
       })
     })
 

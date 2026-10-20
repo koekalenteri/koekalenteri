@@ -1,7 +1,7 @@
 import type { JsonConfirmedEvent, JsonKcState, JsonRegistration } from '../../types'
 import type { KLIntegraatioConfig } from '../types/KLIntegraatio'
 import { createHash } from 'node:crypto'
-import { vi } from 'vitest'
+import { onTestFinished, vi } from 'vitest'
 import { isResultsLocked } from '../../lib/kennelliittoResults'
 import { asJsonConfirmedEvent, asJsonRegistration } from '../test-utils/helpers'
 import KLIntegraatio from './KLIntegraatio'
@@ -505,6 +505,92 @@ describe('kennelliittoResults', () => {
       ])
     })
 
+    // One dog's failed write is that dog's, never the request's: a 500 would lose the reports of the dogs
+    // Kennelliitto saved and this app recorded, as it hid the first-write failure of KOE-1140.
+    it('reports a dog whose outcome could not be recorded as failed, and the others as they went', async () => {
+      registrations.push(dog('d3', 'FI10003/20', 'NOME-A3'))
+      const write = mockWriteKcResult.getMockImplementation()
+      onTestFinished(() => {
+        if (write) mockWriteKcResult.mockImplementation(write)
+      })
+      mockWriteKcResult.mockImplementation(async (eventId, id, kcResult, previousAt) => {
+        if (id === 'd2') throw new Error('ValidationException')
+        return write ? write(eventId, id, kcResult, previousAt) : false
+      })
+
+      const result = await sendKennelliittoResults(ctx(), ['d1', 'd2', 'd3'], { force: false })
+
+      expect(result.reports).toEqual([
+        { id: 'd1', name: 'Koira d1', outcome: 'sent', regNo: 'FI10001/20', tulosId: expect.any(Number) },
+        { answerNotStored: true, id: 'd2', name: 'Koira d2', outcome: 'failed', regNo: 'FI10002/20' },
+        { id: 'd3', name: 'Koira d3', outcome: 'sent', regNo: 'FI10003/20', tulosId: expect.any(Number) },
+      ])
+      // Its stored state stays as it was, so it reads as unsent and is sent again next time.
+      expect(registrations[1].kcResult).toBeUndefined()
+      expect(result.patches.map((patch) => patch.id)).toEqual(['d1', 'd3'])
+      // Kennelliitto holds it all the same, so the change history says so.
+      expect(mockAudit).toHaveBeenCalledWith({
+        auditKey: 'event-1:d2',
+        messageKey: 'audit.messages.resultSentToKennelliitto',
+        user: 'Sihteeri',
+      })
+    })
+
+    it('keeps Kennelliitto’s reasons for a refused dog whose outcome could not be recorded', async () => {
+      tallennaReply['FI10002/20'] = { body: { virheet: ['Koiran nimi ei täsmää.'] }, status: 400 }
+      const write = mockWriteKcResult.getMockImplementation()
+      onTestFinished(() => {
+        if (write) mockWriteKcResult.mockImplementation(write)
+      })
+      mockWriteKcResult.mockImplementation(async (eventId, id, kcResult, previousAt) => {
+        if (id === 'd2') throw new Error('ValidationException')
+        return write ? write(eventId, id, kcResult, previousAt) : false
+      })
+
+      const result = await sendKennelliittoResults(ctx(), ['d1', 'd2'], { force: false })
+
+      expect(result.reports).toEqual([
+        expect.objectContaining({ id: 'd1', outcome: 'sent' }),
+        {
+          answerNotStored: true,
+          errors: ['Koiran nimi ei täsmää.'],
+          id: 'd2',
+          name: 'Koira d2',
+          outcome: 'failed',
+          regNo: 'FI10002/20',
+          status: 400,
+        },
+      ])
+      expect(mockAudit).toHaveBeenCalledWith(
+        expect.objectContaining({
+          auditKey: 'event-1:d2',
+          messageKey: 'audit.messages.resultSendFailed',
+          messageParams: { reason: 'Koiran nimi ei täsmää.' },
+        })
+      )
+    })
+
+    it('reports a dog as not recorded when another sending wrote it in between twice', async () => {
+      const write = mockWriteKcResult.getMockImplementation()
+      onTestFinished(() => {
+        if (write) mockWriteKcResult.mockImplementation(write)
+      })
+      mockWriteKcResult.mockImplementation(async (eventId, id, kcResult, previousAt) => {
+        if (id === 'd1') return false
+        return write ? write(eventId, id, kcResult, previousAt) : false
+      })
+
+      const result = await sendKennelliittoResults(ctx(), ['d1', 'd2'], { force: false })
+
+      expect(mockWriteKcResult).toHaveBeenCalledTimes(3)
+      expect(result.reports).toEqual([
+        { answerNotStored: true, id: 'd1', name: 'Koira d1', outcome: 'failed', regNo: 'FI10001/20' },
+        expect.objectContaining({ id: 'd2', outcome: 'sent' }),
+      ])
+      expect(result.patches.map((patch) => patch.id)).toEqual(['d2'])
+      expect(registrations[0].kcResult).toBeUndefined()
+    })
+
     it('audits each dog sent', async () => {
       await sendKennelliittoResults(ctx(), ['d1'], { force: false })
 
@@ -559,6 +645,29 @@ describe('kennelliittoResults', () => {
 
       expect(tallennat()).toEqual([])
       expect(registrations[0].kcResult?.resultVersion).toEqual('edited-and-back')
+    })
+
+    it('reports an unchanged dog whose version could not be kept as unchanged, and the others as they went', async () => {
+      registrations.push(dog('d3', 'FI10003/20', 'NOME-A3'))
+      await sendKennelliittoResults(ctx(), ['d2'], { force: false })
+      registrations[1].eventResult = { ...registrations[1].eventResult, updatedAt: 'edited-and-back', updatedBy: 'S' }
+      const write = mockWriteKcResult.getMockImplementation()
+      onTestFinished(() => {
+        if (write) mockWriteKcResult.mockImplementation(write)
+      })
+      mockWriteKcResult.mockImplementation(async (eventId, id, kcResult, previousAt) => {
+        if (id === 'd2') throw new Error('ProvisionedThroughputExceededException')
+        return write ? write(eventId, id, kcResult, previousAt) : false
+      })
+
+      const result = await sendKennelliittoResults(ctx(), ['d1', 'd2', 'd3'], { force: false })
+
+      expect(result.reports.map((report) => [report.id, report.outcome])).toEqual([
+        ['d1', 'sent'],
+        ['d2', 'unchanged'],
+        ['d3', 'sent'],
+      ])
+      expect(result.patches.map((patch) => patch.id)).toEqual(['d1', 'd3'])
     })
 
     it("does not let one dog's refusal stop the others, and keeps Kennelliitto's reasons", async () => {
