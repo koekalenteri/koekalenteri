@@ -13,7 +13,7 @@ import {
   sortRegistrationsByDateClassTimeAndNumber,
 } from '../../lib/registration'
 import { placementsFor, resultMarks } from '../../lib/results'
-import { getEvent } from './event'
+import { getEvent, getLiveEvent } from './event'
 import { readEventRegistrations } from './repositories/registrationRepository'
 
 /**
@@ -171,14 +171,15 @@ const publicGroup = (
  * `version` is the server time taken before the reads, and the reads are consistent: whatever was
  * written before the stamp is in the rows. A list that is not available reads as no rows, without
  * reading the registrations. `checkEvent` sees the event before them and may throw, so a refused
- * caller costs no registration query either.
+ * caller costs no registration query either. The organizer's preview reads a deleted event too; the
+ * public list answers one as a missing event (KOE-1586).
  */
 export const readPublishedStartList = async (
   eventId: string,
   { checkEvent, preview = false }: { checkEvent?: (event: JsonDogEvent) => void; preview?: boolean } = {}
 ) => {
   const version = Date.now()
-  const confirmedEvent = await getEvent(eventId, true)
+  const confirmedEvent = preview ? await getEvent(eventId, true) : await getLiveEvent(eventId, true)
   checkEvent?.(confirmedEvent)
   const available = preview || isStartListAvailable(confirmedEvent)
   const participants = available

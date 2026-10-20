@@ -1,7 +1,7 @@
 import type { JsonConfirmedEvent } from '../../types'
 import { isEventOver } from '../../lib/event'
 import { getSentInvitationAttachment, isStarter } from '../../lib/registration'
-import { getEvent } from '../lib/event'
+import { getLiveEvent } from '../lib/event'
 import { getParam, LambdaError, lambda, response } from '../lib/lambda'
 import { participantResponse } from '../lib/payment'
 import { authorizeRegistrationRead, getRegistration } from '../lib/registration'
@@ -16,7 +16,7 @@ const getRegistrationLambda = lambda('getRegistration', async (event) => {
   const storedRegistration = await getRegistration(eventId, id)
   const editToken = authorizeRegistrationRead(event, storedRegistration)
   const registration = { ...storedRegistration }
-  const dogEvent = await getEvent<JsonConfirmedEvent>(eventId)
+  const dogEvent = await getLiveEvent<JsonConfirmedEvent>(eventId)
   if (isEventOver(dogEvent)) {
     throw new LambdaError(404, 'not found')
   }

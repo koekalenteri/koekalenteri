@@ -6,6 +6,7 @@ import { useAtomValue } from 'jotai'
 import { useAtomCallback } from 'jotai/utils'
 import { useCallback, useEffect, useRef } from 'react'
 import { getEvent, getEvents } from '@/api/event'
+import { APIError } from '@/api/http'
 import { reportError } from '@/lib/client/error'
 import { dayOf, TIME_ZONE } from '@/lib/day'
 import { compareEventsByDate } from '@/lib/event'
@@ -208,6 +209,8 @@ async function getRangeSyncResult(
   }
 }
 
+const isMissingEvent = (error: unknown) => error instanceof APIError && error.status === 404
+
 async function getSingleSyncResult(
   events: PublicDogEvent[],
   metadata: EventMetadata,
@@ -218,16 +221,16 @@ async function getSingleSyncResult(
     return { metadata }
   }
 
+  const fetched = { ...metadata, singles: { ...metadata.singles, [eventId]: now } }
   try {
     const event = await getEvent(eventId)
-    return {
-      events: mergeAndSortByDate(events, [event]),
-      metadata: { ...metadata, singles: { ...metadata.singles, [eventId]: now } },
-    }
-  } catch {
-    // A missing event is represented by leaving it absent from the cache.
-    // Consumers can then distinguish "still loading" from "not found".
-    return { metadata: { ...metadata, singles: { ...metadata.singles, [eventId]: now } } }
+    return { events: mergeAndSortByDate(events, [event]), metadata: fetched }
+  } catch (error) {
+    // A missing event is represented by leaving it absent from the cache, so consumers can tell
+    // "still loading" from "not found". One the server answers as missing (deleted since, KOE-1586)
+    // leaves the cache too; any other failure keeps the copy on screen.
+    if (isMissingEvent(error)) return { events: events.filter(({ id }) => id !== eventId), metadata: fetched }
+    return { metadata: fetched }
   }
 }
 

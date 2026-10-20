@@ -22,7 +22,7 @@ import {
   normalizeRegistrationEmails,
   shouldClearRegistrationEmailDeliveryStatus,
 } from '../lib/emailSuppression'
-import { getEvent } from '../lib/event'
+import { getLiveEvent } from '../lib/event'
 import { parseJSONWithFallback } from '../lib/json'
 import { httpError, isPatchRequest, lambda, response } from '../lib/lambda'
 import { participantResponse } from '../lib/payment'
@@ -53,7 +53,7 @@ const CREATED_AUDIT_MESSAGE = registrationCreatedAudit()
 const getData = async (registration: Patch<JsonRegistration>) => {
   const eventId = typeof registration.eventId === 'string' ? registration.eventId : ''
   const id = typeof registration.id === 'string' ? registration.id : undefined
-  const confirmedEvent = await getEvent<JsonConfirmedEvent>(eventId)
+  const confirmedEvent = await getLiveEvent<JsonConfirmedEvent>(eventId)
   const existing = id ? await getRegistration(eventId, id) : undefined
 
   return { confirmedEvent, existing }

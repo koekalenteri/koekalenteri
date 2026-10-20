@@ -34,6 +34,7 @@ const {
   readEvent,
   readEventsForStats,
   readLastEntryEndBefore,
+  readLiveEvent,
   readOrganizerEvents,
   readPublicSeasonEvents,
   readSeasonEvents,
@@ -75,6 +76,20 @@ describe('eventRepository', () => {
 
       expect(mockRead).toHaveBeenNthCalledWith(1, { id: 'event-1' }, false)
       expect(mockRead).toHaveBeenNthCalledWith(2, { id: 'event-2' }, true)
+    })
+
+    it('readLiveEvent reads the event by id, as asked, and answers a deleted one as no event (KOE-1586)', async () => {
+      mockRead
+        .mockResolvedValueOnce(event)
+        .mockResolvedValueOnce({ ...event, deletedAt: '2026-10-20T10:00:00.000Z' })
+        .mockResolvedValueOnce(undefined)
+
+      await expect(readLiveEvent('event-1')).resolves.toEqual(event)
+      await expect(readLiveEvent('event-1', true)).resolves.toBeUndefined()
+      await expect(readLiveEvent('event-2')).resolves.toBeUndefined()
+
+      expect(mockRead).toHaveBeenNthCalledWith(1, { id: 'event-1' }, false)
+      expect(mockRead).toHaveBeenNthCalledWith(2, { id: 'event-1' }, true)
     })
 
     it('readAllEvents scans the table and answers an empty list for nothing', async () => {

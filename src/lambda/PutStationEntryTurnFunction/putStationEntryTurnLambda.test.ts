@@ -2,12 +2,13 @@ import type { APIGatewayProxyEvent } from 'aws-lambda'
 import type { EventStation, JsonStationTurn } from '../../types'
 import { vi } from 'vitest'
 import { getStationEntryToken } from '../lib/stationEntry'
-import { asJsonConfirmedEvent } from '../test-utils/helpers'
+import { asJsonConfirmedEvent, deletedEvent, eventNotFound } from '../test-utils/helpers'
 
 const mockLambda = vi.fn((_name, fn) => fn)
 const mockResponse = vi.fn()
 const mockGetParam = vi.fn()
 const mockGetEvent = vi.fn()
+const mockGetLiveEvent = vi.fn()
 const mockReadEventRegistrations = vi.fn()
 const mockWriteStationTurn = vi.fn()
 const mockParseStationTurnOp = vi.fn()
@@ -28,7 +29,7 @@ vi.doMock('../lib/lambda', async () => ({
   response: mockResponse,
 }))
 
-vi.doMock('../lib/event', () => ({ getEvent: mockGetEvent }))
+vi.doMock('../lib/event', () => ({ getEvent: mockGetEvent, getLiveEvent: mockGetLiveEvent }))
 vi.doMock('../lib/repositories/registrationRepository', () => ({
   readEventRegistrations: mockReadEventRegistrations,
 }))
@@ -73,7 +74,7 @@ describe('putStationEntryTurnLambda', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     mockGetParam.mockImplementation((_event, name: string) => (name === 'eventId' ? 'event-1' : 'post-1'))
-    mockGetEvent.mockResolvedValue(confirmedEvent)
+    mockGetLiveEvent.mockResolvedValue(confirmedEvent)
     mockReadEventRegistrations.mockResolvedValue([])
     mockParseStationTurnOp.mockReturnValue({ type: 'end' })
     mockWriteStationTurn.mockResolvedValue([storedTurn])
@@ -117,6 +118,17 @@ describe('putStationEntryTurnLambda', () => {
     await expect(putStationEntryTurnLambda(apiEvent({ type: 'end' }, 'wrong-token'))).rejects.toMatchObject({
       status: 404,
     })
+    expect(mockWriteStationTurn).not.toHaveBeenCalled()
+  })
+
+  // KOE-1586: the station link of a deleted event still wrote turns.
+  it('answers a deleted event as a missing one, and writes nothing', async () => {
+    mockGetEvent.mockResolvedValue(deletedEvent(confirmedEvent))
+    mockGetLiveEvent.mockRejectedValue(eventNotFound('event-1'))
+
+    await expect(putStationEntryTurnLambda(apiEvent({ type: 'end' }))).rejects.toMatchObject({ status: 404 })
+
+    expect(mockGetLiveEvent).toHaveBeenCalledWith('event-1')
     expect(mockWriteStationTurn).not.toHaveBeenCalled()
   })
 })

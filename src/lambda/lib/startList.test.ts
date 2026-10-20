@@ -1,10 +1,11 @@
 import { vi } from 'vitest'
-import { asJsonConfirmedEvent, asJsonRegistration } from '../test-utils/helpers'
+import { asJsonConfirmedEvent, asJsonRegistration, deletedEvent, eventNotFound } from '../test-utils/helpers'
 
 const mockGetEvent = vi.fn()
+const mockGetLiveEvent = vi.fn()
 const mockReadEventRegistrations = vi.fn()
 
-vi.doMock('./event', () => ({ getEvent: mockGetEvent }))
+vi.doMock('./event', () => ({ getEvent: mockGetEvent, getLiveEvent: mockGetLiveEvent }))
 vi.doMock('./repositories/registrationRepository', () => ({
   readEventRegistrations: mockReadEventRegistrations,
 }))
@@ -38,7 +39,7 @@ describe('readPublishedStartList (KOE-1516)', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     vi.useFakeTimers({ now: STAMP, toFake: ['Date'] })
-    mockGetEvent.mockResolvedValue(publishedEvent)
+    mockGetLiveEvent.mockResolvedValue(publishedEvent)
     mockReadEventRegistrations.mockResolvedValue([registration])
   })
 
@@ -53,12 +54,12 @@ describe('readPublishedStartList (KOE-1516)', () => {
       version: STAMP,
     })
 
-    expect(mockGetEvent).toHaveBeenCalledWith('event-1', true)
+    expect(mockGetLiveEvent).toHaveBeenCalledWith('event-1', true)
     expect(mockReadEventRegistrations).toHaveBeenCalledWith('event-1', true)
   })
 
   it('stamps the version before reading, so a later stamp never describes an earlier read', async () => {
-    mockGetEvent.mockImplementationOnce(async () => {
+    mockGetLiveEvent.mockImplementationOnce(async () => {
       vi.setSystemTime(STAMP + 5000)
       return publishedEvent
     })
@@ -67,7 +68,7 @@ describe('readPublishedStartList (KOE-1516)', () => {
   })
 
   it('reads a list that is not available as no rows, without reading the registrations', async () => {
-    mockGetEvent.mockResolvedValueOnce({ ...publishedEvent, startListPublished: { ALO: false } })
+    mockGetLiveEvent.mockResolvedValueOnce({ ...publishedEvent, startListPublished: { ALO: false } })
 
     await expect(readPublishedStartList('event-1')).resolves.toEqual({
       available: false,
@@ -82,6 +83,27 @@ describe('readPublishedStartList (KOE-1516)', () => {
 
     await expect(readPublishedStartList('event-1', { preview: true })).resolves.toEqual(
       expect.objectContaining({ available: true, participants: [expect.objectContaining({ handler: 'Handler' })] })
+    )
+    expect(mockGetEvent).toHaveBeenCalledWith('event-1', true)
+    expect(mockGetLiveEvent).not.toHaveBeenCalled()
+  })
+
+  // KOE-1586: the public list of a deleted event was still served.
+  it('answers a deleted event as a missing one, without reading the registrations', async () => {
+    mockGetEvent.mockResolvedValue(deletedEvent(publishedEvent))
+    mockGetLiveEvent.mockRejectedValueOnce(eventNotFound('event-1'))
+
+    await expect(readPublishedStartList('event-1')).rejects.toMatchObject({ status: 404 })
+
+    expect(mockGetLiveEvent).toHaveBeenCalledWith('event-1', true)
+    expect(mockReadEventRegistrations).not.toHaveBeenCalled()
+  })
+
+  it("previews a deleted event's list for its organizer", async () => {
+    mockGetEvent.mockResolvedValueOnce(deletedEvent(publishedEvent))
+
+    await expect(readPublishedStartList('event-1', { preview: true })).resolves.toEqual(
+      expect.objectContaining({ available: true })
     )
   })
 
@@ -114,7 +136,7 @@ describe('readPublishedStartList (KOE-1516)', () => {
       })
 
     it('publishes the rank beside the result, ties sharing one', async () => {
-      mockGetEvent.mockResolvedValue(resultsEvent)
+      mockGetLiveEvent.mockResolvedValue(resultsEvent)
       mockReadEventRegistrations.mockResolvedValue([
         scored('a', 'ALO1', 90),
         scored('b', 'ALO2', 70),
@@ -133,7 +155,7 @@ describe('readPublishedStartList (KOE-1516)', () => {
     })
 
     it('counts a dog whose row is withheld in the rank of the published ones', async () => {
-      mockGetEvent.mockResolvedValue(resultsEvent)
+      mockGetLiveEvent.mockResolvedValue(resultsEvent)
       mockReadEventRegistrations.mockResolvedValue([
         scored('a', 'ALO2', 70),
         // Its number is not entered yet, so it stays off the list, but it still ran ahead of the others.
@@ -146,7 +168,7 @@ describe('readPublishedStartList (KOE-1516)', () => {
     })
 
     it('withholds the rank where the results are not published', async () => {
-      mockGetEvent.mockResolvedValue({ ...resultsEvent, resultsPublished: { ALO: false } })
+      mockGetLiveEvent.mockResolvedValue({ ...resultsEvent, resultsPublished: { ALO: false } })
       mockReadEventRegistrations.mockResolvedValue([scored('a', 'ALO1', 90)])
 
       const { participants } = await readPublishedStartList('event-1')

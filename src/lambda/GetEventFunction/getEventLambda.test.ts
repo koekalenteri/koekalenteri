@@ -1,10 +1,11 @@
 import { vi } from 'vitest'
-import { answerRejections, constructPartialAPIGwEvent } from '../test-utils/helpers'
+import { answerRejections, constructPartialAPIGwEvent, deletedEvent, eventNotFound } from '../test-utils/helpers'
 
 const mockGetParam = vi.fn()
 const mockLambda = vi.fn((_name, fn) => answerRejections(fn, mockResponse))
 const mockResponse = vi.fn()
 const mockGetEvent = vi.fn()
+const mockGetLiveEvent = vi.fn()
 const mockSanitizeDogEvent = vi.fn()
 
 vi.doMock('../lib/lambda', async () => ({
@@ -16,6 +17,7 @@ vi.doMock('../lib/lambda', async () => ({
 
 vi.doMock('../lib/event', () => ({
   getEvent: mockGetEvent,
+  getLiveEvent: mockGetLiveEvent,
 }))
 
 vi.doMock('../../lib/event', () => ({
@@ -54,28 +56,41 @@ describe('getEventLambda', () => {
     }
 
     mockGetParam.mockReturnValueOnce(eventId)
-    mockGetEvent.mockResolvedValueOnce(rawEvent)
+    mockGetLiveEvent.mockResolvedValueOnce(rawEvent)
     mockSanitizeDogEvent.mockReturnValueOnce(sanitizedEvent)
 
     await getEventLambda(event)
 
     expect(mockGetParam).toHaveBeenCalledWith(event, 'id')
-    expect(mockGetEvent).toHaveBeenCalledWith(eventId)
+    expect(mockGetLiveEvent).toHaveBeenCalledWith(eventId)
     expect(mockSanitizeDogEvent).toHaveBeenCalledWith(rawEvent)
     expect(mockResponse).toHaveBeenCalledWith(200, sanitizedEvent, event)
   })
 
-  it('passes through errors from getEvent', async () => {
+  // KOE-1586: anyone holding the id of a deleted event got its row.
+  it('answers a deleted event with the 404 of a missing one', async () => {
+    mockGetParam.mockReturnValueOnce('event123')
+    mockGetEvent.mockResolvedValueOnce(deletedEvent({ id: 'event123', name: 'Test Event' }))
+    mockGetLiveEvent.mockRejectedValueOnce(eventNotFound('event123'))
+
+    await getEventLambda(event)
+
+    expect(mockGetLiveEvent).toHaveBeenCalledWith('event123')
+    expect(mockSanitizeDogEvent).not.toHaveBeenCalled()
+    expect(mockResponse).toHaveBeenCalledWith(404, { error: "Event with id 'event123' was not found" }, event)
+  })
+
+  it('passes through errors from getLiveEvent', async () => {
     const eventId = 'nonexistent'
     const error = new Error('Event not found')
 
     mockGetParam.mockReturnValueOnce(eventId)
-    mockGetEvent.mockRejectedValueOnce(error)
+    mockGetLiveEvent.mockRejectedValueOnce(error)
 
     await expect(getEventLambda(event)).rejects.toThrow(error)
 
     expect(mockGetParam).toHaveBeenCalledWith(event, 'id')
-    expect(mockGetEvent).toHaveBeenCalledWith(eventId)
+    expect(mockGetLiveEvent).toHaveBeenCalledWith(eventId)
     expect(mockSanitizeDogEvent).not.toHaveBeenCalled()
     expect(mockResponse).not.toHaveBeenCalled()
   })
@@ -86,9 +101,9 @@ describe('getEventLambda', () => {
     await getEventLambda(event)
 
     expect(mockGetParam).toHaveBeenCalledWith(event, 'id')
-    expect(mockGetEvent).toHaveBeenCalledWith(undefined)
+    expect(mockGetLiveEvent).toHaveBeenCalledWith(undefined)
     // The function will still try to get the event with undefined ID
-    // and the error handling will be done in the getEvent function
+    // and the error handling will be done in the getLiveEvent function
   })
 
   it('preserves all public fields after sanitization', async () => {
@@ -132,7 +147,7 @@ describe('getEventLambda', () => {
     }
 
     mockGetParam.mockReturnValueOnce(eventId)
-    mockGetEvent.mockResolvedValueOnce(rawEvent)
+    mockGetLiveEvent.mockResolvedValueOnce(rawEvent)
     mockSanitizeDogEvent.mockReturnValueOnce(sanitizedEvent)
 
     await getEventLambda(event)

@@ -14,6 +14,7 @@ vi.doMock('./repositories/registrationRepository', () => ({
 }))
 
 const mockReadEvent = vi.fn()
+const mockReadLiveEvent = vi.fn()
 const mockFindEventIdsByKcGuid = vi.fn()
 const mockFindEventIdsByKcId = vi.fn()
 const mockReadLastEntryEndBefore = vi.fn()
@@ -33,6 +34,7 @@ vi.doMock('./repositories/eventRepository', () => ({
   findEventIdsByKcId: mockFindEventIdsByKcId,
   readEvent: mockReadEvent,
   readLastEntryEndBefore: mockReadLastEntryEndBefore,
+  readLiveEvent: mockReadLiveEvent,
   restoreKcState: mockRestoreKcState,
   writeEvent: mockWriteEvent,
   writeEventFields: mockWriteEventFields,
@@ -57,6 +59,7 @@ const {
   findQualificationStartDate,
   fixRegistrationGroups,
   getEvent,
+  getLiveEvent,
   getStateFromTemplate,
   lockKcState,
   lockRegistrationGroups,
@@ -395,6 +398,37 @@ describe('lib/event', () => {
       mockReadEvent.mockResolvedValueOnce(undefined)
       await expect(getEvent(eventId)).rejects.toThrow(LambdaError)
       await expect(getEvent(eventId)).rejects.toThrow(/not found/i)
+    })
+  })
+
+  describe('getLiveEvent', () => {
+    const eventId = 'test-id'
+    const eventObj = { id: eventId, name: 'Test Event' }
+
+    beforeEach(() => {
+      mockReadEvent.mockReset()
+      mockReadLiveEvent.mockReset()
+    })
+
+    it('returns the live event, read as asked', async () => {
+      mockReadLiveEvent.mockResolvedValueOnce(eventObj).mockResolvedValueOnce(eventObj)
+      await expect(getLiveEvent(eventId)).resolves.toEqual(eventObj)
+      await expect(getLiveEvent(eventId, true)).resolves.toEqual(eventObj)
+      expect(mockReadLiveEvent).toHaveBeenNthCalledWith(1, eventId, false)
+      expect(mockReadLiveEvent).toHaveBeenNthCalledWith(2, eventId, true)
+      expect(mockReadEvent).not.toHaveBeenCalled()
+    })
+
+    // KOE-1586: the repository answers a deleted event as no event, and the caller sees a missing one.
+    it('answers an event the repository does not hand out as missing, with the 404 getEvent throws', async () => {
+      mockReadLiveEvent.mockResolvedValueOnce(undefined)
+      mockReadEvent.mockResolvedValueOnce(undefined)
+
+      const live = await getLiveEvent(eventId).catch((error: unknown) => error)
+      const missing = await getEvent(eventId).catch((error: unknown) => error)
+
+      expect(live).toBeInstanceOf(LambdaError)
+      expect(live).toEqual(missing)
     })
   })
 

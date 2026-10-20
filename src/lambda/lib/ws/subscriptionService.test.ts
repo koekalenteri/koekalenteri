@@ -1,7 +1,9 @@
 import { vi } from 'vitest'
 import { LambdaError } from '../../lib/lambda'
+import { deletedEvent, eventNotFound } from '../../test-utils/helpers'
 
 const mockGetEvent = vi.fn()
+const mockGetLiveEvent = vi.fn()
 const mockIsConnectionExpired = vi.fn()
 const mockCanReceiveAnyAdminEvent = vi.fn()
 const mockGetConnection = vi.fn()
@@ -24,6 +26,7 @@ vi.doMock('../repositories/transactionRepository', () => ({
 
 vi.doMock('../../lib/event', () => ({
   getEvent: mockGetEvent,
+  getLiveEvent: mockGetLiveEvent,
 }))
 
 vi.doMock('../../lib/registration', () => ({
@@ -187,7 +190,7 @@ describe('ws/subscriptionService', () => {
       owner: { membership: false },
       ownerHandles: true,
     }
-    mockGetEvent.mockResolvedValueOnce({ cost: 50, entryStartDate: '2026-07-01', id: 'e1', state: 'confirmed' })
+    mockGetLiveEvent.mockResolvedValueOnce({ cost: 50, entryStartDate: '2026-07-01', id: 'e1', state: 'confirmed' })
     // A reserve whose fee went back: the page has no group, so the patch says it owes nothing (KOE-1526).
     mockGetRegistration.mockResolvedValueOnce(registration).mockResolvedValueOnce({
       ...registration,
@@ -230,7 +233,7 @@ describe('ws/subscriptionService', () => {
       paymentStatus: 'SUCCESS',
       refundAmount: 50,
     }
-    mockGetEvent.mockResolvedValueOnce({
+    mockGetLiveEvent.mockResolvedValueOnce({
       cost: 50,
       entryStartDate: '2026-07-01',
       id: 'e1',
@@ -265,7 +268,7 @@ describe('ws/subscriptionService', () => {
       ownerHandles: true,
       paymentStatus: 'PENDING',
     }
-    mockGetEvent.mockResolvedValueOnce({
+    mockGetLiveEvent.mockResolvedValueOnce({
       cost: 50,
       entryStartDate: '2026-07-01',
       id: 'e1',
@@ -285,6 +288,20 @@ describe('ws/subscriptionService', () => {
       })
     )
     expect(mockReadPaymentTransactions).toHaveBeenCalledWith(['t1'])
+  })
+
+  // KOE-1586: the entrant's page of a deleted event still got its live patches.
+  it('refuses a deleted event as a missing one, before the subscription is stored', async () => {
+    const registration = { editTokenVersion: 1, eventId: 'e1', id: 'r1' }
+    mockGetRegistration.mockResolvedValueOnce(registration)
+    mockGetEvent.mockResolvedValueOnce(deletedEvent({ id: 'e1', state: 'cancelled' }))
+    mockGetLiveEvent.mockRejectedValueOnce(eventNotFound('e1'))
+
+    await expect(subscribeToRegistration({ connectionId: 'c1' }, 'e1', 'r1', 'edit-token')).rejects.toMatchObject({
+      status: 404,
+    })
+    expect(mockGetLiveEvent).toHaveBeenCalledWith('e1')
+    expect(mockSubscribeRegistrationConnection).not.toHaveBeenCalled()
   })
 
   it('unsubscribes from a registration', async () => {

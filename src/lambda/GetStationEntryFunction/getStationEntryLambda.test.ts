@@ -2,12 +2,19 @@ import type { APIGatewayProxyEvent } from 'aws-lambda'
 import type { EventStation } from '../../types'
 import { vi } from 'vitest'
 import { getStationEntryToken } from '../lib/stationEntry'
-import { asJsonConfirmedEvent, asJsonRegistration, constructPartialAPIGwEvent } from '../test-utils/helpers'
+import {
+  asJsonConfirmedEvent,
+  asJsonRegistration,
+  constructPartialAPIGwEvent,
+  deletedEvent,
+  eventNotFound,
+} from '../test-utils/helpers'
 
 const mockLambda = vi.fn((_name, fn) => fn)
 const mockResponse = vi.fn()
 const mockGetParam = vi.fn()
 const mockGetEvent = vi.fn()
+const mockGetLiveEvent = vi.fn()
 const mockReadEventRegistrations = vi.fn()
 
 vi.doMock('../lib/lambda', async () => ({
@@ -25,7 +32,7 @@ vi.doMock('../lib/lambda', async () => ({
   response: mockResponse,
 }))
 
-vi.doMock('../lib/event', () => ({ getEvent: mockGetEvent }))
+vi.doMock('../lib/event', () => ({ getEvent: mockGetEvent, getLiveEvent: mockGetLiveEvent }))
 vi.doMock('../lib/repositories/registrationRepository', () => ({
   readEventRegistrations: mockReadEventRegistrations,
 }))
@@ -55,7 +62,7 @@ describe('getStationEntryLambda', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     mockGetParam.mockImplementation((_event, name: string) => (name === 'eventId' ? 'event-1' : 'post-1'))
-    mockGetEvent.mockResolvedValue(confirmedEvent)
+    mockGetLiveEvent.mockResolvedValue(confirmedEvent)
     mockReadEventRegistrations.mockResolvedValue([
       asJsonRegistration({
         class: 'AVO',
@@ -84,5 +91,17 @@ describe('getStationEntryLambda', () => {
     await expect(getStationEntryLambda(apiEvent('wrong'))).rejects.toThrow('not found')
 
     expect(mockReadEventRegistrations).not.toHaveBeenCalled()
+  })
+
+  // KOE-1586: the station link of a deleted event served its view.
+  it('answers a deleted event as a missing one, without reading the registrations', async () => {
+    mockGetEvent.mockResolvedValue(deletedEvent(confirmedEvent))
+    mockGetLiveEvent.mockRejectedValue(eventNotFound('event-1'))
+
+    await expect(getStationEntryLambda(apiEvent())).rejects.toMatchObject({ status: 404 })
+
+    expect(mockGetLiveEvent).toHaveBeenCalledWith('event-1')
+    expect(mockReadEventRegistrations).not.toHaveBeenCalled()
+    expect(mockResponse).not.toHaveBeenCalled()
   })
 })

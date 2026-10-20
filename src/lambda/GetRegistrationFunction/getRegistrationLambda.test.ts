@@ -13,7 +13,7 @@ import { registrationsToEventWithParticipantsInvited } from '../../__mockData__/
 import { dayStartOf, TIME_ZONE } from '../../lib/day'
 import { isParticipantGroup } from '../../lib/registration'
 import { LambdaError } from '../lib/lambda'
-import { constructAPIGwEvent } from '../test-utils/helpers'
+import { constructAPIGwEvent, deletedEvent, eventNotFound } from '../test-utils/helpers'
 
 const mockEventWithInvitationAttachment = {
   ...eventWithParticipantsInvited,
@@ -45,10 +45,12 @@ vi.doMock('../lib/registration', () => ({
 /** The trial in any state, a cancelled one too (KOE-1526). */
 type MockEvent = Omit<typeof mockEventWithInvitationAttachment, 'state'> & Pick<DogEvent, 'state'>
 
-const mockGetEvent = vi.fn((): MockEvent => mockEventWithInvitationAttachment)
+const mockGetEvent = vi.fn()
+const mockGetLiveEvent = vi.fn((): MockEvent => mockEventWithInvitationAttachment)
 
 vi.doMock('../lib/event', () => ({
   getEvent: mockGetEvent,
+  getLiveEvent: mockGetLiveEvent,
 }))
 
 /** A payment transaction of the fixture registration, as the transaction table stores it. */
@@ -148,7 +150,22 @@ describe('getRegistration', () => {
     )
 
     expect(res.statusCode).toBe(404)
-    expect(mockGetEvent).not.toHaveBeenCalled()
+    expect(mockGetLiveEvent).not.toHaveBeenCalled()
+  })
+
+  // KOE-1586: the registration page of a deleted event still opened.
+  it('answers a deleted event as a missing one, without disclosing the registration', async () => {
+    mockGetEvent.mockReturnValueOnce(deletedEvent(mockEventWithInvitationAttachment))
+    mockGetLiveEvent.mockRejectedValueOnce(eventNotFound('123'))
+
+    const res = await getRegistrationLambda(
+      constructAPIGwEvent('test', { pathParameters: { eventId: '123', id: '123' } })
+    )
+
+    expect(res.statusCode).toBe(404)
+    expect(res.body).not.toContain(mockEventWithInvitationAttachment.name)
+    expect(mockGetLiveEvent).toHaveBeenCalledWith('123')
+    expect(mockReadPaymentTransactions).not.toHaveBeenCalled()
   })
 
   it('does not disclose registrations after the event has ended', async () => {
@@ -310,7 +327,7 @@ describe('getRegistration', () => {
   ])(
     'should set canPay: %p when paymentTime is %p and paymentStatus is %p',
     async (expected, paymentTime, paymentStatus) => {
-      mockGetEvent.mockReturnValueOnce({ ...mockEventWithInvitationAttachment, paymentTime })
+      mockGetLiveEvent.mockReturnValueOnce({ ...mockEventWithInvitationAttachment, paymentTime })
       inProgressWhenPending(paymentStatus)
       mockGetRegistration.mockReturnValueOnce({
         ...registrationsToEventWithParticipantsInvited[0],
@@ -339,7 +356,7 @@ describe('getRegistration', () => {
   ])(
     'should set canPay: %p when paymentTime is %p and paymentStatus is %p and not picked',
     async (expected, paymentTime, paymentStatus) => {
-      mockGetEvent.mockReturnValueOnce({ ...mockEventWithInvitationAttachment, paymentTime })
+      mockGetLiveEvent.mockReturnValueOnce({ ...mockEventWithInvitationAttachment, paymentTime })
       inProgressWhenPending(paymentStatus)
       mockGetRegistration.mockReturnValueOnce({
         ...registrationsToEventWithParticipantsInvited[0],
@@ -365,7 +382,7 @@ describe('getRegistration', () => {
   ])(
     'should set canPay: %p for a paid registration when the fee is 130 and %p was paid',
     async (expected, paidAmount) => {
-      mockGetEvent.mockReturnValueOnce({ ...mockEventWithInvitationAttachment, cost: 130, costMember: 130 })
+      mockGetLiveEvent.mockReturnValueOnce({ ...mockEventWithInvitationAttachment, cost: 130, costMember: 130 })
       mockGetRegistration.mockReturnValueOnce({
         ...registrationsToEventWithParticipantsInvited[0],
         paidAmount,
@@ -384,7 +401,7 @@ describe('getRegistration', () => {
 
   // KOE-1526 review: a trial that is not confirmed, a cancelled one say, asks nothing of anyone.
   it('asks nothing to be paid for a trial that has been cancelled', async () => {
-    mockGetEvent.mockReturnValueOnce({
+    mockGetLiveEvent.mockReturnValueOnce({
       ...mockEventWithInvitationAttachment,
       paymentTime: 'registration',
       state: 'cancelled',
@@ -412,7 +429,7 @@ describe('getRegistration', () => {
     ['owes nothing while it is a reserve', { key: 'reserve', number: 1 }, 0, false],
     ['owes the fee again once lifted into a place', { key: '2026-08-15-ap', number: 1 }, 130, true],
   ])('a reserve whose fee was refunded %s (KOE-1526)', async (_name, group, paymentDue, canPay) => {
-    mockGetEvent.mockReturnValueOnce({
+    mockGetLiveEvent.mockReturnValueOnce({
       ...mockEventWithInvitationAttachment,
       cost: 130,
       costMember: 130,

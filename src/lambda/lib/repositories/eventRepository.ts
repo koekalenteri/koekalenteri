@@ -39,6 +39,15 @@ export const readEvent = async <T extends JsonDogEvent = JsonDogEvent>(eventId: 
   dynamoDB.read<T>({ id: eventId }, consistent)
 
 /**
+ * The event as the public readers may see it: a soft-deleted row reads as no event, as one that was
+ * never stored does (KOE-1586). The admin readers keep `readEvent`, which reads the deleted rows too.
+ */
+export const readLiveEvent = async <T extends JsonDogEvent = JsonDogEvent>(eventId: string, consistent = false) => {
+  const row = await readEvent<T>(eventId, consistent)
+  return row?.deletedAt ? undefined : row
+}
+
+/**
  * Every event in the table, for the jobs that walk them all (the data migrations, the user merge).
  * The deleted ones only on request: a migration changes the shape of every stored row.
  */
@@ -68,10 +77,7 @@ export const findEventIdsByKcGuid = async (kcGuid: string) =>
     values: { ':kcGuid': kcGuid },
   })
 
-const isLiveEvent = async (eventId: string) => {
-  const row = await readEvent(eventId)
-  return Boolean(row && !row.deletedAt)
-}
+const isLiveEvent = async (eventId: string) => Boolean(await readLiveEvent(eventId))
 
 /** The first of the candidates, in their order, whose row is neither soft-deleted nor gone. */
 const firstLive = async (candidates: IndexedEntryEnd[]): Promise<IndexedEntryEnd | undefined> => {

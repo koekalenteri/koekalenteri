@@ -25,7 +25,7 @@ import { splitName } from '../../lib/string'
 import { mapWithConcurrency } from '../../lib/utils'
 import { getFrontendOrigin } from '../lib/api-gw'
 import { authorize } from '../lib/auth'
-import { getEvent } from '../lib/event'
+import { getLiveEvent } from '../lib/event'
 import { parseJSONWithFallback } from '../lib/json'
 import { httpError, lambda, response } from '../lib/lambda'
 import { dropOpenTransaction, paymentDescription } from '../lib/payment'
@@ -117,7 +117,7 @@ const paymentCreateLambda = lambda('paymentCreate', async (event) => {
 
   const registration = await getRegistration(eventId, registrationId)
   const editToken = authorizeRegistrationEdit(event, registration)
-  const jsonEvent = await getEvent<JsonConfirmedEvent>(eventId)
+  const jsonEvent = await getLiveEvent<JsonConfirmedEvent>(eventId)
 
   if (registration.cancelled) {
     throw httpError(404, 'Registration not found')
