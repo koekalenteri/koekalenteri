@@ -13,14 +13,18 @@ import type {
 } from '../../types/Stats'
 import type { OrganizerStatsEvent, StatDeltas } from './repositories/eventStatsRepository'
 import crypto from 'node:crypto'
+import { dayStart, isDayKey, TIME_ZONE } from '../../lib/day'
 import { storedYear } from '../../lib/event'
 import { isMember, isStarter } from '../../lib/registration'
+import { legacyEventDay } from '../../lib/storedDays'
 import { isTransactionCanceled } from './api-gw'
+import { jitteredWait, retryOnConditionFailure } from './conditionalWrite'
 import {
   addOrganizerEventStats,
   commitNewRegistrationStats,
   isSameOrganizerStatsRow,
   moveOrganizerEventStatsRow,
+  ORGANIZER_STATS_MOVE_RETRY,
   readAllOrganizerEventStats,
   readBreedStarts,
   readBuckets,
@@ -40,16 +44,7 @@ import { readRegistration } from './repositories/registrationRepository'
 const NEW_REGISTRATION_STATS_MAX_ATTEMPTS = 12
 const NEW_REGISTRATION_STATS_RETRY_BASE_MS = 10
 const NEW_REGISTRATION_STATS_RETRY_MAX_MS = 500
-const MOVE_ORGANIZER_STATS_MAX_ATTEMPTS = 8
-
-const waitForStatsRetry = (attempt: number) => {
-  const maximumDelay = Math.min(
-    NEW_REGISTRATION_STATS_RETRY_BASE_MS * 2 ** (attempt - 1),
-    NEW_REGISTRATION_STATS_RETRY_MAX_MS
-  )
-  const delay = Math.floor(Math.random() * maximumDelay)
-  return new Promise<void>((resolve) => setTimeout(resolve, delay))
-}
+const waitForStatsRetry = jitteredWait(NEW_REGISTRATION_STATS_RETRY_BASE_MS, NEW_REGISTRATION_STATS_RETRY_MAX_MS)
 
 /** The Finnish year of an event's stored start date, or undefined for one without a calendar day. */
 export function eventStatsYear({ startDate }: { startDate: string }): number | undefined {
@@ -373,23 +368,57 @@ export async function moveOrganizerEventStats(
 ): Promise<void> {
   if (isSameOrganizerStatsRow(existing, updated)) return
 
-  for (let attempt = 1; attempt <= MOVE_ORGANIZER_STATS_MAX_ATTEMPTS; attempt++) {
-    // No record yet means no registrations have been counted for this event; the first
-    // registration will simply create it under the new key.
-    const stats = await readOrganizerEventStatsRow(existing)
-    if (!stats) return
-
-    try {
+  await retryOnConditionFailure({
+    ...ORGANIZER_STATS_MOVE_RETRY,
+    // The last cancelled transaction goes to the caller as it came.
+    exhausted: (lastConflict) => lastConflict,
+    initial: await readOrganizerStatsSource(existing),
+    reread: () => readOrganizerStatsSource(existing),
+    work: async (found) => {
+      // No record yet means no registrations have been counted for this event; the first
+      // registration will simply create it under the new key.
+      if (!found || isSameOrganizerStatsRow(found.source, updated)) return
       // One transaction, because a half-finished move either double-counts the event in the
       // organizer's totals or drops it, and no scheduled job would notice either.
-      await moveOrganizerEventStatsRow(existing, updated, stats, new Date().toISOString())
-      return
-    } catch (error) {
-      if (!isTransactionCanceled(error) || attempt === MOVE_ORGANIZER_STATS_MAX_ATTEMPTS) throw error
-      await waitForStatsRetry(attempt)
-    }
-  }
+      await moveOrganizerEventStatsRow(found.source, updated, found.stats, new Date().toISOString())
+    },
+  })
 }
+
+const HOUR_MS = 3_600_000
+
+/**
+ * The starts an organizer stats row may be keyed by while KOE-1547's migrations run, the start as
+ * stored first. The event and its stats rows are migrated one after the other, so for a while either
+ * may hold the old form: for a stored instant, the key of the day it was stored for; for a key, the
+ * instant its Finnish day starts at, and the instants an hour either side of it, which a winter or a
+ * summer day's start worked out with the other offset was stored as.
+ *
+ * The stats migration keys a row by the day its start was stored for (`legacyEventDay`), so that is
+ * where a moved row may already be.
+ */
+const storedStartForms = (startDate: string): string[] => {
+  if (!isDayKey(startDate)) {
+    const day = legacyEventDay(startDate)
+    return day ? [startDate, day] : [startDate]
+  }
+  const midnight = dayStart(startDate, TIME_ZONE).getTime()
+  return [startDate, ...[0, -HOUR_MS, HOUR_MS].map((offset) => new Date(midnight + offset).toISOString())]
+}
+
+/** The first of the event's possible stats rows that is there, read one after the other. */
+const readFirstStatsRow = async (
+  sources: OrganizerStatsEvent[]
+): Promise<{ source: OrganizerStatsEvent; stats: JsonEventStatsItem } | undefined> => {
+  const [source, ...rest] = sources
+  if (!source) return undefined
+  const stats = await readOrganizerEventStatsRow(source)
+  return stats ? { source, stats } : readFirstStatsRow(rest)
+}
+
+/** The event's organizer stats row, under the start as stored or under the first other form that has one. */
+const readOrganizerStatsSource = (existing: OrganizerStatsEvent) =>
+  readFirstStatsRow(storedStartForms(existing.startDate).map((startDate) => ({ ...existing, startDate })))
 
 /**
  * Helper for bucket calculation

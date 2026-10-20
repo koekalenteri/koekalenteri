@@ -7,6 +7,7 @@ import {
 } from '../../__mockData__/registrations'
 import { formatDate } from '../../i18n/dates'
 import { eventRegistrationDateKey } from '../../lib/event'
+import { finnishDayOf, legacyDayValue } from '../../test-utils/finnishDays'
 import { httpError } from '../lib/lambda'
 import { deliverToEntrant, everyEntrantWatching } from '../test-utils/entrantPages'
 import { constructAPIGwEvent as constructRawAPIGwEvent } from '../test-utils/helpers'
@@ -479,7 +480,8 @@ describe('putRegistrationGroupsLambda', () => {
   it('repairs the UTC day key of a start in passing, without a trail line or a change of place (KOE-1541)', async () => {
     const event = JSON.parse(JSON.stringify(eventWithParticipantsInvited))
     authorizeWithMemberOfMock.mockResolvedValueOnce({ memberOf: [], user: mockUser })
-    const date = '2026-08-14T21:00:00.000Z' // 15.8. 00:00 in Helsinki
+    // 15.8. 00:00 in Helsinki, as a row stored before KOE-1547 holds it
+    const date = legacyDayValue('2026-08-14T21:00:00.000Z')
     const stored = jsonRegistrationsToEventWithParticipantsInvited.filter((r) => r.class === 'ALO')
     const [first, second, third] = stored.map(
       (r, index): JsonRegistration => ({
@@ -954,7 +956,7 @@ describe('putRegistrationGroupsLambda', () => {
       ...r,
       group: isLifted(r)
         ? {
-            date: eventWithParticipantsInvited.startDate.toISOString(),
+            date: finnishDayOf(eventWithParticipantsInvited.startDate),
             key: eventRegistrationDateKey({ date: eventWithParticipantsInvited.startDate, time: 'ap' }),
             number: 2,
             time: 'ap',

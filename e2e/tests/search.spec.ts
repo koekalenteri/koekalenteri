@@ -1,6 +1,6 @@
 import type { Page } from '@playwright/test'
 import { expect, test } from '@playwright/test'
-import { endOfDay, startOfDay } from '../fixtures/dates'
+import { helsinkiDay } from '../fixtures/dates'
 import { seedEvent } from '../fixtures/db'
 import { issue } from '../fixtures/issue'
 import { SearchPage } from '../pages/SearchPage'
@@ -23,7 +23,7 @@ test.describe('finding an event', { annotation: issue('KOE-1476'), tag: '@public
   })
 
   test('the start date hides an earlier event and shows it again when moved back', async ({ page }) => {
-    const event = await seedEvent({ endDate: startOfDay(20), startDate: startOfDay(20) })
+    const event = await seedEvent({ endDate: helsinkiDay(20), startDate: helsinkiDay(20) })
     const search = new SearchPage(page)
     await search.goto()
     await expect(search.event(event)).toBeVisible()
@@ -88,7 +88,7 @@ test.describe('finding an event', { annotation: issue('KOE-1476'), tag: '@public
   test('the end date typed into the empty field hides a later event', { annotation: issue('KOE-1481') }, async ({
     page,
   }) => {
-    const event = await seedEvent({ endDate: startOfDay(20), startDate: startOfDay(20) })
+    const event = await seedEvent({ endDate: helsinkiDay(20), startDate: helsinkiDay(20) })
     const search = new SearchPage(page)
     await search.goto()
     await expect(search.event(event)).toBeVisible()
@@ -101,7 +101,7 @@ test.describe('finding an event', { annotation: issue('KOE-1476'), tag: '@public
 
   test('"entry open" hides an event whose entry has not opened yet', async ({ page }) => {
     const open = await seedEvent()
-    const upcoming = await seedEvent({ entryEndDate: endOfDay(10), entryStartDate: startOfDay(3) })
+    const upcoming = await seedEvent({ entryEndDate: helsinkiDay(10), entryStartDate: helsinkiDay(3) })
     const search = new SearchPage(page)
     await search.goto()
     await expect(search.event(upcoming)).toBeVisible()

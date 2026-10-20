@@ -15,6 +15,7 @@ import { hasPaymentLockingRegistrations, paymentTermsDiffer } from '../../lib/pa
 import { getStartListBlocker, isStartListFlagPublished } from '../../lib/publishing'
 import { groupParticipantsByClass } from '../../lib/registration'
 import { eventBodySchema } from '../../lib/schema/event'
+import { legacyEventDay, rekeyEventDays, requestDay } from '../../lib/storedDays'
 import { patchMerge } from '../../lib/utils'
 import { audit, eventAuditKey, getEventAuditMessages } from '../lib/audit'
 import { authorize } from '../lib/auth'
@@ -339,12 +340,21 @@ const putEventLambda = lambda('putEvent', async (event) => {
 
   const item: Patch<JsonConfirmedEvent> = parseJSONWithFallback(event.body)
   validateBody(eventBodySchema, item)
+  // Days are stored as keys (KOE-1547). A browser loaded before that sends instants, and a row not yet
+  // migrated holds them: both are read as keys before anything compares, merges or audits them, so
+  // the same day in the other form is no change.
+  rekeyEventDays(item, requestDay)
 
   const clientModifiedAt = item.modifiedAt
 
   checkPutEventRequestShape(patchRequest, item)
 
   const existing = item.id ? await getEvent<JsonConfirmedEvent>(item.id) : undefined
+  // The row as stored, whose days an unmigrated row holds as instants: the save writes it from this, so
+  // the days the save keeps are written as keys too, together with the organizer stats row's move to
+  // the key of the start. The checks, the merge and the audit read the days as keys.
+  const stored = existing && structuredClone(existing)
+  if (existing) rekeyEventDays(existing, legacyEventDay)
 
   checkPutEventAgainstExisting(user, item, existing, clientModifiedAt)
   dropResultsPublished(item, existing)
@@ -384,13 +394,13 @@ const putEventLambda = lambda('putEvent', async (event) => {
   data.updatedAt = timestamp
 
   // Update registrations in case the secretary version was out of date.
-  const result = await persistEventWithRegistrations(existing, data)
+  const result = await persistEventWithRegistrations(stored, data)
 
   // Organizer stats are keyed by organizer + start date, so an edit to either has to carry the
   // already-counted registrations across rather than leave them under the old key. This and the
   // audit trail touch different tables and don't depend on each other, so they run together.
   await Promise.all([
-    existing ? moveOrganizerEventStats(existing, data) : undefined,
+    stored ? moveOrganizerEventStats(stored, data) : undefined,
     auditEventChanges(existing, item, result, user.name),
   ])
 

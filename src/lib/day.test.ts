@@ -19,6 +19,8 @@ import {
   isDayKey,
   isInstantString,
   latestDayMonthsBefore,
+  legacyStoredDay,
+  legacyStoredEventDay,
   localCalendarDayOf,
   localDateOf,
   localDayOf,
@@ -27,6 +29,7 @@ import {
   pickedDayOf,
   sameDay,
   shiftDays,
+  storedEventDayOf,
   TIME_ZONE,
   toDayKey,
   yearEnd,
@@ -608,6 +611,56 @@ for (const hostZone of HOST_ZONES) {
   })
 }
 
+// An event's or an entry's day stored as an instant (KOE-1547): the start or the end of the day, some
+// an hour off, read as the day it was stored for, in every host zone.
+for (const hostZone of HOST_ZONES) {
+  describeInTimeZone(hostZone, () => {
+    describe('a stored event day', () => {
+      it.each([
+        ['an exact Finnish midnight', '2026-05-31T21:00:00.000Z', '2026-06-01'],
+        [
+          "a winter day's midnight worked out in summer time, 23:00 the evening before",
+          '2026-11-06T21:00:00.000Z',
+          '2026-11-07',
+        ],
+        ["a summer day's midnight worked out in winter time, 01:00", '2026-10-01T22:00:00.000Z', '2026-10-02'],
+        ['a UTC midnight, 02:00 in winter', '2026-01-20T00:00:00.000Z', '2026-01-20'],
+        ['an exact Finnish end of day', '2026-05-17T20:59:59.999Z', '2026-05-17'],
+        ['an end of day an hour late, 00:59:59.999', '2026-09-27T21:59:59.999Z', '2026-09-27'],
+        ['an end of day an hour early, 22:59:59.999', '2026-01-01T20:59:59.999Z', '2026-01-01'],
+        // Further than an hour from every midnight, an instant is the day it falls on.
+        ['noon', '2026-06-01T09:00:00.000Z', '2026-06-01'],
+        ['22:30 the evening before', '2026-05-31T19:30:00.000Z', '2026-05-31'],
+        ['an end of the hour at 15:59:59.999', '2026-06-01T12:59:59.999Z', '2026-06-01'],
+        // Only the last millisecond of an hour is an end: these are starts half an hour into the day.
+        ['a start at 00:30:59.000', '2026-05-31T21:30:59.000Z', '2026-06-01'],
+        ['a start at 00:30:59.999', '2026-05-31T21:30:59.999Z', '2026-06-01'],
+        ['a start at 00:59:00.999', '2026-05-31T21:59:00.999Z', '2026-06-01'],
+      ])('reads %s as the day it was stored for', (_name, value, expected) => {
+        expect(storedEventDayOf(new Date(value), TIME_ZONE)).toBe(expected)
+        expect(legacyStoredEventDay(value, TIME_ZONE)).toBe(expected)
+      })
+
+      it.each([
+        ["Kennelliitto's stamp", '2021-01-01T00:00:00', '2021-01-01'],
+        ['a day key', '2021-01-01', '2021-01-01'],
+      ])('reads %s as the day written on it', (_name, value, expected) => {
+        expect(legacyStoredEventDay(value, TIME_ZONE)).toBe(expected)
+      })
+
+      it.each([
+        ["Kennelliitto's empty date", '0001-01-01T00:00:00'],
+        ['its empty date written by a browser in Finland', '0000-12-31T22:20:11.000Z'],
+        ['a day the month does not have', '2021-02-30'],
+        ['text', 'tomorrow'],
+        ['no text', 42],
+      ])('reads %s as no day', (_name, value) => {
+        expect(legacyStoredEventDay(value, TIME_ZONE)).toBeUndefined()
+      })
+    })
+  })
+}
+
 // The dog's dates in every form they were stored in (KOE-1548), read the same in every host zone.
 for (const hostZone of HOST_ZONES) {
   describeInTimeZone(hostZone, () => {
@@ -617,10 +670,14 @@ for (const hostZone of HOST_ZONES) {
         ["Kennelliitto's stamp", '2021-01-01T00:00:00', '2021-01-01'],
         ['a stamp with seconds and milliseconds', '2021-01-01T00:00:00.000', '2021-01-01'],
         ['a Finnish midnight a browser wrote', '2020-12-31T22:00:00.000Z', '2021-01-01'],
+        // From KOE-1131 (29.3.2026) to KOE-1546 the browser's JSON reviver made a bare day its local noon.
+        ['a Finnish noon a browser wrote', '2024-05-10T09:00:00.000Z', '2024-05-10'],
         ['a midnight a lambda wrote in UTC', '2024-01-01T00:00:00.000Z', '2024-01-01'],
         ['an instant with an offset', '2021-01-01T00:30:00+02:00', '2021-01-01'],
       ])('reads %s as its Finnish day', (_name, value, expected) => {
         expect(calendarDayOf(value, TIME_ZONE)).toBe(expected)
+        // The migrations' own reading, which keeps every one of these forms (KOE-1547).
+        expect(legacyStoredDay(value, TIME_ZONE)).toBe(expected)
       })
 
       it.each([
@@ -638,6 +695,7 @@ for (const hostZone of HOST_ZONES) {
       ])('reads %s as no day, without throwing', (_name, value) => {
         expect(calendarDayOf(value, TIME_ZONE)).toBeUndefined()
         expect(localCalendarDayOf(value)).toBeUndefined()
+        expect(legacyStoredDay(value, TIME_ZONE)).toBeUndefined()
       })
 
       // The empty date's instants are no instants of an accepted day to begin with; an instant whose own

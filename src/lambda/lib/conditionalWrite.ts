@@ -1,3 +1,4 @@
+import { randomInt } from 'node:crypto'
 import { isConditionalCheckFailure } from './api-gw'
 
 /**
@@ -27,9 +28,34 @@ interface ConditionalWrite<R, T> {
   /** Works out the write from a reading and makes it, on condition the row is still as read. */
   work: (reading: R) => Promise<T>
   maxAttempts: number
-  /** The caller's own conflict, thrown once the attempts run out. */
-  exhausted: () => Error
+  /** What is thrown once the attempts run out: the caller's own conflict, or the last one as it came. */
+  exhausted: (lastConflict: unknown) => unknown
+  /**
+   * Whether a failure means the row moved meanwhile: a failed condition, unless the write is a
+   * transaction, whose failed condition cancels it.
+   */
+  isConflict?: (error: unknown) => boolean
+  /** Waits before the next attempt (after the `attempt`th failed), so concurrent writers spread out. */
+  wait?: (attempt: number) => Promise<void>
 }
+
+/** The bound of the integers `randomInt` draws a fraction from: below its limit of 2^48. */
+const FRACTION_STEPS = 2 ** 47
+
+/** A fraction in [0, 1) from the platform's cryptographic source; `draw` gives an integer below its bound. */
+export const secureFraction = (draw: (max: number) => number = randomInt) => draw(FRACTION_STEPS) / FRACTION_STEPS
+
+/**
+ * A wait of a random length up to `baseMs` doubled per attempt and capped at `maxMs`: writers that
+ * collided do not collide again at once. `random` gives a fraction in [0, 1); a test gives its own.
+ */
+export const jitteredWait =
+  (baseMs: number, maxMs: number, random: () => number = secureFraction) =>
+  (attempt: number): Promise<void> => {
+    const maximumDelay = Math.min(baseMs * 2 ** (attempt - 1), maxMs)
+    const delay = Math.floor(random() * maximumDelay)
+    return new Promise<void>((resolve) => setTimeout(resolve, delay))
+  }
 
 /**
  * Runs a conditional write, and again when its condition failed because the row moved meanwhile: the
@@ -43,13 +69,16 @@ export const retryOnConditionFailure = <R, T>({
   work,
   maxAttempts,
   exhausted,
+  isConflict = isConditionalCheckFailure,
+  wait,
 }: ConditionalWrite<R, T>): Promise<T> => {
   const attempt = async (reading: R, number: number): Promise<T> => {
     try {
       return await work(reading)
     } catch (error) {
-      if (!isConditionalCheckFailure(error)) throw error
-      if (number >= maxAttempts) throw exhausted()
+      if (!isConflict(error)) throw error
+      if (number >= maxAttempts) throw exhausted(error)
+      if (wait) await wait(number)
       return attempt(await reread(), number + 1)
     }
   }

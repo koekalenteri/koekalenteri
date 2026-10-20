@@ -1,4 +1,4 @@
-import type { JsonEventResult, JsonRegistration } from '../../types'
+import type { JsonEventResult, JsonEventStation, JsonRegistration } from '../../types'
 import { asJsonConfirmedEvent, asJsonRegistration } from '../test-utils/helpers'
 import { linkedEventProjection } from './event'
 import {
@@ -9,7 +9,7 @@ import {
   stationEntryResponse,
 } from './stationEntry'
 
-const station = { date: '2026-09-12', id: 'post-1', number: 1, tasks: 1 as const }
+const station: JsonEventStation = { date: '2026-09-12', id: 'post-1', number: 1, tasks: 1 as const }
 
 const confirmedEvent = asJsonConfirmedEvent({
   classes: [{ class: 'ALO' }],
@@ -65,7 +65,7 @@ describe('stationEntry', () => {
     })
 
     it('closes the implicit post to the old link once its version has been written down', () => {
-      const revoked = { date: '2026-09-12', id: '1', number: 1, tasks: 1 as const, tokenVersion: 2 }
+      const revoked: JsonEventStation = { date: '2026-09-12', id: '1', number: 1, tasks: 1 as const, tokenVersion: 2 }
       const singlePost = asJsonConfirmedEvent({ ...confirmedEvent, eventType: 'NOME-B', stations: [revoked] })
       const before = getStationEntryToken('event-1', { id: '1' })
       const after = getStationEntryToken('event-1', revoked)
@@ -132,7 +132,7 @@ describe('stationEntry', () => {
         eventResult: { judge, result: 'ALO1', updatedAt: 't1', updatedBy: 'u' },
         eventType: 'NOME-B',
       })
-      const implicit = { date: '2026-09-12', id: '1', number: 1, tasks: 1 as const }
+      const implicit: JsonEventStation = { date: '2026-09-12', id: '1', number: 1, tasks: 1 as const }
 
       // The version rides along, since the post's next save of this dog is based on it.
       expect(stationEntryResponse(singlePost, implicit, [scored]).registrations[0].eventResult).toEqual({

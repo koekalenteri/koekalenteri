@@ -387,6 +387,31 @@ describe('putAdminRegistrationLambda', () => {
     expect(result.statusCode).toBe(200)
   })
 
+  // KOE-1547: days are stored as keys. A browser loaded before that sends instants, decoded as the
+  // migration decodes them: Fri 23:00 is the Saturday it was stored for in an entry's day and group,
+  // and Friday in the dog's birth date, which is the day it falls on.
+  it('writes the days a browser sends as instants as the keys the migration would write', async () => {
+    const offHour = '2025-12-12T21:00:00.000Z'
+    const result = await putAdminRegistrationLambda({
+      ...event,
+      body: JSON.stringify({
+        ...newRegistrationBody,
+        dates: [{ date: offHour, time: 'ap' }],
+        dog: { ...newRegistrationBody.dog, dob: offHour },
+        group: { date: offHour, key: '2025-12-12-ap', number: 1, time: 'ap' },
+      }),
+    })
+
+    expect(result.statusCode).toBe(200)
+    expect(mockWriteRegistration).toHaveBeenCalledWith(
+      expect.objectContaining({
+        dates: [{ date: '2025-12-13', time: 'ap' }],
+        dog: expect.objectContaining({ dob: '2025-12-12' }),
+        group: expect.objectContaining({ date: '2025-12-13', key: '2025-12-13-ap' }),
+      })
+    )
+  })
+
   it('rejects a concurrent create that wins after the initial duplicate check', async () => {
     const request = JSON.parse(event.body ?? '')
     delete request.id

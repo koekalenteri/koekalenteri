@@ -14,7 +14,7 @@ import { randomInt } from 'node:crypto'
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb'
 import { DynamoDBDocumentClient, GetCommand, PutCommand, QueryCommand } from '@aws-sdk/lib-dynamodb'
 import { DYNAMODB_ENDPOINT, LOCAL_ACCESS_KEY } from '../env.mjs'
-import { startOfDay } from './dates'
+import { helsinkiDay } from './dates'
 import { buildEvent, uniqueId } from './events'
 
 const client = DynamoDBDocumentClient.from(
@@ -69,7 +69,7 @@ export const seedDog = async (overrides: Partial<JsonDog> = {}): Promise<JsonDog
   const dog: JsonDog = {
     breedCode: '122',
     dam: { name: 'E2E Emä' },
-    dob: startOfDay(-730),
+    dob: helsinkiDay(-730),
     gender: 'F',
     name: `E2E Koira ${number}`,
     refreshDate: new Date().toISOString(),

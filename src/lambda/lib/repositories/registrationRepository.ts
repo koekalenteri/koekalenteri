@@ -5,6 +5,7 @@ import type { UpdateActions, UpdateCondition } from '../../utils/CustomDynamoCli
 import { CONFIG } from '../../config'
 import CustomDynamoClient from '../../utils/CustomDynamoClient'
 import { isConditionalCheckFailure, isTransactionCanceled } from '../api-gw'
+import { foldedFrom } from '../conditionalWrite'
 import { createDynamoLease } from '../lease'
 import { logger } from '../log'
 
@@ -51,6 +52,37 @@ export const writeRegistration = async (registration: JsonRegistration) => {
 
 /** Puts the registrations in batches, retrying what DynamoDB leaves unprocessed. */
 export const writeRegistrations = async (registrations: JsonRegistration[]) => dynamoDB.batchWrite(registrations)
+
+/**
+ * The event id of every registration row, deleted ones included, each once: what a data migration
+ * walks the table by, an event's rows at a time, so the whole table is never held in memory at once.
+ */
+export const readRegistrationEventIds = async (): Promise<string[]> => {
+  const keys = await dynamoDB.readAll<Pick<JsonRegistration, 'eventId'>>({
+    includeDeleted: true,
+    projection: 'eventId',
+  })
+  return [...new Set((keys ?? []).map(({ eventId }) => eventId))]
+}
+
+/**
+ * Writes a migration's changes on condition that the row still exists and nobody moved it since it
+ * was read with `readUpdatedAt`; without the existence check an update of a deleted row would create a
+ * stub holding only the migrated fields. Throws the condition failure otherwise.
+ */
+export const writeMigratedRegistration = async (
+  eventId: string,
+  id: string,
+  changes: UpdateActions,
+  readUpdatedAt: string | undefined
+) => {
+  await dynamoDB.update(
+    { eventId, id },
+    changes,
+    undefined,
+    foldedFrom('#updatedAt', { '#updatedAt': 'updatedAt' }, readUpdatedAt)
+  )
+}
 
 /** Sets and removes fields of the registration, with no condition. */
 export const writeRegistrationFields = async (eventId: string, id: string, changes: UpdateActions) => {

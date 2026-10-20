@@ -1,8 +1,9 @@
-import type { JsonConfirmedEvent, JsonEventType, JsonRegistration } from '../../types'
+import type { JsonEventType, JsonRegistration } from '../../types'
 import type { JsonCapacityStatsItem, RegistrationStatsInput } from '../../types/Stats'
 import type * as eventStatsRepository from './repositories/eventStatsRepository'
 import type * as registrationRepository from './repositories/registrationRepository'
 import { vi } from 'vitest'
+import { legacyDayValue } from '../../test-utils/finnishDays'
 import { asJsonConfirmedEvent, asJsonRegistration } from '../test-utils/helpers'
 
 const mockReadOrganizerEventStats = vi.fn<typeof eventStatsRepository.readOrganizerEventStats>()
@@ -23,24 +24,29 @@ const mockCommitNewRegistrationStats = vi.fn<typeof eventStatsRepository.commitN
 const mockReadRegistration = vi.fn<typeof registrationRepository.readRegistration>()
 
 // The key builder is the real one; only the table access is replaced.
-vi.doMock('./repositories/eventStatsRepository', async (importOriginal) => ({
-  ...(await importOriginal<typeof eventStatsRepository>()),
-  addOrganizerEventStats: mockAddOrganizerEventStats,
-  commitNewRegistrationStats: mockCommitNewRegistrationStats,
-  moveOrganizerEventStatsRow: mockMoveOrganizerEventStatsRow,
-  readAllOrganizerEventStats: mockReadAllOrganizerEventStats,
-  readBreedStarts: mockReadBreedStarts,
-  readBuckets: mockReadBuckets,
-  readCapacityStats: mockReadCapacityStats,
-  readEventBreakdown: mockReadEventBreakdown,
-  readJudgeWorkload: mockReadJudgeWorkload,
-  readOrganizerEventStats: mockReadOrganizerEventStats,
-  readOrganizerEventStatsRow: mockReadOrganizerEventStatsRow,
-  readRetention: mockReadRetention,
-  readStatsYears: mockReadStatsYears,
-  readYearlyBreakdown: mockReadYearlyBreakdown,
-  readYearlyTotals: mockReadYearlyTotals,
-}))
+vi.doMock('./repositories/eventStatsRepository', async (importOriginal) => {
+  const original = await importOriginal<typeof eventStatsRepository>()
+  return {
+    ...original,
+    addOrganizerEventStats: mockAddOrganizerEventStats,
+    commitNewRegistrationStats: mockCommitNewRegistrationStats,
+    moveOrganizerEventStatsRow: mockMoveOrganizerEventStatsRow,
+    // The move's retry as it is, with a jitter of nothing: the moves follow each other at once.
+    ORGANIZER_STATS_MOVE_RETRY: original.organizerStatsMoveRetry(() => 0),
+    readAllOrganizerEventStats: mockReadAllOrganizerEventStats,
+    readBreedStarts: mockReadBreedStarts,
+    readBuckets: mockReadBuckets,
+    readCapacityStats: mockReadCapacityStats,
+    readEventBreakdown: mockReadEventBreakdown,
+    readJudgeWorkload: mockReadJudgeWorkload,
+    readOrganizerEventStats: mockReadOrganizerEventStats,
+    readOrganizerEventStatsRow: mockReadOrganizerEventStatsRow,
+    readRetention: mockReadRetention,
+    readStatsYears: mockReadStatsYears,
+    readYearlyBreakdown: mockReadYearlyBreakdown,
+    readYearlyTotals: mockReadYearlyTotals,
+  }
+})
 
 vi.doMock('./repositories/registrationRepository', () => ({
   readRegistration: mockReadRegistration,
@@ -80,6 +86,7 @@ describe('lib/stats', () => {
   afterEach(() => {
     vi.resetAllMocks()
     vi.restoreAllMocks()
+    vi.useRealTimers()
   })
 
   describe('eventStatsYear', () => {
@@ -106,12 +113,12 @@ describe('lib/stats', () => {
       id: 'registration-1',
       owner: { email: 'owner@example.com' },
     } as JsonRegistration
-    const event = {
+    const event = asJsonConfirmedEvent({
       eventType: 'NOME-B',
       id: 'event-1',
       organizer: { id: 'organizer-1' },
       startDate: '2024-06-01',
-    } as JsonConfirmedEvent
+    })
     const withLease = (token: string) =>
       asJsonRegistration({ ...registration, newRegistrationLease: { expiresAt: Date.now() + 1000, token } })
 
@@ -141,7 +148,11 @@ describe('lib/stats', () => {
 
     it('refuses an event without a stats year before writing anything', async () => {
       await expect(
-        applyNewRegistrationStatsOnce(registration, { ...event, startDate: 'not-a-date' }, 'lease-token')
+        applyNewRegistrationStatsOnce(
+          registration,
+          { ...event, startDate: legacyDayValue('not-a-date') },
+          'lease-token'
+        )
       ).rejects.toThrow('Cannot derive stats year from event start date: not-a-date')
 
       expect(mockCommitNewRegistrationStats).not.toHaveBeenCalled()
@@ -166,38 +177,45 @@ describe('lib/stats', () => {
       // The ORG# item has no condition of its own, so a burst of registrations for the same
       // event can cancel each other's transactions with TransactionConflict, not just via the
       // registration's own condition. That's contention worth retrying, not a real failure.
-      vi.spyOn(Math, 'random').mockReturnValue(0)
+      vi.useFakeTimers()
       mockCommitNewRegistrationStats
         .mockRejectedValueOnce({ name: 'TransactionCanceledException' })
         .mockResolvedValueOnce(undefined)
       mockReadRegistration.mockResolvedValue(withLease('lease-token'))
 
-      await applyNewRegistrationStatsOnce(registration, event, 'lease-token')
+      // The jittered waits between the attempts pass at once.
+      const applying = applyNewRegistrationStatsOnce(registration, event, 'lease-token')
+      await vi.runAllTimersAsync()
+      await applying
 
       expect(mockCommitNewRegistrationStats).toHaveBeenCalledTimes(2)
     })
 
     it('survives a burst of contention on the shared organizer counters', async () => {
-      vi.spyOn(Math, 'random').mockReturnValue(0)
+      vi.useFakeTimers()
       for (let attempt = 0; attempt < 8; attempt++) {
         mockCommitNewRegistrationStats.mockRejectedValueOnce({ name: 'TransactionCanceledException' })
       }
       mockCommitNewRegistrationStats.mockResolvedValueOnce(undefined)
       mockReadRegistration.mockResolvedValue(withLease('lease-token'))
 
-      await applyNewRegistrationStatsOnce(registration, event, 'lease-token')
+      const applying = applyNewRegistrationStatsOnce(registration, event, 'lease-token')
+      await vi.runAllTimersAsync()
+      await applying
 
       expect(mockCommitNewRegistrationStats).toHaveBeenCalledTimes(9)
     })
 
     it('gives up after the last attempt even while the lease is still its own', async () => {
-      vi.spyOn(Math, 'random').mockReturnValue(0)
+      vi.useFakeTimers()
       mockCommitNewRegistrationStats.mockRejectedValue({ name: 'TransactionCanceledException' })
       mockReadRegistration.mockResolvedValue(withLease('lease-token'))
 
-      await expect(applyNewRegistrationStatsOnce(registration, event, 'lease-token')).rejects.toEqual({
+      const refused = expect(applyNewRegistrationStatsOnce(registration, event, 'lease-token')).rejects.toEqual({
         name: 'TransactionCanceledException',
       })
+      await vi.runAllTimersAsync()
+      await refused
       expect(mockCommitNewRegistrationStats).toHaveBeenCalledTimes(12)
     })
 
@@ -222,12 +240,12 @@ describe('lib/stats', () => {
 
   // Test moved from event.test.ts
   describe('updateEventStatsForRegistration', () => {
-    const event = {
+    const event = asJsonConfirmedEvent({
       endDate: '2024-01-02',
       id: 'e5',
       organizer: { id: 'org1' },
       startDate: '2024-01-01',
-    } as JsonConfirmedEvent
+    })
 
     it('adds the deltas of a new registration to the organizer stats', async () => {
       const reg = { cancelled: false, paidAmount: 10, refundAmount: 0 } as JsonRegistration
@@ -257,7 +275,7 @@ describe('lib/stats', () => {
       const reg = { cancelled: false, paidAmount: 10, refundAmount: 0 } as JsonRegistration
 
       await expect(
-        updateEventStatsForRegistration(reg, undefined, { ...event, startDate: 'not-a-date' })
+        updateEventStatsForRegistration(reg, undefined, { ...event, startDate: legacyDayValue('not-a-date') })
       ).rejects.toThrow('Cannot derive stats year from event start date: not-a-date')
 
       expect(mockAddOrganizerEventStats).not.toHaveBeenCalled()
@@ -345,6 +363,133 @@ describe('lib/stats', () => {
       expect(mockMoveOrganizerEventStatsRow).toHaveBeenCalledWith(event, moved, stats, expect.any(String))
     })
 
+    // KOE-1547: the event's row and its stats rows are migrated to day keys one after the other, so
+    // a save in between finds the stats row under the other form of the start.
+    describe('while the start is migrated to a day key', () => {
+      const keyed = { id: 'e5', organizer: { id: 'org1' }, startDate: '2024-06-15' }
+      const instant = { ...keyed, startDate: '2024-06-14T21:00:00.000Z' }
+      const later = { ...keyed, startDate: '2025-01-01' }
+
+      it('moves the row still keyed by the instant the start was stored as', async () => {
+        mockReadOrganizerEventStatsRow.mockResolvedValueOnce(undefined).mockResolvedValueOnce(stats)
+
+        await moveOrganizerEventStats(keyed, later)
+
+        expect(mockReadOrganizerEventStatsRow).toHaveBeenNthCalledWith(1, keyed)
+        expect(mockReadOrganizerEventStatsRow).toHaveBeenNthCalledWith(2, instant)
+        expect(mockMoveOrganizerEventStatsRow).toHaveBeenCalledWith(instant, later, stats, expect.any(String))
+      })
+
+      it('moves the row the stats migration keyed already when the stored start is still an instant', async () => {
+        mockReadOrganizerEventStatsRow.mockResolvedValueOnce(undefined).mockResolvedValueOnce(stats)
+
+        await moveOrganizerEventStats(instant, later)
+
+        expect(mockReadOrganizerEventStatsRow).toHaveBeenNthCalledWith(2, keyed)
+        expect(mockMoveOrganizerEventStatsRow).toHaveBeenCalledWith(keyed, later, stats, expect.any(String))
+      })
+
+      // The stats migration keys a row by the day its start was stored for: Fri 23:00 is Saturday there,
+      // though a request reads it as Friday.
+      it('moves the row the stats migration keyed by the day an hour-off start was stored for', async () => {
+        const offHour = { ...keyed, startDate: '2026-11-06T21:00:00.000Z' }
+        mockReadOrganizerEventStatsRow.mockResolvedValueOnce(undefined).mockResolvedValueOnce(stats)
+
+        await moveOrganizerEventStats(offHour, later)
+
+        expect(mockReadOrganizerEventStatsRow).toHaveBeenNthCalledWith(2, { ...keyed, startDate: '2026-11-07' })
+        expect(mockMoveOrganizerEventStatsRow).toHaveBeenCalledWith(
+          { ...keyed, startDate: '2026-11-07' },
+          later,
+          stats,
+          expect.any(String)
+        )
+      })
+
+      it('leaves a row already keyed by the day the save keeps', async () => {
+        mockReadOrganizerEventStatsRow.mockResolvedValueOnce(undefined).mockResolvedValueOnce(stats)
+
+        await moveOrganizerEventStats(instant, keyed)
+
+        expect(mockMoveOrganizerEventStatsRow).not.toHaveBeenCalled()
+      })
+
+      // A start worked out with the other season's offset was stored an hour off the Finnish midnight.
+      it.each([
+        ['an hour before', '2026-11-07', '2026-11-06T22:00:00.000Z', '2026-11-06T21:00:00.000Z'],
+        ['an hour after', '2026-06-15', '2026-06-14T21:00:00.000Z', '2026-06-14T22:00:00.000Z'],
+      ])('moves the row keyed by a start stored %s its day', async (_name, day, midnight, offHour) => {
+        const offKeyed = { ...keyed, startDate: day }
+        mockReadOrganizerEventStatsRow.mockImplementation(async (source) =>
+          source.startDate === offHour ? stats : undefined
+        )
+
+        await moveOrganizerEventStats(offKeyed, later)
+
+        expect(mockReadOrganizerEventStatsRow).toHaveBeenNthCalledWith(1, offKeyed)
+        expect(mockReadOrganizerEventStatsRow).toHaveBeenNthCalledWith(2, { ...keyed, startDate: midnight })
+        expect(mockReadOrganizerEventStatsRow).toHaveBeenCalledWith({ ...keyed, startDate: offHour })
+        expect(mockMoveOrganizerEventStatsRow).toHaveBeenCalledWith(
+          { ...keyed, startDate: offHour },
+          later,
+          stats,
+          expect.any(String)
+        )
+      })
+
+      it('picks up no row an unrelated instant of the same day keys, only the forms a start was stored in', async () => {
+        const offKeyed = { ...keyed, startDate: '2026-11-07' }
+        mockReadOrganizerEventStatsRow.mockImplementation(async (source) =>
+          source.startDate === '2026-11-07T00:00:00.000Z' ? stats : undefined
+        )
+
+        await moveOrganizerEventStats(offKeyed, later)
+
+        expect(mockReadOrganizerEventStatsRow).toHaveBeenCalledTimes(4)
+        expect(mockMoveOrganizerEventStatsRow).not.toHaveBeenCalled()
+      })
+
+      // Dev holds starts in offset form, as e2e runs wrote them: the row is found under the start as stored.
+      it.each(['2026-09-02T00:00:00.000+03:00', '2026-02-01T00:00:00.000+02:00'])(
+        'reads a start stored in offset form %s first, as the row stores it',
+        async (startDate) => {
+          const offset = { ...keyed, startDate }
+          mockReadOrganizerEventStatsRow.mockResolvedValueOnce({ ...stats, SK: `${startDate}#e5` })
+
+          await moveOrganizerEventStats(offset, later)
+
+          expect(mockReadOrganizerEventStatsRow).toHaveBeenCalledTimes(1)
+          expect(mockReadOrganizerEventStatsRow).toHaveBeenCalledWith(offset)
+          expect(mockMoveOrganizerEventStatsRow).toHaveBeenCalledWith(
+            offset,
+            later,
+            { ...stats, SK: `${startDate}#e5` },
+            expect.any(String)
+          )
+        }
+      )
+
+      it('reads the start an hour off first, as the row stores it, before its day key', async () => {
+        const offHour = { ...keyed, startDate: '2026-11-06T21:00:00.000Z' }
+        mockReadOrganizerEventStatsRow.mockResolvedValueOnce(stats)
+
+        await moveOrganizerEventStats(offHour, later)
+
+        expect(mockReadOrganizerEventStatsRow).toHaveBeenCalledTimes(1)
+        expect(mockReadOrganizerEventStatsRow).toHaveBeenCalledWith(offHour)
+        expect(mockMoveOrganizerEventStatsRow).toHaveBeenCalledWith(offHour, later, stats, expect.any(String))
+      })
+
+      it('reads no other form of a start with no day', async () => {
+        mockReadOrganizerEventStatsRow.mockResolvedValueOnce(undefined)
+
+        await moveOrganizerEventStats({ ...keyed, startDate: 'not-a-date' }, later)
+
+        expect(mockReadOrganizerEventStatsRow).toHaveBeenCalledTimes(1)
+        expect(mockMoveOrganizerEventStatsRow).not.toHaveBeenCalled()
+      })
+    })
+
     it('also moves the record across partitions when the organizer changes', async () => {
       mockReadOrganizerEventStatsRow.mockResolvedValueOnce(stats)
       const otherOrganizer = { ...event, organizer: { id: 'org2' } }
@@ -358,7 +503,6 @@ describe('lib/stats', () => {
       // A registration write landing on the old key between the read and the delete bumps its
       // updatedAt, failing the delete's condition; the move must pick up that fresh increment
       // instead of silently discarding it.
-      vi.spyOn(Math, 'random').mockReturnValue(0)
       const fresh = { ...stats, count: 8, updatedAt: '2024-06-20T00:05:00.000Z' }
       mockReadOrganizerEventStatsRow
         .mockResolvedValueOnce({ ...stats, count: 7, updatedAt: '2024-06-20T00:00:00.000Z' })
@@ -375,7 +519,6 @@ describe('lib/stats', () => {
     })
 
     it('gives up after exhausting the retry budget', async () => {
-      vi.spyOn(Math, 'random').mockReturnValue(0)
       mockReadOrganizerEventStatsRow.mockResolvedValue({ ...stats, updatedAt: '2024-06-20T00:00:00.000Z' })
       mockMoveOrganizerEventStatsRow.mockRejectedValue({ name: 'TransactionCanceledException' })
 
@@ -901,11 +1044,11 @@ describe('lib/stats', () => {
 
   describe('updateOrganizerEventStats', () => {
     it('adds the deltas to the organizer stats of the event', async () => {
-      const event = {
+      const event = asJsonConfirmedEvent({
         id: 'event456',
         organizer: { id: 'org123' },
         startDate: '2024-06-15',
-      } as JsonConfirmedEvent
+      })
 
       const deltas = {
         cancelledDelta: 0,

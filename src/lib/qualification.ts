@@ -13,7 +13,8 @@ import type {
   TestResult,
 } from '../types'
 import { getRequirements } from '../rules'
-import { calendarDayOf, dayParts, TIME_ZONE, yearOf } from './day'
+import { calendarDayOf, dayParts, dayStart, TIME_ZONE, yearOf } from './day'
+import { storedDayKey } from './event'
 import { getNextClass, isRegistrationClass } from './registration'
 
 export const objectContains = (obj: object, req: object) =>
@@ -190,7 +191,14 @@ export function filterRelevantResults(
   return check
 }
 
-const toDate = (date: string | undefined) => (date ? new Date(date) : undefined)
+/**
+ * A stored day as the moment the browser's model holds for it, the start of its Finnish day: a key
+ * (KOE-1547), or an instant on a row stored before that.
+ */
+const toDate = (date: string | undefined) => {
+  const day = storedDayKey(date)
+  return day ? dayStart(day, TIME_ZONE) : undefined
+}
 
 /** A stored result's day: a key, or the older forms written before keys (KOE-1548), read as the Finnish day. */
 const withDay = <T extends JsonTestResult>({ date, ...result }: T) => ({
@@ -215,7 +223,7 @@ export const qualifyJsonRegistration = (
       entryOrigEndDate: toDate(event.entryOrigEndDate),
       eventType: event.eventType,
       qualificationStartDate: toDate(event.qualificationStartDate),
-      startDate: new Date(event.startDate),
+      startDate: toDate(event.startDate) ?? new Date(Number.NaN),
     },
     registration.class,
     registration.dog.results?.map(withDay),

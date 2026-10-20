@@ -1,8 +1,8 @@
 import type { APIGatewayProxyEvent } from 'aws-lambda'
-import type { JsonRegistration } from '../../types'
+import type { RegistrationClass } from '../../types'
 import { vi } from 'vitest'
 import { getStartNumberLinkToken } from '../lib/startNumberLink'
-import { asJsonConfirmedEvent } from '../test-utils/helpers'
+import { asJsonConfirmedEvent, asJsonRegistration } from '../test-utils/helpers'
 
 const mockLambda = vi.fn((_name, fn) => fn)
 const mockResponse = vi.fn()
@@ -57,13 +57,13 @@ const confirmedEvent = asJsonConfirmedEvent({
 })
 
 /** ALO holds 1–2 of the working order, AVO 3–4: each class draws within the numbers it holds. */
-const registration = (id: string, eventClass: string, number: number) =>
-  ({
+const registration = (id: string, eventClass: RegistrationClass, number: number) =>
+  asJsonRegistration({
     class: eventClass,
     eventId: 'event-1',
     group: { date: '2026-09-12', key: `${eventClass}-AP`, number },
     id,
-  }) as JsonRegistration
+  })
 
 const apiEvent = (body: unknown, token?: string): APIGatewayProxyEvent => {
   const bearer = token ?? getStartNumberLinkToken('event-1', confirmedEvent, 'ALO')

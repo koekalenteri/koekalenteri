@@ -1,4 +1,4 @@
-import type { JsonDog, JsonEventType } from '../../types'
+import type { JsonDog, JsonEventType, JsonTestResult } from '../../types'
 import type KLAPI from '../lib/KLAPI'
 import type { KLKoetulos, KLKoira } from '../types/KLAPI'
 import { vi } from 'vitest'
@@ -61,7 +61,7 @@ describe('getDogHandler', () => {
   })
 
   it('filters dog results using active event types without mutating the stored dog', () => {
-    const result = {
+    const result: Omit<JsonTestResult, 'type'> = {
       class: 'ALO',
       date: '2024-01-01',
       judge: 'Judge',
@@ -301,7 +301,7 @@ describe('getDogHandler', () => {
   })
 
   it('filters cached results in the endpoint response using active event types', async () => {
-    const result = {
+    const result: Omit<JsonTestResult, 'type'> = {
       class: 'ALO',
       date: '2024-01-01',
       judge: 'Judge',

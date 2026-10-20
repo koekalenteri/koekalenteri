@@ -1,6 +1,7 @@
 import type { AuditActor, GroupChangeReason } from '../../lib/audit'
 import type {
   ConfirmedEventStates,
+  DayKey,
   EventClassState,
   EventState,
   JsonConfirmedEvent,
@@ -16,12 +17,13 @@ import type {
 import type { EventWorkflowLock } from './repositories/eventRepository'
 import { randomUUID } from 'node:crypto'
 import { auditUser, groupChangeAudit } from '../../lib/audit'
-import { dayStartOf, TIME_ZONE } from '../../lib/day'
+import { addDays } from '../../lib/day'
 import { withResultsDay } from '../../lib/event'
 import { KC_STATE_HANDED_OVER } from '../../lib/kennelliittoResults'
 import { getResultsBlocker, isResultsPublishedState } from '../../lib/publishing'
 import { GROUP_KEY_CANCELLED, hasPriority, REGISTRATION_WRITE_CONCURRENCY } from '../../lib/registration'
 import { normalizeRegistrationGroups } from '../../lib/registrationGroups'
+import { legacyEventDay } from '../../lib/storedDays'
 import { mapWithConcurrency } from '../../lib/utils'
 import { isConditionalCheckFailure } from './api-gw'
 import { audit, registrationAuditKey } from './audit'
@@ -107,18 +109,20 @@ export const findEventWithKcGuid = async (
   return matches?.find((match) => match.id !== excludeId)
 }
 
+/**
+ * The day after the previous trial of the type closed its entry: the first day a NOME-B SM result
+ * qualifies from. The previous trial is the one whose entry closed on a day before this one's, read
+ * from the entry end index by day key. Its entry end before any extension counts, and either may still
+ * be an instant on a row stored before KOE-1547.
+ */
 export const findQualificationStartDate = async (
   eventType: string,
-  entryEndDate: string
-): Promise<string | undefined> => {
+  entryEndDate: DayKey | undefined
+): Promise<DayKey | undefined> => {
+  if (!entryEndDate) return undefined
   const previous = await readLastEntryEndBefore(eventType, entryEndDate)
-
-  if (previous?.entryEndDate) {
-    // The Finnish day after the previous trial's entry closed, from its start.
-    const date = new Date(previous.entryOrigEndDate ?? previous.entryEndDate)
-    const qualificationStartDate = dayStartOf(date, TIME_ZONE, 1)
-    return qualificationStartDate.toISOString()
-  }
+  const closed = legacyEventDay(previous?.entryOrigEndDate) ?? legacyEventDay(previous?.entryEndDate)
+  return closed ? addDays(closed, 1) : undefined
 }
 
 export const saveEvent = async (data: JsonDogEvent): Promise<EventChange> => {

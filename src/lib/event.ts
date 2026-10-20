@@ -27,6 +27,7 @@ import type {
 import { LANGUAGES } from '../types'
 import {
   addDays,
+  calendarDayOf,
   dayOf,
   dayOfWeek,
   dayParts,
@@ -45,22 +46,37 @@ import { isLiveNow, isStoredStationTurn, toPublicStationTurn } from './stationTu
 import { isConfirmedEvent } from './typeGuards'
 import { isObject, unique, uniqueDate } from './utils'
 
-type EventVitals = Partial<
-  Pick<PublicDogEvent | JsonPublicDogEvent, 'startDate' | 'endDate' | 'entryStartDate' | 'entryEndDate' | 'state'>
->
-
 export const isValidForEntry = (state?: EventState) => !['draft', 'tentative', 'cancelled'].includes(state ?? '')
 
-/** A day as stored (a yyyy-MM-dd key or an ISO instant), as the typed boundary hands an instant over (a Date), or not known. */
-type DayInput = Date | string | undefined
+/** A day as stored (a yyyy-MM-dd key or an ISO instant), or as the typed boundary hands an instant over (a Date). */
+type StoredDay = Date | string
+
+/** A stored day, or not known. */
+type DayInput = StoredDay | undefined
+
+/**
+ * What the entry and progress questions read of an event: its days in any form a reader may hold them
+ * (a stored key, an instant on a row stored before KOE-1547, the browser's Date), and its state.
+ */
+type EventVitals = {
+  startDate?: StoredDay
+  endDate?: StoredDay
+  entryStartDate?: StoredDay
+  entryEndDate?: StoredDay
+  state?: EventState
+}
 
 /**
  * The Finnish day of a stored date. A day key passes through unchanged: parsed, it would be read as
  * midnight where the browser is, which east of Finland falls on the day before (KOE-1510). An instant,
- * as a Date or the ISO string the stored form is, is read in the trial's zone. The one bridge for the
- * `Date | string` fields until they are typed as days (KOE-1544).
+ * as a Date or the ISO string the stored form is, is read in the trial's zone, and a stamp without a
+ * zone as the day it names, as every reader of a stored day reads them (`calendarDayOf`). The one
+ * bridge for the `Date | string` fields until they are typed as days (KOE-1544).
  */
-export const eventDayKey = (date: Date | string): DayKey => (isDayKey(date) ? date : dayOf(toInstant(date), TIME_ZONE))
+export const eventDayKey = (date: Date | string): DayKey => {
+  if (isDayKey(date)) return date
+  return (typeof date === 'string' && calendarDayOf(date, TIME_ZONE)) || dayOf(toInstant(date), TIME_ZONE)
+}
 
 /** A stored instant as a Date: the ISO string the stored form is, or the Date the client's typed boundary made of it. */
 const toInstant = (date: Date | string): Date => (typeof date === 'string' ? new Date(date) : date)
@@ -72,9 +88,13 @@ const toInstant = (date: Date | string): Date => (typeof date === 'string' ? new
  */
 export const storedDayKey = (date: DayInput): DayKey | undefined => {
   if (!date) return undefined
-  if (isDayKey(date)) return date
-  const instant = toInstant(date)
-  return hasCalendarDay(instant, TIME_ZONE) ? dayOf(instant, TIME_ZONE) : undefined
+  // The day the instant falls on, and a stamp without a zone the day it names, as every display
+  // reader of a stored day reads it (`eventDayKey`, the group keys, the wire): a string goes through
+  // the one reader, `calendarDayOf`, never the host's zone. A day a row not yet migrated holds an hour
+  // off shows as the day before or after until its migration, which runs right after the deploy,
+  // writes the day it was stored for (`storedEventDayOf`, as every decode to a key reads it).
+  if (typeof date === 'string') return calendarDayOf(date, TIME_ZONE)
+  return hasCalendarDay(date, TIME_ZONE) ? dayOf(date, TIME_ZONE) : undefined
 }
 
 /**
@@ -118,15 +138,21 @@ const today = (now: Date) => dayOf(now, TIME_ZONE)
 
 type EventDateSortKey = { id: string; startDate?: Date | string; endDate?: Date | string }
 
-/** The calendar's order: start date, then end date, with the id as a stable tiebreaker. */
-export const compareEventsByDate = (a: EventDateSortKey, b: EventDateSortKey): number => {
-  const aStart = a.startDate ? new Date(a.startDate).getTime() : 0
-  const bStart = b.startDate ? new Date(b.startDate).getTime() : 0
-  if (aStart !== bStart) return aStart - bStart
+/** A day as it sorts: its key, or '' (first) for none. */
+const sortDay = (date: DayInput) => storedDayKey(date) ?? ''
 
-  const aEnd = a.endDate ? new Date(a.endDate).getTime() : 0
-  const bEnd = b.endDate ? new Date(b.endDate).getTime() : 0
-  if (aEnd !== bEnd) return aEnd - bEnd
+/**
+ * The calendar's order: start day, then end day, with the id as a stable tiebreaker. Days compare as
+ * keys, so a stored key and the instant of the same Finnish day sort as one (KOE-1547).
+ */
+export const compareEventsByDate = (a: EventDateSortKey, b: EventDateSortKey): number => {
+  const aStart = sortDay(a.startDate)
+  const bStart = sortDay(b.startDate)
+  if (aStart !== bStart) return aStart.localeCompare(bStart)
+
+  const aEnd = sortDay(a.endDate)
+  const bEnd = sortDay(b.endDate)
+  if (aEnd !== bEnd) return aEnd.localeCompare(bEnd)
 
   return a.id.localeCompare(b.id)
 }
@@ -550,7 +576,7 @@ export const isResultsAvailableForClass = (
   canPublishResults(eventClass.state ?? event.state, event) &&
   isResultsPublishedForDay(event, eventClass.class, eventClass.date ?? event.startDate)
 
-type ResultsFoldEvent = Pick<JsonDogEvent, 'resultsPublished' | 'classes' | 'startDate' | 'endDate'>
+type ResultsFoldEvent = Pick<JsonDogEvent, 'resultsPublished'> & ClassDaysEvent
 
 type ResultsDayChange = { day: string; published: boolean }
 

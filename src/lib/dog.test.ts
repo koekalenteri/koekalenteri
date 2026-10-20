@@ -1,7 +1,7 @@
 import type { BreedCode } from '../types'
 import { subMinutes } from 'date-fns'
 import { t } from 'i18next'
-import { startOfFinnishDay } from '../test-utils/finnishDays'
+import { legacyDayValue, startOfFinnishDay } from '../test-utils/finnishDays'
 import { describeInTimeZone } from '../test-utils/timeZone'
 import {
   breedAbbreviation,
@@ -83,9 +83,9 @@ describe('dog utility functions', () => {
     })
 
     it('reads the empty date as the API hands it to the form, through the typed boundary (KOE-1545)', () => {
-      expect(isValidDob(toDog({ dob: '0001-01-01T00:00:00' }).dob)).toBe(false)
-      expect(isValidDob(toDog({ dob: '0000-12-31T22:20:11.000Z' }).dob)).toBe(false)
-      expect(isValidDob(toDog({ dob: '2020-06-01T00:00:00' }).dob)).toBe(true)
+      expect(isValidDob(toDog({ dob: legacyDayValue('0001-01-01T00:00:00') }).dob)).toBe(false)
+      expect(isValidDob(toDog({ dob: legacyDayValue('0000-12-31T22:20:11.000Z') }).dob)).toBe(false)
+      expect(isValidDob(toDog({ dob: legacyDayValue('2020-06-01T00:00:00') }).dob)).toBe(true)
     })
 
     it('should return true for a birth day', () => {

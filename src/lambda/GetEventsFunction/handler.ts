@@ -1,15 +1,21 @@
 import type { JsonDogEvent } from '../../types'
-import { currentYear, TIME_ZONE, yearEnd, yearOf, yearStart } from '../../lib/day'
-import { sanitizeDogEvent } from '../../lib/event'
+import { currentYear, dayOf, TIME_ZONE, yearEnd, yearOf, yearStart } from '../../lib/day'
+import { sanitizeDogEvent, storedDayKey } from '../../lib/event'
 import { changedSince, collectionCursor, parseDateParam } from '../lib/incremental'
 import { lambda, response } from '../lib/lambda'
 import { readPublicSeasonEvents } from '../lib/repositories/eventRepository'
 
-function inRequestedRange(item: { startDate: string; endDate?: string }, start?: Date, end?: Date) {
-  const eventStart = new Date(item.startDate)
-  const eventEnd = item.endDate ? new Date(item.endDate) : eventStart
-  if (start && eventEnd < start) return false
-  if (end && eventStart > end) return false
+/**
+ * Whether the event's days meet the range's, compared as Finnish days: the stored days are keys, or
+ * instants on a row not yet migrated (KOE-1547). A row whose start has no day is left in, as the
+ * season query that found it.
+ */
+function inRequestedRange(item: Pick<JsonDogEvent, 'startDate' | 'endDate'>, start?: Date, end?: Date) {
+  const eventStart = storedDayKey(item.startDate)
+  if (!eventStart) return true
+  const eventEnd = storedDayKey(item.endDate) ?? eventStart
+  if (start && eventEnd < dayOf(start, TIME_ZONE)) return false
+  if (end && eventStart > dayOf(end, TIME_ZONE)) return false
   return true
 }
 
@@ -46,7 +52,8 @@ async function queryEventsForRange(start?: Date, end?: Date): Promise<JsonDogEve
 
   // The seasons are independent queries: asked together, the calendar waits for the slowest one
   // instead of their sum. Promise.all keeps the season order.
-  const perSeason = await Promise.all(seasons.map((season) => readPublicSeasonEvents(season, upperBound.toISOString())))
+  const startsBy = dayOf(upperBound, TIME_ZONE)
+  const perSeason = await Promise.all(seasons.map((season) => readPublicSeasonEvents(season, startsBy)))
 
   return perSeason.flatMap((seasonEvents) => seasonEvents ?? [])
 }

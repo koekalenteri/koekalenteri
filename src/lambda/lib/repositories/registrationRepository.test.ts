@@ -40,6 +40,7 @@ const {
   newRegistrationStatsMarkItem,
   readEventRegistrations,
   readRegistration,
+  readRegistrationEventIds,
   readRegistrationsForStats,
   registrationUpdateItem,
   releaseTransactionCreation,
@@ -47,6 +48,7 @@ const {
   updateRegistrationField,
   writeEmailDeliveryStatus,
   writeKcResult,
+  writeMigratedRegistration,
   writeRegistration,
   writeRegistrationFields,
   writeRegistrations,
@@ -145,6 +147,44 @@ describe('registrationRepository', () => {
       mockQuery.mockResolvedValueOnce(undefined)
 
       await expect(readEventRegistrations('e1')).resolves.toEqual([])
+    })
+  })
+
+  describe('readRegistrationEventIds', () => {
+    it("names every event of the table's rows once, the deleted rows' included", async () => {
+      mockReadAll.mockResolvedValueOnce([{ eventId: 'e1' }, { eventId: 'e2' }, { eventId: 'e1' }])
+
+      await expect(readRegistrationEventIds()).resolves.toEqual(['e1', 'e2'])
+      expect(mockReadAll).toHaveBeenCalledWith({ includeDeleted: true, projection: 'eventId' })
+    })
+
+    it('reads an empty table as no events', async () => {
+      mockReadAll.mockResolvedValueOnce(undefined)
+
+      await expect(readRegistrationEventIds()).resolves.toEqual([])
+    })
+  })
+
+  describe('writeMigratedRegistration', () => {
+    const changes = { set: { 'group.date': '2026-06-01', updatedAt: 'now' } }
+
+    it('writes on condition the row exists and still has the updatedAt read', async () => {
+      await writeMigratedRegistration('e1', 'r1', changes, 'read')
+
+      expect(mockUpdate).toHaveBeenCalledWith({ eventId: 'e1', id: 'r1' }, changes, undefined, {
+        expression: 'attribute_exists(#id) AND #updatedAt = :foldedFrom',
+        names: { '#id': 'id', '#updatedAt': 'updatedAt' },
+        values: { ':foldedFrom': 'read' },
+      })
+    })
+
+    it('holds a row read without updatedAt to still having none', async () => {
+      await writeMigratedRegistration('e1', 'r1', changes, undefined)
+
+      expect(mockUpdate).toHaveBeenCalledWith({ eventId: 'e1', id: 'r1' }, changes, undefined, {
+        expression: 'attribute_exists(#id) AND attribute_not_exists(#updatedAt)',
+        names: { '#id': 'id', '#updatedAt': 'updatedAt' },
+      })
     })
   })
 

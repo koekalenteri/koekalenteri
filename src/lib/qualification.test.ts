@@ -1,5 +1,6 @@
 import type { JsonManualTestResult, JsonTestResult } from '../types'
 import { describe, expect, it } from 'vitest'
+import { legacyDayValue } from '../test-utils/finnishDays'
 import { describeInTimeZone, withTimeZone } from '../test-utils/timeZone'
 import { filterRelevantResults, qualifyJsonRegistration } from './qualification'
 import { toDog, toManualTestResult } from './wire'
@@ -11,7 +12,7 @@ describe('lib/qualification', () => {
   describe('qualifyJsonRegistration', () => {
     const NOU1 = {
       class: '',
-      date: '2022-05-30T00:00:00.000Z',
+      date: legacyDayValue('2022-05-30T00:00:00.000Z'),
       judge: 'Test Judge',
       location: 'Test',
       result: 'NOU1',
@@ -21,7 +22,7 @@ describe('lib/qualification', () => {
     it('decides the same way as the form and hands the relevant results back as JSON', () => {
       const qualification = qualifyJsonRegistration(
         { class: 'ALO', dog: { regNo: 'FI12345/22', results: [NOU1] } },
-        { eventType: 'NOME-B', startDate: '2022-08-01' }
+        { eventType: 'NOME-B', startDate: '2022-08-01' as const }
       )
 
       expect(qualification.qualifies).toBe(true)
@@ -36,12 +37,12 @@ describe('lib/qualification', () => {
     ])('writes the day of a result read from %s as a key', (_name, date) => {
       const qualification = inLambdaZone(() =>
         qualifyJsonRegistration(
-          { class: 'ALO', dog: { regNo: 'FI12345/22', results: [{ ...NOU1, date }] } },
-          { eventType: 'NOME-B', startDate: '2022-08-01' }
+          { class: 'ALO', dog: { regNo: 'FI12345/22', results: [{ ...NOU1, date: legacyDayValue(date) }] } },
+          { eventType: 'NOME-B', startDate: '2022-08-01' as const }
         )
       )
 
-      expect(qualification.qualifyingResults).toEqual([expect.objectContaining({ date: '2022-05-30' })])
+      expect(qualification.qualifyingResults).toEqual([expect.objectContaining({ date: '2022-05-30' as const })])
     })
 
     // The best results are the earliest three: given latest first, the earliest dated ones come first, a
@@ -51,7 +52,7 @@ describe('lib/qualification', () => {
       const ALO1 = (date: string, location: string) => ({
         ...NOU1,
         class: 'ALO',
-        date,
+        date: legacyDayValue(date),
         location,
         result: 'ALO1',
         type: 'NOME-B',
@@ -60,7 +61,7 @@ describe('lib/qualification', () => {
         inLambdaZone(() =>
           qualifyJsonRegistration(
             { class: 'ALO', dog: { regNo: 'FI12345/22', results: [NOU1, ...results] } },
-            { eventType: 'NOME-B', startDate: '2022-08-01' }
+            { eventType: 'NOME-B', startDate: '2022-08-01' as const }
           )
         ).qualifyingResults?.map((r) => r.location)
 
@@ -85,7 +86,7 @@ describe('lib/qualification', () => {
         qualifyJsonRegistration(
           // A JSON body, as the request carries it: the field is missing, whatever the type says.
           { class: 'ALO', dog: { regNo: 'FI12345/22', results: [] }, results: [JSON.parse(JSON.stringify(undated))] },
-          { eventType: 'NOME-B', startDate: '2022-08-01' }
+          { eventType: 'NOME-B', startDate: '2022-08-01' as const }
         )
       )
 
@@ -102,10 +103,14 @@ describe('lib/qualification', () => {
             class: 'ALO',
             dog: {
               regNo: 'FI12345/22',
-              results: [NOU1, { ...ALO1, date: '0001-01-01T00:00:00' }, { ...ALO1, date: '2022-06-01T00:00:00' }],
+              results: [
+                NOU1,
+                { ...ALO1, date: legacyDayValue('0001-01-01T00:00:00') },
+                { ...ALO1, date: legacyDayValue('2022-06-01T00:00:00') },
+              ],
             },
           },
-          { eventType: 'NOME-B', startDate: '2022-08-01' }
+          { eventType: 'NOME-B', startDate: '2022-08-01' as const }
         )
       )
 
@@ -119,7 +124,7 @@ describe('lib/qualification', () => {
     it('counts the owner’s own claims as unofficial results', () => {
       const qualification = qualifyJsonRegistration(
         { class: 'ALO', dog: { regNo: 'FI12345/22', results: [] }, results: [{ ...NOU1, id: 'manual-1' }] },
-        { eventType: 'NOME-B', startDate: '2022-08-01' }
+        { eventType: 'NOME-B', startDate: '2022-08-01' as const }
       )
 
       expect(qualification.qualifies).toBe(true)
@@ -134,13 +139,13 @@ describe('lib/qualification', () => {
     for (const zone of ['UTC', 'Europe/Helsinki', 'America/New_York', 'Asia/Tokyo']) {
       describeInTimeZone(zone, () => {
         const ALO1 = { ...NOU1, class: 'ALO', result: 'ALO1', type: 'NOME-B' }
-        const startDate = '2026-03-15T22:00:00.000Z'
+        const startDate = legacyDayValue('2026-03-15T22:00:00.000Z')
 
         it.each([
           // 1 January is the trial's year: the result is compared by its year, not against a midnight.
-          { date: '2026-01-01T00:00:00', qualifies: true },
-          { date: '2026-01-02T00:00:00', qualifies: true },
-          { date: '2025-12-31T00:00:00', qualifies: false },
+          { date: legacyDayValue('2026-01-01T00:00:00'), qualifies: true },
+          { date: legacyDayValue('2026-01-02T00:00:00'), qualifies: true },
+          { date: legacyDayValue('2025-12-31T00:00:00'), qualifies: false },
         ])('reads a result of $date in the year it was written: qualifies $qualifies', ({ date, qualifies }) => {
           const results: JsonTestResult[] = [NOU1, { ...ALO1, date }]
           const onLambda = inLambdaZone(() =>
@@ -193,7 +198,7 @@ describe('lib/qualification', () => {
         )
 
         it('reads a hand-entered result of 1.1. sent as a key in the year it names', () => {
-          const manual: JsonManualTestResult = { ...ALO1, date: '2026-01-01', id: 'manual-1' }
+          const manual: JsonManualTestResult = { ...ALO1, date: '2026-01-01' as const, id: 'manual-1' }
           const onLambda = inLambdaZone(() =>
             qualifyJsonRegistration(
               { class: 'ALO', dog: { regNo: 'FI12345/22', results: [NOU1] }, results: [manual] },
@@ -217,7 +222,7 @@ describe('lib/qualification', () => {
       const ALO1 = { ...NOU1, class: 'ALO', result: 'ALO1', type: 'NOME-B' }
       const qualification = qualifyJsonRegistration(
         { class: undefined, dog: { regNo: 'FI12345/22', results: [ALO1] } },
-        { eventType: 'NOU', startDate: '2022-08-01' }
+        { eventType: 'NOU', startDate: '2022-08-01' as const }
       )
 
       expect(qualification.qualifies).toBe(false)

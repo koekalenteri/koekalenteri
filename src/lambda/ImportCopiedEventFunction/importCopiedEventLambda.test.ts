@@ -3,6 +3,8 @@ import type { CopyImportRequest } from '../lib/eventCopy'
 import { vi } from 'vitest'
 import { eventWithParticipantsInvited } from '../../__mockData__/events'
 import { jsonRegistrationsToEventWithParticipantsInvited } from '../../__mockData__/registrations'
+import { legacyEventDay } from '../../lib/storedDays'
+import { finnishDayOf } from '../../test-utils/finnishDays'
 import { CONFIG } from '../config'
 import { createEventCopy } from '../lib/eventCopy'
 
@@ -112,6 +114,30 @@ describe('importCopiedEvent', () => {
       user: copier.name,
     })
     expect(result).toEqual({ eventId: 'copy-1', judges: [{ name: 'Puuttuva Tuomari', reason: 'missing' }] })
+  })
+
+  // KOE-1547: a copy from an environment not yet migrated holds its days as instants, and this one's
+  // migration has run already, so the import stores them as keys itself.
+  it('stores the days of a copy that holds them as instants as day keys', async () => {
+    const copy = request()
+
+    await importCopiedEvent(copy)
+
+    const startDay = finnishDayOf(eventWithParticipantsInvited.startDate)
+    expect(mockSaveEvent).toHaveBeenCalledWith(
+      expect.objectContaining({
+        classes: expect.arrayContaining([expect.objectContaining({ date: startDay })]),
+        endDate: finnishDayOf(eventWithParticipantsInvited.endDate),
+        season: startDay.slice(0, 4),
+        startDate: startDay,
+      })
+    )
+    const [first] = jsonRegistrationsToEventWithParticipantsInvited
+    expect(mockWriteRegistrations).toHaveBeenCalledWith(
+      expect.arrayContaining([
+        expect.objectContaining({ dates: first.dates.map((date) => ({ ...date, date: legacyEventDay(date.date) })) }),
+      ])
+    )
   })
 
   it('does not store a link to a Kennelliitto trial a source that is not up to date still sends (KOE-1534)', async () => {

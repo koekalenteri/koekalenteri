@@ -2,7 +2,7 @@ import type { DayKey, JsonManualTestResult, JsonTestResult, ManualTestResult, Te
 import { filterRelevantResults, qualifyJsonRegistration } from './lib/qualification'
 import { toDog, toManualTestResult } from './lib/wire'
 import { getRankingPeriod, NOME_A_CH_requirements, NOME_B_CH_requirements, NOWT_CH_requirements } from './rules_ch'
-import { noonOfFinnishDay } from './test-utils/finnishDays'
+import { legacyDayValue, noonOfFinnishDay } from './test-utils/finnishDays'
 import { describeInTimeZone, withTimeZone } from './test-utils/timeZone'
 
 const officialResult = (result: TestResult): TestResult => result
@@ -55,7 +55,7 @@ describe('championship ranking rules', () => {
     const officialResults: TestResult[] = [
       officialResult({
         class: 'VOI',
-        date: '2025-05-05',
+        date: '2025-05-05' as const,
         judge: 'Judge 1',
         location: 'Loc 1',
         result: 'VOI2',
@@ -63,7 +63,7 @@ describe('championship ranking rules', () => {
       }),
       officialResult({
         class: 'VOI',
-        date: '2025-06-05',
+        date: '2025-06-05' as const,
         judge: 'Judge 2',
         location: 'Loc 2',
         result: 'VOI1',
@@ -71,7 +71,7 @@ describe('championship ranking rules', () => {
       }),
       officialResult({
         class: 'VOI',
-        date: '2025-04-05',
+        date: '2025-04-05' as const,
         judge: 'Judge 3',
         location: 'Loc 3',
         result: 'VOI3',
@@ -81,7 +81,7 @@ describe('championship ranking rules', () => {
     const manualResults: ManualTestResult[] = [
       manualResult({
         class: 'VOI',
-        date: '2025-07-05',
+        date: '2025-07-05' as const,
         judge: 'Judge 4',
         location: 'Loc 4',
         result: 'FI KVA-B',
@@ -89,7 +89,7 @@ describe('championship ranking rules', () => {
       }),
       manualResult({
         class: 'VOI',
-        date: '2025-03-05',
+        date: '2025-03-05' as const,
         judge: 'Judge 5',
         location: 'Loc 5',
         result: 'VOI2',
@@ -97,7 +97,7 @@ describe('championship ranking rules', () => {
       }),
       manualResult({
         class: 'VOI',
-        date: '2025-02-05',
+        date: '2025-02-05' as const,
         judge: 'Judge 6',
         location: 'Loc 6',
         result: 'VOI3',
@@ -120,7 +120,7 @@ describe('championship ranking rules', () => {
       officialResult({
         cacit: true,
         class: 'VOI',
-        date: '2025-06-01',
+        date: '2025-06-01' as const,
         judge: 'Judge A',
         location: 'Loc A',
         result: 'A1',
@@ -130,7 +130,7 @@ describe('championship ranking rules', () => {
     const manualResults: ManualTestResult[] = [
       manualResult({
         class: 'VOI',
-        date: '2025-07-01',
+        date: '2025-07-01' as const,
         judge: 'Judge B',
         location: 'Loc B',
         resCacit: true,
@@ -153,7 +153,7 @@ describe('championship ranking rules', () => {
       officialResult({
         cert: true,
         class: 'VOI',
-        date: '2025-06-01',
+        date: '2025-06-01' as const,
         judge: 'Judge A',
         location: 'Loc A',
         result: 'VOI1',
@@ -163,7 +163,7 @@ describe('championship ranking rules', () => {
     const manualResults: ManualTestResult[] = [
       manualResult({
         class: 'VOI',
-        date: '2025-07-01',
+        date: '2025-07-01' as const,
         judge: 'Judge B',
         location: 'Loc B',
         result: 'VOI2',
@@ -185,7 +185,7 @@ describe('championship ranking rules', () => {
       [
         officialResult({
           class: 'VOI',
-          date: '2025-07-01',
+          date: '2025-07-01' as const,
           judge: 'Judge Ranking',
           location: 'Loc Ranking',
           result: 'VOI2',
@@ -195,7 +195,7 @@ describe('championship ranking rules', () => {
       [
         manualResult({
           class: 'VOI',
-          date: '2024-01-15',
+          date: '2024-01-15' as const,
           judge: 'Judge KVA',
           location: 'Loc KVA',
           result: 'FI KVA-WT',
@@ -287,7 +287,7 @@ describe('championship ranking rules', () => {
       [
         manualResult({
           class: 'VOI',
-          date: '2025-07-01',
+          date: '2025-07-01' as const,
           judge: 'Judge Manual',
           location: 'Loc Manual',
           result: 'VOI2',
@@ -317,9 +317,9 @@ describe('championship ranking rules', () => {
 const inLambdaZone = <T>(run: () => T): T => withTimeZone('UTC', run)
 
 const REG_NO = 'FI12345/22'
-const ENTRY_END = '2026-02-15T21:59:59.999Z' // the end of 15.2.2026 in Finland
-const QUALIFICATION_START = '2025-01-31T22:00:00.000Z' // the start of 1.2.2025 in Finland
-const START_DATE = '2026-03-07T22:00:00.000Z'
+const ENTRY_END = legacyDayValue('2026-02-15T21:59:59.999Z') // the end of 15.2.2026 in Finland
+const QUALIFICATION_START = legacyDayValue('2025-01-31T22:00:00.000Z') // the start of 1.2.2025 in Finland
+const START_DATE = legacyDayValue('2026-03-07T22:00:00.000Z')
 
 const smEvent = (eventType: string) => ({
   entryEndDate: ENTRY_END,
@@ -422,7 +422,7 @@ describe('the ranking period in days', () => {
       it.each(EDGE_DAYS)(
         '$eventType counts an official result on $edge ($day): $counts',
         ({ counts, day, eventType, result, type }) => {
-          const official = [jsonResult({ date: `${day}T00:00:00`, result, type })]
+          const official = [jsonResult({ date: legacyDayValue(`${day}T00:00:00`), result, type })]
 
           expect(decideInBrowser(eventType, official).relevant).toHaveLength(counts ? 1 : 0)
           expect(decideOnLambda(eventType, official).qualifyingResults).toHaveLength(counts ? 1 : 0)
@@ -434,7 +434,7 @@ describe('the ranking period in days', () => {
       it.each(EDGE_DAYS)(
         '$eventType counts a hand-entered result on $edge ($day): $counts',
         ({ counts, day, eventType, result, type }) => {
-          const manual = [jsonManualResult({ date: noonOfFinnishDay(day).toISOString(), result, type })]
+          const manual = [jsonManualResult({ date: legacyDayValue(noonOfFinnishDay(day).toISOString()), result, type })]
 
           expect(decideInBrowser(eventType, [], manual).relevant).toHaveLength(counts ? 1 : 0)
           expect(decideOnLambda(eventType, [], manual).qualifyingResults).toHaveLength(counts ? 1 : 0)
@@ -445,7 +445,7 @@ describe('the ranking period in days', () => {
         { day: '2025-02-15', points: 0 },
         { day: '2025-02-16', points: 6 },
       ])('scores a FI KVA-WT written on $day with $points points', ({ day, points }) => {
-        const official = [jsonResult({ date: `${day}T00:00:00`, result: 'FI KVA-WT', type: 'NOWT' })]
+        const official = [jsonResult({ date: legacyDayValue(`${day}T00:00:00`), result: 'FI KVA-WT', type: 'NOWT' })]
         const expected = [expect.objectContaining({ rankingPoints: points, result: 'FI KVA-WT' })]
 
         expect(decideInBrowser('NOWT SM', official).relevant).toEqual(expected)
@@ -457,9 +457,11 @@ describe('the ranking period in days', () => {
       // a tie on points and day keeps the official result before the hand-entered one.
       it('cuts a tie on points and day the same way in the browser and on the lambda', () => {
         const official = ['2026-02-01', '2026-01-15', '2026-01-10', '2026-01-05', '2026-01-01'].map((day) =>
-          jsonResult({ date: `${day}T00:00:00`, result: 'VOI2', type: 'NOWT' })
+          jsonResult({ date: legacyDayValue(`${day}T00:00:00`), result: 'VOI2', type: 'NOWT' })
         )
-        const manual = [jsonManualResult({ date: '2025-12-31T22:00:00.000Z', result: 'VOI2', type: 'NOWT' })]
+        const manual = [
+          jsonManualResult({ date: legacyDayValue('2025-12-31T22:00:00.000Z'), result: 'VOI2', type: 'NOWT' }),
+        ]
 
         expect(decideInBrowser('NOWT SM', official, manual).relevant.map((r) => r.official)).toEqual(ALL_OFFICIAL)
         expect(decideOnLambda('NOWT SM', official, manual).qualifyingResults?.map((r) => r.official)).toEqual(
@@ -477,7 +479,7 @@ describe('the ranking period in days', () => {
         {
           ...manualResult({
             class: 'VOI',
-            date: '2025-06-03',
+            date: '2025-06-03' as const,
             judge: 'J',
             location: 'L',
             result: 'VOI1',
@@ -490,7 +492,7 @@ describe('the ranking period in days', () => {
       undefined
     )
 
-    expect(result.relevant).toEqual([expect.objectContaining({ date: '2025-06-01' })])
+    expect(result.relevant).toEqual([expect.objectContaining({ date: '2025-06-01' as const })])
   })
 
   // A FI KVA-B counts whenever it was won, so one without a day still ranks: after a dated result of equal points.
@@ -510,7 +512,7 @@ describe('the ranking period in days', () => {
   })
 
   it('leaves a stored official result of 1.1.0001 outside the period on the lambda', () => {
-    const official = [jsonResult({ date: '0001-01-01T00:00:00', result: 'VOI1', type: 'NOWT' })]
+    const official = [jsonResult({ date: legacyDayValue('0001-01-01T00:00:00'), result: 'VOI1', type: 'NOWT' })]
 
     expect(decideOnLambda('NOWT SM', official)).toEqual({ qualifies: false, qualifyingResults: [] })
   })

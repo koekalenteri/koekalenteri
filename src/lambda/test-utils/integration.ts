@@ -11,8 +11,9 @@ import type { JsonDogEvent, JsonUser } from '../../types'
 import { randomUUID } from 'node:crypto'
 import { DescribeTableCommand, DescribeTimeToLiveCommand, DynamoDBClient } from '@aws-sdk/client-dynamodb'
 import { eventWithParticipantsInvited } from '../../__mockData__/events'
-import { dayStartOf, TIME_ZONE } from '../../lib/day'
+import { addDays, dayOf, TIME_ZONE } from '../../lib/day'
 import { getEventSeason } from '../../lib/event'
+import { legacyEventDay, rekeyEventDays } from '../../lib/storedDays'
 
 /** A value unique to one test, readable in a failure: `event-1a2b3c4d`. */
 export const uniqueId = (prefix: string) => `${prefix}-${randomUUID().slice(0, 8)}`
@@ -48,10 +49,13 @@ export const storedUser = (overrides: Partial<JsonUser> = {}): JsonUser => {
  * stores them.
  */
 export const storedEvent = (overrides: Partial<JsonDogEvent> = {}): JsonDogEvent => {
-  const startDate = overrides.startDate ?? dayStartOf(new Date(), TIME_ZONE, 14).toISOString()
+  const startDate = overrides.startDate ?? addDays(dayOf(new Date(), TIME_ZONE), 14)
   const organizerId = overrides.organizerId ?? uniqueId('org')
+  // The mock event's days as the table stores them: keys (KOE-1547).
+  const base: JsonDogEvent = JSON.parse(JSON.stringify(eventWithParticipantsInvited))
+  rekeyEventDays(base, legacyEventDay)
   return {
-    ...JSON.parse(JSON.stringify(eventWithParticipantsInvited)),
+    ...base,
     endDate: startDate,
     id: uniqueId('event'),
     organizer: { id: organizerId, name: `Club ${organizerId}` },

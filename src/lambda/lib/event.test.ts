@@ -1,7 +1,9 @@
 import type { DeepPartial, JsonConfirmedEvent, JsonDogEvent, JsonRegistration } from '../../types'
 import { vi } from 'vitest'
 import { PRIORITY_MEMBER } from '../../lib/priority'
+import { legacyDayValue } from '../../test-utils/finnishDays'
 import { describeInTimeZone } from '../../test-utils/timeZone'
+import { asJsonRegistration } from '../test-utils/helpers'
 
 const mockReadEventRegistrations = vi.fn()
 const mockWriteRegistrationFields = vi.fn()
@@ -268,54 +270,55 @@ describe('lib/event', () => {
       mockReadLastEntryEndBefore.mockReset()
     })
 
-    // The next Finnish day's start, over both changes of time, run in the lambda's zone (UTC).
+    // The day after the previous trial's entry closed, as a key. A row not yet migrated holds the end
+    // of the Finnish day as an instant, over both changes of time, read in the lambda's zone (UTC).
     describeInTimeZone('UTC', () => {
       it.each([
-        { entryEndDate: '2026-03-28T23:59:59.999+02:00', expected: '2026-03-28T22:00:00.000Z' },
-        { entryEndDate: '2026-03-28T21:59:59.999Z', expected: '2026-03-28T22:00:00.000Z' },
-        { entryEndDate: '2026-10-24T23:59:59.999+03:00', expected: '2026-10-24T21:00:00.000Z' },
-        { entryEndDate: '2026-10-25T23:59:59.999+02:00', expected: '2026-10-25T22:00:00.000Z' },
-        // Stored as the Finnish midnight that starts 25.10.: a 24-hour step in UTC landed on 25.10. 23:00,
-        // still the 25th, where the next Finnish day is the 26th.
-        { entryEndDate: '2026-10-24T21:00:00.000Z', expected: '2026-10-25T22:00:00.000Z' },
-        { entryEndDate: '2026-03-28T22:00:00.000Z', expected: '2026-03-29T21:00:00.000Z' },
+        { entryEndDate: '2026-03-28' as const, expected: '2026-03-29' },
+        { entryEndDate: legacyDayValue('2026-03-28T23:59:59.999+02:00'), expected: '2026-03-29' },
+        { entryEndDate: legacyDayValue('2026-03-28T21:59:59.999Z'), expected: '2026-03-29' },
+        { entryEndDate: legacyDayValue('2026-10-24T23:59:59.999+03:00'), expected: '2026-10-25' },
+        { entryEndDate: legacyDayValue('2026-10-25T23:59:59.999+02:00'), expected: '2026-10-26' },
+        // Stored as the Finnish midnight that starts 25.10.: the next Finnish day is the 26th.
+        { entryEndDate: legacyDayValue('2026-10-24T21:00:00.000Z'), expected: '2026-10-26' },
+        { entryEndDate: legacyDayValue('2026-03-28T22:00:00.000Z'), expected: '2026-03-30' },
       ])('starts the qualification the Finnish day after $entryEndDate', async ({ entryEndDate, expected }) => {
-        mockReadLastEntryEndBefore.mockResolvedValueOnce({ entryEndDate })
+        mockReadLastEntryEndBefore.mockResolvedValueOnce({ entryEndDate: legacyDayValue(entryEndDate) })
 
-        await expect(findQualificationStartDate('NOME-B SM', '2027-01-01T00:00:00.000Z')).resolves.toEqual(expected)
+        await expect(findQualificationStartDate('NOME-B SM', '2027-01-01')).resolves.toEqual(expected)
       })
     })
 
-    it('asks for the last entry end of the type before the one given', async () => {
-      await findQualificationStartDate('NOME-B SM', new Date('2025-03-22T17:00:00Z').toISOString())
+    it('asks for the last entry end of the type before the day given', async () => {
+      await findQualificationStartDate('NOME-B SM', '2025-03-22')
 
-      expect(mockReadLastEntryEndBefore).toHaveBeenCalledWith('NOME-B SM', '2025-03-22T17:00:00.000Z')
+      expect(mockReadLastEntryEndBefore).toHaveBeenCalledWith('NOME-B SM', '2025-03-22')
+    })
+
+    it('asks nothing for an event without an entry end', async () => {
+      await expect(findQualificationStartDate('NOME-B SM', undefined)).resolves.toBeUndefined()
+
+      expect(mockReadLastEntryEndBefore).not.toHaveBeenCalled()
     })
 
     it.each([undefined, {}])('should return undefined when the previous event is %p', async (result) => {
       mockReadLastEntryEndBefore.mockResolvedValueOnce(result)
-      await expect(
-        findQualificationStartDate('NOME-B SM', new Date('2025-03-22T17:00:00Z').toISOString())
-      ).resolves.toBeUndefined()
-    })
-
-    it('should return start of next day from the entryEndDate', async () => {
-      mockReadLastEntryEndBefore.mockResolvedValueOnce({ entryEndDate: '2024-08-20T23:59:59.999+03:00' })
-      await expect(
-        findQualificationStartDate('NOME-B SM', new Date('2025-03-22T17:00:00Z').toISOString())
-      ).resolves.toEqual('2024-08-20T21:00:00.000Z')
+      await expect(findQualificationStartDate('NOME-B SM', '2025-03-22')).resolves.toBeUndefined()
     })
 
     // The mocked read returns a field the index never projects (KOE-1554); the integration twin in
     // event.integration.test.ts is marked as failing until the projection is fixed, and the two must agree.
-    it('should prefer entryOrigEndDate when available ', async () => {
+    // One form or the other may be left on a row the deploy wrote between the two (KOE-1547).
+    it.each([
+      ['both keys', '2024-08-20', '2024-08-15'],
+      ['an instant entry end beside a key', '2024-08-20T20:59:59.999Z', '2024-08-15'],
+      ['a key entry end beside an instant', '2024-08-20', '2024-08-15T20:59:59.999Z'],
+    ])('should prefer entryOrigEndDate when available: %s', async (_name, entryEndDate, entryOrigEndDate) => {
       mockReadLastEntryEndBefore.mockResolvedValueOnce({
-        entryEndDate: '2024-08-20T23:59:59.999+03:00',
-        entryOrigEndDate: '2024-08-15T23:59:59.999+03:00',
+        entryEndDate: legacyDayValue(entryEndDate),
+        entryOrigEndDate: legacyDayValue(entryOrigEndDate),
       })
-      await expect(
-        findQualificationStartDate('NOME-B SM', new Date('2025-03-22T17:00:00Z').toISOString())
-      ).resolves.toEqual('2024-08-15T21:00:00.000Z')
+      await expect(findQualificationStartDate('NOME-B SM', '2025-03-22')).resolves.toEqual('2024-08-16')
     })
   })
 
@@ -805,7 +808,7 @@ describe('lib/event', () => {
     it('calls update without cancelReason for non-cancelled group', async () => {
       const group = {
         eventId: 'e5',
-        group: { date: '2024-08-02T21:00:00.000Z', key: '2024-08-02-ip', number: 3, time: 'ip' as const },
+        group: { date: '2024-08-03' as const, key: '2024-08-02-ip', number: 3, time: 'ip' as const },
         id: 'r2',
       }
       const previousGroup = { key: 'reserve', number: 1 }
@@ -817,7 +820,7 @@ describe('lib/event', () => {
       expect(mockWriteRegistrationFields).toHaveBeenCalledWith('e5', 'r2', {
         set: {
           cancelled: false,
-          group: { date: '2024-08-02T21:00:00.000Z', key: '2024-08-02-ip', number: 3, time: 'ip' },
+          group: { date: '2024-08-03' as const, key: '2024-08-02-ip', number: 3, time: 'ip' },
           updatedAt: expect.any(String),
         },
       })
@@ -883,7 +886,7 @@ describe('lib/event', () => {
 
     it('handles cancelled group without cancelReason', async () => {
       const group = { eventId: 'e7', group: { key: 'cancelled', number: 5 }, id: 'r4' }
-      const previousGroup = { date: '2024-08-02T21:00:00.000Z', key: '2024-08-02-ip', number: 10, time: 'ip' as const }
+      const previousGroup = { date: '2024-08-03' as const, key: '2024-08-02-ip', number: 10, time: 'ip' as const }
       const user = { name: 'organizer' }
 
       await saveGroup(group, previousGroup, user)
@@ -988,21 +991,21 @@ describe('lib/event', () => {
     it('preserves additional group properties', async () => {
       const user = { name: 'user' }
       const regs = [
-        {
+        asJsonRegistration({
           class: 'ALO',
           group: {
-            date: '2024-08-02T21:00:00.000Z',
+            date: '2024-08-03',
             key: 'A',
             number: 3,
             time: 'ip',
           },
-        },
-      ] as JsonRegistration[]
+        }),
+      ]
 
       const result = await fixRegistrationGroups(regs, user, false)
 
       expect(result[0].group?.number).toBe(1)
-      expect(result[0].group?.date).toBe('2024-08-02T21:00:00.000Z')
+      expect(result[0].group?.date).toBe('2024-08-03')
       expect(result[0].group?.time).toBe('ip')
     })
 
@@ -1069,15 +1072,15 @@ describe('lib/event', () => {
       const regs = asJsonRegistrations([
         {
           class: 'ALO',
-          group: { date: '2024-08-02', key: '2024-08-02-ap', number: 5, time: 'ap' },
+          group: { date: '2024-08-02' as const, key: '2024-08-02-ap', number: 5, time: 'ap' },
         },
         {
           class: 'ALO',
-          group: { date: '2024-08-02', key: '2024-08-02-ap', number: 3, time: 'ap' },
+          group: { date: '2024-08-02' as const, key: '2024-08-02-ap', number: 3, time: 'ap' },
         },
         {
           class: 'ALO',
-          group: { date: '2024-08-02', key: '2024-08-02-ip', number: 7, time: 'ip' },
+          group: { date: '2024-08-02' as const, key: '2024-08-02-ip', number: 7, time: 'ip' },
         },
       ])
 
@@ -1124,6 +1127,30 @@ describe('lib/event', () => {
   })
 
   describe('patchEvent', () => {
+    /** A stored event of the fields the test names, the others as an empty draft holds them. */
+    const storedEvent = (fields: Partial<JsonDogEvent>): JsonDogEvent => ({
+      classes: [],
+      cost: 0,
+      createdAt: '2026-01-01T00:00:00.000Z',
+      createdBy: 'test',
+      description: '',
+      endDate: '2026-06-01',
+      eventType: 'NOME-B',
+      id: 'event',
+      judges: [],
+      location: '',
+      modifiedAt: '2026-01-01T00:00:00.000Z',
+      modifiedBy: 'test',
+      name: '',
+      official: {},
+      organizer: { id: 'org-1', name: 'Org' },
+      places: 0,
+      secretary: {},
+      startDate: '2026-06-01',
+      state: 'confirmed',
+      ...fields,
+    })
+
     beforeEach(() => {
       mockWriteEventFields.mockReset()
       mockReadEvent.mockReset()
@@ -1140,13 +1167,13 @@ describe('lib/event', () => {
     })
 
     it('reports the start list when the change is one its readers can see', async () => {
-      const existing = {
-        classes: [{ class: 'ALO', state: 'invited' }],
+      const existing = storedEvent({
+        classes: [{ class: 'ALO', date: '2026-06-01', state: 'invited' }],
         id: 'e-published',
         organizer: { id: 'org-1', name: 'Org' },
         startListPublished: { ALO: false },
         state: 'invited',
-      } as JsonDogEvent
+      })
       const next = { ...existing, startListPublished: { ALO: true } } as JsonDogEvent
       mockReadEvent.mockResolvedValueOnce(next)
 
@@ -1156,12 +1183,12 @@ describe('lib/event', () => {
     })
 
     it('leaves the start list out of a change no reader of it can see', async () => {
-      const existing = {
+      const existing = storedEvent({
         id: 'e-renamed',
         name: 'Old name',
         organizer: { id: 'org-1', name: 'Org' },
         state: 'confirmed',
-      } as JsonDogEvent
+      })
       const next = { ...existing, name: 'New name' } as JsonDogEvent
       mockReadEvent.mockResolvedValueOnce(next)
 
@@ -1171,17 +1198,17 @@ describe('lib/event', () => {
     })
 
     it('updates set/remove fields and reports the patch', async () => {
-      const existing = {
+      const existing = storedEvent({
         id: 'e2',
         name: 'Old name',
         organizer: { id: 'org-1', name: 'Org' },
-        qualificationStartDate: '2024-01-01T00:00:00Z',
-      } as JsonDogEvent
-      const next = {
+        qualificationStartDate: '2024-01-01' as const,
+      })
+      const next = storedEvent({
         ...existing,
         name: 'New name',
         qualificationStartDate: undefined,
-      } as JsonDogEvent
+      })
       const persisted = { ...next } as JsonDogEvent
       mockReadEvent.mockResolvedValueOnce(persisted)
 
@@ -1200,20 +1227,20 @@ describe('lib/event', () => {
     })
 
     it('updates nested field changes partially and reports the nested patch', async () => {
-      const existing = {
+      const existing = storedEvent({
         contactInfo: {
           secretary: { email: 'old@example.com', name: 'Secretary' },
         },
         id: 'e3',
         organizer: { id: 'org-1', name: 'Org' },
-      } as JsonDogEvent
+      })
 
-      const next = {
+      const next = storedEvent({
         ...existing,
         contactInfo: {
           secretary: { email: 'new@example.com', name: 'Secretary' },
         },
-      } as JsonDogEvent
+      })
 
       mockReadEvent.mockResolvedValueOnce(next)
 
@@ -1233,22 +1260,22 @@ describe('lib/event', () => {
     })
 
     it('replaces changed arrays instead of persisting sparse array diffs', async () => {
-      const existing = {
+      const existing = storedEvent({
         classes: [
-          { class: 'ALO', entries: 1, members: 0 },
-          { class: 'AVO', entries: 2, members: 0 },
+          { class: 'ALO', date: '2026-06-01', entries: 1, members: 0 },
+          { class: 'AVO', date: '2026-06-01', entries: 2, members: 0 },
         ],
         id: 'e4',
         organizer: { id: 'org-1', name: 'Org' },
-      } as JsonDogEvent
+      })
 
-      const next = {
+      const next = storedEvent({
         ...existing,
         classes: [
-          { class: 'ALO', entries: 3, members: 0 },
-          { class: 'AVO', entries: 2, members: 0 },
+          { class: 'ALO', date: '2026-06-01', entries: 3, members: 0 },
+          { class: 'AVO', date: '2026-06-01', entries: 2, members: 0 },
         ],
-      } as JsonDogEvent
+      })
 
       mockReadEvent.mockResolvedValueOnce(next)
 
@@ -1268,21 +1295,21 @@ describe('lib/event', () => {
     })
 
     it('reports full replacement arrays when array length changes', async () => {
-      const existing = {
-        classes: [{ class: 'ALO', entries: 1, members: 0 }],
+      const existing = storedEvent({
+        classes: [{ class: 'ALO', date: '2026-06-01', entries: 1, members: 0 }],
         id: 'e5',
         judges: [{ id: 842408, name: 'Fontell Ari-Pekka', official: true }],
         organizer: { id: 'org-1', name: 'Org' },
-      } as JsonDogEvent
+      })
 
-      const next = {
+      const next = storedEvent({
         ...existing,
         classes: [],
         judges: [
           { id: 842408, name: 'Fontell Ari-Pekka', official: true },
           { id: 653323, name: 'Uusimäki Pekka', official: true },
         ],
-      } as JsonDogEvent
+      })
 
       mockReadEvent.mockResolvedValueOnce(next)
 
@@ -1297,28 +1324,29 @@ describe('lib/event', () => {
     })
 
     it('reports full nested replacement arrays', async () => {
-      const existing = {
+      const existing = storedEvent({
         classes: [
-          { class: 'ALO', judge: [{ id: 842408, name: 'Fontell Ari-Pekka', official: true }] },
-          { class: 'AVO', judge: [{ id: 653323, name: 'Uusimäki Pekka', official: true }] },
+          { class: 'ALO', date: '2026-06-01', judge: [{ id: 842408, name: 'Fontell Ari-Pekka', official: true }] },
+          { class: 'AVO', date: '2026-06-01', judge: [{ id: 653323, name: 'Uusimäki Pekka', official: true }] },
         ],
         id: 'e6',
         organizer: { id: 'org-1', name: 'Org' },
-      } as JsonDogEvent
+      })
 
-      const next = {
+      const next = storedEvent({
         ...existing,
         classes: [
           {
             class: 'ALO',
+            date: '2026-06-01',
             judge: [
               { id: 842408, name: 'Fontell Ari-Pekka', official: true },
               { id: 653323, name: 'Uusimäki Pekka', official: true },
             ],
           },
-          { class: 'AVO', judge: [{ id: 653323, name: 'Uusimäki Pekka', official: true }] },
+          { class: 'AVO', date: '2026-06-01', judge: [{ id: 653323, name: 'Uusimäki Pekka', official: true }] },
         ],
-      } as JsonDogEvent
+      })
 
       mockReadEvent.mockResolvedValueOnce(next)
 
@@ -1333,11 +1361,11 @@ describe('lib/event', () => {
     })
 
     it('reports the whole event when a draft becomes public', async () => {
-      const existing = {
-        classes: [{ class: 'ALO', date: '2026-06-01', entries: 0, members: 0 }],
+      const existing = storedEvent({
+        classes: [{ class: 'ALO', date: '2026-06-01' as const, entries: 0, members: 0 }],
         cost: 10,
         description: 'Description',
-        endDate: '2026-06-01',
+        endDate: '2026-06-01' as const,
         eventType: 'NOME-B',
         id: 'e7',
         judges: [{ id: 842408, name: 'Fontell Ari-Pekka', official: true }],
@@ -1347,13 +1375,13 @@ describe('lib/event', () => {
         organizer: { id: 'org-1', name: 'Org' },
         places: 10,
         secretary: { id: 'secretary-1', name: 'Secretary' },
-        startDate: '2026-06-01',
+        startDate: '2026-06-01' as const,
         state: 'draft',
-      } as JsonDogEvent
-      const next = {
+      })
+      const next = storedEvent({
         ...existing,
         state: 'tentative',
-      } as JsonDogEvent
+      })
 
       mockReadEvent.mockResolvedValueOnce(next)
 
@@ -1371,16 +1399,16 @@ describe('lib/event', () => {
     })
 
     it('reports an admin-only change when a draft stays a draft', async () => {
-      const existing = {
+      const existing = storedEvent({
         id: 'e8',
         name: 'Draft event',
         organizer: { id: 'org-1', name: 'Org' },
         state: 'draft',
-      } as JsonDogEvent
-      const next = {
+      })
+      const next = storedEvent({
         ...existing,
         name: 'Updated draft event',
-      } as JsonDogEvent
+      })
 
       mockReadEvent.mockResolvedValueOnce(next)
 
@@ -1394,16 +1422,16 @@ describe('lib/event', () => {
     })
 
     it('reports a public change when a public event becomes a draft', async () => {
-      const existing = {
+      const existing = storedEvent({
         id: 'e9',
         name: 'Public event',
         organizer: { id: 'org-1', name: 'Org' },
         state: 'tentative',
-      } as JsonDogEvent
-      const next = {
+      })
+      const next = storedEvent({
         ...existing,
         state: 'draft',
-      } as JsonDogEvent
+      })
 
       mockReadEvent.mockResolvedValueOnce(next)
 
@@ -1527,13 +1555,13 @@ describe('lib/event', () => {
     // A two-day trial whose list is out, on its second day: both days have begun.
     const twoDays = asJsonConfirmedEvent({
       classes: [
-        { class: 'ALO', date: '2026-09-12' },
-        { class: 'ALO', date: '2026-09-13' },
+        { class: 'ALO', date: '2026-09-12' as const },
+        { class: 'ALO', date: '2026-09-13' as const },
       ],
-      endDate: '2026-09-13',
+      endDate: '2026-09-13' as const,
       id: 'event-1',
       resultsPublished: { ALO: ['2026-09-12'] },
-      startDate: '2026-09-12',
+      startDate: '2026-09-12' as const,
       startListPublished: true,
       state: 'invited',
       updatedAt: '2026-09-13T04:00:00.000Z',
@@ -1556,7 +1584,7 @@ describe('lib/event', () => {
 
       const saved = await setResultsPublishedState(
         twoDays,
-        { date: '2026-09-13', eventClass: 'ALO', published: true },
+        { date: '2026-09-13' as const, eventClass: 'ALO', published: true },
         now
       )
 
@@ -1579,7 +1607,7 @@ describe('lib/event', () => {
 
       await setResultsPublishedState(
         { ...twoDays, resultsPublished: true },
-        { date: '2026-09-13', eventClass: 'ALO', published: false },
+        { date: '2026-09-13' as const, eventClass: 'ALO', published: false },
         now
       )
 
@@ -1599,7 +1627,7 @@ describe('lib/event', () => {
 
       const saved = await setResultsPublishedState(
         twoDays,
-        { date: '2026-09-13', eventClass: 'ALO', published: true },
+        { date: '2026-09-13' as const, eventClass: 'ALO', published: true },
         now
       )
 
@@ -1620,7 +1648,7 @@ describe('lib/event', () => {
       mockReadEvent.mockResolvedValueOnce({ ...twoDays, startListPublished: false })
 
       await expect(
-        setResultsPublishedState(twoDays, { date: '2026-09-13', eventClass: 'ALO', published: true }, now)
+        setResultsPublishedState(twoDays, { date: '2026-09-13' as const, eventClass: 'ALO', published: true }, now)
       ).rejects.toMatchObject({ body: { publish: 'results', reason: 'startList' }, status: 422 })
       expect(mockWriteResultsPublished).toHaveBeenCalledTimes(1)
     })
@@ -1630,7 +1658,7 @@ describe('lib/event', () => {
       mockReadEvent.mockResolvedValue(twoDays)
 
       await expect(
-        setResultsPublishedState(twoDays, { date: '2026-09-12', eventClass: 'ALO', published: false }, now)
+        setResultsPublishedState(twoDays, { date: '2026-09-12' as const, eventClass: 'ALO', published: false }, now)
       ).rejects.toMatchObject({ body: { error: 'resultsPublishedChanged' }, status: 409 })
       expect(mockWriteResultsPublished).toHaveBeenCalledTimes(3)
     })
@@ -1639,7 +1667,7 @@ describe('lib/event', () => {
       mockWriteResultsPublished.mockRejectedValueOnce(new Error('throttled'))
 
       await expect(
-        setResultsPublishedState(twoDays, { date: '2026-09-13', eventClass: 'ALO', published: true }, now)
+        setResultsPublishedState(twoDays, { date: '2026-09-13' as const, eventClass: 'ALO', published: true }, now)
       ).rejects.toThrow('throttled')
     })
 
@@ -1647,7 +1675,7 @@ describe('lib/event', () => {
       mockWriteResultsPublished.mockResolvedValueOnce(undefined)
 
       await expect(
-        setResultsPublishedState(twoDays, { date: '2026-09-13', eventClass: 'ALO', published: true }, now)
+        setResultsPublishedState(twoDays, { date: '2026-09-13' as const, eventClass: 'ALO', published: true }, now)
       ).rejects.toThrow('the written row holds no results flag')
     })
   })

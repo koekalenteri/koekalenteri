@@ -1,5 +1,6 @@
 import type { APIGatewayProxyEvent, APIGatewayProxyEventPathParameters } from 'aws-lambda'
 import type { DeepPartial, JsonConfirmedEvent, JsonRegistration } from '../../types'
+import { legacyRegistrationDays, rekeyRegistrationDays } from '../../lib/storedDays'
 import { LambdaError } from '../lib/lambda'
 
 interface Options {
@@ -84,6 +85,17 @@ export const constructPartialAPIGwEvent = (
  */
 export const asJsonConfirmedEvent = (event: DeepPartial<JsonConfirmedEvent>) => event as JsonConfirmedEvent
 export const asJsonRegistration = (reg: DeepPartial<JsonRegistration>) => reg as JsonRegistration
+
+/**
+ * A registration fixture (a browser-model mock, say) as the table stores it since KOE-1547: its JSON,
+ * with every day as a key. `JSON.stringify` alone writes the Dates as instants, which is how a row not
+ * yet migrated holds them.
+ */
+export const storedRegistrationJson = (registration: object): JsonRegistration => {
+  const json: JsonRegistration = JSON.parse(JSON.stringify(registration))
+  rekeyRegistrationDays(json, legacyRegistrationDays)
+  return json
+}
 
 /**
  * What the real `lambda` wrapper does with a thrown `LambdaError`, for the tests that replace the

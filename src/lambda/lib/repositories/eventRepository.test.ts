@@ -82,7 +82,15 @@ describe('eventRepository', () => {
 
       await expect(readAllEvents()).resolves.toEqual([event])
       await expect(readAllEvents()).resolves.toEqual([])
-      expect(mockReadAll).toHaveBeenCalledWith()
+      expect(mockReadAll).toHaveBeenCalledWith({ includeDeleted: false })
+    })
+
+    it('readAllEvents reads the deleted rows too when asked, for a data migration', async () => {
+      mockReadAll.mockResolvedValueOnce([event])
+
+      await readAllEvents(true)
+
+      expect(mockReadAll).toHaveBeenCalledWith({ includeDeleted: true })
     })
 
     it('readEventsForStats reads only the fields the stats count from', async () => {
@@ -114,31 +122,31 @@ describe('eventRepository', () => {
     })
 
     it('readLastEntryEndBefore asks the entry end index for the latest one before the day', async () => {
-      const previous = { entryEndDate: '2024-08-20T20:59:59.999Z', id: 'previous' }
+      const previous = { entryEndDate: '2024-08-20', id: 'previous' }
       mockQuery.mockResolvedValueOnce([previous]).mockResolvedValueOnce(undefined)
 
-      await expect(readLastEntryEndBefore('NOME-B SM', '2025-03-22T17:00:00.000Z')).resolves.toEqual(previous)
-      await expect(readLastEntryEndBefore('NOME-B SM', '2025-03-22T17:00:00.000Z')).resolves.toBeUndefined()
+      await expect(readLastEntryEndBefore('NOME-B SM', '2025-03-22')).resolves.toEqual(previous)
+      await expect(readLastEntryEndBefore('NOME-B SM', '2025-03-22')).resolves.toBeUndefined()
 
       expect(mockQuery).toHaveBeenCalledWith({
         forward: false,
         index: 'gsiEventTypeEntryEndDateV2',
         key: 'eventType = :eventType AND entryEndDate < :entryEndDate',
         limit: 1,
-        values: { ':entryEndDate': '2025-03-22T17:00:00.000Z', ':eventType': 'NOME-B SM' },
+        values: { ':entryEndDate': '2025-03-22', ':eventType': 'NOME-B SM' },
       })
     })
 
     it('readPublicSeasonEvents queries the season by start date and leaves the drafts out', async () => {
       mockQuery.mockResolvedValueOnce([event])
 
-      await expect(readPublicSeasonEvents('2026', '2026-12-31T21:59:59.999Z')).resolves.toEqual([event])
+      await expect(readPublicSeasonEvents('2026', '2026-12-31')).resolves.toEqual([event])
       expect(mockQuery).toHaveBeenCalledWith({
         filterExpression: '#state <> :draft',
         index: 'gsiSeasonStartDate',
         key: 'season = :season AND startDate <= :endDate',
         names: { '#state': 'state' },
-        values: { ':draft': 'draft', ':endDate': '2026-12-31T21:59:59.999Z', ':season': '2026' },
+        values: { ':draft': 'draft', ':endDate': '2026-12-31', ':season': '2026' },
       })
     })
 

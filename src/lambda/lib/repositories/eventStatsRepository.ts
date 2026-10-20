@@ -10,6 +10,8 @@ import type {
 } from '../../../types/Stats'
 import { CONFIG } from '../../config'
 import CustomDynamoClient from '../../utils/CustomDynamoClient'
+import { isTransactionCanceled } from '../api-gw'
+import { jitteredWait } from '../conditionalWrite'
 import { newRegistrationStatsMarkItem } from './registrationRepository'
 
 const dynamoDB = new CustomDynamoClient(CONFIG.eventStatsTable)
@@ -28,8 +30,11 @@ export interface StatCountRow {
   count: number
 }
 
-/** Identifies an event's organizer stats row. Both key parts are editable event fields. */
-export type OrganizerStatsEvent = Pick<JsonConfirmedEvent, 'id' | 'startDate'> & { organizer: { id: string } }
+/**
+ * Identifies an event's organizer stats row. Both key parts are editable event fields. The start day is
+ * a key; a row counted before KOE-1547 is keyed by the instant the event's start was stored as.
+ */
+export type OrganizerStatsEvent = Pick<JsonConfirmedEvent, 'id'> & { organizer: { id: string }; startDate: string }
 
 /** How much one registration change moves each organizer counter. */
 export interface StatDeltas {
@@ -100,6 +105,40 @@ export const organizerStatsKey = (event: OrganizerStatsEvent) => ({
   SK: `${event.startDate}#${event.id}`,
 })
 
+/**
+ * The event an organizer stats row counts, as its key names it: the organizer of the partition, and the
+ * start day and the event of the sort key (`<start day>#<event id>`). The start is the event's start as
+ * it was stored when the row was keyed, a day key or, for a row counted before KOE-1547, an instant.
+ * Undefined for a row whose key names no organizer or no event.
+ */
+export const organizerStatsRowEvent = (
+  row: Partial<Pick<JsonEventStatsItem, 'PK' | 'SK'>>
+): OrganizerStatsEvent | undefined => {
+  if (!row.PK?.startsWith(STATS_KEY_PREFIX.organizer) || !row.SK) return undefined
+  const at = row.SK.indexOf('#')
+  if (at < 0) return undefined
+  return {
+    id: row.SK.slice(at + 1),
+    organizer: { id: row.PK.slice(STATS_KEY_PREFIX.organizer.length) },
+    startDate: row.SK.slice(0, at),
+  }
+}
+
+/**
+ * How a move of an organizer stats row is retried: a registration counted on the row meanwhile cancels
+ * the move's transaction, and in a burst of registrations the moves spread out with a jittered wait.
+ * The one rule for a save that moves the row and for the migration that rekeys it. `random` gives the
+ * jitter's fraction in [0, 1), for a test.
+ */
+export const organizerStatsMoveRetry = (random?: () => number) => ({
+  isConflict: isTransactionCanceled,
+  maxAttempts: 8,
+  wait: jitteredWait(10, 500, random),
+})
+
+/** The move's retry with the jitter drawn from the platform's cryptographic source. */
+export const ORGANIZER_STATS_MOVE_RETRY = organizerStatsMoveRetry()
+
 /** Whether the two versions of an event keep their organizer stats in the same row. */
 export const isSameOrganizerStatsRow = (a: OrganizerStatsEvent, b: OrganizerStatsEvent) => {
   const keyA = organizerStatsKey(a)
@@ -125,7 +164,11 @@ const ORGANIZER_STATS_NAMES = {
 const queryPartition = async <T extends object>(pk: string): Promise<T[]> =>
   (await dynamoDB.query<T>({ key: 'PK = :pk', values: { ':pk': pk } })) ?? []
 
-/** Date range filter on the organizer rows' sort key, which starts with the event's start date. */
+/**
+ * Date range filter on the organizer rows' sort key, which starts with the event's start day
+ * (`yyyy-MM-dd#eventId`, KOE-1547). The upper bound is padded past the event id, so the events of the
+ * range's last day are in it.
+ */
 function buildDateRangeFilters(from?: string, to?: string) {
   const filterExpressions: string[] = []
   const expressionValues: Record<string, string> = {}
@@ -137,7 +180,7 @@ function buildDateRangeFilters(from?: string, to?: string) {
 
   if (to) {
     filterExpressions.push('SK <= :to')
-    expressionValues[':to'] = to
+    expressionValues[':to'] = `${to}\uffff`
   }
 
   return { expressionValues, filterExpressions }

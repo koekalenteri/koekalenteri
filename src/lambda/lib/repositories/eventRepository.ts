@@ -1,4 +1,11 @@
-import type { ClassOrNone, JsonDogEvent, JsonKcState, JsonStationTurn, ResultsPublishedState } from '../../../types'
+import type {
+  ClassOrNone,
+  DayKey,
+  JsonDogEvent,
+  JsonKcState,
+  JsonStationTurn,
+  ResultsPublishedState,
+} from '../../../types'
 import type { UpdateActions } from '../../utils/CustomDynamoClient'
 import { isResultsPublishedClassMap } from '../../../lib/event'
 import { CONFIG } from '../../config'
@@ -29,8 +36,12 @@ const EVENT_STATS_PROJECTION = 'id, organizer, startDate, endDate, eventType, cl
 export const readEvent = async <T extends JsonDogEvent = JsonDogEvent>(eventId: string, consistent = false) =>
   dynamoDB.read<T>({ id: eventId }, consistent)
 
-/** Every event in the table, for the jobs that walk them all (the data migrations, the user merge). */
-export const readAllEvents = async (): Promise<JsonDogEvent[]> => (await dynamoDB.readAll<JsonDogEvent>()) ?? []
+/**
+ * Every event in the table, for the jobs that walk them all (the data migrations, the user merge).
+ * The deleted ones only on request: a migration changes the shape of every stored row.
+ */
+export const readAllEvents = async (includeDeleted = false): Promise<JsonDogEvent[]> =>
+  (await dynamoDB.readAll<JsonDogEvent>({ includeDeleted })) ?? []
 
 /** Every event, with only the fields the stats rebuild counts from. */
 export const readEventsForStats = async () =>
@@ -55,10 +66,13 @@ export const findEventIdsByKcGuid = async (kcGuid: string) =>
     values: { ':kcGuid': kcGuid },
   })
 
-/** The entry end of the latest event of the type whose entry closed before `entryEndDate`. */
+/**
+ * The entry end of the latest event of the type whose entry closed on a day before `entryEndDate`.
+ * The index sorts the stored days as text, which orders day keys by day (KOE-1547).
+ */
 export const readLastEntryEndBefore = async (
   eventType: string,
-  entryEndDate: string
+  entryEndDate: DayKey
 ): Promise<EventEntryEndDates | undefined> => {
   const result = await dynamoDB.query<EventEntryEndDates>({
     forward: false,
@@ -70,8 +84,11 @@ export const readLastEntryEndBefore = async (
   return result?.[0]
 }
 
-/** The season's published events (drafts left out by the query) that start by `startsBy`. */
-export const readPublicSeasonEvents = async (season: string, startsBy: string) =>
+/**
+ * The season's published events (drafts left out by the query) that start on `startsBy` or before. The
+ * index sorts the stored start days as text, which orders day keys by day (KOE-1547).
+ */
+export const readPublicSeasonEvents = async (season: string, startsBy: DayKey) =>
   dynamoDB.query<JsonDogEvent>({
     filterExpression: '#state <> :draft',
     index: 'gsiSeasonStartDate',

@@ -1,8 +1,8 @@
 import type { TFunction } from 'i18next'
-import type { BreedCode, DayKey, DeepPartial, Dog, DogGender, JsonDog, JsonRegistration } from '../types'
+import type { BreedCode, DayKey, DeepPartial, Dog, DogGender } from '../types'
 import { differenceInMinutes } from 'date-fns/differenceInMinutes'
 import { REQUIREMENTS } from '../rules'
-import { addMonths, calendarDayOf, dayOf, isDayKey, latestDayMonthsBefore, monthsBetween, TIME_ZONE } from './day'
+import { addMonths, dayOf, isDayKey, latestDayMonthsBefore, monthsBetween, TIME_ZONE } from './day'
 
 /** A result cannot predate the dog being this many months old, whatever the trial it is entered in. */
 export const MIN_RESULT_AGE_MONTHS = 9
@@ -89,37 +89,7 @@ export function formatDogName(dog?: Pick<Dog, 'name' | 'titles'>): string {
 const KC_EMPTY_DATE_RE = /^(?:0001-01-01|0000-12-31)(?:T|$)/
 
 /** Whether a stored dog date says there is no day: none, an empty one, or Kennelliitto's empty date. */
-const isNoDay = (value: string | undefined) => !value || KC_EMPTY_DATE_RE.test(value)
-
-/**
- * A stored dog date as it compares: its day key; '' for no day, so the forms of "no day" are one; and
- * anything else as it is, so an unreadable value still differs from a day and from another one.
- */
-const comparableDay = (value: string | undefined): string | undefined =>
-  calendarDayOf(value, TIME_ZONE) ?? (isNoDay(value) ? '' : value)
-
-const withResultDays = <R extends { date: string }>(results: R[]): R[] =>
-  results.map((result) => ({ ...result, date: comparableDay(result.date) ?? '' }))
-
-const withDobDays = (dog: JsonDog): JsonDog => {
-  const { dob, ...copy }: JsonDog = { ...dog }
-  const day = comparableDay(dob)
-  if (copy.results) copy.results = withResultDays(copy.results)
-  return day ? { ...copy, dob: day } : copy
-}
-
-/**
- * The registration with the dog's birth date and the results' dates as day keys: a row stored before
- * they were keys (KOE-1548) holds instants and Kennelliitto's stamps, and the same days must not read
- * as a change when the row is saved again unchanged.
- */
-export const withDogDayKeys = <R extends Partial<JsonRegistration>>(registration: R): R => {
-  const copy = { ...registration }
-  if (copy.dog) copy.dog = withDobDays(copy.dog)
-  if (copy.qualifyingResults) copy.qualifyingResults = withResultDays(copy.qualifyingResults)
-  if (copy.results) copy.results = withResultDays(copy.results)
-  return copy
-}
+export const isNoDay = (value: string | undefined) => !value || KC_EMPTY_DATE_RE.test(value)
 
 /**
  * Creates a dog update object from form values

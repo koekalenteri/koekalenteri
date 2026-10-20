@@ -73,6 +73,12 @@ describe('payment', () => {
         },
         { ...terms, cost: { earlyBird: { cost: 30, days: 0 }, normal: 40 } },
       ],
+      // KOE-1547: a row not yet migrated holds the instant its Finnish day starts at; a save sends the key.
+      [
+        'the key of an entry start stored as the instant of its day',
+        { ...terms, cost: earlyBird, entryStartDate: '2026-03-01' },
+        { ...terms, cost: earlyBird, entryStartDate: '2026-02-28T22:00:00.000Z' },
+      ],
       [
         'an early-bird event without an entry start on either side',
         { ...terms, cost: earlyBird, entryStartDate: undefined },

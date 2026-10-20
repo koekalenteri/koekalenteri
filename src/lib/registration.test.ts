@@ -12,6 +12,7 @@ import type { InvitationAttachmentRegistration, SortableRegistration } from './r
 import i18n from 'i18next'
 import { eventWithStaticDates } from '../__mockData__/events'
 import { registrationWithStaticDates } from '../__mockData__/registrations'
+import { legacyDayValue } from '../test-utils/finnishDays'
 import { getPaymentPicture } from './payment'
 import { PRIORITY_INVITED, PRIORITY_MEMBER, PRIORIZED_BREED_CODES } from './priority'
 import {
@@ -249,7 +250,7 @@ describe('lib/registration', () => {
     describe('NOME-B SM priority', () => {
       const NOME_B_VOI1: Readonly<QualifyingResult> = {
         class: 'VOI',
-        date: '2024-06-06',
+        date: '2024-06-06' as const,
         judge: 'Some One',
         location: 'Somewhere',
         official: false,
@@ -266,7 +267,7 @@ describe('lib/registration', () => {
       }
       const NOME_B_KVA_OLD: Readonly<QualifyingResult> = {
         ...NOME_B_KVA_NEW,
-        date: '2023-06-06',
+        date: '2023-06-06' as const,
       }
       it.each<Array<QualifyingResult> | Array<JsonQualifyingResult>>([
         [],
@@ -290,10 +291,10 @@ describe('lib/registration', () => {
       // ranking (`rules_ch.ts`): a KVA won before that day is an old one (KOE-1548). The day of a stored
       // KVA is read from any form it was stored in.
       it.each([
-        { date: '2023-08-17', expected: true },
-        { date: '2023-08-18', expected: false },
-        { date: '2023-08-16T21:00:00.000Z', expected: true },
-        { date: '2023-08-17T21:00:00.000Z', expected: false },
+        { date: '2023-08-17' as const, expected: true },
+        { date: '2023-08-18' as const, expected: false },
+        { date: legacyDayValue('2023-08-16T21:00:00.000Z'), expected: true },
+        { date: legacyDayValue('2023-08-17T21:00:00.000Z'), expected: false },
       ])('reads a FI KVA-B of $date as won before the period: $expected', ({ date, expected }) => {
         const qualifyingResults: JsonQualifyingResult[] = JSON.parse(
           JSON.stringify([NOME_B_VOI1, NOME_B_VOI1, { ...NOME_B_KVA_NEW, date }])
@@ -305,7 +306,7 @@ describe('lib/registration', () => {
 
       it.each([
         { expected: '2025-02-01', qualificationStartDate: new Date('2025-01-31T22:00:00.000Z') },
-        { expected: '2025-02-01', qualificationStartDate: '2025-01-31T22:00:00.000Z' },
+        { expected: '2025-02-01', qualificationStartDate: legacyDayValue('2025-01-31T22:00:00.000Z') },
         { expected: '2023-08-18', qualificationStartDate: undefined },
       ])('starts the period on $expected', ({ expected, qualificationStartDate }) => {
         expect(nomeBChQualificationStartDay(qualificationStartDate)).toBe(expected)
@@ -437,7 +438,7 @@ describe('lib/registration', () => {
     describe('NOME-B SM priority', () => {
       const NOME_B_VOI1: Readonly<QualifyingResult> = {
         class: 'VOI',
-        date: '2024-06-06',
+        date: '2024-06-06' as const,
         judge: 'Some One',
         location: 'Somewhere',
         official: false,
@@ -454,7 +455,7 @@ describe('lib/registration', () => {
       }
       const NOME_B_KVA_OLD: Readonly<QualifyingResult> = {
         ...NOME_B_KVA_NEW,
-        date: '2023-06-06',
+        date: '2023-06-06' as const,
       }
       it.each<Array<QualifyingResult> | Array<JsonQualifyingResult>>([
         [],
@@ -537,18 +538,47 @@ describe('lib/registration', () => {
       ])
     })
 
+    // KOE-1547: an event's rows may hold one day in two forms until the migration has run: the key,
+    // and the instant its Finnish day starts at. The day decides, then the class, time and number.
+    it('sorts one day held as a key and as an instant as the same day', () => {
+      const regs: Array<SortableRegistration & { id: string }> = [
+        {
+          class: 'AVO',
+          group: { key: 'g', number: 1, time: 'ap' },
+          id: 'avo-instant',
+          startGroup: { date: legacyDayValue('2026-05-31T21:00:00.000Z'), key: 'g', number: 1, time: 'ap' },
+        },
+        {
+          class: 'ALO',
+          group: { key: 'g', number: 2, time: 'ap' },
+          id: 'alo-key',
+          startGroup: { date: '2026-06-01', key: 'g', number: 2, time: 'ap' },
+        },
+        {
+          class: 'ALO',
+          group: { key: 'g', number: 3, time: 'ap' },
+          id: 'alo-next-day',
+          startGroup: { date: legacyDayValue('2026-06-01T21:00:00.000Z'), key: 'g', number: 3, time: 'ap' },
+        },
+      ]
+
+      regs.sort(sortRegistrationsByDateClassTimeAndNumber)
+
+      expect(regs.map(({ id }) => id)).toEqual(['alo-key', 'avo-instant', 'alo-next-day'])
+    })
+
     it('uses the whole-day group when time is missing', () => {
       expect(getRegistrationGroupTime({ group: { key: 'reserve', number: 1 } })).toBe('kp')
     })
 
     it('should sort registrations properly', () => {
       const regs: SortableRegistration[] = [
-        { group: { date: '2024-08-02T21:00:00.000Z', key: '2024-08-02-ip', number: 19, time: 'ip' } },
-        { group: { date: '2024-08-02T21:00:00.000Z', key: '2024-08-02-ip', number: 20, time: 'ip' } },
-        { group: { date: '2024-08-02T21:00:00.000Z', key: '2024-08-02-ip', number: 23.5, time: 'ip' } },
-        { group: { date: '2024-08-02T21:00:00.000Z', key: '2024-08-02-ip', number: 22, time: 'ip' } },
-        { group: { date: '2024-08-02T21:00:00.000Z', key: '2024-08-02-ip', number: 23, time: 'ip' } },
-        { group: { date: '2024-08-02T21:00:00.000Z', key: '2024-08-02-ip', number: 24, time: 'ip' } },
+        { group: { date: legacyDayValue('2024-08-02T21:00:00.000Z'), key: '2024-08-02-ip', number: 19, time: 'ip' } },
+        { group: { date: legacyDayValue('2024-08-02T21:00:00.000Z'), key: '2024-08-02-ip', number: 20, time: 'ip' } },
+        { group: { date: legacyDayValue('2024-08-02T21:00:00.000Z'), key: '2024-08-02-ip', number: 23.5, time: 'ip' } },
+        { group: { date: legacyDayValue('2024-08-02T21:00:00.000Z'), key: '2024-08-02-ip', number: 22, time: 'ip' } },
+        { group: { date: legacyDayValue('2024-08-02T21:00:00.000Z'), key: '2024-08-02-ip', number: 23, time: 'ip' } },
+        { group: { date: legacyDayValue('2024-08-02T21:00:00.000Z'), key: '2024-08-02-ip', number: 24, time: 'ip' } },
       ]
       regs.sort(sortRegistrationsByDateClassTimeAndNumber)
       expect(regs.map((r) => r.group?.number)).toEqual([19, 20, 22, 23, 23.5, 24])
@@ -556,12 +586,18 @@ describe('lib/registration', () => {
 
     it('should value null and undefined class the same as missing class', () => {
       const regs2: SortableRegistration[] = [
-        { group: { date: '2024-08-02T21:00:00.000Z', key: '2024-08-02-ip', number: 19, time: 'ip' } },
-        { class: undefined, group: { date: '2024-08-02T21:00:00.000Z', key: '2024-08-02-ip', number: 20, time: 'ip' } },
-        { class: null, group: { date: '2024-08-02T21:00:00.000Z', key: '2024-08-02-ip', number: 23.5, time: 'ip' } },
-        { group: { date: '2024-08-02T21:00:00.000Z', key: '2024-08-02-ip', number: 22, time: 'ip' } },
-        { group: { date: '2024-08-02T21:00:00.000Z', key: '2024-08-02-ip', number: 23, time: 'ip' } },
-        { group: { date: '2024-08-02T21:00:00.000Z', key: '2024-08-02-ip', number: 24, time: 'ip' } },
+        { group: { date: legacyDayValue('2024-08-02T21:00:00.000Z'), key: '2024-08-02-ip', number: 19, time: 'ip' } },
+        {
+          class: undefined,
+          group: { date: legacyDayValue('2024-08-02T21:00:00.000Z'), key: '2024-08-02-ip', number: 20, time: 'ip' },
+        },
+        {
+          class: null,
+          group: { date: legacyDayValue('2024-08-02T21:00:00.000Z'), key: '2024-08-02-ip', number: 23.5, time: 'ip' },
+        },
+        { group: { date: legacyDayValue('2024-08-02T21:00:00.000Z'), key: '2024-08-02-ip', number: 22, time: 'ip' } },
+        { group: { date: legacyDayValue('2024-08-02T21:00:00.000Z'), key: '2024-08-02-ip', number: 23, time: 'ip' } },
+        { group: { date: legacyDayValue('2024-08-02T21:00:00.000Z'), key: '2024-08-02-ip', number: 24, time: 'ip' } },
       ]
       regs2.sort(sortRegistrationsByDateClassTimeAndNumber)
       expect(regs2.map((r) => r.group?.number)).toEqual([19, 20, 22, 23, 23.5, 24])
@@ -635,12 +671,12 @@ describe('lib/registration', () => {
     })
 
     describe('a start stored with another spelling of its day (KOE-1541)', () => {
-      const midnight = '2026-08-14T21:00:00.000Z' // 15.8. 00:00 in Helsinki
+      const midnight = legacyDayValue('2026-08-14T21:00:00.000Z') // 15.8. 00:00 in Helsinki
 
       it.each([
         ['an ISO string', midnight],
         ['a Date', new Date(midnight)],
-        ['a bare day', '2026-08-15'],
+        ['a bare day', '2026-08-15' as const],
       ])('names the group by the Helsinki day when the date is %s', (_name, date) => {
         expect(getRegistrationGroupKey({ group: { date, key: '2026-08-14-ap', time: 'ap' } })).toEqual('2026-08-15-ap')
       })
@@ -649,14 +685,16 @@ describe('lib/registration', () => {
         ['winter time', '2026-12-14T22:00:00.000Z', '2026-12-15-ap'],
         ['the turn of the year', '2026-12-31T22:00:00.000Z', '2027-01-01-ap'],
       ])('names the group by the Helsinki day in %s', (_name, date, expected) => {
-        expect(getRegistrationGroupKey({ group: { date, key: 'utc-spelling', time: 'ap' } })).toEqual(expected)
+        expect(
+          getRegistrationGroupKey({ group: { date: legacyDayValue(date), key: 'utc-spelling', time: 'ap' } })
+        ).toEqual(expected)
       })
 
       it.each([
         ['no time', { date: midnight, key: 'stored' }],
         ['no date', { key: 'stored', time: 'ap' as const }],
-        ['an unreadable date', { date: 'not a date', key: 'stored', time: 'ap' as const }],
-        ['an empty date', { date: '', key: 'stored', time: 'ap' as const }],
+        ['an unreadable date', { date: legacyDayValue('not a date'), key: 'stored', time: 'ap' as const }],
+        ['an empty date', { date: legacyDayValue(''), key: 'stored', time: 'ap' as const }],
         ['the reserve key', { date: midnight, key: GROUP_KEY_RESERVE, time: 'ap' as const }],
         ['the cancelled key', { date: midnight, key: GROUP_KEY_CANCELLED, time: 'ap' as const }],
       ])('keeps the stored key with %s', (_name, group) => {
@@ -684,7 +722,12 @@ describe('lib/registration', () => {
   })
 
   describe('isKeyRespelling', () => {
-    const utc = { date: '2026-08-14T21:00:00.000Z', key: '2026-08-14-ap', number: 2, time: 'ap' as const }
+    const utc = {
+      date: legacyDayValue('2026-08-14T21:00:00.000Z'),
+      key: '2026-08-14-ap',
+      number: 2,
+      time: 'ap' as const,
+    }
 
     it('is true for the same day, time and number under the Helsinki key', () => {
       expect(isKeyRespelling(utc, { ...utc, key: '2026-08-15-ap' })).toBe(true)
@@ -693,7 +736,7 @@ describe('lib/registration', () => {
     it.each([
       ['another number', { ...utc, key: '2026-08-15-ap', number: 3 }],
       ['another time', { ...utc, key: '2026-08-15-ip', time: 'ip' as const }],
-      ['another day', { ...utc, date: '2026-08-15T21:00:00.000Z', key: '2026-08-16-ap' }],
+      ['another day', { ...utc, date: legacyDayValue('2026-08-15T21:00:00.000Z'), key: '2026-08-16-ap' }],
       ['the same key', utc],
       ['the reserve list', { key: GROUP_KEY_RESERVE, number: 2 }],
     ])('is false for %s', (_name, group) => {
@@ -972,20 +1015,20 @@ describe('lib/registration', () => {
     it('should return an object with the expected structure', () => {
       const registration = asJsonRegistration({
         cancelReason: 'dog-sick',
-        dates: [{ date: '2024-08-01', time: 'ap' }],
+        dates: [{ date: '2024-08-01' as const, time: 'ap' }],
         dog: { breedCode: '123' },
         eventId: 'event1',
-        group: { date: '2024-08-01', key: 'group1', number: 5, time: 'ap' },
+        group: { date: '2024-08-01' as const, key: 'group1', number: 5, time: 'ap' },
         id: 'reg1',
-        qualifyingResults: [{ date: '2024-07-01', result: 'VOI1' }],
+        qualifyingResults: [{ date: '2024-07-01' as const, result: 'VOI1' }],
         reserve: 'ANY',
       })
 
       const confirmedEvent = asJsonEvent({
-        endDate: '2024-08-02',
+        endDate: '2024-08-02' as const,
         invitationAttachment: 'event-attachment',
         invitationAttachments: { ALO: 'alo-attachment' },
-        startDate: '2024-08-01',
+        startDate: '2024-08-01' as const,
       })
 
       const origin = 'https://example.com'
@@ -1034,17 +1077,17 @@ describe('lib/registration', () => {
       const echo = ((key: string, options?: { date?: string }) =>
         options?.date ? `${key}:${options.date}` : key) as unknown as TFunction
       const registration = asJsonRegistration({
-        dates: [{ date: '2024-08-01', time: 'ap' }, { date: '2024-08-02' }],
+        dates: [{ date: '2024-08-01' as const, time: 'ap' }, { date: '2024-08-02' as const }],
         dog: {},
         eventId: 'event1',
         group: { key: 'reserve', number: 1 },
         id: 'reg1',
         qualifyingResults: [],
       })
-      const confirmedEvent = asJsonEvent({ endDate: '2024-08-02', startDate: '2024-08-01' })
+      const confirmedEvent = asJsonEvent({ endDate: '2024-08-02' as const, startDate: '2024-08-01' as const })
 
       const placed = getRegistrationEmailTemplateData(
-        { ...registration, group: { date: '2024-08-02', key: 'group1', number: 1 } },
+        { ...registration, group: { date: '2024-08-02' as const, key: 'group1', number: 1 } },
         confirmedEvent,
         undefined,
         '',
@@ -1152,12 +1195,12 @@ describe('lib/registration', () => {
         dates: [],
         dog: { breedCode: '123' },
         eventId: 'event1',
-        group: { date: '2024-08-01', key: 'group1', number: 5, time: 'ap' },
+        group: { date: '2024-08-01' as const, key: 'group1', number: 5, time: 'ap' },
         id: 'reg1',
         qualifyingResults: [],
       })
 
-      const previousGroup = { date: '2024-08-02', key: 'group2', number: 10, time: 'ip' as const }
+      const previousGroup = { date: '2024-08-02' as const, key: 'group2', number: 10, time: 'ip' as const }
 
       const result = getRegistrationEmailTemplateData(
         registration,

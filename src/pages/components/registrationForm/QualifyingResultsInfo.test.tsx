@@ -16,6 +16,7 @@ import { getRequirements } from '@/rules'
 import { frozenInstant } from '@/test-utils/freezeClock'
 import { describeInTimeZone } from '@/test-utils/timeZone'
 import { renderWithUserEvents, runPendingTimers, typeDateKeyByKey } from '@/test-utils/utils'
+import { legacyDayValue } from '../../../test-utils/finnishDays'
 import QualifyingResultsInfo from './QualifyingResultsInfo'
 
 const Provider = ({ children }: { readonly children: ReactNode }) => (
@@ -78,7 +79,7 @@ describe('QualifyingResultsInfo', () => {
     const daysOffered = async (dob: DayKey | undefined, rankingPeriod?: { min?: Date; max?: Date }) => {
       const reg = registrationWithManualResults
       const requirements = getRequirements(reg.eventType, reg.class, reg.dates[0].date)
-      const result: ManualTestResult = { ...(reg.results ?? [])[0], date: '2026-05-10' }
+      const result: ManualTestResult = { ...(reg.results ?? [])[0], date: '2026-05-10' as const }
       const { user } = renderWithUserEvents(
         <QualifyingResultsInfo
           dob={dob}
@@ -228,7 +229,9 @@ describe('QualifyingResultsInfo', () => {
         const reg = registrationWithStaticDatesAndClass
         const [official] = toDog({
           regNo: reg.dog.regNo,
-          results: [{ class: 'ALO', date: aika, judge: 'J', location: 'L', result: 'ALO1', type: 'NOME-B' }],
+          results: [
+            { class: 'ALO', date: legacyDayValue(aika), judge: 'J', location: 'L', result: 'ALO1', type: 'NOME-B' },
+          ],
         }).results
         render(
           <QualifyingResultsInfo
@@ -274,7 +277,9 @@ describe('QualifyingResultsInfo', () => {
         await runPendingTimers()
 
         expect(group).toHaveTextContent('10.05.2026')
-        expect(onChange).toHaveBeenLastCalledWith({ results: [expect.objectContaining({ date: '2026-05-10' })] })
+        expect(onChange).toHaveBeenLastCalledWith({
+          results: [expect.objectContaining({ date: '2026-05-10' as const })],
+        })
       })
     })
   })

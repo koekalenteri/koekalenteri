@@ -1,4 +1,5 @@
 import type {
+  DayKey,
   DbRecord,
   Dog,
   EmailTemplateId,
@@ -380,8 +381,8 @@ export interface JsonRegistrationGroup extends Partial<JsonRegistrationDate> {
   key: string
 }
 
-/** A group's day as stored (an ISO string) or parsed (a Date). */
-export type GroupDate = string | Date
+/** A group's day as stored (a day key) or as the browser holds it (a Date). */
+export type GroupDate = DayKey | Date
 
 /** An entry as a decision that asks only which group it is in reads it: a stored and a parsed group alike. */
 interface RegistrationGroupHolder {
@@ -549,7 +550,7 @@ export type QualifyingResults = {
 }
 
 export interface JsonRegistrationDate {
-  date: string
+  date: DayKey
   time?: RegistrationTime
 }
 

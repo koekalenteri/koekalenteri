@@ -1,5 +1,6 @@
 import type { JsonAuditRecord, JsonConfirmedEvent } from '../../types'
 import { vi } from 'vitest'
+import { legacyDayValue } from '../../test-utils/finnishDays'
 import { loggedLines } from '../test-utils/logs'
 
 const mockReadAuditTrail = vi.fn()
@@ -37,9 +38,9 @@ describe('audit', () => {
       createdAt: '',
       createdBy: '',
       description: '',
-      endDate: '',
-      entryEndDate: '',
-      entryStartDate: '',
+      endDate: legacyDayValue(''),
+      entryEndDate: legacyDayValue(''),
+      entryStartDate: legacyDayValue(''),
       eventType: '',
       id: 'event-id',
       judges: [],
@@ -51,7 +52,7 @@ describe('audit', () => {
       organizer: { id: 'org-id', name: 'Org' },
       places: 0,
       secretary: {},
-      startDate: '',
+      startDate: legacyDayValue(''),
       state: 'confirmed',
     }
 
@@ -91,8 +92,8 @@ describe('audit', () => {
         {
           ...event,
           classes: [
-            { class: 'ALO', date: '' },
-            { class: 'AVO', date: '' },
+            { class: 'ALO', date: legacyDayValue('') },
+            { class: 'AVO', date: legacyDayValue('') },
           ],
           startListPublished: { ALO: false, AVO: true },
         },
@@ -112,7 +113,7 @@ describe('audit', () => {
       { expected: 'audit.messages.eventSaved', state: 'invited' as const },
     ])('records the first publish of an absent flag on a past $state trial as $expected', ({ expected, state }) => {
       // No flag reads as published only where the workflow invited (KOE-1465).
-      const past = { ...event, endDate: '2025-03-01', startDate: '2025-03-01', state }
+      const past = { ...event, endDate: '2025-03-01' as const, startDate: '2025-03-01' as const, state }
       const messages = getEventAuditMessages(past, { id: 'event-id', startListPublished: true })
 
       expect(messages).toEqual([{ messageKey: expected }])
@@ -121,12 +122,12 @@ describe('audit', () => {
     it('records class place changes without derived or no-op fields', () => {
       const existing = {
         ...event,
-        classes: [{ class: 'VOI' as const, date: '2026-09-18T21:00:00.000Z', places: 5 }],
+        classes: [{ class: 'VOI' as const, date: legacyDayValue('2026-09-18T21:00:00.000Z'), places: 5 }],
         places: 5,
       }
 
       const messages = getEventAuditMessages(existing, {
-        classes: [{ class: 'VOI', date: '2026-09-18T21:00:00.000Z', places: 6 }],
+        classes: [{ class: 'VOI', date: legacyDayValue('2026-09-18T21:00:00.000Z'), places: 6 }],
         id: event.id,
         places: 6,
         placesPerDay: null,

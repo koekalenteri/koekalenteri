@@ -311,16 +311,84 @@ const storedDay = (value: unknown, instantDay: (instant: Date) => DayKey | undef
 }
 
 /**
- * The day of a stored dog date: the day written on a key or a zone-less stamp, and the day an instant
- * falls on in `zone`. Undefined for anything with no day there, Kennelliitto's empty 0001-01-01 in
- * every form included, and for a value that is no text at all (none, a null): never a throw, since a
- * list reads every row and a save reads every result.
+ * The day of a stored date as every reader reads it: the day written on a key or a zone-less stamp, and
+ * the day an instant falls on in `zone`. Undefined for anything with no day there, Kennelliitto's empty
+ * 0001-01-01 in every form included, and for a value that is no text at all (none, a null): never a
+ * throw, since a list reads every row and a save reads every result.
+ *
+ * Today this is the rule the migrations read a dog's date by, written once in `legacyStoredDay`. When
+ * the readers stop accepting the old forms, this function gets a narrower body of its own; the
+ * migrations' rule stays as it is.
  */
-export const calendarDayOf = (value: unknown, zone: string): DayKey | undefined =>
-  storedDay(value, (instant) => (hasCalendarDay(instant, zone) ? dayOf(instant, zone) : undefined))
+export const calendarDayOf = (value: unknown, zone: string): DayKey | undefined => legacyStoredDay(value, zone)
 
 /**
  * As `calendarDayOf`, but an instant is read as the day it shows in the browser's zone: for what this
  * browser itself stored, a picker's local midnight (a draft, the dog cache), which is the day it showed.
  */
 export const localCalendarDayOf = (value: unknown): DayKey | undefined => storedDay(value, pickedDayOf)
+
+/**
+ * The day of a stored value in any form a calendar day was stored in before KOE-1547 made every stored
+ * day a key: a key, Kennelliitto's stamp without a zone (the day it names), or an instant (the day it
+ * falls on in `zone`: a Finnish midnight or end of day a browser or a lambda wrote, a browser's local
+ * noon of a dog's date). Undefined for anything with no day, Kennelliitto's empty date included.
+ *
+ * The KOE-1547 migrations and the import of a copied event decode with this function alone, and it
+ * must keep reading every one of those forms: a migration's hash covers its own text and not the
+ * helpers it calls ("Data Migrations" in AGENTS.md), so a narrower rule here would turn the
+ * migrations into silent no-ops where they run again, on an environment restored from a copy, say.
+ * The readers' tolerance of the old forms (`calendarDayOf`, `storedDayKey`) goes once every
+ * environment has been migrated; this function stays as it is.
+ */
+export const legacyStoredDay = (value: unknown, zone: string): DayKey | undefined =>
+  storedDay(value, (instant) => (hasCalendarDay(instant, zone) ? dayOf(instant, zone) : undefined))
+
+/** Whether the instant is the last millisecond of an hour: an end of day stored as an instant. */
+const isEndOfHour = (instant: Date) =>
+  instant.getUTCMinutes() === 59 && instant.getUTCSeconds() === 59 && instant.getUTCMilliseconds() === 999
+
+/** How far from a midnight a stored start of day may be: the hour a wrong summer or winter offset moves it. */
+const MIDNIGHT_SLACK_MS = 3_600_000
+
+/**
+ * The day of the midnight in `zone` the moment lies within an hour of, or undefined for a moment
+ * further from every midnight.
+ */
+const nearMidnightDay = (ms: number, zone: string): DayKey | undefined => {
+  const day = dayOf(ms, zone)
+  if (ms - dayStart(day, zone).getTime() <= MIDNIGHT_SLACK_MS) return day
+  const next = addDays(day, 1)
+  return dayStart(next, zone).getTime() - ms <= MIDNIGHT_SLACK_MS ? next : undefined
+}
+
+/**
+ * The calendar day an instant stored for a day names (KOE-1547): the start of the day, or for an end of
+ * day (the last millisecond of an hour) the end of it. Rows stored before day keys hold these as
+ * instants, mostly the exact Finnish midnight or end of day, but some an hour off: a winter day's
+ * midnight worked out with the summer offset is 23:00 the evening before, and the reverse 01:00. So a
+ * start within an hour of a midnight in `zone` is the day of that midnight, the nearest one, and an end
+ * whose next moment is within an hour of one the day before it; any other instant is the day it falls
+ * on. Check `hasCalendarDay` first, as for `dayOf`.
+ *
+ * Only for a stored day of an event or an entry. A dog's birth date and a result's date carry real
+ * times of day and are read as the day they fall on (`calendarDayOf`), and a moment such as now is read
+ * with `dayOf`.
+ */
+export const storedEventDayOf = (instant: Date | number, zone: string): DayKey => {
+  const at = new Date(instant)
+  if (isEndOfHour(at)) {
+    const midnight = nearMidnightDay(at.getTime() + 1, zone)
+    return midnight ? addDays(midnight, -1) : dayOf(at, zone)
+  }
+  return nearMidnightDay(at.getTime(), zone) ?? dayOf(at, zone)
+}
+
+/**
+ * The day of a stored event or entry day in any form it was stored in before KOE-1547: a key, a stamp
+ * without a zone (the day it names), or an instant (`storedEventDayOf`). Undefined for anything with no
+ * day, Kennelliitto's empty date included. Like `legacyStoredDay`, this is the migrations' reading and
+ * must keep reading every one of those forms; the readers' tolerance goes, this stays.
+ */
+export const legacyStoredEventDay = (value: unknown, zone: string): DayKey | undefined =>
+  storedDay(value, (instant) => (hasCalendarDay(instant, zone) ? storedEventDayOf(instant, zone) : undefined))

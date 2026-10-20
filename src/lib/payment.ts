@@ -26,6 +26,7 @@ import {
   selectCost,
 } from './cost'
 import { objectsDiffer } from './diff'
+import { storedDayKey } from './event'
 import { canRefund, hasRefundableBalance, isMember, isPaymentReturned, isStarter } from './registration'
 import { capitalize } from './string'
 import { isConfirmedEvent } from './typeGuards'
@@ -119,9 +120,12 @@ const comparableCost = (cost: PaymentTerms['cost']) => (typeof cost === 'number'
 /** An event without a payment time is paid at registration, as every reader of it takes it. */
 const comparablePaymentTime = (terms: PaymentTerms) => terms.paymentTime ?? 'registration'
 
-/** A form's Date and a stored string name the same moment when their times agree. */
-const sameMoment = (a: PaymentTerms['entryStartDate'], b: PaymentTerms['entryStartDate']) =>
-  a && b ? new Date(a).getTime() === new Date(b).getTime() : !a && !b
+/**
+ * The entry start is a day: a form's Date, a stored key and an instant a row stored before KOE-1547
+ * holds name the same start when their Finnish days agree.
+ */
+const sameDay = (a: PaymentTerms['entryStartDate'], b: PaymentTerms['entryStartDate']) =>
+  a && b ? storedDayKey(a) === storedDayKey(b) : !a && !b
 
 /**
  * Whether the payment terms of `after` differ from those of `before`, compared by value: a save
@@ -139,7 +143,7 @@ export const paymentTermsDiffer = (before: PaymentTerms, after: PaymentTerms): b
     return true
   }
   const earlyBird = hasEarlyBirdPrice(before) || hasEarlyBirdPrice(after)
-  return earlyBird && !sameMoment(before.entryStartDate, after.entryStartDate)
+  return earlyBird && !sameDay(before.entryStartDate, after.entryStartDate)
 }
 
 /** What the picture reads of a registration's open payment: whether it is still being worked on. */

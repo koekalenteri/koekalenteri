@@ -1,3 +1,4 @@
+import type { JsonEventStatsItem } from '../../../types/Stats'
 import type CustomDynamoClient from '../../utils/CustomDynamoClient'
 import { vi } from 'vitest'
 
@@ -37,7 +38,10 @@ const {
   isSameOrganizerStatsRow,
   moveOrganizerEventStatsRow,
   organizerPk,
+  ORGANIZER_STATS_MOVE_RETRY,
   organizerStatsKey,
+  organizerStatsMoveRetry,
+  organizerStatsRowEvent,
   readAllOrganizerEventStats,
   readAllStatKeys,
   readBreedStarts,
@@ -103,6 +107,67 @@ describe('eventStatsRepository', () => {
     })
   })
 
+  describe('organizerStatsMoveRetry', () => {
+    afterEach(() => {
+      vi.useRealTimers()
+    })
+
+    it('retries a cancelled move eight times', () => {
+      const retry = organizerStatsMoveRetry()
+
+      expect(retry.maxAttempts).toBe(8)
+      expect(retry.isConflict({ name: 'TransactionCanceledException' })).toBe(true)
+      expect(retry.isConflict({ name: 'ConditionalCheckFailedException' })).toBe(false)
+      expect(ORGANIZER_STATS_MOVE_RETRY.maxAttempts).toBe(8)
+    })
+
+    // From 10 ms doubled per attempt up to 500 ms; a fraction of a half halves each.
+    it.each([
+      [1, 5],
+      [8, 250],
+    ])('waits after the attempt %i for %i ms', async (attempt, ms) => {
+      vi.useFakeTimers()
+      let done = false
+      const waiting = organizerStatsMoveRetry(() => 0.5)
+        .wait(attempt)
+        .then(() => {
+          done = true
+        })
+
+      await vi.advanceTimersByTimeAsync(ms - 1)
+      expect(done).toBe(false)
+      await vi.advanceTimersByTimeAsync(1)
+      await waiting
+      expect(done).toBe(true)
+    })
+  })
+
+  describe('organizerStatsRowEvent', () => {
+    it.each([
+      ['a day key', '2024-06-01#e1', '2024-06-01'],
+      [
+        'the instant a row counted before KOE-1547 is keyed by',
+        '2024-05-31T21:00:00.000Z#e1',
+        '2024-05-31T21:00:00.000Z',
+      ],
+    ])('reads the event a row counts from its key, with %s', (_name, SK, startDate) => {
+      expect(organizerStatsRowEvent({ PK: 'ORG#org1', SK })).toEqual({ id: 'e1', organizer: { id: 'org1' }, startDate })
+    })
+
+    it('reads the key it builds back to the event', () => {
+      const event = { id: 'e1', organizer: { id: 'org1' }, startDate: '2024-06-01' }
+      expect(organizerStatsRowEvent(organizerStatsKey(event))).toEqual(event)
+    })
+
+    it.each<[string, Partial<Pick<JsonEventStatsItem, 'PK' | 'SK'>>]>([
+      ['a key without an event', { PK: 'ORG#org1', SK: '2024-06-01' }],
+      ['a row of another partition', { PK: 'TOTALS#2024', SK: '2024-06-01#e1' }],
+      ['no key', {}],
+    ])('reads no event from %s', (_name, row) => {
+      expect(organizerStatsRowEvent(row)).toBeUndefined()
+    })
+  })
+
   it('keys a capacity row by month, class and organizer, and an organizer partition by organizer', () => {
     expect(capacitySk('2025-06', 'ALO', 'org-1')).toBe('2025-06#ALO#org-1')
     expect(organizerPk('org-1')).toBe('ORG#org-1')
@@ -124,6 +189,8 @@ describe('eventStatsRepository', () => {
   })
 
   describe('readOrganizerEventStats', () => {
+    // A row's key is `<start day>#<event id>` (KOE-1547): the upper bound is padded past the id, so the
+    // events of the range's last day are in it.
     it('queries the organizer partition with the date filters', async () => {
       const rows = [{ count: 10, organizerId: 'org1' }]
       mockQuery.mockResolvedValueOnce(rows)
@@ -133,7 +200,7 @@ describe('eventStatsRepository', () => {
         filterExpression: 'SK >= :from AND SK <= :to',
         key: '#pk = :pk',
         names: { '#pk': 'PK' },
-        values: { ':from': '2024-01-01', ':pk': 'ORG#org1', ':to': '2024-12-31' },
+        values: { ':from': '2024-01-01', ':pk': 'ORG#org1', ':to': '2024-12-31\uffff' },
       })
     })
 
@@ -159,7 +226,7 @@ describe('eventStatsRepository', () => {
       expect(mockReadAll).toHaveBeenCalledWith({
         filter: 'begins_with(#pk, :orgPrefix) AND SK >= :from AND SK <= :to',
         names: { '#pk': 'PK' },
-        values: { ':from': '2024-01-01', ':orgPrefix': 'ORG#', ':to': '2024-12-31' },
+        values: { ':from': '2024-01-01', ':orgPrefix': 'ORG#', ':to': '2024-12-31\uffff' },
       })
     })
 
@@ -325,8 +392,9 @@ describe('eventStatsRepository', () => {
   })
 
   describe('moveOrganizerEventStatsRow', () => {
+    // A row counted before KOE-1547 is keyed by the instant the start was stored as; it moves to a key.
     const existing = { id: 'e5', organizer: { id: 'org1' }, startDate: '2024-06-15T00:00:00.000Z' }
-    const updated = { id: 'e5', organizer: { id: 'org2' }, startDate: '2025-01-01T00:00:00.000Z' }
+    const updated = { id: 'e5', organizer: { id: 'org2' }, startDate: '2025-01-01' }
     const stats = {
       cancelledRegistrations: 1,
       count: 7,
@@ -345,7 +413,7 @@ describe('eventStatsRepository', () => {
         ExpressionAttributeValues: {
           ':cancelledRegistrations': 1,
           ':count': 7,
-          ':date': '2025-01-01T00:00:00.000Z',
+          ':date': '2025-01-01',
           ':memberRegistrations': 2,
           ':organizerId': 'org2',
           ':paidAmount': 350,
@@ -355,7 +423,7 @@ describe('eventStatsRepository', () => {
           ':reserveRegistrations': 4,
           ':updatedAt': NOW,
         },
-        Key: { PK: 'ORG#org2', SK: '2025-01-01T00:00:00.000Z#e5' },
+        Key: { PK: 'ORG#org2', SK: '2025-01-01#e5' },
         TableName: 'event-stats-table',
         UpdateExpression:
           'ADD #cancelledRegistrations :cancelledRegistrations, #count :count, #memberRegistrations :memberRegistrations, #paidAmount :paidAmount, #paidRegistrations :paidRegistrations, #refundedAmount :refundedAmount, #refundedRegistrations :refundedRegistrations, #reserveRegistrations :reserveRegistrations SET #date = :date, #organizerId = :organizerId, #updatedAt = :updatedAt',
@@ -405,7 +473,7 @@ describe('eventStatsRepository', () => {
             ExpressionAttributeValues: {
               ':cancelledRegistrations': 0,
               ':count': 0,
-              ':date': '2025-01-01T00:00:00.000Z',
+              ':date': '2025-01-01',
               ':memberRegistrations': 0,
               ':organizerId': 'org2',
               ':paidAmount': 0,

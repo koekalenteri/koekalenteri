@@ -15,12 +15,12 @@ const config = {
 
 const criteria: KcIdLookupCriteria = {
   classes: [],
-  endDate: '2026-09-27T20:59:59.999Z',
+  endDate: '2026-09-27',
   eventType: 'NOU',
   location: 'Laukaa',
   name: '',
   organizer: { id: 'org-id' },
-  startDate: '2026-09-25T21:00:00.000Z',
+  startDate: '2026-09-26',
 }
 
 /** A server that takes the request and says nothing until the caller gives up. */
@@ -95,9 +95,9 @@ describe('searchKcTrials under the caller’s time', () => {
 describe('searchKcTrials ranking a one-day trial', () => {
   const oneDay: KcIdLookupCriteria = {
     ...criteria,
-    endDate: '2026-09-26T20:59:59.999Z',
+    endDate: '2026-09-26',
     name: 'Syyskoe',
-    startDate: '2026-09-25T21:00:00.000Z',
+    startDate: '2026-09-26',
   }
   const listing = { ...kokeetNOU[0], alku: '2026-09-26T00:00:00', koeGUID: null }
   // Two days at the event's place: it scores on the place, and misses on the last day.

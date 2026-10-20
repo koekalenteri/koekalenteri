@@ -3,6 +3,7 @@ import type { PublicConfirmedEvent } from '../types/Event'
 import type { PublicRegistration } from '../types/Registration'
 import i18n from 'i18next'
 import { eventWithStaticDates } from '../__mockData__/events'
+import { legacyDayValue } from '../test-utils/finnishDays'
 import { describeInTimeZone } from '../test-utils/timeZone'
 import { emptyDog } from './data'
 import {
@@ -72,7 +73,7 @@ describe('startListSpreadsheetRows', () => {
       class: 'ALO',
       dog: {
         dam: { name: 'Dam Dog', titles: 'FI MVA' },
-        dob: '2020-01-02',
+        dob: '2020-01-02' as const,
         name: 'Test Dog',
         regNo: 'REG1',
         results: [],
@@ -195,7 +196,7 @@ describe.each(['Europe/Helsinki', 'America/New_York', 'Asia/Tokyo'])("the dog's 
     const registration = () =>
       toPublicRegistration({
         breeder: 'b',
-        dog: { dob: '2021-01-01T00:00:00', name: 'Dog', regNo: 'REG1' },
+        dog: { dob: legacyDayValue('2021-01-01T00:00:00'), name: 'Dog', regNo: 'REG1' },
         group: { key: 'group', number: 1 },
         handler: 'h',
         owner: 'o',

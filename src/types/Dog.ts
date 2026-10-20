@@ -7,8 +7,8 @@ export interface JsonDog extends DogName {
   rfidEditable?: boolean
   kcId?: number
   breedCode?: BreedCode
-  /** A day key, or one of the older stored forms: Kennelliitto's stamp without a zone, an instant. */
-  dob?: string
+  /** The birth day; none for Kennelliitto's empty date. Rows stored before KOE-1547 were migrated to keys. */
+  dob?: DayKey
   gender?: DogGender
   refreshDate?: string
   results?: JsonTestResult[]
@@ -16,9 +16,7 @@ export interface JsonDog extends DogName {
   dam?: DogName
 }
 
-export interface Dog extends Omit<JsonDog, 'dob' | 'refreshDate' | 'results'> {
-  /** The birth day; none for Kennelliitto's empty date. */
-  dob?: DayKey
+export interface Dog extends Omit<JsonDog, 'refreshDate' | 'results'> {
   refreshDate?: Date
   results: TestResult[]
 }
@@ -33,8 +31,11 @@ export type DogGender = 'F' | 'M'
 export interface JsonTestResult {
   type: string
   class: string
-  /** A day key, or one of the older stored forms: Kennelliitto's stamp without a zone, an instant. */
-  date: string
+  /**
+   * The day of the result, or '' for none (Kennelliitto's empty date), which every reader takes as no
+   * day. Rows stored before KOE-1547 were migrated to keys.
+   */
+  date: DayKey | ''
   location: string
   result: string
   judge: string

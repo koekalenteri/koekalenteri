@@ -20,6 +20,7 @@ import {
   shouldSendInvitationAfterPayment,
 } from '../../lib/registration'
 import { applyRegistrationGroupMoves } from '../../lib/registrationGroups'
+import { requestDay } from '../../lib/storedDays'
 import { mapWithConcurrency } from '../../lib/utils'
 import { getOrigin } from '../lib/api-gw'
 import { audit, registrationAuditKey } from '../lib/audit'
@@ -147,6 +148,11 @@ const parseMoves = (json: string | null): RegistrationGroupMove[] => {
   } else if (filtered.length !== parsed.length) {
     logger.error('invalid registration group moves', { moves: parsed.length, valid: filtered.length })
     return []
+  }
+  // A group's day is stored as a key (KOE-1547); a browser loaded before that sends an instant.
+  for (const move of filtered) {
+    const day = requestDay(move.group.date)
+    if (day) move.group.date = day
   }
   return filtered
 }

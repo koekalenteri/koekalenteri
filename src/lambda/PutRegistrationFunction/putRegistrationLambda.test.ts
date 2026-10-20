@@ -1,4 +1,11 @@
-import type { JsonDogEvent, JsonManualTestResult, JsonRegistration, JsonTestResult, Registration } from '../../types'
+import type {
+  DayKey,
+  JsonDogEvent,
+  JsonManualTestResult,
+  JsonRegistration,
+  JsonTestResult,
+  Registration,
+} from '../../types'
 import { addMinutes } from 'date-fns'
 import { vi } from 'vitest'
 import { registrationDogAged28MonthsWithNOUResult } from '../../__mockData__/dogs'
@@ -8,13 +15,15 @@ import {
   eventWithStaticDatesAndClass,
 } from '../../__mockData__/events'
 import { registrationWithStaticDates, registrationWithStaticDatesAndClass } from '../../__mockData__/registrations'
-import { dayStartOf, TIME_ZONE } from '../../lib/day'
+import { dayStart, dayStartOf, TIME_ZONE } from '../../lib/day'
 import { qualifyJsonRegistration } from '../../lib/qualification'
 import { GROUP_KEY_RESERVE } from '../../lib/registration'
+import { legacyRegistrationDays, rekeyRegistrationDays } from '../../lib/storedDays'
+import { finnishDayOf, legacyDayValue } from '../../test-utils/finnishDays'
 import { CONFIG } from '../config'
 import { LambdaError } from '../lib/lambda'
 import { ISO8601DateTimeRE } from '../test-utils/constants'
-import { constructAPIGwEvent } from '../test-utils/helpers'
+import { constructAPIGwEvent, storedRegistrationJson } from '../test-utils/helpers'
 import { loggedLines } from '../test-utils/logs'
 
 const mockSES = {
@@ -166,9 +175,9 @@ vi.doMock('../lib/emailSuppression', () => ({
 const { default: putRegistrationLabmda } = await import('./handler')
 
 /** What only the secretary may see of a stored registration (KOE-1515). */
-const secretaryGroup = { date: eventWithStaticDates.startDate, key: 'ap', number: 2, time: 'ap' as const }
+const secretaryGroup = { date: finnishDayOf(eventWithStaticDates.startDate), key: 'ap', number: 2, time: 'ap' as const }
 const secretaryOnlyFields = {
-  eventResult: { result: 'AVO1' },
+  eventResult: { result: 'AVO1', updatedAt: '2026-05-27T10:00:00.000Z', updatedBy: 'Secretary' },
   group: secretaryGroup,
   internalNotes: 'call the owner',
   startGroup: { ...secretaryGroup, number: 7 },
@@ -208,7 +217,7 @@ describe('putRegistrationLabmda', () => {
     mockGetEvent.mockResolvedValueOnce(JSON.parse(JSON.stringify(eventWithStaticDates)))
     // The completed registration is the stored row after the groups were reconciled.
     mockClaimNewRegistrationPostProcessing.mockResolvedValueOnce({
-      registration: { ...JSON.parse(JSON.stringify(registrationWithStaticDates)), ...secretaryOnlyFields },
+      registration: { ...storedRegistrationJson(registrationWithStaticDates), ...secretaryOnlyFields },
       release: async () => undefined,
       token: 'test-token',
     })
@@ -240,7 +249,7 @@ describe('putRegistrationLabmda', () => {
 
     expect(mockWriteRegistration).toHaveBeenCalledWith(
       expect.objectContaining({
-        ...JSON.parse(JSON.stringify(registration)),
+        ...storedRegistrationJson(registration),
         createdAt: expect.stringMatching(ISO8601DateTimeRE),
         createdBy: 'Owner Name',
         handler: expect.objectContaining({ email: 'handler@example.com' }),
@@ -319,7 +328,7 @@ describe('putRegistrationLabmda', () => {
   it('rejects an update when edit-token authorization fails', async () => {
     const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined)
     mockGetEvent.mockResolvedValueOnce(JSON.parse(JSON.stringify(eventWithStaticDates)))
-    mockGetRegistration.mockResolvedValueOnce(JSON.parse(JSON.stringify(registrationWithStaticDates)))
+    mockGetRegistration.mockResolvedValueOnce(storedRegistrationJson(registrationWithStaticDates))
     mockAuthorizeRegistrationEdit.mockImplementationOnce(() => {
       throw new LambdaError(404, 'not found')
     })
@@ -439,7 +448,7 @@ describe('putRegistrationLabmda', () => {
     mockGetEvent.mockResolvedValueOnce(JSON.parse(JSON.stringify(eventWithConfirmationPayment)))
     mockfindExistingRegistrationToEventForDog
       .mockResolvedValueOnce(undefined)
-      .mockResolvedValueOnce({ ...JSON.parse(JSON.stringify(registrationWithStaticDates)), state: 'ready' })
+      .mockResolvedValueOnce({ ...storedRegistrationJson(registrationWithStaticDates), state: 'ready' })
 
     const res = await putRegistrationLabmda(
       constructAPIGwEvent({ ...registrationWithStaticDates, creationIdempotencyKey: 'new-key', id: undefined })
@@ -537,7 +546,7 @@ describe('putRegistrationLabmda', () => {
 
   it('should reject updated registration with suppressed email address', async () => {
     const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined)
-    const existingJson = JSON.parse(JSON.stringify(registrationWithStaticDates))
+    const existingJson = storedRegistrationJson(registrationWithStaticDates)
     mockGetEvent.mockResolvedValueOnce(JSON.parse(JSON.stringify(eventWithStaticDates)))
     mockGetRegistration.mockResolvedValueOnce(existingJson)
     mockAssertRegistrationEmailsNotSuppressed.mockRejectedValueOnce(
@@ -578,7 +587,7 @@ describe('putRegistrationLabmda', () => {
   })
 
   it('answers a save without the result, the notes or the groups (KOE-1515)', async () => {
-    const existingJson = { ...JSON.parse(JSON.stringify(registrationWithStaticDates)), ...secretaryOnlyFields }
+    const existingJson = { ...storedRegistrationJson(registrationWithStaticDates), ...secretaryOnlyFields }
     mockGetEvent.mockResolvedValueOnce(JSON.parse(JSON.stringify(eventWithStaticDates)))
     mockGetRegistration.mockResolvedValueOnce(existingJson)
 
@@ -601,7 +610,7 @@ describe('putRegistrationLabmda', () => {
     ['the fee again once it has a place', secretaryGroup, 123],
   ])('answers a save of a reserve whose fee was refunded with %s owed (KOE-1526)', async (_name, group, due) => {
     const existingJson = {
-      ...JSON.parse(JSON.stringify(registrationWithStaticDates)),
+      ...storedRegistrationJson(registrationWithStaticDates),
       group,
       refundAmount: 123,
       refundHandlingCost: 0,
@@ -622,11 +631,11 @@ describe('putRegistrationLabmda', () => {
 
   it('should clear email delivery status from response after sending update email', async () => {
     const existingJson = {
-      ...JSON.parse(JSON.stringify(registrationWithStaticDates)),
+      ...storedRegistrationJson(registrationWithStaticDates),
       emailDeliveryStatus: {
         at: '2026-05-27T10:00:00.000Z',
         email: 'handler@example.com',
-        status: 'bounce',
+        status: 'bounce' as const,
       },
     }
     mockGetEvent.mockResolvedValueOnce(JSON.parse(JSON.stringify(eventWithStaticDates)))
@@ -645,11 +654,11 @@ describe('putRegistrationLabmda', () => {
 
   it('should clear email delivery status when email changes even if email is not sent', async () => {
     const existingJson = {
-      ...JSON.parse(JSON.stringify(registrationWithStaticDates)),
+      ...storedRegistrationJson(registrationWithStaticDates),
       emailDeliveryStatus: {
         at: '2026-05-27T10:00:00.000Z',
         email: 'handler@example.com',
-        status: 'bounce',
+        status: 'bounce' as const,
       },
     }
     mockGetEvent.mockResolvedValueOnce(JSON.parse(JSON.stringify(eventWithStaticDates)))
@@ -682,7 +691,7 @@ describe('putRegistrationLabmda', () => {
     ['gdpr', { reasonKey: 'registration.cancelReason.gdpr' }],
     ['custom reason', { reason: 'custom reason' }],
   ])('should do happy path for cancelled registration', async (cancelReason, messageParams) => {
-    const existingJson = JSON.parse(JSON.stringify(registrationWithStaticDates))
+    const existingJson = storedRegistrationJson(registrationWithStaticDates)
     mockGetEvent.mockResolvedValueOnce(JSON.parse(JSON.stringify(eventWithStaticDates)))
     mockGetRegistration.mockResolvedValueOnce(existingJson)
     const res = await putRegistrationLabmda(
@@ -772,7 +781,7 @@ describe('putRegistrationLabmda', () => {
       ...registrationWithStaticDates,
       group: { key: GROUP_KEY_RESERVE, number: 2 },
     }
-    const existingJson: JsonRegistration = JSON.parse(JSON.stringify({ ...registration, reserveNotified: 2 }))
+    const existingJson = storedRegistrationJson({ ...registration, reserveNotified: 2 })
 
     mockGetEvent.mockResolvedValueOnce(JSON.parse(JSON.stringify(eventWithStaticDates)))
     mockGetRegistration.mockResolvedValueOnce(existingJson)
@@ -848,7 +857,7 @@ describe('putRegistrationLabmda', () => {
       ...registrationWithStaticDates,
       group: { key: GROUP_KEY_RESERVE, number: 2 },
     }
-    const existingJson: JsonRegistration = JSON.parse(JSON.stringify({ ...registration, reserveNotified: undefined }))
+    const existingJson = storedRegistrationJson({ ...registration, reserveNotified: undefined })
 
     mockGetEvent.mockResolvedValueOnce(JSON.parse(JSON.stringify(eventWithStaticDates)))
     mockGetRegistration.mockResolvedValueOnce(existingJson)
@@ -924,7 +933,7 @@ describe('putRegistrationLabmda', () => {
       ...registrationWithStaticDates,
       group: { key: 'participants-1', number: 2 },
     }
-    const existingJson: JsonRegistration = JSON.parse(JSON.stringify(registration))
+    const existingJson = storedRegistrationJson(registration)
 
     mockGetEvent.mockResolvedValueOnce(JSON.parse(JSON.stringify(eventWithStaticDates)))
     mockGetRegistration.mockResolvedValueOnce(existingJson)
@@ -995,7 +1004,7 @@ describe('putRegistrationLabmda', () => {
   // A cleared result picker leaves a hand-entered result with no date, and the schema allows it: the
   // save goes through, and the result does not count (KOE-1548).
   it('saves a registration with a hand-entered result that has no date', async () => {
-    const existingJson = JSON.parse(JSON.stringify(registrationWithStaticDates))
+    const existingJson = storedRegistrationJson(registrationWithStaticDates)
     mockGetEvent.mockResolvedValueOnce(JSON.parse(JSON.stringify(eventWithStaticDates)))
     mockGetRegistration.mockResolvedValueOnce(existingJson)
     const undated = { class: 'ALO', id: 'm1', judge: 'J', location: 'L', result: 'ALO1', type: 'NOME-B' }
@@ -1011,7 +1020,7 @@ describe('putRegistrationLabmda', () => {
   })
 
   it('should do happy path for updating registration', async () => {
-    const existingJson = JSON.parse(JSON.stringify(registrationWithStaticDates))
+    const existingJson = storedRegistrationJson(registrationWithStaticDates)
     mockGetEvent.mockResolvedValueOnce(JSON.parse(JSON.stringify(eventWithStaticDates)))
     mockGetRegistration.mockResolvedValueOnce(existingJson)
     const updatedRegistration = { ...registrationWithStaticDates, notes: 'updated notes' }
@@ -1092,7 +1101,7 @@ describe('putRegistrationLabmda', () => {
   })
 
   it('names the rows after the payer the update itself names', async () => {
-    const existingJson = JSON.parse(JSON.stringify(registrationWithStaticDates))
+    const existingJson = storedRegistrationJson(registrationWithStaticDates)
     mockGetEvent.mockResolvedValueOnce(JSON.parse(JSON.stringify(eventWithStaticDates)))
     mockGetRegistration.mockResolvedValueOnce(existingJson)
     const updatedRegistration = {
@@ -1117,7 +1126,7 @@ describe('putRegistrationLabmda', () => {
   })
 
   it('names the rows after the owner the ownerPays selection names', async () => {
-    const existingJson = JSON.parse(JSON.stringify(registrationWithStaticDates))
+    const existingJson = storedRegistrationJson(registrationWithStaticDates)
     mockGetEvent.mockResolvedValueOnce(JSON.parse(JSON.stringify(eventWithStaticDates)))
     mockGetRegistration.mockResolvedValueOnce(existingJson)
     const updatedRegistration = {
@@ -1145,7 +1154,7 @@ describe('putRegistrationLabmda', () => {
 
   it('names the rows after the login on the logged-in route, without the registration mark', async () => {
     mockAuthorize.mockResolvedValueOnce({ name: 'Kirjautunut Käyttäjä' })
-    const existingJson = JSON.parse(JSON.stringify(registrationWithStaticDates))
+    const existingJson = storedRegistrationJson(registrationWithStaticDates)
     mockGetEvent.mockResolvedValueOnce(JSON.parse(JSON.stringify(eventWithStaticDates)))
     mockGetRegistration.mockResolvedValueOnce(existingJson)
     const res = await putRegistrationLabmda(
@@ -1166,7 +1175,7 @@ describe('putRegistrationLabmda', () => {
   })
 
   it('should merge partial patch payloads before diffing and saving', async () => {
-    const existingJson = JSON.parse(JSON.stringify(registrationWithStaticDates))
+    const existingJson = storedRegistrationJson(registrationWithStaticDates)
     mockGetEvent.mockResolvedValueOnce(JSON.parse(JSON.stringify(eventWithStaticDates)))
     mockGetRegistration.mockResolvedValueOnce(existingJson)
 
@@ -1210,7 +1219,7 @@ describe('putRegistrationLabmda', () => {
   })
 
   it('applies array patch operations without changing dates into an object', async () => {
-    const existingJson = JSON.parse(JSON.stringify(registrationWithStaticDates))
+    const existingJson = storedRegistrationJson(registrationWithStaticDates)
     mockGetEvent.mockResolvedValueOnce(JSON.parse(JSON.stringify(eventWithStaticDates)))
     mockGetRegistration.mockResolvedValueOnce(existingJson)
 
@@ -1236,7 +1245,7 @@ describe('putRegistrationLabmda', () => {
   })
 
   it('rejects patch operations for non-public fields', async () => {
-    const existingJson = JSON.parse(JSON.stringify(registrationWithStaticDates))
+    const existingJson = storedRegistrationJson(registrationWithStaticDates)
     mockGetEvent.mockResolvedValueOnce(JSON.parse(JSON.stringify(eventWithStaticDates)))
     mockGetRegistration.mockResolvedValueOnce(existingJson)
 
@@ -1273,7 +1282,7 @@ describe('putRegistrationLabmda', () => {
   })
 
   it('should do happy path for confirming registration', async () => {
-    const existingJson = JSON.parse(JSON.stringify(registrationWithStaticDates))
+    const existingJson = storedRegistrationJson(registrationWithStaticDates)
     mockGetEvent.mockResolvedValueOnce(JSON.parse(JSON.stringify(eventWithStaticDates)))
     mockGetRegistration.mockResolvedValueOnce(existingJson)
     const res = await putRegistrationLabmda(constructAPIGwEvent({ ...registrationWithStaticDates, confirmed: true }))
@@ -1357,26 +1366,44 @@ describe('putRegistrationLabmda', () => {
   it('answers an unchanged save of a row stored before the dog dates were day keys with 304 (KOE-1548)', async () => {
     const event = JSON.parse(JSON.stringify(eventWithStaticDates))
     const official: JsonTestResult[] = [
-      { class: '', date: '2021-03-01T00:00:00', judge: 'J', location: 'L', result: 'NOU1', type: 'NOU' },
+      {
+        class: '',
+        date: legacyDayValue('2021-03-01T00:00:00'),
+        judge: 'J',
+        location: 'L',
+        result: 'NOU1',
+        type: 'NOU',
+      },
     ]
     const manual: JsonManualTestResult[] = [
-      { class: 'ALO', date: '2021-02-01', id: 'm1', judge: 'J', location: 'L', result: 'ALO1', type: 'NOME-B' },
+      {
+        class: 'ALO',
+        date: '2021-02-01' as const,
+        id: 'm1',
+        judge: 'J',
+        location: 'L',
+        result: 'ALO1',
+        type: 'NOME-B',
+      },
     ]
     const body: JsonRegistration = JSON.parse(
       JSON.stringify({
         ...registrationWithStaticDates,
         confirmed: true,
-        dog: { ...registrationWithStaticDates.dog, dob: '2020-01-01', results: [] },
+        dog: { ...registrationWithStaticDates.dog, dob: '2020-01-01' as const, results: [] },
         results: manual,
       })
     )
     const qualification = qualifyJsonRegistration({ ...body, dog: { ...body.dog, results: official } }, event)
     const existingJson: JsonRegistration = {
       ...body,
-      dog: { ...body.dog, dob: '2019-12-31T22:00:00.000Z', results: official },
+      dog: { ...body.dog, dob: legacyDayValue('2019-12-31T22:00:00.000Z'), results: official },
       qualifies: qualification.qualifies,
-      qualifyingResults: qualification.qualifyingResults.map((r) => ({ ...r, date: `${r.date}T00:00:00.000Z` })),
-      results: manual.map((r) => ({ ...r, date: '2021-01-31T22:00:00.000Z' })),
+      qualifyingResults: qualification.qualifyingResults.map((r) => ({
+        ...r,
+        date: legacyDayValue(`${r.date}T00:00:00.000Z`),
+      })),
+      results: manual.map((r) => ({ ...r, date: legacyDayValue('2021-01-31T22:00:00.000Z') })),
     }
     mockGetEvent.mockResolvedValueOnce(event)
     mockGetRegistration.mockResolvedValueOnce(existingJson)
@@ -1389,12 +1416,38 @@ describe('putRegistrationLabmda', () => {
     expect(res.statusCode).toEqual(304)
   })
 
+  // KOE-1547: the entry's days are keys on the row, a row not yet migrated holds instants, and a browser
+  // loaded before the change sends instants. The same days in the other form are no change either way.
+  it.each([
+    ['instants sent over a row of keys', true, false],
+    ['keys sent over a row of instants', false, true],
+  ])('answers an unchanged save of %s with 304', async (_name, sentAsInstants, storedAsInstants) => {
+    const event = JSON.parse(JSON.stringify(eventWithStaticDates))
+    const base: JsonRegistration = JSON.parse(JSON.stringify({ ...registrationWithStaticDates, confirmed: true }))
+    rekeyRegistrationDays(base, legacyRegistrationDays)
+    // The entry's days as keys, or as the instants their Finnish days start at.
+    const withDays = (asInstants: boolean): JsonRegistration => {
+      const form = (day: DayKey) => (asInstants ? legacyDayValue(dayStart(day, TIME_ZONE).toISOString()) : day)
+      const copy: JsonRegistration = structuredClone(base)
+      copy.dates = copy.dates.map((date) => ({ ...date, date: form(date.date) }))
+      if (copy.group?.date) copy.group = { ...copy.group, date: form(copy.group.date) }
+      return copy
+    }
+    mockGetEvent.mockResolvedValueOnce(event)
+    mockGetRegistration.mockResolvedValueOnce(withDays(storedAsInstants))
+
+    const res = await putRegistrationLabmda(constructAPIGwEvent(withDays(sentAsInstants)))
+
+    expect(mockWriteRegistration).not.toHaveBeenCalled()
+    expect(res.statusCode).toEqual(304)
+  })
+
   it('should not send secretary email on cancellation if secretary has no email', async () => {
     const eventWithoutSecretaryEmail = {
       ...eventWithStaticDates,
       contactInfo: { secretary: { name: 'Testi Testinen' } },
     }
-    const existingJson = JSON.parse(JSON.stringify(registrationWithStaticDates))
+    const existingJson = storedRegistrationJson(registrationWithStaticDates)
     mockGetEvent.mockResolvedValueOnce(JSON.parse(JSON.stringify(eventWithoutSecretaryEmail)))
     // The notice goes by the event as recounted after the save.
     mockUpdateRegistrations.mockResolvedValueOnce(
@@ -1419,7 +1472,7 @@ describe('putRegistrationLabmda', () => {
   })
 
   it('should not confirm an already cancelled registration', async () => {
-    const existingJson = JSON.parse(JSON.stringify({ ...registrationWithStaticDates, cancelled: true }))
+    const existingJson = storedRegistrationJson({ ...registrationWithStaticDates, cancelled: true })
     mockGetEvent.mockResolvedValueOnce(JSON.parse(JSON.stringify(eventWithStaticDates)))
     mockGetRegistration.mockResolvedValueOnce(existingJson)
     const res = await putRegistrationLabmda(
@@ -1460,7 +1513,7 @@ describe('putRegistrationLabmda', () => {
 
     mockSES.send.mockImplementationOnce(() => Promise.resolve()) // first send is for user
     mockSES.send.mockImplementationOnce(() => Promise.reject(error)) // second send is for secretary
-    const existingJson = JSON.parse(JSON.stringify(registrationWithStaticDates))
+    const existingJson = storedRegistrationJson(registrationWithStaticDates)
     mockGetEvent.mockResolvedValueOnce(JSON.parse(JSON.stringify(eventWithStaticDates)))
     mockGetRegistration.mockResolvedValueOnce(existingJson)
     const res = await putRegistrationLabmda(constructAPIGwEvent({ ...registrationWithStaticDates, cancelled: true }))
@@ -1475,7 +1528,7 @@ describe('putRegistrationLabmda', () => {
 
   it('should send invitation read email', async () => {
     const existingJson = {
-      ...JSON.parse(JSON.stringify(registrationWithStaticDates)),
+      ...storedRegistrationJson(registrationWithStaticDates),
       invitationAttachmentSent: 'sent-attachment',
       messagesSent: { invitation: true },
     }
@@ -1507,7 +1560,7 @@ describe('putRegistrationLabmda', () => {
 
   it('records a new receipt when a previously read invitation attachment is replaced', async () => {
     const existingJson = {
-      ...JSON.parse(JSON.stringify(registrationWithStaticDates)),
+      ...storedRegistrationJson(registrationWithStaticDates),
       invitationAttachmentRead: 'old-attachment',
       invitationAttachmentSent: 'new-attachment',
       invitationRead: true,
@@ -1544,7 +1597,7 @@ describe('putRegistrationLabmda', () => {
   it('should return 404 when updating a registration after the event has ended', async () => {
     vi.setSystemTime(dayStartOf(eventWithStaticDates.endDate, TIME_ZONE, 1))
     mockGetEvent.mockResolvedValueOnce(JSON.parse(JSON.stringify(eventWithStaticDates)))
-    mockGetRegistration.mockResolvedValueOnce(JSON.parse(JSON.stringify(registrationWithStaticDates)))
+    mockGetRegistration.mockResolvedValueOnce(storedRegistrationJson(registrationWithStaticDates))
 
     const res = await putRegistrationLabmda(
       constructAPIGwEvent(
@@ -1565,9 +1618,7 @@ describe('putRegistrationLabmda', () => {
   it('does not expose an existing registration for a duplicate submission', async () => {
     vi.setSystemTime(eventWithStaticDates.entryStartDate)
     mockGetEvent.mockResolvedValueOnce(JSON.parse(JSON.stringify(eventWithStaticDates)))
-    mockfindExistingRegistrationToEventForDog.mockResolvedValueOnce(
-      JSON.parse(JSON.stringify(registrationWithStaticDates))
-    )
+    mockfindExistingRegistrationToEventForDog.mockResolvedValueOnce(storedRegistrationJson(registrationWithStaticDates))
 
     const res = await putRegistrationLabmda(constructAPIGwEvent({ ...registrationWithStaticDates, id: undefined }))
 
@@ -1579,7 +1630,7 @@ describe('putRegistrationLabmda', () => {
     vi.setSystemTime(eventWithStaticDates.entryStartDate)
     mockGetEvent.mockResolvedValueOnce(JSON.parse(JSON.stringify(eventWithStaticDates)))
     mockfindExistingRegistrationToEventForDog.mockResolvedValueOnce({
-      ...JSON.parse(JSON.stringify(registrationWithStaticDates)),
+      ...storedRegistrationJson(registrationWithStaticDates),
       creationIdempotencyKey: 'original-key',
       state: 'creating',
     })
@@ -1603,7 +1654,7 @@ describe('putRegistrationLabmda', () => {
     vi.setSystemTime(eventWithStaticDates.entryStartDate)
     mockGetEvent.mockResolvedValueOnce(JSON.parse(JSON.stringify(eventWithStaticDates)))
     mockfindExistingRegistrationToEventForDog.mockResolvedValueOnce({
-      ...JSON.parse(JSON.stringify(registrationWithStaticDates)),
+      ...storedRegistrationJson(registrationWithStaticDates),
       creationIdempotencyKey: 'secret-create-key',
     })
 
@@ -1623,7 +1674,7 @@ describe('putRegistrationLabmda', () => {
     mockGetEvent.mockResolvedValueOnce(JSON.parse(JSON.stringify(eventWithStaticDates)))
     // The stored registration may already be placed and scored; the retry answers it without those (KOE-1515).
     mockfindExistingRegistrationToEventForDog.mockResolvedValueOnce({
-      ...JSON.parse(JSON.stringify(registrationWithStaticDates)),
+      ...storedRegistrationJson(registrationWithStaticDates),
       ...secretaryOnlyFields,
       creationIdempotencyKey: 'secret-create-key',
     })
@@ -1654,7 +1705,7 @@ describe('putRegistrationLabmda', () => {
   })
 
   it.each([
-    [{ dates: { 0: { date: '2026-05-16' } } }, 'dates must be an array'],
+    [{ dates: { 0: { date: '2026-05-16' as const } } }, 'dates must be an array'],
     [{ dog: { regNo: 42 } }, 'dog.regNo must be a string'],
     [{ class: 'KVA' }, 'class must be one of: ALO, AVO, VOI'],
     [{ language: 'sv' }, 'language must be one of: fi, en'],

@@ -20,8 +20,9 @@ vi.doMock('../lib/repositories/eventRepository', () => ({
   readPublicSeasonEvents: mockReadPublicSeasonEvents,
 }))
 
-vi.doMock('../../lib/event', () => ({
+vi.doMock('../../lib/event', async () => ({
   sanitizeDogEvent: mockSanitizeDogEvent,
+  storedDayKey: (await vi.importActual<typeof import('../../lib/event')>('../../lib/event')).storedDayKey,
 }))
 
 const { default: getEventsLambda } = await import('./handler')
@@ -107,7 +108,7 @@ describe('getEventsLambda', () => {
     await getEventsLambda(event)
 
     expect(mockReadPublicSeasonEvents).toHaveBeenCalledTimes(2)
-    expect(mockReadPublicSeasonEvents).toHaveBeenNthCalledWith(1, '2026', '2027-12-31T21:59:59.999Z')
+    expect(mockReadPublicSeasonEvents).toHaveBeenNthCalledWith(1, '2026', '2027-12-31')
     expect(mockReadPublicSeasonEvents).toHaveBeenNthCalledWith(2, '2027', expect.any(String))
     expect(mockResponse).toHaveBeenCalledWith(200, [], event)
 
@@ -148,11 +149,11 @@ describe('getEventsLambda', () => {
     vi.setSystemTime(new Date('2026-05-12T00:00:00.000Z'))
     const allEvents = [
       // ends before the range start -> excluded
-      { endDate: '2026-01-01T23:59:59.000Z', id: 'event1', startDate: '2026-01-01T00:00:00.000Z', state: 'confirmed' },
+      { endDate: '2026-01-01', id: 'event1', startDate: '2026-01-01', state: 'confirmed' },
       // overlaps range start -> included
-      { endDate: '2026-01-05T00:00:00.000Z', id: 'event2', startDate: '2026-01-02T00:00:00.000Z', state: 'confirmed' },
+      { endDate: '2026-01-05', id: 'event2', startDate: '2026-01-02', state: 'confirmed' },
       // no endDate -> treat as same as startDate
-      { id: 'event3', startDate: '2026-01-03T00:00:00.000Z', state: 'confirmed' },
+      { id: 'event3', startDate: '2026-01-03', state: 'confirmed' },
     ]
 
     mockReadPublicSeasonEvents.mockResolvedValueOnce(allEvents)
@@ -167,18 +168,50 @@ describe('getEventsLambda', () => {
 
     await getEventsLambda(rangeEvent)
 
-    expect(mockReadPublicSeasonEvents).toHaveBeenNthCalledWith(1, '2026', '2027-12-31T21:59:59.999Z')
-    expect(mockReadPublicSeasonEvents).toHaveBeenNthCalledWith(2, '2027', '2027-12-31T21:59:59.999Z')
+    expect(mockReadPublicSeasonEvents).toHaveBeenNthCalledWith(1, '2026', '2027-12-31')
+    expect(mockReadPublicSeasonEvents).toHaveBeenNthCalledWith(2, '2027', '2027-12-31')
     expect(mockResponse).toHaveBeenCalledWith(200, [allEvents[1], allEvents[2]], rangeEvent)
 
     vi.useRealTimers()
   })
 
+  // KOE-1547: the season is read up to the range's last Finnish day as a key, and a row not yet
+  // migrated, whose start is the instant its Finnish day starts at, is judged by the same day.
+  it('reads a range by its Finnish days, rows stored as keys and as instants alike', async () => {
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date('2026-05-12T00:00:00.000Z'))
+    const allEvents = [
+      { endDate: '2026-06-01', id: 'key-in', startDate: '2026-06-01', state: 'confirmed' },
+      {
+        endDate: '2026-05-31T21:00:00.000Z',
+        id: 'instant-in',
+        startDate: '2026-05-31T21:00:00.000Z',
+        state: 'confirmed',
+      },
+      { endDate: '2026-06-02', id: 'key-out', startDate: '2026-06-02', state: 'confirmed' },
+      {
+        endDate: '2026-06-01T21:00:00.000Z',
+        id: 'instant-out',
+        startDate: '2026-06-01T21:00:00.000Z',
+        state: 'confirmed',
+      },
+    ]
+    mockReadPublicSeasonEvents.mockResolvedValueOnce(allEvents)
+    mockSanitizeDogEvent.mockImplementation((e: unknown) => e)
+
+    // The end of 1.6. in Finland, as a browser asks for it.
+    const rangeEvent = asEvent({ ...event, queryStringParameters: { end: '2026-06-01T20:59:59.999Z' } })
+    await getEventsLambda(rangeEvent)
+
+    expect(mockReadPublicSeasonEvents).toHaveBeenCalledWith('2026', '2026-06-01')
+    expect(mockResponse).toHaveBeenCalledWith(200, [allEvents[0], allEvents[1]], rangeEvent)
+  })
+
   it('accepts ISO string start date query params', async () => {
     const allEvents = [
-      { endDate: '2026-01-01T23:59:59.000Z', id: 'event1', startDate: '2026-01-01T00:00:00.000Z', state: 'confirmed' },
-      { endDate: '2026-01-05T00:00:00.000Z', id: 'event2', startDate: '2026-01-02T00:00:00.000Z', state: 'confirmed' },
-      { id: 'event3', startDate: '2026-01-03T00:00:00.000Z', state: 'confirmed' },
+      { endDate: '2026-01-01', id: 'event1', startDate: '2026-01-01', state: 'confirmed' },
+      { endDate: '2026-01-05', id: 'event2', startDate: '2026-01-02', state: 'confirmed' },
+      { id: 'event3', startDate: '2026-01-03', state: 'confirmed' },
     ]
 
     mockReadPublicSeasonEvents.mockResolvedValueOnce(allEvents)
@@ -199,11 +232,11 @@ describe('getEventsLambda', () => {
   it('filters events by end date (excludes those starting after end)', async () => {
     const allEvents = [
       // starts before end -> included
-      { id: 'event1', startDate: '2026-01-01T00:00:00.000Z', state: 'confirmed' },
+      { id: 'event1', startDate: '2026-01-01', state: 'confirmed' },
       // starts exactly at end -> included (eventStart > end is false)
-      { id: 'event2', startDate: '2026-01-02T00:00:00.000Z', state: 'confirmed' },
+      { id: 'event2', startDate: '2026-01-02', state: 'confirmed' },
       // starts after end -> excluded
-      { id: 'event3', startDate: '2026-01-03T00:00:00.000Z', state: 'confirmed' },
+      { id: 'event3', startDate: '2026-01-03', state: 'confirmed' },
     ]
 
     mockReadPublicSeasonEvents.mockResolvedValueOnce(allEvents)
@@ -224,11 +257,11 @@ describe('getEventsLambda', () => {
   it('filters events by both start and end dates (keeps only overlapping)', async () => {
     const allEvents = [
       // ends before start -> excluded
-      { endDate: '2026-01-01T12:00:00.000Z', id: 'event1', startDate: '2026-01-01T00:00:00.000Z', state: 'confirmed' },
+      { endDate: '2026-01-01', id: 'event1', startDate: '2026-01-01', state: 'confirmed' },
       // overlaps -> included
-      { endDate: '2026-01-05T00:00:00.000Z', id: 'event2', startDate: '2026-01-01T00:00:00.000Z', state: 'confirmed' },
+      { endDate: '2026-01-05', id: 'event2', startDate: '2026-01-01', state: 'confirmed' },
       // starts after end -> excluded
-      { endDate: '2026-01-11T00:00:00.000Z', id: 'event3', startDate: '2026-01-10T00:00:00.000Z', state: 'confirmed' },
+      { endDate: '2026-01-11', id: 'event3', startDate: '2026-01-10', state: 'confirmed' },
     ]
 
     mockReadPublicSeasonEvents.mockResolvedValueOnce(allEvents)
@@ -248,7 +281,7 @@ describe('getEventsLambda', () => {
   })
 
   it('reads a single-day range from its one season', async () => {
-    const allEvents = [{ id: 'event2', startDate: '2026-01-03T00:00:00.000Z', state: 'confirmed' }]
+    const allEvents = [{ id: 'event2', startDate: '2026-01-03', state: 'confirmed' }]
 
     mockReadPublicSeasonEvents.mockResolvedValueOnce(allEvents)
     mockSanitizeDogEvent.mockImplementation((e: any) => e)
@@ -273,13 +306,13 @@ describe('getEventsLambda', () => {
       {
         id: 'event1',
         modifiedAt: '2026-01-01T10:00:00.000Z',
-        startDate: '2026-01-01T00:00:00.000Z',
+        startDate: '2026-01-01',
         state: 'confirmed',
       },
       {
         id: 'event2',
         modifiedAt: '2026-01-02T10:00:00.000Z',
-        startDate: '2026-01-02T00:00:00.000Z',
+        startDate: '2026-01-02',
         state: 'confirmed',
       },
     ]
@@ -313,20 +346,20 @@ describe('getEventsLambda', () => {
       {
         id: 'event1',
         modifiedAt: '2026-01-01T10:00:00.000Z',
-        startDate: '2026-01-03T00:00:00.000Z',
+        startDate: '2026-01-03',
         state: 'confirmed',
       },
       {
         id: 'event2',
         modifiedAt: '2026-01-03T10:00:00.000Z',
-        startDate: '2026-01-03T00:00:00.000Z',
+        startDate: '2026-01-03',
         state: 'confirmed',
       },
       {
-        endDate: '2026-01-10T00:00:00.000Z',
+        endDate: '2026-01-10',
         id: 'event3',
         modifiedAt: '2026-01-01T10:00:00.000Z',
-        startDate: '2026-01-10T00:00:00.000Z',
+        startDate: '2026-01-10',
         state: 'confirmed',
       },
     ]
@@ -362,20 +395,20 @@ describe('getEventsLambda', () => {
       {
         id: 'event1',
         modifiedAt: '2026-01-01T10:00:00.000Z',
-        startDate: '2026-01-03T00:00:00.000Z',
+        startDate: '2026-01-03',
         state: 'confirmed',
       },
       {
         id: 'event2',
         modifiedAt: '2026-01-03T10:00:00.000Z',
-        startDate: '2026-01-03T00:00:00.000Z',
+        startDate: '2026-01-03',
         state: 'confirmed',
       },
       {
-        endDate: '2026-01-10T00:00:00.000Z',
+        endDate: '2026-01-10',
         id: 'event3',
         modifiedAt: '2026-01-01T10:00:00.000Z',
-        startDate: '2026-01-10T00:00:00.000Z',
+        startDate: '2026-01-10',
         state: 'confirmed',
       },
     ]
@@ -409,7 +442,7 @@ describe('getEventsLambda', () => {
   it('hands out a cursor that still reaches a row stamped just before the newest one (KOE-1501)', async () => {
     const newest = Date.parse('2026-01-03T10:00:00.000Z')
     mockReadPublicSeasonEvents.mockResolvedValueOnce([
-      { id: 'new', modifiedAt: '2026-01-03T10:00:00.000Z', startDate: '2026-01-03T00:00:00.000Z', state: 'confirmed' },
+      { id: 'new', modifiedAt: '2026-01-03T10:00:00.000Z', startDate: '2026-01-03', state: 'confirmed' },
     ])
     mockSanitizeDogEvent.mockImplementation((e: unknown) => e)
     const since = Date.parse('2026-01-01T00:00:00.000Z')
@@ -427,7 +460,7 @@ describe('getEventsLambda', () => {
       {
         id: 'event1',
         modifiedAt: '2026-01-01T10:00:00.000Z',
-        startDate: '2026-01-03T00:00:00.000Z',
+        startDate: '2026-01-03',
         state: 'confirmed',
       },
     ])
@@ -462,8 +495,8 @@ describe('getEventsLambda', () => {
 
     await getEventsLambda(rangeEvent)
 
-    expect(mockReadPublicSeasonEvents).toHaveBeenNthCalledWith(1, '2026', '2027-01-02T00:00:00.000Z')
-    expect(mockReadPublicSeasonEvents).toHaveBeenNthCalledWith(2, '2027', '2027-01-02T00:00:00.000Z')
+    expect(mockReadPublicSeasonEvents).toHaveBeenNthCalledWith(1, '2026', '2027-01-02')
+    expect(mockReadPublicSeasonEvents).toHaveBeenNthCalledWith(2, '2027', '2027-01-02')
   })
 
   it('queries current and next season for open-ended current-season ranges', async () => {
@@ -480,8 +513,8 @@ describe('getEventsLambda', () => {
 
     await getEventsLambda(rangeEvent)
 
-    expect(mockReadPublicSeasonEvents).toHaveBeenNthCalledWith(1, '2026', '2027-12-31T21:59:59.999Z')
-    expect(mockReadPublicSeasonEvents).toHaveBeenNthCalledWith(2, '2027', '2027-12-31T21:59:59.999Z')
+    expect(mockReadPublicSeasonEvents).toHaveBeenNthCalledWith(1, '2026', '2027-12-31')
+    expect(mockReadPublicSeasonEvents).toHaveBeenNthCalledWith(2, '2027', '2027-12-31')
 
     vi.useRealTimers()
   })
@@ -500,8 +533,8 @@ describe('getEventsLambda', () => {
 
     await getEventsLambda(rangeEvent)
 
-    expect(mockReadPublicSeasonEvents).toHaveBeenNthCalledWith(1, '2027', '2028-12-31T21:59:59.999Z')
-    expect(mockReadPublicSeasonEvents).toHaveBeenNthCalledWith(2, '2028', '2028-12-31T21:59:59.999Z')
+    expect(mockReadPublicSeasonEvents).toHaveBeenNthCalledWith(1, '2027', '2028-12-31')
+    expect(mockReadPublicSeasonEvents).toHaveBeenNthCalledWith(2, '2028', '2028-12-31')
 
     vi.useRealTimers()
   })

@@ -27,6 +27,7 @@ import {
   copyDogEvent,
   defaultEntryEndDate,
   defaultEntryStartDate,
+  eventDayKey,
   eventRegistrationDateKey,
   eventTypeLabel,
   finnishDaySpan,
@@ -96,6 +97,7 @@ import {
   stripKennelliittoLink,
   withResultsDay,
 } from './event'
+import { legacyDogDay } from './storedDays'
 
 /** A moment to stand for now where a test needs one: Monday 15.6.2026 at noon in Finland. */
 const NOON_2026_06_15 = new Date('2026-06-15T09:00:00.000Z')
@@ -1350,6 +1352,33 @@ describe.each([TIME_ZONE, 'America/New_York', 'Asia/Tokyo'])('the default entry 
       expect(isDetaultEntryEndDate(late(2026, 11, 13), eventStart)).toBe(false)
       expect(isDetaultEntryStartDate(late(2026, 10, 24), eventStart)).toBe(true)
       expect(isDetaultEntryStartDate(late(2026, 10, 23), eventStart)).toBe(false)
+    })
+  })
+})
+
+// KOE-1547: the readers of a stored day read an instant as the day it falls on, all alike, so they
+// agree on a row not yet migrated; its migration writes the day it was stored for.
+describe('a stored day held as an instant', () => {
+  it.each([
+    ['a Friday 23:00 stored for Saturday', '2026-11-06T21:00:00.000Z', '2026-11-06'],
+    ['an end of day at 00:59:59.999 stored for the day before', '2026-09-27T21:59:59.999Z', '2026-09-28'],
+  ])('is read as the day it falls on, as every reader reads it: %s', (_name, value, expected) => {
+    expect(storedDayKey(value)).toBe(expected)
+    expect(storedDayKey(new Date(value))).toBe(expected)
+    expect(eventDayKey(value)).toBe(expected)
+  })
+
+  // A stamp without a zone names its day. Parsed with `new Date` it would be read in the host's zone,
+  // UTC on Lambda, where 23:30 on the 10th is the 11th in Finland; every reader goes through
+  // `calendarDayOf` instead, the rule the decoders read a stamp by too.
+  describeInTimeZone('UTC', () => {
+    it.each([
+      ['late in the evening', '2026-06-10T23:30:00', '2026-06-10'],
+      ['at midnight', '2026-06-10T00:00:00', '2026-06-10'],
+    ])('reads a stamp without a zone %s as the day it names', (_name, value, expected) => {
+      expect(storedDayKey(value)).toBe(expected)
+      expect(eventDayKey(value)).toBe(expected)
+      expect(legacyDogDay(value)).toBe(expected)
     })
   })
 })

@@ -1,5 +1,5 @@
 import type { DayKey } from '../../src/types'
-import { addDays, dayEnd, dayOf, dayStart, TIME_ZONE, yearOf } from '../../src/lib/day'
+import { addDays, dayOf, dayStart, TIME_ZONE } from '../../src/lib/day'
 
 /**
  * Dates relative to today, because the lambdas run on the real clock: an event whose entry closed
@@ -7,20 +7,14 @@ import { addDays, dayEnd, dayOf, dayStart, TIME_ZONE, yearOf } from '../../src/l
  * days every event date is kept in, counted and bounded by the app's own day module.
  */
 
-/** The Helsinki day `offset` days from today. */
+/** The Helsinki day `offset` days from today, as the app stores every calendar day (KOE-1547). */
 export const helsinkiDay = (offset = 0): DayKey => addDays(dayOf(Date.now(), TIME_ZONE), offset)
 
-/** The instant a Helsinki day starts, as the app stores event dates. */
-export const startOfDay = (offset = 0): string => dayStart(helsinkiDay(offset), TIME_ZONE).toISOString()
+/** The year of a day: an event's season. */
+export const helsinkiYear = (day: DayKey): string => day.slice(0, 4)
 
-/** The last millisecond of a Helsinki day, as the app stores an entry end date. */
-export const endOfDay = (offset = 0): string => dayEnd(helsinkiDay(offset), TIME_ZONE).toISOString()
-
-/** The Helsinki year of an instant: an event's season. */
-export const helsinkiYear = (iso: string): string => String(yearOf(new Date(iso), TIME_ZONE))
-
-/** The day as a group's heading names it, `ti 13.10.`: weekday and day of the Helsinki day of an instant. */
-export const groupDay = (iso: string): string =>
+/** The day as a group's heading names it, `ti 13.10.`: weekday and day of a Helsinki day. */
+export const groupDay = (day: DayKey): string =>
   new Intl.DateTimeFormat('fi-FI', { day: 'numeric', month: 'numeric', timeZone: TIME_ZONE, weekday: 'short' }).format(
-    new Date(iso)
+    dayStart(day, TIME_ZONE)
   )
