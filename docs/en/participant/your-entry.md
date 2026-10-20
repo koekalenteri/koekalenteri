@@ -9,7 +9,7 @@ covers:
   - src/pages/RegistrationInvitation.tsx
   - src/pages/components/CancelDialog.tsx
   - src/pages/components/RegistrationEventInfo.tsx
-sourceHash: 3bba99
+sourceHash: d0855d
 ---
 
 The link in your confirmation email opens your entry's own page, headed **{t:entryList}**. The
@@ -84,8 +84,10 @@ same form you entered with. Changes are saved with **{t:registration.cta.saveCha
 can be edited while entry is open, and again on the trial days until the end of the last one.
 After entry has closed and before the trial starts, while the places are given out, and once the
 trial is over or your class has been judged, the details are shown but cannot be changed. Once the
-dog has a place, you can no longer change its class, days, breeder, owner or handler. Changes are
-then arranged with the secretary. A cancelled entry opens under the heading
+dog has a place, you can no longer change its class, days, breeder, owner, handler or results. Once
+the entry has been paid, you can no longer change the dog, the membership details, the cost chosen
+or the additional services, even while entry is still open. In these cases changes are arranged
+with the secretary. A cancelled entry opens under the heading
 *{t:registration.state.cancelled}*.
 
 ## Cancelling the entry

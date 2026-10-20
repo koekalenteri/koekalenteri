@@ -81,9 +81,11 @@ lomakkeen, jolla ilmoittauduit. Muutokset tallennetaan painikkeella
 **{t:registration.cta.saveChanges}**. Lomake on muokattavissa ilmoittautumisaikana ja uudelleen
 koepäivinä kokeen viimeisen päivän loppuun asti. Ilmoittautumisajan päätyttyä ennen kokeen alkua,
 kun koepaikkoja jaetaan, sekä kokeen päätyttyä tai kun luokkasi on arvosteltu, tiedot näkyvät mutta
-niitä ei voi muuttaa. Kun koira on saanut koepaikan, luokkaa, koepäiviä, kasvattajaa, omistajaa ja
-ohjaajaa ei voi enää muuttaa itse. Silloin muutokset hoidetaan koesihteerin kanssa. Peruttu
-ilmoittautuminen avautuu otsikolla *{t:registration.state.cancelled}*.
+niitä ei voi muuttaa. Kun koira on saanut koepaikan, luokkaa, koepäiviä, kasvattajaa, omistajaa,
+ohjaajaa ja koetuloksia ei voi enää muuttaa itse. Kun ilmoittautuminen on maksettu, koiraa,
+jäsenyystietoja, osallistumismaksun valintaa ja lisäpalveluja ei voi enää muuttaa itse, vaikka
+ilmoittautumisaikaa olisi jäljellä. Näissä tapauksissa muutokset hoidetaan koesihteerin kanssa.
+Peruttu ilmoittautuminen avautuu otsikolla *{t:registration.state.cancelled}*.
 
 ## Ilmoittautumisen peruminen
 

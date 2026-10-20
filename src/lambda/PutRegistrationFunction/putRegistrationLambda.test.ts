@@ -1706,6 +1706,42 @@ describe('putRegistrationLabmda', () => {
     })
   })
 
+  // The entry's own class decides, not the event's state: ALO has been judged on the first day while
+  // AVO still runs on the second (KOE-1584).
+  it.each([
+    ['ALO', 410],
+    ['AVO', 200],
+  ] as const)('answers an edit of an entry in %s once ALO has ended with %s (KOE-1584)', async (eventClass, status) => {
+    vi.setSystemTime(addMinutes(dayStart(eventWithStaticDatesAndClass.startDate, TIME_ZONE), 720))
+    mockGetEvent.mockResolvedValueOnce({
+      ...JSON.parse(JSON.stringify(eventWithStaticDatesAndClass)),
+      classes: [
+        { class: 'ALO', date: '2021-02-10', state: 'ended' },
+        { class: 'AVO', date: '2021-02-11', state: 'started' },
+      ],
+      state: 'started',
+    })
+    const existingJson = storedRegistrationJson({ ...registrationWithStaticDatesAndClass, class: eventClass })
+    mockGetRegistration.mockResolvedValueOnce(existingJson)
+
+    const res = await putRegistrationLabmda(
+      constructAPIGwEvent(
+        { eventId: existingJson.eventId, id: existingJson.id, notes: 'judged or not' },
+        { method: 'PATCH' }
+      )
+    )
+
+    expect(res.statusCode).toBe(status)
+    if (status === 410) expect(mockPatchRegistration).not.toHaveBeenCalled()
+    else
+      expect(mockPatchRegistration).toHaveBeenCalledWith(
+        existingJson.eventId,
+        existingJson.id,
+        existingJson,
+        expect.objectContaining({ notes: 'judged or not' })
+      )
+  })
+
   it('answers an edit sent as the whole registration after the trial with 404 (KOE-1584)', async () => {
     vi.setSystemTime(dayStart(addDays(eventWithStaticDates.endDate, 1), TIME_ZONE))
     mockGetEvent.mockResolvedValueOnce(JSON.parse(JSON.stringify(eventWithStaticDates)))
