@@ -24,6 +24,8 @@ export const readAllUsers = async (): Promise<JsonUser[]> => (await dynamoDB.rea
  */
 export const queryUsersByEmail = async (email: string): Promise<JsonUser[]> =>
   (await dynamoDB.query<JsonUser>({
+    // The callers tell a deleted user from a live one themselves.
+    includeDeleted: true,
     index: 'gsiEmail',
     key: 'email = :email',
     values: { ':email': email },

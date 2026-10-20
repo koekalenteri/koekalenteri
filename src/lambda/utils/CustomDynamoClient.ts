@@ -44,6 +44,11 @@ interface QueryParams {
   forward?: boolean
   limit?: number
   filterExpression?: string
+  /**
+   * Reads the soft-deleted rows too, as `readAll` does. An index that does not project `deletedAt`
+   * refuses a filter on it, so a query of one has to ask for them and decide by the row (KOE-1585).
+   */
+  includeDeleted?: boolean
 }
 
 interface ReadAllOptions {
@@ -348,7 +353,7 @@ export default class CustomDynamoClient {
       ...(params.consistent ? { ConsistentRead: true } : {}),
       ExpressionAttributeNames: params.names,
       ExpressionAttributeValues: params.values,
-      FilterExpression: params.filterExpression,
+      FilterExpression: params.includeDeleted ? params.filterExpression : liveRowsFilter(params.filterExpression),
       IndexName: params.index,
       KeyConditionExpression: params.key,
       Limit: params.limit,

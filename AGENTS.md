@@ -154,6 +154,9 @@ Read `LLM_CONTEXT.md` for the project overview and architecture notes.
 - A migration that decodes the old stored days does it with `legacyDecoder` (`legacyStoredEventDay`
   and `legacyStoredDay` in `src/lib/day.ts`), which never narrows: the hash below covers the
   migration's own text, not a helper's.
+- The event migrations read the deleted rows too, so one that gives a row an index key (`season`,
+  `organizerId`) returns false for a row with `deletedAt`: a deleted event stays out of the indexes it
+  was never in (KOE-1585).
 - `userMigrations` in the same file migrate the user table, applied, hashed and recorded alike, and
   may change only `roles`, which is all the runner writes of a user (on condition the roles are still
   the ones read) besides an `updatedAt` bump, so the user list's incremental fetch hands the row to

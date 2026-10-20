@@ -21,6 +21,10 @@ The epic was [KOE-1405](https://koekalenteri.atlassian.net/browse/KOE-1405), clo
   table, and its table and SDK clients cannot be changed or reached from outside. A write across
   tables is a function of the repository whose table is the primary one, and it uses
   `documentTransaction`, whose items each name their table.
+- `readAll` and `query` leave the soft-deleted rows (`deletedAt`) out unless the call passes
+  `includeDeleted: true`, with a one-line comment saying why it needs them. An index that does not
+  project `deletedAt` refuses the filter, so its query opts in and decides by the row
+  (`readLastEntryEndBefore`, [KOE-1585](https://koekalenteri.atlassian.net/browse/KOE-1585)).
 - `src/lambda/lib/ws/connectionRepository.ts` follows the same convention and stays in the ws
   domain.
 

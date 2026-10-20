@@ -66,27 +66,38 @@ export const findEventIdsByKcGuid = async (kcGuid: string) =>
     values: { ':kcGuid': kcGuid },
   })
 
+/** The first of the candidates, in their order, whose row is not soft-deleted. */
+const firstLive = async (candidates: EventEntryEndDates[]): Promise<EventEntryEndDates | undefined> => {
+  const [candidate, ...rest] = candidates
+  if (!candidate) return undefined
+  const row = await readEvent(candidate.id)
+  return row && !row.deletedAt ? candidate : firstLive(rest)
+}
+
 /**
  * The entry end of the latest event of the type whose entry closed on a day before `entryEndDate`.
- * The index sorts the stored days as text, which orders day keys by day (KOE-1547).
+ * The index sorts the stored days as text, which orders day keys by day (KOE-1547). A deleted event is
+ * no previous trial, and the index does not project `deletedAt`, so the candidates are read latest
+ * first and the first one whose row is live answers (KOE-1585).
  */
 export const readLastEntryEndBefore = async (
   eventType: string,
   entryEndDate: DayKey
 ): Promise<EventEntryEndDates | undefined> => {
-  const result = await dynamoDB.query<EventEntryEndDates>({
+  const candidates = await dynamoDB.query<EventEntryEndDates>({
     forward: false,
+    // The index projects no deletedAt, and the database refuses a filter on it: decided by the row.
+    includeDeleted: true,
     index: 'gsiEventTypeEntryEndDateV2',
     key: 'eventType = :eventType AND entryEndDate < :entryEndDate',
-    limit: 1,
     values: { ':entryEndDate': entryEndDate, ':eventType': eventType },
   })
-  return result?.[0]
+  return firstLive(candidates ?? [])
 }
 
 /**
- * The season's published events (drafts left out by the query) that start on `startsBy` or before. The
- * index sorts the stored start days as text, which orders day keys by day (KOE-1547).
+ * The season's published events (drafts and deleted events left out by the query) that start on
+ * `startsBy` or before. The index sorts the stored start days as text, which orders day keys by day (KOE-1547).
  */
 export const readPublicSeasonEvents = async (season: string, startsBy: DayKey) =>
   dynamoDB.query<JsonDogEvent>({
@@ -101,25 +112,31 @@ export const readPublicSeasonEvents = async (season: string, startsBy: DayKey) =
     },
   })
 
-/** Every event of the season, drafts included. */
+/** Every event of the season, drafts and deleted events included. */
 export const readSeasonEvents = async (season: number) =>
   dynamoDB.query<JsonDogEvent>({
+    // The admin list keeps the deleted rows it caches and hides them itself.
+    includeDeleted: true,
     index: 'gsiSeasonStartDate',
     key: 'season = :season',
     values: { ':season': season.toString() },
   })
 
-/** The season's events stored at or after `updatedAfter`. */
+/** The season's events stored at or after `updatedAfter`, deleted events included. */
 export const readSeasonEventsUpdatedSince = async (season: number, updatedAfter: string) =>
   dynamoDB.query<JsonDogEvent>({
+    // A deleted row is how the admin list's since fetch learns of the deletion.
+    includeDeleted: true,
     index: 'gsiSeasonUpdatedAt',
     key: 'season = :season AND updatedAt >= :updatedAfter',
     values: { ':season': season.toString(), ':updatedAfter': updatedAfter },
   })
 
-/** Every event of one organizer. */
+/** Every event of one organizer, deleted events included. */
 export const readOrganizerEvents = async (organizerId: string) =>
   dynamoDB.query<JsonDogEvent>({
+    // The admin list keeps the deleted rows it caches and hides them itself.
+    includeDeleted: true,
     index: 'gsiOrganizerStartDate',
     key: 'organizerId = :organizerId',
     values: { ':organizerId': organizerId },

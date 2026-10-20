@@ -32,6 +32,16 @@ describe('findQualificationStartDate against DynamoDB-local', () => {
     await expect(findQualificationStartDate(eventType, '2026-04-01')).resolves.toBe('2026-03-02')
   })
 
+  // KOE-1585: a deleted trial is no previous trial. The index projects no deletedAt, so the reader
+  // has to ask the row.
+  it("skips a deleted event's entry end", async () => {
+    const eventType = uniqueId('type')
+    const deleted = { ...seed(eventType, '2026-05-01'), deletedAt: '2026-04-20T10:00:00.000Z' }
+    await client.batchWrite([seed(eventType, '2026-03-01'), deleted])
+
+    await expect(findQualificationStartDate(eventType, '2026-06-01')).resolves.toBe('2026-03-02')
+  })
+
   it('finds nothing when no entry of the type ended on an earlier day', async () => {
     const eventType = uniqueId('type')
     await client.write(seed(eventType, '2026-05-01'))

@@ -97,11 +97,12 @@ describe('userRepository', () => {
     await expect(readAllUsers()).resolves.toEqual([])
   })
 
-  it('queryUsersByEmail queries gsiEmail with the address as given', async () => {
+  it('queryUsersByEmail queries gsiEmail with the address as given, deleted users included', async () => {
     mockQuery.mockResolvedValueOnce([user])
 
     await expect(queryUsersByEmail('User+tag@Example.com')).resolves.toEqual([user])
     expect(mockQuery).toHaveBeenCalledWith({
+      includeDeleted: true,
       index: 'gsiEmail',
       key: 'email = :email',
       values: { ':email': 'User+tag@Example.com' },
