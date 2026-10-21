@@ -13,7 +13,7 @@ import type {
 import { isValid } from 'date-fns/isValid'
 import { useAtomValue } from 'jotai'
 import { unwrap, useAtomCallback } from 'jotai/utils'
-import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
+import { createContext, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { getEmailTemplates } from '../api/email'
 import { getEventTypes } from '../api/eventType'
 import { getJudges } from '../api/judge'
@@ -239,7 +239,7 @@ export type PublicStartListListener = (
   eventId: string
 ) => void
 
-interface WebSocketContextValue {
+export interface WebSocketContextValue {
   viewers: EventViewer[]
   subscribeAdmin: () => void
   subscribeEvent: (eventId: string) => void
@@ -791,10 +791,4 @@ export const useWebSocket = () => {
     unsubscribeRegistration,
     viewers,
   }
-}
-
-export const useWebSocketContext = (): WebSocketContextValue => {
-  const ctx = useContext(WebSocketContext)
-  if (!ctx) throw new Error('useWebSocketContext must be used within WebSocketProvider')
-  return ctx
 }

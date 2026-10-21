@@ -1,6 +1,6 @@
 import type { PublicStartListListener } from './useWebSocket'
 import { useEffect, useRef } from 'react'
-import { useWebSocketContext } from './useWebSocket'
+import { useWebSocketContext } from './useWebSocketContext'
 
 /**
  * Subscribe to an event's published start list via the shared WebSocket (KOE-1358).

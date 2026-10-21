@@ -1,7 +1,7 @@
 import type { Patch, Registration } from '../types'
 import { useCallback, useEffect } from 'react'
 import { patchMerge } from '../lib/utils'
-import { useWebSocketContext } from './useWebSocket'
+import { useWebSocketContext } from './useWebSocketContext'
 
 export function useRegistrationSubscription(
   registration: Registration | null | undefined,

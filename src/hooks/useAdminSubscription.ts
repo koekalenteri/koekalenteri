@@ -1,5 +1,5 @@
 import { useEffect } from 'react'
-import { useWebSocketContext } from './useWebSocket'
+import { useWebSocketContext } from './useWebSocketContext'
 
 /**
  * Subscribe to the admin channel on the shared WebSocket.

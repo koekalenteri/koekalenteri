@@ -60,6 +60,16 @@ Read `LLM_CONTEXT.md` for the project overview and architecture notes.
 - New table access goes into the table's repository in `src/lambda/lib/repositories/`, not into a handler or a domain module: one module per table with its client at module level, functions named by purpose, keys and indexes written only there. Add the function to the existing repository, or create `<table>Repository.ts` for a table that has none yet; `src/lambda/lib/repositories/README.md` has the convention and the list of all 17 tables. A `CustomDynamoClient` reaches only the table it was built on; a write across tables is `documentTransaction` in the primary table's repository. `npm run ratchet` fails a commit that opens a DynamoDB client outside the repositories, whether a `CustomDynamoClient` or an SDK client built directly, as far as the file's static imports show it, and a repository may build only one `CustomDynamoClient`, on its own table written as `CONFIG.<table>Table`; the count is 0 (KOE-1405, KOE-1415, KOE-1576).
 - `@/` is the source root (`tsconfig` paths, the webpack alias and the vitest alias all declare it). Under `src/pages`, an import that would climb three or more directories names the file from `@/` instead (`@/types`, `@/lib/event`, `@/__mockData__/events`); one or two levels stay relative. Lambda code does not use the alias: esbuild reads `src/lambda/tsconfig.json`, which does not declare it.
 
+## Hook Files
+
+- A file named after a hook (`useX.ts`, `useX.tsx`) exports that one hook. A second hook gets its own
+  `useY.ts` beside it, even when it only wraps the first; a context or type both need is exported
+  from the file that defines it (`useWebSocketContext.ts` reads `WebSocketContext` from
+  `useWebSocket.ts`).
+- The state modules that bundle a domain's action hooks (`src/pages/**/state/**/actions.ts`,
+  `src/pages/state/events/hooks.ts` and the like) export several `use*` hooks by design and stay as
+  they are.
+
 ## Calendar Days
 
 - A calendar day (the day a trial runs, an entry opens or closes, a dog is placed on) is a `DayKey`
