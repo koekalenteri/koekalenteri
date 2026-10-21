@@ -30,16 +30,9 @@ Code outside this folder imports only these:
 | `RebuildStatsFunction` | `rebuild.ts` | `createHandler`, `REBUILDABLE_STATS_PARTITIONS` |
 | `RebuildAllStatsFunction` | `rebuild.ts` | `createHandler`, `ALL_STATS_PARTITIONS` |
 
-The other exports are internal to the folder, exported for `rebuild.ts` or for the tests: `eventStatsYear`, `bucketForCount`, `hashStatValue`, `statIdentifier`, `participationIdentifiers` and `calculateStatDeltas` in `stats.ts`; `getStatsRecordPartition`, `getEventStatsRecordYear` and `buildStatsRecords` in `rebuild.ts`. Do not import them from outside the folder.
+The other exports are internal to the folder. `rebuild.ts` imports `eventStatsYear`, `bucketForCount`, `hashStatValue`, `statIdentifier` and `participationIdentifiers` from `stats.ts`; `calculateStatDeltas` (`stats.ts`) and `getStatsRecordPartition`, `getEventStatsRecordYear` and `buildStatsRecords` (`rebuild.ts`) are exported only for the tests. Do not import them from outside the folder.
 
 ## Module responsibilities
 
 - `stats.ts`: the reads behind `/stats` and `/admin/stats`, and the organizer counters: the deltas of a registration change, the once-only apply of a new registration's counters under its post-processing lease, and the move of an event's row when its organizer or start date changes.
 - `rebuild.ts`: regenerates the given partitions from the events and registrations tables, one year at a time (`regenerateYear` has why the year's rows are written before its stale keys are deleted).
-
-## Operational notes
-
-- The stats year of an event is the Finnish year of its stored start date ([`stats.ts:50`](stats.ts#L50)). A registration's counters are refused for an event whose start date gives no year ([`stats.ts:490`](stats.ts#L490), [`stats.ts:528`](stats.ts#L528)), because the rebuild would skip that event.
-- The capacity, participation and club breakdown stats count an event only once it has been held: the reasons are at [`rebuild.ts:40`](rebuild.ts#L40) (upcoming events) and [`rebuild.ts:68`](rebuild.ts#L68) (draft, tentative and cancelled events). The organizer stats count every event.
-- The public stats are cached for 5 minutes (yearly) and an hour (capacity); only the nightly run changes them, so the cache age bounds how long a bad answer is served rather than buying freshness ([`GetStatsFunction/handler.ts:16`](../../GetStatsFunction/handler.ts#L16)).
-- A registration the rebuild cannot attribute to a capacity class is logged as a warning ([`rebuild.ts:959`](rebuild.ts#L959)) whose phrase a metric filter and an alarm in `template/functions/scheduled/rebuild-stats.yaml` match.

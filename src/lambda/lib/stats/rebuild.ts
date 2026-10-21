@@ -752,16 +752,30 @@ const addRegistrationStats = (
  * skipped (unresolvable event/year) and, when capacity is wanted, whether it couldn't be
  * attributed to a capacity bucket.
  */
+/** What every registration of one rebuild is counted into, and against. */
+interface RegistrationStatsContext {
+  eventsById: Map<string, DatedStatsEvent>
+  updatedAt: string
+  accumulator: StatsAccumulator
+  wanted: Set<StatsPartition>
+  capacityBuckets: Map<string, CapacityBucket>
+  eventClassMonths: Map<string, Map<string, string>>
+  breedStartBuckets: Map<string, BreedStartBucket>
+  eventBreakdownBuckets: Map<string, EventBreakdownBucket>
+}
+
 const processRegistrationStats = (
   registration: CapacityRegistrationInput,
-  eventsById: Map<string, DatedStatsEvent>,
-  updatedAt: string,
-  accumulator: StatsAccumulator,
-  wanted: Set<StatsPartition>,
-  capacityBuckets: Map<string, CapacityBucket>,
-  eventClassMonths: Map<string, Map<string, string>>,
-  breedStartBuckets: Map<string, BreedStartBucket>,
-  eventBreakdownBuckets: Map<string, EventBreakdownBucket>
+  {
+    eventsById,
+    updatedAt,
+    accumulator,
+    wanted,
+    capacityBuckets,
+    eventClassMonths,
+    breedStartBuckets,
+    eventBreakdownBuckets,
+  }: RegistrationStatsContext
 ): { skipped: boolean; unattributedCapacity: boolean } => {
   const dated = eventsById.get(registration.eventId)
   if (dated?.year === undefined) {
@@ -838,18 +852,18 @@ export function buildStatsRecords(
   const { breedStartBuckets, capacityBuckets, eventBreakdownBuckets, eventClassMonths, judgeWorkloadBuckets } =
     seedStatsBuckets(eventsById, datedEvents, wanted, yearlyStats)
 
+  const context: RegistrationStatsContext = {
+    accumulator,
+    breedStartBuckets,
+    capacityBuckets,
+    eventBreakdownBuckets,
+    eventClassMonths,
+    eventsById: datedEvents,
+    updatedAt,
+    wanted,
+  }
   for (const registration of registrations) {
-    const outcome = processRegistrationStats(
-      registration,
-      datedEvents,
-      updatedAt,
-      accumulator,
-      wanted,
-      capacityBuckets,
-      eventClassMonths,
-      breedStartBuckets,
-      eventBreakdownBuckets
-    )
+    const outcome = processRegistrationStats(registration, context)
     if (outcome.skipped) skippedCount++
     if (outcome.unattributedCapacity) unattributedCapacityCount++
   }
