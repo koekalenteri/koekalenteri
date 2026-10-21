@@ -52,11 +52,17 @@ const dogReport = (
 const handedOver: ConfirmedEvent = { ...eventWithStaticDates, kcState: { code: 1253, name: 'x', readAt: noon } }
 
 /** The section as the info panel shows it: the event and its dogs as the admin atoms hold them. */
-const Section = ({ eventId }: { readonly eventId: string }) => {
+const Section = ({
+  eventId,
+  onRefreshState,
+}: {
+  readonly eventId: string
+  readonly onRefreshState: () => Promise<unknown>
+}) => {
   const event = useAtomValue(adminConfirmedEventAtom(eventId))
   const registrations = useAtomValue(adminEventRegistrationsAtom(eventId))
   if (!event) return null
-  return <KennelliittoSubmission event={event} registrations={registrations} />
+  return <KennelliittoSubmission event={event} onRefreshState={onRefreshState} registrations={registrations} />
 }
 
 const renderSection = async (
@@ -71,6 +77,8 @@ const renderSection = async (
     ...extra[reg.id],
   }))
   let store: TestStore | undefined
+  // The event view's own read of Kennelliitto's state (useResultsLock), which the section's refresh calls.
+  const refreshState = vi.fn(async () => ({}))
   const result = await renderSuspendedWithUserEvents(
     <ThemeProvider theme={theme}>
       <TestProvider
@@ -83,7 +91,7 @@ const renderSection = async (
       >
         <Suspense fallback={<div>loading...</div>}>
           <AppSnackbarProvider>
-            <Section eventId={event.id} />
+            <Section eventId={event.id} onRefreshState={refreshState} />
           </AppSnackbarProvider>
         </Suspense>
       </TestProvider>
@@ -93,7 +101,7 @@ const renderSection = async (
   )
   await flushPromises()
   if (!store) throw new Error('no store')
-  return { ...result, store }
+  return { ...result, refreshState, store }
 }
 
 const sendButton = () => screen.getByRole('button', { name: 'results.kennelliitto.send' })
@@ -635,25 +643,21 @@ describe('KennelliittoSubmission (KOE-1579)', () => {
       expect(screen.queryByRole('button', { name: 'results.kennelliitto.handOverButton' })).not.toBeInTheDocument()
     })
 
-    it('reads the state from Kennelliitto as soon as it shows the trial locked, and on request', async () => {
+    it('leaves the read of the state to the event view, and asks it again on request', async () => {
       vi.mocked(previewKennelliittoResults).mockClear()
-      const { user } = await renderSection(handedOver)
+      const { refreshState, user } = await renderSection(handedOver)
 
-      expect(previewKennelliittoResults).toHaveBeenCalledWith('test1', [], expect.anything(), undefined)
+      // The page reads the state once, open panel or not; the section adds no second read.
+      expect(previewKennelliittoResults).not.toHaveBeenCalled()
 
       await user.click(screen.getByRole('button', { name: 'results.kennelliitto.refreshState' }))
       await flushPromises()
 
-      expect(previewKennelliittoResults).toHaveBeenCalledTimes(2)
+      expect(refreshState).toHaveBeenCalledTimes(1)
     })
 
     it('opens again when the judge has sent the trial back', async () => {
-      // The read writes Kennelliitto's state onto the event, which reaches the view over the socket as a patch.
-      vi.mocked(previewKennelliittoResults).mockResolvedValueOnce({
-        blockers: [],
-        dogs: [],
-        state: { code: 754, name: 'Hyväksytty' },
-      })
+      // The event view's read writes Kennelliitto's state onto the event, which arrives over the socket as a patch.
       const { store } = await renderSection(handedOver)
       expect(sendButton()).toBeDisabled()
 

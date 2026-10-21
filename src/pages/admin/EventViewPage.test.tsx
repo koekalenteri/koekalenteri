@@ -1,8 +1,9 @@
 import type { RouteObject } from 'react-router'
+import type { TestStore } from 'test-utils/AtomProvider'
 import { ThemeProvider } from '@mui/material'
 import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
-import { screen } from '@testing-library/react'
+import { act, screen } from '@testing-library/react'
 import { ConfirmProvider } from 'material-ui-confirm'
 import { Suspense } from 'react'
 import { TestProvider as Provider } from 'test-utils/AtomProvider'
@@ -13,6 +14,7 @@ import {
 } from '../../__mockData__/events'
 import { mockEvents } from '../../api/__mocks__/event'
 import { putResultsPublished } from '../../api/event'
+import { previewKennelliittoResults } from '../../api/registration'
 import theme from '../../assets/Theme'
 import { useEventSubscription } from '../../hooks/useEventSubscription'
 import { locales } from '../../i18n'
@@ -26,7 +28,7 @@ import {
 } from '../../test-utils/utils'
 import AppSnackbarProvider from '../components/AppSnackbarProvider'
 import EventViewPage from './EventViewPage'
-import { adminEventClassAtom, adminEventIdAtom } from './state'
+import { adminEventClassAtom, adminEventIdAtom, adminEventsAtom } from './state'
 
 vi.mock('../../hooks/useEventSubscription', async () => ({
   useEventSubscription: vi.fn(() => ({ viewers: [] })),
@@ -58,6 +60,53 @@ describe('EventViewPage', () => {
 
   beforeEach(() => {
     mockUseEventSubscription.mockReturnValue({ viewers: [] })
+  })
+
+  it('reads the state of a trial with the chief judge with its panel closed, so a trial sent back opens again (KOE-1579)', async () => {
+    const readAt = new Date('2021-02-12T10:00:00Z')
+    const handedOver = { ...eventWithStaticDates, kcState: { code: 1253, name: 'Ylituomarin hyväksyttäväksi', readAt } }
+    vi.mocked(previewKennelliittoResults).mockClear()
+    let store: TestStore | undefined
+    await renderSuspended(
+      <ThemeProvider theme={theme}>
+        <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales.fi}>
+          <Provider
+            initializeState={(initial) => {
+              store = initial
+              initial.set(adminEventsAtom, [handedOver])
+            }}
+          >
+            <Suspense fallback={<div>loading...</div>}>
+              <AppSnackbarProvider>
+                <ConfirmProvider>
+                  <DataMemoryRouter
+                    initialEntries={[Path.admin.viewEvent(handedOver.id)]}
+                    routes={[{ element: <EventViewPage />, path: Path.admin.viewEvent() }]}
+                  />
+                </ConfirmProvider>
+              </AppSnackbarProvider>
+            </Suspense>
+          </Provider>
+        </LocalizationProvider>
+      </ThemeProvider>
+    )
+    await flushPromises()
+    const lastStep = () => screen.getAllByRole('listitem').at(-1)
+
+    // The panel is closed, its handle all there is of it; the page reads the state all the same.
+    expect(screen.getByRole('button', { name: 'eventManagement.open' })).toBeInTheDocument()
+    expect(previewKennelliittoResults).toHaveBeenCalledWith('test1', [], 'id-token', undefined)
+    expect(lastStep()).toHaveTextContent('event.states.resultsHandedOver')
+    expect(lastStep()?.querySelector('.MuiStepIcon-root')).toHaveClass('Mui-completed')
+
+    // What the read wrote onto the event arrives over the socket as a patch.
+    await act(() =>
+      store?.set(adminEventsAtom, [{ ...handedOver, kcState: { code: 754, name: 'Hyväksytty', readAt } }])
+    )
+    await flushPromises()
+
+    expect(lastStep()).toHaveTextContent('event.states.sendResultsToKennelliitto')
+    expect(lastStep()?.querySelector('.MuiStepIcon-root')).not.toHaveClass('Mui-completed')
   })
 
   it('renders properly for event without classes', async () => {

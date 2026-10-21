@@ -42,7 +42,7 @@ const capture = async (event: ConfirmedEvent, name: string, ready: string) => {
             void set(adminEventTypesAtom, [])
           }}
         >
-          <KennelliittoSubmission event={event} eventStarted registrations={registrations} />
+          <KennelliittoSubmission event={event} registrations={registrations} />
         </TestProvider>
       </ThemeProvider>
     </div>

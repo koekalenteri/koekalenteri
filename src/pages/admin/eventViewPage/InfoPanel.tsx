@@ -39,6 +39,8 @@ import { PANEL_HANDLE_WIDTH } from './infoPanel/styles'
 
 interface Props {
   readonly event: ConfirmedEvent
+  /** Reads Kennelliitto's state of the trial again, for the Omakoira section's refresh. */
+  readonly onRefreshResultsState?: () => Promise<unknown>
   readonly onSetResultsPublished?: (eventClass: ClassOrNone, date: string, published: boolean) => Promise<unknown>
   readonly onSetStartListPublished?: (eventClass: RegistrationClass | undefined, published: boolean) => Promise<unknown>
   readonly onSetStartNumbersPublished?: (
@@ -55,6 +57,7 @@ const APP_HEADER_HEIGHT = 36
 const InfoPanel = ({
   event,
   onSetResultsPublished,
+  onRefreshResultsState,
   onSetStartListPublished,
   onSetStartNumbersPublished,
   registrations,
@@ -302,7 +305,13 @@ const InfoPanel = ({
             selectedByClass={selectedByClass}
           />
           <ResultsPublishing event={event} eventStarted={eventStarted} onSetResultsPublished={onSetResultsPublished} />
-          {official && <KennelliittoSubmission event={event} registrations={registrations} />}
+          {official && (
+            <KennelliittoSubmission
+              event={event}
+              onRefreshState={onRefreshResultsState}
+              registrations={registrations}
+            />
+          )}
           <EventActions eventFinished={eventFinished} eventId={event.id} hasRegistrations={registrations.length > 0} />
         </Box>
         <Box sx={{ display: activeTab === 1 ? 'flex' : 'none', flex: 1, minHeight: 0, p: 1.5 }}>

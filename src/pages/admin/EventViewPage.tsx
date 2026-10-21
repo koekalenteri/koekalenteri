@@ -32,6 +32,8 @@ import RegistrationEditDialog from './eventViewPage/RegistrationEditDialog'
 import SendMessageDialog from './eventViewPage/SendMessageDialog'
 import TabPanel from './eventViewPage/TabPanel'
 import Title from './eventViewPage/Title'
+import { useIsOfficialEventType } from './hooks/useIsOfficialEventType'
+import { useResultsLock } from './hooks/useResultsLock'
 import {
   adminBackgroundActionsRunningAtom,
   adminConfirmedEventAtom,
@@ -43,7 +45,7 @@ import {
   useAdminEventActions,
 } from './state'
 import { useAdminEventScope } from './state/eventScope'
-import { useAdminRegistrationActions } from './state/registrations/actions'
+import { useAdminRegistrationActions, useKennelliittoResults } from './state/registrations/actions'
 
 /** Tab id of the whole-trial list a shared reserve list gets; no class can carry this name. */
 const ALL_CLASSES_TAB = '*'
@@ -72,6 +74,12 @@ export default function EventViewPage() {
   useHelpPath(event && hasEntryEnded(event) ? 'secretary/after-entry-closes' : 'secretary/while-entry-is-open')
   const actions = useAdminRegistrationActions(eventId)
   const eventActions = useAdminEventActions()
+  // The step indicator shows a trial handed to the chief judge whether the panel is open or not, so the
+  // page reads Kennelliitto's state once the trial shows locked: a trial the judge sent back opens again
+  // here, and in the panel's Omakoira section, without anyone asking (KOE-1579).
+  const official = useIsOfficialEventType(event?.eventType)
+  const kc = useKennelliittoResults(eventId)
+  const { refreshState: refreshResultsState } = useResultsLock(official ? event : undefined, kc.preview)
 
   const [selectedEventClass, setSelectedEventClass] = useAtom(adminEventClassAtom)
   const [selectedRegistrationId, setSelectedRegistrationId] = useAtom(adminRegistrationIdAtom)
@@ -203,6 +211,7 @@ export default function EventViewPage() {
             ? eventActions.setStartListClassPublished(event, eventClass, published)
             : eventActions.setStartListPublished(event, published)
         }
+        onRefreshResultsState={refreshResultsState}
         registrations={allRegistrations}
       />
 

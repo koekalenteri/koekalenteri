@@ -2493,21 +2493,24 @@ describe('the start list step in the progress', () => {
   })
 })
 
+/** A one-day trial of two classes that has run, its start list out: the results and hand-over steps' fixture. */
+const endedTrial: ConfirmedEvent = {
+  ...eventWithStaticDates,
+  classes: [
+    { class: 'ALO', date: '2026-09-12', state: 'ended' },
+    { class: 'AVO', date: '2026-09-12', state: 'ended' },
+  ],
+  endDate: '2026-09-12',
+  entryEndDate: '2026-09-01',
+  entryStartDate: '2026-08-01',
+  eventType: 'NOME-B',
+  startDate: '2026-09-12',
+  startListPublished: true,
+  state: 'ended',
+}
+
 describe('the results step in the progress', () => {
-  // Only the fields the progress reads.
-  const endedFields: Partial<ConfirmedEvent> = {
-    classes: [
-      { class: 'ALO', date: '2026-09-12', state: 'ended' },
-      { class: 'AVO', date: '2026-09-12', state: 'ended' },
-    ],
-    endDate: '2026-09-12',
-    entryEndDate: '2026-09-01',
-    entryStartDate: '2026-08-01',
-    startDate: '2026-09-12',
-    startListPublished: true,
-    state: 'ended',
-  }
-  const ended = endedFields as ConfirmedEvent
+  const ended = endedTrial
 
   const after = new Date('2026-09-20')
 
@@ -2540,16 +2543,7 @@ describe('the results step in the progress', () => {
 })
 
 describe('the Kennelliitto hand-over step in the progress (KOE-1579)', () => {
-  const endedFields: Partial<ConfirmedEvent> = {
-    classes: [{ class: 'AVO', date: '2026-09-12', state: 'ended' }],
-    endDate: '2026-09-12',
-    entryEndDate: '2026-09-01',
-    entryStartDate: '2026-08-01',
-    startDate: '2026-09-12',
-    startListPublished: true,
-    state: 'ended',
-  }
-  const ended = endedFields as ConfirmedEvent
+  const ended = endedTrial
   const before = new Date('2026-09-05')
   const after = new Date('2026-09-20')
 
@@ -2592,7 +2586,7 @@ describe('the Kennelliitto hand-over step in the progress (KOE-1579)', () => {
   it('keeps the phase a trial handed over before its results are published had', () => {
     // Handing over and publishing happen in either order: the event list must still say the results are not out.
     expect(getEventProgress(ended, after, { handedOver: true }).phase).toBe('ended')
-    const published = { ...ended, resultsPublished: { AVO: true } }
+    const published = { ...ended, resultsPublished: { ALO: true, AVO: true } }
     expect(getEventProgress(published, after, { handedOver: true }).phase).toBe('resultsPublished')
   })
 })

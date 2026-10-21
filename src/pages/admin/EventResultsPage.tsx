@@ -177,8 +177,7 @@ export default function EventResultsPage() {
   // Results handed to the chief judge are out of the secretary's hands until the judge sends them back.
   // The state Kennelliitto reports is what locks, so a locked page reads it afresh: a judge who has sent the
   // trial back opens it again without anyone having to do anything here.
-  const lock = useResultsLock(event, kc.preview)
-  const { locked } = lock
+  const { locked, refreshState: readState } = useResultsLock(event, kc.preview)
   // Asked the way the event view's Omakoira section is, so the column and the section agree (KOE-1579).
   const official = useIsOfficialEventType(event?.eventType)
   const kennelliitto = !!event && official
@@ -186,11 +185,11 @@ export default function EventResultsPage() {
 
   const refreshState = useCallback(async () => {
     try {
-      await lock.refreshState()
+      await readState()
     } catch (error) {
       reportError(error)
     }
-  }, [lock])
+  }, [readState])
 
   const handleChange = useCallback(
     (registrationId: string, edit: ResultEdit | undefined) =>

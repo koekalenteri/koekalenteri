@@ -256,6 +256,28 @@ describe('EventStateStepper', () => {
     expect(screen.getByText('event.states.started').closest('.Mui-completed')).toBeInTheDocument()
   })
 
+  describe('the results step', () => {
+    const ended = { ...eventWithStaticDates, startListPublished: true, state: 'ended' as const }
+    const resultsStep = (label: string) =>
+      screen.getByText(label, { selector: '.MuiStepLabel-label' }).closest('[role="listitem"]')
+
+    it('is done once the results of the trial are published', async () => {
+      await renderStepper(<EventStateStepper event={{ ...ended, resultsPublished: true }} />)
+
+      const step = resultsStep('event.states.resultsPublished')
+      expect(step?.querySelector('.MuiStepIcon-root')).toHaveClass('Mui-completed')
+      expect(step?.querySelector('.MuiStepIcon-root')).not.toHaveClass('Mui-active')
+    })
+
+    it('asks for the publishing of an ended trial with nothing published', async () => {
+      await renderStepper(<EventStateStepper event={{ ...ended, resultsPublished: false }} />)
+
+      const step = resultsStep('event.states.publishResults')
+      expect(step?.querySelector('.MuiStepIcon-root')).toHaveClass('Mui-active')
+      expect(step?.querySelector('.MuiStepIcon-root')).not.toHaveClass('Mui-completed')
+    })
+  })
+
   describe('the Kennelliitto hand-over step (KOE-1579)', () => {
     const ended = { ...eventWithStaticDates, state: 'ended' as const }
     const handOverStep = (label: string) =>

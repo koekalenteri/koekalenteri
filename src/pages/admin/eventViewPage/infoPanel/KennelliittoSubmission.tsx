@@ -15,10 +15,9 @@ import { useCallback, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { reportError } from '@/lib/client/error'
 import { getEventProgress, uniqueClasses } from '@/lib/event'
-import { countSentResults } from '@/lib/kennelliittoResults'
+import { countSentResults, isResultsLocked } from '@/lib/kennelliittoResults'
 import { getRegistrationClass, isScorableRegistration } from '@/lib/registration'
 import { KcIdLookupButton } from '../../components/KcIdLookupButton'
-import { useResultsLock } from '../../hooks/useResultsLock'
 import { useSaveKcLink } from '../../hooks/useSaveKcLink'
 import { useKennelliittoResults } from '../../state/registrations/actions'
 import { KennelliittoHandOverDialog } from './KennelliittoHandOverDialog'
@@ -28,6 +27,11 @@ import { actionButtonSx } from './styles'
 
 interface Props {
   readonly event: ConfirmedEvent
+  /**
+   * Reads Kennelliitto's state again. The event view reads it as soon as the trial shows locked, panel
+   * open or not, since the step indicator shows the lock too; this is the same read on request.
+   */
+  readonly onRefreshState?: () => Promise<unknown>
   readonly registrations: Registration[]
 }
 
@@ -64,11 +68,11 @@ const getSentRows = (event: ConfirmedEvent, registrations: Registration[]): Sent
  * cannot go does not hold the others back. Handing over is what finishes the step; until the chief judge
  * sends the trial back, the results are locked here and on the results page alike.
  */
-const KennelliittoSubmission = ({ event, registrations }: Props) => {
+const KennelliittoSubmission = ({ event, onRefreshState, registrations }: Props) => {
   const { t } = useTranslation()
   const kc = useKennelliittoResults(event.id)
   const saveKcLink = useSaveKcLink(event)
-  const { locked, refreshState } = useResultsLock(event, kc.preview)
+  const locked = isResultsLocked(event)
   const [sendOpen, setSendOpen] = useState(false)
   const [sendPhase, setSendPhase] = useState<KcSendPhase>({ kind: 'loading' })
   const [forceSend, setForceSend] = useState(false)
@@ -131,7 +135,7 @@ const KennelliittoSubmission = ({ event, registrations }: Props) => {
                 action={
                   <Button
                     color="inherit"
-                    onClick={() => void refreshState().catch(reportError)}
+                    onClick={() => void onRefreshState?.().catch(reportError)}
                     size="small"
                     sx={{ whiteSpace: 'nowrap' }}
                   >
