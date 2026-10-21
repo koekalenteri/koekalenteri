@@ -8,6 +8,9 @@ import { eventRegistrationDateKey } from '@/lib/event'
 import { renderWithUserEvents, TEST_ID_TOKEN } from '@/test-utils/utils'
 import InfoPanel from '../InfoPanel'
 
+/** The event view's read of Kennelliitto's state, which these tests do not exercise. */
+const noStateRead = async () => undefined
+
 const { mockOpenDialog } = vi.hoisted(() => ({ mockOpenDialog: vi.fn() }))
 
 vi.mock('../../state', async (importOriginal) => ({
@@ -60,9 +63,12 @@ describe('InfoPanel>', () => {
   afterAll(() => localStorage.removeItem('idToken'))
 
   it('runs the moved create registration action', async () => {
-    const { user } = renderWithUserEvents(<InfoPanel event={activeEventWithStaticDates} registrations={[]} />, {
-      wrapper: Provider,
-    })
+    const { user } = renderWithUserEvents(
+      <InfoPanel onRefreshResultsState={noStateRead} event={activeEventWithStaticDates} registrations={[]} />,
+      {
+        wrapper: Provider,
+      }
+    )
     await openInfoPanel(user)
 
     await user.click(screen.getByRole('button', { name: /createRegistration/i }))
@@ -71,9 +77,12 @@ describe('InfoPanel>', () => {
   })
 
   it('runs the moved event details action', async () => {
-    const { user } = renderWithUserEvents(<InfoPanel event={eventWithStaticDates} registrations={[]} />, {
-      wrapper: Provider,
-    })
+    const { user } = renderWithUserEvents(
+      <InfoPanel onRefreshResultsState={noStateRead} event={eventWithStaticDates} registrations={[]} />,
+      {
+        wrapper: Provider,
+      }
+    )
     await openInfoPanel(user)
 
     await user.click(screen.getByRole('button', { name: 'eventManagement.showEventDetails' }))
@@ -83,7 +92,11 @@ describe('InfoPanel>', () => {
 
   it('keeps scoring with the results, not among the general actions (KOE-1354)', async () => {
     const { user } = renderWithUserEvents(
-      <InfoPanel event={eventWithStations} registrations={registrationsToEventWithStations} />,
+      <InfoPanel
+        onRefreshResultsState={noStateRead}
+        event={eventWithStations}
+        registrations={registrationsToEventWithStations}
+      />,
       { wrapper: Provider }
     )
     await openInfoPanel(user)
@@ -107,7 +120,11 @@ describe('InfoPanel>', () => {
 
   it('sends a message to a chosen group of recipients (KOE-1073)', async () => {
     const { user } = renderWithUserEvents(
-      <InfoPanel event={eventWithStations} registrations={registrationsToEventWithStations} />,
+      <InfoPanel
+        onRefreshResultsState={noStateRead}
+        event={eventWithStations}
+        registrations={registrationsToEventWithStations}
+      />,
       { wrapper: Provider }
     )
     await openInfoPanel(user)
@@ -119,9 +136,12 @@ describe('InfoPanel>', () => {
   })
 
   it('has nobody to message before anyone has entered', async () => {
-    const { user } = renderWithUserEvents(<InfoPanel event={activeEventWithStaticDates} registrations={[]} />, {
-      wrapper: Provider,
-    })
+    const { user } = renderWithUserEvents(
+      <InfoPanel onRefreshResultsState={noStateRead} event={activeEventWithStaticDates} registrations={[]} />,
+      {
+        wrapper: Provider,
+      }
+    )
     await openInfoPanel(user)
 
     expect(screen.getByRole('button', { name: 'eventManagement.message.action' })).toBeDisabled()

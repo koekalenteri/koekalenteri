@@ -13,6 +13,9 @@ import { idTokenAtom } from '../../state'
 import { adminEventTypesAtom } from '../state'
 import InfoPanel from './InfoPanel'
 
+/** The event view's read of Kennelliitto's state, which these tests do not exercise. */
+const noStateRead = async () => undefined
+
 // The sibling sections have screenshots of their own; this one is about the panel as the secretary
 // meets it -- every section stacked in the drawer, which is where crowding shows and a single
 // section's capture never can (KOE-1356).
@@ -56,7 +59,7 @@ const openPanel = async (openButton = 'Avaa tapahtuman hallinta') => {
       >
         <MemoryRouter>
           <ConfirmProvider>
-            <InfoPanel event={event} registrations={registrations} />
+            <InfoPanel onRefreshResultsState={noStateRead} event={event} registrations={registrations} />
           </ConfirmProvider>
         </MemoryRouter>
       </TestProvider>

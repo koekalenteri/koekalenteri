@@ -62,12 +62,13 @@ describe('EventViewPage', () => {
     mockUseEventSubscription.mockReturnValue({ viewers: [] })
   })
 
-  it('reads the state of a trial with the chief judge with its panel closed, so a trial sent back opens again (KOE-1579)', async () => {
-    const readAt = new Date('2021-02-12T10:00:00Z')
-    const handedOver = { ...eventWithStaticDates, kcState: { code: 1253, name: 'Ylituomarin hyväksyttäväksi', readAt } }
+  /** A trial Kennelliitto has with the chief judge, on the event page, and the store the page reads it from. */
+  const readAt = new Date('2021-02-12T10:00:00Z')
+  const handedOver = { ...eventWithStaticDates, kcState: { code: 1253, name: 'Ylituomarin hyväksyttäväksi', readAt } }
+  const renderHandedOver = async () => {
     vi.mocked(previewKennelliittoResults).mockClear()
     let store: TestStore | undefined
-    await renderSuspended(
+    const rendered = await renderSuspendedWithUserEvents(
       <ThemeProvider theme={theme}>
         <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales.fi}>
           <Provider
@@ -88,9 +89,16 @@ describe('EventViewPage', () => {
             </Suspense>
           </Provider>
         </LocalizationProvider>
-      </ThemeProvider>
+      </ThemeProvider>,
+      undefined,
+      { advanceTimers: vi.advanceTimersByTime }
     )
     await flushPromises()
+    return { ...rendered, store }
+  }
+
+  it('reads the state of a trial with the chief judge with its panel closed, so a trial sent back opens again (KOE-1579)', async () => {
+    const { store } = await renderHandedOver()
     const lastStep = () => screen.getAllByRole('listitem').at(-1)
 
     // The panel is closed, its handle all there is of it; the page reads the state all the same.
@@ -107,6 +115,18 @@ describe('EventViewPage', () => {
 
     expect(lastStep()).toHaveTextContent('event.states.sendResultsToKennelliitto')
     expect(lastStep()?.querySelector('.MuiStepIcon-root')).not.toHaveClass('Mui-completed')
+  })
+
+  it('reads the state again when the Omakoira section asks for it (KOE-1579)', async () => {
+    const { user } = await renderHandedOver()
+    expect(previewKennelliittoResults).toHaveBeenCalledTimes(1)
+
+    await user.click(screen.getByRole('button', { name: 'eventManagement.open' }))
+    await user.click(await screen.findByRole('button', { name: 'results.kennelliitto.refreshState' }))
+    await flushPromises()
+
+    expect(previewKennelliittoResults).toHaveBeenCalledTimes(2)
+    expect(previewKennelliittoResults).toHaveBeenLastCalledWith('test1', [], 'id-token', undefined)
   })
 
   it('renders properly for event without classes', async () => {

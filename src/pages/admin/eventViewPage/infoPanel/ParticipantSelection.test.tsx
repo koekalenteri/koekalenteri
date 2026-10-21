@@ -18,6 +18,9 @@ import { eventRegistrationDateKey } from '@/lib/event'
 import { renderWithUserEvents, TEST_ID_TOKEN } from '@/test-utils/utils'
 import InfoPanel from '../InfoPanel'
 
+/** The event view's read of Kennelliitto's state, which these tests do not exercise. */
+const noStateRead = async () => undefined
+
 const _activeEventWithStaticDates = {
   ...eventWithStaticDates,
   endDate: new Date('2099-12-31'),
@@ -56,9 +59,12 @@ describe('InfoPanel>', () => {
   afterAll(() => localStorage.removeItem('idToken'))
 
   it('collapses when clicking outside the drawer', async () => {
-    const { user } = renderWithUserEvents(<InfoPanel event={eventWithStaticDates} registrations={[]} />, {
-      wrapper: Provider,
-    })
+    const { user } = renderWithUserEvents(
+      <InfoPanel onRefreshResultsState={noStateRead} event={eventWithStaticDates} registrations={[]} />,
+      {
+        wrapper: Provider,
+      }
+    )
     await openInfoPanel(user)
 
     expect(screen.getByText('eventManagement.participantSelection.title')).toBeInTheDocument()
@@ -77,7 +83,7 @@ describe('InfoPanel>', () => {
     const emptyRegistrations: Registration[] = []
 
     const { user } = renderWithUserEvents(
-      <InfoPanel event={eventWithEntryClosed} registrations={emptyRegistrations} />,
+      <InfoPanel onRefreshResultsState={noStateRead} event={eventWithEntryClosed} registrations={emptyRegistrations} />,
       {
         wrapper: Provider,
       }
@@ -102,7 +108,11 @@ describe('InfoPanel>', () => {
     }))
 
     const { user } = renderWithUserEvents(
-      <InfoPanel event={eventWithEntryClosed} registrations={unconfirmedRegistrations} />,
+      <InfoPanel
+        onRefreshResultsState={noStateRead}
+        event={eventWithEntryClosed}
+        registrations={unconfirmedRegistrations}
+      />,
       {
         wrapper: Provider,
       }
@@ -134,9 +144,12 @@ describe('InfoPanel>', () => {
         group: { date: event.startDate, key: 'VOI', number: 1 },
       },
     ]
-    const { user } = renderWithUserEvents(<InfoPanel event={event} registrations={registrations} />, {
-      wrapper: Provider,
-    })
+    const { user } = renderWithUserEvents(
+      <InfoPanel onRefreshResultsState={noStateRead} event={event} registrations={registrations} />,
+      {
+        wrapper: Provider,
+      }
+    )
     await openInfoPanel(user)
 
     expect(screen.getByText('eventManagement.participantSelection.canSendAfterEntry')).toBeInTheDocument()
@@ -159,9 +172,12 @@ describe('InfoPanel>', () => {
         eventType: event.eventType,
       },
     ]
-    const { user } = renderWithUserEvents(<InfoPanel event={event} registrations={registrations} />, {
-      wrapper: Provider,
-    })
+    const { user } = renderWithUserEvents(
+      <InfoPanel onRefreshResultsState={noStateRead} event={event} registrations={registrations} />,
+      {
+        wrapper: Provider,
+      }
+    )
     await openInfoPanel(user)
 
     expect(screen.getByText('eventManagement.participantSelection.reserveCanSendAfterEntry')).toBeInTheDocument()
@@ -176,9 +192,12 @@ describe('InfoPanel>', () => {
       classes: eventWithEntryClosed.classes.filter((eventClass) => eventClass.class === 'ALO'),
     }
     const registrations = [registrationsToEventWithEntryClosed[0]]
-    const { user } = renderWithUserEvents(<InfoPanel event={event} registrations={registrations} />, {
-      wrapper: Provider,
-    })
+    const { user } = renderWithUserEvents(
+      <InfoPanel onRefreshResultsState={noStateRead} event={event} registrations={registrations} />,
+      {
+        wrapper: Provider,
+      }
+    )
     await openInfoPanel(user)
 
     expect(
@@ -190,6 +209,7 @@ describe('InfoPanel>', () => {
   it('does not allow resending invitations when attachment has not changed', async () => {
     const { user } = renderWithUserEvents(
       <InfoPanel
+        onRefreshResultsState={noStateRead}
         event={{
           ...eventWithParticipantsInvited,
           classes: eventWithParticipantsInvited.classes.map((eventClass) =>
@@ -221,6 +241,7 @@ describe('InfoPanel>', () => {
   it('does not allow sending invitations again in picked state when invitations were already sent', async () => {
     const { user } = renderWithUserEvents(
       <InfoPanel
+        onRefreshResultsState={noStateRead}
         event={{ ...eventWithParticipantsInvited, invitationAttachments: { ALO: 'alo-key' }, state: 'picked' }}
         registrations={registrationsToEventWithParticipantsInvited.map((registration) => ({
           ...registration,

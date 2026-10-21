@@ -31,7 +31,7 @@ interface Props {
    * Reads Kennelliitto's state again. The event view reads it as soon as the trial shows locked, panel
    * open or not, since the step indicator shows the lock too; this is the same read on request.
    */
-  readonly onRefreshState?: () => Promise<unknown>
+  readonly onRefreshState: () => Promise<unknown>
   readonly registrations: Registration[]
 }
 
@@ -135,7 +135,7 @@ const KennelliittoSubmission = ({ event, onRefreshState, registrations }: Props)
                 action={
                   <Button
                     color="inherit"
-                    onClick={() => void onRefreshState?.().catch(reportError)}
+                    onClick={() => void onRefreshState().catch(reportError)}
                     size="small"
                     sx={{ whiteSpace: 'nowrap' }}
                   >

@@ -22,6 +22,9 @@ import { renderWithUserEvents, TEST_ID_TOKEN } from '@/test-utils/utils'
 import { adminEventsAtom } from '../../state'
 import InfoPanel from '../InfoPanel'
 
+/** The event view's read of Kennelliitto's state, which these tests do not exercise. */
+const noStateRead = async () => undefined
+
 const { mockOpenDialog } = vi.hoisted(() => ({ mockOpenDialog: vi.fn() }))
 
 vi.mock('../../state', async (importOriginal) => ({
@@ -67,9 +70,12 @@ describe('InfoPanel>', () => {
   afterAll(() => localStorage.removeItem('idToken'))
 
   it('shows invitation attachments before the send action', async () => {
-    const { user } = renderWithUserEvents(<InfoPanel event={eventWithStaticDates} registrations={[]} />, {
-      wrapper: Provider,
-    })
+    const { user } = renderWithUserEvents(
+      <InfoPanel onRefreshResultsState={noStateRead} event={eventWithStaticDates} registrations={[]} />,
+      {
+        wrapper: Provider,
+      }
+    )
     await openInfoPanel(user)
 
     const attachmentButton = screen.getByRole('button', { name: 'eventManagement.attachment.addPdf' })
@@ -81,6 +87,7 @@ describe('InfoPanel>', () => {
   it('does not show entry period guidance after the event has ended', async () => {
     const { user } = renderWithUserEvents(
       <InfoPanel
+        onRefreshResultsState={noStateRead}
         event={{ ...eventWithParticipantsInvited, endDate: '1970-01-01' }}
         registrations={registrationsToEventWithParticipantsInvited}
       />,
@@ -119,9 +126,12 @@ describe('InfoPanel>', () => {
         group: { date: event.startDate, key: 'VOI', number: 1 },
       },
     ]
-    const { user } = renderWithUserEvents(<InfoPanel event={event} registrations={registrations} />, {
-      wrapper: Provider,
-    })
+    const { user } = renderWithUserEvents(
+      <InfoPanel onRefreshResultsState={noStateRead} event={event} registrations={registrations} />,
+      {
+        wrapper: Provider,
+      }
+    )
     await openInfoPanel(user)
 
     expect(screen.getByRole('button', { name: 'eventManagement.invitation.send' })).toBeDisabled()
@@ -140,9 +150,12 @@ describe('InfoPanel>', () => {
       { ...lifted, class: 'ALO' as const, messagesSent: { picked: true }, paidAmount: undefined },
     ]
 
-    const { user } = renderWithUserEvents(<InfoPanel event={event} registrations={registrations} />, {
-      wrapper: Provider,
-    })
+    const { user } = renderWithUserEvents(
+      <InfoPanel onRefreshResultsState={noStateRead} event={event} registrations={registrations} />,
+      {
+        wrapper: Provider,
+      }
+    )
     await openInfoPanel(user)
 
     expect(screen.getByText('eventManagement.invitation.awaitingPayment count')).toBeInTheDocument()
@@ -162,9 +175,12 @@ describe('InfoPanel>', () => {
         paidAmount: 123,
       }))
 
-    const { user } = renderWithUserEvents(<InfoPanel event={event} registrations={registrations} />, {
-      wrapper: Provider,
-    })
+    const { user } = renderWithUserEvents(
+      <InfoPanel onRefreshResultsState={noStateRead} event={event} registrations={registrations} />,
+      {
+        wrapper: Provider,
+      }
+    )
     await openInfoPanel(user)
 
     expect(screen.queryByText('eventManagement.invitation.awaitingPayment count')).not.toBeInTheDocument()
@@ -173,6 +189,7 @@ describe('InfoPanel>', () => {
   it('shows status when reserve notifications have been sent', async () => {
     const { user } = renderWithUserEvents(
       <InfoPanel
+        onRefreshResultsState={noStateRead}
         event={eventWithEntryClosed}
         registrations={registrationsToEventWithEntryClosed.map((registration, index) => ({
           ...registration,
@@ -193,6 +210,7 @@ describe('InfoPanel>', () => {
   it('keeps place notification status visible when invitations can be sent', async () => {
     const { user } = renderWithUserEvents(
       <InfoPanel
+        onRefreshResultsState={noStateRead}
         event={{ ...eventWithParticipantsInvited, state: 'picked' }}
         registrations={registrationsToEventWithParticipantsInvited}
       />,
@@ -207,6 +225,7 @@ describe('InfoPanel>', () => {
   it('allows resending class invitations when class attachment is added after common attachment was sent', async () => {
     const { user } = renderWithUserEvents(
       <InfoPanel
+        onRefreshResultsState={noStateRead}
         event={{
           ...eventWithParticipantsInvited,
           classes: eventWithParticipantsInvited.classes.map((eventClass) =>
@@ -249,6 +268,7 @@ describe('InfoPanel>', () => {
   it('allows resending invitations when attachment has changed', async () => {
     const { user } = renderWithUserEvents(
       <InfoPanel
+        onRefreshResultsState={noStateRead}
         event={{ ...eventWithParticipantsInvited, invitationAttachments: { ALO: 'new-alo-key' } }}
         registrations={registrationsToEventWithParticipantsInvited.map((registration) => ({
           ...registration,
@@ -281,6 +301,7 @@ describe('InfoPanel>', () => {
     const onSetStartListPublished = vi.fn()
     const { user } = renderWithUserEvents(
       <InfoPanel
+        onRefreshResultsState={noStateRead}
         event={{
           ...eventWithParticipantsInvited,
           invitationAttachments: { ALO: 'new-alo-key' },
@@ -320,6 +341,7 @@ describe('InfoPanel>', () => {
   it('does not offer publishing while sending when the event-level start list is already published', async () => {
     const { user } = renderWithUserEvents(
       <InfoPanel
+        onRefreshResultsState={noStateRead}
         event={{
           ...eventWithParticipantsInvited,
           invitationAttachments: { ALO: 'new-alo-key' },
@@ -359,9 +381,12 @@ describe('InfoPanel>', () => {
       new APIError(new Response(null, { status: 413, statusText: 'Content Too Large' }), 'Content Too Large')
     )
 
-    const { user } = renderWithUserEvents(<InfoPanel event={activeEventWithStaticDates} registrations={[]} />, {
-      wrapper: Provider,
-    })
+    const { user } = renderWithUserEvents(
+      <InfoPanel onRefreshResultsState={noStateRead} event={activeEventWithStaticDates} registrations={[]} />,
+      {
+        wrapper: Provider,
+      }
+    )
     await openInfoPanel(user)
 
     const input = document.querySelector('#koekutsu-file') as HTMLInputElement
@@ -391,9 +416,12 @@ describe('InfoPanel>', () => {
       <Provider initializeState={({ set }) => set(adminEventsAtom, [activeEventWithStaticDates])}>{children}</Provider>
     )
 
-    const { user } = renderWithUserEvents(<InfoPanel event={activeEventWithStaticDates} registrations={[]} />, {
-      wrapper,
-    })
+    const { user } = renderWithUserEvents(
+      <InfoPanel onRefreshResultsState={noStateRead} event={activeEventWithStaticDates} registrations={[]} />,
+      {
+        wrapper,
+      }
+    )
     await openInfoPanel(user)
 
     const input = document.querySelector('#koekutsu-file') as HTMLInputElement
@@ -430,9 +458,12 @@ describe('InfoPanel>', () => {
         {children}
       </Provider>
     )
-    const { user } = renderWithUserEvents(<InfoPanel event={activeEventWithStaticDatesAndClass} registrations={[]} />, {
-      wrapper,
-    })
+    const { user } = renderWithUserEvents(
+      <InfoPanel onRefreshResultsState={noStateRead} event={activeEventWithStaticDatesAndClass} registrations={[]} />,
+      {
+        wrapper,
+      }
+    )
     await openInfoPanel(user)
 
     expect(screen.getByText('eventManagement.invitation.class className')).toBeInTheDocument()
@@ -476,9 +507,12 @@ describe('InfoPanel>', () => {
       },
     }
 
-    const { user } = renderWithUserEvents(<InfoPanel event={eventWithAttachment} registrations={[]} />, {
-      wrapper: Provider,
-    })
+    const { user } = renderWithUserEvents(
+      <InfoPanel onRefreshResultsState={noStateRead} event={eventWithAttachment} registrations={[]} />,
+      {
+        wrapper: Provider,
+      }
+    )
     await openInfoPanel(user)
 
     // It should show a link to the attachment
@@ -497,6 +531,7 @@ describe('InfoPanel>', () => {
   it('shows previously sent invitation attachments still referenced by participants', async () => {
     const { user } = renderWithUserEvents(
       <InfoPanel
+        onRefreshResultsState={noStateRead}
         event={{
           ...eventWithParticipantsInvited,
           invitationAttachmentHistory: {
@@ -526,6 +561,7 @@ describe('InfoPanel>', () => {
   it('shows a legacy common attachment for the class', async () => {
     const { user } = renderWithUserEvents(
       <InfoPanel
+        onRefreshResultsState={noStateRead}
         event={{ ...eventWithStaticDatesAndClass, invitationAttachment: 'common-attachment-key' }}
         registrations={[]}
       />,
@@ -543,6 +579,7 @@ describe('InfoPanel>', () => {
   it('shows a legacy common attachment in every class', async () => {
     const { user } = renderWithUserEvents(
       <InfoPanel
+        onRefreshResultsState={noStateRead}
         event={{ ...eventWithParticipantsInvited, invitationAttachment: 'common-attachment-key' }}
         registrations={registrationsToEventWithParticipantsInvited}
       />,

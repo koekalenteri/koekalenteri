@@ -20,6 +20,9 @@ vi.mock(import('@/api/registration'), async (importOriginal) => ({
 
 const sentAt = new Date('2026-09-26T10:00:00Z')
 
+/** The event view's read of Kennelliitto's state, which these captures do not exercise. */
+const noStateRead = async () => undefined
+
 // One dog of each class has run; the ALO one is in Omakoira, the AVO one not yet.
 const registrations: Registration[] = registrationsToEventWithStations.map((registration) => {
   if (registration.id === 'run-1') {
@@ -42,7 +45,7 @@ const capture = async (event: ConfirmedEvent, name: string, ready: string) => {
             void set(adminEventTypesAtom, [])
           }}
         >
-          <KennelliittoSubmission event={event} registrations={registrations} />
+          <KennelliittoSubmission event={event} onRefreshState={noStateRead} registrations={registrations} />
         </TestProvider>
       </ThemeProvider>
     </div>

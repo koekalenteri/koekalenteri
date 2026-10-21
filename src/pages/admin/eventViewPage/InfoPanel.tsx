@@ -40,7 +40,7 @@ import { PANEL_HANDLE_WIDTH } from './infoPanel/styles'
 interface Props {
   readonly event: ConfirmedEvent
   /** Reads Kennelliitto's state of the trial again, for the Omakoira section's refresh. */
-  readonly onRefreshResultsState?: () => Promise<unknown>
+  readonly onRefreshResultsState: () => Promise<unknown>
   readonly onSetResultsPublished?: (eventClass: ClassOrNone, date: string, published: boolean) => Promise<unknown>
   readonly onSetStartListPublished?: (eventClass: RegistrationClass | undefined, published: boolean) => Promise<unknown>
   readonly onSetStartNumbersPublished?: (
