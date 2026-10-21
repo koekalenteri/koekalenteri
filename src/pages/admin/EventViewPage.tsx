@@ -23,6 +23,7 @@ import EventNotFound from './components/EventNotFound'
 import ClassEntrySelection from './eventViewPage/ClassEntrySelection'
 import EventDetailsDialog from './eventViewPage/EventDetailsDialog'
 import InfoPanel from './eventViewPage/InfoPanel'
+import { PANEL_HANDLE_WIDTH } from './eventViewPage/infoPanel/styles'
 import MessageRecipientsDialog from './eventViewPage/MessageRecipientsDialog'
 import OtherViewers from './eventViewPage/OtherViewers'
 import { RefundDailog } from './eventViewPage/RefundDialog'
@@ -31,6 +32,8 @@ import RegistrationEditDialog from './eventViewPage/RegistrationEditDialog'
 import SendMessageDialog from './eventViewPage/SendMessageDialog'
 import TabPanel from './eventViewPage/TabPanel'
 import Title from './eventViewPage/Title'
+import { useIsOfficialEventType } from './hooks/useIsOfficialEventType'
+import { useResultsLock } from './hooks/useResultsLock'
 import {
   adminBackgroundActionsRunningAtom,
   adminConfirmedEventAtom,
@@ -42,7 +45,7 @@ import {
   useAdminEventActions,
 } from './state'
 import { useAdminEventScope } from './state/eventScope'
-import { useAdminRegistrationActions } from './state/registrations/actions'
+import { useAdminRegistrationActions, useKennelliittoResults } from './state/registrations/actions'
 
 /** Tab id of the whole-trial list a shared reserve list gets; no class can carry this name. */
 const ALL_CLASSES_TAB = '*'
@@ -71,6 +74,12 @@ export default function EventViewPage() {
   useHelpPath(event && hasEntryEnded(event) ? 'secretary/after-entry-closes' : 'secretary/while-entry-is-open')
   const actions = useAdminRegistrationActions(eventId)
   const eventActions = useAdminEventActions()
+  // The step indicator shows a trial handed to the chief judge whether the panel is open or not, so the
+  // page reads Kennelliitto's state once the trial shows locked: a trial the judge sent back opens again
+  // here, and in the panel's Omakoira section, without anyone asking (KOE-1579).
+  const official = useIsOfficialEventType(event?.eventType)
+  const kc = useKennelliittoResults(eventId)
+  const { refreshState: refreshResultsState } = useResultsLock(official ? event : undefined, kc.preview)
 
   const [selectedEventClass, setSelectedEventClass] = useAtom(adminEventClassAtom)
   const [selectedRegistrationId, setSelectedRegistrationId] = useAtom(adminRegistrationIdAtom)
@@ -182,7 +191,11 @@ export default function EventViewPage() {
     <Box sx={{ display: 'flex', flexDirection: 'column', flexGrow: 1, minWidth: 900 }}>
       <OtherViewers viewers={viewers} />
 
-      <Title event={event} />
+      {/* The closed panel's handle stays over the page's right edge; the heading and the step strip end
+          short of it, or its last step goes under the handle (KOE-1579). */}
+      <Box sx={{ pr: `${PANEL_HANDLE_WIDTH + 8}px` }}>
+        <Title event={event} />
+      </Box>
       <InfoPanel
         event={event}
         onSetResultsPublished={(eventClass, date, published) =>
@@ -198,6 +211,7 @@ export default function EventViewPage() {
             ? eventActions.setStartListClassPublished(event, eventClass, published)
             : eventActions.setStartListPublished(event, published)
         }
+        onRefreshResultsState={refreshResultsState}
         registrations={allRegistrations}
       />
 

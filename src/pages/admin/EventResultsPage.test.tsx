@@ -1,8 +1,7 @@
 import type { UserEvent } from '@testing-library/user-event'
 import type { RouteObject } from 'react-router'
 import type { Language } from '../../i18n'
-import type { KcDogReport } from '../../lib/kennelliittoResults'
-import type { ConfirmedEvent, EventResult, Registration } from '../../types'
+import type { ConfirmedEvent, EventResult, EventType, Registration } from '../../types'
 import { ThemeProvider } from '@mui/material'
 import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
@@ -14,13 +13,7 @@ import { eventWithStaticDates } from '../../__mockData__/events'
 import { eventWithStations, RESULTS_EVENT_DAY, registrationsToEventWithStations } from '../../__mockData__/resultsEvent'
 import { putEvent, searchEventKcIdChoices } from '../../api/event'
 import { APIError } from '../../api/http'
-import {
-  getRegistrations,
-  handOverKennelliittoResults,
-  previewKennelliittoResults,
-  putEventResults,
-  sendKennelliittoResults,
-} from '../../api/registration'
+import { getRegistrations, previewKennelliittoResults, putEventResults } from '../../api/registration'
 import theme from '../../assets/Theme'
 import { locales } from '../../i18n'
 import { addDays } from '../../lib/day'
@@ -31,7 +24,7 @@ import { DataMemoryRouter, flushPromises, renderSuspendedWithUserEvents, TEST_ID
 import AppSnackbarProvider from '../components/AppSnackbarProvider'
 import { idTokenAtom } from '../state'
 import EventResultsPage from './EventResultsPage'
-import { adminEventRegistrationsAtom, adminEventsAtom } from './state'
+import { adminEventRegistrationsAtom, adminEventsAtom, adminEventTypesAtom } from './state'
 
 // Two release switches: the live entry link (KOE-1259) and the reason a round ended (KOE-1299). The
 // tests describe both features with them on, and one test each checks what the switch alone takes away.
@@ -107,7 +100,8 @@ const renderQualitativePage = (
   storedResults: Record<string, EventResult> = {},
   event: ConfirmedEvent = eventWithStaticDates,
   extra: Record<string, Partial<Registration>> = {},
-  idToken: string = TEST_ID_TOKEN
+  idToken: string = TEST_ID_TOKEN,
+  eventTypes?: EventType[]
 ) => {
   const registrations = registrationsToEventWithStations.map((reg) => ({
     ...reg,
@@ -127,6 +121,7 @@ const renderQualitativePage = (
             set(idTokenAtom, idToken)
             set(adminEventsAtom, [event])
             set(adminEventRegistrationsAtom(event.id), registrations)
+            if (eventTypes) void set(adminEventTypesAtom, eventTypes)
           }}
         >
           <Suspense fallback={<div>loading...</div>}>
@@ -1014,34 +1009,48 @@ describe('EventResultsPage and Kennelliitto (KOE-1140)', () => {
     resultVersion: noon.toISOString(),
     status: 'sent' as const,
   }
-  const dogReport = (
-    id: string,
-    status: 'blocked' | 'changed' | 'ready' | 'unchanged',
-    problems: KcDogReport['problems'] = []
-  ) => ({
-    id,
-    name: `Koira ${id}`,
-    problems,
-    regNo: `REG-${id}`,
-    status,
-  })
-
   /** A handled-over trial: Kennelliitto has it with the chief judge. */
   const handedOver = { ...eventWithStaticDates, kcState: { code: 1253, name: 'x', readAt: noon } }
 
-  it('offers the sending for a format Kennelliitto knows', async () => {
-    await renderQualitativePage('fi', { 'run-1': stored('NOU1') })
+  it('shows the Omakoira column for a format Kennelliitto knows, and leaves the sending to the event view (KOE-1579)', async () => {
+    await renderQualitativePage('fi', { 'run-1': stored('NOU1') }, eventWithStaticDates, {
+      'run-1': { kcResult: sentOk },
+    })
     await flushPromises()
 
-    expect(screen.getByRole('button', { name: 'results.kennelliitto.send' })).toBeEnabled()
     expect(screen.getByText('results.kennelliitto.column')).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'results.kennelliitto.send' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'results.kennelliitto.handOverButton' })).not.toBeInTheDocument()
   })
 
-  it('offers it for NOWT as well, whose placement goes with the result', async () => {
+  describe('an event type of its own', () => {
+    const custom: ConfirmedEvent = { ...eventWithStaticDates, eventType: 'TEST1' }
+    const eventType = (official: boolean): EventType => ({
+      active: true,
+      createdAt: noon,
+      createdBy: 'test',
+      description: { en: '', fi: '', sv: '' },
+      eventType: 'TEST1',
+      modifiedAt: noon,
+      modifiedBy: 'test',
+      official,
+    })
+
+    it.each([
+      [true, 'shows'],
+      [false, 'leaves out'],
+    ])('reads the type’s own official flag (%s): %s the Omakoira column', async (official) => {
+      await renderQualitativePage('fi', {}, custom, {}, TEST_ID_TOKEN, [eventType(official)])
+      await flushPromises()
+
+      expect(screen.queryByText('results.kennelliitto.column') !== null).toBe(official)
+    })
+  })
+
+  it('shows it for NOWT as well, whose placement goes with the result', async () => {
     await renderScoringPage('fi')
     await flushPromises()
 
-    expect(screen.getByRole('button', { name: 'results.kennelliitto.send' })).toBeEnabled()
     expect(screen.getByText('results.kennelliitto.column')).toBeInTheDocument()
   })
 
@@ -1059,370 +1068,23 @@ describe('EventResultsPage and Kennelliitto (KOE-1140)', () => {
     expect(within(rowFor('Toinen')).getByText('results.kennelliitto.badge.changed')).toBeInTheDocument()
   })
 
-  describe('the sending dialog', () => {
-    it('asks the question and says the results can still be corrected until the hand-over', async () => {
-      vi.mocked(previewKennelliittoResults).mockResolvedValueOnce({
-        blockers: [],
-        dogs: [dogReport('run-1', 'ready')],
-      })
-      const { user } = await renderQualitativePage('fi', { 'run-1': stored('NOU1') })
-      await flushPromises()
-
-      await user.click(screen.getByRole('button', { name: 'results.kennelliitto.send' }))
-      await flushPromises()
-
-      expect(screen.getByText('results.kennelliitto.confirm')).toBeInTheDocument()
-      expect(screen.getByText('results.kennelliitto.confirmNote')).toBeInTheDocument()
-      // The sentence about no more editing belongs to the hand-over, not to the sending.
-      expect(screen.queryByText('results.kennelliitto.handOver.confirm')).not.toBeInTheDocument()
-      expect(previewKennelliittoResults).toHaveBeenCalledWith('test1', ['run-1', 'run-2'], expect.anything(), undefined)
+  it('says a trial has been sent but not handed over, without offering the hand-over here', async () => {
+    await renderQualitativePage('fi', { 'run-1': stored('NOU1') }, eventWithStaticDates, {
+      'run-1': { kcResult: sentOk },
     })
+    await flushPromises()
 
-    it('lists what stops the trial and does not let it be sent', async () => {
-      vi.mocked(previewKennelliittoResults).mockResolvedValueOnce({
-        blockers: [{ code: 'stateNotWritable', detail: 'Valmistunut' }],
-        dogs: [],
-      })
-      const { user } = await renderQualitativePage('fi', { 'run-1': stored('NOU1') })
-      await flushPromises()
-
-      await user.click(screen.getByRole('button', { name: 'results.kennelliitto.send' }))
-      await flushPromises()
-
-      expect(screen.getByText('results.kennelliitto.blocker.stateNotWritable detail')).toBeInTheDocument()
-      const dialog = within(screen.getByRole('dialog'))
-      expect(dialog.getByRole('button', { name: 'results.kennelliitto.send' })).toBeDisabled()
-    })
-
-    it('names the dogs that cannot be sent, with the reason', async () => {
-      vi.mocked(previewKennelliittoResults).mockResolvedValueOnce({
-        blockers: [],
-        dogs: [dogReport('run-1', 'ready'), dogReport('run-2', 'blocked', [{ code: 'noJudge' }])],
-      })
-      const { user } = await renderQualitativePage('fi', { 'run-1': stored('NOU1') })
-      await flushPromises()
-
-      await user.click(screen.getByRole('button', { name: 'results.kennelliitto.send' }))
-      await flushPromises()
-
-      expect(screen.getByText(/Koira run-2 \(REG-run-2\): results.kennelliitto.problem.noJudge/)).toBeInTheDocument()
-    })
-
-    it('sends the dogs ten at a time and reports who was saved and who was refused, in Kennelliitto’s words', async () => {
-      const ids = Array.from({ length: 12 }, (_unused, index) => `dog-${index}`)
-      vi.mocked(previewKennelliittoResults).mockResolvedValueOnce({
-        blockers: [],
-        dogs: ids.map((id) => dogReport(id, 'ready')),
-      })
-      vi.mocked(sendKennelliittoResults)
-        .mockResolvedValueOnce({
-          blockers: [],
-          kcResults: [],
-          notAttempted: [],
-          reports: ids
-            .slice(0, 10)
-            .map((id) => ({ id, name: `Koira ${id}`, outcome: 'sent' as const, regNo: `REG-${id}` })),
-        })
-        .mockResolvedValueOnce({
-          blockers: [],
-          kcResults: [],
-          notAttempted: [],
-          reports: [
-            { id: 'dog-10', name: 'Koira dog-10', outcome: 'sent' as const, regNo: 'REG-dog-10' },
-            {
-              errors: ['Koiran nimi ei täsmää.'],
-              id: 'dog-11',
-              name: 'Koira dog-11',
-              outcome: 'failed' as const,
-              regNo: 'REG-dog-11',
-              status: 400,
-            },
-          ],
-        })
-      const { user } = await renderQualitativePage('fi', { 'run-1': stored('NOU1') })
-      await flushPromises()
-
-      await user.click(screen.getByRole('button', { name: 'results.kennelliitto.send' }))
-      await flushPromises()
-      await user.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'results.kennelliitto.send' }))
-      // Two requests, one after the other: each answer settles the page's state before the next goes.
-      await flushPromises()
-      await flushPromises()
-
-      expect(sendKennelliittoResults).toHaveBeenNthCalledWith(1, 'test1', ids.slice(0, 10), false, expect.anything())
-      expect(sendKennelliittoResults).toHaveBeenNthCalledWith(2, 'test1', ids.slice(10), false, expect.anything())
-      expect(screen.getByText('results.kennelliitto.success count')).toBeInTheDocument()
-      expect(screen.getByText('results.kennelliitto.failure count')).toBeInTheDocument()
-      expect(screen.getByText('Koira dog-11 (REG-dog-11): Koiran nimi ei täsmää.')).toBeInTheDocument()
-    })
-
-    it('reads the state from the server instead of reporting a failure when the answer never came', async () => {
-      vi.mocked(previewKennelliittoResults).mockResolvedValueOnce({ blockers: [], dogs: [dogReport('run-1', 'ready')] })
-      vi.mocked(sendKennelliittoResults).mockRejectedValueOnce(new Error('Network Error'))
-      const { user } = await renderQualitativePage('fi', { 'run-1': stored('NOU1') })
-      await flushPromises()
-
-      await user.click(screen.getByRole('button', { name: 'results.kennelliitto.send' }))
-      await flushPromises()
-      await user.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'results.kennelliitto.send' }))
-      await flushPromises()
-
-      // The page's list is the server's now (the mock holds none for this trial), not what it believed.
-      expect(screen.queryByText('Ensimmainen')).not.toBeInTheDocument()
-      expect(screen.getByText('results.kennelliitto.interrupted')).toBeInTheDocument()
-      expect(screen.queryByText('results.kennelliitto.failure count')).not.toBeInTheDocument()
-    })
-
-    it('says the server failed, not the connection, when the server answered with an error (KOE-1140)', async () => {
-      vi.mocked(previewKennelliittoResults).mockResolvedValueOnce({ blockers: [], dogs: [dogReport('run-1', 'ready')] })
-      vi.mocked(sendKennelliittoResults).mockRejectedValueOnce(
-        new APIError(new Response(null, { status: 500 }), { message: 'Internal Server Error' })
-      )
-      const { user } = await renderQualitativePage('fi', { 'run-1': stored('NOU1') })
-      await flushPromises()
-
-      await user.click(screen.getByRole('button', { name: 'results.kennelliitto.send' }))
-      await flushPromises()
-      await user.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'results.kennelliitto.send' }))
-      await flushPromises()
-
-      // Read from the server all the same: the dogs before the failing one may have been sent.
-      expect(screen.queryByText('Ensimmainen')).not.toBeInTheDocument()
-      expect(screen.getByText('results.kennelliitto.serverError status')).toBeInTheDocument()
-      expect(screen.queryByText('results.kennelliitto.interrupted')).not.toBeInTheDocument()
-    })
-  })
-
-  describe('the answers of a sending', () => {
-    const sendOnePage = async () => {
-      vi.mocked(previewKennelliittoResults).mockResolvedValueOnce({
-        blockers: [],
-        dogs: [dogReport('run-1', 'ready'), dogReport('run-2', 'ready')],
-      })
-      const { user } = await renderQualitativePage('fi', { 'run-1': stored('NOU1') })
-      await flushPromises()
-      await user.click(screen.getByRole('button', { name: 'results.kennelliitto.send' }))
-      await flushPromises()
-      await user.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'results.kennelliitto.send' }))
-      await flushPromises()
-      await flushPromises()
-    }
-    const sent = (id: string) => ({ id, name: `Koira ${id}`, outcome: 'sent' as const, regNo: `REG-${id}` })
-
-    it('shows a dog that was sent as sent at once, from the answer, without reading the registrations again', async () => {
-      vi.mocked(sendKennelliittoResults).mockResolvedValueOnce({
-        blockers: [],
-        kcResults: [
-          {
-            id: 'run-1',
-            kcResult: {
-              at: noon.toISOString(),
-              by: 'Sihteeri',
-              payloadHash: 'h',
-              resultVersion: noon.toISOString(),
-              status: 'sent',
-            },
-          },
-        ],
-        notAttempted: [],
-        reports: [sent('run-1'), sent('run-2')],
-      })
-
-      await sendOnePage()
-
-      expect(within(rowFor('Ensimmainen')).getByText('results.kennelliitto.badge.sent')).toBeInTheDocument()
-    })
-
-    it('asks again for the dogs a request had no time for, once it got somewhere', async () => {
-      vi.mocked(sendKennelliittoResults)
-        .mockResolvedValueOnce({ blockers: [], kcResults: [], notAttempted: ['run-2'], reports: [sent('run-1')] })
-        .mockResolvedValueOnce({ blockers: [], kcResults: [], notAttempted: [], reports: [sent('run-2')] })
-
-      await sendOnePage()
-
-      expect(sendKennelliittoResults).toHaveBeenCalledTimes(2)
-      expect(sendKennelliittoResults).toHaveBeenNthCalledWith(2, 'test1', ['run-2'], false, expect.anything())
-      expect(screen.getByText('results.kennelliitto.success count')).toBeInTheDocument()
-      expect(screen.queryByText('results.kennelliitto.notAttempted count')).not.toBeInTheDocument()
-    })
-
-    it('does not ask again when the request got nowhere, and says which dogs were left', async () => {
-      vi.mocked(sendKennelliittoResults).mockResolvedValueOnce({
-        blockers: [],
-        kcResults: [],
-        notAttempted: ['run-1', 'run-2'],
-        reports: [],
-      })
-
-      await sendOnePage()
-
-      expect(sendKennelliittoResults).toHaveBeenCalledTimes(1)
-      expect(screen.getByText('results.kennelliitto.notAttempted count')).toBeInTheDocument()
-    })
-
-    it('says what stopped the trial when the server refuses it as blocked, and sends no more', async () => {
-      vi.mocked(sendKennelliittoResults).mockRejectedValueOnce(
-        new APIError(new Response(null, { status: 409 }), { blockers: [{ code: 'handedOver' }], error: 'blocked' })
-      )
-
-      await sendOnePage()
-
-      expect(screen.getByText('results.kennelliitto.blocker.handedOver detail')).toBeInTheDocument()
-      expect(screen.queryByText('results.kennelliitto.interrupted')).not.toBeInTheDocument()
-    })
-
-    it('says which dogs it did not send, with where they stood', async () => {
-      vi.mocked(sendKennelliittoResults).mockResolvedValueOnce({
-        blockers: [],
-        kcResults: [],
-        notAttempted: [],
-        reports: [
-          sent('run-1'),
-          {
-            dogStatus: 'blocked',
-            id: 'run-2',
-            name: 'Koira run-2',
-            outcome: 'skipped',
-            problems: [{ code: 'noJudge' }],
-            regNo: 'REG-run-2',
-          },
-        ],
-      })
-
-      await sendOnePage()
-
-      expect(screen.getByText('results.kennelliitto.skipped count')).toBeInTheDocument()
-      expect(
-        screen.getByText('Koira run-2 (REG-run-2): results.kennelliitto.problem.noJudge detail')
-      ).toBeInTheDocument()
-    })
-  })
-
-  describe('what a hand-over answers', () => {
-    const openHandOver = async () => {
-      const { user } = await renderQualitativePage('fi', { 'run-1': stored('NOU1') }, eventWithStaticDates, {
-        'run-1': { kcResult: sentOk },
-      })
-      await flushPromises()
-      await user.click(screen.getAllByRole('button', { name: 'results.kennelliitto.handOverButton' })[0])
-      await flushPromises()
-      const dialog = within(screen.getByRole('dialog'))
-      await user.click(dialog.getByRole('button', { name: 'results.kennelliitto.handOverButton' }))
-      await flushPromises()
-      return { dialog, user }
-    }
-    const refusal = (status: number, body: ConstructorParameters<typeof APIError>[1]) =>
-      vi.mocked(handOverKennelliittoResults).mockRejectedValueOnce(new APIError(new Response(null, { status }), body))
-
-    it('lists what stops the trial', async () => {
-      refusal(409, { blockers: [{ code: 'stateNotWritable', detail: 'Valmistunut' }], error: 'blocked' })
-
-      const { dialog } = await openHandOver()
-
-      expect(dialog.getByText('results.kennelliitto.blocker.stateNotWritable detail')).toBeInTheDocument()
-    })
-
-    it('lists the results that have to be sent first', async () => {
-      refusal(409, { dogs: [dogReport('run-2', 'ready')], error: 'unsentResults' })
-
-      const { dialog } = await openHandOver()
-
-      expect(dialog.getByText('results.kennelliitto.handOver.unsent')).toBeInTheDocument()
-      expect(dialog.getByText('Koira run-2 (REG-run-2): results.kennelliitto.dogStatus.ready')).toBeInTheDocument()
-    })
-
-    it('gives Kennelliitto’s reasons when it refuses the hand-over', async () => {
-      refusal(502, { error: 'kennelliittoRefused', status: 400, virheet: ['Tila ei kelpaa.'] })
-
-      const { dialog } = await openHandOver()
-
-      expect(dialog.getByText('results.kennelliitto.handOver.refused reasons')).toBeInTheDocument()
-    })
-
-    it('says it is not known whether it happened when Kennelliitto gave no reasons', async () => {
-      refusal(502, { error: 'kennelliittoRefused', status: 0 })
-
-      const { dialog } = await openHandOver()
-
-      expect(dialog.getByText('results.kennelliitto.handOver.unknown')).toBeInTheDocument()
-      expect(dialog.queryByText('results.kennelliitto.handOver.refused reasons')).not.toBeInTheDocument()
-    })
-
-    it('asks for the secretary’s word before handing over nothing, and then hands over', async () => {
-      refusal(409, { error: 'nothingSent' })
-
-      const { dialog, user } = await openHandOver()
-      expect(dialog.getByText('results.kennelliitto.handOver.nothingSent')).toBeInTheDocument()
-      expect(dialog.getByRole('button', { name: 'results.kennelliitto.handOverButton' })).toBeDisabled()
-
-      await user.click(dialog.getByRole('checkbox'))
-      await user.click(dialog.getByRole('button', { name: 'results.kennelliitto.handOverButton' }))
-      await flushPromises()
-
-      expect(handOverKennelliittoResults).toHaveBeenLastCalledWith('test1', true, expect.anything())
-    })
-
-    it('says it is done and closes when the trial is handed over', async () => {
-      await openHandOver()
-
-      expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
-      expect(screen.getByText('results.kennelliitto.handOver.done')).toBeInTheDocument()
-    })
-  })
-
-  describe('a trial that has been sent but not handed over', () => {
-    it('keeps asking for the hand-over on the page', async () => {
-      const { user } = await renderQualitativePage('fi', { 'run-1': stored('NOU1') }, eventWithStaticDates, {
-        'run-1': { kcResult: sentOk },
-      })
-      await flushPromises()
-
-      expect(screen.getByText('results.kennelliitto.sentNotHandedOver count')).toBeInTheDocument()
-      await user.click(screen.getAllByRole('button', { name: 'results.kennelliitto.handOverButton' })[0])
-      await flushPromises()
-
-      // The hand-over is where the secretary is told they can no longer edit.
-      expect(screen.getByText('results.kennelliitto.handOver.confirm')).toBeInTheDocument()
-      expect(screen.getByText('results.kennelliitto.handOver.certificates')).toBeInTheDocument()
-    })
-
-    it('lists the dogs that stay out and hands over once the secretary accepts them', async () => {
-      vi.mocked(handOverKennelliittoResults).mockRejectedValueOnce(
-        new APIError(new Response(null, { status: 409 }), {
-          dogs: [dogReport('run-2', 'blocked', [{ code: 'noResult' }])],
-          error: 'confirmationNeeded',
-        })
-      )
-      const { user } = await renderQualitativePage('fi', { 'run-1': stored('NOU1') }, eventWithStaticDates, {
-        'run-1': { kcResult: sentOk },
-      })
-      await flushPromises()
-      await user.click(screen.getAllByRole('button', { name: 'results.kennelliitto.handOverButton' })[0])
-      await flushPromises()
-      const dialog = within(screen.getByRole('dialog'))
-
-      await user.click(dialog.getByRole('button', { name: 'results.kennelliitto.handOverButton' }))
-      await flushPromises()
-      expect(dialog.getByText('results.kennelliitto.handOver.leftOut')).toBeInTheDocument()
-      expect(dialog.getByRole('button', { name: 'results.kennelliitto.handOverButton' })).toBeDisabled()
-
-      await user.click(dialog.getByRole('checkbox'))
-      await user.click(dialog.getByRole('button', { name: 'results.kennelliitto.handOverButton' }))
-      await flushPromises()
-
-      expect(handOverKennelliittoResults).toHaveBeenNthCalledWith(1, 'test1', false, expect.anything())
-      expect(handOverKennelliittoResults).toHaveBeenNthCalledWith(2, 'test1', true, expect.anything())
-    })
+    expect(screen.getByText('results.kennelliitto.sentNotHandedOver count')).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'results.kennelliitto.handOverButton' })).not.toBeInTheDocument()
   })
 
   describe('a trial handed to the chief judge', () => {
-    it('cannot be edited or sent, and says why', async () => {
+    it('cannot be edited, and says why', async () => {
       await renderQualitativePage('fi', { 'run-1': stored('NOU1') }, handedOver)
       await flushPromises()
 
       expect(screen.getByText('results.kennelliitto.locked')).toBeInTheDocument()
       expect(screen.getByRole('button', { name: 'results.save' })).toBeDisabled()
-      expect(screen.getByRole('button', { name: 'results.kennelliitto.send' })).toBeDisabled()
     })
 
     it('reads the state afresh, so a trial the judge sent back opens again', async () => {
@@ -1583,56 +1245,6 @@ describe('EventResultsPage and Kennelliitto (KOE-1140)', () => {
       expect(screen.getByText('Ensimmainen')).toBeInTheDocument()
       expect(screen.getByText('Toinen')).toBeInTheDocument()
       expect(screen.getByRole('button', { name: 'results.save' })).toBeEnabled()
-    })
-  })
-
-  describe('handing over with the secretary’s word', () => {
-    const openNothingSent = async () => {
-      vi.mocked(handOverKennelliittoResults).mockClear()
-      vi.mocked(handOverKennelliittoResults).mockRejectedValueOnce(
-        new APIError(new Response(null, { status: 409 }), { error: 'nothingSent' })
-      )
-      const { user } = await renderQualitativePage('fi', { 'run-1': stored('NOU1') }, eventWithStaticDates, {
-        'run-1': { kcResult: sentOk },
-      })
-      await flushPromises()
-      await user.click(screen.getAllByRole('button', { name: 'results.kennelliitto.handOverButton' })[0])
-      await flushPromises()
-      return { dialog: within(screen.getByRole('dialog')), user }
-    }
-
-    it('asks without the word first, and sends the word only after it has been given', async () => {
-      const { dialog, user } = await openNothingSent()
-
-      await user.click(dialog.getByRole('button', { name: 'results.kennelliitto.handOverButton' }))
-      await flushPromises()
-      expect(handOverKennelliittoResults).toHaveBeenCalledTimes(1)
-      expect(handOverKennelliittoResults).toHaveBeenLastCalledWith('test1', false, expect.anything())
-
-      await user.click(dialog.getByRole('checkbox'))
-      await user.click(dialog.getByRole('button', { name: 'results.kennelliitto.handOverButton' }))
-      await flushPromises()
-
-      expect(handOverKennelliittoResults).toHaveBeenCalledTimes(2)
-      expect(handOverKennelliittoResults).toHaveBeenLastCalledWith('test1', true, expect.anything())
-    })
-
-    it('does not carry the word over to the next time the dialog is opened', async () => {
-      const { dialog, user } = await openNothingSent()
-      await user.click(dialog.getByRole('button', { name: 'results.kennelliitto.handOverButton' }))
-      await flushPromises()
-      await user.click(dialog.getByRole('checkbox'))
-
-      await user.click(dialog.getByRole('button', { name: 'cancel' }))
-      await flushPromises()
-      await user.click(screen.getAllByRole('button', { name: 'results.kennelliitto.handOverButton' })[0])
-      await flushPromises()
-      await user.click(
-        within(screen.getByRole('dialog')).getByRole('button', { name: 'results.kennelliitto.handOverButton' })
-      )
-      await flushPromises()
-
-      expect(handOverKennelliittoResults).toHaveBeenLastCalledWith('test1', false, expect.anything())
     })
   })
 })

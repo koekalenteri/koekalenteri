@@ -5,4 +5,7 @@ export const sectionSx = {
   overflow: 'hidden',
 }
 
+/** The least width of the closed panel's handle, which stays over the right edge of the event page. */
+export const PANEL_HANDLE_WIDTH = 36
+
 export const actionButtonSx = { justifyContent: 'flex-start', textAlign: 'left' }

@@ -1,5 +1,5 @@
 import type { UserEvent } from '@testing-library/user-event/dist/types/setup/setup'
-import type { AuditRecord, ConfirmedEvent, Registration } from '@/types'
+import type { AuditRecord, ConfirmedEvent, EventType, Registration } from '@/types'
 import { screen, waitFor } from '@testing-library/react'
 import { TestProvider as Provider } from 'test-utils/AtomProvider'
 import { eventWithEntryClosed, eventWithStaticDates, eventWithStaticDatesAndClass } from '@/__mockData__/events'
@@ -8,13 +8,19 @@ import { getEventAuditTrail } from '@/api/event'
 import { eventRegistrationDateKey } from '@/lib/event'
 import { renderWithUserEvents, TEST_ID_TOKEN } from '@/test-utils/utils'
 import { idTokenAtom } from '../../state'
+import { adminEventTypesAtom } from '../state'
 import InfoPanel from './InfoPanel'
+
+/** The event view's read of Kennelliitto's state, which these tests do not exercise. */
+const noStateRead = async () => undefined
 
 const activeEventWithStaticDates: ConfirmedEvent = {
   ...eventWithStaticDates,
   endDate: '2099-12-31',
 }
 vi.mock('@/api/event')
+vi.mock('@/api/eventType')
+vi.mock('@/api/user')
 
 function getGroupKey(r: Registration, i: number) {
   if (r.cancelled) return 'cancelled'
@@ -36,11 +42,14 @@ describe('InfoPanel>', () => {
   afterAll(() => localStorage.removeItem('idToken'))
 
   it('renders with no registrations', () => {
-    renderWithUserEvents(<InfoPanel event={eventWithStaticDates} registrations={[]} />, {
-      wrapper: ({ children }) => (
-        <Provider initializeState={({ set }) => set(idTokenAtom, TEST_ID_TOKEN)}>{children}</Provider>
-      ),
-    })
+    renderWithUserEvents(
+      <InfoPanel onRefreshResultsState={noStateRead} event={eventWithStaticDates} registrations={[]} />,
+      {
+        wrapper: ({ children }) => (
+          <Provider initializeState={({ set }) => set(idTokenAtom, TEST_ID_TOKEN)}>{children}</Provider>
+        ),
+      }
+    )
 
     const openButton = screen.getByRole('button', { name: 'eventManagement.open' })
     expect(openButton).toHaveStyle({ flexDirection: 'row' })
@@ -49,7 +58,11 @@ describe('InfoPanel>', () => {
 
   it('renders with event with closed entry and registrations', () => {
     renderWithUserEvents(
-      <InfoPanel event={eventWithEntryClosed} registrations={registrationsToEventWithEntryClosed} />,
+      <InfoPanel
+        onRefreshResultsState={noStateRead}
+        event={eventWithEntryClosed}
+        registrations={registrationsToEventWithEntryClosed}
+      />,
       { wrapper: Provider }
     )
 
@@ -61,6 +74,7 @@ describe('InfoPanel>', () => {
   it('renders with event with closed entry and registrations with groups', () => {
     renderWithUserEvents(
       <InfoPanel
+        onRefreshResultsState={noStateRead}
         event={eventWithEntryClosed}
         registrations={registrationsToEventWithEntryClosed.map((r, i) => ({
           ...r,
@@ -79,9 +93,12 @@ describe('InfoPanel>', () => {
   })
 
   it('shows status and task sections when opened', async () => {
-    const { user } = renderWithUserEvents(<InfoPanel event={activeEventWithStaticDates} registrations={[]} />, {
-      wrapper: Provider,
-    })
+    const { user } = renderWithUserEvents(
+      <InfoPanel onRefreshResultsState={noStateRead} event={activeEventWithStaticDates} registrations={[]} />,
+      {
+        wrapper: Provider,
+      }
+    )
     await openInfoPanel(user)
 
     expect(screen.getByRole('tab', { name: 'eventManagement.tabs.management' })).toHaveAttribute(
@@ -115,9 +132,12 @@ describe('InfoPanel>', () => {
   })
 
   it('shows the audit trail on its own tab', async () => {
-    const { user } = renderWithUserEvents(<InfoPanel event={activeEventWithStaticDates} registrations={[]} />, {
-      wrapper: Provider,
-    })
+    const { user } = renderWithUserEvents(
+      <InfoPanel onRefreshResultsState={noStateRead} event={activeEventWithStaticDates} registrations={[]} />,
+      {
+        wrapper: Provider,
+      }
+    )
     await openInfoPanel(user)
 
     await user.click(screen.getByRole('tab', { name: 'eventManagement.tabs.auditTrail' }))
@@ -137,9 +157,12 @@ describe('InfoPanel>', () => {
           resolveAuditTrail = resolve
         })
     )
-    const { user } = renderWithUserEvents(<InfoPanel event={activeEventWithStaticDates} registrations={[]} />, {
-      wrapper: Provider,
-    })
+    const { user } = renderWithUserEvents(
+      <InfoPanel onRefreshResultsState={noStateRead} event={activeEventWithStaticDates} registrations={[]} />,
+      {
+        wrapper: Provider,
+      }
+    )
 
     await openInfoPanel(user)
     await user.click(screen.getByRole('tab', { name: 'eventManagement.tabs.auditTrail' }))
@@ -152,9 +175,12 @@ describe('InfoPanel>', () => {
   })
 
   it('links to the authenticated unpublished start list preview when the start list is unavailable', async () => {
-    const { user } = renderWithUserEvents(<InfoPanel event={eventWithStaticDates} registrations={[]} />, {
-      wrapper: Provider,
-    })
+    const { user } = renderWithUserEvents(
+      <InfoPanel onRefreshResultsState={noStateRead} event={eventWithStaticDates} registrations={[]} />,
+      {
+        wrapper: Provider,
+      }
+    )
     await openInfoPanel(user)
 
     const publicStartListLink = screen.getByRole('link', { name: 'eventManagement.startList.previewUnpublished' })
@@ -167,7 +193,11 @@ describe('InfoPanel>', () => {
 
   it('leaves the koetunnus out of the panel, which the event details and the results entry both already show', async () => {
     const { user } = renderWithUserEvents(
-      <InfoPanel event={{ ...eventWithStaticDatesAndClass, kcId: 12345 }} registrations={[]} />,
+      <InfoPanel
+        onRefreshResultsState={noStateRead}
+        event={{ ...eventWithStaticDatesAndClass, kcId: 12345 }}
+        registrations={[]}
+      />,
       { wrapper: Provider }
     )
     await openInfoPanel(user)
@@ -176,10 +206,71 @@ describe('InfoPanel>', () => {
     expect(screen.queryByText('12345')).not.toBeInTheDocument()
   })
 
-  it('expands and collapses correctly', async () => {
-    const { user } = renderWithUserEvents(<InfoPanel event={eventWithStaticDates} registrations={[]} />, {
-      wrapper: Provider,
+  describe('the Omakoira step (KOE-1579)', () => {
+    it('is a section of its own for a trial whose results go to Kennelliitto', async () => {
+      const { user } = renderWithUserEvents(
+        <InfoPanel onRefreshResultsState={noStateRead} event={eventWithStaticDates} registrations={[]} />,
+        {
+          wrapper: Provider,
+        }
+      )
+      await openInfoPanel(user)
+
+      expect(screen.getByText('results.kennelliitto.title')).toBeInTheDocument()
+      expect(screen.getByRole('button', { name: 'results.kennelliitto.send' })).toBeEnabled()
     })
+
+    it('is not there for an event type the Kennel Club does not run', async () => {
+      const { user } = renderWithUserEvents(
+        <InfoPanel
+          onRefreshResultsState={noStateRead}
+          event={{ ...eventWithStaticDates, eventType: 'TEST1' }}
+          registrations={[]}
+        />,
+        { wrapper: Provider }
+      )
+      await openInfoPanel(user)
+
+      expect(screen.getByText('eventManagement.results.title')).toBeInTheDocument()
+      expect(screen.queryByText('results.kennelliitto.title')).not.toBeInTheDocument()
+    })
+
+    it('is there for an event type the Kennel Club knows, though not one of the built-in ones', async () => {
+      const eventType: EventType = {
+        active: true,
+        createdAt: new Date(),
+        createdBy: 'test',
+        description: { en: '', fi: '', sv: '' },
+        eventType: 'TEST1',
+        modifiedAt: new Date(),
+        modifiedBy: 'test',
+        official: true,
+      }
+      const { user } = renderWithUserEvents(
+        <InfoPanel
+          onRefreshResultsState={noStateRead}
+          event={{ ...eventWithStaticDates, eventType: 'TEST1' }}
+          registrations={[]}
+        />,
+        {
+          wrapper: ({ children }) => (
+            <Provider initializeState={({ set }) => void set(adminEventTypesAtom, [eventType])}>{children}</Provider>
+          ),
+        }
+      )
+      await openInfoPanel(user)
+
+      expect(await screen.findByText('results.kennelliitto.title')).toBeInTheDocument()
+    })
+  })
+
+  it('expands and collapses correctly', async () => {
+    const { user } = renderWithUserEvents(
+      <InfoPanel onRefreshResultsState={noStateRead} event={eventWithStaticDates} registrations={[]} />,
+      {
+        wrapper: Provider,
+      }
+    )
 
     // Initially, only the drawer handle should be visible
     expect(screen.getByRole('button', { name: 'eventManagement.open' })).toBeInTheDocument()

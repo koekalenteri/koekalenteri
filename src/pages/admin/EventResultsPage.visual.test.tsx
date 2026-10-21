@@ -70,8 +70,9 @@ describeInLanguage('en', () => {
   })
 })
 
-// The trial and what the page asks of its secretary once results have gone to Omakoira (KOE-1140): a
-// prompt that stays until the trial is handed over, and a notice once it is with the chief judge.
+// The trial and what the page tells its secretary once results have gone to Omakoira (KOE-1140): that
+// they are not handed over yet, which is done in the event view (KOE-1579), and a notice once the
+// trial is with the chief judge.
 const sentAt = new Date('2026-09-26T10:00:00Z')
 const nouEvent: ConfirmedEvent = { ...event, classes: [], eventType: 'NOU', stations: undefined }
 const sentRegistrations: Registration[] = registrations.map((registration) => ({
@@ -113,7 +114,7 @@ const capture = async (shown: ConfirmedEvent, name: string, ready: string) => {
   await expect(screen.getByTestId('visual-root')).toMatchScreenshot(name)
 }
 
-it('keeps asking for the hand-over while results are sent and not handed over', async () => {
+it('says the results are sent but not yet handed over', async () => {
   await capture(nouEvent, 'event-results-page-sent-not-handed-over', /Tulokset on lähetetty Omakoiraan/)
 })
 

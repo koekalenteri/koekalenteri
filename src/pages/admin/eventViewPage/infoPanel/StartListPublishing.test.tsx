@@ -17,6 +17,9 @@ import { renderWithUserEvents, TEST_ID_TOKEN } from '@/test-utils/utils'
 import { adminEventsAtom } from '../../state'
 import InfoPanel from '../InfoPanel'
 
+/** The event view's read of Kennelliitto's state, which these tests do not exercise. */
+const noStateRead = async () => undefined
+
 const activeEventWithStaticDates: ConfirmedEvent = {
   ...eventWithStaticDates,
   endDate: '2099-12-31',
@@ -29,6 +32,7 @@ const _activeEventWithStaticDatesAndClass: ConfirmedEvent = {
 // Mock the API calls
 vi.mock('@/api/event')
 vi.mock('@/api/user')
+vi.mock('@/api/eventType')
 
 // Mock the notistack enqueueSnackbar
 vi.mock('notistack', () => ({
@@ -64,7 +68,10 @@ describe('InfoPanel>', () => {
     const wrapper = ({ children }: { children: React.ReactNode }) => (
       <Provider initializeState={({ set }) => set(adminEventsAtom, [eventWithEntryOpen])}>{children}</Provider>
     )
-    const { user } = renderWithUserEvents(<InfoPanel event={eventWithEntryOpen} registrations={[]} />, { wrapper })
+    const { user } = renderWithUserEvents(
+      <InfoPanel onRefreshResultsState={noStateRead} event={eventWithEntryOpen} registrations={[]} />,
+      { wrapper }
+    )
     await openInfoPanel(user)
 
     expect(screen.queryByText('eventManagement.startList.published')).not.toBeInTheDocument()
@@ -80,6 +87,7 @@ describe('InfoPanel>', () => {
     )
     const { user } = renderWithUserEvents(
       <InfoPanel
+        onRefreshResultsState={noStateRead}
         event={{
           ...eventWithParticipantsInvited,
           classes: eventWithParticipantsInvited.classes.map((eventClass) =>
@@ -122,6 +130,7 @@ describe('InfoPanel>', () => {
     )
     const { user } = renderWithUserEvents(
       <InfoPanel
+        onRefreshResultsState={noStateRead}
         event={{ ...eventWithParticipantsInvited, startListPublished: { ALO: false, AVO: false } }}
         onSetStartListPublished={vi.fn()}
         // Participants are picked, but nobody has had the invitation yet.
@@ -151,6 +160,7 @@ describe('InfoPanel>', () => {
     )
     const { user } = renderWithUserEvents(
       <InfoPanel
+        onRefreshResultsState={noStateRead}
         event={pastEvent}
         onSetStartListPublished={onSetStartListPublished}
         registrations={registrationsToEventWithParticipantsInvited}
@@ -175,6 +185,7 @@ describe('InfoPanel>', () => {
     )
     const { user } = renderWithUserEvents(
       <InfoPanel
+        onRefreshResultsState={noStateRead}
         event={{ ...eventWithParticipantsInvited, startListPublished: { ALO: false, AVO: false } }}
         onSetStartListPublished={vi.fn()}
         // Entries are in, but none of them has been picked into a group yet.
@@ -209,6 +220,7 @@ describe('InfoPanel>', () => {
     )
     const { user } = renderWithUserEvents(
       <InfoPanel
+        onRefreshResultsState={noStateRead}
         event={event}
         onSetStartListPublished={onSetStartListPublished}
         registrations={registrationsToEventWithParticipantsInvited.map((registration) => ({
@@ -243,6 +255,7 @@ describe('InfoPanel>', () => {
     )
     const { user } = renderWithUserEvents(
       <InfoPanel
+        onRefreshResultsState={noStateRead}
         event={{
           ...eventWithParticipantsInvited,
           classes: eventWithParticipantsInvited.classes.map((eventClass) =>
@@ -293,7 +306,12 @@ describe('InfoPanel>', () => {
       <Provider initializeState={({ set }) => set(adminEventsAtom, [event])}>{children}</Provider>
     )
     const { user } = renderWithUserEvents(
-      <InfoPanel event={event} onSetStartListPublished={onSetStartListPublished} registrations={registrations} />,
+      <InfoPanel
+        onRefreshResultsState={noStateRead}
+        event={event}
+        onSetStartListPublished={onSetStartListPublished}
+        registrations={registrations}
+      />,
       { wrapper }
     )
     await openInfoPanel(user)
@@ -326,7 +344,12 @@ describe('InfoPanel>', () => {
       <Provider initializeState={({ set }) => set(adminEventsAtom, [event])}>{children}</Provider>
     )
     const { user } = renderWithUserEvents(
-      <InfoPanel event={event} onSetStartListPublished={onSetStartListPublished} registrations={registrations} />,
+      <InfoPanel
+        onRefreshResultsState={noStateRead}
+        event={event}
+        onSetStartListPublished={onSetStartListPublished}
+        registrations={registrations}
+      />,
       { wrapper }
     )
     await openInfoPanel(user)
@@ -357,6 +380,7 @@ describe('InfoPanel>', () => {
     )
     const { user } = renderWithUserEvents(
       <InfoPanel
+        onRefreshResultsState={noStateRead}
         event={{
           ...eventWithParticipantsInvited,
           invitationAttachments: { ALO: 'alo-key' },
@@ -396,6 +420,7 @@ describe('InfoPanel>', () => {
     )
     const { user } = renderWithUserEvents(
       <InfoPanel
+        onRefreshResultsState={noStateRead}
         event={{
           ...eventWithParticipantsInvited,
           classes: [aloDay, { ...aloDay, date: saturday }, avoDay],
@@ -452,6 +477,7 @@ describe('InfoPanel>', () => {
     )
     const { user } = renderWithUserEvents(
       <InfoPanel
+        onRefreshResultsState={noStateRead}
         event={{ ...eventWithParticipantsInvited, startListPublished: true }}
         registrations={registrationsToEventWithParticipantsInvited.map((registration) => ({
           ...registration,
@@ -474,6 +500,7 @@ describe('InfoPanel>', () => {
     )
     const { user } = renderWithUserEvents(
       <InfoPanel
+        onRefreshResultsState={noStateRead}
         event={{ ...eventWithParticipantsInvited, startListPublished: true, startNumbersPublished: { ALO: false } }}
         registrations={registrationsToEventWithParticipantsInvited.map((registration) => ({
           ...registration,
@@ -495,6 +522,7 @@ describe('InfoPanel>', () => {
     )
     const { user } = renderWithUserEvents(
       <InfoPanel
+        onRefreshResultsState={noStateRead}
         event={{ ...eventWithParticipantsInvited, startListPublished: true, startNumbersPublished: { ALO: false } }}
         registrations={registrationsToEventWithParticipantsInvited.map((registration) => ({
           ...registration,

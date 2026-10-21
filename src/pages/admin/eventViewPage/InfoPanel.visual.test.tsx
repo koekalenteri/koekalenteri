@@ -10,7 +10,11 @@ import { TestProvider } from '@/test-utils/AtomProvider'
 import { describeInLanguage } from '@/test-utils/language'
 import { TEST_ID_TOKEN } from '@/test-utils/utils'
 import { idTokenAtom } from '../../state'
+import { adminEventTypesAtom } from '../state'
 import InfoPanel from './InfoPanel'
+
+/** The event view's read of Kennelliitto's state, which these tests do not exercise. */
+const noStateRead = async () => undefined
 
 // The sibling sections have screenshots of their own; this one is about the panel as the secretary
 // meets it -- every section stacked in the drawer, which is where crowding shows and a single
@@ -42,14 +46,20 @@ const registrations: Registration[] = registrationsToEventWithStations.map((regi
 // The drawer is as tall as the window, so the window has to be taller than the panel's content for
 // the capture to hold all of it. The button that opens it is named in the reader's language.
 const openPanel = async (openButton = 'Avaa tapahtuman hallinta') => {
-  await page.viewport(900, 1500)
+  await page.viewport(900, 1700)
 
   const screen = await render(
     <ThemeProvider theme={theme}>
-      <TestProvider initializeState={({ set }) => set(idTokenAtom, TEST_ID_TOKEN)}>
+      <TestProvider
+        initializeState={({ set }) => {
+          set(idTokenAtom, TEST_ID_TOKEN)
+          // The Omakoira section asks the event types whether the format is official; the built-in list answers.
+          void set(adminEventTypesAtom, [])
+        }}
+      >
         <MemoryRouter>
           <ConfirmProvider>
-            <InfoPanel event={event} registrations={registrations} />
+            <InfoPanel onRefreshResultsState={noStateRead} event={event} registrations={registrations} />
           </ConfirmProvider>
         </MemoryRouter>
       </TestProvider>

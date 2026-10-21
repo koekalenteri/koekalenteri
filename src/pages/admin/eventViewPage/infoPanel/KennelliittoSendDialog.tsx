@@ -1,5 +1,5 @@
 import type { KcDogReport, KcPreviewResponse } from '@/lib/kennelliittoResults'
-import type { KcSendSummary } from '../state/registrations/actions'
+import type { KcSendSummary } from '../../state/registrations/actions'
 import Alert from '@mui/material/Alert'
 import Button from '@mui/material/Button'
 import Checkbox from '@mui/material/Checkbox'
@@ -9,8 +9,6 @@ import DialogContent from '@mui/material/DialogContent'
 import DialogTitle from '@mui/material/DialogTitle'
 import FormControlLabel from '@mui/material/FormControlLabel'
 import LinearProgress from '@mui/material/LinearProgress'
-import Radio from '@mui/material/Radio'
-import RadioGroup from '@mui/material/RadioGroup'
 import Stack from '@mui/material/Stack'
 import Typography from '@mui/material/Typography'
 import { useTranslation } from 'react-i18next'
@@ -24,19 +22,13 @@ export type KcSendPhase =
   | { kind: 'sending'; done: number; total: number }
   | { kind: 'report'; summary: KcSendSummary }
 
-export type KcSendScope = 'all' | 'class'
-
 interface Props {
-  /** The class on show, which the sending can be limited to. */
-  readonly eventClass?: string
   readonly force: boolean
   readonly onClose: () => void
   readonly onForce: (force: boolean) => void
-  readonly onScope: (scope: KcSendScope) => void
   readonly onSend: () => void
   readonly open: boolean
   readonly phase: KcSendPhase
-  readonly scope: KcSendScope
 }
 
 /** The dogs a sending would send: new and changed results, and the unchanged ones when forced. */
@@ -46,13 +38,10 @@ export const dogsToSend = (preview: KcPreviewResponse, force: boolean): KcDogRep
   )
 
 const Preview = ({
-  eventClass,
   force,
   onForce,
-  onScope,
   preview,
-  scope,
-}: Pick<Props, 'eventClass' | 'force' | 'onForce' | 'onScope' | 'scope'> & { readonly preview: KcPreviewResponse }) => {
+}: Pick<Props, 'force' | 'onForce'> & { readonly preview: KcPreviewResponse }) => {
   const { t } = useTranslation()
   const count = (status: KcDogReport['status']) => preview.dogs.filter((dog) => dog.status === status).length
 
@@ -77,21 +66,6 @@ const Preview = ({
     <Stack spacing={2}>
       <Typography>{t('results.kennelliitto.confirm')}</Typography>
       <Alert severity="info">{t('results.kennelliitto.confirmNote')}</Alert>
-      {eventClass && (
-        <RadioGroup
-          aria-label={t('results.kennelliitto.scope')}
-          onChange={(_event, value) => onScope(value === 'class' ? 'class' : 'all')}
-          row
-          value={scope}
-        >
-          <FormControlLabel
-            control={<Radio size="small" />}
-            label={t('results.kennelliitto.scopeClass', { eventClass })}
-            value="class"
-          />
-          <FormControlLabel control={<Radio size="small" />} label={t('results.kennelliitto.scopeAll')} value="all" />
-        </RadioGroup>
-      )}
       <Stack spacing={0.25}>
         {summary.map((status) => (
           <Typography key={status} variant="body2">
@@ -175,17 +149,7 @@ const Report = ({ summary }: { readonly summary: KcSendSummary }) => {
  * can act on: what stops the trial, the dogs that cannot be sent and why, and afterwards who was
  * saved and who was refused with Kennelliitto's own words.
  */
-export const KennelliittoSendDialog = ({
-  eventClass,
-  force,
-  onClose,
-  onForce,
-  onScope,
-  onSend,
-  open,
-  phase,
-  scope,
-}: Props) => {
+export const KennelliittoSendDialog = ({ force, onClose, onForce, onSend, open, phase }: Props) => {
   const { t } = useTranslation()
   const canSend =
     phase.kind === 'preview' && !phase.preview.blockers.length && dogsToSend(phase.preview, force).length > 0
@@ -198,16 +162,7 @@ export const KennelliittoSendDialog = ({
         {phase.kind === 'failed' && (
           <Alert severity="error">{t('results.kennelliitto.statusUnknown', { status: 0 })}</Alert>
         )}
-        {phase.kind === 'preview' && (
-          <Preview
-            eventClass={eventClass}
-            force={force}
-            onForce={onForce}
-            onScope={onScope}
-            preview={phase.preview}
-            scope={scope}
-          />
-        )}
+        {phase.kind === 'preview' && <Preview force={force} onForce={onForce} preview={phase.preview} />}
         {phase.kind === 'sending' && (
           <Stack spacing={1}>
             <Typography>{t('results.kennelliitto.sending', { done: phase.done, total: phase.total })}</Typography>
