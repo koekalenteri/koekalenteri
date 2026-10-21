@@ -132,9 +132,9 @@ const sendMessagesLambda = lambda('sendMessages', async (event) => {
   )
 
   // The entrant's open page reads messagesSent (the confirmation request after picked, KOE-1567).
-  // Told right after the send, which stored it: this never rejects, so a failure in what follows
-  // cannot cost the entrant the news. Nothing after the send changes messagesSent or whether the
-  // event is open for payment (marking the classes keeps it confirmed).
+  // Told right after the send, which stored it, so a failure in what follows cannot cost the entrant
+  // the news. Nothing after the send changes messagesSent or whether the event is open for payment
+  // (marking the classes keeps it confirmed).
   const stillUnsentIds = notYetSentIds(registrations, template)
   await publishParticipantPayments(
     confirmedEvent,

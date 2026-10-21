@@ -29,7 +29,7 @@ vi.doMock('../repositories/registrationRepository', () => ({
 }))
 vi.doMock('../event', () => ({ getLiveEvent: mockGetLiveEvent }))
 
-const { buildPublicStartListPayload, publishPublicStartList } = await import('./publicStartList')
+const { buildPublicStartListPayload, sendPublicStartList } = await import('./publicStartList')
 
 const publishedEvent = asJsonConfirmedEvent({
   classes: [{ class: 'ALO', state: 'invited' }],
@@ -68,7 +68,7 @@ describe('ws/publicStartList', () => {
   })
 
   it('sends the published rows to the readers watching the event', async () => {
-    await expect(publishPublicStartList('event-1')).resolves.toEqual({
+    await expect(sendPublicStartList('event-1')).resolves.toEqual({
       attempted: 1,
       failed: 0,
       gone: 0,
@@ -96,7 +96,7 @@ describe('ws/publicStartList', () => {
     // A hide that landed while the sender was still working: the stored event already says so.
     mockGetLiveEvent.mockResolvedValueOnce({ ...publishedEvent, startListPublished: { ALO: false } })
 
-    await publishPublicStartList('event-1')
+    await sendPublicStartList('event-1')
 
     expect(mockGetLiveEvent).toHaveBeenCalledWith('event-1', true)
     expect(mockReadEventRegistrations).not.toHaveBeenCalled()
@@ -114,7 +114,7 @@ describe('ws/publicStartList', () => {
       return publishedEvent
     })
 
-    await publishPublicStartList('event-1')
+    await sendPublicStartList('event-1')
 
     expect(sentPayload).toEqual(expect.objectContaining({ version: Date.parse('2025-01-01T10:00:00.000Z') }))
   })
@@ -122,7 +122,7 @@ describe('ws/publicStartList', () => {
   it('costs nothing but the lookup when nobody is watching', async () => {
     mockPublicStartListAudience.mockResolvedValueOnce([])
 
-    await expect(publishPublicStartList('event-1')).resolves.toEqual({
+    await expect(sendPublicStartList('event-1')).resolves.toEqual({
       attempted: 0,
       failed: 0,
       gone: 0,
@@ -138,7 +138,7 @@ describe('ws/publicStartList', () => {
   it('sends nothing for a deleted or missing event, and does not throw', async () => {
     mockGetLiveEvent.mockRejectedValueOnce(eventNotFound('event-1'))
 
-    await expect(publishPublicStartList('event-1')).resolves.toEqual({
+    await expect(sendPublicStartList('event-1')).resolves.toEqual({
       attempted: 0,
       failed: 0,
       gone: 0,
@@ -153,7 +153,7 @@ describe('ws/publicStartList', () => {
   it('passes on any other failure to read the list', async () => {
     mockGetLiveEvent.mockRejectedValueOnce(new LambdaError(500, 'boom'))
 
-    await expect(publishPublicStartList('event-1')).rejects.toMatchObject({ status: 500 })
+    await expect(sendPublicStartList('event-1')).rejects.toMatchObject({ status: 500 })
     expect(mockBroadcast).not.toHaveBeenCalled()
   })
 
@@ -161,7 +161,7 @@ describe('ws/publicStartList', () => {
     const hidden: JsonDogEvent = { ...publishedEvent, startListPublished: { ALO: false } }
     mockGetLiveEvent.mockResolvedValueOnce(hidden)
 
-    await publishPublicStartList('event-1')
+    await sendPublicStartList('event-1')
 
     expect(sentPayload).toEqual({
       eventId: 'event-1',

@@ -3,6 +3,7 @@ import { vi } from 'vitest'
 import { httpError } from '../lib/lambda'
 import { deliverToEntrant, everyEntrantWatching } from '../test-utils/entrantPages'
 import { answerRejections, constructPartialAPIGwEvent } from '../test-utils/helpers'
+import { loggedLines } from '../test-utils/logs'
 
 const setEventBody = (event: { body: string | null }, body: unknown) => {
   event.body = JSON.stringify(body)
@@ -54,8 +55,14 @@ vi.doMock('../lib/audit', () => ({
 }))
 
 // What each entrant's page receives. The real publisher runs; every entrant has the page open (KOE-1567).
+// The admins' publishers run for real too, their guard included, on an empty audience (KOE-1583).
 const mockToEntrant = vi.fn()
-vi.doMock('../lib/ws/connectionSelectors', () => ({ registrationsAudience: everyEntrantWatching }))
+const mockOrganizerAudience = vi.fn()
+vi.doMock('../lib/ws/connectionSelectors', () => ({
+  organizerAudience: mockOrganizerAudience,
+  publicAudience: async () => [],
+  registrationsAudience: everyEntrantWatching,
+}))
 vi.doMock('../lib/ws/broadcast', () => ({ broadcast: deliverToEntrant(mockToEntrant) }))
 vi.doMock('../lib/ws/actions', async () => ({
   publishEventPatch: mockPublishEventPatch,
@@ -89,6 +96,7 @@ vi.doMock('../lib/repositories/eventRepository', () => ({
 }))
 
 const { default: sendMessagesLambda } = await import('./handler')
+const actualActions = await vi.importActual<typeof import('../lib/ws/actions')>('../lib/ws/actions')
 
 describe('sendMessagesLambda', () => {
   const event = constructPartialAPIGwEvent({
@@ -130,6 +138,9 @@ describe('sendMessagesLambda', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     delete (mockEvent as Partial<JsonConfirmedEvent>).startListPublished
+    mockOrganizerAudience.mockResolvedValue([])
+    mockPublishRegistrationPatches.mockImplementation(actualActions.publishRegistrationPatches)
+    mockPublishEventPatch.mockImplementation(actualActions.publishEventPatch)
 
     // Default mock implementations
     mockAuthorizeWithMemberOf.mockResolvedValue({
@@ -955,14 +966,25 @@ describe('sendMessagesLambda', () => {
       expectOnlyNewEntrantTold()
     })
 
-    // The mails are sent and stored before the admins hear of it; a failed admin push must not
-    // leave the entrant's page without the confirmation request.
-    it('tells the entrant although the admin publish fails', async () => {
-      mockPublishRegistrationPatches.mockRejectedValueOnce(new Error('connection scan failed'))
+    // The mails are sent and stored before the admins hear of it: a failed admin push leaves the
+    // entrant's page its confirmation request, and the answer says the mails went (KOE-1583), so the
+    // secretary is not invited to send them again.
+    it('answers with the sent mails and tells the entrant although the admin push fails', async () => {
+      const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined)
+      mockOrganizerAudience.mockRejectedValue(new Error('connection scan failed'))
 
-      await expect(sendPicked()).rejects.toThrow('connection scan failed')
+      await sendPicked()
 
       expectOnlyNewEntrantTold()
+      expect(mockResponse).toHaveBeenCalledWith(
+        200,
+        expect.objectContaining({ ok: ['new@example.com', 'had@example.com'] }),
+        expect.anything()
+      )
+      expect(loggedLines(errorSpy)).toEqual([
+        expect.objectContaining({ message: 'live push failed', publication: 'registration patches' }),
+        expect.objectContaining({ message: 'live push failed', publication: 'admin event patch' }),
+      ])
     })
   })
 })

@@ -3,6 +3,7 @@ import type { JsonConfirmedEvent, JsonRegistration } from '../../types'
 import { vi } from 'vitest'
 import { httpError } from '../lib/lambda'
 import { answerRejections } from '../test-utils/helpers'
+import { loggedLines } from '../test-utils/logs'
 
 const mockLambda = vi.fn((_name, fn) => answerRejections(fn, mockResponse))
 const mockResponse = vi.fn()
@@ -40,10 +41,20 @@ vi.doMock('../lib/repositories/registrationRepository', () => ({
   readEventRegistrations: mockReadEventRegistrations,
   updateRegistrationField: mockUpdateRegistrationField,
 }))
-vi.doMock('../lib/ws/actions', () => ({ publishRegistrationPatches: mockPublishRegistrationPatches }))
-vi.doMock('../lib/ws/publicStartList', () => ({ publishPublicStartList: mockPublishPublicStartList }))
+// The real publishers run, their guard included (KOE-1583); the connection scan below them is the boundary.
+const mockQueryAdminConnections = vi.fn()
+vi.doMock('../lib/ws/connectionRepository', () => ({
+  queryAdminConnections: mockQueryAdminConnections,
+  queryPublicConnections: vi.fn().mockResolvedValue([]),
+  removeConnection: vi.fn(),
+}))
+vi.doMock('../lib/ws/actions', () => ({
+  publishPublicStartList: mockPublishPublicStartList,
+  publishRegistrationPatches: mockPublishRegistrationPatches,
+}))
 
 const { default: putEventResultsLambda } = await import('./handler')
+const actualActions = await vi.importActual<typeof import('../lib/ws/actions')>('../lib/ws/actions')
 
 /**
  * The handler reads only `body` off the event; everything else it needs comes through the mocked
@@ -84,6 +95,23 @@ describe('putEventResultsLambda', () => {
     mockGetAuthorizedEvent.mockResolvedValue(nowtEvent)
     mockGetEvent.mockResolvedValue(nowtEvent)
     mockReadEventRegistrations.mockResolvedValue([registration('reg-1'), registration('reg-2')])
+    mockQueryAdminConnections.mockResolvedValue([])
+    mockPublishRegistrationPatches.mockImplementation(actualActions.publishRegistrationPatches)
+    mockPublishPublicStartList.mockImplementation(actualActions.publishPublicStartList)
+  })
+
+  it('answers with the saved results when the live pushes after the write fail (KOE-1583)', async () => {
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined)
+    mockQueryAdminConnections.mockRejectedValue(new Error('scan failed'))
+
+    await putEventResultsLambda(apiEvent([{ eventResult: { tasks: scores(17, 18, 16, 14) }, id: 'reg-1' }]))
+
+    expect(mockUpdateRegistrationField).toHaveBeenCalledWith('event-1', 'reg-1', 'eventResult', expect.anything())
+    expect(mockResponse).toHaveBeenCalledWith(200, expect.anything(), expect.anything())
+    expect(loggedLines(errorSpy)).toEqual([
+      expect.objectContaining({ message: 'live push failed', publication: 'registration patches' }),
+      expect.objectContaining({ message: 'live push failed', publication: 'public start list' }),
+    ])
   })
 
   const savedResult = () => mockUpdateRegistrationField.mock.calls[0][3]

@@ -213,23 +213,26 @@ export const getEventAuditMessages = (
   return messages.length ? messages : [eventSavedAudit()]
 }
 
+/** Writes the record and tells the admins watching; a failed write is logged and never rejects. */
 export const audit = async (item: Omit<JsonAuditRecord, 'timestamp'>) => {
+  const record = { ...item, timestamp: new Date().toISOString() }
   try {
-    const record = { ...item, timestamp: new Date().toISOString() }
     await writeAuditRecord(record)
-    await publishAuditRecord(record)
   } catch (e) {
     logger.error('failed to write audit record', { auditKey: item.auditKey, error: e })
+    return
   }
+  await publishAuditRecord(record)
 }
 
 /**
- * Durable workflow phases must not acknowledge an audit that failed to persist
- * or publish. Callers use this variant when a retry marker follows the audit.
+ * Durable workflow phases must not acknowledge an audit that failed to persist. Callers use this
+ * variant when a retry marker follows the audit. The push after the write is best effort, as
+ * every live push is.
  */
 export const auditStrict = async (item: Omit<JsonAuditRecord, 'timestamp'>, effectId?: string) => {
   // auditKey + timestamp is the DynamoDB key. A durable workflow supplies a
-  // stable effect id here, so retrying after publication/marker failure
+  // stable effect id here, so retrying after a marker failure
   // overwrites the same audit item instead of creating another record.
   const record = { ...item, timestamp: effectId ?? new Date().toISOString() }
   await writeAuditRecord(record)

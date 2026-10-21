@@ -9,8 +9,7 @@ import { getEvent, setResultsPublishedState } from '../lib/event'
 import { assertEventOrganizerAccess } from '../lib/eventAuth'
 import { parseJSONWithFallback } from '../lib/json'
 import { getParam, httpError, lambda, response } from '../lib/lambda'
-import { publishEventPatch } from '../lib/ws/actions'
-import { publishPublicStartList } from '../lib/ws/publicStartList'
+import { publishEventPatch, publishPublicStartList } from '../lib/ws/actions'
 
 interface ResultsPublishedRequest {
   /** The class whose day is published or hidden; absent for a classless event. */

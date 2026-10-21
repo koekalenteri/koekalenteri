@@ -76,11 +76,19 @@ vi.doMock('../lib/repositories/registrationRepository', () => ({
   readRegistration: mockReadRegistration,
 }))
 
+// The real publisher runs, its guard included (KOE-1583); the connection scan below it is the boundary.
+const mockQueryAdminConnections = vi.fn()
+vi.doMock('../lib/ws/connectionRepository', () => ({
+  queryAdminConnections: mockQueryAdminConnections,
+  queryPublicConnections: vi.fn().mockResolvedValue([]),
+  removeConnection: vi.fn(),
+}))
 vi.doMock('../lib/ws/actions', () => ({
   publishRegistrationPatches: mockPublishRegistrationPatches,
 }))
 
 const { default: refundSuccessLambda } = await import('./handler')
+const actualActions = await vi.importActual<typeof import('../lib/ws/actions')>('../lib/ws/actions')
 
 describe('refundSuccessLambda', () => {
   let errorSpy = vi.spyOn(console, 'error')
@@ -125,6 +133,8 @@ describe('refundSuccessLambda', () => {
 
   beforeEach(() => {
     vi.clearAllMocks()
+    mockQueryAdminConnections.mockResolvedValue([])
+    mockPublishRegistrationPatches.mockImplementation(actualActions.publishRegistrationPatches)
 
     vi.spyOn(console, 'log').mockImplementation(() => {})
     errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
@@ -370,7 +380,7 @@ describe('refundSuccessLambda', () => {
   // Everything is recorded by then: a failed admin push is logged and the callback still answers 200
   // (KOE-1566).
   it('answers 200 and still tells the entrant when the admin patch cannot be sent', async () => {
-    mockPublishRegistrationPatches.mockRejectedValueOnce(new Error('connection table down'))
+    mockQueryAdminConnections.mockRejectedValueOnce(new Error('connection table down'))
 
     await refundSuccessLambda(event)
 
@@ -379,8 +389,8 @@ describe('refundSuccessLambda', () => {
     expect(loggedLines(errorSpy)).toEqual([
       expect.objectContaining({
         error: expect.objectContaining({ message: 'connection table down' }),
-        message: 'refund admin patch failed',
-        registrationId: 'reg456',
+        message: 'live push failed',
+        publication: 'registration patches',
       }),
     ])
   })

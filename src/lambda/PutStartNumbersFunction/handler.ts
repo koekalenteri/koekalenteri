@@ -23,8 +23,7 @@ import {
   parseStartNumberEntries,
   setStartNumbersPublishedState,
 } from '../lib/startNumbers'
-import { publishEventPatch, publishRegistrationPatches } from '../lib/ws/actions'
-import { publishPublicStartList } from '../lib/ws/publicStartList'
+import { publishEventPatch, publishPublicStartList, publishRegistrationPatches } from '../lib/ws/actions'
 
 interface StartNumbersRequest {
   /** Scopes a publish or a batch of numbers to one class; absent for a classless event. */

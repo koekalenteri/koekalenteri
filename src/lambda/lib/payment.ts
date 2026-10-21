@@ -31,6 +31,7 @@ import {
   updateUnresolvedTransaction,
 } from './repositories/transactionRepository'
 import { publishParticipantRegistrationPatches, publishRegistrationPatches } from './ws/actions'
+import { bestEffort } from './ws/livePush'
 import { buildParticipantPaymentPatch } from './ws/payloads'
 
 /** A refund Paytrail refused, for the registration's trail. */
@@ -40,7 +41,7 @@ export const refundPaytrailErrorAudit = (error: PaytrailError) =>
 /**
  * A registration whose payment or refund was settled as failed, for whoever sends it on. The domain
  * writes the row and says which one changed; what the pages are told is read from the table when it
- * is sent (`publishCancelledRegistration`), so no read after the settle's writes can fail it
+ * is sent (`publishCancelledRegistration`), inside the push, so the settle never waits on that read
  * (KOE-1340, KOE-1529, KOE-1566).
  */
 export interface CancelledRegistration {
@@ -287,16 +288,14 @@ const publishStoredParticipantPayments = (
 
 /**
  * Tells the entrants of these registrations what their payment now looks like, each from the row as
- * stored (KOE-1553). Only the pages that are open get a patch, and only their rows are read. Never
- * rejects: a failure is logged and leaves the write before it as it was.
+ * stored (KOE-1553). Only the pages that are open get a patch, and only their rows are read.
  */
 export const publishParticipantPayments = (event: JsonConfirmedEvent, registrationIds: readonly string[]) =>
   publishStoredParticipantPayments(event.id, registrationIds, () => Promise.resolve(event))
 
 /**
- * The same for a caller that holds only the event's id: the event is read inside the publisher's
- * guard, and only when a page is open, so its read cannot fail the write before it either
- * (PaymentSuccess, KOE-1566).
+ * The same for a caller that holds only the event's id: the event is read inside the push, and only
+ * when a page is open (PaymentSuccess, KOE-1566).
  */
 export const publishParticipantPaymentsOfEvent = (eventId: string, registrationIds: readonly string[]) => {
   let event: Promise<JsonConfirmedEvent> | undefined
@@ -306,18 +305,13 @@ export const publishParticipantPaymentsOfEvent = (eventId: string, registrationI
   })
 }
 
-/** The settled row and its event for `publishCancelledRegistration`; undefined when either cannot be had. */
+/** The settled row and its event for `publishCancelledRegistration`; undefined when the row is gone. */
 const readCancelledRegistration = async (eventId: string, registrationId: string) => {
-  try {
-    const [registration, event] = await Promise.all([
-      readRegistration(eventId, registrationId, true),
-      getEvent<JsonConfirmedEvent>(eventId),
-    ])
-    return registration ? { event, registration } : undefined
-  } catch (error) {
-    logger.error('cancelled registration read failed', { error, eventId, registrationId })
-    return undefined
-  }
+  const [registration, event] = await Promise.all([
+    readRegistration(eventId, registrationId, true),
+    getEvent<JsonConfirmedEvent>(eventId),
+  ])
+  return registration ? { event, registration } : undefined
 }
 
 /**
@@ -325,28 +319,27 @@ const readCancelledRegistration = async (eventId: string, registrationId: string
  * organizer's admins watching the event get the open set and `updatedAt`, and the entrant looking at
  * their own registration gets the payment picture (KOE-1526, KOE-1529). Both are built from one
  * strongly consistent read taken after the settle's writes, so a writer caught between its own two
- * writes (settleFailedTransaction's failUnfinishedTransaction and dropOpenTransaction, say) is seen as the row holds it now. A live push never decides the outcome of
- * the write before it: a failed read, audience lookup, build or send is logged, and this never
- * rejects (KOE-1566).
+ * writes (settleFailedTransaction's failUnfinishedTransaction and dropOpenTransaction, say) is seen
+ * as the row holds it now. The read is part of the push: a failed read is logged like a failed send
+ * (KOE-1566).
  */
-export const publishCancelledRegistration = async ({ eventId, field, registrationId }: CancelledRegistration) => {
-  const read = await readCancelledRegistration(eventId, registrationId)
-  if (!read) return
-  const { event, registration } = read
+export const publishCancelledRegistration = ({ eventId, field, registrationId }: CancelledRegistration) =>
+  bestEffort('cancelled registration', async () => {
+    const read = await readCancelledRegistration(eventId, registrationId)
+    if (!read) return
+    const { event, registration } = read
 
-  await Promise.all([
-    publishRegistrationPatches(
-      eventId,
-      [{ [field]: registration[field], eventId, id: registrationId, updatedAt: registration.updatedAt }],
-      event.organizer.id
-    ).catch((error: unknown) => {
-      logger.error('cancelled registration admin patch failed', { error, eventId, registrationId })
-    }),
-    publishParticipantRegistrationPatches(eventId, [registrationId], () =>
-      participantPaymentPatch(registration, event)
-    ),
-  ])
-}
+    await Promise.all([
+      publishRegistrationPatches(
+        eventId,
+        [{ [field]: registration[field], eventId, id: registrationId, updatedAt: registration.updatedAt }],
+        event.organizer.id
+      ),
+      publishParticipantRegistrationPatches(eventId, [registrationId], () =>
+        participantPaymentPatch(registration, event)
+      ),
+    ])
+  })
 
 const shouldRefreshTransactionStatus = (transaction: JsonPaymentTransaction | JsonRefundTransaction) =>
   transaction.type === 'refund'

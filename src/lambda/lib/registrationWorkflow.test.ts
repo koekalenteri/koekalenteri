@@ -27,18 +27,24 @@ const mockPublishRegistrationPatchesStrict = vi.fn()
 // What each entrant's page receives. The real publisher runs, failure handling included; every
 // entrant has the page open (KOE-1553).
 const mockToEntrant = vi.fn()
-vi.doMock('./ws/connectionSelectors', () => ({ registrationsAudience: everyEntrantWatching }))
+const mockOrganizerAudience = vi.fn()
+vi.doMock('./ws/connectionSelectors', () => ({
+  organizerAudience: mockOrganizerAudience,
+  publicAudience: async () => [],
+  registrationsAudience: everyEntrantWatching,
+}))
 vi.doMock('./ws/broadcast', () => ({ broadcast: deliverToEntrant(mockToEntrant) }))
+const mockPublishPublicStartList = vi.fn()
+const mockPublishPublicStartListStrict = vi.fn()
 vi.doMock('./ws/actions', async () => ({
   publishEventCounts: mockPublishEventCounts,
   publishParticipantRegistrationPatches: (await vi.importActual<typeof import('./ws/actions')>('./ws/actions'))
     .publishParticipantRegistrationPatches,
+  publishPublicStartList: mockPublishPublicStartList,
+  publishPublicStartListStrict: mockPublishPublicStartListStrict,
   publishRegistrationPatches: mockPublishRegistrationPatches,
   publishRegistrationPatchesStrict: mockPublishRegistrationPatchesStrict,
 }))
-
-const mockPublishPublicStartList = vi.fn()
-vi.doMock('./ws/publicStartList', () => ({ publishPublicStartList: mockPublishPublicStartList }))
 
 const mockAudit = vi.fn()
 const mockAuditStrict = vi.fn()
@@ -87,6 +93,7 @@ const {
   parseRegistrationRequest,
   resolveDuplicateRegistration,
 } = await import('./registrationWorkflow')
+const actualActions = await vi.importActual<typeof import('./ws/actions')>('./ws/actions')
 
 const confirmedEvent: JsonConfirmedEvent = JSON.parse(JSON.stringify(eventWithStaticDates))
 const recounted: JsonConfirmedEvent = { ...confirmedEvent, entries: 7, organizer: { id: 'org-1', name: 'Org' } }
@@ -132,6 +139,7 @@ describe('registrationWorkflow', () => {
     vi.clearAllMocks()
     mockUpdateRegistrations.mockResolvedValue(recounted)
     mockRepairReadyRegistrationGroups.mockResolvedValue([])
+    mockOrganizerAudience.mockResolvedValue([])
   })
 
   describe('parseRegistrationRequest', () => {
@@ -285,7 +293,9 @@ describe('registrationWorkflow', () => {
         [expect.objectContaining({ id: saved.id }), expect.objectContaining({ id: 'other' })],
         'org-1'
       )
-      expect(mockPublishPublicStartList).toHaveBeenCalledWith(recounted.id)
+      // The publish phase is marked only once the list went out: a retry sends it again.
+      expect(mockPublishPublicStartListStrict).toHaveBeenCalledWith(recounted.id)
+      expect(mockPublishPublicStartList).not.toHaveBeenCalled()
       expect(mockMarkNewRegistrationPhase.mock.calls.map((call) => call[3])).toEqual([
         'newRegistrationAuditAt',
         'newRegistrationEmailSentAt',
@@ -293,6 +303,43 @@ describe('registrationWorkflow', () => {
         'newRegistrationProcessedAt',
       ])
       expect(claim.release).toHaveBeenCalledTimes(1)
+    })
+
+    it('goes through every phase when the counts push after the recount fails (KOE-1583)', async () => {
+      const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined)
+      const saved = { ...registration, state: 'ready' as const }
+      mockClaimNewRegistrationPostProcessing.mockResolvedValueOnce(claimOf(saved))
+      mockPublishEventCounts.mockImplementationOnce(actualActions.publishEventCounts)
+      mockOrganizerAudience.mockRejectedValueOnce(new Error('scan failed'))
+
+      await expect(complete(saved)).resolves.toBe(saved)
+
+      expect(mockOrganizerAudience).toHaveBeenCalledWith('org-1', recounted.id)
+      expect(mockMarkNewRegistrationPhase).toHaveBeenLastCalledWith(
+        saved.eventId,
+        saved.id,
+        'token',
+        'newRegistrationProcessedAt'
+      )
+      expect(loggedLines(errorSpy)).toEqual([
+        expect.objectContaining({ message: 'live push failed', publication: 'admin event patch' }),
+      ])
+    })
+
+    it('leaves the publish phase unmarked when the start list cannot be sent, so a retry sends it', async () => {
+      const saved = { ...registration, state: 'ready' as const }
+      mockClaimNewRegistrationPostProcessing.mockResolvedValueOnce(claimOf(saved))
+      mockPublishPublicStartListStrict.mockRejectedValueOnce(new Error('scan failed'))
+
+      await expect(complete(saved)).rejects.toThrow('scan failed')
+
+      expect(mockMarkNewRegistrationPhase).toHaveBeenCalledTimes(2)
+      expect(mockMarkNewRegistrationPhase).toHaveBeenLastCalledWith(
+        saved.eventId,
+        saved.id,
+        'token',
+        'newRegistrationEmailSentAt'
+      )
     })
 
     it('leaves the counting, the email and the broadcast to the payment of a registration awaiting one', async () => {

@@ -23,7 +23,6 @@ import {
   updateRegistrations,
 } from '../lib/event'
 import { lambda, response } from '../lib/lambda'
-import { logger } from '../lib/log'
 import {
   parseParams,
   publishCancelledRegistration,
@@ -48,7 +47,7 @@ import {
   readTransaction,
   recordDuplicatePayment,
 } from '../lib/repositories/transactionRepository'
-import { publishEventCounts, publishRegistrationPatchesStrict } from '../lib/ws/actions'
+import { publishEventCounts, publishEventCountsStrict, publishRegistrationPatchesStrict } from '../lib/ws/actions'
 
 const { frontendURL, emailFrom } = CONFIG
 
@@ -72,10 +71,10 @@ const handleDuplicatePayment = async (
   )
   // The pay button follows the same rule as GetRegistration's: a duplicate waits for its refund.
   // The picture is built from the row read strongly consistent after the DELETE above, not a local
-  // guess at what it now looks like (KOE-1529, round 2 part 3). It never fails the callback: the
-  // duplicate is already recorded, and the audits below must not wait for a retry (KOE-1566). A
-  // retry that finds the duplicate already recorded publishes again but does not audit it twice:
-  // the audits belong to the call that wrote it (KOE-1531).
+  // guess at what it now looks like (KOE-1529, round 2 part 3). The duplicate is already recorded,
+  // and the audits below go on whatever the push does (KOE-1566). A retry that finds the duplicate
+  // already recorded publishes again but does not audit it twice: the audits belong to the call
+  // that wrote it (KOE-1531).
   await publishParticipantPaymentsOfEvent(registration.eventId, [registration.id])
   if (!recorded) return
   await audit({
@@ -236,7 +235,7 @@ const publishSuccessfulPayment = async (registration: JsonRegistration, registra
       reconciled.find((item) => item.id === registrationId) ??
       (await getRegistration(registration.eventId, registrationId))
     const confirmedEvent = await updateRegistrations(registration.eventId)
-    await publishEventCounts(confirmedEvent)
+    await publishEventCountsStrict(confirmedEvent)
     const groupPatches = createRegistrationPatches(reconciled, beforeReconciliation)
     await publishRegistrationPatchesStrict(
       registration.eventId,
@@ -286,9 +285,8 @@ const handleSuccessfulPayment = async (
   // that row, not a local guess at what it now looks like. A delayed (bank transfer) payment read
   // as in progress by an earlier GetRegistration must not still read that way once this callback
   // applies it, or the page keeps saying "Odottaa maksun käsittelyä" for a paid fee until a reload
-  // the verifying budget may no longer give (KOE-1529, round 2 part 3). The push never fails the
-  // callback: a failed read or send is logged, and the receipt and confirmation still go out
-  // (KOE-1566).
+  // the verifying budget may no longer give (KOE-1529, round 2 part 3). The receipt and confirmation
+  // go out whatever the push does (KOE-1566).
   await publishParticipantPaymentsOfEvent(registration.eventId, [registrationId])
 
   const workflowClaim = await claimPostPaymentWorkflow(transaction.transactionId)
@@ -305,10 +303,8 @@ const handleSuccessfulPayment = async (
 
     const confirmedEvent = await updateRegistrations(registration.eventId)
     // An early look for the admins only: the strict publication in the last phase sends the counts
-    // again, so a failed push here must not hold the receipt and confirmation back (KOE-1566).
-    await publishEventCounts(confirmedEvent).catch((error: unknown) => {
-      logger.error('payment event counts push failed', { error, eventId, registrationId })
-    })
+    // again (KOE-1566).
+    await publishEventCounts(confirmedEvent)
 
     // send receipt
     if (!workflow.receiptSentAt) {

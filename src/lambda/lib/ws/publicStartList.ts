@@ -52,8 +52,11 @@ export const buildPublicStartListPayload = (
  * Two senders working at once can deliver in either order, so every message carries `version`, the
  * server time taken just before those reads. A reader keeps the highest version it has seen: the
  * highest one read after every write that has a broadcast behind it.
+ *
+ * Rejects when the lookup or the read fails; callers publish through `publishPublicStartList` or
+ * `publishPublicStartListStrict` in `actions.ts`.
  */
-export const publishPublicStartList = async (eventId: string) => {
+export const sendPublicStartList = async (eventId: string) => {
   const audience = await publicStartListAudience(eventId)
   if (!audience.length) return NOTHING_SENT
 

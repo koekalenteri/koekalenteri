@@ -123,17 +123,25 @@ vi.doMock('../lib/email', () => ({
 }))
 
 const mockPublishEventCounts = vi.fn().mockResolvedValue(undefined)
+const mockPublishEventCountsStrict = vi.fn().mockResolvedValue(undefined)
 vi.doMock('../lib/ws/actions', async () => ({
   publishEventCounts: mockPublishEventCounts,
+  publishEventCountsStrict: mockPublishEventCountsStrict,
   publishParticipantRegistrationPatches: (
     await vi.importActual<typeof import('../lib/ws/actions')>('../lib/ws/actions')
   ).publishParticipantRegistrationPatches,
   publishRegistrationPatchesStrict: mockPublishRegistrationPatches,
 }))
-vi.doMock('../lib/ws/connectionSelectors', () => ({ registrationsAudience: everyEntrantWatching }))
+const mockOrganizerAudience = vi.fn().mockResolvedValue([])
+vi.doMock('../lib/ws/connectionSelectors', () => ({
+  organizerAudience: mockOrganizerAudience,
+  publicAudience: async () => [],
+  registrationsAudience: everyEntrantWatching,
+}))
 vi.doMock('../lib/ws/broadcast', () => ({ broadcast: deliverToEntrant(mockToEntrant) }))
 
 const { default: paymentSuccessLambda } = await import('./handler')
+const actualActions = await vi.importActual<typeof import('../lib/ws/actions')>('../lib/ws/actions')
 
 describe('paymentSuccessLambda', () => {
   const event = constructPartialAPIGwEvent({
@@ -802,7 +810,8 @@ describe('paymentSuccessLambda', () => {
   // hold the receipt and confirmation back (KOE-1566).
   it('sends the receipt and confirmation when the event counts cannot be pushed', async () => {
     const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined)
-    mockPublishEventCounts.mockRejectedValueOnce(new Error('connection table down'))
+    mockPublishEventCounts.mockImplementationOnce(actualActions.publishEventCounts)
+    mockOrganizerAudience.mockRejectedValueOnce(new Error('connection table down'))
 
     await paymentSuccessLambda(event)
 
@@ -822,17 +831,32 @@ describe('paymentSuccessLambda', () => {
       expect.any(Object),
       expect.any(Array)
     )
-    expect(mockPublishEventCounts).toHaveBeenCalledTimes(2)
+    expect(mockOrganizerAudience).toHaveBeenCalledTimes(1)
+    expect(mockPublishEventCounts).toHaveBeenCalledTimes(1)
+    expect(mockPublishEventCountsStrict).toHaveBeenCalledTimes(1)
     expect(mockMarkPostPaymentPhase).toHaveBeenCalledWith('tx123', 'lease-token', 'postPaymentProcessedAt')
     expect(mockResponse).toHaveBeenCalledWith(200, undefined, event)
     expect(loggedLines(errorSpy)).toEqual([
       expect.objectContaining({
         error: expect.objectContaining({ message: 'connection table down' }),
-        message: 'payment event counts push failed',
-        registrationId: 'reg456',
+        message: 'live push failed',
+        publication: 'admin event patch',
       }),
     ])
     errorSpy.mockRestore()
+  })
+
+  // The last phase stays strict (KOE-1583): a failed counts push leaves it unmarked and fails the
+  // callback, so the provider's retry publishes again.
+  it('fails the callback so a failed publication in the last phase is retried', async () => {
+    const pushError = new Error('connection table down')
+    mockPublishEventCountsStrict.mockRejectedValueOnce(pushError)
+
+    await expect(paymentSuccessLambda(event)).rejects.toThrow(pushError)
+
+    expect(mockMarkPostPaymentPhase).toHaveBeenCalledWith('tx123', 'lease-token', 'receiptSentAt')
+    expect(mockMarkPostPaymentPhase).not.toHaveBeenCalledWith('tx123', 'lease-token', 'postPaymentPublishedAt')
+    expect(mockResponse).not.toHaveBeenCalled()
   })
 
   it('writes both duplicate audits when the entrant picture cannot be built (KOE-1566)', async () => {

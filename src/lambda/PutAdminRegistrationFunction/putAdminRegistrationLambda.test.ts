@@ -63,7 +63,6 @@ vi.doMock('../lib/repositories/registrationRepository', () => ({
 // Outside prod mail goes to staff only; nobody is staff here (KOE-1469).
 vi.doMock('../lib/repositories/userRepository', () => ({ queryUsersByEmail: vi.fn().mockResolvedValue([]) }))
 // Nobody has the public start list open.
-vi.doMock('../lib/ws/publicStartList', () => ({ publishPublicStartList: vi.fn() }))
 
 vi.doMock('../lib/auth', () => ({
   authorizeWithMemberOf: mockAuthorizeWithMemberOf,
@@ -138,6 +137,9 @@ const mockPublishParticipantRegistrationPatches = vi.fn()
 vi.doMock('../lib/ws/actions', () => ({
   publishEventCounts: mockPublishEventCounts,
   publishParticipantRegistrationPatches: mockPublishParticipantRegistrationPatches,
+  // Nobody has the public start list open.
+  publishPublicStartList: vi.fn(),
+  publishPublicStartListStrict: vi.fn(),
   publishRegistrationPatches: mockPublishRegistrationPatches,
   publishRegistrationPatchesStrict: mockPublishRegistrationPatches,
 }))

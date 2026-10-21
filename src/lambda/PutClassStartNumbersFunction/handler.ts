@@ -7,8 +7,7 @@ import { getParam, httpError, lambda, response } from '../lib/lambda'
 import { readEventRegistrations } from '../lib/repositories/registrationRepository'
 import { assertEntriesInClassSpace, authorizeStartNumberLink } from '../lib/startNumberLink'
 import { assignStartNumbers, parseStartNumberEntries } from '../lib/startNumbers'
-import { publishRegistrationPatches } from '../lib/ws/actions'
-import { publishPublicStartList } from '../lib/ws/publicStartList'
+import { publishPublicStartList, publishRegistrationPatches } from '../lib/ws/actions'
 
 /**
  * The drawn numbers from a class secretary's tokenized link (KOE-1267). The same write as the event

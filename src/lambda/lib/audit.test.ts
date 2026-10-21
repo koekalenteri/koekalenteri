@@ -5,11 +5,15 @@ import { loggedLines } from '../test-utils/logs'
 
 const mockReadAuditTrail = vi.fn()
 const mockWriteAuditRecord = vi.fn()
-const mockPublishAuditRecord = vi.fn()
+const mockEventSubscriberAudience = vi.fn().mockResolvedValue([])
 vi.doMock('./repositories/auditRepository', () => ({
   readAuditTrail: mockReadAuditTrail,
   writeAuditRecord: mockWriteAuditRecord,
 }))
+// The real publisher runs, its guard included; only the connection scan below it is stood in for.
+vi.doMock('./ws/connectionSelectors', () => ({ eventSubscriberAudience: mockEventSubscriberAudience }))
+const { publishAuditRecord } = await vi.importActual<typeof import('./ws/auditPublisher')>('./ws/auditPublisher')
+const mockPublishAuditRecord = vi.fn(publishAuditRecord)
 vi.doMock('./ws/auditPublisher', () => ({ publishAuditRecord: mockPublishAuditRecord }))
 
 const { eventAuditKey, registrationAuditKey, getEventAuditMessages, audit, auditStrict, auditTrail } = await import(
@@ -196,6 +200,18 @@ describe('audit', () => {
       ])
       expect(mockPublishAuditRecord).not.toHaveBeenCalled()
     })
+
+    it('logs a failed push as a push, not as a failed write (KOE-1583)', async () => {
+      const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined)
+      mockEventSubscriberAudience.mockRejectedValueOnce(new Error('scan failed'))
+
+      await audit({ auditKey: 'event:e1', message: 'msg', user: 'user' })
+
+      expect(mockWriteAuditRecord).toHaveBeenCalledTimes(1)
+      expect(loggedLines(errorSpy)).toEqual([
+        expect.objectContaining({ message: 'live push failed', publication: 'audit record' }),
+      ])
+    })
   })
 
   describe('auditStrict', () => {
@@ -220,6 +236,18 @@ describe('audit', () => {
 
       await expect(auditStrict(record, 'effect-1')).rejects.toBe(error)
       expect(mockPublishAuditRecord).not.toHaveBeenCalled()
+    })
+
+    it('resolves when only the push after the write fails (KOE-1583)', async () => {
+      const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined)
+      mockEventSubscriberAudience.mockRejectedValueOnce(new Error('scan failed'))
+
+      await expect(auditStrict({ ...record, auditKey: 'event:e1' }, 'effect-1')).resolves.toBeUndefined()
+
+      expect(mockWriteAuditRecord).toHaveBeenCalledWith({ ...record, auditKey: 'event:e1', timestamp: 'effect-1' })
+      expect(loggedLines(errorSpy)).toEqual([
+        expect.objectContaining({ message: 'live push failed', publication: 'audit record' }),
+      ])
     })
   })
 

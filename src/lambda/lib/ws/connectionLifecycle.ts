@@ -10,6 +10,7 @@ import {
   queryPublicConnections,
   removeConnection,
 } from './connectionRepository'
+import { bestEffort } from './livePush'
 
 type NotifyEventViewers = (eventId: string, organizerId: string) => Promise<unknown>
 
@@ -59,13 +60,14 @@ export const disconnectWebSocket = async (
   const connection = await getConnection(connectionId)
   await removeConnection(connectionId)
 
-  if (connection?.eventId && deps?.notifyEventViewers) {
-    try {
-      const event = await getEvent<JsonDogEvent>(connection.eventId)
-      await deps.notifyEventViewers(connection.eventId, event.organizer.id)
-    } catch (err: unknown) {
-      logger.error('failed to publish event viewers', { error: err, eventId: connection.eventId })
-    }
+  const eventId = connection?.eventId
+  const notifyEventViewers = deps?.notifyEventViewers
+  if (eventId && notifyEventViewers) {
+    // A live push after the stored disconnect, the event's read with it.
+    await bestEffort('event viewers', async () => {
+      const event = await getEvent<JsonDogEvent>(eventId)
+      await notifyEventViewers(eventId, event.organizer.id)
+    })
   }
 
   return connection

@@ -102,4 +102,23 @@ describe('ws/connectionLifecycle', () => {
       expect.objectContaining({ connectionId: 'c1', message: 'wsDisconnect' })
     )
   })
+
+  it('disconnectWebSocket removes the connection when the event behind its viewer push cannot be read', async () => {
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined)
+    mockGetConnection.mockResolvedValueOnce({ connectionId: 'c1', eventId: 'e1' })
+    mockGetEvent.mockRejectedValueOnce(new Error('event table down'))
+    const notifyEventViewers = vi.fn().mockResolvedValue(undefined)
+
+    await expect(disconnectWebSocket('c1', { notifyEventViewers })).resolves.toEqual({
+      connectionId: 'c1',
+      eventId: 'e1',
+    })
+
+    expect(mockRemoveConnection).toHaveBeenCalledWith('c1')
+    expect(notifyEventViewers).not.toHaveBeenCalled()
+    expect(loggedLines(errorSpy)).toEqual([
+      expect.objectContaining({ message: 'live push failed', publication: 'event viewers' }),
+    ])
+    errorSpy.mockRestore()
+  })
 })

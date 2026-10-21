@@ -1,6 +1,7 @@
 import type { SNSEvent } from 'aws-lambda'
 import type * as registrationRepository from '../lib/repositories/registrationRepository'
 import { vi } from 'vitest'
+import { loggedLines } from '../test-utils/logs'
 
 const mockAudit = vi.fn()
 const mockRegistrationAuditKey = vi.fn()
@@ -26,11 +27,19 @@ vi.doMock('../lib/event', () => ({
   getEvent: mockGetEvent,
 }))
 
+// The real publisher runs, its guard included (KOE-1583); the connection scan below it is the boundary.
+const mockQueryAdminConnections = vi.fn()
+vi.doMock('../lib/ws/connectionRepository', () => ({
+  queryAdminConnections: mockQueryAdminConnections,
+  queryPublicConnections: vi.fn().mockResolvedValue([]),
+  removeConnection: vi.fn(),
+}))
 vi.doMock('../lib/ws/actions', () => ({
   publishRegistrationPatches: mockPublishRegistrationPatches,
 }))
 
 const { default: sesNotificationLambda } = await import('./handler')
+const actualActions = await vi.importActual<typeof import('../lib/ws/actions')>('../lib/ws/actions')
 
 /** The handler reads only Records[].Sns.Message; minimal events convert at this boundary. */
 const asSNSEvent = (event: { Records: { Sns: { Message: string } }[] }) => event as SNSEvent
@@ -56,6 +65,8 @@ describe('sesNotificationLambda', () => {
     mockRegistrationAuditKey.mockReturnValue('event123:reg456')
     mockGetEvent.mockResolvedValue({ organizer: { id: 'org-1' } })
     mockWriteEmailDeliveryStatus.mockResolvedValue(true)
+    mockQueryAdminConnections.mockResolvedValue([])
+    mockPublishRegistrationPatches.mockImplementation(actualActions.publishRegistrationPatches)
   })
 
   it('stores bounce details for the tagged registration', async () => {
@@ -229,6 +240,23 @@ describe('sesNotificationLambda', () => {
     expect(mockGetEvent).not.toHaveBeenCalled()
     expect(mockPublishRegistrationPatches).not.toHaveBeenCalled()
     expect(mockAudit).not.toHaveBeenCalled()
+  })
+
+  // The status, the suppression and the audit are stored: a failed push is no reason for SNS to
+  // deliver the notification again (KOE-1583).
+  it('audits and resolves when the live push after the write fails', async () => {
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined)
+    mockQueryAdminConnections.mockRejectedValueOnce(new Error('scan failed'))
+
+    await expect(
+      sesNotificationLambda(bounceFor({ eventId: ['event123'], registrationId: ['reg456'] }))
+    ).resolves.toBeUndefined()
+
+    expect(mockWriteEmailSuppression).toHaveBeenCalledTimes(1)
+    expect(mockAudit).toHaveBeenCalledTimes(1)
+    expect(loggedLines(errorSpy)).toEqual([
+      expect.objectContaining({ message: 'live push failed', publication: 'registration patches' }),
+    ])
   })
 
   it('rethrows a failure to store the status', async () => {

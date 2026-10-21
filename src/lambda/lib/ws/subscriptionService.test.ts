@@ -1,6 +1,7 @@
 import { vi } from 'vitest'
 import { LambdaError } from '../../lib/lambda'
 import { deletedEvent, eventNotFound } from '../../test-utils/helpers'
+import { loggedLines } from '../../test-utils/logs'
 
 const mockGetEvent = vi.fn()
 const mockGetLiveEvent = vi.fn()
@@ -160,6 +161,41 @@ describe('ws/subscriptionService', () => {
     expect(mockGetConnection).not.toHaveBeenCalled()
     expect(mockUnsubscribeConnection).toHaveBeenCalledWith('c1')
     expect(publishEventViewers).toHaveBeenCalledWith('e1', 'org-1', { excludeConnectionId: 'c1' })
+  })
+
+  describe('a viewer push after the stored subscription (KOE-1583)', () => {
+    it('subscribeToEvent answers subscribed when the previous event cannot be read', async () => {
+      const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined)
+      mockGetEvent.mockResolvedValueOnce({ organizer: { id: 'org-new' } }).mockRejectedValueOnce(new Error('gone'))
+      const publishEventViewers = vi.fn().mockResolvedValue(undefined)
+
+      await expect(
+        subscribeToEvent({ admin: true, connectionId: 'c1', eventId: 'e-old' }, 'e-new', publishEventViewers)
+      ).resolves.toEqual({ eventId: 'e-new', subscribed: true })
+
+      expect(mockSubscribeConnection).toHaveBeenCalledWith('c1', 'e-new')
+      expect(publishEventViewers).toHaveBeenCalledTimes(1)
+      expect(publishEventViewers).toHaveBeenCalledWith('e-new', 'org-new', expect.any(Object))
+      expect(loggedLines(errorSpy)).toEqual([
+        expect.objectContaining({ message: 'live push failed', publication: 'event viewers' }),
+      ])
+    })
+
+    it('unsubscribeFromEvent resolves when the event cannot be read', async () => {
+      const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined)
+      mockGetEvent.mockRejectedValueOnce(new Error('gone'))
+      const publishEventViewers = vi.fn().mockResolvedValue(undefined)
+
+      await expect(unsubscribeFromEvent({ connectionId: 'c1', eventId: 'e1' }, publishEventViewers)).resolves.toBe(
+        undefined
+      )
+
+      expect(mockUnsubscribeConnection).toHaveBeenCalledWith('c1')
+      expect(publishEventViewers).not.toHaveBeenCalled()
+      expect(loggedLines(errorSpy)).toEqual([
+        expect.objectContaining({ message: 'live push failed', publication: 'event viewers' }),
+      ])
+    })
   })
 
   it('unsubscribeFromEvent only unsubscribes when connection has no event', async () => {

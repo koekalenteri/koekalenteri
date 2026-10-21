@@ -2,6 +2,7 @@ import type { APIGatewayProxyEvent } from 'aws-lambda'
 import type { JsonRegistration } from '../../types'
 import { vi } from 'vitest'
 import { answerRejections, asJsonConfirmedEvent, constructPartialAPIGwEvent } from '../test-utils/helpers'
+import { loggedLines } from '../test-utils/logs'
 
 const mockLambda = vi.fn((_name, fn) => answerRejections(fn, mockResponse))
 const mockResponse = vi.fn()
@@ -48,13 +49,21 @@ vi.doMock('../lib/repositories/registrationRepository', () => ({
   updateRegistrationField: mockUpdateRegistrationField,
 }))
 vi.doMock('../lib/repositories/eventRepository', () => ({ writeEventFields: mockWriteEventFields }))
+// The real publishers run, their guard included (KOE-1583); the connection scan below them is the boundary.
+const mockQueryAdminConnections = vi.fn()
+vi.doMock('../lib/ws/connectionRepository', () => ({
+  queryAdminConnections: mockQueryAdminConnections,
+  queryPublicConnections: vi.fn().mockResolvedValue([]),
+  removeConnection: vi.fn(),
+}))
 vi.doMock('../lib/ws/actions', () => ({
   publishEventPatch: mockPublishEventPatch,
+  publishPublicStartList: mockPublishPublicStartList,
   publishRegistrationPatches: mockPublishRegistrationPatches,
 }))
-vi.doMock('../lib/ws/publicStartList', () => ({ publishPublicStartList: mockPublishPublicStartList }))
 
 const { default: putStartNumbersLambda } = await import('./handler')
+const actualActions = await vi.importActual<typeof import('../lib/ws/actions')>('../lib/ws/actions')
 
 const confirmedEvent = () =>
   asJsonConfirmedEvent({
@@ -89,6 +98,27 @@ describe('putStartNumbersLambda', () => {
     mockGetAuthorizedEvent.mockResolvedValue(confirmedEvent())
     mockLockRegistrationGroups.mockResolvedValue(mockReleaseLock)
     mockReadEventRegistrations.mockResolvedValue([registration('run-1'), registration('run-2')])
+    mockQueryAdminConnections.mockResolvedValue([])
+    mockPublishRegistrationPatches.mockImplementation(actualActions.publishRegistrationPatches)
+    mockPublishEventPatch.mockImplementation(actualActions.publishEventPatch)
+    mockPublishPublicStartList.mockImplementation(actualActions.publishPublicStartList)
+  })
+
+  it('answers with the published numbers when the live pushes after the write fail (KOE-1583)', async () => {
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined)
+    mockQueryAdminConnections.mockRejectedValue(new Error('scan failed'))
+
+    await putStartNumbersLambda(apiEvent({ eventClass: 'ALO', published: true }))
+
+    expect(mockWriteEventFields).toHaveBeenCalledWith('event-1', {
+      set: { startNumbersPublished: { ALO: true }, updatedAt: expect.any(String) },
+    })
+    expect(mockResponse).toHaveBeenCalledWith(200, expect.anything(), expect.anything())
+    expect(loggedLines(errorSpy)).toEqual([
+      expect.objectContaining({ message: 'live push failed', publication: 'registration patches' }),
+      expect.objectContaining({ message: 'live push failed', publication: 'admin event patch' }),
+      expect.objectContaining({ message: 'live push failed', publication: 'public start list' }),
+    ])
   })
 
   it('publishing freezes the class and flips the flag in the same locked request', async () => {

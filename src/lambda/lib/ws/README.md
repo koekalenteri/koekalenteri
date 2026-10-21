@@ -6,9 +6,26 @@ This folder contains the Lambda-side WebSocket service layer. It keeps track of 
 
 1. `$connect` calls `connectWebSocket`, which stores the connection as a public connection and sets a DynamoDB TTL close to API Gateway's maximum WebSocket lifetime.
 2. `$default` messages are handled by `WsMessageFunction`. Clients can authenticate, subscribe to an admin channel, a single event, or an edit-token-authorized participant registration, or unsubscribe.
-3. Domain mutations call the publish helpers in `actions.ts`. These helpers resolve the right audience and broadcast JSON payloads to each connection.
+3. Domain mutations call the publish helpers in `actions.ts`. These helpers resolve the right audience and broadcast JSON payloads to each connection. See "Live pushes are best effort" below.
 4. `$disconnect` removes the connection and publishes updated connection or event-viewer state when needed.
 5. Broadcasts that receive `GoneException` clean up stale connections through `disconnectWebSocket`.
+
+## Live pushes are best effort
+
+A push follows a write that has already succeeded, so it never decides the outcome of that write
+(KOE-1583). Every publisher (`actions.ts`, `publishAuditRecord`, `publishCancelledRegistration` and
+the participant payment publishers in `lib/payment.ts`) runs its push through `bestEffort` in
+`livePush.ts`: whatever fails in it, an audience scan, a read it makes or a send, is logged as
+`live push failed` with the publication's name, and the request still succeeds. The event viewer
+pushes after a subscribe, an unsubscribe or a disconnect (`subscriptionService.ts`,
+`connectionLifecycle.ts`) run through it too, with the event read behind them. The rule is written
+there and nowhere else.
+
+The exceptions are the durable workflows whose retry is what delivers a failed push:
+`publishRegistrationPatchesStrict`, `publishEventCountsStrict` and `publishPublicStartListStrict`
+reject. PaymentSuccess's last phase and the new registration's publish phase use them, so the phase
+stays unmarked and the retry sends again. The stored data version bump in
+`publishAdminDataInvalidation` is a write, not a push, and also rejects.
 
 ## Client messages
 
@@ -39,7 +56,7 @@ Outbound messages include a `scope` field so clients can route updates.
 | `public:start-list` | Connections watching the event's published start list | `{ eventId, participants, version }` with the rows exactly as the public fetch composes them, or `{ eventId, stale: true, version }` when they exceed the message size and must be fetched instead. See "Start list versions" below. |
 | `admin:event-patch` | Admin channel subscribers and event subscribers allowed to see the organizer's event | Admin event patch with `eventId`. |
 | `admin:event-registrations` | Admin channel subscribers and event subscribers allowed to see the organizer's event | `{ eventId, patch }` registration patch list. |
-| `participant:registration-patch` | Connections whose edit token was verified for the specific registration | `{ eventId, registrationId, patch }`: the payment picture (`payment`), the money fields it is worked out from, `confirmed`, `messagesSent`, `state`, `updatedAt` and `cancelled` (always a boolean, so an un-cancel clears the page's flag), built from the row as stored (`buildParticipantPaymentPatch`). Sent by PaymentSuccess (a payment applied or recorded as a duplicate), a cancelled payment or refund, RefundSuccess, a group move that changes the registration's place (participant, reserve or cancelled), and every save of the registration (the secretary's and the entrant's own). Every sender goes through `publishParticipantRegistrationPatches`: one connection scan, a patch built only for registrations with a page open, and a failed build or send is logged without failing the request (KOE-1553, KOE-1566). A cancelled payment or refund (`publishCancelledRegistration` in `lib/payment.ts`) sends both its `admin:event-registrations` patch and this one from one strongly consistent read after the settle's writes, and neither audience's failure (the read, an audience lookup, a build or a send) fails the request. |
+| `participant:registration-patch` | Connections whose edit token was verified for the specific registration | `{ eventId, registrationId, patch }`: the payment picture (`payment`), the money fields it is worked out from, `confirmed`, `messagesSent`, `state`, `updatedAt` and `cancelled` (always a boolean, so an un-cancel clears the page's flag), built from the row as stored (`buildParticipantPaymentPatch`). Sent by PaymentSuccess (a payment applied or recorded as a duplicate), a cancelled payment or refund, RefundSuccess, a group move that changes the registration's place (participant, reserve or cancelled), and every save of the registration (the secretary's and the entrant's own). Every sender goes through `publishParticipantRegistrationPatches`: one connection scan, a patch built only for registrations with a page open, and a failed build or send ends only that registration's patch (KOE-1553, KOE-1566). A cancelled payment or refund (`publishCancelledRegistration` in `lib/payment.ts`) sends both its `admin:event-registrations` patch and this one from one strongly consistent read after the settle's writes, the read inside the push. |
 | `admin:audit-record` | Authenticated subscribers of the specific event | `{ eventId, record }` newly written audit record. |
 | `admin:data-invalidation` | Admin channel subscribers | `{ collections }` names the reference-data collections clients must refetch through their authorized HTTP APIs. |
 | `admin:event-viewers` | Event subscribers allowed to see the organizer's event | `{ eventId, viewers }`, where `viewers` contains distinct subscribed user IDs. |
@@ -107,7 +124,8 @@ Important fields:
 
 ## Module responsibilities
 
-- `actions.ts`: public API for publishing patches, viewer updates, and connection counts.
+- `actions.ts`: public API for publishing patches, viewer updates, and connection counts; best effort, with the strict variants named above.
+- `livePush.ts`: `bestEffort`, the rule that a push never fails the write before it.
 - `authentication.ts`: verifies Cognito ID tokens and maps claims to application authorization.
 - `broadcast.ts`: sends payloads to recipients in bounded-concurrency batches and reports sent, gone, and failed counts.
 - `connectionLifecycle.ts`: handles connection creation, authentication updates, lookup, disconnect cleanup, and viewer notifications.
@@ -116,7 +134,7 @@ Important fields:
 - `connectionSelectors.ts`: builds public, admin, organizer, and event audiences from persisted connections.
 - `gatewaySender.ts`: wraps API Gateway Management API `PostToConnection` and normalizes send outcomes.
 - `payloads.ts`: constructs outbound payloads and derives distinct event viewers.
-- `publicStartList.ts`: composes the published start list with `lib/startList.ts` and sends it to the connections watching that event.
+- `publicStartList.ts`: composes the published start list with `lib/startList.ts` and sends it to the connections watching that event (`sendPublicStartList`, which rejects; callers go through `actions.ts`).
 - `subscriptionService.ts`: authorizes and persists admin, event, and participant registration subscriptions; the message handler composes viewer-update publishing into event subscription changes.
 - `types.ts`: shared WebSocket connection and payload types.
 
