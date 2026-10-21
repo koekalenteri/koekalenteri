@@ -118,21 +118,76 @@ const getPhaseLabel = (
   return t(`event.states.${phase}`)
 }
 
+type EventProgress = ReturnType<typeof getEventProgress>
+
+/**
+ * A publishing step, and the hand-over, take their state from what has been published or handed over
+ * rather than from how far the workflow has got: once every class's results are out, the results step
+ * is done even while 'ended' still waits (KOE-1292), and only the hand-over to the chief judge finishes
+ * the last step, not every dog sent (KOE-1579).
+ */
+const getOwnStepState = (
+  phase: EventProgressStep,
+  progress: EventProgress
+): { actionable: boolean; completed: boolean } | undefined => {
+  switch (phase) {
+    case 'startListPublished':
+      return { actionable: progress.startListActionable, completed: progress.startListCompleted }
+    case 'startNumbersPublished':
+      return { actionable: progress.startNumbersActionable, completed: progress.startNumbersCompleted }
+    case 'resultsPublished':
+      return { actionable: progress.resultsActionable, completed: progress.resultsCompleted }
+    case 'resultsHandedOver':
+      return { actionable: progress.kennelliittoActionable, completed: progress.kennelliittoCompleted }
+    default:
+      return undefined
+  }
+}
+
+interface StepStatusOptions {
+  completedClasses: Array<{ eventClass: string }>
+  entryCompleted: boolean
+  entryOpen: boolean
+  index: number
+  phase: EventProgressStep
+  progress: EventProgress
+  showClassProgress: boolean
+}
+
+/** Whether a step is done, and whether it is the one waiting on the secretary now. */
+const getStepStatus = ({
+  completedClasses,
+  entryCompleted,
+  entryOpen,
+  index,
+  phase,
+  progress,
+  showClassProgress,
+}: StepStatusOptions): { active: boolean; completed: boolean } => {
+  if (phase === 'confirmed_entryOpen') return { active: entryOpen && !entryCompleted, completed: entryCompleted }
+  const own = getOwnStepState(phase, progress)
+  if (own) return { active: own.actionable && !own.completed, completed: own.completed }
+  if (showClassProgress) {
+    const completed = completedClasses.length === progress.eventClasses.length
+    return { active: completedClasses.length > 0 && !completed, completed }
+  }
+  return { active: false, completed: index <= progress.reachedPhaseIndex }
+}
+
 export default function EventStateStepper({ event }: { readonly event: ConfirmedEvent }) {
   const { t } = useTranslation()
   // Only a trial whose results go to Kennelliitto has the hand-over as its last step (KOE-1579).
   const official = useIsOfficialEventType(event.eventType)
+  const progress = getEventProgress(event, new Date(), official ? { handedOver: isResultsLocked(event) } : undefined)
   const {
     classPhases,
     entryStarted,
     eventClasses,
-    kennelliittoActionable,
     kennelliittoCompleted,
     phases,
     publishedStartListClasses,
     publishedStartNumbersClasses,
     reachedPhaseIndex,
-    resultsActionable,
     startListActionable,
     startListClasses,
     resultsCompleted,
@@ -140,7 +195,7 @@ export default function EventStateStepper({ event }: { readonly event: Confirmed
     startNumbersActionable,
     startNumbersCompleted,
     temporalPhaseIndex,
-  } = getEventProgress(event, new Date(), official ? { handedOver: isResultsLocked(event) } : undefined)
+  } = progress
   const entryOpen = isEntryOpen(event)
 
   return (
@@ -194,23 +249,15 @@ export default function EventStateStepper({ event }: { readonly event: Confirmed
           : []
         const entryCompleted =
           phase === 'confirmed_entryOpen' && (reachedPhaseIndex > index || (entryStarted && !entryOpen))
-        let completed = index <= reachedPhaseIndex
-        if (phase === 'confirmed_entryOpen') completed = entryCompleted
-        else if (phase === 'startListPublished') completed = startListCompleted
-        else if (phase === 'startNumbersPublished') completed = startNumbersCompleted
-        // The publishing state is the truth for this step, like the start list steps above: once
-        // every class's results are out, the step is done even while 'ended' still waits (KOE-1292).
-        else if (phase === 'resultsPublished') completed = resultsCompleted
-        // Handed to the chief judge is the only thing that finishes it; every dog sent does not.
-        else if (phase === 'resultsHandedOver') completed = kennelliittoCompleted
-        else if (showClassProgress) completed = completedClasses.length === eventClasses.length
-        const active =
-          (phase === 'confirmed_entryOpen' && entryOpen && !entryCompleted) ||
-          (phase === 'startListPublished' && startListActionable && !startListCompleted) ||
-          (phase === 'startNumbersPublished' && startNumbersActionable && !startNumbersCompleted) ||
-          (phase === 'resultsPublished' && resultsActionable && !resultsCompleted) ||
-          (phase === 'resultsHandedOver' && kennelliittoActionable) ||
-          (showClassProgress && completedClasses.length > 0 && completedClasses.length < eventClasses.length)
+        const { active, completed } = getStepStatus({
+          completedClasses,
+          entryCompleted,
+          entryOpen,
+          index,
+          phase,
+          progress,
+          showClassProgress,
+        })
         const label = getPhaseLabel(
           phase,
           {

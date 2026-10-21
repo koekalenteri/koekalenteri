@@ -14,7 +14,7 @@ import { DataMemoryRouter, TEST_ID_TOKEN } from '../../test-utils/utils'
 import AppSnackbarProvider from '../components/AppSnackbarProvider'
 import { idTokenAtom } from '../state'
 import EventViewPage from './EventViewPage'
-import { adminEventRegistrationsAtom, adminEventsAtom } from './state'
+import { adminEventRegistrationsAtom, adminEventsAtom, adminEventTypesAtom } from './state'
 
 // The fixtures below carry absolute dates, and what the view says about them depends on where
 // today falls; the day the baselines were taken is the day this file keeps (KOE-1423).
@@ -77,6 +77,8 @@ it("shows the event's status row, info panel and class tabs above the entry grid
             set(idTokenAtom, TEST_ID_TOKEN)
             set(adminEventsAtom, [event])
             set(adminEventRegistrationsAtom(event.id), registrations)
+            // The step list asks the event types whether the format is official; the built-in list answers.
+            void set(adminEventTypesAtom, [])
           }}
         >
           <AppSnackbarProvider>

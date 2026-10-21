@@ -28,6 +28,14 @@ export const isKcStateWritable = (code: number): boolean => code === KC_STATE_OP
 export const isResultsLocked = (event: { kcState?: Pick<JsonKcState, 'code'> }): boolean =>
   event.kcState?.code === KC_STATE_HANDED_OVER || event.kcState?.code === KC_STATE_COMPLETED
 
+/**
+ * How many of the dogs have their result in Omakoira. Every entry counts, cancelled or not: what was
+ * sent is in Kennelliitto whatever happened to the entry since, and the hand-over decides what it
+ * covers. The results page's notice and the event view's hand-over both read it, so they agree (KOE-1579).
+ */
+export const countSentResults = (registrations: ReadonlyArray<{ kcResult?: Pick<JsonKcResult, 'status'> }>): number =>
+  registrations.filter((registration) => registration.kcResult?.status === 'sent').length
+
 /** The format as Koe/Kokeet and Koe/Koemuoto name it: a championship is asked as its plain format. */
 export const kcFormatOfEventType = (eventType: string): string => eventType.replace(/ SM$/, '')
 

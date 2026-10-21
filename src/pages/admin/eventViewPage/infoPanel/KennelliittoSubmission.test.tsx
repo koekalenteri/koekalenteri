@@ -52,17 +52,16 @@ const dogReport = (
 const handedOver: ConfirmedEvent = { ...eventWithStaticDates, kcState: { code: 1253, name: 'x', readAt: noon } }
 
 /** The section as the info panel shows it: the event and its dogs as the admin atoms hold them. */
-const Section = ({ eventId, eventStarted }: { readonly eventId: string; readonly eventStarted: boolean }) => {
+const Section = ({ eventId }: { readonly eventId: string }) => {
   const event = useAtomValue(adminConfirmedEventAtom(eventId))
   const registrations = useAtomValue(adminEventRegistrationsAtom(eventId))
   if (!event) return null
-  return <KennelliittoSubmission event={event} eventStarted={eventStarted} registrations={registrations} />
+  return <KennelliittoSubmission event={event} registrations={registrations} />
 }
 
 const renderSection = async (
   event: ConfirmedEvent = eventWithStaticDates,
-  extra: Record<string, Partial<Registration>> = {},
-  eventStarted = true
+  extra: Record<string, Partial<Registration>> = {}
 ) => {
   const registrations = registrationsToEventWithStations.map((reg) => ({
     ...reg,
@@ -84,7 +83,7 @@ const renderSection = async (
       >
         <Suspense fallback={<div>loading...</div>}>
           <AppSnackbarProvider>
-            <Section eventId={event.id} eventStarted={eventStarted} />
+            <Section eventId={event.id} />
           </AppSnackbarProvider>
         </Suspense>
       </TestProvider>
@@ -144,16 +143,44 @@ describe('KennelliittoSubmission (KOE-1579)', () => {
     })
   })
 
-  it('offers no sending before there is anything to score', async () => {
-    await renderSection(eventWithStaticDates, {}, false)
+  describe('when it can be sent, by the step indicator’s own rule', () => {
+    // A trial still ahead by its date, its event-level state not moved on: only a class's state says it has begun.
+    const ahead = (avo: 'invited' | 'started'): ConfirmedEvent => ({
+      ...eventWithStaticDates,
+      classes: [
+        { class: 'ALO', date: '2099-06-05', state: 'invited' },
+        { class: 'AVO', date: '2099-06-05', state: avo },
+      ],
+      endDate: '2099-06-05',
+      eventType: 'NOME-B',
+      startDate: '2099-06-05',
+      state: 'invited',
+    })
 
-    expect(sendButton()).toBeDisabled()
+    it('offers no sending before any class has begun', async () => {
+      await renderSection(ahead('invited'))
+
+      expect(sendButton()).toBeDisabled()
+    })
+
+    it('offers the sending once one class has begun, as the step asks for it', async () => {
+      await renderSection(ahead('started'))
+
+      expect(sendButton()).toBeEnabled()
+    })
   })
 
   it('offers the hand-over only once something has been sent', async () => {
     await renderSection()
 
     expect(screen.queryByRole('button', { name: 'results.kennelliitto.handOverButton' })).not.toBeInTheDocument()
+  })
+
+  it('offers the hand-over for a result sent for a dog whose entry was cancelled since', async () => {
+    // What was sent is in Kennelliitto all the same, and the results page says so: the two views count alike.
+    await renderSection(eventWithStaticDates, { 'run-1': { cancelled: true, kcResult: sentOk } })
+
+    expect(handOverButton()).toBeInTheDocument()
   })
 
   describe('a trial without a koetunnus', () => {

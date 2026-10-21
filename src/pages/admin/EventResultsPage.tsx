@@ -27,6 +27,7 @@ import { errorSnackbarOptions } from '../../lib/client/snackbar'
 import { localizedEventName } from '../../lib/event'
 import { liveViewEnabled } from '../../lib/features'
 import { makeArray } from '../../lib/judge'
+import { countSentResults } from '../../lib/kennelliittoResults'
 import { IMPLICIT_STATION_ID, liveFormat } from '../../lib/liveFormat'
 import {
   getRegistrationClass,
@@ -46,8 +47,8 @@ import { useStartDayClasses } from './components/useStartDayClasses'
 import { ConflictDialog } from './eventResultsPage/ConflictDialog'
 import ResultsTable from './eventResultsPage/ResultsTable'
 import { useIsOfficialEventType } from './hooks/useIsOfficialEventType'
-import { useSaveKcLink } from './hooks/useKcIdLookup'
-import { useResultsLock } from './hooks/useReadStateWhileLocked'
+import { useResultsLock } from './hooks/useResultsLock'
+import { useSaveKcLink } from './hooks/useSaveKcLink'
 import { adminConfirmedEventAtom, adminEventRegistrationsAtom } from './state'
 import { useAdminEventScope } from './state/eventScope'
 import { useKennelliittoResults, useSaveEventResults, useStoreEventResults } from './state/registrations/actions'
@@ -181,10 +182,7 @@ export default function EventResultsPage() {
   // Asked the way the event view's Omakoira section is, so the column and the section agree (KOE-1579).
   const official = useIsOfficialEventType(event?.eventType)
   const kennelliitto = !!event && official
-  const sentCount = useMemo(
-    () => registrations.filter((registration) => registration.kcResult?.status === 'sent').length,
-    [registrations]
-  )
+  const sentCount = useMemo(() => countSentResults(registrations), [registrations])
 
   const refreshState = useCallback(async () => {
     try {

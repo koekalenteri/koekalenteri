@@ -14,11 +14,12 @@ import { enqueueSnackbar } from 'notistack'
 import { useCallback, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { reportError } from '@/lib/client/error'
-import { uniqueClasses } from '@/lib/event'
+import { getEventProgress, uniqueClasses } from '@/lib/event'
+import { countSentResults } from '@/lib/kennelliittoResults'
 import { getRegistrationClass, isScorableRegistration } from '@/lib/registration'
 import { KcIdLookupButton } from '../../components/KcIdLookupButton'
-import { useSaveKcLink } from '../../hooks/useKcIdLookup'
-import { useResultsLock } from '../../hooks/useReadStateWhileLocked'
+import { useResultsLock } from '../../hooks/useResultsLock'
+import { useSaveKcLink } from '../../hooks/useSaveKcLink'
 import { useKennelliittoResults } from '../../state/registrations/actions'
 import { KennelliittoHandOverDialog } from './KennelliittoHandOverDialog'
 import { dogsToSend, KennelliittoSendDialog } from './KennelliittoSendDialog'
@@ -27,8 +28,6 @@ import { actionButtonSx } from './styles'
 
 interface Props {
   readonly event: ConfirmedEvent
-  /** Nothing can be sent before there are results to enter. */
-  readonly eventStarted?: boolean
   readonly registrations: Registration[]
 }
 
@@ -51,7 +50,7 @@ const getSentRows = (event: ConfirmedEvent, registrations: Registration[]): Sent
     : [{ name: event.eventType, rows: scorable }]
   return groups.map(({ name, rows }) => ({
     name,
-    sent: rows.filter((registration) => registration.kcResult?.status === 'sent').length,
+    sent: countSentResults(rows),
     total: rows.length,
   }))
 }
@@ -65,7 +64,7 @@ const getSentRows = (event: ConfirmedEvent, registrations: Registration[]): Sent
  * cannot go does not hold the others back. Handing over is what finishes the step; until the chief judge
  * sends the trial back, the results are locked here and on the results page alike.
  */
-const KennelliittoSubmission = ({ event, eventStarted, registrations }: Props) => {
+const KennelliittoSubmission = ({ event, registrations }: Props) => {
   const { t } = useTranslation()
   const kc = useKennelliittoResults(event.id)
   const saveKcLink = useSaveKcLink(event)
@@ -78,7 +77,10 @@ const KennelliittoSubmission = ({ event, eventStarted, registrations }: Props) =
   const [handOverAccepted, setHandOverAccepted] = useState(false)
 
   const rows = useMemo(() => getSentRows(event, registrations), [event, registrations])
-  const sentCount = rows.reduce((sum, row) => sum + row.sent, 0)
+  // Every sent result, not only the rows': the hand-over is offered whenever anything is in Omakoira.
+  const sentCount = useMemo(() => countSentResults(registrations), [registrations])
+  // The step's own rule, so the button and the step indicator never disagree on whether to send now.
+  const { kennelliittoActionable } = getEventProgress(event, new Date(), { handedOver: locked })
 
   const openSend = useCallback(async () => {
     setForceSend(false)
@@ -142,7 +144,7 @@ const KennelliittoSubmission = ({ event, eventStarted, registrations }: Props) =
               </Alert>
             )}
             <Button
-              disabled={!eventStarted || locked}
+              disabled={!kennelliittoActionable}
               fullWidth
               onClick={() => void openSend()}
               startIcon={<CloudUploadOutlined />}

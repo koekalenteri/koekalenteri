@@ -8,6 +8,7 @@ import koemuotoNOWT from '../lambda/lib/KLIntegraatio-fixtures/koemuoto-NOWT.jso
 import { legacyDayValue } from '../test-utils/finnishDays'
 import {
   buildKcResult,
+  countSentResults,
   finnishDay,
   isKcDayReached,
   isKcStateWritable,
@@ -331,6 +332,12 @@ describe('kennelliittoResults', () => {
       const state = (code: number) => ({ kcState: { code } })
       expect([1253, 304, 754].map((code) => isResultsLocked(state(code)))).toEqual([true, true, false])
       expect(isResultsLocked({})).toEqual(false)
+    })
+
+    it('counts every result in Omakoira, a failed or unsent one not (KOE-1579)', () => {
+      const sent = { kcResult: { status: 'sent' as const } }
+      expect(countSentResults([sent, { kcResult: { status: 'failed' as const } }, {}, sent])).toBe(2)
+      expect(countSentResults([])).toBe(0)
     })
   })
 

@@ -23,6 +23,7 @@ import EventNotFound from './components/EventNotFound'
 import ClassEntrySelection from './eventViewPage/ClassEntrySelection'
 import EventDetailsDialog from './eventViewPage/EventDetailsDialog'
 import InfoPanel from './eventViewPage/InfoPanel'
+import { PANEL_HANDLE_WIDTH } from './eventViewPage/infoPanel/styles'
 import MessageRecipientsDialog from './eventViewPage/MessageRecipientsDialog'
 import OtherViewers from './eventViewPage/OtherViewers'
 import { RefundDailog } from './eventViewPage/RefundDialog'
@@ -182,7 +183,11 @@ export default function EventViewPage() {
     <Box sx={{ display: 'flex', flexDirection: 'column', flexGrow: 1, minWidth: 900 }}>
       <OtherViewers viewers={viewers} />
 
-      <Title event={event} />
+      {/* The closed panel's handle stays over the page's right edge; the heading and the step strip end
+          short of it, or its last step goes under the handle (KOE-1579). */}
+      <Box sx={{ pr: `${PANEL_HANDLE_WIDTH + 8}px` }}>
+        <Title event={event} />
+      </Box>
       <InfoPanel
         event={event}
         onSetResultsPublished={(eventClass, date, published) =>

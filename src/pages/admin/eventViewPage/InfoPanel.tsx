@@ -35,6 +35,7 @@ import ParticipantSelection from './infoPanel/ParticipantSelection'
 import ResultsPublishing from './infoPanel/ResultsPublishing'
 import StartListPublishing from './infoPanel/StartListPublishing'
 import StartNumbersPublishing from './infoPanel/StartNumbersPublishing'
+import { PANEL_HANDLE_WIDTH } from './infoPanel/styles'
 
 interface Props {
   readonly event: ConfirmedEvent
@@ -179,7 +180,7 @@ const InfoPanel = ({
           boxShadow: 3,
           flexDirection: 'row',
           gap: 0.75,
-          minWidth: 36,
+          minWidth: PANEL_HANDLE_WIDTH,
           position: 'fixed',
           px: 0.75,
           py: 1.25,
@@ -301,9 +302,7 @@ const InfoPanel = ({
             selectedByClass={selectedByClass}
           />
           <ResultsPublishing event={event} eventStarted={eventStarted} onSetResultsPublished={onSetResultsPublished} />
-          {official && (
-            <KennelliittoSubmission event={event} eventStarted={eventStarted} registrations={registrations} />
-          )}
+          {official && <KennelliittoSubmission event={event} registrations={registrations} />}
           <EventActions eventFinished={eventFinished} eventId={event.id} hasRegistrations={registrations.length > 0} />
         </Box>
         <Box sx={{ display: activeTab === 1 ? 'flex' : 'none', flex: 1, minHeight: 0, p: 1.5 }}>

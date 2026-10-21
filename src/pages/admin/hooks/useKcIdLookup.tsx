@@ -6,7 +6,6 @@ import { useTranslation } from 'react-i18next'
 import { searchEventKcIdChoices } from '@/api/event'
 import { finnishDaySpan } from '@/lib/event'
 import { idTokenAtom } from '../../state'
-import { useAdminEventActions } from '../state'
 
 /** The event details the Kennelliitto search matches against. */
 export interface KcIdLookupEvent {
@@ -127,19 +126,4 @@ export const useKcIdLookup = (
   }, [onChange, t])
 
   return { choices, choose, closeChoices: () => setChoices([]), organizerId, remove, search, searching }
-}
-
-/**
- * Saving a link picked outside the event form, which has no draft to hold it: the patch goes onto the
- * stored event straight away. The results page header and the Omakoira section of the event view both
- * offer the lookup this way (KOE-452, KOE-1579).
- */
-export const useSaveKcLink = (event?: DogEvent | null) => {
-  const eventActions = useAdminEventActions()
-  return useCallback(
-    async (patch: Patch<DogEvent>) => {
-      if (event) await eventActions.save({ ...event, ...patch })
-    },
-    [event, eventActions]
-  )
 }

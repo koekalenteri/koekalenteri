@@ -1,7 +1,7 @@
 import type { UserEvent } from '@testing-library/user-event'
 import type { RouteObject } from 'react-router'
 import type { Language } from '../../i18n'
-import type { ConfirmedEvent, EventResult, Registration } from '../../types'
+import type { ConfirmedEvent, EventResult, EventType, Registration } from '../../types'
 import { ThemeProvider } from '@mui/material'
 import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
@@ -24,7 +24,7 @@ import { DataMemoryRouter, flushPromises, renderSuspendedWithUserEvents, TEST_ID
 import AppSnackbarProvider from '../components/AppSnackbarProvider'
 import { idTokenAtom } from '../state'
 import EventResultsPage from './EventResultsPage'
-import { adminEventRegistrationsAtom, adminEventsAtom } from './state'
+import { adminEventRegistrationsAtom, adminEventsAtom, adminEventTypesAtom } from './state'
 
 // Two release switches: the live entry link (KOE-1259) and the reason a round ended (KOE-1299). The
 // tests describe both features with them on, and one test each checks what the switch alone takes away.
@@ -100,7 +100,8 @@ const renderQualitativePage = (
   storedResults: Record<string, EventResult> = {},
   event: ConfirmedEvent = eventWithStaticDates,
   extra: Record<string, Partial<Registration>> = {},
-  idToken: string = TEST_ID_TOKEN
+  idToken: string = TEST_ID_TOKEN,
+  eventTypes?: EventType[]
 ) => {
   const registrations = registrationsToEventWithStations.map((reg) => ({
     ...reg,
@@ -120,6 +121,7 @@ const renderQualitativePage = (
             set(idTokenAtom, idToken)
             set(adminEventsAtom, [event])
             set(adminEventRegistrationsAtom(event.id), registrations)
+            if (eventTypes) void set(adminEventTypesAtom, eventTypes)
           }}
         >
           <Suspense fallback={<div>loading...</div>}>
@@ -1019,6 +1021,30 @@ describe('EventResultsPage and Kennelliitto (KOE-1140)', () => {
     expect(screen.getByText('results.kennelliitto.column')).toBeInTheDocument()
     expect(screen.queryByRole('button', { name: 'results.kennelliitto.send' })).not.toBeInTheDocument()
     expect(screen.queryByRole('button', { name: 'results.kennelliitto.handOverButton' })).not.toBeInTheDocument()
+  })
+
+  describe('an event type of its own', () => {
+    const custom: ConfirmedEvent = { ...eventWithStaticDates, eventType: 'TEST1' }
+    const eventType = (official: boolean): EventType => ({
+      active: true,
+      createdAt: noon,
+      createdBy: 'test',
+      description: { en: '', fi: '', sv: '' },
+      eventType: 'TEST1',
+      modifiedAt: noon,
+      modifiedBy: 'test',
+      official,
+    })
+
+    it.each([
+      [true, 'shows'],
+      [false, 'leaves out'],
+    ])('reads the type’s own official flag (%s): %s the Omakoira column', async (official) => {
+      await renderQualitativePage('fi', {}, custom, {}, TEST_ID_TOKEN, [eventType(official)])
+      await flushPromises()
+
+      expect(screen.queryByText('results.kennelliitto.column') !== null).toBe(official)
+    })
   })
 
   it('shows it for NOWT as well, whose placement goes with the result', async () => {
