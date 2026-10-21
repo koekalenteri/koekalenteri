@@ -1,5 +1,5 @@
 import { useEffect } from 'react'
-import { useWebSocketContext } from './useWebSocket'
+import { useWebSocketContext } from './useWebSocketContext'
 
 /**
  * Subscribe to a specific event via the shared WebSocket.

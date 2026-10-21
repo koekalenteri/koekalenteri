@@ -10,7 +10,8 @@ import {
   OTHER_BUCKET_CHART_COLOR,
   OTHER_BUCKET_CHART_INK,
 } from './chartColors'
-import { useBreedAbbreviation, useBreedAbbreviationLegend } from './useBreedAbbreviation'
+import { useBreedAbbreviation } from './useBreedAbbreviation'
+import { useBreedAbbreviationLegend } from './useBreedAbbreviationLegend'
 
 interface Props {
   readonly stats: YearlyStatsResponse[]

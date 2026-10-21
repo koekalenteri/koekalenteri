@@ -29,7 +29,7 @@ const mockSubscribeEvent = vi.fn()
 const mockUnsubscribeEvent = vi.fn()
 let mockViewers: Array<{ name: string; userId: string }> = []
 
-vi.mock('../../hooks/useWebSocket', () => ({
+vi.mock('../../hooks/useWebSocketContext', () => ({
   useWebSocketContext: () => ({
     subscribeEvent: mockSubscribeEvent,
     unsubscribeEvent: mockUnsubscribeEvent,
