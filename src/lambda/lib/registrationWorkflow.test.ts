@@ -16,7 +16,7 @@ vi.doMock('./event', () => ({
 
 const mockApplyNewRegistrationStatsOnce = vi.fn()
 const mockUpdateEventStatsForRegistration = vi.fn()
-vi.doMock('./stats', () => ({
+vi.doMock('./stats/stats', () => ({
   applyNewRegistrationStatsOnce: mockApplyNewRegistrationStatsOnce,
   updateEventStatsForRegistration: mockUpdateEventStatsForRegistration,
 }))

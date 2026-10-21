@@ -1,11 +1,6 @@
-// Rebuilds statistics from scratch out of the events and registrations tables.
-//
-// Two callers with different scopes share this: the manual RebuildAllStatsFunction rebuilds
-// everything, and the scheduled RebuildStatsFunction rebuilds every partition except ORG#.
-// ORG# is excluded from the scheduled run on purpose: it is the one partition still maintained
-// incrementally on registration writes, and a delete-then-write pass over it would race those
-// writes. Every other partition has exactly one writer — this module — so rebuilding is safe.
-import type { EventState, JsonRegistration } from '../../types'
+// Rebuilds statistics from scratch out of the events and registrations tables. Which partitions
+// each caller rebuilds, and why the scheduled run leaves ORG# alone: README.md in this folder.
+import type { EventState, JsonRegistration } from '../../../types'
 import type {
   JsonBreedStartStatsItem,
   JsonCapacityStatsItem,
@@ -14,15 +9,15 @@ import type {
   JsonJudgeWorkloadItem,
   RegistrationStatsInput,
   YearlyStatTypes,
-} from '../../types/Stats'
-import type { EventStatsEvent } from './repositories/eventRepository'
-import type { EventStatKey } from './repositories/eventStatsRepository'
-import { isEventOver, OFFICIAL_EVENT_TYPES, storedMonthKey, uniqueClasses } from '../../lib/event'
-import { getRegistrationClass, isMember, isStarter } from '../../lib/registration'
-import { mapWithConcurrency, splitEvenly } from '../../lib/utils'
-import { ALL_EVENT_TYPES_FOR_CAPACITY, ALL_ORGANIZERS_FOR_EVENTS, YEARLY_BREAKDOWN_TYPES } from '../../types/Stats'
-import { logger } from './log'
-import { readEventsForStats } from './repositories/eventRepository'
+} from '../../../types/Stats'
+import type { EventStatsEvent } from '../repositories/eventRepository'
+import type { EventStatKey } from '../repositories/eventStatsRepository'
+import { isEventOver, OFFICIAL_EVENT_TYPES, storedMonthKey, uniqueClasses } from '../../../lib/event'
+import { getRegistrationClass, isMember, isStarter } from '../../../lib/registration'
+import { mapWithConcurrency, splitEvenly } from '../../../lib/utils'
+import { ALL_EVENT_TYPES_FOR_CAPACITY, ALL_ORGANIZERS_FOR_EVENTS, YEARLY_BREAKDOWN_TYPES } from '../../../types/Stats'
+import { logger } from '../log'
+import { readEventsForStats } from '../repositories/eventRepository'
 import {
   bucketsPk,
   capacityPk,
@@ -38,8 +33,8 @@ import {
   YEARS_PK,
   yearlyStatPk,
   yearlyTotalsPk,
-} from './repositories/eventStatsRepository'
-import { readRegistrationsForStats } from './repositories/registrationRepository'
+} from '../repositories/eventStatsRepository'
+import { readRegistrationsForStats } from '../repositories/registrationRepository'
 import { bucketForCount, eventStatsYear, hashStatValue, participationIdentifiers, statIdentifier } from './stats'
 
 /**
@@ -89,10 +84,7 @@ const isHeldEvent = ({ event, ended }: Pick<DatedStatsEvent, 'event' | 'ended'>)
 const isHeldOfficialEvent = (dated: Pick<DatedStatsEvent, 'event' | 'ended'>): boolean =>
   isHeldEvent(dated) && OFFICIAL_EVENT_TYPES.includes(dated.event.eventType)
 
-/**
- * Which group of stats records a key belongs to. `organizer` is the only partition also written
- * incrementally on registration writes; the rest are owned solely by this module.
- */
+/** Which group of stats records a key belongs to; README.md names each partition's writers. */
 type StatsPartition = 'organizer' | 'participation' | 'capacity' | 'judges' | 'eventBreakdown'
 
 export const ALL_STATS_PARTITIONS: StatsPartition[] = [
@@ -755,6 +747,18 @@ const addRegistrationStats = (
   handlerDogs.set(identifiers.handler, dogsForHandler)
 }
 
+/** What every registration of one rebuild is counted into, and against. */
+interface RegistrationStatsContext {
+  eventsById: Map<string, DatedStatsEvent>
+  updatedAt: string
+  accumulator: StatsAccumulator
+  wanted: Set<StatsPartition>
+  capacityBuckets: Map<string, CapacityBucket>
+  eventClassMonths: Map<string, Map<string, string>>
+  breedStartBuckets: Map<string, BreedStartBucket>
+  eventBreakdownBuckets: Map<string, EventBreakdownBucket>
+}
+
 /**
  * Processes one registration into the accumulator/capacity buckets. Returns whether it had to be
  * skipped (unresolvable event/year) and, when capacity is wanted, whether it couldn't be
@@ -762,14 +766,16 @@ const addRegistrationStats = (
  */
 const processRegistrationStats = (
   registration: CapacityRegistrationInput,
-  eventsById: Map<string, DatedStatsEvent>,
-  updatedAt: string,
-  accumulator: StatsAccumulator,
-  wanted: Set<StatsPartition>,
-  capacityBuckets: Map<string, CapacityBucket>,
-  eventClassMonths: Map<string, Map<string, string>>,
-  breedStartBuckets: Map<string, BreedStartBucket>,
-  eventBreakdownBuckets: Map<string, EventBreakdownBucket>
+  {
+    eventsById,
+    updatedAt,
+    accumulator,
+    wanted,
+    capacityBuckets,
+    eventClassMonths,
+    breedStartBuckets,
+    eventBreakdownBuckets,
+  }: RegistrationStatsContext
 ): { skipped: boolean; unattributedCapacity: boolean } => {
   const dated = eventsById.get(registration.eventId)
   if (dated?.year === undefined) {
@@ -846,18 +852,18 @@ export function buildStatsRecords(
   const { breedStartBuckets, capacityBuckets, eventBreakdownBuckets, eventClassMonths, judgeWorkloadBuckets } =
     seedStatsBuckets(eventsById, datedEvents, wanted, yearlyStats)
 
+  const context: RegistrationStatsContext = {
+    accumulator,
+    breedStartBuckets,
+    capacityBuckets,
+    eventBreakdownBuckets,
+    eventClassMonths,
+    eventsById: datedEvents,
+    updatedAt,
+    wanted,
+  }
   for (const registration of registrations) {
-    const outcome = processRegistrationStats(
-      registration,
-      datedEvents,
-      updatedAt,
-      accumulator,
-      wanted,
-      capacityBuckets,
-      eventClassMonths,
-      breedStartBuckets,
-      eventBreakdownBuckets
-    )
+    const outcome = processRegistrationStats(registration, context)
     if (outcome.skipped) skippedCount++
     if (outcome.unattributedCapacity) unattributedCapacityCount++
   }

@@ -14,7 +14,7 @@ import { readJudges } from '../lib/repositories/judgeRepository'
 import { readOrganizers } from '../lib/repositories/organizerRepository'
 import { writeRegistrations } from '../lib/repositories/registrationRepository'
 import { queryUsersByEmail } from '../lib/repositories/userRepository'
-import { sumNewRegistrationStatDeltas, updateOrganizerEventStats } from '../lib/stats'
+import { sumNewRegistrationStatDeltas, updateOrganizerEventStats } from '../lib/stats/stats'
 import { publishEventChange } from '../lib/ws/actions'
 
 const findAdmin = async (email: string) => {

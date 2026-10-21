@@ -34,7 +34,7 @@ import { logger } from '../lib/log'
 import { readOrganizer } from '../lib/repositories/organizerRepository'
 import { readEventRegistrations } from '../lib/repositories/registrationRepository'
 import { validateBody } from '../lib/request'
-import { moveOrganizerEventStats } from '../lib/stats'
+import { moveOrganizerEventStats } from '../lib/stats/stats'
 import { publishEventChange, publishEventCounts } from '../lib/ws/actions'
 
 const isUserForbidden = (

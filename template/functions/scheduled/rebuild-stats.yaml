@@ -1,6 +1,4 @@
-  # Nightly rebuild of every stats partition that has no other writer (participation + capacity).
-  # ORG# is deliberately excluded: registration writes maintain it incrementally, and a
-  # delete-then-write pass over it would race them. See src/lambda/lib/statsRebuild.ts.
+  # Nightly rebuild of every stats partition that has no other writer; see src/lambda/lib/stats/README.md.
   RebuildStatsFunction:
     Type: AWS::Serverless::Function
     Properties:
@@ -26,9 +24,9 @@
             # unique per account and region. Unnamed, the first environment to deploy claims the
             # name for the whole account and every later one fails to create it.
             Name: !Sub '${AWS::StackName}-rebuild-stats-nightly'
-            # 01:00 UTC = 03:00 Helsinki in summer, 04:00 in winter — outside registration hours.
+            # 01:00 UTC = 04:00 Helsinki in summer (EEST), 03:00 in winter (EET), outside registration hours.
             ScheduleExpression: 'cron(0 1 * * ? *)'
-            Description: Nightly rebuild of participation and capacity statistics
+            Description: Nightly rebuild of participation, capacity, judge workload and event breakdown statistics
             State: ENABLED
             FlexibleTimeWindow:
               Mode: 'OFF'

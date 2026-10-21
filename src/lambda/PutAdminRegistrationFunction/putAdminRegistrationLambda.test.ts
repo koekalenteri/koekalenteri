@@ -127,7 +127,7 @@ vi.doMock('../lib/event', () => ({
   updateRegistrations: mockUpdateRegistrations,
 }))
 
-vi.doMock('../lib/stats', () => ({
+vi.doMock('../lib/stats/stats', () => ({
   applyNewRegistrationStatsOnce: mockApplyNewRegistrationStatsOnce,
   updateEventStatsForRegistration: mockUpdateEventStatsForRegistration,
 }))

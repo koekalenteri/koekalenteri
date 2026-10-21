@@ -30,7 +30,7 @@ import {
   writeMigratedRegistration,
 } from '../lib/repositories/registrationRepository'
 import { readAllUsers, readUser, writeMigratedUserRoles } from '../lib/repositories/userRepository'
-import { moveOrganizerEventStats } from '../lib/stats'
+import { moveOrganizerEventStats } from '../lib/stats/stats'
 import { userScopes } from '../lib/user'
 import { findOrganizerRepoints, repointRoles, unmappableRoleIds } from './organizerRepoints'
 

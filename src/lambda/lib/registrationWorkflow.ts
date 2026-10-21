@@ -50,7 +50,7 @@ import {
   clearRegistrationEmailDeliveryStatus,
   markNewRegistrationPhase,
 } from './repositories/registrationRepository'
-import { applyNewRegistrationStatsOnce, updateEventStatsForRegistration } from './stats'
+import { applyNewRegistrationStatsOnce, updateEventStatsForRegistration } from './stats/stats'
 import {
   publishEventCounts,
   publishPublicStartList,

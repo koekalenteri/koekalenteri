@@ -30,7 +30,7 @@ const mockGetCapacityStats =
 const mockGetCapacityStatsAllEventTypes = vi.fn<(from?: string, to?: string) => Promise<CapacityStatsEntry[]>>()
 const mockGetEventBreakdown = vi.fn<(year: number) => Promise<EventBreakdownEntry[]>>()
 
-vi.doMock('../lib/stats', () => ({
+vi.doMock('../lib/stats/stats', () => ({
   getAvailableYears: mockGetAvailableYears,
   getBreedStartBreakdown: mockGetBreedStartBreakdown,
   getCapacityStats: mockGetCapacityStats,

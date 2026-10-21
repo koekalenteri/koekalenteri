@@ -447,8 +447,8 @@ export const readAllStatKeys = async (): Promise<EventStatKey[]> =>
 
 /**
  * Puts the rows, overwriting each key in place. The rebuild (`buildStatsRecords` in
- * `lib/statsRebuild.ts`) still assembles the rows itself, keyed with the builders above, until
- * KOE-1348 moves the stats computation; this function only writes what it is given.
+ * `lib/stats/rebuild.ts`) assembles the rows itself, keyed with the builders above; this function
+ * only writes what it is given.
  */
 export const writeStatRecords = async (records: EventStatKey[]) => dynamoDB.batchWrite(records)
 
