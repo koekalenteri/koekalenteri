@@ -747,11 +747,6 @@ const addRegistrationStats = (
   handlerDogs.set(identifiers.handler, dogsForHandler)
 }
 
-/**
- * Processes one registration into the accumulator/capacity buckets. Returns whether it had to be
- * skipped (unresolvable event/year) and, when capacity is wanted, whether it couldn't be
- * attributed to a capacity bucket.
- */
 /** What every registration of one rebuild is counted into, and against. */
 interface RegistrationStatsContext {
   eventsById: Map<string, DatedStatsEvent>
@@ -764,6 +759,11 @@ interface RegistrationStatsContext {
   eventBreakdownBuckets: Map<string, EventBreakdownBucket>
 }
 
+/**
+ * Processes one registration into the accumulator/capacity buckets. Returns whether it had to be
+ * skipped (unresolvable event/year) and, when capacity is wanted, whether it couldn't be
+ * attributed to a capacity bucket.
+ */
 const processRegistrationStats = (
   registration: CapacityRegistrationInput,
   {
