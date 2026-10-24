@@ -13,7 +13,6 @@ import {
   isKcDayReached,
   isKcStateWritable,
   isResultsLocked,
-  kcFormatOfEventType,
   kcResultBadge,
   kcResultDay,
 } from './kennelliittoResults'
@@ -315,10 +314,6 @@ describe('kennelliittoResults', () => {
   })
 
   describe('the trial', () => {
-    it('is asked as its plain format whether or not it is a championship', () => {
-      expect(['NOWT SM', 'NOME-A SM', 'NOU'].map(kcFormatOfEventType)).toEqual(['NOWT', 'NOME-A', 'NOU'])
-    })
-
     it('cannot be sent without a Kennelliitto trial to send to', () => {
       const outcome = buildKcResult(event('NOU', { kcGuid: undefined }), dog(result({ result: 'NOU1' })), koemuotoNOU)
       expect(problemsOf(outcome)).toEqual([{ code: 'noKcGuid' }])
@@ -345,6 +340,13 @@ describe('kennelliittoResults', () => {
     const koemuoto: KcKoemuoto = { koemuoto: 'NOU', tarkenteet: [], tulokset: [] }
     expect(problemsOf(buildKcResult(event('NOU'), dog(result({ result: 'NOU1' })), koemuoto))).toEqual([
       { code: 'resultNotAllowed', detail: 'NOU1' },
+    ])
+  })
+
+  it('names a NOME-A result it cannot find as Kennelliitto would list it (KOE-1592)', () => {
+    const koemuoto: KcKoemuoto = { koemuoto: 'NOME-A', tarkenteet: [], tulokset: [] }
+    expect(problemsOf(buildKcResult(event('NOME-A'), dog(result({ result: 'NOME-A1' })), koemuoto))).toEqual([
+      { code: 'resultNotAllowed', detail: 'A1' },
     ])
   })
   describe('what the mapping refuses', () => {

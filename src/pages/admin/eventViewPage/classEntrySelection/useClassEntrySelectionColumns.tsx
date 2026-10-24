@@ -26,7 +26,7 @@ import {
   getRegistrationGroupKey,
   isPredefinedReason,
 } from '@/lib/registration'
-import { placementsFor, scoresAtPosts } from '@/lib/results'
+import { placementsFor, scoresAtPosts, shownEventResult } from '@/lib/results'
 import { isConfirmedEvent } from '@/lib/typeGuards'
 import GroupColors from './GroupColors'
 import RegistrationIcons from './RegistrationIcons'
@@ -404,7 +404,9 @@ export function useClassEntrySelectionColumns(
         headerName: t('results.column.result'),
         minWidth: 70,
         sortable: false,
-        valueGetter: (_value, row) => row.eventResult?.result ?? '',
+        // Kennelliitto's spelling, as KoiraNet lists it: `A1` fits the column where `NOME-A1` did not (KOE-1592).
+        valueGetter: (_value, row) =>
+          shownEventResult(row.eventResult?.result, event.eventType, row.class ?? undefined) ?? '',
         width: 70,
       })
       // Derived from the registrations held here, so it follows every move without being stored.

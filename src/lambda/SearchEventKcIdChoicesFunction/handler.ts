@@ -1,6 +1,6 @@
 import type { KcIdLookupCriteria } from '../lib/kcTrial'
 import { isOfficialEventType } from '../../lib/event'
-import { kcFormatOfEventType } from '../../lib/kennelliittoResults'
+import { kcFormatOfEventType } from '../../lib/results'
 import { requestDay } from '../../lib/storedDays'
 import { authorizeWithMemberOf } from '../lib/auth'
 import { parseJSONWithFallback } from '../lib/json'

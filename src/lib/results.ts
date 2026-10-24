@@ -381,6 +381,27 @@ export const eventResultPrefix = (eventType: string, eventClass?: string): strin
 export const formatEventResult = (code: ResultCode, eventType: string, eventClass?: string): string =>
   `${eventResultPrefix(eventType, eventClass)}${code}`
 
+/** The format as Kennelliitto names it (Koe/Kokeet, Koe/Koemuoto): a championship is its plain format. */
+export const kcFormatOfEventType = (eventType: string): string => eventType.replace(/ SM$/, '')
+
+/**
+ * The prefix Kennelliitto writes a result under: the class, or where the trial runs none, the last part
+ * of the format's name. NOME-A and its championship write `A1`, NOU and NKM keep their own name. Takes
+ * an event type or Koe/Koemuoto's `koemuoto`, which name a format the same way.
+ */
+export const resultPrefixAsKennelClub = (eventType: string, eventClass?: string): string => {
+  if (eventClass) return eventClass
+  const format = kcFormatOfEventType(eventType)
+  return format.slice(format.lastIndexOf('-') + 1)
+}
+
+/**
+ * A result as a person reads it: Kennelliitto's spelling, the one KoiraNet lists (KOE-1592). Stored
+ * results keep the prefix `formatEventResult` gives them; only what is shown changes.
+ */
+export const formatShownResult = (code: ResultCode, eventType: string, eventClass?: string): string =>
+  `${resultPrefixAsKennelClub(eventType, eventClass)}${code}`
+
 /**
  * Read the code back out of a stored result, so an entry screen can seed from what is recorded rather
  * than showing a scored dog as blank. Refuses a foreign prefix and a code the event type cannot award —
@@ -396,6 +417,19 @@ export const parseEventResultCode = (
 
   const code = result.slice(prefix.length)
   return availableResultCodes(eventType).find((candidate) => candidate === code)
+}
+
+/**
+ * A stored result as a person reads it (`formatShownResult`). A string this event cannot read back is
+ * shown as it is stored, never hidden.
+ */
+export const shownEventResult = (
+  result: string | undefined,
+  eventType: string,
+  eventClass?: string
+): string | undefined => {
+  const code = parseEventResultCode(result, eventType, eventClass)
+  return code ? formatShownResult(code, eventType, eventClass) : result
 }
 
 /** A task as it arrives from a client: provenance is the server's to assign, not the client's to claim. */

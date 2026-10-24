@@ -491,6 +491,7 @@ export default function EventResultsPage() {
       <ConflictDialog
         choices={choices}
         conflicts={conflicts}
+        eventType={event.eventType}
         onChoose={(id, choice) => setChoices((prev) => ({ ...prev, [id]: choice }))}
         onClose={() => setConflicts([])}
         onResolve={handleResolve}

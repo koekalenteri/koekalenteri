@@ -757,6 +757,30 @@ describe('putEventResultsLambda', () => {
       expect(mockUpdateRegistrationField.mock.calls[0][3]).toMatchObject({ result: 'NOU1' })
     })
 
+    it('stores a NOME-A result with its prefix and audits it as Kennelliitto lists it (KOE-1592)', async () => {
+      mockGetAuthorizedEvent.mockResolvedValue({
+        classes: [],
+        eventType: 'NOME-A',
+        organizer: { id: 'org-1', name: 'Org' },
+      })
+      mockReadEventRegistrations.mockResolvedValue([{ ...registration('reg-1'), class: undefined }])
+
+      await putEventResultsLambda(apiEvent([{ eventResult: { resultCode: '1' }, id: 'reg-1' }]))
+
+      expect(mockUpdateRegistrationField).toHaveBeenCalledWith(
+        'event-1',
+        'reg-1',
+        'eventResult',
+        expect.objectContaining({ result: 'NOME-A1' })
+      )
+      expect(mockAudit).toHaveBeenCalledWith({
+        auditKey: 'event-1:reg-1',
+        messageKey: 'audit.messages.resultSavedDetail',
+        messageParams: { result: 'A1' },
+        user: 'Sihteeri',
+      })
+    })
+
     it('refuses a code the event type cannot award', async () => {
       mockGetAuthorizedEvent.mockResolvedValue({
         classes: [],

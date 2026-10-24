@@ -3,7 +3,7 @@ import { dayOf, TIME_ZONE } from './day'
 import { hasRetrieveTypeChoice, isMockTrialClass } from './event'
 import { makeArray } from './judge'
 import { getRegistrationGroupDay, getRegistrationPlacement } from './registration'
-import { parseEventResultCode, resultMarks, scoresAtPosts } from './results'
+import { parseEventResultCode, resultMarks, resultPrefixAsKennelClub, scoresAtPosts, shownEventResult } from './results'
 
 /**
  * Turning a dog's recorded result into the body Kennelliitto's Koe/Tulos/Tallenna takes (KOE-1140).
@@ -35,9 +35,6 @@ export const isResultsLocked = (event: { kcState?: Pick<JsonKcState, 'code'> }):
  */
 export const countSentResults = (registrations: ReadonlyArray<{ kcResult?: Pick<JsonKcResult, 'status'> }>): number =>
   registrations.filter((registration) => registration.kcResult?.status === 'sent').length
-
-/** The format as Koe/Kokeet and Koe/Koemuoto name it: a championship is asked as its plain format. */
-export const kcFormatOfEventType = (eventType: string): string => eventType.replace(/ SM$/, '')
 
 /** Koe/Koemuoto `tulostyyppi` of the result itself and of an additional info. */
 const RESULT_TYPE = 247
@@ -115,9 +112,6 @@ const MAX_PRIZE_JUDGES = 4
 /** Letters only, lower case: `vara-SERT`, `vara sert` and `Vara Sert` are one name. */
 const nameKey = (value: string): string => value.toLocaleLowerCase('fi').replace(/[^\p{Letter}\p{Number}]+/gu, '')
 
-/** The part of the format's name that prefixes its results where the trial runs no classes: `NOME-A` is `A`. */
-const classlessPrefix = (koemuoto: string): string => koemuoto.split('-').at(-1) ?? koemuoto
-
 /**
  * Kennelliitto's spelling of the result. Koekalenteri stores the class or the event type in front of
  * the code (`NOME-A1`, `NOME-A SM1`) where Kennelliitto's own list says `A1`, so the string is rebuilt
@@ -129,8 +123,8 @@ const resultCodeOf = (registration: KcResultRegistration, event: KcResultEvent) 
 const klResultOf = (registration: KcResultRegistration, event: KcResultEvent, koemuoto: KcKoemuoto) => {
   const code = resultCodeOf(registration, event)
   if (!code) return undefined
-  const prefix = registration.class ?? classlessPrefix(koemuoto.koemuoto)
-  return koemuoto.tulokset.find((row) => row.tulostyyppi === RESULT_TYPE && row.tulos === `${prefix}${code}`)
+  const tulos = `${resultPrefixAsKennelClub(koemuoto.koemuoto, registration.class ?? undefined)}${code}`
+  return koemuoto.tulokset.find((row) => row.tulostyyppi === RESULT_TYPE && row.tulos === tulos)
 }
 
 const judgeId = (judge: PublicJudge): number | undefined => (judge.id ? judge.id : undefined)
@@ -263,10 +257,14 @@ const basicProblems = (
 /** The result's own problems: Kennelliitto's format does not list it, or it cannot carry the judge's stop. */
 const resultProblems = (
   registration: KcResultRegistration,
+  event: KcResultEvent,
   koemuoto: KcKoemuoto,
   row: KcKoemuotoResult | undefined
 ): KcProblem[] => {
-  if (!row) return [{ code: 'resultNotAllowed', detail: registration.eventResult?.result }]
+  if (!row) {
+    const detail = shownEventResult(registration.eventResult?.result, event.eventType, registration.class ?? undefined)
+    return [{ code: 'resultNotAllowed', detail }]
+  }
   const interrupted = resultMarks(registration.eventResult).length > 0
   return interrupted && !formatAllowsStop(koemuoto) ? [{ code: 'stopNotAllowed', detail: row.tulos }] : []
 }
@@ -291,7 +289,7 @@ export const buildKcResult = (
   const rank = placementOf(event, registration, placement)
   const problems = [
     ...basic,
-    ...(basic.length ? [] : resultProblems(registration, koemuoto, row)),
+    ...(basic.length ? [] : resultProblems(registration, event, koemuoto, row)),
     ...problemsOf(judges),
     ...problemsOf(info),
     ...problemsOf(type),

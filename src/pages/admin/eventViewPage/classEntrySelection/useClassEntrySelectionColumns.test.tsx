@@ -137,6 +137,27 @@ describe('useClassEntrySectionColumns', () => {
     expect(classGetter(undefined, asRegistration({ class: 'VOI' }))).toBe('VOI')
   })
 
+  it.each([
+    ['NOME-A', undefined, 'NOME-A1', 'A1'],
+    ['NOME-A SM', undefined, 'NOME-A SM-', 'A-'],
+    ['NOME-B', 'ALO' as const, 'ALO1', 'ALO1'],
+    ['NOU', undefined, 'NOU0', 'NOU0'],
+  ])('shows a %s result as Kennelliitto lists it (KOE-1592)', (eventType, eventClass, stored, shown) => {
+    const { result } = renderHook(() =>
+      useClassEntrySelectionColumns(mockAvailableDates, { ...eventWithStaticDatesAnd3Classes, eventType })
+    )
+
+    const resultGetter = result.current.participantColumns.find((col) => col.field === 'result')?.valueGetter as (
+      value: unknown,
+      row: Registration
+    ) => string
+    const row = asRegistration({
+      class: eventClass,
+      eventResult: { result: stored, updatedAt: new Date(), updatedBy: 'x' },
+    })
+    expect(resultGetter(undefined, row)).toBe(shown)
+  })
+
   it('should include callback functions in action column when provided', () => {
     const openEditDialogMock = vi.fn()
     const cancelRegistrationMock = vi.fn()
