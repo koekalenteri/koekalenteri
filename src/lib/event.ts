@@ -134,7 +134,7 @@ const dayPasses = (date: DayInput, test: (day: DayKey) => boolean): boolean => {
 /** The Finnish day `now` falls on: what every "has it started yet" question compares against. */
 const today = (now: Date) => dayOf(now, TIME_ZONE)
 
-type EventDateSortKey = { id: string; startDate?: Date | string; endDate?: Date | string }
+export type EventDateSortKey = { id: string; startDate?: Date | string; endDate?: Date | string }
 
 /** A day as it sorts: its key, or '' (first) for none. */
 const sortDay = (date: DayInput) => storedDayKey(date) ?? ''

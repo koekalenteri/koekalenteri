@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react'
 import type { TestStore } from '../test-utils/AtomProvider'
-import type { DogEvent, PublicDogEvent, Registration, User } from '../types'
+import type { DayKey, DogEvent, PublicDogEvent, Registration, User } from '../types'
 import { act, renderHook, waitFor } from '@testing-library/react'
 import { useAtom, useAtomValue, useSetAtom, useStore } from 'jotai'
 import { unwrap } from 'jotai/utils'
@@ -942,6 +942,79 @@ describe('useWebSocket', () => {
       expect(result.current[0]).toEqual(
         expect.objectContaining({ eventType: 'NOME-A', id: 'event-2', organizer: { id: 'org-1', name: 'Organizer' } })
       )
+    })
+  })
+
+  // A copied or new event arrives over the socket; both lists keep the calendar order a fetch gives
+  // them, so it does not sit after next year's events until a reload (KOE-1591).
+  describe('keeps the event lists in date order', () => {
+    const datedEvent = (id: string, startDate: DayKey, endDate = startDate) => ({
+      classes: [],
+      endDate,
+      eventType: 'NOME-A',
+      id,
+      judges: [],
+      location: 'Somewhere',
+      organizer: { id: 'org-1', name: 'Organizer' },
+      startDate,
+      state: 'confirmed' as const,
+    })
+    const september = datedEvent('september', '2026-09-01')
+    const nextYear = datedEvent('next-year', '2027-01-10')
+
+    const renderLists = () => {
+      const wrapper = function Wrapper({ children }: { readonly children: ReactNode }) {
+        return createElement(Provider, {
+          children,
+          initializeState: ({ set }: TestStore) => {
+            set(idTokenAtom, 'id-token')
+            set(adminEventsAtom, [asDogEvent(september), asDogEvent(nextYear)])
+            set(eventsAtom, [asPublicEvent(september), asPublicEvent(nextYear)])
+          },
+        })
+      }
+      return renderHook(
+        () => {
+          useWebSocket()
+          return {
+            admin: useAtomValue(adminEventsAtom).map((event) => event.id),
+            events: useAtomValue(eventsAtom).map((event) => event.id),
+          }
+        },
+        { wrapper }
+      )
+    }
+    const send = (message: Record<string, unknown>) =>
+      act(() => {
+        mockWebSocketInstance.onmessage?.({ data: JSON.stringify(message) })
+      })
+
+    it('inserts an admin event before the later ones', async () => {
+      const { result } = renderLists()
+      const { id, ...copied } = datedEvent('copied', '2026-10-21')
+
+      send({ ...copied, eventId: id, scope: 'admin:event-patch' })
+
+      await waitFor(() => expect(result.current.admin).toEqual(['september', 'copied', 'next-year']))
+      expect(result.current.events).toEqual(['september', 'copied', 'next-year'])
+    })
+
+    it('inserts a public event before the later ones', async () => {
+      const { result } = renderLists()
+      const { id, ...published } = datedEvent('published', '2026-10-21')
+
+      send({ ...published, eventId: id, scope: 'public:event-patch' })
+
+      await waitFor(() => expect(result.current.events).toEqual(['september', 'published', 'next-year']))
+    })
+
+    it('moves a redated event to its new slot', async () => {
+      const { result } = renderLists()
+
+      send({ endDate: '2027-02-01', eventId: 'september', scope: 'admin:event-patch', startDate: '2027-02-01' })
+
+      await waitFor(() => expect(result.current.admin).toEqual(['next-year', 'september']))
+      expect(result.current.events).toEqual(['next-year', 'september'])
     })
   })
 
