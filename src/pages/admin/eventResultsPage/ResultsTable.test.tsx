@@ -74,6 +74,7 @@ describe('ResultsTable result spelling', () => {
       <ResultsTable
         defaultJudges={{}}
         edits={{}}
+        eventClass="NOME-A"
         eventType="NOME-A"
         fullRound={[]}
         judgesFor={() => []}

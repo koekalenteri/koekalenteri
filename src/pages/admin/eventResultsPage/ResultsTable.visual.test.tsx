@@ -248,6 +248,7 @@ it('stacks a pass/fail round one dog under another on a phone', async () => {
 })
 
 // NOME-A's results read as KoiraNet lists them, A1 and A-, though they are stored as NOME-A1 (KOE-1592).
+// The page passes a classless trial's event type as its class, and so does this.
 const nomeARegistrations: Registration[] = [
   { ...nouRegistrations[0], eventResult: resultAt('2026-10-21T09:00:00Z', 'NOME-A1'), eventType: 'NOME-A' },
   { ...nouRegistrations[1], eventResult: resultAt('2026-10-21T09:30:00Z', 'NOME-A-'), eventType: 'NOME-A' },
@@ -259,6 +260,7 @@ it('shows a NOME-A result as Kennelliitto lists it (KOE-1592)', async () => {
       <ResultsTable
         defaultJudges={{}}
         edits={{}}
+        eventClass="NOME-A"
         eventType="NOME-A"
         fullRound={[]}
         judges={nouJudges}

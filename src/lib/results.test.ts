@@ -415,6 +415,9 @@ describe('resultPrefixAsKennelClub', () => {
   it.each([
     ['NOME-A', undefined, 'A'],
     ['NOME-A SM', undefined, 'A'],
+    ['NOME-A', 'NOME-A', 'A'],
+    ['NOME-A SM', 'NOME-A SM', 'A'],
+    ['NOU', 'NOU', 'NOU'],
     ['NOU', undefined, 'NOU'],
     ['NKM', undefined, 'NKM'],
     ['NOME-B', 'ALO', 'ALO'],
@@ -442,6 +445,7 @@ describe('shownEventResult', () => {
     ['NOME-A-', 'NOME-A', undefined, 'A-'],
     ['NOME-A0', 'NOME-A', undefined, 'A0'],
     ['NOME-A SM2', 'NOME-A SM', undefined, 'A2'],
+    ['NOME-A1', 'NOME-A', 'NOME-A', 'A1'],
     ['ALO1', 'NOME-B', 'ALO', 'ALO1'],
     ['VOI1', 'NOWT', 'VOI', 'VOI1'],
     ['NOU1', 'NOU', undefined, 'NOU1'],

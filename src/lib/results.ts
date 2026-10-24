@@ -388,9 +388,12 @@ export const kcFormatOfEventType = (eventType: string): string => eventType.repl
  * The prefix Kennelliitto writes a result under: the class, or where the trial runs none, the last part
  * of the format's name. NOME-A and its championship write `A1`, NOU and NKM keep their own name. Takes
  * an event type or Koe/Koemuoto's `koemuoto`, which name a format the same way.
+ *
+ * A class equal to the event type is no class: the pages read a classless dog's class as its event type
+ * (`getRegistrationClass`), and `eventResultPrefix` stores both the same.
  */
 export const resultPrefixAsKennelClub = (eventType: string, eventClass?: string): string => {
-  if (eventClass) return eventClass
+  if (eventClass && eventClass !== eventType) return eventClass
   const format = kcFormatOfEventType(eventType)
   return format.slice(format.lastIndexOf('-') + 1)
 }
