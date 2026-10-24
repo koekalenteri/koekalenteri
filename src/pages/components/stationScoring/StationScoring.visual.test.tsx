@@ -91,3 +91,31 @@ it("takes the judge's decision at the post of a qualitative type", async () => {
   await expect.element(screen.getByText('1. Ensimmainen')).toBeVisible()
   await expect(screen.getByTestId('visual-root')).toMatchScreenshot('station-scoring-qualitative')
 })
+
+// A NOME-A runs no classes: its stored NOME-A1 reads as KoiraNet lists it, A1 (KOE-1592).
+it('shows a NOME-A result at the post as Kennelliitto lists it', async () => {
+  const kp = { date: eventWithStations.startDate, key: `${eventWithStations.startDate}-kp`, time: 'kp' as const }
+  const nomeA = registrations.map(({ class: _class, ...dog }) => ({
+    ...dog,
+    eventResult: dog.id === 'run-1' ? { judge, result: 'NOME-A1' } : undefined,
+    eventType: 'NOME-A',
+    group: { ...kp, number: dog.group.number },
+  }))
+  const screen = await render(
+    <Frame>
+      <StationScoring
+        eventType="NOME-A"
+        onSave={async () => ({ registrations: [], saved: [] })}
+        onTurn={async () => {}}
+        registrations={nomeA}
+        station={{ id: '1', judges: [judge], number: 1, tasks: 1 }}
+        subtitle="Tuloskoe"
+        turns={[{ ...turns[0], stationId: '1' }]}
+      />
+    </Frame>
+  )
+
+  await screen.getByText('1 Ensimmainen').click()
+  await expect.element(screen.getByText('A1', { exact: true })).toBeVisible()
+  await expect(screen.getByTestId('visual-root')).toMatchScreenshot('station-scoring-nome-a')
+})
