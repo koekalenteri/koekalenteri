@@ -1,6 +1,7 @@
 import type { ButtonProps } from '@mui/material/Button'
 import type { DogEvent, Patch } from '@/types'
 import type { KcIdLookupEvent } from '../hooks/useKcIdLookup'
+import Link from '@mui/icons-material/Link'
 import Sync from '@mui/icons-material/Sync'
 import Button from '@mui/material/Button'
 import Stack from '@mui/material/Stack'
@@ -47,7 +48,7 @@ export const KcIdLookupButton = ({ editable, event, onChange, variant = 'contain
       disabled={searching || !organizerId}
       onClick={search}
       size="small"
-      startIcon={<Sync fontSize="small" />}
+      startIcon={hasKcGuid ? <Sync fontSize="small" /> : <Link fontSize="small" />}
       variant={variant}
     >
       {t(hasKcGuid ? 'event.kcIdSwitch' : 'event.kcIdLookup')}
