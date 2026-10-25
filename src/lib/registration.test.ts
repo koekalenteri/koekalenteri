@@ -39,6 +39,7 @@ import {
   getRegistrationNumberingGroupKey,
   getSelectedAdditionalCosts,
   getSentInvitationAttachment,
+  handlingPersonIsMember,
   hasInvalidRegistrationArrayFields,
   hasPriority,
   hasRefundableBalance,
@@ -1132,6 +1133,48 @@ describe('lib/registration', () => {
 
     it('should return false when registration is undefined', () => {
       expect(isMember(undefined)).toBe(false)
+    })
+  })
+
+  describe('handlingPersonIsMember', () => {
+    // KOE-1599: when an owner handles, the stored handler is only a copy of that owner, so the
+    // owner's membership is what the views show for the handler, as isMember and hasPriority read it.
+    it('reads the owner, not the stored copy, when an unset selection means the owner handles', () => {
+      expect(handlingPersonIsMember({ handler: { membership: true }, owner: { membership: false } })).toBe(false)
+    })
+
+    it('reads the owner, not the stored copy, when the owner handles', () => {
+      expect(
+        handlingPersonIsMember({ handler: { membership: true }, owner: { membership: false }, ownerHandles: true })
+      ).toBe(false)
+    })
+
+    it('is true when a member owner handles', () => {
+      expect(
+        handlingPersonIsMember({ handler: { membership: false }, owner: { membership: true }, ownerHandles: true })
+      ).toBe(true)
+    })
+
+    it("reads the separate handler's own membership when someone else handles", () => {
+      expect(
+        handlingPersonIsMember({ handler: { membership: true }, owner: { membership: false }, ownerHandles: false })
+      ).toBe(true)
+      expect(
+        handlingPersonIsMember({ handler: { membership: false }, owner: { membership: true }, ownerHandles: false })
+      ).toBe(false)
+    })
+
+    it('reads the owner the key selects among several owners', () => {
+      const owners = [
+        { key: 'a', membership: false },
+        { key: 'b', membership: true },
+      ]
+      expect(handlingPersonIsMember({ handler: { membership: false }, ownerHandles: 'b', owners })).toBe(true)
+      expect(handlingPersonIsMember({ handler: { membership: true }, ownerHandles: 'a', owners })).toBe(false)
+    })
+
+    it('is false when registration is undefined', () => {
+      expect(handlingPersonIsMember(undefined)).toBe(false)
     })
   })
 

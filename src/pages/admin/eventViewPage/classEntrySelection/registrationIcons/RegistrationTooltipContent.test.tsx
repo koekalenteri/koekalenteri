@@ -3,7 +3,8 @@ import type { ComponentProps } from 'react'
 import type { DayKey, PricedDogEvent, Registration } from '@/types'
 import { render, screen } from '@testing-library/react'
 import { withRowPaymentPicture } from '@/__mockData__/paymentPicture'
-import RegistrationTooltipContent from './RegistrationTooltipContent'
+import { getPaymentPicture } from '@/lib/payment'
+import RegistrationTooltipContent, { hasRegistrationTooltipContent } from './RegistrationTooltipContent'
 
 /** The tooltip as RegistrationIcons renders it: with the picture of the row's payment. */
 const Tooltip =
@@ -65,7 +66,15 @@ describe('RegistrationTooltipContent', () => {
   })
 
   it('should render membership tooltips correctly', () => {
-    render(<Tooltip event={mockEvent} reg={mockRegistration} priority={true} manualResultCount={0} rankingPoints={0} />)
+    render(
+      <Tooltip
+        event={mockEvent}
+        reg={{ ...mockRegistration, ownerHandles: false }}
+        priority={true}
+        manualResultCount={0}
+        rankingPoints={0}
+      />
+    )
 
     const handlerMembershipTooltip = screen
       .getAllByTestId('tooltip-icon')
@@ -77,6 +86,48 @@ describe('RegistrationTooltipContent', () => {
       .queryAllByTestId('tooltip-icon')
       .find((el) => el.getAttribute('data-text') === 'registration.ownerIsMember')
     expect(ownerMembershipTooltip).toBeUndefined()
+  })
+
+  // KOE-1599: when the owner handles, the stored handler is a copy of the owner; the tooltip reads the
+  // owner's membership for the handler, as the price and the priority do.
+  describe('when a non-member owner handles and the stored handler copy says member', () => {
+    const ownerHandlesCopy = {
+      handler: { membership: true, name: 'Test Owner' },
+      id: 'reg-1',
+      notes: '',
+      owner: { membership: false, name: 'Test Owner' },
+    } as unknown as Registration
+
+    it.each([undefined, true])('does not show the handler as a member (ownerHandles %s)', (ownerHandles) => {
+      render(
+        <Tooltip
+          event={mockEvent}
+          reg={{ ...mockRegistration, ownerHandles }}
+          priority={false}
+          manualResultCount={0}
+          rankingPoints={0}
+        />
+      )
+
+      expect(
+        screen
+          .queryAllByTestId('tooltip-icon')
+          .find((el) => el.getAttribute('data-text') === 'registration.handlerIsMember')
+      ).toBeUndefined()
+    })
+
+    it('has no tooltip content to show', () => {
+      expect(
+        hasRegistrationTooltipContent({
+          event: mockEvent,
+          manualResultCount: 0,
+          payment: getPaymentPicture(mockEvent, ownerHandlesCopy, []),
+          priority: false,
+          rankingPoints: 0,
+          reg: ownerHandlesCopy,
+        })
+      ).toBe(false)
+    })
   })
 
   it('should render payment tooltip when paid', () => {
