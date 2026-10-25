@@ -156,6 +156,16 @@ Resources:
               - !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/koekalenteri-dev-*
               - !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/koekalenteri-test-*
               - !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/koekalenteri-prod-*
+          # secrets.ts reads the parameters WithDecryption, so a SecureString one is decrypted with
+          # the role's credentials through SSM, and a boundary is not lifted by the key policy.
+          - Sid: ParameterKey
+            Effect: Allow
+            Action: kms:Decrypt
+            Resource: !Sub arn:aws:kms:${AWS::Region}:${AWS::AccountId}:key/*
+            Condition:
+              StringEquals:
+                kms:CallerAccount: !Ref AWS::AccountId
+                kms:ViaService: !Sub ssm.${AWS::Region}.amazonaws.com
           # What cannot be narrowed by name: metric data names no resource, SES sends as the
           # account's identities with its templates, and the Amplify service role's calls are
           # Amplify's own. aws/README.md lists this as the boundary's accepted residual.
@@ -319,6 +329,17 @@ Resources:
             Effect: Allow
             Action: secretsmanager:*
             Resource: !Sub arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:RegistrationEditTokenSecret-*
+          # CloudFormation resolves the functions' {{resolve:secretsmanager:...}} references with
+          # the role's credentials, and Secrets Manager decrypts the secret with them, under the
+          # account's aws/secretsmanager key.
+          - Sid: SecretKey
+            Effect: Allow
+            Action: kms:Decrypt
+            Resource: !Sub arn:aws:kms:${AWS::Region}:${AWS::AccountId}:key/*
+            Condition:
+              StringEquals:
+                kms:CallerAccount: !Ref AWS::AccountId
+                kms:ViaService: !Sub secretsmanager.${AWS::Region}.amazonaws.com
           - Sid: StackAppMonitors
             Effect: Allow
             Action: rum:*
@@ -558,14 +579,17 @@ Resources:
                   - !Sub arn:aws:iam::${AWS::AccountId}:policy/*-koekalenteri-dev
                   - !Sub arn:aws:iam::${AWS::AccountId}:policy/*-koekalenteri-test
                   - !Sub arn:aws:iam::${AWS::AccountId}:policy/*-koekalenteri-prod
-          # Nothing here grants a permission. Removing the boundary stays allowed because a
-          # rollback of the change that set it removes it again, and a role without it can be
-          # given no policy.
+          # Nothing here grants a permission or takes a boundary away, so every role the stacks
+          # create stays bounded. iam:DeleteRolePermissionsBoundary is allowed nowhere: a role
+          # given a wide policy under the boundary would hold all of it once the boundary is gone.
+          # Without it, a rollback that removes a boundary (only that of the first rollout) needs
+          # AdministratorAccess attached by hand (aws/README.md). IAM evaluates
+          # iam:PermissionsBoundary for no action here; their targets are bounded because no role
+          # of these names can be created or kept without it.
           - Sid: RoleUpkeep
             Effect: Allow
             Action:
               - iam:DeleteRole
-              - iam:DeleteRolePermissionsBoundary
               - iam:PassRole
               - iam:TagRole
               - iam:UntagRole

@@ -8,7 +8,7 @@ import {
   recordField,
   resolveIntrinsics,
 } from './test-utils/cloudFormationYaml'
-import { isAllowed, policyStatements, wildcardMatches } from './test-utils/iamPolicy'
+import { isAllowed, policyStatements } from './test-utils/iamPolicy'
 
 /**
  * The deploy role's permissions are written out in aws/github-deploy-role.yaml (KOE-1572). A
@@ -329,7 +329,6 @@ const roleCalls = (resource: Resource, stack: Stack): Call[] => {
     ...each(
       [
         'iam:DeleteRole',
-        'iam:DeleteRolePermissionsBoundary',
         'iam:GetRole',
         'iam:GetRolePolicy',
         'iam:ListAttachedRolePolicies',
@@ -555,6 +554,12 @@ const CALLS: Record<string, (resource: Resource, stack: Stack) => Call[]> = {
       stack.arn(resource.id)
     ),
     ...each(['secretsmanager:GetRandomPassword'], '*'),
+    // The functions' {{resolve:secretsmanager:...}} references, resolved with the role's credentials
+    ...each(['secretsmanager:GetSecretValue'], stack.arn(resource.id)),
+    ...each(['kms:Decrypt'], regionalArn('kms', `key/${ID}`), {
+      'kms:CallerAccount': ACCOUNT,
+      'kms:ViaService': `secretsmanager.${REGION}.amazonaws.com`,
+    }),
   ],
   'AWS::SNS::Subscription': (resource, stack) => {
     const topic = stack.string(resource.properties.TopicArn, `${resource.id}.TopicArn`)
@@ -603,13 +608,16 @@ const tableGrant =
     ]
   }
 
+/** SAM writes a bucket template as one statement: every action on the bucket and on its objects. */
 const bucketGrants =
   (bucketActions: string[], objectActions: string[]) =>
   (parameters: Record<string, unknown>, stack: Stack): TemplateGrant[] => {
     const bucket = `arn:aws:s3:::${stack.string(parameters.BucketName, 'BucketName')}`
     return [
-      { actions: bucketActions.map((action) => `s3:${action}`), resources: [bucket] },
-      { actions: objectActions.map((action) => `s3:${action}`), resources: [`${bucket}/*`] },
+      {
+        actions: [...bucketActions, ...objectActions].map((action) => `s3:${action}`),
+        resources: [bucket, `${bucket}/*`],
+      },
     ]
   }
 
@@ -755,19 +763,21 @@ const roleGrants = (stack: Stack): Grant[] =>
     return []
   })
 
-const boundaryAllowsAction = (action: string) =>
-  boundaryStatements.some(
-    (statement) =>
-      statement.effect === 'Allow' && statement.actions.some((pattern) => wildcardMatches(pattern, action, true))
-  )
+/**
+ * The SSM reads are granted on `*` in the template, but the boundary names the parameters, and
+ * the parameter test below checks the names secrets.ts reads instead.
+ */
+const NAMED_BY_THE_PARAMETER_TEST = new Set(['ssm:GetParameter', 'ssm:GetParameters'])
 
-/** A resource of `*` is checked for the action alone: IAM decides it on the resource the call names. */
+/** A grant on `*` needs the boundary to allow the action on `*` too, the way IAM decides it. */
 const boundaryRefuses = (grants: Grant[]) =>
   grants.flatMap((grant) =>
     grant.actions.flatMap((action) =>
       grant.resources
-        .filter((resource) =>
-          resource === '*' ? !boundaryAllowsAction(action) : !isAllowed(boundaryStatements, action, resource)
+        .filter(
+          (resource) =>
+            !(resource === '*' && NAMED_BY_THE_PARAMETER_TEST.has(action)) &&
+            !isAllowed(boundaryStatements, action, resource)
         )
         .map((resource) => `${grant.where}: ${action} ${resource}`)
     )
@@ -950,10 +960,31 @@ describe('the deploy role', () => {
     ).toEqual([])
   })
 
-  // A rollback of the change that set the boundary removes it again; a role without it can be
-  // given no policy, so this gives nothing.
-  it('may remove the boundary from a stack role', () => {
-    expect(allowed('iam:DeleteRolePermissionsBoundary', `arn:aws:iam::${ACCOUNT}:role/koekalenteri-dev-x`)).toBe(true)
+  // A role given a wide policy under the boundary would hold all of it once the boundary is gone.
+  it('cannot remove the boundary from a stack role', () => {
+    expect(allowed('iam:DeleteRolePermissionsBoundary', `arn:aws:iam::${ACCOUNT}:role/koekalenteri-dev-x`)).toBe(false)
+  })
+
+  it('cannot unbound a role it gave a wide policy', () => {
+    const role = `arn:aws:iam::${ACCOUNT}:role/koekalenteri-dev-x`
+    const steps = [
+      ['create it bounded', allowed('iam:CreateRole', role, bounded)],
+      ['give it Allow * under the boundary', allowed('iam:PutRolePolicy', role, bounded)],
+      ['remove the boundary', allowed('iam:DeleteRolePermissionsBoundary', role, bounded)],
+      [
+        'swap the boundary for a wider policy',
+        allowed('iam:PutRolePermissionsBoundary', role, {
+          'iam:PermissionsBoundary': 'arn:aws:iam::aws:policy/AdministratorAccess',
+        }),
+      ],
+    ]
+
+    expect(steps).toEqual([
+      ['create it bounded', true],
+      ['give it Allow * under the boundary', true],
+      ['remove the boundary', false],
+      ['swap the boundary for a wider policy', false],
+    ])
   })
 })
 
@@ -1009,6 +1040,21 @@ describe('the permissions boundary', () => {
     expect(calls).toBeGreaterThan(0)
     expect(stacked.length).toBeGreaterThan(0)
     expect(refused).toEqual([])
+  })
+
+  // secrets.ts reads WithDecryption; a SecureString parameter is decrypted with the role's own
+  // credentials through SSM, and the boundary caps that call too.
+  it('lets a role decrypt a parameter through SSM, and only through it', () => {
+    const key = regionalArn('kms', 'key/1234abcd-12ab-34cd-56ef-1234567890ab')
+    const through = (service: string) => ({
+      'kms:CallerAccount': ACCOUNT,
+      'kms:ViaService': `${service}.${REGION}.amazonaws.com`,
+    })
+
+    expect(readFileSync('src/lambda/lib/secrets.ts', 'utf8')).toContain('WithDecryption: true')
+    expect(isAllowed(boundaryStatements, 'kms:Decrypt', key, through('ssm'))).toBe(true)
+    expect(isAllowed(boundaryStatements, 'kms:Decrypt', key, through('s3'))).toBe(false)
+    expect(isAllowed(boundaryStatements, 'kms:Decrypt', key)).toBe(false)
   })
 
   it.each([
