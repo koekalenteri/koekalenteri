@@ -61,10 +61,15 @@ vi.doMock('../lib/lambda', async () => ({
 
 const mockPublishCancelledRegistration = vi.fn()
 vi.doMock('../lib/payment', async () => ({
+  // The real check: a stored transaction of the wrong type is refused before anything is written (KOE-1608).
   parseParams: mockParseParams,
   publishCancelledRegistration: mockPublishCancelledRegistration,
   publishParticipantPaymentsOfEvent: (await vi.importActual<typeof import('../lib/payment')>('../lib/payment'))
     .publishParticipantPaymentsOfEvent,
+  // The real read and check, over the mocked repository: a stored transaction of the wrong type is
+  // refused before anything is written (KOE-1608).
+  readCallbackTransaction: (await vi.importActual<typeof import('../lib/payment')>('../lib/payment'))
+    .readCallbackTransaction,
   settleFailedTransaction: mockSettleFailedTransaction,
   updateTransactionStatus: mockUpdateTransactionStatus,
   verifyParams: mockVerifyParams,
@@ -177,6 +182,7 @@ describe('paymentSuccessLambda', () => {
       reference: 'event123:reg456',
       status: 'pending',
       transactionId: 'tx123',
+      type: 'payment',
       user: 'user123',
     })
 
@@ -265,6 +271,7 @@ describe('paymentSuccessLambda', () => {
         reference: 'event123:reg456',
         status: 'pending',
         transactionId: 'tx123',
+        type: 'payment',
         user: 'user123',
       },
       'event123',
@@ -719,6 +726,39 @@ describe('paymentSuccessLambda', () => {
     expect(mockResponse).toHaveBeenCalledWith(200, undefined, event)
   })
 
+  // The mirror of the refund route's replay: a refund's signed parameters name the registration and the
+  // amount of the refund itself, so only the stored type tells them apart (KOE-1608).
+  it.each(['ok', 'fail', 'pending'])('refuses a refund transaction reported %s and writes nothing', async (status) => {
+    mockParseParams.mockReturnValueOnce({
+      eventId: 'event123',
+      provider: 'paytrail',
+      registrationId: 'reg456',
+      status,
+      transactionId: 'tx123',
+    })
+    mockReadTransaction.mockResolvedValueOnce({
+      amount: 5000,
+      createdAt: '2025-01-01T00:00:00.000Z',
+      reference: 'event123:reg456',
+      stamp: 'stamp-1',
+      status: 'pending',
+      transactionId: 'tx123',
+      type: 'refund',
+      user: 'secretary',
+    })
+
+    await expect(paymentSuccessLambda(event)).rejects.toMatchObject({ status: 400 })
+
+    expect(mockGetRegistration).not.toHaveBeenCalled()
+    expect(mockApplySuccessfulPayment).not.toHaveBeenCalled()
+    expect(mockRecordDuplicatePayment).not.toHaveBeenCalled()
+    expect(mockClaimPostPaymentWorkflow).not.toHaveBeenCalled()
+    expect(mockSettleFailedTransaction).not.toHaveBeenCalled()
+    expect(mockUpdateTransactionStatus).not.toHaveBeenCalled()
+    expect(mockSendTemplatedMail).not.toHaveBeenCalled()
+    expect(mockAudit).not.toHaveBeenCalled()
+  })
+
   it('passes through errors from verifyParams', async () => {
     const error = new Error('Verification failed')
     mockVerifyParams.mockRejectedValueOnce(error)
@@ -901,6 +941,7 @@ describe('paymentSuccessLambda', () => {
       reference: 'event123:reg456',
       status: 'pending',
       transactionId: 'tx123',
+      type: 'payment',
       user: 'user123',
     })
     mockApplySuccessfulPayment.mockResolvedValueOnce({ applied: false, appliedAt: '2025-01-01T00:00:00.000Z' })
@@ -926,6 +967,7 @@ describe('paymentSuccessLambda', () => {
       reference: 'event123:reg456',
       status: 'pending',
       transactionId: 'tx123',
+      type: 'payment',
       user: 'user123',
     })
     mockGetRegistration.mockResolvedValue({
@@ -957,6 +999,7 @@ describe('paymentSuccessLambda', () => {
       reference: 'event123:reg456',
       status: 'pending',
       transactionId: 'tx123',
+      type: 'payment',
       user: 'user123',
     })
     mockApplySuccessfulPayment.mockResolvedValueOnce({ applied: false, appliedAt: '2025-01-01T00:00:00.000Z' })
@@ -1135,6 +1178,7 @@ describe('paymentSuccessLambda', () => {
         registrationAppliedAt: '2025-01-01T00:00:00.000Z',
         status: 'ok',
         transactionId: 'tx123',
+        type: 'payment',
         user: 'user123',
       })
       mockGetRegistration.mockResolvedValue({

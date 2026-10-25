@@ -1,4 +1,3 @@
-import type { JsonRefundTransaction } from '../../types'
 import type { PaytrailCallbackParams } from '../types/paytrail'
 import { paymentAudit } from '../../lib/audit'
 import { formatMoney } from '../../lib/money'
@@ -20,7 +19,7 @@ const refundCancelLambda = lambda('refundCancel', async (event) => {
     return response(200, undefined, event)
   }
 
-  const { registration, transaction } = await resolveCallbackTransaction<JsonRefundTransaction>(params)
+  const { registration, transaction } = await resolveCallbackTransaction(params, 'refund')
 
   // The provider is not updated here, as before: only the status moves, read from the transaction's
   // own stored provider for the audit line (KOE-1529).

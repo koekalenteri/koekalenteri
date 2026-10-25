@@ -4,7 +4,7 @@ import { answerRejections, constructPartialAPIGwEvent } from '../test-utils/help
 import { loggedLines } from '../test-utils/logs'
 
 const mockLambda = vi.fn((_name, fn) => answerRejections(fn, mockResponse))
-const mockResponse = vi.fn().mockImplementation((statusCode: number, body: any) => ({
+const mockResponse = vi.fn().mockImplementation((statusCode: number, body: unknown) => ({
   body: JSON.stringify(body),
   headers: { 'Content-Type': 'application/json' },
   statusCode,
@@ -31,9 +31,14 @@ vi.doMock('../lib/event', () => ({
 
 // The settle is the shared step every other failure writer uses too, tested in lib/payment; this
 // handler only has to hand it the row and send on whatever it answers with (KOE-1526, KOE-1529).
-vi.doMock('../lib/payment', () => ({
+vi.doMock('../lib/payment', async () => ({
+  // The real check: a refund's parameters never settle a payment (KOE-1608).
   parseParams: mockParseParams,
   publishCancelledRegistration: mockPublishCancelledRegistration,
+  // The real read and check, over the mocked repository: a stored transaction of the wrong type is
+  // refused before anything is written (KOE-1608).
+  readCallbackTransaction: (await vi.importActual<typeof import('../lib/payment')>('../lib/payment'))
+    .readCallbackTransaction,
   settleFailedTransaction: mockSettleFailedTransaction,
   verifyParams: mockVerifyParams,
 }))
@@ -81,6 +86,7 @@ describe('paymentVerifyLambda', () => {
       reference: 'event123:reg456',
       status: 'pending',
       transactionId: 'tx123',
+      type: 'payment',
       user: 'user123',
     })
 
@@ -92,6 +98,38 @@ describe('paymentVerifyLambda', () => {
     mockGetRegistrationEditToken.mockReturnValue('edit-token')
 
     mockSettleFailedTransaction.mockResolvedValue({ changed: false, moved: false })
+  })
+
+  it('answers an error and settles nothing for a refund transaction (KOE-1608)', async () => {
+    mockParseParams.mockReturnValueOnce({
+      eventId: 'event123',
+      provider: 'paytrail',
+      registrationId: 'reg456',
+      status: 'fail',
+      transactionId: 'tx123',
+    })
+    mockReadTransaction.mockResolvedValueOnce({
+      amount: 5000,
+      reference: 'event123:reg456',
+      status: 'pending',
+      transactionId: 'tx123',
+      type: 'refund',
+      user: 'secretary',
+    })
+    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+
+    await paymentVerifyLambda(event)
+
+    expect(loggedLines(consoleSpy)).toContainEqual(expect.objectContaining({ message: 'failed to verify payment' }))
+    consoleSpy.mockRestore()
+    expect(mockGetRegistration).not.toHaveBeenCalled()
+    expect(mockSettleFailedTransaction).not.toHaveBeenCalled()
+    expect(mockPublishCancelledRegistration).not.toHaveBeenCalled()
+    expect(mockResponse).toHaveBeenCalledWith(
+      200,
+      { eventId: 'event123', paymentStatus: 'fail', registrationId: 'reg456', status: 'error' },
+      event
+    )
   })
 
   it('verifies a successful payment correctly', async () => {
@@ -179,6 +217,7 @@ describe('paymentVerifyLambda', () => {
         reference: 'event123:reg456',
         status: 'pending',
         transactionId: 'tx123',
+        type: 'payment',
         user: 'user123',
       },
       { eventId: 'event123', id: 'reg456', openPayments: ['tx123'] },

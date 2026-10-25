@@ -89,6 +89,7 @@ const {
   publishCancelledRegistration,
   publishParticipantPayments,
   publishParticipantPaymentsOfEvent,
+  readCallbackTransaction,
   storedParticipantPaymentPatch,
   refundPaytrailErrorAudit,
   resolveCallbackTransaction,
@@ -114,6 +115,17 @@ const paymentTransaction: JsonPaymentTransaction = {
   transactionId: 'transaction-1',
   type: 'payment',
   user: 'Test User',
+}
+
+const refundTransaction: JsonRefundTransaction = {
+  amount: 5000,
+  createdAt: '2026-08-17T10:00:00.000Z',
+  reference: 'event-1:registration-1',
+  stamp: 'stamp-2',
+  status: 'pending',
+  transactionId: 'transaction-1',
+  type: 'refund',
+  user: 'Secretary',
 }
 
 describe('payment', () => {
@@ -214,9 +226,37 @@ describe('payment', () => {
     })
   })
 
+  describe('readCallbackTransaction', () => {
+    it.each([
+      ['payment', paymentTransaction],
+      ['refund', refundTransaction],
+    ] as const)('answers a stored %s read as one', async (type, stored) => {
+      mockReadTransaction.mockResolvedValueOnce(stored)
+
+      await expect(readCallbackTransaction('transaction-1', type)).resolves.toBe(stored)
+      expect(mockReadTransaction).toHaveBeenCalledWith('transaction-1')
+    })
+
+    // KOE-1608: the payer's own signed parameters verify on the other type's routes too.
+    it.each([
+      ['payment', refundTransaction, "Transaction 'transaction-1' is a refund, not a payment"],
+      ['refund', paymentTransaction, "Transaction 'transaction-1' is a payment, not a refund"],
+    ] as const)('refuses a stored transaction read as a %s with a 400', async (type, stored, error) => {
+      mockReadTransaction.mockResolvedValueOnce(stored)
+
+      await expect(readCallbackTransaction('transaction-1', type)).rejects.toMatchObject({ error, status: 400 })
+    })
+
+    it('answers undefined when there is no transaction', async () => {
+      mockReadTransaction.mockResolvedValueOnce(undefined)
+
+      await expect(readCallbackTransaction('transaction-1', 'payment')).resolves.toBeUndefined()
+    })
+  })
+
   describe('resolveCallbackTransaction', () => {
     it('reads the transaction the callback names and the registration it belongs to', async () => {
-      const resolved = await resolveCallbackTransaction<JsonPaymentTransaction>(params)
+      const resolved = await resolveCallbackTransaction(params, 'payment')
 
       expect(resolved).toMatchObject({
         eventId: 'event-1',
@@ -231,8 +271,30 @@ describe('payment', () => {
     it('throws a 404 when the transaction does not exist, without reading the registration', async () => {
       mockReadTransaction.mockResolvedValueOnce(undefined)
 
-      await expect(resolveCallbackTransaction<JsonPaymentTransaction>(params)).rejects.toMatchObject({ status: 404 })
+      await expect(resolveCallbackTransaction(params, 'payment')).rejects.toMatchObject({ status: 404 })
       expect(mockGetRegistration).not.toHaveBeenCalled()
+    })
+
+    // The payer's own signed return parameters verify on every callback route (KOE-1608).
+    it.each([
+      ['payment', refundTransaction],
+      ['refund', paymentTransaction],
+    ] as const)(
+      'refuses a %s callback naming the other type with a 400, without reading the registration',
+      async (type, stored) => {
+        mockReadTransaction.mockResolvedValueOnce(stored)
+
+        await expect(resolveCallbackTransaction(params, type)).rejects.toMatchObject({ status: 400 })
+        expect(mockGetRegistration).not.toHaveBeenCalled()
+      }
+    )
+
+    it('reads a refund the refund callback names', async () => {
+      mockReadTransaction.mockResolvedValueOnce(refundTransaction)
+
+      await expect(resolveCallbackTransaction(params, 'refund')).resolves.toMatchObject({
+        transaction: refundTransaction,
+      })
     })
   })
 

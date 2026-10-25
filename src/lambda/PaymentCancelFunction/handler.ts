@@ -1,4 +1,3 @@
-import type { JsonTransaction } from '../../types'
 import type { PaytrailCallbackParams } from '../types/paytrail'
 import { paymentAudit } from '../../lib/audit'
 import { formatMoney } from '../../lib/money'
@@ -11,7 +10,7 @@ import { publishCancelledRegistration, resolveCallbackTransaction, settleFailedT
  */
 const paymentCancelLambda = lambda('paymentCancel', async (event) => {
   const params: Partial<PaytrailCallbackParams> = event.queryStringParameters ?? {}
-  const { provider, registration, transaction } = await resolveCallbackTransaction<JsonTransaction>(params)
+  const { provider, registration, transaction } = await resolveCallbackTransaction(params, 'payment')
 
   const settled = await settleFailedTransaction(transaction, registration, 'openPayments', {
     auditActor: transactionActor,

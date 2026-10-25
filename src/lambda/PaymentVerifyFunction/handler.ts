@@ -6,9 +6,14 @@ import { getProviderName, transactionActor } from '../../lib/payment'
 import { parseJSONWithFallback } from '../lib/json'
 import { lambda, response } from '../lib/lambda'
 import { logger } from '../lib/log'
-import { parseParams, publishCancelledRegistration, settleFailedTransaction, verifyParams } from '../lib/payment'
+import {
+  parseParams,
+  publishCancelledRegistration,
+  readCallbackTransaction,
+  settleFailedTransaction,
+  verifyParams,
+} from '../lib/payment'
 import { getRegistration, getRegistrationEditToken } from '../lib/registration'
-import { readTransaction } from '../lib/repositories/transactionRepository'
 
 /**
  * paymentVerify is called by client when returning from payment provider.
@@ -23,7 +28,8 @@ const paymentVerifyLambda = lambda('paymentVerify', async (event) => {
     /**
      * NB: the stored transaction status is probably outdated, since its updated by callback from the payment provider.
      */
-    const transaction = await readTransaction(transactionId)
+    // Never a refund: its parameters would fail it below (KOE-1608).
+    const transaction = await readCallbackTransaction(transactionId, 'payment')
     if (!transaction) throw new Error(`Transaction with id '${transactionId}' was not found`)
 
     const status = paymentStatus === 'fail' ? 'error' : 'ok'

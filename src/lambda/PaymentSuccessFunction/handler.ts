@@ -28,6 +28,7 @@ import {
   parseParams,
   publishCancelledRegistration,
   publishParticipantPaymentsOfEvent,
+  readCallbackTransaction,
   settleFailedTransaction,
   updateTransactionStatus,
   verifyParams,
@@ -45,7 +46,6 @@ import {
   applySuccessfulPayment,
   claimPostPaymentWorkflow,
   markPostPaymentPhase,
-  readTransaction,
   recordDuplicatePayment,
 } from '../lib/repositories/transactionRepository'
 import { publishEventCounts, publishEventCountsStrict, publishRegistrationPatchesStrict } from '../lib/ws/actions'
@@ -405,7 +405,8 @@ const paymentSuccessLambda = lambda('paymentSuccess', async (event) => {
   await verifyParams(params)
   if (!transactionId) throw new Error('Missing transaction id')
 
-  const storedTransaction = await readTransaction(transactionId)
+  // A refund's own signed parameters verify here too: refused before anything is written (KOE-1608).
+  const storedTransaction = await readCallbackTransaction(transactionId, 'payment')
   const callbackAmount = Number.parseInt(params['checkout-amount'] ?? '', 10)
   if (!storedTransaction && status !== 'ok') {
     throw new Error(`Transaction with id '${transactionId}' was not found`)

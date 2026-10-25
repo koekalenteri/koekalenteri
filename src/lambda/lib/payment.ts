@@ -156,19 +156,52 @@ export const verifyParams = async (params: Partial<PaytrailCallbackParams>) => {
   }
 }
 
+interface TransactionOfType {
+  payment: JsonPaymentTransaction
+  refund: JsonRefundTransaction
+}
+
+type TransactionType = keyof TransactionOfType
+
+const isTransactionOfType = <K extends TransactionType>(
+  transaction: JsonTransaction,
+  type: K
+): transaction is TransactionOfType[K] => transaction.type === type
+
+/**
+ * The stored transaction a callback names, or undefined when there is none, refused unless it is the
+ * route's own type. Paytrail signs the payer's return address with the same parameters as its
+ * callbacks, and a payment's reference and amount are the payment's own, so its signed parameters
+ * verify on the refund routes too, and a refund's on the payment routes. Only the stored type tells
+ * them apart, so the check runs right after the read, before anything else is read or written
+ * (KOE-1608).
+ */
+export const readCallbackTransaction = async <K extends TransactionType>(
+  transactionId: string | undefined,
+  type: K
+): Promise<TransactionOfType[K] | undefined> => {
+  const transaction = await readTransaction(transactionId)
+  if (!transaction) return undefined
+  if (!isTransactionOfType(transaction, type)) {
+    throw new LambdaError(400, `Transaction '${transaction.transactionId}' is a ${transaction.type}, not a ${type}`)
+  }
+  return transaction
+}
+
 /**
  * The transaction and registration a provider's callback names, verified and read. Shared by
  * PaymentCancel and RefundCancel, the two callbacks that only ever receive a reference to an
- * existing transaction (KOE-1529).
+ * existing transaction (KOE-1529). The transaction must be of the route's `type` (KOE-1608).
  */
-export const resolveCallbackTransaction = async <T extends JsonTransaction>(
-  params: Partial<PaytrailCallbackParams>
+export const resolveCallbackTransaction = async <K extends TransactionType>(
+  params: Partial<PaytrailCallbackParams>,
+  type: K
 ) => {
   const { eventId, provider, registrationId, transactionId } = parseParams(params)
 
   await verifyParams(params)
 
-  const transaction = await readTransaction<T>(transactionId)
+  const transaction = await readCallbackTransaction(transactionId, type)
   if (!transaction) throw new LambdaError(404, `Transaction with id '${transactionId}' was not found`)
 
   const registration = await getRegistration(eventId, registrationId)
