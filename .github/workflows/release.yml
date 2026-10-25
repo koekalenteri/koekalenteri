@@ -187,6 +187,29 @@ jobs:
           # A migration that left values it could not read is not recorded as applied: it runs again on
           # the next deploy, and the function's log names the rows. A warning, not a failure.
           jq -r '.body | fromjson | .[] | select(.unreadable) | "::warning::\(.name) left \(.unreadable) rows with a value it could not read; it runs again on the next deploy"' migration-result.json
+      # Stats rebuild: the rebuilt partitions are otherwise written only by the nightly run, so a release
+      # that changes how they are computed would show the old numbers until the next morning. It runs
+      # after the migrations, which may rewrite the rows it reads. The invoke is asynchronous: a run takes
+      # up to the function's 15 minute timeout, and nothing later in the deploy needs its result. Lambda
+      # answers 202 once the event is queued, which is all this step checks; a run that fails raises
+      # RebuildStatsFunctionErrorAlarm (template/functions/scheduled/rebuild-stats.yaml). One attempt
+      # (AWS_MAX_ATTEMPTS), so a retried request does not queue a second run beside the first.
+      - name: Start the stats rebuild
+        env:
+          AWS_MAX_ATTEMPTS: 1
+        run: |
+          function_name=$(aws cloudformation describe-stack-resource \
+            --stack-name "${{ env.environment }}" \
+            --logical-resource-id RebuildStatsFunction \
+            --query StackResourceDetail.PhysicalResourceId --output text)
+          status=$(aws lambda invoke --function-name "$function_name" \
+            --invocation-type Event \
+            --cli-binary-format raw-in-base64-out \
+            --payload '{}' \
+            --query StatusCode --output text rebuild-stats-result.json)
+          [[ "$status" == "202" ]] \
+            || { echo "::error::Stats rebuild was not queued (status $status)"; exit 1; }
+          echo "Stats rebuild queued for $function_name"
 
   deploy-frontend:
     # After the backend, never beside it: the Amplify build reads its configuration from environment
