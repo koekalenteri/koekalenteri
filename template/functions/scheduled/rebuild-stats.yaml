@@ -1,4 +1,5 @@
-  # Nightly rebuild of every stats partition that has no other writer; see src/lambda/lib/stats/README.md.
+  # Nightly rebuild of every stats partition that has no other writer, also started after every deploy
+  # (.github/workflows/release.yml); see src/lambda/lib/stats/README.md.
   RebuildStatsFunction:
     Type: AWS::Serverless::Function
     Properties:
@@ -36,7 +37,7 @@
   RebuildStatsFunctionErrorAlarm:
     Type: AWS::CloudWatch::Alarm
     Properties:
-      AlarmDescription: Nightly stats rebuild failed
+      AlarmDescription: Stats rebuild failed
       Namespace: AWS/Lambda
       MetricName: Errors
       Dimensions:
@@ -82,7 +83,7 @@
   RebuildStatsFunctionUnattributedCapacityAlarm:
     Type: AWS::CloudWatch::Alarm
     Properties:
-      AlarmDescription: Nightly stats rebuild found registrations it could not attribute to a capacity class
+      AlarmDescription: Stats rebuild found registrations it could not attribute to a capacity class
       AlarmName: !Sub '${AWS::StackName}-rebuild-stats-unattributed-capacity'
       Namespace: KoekalenteriApp
       MetricName: UnattributedCapacityRegistrations

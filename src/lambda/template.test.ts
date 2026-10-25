@@ -27,6 +27,12 @@ const matchAll = (pattern: RegExp) => [...template.matchAll(pattern)].map((match
 
 const analysis = analyzeTableUse(handlerDirectories.map((dir) => `src/lambda/${dir}/handler.ts`))
 
+// A resource line may carry a trailing comment (UserLinkTable does).
+const tableBlocks = () =>
+  template
+    .split(/^ {2}(?=\w+:.*\n {4}Type: )/m)
+    .filter((block) => /^\w+:.*\n {4}Type: AWS::DynamoDB::Table\s*$/m.test(block))
+
 describe('template', () => {
   it('has a function for every lambda directory, and nothing else', () => {
     const codeUris = matchAll(/^ {6}CodeUri: lambda\/(\w+)$/gm).sort()
@@ -71,10 +77,7 @@ describe('template', () => {
       EventStatsTable: 'the nightly run rebuilds the statistics from the registrations',
       WsConnectionsTable: 'the connections expire on their own and mean nothing after a restore',
     }
-    // A resource line may carry a trailing comment (UserLinkTable does).
-    const tables = template
-      .split(/^ {2}(?=\w+:.*\n {4}Type: )/m)
-      .filter((block) => /^\w+:.*\n {4}Type: AWS::DynamoDB::Table\s*$/m.test(block))
+    const tables = tableBlocks()
     const recovery = Object.fromEntries(
       tables.map((block) => [block.slice(0, block.indexOf(':')), /^ {8}PointInTimeRecoveryEnabled: true$/m.test(block)])
     )
@@ -84,6 +87,19 @@ describe('template', () => {
     expect(recovery).toEqual(
       Object.fromEntries(Object.keys(recovery).map((name) => [name, !(name in withoutRecovery)]))
     )
+  })
+
+  // SSEEnabled: true encrypts a table with the AWS-managed aws/dynamodb KMS key, and DynamoDB then
+  // calls KMS on the table's behalf, each request billed (82 000 in October 2026). False keeps the
+  // data encrypted at rest with a key AWS owns, at no charge (KOE-1603).
+  it('encrypts every table with the AWS-owned key', () => {
+    const tables = tableBlocks()
+    const ownedKey = Object.fromEntries(
+      tables.map((block) => [block.slice(0, block.indexOf(':')), /^ {8}SSEEnabled: false$/m.test(block)])
+    )
+
+    expect(tables).toHaveLength(template.match(/^ {4}Type: AWS::DynamoDB::Table\s*$/gm)?.length ?? 0)
+    expect(ownedKey).toEqual(Object.fromEntries(Object.keys(ownedKey).map((name) => [name, true])))
   })
 })
 
