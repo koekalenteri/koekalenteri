@@ -113,6 +113,19 @@ describe('template', () => {
     expect(subscriptions[0]).toMatch(/^ {6}Protocol: email$/m)
     expect(subscriptions[0]).toMatch(/^ {6}Endpoint: !Ref AlarmEmail$/m)
   })
+
+  // SSEEnabled: true encrypts a table with the AWS-managed aws/dynamodb KMS key, and DynamoDB then
+  // calls KMS on the table's behalf, each request billed (82 000 in October 2026). False keeps the
+  // data encrypted at rest with a key AWS owns, at no charge (KOE-1603).
+  it('encrypts every table with the AWS-owned key', () => {
+    const tables = resourcesOfType('AWS::DynamoDB::Table')
+    const ownedKey = Object.fromEntries(
+      tables.map((block) => [resourceName(block), /^ {8}SSEEnabled: false$/m.test(block)])
+    )
+
+    expect(tables).toHaveLength(template.match(/^ {4}Type: AWS::DynamoDB::Table\s*$/gm)?.length ?? 0)
+    expect(ownedKey).toEqual(Object.fromEntries(Object.keys(ownedKey).map((name) => [name, true])))
+  })
 })
 
 // A lambda that reaches a table its policies do not grant fails here, not in dev (KOE-1492). The
