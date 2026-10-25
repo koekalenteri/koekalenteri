@@ -227,6 +227,17 @@ export const isEventOngoing = ({ startDate, endDate, state }: EventVitals, now =
 
 export const isEventOver = ({ endDate }: EventVitals, now = new Date()) => dayPasses(endDate, (day) => day < today(now))
 
+/** Days after the trial's last day on which a payment may still be started (KOE-1589). */
+export const PAYMENT_DAYS_AFTER_TRIAL = 7
+
+/**
+ * Whether a payment may still be started: through the {@link PAYMENT_DAYS_AFTER_TRIAL}th Finnish day
+ * after the trial's last day, whatever state its classes are in. Editing, cancelling and confirming
+ * close earlier, with the trial (`isEntryEditingClosed`); paying the fee does not (KOE-1589).
+ */
+export const isPaymentWindowOpen = ({ endDate }: Pick<EventVitals, 'endDate'>, now = new Date()) =>
+  !dayPasses(endDate, (day) => addDays(day, PAYMENT_DAYS_AFTER_TRIAL) < today(now))
+
 /**
  * Whether an entry is past changing: the trial's day has gone, or this class has been judged. The
  * entries stay readable either way - only editing, cancelling, moving and messaging close (KOE-1388).

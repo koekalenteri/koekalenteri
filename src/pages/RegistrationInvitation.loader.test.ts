@@ -1,5 +1,6 @@
 import { getEvent } from '../api/event'
 import { getRegistration, patchRegistration } from '../api/registration'
+import { freezeClockAt } from '../test-utils/freezeClock'
 import { deferredLoader } from './RegistrationInvitation'
 
 // Mock dependencies
@@ -9,6 +10,9 @@ vi.mock('../api/registration', () => ({ getRegistration: vi.fn(), patchRegistrat
 const mockGetEvent = getEvent as import('vitest').Mock
 const mockGetRegistration = getRegistration as import('vitest').Mock
 const mockPatchRegistration = patchRegistration as import('vitest').Mock
+
+// The trials below without an end day are never over; the one that has one ends by this day.
+freezeClockAt('2026-06-15')
 
 describe('RegistrationInvitation deferredLoader', () => {
   beforeEach(() => {
@@ -158,6 +162,31 @@ describe('RegistrationInvitation deferredLoader', () => {
 
     await expect(deferredLoader('event123', 'reg123', undefined)).rejects.toThrow('not found')
     expect(logSpy).toHaveBeenCalledTimes(1)
+  })
+
+  // KOE-1589: GetRegistration serves the entry for paying in the week after the trial; the invitation
+  // is not read then, neither the one already read nor an unread one.
+  it.each([true, false])('finds no invitation once the trial is over (read before: %s)', async (invitationRead) => {
+    mockGetEvent.mockResolvedValueOnce({ endDate: '2026-06-14', id: 'event123', startDate: '2026-06-14' })
+    mockGetRegistration.mockResolvedValueOnce({
+      eventId: 'event123',
+      id: 'reg123',
+      invitationAttachment: 'attachment-key',
+      invitationRead,
+    })
+
+    await expect(deferredLoader('event123', 'reg123', undefined)).rejects.toThrow('not found')
+    expect(mockPatchRegistration).not.toHaveBeenCalled()
+  })
+
+  it('still reads the invitation on the last day of the trial', async () => {
+    mockGetEvent.mockResolvedValueOnce({ endDate: '2026-06-15', id: 'event123', startDate: '2026-06-14' })
+    mockGetRegistration.mockResolvedValueOnce({ eventId: 'event123', id: 'reg123', invitationRead: false })
+    mockPatchRegistration.mockResolvedValueOnce(undefined)
+
+    await deferredLoader('event123', 'reg123', undefined)
+
+    expect(mockPatchRegistration).toHaveBeenCalledTimes(1)
   })
 
   it('passes the abort signal to API calls', async () => {

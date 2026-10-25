@@ -9,6 +9,7 @@ import { Suspense } from 'react'
 import { eventWithStaticDatesAnd3Classes } from '@/__mockData__/events'
 import { registrationWithStaticDates, registrationWithStaticDatesCancelled } from '@/__mockData__/registrations'
 import { GROUP_KEY_CANCELLED, GROUP_KEY_RESERVE } from '@/lib/registration'
+import { noonOfFinnishDay } from '@/test-utils/finnishDays'
 import { flushPromises, renderWithUserEvents } from '@/test-utils/utils'
 import AppSnackbarProvider from '../../components/AppSnackbarProvider'
 import ClassEntrySelection from './ClassEntrySelection'
@@ -231,6 +232,45 @@ describe('ClassEntrySelection behavior coverage', () => {
     mockDroppableProps.forEach((props) => {
       expect(props.canDrop?.({ groupKey: GROUP_KEY_RESERVE, groups: [], id: 'dragged', index: 0 })).toBe(false)
       expect(props.slotProps?.row?.draggable).toBe(false)
+    })
+  })
+
+  // KOE-1589: the trial ended 11.2.2021 and its class has been judged; a fee may still be asked for
+  // through the 7th day after, and no later, while every other action stays closed.
+  describe('the payment request in the week after the trial', () => {
+    afterEach(() => {
+      vi.setSystemTime(vi.getRealSystemTime())
+    })
+
+    it.each([
+      ['2021-02-18', false],
+      ['2021-02-19', true],
+    ] as const)('on %s is disabled: %s', async (day, disabled) => {
+      vi.setSystemTime(noonOfFinnishDay(day))
+      const registration = {
+        ...registrationWithStaticDates,
+        group: { date: mockedGroups[0].date, key: '2021-02-10-ap', number: 1, time: 'ap' as const },
+        id: 'participant-1',
+      }
+
+      render(
+        <ClassEntrySelection
+          event={{ ...eventWithStaticDatesAnd3Classes, state: 'completed' }}
+          eventClass="ALO"
+          registrations={[registration]}
+          state="completed"
+        />,
+        { wrapper: Wrapper }
+      )
+      await flushPromises()
+
+      expect(mockLastCallbacks?.actionsDisabled).toBe(true)
+      expect(mockLastCallbacks?.paymentRequestDisabled).toBe(disabled)
+      await act(async () => {
+        callback('requestPayment')(registration.id)
+      })
+      await flushPromises()
+      expect(screen.queryByText('send-message-open') !== null).toBe(!disabled)
     })
   })
 

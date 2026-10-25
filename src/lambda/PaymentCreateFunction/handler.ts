@@ -10,6 +10,7 @@ import type {
 import type { PaymentCustomer } from '../types/paytrail'
 import { nanoid } from 'nanoid'
 import { auditUser } from '../../lib/audit'
+import { isPaymentWindowOpen } from '../../lib/event'
 import {
   getPaymentPicture,
   isEventOpenForPayment,
@@ -126,6 +127,12 @@ const paymentCreateLambda = lambda('paymentCreate', async (event) => {
   // A trial that is not confirmed, a cancelled one say, asks nothing of anyone (KOE-1526).
   if (!isEventOpenForPayment(jsonEvent)) {
     throw httpError(404, 'Event is not open for payment')
+  }
+
+  // A fee is paid at the latest in the week after the trial, whatever the classes' state; a payment
+  // started in time is still settled after (KOE-1589).
+  if (!isPaymentWindowOpen(jsonEvent)) {
+    throw httpError(404, 'Event is closed for payment')
   }
 
   // Only the duplicate mark and the amount are read, and neither depends on open payments (a payment

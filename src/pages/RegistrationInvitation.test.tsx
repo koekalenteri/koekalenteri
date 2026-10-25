@@ -27,7 +27,11 @@ vi.mock('../api/event')
 vi.mock('../api/registration')
 
 describe('RegistrationInvitation', () => {
-  beforeAll(() => vi.useFakeTimers())
+  // The fixture trial runs 10.-11.2.2021; once it is over the invitation is not found (KOE-1589).
+  beforeAll(() => {
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date('2021-02-08T12:00:00.000+02:00'))
+  })
   afterEach(async () => {
     vi.runOnlyPendingTimers()
     // The language a test switches to is kept in localStorage and i18next; the next test starts in Finnish.

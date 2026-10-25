@@ -11,7 +11,7 @@ import { useRegistrationSubscription } from '../hooks/useRegistrationSubscriptio
 import { redirectTo } from '../lib/client/navigation'
 import { errorSnackbarOptions } from '../lib/client/snackbar'
 import { addDays, dayOf, TIME_ZONE } from '../lib/day'
-import { getEventStateForClass } from '../lib/event'
+import { getEventStateForClass, isEventOver, isPaymentWindowOpen } from '../lib/event'
 import {
   getRegistrationClass,
   getRegistrationEmails,
@@ -71,12 +71,14 @@ export function RegistrationListPage({ cancel, confirm, invitation }: Registrati
   const payment = registration?.payment
   const paymentSettled = Boolean(payment?.standing) || payment?.status === 'duplicate'
   const paymentVerificationInProgress = paymentFlow === 'verifying' && !paymentSettled && reloadCount < 5
-  // Confirming, paying and cancelling close with the shared rule: once the trial's last Finnish day
-  // has gone, or the class the entry sits in has been judged (KOE-1388, KOE-1584).
+  // Confirming and cancelling close with the shared rule: once the trial's last Finnish day has gone,
+  // or the class the entry sits in has been judged (KOE-1388, KOE-1584).
   const allDisabled = useMemo(
     () => !event || !isConfirmedEvent(event) || !registration || isRegistrationEditingClosed(event, registration),
     [event, registration]
   )
+  // Paying has its own window, through the week after the trial, whatever the class's state (KOE-1589).
+  const payDisabled = !event || !isConfirmedEvent(event) || !registration || !isPaymentWindowOpen(event)
   // Editing what the entry says closes by the edit form's own rule, which also holds from the close
   // of entry to the trial; confirming and paying happen in exactly that time.
   const editDisabled = useMemo(
@@ -134,18 +136,20 @@ export function RegistrationListPage({ cancel, confirm, invitation }: Registrati
   }, [actions, allDisabled, confirmPending, event, registration, setRegistration, t])
 
   const handlePayment = useCallback(async () => {
-    if (allDisabled || !registration || registration.cancelled) {
+    if (payDisabled || registration.cancelled) {
       return
     }
     await navigate(Path.payment(registration))
-  }, [allDisabled, registration, navigate])
+  }, [payDisabled, registration, navigate])
 
   const handleCalcelClose = useCallback(() => setCancelOpen(false), [])
   const handleConfirmClose = useCallback(() => setConfirmOpen(false), [])
   const handlePaymentClose = useCallback(() => setPaymentOpen(false), [])
 
   useEffect(() => {
-    if (invitation && registration && event && !redirecting) {
+    // The koekutsu is for a trial still to come: once it is over, the link reads nothing and writes
+    // nothing, though the entry stays open for paying a little longer (KOE-1589).
+    if (invitation && registration && event && !redirecting && !isEventOver(event)) {
       setRedirecting(true)
       actions.invitationRead(registration).then(
         (saved) => {
@@ -227,10 +231,16 @@ export function RegistrationListPage({ cancel, confirm, invitation }: Registrati
 
     // The same offer as the pay button: the server's picture, never while a payment is being
     // verified (KOE-1526).
-    if (paymentDue > 0 && registration.messagesSent?.picked && payment?.canPay && !paymentVerificationInProgress) {
+    if (
+      paymentDue > 0 &&
+      registration.messagesSent?.picked &&
+      payment?.canPay &&
+      !payDisabled &&
+      !paymentVerificationInProgress
+    ) {
       setPaymentOpen((current) => current ?? true)
     }
-  }, [confirm, event, registration, payment, paymentDue, paymentVerificationInProgress])
+  }, [confirm, event, registration, payment, paymentDue, payDisabled, paymentVerificationInProgress])
 
   useEffect(() => {
     if (!registration || registration.cancelled) return
@@ -299,7 +309,9 @@ export function RegistrationListPage({ cancel, confirm, invitation }: Registrati
             <InfoBox
               event={event}
               registration={registration}
+              confirmDisabled={allDisabled}
               onConfirm={() => setConfirmOpen(true)}
+              payDisabled={payDisabled}
               paymentVerificationInProgress={paymentVerificationInProgress}
             />
           </Grid>
@@ -315,6 +327,7 @@ export function RegistrationListPage({ cancel, confirm, invitation }: Registrati
           disabled={allDisabled}
           editDisabled={editDisabled}
           event={event}
+          payDisabled={payDisabled}
           paymentVerificationInProgress={paymentVerificationInProgress}
           rows={registration ? [registration] : []}
           onUnregister={() => setCancelOpen(true)}

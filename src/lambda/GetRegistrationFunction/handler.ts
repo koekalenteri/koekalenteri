@@ -1,5 +1,5 @@
 import type { JsonConfirmedEvent } from '../../types'
-import { isEventOver } from '../../lib/event'
+import { isPaymentWindowOpen } from '../../lib/event'
 import { getSentInvitationAttachment, isStarter } from '../../lib/registration'
 import { getLiveEvent } from '../lib/event'
 import { getParam, LambdaError, lambda, response } from '../lib/lambda'
@@ -17,7 +17,9 @@ const getRegistrationLambda = lambda('getRegistration', async (event) => {
   const editToken = authorizeRegistrationRead(event, storedRegistration)
   const registration = { ...storedRegistration }
   const dogEvent = await getLiveEvent<JsonConfirmedEvent>(eventId)
-  if (isEventOver(dogEvent)) {
+  // The entry is the participant's to read, and pay, through the week after the trial (KOE-1589);
+  // everything else it allows closed with the trial itself.
+  if (!isPaymentWindowOpen(dogEvent)) {
     throw new LambdaError(404, 'not found')
   }
 

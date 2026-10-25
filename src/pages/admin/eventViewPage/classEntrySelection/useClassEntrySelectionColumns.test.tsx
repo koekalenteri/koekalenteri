@@ -1011,6 +1011,24 @@ describe('fee against what was paid', () => {
     expect(getRowActions(actionsColumn, paidRow(123)).some((action) => action.key === 'requestPayment')).toBe(false)
   })
 
+  // KOE-1589: the payment request has its own window, the week after the trial, so a judged class
+  // that closes every other action leaves it open.
+  it.each([false, true])('disables the payment request by its own flag (%s), not by the other actions', (disabled) => {
+    const { result } = renderHook(() =>
+      useClassEntrySelectionColumns(mockAvailableDates, eventWithStaticDatesAnd3Classes, {
+        actionsDisabled: true,
+        paymentRequestDisabled: disabled,
+        requestPayment: vi.fn(),
+      })
+    )
+    const actionsColumn = result.current.entryColumns.find((col) => col.field === 'actions')
+    const actions = getRowActions(actionsColumn, paidRow(100))
+
+    expect(actions.find((action) => action.key === 'requestPayment')?.props.disabled).toBe(disabled)
+    expect(actions.find((action) => action.key === 'cancel')?.props.disabled).toBe(true)
+    expect(actions.find((action) => action.key === 'sendMessage')?.props.disabled).toBe(true)
+  })
+
   // KOE-1526 review: the secretary's row has no transactions, so a stored PENDING cannot tell a payment
   // in progress from one left at Paytrail; the request is offered and PaymentCreate decides when the
   // link is opened. A duplicate waits for its refund.
