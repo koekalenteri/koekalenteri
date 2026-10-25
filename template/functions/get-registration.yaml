@@ -5,7 +5,7 @@
       Handler: handler.default
       Environment:
         Variables:
-          REGISTRATION_EDIT_TOKEN_SECRET: !Sub '{{resolve:secretsmanager:${RegistrationEditTokenSecret}:SecretString}}'
+          REGISTRATION_EDIT_TOKEN_SECRET: !Sub '{{resolve:ssm:${AWS::StackName}-REGISTRATION_EDIT_TOKEN_SECRET}}'
       Policies:
         - DynamoDBReadPolicy:
             TableName: !Ref EventRegistrationTable

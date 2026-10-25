@@ -143,18 +143,27 @@ The release workflow requires the following secrets to be configured in your Git
 
 ### Registration edit-token secret recovery
 
-`RegistrationEditTokenSecret` is persistent signing state for every participant registration link. CloudFormation generates it in AWS Secrets Manager during the first deployment. Normal stack updates keep the same value, and the resource has both `DeletionPolicy: Retain` and `UpdateReplacePolicy: Retain`.
+Every participant registration link, class secretary's start number link and station link is signed with one secret per stack: the SSM parameter `<stack>-REGISTRATION_EDIT_TOKEN_SECRET` (`koekalenteri-dev`, `-test`, `-prod`), a `String` in the Standard tier (KOE-1604). The stack does not own it. The functions that sign or check a link read it as `REGISTRATION_EDIT_TOKEN_SECRET`, which CloudFormation resolves from `{{resolve:ssm:${AWS::StackName}-REGISTRATION_EDIT_TOKEN_SECRET}}` at deploy time with the deployer's credentials, so the GitHub deploy role grants `ssm:GetParameters` on the three names (`aws/github-deploy-role.yaml`).
 
-Retention does not reconnect the secret to a recreated stack. If a stack is deleted and recreated:
+A deploy reads whatever the parameter holds, so a recreated stack keeps every link as long as the parameter is there. A stack whose parameter is missing fails to deploy. Only a stack that never had one gets a fresh random value:
 
-1. Locate the retained secret by its `stack` tag from the deleted stack.
-2. Do not let the new stack create a replacement `RegistrationEditTokenSecret`.
-3. Import the retained secret into the new CloudFormation stack using the logical resource ID `RegistrationEditTokenSecret`.
-4. Verify that the registration, payment, refund, and registration-message Lambda environment variables resolve to the imported secret before restoring traffic.
+```sh
+aws ssm put-parameter --name <stack>-REGISTRATION_EDIT_TOKEN_SECRET --type String \
+  --value "$(openssl rand -hex 32)"
+```
 
-Do not configure automatic Secrets Manager rotation for this resource. Replacing or changing its value invalidates every registration link issued with the previous value. Per-registration revocation should increment `editTokenVersion` instead.
+A parameter missing from an existing stack is restored with the old value, never a new one: a new value revokes every link already sent. Every deployed function that signs links still holds the old value in its environment:
 
-If the signing secret is compromised, changing it is an intentional global revocation. Coordinate that operation with issuing replacement links to all affected participants; do not handle it as routine secret rotation.
+```sh
+aws lambda get-function-configuration --function-name <a function of that stack> \
+  --query 'Environment.Variables.REGISTRATION_EDIT_TOKEN_SECRET' --output text
+```
+
+Until they are deleted by hand, the retained Secrets Manager secrets from before KOE-1604 hold it too.
+
+Without `--overwrite`, `put-parameter` refuses a name that exists; never pass it for this parameter. Changing the value invalidates every link issued with the previous one, and CloudFormation does not re-resolve a reference on its own: each function keeps the value it was deployed with until a deploy updates that function. Per-registration revocation increments `editTokenVersion` instead; a start number or station link is revoked by its own version.
+
+If the signing secret is compromised, changing it is an intentional global revocation. Coordinate that operation with issuing replacement links to all affected participants, and make sure every function that reads the secret is updated by the deploy that follows.
 
 ### Service worker rollback
 

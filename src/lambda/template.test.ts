@@ -68,6 +68,19 @@ describe('template', () => {
     expect(template).toMatch(/^ {2}IsNotProdStage: !Not \[!Condition IsProdStage\]$/m)
   })
 
+  // The secret every registration, start number and station link is signed with is the stack's SSM
+  // parameter, copied unchanged from the Secrets Manager secret it replaced (KOE-1604). A function that
+  // resolved anything else would sign links nobody else can open.
+  it("signs links with the stack's SSM parameter, and holds no Secrets Manager secret", () => {
+    const sources = matchAll(/^ {10}REGISTRATION_EDIT_TOKEN_SECRET: (.+)$/gm)
+
+    expect(sources.length).toBeGreaterThan(0)
+    expect(new Set(sources)).toEqual(
+      new Set([`!Sub '{{resolve:ssm:\${AWS::StackName}-REGISTRATION_EDIT_TOKEN_SECRET}}'`])
+    )
+    expect(template).not.toMatch(/secretsmanager/i)
+  })
+
   // A table that holds anything a restore would need gets point-in-time recovery; the data-version
   // table went without it while it held the migration registry (KOE-1597).
   it('has point-in-time recovery on every table but the rebuildable ones', () => {
