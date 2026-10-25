@@ -4,6 +4,7 @@ import type { JsonEventStatsItem } from '../../types/Stats'
 import type { OrganizerRepoints } from './organizerRepoints'
 import { createHash } from 'node:crypto'
 import { getEventSeason } from '../../lib/event'
+import { getRegistrationOwners } from '../../lib/registration'
 import { legacyDecoder, rekeyDogDays, rekeyEventDays, rekeyRegistrationDays } from '../../lib/storedDays'
 import { mapWithConcurrency } from '../../lib/utils'
 import { authorizeAdmin } from '../lib/auth'
@@ -189,6 +190,33 @@ const userMigrations: Migration<JsonUser>[] = [
   },
 ]
 
+type StoredPerson = { email?: string; name?: string }
+
+const comparable = (text: string | undefined): string | undefined => {
+  const folded = text?.trim().toLocaleLowerCase('fi')
+  if (!folded) return undefined
+  return folded
+}
+
+/** Whether a stored handler or payer names a person, and one the first owner is not. */
+const namesAnotherPerson = (person: StoredPerson | undefined, owner: StoredPerson | undefined): boolean => {
+  const name = comparable(person?.name)
+  const email = comparable(person?.email)
+  if (!name && !email) return false
+  return (!!name && name !== comparable(owner?.name)) || (!!email && email !== comparable(owner?.email))
+}
+
+/**
+ * The selection a registration stored without one meant: `false` when it holds a separate person of
+ * its own, so that person stays the handler or payer, and the (first) owner otherwise.
+ */
+const storedOwnerSelection = (registration: JsonRegistration, person: StoredPerson | undefined): boolean =>
+  !namesAnotherPerson(person, getRegistrationOwners(registration)[0])
+
+/** A row with a registration in it, not one holding only an email's delivery status. */
+const isRegistrationContent = (registration: JsonRegistration) =>
+  Boolean(registration.dog || registration.owner || registration.owners)
+
 const registrationMigrations: Migration<JsonRegistration>[] = [
   {
     // KOE-1547: the entry's days, its group's and its frozen start group's (and the starts' keys
@@ -196,6 +224,25 @@ const registrationMigrations: Migration<JsonRegistration>[] = [
     name: 'storeRegistrationDaysAsKeys',
     run: (registration) =>
       rekeyRegistrationDays(registration, { dogDay: legacyDecoder('dog'), eventDay: legacyDecoder('event') }),
+  },
+  {
+    // KOE-1598: a registration stored without `ownerHandles`/`ownerPays` gets the one it meant, so
+    // a save no longer mirrors the owner over a separate handler or payer, and an unchanged save stays
+    // a 304. A separate person of its own on the row is someone else (`false`), otherwise the owner.
+    name: 'storeOwnerSelections',
+    run: (registration) => {
+      if (!isRegistrationContent(registration)) return false
+      let changed = false
+      if (registration.ownerHandles === undefined) {
+        registration.ownerHandles = storedOwnerSelection(registration, registration.handler)
+        changed = true
+      }
+      if (registration.ownerPays === undefined) {
+        registration.ownerPays = storedOwnerSelection(registration, registration.payer)
+        changed = true
+      }
+      return changed
+    },
   },
 ]
 

@@ -50,6 +50,7 @@ const registration = (name: string, number: number) =>
     group: { date: '2025-01-01' as const, key: 'ALO', number },
     handler: { name: 'Handler' },
     owner: { name: 'Owner' },
+    ownerHandles: false,
     startGroup: { date: '2025-01-01' as const, key: 'ALO', number },
   })
 

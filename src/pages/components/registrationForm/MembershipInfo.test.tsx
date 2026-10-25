@@ -46,6 +46,14 @@ describe('MembershipInfo', () => {
     expect(screen.getAllByRole('checkbox')).toHaveLength(1)
   })
 
+  it('should render only the owner checkbox when the selection is unset (KOE-1598)', () => {
+    const reg = clone<Registration>(registrationWithStaticDates)
+    delete reg.ownerHandles
+
+    render(<MembershipInfo reg={reg} orgId={'test'} />, { wrapper: Wrapper })
+    expect(screen.getAllByRole('checkbox')).toHaveLength(1)
+  })
+
   it('should call onChange for a separate handler', async () => {
     const reg = clone<Registration>(registrationWithStaticDates)
     reg.ownerHandles = false

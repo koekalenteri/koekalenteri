@@ -5,6 +5,7 @@ import FormControlLabel from '@mui/material/FormControlLabel'
 import FormGroup from '@mui/material/FormGroup'
 import { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
+import { selectsSomeoneElse } from '@/lib/registration'
 import CollapsibleSection from '../CollapsibleSection'
 import { useDogCacheKey } from './hooks/useDogCacheKey'
 import { useRegistrationOwners } from './hooks/useRegistrationOwners'
@@ -78,7 +79,7 @@ const MembershipInfo = ({ reg, disabled, error, helperText, onChange, orgId }: P
             name={`ownerIsMember_${index}`}
           />
         ))}
-        {!reg.ownerHandles && (
+        {selectsSomeoneElse(reg.ownerHandles) && (
           <FormControlLabel
             disabled={disabled}
             control={

@@ -38,6 +38,7 @@ import {
   getPayingPerson,
   meetsRestrictions,
   resolveOwnerSelection,
+  selectsSomeoneElse,
   withDefaultOwnerSelection,
 } from '../../lib/registration'
 import { hasChanges, merge } from '../../lib/utils'
@@ -200,12 +201,12 @@ export default function RegistrationForm({
             breeder: false,
             dog: false,
             entry: false,
-            handler: !!registration.ownerHandles,
+            handler: !selectsSomeoneElse(registration.ownerHandles),
             info: false,
             // The secretary's notes sit beside the entry: another section's toggle leaves them be.
             internalNotes: open.internalNotes,
             owner: false,
-            payer: !!registration.ownerPays,
+            payer: !selectsSomeoneElse(registration.ownerPays),
             qr: false,
             [id]: value,
           }
@@ -372,7 +373,7 @@ export default function RegistrationForm({
           open={open.owner}
           orgId={event.organizer.id}
         />
-        <Collapse in={!registration.ownerHandles}>
+        <Collapse in={selectsSomeoneElse(registration.ownerHandles)}>
           <HandlerInfo
             admin={admin}
             reg={registration}
@@ -385,7 +386,7 @@ export default function RegistrationForm({
             orgId={event.organizer.id}
           />
         </Collapse>
-        <Collapse in={!registration.ownerPays}>
+        <Collapse in={selectsSomeoneElse(registration.ownerPays)}>
           <PayerInfo
             reg={registration}
             disabled={disabled}

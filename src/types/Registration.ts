@@ -241,7 +241,10 @@ export interface JsonEmailDeliveryStatus {
   template?: EmailTemplateId
 }
 
-/** Which owner a `ownerHandles`/`ownerPays` flag names: `true` the (first) owner, a string an owner's `key`. */
+/**
+ * Which owner a `ownerHandles`/`ownerPays` flag names: `true` the (first) owner, a string an owner's
+ * `key`, `false` someone else. An unset flag is the (first) owner too (`withDefaultOwnerSelection`).
+ */
 export type OwnerSelection = boolean | string
 
 /**

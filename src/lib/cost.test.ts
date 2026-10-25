@@ -40,12 +40,18 @@ const makeRegistration = (
   handler: { membership: handler },
   optionalCosts,
   owner: { membership: owner },
+  // A separate handler: the one whose membership the `handler` argument sets.
+  ownerHandles: false,
   selectedCost,
 })
 
 describe('selectCost', () => {
   it('should select `cost` when nobody is a member', () => {
     expect(selectCost(makeEvent(100, 80), makeRegistration(false, false))).toEqual(100)
+  })
+  it('should select `cost` when the selection is unset and only the stored handler is a member (KOE-1598)', () => {
+    const { ownerHandles: _ownerHandles, ...unset } = makeRegistration(true, false)
+    expect(selectCost(makeEvent(100, 80), unset)).toEqual(100)
   })
   it('should select `cotsMember` when handler is member', () => {
     expect(selectCost(makeEvent(100, 80), makeRegistration(true, false))).toEqual(80)

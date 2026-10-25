@@ -287,6 +287,43 @@ describe('getRegistrationChanges', () => {
     )
   })
 
+  // KOE-1598: an unset selection is the first owner, so the handler the save mirrors from it is the
+  // owner, and an edit of that owner is reported once, under the owner list.
+  it('reports an owner edit once when the selection is unset, though the stored handler was another person', () => {
+    const before = existing()
+    delete before.ownerHandles
+    delete before.ownerPays
+    before.owners = [{ email: 'first@example.com', key: 'owner-1', membership: false, name: 'First Owner' }]
+    before.handler = { email: 'other@example.com', membership: false, name: 'Other Person' }
+    const owner = { ...before.owners[0], phone: '+358401234567' }
+    const { key: _key, ...mirrored } = owner
+    const updated = { ...before, handler: mirrored, owners: [owner], payer: mirrored } as JsonRegistration
+
+    expect(getRegistrationChanges(before, updated, event)).toEqual(
+      expect.objectContaining({ changes: [expect.objectContaining({ field: 'owners' })] })
+    )
+  })
+
+  it('names the first owner for an unset selection', () => {
+    const before = existing()
+    before.owners = [{ email: 'first@example.com', key: 'owner-1', membership: false, name: 'First Owner' }]
+    const updated = { ...before } as JsonRegistration
+    delete updated.ownerHandles
+
+    expect(getRegistrationChanges(before, updated, event)).toEqual(
+      expect.objectContaining({
+        changes: [
+          {
+            field: 'ownerHandles',
+            labelKey: 'registration.ownerHandles',
+            next: { text: 'First Owner' },
+            previous: { text: 'Joku muu' },
+          },
+        ],
+      })
+    )
+  })
+
   it("leaves the dog table's own fields off the trail", () => {
     const before = existing()
     const updated = {
