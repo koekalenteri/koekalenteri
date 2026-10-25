@@ -1,6 +1,7 @@
 import type { EventStatsItem } from '@/types/Stats'
 import { useTranslation } from 'react-i18next'
-import { storedMonthKey as monthKey } from '@/lib/event'
+import { dayOf, monthKeyOf, TIME_ZONE } from '@/lib/day'
+import { storedDayKey } from '@/lib/event'
 import { CATEGORICAL_CHART_COLORS } from './chartColors'
 import StatsBarChart from './StatsBarChart'
 
@@ -15,9 +16,14 @@ export default function OrganizerRegistrationsChart({ items, filters }: Props) {
   const reserveByMonth = new Map<string, number>()
   const cancelledByMonth = new Map<string, number>()
 
+  // An event counts from the day after it starts, when its participants have long been picked. Before
+  // the draw every entry sits in the reserve group, so an upcoming event would read as all reserve.
+  const today = dayOf(new Date(), TIME_ZONE)
+
   for (const item of items) {
-    const key = monthKey(item.date)
-    if (!key) continue
+    const day = storedDayKey(item.date)
+    if (!day || day >= today) continue
+    const key = monthKeyOf(day)
     reserveByMonth.set(key, (reserveByMonth.get(key) ?? 0) + (item.reserveRegistrations ?? 0))
     cancelledByMonth.set(key, (cancelledByMonth.get(key) ?? 0) + (item.cancelledRegistrations ?? 0))
   }
