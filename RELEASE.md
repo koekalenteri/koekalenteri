@@ -145,12 +145,21 @@ The release workflow requires the following secrets to be configured in your Git
 
 Every participant registration link, class secretary's start number link and station link is signed with one secret per stack: the SSM parameter `<stack>-REGISTRATION_EDIT_TOKEN_SECRET` (`koekalenteri-dev`, `-test`, `-prod`), a `String` in the Standard tier (KOE-1604). The stack does not own it. The functions that sign or check a link read it as `REGISTRATION_EDIT_TOKEN_SECRET`, which CloudFormation resolves from `{{resolve:ssm:${AWS::StackName}-REGISTRATION_EDIT_TOKEN_SECRET}}` at deploy time with the deployer's credentials, so the GitHub deploy role grants `ssm:GetParameters` on the three names (`aws/github-deploy-role.yaml`).
 
-A deploy reads whatever the parameter holds, so a recreated stack keeps every link as long as the parameter is there. A stack whose parameter is missing fails to deploy. Create one only for a new stack, with a fresh random value:
+A deploy reads whatever the parameter holds, so a recreated stack keeps every link as long as the parameter is there. A stack whose parameter is missing fails to deploy. Only a stack that never had one gets a fresh random value:
 
 ```sh
 aws ssm put-parameter --name <stack>-REGISTRATION_EDIT_TOKEN_SECRET --type String \
   --value "$(openssl rand -hex 32)"
 ```
+
+A parameter missing from an existing stack is restored with the old value, never a new one: a new value revokes every link already sent. Every deployed function that signs links still holds the old value in its environment:
+
+```sh
+aws lambda get-function-configuration --function-name <a function of that stack> \
+  --query 'Environment.Variables.REGISTRATION_EDIT_TOKEN_SECRET' --output text
+```
+
+Until they are deleted by hand, the retained Secrets Manager secrets from before KOE-1604 hold it too.
 
 Without `--overwrite`, `put-parameter` refuses a name that exists; never pass it for this parameter. Changing the value invalidates every link issued with the previous one, and CloudFormation does not re-resolve a reference on its own: each function keeps the value it was deployed with until a deploy updates that function. Per-registration revocation increments `editTokenVersion` instead; a start number or station link is revoked by its own version.
 
