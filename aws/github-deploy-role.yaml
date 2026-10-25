@@ -135,15 +135,11 @@ Resources:
             Effect: Allow
             Action: ses:*
             Resource: !Sub arn:aws:ses:${AWS::Region}:${AWS::AccountId}:configuration-set/Koekalenteri
-          # CloudFormation resolves the functions' {{resolve:ssm:...}} references with the deployer's
-          # own credentials: the link-signing secret of each stack (KOE-1604).
-          - Sid: Parameters
+          # CloudFormation names the secret after its logical id, not the stack.
+          - Sid: Secrets
             Effect: Allow
-            Action: ssm:GetParameters
-            Resource:
-              - !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/koekalenteri-dev-REGISTRATION_EDIT_TOKEN_SECRET
-              - !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/koekalenteri-test-REGISTRATION_EDIT_TOKEN_SECRET
-              - !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/koekalenteri-prod-REGISTRATION_EDIT_TOKEN_SECRET
+            Action: secretsmanager:*
+            Resource: !Sub arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:RegistrationEditTokenSecret-*
           - Sid: AppMonitors
             Effect: Allow
             Action: rum:*
@@ -165,6 +161,8 @@ Resources:
               - rum:ListTagsForResource
               - s3:ListAllMyBuckets
               - scheduler:ListSchedules
+              - secretsmanager:GetRandomPassword
+              - secretsmanager:ListSecrets
               - ses:DescribeConfigurationSet
               - sns:GetSubscriptionAttributes
               - sns:ListSubscriptions
