@@ -696,6 +696,66 @@ describe('EventResultsPage', () => {
     expect(screen.queryByText('results.conflictTitle')).not.toBeInTheDocument()
   })
 
+  /** Saves a scored dog into a conflict, then resolves it as "mine" against the given answer (KOE-1488). */
+  const resolveAgainst = async (resave: APIError) => {
+    const { i18n } = useTranslation()
+    const conflict = new APIError(new Response(null, { status: 409, statusText: 'Conflict' }), {
+      conflicts: [{ id: 'run-1', stored: { result: 'ALO2' }, submitted: { result: 'ALO1' } }],
+      error: 'resultConflict',
+      saved: [],
+      unchanged: [],
+    })
+    vi.mocked(putEventResults).mockRejectedValueOnce(conflict).mockRejectedValueOnce(resave)
+    const { user } = await renderScoringPage(i18n.language as Language)
+    await flushPromises()
+
+    await score(user, within(rowFor('Ensimmainen')).getAllByRole('textbox')[0], '20')
+    await user.click(screen.getByRole('button', { name: 'results.save' }))
+    await flushPromises()
+
+    await user.click(screen.getByRole('radio', { name: /results\.conflictMine/ }))
+    await user.click(screen.getByRole('button', { name: 'results.conflictResolve' }))
+    await flushPromises()
+
+    expect(putEventResults).toHaveBeenCalledTimes(2)
+    return user
+  }
+
+  it('keeps the dialog and the scores and says so when the resolving save fails', async () => {
+    expectConsoleOutput(/reportError .*500/)
+    const user = await resolveAgainst(
+      new APIError(new Response(null, { status: 500, statusText: 'Internal Server Error' }), 'boom')
+    )
+
+    // A failed resolve is a failed save: said out loud, never a dialog that just sits there.
+    expect(screen.getByText('results.saveFailed')).toBeInTheDocument()
+    expect(screen.getByText('results.conflictTitle')).toBeInTheDocument()
+
+    await user.click(screen.getByRole('button', { name: 'cancel' }))
+    await flushPromises()
+    expect(within(rowFor('Ensimmainen')).getAllByRole('textbox')[0]).toHaveValue('20')
+  })
+
+  it('puts the new conflict to the secretary when the resolving save is beaten again', async () => {
+    const user = await resolveAgainst(
+      new APIError(new Response(null, { status: 409, statusText: 'Conflict' }), {
+        conflicts: [{ id: 'run-1', stored: { result: 'ALO3' }, submitted: { result: 'ALO1' } }],
+        error: 'resultConflict',
+        saved: [],
+        unchanged: [],
+      })
+    )
+
+    // A third writer got there first: the choice is asked again against the version that beat it.
+    expect(screen.getByText('results.conflictTitle')).toBeInTheDocument()
+    expect(screen.getByRole('radio', { name: /results\.conflictStored/ })).toBeChecked()
+    expect(screen.queryByText('results.saveFailed')).not.toBeInTheDocument()
+
+    await user.click(screen.getByRole('button', { name: 'cancel' }))
+    await flushPromises()
+    expect(within(rowFor('Ensimmainen')).getAllByRole('textbox')[0]).toHaveValue('20')
+  })
+
   it('offers no scope selector for an event type that is not scored at posts', async () => {
     const { i18n } = useTranslation()
     await renderPage(i18n.language as Language)
