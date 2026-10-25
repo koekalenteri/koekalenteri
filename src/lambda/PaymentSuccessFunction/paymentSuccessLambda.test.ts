@@ -62,12 +62,14 @@ vi.doMock('../lib/lambda', async () => ({
 const mockPublishCancelledRegistration = vi.fn()
 vi.doMock('../lib/payment', async () => ({
   // The real check: a stored transaction of the wrong type is refused before anything is written (KOE-1608).
-  assertCallbackTransactionType: (await vi.importActual<typeof import('../lib/payment')>('../lib/payment'))
-    .assertCallbackTransactionType,
   parseParams: mockParseParams,
   publishCancelledRegistration: mockPublishCancelledRegistration,
   publishParticipantPaymentsOfEvent: (await vi.importActual<typeof import('../lib/payment')>('../lib/payment'))
     .publishParticipantPaymentsOfEvent,
+  // The real read and check, over the mocked repository: a stored transaction of the wrong type is
+  // refused before anything is written (KOE-1608).
+  readCallbackTransaction: (await vi.importActual<typeof import('../lib/payment')>('../lib/payment'))
+    .readCallbackTransaction,
   settleFailedTransaction: mockSettleFailedTransaction,
   updateTransactionStatus: mockUpdateTransactionStatus,
   verifyParams: mockVerifyParams,

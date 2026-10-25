@@ -11,17 +11,17 @@ import { getEvent } from '../lib/event'
 import { LambdaError, lambda, response } from '../lib/lambda'
 import { logger } from '../lib/log'
 import {
-  assertCallbackTransactionType,
   parseParams,
   publishCancelledRegistration,
   publishParticipantPayments,
+  readCallbackTransaction,
   settleFailedTransaction,
   updateTransactionStatus,
   verifyParams,
 } from '../lib/payment'
 import { getRegistration, getRegistrationEditToken } from '../lib/registration'
 import { clearRegistrationEmailDeliveryStatus, readRegistration } from '../lib/repositories/registrationRepository'
-import { applySuccessfulRefund, readTransaction } from '../lib/repositories/transactionRepository'
+import { applySuccessfulRefund } from '../lib/repositories/transactionRepository'
 import { publishRegistrationPatches } from '../lib/ws/actions'
 
 const { frontendURL, emailFrom } = CONFIG
@@ -41,9 +41,8 @@ const refundSuccessLambda = lambda('refundSuccess', async (event) => {
   }
   if (!transactionId) throw new LambdaError(400, 'Missing transaction id')
 
-  const stored = await readTransaction(transactionId)
   // A payment's own signed parameters verify here too: refused before anything is written (KOE-1608).
-  const storedTransaction = stored && assertCallbackTransactionType(stored, 'refund')
+  const storedTransaction = await readCallbackTransaction(transactionId, 'refund')
   const callbackAmount = Number.parseInt(params['checkout-amount'] ?? '', 10)
   if (!storedTransaction && status !== 'ok') {
     throw new LambdaError(404, `Transaction with id '${transactionId}' was not found`)

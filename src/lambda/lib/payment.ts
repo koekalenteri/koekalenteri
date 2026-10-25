@@ -169,16 +169,19 @@ const isTransactionOfType = <K extends TransactionType>(
 ): transaction is TransactionOfType[K] => transaction.type === type
 
 /**
- * The stored transaction a callback names, refused unless it is the route's own type. Paytrail signs
- * the payer's return address with the same parameters as its callbacks, and a payment's reference and
- * amount are the payment's own, so its signed parameters verify on the refund routes too, and a
- * refund's on the payment routes. Only the stored type tells them apart, so this runs right after the
- * transaction is read and before anything else is read or written (KOE-1608).
+ * The stored transaction a callback names, or undefined when there is none, refused unless it is the
+ * route's own type. Paytrail signs the payer's return address with the same parameters as its
+ * callbacks, and a payment's reference and amount are the payment's own, so its signed parameters
+ * verify on the refund routes too, and a refund's on the payment routes. Only the stored type tells
+ * them apart, so the check runs right after the read, before anything else is read or written
+ * (KOE-1608).
  */
-export const assertCallbackTransactionType = <K extends TransactionType>(
-  transaction: JsonTransaction,
+export const readCallbackTransaction = async <K extends TransactionType>(
+  transactionId: string | undefined,
   type: K
-): TransactionOfType[K] => {
+): Promise<TransactionOfType[K] | undefined> => {
+  const transaction = await readTransaction(transactionId)
+  if (!transaction) return undefined
   if (!isTransactionOfType(transaction, type)) {
     throw new LambdaError(400, `Transaction '${transaction.transactionId}' is a ${transaction.type}, not a ${type}`)
   }
@@ -198,9 +201,8 @@ export const resolveCallbackTransaction = async <K extends TransactionType>(
 
   await verifyParams(params)
 
-  const stored = await readTransaction(transactionId)
-  if (!stored) throw new LambdaError(404, `Transaction with id '${transactionId}' was not found`)
-  const transaction = assertCallbackTransactionType(stored, type)
+  const transaction = await readCallbackTransaction(transactionId, type)
+  if (!transaction) throw new LambdaError(404, `Transaction with id '${transactionId}' was not found`)
 
   const registration = await getRegistration(eventId, registrationId)
 

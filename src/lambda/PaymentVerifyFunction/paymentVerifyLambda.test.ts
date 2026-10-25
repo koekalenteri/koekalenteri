@@ -33,10 +33,12 @@ vi.doMock('../lib/event', () => ({
 // handler only has to hand it the row and send on whatever it answers with (KOE-1526, KOE-1529).
 vi.doMock('../lib/payment', async () => ({
   // The real check: a refund's parameters never settle a payment (KOE-1608).
-  assertCallbackTransactionType: (await vi.importActual<typeof import('../lib/payment')>('../lib/payment'))
-    .assertCallbackTransactionType,
   parseParams: mockParseParams,
   publishCancelledRegistration: mockPublishCancelledRegistration,
+  // The real read and check, over the mocked repository: a stored transaction of the wrong type is
+  // refused before anything is written (KOE-1608).
+  readCallbackTransaction: (await vi.importActual<typeof import('../lib/payment')>('../lib/payment'))
+    .readCallbackTransaction,
   settleFailedTransaction: mockSettleFailedTransaction,
   verifyParams: mockVerifyParams,
 }))
