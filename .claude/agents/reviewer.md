@@ -1,6 +1,6 @@
 ---
 name: reviewer
-description: Reviews one pull request from one angle given by the orchestrator (root cause, rule readers, tests, clock, conventions, architecture, docs). Sees only the issue, the diff and the repo's rules, not the implementer's reasoning. Reports findings that come with a concrete failure scenario; never edits code.
+description: Reviews one pull request from one angle given by the orchestrator (root cause, scope, rule readers, tests, clock, conventions, architecture, docs). Sees only the issue, the diff and the repo's rules, not the implementer's reasoning. Reports findings that come with a concrete failure scenario; never edits code.
 model: sonnet
 tools: Bash, Read
 ---
@@ -37,6 +37,13 @@ there. Remove it with `git worktree remove` before you report.
 **root-cause**: Does the change remove the cause or hide the symptom? A test that waits, retries,
 loosens a tolerance or pins around an app bug is a finding. So is a fix that holds for the
 reported data but not for the rule the code is meant to follow.
+
+**scope**: Does the PR do what the issue asks, all of it and nothing else? List every ask: the
+description, the acceptance criteria, attachments, and comments that changed or added to the
+ask (a later comment can override the description). For each, name the code that does it and
+the test that shows it; an ask with neither is a finding. So is a visible behavior change the
+issue does not ask for, and a question the issue left open that the PR settled without saying so
+(that one belongs to the user).
 
 **rule-readers**: Find every place that reads or decides the same thing the PR changes
 (`git grep` for the field, the helper, the flag). Do they all now agree? One reader left behind

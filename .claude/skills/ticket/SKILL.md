@@ -21,22 +21,36 @@ several times more and is not needed for their work.
   nothing in the session can rename it.
 - Read the issue with comments and attachments (images through the REST API).
 - Move it to In Progress unless it is in Testing In Progress.
+- Note whether it reports a bug, asks for something new, or both; that picks the review angles
+  in step 4. If it is a sub-task, look at its parent: when this is the last open sub-task, the
+  parent's key goes in the PR title too, or the deploy leaves the story In Progress.
 - If the cause is not obvious, find it once yourself, with evidence (dev data, logs, the code),
   before handing over. Do not send an open "investigate and fix" to the implementer.
 - Anything only the user can unblock (a decision, a secret, a setting, production access): ask
-  now, in one batch.
+  now, in one batch, with `AskUserQuestion`. Every question to the user in this skill goes through
+  it, never inside a report: a question in prose goes unanswered (KOE-1372, two rounds).
 
 ## 2. Plan
 
 Start `implementer` in the background with `isolation: "worktree"`. Give it the key, the branch
 name (`koe-<n>-<slug>`), the cause and how it was established, and what is already verified, and
-ask for its plan first. It answers before its first edit with:
+ask for its plan first. Before it reports, it commits the failing test on its branch: the agent's
+worktree is removed when it stops with nothing changed, and a plan report is not a change (KOE-1532
+lost its worktree that way; the resume refused every command). It answers before its first edit to
+application code with:
 
 - the cause, confirmed or corrected;
 - every place that reads or decides the same thing, with the `git grep` it ran and its output,
   each marked as changing or not, and why;
 - the approach in a few sentences, naming any stored shape or shared rule it changes;
-- the test that will fail without the change.
+- the test that will fail without the change, committed, with its failing output;
+- where each new piece goes (module and folder, and why it owns it), by "Library Organization" in
+  `AGENTS.md`;
+- the guide pages `npm run docs-coverage -- <files>` names for the files it will change, and the
+  developer docs that state what it changes, each marked as updating or not.
+
+The plan is written to stand on its own: if the worktree is gone anyway, start a new implementer
+with the approved plan in its prompt rather than resuming the old one.
 
 Check the reader list against the code yourself; one reader missed here costs a review round
 later (#1507 found three, one per round). When the plan changes a shared rule, a flag or a stored
@@ -58,7 +72,8 @@ In one message, start in the background:
 
 - `ci-watcher` with the PR number.
 - `reviewer` once per angle, each with the PR number, the key and its angle. Choose the angles
-  the change calls for: `root-cause`, `tests` and `docs` always; `architecture` when the PR
+  the change calls for: `tests` and `docs` always; `root-cause` when the issue reports a bug,
+  `scope` when it asks for something new (both when it does both); `architecture` when the PR
   adds, moves or splits a file, module, table access or import between folders, or changes a
   stored shape or API field; `rule-readers` when a shared rule, flag or helper changes; `clock`
   when dates, times or fixtures change; `conventions` when new files or modules appear.
@@ -86,13 +101,16 @@ When all have reported:
   a rule SonarCloud just added, belongs elsewhere.
 - A real bug the review finds outside the issue's scope (it predates the PR, or fixing it would
   change a shared rule the issue does not ask about): not the implementer's. Bring it to the
-  user with the evidence and ask whether it gets its own issue. See "Follow-up issues" below.
+  user with the evidence and ask with `AskUserQuestion` whether it gets its own issue. See "Follow-up issues" below.
 - Send the rest to the implementer through `SendMessage` (its agent ID from step 2), as one
   package. Do not start a new implementer; its context is the point.
 
-After its fix, run step 4 again with only the CI watcher and the reviewers whose findings were
-addressed. At most three feedback rounds by default. When findings are still open after the
-third, stop and ask the user whether to continue, with what is open and how the rounds went; go
+After its fix, run step 4 again with the CI watcher, the reviewers whose findings were addressed,
+and `docs`, plus any angle the fix commits now call for by the rules in step 4, chosen from their
+diff (`git diff <last reviewed commit>..origin/<branch>`): a fix that adds a file gets
+`architecture` even when the first round did not. At most three feedback rounds by default. When
+findings are still open after the third, stop and ask the user with `AskUserQuestion` whether to
+continue, with what is open and how the rounds went; go
 on only with their permission, for as many rounds as they allow.
 
 ## 6. Ready and report
@@ -106,6 +124,9 @@ Check from the source, not from the agents' reports:
 - `api/issues/search?componentKeys=koekalenteri_koekalenteri&pullRequest=<pr>&issueStatuses=OPEN,CONFIRMED`:
   `total` is `0`, or every remaining issue was sorted to `main` or `user` in step 5.
 - Every review finding is fixed, or answered with evidence.
+- The Jira issue's comments say what the PR does now: when a round changed the approach or what
+  the tester should try, there is a later comment saying so. If not, send the implementer back to
+  add it.
 
 Only when all of these hold, mark the PR ready: `gh pr ready <pr>`. Otherwise it stays a draft
 and the report says which item is missing.
