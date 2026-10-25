@@ -5,7 +5,7 @@ import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
 import { render, screen, within } from '@testing-library/react'
 import { Provider } from 'jotai'
-import { Suspense } from 'react'
+import { Suspense, useState } from 'react'
 import { eventWithStaticDates } from '../../__mockData__/events'
 import { paymentPictureWith } from '../../__mockData__/paymentPicture'
 import { registrationWithStaticDates, unpaidRegistrationWithStaticDates } from '../../__mockData__/registrations'
@@ -809,6 +809,103 @@ describe('RegistrationForm', () => {
       await flushPromises()
 
       expect(onChange).toHaveBeenCalledWith(expect.objectContaining({ handler: { ...bob, membership: false } }))
+    })
+
+    /** The form with a draft of its own, as the edit page holds one: every change is fed back in. */
+    function Draft({
+      onChange,
+      saved,
+    }: {
+      readonly onChange: (r: Registration) => void
+      readonly saved: Registration
+    }) {
+      const [draft, setDraft] = useState(saved)
+      return (
+        <RegistrationForm
+          event={eventWithStaticDates}
+          registration={draft}
+          savedRegistration={saved}
+          onChange={(changed) => {
+            onChange(changed)
+            setDraft(changed)
+          }}
+        />
+      )
+    }
+
+    // The handler's place is the person: correcting a member handler's name on a paid entry keeps the
+    // membership, and the form does not put the stored name back.
+    it("keeps a correction of a paid entry's member handler", async () => {
+      entryOpen()
+      const memberHandler = { email: 'handler@example.com', membership: true, name: 'Handler Name' }
+      const saved: Registration = { ...registrationWithStaticDates, handler: memberHandler }
+      const onChange = vi.fn()
+      render(
+        <RegistrationForm
+          event={eventWithStaticDates}
+          registration={{
+            ...saved,
+            handler: { ...memberHandler, name: 'Handler Named Right' },
+          }}
+          savedRegistration={saved}
+          onChange={onChange}
+        />,
+        { wrapper: Wrapper }
+      )
+      await flushPromises()
+
+      expect(onChange).not.toHaveBeenCalledWith(
+        expect.objectContaining({ handler: expect.objectContaining({ name: 'Handler Name' }) })
+      )
+    })
+
+    // A row stored with a single `owner`: the membership checkbox writes it as a list of one, which the
+    // picked entry's locked people section reads as the same owners.
+    it('keeps a membership written as a list on a picked entry stored with a single owner', async () => {
+      entryOpen()
+      const owners = [
+        { ...picked.owner, email: 'owner@example.com', key: 'owner-1', membership: true, name: 'Owner Name' },
+      ]
+      const onChange = vi.fn()
+      render(
+        <RegistrationForm
+          event={eventWithStaticDates}
+          registration={{
+            ...picked,
+            owner: { ...picked.owner, email: 'owner@example.com', membership: true, name: 'Owner Name' },
+            owners,
+          }}
+          savedRegistration={picked}
+          onChange={onChange}
+        />,
+        { wrapper: Wrapper }
+      )
+      await flushPromises()
+
+      expect(onChange).not.toHaveBeenCalledWith(expect.not.objectContaining({ owners }))
+    })
+
+    // A stored row the rule could not settle against itself (two keyless owners alike) is not put back
+    // over and over.
+    it('does not keep putting back a paid row stored with two keyless owners alike', async () => {
+      entryOpen()
+      const alike = { email: 'owner@example.com', name: 'Owner Name' }
+      const saved: Registration = {
+        ...registrationWithStaticDates,
+        owner: { ...alike, membership: false },
+        // Rows stored before the owner list had keys; the browser model always has them.
+        owners: JSON.parse(
+          JSON.stringify([
+            { ...alike, membership: false },
+            { ...alike, membership: true },
+          ])
+        ),
+      }
+      const onChange = vi.fn()
+      render(<Draft onChange={onChange} saved={saved} />, { wrapper: Wrapper })
+      await flushPromises()
+
+      expect(onChange).not.toHaveBeenCalled()
     })
 
     // The picking arrives by the WebSocket while the participant has the days and the dog changed.

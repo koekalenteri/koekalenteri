@@ -329,9 +329,13 @@ export default function RegistrationForm({
   useEffect(() => {
     // A lock that arrives while the participant edits (the picking or the payment, by the WebSocket),
     // or a draft kept from before it, puts the locked sections back as stored: the server would refuse
-    // the save otherwise (KOE-1588).
+    // the save otherwise (KOE-1588). Only a put-back that changes the draft and settles it is handed on,
+    // so a stored row the rule cannot settle (one that differs from itself) is never put back again
+    // and again.
     if (!savedRegistration || !participantLockedChange(locks, savedRegistration, registration)) return
-    onChange?.(withLockedSectionsFrom(savedRegistration, registration, locks))
+    const restored = withLockedSectionsFrom(savedRegistration, registration, locks)
+    if (!hasChanges(registration, restored) || participantLockedChange(locks, savedRegistration, restored)) return
+    onChange?.(restored)
   }, [locks, onChange, registration, savedRegistration])
 
   return (

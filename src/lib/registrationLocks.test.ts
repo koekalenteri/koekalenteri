@@ -189,6 +189,16 @@ describe('registrationLocks', () => {
       expect(participantLockedChange(ALL_LOCKED, base, data)).toBeUndefined()
     })
 
+    // A row stored with a single `owner`: the form turns it into a list of one when an owner is written.
+    it('reads a single stored owner as the list the form writes', () => {
+      const data = { ...base, owners: [{ ...owner, key: 'owner-1', membership: true }] }
+
+      expect(participantLockedChange({ ...ALL_LOCKED, membership: false }, base, data)).toBeUndefined()
+      expect(participantLockedChange(only('people'), base, { ...data, owners: [{ ...owner, name: 'Other' }] })).toBe(
+        'people'
+      )
+    })
+
     it('reads an unset owner selection as the first owner', () => {
       const { ownerHandles: _h, ownerPays: _p, ...stored } = { ...base, ownerHandles: true }
       const data = { ...stored, ownerHandles: true, ownerPays: 'owner-1' }
@@ -281,9 +291,36 @@ describe('registrationLocks', () => {
           ],
         }
 
-        expect(participantLockedChange(only('membership'), two, { ...two, owners: two.owners?.slice(1) })).toBe(
-          undefined
-        )
+        const data = { ...two, owners: two.owners?.slice(1) }
+
+        expect(participantLockedChange(only('membership'), two, data)).toBeUndefined()
+      })
+
+      // The handler's place is the person: a correction of their name keeps their membership.
+      it.each<[string, Person, ParticipantLockSection | undefined]>([
+        ['their name corrected', { ...handler, membership: true, name: 'Handler Named Right' }, undefined],
+        ['their address corrected', { ...handler, email: 'right@example.com', membership: true }, undefined],
+        ['their membership dropped', { ...handler, membership: false }, 'membership'],
+      ])('answers a member handler apart with %s', (_label, sent, expected) => {
+        const stored: Entry = { ...base, handler: { ...handler, membership: true } }
+
+        expect(participantLockedChange(only('membership'), stored, { ...stored, handler: sent })).toBe(expected)
+      })
+
+      // A row stored with two owners alike matches one each, so it is no change against itself.
+      it.each<[string, Person[]]>([
+        [
+          'the same name and address',
+          [
+            { ...owner, membership: false },
+            { ...owner, membership: true },
+          ],
+        ],
+        ['no name at all', [{ membership: false }, { membership: true }]],
+      ])('finds no change in a stored row whose keyless owners have %s', (_label, owners) => {
+        const stored: Entry = { ...base, owners }
+
+        expect(participantLockedChange(ALL_LOCKED, stored, structuredClone(stored))).toBeUndefined()
       })
 
       // A keyless stored owner is found by the key the form gives by position, or by who they are.

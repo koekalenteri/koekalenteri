@@ -2405,6 +2405,25 @@ describe('putRegistrationLabmda', () => {
       expectSaved(await patch(existingJson, { owner: two, owners: [two] }), { owners: [two] })
     })
 
+    // The handler's place is the person: a corrected name keeps the membership the entry was paid with.
+    it("saves a correction of a paid entry's member handler, the membership kept", async () => {
+      entryOpen()
+      const memberHandler = { ...paid.handler, membership: true }
+      const existingJson = given({ ...paid, handler: memberHandler })
+      const corrected = { ...memberHandler, name: 'Handler Named Right' }
+
+      expectSaved(await patch(existingJson, { handler: corrected }), { handler: corrected })
+    })
+
+    // A row stored with a single `owner`: the membership checkbox writes it as a list of one.
+    it('saves a membership written as a list on a picked entry stored with a single owner', async () => {
+      entryOpen()
+      const existingJson = given(picked)
+      const owners = [{ ...picked.owner, key: 'owner-1', membership: true }]
+
+      expectSaved(await patch(existingJson, { owner: { ...picked.owner, membership: true }, owners }), { owners })
+    })
+
     it('refuses a new handler named on a paid entry claiming a membership with 410', async () => {
       entryOpen()
       const existingJson = given(paid)

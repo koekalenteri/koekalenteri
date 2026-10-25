@@ -193,15 +193,16 @@ const SECTION_PROJECTIONS: Record<ProjectedSection, (r: LockableRegistration) =>
     optionalCosts: r.optionalCosts ? [...r.optionalCosts].sort((a, b) => a - b) : r.optionalCosts,
     selectedCost: r.selectedCost,
   }),
-  // The owner list's key is the form's own (it keys keyless owners by position and writes that back),
-  // and the handler is compared only when separate: otherwise it is the handling owner's copy.
+  // The owners as `getRegistrationOwners` reads them: the list, or a row's single `owner` before it
+  // (which the form turns into a list of one), and `owner` is otherwise the list's first. The list's key
+  // is the form's own (it keys keyless owners by position and writes that back), and the handler is
+  // compared only when separate: otherwise it is the handling owner's copy.
   people: (r) => ({
     breeder: r.breeder,
     handler: hasSeparateHandler(r) ? withoutKeyAndMembership(r.handler) : undefined,
-    owner: withoutKeyAndMembership(r.owner),
     ownerHandles: selectedOwner(r, r.ownerHandles),
     ownerPays: selectedOwner(r, r.ownerPays),
-    owners: r.owners?.map(withoutKeyAndMembership),
+    owners: getRegistrationOwners(r).map(withoutKeyAndMembership),
   }),
   results: (r) => ({ results: r.results }),
 }
@@ -229,25 +230,46 @@ const samePerson = (a: LockedPerson | undefined, b: LockedPerson | undefined): b
   Boolean(a && b) && textOf(a?.name) === textOf(b?.name) && textOf(a?.email) === textOf(b?.email)
 
 /**
- * The stored owner a sent owner is: by the key, which the form gives a keyless stored owner by
- * position and writes back with the first change of the owners, or else by name and address, which
- * finds a keyless owner whatever position a request moved them to.
+ * The stored owner each sent owner is, each stored owner at most once. By the key first, which the form
+ * gives a keyless stored owner by position and writes back with the first change of the owners. A
+ * keyless sent owner is then found by name and address, the one in the same position first, so a row
+ * the form has not keyed is matched whatever position a request moved an owner to, and two stored
+ * owners alike match one each.
  */
-const storedOwnerOf = (storedOwners: readonly LockedPerson[], owner: LockedPerson | undefined) => {
-  const byKey = owner?.key ? storedOwners.find((stored, index) => ownerKeyAt(stored, index) === owner.key) : undefined
-  return byKey ?? storedOwners.find((stored) => samePerson(stored, owner))
+const storedOwnersOf = (
+  storedOwners: readonly LockedPerson[],
+  sentOwners: readonly LockedPerson[]
+): (LockedPerson | undefined)[] => {
+  const taken = new Set<number>()
+  const take = (index: number) => {
+    if (index === -1) return undefined
+    taken.add(index)
+    return storedOwners[index]
+  }
+  const byKey = sentOwners.map((owner) =>
+    owner.key
+      ? take(storedOwners.findIndex((stored, index) => !taken.has(index) && ownerKeyAt(stored, index) === owner.key))
+      : undefined
+  )
+  return sentOwners.map((owner, position) => {
+    if (byKey[position] || owner.key) return byKey[position]
+    const alike = (index: number) => !taken.has(index) && samePerson(storedOwners[index], owner)
+    return take(alike(position) ? position : storedOwners.findIndex((_stored, index) => alike(index)))
+  })
 }
 
-/** The membership a sent owner may claim: their stored one, or none for an owner added since. */
-const ownerMembershipFrom = (storedOwners: readonly LockedPerson[], owner: LockedPerson | undefined): boolean =>
-  Boolean(storedOwnerOf(storedOwners, owner)?.membership)
+/** The membership each sent owner may claim: their stored one, or none for an owner added since. */
+const ownerClaimsFrom = (storedOwners: readonly LockedPerson[], sentOwners: readonly LockedPerson[]): boolean[] =>
+  storedOwnersOf(storedOwners, sentOwners).map((stored) => Boolean(stored?.membership))
 
 /**
- * The membership a handler who counts may claim: the stored handling person's when it is them (a
- * separate handler kept, or a member owner who stops handling and is named as the handler), and none
- * for a person added since.
+ * The membership a handler who counts may claim. The handler's place is the person: a handler who
+ * counted before keeps the stored claim whatever is corrected of their name or address. A handler who
+ * starts counting, as when the owner who handled stops, may claim the stored handling person's
+ * membership only when named as that person, and none otherwise.
  */
 const handlerMembershipFrom = (existing: LockableRegistration, handler: LockedPerson | undefined): boolean => {
+  if (handlerCounts(existing)) return Boolean(existing.handler?.membership)
   const handling = getHandlingPerson(existing)
   return samePerson(handling, handler) && Boolean(handling?.membership)
 }
@@ -259,10 +281,9 @@ const handlerMembershipFrom = (existing: LockableRegistration, handler: LockedPe
  * it the priority (the user's decision, 25.10.2026); only the claims are held.
  */
 const membershipChanges = (existing: LockableRegistration, data: LockableRegistration): boolean => {
-  const storedOwners = getRegistrationOwners(existing)
-  const ownerClaimChanges = getRegistrationOwners(data).some(
-    (owner) => Boolean(owner?.membership) !== ownerMembershipFrom(storedOwners, owner)
-  )
+  const sentOwners = getRegistrationOwners(data)
+  const claims = ownerClaimsFrom(getRegistrationOwners(existing), sentOwners)
+  const ownerClaimChanges = sentOwners.some((owner, index) => Boolean(owner?.membership) !== claims[index])
   const handlerClaimChanges =
     handlerCounts(data) && Boolean(data.handler?.membership) !== handlerMembershipFrom(existing, data.handler)
   return ownerClaimChanges || handlerClaimChanges || (isMemberEntry(existing) && !isMemberEntry(data))
@@ -305,11 +326,12 @@ const withStoredMemberships = <R extends LockableRegistration>(saved: R, draft: 
   const storedOwners = getRegistrationOwners(saved)
   const result: R = { ...draft }
   if (draft.owners) {
-    const owners = draft.owners.map((owner) => ({ ...owner, membership: ownerMembershipFrom(storedOwners, owner) }))
-    Object.assign(result, { owners })
+    const claims = ownerClaimsFrom(storedOwners, draft.owners)
+    Object.assign(result, { owners: draft.owners.map((owner, index) => ({ ...owner, membership: claims[index] })) })
   }
   if (draft.owner) {
-    Object.assign(result, { owner: { ...draft.owner, membership: ownerMembershipFrom(storedOwners, draft.owner) } })
+    const [membership] = ownerClaimsFrom(storedOwners, [draft.owner])
+    Object.assign(result, { owner: { ...draft.owner, membership } })
   }
   if (draft.handler && handlerCounts(draft)) {
     const membership = handlerMembershipFrom(saved, draft.handler)
