@@ -66,6 +66,32 @@ describe('PaymentInfo', () => {
     })
   })
 
+  // A paid entry's choice stands as stored: the server refuses to change it (KOE-1588).
+  it.each([
+    ['choose a cost', baseCost, { selectedCost: undefined }],
+    [
+      'clear a cost the legacy segment no longer has',
+      { ...baseCost, segment: 'legacy' as const },
+      { optionalCosts: [0], selectedCost: 'normal' as const },
+    ],
+  ])('does not %s once locked', (_label, cost, choice) => {
+    const onChange = vi.fn()
+
+    render(
+      <Provider>
+        <PaymentInfo
+          event={baseEvent}
+          cost={cost}
+          disabled
+          registration={{ dog: { breedCode: '110' }, language: 'fi', ...choice }}
+          onChange={onChange}
+        />
+      </Provider>
+    )
+
+    expect(onChange).not.toHaveBeenCalled()
+  })
+
   it('clears selected cost and optional costs in legacy segment', () => {
     const onChange = vi.fn()
 

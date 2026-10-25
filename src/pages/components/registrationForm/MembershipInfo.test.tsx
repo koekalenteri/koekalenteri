@@ -3,12 +3,13 @@ import type { Registration } from '@/types'
 import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
 import { render, screen } from '@testing-library/react'
-import { Provider } from 'jotai'
+import { createStore, Provider } from 'jotai'
 import { Suspense } from 'react'
 import { registrationWithStaticDates } from '@/__mockData__/registrations'
 import { locales } from '@/i18n'
 import { clone } from '@/lib/utils'
-import { flushPromises, renderWithUserEvents } from '@/test-utils/utils'
+import { dogCacheAtom } from '@/pages/state/dog'
+import { flushPromises, renderWithUserEvents, runPendingTimers } from '@/test-utils/utils'
 import AppSnackbarProvider from '../AppSnackbarProvider'
 import MembershipInfo from './MembershipInfo'
 
@@ -85,6 +86,36 @@ describe('MembershipInfo', () => {
     })
 
     await flushPromises()
+  })
+
+  // The membership checkbox writes the membership, not what the dog cache remembers of the handler:
+  // on a picked entry the handler's details are locked and a filled-in field is refused (KOE-1588).
+  it("writes only the handler's membership, whatever the dog cache remembers of them", async () => {
+    const reg = clone<Registration>(registrationWithStaticDates)
+    reg.ownerHandles = false
+    reg.handler = { email: 'handler@example.com', membership: false, name: 'Handler Name' }
+    const store = createStore()
+    store.set(dogCacheAtom, {
+      [reg.dog.regNo]: {
+        handler: { email: '', location: 'Cached Town', membership: {}, name: 'Cached Name', phone: '+358401111111' },
+      },
+    })
+    const onChange = vi.fn()
+    const { user } = renderWithUserEvents(
+      <Provider store={store}>
+        <MembershipInfo reg={reg} orgId={'test'} onChange={onChange} />
+      </Provider>,
+      { wrapper: Wrapper },
+      { advanceTimers: vi.advanceTimersByTime }
+    )
+    await flushPromises()
+
+    const [, handlerCheckbox] = screen.getAllByRole('checkbox')
+    await user.click(handlerCheckbox)
+    await flushPromises()
+
+    expect(onChange).toHaveBeenLastCalledWith({ handler: { ...reg.handler, membership: true } })
+    await runPendingTimers()
   })
 
   it('should call onChange for an owner', async () => {

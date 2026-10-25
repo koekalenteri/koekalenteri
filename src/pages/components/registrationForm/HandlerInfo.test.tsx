@@ -3,11 +3,12 @@ import type { Registration } from '@/types'
 import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
 import { render, screen } from '@testing-library/react'
-import { Provider } from 'jotai'
+import { createStore, Provider } from 'jotai'
 import { Suspense } from 'react'
 import { registrationWithStaticDates } from '@/__mockData__/registrations'
 import { locales } from '@/i18n'
 import { clone } from '@/lib/utils'
+import { dogCacheAtom } from '@/pages/state/dog'
 import { flushPromises, renderWithUserEvents } from '@/test-utils/utils'
 import AppSnackbarProvider from '../AppSnackbarProvider'
 import { HandlerInfo } from './HandlerInfo'
@@ -102,6 +103,54 @@ describe('HadnlerInfo', () => {
     })
 
     await flushPromises()
+  })
+
+  // The dog cache remembers a membership from another entry; a paid entry's stands as stored (KOE-1588).
+  describe('a membership the dog cache remembers', () => {
+    // Once paid, the claim comes from the lock's rule: here the stored handler keeps theirs, anyone
+    // named in their place claims none.
+    const lockedMembership = ({ name }: { name: string }) => name === 'Handler Name'
+    const renderWithCachedMembership = (locked: boolean) => {
+      const reg = clone<Registration>(registrationWithStaticDates)
+      const store = createStore()
+      store.set(dogCacheAtom, {
+        [reg.dog.regNo]: { handler: { email: '', membership: { test: true }, name: 'Handler Name' } },
+      })
+      const onChange = vi.fn()
+      const rendered = renderWithUserEvents(
+        <Provider store={store}>
+          <HandlerInfo
+            reg={reg}
+            lockedMembership={locked ? lockedMembership : undefined}
+            onChange={onChange}
+            orgId="test"
+          />
+        </Provider>,
+        { wrapper: Wrapper },
+        { advanceTimers: vi.advanceTimersByTime }
+      )
+      return { onChange, user: rendered.user }
+    }
+
+    it('is taken into an entry whose memberships are open', async () => {
+      const { onChange } = renderWithCachedMembership(false)
+      await flushPromises()
+
+      expect(onChange).toHaveBeenCalledWith({ handler: expect.objectContaining({ membership: true }) })
+    })
+
+    it('is not taken into a paid entry, and a renamed handler claims what the lock allows', async () => {
+      const { onChange, user } = renderWithCachedMembership(true)
+      await flushPromises()
+      expect(onChange).not.toHaveBeenCalled()
+
+      await user.type(screen.getByRole('textbox', { name: 'contact.name' }), 'x')
+      await flushPromises()
+
+      expect(onChange).toHaveBeenLastCalledWith({
+        handler: expect.objectContaining({ membership: false, name: 'Handler Namex' }),
+      })
+    })
   })
 
   // KOE-1598: an unset selection is the owner handling, so the cached handler membership is not

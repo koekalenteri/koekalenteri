@@ -9,8 +9,13 @@ import { registrationWithStaticDates } from '../../__mockData__/registrations'
 import theme from '../../assets/Theme'
 import { locales } from '../../i18n'
 import { TestProvider } from '../../test-utils/AtomProvider'
+import { freezeClockAt } from '../../test-utils/freezeClock'
 import AppSnackbarProvider from './AppSnackbarProvider'
 import RegistrationForm from './RegistrationForm'
+
+// The class and the days close for the participant once the entry has (KOE-1588): the paid entry is
+// shown on the day the entry opens, with only its dog, memberships and costs locked.
+freezeClockAt(eventWithStaticDates.entryStartDate)
 
 // The Handler/Payer sections slide open or shut behind a Collapse whose auto height is measured
 // from real content; a capture mid-slide freezes the page with a huge blank reserved gap where

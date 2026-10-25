@@ -911,6 +911,20 @@
     },
     "isMember": "{{name}} is a member of the organizing society",
     "language": "Language",
+    "lockedChange": "The change cannot be made {{reason}}: only the secretary can now change {{section}}.",
+    "lockedReason": {
+      "entryClosed": "after the entry has closed",
+      "paid": "after payment",
+      "picked": "once the dog has a place in the trial"
+    },
+    "lockedSection": {
+      "dog": "the dog's details",
+      "entry": "the class, the days and the reserve wish",
+      "membership": "the memberships",
+      "payment": "the cost and the optional costs",
+      "people": "the breeder, owner and handler details",
+      "results": "the qualifying results"
+    },
     "member": "Member",
     "membership": "Membership information",
     "modified_one": "Changes saved.\nConfirmation email was sent to:\n{{to}}",

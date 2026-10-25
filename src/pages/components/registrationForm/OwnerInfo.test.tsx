@@ -3,11 +3,12 @@ import type { Registration } from '@/types'
 import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
 import { render, screen } from '@testing-library/react'
-import { Provider } from 'jotai'
+import { createStore, Provider } from 'jotai'
 import { Suspense } from 'react'
 import { registrationWithStaticDates } from '@/__mockData__/registrations'
 import { locales } from '@/i18n'
 import { clone } from '@/lib/utils'
+import { dogCacheAtom } from '@/pages/state/dog'
 import { flushPromises, renderWithUserEvents } from '@/test-utils/utils'
 import AppSnackbarProvider from '../AppSnackbarProvider'
 import { OwnerInfo } from './OwnerInfo'
@@ -195,6 +196,43 @@ describe('OwnerInfo', () => {
       expect(screen.getAllByRole('textbox', { name: 'contact.city' })).toHaveLength(2)
       expect(screen.getAllByRole('textbox', { name: 'contact.email' })).toHaveLength(2)
       expect(screen.getAllByRole('textbox', { name: 'contact.phone' })).toHaveLength(2)
+    })
+  })
+
+  // The dog cache remembers a membership from another entry; a paid entry's stands as stored (KOE-1588).
+  describe('a membership the dog cache remembers', () => {
+    const renderWithCachedMembership = (membershipLocked: boolean) => {
+      const reg = clone<Registration>(registrationWithStaticDates)
+      const store = createStore()
+      store.set(dogCacheAtom, {
+        [reg.dog.regNo]: {
+          owner: { owners: [{ email: '', key: 'owner-1', membership: { test: true }, name: 'Owner Name' }] },
+        },
+      })
+      const onChange = vi.fn()
+      render(
+        <Provider store={store}>
+          <OwnerInfo reg={reg} membershipLocked={membershipLocked} onChange={onChange} orgId="test" />
+        </Provider>,
+        { wrapper: Wrapper }
+      )
+      return onChange
+    }
+
+    it('is taken into an entry whose memberships are open', async () => {
+      const onChange = renderWithCachedMembership(false)
+      await flushPromises()
+
+      expect(onChange).toHaveBeenCalledWith(
+        expect.objectContaining({ owners: [expect.objectContaining({ key: 'owner-1', membership: true })] })
+      )
+    })
+
+    it('is not taken into an entry whose memberships are locked', async () => {
+      const onChange = renderWithCachedMembership(true)
+      await flushPromises()
+
+      expect(onChange).not.toHaveBeenCalled()
     })
   })
 
