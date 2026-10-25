@@ -42,6 +42,7 @@ import {
 } from '../../lib/registration'
 import {
   getParticipantFieldLocks,
+  isEntryRestrictionLocked,
   isParticipantFieldLocked,
   NO_PARTICIPANT_FIELD_LOCKS,
   participantLockedChange,
@@ -127,7 +128,9 @@ export default function RegistrationForm({
   const { t: tBreed } = useTranslation(['translation', 'breed'])
   const language = useAtomValue(languageAtom)
   const large = useMediaQuery((theme: Theme) => theme.breakpoints.up('md'))
-  const [validationErrors, setErrors] = useState(() => validateRegistration(registration, event, savedRegistration))
+  const [validationErrors, setValidationErrors] = useState(() =>
+    validateRegistration(registration, event, savedRegistration)
+  )
   const [open, setOpen] = useState<SectionOpenState>(() => defaultSectionOpenState(large))
   const [rankingPeriod, setRankingPeriod] = useState<{ min?: DayKey; max?: DayKey }>({})
 
@@ -139,15 +142,16 @@ export default function RegistrationForm({
     [admin, event, stored]
   )
   // What the participant can no longer change does not hold back saving what they can: an error in
-  // a locked section, a restriction only the locked dog and memberships decide, or a qualification
-  // only the locked class, dog and results decide (KOE-1588). The server decides those on its own.
+  // a locked section, a restriction only locked sections could meet (`isEntryRestrictionLocked`, which
+  // PutRegistration reads too), or a qualification only the locked class, dog and results decide
+  // (KOE-1588). The server decides those on its own.
   const errors = useMemo(
     () => validationErrors.filter((error) => !isParticipantFieldLocked(locks, error.opts.field)),
     [locks, validationErrors]
   )
   const restriction = useMemo(
-    () => (locks.dog && locks.membership ? undefined : getRestrictionNotice(event, registration, tBreed)),
-    [event, locks.dog, locks.membership, registration, tBreed]
+    () => (isEntryRestrictionLocked(event, locks) ? undefined : getRestrictionNotice(event, registration, tBreed)),
+    [event, locks, registration, tBreed]
   )
   const qualifies = registration.qualifies || (locks.entry && locks.dog && locks.results)
   // The restriction gates the registrant; the secretary sees the same notice but decides for
@@ -266,7 +270,7 @@ export default function RegistrationForm({
   }, [large])
 
   useEffect(() => {
-    setErrors(validateRegistration(registration, event, savedRegistration))
+    setValidationErrors(validateRegistration(registration, event, savedRegistration))
 
     const filtered = filterRelevantResults(
       event,

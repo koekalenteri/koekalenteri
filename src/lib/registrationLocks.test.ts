@@ -5,6 +5,7 @@ import { addDays } from './day'
 import { PUBLIC_REGISTRATION_FIELDS } from './registration'
 import {
   getParticipantFieldLocks,
+  isEntryRestrictionLocked,
   isParticipantFieldLocked,
   NO_PARTICIPANT_FIELD_LOCKS,
   PARTICIPANT_FIELD_SECTIONS,
@@ -138,6 +139,23 @@ describe('registrationLocks', () => {
     })
   })
 
+  describe('isEntryRestrictionLocked', () => {
+    const picked = { ...NO_PARTICIPANT_FIELD_LOCKS, dog: true, entry: true, people: true, results: true }
+    const paid = { ...NO_PARTICIPANT_FIELD_LOCKS, dog: true, membership: true, payment: true }
+
+    it.each([
+      ['a breed restriction once the dog is locked', ['122'], picked, true],
+      ['a breed restriction while the dog is open', ['122'], NO_PARTICIPANT_FIELD_LOCKS, false],
+      ['a members-only restriction while the memberships are open', ['member'], picked, false],
+      ['a members-only restriction once paid', ['member'], paid, true],
+      ['members or a breed while the memberships are open', ['member', '122'], picked, false],
+      ['members or a breed once paid', ['member', '122'], paid, true],
+      ['a value that restricts nothing', ['invited'], NO_PARTICIPANT_FIELD_LOCKS, true],
+    ] as const)('answers %s with %s', (_label, restrictions, locks, expected) => {
+      expect(isEntryRestrictionLocked({ restrictions: [...restrictions] }, locks)).toBe(expected)
+    })
+  })
+
   describe('isParticipantFieldLocked', () => {
     it.each([
       ['class', only('entry'), true],
@@ -156,9 +174,9 @@ describe('registrationLocks', () => {
     })
 
     it('compares the days as a set', () => {
-      expect(participantLockedChange(ALL_LOCKED, base, { ...base, dates: [...(base.dates ?? [])].reverse() })).toBe(
-        undefined
-      )
+      const data = { ...base, dates: [...(base.dates ?? [])].reverse() }
+
+      expect(participantLockedChange(ALL_LOCKED, base, data)).toBeUndefined()
     })
 
     it('compares the optional costs as a set', () => {

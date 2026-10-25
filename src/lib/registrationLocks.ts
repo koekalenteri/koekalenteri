@@ -1,8 +1,9 @@
-import type { DayKey, OwnerSelection } from '../types'
+import type { DayKey, JsonPublicDogEvent, OwnerSelection, PublicDogEvent } from '../types'
 import type { EventVitals } from './event'
 import type { PublicRegistrationFieldName } from './registration'
 import { objectsDiffer } from './diff'
 import { hasEntryEnded } from './event'
+import { PRIORITY_MEMBER, priorityValuesToPriority, RESTRICTION } from './priority'
 import { getRegistrationOwners, ownerKeyAt, resolveOwnerSelection, withDefaultOwnerSelection } from './registration'
 import { withRegistrationDayKeys } from './storedDays'
 
@@ -89,6 +90,20 @@ export const getParticipantFieldLocks = (
     results: picked,
   }
 }
+
+/**
+ * Whether the entry restriction (KOE-525) is out of the participant's hands: every section that could
+ * still meet it is locked. A members-only restriction is met through the memberships, a breed through
+ * the dog; with those locked the participant has nothing left to change, so neither their form nor
+ * PutRegistration holds the rest of the entry back on it (KOE-1588). The secretary decides it then.
+ */
+export const isEntryRestrictionLocked = (
+  event: Partial<Pick<PublicDogEvent | JsonPublicDogEvent, 'restrictions'>>,
+  locks: ParticipantFieldLocks
+): boolean =>
+  priorityValuesToPriority(event.restrictions, RESTRICTION).every((restriction) =>
+    restriction.value === PRIORITY_MEMBER ? locks.membership : locks.dog
+  )
 
 const FIELD_SECTIONS: ReadonlyMap<string, ParticipantLockSection | 'free'> = new Map(
   Object.entries(PARTICIPANT_FIELD_SECTIONS)

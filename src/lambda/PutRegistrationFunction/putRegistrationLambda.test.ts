@@ -2354,6 +2354,41 @@ describe('putRegistrationLabmda', () => {
       expectRefused(await patch(existingJson, { owners: keyed }), 'membership')
     })
 
+    // The restriction (KOE-525) gates the entry only while the participant can still meet it: the dog
+    // for a breed, the memberships for members (`isEntryRestrictionLocked`).
+    describe('an entry restriction the entry does not meet', () => {
+      const givenRestricted = (stored: object, restrictions: string[]) => {
+        mockGetLiveEvent.mockResolvedValueOnce({ ...JSON.parse(JSON.stringify(eventWithStaticDates)), restrictions })
+        mockGetRegistration.mockResolvedValueOnce(storedRegistrationJson(stored))
+      }
+
+      it.each([
+        ['a paid entry on a members-only trial', paid, ['member']],
+        ['a picked entry on a trial for another breed', picked, ['122']],
+      ])('saves the notes of %s, sent as the whole registration', async (_label, stored, restrictions) => {
+        entryOpen()
+        givenRestricted(stored, restrictions)
+
+        const res = await putRegistrationLabmda(constructAPIGwEvent({ ...stored, notes: 'restricted' }))
+
+        expectSaved(res, { notes: 'restricted' })
+      })
+
+      it.each([
+        ['a picked entry on a members-only trial', picked, ['member']],
+        ['an entry not yet picked on a trial for another breed', unpaidRegistrationWithStaticDates, ['122']],
+      ])('refuses the notes of %s with 400', async (_label, stored, restrictions) => {
+        entryOpen()
+        givenRestricted(stored, restrictions)
+
+        const res = await putRegistrationLabmda(constructAPIGwEvent({ ...stored, notes: 'restricted' }))
+
+        expect(res.statusCode).toBe(400)
+        expect(res.body).toContain('restricted to members or named breeds')
+        expect(mockPatchRegistration).not.toHaveBeenCalled()
+      })
+    })
+
     describe('a whole registration resent on a trial day', () => {
       // What a browser holds: the official results it was sent once and the addresses as typed.
       const stored = {

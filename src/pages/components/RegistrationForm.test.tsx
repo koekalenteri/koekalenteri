@@ -629,8 +629,10 @@ describe('RegistrationForm', () => {
     const trialDay = () => vi.setSystemTime(frozenInstant(eventWithStaticDates.startDate))
     afterEach(() => vi.setSystemTime(vi.getRealSystemTime()))
 
-    const picked: Registration = { ...unpaidRegistrationWithStaticDates, messagesSent: { picked: true } }
-    const reserveEntrant: Registration = { ...unpaidRegistrationWithStaticDates, messagesSent: { reserve: true } }
+    // Unpaid, without the money fields at all: a field held as undefined counts as missing in the form.
+    const { paidAmount: _amount, paidAt: _at, paymentStatus: _status, ...unpaid } = registrationWithStaticDates
+    const picked: Registration = { ...unpaid, messagesSent: { picked: true } }
+    const reserveEntrant: Registration = { ...unpaid, messagesSent: { reserve: true } }
     const regNoField = () => screen.getByRole('combobox', { name: 'dog.regNo' })
     const reserveField = () => screen.getByRole('combobox', { name: 'registration.reserve' })
     const notesField = () => screen.getByRole('textbox', { name: 'registration.notes' })
@@ -688,6 +690,43 @@ describe('RegistrationForm', () => {
       expect(screen.queryByTestId('missing-info')).not.toBeInTheDocument()
     })
 
+    // The mock dog is a curly coated retriever (110): only the dog could meet a trial for another
+    // breed, and a picked entry's dog is locked; a members-only trial is met through the memberships,
+    // which stay open until paid (`isEntryRestrictionLocked`, which PutRegistration reads too).
+    it.each([
+      ['lets a picked entry save on a trial for another breed', ['122'], true],
+      ['keeps holding back a picked entry on a members-only trial', ['member'], false],
+    ])('%s', async (_label, restrictions, saves) => {
+      entryOpen()
+      render(
+        <RegistrationForm
+          changes
+          event={{ ...eventWithStaticDates, restrictions }}
+          registration={picked}
+          savedRegistration={picked}
+        />,
+        { wrapper: Wrapper }
+      )
+      await flushPromises()
+
+      if (saves) expect(saveButton()).toBeEnabled()
+      else expect(saveButton()).toBeDisabled()
+    })
+
+    it('keeps every section open for the secretary on a picked and paid entry', async () => {
+      trialDay()
+      const registration: Registration = { ...registrationWithStaticDates, messagesSent: { picked: true } }
+      render(<RegistrationForm admin event={eventWithStaticDates} registration={registration} />, {
+        wrapper: Wrapper,
+      })
+      await flushPromises()
+
+      expect(regNoField()).toBeEnabled()
+      expect(reserveField()).toBeEnabled()
+      expect(screen.getAllByRole('textbox', { name: 'contact.name' })[0]).toBeEnabled()
+      expect(screen.getAllByRole('checkbox', { name: /registration\.isMember/ })[0]).toBeEnabled()
+    })
+
     it('keeps holding back an entry whose open sections have errors', async () => {
       entryOpen()
       const registration: Registration = { ...picked, payer: { email: '', name: '', phone: '' } }
@@ -697,6 +736,8 @@ describe('RegistrationForm', () => {
       await flushPromises()
 
       expect(saveButton()).toBeDisabled()
+      const missing = within(screen.getByTestId('missing-info')).getAllByRole('listitem', { hidden: true })
+      expect(missing.map((item) => item.textContent?.trim())).toEqual(['registration.payer defaultValue'])
     })
 
     // The form writes the first owner into an unset selection; a picked entry's stands as stored.

@@ -1,5 +1,6 @@
 import type { APIGatewayProxyEvent } from 'aws-lambda'
 import type { AuditActor } from '../../lib/audit'
+import type { ParticipantFieldLocks } from '../../lib/registrationLocks'
 import type { JsonConfirmedEvent, JsonRegistration, JsonRegistrationPatchRequest, Patch } from '../../types'
 import { registrationCreatedAudit } from '../../lib/audit'
 import { isEntryOpen, isEventOver } from '../../lib/event'
@@ -15,7 +16,12 @@ import {
   resolveInvitationRead,
   withoutParticipantResponses,
 } from '../../lib/registration'
-import { getParticipantFieldLocks, participantLockedChange } from '../../lib/registrationLocks'
+import {
+  getParticipantFieldLocks,
+  isEntryRestrictionLocked,
+  NO_PARTICIPANT_FIELD_LOCKS,
+  participantLockedChange,
+} from '../../lib/registrationLocks'
 import { registrationBodySchema } from '../../lib/schema/registration'
 import { legacyRegistrationDays, rekeyRegistrationDays } from '../../lib/storedDays'
 import { patchMerge } from '../../lib/utils'
@@ -159,16 +165,33 @@ const assertCancellationOpen = (
 const assertParticipantFieldsUnlocked = (
   existing: JsonRegistration | undefined,
   data: JsonRegistration,
-  confirmedEvent: JsonConfirmedEvent
+  locks: ParticipantFieldLocks
 ) => {
   if (!existing) return
-  const locks = getParticipantFieldLocks(confirmedEvent, existing)
   const section = participantLockedChange(
     locks,
     normalizeRegistrationEmails(structuredClone(existing)),
     normalizeRegistrationEmails(structuredClone(data))
   )
   if (section) throw httpError(410, { message: `Gone: the ${section} section can no longer be changed` })
+}
+
+/**
+ * The entry restrictions (KOE-525) are a gate, not a note to the secretary: the form does not let an
+ * entry through without a membership or a named breed, and neither does the API. A cancellation or a
+ * confirmation is not an entry and passes, and so does an entry whose sections that could still meet
+ * the restriction are locked for the participant (`isEntryRestrictionLocked`, KOE-1588).
+ */
+const assertMeetsRestrictions = (
+  data: JsonRegistration,
+  confirmedEvent: JsonConfirmedEvent,
+  locks: ParticipantFieldLocks,
+  operationRequest: boolean
+) => {
+  if (operationRequest || isEntryRestrictionLocked(confirmedEvent, locks)) return
+  if (!meetsRestrictions(confirmedEvent, data)) {
+    throw httpError(400, { message: 'Bad request: the entry is restricted to members or named breeds' })
+  }
 }
 
 /** The request body as the registration to store, or as the operations to apply to a stored one. */
@@ -261,15 +284,11 @@ const putRegistrationLambda = lambda('putRegistration', async (event) => {
   const { data, flags } = buildPublicRegistrationData(registration, existing, confirmedEvent)
   assertEntryContentEditable(existing, data, confirmedEvent)
   assertCancellationOpen(existing, flags.cancel, confirmedEvent)
-  assertParticipantFieldsUnlocked(existing, data, confirmedEvent)
+  const locks = existing ? getParticipantFieldLocks(confirmedEvent, existing) : NO_PARTICIPANT_FIELD_LOCKS
+  assertParticipantFieldsUnlocked(existing, data, locks)
 
   applyOwnerOverrides(data)
-  // The entry restrictions (KOE-525) are a gate, not a note to the secretary: the form does not
-  // let an entry through without a membership or a named breed, and neither does the API. A
-  // cancellation or a confirmation is not an entry and passes.
-  if (!operationRequest && !meetsRestrictions(confirmedEvent, data)) {
-    throw httpError(400, { message: 'Bad request: the entry is restricted to members or named breeds' })
-  }
+  assertMeetsRestrictions(data, confirmedEvent, locks, Boolean(operationRequest))
   // The official results come from the dog table, not from the request's copy of them: a client
   // can write anything into its copy, and the eligibility rests on these (KOE-1346). The manual
   // results stay what they are, the owner's own claims, and are stored and shown as such.
