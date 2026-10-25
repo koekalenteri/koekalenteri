@@ -154,7 +154,8 @@ it('lists the classes as ALO, AVO, VOI whatever order they were picked in (KOE-1
       { class: 'AVO', date: day('2026-10-11') },
     ],
   }
-  const screen = await renderAt({ height: 320, width: DESKTOP.width }, 'fi', [pickedVoiFirst])
+  // Wide enough for the column to show all three classes untruncated.
+  const screen = await renderAt({ height: 320, width: 1600 }, 'fi', [pickedVoiFirst])
 
   await expect.element(screen.getByText('ALO, AVO, VOI', { exact: true })).toBeVisible()
   await expect(screen.getByTestId('visual-root')).toMatchScreenshot('event-list-class-order')

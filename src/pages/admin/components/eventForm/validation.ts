@@ -225,12 +225,10 @@ export const VALIDATORS: EventValidators = {
       return false
     }
 
-    const list: string[] = []
-    for (const c of event.classes) {
-      if (Array.isArray(c.judge) ? !c.judge.length : !c.judge?.id) {
-        list.push(c.class)
-      }
-    }
+    // Each class once, as ALO, AVO, VOI: event.classes has an entry per class and day, in picked order (KOE-1596).
+    const list = uniqueClasses({
+      classes: event.classes.filter((c) => (Array.isArray(c.judge) ? !c.judge.length : !c.judge?.id)),
+    })
     return list.length ? { key: 'classesJudge', opts: { field: 'judges', length: list.length, list } } : false
   },
 
@@ -238,14 +236,8 @@ export const VALIDATORS: EventValidators = {
     if (required && !event.places) {
       return true
     }
-    const list: string[] = []
-    if (required && requiresClassPlaces(event)) {
-      for (const c of event.classes) {
-        if (!c.places) {
-          list.push(c.class)
-        }
-      }
-    }
+    const list =
+      required && requiresClassPlaces(event) ? uniqueClasses({ classes: event.classes.filter((c) => !c.places) }) : []
     return list.length ? { key: 'placesClass', opts: { field: 'places', length: list.length, list } } : false
   },
   // A stored null is as missing as an absent value, which the default validator would let through.
