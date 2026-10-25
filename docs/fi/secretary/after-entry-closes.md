@@ -114,7 +114,8 @@ lähetystä; vastaanottaja saa liitteen viestin linkistä, joka samalla kuittaa 
 
 Jos kokeen maksuajankohdaksi on valittu *{t:paymentTimeOptions.confirmation}*, koekutsu lähtee
 kullekin osallistujalle vasta, kun tämä on maksanut koepaikkansa. Osio näyttää, montako kutsua
-odottaa maksua, ja lähettää ne itsestään maksun tultua. Kuitattu kutsu näkyy rivillä avattuna
+odottaa maksua, ja lähettää ne itsestään maksun tultua. Kokeen jälkeen tullut maksu ei enää tuo
+koekutsua. Kuitattu kutsu näkyy rivillä avattuna
 kirjekuorena ja kuittaamaton suljettuna.
 
 ## Starttilista
@@ -177,6 +178,15 @@ koepaikkailmoituksen ja koekutsun itsestään.
 
 Ryhmän sisäinen starttijärjestys tiivistyy peruutuksen jälkeen automaattisesti. Jo syötetyt
 starttinumerot sen sijaan säilyvät, joten julkaistut numerot eivät muutu peruutuksesta.
+
+## Maksupyyntö
+
+Kun koemaksu tai sen osa on maksamatta ja ilmoittautuja voi sen maksaa, rivin valikossa (⋮) on valinta
+**{t:registration.actions.requestPayment}**. Se avaa viesti-ikkunan pohjalla
+*{t:emailTemplate.payment-request}*, ja viesti lähtee myös maksajaksi merkitylle. Maksupyynnön voi
+lähettää vielä viikon ajan kokeen viimeisen päivän jälkeen, vaikka rivin muut toiminnot ovat jo
+sulkeutuneet ja luokka olisi arvosteltu, joten maksamatta jäänyt koemaksu voidaan periä kokeen
+jälkeenkin. Ilmoittautuja voi maksaa saman viikon ajan; sen jälkeen maksua ei voi enää aloittaa.
 
 ## Viesti osallistujille
 

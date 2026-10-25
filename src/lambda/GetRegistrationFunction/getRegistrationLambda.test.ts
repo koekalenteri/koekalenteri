@@ -10,7 +10,8 @@ import type {
 import { vi } from 'vitest'
 import { eventWithParticipantsInvited } from '../../__mockData__/events'
 import { registrationsToEventWithParticipantsInvited } from '../../__mockData__/registrations'
-import { dayStartOf, TIME_ZONE } from '../../lib/day'
+import { dayEndOf, dayStartOf, TIME_ZONE } from '../../lib/day'
+import { PAYMENT_DAYS_AFTER_TRIAL } from '../../lib/event'
 import { isParticipantGroup } from '../../lib/registration'
 import { LambdaError } from '../lib/lambda'
 import { constructAPIGwEvent, deletedEvent, eventNotFound } from '../test-utils/helpers'
@@ -168,8 +169,43 @@ describe('getRegistration', () => {
     expect(mockReadPaymentTransactions).not.toHaveBeenCalled()
   })
 
-  it('does not disclose registrations after the event has ended', async () => {
-    vi.setSystemTime(dayStartOf(new Date(mockEventWithInvitationAttachment.endDate), TIME_ZONE, 1))
+  // KOE-1589: the entry is served for paying through the 7th day after the trial's last day.
+  it('serves the registration on the last day a payment may be started', async () => {
+    const lastPayingDay = dayStartOf(
+      new Date(mockEventWithInvitationAttachment.endDate),
+      TIME_ZONE,
+      PAYMENT_DAYS_AFTER_TRIAL
+    )
+    vi.setSystemTime(dayEndOf(lastPayingDay, TIME_ZONE))
+
+    const res = await getRegistrationLambda(
+      constructAPIGwEvent('test', { pathParameters: { eventId: '123', id: '123' } })
+    )
+
+    expect(res.statusCode).toBe(200)
+  })
+
+  // KOE-1589: the koekutsu is for a trial still to come, though a class can stay 'invited' after its day.
+  it.each([
+    ['serves the invitation attachment on the last day of the trial', 0, 'alo.pdf'],
+    ['leaves the invitation attachment out in the week after the trial', 3, undefined],
+  ])('%s', async (_when, daysAfter, attachment) => {
+    vi.setSystemTime(dayStartOf(new Date(mockEventWithInvitationAttachment.endDate), TIME_ZONE, daysAfter))
+
+    const res = await getRegistrationLambda(
+      constructAPIGwEvent('test', { pathParameters: { eventId: '123', id: '123' } })
+    )
+
+    expect(res.statusCode).toBe(200)
+    const reg: JsonRegistration = JSON.parse(res.body)
+    expect(reg.invitationAttachment).toEqual(attachment)
+    expect(reg.invitationAttachmentUpdatedAt).toEqual(attachment && '2026-07-28T10:00:00.000Z')
+  })
+
+  it('does not disclose registrations once the payment window has closed', async () => {
+    vi.setSystemTime(
+      dayStartOf(new Date(mockEventWithInvitationAttachment.endDate), TIME_ZONE, PAYMENT_DAYS_AFTER_TRIAL + 1)
+    )
 
     const res = await getRegistrationLambda(
       constructAPIGwEvent('test', { pathParameters: { eventId: '123', id: '123' } })

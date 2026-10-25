@@ -9,7 +9,7 @@ import { Await, Navigate, useLoaderData, useLocation } from 'react-router'
 import { getEvent } from '../api/event'
 import { getRegistration, patchRegistration } from '../api/registration'
 import { useRegistrationLanguage } from '../hooks/useRegistrationLanguage'
-import { eventTypeLabel, localizedEventName } from '../lib/event'
+import { eventTypeLabel, isEventOver, localizedEventName } from '../lib/event'
 import { invitationAttachmentFileName } from '../lib/fileName'
 import { createPatchOperations } from '../lib/patch'
 import { getInvitationReadStatus } from '../lib/registration'
@@ -45,6 +45,9 @@ export const deferredLoader = async (
   })
 
   if (!event || !registration) throw new Error('not found')
+  // The entry stays readable for paying in the week after the trial, but the koekutsu is for a trial
+  // still to come: once it is over the link finds nothing and marks nothing read (KOE-1589).
+  if (isEventOver(event)) throw new Error('not found')
 
   if (getInvitationReadStatus(registration) !== 'read-latest') {
     const updatedRegistration = { ...registration, invitationRead: true }

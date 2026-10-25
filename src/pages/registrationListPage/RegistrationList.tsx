@@ -27,6 +27,8 @@ interface Props {
   /** Editing closes earlier than cancelling and paying: from the close of entry to the trial (KOE-1584). */
   readonly editDisabled?: boolean
   readonly event: PublicDogEvent
+  /** Paying closes later than the rest: a week after the trial (KOE-1589). */
+  readonly payDisabled?: boolean
   readonly paymentVerificationInProgress?: boolean
   readonly rows: StrippedRegistration[]
   readonly onUnregister: (registration: StrippedRegistration) => void
@@ -88,6 +90,7 @@ export default function RegistrationList({
   event,
   disabled,
   editDisabled = disabled,
+  payDisabled = disabled,
   rows,
   onUnregister,
   paymentVerificationInProgress = false,
@@ -179,7 +182,7 @@ export default function RegistrationList({
         if (params.row.payment.canPay && !paymentVerificationInProgress) {
           return [
             <GridActionsCellItem
-              disabled={disabled}
+              disabled={payDisabled}
               key="pay"
               icon={<EuroOutlined color="info" />}
               label={t('registration.actions.pay')}

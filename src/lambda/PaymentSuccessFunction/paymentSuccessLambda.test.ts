@@ -1,6 +1,7 @@
 import type { JsonRegistration } from '../../types'
 import type { CancelledRegistration } from '../lib/payment'
 import { vi } from 'vitest'
+import { freezeClockAt } from '../../test-utils/freezeClock'
 import { deliverToEntrant, everyEntrantWatching } from '../test-utils/entrantPages'
 import { answerRejections, constructPartialAPIGwEvent } from '../test-utils/helpers'
 import { loggedLines } from '../test-utils/logs'
@@ -1253,6 +1254,24 @@ describe('paymentSuccessLambda', () => {
       await paymentSuccessLambda(event)
 
       expect(mockSendTemplatedEmailToEventRegistrations).not.toHaveBeenCalled()
+    })
+
+    // KOE-1589: a fee may be paid in the week after the trial, but the koekutsu is for a trial still
+    // to come; a class can stay 'invited' after its day.
+    describe('around the trial day', () => {
+      freezeClockAt('2026-06-15')
+
+      it.each([
+        [1, 'on the last day of the trial', '2026-06-15'],
+        [0, 'once the trial is over', '2026-06-14'],
+      ])('sends %i invitations %s', async (sends, _when, endDate) => {
+        mockGetRegistration.mockResolvedValue(participant)
+        mockUpdateRegistrations.mockResolvedValue({ ...eventWithClassState('invited'), endDate, startDate: endDate })
+
+        await paymentSuccessLambda(event)
+
+        expect(mockSendTemplatedEmailToEventRegistrations).toHaveBeenCalledTimes(sends)
+      })
     })
 
     it('does not repeat an invitation that has already been sent', async () => {

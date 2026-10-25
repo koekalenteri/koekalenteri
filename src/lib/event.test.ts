@@ -69,6 +69,7 @@ import {
   isEventOver,
   isMockTrialClass,
   isOfficialEventType,
+  isPaymentWindowOpen,
   isResultsAvailableForClass,
   isResultsAvailableForRegistration,
   isResultsPublished,
@@ -1366,6 +1367,26 @@ describe('a stored date that is neither a day nor an instant (KOE-1545)', () => 
     expect(isEventOver({ endDate: new Date(Number.NaN) })).toBe(false)
     expect(isEntryOpen({ entryEndDate: '2099-01-01', entryStartDate: 'foo', state: 'confirmed' })).toBe(false)
     expect(hasDayStarted(undefined)).toBe(false)
+  })
+})
+
+describe('isPaymentWindowOpen (KOE-1589)', () => {
+  it.each([
+    ['on the last day', '2026-11-01T12:00:00+02:00', true],
+    ['on the 7th day after the last day', '2026-11-08T23:59:00+02:00', true],
+    ['from the 8th day after the last day', '2026-11-09T00:00:00+02:00', false],
+  ])('reads the window %s', (_name, now, open) => {
+    expect(isPaymentWindowOpen({ endDate: '2026-11-01' }, new Date(now))).toBe(open)
+  })
+
+  it('reads a legacy Finnish-midnight instant as its day', () => {
+    const endDate = '2026-10-31T22:00:00.000Z'
+    expect(isPaymentWindowOpen({ endDate }, new Date('2026-11-08T21:59:00.000Z'))).toBe(true)
+    expect(isPaymentWindowOpen({ endDate }, new Date('2026-11-08T22:00:00.000Z'))).toBe(false)
+  })
+
+  it('counts a trial without an end day as open, as isEventOver counts it as not over', () => {
+    expect(isPaymentWindowOpen({}, new Date('2026-11-09T12:00:00+02:00'))).toBe(true)
   })
 })
 

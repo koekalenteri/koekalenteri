@@ -86,7 +86,12 @@ const LocationProbe = () => {
 }
 
 describe('RegistrationListPage', () => {
-  beforeEach(() => vi.useFakeTimers())
+  // The fixture trial ended 11.2.2021. A test that names no day of its own runs the day after: the
+  // entry is past changing, and its fee still payable (KOE-1589).
+  beforeEach(() => {
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date('2021-02-12T12:00:00.000+02:00'))
+  })
 
   afterEach(async () => {
     localStorage.clear()
@@ -406,6 +411,140 @@ describe('RegistrationListPage', () => {
     const edit = await screen.findByRole('menuitem', { name: 'registration.actions.edit' })
     if (closed) expect(edit).toHaveAttribute('aria-disabled', 'true')
     else expect(edit).not.toHaveAttribute('aria-disabled', 'true')
+  })
+
+  // KOE-1589: the trial ended 11.2.2021. Paying stays open through the 7th day after it, while
+  // confirming and the koekutsu close with the trial.
+  describe('in the week after the trial', () => {
+    it.each([
+      ['2021-02-18T23:59:00.000+02:00', true],
+      ['2021-02-19T00:00:01.000+02:00', false],
+    ])('at %s offers paying: %s', async (now, offered) => {
+      vi.setSystemTime(new Date(now))
+      vi.spyOn(registrationApi, 'getRegistration').mockResolvedValue({
+        ...unpaidRegistrationWithStaticDates,
+        payment: owing,
+      })
+      const { user } = await renderWithRouter('/r/test1/unpaid-nou-registration')
+      await flushPromises()
+
+      const rowPay = screen.getByRole('button', { name: 'registration.actions.pay' })
+      const infoBoxPay = screen.queryByRole('button', { name: 'registration.cta.pay' })
+      if (!offered) {
+        expect(rowPay).toBeDisabled()
+        expect(infoBoxPay).not.toBeInTheDocument()
+        return
+      }
+      expect(rowPay).toBeEnabled()
+      expect(infoBoxPay).toBeInTheDocument()
+      await user.click(screen.getByRole('button', { name: 'registration.cta.pay' }))
+      await flushPromises()
+      expect(screen.getByText('error.eventNotFound')).toBeInTheDocument()
+    })
+
+    it.each([
+      ['2021-02-18T23:59:00.000+02:00', true],
+      ['2021-02-19T00:00:01.000+02:00', false],
+    ])('at %s opens the payment dialog for a picked place: %s', async (now, opens) => {
+      vi.setSystemTime(new Date(now))
+      vi.spyOn(registrationApi, 'getRegistration').mockResolvedValue({
+        ...unpaidRegistrationWithStaticDates,
+        messagesSent: { picked: true },
+        payment: owing,
+      })
+      await renderWithRouter('/r/test1/unpaid-nou-registration')
+      await flushPromises()
+
+      const dialog = screen.queryByRole('dialog', { name: 'registration.paymentDialog.title' })
+      if (opens) expect(dialog).toBeVisible()
+      else expect(dialog).not.toBeInTheDocument()
+    })
+
+    // The confirm route waits for the confirm dialog before offering to pay (KOE-1265); after the
+    // trial that dialog never opens, so it must not wait for it.
+    it('opens the payment dialog, not the confirm dialog, on the confirm route after the trial', async () => {
+      vi.setSystemTime(new Date('2021-02-14T12:00:00.000+02:00'))
+      vi.spyOn(registrationApi, 'getRegistration').mockResolvedValue({
+        ...unpaidRegistrationWithStaticDates,
+        messagesSent: { picked: true },
+        payment: owing,
+      })
+      await renderWithRouter('/r/test1/unpaid-nou-registration/confirm')
+      await flushPromises()
+
+      expect(screen.getByRole('dialog', { name: 'registration.paymentDialog.title' })).toBeVisible()
+      expect(screen.queryByRole('dialog', { name: 'registration.confirmDialog.title' })).not.toBeInTheDocument()
+    })
+
+    it('goes to pay from the payment dialog after the trial, while confirming is closed', async () => {
+      vi.spyOn(registrationApi, 'getRegistration').mockResolvedValue({
+        ...unpaidRegistrationWithStaticDates,
+        messagesSent: { picked: true },
+        payment: owing,
+      })
+      const { user } = await renderWithRouter('/r/test1/unpaid-nou-registration')
+      await flushPromises()
+
+      await user.click(await screen.findByRole('button', { name: 'registration.paymentDialog.cta' }))
+      await flushPromises()
+
+      expect(screen.getByText('error.eventNotFound')).toBeInTheDocument()
+    })
+
+    it('does not go to pay from a payment dialog left open past the window', async () => {
+      vi.setSystemTime(new Date('2021-02-18T23:59:00.000+02:00'))
+      vi.spyOn(registrationApi, 'getRegistration').mockResolvedValue({
+        ...unpaidRegistrationWithStaticDates,
+        messagesSent: { picked: true },
+        payment: owing,
+      })
+      const store = createStore()
+      const { user } = await renderWithRouter('/r/test1/unpaid-nou-registration', {}, store)
+      await flushPromises()
+      const pay = await screen.findByRole('button', { name: 'registration.paymentDialog.cta' })
+
+      // Midnight passes with the dialog open; anything that renders the page again reads the new day.
+      vi.setSystemTime(new Date('2021-02-19T00:00:01.000+02:00'))
+      act(() => store.set(languageAtom, 'en'))
+      await flushPromises()
+      expect(screen.queryByRole('button', { hidden: true, name: 'registration.cta.pay' })).not.toBeInTheDocument()
+      expect(pay).toBeVisible()
+
+      await user.click(pay)
+      await flushPromises()
+
+      expect(screen.queryByText('error.eventNotFound')).not.toBeInTheDocument()
+    })
+
+    it.each([
+      ['2021-02-11T12:00:00.000+02:00', true],
+      ['2021-02-12T12:00:00.000+02:00', false],
+    ])('at %s offers confirming a picked place: %s', async (now, offered) => {
+      vi.setSystemTime(new Date(now))
+      vi.spyOn(registrationApi, 'getRegistration').mockResolvedValue({
+        ...registrationWithStaticDates,
+        messagesSent: { picked: true },
+        payment: paymentPictureWith(),
+      })
+      await renderWithRouter('/r/test1/nou-registration')
+      await flushPromises()
+
+      const confirm = screen.queryByRole('button', { name: 'registration.confirmDialog.cta' })
+      if (offered) expect(confirm).toBeInTheDocument()
+      else expect(confirm).not.toBeInTheDocument()
+    })
+
+    it('neither reads nor marks the koekutsu on the invitation route', async () => {
+      const patchRegistrationSpy = vi.spyOn(registrationApi, 'patchRegistration')
+      vi.setSystemTime(new Date('2021-02-12T12:00:00.000+02:00'))
+
+      await renderWithRouter('/r/test1/nou-registration/invitation')
+      await flushPromises()
+      await flushPromises()
+
+      expect(patchRegistrationSpy).not.toHaveBeenCalled()
+      expect(screen.getByText('registration.registeredDogs')).toBeInTheDocument()
+    })
   })
 
   it('itemizes what the registration bought and what has been paid for it', async () => {
