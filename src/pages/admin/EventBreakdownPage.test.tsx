@@ -1,12 +1,15 @@
 import type { AllYearlyStatsResponse } from '../../api/stats'
-import type { EventBreakdownEntry } from '../../types/Stats'
+import type { EventBreakdownEntry, EventClassStatsRow } from '../../types/Stats'
 import { ThemeProvider } from '@mui/material'
 import { screen } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 import { Suspense } from 'react'
 import { MemoryRouter } from 'react-router'
 import { TestProvider as Provider } from 'test-utils/AtomProvider'
-import { getAllYearlyStats } from '../../api/stats'
+import { getAllYearlyStats, getEventClassStats } from '../../api/stats'
 import theme from '../../assets/Theme'
+import { reportError } from '../../lib/client/error'
+import { downloadXlsx } from '../../lib/client/xlsx'
 import { Path } from '../../routeConfig'
 import { frozenInstant } from '../../test-utils/freezeClock'
 import { DataMemoryRouter, flushPromises, renderSuspended, TEST_ID_TOKEN } from '../../test-utils/utils'
@@ -17,6 +20,8 @@ import EventBreakdownPage from './EventBreakdownPage'
 vi.mock('../../api/stats')
 vi.mock('../../api/user')
 vi.mock('../../api/organizer')
+vi.mock('../../lib/client/error', () => ({ reportError: vi.fn() }))
+vi.mock('../../lib/client/xlsx', () => ({ downloadXlsx: vi.fn().mockResolvedValue(undefined) }))
 
 // A year the real clock is not in, so a page that read the year when its module loads would fail.
 const FROZEN = frozenInstant('2025-05-12')
@@ -193,5 +198,88 @@ describe('EventBreakdownPage', () => {
     await flushPromises()
 
     expect(await screen.findByText('stats.noDataForYear')).toBeInTheDocument()
+  })
+
+  it("downloads the selected season's trials class by class (KOE-1595)", async () => {
+    vi.mocked(getAllYearlyStats).mockResolvedValue(payload(undefined))
+    const row: EventClassStatsRow = {
+      cancelled: 1,
+      class: 'ALO',
+      cost: 50,
+      costMember: 40,
+      days: ['2025-06-01', '2025-06-02'],
+      endDate: '2025-06-02',
+      entries: 12,
+      entryEndDate: '2025-05-15',
+      entryStartDate: '2025-05-01',
+      eventType: 'NOME-B',
+      location: 'Somewhere',
+      organizerId: '1',
+      paidAmount: 550,
+      pickedFromReserve: 2,
+      places: 10,
+      priority: ['member'],
+      priorityEntries: 4,
+      refundedAmount: 45,
+      startDate: '2025-06-01',
+      state: 'completed',
+    }
+    // A club the organizer list does not know is named by its id.
+    vi.mocked(getEventClassStats).mockResolvedValueOnce([row, { ...row, organizerId: 'gone', startDate: '2025-07-01' }])
+    const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime })
+
+    await renderAsAdmin()
+    await flushPromises()
+    await user.click(await screen.findByRole('button', { name: 'stats.admin.eventClassStatsExport' }))
+    await flushPromises()
+
+    expect(getEventClassStats).toHaveBeenCalledWith(TEST_ID_TOKEN, YEAR)
+    expect(downloadXlsx).toHaveBeenCalledWith({
+      fileName: 'kokeet-luokittain-2025.xlsx',
+      rows: [
+        expect.arrayContaining(['stats.admin.eventClassStatsPickedFromReserve']),
+        [
+          'Järjestäjä 1',
+          'Somewhere',
+          '2025-06-01',
+          '2025-06-02',
+          'NOME-B',
+          'event.states.completed',
+          '2025-05-01',
+          '2025-05-15',
+          'priority.members',
+          50,
+          40,
+          'ALO',
+          '2025-06-01, 2025-06-02',
+          10,
+          12,
+          1,
+          4,
+          2,
+          550,
+          45,
+        ],
+        expect.arrayContaining(['gone', '2025-07-01']),
+      ],
+      sheetName: 'stats.admin.eventClassStatsSheet',
+    })
+  })
+
+  it('reports a failed class download and lets the button be pressed again (KOE-1595)', async () => {
+    vi.mocked(getAllYearlyStats).mockResolvedValue(payload(undefined))
+    const error = new Error('network down')
+    vi.mocked(getEventClassStats).mockRejectedValueOnce(error)
+    const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime })
+
+    await renderAsAdmin()
+    await flushPromises()
+    const button = await screen.findByRole('button', { name: 'stats.admin.eventClassStatsExport' })
+    await user.click(button)
+    await flushPromises()
+
+    expect(reportError).toHaveBeenCalledWith(error)
+    expect(downloadXlsx).not.toHaveBeenCalled()
+    expect(button).toBeEnabled()
   })
 })

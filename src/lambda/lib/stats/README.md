@@ -24,6 +24,7 @@ Code outside this folder imports only these:
 | --- | --- | --- |
 | `GetStatsFunction` | `stats.ts` | `getAvailableYears`, `getBreedStartBreakdown`, `getCapacityStats`, `getCapacityStatsAllEventTypes`, `getDogHandlerBuckets`, `getDogsPerHandlerBuckets`, `getEventBreakdown`, `getRetentionStats`, `getYearlyBreakdown`, `getYearlyTotalStats` |
 | `GetAdminStatsFunction` | `stats.ts` | `getCapacityStats`, `getJudgeWorkload`, `getOrganizerStats` |
+| `GetEventClassStatsFunction` | `eventClassStats.ts` | `getEventClassStats` |
 | `lib/registrationWorkflow.ts` | `stats.ts` | `applyNewRegistrationStatsOnce`, `updateEventStatsForRegistration` |
 | `ImportCopiedEventFunction` | `stats.ts` | `sumNewRegistrationStatDeltas`, `updateOrganizerEventStats` |
 | `PutEventFunction`, `RunMigrationFunction` | `stats.ts` | `moveOrganizerEventStats` |
@@ -35,4 +36,5 @@ The other exports are internal to the folder. `rebuild.ts` imports `eventStatsYe
 ## Module responsibilities
 
 - `stats.ts`: the reads behind `/stats` and `/admin/stats`, and the organizer counters: the deltas of a registration change, the once-only apply of a new registration's counters under its post-processing lease, and the move of an event's row when its organizer or start date changes.
+- `eventClassStats.ts`: the season's trials class by class for the application administrator's export (`/admin/stats/event-classes`, KOE-1595). Unlike the `BREAKDOWN#` rows (`EventBreakdownEntry`), it is per event and class, keeps tentative and upcoming trials, and is worked out from the events and registrations on each request, not stored; the counting is the pure `buildEventClassStats` in `src/lib/eventClassStats.ts`.
 - `rebuild.ts`: regenerates the given partitions from the events and registrations tables, one year at a time (`regenerateYear` has why the year's rows are written before its stale keys are deleted).

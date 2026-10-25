@@ -1,0 +1,20 @@
+  GetEventClassStatsFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: lambda/GetEventClassStatsFunction
+      Handler: handler.default
+      Policies:
+        - DynamoDBReadPolicy:
+            TableName: !Ref EventTable
+        - DynamoDBReadPolicy:
+            TableName: !Ref EventRegistrationTable
+        - !Ref AuthorizePolicy
+      Events:
+        GetEventClassStatsApi:
+          Type: Api
+          Properties:
+            Path: /admin/stats/event-classes
+            Method: GET
+            RestApiId: !Ref KoekalenteriApi
+            Auth:
+              Authorizer: CognitoAuthorizer

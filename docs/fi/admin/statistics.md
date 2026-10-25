@@ -52,3 +52,28 @@ Koekalenterin pääkäyttäjän valikossa on **{t:stats.admin.eventBreakdownTitl
 ovat valitun vuoden kokeet, starttipaikat, startit, eri ohjaajat, varasijalle jääneet, peruutukset
 ja jäsenten startit yhdistyksittäin ja koemuodoittain, välisummineen. **{t:stats.admin.eventBreakdownExport}**
 lataa saman taulukon Excel-tiedostona.
+
+## Kokeet luokittain
+
+Samalla sivulla **{t:stats.admin.eventClassStatsExport}** lataa valitun kauden kokeet Excel-tiedostona
+luokka kerrallaan, kaikkien yhdistysten kokeista. Kausi on vuosi, jona koe alkaa. Tiedosto lasketaan
+latauksen hetkellä, joten siinä ovat myös tulevat ja alustavat kokeet. Luonnokset, perutut ja
+poistetut kokeet jäävät pois.
+
+Jokainen rivi on yhden kokeen yksi luokka: yhdistys, paikkakunta, kokeen päivät, koemuoto, tila,
+ilmoittautumisaika, etusijat, osallistumismaksu ja jäsenten osallistumismaksu, luokka ja sen päivät,
+luokan paikat, ilmoittautuneet, peruneet, etusijalla olleet, varasijalta nostetut sekä luokan
+ilmoittautumisista maksettu ja palautettu summa. Monena päivänä pidetty luokka on yksi rivi, jolla
+päivät luetellaan ja paikat lasketaan yhteen, koska koira ilmoittautuu luokkaan eikä päivään.
+Kokeella, jossa ei ole luokkia, on yksi rivi ilman luokkaa. Jos paikat on annettu vain koko kokeelle
+ja luokkia on useita, luokan paikoiksi tulee 0. Tiedostossa ei ole nimiä, rekisterinumeroita eikä
+muita henkilötietoja, vain lukumääriä ja summia.
+
+Ilmoittautuneisiin lasketaan myös myöhemmin peruneet, ja heidän määränsä on lisäksi omassa
+sarakkeessaan. Maksu on kokeen perushinta; varhaisen ilmoittautumisen, rodun ja muut hinnat eivät
+ole tiedostossa.
+
+Varasijalta nostetuksi lasketaan koira, joka oli varasijalla, kun varasijailmoitus lähetettiin, ja
+joka nyt osallistuu tai sai sen jälkeen koepaikkailmoituksen. Kaksi tapausta jää luvusta pois:
+luokka, jonka varasijoille ei lähetetty varasijailmoitusta, ja ennen kesäkuuta 2025 varasijalta
+nostettu koira, joka perui sen jälkeen.

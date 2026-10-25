@@ -2,6 +2,7 @@ import type {
   BreedStartRateEntry,
   CapacityStatsEntry,
   EventBreakdownEntry,
+  EventClassStatsRow,
   EventStatsItem,
   JsonEventStatsItem,
   JudgeWorkloadEntry,
@@ -115,4 +116,9 @@ export async function getOrganizerEventStats(
   if (to) params.set('to', to)
   const qs = params.toString() ? `?${params.toString()}` : ''
   return (await http.get<JsonEventStatsItem[]>(ADMIN_PATH + qs, withToken({ signal }, token))).map(toEventStatsItem)
+}
+
+/** The season's trials class by class, for the application administrator's export (KOE-1595). */
+export async function getEventClassStats(token: string | undefined, season: number, signal?: AbortSignal) {
+  return http.get<EventClassStatsRow[]>(`${ADMIN_PATH}/event-classes?season=${season}`, withToken({ signal }, token))
 }

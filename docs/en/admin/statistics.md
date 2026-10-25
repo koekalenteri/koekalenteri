@@ -7,7 +7,7 @@ covers:
   - src/pages/admin/EventBreakdownPage.tsx
   - src/pages/StatsPage.tsx
   - src/pages/components/stats/**
-sourceHash: f4f6e2
+sourceHash: 16080f
 ---
 
 The calendar works its statistics out from the trials that have ended. They are on three pages:
@@ -52,3 +52,27 @@ The application administrator's menu has **{t:stats.admin.eventBreakdownTitle}**
 chosen year's trials, places, starts, distinct handlers, reserve entries, cancellations and
 members' starts, by club and event type, with subtotals.
 **{t:stats.admin.eventBreakdownExport}** downloads the same table as an Excel file.
+
+## Trials by class
+
+On the same page, **{t:stats.admin.eventClassStatsExport}** downloads the chosen season's trials as
+an Excel file, one class at a time, from every club. The season is the year the trial starts in.
+The file is worked out when it is downloaded, so it also has the trials still ahead and the
+tentative ones. Drafts, cancelled and deleted trials are left out.
+
+Each row is one class of one trial: the club, the location, the trial's days, the event type, the
+state, the entry period, the priorities, the entry fee and the members' entry fee, the class and its
+days, the class's places, the entries, the cancellations, the entries with priority, the dogs picked
+from the reserve list, and what the class's entries paid and were refunded. A class held on several
+days is one row that lists the days and adds their places together, because a dog enters a class,
+not a day. A trial without classes has one row with no class. Where places were given only for the
+whole trial and it has several classes, the class's places are 0. The file has no names,
+registration numbers or other personal data, only counts and sums.
+
+The entries include those cancelled later, and their number is also in a column of its own. The fee
+is the trial's base price; early-bird, breed and other prices are not in the file.
+
+A dog counts as picked from the reserve list when it was on the reserve list as the reserve notice
+was sent, and it now takes part or was sent a place notice after that. Two cases are left out of
+the count: a class whose reserve list was never sent a reserve notice, and a dog picked from the
+reserve list before June 2025 that cancelled after that.

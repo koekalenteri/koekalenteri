@@ -1,6 +1,12 @@
 import { API_BASE_URL } from '../routeConfig'
 import fetchMock from '../test-utils/fetchMock'
-import { getAdminCapacityStats, getAllYearlyStats, getCapacityStats, getOrganizerEventStats } from './stats'
+import {
+  getAdminCapacityStats,
+  getAllYearlyStats,
+  getCapacityStats,
+  getEventClassStats,
+  getOrganizerEventStats,
+} from './stats'
 
 fetchMock.enableMocks()
 
@@ -105,4 +111,13 @@ test('getOrganizerEventStats reads the day of an event as its key and leaves the
   expect(item.date).toEqual('2026-09-12')
   expect(item.updatedAt).toBe('2026-09-13T08:00:00.000Z')
   expect(item.SK).toBe('2026-09-12#e1')
+})
+
+test('getEventClassStats asks for one season and leaves the days as keys (KOE-1595)', async () => {
+  fetchMock.mockResponseOnce(JSON.stringify([{ class: 'ALO', days: ['2025-06-01'], startDate: '2025-06-01' }]))
+
+  const rows = await getEventClassStats('test-token', 2025)
+
+  expect(fetchMock).toHaveBeenCalledWith(`${API_BASE_URL}/admin/stats/event-classes?season=2025`, expect.any(Object))
+  expect(rows).toEqual([{ class: 'ALO', days: ['2025-06-01'], startDate: '2025-06-01' }])
 })
