@@ -21,9 +21,7 @@ dist
 .env.test.local
 .env.production.local
 
-.roo
-.roomodes
-memory-bank
+.claude/worktrees
 
 npm-debug.log*
 yarn-debug.log*

@@ -15,7 +15,14 @@
     "enabled": true
   },
   "files": {
-    "includes": ["src/**/*", "!src/generated", "e2e/**/*", "playwright.config.ts", "playwright.remote.config.ts"]
+    "includes": [
+      "src/**/*",
+      "!src/generated",
+      "e2e/**/*",
+      "playwright.config.ts",
+      "playwright.remote.config.ts",
+      "!!.claude"
+    ]
   },
   "formatter": {
     "enabled": true,
