@@ -337,6 +337,51 @@ describe('RegistrationForm', () => {
     expect(registration.ownerPays).toBe(true)
   })
 
+  // KOE-1598: an unset selection is the owner handling and paying, so the separate handler and payer
+  // sections stay shut even while the selection is still unset.
+  it('should keep the handler and payer sections shut for an unset owner selection', async () => {
+    const registration = { ...registrationWithStaticDates, ownerHandles: undefined, ownerPays: undefined }
+
+    render(<RegistrationForm event={eventWithStaticDates} registration={registration} onChange={vi.fn()} />, {
+      wrapper: Wrapper,
+    })
+    await flushPromises()
+
+    for (const title of ['registration.handler', 'registration.payer']) {
+      expect(screen.getByText(title).closest('.MuiCollapse-root')).toHaveClass('MuiCollapse-hidden')
+    }
+  })
+
+  // On a small screen a toggle sets every section's open state: the handler and payer sections are
+  // held open behind their hidden Collapse while an owner handles and pays, unset included, so they
+  // show open the moment someone else is chosen.
+  it('should keep the handler and payer sections hidden when another section is toggled with an unset selection', async () => {
+    window.matchMedia = createMatchMedia(400)
+    try {
+      const registration = { ...registrationWithStaticDates, ownerHandles: undefined, ownerPays: undefined }
+      const { user } = renderWithUserEvents(
+        <RegistrationForm event={eventWithStaticDates} registration={registration} onChange={vi.fn()} />,
+        { wrapper: Wrapper },
+        { advanceTimers: vi.advanceTimersByTime }
+      )
+      await flushPromises()
+
+      await user.click(screen.getByRole('button', { name: 'registration.class' }))
+      await runPendingTimers()
+
+      for (const section of ['handler', 'payer']) {
+        expect(screen.getByText(`registration.${section}`).closest('.MuiCollapse-root')).toHaveClass(
+          'MuiCollapse-hidden'
+        )
+        expect(document.getElementById(`${section}_name`)?.closest('.MuiCollapse-root')).not.toHaveClass(
+          'MuiCollapse-hidden'
+        )
+      }
+    } finally {
+      window.matchMedia = createMatchMedia(window.innerWidth)
+    }
+  })
+
   it('should not call onSave multiple times', async () => {
     const onSave = vi.fn()
 

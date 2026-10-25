@@ -1,8 +1,12 @@
 import type { CreatePaymentResponse, JsonConfirmedEvent, JsonDogEvent, JsonRegistration, Organizer } from '../../types'
 import { vi } from 'vitest'
+import { freezeClockAt } from '../../test-utils/freezeClock'
 import { CONFIG } from '../config'
 import { LambdaError } from '../lib/lambda'
 import { constructAPIGwEvent, deletedEvent, eventNotFound } from '../test-utils/helpers'
+
+// The fixture trial runs 1.-2.1.2025; whether paying is still open is read off today (KOE-1589).
+freezeClockAt('2025-01-01')
 
 // --- Mock setup ---
 const mockAuthorize = vi.fn<() => Promise<{ id: string; name: string } | null>>()
@@ -127,6 +131,9 @@ const createMockRegistration = (overrides: Partial<JsonRegistration> = {}): Json
   modifiedBy: 'test-user',
   notes: '',
   owner: { email: 'owner@example.com', membership: false, name: 'Test Owner' },
+  // A separate handler and payer, as the migration stores a row holding its own (KOE-1598).
+  ownerHandles: false,
+  ownerPays: false,
   paidAmount: 0,
   payer: {
     email: 'test@example.com',
@@ -180,6 +187,8 @@ describe('paymentCreateLambda', () => {
 
     // Default mock implementations
     mockGetLiveEvent.mockResolvedValue(createMockConfirmedEvent())
+    // A test answered before the organizer read leaves its queued answer behind; clearAllMocks keeps it.
+    mockRead.mockReset()
     mockRead
       .mockResolvedValueOnce(createMockRegistration()) // for getRegistration
       .mockResolvedValueOnce(createMockOrganizer()) // for organizer
@@ -466,6 +475,43 @@ describe('paymentCreateLambda', () => {
     expect(result.statusCode).toEqual(404)
     expect(JSON.parse(result.body)).toEqual('Event is not open for payment')
     expect(mockCreatePayment).not.toHaveBeenCalled()
+  })
+
+  // KOE-1589: a payment may be started through the 7th day after the trial's last day, whatever
+  // the classes' state, and no later.
+  it('creates a payment on the 7th day after the trial', async () => {
+    mockGetLiveEvent.mockResolvedValue(createMockConfirmedEvent({ endDate: '2024-12-25', startDate: '2024-12-24' }))
+
+    const result = await paymentCreateLambda(event)
+
+    expect(result.statusCode).toEqual(200)
+    expect(mockCreatePayment).toHaveBeenCalledTimes(1)
+  })
+
+  it('refuses to charge from the 8th day after the trial', async () => {
+    mockGetLiveEvent.mockResolvedValue(createMockConfirmedEvent({ endDate: '2024-12-24', startDate: '2024-12-23' }))
+
+    const result = await paymentCreateLambda(event)
+
+    expect(result.statusCode).toEqual(404)
+    expect(JSON.parse(result.body)).toEqual('Event is closed for payment')
+    expect(mockCreatePayment).not.toHaveBeenCalled()
+  })
+
+  it.each(['ended', 'completed'] as const)('creates a payment for an entry whose class is %s', async (state) => {
+    mockGetLiveEvent.mockResolvedValue(
+      createMockConfirmedEvent({
+        classes: [{ class: 'AVO', date: '2024-12-31', state }],
+        endDate: '2024-12-31',
+        startDate: '2024-12-31',
+        state,
+      })
+    )
+
+    const result = await paymentCreateLambda(event)
+
+    expect(result.statusCode).toEqual(200)
+    expect(mockCreatePayment).toHaveBeenCalledTimes(1)
   })
 
   it('returns 204 if registration is already paid', async () => {

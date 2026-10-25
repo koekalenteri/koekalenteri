@@ -47,6 +47,7 @@ import {
   getPayingPerson,
   meetsRestrictions,
   resolveOwnerSelection,
+  selectsSomeoneElse,
   withDefaultOwnerSelection,
 } from '../../lib/registration'
 import {
@@ -244,12 +245,12 @@ export default function RegistrationForm({
             breeder: false,
             dog: false,
             entry: false,
-            handler: !!registration.ownerHandles,
+            handler: !selectsSomeoneElse(registration.ownerHandles),
             info: false,
             // The secretary's notes sit beside the entry: another section's toggle leaves them be.
             internalNotes: open.internalNotes,
             owner: false,
-            payer: !!registration.ownerPays,
+            payer: !selectsSomeoneElse(registration.ownerPays),
             qr: false,
             [id]: value,
           }
@@ -318,9 +319,8 @@ export default function RegistrationForm({
   useEffect(() => {
     // An unset selection defaults to the (first) owner; a key that resolves to no owner (stale
     // cache, concurrent owner-list change) is remapped the same way, so the form never holds a
-    // selection that names nobody. Once the people are locked the stored selection stands, and so it
-    // does once the memberships are: an unset selection counts the handler's membership (`isMember`),
-    // the first owner's does not (KOE-1588).
+    // selection that names nobody. Once the people or the memberships are locked the stored selection
+    // stands: remapping a key that names nobody to the first owner changes who handles (KOE-1588).
     if (locks.people || locks.membership) return
     const normalizeSelection = (selection: boolean | string | undefined): boolean | string => {
       if (typeof selection === 'string') {
@@ -450,7 +450,7 @@ export default function RegistrationForm({
           open={open.owner}
           orgId={event.organizer.id}
         />
-        <Collapse in={!registration.ownerHandles}>
+        <Collapse in={selectsSomeoneElse(registration.ownerHandles)}>
           <HandlerInfo
             admin={admin}
             reg={registration}
@@ -464,7 +464,7 @@ export default function RegistrationForm({
             orgId={event.organizer.id}
           />
         </Collapse>
-        <Collapse in={!registration.ownerPays}>
+        <Collapse in={selectsSomeoneElse(registration.ownerPays)}>
           <PayerInfo
             reg={registration}
             disabled={disabled}

@@ -45,6 +45,11 @@ euromerkki, jonka nimi on *{t:registration.actions.pay}*. Kumpikin vie Paytraili
 Kun palaat maksusta, sivu ilmoittaa *{t:registration.notifications.paymentVerifying}* ja tila
 päivittyy itsestään hetken kuluttua.
 
+Koemaksun voi maksaa vielä viikon ajan kokeen viimeisen päivän jälkeen, vaikka luokkasi olisi jo
+arvosteltu: painike **{t:registration.cta.pay}**, koiran rivin euromerkki ja maksulinkki toimivat
+seitsemännen päivän loppuun asti. Sen jälkeen sivu ja maksulinkki kertovat, ettei ilmoittautumista
+löydy, eikä maksua voi enää aloittaa.
+
 Painike näkyy vain silloin, kun jotain on maksamatta. Jos koe maksetaan vasta, kun sinulla on
 koepaikka, maksurivillä lukee *{t:paymentStatus.waitingForConfirmation}* siihen asti, kun
 koesihteeri tarjoaa sinulle paikan. Siitä alkaen rivillä lukee *{t:paymentStatus.missing}*, ja
@@ -76,6 +81,10 @@ Jos maksu on sovittu vasta vahvistuksen yhteyteen, vahvistuksen jälkeen avautuu
 **{t:registration.paymentDialog.title}**, jonka painike **{t:registration.paymentDialog.cta}**
 vie maksamaan. Koekutsu lähtee sinulle vasta, kun koepaikka on maksettu.
 
+Kun koe on päättynyt tai luokkasi on arvosteltu, koepaikkaa ei voi enää vahvistaa. Jos koemaksu on
+silloin vielä maksamatta, koepaikkailmoituksen linkki avaa suoraan ikkunan
+**{t:registration.paymentDialog.title}**. Kokeen jälkeen maksettu maksu ei enää tuo koekutsua.
+
 ## Tietojen muokkaaminen
 
 Koiran rivin oikean laidan valikosta (⋮) valinta **{t:registration.actions.edit}** avaa saman
@@ -100,8 +109,8 @@ palautusta varten koesihteerille toimitetaan lääkärin- tai eläinlääkärint
 
 !shot[CancelDialog/cancel-dialog-open] Perumisen syy valitaan ennen vahvistusta
 
-Kokeen alkamista edeltävästä päivästä kokeen viimeiseen päivään asti perumista ei voi tehdä
-kalenterissa, vaan ikkuna pyytää ottamaan yhteyttä suoraan koesihteeriin. Palautusehdot ovat
+Kokeen alkamista edeltävästä päivästä alkaen perumista ei voi tehdä kalenterissa, vaan ikkuna
+pyytää ottamaan yhteyttä suoraan koesihteeriin. Palautusehdot ovat
 Kennelliiton säännöissä; ikkunan alalaidan linkki vie niihin.
 
 ## Koekutsu
@@ -111,5 +120,7 @@ koesihteerille. Jos kutsun mukana on liitetiedosto, linkki avaa sivun, jolla on 
 tiedot sekä painikkeet **{t:invitation.open}** ja **{t:invitation.download}**; jos järjestäjä on
 päivittänyt liitettä, sivu kertoo milloin. Ilman liitettä linkki vie suoraan ilmoittautumisesi
 sivulle, jossa vaihe on nyt *{t:registration.status.confirmedAndInvitationRead}*.
+Kokeen päätyttyä kutsun linkki ei enää avaa kutsua eikä sen liitettä, vaan sivu kertoo
+*{t:invitation.openingFailed}*.
 
 !shot[RegistrationInvitation/registration-invitation-open] Koekutsun liite avataan tai ladataan

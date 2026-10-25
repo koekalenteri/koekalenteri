@@ -10,6 +10,7 @@ import type {
 import type { PaymentCustomer } from '../types/paytrail'
 import { nanoid } from 'nanoid'
 import { auditUser } from '../../lib/audit'
+import { isPaymentWindowOpen } from '../../lib/event'
 import {
   getPaymentPicture,
   isEventOpenForPayment,
@@ -110,6 +111,27 @@ const inspectExistingTransactions = async (
 }
 
 /**
+ * The refusals the entry and the trial decide before any money is looked at: a cancelled entry, a
+ * trial that asks no fee (KOE-1526), and one whose week for paying after it has gone (KOE-1589).
+ */
+const assertOpenForPayment = (jsonEvent: JsonConfirmedEvent, registration: Pick<JsonRegistration, 'cancelled'>) => {
+  if (registration.cancelled) {
+    throw httpError(404, 'Registration not found')
+  }
+
+  // A trial that is not confirmed, a cancelled one say, asks nothing of anyone (KOE-1526).
+  if (!isEventOpenForPayment(jsonEvent)) {
+    throw httpError(404, 'Event is not open for payment')
+  }
+
+  // A fee is paid at the latest in the week after the trial, whatever the classes' state; a payment
+  // started in time is still settled after (PaymentSuccess, PaymentVerify).
+  if (!isPaymentWindowOpen(jsonEvent)) {
+    throw httpError(404, 'Event is closed for payment')
+  }
+}
+
+/**
  * paymentCreate is called by client to start the payment process
  */
 const paymentCreateLambda = lambda('paymentCreate', async (event) => {
@@ -119,14 +141,7 @@ const paymentCreateLambda = lambda('paymentCreate', async (event) => {
   const editToken = authorizeRegistrationEdit(event, registration)
   const jsonEvent = await getLiveEvent<JsonConfirmedEvent>(eventId)
 
-  if (registration.cancelled) {
-    throw httpError(404, 'Registration not found')
-  }
-
-  // A trial that is not confirmed, a cancelled one say, asks nothing of anyone (KOE-1526).
-  if (!isEventOpenForPayment(jsonEvent)) {
-    throw httpError(404, 'Event is not open for payment')
-  }
+  assertOpenForPayment(jsonEvent, registration)
 
   // Only the duplicate mark and the amount are read, and neither depends on open payments (a payment
   // in progress is answered 409 below, from the transactions themselves), so none are loaded.

@@ -29,6 +29,7 @@ const registration = asJsonRegistration({
   group: { date: '2025-01-01', key: 'ALO', number: 1 },
   handler: { name: 'Handler' },
   owner: { name: 'Owner' },
+  ownerHandles: false,
   startGroup: { date: '2025-01-01', key: 'ALO', number: 1 },
 })
 
@@ -112,6 +113,63 @@ describe('readPublishedStartList (KOE-1516)', () => {
 
     expect(checkEvent).toHaveBeenCalledWith(publishedEvent)
     expect(mockReadEventRegistrations).not.toHaveBeenCalled()
+  })
+
+  // KOE-1489: the whole stored dog went out to every reader. What is compared is the JSON the reader
+  // gets, since that is what the response and the live message carry.
+  describe('the published dog', () => {
+    const sentDog = async () => {
+      const { participants } = await readPublishedStartList('event-1')
+      return JSON.parse(JSON.stringify(participants))[0].dog
+    }
+
+    it('publishes only the dog fields the start list shows', async () => {
+      mockReadEventRegistrations.mockResolvedValueOnce([
+        {
+          ...registration,
+          dog: {
+            breedCode: '122',
+            callingName: 'Kutsumanimi',
+            dam: { name: 'Emä', regNo: 'FI-D', titles: 'FI MVA' },
+            dob: '2020-02-03',
+            gender: 'F',
+            kcId: 12345,
+            name: 'Aapo',
+            refreshDate: '2025-01-01T10:00:00.000Z',
+            regNo: 'REG-1',
+            results: [
+              {
+                class: 'ALO',
+                date: '2024-06-01',
+                judge: 'Tuomari',
+                location: 'Paikka',
+                result: 'ALO1',
+                type: 'NOME-B',
+              },
+            ],
+            rfid: '246000000000001',
+            rfidEditable: false,
+            sire: { name: 'Isä', regNo: 'FI-S', titles: 'C.I.B.' },
+            titles: 'FI KVA-WT',
+          },
+        },
+      ])
+
+      await expect(sentDog()).resolves.toStrictEqual({
+        breedCode: '122',
+        dam: { name: 'Emä', titles: 'FI MVA' },
+        dob: '2020-02-03',
+        gender: 'F',
+        name: 'Aapo',
+        regNo: 'REG-1',
+        sire: { name: 'Isä', titles: 'C.I.B.' },
+        titles: 'FI KVA-WT',
+      })
+    })
+
+    it('sends no parents for a dog without them', async () => {
+      await expect(sentDog()).resolves.toStrictEqual({ name: 'Aapo', regNo: 'REG-1' })
+    })
   })
 
   describe('placement', () => {

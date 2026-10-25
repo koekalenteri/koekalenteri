@@ -1,4 +1,5 @@
 import { vi } from 'vitest'
+import { isMember } from '../../lib/registration'
 import { httpError } from '../lib/lambda'
 import { answerRejections, constructPartialAPIGwEvent } from '../test-utils/helpers'
 import { loggedLines } from '../test-utils/logs'
@@ -130,6 +131,7 @@ describe('runMigrationLambda', () => {
     { count: eventDays, name: 'storeEventDaysAsKeys' },
     { count: roles, name: 'repointOrphanOrganizerRoles' },
     { count: 0, name: 'storeRegistrationDaysAsKeys' },
+    { count: 0, name: 'storeOwnerSelections' },
     { count: 0, name: 'storeDogDaysAsKeys' },
     { count: 0, name: 'storeOrganizerStatsDaysAsKeys' },
   ]
@@ -940,6 +942,7 @@ describe('runMigrationLambda', () => {
       'storeEventDaysAsKeys',
       'repointOrphanOrganizerRoles',
       'storeRegistrationDaysAsKeys',
+      'storeOwnerSelections',
       'storeDogDaysAsKeys',
       'storeOrganizerStatsDaysAsKeys',
     ]
@@ -986,10 +989,10 @@ describe('runMigrationLambda', () => {
     it('records every migration of a forced run, with the hash of its code', async () => {
       await runMigrationLambda(event)
 
-      expect(mockMarkApplied).toHaveBeenCalledTimes(10)
+      expect(mockMarkApplied).toHaveBeenCalledTimes(11)
       expect(mockMarkApplied).toHaveBeenCalledWith('fixSeasonFromStartDate', 2, hashes.get('fixSeasonFromStartDate'))
       expect(mockMarkApplied).toHaveBeenCalledWith('populateUpdatedAt', 0, hashes.get('populateUpdatedAt'))
-      expect(new Set(hashes.values()).size).toBe(10)
+      expect(new Set(hashes.values()).size).toBe(11)
     })
 
     it('reads the registry once, for every migration in the code', async () => {
@@ -1905,6 +1908,280 @@ describe('runMigrationLambda', () => {
         expect.any(String)
       )
       expect(mockResponse).toHaveBeenCalledWith(200, [{ count: 1, name: 'storeOrganizerStatsDaysAsKeys' }], directEvent)
+    })
+  })
+
+  describe('the owner selections a registration stored without (KOE-1598)', () => {
+    const directEvent = constructPartialAPIGwEvent({})
+    const conflict = () =>
+      Object.assign(new Error('The conditional request failed'), { name: 'ConditionalCheckFailedException' })
+
+    let hashes: Map<string, string>
+    const pendingOnly = (name: string) => new Map([...hashes].filter(([applied]) => applied !== name))
+
+    beforeEach(async () => {
+      hashes = new Map()
+      mockMarkApplied.mockImplementation(async (name: string, _count: number, hash: string) => {
+        hashes.set(name, hash)
+      })
+      mockReadAllEvents.mockResolvedValueOnce([])
+      await runMigrationLambda(event)
+      vi.clearAllMocks()
+      mockMarkApplied.mockResolvedValue(undefined)
+      mockReadApplied.mockResolvedValue(pendingOnly('storeOwnerSelections'))
+      mockReadAllDogs.mockResolvedValue([])
+      mockReadAllOrganizerEventStats.mockResolvedValue([])
+      mockReadRegistrationEventIds.mockResolvedValue(['event1'])
+    })
+
+    const owner = { email: 'Owner@Example.com', membership: false, name: 'Olli Omistaja' }
+    const row = (id: string, fields: Record<string, unknown>) => ({
+      dog: { regNo: 'FI1/21' },
+      eventId: 'event1',
+      id,
+      owner,
+      updatedAt: 'read',
+      ...fields,
+    })
+    /** The patch the migration wrote for a row, with the bump left out. */
+    const written = (id: string, set: Record<string, unknown>, remove?: string[]) =>
+      expect(mockWriteMigratedRegistration).toHaveBeenCalledWith(
+        'event1',
+        id,
+        { ...(remove ? { remove } : {}), set: { ...set, updatedAt: expect.not.stringMatching(/^read$/) } },
+        'read'
+      )
+
+    it('keeps a separate member handler as someone else, so the membership reading stays as it was', async () => {
+      const handler = { email: 'handler@example.com', membership: true, name: 'Hanna Ohjaaja' }
+      const stored = row('reg1', { handler, payer: owner })
+      expect(isMember(stored)).toBe(false)
+      mockReadEventRegistrations.mockResolvedValueOnce([stored])
+
+      await runMigrationLambda(directEvent)
+
+      written('reg1', { ownerHandles: false, ownerPays: true })
+      // The 2024 rows whose separate handler is the only member read as members before and after.
+      expect(isMember({ ...stored, ownerHandles: false })).toBe(true)
+      expect(mockResponse).toHaveBeenCalledWith(200, [{ count: 1, name: 'storeOwnerSelections' }], directEvent)
+    })
+
+    // The six prod rows read as members before: a legacy owner without a membership, and the same
+    // person as handler with one. The membership stays with the owner the handler now mirrors.
+    it("keeps the membership the owner's stored copy as handler held", async () => {
+      const person = { email: 'olli@example.com', name: 'Olli Omistaja' }
+      // The stored owner has no membership field at all.
+      const legacyOwner: { email: string; membership?: boolean; name: string } = { ...person }
+      const stored = {
+        ...row('reg1', { paidAmount: 40 }),
+        handler: { ...person, membership: true },
+        owner: legacyOwner,
+      }
+      mockReadEventRegistrations.mockResolvedValueOnce([stored])
+
+      await runMigrationLambda(directEvent)
+
+      written('reg1', {
+        'owner.membership': true,
+        ownerHandles: true,
+        ownerPays: true,
+        payer: { ...person, membership: true },
+      })
+      expect(stored.owner).toEqual({ ...person, membership: true })
+      expect(stored.handler).toEqual({ ...person, membership: true })
+      const { membership } = stored.owner
+      if (membership === undefined) throw new Error('the owner was given no membership')
+      expect(isMember({ ...stored, owner: { ...stored.owner, membership }, ownerHandles: true })).toBe(true)
+    })
+
+    it('keeps the membership of a stored handler that names no one, since it is the owner too', async () => {
+      const stored = row('reg1', { handler: { membership: true }, owner: { ...owner }, payer: owner })
+      mockReadEventRegistrations.mockResolvedValueOnce([stored])
+
+      await runMigrationLambda(directEvent)
+
+      written('reg1', {
+        'handler.email': owner.email,
+        'handler.name': owner.name,
+        'owner.membership': true,
+        ownerHandles: true,
+        ownerPays: true,
+        'payer.membership': true,
+      })
+      expect(isMember(stored)).toBe(true)
+    })
+
+    it('migrates a row holding only an owner list', async () => {
+      const owners = [{ email: 'first@example.com', key: 'owner-1', name: 'First' }]
+      mockReadEventRegistrations.mockResolvedValueOnce([{ eventId: 'event1', id: 'reg1', owners, updatedAt: 'read' }])
+
+      await runMigrationLambda(directEvent)
+
+      written('reg1', {
+        handler: { email: 'first@example.com', name: 'First' },
+        ownerHandles: true,
+        ownerPays: true,
+        payer: { email: 'first@example.com', name: 'First' },
+      })
+    })
+
+    it('mirrors the owner into a handler and a payer the row never stored, as a save would', async () => {
+      mockReadEventRegistrations.mockResolvedValueOnce([row('reg1', {})])
+
+      await runMigrationLambda(directEvent)
+
+      written('reg1', { handler: owner, ownerHandles: true, ownerPays: true, payer: owner })
+    })
+
+    it('replaces an empty stored handler and payer with the owner', async () => {
+      mockReadEventRegistrations.mockResolvedValueOnce([
+        row('reg1', { handler: { name: '', phone: '' }, payer: { email: '' } }),
+      ])
+
+      await runMigrationLambda(directEvent)
+
+      written(
+        'reg1',
+        {
+          'handler.email': owner.email,
+          'handler.membership': false,
+          'handler.name': owner.name,
+          ownerHandles: true,
+          ownerPays: true,
+          'payer.email': owner.email,
+          'payer.membership': false,
+          'payer.name': owner.name,
+        },
+        ['handler.phone']
+      )
+    })
+
+    it("replaces the owner's stored copy as handler with the owner as stored now", async () => {
+      // Only a membership the copy held is handed on; one the owner holds and the copy lacks is the owner's.
+      const copy = { email: ' owner@example.com ', membership: false, name: 'olli omistaja', phone: '+358401234567' }
+      mockReadEventRegistrations.mockResolvedValueOnce([
+        row('reg1', { handler: copy, owner: { ...owner, membership: true }, payer: { name: 'Paavo Maksaja' } }),
+      ])
+
+      await runMigrationLambda(directEvent)
+
+      written(
+        'reg1',
+        {
+          'handler.email': owner.email,
+          'handler.membership': true,
+          'handler.name': owner.name,
+          ownerHandles: true,
+          ownerPays: false,
+        },
+        ['handler.phone']
+      )
+    })
+
+    it.each([
+      ['the same name but another address', { email: 'x@example.com', name: owner.name }],
+      ['the same address but another name', { email: owner.email, name: 'Hanna Ohjaaja' }],
+    ])('keeps a stored handler with %s as someone else', async (_case, handler) => {
+      mockReadEventRegistrations.mockResolvedValueOnce([row('reg1', { handler, payer: owner })])
+
+      await runMigrationLambda(directEvent)
+
+      written('reg1', { ownerHandles: false, ownerPays: true })
+    })
+
+    it('keeps the handler of a row that names no owner as someone else', async () => {
+      const handler = { email: 'handler@example.com', name: 'Hanna Ohjaaja' }
+      mockReadEventRegistrations.mockResolvedValueOnce([row('reg1', { handler, owner: undefined, owners: [] })])
+
+      await runMigrationLambda(directEvent)
+
+      // No owner to mirror: the handler stays, and the payer the row never named stays unnamed.
+      written('reg1', { ownerHandles: false, ownerPays: true })
+    })
+
+    it('compares a stored person with the first owner of the owner list', async () => {
+      const owners = [
+        { email: 'first@example.com', key: 'owner-1', name: 'First' },
+        { email: 'second@example.com', key: 'owner-2', name: 'Second' },
+      ]
+      mockReadEventRegistrations.mockResolvedValueOnce([
+        row('reg1', {
+          handler: { email: 'second@example.com', name: 'Second' },
+          owner: undefined,
+          owners,
+          payer: { email: 'first@example.com', name: 'First' },
+        }),
+      ])
+
+      await runMigrationLambda(directEvent)
+
+      written('reg1', { ownerHandles: false, ownerPays: true })
+    })
+
+    it('writes only the selection a row lacks, and leaves a row holding both and a status-only row as they are', async () => {
+      mockReadEventRegistrations.mockResolvedValueOnce([
+        row('reg1', { handler: { name: 'Hanna Ohjaaja' }, ownerHandles: 'owner-1', payer: owner }),
+        row('reg2', { ownerHandles: true, ownerPays: false }),
+        { emailDeliveryStatus: { status: 'bounce' }, eventId: 'event1', id: 'reg3' },
+      ])
+
+      await runMigrationLambda(directEvent)
+
+      expect(mockWriteMigratedRegistration).toHaveBeenCalledTimes(1)
+      written('reg1', { ownerPays: true })
+      expect(mockResponse).toHaveBeenCalledWith(200, [{ count: 1, name: 'storeOwnerSelections' }], directEvent)
+    })
+
+    it("hands no payer copy's membership to the owner: the payer's was never read", async () => {
+      const copy = { email: owner.email, membership: true, name: owner.name }
+      const stored = row('reg1', { handler: owner, owner: { ...owner }, ownerHandles: true, payer: copy })
+      expect(isMember(stored)).toBe(false)
+      mockReadEventRegistrations.mockResolvedValueOnce([stored])
+
+      await runMigrationLambda(directEvent)
+
+      written('reg1', { ownerPays: true, 'payer.membership': false })
+      expect(stored.owner).toEqual(owner)
+      expect(isMember(stored)).toBe(false)
+    })
+
+    it('gives a row naming no person only the selections, with no handler or payer', async () => {
+      mockReadEventRegistrations.mockResolvedValueOnce([row('reg1', { owner: undefined })])
+
+      await runMigrationLambda(directEvent)
+
+      written('reg1', { ownerHandles: true, ownerPays: true })
+    })
+
+    it('decides again on the row a conflicting save left, when it still lacks the selections', async () => {
+      const handler = { email: 'handler@example.com', name: 'Hanna Ohjaaja' }
+      mockReadEventRegistrations.mockResolvedValueOnce([row('reg1', { payer: owner })])
+      mockWriteMigratedRegistration.mockRejectedValueOnce(conflict())
+      mockReadRegistration.mockResolvedValueOnce(row('reg1', { handler, payer: owner, updatedAt: 'saved' }))
+
+      await runMigrationLambda(directEvent)
+
+      expect(mockWriteMigratedRegistration).toHaveBeenCalledTimes(2)
+      expect(mockWriteMigratedRegistration).toHaveBeenLastCalledWith(
+        'event1',
+        'reg1',
+        { set: { ownerHandles: false, ownerPays: true, updatedAt: expect.not.stringMatching(/^saved$/) } },
+        'saved'
+      )
+    })
+
+    it('writes nothing when a save gave the row its selections meanwhile', async () => {
+      mockReadEventRegistrations.mockResolvedValueOnce([row('reg1', {})])
+      mockWriteMigratedRegistration.mockRejectedValueOnce(conflict())
+      mockReadRegistration.mockResolvedValueOnce(
+        row('reg1', { ownerHandles: true, ownerPays: true, updatedAt: 'saved' })
+      )
+
+      await runMigrationLambda(directEvent)
+
+      expect(mockReadRegistration).toHaveBeenCalledWith('event1', 'reg1', true)
+      expect(mockWriteMigratedRegistration).toHaveBeenCalledTimes(1)
+      expect(mockResponse).toHaveBeenCalledWith(200, [{ count: 0, name: 'storeOwnerSelections' }], directEvent)
     })
   })
 })

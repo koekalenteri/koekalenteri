@@ -5,10 +5,12 @@ import type {
   EmailTemplateId,
   JsonDbRecord,
   JsonDog,
+  JsonPublicDog,
   JsonTestResult,
   Language,
   PatchOperation,
   Person,
+  PublicDog,
   PublicJudge,
   Replace,
   TestResult,
@@ -241,7 +243,10 @@ export interface JsonEmailDeliveryStatus {
   template?: EmailTemplateId
 }
 
-/** Which owner a `ownerHandles`/`ownerPays` flag names: `true` the (first) owner, a string an owner's `key`. */
+/**
+ * Which owner a `ownerHandles`/`ownerPays` flag names: `true` the (first) owner, a string an owner's
+ * `key`, `false` someone else. An unset flag is the (first) owner too (`withDefaultOwnerSelection`).
+ */
 export type OwnerSelection = boolean | string
 
 /**
@@ -482,7 +487,7 @@ export interface RegistrationPatchRequest extends Omit<JsonRegistrationPatchRequ
 export interface JsonPublicRegistration {
   class?: string | null
   cancelled?: boolean
-  dog: JsonDog
+  dog: JsonPublicDog
   group: JsonPublicRegistrationGroup
   handler: string
   owner: string
@@ -513,7 +518,7 @@ export interface JsonPublicRegistration {
 }
 
 export interface PublicRegistration extends Omit<JsonPublicRegistration, 'dog' | 'group'> {
-  dog: Dog
+  dog: PublicDog
   group: PublicRegistrationGroup
 }
 

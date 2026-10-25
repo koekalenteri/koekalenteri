@@ -45,6 +45,8 @@ interface RegistrationActionCallbacks {
   pendingMoveId?: string
   actionsDisabled?: boolean
   movementDisabled?: boolean
+  /** The payment request has its own window, the week after the trial (KOE-1589). */
+  paymentRequestDisabled?: boolean
   canMoveReserveToPosition?: boolean
   canMoveToPosition?: (registration: Registration) => boolean
 }
@@ -226,7 +228,7 @@ const createRegistrationActions = (options: RegistrationActionsOptions): ReactEl
     actions.push(
       <GridActionsCellItem
         key="requestPayment"
-        disabled={actionsDisabled}
+        disabled={Boolean(callbacks?.paymentRequestDisabled)}
         icon={<RequestQuoteOutlined fontSize="small" />}
         label={t('registration.actions.requestPayment')}
         onClick={() => callbacks?.requestPayment?.(row.id)}

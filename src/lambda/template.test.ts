@@ -61,6 +61,28 @@ describe('template', () => {
     expect(importerLogGroup).toMatch(/^ {4}Condition: IsNotProdStage$/m)
     expect(template).toMatch(/^ {2}IsNotProdStage: !Not \[!Condition IsProdStage\]$/m)
   })
+
+  // A table that holds anything a restore would need gets point-in-time recovery; the data-version
+  // table went without it while it held the migration registry (KOE-1597).
+  it('has point-in-time recovery on every table but the rebuildable ones', () => {
+    const withoutRecovery: Record<string, string> = {
+      EventStatsTable: 'the nightly run rebuilds the statistics from the registrations',
+      WsConnectionsTable: 'the connections expire on their own and mean nothing after a restore',
+    }
+    // A resource line may carry a trailing comment (UserLinkTable does).
+    const tables = template
+      .split(/^ {2}(?=\w+:.*\n {4}Type: )/m)
+      .filter((block) => /^\w+:.*\n {4}Type: AWS::DynamoDB::Table\s*$/m.test(block))
+    const recovery = Object.fromEntries(
+      tables.map((block) => [block.slice(0, block.indexOf(':')), /^ {8}PointInTimeRecoveryEnabled: true$/m.test(block)])
+    )
+
+    expect(tables).toHaveLength(template.match(/^ {4}Type: AWS::DynamoDB::Table\s*$/gm)?.length ?? 0)
+    expect(Object.keys(withoutRecovery).filter((name) => !(name in recovery))).toEqual([])
+    expect(recovery).toEqual(
+      Object.fromEntries(Object.keys(recovery).map((name) => [name, !(name in withoutRecovery)]))
+    )
+  })
 })
 
 // A lambda that reaches a table its policies do not grant fails here, not in dev (KOE-1492). The

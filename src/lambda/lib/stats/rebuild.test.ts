@@ -173,7 +173,7 @@ describe('stats/rebuild', () => {
 
   it('counts reserve entries and member starts in the organizer stats, a cancelled member entry in neither', () => {
     const testEvent = event('event-2025', '2025-05-01')
-    const member = { handler: { email: 'member@example.com', membership: true } }
+    const member = { handler: { email: 'member@example.com', membership: true }, ownerHandles: false }
     const { records } = buildStatsRecords(
       [
         registration('reserve', testEvent.id, { group: { key: 'reserve' } }),
@@ -853,6 +853,7 @@ describe('stats/rebuild', () => {
           eventType: 'NOU',
           group: { key: 'ap' },
           handler: { email: 'a@x.fi', membership: true },
+          ownerHandles: false,
         }),
         registration('non-member', nou.id, {
           eventType: 'NOU',

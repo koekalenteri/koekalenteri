@@ -42,7 +42,6 @@ describe('RegistrationDetails', () => {
       gender: 'M',
       name: 'Test Dog',
       regNo: 'REG123',
-      results: [],
       sire: {
         name: 'Sire Dog',
         titles: 'CH',

@@ -174,6 +174,8 @@ describe('putAdminRegistrationLambda', () => {
       owner: {
         email: 'owner@example.com',
       },
+      ownerHandles: false,
+      ownerPays: false,
       qualifyingResults: [],
       reserve: 'ANY',
     }),
@@ -222,6 +224,8 @@ describe('putAdminRegistrationLambda', () => {
       owner: {
         email: 'owner@example.com',
       },
+      ownerHandles: false,
+      ownerPays: false,
       qualifyingResults: [],
       reserve: 'ANY',
       state: 'draft',
@@ -341,6 +345,8 @@ describe('putAdminRegistrationLambda', () => {
         owner: {
           email: ' Owner@Example.com ',
         },
+        ownerHandles: false,
+        ownerPays: false,
         payer: {
           email: ' Payer@Example.com ',
         },

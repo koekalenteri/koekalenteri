@@ -10,6 +10,7 @@ import {
   paymentAudit,
 } from '../../lib/audit'
 import { getCostSegmentName } from '../../lib/cost'
+import { isEventOver } from '../../lib/event'
 import { formatMoney, getNetPaidAmount } from '../../lib/money'
 import { getPaymentPicture, getProviderName, getRegistrationPaymentDetails, transactionActor } from '../../lib/payment'
 import { shouldSendInvitationAfterPayment } from '../../lib/registration'
@@ -355,9 +356,11 @@ const handleSuccessfulPayment = async (
     }
 
     // A place that was still unpaid when it was picked has no koekutsu yet: the group move
-    // deliberately held it back (KOE-1191). The payment is what it was waiting for.
+    // deliberately held it back (KOE-1191). The payment is what it was waiting for, unless it came in
+    // the week after the trial, when there is nothing left to invite to (KOE-1589).
     if (
       !workflow.invitationSentAt &&
+      !isEventOver(confirmedEvent) &&
       shouldSendInvitationAfterPayment(
         confirmedEvent,
         registration,

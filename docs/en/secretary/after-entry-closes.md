@@ -17,7 +17,7 @@ covers:
   - src/pages/admin/StartListPreviewPage.tsx
   - src/pages/admin/startListPage/**
   - src/pages/ClassStartNumbersPage.tsx
-sourceHash: 8aa57e
+sourceHash: 9f3743
 ---
 
 Once entry has closed, the secretary's work goes step by step: picking the participants, the
@@ -118,7 +118,8 @@ which also acknowledges the invitation as read.
 
 If the trial's payment time is *{t:paymentTimeOptions.confirmation}*, each
 participant's invitation goes out only once they have paid for their place. The section shows how
-many invitations are waiting for payment and sends them by itself when the payment arrives. An
+many invitations are waiting for payment and sends them by itself when the payment arrives. A
+payment that arrives after the trial no longer brings an invitation. An
 acknowledged invitation shows on the row as an opened envelope and an unacknowledged one as a closed
 one.
 
@@ -183,6 +184,16 @@ freed place, and the calendar sends it the participant notification and the invi
 The running order within a group closes up automatically after a cancellation. Start numbers already
 entered, on the other hand, stay as they are, so published numbers do not change because of a
 cancellation.
+
+## Payment request
+
+When the fee or part of it is unpaid and the entrant can pay it, the row's menu (⋮) has
+**{t:registration.actions.requestPayment}**. It opens the message dialog with the
+*{t:emailTemplate.payment-request}* template, and the message also goes to the person marked as
+the payer. The payment request can still be sent for a week after the trial's last day, even
+though the row's other actions have closed and the class may have been judged, so a fee left
+unpaid can be collected after the trial. The entrant can pay during the same week; after that a
+payment can no longer be started.
 
 ## A message to the participants
 

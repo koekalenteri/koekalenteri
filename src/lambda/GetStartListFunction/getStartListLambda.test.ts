@@ -397,6 +397,7 @@ describe('getStartListLambda', () => {
       group: { date: '2025-01-01', key: 'ALO', number: 1 },
       handler: { name: 'Handler 1' },
       owner: { name: 'Owner 1' },
+      ownerHandles: false,
     }
 
     mockGetParam.mockReturnValueOnce('event123')
@@ -425,7 +426,7 @@ describe('getStartListLambda', () => {
           handler: 'Handler 1',
           numberProvisional: true,
           owner: 'Owner 1',
-          ownerHandles: undefined,
+          ownerHandles: false,
         },
       ],
       previewEvent,
@@ -638,6 +639,15 @@ describe('getStartListLambda', () => {
       }),
       // A key matching no owner publishes false rather than guessing.
       reg(4, { owner: { name: 'Owner 4' }, ownerHandles: 'gone', owners: [{ key: 'owner-1', name: 'Owner 4' }] }),
+      // KOE-1598: an unset selection is the owner, as the form shows it, not the stored handler.
+      reg(5, { handler: { name: 'Handler 5' }, owner: { name: 'Owner 5' } }),
+      reg(6, {
+        handler: { name: 'Handler 6' },
+        owners: [
+          { key: 'owner-1', name: 'Owner 6' },
+          { key: 'owner-2', name: 'Co-owner 6' },
+        ],
+      }),
     ]
 
     mockGetParam.mockReturnValueOnce(eventId)
@@ -653,6 +663,8 @@ describe('getStartListLambda', () => {
         expect.objectContaining({ handler: 'Owner 2', owner: 'Owner 2', ownerHandles: true }),
         expect.objectContaining({ handler: 'Co-owner 3', owner: 'Owner 3, Co-owner 3', ownerHandles: false }),
         expect.objectContaining({ handler: '', owner: 'Owner 4', ownerHandles: false }),
+        expect.objectContaining({ handler: 'Owner 5', owner: 'Owner 5', ownerHandles: true }),
+        expect.objectContaining({ handler: 'Owner 6', owner: 'Owner 6, Co-owner 6', ownerHandles: false }),
       ],
       event,
       versionHeader
@@ -676,6 +688,7 @@ describe('getStartListLambda', () => {
         group: { date: '2025-01-01', key: 'ALO', number: 1 },
         handler: { name: 'Handler 1' },
         owner: { name: 'Owner 1' },
+        ownerHandles: false,
       },
       {
         cancelled: false,
@@ -685,6 +698,7 @@ describe('getStartListLambda', () => {
         group: { date: '2025-01-01', key: 'AVO', number: 2 },
         handler: { name: 'Handler 2' },
         owner: { name: 'Owner 2' },
+        ownerHandles: false,
       },
     ]
 
@@ -704,7 +718,7 @@ describe('getStartListLambda', () => {
           group: { date: '2025-01-01', key: 'ALO', number: 1 },
           handler: 'Handler 1',
           owner: 'Owner 1',
-          ownerHandles: undefined,
+          ownerHandles: false,
         },
       ],
       event,

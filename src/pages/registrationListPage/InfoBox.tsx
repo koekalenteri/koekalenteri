@@ -44,18 +44,30 @@ const registrationStatus = (registration: Registration) => {
 interface Props {
   event: PublicDogEvent
   registration: Registration & { payment: PaymentPicture }
+  /** Confirming closes with the trial or the judged class (KOE-1584)... */
+  confirmDisabled?: boolean
   onConfirm: () => void
+  /** ...paying a week after the trial (KOE-1589). Neither offers its button once closed. */
+  payDisabled?: boolean
   paymentVerificationInProgress?: boolean
 }
 
-export const InfoBox = ({ event, registration, onConfirm, paymentVerificationInProgress = false }: Props) => {
+export const InfoBox = ({
+  event,
+  registration,
+  confirmDisabled = false,
+  onConfirm,
+  payDisabled = false,
+  paymentVerificationInProgress = false,
+}: Props) => {
   const { t } = useTranslation()
   const navigate = useNavigate()
-  const needsConfirmation = !registration.cancelled && !registration.confirmed && !!registration.messagesSent?.picked
+  const needsConfirmation =
+    !confirmDisabled && !registration.cancelled && !registration.confirmed && !!registration.messagesSent?.picked
   // The server's answer, which only it can give as it reads the group (KOE-1526); not while a
   // payment is being verified, which only the page knows.
   const { payment } = registration
-  const needsPayment = payment.canPay && !paymentVerificationInProgress
+  const needsPayment = payment.canPay && !payDisabled && !paymentVerificationInProgress
   // A paid place reads as paid until its fee rises above what was paid (KOE-722): then the line
   // names the missing part, the same amount the payment button collects. Both are the server's
   // picture (KOE-1530).

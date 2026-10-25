@@ -221,9 +221,19 @@ describe('registrationLocks', () => {
       expect(participantLockedChange(ALL_LOCKED, stored, data)).toBeUndefined()
     })
 
-    // Unset, or a key no owner has, names the separate handler, as `getHandlingPerson` reads it.
+    // An unset selection is the first owner, as `true` is (KOE-1598): writing the default is no change,
+    // and the handler is the owner's copy, not compared.
+    it('reads an unset selection as the first owner', () => {
+      const { ownerHandles: _h, ...rest } = base
+      const stored: Entry = { ...rest, owners: [{ ...owner, key: 'a' }] }
+      const copy = { ...stored, handler: { ...handler, name: 'Copy' } }
+
+      expect(participantLockedChange(only('people'), stored, { ...stored, ownerHandles: true })).toBeUndefined()
+      expect(participantLockedChange(only('people'), stored, copy)).toBeUndefined()
+    })
+
+    // A key no owner has names the separate handler, as `getHandlingPerson` reads it.
     describe.each<[string, Partial<Entry>]>([
-      ['unset', { owners: [{ ...owner, key: 'a' }] }],
       ['a key no owner has', { ownerHandles: 'gone', owners: [{ ...owner, key: 'a' }] }],
       ['a position key on keyless owners', { ownerHandles: 'owner-2', owners: [owner, { ...owner, name: 'Two' }] }],
     ])('a selection that is %s', (_label, selection) => {
@@ -305,6 +315,8 @@ describe('registrationLocks', () => {
       })
 
       // A row stored without a selection counts the handler's membership, as `isMember` reads it.
+      // An unset selection is the first owner (KOE-1598): the handler's membership does not count, as
+      // `isMember` reads it, and writing the default selection is no change.
       describe('a row stored without an owner selection', () => {
         const legacy = (handlerMember: boolean): Entry => {
           const { ownerHandles: _h, ...rest } = base
@@ -312,9 +324,14 @@ describe('registrationLocks', () => {
         }
 
         it.each<[string, boolean, Partial<Entry>, ParticipantLockSection | undefined]>([
-          ['its handler becomes a member', false, { handler: { ...handler, membership: true } }, 'membership'],
-          ['the default selection is written, the handler no member', false, { ownerHandles: true }, undefined],
-          ['the default selection drops a member handler', true, { ownerHandles: true }, 'membership'],
+          ['its handler copy becomes a member', false, { handler: { ...handler, membership: true } }, undefined],
+          ['the default selection is written', true, { ownerHandles: true }, undefined],
+          [
+            'someone else handles, claiming a membership',
+            false,
+            { handler: { ...handler, membership: true }, ownerHandles: false },
+            'membership',
+          ],
         ])('answers when %s', (_label, handlerMember, change, expected) => {
           const stored = legacy(handlerMember)
 

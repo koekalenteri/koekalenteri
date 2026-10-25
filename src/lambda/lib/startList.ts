@@ -1,4 +1,12 @@
-import type { JsonDogEvent, JsonPublicRegistration, JsonPublicRegistrationGroup, JsonRegistration } from '../../types'
+import type {
+  DogName,
+  JsonDog,
+  JsonDogEvent,
+  JsonPublicDog,
+  JsonPublicRegistration,
+  JsonPublicRegistrationGroup,
+  JsonRegistration,
+} from '../../types'
 import {
   isResultsAvailableForRegistration,
   isStartListAvailable,
@@ -11,6 +19,7 @@ import {
   getRegistrationOwners,
   resolveOwnerSelection,
   sortRegistrationsByDateClassTimeAndNumber,
+  withDefaultOwnerSelection,
 } from '../../lib/registration'
 import { placementsFor, resultMarks, shownEventResult } from '../../lib/results'
 import { getLiveEvent } from './event'
@@ -19,15 +28,15 @@ import { readEventRegistrations } from './repositories/registrationRepository'
 /**
  * `ownerHandles` collapses the public row to "owner & handler", which only reads correctly when the
  * single owner handles the dog. With several owners the handler is named separately, even when they
- * are one of the owners. A legacy boolean refers to the single owner on file; a key that matches no
- * owner publishes `false` rather than guessing.
+ * are one of the owners. A legacy boolean refers to the single owner on file, and an unset selection
+ * is that owner too, as everywhere (KOE-1598); a key that matches no owner publishes `false` rather
+ * than guessing.
  */
-const publishedOwnerHandles = (reg: JsonRegistration): boolean | undefined => {
-  const { ownerHandles } = reg
-  if (ownerHandles === undefined) return undefined
+const publishedOwnerHandles = (reg: JsonRegistration): boolean => {
   if (getRegistrationOwners(reg).length > 1) return false
-  if (typeof ownerHandles !== 'string') return !!ownerHandles
-  return !!resolveOwnerSelection(reg.owners, reg.owner, ownerHandles)
+  const selection = withDefaultOwnerSelection(reg.ownerHandles)
+  if (typeof selection !== 'string') return selection
+  return !!resolveOwnerSelection(reg.owners, reg.owner, selection)
 }
 
 /**
@@ -107,6 +116,24 @@ const cancelledPublicRow = (
   }
 }
 
+/** A parent as the list names it: its name and titles, whatever else the stored dog holds of it. */
+const publicDogName = (parent?: DogName): DogName | undefined => parent && { name: parent.name, titles: parent.titles }
+
+/**
+ * The dog as the list shows it (KOE-1489): each field named here, so a field added to the stored dog
+ * stays on the server until someone decides the list shows it.
+ */
+const publicDog = (dog: JsonDog): JsonPublicDog => ({
+  breedCode: dog.breedCode,
+  dam: publicDogName(dog.dam),
+  dob: dog.dob,
+  gender: dog.gender,
+  name: dog.name,
+  regNo: dog.regNo,
+  sire: publicDogName(dog.sire),
+  titles: dog.titles,
+})
+
 /** A running dog's row, or nothing while the reader may not see it yet. */
 const publicRow = (
   confirmedEvent: JsonDogEvent,
@@ -129,7 +156,7 @@ const publicRow = (
     ...(preview ? { numberProvisional: !reg.startGroup } : {}),
     breeder: reg.breeder?.name,
     class: reg.class,
-    dog: reg.dog,
+    dog: publicDog(reg.dog),
     group: publicGroup(reg, group, preview, numbersAvailable),
     handler: getHandlingPerson(reg)?.name ?? '',
     owner: formatOwnerNames(reg),

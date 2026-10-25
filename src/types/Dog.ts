@@ -21,10 +21,26 @@ export interface Dog extends Omit<JsonDog, 'refreshDate' | 'results'> {
   results: TestResult[]
 }
 
-interface DogName {
+export interface DogName {
   name?: string
   titles?: string
 }
+
+/**
+ * The dog as the published start list carries it: what the page shows of it, and nothing more
+ * (KOE-1489). The list is anyone's to read, so the microchip, the Kennelliitto id, the calling name
+ * and the results stay on the server, and a parent is only its name and titles.
+ */
+export interface JsonPublicDog extends DogName {
+  regNo: string
+  breedCode?: BreedCode
+  dob?: DayKey
+  gender?: DogGender
+  sire?: DogName
+  dam?: DogName
+}
+
+export type PublicDog = JsonPublicDog
 
 export type DogGender = 'F' | 'M'
 

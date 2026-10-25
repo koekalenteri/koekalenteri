@@ -24,6 +24,7 @@
       BillingMode: PAY_PER_REQUEST
       SSESpecification:
         SSEEnabled: true
-      # No point-in-time recovery: the versions are counters the next write bumps again.
+      # The table also holds the migration registry the release reads to decide which data
+      # migrations to run, so it is restorable like the other durable tables.
       PointInTimeRecoverySpecification:
-        PointInTimeRecoveryEnabled: false
+        PointInTimeRecoveryEnabled: true

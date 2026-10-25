@@ -24,7 +24,7 @@ import { useAdminEventRegistrationDates } from '@/hooks/useAdminEventRegistratio
 import { useAdminEventRegistrationGroups } from '@/hooks/useAdminEventRegistrationGroups'
 import { errorSnackbarOptions } from '@/lib/client/snackbar'
 import { rowSelectionModel } from '@/lib/datagrid'
-import { eventRegistrationDateKey, isEntryEditingClosed } from '@/lib/event'
+import { eventRegistrationDateKey, isEntryEditingClosed, isPaymentWindowOpen } from '@/lib/event'
 import {
   GROUP_KEY_CANCELLED,
   GROUP_KEY_RESERVE,
@@ -106,6 +106,8 @@ const ClassEntrySelection = ({
   const [selectedForAction, setSelectedForAction] = useState<Registration | undefined>()
   const actionsDisabled = isEntryEditingClosed(event, state)
   const movementDisabled = actionsDisabled
+  // A fee may still be asked for in the week after the trial, whatever the class's state (KOE-1589).
+  const paymentRequestDisabled = !isPaymentWindowOpen(event)
 
   // Extract entry handlers to dedicated hook
   const { handleOpen, handleCancel, handleRefund, handleSelectionModeChange, handleCellClick, handleDoubleClick } =
@@ -247,10 +249,11 @@ const ClassEntrySelection = ({
       // Opening is reading, not acting: an entry of a trial that is over stays readable, and the
       // dialog itself locks its fields (KOE-1388).
       openEditDialog: handleOpen,
+      paymentRequestDisabled,
       pendingMoveId,
       refundRegistration: handleRefund,
       requestPayment: (id: string) => {
-        if (actionsDisabled) return
+        if (paymentRequestDisabled) return
         setSendMessageTemplateId('payment-request')
         openActionDialog(id, setSendMessageDialogOpen)
       },
@@ -275,6 +278,7 @@ const ClassEntrySelection = ({
       t,
       movementDisabled,
       actionsDisabled,
+      paymentRequestDisabled,
     ]
   )
 

@@ -175,6 +175,19 @@ describe('applyOwnerOverrides', () => {
     expect(data.payer).toEqual({ email: 'a@example.com', name: 'A' })
   })
 
+  it('persists the owner as handler and payer when the selection is unset (KOE-1598)', () => {
+    const data = asJsonRegistration({
+      handler: { email: 'h@example.com', name: 'Handler' },
+      owners: [{ email: 'a@example.com', key: 'owner-1', name: 'A' }],
+      payer: { email: 'p@example.com', name: 'Payer' },
+    })
+
+    applyOwnerOverrides(data)
+
+    expect(data.handler).toEqual({ email: 'a@example.com', name: 'A' })
+    expect(data.payer).toEqual({ email: 'a@example.com', name: 'A' })
+  })
+
   it('leaves an absent handler/payer key absent, so an unchanged registration stays unchanged', () => {
     const data = asJsonRegistration({
       ownerHandles: false,

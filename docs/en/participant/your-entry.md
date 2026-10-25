@@ -11,7 +11,7 @@ covers:
   - src/pages/components/RegistrationEventInfo.tsx
   - src/pages/components/RegistrationForm.tsx
   - src/lib/registration.ts
-sourceHash: 0a8ef5
+sourceHash: 08a68b
 ---
 
 The link in your confirmation email opens your entry's own page, headed **{t:entryList}**. The
@@ -46,6 +46,11 @@ the dog's row a euro sign named *{t:registration.actions.pay}*. Both take you to
 page. When you return from the payment, the page says *{t:registration.notifications.paymentVerifying}*
 and the status updates by itself in a moment.
 
+The fee can still be paid for a week after the trial's last day, even if your class has already
+been judged: the **{t:registration.cta.pay}** button, the euro sign on the dog's row and the
+payment link work until the end of the seventh day. After that the page and the payment link say
+the entry cannot be found, and a payment can no longer be started.
+
 The button shows only while something is unpaid. If the trial is paid only once you have a place,
 the payment line reads *{t:paymentStatus.waitingForConfirmation}* until the secretary offers you
 one. From then on the line reads *{t:paymentStatus.missing}* and the button is there, also before
@@ -79,6 +84,11 @@ If payment was set for confirmation, accepting is followed by the dialog
 **{t:registration.paymentDialog.title}**, whose **{t:registration.paymentDialog.cta}** button
 takes you to pay. The invitation is sent to you only once the place has been paid.
 
+Once the trial is over or your class has been judged, the place can no longer be accepted. If the
+fee is still unpaid then, the place notification's link opens the dialog
+**{t:registration.paymentDialog.title}** straight away. A payment made after the trial no longer
+brings an invitation.
+
 ## Changing your details
 
 In the menu at the right end of the dog's row (⋮), **{t:registration.actions.edit}** opens the
@@ -104,8 +114,8 @@ told.
 
 !shot[CancelDialog/cancel-dialog-open] The reason is picked before confirming
 
-From the day before the trial to its last day, cancelling cannot be done in the calendar; the
-dialog asks you to contact the secretary directly. The refund terms are in the Kennel Club's
+From the day before the trial on, cancelling cannot be done in the calendar; the dialog asks you
+to contact the secretary directly. The refund terms are in the Kennel Club's
 rules, which the link at the foot of the dialog opens.
 
 ## The invitation
@@ -116,5 +126,7 @@ the dog's details and the buttons **{t:invitation.open}** and **{t:invitation.do
 organizer has updated the attachment, the page says when. Without an attachment the link goes
 straight to your entry's page, where the stage is now
 *{t:registration.status.confirmedAndInvitationRead}*.
+Once the trial is over, the invitation's link no longer opens the invitation or its attachment;
+the page says *{t:invitation.openingFailed}* instead.
 
 !shot[RegistrationInvitation/registration-invitation-open] The invitation's attachment is opened or downloaded

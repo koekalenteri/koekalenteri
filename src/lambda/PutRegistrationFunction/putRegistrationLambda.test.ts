@@ -2311,10 +2311,22 @@ describe('putRegistrationLabmda', () => {
       expectSaved(await patch(existingJson, { ownerHandles: false }), { ownerHandles: false })
     })
 
-    // An unset selection, or a key no owner has, names the separate handler (`getHandlingPerson`); the
-    // form leaves such a selection as it is once the people are locked.
+    // An unset selection is the first owner (KOE-1598): the default the form writes is no change, and
+    // the handler field is the owner's copy, which the server writes itself.
+    it.each([
+      ['the notes', { notes: 'notes' }],
+      ['the default selection', { ownerHandles: true, ownerPays: true }],
+    ])('saves %s of a picked entry stored without owner selections', async (_label, fields) => {
+      entryOpen()
+      const { ownerHandles: _h, ownerPays: _p, ...stored } = picked
+      const existingJson = given(stored)
+
+      expectSaved(await patch(existingJson, fields), fields)
+    })
+
+    // A key no owner has names the separate handler (`getHandlingPerson`); the form leaves such a
+    // selection as it is once the people are locked.
     describe.each([
-      ['without owner selections', {}],
       ['whose selection names no owner', { ownerHandles: 'gone', owners: [{ ...picked.owner, key: 'a' }] }],
     ])('a picked entry stored %s', (_label, selection) => {
       const givenUnresolved = () => {
@@ -2490,18 +2502,20 @@ describe('putRegistrationLabmda', () => {
       expectRefused(await patch(existingJson, { handler: bob }), 'membership')
     })
 
-    // A row stored without `ownerHandles` counts the handler's membership (`isMember`).
+    // A row stored without `ownerHandles` is handled by the first owner (KOE-1598): the handler's own
+    // membership does not count, until someone else is named to handle.
     describe('a paid row stored without an owner selection', () => {
       const givenLegacy = () => {
         const { ownerHandles: _h, ...legacy } = paid
         return given(legacy)
       }
 
-      it('refuses its handler becoming a member with 410', async () => {
+      it('refuses someone else named to handle claiming a membership with 410', async () => {
         entryOpen()
         const existingJson = givenLegacy()
+        const bob = { email: 'bob@example.com', membership: true, name: 'Bob', phone: '+358401111111' }
 
-        expectRefused(await patch(existingJson, { handler: { ...paid.handler, membership: true } }), 'membership')
+        expectRefused(await patch(existingJson, { handler: bob, ownerHandles: false }), 'membership')
       })
 
       it('saves the notes sent with the default selection, the handler no member', async () => {
