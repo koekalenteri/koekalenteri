@@ -5,7 +5,7 @@ import type { EventFlag, EventFlags, FieldRequirements, PartialEvent } from './t
 import { getCostValue } from '@/lib/cost'
 import { dayOf, TIME_ZONE } from '@/lib/day'
 import { isDevEnv } from '@/lib/env'
-import { hasRetrieveTypeChoice, OFFICIAL_EVENT_TYPES } from '@/lib/event'
+import { hasRetrieveTypeChoice, OFFICIAL_EVENT_TYPES, uniqueClasses } from '@/lib/event'
 import { judgesMockTrialIndependently, MIN_INDEPENDENT_MOCK_TRIAL_JUDGES } from '@/lib/judge'
 import { keysOf } from '@/lib/typeGuards'
 import { unique } from '@/lib/utils'
@@ -161,7 +161,7 @@ export const VALIDATORS: EventValidators = {
       return 'classes'
     }
     if (event.eventType === 'NOWT') {
-      const list = unique(event.classes.map((eventClass) => eventClass.class)).filter(
+      const list = uniqueClasses(event).filter(
         (eventClass) =>
           !event.classes.some((candidate) => candidate.class === eventClass && candidate.groups?.includes('kp'))
       )

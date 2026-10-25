@@ -4,10 +4,10 @@ import Grid from '@mui/material/Grid'
 import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { dayEnd, TIME_ZONE } from '@/lib/day'
-import { hasExplicitPlacesForClass, isEntryOpen } from '@/lib/event'
+import { hasExplicitPlacesForClass, isEntryOpen, uniqueClasses } from '@/lib/event'
 import { judgeName } from '@/lib/judge'
 import { RESTRICTION } from '@/lib/priority'
-import { printContactInfo, unique } from '@/lib/utils'
+import { printContactInfo } from '@/lib/utils'
 import { getRankingPeriod } from '@/rules_ch'
 import CostInfo from '../../components/CostInfo'
 import { EntryStatus } from '../../components/EntryStatus'
@@ -24,11 +24,11 @@ interface Props {
 }
 
 const judgeClasses = (judge: PublicJudge, event: PublicDogEvent) => {
-  const classes = unique(
-    event.classes
-      .filter((c) => (Array.isArray(c.judge) ? c.judge.find((j) => j.id === judge.id) : c.judge?.id === judge.id))
-      .map((c) => c.class)
-  )
+  const classes = uniqueClasses({
+    classes: event.classes.filter((c) =>
+      Array.isArray(c.judge) ? c.judge.find((j) => j.id === judge.id) : c.judge?.id === judge.id
+    ),
+  })
   return classes.length ? ` (${classes.join(', ')})` : ''
 }
 
@@ -43,7 +43,7 @@ export const EventInfo = ({ event }: Props) => {
   const official = useMemo(() => printContactInfo(event.contactInfo?.official), [event.contactInfo?.official])
   const secretary = useMemo(() => printContactInfo(event.contactInfo?.secretary), [event.contactInfo?.secretary])
   const classes = useMemo(
-    () => (event.classes.length ? unique(event.classes.map((c) => c.class)) : [event.eventType]),
+    () => (event.classes.length ? uniqueClasses({ classes: event.classes }) : [event.eventType]),
     [event.classes, event.eventType]
   )
   // With several classes and no explicit per-class/per-day split, `places` is a shared pool —

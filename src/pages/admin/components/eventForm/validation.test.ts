@@ -40,6 +40,22 @@ describe('validation', () => {
         })
       })
 
+      it('lists the NOWT classes without a kp day as ALO, AVO, VOI (KOE-1596)', () => {
+        const event: PartialEvent = {
+          ...emptyEvent,
+          classes: [
+            { class: 'VOI', date: emptyEvent.startDate, groups: [] },
+            { class: 'ALO', date: emptyEvent.startDate, groups: [] },
+          ],
+          eventType: 'NOWT',
+        }
+
+        expect(VALIDATORS.classes?.(event, true)).toEqual({
+          key: 'classesGroups',
+          opts: { field: 'classes', length: 2, list: ['ALO', 'VOI'] },
+        })
+      })
+
       it('accepts every NOWT class when each has at least one kp day', () => {
         const event: PartialEvent = {
           ...emptyEvent,

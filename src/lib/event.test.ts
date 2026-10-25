@@ -24,6 +24,7 @@ import {
   applySingleDayNowtGroups,
   canPublishResults,
   canPublishStartList,
+  compareRegistrationClasses,
   copyDogEvent,
   defaultEntryEndDate,
   defaultEntryStartDate,
@@ -95,6 +96,7 @@ import {
   storedMonthKey,
   stripInvitationAttachments,
   stripKennelliittoLink,
+  uniqueClasses,
   withResultsDay,
 } from './event'
 import { legacyDogDay } from './storedDays'
@@ -2809,5 +2811,72 @@ describe('isEntryEditingClosed', () => {
     expect(isEntryEditingClosed(future, 'picked')).toBe(false)
     expect(isEntryEditingClosed(future, 'invited')).toBe(false)
     expect(isEntryEditingClosed(future, 'started')).toBe(false)
+  })
+})
+
+/**
+ * `event.classes` keeps the order the secretary picked the classes in, and on a trial of several days
+ * the form's date-first order: every list of the trial's classes reads ALO, AVO, VOI all the same
+ * (KOE-1596).
+ */
+describe('compareRegistrationClasses', () => {
+  it('orders the standard classes ALO, AVO, VOI', () => {
+    expect(['VOI', 'ALO', 'AVO'].sort(compareRegistrationClasses)).toEqual(['ALO', 'AVO', 'VOI'])
+  })
+
+  it('sorts other values after the standard classes, alphabetically', () => {
+    expect(['NOWT', 'VOI', 'AVO2', 'ALO'].sort(compareRegistrationClasses)).toEqual(['ALO', 'VOI', 'AVO2', 'NOWT'])
+  })
+
+  it('sorts undefined last', () => {
+    expect(compareRegistrationClasses(undefined, 'ALO')).toBeGreaterThan(0)
+    expect(compareRegistrationClasses('ALO', undefined)).toBeLessThan(0)
+    expect(compareRegistrationClasses(undefined, undefined)).toBe(0)
+  })
+})
+
+describe('the order of a trial class list (KOE-1596)', () => {
+  const pickedVoiFirst = [
+    { class: 'VOI' as const, date: '2026-09-12' as const },
+    { class: 'ALO' as const, date: '2026-09-12' as const },
+    { class: 'AVO' as const, date: '2026-09-12' as const },
+  ]
+  const dayOneVoiDayTwoAlo = [
+    { class: 'VOI' as const, date: '2026-09-12' as const },
+    { class: 'ALO' as const, date: '2026-09-13' as const },
+    { class: 'VOI' as const, date: '2026-09-13' as const },
+  ]
+  const cases = [
+    { classes: pickedVoiFirst, expected: ['ALO', 'AVO', 'VOI'], name: 'classes picked VOI first' },
+    { classes: dayOneVoiDayTwoAlo, expected: ['ALO', 'VOI'], name: 'VOI on the first day and ALO on the second' },
+  ]
+
+  it.each(cases)('uniqueClasses lists $name as $expected', ({ classes, expected }) => {
+    expect(uniqueClasses({ classes })).toEqual(expected)
+  })
+
+  it.each(cases)('getUniqueEventClasses lists $name as $expected', ({ classes, expected }) => {
+    expect(getUniqueEventClasses({ classes })).toEqual(expected)
+  })
+
+  it('leaves the stored classes in the order they were picked', () => {
+    const classes = [...pickedVoiFirst]
+    uniqueClasses({ classes })
+    getUniqueEventClasses({ classes })
+    expect(classes).toEqual(pickedVoiFirst)
+  })
+
+  it('gives the progress its classes in order', () => {
+    const progress = getEventProgress(
+      {
+        ...endedTrial,
+        classes: [
+          { class: 'VOI', date: '2026-09-12', state: 'ended' },
+          { class: 'ALO', date: '2026-09-12', state: 'ended' },
+        ],
+      },
+      new Date('2026-09-20')
+    )
+    expect(progress.eventClasses).toEqual(['ALO', 'VOI'])
   })
 })

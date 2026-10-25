@@ -133,4 +133,29 @@ describe('EventInfo', () => {
     expect(screen.queryByText('event.official:')).toBeNull()
     expect(screen.queryByText('event.secretary:')).toBeNull()
   })
+
+  it('lists the classes and the judge classes as ALO, AVO, VOI whatever order they were picked in (KOE-1596)', async () => {
+    const judge = { id: 1, name: 'Test Judge' }
+    const event: DogEvent = {
+      ...testEvent,
+      classes: [
+        { class: 'VOI', date: '2021-02-10', judge },
+        // A class of several judges names them in a list.
+        { class: 'ALO', date: '2021-02-11', judge: [judge, { id: 2, name: 'Other Judge' }] },
+        { class: 'AVO', date: '2021-02-11' },
+      ],
+      judges: [judge],
+    }
+    render(
+      <Provider>
+        <Suspense fallback={<div>loading...</div>}>
+          <EventInfo event={event} />
+        </Suspense>
+      </Provider>
+    )
+    await flushPromises()
+
+    expect(screen.getAllByText(/^(ALO|AVO|VOI)$/).map((element) => element.textContent)).toEqual(['ALO', 'AVO', 'VOI'])
+    expect(screen.getByText('Test Judge (ALO, VOI)')).toBeInTheDocument()
+  })
 })
