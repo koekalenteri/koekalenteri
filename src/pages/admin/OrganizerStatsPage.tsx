@@ -10,7 +10,7 @@ import AutocompleteSingle from '../components/AutocompleteSingle'
 import CancellationRateChart from '../components/stats/CancellationRateChart'
 import CapacityUtilizationChart, { ALL_CLASSES_ID } from '../components/stats/CapacityUtilizationChart'
 import DemandVsCapacityChart from '../components/stats/DemandVsCapacityChart'
-import JudgeWorkloadChart from '../components/stats/JudgeWorkloadChart'
+import JudgeWorkloadTable from '../components/stats/JudgeWorkloadTable'
 import MemberShareChart from '../components/stats/MemberShareChart'
 import OrganizerFinanceChart from '../components/stats/OrganizerFinanceChart'
 import OrganizerRegistrationsChart from '../components/stats/OrganizerRegistrationsChart'
@@ -136,7 +136,7 @@ export default function OrganizerStatsPage() {
 
       <MemberShareChart items={organizerStats} filters={yearFilters} />
 
-      <JudgeWorkloadChart data={judgeWorkload} filters={yearFilters} />
+      <JudgeWorkloadTable data={judgeWorkload} filters={yearFilters} />
 
       <Stack direction="row" spacing={2}>
         <AutocompleteSingle
