@@ -7,7 +7,7 @@ covers:
   - src/pages/admin/EventBreakdownPage.tsx
   - src/pages/StatsPage.tsx
   - src/pages/components/stats/**
-sourceHash: 16080f
+sourceHash: 1e4315
 ---
 
 The calendar works its statistics out from the trials that have ended. They are on three pages:
@@ -24,7 +24,7 @@ charts to one year, and only the years in which the club has had trials can be p
 | Chart | What it says |
 | --- | --- |
 | *{t:stats.admin.title}* | the amounts paid and refunded, by month |
-| *{t:stats.admin.reserveCancelledTitle}* | entries left on the reserve list and entries cancelled, by month |
+| *{t:stats.admin.reserveCancelledTitle}* | entries left on the reserve list and entries cancelled at trials that have already started, by month |
 | *{t:stats.admin.memberShareTitle}* | how large a share of the participants were the club's members |
 | *{t:stats.admin.judgeWorkloadTitle}* | how many of the club's trials each judge worked at |
 
