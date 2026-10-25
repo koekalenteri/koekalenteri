@@ -31,7 +31,7 @@ const participant = (name: string): PublicRegistration => ({
   breeder: 'Kasvattaja',
   cancelled: false,
   class: 'ALO',
-  dog: { breedCode: '122', gender: 'M', name, regNo: `REG-${name}`, results: [] },
+  dog: { breedCode: '122', gender: 'M', name, regNo: `REG-${name}` },
   group: { date: '2025-01-01', key: 'ALO', number: 1 },
   handler: 'Ohjaaja',
   owner: 'Omistaja',

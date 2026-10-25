@@ -5,10 +5,12 @@ import type {
   EmailTemplateId,
   JsonDbRecord,
   JsonDog,
+  JsonPublicDog,
   JsonTestResult,
   Language,
   PatchOperation,
   Person,
+  PublicDog,
   PublicJudge,
   Replace,
   TestResult,
@@ -482,7 +484,7 @@ export interface RegistrationPatchRequest extends Omit<JsonRegistrationPatchRequ
 export interface JsonPublicRegistration {
   class?: string | null
   cancelled?: boolean
-  dog: JsonDog
+  dog: JsonPublicDog
   group: JsonPublicRegistrationGroup
   handler: string
   owner: string
@@ -513,7 +515,7 @@ export interface JsonPublicRegistration {
 }
 
 export interface PublicRegistration extends Omit<JsonPublicRegistration, 'dog' | 'group'> {
-  dog: Dog
+  dog: PublicDog
   group: PublicRegistrationGroup
 }
 

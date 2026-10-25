@@ -35,6 +35,7 @@ import type {
   JsonLastEmail,
   JsonLinkedEvent,
   JsonManualTestResult,
+  JsonPublicDog,
   JsonPublicDogEvent,
   JsonPublicRegistration,
   JsonPublicRegistrationGroup,
@@ -59,6 +60,7 @@ import type {
   LinkedEvent,
   ManualTestResult,
   Patch,
+  PublicDog,
   PublicDogEvent,
   PublicRegistration,
   PublicRegistrationGroup,
@@ -293,8 +295,10 @@ const dogDateConverters = (calendarDay: CalendarDayRule) => {
     results: arrayOf(toManualTestResult),
     startGroup: toRegistrationGroup,
   })
+  // The start list's dog has no results and no refresh time (KOE-1489); only its birth day is read.
+  const toPublicDog = converter<JsonPublicDog, PublicDog>()({ dob: calendarDay })
   const toPublicRegistration = converter<JsonPublicRegistration, PublicRegistration>()({
-    dog: toDog,
+    dog: toPublicDog,
     group: toPublicRegistrationGroup,
   })
   return { toDog, toManualTestResult, toPublicRegistration, toRegistration }

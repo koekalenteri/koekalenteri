@@ -110,7 +110,7 @@ describe('wire', () => {
     it("reads a start list row's dog dates and placement as day keys", () => {
       const row = toPublicRegistration({
         breeder: 'b',
-        dog: { dob: legacyDayValue('2020-02-02T22:00:00.000Z'), regNo: 'FI1/20', results: [] },
+        dog: { dob: legacyDayValue('2020-02-02T22:00:00.000Z'), regNo: 'FI1/20' },
         group: { date: legacyDayValue('2026-09-11T21:00:00.000Z'), key: '2026-09-12', number: 1 },
         handler: 'h',
         owner: 'o',

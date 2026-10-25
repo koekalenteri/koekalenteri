@@ -25,7 +25,6 @@ const registration: PublicRegistration = {
     gender: 'M',
     name: "FLATGOLD'S ROCKET MAN",
     regNo: 'FI13775/22',
-    results: [],
     sire: { name: "FLATGOLD'S LADIES LOVE COUNTRY BOYS" },
   },
   group: { date: '2026-09-12', key: 'AVO-AP', number: 1, time: 'ap' },
