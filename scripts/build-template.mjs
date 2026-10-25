@@ -74,11 +74,7 @@ async function concatYAML() {
   output = output.replace(marker, generated + marker)
 
   await fs.mkdir(path.dirname(outputFile), { recursive: true })
-  // Written beside and renamed into place, so a reader never sees a half-written template: the
-  // template tests build it from parallel workers.
-  const temporaryFile = `${outputFile}.${process.pid}.tmp`
-  await fs.writeFile(temporaryFile, output)
-  await fs.rename(temporaryFile, outputFile)
+  await fs.writeFile(outputFile, output)
   console.log(`✅ Concatenated ${files.length} files into ${outputFile}`)
 }
 

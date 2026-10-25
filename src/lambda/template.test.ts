@@ -1,5 +1,5 @@
-import { existsSync, readdirSync } from 'node:fs'
-import { buildAppTemplate } from './test-utils/cloudFormationYaml'
+import { execFileSync } from 'node:child_process'
+import { existsSync, readdirSync, readFileSync } from 'node:fs'
 import { isGranted, unusedGrants } from './test-utils/dynamoActions'
 import { analyzeTableUse } from './test-utils/lambdaTableUse'
 import { templateTables } from './test-utils/templateGrants'
@@ -10,7 +10,13 @@ import { templateTables } from './test-utils/templateGrants'
  * production. This compares the two that can disagree: the directories under src/lambda and the
  * CodeUri values in the built template.
  */
-const template = buildAppTemplate()
+const buildTemplate = () => {
+  execFileSync(process.execPath, ['scripts/build-template.mjs'], { stdio: 'ignore' })
+
+  return readFileSync('dist/template.yaml', 'utf8')
+}
+
+const template = buildTemplate()
 
 const handlerDirectories = readdirSync('src/lambda', { withFileTypes: true })
   .filter((entry) => entry.isDirectory() && existsSync(`src/lambda/${entry.name}/handler.ts`))

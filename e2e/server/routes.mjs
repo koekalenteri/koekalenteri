@@ -6,10 +6,7 @@
 import fs from 'node:fs/promises'
 import { parse } from 'yaml'
 
-/**
- * The CloudFormation intrinsic tags; the routes never need their values.
- * The same list, keeping the values, is INTRINSICS in src/lambda/test-utils/cloudFormationYaml.ts.
- */
+/** The CloudFormation intrinsic tags; the routes never need their values. */
 const tags = [
   ...['!Ref', '!Sub', '!GetAtt', '!ImportValue'].map((tag) => ({ identify: () => false, resolve: () => tag, tag })),
   ...['!Ref', '!Join', '!Sub', '!GetAtt', '!Select', '!Split', '!If', '!Equals', '!Not', '!And', '!Or'].map((tag) => ({

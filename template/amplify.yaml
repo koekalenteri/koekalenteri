@@ -1,8 +1,6 @@
   AmplifyRole:
     Type: AWS::IAM::Role
     Properties:
-      # The boundary the deploy role requires on every role (Globals.Function in main.yaml)
-      PermissionsBoundary: !Sub 'arn:${AWS::Partition}:iam::${AWS::AccountId}:policy/koekalenteri-app-boundary'
       AssumeRolePolicyDocument:
         Version: "2012-10-17"
         Statement:

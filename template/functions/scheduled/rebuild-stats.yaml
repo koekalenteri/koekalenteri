@@ -30,8 +30,6 @@
             State: ENABLED
             FlexibleTimeWindow:
               Mode: 'OFF'
-            # For the role SAM creates for the schedule; see Globals.Function in main.yaml
-            PermissionsBoundary: !Sub 'arn:${AWS::Partition}:iam::${AWS::AccountId}:policy/koekalenteri-app-boundary'
 
   # A batch rebuild that stops running freezes the stats silently, which the incremental path
   # never did. Alarm on both outcomes: an erroring run, and no successful run in over 48h.

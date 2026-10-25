@@ -10,10 +10,7 @@ import { parse } from 'yaml'
 
 const TABLES_DIR = './template/tables'
 
-/**
- * The CloudFormation intrinsic tags the templates use; their values are not needed here.
- * The same list, keeping the values, is INTRINSICS in src/lambda/test-utils/cloudFormationYaml.ts.
- */
+/** The CloudFormation intrinsic tags the templates use; their values are not needed here. */
 const cloudFormationTags = ['!Ref', '!Join', '!Sub', '!GetAtt', '!Select', '!Split', '!If', '!Equals', '!Not'].map(
   (tag) => ({
     collection: 'seq',

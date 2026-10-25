@@ -349,12 +349,6 @@ Read `LLM_CONTEXT.md` for the project overview and architecture notes.
   since no write template can carry it. A function that calls `authorize()` carries `- !Ref AuthorizePolicy`
   (`template/policies/authorize-policy.yaml`) for the user, user link and data version tables; a
   broadcast needs `- !Ref WebSocketPolicy`.
-- The deploy role's permissions are written out in `aws/github-deploy-role.yaml` (KOE-1572), and
-  `src/lambda/deployRole.test.ts` checks the built template against them: every new `AWS::IAM::Role`
-  needs `PermissionsBoundary` (functions and `ScheduleV2` events get it from `Globals.Function` and
-  their own property); a new resource type or physical name needs a change to the deploy policies
-  there; a policy that names a new service or resource needs it in `AppBoundary` too. That stack is
-  deployed by hand (`aws/README.md`).
 
 ## Lambda Logging
 

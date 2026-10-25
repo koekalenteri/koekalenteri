@@ -1,34 +1,18 @@
-# The role GitHub Actions deploys Koekalenteri with (KOE-1349), and everything it may do (KOE-1572).
-# The pipeline cannot deploy this stack, because the role is denied every change to itself; it is
-# deployed by hand with administrator credentials:
+# The role GitHub Actions deploys Koekalenteri with (KOE-1349), and what it may do (KOE-1572).
+# Deployed by hand with administrator credentials, with no parameter overrides:
 #
 #   aws cloudformation deploy --region eu-north-1 --stack-name koekalenteri-github-deploy \
 #     --template-file aws/github-deploy-role.yaml --capabilities CAPABILITY_NAMED_IAM
 #
-# The stack in the account owns the OIDC provider (ProviderExists=false). Keep it so: with true,
-# CloudFormation deletes the provider and the role can no longer be assumed.
+# The stack in the account owns the GitHub OIDC provider, so ProviderExists stays false: with true,
+# CloudFormation deletes the provider and no job can assume the role.
 #
-# aws/README.md has the order of the move from AdministratorAccess, and what to do when a deploy is
-# denied a call.
-#
-# What the role may do is written out below, per resource, for the three stacks koekalenteri-dev,
-# koekalenteri-test and koekalenteri-prod. src/lambda/deployRole.test.ts checks every resource the
-# built app template creates against these policies, so a new resource type or a new name fails in
-# the pull request, not in a deploy.
-#
-# The role creates IAM roles for the app's functions and gives them policies. Every such role must
-# carry the permissions boundary AppBoundary: CreateRole and every policy write are allowed only
-# when the role has it, so the role cannot make a role that does more than the app's services. The
-# deploy role, the boundary and the deploy policies are denied to it outright.
-#
-# Until every role of the three stacks carries the boundary, these policies are not a security
-# boundary: the role may change the stacks' managed policies, which are attached to roles without
-# one. AdministratorAccess stays attached until then (aws/README.md).
+# The policies keep the deploy to the koekalenteri-dev, -test and -prod stacks and their resources.
+# The role can create IAM roles, so they are a guard against mistakes, not a security boundary.
 AWSTemplateFormatVersion: '2010-09-09'
 Description: >-
-  The role GitHub Actions deploys Koekalenteri with, assumed through GitHub's OIDC federation, its
-  permissions scoped to the koekalenteri-dev, -test and -prod stacks, and the permissions boundary
-  every role those stacks create carries. Deployed by hand; see the comment at the top of
+  The role GitHub Actions deploys Koekalenteri with, assumed through GitHub's OIDC federation from
+  the dev, test and prod deployment environments. Deployed by hand; see the comment at the top of
   aws/github-deploy-role.yaml.
 
 Parameters:
@@ -42,7 +26,7 @@ Parameters:
     AllowedValues: ['true', 'false']
     Description: >-
       An account holds one OIDC provider per issuer. Set to true if token.actions.githubusercontent.com
-      is already registered, and the role trusts the existing one.
+      is already registered outside this stack, and the role trusts the existing one.
 
 Conditions:
   CreateProvider: !Equals [!Ref ProviderExists, 'false']
@@ -79,295 +63,103 @@ Resources:
             Condition:
               StringEquals:
                 token.actions.githubusercontent.com:aud: sts.amazonaws.com
-                # Only a job that runs under one of the deployment environments: every job in
-                # release.yml that assumes the role declares `environment:`, and the subject then
-                # names the environment instead of the branch.
+                # Every job in release.yml that assumes the role runs under one of these deployment
+                # environments, and the subject then names the environment instead of the branch.
                 token.actions.githubusercontent.com:sub:
                   - !Sub repo:${Repository}:environment:dev
                   - !Sub repo:${Repository}:environment:test
                   - !Sub repo:${Repository}:environment:prod
 
-  # The most any role of the app stacks may do, whatever policies it is given: the services the
-  # functions, the Amplify build, the API Gateway log push, the RUM guest and the schedules use, on
-  # the stacks' own resources where the name says which they are, and nothing of IAM or STS.
-  # template/ sets it on every role it creates; src/lambda/deployRole.test.ts checks every policy in
-  # the template against it. The boundary is shared by the three stacks, so it does not keep one
-  # stack's roles off another stack's resources.
-  AppBoundary:
-    Type: AWS::IAM::ManagedPolicy
-    Properties:
-      ManagedPolicyName: koekalenteri-app-boundary
-      Description: Permissions boundary of every role the Koekalenteri app stacks create.
-      PolicyDocument:
-        Version: '2012-10-17'
-        Statement:
-          - Sid: StackTables
-            Effect: Allow
-            Action: dynamodb:*
-            Resource:
-              - !Sub arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/*-koekalenteri-dev
-              - !Sub arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/*-koekalenteri-test
-              - !Sub arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/*-koekalenteri-prod
-              - !Sub arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/*-koekalenteri-dev/index/*
-              - !Sub arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/*-koekalenteri-test/index/*
-              - !Sub arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/*-koekalenteri-prod/index/*
-          # The stacks' buckets and their objects.
-          - Sid: StackBuckets
-            Effect: Allow
-            Action: s3:*
-            Resource:
-              - arn:aws:s3:::koekalenteri-dev-*
-              - arn:aws:s3:::koekalenteri-test-*
-              - arn:aws:s3:::koekalenteri-prod-*
-          # The functions' own log groups, and the API Gateway ones: the account's API Gateway
-          # pushes its execution and access logs with a stack's ApiGatewayPushToCloudWatchRole.
-          - Sid: StackLogs
-            Effect: Allow
-            Action: logs:*
-            Resource:
-              - !Sub arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/koekalenteri-dev-*
-              - !Sub arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/koekalenteri-test-*
-              - !Sub arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/koekalenteri-prod-*
-              - !Sub arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/apigateway/*
-              - !Sub arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:API-Gateway-Execution-Logs_*
-          - Sid: StackFunctions
-            Effect: Allow
-            Action: lambda:InvokeFunction
-            Resource:
-              - !Sub arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:koekalenteri-dev-*
-              - !Sub arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:koekalenteri-test-*
-              - !Sub arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:koekalenteri-prod-*
-          - Sid: WebSocketConnections
-            Effect: Allow
-            Action: execute-api:ManageConnections
-            Resource: !Sub arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:*
-          - Sid: AppMonitors
-            Effect: Allow
-            Action: rum:PutRumEvents
-            Resource:
-              - !Sub arn:aws:rum:${AWS::Region}:${AWS::AccountId}:appmonitor/Koekalenteri-koekalenteri-dev
-              - !Sub arn:aws:rum:${AWS::Region}:${AWS::AccountId}:appmonitor/Koekalenteri-koekalenteri-test
-              - !Sub arn:aws:rum:${AWS::Region}:${AWS::AccountId}:appmonitor/Koekalenteri-koekalenteri-prod
-          # The parameters src/lambda/lib/secrets.ts reads: the Kennelliitto API account, shared by
-          # the stacks, and the ones named after a stack.
-          - Sid: StackParameters
-            Effect: Allow
-            Action:
-              - ssm:GetParameter
-              - ssm:GetParameters
-            Resource:
-              - !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/KL_API_*
-              - !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/koekalenteri-dev-*
-              - !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/koekalenteri-test-*
-              - !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/koekalenteri-prod-*
-          # secrets.ts reads the parameters WithDecryption, so a SecureString one is decrypted with
-          # the role's credentials through SSM, and a boundary is not lifted by the key policy.
-          - Sid: ParameterKey
-            Effect: Allow
-            Action: kms:Decrypt
-            Resource: !Sub arn:aws:kms:${AWS::Region}:${AWS::AccountId}:key/*
-            Condition:
-              StringEquals:
-                kms:CallerAccount: !Ref AWS::AccountId
-                kms:ViaService: !Sub ssm.${AWS::Region}.amazonaws.com
-          # What cannot be narrowed by name: metric data names no resource, SES sends as the
-          # account's identities with its templates, and the Amplify service role's calls are
-          # Amplify's own. aws/README.md lists this as the boundary's accepted residual.
-          - Sid: Unscoped
-            Effect: Allow
-            Action:
-              - amplify:*
-              - cloudwatch:PutMetricData
-              - logs:DescribeLogGroups
-              - logs:DescribeLogStreams
-              - ses:*
-            Resource: '*'
-
-  # CloudFormation and SAM deploy the stack with the role's own credentials (no stack has a service
-  # role), so this covers both what `sam deploy` calls and what each resource handler calls.
+  # The stacks, their artifact buckets, and the resources whose names carry the stack name.
   DeployStackPolicy:
     Type: AWS::IAM::ManagedPolicy
     Properties:
       ManagedPolicyName: koekalenteri-github-deploy-stack
-      Description: CloudFormation, artifacts and the named resources of the Koekalenteri stacks.
       Roles:
         - !Ref DeployRole
       PolicyDocument:
         Version: '2012-10-17'
         Statement:
-          # Recovering a stuck update is allowed; deleting a stack is not, so no job can remove prod.
-          - Sid: AppStacks
+          - Sid: Stacks
             Effect: Allow
-            Action:
-              - cloudformation:CancelUpdateStack
-              - cloudformation:ContinueUpdateRollback
-              - cloudformation:CreateChangeSet
-              - cloudformation:DeleteChangeSet
-              - cloudformation:DescribeChangeSet
-              - cloudformation:DescribeStackEvents
-              - cloudformation:DescribeStackResource
-              - cloudformation:DescribeStackResources
-              - cloudformation:DescribeStacks
-              - cloudformation:ExecuteChangeSet
-              - cloudformation:GetTemplate
-              - cloudformation:GetTemplateSummary
-              - cloudformation:ListChangeSets
-              - cloudformation:ListStackResources
+            Action: cloudformation:*
             Resource:
               - !Sub arn:aws:cloudformation:${AWS::Region}:${AWS::AccountId}:stack/koekalenteri-dev/*
               - !Sub arn:aws:cloudformation:${AWS::Region}:${AWS::AccountId}:stack/koekalenteri-test/*
               - !Sub arn:aws:cloudformation:${AWS::Region}:${AWS::AccountId}:stack/koekalenteri-prod/*
-          - Sid: SamTransform
+              - !Sub arn:aws:cloudformation:${AWS::Region}:aws:transform/Serverless-2016-10-31
+          # The artifact bucket named after the stack and the stack's own buckets.
+          - Sid: Buckets
             Effect: Allow
-            Action: cloudformation:CreateChangeSet
-            Resource: !Sub arn:aws:cloudformation:${AWS::Region}:aws:transform/Serverless-2016-10-31
-          - Sid: TemplateChecks
-            Effect: Allow
-            Action:
-              - cloudformation:GetTemplateSummary
-              - cloudformation:ValidateTemplate
-            Resource: '*'
-          # The bucket named after the stack holds the packaged template and code; CloudFormation
-          # and Lambda read them with the caller's credentials.
-          - Sid: ArtifactBuckets
-            Effect: Allow
-            Action:
-              - s3:CreateBucket
-              - s3:GetBucketLocation
-              - s3:ListBucket
+            Action: s3:*
             Resource:
-              - arn:aws:s3:::koekalenteri-dev
-              - arn:aws:s3:::koekalenteri-test
-              - arn:aws:s3:::koekalenteri-prod
-          - Sid: Artifacts
-            Effect: Allow
-            Action:
-              - s3:GetObject
-              - s3:GetObjectVersion
-              - s3:PutObject
-            Resource:
-              - arn:aws:s3:::koekalenteri-dev/*
-              - arn:aws:s3:::koekalenteri-test/*
-              - arn:aws:s3:::koekalenteri-prod/*
-          # The stack's own buckets: their configuration, never their objects.
-          - Sid: StackBuckets
-            Effect: Allow
-            Action:
-              - s3:CreateBucket
-              - s3:DeleteBucket
-              - s3:DeleteBucket*
-              - s3:Get*Configuration
-              - s3:GetBucket*
-              - s3:ListBucket
-              - s3:ListTagsForResource
-              - s3:Put*Configuration
-              - s3:PutBucket*
-              - s3:TagResource
-              - s3:UntagResource
-            Resource:
-              - arn:aws:s3:::koekalenteri-dev-*
-              - arn:aws:s3:::koekalenteri-test-*
-              - arn:aws:s3:::koekalenteri-prod-*
-          - Sid: ListBuckets
-            Effect: Allow
-            Action: s3:ListAllMyBuckets
-            Resource: '*'
-          # Functions, their log groups and schedules are named after the stack. The migration step
-          # invokes RunMigrationFunction.
-          - Sid: StackFunctions
+              - arn:aws:s3:::koekalenteri-dev*
+              - arn:aws:s3:::koekalenteri-test*
+              - arn:aws:s3:::koekalenteri-prod*
+          - Sid: Functions
             Effect: Allow
             Action: lambda:*
             Resource:
               - !Sub arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:koekalenteri-dev-*
               - !Sub arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:koekalenteri-test-*
               - !Sub arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:koekalenteri-prod-*
-          - Sid: StackLogGroups
+          - Sid: LogGroups
             Effect: Allow
             Action: logs:*
             Resource:
               - !Sub arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/koekalenteri-dev-*
               - !Sub arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/koekalenteri-test-*
               - !Sub arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/koekalenteri-prod-*
-              - !Sub arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/apigateway/AccessLog-dev-*
-              - !Sub arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/apigateway/AccessLog-test-*
-              - !Sub arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/apigateway/AccessLog-prod-*
-          - Sid: StackSchedules
+              - !Sub arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/apigateway/AccessLog-*
+          - Sid: Tables
+            Effect: Allow
+            Action: dynamodb:*
+            Resource:
+              - !Sub arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/*-koekalenteri-dev*
+              - !Sub arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/*-koekalenteri-test*
+              - !Sub arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/*-koekalenteri-prod*
+          - Sid: Schedules
             Effect: Allow
             Action: scheduler:*
-            Resource:
-              - !Sub arn:aws:scheduler:${AWS::Region}:${AWS::AccountId}:schedule/default/koekalenteri-dev-*
-              - !Sub arn:aws:scheduler:${AWS::Region}:${AWS::AccountId}:schedule/default/koekalenteri-test-*
-              - !Sub arn:aws:scheduler:${AWS::Region}:${AWS::AccountId}:schedule/default/koekalenteri-prod-*
-          - Sid: StackAlarms
+            Resource: !Sub arn:aws:scheduler:${AWS::Region}:${AWS::AccountId}:schedule/default/koekalenteri-*
+          - Sid: Alarms
             Effect: Allow
-            Action:
-              - cloudwatch:DeleteAlarms
-              - cloudwatch:DescribeAlarms
-              - cloudwatch:ListTagsForResource
-              - cloudwatch:PutMetricAlarm
-              - cloudwatch:TagResource
-              - cloudwatch:UntagResource
-            Resource:
-              - !Sub arn:aws:cloudwatch:${AWS::Region}:${AWS::AccountId}:alarm:koekalenteri-dev-*
-              - !Sub arn:aws:cloudwatch:${AWS::Region}:${AWS::AccountId}:alarm:koekalenteri-test-*
-              - !Sub arn:aws:cloudwatch:${AWS::Region}:${AWS::AccountId}:alarm:koekalenteri-prod-*
-          - Sid: StackTopics
+            Action: cloudwatch:*
+            Resource: !Sub arn:aws:cloudwatch:${AWS::Region}:${AWS::AccountId}:alarm:koekalenteri-*
+          - Sid: Topics
             Effect: Allow
             Action: sns:*
-            Resource:
-              - !Sub arn:aws:sns:${AWS::Region}:${AWS::AccountId}:ses-notifications-koekalenteri-dev
-              - !Sub arn:aws:sns:${AWS::Region}:${AWS::AccountId}:ses-notifications-koekalenteri-test
-              - !Sub arn:aws:sns:${AWS::Region}:${AWS::AccountId}:ses-notifications-koekalenteri-prod
-          # The configuration set is shared by the stacks and made outside them; each stack adds its
-          # own event destination to it.
+            Resource: !Sub arn:aws:sns:${AWS::Region}:${AWS::AccountId}:ses-notifications-koekalenteri-*
+          # The configuration set is shared by the stacks; each adds its own event destination.
           - Sid: SesEventDestinations
             Effect: Allow
-            Action:
-              - ses:CreateConfigurationSetEventDestination
-              - ses:DeleteConfigurationSetEventDestination
-              - ses:GetConfigurationSetEventDestinations
-              - ses:UpdateConfigurationSetEventDestination
+            Action: ses:*
             Resource: !Sub arn:aws:ses:${AWS::Region}:${AWS::AccountId}:configuration-set/Koekalenteri
-          # The secret has no name of its own, so CloudFormation names it after its logical id.
-          - Sid: StackSecrets
+          # CloudFormation names the secret after its logical id, not the stack.
+          - Sid: Secrets
             Effect: Allow
             Action: secretsmanager:*
             Resource: !Sub arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:RegistrationEditTokenSecret-*
-          # CloudFormation resolves the functions' {{resolve:secretsmanager:...}} references with
-          # the role's credentials, and Secrets Manager decrypts the secret with them, under the
-          # account's aws/secretsmanager key.
-          - Sid: SecretKey
-            Effect: Allow
-            Action: kms:Decrypt
-            Resource: !Sub arn:aws:kms:${AWS::Region}:${AWS::AccountId}:key/*
-            Condition:
-              StringEquals:
-                kms:CallerAccount: !Ref AWS::AccountId
-                kms:ViaService: !Sub secretsmanager.${AWS::Region}.amazonaws.com
-          - Sid: StackAppMonitors
+          - Sid: AppMonitors
             Effect: Allow
             Action: rum:*
-            Resource:
-              - !Sub arn:aws:rum:${AWS::Region}:${AWS::AccountId}:appmonitor/Koekalenteri-koekalenteri-dev
-              - !Sub arn:aws:rum:${AWS::Region}:${AWS::AccountId}:appmonitor/Koekalenteri-koekalenteri-test
-              - !Sub arn:aws:rum:${AWS::Region}:${AWS::AccountId}:appmonitor/Koekalenteri-koekalenteri-prod
-          # Listing, and the calls IAM authorizes on no resource: the handlers' reads of a log
-          # group's index policies, a monitor's tags, the configuration set and a subscription.
-          # The subscription calls stay here: the policy simulator refuses them on the
-          # subscription's ARN (ses-notifications-koekalenteri-<env>:<id>) even under sns:*.
-          - Sid: Unscoped
+            Resource: !Sub arn:aws:rum:${AWS::Region}:${AWS::AccountId}:appmonitor/Koekalenteri-koekalenteri-*
+          # Calls IAM authorizes on no resource, or that only list.
+          - Sid: NoResource
             Effect: Allow
             Action:
+              - cloudformation:GetTemplateSummary
               - cloudformation:ListStacks
+              - cloudformation:ValidateTemplate
               - cloudwatch:DescribeAlarms
+              - cloudwatch:PutMetricData
               - dynamodb:DescribeLimits
               - dynamodb:ListTables
               - lambda:ListFunctions
-              - logs:DescribeIndexPolicies
-              - logs:DescribeLogGroups
-              - logs:DescribeResourcePolicies
+              - logs:Describe*
               - rum:ListAppMonitors
               - rum:ListTagsForResource
+              - s3:ListAllMyBuckets
               - scheduler:ListSchedules
               - secretsmanager:GetRandomPassword
               - secretsmanager:ListSecrets
@@ -379,224 +171,35 @@ Resources:
               - sns:Unsubscribe
             Resource: '*'
 
-  # A policy of its own because one managed policy holds at most 6144 characters.
-  DeployTablesPolicy:
-    Type: AWS::IAM::ManagedPolicy
-    Properties:
-      ManagedPolicyName: koekalenteri-github-deploy-tables
-      Description: The DynamoDB tables of the Koekalenteri stacks.
-      Roles:
-        - !Ref DeployRole
-      PolicyDocument:
-        Version: '2012-10-17'
-        Statement:
-          # The tables' definitions in every stack; the role's own calls on their items only on dev,
-          # where the browser tests write an event of their own and sweep it away
-          # (e2e/remote/testEvents.mjs). Code the role deploys reaches every stack's items through
-          # the functions' roles, within the boundary.
-          - Sid: StackTables
-            Effect: Allow
-            Action:
-              - dynamodb:CreateTable
-              - dynamodb:DeleteResourcePolicy
-              - dynamodb:DeleteTable
-              - dynamodb:DescribeContinuousBackups
-              - dynamodb:DescribeContributorInsights
-              - dynamodb:DescribeKinesisStreamingDestination
-              - dynamodb:DescribeTable
-              - dynamodb:DescribeTimeToLive
-              - dynamodb:GetResourcePolicy
-              - dynamodb:ListTagsOfResource
-              - dynamodb:PutResourcePolicy
-              - dynamodb:TagResource
-              - dynamodb:UntagResource
-              - dynamodb:UpdateContinuousBackups
-              - dynamodb:UpdateContributorInsights
-              - dynamodb:UpdateTable
-              - dynamodb:UpdateTimeToLive
-            Resource:
-              - !Sub arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/*-koekalenteri-dev
-              - !Sub arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/*-koekalenteri-test
-              - !Sub arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/*-koekalenteri-prod
-          - Sid: DevTableItems
-            Effect: Allow
-            Action:
-              - dynamodb:DeleteItem
-              - dynamodb:GetItem
-              - dynamodb:PutItem
-              - dynamodb:Query
-              - dynamodb:Scan
-            Resource:
-              - !Sub arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/*-koekalenteri-dev
-              - !Sub arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/*-koekalenteri-dev/index/*
-
-  # The stacks' API Gateway APIs, Cognito pools and Amplify apps have generated ids, so they are
-  # scoped to this account and region, which hold no other application's.
-  DeployRegionalPolicy:
-    Type: AWS::IAM::ManagedPolicy
-    Properties:
-      ManagedPolicyName: koekalenteri-github-deploy-regional
-      Description: API Gateway, Cognito and Amplify resources of the Koekalenteri stacks.
-      Roles:
-        - !Ref DeployRole
-      PolicyDocument:
-        Version: '2012-10-17'
-        Statement:
-          # API Gateway tags its resources through PUT and DELETE on /tags; it has no TagResource action.
-          - Sid: Apis
-            Effect: Allow
-            Action:
-              - apigateway:DELETE
-              - apigateway:GET
-              - apigateway:PATCH
-              - apigateway:POST
-              - apigateway:PUT
-              - apigateway:UpdateRestApiPolicy
-            Resource: !Sub arn:aws:apigateway:${AWS::Region}::/*
-          - Sid: UserPools
-            Effect: Allow
-            Action:
-              - cognito-idp:AddCustomAttributes
-              - cognito-idp:CreateIdentityProvider
-              - cognito-idp:CreateUserPoolClient
-              - cognito-idp:CreateUserPoolDomain
-              - cognito-idp:DeleteIdentityProvider
-              - cognito-idp:DeleteUserPool
-              - cognito-idp:DeleteUserPoolClient
-              - cognito-idp:DeleteUserPoolDomain
-              - cognito-idp:DescribeIdentityProvider
-              - cognito-idp:DescribeUserPool
-              - cognito-idp:DescribeUserPoolClient
-              - cognito-idp:DescribeUserPoolDomain
-              - cognito-idp:GetUserPoolMfaConfig
-              - cognito-idp:ListIdentityProviders
-              - cognito-idp:ListTagsForResource
-              - cognito-idp:ListUserPoolClientSecrets
-              - cognito-idp:ListUserPoolClients
-              - cognito-idp:SetUserPoolMfaConfig
-              - cognito-idp:TagResource
-              - cognito-idp:UntagResource
-              - cognito-idp:UpdateIdentityProvider
-              - cognito-idp:UpdateUserPool
-              - cognito-idp:UpdateUserPoolClient
-              - cognito-idp:UpdateUserPoolDomain
-            Resource: !Sub arn:aws:cognito-idp:${AWS::Region}:${AWS::AccountId}:userpool/*
-          - Sid: IdentityPools
-            Effect: Allow
-            Action:
-              - cognito-identity:DeleteIdentityPool
-              - cognito-identity:DescribeIdentityPool
-              - cognito-identity:GetIdentityPoolRoles
-              - cognito-identity:ListTagsForResource
-              - cognito-identity:SetIdentityPoolRoles
-              - cognito-identity:TagResource
-              - cognito-identity:UntagResource
-              - cognito-identity:UpdateIdentityPool
-            Resource: !Sub arn:aws:cognito-identity:${AWS::Region}:${AWS::AccountId}:identitypool/*
-          # Amplify apps, their branches and the release jobs deploy-frontend starts.
-          - Sid: AmplifyApps
-            Effect: Allow
-            Action: amplify:*
-            Resource: !Sub arn:aws:amplify:${AWS::Region}:${AWS::AccountId}:apps/*
-          # Creating and listing, and the two calls IAM authorizes on no resource.
-          - Sid: CreatePoolsAndApps
-            Effect: Allow
-            Action:
-              - amplify:CreateApp
-              - amplify:ListApps
-              - cognito-identity:CreateIdentityPool
-              - cognito-identity:ListIdentityPools
-              - cognito-identity:SetIdentityPoolRoles
-              - cognito-idp:CreateUserPool
-              - cognito-idp:DescribeUserPoolDomain
-              - cognito-idp:ListUserPools
-            Resource: '*'
-
-  # The roles the stacks create are named after the stack (CloudFormation's generated name starts
-  # with it), their managed policies end with it. A role gets a policy only while it carries the
-  # boundary, which caps what any policy can give it.
+  # The stacks' IAM roles and policies, and the services whose resource ids AWS generates.
   DeployIamPolicy:
     Type: AWS::IAM::ManagedPolicy
     Properties:
       ManagedPolicyName: koekalenteri-github-deploy-iam
-      Description: The roles and managed policies of the Koekalenteri stacks, bounded by AppBoundary.
       Roles:
         - !Ref DeployRole
       PolicyDocument:
         Version: '2012-10-17'
         Statement:
-          - Sid: ReadStackIam
+          # CloudFormation names the roles it generates after the stack. The deploy role's own name
+          # matches none of these.
+          - Sid: StackRoles
             Effect: Allow
             Action:
-              - iam:GetPolicy
-              - iam:GetPolicyVersion
+              - iam:AttachRolePolicy
+              - iam:CreateRole
+              - iam:DeleteRole
+              - iam:DeleteRolePermissionsBoundary
+              - iam:DeleteRolePolicy
+              - iam:DetachRolePolicy
               - iam:GetRole
               - iam:GetRolePolicy
               - iam:ListAttachedRolePolicies
-              - iam:ListEntitiesForPolicy
-              - iam:ListPolicyTags
-              - iam:ListPolicyVersions
               - iam:ListRolePolicies
               - iam:ListRoleTags
-            Resource:
-              - !Sub arn:aws:iam::${AWS::AccountId}:role/koekalenteri-dev-*
-              - !Sub arn:aws:iam::${AWS::AccountId}:role/koekalenteri-test-*
-              - !Sub arn:aws:iam::${AWS::AccountId}:role/koekalenteri-prod-*
-              - !Sub arn:aws:iam::${AWS::AccountId}:policy/*-koekalenteri-dev
-              - !Sub arn:aws:iam::${AWS::AccountId}:policy/*-koekalenteri-test
-              - !Sub arn:aws:iam::${AWS::AccountId}:policy/*-koekalenteri-prod
-          - Sid: ListIam
-            Effect: Allow
-            Action:
-              - iam:ListPolicies
-              - iam:ListRoles
-            Resource: '*'
-          - Sid: BoundedRoleWrites
-            Effect: Allow
-            Action:
-              - iam:CreateRole
-              - iam:DeleteRolePolicy
-              - iam:DetachRolePolicy
+              - iam:PassRole
               - iam:PutRolePermissionsBoundary
               - iam:PutRolePolicy
-            Resource:
-              - !Sub arn:aws:iam::${AWS::AccountId}:role/koekalenteri-dev-*
-              - !Sub arn:aws:iam::${AWS::AccountId}:role/koekalenteri-test-*
-              - !Sub arn:aws:iam::${AWS::AccountId}:role/koekalenteri-prod-*
-            Condition:
-              StringEquals:
-                iam:PermissionsBoundary: !Ref AppBoundary
-          # The managed policies the stacks attach: the two AWS ones SAM and the API log role name,
-          # and the stacks' own.
-          - Sid: BoundedRoleAttachments
-            Effect: Allow
-            Action: iam:AttachRolePolicy
-            Resource:
-              - !Sub arn:aws:iam::${AWS::AccountId}:role/koekalenteri-dev-*
-              - !Sub arn:aws:iam::${AWS::AccountId}:role/koekalenteri-test-*
-              - !Sub arn:aws:iam::${AWS::AccountId}:role/koekalenteri-prod-*
-            Condition:
-              StringEquals:
-                iam:PermissionsBoundary: !Ref AppBoundary
-              ArnLike:
-                iam:PolicyARN:
-                  - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
-                  - arn:aws:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs
-                  - !Sub arn:aws:iam::${AWS::AccountId}:policy/*-koekalenteri-dev
-                  - !Sub arn:aws:iam::${AWS::AccountId}:policy/*-koekalenteri-test
-                  - !Sub arn:aws:iam::${AWS::AccountId}:policy/*-koekalenteri-prod
-          # Nothing here grants a permission or takes a boundary away, so every role the stacks
-          # create stays bounded. iam:DeleteRolePermissionsBoundary is allowed nowhere: a role
-          # given a wide policy under the boundary would hold all of it once the boundary is gone.
-          # Without it, a rollback that removes a boundary (only that of the first rollout) needs
-          # AdministratorAccess attached by hand (aws/README.md). IAM evaluates
-          # iam:PermissionsBoundary for no action here; their targets are bounded because no role
-          # of these names can be created or kept without it.
-          - Sid: RoleUpkeep
-            Effect: Allow
-            Action:
-              - iam:DeleteRole
-              - iam:PassRole
               - iam:TagRole
               - iam:UntagRole
               - iam:UpdateAssumeRolePolicy
@@ -606,34 +209,43 @@ Resources:
               - !Sub arn:aws:iam::${AWS::AccountId}:role/koekalenteri-dev-*
               - !Sub arn:aws:iam::${AWS::AccountId}:role/koekalenteri-test-*
               - !Sub arn:aws:iam::${AWS::AccountId}:role/koekalenteri-prod-*
-          - Sid: StackManagedPolicies
+          # The stacks' managed policies are named <name>-<stack>.
+          - Sid: StackPolicies
             Effect: Allow
             Action:
               - iam:CreatePolicy
               - iam:CreatePolicyVersion
               - iam:DeletePolicy
               - iam:DeletePolicyVersion
+              - iam:GetPolicy
+              - iam:GetPolicyVersion
+              - iam:ListEntitiesForPolicy
+              - iam:ListPolicyTags
+              - iam:ListPolicyVersions
               - iam:TagPolicy
               - iam:UntagPolicy
             Resource:
-              - !Sub arn:aws:iam::${AWS::AccountId}:policy/AuthorizeAccessPolicy-koekalenteri-dev
-              - !Sub arn:aws:iam::${AWS::AccountId}:policy/AuthorizeAccessPolicy-koekalenteri-test
-              - !Sub arn:aws:iam::${AWS::AccountId}:policy/AuthorizeAccessPolicy-koekalenteri-prod
-              - !Sub arn:aws:iam::${AWS::AccountId}:policy/WebSocketAccessPolicy-koekalenteri-dev
-              - !Sub arn:aws:iam::${AWS::AccountId}:policy/WebSocketAccessPolicy-koekalenteri-test
-              - !Sub arn:aws:iam::${AWS::AccountId}:policy/WebSocketAccessPolicy-koekalenteri-prod
-          - Sid: DenyDeployAccessChanges
-            Effect: Deny
-            Action: iam:*
-            Resource:
-              - !GetAtt DeployRole.Arn
-              - !Ref AppBoundary
-              - !Sub arn:aws:iam::${AWS::AccountId}:policy/koekalenteri-github-deploy-*
+              - !Sub arn:aws:iam::${AWS::AccountId}:policy/*-koekalenteri-dev
+              - !Sub arn:aws:iam::${AWS::AccountId}:policy/*-koekalenteri-test
+              - !Sub arn:aws:iam::${AWS::AccountId}:policy/*-koekalenteri-prod
+          # API Gateway APIs, Cognito pools and Amplify apps get ids AWS generates, so they cannot
+          # be named here. The account and region hold no other application's.
+          - Sid: GeneratedIds
+            Effect: Allow
+            Action:
+              - amplify:*
+              - apigateway:*
+              - cognito-identity:*
+              - cognito-idp:*
+            Resource: '*'
+          - Sid: ListIam
+            Effect: Allow
+            Action:
+              - iam:ListPolicies
+              - iam:ListRoles
+            Resource: '*'
 
 Outputs:
   RoleArn:
     Description: Put this in the repository secret AWS_DEPLOY_ROLE_ARN.
     Value: !GetAtt DeployRole.Arn
-  BoundaryArn:
-    Description: The permissions boundary template/ sets on every role it creates.
-    Value: !Ref AppBoundary
