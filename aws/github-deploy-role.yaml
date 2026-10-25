@@ -1,34 +1,32 @@
+# The role GitHub Actions deploys Koekalenteri with (KOE-1349), and what it may do (KOE-1572).
+# Deployed by hand with administrator credentials, with no parameter overrides:
+#
+#   aws cloudformation deploy --region eu-north-1 --stack-name koekalenteri-github-deploy \
+#     --template-file aws/github-deploy-role.yaml --capabilities CAPABILITY_NAMED_IAM
+#
+# The stack in the account owns the GitHub OIDC provider, so ProviderExists stays false: with true,
+# CloudFormation deletes the provider and no job can assume the role.
+#
+# The policies keep the deploy to the koekalenteri-dev, -test and -prod stacks and their resources.
+# The role can create IAM roles, so they are a guard against mistakes, not a security boundary.
 AWSTemplateFormatVersion: '2010-09-09'
 Description: >-
-  The role GitHub Actions deploys Koekalenteri with, assumed through GitHub's OIDC federation so
-  that no long-lived access key is stored in the repository (KOE-1349). Deployed once by hand, not
-  by the pipeline it authorizes:
-
-    aws cloudformation deploy --stack-name koekalenteri-github-deploy \
-      --template-file aws/github-deploy-role.yaml --capabilities CAPABILITY_NAMED_IAM \
-      --parameter-overrides ManagedPolicyArns=<the policies the current deploy user has>
-
-  Then put the RoleArn output in the repository secret AWS_DEPLOY_ROLE_ARN; release.yml switches
-  to it on the next run, and the access key can be deleted.
+  The role GitHub Actions deploys Koekalenteri with, assumed through GitHub's OIDC federation from
+  the dev, test and prod deployment environments. Deployed by hand; see the comment at the top of
+  aws/github-deploy-role.yaml.
 
 Parameters:
   Repository:
     Type: String
     Default: koekalenteri/koekalenteri
-    Description: The GitHub repository whose workflows may assume the role.
-  ManagedPolicyArns:
-    Type: CommaDelimitedList
-    Description: >-
-      The policies the role deploys with. The SAM stack creates roles, tables, functions, APIs,
-      buckets, Cognito and Amplify resources, so mirror what the access key's IAM user has
-      (aws iam list-attached-user-policies --user-name <deploy user>).
+    Description: The GitHub repository whose deploy jobs may assume the role.
   ProviderExists:
     Type: String
     Default: 'false'
     AllowedValues: ['true', 'false']
     Description: >-
       An account holds one OIDC provider per issuer. Set to true if token.actions.githubusercontent.com
-      is already registered, and the role trusts the existing one.
+      is already registered outside this stack, and the role trusts the existing one.
 
 Conditions:
   CreateProvider: !Equals [!Ref ProviderExists, 'false']
@@ -52,7 +50,6 @@ Resources:
       RoleName: koekalenteri-github-deploy
       Description: !Sub GitHub Actions deploys ${Repository} with this role.
       MaxSessionDuration: 3600
-      ManagedPolicyArns: !Ref ManagedPolicyArns
       AssumeRolePolicyDocument:
         Version: '2012-10-17'
         Statement:
@@ -66,10 +63,187 @@ Resources:
             Condition:
               StringEquals:
                 token.actions.githubusercontent.com:aud: sts.amazonaws.com
-              # Any job of this repository: a push to main deploys dev, a release deploys test or
-              # prod, and both run under a deployment environment, which is what the subject names.
-              StringLike:
-                token.actions.githubusercontent.com:sub: !Sub repo:${Repository}:*
+                # Every job in release.yml that assumes the role runs under one of these deployment
+                # environments, and the subject then names the environment instead of the branch.
+                token.actions.githubusercontent.com:sub:
+                  - !Sub repo:${Repository}:environment:dev
+                  - !Sub repo:${Repository}:environment:test
+                  - !Sub repo:${Repository}:environment:prod
+
+  # The stacks, their artifact buckets, and the resources whose names carry the stack name.
+  DeployStackPolicy:
+    Type: AWS::IAM::ManagedPolicy
+    Properties:
+      ManagedPolicyName: koekalenteri-github-deploy-stack
+      Roles:
+        - !Ref DeployRole
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Sid: Stacks
+            Effect: Allow
+            Action: cloudformation:*
+            Resource:
+              - !Sub arn:aws:cloudformation:${AWS::Region}:${AWS::AccountId}:stack/koekalenteri-dev/*
+              - !Sub arn:aws:cloudformation:${AWS::Region}:${AWS::AccountId}:stack/koekalenteri-test/*
+              - !Sub arn:aws:cloudformation:${AWS::Region}:${AWS::AccountId}:stack/koekalenteri-prod/*
+              - !Sub arn:aws:cloudformation:${AWS::Region}:aws:transform/Serverless-2016-10-31
+          # The artifact bucket named after the stack and the stack's own buckets.
+          - Sid: Buckets
+            Effect: Allow
+            Action: s3:*
+            Resource:
+              - arn:aws:s3:::koekalenteri-dev*
+              - arn:aws:s3:::koekalenteri-test*
+              - arn:aws:s3:::koekalenteri-prod*
+          - Sid: Functions
+            Effect: Allow
+            Action: lambda:*
+            Resource:
+              - !Sub arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:koekalenteri-dev-*
+              - !Sub arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:koekalenteri-test-*
+              - !Sub arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:koekalenteri-prod-*
+          - Sid: LogGroups
+            Effect: Allow
+            Action: logs:*
+            Resource:
+              - !Sub arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/koekalenteri-dev-*
+              - !Sub arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/koekalenteri-test-*
+              - !Sub arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/koekalenteri-prod-*
+              - !Sub arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/apigateway/AccessLog-*
+          - Sid: Tables
+            Effect: Allow
+            Action: dynamodb:*
+            Resource:
+              - !Sub arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/*-koekalenteri-dev*
+              - !Sub arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/*-koekalenteri-test*
+              - !Sub arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/*-koekalenteri-prod*
+          - Sid: Schedules
+            Effect: Allow
+            Action: scheduler:*
+            Resource: !Sub arn:aws:scheduler:${AWS::Region}:${AWS::AccountId}:schedule/default/koekalenteri-*
+          - Sid: Alarms
+            Effect: Allow
+            Action: cloudwatch:*
+            Resource: !Sub arn:aws:cloudwatch:${AWS::Region}:${AWS::AccountId}:alarm:koekalenteri-*
+          - Sid: Topics
+            Effect: Allow
+            Action: sns:*
+            Resource: !Sub arn:aws:sns:${AWS::Region}:${AWS::AccountId}:ses-notifications-koekalenteri-*
+          # The configuration set is shared by the stacks; each adds its own event destination.
+          - Sid: SesEventDestinations
+            Effect: Allow
+            Action: ses:*
+            Resource: !Sub arn:aws:ses:${AWS::Region}:${AWS::AccountId}:configuration-set/Koekalenteri
+          # CloudFormation names the secret after its logical id, not the stack.
+          - Sid: Secrets
+            Effect: Allow
+            Action: secretsmanager:*
+            Resource: !Sub arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:RegistrationEditTokenSecret-*
+          - Sid: AppMonitors
+            Effect: Allow
+            Action: rum:*
+            Resource: !Sub arn:aws:rum:${AWS::Region}:${AWS::AccountId}:appmonitor/Koekalenteri-koekalenteri-*
+          # Calls IAM authorizes on no resource, or that only list.
+          - Sid: NoResource
+            Effect: Allow
+            Action:
+              - cloudformation:GetTemplateSummary
+              - cloudformation:ListStacks
+              - cloudformation:ValidateTemplate
+              - cloudwatch:DescribeAlarms
+              - cloudwatch:PutMetricData
+              - dynamodb:DescribeLimits
+              - dynamodb:ListTables
+              - lambda:ListFunctions
+              - logs:Describe*
+              - rum:ListAppMonitors
+              - rum:ListTagsForResource
+              - s3:ListAllMyBuckets
+              - scheduler:ListSchedules
+              - secretsmanager:GetRandomPassword
+              - secretsmanager:ListSecrets
+              - ses:DescribeConfigurationSet
+              - sns:GetSubscriptionAttributes
+              - sns:ListSubscriptions
+              - sns:ListTopics
+              - sns:SetSubscriptionAttributes
+              - sns:Unsubscribe
+            Resource: '*'
+
+  # The stacks' IAM roles and policies, and the services whose resource ids AWS generates.
+  DeployIamPolicy:
+    Type: AWS::IAM::ManagedPolicy
+    Properties:
+      ManagedPolicyName: koekalenteri-github-deploy-iam
+      Roles:
+        - !Ref DeployRole
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          # CloudFormation names the roles it generates after the stack. The deploy role's own name
+          # matches none of these.
+          - Sid: StackRoles
+            Effect: Allow
+            Action:
+              - iam:AttachRolePolicy
+              - iam:CreateRole
+              - iam:DeleteRole
+              - iam:DeleteRolePermissionsBoundary
+              - iam:DeleteRolePolicy
+              - iam:DetachRolePolicy
+              - iam:GetRole
+              - iam:GetRolePolicy
+              - iam:ListAttachedRolePolicies
+              - iam:ListRolePolicies
+              - iam:ListRoleTags
+              - iam:PassRole
+              - iam:PutRolePermissionsBoundary
+              - iam:PutRolePolicy
+              - iam:TagRole
+              - iam:UntagRole
+              - iam:UpdateAssumeRolePolicy
+              - iam:UpdateRole
+              - iam:UpdateRoleDescription
+            Resource:
+              - !Sub arn:aws:iam::${AWS::AccountId}:role/koekalenteri-dev-*
+              - !Sub arn:aws:iam::${AWS::AccountId}:role/koekalenteri-test-*
+              - !Sub arn:aws:iam::${AWS::AccountId}:role/koekalenteri-prod-*
+          # The stacks' managed policies are named <name>-<stack>.
+          - Sid: StackPolicies
+            Effect: Allow
+            Action:
+              - iam:CreatePolicy
+              - iam:CreatePolicyVersion
+              - iam:DeletePolicy
+              - iam:DeletePolicyVersion
+              - iam:GetPolicy
+              - iam:GetPolicyVersion
+              - iam:ListEntitiesForPolicy
+              - iam:ListPolicyTags
+              - iam:ListPolicyVersions
+              - iam:TagPolicy
+              - iam:UntagPolicy
+            Resource:
+              - !Sub arn:aws:iam::${AWS::AccountId}:policy/*-koekalenteri-dev
+              - !Sub arn:aws:iam::${AWS::AccountId}:policy/*-koekalenteri-test
+              - !Sub arn:aws:iam::${AWS::AccountId}:policy/*-koekalenteri-prod
+          # API Gateway APIs, Cognito pools and Amplify apps get ids AWS generates, so they cannot
+          # be named here. The account and region hold no other application's.
+          - Sid: GeneratedIds
+            Effect: Allow
+            Action:
+              - amplify:*
+              - apigateway:*
+              - cognito-identity:*
+              - cognito-idp:*
+            Resource: '*'
+          - Sid: ListIam
+            Effect: Allow
+            Action:
+              - iam:ListPolicies
+              - iam:ListRoles
+            Resource: '*'
 
 Outputs:
   RoleArn:

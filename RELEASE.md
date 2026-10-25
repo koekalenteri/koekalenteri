@@ -133,6 +133,7 @@ The `dev` environment is automatically updated whenever changes are pushed to th
 
 The release workflow requires the following secrets to be configured in your GitHub repository settings (`Settings > Secrets and variables > Actions`):
 
+- `AWS_DEPLOY_ROLE_ARN`: The `RoleArn` output of the `koekalenteri-github-deploy` stack (`aws/github-deploy-role.yaml`). The deploy jobs assume this role through GitHub's OIDC federation, and use the access key below only when it is unset.
 - `AWS_ACCESS_KEY_ID`: Your AWS access key.
 - `AWS_SECRET_ACCESS_KEY`: Your AWS secret key.
 - `AWS_REGION`: The AWS region for your resources (e.g., `eu-west-1`).

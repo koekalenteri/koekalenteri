@@ -24,7 +24,15 @@ aws dynamodb batch-write-item --request-items file://kokeet0.json
 ## GitHub deploy role (OIDC)
 
 `github-deploy-role.yaml` is the role the release workflow deploys with, assumed through GitHub's
-OIDC federation instead of an access key kept in the repository secrets (KOE-1349). It is deployed
-once by hand; the header of the template has the command. With the `RoleArn` output in the
-repository secret `AWS_DEPLOY_ROLE_ARN`, `release.yml` assumes the role on its next run and the
-`AWS_ACCESS_KEY_ID` / `AWS_SECRET_ACCESS_KEY` secrets can go.
+OIDC federation by the jobs that run under the `dev`, `test` or `prod` deployment environment
+(KOE-1349). Its `RoleArn` output is the repository secret `AWS_DEPLOY_ROLE_ARN`. Its permissions are
+written out in the template (KOE-1572) and keep the deploy to the `koekalenteri-dev`, `-test` and
+`-prod` stacks and their resources; the role can create IAM roles, so they are a guard against
+mistakes, not a security boundary. A change to them is deployed by hand with administrator
+credentials and no parameter overrides, because this stack owns the account's OIDC provider and
+`ProviderExists` must stay `false`:
+
+```sh
+aws cloudformation deploy --region eu-north-1 --stack-name koekalenteri-github-deploy \
+  --template-file aws/github-deploy-role.yaml --capabilities CAPABILITY_NAMED_IAM
+```
