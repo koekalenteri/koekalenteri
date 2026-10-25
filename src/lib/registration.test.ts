@@ -48,6 +48,7 @@ import {
   isPayerTemplate,
   isPredefinedReason,
   isPublicRegistrationOperationField,
+  isRegistrationCancelClosed,
   isRegistrationClass,
   isRegistrationContentLocked,
   isRegistrationEditingClosed,
@@ -197,6 +198,51 @@ describe('lib/registration', () => {
     it('closes both for an entry whose class has been judged', () => {
       expect(isRegistrationEditingClosed(event, alo, at('2021-02-10T12:00:00'))).toBe(true)
       expect(isRegistrationContentLocked(event, alo, at('2021-02-10T12:00:00'))).toBe(true)
+    })
+
+    // The participant's own cancellation closes with the Finnish day before the trial: from then on
+    // the dog is expected, and only the secretary takes it off the list (KOE-1590).
+    it.each([
+      ['while entry is open', '2021-02-05T12:00:00', false],
+      ['on the last moment of the second day before the trial', '2021-02-08T23:59:59', false],
+      ['from the Finnish midnight that starts the day before the trial', '2021-02-09T00:00:00', true],
+      ['on the first day', '2021-02-10T12:00:00', true],
+      ['on the last day', '2021-02-11T23:59:00', true],
+      ['the day after the last day', '2021-02-12T00:00:01', true],
+    ])('closes the cancellation of a class still running %s', (_label, stamp, cancelClosed) => {
+      expect(isRegistrationCancelClosed(event, avo, at(stamp))).toBe(cancelClosed)
+    })
+
+    // A row stored before KOE-1547 holds the trial's start as the Finnish midnight instant; it names
+    // the same day as the key.
+    it.each([
+      ['2021-02-08T23:59:59', false],
+      ['2021-02-09T00:00:00', true],
+    ])('reads a start stored as an instant at %s', (stamp, cancelClosed) => {
+      const stored = { ...event, startDate: '2021-02-09T22:00:00.000Z' }
+      expect(isRegistrationCancelClosed(stored, avo, at(stamp))).toBe(cancelClosed)
+    })
+
+    it('closes the cancellation once editing has closed, also without a start day', () => {
+      const undated = { ...event, startDate: undefined }
+      expect(isRegistrationCancelClosed(undated, avo, at('2021-02-09T12:00:00'))).toBe(false)
+      expect(
+        isRegistrationCancelClosed({ ...undated, state: 'ended' }, { eventType: 'NOU' }, at('2021-02-09T12:00:00'))
+      ).toBe(true)
+    })
+
+    describe('on the clock', () => {
+      afterEach(() => {
+        vi.useRealTimers()
+      })
+
+      it.each([
+        ['2021-02-08T21:59:59.000Z', false],
+        ['2021-02-08T22:00:00.000Z', true],
+      ])('reads today in Finland when the clock says %s', (instant, cancelClosed) => {
+        vi.useFakeTimers({ now: new Date(instant), toFake: ['Date'] })
+        expect(isRegistrationCancelClosed(event, avo)).toBe(cancelClosed)
+      })
     })
 
     it('reads the event state for an entry with no class of its own', () => {
