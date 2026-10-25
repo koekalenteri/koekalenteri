@@ -48,6 +48,18 @@ describe('templateTables', () => {
     expect([...environmentVariables]).toEqual([['USER_TABLE_NAME', 'UserTable']])
   })
 
+  it("reads the Globals' variables and each function's own", () => {
+    const { functions, globalVariables } = templateTables(
+      template(`        - CloudWatchPutMetricPolicy: {}
+      Environment:
+        Variables:
+          SECRET: !Sub '{{resolve:ssm:\${AWS::StackName}-SECRET}}'`)
+    )
+
+    expect([...globalVariables]).toEqual(['USER_TABLE_NAME', 'STAGE_NAME'])
+    expect([...(functions.get('OneFunction')?.environment ?? [])]).toEqual(['SECRET'])
+  })
+
   it('reads a managed policy down to its index resources', () => {
     const grants = grantsOf('        - !Ref AuthorizePolicy')
 

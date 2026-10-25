@@ -25,6 +25,8 @@ const handlerDirectories = readdirSync('src/lambda', { withFileTypes: true })
 
 const matchAll = (pattern: RegExp) => [...template.matchAll(pattern)].map((match) => match[1])
 
+const analysis = analyzeTableUse(handlerDirectories.map((dir) => `src/lambda/${dir}/handler.ts`))
+
 describe('template', () => {
   it('has a function for every lambda directory, and nothing else', () => {
     const codeUris = matchAll(/^ {6}CodeUri: lambda\/(\w+)$/gm).sort()
@@ -94,7 +96,6 @@ describe('template', () => {
 // one of the paths the walk now finds.
 describe('table policies', () => {
   const tables = templateTables(template)
-  const analysis = analyzeTableUse(handlerDirectories.map((dir) => `src/lambda/${dir}/handler.ts`))
 
   /** `eventTable` to `EventTable`, and `userTable/index/gsiEmail` to `UserTable/index/gsiEmail`. */
   const grantKey = (useKey: string) => {
@@ -135,6 +136,57 @@ describe('table policies', () => {
         used.set(grantKey(useKey), new Set(byAction.keys()))
       for (const { access, table } of unusedGrants(grants.grants, used)) {
         excess.push(`${name} may ${access} ${table} but never does`)
+      }
+    }
+    expect(excess).toEqual([])
+  })
+})
+
+// A variable a function's code reads but its template block does not set is undefined in the deployed
+// lambda, and no local test notices: the tests set or stub it. PaymentVerify signed an edit token
+// without REGISTRATION_EDIT_TOKEN_SECRET and answered every return from the payment page with an
+// error (KOE-1605). CONFIG's reads are left to the table policies above: config.ts runs at import in
+// every handler, and its values all fall back to a default.
+describe('environment', () => {
+  const { functions, globalVariables } = templateTables(template)
+
+  /** Read where nothing in the template sets them, by design. */
+  const unset: Record<string, string> = {
+    AWS_SAM_LOCAL: 'set by sam local, never in a deployed function',
+    NODE_ENV: 'only the tests set it; a deployed function must not take the test fallback',
+    PAYTRAIL_API_ENDPOINT: 'the browser tests point it at their fake; deployed, the default is the real one',
+    REACT_APP_API_BASE_URL: "the frontend build's; the shared i18n setup reads it, and a lambda has none",
+  }
+
+  const readsOf = (codeUri: string) => {
+    const reads = new Map<string, string[]>()
+    for (const [variable, locations] of analysis.environment.get(`src/${codeUri}/handler.ts`) ?? []) {
+      const outside = locations.filter((where) => !where.startsWith('src/lambda/config.ts:'))
+      if (outside.length) reads.set(variable, outside)
+    }
+    return reads
+  }
+
+  it('sets every variable a function reads', () => {
+    const missing: string[] = []
+    for (const [name, { codeUri, environment }] of functions) {
+      for (const [variable, locations] of readsOf(codeUri)) {
+        if (variable in unset || globalVariables.has(variable) || environment.has(variable)) continue
+        missing.push(`${name} reads ${variable} without setting it: ${locations.join(', ')}`)
+      }
+    }
+    expect(missing).toEqual([])
+  })
+
+  // The other direction, for the variables the walk sees read: a secret in the environment of a
+  // function that never reads it is one more place it can leak from.
+  it('sets no variable a function never reads', () => {
+    const read = new Set([...functions.values()].flatMap(({ codeUri }) => [...readsOf(codeUri).keys()]))
+    const excess: string[] = []
+    for (const [name, { codeUri, environment }] of functions) {
+      const reads = readsOf(codeUri)
+      for (const variable of environment) {
+        if (read.has(variable) && !reads.has(variable)) excess.push(`${name} sets ${variable} but never reads it`)
       }
     }
     expect(excess).toEqual([])
