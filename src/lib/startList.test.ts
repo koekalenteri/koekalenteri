@@ -5,7 +5,6 @@ import i18n from 'i18next'
 import { eventWithStaticDates } from '../__mockData__/events'
 import { legacyDayValue } from '../test-utils/finnishDays'
 import { describeInTimeZone } from '../test-utils/timeZone'
-import { emptyDog } from './data'
 import {
   isStartListUpToDate,
   newestStartListVersion,
@@ -76,7 +75,6 @@ describe('startListSpreadsheetRows', () => {
         dob: '2020-01-02' as const,
         name: 'Test Dog',
         regNo: 'REG1',
-        results: [],
         sire: { name: 'Sire Dog', titles: 'C.I.B.' },
         titles: 'FI MVA',
       },
@@ -155,7 +153,7 @@ describe('a published result on the exported list', () => {
     const registration: PublicRegistration = {
       breeder: 'Test Breeder',
       class: 'ALO',
-      dog: { ...emptyDog, name: 'Test Dog', regNo: 'REG1' },
+      dog: { name: 'Test Dog', regNo: 'REG1' },
       group: { key: 'ALO', number: 2 },
       handler: 'Test Handler',
       owner: 'Test Owner',

@@ -1,4 +1,12 @@
-import type { JsonDogEvent, JsonPublicRegistration, JsonPublicRegistrationGroup, JsonRegistration } from '../../types'
+import type {
+  DogName,
+  JsonDog,
+  JsonDogEvent,
+  JsonPublicDog,
+  JsonPublicRegistration,
+  JsonPublicRegistrationGroup,
+  JsonRegistration,
+} from '../../types'
 import {
   isResultsAvailableForRegistration,
   isStartListAvailable,
@@ -107,6 +115,24 @@ const cancelledPublicRow = (
   }
 }
 
+/** A parent as the list names it: its name and titles, whatever else the stored dog holds of it. */
+const publicDogName = (parent?: DogName): DogName | undefined => parent && { name: parent.name, titles: parent.titles }
+
+/**
+ * The dog as the list shows it (KOE-1489): each field named here, so a field added to the stored dog
+ * stays on the server until someone decides the list shows it.
+ */
+const publicDog = (dog: JsonDog): JsonPublicDog => ({
+  breedCode: dog.breedCode,
+  dam: publicDogName(dog.dam),
+  dob: dog.dob,
+  gender: dog.gender,
+  name: dog.name,
+  regNo: dog.regNo,
+  sire: publicDogName(dog.sire),
+  titles: dog.titles,
+})
+
 /** A running dog's row, or nothing while the reader may not see it yet. */
 const publicRow = (
   confirmedEvent: JsonDogEvent,
@@ -129,7 +155,7 @@ const publicRow = (
     ...(preview ? { numberProvisional: !reg.startGroup } : {}),
     breeder: reg.breeder?.name,
     class: reg.class,
-    dog: reg.dog,
+    dog: publicDog(reg.dog),
     group: publicGroup(reg, group, preview, numbersAvailable),
     handler: getHandlingPerson(reg)?.name ?? '',
     owner: formatOwnerNames(reg),

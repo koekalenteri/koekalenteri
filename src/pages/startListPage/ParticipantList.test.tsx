@@ -157,7 +157,6 @@ describe('ParticipantList', () => {
       gender: 'M',
       name: dogName,
       regNo: `REG${groupNumber}`,
-      results: [],
       sire: {
         name: 'Sire Dog',
         titles: 'CH',

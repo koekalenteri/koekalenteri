@@ -49,7 +49,6 @@ const registration = (name: string, regNo: string): PublicRegistration => ({
     gender: 'M',
     name,
     regNo,
-    results: [],
     sire: { name: 'ANNALOUGHAN ACE' },
   },
   group: { date: EVENT_DAY, key: 'ap', time: 'ap' },
