@@ -226,10 +226,49 @@ describe('registrationLocks', () => {
         ['an owner flips theirs', { owners: [{ ...first, membership: false }] }, 'membership'],
         ['an added owner is no member', { owners: [first, { ...owner, key: 'b', membership: false }] }, undefined],
         ['an added owner is a member', { owners: [first, { ...owner, key: 'b', membership: true }] }, 'membership'],
-        ['an owner is removed', { owners: [{ ...owner, key: 'b', membership: false }] }, undefined],
+        [
+          'a member owner is swapped for one who is no member',
+          { owners: [{ ...owner, key: 'b', membership: false }] },
+          'membership',
+        ],
         ['the separate handler flips theirs', { handler: { ...handler, membership: true } }, 'membership'],
       ])('%s', (_label, change, expected) => {
         expect(participantLockedChange(only('membership'), stored, { ...stored, ...change })).toBe(expected)
+      })
+
+      // Removing a member would change the price after paying and the restriction it met.
+      it.each<[string, number, ParticipantLockSection | undefined]>([
+        ['a member owner', 0, 'membership'],
+        ['an owner who is no member', 1, undefined],
+      ])('answers removing %s', (_label, removed, expected) => {
+        const two: Entry = {
+          ...base,
+          owners: [
+            { ...owner, key: 'a', membership: true },
+            { ...owner, key: 'b', membership: false, name: 'Two' },
+          ],
+        }
+        const owners = two.owners?.filter((_o, index) => index !== removed)
+
+        expect(participantLockedChange(only('membership'), two, { ...two, owners })).toBe(expected)
+      })
+
+      // A row stored without a selection counts the handler's membership, as `isMember` reads it.
+      describe('a row stored without an owner selection', () => {
+        const legacy = (handlerMember: boolean): Entry => {
+          const { ownerHandles: _h, ...rest } = base
+          return { ...rest, handler: { ...handler, membership: handlerMember } }
+        }
+
+        it.each<[string, boolean, Partial<Entry>, ParticipantLockSection | undefined]>([
+          ['its handler becomes a member', false, { handler: { ...handler, membership: true } }, 'membership'],
+          ['the default selection is written, the handler no member', false, { ownerHandles: true }, undefined],
+          ['the default selection drops a member handler', true, { ownerHandles: true }, 'membership'],
+        ])('answers when %s', (_label, handlerMember, change, expected) => {
+          const stored = legacy(handlerMember)
+
+          expect(participantLockedChange(only('membership'), stored, { ...stored, ...change })).toBe(expected)
+        })
       })
 
       it('reads keyless stored owners by position', () => {
@@ -243,7 +282,7 @@ describe('registrationLocks', () => {
 
       it.each([
         ['the handling owner was a member and the copy says so', true, true, undefined],
-        ['the handling owner was a member and the handler is not', true, false, 'membership'],
+        ['the handling owner was a member and the handler is not', true, false, undefined],
         ['the handling owner was no member and the handler is', false, true, 'membership'],
       ] as const)('a handler named apart: %s', (_label, ownerMember, handlerMember, expected) => {
         const handlingOwner = { ...owner, key: 'a', membership: ownerMember }
@@ -301,6 +340,22 @@ describe('registrationLocks', () => {
       ])
       expect(reset.owner).toEqual({ ...draft.owner, membership: false })
       expect(reset.handler).toEqual({ ...draft.handler, membership: false })
+    })
+
+    it('gives the stored people back to a draft that removed a member', () => {
+      const stored: Entry = {
+        ...base,
+        owners: [
+          { ...owner, key: 'a', membership: true },
+          { ...owner, key: 'b' },
+        ],
+      }
+      const removed: Entry = { ...stored, notes: 'my notes', owners: [{ ...owner, key: 'b' }] }
+
+      const reset = withLockedSectionsFrom(stored, removed, only('membership'))
+
+      expect(participantLockedChange(only('membership'), stored, reset)).toBeUndefined()
+      expect(reset).toEqual({ ...stored, notes: 'my notes' })
     })
 
     it('removes a locked field the stored entry does not have', () => {

@@ -2354,6 +2354,60 @@ describe('putRegistrationLabmda', () => {
       expectRefused(await patch(existingJson, { owners: keyed }), 'membership')
     })
 
+    // A member removed after paying would lower what the entry met: the price and a members-only trial.
+    describe('a paid entry with a member and a co-owner who is no member', () => {
+      const member = { ...paid.owner, key: 'a', membership: true }
+      const coOwner = { ...paid.owner, key: 'b', membership: false, name: 'Co Owner' }
+      const givenOnMembersOnly = () => {
+        const existingJson = storedRegistrationJson({ ...paid, owner: member, owners: [member, coOwner] })
+        mockGetLiveEvent.mockResolvedValueOnce({
+          ...JSON.parse(JSON.stringify(eventWithStaticDates)),
+          restrictions: ['member'],
+        })
+        mockGetRegistration.mockResolvedValueOnce(existingJson)
+        return existingJson
+      }
+
+      it.each([
+        ['removing the member', [coOwner]],
+        ['swapping the member for a new owner', [{ ...coOwner, key: 'c', name: 'New' }, coOwner]],
+      ])('refuses %s with 410', async (_label, owners) => {
+        entryOpen()
+        const existingJson = givenOnMembersOnly()
+
+        expectRefused(await patch(existingJson, { owner: owners[0], owners }), 'membership')
+      })
+
+      it('saves removing the co-owner', async () => {
+        entryOpen()
+        const existingJson = givenOnMembersOnly()
+
+        expectSaved(await patch(existingJson, { owners: [member] }), { owners: [member] })
+      })
+    })
+
+    // A row stored without `ownerHandles` counts the handler's membership (`isMember`).
+    describe('a paid row stored without an owner selection', () => {
+      const givenLegacy = () => {
+        const { ownerHandles: _h, ...legacy } = paid
+        return given(legacy)
+      }
+
+      it('refuses its handler becoming a member with 410', async () => {
+        entryOpen()
+        const existingJson = givenLegacy()
+
+        expectRefused(await patch(existingJson, { handler: { ...paid.handler, membership: true } }), 'membership')
+      })
+
+      it('saves the notes sent with the default selection, the handler no member', async () => {
+        entryOpen()
+        const existingJson = givenLegacy()
+
+        expectSaved(await patch(existingJson, { notes: 'default', ownerHandles: true }), { notes: 'default' })
+      })
+    })
+
     // The restriction (KOE-525) gates the entry only while the participant can still meet it: the dog
     // for a breed, the memberships for members (`isEntryRestrictionLocked`).
     describe('an entry restriction the entry does not meet', () => {

@@ -300,8 +300,10 @@ export default function RegistrationForm({
   useEffect(() => {
     // An unset selection defaults to the (first) owner; a key that resolves to no owner (stale
     // cache, concurrent owner-list change) is remapped the same way, so the form never holds a
-    // selection that names nobody. Once the people are locked the stored selection stands (KOE-1588).
-    if (locks.people) return
+    // selection that names nobody. Once the people are locked the stored selection stands, and so it
+    // does once the memberships are: an unset selection counts the handler's membership (`isMember`),
+    // the first owner's does not (KOE-1588).
+    if (locks.people || locks.membership) return
     const normalizeSelection = (selection: boolean | string | undefined): boolean | string => {
       if (typeof selection === 'string') {
         return resolveOwnerSelection(registration.owners, registration.owner, selection) ? selection : true
@@ -316,6 +318,7 @@ export default function RegistrationForm({
     }
   }, [
     handleChange,
+    locks.membership,
     locks.people,
     registration.ownerHandles,
     registration.ownerPays,

@@ -314,9 +314,10 @@ describe('RegistrationForm', () => {
     expect(notes).toHaveValue(`${registrationWithStaticDates.notes} more!`)
   })
 
+  // Unpaid: once paid the stored selection stands, as an unset one counts the handler's membership (KOE-1588).
   it('should normalize undefined owner role flags to booleans', async () => {
     const registration = {
-      ...registrationWithStaticDates,
+      ...unpaidRegistrationWithStaticDates,
       ownerHandles: undefined,
       ownerPays: undefined,
     }
@@ -740,10 +741,14 @@ describe('RegistrationForm', () => {
       expect(missing.map((item) => item.textContent?.trim())).toEqual(['registration.payer defaultValue'])
     })
 
-    // The form writes the first owner into an unset selection; a picked entry's stands as stored.
-    it('leaves the unset owner selections of a picked entry as they are', async () => {
+    // The form writes the first owner into an unset selection; a picked entry's stands as stored, and
+    // so does a paid one's, where the unset selection counts the handler's membership (`isMember`).
+    it.each([
+      ['a picked entry', () => picked],
+      ['a paid entry not yet picked', () => registrationWithStaticDates],
+    ])('leaves the unset owner selections of %s as they are', async (_label, entry) => {
       entryOpen()
-      const { ownerHandles: _h, ownerPays: _p, ...stored } = picked
+      const { ownerHandles: _h, ownerPays: _p, ...stored } = entry()
       const onChange = vi.fn()
       render(<RegistrationForm event={eventWithStaticDates} registration={stored} onChange={onChange} />, {
         wrapper: Wrapper,

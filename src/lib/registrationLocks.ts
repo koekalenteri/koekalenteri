@@ -4,7 +4,13 @@ import type { PublicRegistrationFieldName } from './registration'
 import { objectsDiffer } from './diff'
 import { hasEntryEnded } from './event'
 import { PRIORITY_MEMBER, priorityValuesToPriority, RESTRICTION } from './priority'
-import { getRegistrationOwners, ownerKeyAt, resolveOwnerSelection, withDefaultOwnerSelection } from './registration'
+import {
+  getHandlingPerson,
+  getRegistrationOwners,
+  isMember,
+  ownerKeyAt,
+  withDefaultOwnerSelection,
+} from './registration'
 import { withRegistrationDayKeys } from './storedDays'
 
 /**
@@ -198,31 +204,40 @@ const SECTION_PROJECTIONS: Record<ProjectedSection, (r: LockableRegistration) =>
   results: (r) => ({ results: r.results }),
 }
 
-/** The membership of whoever handles the dog: the separate handler's or the handling owner's. */
-const handlingMembership = (registration: LockableRegistration): boolean => {
-  if (hasSeparateHandler(registration)) return Boolean(registration.handler?.membership)
-  const owner = resolveOwnerSelection(
-    getRegistrationOwners(registration),
-    undefined,
-    withDefaultOwnerSelection(registration.ownerHandles)
-  )
-  return Boolean(owner?.membership)
-}
+/**
+ * Whether the handler's own membership counts for the entry, read by `isMember` itself: the rule the
+ * price and the priority read decides here too, an unset selection included.
+ */
+const handlerMembershipCounts = (registration: LockableRegistration): boolean =>
+  isMember({
+    handler: registration.handler && { membership: Boolean(registration.handler.membership) },
+    ownerHandles: registration.ownerHandles,
+  })
+
+/** The membership of whoever handles the dog, as `getHandlingPerson` names them. */
+const handlingMembership = (registration: LockableRegistration): boolean =>
+  Boolean(getHandlingPerson(registration)?.membership)
 
 const ownerMemberships = (registration: LockableRegistration) =>
   new Map(getRegistrationOwners(registration).map((owner, index) => [ownerKeyAt(owner, index), owner?.membership]))
 
 /**
- * Whether the memberships change: an owner on both sides (by key, a keyless one by position) keeps
- * theirs, an added owner is no member, and a separate handler is a member only as the stored handling
- * person was. Owners and handlers may still come and go while the people section is open.
+ * Whether the memberships that count change. Every owner on either side (by key, a keyless one by
+ * position) keeps theirs: an added owner is no member, and a member is not removed. The handler's
+ * membership counts as `isMember` counts it; it may start or stop counting only where the handling
+ * person's membership stays what it was (a member owner who stops handling, the handler keeping the
+ * copy). Owners and handlers may still come and go while the people section is open.
  */
 const membershipChanges = (existing: LockableRegistration, data: LockableRegistration): boolean => {
   const before = ownerMemberships(existing)
-  for (const [key, membership] of ownerMemberships(data)) {
-    if (Boolean(membership) !== Boolean(before.get(key))) return true
+  const after = ownerMemberships(data)
+  for (const key of new Set([...before.keys(), ...after.keys()])) {
+    if (Boolean(before.get(key)) !== Boolean(after.get(key))) return true
   }
-  return hasSeparateHandler(data) && Boolean(data.handler?.membership) !== handlingMembership(existing)
+  return (
+    handlerMembershipCounts(existing) !== handlerMembershipCounts(data) &&
+    handlingMembership(existing) !== handlingMembership(data)
+  )
 }
 
 /**
@@ -250,7 +265,13 @@ const LOCKABLE_FIELDS = [...FIELD_SECTIONS.entries()].flatMap(([field, section])
   section === 'free' ? [] : [{ field, section }]
 )
 
-/** The draft's memberships put back to the stored ones, by the rule `membershipChanges` reads. */
+/** The people as the stored entry has them, for a draft whose memberships cannot be put back alone. */
+const PEOPLE_FIELDS = ['handler', 'owner', 'ownerHandles', 'ownerPays', 'owners'] as const
+
+/**
+ * The draft's memberships put back to the stored ones, by the rule `membershipChanges` reads. A draft
+ * that removed a member, or moved whose membership counts, gets the stored people back whole.
+ */
 const withStoredMemberships = <R extends LockableRegistration>(saved: R, draft: R): R => {
   const stored = ownerMemberships(saved)
   const owners = draft.owners?.map((owner, index) => ({
@@ -261,8 +282,11 @@ const withStoredMemberships = <R extends LockableRegistration>(saved: R, draft: 
   const result: R = { ...draft }
   if (owners) Object.assign(result, { owners })
   if (draft.owner) Object.assign(result, { owner: { ...draft.owner, membership: firstMembership } })
-  if (hasSeparateHandler(draft) && draft.handler) {
-    Object.assign(result, { handler: { ...draft.handler, membership: handlingMembership(saved) } })
+  if (draft.handler) Object.assign(result, { handler: { ...draft.handler, membership: handlingMembership(saved) } })
+  if (!membershipChanges(saved, result)) return result
+  for (const field of PEOPLE_FIELDS) {
+    if (Object.hasOwn(saved, field)) Object.assign(result, { [field]: structuredClone(saved[field]) })
+    else Reflect.deleteProperty(result, field)
   }
   return result
 }
