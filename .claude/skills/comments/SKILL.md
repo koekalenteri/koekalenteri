@@ -66,7 +66,7 @@ For each finding, find the cause once yourself with evidence, as in `/ticket` st
   in the merged title, also on an issue in Testing In Progress (it just does not move it).
 - Merging puts the change on dev only; the test environment gets it with the next pre-release.
   Say "dev" in the comment, not "testi- ja kehitysympäristö".
-- The reviewers and the CI watcher run per PR as in `/ticket` step 3.
+- The reviewers and the CI watcher run per PR as in `/ticket` step 4.
 - The Jira comment for a fix goes on when the PR is open and links it; it answers the tester's
   comment: what was wrong, what changed, what to try.
 - An issue in Testing In Progress is not moved. Anything else is moved to In Progress before the
