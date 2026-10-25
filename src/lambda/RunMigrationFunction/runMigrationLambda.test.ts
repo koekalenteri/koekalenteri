@@ -1966,6 +1966,65 @@ describe('runMigrationLambda', () => {
       expect(mockResponse).toHaveBeenCalledWith(200, [{ count: 1, name: 'storeOwnerSelections' }], directEvent)
     })
 
+    // The six prod rows read as members before: a legacy owner without a membership, and the same
+    // person as handler with one. The membership stays with the owner the handler now mirrors.
+    it("keeps the membership the owner's stored copy as handler held", async () => {
+      const person = { email: 'olli@example.com', name: 'Olli Omistaja' }
+      // The stored owner has no membership field at all.
+      const legacyOwner: { email: string; membership?: boolean; name: string } = { ...person }
+      const stored = {
+        ...row('reg1', { paidAmount: 40 }),
+        handler: { ...person, membership: true },
+        owner: legacyOwner,
+      }
+      mockReadEventRegistrations.mockResolvedValueOnce([stored])
+
+      await runMigrationLambda(directEvent)
+
+      written('reg1', {
+        'owner.membership': true,
+        ownerHandles: true,
+        ownerPays: true,
+        payer: { ...person, membership: true },
+      })
+      expect(stored.owner).toEqual({ ...person, membership: true })
+      expect(stored.handler).toEqual({ ...person, membership: true })
+      const { membership } = stored.owner
+      if (membership === undefined) throw new Error('the owner was given no membership')
+      expect(isMember({ ...stored, owner: { ...stored.owner, membership }, ownerHandles: true })).toBe(true)
+    })
+
+    it('keeps the membership of a stored handler that names no one, since it is the owner too', async () => {
+      const stored = row('reg1', { handler: { membership: true }, owner: { ...owner }, payer: owner })
+      mockReadEventRegistrations.mockResolvedValueOnce([stored])
+
+      await runMigrationLambda(directEvent)
+
+      written('reg1', {
+        'handler.email': owner.email,
+        'handler.name': owner.name,
+        'owner.membership': true,
+        ownerHandles: true,
+        ownerPays: true,
+        'payer.membership': true,
+      })
+      expect(isMember(stored)).toBe(true)
+    })
+
+    it('migrates a row holding only an owner list', async () => {
+      const owners = [{ email: 'first@example.com', key: 'owner-1', name: 'First' }]
+      mockReadEventRegistrations.mockResolvedValueOnce([{ eventId: 'event1', id: 'reg1', owners, updatedAt: 'read' }])
+
+      await runMigrationLambda(directEvent)
+
+      written('reg1', {
+        handler: { email: 'first@example.com', name: 'First' },
+        ownerHandles: true,
+        ownerPays: true,
+        payer: { email: 'first@example.com', name: 'First' },
+      })
+    })
+
     it('mirrors the owner into a handler and a payer the row never stored, as a save would', async () => {
       mockReadEventRegistrations.mockResolvedValueOnce([row('reg1', {})])
 
@@ -1998,9 +2057,10 @@ describe('runMigrationLambda', () => {
     })
 
     it("replaces the owner's stored copy as handler with the owner as stored now", async () => {
-      const copy = { email: ' owner@example.com ', membership: true, name: 'olli omistaja', phone: '+358401234567' }
+      // Only a membership the copy held is handed on; one the owner holds and the copy lacks is the owner's.
+      const copy = { email: ' owner@example.com ', membership: false, name: 'olli omistaja', phone: '+358401234567' }
       mockReadEventRegistrations.mockResolvedValueOnce([
-        row('reg1', { handler: copy, payer: { name: 'Paavo Maksaja' } }),
+        row('reg1', { handler: copy, owner: { ...owner, membership: true }, payer: { name: 'Paavo Maksaja' } }),
       ])
 
       await runMigrationLambda(directEvent)
@@ -2009,7 +2069,7 @@ describe('runMigrationLambda', () => {
         'reg1',
         {
           'handler.email': owner.email,
-          'handler.membership': false,
+          'handler.membership': true,
           'handler.name': owner.name,
           ownerHandles: true,
           ownerPays: false,

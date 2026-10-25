@@ -297,7 +297,7 @@ describe('getRegistrationChanges', () => {
     before.handler = { email: 'other@example.com', membership: false, name: 'Other Person' }
     const owner = { ...before.owners[0], phone: '+358401234567' }
     const { key: _key, ...mirrored } = owner
-    const updated = { ...before, handler: mirrored, owners: [owner], payer: mirrored } as JsonRegistration
+    const updated: JsonRegistration = { ...before, handler: mirrored, owners: [owner], payer: mirrored }
 
     expect(getRegistrationChanges(before, updated, event)).toEqual(
       expect.objectContaining({ changes: [expect.objectContaining({ field: 'owners' })] })
@@ -307,7 +307,7 @@ describe('getRegistrationChanges', () => {
   it('names the first owner for an unset selection', () => {
     const before = existing()
     before.owners = [{ email: 'first@example.com', key: 'owner-1', membership: false, name: 'First Owner' }]
-    const updated = { ...before } as JsonRegistration
+    const updated: JsonRegistration = { ...before }
     delete updated.ownerHandles
 
     expect(getRegistrationChanges(before, updated, event)).toEqual(
