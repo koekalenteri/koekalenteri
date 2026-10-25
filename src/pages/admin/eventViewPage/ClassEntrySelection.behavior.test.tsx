@@ -270,7 +270,8 @@ describe('ClassEntrySelection behavior coverage', () => {
         callback('requestPayment')(registration.id)
       })
       await flushPromises()
-      expect(screen.queryByText('send-message-open') !== null).toBe(!disabled)
+      if (disabled) expect(screen.queryByText('send-message-open')).not.toBeInTheDocument()
+      else expect(screen.getByText('send-message-open')).toBeInTheDocument()
     })
   })
 

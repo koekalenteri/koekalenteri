@@ -460,6 +460,22 @@ describe('RegistrationListPage', () => {
       else expect(dialog).not.toBeInTheDocument()
     })
 
+    // The confirm route waits for the confirm dialog before offering to pay (KOE-1265); after the
+    // trial that dialog never opens, so it must not wait for it.
+    it('opens the payment dialog, not the confirm dialog, on the confirm route after the trial', async () => {
+      vi.setSystemTime(new Date('2021-02-14T12:00:00.000+02:00'))
+      vi.spyOn(registrationApi, 'getRegistration').mockResolvedValue({
+        ...unpaidRegistrationWithStaticDates,
+        messagesSent: { picked: true },
+        payment: owing,
+      })
+      await renderWithRouter('/r/test1/unpaid-nou-registration/confirm')
+      await flushPromises()
+
+      expect(screen.getByRole('dialog', { name: 'registration.paymentDialog.title' })).toBeVisible()
+      expect(screen.queryByRole('dialog', { name: 'registration.confirmDialog.title' })).not.toBeInTheDocument()
+    })
+
     it('goes to pay from the payment dialog after the trial, while confirming is closed', async () => {
       vi.spyOn(registrationApi, 'getRegistration').mockResolvedValue({
         ...unpaidRegistrationWithStaticDates,

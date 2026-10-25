@@ -227,8 +227,9 @@ export function RegistrationListPage({ cancel, confirm, invitation }: Registrati
   useEffect(() => {
     if (!event || !registration || registration.cancelled) return
     // On the confirm route the confirm dialog goes first: the payment dialog would stack on top of
-    // it and its backdrop would swallow the confirm button (KOE-1265). It opens once confirmed.
-    if (confirm && !registration.confirmed) return
+    // it and its backdrop would swallow the confirm button (KOE-1265). It opens once confirmed, or at
+    // once when confirming has closed and the fee is still payable (KOE-1589).
+    if (confirm && !registration.confirmed && !allDisabled) return
 
     // The same offer as the pay button: the server's picture, never while a payment is being
     // verified (KOE-1526).
@@ -241,7 +242,7 @@ export function RegistrationListPage({ cancel, confirm, invitation }: Registrati
     ) {
       setPaymentOpen((current) => current ?? true)
     }
-  }, [confirm, event, registration, payment, paymentDue, payDisabled, paymentVerificationInProgress])
+  }, [allDisabled, confirm, event, registration, payment, paymentDue, payDisabled, paymentVerificationInProgress])
 
   useEffect(() => {
     if (!registration || registration.cancelled) return
