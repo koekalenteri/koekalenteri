@@ -408,6 +408,26 @@ describe('registrationLocks', () => {
           expect(participantLockedChange(only('membership'), alikeTwice, { ...alikeTwice, owners })).toBeUndefined()
         })
 
+        // Name and address both decide that a keyless owner is the stored one; a key no stored owner
+        // has is no keyless owner either. Each is someone new and claims no membership.
+        it.each<[string, Person]>([
+          ['another name', { ...owner, membership: true, name: 'Other Name' }],
+          ['another address', { ...owner, email: 'other@example.com', membership: true }],
+          ['a key no stored owner has', { ...owner, key: 'unknown', membership: true }],
+        ])('reads an owner alike a keyless stored member but with %s as someone new', (_label, sent) => {
+          const stored: Entry = { ...base, owners: [{ ...owner, membership: true }] }
+
+          expect(participantLockedChange(only('membership'), stored, { ...stored, owners: [sent] })).toBe('membership')
+        })
+
+        // A stored owner with a key of their own answers to that key alone, not to their position key.
+        it('reads an owner sent under the position key of a stored owner keyed otherwise as someone new', () => {
+          const stored: Entry = { ...base, owners: [{ ...owner, key: 'x', membership: false }] }
+          const sent = [{ ...owner, key: 'owner-1', membership: true }]
+
+          expect(participantLockedChange(only('membership'), stored, { ...stored, owners: sent })).toBe('membership')
+        })
+
         it('finds a flip of an owner sent without keys in another position', () => {
           const owners = [{ ...two, membership: false }, one]
 

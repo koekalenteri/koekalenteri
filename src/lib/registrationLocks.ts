@@ -272,7 +272,7 @@ const storedOwnersOf = (
     })
   }
   pass((owner, stored) => Boolean(owner.key) && stored?.key === owner.key)
-  pass((owner, stored, index) => Boolean(owner.key) && !stored?.key && ownerKeyAt(stored, index) === owner.key)
+  pass((owner, stored, index) => Boolean(owner.key) && ownerKeyAt(stored, index) === owner.key)
   pass((owner, stored) => !owner.key && Boolean(stored) && !stored?.key && samePerson(stored, owner), true)
   return matched
 }

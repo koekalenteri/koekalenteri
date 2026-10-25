@@ -38,10 +38,12 @@ vi.mock('react-i18next', async () => {
     ...mocked,
     useTranslation: () => {
       const translation = mocked.useTranslation()
-      const t = (key: string, options: Record<string, unknown> = {}) =>
-        key.startsWith('registration.paymentToBePaid')
-          ? `${key} ${String(options.amount)}`
-          : translation.t(key, options)
+      const t = (key: string, options: Record<string, unknown> = {}) => {
+        if (key.startsWith('registration.paymentToBePaid')) return `${key} ${String(options.amount)}`
+        // The locked-change notice is read by its reason and section.
+        if (key === 'registration.lockedChange') return `${key} ${String(options.reason)} ${String(options.section)}`
+        return translation.t(key, options)
+      }
       return { ...translation, t }
     },
   }
@@ -857,7 +859,9 @@ describe('RegistrationForm', () => {
         await user.click(screen.getAllByRole('radio', { name: 'Owner Name' })[0])
         await flushPromises()
 
-        expect(screen.getByRole('alert')).toHaveTextContent('registration.lockedChange')
+        expect(screen.getByRole('alert')).toHaveTextContent(
+          'registration.lockedChange registration.lockedReason.paid registration.lockedSection.membership'
+        )
         expect(screen.getAllByRole('radio', { name: 'registration.someoneElse' })[0]).toBeChecked()
       })
 
@@ -1019,6 +1023,10 @@ describe('RegistrationForm', () => {
 
       expect(onChange).toHaveBeenCalledWith(
         expect.objectContaining({ dates: saved.dates, dog: saved.dog, notes: 'my notes' })
+      )
+      // Picked, not paid: the place in the trial is why.
+      expect(screen.getByRole('alert')).toHaveTextContent(
+        'registration.lockedChange registration.lockedReason.picked registration.lockedSection.entry'
       )
     })
   })
