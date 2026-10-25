@@ -192,24 +192,33 @@ jobs:
       # after the migrations, which may rewrite the rows it reads. The invoke is asynchronous: a run takes
       # up to the function's 15 minute timeout, and nothing later in the deploy needs its result. Lambda
       # answers 202 once the event is queued, which is all this step checks; a run that fails raises
-      # RebuildStatsFunctionErrorAlarm (template/functions/scheduled/rebuild-stats.yaml). One attempt
-      # (AWS_MAX_ATTEMPTS), so a retried request does not queue a second run beside the first.
+      # RebuildStatsFunctionErrorAlarm (template/functions/scheduled/rebuild-stats.yaml). A rebuild that
+      # was not queued is a warning, not a failure: the backend is already deployed here, and failing
+      # the job would skip deploy-frontend and leave the new backend behind the old frontend. The
+      # nightly run catches the stats up. Each AWS call is guarded for that reason, since the step's
+      # shell stops at the first failing command. One attempt (AWS_MAX_ATTEMPTS), so a retried request
+      # does not queue a second run beside the first.
       - name: Start the stats rebuild
         env:
           AWS_MAX_ATTEMPTS: 1
         run: |
+          not_queued="::warning::Stats rebuild was not queued; the nightly run updates the stats instead"
           function_name=$(aws cloudformation describe-stack-resource \
             --stack-name "${{ env.environment }}" \
             --logical-resource-id RebuildStatsFunction \
-            --query StackResourceDetail.PhysicalResourceId --output text)
+            --query StackResourceDetail.PhysicalResourceId --output text) \
+            || { echo "$not_queued (function not found)"; exit 0; }
           status=$(aws lambda invoke --function-name "$function_name" \
             --invocation-type Event \
             --cli-binary-format raw-in-base64-out \
             --payload '{}' \
-            --query StatusCode --output text rebuild-stats-result.json)
-          [[ "$status" == "202" ]] \
-            || { echo "::error::Stats rebuild was not queued (status $status)"; exit 1; }
-          echo "Stats rebuild queued for $function_name"
+            --query StatusCode --output text rebuild-stats-result.json) \
+            || { echo "$not_queued (invoke failed)"; exit 0; }
+          if [[ "$status" == "202" ]]; then
+            echo "Stats rebuild queued for $function_name"
+          else
+            echo "$not_queued (status $status)"
+          fi
 
   deploy-frontend:
     # After the backend, never beside it: the Amplify build reads its configuration from environment
