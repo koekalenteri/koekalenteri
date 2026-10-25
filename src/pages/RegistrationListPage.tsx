@@ -10,12 +10,12 @@ import { useRegistrationLanguage } from '../hooks/useRegistrationLanguage'
 import { useRegistrationSubscription } from '../hooks/useRegistrationSubscription'
 import { redirectTo } from '../lib/client/navigation'
 import { errorSnackbarOptions } from '../lib/client/snackbar'
-import { addDays, dayOf, TIME_ZONE } from '../lib/day'
 import { getEventStateForClass, isEventOver, isPaymentWindowOpen } from '../lib/event'
 import {
   getRegistrationClass,
   getRegistrationEmails,
   hasPaymentPicture,
+  isRegistrationCancelClosed,
   isRegistrationContentLocked,
   isRegistrationEditingClosed,
 } from '../lib/registration'
@@ -85,10 +85,11 @@ export function RegistrationListPage({ cancel, confirm, invitation }: Registrati
     () => !event || !isConfirmedEvent(event) || !registration || isRegistrationContentLocked(event, registration),
     [event, registration]
   )
+  // Cancelling closes with the Finnish day before the trial: from then on the dog is expected, and
+  // PutRegistration refuses it by the same rule (KOE-1590).
   const cancelDisabled = useMemo(
-    // Cancelling closes with the Finnish day before the trial: from then on the dog is expected.
-    () => !event || allDisabled || dayOf(new Date(), TIME_ZONE) >= addDays(event.startDate, -1),
-    [allDisabled, event]
+    () => !event || !registration || allDisabled || isRegistrationCancelClosed(event, registration),
+    [allDisabled, event, registration]
   )
   // What the page shows as owed: the server's word, which needs the group this page does not have
   // (KOE-1526, KOE-1530).

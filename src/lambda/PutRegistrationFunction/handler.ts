@@ -8,6 +8,7 @@ import { qualifyJsonRegistration } from '../../lib/qualification'
 import {
   isCompleteRegistration,
   isPublicRegistrationOperationField,
+  isRegistrationCancelClosed,
   isRegistrationContentLocked,
   meetsRestrictions,
   registrationActor,
@@ -114,12 +115,11 @@ const buildPublicRegistrationData = (
  * (`isEntryOpen`) and passes here.
  *
  * Confirming, cancelling and reading an invitation are not edits of the entry. A request that
- * changes only those passes, also after the class has been judged, until the trial is over
+ * changes only those passes here, also after the class has been judged, until the trial is over
  * (`isEventOver`, the 404 above); one that changes anything else besides them is refused. Refusing an
  * invitation read would strand RegistrationInvitation's loader and the list page's `?invitation`
- * redirect, which only log a failed read and never navigate on. Cancelling closing from the day
- * before the trial is the client's rule only (`cancelDisabled` on the list page); the server takes a
- * cancellation until the trial is over.
+ * redirect, which only log a failed read and never navigate on. A cancellation has its own, earlier
+ * close (`assertCancellationOpen`).
  */
 const assertEntryContentEditable = (
   existing: JsonRegistration | undefined,
@@ -130,6 +130,21 @@ const assertEntryContentEditable = (
   if (hasRegistrationChanges(withoutParticipantResponses(existing), withoutParticipantResponses(data))) {
     throw httpError(410, { message: 'Gone: the entry can no longer be edited' })
   }
+}
+
+/**
+ * Refuses the participant's cancellation of an existing entry from the Finnish day before the trial,
+ * by the rule the list page offers it by (`isRegistrationCancelClosed`, KOE-1590): from then on the dog
+ * is expected, and only the secretary takes it off the list (PutAdminRegistration). The same holds
+ * whether the cancellation comes as the operations or as the whole registration.
+ */
+const assertCancellationOpen = (
+  existing: JsonRegistration | undefined,
+  cancel: boolean,
+  confirmedEvent: JsonConfirmedEvent
+) => {
+  if (!existing || !cancel || !isRegistrationCancelClosed(confirmedEvent, existing)) return
+  throw httpError(410, { message: 'Gone: the entry can no longer be cancelled' })
 }
 
 /** The request body as the registration to store, or as the operations to apply to a stored one. */
@@ -221,6 +236,7 @@ const putRegistrationLambda = lambda('putRegistration', async (event) => {
 
   const { data, flags } = buildPublicRegistrationData(registration, existing, confirmedEvent)
   assertEntryContentEditable(existing, data, confirmedEvent)
+  assertCancellationOpen(existing, flags.cancel, confirmedEvent)
 
   applyOwnerOverrides(data)
   // The entry restrictions (KOE-525) are a gate, not a note to the secretary: the form does not

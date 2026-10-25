@@ -80,3 +80,33 @@ it('shows the entry restrictions beside the priorities (KOE-524)', async () => {
   await expect.element(screen.getByText('labradorinnoutaja')).toBeVisible()
   await expect(screen.getByTestId('visual-root')).toMatchScreenshot('event-info-restrictions')
 })
+
+// The secretary picked VOI before ALO, and a trial of two days keeps them day first: the card still
+// reads ALO, AVO, VOI, for the classes and the judge's alike (KOE-1596).
+it('lists the classes as ALO, AVO, VOI whatever order they were picked in (KOE-1596)', async () => {
+  const judge = { id: 1, name: 'Tuomari Toinen' }
+  const screen = await render(
+    <TestProvider initializeState={({ set }) => set(languageAtom, 'fi')}>
+      <Frame>
+        <EventInfo
+          event={{
+            ...event,
+            classes: [
+              { class: 'VOI', date: '2026-06-06', judge, places: 10 },
+              { class: 'ALO', date: '2026-06-07', judge, places: 12 },
+              { class: 'AVO', date: '2026-06-07', places: 8 },
+            ],
+            endDate: '2026-06-07',
+            eventType: 'NOWT',
+            judges: [judge],
+            places: 30,
+            retrieveType: undefined,
+          }}
+        />
+      </Frame>
+    </TestProvider>
+  )
+
+  await expect.element(screen.getByText('Tuomari Toinen (ALO, VOI)')).toBeVisible()
+  await expect(screen.getByTestId('visual-root')).toMatchScreenshot('event-info-class-order')
+})

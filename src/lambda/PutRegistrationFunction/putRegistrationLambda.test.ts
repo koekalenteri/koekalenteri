@@ -1633,8 +1633,9 @@ describe('putRegistrationLabmda', () => {
   })
 
   // The participant's own form and the server read one rule (KOE-1584): what the entry says is closed
-  // from the close of entry to the trial and once the class has been judged; confirming, cancelling and
-  // reading an invitation are not edits of it and stay open until the trial's last day has gone.
+  // from the close of entry to the trial and once the class has been judged; confirming and reading an
+  // invitation are not edits of it and stay open until the trial's last day has gone. Cancelling has a
+  // window of its own (KOE-1590, below).
   describe.each([
     [
       'between the close of entry and the trial',
@@ -1682,7 +1683,6 @@ describe('putRegistrationLabmda', () => {
 
     it.each([
       ['a confirmation', { confirmed: true }],
-      ['a cancellation', { cancelled: true, cancelReason: 'sick' }],
       ['an invitation read', { invitationRead: true }],
     ] as const)('saves %s', async (_kind, fields) => {
       const res = await putRegistrationLabmda(patch(fields))
@@ -1698,18 +1698,15 @@ describe('putRegistrationLabmda', () => {
 
     // A full body carries every field the browser holds, and so every field the server derives or
     // stores on its own besides the request's (KOE-1584).
-    it.each([
-      ['a confirmation', { confirmed: true }],
-      ['a cancellation', { cancelled: true, cancelReason: 'sick' }],
-    ] as const)('saves %s sent as the whole registration', async (_kind, fields) => {
-      const res = await putRegistrationLabmda(constructAPIGwEvent({ ...registrationWithStaticDates, ...fields }))
+    it('saves a confirmation sent as the whole registration', async () => {
+      const res = await putRegistrationLabmda(constructAPIGwEvent({ ...registrationWithStaticDates, confirmed: true }))
 
       expect(res.statusCode).toBe(200)
       expect(mockPatchRegistration).toHaveBeenCalledWith(
         registrationWithStaticDates.eventId,
         registrationWithStaticDates.id,
         existingJson(),
-        expect.objectContaining(fields)
+        expect.objectContaining({ confirmed: true })
       )
     })
 
@@ -1719,6 +1716,62 @@ describe('putRegistrationLabmda', () => {
       )
 
       expect(res.statusCode).toBe(410)
+      expect(mockPatchRegistration).not.toHaveBeenCalled()
+    })
+  })
+
+  // The participant cancels their own entry until the Finnish day before the trial begins; from then on
+  // the dog is expected, and only the secretary takes it off the list. The API refuses what the list
+  // page does not offer, as the operations and as the whole registration alike (KOE-1590).
+  describe('cancelling', () => {
+    const startOf = (day: DayKey) => dayStart(day, TIME_ZONE)
+    const trialStart = finnishDayOf(eventWithStaticDates.startDate)
+    const asPatch = () =>
+      constructAPIGwEvent(
+        {
+          cancelled: true,
+          cancelReason: 'sick',
+          eventId: registrationWithStaticDates.eventId,
+          id: registrationWithStaticDates.id,
+        },
+        { method: 'PATCH' }
+      )
+    const asWhole = () => constructAPIGwEvent({ ...registrationWithStaticDates, cancelled: true, cancelReason: 'sick' })
+
+    beforeEach(() => {
+      mockGetLiveEvent.mockResolvedValueOnce(JSON.parse(JSON.stringify(eventWithStaticDates)))
+      mockGetRegistration.mockResolvedValueOnce(storedRegistrationJson(registrationWithStaticDates))
+    })
+
+    it.each([
+      ['as the operations', asPatch],
+      ['as the whole registration', asWhole],
+    ])('saves a cancellation sent %s on the last minute of the second day before the trial', async (_kind, request) => {
+      vi.setSystemTime(addMinutes(startOf(addDays(trialStart, -1)), -1))
+
+      const res = await putRegistrationLabmda(request())
+
+      expect(res.statusCode).toBe(200)
+      expect(mockPatchRegistration).toHaveBeenCalledWith(
+        registrationWithStaticDates.eventId,
+        registrationWithStaticDates.id,
+        storedRegistrationJson(registrationWithStaticDates),
+        expect.objectContaining({ cancelled: true, cancelReason: 'sick' })
+      )
+    })
+
+    it.each([
+      ['as the operations from the start of the day before the trial', asPatch, -1, 0],
+      ['as the whole registration from the start of the day before the trial', asWhole, -1, 0],
+      ['as the operations on a trial day', asPatch, 0, 720],
+      ['as the whole registration on a trial day', asWhole, 0, 720],
+    ])('refuses a cancellation sent %s with 410', async (_kind, request, days, minutes) => {
+      vi.setSystemTime(addMinutes(startOf(addDays(trialStart, days)), minutes))
+
+      const res = await putRegistrationLabmda(request())
+
+      expect(res.statusCode).toBe(410)
+      expect(JSON.parse(res.body)).toEqual({ message: 'Gone: the entry can no longer be cancelled' })
       expect(mockPatchRegistration).not.toHaveBeenCalled()
     })
   })

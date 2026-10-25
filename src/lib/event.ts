@@ -254,10 +254,33 @@ export const eventDates = (event?: Pick<PublicDogEvent, 'classes' | 'startDate' 
   return classes.length ? unique(classes.map((eventClass) => eventClass.date ?? event.startDate)) : getEventDays(event)
 }
 
-/** Only `class` is read, so this accepts both the `Date`- and `string`-dated event shapes. */
+const REG_CLASS_ORDER: readonly string[] = ['ALO', 'AVO', 'VOI']
+
+/** Standard class order: ALO, AVO, VOI first, anything else (e.g. a classless event type) after them. */
+export const compareRegistrationClasses = (a: string | undefined, b: string | undefined): number => {
+  if (a === b) return 0
+  if (a === undefined) return 1
+  if (b === undefined) return -1
+  const aIndex = REG_CLASS_ORDER.indexOf(a)
+  const bIndex = REG_CLASS_ORDER.indexOf(b)
+  if (aIndex !== bIndex) {
+    if (aIndex === -1) return 1
+    if (bIndex === -1) return -1
+    return aIndex - bIndex
+  }
+  return a.localeCompare(b, 'fi')
+}
+
+/**
+ * The event's classes, each once, as ALO, AVO, VOI: `event.classes` keeps the order they were picked
+ * in, and a trial of several days the form's date-first order (KOE-1596). Only `class` is read, so this
+ * accepts both the `Date`- and `string`-dated event shapes.
+ */
 export const uniqueClasses = (event?: { classes?: Array<Pick<EventClass, 'class'>> | null } | null) => {
   const classes = event?.classes
-  return Array.isArray(classes) ? unique(classes.map((eventClass) => eventClass.class)) : []
+  return Array.isArray(classes)
+    ? unique(classes.map((eventClass) => eventClass.class)).sort(compareRegistrationClasses)
+    : []
 }
 
 const classAndDayTotals = (
@@ -753,7 +776,7 @@ const getProgressPhaseAtIndex = (event: ConfirmedEvent, phaseIndex: number, now:
  */
 export const getEventProgress = (event: ConfirmedEvent, now = new Date(), kennelliitto?: KennelliittoProgressInput) => {
   const entryStarted = hasEntryStarted(event, now)
-  const eventClasses = [...new Set(event.classes.map(({ class: eventClass }) => eventClass))]
+  const eventClasses = uniqueClasses(event)
   const classPhases = eventClasses.map((eventClass) => {
     const state = event.classes.find((item) => item.class === eventClass)?.state ?? event.state
     return { eventClass, phaseIndex: getStateProgressPhaseIndex(state, entryStarted) }
@@ -1343,8 +1366,11 @@ export const isDetaultEntryEndDate = (date: DayKey | undefined, eventStartDate: 
 export const getEventDays = ({ startDate, endDate }: Pick<DogEvent, 'startDate' | 'endDate'>) =>
   eachDay(startDate, endDate)
 
+/** The form's classes, each once, as ALO, AVO, VOI; a half-filled class has none yet. */
 export const getUniqueEventClasses = ({ classes }: Pick<DogEvent, 'classes'>) =>
-  unique(classes?.map((c) => c?.class) ?? []).filter(Boolean)
+  unique(classes?.map((c) => c?.class) ?? [])
+    .filter(Boolean)
+    .sort(compareRegistrationClasses)
 
 export const applySingleDayNowtGroups = <T extends object>(
   eventType: string | undefined,

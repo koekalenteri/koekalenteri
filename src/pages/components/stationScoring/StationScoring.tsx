@@ -27,6 +27,7 @@ import { useTranslation } from 'react-i18next'
 import { APIError } from '@/api/http'
 import { reportError } from '@/lib/client/error'
 import { errorSnackbarOptions } from '@/lib/client/snackbar'
+import { compareRegistrationClasses } from '@/lib/event'
 import { makeArray } from '@/lib/judge'
 import { liveFormat } from '@/lib/liveFormat'
 import { getRegistrationClass, sortRegistrationsByDateClassTimeAndNumber } from '@/lib/registration'
@@ -149,7 +150,10 @@ export function StationScoring({
   // Where the day runs at one post, "Rasti 1" names nothing anyone calls it; the event is the title.
   const singlePost = liveFormat(eventType).posts === 'one'
 
-  const eventClasses = useMemo(() => [...new Set(registrations.map(getRegistrationClass))], [registrations])
+  const eventClasses = useMemo(
+    () => [...new Set(registrations.map(getRegistrationClass))].sort(compareRegistrationClasses),
+    [registrations]
+  )
   // Read once, on opening: the dog already at the post is where the screen starts, class tab included.
   const [initial] = useState(() => dogAtPost(registrations, turns, station.id))
   const [selectedClass, setSelectedClass] = useState<string | undefined>(
