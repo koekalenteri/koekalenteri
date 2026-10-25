@@ -2,7 +2,7 @@ import type { DayKey, JsonDogEvent } from '../../types'
 import type { KLIntegraatioResult, KLIntHenkilö, KLIntKoe, KLIntKoeListassa } from '../types/KLIntegraatio'
 import type KLIntegraatio from './KLIntegraatio'
 import { addDays, isDayKey } from '../../lib/day'
-import { OFFICIAL_EVENT_TYPES } from '../../lib/event'
+import { compareRegistrationClasses, OFFICIAL_EVENT_TYPES } from '../../lib/event'
 import { kcFormatOfEventType } from '../../lib/results'
 import { mapWithConcurrency } from '../../lib/utils'
 import { LambdaError } from './lambda'
@@ -152,7 +152,8 @@ const toChoice = (koemuoto: string, candidate: Candidate) => {
   return {
     ...toDetails(koe),
     ...toLocation(candidate),
-    classes: [...new Set(koe?.luokat ?? [])],
+    // The dialog shows them as listed: ALO, AVO, VOI, not in Kennelliitto's order (KOE-1596).
+    classes: [...new Set(koe?.luokat ?? [])].sort(compareRegistrationClasses),
     endDate: endOf(listed),
     eventType: toEventType(koemuoto, listed),
     ...(judge ? { judge } : undefined),

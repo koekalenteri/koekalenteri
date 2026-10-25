@@ -1,14 +1,25 @@
 import type { GridColDef } from '@mui/x-data-grid'
-import type { DayKey, DogEvent, EventClass } from '@/types'
+import type { DayKey, DogEvent } from '@/types'
 import { useTranslation } from 'react-i18next'
 import { stringToLang } from '@/i18n/language'
 import { localeSortComparator } from '@/lib/datagrid'
-import { eventTypeLabel, getEventTitle, localizedEventName } from '@/lib/event'
+import { eventTypeLabel, getEventTitle, localizedEventName, uniqueClasses } from '@/lib/event'
 
 type StartEndDate = { start: DayKey; end: DayKey }
 
 /** The date column's order: the latest start day first, the day keys compared as text (KOE-1547). */
 export const compareByStartDayLatestFirst = (a: StartEndDate, b: StartEndDate) => b.start.localeCompare(a.start)
+
+/**
+ * The classes column: each class once, as ALO, AVO, VOI, whatever order they were picked in and however
+ * many days they run on (KOE-1596). An event saved by the first versions holds the class names as plain
+ * strings, and a malformed one no array at all.
+ */
+export const classesText = (classes: unknown): string => {
+  if (!Array.isArray(classes)) return ''
+  const items = classes.map((c) => (typeof c === 'string' ? { class: c } : c))
+  return uniqueClasses({ classes: items }).join(', ')
+}
 
 type EventWithDate = DogEvent & {
   date: StartEndDate
@@ -42,11 +53,7 @@ export default function useEventListColumns(): GridColDef<EventWithDate>[] {
       flex: 1,
       headerName: t('event.classes'),
       minWidth: 100,
-      valueGetter: (_value, row) => {
-        const classes = row.classes
-        if (!Array.isArray(classes)) return ''
-        return (classes as Array<EventClass | string>).map((c) => (typeof c === 'string' ? c : c.class)).join(', ')
-      },
+      valueGetter: (_value, row) => classesText(row.classes),
     },
     {
       field: 'organizer',
