@@ -12,7 +12,8 @@ commits on the same branch.
 ## Before the first edit
 
 - Read `AGENTS.md` and `LLM_CONTEXT.md`.
-- Your worktree has no `node_modules`: `npm ci --prefer-offline`.
+- The `WorktreeCreate` hook installs `node_modules` in your worktree. If it is missing (`ls node_modules`),
+  run `npm ci --prefer-offline` before the first test.
 - Read the issue with its comments and attachments (images through the REST API, `.env` holds
   the credentials).
 - Confirm the cause yourself, even when it is handed to you. If it is wrong, say so before
