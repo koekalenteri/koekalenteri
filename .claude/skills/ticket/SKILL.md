@@ -19,7 +19,12 @@ several times more and is not needed for their work.
   `.claude/settings.json` (`.claude/hooks/ticket-session-title.sh`). The hook sees only the
   typed prompt, so when the skill starts some other way, ask the user to run `/rename <KEY>`;
   nothing in the session can rename it.
-- Read the issue with comments and attachments (images through the REST API).
+- Read the issue with comments and attachments (images through the REST API), and save it once
+  for every agent: `<scratchpad>/<KEY>/issue.json` (`/rest/api/3/issue/<KEY>?expand=renderedFields`,
+  comments included) and each attachment beside it under its file name. Every agent gets this
+  absolute path and reads the issue from it instead of from Jira. Before each review round, fetch
+  the comments again and refresh the folder when a new one has come in: a tester's comment can
+  change the ask mid-ticket.
 - Move it to In Progress unless it is in Testing In Progress.
 - Note whether it reports a bug, asks for something new, or both; that picks the review angles
   in step 4. If it is a sub-task, look at its parent: when this is the last open sub-task, the
@@ -71,14 +76,18 @@ It opens the PR as a draft. Wait for its report: the PR URL and the failing-test
 In one message, start in the background:
 
 - `ci-watcher` with the PR number.
-- `reviewer` once per angle, each with the PR number, the key and its angle. Choose the angles
+- `reviewer` once per angle, each with the PR number, the key, the issue folder and its angle. Choose the angles
   the change calls for: `tests` and `docs` always; `root-cause` when the issue reports a bug,
   `scope` when it asks for something new (both when it does both); `architecture` when the PR
   adds, moves or splits a file, module, table access or import between folders, or changes a
   stored shape or API field; `rule-readers` when a shared rule, flag or helper changes; `clock`
   when dates, times or fixtures change; `conventions` when new files or modules appear.
 
-Reviewers start fresh every round. Do not pass them the implementer's report.
+For `docs`, run `npm run docs-coverage -- $(gh pr diff <pr> --name-only)` in the shared checkout
+(it only reads `docs/` and the file list, nothing is checked out) and give the reviewer its output.
+
+Do not pass reviewers the implementer's report, in any round: they judge the change by what it
+does.
 
 Before starting them, and again whenever a round seems to stall, check
 `gh pr view <pr> --json mergeable,mergeStateStatus`. A branch that conflicts with `main` gets no
@@ -108,7 +117,10 @@ When all have reported:
 After its fix, run step 4 again with the CI watcher, the reviewers whose findings were addressed,
 and `docs`, plus any angle the fix commits now call for by the rules in step 4, chosen from their
 diff (`git diff <last reviewed commit>..origin/<branch>`): a fix that adds a file gets
-`architecture` even when the first round did not. At most three feedback rounds by default. When
+`architecture` even when the first round did not. A reviewer that already ran on this PR is
+resumed through `SendMessage` (its agent ID) with that commit range, not started again: it holds
+the rules, the issue and the diff already, and checks its own findings against the fix and the
+fix commits from its angle. An angle new to the PR starts a fresh reviewer. At most three feedback rounds by default. When
 findings are still open after the third, stop and ask the user with `AskUserQuestion` whether to
 continue, with what is open and how the rounds went; go
 on only with their permission, for as many rounds as they allow.

@@ -13,8 +13,9 @@ commits on the same branch.
 
 - Read `AGENTS.md` and `LLM_CONTEXT.md`.
 - Your worktree has no `node_modules`: `npm ci --prefer-offline`.
-- Read the issue with its comments and attachments (images through the REST API, `.env` holds
-  the credentials).
+- Read the issue from the folder the orchestrator gives you: `issue.json` with its comments, and
+  every attachment beside it (look at the images with Read). Only without a folder, read it
+  through the REST API (`.env` holds the credentials).
 - Confirm the cause yourself, even when it is handed to you. If it is wrong, say so before
   writing a fix.
 - Unless the orchestrator says to skip it, report your plan and wait for its answer before the
