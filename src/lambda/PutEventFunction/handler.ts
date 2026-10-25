@@ -18,7 +18,7 @@ import { eventBodySchema } from '../../lib/schema/event'
 import { legacyEventDay, rekeyEventDays, requestDay } from '../../lib/storedDays'
 import { patchMerge } from '../../lib/utils'
 import { audit, eventAuditKey, getEventAuditMessages } from '../lib/audit'
-import { authorize } from '../lib/auth'
+import { authorizeWithMemberOf } from '../lib/auth'
 import {
   findEventWithKcGuid,
   findEventWithKcId,
@@ -37,14 +37,22 @@ import { validateBody } from '../lib/request'
 import { moveOrganizerEventStats } from '../lib/stats/stats'
 import { publishEventChange, publishEventCounts } from '../lib/ws/actions'
 
+const isMemberOfOrganizer = (memberOf: string[], organizerId: string | undefined) =>
+  !!organizerId && memberOf.includes(organizerId)
+
+/**
+ * A club's members write its events, an admin any event. A stored event without an organizer has no
+ * club whose members could change it, so only an admin may, and only by giving it one (KOE-1607).
+ */
 const isUserForbidden = (
   user: JsonUser,
+  memberOf: string[],
   existing: Partial<JsonConfirmedEvent> | undefined,
   item: Patch<JsonConfirmedEvent>
 ): boolean => {
   if (user.admin) return false
-  if (existing?.organizer?.id && !user.roles?.[existing.organizer.id]) return true
-  if (item?.organizer?.id && !user.roles?.[item.organizer.id]) return true
+  if (existing && !isMemberOfOrganizer(memberOf, existing.organizer?.id)) return true
+  if (item?.organizer?.id && !memberOf.includes(item.organizer.id)) return true
 
   return false
 }
@@ -175,6 +183,21 @@ const invalidEventDateField = (data: JsonConfirmedEvent, item: Patch<JsonConfirm
     (field) => (!isUpdate || item[field] !== undefined) && !isEventDateString(data[field])
   )
 
+/**
+ * Checks on the event as it would be saved; a failed one is thrown before anything is written. Every
+ * saved event names its organizer: the club whose members may change it, and the key of its stats and
+ * its change messages (KOE-1607).
+ */
+const checkMergedEvent = (data: JsonConfirmedEvent, item: Patch<JsonConfirmedEvent>, isUpdate: boolean) => {
+  if (!data.organizer?.id) {
+    throw httpError(400, { error: 'organizerRequired', message: 'Bad request: the event needs an organizer' })
+  }
+  const invalidDateField = invalidEventDateField(data, item, isUpdate)
+  if (invalidDateField) {
+    throw httpError(400, { message: `Bad request: ${invalidDateField} must be a valid date` })
+  }
+}
+
 const updateEventDerivedFields = async (data: JsonConfirmedEvent) => {
   if (data.startDate) data.season = getEventSeason(data.startDate)
   if (data.eventType === 'NOME-B SM' && !data.qualificationStartDate) {
@@ -230,11 +253,12 @@ const dropResultsPublished = (item: Patch<JsonConfirmedEvent>, existing: JsonCon
 /** Checks that depend on the previously stored event, once it has been looked up; a failed one is thrown. */
 const checkPutEventAgainstExisting = (
   user: JsonUser,
+  memberOf: string[],
   item: Patch<JsonConfirmedEvent>,
   existing: JsonConfirmedEvent | undefined,
   clientModifiedAt: string | null | undefined
 ) => {
-  if (isUserForbidden(user, existing, item)) {
+  if (isUserForbidden(user, memberOf, existing, item)) {
     throw httpError(403, 'Forbidden')
   }
 
@@ -330,10 +354,7 @@ const checkOrganizerExists = async (existing: JsonConfirmedEvent | undefined, da
 }
 
 const putEventLambda = lambda('putEvent', async (event) => {
-  const user = await authorize(event)
-  if (!user) {
-    throw httpError(401, 'Unauthorized')
-  }
+  const { memberOf, user } = await authorizeWithMemberOf(event)
 
   const timestamp = new Date().toISOString()
   const patchRequest = isPatchRequest(event)
@@ -356,7 +377,7 @@ const putEventLambda = lambda('putEvent', async (event) => {
   const stored = existing && structuredClone(existing)
   if (existing) rekeyEventDays(existing, legacyEventDay)
 
-  checkPutEventAgainstExisting(user, item, existing, clientModifiedAt)
+  checkPutEventAgainstExisting(user, memberOf, item, existing, clientModifiedAt)
   dropResultsPublished(item, existing)
 
   const kcConflict = (await findKcGuidLock(item, existing)) ?? (await findKcLinkConflict(item, existing))
@@ -374,10 +395,7 @@ const putEventLambda = lambda('putEvent', async (event) => {
   const data = existing && patchRequest ? patchMerge(existing, item) : ({ ...existing, ...item } as JsonConfirmedEvent)
   // The index key for the club's own list; a copy, because an index cannot key on a map's field (KOE-1341).
   data.organizerId = data.organizer?.id
-  const invalidDateField = invalidEventDateField(data, item, !!existing)
-  if (invalidDateField) {
-    throw httpError(400, { message: `Bad request: ${invalidDateField} must be a valid date` })
-  }
+  checkMergedEvent(data, item, !!existing)
 
   // The registration-group lock is server-owned. Never accept it from an
   // admin payload, including when the stored event currently has no lock.
@@ -397,10 +415,11 @@ const putEventLambda = lambda('putEvent', async (event) => {
   const result = await persistEventWithRegistrations(stored, data)
 
   // Organizer stats are keyed by organizer + start date, so an edit to either has to carry the
-  // already-counted registrations across rather than leave them under the old key. This and the
-  // audit trail touch different tables and don't depend on each other, so they run together.
+  // already-counted registrations across rather than leave them under the old key. An event stored
+  // without an organizer has no such row, its key being the organizer. This and the audit trail touch
+  // different tables and don't depend on each other, so they run together.
   await Promise.all([
-    stored ? moveOrganizerEventStats(stored, data) : undefined,
+    stored?.organizer?.id ? moveOrganizerEventStats(stored, data) : undefined,
     auditEventChanges(existing, item, result, user.name),
   ])
 
