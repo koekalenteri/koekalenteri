@@ -70,10 +70,69 @@ describe('isAllowed', () => {
   })
 })
 
+describe('isAllowed with conditions and overlapping statements', () => {
+  const conditional = policyStatements(
+    {
+      Statement: [
+        {
+          Action: 'iam:PassRole',
+          Condition: { ArnEquals: { 'iam:AssociatedResourceArn': 'arn:aws:lambda:*:*:function:app-*' } },
+          Effect: 'Allow',
+          Resource: '*',
+        },
+        {
+          Action: 'sts:TagSession',
+          Condition: { StringLike: { 'aws:RequestTag/team': 'app-*' } },
+          Effect: 'Allow',
+          Resource: '*',
+        },
+        { Action: 's3:*', Effect: 'Allow', Resource: 'arn:aws:s3:::bucket/*' },
+        {
+          Action: 's3:DeleteObject',
+          Condition: { StringEquals: { 'aws:PrincipalTag/role': 'reader' } },
+          Effect: 'Deny',
+          Resource: 'arn:aws:s3:::bucket/*',
+        },
+        { Action: 's3:PutObject', Effect: 'Deny', Resource: 'arn:aws:s3:::bucket/locked/*' },
+      ],
+    },
+    'conditional'
+  )
+
+  it('matches ArnEquals with wildcards, as IAM does', () => {
+    const context = (arn: string) => ({ 'iam:AssociatedResourceArn': arn })
+
+    expect(isAllowed(conditional, 'iam:PassRole', 'role', context('arn:aws:lambda:eu-north-1:1:function:app-x'))).toBe(
+      true
+    )
+    expect(isAllowed(conditional, 'iam:PassRole', 'role', context('arn:aws:lambda:eu-north-1:1:function:other'))).toBe(
+      false
+    )
+  })
+
+  it('matches StringLike with wildcards', () => {
+    expect(isAllowed(conditional, 'sts:TagSession', '*', { 'aws:RequestTag/team': 'app-one' })).toBe(true)
+    expect(isAllowed(conditional, 'sts:TagSession', '*', { 'aws:RequestTag/team': 'web-one' })).toBe(false)
+  })
+
+  it('applies a Deny only when its condition holds', () => {
+    expect(isAllowed(conditional, 's3:DeleteObject', 'arn:aws:s3:::bucket/key')).toBe(true)
+    expect(
+      isAllowed(conditional, 's3:DeleteObject', 'arn:aws:s3:::bucket/key', { 'aws:PrincipalTag/role': 'reader' })
+    ).toBe(false)
+  })
+
+  it('lets the Deny win where an Allow and a Deny match the same call', () => {
+    expect(isAllowed(conditional, 's3:PutObject', 'arn:aws:s3:::bucket/open/key')).toBe(true)
+    expect(isAllowed(conditional, 's3:PutObject', 'arn:aws:s3:::bucket/locked/key')).toBe(false)
+  })
+})
+
 describe('policyStatements', () => {
   it.each([
     ['an unknown operator', { Action: 'a', Condition: { Bool: { k: 'true' } }, Effect: 'Allow', Resource: '*' }],
     ['NotAction', { Effect: 'Allow', NotAction: 'a', Resource: '*' }],
+    ['NotResource', { Action: 'a', Effect: 'Allow', NotResource: 'x' }],
     ['an Effect of neither kind', { Action: 'a', Effect: 'Maybe', Resource: '*' }],
     ['an action that is not a string', { Action: [1], Effect: 'Allow', Resource: '*' }],
   ])('throws on %s', (_, statement) => {

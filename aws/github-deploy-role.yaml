@@ -84,8 +84,11 @@ Resources:
                   - !Sub repo:${Repository}:environment:prod
 
   # The most any role of the app stacks may do, whatever policies it is given: the services the
-  # functions, the Amplify build, the API Gateway log push, the RUM guest and the schedules use, and
-  # nothing of IAM or STS. template/ sets it on every role it creates.
+  # functions, the Amplify build, the API Gateway log push, the RUM guest and the schedules use, on
+  # the stacks' own resources where the name says which they are, and nothing of IAM or STS.
+  # template/ sets it on every role it creates; src/lambda/deployRole.test.ts checks every policy in
+  # the template against it. The boundary is shared by the three stacks, so it does not keep one
+  # stack's roles off another stack's resources.
   AppBoundary:
     Type: AWS::IAM::ManagedPolicy
     Properties:
@@ -94,21 +97,76 @@ Resources:
       PolicyDocument:
         Version: '2012-10-17'
         Statement:
-          - Sid: AppServices
+          - Sid: StackTables
+            Effect: Allow
+            Action: dynamodb:*
+            Resource:
+              - !Sub arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/*-koekalenteri-dev
+              - !Sub arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/*-koekalenteri-test
+              - !Sub arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/*-koekalenteri-prod
+              - !Sub arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/*-koekalenteri-dev/index/*
+              - !Sub arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/*-koekalenteri-test/index/*
+              - !Sub arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/*-koekalenteri-prod/index/*
+          # The stacks' buckets and their objects.
+          - Sid: StackBuckets
+            Effect: Allow
+            Action: s3:*
+            Resource:
+              - arn:aws:s3:::koekalenteri-dev-*
+              - arn:aws:s3:::koekalenteri-test-*
+              - arn:aws:s3:::koekalenteri-prod-*
+          # The functions' own log groups, and the API Gateway ones: the account's API Gateway
+          # pushes its execution and access logs with a stack's ApiGatewayPushToCloudWatchRole.
+          - Sid: StackLogs
+            Effect: Allow
+            Action: logs:*
+            Resource:
+              - !Sub arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/koekalenteri-dev-*
+              - !Sub arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/koekalenteri-test-*
+              - !Sub arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/koekalenteri-prod-*
+              - !Sub arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/apigateway/*
+              - !Sub arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:API-Gateway-Execution-Logs_*
+          - Sid: StackFunctions
+            Effect: Allow
+            Action: lambda:InvokeFunction
+            Resource:
+              - !Sub arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:koekalenteri-dev-*
+              - !Sub arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:koekalenteri-test-*
+              - !Sub arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:koekalenteri-prod-*
+          - Sid: WebSocketConnections
+            Effect: Allow
+            Action: execute-api:ManageConnections
+            Resource: !Sub arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:*
+          - Sid: AppMonitors
+            Effect: Allow
+            Action: rum:PutRumEvents
+            Resource:
+              - !Sub arn:aws:rum:${AWS::Region}:${AWS::AccountId}:appmonitor/Koekalenteri-koekalenteri-dev
+              - !Sub arn:aws:rum:${AWS::Region}:${AWS::AccountId}:appmonitor/Koekalenteri-koekalenteri-test
+              - !Sub arn:aws:rum:${AWS::Region}:${AWS::AccountId}:appmonitor/Koekalenteri-koekalenteri-prod
+          # The parameters src/lambda/lib/secrets.ts reads: the Kennelliitto API account, shared by
+          # the stacks, and the ones named after a stack.
+          - Sid: StackParameters
+            Effect: Allow
+            Action:
+              - ssm:GetParameter
+              - ssm:GetParameters
+            Resource:
+              - !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/KL_API_*
+              - !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/koekalenteri-dev-*
+              - !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/koekalenteri-test-*
+              - !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/koekalenteri-prod-*
+          # What cannot be narrowed by name: metric data names no resource, SES sends as the
+          # account's identities with its templates, and the Amplify service role's calls are
+          # Amplify's own. aws/README.md lists this as the boundary's accepted residual.
+          - Sid: Unscoped
             Effect: Allow
             Action:
               - amplify:*
               - cloudwatch:PutMetricData
-              - dynamodb:*
-              - execute-api:*
-              - lambda:InvokeFunction
-              - logs:*
-              - rum:PutRumEvents
-              - s3:*
-              - secretsmanager:GetSecretValue
+              - logs:DescribeLogGroups
+              - logs:DescribeLogStreams
               - ses:*
-              - ssm:GetParameter
-              - ssm:GetParameters
             Resource: '*'
 
   # CloudFormation and SAM deploy the stack with the role's own credentials (no stack has a service
@@ -123,9 +181,12 @@ Resources:
       PolicyDocument:
         Version: '2012-10-17'
         Statement:
+          # Recovering a stuck update is allowed; deleting a stack is not, so no job can remove prod.
           - Sid: AppStacks
             Effect: Allow
             Action:
+              - cloudformation:CancelUpdateStack
+              - cloudformation:ContinueUpdateRollback
               - cloudformation:CreateChangeSet
               - cloudformation:DeleteChangeSet
               - cloudformation:DescribeChangeSet
@@ -267,6 +328,8 @@ Resources:
               - !Sub arn:aws:rum:${AWS::Region}:${AWS::AccountId}:appmonitor/Koekalenteri-koekalenteri-prod
           # Listing, and the calls IAM authorizes on no resource: the handlers' reads of a log
           # group's index policies, a monitor's tags, the configuration set and a subscription.
+          # The subscription calls stay here: the policy simulator refuses them on the
+          # subscription's ARN (ses-notifications-koekalenteri-<env>:<id>) even under sns:*.
           - Sid: Unscoped
             Effect: Allow
             Action:

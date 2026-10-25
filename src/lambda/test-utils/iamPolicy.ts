@@ -68,7 +68,8 @@ export const policyStatements = (document: unknown, where: string): PolicyStatem
 const conditionHolds = (operator: string, key: string, values: string[], context: RequestContext) => {
   const actual = context[key]
   if (actual === undefined) return false
-  const like = operator.endsWith('Like')
+  // IAM matches ArnEquals with wildcards exactly as ArnLike; only StringEquals compares literally.
+  const like = operator !== 'StringEquals'
   return values.some((value) => (like ? wildcardMatches(value, actual) : value === actual))
 }
 

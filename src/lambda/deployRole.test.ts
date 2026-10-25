@@ -8,7 +8,7 @@ import {
   recordField,
   resolveIntrinsics,
 } from './test-utils/cloudFormationYaml'
-import { isAllowed, policyStatements } from './test-utils/iamPolicy'
+import { isAllowed, policyStatements, wildcardMatches } from './test-utils/iamPolicy'
 
 /**
  * The deploy role's permissions are written out in aws/github-deploy-role.yaml (KOE-1572). A
@@ -575,6 +575,215 @@ const CALLS: Record<string, (resource: Resource, stack: Stack) => Call[]> = {
     ),
 }
 
+// --- what the app's roles are given, against the boundary ---
+
+const boundaryStatements = policyStatements(
+  resolveRole(recordField(recordField(roleResources, 'AppBoundary'), 'Properties').PolicyDocument),
+  'AppBoundary'
+)
+
+/** Actions on resources, as one statement of a role's policy gives them. */
+interface Grant {
+  actions: string[]
+  resources: string[]
+  where: string
+}
+
+type TemplateGrant = Omit<Grant, 'where'>
+
+const tableGrant =
+  (actions: string[], index: boolean) =>
+  (parameters: Record<string, unknown>, stack: Stack): TemplateGrant[] => {
+    const table = regionalArn('dynamodb', `table/${stack.string(parameters.TableName, 'TableName')}`)
+    return [
+      {
+        actions: actions.map((action) => `dynamodb:${action}`),
+        resources: index ? [table, `${table}/index/*`] : [table],
+      },
+    ]
+  }
+
+const bucketGrants =
+  (bucketActions: string[], objectActions: string[]) =>
+  (parameters: Record<string, unknown>, stack: Stack): TemplateGrant[] => {
+    const bucket = `arn:aws:s3:::${stack.string(parameters.BucketName, 'BucketName')}`
+    return [
+      { actions: bucketActions.map((action) => `s3:${action}`), resources: [bucket] },
+      { actions: objectActions.map((action) => `s3:${action}`), resources: [`${bucket}/*`] },
+    ]
+  }
+
+/**
+ * The SAM policy templates the functions use, with the statements SAM writes for them
+ * (samtranslator/policy_templates_data/policy_templates.json). A template not listed here throws.
+ */
+const POLICY_TEMPLATES: Record<string, (parameters: Record<string, unknown>, stack: Stack) => TemplateGrant[]> = {
+  CloudWatchPutMetricPolicy: () => [{ actions: ['cloudwatch:PutMetricData'], resources: ['*'] }],
+  DynamoDBCrudPolicy: tableGrant(
+    [
+      'BatchGetItem',
+      'BatchWriteItem',
+      'ConditionCheckItem',
+      'DeleteItem',
+      'DescribeTable',
+      'GetItem',
+      'PutItem',
+      'Query',
+      'Scan',
+      'UpdateItem',
+    ],
+    true
+  ),
+  DynamoDBReadPolicy: tableGrant(['BatchGetItem', 'DescribeTable', 'GetItem', 'Query', 'Scan'], true),
+  DynamoDBWritePolicy: tableGrant(['BatchWriteItem', 'PutItem', 'UpdateItem'], false),
+  S3FullAccessPolicy: bucketGrants(
+    ['GetBucketLocation', 'GetLifecycleConfiguration', 'ListBucket', 'PutLifecycleConfiguration'],
+    [
+      'DeleteObject',
+      'DeleteObjectTagging',
+      'DeleteObjectVersionTagging',
+      'GetObject',
+      'GetObjectAcl',
+      'GetObjectTagging',
+      'GetObjectVersion',
+      'GetObjectVersionTagging',
+      'PutObject',
+      'PutObjectAcl',
+      'PutObjectTagging',
+      'PutObjectVersionTagging',
+    ]
+  ),
+  S3ReadPolicy: bucketGrants(
+    ['GetBucketLocation', 'GetLifecycleConfiguration', 'ListBucket'],
+    ['GetObject', 'GetObjectVersion']
+  ),
+}
+
+const API_GATEWAY_PUSH = 'arn:aws:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs'
+
+/** The AWS managed policies the template attaches, with the resources their calls name in a stack. */
+const awsManagedGrants = (arn: string, logGroup: string, stack: Stack, where: string): Grant[] => {
+  const logs = (name: string) => regionalArn('logs', `log-group:${name}:*`)
+  if (arn === LAMBDA_BASIC_EXECUTION) {
+    return [
+      {
+        actions: ['logs:CreateLogGroup', 'logs:CreateLogStream', 'logs:PutLogEvents'],
+        resources: [logs(logGroup)],
+        where,
+      },
+    ]
+  }
+  if (arn === API_GATEWAY_PUSH) {
+    return [
+      {
+        actions: [
+          'logs:CreateLogGroup',
+          'logs:CreateLogStream',
+          'logs:FilterLogEvents',
+          'logs:GetLogEvents',
+          'logs:PutLogEvents',
+        ],
+        resources: [
+          logs(`API-Gateway-Execution-Logs_${ID}/${stack.environment}`),
+          logs(`/aws/apigateway/AccessLog-${stack.environment}-${ID}`),
+        ],
+        where,
+      },
+      { actions: ['logs:DescribeLogGroups', 'logs:DescribeLogStreams'], resources: ['*'], where },
+    ]
+  }
+  throw new Error(`${where}: the AWS managed policy ${arn} is not modelled`)
+}
+
+const documentGrants = (document: unknown, stack: Stack, where: string): Grant[] =>
+  listField(isRecord(document) ? document : {}, 'Statement').flatMap((statement, index) => {
+    const at = `${where} statement ${index}`
+    if (!isRecord(statement)) throw new Error(`${at} is not a map`)
+    if (statement.Effect !== 'Allow') return []
+    return [
+      {
+        actions: listField(statement, 'Action').map((action) => asString(action, at)),
+        resources: listField(statement, 'Resource').map((resource) => stack.string(resource, at)),
+        where: at,
+      },
+    ]
+  })
+
+const managedPolicyDocument = (id: string) => recordField(recordField(appResources, id), 'Properties').PolicyDocument
+
+const functionPolicyGrants = (id: string, policy: unknown, stack: Stack): Grant[] => {
+  const where = `${id}.Policies`
+  if (!isRecord(policy)) throw new Error(`${where}: ${JSON.stringify(policy)} is not modelled`)
+  if (typeof policy.Ref === 'string') {
+    return documentGrants(managedPolicyDocument(policy.Ref), stack, `${where} ${policy.Ref}`)
+  }
+  if (policy.Statement !== undefined) return documentGrants(policy, stack, where)
+  const [name, ...rest] = Object.keys(policy)
+  const template = POLICY_TEMPLATES[name]
+  if (template === undefined || rest.length > 0) throw new Error(`${where}: policy template ${name} is not modelled`)
+  return template(recordField(policy, name), stack).map((grant) => ({ ...grant, where: `${where} ${name}` }))
+}
+
+const serverlessFunctionGrants = (id: string, properties: Record<string, unknown>, stack: Stack): Grant[] => {
+  const functionArn = stack.arn(id)
+  const schedules = Object.entries(recordField(properties, 'Events'))
+    .filter(([, event]) => isRecord(event) && event.Type === 'ScheduleV2')
+    .map(([eventId]) => ({ actions: ['lambda:InvokeFunction'], resources: [functionArn], where: `${id}.${eventId}` }))
+  return [
+    ...awsManagedGrants(LAMBDA_BASIC_EXECUTION, `/aws/lambda/${stack.physicalName(id)}`, stack, id),
+    ...listField(properties, 'Policies').flatMap((policy) => functionPolicyGrants(id, policy, stack)),
+    ...schedules,
+  ]
+}
+
+const roleResourceGrants = (id: string, properties: Record<string, unknown>, stack: Stack): Grant[] => [
+  ...listField(properties, 'Policies').flatMap((policy) =>
+    documentGrants(isRecord(policy) ? policy.PolicyDocument : undefined, stack, `${id}.Policies`)
+  ),
+  ...listField(properties, 'ManagedPolicyArns').flatMap((arn) =>
+    awsManagedGrants(stack.string(arn, `${id}.ManagedPolicyArns`), '', stack, id)
+  ),
+]
+
+/** Everything the template's policies give its roles in one stack, SAM's implicit roles included. */
+const roleGrants = (stack: Stack): Grant[] =>
+  Object.entries(appResources).flatMap(([id, resource]) => {
+    if (!isRecord(resource)) return []
+    const properties = recordField(resource, 'Properties')
+    if (resource.Type === 'AWS::Serverless::Function') return serverlessFunctionGrants(id, properties, stack)
+    if (resource.Type === 'AWS::IAM::Role') return roleResourceGrants(id, properties, stack)
+    return []
+  })
+
+const boundaryAllowsAction = (action: string) =>
+  boundaryStatements.some(
+    (statement) =>
+      statement.effect === 'Allow' && statement.actions.some((pattern) => wildcardMatches(pattern, action, true))
+  )
+
+/** A resource of `*` is checked for the action alone: IAM decides it on the resource the call names. */
+const boundaryRefuses = (grants: Grant[]) =>
+  grants.flatMap((grant) =>
+    grant.actions.flatMap((action) =>
+      grant.resources
+        .filter((resource) =>
+          resource === '*' ? !boundaryAllowsAction(action) : !isAllowed(boundaryStatements, action, resource)
+        )
+        .map((resource) => `${grant.where}: ${action} ${resource}`)
+    )
+  )
+
+/** The SSM parameters the functions read, from src/lambda/lib/secrets.ts: shared names and per-stack ones. */
+const ssmParameters = () => {
+  const source = readFileSync('src/lambda/lib/secrets.ts', 'utf8')
+  const calls = [...source.matchAll(/getSSMParams(?:<\w+>)?\(\[([^\]]*)\]\)/g)].map((match) => match[1])
+  return {
+    calls: calls.length,
+    shared: calls.flatMap((call) => [...call.matchAll(/'([A-Z][A-Z0-9_]*)'/g)].map((match) => match[1])),
+    stacked: [...source.matchAll(/`\$\{stackName\}-([A-Z][A-Z0-9_]*)`/g)].map((match) => match[1]),
+  }
+}
+
 const denied = (calls: Call[]) =>
   calls
     .filter((call) => !allowed(call.action, call.resource, call.context))
@@ -643,6 +852,11 @@ describe('the deploy role', () => {
         ['cloudformation:CreateChangeSet'],
         `arn:aws:cloudformation:${REGION}:aws:transform/Serverless-2016-10-31`
       ),
+      // Recovering an update that cannot finish or roll back
+      ...each(
+        ['cloudformation:CancelUpdateStack', 'cloudformation:ContinueUpdateRollback'],
+        regionalArn('cloudformation', `stack/${stack}/${ID}`)
+      ),
       // Run data migrations, then smoke and e2e reading the stack
       ...each(['cloudformation:DescribeStackResource'], regionalArn('cloudformation', `stack/${stack}/${ID}`)),
       ...each(['lambda:InvokeFunction'], regionalArn('lambda', `function:${stack}-RunMigrationFunction-${SUFFIX}`)),
@@ -697,6 +911,12 @@ describe('the deploy role', () => {
       'change its own stack',
       'cloudformation:ExecuteChangeSet',
       regionalArn('cloudformation', `stack/koekalenteri-github-deploy/${ID}`),
+      {},
+    ],
+    [
+      'delete a stack',
+      'cloudformation:DeleteStack',
+      regionalArn('cloudformation', `stack/koekalenteri-prod/${ID}`),
       {},
     ],
     ['write into a bucket of no stack', 's3:PutObject', 'arn:aws:s3:::koekalenteri-main/x', {}],
@@ -766,5 +986,38 @@ describe('the app template', () => {
 
     expect(roles.length).toBeGreaterThan(resources.filter((r) => r.type === 'AWS::Lambda::Function').length)
     expect(boundaries.filter(([, boundary]) => boundary !== BOUNDARY)).toEqual([])
+  })
+})
+
+describe('the permissions boundary', () => {
+  // A service or resource a role's policy names but the boundary leaves out deploys fine and fails
+  // only when the function makes the call.
+  it.each(ENVIRONMENTS)('allows everything the policies of koekalenteri-%s give its roles', (environment) => {
+    const grants = roleGrants(new Stack(environment))
+
+    expect(grants.length).toBeGreaterThan(resources.filter((r) => r.type === 'AWS::Lambda::Function').length)
+    expect(boundaryRefuses(grants)).toEqual([])
+  })
+
+  it.each(ENVIRONMENTS)('allows the SSM parameters the functions of koekalenteri-%s read', (environment) => {
+    const { calls, shared, stacked } = ssmParameters()
+    const parameters = [...shared, ...stacked.map((name) => `koekalenteri-${environment}-${name}`)]
+    const refused = parameters.filter(
+      (name) => !isAllowed(boundaryStatements, 'ssm:GetParameters', regionalArn('ssm', `parameter/${name}`))
+    )
+
+    expect(calls).toBeGreaterThan(0)
+    expect(stacked.length).toBeGreaterThan(0)
+    expect(refused).toEqual([])
+  })
+
+  it.each([
+    ['read a parameter of no stack', 'ssm:GetParameters', regionalArn('ssm', 'parameter/UPSTASH_REDIS_REST_TOKEN')],
+    ['read a bucket of no stack', 's3:GetObject', 'arn:aws:s3:::koekalenteri-main/x'],
+    ['write a table of no stack', 'dynamodb:PutItem', regionalArn('dynamodb', 'table/event-table')],
+    ['call IAM', 'iam:CreateRole', `arn:aws:iam::${ACCOUNT}:role/x`],
+    ['assume a role', 'sts:AssumeRole', `arn:aws:iam::${ACCOUNT}:role/koekalenteri-admin`],
+  ])('keeps a role from doing what no stack does: %s', (_, action, resource) => {
+    expect(isAllowed(boundaryStatements, action, resource)).toBe(false)
   })
 })

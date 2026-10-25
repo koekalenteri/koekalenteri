@@ -52,6 +52,24 @@ A missing permission shows as `AccessDenied` in the failed deploy's stack events
 (the event names the action). The escape hatch is to attach `AdministratorAccess` by hand, fix the
 template, deploy this stack again and detach it.
 
+The role may cancel a stuck update and continue a rollback that failed, but it may not delete a
+stack, so no job can remove prod. A stack whose first create failed ends in `ROLLBACK_COMPLETE` and
+must be deleted before the next try: do that with administrator credentials, or with
+`AdministratorAccess` attached for the moment.
+
+All three environments share this one role, and its trust allows `environment:dev`,
+`environment:test` and `environment:prod` alike. Who may deploy to each environment is therefore
+decided by the GitHub environment protection rules of the repository, and they are part of this
+boundary: a job that may run under `dev` gets the same permissions on prod.
+
+What the boundary leaves on any resource: `cloudwatch:PutMetricData` (it names none), SES (the app
+sends as the account's identities with its templates), Amplify (the Amplify service role's own
+calls) and the listing of log groups and streams. Everything else is held to the stacks' tables,
+buckets, log groups and the API Gateway ones, functions, RUM monitors, the WebSocket APIs of the
+account, and the SSM parameters `src/lambda/lib/secrets.ts` reads (`KL_API_*` and
+`koekalenteri-<env>-*`). One boundary serves the three stacks, so it does not keep a dev role off a
+prod table; what does is the role's own policy.
+
 ### Moving from AdministratorAccess to the scoped policies
 
 The role had only `AdministratorAccess`, attached through the `ManagedPolicyArns` parameter. The
