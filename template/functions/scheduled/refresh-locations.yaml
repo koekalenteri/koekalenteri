@@ -34,6 +34,8 @@
             State: ENABLED
             FlexibleTimeWindow:
               Mode: 'OFF'
+            # For the role SAM creates for the schedule; see Globals.Function in main.yaml
+            PermissionsBoundary: !Sub 'arn:${AWS::Partition}:iam::${AWS::AccountId}:policy/koekalenteri-app-boundary'
 
   RefreshLocationsFunctionErrorAlarm:
     Type: AWS::CloudWatch::Alarm

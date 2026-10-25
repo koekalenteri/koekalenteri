@@ -5,7 +5,7 @@
  * error, so a new policy shape is classified before it is trusted.
  */
 import type { Action } from './dynamoActions'
-import { parse } from 'yaml'
+import { isRecord, listField, parseTemplate, recordField, stringField } from './cloudFormationYaml'
 import { indexKey, READ_ACTIONS, tableOfKey, WRITE_ACTIONS } from './dynamoActions'
 
 interface FunctionGrants {
@@ -21,39 +21,8 @@ interface TemplateTables {
   environmentVariables: Map<string, string>
 }
 
-const isRecord = (value: unknown): value is Record<string, unknown> =>
-  typeof value === 'object' && value !== null && !Array.isArray(value)
-
 const isStringArray = (value: unknown): value is string[] =>
   Array.isArray(value) && value.every((item) => typeof item === 'string')
-
-const stringField = (record: Record<string, unknown>, key: string): string | undefined => {
-  const value = record[key]
-  return typeof value === 'string' ? value : undefined
-}
-
-const recordField = (record: Record<string, unknown>, key: string): Record<string, unknown> => {
-  const value = record[key]
-  return isRecord(value) ? value : {}
-}
-
-const listField = (record: Record<string, unknown>, key: string): unknown[] => {
-  const value = record[key]
-  if (Array.isArray(value)) return value
-  return value === undefined ? [] : [value]
-}
-
-/**
- * The intrinsics the templates use. Scalars keep their tag as a one-key object; the list forms become
- * plain lists. A similar list lives in scripts/lib/tables.mjs and e2e/server/routes.mjs; it is not
- * imported from there because the lambda tsconfig has no allowJs, so lint-backend could not type it.
- */
-const intrinsicTags = ['Ref', 'Sub', 'GetAtt', 'Join', 'Select', 'Split', 'If', 'Equals', 'Not', 'Condition'].flatMap(
-  (name) => [
-    { collection: 'seq' as const, identify: () => false, tag: `!${name}` },
-    { identify: () => false, resolve: (value: string) => ({ [name]: value }), tag: `!${name}` },
-  ]
-)
 
 const actionsOf = (actions: string[], where: string): Action[] =>
   actions.map((action) => {
@@ -166,7 +135,7 @@ const grantPolicy = (
 
 /** Every function in the built template with what its policies grant, and the Globals' table variables. */
 export const templateTables = (templateText: string): TemplateTables => {
-  const parsed: unknown = parse(templateText, { customTags: intrinsicTags })
+  const parsed = parseTemplate(templateText)
   if (!isRecord(parsed)) throw new Error('template is not a map')
   const resources = recordField(parsed, 'Resources')
   const tables = new Set(

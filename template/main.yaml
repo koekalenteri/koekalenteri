@@ -9,6 +9,9 @@ Globals:
     MemorySize: 1024 # From Lambda Power Tuner - https://lambda-power-tuning.show/#gAAAAQACAAQACMAL;Fu+DQkrxg0JplAJBPCnQQBhL0EDm+NlA;m1ZfNJtW3zSbVl81m1bfNZtWXzaaA6Q2
     Tags:
       Application: serverless-web-app
+    # Every role SAM creates for a function carries the boundary the deploy role requires
+    # (aws/github-deploy-role.yaml, KOE-1572); without it the deploy cannot create the role.
+    PermissionsBoundary: !Sub 'arn:${AWS::Partition}:iam::${AWS::AccountId}:policy/koekalenteri-app-boundary'
     Environment:
       Variables:
         NODE_OPTIONS: --enable-source-maps # map bundled stack traces back to the TypeScript source
