@@ -27,9 +27,9 @@ syötetty tulos näkyy vain ylläpidossa, kunnes luokka julkaistaan.
 
 Tarkista tapahtumasivulta, että koe on liitetty Kennelliiton kokeeseen (*{t:event.kcGuidLinked}*).
 Liitosta ei tarvita tulosten syöttämiseen, mutta tulossivu muistuttaa puuttuvasta liitoksesta ja
-tarjoaa painikkeen **{t:event.kcIdLookup}**, jolla Kennelliiton kokeen voi hakea poistumatta
-sivulta. Jos haku näyttää kokeen mutta ei anna valita sitä, Kennelliitto ei ole vielä antanut
-kokeelle tunnistetta: haun voi toistaa myöhemmin.
+tarjoaa painikkeen **{t:event.kcIdLookup}**, jolla kokeen voi liittää Kennelliiton kokeeseen
+poistumatta sivulta. Jos lista näyttää kokeen mutta ei anna valita sitä, Kennelliitto ei ole vielä
+antanut kokeelle tunnistetta: liittämistä voi yrittää myöhemmin uudelleen.
 
 Koepaikalla tarvittava starttilista avautuu paneelin *{t:eventManagement.actions}*-osion
 painikkeella **{t:eventManagement.startList.secretary}**. Kirjautuneena myös julkisella

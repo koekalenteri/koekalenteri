@@ -71,5 +71,5 @@ it('says the trial is with the chief judge, with a way to read the state again',
 })
 
 it('offers the lookup where the trial is not yet linked to Kennelliitto', async () => {
-  await capture({ ...eventWithStations, kcGuid: undefined }, 'kennelliitto-submission-unlinked', 'Hae koetunnus')
+  await capture({ ...eventWithStations, kcGuid: undefined }, 'kennelliitto-submission-unlinked', 'Liitä koetunnus')
 })
