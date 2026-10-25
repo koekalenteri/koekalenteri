@@ -1,5 +1,6 @@
 import type { Theme } from '@mui/material'
 import type { ParseKeys, TFunction } from 'i18next'
+import type { ParticipantLockReason, ParticipantLockSection } from '../../lib/registrationLocks'
 import type { DayKey, DeepPartial, ManualTestResult, PublicConfirmedEvent, Registration, TestResult } from '../../types'
 import Cancel from '@mui/icons-material/Cancel'
 import CheckOutlined from '@mui/icons-material/CheckOutlined'
@@ -42,6 +43,7 @@ import {
 } from '../../lib/registration'
 import {
   getParticipantFieldLocks,
+  getParticipantLockReason,
   isEntryRestrictionLocked,
   isParticipantFieldLocked,
   NO_PARTICIPANT_FIELD_LOCKS,
@@ -59,6 +61,7 @@ import { DogInfo } from './registrationForm/DogInfo'
 import { EntryInfo } from './registrationForm/EntryInfo'
 import { HandlerInfo } from './registrationForm/HandlerInfo'
 import { InternalNotesInfo } from './registrationForm/InternalNotesInfo'
+import { LockedChangeNotice } from './registrationForm/LockedChangeNotice'
 import MembershipInfo from './registrationForm/MembershipInfo'
 import { OwnerInfo } from './registrationForm/OwnerInfo'
 import { PayerInfo } from './registrationForm/PayerInfo'
@@ -133,6 +136,7 @@ export default function RegistrationForm({
   )
   const [open, setOpen] = useState<SectionOpenState>(() => defaultSectionOpenState(large))
   const [rankingPeriod, setRankingPeriod] = useState<{ min?: DayKey; max?: DayKey }>({})
+  const [lockedNotice, setLockedNotice] = useState<{ reason: ParticipantLockReason; section: ParticipantLockSection }>()
 
   // The sections closed for the participant, by the rule PutRegistration holds them by (KOE-1588),
   // read from the stored entry. The secretary has none.
@@ -331,10 +335,14 @@ export default function RegistrationForm({
     // or a draft kept from before it, puts the locked sections back as stored: the server would refuse
     // the save otherwise (KOE-1588). Only a put-back that changes the draft and settles it is handed on,
     // so a stored row the rule cannot settle (one that differs from itself) is never put back again
-    // and again.
-    if (!savedRegistration || !participantLockedChange(locks, savedRegistration, registration)) return
+    // and again. The participant is told which section and why, whatever brought the change in: the
+    // same put-back serves an edit, a lock that arrives and a draft kept from before it.
+    if (!savedRegistration) return
+    const section = participantLockedChange(locks, savedRegistration, registration)
+    if (!section) return
     const restored = withLockedSectionsFrom(savedRegistration, registration, locks)
     if (!hasChanges(registration, restored) || participantLockedChange(locks, savedRegistration, restored)) return
+    setLockedNotice({ reason: getParticipantLockReason(section, savedRegistration), section })
     onChange?.(restored)
   }, [locks, onChange, registration, savedRegistration])
 
@@ -366,6 +374,13 @@ export default function RegistrationForm({
           pb: 0.5,
         }}
       >
+        {lockedNotice ? (
+          <LockedChangeNotice
+            onClose={() => setLockedNotice(undefined)}
+            reason={lockedNotice.reason}
+            section={lockedNotice.section}
+          />
+        ) : null}
         {admin && onInternalNotesChange && registration.id ? (
           <InternalNotesInfo
             disabled={disabled}

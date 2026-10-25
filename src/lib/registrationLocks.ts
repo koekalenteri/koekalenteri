@@ -91,6 +91,22 @@ export const getParticipantFieldLocks = (
   }
 }
 
+/** Why a section is locked: the payment, the place in the trial, or the close of entry. */
+export type ParticipantLockReason = 'entryClosed' | 'paid' | 'picked'
+
+const LOCK_REASONS: Record<ParticipantLockSection, (picked: boolean) => ParticipantLockReason> = {
+  dog: (picked) => (picked ? 'picked' : 'paid'),
+  entry: (picked) => (picked ? 'picked' : 'entryClosed'),
+  membership: () => 'paid',
+  payment: () => 'paid',
+  people: () => 'picked',
+  results: () => 'picked',
+}
+
+/** Why a locked section is locked, by the same facts `getParticipantFieldLocks` reads, for telling the participant. */
+export const getParticipantLockReason = (section: ParticipantLockSection, stored: LockFacts): ParticipantLockReason =>
+  LOCK_REASONS[section](Boolean(stored?.messagesSent?.picked))
+
 /**
  * Whether the entry restriction (KOE-525) is out of the participant's hands: every section that could
  * still meet it is locked. A breed is met through the dog. A members-only restriction is met through
@@ -227,9 +243,10 @@ const samePerson = (a: LockedPerson | undefined, b: LockedPerson | undefined): b
 /**
  * The stored owner each sent owner is, each stored owner at most once. By the key first, which the form
  * gives a keyless stored owner by position and writes back with the first change of the owners. A
- * keyless sent owner is then found by name and address, the one in the same position first, so a row
- * the form has not keyed is matched whatever position a request moved an owner to, and two stored
- * owners alike match one each.
+ * keyless sent owner is then found by name and address among the stored owners that are keyless too,
+ * the one in the same position first, so a row the form has not keyed is matched whatever position a
+ * request moved an owner to, and two stored owners alike match one each. A stored owner with a key of
+ * their own is that key's alone: a keyless owner who shares a name and an address with them is new.
  */
 const storedOwnersOf = (
   storedOwners: readonly LockedPerson[],
@@ -248,7 +265,8 @@ const storedOwnersOf = (
   )
   return sentOwners.map((owner, position) => {
     if (byKey[position] || owner.key) return byKey[position]
-    const alike = (index: number) => !taken.has(index) && samePerson(storedOwners[index], owner)
+    const alike = (index: number) =>
+      !taken.has(index) && !storedOwners[index]?.key && samePerson(storedOwners[index], owner)
     return take(alike(position) ? position : storedOwners.findIndex((_stored, index) => alike(index)))
   })
 }

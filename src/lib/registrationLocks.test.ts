@@ -5,6 +5,7 @@ import { addDays } from './day'
 import { PUBLIC_REGISTRATION_FIELDS } from './registration'
 import {
   getParticipantFieldLocks,
+  getParticipantLockReason,
   isEntryRestrictionLocked,
   isParticipantFieldLocked,
   NO_PARTICIPANT_FIELD_LOCKS,
@@ -136,6 +137,20 @@ describe('registrationLocks', () => {
 
     it('locks nothing of a missing registration while the entry is open', () => {
       expect(getParticipantFieldLocks(eventWithStaticDates, undefined, entryOpen)).toEqual(NO_PARTICIPANT_FIELD_LOCKS)
+    })
+  })
+
+  describe('getParticipantLockReason', () => {
+    it.each<[ParticipantLockSection, string, string]>([
+      ['dog', 'picked', 'paid'],
+      ['entry', 'picked', 'entryClosed'],
+      ['membership', 'paid', 'paid'],
+      ['payment', 'paid', 'paid'],
+      ['people', 'picked', 'picked'],
+      ['results', 'picked', 'picked'],
+    ])('says why %s is locked: %s once picked, %s otherwise', (section, whenPicked, otherwise) => {
+      expect(getParticipantLockReason(section, { messagesSent: { picked: true }, paidAt: 'x' })).toBe(whenPicked)
+      expect(getParticipantLockReason(section, { paidAt: 'x' })).toBe(otherwise)
     })
   })
 
@@ -346,6 +361,14 @@ describe('registrationLocks', () => {
         const stored: Entry = { ...base, owners }
 
         expect(participantLockedChange(ALL_LOCKED, stored, structuredClone(stored))).toBeUndefined()
+      })
+
+      // A stored owner with a key of their own is matched by it alone, never by name and address.
+      it('reads a keyless owner alike a keyed stored member as someone new', () => {
+        const stored: Entry = { ...base, owners: [{ ...owner, key: 'a', membership: true }] }
+        const sent = [{ ...owner, membership: true }]
+
+        expect(participantLockedChange(only('membership'), stored, { ...stored, owners: sent })).toBe('membership')
       })
 
       // A keyless stored owner is found by the key the form gives by position, or by who they are.

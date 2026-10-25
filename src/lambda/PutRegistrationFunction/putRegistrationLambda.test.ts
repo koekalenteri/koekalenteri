@@ -2451,6 +2451,16 @@ describe('putRegistrationLabmda', () => {
       expectSaved(await patch(existingJson, { owner: { ...picked.owner, membership: true }, owners }), { owners })
     })
 
+    // A stored owner with a key of their own is that key's alone: a keyless owner alike is new.
+    it('refuses a keyless owner alike a keyed stored member claiming their membership with 410', async () => {
+      entryOpen()
+      const member = { ...paid.owner, key: 'a', membership: true }
+      const existingJson = given({ ...paid, owner: { ...paid.owner, membership: true }, owners: [member] })
+      const { key: _key, ...alike } = member
+
+      expectRefused(await patch(existingJson, { owners: [alike] }), 'membership')
+    })
+
     it('refuses a new handler named on a paid entry claiming a membership with 410', async () => {
       entryOpen()
       const existingJson = given(paid)

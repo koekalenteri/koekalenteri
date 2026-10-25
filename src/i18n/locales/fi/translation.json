@@ -911,6 +911,20 @@
     },
     "isMember": "{{name}} on järjestävän yhdistyksen jäsen",
     "language": "Kieli",
+    "lockedChange": "Muutosta ei voi tehdä {{reason}}: {{section}} voi nyt muuttaa vain koesihteeri.",
+    "lockedReason": {
+      "entryClosed": "ilmoittautumisajan päätyttyä",
+      "paid": "maksun jälkeen",
+      "picked": "koepaikan saamisen jälkeen"
+    },
+    "lockedSection": {
+      "dog": "koiran tietoja",
+      "entry": "koeluokkaa, koepäiviä ja varasijatoivetta",
+      "membership": "jäsenyystietoja",
+      "payment": "osallistumismaksua ja lisäpalveluita",
+      "people": "kasvattajan, omistajien ja ohjaajan tietoja",
+      "results": "koetuloksia"
+    },
     "member": "Jäsen",
     "membership": "Jäsenyystiedot",
     "modified_one": "Muutokset on tallennettu.\nVahvistus on lähetetty sähköpostiosoitteeseen:\n{{to}}",

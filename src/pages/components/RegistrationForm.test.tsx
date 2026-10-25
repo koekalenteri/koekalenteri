@@ -833,6 +833,46 @@ describe('RegistrationForm', () => {
       )
     }
 
+    // The member price was paid on the separate handler's membership alone: letting the owner, no
+    // member, handle instead would drop it, so the form puts the people back and says why (the user's
+    // decision, 25.10.2026). A notes edit says nothing.
+    describe('on a paid entry that is a member only through its separate handler', () => {
+      const saved: Registration = {
+        ...registrationWithStaticDates,
+        handler: { email: 'handler@example.com', membership: true, name: 'Handler Name' },
+      }
+      const renderDraft = () =>
+        renderWithUserEvents(
+          <Draft onChange={vi.fn()} saved={saved} />,
+          { wrapper: Wrapper },
+          { advanceTimers: vi.advanceTimersByTime }
+        )
+
+      it('tells why letting the owner handle is put back', async () => {
+        entryOpen()
+        const { user } = renderDraft()
+        await flushPromises()
+        expect(screen.queryByRole('alert')).not.toBeInTheDocument()
+
+        await user.click(screen.getAllByRole('radio', { name: 'Owner Name' })[0])
+        await flushPromises()
+
+        expect(screen.getByRole('alert')).toHaveTextContent('registration.lockedChange')
+        expect(screen.getAllByRole('radio', { name: 'registration.someoneElse' })[0]).toBeChecked()
+      })
+
+      it('says nothing of a notes edit', async () => {
+        entryOpen()
+        const { user } = renderDraft()
+        await flushPromises()
+
+        await user.type(screen.getByRole('textbox', { name: 'registration.notes' }), ' more')
+        await flushPromises()
+
+        expect(screen.queryByRole('alert')).not.toBeInTheDocument()
+      })
+    })
+
     // The handler's place is the person: correcting a member handler's name on a paid entry keeps the
     // membership, and the form does not put the stored name back.
     it("keeps a correction of a paid entry's member handler", async () => {
