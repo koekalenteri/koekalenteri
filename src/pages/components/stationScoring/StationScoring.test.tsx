@@ -252,6 +252,15 @@ describe('StationScoring', () => {
       expect(screen.queryByRole('heading', { name: /Kolmas/ })).not.toBeInTheDocument()
     })
   })
+
+  it('lists the class tabs as ALO, AVO, VOI and opens on ALO, whatever order the dogs come in (KOE-1596)', () => {
+    const voi = { ...dogs[2], class: 'VOI' as const, group: { ...group, key: 'VOI-AP', number: 1 }, id: 'run-4' }
+    renderScoring({ registrations: [voi, dogs[2], dogs[0]] })
+
+    expect(screen.getAllByRole('tab').map((tab) => tab.textContent)).toEqual(['ALO', 'AVO', 'VOI'])
+    expect(screen.getByRole('tab', { name: 'ALO', selected: true })).toBeInTheDocument()
+  })
+
   describe('a save that is refused (KOE-1140)', () => {
     const pickAndSave = async (user: ReturnType<typeof userEvent.setup>) => {
       await user.click(screen.getByRole('button', { name: '1 Ensimmainen' }))

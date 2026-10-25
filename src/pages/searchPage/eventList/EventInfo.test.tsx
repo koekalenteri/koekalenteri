@@ -140,7 +140,8 @@ describe('EventInfo', () => {
       ...testEvent,
       classes: [
         { class: 'VOI', date: '2021-02-10', judge },
-        { class: 'ALO', date: '2021-02-11', judge },
+        // A class of several judges names them in a list.
+        { class: 'ALO', date: '2021-02-11', judge: [judge, { id: 2, name: 'Other Judge' }] },
         { class: 'AVO', date: '2021-02-11' },
       ],
       judges: [judge],

@@ -32,6 +32,9 @@
     }
   },
   "src/pages/admin/eventViewPage/SendMessageDialog.visual.test.tsx": {
+    "send-message-dialog-class-order": {
+      "label": 1
+    },
     "send-message-dialog-open": {
       "label": 1
     },

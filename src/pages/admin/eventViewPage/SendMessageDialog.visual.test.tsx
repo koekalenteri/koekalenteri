@@ -39,8 +39,8 @@ const registrationTemplate: EmailTemplate = {
   },
 }
 
-/** The dialog over one recipient, with the registration template to preview. */
-const renderDialog = (language: Language = 'fi') =>
+/** The dialog over the recipients, one by default, with the registration template to preview. */
+const renderDialog = (language: Language = 'fi', registrations = [registrationWithStaticDates]) =>
   render(
     <ThemeProvider theme={theme}>
       <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales[language]}>
@@ -54,7 +54,7 @@ const renderDialog = (language: Language = 'fi') =>
             <ConfirmProvider>
               <Suspense fallback={<div>loading...</div>}>
                 <SendMessageDialog
-                  registrations={[registrationWithStaticDates]}
+                  registrations={registrations}
                   open
                   event={eventWithStaticDates}
                   templateId="registration"
@@ -73,6 +73,17 @@ it('shows the recipient and a rendered template preview', async () => {
   // The dialog renders through a portal, so the capture is the dialog itself, not a frame around it.
   await expect.element(screen.getByText('Vastaanottajat: 1')).toBeVisible()
   await expect(screen.getByRole('dialog')).toMatchScreenshot('send-message-dialog-open')
+})
+
+// Recipients picked VOI first still name their classes as ALO, AVO, VOI (KOE-1596).
+it('names the recipient classes as ALO, AVO, VOI whatever order they were selected in (KOE-1596)', async () => {
+  const screen = await renderDialog('fi', [
+    { ...registrationWithStaticDates, class: 'VOI', id: 'voi' },
+    { ...registrationWithStaticDates, class: 'ALO', id: 'alo' },
+  ])
+
+  await expect.element(screen.getByText('Luokat: ALO, VOI')).toBeVisible()
+  await expect(screen.getByRole('dialog')).toMatchScreenshot('send-message-dialog-class-order')
 })
 
 // The guide's English page shows the dialog in English (KOE-1437).
