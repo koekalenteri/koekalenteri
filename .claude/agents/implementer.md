@@ -12,7 +12,8 @@ commits on the same branch.
 ## Before the first edit
 
 - Read `AGENTS.md` and `LLM_CONTEXT.md`.
-- Your worktree has no `node_modules`: `npm ci --prefer-offline`.
+- The `WorktreeCreate` hook installs `node_modules` in your worktree. If it is missing (`ls node_modules`),
+  run `npm ci --prefer-offline` before the first test.
 - Read the issue from the folder the orchestrator gives you: `issue.json` with its comments, and
   every attachment beside it (look at the images with Read). Only without a folder, read it
   through the REST API (`.env` holds the credentials).
