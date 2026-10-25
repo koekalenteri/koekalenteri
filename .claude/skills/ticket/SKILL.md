@@ -62,7 +62,8 @@ later (#1507 found three, one per round). When the plan changes a shared rule, a
 shape, run `reviewer` with `root-cause` and `rule-readers` on the plan (give them the plan text
 and the key instead of a PR number) before any code exists. When it adds a module, a table
 access or a stored shape, add `architecture`: a file in the wrong place is cheapest to move before
-it is written.
+it is written. When it adds a module, a stored field, a new option or abstraction, or touches more
+files than the cause needs, add `complexity`: a layer is cheapest to drop before it exists.
 
 Skip the plan when the change has one reader and nothing to choose, and say so in the handover.
 
@@ -77,7 +78,7 @@ In one message, start in the background:
 
 - `ci-watcher` with the PR number.
 - `reviewer` once per angle, each with the PR number, the key, the issue folder and its angle. Choose the angles
-  the change calls for: `tests` and `docs` always; `root-cause` when the issue reports a bug,
+  the change calls for: `tests`, `complexity` and `docs` always; `root-cause` when the issue reports a bug,
   `scope` when it asks for something new (both when it does both); `architecture` when the PR
   adds, moves or splits a file, module, table access or import between folders, or changes a
   stored shape or API field; `rule-readers` when a shared rule, flag or helper changes; `clock`
@@ -101,6 +102,15 @@ several rounds (#1520 stalled on it after #1519 landed).
 When all have reported:
 
 - Drop findings without a concrete scenario, merge duplicates, and sort by severity.
+- Check that each finding is reachable before it goes anywhere: follow the reviewer's path from
+  the entry point yourself and find the writer or UI action that produces the triggering state
+  (`git grep` for the writers; dev data when the state is about stored rows). A scenario only
+  theory reaches is dropped, and a `plausible` one is settled first, not passed on. A very
+  unlikely one becomes a note for the report, not work for the implementer and not a follow-up
+  question. Privacy and access control are exempt: a way to expose personal data or act outside
+  a role is a finding however unlikely the path (`reviewer.md`, "A finding").
+- When a finding asks for a guard, fallback or option and `complexity` says the state cannot
+  happen, the reachability check above decides; do not send both to the implementer.
 - Findings that belong to `main` (a test failing there too, a clock failure, a Sonar profile
   change): not the implementer's. Fix them in a separate PR without an issue key, or tell the
   user if the decision is theirs.
@@ -145,13 +155,18 @@ and the report says which item is missing.
 
 Then tell the user: the PR and whether it is ready, what was wrong and what changed, the review
 rounds and what they caught, CI state per check, the Sonar gate and issue count, out-of-scope
-findings and the follow-up issues created for them, and anything open or waiting on them.
+findings and the follow-up issues created for them, the notes (unlikely paths left as they
+are, one line each), and anything open or waiting on them.
 
 ## Follow-up issues
 
 When the user approves an issue for something found while working on `<KEY>`:
 
 1. Check the finding against the code yourself before writing it; a reviewer's trace is not proof.
+   Ask the user about a follow-up only when step 5's reachability check found the path: a user
+   can get there today, with the writer or the action that does it. A theoretical or very
+   unlikely case goes in the report as a note and gets no issue, except on privacy and access
+   control, where every way to expose personal data is worth an issue.
 2. Search the open issues (`statusCategory != Done`) for one that already covers it. Read the
    candidates' descriptions and comments, not only the summaries. If one covers it, propose
    using that issue instead; if one is related, propose linking it.
