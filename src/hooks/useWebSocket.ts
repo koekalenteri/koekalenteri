@@ -1,3 +1,4 @@
+import type { EventDateSortKey } from '../lib/event'
 import type {
   AdminDataCollection,
   AuditRecord,
@@ -23,7 +24,7 @@ import { getAdminOrganizers } from '../api/organizer'
 import { getUsers } from '../api/user'
 import { compareByLocalizedString } from '../lib/client/sort'
 import { isDayKey } from '../lib/day'
-import { sanitizeDogEvent } from '../lib/event'
+import { compareEventsByDate, sanitizeDogEvent } from '../lib/event'
 import { collectionResponseCursor, collectionSince, reconcileCollection } from '../lib/incremental'
 import { getIdTokenDiagnostics } from '../lib/token'
 import { applyPatch, applyPatchesById, applyPatchOrInsert, getPatchChangedIds, parseJSON } from '../lib/utils'
@@ -150,6 +151,21 @@ export const applyRegistrations = (registrations: Registration[], next: Registra
 
 export const applyRegistrationPatches = (registrations: Registration[], patch: Patch<Registration>[]): Registration[] =>
   applyPatchesById(registrations, patch)
+
+/**
+ * An event list with one websocket patch applied, kept in the calendar order every fetch gives it:
+ * an inserted event used to land last and a redated one stayed in its old slot until a reload (KOE-1591).
+ */
+const patchInDateOrder = <T extends EventDateSortKey, P extends Patch<T>>(
+  events: T[],
+  eventId: string,
+  patch: P,
+  insert: boolean
+): T[] => {
+  const next = insert ? applyPatchOrInsert(events, eventId, patch) : applyPatch(events, eventId, patch)
+  // A changed list is already a fresh array, so it sorts in place.
+  return next === events ? events : next.sort(compareEventsByDate)
+}
 
 const isInsertablePublicEventPatch = (
   patch: Patch<PublicDogEvent>
@@ -312,7 +328,7 @@ export const useWebSocket = () => {
         }
 
         const insert = options?.insert ?? true
-        const next = insert ? applyPatchOrInsert(events, eventId, patch) : applyPatch(events, eventId, patch)
+        const next = patchInDateOrder(events, eventId, patch, insert)
         if (next !== events) markRecentlyUpdated('public:event', eventId)
         set(eventsAtom, next)
       },
@@ -330,7 +346,7 @@ export const useWebSocket = () => {
         let changed = false
         // An update, so the patch lands on the list of the current fetch, even one still pending
         await set(adminEventsAtom, (events) => {
-          const next = applyPatchOrInsert(events, eventId, patch)
+          const next = patchInDateOrder(events, eventId, patch, true)
           changed = next !== events
           return next
         })
