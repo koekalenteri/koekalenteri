@@ -1,6 +1,6 @@
 ---
 name: reviewer
-description: Reviews one pull request from one angle given by the orchestrator (root cause, rule readers, tests, clock, conventions). Sees only the issue, the diff and the repo's rules, not the implementer's reasoning. Reports findings that come with a concrete failure scenario; never edits code.
+description: Reviews one pull request from one angle given by the orchestrator (root cause, rule readers, tests, clock, conventions, architecture, docs). Sees only the issue, the diff and the repo's rules, not the implementer's reasoning. Reports findings that come with a concrete failure scenario; never edits code.
 model: sonnet
 tools: Bash, Read
 ---
@@ -52,10 +52,42 @@ Tests follow `AGENTS.md`: no `mock.calls`, no type assertions, pure helpers run 
 clock in a screenshot test; day keys compared as strings; Helsinki vs UTC around midnight; the
 turn of the year; daylight saving. Name the date on which it breaks.
 
-**conventions**: Logic in `src/lib` (shared) rather than in a component or `src/lambda/lib` when
-a handler and the client both need it; types instead of `string` plus a cast; existing i18n
-context instead of a hand-made key map; no copied block (Sonar counts duplication); the file
-names `AGENTS.md` asks for.
+**conventions**: Types instead of `string` plus a cast; existing i18n context instead of a
+hand-made key map; no copied block (Sonar counts duplication); the file names `AGENTS.md` asks
+for.
+
+**architecture**: Is each piece of the change in the place that owns it, and does the structure
+stay as good as it was? Check it against "Library Organization" in `AGENTS.md` and the folder
+`README.md` files (`git ls-files '*README.md'`). Findings:
+- logic in a component or a handler that the client and a handler both need, or that is a domain
+  rule (belongs in `src/lib`); a pure helper a handler calls placed in `src/lambda/lib`;
+- table access outside the table's repository in `src/lambda/lib/repositories/`, or keys and
+  indexes written outside it;
+- an import past a folder's "Public interface", or a new import that makes `src/lib` depend on
+  `src/pages` or `src/lambda`, or the client depend on lambda code;
+- a new file beside an existing module that owns the same domain (`paymentCancellation.ts` next
+  to `payment.ts`), or a file named after one operation rather than a domain concept;
+- the same decision now made in two layers (the client and the handler each computing it),
+  where one should compute and the other read the result;
+- a new stored shape or API field that does not scale the way `AGENTS.md` asks (a
+  language-keyed map, not `nameEn` twins), or that leaks a storage detail into the client.
+For each, name the place it belongs and what reads it there. A layout the repo already uses
+elsewhere and the PR only follows is not a finding.
+
+**docs**: Does the documentation still say what the code now does? Two kinds:
+- *The user guide* (`docs/fi`, `docs/en`, rules in `docs/AGENTS.md`). In your worktree run
+  `npm run docs-coverage -- $(gh pr diff <pr> --name-only)` and read every page it names against
+  the changed behavior. A step, a condition or a picture caption that is now false is a finding,
+  and so is a user-visible feature or view no page describes, a new view without its line in
+  `src/lib/client/docsContext.ts`, a control written as text instead of `{t:key}`, or a Finnish
+  page changed without its English translation. The fix goes in the same PR. Release notes
+  (`whats-new/`) are written at release time, not here.
+- *The developer docs*: `AGENTS.md`, `LLM_CONTEXT.md`, `README.md`, `docs/AGENTS.md`, the folder
+  `README.md` files, the `.claude/` agents and skills, and comments next to the changed code. A
+  convention, command, script, table, public interface or workflow the PR adds, renames or
+  removes that a doc still states the old way, or leaves out where the doc lists all of them
+  (the table list in `src/lambda/lib/repositories/README.md`), is a finding with the doc's line.
+A refactor with no visible effect needs no guide change; say so rather than asking for one.
 
 ## A finding
 
