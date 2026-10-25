@@ -2132,6 +2132,44 @@ describe('runMigrationLambda', () => {
       expect(mockResponse).toHaveBeenCalledWith(200, [{ count: 1, name: 'storeOwnerSelections' }], directEvent)
     })
 
+    it("hands no payer copy's membership to the owner: the payer's was never read", async () => {
+      const copy = { email: owner.email, membership: true, name: owner.name }
+      const stored = row('reg1', { handler: owner, owner: { ...owner }, ownerHandles: true, payer: copy })
+      expect(isMember(stored)).toBe(false)
+      mockReadEventRegistrations.mockResolvedValueOnce([stored])
+
+      await runMigrationLambda(directEvent)
+
+      written('reg1', { ownerPays: true, 'payer.membership': false })
+      expect(stored.owner).toEqual(owner)
+      expect(isMember(stored)).toBe(false)
+    })
+
+    it('gives a row naming no person only the selections, with no handler or payer', async () => {
+      mockReadEventRegistrations.mockResolvedValueOnce([row('reg1', { owner: undefined })])
+
+      await runMigrationLambda(directEvent)
+
+      written('reg1', { ownerHandles: true, ownerPays: true })
+    })
+
+    it('decides again on the row a conflicting save left, when it still lacks the selections', async () => {
+      const handler = { email: 'handler@example.com', name: 'Hanna Ohjaaja' }
+      mockReadEventRegistrations.mockResolvedValueOnce([row('reg1', { payer: owner })])
+      mockWriteMigratedRegistration.mockRejectedValueOnce(conflict())
+      mockReadRegistration.mockResolvedValueOnce(row('reg1', { handler, payer: owner, updatedAt: 'saved' }))
+
+      await runMigrationLambda(directEvent)
+
+      expect(mockWriteMigratedRegistration).toHaveBeenCalledTimes(2)
+      expect(mockWriteMigratedRegistration).toHaveBeenLastCalledWith(
+        'event1',
+        'reg1',
+        { set: { ownerHandles: false, ownerPays: true, updatedAt: expect.not.stringMatching(/^saved$/) } },
+        'saved'
+      )
+    })
+
     it('writes nothing when a save gave the row its selections meanwhile', async () => {
       mockReadEventRegistrations.mockResolvedValueOnce([row('reg1', {})])
       mockWriteMigratedRegistration.mockRejectedValueOnce(conflict())
