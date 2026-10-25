@@ -52,7 +52,7 @@ const isUserForbidden = (
 ): boolean => {
   if (user.admin) return false
   if (existing && !isMemberOfOrganizer(memberOf, existing.organizer?.id)) return true
-  if (item?.organizer?.id && !memberOf.includes(item.organizer.id)) return true
+  if (item?.organizer?.id && !isMemberOfOrganizer(memberOf, item.organizer.id)) return true
 
   return false
 }

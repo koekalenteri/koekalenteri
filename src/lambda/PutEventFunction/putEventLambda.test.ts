@@ -107,17 +107,9 @@ const updateRegistrationsMock = updateRegistrations as import('vitest').Mock<typ
 
 const { default: putEventLambda } = await import('./handler')
 
-/**
- * The caller as authorizeWithMemberOf answers for them (its own tests hold it to this): the clubs they
- * hold a role in, or 403 for a user who holds none and is not an admin.
- */
+/** The caller as authorizeWithMemberOf answers for them: the user and the clubs they hold a role in. */
 const signIn = (user: JsonUser) => {
-  const memberOf = Object.keys(user.roles ?? {})
-  if (!memberOf.length && !user.admin) {
-    authorizeWithMemberOfMock.mockRejectedValueOnce(httpError(403, 'Forbidden'))
-  } else {
-    authorizeWithMemberOfMock.mockResolvedValueOnce({ memberOf, user })
-  }
+  authorizeWithMemberOfMock.mockResolvedValueOnce({ memberOf: Object.keys(user.roles ?? {}), user })
 }
 
 const mockSecretary: JsonUser = {
@@ -280,7 +272,6 @@ describe('putEventLambda', () => {
   // KOE-1607: sign-up is open, so a signed-in user may hold no role at all. Such a caller writes no
   // event, and every event names the organizer whose members may change it.
   describe('who may write an event', () => {
-    const mockRoleless: JsonUser = { ...mockSecretary, roles: {} }
     const newEventBody: Partial<JsonDogEvent> = {
       ...confirmedDates,
       eventType: 'TEST',
@@ -293,23 +284,26 @@ describe('putEventLambda', () => {
     Reflect.deleteProperty(orphanEvent, 'organizer')
 
     it('refuses a new event from a user with no role, and writes nothing', async () => {
-      signIn(mockRoleless)
+      // The authorizer refuses a user with no role who is not an admin; src/lambda/lib/auth.test.ts holds it to that.
+      authorizeWithMemberOfMock.mockRejectedValueOnce(httpError(403, 'Forbidden'))
 
       const res = await putEventLambda(constructAPIGwEvent(newEventBody))
 
       expect(res.statusCode).toEqual(403)
+      expect(getEventMock).not.toHaveBeenCalled()
       expect(saveEventMock).not.toHaveBeenCalled()
     })
 
-    it('refuses a change from a user with no role to an event without an organizer', async () => {
-      signIn(mockRoleless)
-      getEventMock.mockResolvedValueOnce(orphanEvent)
+    it('refuses a change from a user with no role before reading the event', async () => {
+      // The authorizer refuses a user with no role who is not an admin; src/lambda/lib/auth.test.ts holds it to that.
+      authorizeWithMemberOfMock.mockRejectedValueOnce(httpError(403, 'Forbidden'))
 
       const res = await putEventLambda(
         constructAPIGwEvent<Partial<JsonDogEvent>>({ eventType: 'TEST', id: 'existing' }, { method: 'PATCH' })
       )
 
       expect(res.statusCode).toEqual(403)
+      expect(getEventMock).not.toHaveBeenCalled()
       expect(patchEventMock).not.toHaveBeenCalled()
     })
 
