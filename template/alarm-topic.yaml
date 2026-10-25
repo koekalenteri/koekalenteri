@@ -1,0 +1,18 @@
+  # Every CloudWatch alarm of the stack notifies this topic when it fires and when it clears
+  # (KOE-1602). An alarm clears on its own at the next good run, and the OK mail is what tells the
+  # reader the incident is over. Test has no alarms, so no topic either. The topic name is in the
+  # deploy role's Topics statement (aws/github-deploy-role.yaml): renaming it fails the deploy.
+  AlarmTopic:
+    Type: AWS::SNS::Topic
+    Condition: IsNotTestStage
+    Properties:
+      TopicName: !Join ['-', [alarms, !Ref AWS::StackName]]
+
+  # SNS mails a confirmation link first; nothing is delivered until it is clicked.
+  AlarmTopicEmailSubscription:
+    Type: AWS::SNS::Subscription
+    Condition: SendsAlarmEmail
+    Properties:
+      TopicArn: !Ref AlarmTopic
+      Protocol: email
+      Endpoint: !Ref AlarmEmail

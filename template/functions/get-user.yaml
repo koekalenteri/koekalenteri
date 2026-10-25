@@ -25,10 +25,14 @@
   # user. This alarms on the API Gateway request count rather than Lambda invocations because
   # the method throttle rejects a storm before it reaches the function, which would leave the
   # Lambda metric quiet exactly when the throttle is doing its job.
-  # TODO: Add AlarmActions when the stack has a general operations SNS topic.
   GetUserRequestFloodAlarm:
     Type: AWS::CloudWatch::Alarm
+    Condition: IsNotTestStage
     Properties:
+      AlarmActions:
+        - !Ref AlarmTopic
+      OKActions:
+        - !Ref AlarmTopic
       AlarmDescription: GET /user request volume is far above normal use
       Namespace: AWS/ApiGateway
       MetricName: Count

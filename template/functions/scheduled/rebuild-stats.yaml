@@ -35,7 +35,12 @@
   # never did. Alarm on both outcomes: an erroring run, and no successful run in over 48h.
   RebuildStatsFunctionErrorAlarm:
     Type: AWS::CloudWatch::Alarm
+    Condition: IsNotTestStage
     Properties:
+      AlarmActions:
+        - !Ref AlarmTopic
+      OKActions:
+        - !Ref AlarmTopic
       AlarmDescription: Nightly stats rebuild failed
       Namespace: AWS/Lambda
       MetricName: Errors
@@ -51,7 +56,12 @@
 
   RebuildStatsFunctionMissingRunAlarm:
     Type: AWS::CloudWatch::Alarm
+    Condition: IsNotTestStage
     Properties:
+      AlarmActions:
+        - !Ref AlarmTopic
+      OKActions:
+        - !Ref AlarmTopic
       AlarmDescription: Nightly stats rebuild has not run successfully in 48 hours
       Namespace: AWS/Lambda
       MetricName: Invocations
@@ -81,7 +91,12 @@
 
   RebuildStatsFunctionUnattributedCapacityAlarm:
     Type: AWS::CloudWatch::Alarm
+    Condition: IsNotTestStage
     Properties:
+      AlarmActions:
+        - !Ref AlarmTopic
+      OKActions:
+        - !Ref AlarmTopic
       AlarmDescription: Nightly stats rebuild found registrations it could not attribute to a capacity class
       AlarmName: !Sub '${AWS::StackName}-rebuild-stats-unattributed-capacity'
       Namespace: KoekalenteriApp

@@ -40,7 +40,12 @@
 
   RepairDataVersionsFunctionErrorAlarm:
     Type: AWS::CloudWatch::Alarm
+    Condition: IsNotTestStage
     Properties:
+      AlarmActions:
+        - !Ref AlarmTopic
+      OKActions:
+        - !Ref AlarmTopic
       AlarmDescription: Weekly data version repair failed
       Namespace: AWS/Lambda
       MetricName: Errors
@@ -59,7 +64,12 @@
   # which happens only when a scheduled run was skipped.
   RepairDataVersionsFunctionMissingRunAlarm:
     Type: AWS::CloudWatch::Alarm
+    Condition: IsNotTestStage
     Properties:
+      AlarmActions:
+        - !Ref AlarmTopic
+      OKActions:
+        - !Ref AlarmTopic
       AlarmDescription: Data version repair has not run in 7 days
       Namespace: AWS/Lambda
       MetricName: Invocations
@@ -88,7 +98,12 @@
 
   RepairDataVersionsDriftAlarm:
     Type: AWS::CloudWatch::Alarm
+    Condition: IsNotTestStage
     Properties:
+      AlarmActions:
+        - !Ref AlarmTopic
+      OKActions:
+        - !Ref AlarmTopic
       AlarmDescription: A collection changed without its version being bumped
       AlarmName: !Sub '${AWS::StackName}-data-version-drift'
       Namespace: KoekalenteriApp

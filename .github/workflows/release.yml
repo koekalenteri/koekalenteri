@@ -160,6 +160,7 @@ jobs:
               ParameterKey=GoogleClientId,ParameterValue=${{ secrets.GOOGLE_CLIENT_ID }} \
               ParameterKey=GoogleClientSecret,ParameterValue=${{ secrets.GOOGLE_CLIENT_SECRET }} \
               ParameterKey=CustomDomain,ParameterValue=${{ secrets.CUSTOM_DOMAIN }} \
+              ParameterKey=AlarmEmail,ParameterValue=${{ secrets.ALARM_EMAIL }} \
               ParameterKey=Branch,ParameterValue=${{ env.branch }}' \
             --capabilities CAPABILITY_IAM CAPABILITY_NAMED_IAM \
             --no-confirm-changeset --no-fail-on-empty-changeset

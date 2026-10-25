@@ -17,8 +17,8 @@ Read `LLM_CONTEXT.md` for the project overview and architecture notes.
   are `src/lambda/**/*.integration.test.ts`, beside the module they run; each writes under ids of its
   own and asserts on those, never on a table's whole content. Never part of `npm test` or the
   pre-commit hook; CI runs them in the `integration` job with the container as a service (KOE-1369).
-  A test that calls a wrapped handler prints one EMF metrics line: the wrapper's metric sink writes
-  to stdout past the console guard.
+  A test whose wrapped handler answers anything but 200 prints one EMF metrics line (`Error`): the
+  wrapper's metric sink writes to stdout past the console guard. A 200 writes no metric.
 
 ### A green run is a quiet run
 
@@ -349,6 +349,14 @@ Read `LLM_CONTEXT.md` for the project overview and architecture notes.
   since no write template can carry it. A function that calls `authorize()` carries `- !Ref AuthorizePolicy`
   (`template/policies/authorize-policy.yaml`) for the user, user link and data version tables; a
   broadcast needs `- !Ref WebSocketPolicy`.
+- A CloudWatch alarm (`AWS::CloudWatch::Alarm`) carries `Condition: IsNotTestStage`, and
+  `AlarmActions` and `OKActions` on `- !Ref AlarmTopic` (`template/alarm-topic.yaml`), which mails
+  the stack parameter `AlarmEmail` (the repository secret `ALARM_EMAIL`). Test has no alarms; dev's
+  and prod's mail when they fire and when they clear. `src/lambda/template.test.ts` fails on an
+  alarm without them (KOE-1602).
+- The `lambda()` wrapper counts every answer but a 200 as `Error` of its service in the
+  `KoekalenteriApp` namespace (`src/lambda/lib/metrics.ts`) and writes no metric for a 200:
+  AWS/Lambda Invocations already counts those, and a custom metric is billed per month.
 
 ## Lambda Logging
 

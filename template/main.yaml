@@ -85,12 +85,26 @@ Parameters:
     Description: Google Client Secret
     NoEcho: true
 
+  # Where dev's and prod's alarms are mailed (KOE-1602). The release workflow passes the repository
+  # secret ALARM_EMAIL: the repository and its workflow logs are public, so the address is in neither.
+  AlarmEmail:
+    Type: String
+    Description: Email address the alarm topic mails
+    NoEcho: true
+    Default: ''
+
 Conditions:
   # Prod's frontend differs from the other stages twice over: its Cognito custom domain carries no
   # stage suffix, and it is the only stage with a RUM monitor.
   IsProdStage: !Equals [!Ref StageNameParam, prod]
   # Only test and dev can receive an event copied from another environment (KOE-1471).
   IsNotProdStage: !Not [!Condition IsProdStage]
+  # Test runs no alarms (KOE-1602): an alarm is billed per month whether anyone hears it or not.
+  # Dev and prod alarm, and mail the alarm topic's subscriber.
+  IsTestStage: !Equals [!Ref StageNameParam, test]
+  IsNotTestStage: !Not [!Condition IsTestStage]
+  # Without an address the topic still takes the alarms; nothing is subscribed to it.
+  SendsAlarmEmail: !And [!Condition IsNotTestStage, !Not [!Equals [!Ref AlarmEmail, '']]]
 
 Resources:
   # This secret signs every participant registration link. Never attach an

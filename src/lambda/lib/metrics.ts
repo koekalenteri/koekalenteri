@@ -1,27 +1,26 @@
-import type { MetricsLogger } from 'aws-embedded-metrics'
 import type { APIGatewayEventRequestContext } from 'aws-lambda'
-import { Unit } from 'aws-embedded-metrics'
+import { createMetricsLogger, Unit } from 'aws-embedded-metrics'
+import { logger } from './log'
 
 /** Absent when a lambda is invoked directly (`aws lambda invoke`) instead of through API Gateway. */
 type RequestContext = APIGatewayEventRequestContext | undefined
 
-const metricsCount = (
-  metrics: MetricsLogger,
-  label: string,
-  count: number,
-  context: RequestContext,
-  service: string
-) => {
+/**
+ * Counts one request a wrapped handler did not answer 200, as `Error` of its service in the
+ * KoekalenteriApp namespace. Lambda's own Errors sees only an invocation that throws, and the wrapper
+ * answers every failure instead. A successful request writes nothing: AWS/Lambda Invocations counts
+ * it for free, and each custom metric is billed per month (KOE-1602).
+ */
+export const countError = async (context: RequestContext, service: string): Promise<void> => {
+  const metrics = createMetricsLogger()
   metrics.setNamespace('KoekalenteriApp')
   metrics.putDimensions({ Service: service })
   metrics.setProperty('RequestId', context?.requestId)
-  metrics.putMetric(label, count, Unit.Count)
-}
-
-export const metricsSuccess = (metrics: MetricsLogger, context: RequestContext, service: string): void => {
-  metricsCount(metrics, 'Success', 1, context, service)
-}
-
-export const metricsError = (metrics: MetricsLogger, context: RequestContext, service: string): void => {
-  metricsCount(metrics, 'Error', 1, context, service)
+  metrics.putMetric('Error', 1, Unit.Count)
+  try {
+    await metrics.flush()
+  } catch (error) {
+    // A lost count must not turn the answer into a failure of its own.
+    logger.warn('error metric not written', { error })
+  }
 }
