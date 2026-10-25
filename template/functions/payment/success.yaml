@@ -5,7 +5,7 @@
       Handler: handler.default
       Environment:
         Variables:
-          REGISTRATION_EDIT_TOKEN_SECRET: !Sub '{{resolve:secretsmanager:${RegistrationEditTokenSecret}:SecretString}}'
+          REGISTRATION_EDIT_TOKEN_SECRET: !Sub '{{resolve:ssm:${AWS::StackName}-REGISTRATION_EDIT_TOKEN_SECRET}}'
       Policies:
         - Statement:
             - Sid: SSMGetParameterPolicy
@@ -60,8 +60,12 @@
 
   PaymentSuccessRegistrationPaymentsLockConflictAlarm:
     Type: AWS::CloudWatch::Alarm
+    Condition: IsNotTestStage
     Properties:
-      # TODO: Add AlarmActions when the stack has a general operations SNS topic.
+      AlarmActions:
+        - !Ref AlarmTopic
+      OKActions:
+        - !Ref AlarmTopic
       AlarmDescription: A captured payment exhausted the event payment-lock retry budget and may be unapplied
       AlarmName: !Sub '${AWS::StackName}-payment-success-payment-lock-conflict'
       ComparisonOperator: GreaterThanOrEqualToThreshold

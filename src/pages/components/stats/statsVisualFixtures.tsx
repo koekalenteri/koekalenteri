@@ -7,9 +7,15 @@ import theme from '@/assets/Theme'
  * Wrapper the screenshot is taken of: a fixed width and an opaque background keep captures stable,
  * and the app's theme sets the chart title in the size the stats pages give it.
  */
-export const ChartFrame = ({ children }: { readonly children: React.ReactNode }) => (
+export const ChartFrame = ({
+  children,
+  width = 1000,
+}: {
+  readonly children: React.ReactNode
+  readonly width?: number
+}) => (
   <ThemeProvider theme={theme}>
-    <div data-testid="chart-root" style={{ background: '#fff', padding: 16, width: 1000 }}>
+    <div data-testid="chart-root" style={{ background: '#fff', padding: 16, width }}>
       {children}
     </div>
   </ThemeProvider>

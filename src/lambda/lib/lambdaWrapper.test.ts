@@ -4,11 +4,6 @@ import { constructPartialAPIGwEvent } from '../test-utils/helpers'
 import { loggedLines } from '../test-utils/logs'
 
 vi.mock('../config', () => ({ CONFIG: { stageName: 'test' } }))
-vi.mock('aws-embedded-metrics', () => ({
-  metricScope: (factory: (metrics: unknown) => unknown) =>
-    factory({ putDimensions: vi.fn(), putMetric: vi.fn(), setNamespace: vi.fn(), setProperty: vi.fn() }),
-  Unit: { Count: 'Count' },
-}))
 
 const { httpError, lambda, LambdaError, response, wsLambda } = await import('./lambda')
 

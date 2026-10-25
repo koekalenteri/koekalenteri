@@ -52,12 +52,22 @@ const listField = (record: Record<string, unknown>, key: string): unknown[] => {
  * plain lists. A similar list lives in scripts/lib/tables.mjs and e2e/server/routes.mjs; it is not
  * imported from there because the lambda tsconfig has no allowJs, so lint-backend could not type it.
  */
-const intrinsicTags = ['Ref', 'Sub', 'GetAtt', 'Join', 'Select', 'Split', 'If', 'Equals', 'Not', 'Condition'].flatMap(
-  (name) => [
-    { collection: 'seq' as const, identify: () => false, tag: `!${name}` },
-    { identify: () => false, resolve: (value: string) => ({ [name]: value }), tag: `!${name}` },
-  ]
-)
+const intrinsicTags = [
+  'Ref',
+  'Sub',
+  'GetAtt',
+  'Join',
+  'Select',
+  'Split',
+  'If',
+  'Equals',
+  'Not',
+  'And',
+  'Condition',
+].flatMap((name) => [
+  { collection: 'seq' as const, identify: () => false, tag: `!${name}` },
+  { identify: () => false, resolve: (value: string) => ({ [name]: value }), tag: `!${name}` },
+])
 
 const actionsOf = (actions: string[], where: string): Action[] =>
   actions.map((action) => {

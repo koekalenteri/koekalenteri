@@ -27,11 +27,12 @@ const matchAll = (pattern: RegExp) => [...template.matchAll(pattern)].map((match
 
 const analysis = analyzeTableUse(handlerDirectories.map((dir) => `src/lambda/${dir}/handler.ts`))
 
-// A resource line may carry a trailing comment (UserLinkTable does).
-const tableBlocks = () =>
-  template
-    .split(/^ {2}(?=\w+:.*\n {4}Type: )/m)
-    .filter((block) => /^\w+:.*\n {4}Type: AWS::DynamoDB::Table\s*$/m.test(block))
+// One block per resource, starting at its logical id. A resource line may carry a trailing comment
+// (UserLinkTable does).
+const resources = template.split(/^ {2}(?=\w+:.*\n {4}Type: )/m)
+const resourceName = (block: string) => block.slice(0, block.indexOf(':'))
+const resourcesOfType = (type: string) =>
+  resources.filter((block) => new RegExp(String.raw`^\w+:.*\n {4}Type: ${type}\s*$`, 'm').test(block))
 
 describe('template', () => {
   it('has a function for every lambda directory, and nothing else', () => {
@@ -70,6 +71,19 @@ describe('template', () => {
     expect(template).toMatch(/^ {2}IsNotProdStage: !Not \[!Condition IsProdStage\]$/m)
   })
 
+  // The secret every registration, start number and station link is signed with is the stack's SSM
+  // parameter, copied unchanged from the Secrets Manager secret it replaced (KOE-1604). A function that
+  // resolved anything else would sign links nobody else can open.
+  it("signs links with the stack's SSM parameter, and holds no Secrets Manager secret", () => {
+    const sources = matchAll(/^ {10}REGISTRATION_EDIT_TOKEN_SECRET: (.+)$/gm)
+
+    expect(sources.length).toBeGreaterThan(0)
+    expect(new Set(sources)).toEqual(
+      new Set([`!Sub '{{resolve:ssm:\${AWS::StackName}-REGISTRATION_EDIT_TOKEN_SECRET}}'`])
+    )
+    expect(template).not.toMatch(/secretsmanager/i)
+  })
+
   // A table that holds anything a restore would need gets point-in-time recovery; the data-version
   // table went without it while it held the migration registry (KOE-1597).
   it('has point-in-time recovery on every table but the rebuildable ones', () => {
@@ -77,9 +91,9 @@ describe('template', () => {
       EventStatsTable: 'the nightly run rebuilds the statistics from the registrations',
       WsConnectionsTable: 'the connections expire on their own and mean nothing after a restore',
     }
-    const tables = tableBlocks()
+    const tables = resourcesOfType('AWS::DynamoDB::Table')
     const recovery = Object.fromEntries(
-      tables.map((block) => [block.slice(0, block.indexOf(':')), /^ {8}PointInTimeRecoveryEnabled: true$/m.test(block)])
+      tables.map((block) => [resourceName(block), /^ {8}PointInTimeRecoveryEnabled: true$/m.test(block)])
     )
 
     expect(tables).toHaveLength(template.match(/^ {4}Type: AWS::DynamoDB::Table\s*$/gm)?.length ?? 0)
@@ -89,13 +103,39 @@ describe('template', () => {
     )
   })
 
+  // An alarm is billed per month whether or not anyone hears it. Before KOE-1602 the 13 alarms of each
+  // stack had no action at all, so one in ALARM (the data version drift of 24.10.2026) told nobody.
+  // Now test has none, and dev's and prod's notify the stack's alarm topic, when they fire and when
+  // they clear.
+  it('has alarms outside test only, and every alarm notifies the alarm topic', () => {
+    const alarms = resourcesOfType('AWS::CloudWatch::Alarm')
+    const missing = (pattern: RegExp) => alarms.filter((block) => !pattern.test(block)).map(resourceName)
+    const [topic] = resourcesOfType('AWS::SNS::Topic').filter((block) => block.startsWith('AlarmTopic:'))
+    const subscriptions = resourcesOfType('AWS::SNS::Subscription').filter((block) =>
+      /^ {6}TopicArn: !Ref AlarmTopic$/m.test(block)
+    )
+
+    expect(alarms.length).toBeGreaterThan(0)
+    expect(alarms).toHaveLength(template.match(/^ {4}Type: AWS::CloudWatch::Alarm\s*$/gm)?.length ?? 0)
+    expect(missing(/^ {4}Condition: IsNotTestStage$/m)).toEqual([])
+    expect(missing(/^ {6}AlarmActions:\n {8}- !Ref AlarmTopic$/m)).toEqual([])
+    expect(missing(/^ {6}OKActions:\n {8}- !Ref AlarmTopic$/m)).toEqual([])
+    expect(template).toMatch(/^ {2}IsNotTestStage: !Not \[!Condition IsTestStage\]$/m)
+
+    expect(topic).toMatch(/^ {4}Condition: IsNotTestStage$/m)
+    expect(subscriptions).toHaveLength(1)
+    expect(subscriptions[0]).toMatch(/^ {4}Condition: SendsAlarmEmail$/m)
+    expect(subscriptions[0]).toMatch(/^ {6}Protocol: email$/m)
+    expect(subscriptions[0]).toMatch(/^ {6}Endpoint: !Ref AlarmEmail$/m)
+  })
+
   // SSEEnabled: true encrypts a table with the AWS-managed aws/dynamodb KMS key, and DynamoDB then
   // calls KMS on the table's behalf, each request billed (82 000 in October 2026). False keeps the
   // data encrypted at rest with a key AWS owns, at no charge (KOE-1603).
   it('encrypts every table with the AWS-owned key', () => {
-    const tables = tableBlocks()
+    const tables = resourcesOfType('AWS::DynamoDB::Table')
     const ownedKey = Object.fromEntries(
-      tables.map((block) => [block.slice(0, block.indexOf(':')), /^ {8}SSEEnabled: false$/m.test(block)])
+      tables.map((block) => [resourceName(block), /^ {8}SSEEnabled: false$/m.test(block)])
     )
 
     expect(tables).toHaveLength(template.match(/^ {4}Type: AWS::DynamoDB::Table\s*$/gm)?.length ?? 0)

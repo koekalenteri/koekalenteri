@@ -5,7 +5,7 @@
       Handler: handler.default
       Environment:
         Variables:
-          REGISTRATION_EDIT_TOKEN_SECRET: !Sub '{{resolve:secretsmanager:${RegistrationEditTokenSecret}:SecretString}}'
+          REGISTRATION_EDIT_TOKEN_SECRET: !Sub '{{resolve:ssm:${AWS::StackName}-REGISTRATION_EDIT_TOKEN_SECRET}}'
       Policies:
         - DynamoDBCrudPolicy:
             TableName: !Ref EventRegistrationTable
@@ -87,8 +87,12 @@
 
   PutRegistrationPaymentsLockConflictAlarm:
     Type: AWS::CloudWatch::Alarm
+    Condition: IsNotTestStage
     Properties:
-      # TODO: Add AlarmActions when the stack has a general operations SNS topic.
+      AlarmActions:
+        - !Ref AlarmTopic
+      OKActions:
+        - !Ref AlarmTopic
       AlarmDescription: Ready-registration creates exhausted the event payment-lock retry budget
       AlarmName: !Sub '${AWS::StackName}-put-registration-payment-lock-conflict'
       ComparisonOperator: GreaterThanOrEqualToThreshold

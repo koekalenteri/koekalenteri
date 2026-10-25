@@ -43,7 +43,7 @@ import { bucketForCount, eventStatsYear, hashStatValue, participationIdentifiers
  * parse of the start date, and whether it has ended by the time of the rebuild.
  *
  * `ended` gates the capacity, participation and club breakdown stats: an event is in them only once
- * it has run.
+ * it has run. The judge workload counts both, and `ended` splits it into held and upcoming.
  * Until the event day is over, every entry of an event that has not been drawn yet sits in the
  * reserve group, and one drawn but not yet run has starters who may still withdraw -- so an
  * upcoming event would show up as all reserve. Counting only some of its figures ahead of the day
@@ -665,28 +665,31 @@ const eventBreakdownRecords = (
   }))
 
 interface JudgeWorkloadBucket {
-  count: number
+  held: number
   judgeId: string
   name: string
   organizerId: string
+  upcoming: number
   year: number
 }
 
 /**
- * How many events each judge officiated per year and organizer, counted straight from the
+ * How many events each judge officiates per year and organizer, counted straight from the
  * events table -- unlike participation, this needs no registration at all, just the event's
- * own judge list. A judge assigned to several classes of the same event only counts once for
+ * own judge list. Held and upcoming events are counted apart, by the same `ended` flag that
+ * gates the other stats (see DatedStatsEvent), so an organizer sees both the work done and the
+ * work booked. A judge assigned to several classes of the same event only counts once for
  * that event. Split by organizer so the admin stats page can honour its organizer picker; the
  * read side sums the rows back together for wider views.
  */
 const seedJudgeWorkloadFromEvents = (
-  eventsById: Map<string, EventStatsEvent>,
+  datedEvents: Map<string, DatedStatsEvent>,
   buckets: Map<string, JudgeWorkloadBucket>
 ): void => {
-  for (const event of eventsById.values()) {
-    if (!countsTowardsCapacity(event)) continue
-    const year = eventStatsYear(event)
-    if (year === undefined) continue
+  for (const dated of datedEvents.values()) {
+    const { event, year } = dated
+    if (!countsTowardsCapacity(event) || year === undefined) continue
+    const held = isHeldEvent(dated)
 
     const seen = new Set<string>()
     for (const judge of event.judges ?? []) {
@@ -696,8 +699,12 @@ const seedJudgeWorkloadFromEvents = (
 
       const organizerId = event.organizer.id
       const key = `${year}#${organizerId}#${judgeId}`
-      const bucket = buckets.get(key) ?? { count: 0, judgeId, name: judge.name, organizerId, year }
-      bucket.count += 1
+      const bucket = buckets.get(key) ?? { held: 0, judgeId, name: judge.name, organizerId, upcoming: 0, year }
+      if (held) {
+        bucket.held += 1
+      } else {
+        bucket.upcoming += 1
+      }
       buckets.set(key, bucket)
     }
   }
@@ -705,12 +712,13 @@ const seedJudgeWorkloadFromEvents = (
 
 const judgeWorkloadRecords = (buckets: Map<string, JudgeWorkloadBucket>, updatedAt: string): JsonJudgeWorkloadItem[] =>
   [...buckets.values()].map((bucket) => ({
-    count: bucket.count,
+    held: bucket.held,
     judgeId: bucket.judgeId,
     name: bucket.name,
     organizerId: bucket.organizerId,
     PK: judgeWorkloadPk(bucket.year),
     SK: `${bucket.organizerId}#${bucket.judgeId}`,
+    upcoming: bucket.upcoming,
     updatedAt,
   }))
 
@@ -799,7 +807,6 @@ const processRegistrationStats = (
  * rather than from registrations.
  */
 const seedStatsBuckets = (
-  eventsById: Map<string, EventStatsEvent>,
   datedEvents: Map<string, DatedStatsEvent>,
   wanted: Set<StatsPartition>,
   yearlyStats: Map<number, Map<YearlyStatTypes, Map<string, number>>>
@@ -809,7 +816,7 @@ const seedStatsBuckets = (
   if (wanted.has('capacity')) seedCapacityFromEvents(datedEvents, capacityBuckets, eventClassMonths)
 
   const judgeWorkloadBuckets = new Map<string, JudgeWorkloadBucket>()
-  if (wanted.has('judges')) seedJudgeWorkloadFromEvents(eventsById, judgeWorkloadBuckets)
+  if (wanted.has('judges')) seedJudgeWorkloadFromEvents(datedEvents, judgeWorkloadBuckets)
 
   if (wanted.has('participation')) seedEventCountsFromEvents(datedEvents, yearlyStats)
 
@@ -850,7 +857,7 @@ export function buildStatsRecords(
 
   const datedEvents = dateStatsEvents(eventsById, now)
   const { breedStartBuckets, capacityBuckets, eventBreakdownBuckets, eventClassMonths, judgeWorkloadBuckets } =
-    seedStatsBuckets(eventsById, datedEvents, wanted, yearlyStats)
+    seedStatsBuckets(datedEvents, wanted, yearlyStats)
 
   const context: RegistrationStatsContext = {
     accumulator,

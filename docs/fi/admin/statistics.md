@@ -21,12 +21,18 @@ on oikeus; jos yhdistyksiä on useita, ne valitaan kohdasta *{t:organization}*. 
 rajaa kaaviot yhteen vuoteen, ja valittavissa ovat vain ne vuodet, joina yhdistyksellä on ollut
 kokeita.
 
-| Kaavio | Mitä se kertoo |
+| Kaavio tai taulukko | Mitä se kertoo |
 | --- | --- |
 | *{t:stats.admin.title}* | maksetut ja palautetut summat kuukausittain |
 | *{t:stats.admin.reserveCancelledTitle}* | alkaneiden kokeiden varasijalle jääneet ja perutut ilmoittautumiset kuukausittain |
 | *{t:stats.admin.memberShareTitle}* | kuinka suuri osa osallistujista oli yhdistyksen jäseniä |
-| *{t:stats.admin.judgeWorkloadTitle}* | monessako yhdistyksen kokeessa kukin tuomari toimi |
+| *{t:stats.admin.judgeWorkloadTitle}* | taulukko: monessako yhdistyksen kokeessa kukin tuomari on toiminut ja monessako toimii vielä |
+
+Tuomarien työmäärässä ovat mukana myös tulevat kokeet, erillään pidetyistä. *{t:stats.admin.judgeHeldEvents}*
+ovat jo päättyneet kokeet, *{t:stats.admin.judgeUpcomingEvents}* ne, joiden viimeinen päivä ei ole vielä
+ohi, ja *{t:stats.admin.judgeTotalEvents}* näiden summa. Taulukko on järjestetty yhteismäärän mukaan
+suurimmasta pienimpään, ja pitkä lista vierii omassa laatikossaan. Luonnoksia, alustavia ja
+peruttuja kokeita ei lasketa, ja luvut päivittyvät öisin.
 
 Sivun alaosan kaaviot lasketaan koemuodolle ja luokalle, jotka valitaan kohdista
 *{t:stats.admin.eventType}* ja *{t:stats.admin.class}*: *{t:stats.admin.capacityTitle}*,
