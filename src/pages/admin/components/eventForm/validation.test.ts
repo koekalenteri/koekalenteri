@@ -375,6 +375,24 @@ describe('validation', () => {
       })
     })
 
+    it('names each class without a judge once, as ALO, AVO, VOI (KOE-1596)', () => {
+      const event: PartialEvent = {
+        ...emptyEvent,
+        classes: [
+          { class: 'VOI', date: emptyEvent.startDate },
+          { class: 'ALO', date: emptyEvent.startDate },
+          { class: 'VOI', date: emptyEvent.endDate },
+          { class: 'AVO', date: emptyEvent.endDate, judge: { id: 99, name: 'T99' } },
+        ],
+        eventType: 'NOME-B',
+        state: 'confirmed',
+      }
+      expect(VALIDATORS.judges?.(event, true)).toEqual({
+        key: 'classesJudge',
+        opts: { field: 'judges', length: 2, list: ['ALO', 'VOI'] },
+      })
+    })
+
     it('does not require class judge assignment for NOWT', () => {
       const event: PartialEvent = {
         ...emptyEvent,
@@ -537,6 +555,25 @@ describe('validation', () => {
       expect(res).toEqual({
         key: 'placesClass',
         opts: { field: 'places', length: 1, list: ['ALO'] },
+      })
+    })
+
+    it('names each class without places once, as ALO, AVO, VOI (KOE-1596)', () => {
+      const event: PartialEvent = {
+        ...emptyEvent,
+        classes: [
+          { class: 'VOI', date: emptyEvent.startDate },
+          { class: 'ALO', date: emptyEvent.startDate },
+          { class: 'VOI', date: emptyEvent.endDate },
+          { class: 'AVO', date: emptyEvent.endDate, places: 5 },
+        ],
+        eventType: 'NOME-B',
+        places: 10,
+        state: 'confirmed',
+      }
+      expect(VALIDATORS.places?.(event, true)).toEqual({
+        key: 'placesClass',
+        opts: { field: 'places', length: 2, list: ['ALO', 'VOI'] },
       })
     })
 

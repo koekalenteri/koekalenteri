@@ -10,6 +10,11 @@ type StartEndDate = { start: DayKey; end: DayKey }
 /** The date column's order: the latest start day first, the day keys compared as text (KOE-1547). */
 export const compareByStartDayLatestFirst = (a: StartEndDate, b: StartEndDate) => b.start.localeCompare(a.start)
 
+export const classesText = (classes: unknown): string => {
+  if (!Array.isArray(classes)) return ''
+  return (classes as Array<EventClass | string>).map((c) => (typeof c === 'string' ? c : c.class)).join(', ')
+}
+
 type EventWithDate = DogEvent & {
   date: StartEndDate
 }
@@ -42,11 +47,7 @@ export default function useEventListColumns(): GridColDef<EventWithDate>[] {
       flex: 1,
       headerName: t('event.classes'),
       minWidth: 100,
-      valueGetter: (_value, row) => {
-        const classes = row.classes
-        if (!Array.isArray(classes)) return ''
-        return (classes as Array<EventClass | string>).map((c) => (typeof c === 'string' ? c : c.class)).join(', ')
-      },
+      valueGetter: (_value, row) => classesText(row.classes),
     },
     {
       field: 'organizer',

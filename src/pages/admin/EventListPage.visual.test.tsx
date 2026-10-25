@@ -85,7 +85,11 @@ const events = [
 ]
 
 /** The page as the admin layout shows it: a padded column the height of the screen. */
-const renderAt = async ({ height, width }: { height: number; width: number }, language: Language = 'fi') => {
+const renderAt = async (
+  { height, width }: { height: number; width: number },
+  language: Language = 'fi',
+  rows: ConfirmedEvent[] = events
+) => {
   await page.viewport(width, height)
 
   return render(
@@ -105,7 +109,7 @@ const renderAt = async ({ height, width }: { height: number; width: number }, la
         <TestProvider
           initializeState={({ set }) => {
             set(idTokenAtom, TEST_ID_TOKEN)
-            set(adminEventsAtom, events)
+            set(adminEventsAtom, rows)
             // The fixtures have fixed dates, so the capture must not depend on today's.
             set(adminShowPastEventsAtom, true)
           }}
@@ -136,6 +140,24 @@ it('lists the events on a phone', async () => {
 
   await expect.element(screen.getByText('Syyskoe')).toBeVisible()
   await expect(screen.getByTestId('visual-root')).toMatchScreenshot('event-list-phone')
+})
+
+// event.classes keeps the order the classes were picked in, one entry per class and day: VOI picked
+// first on a two-day trial still reads "ALO, AVO, VOI", each class once (KOE-1596).
+it('lists the classes as ALO, AVO, VOI whatever order they were picked in (KOE-1596)', async () => {
+  const pickedVoiFirst: ConfirmedEvent = {
+    ...trial('luokat', 'Syyskoe', 'NOME-B', '2026-10-10', '2026-10-11', 'Hämeenlinna', []),
+    classes: [
+      { class: 'VOI', date: day('2026-10-10') },
+      { class: 'ALO', date: day('2026-10-10') },
+      { class: 'VOI', date: day('2026-10-11') },
+      { class: 'AVO', date: day('2026-10-11') },
+    ],
+  }
+  const screen = await renderAt({ height: 320, width: DESKTOP.width }, 'fi', [pickedVoiFirst])
+
+  await expect.element(screen.getByText('ALO, AVO, VOI', { exact: true })).toBeVisible()
+  await expect(screen.getByTestId('visual-root')).toMatchScreenshot('event-list-class-order')
 })
 
 // The guide's English page shows the list in English (KOE-1437).

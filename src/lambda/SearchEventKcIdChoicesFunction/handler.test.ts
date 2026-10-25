@@ -343,6 +343,15 @@ describe('searchEventKcIdChoicesLambda', () => {
       expectResponse({ choices: [expect.objectContaining({ classes: ['ALO', 'VOI'] })] })
     })
 
+    // The dialog lists the classes as Kennelliitto answers them, so the choice carries them in order (KOE-1596).
+    it('puts the classes in the choice as ALO, AVO, VOI whatever order Koe/Lue lists them in (KOE-1596)', async () => {
+      lueByGuid({ [LAUKAA_GUID]: withClasses(['VOI', 'ALO', 'AVO']) })
+
+      await search()
+
+      expectResponse({ choices: [expect.objectContaining({ classes: ['ALO', 'AVO', 'VOI'] })] })
+    })
+
     it('ranks a trial whose classes overlap above one that is otherwise equal', async () => {
       mockLueKokeet.mockResolvedValue({
         json: [{ ...laukaa, koeGUID: OTHER_GUID }, laukaa],
