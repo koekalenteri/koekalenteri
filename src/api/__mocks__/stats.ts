@@ -62,5 +62,5 @@ export const getAdminJudgeWorkload = vi.fn(
 )
 
 export const getEventClassStats = vi.fn(
-  async (_token: string, _season: number, _signal?: AbortSignal): Promise<EventClassStatsRow[]> => []
+  async (_token: string | undefined, _season: number, _signal?: AbortSignal): Promise<EventClassStatsRow[]> => []
 )

@@ -77,8 +77,8 @@ const addRegistration = (
 /** The days a class runs on; a classless trial's are the trial's own. */
 const classDays = (event: EventClassStatsEvent, eventClass: string): DayKey[] => {
   if (eventClass === '') return eventDates(event)
-  const classes = Array.isArray(event.classes) ? event.classes : []
-  const days = classes.filter((item) => item.class === eventClass).map((item) => item.date)
+  // A trial whose classes are not a list has none, and reaches here only as '' (see uniqueClasses).
+  const days = event.classes.filter((item) => item.class === eventClass).map((item) => item.date)
   return unique(days).sort((a, b) => a.localeCompare(b))
 }
 
@@ -119,21 +119,21 @@ export const buildEventClassStats = (
     startDate: event.startDate,
     state: event.state,
   }
-  const toRow = (eventClass: string, runs: boolean): EventClassStatsRow => ({
+  const toRow = ([eventClass, figures]: [string, ClassFigures], runs: boolean): EventClassStatsRow => ({
     ...eventFields,
     class: eventClass,
     days: runs ? classDays(event, eventClass) : [],
     places: runs ? placesForClass(event, eventClass) : 0,
-    ...(figuresByClass.get(eventClass) ?? emptyFigures()),
+    ...figures,
   })
-  const notRun = [...figuresByClass.keys()]
-    .filter((eventClass) => !runClasses.includes(eventClass))
-    .sort(compareRegistrationClasses)
+  const entries = [...figuresByClass]
+  // The classes the trial runs were put in first, in their order; the others follow, sorted.
+  const run = entries.filter(([eventClass]) => runClasses.includes(eventClass))
+  const notRun = entries
+    .filter(([eventClass]) => !runClasses.includes(eventClass))
+    .sort(([a], [b]) => compareRegistrationClasses(a, b))
 
-  return [
-    ...runClasses.map((eventClass) => toRow(eventClass, true)),
-    ...notRun.map((eventClass) => toRow(eventClass, false)),
-  ]
+  return [...run.map((entry) => toRow(entry, true)), ...notRun.map((entry) => toRow(entry, false))]
 }
 
 const compareRows = (a: EventClassStatsRow, b: EventClassStatsRow): number =>

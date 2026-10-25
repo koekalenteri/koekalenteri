@@ -55,7 +55,7 @@ export default function EventBreakdownPage() {
   const downloadEventClassStats = useCallback(async () => {
     setLoadingClassStats(true)
     try {
-      const classRows = await getEventClassStats(token ?? '', year)
+      const classRows = await getEventClassStats(token, year)
       await downloadXlsx({
         fileName: eventClassStatsFileName(year),
         rows: eventClassStatsSpreadsheetRows(classRows, t, organizerName),

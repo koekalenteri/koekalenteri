@@ -119,6 +119,6 @@ export async function getOrganizerEventStats(
 }
 
 /** The season's trials class by class, for the application administrator's export (KOE-1595). */
-export async function getEventClassStats(token: string, season: number, signal?: AbortSignal) {
+export async function getEventClassStats(token: string | undefined, season: number, signal?: AbortSignal) {
   return http.get<EventClassStatsRow[]>(`${ADMIN_PATH}/event-classes?season=${season}`, withToken({ signal }, token))
 }

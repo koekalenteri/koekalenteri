@@ -1,4 +1,4 @@
-import type { TFunction } from 'i18next'
+import i18n from 'i18next'
 import { buildEventClassStats, eventClassStatsSpreadsheetRows, isEventInClassStats } from './eventClassStats'
 
 type StatsEvent = Parameters<typeof buildEventClassStats>[0]
@@ -59,6 +59,13 @@ describe('buildEventClassStats', () => {
       }),
       expect.objectContaining({ class: 'AVO', days: ['2024-06-02'], places: 6 }),
     ])
+  })
+
+  it('leaves the member fee unset and the priorities empty for a trial that has neither', () => {
+    const [alo] = buildEventClassStats({ ...event, costMember: undefined, priority: undefined }, [])
+
+    expect(alo.costMember).toBeUndefined()
+    expect(alo.priority).toEqual([])
   })
 
   it('counts the entries of a class without naming anyone', () => {
@@ -166,24 +173,35 @@ describe('isEventInClassStats', () => {
 })
 
 describe('eventClassStatsSpreadsheetRows', () => {
-  const t = ((key: string) => key) as TFunction<['translation', 'breed']>
+  // The real translations, so a missing key in the sheet's header fails here.
+  const namespaces: ['translation', 'breed'] = ['translation', 'breed']
+  const t = i18n.getFixedT('fi', namespaces)
 
   it('orders the rows by start day, organizer, event type and class, and leaves an unset value empty', () => {
     const [alo, avo] = buildEventClassStats(event, [])
     const later = { ...alo, organizerId: 'org-0', startDate: '2024-07-01' as const }
     const otherClub = { ...avo, costMember: undefined, entryStartDate: undefined, organizerId: 'org-2' }
+    // Same day, club and place as `alo`: only the event type decides, and NOME-A sorts before NOME-B.
+    const otherType = { ...avo, eventType: 'NOME-A' }
 
-    const [header, ...rows] = eventClassStatsSpreadsheetRows([later, otherClub, avo, alo], t, (id) => `Club ${id}`)
+    const [header, ...rows] = eventClassStatsSpreadsheetRows(
+      [later, otherClub, avo, alo, otherType],
+      t,
+      (id) => `Club ${id}`
+    )
 
     expect(header).toHaveLength(20)
-    expect(rows.map((row) => [row[0], row[2], row[11]])).toEqual([
-      ['Club org-1', '2024-06-01', 'ALO'],
-      ['Club org-1', '2024-06-01', 'AVO'],
-      ['Club org-2', '2024-06-01', 'AVO'],
-      ['Club org-0', '2024-07-01', 'ALO'],
+    expect(header.slice(0, 2)).toEqual(['Yhdistys', 'Paikkakunta'])
+    expect(rows.map((row) => [row[0], row[2], row[4], row[11]])).toEqual([
+      ['Club org-1', '2024-06-01', 'NOME-A', 'AVO'],
+      ['Club org-1', '2024-06-01', 'NOME-B', 'ALO'],
+      ['Club org-1', '2024-06-01', 'NOME-B', 'AVO'],
+      ['Club org-2', '2024-06-01', 'NOME-B', 'AVO'],
+      ['Club org-0', '2024-07-01', 'NOME-B', 'ALO'],
     ])
-    expect(rows[0][8]).toBe('priority.members, breed:110')
-    expect(rows[2][6]).toBeUndefined()
-    expect(rows[2][10]).toBeUndefined()
+    expect(rows[1][5]).toBe(t('event.states.completed'))
+    expect(rows[1][8]).toBe(`${t('priority.members')}, ${t('breed:110')}`)
+    expect(rows[3][6]).toBeUndefined()
+    expect(rows[3][10]).toBeUndefined()
   })
 })
