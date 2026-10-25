@@ -979,25 +979,76 @@ describe('stats/rebuild', () => {
       expect(records.filter((record) => record.PK === 'JUDGE#2025')).toEqual(
         expect.arrayContaining([
           {
-            count: 1,
+            held: 1,
             judgeId: '1',
             name: 'Matti Meikäläinen',
             organizerId: 'organizer-nome-b-event',
             PK: 'JUDGE#2025',
             SK: 'organizer-nome-b-event#1',
+            upcoming: 0,
             updatedAt: '2025-01-01T00:00:00.000Z',
           },
           {
-            count: 1,
+            held: 1,
             judgeId: '2',
             name: 'Maija Mallikas',
             organizerId: 'organizer-nome-b-event',
             PK: 'JUDGE#2025',
             SK: 'organizer-nome-b-event#2',
+            upcoming: 0,
             updatedAt: '2025-01-01T00:00:00.000Z',
           },
         ])
       )
+    })
+
+    it('counts held and upcoming events separately, by whether the event has ended', () => {
+      const held: EventStatsEvent = {
+        ...event('held-event', '2025-06-01'),
+        judges: [{ id: 1, name: 'Matti Meikäläinen' }],
+      }
+      const upcoming: EventStatsEvent = {
+        ...event('upcoming-event', '2025-07-01'),
+        judges: [
+          { id: 1, name: 'Matti Meikäläinen' },
+          { id: 2, name: 'Maija Mallikas' },
+        ],
+        organizer: held.organizer,
+      }
+
+      const { records } = buildStatsRecords(
+        [],
+        new Map([
+          [held.id, held],
+          [upcoming.id, upcoming],
+        ]),
+        '2025-01-01T00:00:00.000Z',
+        ['judges'],
+        new Date('2025-06-15T12:00:00.000Z')
+      )
+
+      expect(records).toEqual([
+        {
+          held: 1,
+          judgeId: '1',
+          name: 'Matti Meikäläinen',
+          organizerId: 'organizer-held-event',
+          PK: 'JUDGE#2025',
+          SK: 'organizer-held-event#1',
+          upcoming: 1,
+          updatedAt: '2025-01-01T00:00:00.000Z',
+        },
+        {
+          held: 0,
+          judgeId: '2',
+          name: 'Maija Mallikas',
+          organizerId: 'organizer-held-event',
+          PK: 'JUDGE#2025',
+          SK: 'organizer-held-event#2',
+          upcoming: 1,
+          updatedAt: '2025-01-01T00:00:00.000Z',
+        },
+      ])
     })
 
     it('keeps a row per organizer for a judge who officiated for several clubs', () => {
@@ -1021,21 +1072,23 @@ describe('stats/rebuild', () => {
 
       expect(records.filter((record) => record.PK === 'JUDGE#2025')).toEqual([
         {
-          count: 1,
+          held: 1,
           judgeId: '1',
           name: 'Matti Meikäläinen',
           organizerId: 'organizer-first-event',
           PK: 'JUDGE#2025',
           SK: 'organizer-first-event#1',
+          upcoming: 0,
           updatedAt: '2025-01-01T00:00:00.000Z',
         },
         {
-          count: 1,
+          held: 1,
           judgeId: '1',
           name: 'Matti Meikäläinen',
           organizerId: 'organizer-second-event',
           PK: 'JUDGE#2025',
           SK: 'organizer-second-event#1',
+          upcoming: 0,
           updatedAt: '2025-01-01T00:00:00.000Z',
         },
       ])
@@ -1067,12 +1120,13 @@ describe('stats/rebuild', () => {
 
       expect(records.filter((record) => record.PK === 'JUDGE#2025')).toEqual([
         {
-          count: 2,
+          held: 2,
           judgeId: '1',
           name: 'Matti Meikäläinen',
           organizerId: 'organizer-nome-b-event',
           PK: 'JUDGE#2025',
           SK: 'organizer-nome-b-event#1',
+          upcoming: 0,
           updatedAt: '2025-01-01T00:00:00.000Z',
         },
       ])
@@ -1088,12 +1142,13 @@ describe('stats/rebuild', () => {
 
       expect(records.filter((record) => record.PK === 'JUDGE#2025')).toEqual([
         {
-          count: 1,
+          held: 1,
           judgeId: 'Foreign Judge',
           name: 'Foreign Judge',
           organizerId: 'organizer-nome-b-event',
           PK: 'JUDGE#2025',
           SK: 'organizer-nome-b-event#Foreign Judge',
+          upcoming: 0,
           updatedAt: '2025-01-01T00:00:00.000Z',
         },
       ])

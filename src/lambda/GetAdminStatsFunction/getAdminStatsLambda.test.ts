@@ -239,7 +239,14 @@ describe('getAdminStatsLambda', () => {
   })
 
   describe('judge workload (?judges)', () => {
-    const judgeRow = { count: 5, judgeId: '1', name: 'Matti Meikäläinen', organizerId: 'org1', SK: 'org1#1' }
+    const judgeRow = {
+      held: 3,
+      judgeId: '1',
+      name: 'Matti Meikäläinen',
+      organizerId: 'org1',
+      SK: 'org1#1',
+      upcoming: 2,
+    }
 
     it('returns judgeWorkload for the requested year over every organizer for an admin', async () => {
       mockAuthorizeWithMemberOf.mockResolvedValue({ memberOf: [], user: mockAdminUser })
@@ -250,7 +257,7 @@ describe('getAdminStatsLambda', () => {
 
       expect(mockReadJudgeWorkload).toHaveBeenCalledWith(2025, undefined)
       expect(JSON.parse(result.body)).toEqual({
-        judgeWorkload: [{ count: 5, judgeId: '1', name: 'Matti Meikäläinen' }],
+        judgeWorkload: [{ held: 3, judgeId: '1', name: 'Matti Meikäläinen', upcoming: 2 }],
       })
       expect(result.statusCode).toBe(200)
     })

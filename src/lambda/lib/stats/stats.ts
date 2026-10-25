@@ -245,8 +245,9 @@ export async function getCapacityStatsAllEventTypes(from?: string, to?: string):
 }
 
 /**
- * Get per-judge event counts for a specific year: how many events each judge officiated.
- * Written by the nightly rebuild from the events table alone, independent of registrations.
+ * Get per-judge event counts for a specific year: how many events each judge officiated
+ * (`held`) and is booked for (`upcoming`). Written by the nightly rebuild from the events table
+ * alone, independent of registrations.
  *
  * Stored as one row per organizer + judge, so `organizerIds` narrows which organizers' events
  * are counted the same way it does for capacity stats; undefined means every organizer. The
@@ -263,9 +264,15 @@ export async function getJudgeWorkload(year: number, organizerIds?: string[]): P
   for (const item of items) {
     const total = totalsByJudge.get(item.judgeId)
     if (total) {
-      total.count += item.count
+      total.held += item.held
+      total.upcoming += item.upcoming
     } else {
-      totalsByJudge.set(item.judgeId, { count: item.count, judgeId: item.judgeId, name: item.name })
+      totalsByJudge.set(item.judgeId, {
+        held: item.held,
+        judgeId: item.judgeId,
+        name: item.name,
+        upcoming: item.upcoming,
+      })
     }
   }
   return [...totalsByJudge.values()]

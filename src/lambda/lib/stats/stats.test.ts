@@ -694,13 +694,14 @@ describe('lib/stats/stats', () => {
   })
 
   describe('getJudgeWorkload', () => {
-    const workload = (organizerId: string, judgeId: string, name: string, count: number) => ({
-      count,
+    const workload = (organizerId: string, judgeId: string, name: string, held: number, upcoming = 0) => ({
+      held,
       judgeId,
       name,
       organizerId,
       PK: 'JUDGE#2024',
       SK: `${organizerId}#${judgeId}`,
+      upcoming,
       updatedAt: '2025-01-01T00:00:00.000Z',
     })
 
@@ -714,8 +715,8 @@ describe('lib/stats/stats', () => {
 
       expect(mockReadJudgeWorkload).toHaveBeenCalledWith(2024, undefined)
       expect(result).toEqual([
-        { count: 12, judgeId: '1', name: 'Matti Meikäläinen' },
-        { count: 4, judgeId: 'Foreign Judge', name: 'Foreign Judge' },
+        { held: 12, judgeId: '1', name: 'Matti Meikäläinen', upcoming: 0 },
+        { held: 4, judgeId: 'Foreign Judge', name: 'Foreign Judge', upcoming: 0 },
       ])
     })
 
@@ -730,9 +731,20 @@ describe('lib/stats/stats', () => {
 
       expect(mockReadJudgeWorkload).toHaveBeenCalledWith(2024, ['org1', 'org2'])
       expect(result).toEqual([
-        { count: 5, judgeId: '1', name: 'Matti Meikäläinen' },
-        { count: 1, judgeId: '2', name: 'Maija Mallikas' },
+        { held: 5, judgeId: '1', name: 'Matti Meikäläinen', upcoming: 0 },
+        { held: 1, judgeId: '2', name: 'Maija Mallikas', upcoming: 0 },
       ])
+    })
+
+    it('sums held and upcoming events separately for a judge of several organizers', async () => {
+      mockReadJudgeWorkload.mockResolvedValueOnce([
+        workload('org1', '1', 'Matti Meikäläinen', 2, 1),
+        workload('org2', '1', 'Matti Meikäläinen', 1, 3),
+      ])
+
+      const result = await getJudgeWorkload(2024, ['org1', 'org2'])
+
+      expect(result).toEqual([{ held: 3, judgeId: '1', name: 'Matti Meikäläinen', upcoming: 4 }])
     })
 
     it('returns nothing without reading for an explicit empty organizer list', async () => {
