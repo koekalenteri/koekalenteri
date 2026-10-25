@@ -8,10 +8,11 @@ import { useTranslation } from 'react-i18next'
 import {
   availableResultCodes,
   deriveNowtResult,
-  formatEventResult,
+  formatShownResult,
   nowtTotals,
   resultMarks,
   scoresAtPosts,
+  shownEventResult,
   toScoredTasks,
 } from '@/lib/results'
 import { withResultCode } from './types'
@@ -41,6 +42,7 @@ export const ResultSummary = ({ round, edit, stored, eventType, eventClass, disa
   // public will read rather than only the choice they made in the outcome control (KOE-1300).
   const marks = <ResultMarks marks={resultMarks(edit)} />
 
+  // Every result here reads as Kennelliitto spells it, `A1` for NOME-A, not as it is stored (KOE-1592).
   // A qualitative type has nothing to derive a result from — the judge's decision is the result — so
   // for it this column collects the result rather than displays one. The codes on offer are the type's
   // own: a pass/fail test awards 1 or 0 and no dash, there being nothing to place against.
@@ -68,7 +70,7 @@ export const ResultSummary = ({ round, edit, stored, eventType, eventClass, disa
           <MenuItem value="">{t('results.resultNone')}</MenuItem>
           {codes.map((code) => (
             <MenuItem key={code} value={code}>
-              {formatEventResult(code, eventType, eventClass)}
+              {formatShownResult(code, eventType, eventClass)}
             </MenuItem>
           ))}
         </TextField>
@@ -86,7 +88,7 @@ export const ResultSummary = ({ round, edit, stored, eventType, eventClass, disa
             color: 'text.secondary',
           }}
         >
-          {stored?.result ?? ''}
+          {shownEventResult(stored?.result, eventType, eventClass) ?? ''}
         </Typography>
         {marks}
       </>
@@ -105,7 +107,7 @@ export const ResultSummary = ({ round, edit, stored, eventType, eventClass, disa
           fontWeight: 600,
         }}
       >
-        {code ? formatEventResult(code, eventType, eventClass) : '–'}
+        {code ? formatShownResult(code, eventType, eventClass) : '–'}
       </Typography>
       {marks}
       {placement !== undefined && (

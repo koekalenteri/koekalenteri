@@ -24,6 +24,7 @@ import {
   sameEventResult,
   sameStationTasks,
   scoresAtPosts,
+  shownEventResult,
   stationVersion,
   taskEntryCeiling,
 } from '../../lib/results'
@@ -69,9 +70,11 @@ const RETIREMENT_CAUSE_TEXT: Record<EventResultRetirement['cause'], string> = {
  * secretary must be able to read back from the trail what they entered (KOE-1284). The sentence
  * around it is translated (KOE-1442); the fault and retirement names inside it are still Finnish.
  */
-const auditResultText = (eventResult: JsonEventResult): string => {
+const auditResultText = (eventResult: JsonEventResult, eventType: string, eventClass?: string): string => {
   const parts: string[] = []
-  if (eventResult.result) parts.push(eventResult.result)
+  // As the secretary chose it and KoiraNet lists it, `A1` rather than the stored `NOME-A1` (KOE-1592).
+  const shown = shownEventResult(eventResult.result, eventType, eventClass)
+  if (shown) parts.push(shown)
   if (typeof eventResult.points === 'number') {
     parts.push(eventResult.maxPoints ? `${eventResult.points}/${eventResult.maxPoints} p` : `${eventResult.points} p`)
   }
@@ -457,6 +460,7 @@ const isEventLocked = async (eventId: string): Promise<boolean> => isResultsLock
 /** A submission checked and classified, ready to be written or reported. */
 interface PlannedSubmission {
   outcome: SubmissionOutcome
+  registration: JsonRegistration
   submission: ResultSubmission
 }
 
@@ -489,7 +493,11 @@ const planSubmission = (
     throw new LambdaError(422, `Result code '${resultCode}' is not valid for ${confirmedEvent.eventType}`)
   }
 
-  return { outcome: classifySubmission(confirmedEvent, registration, submission, timestamp, userName), submission }
+  return {
+    outcome: classifySubmission(confirmedEvent, registration, submission, timestamp, userName),
+    registration,
+    submission,
+  }
 }
 
 export const processResultSubmissions = async (
@@ -515,7 +523,7 @@ export const processResultSubmissions = async (
 
   // One dog at a time, the lock asked of the row as last written before each: a hand-over that takes the
   // lock while a batch is being written stops the dogs not yet written, and the ones that were stay.
-  await mapWithConcurrency(planned, 1, async ({ outcome, submission }) => {
+  await mapWithConcurrency(planned, 1, async ({ outcome, registration, submission }) => {
     if (outcome.kind === 'unchanged') {
       unchanged.push({ eventResult: outcome.eventResult, id: submission.id })
       return
@@ -537,7 +545,10 @@ export const processResultSubmissions = async (
     await updateRegistrationField(eventId, submission.id, 'eventResult', eventResult)
     await audit({
       auditKey: registrationAuditKey({ eventId, id: submission.id }),
-      ...resultSavedAudit(outcome.hadStored, auditResultText(eventResult)),
+      ...resultSavedAudit(
+        outcome.hadStored,
+        auditResultText(eventResult, confirmedEvent.eventType, registration.class ?? undefined)
+      ),
       user: userName,
     })
 

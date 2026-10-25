@@ -163,6 +163,31 @@ describe('readPublishedStartList (KOE-1516)', () => {
       expect(participants).toEqual([expect.objectContaining({ placement: 2, result: 'ALO2' })])
     })
 
+    it('publishes a NOME-A result as Kennelliitto lists it, while the stored one keeps its prefix (KOE-1592)', async () => {
+      mockGetLiveEvent.mockResolvedValue({
+        ...resultsEvent,
+        classes: [],
+        eventType: 'NOME-A',
+        resultsPublished: true,
+        startListPublished: true,
+        startNumbersPublished: true,
+      })
+      mockReadEventRegistrations.mockResolvedValue([
+        asJsonRegistration({
+          ...registration,
+          class: undefined,
+          eventResult: { result: 'NOME-A1', updatedAt: '', updatedBy: '' },
+          eventType: 'NOME-A',
+          group: { date: '2025-01-01', key: 'participants', number: 1 },
+          startGroup: { date: '2025-01-01', key: 'participants', number: 1 },
+        }),
+      ])
+
+      const { participants } = await readPublishedStartList('event-1')
+
+      expect(participants).toEqual([expect.objectContaining({ result: 'A1' })])
+    })
+
     it('withholds the rank where the results are not published', async () => {
       mockGetLiveEvent.mockResolvedValue({ ...resultsEvent, resultsPublished: { ALO: false } })
       mockReadEventRegistrations.mockResolvedValue([scored('a', 'ALO1', 90)])

@@ -10,15 +10,19 @@ import {
   eventResultPrefix,
   formatEventResult,
   formatResultLine,
+  formatShownResult,
+  kcFormatOfEventType,
   mergeStationTasks,
   nowtTotals,
   parseEventResultCode,
   placementsFor,
   resolveEventResult,
   resultMarks,
+  resultPrefixAsKennelClub,
   STOPPED_RESULT_CODE,
   sameEventResult,
   sameStationTasks,
+  shownEventResult,
   stationVersion,
   taskEntryCeiling,
   taskMaxPoints,
@@ -398,6 +402,61 @@ describe('formatEventResult', () => {
   it('composes a pass or fail for an event type without classes', () => {
     expect(formatEventResult('1', 'NOU')).toBe('NOU1')
     expect(formatEventResult('0', 'NKM')).toBe('NKM0')
+  })
+})
+
+describe('kcFormatOfEventType', () => {
+  it('names a championship by its plain format', () => {
+    expect(['NOWT SM', 'NOME-A SM', 'NOU'].map(kcFormatOfEventType)).toEqual(['NOWT', 'NOME-A', 'NOU'])
+  })
+})
+
+describe('resultPrefixAsKennelClub', () => {
+  it.each([
+    ['NOME-A', undefined, 'A'],
+    ['NOME-A SM', undefined, 'A'],
+    ['NOME-A', 'NOME-A', 'A'],
+    ['NOME-A SM', 'NOME-A SM', 'A'],
+    ['NOU', 'NOU', 'NOU'],
+    ['NOU', undefined, 'NOU'],
+    ['NKM', undefined, 'NKM'],
+    ['NOME-B', 'ALO', 'ALO'],
+    ['NOWT SM', 'VOI', 'VOI'],
+  ])('writes %s %s under %s', (eventType, eventClass, prefix) => {
+    expect(resultPrefixAsKennelClub(eventType, eventClass)).toBe(prefix)
+  })
+})
+
+describe('formatShownResult', () => {
+  it('spells a NOME-A result as Kennelliitto lists it (KOE-1592)', () => {
+    expect(formatShownResult('1', 'NOME-A')).toBe('A1')
+    expect(formatShownResult('-', 'NOME-A SM')).toBe('A-')
+  })
+
+  it('leaves the classed and the pass/fail results as they are stored', () => {
+    expect(formatShownResult('1', 'NOWT', 'AVO')).toBe('AVO1')
+    expect(formatShownResult('0', 'NKM')).toBe('NKM0')
+  })
+})
+
+describe('shownEventResult', () => {
+  it.each([
+    ['NOME-A1', 'NOME-A', undefined, 'A1'],
+    ['NOME-A-', 'NOME-A', undefined, 'A-'],
+    ['NOME-A0', 'NOME-A', undefined, 'A0'],
+    ['NOME-A SM2', 'NOME-A SM', undefined, 'A2'],
+    ['NOME-A1', 'NOME-A', 'NOME-A', 'A1'],
+    ['ALO1', 'NOME-B', 'ALO', 'ALO1'],
+    ['VOI1', 'NOWT', 'VOI', 'VOI1'],
+    ['NOU1', 'NOU', undefined, 'NOU1'],
+    ['NKM0', 'NKM', undefined, 'NKM0'],
+  ])('shows the stored %s of %s %s as %s (KOE-1592)', (stored, eventType, eventClass, shown) => {
+    expect(shownEventResult(stored, eventType, eventClass)).toBe(shown)
+  })
+
+  it('shows a string it cannot read as it is stored, and nothing as nothing', () => {
+    expect(shownEventResult('NOU2', 'NOU')).toBe('NOU2')
+    expect(shownEventResult(undefined, 'NOME-A')).toBeUndefined()
   })
 })
 

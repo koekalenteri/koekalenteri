@@ -247,6 +247,38 @@ it('stacks a pass/fail round one dog under another on a phone', async () => {
   await expect(screen.getByTestId('visual-root')).toMatchScreenshot('results-entry-nou-phone')
 })
 
+// NOME-A's results read as KoiraNet lists them, A1 and A-, though they are stored as NOME-A1 (KOE-1592).
+// The page passes a classless trial's event type as its class, and so does this.
+const nomeARegistrations: Registration[] = [
+  { ...nouRegistrations[0], eventResult: resultAt('2026-10-21T09:00:00Z', 'NOME-A1'), eventType: 'NOME-A' },
+  { ...nouRegistrations[1], eventResult: resultAt('2026-10-21T09:30:00Z', 'NOME-A-'), eventType: 'NOME-A' },
+]
+
+it('shows a NOME-A result as Kennelliitto lists it (KOE-1592)', async () => {
+  const screen = await render(
+    <Frame>
+      <ResultsTable
+        defaultJudges={{}}
+        edits={{}}
+        eventClass="NOME-A"
+        eventType="NOME-A"
+        fullRound={[]}
+        judges={nouJudges}
+        judgesFor={() => []}
+        onChange={noop}
+        onJudgeChange={noop}
+        registrations={nomeARegistrations}
+        round={[]}
+        stations={[]}
+      />
+    </Frame>
+  )
+
+  await expect.element(screen.getByText('A1', { exact: true })).toBeVisible()
+  await expect.element(screen.getByText('A-', { exact: true })).toBeVisible()
+  await expect(screen.getByTestId('visual-root')).toMatchScreenshot('results-entry-nome-a')
+})
+
 // The guide's English page shows both sheets in English (KOE-1437).
 describeInLanguage('en', () => {
   it('shows a working test round as the secretary scores it', async () => {

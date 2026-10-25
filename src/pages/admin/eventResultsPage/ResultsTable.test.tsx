@@ -59,3 +59,34 @@ describe('ResultsTable placement', () => {
     expect(screen.queryByText(/results\.placement/)).not.toBeInTheDocument()
   })
 })
+
+describe('ResultsTable result spelling', () => {
+  it('shows a NOME-A result as Kennelliitto lists it, without the format in front (KOE-1592)', () => {
+    const nomeA: Registration[] = [
+      {
+        ...first,
+        class: undefined,
+        eventResult: { result: 'NOME-A1', updatedAt: at, updatedBy: 'Sihteeri' },
+        eventType: 'NOME-A',
+      },
+    ]
+    render(
+      <ResultsTable
+        defaultJudges={{}}
+        edits={{}}
+        eventClass="NOME-A"
+        eventType="NOME-A"
+        fullRound={[]}
+        judgesFor={() => []}
+        onChange={() => {}}
+        onJudgeChange={() => {}}
+        registrations={nomeA}
+        round={[]}
+        stations={[]}
+      />
+    )
+
+    expect(screen.getByText('A1')).toBeInTheDocument()
+    expect(screen.queryByText('NOME-A1')).not.toBeInTheDocument()
+  })
+})

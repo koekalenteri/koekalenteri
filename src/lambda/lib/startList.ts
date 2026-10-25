@@ -12,7 +12,7 @@ import {
   resolveOwnerSelection,
   sortRegistrationsByDateClassTimeAndNumber,
 } from '../../lib/registration'
-import { placementsFor, resultMarks } from '../../lib/results'
+import { placementsFor, resultMarks, shownEventResult } from '../../lib/results'
 import { getLiveEvent } from './event'
 import { readEventRegistrations } from './repositories/registrationRepository'
 
@@ -140,7 +140,8 @@ const publicRow = (
       ? {
           ...(marks.length ? { marks } : {}),
           ...(placement ? { placement } : {}),
-          result: reg.eventResult?.result,
+          // Kennelliitto's spelling, as KoiraNet lists it; the stored result keeps its prefix (KOE-1592).
+          result: shownEventResult(reg.eventResult?.result, confirmedEvent.eventType, reg.class ?? undefined),
         }
       : {}),
   }

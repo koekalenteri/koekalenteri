@@ -3,7 +3,7 @@ import type { KLIntegraatioResult, KLIntHenkilö, KLIntKoe, KLIntKoeListassa } f
 import type KLIntegraatio from './KLIntegraatio'
 import { addDays, isDayKey } from '../../lib/day'
 import { OFFICIAL_EVENT_TYPES } from '../../lib/event'
-import { kcFormatOfEventType } from '../../lib/kennelliittoResults'
+import { kcFormatOfEventType } from '../../lib/results'
 import { mapWithConcurrency } from '../../lib/utils'
 import { LambdaError } from './lambda'
 import { logger } from './log'

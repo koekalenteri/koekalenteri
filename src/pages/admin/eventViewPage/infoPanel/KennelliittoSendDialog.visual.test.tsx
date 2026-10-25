@@ -31,7 +31,7 @@ const preview: KcPreviewResponse = {
     dog('10002', 'Rölli', 'changed'),
     dog('10003', 'Musti', 'unchanged'),
     dog('10004', 'Peni', 'blocked', [{ code: 'judgeWithoutNumber', detail: 'Ulkomaalainen Tuomari' }]),
-    dog('10005', 'Nelli', 'blocked', [{ code: 'resultNotAllowed', detail: 'NOME-A1' }]),
+    dog('10005', 'Nelli', 'blocked', [{ code: 'resultNotAllowed', detail: 'A1' }]),
   ],
 }
 

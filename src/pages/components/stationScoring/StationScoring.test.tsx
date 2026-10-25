@@ -199,6 +199,35 @@ describe('StationScoring', () => {
       expect(screen.getByRole('button', { name: '1 Ensimmainen' })).toHaveClass('MuiChip-filled')
       expect(screen.getByRole('button', { name: '2 Toinen' })).toHaveClass('MuiChip-outlined')
     })
+
+    it('shows a NOME-A result as Kennelliitto lists it, without the format in front (KOE-1592)', async () => {
+      const user = userEvent.setup()
+      const kp = { date: '2026-09-12' as const, key: '2026-09-12-kp', time: 'kp' as const }
+      const nomeA = [
+        {
+          dog: { name: 'Ensimmainen' },
+          eventResult: { judge, result: 'NOME-A1', updatedAt: new Date('2026-09-12T10:00:00Z') },
+          eventType: 'NOME-A',
+          group: { ...kp, number: 1 },
+          id: 'run-1',
+        },
+        { dog: { name: 'Toinen' }, eventType: 'NOME-A', group: { ...kp, number: 2 }, id: 'run-2' },
+      ]
+      renderScoring({ eventType: 'NOME-A', registrations: nomeA })
+
+      await user.click(screen.getByRole('button', { name: '1 Ensimmainen' }))
+
+      const result = screen.getByLabelText('results.column.result')
+      expect(result).toHaveTextContent('A1')
+      expect(result).not.toHaveTextContent('NOME-A1')
+
+      await user.click(result)
+      expect(
+        within(screen.getByRole('listbox'))
+          .getAllByRole('option')
+          .map((option) => option.textContent)
+      ).toEqual(['results.resultNone', 'A1', 'A2', 'A3', 'A0', 'A-'])
+    })
   })
 
   describe('coming back to a turn already started', () => {

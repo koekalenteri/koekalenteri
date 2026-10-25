@@ -105,6 +105,39 @@ it('lays out two time-of-day groups and a reserve list side by side', async () =
   await expect(screen.getByTestId('visual-root')).toMatchScreenshot('class-entry-selection-groups-and-reserve')
 })
 
+// KOE-1592: a NOME-A trial's results read as KoiraNet lists them, A1 and A-, and fit the result column
+// that cut the stored NOME-A1 down to "NOM…".
+// A NOME-A trial runs no classes and one group a day, the whole day.
+const kpGroup = { date: aloDate, time: 'kp' as const }
+const nomeAEvent = { ...eventWithStaticDatesAnd3Classes, classes: [], dates: [kpGroup], eventType: 'NOME-A' }
+const nomeARegistration = (index: number, result: string): Registration => ({
+  ...registrations[index],
+  class: undefined,
+  dates: [kpGroup],
+  eventResult: { result, updatedAt: sentAt, updatedBy: 'Sihteeri' },
+  eventType: 'NOME-A',
+  group: { ...kpGroup, key: eventRegistrationDateKey(kpGroup), number: index + 1 },
+})
+const nomeARegistrations = [
+  nomeARegistration(0, 'NOME-A1'),
+  nomeARegistration(1, 'NOME-A-'),
+  nomeARegistration(2, 'NOME-A0'),
+]
+
+it('shows a NOME-A result as Kennelliitto lists it', async () => {
+  const screen = await render(
+    <TestProvider initializeState={({ set }) => set(idTokenAtom, 'id-token')}>
+      <Frame>
+        <ClassEntrySelection event={nomeAEvent} eventClass="NOME-A" registrations={nomeARegistrations} />
+      </Frame>
+    </TestProvider>
+  )
+
+  await expect.element(screen.getByText('A1', { exact: true })).toBeVisible()
+  await expect.element(screen.getByText('A-', { exact: true })).toBeVisible()
+  await expect(screen.getByTestId('visual-root')).toMatchScreenshot('class-entry-selection-nome-a-results')
+})
+
 // The guide's English page shows the groups in English (KOE-1437).
 describeInLanguage('en', () => {
   it('lays out two time-of-day groups and a reserve list side by side', async () => {

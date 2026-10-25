@@ -1,6 +1,6 @@
 import type { JsonConfirmedEvent } from '../../types'
 import { isOfficialEventType } from '../../lib/event'
-import { kcFormatOfEventType } from '../../lib/kennelliittoResults'
+import { kcFormatOfEventType } from '../../lib/results'
 import { authorizeWithMemberOf } from '../lib/auth'
 import { getEvent } from '../lib/event'
 import { assertEventOrganizerAccess } from '../lib/eventAuth'

@@ -11,6 +11,7 @@ import RadioGroup from '@mui/material/RadioGroup'
 import Stack from '@mui/material/Stack'
 import Typography from '@mui/material/Typography'
 import { useTranslation } from 'react-i18next'
+import { shownEventResult } from '@/lib/results'
 
 export interface ResultConflict {
   id: string
@@ -24,6 +25,7 @@ export type ConflictChoice = 'stored' | 'mine'
 
 interface Props {
   readonly conflicts: ResultConflict[]
+  readonly eventType: string
   readonly registrations: Registration[]
   readonly choices: Record<string, ConflictChoice>
   readonly onChoose: (id: string, choice: ConflictChoice) => void
@@ -31,8 +33,14 @@ interface Props {
   readonly onClose: () => void
 }
 
-const describe = (result: EventResult) =>
-  [result.result, result.points === undefined ? undefined : `${result.points} p`].filter(Boolean).join(' · ')
+/** One version of the result, spelled as Kennelliitto lists it (KOE-1592), with its points where it has them. */
+const describe = (result: EventResult, eventType: string, eventClass?: string) =>
+  [
+    shownEventResult(result.result, eventType, eventClass),
+    result.points === undefined ? undefined : `${result.points} p`,
+  ]
+    .filter(Boolean)
+    .join(' · ')
 
 /**
  * Both versions, side by side, for a person to choose between.
@@ -41,9 +49,19 @@ const describe = (result: EventResult) =>
  * knows which is right. Keeping the work on screen until that choice is made is the point — a conflict
  * that simply failed the save would throw away everything the secretary had entered.
  */
-export const ConflictDialog = ({ conflicts, registrations, choices, onChoose, onResolve, onClose }: Props) => {
+export const ConflictDialog = ({
+  conflicts,
+  eventType,
+  registrations,
+  choices,
+  onChoose,
+  onResolve,
+  onClose,
+}: Props) => {
   const { t } = useTranslation()
-  const nameOf = (id: string) => registrations.find((reg) => reg.id === id)?.dog?.name ?? id
+  const registrationOf = (id: string) => registrations.find((reg) => reg.id === id)
+  const nameOf = (id: string) => registrationOf(id)?.dog?.name ?? id
+  const classOf = (id: string) => registrationOf(id)?.class ?? undefined
 
   return (
     <Dialog fullWidth maxWidth="sm" onClose={onClose} open={conflicts.length > 0}>
@@ -67,14 +85,16 @@ export const ConflictDialog = ({ conflicts, registrations, choices, onChoose, on
                 <FormControlLabel
                   control={<Radio size="small" />}
                   label={t('results.conflictStored', {
-                    result: describe(conflict.stored),
+                    result: describe(conflict.stored, eventType, classOf(conflict.id)),
                     who: conflict.stored.updatedBy,
                   })}
                   value="stored"
                 />
                 <FormControlLabel
                   control={<Radio size="small" />}
-                  label={t('results.conflictMine', { result: describe(conflict.submitted) })}
+                  label={t('results.conflictMine', {
+                    result: describe(conflict.submitted, eventType, classOf(conflict.id)),
+                  })}
                   value="mine"
                 />
               </RadioGroup>

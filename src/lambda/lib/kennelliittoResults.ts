@@ -22,11 +22,10 @@ import {
   isKcDayReached,
   isKcStateWritable,
   KC_STATE_HANDED_OVER,
-  kcFormatOfEventType,
   kcResultDay,
 } from '../../lib/kennelliittoResults'
 import { getRegistrationClass, isScorableRegistration } from '../../lib/registration'
-import { placementsFor } from '../../lib/results'
+import { kcFormatOfEventType, placementsFor } from '../../lib/results'
 import { mapWithConcurrency } from '../../lib/utils'
 import { isKlAccepted } from '../types/KLIntegraatio'
 import { audit, eventAuditKey, registrationAuditKey } from './audit'

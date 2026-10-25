@@ -108,7 +108,7 @@ const renderQualitativePage = (
     class: undefined,
     eventId: event.id,
     eventResult: storedResults[reg.id],
-    eventType: 'NOU',
+    eventType: event.eventType,
     ...extra[reg.id],
   }))
   const routes: RouteObject[] = [{ element: <EventResultsPage />, path: Path.admin.results() }]
@@ -796,6 +796,39 @@ describe('judge attribution', () => {
     const scored = [{ index: 0, judge, points: 17, stationId: 'post-1', updatedAt: 'x', updatedBy: 'y' }]
 
     expect(mergeStationTasks(undefined, scored, 'post-1')[0].judge).toEqual(judge)
+  })
+})
+
+describe('a NOME-A trial', () => {
+  beforeAll(() => vi.useFakeTimers())
+  afterEach(() => {
+    cleanup()
+    vi.runOnlyPendingTimers()
+  })
+  afterAll(() => vi.useRealTimers())
+
+  // The page reads a classless dog's class as the event type, so the result column gets 'NOME-A' as the
+  // class: the stored NOME-A1 must still read as KoiraNet lists it (KOE-1592).
+  it('shows a stored result and offers the codes as Kennelliitto lists them', async () => {
+    const { i18n } = useTranslation()
+    const stored: EventResult = { result: 'NOME-A1', updatedAt: new Date('2026-10-21T10:00:00Z'), updatedBy: 'joku' }
+    const nomeA: ConfirmedEvent = { ...eventWithStaticDates, eventType: 'NOME-A' }
+    const { user } = await renderQualitativePage(i18n.language as Language, { 'run-1': stored }, nomeA)
+    await flushPromises()
+
+    const result = within(rowFor('Ensimmainen')).getByLabelText('results.column.result')
+    expect(result).toHaveTextContent('A1')
+    expect(result).not.toHaveTextContent('NOME-A1')
+
+    await user.click(result)
+    expect(screen.getAllByRole('option').map((option) => option.textContent)).toEqual([
+      'results.resultNone',
+      'A1',
+      'A2',
+      'A3',
+      'A0',
+      'A-',
+    ])
   })
 })
 
