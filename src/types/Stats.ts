@@ -1,3 +1,5 @@
+import type { DayKey } from './Day'
+import type { EventState } from './Event'
 import type { JsonRegistration } from './Registration'
 
 interface OrganizerEventStats {
@@ -192,4 +194,36 @@ export interface JsonEventBreakdownItem {
   cancelledRegistrations?: number
   memberStarters?: number
   updatedAt: string
+}
+
+/**
+ * One class of one trial, for the export the judges' committee asked for (KOE-1595): the trial's own
+ * fields and the class's figures, aggregates only. A class held on several days is one row listing
+ * them: an entry names the class, not the day. A classless trial is one row with `class` ''.
+ * Worked out from the events and registrations on request, never stored.
+ */
+export interface EventClassStatsRow {
+  organizerId: string
+  location: string
+  startDate: DayKey
+  endDate: DayKey
+  eventType: string
+  state: EventState
+  entryStartDate?: DayKey
+  entryEndDate?: DayKey
+  priority: string[]
+  /** The normal entry fee; early bird, breed and custom prices are not in the export. */
+  cost: number
+  costMember?: number
+  class: string
+  days: DayKey[]
+  places: number
+  /** Finished entries, also those cancelled later. */
+  entries: number
+  cancelled: number
+  priorityEntries: number
+  /** Dogs on the reserve list when it was notified that now start, or were picked and cancelled. */
+  pickedFromReserve: number
+  paidAmount: number
+  refundedAmount: number
 }

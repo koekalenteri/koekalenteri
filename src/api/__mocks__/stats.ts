@@ -1,4 +1,4 @@
-import type { CapacityStatsEntry, EventStatsItem, JudgeWorkloadEntry } from '../../types/Stats'
+import type { CapacityStatsEntry, EventClassStatsRow, EventStatsItem, JudgeWorkloadEntry } from '../../types/Stats'
 import type { AllYearlyStatsResponse, YearlyStatsResponse } from '../stats'
 
 const mockYearStats: YearlyStatsResponse = {
@@ -59,4 +59,8 @@ export const getAdminJudgeWorkload = vi.fn(
     _organizerId?: string,
     _signal?: AbortSignal
   ): Promise<JudgeWorkloadEntry[]> => []
+)
+
+export const getEventClassStats = vi.fn(
+  async (_token: string, _season: number, _signal?: AbortSignal): Promise<EventClassStatsRow[]> => []
 )

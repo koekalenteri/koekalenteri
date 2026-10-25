@@ -21,3 +21,4 @@ export const startListFileName = (item: Pick<ConfirmedEvent, 'eventType' | 'star
 }
 
 export const eventBreakdownFileName = (year: number): string => `kokeet-${year}.xlsx`
+export const eventClassStatsFileName = (season: number): string => `kokeet-luokittain-${season}.xlsx`

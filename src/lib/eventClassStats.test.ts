@@ -1,5 +1,5 @@
-import type { JsonRegistration } from '../types'
-import { buildEventClassStats } from './eventClassStats'
+import type { TFunction } from 'i18next'
+import { buildEventClassStats, eventClassStatsSpreadsheetRows, isEventInClassStats } from './eventClassStats'
 
 type StatsEvent = Parameters<typeof buildEventClassStats>[0]
 type StatsRegistration = Parameters<typeof buildEventClassStats>[1][number]
@@ -16,28 +16,26 @@ const event: StatsEvent = {
   entryEndDate: '2024-05-15',
   entryStartDate: '2024-05-01',
   eventType: 'NOME-B',
-  id: 'event-1',
   location: 'Somewhere',
-  organizer: { id: 'org-1', name: 'Club' },
+  organizer: { id: 'org-1' },
   places: 24,
   priority: ['member', '110'],
   startDate: '2024-06-01',
   state: 'completed',
 }
 
-const registration = (patch: Partial<JsonRegistration>): StatsRegistration => ({
+const registration = (patch: Partial<StatsRegistration>): StatsRegistration => ({
   cancelled: false,
   class: 'ALO',
   dog: { breedCode: '122' },
-  eventId: 'event-1',
-  eventType: 'NOME-B',
   group: { key: 'reserve', number: 1 },
-  id: `reg-${Math.random()}`,
   state: 'ready',
   ...patch,
 })
 
-const starter = { group: { date: '2024-06-01', key: '2024-06-01-ap', number: 1, time: 'ap' as const } }
+const starter: Pick<StatsRegistration, 'group'> = {
+  group: { date: '2024-06-01', key: '2024-06-01-ap', number: 1, time: 'ap' },
+}
 
 describe('buildEventClassStats', () => {
   it('gives one row per class, listing the days it runs on and summing their places', () => {
@@ -52,7 +50,6 @@ describe('buildEventClassStats', () => {
         endDate: '2024-06-02',
         entryEndDate: '2024-05-15',
         entryStartDate: '2024-05-01',
-        eventPlaces: 24,
         eventType: 'NOME-B',
         location: 'Somewhere',
         organizerId: 'org-1',
@@ -84,14 +81,32 @@ describe('buildEventClassStats', () => {
         paidAmount: 200,
         priorityEntries: 1,
         refundedAmount: 45,
-        reserve: 1,
-        starters: 2,
       })
     )
-    expect(avo).toEqual(expect.objectContaining({ entries: 1, paidAmount: 40, starters: 1 }))
-    for (const row of [alo, avo]) {
-      expect(Object.keys(row)).not.toEqual(expect.arrayContaining(['id', 'regNo', 'name', 'email', 'registrationIds']))
-    }
+    expect(avo).toEqual(expect.objectContaining({ cancelled: 0, entries: 1, paidAmount: 40, priorityEntries: 0 }))
+    // Aggregates only: nothing that names a dog, a person or an entry.
+    expect(Object.keys(alo).sort()).toEqual([
+      'cancelled',
+      'class',
+      'cost',
+      'costMember',
+      'days',
+      'endDate',
+      'entries',
+      'entryEndDate',
+      'entryStartDate',
+      'eventType',
+      'location',
+      'organizerId',
+      'paidAmount',
+      'pickedFromReserve',
+      'places',
+      'priority',
+      'priorityEntries',
+      'refundedAmount',
+      'startDate',
+      'state',
+    ])
   })
 
   it('counts the dogs picked from the reserve list, also those that cancelled after', () => {
@@ -122,15 +137,53 @@ describe('buildEventClassStats', () => {
       places: 30,
     }
 
-    expect(buildEventClassStats(classless, [registration({ class: null, eventType: 'NOWT', ...starter })])).toEqual([
-      expect.objectContaining({ class: '', days: ['2024-06-01', '2024-06-02'], entries: 1, places: 30, starters: 1 }),
+    expect(buildEventClassStats(classless, [registration({ class: null, ...starter })])).toEqual([
+      expect.objectContaining({ class: '', days: ['2024-06-01', '2024-06-02'], entries: 1, places: 30 }),
     ])
 
-    const rows = buildEventClassStats(event, [registration({ class: 'VOI' })])
+    const rows = buildEventClassStats(event, [registration({ class: 'VOI' }), registration({ class: null })])
     expect(rows.map((row) => [row.class, row.days, row.places, row.entries])).toEqual([
       ['ALO', ['2024-06-01', '2024-06-02'], 18, 0],
       ['AVO', ['2024-06-02'], 6, 0],
       ['VOI', [], 0, 1],
+      // An entry without a class on a trial with classes is kept too, not dropped.
+      ['', [], 0, 1],
     ])
+  })
+})
+
+describe('isEventInClassStats', () => {
+  it.each([
+    [{ state: 'draft' as const }, false],
+    [{ state: 'cancelled' as const }, false],
+    [{ deletedAt: '2024-05-01T10:00:00.000Z', state: 'confirmed' as const }, false],
+    [{ state: 'tentative' as const }, true],
+    [{ state: 'confirmed' as const }, true],
+    [{ state: 'completed' as const }, true],
+  ])('%o is in the export: %s', (event, expected) => {
+    expect(isEventInClassStats(event)).toBe(expected)
+  })
+})
+
+describe('eventClassStatsSpreadsheetRows', () => {
+  const t = ((key: string) => key) as TFunction<['translation', 'breed']>
+
+  it('orders the rows by start day, organizer, event type and class, and leaves an unset value empty', () => {
+    const [alo, avo] = buildEventClassStats(event, [])
+    const later = { ...alo, organizerId: 'org-0', startDate: '2024-07-01' as const }
+    const otherClub = { ...avo, costMember: undefined, entryStartDate: undefined, organizerId: 'org-2' }
+
+    const [header, ...rows] = eventClassStatsSpreadsheetRows([later, otherClub, avo, alo], t, (id) => `Club ${id}`)
+
+    expect(header).toHaveLength(20)
+    expect(rows.map((row) => [row[0], row[2], row[11]])).toEqual([
+      ['Club org-1', '2024-06-01', 'ALO'],
+      ['Club org-1', '2024-06-01', 'AVO'],
+      ['Club org-2', '2024-06-01', 'AVO'],
+      ['Club org-0', '2024-07-01', 'ALO'],
+    ])
+    expect(rows[0][8]).toBe('priority.members, breed:110')
+    expect(rows[2][6]).toBeUndefined()
+    expect(rows[2][10]).toBeUndefined()
   })
 })
