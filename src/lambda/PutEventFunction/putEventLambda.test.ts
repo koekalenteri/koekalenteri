@@ -17,7 +17,7 @@ vi.doMock('../lib/api-gw', async (importOriginal) => ({
 }))
 
 vi.doMock('../lib/auth', () => ({
-  authorize: vi.fn(),
+  authorizeWithMemberOf: vi.fn(),
 }))
 
 const mockGetEventAuditMessages = vi.fn()
@@ -78,8 +78,9 @@ vi.doMock('../lib/repositories/eventStatsRepository', async () => {
   }
 })
 
-const { authorize } = await import('../lib/auth')
-const authorizeMock = authorize as import('vitest').Mock<typeof authorize>
+const { authorizeWithMemberOf } = await import('../lib/auth')
+const authorizeWithMemberOfMock = authorizeWithMemberOf as import('vitest').Mock<typeof authorizeWithMemberOf>
+const { httpError } = await import('../lib/lambda')
 
 const { audit, eventAuditKey } = await import('../lib/audit')
 const auditMock = audit as import('vitest').Mock<typeof audit>
@@ -105,6 +106,11 @@ const saveEventMock = saveEvent as import('vitest').Mock<typeof saveEvent>
 const updateRegistrationsMock = updateRegistrations as import('vitest').Mock<typeof updateRegistrations>
 
 const { default: putEventLambda } = await import('./handler')
+
+/** The caller as authorizeWithMemberOf answers for them: the user and the clubs they hold a role in. */
+const signIn = (user: JsonUser) => {
+  authorizeWithMemberOfMock.mockResolvedValueOnce({ memberOf: Object.keys(user.roles ?? {}), user })
+}
 
 const mockSecretary: JsonUser = {
   createdAt: '',
@@ -164,6 +170,9 @@ describe('putEventLambda', () => {
 
   beforeEach(() => {
     vi.clearAllMocks()
+    // A request refused before it reads the event leaves its queued answers behind; none may reach the next test.
+    authorizeWithMemberOfMock.mockReset()
+    getEventMock.mockReset()
     mockReadOrganizer.mockImplementation(async (id: string) => ({ id, kcId: 1, name: `Club ${id}` }))
     patchEventMock.mockImplementation(async (_id, _existing, next) => ({ event: next }))
     mockReadEventRegistrations.mockResolvedValue([
@@ -194,7 +203,7 @@ describe('putEventLambda', () => {
   })
 
   it('should return 401 if authorization fails', async () => {
-    authorizeMock.mockResolvedValueOnce(null)
+    authorizeWithMemberOfMock.mockRejectedValueOnce(httpError(401, 'Unauthorized'))
 
     const res = await putEventLambda(constructAPIGwEvent('test'))
 
@@ -202,7 +211,7 @@ describe('putEventLambda', () => {
   })
 
   it('should return 403 if user does not have permissions to modify existing event', async () => {
-    authorizeMock.mockResolvedValueOnce(mockSecretary)
+    signIn(mockSecretary)
     getEventMock.mockResolvedValueOnce({ ...mockEvent, organizer: { id: 'no-access', name: 'some org' } })
 
     const res = await putEventLambda(constructAPIGwEvent<Partial<JsonDogEvent>>({ eventType: 'TEST', id: 'existing' }))
@@ -211,7 +220,7 @@ describe('putEventLambda', () => {
   })
 
   it('should return 403 if user does not have to the updated org', async () => {
-    authorizeMock.mockResolvedValueOnce(mockSecretary)
+    signIn(mockSecretary)
     getEventMock.mockResolvedValueOnce(mockEvent)
 
     const res = await putEventLambda(
@@ -220,7 +229,7 @@ describe('putEventLambda', () => {
 
     expect(res.statusCode).toEqual(403)
 
-    authorizeMock.mockResolvedValueOnce(mockSecretary)
+    signIn(mockSecretary)
     const res2 = await putEventLambda(
       constructAPIGwEvent<Partial<JsonDogEvent>>({ organizer: { id: 'no-access', name: 'some org' } })
     )
@@ -230,7 +239,7 @@ describe('putEventLambda', () => {
 
   it('should return 403 when trying to delete non-deletable event', async () => {
     vi.spyOn(console, 'log').mockImplementationOnce(() => undefined)
-    authorizeMock.mockResolvedValueOnce(mockSecretary)
+    signIn(mockSecretary)
     getEventMock.mockResolvedValueOnce({ ...mockEvent, state: 'invited' })
 
     const res = await putEventLambda(
@@ -241,7 +250,7 @@ describe('putEventLambda', () => {
   })
 
   it('should allow deleting a draft event', async () => {
-    authorizeMock.mockResolvedValueOnce(mockSecretary)
+    signIn(mockSecretary)
     getEventMock.mockResolvedValueOnce({ ...mockEvent, state: 'draft' })
 
     const res = await putEventLambda(
@@ -252,7 +261,7 @@ describe('putEventLambda', () => {
   })
 
   it('should allow admin to edit any organizers events', async () => {
-    authorizeMock.mockResolvedValueOnce(mockAdmin)
+    signIn(mockAdmin)
     getEventMock.mockResolvedValueOnce({ ...mockEvent, organizer: { id: 'no-access', name: 'some org' } })
 
     const res = await putEventLambda(constructAPIGwEvent<Partial<JsonDogEvent>>({ eventType: 'TEST', id: 'existing' }))
@@ -260,11 +269,127 @@ describe('putEventLambda', () => {
     expect(res.statusCode).toEqual(200)
   })
 
+  // KOE-1607: sign-up is open, so a signed-in user may hold no role at all. Such a caller writes no
+  // event, and every event names the organizer whose members may change it.
+  describe('who may write an event', () => {
+    const newEventBody: Partial<JsonDogEvent> = {
+      ...confirmedDates,
+      eventType: 'TEST',
+      name: 'Koe',
+      state: 'confirmed',
+    }
+    // A row from before the organizer was required; the type says it always has one.
+    const orphanEvent: JsonDogEvent = { ...mockEvent }
+    delete orphanEvent.organizerId
+    Reflect.deleteProperty(orphanEvent, 'organizer')
+
+    it('refuses a new event from a user with no role, and writes nothing', async () => {
+      // The authorizer refuses a user with no role who is not an admin; src/lambda/lib/auth.test.ts holds it to that.
+      authorizeWithMemberOfMock.mockRejectedValueOnce(httpError(403, 'Forbidden'))
+
+      const res = await putEventLambda(constructAPIGwEvent(newEventBody))
+
+      expect(res.statusCode).toEqual(403)
+      expect(getEventMock).not.toHaveBeenCalled()
+      expect(saveEventMock).not.toHaveBeenCalled()
+    })
+
+    it('refuses a change from a user with no role before reading the event', async () => {
+      // The authorizer refuses a user with no role who is not an admin; src/lambda/lib/auth.test.ts holds it to that.
+      authorizeWithMemberOfMock.mockRejectedValueOnce(httpError(403, 'Forbidden'))
+
+      const res = await putEventLambda(
+        constructAPIGwEvent<Partial<JsonDogEvent>>({ eventType: 'TEST', id: 'existing' }, { method: 'PATCH' })
+      )
+
+      expect(res.statusCode).toEqual(403)
+      expect(getEventMock).not.toHaveBeenCalled()
+      expect(patchEventMock).not.toHaveBeenCalled()
+    })
+
+    it.each([
+      ['a secretary', mockSecretary],
+      ['an admin', mockAdmin],
+    ])('refuses a new event without an organizer from %s', async (_label, user) => {
+      signIn(user)
+
+      const res = await putEventLambda(constructAPIGwEvent(newEventBody))
+
+      expect(res.statusCode).toEqual(400)
+      expect(JSON.parse(res.body)).toEqual({
+        error: 'organizerRequired',
+        message: 'Bad request: the event needs an organizer',
+      })
+      expect(saveEventMock).not.toHaveBeenCalled()
+    })
+
+    it('refuses a change that drops the organizer of an event', async () => {
+      signIn(mockSecretary)
+      getEventMock.mockResolvedValueOnce(mockEvent)
+
+      const res = await putEventLambda(constructAPIGwEvent({ id: 'existing', organizer: null }, { method: 'PATCH' }))
+
+      expect(res.statusCode).toEqual(400)
+      expect(patchEventMock).not.toHaveBeenCalled()
+    })
+
+    it('refuses a secretary a change to a stored event without an organizer', async () => {
+      signIn(mockSecretary)
+      getEventMock.mockResolvedValueOnce(orphanEvent)
+
+      const res = await putEventLambda(
+        constructAPIGwEvent<Partial<JsonDogEvent>>(
+          { id: 'existing', organizer: mockEvent.organizer },
+          { method: 'PATCH' }
+        )
+      )
+
+      expect(res.statusCode).toEqual(403)
+      expect(patchEventMock).not.toHaveBeenCalled()
+    })
+
+    it('lets an admin save a stored event without an organizer only by giving it one', async () => {
+      signIn(mockAdmin)
+      getEventMock.mockResolvedValueOnce(orphanEvent)
+
+      const refused = await putEventLambda(
+        constructAPIGwEvent<Partial<JsonDogEvent>>({ eventType: 'TEST', id: 'existing' }, { method: 'PATCH' })
+      )
+
+      expect(refused.statusCode).toEqual(400)
+      expect(patchEventMock).not.toHaveBeenCalled()
+
+      signIn(mockAdmin)
+      getEventMock.mockResolvedValueOnce(orphanEvent)
+
+      const repaired = await putEventLambda(
+        constructAPIGwEvent<Partial<JsonDogEvent>>(
+          { id: 'existing', organizer: mockEvent.organizer },
+          { method: 'PATCH' }
+        )
+      )
+
+      expect(repaired.statusCode).toEqual(200)
+      expect(patchEventMock).toHaveBeenCalledWith(
+        'existing',
+        expect.anything(),
+        expect.objectContaining({ organizer: mockEvent.organizer, organizerId: 'org-id' })
+      )
+      // No organizer stats row can exist for an event that had no organizer to key it by.
+      expect(mockReadOrganizerEventStatsRow).not.toHaveBeenCalled()
+    })
+  })
+
   it('should create a new event', async () => {
-    authorizeMock.mockResolvedValueOnce(mockSecretary)
+    signIn(mockSecretary)
 
     const res = await putEventLambda(
-      constructAPIGwEvent<Partial<JsonDogEvent>>({ endDate: '2025-06-02', eventType: 'TEST', startDate: '2025-06-01' })
+      constructAPIGwEvent<Partial<JsonDogEvent>>({
+        endDate: '2025-06-02',
+        eventType: 'TEST',
+        organizer: mockEvent.organizer,
+        startDate: '2025-06-01',
+      })
     )
 
     expect(getEventMock).not.toHaveBeenCalled()
@@ -277,6 +402,8 @@ describe('putEventLambda', () => {
       id: 'new-id',
       modifiedAt: '2025-03-22T10:45:33.000Z',
       modifiedBy: 'Test User',
+      organizer: mockEvent.organizer,
+      organizerId: 'org-id',
       season: '2025',
       startDate: '2025-06-01',
       startListPublished: false,
@@ -295,7 +422,7 @@ describe('putEventLambda', () => {
   // in the admin list and has no merchant for its payments.
   describe('the organizer must be one the table holds', () => {
     it('refuses a new event on an organizer the table does not hold', async () => {
-      authorizeMock.mockResolvedValueOnce(mockAdmin)
+      signIn(mockAdmin)
       mockReadOrganizer.mockResolvedValueOnce(undefined)
 
       const res = await putEventLambda(
@@ -313,7 +440,7 @@ describe('putEventLambda', () => {
     })
 
     it('refuses moving an event to an organizer the table does not hold', async () => {
-      authorizeMock.mockResolvedValueOnce(mockAdmin)
+      signIn(mockAdmin)
       getEventMock.mockResolvedValueOnce(mockEvent)
       mockReadOrganizer.mockResolvedValueOnce(undefined)
 
@@ -327,7 +454,7 @@ describe('putEventLambda', () => {
     })
 
     it('saves a new event on an organizer the table holds', async () => {
-      authorizeMock.mockResolvedValueOnce(mockSecretary)
+      signIn(mockSecretary)
 
       const res = await putEventLambda(
         constructAPIGwEvent<Partial<JsonDogEvent>>({
@@ -342,7 +469,7 @@ describe('putEventLambda', () => {
     })
 
     it('does not read the organizer when a patch renames the organizer it keeps', async () => {
-      authorizeMock.mockResolvedValueOnce(mockSecretary)
+      signIn(mockSecretary)
       getEventMock.mockResolvedValueOnce(mockEvent)
 
       const res = await putEventLambda(
@@ -357,7 +484,7 @@ describe('putEventLambda', () => {
     })
 
     it('does not read the organizer when the event keeps its own', async () => {
-      authorizeMock.mockResolvedValueOnce(mockSecretary)
+      signIn(mockSecretary)
       getEventMock.mockResolvedValueOnce(mockEvent)
 
       const res = await putEventLambda(
@@ -374,12 +501,13 @@ describe('putEventLambda', () => {
   })
 
   it('creates a new event without the results flag a copy carried (KOE-1510)', async () => {
-    authorizeMock.mockResolvedValueOnce(mockSecretary)
+    signIn(mockSecretary)
 
     const res = await putEventLambda(
       constructAPIGwEvent<Partial<JsonDogEvent>>({
         endDate: '2025-06-02',
         eventType: 'TEST',
+        organizer: mockEvent.organizer,
         resultsPublished: true,
         startDate: '2025-06-01',
       })
@@ -392,7 +520,7 @@ describe('putEventLambda', () => {
   })
 
   it('should update an event', async () => {
-    authorizeMock.mockResolvedValueOnce(mockSecretary)
+    signIn(mockSecretary)
     getEventMock.mockResolvedValueOnce(mockEvent)
     patchEventMock.mockResolvedValueOnce({ event: { ...mockEvent, eventType: 'TEST', kcId: undefined } })
 
@@ -426,7 +554,7 @@ describe('putEventLambda', () => {
   })
 
   it('does not persist a client-provided registration group lock', async () => {
-    authorizeMock.mockResolvedValueOnce(mockSecretary)
+    signIn(mockSecretary)
     getEventMock.mockResolvedValueOnce(mockEvent)
 
     await putEventLambda(
@@ -445,7 +573,7 @@ describe('putEventLambda', () => {
 
   it('preserves an existing server-owned registration group lock', async () => {
     const storedLock = { expiresAt: Date.now() + 60_000, token: 'server-owned' }
-    authorizeMock.mockResolvedValueOnce(mockSecretary)
+    signIn(mockSecretary)
     getEventMock.mockResolvedValueOnce({ ...mockEvent, registrationGroupsLock: storedLock })
 
     const res = await putEventLambda(
@@ -467,7 +595,7 @@ describe('putEventLambda', () => {
     const stored = { code: 1253, name: 'Ylituomarin hyväksyttäväksi', readAt: '2026-09-26T10:00:00.000Z' }
 
     it('restores the stored state over a copy that rides an event save, without refusing the save', async () => {
-      authorizeMock.mockResolvedValueOnce(mockSecretary)
+      signIn(mockSecretary)
       getEventMock.mockResolvedValueOnce({ ...mockEvent, kcState: stored })
 
       const res = await putEventLambda(
@@ -486,7 +614,7 @@ describe('putEventLambda', () => {
     })
 
     it('does not let a client write a state where none is stored', async () => {
-      authorizeMock.mockResolvedValueOnce(mockSecretary)
+      signIn(mockSecretary)
       getEventMock.mockResolvedValueOnce(mockEvent)
 
       await putEventLambda(
@@ -508,7 +636,7 @@ describe('putEventLambda', () => {
         ['changed', { kcGuid: 'another-guid' }],
         ['cleared', { kcGuid: null }],
       ])('refuses a link %s once the state of the trial has been read', async (_name, change) => {
-        authorizeMock.mockResolvedValueOnce(mockSecretary)
+        signIn(mockSecretary)
         getEventMock.mockResolvedValueOnce({ ...linked, kcState: stored })
 
         const res = await putEventLambda(constructAPIGwEvent({ id: 'existing', ...change }))
@@ -519,7 +647,7 @@ describe('putEventLambda', () => {
       })
 
       it('refuses a changed link once a result has been sent for any dog', async () => {
-        authorizeMock.mockResolvedValueOnce(mockSecretary)
+        signIn(mockSecretary)
         getEventMock.mockResolvedValueOnce(linked)
         mockReadEventRegistrations.mockResolvedValueOnce([
           { id: 'a' },
@@ -533,7 +661,7 @@ describe('putEventLambda', () => {
       })
 
       it('lets the link change while nothing has been sent or read', async () => {
-        authorizeMock.mockResolvedValueOnce(mockSecretary)
+        signIn(mockSecretary)
         getEventMock.mockResolvedValueOnce(linked)
         mockReadEventRegistrations.mockResolvedValueOnce([{ id: 'a' }])
         patchEventMock.mockResolvedValueOnce({ event: { ...mockEvent, kcGuid: 'another-guid' } })
@@ -544,7 +672,7 @@ describe('putEventLambda', () => {
       })
 
       it('lets a save repeat the stored link, as the results page does', async () => {
-        authorizeMock.mockResolvedValueOnce(mockSecretary)
+        signIn(mockSecretary)
         getEventMock.mockResolvedValueOnce({ ...linked, kcState: stored })
         patchEventMock.mockResolvedValueOnce({ event: linked })
 
@@ -566,7 +694,7 @@ describe('putEventLambda', () => {
         stationId: 'post-1',
       },
     ]
-    authorizeMock.mockResolvedValueOnce(mockSecretary)
+    signIn(mockSecretary)
     getEventMock.mockResolvedValueOnce({ ...mockEvent, turns: storedTurns })
 
     await putEventLambda(
@@ -594,7 +722,7 @@ describe('putEventLambda', () => {
       startListPublished: { ALO: true },
       state: 'invited',
     }
-    authorizeMock.mockResolvedValueOnce(mockSecretary)
+    signIn(mockSecretary)
     getEventMock.mockResolvedValueOnce(stored)
 
     await putEventLambda(
@@ -616,7 +744,7 @@ describe('putEventLambda', () => {
     // The published list's version is the time it was read, so it has to be read after the write.
     const steps: string[] = []
     const stored: JsonDogEvent = { ...mockEvent, startListPublished: false, state: 'invited' }
-    authorizeMock.mockResolvedValueOnce(mockSecretary)
+    signIn(mockSecretary)
     getEventMock.mockResolvedValueOnce(stored)
     patchEventMock.mockImplementationOnce(async (eventId, _existing, next) => {
       await Promise.resolve()
@@ -637,7 +765,7 @@ describe('putEventLambda', () => {
 
   it('freezes an absent start number state for a classless event', async () => {
     const stored: JsonDogEvent = { ...mockEvent, startListPublished: false, state: 'invited' }
-    authorizeMock.mockResolvedValueOnce(mockSecretary)
+    signIn(mockSecretary)
     getEventMock.mockResolvedValueOnce(stored)
 
     await putEventLambda(constructAPIGwEvent<Partial<JsonDogEvent>>({ id: 'existing', startListPublished: true }))
@@ -656,7 +784,7 @@ describe('putEventLambda', () => {
       startNumbersPublished: false,
       state: 'invited',
     }
-    authorizeMock.mockResolvedValueOnce(mockSecretary)
+    signIn(mockSecretary)
     getEventMock.mockResolvedValueOnce(stored)
 
     await putEventLambda(constructAPIGwEvent<Partial<JsonDogEvent>>({ id: 'existing', startListPublished: true }))
@@ -669,7 +797,7 @@ describe('putEventLambda', () => {
   })
 
   it('does not invent a start number state when the start list state is untouched', async () => {
-    authorizeMock.mockResolvedValueOnce(mockSecretary)
+    signIn(mockSecretary)
     getEventMock.mockResolvedValueOnce({ ...mockEvent, state: 'invited' })
 
     await putEventLambda(constructAPIGwEvent<Partial<JsonDogEvent>>({ eventType: 'TEST', id: 'existing' }))
@@ -682,7 +810,7 @@ describe('putEventLambda', () => {
   })
 
   it('should reject an event edit based on stale modification data', async () => {
-    authorizeMock.mockResolvedValueOnce(mockSecretary)
+    signIn(mockSecretary)
     getEventMock.mockResolvedValueOnce({ ...mockEvent, modifiedAt: '2025-03-22T09:00:00.000Z' })
 
     const res = await putEventLambda(
@@ -702,7 +830,7 @@ describe('putEventLambda', () => {
   })
 
   it('should reject a kcId already linked to another event', async () => {
-    authorizeMock.mockResolvedValueOnce(mockSecretary)
+    signIn(mockSecretary)
     getEventMock.mockResolvedValueOnce(mockEvent)
     findEventWithKcIdMock.mockResolvedValueOnce({ id: 'other-event' })
 
@@ -718,7 +846,7 @@ describe('putEventLambda', () => {
   })
 
   it('should allow saving a kcId that is not used by any other event', async () => {
-    authorizeMock.mockResolvedValueOnce(mockSecretary)
+    signIn(mockSecretary)
     getEventMock.mockResolvedValueOnce(mockEvent)
     findEventWithKcIdMock.mockResolvedValueOnce(undefined)
     patchEventMock.mockResolvedValueOnce({ event: { ...mockEvent, kcId: 12345 } })
@@ -730,7 +858,7 @@ describe('putEventLambda', () => {
   })
 
   it('should not check for kcId conflicts when kcId is unchanged', async () => {
-    authorizeMock.mockResolvedValueOnce(mockSecretary)
+    signIn(mockSecretary)
     getEventMock.mockResolvedValueOnce({ ...mockEvent, kcId: 12345 })
     patchEventMock.mockResolvedValueOnce({ event: { ...mockEvent, eventType: 'TEST', kcId: 12345 } })
 
@@ -746,7 +874,7 @@ describe('putEventLambda', () => {
     const GUID = '2b81e6a1-559b-407c-87c7-b8a9b89b1987'
 
     it('should reject a kcGuid already linked to another event', async () => {
-      authorizeMock.mockResolvedValueOnce(mockSecretary)
+      signIn(mockSecretary)
       getEventMock.mockResolvedValueOnce(mockEvent)
       findEventWithKcGuidMock.mockResolvedValueOnce({ id: 'other-event' })
 
@@ -762,7 +890,7 @@ describe('putEventLambda', () => {
     })
 
     it('should allow saving a kcGuid that no other event has', async () => {
-      authorizeMock.mockResolvedValueOnce(mockSecretary)
+      signIn(mockSecretary)
       getEventMock.mockResolvedValueOnce(mockEvent)
       findEventWithKcGuidMock.mockResolvedValueOnce(undefined)
       patchEventMock.mockResolvedValueOnce({ event: { ...mockEvent, kcGuid: GUID } })
@@ -774,7 +902,7 @@ describe('putEventLambda', () => {
     })
 
     it('should not scan for conflicts when the kcGuid is unchanged, as on a results page save', async () => {
-      authorizeMock.mockResolvedValueOnce(mockSecretary)
+      signIn(mockSecretary)
       getEventMock.mockResolvedValueOnce({ ...mockEvent, kcGuid: GUID })
       patchEventMock.mockResolvedValueOnce({ event: { ...mockEvent, eventType: 'TEST', kcGuid: GUID } })
 
@@ -787,7 +915,7 @@ describe('putEventLambda', () => {
     })
 
     it('should not scan when the kcGuid is cleared with null', async () => {
-      authorizeMock.mockResolvedValueOnce(mockSecretary)
+      signIn(mockSecretary)
       getEventMock.mockResolvedValueOnce({ ...mockEvent, kcGuid: GUID })
       patchEventMock.mockResolvedValueOnce({ event: mockEvent })
 
@@ -805,7 +933,7 @@ describe('putEventLambda', () => {
       startListPublished: { ALO: false, AVO: false },
       state: 'invited',
     } as JsonDogEvent
-    authorizeMock.mockResolvedValueOnce(mockSecretary)
+    signIn(mockSecretary)
     getEventMock.mockResolvedValueOnce(existing)
 
     const res = await putEventLambda(
@@ -830,7 +958,7 @@ describe('putEventLambda', () => {
       putEventLambda(constructAPIGwEvent<Partial<JsonDogEvent>>({ id: 'existing', ...body }, { method: 'PATCH' }))
 
     it('refuses a start list whose participants have not had the invitation', async () => {
-      authorizeMock.mockResolvedValueOnce(mockSecretary)
+      signIn(mockSecretary)
       getEventMock.mockResolvedValueOnce(classless)
       mockReadEventRegistrations.mockResolvedValueOnce([{ ...invitedParticipant(), messagesSent: {} }])
 
@@ -842,7 +970,7 @@ describe('putEventLambda', () => {
     })
 
     it('refuses a start list with nobody picked', async () => {
-      authorizeMock.mockResolvedValueOnce(mockSecretary)
+      signIn(mockSecretary)
       getEventMock.mockResolvedValueOnce(classless)
       mockReadEventRegistrations.mockResolvedValueOnce([])
 
@@ -853,7 +981,7 @@ describe('putEventLambda', () => {
     })
 
     it("lets a past trial's start list out though its invitations never went (KOE-1465)", async () => {
-      authorizeMock.mockResolvedValueOnce(mockSecretary)
+      signIn(mockSecretary)
       getEventMock.mockResolvedValueOnce({ ...classless, endDate: '2025-03-01', startDate: '2025-03-01' })
       mockReadEventRegistrations.mockResolvedValueOnce([{ ...invitedParticipant(), messagesSent: {} }])
 
@@ -872,7 +1000,7 @@ describe('putEventLambda', () => {
         startListPublished: undefined,
         state: 'picked',
       }
-      authorizeMock.mockResolvedValueOnce(mockSecretary)
+      signIn(mockSecretary)
       getEventMock.mockResolvedValueOnce(pastPicked)
       mockReadEventRegistrations.mockResolvedValueOnce([])
 
@@ -890,7 +1018,7 @@ describe('putEventLambda', () => {
         startListPublished: undefined,
         state: 'picked',
       }
-      authorizeMock.mockResolvedValueOnce(mockSecretary)
+      signIn(mockSecretary)
       getEventMock.mockResolvedValueOnce(pastPicked)
       mockReadEventRegistrations.mockResolvedValueOnce([{ ...invitedParticipant(), messagesSent: {} }])
 
@@ -905,7 +1033,7 @@ describe('putEventLambda', () => {
     })
 
     it('always lets a start list be hidden', async () => {
-      authorizeMock.mockResolvedValueOnce(mockSecretary)
+      signIn(mockSecretary)
       getEventMock.mockResolvedValueOnce({ ...classless, startListPublished: true })
       mockReadEventRegistrations.mockResolvedValueOnce([])
 
@@ -932,7 +1060,7 @@ describe('putEventLambda', () => {
         // The old panel's copy went through the reviver and back out as the instant of Finnish midnight.
         ['the same day as a timestamp', ['2025-05-31T21:00:00.000Z']],
       ])('drops %s and saves the rest', async (_name, resultsPublished) => {
-        authorizeMock.mockResolvedValueOnce(mockSecretary)
+        signIn(mockSecretary)
         getEventMock.mockResolvedValueOnce(firstDayOut)
 
         const res = await publish({ name: 'Uusi nimi', resultsPublished })
@@ -951,7 +1079,7 @@ describe('putEventLambda', () => {
         ['another day', ['2025-06-02']],
         ['a class map, which has nothing for a classless trial', { ALO: true }],
       ])('refuses %s, so the old panel cannot report a change that never happened', async (_name, resultsPublished) => {
-        authorizeMock.mockResolvedValueOnce(mockSecretary)
+        signIn(mockSecretary)
         getEventMock.mockResolvedValueOnce(firstDayOut)
 
         const res = await publish({ resultsPublished })
@@ -965,7 +1093,7 @@ describe('putEventLambda', () => {
 
     it('does not let an event save publish the start numbers', async () => {
       // Numbers go out only through PutStartNumbersFunction, which freezes them as it publishes.
-      authorizeMock.mockResolvedValueOnce(mockSecretary)
+      signIn(mockSecretary)
       getEventMock.mockResolvedValueOnce({ ...classless, startNumbersPublished: false })
 
       await publish({ startNumbersPublished: true })
@@ -979,7 +1107,7 @@ describe('putEventLambda', () => {
   })
 
   it('should return 400 for patch event without id', async () => {
-    authorizeMock.mockResolvedValueOnce(mockSecretary)
+    signIn(mockSecretary)
 
     const res = await putEventLambda(
       constructAPIGwEvent<Partial<JsonDogEvent>>({ eventType: 'TEST' }, { method: 'PATCH' })
@@ -1002,7 +1130,7 @@ describe('putEventLambda', () => {
     [{ organizer: { id: 2 } }, 'organizer.id must be a string'],
     [{ priority: 'members' }, 'priority must be an array'],
   ])('should return 400 for %p before looking the event up', async (body, message) => {
-    authorizeMock.mockResolvedValueOnce(mockSecretary)
+    signIn(mockSecretary)
 
     const res = await putEventLambda(constructAPIGwEvent({ id: 'existing', ...body }))
 
@@ -1014,7 +1142,7 @@ describe('putEventLambda', () => {
   })
 
   it.each(['classes', 'judges'] as const)('should return 400 when %s is not an array', async (field) => {
-    authorizeMock.mockResolvedValueOnce(mockSecretary)
+    signIn(mockSecretary)
 
     const res = await putEventLambda(
       constructAPIGwEvent(
@@ -1040,7 +1168,7 @@ describe('putEventLambda', () => {
       ...mockEvent,
       official: { id: 'official-id', name: 'Old Official' },
     }
-    authorizeMock.mockResolvedValueOnce(mockSecretary)
+    signIn(mockSecretary)
     getEventMock.mockResolvedValueOnce(existing)
 
     const res = await putEventLambda(
@@ -1061,7 +1189,7 @@ describe('putEventLambda', () => {
   })
 
   it('should update registrations if entries differs', async () => {
-    authorizeMock.mockResolvedValueOnce(mockSecretary)
+    signIn(mockSecretary)
     getEventMock.mockResolvedValueOnce({ ...mockEvent, entries: 10 })
     updateRegistrationsMock.mockResolvedValueOnce({
       ...mockEvent,
@@ -1091,7 +1219,7 @@ describe('putEventLambda', () => {
   })
 
   it('should store the original entryEndDate for a confirmed event', async () => {
-    authorizeMock.mockResolvedValueOnce(mockSecretary)
+    signIn(mockSecretary)
     getEventMock.mockResolvedValueOnce({
       ...mockEvent,
       ...confirmedDates,
@@ -1130,7 +1258,7 @@ describe('putEventLambda', () => {
   })
 
   it('should not store the original entryEndDate when moved backward', async () => {
-    authorizeMock.mockResolvedValueOnce(mockSecretary)
+    signIn(mockSecretary)
     getEventMock.mockResolvedValueOnce({
       ...mockEvent,
       ...confirmedDates,
@@ -1165,7 +1293,7 @@ describe('putEventLambda', () => {
   })
 
   it('should not update original entryEndDate', async () => {
-    authorizeMock.mockResolvedValueOnce(mockSecretary)
+    signIn(mockSecretary)
     getEventMock.mockResolvedValueOnce({
       ...mockEvent,
       ...confirmedDates,
@@ -1203,7 +1331,7 @@ describe('putEventLambda', () => {
   })
 
   it('should update season when startDate is changed', async () => {
-    authorizeMock.mockResolvedValueOnce(mockSecretary)
+    signIn(mockSecretary)
     getEventMock.mockResolvedValueOnce({ ...mockEvent, season: '2024', startDate: '2024-06-15' })
 
     const res = await putEventLambda(
@@ -1222,7 +1350,7 @@ describe('putEventLambda', () => {
   })
 
   it('moves the organizer stats record when startDate changes', async () => {
-    authorizeMock.mockResolvedValueOnce(mockSecretary)
+    signIn(mockSecretary)
     getEventMock.mockResolvedValueOnce({ ...mockEvent, season: '2024', startDate: '2024-06-15' })
     const stats = {
       count: 7,
@@ -1258,7 +1386,7 @@ describe('putEventLambda', () => {
   })
 
   it('does not touch the organizer stats record when the key is unchanged', async () => {
-    authorizeMock.mockResolvedValueOnce(mockSecretary)
+    signIn(mockSecretary)
     getEventMock.mockResolvedValueOnce({ ...mockEvent, season: '2024', startDate: '2024-06-15' })
 
     await putEventLambda(constructAPIGwEvent<Partial<JsonDogEvent>>({ id: 'existing', name: 'Renamed but same dates' }))
@@ -1270,7 +1398,7 @@ describe('putEventLambda', () => {
   // KOE-1547: a row not yet migrated holds its days as instants, and a browser loaded before the
   // change sends them so; the same days in the other form are no change.
   it('reads the stored and the sent days as keys before comparing, merging or auditing them', async () => {
-    authorizeMock.mockResolvedValueOnce(mockSecretary)
+    signIn(mockSecretary)
     const asInstants = () => ({
       classes: [{ class: 'ALO' as const, date: legacyDayValue('2025-05-31T21:00:00.000Z') }],
       endDate: legacyDayValue('2025-06-01T21:00:00.000Z'),
@@ -1300,7 +1428,7 @@ describe('putEventLambda', () => {
     ['a stamp without a zone, as Kennelliitto writes its days', '2025-06-01T00:00:00'],
     ['a noon instant', '2025-06-01T09:00:00.000Z'],
   ])('reads a stored start held as %s as its day: no change to audit, the day kept', async (_name, stamp) => {
-    authorizeMock.mockResolvedValueOnce(mockSecretary)
+    signIn(mockSecretary)
     getEventMock.mockResolvedValueOnce({ ...mockEvent, startDate: legacyDayValue(stamp) })
 
     const res = await putEventLambda(
@@ -1318,7 +1446,7 @@ describe('putEventLambda', () => {
   })
 
   it('should not update season when startDate is unchanged', async () => {
-    authorizeMock.mockResolvedValueOnce(mockSecretary)
+    signIn(mockSecretary)
     getEventMock.mockResolvedValueOnce({ ...mockEvent, season: '2024', startDate: '2024-06-15' })
 
     const res = await putEventLambda(
@@ -1337,7 +1465,7 @@ describe('putEventLambda', () => {
   })
 
   it('should add missing season when updating without changing startDate', async () => {
-    authorizeMock.mockResolvedValueOnce(mockSecretary)
+    signIn(mockSecretary)
     getEventMock.mockResolvedValueOnce({ ...mockEvent, startDate: '2025-01-01' })
 
     const res = await putEventLambda(
@@ -1359,7 +1487,7 @@ describe('putEventLambda', () => {
   it('should set qualificationStartDate for existing NOME-B SM', async () => {
     const qualificationStartDate = '2024-02-02'
     const entryEndDate = '2025-01-01'
-    authorizeMock.mockResolvedValueOnce(mockSecretary)
+    signIn(mockSecretary)
     getEventMock.mockResolvedValueOnce({ ...mockEvent, entryEndDate, eventType: 'NOME-B SM' })
     findQualificationStartDateMock.mockResolvedValueOnce(qualificationStartDate)
 
@@ -1399,12 +1527,17 @@ describe('putEventLambda', () => {
     ['startDate', '2026-04-31T00:00:00.000Z'],
     ['endDate', '2026-06-28T00:00'],
   ] as const)('rejects an invalid %s (%s) before saving', async (field, value) => {
-    authorizeMock.mockResolvedValueOnce(mockSecretary)
+    signIn(mockSecretary)
     // The other date is valid, so the refusal is this field's.
     const valid: Pick<JsonDogEvent, 'endDate' | 'startDate'> = { endDate: '2026-06-02', startDate: '2026-06-02' }
 
     const res = await putEventLambda(
-      constructAPIGwEvent<Partial<JsonDogEvent>>({ ...valid, [field]: legacyDayValue(value), eventType: 'TEST' })
+      constructAPIGwEvent<Partial<JsonDogEvent>>({
+        ...valid,
+        [field]: legacyDayValue(value),
+        eventType: 'TEST',
+        organizer: mockEvent.organizer,
+      })
     )
 
     expect(res.statusCode).toEqual(400)
@@ -1416,7 +1549,7 @@ describe('putEventLambda', () => {
   // A row stored before the check, with zone-less stamps: a change that does not touch its dates goes
   // through, and a bad date the request does carry is still refused.
   it('takes a date-less change to a row whose stored dates the check would refuse', async () => {
-    authorizeMock.mockResolvedValueOnce(mockSecretary)
+    signIn(mockSecretary)
     getEventMock.mockResolvedValueOnce({
       ...mockEvent,
       endDate: legacyDayValue('2025-06-02T00:00:00'),
@@ -1431,7 +1564,7 @@ describe('putEventLambda', () => {
   })
 
   it('refuses a bad date the update carries', async () => {
-    authorizeMock.mockResolvedValueOnce(mockSecretary)
+    signIn(mockSecretary)
     getEventMock.mockResolvedValueOnce({
       ...mockEvent,
       endDate: legacyDayValue('2025-06-02T00:00:00'),
@@ -1454,9 +1587,11 @@ describe('putEventLambda', () => {
     [{ endDate: legacyDayValue('2025-06-02'), state: 'draft' as const }, 'startDate'],
     [{ endDate: legacyDayValue(''), startDate: legacyDayValue('2025-06-01'), state: 'draft' as const }, 'endDate'],
   ])('rejects a draft event with a missing or empty %s before saving', async (payload, field) => {
-    authorizeMock.mockResolvedValueOnce(mockSecretary)
+    signIn(mockSecretary)
 
-    const res = await putEventLambda(constructAPIGwEvent<Partial<JsonDogEvent>>(payload))
+    const res = await putEventLambda(
+      constructAPIGwEvent<Partial<JsonDogEvent>>({ ...payload, organizer: mockEvent.organizer })
+    )
 
     expect(res.statusCode).toEqual(400)
     expect(JSON.parse(res.body)).toEqual({ message: `Bad request: ${field} must be a valid date` })
@@ -1478,7 +1613,7 @@ describe('putEventLambda', () => {
     beforeEach(() => mockReadEventRegistrations.mockReset())
 
     const put = async (stored: JsonDogEvent, change: Partial<JsonDogEvent>, method: 'PATCH' | 'PUT' = 'PUT') => {
-      authorizeMock.mockResolvedValueOnce(mockSecretary)
+      signIn(mockSecretary)
       getEventMock.mockResolvedValueOnce(stored)
       return putEventLambda(constructAPIGwEvent<Partial<JsonDogEvent>>({ id: 'existing', ...change }, { method }))
     }
