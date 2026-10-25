@@ -1943,49 +1943,100 @@ describe('runMigrationLambda', () => {
       updatedAt: 'read',
       ...fields,
     })
-    const selectionsWritten = (id: string, ownerHandles: boolean, ownerPays: boolean) =>
+    /** The patch the migration wrote for a row, with the bump left out. */
+    const written = (id: string, set: Record<string, unknown>, remove?: string[]) =>
       expect(mockWriteMigratedRegistration).toHaveBeenCalledWith(
         'event1',
         id,
-        { set: { ownerHandles, ownerPays, updatedAt: expect.not.stringMatching(/^read$/) } },
+        { ...(remove ? { remove } : {}), set: { ...set, updatedAt: expect.not.stringMatching(/^read$/) } },
         'read'
       )
 
     it('keeps a separate member handler as someone else, so the membership reading stays as it was', async () => {
       const handler = { email: 'handler@example.com', membership: true, name: 'Hanna Ohjaaja' }
-      const stored = row('reg1', { handler, payer: { email: ' owner@example.com ', name: 'olli omistaja' } })
+      const stored = row('reg1', { handler, payer: owner })
       expect(isMember(stored)).toBe(false)
       mockReadEventRegistrations.mockResolvedValueOnce([stored])
 
       await runMigrationLambda(directEvent)
 
-      selectionsWritten('reg1', false, true)
+      written('reg1', { ownerHandles: false, ownerPays: true })
       // The 2024 rows whose separate handler is the only member read as members before and after.
       expect(isMember({ ...stored, ownerHandles: false })).toBe(true)
       expect(mockResponse).toHaveBeenCalledWith(200, [{ count: 1, name: 'storeOwnerSelections' }], directEvent)
     })
 
-    it.each([
-      ['no stored handler or payer', {}, true, true],
-      ['an empty stored handler and payer', { handler: { name: '', phone: '' }, payer: { email: '' } }, true, true],
-      [
-        'the owner mirrored as handler, a separate payer',
-        { handler: owner, payer: { name: 'Paavo Maksaja' } },
-        true,
-        false,
-      ],
-      [
-        'a handler with the same name but another address',
-        { handler: { email: 'x@example.com', name: owner.name } },
-        false,
-        true,
-      ],
-    ])('gives a row with %s the selections it meant', async (_case, fields, ownerHandles, ownerPays) => {
-      mockReadEventRegistrations.mockResolvedValueOnce([row('reg1', fields)])
+    it('mirrors the owner into a handler and a payer the row never stored, as a save would', async () => {
+      mockReadEventRegistrations.mockResolvedValueOnce([row('reg1', {})])
 
       await runMigrationLambda(directEvent)
 
-      selectionsWritten('reg1', ownerHandles, ownerPays)
+      written('reg1', { handler: owner, ownerHandles: true, ownerPays: true, payer: owner })
+    })
+
+    it('replaces an empty stored handler and payer with the owner', async () => {
+      mockReadEventRegistrations.mockResolvedValueOnce([
+        row('reg1', { handler: { name: '', phone: '' }, payer: { email: '' } }),
+      ])
+
+      await runMigrationLambda(directEvent)
+
+      written(
+        'reg1',
+        {
+          'handler.email': owner.email,
+          'handler.membership': false,
+          'handler.name': owner.name,
+          ownerHandles: true,
+          ownerPays: true,
+          'payer.email': owner.email,
+          'payer.membership': false,
+          'payer.name': owner.name,
+        },
+        ['handler.phone']
+      )
+    })
+
+    it("replaces the owner's stored copy as handler with the owner as stored now", async () => {
+      const copy = { email: ' owner@example.com ', membership: true, name: 'olli omistaja', phone: '+358401234567' }
+      mockReadEventRegistrations.mockResolvedValueOnce([
+        row('reg1', { handler: copy, payer: { name: 'Paavo Maksaja' } }),
+      ])
+
+      await runMigrationLambda(directEvent)
+
+      written(
+        'reg1',
+        {
+          'handler.email': owner.email,
+          'handler.membership': false,
+          'handler.name': owner.name,
+          ownerHandles: true,
+          ownerPays: false,
+        },
+        ['handler.phone']
+      )
+    })
+
+    it.each([
+      ['the same name but another address', { email: 'x@example.com', name: owner.name }],
+      ['the same address but another name', { email: owner.email, name: 'Hanna Ohjaaja' }],
+    ])('keeps a stored handler with %s as someone else', async (_case, handler) => {
+      mockReadEventRegistrations.mockResolvedValueOnce([row('reg1', { handler, payer: owner })])
+
+      await runMigrationLambda(directEvent)
+
+      written('reg1', { ownerHandles: false, ownerPays: true })
+    })
+
+    it('keeps the handler of a row that names no owner as someone else', async () => {
+      const handler = { email: 'handler@example.com', name: 'Hanna Ohjaaja' }
+      mockReadEventRegistrations.mockResolvedValueOnce([row('reg1', { handler, owner: undefined, owners: [] })])
+
+      await runMigrationLambda(directEvent)
+
+      // No owner to mirror: the handler stays, and the payer the row never named stays unnamed.
+      written('reg1', { ownerHandles: false, ownerPays: true })
     })
 
     it('compares a stored person with the first owner of the owner list', async () => {
@@ -1998,18 +2049,18 @@ describe('runMigrationLambda', () => {
           handler: { email: 'second@example.com', name: 'Second' },
           owner: undefined,
           owners,
-          payer: owners[0],
+          payer: { email: 'first@example.com', name: 'First' },
         }),
       ])
 
       await runMigrationLambda(directEvent)
 
-      selectionsWritten('reg1', false, true)
+      written('reg1', { ownerHandles: false, ownerPays: true })
     })
 
     it('writes only the selection a row lacks, and leaves a row holding both and a status-only row as they are', async () => {
       mockReadEventRegistrations.mockResolvedValueOnce([
-        row('reg1', { handler: { name: 'Hanna Ohjaaja' }, ownerHandles: 'owner-1' }),
+        row('reg1', { handler: { name: 'Hanna Ohjaaja' }, ownerHandles: 'owner-1', payer: owner }),
         row('reg2', { ownerHandles: true, ownerPays: false }),
         { emailDeliveryStatus: { status: 'bounce' }, eventId: 'event1', id: 'reg3' },
       ])
@@ -2017,12 +2068,7 @@ describe('runMigrationLambda', () => {
       await runMigrationLambda(directEvent)
 
       expect(mockWriteMigratedRegistration).toHaveBeenCalledTimes(1)
-      expect(mockWriteMigratedRegistration).toHaveBeenCalledWith(
-        'event1',
-        'reg1',
-        { set: { ownerPays: true, updatedAt: expect.any(String) } },
-        'read'
-      )
+      written('reg1', { ownerPays: true })
       expect(mockResponse).toHaveBeenCalledWith(200, [{ count: 1, name: 'storeOwnerSelections' }], directEvent)
     })
 

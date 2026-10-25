@@ -28,7 +28,10 @@ function Wrapper(props: { readonly children?: ReactNode }) {
 }
 describe('HadnlerInfo', () => {
   beforeAll(() => vi.useFakeTimers())
-  afterEach(() => vi.runOnlyPendingTimers())
+  afterEach(() => {
+    vi.runOnlyPendingTimers()
+    localStorage.clear()
+  })
   afterAll(() => vi.useRealTimers())
 
   it('should render with minimal info', () => {
@@ -99,5 +102,23 @@ describe('HadnlerInfo', () => {
     })
 
     await flushPromises()
+  })
+
+  // KOE-1598: an unset selection is the owner handling, so the cached handler membership is not
+  // written over the stored handler; a separate handler still takes it.
+  it.each([
+    ['an unset selection', 0, undefined],
+    ['a separate handler', 1, false],
+  ])('with %s writes the cached membership %i time(s)', async (_case, calls, ownerHandles) => {
+    const reg = clone<Registration>(registrationWithStaticDates)
+    reg.ownerHandles = ownerHandles
+    reg.handler = { email: 'handler@example.com', location: '', membership: false, name: 'Handler', phone: '' }
+    localStorage.setItem('dog-cache', JSON.stringify({ [reg.dog.regNo]: { handler: { membership: { test: true } } } }))
+    const onChange = vi.fn()
+
+    render(<HandlerInfo reg={reg} onChange={onChange} orgId="test" />, { wrapper: Wrapper })
+    await flushPromises()
+
+    expect(onChange).toHaveBeenCalledTimes(calls)
   })
 })

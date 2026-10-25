@@ -4,7 +4,7 @@ import type { JsonEventStatsItem } from '../../types/Stats'
 import type { OrganizerRepoints } from './organizerRepoints'
 import { createHash } from 'node:crypto'
 import { getEventSeason } from '../../lib/event'
-import { getRegistrationOwners } from '../../lib/registration'
+import { getRegistrationOwners, resolveOwnerPerson } from '../../lib/registration'
 import { legacyDecoder, rekeyDogDays, rekeyEventDays, rekeyRegistrationDays } from '../../lib/storedDays'
 import { mapWithConcurrency } from '../../lib/utils'
 import { authorizeAdmin } from '../lib/auth'
@@ -213,6 +213,10 @@ const namesAnotherPerson = (person: StoredPerson | undefined, owner: StoredPerso
 const storedOwnerSelection = (registration: JsonRegistration, person: StoredPerson | undefined): boolean =>
   !namesAnotherPerson(person, getRegistrationOwners(registration)[0])
 
+/** The owner a selection names, as `applyOwnerOverrides` persists it, or nothing for someone else. */
+const mirroredOwner = (registration: JsonRegistration, selection: boolean) =>
+  resolveOwnerPerson(registration.owners, registration.owner, selection)
+
 /** A row with a registration in it, not one holding only an email's delivery status. */
 const isRegistrationContent = (registration: JsonRegistration) =>
   Boolean(registration.dog || registration.owner || registration.owners)
@@ -229,16 +233,22 @@ const registrationMigrations: Migration<JsonRegistration>[] = [
     // KOE-1598: a registration stored without `ownerHandles`/`ownerPays` gets the one it meant, so
     // a save no longer mirrors the owner over a separate handler or payer, and an unchanged save stays
     // a 304. A separate person of its own on the row is someone else (`false`), otherwise the owner.
+    // The owner is mirrored into the handler or payer it selects, as a save would, since the email,
+    // the payment and the stats read the stored person.
     name: 'storeOwnerSelections',
     run: (registration) => {
       if (!isRegistrationContent(registration)) return false
       let changed = false
       if (registration.ownerHandles === undefined) {
         registration.ownerHandles = storedOwnerSelection(registration, registration.handler)
+        const handler = mirroredOwner(registration, registration.ownerHandles)
+        if (handler) registration.handler = handler
         changed = true
       }
       if (registration.ownerPays === undefined) {
         registration.ownerPays = storedOwnerSelection(registration, registration.payer)
+        const payer = mirroredOwner(registration, registration.ownerPays)
+        if (payer) registration.payer = payer
         changed = true
       }
       return changed

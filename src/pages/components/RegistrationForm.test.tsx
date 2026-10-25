@@ -329,6 +329,22 @@ describe('RegistrationForm', () => {
     expect(registration.ownerPays).toBe(true)
   })
 
+  // KOE-1598: an unset selection is the owner handling and paying, so the separate handler and payer
+  // sections stay shut even while the selection is still unset.
+  it('should keep the handler and payer sections shut for an unset owner selection', async () => {
+    const registration = { ...registrationWithStaticDates, ownerHandles: undefined, ownerPays: undefined }
+
+    render(<RegistrationForm event={eventWithStaticDates} registration={registration} onChange={vi.fn()} />, {
+      wrapper: Wrapper,
+    })
+    await flushPromises()
+
+    expect(registration.ownerHandles).toBeUndefined()
+    for (const title of ['registration.handler', 'registration.payer']) {
+      expect(screen.getByText(title).closest('.MuiCollapse-root')).toHaveClass('MuiCollapse-hidden')
+    }
+  })
+
   it('should not call onSave multiple times', async () => {
     const onSave = vi.fn()
 
