@@ -433,6 +433,32 @@ describe('registrationLocks', () => {
     })
   })
 
+  // Every owner of a row matches themselves, so a stored row is never a change against itself and the
+  // form's put-back always settles: what it hands on leaves no locked change for the next run.
+  describe('a stored row against itself and its put-back', () => {
+    const memberB = { ...owner, email: 'b@example.com', membership: true, name: 'B' }
+    it.each<[string, Person[]]>([
+      ['a keyless owner before one keyed as the first position', [owner, { ...memberB, key: 'owner-1' }]],
+      [
+        'two owners under one key',
+        [
+          { ...owner, key: 'a' },
+          { ...memberB, key: 'a' },
+        ],
+      ],
+      ['two keyless owners alike', [owner, { ...owner, membership: true }]],
+      ['two keyless owners without names', [{ membership: false }, { membership: true }]],
+    ])('settles %s', (_label, owners) => {
+      const stored: Entry = { ...base, owners }
+      const flipped: Entry = { ...stored, notes: 'n', owners: owners.map((o) => ({ ...o, membership: !o.membership })) }
+
+      expect(participantLockedChange(ALL_LOCKED, stored, structuredClone(stored))).toBeUndefined()
+      expect(participantLockedChange(ALL_LOCKED, stored, withLockedSectionsFrom(stored, flipped, ALL_LOCKED))).toBe(
+        undefined
+      )
+    })
+  })
+
   describe('withLockedSectionsFrom', () => {
     const draft: Entry = {
       ...base,

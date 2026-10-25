@@ -2461,6 +2461,27 @@ describe('putRegistrationLabmda', () => {
       expectRefused(await patch(existingJson, { owners: [alike] }), 'membership')
     })
 
+    // What the form sends when the participant names someone else to handle in place of the member owner.
+    it('saves someone else named to handle a paid entry in place of the member owner, claiming none', async () => {
+      entryOpen()
+      const member = { ...paid.owner, membership: true }
+      const existingJson = given({ ...paid, handler: member, owner: member, ownerHandles: true })
+      const bob = { email: 'bob@example.com', location: 'Town', membership: false, name: 'Bob', phone: '+358401111111' }
+
+      expectSaved(await patch(existingJson, { handler: bob, ownerHandles: false }), { handler: bob })
+    })
+
+    // A keyless owner first and an owner keyed as `owner-1` (the form's first position key) after:
+    // the keyed one is matched by their own key, so the stored row is no change against itself.
+    it('saves the notes of a paid entry whose keyless first owner shares a position key with a keyed member', async () => {
+      entryOpen()
+      const keyless = { ...paid.owner, membership: false }
+      const keyed = { ...paid.owner, email: 'b@example.com', key: 'owner-1', membership: true, name: 'B' }
+      const existingJson = given({ ...paid, owner: keyless, owners: [keyless, keyed] })
+
+      expectSaved(await patch(existingJson, { notes: 'notes' }), { notes: 'notes' })
+    })
+
     it('refuses a new handler named on a paid entry claiming a membership with 410', async () => {
       entryOpen()
       const existingJson = given(paid)

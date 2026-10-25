@@ -873,6 +873,41 @@ describe('RegistrationForm', () => {
       })
     })
 
+    // The member owner handled a paid entry; the participant names someone else. The handler field
+    // starts as the owner's copy and its membership, and the new person claims none, by the lock's own
+    // rule: nothing is put back and nothing is said.
+    it('names someone else to handle a paid entry without a notice, the new handler claiming no membership', async () => {
+      entryOpen()
+      const memberOwner = { email: 'owner@example.com', membership: true, name: 'Owner Name', phone: '+3584012345' }
+      const saved: Registration = {
+        ...registrationWithStaticDates,
+        handler: memberOwner,
+        owner: memberOwner,
+        ownerHandles: true,
+      }
+      const onChange = vi.fn()
+      const { user } = renderWithUserEvents(
+        <Draft onChange={onChange} saved={saved} />,
+        { wrapper: Wrapper },
+        { advanceTimers: vi.advanceTimersByTime }
+      )
+      await flushPromises()
+
+      await user.click(screen.getAllByRole('radio', { name: 'registration.someoneElse' })[0])
+      await flushPromises()
+      const handlerName = document.getElementById('handler_name')
+      if (!handlerName) throw new Error('no handler name field')
+      await user.clear(handlerName)
+      await user.type(handlerName, 'Bob')
+      await flushPromises()
+      await runPendingTimers()
+
+      expect(screen.queryByRole('alert')).not.toBeInTheDocument()
+      expect(onChange).toHaveBeenLastCalledWith(
+        expect.objectContaining({ handler: expect.objectContaining({ membership: false, name: 'Bob' }) })
+      )
+    })
+
     // The handler's place is the person: correcting a member handler's name on a paid entry keeps the
     // membership, and the form does not put the stored name back.
     it("keeps a correction of a paid entry's member handler", async () => {

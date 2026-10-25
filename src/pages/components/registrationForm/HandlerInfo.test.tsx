@@ -104,7 +104,10 @@ describe('HadnlerInfo', () => {
 
   // The dog cache remembers a membership from another entry; a paid entry's stands as stored (KOE-1588).
   describe('a membership the dog cache remembers', () => {
-    const renderWithCachedMembership = (membershipLocked: boolean) => {
+    // Once paid, the claim comes from the lock's rule: here the stored handler keeps theirs, anyone
+    // named in their place claims none.
+    const lockedMembership = ({ name }: { name: string }) => name === 'Handler Name'
+    const renderWithCachedMembership = (locked: boolean) => {
       const reg = clone<Registration>(registrationWithStaticDates)
       const store = createStore()
       store.set(dogCacheAtom, {
@@ -113,7 +116,12 @@ describe('HadnlerInfo', () => {
       const onChange = vi.fn()
       const rendered = renderWithUserEvents(
         <Provider store={store}>
-          <HandlerInfo reg={reg} membershipLocked={membershipLocked} onChange={onChange} orgId="test" />
+          <HandlerInfo
+            reg={reg}
+            lockedMembership={locked ? lockedMembership : undefined}
+            onChange={onChange}
+            orgId="test"
+          />
         </Provider>,
         { wrapper: Wrapper },
         { advanceTimers: vi.advanceTimersByTime }
@@ -128,7 +136,7 @@ describe('HadnlerInfo', () => {
       expect(onChange).toHaveBeenCalledWith({ handler: expect.objectContaining({ membership: true }) })
     })
 
-    it('is not taken into an entry whose memberships are locked, also when the handler is edited', async () => {
+    it('is not taken into a paid entry, and a renamed handler claims what the lock allows', async () => {
       const { onChange, user } = renderWithCachedMembership(true)
       await flushPromises()
       expect(onChange).not.toHaveBeenCalled()

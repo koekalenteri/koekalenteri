@@ -1,7 +1,15 @@
 import type { Theme } from '@mui/material'
 import type { ParseKeys, TFunction } from 'i18next'
 import type { ParticipantLockReason, ParticipantLockSection } from '../../lib/registrationLocks'
-import type { DayKey, DeepPartial, ManualTestResult, PublicConfirmedEvent, Registration, TestResult } from '../../types'
+import type {
+  DayKey,
+  DeepPartial,
+  ManualTestResult,
+  PublicConfirmedEvent,
+  Registration,
+  RegistrationPerson,
+  TestResult,
+} from '../../types'
 import Cancel from '@mui/icons-material/Cancel'
 import CheckOutlined from '@mui/icons-material/CheckOutlined'
 import ExpandMore from '@mui/icons-material/ExpandMore'
@@ -46,6 +54,7 @@ import {
   getParticipantLockReason,
   isEntryRestrictionLocked,
   isParticipantFieldLocked,
+  lockedHandlerMembership,
   NO_PARTICIPANT_FIELD_LOCKS,
   participantLockedChange,
   withLockedSectionsFrom,
@@ -144,6 +153,11 @@ export default function RegistrationForm({
   const locks = useMemo(
     () => (admin ? NO_PARTICIPANT_FIELD_LOCKS : getParticipantFieldLocks(event, stored)),
     [admin, event, stored]
+  )
+  // The membership a handler named on a paid entry may claim, by the rule the lock reads (KOE-1588).
+  const lockedHandlerClaim = useCallback(
+    (handler: Pick<RegistrationPerson, 'email' | 'name'>) => lockedHandlerMembership(stored, handler),
+    [stored]
   )
   // What the participant can no longer change does not hold back saving what they can: an error in
   // a locked section, a restriction only locked sections could meet (`isEntryRestrictionLocked`, which
@@ -333,15 +347,14 @@ export default function RegistrationForm({
   useEffect(() => {
     // A lock that arrives while the participant edits (the picking or the payment, by the WebSocket),
     // or a draft kept from before it, puts the locked sections back as stored: the server would refuse
-    // the save otherwise (KOE-1588). Only a put-back that changes the draft and settles it is handed on,
-    // so a stored row the rule cannot settle (one that differs from itself) is never put back again
-    // and again. The participant is told which section and why, whatever brought the change in: the
-    // same put-back serves an edit, a lock that arrives and a draft kept from before it.
+    // the save otherwise (KOE-1588). What comes back has no locked change left, since a stored row is
+    // never a change against itself (`storedOwnersOf`), so the next run finds nothing to put back. The
+    // participant is told which section and why, whatever brought the change in: the same put-back
+    // serves an edit, a lock that arrives and a draft kept from before it.
     if (!savedRegistration) return
     const section = participantLockedChange(locks, savedRegistration, registration)
     if (!section) return
     const restored = withLockedSectionsFrom(savedRegistration, registration, locks)
-    if (!hasChanges(registration, restored) || participantLockedChange(locks, savedRegistration, restored)) return
     setLockedNotice({ reason: getParticipantLockReason(section, savedRegistration), section })
     onChange?.(restored)
   }, [locks, onChange, registration, savedRegistration])
@@ -443,7 +456,7 @@ export default function RegistrationForm({
             reg={registration}
             disabled={disabled || locks.people}
             error={errorStates.handler}
-            membershipLocked={locks.membership}
+            lockedMembership={locks.membership ? lockedHandlerClaim : undefined}
             helperText={helperTexts.handler}
             onChange={handleChange}
             onOpenChange={(value) => handleOpenChange('handler', value)}
