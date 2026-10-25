@@ -390,6 +390,24 @@ describe('registrationLocks', () => {
           expect(participantLockedChange(only('membership'), keyless, { ...keyless, owners })).toBeUndefined()
         })
 
+        // Two stored owners alike: the one in the same position is matched first, so an owner added
+        // before them does not take the other's membership. A member handler keeps the entry a member's,
+        // so the first owner may leave.
+        it('matches an owner alike in the same position first', () => {
+          const alikeTwice: Entry = {
+            ...base,
+            handler: { ...handler, membership: true },
+            owners: [
+              { ...owner, membership: true },
+              { ...owner, membership: false },
+            ],
+          }
+          const newcomer = { email: 'z@example.com', membership: false, name: 'Z' }
+          const owners = [newcomer, { ...owner, membership: false }]
+
+          expect(participantLockedChange(only('membership'), alikeTwice, { ...alikeTwice, owners })).toBeUndefined()
+        })
+
         it('finds a flip of an owner sent without keys in another position', () => {
           const owners = [{ ...two, membership: false }, one]
 
@@ -453,9 +471,9 @@ describe('registrationLocks', () => {
       const flipped: Entry = { ...stored, notes: 'n', owners: owners.map((o) => ({ ...o, membership: !o.membership })) }
 
       expect(participantLockedChange(ALL_LOCKED, stored, structuredClone(stored))).toBeUndefined()
-      expect(participantLockedChange(ALL_LOCKED, stored, withLockedSectionsFrom(stored, flipped, ALL_LOCKED))).toBe(
-        undefined
-      )
+      const restored = withLockedSectionsFrom(stored, flipped, ALL_LOCKED)
+
+      expect(participantLockedChange(ALL_LOCKED, stored, restored)).toBeUndefined()
     })
   })
 
