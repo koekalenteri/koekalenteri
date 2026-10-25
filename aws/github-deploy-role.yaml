@@ -20,6 +20,10 @@
 # carry the permissions boundary AppBoundary: CreateRole and every policy write are allowed only
 # when the role has it, so the role cannot make a role that does more than the app's services. The
 # deploy role, the boundary and the deploy policies are denied to it outright.
+#
+# Until every role of the three stacks carries the boundary, these policies are not a security
+# boundary: the role may change the stacks' managed policies, which are attached to roles without
+# one. AdministratorAccess stays attached until then (aws/README.md).
 AWSTemplateFormatVersion: '2010-09-09'
 Description: >-
   The role GitHub Actions deploys Koekalenteri with, assumed through GitHub's OIDC federation, its
@@ -386,8 +390,10 @@ Resources:
       PolicyDocument:
         Version: '2012-10-17'
         Statement:
-          # The tables' definitions in every stack; their items only on dev, where the browser tests
-          # write an event of their own and sweep it away (e2e/remote/testEvents.mjs).
+          # The tables' definitions in every stack; the role's own calls on their items only on dev,
+          # where the browser tests write an event of their own and sweep it away
+          # (e2e/remote/testEvents.mjs). Code the role deploys reaches every stack's items through
+          # the functions' roles, within the boundary.
           - Sid: StackTables
             Effect: Allow
             Action:

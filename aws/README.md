@@ -50,6 +50,9 @@ aws cloudformation deploy --region eu-north-1 --stack-name koekalenteri-github-d
 The stack owns the account's GitHub OIDC provider, so `ProviderExists` stays `false`, its default;
 with `true` CloudFormation would delete the provider, and no job could assume the role.
 
+These policies are a security boundary only once every role of the three stacks carries the
+boundary; the move from `AdministratorAccess` below says how that is reached.
+
 A missing permission shows as `AccessDenied` in the failed deploy's stack events and in CloudTrail
 (the event names the action). The escape hatch is to attach `AdministratorAccess` by hand, fix the
 template, deploy this stack again and detach it. The same goes for a rollback that would take a
@@ -80,6 +83,13 @@ account, and the SSM parameters `src/lambda/lib/secrets.ts` reads (`KL_API_*` an
 role's own credentials; the key policy does not lift the boundary. One boundary serves the three
 stacks, so it does not keep a dev role off a prod table; what does is the role's own policy.
 
+Two more residuals are accepted. `iam:UpdateAssumeRolePolicy` on the stacks' roles has no condition
+key for the principal it trusts, so a deploy job can make a bounded role assumable from outside the
+account; the role keeps its boundary, so whoever assumes it gets no more than the boundary allows.
+And the deploy role's own access to table items is limited to dev (`DevTableItems`), but it may
+write a role policy within the boundary and run code under it, so a deploy job reaches prod tables
+that way; the limit covers only the role's direct calls.
+
 ### Moving from AdministratorAccess to the scoped policies
 
 The role had only `AdministratorAccess`, attached through the `ManagedPolicyArns` parameter. The
@@ -95,13 +105,18 @@ first deploy of the scoped template goes in this order:
    CloudFormation sets a role's boundary and its policies, and if one of them fails, its rollback
    can take the boundary off again, which the scoped role may not do.
 3. Merge the pull request. The dev deploy adds the boundary to every role of `koekalenteri-dev`.
-4. Detach `AdministratorAccess`
+4. Release to test. The deploy adds the boundary to every role of `koekalenteri-test`.
+5. Release to prod. The deploy adds the boundary to every role of `koekalenteri-prod`.
+6. Only now detach `AdministratorAccess`
    (`aws iam detach-role-policy --role-name koekalenteri-github-deploy --policy-arn arn:aws:iam::aws:policy/AdministratorAccess`)
    and run the dev deploy again (re-run the release workflow's dev deploy). It proves the scoped
-   permissions on a stack that already has the boundary.
-5. Release to test, then to prod. Attach `AdministratorAccess` for each of the two first releases
-   and detach it only after that release has passed: each one adds the boundary to that stack's
-   roles, and a failed one rolls back by removing it.
+   permissions on a stack that has the boundary; test and prod are proven by their next release.
+
+`AdministratorAccess` stays attached until all three stacks have deployed with the boundary. Until
+then the scoped policies are not a security boundary: the role may write a new version of the
+stacks' managed policies (`AuthorizeAccessPolicy-*`, `WebSocketAccessPolicy-*`), which are attached
+to function roles that have no boundary yet, and update and invoke those functions, so a job under
+`dev` could run code with any permission in a stack still waiting for its boundary.
 
 After step 1, a commit older than this change cannot be deployed with the scoped permissions: its
 template sets no boundary, and the role may not create a role without one. Reattaching

@@ -608,7 +608,11 @@ const tableGrant =
     ]
   }
 
-/** SAM writes a bucket template as one statement: every action on the bucket and on its objects. */
+/**
+ * Every action of a bucket template on the bucket and on its objects. SAM writes S3ReadPolicy that
+ * way and S3FullAccessPolicy as two statements (object actions on bucket/*, the bucket ones on the
+ * bucket); the test checks the superset on purpose, which the boundary must allow either way.
+ */
 const bucketGrants =
   (bucketActions: string[], objectActions: string[]) =>
   (parameters: Record<string, unknown>, stack: Stack): TemplateGrant[] => {
@@ -794,6 +798,14 @@ const ssmParameters = () => {
   }
 }
 
+const KEY = regionalArn('kms', 'key/1234abcd-12ab-34cd-56ef-1234567890ab')
+const OTHER_ACCOUNT = '999999999999'
+/** The KMS context of a decrypt a service makes for a caller of the given account. */
+const through = (service: string, account = ACCOUNT): RequestContext => ({
+  'kms:CallerAccount': account,
+  'kms:ViaService': `${service}.${REGION}.amazonaws.com`,
+})
+
 const denied = (calls: Call[]) =>
   calls
     .filter((call) => !allowed(call.action, call.resource, call.context))
@@ -899,6 +911,12 @@ describe('the deploy role', () => {
       {},
     ],
     [
+      'attach an allowed policy to a role without the boundary',
+      'iam:AttachRolePolicy',
+      `arn:aws:iam::${ACCOUNT}:role/koekalenteri-dev-x`,
+      { 'iam:PolicyARN': LAMBDA_BASIC_EXECUTION },
+    ],
+    [
       'attach AdministratorAccess',
       'iam:AttachRolePolicy',
       `arn:aws:iam::${ACCOUNT}:role/koekalenteri-dev-x`,
@@ -958,6 +976,14 @@ describe('the deploy role', () => {
     expect(
       actions.filter((action) => isAllowed([...deployStatements, allowEverything], action, resource, bounded))
     ).toEqual([])
+  })
+
+  it('decrypts the stack secret through Secrets Manager, and only through it', () => {
+    expect(allowed('kms:Decrypt', KEY, through('secretsmanager'))).toBe(true)
+    expect(allowed('kms:Decrypt', KEY, through('s3'))).toBe(false)
+    expect(allowed('kms:Decrypt', KEY, through('secretsmanager', OTHER_ACCOUNT))).toBe(false)
+    expect(allowed('kms:Decrypt', KEY, { 'kms:ViaService': `secretsmanager.${REGION}.amazonaws.com` })).toBe(false)
+    expect(allowed('kms:Decrypt', KEY, { 'kms:CallerAccount': ACCOUNT })).toBe(false)
   })
 
   // A role given a wide policy under the boundary would hold all of it once the boundary is gone.
@@ -1045,22 +1071,21 @@ describe('the permissions boundary', () => {
   // secrets.ts reads WithDecryption; a SecureString parameter is decrypted with the role's own
   // credentials through SSM, and the boundary caps that call too.
   it('lets a role decrypt a parameter through SSM, and only through it', () => {
-    const key = regionalArn('kms', 'key/1234abcd-12ab-34cd-56ef-1234567890ab')
-    const through = (service: string) => ({
-      'kms:CallerAccount': ACCOUNT,
-      'kms:ViaService': `${service}.${REGION}.amazonaws.com`,
-    })
-
     expect(readFileSync('src/lambda/lib/secrets.ts', 'utf8')).toContain('WithDecryption: true')
-    expect(isAllowed(boundaryStatements, 'kms:Decrypt', key, through('ssm'))).toBe(true)
-    expect(isAllowed(boundaryStatements, 'kms:Decrypt', key, through('s3'))).toBe(false)
-    expect(isAllowed(boundaryStatements, 'kms:Decrypt', key)).toBe(false)
+    expect(isAllowed(boundaryStatements, 'kms:Decrypt', KEY, through('ssm'))).toBe(true)
+    expect(isAllowed(boundaryStatements, 'kms:Decrypt', KEY, through('s3'))).toBe(false)
+    expect(isAllowed(boundaryStatements, 'kms:Decrypt', KEY, through('ssm', OTHER_ACCOUNT))).toBe(false)
+    expect(isAllowed(boundaryStatements, 'kms:Decrypt', KEY, { 'kms:ViaService': `ssm.${REGION}.amazonaws.com` })).toBe(
+      false
+    )
+    expect(isAllowed(boundaryStatements, 'kms:Decrypt', KEY, { 'kms:CallerAccount': ACCOUNT })).toBe(false)
   })
 
   it.each([
     ['read a parameter of no stack', 'ssm:GetParameters', regionalArn('ssm', 'parameter/UPSTASH_REDIS_REST_TOKEN')],
     ['read a bucket of no stack', 's3:GetObject', 'arn:aws:s3:::koekalenteri-main/x'],
     ['write a table of no stack', 'dynamodb:PutItem', regionalArn('dynamodb', 'table/event-table')],
+    ['write a stack parameter', 'ssm:PutParameter', regionalArn('ssm', 'parameter/koekalenteri-dev-X')],
     ['call IAM', 'iam:CreateRole', `arn:aws:iam::${ACCOUNT}:role/x`],
     ['assume a role', 'sts:AssumeRole', `arn:aws:iam::${ACCOUNT}:role/koekalenteri-admin`],
   ])('keeps a role from doing what no stack does: %s', (_, action, resource) => {
