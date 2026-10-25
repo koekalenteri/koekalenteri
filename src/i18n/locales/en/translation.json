@@ -1426,7 +1426,7 @@
       "refundedAmount": "Refunded",
       "reserve": "On waiting list",
       "reserveCancelledTitle": "Waiting list and cancellations",
-      "reserveCancelledTitleInfo": "Number of registrations left on the waiting list and cancelled registrations per month, for the selected organization and year.",
+      "reserveCancelledTitleInfo": "Number of registrations left on the waiting list and cancelled registrations per month, for the selected organization and year. Only events that have already run are counted.",
       "starters": "Starters",
       "title": "Financial statistics",
       "titleInfo": "Amount paid and amount refunded per month, for the selected organization and year."

@@ -1426,7 +1426,7 @@
       "refundedAmount": "Palautettu",
       "reserve": "Varasijoilla",
       "reserveCancelledTitle": "Varasijalle jääneet ja peruutukset",
-      "reserveCancelledTitleInfo": "Varasijalle jääneiden ja peruttujen ilmoittautumisten määrä kuukausittain, valitulle yhdistykselle ja vuodelle.",
+      "reserveCancelledTitleInfo": "Varasijalle jääneiden ja peruttujen ilmoittautumisten määrä kuukausittain, valitulle yhdistykselle ja vuodelle. Vain päättyneet kokeet lasketaan.",
       "starters": "Osallistujia",
       "title": "Talouden tilastot",
       "titleInfo": "Maksettu ja palautettu summa kuukausittain, valitulle yhdistykselle ja vuodelle."
