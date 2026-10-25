@@ -129,13 +129,26 @@ Resources:
           - Sid: Topics
             Effect: Allow
             Action: sns:*
-            Resource: !Sub arn:aws:sns:${AWS::Region}:${AWS::AccountId}:ses-notifications-koekalenteri-*
+            Resource:
+              - !Sub arn:aws:sns:${AWS::Region}:${AWS::AccountId}:ses-notifications-koekalenteri-*
+              # The stack's alarm topic, named alarms-<stack> (KOE-1602).
+              - !Sub arn:aws:sns:${AWS::Region}:${AWS::AccountId}:alarms-koekalenteri-*
           # The configuration set is shared by the stacks; each adds its own event destination.
           - Sid: SesEventDestinations
             Effect: Allow
             Action: ses:*
             Resource: !Sub arn:aws:ses:${AWS::Region}:${AWS::AccountId}:configuration-set/Koekalenteri
+          # CloudFormation resolves the functions' {{resolve:ssm:...}} references with the deployer's
+          # own credentials: the link-signing secret of each stack (KOE-1604).
+          - Sid: Parameters
+            Effect: Allow
+            Action: ssm:GetParameters
+            Resource:
+              - !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/koekalenteri-dev-REGISTRATION_EDIT_TOKEN_SECRET
+              - !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/koekalenteri-test-REGISTRATION_EDIT_TOKEN_SECRET
+              - !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/koekalenteri-prod-REGISTRATION_EDIT_TOKEN_SECRET
           # CloudFormation names the secret after its logical id, not the stack.
+          # This statement can go once prod has released KOE-1604, which drops the secret.
           - Sid: Secrets
             Effect: Allow
             Action: secretsmanager:*
