@@ -5,7 +5,12 @@ import TableRow from '@mui/material/TableRow'
 import Tooltip from '@mui/material/Tooltip'
 import { useTranslation } from 'react-i18next'
 import { breedAbbreviation } from '@/lib/dog'
-import { formatOwnerNames, getRegistrationClass, getRegistrationOwners } from '@/lib/registration'
+import {
+  formatOwnerNames,
+  getRegistrationClass,
+  getRegistrationOwners,
+  handlingPersonIsMember,
+} from '@/lib/registration'
 
 interface RegistrationRowProps {
   reg: Registration
@@ -42,7 +47,7 @@ const RegistrationRow = ({ reg, reserve, nameLen, numberPending, showClass }: Re
       <TableCell>{formatOwnerNames(reg)}</TableCell>
       <TableCell align="center">{owners.some((owner) => owner?.membership) ? '✘' : ''}</TableCell>
       <TableCell>{reg.handler?.name}</TableCell>
-      <TableCell align="center">{reg.handler?.membership ? '✘' : ''}</TableCell>
+      <TableCell align="center">{handlingPersonIsMember(reg) ? '✘' : ''}</TableCell>
       <TableCell>{reg.handler?.phone ?? t('startList.noPhone')}</TableCell>
       {reserve ? (
         <>

@@ -507,6 +507,14 @@ export const getHandlingPerson = <O extends { key?: string }, L, H>(registration
 }): O | L | H | undefined =>
   getOverridePerson(registration.owners, registration.owner, registration.ownerHandles, registration.handler)
 
+/**
+ * Whether the person who handles the dog is a member: the owner the `ownerHandles` selection names,
+ * or the separate handler. When an owner handles, the stored `handler` is only a copy of that owner,
+ * so its own `membership` is not read (KOE-1599).
+ */
+export const handlingPersonIsMember = (registration?: MinimalRegistrationForMembership): boolean =>
+  Boolean(registration && getHandlingPerson(registration)?.membership)
+
 /** The person who pays: the owner the `ownerPays` selection names, or the separate payer. */
 export const getPayingPerson = <O extends { key?: string }, L, P>(registration: {
   owners?: O[]
@@ -596,8 +604,7 @@ export const hasPriority: PriorityCheckFn<true | false | 0.5> = (event, registra
   if (event.priority?.includes(PRIORITY_MEMBER)) {
     const anyOwnerIsMember = anyOwnerHasMembership(registration)
     if (anyOwnerIsMember || handlerMembershipCounts(registration)) {
-      const handlingPerson = getHandlingPerson(registration)
-      return handlingPerson?.membership && anyOwnerIsMember ? true : 0.5
+      return anyOwnerIsMember && handlingPersonIsMember(registration) ? true : 0.5
     }
   }
   if (

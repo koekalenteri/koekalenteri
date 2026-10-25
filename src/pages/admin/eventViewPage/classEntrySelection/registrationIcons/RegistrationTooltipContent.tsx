@@ -17,6 +17,7 @@ import { formatMoney } from '@/lib/money'
 import {
   getInvitationReadStatus,
   getRegistrationOwners,
+  handlingPersonIsMember,
   isInvitationAwaitingPayment,
   priorityDescriptionKey,
 } from '@/lib/registration'
@@ -52,7 +53,7 @@ export const hasRegistrationTooltipContent = ({
 }: RegistrationTooltipContentProps): boolean => {
   if (priority) return true
   if (getRegistrationOwners(reg).some((owner) => owner?.membership)) return true
-  if (reg.handler?.membership) return true
+  if (handlingPersonIsMember(reg)) return true
   if (reg.paidAt) return true
   if ((reg.optionalCosts ?? []).length > 0) return true
   if (reg.confirmed) return true
@@ -146,7 +147,7 @@ const RegistrationTooltipContent = ({
       />
       <TooltipIcon
         key="handler-membership"
-        condition={!!reg.handler?.membership}
+        condition={handlingPersonIsMember(reg)}
         icon={<PersonOutline fontSize="small" />}
         text={t('registration.handlerIsMember')}
       />

@@ -588,6 +588,7 @@ export type PaymentStatus = 'SUCCESS' | 'CANCEL' | 'DUPLICATE' | 'PENDING' | 'NE
 export interface MinimalRegistrationForMembership {
   handler?: Pick<RegistrationPerson, 'membership'>
   owner?: Pick<RegistrationPerson, 'membership'>
-  owners?: Pick<RegistrationPerson, 'membership'>[]
+  /** An owner's `key` is what a multi-owner `ownerHandles` selection names. */
+  owners?: (Pick<RegistrationPerson, 'membership'> & { key?: string })[]
   ownerHandles?: OwnerSelection
 }
