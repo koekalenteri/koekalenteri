@@ -776,6 +776,41 @@ describe('RegistrationForm', () => {
       else expect(onChange).not.toHaveBeenCalledWith(expect.objectContaining({ dates: expect.any(Array) }))
     })
 
+    // The owner who handled a paid entry is a member; the draft names Bob apart, who would carry the
+    // owner's membership. Bob is someone added after paying and claims none.
+    it("gives a handler named apart on a paid entry no membership of the owner's", async () => {
+      entryOpen()
+      const memberOwner = {
+        email: 'owner@example.com',
+        key: 'a',
+        location: 'Owner Location',
+        membership: true,
+        name: 'Owner Name',
+        phone: '+3584012345',
+      }
+      const saved: Registration = {
+        ...registrationWithStaticDates,
+        handler: memberOwner,
+        owner: memberOwner,
+        ownerHandles: 'a',
+        owners: [memberOwner],
+      }
+      const bob = { email: 'bob@example.com', membership: true, name: 'Bob', phone: '+358401111111' }
+      const onChange = vi.fn()
+      render(
+        <RegistrationForm
+          event={eventWithStaticDates}
+          registration={{ ...saved, handler: bob, ownerHandles: false }}
+          savedRegistration={saved}
+          onChange={onChange}
+        />,
+        { wrapper: Wrapper }
+      )
+      await flushPromises()
+
+      expect(onChange).toHaveBeenCalledWith(expect.objectContaining({ handler: { ...bob, membership: false } }))
+    })
+
     // The picking arrives by the WebSocket while the participant has the days and the dog changed.
     it('puts the locked sections of the draft back when the entry is picked mid-edit', async () => {
       entryOpen()

@@ -2386,6 +2386,33 @@ describe('putRegistrationLabmda', () => {
       })
     })
 
+    // People may leave a paid entry as long as it stays a member's; a person added claims nothing.
+    it('saves a member co-owner leaving a paid entry while another member remains', async () => {
+      entryOpen()
+      const one = { ...paid.owner, key: 'a', membership: true }
+      const two = { ...paid.owner, email: 'two@example.com', key: 'b', membership: true, name: 'Two' }
+      const existingJson = given({ ...paid, owner: one, owners: [one, two] })
+
+      expectSaved(await patch(existingJson, { owner: two, owners: [two] }), { owners: [two] })
+    })
+
+    it('saves the first of two keyless owners leaving a paid entry, sent without keys', async () => {
+      entryOpen()
+      const one = { ...paid.owner, membership: false, name: 'One' }
+      const two = { ...paid.owner, email: 'two@example.com', membership: true, name: 'Two' }
+      const existingJson = given({ ...paid, owner: one, owners: [one, two] })
+
+      expectSaved(await patch(existingJson, { owner: two, owners: [two] }), { owners: [two] })
+    })
+
+    it('refuses a new handler named on a paid entry claiming a membership with 410', async () => {
+      entryOpen()
+      const existingJson = given(paid)
+      const bob = { email: 'bob@example.com', membership: true, name: 'Bob', phone: '+358401111111' }
+
+      expectRefused(await patch(existingJson, { handler: bob }), 'membership')
+    })
+
     // A row stored without `ownerHandles` counts the handler's membership (`isMember`).
     describe('a paid row stored without an owner selection', () => {
       const givenLegacy = () => {

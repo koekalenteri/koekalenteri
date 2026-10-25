@@ -220,15 +220,16 @@ describe('registrationLocks', () => {
     describe('membership', () => {
       const stored: Entry = { ...base, owners: [{ ...owner, key: 'a', membership: true }] }
       const [first] = stored.owners ?? []
+      const newOwner = { email: 'new@example.com', key: 'b', name: 'New Owner' }
 
       it.each<[string, Partial<Entry>, ParticipantLockSection | undefined]>([
         ['an owner keeps theirs', { owners: [first] }, undefined],
         ['an owner flips theirs', { owners: [{ ...first, membership: false }] }, 'membership'],
-        ['an added owner is no member', { owners: [first, { ...owner, key: 'b', membership: false }] }, undefined],
-        ['an added owner is a member', { owners: [first, { ...owner, key: 'b', membership: true }] }, 'membership'],
+        ['an added owner is no member', { owners: [first, { ...newOwner, membership: false }] }, undefined],
+        ['an added owner is a member', { owners: [first, { ...newOwner, membership: true }] }, 'membership'],
         [
           'a member owner is swapped for one who is no member',
-          { owners: [{ ...owner, key: 'b', membership: false }] },
+          { owners: [{ ...newOwner, membership: false }] },
           'membership',
         ],
         ['the separate handler flips theirs', { handler: { ...handler, membership: true } }, 'membership'],
@@ -271,6 +272,55 @@ describe('registrationLocks', () => {
         })
       })
 
+      it('lets a member co-owner leave while another member remains', () => {
+        const two: Entry = {
+          ...base,
+          owners: [
+            { ...owner, key: 'a', membership: true },
+            { ...owner, key: 'b', membership: true, name: 'Two' },
+          ],
+        }
+
+        expect(participantLockedChange(only('membership'), two, { ...two, owners: two.owners?.slice(1) })).toBe(
+          undefined
+        )
+      })
+
+      // A keyless stored owner is found by the key the form gives by position, or by who they are.
+      describe('keyless stored owners', () => {
+        const keyless: Entry = {
+          ...base,
+          owners: [
+            { ...owner, membership: false, name: 'One' },
+            { ...owner, email: 'two@example.com', membership: true, name: 'Two' },
+          ],
+        }
+        const [one, two] = keyless.owners ?? []
+
+        it.each<[string, Person[]]>([
+          ['the first removed, sent without keys', [two]],
+          ['the first removed in the form, which keys them by position', [{ ...two, key: 'owner-2' }]],
+          ['the owners reordered, sent without keys', [two, one]],
+        ])('finds no change when %s', (_label, owners) => {
+          expect(participantLockedChange(only('membership'), keyless, { ...keyless, owners })).toBeUndefined()
+        })
+
+        it('finds a flip of an owner sent without keys in another position', () => {
+          const owners = [{ ...two, membership: false }, one]
+
+          expect(participantLockedChange(only('membership'), keyless, { ...keyless, owners })).toBe('membership')
+        })
+      })
+
+      // A separate handler who counts may claim only the stored handling person's membership.
+      it.each<[string, Person, ParticipantLockSection | undefined]>([
+        ['the stored handler keeps theirs', handler, undefined],
+        ['a new handler claims none', { email: 'bob@example.com', membership: false, name: 'Bob' }, undefined],
+        ['a new handler claims one', { email: 'bob@example.com', membership: true, name: 'Bob' }, 'membership'],
+      ])('answers when %s', (_label, newHandler, expected) => {
+        expect(participantLockedChange(only('membership'), base, { ...base, handler: newHandler })).toBe(expected)
+      })
+
       it('reads keyless stored owners by position', () => {
         const keyless: Entry = { ...base, owners: [owner, { ...owner, membership: true, name: 'Two' }] }
         const keyed = keyless.owners?.map((o, index) => ({ ...o, key: `owner-${index + 1}` }))
@@ -282,7 +332,7 @@ describe('registrationLocks', () => {
 
       it.each([
         ['the handling owner was a member and the copy says so', true, true, undefined],
-        ['the handling owner was a member and the handler is not', true, false, undefined],
+        ['the handling owner was a member and the handler is not', true, false, 'membership'],
         ['the handling owner was no member and the handler is', false, true, 'membership'],
       ] as const)('a handler named apart: %s', (_label, ownerMember, handlerMember, expected) => {
         const handlingOwner = { ...owner, key: 'a', membership: ownerMember }
@@ -340,6 +390,20 @@ describe('registrationLocks', () => {
       ])
       expect(reset.owner).toEqual({ ...draft.owner, membership: false })
       expect(reset.handler).toEqual({ ...draft.handler, membership: false })
+    })
+
+    // The owner who handled was a member; the draft names Bob apart, who claims the owner's membership.
+    it('gives a new handler no membership, and the owner who handled keeps theirs', () => {
+      const memberOwner = { ...owner, key: 'a', membership: true }
+      const stored: Entry = { ...base, handler: memberOwner, ownerHandles: 'a', owners: [memberOwner] }
+      const bob = { email: 'bob@example.com', membership: true, name: 'Bob' }
+      const draft: Entry = { ...stored, handler: bob, ownerHandles: false }
+
+      const reset = withLockedSectionsFrom(stored, draft, only('membership'))
+
+      expect(reset.handler).toEqual({ ...bob, membership: false })
+      expect(reset.owners).toEqual([memberOwner])
+      expect(participantLockedChange(only('membership'), stored, reset)).toBeUndefined()
     })
 
     it('gives the stored people back to a draft that removed a member', () => {

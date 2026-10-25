@@ -99,9 +99,11 @@ export const getParticipantFieldLocks = (
 
 /**
  * Whether the entry restriction (KOE-525) is out of the participant's hands: every section that could
- * still meet it is locked. A members-only restriction is met through the memberships, a breed through
- * the dog; with those locked the participant has nothing left to change, so neither their form nor
- * PutRegistration holds the rest of the entry back on it (KOE-1588). The secretary decides it then.
+ * still meet it is locked. A breed is met through the dog. A members-only restriction is met through
+ * the memberships, and once they are locked the entry can neither gain nor lose being a member's: no
+ * claim flips, a person added claims none, and removing the last member is refused. With those locked
+ * the participant has nothing left to change, so neither their form nor PutRegistration holds the rest
+ * of the entry back on it (KOE-1588). The secretary decides it then.
  */
 export const isEntryRestrictionLocked = (
   event: Partial<Pick<PublicDogEvent | JsonPublicDogEvent, 'restrictions'>>,
@@ -121,7 +123,7 @@ export const isParticipantFieldLocked = (locks: ParticipantFieldLocks, field: st
   return section !== undefined && section !== 'free' && locks[section]
 }
 
-type LockedPerson = { key?: string; membership?: boolean }
+type LockedPerson = { email?: string; key?: string; membership?: boolean; name?: string }
 
 type DatedResult = { date?: DayKey | '' | null }
 
@@ -204,40 +206,66 @@ const SECTION_PROJECTIONS: Record<ProjectedSection, (r: LockableRegistration) =>
   results: (r) => ({ results: r.results }),
 }
 
-/**
- * Whether the handler's own membership counts for the entry, read by `isMember` itself: the rule the
- * price and the priority read decides here too, an unset selection included.
- */
-const handlerMembershipCounts = (registration: LockableRegistration): boolean =>
+/** A membership claim as `isMember` reads one, from a person that may not say. */
+const claim = (person: LockedPerson | undefined) => person && { membership: Boolean(person.membership) }
+
+/** Whether the entry is a member's, asked of `isMember` itself: the rule the price and the restriction read. */
+const isMemberEntry = (registration: LockableRegistration): boolean =>
   isMember({
-    handler: registration.handler && { membership: Boolean(registration.handler.membership) },
+    handler: claim(registration.handler),
+    owner: claim(registration.owner),
     ownerHandles: registration.ownerHandles,
+    owners: registration.owners?.map((owner) => ({ membership: Boolean(owner.membership) })),
   })
 
-/** The membership of whoever handles the dog, as `getHandlingPerson` names them. */
-const handlingMembership = (registration: LockableRegistration): boolean =>
-  Boolean(getHandlingPerson(registration)?.membership)
+/** Whether the handler is the one `isMember` reads a membership from, an unset selection included. */
+const handlerCounts = (registration: LockableRegistration): boolean =>
+  isMember({ handler: { membership: true }, ownerHandles: registration.ownerHandles })
 
-const ownerMemberships = (registration: LockableRegistration) =>
-  new Map(getRegistrationOwners(registration).map((owner, index) => [ownerKeyAt(owner, index), owner?.membership]))
+const textOf = (value: string | undefined) => (value ?? '').trim().toLowerCase()
+
+/** Whether two people are the same person by what they are called and reached at. */
+const samePerson = (a: LockedPerson | undefined, b: LockedPerson | undefined): boolean =>
+  Boolean(a && b) && textOf(a?.name) === textOf(b?.name) && textOf(a?.email) === textOf(b?.email)
 
 /**
- * Whether the memberships that count change. Every owner on either side (by key, a keyless one by
- * position) keeps theirs: an added owner is no member, and a member is not removed. The handler's
- * membership counts as `isMember` counts it; it may start or stop counting only where the handling
- * person's membership stays what it was (a member owner who stops handling, the handler keeping the
- * copy). Owners and handlers may still come and go while the people section is open.
+ * The stored owner a sent owner is: by the key, which the form gives a keyless stored owner by
+ * position and writes back with the first change of the owners, or else by name and address, which
+ * finds a keyless owner whatever position a request moved them to.
+ */
+const storedOwnerOf = (storedOwners: readonly LockedPerson[], owner: LockedPerson | undefined) => {
+  const byKey = owner?.key ? storedOwners.find((stored, index) => ownerKeyAt(stored, index) === owner.key) : undefined
+  return byKey ?? storedOwners.find((stored) => samePerson(stored, owner))
+}
+
+/** The membership a sent owner may claim: their stored one, or none for an owner added since. */
+const ownerMembershipFrom = (storedOwners: readonly LockedPerson[], owner: LockedPerson | undefined): boolean =>
+  Boolean(storedOwnerOf(storedOwners, owner)?.membership)
+
+/**
+ * The membership a handler who counts may claim: the stored handling person's when it is them (a
+ * separate handler kept, or a member owner who stops handling and is named as the handler), and none
+ * for a person added since.
+ */
+const handlerMembershipFrom = (existing: LockableRegistration, handler: LockedPerson | undefined): boolean => {
+  const handling = getHandlingPerson(existing)
+  return samePerson(handling, handler) && Boolean(handling?.membership)
+}
+
+/**
+ * Whether the membership claims change: a person on both sides keeps theirs, a person added since
+ * claims none, and people may leave as long as the entry stays a member's (`isMember`), which the price
+ * and a members-only restriction read. Who handles may still change while the people are open, and with
+ * it the priority (the user's decision, 25.10.2026); only the claims are held.
  */
 const membershipChanges = (existing: LockableRegistration, data: LockableRegistration): boolean => {
-  const before = ownerMemberships(existing)
-  const after = ownerMemberships(data)
-  for (const key of new Set([...before.keys(), ...after.keys()])) {
-    if (Boolean(before.get(key)) !== Boolean(after.get(key))) return true
-  }
-  return (
-    handlerMembershipCounts(existing) !== handlerMembershipCounts(data) &&
-    handlingMembership(existing) !== handlingMembership(data)
+  const storedOwners = getRegistrationOwners(existing)
+  const ownerClaimChanges = getRegistrationOwners(data).some(
+    (owner) => Boolean(owner?.membership) !== ownerMembershipFrom(storedOwners, owner)
   )
+  const handlerClaimChanges =
+    handlerCounts(data) && Boolean(data.handler?.membership) !== handlerMembershipFrom(existing, data.handler)
+  return ownerClaimChanges || handlerClaimChanges || (isMemberEntry(existing) && !isMemberEntry(data))
 }
 
 /**
@@ -269,20 +297,24 @@ const LOCKABLE_FIELDS = [...FIELD_SECTIONS.entries()].flatMap(([field, section])
 const PEOPLE_FIELDS = ['handler', 'owner', 'ownerHandles', 'ownerPays', 'owners'] as const
 
 /**
- * The draft's memberships put back to the stored ones, by the rule `membershipChanges` reads. A draft
- * that removed a member, or moved whose membership counts, gets the stored people back whole.
+ * The draft's membership claims put back by the rule `membershipChanges` reads: each person their
+ * stored claim, a person added since none. A draft that removed the last member gets the stored people
+ * back whole, so what comes back is never a change the server refuses.
  */
 const withStoredMemberships = <R extends LockableRegistration>(saved: R, draft: R): R => {
-  const stored = ownerMemberships(saved)
-  const owners = draft.owners?.map((owner, index) => ({
-    ...owner,
-    membership: Boolean(stored.get(ownerKeyAt(owner, index))),
-  }))
-  const firstMembership = Boolean(stored.get(ownerKeyAt(getRegistrationOwners(draft)[0], 0)))
+  const storedOwners = getRegistrationOwners(saved)
   const result: R = { ...draft }
-  if (owners) Object.assign(result, { owners })
-  if (draft.owner) Object.assign(result, { owner: { ...draft.owner, membership: firstMembership } })
-  if (draft.handler) Object.assign(result, { handler: { ...draft.handler, membership: handlingMembership(saved) } })
+  if (draft.owners) {
+    const owners = draft.owners.map((owner) => ({ ...owner, membership: ownerMembershipFrom(storedOwners, owner) }))
+    Object.assign(result, { owners })
+  }
+  if (draft.owner) {
+    Object.assign(result, { owner: { ...draft.owner, membership: ownerMembershipFrom(storedOwners, draft.owner) } })
+  }
+  if (draft.handler && handlerCounts(draft)) {
+    const membership = handlerMembershipFrom(saved, draft.handler)
+    Object.assign(result, { handler: { ...draft.handler, membership } })
+  }
   if (!membershipChanges(saved, result)) return result
   for (const field of PEOPLE_FIELDS) {
     if (Object.hasOwn(saved, field)) Object.assign(result, { [field]: structuredClone(saved[field]) })
