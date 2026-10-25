@@ -19,7 +19,7 @@
           Value: "koekalenteri"
       BillingMode: PAY_PER_REQUEST
       SSESpecification:
-        SSEEnabled: true
+        SSEEnabled: false
       # No point-in-time recovery: the nightly run rebuilds the statistics from the registrations.
       PointInTimeRecoverySpecification:
         PointInTimeRecoveryEnabled: false
