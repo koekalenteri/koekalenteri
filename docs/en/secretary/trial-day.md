@@ -13,7 +13,7 @@ covers:
   - src/pages/admin/eventViewPage/infoPanel/ResultsPublishing.tsx
   - src/pages/admin/components/KcIdLookupButton.tsx
   - src/pages/admin/components/StartDaySelector.tsx
-sourceHash: 679770
+sourceHash: 53beb8
 ---
 
 On the trial day the secretary's job is to record what the dogs did and to get the results in
@@ -93,7 +93,9 @@ On a phone the dogs are listed one under another as cards with the same fields.
 leave the page without saving, the browser warns you. Another secretary's saves reach the page by
 themselves. If the same dog has meanwhile been recorded differently elsewhere, the save stops at
 the dialog **{t:results.conflictTitle}**, which shows both versions and asks which one stands;
-**{t:results.conflictResolve}** saves the choices. The other rows have already been saved by then.
+**{t:results.conflictResolve}** saves the choices. The other rows have already been saved by then. If
+saving the choices fails, the dialog stays open and the entered scores are kept; if the dog has
+meanwhile been recorded differently elsewhere again, the dialog shows the new version.
 
 ## Publishing results
 

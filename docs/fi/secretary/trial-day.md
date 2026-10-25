@@ -90,7 +90,9 @@ Puhelimella koirakot ovat allekkain omina kortteinaan samoilla kentillä.
 poistuu tallentamatta, selain varoittaa. Toisen koesihteerin tallennukset päivittyvät sivulle
 itsestään. Jos sama koirakko on ehditty kirjata muualla toisin, tallennus pysähtyy ikkunaan
 **{t:results.conflictTitle}**, joka näyttää molemmat versiot ja kysyy, kumpi jää voimaan;
-**{t:results.conflictResolve}** tallentaa valinnat. Muut rivit on tallennettu jo silloin.
+**{t:results.conflictResolve}** tallentaa valinnat. Muut rivit on tallennettu jo silloin. Jos valintojen
+tallennus epäonnistuu, ikkuna jää auki ja syötetyt pisteet säilyvät; jos koirakko on sillä välin
+kirjattu muualla taas toisin, ikkuna näyttää uuden version.
 
 ## Tulosten julkaisu
 

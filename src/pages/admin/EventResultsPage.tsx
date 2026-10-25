@@ -268,16 +268,37 @@ export default function EventResultsPage() {
     [dropGoneDogs, t]
   )
 
-  /** Settles a batch the server refused outright, locked or naming a dog that is gone. Whether it was one. */
-  const settleRefusedBatch = useCallback(
-    async (error: unknown): Promise<boolean> => {
-      if (!(error instanceof APIError)) return false
-      if (error.status === 423) await settleLockedBatch(error.body)
-      else if (error.status === 404 || error.status === 422) await settleGoneDogs(error)
-      else return false
-      return true
+  // Whatever did not conflict is already written; keep only the disputed dogs on screen.
+  const settleConflict = useCallback(
+    async (body: ResultConflictBody) => {
+      await storeResults([...(body.saved ?? []), ...(body.unchanged ?? [])])
+      setEdits((prev) => Object.fromEntries(body.conflicts.map(({ id }) => [id, prev[id] ?? emptyEdit])))
+      setConflicts(body.conflicts)
+      setChoices({})
     },
-    [settleGoneDogs, settleLockedBatch]
+    [storeResults]
+  )
+
+  /**
+   * Settles a save the server did not take, whether the save button's or the conflict dialog's: the same
+   * refusal reads the same way from either (KOE-1488). It hands back the settling step itself rather than
+   * awaiting it, so a save waits on no more steps than the settling takes.
+   */
+  const settleFailedSave = useCallback(
+    (error: unknown): Promise<void> => {
+      if (error instanceof APIError) {
+        if (error.status === 423) return settleLockedBatch(error.body)
+        if (error.status === 404 || error.status === 422) return settleGoneDogs(error)
+        // A conflict arrives as a rejected 409 rather than a value, and its body carries both versions.
+        if (error.status === 409 && isResultConflictBody(error.body)) return settleConflict(error.body)
+      }
+      // Anything else, a dropped connection or a server error, keeps the entered scores on screen and says
+      // so. The button only stops spinning, which reads as success.
+      reportError(error)
+      enqueueSnackbar(t('results.saveFailed'), errorSnackbarOptions)
+      return Promise.resolve()
+    },
+    [settleConflict, settleGoneDogs, settleLockedBatch, t]
   )
 
   const handleSave = useCallback(async () => {
@@ -290,24 +311,9 @@ export default function EventResultsPage() {
       report(response.saved.length)
       setEdits({})
     } catch (error) {
-      // A conflict arrives as a rejected 409 rather than a value, and its body carries both versions.
-      if (await settleRefusedBatch(error)) return
-      const body = error instanceof APIError && error.status === 409 ? error.body : undefined
-      if (!isResultConflictBody(body)) {
-        // Anything else — the server refusing a dog that did not run, a dropped connection — keeps the
-        // entered scores on screen and says so. The button only stops spinning, which reads as success.
-        reportError(error)
-        enqueueSnackbar(t('results.saveFailed'), errorSnackbarOptions)
-        return
-      }
-
-      // Whatever did not conflict is already written; keep only the disputed dogs on screen.
-      await storeResults([...(body.saved ?? []), ...(body.unchanged ?? [])])
-      setEdits((prev) => Object.fromEntries(body.conflicts.map(({ id }) => [id, prev[id] ?? emptyEdit])))
-      setConflicts(body.conflicts)
-      setChoices({})
+      await settleFailedSave(error)
     }
-  }, [edits, report, saveResults, settleRefusedBatch, storeResults, submissionFor, t])
+  }, [edits, report, saveResults, settleFailedSave, submissionFor])
 
   const handleResolve = useCallback(async () => {
     // Only the dogs the secretary decided to overrule are sent again, each based on the version that
@@ -318,14 +324,20 @@ export default function EventResultsPage() {
     )
 
     if (submissions.length) {
-      const response = await saveResults(submissions)
-      report(response.saved.length)
+      try {
+        const response = await saveResults(submissions)
+        report(response.saved.length)
+      } catch (error) {
+        // The dialog stays up with the edits behind it, or shows the conflicts that beat this save too.
+        await settleFailedSave(error)
+        return
+      }
     }
 
     setConflicts([])
     setChoices({})
     setEdits({})
-  }, [choices, conflicts, edits, report, saveResults, submissionFor])
+  }, [choices, conflicts, edits, report, saveResults, settleFailedSave, submissionFor])
 
   if (!event?.id) return <EventNotFound />
 
