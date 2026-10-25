@@ -187,6 +187,33 @@ jobs:
           # A migration that left values it could not read is not recorded as applied: it runs again on
           # the next deploy, and the function's log names the rows. A warning, not a failure.
           jq -r '.body | fromjson | .[] | select(.unreadable) | "::warning::\(.name) left \(.unreadable) rows with a value it could not read; it runs again on the next deploy"' migration-result.json
+      # Stats rebuild, so a release that changes how stats are computed shows them right away, not the
+      # next morning. Asynchronous (Event): a run takes up to 15 minutes and nothing here needs its
+      # result, so only the 202 that queues it is checked; a failed run raises
+      # RebuildStatsFunctionErrorAlarm. Not queued is a warning: the backend is already deployed, and
+      # failing would skip deploy-frontend. One attempt (AWS_MAX_ATTEMPTS), so a retried request does
+      # not queue a second run beside the first.
+      - name: Start the stats rebuild
+        env:
+          AWS_MAX_ATTEMPTS: 1
+        run: |
+          not_queued="::warning::Stats rebuild was not queued; the nightly run updates the stats instead"
+          function_name=$(aws cloudformation describe-stack-resource \
+            --stack-name "${{ env.environment }}" \
+            --logical-resource-id RebuildStatsFunction \
+            --query StackResourceDetail.PhysicalResourceId --output text) \
+            || { echo "$not_queued (function not found)"; exit 0; }
+          status=$(aws lambda invoke --function-name "$function_name" \
+            --invocation-type Event \
+            --cli-binary-format raw-in-base64-out \
+            --payload '{}' \
+            --query StatusCode --output text /dev/null) \
+            || { echo "$not_queued (invoke failed)"; exit 0; }
+          if [[ "$status" == "202" ]]; then
+            echo "Stats rebuild queued for $function_name"
+          else
+            echo "$not_queued (status $status)"
+          fi
 
   deploy-frontend:
     # After the backend, never beside it: the Amplify build reads its configuration from environment

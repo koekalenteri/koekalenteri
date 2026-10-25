@@ -24,11 +24,11 @@ kokeita.
 | Kaavio tai taulukko | Mitä se kertoo |
 | --- | --- |
 | *{t:stats.admin.title}* | maksetut ja palautetut summat kuukausittain |
-| *{t:stats.admin.reserveCancelledTitle}* | varasijalle jääneet ja perutut ilmoittautumiset kuukausittain |
+| *{t:stats.admin.reserveCancelledTitle}* | alkaneiden kokeiden varasijalle jääneet ja perutut ilmoittautumiset kuukausittain |
 | *{t:stats.admin.memberShareTitle}* | kuinka suuri osa osallistujista oli yhdistyksen jäseniä |
 | *{t:stats.admin.judgeWorkloadTitle}* | taulukko: monessako yhdistyksen kokeessa kukin tuomari on toiminut ja monessako toimii vielä |
 
-Tuomarien työmäärä on sivun ainoa osa, jossa ovat mukana myös tulevat kokeet. *{t:stats.admin.judgeHeldEvents}*
+Tuomarien työmäärässä ovat mukana myös tulevat kokeet, erillään pidetyistä. *{t:stats.admin.judgeHeldEvents}*
 ovat jo päättyneet kokeet, *{t:stats.admin.judgeUpcomingEvents}* ne, joiden viimeinen päivä ei ole vielä
 ohi, ja *{t:stats.admin.judgeTotalEvents}* näiden summa. Taulukko on järjestetty yhteismäärän mukaan
 suurimmasta pienimpään, ja pitkä lista vierii omassa laatikossaan. Luonnoksia, alustavia ja

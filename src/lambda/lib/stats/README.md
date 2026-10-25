@@ -7,10 +7,10 @@ This folder is the Lambda-side statistics layer over the event stats table (`Eve
 | Partition | Keys | Written by |
 | --- | --- | --- |
 | `organizer` | `ORG#` | Incrementally, on every change that moves an event's counters: a registration's save, a copied event's import, an event edit or migration that changes the organizer or the start date (`stats.ts`). Rebuilt only by the manual `RebuildAllStatsFunction`. |
-| `participation` | `STAT#`, `TOTALS#`, `BUCKETS#`, `RETENTION#`, `YEARS` | Only the rebuild (`rebuild.ts`), nightly through `RebuildStatsFunction`. |
-| `capacity` | `CAPACITY#` | Only the rebuild, nightly. |
-| `judges` | `JUDGE#` | Only the rebuild, nightly. |
-| `eventBreakdown` | `BREAKDOWN#` | Only the rebuild, nightly. |
+| `participation` | `STAT#`, `TOTALS#`, `BUCKETS#`, `RETENTION#`, `YEARS` | Only the rebuild (`rebuild.ts`) through `RebuildStatsFunction`: nightly, and after every backend deploy (the "Start the stats rebuild" step in `.github/workflows/release.yml`). |
+| `capacity` | `CAPACITY#` | Only the rebuild, nightly and after every deploy. |
+| `judges` | `JUDGE#` | Only the rebuild, nightly and after every deploy. |
+| `eventBreakdown` | `BREAKDOWN#` | Only the rebuild, nightly and after every deploy. |
 
 The prefixes are `STATS_KEY_PREFIX` and `YEARS_PK` in `eventStatsRepository.ts`; `getStatsRecordPartition` in `rebuild.ts` sorts a key into its partition.
 

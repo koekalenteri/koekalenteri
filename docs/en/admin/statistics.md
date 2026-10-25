@@ -7,7 +7,7 @@ covers:
   - src/pages/admin/EventBreakdownPage.tsx
   - src/pages/StatsPage.tsx
   - src/pages/components/stats/**
-sourceHash: 0c8cd2
+sourceHash: 979cdc
 ---
 
 The calendar works its statistics out from the trials that have ended. They are on three pages:
@@ -24,11 +24,11 @@ charts to one year, and only the years in which the club has had trials can be p
 | Chart or table | What it says |
 | --- | --- |
 | *{t:stats.admin.title}* | the amounts paid and refunded, by month |
-| *{t:stats.admin.reserveCancelledTitle}* | entries left on the reserve list and entries cancelled, by month |
+| *{t:stats.admin.reserveCancelledTitle}* | entries left on the reserve list and entries cancelled at trials that have already started, by month |
 | *{t:stats.admin.memberShareTitle}* | how large a share of the participants were the club's members |
 | *{t:stats.admin.judgeWorkloadTitle}* | a table: how many of the club's trials each judge has worked at and is still to work at |
 
-The judge workload is the one part of the page that counts upcoming trials too. *{t:stats.admin.judgeHeldEvents}*
+The judge workload counts upcoming trials too, apart from the held ones. *{t:stats.admin.judgeHeldEvents}*
 are the trials that have ended, *{t:stats.admin.judgeUpcomingEvents}* those whose last day has not
 yet passed, and *{t:stats.admin.judgeTotalEvents}* the sum of the two. The table is sorted by the
 total, largest first, and a long list scrolls in its own box. Drafts, tentative and cancelled
