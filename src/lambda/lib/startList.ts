@@ -19,6 +19,7 @@ import {
   getRegistrationOwners,
   resolveOwnerSelection,
   sortRegistrationsByDateClassTimeAndNumber,
+  withDefaultOwnerSelection,
 } from '../../lib/registration'
 import { placementsFor, resultMarks, shownEventResult } from '../../lib/results'
 import { getLiveEvent } from './event'
@@ -27,15 +28,15 @@ import { readEventRegistrations } from './repositories/registrationRepository'
 /**
  * `ownerHandles` collapses the public row to "owner & handler", which only reads correctly when the
  * single owner handles the dog. With several owners the handler is named separately, even when they
- * are one of the owners. A legacy boolean refers to the single owner on file; a key that matches no
- * owner publishes `false` rather than guessing.
+ * are one of the owners. A legacy boolean refers to the single owner on file, and an unset selection
+ * is that owner too, as everywhere (KOE-1598); a key that matches no owner publishes `false` rather
+ * than guessing.
  */
-const publishedOwnerHandles = (reg: JsonRegistration): boolean | undefined => {
-  const { ownerHandles } = reg
-  if (ownerHandles === undefined) return undefined
+const publishedOwnerHandles = (reg: JsonRegistration): boolean => {
   if (getRegistrationOwners(reg).length > 1) return false
-  if (typeof ownerHandles !== 'string') return !!ownerHandles
-  return !!resolveOwnerSelection(reg.owners, reg.owner, ownerHandles)
+  const selection = withDefaultOwnerSelection(reg.ownerHandles)
+  if (typeof selection !== 'string') return selection
+  return !!resolveOwnerSelection(reg.owners, reg.owner, selection)
 }
 
 /**

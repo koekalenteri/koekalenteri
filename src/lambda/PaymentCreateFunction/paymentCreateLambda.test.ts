@@ -131,6 +131,9 @@ const createMockRegistration = (overrides: Partial<JsonRegistration> = {}): Json
   modifiedBy: 'test-user',
   notes: '',
   owner: { email: 'owner@example.com', membership: false, name: 'Test Owner' },
+  // A separate handler and payer, as the migration stores a row holding its own (KOE-1598).
+  ownerHandles: false,
+  ownerPays: false,
   paidAmount: 0,
   payer: {
     email: 'test@example.com',

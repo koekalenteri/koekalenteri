@@ -1,6 +1,7 @@
 import type { DeepPartial, Registration, RegistrationPerson } from '@/types'
 import { useCallback, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
+import { selectsSomeoneElse } from '@/lib/registration'
 import CollapsibleSection from '../CollapsibleSection'
 import { useDogCacheKey } from './hooks/useDogCacheKey'
 import { PersonFields } from './PersonFields'
@@ -35,7 +36,7 @@ export function HandlerInfo({ admin, reg, disabled, error, helperText, onChange,
 
   useEffect(() => {
     // Don't change registrations based on cache when secretary handles them
-    if (admin || reg.ownerHandles) return
+    if (admin || !selectsSomeoneElse(reg.ownerHandles)) return
 
     const cachedMembership = cache?.membership?.[orgId]
     if (cachedMembership !== undefined && reg.handler?.membership !== cachedMembership) {

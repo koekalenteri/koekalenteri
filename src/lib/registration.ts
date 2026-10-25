@@ -391,11 +391,23 @@ type PriorityCheckFn<T, E extends PublicDogEvent | JsonPublicDogEvent = PublicDo
 const anyOwnerHasMembership = (registration?: MinimalRegistrationForMembership): boolean =>
   getRegistrationOwners(registration).some((owner) => owner?.membership)
 
-export const isMember = (registration?: MinimalRegistrationForMembership): boolean =>
-  Boolean(anyOwnerHasMembership(registration) || (!registration?.ownerHandles && registration?.handler?.membership))
+/**
+ * An unset `ownerHandles`/`ownerPays` selection is the (first) owner, for every reader: the form has
+ * always shown it so. Only `false` names someone else (KOE-1598). A patch may carry `null` for it.
+ */
+export const withDefaultOwnerSelection = (selection: OwnerSelection | null | undefined): OwnerSelection =>
+  selection ?? true
 
-/** An unset `ownerHandles`/`ownerPays` selection defaults to the (first) owner. */
-export const withDefaultOwnerSelection = (selection: OwnerSelection | undefined): OwnerSelection => selection ?? true
+/** Whether a selection names someone other than an owner: the separate handler or payer. */
+export const selectsSomeoneElse = (selection: OwnerSelection | null | undefined): boolean =>
+  withDefaultOwnerSelection(selection) === false
+
+/** Whether the separate handler's own membership counts, beside the owners'. */
+const handlerMembershipCounts = (registration?: MinimalRegistrationForMembership): boolean =>
+  selectsSomeoneElse(registration?.ownerHandles) && Boolean(registration?.handler?.membership)
+
+export const isMember = (registration?: MinimalRegistrationForMembership): boolean =>
+  anyOwnerHasMembership(registration) || handlerMembershipCounts(registration)
 
 /**
  * Resolves which person a `ownerHandles`/`ownerPays` selection refers to: a specific owner by
@@ -404,14 +416,15 @@ export const withDefaultOwnerSelection = (selection: OwnerSelection | undefined)
 export function resolveOwnerSelection<O extends { key?: string }, L>(
   owners: O[] | undefined,
   legacyOwner: L,
-  selection: OwnerSelection | undefined
+  selection: OwnerSelection | null | undefined
 ): O | L | undefined {
-  if (!selection) return undefined
+  const selected = withDefaultOwnerSelection(selection)
+  if (!selected) return undefined
   // A key only means something against an owner list; a key that matches nobody resolves to no one
   // rather than silently falling back to the first/legacy owner.
-  if (typeof selection === 'string') {
+  if (typeof selected === 'string') {
     if (!owners?.length) return legacyOwner
-    return owners.find((o) => o.key === selection)
+    return owners.find((o) => o.key === selected)
   }
   return owners?.[0] ?? legacyOwner
 }
@@ -578,9 +591,7 @@ export const meetsRestrictions = (
 export const hasPriority: PriorityCheckFn<true | false | 0.5> = (event, registration) => {
   if (event.priority?.includes(PRIORITY_MEMBER)) {
     const anyOwnerIsMember = anyOwnerHasMembership(registration)
-    const registrationIsMember =
-      anyOwnerIsMember || (!registration.ownerHandles && Boolean(registration.handler?.membership))
-    if (registrationIsMember) {
+    if (anyOwnerIsMember || handlerMembershipCounts(registration)) {
       const handlingPerson = getHandlingPerson(registration)
       return handlingPerson?.membership && anyOwnerIsMember ? true : 0.5
     }

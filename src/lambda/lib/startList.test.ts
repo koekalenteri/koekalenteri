@@ -29,6 +29,7 @@ const registration = asJsonRegistration({
   group: { date: '2025-01-01', key: 'ALO', number: 1 },
   handler: { name: 'Handler' },
   owner: { name: 'Owner' },
+  ownerHandles: false,
   startGroup: { date: '2025-01-01', key: 'ALO', number: 1 },
 })
 

@@ -668,8 +668,9 @@ describe('registrationWorkflow', () => {
       )
     })
 
-    it('writes no change row when only the mirror of an unset selection moved', async () => {
-      const saved = { ...registration, ownerHandles: false }
+    // KOE-1598: an unset selection is the first owner, which the form writes as `true` on a save.
+    it('writes no change row when an unset selection is saved as the owner it meant', async () => {
+      const saved = { ...registration, ownerHandles: true }
 
       await finalize(saved, { ...registration, ownerHandles: undefined })
 

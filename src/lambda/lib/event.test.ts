@@ -682,7 +682,14 @@ describe('lib/event', () => {
       // Set up registrations that would result in the same counts
       const regs = [
         { cancelled: false, class: 'ALO', paidAmount: 1, state: 'ready' },
-        { cancelled: false, class: 'AVO', handler: { membership: true }, paidAmount: 0, state: 'ready' },
+        {
+          cancelled: false,
+          class: 'AVO',
+          handler: { membership: true },
+          ownerHandles: false,
+          paidAmount: 0,
+          state: 'ready',
+        },
       ]
       mockReadEventRegistrations.mockResolvedValueOnce(regs)
 
@@ -715,6 +722,7 @@ describe('lib/event', () => {
           eventId: 'e5',
           handler: { membership: true },
           id: 'r3',
+          ownerHandles: false,
           paidAmount: 1,
           state: 'ready',
         },

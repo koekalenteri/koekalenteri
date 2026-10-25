@@ -23,11 +23,13 @@ import {
   GROUP_KEY_CANCELLED,
   GROUP_KEY_RESERVE,
   getCurrentInvitationAttachment,
+  getHandlingPerson,
   getInvitationReadStatus,
   getLastEmailText,
   getNextClass,
   getOwnerRole,
   getParticipantMessageInfo,
+  getPayingPerson,
   getRegistrationActorName,
   getRegistrationClass,
   getRegistrationEmails,
@@ -62,12 +64,14 @@ import {
   resolveInvitationRead,
   resolveOwnerPerson,
   resolveOwnerSelection,
+  selectsSomeoneElse,
   shouldSendInvitationAfterPayment,
   shouldSendInvitationToRegistration,
   sortRegistrationsByDateClassTimeAndNumber,
   withoutAdminProtectedFields,
   withoutParticipantResponses,
   withoutRegistrationMoney,
+  withRegistrationOverrides,
 } from './registration'
 
 describe('lib/registration', () => {
@@ -293,7 +297,7 @@ describe('lib/registration', () => {
         ${false} | ${true}  | ${0.5}
         ${true}  | ${true}  | ${true}
       `(
-        'should return $result when owner membersio is $owner and handler membership is $handler',
+        'should return $result when owner membersio is $owner and a separate handler membership is $handler',
         ({ owner, handler, result }) => {
           expect(
             hasPriority(event, {
@@ -304,8 +308,24 @@ describe('lib/registration', () => {
               owner: {
                 membership: owner,
               },
+              ownerHandles: false,
               priorityByInvitation: true,
             })
+          ).toEqual(result)
+        }
+      )
+
+      // KOE-1598: an unset selection is the owner handling, as the form shows it, so a stored
+      // handler's membership is not counted.
+      it.each`
+        owner    | handler  | result
+        ${false} | ${true}  | ${false}
+        ${true}  | ${false} | ${true}
+      `(
+        'should return $result for an unset selection when owner membership is $owner and stored handler membership is $handler',
+        ({ owner, handler, result }) => {
+          expect(
+            hasPriority(event, { dog: {}, handler: { membership: handler }, owner: { membership: owner } })
           ).toEqual(result)
         }
       )
@@ -479,7 +499,7 @@ describe('lib/registration', () => {
         ${false} | ${true}  | ${PRIORITY_MEMBER}
         ${true}  | ${true}  | ${PRIORITY_MEMBER}
       `(
-        'should return $result when owner membersio is $owner and handler membership is $handler',
+        'should return $result when owner membersio is $owner and a separate handler membership is $handler',
         ({ owner, handler, result }) => {
           expect(
             priorityDescriptionKey(event, {
@@ -490,6 +510,7 @@ describe('lib/registration', () => {
               owner: {
                 membership: owner,
               },
+              ownerHandles: false,
               priorityByInvitation: true,
             })
           ).toEqual(result)
@@ -954,9 +975,14 @@ describe('lib/registration', () => {
     ]
     const legacy = { name: 'Legacy' }
 
-    it('resolves no one when nothing is selected', () => {
-      expect(resolveOwnerSelection(owners, legacy, undefined)).toBeUndefined()
+    it('resolves no one when someone else is selected', () => {
       expect(resolveOwnerSelection(owners, legacy, false)).toBeUndefined()
+    })
+
+    it('resolves an unset selection to the first owner, as the form shows it (KOE-1598)', () => {
+      expect(resolveOwnerSelection(owners, legacy, undefined)).toBe(owners[0])
+      expect(resolveOwnerSelection(owners, legacy, null)).toBe(owners[0])
+      expect(resolveOwnerSelection(undefined, legacy, undefined)).toBe(legacy)
     })
 
     it('resolves a legacy boolean to the first owner, falling back to the legacy owner', () => {
@@ -1036,6 +1062,42 @@ describe('lib/registration', () => {
     })
   })
 
+  // KOE-1598: an unset selection is the first owner for every reader, as the form shows it.
+  describe('an unset owner selection', () => {
+    const owner = { email: 'owner@example.com', membership: false, name: 'Owner' }
+    const handler = { email: 'handler@example.com', membership: true, name: 'Handler' }
+    const payer = { email: 'payer@example.com', name: 'Payer' }
+
+    it('names the owner as the handling and the paying person', () => {
+      expect(getHandlingPerson({ handler, owner })).toBe(owner)
+      expect(getPayingPerson({ owner, payer })).toBe(owner)
+      expect(getHandlingPerson({ handler, owner, ownerHandles: false })).toBe(handler)
+    })
+
+    it('is not someone else; only false is', () => {
+      expect(selectsSomeoneElse(undefined)).toBe(false)
+      expect(selectsSomeoneElse(null)).toBe(false)
+      expect(selectsSomeoneElse(true)).toBe(false)
+      expect(selectsSomeoneElse('owner-2')).toBe(false)
+      expect(selectsSomeoneElse(false)).toBe(true)
+    })
+
+    it('mirrors the owner into handler and payer for saving', () => {
+      const registration = { ...registrationWithStaticDates, handler, owner, owners: undefined, payer }
+      delete registration.ownerHandles
+      delete registration.ownerPays
+
+      const saved = withRegistrationOverrides(registration)
+
+      expect(saved.handler).toEqual(owner)
+      expect(saved.payer).toEqual(owner)
+    })
+
+    it('mails the owner, not a stored handler', () => {
+      expect(getRegistrationEmails({ handler, owner })).toEqual(['owner@example.com'])
+    })
+  })
+
   describe('isMember', () => {
     it('should return true when owner has membership and ownerHandles is false', () => {
       expect(isMember({ owner: { membership: true }, ownerHandles: false })).toBe(true)
@@ -1049,8 +1111,10 @@ describe('lib/registration', () => {
       expect(isMember({ owner: { membership: true } })).toBe(true)
     })
 
-    it('should return true when handler has membership and ownerHandles is undefined', () => {
-      expect(isMember({ handler: { membership: true } })).toBe(true)
+    it('should return false when only the stored handler has membership and ownerHandles is undefined', () => {
+      // KOE-1598: an unset selection is the owner handling, so the stored handler is not counted.
+      expect(isMember({ handler: { membership: true } })).toBe(false)
+      expect(isMember({ handler: { membership: true }, owner: { membership: false } })).toBe(false)
     })
 
     it('should return true when owner has membership regardless of ownerHandles value', () => {
@@ -1758,14 +1822,27 @@ describe('getRegistrationActorName', () => {
     ['the owner the ownerPays selection names', { ownerPays: 'owner-2', owners, payer }, 'Second Owner'],
     ['the legacy owner when ownerPays is true', { owner: owners[0], ownerPays: true, payer }, 'First Owner'],
     ['the separate payer when an owner does not pay', { ownerPays: false, owners, payer }, 'Separate Payer'],
-    ['the handling person when no one is named as paying', { handler, ownerHandles: false, owners }, 'The Handler'],
-    ['the owner the ownerHandles selection names', { ownerHandles: 'owner-2', owners }, 'Second Owner'],
+    [
+      'the handling person when no one is named as paying',
+      { handler, ownerHandles: false, ownerPays: false, owners },
+      'The Handler',
+    ],
+    [
+      'the first owner for an unset ownerPays (KOE-1598)',
+      { handler, ownerHandles: false, owners, payer },
+      'First Owner',
+    ],
+    [
+      'the owner the ownerHandles selection names',
+      { ownerHandles: 'owner-2', ownerPays: false, owners },
+      'Second Owner',
+    ],
     ['the first owner when nothing else names a person', { owners }, 'First Owner'],
     ['anonymous for a body that names no one', {}, 'anonymous'],
     ['anonymous for null people', { handler: null, owners: null, payer: null }, 'anonymous'],
     [
       'the next person past a blank name',
-      { handler, ownerPays: false, owners, payer: { ...payer, name: '  ' } },
+      { handler, ownerHandles: false, ownerPays: false, owners, payer: { ...payer, name: '  ' } },
       'The Handler',
     ],
   ])('names %s', (_case, registration, expected) => {
