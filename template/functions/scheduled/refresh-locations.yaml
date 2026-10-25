@@ -37,7 +37,12 @@
 
   RefreshLocationsFunctionErrorAlarm:
     Type: AWS::CloudWatch::Alarm
+    Condition: IsNotTestStage
     Properties:
+      AlarmActions:
+        - !Ref AlarmTopic
+      OKActions:
+        - !Ref AlarmTopic
       AlarmDescription: Weekly Kennelliitto location refresh failed
       Namespace: AWS/Lambda
       MetricName: Errors
@@ -57,7 +62,12 @@
   # only when a scheduled run was skipped.
   RefreshLocationsFunctionMissingRunAlarm:
     Type: AWS::CloudWatch::Alarm
+    Condition: IsNotTestStage
     Properties:
+      AlarmActions:
+        - !Ref AlarmTopic
+      OKActions:
+        - !Ref AlarmTopic
       AlarmDescription: Kennelliitto location refresh has not run in 7 days
       Namespace: AWS/Lambda
       MetricName: Invocations

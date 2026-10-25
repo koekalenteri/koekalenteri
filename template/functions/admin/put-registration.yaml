@@ -69,8 +69,12 @@
 
   PutAdminRegistrationPaymentsLockConflictAlarm:
     Type: AWS::CloudWatch::Alarm
+    Condition: IsNotTestStage
     Properties:
-      # TODO: Add AlarmActions when the stack has a general operations SNS topic.
+      AlarmActions:
+        - !Ref AlarmTopic
+      OKActions:
+        - !Ref AlarmTopic
       AlarmDescription: Admin registration creates exhausted the event payment-lock retry budget
       AlarmName: !Sub '${AWS::StackName}-put-admin-registration-payment-lock-conflict'
       ComparisonOperator: GreaterThanOrEqualToThreshold

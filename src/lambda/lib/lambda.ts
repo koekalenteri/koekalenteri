@@ -1,11 +1,10 @@
 import type { APIGatewayEvent, APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
 import { gzipSync } from 'node:zlib'
 import { ServiceException } from '@smithy/smithy-client'
-import { metricScope } from 'aws-embedded-metrics'
 import { CONFIG } from '../config'
 import { getOrigin } from '../lib/api-gw'
 import { debugProxyEvent, logger, withLogContext } from './log'
-import { metricsError, metricsSuccess } from './metrics'
+import { countError } from './metrics'
 
 type LambdaHandler = (event: APIGatewayProxyEvent) => Promise<APIGatewayProxyResult>
 
@@ -166,43 +165,38 @@ export const response = <T = unknown>(
 }
 
 /**
- * Lambda function wrapper with error handling and default metrics
+ * Lambda function wrapper with error handling and the error metric: every answer but a 200 is
+ * counted as `Error` of the service (`countError`), and a 200 writes no metric.
  */
-export const lambda = (service: string, handler: LambdaHandler) =>
-  metricScope(
-    (metrics) =>
-      async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> =>
-        // Every line the handler writes gets the request id and the service name, so one request's
-        // lines can be collected in CloudWatch Insights without threading the context through calls.
-        withLogContext({ requestId: event.requestContext?.requestId, service }, async () => {
-          debugProxyEvent(event)
-          try {
-            const result = await handler(event)
+export const lambda =
+  (service: string, handler: LambdaHandler) =>
+  async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> =>
+    // Every line the handler writes gets the request id and the service name, so one request's
+    // lines can be collected in CloudWatch Insights without threading the context through calls.
+    withLogContext({ requestId: event.requestContext?.requestId, service }, async () => {
+      debugProxyEvent(event)
+      try {
+        const result = await handler(event)
 
-            if (result.statusCode === 200) {
-              metricsSuccess(metrics, event.requestContext, service)
-            } else {
-              metricsError(metrics, event.requestContext, service)
-            }
-            return result
-          } catch (err) {
-            metricsError(metrics, event.requestContext, service)
+        if (result.statusCode !== 200) await countError(event.requestContext, service)
+        return result
+      } catch (err) {
+        await countError(event.requestContext, service)
 
-            if (err instanceof LambdaError) {
-              logRejection(err)
-              return response(err.status, lambdaErrorBody(err), event)
-            }
+        if (err instanceof LambdaError) {
+          logRejection(err)
+          return response(err.status, lambdaErrorBody(err), event)
+        }
 
-            logger.error('unhandled error', { error: err })
+        logger.error('unhandled error', { error: err })
 
-            if (err instanceof ServiceException) {
-              return response(err.$metadata?.httpStatusCode ?? 501, err.message, event)
-            }
+        if (err instanceof ServiceException) {
+          return response(err.$metadata?.httpStatusCode ?? 501, err.message, event)
+        }
 
-            return response(501, err, event)
-          }
-        })
-  )
+        return response(501, err, event)
+      }
+    })
 
 type WsHandler = (event: APIGatewayEvent) => Promise<APIGatewayProxyResult>
 
@@ -212,35 +206,29 @@ type WsHandler = (event: APIGatewayEvent) => Promise<APIGatewayProxyResult>
  * `LambdaError` answered as a response. Before this the socket handlers wrapped themselves and
  * produced no metrics at all (KOE-1342).
  */
-export const wsLambda = (service: string, handler: WsHandler) =>
-  metricScope(
-    (metrics) =>
-      async (event: APIGatewayEvent): Promise<APIGatewayProxyResult> =>
-        withLogContext(
-          { connectionId: event.requestContext.connectionId, requestId: event.requestContext.requestId, service },
-          async () => {
-            try {
-              const result = await handler(event)
+export const wsLambda =
+  (service: string, handler: WsHandler) =>
+  async (event: APIGatewayEvent): Promise<APIGatewayProxyResult> =>
+    withLogContext(
+      { connectionId: event.requestContext.connectionId, requestId: event.requestContext.requestId, service },
+      async () => {
+        try {
+          const result = await handler(event)
 
-              if (result.statusCode === 200) {
-                metricsSuccess(metrics, event.requestContext, service)
-              } else {
-                metricsError(metrics, event.requestContext, service)
-              }
-              return result
-            } catch (err) {
-              metricsError(metrics, event.requestContext, service)
+          if (result.statusCode !== 200) await countError(event.requestContext, service)
+          return result
+        } catch (err) {
+          await countError(event.requestContext, service)
 
-              // A socket route's answer is read by API Gateway, not a browser: plain body, no CORS.
-              if (err instanceof LambdaError) {
-                logRejection(err)
-                const body = err.body ?? err.error ?? 'Error'
-                return { body: typeof body === 'string' ? body : JSON.stringify(body), statusCode: err.status }
-              }
-
-              logger.error('unhandled error', { error: err })
-              return { body: 'Internal server error', statusCode: 500 }
-            }
+          // A socket route's answer is read by API Gateway, not a browser: plain body, no CORS.
+          if (err instanceof LambdaError) {
+            logRejection(err)
+            const body = err.body ?? err.error ?? 'Error'
+            return { body: typeof body === 'string' ? body : JSON.stringify(body), statusCode: err.status }
           }
-        )
-  )
+
+          logger.error('unhandled error', { error: err })
+          return { body: 'Internal server error', statusCode: 500 }
+        }
+      }
+    )

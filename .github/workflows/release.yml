@@ -141,6 +141,18 @@ jobs:
           fi
           echo "environment=koekalenteri-${{ needs.setup.outputs.env }}" >> $GITHUB_ENV
           echo "stage=${{ needs.setup.outputs.env }}" >> $GITHUB_ENV
+      # Dev's and prod's alarms mail the AlarmEmail parameter (KOE-1602). SAM drops an override with an
+      # empty value, so an unset secret would deploy without a subscription and the alarms would tell
+      # nobody. Test has no alarms and needs no address.
+      - name: Check the alarm address
+        if: ${{ needs.setup.outputs.env != 'test' }}
+        env:
+          ALARM_EMAIL: ${{ secrets.ALARM_EMAIL }}
+        run: |
+          if [[ -z "$ALARM_EMAIL" ]]; then
+            echo "::error::The repository secret ALARM_EMAIL is empty: the ${{ needs.setup.outputs.env }} alarms would notify nobody"
+            exit 1
+          fi
       - name: SAM Build
         run: |
           sam build --base-dir dist -t dist/template.yaml
@@ -160,6 +172,7 @@ jobs:
               ParameterKey=GoogleClientId,ParameterValue=${{ secrets.GOOGLE_CLIENT_ID }} \
               ParameterKey=GoogleClientSecret,ParameterValue=${{ secrets.GOOGLE_CLIENT_SECRET }} \
               ParameterKey=CustomDomain,ParameterValue=${{ secrets.CUSTOM_DOMAIN }} \
+              ParameterKey=AlarmEmail,ParameterValue=${{ secrets.ALARM_EMAIL }} \
               ParameterKey=Branch,ParameterValue=${{ env.branch }}' \
             --capabilities CAPABILITY_IAM CAPABILITY_NAMED_IAM \
             --no-confirm-changeset --no-fail-on-empty-changeset
