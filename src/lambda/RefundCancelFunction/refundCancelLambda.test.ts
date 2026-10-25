@@ -66,6 +66,12 @@ describe('refundCancelLambda', () => {
     expect(mockResolveCallbackTransaction).not.toHaveBeenCalled()
   })
 
+  it('resolves the callback as a refund (KOE-1608)', async () => {
+    await refundCancelLambda(constructAPIGwEvent('test', { query: { 'checkout-transaction-id': 'tx123' } }))
+
+    expect(mockResolveCallbackTransaction).toHaveBeenCalledWith({ 'checkout-transaction-id': 'tx123' }, 'refund')
+  })
+
   // Not updateProvider: the write reads the transaction's own stored provider, not the callback's
   // (KOE-1529, same as before).
   it('does not pass a provider along to be written', async () => {

@@ -37,7 +37,10 @@ vi.doMock('../lib/lambda', async () => ({
   response: mockResponse,
 }))
 
-vi.doMock('../lib/payment', () => ({
+vi.doMock('../lib/payment', async () => ({
+  // The real check: a stored transaction of the wrong type is refused before anything is written (KOE-1608).
+  assertCallbackTransactionType: (await vi.importActual<typeof import('../lib/payment')>('../lib/payment'))
+    .assertCallbackTransactionType,
   parseParams: mockParseParams,
   publishCancelledRegistration: mockPublishCancelledRegistration,
   publishParticipantPayments: mockPublishParticipantPayments,
@@ -200,6 +203,29 @@ describe('refundSuccessLambda', () => {
       'reg456',
       false
     )
+  })
+
+  // Paytrail signs the payer's return address with the same parameters as its callbacks, so the payer
+  // can replay a payment's own success parameters here: the reference and the amount match, since they
+  // are the payment's (KOE-1608).
+  it.each(['ok', 'fail', 'pending'])('refuses a payment transaction reported %s and writes nothing', async (status) => {
+    mockParseParams.mockReturnValueOnce({
+      eventId: 'event123',
+      provider: 'paytrail',
+      registrationId: 'reg456',
+      status,
+      transactionId: 'transaction123',
+    })
+    mockReadTransaction.mockResolvedValueOnce({ ...mockTransaction, type: 'payment' })
+
+    await expect(refundSuccessLambda(event)).rejects.toMatchObject({ status: 400 })
+
+    expect(mockGetRegistration).not.toHaveBeenCalled()
+    expect(mockApplySuccessfulRefund).not.toHaveBeenCalled()
+    expect(mockSettleFailedTransaction).not.toHaveBeenCalled()
+    expect(mockUpdateTransactionStatus).not.toHaveBeenCalled()
+    expect(mockSendTemplatedMail).not.toHaveBeenCalled()
+    expect(mockAudit).not.toHaveBeenCalled()
   })
 
   it('returns early if transaction already has status "ok"', async () => {

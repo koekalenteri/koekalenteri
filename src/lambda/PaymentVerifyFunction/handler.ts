@@ -6,7 +6,13 @@ import { getProviderName, transactionActor } from '../../lib/payment'
 import { parseJSONWithFallback } from '../lib/json'
 import { lambda, response } from '../lib/lambda'
 import { logger } from '../lib/log'
-import { parseParams, publishCancelledRegistration, settleFailedTransaction, verifyParams } from '../lib/payment'
+import {
+  assertCallbackTransactionType,
+  parseParams,
+  publishCancelledRegistration,
+  settleFailedTransaction,
+  verifyParams,
+} from '../lib/payment'
 import { getRegistration, getRegistrationEditToken } from '../lib/registration'
 import { readTransaction } from '../lib/repositories/transactionRepository'
 
@@ -23,8 +29,10 @@ const paymentVerifyLambda = lambda('paymentVerify', async (event) => {
     /**
      * NB: the stored transaction status is probably outdated, since its updated by callback from the payment provider.
      */
-    const transaction = await readTransaction(transactionId)
-    if (!transaction) throw new Error(`Transaction with id '${transactionId}' was not found`)
+    const stored = await readTransaction(transactionId)
+    if (!stored) throw new Error(`Transaction with id '${transactionId}' was not found`)
+    // Never a refund: its parameters would fail it below (KOE-1608).
+    const transaction = assertCallbackTransactionType(stored, 'payment')
 
     const status = paymentStatus === 'fail' ? 'error' : 'ok'
     const registration = await getRegistration(eventId, registrationId)

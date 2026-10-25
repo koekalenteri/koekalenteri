@@ -66,7 +66,7 @@ describe('paymentCancelLambda', () => {
   it('settles the callback through the shared step, with the provider updated', async () => {
     await paymentCancelLambda(event)
 
-    expect(mockResolveCallbackTransaction).toHaveBeenCalledWith(event.queryStringParameters)
+    expect(mockResolveCallbackTransaction).toHaveBeenCalledWith(event.queryStringParameters, 'payment')
     expect(mockSettleFailedTransaction).toHaveBeenCalledWith(transaction, registration, 'openPayments', {
       auditActor: expect.any(Function),
       auditMessage: expect.any(Function),

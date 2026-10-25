@@ -25,6 +25,7 @@ import {
 } from '../lib/event'
 import { lambda, response } from '../lib/lambda'
 import {
+  assertCallbackTransactionType,
   parseParams,
   publishCancelledRegistration,
   publishParticipantPaymentsOfEvent,
@@ -405,7 +406,9 @@ const paymentSuccessLambda = lambda('paymentSuccess', async (event) => {
   await verifyParams(params)
   if (!transactionId) throw new Error('Missing transaction id')
 
-  const storedTransaction = await readTransaction(transactionId)
+  const stored = await readTransaction(transactionId)
+  // A refund's own signed parameters verify here too: refused before anything is written (KOE-1608).
+  const storedTransaction = stored && assertCallbackTransactionType(stored, 'payment')
   const callbackAmount = Number.parseInt(params['checkout-amount'] ?? '', 10)
   if (!storedTransaction && status !== 'ok') {
     throw new Error(`Transaction with id '${transactionId}' was not found`)
