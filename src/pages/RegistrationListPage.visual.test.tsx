@@ -85,7 +85,7 @@ it('titles the page with the entry list and its sections one level below', async
 })
 
 // KOE-1589: the trial ended 11.2.2021. Through the 7th day after it the fee can still be paid, from the
-// status box and the row, while changing and cancelling the entry stay closed.
+// status box and the row.
 it('offers paying an unpaid fee in the week after the trial', async () => {
   vi.setSystemTime(frozenInstant('2021-02-15'))
   served.registration = unpaidRegistrationWithStaticDates

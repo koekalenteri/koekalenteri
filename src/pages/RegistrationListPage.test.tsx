@@ -460,6 +460,46 @@ describe('RegistrationListPage', () => {
       else expect(dialog).not.toBeInTheDocument()
     })
 
+    it('goes to pay from the payment dialog after the trial, while confirming is closed', async () => {
+      vi.spyOn(registrationApi, 'getRegistration').mockResolvedValue({
+        ...unpaidRegistrationWithStaticDates,
+        messagesSent: { picked: true },
+        payment: owing,
+      })
+      const { user } = await renderWithRouter('/r/test1/unpaid-nou-registration')
+      await flushPromises()
+
+      await user.click(await screen.findByRole('button', { name: 'registration.paymentDialog.cta' }))
+      await flushPromises()
+
+      expect(screen.getByText('error.eventNotFound')).toBeInTheDocument()
+    })
+
+    it('does not go to pay from a payment dialog left open past the window', async () => {
+      vi.setSystemTime(new Date('2021-02-18T23:59:00.000+02:00'))
+      vi.spyOn(registrationApi, 'getRegistration').mockResolvedValue({
+        ...unpaidRegistrationWithStaticDates,
+        messagesSent: { picked: true },
+        payment: owing,
+      })
+      const store = createStore()
+      const { user } = await renderWithRouter('/r/test1/unpaid-nou-registration', {}, store)
+      await flushPromises()
+      const pay = await screen.findByRole('button', { name: 'registration.paymentDialog.cta' })
+
+      // Midnight passes with the dialog open; anything that renders the page again reads the new day.
+      vi.setSystemTime(new Date('2021-02-19T00:00:01.000+02:00'))
+      act(() => store.set(languageAtom, 'en'))
+      await flushPromises()
+      expect(screen.queryByRole('button', { hidden: true, name: 'registration.cta.pay' })).not.toBeInTheDocument()
+      expect(pay).toBeVisible()
+
+      await user.click(pay)
+      await flushPromises()
+
+      expect(screen.queryByText('error.eventNotFound')).not.toBeInTheDocument()
+    })
+
     it.each([
       ['2021-02-11T12:00:00.000+02:00', true],
       ['2021-02-12T12:00:00.000+02:00', false],

@@ -111,15 +111,10 @@ const inspectExistingTransactions = async (
 }
 
 /**
- * paymentCreate is called by client to start the payment process
+ * The refusals the entry and the trial decide before any money is looked at: a cancelled entry, a
+ * trial that asks no fee (KOE-1526), and one whose week for paying after it has gone (KOE-1589).
  */
-const paymentCreateLambda = lambda('paymentCreate', async (event) => {
-  const { eventId, registrationId } = validateBody(paymentCreateSchema, parseJSONWithFallback(event.body))
-
-  const registration = await getRegistration(eventId, registrationId)
-  const editToken = authorizeRegistrationEdit(event, registration)
-  const jsonEvent = await getLiveEvent<JsonConfirmedEvent>(eventId)
-
+const assertOpenForPayment = (jsonEvent: JsonConfirmedEvent, registration: Pick<JsonRegistration, 'cancelled'>) => {
   if (registration.cancelled) {
     throw httpError(404, 'Registration not found')
   }
@@ -130,10 +125,23 @@ const paymentCreateLambda = lambda('paymentCreate', async (event) => {
   }
 
   // A fee is paid at the latest in the week after the trial, whatever the classes' state; a payment
-  // started in time is still settled after (KOE-1589).
+  // started in time is still settled after (PaymentSuccess, PaymentVerify).
   if (!isPaymentWindowOpen(jsonEvent)) {
     throw httpError(404, 'Event is closed for payment')
   }
+}
+
+/**
+ * paymentCreate is called by client to start the payment process
+ */
+const paymentCreateLambda = lambda('paymentCreate', async (event) => {
+  const { eventId, registrationId } = validateBody(paymentCreateSchema, parseJSONWithFallback(event.body))
+
+  const registration = await getRegistration(eventId, registrationId)
+  const editToken = authorizeRegistrationEdit(event, registration)
+  const jsonEvent = await getLiveEvent<JsonConfirmedEvent>(eventId)
+
+  assertOpenForPayment(jsonEvent, registration)
 
   // Only the duplicate mark and the amount are read, and neither depends on open payments (a payment
   // in progress is answered 409 below, from the transactions themselves), so none are loaded.

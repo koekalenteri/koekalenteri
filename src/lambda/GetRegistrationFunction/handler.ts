@@ -1,5 +1,5 @@
 import type { JsonConfirmedEvent } from '../../types'
-import { isPaymentWindowOpen } from '../../lib/event'
+import { isEventOver, isPaymentWindowOpen } from '../../lib/event'
 import { getSentInvitationAttachment, isStarter } from '../../lib/registration'
 import { getLiveEvent } from '../lib/event'
 import { getParam, LambdaError, lambda, response } from '../lib/lambda'
@@ -23,7 +23,9 @@ const getRegistrationLambda = lambda('getRegistration', async (event) => {
     throw new LambdaError(404, 'not found')
   }
 
-  if (isStarter(registration)) {
+  // The koekutsu is for a trial still to come: in the week after it the entry is served for paying
+  // only, and no client offers the invitation again (KOE-1589).
+  if (isStarter(registration) && !isEventOver(dogEvent)) {
     registration.invitationAttachment = getSentInvitationAttachment(dogEvent, registration)
     registration.invitationAttachmentUpdatedAt = registration.invitationAttachment
       ? dogEvent.invitationAttachmentHistory?.[registration.invitationAttachment]?.uploadedAt

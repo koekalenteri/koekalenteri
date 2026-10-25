@@ -185,6 +185,23 @@ describe('getRegistration', () => {
     expect(res.statusCode).toBe(200)
   })
 
+  // KOE-1589: the koekutsu is for a trial still to come, though a class can stay 'invited' after its day.
+  it.each([
+    ['serves the invitation attachment on the last day of the trial', 0, 'alo.pdf'],
+    ['leaves the invitation attachment out in the week after the trial', 3, undefined],
+  ])('%s', async (_when, daysAfter, attachment) => {
+    vi.setSystemTime(dayStartOf(new Date(mockEventWithInvitationAttachment.endDate), TIME_ZONE, daysAfter))
+
+    const res = await getRegistrationLambda(
+      constructAPIGwEvent('test', { pathParameters: { eventId: '123', id: '123' } })
+    )
+
+    expect(res.statusCode).toBe(200)
+    const reg: JsonRegistration = JSON.parse(res.body)
+    expect(reg.invitationAttachment).toEqual(attachment)
+    expect(reg.invitationAttachmentUpdatedAt).toEqual(attachment && '2026-07-28T10:00:00.000Z')
+  })
+
   it('does not disclose registrations once the payment window has closed', async () => {
     vi.setSystemTime(
       dayStartOf(new Date(mockEventWithInvitationAttachment.endDate), TIME_ZONE, PAYMENT_DAYS_AFTER_TRIAL + 1)
