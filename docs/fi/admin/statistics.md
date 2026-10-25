@@ -24,7 +24,7 @@ kokeita.
 | Kaavio | Mitä se kertoo |
 | --- | --- |
 | *{t:stats.admin.title}* | maksetut ja palautetut summat kuukausittain |
-| *{t:stats.admin.reserveCancelledTitle}* | pidettyjen kokeiden varasijalle jääneet ja perutut ilmoittautumiset kuukausittain |
+| *{t:stats.admin.reserveCancelledTitle}* | alkaneiden kokeiden varasijalle jääneet ja perutut ilmoittautumiset kuukausittain |
 | *{t:stats.admin.memberShareTitle}* | kuinka suuri osa osallistujista oli yhdistyksen jäseniä |
 | *{t:stats.admin.judgeWorkloadTitle}* | monessako yhdistyksen kokeessa kukin tuomari toimi |
 
