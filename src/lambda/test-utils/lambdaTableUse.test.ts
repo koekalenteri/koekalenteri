@@ -562,6 +562,19 @@ export default async () => {
   await dynamoDB.query({ index: process.env.INDEX ?? '', key: 'email = :email' })
 }
 `,
+  // Reached through a call, at import, and in a function nothing calls (KOE-1605).
+  Environment: `${COMMON}
+export const atImport = process.env['AT_IMPORT'] ?? ''
+const secret = () => process.env.SECRET
+const neverCalled = () => process.env.NEVER_READ
+export default async () => secret()
+`,
+  EnvironmentComputed: `${COMMON}
+export default async (name: string) => process.env[name]
+`,
+  EnvironmentWhole: `${COMMON}
+export default async () => Object.keys(process.env)
+`,
   ForOfDeclaration: `${COMMON}
 export default async () => {
   for (const table of [CONFIG.judgeTable, CONFIG.locationTable]) await new CustomDynamoClient(table).readAll()
@@ -1434,6 +1447,25 @@ describe('createTableUseAnalyzer', () => {
       ['quotedTable', 'QUOTED_TABLE_NAME'],
       ['computedTable', 'COMPUTED_TABLE_NAME'],
     ])
+  })
+
+  it('names the environment variables the code it reaches or runs at import reads', () => {
+    const { environment } = analyzer.analyze(handlerFile('Environment'))
+
+    expect(environment.get('SECRET')).toEqual([expect.stringMatching(/EnvironmentFunction\/handler\.ts:7 \(secret\)$/)])
+    expect(environment.get('AT_IMPORT')).toEqual([
+      expect.stringMatching(/EnvironmentFunction\/handler\.ts:6 \(import atImport\)$/),
+    ])
+    expect(environment.has('NEVER_READ')).toBe(false)
+    // config.ts runs at import in every handler, so its reads are there too.
+    expect(environment.has('USER_TABLE_NAME')).toBe(true)
+  })
+
+  it.each([
+    ['a computed key', 'EnvironmentComputed', /cannot tell which environment variable process\.env\[name\]/],
+    ['process.env handed on whole', 'EnvironmentWhole', /cannot tell which environment variables Object\.keys/],
+  ])('refuses an environment read through %s', (_, name, message) => {
+    expect(() => analyzer.analyze(handlerFile(name))).toThrow(message)
   })
 
   it('follows a client through a Pick parameter and a table through an options property', () => {

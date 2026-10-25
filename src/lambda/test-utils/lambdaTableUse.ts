@@ -6,6 +6,12 @@
  * against DynamoDB-local, where IAM does not exist. PutEvent died in AccessDenied that way
  * (KOE-1465). `template.test.ts` compares the two sides this module computes.
  *
+ * The same walk names the environment variables the code reaches reads (`process.env.X`), since a
+ * variable only some functions set fails the same way: PaymentVerify signed an edit token without
+ * the secret in its environment and answered every return from the payment page with an error
+ * (KOE-1605). A read is counted where the walk counts a table use, so a variable read inside a
+ * function nobody reaches does not count.
+ *
  * The code side follows calls, not imports. Nearly every handler imports a module that opens a
  * client on some table at load (`lib/repositories/dataVersionRepository`, `lib/email`, `lib/ws/connectionRepository`),
  * so an import graph would grant every lambda every table. Instead the walk starts at the code that
@@ -64,6 +70,14 @@ import { indexKey } from './dynamoActions'
  * (`userTable/index/gsiEmail`), per action, each use as `file:line (call chain)`.
  */
 type TableUse = Map<string, Map<Action, string[]>>
+
+/** The environment variables a handler's code reads, each read as `file:line (call chain)`. */
+type EnvironmentUse = Map<string, string[]>
+
+interface HandlerUse {
+  uses: TableUse
+  environment: EnvironmentUse
+}
 
 interface MethodSpec {
   actions: Action[]
@@ -142,6 +156,8 @@ interface UnitInfo {
   elementCalls: ts.CallExpression[]
   /** Object literals with a `TableName` (written out, shorthand or quoted), and transaction items with a computed key that may be one. */
   tableNameLiterals: ts.ObjectLiteralExpression[]
+  /** `process.env.X` and `process.env['X']` reads, with the variable's name. */
+  environmentReads: { node: ts.Node; variable: string }[]
 }
 
 interface Context {
@@ -965,11 +981,40 @@ const functionView = (ctx: Context, callee: ts.Node): UnitInfo => {
   return info
 }
 
+const isProcessEnv = (node: ts.Node) =>
+  ts.isPropertyAccessExpression(node) &&
+  ts.isIdentifier(node.expression) &&
+  node.expression.text === 'process' &&
+  node.name.text === 'env'
+
+/**
+ * The variable a `process.env` read names. Any other use of `process.env` (a computed key, a spread,
+ * `process.env` handed on) is refused: the walk could not tell which variables it reads.
+ */
+const environmentVariableRead = (node: ts.Node): string | undefined => {
+  if (ts.isPropertyAccessExpression(node) && isProcessEnv(node.expression)) return node.name.text
+  if (ts.isElementAccessExpression(node) && isProcessEnv(node.expression)) {
+    if (ts.isStringLiteralLike(node.argumentExpression)) return node.argumentExpression.text
+    throw new Error(`${location(node)}: cannot tell which environment variable ${node.getText()} reads`)
+  }
+  if (
+    isProcessEnv(node) &&
+    !(
+      (ts.isPropertyAccessExpression(node.parent) || ts.isElementAccessExpression(node.parent)) &&
+      node.parent.expression === node
+    )
+  ) {
+    throw new Error(`${location(node)}: cannot tell which environment variables ${node.parent.getText()} reads`)
+  }
+  return undefined
+}
+
 const scan = (ctx: Context, unit: Unit, skip?: (node: ts.Node) => boolean): UnitInfo => {
   const info: UnitInfo = {
     calls: [],
     clientCalls: [],
     elementCalls: [],
+    environmentReads: [],
     literals: [],
     tableNameLiterals: [],
     targets: new Set(),
@@ -990,6 +1035,8 @@ const scan = (ctx: Context, unit: Unit, skip?: (node: ts.Node) => boolean): Unit
       if (method !== undefined) info.clientCalls.push({ call: node, method })
       if (ts.isElementAccessExpression(node.expression)) info.elementCalls.push(node)
     }
+    const variable = environmentVariableRead(node)
+    if (variable !== undefined) info.environmentReads.push({ node, variable })
     if (ts.isObjectLiteralExpression(node)) {
       info.literals.push(node)
       if (holdsTableName(node)) info.tableNameLiterals.push(node)
@@ -1106,7 +1153,7 @@ const itemAction = (item: ts.ObjectLiteralExpression, at: ts.Node): Action => {
 }
 
 /** The final pass: every client call and every transaction item's `TableName` in a unit that runs. */
-const collect = (ctx: Context, state: HandlerState, unit: Unit, info: UnitInfo, uses: TableUse) => {
+const collect = (ctx: Context, state: HandlerState, unit: Unit, info: UnitInfo, { environment, uses }: HandlerUse) => {
   const clientCalls = [
     ...info.clientCalls,
     ...info.elementCalls.flatMap((call) => elementClientCalls(ctx, state, call)),
@@ -1119,6 +1166,12 @@ const collect = (ctx: Context, state: HandlerState, unit: Unit, info: UnitInfo, 
     }
   }
   for (const literal of info.tableNameLiterals) collectItem(ctx, state, unit, literal, uses)
+  for (const { node, variable } of info.environmentReads) {
+    const known = environment.get(variable) ?? []
+    const where = location(node)
+    if (!known.some((entry) => entry.startsWith(`${where} (`))) known.push(`${where} (${chain(state, unit)})`)
+    environment.set(variable, known)
+  }
 }
 
 /** The table a transaction item names; one that only a computed key may give it can also be absent. */
@@ -1291,7 +1344,7 @@ const step = (ctx: Context, state: HandlerState, imported: ts.Statement[]) => {
   }
 }
 
-const analyzeHandler = (ctx: Context, file: ts.SourceFile): TableUse => {
+const analyzeHandler = (ctx: Context, file: ts.SourceFile): HandlerUse => {
   const start = file.statements.find(isDefaultExport)
   if (!start) throw new Error(`${file.fileName}: no default export`)
   const state: HandlerState = {
@@ -1309,16 +1362,16 @@ const analyzeHandler = (ctx: Context, file: ts.SourceFile): TableUse => {
     state.memo.clear()
     step(ctx, state, imported)
   }
-  const uses: TableUse = new Map()
-  for (const unit of state.via.keys()) collect(ctx, state, unit, unitInfo(ctx, unit), uses)
+  const found: HandlerUse = { environment: new Map(), uses: new Map() }
+  for (const unit of state.via.keys()) collect(ctx, state, unit, unitInfo(ctx, unit), found)
   for (const statement of runsOnlyAtImport(state, imported)) {
-    collect(ctx, state, statement, importView(ctx, statement), uses)
+    collect(ctx, state, statement, importView(ctx, statement), found)
   }
   for (const callee of runsOnlyAtImport(state, [...state.importRun.keys()])) {
-    collect(ctx, state, callee, functionView(ctx, callee), uses)
+    collect(ctx, state, callee, functionView(ctx, callee), found)
   }
-  checkWrites(ctx, state, uses)
-  return uses
+  checkWrites(ctx, state, found.uses)
+  return found
 }
 
 const compilerOptions = (): ts.CompilerOptions => {
@@ -1393,13 +1446,17 @@ const configEnvironmentVariables = (config: ts.VariableDeclaration): Map<string,
 interface TableAnalysis {
   /** Handler file to the CONFIG keys its code reaches. */
   uses: Map<string, TableUse>
+  /** Handler file to the environment variables its code reads. */
+  environment: Map<string, EnvironmentUse>
   /** CONFIG key (`eventTable`) to the environment variable config.ts reads it from (`EVENT_TABLE_NAME`). */
   environmentVariables: Map<string, string>
 }
 
 interface TableUseAnalyzer {
   environmentVariables: Map<string, string>
-  /** The tables one of the handlers reaches; throws on the first use it cannot name. */
+  /** The tables and environment variables one of the handlers reaches; throws on the first use it cannot name. */
+  analyze: (handlerFile: string) => HandlerUse
+  /** The tables one of the handlers reaches. */
   usesOf: (handlerFile: string) => TableUse
 }
 
@@ -1410,20 +1467,27 @@ export const createTableUseAnalyzer = (handlerFiles: string[]): TableUseAnalyzer
     compilerOptions()
   )
   const ctx = createContext(program)
+  const analyze = (file: string) => {
+    const source = program.getSourceFile(path.resolve(file))
+    if (!source) throw new Error(`${file} is not in the program`)
+    return analyzeHandler(ctx, source)
+  }
   return {
+    analyze,
     environmentVariables: configEnvironmentVariables(ctx.config),
-    usesOf: (file) => {
-      const source = program.getSourceFile(path.resolve(file))
-      if (!source) throw new Error(`${file} is not in the program`)
-      return analyzeHandler(ctx, source)
-    },
+    usesOf: (file) => analyze(file).uses,
   }
 }
 
-/** The tables each handler can reach, by following calls from its default export. */
+/** The tables and environment variables each handler can reach, by following calls from its default export. */
 export const analyzeTableUse = (handlerFiles: string[]): TableAnalysis => {
   const analyzer = createTableUseAnalyzer(handlerFiles)
   const uses = new Map<string, TableUse>()
-  for (const file of handlerFiles) uses.set(file, analyzer.usesOf(file))
-  return { environmentVariables: analyzer.environmentVariables, uses }
+  const environment = new Map<string, EnvironmentUse>()
+  for (const file of handlerFiles) {
+    const found = analyzer.analyze(file)
+    uses.set(file, found.uses)
+    environment.set(file, found.environment)
+  }
+  return { environment, environmentVariables: analyzer.environmentVariables, uses }
 }

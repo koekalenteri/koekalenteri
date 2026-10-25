@@ -12,6 +12,8 @@ interface FunctionGrants {
   codeUri: string
   /** Table logical id, or `X/index/<name>`, to the actions the function's policies allow on it (`*` for all). */
   grants: Map<string, Set<Action>>
+  /** The variables the function's own `Environment` sets, beside the Globals' (KOE-1605). */
+  environment: Set<string>
 }
 
 interface TemplateTables {
@@ -19,6 +21,8 @@ interface TemplateTables {
   functions: Map<string, FunctionGrants>
   /** Environment variable (`EVENT_TABLE_NAME`) to the table logical id the Globals set it to. */
   environmentVariables: Map<string, string>
+  /** Every variable the Globals set, for every function. */
+  globalVariables: Set<string>
 }
 
 const isRecord = (value: unknown): value is Record<string, unknown> =>
@@ -174,7 +178,7 @@ const grantPolicy = (
   // Any other SAM policy template (CloudWatchPutMetricPolicy, S3ReadPolicy, ...) grants no table.
 }
 
-/** Every function in the built template with what its policies grant, and the Globals' table variables. */
+/** Every function in the built template with what its policies grant and its environment, and the Globals' variables. */
 export const templateTables = (templateText: string): TemplateTables => {
   const parsed: unknown = parse(templateText, { customTags: intrinsicTags })
   if (!isRecord(parsed)) throw new Error('template is not a map')
@@ -188,15 +192,20 @@ export const templateTables = (templateText: string): TemplateTables => {
   for (const [name, resource] of Object.entries(resources)) {
     if (!isRecord(resource) || resource.Type !== 'AWS::Serverless::Function') continue
     const properties = recordField(resource, 'Properties')
-    const grants: FunctionGrants = { codeUri: stringField(properties, 'CodeUri') ?? '', grants: new Map() }
+    const grants: FunctionGrants = {
+      codeUri: stringField(properties, 'CodeUri') ?? '',
+      environment: new Set(Object.keys(recordField(recordField(properties, 'Environment'), 'Variables'))),
+      grants: new Map(),
+    }
     for (const policy of listField(properties, 'Policies')) grantPolicy(grants, policy, resources, tables, name)
     functions.set(name, grants)
   }
   const globals = recordField(recordField(recordField(parsed, 'Globals'), 'Function'), 'Environment')
+  const globalVariables = recordField(globals, 'Variables')
   const environmentVariables = new Map<string, string>()
-  for (const [variable, value] of Object.entries(recordField(globals, 'Variables'))) {
+  for (const [variable, value] of Object.entries(globalVariables)) {
     const table = isRecord(value) ? stringField(value, 'Ref') : undefined
     if (table && tables.has(table)) environmentVariables.set(variable, table)
   }
-  return { environmentVariables, functions }
+  return { environmentVariables, functions, globalVariables: new Set(Object.keys(globalVariables)) }
 }

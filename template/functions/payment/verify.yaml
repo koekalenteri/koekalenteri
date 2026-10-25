@@ -3,6 +3,9 @@
     Properties:
       CodeUri: lambda/PaymentVerifyFunction
       Handler: handler.default
+      Environment:
+        Variables:
+          REGISTRATION_EDIT_TOKEN_SECRET: !Sub '{{resolve:ssm:${AWS::StackName}-REGISTRATION_EDIT_TOKEN_SECRET}}'
       Policies:
         - Statement:
             - Sid: SSMGetParameterPolicy

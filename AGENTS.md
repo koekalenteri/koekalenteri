@@ -349,6 +349,15 @@ Read `LLM_CONTEXT.md` for the project overview and architecture notes.
   since no write template can carry it. A function that calls `authorize()` carries `- !Ref AuthorizePolicy`
   (`template/policies/authorize-policy.yaml`) for the user, user link and data version tables; a
   broadcast needs `- !Ref WebSocketPolicy`.
+- The same walk names the environment variables the code reads (`process.env.X`), and the same test
+  fails on a variable a function reads that neither the Globals nor its own `Environment` block set,
+  naming the read and its call chain (`PaymentVerifyFunction reads REGISTRATION_EDIT_TOKEN_SECRET
+  without setting it: src/lambda/lib/secrets.ts:164 (paymentVerifyLambda > getRegistrationEditToken >
+  getRegistrationEditTokenSecret)`, KOE-1605), and on a variable a function sets that the walk sees
+  other functions read but this one never does. CONFIG's reads in `config.ts` are left out (they run
+  at import in every handler and all have defaults), and the variables nothing sets by design
+  (`AWS_SAM_LOCAL`, `NODE_ENV`, ...) are listed in the test with the reason. The walk refuses a
+  `process.env` read it cannot name (a computed key, `process.env` handed on whole).
 - A CloudWatch alarm (`AWS::CloudWatch::Alarm`) carries `Condition: IsNotTestStage`, and
   `AlarmActions` and `OKActions` on `- !Ref AlarmTopic` (`template/alarm-topic.yaml`), which mails
   the stack parameter `AlarmEmail` (the repository secret `ALARM_EMAIL`). Test has no alarms; dev's
