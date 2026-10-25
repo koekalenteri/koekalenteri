@@ -1,5 +1,8 @@
 {
   "src/pages/admin/EventViewPage.visual.test.tsx": {
+    "event-view-page-class-order": {
+      "empty-table-header": 12
+    },
     "event-view-page-structure": {
       "empty-table-header": 15
     }

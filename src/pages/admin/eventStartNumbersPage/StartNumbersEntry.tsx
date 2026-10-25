@@ -15,8 +15,8 @@ import Tabs from '@mui/material/Tabs'
 import { useCallback, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useUnsavedChangesWarning } from '@/hooks/useUnsavedChangesWarning'
+import { compareRegistrationClasses } from '@/lib/event'
 import {
-  compareRegistrationClasses,
   getRegistrationClass,
   getRegistrationPlacement,
   isRegistrationClass,

@@ -39,4 +39,27 @@ describe('useAdminEventRegistrationInfo', () => {
     })
     expect(result.current.selectedByClass.NOU?.map((registration) => registration.id)).toEqual(['placed'])
   })
+
+  it('lists the classes as ALO, AVO, VOI whatever order they were picked in, and the missing ones after (KOE-1596)', () => {
+    const event = {
+      ...eventWithStaticDates,
+      classes: [
+        { class: 'VOI' as const, date: eventWithStaticDates.startDate },
+        { class: 'ALO' as const, date: eventWithStaticDates.endDate },
+        { class: 'VOI' as const, date: eventWithStaticDates.endDate },
+      ],
+      eventType: 'NOME-B',
+    }
+    const registrations = [
+      entry('in-voi', { class: 'VOI', eventType: 'NOME-B' }),
+      entry('in-classless', { eventType: 'NOME-B' }),
+      entry('in-avo', { class: 'AVO', eventType: 'NOME-B' }),
+    ]
+
+    const { result } = renderHook(() => useAdminEventRegistrationInfo(event, registrations))
+
+    expect(result.current.eventClasses).toEqual(['ALO', 'VOI'])
+    expect(Object.keys(result.current.numbersByClass)).toEqual(['ALO', 'VOI'])
+    expect(result.current.missingClasses).toEqual(['AVO', 'NOME-B'])
+  })
 })

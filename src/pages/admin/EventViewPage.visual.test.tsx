@@ -63,11 +63,9 @@ const registrations: Registration[] = [
   { ...registrationWithStaticDates, class: 'AVO', eventId: event.id, id: 'reg-2' },
 ]
 
-it("shows the event's status row, info panel and class tabs above the entry grid", async () => {
-  // The event atom is a promise until the list has loaded and a plain value after, by design (see
-  // adminEventAtom): the render that suspended on it completes without it, and React 19 says so.
-  expectConsoleOutput(/called use\(\) to suspend in a previous render/)
-  const screen = await render(
+/** The page for one event and its entries. */
+const renderPage = (shown: ConfirmedEvent, entries: Registration[]) =>
+  render(
     // A fixed height with overflow hidden crops the capture to the page's own structure -- the
     // entry grid underneath already has its own coverage from KOE-1322.
     <div data-testid="visual-root" style={{ background: '#fff', height: 230, overflow: 'hidden', width: 1200 }}>
@@ -75,8 +73,8 @@ it("shows the event's status row, info panel and class tabs above the entry grid
         <TestProvider
           initializeState={({ set }) => {
             set(idTokenAtom, TEST_ID_TOKEN)
-            set(adminEventsAtom, [event])
-            set(adminEventRegistrationsAtom(event.id), registrations)
+            set(adminEventsAtom, [shown])
+            set(adminEventRegistrationsAtom(shown.id), entries)
             // The step list asks the event types whether the format is official; the built-in list answers.
             void set(adminEventTypesAtom, [])
           }}
@@ -85,7 +83,7 @@ it("shows the event's status row, info panel and class tabs above the entry grid
             <ConfirmProvider>
               <Suspense fallback={<div>loading...</div>}>
                 <DataMemoryRouter
-                  initialEntries={[Path.admin.viewEvent(event.id)]}
+                  initialEntries={[Path.admin.viewEvent(shown.id)]}
                   routes={[{ element: <EventViewPage />, path: Path.admin.viewEvent() }]}
                 />
               </Suspense>
@@ -96,6 +94,33 @@ it("shows the event's status row, info panel and class tabs above the entry grid
     </div>
   )
 
+it("shows the event's status row, info panel and class tabs above the entry grid", async () => {
+  // The event atom is a promise until the list has loaded and a plain value after, by design (see
+  // adminEventAtom): the first render of the file suspends on it and completes without it, and React
+  // 19 says so. The file's later renders find the list loaded.
+  expectConsoleOutput(/called use\(\) to suspend in a previous render/)
+  const screen = await renderPage(event, registrations)
+
   await expect.element(screen.getByRole('tab', { name: 'ALO' })).toBeVisible()
   await expect(screen.getByTestId('visual-root')).toMatchScreenshot('event-view-page-structure')
+})
+
+// VOI picked before ALO and on the first of two days: the tabs still read ALO, VOI, and the view opens
+// on ALO (KOE-1596).
+it('shows the class tabs as ALO, AVO, VOI whatever order the classes were picked in (KOE-1596)', async () => {
+  const pickedVoiFirst: ConfirmedEvent = {
+    ...event,
+    classes: [
+      { class: 'VOI', date: start },
+      { class: 'ALO', date: end },
+    ],
+    eventType: 'NOWT',
+  }
+  const screen = await renderPage(pickedVoiFirst, [
+    { ...registrations[0], eventType: 'NOWT' },
+    { ...registrations[1], class: 'VOI', eventType: 'NOWT' },
+  ])
+
+  await expect.element(screen.getByRole('tab', { name: 'ALO', selected: true })).toBeVisible()
+  await expect(screen.getByTestId('visual-root')).toMatchScreenshot('event-view-page-class-order')
 })
