@@ -316,7 +316,8 @@ describe('RegistrationForm', () => {
     expect(notes).toHaveValue(`${registrationWithStaticDates.notes} more!`)
   })
 
-  // Unpaid: once paid the stored selection stands, as an unset one counts the handler's membership (KOE-1588).
+  // Unpaid: once paid the stored selection stands (KOE-1588). For an unset selection writing the default is
+  // no change in meaning; remapping a key that names nobody would change who handles.
   it('should normalize undefined owner role flags to booleans', async () => {
     const registration = {
       ...unpaidRegistrationWithStaticDates,
@@ -788,8 +789,9 @@ describe('RegistrationForm', () => {
       expect(missing.map((item) => item.textContent?.trim())).toEqual(['registration.payer defaultValue'])
     })
 
-    // The form writes the first owner into an unset selection; a picked entry's stands as stored, and
-    // so does a paid one's, where the unset selection counts the handler's membership (`isMember`).
+    // The form writes the first owner into an unset selection; a picked or paid entry's stands as stored.
+    // For an unset selection that is no change in meaning; remapping a key that names nobody would
+    // change who handles.
     it.each([
       ['a picked entry', () => picked],
       ['a paid entry not yet picked', () => registrationWithStaticDates],

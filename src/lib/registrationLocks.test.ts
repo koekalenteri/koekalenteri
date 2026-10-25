@@ -439,7 +439,7 @@ describe('registrationLocks', () => {
 
         // A stored owner with a key of their own answers to that key alone, not to their position key.
         it('reads an owner sent under the position key of a stored owner keyed otherwise as someone new', () => {
-          const stored: Entry = { ...base, owners: [{ ...owner, key: 'x', membership: false }] }
+          const stored: Entry = { ...base, owners: [{ ...owner, key: 'x', membership: true }] }
           const sent = [{ ...owner, key: 'owner-1', membership: true }]
 
           expect(participantLockedChange(only('membership'), stored, { ...stored, owners: sent })).toBe('membership')
