@@ -18,19 +18,33 @@ interface Props {
   readonly disabled?: boolean
   readonly error?: boolean
   readonly helperText?: string
+  /** The memberships stand as stored: the entry has been paid (KOE-1588). */
+  readonly membershipLocked?: boolean
   readonly onChange?: (props: DeepPartial<Registration>) => void
   readonly onOpenChange?: (value: boolean) => void
   readonly open?: boolean
   readonly orgId: string
 }
 
-export function OwnerInfo({ admin, reg, disabled, error, helperText, onChange, onOpenChange, open, orgId }: Props) {
+export function OwnerInfo({
+  admin,
+  reg,
+  disabled,
+  error,
+  helperText,
+  membershipLocked,
+  onChange,
+  onOpenChange,
+  open,
+  orgId,
+}: Props) {
   const { t } = useTranslation()
   const { cache, owners, setCache, updateOwners } = useRegistrationOwners(reg, orgId, onChange)
 
   useEffect(() => {
-    // Don't change registrations based on cache when secretary handles them
-    if (admin) return
+    // Don't change registrations based on cache when secretary handles them, nor a membership the
+    // participant may no longer change.
+    if (admin || membershipLocked) return
 
     let changed = false
     const nextOwners = owners.map((owner) => {
@@ -43,7 +57,7 @@ export function OwnerInfo({ admin, reg, disabled, error, helperText, onChange, o
       const [first] = nextOwners
       onChange?.({ owner: first && stripOwnerKey(first), owners: nextOwners })
     }
-  }, [admin, cache, onChange, orgId, owners])
+  }, [admin, cache, membershipLocked, onChange, orgId, owners])
 
   const handleOwnerChange = useCallback(
     (ownerKey: string | undefined, props: DeepPartial<Omit<RegistrationOwner, 'key'>>) => {

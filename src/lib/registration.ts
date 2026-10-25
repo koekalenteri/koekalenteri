@@ -134,7 +134,8 @@ export const isCompleteRegistration = (registration: Patch<JsonRegistration>): r
 
 type PublicRegistrationField = keyof JsonRegistration
 
-export const PUBLIC_REGISTRATION_FIELDS: ReadonlyArray<PublicRegistrationField> = [
+/** What a participant's request may write; `PARTICIPANT_FIELD_SECTIONS` (`registrationLocks.ts`) says when each closes. */
+export const PUBLIC_REGISTRATION_FIELDS = [
   'agreeToTerms',
   'breeder',
   'cancelReason',
@@ -159,7 +160,10 @@ export const PUBLIC_REGISTRATION_FIELDS: ReadonlyArray<PublicRegistrationField> 
   'reserve',
   'results',
   'selectedCost',
-]
+] as const satisfies ReadonlyArray<PublicRegistrationField>
+
+/** A field a participant's request may write. */
+export type PublicRegistrationFieldName = (typeof PUBLIC_REGISTRATION_FIELDS)[number]
 
 /**
  * A registration's money and its payments' bookkeeping. Written only by the payment and refund

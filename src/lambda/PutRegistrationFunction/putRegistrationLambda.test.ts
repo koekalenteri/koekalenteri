@@ -14,7 +14,11 @@ import {
   eventWithStaticDatesAnd3Classes,
   eventWithStaticDatesAndClass,
 } from '../../__mockData__/events'
-import { registrationWithStaticDates, registrationWithStaticDatesAndClass } from '../../__mockData__/registrations'
+import {
+  registrationWithStaticDates,
+  registrationWithStaticDatesAndClass,
+  unpaidRegistrationWithStaticDates,
+} from '../../__mockData__/registrations'
 import { addDays, dayEnd, dayStart, TIME_ZONE } from '../../lib/day'
 import { qualifyJsonRegistration } from '../../lib/qualification'
 import { GROUP_KEY_RESERVE } from '../../lib/registration'
@@ -1177,7 +1181,7 @@ describe('putRegistrationLabmda', () => {
   })
 
   it('should merge partial patch payloads before diffing and saving', async () => {
-    const existingJson = storedRegistrationJson(registrationWithStaticDates)
+    const existingJson = storedRegistrationJson(unpaidRegistrationWithStaticDates)
     mockGetLiveEvent.mockResolvedValueOnce(JSON.parse(JSON.stringify(eventWithStaticDates)))
     mockGetRegistration.mockResolvedValueOnce(existingJson)
 
@@ -1186,7 +1190,7 @@ describe('putRegistrationLabmda', () => {
         {
           dog: { name: 'Patched dog name' },
           eventId: eventWithStaticDates.id,
-          id: registrationWithStaticDates.id,
+          id: unpaidRegistrationWithStaticDates.id,
           notes: 'patched notes',
         },
         { method: 'PATCH' }
@@ -1195,7 +1199,7 @@ describe('putRegistrationLabmda', () => {
 
     expect(mockPatchRegistration).toHaveBeenCalledWith(
       eventWithStaticDates.id,
-      registrationWithStaticDates.id,
+      unpaidRegistrationWithStaticDates.id,
       existingJson,
       expect.objectContaining({
         dog: {
@@ -1211,7 +1215,7 @@ describe('putRegistrationLabmda', () => {
       [
         expect.objectContaining({
           dog: { name: 'Patched dog name' },
-          id: registrationWithStaticDates.id,
+          id: unpaidRegistrationWithStaticDates.id,
           notes: 'patched notes',
         }),
       ],
@@ -2038,15 +2042,15 @@ describe('putRegistrationLabmda', () => {
     mockGetRegistration.mockResolvedValueOnce(
       JSON.parse(
         JSON.stringify({
-          ...registrationWithStaticDates,
-          owner: { ...registrationWithStaticDates.owner, membership: true },
+          ...unpaidRegistrationWithStaticDates,
+          owner: { ...unpaidRegistrationWithStaticDates.owner, membership: true },
         })
       )
     )
     const res = await putRegistrationLabmda(
       constructAPIGwEvent({
-        ...registrationWithStaticDates,
-        owner: { ...registrationWithStaticDates.owner, membership: false },
+        ...unpaidRegistrationWithStaticDates,
+        owner: { ...unpaidRegistrationWithStaticDates.owner, membership: false },
       })
     )
 
@@ -2102,14 +2106,14 @@ describe('putRegistrationLabmda', () => {
   })
 
   it('derives qualification on the backend while preserving a valid selected cost', async () => {
-    const existingJson = JSON.parse(JSON.stringify({ ...registrationWithStaticDates, qualifies: false }))
+    const existingJson = JSON.parse(JSON.stringify({ ...unpaidRegistrationWithStaticDates, qualifies: false }))
     mockGetLiveEvent.mockResolvedValueOnce(JSON.parse(JSON.stringify(eventWithStaticDates)))
     mockGetRegistration.mockResolvedValueOnce(existingJson)
 
     const res = await putRegistrationLabmda(
       constructAPIGwEvent({
-        eventId: registrationWithStaticDates.eventId,
-        id: registrationWithStaticDates.id,
+        eventId: unpaidRegistrationWithStaticDates.eventId,
+        id: unpaidRegistrationWithStaticDates.id,
         notes: 'qualification recalculated',
         qualifies: false,
         selectedCost: 'normal',
@@ -2164,6 +2168,257 @@ describe('putRegistrationLabmda', () => {
           qualifyingResults: [expect.objectContaining({ official: true, result: 'NOU1', type: 'NOU' })],
         })
       )
+    })
+  })
+
+  // The participant's form locks its sections one by one; the server holds them by the same rule
+  // (`getParticipantFieldLocks`, KOE-1588), whatever the request is sent as.
+  describe('participant field locks (KOE-1588)', () => {
+    const entryOpen = () => vi.setSystemTime(eventWithStaticDates.entryStartDate)
+    const trialDay = () => vi.setSystemTime(addMinutes(dayStart(eventWithStaticDates.startDate, TIME_ZONE), 720))
+    const picked = { ...unpaidRegistrationWithStaticDates, messagesSent: { picked: true } }
+    const reserveEntrant = { ...unpaidRegistrationWithStaticDates, messagesSent: { reserve: true } }
+    const paid = registrationWithStaticDates
+    const paidAndPicked = { ...registrationWithStaticDates, messagesSent: { picked: true } }
+
+    const given = (stored: object) => {
+      const existingJson = storedRegistrationJson(stored)
+      mockGetLiveEvent.mockResolvedValueOnce(JSON.parse(JSON.stringify(eventWithStaticDates)))
+      mockGetRegistration.mockResolvedValueOnce(existingJson)
+      return existingJson
+    }
+    const patch = (existingJson: JsonRegistration, fields: object) =>
+      putRegistrationLabmda(
+        constructAPIGwEvent({ eventId: existingJson.eventId, id: existingJson.id, ...fields }, { method: 'PATCH' })
+      )
+    const expectRefused = (res: { statusCode: number; body: string }, section: string) => {
+      expect(res.statusCode).toBe(410)
+      expect(JSON.parse(res.body)).toEqual({ message: `Gone: the ${section} section can no longer be changed` })
+      expect(mockPatchRegistration).not.toHaveBeenCalled()
+    }
+    const expectSaved = (res: { statusCode: number }, fields: object) => {
+      expect(res.statusCode).toBe(200)
+      expect(mockPatchRegistration).toHaveBeenCalledWith(
+        expect.anything(),
+        expect.anything(),
+        expect.anything(),
+        expect.objectContaining(fields)
+      )
+    }
+
+    it.each([
+      ['the class', 'entry', { class: 'AVO' }],
+      ['the days', 'entry', { dates: [{ date: '2021-02-11', time: 'ip' }] }],
+      ['the reserve wish', 'entry', { reserve: 'DAY' }],
+      ['the dog', 'dog', { dog: { ...picked.dog, name: 'Another dog' } }],
+      ['the breeder', 'people', { breeder: { name: 'Another breeder' } }],
+      ['the owner', 'people', { owner: { ...picked.owner, name: 'Another owner' } }],
+      ['the handler', 'people', { handler: { ...picked.handler, name: 'Another handler' } }],
+      ['who handles', 'people', { ownerHandles: true }],
+      ['the manual results', 'results', { results: [{ date: '2020-08-01', id: 'm1', result: 'NOU1', type: 'NOU' }] }],
+    ] as const)('refuses a change of %s of a picked entry with 410', async (_label, section, fields) => {
+      entryOpen()
+      const existingJson = given(picked)
+
+      expectRefused(await patch(existingJson, fields), section)
+    })
+
+    it.each([
+      ['the notes', { notes: 'arriving late' }],
+      ['the payer', { payer: { ...picked.payer, name: 'Another payer' } }],
+      ['a membership before paying', { owner: { ...picked.owner, membership: true } }],
+      ['the cost before paying', { selectedCost: 'normal' }],
+    ] as const)('saves a change of %s of a picked entry', async (_label, fields) => {
+      entryOpen()
+      const existingJson = given(picked)
+
+      expectSaved(await patch(existingJson, fields), fields)
+    })
+
+    it.each([
+      ['the class', { class: 'AVO' }],
+      ['the days', { dates: [{ date: '2021-02-11', time: 'ip' }] }],
+    ] as const)('refuses a change of %s of a reserve entrant on a trial day with 410', async (_label, fields) => {
+      trialDay()
+      const existingJson = given(reserveEntrant)
+
+      expectRefused(await patch(existingJson, fields), 'entry')
+    })
+
+    it('saves a change of the days of a reserve entrant while the entry is open', async () => {
+      entryOpen()
+      const existingJson = given(reserveEntrant)
+      const dates = [{ date: '2021-02-11', time: 'ip' }]
+
+      expectSaved(await patch(existingJson, { dates }), { dates })
+    })
+
+    it('saves the notes of a reserve entrant on a trial day', async () => {
+      trialDay()
+      const existingJson = given(reserveEntrant)
+
+      expectSaved(await patch(existingJson, { notes: 'day two' }), { notes: 'day two' })
+    })
+
+    it.each([
+      ['the dog', 'dog', { dog: { ...paid.dog, name: 'Another dog' } }],
+      ['a membership', 'membership', { owner: { ...paid.owner, membership: true } }],
+      ['the handler membership', 'membership', { handler: { ...paid.handler, membership: true } }],
+      ['the cost', 'payment', { selectedCost: 'custom' }],
+      ['the optional costs', 'payment', { optionalCosts: [0] }],
+      [
+        'an added member owner',
+        'membership',
+        {
+          owners: [
+            { ...paid.owner, key: 'owner-1' },
+            { ...paid.owner, key: 'o2', membership: true, name: 'Two' },
+          ],
+        },
+      ],
+    ] as const)('refuses a change of %s of a paid entry with 410', async (_label, section, fields) => {
+      entryOpen()
+      const existingJson = given(paid)
+
+      expectRefused(await patch(existingJson, fields), section)
+    })
+
+    it.each([
+      ['the owner', { owner: { ...paid.owner, name: 'Another owner' } }],
+      [
+        'an added owner who is no member',
+        {
+          owners: [
+            { ...paid.owner, key: 'owner-1' },
+            { ...paid.owner, key: 'o2', membership: false, name: 'Two' },
+          ],
+        },
+      ],
+      ['the days', { dates: [{ date: '2021-02-11', time: 'ip' }] }],
+    ] as const)('saves a change of %s of a paid entry that is not picked', async (_label, fields) => {
+      entryOpen()
+      const existingJson = given(paid)
+
+      expectSaved(await patch(existingJson, fields), fields)
+    })
+
+    // The owner handled and was a member; the handler named apart starts as the owner's copy.
+    it('saves a paid entry whose member owner stops handling, the handler keeping the copy', async () => {
+      entryOpen()
+      const member = { ...paid.owner, membership: true }
+      const existingJson = given({ ...paid, handler: member, owner: member, ownerHandles: true })
+
+      expectSaved(await patch(existingJson, { ownerHandles: false }), { ownerHandles: false })
+    })
+
+    // The form defaults an unset selection to the first owner and writes it back.
+    it('saves the notes of a picked entry stored without owner selections, sent with the defaults', async () => {
+      entryOpen()
+      const { ownerHandles: _h, ownerPays: _p, ...stored } = picked
+      const existingJson = given({ ...stored, handler: picked.owner })
+
+      expectSaved(await patch(existingJson, { notes: 'defaults', ownerHandles: true, ownerPays: true }), {
+        notes: 'defaults',
+      })
+    })
+
+    // A stored owner list without keys is keyed by position in the form, which writes the keys back.
+    it.each([
+      ['the notes', false],
+      ['a membership before paying', true],
+    ] as const)('saves %s of a picked entry whose stored owners have no keys', async (_label, flipMembership) => {
+      entryOpen()
+      const owners = [
+        { ...picked.owner, name: 'One' },
+        { ...picked.owner, name: 'Two' },
+      ]
+      const existingJson = given({ ...picked, owner: owners[0], owners })
+      const keyed = owners.map((owner, index) => ({
+        ...owner,
+        key: `owner-${index + 1}`,
+        membership: flipMembership && index === 1,
+      }))
+
+      expectSaved(await patch(existingJson, { notes: 'keyed now', owners: keyed }), { notes: 'keyed now' })
+    })
+
+    it('refuses a membership flip of a paid entry whose stored owners have no keys', async () => {
+      entryOpen()
+      const owners = [
+        { ...paid.owner, name: 'One' },
+        { ...paid.owner, name: 'Two' },
+      ]
+      const existingJson = given({ ...paid, owner: owners[0], owners })
+      const keyed = owners.map((owner, index) => ({ ...owner, key: `owner-${index + 1}`, membership: index === 1 }))
+
+      expectRefused(await patch(existingJson, { owners: keyed }), 'membership')
+    })
+
+    describe('a whole registration resent on a trial day', () => {
+      // What a browser holds: the official results it was sent once and the addresses as typed.
+      const stored = {
+        ...paidAndPicked,
+        dates: [
+          { date: '2021-02-10', time: 'ap' },
+          { date: '2021-02-11', time: 'ap' },
+        ],
+      }
+      const resent = {
+        ...stored,
+        dog: { ...stored.dog, results: [{ date: '2020-08-01', id: 'r1', result: 'NOU1', type: 'NOU' }] },
+        handler: { ...stored.handler, email: ' Handler@Example.com ' },
+        owner: { ...stored.owner, email: 'OWNER@example.com' },
+      }
+
+      it('answers an unchanged resend with 304', async () => {
+        trialDay()
+        given(stored)
+
+        const res = await putRegistrationLabmda(constructAPIGwEvent(resent))
+
+        expect(res.statusCode).toBe(304)
+        expect(mockPatchRegistration).not.toHaveBeenCalled()
+      })
+
+      // The order is stored as sent, so it is a save; but no lock reads the order.
+      it('saves the days resent in another order', async () => {
+        trialDay()
+        given(stored)
+
+        const dates = [...stored.dates].reverse()
+        expectSaved(await putRegistrationLabmda(constructAPIGwEvent({ ...resent, dates })), { dates })
+      })
+
+      // A row stored before the addresses were normalized: the save normalizes them, and that is no
+      // change of the people.
+      it('saves a resend of a row whose stored addresses are not normalized', async () => {
+        trialDay()
+        const unnormalized = { ...stored, owner: { ...stored.owner, email: ' Owner@Example.com' } }
+        given(unnormalized)
+
+        expectSaved(await putRegistrationLabmda(constructAPIGwEvent(unnormalized)), {
+          owner: expect.objectContaining({ email: 'owner@example.com' }),
+        })
+      })
+
+      it('saves the notes it changes', async () => {
+        trialDay()
+        given(stored)
+
+        expectSaved(await putRegistrationLabmda(constructAPIGwEvent({ ...resent, notes: 'changed' })), {
+          notes: 'changed',
+        })
+      })
+
+      it('refuses the dog it changes with 410', async () => {
+        trialDay()
+        given(stored)
+
+        expectRefused(
+          await putRegistrationLabmda(constructAPIGwEvent({ ...resent, dog: { ...resent.dog, name: 'Another' } })),
+          'dog'
+        )
+      })
     })
   })
 })

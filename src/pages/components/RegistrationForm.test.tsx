@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react'
+import type { Registration } from '../../types'
 import { ThemeProvider } from '@mui/material'
 import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
@@ -191,9 +192,13 @@ describe('RegistrationForm', () => {
     })
   })
 
-  // Kennelliitto's empty date reaches the form as no birth day (KOE-1548).
+  // Kennelliitto's empty date reaches the form as no birth day (KOE-1548). The entry is unpaid: a paid
+  // one's dog is locked, and its errors no longer hold the participant back (KOE-1588).
   it('renders a dog without a birth day as too young', async () => {
-    const registration = { ...registrationWithStaticDates, dog: { ...registrationWithStaticDates.dog, dob: undefined } }
+    const registration = {
+      ...unpaidRegistrationWithStaticDates,
+      dog: { ...unpaidRegistrationWithStaticDates.dog, dob: undefined },
+    }
     render(<RegistrationForm event={eventWithStaticDates} registration={registration} />, { wrapper: Wrapper })
     await flushPromises()
 
@@ -537,13 +542,14 @@ describe('RegistrationForm', () => {
   })
 
   // KOE-525: the entry restrictions (KOE-524) gate the form. The mock dog is a curly coated
-  // retriever (110) and nobody on the mock registration is a member.
+  // retriever (110) and nobody on the mock registration is a member. The entry is unpaid: a paid
+  // one's dog and memberships are locked, and a restriction only they decide no longer gates it (KOE-1588).
   describe('entry restrictions', () => {
     it('keeps a non-member out of a members-only trial and says so in the membership section', async () => {
       render(
         <RegistrationForm
           event={{ ...eventWithStaticDates, restrictions: ['member'] }}
-          registration={registrationWithStaticDates}
+          registration={unpaidRegistrationWithStaticDates}
         />,
         { wrapper: Wrapper }
       )
@@ -558,7 +564,7 @@ describe('RegistrationForm', () => {
       render(
         <RegistrationForm
           event={{ ...eventWithStaticDates, restrictions: ['122', '111'] }}
-          registration={registrationWithStaticDates}
+          registration={unpaidRegistrationWithStaticDates}
         />,
         { wrapper: Wrapper }
       )
@@ -613,6 +619,154 @@ describe('RegistrationForm', () => {
 
       expect(screen.queryByText(/validation\.registration\.restrictedTo/)).not.toBeInTheDocument()
       expect(screen.queryByTestId('missing-info')).not.toBeInTheDocument()
+    })
+  })
+
+  // The sections close for the participant one by one, by the rule PutRegistration holds them by
+  // (`getParticipantFieldLocks`, KOE-1588). The file's clock is the real one; these set the day.
+  describe('participant field locks (KOE-1588)', () => {
+    const entryOpen = () => vi.setSystemTime(frozenInstant(eventWithStaticDates.entryStartDate))
+    const trialDay = () => vi.setSystemTime(frozenInstant(eventWithStaticDates.startDate))
+    afterEach(() => vi.setSystemTime(vi.getRealSystemTime()))
+
+    const picked: Registration = { ...unpaidRegistrationWithStaticDates, messagesSent: { picked: true } }
+    const reserveEntrant: Registration = { ...unpaidRegistrationWithStaticDates, messagesSent: { reserve: true } }
+    const regNoField = () => screen.getByRole('combobox', { name: 'dog.regNo' })
+    const reserveField = () => screen.getByRole('combobox', { name: 'registration.reserve' })
+    const notesField = () => screen.getByRole('textbox', { name: 'registration.notes' })
+    const saveButton = () => screen.getByRole('button', { name: 'registration.cta.saveChanges' })
+
+    it('locks the dog of a picked entry before it is paid', async () => {
+      entryOpen()
+      render(<RegistrationForm event={eventWithStaticDates} registration={picked} />, { wrapper: Wrapper })
+      await flushPromises()
+
+      expect(regNoField()).toBeDisabled()
+      expect(notesField()).toBeEnabled()
+    })
+
+    it('locks the class and the days of a reserve entrant on a trial day', async () => {
+      trialDay()
+      render(<RegistrationForm event={eventWithStaticDates} registration={reserveEntrant} />, { wrapper: Wrapper })
+      await flushPromises()
+
+      expect(reserveField()).toBeDisabled()
+      expect(regNoField()).toBeEnabled()
+    })
+
+    it('leaves the class and the days of a reserve entrant open while the entry is open', async () => {
+      entryOpen()
+      render(<RegistrationForm event={eventWithStaticDates} registration={reserveEntrant} />, { wrapper: Wrapper })
+      await flushPromises()
+
+      expect(reserveField()).toBeEnabled()
+    })
+
+    // What only a locked section holds cannot keep the participant from saving the notes: a dog
+    // without a microchip number, a qualification the class and the results no longer give, and a
+    // members-only restriction the paid entry does not meet.
+    it('lets a picked and paid entry with errors in its locked sections save', async () => {
+      entryOpen()
+      const registration: Registration = {
+        ...registrationWithStaticDates,
+        dog: { ...registrationWithStaticDates.dog, rfid: '' },
+        messagesSent: { picked: true },
+        qualifies: false,
+      }
+      render(
+        <RegistrationForm
+          changes
+          event={{ ...eventWithStaticDates, restrictions: ['member'] }}
+          registration={registration}
+          savedRegistration={registration}
+        />,
+        { wrapper: Wrapper }
+      )
+      await flushPromises()
+
+      expect(saveButton()).toBeEnabled()
+      expect(screen.queryByTestId('missing-info')).not.toBeInTheDocument()
+    })
+
+    it('keeps holding back an entry whose open sections have errors', async () => {
+      entryOpen()
+      const registration: Registration = { ...picked, payer: { email: '', name: '', phone: '' } }
+      render(<RegistrationForm changes event={eventWithStaticDates} registration={registration} />, {
+        wrapper: Wrapper,
+      })
+      await flushPromises()
+
+      expect(saveButton()).toBeDisabled()
+    })
+
+    // The form writes the first owner into an unset selection; a picked entry's stands as stored.
+    it('leaves the unset owner selections of a picked entry as they are', async () => {
+      entryOpen()
+      const { ownerHandles: _h, ownerPays: _p, ...stored } = picked
+      const onChange = vi.fn()
+      render(<RegistrationForm event={eventWithStaticDates} registration={stored} onChange={onChange} />, {
+        wrapper: Wrapper,
+      })
+      await flushPromises()
+
+      expect(onChange).not.toHaveBeenCalledWith(expect.objectContaining({ ownerHandles: true }))
+    })
+
+    // A day the trial no longer has: the form would put the trial's days in its place.
+    it.each([
+      ['picks the trial days for', unpaidRegistrationWithStaticDates, true],
+      ['leaves the day of', picked, false],
+    ] as const)('%s an entry whose day the trial no longer has', async (_label, entry, rewritten) => {
+      entryOpen()
+      const onChange = vi.fn()
+      const registration = { ...entry, dates: [{ date: '2021-02-12' as const, time: 'ap' as const }] }
+      render(<RegistrationForm event={eventWithStaticDates} registration={registration} onChange={onChange} />, {
+        wrapper: Wrapper,
+      })
+      await flushPromises()
+      await runPendingTimers()
+
+      if (rewritten) expect(onChange).toHaveBeenCalledWith(expect.objectContaining({ dates: expect.any(Array) }))
+      else expect(onChange).not.toHaveBeenCalledWith(expect.objectContaining({ dates: expect.any(Array) }))
+    })
+
+    // The picking arrives by the WebSocket while the participant has the days and the dog changed.
+    it('puts the locked sections of the draft back when the entry is picked mid-edit', async () => {
+      entryOpen()
+      const saved = unpaidRegistrationWithStaticDates
+      const draft: Registration = {
+        ...saved,
+        dates: [{ date: '2021-02-11', time: 'ip' }],
+        dog: { ...saved.dog, name: 'Another dog' },
+        notes: 'my notes',
+      }
+      const onChange = vi.fn()
+      const { rerender } = render(
+        <RegistrationForm
+          event={eventWithStaticDates}
+          registration={draft}
+          savedRegistration={saved}
+          onChange={onChange}
+        />,
+        { wrapper: Wrapper }
+      )
+      await flushPromises()
+      expect(onChange).not.toHaveBeenCalledWith(expect.objectContaining({ dates: saved.dates }))
+
+      const pickedSaved = { ...saved, messagesSent: { picked: true } }
+      rerender(
+        <RegistrationForm
+          event={eventWithStaticDates}
+          registration={draft}
+          savedRegistration={pickedSaved}
+          onChange={onChange}
+        />
+      )
+      await flushPromises()
+
+      expect(onChange).toHaveBeenCalledWith(
+        expect.objectContaining({ dates: saved.dates, dog: saved.dog, notes: 'my notes' })
+      )
     })
   })
 })

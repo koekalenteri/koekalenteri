@@ -40,6 +40,13 @@ import {
   resolveOwnerSelection,
   withDefaultOwnerSelection,
 } from '../../lib/registration'
+import {
+  getParticipantFieldLocks,
+  isParticipantFieldLocked,
+  NO_PARTICIPANT_FIELD_LOCKS,
+  participantLockedChange,
+  withLockedSectionsFrom,
+} from '../../lib/registrationLocks'
 import { hasChanges, merge } from '../../lib/utils'
 import { getRequirements } from '../../rules'
 import { languageAtom } from '../state'
@@ -120,14 +127,32 @@ export default function RegistrationForm({
   const { t: tBreed } = useTranslation(['translation', 'breed'])
   const language = useAtomValue(languageAtom)
   const large = useMediaQuery((theme: Theme) => theme.breakpoints.up('md'))
-  const [errors, setErrors] = useState(() => validateRegistration(registration, event, savedRegistration))
+  const [validationErrors, setErrors] = useState(() => validateRegistration(registration, event, savedRegistration))
   const [open, setOpen] = useState<SectionOpenState>(() => defaultSectionOpenState(large))
   const [rankingPeriod, setRankingPeriod] = useState<{ min?: DayKey; max?: DayKey }>({})
 
-  const restriction = useMemo(() => getRestrictionNotice(event, registration, tBreed), [event, registration, tBreed])
+  // The sections closed for the participant, by the rule PutRegistration holds them by (KOE-1588),
+  // read from the stored entry. The secretary has none.
+  const stored = savedRegistration ?? registration
+  const locks = useMemo(
+    () => (admin ? NO_PARTICIPANT_FIELD_LOCKS : getParticipantFieldLocks(event, stored)),
+    [admin, event, stored]
+  )
+  // What the participant can no longer change does not hold back saving what they can: an error in
+  // a locked section, a restriction only the locked dog and memberships decide, or a qualification
+  // only the locked class, dog and results decide (KOE-1588). The server decides those on its own.
+  const errors = useMemo(
+    () => validationErrors.filter((error) => !isParticipantFieldLocked(locks, error.opts.field)),
+    [locks, validationErrors]
+  )
+  const restriction = useMemo(
+    () => (locks.dog && locks.membership ? undefined : getRestrictionNotice(event, registration, tBreed)),
+    [event, locks.dog, locks.membership, registration, tBreed]
+  )
+  const qualifies = registration.qualifies || (locks.entry && locks.dog && locks.results)
   // The restriction gates the registrant; the secretary sees the same notice but decides for
   // themselves, so a registration made before the restriction stays theirs to edit.
-  const valid = errors.length === 0 && registration.qualifies && (admin || !restriction)
+  const valid = errors.length === 0 && qualifies && (admin || !restriction)
   const costResult = calculateCost(event, registration)
   // The amount owed follows the row as it is edited (KOE-722), and so does whether paying waits for a place.
   const { due: paymentDue, waitsForPlace } = getFormPayment(event, registration)
@@ -142,9 +167,6 @@ export default function RegistrationForm({
     if (event.paymentTime === 'confirmation') return t('registration.cta.confirmRegistration')
     return t('registration.cta.confirmAndPay')
   }, [admin, registration.id, event.paymentTime, t])
-
-  const disabledForUserAfterPaid = !admin && !!registration.paidAt
-  const disabledForUserAfterPicked = !admin && !!registration.messagesSent?.picked
 
   const requirements = useMemo(
     () =>
@@ -274,7 +296,8 @@ export default function RegistrationForm({
   useEffect(() => {
     // An unset selection defaults to the (first) owner; a key that resolves to no owner (stale
     // cache, concurrent owner-list change) is remapped the same way, so the form never holds a
-    // selection that names nobody.
+    // selection that names nobody. Once the people are locked the stored selection stands (KOE-1588).
+    if (locks.people) return
     const normalizeSelection = (selection: boolean | string | undefined): boolean | string => {
       if (typeof selection === 'string') {
         return resolveOwnerSelection(registration.owners, registration.owner, selection) ? selection : true
@@ -287,7 +310,22 @@ export default function RegistrationForm({
     if (registration.ownerHandles !== ownerHandles || registration.ownerPays !== ownerPays) {
       handleChange({ ownerHandles, ownerPays })
     }
-  }, [handleChange, registration.ownerHandles, registration.ownerPays, registration.owners, registration.owner])
+  }, [
+    handleChange,
+    locks.people,
+    registration.ownerHandles,
+    registration.ownerPays,
+    registration.owners,
+    registration.owner,
+  ])
+
+  useEffect(() => {
+    // A lock that arrives while the participant edits (the picking or the payment, by the WebSocket),
+    // or a draft kept from before it, puts the locked sections back as stored: the server would refuse
+    // the save otherwise (KOE-1588).
+    if (!savedRegistration || !participantLockedChange(locks, savedRegistration, registration)) return
+    onChange?.(withLockedSectionsFrom(savedRegistration, registration, locks))
+  }, [locks, onChange, registration, savedRegistration])
 
   return (
     <Paper
@@ -333,7 +371,7 @@ export default function RegistrationForm({
           classDate={classDate}
           classDisabled={classDisabled}
           className={className}
-          disabled={disabled || disabledForUserAfterPicked}
+          disabled={disabled || locks.entry}
           errorStates={errorStates}
           helperTexts={helperTexts}
           onChange={handleChange}
@@ -344,7 +382,7 @@ export default function RegistrationForm({
           reg={registration}
           eventDate={event.startDate}
           minDogAgeMonths={minDogAgeFor(event.eventType)}
-          disabled={disabled || disabledForUserAfterPaid}
+          disabled={disabled || locks.dog}
           error={errorStates.dog}
           helperText={helperTexts.dog}
           onChange={handleChange}
@@ -354,7 +392,7 @@ export default function RegistrationForm({
         />
         <BreederInfo
           reg={registration}
-          disabled={disabled || disabledForUserAfterPicked}
+          disabled={disabled || locks.people}
           error={errorStates.breeder}
           helperText={helperTexts.breeder}
           onChange={handleChange}
@@ -364,8 +402,9 @@ export default function RegistrationForm({
         <OwnerInfo
           admin={admin}
           reg={registration}
-          disabled={disabled || disabledForUserAfterPicked}
+          disabled={disabled || locks.people}
           error={errorStates.owner}
+          membershipLocked={locks.membership}
           helperText={helperTexts.owner}
           onChange={handleChange}
           onOpenChange={(value) => handleOpenChange('owner', value)}
@@ -376,8 +415,9 @@ export default function RegistrationForm({
           <HandlerInfo
             admin={admin}
             reg={registration}
-            disabled={disabled || disabledForUserAfterPicked}
+            disabled={disabled || locks.people}
             error={errorStates.handler}
+            membershipLocked={locks.membership}
             helperText={helperTexts.handler}
             onChange={handleChange}
             onOpenChange={(value) => handleOpenChange('handler', value)}
@@ -400,12 +440,12 @@ export default function RegistrationForm({
           eventType={event.eventType}
           regNo={registration.dog?.regNo}
           dob={registration.dog?.dob}
-          disabled={disabled || disabledForUserAfterPicked}
+          disabled={disabled || locks.results}
           rankingPeriod={rankingPeriod}
           requirements={requirements}
           results={registration.results}
           qualifyingResults={registration.qualifyingResults}
-          error={!registration.qualifies || errorStates.qualifyingResults}
+          error={!qualifies || errorStates.qualifyingResults}
           helperText={helperTexts.qualifyingResults}
           onChange={handleChange}
           onOpenChange={(value) => handleOpenChange('qr', value)}
@@ -419,7 +459,7 @@ export default function RegistrationForm({
           open={open.info}
         />
         <MembershipInfo
-          disabled={disabled || disabledForUserAfterPaid}
+          disabled={disabled || locks.membership}
           error={restriction?.section === 'membership'}
           helperText={restriction?.section === 'membership' ? restriction.text : undefined}
           reg={registration}
@@ -430,13 +470,13 @@ export default function RegistrationForm({
           event={event}
           registration={registration}
           cost={costResult}
-          disabled={disabled || disabledForUserAfterPaid}
+          disabled={disabled || locks.payment}
           onChange={handleChange}
         />
         <Box sx={{ borderTop: '1px solid #bdbdbd', p: 1, pl: 4 }}>
           <FormControl error={errorStates.agreeToTerms} disabled={!!registration.id}>
             <FormControlLabel
-              disabled={disabled || disabledForUserAfterPaid}
+              disabled={disabled || locks.payment}
               control={
                 <Checkbox
                   checked={registration.agreeToTerms}
@@ -528,7 +568,7 @@ export default function RegistrationForm({
                   {t(`registration.${e.opts.field}` as ParseKeys<'translation'>, { defaultValue: e.opts.field })}{' '}
                 </li>
               ))}
-              {registration.qualifies ? null : <li>{t('registration.qualifyingResults')}</li>}
+              {qualifies ? null : <li>{t('registration.qualifyingResults')}</li>}
               {restriction && !errors.some((e) => e.opts.field === restriction.section) ? (
                 <li>{t(restriction.section === 'dog' ? 'registration.dog' : 'registration.membership')}</li>
               ) : null}

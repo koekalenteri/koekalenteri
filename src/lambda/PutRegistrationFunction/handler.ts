@@ -15,6 +15,7 @@ import {
   resolveInvitationRead,
   withoutParticipantResponses,
 } from '../../lib/registration'
+import { getParticipantFieldLocks, participantLockedChange } from '../../lib/registrationLocks'
 import { registrationBodySchema } from '../../lib/schema/registration'
 import { legacyRegistrationDays, rekeyRegistrationDays } from '../../lib/storedDays'
 import { patchMerge } from '../../lib/utils'
@@ -147,6 +148,29 @@ const assertCancellationOpen = (
   throw httpError(410, { message: 'Gone: the entry can no longer be cancelled' })
 }
 
+/**
+ * Refuses a change to a part of the entry that has closed for the participant, by the rule their
+ * form locks its sections by (`getParticipantFieldLocks`, KOE-1588): the class and the days once
+ * picked or once the entry has closed, the dog once picked or paid, the people and the manual results
+ * once picked, the memberships and the costs once paid. It compares before the server writes its own
+ * fields (the official results, the days as keys, the qualification), and with the addresses
+ * normalized on both sides, so a resend of what is stored passes. The notes and the payer stay open.
+ */
+const assertParticipantFieldsUnlocked = (
+  existing: JsonRegistration | undefined,
+  data: JsonRegistration,
+  confirmedEvent: JsonConfirmedEvent
+) => {
+  if (!existing) return
+  const locks = getParticipantFieldLocks(confirmedEvent, existing)
+  const section = participantLockedChange(
+    locks,
+    normalizeRegistrationEmails(structuredClone(existing)),
+    normalizeRegistrationEmails(structuredClone(data))
+  )
+  if (section) throw httpError(410, { message: `Gone: the ${section} section can no longer be changed` })
+}
+
 /** The request body as the registration to store, or as the operations to apply to a stored one. */
 const parsePublicRegistrationBody = (event: APIGatewayProxyEvent) => {
   const patchRequest = isPatchRequest(event)
@@ -237,6 +261,7 @@ const putRegistrationLambda = lambda('putRegistration', async (event) => {
   const { data, flags } = buildPublicRegistrationData(registration, existing, confirmedEvent)
   assertEntryContentEditable(existing, data, confirmedEvent)
   assertCancellationOpen(existing, flags.cancel, confirmedEvent)
+  assertParticipantFieldsUnlocked(existing, data, confirmedEvent)
 
   applyOwnerOverrides(data)
   // The entry restrictions (KOE-525) are a gate, not a note to the secretary: the form does not

@@ -214,8 +214,10 @@ export function EntryInfo({
     [filterDates]
   )
 
-  // Update registration based on changes
+  // Update registration based on changes. A locked class and days stand as stored, even ones the
+  // event no longer offers: the participant cannot change them, and the server refuses the change (KOE-1588).
   useEffect(() => {
+    if (disabled) return
     const changes: Partial<Registration> = {}
 
     // Handle class changes
@@ -254,7 +256,7 @@ export function EntryInfo({
     if (Object.keys(changes).length) {
       onChange?.(changes)
     }
-  }, [getValidDates, handleDateFiltering, onChange, reg.dates, showDatesFilter, updateClassIfNeeded])
+  }, [disabled, getValidDates, handleDateFiltering, onChange, reg.dates, showDatesFilter, updateClassIfNeeded])
 
   // Event handlers
   const handleClassChange = useCallback((value: RegistrationClass) => setSelectedClass(value), [setSelectedClass])

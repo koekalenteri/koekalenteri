@@ -11,13 +11,26 @@ interface Props {
   readonly disabled?: boolean
   readonly error?: boolean
   readonly helperText?: string
+  /** The handler's membership stands as stored: the entry has been paid (KOE-1588). */
+  readonly membershipLocked?: boolean
   readonly onChange?: (props: DeepPartial<Registration>) => void
   readonly onOpenChange?: (value: boolean) => void
   readonly open?: boolean
   readonly orgId: string
 }
 
-export function HandlerInfo({ admin, reg, disabled, error, helperText, onChange, onOpenChange, open, orgId }: Props) {
+export function HandlerInfo({
+  admin,
+  reg,
+  disabled,
+  error,
+  helperText,
+  membershipLocked,
+  onChange,
+  onOpenChange,
+  open,
+  orgId,
+}: Props) {
   const { t } = useTranslation()
   const [cache, setCache] = useDogCacheKey(reg.dog?.regNo, 'handler')
 
@@ -27,21 +40,26 @@ export function HandlerInfo({ admin, reg, disabled, error, helperText, onChange,
         props.membership === undefined ? cache?.membership : { ...cache?.membership, [orgId]: props.membership }
       const cached = setCache({ ...cache, ...props, membership })
       if (cached) {
-        onChange?.({ handler: { ...cached, membership: cached.membership?.[orgId] ?? false } })
+        // A locked membership is the one the entry holds, whatever the cache learned elsewhere.
+        const handlerMembership = membershipLocked
+          ? (reg.handler?.membership ?? false)
+          : (cached.membership?.[orgId] ?? false)
+        onChange?.({ handler: { ...cached, membership: handlerMembership } })
       }
     },
-    [cache, onChange, orgId, setCache]
+    [cache, membershipLocked, onChange, orgId, reg.handler?.membership, setCache]
   )
 
   useEffect(() => {
-    // Don't change registrations based on cache when secretary handles them
-    if (admin || reg.ownerHandles) return
+    // Don't change registrations based on cache when secretary handles them, nor a membership the
+    // participant may no longer change.
+    if (admin || membershipLocked || reg.ownerHandles) return
 
     const cachedMembership = cache?.membership?.[orgId]
     if (cachedMembership !== undefined && reg.handler?.membership !== cachedMembership) {
       onChange?.({ handler: { ...reg.handler, membership: cachedMembership } })
     }
-  }, [admin, cache, onChange, orgId, reg.handler, reg.ownerHandles])
+  }, [admin, cache, membershipLocked, onChange, orgId, reg.handler, reg.ownerHandles])
 
   return (
     <CollapsibleSection

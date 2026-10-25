@@ -52,13 +52,15 @@ const PaymentInfo = ({ event, registration, cost, disabled, onChange }: Props) =
   }
 
   useEffect(() => {
+    // A locked choice stands as stored, even one the cost no longer offers (KOE-1588).
+    if (disabled) return
     if (registration.selectedCost === undefined && cost.segment !== 'legacy') {
       onChange?.({ optionalCosts: [], selectedCost: cost.segment })
     }
     if (cost.segment === 'legacy' && (registration.selectedCost || registration.optionalCosts)) {
       onChange?.({ optionalCosts: undefined, selectedCost: undefined })
     }
-  }, [registration, cost, onChange])
+  }, [registration, cost, disabled, onChange])
 
   if (typeof appliedCost !== 'object' || !isMinimalRegistrationForCost(registration)) {
     return null
