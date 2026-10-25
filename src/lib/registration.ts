@@ -32,7 +32,7 @@ import type { AuditActor } from './audit'
 import type { EventVitals } from './event'
 import { nanoid } from 'nanoid'
 import { emptyBreeder, emptyDog, emptyPerson } from './data'
-import { calendarDayOf, TIME_ZONE } from './day'
+import { addDays, calendarDayOf, dayOf, TIME_ZONE } from './day'
 import {
   getEventStateForClass,
   groupKeyOf,
@@ -351,7 +351,7 @@ type RegistrationClassFields = Parameters<typeof getRegistrationClass>[0]
 /**
  * Whether the participant's own entry is past changing: the trial's last day has gone, or the class
  * the entry sits in has been judged. Confirming, cancelling and reading an invitation close here
- * (KOE-1388, KOE-1584).
+ * (KOE-1388, KOE-1584); cancelling closes earlier still (`isRegistrationCancelClosed`, KOE-1590).
  */
 export const isRegistrationEditingClosed = (
   event: RegistrationEditingEvent,
@@ -369,6 +369,23 @@ export const isRegistrationContentLocked = (
   registration: RegistrationClassFields,
   now = new Date()
 ): boolean => isEntryClosed(event, now) || isRegistrationEditingClosed(event, registration, now)
+
+/** The Finnish day before the trial has begun: from then on the dog is expected at the trial. */
+const isCancelWindowOver = ({ startDate }: EventVitals, now: Date): boolean => {
+  const start = storedDayKey(startDate)
+  return start !== undefined && dayOf(now, TIME_ZONE) >= addDays(start, -1)
+}
+
+/**
+ * Whether the participant may no longer cancel their own entry: from the Finnish day before the trial,
+ * when only the secretary takes a dog off the list, and once editing has closed. The list page and
+ * PutRegistration read it; the secretary's own cancellation has no such window (KOE-1590).
+ */
+export const isRegistrationCancelClosed = (
+  event: RegistrationEditingEvent,
+  registration: RegistrationClassFields,
+  now = new Date()
+): boolean => isCancelWindowOver(event, now) || isRegistrationEditingClosed(event, registration, now)
 
 export const isRegistrationClass = (cls?: string | null): cls is RegistrationClass =>
   !!(cls && REG_CLASSES.has(cls as RegistrationClass))
