@@ -199,18 +199,43 @@ describe('registrationLocks', () => {
       )
     })
 
-    it('reads an unset owner selection as the first owner', () => {
-      const { ownerHandles: _h, ownerPays: _p, ...stored } = { ...base, ownerHandles: true }
-      const data = { ...stored, ownerHandles: true, ownerPays: 'owner-1' }
+    it('reads a key and true alike when they name the same owner', () => {
+      const stored: Entry = { ...base, ownerHandles: true, ownerPays: true }
+      const data = { ...stored, ownerPays: 'owner-1' }
 
       expect(participantLockedChange(ALL_LOCKED, stored, data)).toBeUndefined()
     })
 
-    it('reads an unset selection as the owner handling, so the handler is the copy', () => {
-      const { ownerHandles: _h, ...stored } = base
-      const data = { ...stored, handler: { ...handler, name: 'Copy of the owner' } }
+    // Unset, or a key no owner has, names the separate handler, as `getHandlingPerson` reads it.
+    describe.each<[string, Partial<Entry>]>([
+      ['unset', { owners: [{ ...owner, key: 'a' }] }],
+      ['a key no owner has', { ownerHandles: 'gone', owners: [{ ...owner, key: 'a' }] }],
+      ['a position key on keyless owners', { ownerHandles: 'owner-2', owners: [owner, { ...owner, name: 'Two' }] }],
+    ])('a selection that is %s', (_label, selection) => {
+      const { ownerHandles: _h, ...rest } = base
+      const stored: Entry = { ...rest, ...selection }
 
-      expect(participantLockedChange(ALL_LOCKED, stored, data)).toBeUndefined()
+      it('compares the handler as the handling person', () => {
+        const data = { ...stored, handler: { ...handler, name: 'Another handler' } }
+
+        expect(participantLockedChange(only('people'), stored, data)).toBe('people')
+      })
+
+      it('reads an owner written in its place as a change of who handles', () => {
+        expect(participantLockedChange(only('people'), stored, { ...stored, ownerHandles: true })).toBe('people')
+      })
+
+      it('finds no change in the notes', () => {
+        expect(participantLockedChange(only('people'), stored, { ...stored, notes: 'n' })).toBeUndefined()
+      })
+    })
+
+    it('compares the single owner besides the owner list, as the start list and the emails read it', () => {
+      const stored = { ...base, owners: [{ ...owner, key: 'a' }] }
+
+      expect(participantLockedChange(only('people'), stored, { ...stored, owner: { ...owner, name: 'Other' } })).toBe(
+        'people'
+      )
     })
 
     it('ignores the handler while an owner handles, as the server copies the owner there', () => {
@@ -457,6 +482,20 @@ describe('registrationLocks', () => {
 
       expect(participantLockedChange(only('membership'), stored, reset)).toBeUndefined()
       expect(reset).toEqual({ ...stored, notes: 'my notes' })
+    })
+
+    // The draft renamed the first owner (key kept): the single `owner` takes the first owner's claim.
+    it("gives the single owner the first owner's claim", () => {
+      // The single `owner` carries no key: the form writes it with `stripOwnerKey`.
+      const memberOwner = { ...owner, membership: true }
+      const stored: Entry = { ...base, owner: memberOwner, owners: [{ ...memberOwner, key: 'a' }] }
+      const renamed = { ...memberOwner, name: 'Renamed' }
+      const draft: Entry = { ...stored, class: 'AVO', owner: renamed, owners: [{ ...renamed, key: 'a' }] }
+
+      const reset = withLockedSectionsFrom(stored, draft, { ...only('membership'), entry: true })
+
+      expect(reset.owners).toEqual([{ ...renamed, key: 'a' }])
+      expect(reset.owner).toEqual(renamed)
     })
 
     it('removes a locked field the stored entry does not have', () => {

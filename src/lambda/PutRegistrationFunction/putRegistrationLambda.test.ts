@@ -2311,15 +2311,42 @@ describe('putRegistrationLabmda', () => {
       expectSaved(await patch(existingJson, { ownerHandles: false }), { ownerHandles: false })
     })
 
-    // The form defaults an unset selection to the first owner and writes it back.
-    it('saves the notes of a picked entry stored without owner selections, sent with the defaults', async () => {
-      entryOpen()
-      const { ownerHandles: _h, ownerPays: _p, ...stored } = picked
-      const existingJson = given({ ...stored, handler: picked.owner })
+    // An unset selection, or a key no owner has, names the separate handler (`getHandlingPerson`); the
+    // form leaves such a selection as it is once the people are locked.
+    describe.each([
+      ['without owner selections', {}],
+      ['whose selection names no owner', { ownerHandles: 'gone', owners: [{ ...picked.owner, key: 'a' }] }],
+    ])('a picked entry stored %s', (_label, selection) => {
+      const givenUnresolved = () => {
+        const { ownerHandles: _h, ownerPays: _p, ...stored } = picked
+        return given({ ...stored, ...selection })
+      }
 
-      expectSaved(await patch(existingJson, { notes: 'defaults', ownerHandles: true, ownerPays: true }), {
-        notes: 'defaults',
+      it('saves the notes', async () => {
+        entryOpen()
+        const existingJson = givenUnresolved()
+
+        expectSaved(await patch(existingJson, { notes: 'notes' }), { notes: 'notes' })
       })
+
+      it.each([
+        ['another handler', { handler: { ...picked.handler, name: 'Another handler' } }],
+        ['the owner as the handler', { ownerHandles: true }],
+      ])('refuses %s with 410', async (_change, fields) => {
+        entryOpen()
+        const existingJson = givenUnresolved()
+
+        expectRefused(await patch(existingJson, fields), 'people')
+      })
+    })
+
+    // The start list and the emails read the single `owner`, also beside an owner list.
+    it('refuses a changed single owner of a picked entry with an owner list with 410', async () => {
+      entryOpen()
+      const listed = { ...picked.owner, key: 'a' }
+      const existingJson = given({ ...picked, owner: picked.owner, owners: [listed] })
+
+      expectRefused(await patch(existingJson, { owner: { ...picked.owner, name: 'Someone else' } }), 'people')
     })
 
     // A stored owner list without keys is keyed by position in the form, which writes the keys back.

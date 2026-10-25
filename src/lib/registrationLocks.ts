@@ -4,13 +4,7 @@ import type { PublicRegistrationFieldName } from './registration'
 import { objectsDiffer } from './diff'
 import { hasEntryEnded } from './event'
 import { PRIORITY_MEMBER, priorityValuesToPriority, RESTRICTION } from './priority'
-import {
-  getHandlingPerson,
-  getRegistrationOwners,
-  isMember,
-  ownerKeyAt,
-  withDefaultOwnerSelection,
-} from './registration'
+import { getHandlingPerson, getRegistrationOwners, isMember, ownerKeyAt, resolveOwnerSelection } from './registration'
 import { withRegistrationDayKeys } from './storedDays'
 
 /**
@@ -145,20 +139,19 @@ export type LockableRegistration = {
   selectedCost?: string
 }
 
-/** Whether the dog is handled by someone besides the owners: an unset selection is the first owner. */
-const hasSeparateHandler = (registration: LockableRegistration): boolean =>
-  withDefaultOwnerSelection(registration.ownerHandles) === false
-
 /**
- * Which owner a selection names, by position, so a stored key and the position key the form gives a
- * keyless owner are the same choice. A key that names nobody stays itself.
+ * Who a selection names, as `resolveOwnerSelection` reads it for the handling and the paying person:
+ * an owner by their position in the list, or `apart` for the separate person when it names no owner
+ * (unset, `false`, or a key no owner has). So the lock and every reader of the handling person agree.
  */
 const selectedOwner = (registration: LockableRegistration, selection: OwnerSelection | undefined) => {
-  const value = withDefaultOwnerSelection(selection)
-  if (typeof value === 'boolean') return value ? 0 : 'separate'
-  const index = getRegistrationOwners(registration).findIndex((owner, at) => ownerKeyAt(owner, at) === value)
-  return index === -1 ? `stale:${value}` : index
+  const resolved = resolveOwnerSelection(registration.owners, registration.owner, selection)
+  return resolved ? getRegistrationOwners(registration).indexOf(resolved) : 'apart'
 }
+
+/** Whether the separate handler is the handling person (`getHandlingPerson`), rather than an owner. */
+const handlerHandles = (registration: LockableRegistration): boolean =>
+  selectedOwner(registration, registration.ownerHandles) === 'apart'
 
 const withoutKeyAndMembership = (person: LockedPerson | null | undefined) => {
   if (!person) return person
@@ -194,12 +187,14 @@ const SECTION_PROJECTIONS: Record<ProjectedSection, (r: LockableRegistration) =>
     selectedCost: r.selectedCost,
   }),
   // The owners as `getRegistrationOwners` reads them: the list, or a row's single `owner` before it
-  // (which the form turns into a list of one), and `owner` is otherwise the list's first. The list's key
-  // is the form's own (it keys keyless owners by position and writes that back), and the handler is
-  // compared only when separate: otherwise it is the handling owner's copy.
+  // (which the form turns into a list of one). `owner` is compared besides, as the start list and the
+  // emails read it; the form leaves it as it is when it writes the list. The list's key is the form's
+  // own (it keys keyless owners by position and writes that back). The handler is compared when they
+  // are the handling person; otherwise the server copies the handling owner there.
   people: (r) => ({
     breeder: r.breeder,
-    handler: hasSeparateHandler(r) ? withoutKeyAndMembership(r.handler) : undefined,
+    handler: handlerHandles(r) ? withoutKeyAndMembership(r.handler) : undefined,
+    owner: withoutKeyAndMembership(r.owner),
     ownerHandles: selectedOwner(r, r.ownerHandles),
     ownerPays: selectedOwner(r, r.ownerPays),
     owners: getRegistrationOwners(r).map(withoutKeyAndMembership),
@@ -325,12 +320,15 @@ const PEOPLE_FIELDS = ['handler', 'owner', 'ownerHandles', 'ownerPays', 'owners'
 const withStoredMemberships = <R extends LockableRegistration>(saved: R, draft: R): R => {
   const storedOwners = getRegistrationOwners(saved)
   const result: R = { ...draft }
+  const ownerClaims = draft.owners ? ownerClaimsFrom(storedOwners, draft.owners) : []
   if (draft.owners) {
-    const claims = ownerClaimsFrom(storedOwners, draft.owners)
-    Object.assign(result, { owners: draft.owners.map((owner, index) => ({ ...owner, membership: claims[index] })) })
+    const owners = draft.owners.map((owner, index) => ({ ...owner, membership: ownerClaims[index] }))
+    Object.assign(result, { owners })
   }
   if (draft.owner) {
-    const [membership] = ownerClaimsFrom(storedOwners, [draft.owner])
+    // The single `owner` mirrors the list's first owner and takes their claim; a row without a list is
+    // matched by itself.
+    const [membership] = ownerClaims.length ? ownerClaims : ownerClaimsFrom(storedOwners, [draft.owner])
     Object.assign(result, { owner: { ...draft.owner, membership } })
   }
   if (draft.handler && handlerCounts(draft)) {

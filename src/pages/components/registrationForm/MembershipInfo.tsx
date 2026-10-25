@@ -45,8 +45,10 @@ const MembershipInfo = ({ reg, disabled, error, helperText, onChange, orgId }: P
         membership: { ...handlerCache?.membership, [orgId]: membership },
       })
 
+      // Only the membership changes: the cache's other details of the handler stay out of the entry,
+      // whose handler a picked entry no longer lets change (KOE-1588).
       if (cachedHandler) {
-        onChange?.({ handler: { ...cachedHandler, membership: cachedHandler.membership?.[orgId] } })
+        onChange?.({ handler: { ...reg.handler, membership } })
       }
     },
     [handlerCache, onChange, orgId, reg.handler, setHandlerCache]
