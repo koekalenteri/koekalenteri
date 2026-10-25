@@ -15,6 +15,10 @@ several times more and is not needed for their work.
 
 ## 1. Pick up
 
+- Typing `/ticket <KEY>` names the session `<KEY> <summary>` through the `UserPromptSubmit` hook in
+  `.claude/settings.json` (`.claude/hooks/ticket-session-title.sh`). The hook sees only the
+  typed prompt, so when the skill starts some other way, ask the user to run `/rename <KEY>`;
+  nothing in the session can rename it.
 - Read the issue with comments and attachments (images through the REST API).
 - Move it to In Progress unless it is in Testing In Progress.
 - If the cause is not obvious, find it once yourself, with evidence (dev data, logs, the code),
@@ -37,7 +41,9 @@ ask for its plan first. It answers before its first edit with:
 Check the reader list against the code yourself; one reader missed here costs a review round
 later (#1507 found three, one per round). When the plan changes a shared rule, a flag or a stored
 shape, run `reviewer` with `root-cause` and `rule-readers` on the plan (give them the plan text
-and the key instead of a PR number) before any code exists.
+and the key instead of a PR number) before any code exists. When it adds a module, a table
+access or a stored shape, add `architecture`: a file in the wrong place is cheapest to move before
+it is written.
 
 Skip the plan when the change has one reader and nothing to choose, and say so in the handover.
 
@@ -52,9 +58,10 @@ In one message, start in the background:
 
 - `ci-watcher` with the PR number.
 - `reviewer` once per angle, each with the PR number, the key and its angle. Choose the angles
-  the change calls for: `root-cause` and `tests` always; `rule-readers` when a shared rule,
-  flag or helper changes; `clock` when dates, times or fixtures change; `conventions` when new
-  files or modules appear.
+  the change calls for: `root-cause`, `tests` and `docs` always; `architecture` when the PR
+  adds, moves or splits a file, module, table access or import between folders, or changes a
+  stored shape or API field; `rule-readers` when a shared rule, flag or helper changes; `clock`
+  when dates, times or fixtures change; `conventions` when new files or modules appear.
 
 Reviewers start fresh every round. Do not pass them the implementer's report.
 
