@@ -62,6 +62,24 @@ describe('CopyToEnvironmentDialog', () => {
     expect(screen.getByRole('button', { name: 'eventCopy.copy' })).toBeEnabled()
   })
 
+  it('names the copy the target already holds when it refuses a second one (KOE-1639)', async () => {
+    const user = userEvent.setup()
+    renderDialog(
+      vi.fn().mockRejectedValue(
+        new APIError(new Response(null, { status: 409 }), {
+          error: 'alreadyCopied',
+          existing: { eventId: 'copy-0', name: '[Kopio: prod] NOME-B Kangasala' },
+          message: 'The target already holds a copy of this event: [Kopio: prod] NOME-B Kangasala',
+        })
+      )
+    )
+
+    await user.click(screen.getByRole('button', { name: 'eventCopy.copy' }))
+
+    expect(await screen.findByText('eventCopy.alreadyCopied name')).toBeInTheDocument()
+    expect(screen.queryByText('eventCopy.failed message')).not.toBeInTheDocument()
+  })
+
   it('closes without copying', async () => {
     const user = userEvent.setup()
     const { onClose, onCopy } = renderDialog()

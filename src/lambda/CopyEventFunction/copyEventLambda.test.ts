@@ -129,6 +129,8 @@ describe('copyEventHandler', () => {
     const input = { id: 'event123', startDate: '2025-07-01' }
     const originalEvent = {
       classes: [{ date: '2025-06-10' }],
+      // A copy made here is not a copy from another environment (KOE-1639): the expected copy has none
+      copiedFrom: { at: '2025-06-01T00:00:00.000Z', by: 'Admin', eventId: 'prod-1', stage: 'prod' },
       createdAt: '2025-06-01T00:00:00.000Z',
       createdBy: 'Someone',
       endDate: '2025-06-12',

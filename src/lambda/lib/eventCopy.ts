@@ -1,4 +1,5 @@
 import type {
+  EventCopyExisting,
   EventCopyJudgeNotice,
   EventCopyResult,
   JsonDogEvent,
@@ -397,7 +398,11 @@ export interface CopyImportRequest {
   source: { stage: string; eventId: string }
 }
 
-export type CopyImportResult = Omit<EventCopyResult, 'target'>
+/**
+ * The stored copy, or the target's refusal when it already holds a live copy of the same source
+ * (KOE-1639): data, so the source can answer it in words the dialog shows in Finnish.
+ */
+export type CopyImportResult = Omit<EventCopyResult, 'target'> | { alreadyCopied: EventCopyExisting }
 
 /**
  * The event's Kennel Club judges the target cannot use as they are: the event form checks judges

@@ -60,6 +60,8 @@ const copyEventLambda = lambda('copyEvent', async (event) => {
   item.createdAt = timestamp
   item.createdBy = user.name
   delete item.entryOrigEndDate
+  // A copy made here is this environment's own event, not a copy from another one (KOE-1639)
+  delete item.copiedFrom
 
   // modification info is always updated
   item.modifiedAt = timestamp
