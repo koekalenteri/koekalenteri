@@ -134,6 +134,7 @@ it('asks for the hand-over by saying what it means, and lists the dogs that stay
   await shoot(
     <KennelliittoHandOverDialog
       accepted={false}
+      eventType="NOWT"
       onAccept={noop}
       onClose={noop}
       onHandOver={noop}
@@ -152,10 +153,12 @@ it('asks for the hand-over by saying what it means, and lists the dogs that stay
   )
 })
 
+// A NOU awards no certificates, so its hand-over has no note about them (KOE-1644); the NOWT above has.
 it('asks for the secretary’s word before it hands over a trial with nothing sent', async () => {
   await shoot(
     <KennelliittoHandOverDialog
       accepted={false}
+      eventType="NOU"
       onAccept={noop}
       onClose={noop}
       onHandOver={noop}

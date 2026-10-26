@@ -505,14 +505,28 @@ describe('KennelliittoSubmission (KOE-1579)', () => {
       vi.mocked(handOverKennelliittoResults).mockRejectedValueOnce(new APIError(new Response(null, { status }), body))
 
     it('says what the hand-over means before it is made', async () => {
+      const { user } = await renderSection(
+        { ...eventWithStaticDates, eventType: 'NOWT' },
+        { 'run-1': { kcResult: sentOk } }
+      )
+
+      await user.click(handOverButton())
+      await flushPromises()
+
+      // The hand-over is where the secretary is told they can no longer edit, and, in a format that
+      // awards certificates, that those still go to Omakoira by hand.
+      expect(screen.getByText('results.kennelliitto.handOver.confirm')).toBeInTheDocument()
+      expect(screen.getByText('results.kennelliitto.handOver.certificates')).toBeInTheDocument()
+    })
+
+    it('says nothing of certificates where the format awards none (KOE-1644)', async () => {
       const { user } = await renderSection(eventWithStaticDates, { 'run-1': { kcResult: sentOk } })
 
       await user.click(handOverButton())
       await flushPromises()
 
-      // The hand-over is where the secretary is told they can no longer edit.
       expect(screen.getByText('results.kennelliitto.handOver.confirm')).toBeInTheDocument()
-      expect(screen.getByText('results.kennelliitto.handOver.certificates')).toBeInTheDocument()
+      expect(screen.queryByText('results.kennelliitto.handOver.certificates')).not.toBeInTheDocument()
     })
 
     it('lists what stops the trial', async () => {

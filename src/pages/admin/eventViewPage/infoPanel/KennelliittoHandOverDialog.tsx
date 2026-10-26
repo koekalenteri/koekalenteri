@@ -10,12 +10,15 @@ import FormControlLabel from '@mui/material/FormControlLabel'
 import Stack from '@mui/material/Stack'
 import Typography from '@mui/material/Typography'
 import { useTranslation } from 'react-i18next'
+import { awardsCertificates } from '@/lib/event'
 import { KennelliittoDogList } from './KennelliittoDogList'
 import { blockerText, dogLine } from './kennelliittoMessages'
 
 interface Props {
   /** Accepts that the dogs listed as left out stay out of the hand-over. */
   readonly accepted: boolean
+  /** The trial's event type; the note about certificates belongs only to a format that awards them. */
+  readonly eventType: string
   readonly onAccept: (accepted: boolean) => void
   readonly onClose: () => void
   readonly onHandOver: () => void
@@ -28,7 +31,15 @@ interface Props {
  * The last step: the trial goes to the chief judge and the secretary can no longer correct it. The
  * sentence about that is the reason for this dialog being separate from the sending.
  */
-export const KennelliittoHandOverDialog = ({ accepted, onAccept, onClose, onHandOver, open, outcome }: Props) => {
+export const KennelliittoHandOverDialog = ({
+  accepted,
+  eventType,
+  onAccept,
+  onClose,
+  onHandOver,
+  open,
+  outcome,
+}: Props) => {
   const { t } = useTranslation()
   const leftOut = outcome?.kind === 'confirmationNeeded' ? outcome.dogs : []
 
@@ -38,7 +49,9 @@ export const KennelliittoHandOverDialog = ({ accepted, onAccept, onClose, onHand
       <DialogContent>
         <Stack spacing={2}>
           <Typography>{t('results.kennelliitto.handOver.confirm')}</Typography>
-          <Alert severity="info">{t('results.kennelliitto.handOver.certificates')}</Alert>
+          {awardsCertificates(eventType) && (
+            <Alert severity="info">{t('results.kennelliitto.handOver.certificates')}</Alert>
+          )}
           {outcome?.kind === 'blocked' &&
             outcome.blockers.map((blocker) => (
               <Alert key={blocker.code} severity="warning">
