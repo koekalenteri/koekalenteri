@@ -356,8 +356,9 @@ describe('ParticipantList', () => {
   })
 
   it('uses the matching class state when a registration date is missing from the event classes', () => {
-    const eventDate = '2023-01-01'
-    const registrationDate = '2023-01-02'
+    // The picked class runs tomorrow: from its own day an explicit publish would open it (KOE-1638).
+    const eventDate = '2023-01-02'
+    const registrationDate = '2023-01-03'
     const participant = createMockRegistration('AVO', 'Dog 1', 1, registrationDate, 'ap')
 
     render(
@@ -546,7 +547,7 @@ describe('ParticipantList', () => {
     mockClipboard()
     const mockParticipants: PublicRegistration[] = [
       createMockRegistration('AVO', 'Dog 1', 1, '2023-01-01', 'ap'),
-      createMockRegistration('VOI', 'Dog 2', 2, '2023-01-01', 'ip'),
+      createMockRegistration('VOI', 'Dog 2', 2, '2023-01-02', 'ip'),
     ]
 
     render(
@@ -554,8 +555,9 @@ describe('ParticipantList', () => {
         participants={mockParticipants}
         event={{
           ...mockEvent,
+          // VOI is picked and runs tomorrow: from its own day an explicit publish would open it (KOE-1638).
           classes: mockEvent.classes.map((eventClass) =>
-            eventClass.class === 'VOI' ? { ...eventClass, state: 'picked' } : eventClass
+            eventClass.class === 'VOI' ? { ...eventClass, date: '2023-01-02', state: 'picked' } : eventClass
           ),
           startListPublished: { AVO: true, VOI: true },
         }}

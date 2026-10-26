@@ -123,8 +123,9 @@ kirjekuorena ja kuittaamaton suljettuna.
 Kun koekutsut on lähetetty, luokan starttilistan voi julkaista paneelin *{t:eventManagement.startList.publishing}*
 -osiosta painikkeella **{t:eventManagement.startList.publish}**. **{t:eventManagement.startList.previewUnpublished}** näyttää listan
 sellaisena kuin osallistujat sen näkevät. Julkaistu lista päivittyy itsestään, kun osallistujia
-siirretään tai peruutuksia kirjataan. Kun koepäivä on mennyt tai luokka on arvosteltu, koekutsuja ei
-voi enää lähettää, eikä starttilistan julkaisu silloin odota niitä.
+siirretään tai peruutuksia kirjataan. Luokan ensimmäisen koepäivän aamuun asti julkaisu odottaa
+lähettämättömiä koekutsuja. Siitä alkaen, ja myös kun luokka on arvosteltu, listan voi julkaista,
+vaikka jokin kutsu olisi vielä lähettämättä. Kutsun voi silti lähettää myös koepäivänä.
 
 !shot[StartListPublishing/start-list-publishing] Starttilistan julkaisu luokittain
 
@@ -157,7 +158,9 @@ jaetut linkit; seuraava kopiointi antaa uuden.
 
 Kun päivän kaikki numerot on tallennettu, ne julkaistaan luokittain — ja usean päivän luokassa
 päivittäin — painikkeella **{t:eventManagement.startList.publishNumbers}**. Keskeneräistä päivää ei voi julkaista; silloin
-kalenteri pyytää syöttämään ensin kaikki numerot. Jos kokeessa ei arvota numeroita lainkaan,
+kalenteri pyytää syöttämään ensin kaikki numerot. Numerot odottavat koekutsuja samoin kuin
+starttilista: luokan ensimmäisen koepäivän aamuun asti rivillä lukee
+*{t:eventManagement.startList.invitationsRequired}*, eikä numeroita voi julkaista. Jos kokeessa ei arvota numeroita lainkaan,
 julkaisu vahvistaa starttilistan järjestysnumerot sellaisinaan koirakoiden starttinumeroiksi.
 
 !shot[StartNumbersPublishing/start-numbers-publishing-two-days] Kahden päivän luokan numerot julkaistaan päivä kerrallaan
