@@ -19,6 +19,7 @@
       "src/**/*",
       "!src/generated",
       "e2e/**/*",
+      "!e2e/TESTS.md",
       "playwright.config.ts",
       "playwright.remote.config.ts",
       "!!.claude"

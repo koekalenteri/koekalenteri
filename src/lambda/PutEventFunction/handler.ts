@@ -17,6 +17,7 @@ import { groupParticipantsByClass } from '../../lib/registration'
 import { eventBodySchema } from '../../lib/schema/event'
 import { legacyEventDay, rekeyEventDays, requestDay } from '../../lib/storedDays'
 import { patchMerge } from '../../lib/utils'
+import { CONFIG } from '../config'
 import { audit, eventAuditKey, getEventAuditMessages } from '../lib/audit'
 import { authorizeWithMemberOf } from '../lib/auth'
 import {
@@ -266,7 +267,7 @@ const checkPutEventAgainstExisting = (
     throw httpError(409, { error: 'staleData', message: 'Event has been modified since it was loaded' })
   }
 
-  if (item.deletedAt && !isEventDeletable(existing)) {
+  if (item.deletedAt && !isEventDeletable(existing, CONFIG.stageName)) {
     logger.info('event is not deletable', { eventId: item.id })
     throw httpError(403, 'Forbidden')
   }
