@@ -105,6 +105,7 @@ const patchEventMock = patchEvent as import('vitest').Mock<typeof patchEvent>
 const saveEventMock = saveEvent as import('vitest').Mock<typeof saveEvent>
 const updateRegistrationsMock = updateRegistrations as import('vitest').Mock<typeof updateRegistrations>
 
+const { CONFIG } = await import('../config')
 const { default: putEventLambda } = await import('./handler')
 
 /** The caller as authorizeWithMemberOf answers for them: the user and the clubs they hold a role in. */
@@ -258,6 +259,64 @@ describe('putEventLambda', () => {
     )
 
     expect(res.statusCode).toEqual(200)
+  })
+
+  describe('deleting by stage (KOE-1640)', () => {
+    const { stageName } = CONFIG
+    const copiedFrom = { at: '2025-03-01T10:00:00.000Z', by: 'admin', eventId: 'source', stage: 'prod' }
+    const deleteRequest = () =>
+      constructAPIGwEvent<Partial<JsonDogEvent>>({ deletedAt: new Date().toISOString(), id: 'existing' })
+
+    afterEach(() => {
+      CONFIG.stageName = stageName
+    })
+
+    it('deletes a confirmed event in dev', async () => {
+      CONFIG.stageName = 'dev'
+      signIn(mockSecretary)
+      getEventMock.mockResolvedValueOnce({ ...mockEvent, state: 'confirmed' })
+
+      const res = await putEventLambda(deleteRequest())
+
+      expect(res.statusCode).toEqual(200)
+      expect(patchEventMock).toHaveBeenCalledWith(
+        'existing',
+        expect.anything(),
+        expect.objectContaining({ deletedAt: expect.any(String) })
+      )
+    })
+
+    it('deletes a copy from another environment in test, whatever its state', async () => {
+      CONFIG.stageName = 'test'
+      signIn(mockSecretary)
+      getEventMock.mockResolvedValueOnce({ ...mockEvent, copiedFrom, state: 'confirmed' })
+
+      const res = await putEventLambda(deleteRequest())
+
+      expect(res.statusCode).toEqual(200)
+    })
+
+    it("refuses test's own confirmed event, and writes nothing", async () => {
+      CONFIG.stageName = 'test'
+      signIn(mockSecretary)
+      getEventMock.mockResolvedValueOnce({ ...mockEvent, state: 'confirmed' })
+
+      const res = await putEventLambda(deleteRequest())
+
+      expect(res.statusCode).toEqual(403)
+      expect(patchEventMock).not.toHaveBeenCalled()
+    })
+
+    it('refuses a confirmed event in prod even when it carries copiedFrom', async () => {
+      CONFIG.stageName = 'prod'
+      signIn(mockSecretary)
+      getEventMock.mockResolvedValueOnce({ ...mockEvent, copiedFrom, state: 'confirmed' })
+
+      const res = await putEventLambda(deleteRequest())
+
+      expect(res.statusCode).toEqual(403)
+      expect(patchEventMock).not.toHaveBeenCalled()
+    })
   })
 
   it('should allow admin to edit any organizers events', async () => {
