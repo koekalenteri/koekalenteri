@@ -1,3 +1,4 @@
+import type { PublishBlocker, ResultsParticipant } from '@/lib/publishing'
 import type { ClassOrNone, ConfirmedEvent, DayKey } from '@/types'
 import EditNoteOutlined from '@mui/icons-material/EditNoteOutlined'
 import PlaceOutlined from '@mui/icons-material/PlaceOutlined'
@@ -15,7 +16,7 @@ import { refusalCode } from '@/api/http'
 import { errorSnackbarOptions } from '@/lib/client/snackbar'
 import { dayStart, TIME_ZONE } from '@/lib/day'
 import { getClassDays, isResultsPublishedForDay, uniqueClasses } from '@/lib/event'
-import { getResultsBlocker, isStartListPublished } from '@/lib/publishing'
+import { getResultsBlocker } from '@/lib/publishing'
 import { scoresAtPosts } from '@/lib/results'
 import { Path } from '@/routeConfig'
 import { PublishingSection } from './PublishingSection'
@@ -30,6 +31,8 @@ interface Props {
    * it during this render suspends the whole panel on a click.
    */
   readonly onSetResultsPublished?: (eventClass: ClassOrNone, date: string, published: boolean) => Promise<unknown>
+  /** The participants of each class, a classless event's under its type: whose results there are to publish. */
+  readonly selectedByClass: Readonly<Record<string, readonly ResultsParticipant[]>>
 }
 
 interface ResultsRow {
@@ -63,6 +66,15 @@ const rowKey = ({ day, name }: ResultsRow) => `${name}/${day}`
 
 type ResultsMessage = 'confirm' | 'hidden' | 'publishedSnack'
 
+/**
+ * What a row waiting to be published says stands in its way, where it is something the secretary can
+ * do: publish the start list, or enter a result (KOE-1642). Rather than leaving a dead button.
+ */
+const BLOCKER_CAPTIONS: Partial<Record<PublishBlocker, 'startListRequired' | 'noResults'>> = {
+  results: 'noResults',
+  startList: 'startListRequired',
+}
+
 /** A confirmation or a notice, for a class or the whole event, naming the day on a multi-day trial. */
 const messageKey = (message: ResultsMessage, eventClass: ClassOrNone, withDay: boolean) => {
   const subject = eventClass ? message : (`${message}Event` as const)
@@ -80,7 +92,7 @@ const messageKey = (message: ResultsMessage, eventClass: ClassOrNone, withDay: b
  * numbers it fills (KOE-1297): a step of the trial reads as one section, not as a decision here and
  * its own doing among the general actions at the foot of the panel.
  */
-const ResultsPublishing = ({ event, eventStarted, onSetResultsPublished }: Props) => {
+const ResultsPublishing = ({ event, eventStarted, onSetResultsPublished, selectedByClass }: Props) => {
   const { t } = useTranslation()
   const confirm = useConfirm()
   const rows = getResultsRows(event)
@@ -163,15 +175,10 @@ const ResultsPublishing = ({ event, eventStarted, onSetResultsPublished }: Props
       {rows.map((row) => {
         const { day, eventClass, multiDay, name } = row
         const published = isResultsPublishedForDay(event, eventClass, day)
-        // Results travel on the start list's rows, so publishing them while it is hidden would
-        // change nothing a spectator can see. Say so rather than leaving a dead button.
-        const startListPublished = isStartListPublished(
-          event,
-          event.classes.find((item) => item.class === eventClass)
-        )
-        // The same rules the server holds a publish of this day to (KOE-1466, KOE-1510); hiding is
-        // always allowed.
-        const ready = published || !getResultsBlocker(event, eventClass, day)
+        // The same rules the server holds a publish of this day to (KOE-1466, KOE-1510, KOE-1642);
+        // hiding is always allowed.
+        const blocker = published ? undefined : getResultsBlocker(event, eventClass, selectedByClass[name] ?? [], day)
+        const caption = blocker && BLOCKER_CAPTIONS[blocker]
 
         return (
           <TableRow key={rowKey(row)}>
@@ -202,7 +209,7 @@ const ResultsPublishing = ({ event, eventStarted, onSetResultsPublished }: Props
                     {t('eventManagement.results.published')}
                   </Typography>
                 )}
-                {!published && !startListPublished && (
+                {caption && (
                   <Typography
                     variant="caption"
                     noWrap
@@ -211,7 +218,7 @@ const ResultsPublishing = ({ event, eventStarted, onSetResultsPublished }: Props
                       display: 'block',
                     }}
                   >
-                    {t('eventManagement.results.startListRequired')}
+                    {t(`eventManagement.results.${caption}`)}
                   </Typography>
                 )}
               </Box>
@@ -219,11 +226,11 @@ const ResultsPublishing = ({ event, eventStarted, onSetResultsPublished }: Props
             <TableCell align="right">
               <Button
                 color={published ? 'secondary' : 'primary'}
-                disabled={!ready || inFlight.has(rowKey(row))}
+                disabled={!!blocker || inFlight.has(rowKey(row))}
                 onClick={() => toggle(row, !published)}
                 size="small"
                 sx={{ whiteSpace: 'nowrap' }}
-                variant={ready ? 'contained' : 'outlined'}
+                variant={blocker ? 'outlined' : 'contained'}
               >
                 {published ? t('eventManagement.results.hide') : t('eventManagement.results.publish')}
               </Button>

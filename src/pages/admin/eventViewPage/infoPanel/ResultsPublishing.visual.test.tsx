@@ -1,4 +1,4 @@
-import type { ConfirmedEvent } from '@/types'
+import type { ConfirmedEvent, DayKey } from '@/types'
 import { ThemeProvider } from '@mui/material/styles'
 import { ConfirmProvider } from 'material-ui-confirm'
 import { render } from 'vitest-browser-react'
@@ -21,6 +21,18 @@ const Frame = ({ children }: { readonly children: React.ReactNode }) => (
   </div>
 )
 
+/** A starter with a result entered on each of the days, in each of the classes (KOE-1642). */
+const scoredOn = (classes: string[], days: DayKey[]) =>
+  Object.fromEntries(
+    classes.map((name) => [
+      name,
+      days.map((date) => ({
+        eventResult: { result: 'X1', updatedAt: '2021-02-10T15:00:00.000Z', updatedBy: 'Sihteeri' },
+        group: { date, key: `${date}-ap`, number: 1 },
+      })),
+    ])
+  )
+
 // One class already public and one still waiting, so both states of the control are in the picture.
 const event: ConfirmedEvent = {
   ...eventWithStations,
@@ -33,7 +45,7 @@ const event: ConfirmedEvent = {
 const renderStarted = () =>
   render(
     <Frame>
-      <ResultsPublishing event={event} eventStarted />
+      <ResultsPublishing event={event} eventStarted selectedByClass={scoredOn(['ALO', 'AVO'], ['2021-02-10'])} />
     </Frame>
   )
 
@@ -50,7 +62,11 @@ it('offers publishing a classless event a day at a time', async () => {
   const classless: ConfirmedEvent = { ...eventWithStaticDates, startListPublished: true, state: 'ended' }
   const screen = await render(
     <Frame>
-      <ResultsPublishing event={classless} eventStarted />
+      <ResultsPublishing
+        event={classless}
+        eventStarted
+        selectedByClass={scoredOn(['NOU'], ['2021-02-10', '2021-02-11'])}
+      />
     </Frame>
   )
 
@@ -78,12 +94,30 @@ it('offers publishing each day of a two-day trial on its own row', async () => {
   }
   const screen = await render(
     <Frame>
-      <ResultsPublishing event={twoDays} eventStarted />
+      <ResultsPublishing
+        event={twoDays}
+        eventStarted
+        selectedByClass={scoredOn(['ALO', 'AVO'], ['2026-09-12', '2026-09-13'])}
+      />
     </Frame>
   )
 
   await expect.element(screen.getByText('ALO su 13.9.')).toBeVisible()
   await expect(screen.getByTestId('visual-root')).toMatchScreenshot('results-publishing-two-days')
+})
+
+// A day with no result entered has nothing to publish, and the row says so (KOE-1642): the first
+// day's results are in, the second day's fields are still empty.
+it('keeps the publish of a day without results disabled and names why', async () => {
+  const classless: ConfirmedEvent = { ...eventWithStaticDates, startListPublished: true, state: 'ended' }
+  const screen = await render(
+    <Frame>
+      <ResultsPublishing event={classless} eventStarted selectedByClass={scoredOn(['NOU'], ['2021-02-10'])} />
+    </Frame>
+  )
+
+  await expect.element(screen.getByText('Ei syötettyjä tuloksia')).toBeVisible()
+  await expect(screen.getByTestId('visual-root')).toMatchScreenshot('results-publishing-no-results')
 })
 
 // The guide's English page shows the section in English (KOE-1437).

@@ -103,8 +103,10 @@ kirjattu muualla taas toisin, ikkuna näyttää uuden version.
 ## Tulosten julkaisu
 
 Tulokset julkaistaan luokittain paneelin painikkeella **{t:eventManagement.results.publish}**, ja
-kalenteri pyytää vahvistuksen. Julkaisu edellyttää, että luokan starttilista on julkaistu — muuten
-rivillä lukee *{t:eventManagement.results.startListRequired}* — ja että koe on alkanut. Julkaistu
+kalenteri pyytää vahvistuksen. Julkaisu edellyttää, että luokan starttilista on julkaistu, että koe
+on alkanut ja että päivän koirakoista ainakin yhdelle on syötetty tulos. Siihen asti rivillä lukee,
+mikä puuttuu: *{t:eventManagement.results.startListRequired}* tai
+*{t:eventManagement.results.noResults}*. Julkaistu
 tulos näkyy julkisella starttilistalla koirakon rivin viimeisenä rivinä, ja myöhemmin tallennetut
 korjaukset näkyvät siellä sellaisinaan. **{t:eventManagement.results.hide}** piilottaa
 rivin tulokset uudelleen. Kokeessa, jossa ei ole luokkia (esimerkiksi NOU), on koetyypin mukaan

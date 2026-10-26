@@ -1,4 +1,5 @@
 import type { AuditActor, GroupChangeReason } from '../../lib/audit'
+import type { ResultsParticipant } from '../../lib/publishing'
 import type {
   ConfirmedEventStates,
   DayKey,
@@ -455,12 +456,20 @@ interface ResultsDayPublish {
   /** The day, yyyy-MM-dd. Only this day changes (KOE-1510). */
   date: string
   published: boolean
+  /**
+   * The class's participants, or the classless event's, as the results rule reads them (KOE-1642). Read
+   * only for a publish; a hide is not judged and passes none.
+   */
+  participants: readonly ResultsParticipant[]
 }
 
 /** A publish of results refused by the publishing rules, as the panel would have greyed it (KOE-1466). */
-const publishBlocked = (confirmedEvent: JsonConfirmedEvent, { date, eventClass, published }: ResultsDayPublish) => {
+const publishBlocked = (
+  confirmedEvent: JsonConfirmedEvent,
+  { date, eventClass, participants, published }: ResultsDayPublish
+) => {
   if (!published) return undefined
-  const reason = getResultsBlocker(confirmedEvent, eventClass, date)
+  const reason = getResultsBlocker(confirmedEvent, eventClass, participants, date)
   return reason && httpError(422, { error: 'publishBlocked', eventClass, publish: 'results', reason })
 }
 

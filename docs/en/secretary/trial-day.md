@@ -13,7 +13,7 @@ covers:
   - src/pages/admin/eventViewPage/infoPanel/ResultsPublishing.tsx
   - src/pages/admin/components/KcIdLookupButton.tsx
   - src/pages/admin/components/StartDaySelector.tsx
-sourceHash: e30216
+sourceHash: 20d35d
 ---
 
 On the trial day the secretary's job is to record what the dogs did and to get the results in
@@ -107,8 +107,9 @@ meanwhile been recorded differently elsewhere again, the dialog shows the new ve
 
 Results are published class by class with the panel's **{t:eventManagement.results.publish}**
 button, and the calendar asks for confirmation. Publishing needs the class's start list to be
-published — otherwise the row reads *{t:eventManagement.results.startListRequired}* — and the
-trial to have started. A published result shows on the public start list as the last line of the
+published, the trial to have started and a result entered for at least one dog of the day. Until
+then the row says what is missing: *{t:eventManagement.results.startListRequired}* or
+*{t:eventManagement.results.noResults}*. A published result shows on the public start list as the last line of the
 dog's row, and corrections saved later show there as they are.
 **{t:eventManagement.results.hide}** hides the row's results again. A trial without classes,
 such as NOU, has a row named after the trial type, and it publishes the results of the whole

@@ -562,6 +562,7 @@
       "hiddenEvent": "Tulokset piilotettu",
       "hiddenEventDay": "Tulokset {{day}} piilotettu",
       "hide": "Piilota tulokset",
+      "noResults": "Ei syötettyjä tuloksia",
       "publish": "Julkaise tulokset",
       "published": "Julkaistu",
       "publishedSnack": "Luokan {{eventClass}} tulokset julkaistu",
