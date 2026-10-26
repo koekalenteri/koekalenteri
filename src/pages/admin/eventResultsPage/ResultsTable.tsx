@@ -18,7 +18,7 @@ import { getRegistrationPlacement } from '@/lib/registration'
 import { parseEventResultCode, scoresAtPosts } from '@/lib/results'
 import { JudgeSelect } from '../../components/stationScoring/JudgeSelect'
 import { ResultSummary } from '../../components/stationScoring/ResultSummary'
-import { outcomeLabelKeys, RoundOutcome } from '../../components/stationScoring/RoundOutcome'
+import { asksOutcome, outcomeLabelKeys, RoundOutcome } from '../../components/stationScoring/RoundOutcome'
 import { TaskScore } from '../../components/stationScoring/TaskScore'
 import { emptyEdit, isVoided, sameResultEdit } from '../../components/stationScoring/types'
 import { KennelliittoStatus } from './KennelliittoStatus'
@@ -68,6 +68,10 @@ interface RowControls {
   result: ReactNode
 }
 
+/** A judge's stop stored on the dog's result, which stays clearable where the format has none (KOE-1643). */
+const carriesStop = (registration: Registration): boolean =>
+  registration.eventResult?.retirement?.cause === 'judgeStopped'
+
 const taskKey = (task: { stationId: string; index: number }) => `${task.stationId}#${task.index}`
 
 /** Where the carried judge lives in `defaultJudges` for rows that have no posts. */
@@ -99,6 +103,8 @@ function ResultsTable({
   const { t } = useTranslation()
   const qualitative = !scoresAtPosts(eventType)
   const outcomeColumn = outcomeLabelKeys().column
+  // A format with nothing to ask has no column, unless a dog's stored stop still needs clearing.
+  const showOutcome = asksOutcome(eventType, registrations.some(carriesStop))
 
   // The stored result seeds the row, so an edit cannot quietly drop what is already recorded. For a
   // qualitative type that is the judge's decision; for a post-scored round it is every task the posts
@@ -188,6 +194,7 @@ function ResultsTable({
       ) : undefined,
       outcome: (
         <RoundOutcome
+          carriesStop={carriesStop(registration)}
           disabled={disabled}
           eventType={eventType}
           stationId={stationId}
@@ -262,7 +269,7 @@ function ResultsTable({
             {/* An entered result comes first, since whether a stop can stand depends on it; a derived one
                 sums the row up and closes it. */}
             {qualitative && <TableCell>{t('results.column.result')}</TableCell>}
-            <TableCell>{t(outcomeColumn)}</TableCell>
+            {showOutcome && <TableCell>{t(outcomeColumn)}</TableCell>}
             {!qualitative && <TableCell align="right">{t('results.column.result')}</TableCell>}
             {kennelliitto && <TableCell>{t('results.kennelliitto.column')}</TableCell>}
           </TableRow>
@@ -284,7 +291,7 @@ function ResultsTable({
                   </TableCell>
                 ))}
                 {qualitative && <TableCell>{controls.result}</TableCell>}
-                <TableCell>{controls.outcome}</TableCell>
+                {showOutcome && <TableCell>{controls.outcome}</TableCell>}
                 {!qualitative && <TableCell align="right">{controls.result}</TableCell>}
                 {kennelliitto && (
                   <TableCell>

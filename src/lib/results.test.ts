@@ -11,6 +11,7 @@ import {
   formatEventResult,
   formatResultLine,
   formatShownResult,
+  hasJudgeStop,
   kcFormatOfEventType,
   mergeStationTasks,
   nowtTotals,
@@ -352,6 +353,27 @@ describe('canBeStopped', () => {
     for (const code of ['1', '2', '3', '-'] as const) {
       expect(canBeStopped(code)).toBe(false)
     }
+  })
+})
+
+describe('hasJudgeStop', () => {
+  // Koemuoto/Lue/Tulokset lists a keskeytys row for each of these (KLIntegraatio-fixtures/koemuoto-*.json),
+  // and a championship follows its format.
+  it.each(['NKM', 'NOME-A', 'NOME-A SM', 'NOME-B', 'NOME-B SM', 'NOWT', 'NOWT SM'])(
+    'lets the judge stop a %s',
+    (eventType) => {
+      expect(hasJudgeStop(eventType)).toBe(true)
+    }
+  )
+
+  // NOU's results are NOU1 and NOU0 and nothing else: a taipumuskoe is never stopped (KOE-1643).
+  it('has no stop in a taipumuskoe', () => {
+    expect(hasJudgeStop('NOU')).toBe(false)
+  })
+
+  it('has none for a format nobody has listed one for', () => {
+    expect(hasJudgeStop('MEJÄ')).toBe(false)
+    expect(hasJudgeStop(undefined)).toBe(false)
   })
 })
 
