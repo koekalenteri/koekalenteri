@@ -137,26 +137,31 @@ on only with their permission, for as many rounds as they allow.
 
 ## 6. Ready and report
 
+The PR is marked ready as soon as the review is done and the last commit's CI run has started,
+not when that run has finished. From that point CI is the gate: the merge queue runs the same
+checks before anything lands, so a PR waiting for a green run only delays the user's merge.
 Check from the source, not from the agents' reports:
 
-- `gh pr view <pr> --json state,isDraft,commits,mergeable` and `gh pr checks <pr>`: `mergeable`
-  is `MERGEABLE`, and every check passed for the last commit.
-- `api/qualitygates/project_status?projectKey=koekalenteri_koekalenteri&pullRequest=<pr>`:
-  status `OK`, for the PR's last commit.
-- `api/issues/search?componentKeys=koekalenteri_koekalenteri&pullRequest=<pr>&issueStatuses=OPEN,CONFIRMED`:
-  `total` is `0`, or every remaining issue was sorted to `main` or `user` in step 5.
-- Every review finding is fixed, or answered with evidence.
+- Every review finding is fixed, or answered with evidence, and no round is open.
 - The Jira issue's comments say what the PR does now: when a round changed the approach or what
   the tester should try, there is a later comment saying so. If not, send the implementer back to
   add it.
+- `gh pr view <pr> --json state,isDraft,headRefOid,mergeable`: `mergeable` is `MERGEABLE`, the
+  head is the implementer's last commit, and `gh pr checks <pr>` shows that commit's run started
+  with nothing red.
+- Every Sonar issue found so far was fixed or sorted to `main` or `user` in step 5.
 
-Only when all of these hold, mark the PR ready: `gh pr ready <pr>`. Otherwise it stays a draft
-and the report says which item is missing.
+When these hold, mark the PR ready: `gh pr ready <pr>`. Then keep watching: the `ci-watcher`
+for that commit still reports, and its findings (a red check, the Sonar gate below `OK`, an open
+issue on `api/issues/search?componentKeys=koekalenteri_koekalenteri&pullRequest=<pr>&issueStatuses=OPEN,CONFIRMED`)
+go to the implementer as in step 5. The PR stays ready through that round; a red check already
+keeps it out of `main`, so turning it back into a draft adds nothing.
 
-Then tell the user: the PR and whether it is ready, what was wrong and what changed, the review
-rounds and what they caught, CI state per check, the Sonar gate and issue count, out-of-scope
-findings and the follow-up issues created for them, the notes (unlikely paths left as they
-are, one line each), and anything open or waiting on them.
+Tell the user when the PR is ready: the PR, what was wrong and what changed, the review rounds and
+what they caught, the CI state at that moment, out-of-scope findings and the follow-up issues
+created for them, the notes (unlikely paths left as they are, one line each), and anything open
+or waiting on them. When the watched run finishes, report its result, the Sonar gate and issue
+count in one line, or the feedback round it started.
 
 ## Follow-up issues
 
@@ -181,7 +186,9 @@ When the user approves an issue for something found while working on `<KEY>`:
 - No CI, test or Sonar housekeeping issues in Jira; those PRs carry no issue key.
 - Production only with the user's permission, also for reading.
 - Agents never merge, queue, enable auto-merge or push to main.
-- A PR is a draft until step 6 says otherwise. Only the orchestrator marks it ready, and before
-  sending new work to a PR that is already ready, turns it back: `gh pr ready <pr> --undo`.
+- A PR is a draft until step 6 says otherwise, and only the orchestrator marks it ready. A review
+  finding that arrives after that, with the PR still open, turns it back into a draft
+  (`gh pr ready <pr> --undo`) until the fix is pushed; a CI or Sonar finding does not, because
+  the red check is the gate then.
 - Before sending a follow-up to a PR, check it is still open; a merged PR gets a new one from
   `origin/main`.
