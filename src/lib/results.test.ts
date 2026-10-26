@@ -1,6 +1,11 @@
 import type { JsonEventResult, JsonEventResultTask } from '../types'
 import type { ScoredTask, SubmittedEventResult } from './results'
 import i18n from 'i18next'
+import koemuotoNKM from '../lambda/lib/KLIntegraatio-fixtures/koemuoto-NKM.json'
+import koemuotoNOME_A from '../lambda/lib/KLIntegraatio-fixtures/koemuoto-NOME-A.json'
+import koemuotoNOME_B from '../lambda/lib/KLIntegraatio-fixtures/koemuoto-NOME-B.json'
+import koemuotoNOU from '../lambda/lib/KLIntegraatio-fixtures/koemuoto-NOU.json'
+import koemuotoNOWT from '../lambda/lib/KLIntegraatio-fixtures/koemuoto-NOWT.json'
 import {
   availableResultCodes,
   canBeStopped,
@@ -370,6 +375,15 @@ describe('hasJudgeStop', () => {
   it('has no stop in a taipumuskoe', () => {
     expect(hasJudgeStop('NOU')).toBe(false)
   })
+
+  // The list mirrors Kennelliitto's answer, so a refreshed fixture that disagrees fails here rather
+  // than hiding a stop the format has, or offering one it has not.
+  it.each([koemuotoNKM, koemuotoNOME_A, koemuotoNOME_B, koemuotoNOU, koemuotoNOWT])(
+    'agrees with the keskeytys rows Kennelliitto lists for $koemuoto',
+    (koemuoto) => {
+      expect(hasJudgeStop(koemuoto.koemuoto)).toBe(koemuoto.tulokset.some((row) => row.keskeytys))
+    }
+  )
 
   it('has none for a format nobody has listed one for', () => {
     expect(hasJudgeStop('MEJÄ')).toBe(false)

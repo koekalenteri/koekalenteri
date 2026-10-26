@@ -334,6 +334,31 @@ describe('EventResultsPage', () => {
     expect(screen.queryByRole('option', { name: 'results.retirement.judgeStopped' })).not.toBeInTheDocument()
   })
 
+  it('keeps a stored stop clearable in a taipumuskoe when the reasons are asked', async () => {
+    const { i18n } = useTranslation()
+    const stopped: EventResult = {
+      result: 'NOU0',
+      retirement: { cause: 'judgeStopped' },
+      updatedAt: new Date('2026-09-26T09:00:00Z'),
+      updatedBy: 'Sihteeri',
+    }
+    const { user } = await renderQualitativePage(i18n.language as Language, { 'run-1': stopped })
+    await flushPromises()
+
+    // The row that carries a stop still offers it, so the menu can show what is stored; the others do not.
+    await user.click(within(rowFor('Toinen')).getByLabelText('results.outcome'))
+    expect(screen.queryByRole('option', { name: 'results.retirement.judgeStopped' })).not.toBeInTheDocument()
+    await user.keyboard('{Escape}')
+
+    await user.click(within(rowFor('Ensimmainen')).getByLabelText('results.outcome'))
+    expect(screen.getByRole('option', { name: 'results.retirement.judgeStopped' })).toBeInTheDocument()
+    await user.click(screen.getByRole('option', { name: 'results.outcomeNone' }))
+    await flushPromises()
+
+    expect(within(rowFor('Ensimmainen')).queryByText('results.marks.interrupted')).not.toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'results.save' })).toBeEnabled()
+  })
+
   it('still lets a stop recorded on a taipumuskoe before KOE-1643 be cleared', async () => {
     const { i18n } = useTranslation()
     features.outcomeReasonEnabled = false
