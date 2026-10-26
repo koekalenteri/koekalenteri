@@ -86,7 +86,9 @@ const StartListPublishing = ({
         // A finished event deliberately does not disable this. Publishing the list is what carries
         // the results to the public, and results are entered after the dogs have run — unlike
         // picking participants or sending invitations, which a finished event should not reopen.
-        const canManageStartList = Boolean(onSetStartListPublished) && publishable && !row.startListBlocker
+        // The blockers hold back a publish only; hiding is always allowed, as the server holds it (KOE-1646).
+        const canManageStartList =
+          Boolean(onSetStartListPublished) && publishable && (startListPublished || !row.startListBlocker)
         // A dead button with no reason beside it is the thing this whole step reads as broken
         // (KOE-1313). Publishing waits on the invitations until the class's first day (KOE-1465, KOE-1638), and
         // those wait on the participants being picked, so name whichever of the two is still outstanding.

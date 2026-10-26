@@ -17,7 +17,7 @@ covers:
   - src/pages/admin/StartListPreviewPage.tsx
   - src/pages/admin/startListPage/**
   - src/pages/ClassStartNumbersPage.tsx
-sourceHash: 46598b
+sourceHash: 528c60
 ---
 
 Once entry has closed, the secretary's work goes step by step: picking the participants, the
@@ -130,6 +130,7 @@ list as the participants will see it. A published list updates by itself when pa
 or cancellations recorded. Until the morning of the class's first trial day, publishing waits on any
 invitations not yet sent. From then on, and once the class has been judged, the list can be published
 even if an invitation is still unsent. An invitation can still be sent on the trial day too.
+A published list can be hidden at any time with **{t:eventManagement.startList.hide}**.
 
 !shot[StartListPublishing/start-list-publishing] Start list publishing by class
 

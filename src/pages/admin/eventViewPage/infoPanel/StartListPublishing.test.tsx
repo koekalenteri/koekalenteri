@@ -13,9 +13,11 @@ import { APIError } from '@/api/http'
 import { addDays, dayOf, TIME_ZONE } from '@/lib/day'
 import { eventRegistrationDateKey } from '@/lib/event'
 import { finnishDayOf } from '@/test-utils/finnishDays'
+import { freezeClockAt } from '@/test-utils/freezeClock'
 import { renderWithUserEvents, TEST_ID_TOKEN } from '@/test-utils/utils'
 import { adminEventsAtom } from '../../state'
 import InfoPanel from '../InfoPanel'
+import StartListPublishing from './StartListPublishing'
 
 /** The event view's read of Kennelliitto's state, which these tests do not exercise. */
 const noStateRead = async () => undefined
@@ -554,5 +556,60 @@ describe('InfoPanel>', () => {
     expect(
       within(listSection).queryByRole('link', { name: 'eventManagement.enterStartNumbers' })
     ).not.toBeInTheDocument()
+  })
+})
+
+describe('StartListPublishing, an invitation outstanding before the trial day', () => {
+  freezeClockAt('2026-10-25')
+
+  // A one-day NOME-A tomorrow: one dog invited, one lifted from the reserve and not yet invited.
+  const nomeA = (startListPublished: boolean): ConfirmedEvent => ({
+    ...eventWithParticipantsInvited,
+    classes: [],
+    endDate: '2026-10-26',
+    eventType: 'NOME-A',
+    startDate: '2026-10-26',
+    startListPublished,
+    state: 'invited',
+  })
+  const dog = (id: string, invited: boolean): Registration => ({
+    ...registrationWithStaticDates,
+    class: undefined,
+    eventType: 'NOME-A',
+    id,
+    messagesSent: invited ? { invitation: true } : {},
+  })
+
+  const renderRow = (event: ConfirmedEvent, onSetStartListPublished = vi.fn()) =>
+    renderWithUserEvents(
+      <StartListPublishing
+        event={event}
+        eventWithCurrentAttachments={event}
+        numbersByClass={{
+          'NOME-A': { cancelled: 0, invalid: false, participants: 2, places: 2, reserve: 0, value: 2 },
+        }}
+        onSetStartListPublished={onSetStartListPublished}
+        selectedByClass={{ 'NOME-A': [dog('r1', true), dog('r2', false)] }}
+        stateByClass={{}}
+      />
+    )
+
+  it('hides a published list: hiding is always allowed (KOE-1646)', async () => {
+    const onSetStartListPublished = vi.fn().mockResolvedValue(undefined)
+    const { user } = renderRow(nomeA(true), onSetStartListPublished)
+
+    const hide = screen.getByRole('button', { name: 'eventManagement.startList.hide' })
+    expect(hide).toBeEnabled()
+
+    await user.click(hide)
+
+    await waitFor(() => expect(onSetStartListPublished).toHaveBeenCalledWith(undefined, false))
+  })
+
+  it('keeps the publish waiting on the invitation, and says so', () => {
+    renderRow(nomeA(false))
+
+    expect(screen.getByRole('button', { name: 'eventManagement.startList.publish' })).toBeDisabled()
+    expect(screen.getByText('eventManagement.startList.invitationsRequired')).toBeInTheDocument()
   })
 })
