@@ -3,6 +3,7 @@ import { ThemeProvider } from '@mui/material/styles'
 import { page } from 'vitest/browser'
 import { render } from 'vitest-browser-react'
 import theme from '@/assets/Theme'
+import { describeInLanguage } from '@/test-utils/language'
 import KcIdChoiceDialog from './KcIdChoiceDialog'
 
 const LINKED_GUID = '0a0b27bc-f651-4575-b0aa-b0b16a5ce52d'
@@ -62,14 +63,32 @@ const choices: EventKcIdChoice[] = [
     startDate: '2026-08-08',
     status: 'Hyväksytty',
   },
+  // The widest a row gets: a Koetunnus, Kennelliitto's free-text name of the trial and a long place.
+  {
+    classes: ['ALO', 'AVO', 'VOI'],
+    endDate: '2026-10-11',
+    eventType: 'NOU',
+    judge: 'Viides Tuomari',
+    kcGuid: null,
+    kcTunnus: 'NOU-2026-0412',
+    location: 'Hämeenlinna',
+    name: 'Hämeen noutajien syyskoe ja mestaruus',
+    organizer: 'HÄMEEN NOUTAJAKOIRAYHDISTYS RY',
+    startDate: '2026-10-10',
+    status: 'Hyväksytty',
+  },
 ]
 
 /**
  * The most lines each column may take, by column index. A short value (Koetunnus, Koe, Luokat, Aika,
  * Tila) is read at a glance only on one line, and the action column holds the Valitse button alone.
- * Paikka and Järjestäjä may wrap. The reason a trial cannot be chosen is a row of its own under the
- * trial, one cell across all the columns, so it is index 0 and on one line too (KOE-1641).
+ * Paikka and Järjestäjä may wrap. In the Koe column the limit is the event type's, the cell's first
+ * text: Kennelliitto's free-text name after it may wrap. The reason a trial cannot be chosen is a
+ * row of its own under the trial, one cell across all the columns, so it is index 0 and on one line
+ * too (KOE-1641).
  */
+const KOE_COLUMN = 1
+
 const MAX_LINES = new Map([
   [0, 1],
   [1, 1],
@@ -79,14 +98,23 @@ const MAX_LINES = new Map([
   [7, 1],
 ])
 
-/**
- * How many lines the text in an element is laid out on: the distinct tops of its text's line boxes.
- * A space the line breaks at gets an empty box of its own, which is no line.
- */
-const lineCount = (element: Element): number => {
-  const tops = new Set<number>()
+/** The text nodes in an element, in document order. */
+const textNodes = (element: Element): Text[] => {
+  const nodes: Text[] = []
   const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT)
   for (let node = walker.nextNode(); node; node = walker.nextNode()) {
+    if (node instanceof Text) nodes.push(node)
+  }
+  return nodes
+}
+
+/**
+ * How many lines the text is laid out on: the distinct tops of its line boxes. A space the line
+ * breaks at gets an empty box of its own, which is no line.
+ */
+const lineCount = (nodes: Text[]): number => {
+  const tops = new Set<number>()
+  for (const node of nodes) {
     const range = document.createRange()
     range.selectNodeContents(node)
     for (const rect of range.getClientRects()) {
@@ -96,11 +124,31 @@ const lineCount = (element: Element): number => {
   return tops.size
 }
 
-// The dialog renders through a portal, so the capture is the dialog itself, not a frame around it.
-it('lists the trials found, links the ones with a GUID and says why the others cannot be (KOE-1534)', async () => {
+/** The cells that take more lines than their column may, as readable lines for the failure. */
+const wrappedCells = (rows: Element[]): string[] =>
+  rows.flatMap((row, rowIndex) =>
+    Array.from(row.children).flatMap((cell, column) => {
+      const nodes = textNodes(cell)
+      const lines = lineCount(column === KOE_COLUMN ? nodes.slice(0, 1) : nodes)
+      const limit = MAX_LINES.get(column) ?? Number.POSITIVE_INFINITY
+      return lines > limit ? [`row ${rowIndex} column ${column} "${cell.textContent}": ${lines} lines`] : []
+    })
+  )
+
+/**
+ * How far the table reaches past the dialog's content box. Anything over 0 scrolls sideways and
+ * hides the Valitse button at the right edge.
+ */
+const overflow = (table: Element): number => {
+  const content = table.parentElement
+  return content ? content.scrollWidth - content.clientWidth : Number.POSITIVE_INFINITY
+}
+
+/** The dialog with every fixture trial, at the narrowest admin screen. */
+const renderDialog = async () => {
   await page.viewport(NARROWEST_ADMIN.width, NARROWEST_ADMIN.height)
 
-  const screen = await render(
+  return render(
     <ThemeProvider theme={theme}>
       <KcIdChoiceDialog
         choices={choices}
@@ -110,21 +158,30 @@ it('lists the trials found, links the ones with a GUID and says why the others c
       />
     </ThemeProvider>
   )
+}
+
+// The dialog renders through a portal, so the capture is the dialog itself, not a frame around it.
+it('lists the trials found, links the ones with a GUID and says why the others cannot be (KOE-1534)', async () => {
+  const screen = await renderDialog()
 
   await expect.element(screen.getByText('Kennelliitto ei ole vielä antanut kokeelle tunnistetta').first()).toBeVisible()
   await expect.element(screen.getByText('Jo liitetty toiseen kokeeseen')).toBeVisible()
   await expect.element(screen.getByRole('button', { name: 'Valitse' })).toBeVisible()
 
-  // Every row, the header too, at the narrowest admin screen (KOE-1641).
-  const rows = screen.getByRole('dialog').getByRole('row').elements()
-  const wrapped = rows.flatMap((row, rowIndex) =>
-    Array.from(row.children).flatMap((cell, column) => {
-      const lines = lineCount(cell)
-      const limit = MAX_LINES.get(column) ?? Number.POSITIVE_INFINITY
-      return lines > limit ? [`row ${rowIndex} column ${column} "${cell.textContent}": ${lines} lines`] : []
-    })
-  )
-  expect(wrapped).toEqual([])
+  // Every row, the header too, at the narrowest admin screen, and all of it inside the dialog (KOE-1641).
+  expect(wrappedCells(screen.getByRole('dialog').getByRole('row').elements())).toEqual([])
+  expect(overflow(screen.getByRole('table').element())).toBe(0)
 
   await expect(screen.getByRole('dialog')).toMatchScreenshot('kc-id-choice-dialog')
+})
+
+// The English headers and reasons are longer than the Finnish ones, and the short columns do not wrap.
+describeInLanguage('en', () => {
+  it('fits the table in the dialog in English too (KOE-1641)', async () => {
+    const screen = await renderDialog()
+
+    await expect.element(screen.getByRole('button', { name: 'Select' })).toBeVisible()
+    expect(wrappedCells(screen.getByRole('dialog').getByRole('row').elements())).toEqual([])
+    expect(overflow(screen.getByRole('table').element())).toBe(0)
+  })
 })

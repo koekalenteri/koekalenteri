@@ -1,4 +1,5 @@
 import type { EventKcIdChoice } from '@/types'
+import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import Dialog from '@mui/material/Dialog'
 import DialogActions from '@mui/material/DialogActions'
@@ -29,6 +30,12 @@ const VISUALLY_HIDDEN = {
 /** A short value is read at a glance only on one line; Paikka and Järjestäjä wrap into the width left (KOE-1641). */
 const ONE_LINE = { whiteSpace: 'nowrap' } as const
 
+/**
+ * Half MUI's 16 px at each side of a cell: eight columns of padding would take 256 px of the 963 px a
+ * dialog has at 1027 px, and a long Koetunnus, name and place then push the table past the dialog.
+ */
+const CELL_PADDING = { '& .MuiTableCell-root': { px: 1 } } as const
+
 /** All the columns: a reason row under a trial spans them. */
 const COLUMN_COUNT = 8
 
@@ -46,7 +53,7 @@ export default function KcIdChoiceDialog({ choices, linkedKcGuids, onClose, onSe
     <Dialog fullWidth maxWidth="lg" open={choices.length > 0} onClose={onClose}>
       <DialogTitle>{t('event.kcIdChoiceTitle')}</DialogTitle>
       <DialogContent dividers sx={{ p: 1 }}>
-        <Table size="small">
+        <Table size="small" sx={CELL_PADDING}>
           <TableHead>
             <TableRow>
               <TableCell sx={ONE_LINE}>{t('event.kcIdChoiceId')}</TableCell>
@@ -71,7 +78,13 @@ export default function KcIdChoiceDialog({ choices, linkedKcGuids, onClose, onSe
                   {/* A trial with a reason under it has no divider between the two: they read as one entry. */}
                   <TableRow sx={reason ? { '& > td': { borderBottom: 'none' } } : undefined}>
                     <TableCell sx={ONE_LINE}>{choice.kcTunnus ?? '-'}</TableCell>
-                    <TableCell sx={ONE_LINE}>{[choice.eventType, choice.name].filter(Boolean).join(' ')}</TableCell>
+                    {/* NOME-B must not break at its hyphen; Kennelliitto's free-text name after it may wrap. */}
+                    <TableCell>
+                      <Box component="span" sx={ONE_LINE}>
+                        {choice.eventType}
+                      </Box>
+                      {choice.name ? ` ${choice.name}` : null}
+                    </TableCell>
                     <TableCell sx={ONE_LINE}>{choice.classes.join(', ')}</TableCell>
                     <TableCell sx={ONE_LINE}>
                       {t('dateFormat.datespan', { end: choice.endDate, start: choice.startDate })}
