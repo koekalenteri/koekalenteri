@@ -25,7 +25,7 @@ export const loadedAtom = <T>(remoteAtom: Atom<Promise<T>>): Atom<MaybePromise<T
     const remote = trackSettled(get(remoteAtom))
     const loaded = get(standInAtom)
     // A null is not data either: a signed-out session's user does not stand in for the next login's.
-    if (loaded === undefined || loaded.value == null) firstLoads.add(remote)
+    if (loaded?.value == null) firstLoads.add(remote)
     if (loaded === undefined || firstLoads.has(remote)) return remote
     return loaded.value
   })
