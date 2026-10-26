@@ -4,12 +4,12 @@ Playwright drives the production frontend build against the real lambda bundles 
 DynamoDB (KOE-396). Nothing is mocked inside the application: what differs from the deployed
 stack is only what surrounds it.
 
-| Piece | Port | What it is |
-| --- | --- | --- |
-| `server/frontend.mjs` | 3000 | serves `build-e2e/`, falling back to `index.html` like Amplify |
-| `server/api.mjs` | 8080 | API Gateway's part: routes from `dist/template.yaml`, calls `dist/lambda/<Fn>/handler.mjs` in-process |
-| `fakes/server.mjs` | 9000 | SES, SSM and Paytrail, reached through `AWS_ENDPOINT_URL_*` and `PAYTRAIL_API_ENDPOINT` |
-| DynamoDB-local | 8000 | tables from `scripts/init-tables.mjs`, i.e. from `template/tables` |
+| Piece                 | Port | What it is                                                                                            |
+| --------------------- | ---- | ----------------------------------------------------------------------------------------------------- |
+| `server/frontend.mjs` | 3000 | serves `build-e2e/`, falling back to `index.html` like Amplify                                        |
+| `server/api.mjs`      | 8080 | API Gateway's part: routes from `dist/template.yaml`, calls `dist/lambda/<Fn>/handler.mjs` in-process |
+| `fakes/server.mjs`    | 9000 | SES, SSM and Paytrail, reached through `AWS_ENDPOINT_URL_*` and `PAYTRAIL_API_ENDPOINT`               |
+| DynamoDB-local        | 8000 | tables from `scripts/init-tables.mjs`, i.e. from `template/tables`                                    |
 
 All of it is configured in `env.mjs`. Playwright's `webServer` starts the three servers and
 stops them after the run; `global-setup.ts` checks the builds and creates the tables.
