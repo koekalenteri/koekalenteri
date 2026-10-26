@@ -419,6 +419,14 @@ export const hasSharedReserveList = (eventType?: string | null) =>
   !!eventType && SHARED_RESERVE_EVENT_TYPES.has(eventType)
 
 /**
+ * The event types that award certificates (KOE-1644): the A-trials and the WT trials. Kennelliitto's
+ * format rows list "sert" and "vara sert" only for NOME-A and NOWT; a championship is the same format.
+ */
+const CERTIFICATE_EVENT_TYPES = new Set(['NOME-A', 'NOME-A SM', 'NOWT', 'NOWT SM'])
+
+export const awardsCertificates = (eventType?: string | null) => !!eventType && CERTIFICATE_EVENT_TYPES.has(eventType)
+
+/**
  * Event types are official when the Kennel Club knows them, which the event type sync records in
  * `official`. Rows predating that flag - and the SM types, which have no Kennel Club counterpart of
  * their own - fall back to the list above, so that stays the source of truth for the event types
