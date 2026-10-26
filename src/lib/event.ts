@@ -1628,6 +1628,8 @@ export const copyDogEvent = (event: DogEvent, now = new Date()): DogEvent => {
   stripKennelliittoLink(copy)
   stripInvitationAttachments(copy)
   delete copy.entryOrigEndDate
+  // A copy made here is this environment's own event, not a copy from another one (KOE-1639)
+  delete copy.copiedFrom
 
   return copy
 }

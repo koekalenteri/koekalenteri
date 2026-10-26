@@ -87,7 +87,7 @@
       LogGroupName: !Ref RebuildStatsFunctionLogGroup
       MetricTransformations:
         - MetricName: UnattributedCapacityRegistrations
-          MetricNamespace: KoekalenteriApp
+          MetricNamespace: !Sub 'KoekalenteriApp/${AWS::StackName}'
           MetricValue: '1'
 
   RebuildStatsFunctionUnattributedCapacityAlarm:
@@ -100,7 +100,7 @@
         - !Ref AlarmTopic
       AlarmDescription: Stats rebuild found registrations it could not attribute to a capacity class
       AlarmName: !Sub '${AWS::StackName}-rebuild-stats-unattributed-capacity'
-      Namespace: KoekalenteriApp
+      Namespace: !Sub 'KoekalenteriApp/${AWS::StackName}'
       MetricName: UnattributedCapacityRegistrations
       Statistic: Sum
       Period: 86400

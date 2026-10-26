@@ -16,11 +16,13 @@ const mockPublishEventChange = vi.fn()
 const mockWriteRegistrations = vi.fn()
 const mockUpdateOrganizerEventStats = vi.fn()
 const mockAudit = vi.fn()
+const mockFindEventCopy = vi.fn()
 
 vi.doMock('../lib/repositories/userRepository', () => ({ queryUsersByEmail: mockQueryUsersByEmail }))
 vi.doMock('../lib/repositories/judgeRepository', () => ({ readJudges: mockReadJudges }))
 vi.doMock('../lib/repositories/organizerRepository', () => ({ readOrganizers: mockReadOrganizers }))
 vi.doMock('../lib/event', () => ({ saveEvent: mockSaveEvent }))
+vi.doMock('../lib/repositories/eventRepository', () => ({ findEventCopy: mockFindEventCopy }))
 vi.doMock('../lib/ws/actions', () => ({ publishEventChange: mockPublishEventChange }))
 vi.doMock('../lib/repositories/registrationRepository', async () => ({
   ...(await vi.importActual<typeof import('../lib/repositories/registrationRepository')>(
@@ -74,6 +76,7 @@ describe('importCopiedEvent', () => {
     mockReadOrganizers.mockResolvedValue([{ id: 'org-test', kcId: 1234, name: 'Seura' }])
     mockReadJudges.mockResolvedValue([judge])
     mockSaveEvent.mockImplementation(async (event: JsonDogEvent) => ({ audience: 'public', patch: event }))
+    mockFindEventCopy.mockResolvedValue(undefined)
   })
 
   afterEach(() => {
@@ -165,6 +168,20 @@ describe('importCopiedEvent', () => {
     expect(mockSaveEvent).toHaveBeenCalledWith(expect.not.objectContaining({ kcId: expect.anything() }))
   })
 
+  it.each([
+    ['has no name', undefined],
+    ['has an empty name', ''],
+    ['has a blank name', '  '],
+  ])('names a copy of an event that %s by its prefix only (KOE-1645)', async (_, name) => {
+    const nameless = request()
+    if (name === undefined) Reflect.deleteProperty(nameless.copy.event, 'name')
+    else nameless.copy.event = { ...nameless.copy.event, name }
+
+    await importCopiedEvent(nameless)
+
+    expect(mockSaveEvent).toHaveBeenCalledWith(expect.objectContaining({ name: '[Kopio: prod]' }))
+  })
+
   it('never imports into prod', async () => {
     CONFIG.stageName = 'prod'
 
@@ -198,6 +215,29 @@ describe('importCopiedEvent', () => {
       'No organizer with Kennel Club number 1234 in the target environment'
     )
     expect(mockSaveEvent).not.toHaveBeenCalled()
+  })
+
+  // KOE-1639: copying the same event twice made two events here, and counted its entries twice in the
+  // organizer's stats. The lookup reads live rows only, so a deleted copy does not block.
+  it('refuses a source this environment already holds a live copy of, naming that copy', async () => {
+    mockFindEventCopy.mockResolvedValueOnce({ id: 'copy-0', name: '[Kopio: prod] NOME-B Kangasala' })
+
+    const result = await importCopiedEvent(request())
+
+    expect(mockFindEventCopy).toHaveBeenCalledWith({ eventId: 'source-1', stage: 'prod' })
+    expect(result).toEqual({ alreadyCopied: { eventId: 'copy-0', name: '[Kopio: prod] NOME-B Kangasala' } })
+    expect(mockSaveEvent).not.toHaveBeenCalled()
+    expect(mockWriteRegistrations).not.toHaveBeenCalled()
+    expect(mockUpdateOrganizerEventStats).not.toHaveBeenCalled()
+    expect(mockAudit).not.toHaveBeenCalled()
+  })
+
+  it('stores the copy when this environment holds no live copy of the source', async () => {
+    const result = await importCopiedEvent(request())
+
+    expect(mockFindEventCopy).toHaveBeenCalledWith({ eventId: 'source-1', stage: 'prod' })
+    expect(result).toEqual(expect.objectContaining({ eventId: 'copy-1' }))
+    expect(mockSaveEvent).toHaveBeenCalledTimes(1)
   })
 
   it('leaves the stats alone for an event without registrations', async () => {

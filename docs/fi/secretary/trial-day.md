@@ -76,13 +76,19 @@ pois, koska se riippuu muistakin rasteista.
 palkintosija 1–3, nolla tai viiva, NOU- ja NKM-kokeessa vain hyväksytty tai hylätty. Vieressä on
 *{t:results.judge}*, jos luokalla on useampi tuomari.
 
-!shot[ResultsTable/results-entry-nou] NOU-kokeen tulokset: tuomari, tulos ja keskeytys
+!shot[ResultsTable/results-entry-nou] NOU-kokeen tulokset: tuomari ja tulos
 
 **Keskeytys.** Kentästä *{t:results.interruption}* kirjataan
 *{t:results.retirement.judgeStopped}*. Keskeytetyn koirakon tulos on sääntöjen mukaan nolla, ja
 julkaistulla listalla sen perässä on merkintä *{t:results.marks.interrupted}*. Koko kierroksen
 näkymässä kysytään lisäksi *{t:results.outcomeAt}*, eli millä rastilla keskeytys tapahtui. Jo
 kirjattu palkintosija ei voi saada keskeytystä rinnalleen; poista ensin tulos.
+
+Keskeytys kysytään vain koemuodoissa, joissa Kennelliitto sen kirjaa (NOME-A, NOME-B, NKM ja NOWT).
+Taipumuskokeessa (NOU) keskeytystä ei ole, joten kenttää ei näytetä. Jos NOU-koirakolle on aiemmin
+kirjattu keskeytys, kenttä näkyy sen rivillä, jotta keskeytyksen voi poistaa.
+
+!shot[ResultsTable/results-entry-nome-b] NOME-B-luokan tulokset: keskeytys tuloksen vieressä
 
 Puhelimella koirakot ovat allekkain omina kortteinaan samoilla kentillä.
 

@@ -82,6 +82,16 @@ const POST_SCORED_EVENT_TYPES = new Set(['NOWT', 'NOWT SM'])
 export const scoresAtPosts = (eventType?: string): boolean => POST_SCORED_EVENT_TYPES.has(eventType ?? '')
 
 /**
+ * The formats in which a judge's stop is recorded at all. This mirrors the `keskeytys` rows of
+ * Kennelliitto's Koemuoto/Lue/Tulokset (src/lambda/lib/KLIntegraatio-fixtures/koemuoto-*.json): NKM,
+ * NOME-A, NOME-B and NOWT list one, NOU lists only NOU1 and NOU0, so a taipumuskoe is never stopped
+ * (KOE-1643). The entry screen reads this list because it has no koemuoto at hand; the write to
+ * Kennelliitto still checks the live answer (`formatAllowsStop`). A format not listed here offers no
+ * stop until someone adds it.
+ */
+const JUDGE_STOP_FORMATS = new Set(['NKM', 'NOME-A', 'NOME-B', 'NOWT'])
+
+/**
  * NOWT §5.3.5, in the order the list gives them, plus §5.4.1's stop for disciplining the dog. Luvaton
  * lähtö, karkaaminen and vinkuminen only zero a task here (§5.3.4, `NowtZeroFault`), so they are absent
  * on purpose.
@@ -383,6 +393,10 @@ export const formatEventResult = (code: ResultCode, eventType: string, eventClas
 
 /** The format as Kennelliitto names it (Koe/Kokeet, Koe/Koemuoto): a championship is its plain format. */
 export const kcFormatOfEventType = (eventType: string): string => eventType.replace(/ SM$/, '')
+
+/** Whether the event type's format records a judge's stop (`JUDGE_STOP_FORMATS`). A championship follows its format. */
+export const hasJudgeStop = (eventType?: string): boolean =>
+  JUDGE_STOP_FORMATS.has(kcFormatOfEventType(eventType ?? ''))
 
 /**
  * The prefix Kennelliitto writes a result under: the class, or where the trial runs none, the last part

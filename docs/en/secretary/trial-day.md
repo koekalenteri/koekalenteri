@@ -13,7 +13,7 @@ covers:
   - src/pages/admin/eventViewPage/infoPanel/ResultsPublishing.tsx
   - src/pages/admin/components/KcIdLookupButton.tsx
   - src/pages/admin/components/StartDaySelector.tsx
-sourceHash: f0c378
+sourceHash: 20d35d
 ---
 
 On the trial day the secretary's job is to record what the dogs did and to get the results in
@@ -79,13 +79,19 @@ posts too.
 *{t:results.column.result}* field: a prize of 1 to 3, a nought or a dash, and in NOU and NKM
 trials only pass or fail. Beside it is *{t:results.judge}*, when the class has more than one.
 
-!shot[ResultsTable/results-entry-nou] A NOU trial's results: judge, result and interruption
+!shot[ResultsTable/results-entry-nou] A NOU trial's results: judge and result
 
 **Interruption.** The *{t:results.interruption}* field records
 *{t:results.retirement.judgeStopped}*. A stopped dog's result is a nought, as the rules say, and on
 the published list it carries the mark *{t:results.marks.interrupted}*. The whole-round view also
 asks *{t:results.outcomeAt}*, that is, at which post the round was stopped. A prize already
 recorded cannot take a stop beside it; clear the result first.
+
+The interruption is asked only in the formats where the Kennel Club records one (NOME-A, NOME-B, NKM
+and NOWT). An aptitude test (NOU) has no interruption, so the field is not shown. If a NOU dog already
+has an interruption recorded from before, the field shows on its row so that it can be cleared.
+
+!shot[ResultsTable/results-entry-nome-b] A NOME-B class's results: the interruption beside the result
 
 On a phone the dogs are listed one under another as cards with the same fields.
 

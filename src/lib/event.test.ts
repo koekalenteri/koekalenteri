@@ -1237,6 +1237,13 @@ describe('lib/event', () => {
       expect(copy.entryEndDate).toEqual(newDates.entryEndDate)
       expect(copy.entryOrigEndDate).toBeUndefined()
     })
+    it('should not claim to be a copy from another environment (KOE-1639)', () => {
+      const copy = copyNow({
+        ...eventWithParticipantsInvited,
+        copiedFrom: { at: '2026-06-01T00:00:00.000Z', by: 'Admin', eventId: 'prod-1', stage: 'prod' },
+      })
+      expect(copy.copiedFrom).toBeUndefined()
+    })
     it('should update classes', () => {
       const copy = copyNow(eventWithParticipantsInvited)
       expect(copy.classes).toHaveLength(2)

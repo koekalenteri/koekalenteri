@@ -1,3 +1,4 @@
+import type { EventCopyRefusal, EventCopyResult } from '../../types'
 import type { CopyImportRequest, CopyImportResult } from '../lib/eventCopy'
 import { InvokeCommand, LambdaClient } from '@aws-sdk/client-lambda'
 import { eventCopiedToAudit } from '../../lib/audit'
@@ -38,6 +39,17 @@ const invokeImport = async (functionName: string, request: CopyImportRequest): P
   return body
 }
 
+/** The stored copy, or the 409 of a target that already holds a live copy of the source (KOE-1639). */
+const importedCopy = (result: CopyImportResult): Omit<EventCopyResult, 'target'> => {
+  if (!('alreadyCopied' in result)) return result
+  const refusal: EventCopyRefusal = {
+    error: 'alreadyCopied',
+    existing: result.alreadyCopied,
+    message: `The target already holds a copy of this event: ${result.alreadyCopied.name}`,
+  }
+  throw httpError(409, refusal)
+}
+
 /**
  * Copies an event with its registrations into another environment (KOE-1471): prod into test or
  * dev, or between test and dev, never into prod. Every person in the copy is replaced here, in the
@@ -72,12 +84,14 @@ const exportEventToStageLambda = lambda('exportEventToStage', async (event) => {
 
   await Promise.all(attachmentKeys(copy).map((key) => copyFileToBucket(key, `${targetStack}-event-attachments`)))
 
-  const result = await invokeImport(importFunctionName(targetStack), {
-    copier,
-    copy,
-    organizerKcId: organizer.kcId,
-    source: { eventId, stage: stageName },
-  })
+  const result = importedCopy(
+    await invokeImport(importFunctionName(targetStack), {
+      copier,
+      copy,
+      organizerKcId: organizer.kcId,
+      source: { eventId, stage: stageName },
+    })
+  )
 
   await audit({
     auditKey: eventAuditKey(source),

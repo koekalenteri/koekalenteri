@@ -442,6 +442,7 @@
     "viewerBanner_other": "{{names}} are also viewing this event."
   },
   "eventCopy": {
+    "alreadyCopied": "The event has already been copied to the target environment as {{name}}. Delete the old copy there first if you want to copy it again.",
     "copy": "Copy",
     "done": {
       "dev": "The event was copied to the development environment. You will find it there under a name that starts with [Kopio].",

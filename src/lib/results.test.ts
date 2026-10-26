@@ -1,6 +1,11 @@
 import type { JsonEventResult, JsonEventResultTask } from '../types'
 import type { ScoredTask, SubmittedEventResult } from './results'
 import i18n from 'i18next'
+import koemuotoNKM from '../lambda/lib/KLIntegraatio-fixtures/koemuoto-NKM.json'
+import koemuotoNOME_A from '../lambda/lib/KLIntegraatio-fixtures/koemuoto-NOME-A.json'
+import koemuotoNOME_B from '../lambda/lib/KLIntegraatio-fixtures/koemuoto-NOME-B.json'
+import koemuotoNOU from '../lambda/lib/KLIntegraatio-fixtures/koemuoto-NOU.json'
+import koemuotoNOWT from '../lambda/lib/KLIntegraatio-fixtures/koemuoto-NOWT.json'
 import {
   availableResultCodes,
   canBeStopped,
@@ -11,6 +16,7 @@ import {
   formatEventResult,
   formatResultLine,
   formatShownResult,
+  hasJudgeStop,
   kcFormatOfEventType,
   mergeStationTasks,
   nowtTotals,
@@ -352,6 +358,36 @@ describe('canBeStopped', () => {
     for (const code of ['1', '2', '3', '-'] as const) {
       expect(canBeStopped(code)).toBe(false)
     }
+  })
+})
+
+describe('hasJudgeStop', () => {
+  // Koemuoto/Lue/Tulokset lists a keskeytys row for each of these (KLIntegraatio-fixtures/koemuoto-*.json),
+  // and a championship follows its format.
+  it.each(['NKM', 'NOME-A', 'NOME-A SM', 'NOME-B', 'NOME-B SM', 'NOWT', 'NOWT SM'])(
+    'lets the judge stop a %s',
+    (eventType) => {
+      expect(hasJudgeStop(eventType)).toBe(true)
+    }
+  )
+
+  // NOU's results are NOU1 and NOU0 and nothing else: a taipumuskoe is never stopped (KOE-1643).
+  it('has no stop in a taipumuskoe', () => {
+    expect(hasJudgeStop('NOU')).toBe(false)
+  })
+
+  // The list mirrors Kennelliitto's answer, so a refreshed fixture that disagrees fails here rather
+  // than hiding a stop the format has, or offering one it has not.
+  it.each([koemuotoNKM, koemuotoNOME_A, koemuotoNOME_B, koemuotoNOU, koemuotoNOWT])(
+    'agrees with the keskeytys rows Kennelliitto lists for $koemuoto',
+    (koemuoto) => {
+      expect(hasJudgeStop(koemuoto.koemuoto)).toBe(koemuoto.tulokset.some((row) => row.keskeytys))
+    }
+  )
+
+  it('has none for a format nobody has listed one for', () => {
+    expect(hasJudgeStop('MEJÄ')).toBe(false)
+    expect(hasJudgeStop(undefined)).toBe(false)
   })
 })
 

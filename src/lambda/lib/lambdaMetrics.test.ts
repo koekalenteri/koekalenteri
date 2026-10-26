@@ -2,7 +2,7 @@ import type { APIGatewayEvent, APIGatewayProxyEvent } from 'aws-lambda'
 import { vi } from 'vitest'
 import { loggedLines } from '../test-utils/logs'
 
-vi.mock('../config', () => ({ CONFIG: { stageName: 'test' } }))
+vi.mock('../config', () => ({ CONFIG: { stackName: 'koekalenteri-test', stageName: 'test' } }))
 // The backend project runs the metric sink as Local (vitest.config.mts), which writes each EMF line
 // with console.log; the deployed Lambda writes the same line to stdout for CloudWatch to read.
 
@@ -34,12 +34,15 @@ describe('lambda wrapper metrics', () => {
     vi.restoreAllMocks()
   })
 
-  /** One EMF line counting one `Error` of the service in the KoekalenteriApp namespace. */
+  /** One EMF line counting one `Error` of the service in the stack's namespace. */
   const errorLine = (service: string) =>
     expect.objectContaining({
       _aws: expect.objectContaining({
         CloudWatchMetrics: [
-          expect.objectContaining({ Metrics: [{ Name: 'Error', Unit: 'Count' }], Namespace: 'KoekalenteriApp' }),
+          expect.objectContaining({
+            Metrics: [{ Name: 'Error', Unit: 'Count' }],
+            Namespace: 'KoekalenteriApp/koekalenteri-test',
+          }),
         ],
       }),
       Error: 1,
