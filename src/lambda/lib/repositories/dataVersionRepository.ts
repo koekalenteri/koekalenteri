@@ -26,6 +26,11 @@ export interface VersionRecord extends DataVersion {
    */
   count?: number
   fingerprintAt?: string
+  /**
+   * When the repair run that wrote the fingerprint started measuring. A revision `modifiedAt` later
+   * than this is a bump made since, so a fingerprint that moved with one is not drift.
+   */
+  checkedAt?: string
 }
 
 /** A collection's row to read: `scope` is `*` for a global collection, an organization for users. */
@@ -66,17 +71,22 @@ export const writeRevision = async (collection: VersionedCollection, scope: stri
   await dynamoDB.update({ collection, scope }, { set: { ...revision } })
 }
 
-/** Stores the fingerprint the weekly repair measured, and a new revision with it when given one. */
+/**
+ * Stores the fingerprint the weekly repair measured and when it checked, and a new revision with it
+ * when given one.
+ */
 export const writeFingerprint = async (
   collection: VersionedCollection,
   scope: string,
   fingerprint: Pick<VersionRecord, 'count' | 'fingerprintAt'>,
+  checkedAt: string,
   revision?: Revision
 ) => {
   await dynamoDB.update(
     { collection, scope },
     {
       set: {
+        checkedAt,
         count: fingerprint.count,
         fingerprintAt: fingerprint.fingerprintAt ?? '',
         ...revision,

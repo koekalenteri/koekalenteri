@@ -35,8 +35,8 @@ const GLOBAL_VERSIONED_COLLECTIONS = [
  */
 const INITIAL_REVISION = 'initial'
 
-/** A new opaque revision token, stamped with the time it was minted. */
-const mintRevision = (): Revision => ({ modifiedAt: new Date().toISOString(), revision: nanoid(10) })
+/** A new opaque revision token, stamped with the time it was minted unless given another. */
+const mintRevision = (modifiedAt = new Date().toISOString()): Revision => ({ modifiedAt, revision: nanoid(10) })
 
 const recordKey = (collection: string, scope: string) => `${collection}#${scope}`
 
@@ -120,13 +120,15 @@ export const markMigrationApplied = async (name: string, count: number, hash: st
 export const readStoredDataVersions = async () => readAllVersionRecords()
 
 /**
- * Records the fingerprint the weekly repair measured, reminting the revision when the data moved
- * without a bump. This is the backstop that keeps a forgotten bump from leaving a browser on a
- * stale cache forever.
+ * Records the fingerprint the weekly repair measured and when it started measuring, reminting the
+ * revision when the data moved without a bump. This is the backstop that keeps a forgotten bump from
+ * leaving a browser on a stale cache forever. The remint is stamped with the check rather than the
+ * clock: a revision later than the check is how the next run recognizes a bump.
  */
 export const writeDataVersionFingerprint = async (
   collection: VersionedCollection,
   scope: string,
   fingerprint: Pick<VersionRecord, 'count' | 'fingerprintAt'>,
+  checkedAt: string,
   remint: boolean
-) => writeFingerprint(collection, scope, fingerprint, remint ? mintRevision() : undefined)
+) => writeFingerprint(collection, scope, fingerprint, checkedAt, remint ? mintRevision(checkedAt) : undefined)

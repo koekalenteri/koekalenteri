@@ -1,6 +1,12 @@
+import type { VersionRecord } from './repositories/dataVersionRepository'
 import { uniqueId } from '../test-utils/integration'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
-import { markMigrationApplied, readAppliedMigrations } from './dataVersions'
+import {
+  bumpDataVersion,
+  markMigrationApplied,
+  readAppliedMigrations,
+  writeDataVersionFingerprint,
+} from './dataVersions'
 
 interface MigrationRow {
   appliedAt: string
@@ -76,5 +82,49 @@ describe('markMigrationApplied against DynamoDB-local', () => {
     expect(applied.has(hashless)).toBe(true)
     expect(applied.get(hashless)).toBeUndefined()
     expect(applied.has(unknown)).toBe(false)
+  })
+})
+
+/**
+ * The weekly repair tells a bump from drift by the revision's time against the time of its last
+ * check, so a bump has to leave the fingerprint and the check in place, and the repair's own remint
+ * must not read as a bump on the next run.
+ */
+describe('weekly repair rows against DynamoDB-local', () => {
+  const client = new CustomDynamoClient('DataVersionTable')
+  const read = (scope: string) => client.read<VersionRecord>({ collection: 'users', scope })
+  const CHECKED_AT = '2026-10-18T02:40:00.000Z'
+
+  it('keeps the fingerprint and the check through a bump, which reads as later than the check', async () => {
+    const scope = uniqueId('scope')
+    await writeDataVersionFingerprint(
+      'users',
+      scope,
+      { count: 2, fingerprintAt: '2026-10-01T00:00:00.000Z' },
+      CHECKED_AT,
+      false
+    )
+
+    await bumpDataVersion('users', [scope])
+
+    const row = await read(scope)
+    expect(row).toMatchObject({ checkedAt: CHECKED_AT, count: 2, fingerprintAt: '2026-10-01T00:00:00.000Z' })
+    expect(row?.modifiedAt && row.modifiedAt > CHECKED_AT).toBe(true)
+  })
+
+  it('stamps its own remint with the check, so it does not read as a bump', async () => {
+    const scope = uniqueId('scope')
+
+    await writeDataVersionFingerprint('users', scope, { count: 1 }, CHECKED_AT, true)
+
+    await expect(read(scope)).resolves.toEqual({
+      checkedAt: CHECKED_AT,
+      collection: 'users',
+      count: 1,
+      fingerprintAt: '',
+      modifiedAt: CHECKED_AT,
+      revision: expect.any(String),
+      scope,
+    })
   })
 })
