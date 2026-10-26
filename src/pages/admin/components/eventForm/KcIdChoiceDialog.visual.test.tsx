@@ -63,7 +63,7 @@ const choices: EventKcIdChoice[] = [
     startDate: '2026-08-08',
     status: 'Hyväksytty',
   },
-  // The widest a row gets: a Koetunnus, Kennelliitto's free-text name of the trial and a long place.
+  // The widest a row gets: a Koetunnus, Kennelliitto's free-text name of the trial, a long place and a long status.
   {
     classes: ['ALO', 'AVO', 'VOI'],
     endDate: '2026-10-11',
@@ -75,26 +75,27 @@ const choices: EventKcIdChoice[] = [
     name: 'Hämeen noutajien syyskoe ja mestaruus',
     organizer: 'HÄMEEN NOUTAJAKOIRAYHDISTYS RY',
     startDate: '2026-10-10',
-    status: 'Hyväksytty',
+    // Kennelliitto's free text: the longest status the app knows (code 1253).
+    status: 'Ylituomarin hyväksyttäväksi',
   },
 ]
 
-/**
- * The most lines each column may take, by column index. A short value (Koetunnus, Koe, Luokat, Aika,
- * Tila) is read at a glance only on one line, and the action column holds the Valitse button alone.
- * Paikka and Järjestäjä may wrap. In the Koe column the limit is the event type's, the cell's first
- * text: Kennelliitto's free-text name after it may wrap. The reason a trial cannot be chosen is a
- * row of its own under the trial, one cell across all the columns, so it is index 0 and on one line
- * too (KOE-1641).
- */
+/** The Koe column, where only the event type, the cell's first text, is kept on one line. */
 const KOE_COLUMN = 1
 
+/**
+ * The most lines each column may take, by column index. A short value (Koetunnus, Koe, Luokat, Aika)
+ * is read at a glance only on one line, and the action column holds the Valitse button alone.
+ * Paikka, Järjestäjä and Kennelliitto's free-text Tila may wrap. In the Koe column the limit is the
+ * event type's: Kennelliitto's free-text name after it may wrap. The reason a trial cannot be chosen
+ * is a row of its own under the trial, one cell across all the columns, so it is index 0 and on one
+ * line too (KOE-1641).
+ */
 const MAX_LINES = new Map([
   [0, 1],
   [1, 1],
   [2, 1],
   [3, 1],
-  [6, 1],
   [7, 1],
 ])
 

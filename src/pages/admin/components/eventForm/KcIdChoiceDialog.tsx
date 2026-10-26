@@ -1,5 +1,4 @@
 import type { EventKcIdChoice } from '@/types'
-import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import Dialog from '@mui/material/Dialog'
 import DialogActions from '@mui/material/DialogActions'
@@ -27,7 +26,10 @@ const VISUALLY_HIDDEN = {
   width: 1,
 } as const
 
-/** A short value is read at a glance only on one line; Paikka and Järjestäjä wrap into the width left (KOE-1641). */
+/**
+ * A short value is read at a glance only on one line. Paikka, Järjestäjä, Kennelliitto's trial name and
+ * its free-text Tila ("Ylituomarin hyväksyttäväksi") wrap into the width left (KOE-1641).
+ */
 const ONE_LINE = { whiteSpace: 'nowrap' } as const
 
 /**
@@ -62,7 +64,7 @@ export default function KcIdChoiceDialog({ choices, linkedKcGuids, onClose, onSe
               <TableCell sx={ONE_LINE}>{t('event.kcIdChoiceTime')}</TableCell>
               <TableCell>{t('event.kcIdChoiceLocation')}</TableCell>
               <TableCell>{t('event.kcIdChoiceOrganizer')}</TableCell>
-              <TableCell sx={ONE_LINE}>{t('event.kcIdChoiceStatus')}</TableCell>
+              <TableCell>{t('event.kcIdChoiceStatus')}</TableCell>
               <TableCell>
                 <span style={VISUALLY_HIDDEN}>{t('event.kcIdSelect')}</span>
               </TableCell>
@@ -80,9 +82,7 @@ export default function KcIdChoiceDialog({ choices, linkedKcGuids, onClose, onSe
                     <TableCell sx={ONE_LINE}>{choice.kcTunnus ?? '-'}</TableCell>
                     {/* NOME-B must not break at its hyphen; Kennelliitto's free-text name after it may wrap. */}
                     <TableCell>
-                      <Box component="span" sx={ONE_LINE}>
-                        {choice.eventType}
-                      </Box>
+                      <span style={ONE_LINE}>{choice.eventType}</span>
                       {choice.name ? ` ${choice.name}` : null}
                     </TableCell>
                     <TableCell sx={ONE_LINE}>{choice.classes.join(', ')}</TableCell>
@@ -91,7 +91,7 @@ export default function KcIdChoiceDialog({ choices, linkedKcGuids, onClose, onSe
                     </TableCell>
                     <TableCell>{choice.location}</TableCell>
                     <TableCell>{choice.organizer}</TableCell>
-                    <TableCell sx={ONE_LINE}>{choice.status}</TableCell>
+                    <TableCell>{choice.status}</TableCell>
                     <TableCell align="right">
                       {reason ? null : (
                         <Button variant="contained" size="small" onClick={() => onSelect(choice)}>
