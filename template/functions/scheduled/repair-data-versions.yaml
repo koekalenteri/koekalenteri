@@ -93,7 +93,7 @@
       LogGroupName: !Ref RepairDataVersionsFunctionLogGroup
       MetricTransformations:
         - MetricName: DataVersionDrift
-          MetricNamespace: KoekalenteriApp
+          MetricNamespace: !Sub 'KoekalenteriApp/${AWS::StackName}'
           MetricValue: '1'
 
   RepairDataVersionsDriftAlarm:
@@ -106,7 +106,7 @@
         - !Ref AlarmTopic
       AlarmDescription: A collection changed without its version being bumped
       AlarmName: !Sub '${AWS::StackName}-data-version-drift'
-      Namespace: KoekalenteriApp
+      Namespace: !Sub 'KoekalenteriApp/${AWS::StackName}'
       MetricName: DataVersionDrift
       Statistic: Sum
       Period: 86400

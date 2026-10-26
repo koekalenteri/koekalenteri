@@ -52,7 +52,7 @@
       LogGroupName: !Ref PutRegistrationGroupsFunctionLogGroup
       MetricTransformations:
         - MetricName: RegistrationGroupsLockConflict
-          MetricNamespace: KoekalenteriApp
+          MetricNamespace: !Sub 'KoekalenteriApp/${AWS::StackName}'
           MetricValue: '1'
 
   PutRegistrationGroupsLockConflictAlarm:
@@ -68,7 +68,7 @@
       ComparisonOperator: GreaterThanOrEqualToThreshold
       EvaluationPeriods: 1
       MetricName: RegistrationGroupsLockConflict
-      Namespace: KoekalenteriApp
+      Namespace: !Sub 'KoekalenteriApp/${AWS::StackName}'
       Period: 60
       Statistic: Sum
       Threshold: 1
