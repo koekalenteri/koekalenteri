@@ -2,13 +2,14 @@ import type { ClassOrNone, JsonConfirmedEvent } from '../../types'
 import { resultsPublishedAudit } from '../../lib/audit'
 import { isDayKey } from '../../lib/day'
 import { getClassDays, uniqueClasses } from '../../lib/event'
-import { isRegistrationClass } from '../../lib/registration'
+import { groupParticipantsByClass, isRegistrationClass } from '../../lib/registration'
 import { audit, eventAuditKey } from '../lib/audit'
 import { authorizeWithMemberOf } from '../lib/auth'
 import { getEvent, setResultsPublishedState } from '../lib/event'
 import { assertEventOrganizerAccess } from '../lib/eventAuth'
 import { parseJSONWithFallback } from '../lib/json'
 import { getParam, httpError, lambda, response } from '../lib/lambda'
+import { readEventRegistrations } from '../lib/repositories/registrationRepository'
 import { publishEventPatch, publishPublicStartList } from '../lib/ws/actions'
 
 interface ResultsPublishedRequest {
@@ -41,8 +42,8 @@ const requestedClass = (
  * days publishes each day on its own, so the second day's results stay off the web while they are
  * being entered. The request names its day and nothing else changes: the clock never adds a day.
  *
- * The publish is held to the same rules the panel greys its buttons by (KOE-1466); hiding is always
- * allowed.
+ * The publish is held to the same rules the panel greys its buttons by (KOE-1466), among them that
+ * the day has a result entered (KOE-1642); hiding is always allowed.
  */
 const putResultsPublishedLambda = lambda('putResultsPublished', async (event) => {
   const { user, memberOf } = await authorizeWithMemberOf(event)
@@ -61,8 +62,13 @@ const putResultsPublishedLambda = lambda('putResultsPublished', async (event) =>
     throw httpError(422, 'invalid date')
   }
 
+  // A day with no result entered has nothing to publish (KOE-1642). Read as last written, so a result
+  // saved just before the publish counts.
+  const registrations = await readEventRegistrations(eventId, true)
+  const participants = groupParticipantsByClass(registrations)[eventClass ?? confirmedEvent.eventType] ?? []
+
   // Held to the publishing rules, and on a conflict judged and folded again from the row as written.
-  const saved = await setResultsPublishedState(confirmedEvent, { date, eventClass, published })
+  const saved = await setResultsPublishedState(confirmedEvent, { date, eventClass, participants, published })
 
   await audit({
     auditKey: eventAuditKey(saved),

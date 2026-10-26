@@ -16,6 +16,7 @@ const mockReadEvent = vi.fn()
 const mockWriteResultsPublished = vi.fn()
 const mockPublishEventPatch = vi.fn()
 const mockPublishPublicStartList = vi.fn()
+const mockReadEventRegistrations = vi.fn()
 
 vi.doMock('../lib/lambda', async () => ({
   ...(await vi.importActual<typeof import('../lib/lambda')>('../lib/lambda')),
@@ -32,6 +33,12 @@ vi.doMock('../lib/auth', () => ({ authorizeWithMemberOf: mockAuthorizeWithMember
 vi.doMock('../lib/repositories/eventRepository', () => ({
   readEvent: mockReadEvent,
   writeResultsPublished: mockWriteResultsPublished,
+}))
+vi.doMock('../lib/repositories/registrationRepository', async () => ({
+  ...(await vi.importActual<typeof import('../lib/repositories/registrationRepository')>(
+    '../lib/repositories/registrationRepository'
+  )),
+  readEventRegistrations: mockReadEventRegistrations,
 }))
 vi.doMock('../lib/ws/actions', () => ({
   publishEventPatch: mockPublishEventPatch,
@@ -95,6 +102,26 @@ const writeResultsOnRow = async (
   return row.resultsPublished
 }
 
+/** A dog of the class placed on the day, with a result recorded unless told otherwise. */
+const dog = (eventClass: string | undefined, date: string, eventResult: object | undefined = { result: 'X1' }) => ({
+  class: eventClass,
+  eventId: 'event-1',
+  eventResult,
+  eventType: eventClass ? 'NOME-B' : 'NOU',
+  group: { date, key: `${date}-ap`, number: 1, time: 'ap' },
+  id: `${eventClass}-${date}`,
+})
+
+/** Every class day of `twoDays`, and a classless trial's days, with a result entered. */
+const everyDayScored = [
+  dog('ALO', '2026-09-12'),
+  dog('ALO', '2026-09-13'),
+  dog('AVO', '2026-09-12'),
+  dog(undefined, '2026-09-12'),
+  dog(undefined, '2026-09-13'),
+  dog('ALO', '2025-03-01'),
+]
+
 /** Store the event, and have every request read the row as it then is. */
 const store = (event: JsonConfirmedEvent) => {
   row = event
@@ -109,6 +136,7 @@ describe('putResultsPublishedLambda', () => {
     mockAuthorizeWithMemberOf.mockResolvedValue({ memberOf: ['org-1'], user: { id: 'u1', name: 'Sihteeri' } })
     mockWriteResultsPublished.mockImplementation(writeResultsOnRow)
     store(twoDays({ updatedAt: '2026-09-13T04:00:00.000Z' }))
+    mockReadEventRegistrations.mockResolvedValue(everyDayScored)
   })
   afterEach(() => {
     vi.useRealTimers()
@@ -298,6 +326,40 @@ describe('putResultsPublishedLambda', () => {
       expect.anything()
     )
     expect(mockWriteResultsPublished).not.toHaveBeenCalled()
+  })
+
+  it('refuses a day that has no result entered, and always lets it be hidden (KOE-1642)', async () => {
+    // Saturday's dogs have only a retirement without a result, Sunday's a result: nothing of Saturday to show.
+    mockReadEventRegistrations.mockResolvedValue([
+      dog('ALO', '2026-09-12', { retirement: { cause: 'handlerChoice' } }),
+      dog('ALO', '2026-09-13'),
+    ])
+    store(twoDays({ resultsPublished: { ALO: ['2026-09-12'] } }))
+
+    await putResultsPublishedLambda(apiEvent({ date: '2026-09-12', eventClass: 'AVO', published: true }))
+    expect(mockResponse).toHaveBeenCalledWith(
+      422,
+      { error: 'publishBlocked', eventClass: 'AVO', publish: 'results', reason: 'results' },
+      expect.anything()
+    )
+    expect(mockWriteResultsPublished).not.toHaveBeenCalled()
+    expect(mockReadEventRegistrations).toHaveBeenCalledWith('event-1', true)
+
+    await putResultsPublishedLambda(apiEvent({ date: '2026-09-12', eventClass: 'ALO', published: false }))
+    expect(row.resultsPublished).toEqual({ ALO: false })
+  })
+
+  it('refuses a classless day that has no result entered (KOE-1642)', async () => {
+    mockReadEventRegistrations.mockResolvedValue([dog(undefined, '2026-09-13')])
+    store(twoDays({ classes: [], eventType: 'NOU' }))
+
+    await putResultsPublishedLambda(apiEvent({ date: '2026-09-12', published: true }))
+
+    expect(mockResponse).toHaveBeenCalledWith(
+      422,
+      { error: 'publishBlocked', eventClass: undefined, publish: 'results', reason: 'results' },
+      expect.anything()
+    )
   })
 
   it('refuses results on an unpublished start list, but always lets a day be hidden', async () => {

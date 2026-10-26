@@ -3,6 +3,9 @@ import type {
   ConfirmedEvent,
   DogEvent,
   JsonConfirmedEvent,
+  JsonEventResult,
+  JsonRegistration,
+  Registration,
   RegistrationClass,
   ResultsDayScope,
   ResultsPublishedState,
@@ -19,7 +22,7 @@ import {
   isStartListAvailableForClass,
   isStartListPublishedForClass,
 } from './event'
-import { getInvitationRecipients, isRegistrationClass } from './registration'
+import { getInvitationRecipients, getRegistrationGroupDay, isRegistrationClass } from './registration'
 import { isObject } from './utils'
 
 /**
@@ -34,7 +37,7 @@ type ClassEntry = PublishingEvent['classes'][number]
 type StartListEvent = PublishingEvent | DogEvent
 
 /** Why a publish is refused; absent when nothing stands in its way. */
-export type PublishBlocker = 'participants' | 'state' | 'invitations' | 'startList'
+export type PublishBlocker = 'participants' | 'state' | 'invitations' | 'startList' | 'results'
 
 /** The class's entry — its first day's, for a class running on several — or none for a classless event. */
 export const classEntry = (
@@ -93,20 +96,31 @@ export const getStartNumbersBlocker = (
   return isStartListPublished(event, classEntry(event, eventClass)) ? undefined : 'startList'
 }
 
+/** A participant as the results rule reads it: the day it is placed on and what was recorded for it. */
+type ResultsParticipant = Pick<JsonRegistration | Registration, 'group'> & {
+  eventResult?: Pick<JsonEventResult, 'result'>
+}
+
 /**
  * A result reaches the public only on the start list's rows, so it waits on the list; and there is
  * nothing to publish before the dogs have run. Each day is published on its own (KOE-1510), so a day
- * that has not begun has nothing to publish either, however far the trial is.
+ * that has not begun has nothing to publish either, however far the trial is. Nor has a day on which
+ * no participant of the class has a result entered (KOE-1642); an elimination or retirement recorded
+ * without a result code shows nothing on the public row, so it does not count.
  */
 export const getResultsBlocker = (
   event: PublishingEvent,
   eventClass: ClassOrNone,
-  day?: string
+  participants: readonly ResultsParticipant[],
+  day: string
 ): PublishBlocker | undefined => {
   if (!isStartListPublished(event, classEntry(event, eventClass))) return 'startList'
   if (!canPublishResults(getEventStateForClass(event, eventClass), event)) return 'state'
-  if (day && !hasDayStarted(day)) return 'state'
-  return undefined
+  if (!hasDayStarted(day)) return 'state'
+  const scored = participants.some(
+    ({ eventResult, group }) => !!eventResult?.result && getRegistrationGroupDay(group?.date) === day
+  )
+  return scored ? undefined : 'results'
 }
 
 const isDayScope = (value: unknown): value is ResultsDayScope =>

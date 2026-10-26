@@ -1,9 +1,10 @@
-import type { ConfirmedEvent } from '@/types'
+import type { ConfirmedEvent, DayKey } from '@/types'
 import { act, screen, within } from '@testing-library/react'
 import { ConfirmProvider } from 'material-ui-confirm'
 import { enqueueSnackbar } from 'notistack'
 import { eventWithStaticDates } from '@/__mockData__/events'
 import { APIError } from '@/api/http'
+import { groupParticipantsByClass } from '@/lib/registration'
 import { renderWithUserEvents } from '@/test-utils/utils'
 import ResultsPublishing from './ResultsPublishing'
 
@@ -13,12 +14,35 @@ vi.mock('notistack', () => ({
 
 // A tolling aptitude trial (NOU) has no classes; its start list is out and the dogs have run.
 const classless: ConfirmedEvent = { ...eventWithStaticDates, startListPublished: true, state: 'ended' }
+/** A dog placed on the day, with a result entered. */
+/** A dog placed on the day, with a result entered unless told otherwise. */
+const dog = (date: DayKey, eventClass?: 'ALO') => ({
+  class: eventClass,
+  eventResult: { result: 'NOU1' },
+  eventType: 'NOU',
+  group: { date, key: `${date}-ap`, number: 1 },
+})
 
-const renderSection = (event: ConfirmedEvent, onSetResultsPublished = vi.fn().mockResolvedValue(undefined)) => ({
+// A result entered on each day, for the classless trial and for ALO alike.
+const scoredDays = [dog('2021-02-10'), dog('2021-02-11'), dog('2021-02-10', 'ALO'), dog('2021-02-11', 'ALO')]
+
+const renderSection = (
+  event: ConfirmedEvent,
+  onSetResultsPublished = vi.fn().mockResolvedValue(undefined),
+  // A dog may have no result at all: its fields are still empty.
+  registrations: ReadonlyArray<
+    Partial<Pick<ReturnType<typeof dog>, 'eventResult'>> & Omit<ReturnType<typeof dog>, 'eventResult'>
+  > = scoredDays
+) => ({
   onSetResultsPublished,
   ...renderWithUserEvents(
     <ConfirmProvider>
-      <ResultsPublishing event={event} eventStarted onSetResultsPublished={onSetResultsPublished} />
+      <ResultsPublishing
+        event={event}
+        eventStarted
+        onSetResultsPublished={onSetResultsPublished}
+        selectedByClass={groupParticipantsByClass(registrations)}
+      />
     </ConfirmProvider>
   ),
 })
@@ -122,6 +146,30 @@ describe('ResultsPublishing', () => {
     expect(screen.getByRole('button', { name: 'eventManagement.results.publish' })).toBeDisabled()
   })
 
+  // KOE-1642: the button stood live on a trial with every result field still empty.
+  it('keeps the publish disabled while no result is entered, and says so', () => {
+    // The dog is placed on the day, its result fields still empty as in the report.
+    const { eventResult: _empty, ...unscored } = dog('2021-02-10')
+    renderSection(oneDay, undefined, [unscored])
+
+    expect(screen.getByText('eventManagement.results.noResults')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'eventManagement.results.publish' })).toBeDisabled()
+  })
+
+  it('names only the missing start list when that is what stands in the way', () => {
+    renderSection({ ...oneDay, startListPublished: false }, undefined, [])
+
+    expect(screen.getByText('eventManagement.results.startListRequired')).toBeInTheDocument()
+    expect(screen.queryByText('eventManagement.results.noResults')).not.toBeInTheDocument()
+  })
+
+  it('lets results that went out be hidden though none is entered any longer', () => {
+    renderSection({ ...oneDay, resultsPublished: true }, undefined, [])
+
+    expect(screen.getByRole('button', { name: 'eventManagement.results.hide' })).toBeEnabled()
+    expect(screen.queryByText('eventManagement.results.noResults')).not.toBeInTheDocument()
+  })
+
   /**
    * A class running on two days has a row for each, published on its own: the first day's results go
    * out that evening and the second day's stay hidden while they are entered (KOE-1510).
@@ -160,6 +208,15 @@ describe('ResultsPublishing', () => {
       expect(enqueueSnackbar).toHaveBeenCalledWith('eventManagement.results.hiddenDay day, eventClass', {
         variant: 'success',
       })
+    })
+
+    it('keeps the publish of a day without a result disabled, though the other day has one (KOE-1642)', () => {
+      renderSection({ ...twoDays, resultsPublished: undefined }, undefined, [dog('2021-02-11', 'ALO')])
+
+      const [first, second] = dayRows()
+      expect(within(first).getByRole('button', { name: 'eventManagement.results.publish' })).toBeDisabled()
+      expect(within(first).getByText('eventManagement.results.noResults')).toBeInTheDocument()
+      expect(within(second).getByRole('button', { name: 'eventManagement.results.publish' })).toBeEnabled()
     })
 
     it('keeps the publish of a day that has not begun disabled, as the server would refuse it', () => {

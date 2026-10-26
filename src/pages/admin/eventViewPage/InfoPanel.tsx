@@ -304,7 +304,12 @@ const InfoPanel = ({
             onSetStartNumbersPublished={onSetStartNumbersPublished}
             selectedByClass={selectedByClass}
           />
-          <ResultsPublishing event={event} eventStarted={eventStarted} onSetResultsPublished={onSetResultsPublished} />
+          <ResultsPublishing
+            event={event}
+            eventStarted={eventStarted}
+            onSetResultsPublished={onSetResultsPublished}
+            selectedByClass={selectedByClass}
+          />
           {official && (
             <KennelliittoSubmission
               event={event}

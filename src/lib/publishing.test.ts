@@ -1,4 +1,4 @@
-import type { JsonConfirmedEvent } from '../types'
+import type { DayKey, JsonConfirmedEvent } from '../types'
 import { freezeClockAt } from '../test-utils/freezeClock'
 import { addDays, dayOf, TIME_ZONE } from './day'
 import {
@@ -29,6 +29,14 @@ const event = (overrides: Partial<JsonConfirmedEvent> = {}) =>
 
 const invited = { class: 'ALO', eventType: 'NOME-B', messagesSent: { invitation: true } } as const
 const uninvited = { class: 'ALO', eventType: 'NOME-B', messagesSent: {} } as const
+
+/** A dog placed on the day, with what the secretary recorded for it. */
+const placed = (date: DayKey, eventResult?: { result?: string; retirement?: { cause: 'handlerChoice' } }) => ({
+  eventResult,
+  group: { date, key: `${date}-ap`, number: 1, time: 'ap' as const },
+})
+/** A dog with a result recorded on the day. */
+const scored = (date: DayKey) => placed(date, { result: 'ALO1' })
 
 describe('lib/publishing', () => {
   describe('getStartListBlocker', () => {
@@ -100,9 +108,14 @@ describe('lib/publishing', () => {
 
   describe('getResultsBlocker', () => {
     it('waits on the start list, then on the trial having run', () => {
-      expect(getResultsBlocker(event({ state: 'ended' }), 'ALO')).toBe('startList')
-      expect(getResultsBlocker(event({ startListPublished: { ALO: true } }), 'ALO')).toBe('state')
-      expect(getResultsBlocker(event({ startListPublished: { ALO: true }, state: 'ended' }), 'ALO')).toBeUndefined()
+      // A day already begun, so only the list and the state stand in the way.
+      const day = inDays(-1)
+      const dogs = [scored(day)]
+      expect(getResultsBlocker(event({ state: 'ended' }), 'ALO', dogs, day)).toBe('startList')
+      expect(getResultsBlocker(event({ startListPublished: { ALO: true } }), 'ALO', dogs, day)).toBe('state')
+      expect(
+        getResultsBlocker(event({ startListPublished: { ALO: true }, state: 'ended' }), 'ALO', dogs, day)
+      ).toBeUndefined()
     })
 
     describe('on the first day of a two-day trial (KOE-1510)', () => {
@@ -119,8 +132,9 @@ describe('lib/publishing', () => {
           startListPublished: { ALO: true },
         })
 
-        expect(getResultsBlocker(running, 'ALO', '2026-09-12')).toBeUndefined()
-        expect(getResultsBlocker(running, 'ALO', '2026-09-13')).toBe('state')
+        const dogs = [scored('2026-09-12'), scored('2026-09-13')]
+        expect(getResultsBlocker(running, 'ALO', dogs, '2026-09-12')).toBeUndefined()
+        expect(getResultsBlocker(running, 'ALO', dogs, '2026-09-13')).toBe('state')
       })
     })
 
@@ -139,10 +153,48 @@ describe('lib/publishing', () => {
           state: 'picked',
         })
 
-        expect(getResultsBlocker(picked, 'ALO', '2026-09-13')).toBeUndefined()
-        expect(getResultsBlocker({ ...picked, startListPublished: { ALO: false } }, 'ALO', '2026-09-13')).toBe(
+        const dogs = [scored('2026-09-13')]
+        expect(getResultsBlocker(picked, 'ALO', dogs, '2026-09-13')).toBeUndefined()
+        expect(getResultsBlocker({ ...picked, startListPublished: { ALO: false } }, 'ALO', dogs, '2026-09-13')).toBe(
           'startList'
         )
+      })
+    })
+
+    describe('on a trial whose results have not been entered (KOE-1642)', () => {
+      freezeClockAt('2026-09-20')
+
+      const run = event({
+        classes: [
+          { class: 'ALO', date: '2026-09-12' as const },
+          { class: 'ALO', date: '2026-09-13' as const },
+        ],
+        endDate: '2026-09-13' as const,
+        startDate: '2026-09-12' as const,
+        startListPublished: { ALO: true },
+        state: 'started',
+      })
+
+      it('has nothing to publish while no dog of the class has a result on the day', () => {
+        expect(getResultsBlocker(run, 'ALO', [placed('2026-09-12'), placed('2026-09-13')], '2026-09-12')).toBe(
+          'results'
+        )
+        expect(getResultsBlocker(run, 'ALO', [], '2026-09-12')).toBe('results')
+      })
+
+      it('reads only the day it publishes', () => {
+        expect(getResultsBlocker(run, 'ALO', [scored('2026-09-13')], '2026-09-12')).toBe('results')
+        expect(getResultsBlocker(run, 'ALO', [scored('2026-09-13')], '2026-09-13')).toBeUndefined()
+      })
+
+      it('does not count a participant whose group has no day, as the public list does not show it', () => {
+        const undated = { ...scored('2026-09-12'), group: { key: '2026-09-12-ap', number: 1 } }
+        expect(getResultsBlocker(run, 'ALO', [undated], '2026-09-12')).toBe('results')
+      })
+
+      it('counts a recorded result, not a retirement without one, as there is nothing of it to show', () => {
+        const retired = placed('2026-09-12', { retirement: { cause: 'handlerChoice' } })
+        expect(getResultsBlocker(run, 'ALO', [retired], '2026-09-12')).toBe('results')
       })
     })
   })
@@ -185,7 +237,7 @@ describe('lib/publishing', () => {
     })
 
     it('lets its results be published', () => {
-      expect(getResultsBlocker(picked, 'ALO')).toBeUndefined()
+      expect(getResultsBlocker(picked, 'ALO', [scored('2026-06-13')], '2026-06-13')).toBeUndefined()
     })
   })
 

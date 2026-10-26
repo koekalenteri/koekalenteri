@@ -561,6 +561,7 @@
       "hiddenEvent": "Results hidden",
       "hiddenEventDay": "Results for {{day}} hidden",
       "hide": "Hide results",
+      "noResults": "No results entered",
       "publish": "Publish results",
       "published": "Published",
       "publishedSnack": "Results for class {{eventClass}} published",
