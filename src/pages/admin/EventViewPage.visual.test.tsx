@@ -93,6 +93,12 @@ const renderPage = (shown: ConfirmedEvent, entries: Registration[]) =>
     </div>
   )
 
+// Every render gets a fresh store, so the entry dialogs at the foot of the page suspend on their
+// atoms each time, and until they have loaded the page sits behind its loading modal, which hides
+// the tabs from role queries. The 1000 ms that `vi.waitFor` and `expect.element` wait by default is
+// not always enough for that on a CI runner.
+const loadTimeout = { timeout: 10_000 }
+
 // The first render of the page in a file suspends on the event atom, a promise until the list has
 // loaded and a plain value after, by design (see adminEventAtom), and React 19 notes that it completes
 // without it. One render ahead of the tests takes that note, so every test renders alike and none
@@ -100,7 +106,7 @@ const renderPage = (shown: ConfirmedEvent, entries: Registration[]) =>
 beforeAll(async () => {
   const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {})
   const screen = await renderPage(event, registrations)
-  await vi.waitFor(() => screen.getByRole('tab', { name: 'ALO' }).element())
+  await vi.waitFor(() => screen.getByRole('tab', { name: 'ALO' }).element(), loadTimeout)
   await screen.unmount()
   consoleError.mockRestore()
 })
@@ -108,7 +114,7 @@ beforeAll(async () => {
 it("shows the event's status row, info panel and class tabs above the entry grid", async () => {
   const screen = await renderPage(event, registrations)
 
-  await expect.element(screen.getByRole('tab', { name: 'ALO' })).toBeVisible()
+  await expect.element(screen.getByRole('tab', { name: 'ALO' }), loadTimeout).toBeVisible()
   await expect(screen.getByTestId('visual-root')).toMatchScreenshot('event-view-page-structure')
 })
 
@@ -129,6 +135,6 @@ it('shows the class tabs as ALO, AVO, VOI whatever order the classes were picked
     { ...registrations[1], class: 'VOI', eventId: pickedVoiFirst.id, eventType: 'NOWT' },
   ])
 
-  await expect.element(screen.getByRole('tab', { name: 'ALO', selected: true })).toBeVisible()
+  await expect.element(screen.getByRole('tab', { name: 'ALO', selected: true }), loadTimeout).toBeVisible()
   await expect(screen.getByTestId('visual-root')).toMatchScreenshot('event-view-page-class-order')
 })
