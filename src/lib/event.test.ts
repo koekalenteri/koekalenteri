@@ -832,17 +832,55 @@ describe('lib/event', () => {
   })
 
   describe('isEventDeletable', () => {
-    it.each<EventState>(['draft', 'tentative', 'cancelled'])('Should return true when event state is %p', (state) => {
-      expect(isEventDeletable({ state })).toEqual(true)
+    const copiedFrom = { at: '2026-10-01T10:00:00.000Z', by: 'admin', eventId: 'source', stage: 'prod' }
+
+    describe('in prod (KOE-1022)', () => {
+      it.each<EventState>(['draft', 'tentative', 'cancelled'])('Should return true when event state is %p', (state) => {
+        expect(isEventDeletable({ state }, 'prod')).toEqual(true)
+      })
+      it.each<EventState>(['completed', 'confirmed', 'ended', 'invited', 'picked', 'started'])(
+        'Should return false when event state is %p',
+        (state) => {
+          expect(isEventDeletable({ state }, 'prod')).toEqual(false)
+        }
+      )
+      it('should return false when event is undefined', () => {
+        expect(isEventDeletable(undefined, 'prod')).toEqual(false)
+      })
+      it('keeps a confirmed event with copiedFrom undeletable', () => {
+        expect(isEventDeletable({ copiedFrom, state: 'confirmed' }, 'prod')).toEqual(false)
+      })
+      it.each(['', 'local', 'Dev'])('treats the unknown stage %s as prod', (stage) => {
+        expect(isEventDeletable({ copiedFrom, state: 'confirmed' }, stage)).toEqual(false)
+        expect(isEventDeletable({ state: 'draft' }, stage)).toEqual(true)
+      })
     })
-    it.each<EventState>(['completed', 'confirmed', 'ended', 'invited', 'picked', 'started'])(
-      'Should return false when event state is %p',
-      (state) => {
-        expect(isEventDeletable({ state })).toEqual(false)
-      }
-    )
-    it('should return false when event is undefined', () => {
-      expect(isEventDeletable()).toEqual(false)
+
+    describe('in test (KOE-1640)', () => {
+      it.each<EventState>(['confirmed', 'invited', 'started', 'ended', 'completed'])(
+        'lets a copy from another environment go in state %s',
+        (state) => {
+          expect(isEventDeletable({ copiedFrom, state }, 'test')).toEqual(true)
+        }
+      )
+      it("keeps the environment's own confirmed event undeletable", () => {
+        expect(isEventDeletable({ state: 'confirmed' }, 'test')).toEqual(false)
+      })
+      it('still lets an own draft go', () => {
+        expect(isEventDeletable({ state: 'draft' }, 'test')).toEqual(true)
+      })
+    })
+
+    describe('in dev (KOE-1640)', () => {
+      it.each<EventState>(['confirmed', 'invited', 'picked', 'started', 'ended', 'completed'])(
+        'lets an event go in state %s',
+        (state) => {
+          expect(isEventDeletable({ state }, 'dev')).toEqual(true)
+        }
+      )
+      it('still has nothing to delete when the event is undefined', () => {
+        expect(isEventDeletable(undefined, 'dev')).toEqual(false)
+      })
     })
   })
 

@@ -1348,8 +1348,21 @@ export const getStartListPublishedClassMap = (
   return result
 }
 
-export const isEventDeletable = ({ state }: Partial<Pick<JsonDogEvent, 'state'>> | undefined = {}) =>
-  state === 'draft' || state === 'tentative' || state === 'cancelled'
+/**
+ * Whether the event may be deleted in the given stage (`dev`, `test` or `prod`; anything else is
+ * read as prod). In prod only an event nobody can have entered yet goes: a draft, a tentative or a
+ * cancelled one (KOE-1022). Dev lets any event go, and test also a copy imported from another
+ * environment (`copiedFrom`), whatever its state (KOE-1640).
+ */
+export const isEventDeletable = (
+  event: Partial<Pick<JsonDogEvent, 'copiedFrom' | 'state'>> | undefined,
+  stage: string
+): boolean => {
+  if (!event) return false
+  if (stage === 'dev') return true
+  if (stage === 'test' && event.copiedFrom) return true
+  return event.state === 'draft' || event.state === 'tentative' || event.state === 'cancelled'
+}
 
 /**
  * The year of the start date's Finnish day, or '' for no date or one without a calendar day (not an

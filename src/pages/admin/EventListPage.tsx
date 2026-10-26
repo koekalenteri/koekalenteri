@@ -186,7 +186,7 @@ export default function EventListPage() {
         )}
         <AutoButton
           startIcon={<DeleteOutline />}
-          disabled={!selectedEventID || !isEventDeletable(selectedEvent)}
+          disabled={!selectedEventID || !isEventDeletable(selectedEvent, apiStage())}
           onClick={deleteAction}
           text={t('delete')}
         />

@@ -368,8 +368,33 @@ describe('EventListPage', () => {
       expect(screen.getByTestId('where')).toHaveTextContent(Path.admin.newEvent)
     })
 
+    describe('the delete button by stage (KOE-1640)', () => {
+      afterEach(() => vi.unstubAllEnvs())
+
+      const copiedFrom = { at: '2026-10-01T10:00:00.000Z', by: 'admin', eventId: 'source', stage: 'prod' }
+      const confirmed = { ...eventWithParticipantsInvited, id: 'confirmed', state: 'confirmed' as const }
+
+      it.each([
+        { enabled: false, event: confirmed, kind: 'a confirmed event', stage: 'prod' },
+        { enabled: true, event: confirmed, kind: 'a confirmed event', stage: 'dev' },
+        { enabled: false, event: confirmed, kind: 'its own confirmed event', stage: 'test' },
+        { enabled: true, event: { ...confirmed, copiedFrom }, kind: 'a confirmed copy', stage: 'test' },
+        { enabled: false, event: { ...confirmed, copiedFrom }, kind: 'a confirmed copy', stage: 'prod' },
+      ])('in $stage, delete for $kind is enabled: $enabled', async ({ enabled, event, stage }) => {
+        vi.stubEnv('REACT_APP_API_BASE_URL', `https://api.example/${stage}`)
+        await renderWith(({ set }) => {
+          set(idTokenAtom, TEST_ID_TOKEN)
+          set(adminEventsAtom, [event])
+          set(adminEventIdAtom, event.id)
+        })
+        await flushPromises()
+
+        expect(screen.getByRole('button', { name: 'delete' })).toHaveProperty('disabled', !enabled)
+      })
+    })
+
     it('reports a deletion the server refuses instead of leaving it unhandled', async () => {
-      // Only an event nobody can have entered yet is deletable. The mock server does not know this
+      // In prod, the stage the test runner gets, only an event nobody can have entered yet is deletable. The mock server does not know this
       // one, so the save rejects, and the rejection has to reach reportError.
       const tentative = { ...eventWithEntryNotYetOpen, id: 'tentative', state: 'tentative' as const }
       expectConsoleOutput('reportError Error: not found')
