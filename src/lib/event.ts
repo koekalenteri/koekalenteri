@@ -248,6 +248,25 @@ export const isEntryEditingClosed = (
   now = new Date()
 ): boolean => isEventOver(event, now) || state === 'ended' || state === 'completed'
 
+/**
+ * Whether the start list of the class, or of a classless event, has stopped waiting on invitations:
+ * the class's first day has begun in the trial's zone, the trial is over, or the class has been judged.
+ * On the morning of the trial an invitation has nothing left to do, so a dog lifted from the reserve
+ * and not yet paid, or an attachment replaced after the send, must not hold the list and its numbers
+ * back (KOE-1638). Sending one stays possible; only the wait ends.
+ *
+ * The start list flag and its button are per class name and cannot tell the days apart, so a class
+ * publishes as one: its first day lifts the wait for every day of the class, also for a multi-day
+ * class left at 'picked' on both days. The class's later days do not hold it back.
+ */
+export const haveInvitationsLapsed = (
+  event: EventVitals & ClassDaysEvent,
+  eventClass: string | undefined,
+  state?: EventClassState | EventState,
+  now = new Date()
+): boolean =>
+  isEntryEditingClosed(event, state, now) || getClassDays(event, eventClass).some((day) => hasDayStarted(day, now))
+
 export const eventDates = (event?: Pick<PublicDogEvent, 'classes' | 'startDate' | 'endDate'> | null) => {
   if (!event) return []
   const classes = Array.isArray(event.classes) ? event.classes : []
@@ -398,6 +417,14 @@ const SHARED_RESERVE_EVENT_TYPES = new Set(['NOWT', 'NOWT SM'])
 
 export const hasSharedReserveList = (eventType?: string | null) =>
   !!eventType && SHARED_RESERVE_EVENT_TYPES.has(eventType)
+
+/**
+ * The event types that award certificates (KOE-1644): the A-trials and the WT trials. Kennelliitto's
+ * format rows list "sert" and "vara sert" only for NOME-A and NOWT; a championship is the same format.
+ */
+const CERTIFICATE_EVENT_TYPES = new Set(['NOME-A', 'NOME-A SM', 'NOWT', 'NOWT SM'])
+
+export const awardsCertificates = (eventType?: string | null) => !!eventType && CERTIFICATE_EVENT_TYPES.has(eventType)
 
 /**
  * Event types are official when the Kennel Club knows them, which the event type sync records in
@@ -899,25 +926,26 @@ export const getEventStateForClass = (
 
 type StartListClassEvent = Pick<JsonDogEvent, 'state' | 'startListPublished'> &
   EventVitals & {
-    classes?: Array<Pick<JsonDogEvent['classes'][number], 'class' | 'state'>>
+    /** The day too, where the caller has it: the wait on invitations ends on the class's first day. */
+    classes?: Array<Pick<JsonDogEvent['classes'][number], 'class' | 'state'> & { date?: Date | string }>
   }
 
 /**
- * A class left at 'picked' never had its invitations sent, and once the trial is over they no longer
- * can be: the publishing panel stops waiting on them then (getStartListBlocker reads the same
- * isEntryEditingClosed), so the public list follows the secretary's publish from that point on, or
- * the class and its results would stay off the web for good (KOE-1509).
+ * A class left at 'picked' never had its invitations sent. Once the class's first day has begun the
+ * publishing panel stops waiting on them (getStartListBlocker reads the same haveInvitationsLapsed),
+ * so the public list follows the secretary's publish from that point on, or the class and its results
+ * would stay off the web, and a list published on the trial day would not reach it (KOE-1509, KOE-1638).
  *
  * Only the class's own entry in the per-class map counts. The panel always writes the map; an
  * event-wide `true` is the old flag, and reading it here would put picked classes of old trials on
  * the web at deploy. And where another day of the class was invited, the flag was meant for that
  * day: it cannot tell the days apart, so the picked one stays hidden.
  */
-const isPickedClassPublishedAfterTrial = (
+const isPickedClassPublishedOnceInvitationsLapsed = (
   event: StartListClassEvent,
   eventClass: Pick<JsonDogEvent['classes'][number], 'class' | 'state'>
 ) =>
-  isEntryEditingClosed(event, eventClass.state) &&
+  haveInvitationsLapsed(event, eventClass.class, eventClass.state) &&
   isValidForEntry(event.state) &&
   isStartListPublishedClassMap(event.startListPublished) &&
   isStartListPublishedForClass(event, eventClass.class) &&
@@ -939,10 +967,10 @@ export const isStartListAvailableForClass = (
 
   // A class carrying its own state below 'invited' says this day is not ready, and the calendar must
   // not overrule it: that is how one day of a class stays hidden while another is public, since the
-  // published flag is per class name and cannot tell the days apart. Past the trial it yields to an
-  // explicit publish (above). Only a class with no state of its own falls through to what the event's
+  // published flag is per class name and cannot tell the days apart. From the class's first day it yields to
+  // an explicit publish (above). Only a class with no state of its own falls through to what the event's
   // dates say.
-  if (eventClass.state !== undefined) return isPickedClassPublishedAfterTrial(event, eventClass)
+  if (eventClass.state !== undefined) return isPickedClassPublishedOnceInvitationsLapsed(event, eventClass)
   if (!canPublishStartList(event.state, event)) return false
 
   return isStartListPublishedClassMap(event.startListPublished)
@@ -1348,8 +1376,21 @@ export const getStartListPublishedClassMap = (
   return result
 }
 
-export const isEventDeletable = ({ state }: Partial<Pick<JsonDogEvent, 'state'>> | undefined = {}) =>
-  state === 'draft' || state === 'tentative' || state === 'cancelled'
+/**
+ * Whether the event may be deleted in the given stage (`dev`, `test` or `prod`; anything else is
+ * read as prod). In prod only an event nobody can have entered yet goes: a draft, a tentative or a
+ * cancelled one (KOE-1022). Dev lets any event go, and test also a copy imported from another
+ * environment (`copiedFrom`), whatever its state (KOE-1640).
+ */
+export const isEventDeletable = (
+  event: Partial<Pick<JsonDogEvent, 'copiedFrom' | 'state'>> | undefined,
+  stage: string
+): boolean => {
+  if (!event) return false
+  if (stage === 'dev') return true
+  if (stage === 'test' && event.copiedFrom) return true
+  return event.state === 'draft' || event.state === 'tentative' || event.state === 'cancelled'
+}
 
 /**
  * The year of the start date's Finnish day, or '' for no date or one without a calendar day (not an

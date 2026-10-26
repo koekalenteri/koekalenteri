@@ -22,6 +22,7 @@ import {
   applyNewGroupsToDogEventClass,
   applyNewGroupsToDogEventDates,
   applySingleDayNowtGroups,
+  awardsCertificates,
   canPublishResults,
   canPublishStartList,
   compareRegistrationClasses,
@@ -56,6 +57,7 @@ import {
   hasMockTrialChoice,
   hasRetrieveTypeChoice,
   hasSharedReserveList,
+  haveInvitationsLapsed,
   INVITATION_ATTACHMENT_FIELDS,
   isDetaultEntryEndDate,
   isDetaultEntryStartDate,
@@ -832,17 +834,55 @@ describe('lib/event', () => {
   })
 
   describe('isEventDeletable', () => {
-    it.each<EventState>(['draft', 'tentative', 'cancelled'])('Should return true when event state is %p', (state) => {
-      expect(isEventDeletable({ state })).toEqual(true)
+    const copiedFrom = { at: '2026-10-01T10:00:00.000Z', by: 'admin', eventId: 'source', stage: 'prod' }
+
+    describe('in prod (KOE-1022)', () => {
+      it.each<EventState>(['draft', 'tentative', 'cancelled'])('Should return true when event state is %p', (state) => {
+        expect(isEventDeletable({ state }, 'prod')).toEqual(true)
+      })
+      it.each<EventState>(['completed', 'confirmed', 'ended', 'invited', 'picked', 'started'])(
+        'Should return false when event state is %p',
+        (state) => {
+          expect(isEventDeletable({ state }, 'prod')).toEqual(false)
+        }
+      )
+      it('should return false when event is undefined', () => {
+        expect(isEventDeletable(undefined, 'prod')).toEqual(false)
+      })
+      it('keeps a confirmed event with copiedFrom undeletable', () => {
+        expect(isEventDeletable({ copiedFrom, state: 'confirmed' }, 'prod')).toEqual(false)
+      })
+      it.each(['', 'local', 'Dev'])('treats the unknown stage %s as prod', (stage) => {
+        expect(isEventDeletable({ copiedFrom, state: 'confirmed' }, stage)).toEqual(false)
+        expect(isEventDeletable({ state: 'draft' }, stage)).toEqual(true)
+      })
     })
-    it.each<EventState>(['completed', 'confirmed', 'ended', 'invited', 'picked', 'started'])(
-      'Should return false when event state is %p',
-      (state) => {
-        expect(isEventDeletable({ state })).toEqual(false)
-      }
-    )
-    it('should return false when event is undefined', () => {
-      expect(isEventDeletable()).toEqual(false)
+
+    describe('in test (KOE-1640)', () => {
+      it.each<EventState>(['confirmed', 'invited', 'started', 'ended', 'completed'])(
+        'lets a copy from another environment go in state %s',
+        (state) => {
+          expect(isEventDeletable({ copiedFrom, state }, 'test')).toEqual(true)
+        }
+      )
+      it("keeps the environment's own confirmed event undeletable", () => {
+        expect(isEventDeletable({ state: 'confirmed' }, 'test')).toEqual(false)
+      })
+      it('still lets an own draft go', () => {
+        expect(isEventDeletable({ state: 'draft' }, 'test')).toEqual(true)
+      })
+    })
+
+    describe('in dev (KOE-1640)', () => {
+      it.each<EventState>(['confirmed', 'invited', 'picked', 'started', 'ended', 'completed'])(
+        'lets an event go in state %s',
+        (state) => {
+          expect(isEventDeletable({ state }, 'dev')).toEqual(true)
+        }
+      )
+      it('still has nothing to delete when the event is undefined', () => {
+        expect(isEventDeletable(undefined, 'dev')).toEqual(false)
+      })
     })
   })
 
@@ -1968,6 +2008,22 @@ describe('registrationDatesOutsideClass', () => {
       }
     )
   })
+
+  describe('awardsCertificates', () => {
+    it.each(['NOME-A', 'NOME-A SM', 'NOWT', 'NOWT SM'])(
+      'is true for %s, a format that awards certificates',
+      (eventType) => {
+        expect(awardsCertificates(eventType)).toEqual(true)
+      }
+    )
+
+    it.each(['NOU', 'NOME-B', 'NOME-B SM', 'NKM', 'Koulutus', '', undefined, null])(
+      'is false for %s (KOE-1644)',
+      (eventType) => {
+        expect(awardsCertificates(eventType)).toEqual(false)
+      }
+    )
+  })
 })
 
 describe('publishing results', () => {
@@ -2193,14 +2249,50 @@ describe('publishing results', () => {
     describe('on the last day of the trial', () => {
       freezeClockAt('2026-06-14')
 
-      it('keeps the picked class hidden while the invitations can still go', () => {
+      it('opens the picked class from the morning of its day, as the panel lets it be published (KOE-1638)', () => {
         const today = {
           ...oneDay,
           classes: [{ ...oneDay.classes[0], date: '2026-06-14' }],
           endDate: '2026-06-14',
           startDate: '2026-06-14',
         }
-        expect(isStartListAvailableForRegistration(today, { class: 'ALO', group: { date: '2026-06-14' } })).toBe(false)
+        expect(isStartListAvailableForRegistration(today, { class: 'ALO', group: { date: '2026-06-14' } })).toBe(true)
+      })
+
+      it('keeps the picked class hidden the day before its own first day (KOE-1638)', () => {
+        // The trial began yesterday with another class; ALO runs tomorrow, so its invitations still have work.
+        const tomorrow = {
+          ...oneDay,
+          classes: [
+            { class: 'AVO' as const, date: '2026-06-13', state: 'invited' as const },
+            { class: 'ALO' as const, date: '2026-06-15', state: 'picked' as const },
+          ],
+          endDate: '2026-06-15',
+          startDate: '2026-06-13',
+        }
+        expect(isStartListAvailableForRegistration(tomorrow, { class: 'ALO', group: { date: '2026-06-15' } })).toBe(
+          false
+        )
+      })
+
+      it('opens every day of a class picked on both, once its first day has begun (KOE-1638)', () => {
+        // The flag is per class name: the class publishes as one.
+        const bothPicked = {
+          ...twoDays,
+          classes: [
+            { class: 'ALO' as const, date: '2026-06-14', state: 'picked' as const },
+            { class: 'ALO' as const, date: '2026-06-15', state: 'picked' as const },
+          ],
+          endDate: '2026-06-15',
+          startDate: '2026-06-14',
+          state: 'picked' as const,
+        }
+        expect(isStartListAvailableForRegistration(bothPicked, { class: 'ALO', group: { date: '2026-06-14' } })).toBe(
+          true
+        )
+        expect(isStartListAvailableForRegistration(bothPicked, { class: 'ALO', group: { date: '2026-06-15' } })).toBe(
+          true
+        )
       })
 
       it('keeps the picked day hidden beside the invited one', () => {
@@ -2832,6 +2924,42 @@ describe('isEntryEditingClosed', () => {
     expect(isEntryEditingClosed(future, 'picked')).toBe(false)
     expect(isEntryEditingClosed(future, 'invited')).toBe(false)
     expect(isEntryEditingClosed(future, 'started')).toBe(false)
+  })
+})
+
+describe('haveInvitationsLapsed (KOE-1638)', () => {
+  freezeClockAt('2026-10-25')
+
+  // ALO runs today, AVO tomorrow.
+  const twoDays = {
+    classes: [
+      { class: 'ALO' as const, date: '2026-10-25' },
+      { class: 'AVO' as const, date: '2026-10-26' },
+    ],
+    endDate: '2026-10-26',
+    startDate: '2026-10-25',
+  }
+
+  it.each([
+    { case: "today's class", eventClass: 'ALO', expected: true },
+    { case: "tomorrow's class", eventClass: 'AVO', expected: false },
+    { case: 'a class the trial does not have, by the trial span', eventClass: 'VOI', expected: true },
+  ])('reads $case by its own first day', ({ eventClass, expected }) => {
+    expect(haveInvitationsLapsed(twoDays, eventClass, 'invited')).toBe(expected)
+  })
+
+  it('reads a classless event by its own first day', () => {
+    expect(haveInvitationsLapsed({ classes: [], endDate: '2026-10-25', startDate: '2026-10-25' }, undefined)).toBe(true)
+    expect(haveInvitationsLapsed({ classes: [], endDate: '2026-10-26', startDate: '2026-10-26' }, undefined)).toBe(
+      false
+    )
+  })
+
+  it('lapses ahead of the trial once the class is judged, and never without a day', () => {
+    const ahead = { endDate: '2026-11-01', startDate: '2026-11-01' }
+    expect(haveInvitationsLapsed(ahead, undefined, 'ended')).toBe(true)
+    expect(haveInvitationsLapsed(ahead, undefined, 'invited')).toBe(false)
+    expect(haveInvitationsLapsed({}, undefined, 'invited')).toBe(false)
   })
 })
 

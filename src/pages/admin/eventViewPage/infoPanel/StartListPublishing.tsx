@@ -88,7 +88,7 @@ const StartListPublishing = ({
         // picking participants or sending invitations, which a finished event should not reopen.
         const canManageStartList = Boolean(onSetStartListPublished) && publishable && !row.startListBlocker
         // A dead button with no reason beside it is the thing this whole step reads as broken
-        // (KOE-1313). Publishing waits on the invitations while they can still be sent (KOE-1465), and
+        // (KOE-1313). Publishing waits on the invitations until the class's first day (KOE-1465, KOE-1638), and
         // those wait on the participants being picked, so name whichever of the two is still outstanding.
         const blockedReasonKey =
           row.startListBlocker === 'participants'

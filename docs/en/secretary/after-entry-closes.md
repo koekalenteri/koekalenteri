@@ -17,7 +17,7 @@ covers:
   - src/pages/admin/StartListPreviewPage.tsx
   - src/pages/admin/startListPage/**
   - src/pages/ClassStartNumbersPage.tsx
-sourceHash: 9f3743
+sourceHash: 46598b
 ---
 
 Once entry has closed, the secretary's work goes step by step: picking the participants, the
@@ -127,8 +127,9 @@ one.
 
 Once the invitations have been sent, a class's start list can be published from the panel's *{t:eventManagement.startList.publishing}* section with the **{t:eventManagement.startList.publish}** button. **{t:eventManagement.startList.previewUnpublished}** shows the
 list as the participants will see it. A published list updates by itself when participants are moved
-or cancellations recorded. Once the trial's day has gone or the class has been judged, the
-invitations can no longer be sent, and publishing the start list no longer waits on them.
+or cancellations recorded. Until the morning of the class's first trial day, publishing waits on any
+invitations not yet sent. From then on, and once the class has been judged, the list can be published
+even if an invitation is still unsent. An invitation can still be sent on the trial day too.
 
 !shot[StartListPublishing/start-list-publishing] Start list publishing by class
 
@@ -162,7 +163,9 @@ class's shared links; the next copy gives a new one.
 
 Once all of a day's numbers have been saved, they are published class by class — and in a multi-day
 class day by day — with **{t:eventManagement.startList.publishNumbers}**. A half-entered day cannot be published; the
-calendar then asks for all the numbers first. If the trial draws no numbers at all, publishing
+calendar then asks for all the numbers first. The numbers wait on the invitations the same way the
+start list does: until the morning of the class's first day the row reads
+*{t:eventManagement.startList.invitationsRequired}* and the numbers cannot be published. If the trial draws no numbers at all, publishing
 confirms the start list's running numbers as the dogs' start numbers as they are.
 
 !shot[StartNumbersPublishing/start-numbers-publishing-two-days] A two-day class publishes its numbers one day at a time
