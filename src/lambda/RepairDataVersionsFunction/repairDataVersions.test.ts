@@ -218,6 +218,37 @@ describe('repairDataVersions', () => {
     )
   })
 
+  it('remints a scope whose data moved without a bump after an earlier bump in the same week', async () => {
+    setup()
+    // Monday's bump was right; Tuesday's write forgot its bump, so a browser that fetched in between
+    // holds Monday's data under the current revision.
+    mockReadLocationSnapshot.mockReset().mockResolvedValueOnce({ count: 310, modifiedAt: '2026-10-20T09:00:00.000Z' })
+    mockReadStored.mockResolvedValueOnce([
+      {
+        checkedAt: LAST_CHECK,
+        collection: 'locations',
+        count: 309,
+        fingerprintAt: '2026-10-01T00:00:00.000Z',
+        modifiedAt: '2026-10-19T09:00:00.000Z',
+        revision: 'monday',
+        scope: '*',
+      },
+    ])
+
+    await repairDataVersions()
+
+    expect(mockWriteFingerprint).toHaveBeenCalledWith(
+      'locations',
+      '*',
+      { count: 310, fingerprintAt: '2026-10-20T09:00:00.000Z' },
+      NOW,
+      true
+    )
+    expect(loggedLines(infoSpy)).toContainEqual(
+      expect.objectContaining({ message: 'data version drift repaired', reminted: ['locations#*'] })
+    )
+  })
+
   it('moves the check forward on a scope that was bumped although its fingerprint did not move', async () => {
     setup()
     mockReadStored.mockResolvedValueOnce([
