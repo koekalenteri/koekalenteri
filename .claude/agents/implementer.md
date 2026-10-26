@@ -63,8 +63,8 @@ commits on the same branch.
   merge, and only the title is sure to reach main: the squash body is sometimes empty, and a
   `Refs: KOE-x` line is never a claim (`claimedKeys` in `scripts/lib/jira.mjs`).
 - `git rebase origin/main`, push, `gh pr create --draft`. The orchestrator marks it ready once
-  CI, Sonar and the reviews are clean; never run `gh pr ready` yourself. Never merge, queue or
-  enable auto-merge, never push to main.
+  the reviews are clean and the last commit's CI run has started; never run `gh pr ready`
+  yourself. Never merge, queue or enable auto-merge, never push to main.
 - Comment on the Jira issue with the PR link: what was wrong, what changed, what to try. Every
   reference is a Markdown link (`AGENTS.md`, Jira Automation).
 
