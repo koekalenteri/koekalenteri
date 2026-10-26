@@ -1,5 +1,6 @@
+import type { TestStore } from 'test-utils/AtomProvider'
 import { ThemeProvider } from '@mui/material'
-import { fireEvent, screen } from '@testing-library/react'
+import { act, fireEvent, screen } from '@testing-library/react'
 import { Suspense } from 'react'
 import { MemoryRouter } from 'react-router'
 import { TestProvider as Provider } from 'test-utils/AtomProvider'
@@ -7,7 +8,7 @@ import theme from '../../assets/Theme'
 import { flushPromises, renderSuspended, TEST_ID_TOKEN } from '../../test-utils/utils'
 import AppSnackbarProvider from '../components/AppSnackbarProvider'
 import { idTokenAtom } from '../state'
-import { adminUserIdAtom } from './state'
+import { adminUserIdAtom, adminUsersAtom } from './state'
 import UsersPage from './UsersPage'
 
 vi.mock('../../api/organizer')
@@ -128,6 +129,41 @@ describe('OrganizerListPage', () => {
     await flushPromises()
 
     expect(rows[1]).toHaveClass('Mui-selected')
+    expect(Fallback).toHaveBeenCalledTimes(fallbackRendersWhileLoading)
+  })
+
+  it('keeps the page mounted when a user is edited', async () => {
+    // Saving a user's roles writes the user onto the list. A suspending read of the organizer
+    // filter's options would swap the whole page for the Suspense fallback on each save.
+    const Fallback = vi.fn(() => <div>loading...</div>)
+    let store: TestStore | undefined
+    await renderSuspended(
+      <ThemeProvider theme={theme}>
+        <Provider
+          initializeState={(initial) => {
+            store = initial
+            initial.set(idTokenAtom, TEST_ID_TOKEN)
+          }}
+        >
+          <MemoryRouter>
+            <Suspense fallback={<Fallback />}>
+              <AppSnackbarProvider>
+                <UsersPage />
+              </AppSnackbarProvider>
+            </Suspense>
+          </MemoryRouter>
+        </Provider>
+      </ThemeProvider>
+    )
+    await flushPromises()
+    const fallbackRendersWhileLoading = Fallback.mock.calls.length
+
+    await act(async () => {
+      await store?.set(adminUsersAtom, (users) => users.map((user) => ({ ...user })))
+    })
+    await flushPromises()
+
+    expect(screen.getByText('Test User')).toBeInTheDocument()
     expect(Fallback).toHaveBeenCalledTimes(fallbackRendersWhileLoading)
   })
 })

@@ -1,3 +1,4 @@
+import type { TestStore } from 'test-utils/AtomProvider'
 import { ThemeProvider } from '@mui/material'
 import { act, fireEvent, screen, within } from '@testing-library/react'
 import { ConfirmProvider } from 'material-ui-confirm'
@@ -20,6 +21,7 @@ import { describeInLanguage } from '../../test-utils/language'
 import {
   AtomObserver,
   flushPromises,
+  renderSuspended,
   renderSuspendedWithUserEvents,
   runPendingTimers,
   TEST_ID_TOKEN,
@@ -388,5 +390,43 @@ describe('EventListPage', () => {
         TEST_ID_TOKEN
       )
     })
+  })
+
+  it('keeps the page mounted when the event list changes', async () => {
+    // Another secretary's save arrives over the socket as a patch to the list, as does a delete or
+    // a copy made here. A suspending read of the organizer filter's options would swap the whole
+    // page for the Suspense fallback on each.
+    const Fallback = vi.fn(() => <div>loading...</div>)
+    let store: TestStore | undefined
+    await renderSuspended(
+      <ThemeProvider theme={theme}>
+        <Provider
+          initializeState={(initial) => {
+            store = initial
+            initial.set(idTokenAtom, TEST_ID_TOKEN)
+          }}
+        >
+          <MemoryRouter>
+            <Suspense fallback={<Fallback />}>
+              <AppSnackbarProvider>
+                <ConfirmProvider>
+                  <EventListPage />
+                </ConfirmProvider>
+              </AppSnackbarProvider>
+            </Suspense>
+          </MemoryRouter>
+        </Provider>
+      </ThemeProvider>
+    )
+    await flushPromises()
+    const fallbackRendersWhileLoading = Fallback.mock.calls.length
+
+    await act(async () => {
+      await store?.set(adminEventsAtom, (events) => events.map((event) => ({ ...event })))
+    })
+    await flushPromises()
+
+    expect(screen.getAllByRole('row').length).toBeGreaterThan(1)
+    expect(Fallback).toHaveBeenCalledTimes(fallbackRendersWhileLoading)
   })
 })

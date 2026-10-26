@@ -1,9 +1,11 @@
+import type { MaybePromise } from '@/lib/maybePromise'
 import type { ReviveOption } from '@/lib/wire'
 import type { DataVersion, DataVersions } from '@/types'
 import { atom } from 'jotai'
-import { unwrap } from 'jotai/utils'
 import { readEncryptedDataset, writeEncryptedDataset } from '@/lib/client/encryptedStore'
+import { asSettled, mapMaybe } from '@/lib/maybePromise'
 import { userAtom, validIdTokenAtom } from '@/pages/state'
+import { loadedAtom } from '@/pages/state/loadedAtom'
 
 /**
  * `revive` (KOE-1546) is the model of an item read back from the cache, from its JSON shape as
@@ -69,11 +71,12 @@ export function atomWithCachedRemoteCollection<T, J = T>(options: CachedCollecti
     return loadCachedRemoteCollection(options, token, user)
   })
   const overrideAtom = atom<T[] | undefined>(undefined)
-  // Once the load has settled, serve the list synchronously: a dependent reading it in a plain
-  // getter then gets the array instead of a Promise to suspend on.
-  const loadedAtom = unwrap(remoteAtom)
+  // Once the load has settled, a dependent reading it in a plain getter gets the array instead
+  // of a Promise to suspend on, and a later load, after a refreshed id token, never suspends the
+  // page reading the list (loadedAtom).
+  const loadedListAtom = loadedAtom(remoteAtom)
   return atom(
-    (get) => get(overrideAtom) ?? get(loadedAtom) ?? get(remoteAtom),
+    (get) => asSettled(get(overrideAtom) ?? get(loadedListAtom)),
     async (get, set, value: T[] | ((previous: T[]) => T[])) => {
       let next: T[]
       if (typeof value === 'function') {
@@ -110,9 +113,6 @@ export function atomWithCachedRemoteCollection<T, J = T>(options: CachedCollecti
  * synchronously, so a subscriber does not suspend on a Promise for a value it already has.
  */
 export const findInCollection = <T extends { id: string }>(
-  items: T[] | Promise<T[]>,
+  items: MaybePromise<T[]>,
   id: string
-): T | undefined | Promise<T | undefined> =>
-  items instanceof Promise
-    ? items.then((loaded) => loaded.find((item) => item.id === id))
-    : items.find((item) => item.id === id)
+): MaybePromise<T | undefined> => mapMaybe(items, (loaded) => loaded.find((item) => item.id === id))

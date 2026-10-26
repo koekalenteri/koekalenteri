@@ -1,6 +1,7 @@
 import type { Registration } from '@/types'
 import { atom } from 'jotai'
 import { atomFamily } from 'jotai-family'
+import { mapMaybe } from '@/lib/maybePromise'
 import { hasPaymentLockingRegistrations } from '@/lib/payment'
 import { deriveParticipantGroupKey } from '@/lib/registration'
 import { applyRegistrationGroupMoves } from '@/lib/registrationGroups'
@@ -22,12 +23,11 @@ export const placementKey = (registration: Registration) =>
 
 export const adminEventRegistrationAtom = atomFamily(
   ({ eventId, id }: { eventId: string; id: string }) =>
-    atom((get) => {
-      const registrations = get(adminEventRegistrationsAtom(eventId))
-      return registrations instanceof Promise
-        ? registrations.then((items) => items.find((registration) => registration.id === id))
-        : registrations.find((registration) => registration.id === id)
-    }),
+    atom((get) =>
+      mapMaybe(get(adminEventRegistrationsAtom(eventId)), (registrations) =>
+        registrations.find((registration) => registration.id === id)
+      )
+    ),
   (left, right) => left.eventId === right.eventId && left.id === right.id
 )
 
@@ -38,21 +38,18 @@ export const adminEventRegistrationAtom = atomFamily(
 export const adminEventPaymentLockedAtom = atomFamily((eventId: string) =>
   atom((get) => {
     if (!eventId) return false
-    const registrations = get(adminEventRegistrationsAtom(eventId))
-    return registrations instanceof Promise
-      ? registrations.then(hasPaymentLockingRegistrations)
-      : hasPaymentLockingRegistrations(registrations)
+    return mapMaybe(get(adminEventRegistrationsAtom(eventId)), hasPaymentLockingRegistrations)
   })
 )
 
 export const adminProjectedEventRegistrationsAtom = atomFamily((eventId: string) =>
   atom(
     (get) => {
-      const registrations = get(adminEventRegistrationsAtom(eventId))
       const moves = get(adminPendingRegistrationGroupMovesAtom(eventId))
-      return registrations instanceof Promise
-        ? registrations.then((items) => applyRegistrationGroupMoves(items, moves).items)
-        : applyRegistrationGroupMoves(registrations, moves).items
+      return mapMaybe(
+        get(adminEventRegistrationsAtom(eventId)),
+        (registrations) => applyRegistrationGroupMoves(registrations, moves).items
+      )
     },
     (get, set, newValue: Registration[]) => {
       const updateBase = (base: Registration[]) => {
@@ -84,8 +81,7 @@ export const adminProjectedEventRegistrationsAtom = atomFamily((eventId: string)
         })
         set(adminEventRegistrationsAtom(eventId), serverSnapshot)
       }
-      const base = get(adminEventRegistrationsAtom(eventId))
-      return base instanceof Promise ? base.then(updateBase) : updateBase(base)
+      return mapMaybe(get(adminEventRegistrationsAtom(eventId)), updateBase)
     }
   )
 )

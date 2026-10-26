@@ -38,7 +38,7 @@ describe('admin event derived atoms', () => {
     store.set(adminEventFilterTextAtom, '')
     store.set(adminShowPastEventsAtom, false)
 
-    await expect(store.get(adminFilteredEventsAtom)).resolves.toEqual([today])
+    expect(await store.get(adminFilteredEventsAtom)).toEqual([today])
   })
 
   // The list shows an English user the English name (KOE-1453), so the search finds an event by its
@@ -68,12 +68,12 @@ describe('admin event derived atoms', () => {
     ['its English name and place', 'autumn trial vaasa'],
     ['its event type and English name', 'nome-b autumn'],
   ])('finds an event by %s', async (_case, filter) => {
-    await expect(search(filter)).resolves.toEqual([named])
+    expect(await search(filter)).toEqual([named])
   })
 
   it('does not join a translated name to the fields of another name', async () => {
     // "Sihteeri" ends the Finnish line and "Autumn" starts no line after it.
-    await expect(search('sihteeri autumn')).resolves.toEqual([])
+    expect(await search('sihteeri autumn')).toEqual([])
   })
 
   it('serves the selected event synchronously once the events have loaded', () => {
@@ -126,14 +126,14 @@ describe('admin event derived atoms', () => {
       const store = createStore()
       store.set(adminEventsAtom, [linked('a', 'guid-a'), linked('b', 'guid-b')])
 
-      await expect(store.get(adminLinkedKcGuidsAtom('a'))).resolves.toEqual(new Set(['guid-b']))
+      expect(await store.get(adminLinkedKcGuidsAtom('a'))).toEqual(new Set(['guid-b']))
     })
 
     it('does not count a deleted event, which keeps its GUID but no longer holds the trial', async () => {
       const store = createStore()
       store.set(adminEventsAtom, [linked('a', 'guid-a'), linked('b', 'guid-b', new Date('2026-05-01T00:00:00.000Z'))])
 
-      await expect(store.get(adminLinkedKcGuidsAtom('a'))).resolves.toEqual(new Set())
+      expect(await store.get(adminLinkedKcGuidsAtom('a'))).toEqual(new Set())
     })
   })
 
@@ -151,6 +151,6 @@ describe('admin event derived atoms', () => {
     const store = createStore()
     store.set(adminEventsAtom, [missingOrganizer, valid])
 
-    await expect(store.get(adminEventOrganizersAtom)).resolves.toEqual([valid.organizer])
+    expect(await store.get(adminEventOrganizersAtom)).toEqual([valid.organizer])
   })
 })
