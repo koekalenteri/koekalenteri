@@ -1,7 +1,8 @@
   # Weekly backstop for the version registry. Collection versions are bumped by hand where the data
   # is written, so a forgotten bump would leave browsers on a stale cache indefinitely. This
   # recomputes the count and latest modifiedAt per scope - the scans that used to run on every
-  # /user call - and remints anything that moved without being bumped.
+  # /user call - and remints anything that moved with no bump since the previous run. A collection
+  # that changed and was bumped only gets its new fingerprint recorded.
   RepairDataVersionsFunction:
     Type: AWS::Serverless::Function
     Properties:
@@ -83,8 +84,8 @@
       ComparisonOperator: LessThanThreshold
       TreatMissingData: breaching
 
-  # Finding drift means a mutation path is missing its bump: the repair fixes the symptom, but the
-  # missing bump is a bug and should be visible.
+  # Finding drift means data moved with no bump since the previous run, so a mutation path is missing
+  # its bump: the repair fixes the symptom, but the missing bump is a bug and should be visible.
   RepairDataVersionsDriftMetricFilter:
     Type: AWS::Logs::MetricFilter
     Properties:

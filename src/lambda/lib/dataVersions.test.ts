@@ -221,20 +221,27 @@ describe('weekly repair', () => {
     await expect(readStoredDataVersions()).resolves.toEqual([version])
   })
 
-  it('records a fingerprint without touching the revision', async () => {
-    await writeDataVersionFingerprint('judges', '*', { count: 3, fingerprintAt: NOW }, false)
+  // The run started measuring a little before it writes.
+  const CHECKED_AT = '2026-08-30T11:59:58.000Z'
 
-    expect(mockWriteFingerprint).toHaveBeenCalledWith('judges', '*', { count: 3, fingerprintAt: NOW }, undefined)
-  })
-
-  it('remints the revision with the fingerprint when the data moved without a bump', async () => {
-    await writeDataVersionFingerprint('users', 'org1', { count: 1 }, true)
+  it('records a fingerprint and its check without touching the revision', async () => {
+    await writeDataVersionFingerprint('judges', '*', { count: 3, fingerprintAt: NOW }, CHECKED_AT, false)
 
     expect(mockWriteFingerprint).toHaveBeenCalledWith(
-      'users',
-      'org1',
-      { count: 1 },
-      { modifiedAt: NOW, revision: 'test-revision-1' }
+      'judges',
+      '*',
+      { count: 3, fingerprintAt: NOW },
+      CHECKED_AT,
+      undefined
     )
+  })
+
+  it('remints the revision stamped with the check, so the next run does not take it for a bump', async () => {
+    await writeDataVersionFingerprint('users', 'org1', { count: 1 }, CHECKED_AT, true)
+
+    expect(mockWriteFingerprint).toHaveBeenCalledWith('users', 'org1', { count: 1 }, CHECKED_AT, {
+      modifiedAt: CHECKED_AT,
+      revision: 'test-revision-1',
+    })
   })
 })

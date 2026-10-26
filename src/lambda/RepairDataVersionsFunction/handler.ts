@@ -16,6 +16,11 @@ import { getAllUsers, userScopes } from '../lib/user'
  * what the versions would have been - the row count and the latest modifiedAt, per scope - and
  * remints the revision of anything that moved without being bumped.
  *
+ * "Without being bumped" means no bump since the previous run: each row keeps the fingerprint and
+ * the time of the check that measured it (`checkedAt`), and a revision `modifiedAt` later than that,
+ * and not older than the latest data change, is a bump made since. A fingerprint that moved with one
+ * is recorded and nothing else; only one that moved without one is drift.
+ *
  * The scans it needs are the ones that used to run on every /user call; here they run weekly.
  */
 
@@ -80,10 +85,42 @@ const parseKey = (value: string) => {
   return { collection: value.slice(0, separator) as VersionedCollection, scope: value.slice(separator + 1) }
 }
 
-const differs = (stored: VersionRecord | undefined, fingerprint: Fingerprint) =>
-  stored?.count !== fingerprint.count || (stored.fingerprintAt ?? '') !== (fingerprint.fingerprintAt ?? '')
+const differs = (stored: VersionRecord, fingerprint: Fingerprint) =>
+  stored.count !== fingerprint.count || (stored.fingerprintAt ?? '') !== (fingerprint.fingerprintAt ?? '')
+
+/**
+ * Whether the revision was bumped since the last check and covers the latest change. A write sets
+ * the row's modifiedAt before it bumps, so a correct bump is never older than the data; a bump older
+ * than it was an earlier change's, and the later write that moved the data forgot its own. Organizer
+ * rows carry no timestamp, so for them any bump since the check counts.
+ */
+const bumpedSinceCheck = (stored: VersionRecord, checkedAt: string, fingerprint: Fingerprint) => {
+  const bumpedAt = stored.modifiedAt ?? ''
+  return bumpedAt > checkedAt && (!fingerprint.fingerprintAt || bumpedAt >= fingerprint.fingerprintAt)
+}
+
+type Outcome = 'unchanged' | 'record' | 'remint'
+
+/** What the run does with one row: leave it, record the new measurement, or remint as drift. */
+const outcomeOf = (stored: VersionRecord | undefined, fingerprint: Fingerprint): Outcome => {
+  // Nothing to compare against on the first run for a row, so record the fingerprint and leave
+  // the revision alone rather than invalidating every cache for no reason.
+  if (stored?.count === undefined) return 'record'
+  // Transitional, for the release that introduced checkedAt: a row fingerprinted before it cannot
+  // tell a bump from drift, and every collection that changed since the last run would alarm.
+  // Record the check instead; from the next run on every row has one. Remove in the release after.
+  if (!stored.checkedAt) return 'record'
+  const bumped = bumpedSinceCheck(stored, stored.checkedAt, fingerprint)
+  if (differs(stored, fingerprint)) return bumped ? 'record' : 'remint'
+  // A bump that moved nothing measurable (an organizer renamed) still moves the check forward, or a
+  // later change without a bump would be taken for this one.
+  return bumped ? 'record' : 'unchanged'
+}
 
 const repairDataVersions = async (): Promise<void> => {
+  // Taken before the scans: a bump made while they run is later than the check, and so is not
+  // mistaken for drift on the next run.
+  const checkedAt = new Date().toISOString()
   const [fingerprints, stored] = await Promise.all([collectFingerprints(), readStoredDataVersions()])
   const storedByKey = new Map(stored.map((record) => [key(record.collection, record.scope), record]))
   // A scope whose last record disappeared keeps its row, and has to be measured as empty.
@@ -94,14 +131,12 @@ const repairDataVersions = async (): Promise<void> => {
   const reminted: string[] = []
 
   for (const [fingerprintKey, fingerprint] of fingerprints) {
-    const record = storedByKey.get(fingerprintKey)
-    if (!differs(record, fingerprint)) continue
+    const outcome = outcomeOf(storedByKey.get(fingerprintKey), fingerprint)
+    if (outcome === 'unchanged') continue
 
-    // Nothing to compare against on the first run for a row, so record the fingerprint and leave
-    // the revision alone rather than invalidating every cache for no reason.
-    const remint = record?.count !== undefined
+    const remint = outcome === 'remint'
     const { collection, scope } = parseKey(fingerprintKey)
-    await writeDataVersionFingerprint(collection, scope, fingerprint, remint)
+    await writeDataVersionFingerprint(collection, scope, fingerprint, checkedAt, remint)
     if (remint) reminted.push(fingerprintKey)
   }
 

@@ -92,21 +92,23 @@ describe('dataVersionRepository', () => {
   })
 
   describe('writeFingerprint', () => {
-    it('stores the fingerprint alone without a revision', async () => {
-      await writeFingerprint('judges', '*', { count: 3, fingerprintAt: NOW })
+    const CHECKED_AT = '2026-10-25T02:40:00.000Z'
+
+    it('stores the fingerprint and the time of the check without a revision', async () => {
+      await writeFingerprint('judges', '*', { count: 3, fingerprintAt: NOW }, CHECKED_AT)
 
       expect(mockUpdate).toHaveBeenCalledWith(
         { collection: 'judges', scope: '*' },
-        { set: { count: 3, fingerprintAt: NOW } }
+        { set: { checkedAt: CHECKED_AT, count: 3, fingerprintAt: NOW } }
       )
     })
 
     it('stores an empty time for data without one, and the revision when given', async () => {
-      await writeFingerprint('organizers', '*', { count: 2 }, { modifiedAt: NOW, revision: 'rev-2' })
+      await writeFingerprint('organizers', '*', { count: 2 }, CHECKED_AT, { modifiedAt: CHECKED_AT, revision: 'rev-2' })
 
       expect(mockUpdate).toHaveBeenCalledWith(
         { collection: 'organizers', scope: '*' },
-        { set: { count: 2, fingerprintAt: '', modifiedAt: NOW, revision: 'rev-2' } }
+        { set: { checkedAt: CHECKED_AT, count: 2, fingerprintAt: '', modifiedAt: CHECKED_AT, revision: 'rev-2' } }
       )
     })
   })
