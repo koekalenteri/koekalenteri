@@ -239,6 +239,20 @@ const StartNumbersPublishing = ({
                     {t('eventManagement.results.startListRequired')}
                   </Typography>
                 )}
+                {/* Until the class's first day the numbers wait on its invitations too (KOE-1638); an
+                    unpublished list is named above, so one row carries one reason. */}
+                {startListPublished && row.startNumbersBlocker === 'invitations' && (
+                  <Typography
+                    variant="caption"
+                    noWrap
+                    sx={{
+                      color: 'text.secondary',
+                      display: 'block',
+                    }}
+                  >
+                    {t('eventManagement.startList.invitationsRequired')}
+                  </Typography>
+                )}
               </Box>
             </TableCell>
             <TableCell align="right">

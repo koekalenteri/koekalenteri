@@ -25,7 +25,9 @@ tapahtumalistaus näyttää kaikkien niiden yhdistysten kokeet, joihin sinulla o
 
 Listausta voi muokata itselle sopivaksi: **Sarakkeet** valitsee näkyvät sarakkeet, hakukenttä
 rajaa rivejä, **{t:organization}**-valinta näyttää vain yhden yhdistyksen kokeet, ja **{t:showPastEvents}** tuo listaan jo päättyneet kokeet. Rivin valinta klikkaamalla aktivoi yläreunan
-painikkeet: *{t:edit}*, *{t:copy}*, *{t:delete}* ja *{t:registrations}*.
+painikkeet: *{t:edit}*, *{t:copy}*, *{t:delete}* ja *{t:registrations}*. *{t:delete}* on käytettävissä
+vain, kun kokeen tila on *{t:event.states.draft}*, *{t:event.states.tentative}* tai
+*{t:event.states.cancelled}*.
 
 ## 1. Tarkasta kokeen tiedot
 

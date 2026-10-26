@@ -15,8 +15,8 @@ import {
   canPublishStartList,
   getEventStateForClass,
   hasDayStarted,
+  haveInvitationsLapsed,
   isDayEntry,
-  isEntryEditingClosed,
   isStartListAvailable,
   isStartListAvailableForClass,
   isStartListPublishedForClass,
@@ -66,9 +66,10 @@ export const isStartListFlagPublished = (event: StartListEvent, eventClass: Regi
 
 /**
  * What still stands before the start list of the class, or of a classless event without one: the
- * participants picked, the trial carried to its invitations, and those sent — for as long as they can
- * still be sent. Past the trial's day, or once the class is judged, they no longer can, and waiting on
- * them would leave the list and its results unpublishable for good (KOE-1465).
+ * participants picked, the trial carried to its invitations, and those sent, until the class's first
+ * day begins. From that morning an invitation has nothing left to do, and waiting on one would keep the
+ * list and its numbers back through the trial day, and for good where they were never sent
+ * (KOE-1465, KOE-1638).
  */
 export const getStartListBlocker = (
   event: PublishingEvent,
@@ -78,7 +79,10 @@ export const getStartListBlocker = (
   const state = getEventStateForClass(event, eventClass)
   if (participants.length === 0) return 'participants'
   if (!canPublishStartList(state, event)) return 'state'
-  if (getInvitationRecipients(event, [...participants]).length > 0 && !isEntryEditingClosed(event, state)) {
+  if (
+    getInvitationRecipients(event, [...participants]).length > 0 &&
+    !haveInvitationsLapsed(event, eventClass, state)
+  ) {
     return 'invitations'
   }
   return undefined

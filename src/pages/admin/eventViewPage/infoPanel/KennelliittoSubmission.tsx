@@ -199,6 +199,7 @@ const KennelliittoSubmission = ({ event, onRefreshState, registrations }: Props)
       />
       <KennelliittoHandOverDialog
         accepted={handOverAccepted}
+        eventType={event.eventType}
         onAccept={setHandOverAccepted}
         onClose={() => setHandOverOpen(false)}
         onHandOver={() => void handleHandOver()}

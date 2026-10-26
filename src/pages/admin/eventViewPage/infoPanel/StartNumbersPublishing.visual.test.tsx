@@ -9,7 +9,8 @@ import { describeInLanguage } from '@/test-utils/language'
 import StartNumbersPublishing from './StartNumbersPublishing'
 
 // The pictures show a trial still to come: its invitations can be sent, so a class whose dogs have not
-// had theirs waits on them. Past the trial's day it would not (KOE-1465), so the clock stands before it.
+// had theirs waits on them. From the class's first day it would not (KOE-1465, KOE-1638), so the clock
+// stands before it.
 freezeClockAt('2021-02-08')
 
 /** Wrapper the screenshot is taken of: a fixed width and an opaque background keep captures stable. */
@@ -98,11 +99,13 @@ const halfDayEvent: ConfirmedEvent = {
   startNumbersPublished: { ALO: ['2026-09-05/ap'], AVO: false },
   state: 'invited',
 }
+// Invited, so the buttons are live: an invitation still to go would hold the numbers back (KOE-1638).
 const placed = (id: string, key: string, time: 'ap' | 'ip', number: number): Registration => ({
   ...registrationWithStaticDates,
   class: 'ALO',
   group: { date: saturday, key, number, time },
   id,
+  messagesSent: { invitation: true },
 })
 
 const renderHalfDay = () =>
@@ -127,6 +130,37 @@ it('publishes a day drawn in halves one half at a time', async () => {
   await expect.element(screen.getByText('Julkaise starttinumerot')).toBeVisible()
   await expect.element(screen.getByText('Julkaistu: la 5.9. (ap)')).toBeVisible()
   await expect(screen.getByTestId('visual-root')).toMatchScreenshot('start-numbers-publishing-half-day')
+})
+
+// A published list with one dog still to be invited, the day before the trial: the numbers wait on the
+// invitation, and the row says so (KOE-1638). From the class's first day they would not.
+const invitationOutstanding: ConfirmedEvent = {
+  ...halfDayEvent,
+  classes: [{ class: 'ALO', date: saturday, state: 'invited' }],
+  startListPublished: { ALO: true },
+  startNumbersPublished: { ALO: false },
+}
+
+it('says the numbers wait on an invitation still to go', async () => {
+  const screen = await render(
+    <Frame>
+      <StartNumbersPublishing
+        event={invitationOutstanding}
+        eventWithCurrentAttachments={invitationOutstanding}
+        numbersByClass={{ ALO: { cancelled: 0, invalid: false, participants: 2, places: 2, reserve: 0, value: 2 } }}
+        onSetStartNumbersPublished={async () => {}}
+        selectedByClass={{
+          ALO: [
+            { ...registrationWithStaticDates, class: 'ALO', id: 'r1', messagesSent: { invitation: true } },
+            { ...registrationWithStaticDates, class: 'ALO', id: 'r2' },
+          ],
+        }}
+      />
+    </Frame>
+  )
+
+  await expect.element(screen.getByText('Lähetä ensin koekutsut')).toBeVisible()
+  await expect(screen.getByTestId('visual-root')).toMatchScreenshot('start-numbers-publishing-invitation-outstanding')
 })
 
 // The guide's English page shows both sections in English (KOE-1437).
