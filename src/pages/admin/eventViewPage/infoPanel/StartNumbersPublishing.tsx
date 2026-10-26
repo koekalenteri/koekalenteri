@@ -239,8 +239,9 @@ const StartNumbersPublishing = ({
                     {t('eventManagement.results.startListRequired')}
                   </Typography>
                 )}
-                {/* Until the class's first day the numbers wait on its invitations too (KOE-1638). */}
-                {row.startNumbersBlocker === 'invitations' && (
+                {/* Until the class's first day the numbers wait on its invitations too (KOE-1638); an
+                    unpublished list is named above, so one row carries one reason. */}
+                {startListPublished && row.startNumbersBlocker === 'invitations' && (
                   <Typography
                     variant="caption"
                     noWrap

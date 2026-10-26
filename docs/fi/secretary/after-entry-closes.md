@@ -158,7 +158,9 @@ jaetut linkit; seuraava kopiointi antaa uuden.
 
 Kun päivän kaikki numerot on tallennettu, ne julkaistaan luokittain — ja usean päivän luokassa
 päivittäin — painikkeella **{t:eventManagement.startList.publishNumbers}**. Keskeneräistä päivää ei voi julkaista; silloin
-kalenteri pyytää syöttämään ensin kaikki numerot. Jos kokeessa ei arvota numeroita lainkaan,
+kalenteri pyytää syöttämään ensin kaikki numerot. Numerot odottavat koekutsuja samoin kuin
+starttilista: luokan ensimmäisen koepäivän aamuun asti rivillä lukee
+*{t:eventManagement.startList.invitationsRequired}*, eikä numeroita voi julkaista. Jos kokeessa ei arvota numeroita lainkaan,
 julkaisu vahvistaa starttilistan järjestysnumerot sellaisinaan koirakoiden starttinumeroiksi.
 
 !shot[StartNumbersPublishing/start-numbers-publishing-two-days] Kahden päivän luokan numerot julkaistaan päivä kerrallaan

@@ -17,7 +17,7 @@ covers:
   - src/pages/admin/StartListPreviewPage.tsx
   - src/pages/admin/startListPage/**
   - src/pages/ClassStartNumbersPage.tsx
-sourceHash: 95df8e
+sourceHash: 46598b
 ---
 
 Once entry has closed, the secretary's work goes step by step: picking the participants, the
@@ -163,7 +163,9 @@ class's shared links; the next copy gives a new one.
 
 Once all of a day's numbers have been saved, they are published class by class — and in a multi-day
 class day by day — with **{t:eventManagement.startList.publishNumbers}**. A half-entered day cannot be published; the
-calendar then asks for all the numbers first. If the trial draws no numbers at all, publishing
+calendar then asks for all the numbers first. The numbers wait on the invitations the same way the
+start list does: until the morning of the class's first day the row reads
+*{t:eventManagement.startList.invitationsRequired}* and the numbers cannot be published. If the trial draws no numbers at all, publishing
 confirms the start list's running numbers as the dogs' start numbers as they are.
 
 !shot[StartNumbersPublishing/start-numbers-publishing-two-days] A two-day class publishes its numbers one day at a time

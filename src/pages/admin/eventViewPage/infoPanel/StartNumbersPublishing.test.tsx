@@ -53,6 +53,13 @@ describe('StartNumbersPublishing', () => {
     expect(screen.queryByText('eventManagement.results.startListRequired')).not.toBeInTheDocument()
   })
 
+  it('names only the start list while the list is unpublished, though an invitation is outstanding', () => {
+    renderRow({ ...nomeA('2026-10-26'), startListPublished: false })
+
+    expect(screen.getByText('eventManagement.results.startListRequired')).toBeInTheDocument()
+    expect(screen.queryByText('eventManagement.startList.invitationsRequired')).not.toBeInTheDocument()
+  })
+
   it('lets the numbers out on the trial day, the invitation still unsent (KOE-1638)', () => {
     renderRow(nomeA('2026-10-25'))
 

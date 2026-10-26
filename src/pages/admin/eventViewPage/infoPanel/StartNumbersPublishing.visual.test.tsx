@@ -147,7 +147,7 @@ it('says the numbers wait on an invitation still to go', async () => {
       <StartNumbersPublishing
         event={invitationOutstanding}
         eventWithCurrentAttachments={invitationOutstanding}
-        numbersByClass={{ ALO: [] } as never}
+        numbersByClass={{ ALO: { cancelled: 0, invalid: false, participants: 2, places: 2, reserve: 0, value: 2 } }}
         onSetStartNumbersPublished={async () => {}}
         selectedByClass={{
           ALO: [
