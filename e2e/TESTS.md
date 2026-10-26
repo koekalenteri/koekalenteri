@@ -8,59 +8,59 @@ bug is fixed. See [README.md](README.md) for how they run.
 
 ## front-page.spec.ts
 
-| Test                                                            | Tags      | Issues                                                         |
-| --------------------------------------------------------------- | --------- | -------------------------------------------------------------- |
+| Test | Tags | Issues |
+| --- | --- | --- |
 | the front page lists an event the API returns from the database | `@public` | [KOE-1475](https://koekalenteri.atlassian.net/browse/KOE-1475) |
 
 ## groups.spec.ts
 
-| Test                                                                     | Tags         | Issues                                                         |
-| ------------------------------------------------------------------------ | ------------ | -------------------------------------------------------------- |
+| Test | Tags | Issues |
+| --- | --- | --- |
 | a secretary places registered dogs into groups by dialog and by dragging | `@secretary` | [KOE-1479](https://koekalenteri.atlassian.net/browse/KOE-1479) |
 
 ## registration.spec.ts
 
-| Test                                                                                                                      | Tags                 | Issues                                                                                                                                                                             |
-| ------------------------------------------------------------------------------------------------------------------------- | -------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| registering and paying › a paid registration is stored as paid, confirmed by email and shown as paid                      | `@public` `@payment` | [KOE-1477](https://koekalenteri.atlassian.net/browse/KOE-1477)                                                                                                                     |
-| registering and paying › a cancelled payment leaves the registration unpaid and offers the methods again                  | `@public` `@payment` | [KOE-1477](https://koekalenteri.atlassian.net/browse/KOE-1477)                                                                                                                     |
-| registering and paying › a cancel callback Paytrail delivers twice still settles once                                     | `@public` `@payment` | [KOE-1477](https://koekalenteri.atlassian.net/browse/KOE-1477)                                                                                                                     |
-| registering and paying › a cancelled payment followed by a successful one leaves one failure and one payment on the trail | `@public` `@payment` | [KOE-1477](https://koekalenteri.atlassian.net/browse/KOE-1477)                                                                                                                     |
-| registering and paying › a return signed with the wrong secret is not taken as a payment                                  | `@public` `@payment` | [KOE-1477](https://koekalenteri.atlassian.net/browse/KOE-1477)<br>[KOE-1484](https://koekalenteri.atlassian.net/browse/KOE-1484) the page still says the payment is being verified |
+| Test | Tags | Issues |
+| --- | --- | --- |
+| registering and paying › a paid registration is stored as paid, confirmed by email and shown as paid | `@public` `@payment` | [KOE-1477](https://koekalenteri.atlassian.net/browse/KOE-1477) |
+| registering and paying › a cancelled payment leaves the registration unpaid and offers the methods again | `@public` `@payment` | [KOE-1477](https://koekalenteri.atlassian.net/browse/KOE-1477) |
+| registering and paying › a cancel callback Paytrail delivers twice still settles once | `@public` `@payment` | [KOE-1477](https://koekalenteri.atlassian.net/browse/KOE-1477) |
+| registering and paying › a cancelled payment followed by a successful one leaves one failure and one payment on the trail | `@public` `@payment` | [KOE-1477](https://koekalenteri.atlassian.net/browse/KOE-1477) |
+| registering and paying › a return signed with the wrong secret is not taken as a payment | `@public` `@payment` | [KOE-1477](https://koekalenteri.atlassian.net/browse/KOE-1477)<br>[KOE-1484](https://koekalenteri.atlassian.net/browse/KOE-1484) the page still says the payment is being verified |
 
 ## search.spec.ts
 
-| Test                                                                                        | Tags      | Issues                                                                                                                                                                     |
-| ------------------------------------------------------------------------------------------- | --------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| finding an event › the event type filter shows the matching event and hides the other       | `@public` | [KOE-1476](https://koekalenteri.atlassian.net/browse/KOE-1476)<br>[KOE-1480](https://koekalenteri.atlassian.net/browse/KOE-1480) the options are picked with includeHidden |
-| finding an event › the start date hides an earlier event and shows it again when moved back | `@public` | [KOE-1476](https://koekalenteri.atlassian.net/browse/KOE-1476)                                                                                                             |
-| finding an event › a start date typed over a held 1st or a shorter month lands as typed     | `@public` | [KOE-1476](https://koekalenteri.atlassian.net/browse/KOE-1476)                                                                                                             |
-| finding an event › a start date typed over a 30th, a 31st or December lands as typed        | `@public` | [KOE-1476](https://koekalenteri.atlassian.net/browse/KOE-1476)                                                                                                             |
-| finding an event › an end date typed over another, with the start fixed, lands as typed     | `@public` | [KOE-1476](https://koekalenteri.atlassian.net/browse/KOE-1476)                                                                                                             |
-| finding an event › the end date typed into the empty field hides a later event              | `@public` | [KOE-1476](https://koekalenteri.atlassian.net/browse/KOE-1476)<br>[KOE-1481](https://koekalenteri.atlassian.net/browse/KOE-1481)                                           |
-| finding an event › "entry open" hides an event whose entry has not opened yet               | `@public` | [KOE-1476](https://koekalenteri.atlassian.net/browse/KOE-1476)                                                                                                             |
-| finding an event › a range no event falls in shows the empty result                         | `@public` | [KOE-1476](https://koekalenteri.atlassian.net/browse/KOE-1476)                                                                                                             |
-| finding an event › an event opens from the list                                             | `@public` | [KOE-1476](https://koekalenteri.atlassian.net/browse/KOE-1476)                                                                                                             |
+| Test | Tags | Issues |
+| --- | --- | --- |
+| finding an event › the event type filter shows the matching event and hides the other | `@public` | [KOE-1476](https://koekalenteri.atlassian.net/browse/KOE-1476)<br>[KOE-1480](https://koekalenteri.atlassian.net/browse/KOE-1480) the options are picked with includeHidden |
+| finding an event › the start date hides an earlier event and shows it again when moved back | `@public` | [KOE-1476](https://koekalenteri.atlassian.net/browse/KOE-1476) |
+| finding an event › a start date typed over a held 1st or a shorter month lands as typed | `@public` | [KOE-1476](https://koekalenteri.atlassian.net/browse/KOE-1476) |
+| finding an event › a start date typed over a 30th, a 31st or December lands as typed | `@public` | [KOE-1476](https://koekalenteri.atlassian.net/browse/KOE-1476) |
+| finding an event › an end date typed over another, with the start fixed, lands as typed | `@public` | [KOE-1476](https://koekalenteri.atlassian.net/browse/KOE-1476) |
+| finding an event › the end date typed into the empty field hides a later event | `@public` | [KOE-1476](https://koekalenteri.atlassian.net/browse/KOE-1476)<br>[KOE-1481](https://koekalenteri.atlassian.net/browse/KOE-1481) |
+| finding an event › "entry open" hides an event whose entry has not opened yet | `@public` | [KOE-1476](https://koekalenteri.atlassian.net/browse/KOE-1476) |
+| finding an event › a range no event falls in shows the empty result | `@public` | [KOE-1476](https://koekalenteri.atlassian.net/browse/KOE-1476) |
+| finding an event › an event opens from the list | `@public` | [KOE-1476](https://koekalenteri.atlassian.net/browse/KOE-1476) |
 
 ## secretary.spec.ts
 
-| Test                                                                                  | Tags         | Issues                                                                                                                           |
-| ------------------------------------------------------------------------------------- | ------------ | -------------------------------------------------------------------------------------------------------------------------------- |
-| a secretary › creates a draft, publishes it, and it is on the front page for everyone | `@secretary` | [KOE-1478](https://koekalenteri.atlassian.net/browse/KOE-1478)                                                                   |
-| a secretary › whose role has been taken away cannot save an event                     | `@secretary` | [KOE-1478](https://koekalenteri.atlassian.net/browse/KOE-1478)                                                                   |
-| a secretary › is told when saving is refused                                          | `@secretary` | [KOE-1478](https://koekalenteri.atlassian.net/browse/KOE-1478)<br>[KOE-1482](https://koekalenteri.atlassian.net/browse/KOE-1482) |
+| Test | Tags | Issues |
+| --- | --- | --- |
+| a secretary › creates a draft, publishes it, and it is on the front page for everyone | `@secretary` | [KOE-1478](https://koekalenteri.atlassian.net/browse/KOE-1478) |
+| a secretary › whose role has been taken away cannot save an event | `@secretary` | [KOE-1478](https://koekalenteri.atlassian.net/browse/KOE-1478) |
+| a secretary › is told when saving is refused | `@secretary` | [KOE-1478](https://koekalenteri.atlassian.net/browse/KOE-1478)<br>[KOE-1482](https://koekalenteri.atlassian.net/browse/KOE-1482) |
 
 ## start-list.spec.ts
 
-| Test                                                                          | Tags      | Issues                                                                                                                    |
-| ----------------------------------------------------------------------------- | --------- | ------------------------------------------------------------------------------------------------------------------------- |
+| Test | Tags | Issues |
+| --- | --- | --- |
 | the public start list answers with a version the page can read across origins | `@public` | [KOE-1516](https://koekalenteri.atlassian.net/browse/KOE-1516) the page orders its fetches against the live updates by it |
 
 ## registration-form.spec.ts (against dev after a deploy)
 
-| Test                                                                                                   | Tags      | Issues                                                         |
-| ------------------------------------------------------------------------------------------------------ | --------- | -------------------------------------------------------------- |
-| dev after a deploy › the front page lists the event and its registration form opens from the list      | `@public` | [KOE-1559](https://koekalenteri.atlassian.net/browse/KOE-1559) |
+| Test | Tags | Issues |
+| --- | --- | --- |
+| dev after a deploy › the front page lists the event and its registration form opens from the list | `@public` | [KOE-1559](https://koekalenteri.atlassian.net/browse/KOE-1559) |
 | dev after a deploy › the registration form lists what is missing and takes the terms off once accepted | `@public` | [KOE-1559](https://koekalenteri.atlassian.net/browse/KOE-1559) |
 
 22 tests.
