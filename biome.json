@@ -1,5 +1,5 @@
 {
-  "$schema": "https://biomejs.dev/schemas/2.5.4/schema.json",
+  "$schema": "https://biomejs.dev/schemas/2.6.2/schema.json",
   "assist": {
     "actions": {
       "source": {
@@ -41,8 +41,10 @@
     "enabled": true,
     "rules": {
       "correctness": {
+        "noComponentHookFactories": "off",
         "noUnusedImports": "error",
-        "noUnusedVariables": "error"
+        "noUnusedVariables": "error",
+        "usePlaywrightValidDescribeCallback": "off"
       },
       "nursery": {
         "noFloatingPromises": "error"

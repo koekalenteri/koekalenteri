@@ -4,13 +4,13 @@ This folder is the Lambda-side statistics layer over the event stats table (`Eve
 
 ## Partitions and their writers
 
-| Partition | Keys | Written by |
-| --- | --- | --- |
-| `organizer` | `ORG#` | Incrementally, on every change that moves an event's counters: a registration's save, a copied event's import, an event edit or migration that changes the organizer or the start date (`stats.ts`). Rebuilt only by the manual `RebuildAllStatsFunction`. |
-| `participation` | `STAT#`, `TOTALS#`, `BUCKETS#`, `RETENTION#`, `YEARS` | Only the rebuild (`rebuild.ts`) through `RebuildStatsFunction`: nightly, and after every backend deploy (the "Start the stats rebuild" step in `.github/workflows/release.yml`). |
-| `capacity` | `CAPACITY#` | Only the rebuild, nightly and after every deploy. |
-| `judges` | `JUDGE#` | Only the rebuild, nightly and after every deploy. |
-| `eventBreakdown` | `BREAKDOWN#` | Only the rebuild, nightly and after every deploy. |
+| Partition        | Keys                                                  | Written by                                                                                                                                                                                                                                                 |
+| ---------------- | ----------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `organizer`      | `ORG#`                                                | Incrementally, on every change that moves an event's counters: a registration's save, a copied event's import, an event edit or migration that changes the organizer or the start date (`stats.ts`). Rebuilt only by the manual `RebuildAllStatsFunction`. |
+| `participation`  | `STAT#`, `TOTALS#`, `BUCKETS#`, `RETENTION#`, `YEARS` | Only the rebuild (`rebuild.ts`) through `RebuildStatsFunction`: nightly, and after every backend deploy (the "Start the stats rebuild" step in `.github/workflows/release.yml`).                                                                           |
+| `capacity`       | `CAPACITY#`                                           | Only the rebuild, nightly and after every deploy.                                                                                                                                                                                                          |
+| `judges`         | `JUDGE#`                                              | Only the rebuild, nightly and after every deploy.                                                                                                                                                                                                          |
+| `eventBreakdown` | `BREAKDOWN#`                                          | Only the rebuild, nightly and after every deploy.                                                                                                                                                                                                          |
 
 The prefixes are `STATS_KEY_PREFIX` and `YEARS_PK` in `eventStatsRepository.ts`; `getStatsRecordPartition` in `rebuild.ts` sorts a key into its partition.
 
@@ -20,16 +20,16 @@ Counting distinct dogs, handlers and breeds cannot be done incrementally without
 
 Code outside this folder imports only these:
 
-| Caller | Module | Exports |
-| --- | --- | --- |
-| `GetStatsFunction` | `stats.ts` | `getAvailableYears`, `getBreedStartBreakdown`, `getCapacityStats`, `getCapacityStatsAllEventTypes`, `getDogHandlerBuckets`, `getDogsPerHandlerBuckets`, `getEventBreakdown`, `getRetentionStats`, `getYearlyBreakdown`, `getYearlyTotalStats` |
-| `GetAdminStatsFunction` | `stats.ts` | `getCapacityStats`, `getJudgeWorkload`, `getOrganizerStats` |
-| `GetEventClassStatsFunction` | `eventClassStats.ts` | `getEventClassStats` |
-| `lib/registrationWorkflow.ts` | `stats.ts` | `applyNewRegistrationStatsOnce`, `updateEventStatsForRegistration` |
-| `ImportCopiedEventFunction` | `stats.ts` | `sumNewRegistrationStatDeltas`, `updateOrganizerEventStats` |
-| `PutEventFunction`, `RunMigrationFunction` | `stats.ts` | `moveOrganizerEventStats` |
-| `RebuildStatsFunction` | `rebuild.ts` | `createHandler`, `REBUILDABLE_STATS_PARTITIONS` |
-| `RebuildAllStatsFunction` | `rebuild.ts` | `createHandler`, `ALL_STATS_PARTITIONS` |
+| Caller                                     | Module               | Exports                                                                                                                                                                                                                                       |
+| ------------------------------------------ | -------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `GetStatsFunction`                         | `stats.ts`           | `getAvailableYears`, `getBreedStartBreakdown`, `getCapacityStats`, `getCapacityStatsAllEventTypes`, `getDogHandlerBuckets`, `getDogsPerHandlerBuckets`, `getEventBreakdown`, `getRetentionStats`, `getYearlyBreakdown`, `getYearlyTotalStats` |
+| `GetAdminStatsFunction`                    | `stats.ts`           | `getCapacityStats`, `getJudgeWorkload`, `getOrganizerStats`                                                                                                                                                                                   |
+| `GetEventClassStatsFunction`               | `eventClassStats.ts` | `getEventClassStats`                                                                                                                                                                                                                          |
+| `lib/registrationWorkflow.ts`              | `stats.ts`           | `applyNewRegistrationStatsOnce`, `updateEventStatsForRegistration`                                                                                                                                                                            |
+| `ImportCopiedEventFunction`                | `stats.ts`           | `sumNewRegistrationStatDeltas`, `updateOrganizerEventStats`                                                                                                                                                                                   |
+| `PutEventFunction`, `RunMigrationFunction` | `stats.ts`           | `moveOrganizerEventStats`                                                                                                                                                                                                                     |
+| `RebuildStatsFunction`                     | `rebuild.ts`         | `createHandler`, `REBUILDABLE_STATS_PARTITIONS`                                                                                                                                                                                               |
+| `RebuildAllStatsFunction`                  | `rebuild.ts`         | `createHandler`, `ALL_STATS_PARTITIONS`                                                                                                                                                                                                       |
 
 The other exports are internal to the folder. `rebuild.ts` imports `eventStatsYear`, `bucketForCount`, `hashStatValue`, `statIdentifier` and `participationIdentifiers` from `stats.ts`; `calculateStatDeltas` (`stats.ts`) and `getStatsRecordPartition`, `getEventStatsRecordYear` and `buildStatsRecords` (`rebuild.ts`) are exported only for the tests. Do not import them from outside the folder.
 
