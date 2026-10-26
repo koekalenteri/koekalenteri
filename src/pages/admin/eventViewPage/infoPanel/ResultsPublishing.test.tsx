@@ -157,7 +157,11 @@ describe('ResultsPublishing', () => {
   })
 
   it('does not count the result of a dog that has cancelled', () => {
-    const cancelled = { ...dog('2021-02-10'), cancelled: true, group: { key: 'cancelled', number: 1 } }
+    const cancelled: Dog = {
+      ...dog('2021-02-10'),
+      cancelled: true,
+      group: { date: '2021-02-10', key: 'cancelled', number: 1 },
+    }
     renderSection(oneDay, undefined, [cancelled])
 
     expect(screen.getByText('eventManagement.results.noResults')).toBeInTheDocument()

@@ -334,7 +334,12 @@ describe('putResultsPublishedLambda', () => {
     mockReadEventRegistrations.mockResolvedValue([
       dog('ALO', '2026-09-12', { retirement: { cause: 'handlerChoice' } }),
       dog('ALO', '2026-09-13'),
-      { ...dog('ALO', '2026-09-12'), cancelled: true, group: { key: 'cancelled', number: 1 }, id: 'cancelled' },
+      {
+        ...dog('ALO', '2026-09-12'),
+        cancelled: true,
+        group: { date: '2026-09-12', key: 'cancelled', number: 1 },
+        id: 'cancelled',
+      },
     ])
     store(twoDays({ resultsPublished: { AVO: ['2026-09-12'] } }))
 

@@ -456,7 +456,10 @@ interface ResultsDayPublish {
   /** The day, yyyy-MM-dd. Only this day changes (KOE-1510). */
   date: string
   published: boolean
-  /** The class's participants, or the classless event's, as the results rule reads them (KOE-1642). */
+  /**
+   * The class's participants, or the classless event's, as the results rule reads them (KOE-1642). Read
+   * only for a publish; a hide is not judged and passes none.
+   */
   participants: readonly ResultsParticipant[]
 }
 
