@@ -77,6 +77,18 @@ export const findEventIdsByKcGuid = async (kcGuid: string) =>
     values: { ':kcGuid': kcGuid },
   })
 
+/**
+ * The live events of this environment copied from the source event of another one (KOE-1639). A
+ * deleted copy is left out, so deleting the old copy lets the event be copied again.
+ */
+export const findEventCopies = async (source: { stage: string; eventId: string }) =>
+  (await dynamoDB.readAll<Pick<JsonDogEvent, 'id' | 'name'>>({
+    filter: '#copiedFrom.#stage = :stage AND #copiedFrom.#eventId = :eventId',
+    names: { '#copiedFrom': 'copiedFrom', '#eventId': 'eventId', '#name': 'name', '#stage': 'stage' },
+    projection: 'id, #name',
+    values: { ':eventId': source.eventId, ':stage': source.stage },
+  })) ?? []
+
 const isLiveEvent = async (eventId: string) => Boolean(await readLiveEvent(eventId))
 
 /** The first of the candidates, in their order, whose row is neither soft-deleted nor gone. */

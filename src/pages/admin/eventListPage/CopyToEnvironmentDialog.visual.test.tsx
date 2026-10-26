@@ -56,3 +56,24 @@ it("shows the target's refusal in its own words", async () => {
     .toBeVisible()
   await expect(screen.getByRole('dialog')).toMatchScreenshot('copy-to-environment-failed')
 })
+
+it('names the copy the target already holds when it refuses a second one (KOE-1639)', async () => {
+  const screen = await renderDialog(async () => {
+    throw new APIError(new Response(null, { status: 409 }), {
+      error: 'alreadyCopied',
+      existing: { eventId: 'copy-0', name: '[Kopio: prod] NOME-B Kangasala 12.10.2026' },
+      message: 'The target already holds a copy of this event: [Kopio: prod] NOME-B Kangasala 12.10.2026',
+    })
+  })
+
+  await screen.getByRole('button', { name: 'Kopioi' }).click()
+
+  await expect
+    .element(
+      screen.getByText('Koe on jo kopioitu kohdeympäristöön nimellä [Kopio: prod] NOME-B Kangasala 12.10.2026.', {
+        exact: false,
+      })
+    )
+    .toBeVisible()
+  await expect(screen.getByRole('dialog')).toMatchScreenshot('copy-to-environment-already-copied')
+})

@@ -15,7 +15,8 @@ import Stack from '@mui/material/Stack'
 import Typography from '@mui/material/Typography'
 import { useCallback, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { APIError } from '@/api/http'
+import { APIError, refusalCode } from '@/api/http'
+import { isObject } from '@/lib/utils'
 
 interface Props {
   readonly eventName: string
@@ -32,6 +33,7 @@ type CopyState =
   | { step: 'copying' }
   | { step: 'done'; result: EventCopyResult }
   | { step: 'failed'; message: string }
+  | { step: 'alreadyCopied'; name: string }
 
 /** The server's own words where it gave some; the copy's refusals name what is wrong. */
 const errorMessage = (error: unknown) => {
@@ -41,6 +43,16 @@ const errorMessage = (error: unknown) => {
     if (typeof body === 'string' && body) return body
   }
   return error instanceof Error ? error.message : String(error)
+}
+
+/**
+ * The name of the copy the target already holds, when that is why the copy was refused (KOE-1639).
+ * The body is the server's `EventCopyRefusal`, read field by field since it arrives untyped.
+ */
+const existingCopyName = (error: unknown) => {
+  if (refusalCode(error) !== 'alreadyCopied' || !(error instanceof APIError) || !isObject(error.body)) return undefined
+  const { existing } = error.body
+  return isObject(existing) && typeof existing.name === 'string' ? existing.name : undefined
 }
 
 /**
@@ -68,7 +80,8 @@ export default function CopyToEnvironmentDialog({
       const result = await onCopy(target)
       setState(result ? { result, step: 'done' } : { step: 'choose' })
     } catch (error) {
-      setState({ message: errorMessage(error), step: 'failed' })
+      const name = existingCopyName(error)
+      setState(name === undefined ? { message: errorMessage(error), step: 'failed' } : { name, step: 'alreadyCopied' })
     }
   }, [onCopy, target])
 
@@ -140,6 +153,9 @@ export default function CopyToEnvironmentDialog({
               </ul>
               {state.step === 'failed' && (
                 <Alert severity="error">{t('eventCopy.failed', { message: state.message })}</Alert>
+              )}
+              {state.step === 'alreadyCopied' && (
+                <Alert severity="error">{t('eventCopy.alreadyCopied', { name: state.name })}</Alert>
               )}
             </>
           )}
