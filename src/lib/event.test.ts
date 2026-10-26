@@ -22,6 +22,7 @@ import {
   applyNewGroupsToDogEventClass,
   applyNewGroupsToDogEventDates,
   applySingleDayNowtGroups,
+  awardsCertificates,
   canPublishResults,
   canPublishStartList,
   compareRegistrationClasses,
@@ -1965,6 +1966,22 @@ describe('registrationDatesOutsideClass', () => {
       'does not apply to %s',
       (eventType) => {
         expect(hasSharedReserveList(eventType)).toEqual(false)
+      }
+    )
+  })
+
+  describe('awardsCertificates', () => {
+    it.each(['NOME-A', 'NOME-A SM', 'NOWT', 'NOWT SM'])(
+      'is true for %s, a format that awards certificates',
+      (eventType) => {
+        expect(awardsCertificates(eventType)).toEqual(true)
+      }
+    )
+
+    it.each(['NOU', 'NOME-B', 'NOME-B SM', 'NKM', 'Koulutus', '', undefined, null])(
+      'is false for %s (KOE-1644)',
+      (eventType) => {
+        expect(awardsCertificates(eventType)).toEqual(false)
       }
     )
   })
