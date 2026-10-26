@@ -169,8 +169,7 @@ const StartNumbersPublishing = ({
       {rows.map((row) => {
         const { className, publishable, startListEventClass, startListPublished } = row
         const numbersPublished = isStartNumbersPublished(event, row.eventClass)
-        // Numbers can only be public on a published list, so the buttons wait for the list.
-        const canManageStartNumbers = Boolean(onSetStartNumbersPublished) && publishable && !row.startNumbersBlocker
+        const canChangeStartNumbers = Boolean(onSetStartNumbersPublished) && publishable
         const days = classDays(event, className)
         const multiDay = days.length > 1
         const published: PublishedStartNumbersSlot[] = startListPublished
@@ -277,6 +276,9 @@ const StartNumbersPublishing = ({
                     scopePublished =
                       startListPublished && isStartNumbersPublishedForDay(event, startListEventClass, day.date)
                   }
+                  // A publish waits on the list and everything it waits on; hiding is always allowed,
+                  // as the server holds it (KOE-1646).
+                  const enabled = canChangeStartNumbers && (scopePublished || !row.startNumbersBlocker)
                   const dayLabelKey = scopePublished
                     ? 'eventManagement.startList.hideNumbersDay'
                     : 'eventManagement.startList.publishNumbersDay'
@@ -291,7 +293,7 @@ const StartNumbersPublishing = ({
                     <Button
                       key={day ? `${day.key}/${time ?? 'day'}` : 'all'}
                       size="small"
-                      disabled={!canManageStartNumbers}
+                      disabled={!enabled}
                       onClick={() => {
                         if (publishable) {
                           void handleSetStartNumbersPublished(startListEventClass, !scopePublished, scope, multiDay)
@@ -300,7 +302,7 @@ const StartNumbersPublishing = ({
                       color={scopePublished ? 'secondary' : 'primary'}
                       // A day never splits from its verb; when the row is short the whole button wraps.
                       sx={{ whiteSpace: 'nowrap' }}
-                      variant={canManageStartNumbers ? 'contained' : 'outlined'}
+                      variant={enabled ? 'contained' : 'outlined'}
                     >
                       {label}
                     </Button>

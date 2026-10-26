@@ -126,6 +126,7 @@ sellaisena kuin osallistujat sen näkevät. Julkaistu lista päivittyy itsestä�
 siirretään tai peruutuksia kirjataan. Luokan ensimmäisen koepäivän aamuun asti julkaisu odottaa
 lähettämättömiä koekutsuja. Siitä alkaen, ja myös kun luokka on arvosteltu, listan voi julkaista,
 vaikka jokin kutsu olisi vielä lähettämättä. Kutsun voi silti lähettää myös koepäivänä.
+Julkaistun listan voi piilottaa milloin tahansa painikkeella **{t:eventManagement.startList.hide}**.
 
 !shot[StartListPublishing/start-list-publishing] Starttilistan julkaisu luokittain
 
