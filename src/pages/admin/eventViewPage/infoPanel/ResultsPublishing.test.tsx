@@ -1,4 +1,5 @@
-import type { ConfirmedEvent, DayKey } from '@/types'
+import type { ResultsParticipant } from '@/lib/publishing'
+import type { ConfirmedEvent, DayKey, JsonRegistration } from '@/types'
 import { act, screen, within } from '@testing-library/react'
 import { ConfirmProvider } from 'material-ui-confirm'
 import { enqueueSnackbar } from 'notistack'
@@ -14,11 +15,14 @@ vi.mock('notistack', () => ({
 
 // A tolling aptitude trial (NOU) has no classes; its start list is out and the dogs have run.
 const classless: ConfirmedEvent = { ...eventWithStaticDates, startListPublished: true, state: 'ended' }
+
+/** An entry as the panel's grouping and the results rule read it. */
+type Dog = ResultsParticipant & Pick<JsonRegistration, 'cancelled' | 'class' | 'eventType'>
+
 /** A dog placed on the day, with a result entered. */
-/** A dog placed on the day, with a result entered unless told otherwise. */
-const dog = (date: DayKey, eventClass?: 'ALO') => ({
+const dog = (date: DayKey, eventClass?: 'ALO' | 'AVO'): Dog => ({
   class: eventClass,
-  eventResult: { result: 'NOU1' },
+  eventResult: { result: 'NOU1', updatedAt: '2021-02-10T15:00:00.000Z', updatedBy: 'Sihteeri' },
   eventType: 'NOU',
   group: { date, key: `${date}-ap`, number: 1 },
 })
@@ -29,10 +33,7 @@ const scoredDays = [dog('2021-02-10'), dog('2021-02-11'), dog('2021-02-10', 'ALO
 const renderSection = (
   event: ConfirmedEvent,
   onSetResultsPublished = vi.fn().mockResolvedValue(undefined),
-  // A dog may have no result at all: its fields are still empty.
-  registrations: ReadonlyArray<
-    Partial<Pick<ReturnType<typeof dog>, 'eventResult'>> & Omit<ReturnType<typeof dog>, 'eventResult'>
-  > = scoredDays
+  registrations: readonly Dog[] = scoredDays
 ) => ({
   onSetResultsPublished,
   ...renderWithUserEvents(
@@ -149,11 +150,35 @@ describe('ResultsPublishing', () => {
   // KOE-1642: the button stood live on a trial with every result field still empty.
   it('keeps the publish disabled while no result is entered, and says so', () => {
     // The dog is placed on the day, its result fields still empty as in the report.
-    const { eventResult: _empty, ...unscored } = dog('2021-02-10')
-    renderSection(oneDay, undefined, [unscored])
+    renderSection(oneDay, undefined, [{ ...dog('2021-02-10'), eventResult: undefined }])
 
     expect(screen.getByText('eventManagement.results.noResults')).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'eventManagement.results.publish' })).toBeDisabled()
+  })
+
+  it('does not count the result of a dog that has cancelled', () => {
+    const cancelled = { ...dog('2021-02-10'), cancelled: true, group: { key: 'cancelled', number: 1 } }
+    renderSection(oneDay, undefined, [cancelled])
+
+    expect(screen.getByText('eventManagement.results.noResults')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'eventManagement.results.publish' })).toBeDisabled()
+  })
+
+  it("reads each class's own results: AVO's do not open ALO", () => {
+    const twoClasses: ConfirmedEvent = {
+      ...oneDay,
+      classes: [
+        { class: 'ALO', date: '2021-02-10' },
+        { class: 'AVO', date: '2021-02-10' },
+      ],
+    }
+    renderSection(twoClasses, undefined, [dog('2021-02-10', 'AVO')])
+
+    const [alo, avo] = screen.getAllByRole('row')
+    expect(within(alo).getByText('ALO')).toBeInTheDocument()
+    expect(within(alo).getByText('eventManagement.results.noResults')).toBeInTheDocument()
+    expect(within(alo).getByRole('button', { name: 'eventManagement.results.publish' })).toBeDisabled()
+    expect(within(avo).getByRole('button', { name: 'eventManagement.results.publish' })).toBeEnabled()
   })
 
   it('names only the missing start list when that is what stands in the way', () => {

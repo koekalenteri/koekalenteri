@@ -329,24 +329,41 @@ describe('putResultsPublishedLambda', () => {
   })
 
   it('refuses a day that has no result entered, and always lets it be hidden (KOE-1642)', async () => {
-    // Saturday's dogs have only a retirement without a result, Sunday's a result: nothing of Saturday to show.
+    // Saturday's ALO dog has only a retirement without a result, Sunday's a result: nothing of Saturday
+    // to show. A cancelled dog's result does not count either.
     mockReadEventRegistrations.mockResolvedValue([
       dog('ALO', '2026-09-12', { retirement: { cause: 'handlerChoice' } }),
       dog('ALO', '2026-09-13'),
+      { ...dog('ALO', '2026-09-12'), cancelled: true, group: { key: 'cancelled', number: 1 }, id: 'cancelled' },
     ])
-    store(twoDays({ resultsPublished: { ALO: ['2026-09-12'] } }))
+    store(twoDays({ resultsPublished: { AVO: ['2026-09-12'] } }))
 
-    await putResultsPublishedLambda(apiEvent({ date: '2026-09-12', eventClass: 'AVO', published: true }))
+    await putResultsPublishedLambda(apiEvent({ date: '2026-09-12', eventClass: 'ALO', published: true }))
     expect(mockResponse).toHaveBeenCalledWith(
       422,
-      { error: 'publishBlocked', eventClass: 'AVO', publish: 'results', reason: 'results' },
+      { error: 'publishBlocked', eventClass: 'ALO', publish: 'results', reason: 'results' },
       expect.anything()
     )
     expect(mockWriteResultsPublished).not.toHaveBeenCalled()
     expect(mockReadEventRegistrations).toHaveBeenCalledWith('event-1', true)
 
-    await putResultsPublishedLambda(apiEvent({ date: '2026-09-12', eventClass: 'ALO', published: false }))
-    expect(row.resultsPublished).toEqual({ ALO: false })
+    mockReadEventRegistrations.mockClear()
+    await putResultsPublishedLambda(apiEvent({ date: '2026-09-12', eventClass: 'AVO', published: false }))
+    expect(row.resultsPublished).toEqual({ AVO: false })
+    // A hide is always allowed, so it reads no registrations: a failing read cannot hold it up.
+    expect(mockReadEventRegistrations).not.toHaveBeenCalled()
+  })
+
+  it("does not take another class's result for the one published (KOE-1642)", async () => {
+    mockReadEventRegistrations.mockResolvedValue([dog('ALO', '2026-09-12')])
+
+    await putResultsPublishedLambda(apiEvent({ date: '2026-09-12', eventClass: 'AVO', published: true }))
+
+    expect(mockResponse).toHaveBeenCalledWith(
+      422,
+      { error: 'publishBlocked', eventClass: 'AVO', publish: 'results', reason: 'results' },
+      expect.anything()
+    )
   })
 
   it('refuses a classless day that has no result entered (KOE-1642)', async () => {

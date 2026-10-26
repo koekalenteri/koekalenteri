@@ -26,7 +26,10 @@ const scoredOn = (classes: string[], days: DayKey[]) =>
   Object.fromEntries(
     classes.map((name) => [
       name,
-      days.map((date) => ({ eventResult: { result: 'X1' }, group: { date, key: `${date}-ap`, number: 1 } })),
+      days.map((date) => ({
+        eventResult: { result: 'X1', updatedAt: '2021-02-10T15:00:00.000Z', updatedBy: 'Sihteeri' },
+        group: { date, key: `${date}-ap`, number: 1 },
+      })),
     ])
   )
 
@@ -103,8 +106,8 @@ it('offers publishing each day of a two-day trial on its own row', async () => {
   await expect(screen.getByTestId('visual-root')).toMatchScreenshot('results-publishing-two-days')
 })
 
-// A day with no result entered has nothing to publish, and the row says so (KOE-1642): Saturday's
-// results are in, Sunday's fields are still empty.
+// A day with no result entered has nothing to publish, and the row says so (KOE-1642): the first
+// day's results are in, the second day's fields are still empty.
 it('keeps the publish of a day without results disabled and names why', async () => {
   const classless: ConfirmedEvent = { ...eventWithStaticDates, startListPublished: true, state: 'ended' }
   const screen = await render(

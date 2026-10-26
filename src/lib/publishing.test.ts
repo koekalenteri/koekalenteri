@@ -1,4 +1,4 @@
-import type { DayKey, JsonConfirmedEvent } from '../types'
+import type { DayKey, JsonConfirmedEvent, JsonEventResult } from '../types'
 import { freezeClockAt } from '../test-utils/freezeClock'
 import { addDays, dayOf, TIME_ZONE } from './day'
 import {
@@ -31,8 +31,8 @@ const invited = { class: 'ALO', eventType: 'NOME-B', messagesSent: { invitation:
 const uninvited = { class: 'ALO', eventType: 'NOME-B', messagesSent: {} } as const
 
 /** A dog placed on the day, with what the secretary recorded for it. */
-const placed = (date: DayKey, eventResult?: { result?: string; retirement?: { cause: 'handlerChoice' } }) => ({
-  eventResult,
+const placed = (date: DayKey, eventResult?: Omit<JsonEventResult, 'updatedAt' | 'updatedBy'>) => ({
+  eventResult: eventResult && { ...eventResult, updatedAt: '2026-09-12T15:00:00.000Z', updatedBy: 'Sihteeri' },
   group: { date, key: `${date}-ap`, number: 1, time: 'ap' as const },
 })
 /** A dog with a result recorded on the day. */

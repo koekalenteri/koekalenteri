@@ -1612,7 +1612,7 @@ describe('lib/event', () => {
     const now = new Date('2026-09-13T15:00:00.000Z')
     // A starter with a result entered on each day, so the rules leave nothing but the flag to judge (KOE-1642).
     const participants = (['2026-09-12', '2026-09-13'] as const).map((date) => ({
-      eventResult: { result: 'ALO1' },
+      eventResult: { result: 'ALO1', updatedAt: '2026-09-12T15:00:00.000Z', updatedBy: 'Sihteeri' },
       group: { date, key: `${date}-ap`, number: 1 },
     }))
     const conflict = () => Object.assign(new Error('failed'), { name: 'ConditionalCheckFailedException' })

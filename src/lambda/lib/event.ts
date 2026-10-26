@@ -1,4 +1,5 @@
 import type { AuditActor, GroupChangeReason } from '../../lib/audit'
+import type { ResultsParticipant } from '../../lib/publishing'
 import type {
   ConfirmedEventStates,
   DayKey,
@@ -456,7 +457,7 @@ interface ResultsDayPublish {
   date: string
   published: boolean
   /** The class's participants, or the classless event's, as the results rule reads them (KOE-1642). */
-  participants: Parameters<typeof getResultsBlocker>[2]
+  participants: readonly ResultsParticipant[]
 }
 
 /** A publish of results refused by the publishing rules, as the panel would have greyed it (KOE-1466). */

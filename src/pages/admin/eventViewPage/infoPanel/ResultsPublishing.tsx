@@ -1,4 +1,4 @@
-import type { PublishBlocker } from '@/lib/publishing'
+import type { PublishBlocker, ResultsParticipant } from '@/lib/publishing'
 import type { ClassOrNone, ConfirmedEvent, DayKey } from '@/types'
 import EditNoteOutlined from '@mui/icons-material/EditNoteOutlined'
 import PlaceOutlined from '@mui/icons-material/PlaceOutlined'
@@ -32,7 +32,7 @@ interface Props {
    */
   readonly onSetResultsPublished?: (eventClass: ClassOrNone, date: string, published: boolean) => Promise<unknown>
   /** The participants of each class, a classless event's under its type: whose results there are to publish. */
-  readonly selectedByClass: Readonly<Record<string, Parameters<typeof getResultsBlocker>[2]>>
+  readonly selectedByClass: Readonly<Record<string, readonly ResultsParticipant[]>>
 }
 
 interface ResultsRow {

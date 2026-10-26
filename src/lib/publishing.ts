@@ -3,7 +3,6 @@ import type {
   ConfirmedEvent,
   DogEvent,
   JsonConfirmedEvent,
-  JsonEventResult,
   JsonRegistration,
   Registration,
   RegistrationClass,
@@ -97,9 +96,7 @@ export const getStartNumbersBlocker = (
 }
 
 /** A participant as the results rule reads it: the day it is placed on and what was recorded for it. */
-type ResultsParticipant = Pick<JsonRegistration | Registration, 'group'> & {
-  eventResult?: Pick<JsonEventResult, 'result'>
-}
+export type ResultsParticipant = Pick<JsonRegistration | Registration, 'group' | 'eventResult'>
 
 /**
  * A result reaches the public only on the start list's rows, so it waits on the list; and there is

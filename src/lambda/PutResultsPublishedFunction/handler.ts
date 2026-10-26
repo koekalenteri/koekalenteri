@@ -37,6 +37,12 @@ const requestedClass = (
   return eventClass
 }
 
+/** The participants of the class, or of a classless event, whose results a publish would put out. */
+const readParticipants = async (confirmedEvent: JsonConfirmedEvent, eventClass: ClassOrNone) => {
+  const registrations = await readEventRegistrations(confirmedEvent.id, true)
+  return groupParticipantsByClass(registrations)[eventClass ?? confirmedEvent.eventType] ?? []
+}
+
 /**
  * The one endpoint that publishes or hides results, a day at a time (KOE-1510). A class running on two
  * days publishes each day on its own, so the second day's results stay off the web while they are
@@ -62,10 +68,9 @@ const putResultsPublishedLambda = lambda('putResultsPublished', async (event) =>
     throw httpError(422, 'invalid date')
   }
 
-  // A day with no result entered has nothing to publish (KOE-1642). Read as last written, so a result
-  // saved just before the publish counts.
-  const registrations = await readEventRegistrations(eventId, true)
-  const participants = groupParticipantsByClass(registrations)[eventClass ?? confirmedEvent.eventType] ?? []
+  // A day with no result entered has nothing to publish (KOE-1642), so a publish reads the participants,
+  // as last written so a result saved just before counts. A hide is always allowed and reads nothing.
+  const participants = published ? await readParticipants(confirmedEvent, eventClass) : []
 
   // Held to the publishing rules, and on a conflict judged and folded again from the row as written.
   const saved = await setResultsPublishedState(confirmedEvent, { date, eventClass, participants, published })
