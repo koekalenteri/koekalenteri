@@ -95,7 +95,9 @@ Before starting them, and again whenever a round seems to stall, check
 CI run, so nothing will ever report: send the implementer straight back to merge `origin/main`
 (by meaning, not only text, when the conflicting change on main touches the same rule), then
 start the round. `main` moves while a ticket is open, so expect this on any PR that lives through
-several rounds (#1520 stalled on it after #1519 landed).
+several rounds (#1520 stalled on it after #1519 landed). Every status line about a PR, in a round
+summary or the final report, carries both values as read at that moment, never from an earlier
+check.
 
 ## 5. Feedback
 
@@ -157,7 +159,9 @@ issue on `api/issues/search?componentKeys=koekalenteri_koekalenteri&pullRequest=
 go to the implementer as in step 5. The PR stays ready through that round; a red check already
 keeps it out of `main`, so turning it back into a draft adds nothing.
 
-Tell the user when the PR is ready: the PR, what was wrong and what changed, the review rounds and
+Tell the user when the PR is ready: the PR, its merge status read with
+`gh pr view <pr> --json mergeable,mergeStateStatus` at report time (`BLOCKED` on an all-green PR
+is the merge queue, say so in words), what was wrong and what changed, the review rounds and
 what they caught, the CI state at that moment, out-of-scope findings and the follow-up issues
 created for them, the notes (unlikely paths left as they are, one line each), and anything open
 or waiting on them. When the watched run finishes, report its result, the Sonar gate and issue
