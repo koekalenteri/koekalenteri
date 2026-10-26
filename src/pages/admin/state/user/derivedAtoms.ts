@@ -1,6 +1,7 @@
 import i18next from 'i18next'
 import { atom } from 'jotai'
 import { unwrap } from 'jotai/utils'
+import { mapMaybe } from '@/lib/maybePromise'
 import { userHasAdminAccess } from '@/lib/user'
 import { adminUserOrgIdsAtom, isAdminAtom, userAtom } from '@/pages/state'
 import { findInCollection } from '../cached/createCachedRemoteCollection'
@@ -42,12 +43,9 @@ export const canReadWebsocketAdminUsers = (
   user?: { id?: string; admin?: boolean; roles?: Record<string, unknown> } | null
 ) => Boolean(user?.id && userHasAdminAccess(user))
 
-export const websocketAdminUsersAtom = atom((get) => {
-  const currentUser = get(userAtom)
-  const selectUsers = (user: Awaited<typeof currentUser>) =>
-    canReadWebsocketAdminUsers(user) ? get(adminUsersAtom) : []
-  return currentUser instanceof Promise ? currentUser.then(selectUsers) : selectUsers(currentUser)
-})
+export const websocketAdminUsersAtom = atom((get) =>
+  mapMaybe(get(userAtom), (user) => (canReadWebsocketAdminUsers(user) ? get(adminUsersAtom) : []))
+)
 
 // Not an `async` getter: that returns a new Promise on every call, and each change of
 // adminUserIdAtom would then suspend the users page and swap it for its Suspense fallback.

@@ -3,6 +3,7 @@ import type { DogEvent, JsonDogEvent, RegistrationClass } from '@/types'
 import { atom } from 'jotai'
 import { atomFamily } from 'jotai-family'
 import { uniqueClasses } from '@/lib/event'
+import { mapMaybe } from '@/lib/maybePromise'
 import { toDogEvent } from '@/lib/wire'
 import { atomWithSessionStorage } from '@/pages/state'
 import { adminCurrentEventAtom, adminEventAtom } from './derivedAtoms'
@@ -16,10 +17,7 @@ export const adminEventClassAtom = atom(
   (get) => {
     const stored = get(storedEventClassAtom)
     if (stored !== undefined) return stored
-    const currentEvent = get(adminCurrentEventAtom)
-    return currentEvent instanceof Promise
-      ? currentEvent.then((event) => uniqueClasses(event)[0])
-      : uniqueClasses(currentEvent)[0]
+    return mapMaybe(get(adminCurrentEventAtom), (event) => uniqueClasses(event)[0])
   },
   (_get, set, value: RegistrationClass) => set(storedEventClassAtom, value)
 )

@@ -5,6 +5,7 @@ import { unwrap } from 'jotai/utils'
 import { getAdminEvents } from '@/api/event'
 import { compareEventsByDate } from '@/lib/event'
 import { latestCollectionUpdate } from '@/lib/incremental'
+import { trackSettled } from '@/lib/maybePromise'
 import { getJwtSubject } from '@/lib/token'
 import { toDogEvent } from '@/lib/wire'
 import { userAtom, userRefreshAtom, validIdTokenAtom } from '@/pages/state'
@@ -75,6 +76,15 @@ const adminEventsOverrideAtom = atom<AdminEventList | undefined>(undefined)
 // is pending it holds the last settled one.
 const loadedAdminEventsAtom = unwrap(remoteAdminEventsAtom, (previous) => previous)
 
+/**
+ * The fetches a page waited for with nothing to stand in. Such a fetch stays the value after it
+ * settles, until a write or a later fetch replaces the list: a component that suspended on it at
+ * mount reads the same Promise when it finishes, which React requires (it warns when a mount that
+ * suspended on `use()` finishes a render without one). A reader that comes along later gets the
+ * settled list synchronously through `mapMaybe` (loadedAtom does the same for the other remotes).
+ */
+const firstLoads = new WeakSet<Promise<DogEvent[]>>()
+
 // The newest list in hand: the local one if it was built on the last settled fetch, else that fetch.
 // unwrap holds a settled fetch only if it was read after it settled, which a local list prevents.
 const latestAdminEvents = (get: Getter): AdminEventList | undefined => {
@@ -92,10 +102,20 @@ const latestAdminEvents = (get: Getter): AdminEventList | undefined => {
 export const adminEventsRemoteAtom = atom(
   (get) => {
     const latest = latestAdminEvents(get)
-    if (latest?.fetchKey === get(fetchKeyAtom)) return latest.events
+    const current = latest?.fetchKey === get(fetchKeyAtom)
     // While the next fetch is pending, the same person's last list stands in. Another login waits.
-    if (latest?.subject && latest.subject === get(subjectAtom)) return latest.events
-    return get(remoteAdminEventListAtom)
+    const sameSubject = latest?.subject !== undefined && latest.subject === get(subjectAtom)
+    if (!latest || !(current || sameSubject)) {
+      const remote = trackSettled(get(remoteAdminEventListAtom))
+      firstLoads.add(remote)
+      return remote
+    }
+    // The fetch is read only where the list came from it: a seeded list must not start one.
+    if (current && !get(adminEventsOverrideAtom)) {
+      const remote = get(remoteAdminEventListAtom)
+      if (firstLoads.has(remote)) return remote
+    }
+    return latest.events
   },
   async (get, set, value: DogEvent[] | ((previous: DogEvent[]) => DogEvent[])) => {
     if (typeof value !== 'function') {

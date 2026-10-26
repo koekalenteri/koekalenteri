@@ -2,7 +2,9 @@ import { atom } from 'jotai'
 import { unwrap } from 'jotai/utils'
 import { atomFamily } from 'jotai-family'
 import { getAdminCapacityStats, getAdminJudgeWorkload, getOrganizerEventStats } from '@/api/stats'
+import { asSettled } from '@/lib/maybePromise'
 import { validIdTokenAtom } from '@/pages/state'
+import { loadedAtom } from '@/pages/state/loadedAtom'
 import { adminActiveEventTypesAtom } from '../eventTypes/derivedAtoms'
 import { ALL_EVENT_TYPES_ID } from './atoms'
 
@@ -10,10 +12,13 @@ import { ALL_EVENT_TYPES_ID } from './atoms'
  * All organizer event stats the user has access to, fetched once (unfiltered).
  * Year/organizer filtering happens client-side so switching the filter never re-fetches.
  */
-export const adminOrganizerEventStatsAtom = atom(async (get) => {
+const remoteOrganizerEventStatsAtom = atom(async (get) => {
   const token = get(validIdTokenAtom)
   return token ? getOrganizerEventStats(token) : []
 })
+// A refetch after a refreshed id token never suspends the stats page (loadedAtom).
+const loadedOrganizerEventStatsAtom = loadedAtom(remoteOrganizerEventStatsAtom)
+export const adminOrganizerEventStatsAtom = atom((get) => asSettled(get(loadedOrganizerEventStatsAtom)))
 
 /**
  * Keyed by `${eventType}|${organizerId}` so switching either the event type or the organizer

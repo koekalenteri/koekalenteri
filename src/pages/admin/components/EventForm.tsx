@@ -13,6 +13,7 @@ import { useCallback, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { objectsDiffer } from '@/lib/diff'
 import { getEventSeason, isEventOver } from '@/lib/event'
+import { allMaybe } from '@/lib/maybePromise'
 import { hasEarlyBirdPrice } from '@/lib/payment'
 import { merge, withTimeout } from '@/lib/utils'
 import { AsyncButton } from '../../components/AsyncButton'
@@ -57,20 +58,21 @@ const SELECTABLE_EVENT_STATES: EventState[] = ['draft', 'tentative', 'confirmed'
  * a read is retried once.
  */
 const OPTIONS_TIMEOUT_MS = 30_000
-const eventFormOptionsAtom = atom(async (get) =>
-  withTimeout(
-    Promise.all([
-      get(adminActiveEventTypesAtom),
-      get(adminActiveJudgesAtom),
-      Promise.resolve(get(adminEventTypeClassesAtom)),
-      get(adminUsersAtom),
-      get(adminUserOrganizersAtom),
-      get(adminLocationNamesAtom),
-    ]),
-    OPTIONS_TIMEOUT_MS,
-    'loading the event form options'
-  )
-)
+// Not an `async` getter: that returns a new Promise on every call, and a list that changed under
+// the form, after a refreshed id token, would then suspend it and swap it for its Suspense fallback.
+const eventFormOptionsAtom = atom((get) => {
+  const options = allMaybe([
+    get(adminActiveEventTypesAtom),
+    get(adminActiveJudgesAtom),
+    get(adminEventTypeClassesAtom),
+    get(adminUsersAtom),
+    get(adminUserOrganizersAtom),
+    get(adminLocationNamesAtom),
+  ])
+  return options instanceof Promise
+    ? withTimeout(options, OPTIONS_TIMEOUT_MS, 'loading the event form options')
+    : options
+})
 
 export default function EventForm({ event, changes, canSave, disabled, onSave, onCancel, onChange }: Props) {
   const { t } = useTranslation()

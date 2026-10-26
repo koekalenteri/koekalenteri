@@ -4,10 +4,13 @@ import { atom } from 'jotai'
 import { unwrap } from 'jotai/utils'
 import { atomFamily } from 'jotai-family'
 import { OFFICIAL_EVENT_TYPES } from '@/lib/event'
+import { mapMaybe } from '@/lib/maybePromise'
 import { adminEventTypeFilterAtom, adminEventTypeGroupsByTypeAtom, adminEventTypesAtom } from './atoms'
 
-export const adminActiveEventTypesAtom = atom(async (get) =>
-  (await get(adminEventTypesAtom)).filter((eventType) => eventType.active)
+// Not an `async` getter: the event form and the stats page read this, and a list that changed under
+// them would then suspend the page and swap it for its Suspense fallback.
+export const adminActiveEventTypesAtom = atom((get) =>
+  mapMaybe(get(adminEventTypesAtom), (eventTypes) => eventTypes.filter((eventType) => eventType.active))
 )
 
 // unwrap keeps serving the previous list synchronously while a new filter/data promise settles,

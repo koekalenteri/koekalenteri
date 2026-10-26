@@ -2,9 +2,11 @@ import type { JsonRegistration, Registration, RegistrationGroupMove } from '@/ty
 import { atom } from 'jotai'
 import { atomFamily } from 'jotai-family'
 import { getRegistrations } from '@/api/registration'
+import { asSettled } from '@/lib/maybePromise'
 import { createRegistrationDraft } from '@/lib/registration'
 import { toStoredRegistration } from '@/lib/wire'
 import { atomWithLocalStorage } from '@/pages/state'
+import { loadedAtom } from '@/pages/state/loadedAtom'
 import { validIdTokenAtom } from '@/pages/state/user'
 
 export const adminBackgroundActionsRunningAtom = atom(false)
@@ -18,8 +20,10 @@ export const adminEventRegistrationsAtom = atomFamily((eventId: string) => {
     return token ? ((await getRegistrations(eventId, token)) ?? []) : []
   })
   const overrideAtom = atom<Registration[] | undefined>(undefined)
+  // A refetch after a refreshed id token never suspends the results page (loadedAtom).
+  const loadedListAtom = loadedAtom(remoteAtom)
   return atom(
-    (get) => get(overrideAtom) ?? get(remoteAtom),
+    (get) => asSettled(get(overrideAtom) ?? get(loadedListAtom)),
     (_get, set, value: Registration[] | ((previous: Registration[]) => Registration[])) =>
       set(overrideAtom, (current) => {
         if (typeof value !== 'function') return value

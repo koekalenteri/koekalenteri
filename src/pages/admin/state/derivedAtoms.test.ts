@@ -19,7 +19,7 @@ describe('admin cross-domain atoms', () => {
     store.set(adminOrganizersAtom, organizers)
     store.set(adminUsersAtom, users)
 
-    await expect(store.get(adminUsersOrganizersAtom)).resolves.toEqual([
+    expect(await store.get(adminUsersOrganizersAtom)).toEqual([
       organizers[0],
       { id: 'missing', name: '(tuntematon/poistettu yhdistys: missing)' },
     ])

@@ -1,11 +1,18 @@
+import type { TestStore } from 'test-utils/AtomProvider'
 import { Authenticator } from '@aws-amplify/ui-react'
 import { ThemeProvider } from '@mui/material'
-import { screen } from '@testing-library/react'
+import { act, screen } from '@testing-library/react'
 import { Suspense } from 'react'
 import { TestProvider as Provider } from 'test-utils/AtomProvider'
 import theme from '../../assets/Theme'
 import { Path } from '../../routeConfig'
-import { DataMemoryRouter, flushPromises, renderSuspended, TEST_ID_TOKEN } from '../../test-utils/utils'
+import {
+  DataMemoryRouter,
+  flushPromises,
+  makeTestIdToken,
+  renderSuspended,
+  TEST_ID_TOKEN,
+} from '../../test-utils/utils'
 import AppSnackbarProvider from '../components/AppSnackbarProvider'
 import { idTokenAtom } from '../state'
 import AdminHomePage from './AdminHomePage'
@@ -88,5 +95,46 @@ describe('AdminHomePage', () => {
     await flushPromises()
     expect(screen.getByRole('banner')).toBeInTheDocument()
     expect(screen.getByText('ADMIN DEFAULT PAGE CONTENT')).toBeInTheDocument()
+  })
+
+  it('keeps the shell mounted when the id token is refreshed', async () => {
+    // The session refresh writes a new id token before the old one expires. The shell reads the
+    // user above every admin page's Suspense boundary, so a suspending read would swap the header,
+    // the menu and the page for the fallback on each refresh.
+    const Fallback = vi.fn(() => <div>loading...</div>)
+    let store: TestStore | undefined
+    const routes = [
+      { element: <AdminHomePage />, path: Path.admin.root },
+      { element: <>Login</>, path: Path.login },
+    ]
+    await renderSuspended(
+      <ThemeProvider theme={theme}>
+        <Provider
+          initializeState={(initial) => {
+            store = initial
+            initial.set(idTokenAtom, TEST_ID_TOKEN)
+          }}
+        >
+          <AppSnackbarProvider>
+            <Authenticator.Provider>
+              <Suspense fallback={<Fallback />}>
+                <DataMemoryRouter initialEntries={[Path.admin.root]} routes={routes} />
+              </Suspense>
+            </Authenticator.Provider>
+          </AppSnackbarProvider>
+        </Provider>
+      </ThemeProvider>
+    )
+    await flushPromises()
+    const fallbackRendersWhileLoading = Fallback.mock.calls.length
+
+    await act(async () => {
+      store?.set(idTokenAtom, makeTestIdToken({ iat: 2 }))
+    })
+    await flushPromises()
+
+    expect(screen.getByRole('banner')).toBeInTheDocument()
+    expect(screen.queryByText('Login')).not.toBeInTheDocument()
+    expect(Fallback).toHaveBeenCalledTimes(fallbackRendersWhileLoading)
   })
 })

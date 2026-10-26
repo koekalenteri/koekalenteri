@@ -28,7 +28,7 @@ import {
 } from '../../test-utils/utils'
 import AppSnackbarProvider from '../components/AppSnackbarProvider'
 import EventViewPage from './EventViewPage'
-import { adminEventClassAtom, adminEventIdAtom, adminEventsAtom } from './state'
+import { adminEventAtom, adminEventClassAtom, adminEventIdAtom, adminEventsAtom } from './state'
 
 vi.mock('../../hooks/useEventSubscription', async () => ({
   useEventSubscription: vi.fn(() => ({ viewers: [] })),
@@ -416,5 +416,43 @@ describe('EventViewPage', () => {
 
     await flushPromises()
     expect(await screen.findByRole('alert')).toHaveTextContent('event.viewerBanner_one count, names')
+  })
+
+  it('keeps the page mounted when the event is saved', async () => {
+    // Every save in the view, linking a Kennelliitto trial among them, writes the saved event onto
+    // its atom. A suspending read of the event would swap the whole page for the Suspense fallback
+    // on each save, which looked like a reload of the page.
+    const Fallback = vi.fn(() => <div>loading...</div>)
+    let store: TestStore | undefined
+    await renderSuspended(
+      <ThemeProvider theme={theme}>
+        <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales.fi}>
+          <Provider
+            initializeState={(initial) => {
+              store = initial
+              initial.set(adminEventsAtom, [eventWithStaticDates])
+            }}
+          >
+            <Suspense fallback={<Fallback />}>
+              <AppSnackbarProvider>
+                <ConfirmProvider>
+                  <DataMemoryRouter
+                    initialEntries={[Path.admin.viewEvent(eventWithStaticDates.id)]}
+                    routes={[{ element: <EventViewPage />, path: Path.admin.viewEvent() }]}
+                  />
+                </ConfirmProvider>
+              </AppSnackbarProvider>
+            </Suspense>
+          </Provider>
+        </LocalizationProvider>
+      </ThemeProvider>
+    )
+    await flushPromises()
+    const fallbackRendersWhileLoading = Fallback.mock.calls.length
+
+    await act(() => store?.set(adminEventAtom(eventWithStaticDates.id), { ...eventWithStaticDates, kcGuid: 'guid-1' }))
+    await flushPromises()
+
+    expect(Fallback).toHaveBeenCalledTimes(fallbackRendersWhileLoading)
   })
 })

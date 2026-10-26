@@ -11,7 +11,6 @@ import { eventWithStaticDates } from '../../__mockData__/events'
 import theme from '../../assets/Theme'
 import { locales } from '../../i18n'
 import { Path } from '../../routeConfig'
-import { expectConsoleOutput } from '../../test-utils/consoleGuard'
 import { DataMemoryRouter, flushPromises, renderSuspendedWithUserEvents, TEST_ID_TOKEN } from '../../test-utils/utils'
 import AppSnackbarProvider from '../components/AppSnackbarProvider'
 import { idTokenAtom } from '../state'
@@ -58,9 +57,6 @@ describe('EventStationsPage', () => {
   afterAll(() => vi.useRealTimers())
 
   it('finds the event and offers its posts for editing', async () => {
-    // The event atom is a promise until the list has loaded and a plain value after, by design (see
-    // adminEventAtom): the render that suspended on it completes without it, and React 19 says so.
-    expectConsoleOutput(/called use\(\) to suspend in a previous render/)
     const { i18n } = useTranslation()
     await renderPage(i18n.language as Language)
     await flushPromises()

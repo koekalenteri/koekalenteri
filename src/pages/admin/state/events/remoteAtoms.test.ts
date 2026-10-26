@@ -54,7 +54,7 @@ describe('adminEventsRemoteAtom', () => {
     vi.mocked(getAdminEvents).mockResolvedValueOnce([first])
     const store = createStore()
     store.set(idTokenAtom, TOKEN)
-    await expect(store.get(adminEventsRemoteAtom)).resolves.toEqual([first])
+    expect(await store.get(adminEventsRemoteAtom)).toEqual([first])
     await store.set(adminEventsRemoteAtom, (events) => [...events, second])
     store.sub(adminEventsRemoteAtom, () => undefined)
     return store
@@ -71,14 +71,14 @@ describe('adminEventsRemoteAtom', () => {
     vi.mocked(getAdminEvents).mockResolvedValueOnce([]).mockResolvedValueOnce([first, second, third])
     const store = createStore()
     store.set(idTokenAtom, TOKEN)
-    await expect(store.get(adminEventsRemoteAtom)).resolves.toEqual([])
+    expect(await store.get(adminEventsRemoteAtom)).toEqual([])
     // A websocket patch arrives into the empty list, and the list is now a local one
     await store.set(adminEventsRemoteAtom, (events) => [...events, second])
     expect(store.get(adminEventsRemoteAtom)).toEqual([second])
 
     // Sign out, then sign in again
     store.set(idTokenAtom, undefined)
-    await vi.waitFor(() => expect(store.get(adminEventsRemoteAtom)).toEqual([]))
+    await vi.waitFor(async () => expect(await store.get(adminEventsRemoteAtom)).toEqual([]))
     store.set(idTokenAtom, REFRESHED_TOKEN)
 
     await vi.waitFor(() => expect(store.get(adminEventsRemoteAtom)).toEqual([first, second, third]))
