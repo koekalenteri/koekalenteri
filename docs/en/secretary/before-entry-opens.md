@@ -10,7 +10,7 @@ covers:
   - src/pages/admin/EventCreatePage.tsx
   - src/pages/admin/EventEditPage.tsx
   - src/pages/admin/OrganizerListPage.tsx
-sourceHash: ca6075
+sourceHash: a77bca
 ---
 
 Once a trial has been created in the calendar, the secretary's job before entry opens is to make
@@ -26,7 +26,9 @@ opens shows the trials of every club you have access to.
 
 The list can be shaped to suit you: **Columns** picks the visible columns, the search box narrows
 the rows, the **{t:organization}** selector shows one club's trials only, and **{t:showPastEvents}** brings the finished ones back into the list. Clicking a row enables the buttons at the
-top: *{t:edit}*, *{t:copy}*, *{t:delete}* and *{t:registrations}*.
+top: *{t:edit}*, *{t:copy}*, *{t:delete}* and *{t:registrations}*. *{t:delete}* is available only for
+a trial nobody can have entered yet: its state is *{t:event.states.draft}*,
+*{t:event.states.tentative}* or *{t:event.states.cancelled}*.
 
 ## 1. Check the trial's details
 
