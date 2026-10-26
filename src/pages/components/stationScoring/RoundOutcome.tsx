@@ -9,7 +9,7 @@ import TextField from '@mui/material/TextField'
 import { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import { outcomeReasonEnabled } from '@/lib/features'
-import { canBeStopped, eliminatingFaults, STOPPED_RESULT_CODE, scoresAtPosts } from '@/lib/results'
+import { canBeStopped, eliminatingFaults, hasJudgeStop, STOPPED_RESULT_CODE, scoresAtPosts } from '@/lib/results'
 
 /**
  * What the control is asking, which narrows with it while the reason list waits on KOE-1299: with only
@@ -21,6 +21,16 @@ export const outcomeLabelKeys = () =>
   outcomeReasonEnabled
     ? ({ column: 'results.column.outcome', field: 'results.outcome', notEnded: 'results.outcomeNone' } as const)
     : ({ column: 'results.interruption', field: 'results.interruption', notEnded: 'results.notInterrupted' } as const)
+
+/**
+ * Whether the control has anything to ask: the reasons a round ended, where those are switched on, or
+ * the judge's stop, where the format has one (`hasJudgeStop`) or the dog's stored result already carries
+ * one. NOU has no stop, so with the reasons switched off a taipumuskoe has no outcome to record and no
+ * column for it (KOE-1643). A stop stored before that keeps the question, so the secretary can take it
+ * away.
+ */
+export const asksOutcome = (eventType: string | undefined, carriesStop = false): boolean =>
+  outcomeReasonEnabled || hasJudgeStop(eventType) || carriesStop
 
 const SCORED = ''
 const INJURY = 'injury'
@@ -36,6 +46,8 @@ interface Props {
   readonly stations: EventStation[]
   /** Set in a post's own view: the round can only have ended at the post being scored. */
   readonly stationId?: string
+  /** The stored result carries a judge's stop, which stays clearable where the format has none. */
+  readonly carriesStop?: boolean
   readonly onChange: (edit: ResultEdit) => void
 }
 
@@ -52,7 +64,15 @@ const stationOf = (edit: ResultEdit) => edit.elimination?.stationId ?? edit.reti
  * While `outcomeReasonEnabled` is off the control asks only whether the judge stopped the trial
  * (KOE-1300); the rest of the list waits on KOE-1299 rather than being rebuilt then.
  */
-export const RoundOutcome = ({ value, disabled, eventType, stations, stationId, onChange }: Props) => {
+export const RoundOutcome = ({
+  value,
+  disabled,
+  eventType,
+  stations,
+  stationId,
+  carriesStop = false,
+  onChange,
+}: Props) => {
   const { t } = useTranslation()
   const labels = outcomeLabelKeys()
   const outcome = outcomeOf(value)
@@ -67,6 +87,7 @@ export const RoundOutcome = ({ value, disabled, eventType, stations, stationId, 
   // clearing the result, opens the choice again — and picking a prize over a recorded stop takes the
   // stop away (`withResultCode`), so the control is never greyed out while showing one.
   const stopLocked = stopped !== undefined && !canBeStopped(value.resultCode)
+  const offersStop = hasJudgeStop(eventType) || carriesStop
   // Why the round ended, where that is asked at all: each format's own hylkäävät virheet, then the
   // retirements that are not the judge's stop. Built as a list so the one question that is always asked
   // reads as one item in the menu rather than as a gate around every line of it.
@@ -137,6 +158,8 @@ export const RoundOutcome = ({ value, disabled, eventType, stations, stationId, 
     [onChange, value.resultCode, value.tasks, where]
   )
 
+  if (!asksOutcome(eventType, carriesStop)) return null
+
   return (
     <Stack spacing={0.5}>
       {/* With the stop the only thing on offer, a locked stop is a locked control; with the reasons of
@@ -155,9 +178,11 @@ export const RoundOutcome = ({ value, disabled, eventType, stations, stationId, 
             undoable. */}
         <MenuItem value={SCORED}>{t(labels.notEnded)}</MenuItem>
         {reasons}
-        <MenuItem disabled={stopLocked} value={JUDGE_STOPPED}>
-          {t('results.retirement.judgeStopped')}
-        </MenuItem>
+        {offersStop && (
+          <MenuItem disabled={stopLocked} value={JUDGE_STOPPED}>
+            {t('results.retirement.judgeStopped')}
+          </MenuItem>
+        )}
       </TextField>
 
       {/* A round ends somewhere, and which post is worth keeping rather than losing. */}

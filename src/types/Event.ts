@@ -567,6 +567,20 @@ export interface EventCopyJudgeNotice {
   reason: 'missing' | 'inactive' | 'eventType' | 'mockTrial'
 }
 
+/** An event the target environment already holds as a copy of the same source event (KOE-1639). */
+export interface EventCopyExisting {
+  eventId: string
+  name: string
+}
+
+/** The body of the 409 a copy is refused with when the target already holds a live copy of the source. */
+export interface EventCopyRefusal {
+  error: 'alreadyCopied'
+  existing: EventCopyExisting
+  /** In English, for anything that shows the server's own words. */
+  message: string
+}
+
 /** What copying an event into another environment answers with (KOE-1471). */
 export interface EventCopyResult {
   eventId: string

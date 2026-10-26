@@ -129,6 +129,39 @@ describe('template', () => {
     expect(subscriptions[0]).toMatch(/^ {6}Endpoint: !Ref AlarmEmail$/m)
   })
 
+  // dev, test and prod are stacks in one account and region. A metric filter that publishes to a
+  // namespace every stack shares writes all three stages into one metric, and each stage's alarm then
+  // fires on another stage's log lines (dev's data version drift went to ALARM on prod's drift of
+  // 25.10.2026). Each filter publishes under its own stack, and an alarm on a custom metric reads the
+  // filter's metric there.
+  it('publishes every metric filter under its own stack, and alarms read custom metrics from there', () => {
+    const stackNamespace = `!Sub 'KoekalenteriApp/\${AWS::StackName}'`
+    const filters = resourcesOfType('AWS::Logs::MetricFilter')
+    const published = new Map(
+      filters.flatMap((block) =>
+        [...block.matchAll(/^ {8}- MetricName: (\w+)\n {10}MetricNamespace: (.+)$/gm)].map(([, metric, namespace]) => [
+          metric,
+          namespace,
+        ])
+      )
+    )
+    const customAlarms = resourcesOfType('AWS::CloudWatch::Alarm').flatMap((block) => {
+      const namespace = /^ {6}Namespace: (.+)$/m.exec(block)?.[1] ?? ''
+      const metric = /^ {6}MetricName: (\w+)$/m.exec(block)?.[1] ?? ''
+      return namespace.startsWith('AWS/') ? [] : [{ alarm: resourceName(block), metric, namespace }]
+    })
+    const misread = customAlarms.filter(
+      ({ metric, namespace }) => namespace !== stackNamespace || published.get(metric) !== namespace
+    )
+
+    expect(filters).toHaveLength(template.match(/^ {4}Type: AWS::Logs::MetricFilter\s*$/gm)?.length ?? 0)
+    expect(published.size).toBe(template.match(/^ {10}MetricNamespace: /gm)?.length ?? 0)
+    expect(published.size).toBeGreaterThan(0)
+    expect([...published].filter(([, namespace]) => namespace !== stackNamespace)).toEqual([])
+    expect(customAlarms.length).toBeGreaterThan(0)
+    expect(misread).toEqual([])
+  })
+
   // SSEEnabled: true encrypts a table with the AWS-managed aws/dynamodb KMS key, and DynamoDB then
   // calls KMS on the table's behalf, each request billed (82 000 in October 2026). False keeps the
   // data encrypted at rest with a key AWS owns, at no charge (KOE-1603).

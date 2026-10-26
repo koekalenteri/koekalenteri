@@ -364,8 +364,13 @@ Read `LLM_CONTEXT.md` for the project overview and architecture notes.
   and prod's mail when they fire and when they clear. `src/lambda/template.test.ts` fails on an
   alarm without them (KOE-1602).
 - The `lambda()` wrapper counts every answer but a 200 as `Error` of its service in the
-  `KoekalenteriApp` namespace (`src/lambda/lib/metrics.ts`) and writes no metric for a 200:
-  AWS/Lambda Invocations already counts those, and a custom metric is billed per month.
+  `KoekalenteriApp/<stack name>` namespace (`src/lambda/lib/metrics.ts`) and writes no metric for a
+  200: AWS/Lambda Invocations already counts those, and a custom metric is billed per month.
+- A custom metric is published under the stack, never in a namespace the stacks share: dev, test
+  and prod are stacks in one account, and a shared namespace makes one metric of all three, so a
+  stage's alarm fires on another stage's events. An `AWS::Logs::MetricFilter` publishes to
+  `MetricNamespace: !Sub 'KoekalenteriApp/${AWS::StackName}'`, and an alarm on its metric reads the
+  same `Namespace`. `src/lambda/template.test.ts` fails on a filter or alarm that does not.
 
 ## Lambda Logging
 

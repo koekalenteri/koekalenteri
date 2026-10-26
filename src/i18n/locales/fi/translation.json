@@ -442,6 +442,7 @@
     "viewerBanner_other": "Myös {{names}} katsovat tätä tapahtumaa."
   },
   "eventCopy": {
+    "alreadyCopied": "Koe on jo kopioitu kohdeympäristöön nimellä {{name}}. Poista vanha kopio kohteesta ensin, jos haluat kopioida uudelleen.",
     "copy": "Kopioi",
     "done": {
       "dev": "Koe kopioitiin kehitysympäristöön. Löydät sen sieltä nimellä, jonka alussa on [Kopio].",

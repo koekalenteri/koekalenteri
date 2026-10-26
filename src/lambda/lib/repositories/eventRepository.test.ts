@@ -28,6 +28,7 @@ vi.doMock('../../utils/CustomDynamoClient', () => ({
 
 const {
   clearWorkflowLock,
+  findEventCopy,
   findEventIdsByKcGuid,
   findEventIdsByKcId,
   readAllEvents,
@@ -133,6 +134,23 @@ describe('eventRepository', () => {
         filter: 'kcGuid = :kcGuid',
         projection: 'id',
         values: { ':kcGuid': 'guid-1' },
+      })
+    })
+
+    it('findEventCopy scans for a live copy of one source event, reading its id and name', async () => {
+      mockReadAll.mockResolvedValueOnce([{ id: 'copy-1', name: '[Kopio: prod] Koe' }]).mockResolvedValueOnce(undefined)
+
+      await expect(findEventCopy({ eventId: 'source-1', stage: 'prod' })).resolves.toEqual({
+        id: 'copy-1',
+        name: '[Kopio: prod] Koe',
+      })
+      await expect(findEventCopy({ eventId: 'source-2', stage: 'dev' })).resolves.toBeUndefined()
+
+      expect(mockReadAll).toHaveBeenNthCalledWith(1, {
+        filter: '#copiedFrom.#stage = :stage AND #copiedFrom.#eventId = :eventId',
+        names: { '#copiedFrom': 'copiedFrom', '#eventId': 'eventId', '#name': 'name', '#stage': 'stage' },
+        projection: 'id, #name',
+        values: { ':eventId': 'source-1', ':stage': 'prod' },
       })
     })
 

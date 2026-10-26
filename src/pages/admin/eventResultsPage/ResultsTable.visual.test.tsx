@@ -49,11 +49,18 @@ const nouRegistrations: Registration[] = runners.map((reg) => ({
   class: undefined,
   eventType: 'NOU',
 }))
-// A pass with its judge chosen, and a stopped trial beside it — nothing derivable, so every mark on
-// screen is the judge's own. A stop fills in the nought it is published as, and the mark beside it says
-// the trial ended early rather than the dog going unplaced on its merits. Beside the pass the stop is
-// greyed out: a prize cannot carry one (KOE-1300).
+// A pass and a fail with their judge chosen: nothing derivable, so every mark on screen is the judge's
+// own. A taipumuskoe has no stop, so there is no interruption column either (KOE-1643).
 const nouEdits: Record<string, ResultEdit> = {
+  'run-1': { judge: nouJudges[0], resultCode: '1', tasks: [] },
+  'run-2': { judge: nouJudges[0], resultCode: '0', tasks: [] },
+}
+
+const nomeBRegistrations: Registration[] = runners.map((reg) => ({ ...reg, eventType: 'NOME-B' }))
+// A qualitative format that does have a stop. A stop fills in the nought it is published as, and the
+// mark beside it says the trial ended early rather than the dog going unplaced on its merits. Beside the
+// prize the stop is greyed out: a prize cannot carry one (KOE-1300).
+const nomeBEdits: Record<string, ResultEdit> = {
   'run-1': { judge: nouJudges[0], resultCode: '1', tasks: [] },
   'run-2': { judge: nouJudges[0], resultCode: '0', retirement: { cause: 'judgeStopped' }, tasks: [] },
 }
@@ -73,6 +80,24 @@ const nowtTable = (compact = false) => (
     registrations={runners}
     round={round}
     stations={eventWithStations.stations ?? []}
+  />
+)
+
+/** A NOME-B class's sheet: the result entered, and the interruption beside it. */
+const nomeBTable = () => (
+  <ResultsTable
+    defaultJudges={{}}
+    edits={nomeBEdits}
+    eventClass="ALO"
+    eventType="NOME-B"
+    fullRound={[]}
+    judges={nouJudges}
+    judgesFor={() => []}
+    onChange={noop}
+    onJudgeChange={noop}
+    registrations={nomeBRegistrations}
+    round={[]}
+    stations={[]}
   />
 )
 
@@ -232,6 +257,13 @@ it('shows a pass/fail round with the result and the judge as the entry', async (
   await expect(screen.getByTestId('visual-root')).toMatchScreenshot('results-entry-nou')
 })
 
+it('shows a NOME-B class with the interruption beside the result', async () => {
+  const screen = await render(<Frame>{nomeBTable()}</Frame>)
+
+  await expect.element(screen.getByText('ALO1')).toBeVisible()
+  await expect(screen.getByTestId('visual-root')).toMatchScreenshot('results-entry-nome-b')
+})
+
 // The same two rounds on a phone (KOE-1280): one card per dog, the controls under the name.
 it('stacks a test round one dog under another on a phone', async () => {
   const screen = await render(<Frame width={PHONE}>{nowtTable(true)}</Frame>)
@@ -295,6 +327,14 @@ describeInLanguage('en', () => {
     await expect.element(screen.getByText('NOU1')).toBeVisible()
     await expect.element(screen.getByRole('columnheader', { name: 'Dog' })).toBeVisible()
     await expect(screen.getByTestId('visual-root')).toMatchScreenshot('results-entry-nou-en')
+  })
+
+  it('shows a NOME-B class with the interruption beside the result', async () => {
+    const screen = await render(<Frame>{nomeBTable()}</Frame>)
+
+    await expect.element(screen.getByText('ALO1')).toBeVisible()
+    await expect.element(screen.getByRole('columnheader', { name: 'Dog' })).toBeVisible()
+    await expect(screen.getByTestId('visual-root')).toMatchScreenshot('results-entry-nome-b-en')
   })
 })
 

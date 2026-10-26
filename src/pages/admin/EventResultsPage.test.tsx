@@ -227,15 +227,17 @@ describe('EventResultsPage', () => {
 
   it("lets a judge's stop be recorded only beside the nought", async () => {
     const { i18n } = useTranslation()
+    // NOME-A has a stop; a taipumuskoe has none (KOE-1643).
+    const nomeA: ConfirmedEvent = { ...eventWithStaticDates, eventType: 'NOME-A' }
     features.outcomeReasonEnabled = false
     try {
-      const { user } = await renderQualitativePage(i18n.language as Language)
+      const { user } = await renderQualitativePage(i18n.language as Language, {}, nomeA)
       await flushPromises()
 
       // A prize with "Kesk." beside it would say two things at once, so once a prize is picked the
       // interruption control is greyed out rather than offered (Minsu, KOE-1300).
       await user.click(within(rowFor('Ensimmainen')).getByLabelText('results.column.result'))
-      await user.click(screen.getByRole('option', { name: 'NOU1' }))
+      await user.click(screen.getByRole('option', { name: 'A1' }))
       expect(within(rowFor('Ensimmainen')).getByLabelText('results.interruption')).toHaveAttribute(
         'aria-disabled',
         'true'
@@ -243,7 +245,7 @@ describe('EventResultsPage', () => {
 
       // The nought opens it again, and the stop is recorded beside it.
       await user.click(within(rowFor('Ensimmainen')).getByLabelText('results.column.result'))
-      await user.click(screen.getByRole('option', { name: 'NOU0' }))
+      await user.click(screen.getByRole('option', { name: 'A0' }))
       await user.click(within(rowFor('Ensimmainen')).getByLabelText('results.interruption'))
       await user.click(screen.getByRole('option', { name: 'results.retirement.judgeStopped' }))
       await flushPromises()
@@ -252,7 +254,7 @@ describe('EventResultsPage', () => {
       // Picking a prize over a recorded stop takes the stop away with it, so the control never sits
       // greyed out while still showing one.
       await user.click(within(rowFor('Ensimmainen')).getByLabelText('results.column.result'))
-      await user.click(screen.getByRole('option', { name: 'NOU1' }))
+      await user.click(screen.getByRole('option', { name: 'A1' }))
       await flushPromises()
       expect(within(rowFor('Ensimmainen')).queryByText('results.marks.interrupted')).not.toBeInTheDocument()
       expect(within(rowFor('Ensimmainen')).getByLabelText('results.interruption')).toHaveAttribute(
@@ -298,6 +300,86 @@ describe('EventResultsPage', () => {
       // shape the breeding database shows (ALO0, Kesk.).
       expect(within(rowFor('Ensimmainen')).getByText('ALO0')).toBeInTheDocument()
       expect(within(rowFor('Ensimmainen')).getByText('results.marks.interrupted')).toBeInTheDocument()
+    } finally {
+      features.outcomeReasonEnabled = true
+    }
+  })
+
+  it('does not ask about a stop in a taipumuskoe, which has none (KOE-1643)', async () => {
+    const { i18n } = useTranslation()
+    features.outcomeReasonEnabled = false
+    try {
+      await renderQualitativePage(i18n.language as Language)
+      await flushPromises()
+
+      // The judge's stop is the only thing the column asks while the reason is switched off, and NOU has
+      // no stop: Kennelliitto lists only NOU1 and NOU0. So there is no column at all, not an empty select.
+      expect(screen.getByRole('columnheader', { name: 'results.column.result' })).toBeInTheDocument()
+      expect(screen.queryByRole('columnheader', { name: 'results.interruption' })).not.toBeInTheDocument()
+      expect(within(rowFor('Ensimmainen')).queryByLabelText('results.interruption')).not.toBeInTheDocument()
+    } finally {
+      features.outcomeReasonEnabled = true
+    }
+  })
+
+  it('leaves only the stop out of a taipumuskoe when the reasons are asked', async () => {
+    const { i18n } = useTranslation()
+    const { user } = await renderQualitativePage(i18n.language as Language)
+    await flushPromises()
+
+    // With KOE-1299's reasons on the column has something to ask in a NOU too; only the stop is gone.
+    expect(screen.getByRole('columnheader', { name: 'results.column.outcome' })).toBeInTheDocument()
+    await user.click(within(rowFor('Ensimmainen')).getByLabelText('results.outcome'))
+    expect(screen.getByRole('option', { name: 'results.retirement.injury' })).toBeInTheDocument()
+    expect(screen.queryByRole('option', { name: 'results.retirement.judgeStopped' })).not.toBeInTheDocument()
+  })
+
+  it('keeps a stored stop clearable in a taipumuskoe when the reasons are asked', async () => {
+    const { i18n } = useTranslation()
+    const stopped: EventResult = {
+      result: 'NOU0',
+      retirement: { cause: 'judgeStopped' },
+      updatedAt: new Date('2026-09-26T09:00:00Z'),
+      updatedBy: 'Sihteeri',
+    }
+    const { user } = await renderQualitativePage(i18n.language as Language, { 'run-1': stopped })
+    await flushPromises()
+
+    // The row that carries a stop still offers it, so the menu can show what is stored; the others do not.
+    await user.click(within(rowFor('Toinen')).getByLabelText('results.outcome'))
+    expect(screen.queryByRole('option', { name: 'results.retirement.judgeStopped' })).not.toBeInTheDocument()
+    await user.keyboard('{Escape}')
+
+    await user.click(within(rowFor('Ensimmainen')).getByLabelText('results.outcome'))
+    expect(screen.getByRole('option', { name: 'results.retirement.judgeStopped' })).toBeInTheDocument()
+    await user.click(screen.getByRole('option', { name: 'results.outcomeNone' }))
+    await flushPromises()
+
+    expect(within(rowFor('Ensimmainen')).queryByText('results.marks.interrupted')).not.toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'results.save' })).toBeEnabled()
+  })
+
+  it('still lets a stop recorded on a taipumuskoe before KOE-1643 be cleared', async () => {
+    const { i18n } = useTranslation()
+    features.outcomeReasonEnabled = false
+    const stopped: EventResult = {
+      result: 'NOU0',
+      retirement: { cause: 'judgeStopped' },
+      updatedAt: new Date('2026-09-26T09:00:00Z'),
+      updatedBy: 'Sihteeri',
+    }
+    try {
+      const { user } = await renderQualitativePage(i18n.language as Language, { 'run-1': stopped })
+      await flushPromises()
+
+      // Only the row that carries one is asked, and only so the secretary can take it away.
+      expect(within(rowFor('Toinen')).queryByLabelText('results.interruption')).not.toBeInTheDocument()
+      await user.click(within(rowFor('Ensimmainen')).getByLabelText('results.interruption'))
+      await user.click(screen.getByRole('option', { name: 'results.notInterrupted' }))
+      await flushPromises()
+
+      expect(within(rowFor('Ensimmainen')).queryByText('results.marks.interrupted')).not.toBeInTheDocument()
+      expect(screen.getByRole('button', { name: 'results.save' })).toBeEnabled()
     } finally {
       features.outcomeReasonEnabled = true
     }

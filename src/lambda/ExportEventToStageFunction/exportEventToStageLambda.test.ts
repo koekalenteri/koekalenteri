@@ -195,6 +195,28 @@ describe('exportEventToStageLambda', () => {
     expect(mockAudit).not.toHaveBeenCalled()
   })
 
+  // KOE-1639: the target refuses a second copy of the same event as data, which is answered as a 409
+  // the dialog shows in Finnish, naming the copy the target already holds.
+  it('answers 409 naming the copy the target already holds', async () => {
+    mockInvoke.mockResolvedValueOnce(
+      invokeResult({ alreadyCopied: { eventId: 'copy-0', name: '[Kopio: prod] NOME-B Kangasala' } })
+    )
+    const event = request({ eventId: 'source-1', target: 'test' })
+
+    await exportEventToStageLambda(event)
+
+    expect(mockResponse).toHaveBeenCalledWith(
+      409,
+      {
+        error: 'alreadyCopied',
+        existing: { eventId: 'copy-0', name: '[Kopio: prod] NOME-B Kangasala' },
+        message: 'The target already holds a copy of this event: [Kopio: prod] NOME-B Kangasala',
+      },
+      event
+    )
+    expect(mockAudit).not.toHaveBeenCalled()
+  })
+
   it('refuses a copy too large to send in one invocation', async () => {
     // The description is published text and stays in the copy; notes would be replaced
     mockGetEvent.mockResolvedValueOnce({ ...sourceEvent(), description: 'x'.repeat(7 * 1024 * 1024) })

@@ -10,6 +10,7 @@ import { withoutPlusTag } from '../lib/email'
 import { saveEvent } from '../lib/event'
 import { findCopyLeaks, judgeNotices } from '../lib/eventCopy'
 import { logger } from '../lib/log'
+import { findEventCopy } from '../lib/repositories/eventRepository'
 import { readJudges } from '../lib/repositories/judgeRepository'
 import { readOrganizers } from '../lib/repositories/organizerRepository'
 import { writeRegistrations } from '../lib/repositories/registrationRepository'
@@ -46,6 +47,14 @@ export default async function importCopiedEvent(request: CopyImportRequest): Pro
   const organizer = organizers.find((candidate) => candidate.kcId === organizerKcId)
   if (!organizer) throw new Error(`No organizer with Kennel Club number ${organizerKcId} in the target environment`)
 
+  // A second copy of the same source would be a second event here, its entries counted again in the
+  // organizer's stats (KOE-1639). A deleted copy is not found, so deleting it lets the event be copied again.
+  const existing = await findEventCopy(source)
+  if (existing) {
+    logger.info('event copy refused: already copied', { eventId: existing.id })
+    return { alreadyCopied: { eventId: existing.id, name: existing.name } }
+  }
+
   // Days are stored as keys (KOE-1547), and a copy from an environment not yet migrated still holds
   // instants: decoded here as the migration decodes them, since this environment's migration has run.
   rekeyEventDays(copy.event, legacyEventDay)
@@ -59,7 +68,7 @@ export default async function importCopiedEvent(request: CopyImportRequest): Pro
     createdAt: now,
     id: eventId,
     modifiedAt: now,
-    name: `[Kopio: ${source.stage}] ${copy.event.name}`,
+    name: copy.event.name?.trim() ? `[Kopio: ${source.stage}] ${copy.event.name}` : `[Kopio: ${source.stage}]`,
     organizer: { id: organizer.id, name: organizer.name },
     organizerId: organizer.id,
     season: getEventSeason(copy.event.startDate) ?? copy.event.season,
