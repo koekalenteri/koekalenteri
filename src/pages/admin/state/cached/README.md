@@ -13,7 +13,6 @@ The `users` version follows the same visibility rules as `/admin/user`, and is s
 ## Storage model
 
 Data is stored in IndexedDB through two stores:
-
 - `keystore`: one non-extractable AES-GCM `CryptoKey` plus `{ userId }` metadata.
 - `datasets`: encrypted blobs keyed by `${userId}:${datasetName}`.
 
@@ -33,7 +32,7 @@ Admin collection atoms use `atomWithCachedRemoteCollection()`. Its asynchronous 
 
 When the API call fails and a cached blob is available, the atom returns the cached data so the UI remains usable through transient outages. When no cache is available, the original error propagates and the atom rejects.
 
-On a successful refetch the blob records the revision reported *before* the fetch. If the collection changes in between, the blob is marked older than its data and refetches once more later — never the other way round.
+On a successful refetch the blob records the revision reported _before_ the fetch. If the collection changes in between, the blob is marked older than its data and refetches once more later — never the other way round.
 
 Writing to a collection atom — a WebSocket invalidation, a manual refresh, an edit made in the UI — mirrors the new list into the blob under the same rule, so the next session starts from it instead of refetching everything the moment anything was updated. A write that arrives before anything has read the collection (a test fixture, say) is not mirrored: there is no load to take the user and revision from, and seeding an atom must never reach for `/user`.
 
