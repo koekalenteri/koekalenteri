@@ -1,6 +1,6 @@
 import { storedEvent, uniqueId } from '../../test-utils/integration'
 import CustomDynamoClient from '../../utils/CustomDynamoClient'
-import { findEventCopies, readEvent, readLiveEvent } from './eventRepository'
+import { findEventCopy, readEvent, readLiveEvent } from './eventRepository'
 
 /**
  * A deleted event keeps its row, with `deletedAt`: the admin readers still read it, the public ones
@@ -33,7 +33,7 @@ describe('readLiveEvent against DynamoDB-local', () => {
  * An event copied from another environment holds `copiedFrom` (KOE-1471); a second copy of the same
  * source is refused while a live copy exists (KOE-1639).
  */
-describe('findEventCopies against DynamoDB-local', () => {
+describe('findEventCopy against DynamoDB-local', () => {
   const client = new CustomDynamoClient('EventTable')
   const copiedFrom = (stage: string, eventId: string) => ({ at: new Date().toISOString(), by: 'Admin', eventId, stage })
 
@@ -49,9 +49,10 @@ describe('findEventCopies against DynamoDB-local', () => {
     const otherEvent = storedEvent({ copiedFrom: copiedFrom('prod', uniqueId('source')) })
     for (const row of [live, deleted, otherStage, otherEvent]) await client.write(row)
 
-    await expect(findEventCopies({ eventId: sourceId, stage: 'prod' })).resolves.toEqual([
-      { id: live.id, name: '[Kopio: prod] Live' },
-    ])
+    await expect(findEventCopy({ eventId: sourceId, stage: 'prod' })).resolves.toEqual({
+      id: live.id,
+      name: '[Kopio: prod] Live',
+    })
   })
 
   it('finds nothing once the only copy is deleted', async () => {
@@ -60,6 +61,6 @@ describe('findEventCopies against DynamoDB-local', () => {
       storedEvent({ copiedFrom: copiedFrom('dev', sourceId), deletedAt: new Date().toISOString(), deletedBy: 'admin' })
     )
 
-    await expect(findEventCopies({ eventId: sourceId, stage: 'dev' })).resolves.toEqual([])
+    await expect(findEventCopy({ eventId: sourceId, stage: 'dev' })).resolves.toBeUndefined()
   })
 })

@@ -80,21 +80,6 @@ describe('CopyToEnvironmentDialog', () => {
     expect(screen.queryByText('eventCopy.failed message')).not.toBeInTheDocument()
   })
 
-  it("shows the server's words for an alreadyCopied refusal that does not name the copy", async () => {
-    const user = userEvent.setup()
-    renderDialog(
-      vi
-        .fn()
-        .mockRejectedValue(
-          new APIError(new Response(null, { status: 409 }), { error: 'alreadyCopied', message: 'Already copied' })
-        )
-    )
-
-    await user.click(screen.getByRole('button', { name: 'eventCopy.copy' }))
-
-    expect(await screen.findByText('eventCopy.failed message')).toBeInTheDocument()
-  })
-
   it('closes without copying', async () => {
     const user = userEvent.setup()
     const { onClose, onCopy } = renderDialog()

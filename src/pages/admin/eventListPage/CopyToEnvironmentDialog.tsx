@@ -15,7 +15,7 @@ import Stack from '@mui/material/Stack'
 import Typography from '@mui/material/Typography'
 import { useCallback, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { APIError, refusalCode } from '@/api/http'
+import { APIError } from '@/api/http'
 import { isObject } from '@/lib/utils'
 
 interface Props {
@@ -47,12 +47,12 @@ const errorMessage = (error: unknown) => {
 
 /**
  * The name of the copy the target already holds, when that is why the copy was refused (KOE-1639).
- * The body is the server's `EventCopyRefusal`, read field by field since it arrives untyped.
+ * The body is the server's `EventCopyRefusal`, narrowed here since it arrives untyped.
  */
 const existingCopyName = (error: unknown) => {
-  if (refusalCode(error) !== 'alreadyCopied' || !(error instanceof APIError) || !isObject(error.body)) return undefined
-  const { existing } = error.body
-  return isObject(existing) && typeof existing.name === 'string' ? existing.name : undefined
+  const existing =
+    error instanceof APIError && isObject(error.body) && error.body.error === 'alreadyCopied' && error.body.existing
+  return isObject(existing) ? String(existing.name) : undefined
 }
 
 /**

@@ -10,7 +10,7 @@ import { withoutPlusTag } from '../lib/email'
 import { saveEvent } from '../lib/event'
 import { findCopyLeaks, judgeNotices } from '../lib/eventCopy'
 import { logger } from '../lib/log'
-import { findEventCopies } from '../lib/repositories/eventRepository'
+import { findEventCopy } from '../lib/repositories/eventRepository'
 import { readJudges } from '../lib/repositories/judgeRepository'
 import { readOrganizers } from '../lib/repositories/organizerRepository'
 import { writeRegistrations } from '../lib/repositories/registrationRepository'
@@ -49,9 +49,9 @@ export default async function importCopiedEvent(request: CopyImportRequest): Pro
 
   // A second copy of the same source would be a second event here, its entries counted again in the
   // organizer's stats (KOE-1639). A deleted copy is not found, so deleting it lets the event be copied again.
-  const [existing, ...more] = await findEventCopies(source)
+  const existing = await findEventCopy(source)
   if (existing) {
-    logger.info('event copy refused: already copied', { copies: more.length + 1, eventId: existing.id })
+    logger.info('event copy refused: already copied', { eventId: existing.id })
     return { alreadyCopied: { eventId: existing.id, name: existing.name } }
   }
 
