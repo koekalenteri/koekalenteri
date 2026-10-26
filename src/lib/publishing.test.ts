@@ -189,6 +189,72 @@ describe('lib/publishing', () => {
     })
   })
 
+  describe('on the trial day, an invitation still outstanding (KOE-1638)', () => {
+    freezeClockAt('2026-10-25')
+
+    // A one-day NOME-A with its list out: one dog was invited, one was lifted from the reserve after
+    // the invitations went and has not paid, so the system still counts its invitation as unsent.
+    const trialDay = event({
+      classes: [],
+      endDate: '2026-10-25' as const,
+      entryEndDate: '2026-10-04' as const,
+      eventType: 'NOME-A',
+      startDate: '2026-10-25' as const,
+      startListPublished: true,
+      state: 'invited',
+    })
+    const invitedDog = { ...invited, class: undefined, eventType: 'NOME-A' }
+    const uninvitedDog = { ...uninvited, class: undefined, eventType: 'NOME-A' }
+
+    it('lets the start list be published and hidden', () => {
+      expect(getStartListBlocker(trialDay, undefined, [invitedDog, uninvitedDog])).toBeUndefined()
+    })
+
+    it('lets the start numbers be published', () => {
+      expect(getStartNumbersBlocker(trialDay, undefined, [invitedDog, uninvitedDog])).toBeUndefined()
+    })
+
+    it('stops waiting on an invitation whose attachment was replaced after it went', () => {
+      const replaced = { ...trialDay, invitationAttachments: { 'NOME-A': 'new-file' } }
+      expect(getStartNumbersBlocker(replaced, undefined, [invitedDog])).toBeUndefined()
+    })
+
+    it('still waits on the invitations the day before', () => {
+      const tomorrow = { ...trialDay, endDate: '2026-10-26' as const, startDate: '2026-10-26' as const }
+      expect(getStartListBlocker(tomorrow, undefined, [invitedDog, uninvitedDog])).toBe('invitations')
+      expect(getStartNumbersBlocker(tomorrow, undefined, [invitedDog, uninvitedDog])).toBe('invitations')
+    })
+
+    it("waits on a class's invitations until that class's own first day", () => {
+      // A two-day trial: ALO runs today, AVO tomorrow, so AVO's invitations still have work to do.
+      const twoDays = event({
+        classes: [
+          { class: 'ALO', date: '2026-10-25' as const },
+          { class: 'AVO', date: '2026-10-26' as const },
+        ],
+        endDate: '2026-10-26' as const,
+        startDate: '2026-10-25' as const,
+        startListPublished: { ALO: true, AVO: true },
+      })
+      const uninvitedAvo = { ...uninvited, class: 'AVO' } as const
+      expect(getStartNumbersBlocker(twoDays, 'ALO', [invited, uninvited])).toBeUndefined()
+      expect(getStartNumbersBlocker(twoDays, 'AVO', [uninvitedAvo])).toBe('invitations')
+    })
+
+    it('puts a picked class published on the trial day on the web (KOE-1509)', () => {
+      // The panel lets the list out on the trial day, so the public reading must follow it there.
+      const picked = event({
+        classes: [{ class: 'ALO', date: '2026-10-25' as const, state: 'picked' }],
+        endDate: '2026-10-25' as const,
+        startDate: '2026-10-25' as const,
+        startListPublished: { ALO: true },
+        state: 'picked',
+      })
+      expect(getStartListBlocker(picked, 'ALO', [uninvited])).toBeUndefined()
+      expect(isStartListPublished(picked, classEntry(picked, 'ALO'))).toBe(true)
+    })
+  })
+
   describe('groupParticipantsByClass', () => {
     it('counts only the dogs picked into a group, a classless one under its event type', () => {
       const picked = { eventType: 'NOU', group: { key: 'day-1', number: 1 } }

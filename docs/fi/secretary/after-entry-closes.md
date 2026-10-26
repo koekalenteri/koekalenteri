@@ -123,8 +123,9 @@ kirjekuorena ja kuittaamaton suljettuna.
 Kun koekutsut on lähetetty, luokan starttilistan voi julkaista paneelin *{t:eventManagement.startList.publishing}*
 -osiosta painikkeella **{t:eventManagement.startList.publish}**. **{t:eventManagement.startList.previewUnpublished}** näyttää listan
 sellaisena kuin osallistujat sen näkevät. Julkaistu lista päivittyy itsestään, kun osallistujia
-siirretään tai peruutuksia kirjataan. Kun koepäivä on mennyt tai luokka on arvosteltu, koekutsuja ei
-voi enää lähettää, eikä starttilistan julkaisu silloin odota niitä.
+siirretään tai peruutuksia kirjataan. Luokan ensimmäisen koepäivän aamuun asti julkaisu odottaa
+lähettämättömiä koekutsuja. Siitä alkaen, ja myös kun luokka on arvosteltu, listan voi julkaista,
+vaikka jokin kutsu olisi vielä lähettämättä. Kutsun voi silti lähettää myös koepäivänä.
 
 !shot[StartListPublishing/start-list-publishing] Starttilistan julkaisu luokittain
 

@@ -17,7 +17,7 @@ covers:
   - src/pages/admin/StartListPreviewPage.tsx
   - src/pages/admin/startListPage/**
   - src/pages/ClassStartNumbersPage.tsx
-sourceHash: 9f3743
+sourceHash: 95df8e
 ---
 
 Once entry has closed, the secretary's work goes step by step: picking the participants, the
@@ -127,8 +127,9 @@ one.
 
 Once the invitations have been sent, a class's start list can be published from the panel's *{t:eventManagement.startList.publishing}* section with the **{t:eventManagement.startList.publish}** button. **{t:eventManagement.startList.previewUnpublished}** shows the
 list as the participants will see it. A published list updates by itself when participants are moved
-or cancellations recorded. Once the trial's day has gone or the class has been judged, the
-invitations can no longer be sent, and publishing the start list no longer waits on them.
+or cancellations recorded. Until the morning of the class's first trial day, publishing waits on any
+invitations not yet sent. From then on, and once the class has been judged, the list can be published
+even if an invitation is still unsent. An invitation can still be sent on the trial day too.
 
 !shot[StartListPublishing/start-list-publishing] Start list publishing by class
 
