@@ -59,7 +59,7 @@ export default async function importCopiedEvent(request: CopyImportRequest): Pro
     createdAt: now,
     id: eventId,
     modifiedAt: now,
-    name: `[Kopio: ${source.stage}] ${copy.event.name}`,
+    name: copy.event.name?.trim() ? `[Kopio: ${source.stage}] ${copy.event.name}` : `[Kopio: ${source.stage}]`,
     organizer: { id: organizer.id, name: organizer.name },
     organizerId: organizer.id,
     season: getEventSeason(copy.event.startDate) ?? copy.event.season,

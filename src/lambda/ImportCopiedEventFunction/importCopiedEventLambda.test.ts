@@ -165,6 +165,20 @@ describe('importCopiedEvent', () => {
     expect(mockSaveEvent).toHaveBeenCalledWith(expect.not.objectContaining({ kcId: expect.anything() }))
   })
 
+  it.each([
+    ['has no name', undefined],
+    ['has an empty name', ''],
+    ['has a blank name', '  '],
+  ])('names a copy of an event that %s by its prefix only (KOE-1645)', async (_, name) => {
+    const nameless = request()
+    if (name === undefined) Reflect.deleteProperty(nameless.copy.event, 'name')
+    else nameless.copy.event = { ...nameless.copy.event, name }
+
+    await importCopiedEvent(nameless)
+
+    expect(mockSaveEvent).toHaveBeenCalledWith(expect.objectContaining({ name: '[Kopio: prod]' }))
+  })
+
   it('never imports into prod', async () => {
     CONFIG.stageName = 'prod'
 
