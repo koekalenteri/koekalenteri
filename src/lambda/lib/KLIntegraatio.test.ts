@@ -317,6 +317,21 @@ describe('KLIntegraatio', () => {
       expect(await klint.lueKoemuoto({ koemuoto: 'NOU' })).toEqual({ status: 403 })
     })
 
+    it('takes no reason from the title of a 5xx, which says nothing of the request', async () => {
+      replies.push(tokenReply(3600), {
+        body: { status: 500, title: 'An error occurred while processing your request.' },
+        status: 500,
+      })
+
+      expect(await klint.lueKoemuoto({ koemuoto: 'NOU' })).toEqual({ status: 500 })
+    })
+
+    it('keeps the virheet of a 5xx', async () => {
+      replies.push(tokenReply(3600), { body: { virheet: ['Palvelu ei vastaa.'] }, status: 503 })
+
+      expect(await klint.lueKoemuoto({ koemuoto: 'NOU' })).toEqual({ status: 503, virheet: ['Palvelu ei vastaa.'] })
+    })
+
     it('prefers the reasons to the title when both are given', async () => {
       replies.push(tokenReply(3600), { body: { title: 'Bad Request', virheet: ['Nimi puuttuu.'] }, status: 400 })
 

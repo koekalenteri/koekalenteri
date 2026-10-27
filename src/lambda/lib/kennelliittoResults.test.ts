@@ -1608,6 +1608,16 @@ describe('kennelliittoResults', () => {
       expect(storedState?.code).toEqual(754)
     })
 
+    it('leaves a 500 with a ProblemDetails title unclear, not refused', async () => {
+      await sendAll()
+      asetaTilaReply = { body: { status: 500, title: 'An error occurred while processing your request.' }, status: 500 }
+
+      const result = await handOverKennelliittoResults(ctx(), { withoutBlocked: false })
+
+      expect(result.handedOver).toEqual(false)
+      expect(result.refused).toEqual({ status: 500 })
+    })
+
     it('keeps the lock when Kennelliitto cannot be read afterwards: a preview opens it', async () => {
       await sendAll()
       asetaTilaReply = { status: 502 }

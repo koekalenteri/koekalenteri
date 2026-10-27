@@ -90,12 +90,14 @@ const getVirheet = (value: unknown): string[] | undefined => {
 /**
  * The reasons of a refusal: KL's `virheet`, or else the `title` of a refusal that gives none, such as
  * the 403 `{ "title": "Ei käyttöoikeutta." }` of an endpoint the credentials have no right to (Testi2,
- * 27.10.2026). Folded into one list, so every caller reads a refusal the same way.
+ * 27.10.2026). Folded into one list, so every caller reads a refusal the same way. A 5xx title is no
+ * reason: a failing service's ProblemDetails ("An error occurred while processing your request.") says
+ * nothing of the request, and the call may have been taken.
  */
-const getReasons = (value: unknown): string[] | undefined => {
+const getReasons = (value: unknown, status: number): string[] | undefined => {
   const virheet = getVirheet(value)
   if (virheet) return virheet
-  if (typeof value !== 'object' || value === null || !('title' in value)) return undefined
+  if (status >= 500 || typeof value !== 'object' || value === null || !('title' in value)) return undefined
   return typeof value.title === 'string' && value.title ? [value.title] : undefined
 }
 
@@ -205,7 +207,7 @@ export default class KLIntegraatio {
     if (res.ok) {
       return { json: parsed }
     }
-    const virheet = getReasons(parsed)
+    const virheet = getReasons(parsed, res.status)
     if (virheet) logger.error('KLIntegraatio refused the request', { path, status: res.status, virheet })
     return virheet ? { virheet } : {}
   }
