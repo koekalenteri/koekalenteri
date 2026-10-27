@@ -200,6 +200,8 @@ export interface JsonKcResult {
   by: string
   /** What Kennelliitto answered to a refused call, as it worded it. */
   errors?: string[]
+  /** The call that failed was the one adding the foreign dog to Kennelliitto; no result was sent (KOE-1201). */
+  dogNotAdded?: true
 }
 
 /** `at` as the client holds it; `day` is a day key, a string on both sides of the wire. */

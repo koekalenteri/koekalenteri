@@ -11,9 +11,12 @@ import type {
   KLIntKoira,
   KLIntKoiraParametrit,
   KLIntKokeetParametrit,
+  KLIntMaa,
+  KLIntMaatParametrit,
   KLIntTulosPoista,
   KLIntTulosTallenna,
   KLIntTulosTallennaVastaus,
+  KLIntUlkomainenKoira,
 } from '../types/KLIntegraatio'
 import { logger } from './log'
 import { getKLIntegraatioConfig } from './secrets'
@@ -84,6 +87,20 @@ const getVirheet = (value: unknown): string[] | undefined => {
   return isStringArray(value.virheet) ? value.virheet : undefined
 }
 
+/**
+ * The reasons of a refusal: KL's `virheet`, or else the `title` of a refusal that gives none, such as
+ * the 403 `{ "title": "Ei käyttöoikeutta." }` of an endpoint the credentials have no right to (Testi2,
+ * 27.10.2026). Folded into one list, so every caller reads a refusal the same way. A 5xx title is no
+ * reason: a failing service's ProblemDetails ("An error occurred while processing your request.") says
+ * nothing of the request, and the call may have been taken.
+ */
+const getReasons = (value: unknown, status: number): string[] | undefined => {
+  const virheet = getVirheet(value)
+  if (virheet) return virheet
+  if (status >= 500 || typeof value !== 'object' || value === null || !('title' in value)) return undefined
+  return typeof value.title === 'string' && value.title ? [value.title] : undefined
+}
+
 const isToken = (value: unknown): value is KLIntegraatioToken =>
   typeof value === 'object' &&
   value !== null &&
@@ -99,8 +116,8 @@ const errorMessage = (e: unknown): string => (e instanceof Error ? e.message : '
  * credentials of {@link KLAPI}, and every path under `Integraatio/`.
  *
  * Nothing here throws on a bad answer. A failed call returns its status, and the reasons KL gave
- * (`{ "virheet": [...] }` on 400 and 404) are logged and returned, so the caller decides what the
- * secretary is told.
+ * (`{ "virheet": [...] }` on 400 and 404, or the `title` of a refusal without them, such as a 403, as
+ * the one reason) are logged and returned, so the caller decides what the secretary is told.
  *
  * The configuration is asked from `loadConfig` on every request and not kept here: the loader
  * (`getKLIntegraatioConfig`) caches with a time limit, so a rotated credential is picked up by a
@@ -190,7 +207,7 @@ export default class KLIntegraatio {
     if (res.ok) {
       return { json: parsed }
     }
-    const virheet = getVirheet(parsed)
+    const virheet = getReasons(parsed, res.status)
     if (virheet) logger.error('KLIntegraatio refused the request', { path, status: res.status, virheet })
     return virheet ? { virheet } : {}
   }
@@ -243,6 +260,19 @@ export default class KLIntegraatio {
       return { error: 'not found', status: 404 }
     }
     return result
+  }
+
+  /** The countries and their registries, which a foreign dog's country is derived from (KOE-1201). */
+  lueMaat(params: KLIntMaatParametrit, { signal }: CallOptions = {}) {
+    return this.request<KLIntMaa[]>('GET', 'Yleista/Maat', params, undefined, signal)
+  }
+
+  /**
+   * Adds a foreign dog that took part in a trial (KOE-1201). The answer's id is not read: nothing here
+   * keeps it, and the dog is found by its registration number from then on.
+   */
+  tallennaUlkomainenKoira(koira: KLIntUlkomainenKoira, { signal }: CallOptions = {}) {
+    return this.request<never>('POST', 'Koira/Ulkomainen', undefined, koira, signal)
   }
 
   /** Saves one dog's result. Saving again for the same dog updates the earlier result. */

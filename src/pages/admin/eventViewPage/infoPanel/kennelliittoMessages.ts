@@ -37,11 +37,32 @@ export const skippedLine = (t: TFunction, report: KcSendReport): DogLine => ({
 })
 
 /**
+ * A foreign dog Kennelliitto did not add, so its result was not sent (KOE-1201): the sentence the
+ * secretary is told, then Kennelliitto's own reasons, or the status when it gave none. The status is
+ * known only in the report of the sending itself; the stored result has the reasons alone.
+ */
+export const dogNotAddedText = (
+  t: TFunction,
+  { errors, regNo, status }: { errors?: string[]; regNo: string; status?: number }
+): string => {
+  const text = t('results.kennelliitto.dogNotAdded', { regNo })
+  if (errors?.length) return `${text} ${errors.join(' ')}`
+  return status === undefined ? text : `${text} ${t('results.kennelliitto.statusUnknown', { status })}`
+}
+
+/** A dog that sending adds to Kennelliitto first, with the country it is added as (KOE-1201). */
+export const createsDogLine = (dog: KcDogReport): DogLine => ({
+  id: dog.id,
+  text: dog.createsDog ? `${dogLabel(dog)}: ${dog.createsDog.name}` : dogLabel(dog),
+})
+
+/**
  * Why a sent dog failed: Kennelliitto's own words; else the status of a call it did not accept, since
  * then there was no answer to store and sending again is the advice; else, for a dog it accepted, that
  * its answer was not stored here (KOE-1140).
  */
 const failureText = (t: TFunction, report: KcSendReport): string => {
+  if (report.dogNotAdded) return dogNotAddedText(t, report)
   if (report.errors) return report.errors.join(' ')
   if (report.answerNotStored && report.status === undefined) return t('results.kennelliitto.answerNotStored')
   return t('results.kennelliitto.statusUnknown', { status: report.status ?? 0 })

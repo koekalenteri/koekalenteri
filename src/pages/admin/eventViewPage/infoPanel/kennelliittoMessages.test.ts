@@ -3,7 +3,7 @@ import i18next from 'i18next'
 import fi from '@/i18n/locales/fi/translation.json'
 import { finnishDay } from '@/lib/kennelliittoResults'
 import { parseJSON } from '@/lib/utils'
-import { dogLine, failedLine, skippedLine } from './kennelliittoMessages'
+import { createsDogLine, dogLine, dogNotAddedText, failedLine, skippedLine } from './kennelliittoMessages'
 
 const finnish = i18next.createInstance()
 beforeAll(() =>
@@ -110,6 +110,21 @@ describe('the messages of a sending', () => {
       'Hukka (FI1/20): Kennelliiton vastausta ei saatu tallennettua Koekalenteriin. Lähetä koira uudelleen.',
     ],
     [
+      'as a dog Kennelliitto did not add, with its reasons (KOE-1201)',
+      { dogNotAdded: true as const, errors: ['Ei käyttöoikeutta.'], status: 403 },
+      'Hukka (FI1/20): Koiran FI1/20 lisääminen Jalostustietojärjestelmään ei onnistunut. Tarkista tiedot. Ei käyttöoikeutta.',
+    ],
+    [
+      'as a dog Kennelliitto did not add, with the status when it gave no reasons (KOE-1201)',
+      { dogNotAdded: true as const, status: 500 },
+      'Hukka (FI1/20): Koiran FI1/20 lisääminen Jalostustietojärjestelmään ei onnistunut. Tarkista tiedot. Kennelliitto ei vastannut selvästi (tila 500). Yritä uudelleen.',
+    ],
+    [
+      'as a dog Kennelliitto did not add, even when its answer could not be stored here (KOE-1201)',
+      { answerNotStored: true as const, dogNotAdded: true as const, status: 0 },
+      'Hukka (FI1/20): Koiran FI1/20 lisääminen Jalostustietojärjestelmään ei onnistunut. Tarkista tiedot. Kennelliitto ei vastannut selvästi (tila 0). Yritä uudelleen.',
+    ],
+    [
       'as an unclear answer when the report says nothing more',
       {},
       'Hukka (FI1/20): Kennelliitto ei vastannut selvästi (tila 0). Yritä uudelleen.',
@@ -118,5 +133,33 @@ describe('the messages of a sending', () => {
     const line = failedLine(finnish.t, { id: 'a', name: 'Hukka', outcome: 'failed', regNo: 'FI1/20', ...fields })
 
     expect(line).toEqual({ id: 'a', text })
+  })
+
+  it('names the country a dog is added to Kennelliitto as (KOE-1201)', () => {
+    const dog = received({
+      createsDog: { code: 'SE', name: 'Ruotsi' },
+      id: 'a',
+      name: 'Hukka',
+      problems: [],
+      regNo: 'SE12345/2024',
+      status: 'ready',
+    })
+
+    expect(createsDogLine(dog)).toEqual({ id: 'a', text: 'Hukka (SE12345/2024): Ruotsi' })
+  })
+
+  it.each([
+    [
+      'with the reasons stored',
+      { errors: ['Rotukoodi ei kelpaa.'] },
+      'Koiran SE1/20 lisääminen Jalostustietojärjestelmään ei onnistunut. Tarkista tiedot. Rotukoodi ei kelpaa.',
+    ],
+    [
+      'alone when no reasons were stored (an answer without them)',
+      {},
+      'Koiran SE1/20 lisääminen Jalostustietojärjestelmään ei onnistunut. Tarkista tiedot.',
+    ],
+  ])('says a dog was not added %s', (_case, fields, text) => {
+    expect(dogNotAddedText(finnish.t, { regNo: 'SE1/20', ...fields })).toEqual(text)
   })
 })

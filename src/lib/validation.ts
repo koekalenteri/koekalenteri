@@ -9,3 +9,13 @@ export const isFinnishRegNo = (regNo: string): boolean =>
   RE_FinnishRegNo.test(regNo) || RE_FinnishOldRegNo.test(regNo) || RE_FinnishVeryOldRegNo.test(regNo)
 
 export const isModernFinnishRegNo = (regNo: string): boolean => RE_FinnishRegNo.test(regNo)
+
+/**
+ * A registration number Kennelliitto keeps as a Finnish one: its registries (FI, FIN, ER, EJ) and the
+ * old SF numbers. Nothing normalises a typed number, so the separators `validateRegNo` lets in between
+ * the prefix and the digits are skipped. Only a number that is not domestic can be a foreign dog that
+ * Kennelliitto does not know yet (KOE-1201), and Koira/Ulkomainen refuses FI, ER and EJ in any case.
+ * `isFinnishRegNo` is not used here because it rejects typed separators and lengths other than the
+ * canonical ones, and a Finnish-looking number must never be looked up or added as foreign, whatever its shape.
+ */
+export const isKcDomesticRegNo = (regNo: string): boolean => /^(FIN?|ER|EJ|SF)[ .\-/]*\d/i.test(regNo.trim())

@@ -298,6 +298,12 @@ export const resultSentToKennelliittoAudit = () => auditMessage('audit.messages.
 /** A result Kennelliitto refused, with the reasons as it worded them. */
 export const resultSendFailedAudit = (reason: string) => auditMessage('audit.messages.resultSendFailed', { reason })
 
+/** A foreign dog added to Kennelliitto's breeding database before its result was sent (KOE-1201). */
+export const dogAddedToKennelliittoAudit = () => auditMessage('audit.messages.dogAddedToKennelliitto')
+
+/** A foreign dog Kennelliitto did not add, with the reasons as it worded them. */
+export const dogAddFailedAudit = (reason: string) => auditMessage('audit.messages.dogAddFailed', { reason })
+
 export const resultsHandedOverAudit = () => auditMessage('audit.messages.resultsHandedOver')
 
 export const kcGuidFoundAudit = () => auditMessage('audit.messages.kcGuidFound')

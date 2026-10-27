@@ -5,14 +5,17 @@ import koemuotoNOME_A from '../lambda/lib/KLIntegraatio-fixtures/koemuoto-NOME-A
 import koemuotoNOME_B from '../lambda/lib/KLIntegraatio-fixtures/koemuoto-NOME-B.json'
 import koemuotoNOU from '../lambda/lib/KLIntegraatio-fixtures/koemuoto-NOU.json'
 import koemuotoNOWT from '../lambda/lib/KLIntegraatio-fixtures/koemuoto-NOWT.json'
+import maat from '../lambda/lib/KLIntegraatio-fixtures/maat.json'
 import { legacyDayValue } from '../test-utils/finnishDays'
 import {
+  buildKcForeignDog,
   buildKcResult,
   countSentResults,
   finnishDay,
   isKcDayReached,
   isKcStateWritable,
   isResultsLocked,
+  kcCountryOfRegNo,
   kcResultBadge,
   kcResultDay,
 } from './kennelliittoResults'
@@ -465,5 +468,91 @@ describe('kennelliittoResults', () => {
     it('says nothing of a dog that has no result and was never sent', () => {
       expect(kcResultBadge({})).toBeUndefined()
     })
+  })
+})
+
+describe('kcCountryOfRegNo (KOE-1201)', () => {
+  it.each([
+    ['SE12345/2024', 'SE', 'Ruotsi'],
+    ['se12345/2024', 'SE', 'Ruotsi'],
+    ['S12345/2010', 'SE', 'Ruotsi'],
+    ['NO12345/20', 'NO', 'Norja'],
+    ['N12345/20', 'NO', 'Norja'],
+    ['DKX-REG 1234/20', 'DK', 'Tanska'],
+    ['KCB N 1234', 'BH', 'Bahrain'],
+    ['NHSB.BIJL.1234', 'NL', 'Alankomaat'],
+    ['ES-E 1234', 'SV', 'El Salvador'],
+    ['BEA 1 1234', 'GR', 'Kreikka'],
+    ['ÖHZB Reg. 1234', 'AT', 'Itävalta'],
+  ])('reads %p as %s, the trailing space of the code trimmed', (regNo, code, name) => {
+    expect(kcCountryOfRegNo(regNo, maat)).toEqual({ country: { code, name } })
+  })
+
+  it('takes the longest registry, and a letter after a prefix as part of another', () => {
+    // "SF" is no registry, and "S" may not take it: the old Finnish number is no Swedish one.
+    expect(kcCountryOfRegNo('SF06626/92', maat)).toEqual({ problem: { code: 'countryUnknown', detail: 'SF06626/92' } })
+  })
+
+  it.each([
+    ['RI12345/20', 'RI (MG, PT)'],
+    ['MR1234', 'MR (MK, XN)'],
+  ])('gives no country for %p, whose prefix two countries share', (regNo, detail) => {
+    expect(kcCountryOfRegNo(regNo, maat)).toEqual({ problem: { code: 'countryUnknown', detail } })
+  })
+
+  it('never gives Finland', () => {
+    expect(kcCountryOfRegNo('EJ1234/20', maat)).toEqual({ problem: { code: 'countryUnknown', detail: 'EJ1234/20' } })
+  })
+})
+
+describe('buildKcForeignDog (KOE-1201)', () => {
+  const dog = {
+    breedCode: '122',
+    dob: '2024-03-15',
+    gender: 'F',
+    name: ' Example Kennel Max ',
+    regNo: 'SE12345/2024 ',
+    rfid: ' 752098100123456',
+  } as const
+
+  it('builds the Koira/Ulkomainen body with the trimmed name and number Tallenna sends', () => {
+    expect(buildKcForeignDog(dog, maat)).toEqual({
+      body: {
+        maa: 'SE',
+        nimi: 'Example Kennel Max',
+        rekisterinumero: 'SE12345/2024',
+        rotukoodi: '122',
+        sukupuoli: 102,
+        syntymäaika: '2024-03-15',
+        tunnistusmerkintä: '752098100123456',
+      },
+      country: { code: 'SE', name: 'Ruotsi' },
+    })
+  })
+
+  it('sends a male as 101', () => {
+    const built = buildKcForeignDog({ ...dog, gender: 'M' }, maat)
+    expect('body' in built && built.body.sukupuoli).toEqual(101)
+  })
+
+  it('names everything that is missing at once', () => {
+    expect(
+      buildKcForeignDog(
+        { ...dog, breedCode: undefined, dob: undefined, gender: undefined, regNo: 'XX1', rfid: '7520981001234567' },
+        maat
+      )
+    ).toEqual({
+      problems: [
+        { code: 'microchipInvalid', detail: '7520981001234567' },
+        { code: 'noGender' },
+        { code: 'noBirthDate' },
+        { code: 'noBreed' },
+        { code: 'countryUnknown', detail: 'XX1' },
+      ],
+    })
+  })
+
+  it('needs a name and a number before anything else', () => {
+    expect(buildKcForeignDog({ ...dog, name: ' ' }, maat)).toEqual({ problems: [{ code: 'noName' }] })
   })
 })
