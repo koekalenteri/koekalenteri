@@ -845,6 +845,25 @@ describe('kennelliittoResults', () => {
       expect(tallennat()).toEqual([])
     })
 
+    // Testi2 answers an endpoint our credentials have no right to with 403 and a title only (27.10.2026).
+    it('stores a result refused for want of the right as refused, with the title as the reason', async () => {
+      tallennaReply['FI10001/20'] = { body: { status: 403, title: 'Ei käyttöoikeutta.' }, status: 403 }
+
+      const result = await sendKennelliittoResults(ctx(), ['d1'], { force: false })
+
+      expect(result.reports).toEqual([
+        {
+          errors: ['Ei käyttöoikeutta.'],
+          id: 'd1',
+          name: 'Koira d1',
+          outcome: 'failed',
+          regNo: 'FI10001/20',
+          status: 403,
+        },
+      ])
+      expect(registrations[0].kcResult).toMatchObject({ errors: ['Ei käyttöoikeutta.'], status: 'failed' })
+    })
+
     it('sends only the dogs it is asked for', async () => {
       await sendKennelliittoResults(ctx(), ['d2'], { force: false })
 

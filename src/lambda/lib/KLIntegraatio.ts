@@ -37,7 +37,7 @@ type CallOptions = {
 
 type TokenOutcome = { failure?: undefined; token: string } | { failure: KLIntegraatioResult<never>; token?: undefined }
 
-type Parsed<T> = { error?: string; json?: T; title?: string; virheet?: string[] }
+type Parsed<T> = { error?: string; json?: T; virheet?: string[] }
 
 /** The token is dropped this long before KL says it expires, so a call never starts with a dying token. */
 const TOKEN_MARGIN_S = 60
@@ -87,9 +87,16 @@ const getVirheet = (value: unknown): string[] | undefined => {
   return isStringArray(value.virheet) ? value.virheet : undefined
 }
 
-const getTitle = (value: unknown): string | undefined => {
+/**
+ * The reasons of a refusal: KL's `virheet`, or else the `title` of a refusal that gives none, such as
+ * the 403 `{ "title": "Ei käyttöoikeutta." }` of an endpoint the credentials have no right to (Testi2,
+ * 27.10.2026). Folded into one list, so every caller reads a refusal the same way.
+ */
+const getReasons = (value: unknown): string[] | undefined => {
+  const virheet = getVirheet(value)
+  if (virheet) return virheet
   if (typeof value !== 'object' || value === null || !('title' in value)) return undefined
-  return typeof value.title === 'string' && value.title ? value.title : undefined
+  return typeof value.title === 'string' && value.title ? [value.title] : undefined
 }
 
 const isToken = (value: unknown): value is KLIntegraatioToken =>
@@ -107,8 +114,8 @@ const errorMessage = (e: unknown): string => (e instanceof Error ? e.message : '
  * credentials of {@link KLAPI}, and every path under `Integraatio/`.
  *
  * Nothing here throws on a bad answer. A failed call returns its status, and the reasons KL gave
- * (`{ "virheet": [...] }` on 400 and 404, or the `title` of a refusal without them, such as a 403) are
- * logged and returned, so the caller decides what the secretary is told.
+ * (`{ "virheet": [...] }` on 400 and 404, or the `title` of a refusal without them, such as a 403, as
+ * the one reason) are logged and returned, so the caller decides what the secretary is told.
  *
  * The configuration is asked from `loadConfig` on every request and not kept here: the loader
  * (`getKLIntegraatioConfig`) caches with a time limit, so a rotated credential is picked up by a
@@ -198,14 +205,9 @@ export default class KLIntegraatio {
     if (res.ok) {
       return { json: parsed }
     }
-    const virheet = getVirheet(parsed)
-    if (virheet) {
-      logger.error('KLIntegraatio refused the request', { path, status: res.status, virheet })
-      return { virheet }
-    }
-    const title = getTitle(parsed)
-    if (title) logger.error('KLIntegraatio refused the request', { path, status: res.status, title })
-    return title ? { title } : {}
+    const virheet = getReasons(parsed)
+    if (virheet) logger.error('KLIntegraatio refused the request', { path, status: res.status, virheet })
+    return virheet ? { virheet } : {}
   }
 
   private async request<T>(

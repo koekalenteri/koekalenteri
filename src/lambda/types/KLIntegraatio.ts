@@ -30,13 +30,11 @@ export type KLIntegraatioResult<T> = {
   error?: string
   json?: T
   status: number
-  /** The reasons KL gave for a 400 or 404, also logged. */
-  virheet?: string[]
   /**
-   * What KL said of a call it refused without reasons, such as the 403 `{ "title": "Ei käyttöoikeutta." }`
-   * of an endpoint the credentials have no right to (Testi2, 27.10.2026).
+   * The reasons KL gave for a 400 or 404, also logged; for a refusal without them, its `title` (the 403
+   * `{ "title": "Ei käyttöoikeutta." }` of an endpoint the credentials have no right to) as the one reason.
    */
-  title?: string
+  virheet?: string[]
 }
 
 export type KLIntKoemuodonTulos = {

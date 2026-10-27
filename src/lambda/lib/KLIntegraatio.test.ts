@@ -303,15 +303,15 @@ describe('KLIntegraatio', () => {
       expect(result).toEqual({ status: 400 })
     })
 
-    it('returns the title of a refusal without reasons, as Testi2 answers an endpoint without the right', async () => {
+    it('takes the title of a refusal without reasons as its reason, as Testi2 answers an endpoint without the right', async () => {
       replies.push(tokenReply(3600), { body: { status: 403, title: 'Ei käyttöoikeutta.' }, status: 403 })
 
       const result = await klint.lueKoemuoto({ koemuoto: 'NOU' })
 
-      expect(result).toEqual({ status: 403, title: 'Ei käyttöoikeutta.' })
+      expect(result).toEqual({ status: 403, virheet: ['Ei käyttöoikeutta.'] })
     })
 
-    it.each([{ title: '' }, { title: 1 }])('does not take %p as a title', async (body) => {
+    it.each([{ title: '' }, { title: 1 }])('does not take %p as a reason', async (body) => {
       replies.push(tokenReply(3600), { body, status: 403 })
 
       expect(await klint.lueKoemuoto({ koemuoto: 'NOU' })).toEqual({ status: 403 })
@@ -604,10 +604,10 @@ describe('KLIntegraatio', () => {
       expect(result.status).toBe(200)
     })
 
-    it('Koira/Ulkomainen returns the title of the 403 Testi2 answers for our credentials (27.10.2026)', async () => {
+    it('Koira/Ulkomainen returns the title of the 403 Testi2 answers for our credentials as the reason (27.10.2026)', async () => {
       replies.push(tokenReply(3600), { body: { status: 403, title: 'Ei käyttöoikeutta.' }, status: 403 })
 
-      expect(await klint.tallennaUlkomainenKoira(koira)).toEqual({ status: 403, title: 'Ei käyttöoikeutta.' })
+      expect(await klint.tallennaUlkomainenKoira(koira)).toEqual({ status: 403, virheet: ['Ei käyttöoikeutta.'] })
     })
 
     it('Koe/AsetaTila posts the state, 1253 hands the trial to the chief judge', async () => {

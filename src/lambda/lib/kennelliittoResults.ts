@@ -581,13 +581,12 @@ const addForeignDog = async (
     await audit({ auditKey, ...dogAddedToKennelliittoAudit(), user: req.userName })
     return undefined
   }
-  const errors = call.virheet ?? (call.title ? [call.title] : undefined)
   const next: JsonKcResult = {
     at: nowOf(req).toISOString(),
     by: req.userName,
     dogNotAdded: true,
     status: 'failed',
-    ...(errors ? { errors } : {}),
+    ...(call.virheet ? { errors: call.virheet } : {}),
     ...keptOf(registration.kcResult),
   }
   const auditEntry = dogAddFailedAudit(failureReason(next, call.status))
