@@ -73,9 +73,9 @@ const lambdaCtx = await esbuild[mode]({
   target: 'node24',
   outdir: 'dist/lambda',
   outExtension: { '.js': '.mjs' },
-  // Several bundled CommonJS dependencies (the Smithy HTTP handler, aws-embedded-metrics) call
-  // `require` at runtime. In an ESM bundle esbuild's shim throws "Dynamic require of X is not
-  // supported" unless a real `require` is in scope, so give them one.
+  // Bundled CommonJS dependencies (the Smithy HTTP handler) call `require` at runtime. In an ESM
+  // bundle esbuild's shim throws "Dynamic require of X is not supported" unless a real `require` is
+  // in scope, so give them one.
   banner: {
     js: "import { createRequire as __createRequire } from 'node:module'\nconst require = __createRequire(import.meta.url)",
   },

@@ -54,10 +54,6 @@ export default defineConfig({
           // The integration tests need a DynamoDB-local; they are the `integration` project below.
           exclude: [...configDefaults.exclude, 'src/lambda/**/*.integration.test.ts'],
           setupFiles: ['./src/lambda/setupTests.ts'],
-          // The lambda wrapper's metric sink: Local writes the EMF lines with console.log, which the
-          // setup file mutes. Without an environment named it probes EC2 metadata and then a CloudWatch
-          // agent on localhost:25888, and the wrapper warns that the count was lost.
-          env: { AWS_EMF_ENVIRONMENT: 'Local' },
         },
       },
       {

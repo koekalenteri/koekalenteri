@@ -162,6 +162,26 @@ describe('template', () => {
     expect(misread).toEqual([])
   })
 
+  // MetricsEnabled turns on API Gateway's detailed metrics: five series per method and stack (Count,
+  // Latency, IntegrationLatency, 4XXError, 5XXError), each billed as a custom metric for the hours the
+  // method has traffic, 10.6 metric-months in September 2026 for one alarm's sake. The stage-level
+  // series and a method's throttle work without them, and the function's own AWS/Lambda Invocations
+  // counts its calls for free (KOE-1649).
+  it('turns on no per-method API metrics, and no alarm reads one', () => {
+    const methodSettings = [
+      ...template.matchAll(/^ {8}- ResourcePath: (.+)\n {10}HttpMethod: (.+)\n((?: {10}.+\n)*)/gm),
+    ].map(([, path, method, settings]) => ({ method: `${method} ${path}`, settings }))
+    const methodAlarms = resourcesOfType('AWS::CloudWatch::Alarm').filter(
+      (block) => /^ {6}Namespace: AWS\/ApiGateway$/m.test(block) && /^ {8}- Name: Resource$/m.test(block)
+    )
+
+    expect(methodSettings.length).toBeGreaterThan(0)
+    expect(
+      methodSettings.filter(({ settings }) => /^ {10}MetricsEnabled: true$/m.test(settings)).map(({ method }) => method)
+    ).toEqual([])
+    expect(methodAlarms.map(resourceName)).toEqual([])
+  })
+
   // SSEEnabled: true encrypts a table with the AWS-managed aws/dynamodb KMS key, and DynamoDB then
   // calls KMS on the table's behalf, each request billed (82 000 in October 2026). False keeps the
   // data encrypted at rest with a key AWS owns, at no charge (KOE-1603).

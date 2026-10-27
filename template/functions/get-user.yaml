@@ -22,9 +22,10 @@
 
   # GET /user once ran at ~11.5 req/s for five hours before anyone noticed, which was 64% of all
   # Lambda invocations for the period. Normal traffic is one call per token-refresh cycle per
-  # user. This alarms on the API Gateway request count rather than Lambda invocations because
-  # the method throttle rejects a storm before it reaches the function, which would leave the
-  # Lambda metric quiet exactly when the throttle is doing its job.
+  # user. The method throttle (api.yaml) still lets 5 req/s through, 18 000 an hour, so a flood
+  # keeps the function's own invocation count far above the threshold even while the throttle
+  # rejects the rest. AWS/Lambda Invocations is free; API Gateway's per-method Count would need
+  # the detailed metrics, five billed series per method (KOE-1649).
   GetUserRequestFloodAlarm:
     Type: AWS::CloudWatch::Alarm
     Condition: IsNotTestStage
@@ -33,18 +34,12 @@
         - !Ref AlarmTopic
       OKActions:
         - !Ref AlarmTopic
-      AlarmDescription: GET /user request volume is far above normal use
-      Namespace: AWS/ApiGateway
-      MetricName: Count
+      AlarmDescription: GET /user invocations are far above normal use
+      Namespace: AWS/Lambda
+      MetricName: Invocations
       Dimensions:
-        - Name: ApiName
-          Value: !Join ['-', [Koekalenteri, !Ref AWS::StackName]]
-        - Name: Stage
-          Value: !Ref StageNameParam
-        - Name: Resource
-          Value: /user
-        - Name: Method
-          Value: GET
+        - Name: FunctionName
+          Value: !Ref GetUserFunction
       Statistic: Sum
       Period: 3600
       EvaluationPeriods: 1

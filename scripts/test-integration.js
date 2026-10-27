@@ -26,8 +26,6 @@ const main = async () => {
     ...process.env,
     ...tableEnv,
     AWS_ACCESS_KEY_ID: INTEGRATION_ACCESS_KEY,
-    // The lambda wrapper's metrics: without an environment named, the detector probes EC2 metadata.
-    AWS_EMF_ENVIRONMENT: 'Local',
     // Every other AWS client (SES, SSM, ...) is mocked where a test reaches one; one that is not
     // fails fast against a port nothing listens on instead of calling eu-north-1 under this key.
     AWS_ENDPOINT_URL: 'http://127.0.0.1:9',

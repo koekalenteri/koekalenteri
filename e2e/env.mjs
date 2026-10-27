@@ -76,7 +76,6 @@ export const lambdaEnv = {
   // The developer's database in DynamoDB-local (one per access key); init-tables.mjs and
   // fixtures/db.ts use the same key.
   AWS_ACCESS_KEY_ID: LOCAL_ACCESS_KEY,
-  AWS_EMF_ENVIRONMENT: 'Local',
   // Anything not named here would go to AWS; point the rest at the fakes, which answer 501 and log the call.
   AWS_ENDPOINT_URL: `${FAKES_URL}/aws`,
   AWS_ENDPOINT_URL_DYNAMODB: DYNAMODB_ENDPOINT,

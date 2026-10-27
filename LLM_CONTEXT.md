@@ -20,9 +20,8 @@
 - Use `response` utility for all API responses
 - A request that turns out to be bad is thrown, never returned: `throw httpError(status, body)`
   answers with `body` as written (a string or an object); `throw new LambdaError(status, text)`
-  answers `{ error: text }`. The `lambda` wrapper turns either into the response, counts it in
-  the metrics and logs a 4xx at info, a 5xx as an error. `authorizeAdmin`, `authorizeWithMemberOf`
-  and `authorizeEvent` throw the same way and return the caller, so no handler checks a result.
+  answers `{ error: text }`. The `lambda` wrapper turns either into the response and logs a 4xx
+  at info, a 5xx as an error. `authorizeAdmin`, `authorizeWithMemberOf` and `authorizeEvent` throw the same way and return the caller, so no handler checks a result.
   WebSocket route handlers use `wsLambda`, which answers a plain body (KOE-1342).
 
 ## DynamoDB Guidelines

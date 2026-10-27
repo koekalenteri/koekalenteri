@@ -4,7 +4,6 @@ import { ServiceException } from '@smithy/smithy-client'
 import { CONFIG } from '../config'
 import { getOrigin } from '../lib/api-gw'
 import { debugProxyEvent, logger, withLogContext } from './log'
-import { countError } from './metrics'
 
 type LambdaHandler = (event: APIGatewayProxyEvent) => Promise<APIGatewayProxyResult>
 
@@ -165,8 +164,8 @@ export const response = <T = unknown>(
 }
 
 /**
- * Lambda function wrapper with error handling and the error metric: every answer but a 200 is
- * counted as `Error` of the service (`countError`), and a 200 writes no metric.
+ * Lambda function wrapper with error handling: a thrown `LambdaError` (`httpError`) becomes the
+ * response, and anything else is logged as an error and answered with the AWS service's status or 501.
  */
 export const lambda =
   (service: string, handler: LambdaHandler) =>
@@ -176,13 +175,8 @@ export const lambda =
     withLogContext({ requestId: event.requestContext?.requestId, service }, async () => {
       debugProxyEvent(event)
       try {
-        const result = await handler(event)
-
-        if (result.statusCode !== 200) await countError(event.requestContext, service)
-        return result
+        return await handler(event)
       } catch (err) {
-        await countError(event.requestContext, service)
-
         if (err instanceof LambdaError) {
           logRejection(err)
           return response(err.status, lambdaErrorBody(err), event)
@@ -201,10 +195,9 @@ export const lambda =
 type WsHandler = (event: APIGatewayEvent) => Promise<APIGatewayProxyResult>
 
 /**
- * The `lambda` wrapper's counterpart for the WebSocket route handlers: the same log context — with
- * the connection id, which collects one socket's whole life — the same metrics, and the same
- * `LambdaError` answered as a response. Before this the socket handlers wrapped themselves and
- * produced no metrics at all (KOE-1342).
+ * The `lambda` wrapper's counterpart for the WebSocket route handlers: the same log context, with
+ * the connection id, which collects one socket's whole life, and the same `LambdaError` answered as
+ * a response (KOE-1342).
  */
 export const wsLambda =
   (service: string, handler: WsHandler) =>
@@ -213,13 +206,8 @@ export const wsLambda =
       { connectionId: event.requestContext.connectionId, requestId: event.requestContext.requestId, service },
       async () => {
         try {
-          const result = await handler(event)
-
-          if (result.statusCode !== 200) await countError(event.requestContext, service)
-          return result
+          return await handler(event)
         } catch (err) {
-          await countError(event.requestContext, service)
-
           // A socket route's answer is read by API Gateway, not a browser: plain body, no CORS.
           if (err instanceof LambdaError) {
             logRejection(err)

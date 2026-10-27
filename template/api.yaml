@@ -14,7 +14,6 @@
         - ResourcePath: '/user'
           HttpMethod: 'GET'
           DataTraceEnabled: false
-          MetricsEnabled: true
           LoggingLevel: INFO
           ThrottlingRateLimit: 5
           ThrottlingBurstLimit: 20
@@ -25,7 +24,6 @@
         - ResourcePath: '/startlist/{eventId}'
           HttpMethod: 'GET'
           DataTraceEnabled: false
-          MetricsEnabled: true
           LoggingLevel: INFO
           ThrottlingRateLimit: 25
           ThrottlingBurstLimit: 100
@@ -33,21 +31,18 @@
         - ResourcePath: '/station-entry/{eventId}/{stationId}'
           HttpMethod: 'GET'
           DataTraceEnabled: false
-          MetricsEnabled: true
           LoggingLevel: INFO
           ThrottlingRateLimit: 5
           ThrottlingBurstLimit: 20
         - ResourcePath: '/station-entry/{eventId}/{stationId}'
           HttpMethod: 'POST'
           DataTraceEnabled: false
-          MetricsEnabled: true
           LoggingLevel: INFO
           ThrottlingRateLimit: 5
           ThrottlingBurstLimit: 20
         - ResourcePath: '/station-entry/{eventId}/{stationId}/turn'
           HttpMethod: 'POST'
           DataTraceEnabled: false
-          MetricsEnabled: true
           LoggingLevel: INFO
           ThrottlingRateLimit: 5
           ThrottlingBurstLimit: 20
@@ -56,14 +51,12 @@
         - ResourcePath: '/start-numbers/{eventId}/{eventClass}'
           HttpMethod: 'GET'
           DataTraceEnabled: false
-          MetricsEnabled: true
           LoggingLevel: INFO
           ThrottlingRateLimit: 5
           ThrottlingBurstLimit: 20
         - ResourcePath: '/start-numbers/{eventId}/{eventClass}'
           HttpMethod: 'POST'
           DataTraceEnabled: false
-          MetricsEnabled: true
           LoggingLevel: INFO
           ThrottlingRateLimit: 5
           ThrottlingBurstLimit: 20
