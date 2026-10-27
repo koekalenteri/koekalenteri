@@ -9,11 +9,14 @@ import {
   dogAgeInMonths,
   earliestResultDay,
   formatDogName,
+  isMicrochip,
   isValidDob,
   latestDobForAge,
   MIN_RESULT_AGE_MONTHS,
   minDogAgeFor,
+  normalizeMicrochip,
   shouldAllowRefresh,
+  typedDogFields,
 } from './dog'
 import { toDog } from './wire'
 
@@ -190,6 +193,44 @@ describe('dog utility functions', () => {
         sire: { name: 'Sire Name' },
         titles: 'CH',
       })
+    })
+  })
+
+  describe('microchip (KOE-1650)', () => {
+    it.each([
+      ['985120012345678', true],
+      ['623372020', false],
+      ['98512001234567', false],
+      ['9851200123456789', false],
+      ['98512001234567A', false],
+      ['985 120012345678', false],
+      ['', false],
+      [985120012345678, false],
+      [undefined, false],
+    ])('takes %j as a chip: %s', (value, expected) => {
+      expect(isMicrochip(value)).toBe(expected)
+    })
+
+    it('strips the spaces, tabs and invisible characters a copy brings', () => {
+      expect(normalizeMicrochip(' 985 120\t012\u00a0345\u200b67\u00ad8\n')).toBe('985120012345678')
+    })
+
+    it.each([
+      ['a dog entered by hand', {}, { details: true, rfid: true }],
+      ['a hand-entered dog stored with rfidEditable', { rfidEditable: true }, { details: true, rfid: true }],
+      ['a Kennelliitto dog with a chip', { refreshDate: new Date('2026-06-01') }, { details: false, rfid: false }],
+      [
+        'a Kennelliitto dog without a chip',
+        { refreshDate: '2026-06-01T00:00:00.000Z', rfidEditable: true },
+        { details: false, rfid: true },
+      ],
+      ['no dog at all', undefined, { details: true, rfid: true }],
+    ])('leaves to the user what is typed of %s', (_case, dog, expected) => {
+      expect(typedDogFields(dog)).toEqual(expected)
+    })
+
+    it('leaves letters and dashes for the rule to refuse', () => {
+      expect(normalizeMicrochip('985-120 01234567A')).toBe('985-12001234567A')
     })
   })
 })

@@ -90,7 +90,8 @@ export default function EventViewPage() {
   )
   const { eventClasses, stateByClass, missingClasses } = useAdminEventRegistrationInfo(event, allRegistrations)
   // The entry stays readable after its class has been judged, but not editable; the class the entry
-  // sits in decides, the same way the list's own actions are gated (KOE-1388).
+  // sits in decides, the same way the list's own actions are gated (KOE-1388). What was typed of a
+  // dog entered by hand stays the secretary's to fix for the results send (KOE-1650).
   const entryEditingClosed = useMemo(() => {
     if (!event) return false
     const registrationClass = selectedRegistration ? getRegistrationClass(selectedRegistration) : undefined
@@ -279,11 +280,11 @@ export default function EventViewPage() {
         }
       >
         <RegistrationEditDialog
-          disabled={entryEditingClosed}
           event={event}
           onClose={closeDialog}
           open={dialog?.kind === 'edit'}
           registrationId={dialog?.kind === 'edit' ? (selectedRegistrationId ?? '') : ''}
+          typedDogOnly={entryEditingClosed}
         />
         <RegistrationCreateDialog
           event={event}

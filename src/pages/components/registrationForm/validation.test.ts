@@ -23,7 +23,7 @@ const testDog: Dog = {
   name: 'Test Dog',
   regNo: 'test-123',
   results: [],
-  rfid: 'test-id',
+  rfid: '985120012345678',
   sire: { name: 'Sire', titles: '' },
 }
 
@@ -40,6 +40,46 @@ describe('validation', () => {
       expect(validateDog(testEvent, { dog: testDog })).toEqual(false)
       expect(validateDog(testEvent, { dog: { ...testDog, rfid: '' } })).toEqual('required')
       expect(validateDog(testEvent, { dog: { ...testDog, rfid: '   ' } })).toEqual('required')
+    })
+
+    describe('microchip the registrant types (KOE-1650)', () => {
+      const testEvent = { eventType: 'NOU', startDate: '2020-10-15' as const }
+      const microchip = { key: 'microchip', opts: { field: 'dog' } }
+
+      // `typedDogFields` is the one rule for whether the chip is the user's to type: the form opens the
+      // field by it, and the validation judges by it. A dog entered by hand has no refreshDate.
+      const typed = testDog
+
+      it.each([
+        ['a registration number without its prefix', '623372020'],
+        ['14 digits', '98512001234567'],
+        ['16 digits', '9851200123456789'],
+        ['a letter', '98512001234567A'],
+        ['a space inside', '985120 012345678'],
+      ])('refuses %s on a dog entered by hand', (_case, rfid) => {
+        expect(validateDog(testEvent, { dog: { ...typed, rfid } })).toEqual(microchip)
+      })
+
+      it('accepts 15 digits on a dog entered by hand', () => {
+        expect(validateDog(testEvent, { dog: { ...typed, rfid: '985120012345678' } })).toBe(false)
+      })
+
+      it('refuses an invalid chip typed for a Kennelliitto dog that had none', () => {
+        const dog = { ...testDog, kcId: 1, refreshDate: new Date('2026-06-01'), rfid: '623372020', rfidEditable: true }
+        expect(validateDog(testEvent, { dog })).toEqual(microchip)
+      })
+
+      it('lets a chip Kennelliitto gave through whatever its form', () => {
+        const dog = { ...testDog, kcId: 1, refreshDate: new Date('2026-06-01'), rfid: 'FIN12345' }
+        expect(validateDog(testEvent, { dog })).toBe(false)
+      })
+
+      it('lets the locked chip of a Kennelliitto dog stored before kcId was kept through', () => {
+        // Rows from before 6bf6c9354 (2024-08-05) hold no kcId on a dog fetched from Kennelliitto; GetDog's
+        // refreshDate says where the dog came from.
+        const dog = { ...testDog, refreshDate: new Date('2024-01-01'), rfid: '9851200123456789' }
+        expect(validateDog(testEvent, { dog })).toBe(false)
+      })
     })
 
     it('should validate name', () => {

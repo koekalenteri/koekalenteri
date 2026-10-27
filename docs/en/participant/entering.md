@@ -9,7 +9,7 @@ covers:
   - src/pages/RegistrationCreatePage.tsx
   - src/pages/components/RegistrationForm.tsx
   - src/pages/components/registrationForm/**
-sourceHash: fad364
+sourceHash: 674a1d
 ---
 
 Entering a trial needs no account and no sign-in. All you need is access to the email address you
@@ -33,7 +33,9 @@ them in the order they appear.
 **Dog.** Type the registration number and press *{t:registration.cta.fetch}*. Koekalenteri reads the name,
 breed, date of birth, parents and past trial results from the Kennel Club's API. If the number
 returns nothing you get *{t:registration.cta.helper.notfound}* and can fill the details in by
-hand — but check the number first, a single typo is enough.
+hand — but check the number first, a single typo is enough. When you type the ID marking yourself
+(for a dog filled in by hand, or one the Kennel Club has no chip for), give the microchip's 15 digits.
+Spaces are removed as you type, and the form accepts nothing else.
 
 !shot[DogInfo/dog-info-fetched] The dog's details, fetched from the Kennel Club
 

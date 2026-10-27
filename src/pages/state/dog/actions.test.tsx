@@ -220,6 +220,75 @@ describe('useDogActions', () => {
     })
   })
 
+  describe('the chip (KOE-1650)', () => {
+    const renderWithCache = (info: DeepPartial<DogCachedInfo>, official?: Dog) =>
+      renderHook(() => useDogActions(testRegNo), {
+        wrapper: ({ children }) => (
+          <Provider
+            initializeState={(snap) => {
+              snap.set(dogCacheAtom, { [testRegNo]: asCacheInfo(info) })
+              if (official) snap.set(dogAtom(testRegNo), official)
+            }}
+          >
+            {children}
+          </Provider>
+        ),
+      })
+
+    it('keeps the chip Kennelliitto has over one typed before it had any', async () => {
+      mockGetDog.mockResolvedValueOnce({ ...testDog, kcId: 1, rfid: '985120012345678' })
+      const { result } = renderWithCache({ dog: { rfid: '623372020' } })
+
+      let response: DeepPartial<DogCachedInfo> | undefined
+      await act(async () => {
+        response = await result.current.fetch()
+      })
+
+      expect(response?.dog?.rfid).toBe('985120012345678')
+      expect(response?.dog?.rfidEditable).toBe(false)
+    })
+
+    it('keeps the typed chip while Kennelliitto has none, and lets it be typed', async () => {
+      mockGetDog.mockResolvedValueOnce({ ...testDog, kcId: 1 })
+      const { result } = renderWithCache({ dog: { rfid: '985120012345678' } })
+
+      let response: DeepPartial<DogCachedInfo> | undefined
+      await act(async () => {
+        response = await result.current.fetch()
+      })
+
+      expect(response?.dog?.rfid).toBe('985120012345678')
+      expect(response?.dog?.rfidEditable).toBe(true)
+    })
+
+    it('lets the chip of a dog entered by hand be typed, also when Kennelliitto knows the dog', async () => {
+      const { result } = renderWithCache(
+        { dog: { rfid: '623372020' }, manual: true },
+        { ...testDog, kcId: 1, rfid: '985120012345678' }
+      )
+
+      let response: DeepPartial<DogCachedInfo> | undefined
+      await act(async () => {
+        response = await result.current.fetch()
+      })
+
+      expect(mockGetDog).not.toHaveBeenCalled()
+      expect(response?.dog?.rfid).toBe('623372020')
+      expect(response?.dog?.rfidEditable).toBe(true)
+    })
+
+    it('lets the chip of a dog entered by hand be typed when Kennelliitto does not know it', async () => {
+      const { result } = renderWithCache({ dog: { name: 'Manual', regNo: testRegNo, results: [] }, manual: true })
+
+      let response: DeepPartial<DogCachedInfo> | undefined
+      await act(async () => {
+        response = await result.current.fetch()
+      })
+
+      expect(response?.dog?.rfidEditable).toBe(true)
+    })
+  })
+
   describe('refresh', () => {
     it('returns empty dog when regNo is empty', async () => {
       const { result } = renderHook(() => useDogActions(''), {

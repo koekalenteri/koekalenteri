@@ -8,7 +8,7 @@ import TextField from '@mui/material/TextField'
 import { Box } from '@mui/system'
 import { useTranslation } from 'react-i18next'
 
-export type DogMode = 'fetch' | 'manual' | 'update' | 'notfound' | 'autofetch' | 'error'
+type DogMode = 'fetch' | 'manual' | 'update' | 'notfound' | 'autofetch' | 'error'
 
 interface DogSearchProps {
   regNo: string
@@ -66,7 +66,8 @@ export const DogSearch = ({
         <CircularProgress size={28} sx={{ display: loading ? undefined : 'none', ml: 1 }} />
       </Box>
       <FormHelperText error={['notfound', 'error'].includes(mode)}>
-        {t(`registration.cta.helper.${mode}`, { date: refreshDate })}
+        {/* A dog entered by hand was never fetched, so it has no time to tell (KOE-1650). */}
+        {t(`registration.cta.helper.${mode === 'update' && !refreshDate ? 'typed' : mode}`, { date: refreshDate })}
       </FormHelperText>
     </FormControl>
   )

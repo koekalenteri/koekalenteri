@@ -277,6 +277,32 @@ describe('getDogHandler', () => {
     )
   })
 
+  it('re-reads a stored dog that has no refreshDate and stamps it (KOE-1650)', async () => {
+    mockReadDog.mockResolvedValueOnce({ regNo: 'FI12345/24', rfid: 'FIN12345' })
+    mockKLAPI.lueKoiranPerustiedot.mockResolvedValueOnce({
+      json: {
+        id: 123,
+        nimi: 'koera',
+        rekisterinumero: 'FI12345/24',
+        rotukoodi: '122',
+        sukupuoli: 'female',
+        syntymäaika: '2010-01-01T00:00:00',
+        tittelit: '',
+        tunnistusmerkintä: 'FIN12345',
+      } as KLKoira,
+      status: 200,
+    })
+    mockKLAPI.lueKoiranKoetulokset.mockResolvedValueOnce({ json: [], status: 200 })
+
+    const res = await getDogHandler(constructAPIGwEvent('test', { pathParameters: { regNo: 'FI12345~24' } }))
+
+    expect(res.statusCode).toBe(200)
+    expect(mockKLAPI.lueKoiranPerustiedot).toHaveBeenCalledTimes(1)
+    expect(mockWriteDog).toHaveBeenCalledWith(
+      expect.objectContaining({ refreshDate: '2024-06-20T10:00:00.000Z', regNo: 'FI12345/24', rfid: 'FIN12345' })
+    )
+  })
+
   it('should not refresh fresh data', async () => {
     const cachedDog = {
       refreshDate: '2024-06-20T09:55:00.000Z',
@@ -745,8 +771,10 @@ describe('getDogHandler', () => {
     })
     const res = await getDogHandler(constructAPIGwEvent('test', { pathParameters: { regNo: 'FI12345~24' } }))
 
-    // Should return the existing dog without refreshing
+    // The row has no refreshDate, so Kennelliitto is asked (KOE-1650); an answer without a number
+    // leaves the stored dog as it was.
+    expect(mockKLAPI.lueKoiranPerustiedot).toHaveBeenCalledTimes(1)
     expect(JSON.parse(res.body)).toEqual({ name: 'existing', regNo: 'FI12345/24' })
-    expect(mockWriteDog).not.toHaveBeenCalled()
+    expect(mockWriteDog).not.toHaveBeenCalledWith(expect.objectContaining({ name: 'koera' }))
   })
 })

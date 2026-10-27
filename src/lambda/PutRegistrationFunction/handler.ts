@@ -48,6 +48,7 @@ import {
 import { persistRegistrationWithGroups } from '../lib/registrationPersistence'
 import {
   applyRegistrationPatchRequest,
+  assertTypedMicrochip,
   completeDuplicateRegistration,
   completeNewRegistration,
   finalizeRegistrationUpdate,
@@ -286,6 +287,7 @@ const putRegistrationLambda = lambda('putRegistration', async (event) => {
   assertCancellationOpen(existing, flags.cancel, confirmedEvent)
   const locks = existing ? getParticipantFieldLocks(confirmedEvent, existing) : NO_PARTICIPANT_FIELD_LOCKS
   assertParticipantFieldsUnlocked(existing, data, locks)
+  await assertTypedMicrochip(data, existing)
 
   applyOwnerOverrides(data)
   assertMeetsRestrictions(data, confirmedEvent, locks, Boolean(operationRequest))

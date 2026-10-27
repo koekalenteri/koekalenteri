@@ -42,7 +42,7 @@ const registration: DeepPartial<Registration> = {
     name: 'Dog Name 10',
     refreshDate: new Date('2026-06-01'),
     regNo: 'FI13775/22',
-    rfid: '1234567890123456',
+    rfid: '123456789012345',
     sire: { name: 'Sire Name', titles: 'Sire titles' },
     titles: 'Dog titles',
   },
@@ -83,6 +83,25 @@ it('stacks the fields in a single column on a phone', async () => {
   // the raw, unresolved "{{date, distance}} sitten." template.
   await expect.element(screen.getByText(/\d+ \S+ sitten\.$/)).toBeVisible()
   await expect(screen.getByTestId('visual-root')).toMatchScreenshot('dog-info-fetched-phone')
+})
+
+it('marks a typed microchip that is not 15 digits and says why', async () => {
+  // Kennelliitto gave the dog no chip, so it is the registrant's to type; a registration number's
+  // digits are not one (KOE-1650).
+  await page.viewport(1200, 900)
+  const typed: DeepPartial<Registration> = { dog: { ...registration.dog, rfid: '623372020', rfidEditable: true } }
+  const screen = await render(
+    <TestProvider>
+      <Frame>
+        <DogInfo reg={typed} eventDate="2026-06-06" minDogAgeMonths={9} orgId="org" open />
+      </Frame>
+    </TestProvider>
+  )
+
+  await expect.element(screen.getByLabelText('Tunnistusmerkintä')).toHaveValue('623372020')
+  await expect.element(screen.getByText('Tunnistusmerkinnässä pitää olla 15 numeroa')).toBeVisible()
+  await expect.element(screen.getByText(/\d+ \S+ sitten\.$/)).toBeVisible()
+  await expect(screen.getByTestId('visual-root')).toMatchScreenshot('dog-info-microchip-invalid')
 })
 
 // The guide's English page shows the section in English (KOE-1437).

@@ -7,6 +7,7 @@ import { eventWithStaticDates } from '@/__mockData__/events'
 import { registrationWithStaticDates } from '@/__mockData__/registrations'
 import theme from '@/assets/Theme'
 import { locales } from '@/i18n'
+import { freezeClockAt } from '@/test-utils/freezeClock'
 import AppSnackbarProvider from '../../components/AppSnackbarProvider'
 import RegistrationDialogBase from './RegistrationDialogBase'
 
@@ -14,6 +15,10 @@ import RegistrationDialogBase from './RegistrationDialogBase'
 // backed by real API calls) around RegistrationDialogBase, which takes them as plain props. The
 // frame this ticket is about -- title, scroll area, action buttons -- belongs to the base
 // component, so it's rendered directly here rather than fighting the wrapper's atom graph.
+// The dog section says how long ago Kennelliitto was asked, which depends on where today falls; the
+// day the baselines were taken is the day this file keeps (KOE-1423).
+freezeClockAt('2026-10-28')
+
 vi.mock('../state/registrations/actions', () => ({
   useAdminRegistrationActions: () => ({
     putInternalNotes: async () => ({}),
@@ -57,7 +62,8 @@ it('scrolls a long registration form inside a fixed-height frame', async () => {
 
 it('shows the entry read-only once the trial is over', async () => {
   // An entry of a trial that is over stays readable but not editable (KOE-1388): every field greys
-  // out, the way a cancelled entry's already did, and the save button never wakes up.
+  // out, the way a cancelled entry's already did, and the save button never wakes up. The dog is
+  // Kennelliitto's, so none of its details opens either (KOE-1650).
   const screen = await render(
     <ThemeProvider theme={theme}>
       <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales.fi}>
@@ -65,13 +71,13 @@ it('shows the entry read-only once the trial is over', async () => {
           <ConfirmProvider>
             <RegistrationDialogBase
               changes={false}
-              disabled
               event={eventWithStaticDates}
               open
               registration={registrationWithStaticDates}
               savedRegistration={registrationWithStaticDates}
               resetRegistration={() => {}}
               setRegistration={() => {}}
+              typedDogOnly
             />
           </ConfirmProvider>
         </AppSnackbarProvider>
@@ -81,4 +87,36 @@ it('shows the entry read-only once the trial is over', async () => {
 
   await expect.element(screen.getByLabelText('Rekisterinumero')).toBeVisible()
   await expect(screen.getByRole('dialog')).toMatchScreenshot('registration-edit-dialog-read-only')
+})
+
+it('leaves the typed details of a hand-entered dog open once the trial is over', async () => {
+  // The issue's case (KOE-1650): a dog entered by hand, its chip a registration number's digits. The
+  // secretary may fix the chip, the sex, the birth date and the breed for the results send; the rest
+  // of the entry stays read-only.
+  const { refreshDate: _refreshDate, ...handEnteredDog } = registrationWithStaticDates.dog
+  const handEntered = { ...registrationWithStaticDates, dog: { ...handEnteredDog, rfid: '623372020' } }
+  const screen = await render(
+    <ThemeProvider theme={theme}>
+      <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales.fi}>
+        <AppSnackbarProvider>
+          <ConfirmProvider>
+            <RegistrationDialogBase
+              changes={false}
+              event={eventWithStaticDates}
+              open
+              registration={handEntered}
+              savedRegistration={handEntered}
+              resetRegistration={() => {}}
+              setRegistration={() => {}}
+              typedDogOnly
+            />
+          </ConfirmProvider>
+        </AppSnackbarProvider>
+      </LocalizationProvider>
+    </ThemeProvider>
+  )
+
+  // The field says it, and so does the dog section's summary.
+  await expect.element(screen.getByText('Tunnistusmerkinnässä pitää olla 15 numeroa').first()).toBeVisible()
+  await expect(screen.getByRole('dialog')).toMatchScreenshot('registration-edit-dialog-after-trial-typed-dog')
 })

@@ -30,6 +30,8 @@ interface Props {
   readonly patchBase?: Registration
   readonly resetRegistration: () => void
   readonly setRegistration: (value: Registration | undefined | typeof RESET) => void
+  /** A trial that is over: only the dog's details typed by hand stay open (KOE-1650). */
+  readonly typedDogOnly?: boolean
 }
 
 export default function RegistrationDialogBase({
@@ -45,6 +47,7 @@ export default function RegistrationDialogBase({
   patchBase,
   resetRegistration,
   setRegistration,
+  typedDogOnly,
 }: Props) {
   const actions = useAdminRegistrationActions(event.id)
   const { enqueueSnackbar } = useSnackbar()
@@ -149,6 +152,7 @@ export default function RegistrationDialogBase({
           onSave={handleSave}
           registration={registration}
           savedRegistration={savedRegistration}
+          typedDogOnly={typedDogOnly}
         />
         <AuditTrail auditTrail={auditTrail} />
       </DialogContent>

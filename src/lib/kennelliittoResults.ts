@@ -8,6 +8,7 @@ import type {
   PublicJudge,
 } from '../types'
 import { dayOf, isDayKey, TIME_ZONE } from './day'
+import { isMicrochip } from './dog'
 import { hasRetrieveTypeChoice, isMockTrialClass } from './event'
 import { makeArray } from './judge'
 import { getRegistrationGroupDay, getRegistrationPlacement } from './registration'
@@ -371,9 +372,6 @@ const KC_GENDER: Record<DogGender, number> = { F: 102, M: 101 }
 /** A Finnish dog is never added as a foreign one, whatever its number looks like. */
 const FINLAND = 'FI'
 
-/** Kennelliitto takes a microchip of exactly this form. */
-const RE_MICROCHIP = /^\d{15}$/
-
 /** A letter right after a registry prefix makes it part of a longer one: "S" is not the start of "SF06626/92". */
 const endsPrefix = (char: string | undefined): boolean => char === undefined || !/\p{Letter}/u.test(char)
 
@@ -410,7 +408,7 @@ const foreignDogProblems = (dog: KcForeignDog): KcProblem[] => {
   const problems: KcProblem[] = []
   const rfid = dog.rfid?.trim()
   if (!rfid) problems.push({ code: 'noMicrochip' })
-  else if (!RE_MICROCHIP.test(rfid)) problems.push({ code: 'microchipInvalid', detail: rfid })
+  else if (!isMicrochip(rfid)) problems.push({ code: 'microchipInvalid', detail: rfid })
   if (!dog.gender) problems.push({ code: 'noGender' })
   if (!isDayKey(dog.dob)) problems.push({ code: 'noBirthDate' })
   if (!dog.breedCode) problems.push({ code: 'noBreed' })
