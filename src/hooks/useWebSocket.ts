@@ -3,7 +3,7 @@ import type {
   AdminDataCollection,
   AuditRecord,
   DogEvent,
-  JsonDogEvent,
+  JsonEventPatch,
   JsonPublicRegistration,
   JsonRegistration,
   Patch,
@@ -191,7 +191,27 @@ interface EventViewer {
 }
 
 /** An event patch as the server sends it: the event's fields on the wire, beside the address. */
-type EventPatchMessage = { eventId: string; scope?: string } & Patch<JsonDogEvent>
+type EventPatchMessage = { scope?: string } & JsonEventPatch
+
+interface PublicEventPatchOptions {
+  /** The patch deletes the event, so it leaves the list as a reverted draft does (KOE-1648). */
+  deleted: boolean
+  insert: boolean
+}
+
+/**
+ * How a patch of either scope lands on the public events. The admin half says the event was deleted
+ * with `deletedAt`, the public half with its `deleted` mark, as `deletedAt` is not public. Only a
+ * patch that holds a whole public event inserts one: a later patch of a removed event would
+ * otherwise put back a row without its type, dates or organizer.
+ */
+const publicEventPatchOptions = (
+  { deleted, deletedAt }: Pick<EventPatchMessage, 'deleted' | 'deletedAt'>,
+  publicPatch: Patch<PublicDogEvent>
+): PublicEventPatchOptions => ({
+  deleted: deleted === true || !!deletedAt,
+  insert: isInsertablePublicEventPatch(publicPatch),
+})
 
 const getViewerPayloads = (viewers: unknown[]): EventViewer[] =>
   viewers
@@ -315,10 +335,10 @@ export const useWebSocket = () => {
 
   const setPublicEvents = useAtomCallback(
     useCallback(
-      (get, set, eventId: string, patch: Patch<PublicDogEvent>, options?: { insert?: boolean }) => {
+      (get, set, eventId: string, patch: Patch<PublicDogEvent>, { deleted, insert }: PublicEventPatchOptions) => {
         const events = get(eventsAtom)
 
-        if (patch.state === 'draft') {
+        if (patch.state === 'draft' || deleted) {
           const next = events.filter((event) => event.id !== eventId)
           if (next.length === events.length) return
 
@@ -327,7 +347,6 @@ export const useWebSocket = () => {
           return
         }
 
-        const insert = options?.insert ?? true
         const next = patchInDateOrder(events, eventId, patch, insert)
         if (next !== events) markRecentlyUpdated('public:event', eventId)
         set(eventsAtom, next)
@@ -573,7 +592,7 @@ export const useWebSocket = () => {
   }, [])
 
   const handleEventPatchMessage = useCallback(
-    ({ eventId, scope, ...patch }: EventPatchMessage) => {
+    ({ deleted, eventId, scope, ...patch }: EventPatchMessage) => {
       if (scope === 'admin:event-patch') {
         // The wire patch carries the event's fields as the server wrote them; the typed boundary
         // (`lib/wire.ts`) makes the named dates Dates, and only those.
@@ -581,7 +600,11 @@ export const useWebSocket = () => {
         void setAdminEvents(eventId, eventPatch)
         const publicPatch = sanitizeDogEvent(eventPatch)
         if (Object.keys(publicPatch).length > 0) {
-          setPublicEvents(eventId, publicPatch, { insert: isInsertablePublicEventPatch(publicPatch) })
+          setPublicEvents(
+            eventId,
+            publicPatch,
+            publicEventPatchOptions({ deleted, deletedAt: patch.deletedAt }, publicPatch)
+          )
         }
         return
       }
@@ -590,7 +613,12 @@ export const useWebSocket = () => {
       // socket and carry an eventId with no scope -- `{ eventId, subscribed: true }` from an event
       // subscribe would otherwise be written into the public event.
       if (scope === 'public:event-patch') {
-        setPublicEvents(eventId, toPublicDogEvent(patch))
+        const publicPatch = toPublicDogEvent(patch)
+        setPublicEvents(
+          eventId,
+          publicPatch,
+          publicEventPatchOptions({ deleted, deletedAt: patch.deletedAt }, publicPatch)
+        )
       }
     },
     [setAdminEvents, setPublicEvents]

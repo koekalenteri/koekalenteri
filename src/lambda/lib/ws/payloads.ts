@@ -1,9 +1,9 @@
 import type { OpenPayment } from '../../../lib/payment'
-import type { JsonConfirmedEvent, JsonDogEvent, JsonRegistration, Patch } from '../../../types'
+import type { JsonConfirmedEvent, JsonEventPatch, JsonRegistration, Patch } from '../../../types'
 import type { EventPatchPayload, EventViewerPayload, RegistrationPatchPayload, WebSocketConnection } from './types'
 import { getPaymentPicture } from '../../../lib/payment'
 
-export const buildEventPatchPayload = (eventId: string, patch: Patch<JsonDogEvent>): EventPatchPayload => ({
+export const buildEventPatchPayload = (eventId: string, patch: Omit<JsonEventPatch, 'eventId'>): EventPatchPayload => ({
   eventId,
   ...patch,
 })

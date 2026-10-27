@@ -195,6 +195,34 @@ describe('ws/actions', () => {
     })
   })
 
+  it('marks the public half of a delete as deleted, since deletedAt is not a public field (KOE-1648)', async () => {
+    await publishEventPatch(
+      {
+        deletedAt: '2026-10-27T10:00:00.000Z',
+        deletedBy: 'Admin',
+        eventId: 'e1',
+        modifiedAt: '2026-10-27T10:00:00.000Z',
+        updatedAt: '2026-10-27T10:00:00.000Z',
+      },
+      'org-1'
+    )
+
+    expect(mockBroadcast).toHaveBeenCalledTimes(2)
+    expect(broadcastConfigurations[1]?.buildPayload()).toEqual({
+      deleted: true,
+      eventId: 'e1',
+      modifiedAt: '2026-10-27T10:00:00.000Z',
+      scope: 'public:event-patch',
+      updatedAt: '2026-10-27T10:00:00.000Z',
+    })
+  })
+
+  it('leaves the deleted mark off the public half of any other change', async () => {
+    await publishEventPatch({ eventId: 'e1', name: 'Updated' }, 'org-1')
+
+    expect(broadcastConfigurations[1]?.buildPayload()).not.toHaveProperty('deleted')
+  })
+
   it('publishRegistrationPatches sends admin:event-registrations payload to organizer audience', async () => {
     const patch = [{ id: 'r1', state: 'ready' as const }]
 

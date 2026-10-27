@@ -1,8 +1,9 @@
 import type {
   AdminDataCollection,
   JsonConfirmedEvent,
-  JsonDogEvent,
+  JsonEventPatch,
   JsonPublicDogEvent,
+  JsonPublicEventPatch,
   JsonRegistration,
   Patch,
 } from '../../../types'
@@ -33,9 +34,6 @@ import { sendPublicStartList } from './publicStartList'
 // Every publisher exported here is best effort (`bestEffort` in livePush.ts): it never rejects. The
 // `...Strict` ones run the same push and reject when it fails, for a durable workflow that retries.
 
-type PublicEventPatch = Patch<JsonPublicDogEvent> & { eventId: string }
-type AdminEventPatch = Patch<JsonDogEvent> & { eventId: string }
-
 const send = <T>(args: Omit<Parameters<typeof broadcast<T>>[0], 'onGoneConnection'>) =>
   broadcast<T>({
     ...args,
@@ -44,27 +42,30 @@ const send = <T>(args: Omit<Parameters<typeof broadcast<T>>[0], 'onGoneConnectio
     },
   })
 
-const sendPublicEvent = (patch: PublicEventPatch, excludeConnectionIds: readonly string[]) =>
+const sendPublicEvent = (patch: JsonPublicEventPatch, excludeConnectionIds: readonly string[]) =>
   send({
     audience: async () =>
       (await publicAudience()).filter((connection) => !excludeConnectionIds.includes(connection.connectionId)),
     buildPayload: () => ({ scope: 'public:event-patch', ...buildEventPatchPayload(patch.eventId, patch) }),
   })
 
-export const publishPublicEvent = (patch: PublicEventPatch, excludeConnectionIds: string[] = []) =>
+export const publishPublicEvent = (patch: JsonPublicEventPatch, excludeConnectionIds: string[] = []) =>
   bestEffort('public event patch', () => sendPublicEvent(patch, excludeConnectionIds))
 
-const sendAdminEventPatch = (patch: AdminEventPatch, organizerId: string) =>
+const sendAdminEventPatch = (patch: JsonEventPatch, organizerId: string) =>
   send({
     audience: () => organizerAudience(organizerId, patch.eventId),
     buildPayload: () => ({ scope: 'admin:event-patch', ...buildEventPatchPayload(patch.eventId, patch) }),
   })
 
-export const publishAdminEventPatch = (patch: AdminEventPatch, organizerId: string) =>
+export const publishAdminEventPatch = (patch: JsonEventPatch, organizerId: string) =>
   bestEffort('admin event patch', () => sendAdminEventPatch(patch, organizerId))
 
-/** The public half of an admin event patch, or undefined when no public field changed. */
-const publicHalfOf = (patch: AdminEventPatch): PublicEventPatch | undefined => {
+/**
+ * The public half of an admin event patch, or undefined when no public field changed. A delete
+ * carries `deleted`, since sanitizing drops its `deletedAt` (KOE-1648).
+ */
+const publicHalfOf = (patch: JsonEventPatch): JsonPublicEventPatch | undefined => {
   const {
     eventId: _eventId,
     id: _id,
@@ -72,7 +73,8 @@ const publicHalfOf = (patch: AdminEventPatch): PublicEventPatch | undefined => {
   } = sanitizeDogEvent(patch) as Patch<JsonPublicDogEvent> & {
     eventId?: string
   }
-  return Object.keys(publicPatch).length > 0 ? { eventId: patch.eventId, ...publicPatch } : undefined
+  if (Object.keys(publicPatch).length === 0) return undefined
+  return { eventId: patch.eventId, ...publicPatch, ...(patch.deletedAt ? { deleted: true } : {}) }
 }
 
 const connectionIdsOf = (connections: WebSocketConnection[]) => connections.map((connection) => connection.connectionId)
@@ -83,7 +85,7 @@ const connectionIdsOf = (connections: WebSocketConnection[]) => connections.map(
  * to the admins too (they read the same fields twice), so no open page misses a save's entries,
  * classes or state.
  */
-export const publishEventPatch = async (patch: AdminEventPatch, organizerId: string) => {
+export const publishEventPatch = async (patch: JsonEventPatch, organizerId: string) => {
   let adminConnectionIds: string[] = []
   await bestEffort('admin event patch', async () => {
     const admins = connectionIdsOf(await organizerAudience(organizerId, patch.eventId))
@@ -96,7 +98,7 @@ export const publishEventPatch = async (patch: AdminEventPatch, organizerId: str
 }
 
 /** The same push for a durable workflow: rejects when a lookup fails. */
-const publishEventPatchStrict = async (patch: AdminEventPatch, organizerId: string) => {
+const publishEventPatchStrict = async (patch: JsonEventPatch, organizerId: string) => {
   const adminConnectionIds = connectionIdsOf(await organizerAudience(organizerId, patch.eventId))
   await sendAdminEventPatch(patch, organizerId)
 
@@ -225,7 +227,7 @@ export const publishEventChange = async ({ audience, organizerId, patch, startLi
   if (startList) await publishPublicStartList(patch.eventId)
 }
 
-const countsPatch = ({ classes, entries, id, members, updatedAt }: JsonConfirmedEvent): AdminEventPatch => ({
+const countsPatch = ({ classes, entries, id, members, updatedAt }: JsonConfirmedEvent): JsonEventPatch => ({
   classes,
   entries,
   eventId: id,

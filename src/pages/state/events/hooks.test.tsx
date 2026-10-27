@@ -1,7 +1,7 @@
 import type { DayKey, PublicDogEvent } from '@/types'
 import type { EventMetadata } from './types'
 import { act, renderHook, waitFor } from '@testing-library/react'
-import { useAtomValue } from 'jotai'
+import { useAtomValue, useSetAtom } from 'jotai'
 import { TestProvider as Provider } from 'test-utils/AtomProvider'
 import { getEvent, getEvents } from '@/api/event'
 import { APIError } from '@/api/http'
@@ -723,6 +723,20 @@ describe('useConfirmedEvent', () => {
 
     await waitFor(() => expect(result.current.event).toBeNull())
     expect(result.current.events.map(({ id }) => id)).toEqual(['event-2'])
+  })
+
+  // A deleted or reverted event leaves the list while its page is open (KOE-1648): a fresh copy
+  // reads as not found at once, with no fetch, which is what a reload would show.
+  it('reads as not found when an open event leaves the list', () => {
+    const { result } = renderHook(() => ({ event: useConfirmedEvent('event-1'), setEvents: useSetAtom(eventsAtom) }), {
+      wrapper: wrapperWithState([stored as PublicDogEvent], { singles: { 'event-1': Date.now() - 1000 } }),
+    })
+    expect(result.current.event).toEqual(stored)
+
+    act(() => result.current.setEvents([]))
+
+    expect(result.current.event).toBeNull()
+    expect(getEvent).not.toHaveBeenCalled()
   })
 
   it('keeps the stored copy when the fetch fails for another reason', async () => {
