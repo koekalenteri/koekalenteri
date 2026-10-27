@@ -12,6 +12,7 @@ import koiraFI130131 from './KLIntegraatio-fixtures/koira-FI130131_11.json'
 import koiraSF06626 from './KLIntegraatio-fixtures/koira-SF06626_92.json'
 import kokeetNOU from './KLIntegraatio-fixtures/kokeet-NOU.json'
 import lueNOU from './KLIntegraatio-fixtures/lue-NOU.json'
+import maat from './KLIntegraatio-fixtures/maat.json'
 
 vi.mock('./secrets', () => ({ getKLIntegraatioConfig: async () => config }))
 
@@ -301,6 +302,38 @@ describe('KLIntegraatio', () => {
 
       expect(result).toEqual({ status: 400 })
     })
+
+    it('returns the title of a refusal without reasons, as Testi2 answers an endpoint without the right', async () => {
+      replies.push(tokenReply(3600), { body: { status: 403, title: 'Ei käyttöoikeutta.' }, status: 403 })
+
+      const result = await klint.lueKoemuoto({ koemuoto: 'NOU' })
+
+      expect(result).toEqual({ status: 403, title: 'Ei käyttöoikeutta.' })
+    })
+
+    it.each([{ title: '' }, { title: 1 }])('does not take %p as a title', async (body) => {
+      replies.push(tokenReply(3600), { body, status: 403 })
+
+      expect(await klint.lueKoemuoto({ koemuoto: 'NOU' })).toEqual({ status: 403 })
+    })
+
+    it('prefers the reasons to the title when both are given', async () => {
+      replies.push(tokenReply(3600), { body: { title: 'Bad Request', virheet: ['Nimi puuttuu.'] }, status: 400 })
+
+      expect(await klint.lueKoemuoto({ koemuoto: 'NOU' })).toEqual({ status: 400, virheet: ['Nimi puuttuu.'] })
+    })
+  })
+
+  describe('lueMaat', () => {
+    it('asks Yleista/Maat in the language given and returns the real answer as it is', async () => {
+      replies.push(tokenReply(3600), { body: maat })
+
+      const result = await klint.lueMaat({ Kieli: 1 })
+
+      expect(requests[1].url).toBe(`${config.KL_INT_API_URL}Integraatio/Yleista/Maat?Kieli=1`)
+      expect(result.json).toEqual(maat)
+      expect(result.json?.find((row) => row.maa === 'Ruotsi')?.maaKoodi).toBe('SE ')
+    })
   })
 
   describe('lueKoemuoto', () => {
@@ -548,6 +581,33 @@ describe('KLIntegraatio', () => {
       expect(requests[1].url).toBe(`${config.KL_INT_API_URL}Integraatio/Koe/Tulos/Poista`)
       expect(JSON.parse(requests[1].body ?? '')).toEqual(poisto)
       expect(result.status).toBe(200)
+    })
+
+    const koira = {
+      maa: 'SE',
+      nimi: 'Example Kennel Max',
+      rekisterinumero: 'SE12345/2024',
+      rotukoodi: '122',
+      sukupuoli: 101,
+      syntymäaika: '2024-03-15',
+      tunnistusmerkintä: '752098100123456',
+    }
+
+    it('Koira/Ulkomainen posts the dog as JSON', async () => {
+      replies.push(tokenReply(3600), { body: { id: 555 } })
+
+      const result = await klint.tallennaUlkomainenKoira(koira)
+
+      expect(requests[1].method).toBe('POST')
+      expect(requests[1].url).toBe(`${config.KL_INT_API_URL}Integraatio/Koira/Ulkomainen`)
+      expect(JSON.parse(requests[1].body ?? '')).toEqual(koira)
+      expect(result.status).toBe(200)
+    })
+
+    it('Koira/Ulkomainen returns the title of the 403 Testi2 answers for our credentials (27.10.2026)', async () => {
+      replies.push(tokenReply(3600), { body: { status: 403, title: 'Ei käyttöoikeutta.' }, status: 403 })
+
+      expect(await klint.tallennaUlkomainenKoira(koira)).toEqual({ status: 403, title: 'Ei käyttöoikeutta.' })
     })
 
     it('Koe/AsetaTila posts the state, 1253 hands the trial to the chief judge', async () => {

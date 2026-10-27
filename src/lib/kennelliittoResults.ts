@@ -1,5 +1,13 @@
-import type { JsonConfirmedEvent, JsonKcResult, JsonKcState, JsonRegistration, PublicJudge } from '../types'
-import { dayOf, TIME_ZONE } from './day'
+import type {
+  DogGender,
+  JsonConfirmedEvent,
+  JsonDog,
+  JsonKcResult,
+  JsonKcState,
+  JsonRegistration,
+  PublicJudge,
+} from '../types'
+import { dayOf, isDayKey, TIME_ZONE } from './day'
 import { hasRetrieveTypeChoice, isMockTrialClass } from './event'
 import { makeArray } from './judge'
 import { getRegistrationGroupDay, getRegistrationPlacement } from './registration'
@@ -97,6 +105,13 @@ export type KcProblemCode =
   | 'tooManyJudges'
   | 'additionalInfoNotAllowed'
   | 'retrieveTypeNotAllowed'
+  /* What a foreign dog Kennelliitto does not know lacks before it can be added there (KOE-1201). */
+  | 'noMicrochip'
+  | 'microchipInvalid'
+  | 'noGender'
+  | 'noBirthDate'
+  | 'noBreed'
+  | 'countryUnknown'
 
 export interface KcProblem {
   code: KcProblemCode
@@ -323,6 +338,119 @@ export const buildKcResult = (
   }
 }
 
+/** A country of Kennelliitto's list (Yleista/Maat). Structural, so the lambda passes its answer as it is. */
+export interface KcCountry {
+  maaKoodi: string
+  maa: string
+  rekisterit: string[]
+}
+
+/** The country a foreign dog is added to Kennelliitto with: the code it takes, and the name a person reads. */
+export interface KcDogCountry {
+  code: string
+  name: string
+}
+
+/** The body of Koira/Ulkomainen, every field of which Kennelliitto requires. */
+export interface KcForeignDogBody {
+  maa: string
+  nimi: string
+  rekisterinumero: string
+  rotukoodi: string
+  sukupuoli: number
+  /** yyyy-MM-dd */
+  syntymäaika: string
+  tunnistusmerkintä: string
+}
+
+type KcForeignDog = Pick<JsonDog, 'breedCode' | 'dob' | 'gender' | 'name' | 'regNo' | 'rfid'>
+
+/** Kennelliitto's `id_Sukupuoli` (Testi2, 27.10.2026). */
+const KC_GENDER: Record<DogGender, number> = { F: 102, M: 101 }
+
+/** A Finnish dog is never added as a foreign one, whatever its number looks like. */
+const FINLAND = 'FI'
+
+/** Kennelliitto takes a microchip of exactly this form. */
+const RE_MICROCHIP = /^\d{15}$/
+
+/** A letter right after a registry prefix makes it part of a longer one: "S" is not the start of "SF06626/92". */
+const endsPrefix = (char: string | undefined): boolean => char === undefined || !/\p{Letter}/u.test(char)
+
+/**
+ * The country of a foreign dog, from the start of its registration number and Kennelliitto's registries
+ * (KOE-1201). The longest registry the number starts with decides, compared without case and with the
+ * spaces Kennelliitto leaves around its codes trimmed. A number no registry matches, and a prefix two
+ * countries share ("RI" is both MG and PT), give no country.
+ */
+export const kcCountryOfRegNo = (
+  regNo: string,
+  countries: ReadonlyArray<KcCountry>
+): { country: KcDogCountry } | { problem: KcProblem } => {
+  const number = regNo.trim().toUpperCase()
+  const matches = countries
+    .filter((country) => country.maaKoodi.trim() !== FINLAND)
+    .flatMap((country) =>
+      country.rekisterit
+        .map((registry) => registry.trim().toUpperCase())
+        .filter((prefix) => prefix && number.startsWith(prefix) && endsPrefix(number[prefix.length]))
+        .map((prefix) => ({ country, prefix }))
+    )
+  const longest = Math.max(0, ...matches.map(({ prefix }) => prefix.length))
+  const best = matches.filter(({ prefix }) => prefix.length === longest)
+  const codes = [...new Set(best.map(({ country }) => country.maaKoodi.trim()))]
+  const [first] = best
+  if (first && codes.length === 1) return { country: { code: codes[0], name: first.country.maa.trim() } }
+  const detail = first ? `${first.prefix} (${codes.join(', ')})` : regNo.trim()
+  return { problem: { code: 'countryUnknown', detail } }
+}
+
+/** What of the dog's own details Koira/Ulkomainen would refuse. */
+const foreignDogProblems = (dog: KcForeignDog): KcProblem[] => {
+  const problems: KcProblem[] = []
+  const rfid = dog.rfid?.trim()
+  if (!rfid) problems.push({ code: 'noMicrochip' })
+  else if (!RE_MICROCHIP.test(rfid)) problems.push({ code: 'microchipInvalid', detail: rfid })
+  if (!dog.gender) problems.push({ code: 'noGender' })
+  if (!isDayKey(dog.dob)) problems.push({ code: 'noBirthDate' })
+  if (!dog.breedCode) problems.push({ code: 'noBreed' })
+  return problems
+}
+
+/**
+ * The Koira/Ulkomainen body for a dog Kennelliitto does not know, or everything that stands in the way
+ * (KOE-1201). The name and the number are the ones `buildKcResult` sends, so the result that follows
+ * names the dog as it was added.
+ */
+export const buildKcForeignDog = (
+  dog: KcForeignDog,
+  countries: ReadonlyArray<KcCountry>
+): { body: KcForeignDogBody; country: KcDogCountry } | { problems: KcProblem[] } => {
+  const name = dog.name?.trim()
+  const regNo = dog.regNo?.trim()
+  if (!name || !regNo) return { problems: [{ code: 'noName' }] }
+
+  const found = kcCountryOfRegNo(regNo, countries)
+  const problems = [...foreignDogProblems(dog), ...('problem' in found ? [found.problem] : [])]
+  const { breedCode, dob, gender } = dog
+  const rfid = dog.rfid?.trim()
+  if (problems.length || !('country' in found) || !breedCode || !gender || !isDayKey(dob) || !rfid) {
+    return { problems }
+  }
+  return {
+    body: {
+      maa: found.country.code,
+      nimi: name,
+      rekisterinumero: regNo,
+      rotukoodi: breedCode,
+      sukupuoli: KC_GENDER[gender],
+      syntymäaika: dob,
+      tunnistusmerkintä: rfid,
+    },
+    country: found.country,
+  }
+}
+
 /** A day as a person reads it, d.M.yyyy: the form a message that names a day carries. */
 export const finnishDay = (day: string): string => {
   const [year, month, date] = day.split('-')
@@ -349,6 +477,8 @@ export type KcDogStatus =
   | 'sentGone'
 
 export interface KcDogReport {
+  /** A foreign dog Kennelliitto does not know: sending adds it there first, as a dog of this country (KOE-1201). */
+  createsDog?: KcDogCountry
   /** What Kennelliitto answered when the last call was refused. */
   errors?: string[]
   id: string
@@ -385,6 +515,8 @@ export interface KcSendReport {
    * as it was, so it reads as unsent and sending it again updates what Kennelliitto holds.
    */
   answerNotStored?: true
+  /** Kennelliitto did not add the foreign dog, so no result was sent for it (KOE-1201). */
+  dogNotAdded?: true
   /** Where a dog that was asked for and not sent stood, and why (a `skipped` outcome). */
   dogStatus?: KcDogStatus
   errors?: string[]

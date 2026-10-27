@@ -13,7 +13,7 @@ import Stack from '@mui/material/Stack'
 import Typography from '@mui/material/Typography'
 import { useTranslation } from 'react-i18next'
 import { KennelliittoDogList } from './KennelliittoDogList'
-import { blockerText, dogLabel, dogLine, failedLine, skippedLine } from './kennelliittoMessages'
+import { blockerText, createsDogLine, dogLabel, dogLine, failedLine, skippedLine } from './kennelliittoMessages'
 
 export type KcSendPhase =
   | { kind: 'loading' }
@@ -58,6 +58,7 @@ const Preview = ({
   }
 
   const blocked = preview.dogs.filter((dog) => dog.status === 'blocked')
+  const creates = preview.dogs.filter((dog) => dog.createsDog)
   const summary = (['ready', 'changed', 'unchanged', 'notRecorded', 'blocked'] as const).filter((status) =>
     count(status)
   )
@@ -74,6 +75,14 @@ const Preview = ({
         ))}
         {!summary.length && <Typography variant="body2">{t('results.kennelliitto.nothingToSend')}</Typography>}
       </Stack>
+      {creates.length > 0 && (
+        <Alert severity="info">
+          <Typography sx={{ fontWeight: 600 }} variant="body2">
+            {t('results.kennelliitto.createsDogs')}
+          </Typography>
+          <KennelliittoDogList lines={creates.map(createsDogLine)} />
+        </Alert>
+      )}
       {blocked.length > 0 && (
         <Alert severity="error">
           <KennelliittoDogList lines={blocked.map((dog) => dogLine(t, dog))} />

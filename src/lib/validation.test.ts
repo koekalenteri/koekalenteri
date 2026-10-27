@@ -1,4 +1,4 @@
-import { isFinnishRegNo, isModernFinnishRegNo, validateRegNo } from './validation'
+import { isFinnishRegNo, isKcDomesticRegNo, isModernFinnishRegNo, validateRegNo } from './validation'
 
 describe('validRegNo', () => {
   it.each([
@@ -101,6 +101,28 @@ describe('isModernFinnishRegNo', () => {
     'should return false for %p',
     (regNo) => {
       expect(isModernFinnishRegNo(regNo)).toEqual(false)
+    }
+  )
+})
+
+describe('isKcDomesticRegNo', () => {
+  it.each([
+    'FI59578/09',
+    'fi12345/20',
+    'FI 12345/20',
+    'FIN45793/08',
+    'ER12345/24',
+    'EJ1234/20',
+    'SF06626/92',
+    ' FI-12345/20',
+  ])('takes %p as Finnish', (regNo) => {
+    expect(isKcDomesticRegNo(regNo)).toEqual(true)
+  })
+
+  it.each(['SE12345/2024', 'S12345/2010', 'NO12345/20', 'FIX12345/20', 'ERA123/20', 'KCB N 1234', ''])(
+    'takes %p as foreign',
+    (regNo) => {
+      expect(isKcDomesticRegNo(regNo)).toEqual(false)
     }
   )
 })

@@ -5,7 +5,7 @@ import type { JsonObject } from '../../types'
  *
  * Response types follow real Testi2 responses read on 15.10.2026, not the API document's tables.
  * Where no real sample exists the type says so: the request bodies of the
- * three write calls, which follow the API document and are exercised with mocked fetch only.
+ * four write calls, which follow the API document and are exercised with mocked fetch only.
  */
 
 export type KLIntegraatioConfig = {
@@ -32,6 +32,11 @@ export type KLIntegraatioResult<T> = {
   status: number
   /** The reasons KL gave for a 400 or 404, also logged. */
   virheet?: string[]
+  /**
+   * What KL said of a call it refused without reasons, such as the 403 `{ "title": "Ei käyttöoikeutta." }`
+   * of an endpoint the credentials have no right to (Testi2, 27.10.2026).
+   */
+  title?: string
 }
 
 export type KLIntKoemuodonTulos = {
@@ -212,6 +217,37 @@ export type KLIntTulosPoista = {
   koeGUID: string
   päivä: string
   rekisterinumero: string
+}
+
+/** One country of Yleista/Maat (Testi2, 27.10.2026). Many `maaKoodi` values end in a space ("SE "). */
+export type KLIntMaa = {
+  maa: string
+  maaKoodi: string
+  /** The registries whose prefix a dog's registration number of the country starts with. */
+  rekisterit: string[]
+}
+
+export type KLIntMaatParametrit = {
+  Kieli: number
+}
+
+/**
+ * Request body of Koira/Ulkomainen, from the API document (no real sample: the endpoint answered 403 for
+ * our credentials on 27.10.2026). Every field is required. Sent in camelCase like Koe/Tulos/Tallenna.
+ */
+export type KLIntUlkomainenKoira = {
+  /** Country code, never FI. */
+  maa: string
+  nimi: string
+  /** Must start with a registry of `maa`, and never with FI, ER or EJ. */
+  rekisterinumero: string
+  rotukoodi: string
+  /** id_Sukupuoli: 101 male, 102 female. */
+  sukupuoli: number
+  /** yyyy-MM-dd */
+  syntymäaika: string
+  /** Exactly 15 digits. */
+  tunnistusmerkintä: string
 }
 
 /** Kennelliitto took the write: any 2xx, since 201 and 204 are as good as 200 for a call whose answer says nothing more. */

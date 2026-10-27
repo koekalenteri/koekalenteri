@@ -11,6 +11,7 @@ import koemuotoNOME_A from './KLIntegraatio-fixtures/koemuoto-NOME-A.json'
 import koemuotoNOU from './KLIntegraatio-fixtures/koemuoto-NOU.json'
 import koemuotoNOWT from './KLIntegraatio-fixtures/koemuoto-NOWT.json'
 import lueNOU from './KLIntegraatio-fixtures/lue-NOU.json'
+import maat from './KLIntegraatio-fixtures/maat.json'
 
 const GUID = '2b81e6a1-559b-407c-87c7-b8a9b89b1987'
 
@@ -118,6 +119,14 @@ let hooks: { asetaTila?: () => void; lue?: () => void }
 let lueStatus: number | undefined
 /** Paths of Kennelliitto that take the request and say nothing. */
 let hungPaths: Set<string>
+/** The dogs Kennelliitto knows, by registration number. Any other is answered as Testi2 answers an unknown dog. */
+let kcDogs: Record<string, object>
+/** What the fake does to Koira/Ulkomainen; the default creates the dog. */
+let ulkomainenReply: { body?: unknown; status: number } | undefined
+let nextDogId: number
+/** Koira and Yleista/Maat answer this status, with no body, while it is set. */
+let koiraStatus: number | undefined
+let maatStatus: number | undefined
 
 /** A server that takes the request and says nothing until the caller gives up. */
 const hang = (signal?: AbortSignal | null) =>
@@ -151,6 +160,18 @@ const fakeFetch = async (input: string | URL | Request, init?: RequestInit) => {
     return new Response(asetaTilaReply.body === undefined ? null : JSON.stringify(asetaTilaReply.body), {
       status: asetaTilaReply.status,
     })
+  }
+  if (path === 'Koira') {
+    if (koiraStatus) return new Response('', { status: koiraStatus })
+    const known = kcDogs[url.searchParams.get('rekisterinumero') ?? '']
+    return known ? Response.json(known) : Response.json({ virheet: ['Ei tulosta'] }, { status: 404 })
+  }
+  if (path === 'Yleista/Maat') return maatStatus ? new Response('', { status: maatStatus }) : Response.json(maat)
+  if (path === 'Koira/Ulkomainen') {
+    if (ulkomainenReply) return Response.json(ulkomainenReply.body ?? {}, { status: ulkomainenReply.status })
+    const id = nextDogId++
+    kcDogs[String(body?.rekisterinumero)] = { id, nimi: body?.nimi, rekisterinumero: body?.rekisterinumero }
+    return Response.json({ id })
   }
   if (path === 'Koe/Tulos/Tallenna') {
     const reply = tallennaReply[String(body?.rekisterinumero)]
@@ -242,6 +263,11 @@ describe('kennelliittoResults', () => {
     hooks = {}
     lueStatus = undefined
     hungPaths = new Set()
+    kcDogs = {}
+    ulkomainenReply = undefined
+    nextDogId = 900
+    koiraStatus = undefined
+    maatStatus = undefined
     now = Date.parse('2026-09-26T10:00:00.000Z')
     storedState = { code: 754, name: 'Hyväksytty', readAt: '2026-09-26T09:00:00.000Z' }
     storedGuid = GUID
@@ -823,6 +849,239 @@ describe('kennelliittoResults', () => {
       await sendKennelliittoResults(ctx(), ['d2'], { force: false })
 
       expect(tallennat().map((call) => call.body?.rekisterinumero)).toEqual(['FI10002/20'])
+    })
+  })
+
+  describe('a foreign dog Kennelliitto does not know yet (KOE-1201)', () => {
+    /** A Swedish dog entered by hand on the registration form, with everything Koira/Ulkomainen asks for. */
+    const foreign = (id: string, fields: Partial<JsonRegistration['dog']> = {}) =>
+      dog(id, 'SE12345/2024', 'NOME-A1', {
+        dog: {
+          breedCode: '122',
+          dob: '2024-03-15',
+          gender: 'M',
+          name: `Koira ${id}`,
+          regNo: 'SE12345/2024',
+          rfid: '752098100123456',
+          ...fields,
+        },
+      })
+
+    it('creates the dog in Kennelliitto as a foreign dog, then sends its result with the same name', async () => {
+      registrations = [foreign('d1')]
+
+      const result = await sendKennelliittoResults(ctx(), ['d1'], { force: false })
+
+      expect(calls.filter((call) => call.path.startsWith('Koira') || call.path === 'Koe/Tulos/Tallenna')).toEqual([
+        { body: undefined, method: 'GET', path: 'Koira' },
+        {
+          body: {
+            maa: 'SE',
+            nimi: 'Koira d1',
+            rekisterinumero: 'SE12345/2024',
+            rotukoodi: '122',
+            sukupuoli: 101,
+            syntymäaika: '2024-03-15',
+            tunnistusmerkintä: '752098100123456',
+          },
+          method: 'POST',
+          path: 'Koira/Ulkomainen',
+        },
+        expect.objectContaining({
+          body: expect.objectContaining({ nimi: 'Koira d1', rekisterinumero: 'SE12345/2024', tulos: 'A1' }),
+          method: 'POST',
+          path: 'Koe/Tulos/Tallenna',
+        }),
+      ])
+      expect(result.reports).toEqual([
+        { id: 'd1', name: 'Koira d1', outcome: 'sent', regNo: 'SE12345/2024', tulosId: 100 },
+      ])
+      expect(registrations[0].kcResult).toMatchObject({ status: 'sent', tulosId: 100 })
+      expect(mockAudit).toHaveBeenCalledWith({
+        auditKey: 'event-1:d1',
+        messageKey: 'audit.messages.dogAddedToKennelliitto',
+        user: 'Sihteeri',
+      })
+    })
+
+    const paths = () => calls.map((call) => call.path)
+    const countOf = (path: string) => paths().filter((item) => item === path).length
+
+    it('tells in the preview that the dog will be added, and as a dog of which country, writing nothing', async () => {
+      registrations = [foreign('d1')]
+
+      const preview = await previewKennelliittoResults(ctx())
+
+      expect(preview.dogs).toEqual([
+        expect.objectContaining({
+          createsDog: { code: 'SE', name: 'Ruotsi' },
+          id: 'd1',
+          problems: [],
+          status: 'ready',
+        }),
+      ])
+      expect(posts()).toEqual([])
+    })
+
+    it('only sends the result of a foreign dog Kennelliitto knows', async () => {
+      registrations = [foreign('d1')]
+      kcDogs['SE12345/2024'] = { id: 1, nimi: 'Koira d1', rekisterinumero: 'SE12345/2024' }
+
+      const result = await sendKennelliittoResults(ctx(), ['d1'], { force: false })
+
+      expect(paths().filter((path) => path.startsWith('Koira') || path.startsWith('Yleista'))).toEqual(['Koira'])
+      expect(tallennat()).toHaveLength(1)
+      expect(result.reports).toEqual([expect.objectContaining({ id: 'd1', outcome: 'sent' })])
+    })
+
+    it.each([
+      ['with reasons', { body: { virheet: ['Rotukoodi ei kelpaa.'] }, status: 400 }, ['Rotukoodi ei kelpaa.']],
+      [
+        'for want of the right (403)',
+        { body: { status: 403, title: 'Ei käyttöoikeutta.' }, status: 403 },
+        ['Ei käyttöoikeutta.'],
+      ],
+      ['with no answer it can read', { status: 500 }, undefined],
+    ])('sends no result for a dog Kennelliitto did not add %s, and tries again next time', async (_, reply, errors) => {
+      registrations = [foreign('d1')]
+      ulkomainenReply = reply
+
+      const result = await sendKennelliittoResults(ctx(), ['d1'], { force: false })
+
+      expect(tallennat()).toEqual([])
+      expect(result.reports).toEqual([
+        {
+          dogNotAdded: true,
+          id: 'd1',
+          name: 'Koira d1',
+          outcome: 'failed',
+          regNo: 'SE12345/2024',
+          status: reply.status,
+          ...(errors ? { errors } : {}),
+        },
+      ])
+      expect(registrations[0].kcResult).toEqual({
+        at: '2026-09-26T10:00:00.000Z',
+        by: 'Sihteeri',
+        dogNotAdded: true,
+        status: 'failed',
+        ...(errors ? { errors } : {}),
+      })
+      expect(mockAudit).toHaveBeenCalledWith({
+        auditKey: 'event-1:d1',
+        messageKey: 'audit.messages.dogAddFailed',
+        messageParams: { reason: errors?.join('; ') ?? String(reply.status) },
+        user: 'Sihteeri',
+      })
+
+      // Nothing of a result is kept as sent, so the next preview offers the dog again and a sending needs no force.
+      ulkomainenReply = undefined
+      expect(statusOf(await previewKennelliittoResults(ctx()), 'd1')).toEqual('ready')
+      const retry = await sendKennelliittoResults(ctx(), ['d1'], { force: false })
+      expect(retry.reports).toEqual([expect.objectContaining({ id: 'd1', outcome: 'sent' })])
+      expect(registrations[0].kcResult).toMatchObject({ status: 'sent' })
+      expect(registrations[0].kcResult?.dogNotAdded).toBeUndefined()
+    })
+
+    it.each([
+      ['a number no registry starts', { regNo: 'XX12345/20' }, [{ code: 'countryUnknown', detail: 'XX12345/20' }]],
+      ['a prefix two countries share', { regNo: 'RI12345/20' }, [{ code: 'countryUnknown', detail: 'RI (MG, PT)' }]],
+      ['no microchip', { rfid: '' }, [{ code: 'noMicrochip' }]],
+      [
+        'a microchip that is not 15 digits',
+        { rfid: '75209810012345' },
+        [{ code: 'microchipInvalid', detail: '75209810012345' }],
+      ],
+      [
+        'no sex, birth date or breed',
+        { breedCode: undefined, dob: undefined, gender: undefined },
+        [{ code: 'noGender' }, { code: 'noBirthDate' }, { code: 'noBreed' }],
+      ],
+    ])('blocks a dog Kennelliitto does not know with %s, and sends nothing for it', async (_, fields, problems) => {
+      const unknownDog = foreign('d1', fields)
+      registrations = [unknownDog]
+
+      const preview = await previewKennelliittoResults(ctx())
+      const result = await sendKennelliittoResults(ctx(), ['d1'], { force: false })
+
+      expect(preview.dogs).toEqual([expect.objectContaining({ id: 'd1', problems, status: 'blocked' })])
+      expect(posts()).toEqual([])
+      expect(result.reports).toEqual([expect.objectContaining({ dogStatus: 'blocked', id: 'd1', outcome: 'skipped' })])
+    })
+
+    it.each(['FI 12345/20', 'fi12345/20', 'SF06626/92'])(
+      'never asks Kennelliitto about a Finnish number (%s)',
+      async (regNo) => {
+        registrations = [foreign('d1', { regNo })]
+
+        await sendKennelliittoResults(ctx(), ['d1'], { force: false })
+
+        expect(countOf('Koira')).toEqual(0)
+        expect(tallennat()).toHaveLength(1)
+      }
+    )
+
+    it('reads the countries once for two dogs it does not know, and not at all when it knows them', async () => {
+      registrations = [foreign('d1'), foreign('d2', { regNo: 'NO12345/20' })]
+
+      await previewKennelliittoResults(ctx())
+      expect([countOf('Koira'), countOf('Yleista/Maat')]).toEqual([2, 1])
+
+      calls = []
+      kcDogs['SE12345/2024'] = { id: 1, nimi: 'Koira d1', rekisterinumero: 'SE12345/2024' }
+      kcDogs['NO12345/20'] = { id: 2, nimi: 'Koira d2', rekisterinumero: 'NO12345/20' }
+      await previewKennelliittoResults(ctx())
+      expect([countOf('Koira'), countOf('Yleista/Maat')]).toEqual([2, 0])
+    })
+
+    it.each([
+      ['the dog cannot be looked up', () => (koiraStatus = 500)],
+      ['the countries cannot be read', () => (maatStatus = 500)],
+    ])('sends the result as it is when %s', async (_, fail) => {
+      registrations = [foreign('d1')]
+      fail()
+
+      await sendKennelliittoResults(ctx(), ['d1'], { force: false })
+
+      expect(countOf('Koira/Ulkomainen')).toEqual(0)
+      expect(tallennat()).toHaveLength(1)
+    })
+
+    it('never asks about a dog whose result Kennelliitto has accepted', async () => {
+      registrations = [foreign('d1', {})]
+      registrations[0].kcResult = { at: 'a', by: 'b', payloadHash: 'old', status: 'sent' }
+
+      const preview = await previewKennelliittoResults(ctx())
+
+      expect(statusOf(preview, 'd1')).toEqual('changed')
+      expect(countOf('Koira')).toEqual(0)
+    })
+
+    it('asks nothing for a preview of no dogs, the refresh the results pages make', async () => {
+      registrations = [foreign('d1')]
+
+      await previewKennelliittoResults(ctx(), [])
+
+      expect(countOf('Koira')).toEqual(0)
+    })
+
+    it('holds back a hand-over for a foreign dog it could not look up, asking once', async () => {
+      registrations = [foreign('d1')]
+      koiraStatus = 500
+
+      const result = await handOverKennelliittoResults(ctx(), { withoutBlocked: false })
+
+      expect(result.unsent?.map((item) => item.id)).toEqual(['d1'])
+      expect(countOf('Koira')).toEqual(1)
+    })
+
+    it('hands over without a blocked foreign dog, asking about it before the lock only', async () => {
+      registrations = [foreign('d1', { regNo: 'XX12345/20' })]
+
+      const result = await handOverKennelliittoResults(ctx(), { withoutBlocked: true })
+
+      expect(result.handedOver).toEqual(true)
+      expect([countOf('Koira'), countOf('Yleista/Maat')]).toEqual([1, 1])
     })
   })
 

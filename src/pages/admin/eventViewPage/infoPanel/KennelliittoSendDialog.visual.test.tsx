@@ -130,6 +130,72 @@ it('says the server failed, with its status, when it answered a sending with an 
   )
 })
 
+it('says which foreign dogs it adds to Kennelliitto first, and which it cannot (KOE-1201)', async () => {
+  await shoot(
+    <KennelliittoSendDialog
+      {...sendProps}
+      phase={{
+        kind: 'preview',
+        preview: {
+          blockers: [],
+          dogs: [
+            dog('10001', 'Hukka', 'ready'),
+            {
+              ...dog('10002', 'Rölli', 'ready'),
+              createsDog: { code: 'SE', name: 'Ruotsi' },
+              regNo: 'SE12345/2024',
+            },
+            {
+              ...dog('10003', 'Musti', 'blocked', [{ code: 'countryUnknown', detail: 'RI (MG, PT)' }]),
+              regNo: 'RI1234/20',
+            },
+            {
+              ...dog('10004', 'Peni', 'blocked', [
+                { code: 'microchipInvalid', detail: '75209810012345' },
+                { code: 'noBirthDate' },
+              ]),
+              regNo: 'NO12345/20',
+            },
+          ],
+        },
+      }}
+    />,
+    'Tulosten lähetys Omakoiraan',
+    'kennelliitto-send-foreign-preview'
+  )
+})
+
+it('says a foreign dog Kennelliitto did not add, with its reasons or without them (KOE-1201)', async () => {
+  await shoot(
+    <KennelliittoSendDialog
+      {...sendProps}
+      phase={{
+        kind: 'report',
+        summary: {
+          blockers: [],
+          interrupted: false,
+          notAttempted: [],
+          reports: [
+            { id: '10001', name: 'Hukka', outcome: 'sent', regNo: 'FI10001/21' },
+            {
+              dogNotAdded: true,
+              errors: ['Ei käyttöoikeutta.'],
+              id: '10002',
+              name: 'Rölli',
+              outcome: 'failed',
+              regNo: 'SE12345/2024',
+              status: 403,
+            },
+            { dogNotAdded: true, id: '10005', name: 'Nelli', outcome: 'failed', regNo: 'NO12345/20', status: 500 },
+          ],
+        },
+      }}
+    />,
+    'Tulokset on tallennettu Omakoiraan 1 koiralle',
+    'kennelliitto-send-foreign-report'
+  )
+})
+
 it('asks for the hand-over by saying what it means, and lists the dogs that stay out', async () => {
   await shoot(
     <KennelliittoHandOverDialog

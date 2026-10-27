@@ -1,0 +1,67 @@
+[
+  {
+    "maa": "Alankomaat",
+    "maaKoodi": "NL ",
+    "rekisterit": ["NHSB", "NHSB.BIJL.", "VR"]
+  },
+  {
+    "maa": "Bahrain",
+    "maaKoodi": "BH",
+    "rekisterit": ["K.C.B.", "KCB N", "KCB A"]
+  },
+  {
+    "maa": "El Salvador",
+    "maaKoodi": "SV ",
+    "rekisterit": ["ES-E", "ES-F", "ES-P"]
+  },
+  {
+    "maa": "Itävalta",
+    "maaKoodi": "AT ",
+    "rekisterit": ["ÖHZB", "ÖHZB Reg."]
+  },
+  {
+    "maa": "Kreikka",
+    "maaKoodi": "GR",
+    "rekisterit": ["BEK", "BEA", "GF-F", "GR-N", "BEA 1", "BEA 2", "BEA3"]
+  },
+  {
+    "maa": "Madagasgar",
+    "maaKoodi": "MG",
+    "rekisterit": ["LORM", "RI"]
+  },
+  {
+    "maa": "Makedonia",
+    "maaKoodi": "MK",
+    "rekisterit": ["MR"]
+  },
+  {
+    "maa": "Norja",
+    "maaKoodi": "NO ",
+    "rekisterit": ["N", "NO"]
+  },
+  {
+    "maa": "Pohjois-Makedonia",
+    "maaKoodi": "XN",
+    "rekisterit": ["MR"]
+  },
+  {
+    "maa": "Portugali",
+    "maaKoodi": "PT ",
+    "rekisterit": ["LOP", "RI"]
+  },
+  {
+    "maa": "Ruotsi",
+    "maaKoodi": "SE ",
+    "rekisterit": ["S", "REGV", "SE", "AS"]
+  },
+  {
+    "maa": "Suomi",
+    "maaKoodi": "FI",
+    "rekisterit": ["FI", "FIN", "ER", "EJ"]
+  },
+  {
+    "maa": "Tanska",
+    "maaKoodi": "DK ",
+    "rekisterit": ["DK", "DKK", "DKX-REG"]
+  }
+]
