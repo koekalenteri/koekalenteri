@@ -1008,6 +1008,22 @@ describe('useWebSocket', () => {
       await waitFor(() => expect(result.current.events).toEqual(['september', 'published', 'next-year']))
     })
 
+    // A deleted event's later counts patch, from a stale admin tab or a cancellation under it, must
+    // not put back a row without its type, dates or organizer (KOE-1648).
+    it('leaves a public patch of an event it does not hold out of the list unless it is whole', () => {
+      const { result } = renderLists()
+
+      send({
+        classes: [],
+        entries: 3,
+        eventId: 'deleted',
+        scope: 'public:event-patch',
+        updatedAt: '2026-10-27T10:00:00.000Z',
+      })
+
+      expect(result.current.events).toEqual(['september', 'next-year'])
+    })
+
     it('moves a redated event to its new slot', async () => {
       const { result } = renderLists()
 
@@ -1305,6 +1321,62 @@ describe('useWebSocket', () => {
     })
   })
 
+  // A delete's public half holds only timestamps besides the mark, since deletedAt is not a public
+  // field; an admin's tab reads deletedAt from its own patch (KOE-1648).
+  it.each([
+    [
+      'a public',
+      {
+        deleted: true,
+        eventId: 'event-1',
+        modifiedAt: '2026-10-27T10:00:00.000Z',
+        scope: 'public:event-patch',
+        updatedAt: '2026-10-27T10:00:00.000Z',
+      },
+    ],
+    [
+      'an admin',
+      {
+        deletedAt: '2026-10-27T10:00:00.000Z',
+        deletedBy: 'Admin',
+        eventId: 'event-1',
+        modifiedAt: '2026-10-27T10:00:00.000Z',
+        scope: 'admin:event-patch',
+        updatedAt: '2026-10-27T10:00:00.000Z',
+      },
+    ],
+  ])('should remove a deleted event from the public events on %s patch', async (_audience, message) => {
+    const deleted = { entries: 1, id: 'event-1', name: 'Deleted', state: 'tentative' as const }
+    const kept = { entries: 1, id: 'event-2', name: 'Kept', state: 'tentative' as const }
+    const wrapper = function Wrapper({ children }: { readonly children: ReactNode }) {
+      return createElement(Provider, {
+        children,
+        initializeState: ({ set }: TestStore) => {
+          set(eventsAtom, [asPublicEvent(deleted), asPublicEvent(kept)])
+        },
+      })
+    }
+    const { result } = renderHook(
+      () => {
+        useWebSocket()
+        return {
+          events: useAtomValue(eventsAtom),
+          recentlyUpdated: useAtomValue(recentlyUpdatedAtom),
+        }
+      },
+      { wrapper }
+    )
+
+    act(() => {
+      mockWebSocketInstance.onmessage?.({ data: JSON.stringify(message) })
+    })
+
+    await waitFor(() => {
+      expect(result.current.events.map(({ id }) => id)).toEqual(['event-2'])
+      expect(result.current.recentlyUpdated['public:event:event-1']).toEqual(expect.any(Number))
+    })
+  })
+
   it('should not mark unchanged public event patches as recently updated', async () => {
     const event = { entries: 1, id: 'event-1', name: 'Old Public Name' }
     const wrapper = function Wrapper({ children }: { readonly children: ReactNode }) {
@@ -1332,6 +1404,8 @@ describe('useWebSocket', () => {
     expect(result.current['public:event:event-1']).toBeUndefined()
   })
 
+  // An event that becomes public arrives whole (`patchEvent` sends the full event then); only such
+  // a patch is inserted (KOE-1648).
   it('should insert new public events from scoped public event patch messages', async () => {
     const wrapper = function Wrapper({ children }: { readonly children: ReactNode }) {
       return createElement(Provider, {
@@ -1352,11 +1426,18 @@ describe('useWebSocket', () => {
     act(() => {
       mockWebSocketInstance.onmessage?.({
         data: JSON.stringify({
+          classes: [],
+          endDate: '2026-03-15',
           entries: 2,
           eventId: 'event-2',
           eventType: 'NOME-A',
+          judges: [],
+          location: 'Somewhere',
           name: 'New Public Event',
+          organizer: { id: 'org-1', name: 'Organizer' },
           scope: 'public:event-patch',
+          startDate: '2026-03-14',
+          state: 'confirmed',
         }),
       })
     })

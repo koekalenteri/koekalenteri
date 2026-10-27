@@ -1,9 +1,13 @@
 import type { OpenPayment } from '../../../lib/payment'
-import type { JsonConfirmedEvent, JsonDogEvent, JsonRegistration, Patch } from '../../../types'
-import type { EventPatchPayload, EventViewerPayload, RegistrationPatchPayload, WebSocketConnection } from './types'
+import type { JsonConfirmedEvent, JsonDogEvent, JsonEventPatch, JsonRegistration, Patch } from '../../../types'
+import type { EventViewerPayload, RegistrationPatchPayload, WebSocketConnection } from './types'
 import { getPaymentPicture } from '../../../lib/payment'
 
-export const buildEventPatchPayload = (eventId: string, patch: Patch<JsonDogEvent>): EventPatchPayload => ({
+/** The patch as sent, its own fields kept: the public half's `deleted` mark among them (KOE-1648). */
+export const buildEventPatchPayload = <P extends Patch<JsonDogEvent>>(
+  eventId: string,
+  patch: P
+): JsonEventPatch & P => ({
   eventId,
   ...patch,
 })
