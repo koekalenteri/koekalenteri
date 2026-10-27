@@ -139,7 +139,7 @@ Important fields:
 
 - Public connection creation is capped to avoid unbounded fan-out; currently the service rejects new public connections after 1000 public connections.
 - Admin/event authorization also checks `expiresAt`, so long-lived sockets must re-authenticate by reconnecting with a fresh token before the stored token expiry.
-- Event patches are published twice when needed: admin recipients receive the full admin patch, while public recipients receive only the sanitized public fields.
+- Event patches are published twice when needed: admin recipients receive the full admin patch, while public recipients receive only the sanitized public fields (and the `deleted` mark on a delete).
 - The public event patch deliberately goes to every anonymous connection rather than to subscribers of that event: the event list is left open in a tab and is meant to stay current. The start list rows are the targeted publication, because they are the payload no unrelated reader needs.
 - `GoneException` from API Gateway means the client socket no longer exists. Broadcast cleanup removes that connection from the repository.
 - Event viewer updates intentionally use distinct `userId` values, not connection IDs, so multiple tabs for the same user count as one viewer.

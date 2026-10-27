@@ -4,6 +4,7 @@ import type {
   AuditRecord,
   DogEvent,
   JsonEventPatch,
+  JsonPublicEventPatch,
   JsonPublicRegistration,
   JsonRegistration,
   Patch,
@@ -191,27 +192,17 @@ interface EventViewer {
 }
 
 /** An event patch as the server sends it: the event's fields on the wire, beside the address. */
-type EventPatchMessage = { scope?: string } & JsonEventPatch
+type EventPatchMessage = { scope?: string } & JsonEventPatch & Pick<JsonPublicEventPatch, 'deleted'>
 
+/**
+ * How a patch lands on the public events: a deleted event leaves the list as a reverted draft does,
+ * and only a whole event is inserted, so a later patch of a removed one cannot put back a partial row
+ * (KOE-1648).
+ */
 interface PublicEventPatchOptions {
-  /** The patch deletes the event, so it leaves the list as a reverted draft does (KOE-1648). */
   deleted: boolean
   insert: boolean
 }
-
-/**
- * How a patch of either scope lands on the public events. The admin half says the event was deleted
- * with `deletedAt`, the public half with its `deleted` mark, as `deletedAt` is not public. Only a
- * patch that holds a whole public event inserts one: a later patch of a removed event would
- * otherwise put back a row without its type, dates or organizer.
- */
-const publicEventPatchOptions = (
-  { deleted, deletedAt }: Pick<EventPatchMessage, 'deleted' | 'deletedAt'>,
-  publicPatch: Patch<PublicDogEvent>
-): PublicEventPatchOptions => ({
-  deleted: deleted === true || !!deletedAt,
-  insert: isInsertablePublicEventPatch(publicPatch),
-})
 
 const getViewerPayloads = (viewers: unknown[]): EventViewer[] =>
   viewers
@@ -600,11 +591,10 @@ export const useWebSocket = () => {
         void setAdminEvents(eventId, eventPatch)
         const publicPatch = sanitizeDogEvent(eventPatch)
         if (Object.keys(publicPatch).length > 0) {
-          setPublicEvents(
-            eventId,
-            publicPatch,
-            publicEventPatchOptions({ deleted, deletedAt: patch.deletedAt }, publicPatch)
-          )
+          setPublicEvents(eventId, publicPatch, {
+            deleted: !!eventPatch.deletedAt,
+            insert: isInsertablePublicEventPatch(publicPatch),
+          })
         }
         return
       }
@@ -614,11 +604,10 @@ export const useWebSocket = () => {
       // subscribe would otherwise be written into the public event.
       if (scope === 'public:event-patch') {
         const publicPatch = toPublicDogEvent(patch)
-        setPublicEvents(
-          eventId,
-          publicPatch,
-          publicEventPatchOptions({ deleted, deletedAt: patch.deletedAt }, publicPatch)
-        )
+        setPublicEvents(eventId, publicPatch, {
+          deleted: deleted === true,
+          insert: isInsertablePublicEventPatch(publicPatch),
+        })
       }
     },
     [setAdminEvents, setPublicEvents]

@@ -1,4 +1,4 @@
-import type { JsonEventPatch, JsonRegistration, Patch } from '../../../types'
+import type { JsonRegistration, Patch } from '../../../types'
 
 export interface WebSocketConnection {
   connectionId: string
@@ -25,8 +25,6 @@ export interface EventViewerPayload {
   name: string
   userId: string
 }
-
-export type EventPatchPayload = JsonEventPatch
 
 export type RegistrationPatchPayload = {
   eventId: string

@@ -10,18 +10,11 @@ export type AdminDataCollection =
   | 'organizers'
   | 'users'
 
-/**
- * What every event patch message carries beside the event's fields: the event it is about, and
- * `deleted` when the patch deletes the event. The public half needs the mark because `deletedAt`
- * is not a public field (KOE-1648).
- */
-export interface EventPatchHeader {
-  eventId: string
-  deleted?: true
-}
-
 /** An event patch as the admin pages receive it ('admin:event-patch'). */
-export type JsonEventPatch = Patch<JsonDogEvent> & EventPatchHeader
+export type JsonEventPatch = Patch<JsonDogEvent> & { eventId: string }
 
-/** The public half of an event patch ('public:event-patch'): only the public fields, and the mark. */
-export type JsonPublicEventPatch = Patch<JsonPublicDogEvent> & EventPatchHeader
+/**
+ * The public half of an event patch ('public:event-patch'): only the public fields, and `deleted`
+ * when the patch deletes the event, since `deletedAt` is not a public field (KOE-1648).
+ */
+export type JsonPublicEventPatch = Patch<JsonPublicDogEvent> & { eventId: string; deleted?: true }
