@@ -45,6 +45,7 @@
       "classStartNumbersPublishedDay": "{{eventClass}} starttinumerot julkaistu {{day}}",
       "dogAddedToKennelliitto": "Lisäsi koiran Jalostustietojärjestelmään ulkomaisena koirana",
       "dogAddFailed": "Koiraa ei saatu lisättyä Jalostustietojärjestelmään: {{reason}}",
+      "dogRegNoChanged": "Vaihtoi koiran rekisterinumeron {{from}} Kennelliiton tuntemaksi {{to}}",
       "emailBlocked": "Viesti estetty testiympäristössä ({{count}} vastaanottajaa)",
       "emailBlocked_one": "Viesti estetty testiympäristössä ({{count}} vastaanottaja)",
       "emailDeliveryFailed": "Sähköpostin toimitus epäonnistui ({{status}}): {{email}}",
@@ -1230,6 +1231,9 @@
         "dayChanged": "Tulos on lähetetty päivälle {{detail}}, mutta koiran päivä on vaihtunut: poista vanha tulos Omakoirasta ensin",
         "dayNotReached": "Tuloksia voi kirjata koepäivänä ({{detail}}) tai sen jälkeen",
         "judgeWithoutNumber": "Tuomarilla {{detail}} ei ole Kennelliiton jäsennumeroa",
+        "kcRegNoDiffers": "Kennelliitto tuntee koiran numerolla {{detail}}. Valitse lähetyksessä, mitä tehdään.",
+        "kcRegNoNotChanged": "Rekisterinumeroa ei saatu vaihdettua, joten tulosta ei lähetetty. Yritä uudelleen.",
+        "kcRegNoTaken": "Numero {{detail}} on jo toisella ilmoittautumisella tässä kokeessa, joten sama koira on ilmoitettu kahdesti. Tarkista ilmoittautumiset.",
         "microchipInvalid": "Tunnistusmerkinnässä {{detail}} pitää olla 15 numeroa",
         "noBirthDate": "Koiran syntymäaika puuttuu",
         "noBreed": "Koiran rotu puuttuu",
@@ -1247,6 +1251,26 @@
         "tooManyJudges": "Palkintotuomareita on yli neljä"
       },
       "refreshState": "Päivitä tila",
+      "regNo": {
+        "back": "Takaisin",
+        "choice": {
+          "leave": "Älä lähetä tämän koiran tulosta nyt",
+          "switch": "Vaihda rekisterinumeroksi {{regNo}}"
+        },
+        "confirm": "Vahvista ja lähetä",
+        "differences": "Korostetut tiedot eroavat. Tunnistusmerkinnän tai syntymäajan ero ei estä numeron vaihtoa, mutta tarkista asia omistajalta.",
+        "field": "Tieto",
+        "foundBy": {
+          "microchip": "Löytyi Kennelliitosta tunnistusmerkinnällä",
+          "name": "Löytyi Kennelliitosta nimellä",
+          "regNo": "Kennelliitto tuntee koiran toisella rekisterinumerolla"
+        },
+        "intro": "Kennelliitto tuntee nämä koirat toisella rekisterinumerolla kuin Koekalenteri. Valitse jokaiselle koiralle, mitä tehdään. Vaihdettu numero tallennetaan ilmoittautumiseen.",
+        "missing": "ei tietoa",
+        "ours": "Koekalenteri",
+        "reason": "Kennelliitto tuntee koiran numerolla {{regNo}}: valitse lähetyksessä, mitä tehdään",
+        "theirs": "Kennelliitto"
+      },
       "send": "Lähetä Omakoiraan",
       "sending": "Lähetetään... {{done}} / {{total}}",
       "sentCount": "Lähetetty Omakoiraan: {{sent}} / {{total}}",
@@ -1261,6 +1285,7 @@
       "summary": {
         "blocked": "Ei voi lähettää: {{count}}",
         "changed": "Muuttuneita tuloksia: {{count}}",
+        "kcRegNo": "Kennelliitto tuntee toisella rekisterinumerolla: {{count}}",
         "notRecorded": "Ei tulosta: {{count}}",
         "ready": "Uusia tuloksia: {{count}}",
         "unchanged": "Jo lähetettyjä ja ennallaan: {{count}}"

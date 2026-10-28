@@ -53,6 +53,38 @@ describe('the messages of a sending', () => {
     expect(dogLine(finnish.t, dog).text).toContain('2026-10-17')
   })
 
+  it('says why a dog Kennelliitto knows by another number waits, in the dogs a hand-over lists (KOE-1653)', () => {
+    const dog = received({
+      id: 'k',
+      kcDog: { foundBy: 'microchip', name: 'FILURIN PARADOX', regNo: 'FI25555/20', rfid: '981098106889342' },
+      name: 'FILURIN PARADOX',
+      problems: [],
+      regNo: 'SE22358/2021',
+      status: 'ready',
+    })
+
+    expect(dogLine(finnish.t, dog).text).toEqual(
+      'FILURIN PARADOX (SE22358/2021): Kennelliitto tuntee koiran numerolla FI25555/20: valitse lähetyksessä, mitä tehdään'
+    )
+  })
+
+  it.each([
+    [{ code: 'kcRegNoDiffers', detail: 'FI25555/20' }, 'Kennelliitto tuntee koiran numerolla FI25555/20.'],
+    [{ code: 'kcRegNoTaken', detail: 'FI25555/20' }, 'Numero FI25555/20 on jo toisella ilmoittautumisella'],
+    [{ code: 'kcRegNoNotChanged' }, 'Rekisterinumeroa ei saatu vaihdettua'],
+  ] as const)('says why a dog with another number in Kennelliitto was not sent: %j', (problem, text) => {
+    const line = skippedLine(finnish.t, {
+      dogStatus: 'ready',
+      id: 'k',
+      name: 'FILURIN PARADOX',
+      outcome: 'skipped',
+      problems: [problem],
+      regNo: 'SE22358/2021',
+    })
+
+    expect(line.text).toContain(text)
+  })
+
   it('says a skipped dog by its state when it has no problem to name', () => {
     const line = skippedLine(finnish.t, {
       dogStatus: 'notRecorded',

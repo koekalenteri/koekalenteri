@@ -209,3 +209,20 @@ varasijalaisille vai molemmille, ja sitten viesti kirjoitetaan samassa ikkunassa
 koepaikkailmoitus.
 
 !shot[MessageRecipientsDialog/message-recipients] Viestin vastaanottajat valitaan luokittain
+
+## Tulosten lähetys Kennelliittoon
+
+Kokeen jälkeen tulokset lähetetään Kennelliiton Omakoiraan paneelin *{t:results.kennelliitto.title}*
+-osiosta painikkeella **{t:results.kennelliitto.send}**. Ikkuna kertoo ensin, montako tulosta lähtee ja
+mitkä koirat eivät voi lähteä ja miksi. Ulkomainen koira, jota Kennelliitto ei tunne, lisätään sinne
+ennen tulosta.
+
+Kennelliitto voi tuntea ulkomaisen koiran toisella rekisterinumerolla, esimerkiksi kun koira on
+rekisteröity uudelleen Suomeen. Koekalenteri etsii koiraa silloin myös tunnistusmerkinnällä ja nimellä,
+ja tällaiset koirat näytetään ennen lähetystä yhdessä näkymässä: koekalenterin ja Kennelliiton tiedot
+rinnakkain, erot korostettuina. Valitse kullekin koiralle, vaihdetaanko rekisterinumero Kennelliiton
+tuntemaksi vai jätetäänkö sen tulos lähettämättä nyt. Vaihto on valmiiksi valittuna, kun tunnistusmerkintä täsmää. **{t:results.kennelliitto.regNo.confirm}**
+tallentaa vaihdetut numerot ilmoittautumisiin ja lähettää tulokset, ja **{t:results.kennelliitto.regNo.back}**
+palaa muuttamatta mitään.
+
+!shot[KennelliittoSendDialog/kennelliitto-send-regnos] Kennelliiton toisella numerolla tuntemat koirat yhdessä näkymässä

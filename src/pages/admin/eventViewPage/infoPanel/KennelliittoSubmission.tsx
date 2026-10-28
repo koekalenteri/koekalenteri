@@ -1,5 +1,7 @@
+import type { KcPreviewResponse, KcRegNoChoices } from '@/lib/kennelliittoResults'
 import type { ConfirmedEvent, Registration } from '@/types'
 import type { KcHandOverOutcome } from '../../state/registrations/actions'
+import type { KcRegNoDecision, KcRegNoDecisions, KcRegNoRow } from './KennelliittoRegNoChoices'
 import type { KcSendPhase } from './KennelliittoSendDialog'
 import AssignmentTurnedInOutlined from '@mui/icons-material/AssignmentTurnedInOutlined'
 import CloudUploadOutlined from '@mui/icons-material/CloudUploadOutlined'
@@ -21,7 +23,8 @@ import { KcIdLookupButton } from '../../components/KcIdLookupButton'
 import { useSaveKcLink } from '../../hooks/useSaveKcLink'
 import { useKennelliittoResults } from '../../state/registrations/actions'
 import { KennelliittoHandOverDialog } from './KennelliittoHandOverDialog'
-import { dogsToSend, KennelliittoSendDialog } from './KennelliittoSendDialog'
+import { defaultKcRegNoChoice } from './KennelliittoRegNoChoices'
+import { dogsToDecide, dogsToSend, KennelliittoSendDialog } from './KennelliittoSendDialog'
 import { PublishingSection } from './PublishingSection'
 import { actionButtonSx } from './styles'
 
@@ -59,6 +62,30 @@ const getSentRows = (event: ConfirmedEvent, registrations: Registration[]): Sent
   }))
 }
 
+/** The dogs to decide about, each beside the entry's own dog as this page holds it (KOE-1653). */
+const regNoRowsOf = (preview: KcPreviewResponse, registrations: Registration[]): KcRegNoRow[] =>
+  dogsToDecide(preview).flatMap((report) => {
+    if (!report.kcDog) return []
+    const dog = registrations.find((registration) => registration.id === report.id)?.dog
+    return [{ dog: dog ?? { name: report.name, regNo: report.regNo }, kcDog: report.kcDog, report }]
+  })
+
+const defaultDecisions = (rows: KcRegNoRow[]): KcRegNoDecisions =>
+  Object.fromEntries(rows.map((row) => [row.report.id, defaultKcRegNoChoice(row.dog, row.kcDog)]))
+
+/** What a confirmed choice sends: the dogs as they are, the dogs decided about but not left out, and the choices. */
+const sendingOf = (preview: KcPreviewResponse, force: boolean, rows: KcRegNoRow[], decisions: KcRegNoDecisions) => {
+  const regNoChoices: KcRegNoChoices = {}
+  for (const row of rows) {
+    const decision = decisions[row.report.id]
+    if (decision === 'switch') regNoChoices[row.report.id] = decision
+  }
+  return {
+    ids: [...dogsToSend(preview, force).map((dog) => dog.id), ...Object.keys(regNoChoices)],
+    regNoChoices,
+  }
+}
+
 /**
  * Sending the results to Kennelliitto's Omakoira and handing the trial to the chief judge, as a step of
  * its own in the event management (KOE-1579). It was a secondary button at the foot of the results
@@ -76,6 +103,7 @@ const KennelliittoSubmission = ({ event, onRefreshState, registrations }: Props)
   const [sendOpen, setSendOpen] = useState(false)
   const [sendPhase, setSendPhase] = useState<KcSendPhase>({ kind: 'loading' })
   const [forceSend, setForceSend] = useState(false)
+  const [regNoDecisions, setRegNoDecisions] = useState<KcRegNoDecisions>({})
   const [handOverOpen, setHandOverOpen] = useState(false)
   const [handOverOutcome, setHandOverOutcome] = useState<Exclude<KcHandOverOutcome, { kind: 'done' }>>()
   const [handOverAccepted, setHandOverAccepted] = useState(false)
@@ -99,12 +127,28 @@ const KennelliittoSubmission = ({ event, onRefreshState, registrations }: Props)
   }, [kc])
 
   const handleSend = useCallback(async () => {
-    if (sendPhase.kind !== 'preview') return
-    const ids = dogsToSend(sendPhase.preview, forceSend).map((dog) => dog.id)
+    if (sendPhase.kind !== 'preview' && sendPhase.kind !== 'regNos') return
+    const rows = regNoRowsOf(sendPhase.preview, registrations)
+    // Dogs Kennelliitto knows by another number are decided about first, all in one view (KOE-1653).
+    if (sendPhase.kind === 'preview' && rows.length) {
+      setRegNoDecisions(defaultDecisions(rows))
+      setSendPhase({ kind: 'regNos', preview: sendPhase.preview, rows })
+      return
+    }
+    const { ids, regNoChoices } = sendingOf(sendPhase.preview, forceSend, rows, regNoDecisions)
+    const onProgress = (done: number) => setSendPhase({ done, kind: 'sending', total: ids.length })
     setSendPhase({ done: 0, kind: 'sending', total: ids.length })
-    const summary = await kc.send(ids, forceSend, (done) => setSendPhase({ done, kind: 'sending', total: ids.length }))
+    const summary = await kc.send(ids, { force: forceSend, regNoChoices }, onProgress)
     setSendPhase({ kind: 'report', summary })
-  }, [forceSend, kc, sendPhase])
+  }, [forceSend, kc, registrations, regNoDecisions, sendPhase])
+
+  const decideRegNo = useCallback((id: string, decision: KcRegNoDecision) => {
+    setRegNoDecisions((decisions) => ({ ...decisions, [id]: decision }))
+  }, [])
+
+  const backToPreview = useCallback(() => {
+    if (sendPhase.kind === 'regNos') setSendPhase({ kind: 'preview', preview: sendPhase.preview })
+  }, [sendPhase])
 
   const openHandOver = useCallback(() => {
     setHandOverOutcome(undefined)
@@ -190,8 +234,11 @@ const KennelliittoSubmission = ({ event, onRefreshState, registrations }: Props)
       </PublishingSection>
 
       <KennelliittoSendDialog
+        decisions={regNoDecisions}
         force={forceSend}
+        onBack={backToPreview}
         onClose={() => setSendOpen(false)}
+        onDecide={decideRegNo}
         onForce={setForceSend}
         onSend={() => void handleSend()}
         open={sendOpen}

@@ -1,4 +1,4 @@
-import type { KcPreviewResponse, KcSendResponse } from '../lib/kennelliittoResults'
+import type { KcPreviewResponse, KcRegNoChoices, KcSendResponse } from '../lib/kennelliittoResults'
 import type { SubmittedEventResult, SubmittedTask } from '../lib/results'
 import type {
   AuditRecord,
@@ -268,7 +268,7 @@ export async function putEventResults(
 type KennelliittoRequest =
   | { action: 'handOver'; withoutBlocked?: boolean }
   | { action: 'preview'; registrationIds?: string[] }
-  | { action: 'send'; force?: boolean; registrationIds: string[] }
+  | { action: 'send'; force?: boolean; registrationIds: string[]; regNoChoices?: KcRegNoChoices }
 
 const kennelliittoResults = async <R>(
   eventId: string,
@@ -292,14 +292,23 @@ export const previewKennelliittoResults = (
   signal?: AbortSignal
 ) => kennelliittoResults<KcPreviewResponse>(eventId, { action: 'preview', registrationIds }, token, signal)
 
-/** At most ten dogs at a time; the server refuses more. */
+/**
+ * At most ten dogs at a time; the server refuses more. `regNoChoices` is the whole sending's, for the dogs
+ * Kennelliitto knows by another number (KOE-1653): the server reads the ones of the dogs it is given.
+ */
 export const sendKennelliittoResults = (
   eventId: string,
   registrationIds: string[],
-  force: boolean,
+  { force, regNoChoices }: { force: boolean; regNoChoices?: KcRegNoChoices },
   token: string,
   signal?: AbortSignal
-) => kennelliittoResults<KcSendResponse>(eventId, { action: 'send', force, registrationIds }, token, signal)
+) =>
+  kennelliittoResults<KcSendResponse>(
+    eventId,
+    { action: 'send', force, registrationIds, ...(regNoChoices ? { regNoChoices } : {}) },
+    token,
+    signal
+  )
 
 export const handOverKennelliittoResults = (
   eventId: string,

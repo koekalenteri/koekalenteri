@@ -18,7 +18,7 @@ covers:
   - src/pages/admin/StartListPreviewPage.tsx
   - src/pages/admin/startListPage/**
   - src/pages/ClassStartNumbersPage.tsx
-sourceHash: f87fd4
+sourceHash: 6d1c03
 ---
 
 Once entry has closed, the secretary's work goes step by step: picking the participants, the
@@ -216,3 +216,20 @@ participants, the reserves or both, and then write the message in the same dialo
 notification.
 
 !shot[MessageRecipientsDialog/message-recipients] The message's recipients are picked class by class
+
+## Sending the results to Kennelliitto
+
+After the trial, the results are sent to Kennelliitto's Omakoira with the **{t:results.kennelliitto.send}**
+button in the panel's *{t:results.kennelliitto.title}* section. The dialog first tells how many results
+go and which dogs cannot go and why. A foreign dog Kennelliitto does not know is added there before its
+result.
+
+Kennelliitto may know a foreign dog by another registration number, for example when the dog has been
+registered again in Finland. Koekalenteri then looks for the dog by its microchip and its name too, and
+such dogs are shown before the sending in one view: Koekalenteri's and Kennelliitto's details side by
+side, with the differences highlighted. Choose for each dog whether its registration number is changed
+to the one Kennelliitto knows or its result is left unsent for now. The change is chosen already when the microchip is the same.
+**{t:results.kennelliitto.regNo.confirm}** saves the changed numbers on the entries and sends the results,
+and **{t:results.kennelliitto.regNo.back}** goes back without changing anything.
+
+!shot[KennelliittoSendDialog/kennelliitto-send-regnos] The dogs Kennelliitto knows by another number, in one view

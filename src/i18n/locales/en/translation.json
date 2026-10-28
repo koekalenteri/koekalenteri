@@ -45,6 +45,7 @@
       "classStartNumbersPublishedDay": "{{eventClass}} start numbers published {{day}}",
       "dogAddedToKennelliitto": "Added the dog to Koiranet as a foreign dog",
       "dogAddFailed": "Could not add the dog to Koiranet: {{reason}}",
+      "dogRegNoChanged": "Changed the dog's registration number {{from}} to {{to}}, the one Kennelliitto knows",
       "emailBlocked": "Message blocked in the test environment ({{count}} recipients)",
       "emailBlocked_one": "Message blocked in the test environment ({{count}} recipient)",
       "emailDeliveryFailed": "Email delivery failed ({{status}}): {{email}}",
@@ -1230,6 +1231,9 @@
         "dayChanged": "The result was sent for {{detail}}, but the dog's day has changed: remove the old result in Omakoira first",
         "dayNotReached": "Results can be entered on the trial day ({{detail}}) or after it",
         "judgeWithoutNumber": "The judge {{detail}} has no Kennel Club member number",
+        "kcRegNoDiffers": "Kennelliitto knows the dog as {{detail}}. Choose what to do when sending.",
+        "kcRegNoNotChanged": "The registration number could not be changed, so the result was not sent. Try again.",
+        "kcRegNoTaken": "Another entry of this trial already has the number {{detail}}, so the same dog is entered twice. Check the entries.",
         "microchipInvalid": "The microchip number {{detail}} must have 15 digits",
         "noBirthDate": "The dog's date of birth is missing",
         "noBreed": "The dog's breed is missing",
@@ -1247,6 +1251,26 @@
         "tooManyJudges": "There are more than four prize judges"
       },
       "refreshState": "Refresh state",
+      "regNo": {
+        "back": "Back",
+        "choice": {
+          "leave": "Do not send this dog's result now",
+          "switch": "Change the registration number to {{regNo}}"
+        },
+        "confirm": "Confirm and send",
+        "differences": "Highlighted details differ. A different microchip or birth date does not prevent the change, but check it with the owner.",
+        "field": "Detail",
+        "foundBy": {
+          "microchip": "Found in Kennelliitto by its microchip",
+          "name": "Found in Kennelliitto by its name",
+          "regNo": "Kennelliitto knows the dog by another registration number"
+        },
+        "intro": "Kennelliitto knows these dogs by another registration number than Koekalenteri. Choose what to do with each dog. A changed number is saved on the entry.",
+        "missing": "not known",
+        "ours": "Koekalenteri",
+        "reason": "Kennelliitto knows the dog as {{regNo}}: choose what to do when sending",
+        "theirs": "Kennelliitto"
+      },
       "send": "Send to Omakoira",
       "sending": "Sending... {{done}} / {{total}}",
       "sentCount": "Sent to Omakoira: {{sent}} / {{total}}",
@@ -1261,6 +1285,7 @@
       "summary": {
         "blocked": "Cannot be sent: {{count}}",
         "changed": "Changed results: {{count}}",
+        "kcRegNo": "Known to Kennelliitto by another registration number: {{count}}",
         "notRecorded": "No result: {{count}}",
         "ready": "New results: {{count}}",
         "unchanged": "Already sent and unchanged: {{count}}"

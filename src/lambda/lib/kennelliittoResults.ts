@@ -4,17 +4,21 @@ import type {
   KcDogReport,
   KcDogStatus,
   KcForeignDogBody,
+  KcFoundBy,
+  KcKnownDog,
   KcProblem,
+  KcRegNoChoices,
   KcResultBody,
   KcSendReport,
 } from '../../lib/kennelliittoResults'
 import type { JsonConfirmedEvent, JsonDogEvent, JsonKcResult, JsonKcState, JsonRegistration, Patch } from '../../types'
-import type { KLIntKoemuoto } from '../types/KLIntegraatio'
+import type { KLIntKoemuoto, KLIntKoiraParametrit } from '../types/KLIntegraatio'
 import type KLIntegraatio from './KLIntegraatio'
 import { createHash } from 'node:crypto'
 import {
   dogAddedToKennelliittoAudit,
   dogAddFailedAudit,
+  dogRegNoChangedAudit,
   kcGuidFoundAudit,
   resultSendFailedAudit,
   resultSentToKennelliittoAudit,
@@ -27,6 +31,7 @@ import {
   isKcDayReached,
   isKcStateWritable,
   KC_STATE_HANDED_OVER,
+  kcKnownDogOf,
   kcResultDay,
 } from '../../lib/kennelliittoResults'
 import { getRegistrationClass, isScorableRegistration } from '../../lib/registration'
@@ -42,7 +47,7 @@ import { searchKcTrials } from './kcTrial'
 import { LambdaError } from './lambda'
 import { logger } from './log'
 import { getReadyRegistrationsByEventId, getRegistration } from './registration'
-import { writeKcResult } from './repositories/registrationRepository'
+import { writeDogRegNo, writeKcResult } from './repositories/registrationRepository'
 
 /**
  * Sending a trial's results to Kennelliitto's Omakoira (KOE-1140): the checks that need no write, the
@@ -125,6 +130,16 @@ interface KcSendResult {
 const hashKcBody = (body: KcResultBody): string => createHash('sha256').update(JSON.stringify(body)).digest('hex')
 
 const klintOf = (ctx: KcContext): KLIntegraatio => ctx.klint ?? getKLIntegraatio()
+
+/**
+ * Adds a registration's patch to the ones the open pages get, merged into the one already there for the
+ * same registration: a page keeps one patch per registration of a message, so a second would lose the first.
+ */
+const mergePatch = (patches: Patch<JsonRegistration>[], patch: Patch<JsonRegistration> & { id: string }) => {
+  const index = patches.findIndex((item) => item.id === patch.id)
+  if (index === -1) patches.push(patch)
+  else patches[index] = { ...patches[index], ...patch }
+}
 
 const toState = (code: number, name: string, readAt: Date): JsonKcState => ({
   code,
@@ -344,15 +359,17 @@ const evaluateAll = (
 }
 
 /**
- * What Kennelliitto said of the foreign dogs it was asked about (KOE-1201): the ones it does not know, and
- * its list of countries when there were any. A look under the hand-over's lock reuses it rather than ask again.
+ * What Kennelliitto said of the foreign dogs it was asked about (KOE-1201): the ones it does not know, the
+ * ones it knows by another number (KOE-1653), and its list of countries when it did not know one. A look
+ * under the hand-over's lock reuses it rather than ask again.
  */
 interface ForeignLookup {
   countries?: KcCountry[]
+  differs: ReadonlyMap<string, KcKnownDog>
   unknown: ReadonlySet<string>
 }
 
-const NO_LOOKUP: ForeignLookup = { unknown: new Set() }
+const NO_LOOKUP: ForeignLookup = { differs: new Map(), unknown: new Set() }
 
 /**
  * A dog Kennelliitto may not know: one with a result ready to be sent for the first time and a number
@@ -361,17 +378,74 @@ const NO_LOOKUP: ForeignLookup = { unknown: new Set() }
 const mayBeUnknownToKc = ({ body, registration, report }: Evaluated): boolean =>
   body !== undefined && report.status === 'ready' && !isKcDomesticRegNo(registration.dog.regNo)
 
+/** An Estonian number is in Kennelliitto both as EST-12345/20 and as EST12345/20. */
+const RE_ESTONIAN_PREFIX = /^EST-?/i
+
+/** The numbers a dog is asked for: its own, trimmed, and an Estonian one also in its other spelling. */
+const regNoCandidates = (regNo: string): string[] => {
+  const trimmed = regNo.trim()
+  const prefix = RE_ESTONIAN_PREFIX.exec(trimmed)?.[0]
+  if (!prefix) return [trimmed]
+  const rest = trimmed.slice(prefix.length)
+  return [trimmed, prefix.endsWith('-') ? `EST${rest}` : `EST-${rest}`]
+}
+
 /**
- * Whether Kennelliitto answered that it does not know the dog. Any other failure is taken as knowing it:
- * the result is then sent as it is, and Kennelliitto's answer to that is what the secretary sees.
+ * Whether Kennelliitto's number is the entry's: compared trimmed and without case. A space inside the
+ * number or the Estonian dash is a difference, which the secretary resolves by taking Kennelliitto's.
  */
-const isUnknownToKc = async (req: KcRequest, registration: JsonRegistration): Promise<boolean> => {
-  const read = await klintOf(req).lueKoira({ rekisterinumero: registration.dog.regNo.trim() }, { signal: req.signal })
-  if (read.status === 404) return true
-  if (read.status !== 200) {
+const isSameRegNo = (a: string, b: string): boolean => a.trim().toUpperCase() === b.trim().toUpperCase()
+
+/** A dog found by its name is the entry's dog only when the breed and the sex are the same too. */
+const isKcNameMatch = (dog: JsonRegistration['dog'], kcDog: KcKnownDog): boolean =>
+  kcDog.breedCode === dog.breedCode && kcDog.gender === dog.gender
+
+type KcLookup = { kind: 'known' } | { kind: 'unknown' } | { kind: 'differs'; kcDog: KcKnownDog }
+
+interface LookupStep {
+  foundBy: KcFoundBy
+  params: KLIntKoiraParametrit
+}
+
+/** The lookups of a dog in order: its number (in both Estonian spellings), its microchip, its name. */
+const lookupSteps = (dog: JsonRegistration['dog']): LookupStep[] => {
+  const rfid = dog.rfid?.trim()
+  const name = dog.name?.trim()
+  return [
+    ...regNoCandidates(dog.regNo).map(
+      (rekisterinumero): LookupStep => ({ foundBy: 'regNo', params: { rekisterinumero } })
+    ),
+    ...(rfid ? [{ foundBy: 'microchip', params: { tunnistusmerkinta: rfid } } satisfies LookupStep] : []),
+    ...(name ? [{ foundBy: 'name', params: { nimi: name } } satisfies LookupStep] : []),
+  ]
+}
+
+/** What Kennelliitto's dog is to the entry's: the same number, a dog to choose about, or not this dog at all. */
+const judgeKcDog = (dog: JsonRegistration['dog'], kcDog: KcKnownDog): KcLookup => {
+  if (isSameRegNo(dog.regNo, kcDog.regNo)) return { kind: 'known' }
+  if (kcDog.foundBy === 'name' && !isKcNameMatch(dog, kcDog)) return { kind: 'unknown' }
+  return { kcDog, kind: 'differs' }
+}
+
+/**
+ * Asks Kennelliitto for the dog one lookup after another until one finds it (KOE-1653). Any answer but a
+ * dog or a 404 is taken as knowing it, at whichever lookup it comes: the result is then sent as it is, and
+ * Kennelliitto's answer to that is what the secretary sees (the rule of KOE-1201's one lookup).
+ */
+const findDogInKc = async (
+  req: KcRequest,
+  registration: JsonRegistration,
+  steps: LookupStep[] = lookupSteps(registration.dog)
+): Promise<KcLookup> => {
+  const [step, ...rest] = steps
+  if (!step) return { kind: 'unknown' }
+  const read = await klintOf(req).lueKoira(step.params, { signal: req.signal })
+  if (read.status === 404) return findDogInKc(req, registration, rest)
+  if (read.status !== 200 || !read.json) {
     logger.warn('Kennelliitto dog lookup failed', { registrationId: registration.id, status: read.status })
+    return { kind: 'known' }
   }
-  return false
+  return judgeKcDog(registration.dog, kcKnownDogOf(read.json, step.foundBy))
 }
 
 /** Kennelliitto's countries, or none when they cannot be read: the dogs are then sent as they are. */
@@ -386,13 +460,15 @@ const readCountries = async (req: KcRequest): Promise<KcCountry[] | undefined> =
 const lookUpForeignDogs = async (req: KcRequest, evaluated: Evaluated[]): Promise<ForeignLookup> => {
   const candidates = evaluated.filter(mayBeUnknownToKc)
   if (!candidates.length) return NO_LOOKUP
-  const answers = await mapWithConcurrency(candidates, SEND_CONCURRENCY, async ({ registration }) =>
-    (await isUnknownToKc(req, registration)) ? [registration.id] : []
-  )
-  const unknown = new Set(answers.flat())
-  if (!unknown.size) return NO_LOOKUP
-  const countries = await readCountries(req)
-  return countries ? { countries, unknown } : NO_LOOKUP
+  const answers = await mapWithConcurrency(candidates, SEND_CONCURRENCY, async ({ registration }) => ({
+    id: registration.id,
+    lookup: await findDogInKc(req, registration),
+  }))
+  const differs = new Map(answers.flatMap(({ id, lookup }) => (lookup.kind === 'differs' ? [[id, lookup.kcDog]] : [])))
+  const unknown = new Set(answers.flatMap(({ id, lookup }) => (lookup.kind === 'unknown' ? [id] : [])))
+  // Without the countries no dog can be added: the unknown ones are then sent as they are.
+  const countries = unknown.size ? await readCountries(req) : undefined
+  return countries ? { countries, differs, unknown } : { differs, unknown: new Set() }
 }
 
 /** A dog Kennelliitto does not know, with what adding it takes, or blocked by what it lacks for that. */
@@ -404,12 +480,13 @@ const withForeignDog = (item: Evaluated, countries: KcCountry[]): Evaluated => {
 }
 
 /** Puts what Kennelliitto said of the foreign dogs on the evaluation. Makes no call. */
-const applyForeignLookup = (evaluated: Evaluated[], { countries, unknown }: ForeignLookup): Evaluated[] => {
-  if (!countries) return evaluated
-  return evaluated.map((item) =>
-    unknown.has(item.registration.id) && mayBeUnknownToKc(item) ? withForeignDog(item, countries) : item
-  )
-}
+const applyForeignLookup = (evaluated: Evaluated[], { countries, differs, unknown }: ForeignLookup): Evaluated[] =>
+  evaluated.map((item) => {
+    if (!mayBeUnknownToKc(item)) return item
+    const kcDog = differs.get(item.registration.id)
+    if (kcDog) return { ...item, report: { ...item.report, kcDog } }
+    return countries && unknown.has(item.registration.id) ? withForeignDog(item, countries) : item
+  })
 
 /** The chosen dogs as `evaluateAll` has them, with Kennelliitto asked about the foreign ones among them. */
 const evaluateWithKc = async (
@@ -463,12 +540,15 @@ interface Sent {
   /** The day the body was sent for. */
   day: string
   hash: string
+  /** The registration number the body named the dog by. */
+  regNo: string
   version: string
 }
 
 /** What Kennelliitto holds from before, which stays known through a refusal and through no answer at all. */
 const keptOf = (previous: JsonKcResult | undefined) => ({
   ...(previous?.day === undefined ? {} : { day: previous.day }),
+  ...(previous?.regNo === undefined ? {} : { regNo: previous.regNo }),
   ...(previous?.tulosId === undefined ? {} : { tulosId: previous.tulosId }),
 })
 
@@ -487,6 +567,7 @@ const nextKcResult = (
       by,
       day: sent.day,
       payloadHash: sent.hash,
+      regNo: sent.regNo,
       resultVersion: sent.version,
       status: 'sent',
       ...(tulosId === undefined ? {} : { tulosId }),
@@ -550,7 +631,7 @@ const settleDog = async (
   } catch (error) {
     logger.error('kcResult write failed', { error, eventId: event.id, registrationId: registration.id })
   }
-  if (recorded) patches.push({ id: registration.id, kcResult: recorded })
+  if (recorded) mergePatch(patches, { id: registration.id, kcResult: recorded })
 
   // The change history follows what Kennelliitto holds, recorded here or not. `audit` logs its own
   // failures and never throws.
@@ -595,12 +676,7 @@ const addForeignDog = async (
 
 const sendOne = async (
   req: KcRequest,
-  {
-    body,
-    foreignDog,
-    hash,
-    registration,
-  }: Required<Pick<Evaluated, 'body' | 'hash'>> & Pick<Evaluated, 'foreignDog' | 'registration'>,
+  { body, foreignDog, hash, registration }: Sendable,
   patches: Patch<JsonRegistration>[]
 ): Promise<KcSendReport> => {
   const notAdded = foreignDog && (await addForeignDog(req, registration, foreignDog, patches))
@@ -612,7 +688,7 @@ const sendOne = async (
   const call = await klintOf(req).tallennaTulos(body, { signal: req.signal })
   const next = nextKcResult(
     call,
-    { day: body.päivä, hash, version },
+    { day: body.päivä, hash, regNo: body.rekisterinumero, version },
     registration.kcResult,
     req.userName,
     nowOf(req).toISOString()
@@ -658,7 +734,7 @@ const keepVersion = async (req: KcRequest, { registration }: Evaluated, patches:
   // Nothing was sent, so a failed write loses nothing: the dog stays unchanged and the request goes on.
   try {
     if (await writeKcResult(req.event.id, registration.id, next, kcResult.at, nowOf(req).toISOString())) {
-      patches.push({ id: registration.id, kcResult: next })
+      mergePatch(patches, { id: registration.id, kcResult: next })
     }
   } catch (error) {
     logger.error('kcResult version write failed', { error, eventId: req.event.id, registrationId: registration.id })
@@ -703,17 +779,77 @@ const skippedReports = (
       )
     )
 
-/** One dog of a sending: nothing for one that cannot be sent, no call for one that is as sent. */
-const sendDog = async (
+/** A dog that was asked for and not sent, for the one reason given. */
+const skippedFor = (item: Evaluated, problem: KcProblem): KcSendReport =>
+  skippedReport(item.registration.id, { ...item, report: { ...item.report, problems: [problem] } })
+
+type Sendable = Required<Pick<Evaluated, 'body' | 'hash'>> & Pick<Evaluated, 'foreignDog' | 'registration'>
+
+interface SendOptions {
+  force: boolean
+  notAttempted: string[]
+  patches: Patch<JsonRegistration>[]
+  /** Every entry of the trial, for the dog a number taken from Kennelliitto already belongs to. */
+  registrations: JsonRegistration[]
+  regNoChoices: KcRegNoChoices
+  startedAt: number
+}
+
+/**
+ * Takes Kennelliitto's number for the dog (KOE-1653): writes it on the entry, says so in the change
+ * history and the patches, and sends the result with it. Refused when another entry of the trial has the
+ * number already, the same dog entered twice; then nothing is written or sent.
+ */
+const switchRegNo = async (
   req: KcRequest,
-  item: Evaluated,
-  {
-    force,
-    notAttempted,
-    patches,
-    startedAt,
-  }: { force: boolean; notAttempted: string[]; patches: Patch<JsonRegistration>[]; startedAt: number }
-): Promise<KcSendReport | undefined> => {
+  item: Sendable & Pick<Evaluated, 'report'>,
+  kcDog: KcKnownDog,
+  { patches, registrations }: Pick<SendOptions, 'patches' | 'registrations'>
+): Promise<Sendable | KcSendReport> => {
+  const { registration } = item
+  const taken = registrations.some(
+    (other) => other.id !== registration.id && !other.cancelled && isSameRegNo(other.dog.regNo, kcDog.regNo)
+  )
+  if (taken) return skippedFor(item, { code: 'kcRegNoTaken', detail: kcDog.regNo })
+
+  const updatedAt = nowOf(req).toISOString()
+  let written = false
+  // A failure is this dog's: nothing is sent for it, and the others go on.
+  try {
+    written = await writeDogRegNo(req.event.id, registration.id, kcDog.regNo, updatedAt)
+  } catch (error) {
+    logger.error('dog regNo write failed', { error, eventId: req.event.id, registrationId: registration.id })
+  }
+  if (!written) return skippedFor(item, { code: 'kcRegNoNotChanged' })
+
+  const auditKey = registrationAuditKey({ eventId: req.event.id, id: registration.id })
+  await audit({ auditKey, ...dogRegNoChangedAudit(registration.dog.regNo, kcDog.regNo), user: req.userName })
+  const dog = { ...registration.dog, regNo: kcDog.regNo }
+  mergePatch(patches, { dog, id: registration.id, updatedAt })
+  const body = { ...item.body, rekisterinumero: kcDog.regNo }
+  return { body, hash: hashKcBody(body), registration: { ...registration, dog } }
+}
+
+/**
+ * What the secretary chose for a dog Kennelliitto knows by another number, made into what is sent (KOE-1653).
+ * A choice is taken from the sending's map only for a dog this request found to be one to choose about: the
+ * preview it was made on may be older, and a dog Kennelliitto now knows by its own number is sent as it is.
+ */
+const resolveRegNoChoice = async (
+  req: KcRequest,
+  item: Sendable & Pick<Evaluated, 'report'>,
+  options: SendOptions
+): Promise<Sendable | KcSendReport> => {
+  const { kcDog } = item.report
+  if (!kcDog) return item
+  const choice = options.regNoChoices[item.registration.id]
+  if (choice === 'switch') return switchRegNo(req, item, kcDog, options)
+  return skippedFor(item, { code: 'kcRegNoDiffers', detail: kcDog.regNo })
+}
+
+/** One dog of a sending: nothing for one that cannot be sent, no call for one that is as sent. */
+const sendDog = async (req: KcRequest, item: Evaluated, options: SendOptions): Promise<KcSendReport | undefined> => {
+  const { force, notAttempted, patches, startedAt } = options
   const { body, hash, report } = item
   if (report.status === 'unchanged' && !force) {
     await keepVersion(req, item, patches)
@@ -724,7 +860,8 @@ const sendDog = async (
     notAttempted.push(report.id)
     return undefined
   }
-  return sendOne(req, { body, foreignDog: item.foreignDog, hash, registration: item.registration }, patches)
+  const resolved = await resolveRegNoChoice(req, { ...item, body, hash }, options)
+  return 'outcome' in resolved ? resolved : sendOne(req, resolved, patches)
 }
 
 /**
@@ -736,7 +873,7 @@ const sendDog = async (
 export const sendKennelliittoResults = async (
   ctx: KcContext,
   ids: string[],
-  { force }: { force: boolean }
+  { force, regNoChoices = {} }: { force: boolean; regNoChoices?: KcRegNoChoices }
 ): Promise<KcSendResult> => {
   const req = startRequest(ctx)
   const startedAt = nowOf(req).getTime()
@@ -757,9 +894,8 @@ export const sendKennelliittoResults = async (
   )
   const notAttempted: string[] = []
 
-  const sent = await mapWithConcurrency(evaluated, SEND_CONCURRENCY, (item) =>
-    sendDog(sendReq, item, { force, notAttempted, patches, startedAt })
-  )
+  const options = { force, notAttempted, patches, registrations, regNoChoices, startedAt }
+  const sent = await mapWithConcurrency(evaluated, SEND_CONCURRENCY, (item) => sendDog(sendReq, item, options))
   const reports = sent.filter((report): report is KcSendReport => report !== undefined)
 
   return {

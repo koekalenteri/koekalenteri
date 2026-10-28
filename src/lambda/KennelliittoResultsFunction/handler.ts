@@ -1,5 +1,7 @@
+import type { KcRegNoChoices } from '../../lib/kennelliittoResults'
 import type { JsonConfirmedEvent } from '../../types'
 import { isOfficialEventType } from '../../lib/event'
+import { isKcRegNoChoice } from '../../lib/kennelliittoResults'
 import { kcFormatOfEventType } from '../../lib/results'
 import { authorizeWithMemberOf } from '../lib/auth'
 import { getEvent } from '../lib/event'
@@ -26,6 +28,8 @@ interface KennelliittoRequest {
   /** Send again even where the result is what was sent, after an edit made in Omakoira itself. */
   force?: boolean
   registrationIds?: unknown
+  /** What to do with the dogs Kennelliitto knows by another number, by registration id (KOE-1653). */
+  regNoChoices?: unknown
   /** Accepts that the dogs listed as left out stay out of the hand-over. */
   withoutBlocked?: boolean
 }
@@ -36,6 +40,24 @@ const idsOf = (value: unknown): string[] | undefined => {
     throw httpError(422, 'registrationIds must be a list of ids')
   }
   return value
+}
+
+/**
+ * The choices of a sending: a map of registration ids to a choice. The whole map comes with every chunk of
+ * a sending, so the ids of other chunks are in it and left alone; a choice is acted on only for a dog the
+ * sending itself finds Kennelliitto knows by another number.
+ */
+const regNoChoicesOf = (value: unknown): KcRegNoChoices => {
+  if (value === undefined) return {}
+  if (typeof value !== 'object' || value === null || Array.isArray(value)) {
+    throw httpError(422, 'regNoChoices must be a map of registration ids to a choice')
+  }
+  const choices: KcRegNoChoices = {}
+  for (const [id, choice] of Object.entries(value)) {
+    if (!isKcRegNoChoice(choice)) throw httpError(422, 'regNoChoices takes switch')
+    choices[id] = choice
+  }
+  return choices
 }
 
 type Ctx = Parameters<typeof previewKennelliittoResults>[0]
@@ -72,11 +94,12 @@ const sendAction = async (run: Run) => {
   }
   const { eventPatch, patches, ...sent } = await sendKennelliittoResults(run.ctx, ids, {
     force: run.body.force === true,
+    regNoChoices: regNoChoicesOf(run.body.regNoChoices),
   })
   if (patches.length) await publishRegistrationPatches(run.eventId, patches, run.organizerId)
   await publishEvent(run, eventPatch)
   if (sent.blockers.length) throw httpError(409, { blockers: sent.blockers, error: 'blocked' })
-  return { ...sent, kcResults: patches }
+  return { ...sent, patches }
 }
 
 /** Why a hand-over did not happen, as the answer the page reads it from. */

@@ -295,16 +295,16 @@ describe('KennelliittoSubmission (KOE-1579)', () => {
       vi.mocked(sendKennelliittoResults)
         .mockResolvedValueOnce({
           blockers: [],
-          kcResults: [],
           notAttempted: [],
+          patches: [],
           reports: ids
             .slice(0, 10)
             .map((id) => ({ id, name: `Koira ${id}`, outcome: 'sent' as const, regNo: `REG-${id}` })),
         })
         .mockResolvedValueOnce({
           blockers: [],
-          kcResults: [],
           notAttempted: [],
+          patches: [],
           reports: [
             { id: 'dog-10', name: 'Koira dog-10', outcome: 'sent' as const, regNo: 'REG-dog-10' },
             {
@@ -324,8 +324,20 @@ describe('KennelliittoSubmission (KOE-1579)', () => {
       await flushPromises()
       await flushPromises()
 
-      expect(sendKennelliittoResults).toHaveBeenNthCalledWith(1, 'test1', ids.slice(0, 10), false, expect.anything())
-      expect(sendKennelliittoResults).toHaveBeenNthCalledWith(2, 'test1', ids.slice(10), false, expect.anything())
+      expect(sendKennelliittoResults).toHaveBeenNthCalledWith(
+        1,
+        'test1',
+        ids.slice(0, 10),
+        { force: false, regNoChoices: {} },
+        expect.anything()
+      )
+      expect(sendKennelliittoResults).toHaveBeenNthCalledWith(
+        2,
+        'test1',
+        ids.slice(10),
+        { force: false, regNoChoices: {} },
+        expect.anything()
+      )
       expect(screen.getByText('results.kennelliitto.success count')).toBeInTheDocument()
       expect(screen.getByText('results.kennelliitto.failure count')).toBeInTheDocument()
       expect(screen.getByText('Koira dog-11 (REG-dog-11): Koiran nimi ei täsmää.')).toBeInTheDocument()
@@ -345,7 +357,114 @@ describe('KennelliittoSubmission (KOE-1579)', () => {
       await user.click(dialog.getByRole('button', { name: 'results.kennelliitto.send' }))
       await flushPromises()
 
-      expect(sendKennelliittoResults).toHaveBeenLastCalledWith('test1', ['run-1'], true, expect.anything())
+      expect(sendKennelliittoResults).toHaveBeenLastCalledWith(
+        'test1',
+        ['run-1'],
+        { force: true, regNoChoices: {} },
+        expect.anything()
+      )
+    })
+
+    describe('dogs Kennelliitto knows by another number (KOE-1653)', () => {
+      const chip = '981098106889342'
+      const known = (id: string, foundBy: 'microchip' | 'name', rfid: string) => ({
+        ...dogReport(id, 'ready'),
+        kcDog: { breedCode: '121', foundBy, name: `Koira ${id}`, regNo: `FI-${id}`, rfid },
+      })
+      const preview = {
+        blockers: [],
+        dogs: [known('run-1', 'microchip', chip), known('run-2', 'name', ''), dogReport('dog-3', 'ready')],
+      }
+      const openChoices = async () => {
+        vi.mocked(previewKennelliittoResults).mockResolvedValueOnce(preview)
+        vi.mocked(sendKennelliittoResults).mockClear()
+        const rendered = await renderSection(eventWithStaticDates, {
+          'run-1': { dog: { ...registrationsToEventWithStations[0].dog, rfid: chip } },
+        })
+        await rendered.user.click(sendButton())
+        await flushPromises()
+        await rendered.user.click(
+          within(screen.getByRole('dialog')).getByRole('button', { name: 'results.kennelliitto.send' })
+        )
+        return rendered
+      }
+      const confirmButton = () =>
+        within(screen.getByRole('dialog')).getByRole('button', { name: 'results.kennelliitto.regNo.confirm' })
+
+      it('counts them apart from the dogs sent as they are', async () => {
+        vi.mocked(previewKennelliittoResults).mockResolvedValueOnce(preview)
+
+        await openSend()
+
+        expect(screen.getByText('results.kennelliitto.summary.ready count')).toBeInTheDocument()
+        expect(screen.getByText('results.kennelliitto.summary.kcRegNo count')).toBeInTheDocument()
+      })
+
+      it('asks about all of them in one view, choosing Kennelliitto’s number only where the microchip is the same', async () => {
+        await openChoices()
+
+        const first = screen.getByRole('radiogroup', { name: 'Koira run-1 (REG-run-1)' })
+        const second = screen.getByRole('radiogroup', { name: 'Koira run-2 (REG-run-2)' })
+        expect(within(first).getByRole('radio', { name: /regNo.choice.switch/ })).toBeChecked()
+        expect(
+          within(second)
+            .getAllByRole('radio')
+            .filter((radio) => radio instanceof HTMLInputElement && radio.checked)
+        ).toEqual([])
+        // A dog found by its name is offered no adding as a new one: Kennelliitto refuses a dog of the same name.
+        expect(within(second).getAllByRole('radio')).toHaveLength(2)
+        expect(confirmButton()).toBeDisabled()
+        expect(sendKennelliittoResults).not.toHaveBeenCalled()
+      })
+
+      it('sends the dogs as they are and the ones decided about, with the choices, leaving out the ones left out', async () => {
+        const { user } = await openChoices()
+
+        await user.click(
+          within(screen.getByRole('radiogroup', { name: 'Koira run-2 (REG-run-2)' })).getByRole('radio', {
+            name: 'results.kennelliitto.regNo.choice.leave',
+          })
+        )
+        await user.click(confirmButton())
+        await flushPromises()
+
+        expect(sendKennelliittoResults).toHaveBeenCalledWith(
+          'test1',
+          ['dog-3', 'run-1'],
+          { force: false, regNoChoices: { 'run-1': 'switch' } },
+          expect.anything()
+        )
+      })
+
+      it('takes Kennelliitto’s number for a dog found by its name when chosen so', async () => {
+        const { user } = await openChoices()
+
+        await user.click(
+          within(screen.getByRole('radiogroup', { name: 'Koira run-2 (REG-run-2)' })).getByRole('radio', {
+            name: /regNo.choice.switch/,
+          })
+        )
+        await user.click(confirmButton())
+        await flushPromises()
+
+        expect(sendKennelliittoResults).toHaveBeenCalledWith(
+          'test1',
+          ['dog-3', 'run-1', 'run-2'],
+          { force: false, regNoChoices: { 'run-1': 'switch', 'run-2': 'switch' } },
+          expect.anything()
+        )
+      })
+
+      it('goes back to the preview changing and sending nothing', async () => {
+        const { user } = await openChoices()
+
+        await user.click(
+          within(screen.getByRole('dialog')).getByRole('button', { name: 'results.kennelliitto.regNo.back' })
+        )
+
+        expect(screen.getByText('results.kennelliitto.confirm')).toBeInTheDocument()
+        expect(sendKennelliittoResults).not.toHaveBeenCalled()
+      })
     })
 
     it('reads the state from the server instead of reporting a failure when the answer never came', async () => {
@@ -399,7 +518,8 @@ describe('KennelliittoSubmission (KOE-1579)', () => {
     it('counts a dog that was sent at once, from the answer, and offers the hand-over', async () => {
       vi.mocked(sendKennelliittoResults).mockResolvedValueOnce({
         blockers: [],
-        kcResults: [
+        notAttempted: [],
+        patches: [
           {
             id: 'run-1',
             kcResult: {
@@ -411,7 +531,6 @@ describe('KennelliittoSubmission (KOE-1579)', () => {
             },
           },
         ],
-        notAttempted: [],
         reports: [sent('run-1'), sent('run-2')],
       })
 
@@ -426,14 +545,20 @@ describe('KennelliittoSubmission (KOE-1579)', () => {
 
     it('asks again for the dogs a request had no time for, once it got somewhere', async () => {
       vi.mocked(sendKennelliittoResults)
-        .mockResolvedValueOnce({ blockers: [], kcResults: [], notAttempted: ['run-2'], reports: [sent('run-1')] })
-        .mockResolvedValueOnce({ blockers: [], kcResults: [], notAttempted: [], reports: [sent('run-2')] })
+        .mockResolvedValueOnce({ blockers: [], notAttempted: ['run-2'], patches: [], reports: [sent('run-1')] })
+        .mockResolvedValueOnce({ blockers: [], notAttempted: [], patches: [], reports: [sent('run-2')] })
       vi.mocked(sendKennelliittoResults).mockClear()
 
       await sendBoth()
 
       expect(sendKennelliittoResults).toHaveBeenCalledTimes(2)
-      expect(sendKennelliittoResults).toHaveBeenNthCalledWith(2, 'test1', ['run-2'], false, expect.anything())
+      expect(sendKennelliittoResults).toHaveBeenNthCalledWith(
+        2,
+        'test1',
+        ['run-2'],
+        { force: false, regNoChoices: {} },
+        expect.anything()
+      )
       expect(screen.getByText('results.kennelliitto.success count')).toBeInTheDocument()
       expect(screen.queryByText('results.kennelliitto.notAttempted count')).not.toBeInTheDocument()
     })
@@ -442,8 +567,8 @@ describe('KennelliittoSubmission (KOE-1579)', () => {
       vi.mocked(sendKennelliittoResults).mockClear()
       vi.mocked(sendKennelliittoResults).mockResolvedValueOnce({
         blockers: [],
-        kcResults: [],
         notAttempted: ['run-1', 'run-2'],
+        patches: [],
         reports: [],
       })
 
@@ -467,8 +592,8 @@ describe('KennelliittoSubmission (KOE-1579)', () => {
     it('says which dogs it did not send, with where they stood', async () => {
       vi.mocked(sendKennelliittoResults).mockResolvedValueOnce({
         blockers: [],
-        kcResults: [],
         notAttempted: [],
+        patches: [],
         reports: [
           sent('run-1'),
           {

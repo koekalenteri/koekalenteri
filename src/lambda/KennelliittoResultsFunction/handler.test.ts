@@ -173,7 +173,7 @@ describe('kennelliittoResultsLambda', () => {
 
       await call({ action: 'send', force: true, registrationIds: ids })
 
-      expect(mockSend).toHaveBeenCalledWith(expect.anything(), ids, { force: true })
+      expect(mockSend).toHaveBeenCalledWith(expect.anything(), ids, { force: true, regNoChoices: {} })
       expect(mockPublishRegistrationPatches).toHaveBeenCalledWith(
         'event-1',
         [{ id: 'r0', kcResult: { status: 'sent' } }],
@@ -183,8 +183,8 @@ describe('kennelliittoResultsLambda', () => {
         200,
         {
           blockers: [],
-          kcResults: [{ id: 'r0', kcResult: { status: 'sent' } }],
           notAttempted: [],
+          patches: [{ id: 'r0', kcResult: { status: 'sent' } }],
           reports: [{ id: 'r0', outcome: 'sent' }],
         },
         expect.anything()
@@ -209,8 +209,8 @@ describe('kennelliittoResultsLambda', () => {
         200,
         {
           blockers: [],
-          kcResults: [{ id: 'r0', kcResult: { status: 'sent' } }],
           notAttempted: [],
+          patches: [{ id: 'r0', kcResult: { status: 'sent' } }],
           reports: [{ id: 'r0', outcome: 'sent' }],
         },
         expect.anything()
@@ -224,8 +224,26 @@ describe('kennelliittoResultsLambda', () => {
     it('does not force unless asked to', async () => {
       await call({ action: 'send', registrationIds: ['a'] })
 
-      expect(mockSend).toHaveBeenCalledWith(expect.anything(), ['a'], { force: false })
+      expect(mockSend).toHaveBeenCalledWith(expect.anything(), ['a'], { force: false, regNoChoices: {} })
     })
+
+    it('passes on the choices for dogs Kennelliitto knows by another number, those of other chunks too (KOE-1653)', async () => {
+      const regNoChoices = { a: 'switch', z: 'switch' }
+
+      await call({ action: 'send', registrationIds: ['a'], regNoChoices })
+
+      expect(mockSend).toHaveBeenCalledWith(expect.anything(), ['a'], { force: false, regNoChoices })
+    })
+
+    it.each([[['switch']], ['switch'], [{ a: 'keep' }], [{ a: 'addNew' }], [{ a: null }]])(
+      'refuses choices that are not a map of ids to switch: %j',
+      async (regNoChoices) => {
+        await call({ action: 'send', registrationIds: ['a'], regNoChoices })
+
+        expect(mockResponse).toHaveBeenCalledWith(422, expect.stringContaining('regNoChoices'), expect.anything())
+        expect(mockSend).not.toHaveBeenCalled()
+      }
+    )
 
     it('answers a blocked trial as a conflict with the blockers', async () => {
       mockSend.mockResolvedValue({
