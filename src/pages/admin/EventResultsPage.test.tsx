@@ -1,5 +1,6 @@
 import type { UserEvent } from '@testing-library/user-event'
 import type { RouteObject } from 'react-router'
+import type { TestStore } from 'test-utils/AtomProvider'
 import type { Language } from '../../i18n'
 import type { ConfirmedEvent, EventResult, EventType, Registration } from '../../types'
 import { ThemeProvider } from '@mui/material'
@@ -95,6 +96,9 @@ const renderScoringPage = (language: Language, registrations = registrationsToEv
  * The same page against a taipumuskoe: no posts and no tasks, so the result column is the entry — a
  * NOU is judged pass or fail, and there is nothing to derive either from.
  */
+/** The store the last qualitative page was rendered with: what the socket would write lands here. */
+let qualitativeStore: TestStore | undefined
+
 const renderQualitativePage = (
   language: Language,
   storedResults: Record<string, EventResult> = {},
@@ -117,7 +121,9 @@ const renderQualitativePage = (
     <ThemeProvider theme={theme}>
       <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales[language]}>
         <Provider
-          initializeState={({ set }) => {
+          initializeState={(store) => {
+            qualitativeStore = store
+            const { set } = store
             set(idTokenAtom, idToken)
             set(adminEventsAtom, [event])
             set(adminEventRegistrationsAtom(event.id), registrations)
@@ -1271,6 +1277,49 @@ describe('EventResultsPage and Kennelliitto (KOE-1140)', () => {
       await flushPromises()
 
       expect(previewKennelliittoResults).toHaveBeenCalledWith('test1', [], expect.anything(), undefined)
+    })
+  })
+
+  describe('a trial handed over or confirmed outside Koekalenteri (KOE-1222)', () => {
+    /** Kennelliitto's state as stored when the results were last sent: open for editing. */
+    const approved = { ...eventWithStaticDates, kcState: { code: 754, name: 'Hyväksytty', readAt: noon } }
+
+    it('reads the state when the page opens, and turns read-only when the read finds the trial with the judge', async () => {
+      vi.mocked(previewKennelliittoResults)
+        .mockClear()
+        .mockImplementationOnce(async () => {
+          // The read writes the state it finds on the event, and the open pages get it over the socket.
+          qualitativeStore?.set(adminEventsAtom, [
+            { ...approved, kcState: { code: 304, name: 'Valmis', readAt: noon } },
+          ])
+          return { blockers: [], dogs: [] }
+        })
+      await renderQualitativePage('fi', { 'run-1': stored('NOU1') }, approved)
+      await flushPromises()
+
+      expect(previewKennelliittoResults).toHaveBeenCalledTimes(1)
+      expect(previewKennelliittoResults).toHaveBeenCalledWith('test1', [], expect.anything(), undefined)
+      expect(screen.getByText('results.kennelliitto.locked')).toBeInTheDocument()
+      expect(screen.getByRole('button', { name: 'results.save' })).toBeDisabled()
+    })
+
+    it('asks nothing of Kennelliitto for a trial it does not know', async () => {
+      const custom: ConfirmedEvent = { ...approved, eventType: 'TEST1' }
+      const unofficial: EventType = {
+        active: true,
+        createdAt: noon,
+        createdBy: 'test',
+        description: { en: '', fi: '', sv: '' },
+        eventType: 'TEST1',
+        modifiedAt: noon,
+        modifiedBy: 'test',
+        official: false,
+      }
+      vi.mocked(previewKennelliittoResults).mockClear()
+      await renderQualitativePage('fi', {}, custom, {}, TEST_ID_TOKEN, [unofficial])
+      await flushPromises()
+
+      expect(previewKennelliittoResults).not.toHaveBeenCalled()
     })
   })
 

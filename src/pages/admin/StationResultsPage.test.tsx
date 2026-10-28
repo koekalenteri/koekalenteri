@@ -392,12 +392,13 @@ describe('StationResultsPage', () => {
       expect(previewKennelliittoResults).toHaveBeenCalledWith(eventWithStations.id, [], expect.anything(), undefined)
     })
 
-    it('does not read the state of a trial that is open', async () => {
+    it('reads the state of a trial stored open when it opens, so a trial handed over in Omakoira locks the post too (KOE-1222)', async () => {
       vi.mocked(previewKennelliittoResults).mockClear()
       await renderStation('fi')
       await flushPromises()
 
-      expect(previewKennelliittoResults).not.toHaveBeenCalled()
+      expect(previewKennelliittoResults).toHaveBeenCalledTimes(1)
+      expect(previewKennelliittoResults).toHaveBeenCalledWith(eventWithStations.id, [], expect.anything(), undefined)
     })
   })
 })
