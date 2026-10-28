@@ -168,9 +168,26 @@ const collectOriginals = (value: unknown, originals: CopyOriginals) => {
 const replaceEmails = (copy: EventCopy, standIns: StandIns): EventCopy =>
   JSON.parse(JSON.stringify(copy).replace(EMAIL_RE, (match) => standIns.email(match)))
 
+/**
+ * One registration's phone stand-ins: the same number gets the same stand-in, so the owner and its
+ * mirror in owners agree (KOE-1663). A new map per registration: a number is never compared across
+ * registrations, so two entries sharing one still get different stand-ins.
+ */
+const registrationPhones = (standIns: StandIns) => {
+  const phones = new Map<string, string>()
+  return (original: string) => {
+    const known = phones.get(original)
+    if (known) return known
+    const phone = standIns.phone()
+    phones.set(original, phone)
+    return phone
+  }
+}
+
 const copyPerson = <P extends Partial<RegistrationOwner>>(
   person: P | undefined,
   standIns: StandIns,
+  phone: (original: string) => string,
   originals: CopyOriginals
 ): P | undefined => {
   if (!person) return person
@@ -179,7 +196,7 @@ const copyPerson = <P extends Partial<RegistrationOwner>>(
   return {
     ...person,
     ...(person.name ? { name: standIns.name(person.name, person.email) } : {}),
-    ...(person.phone ? { phone: standIns.phone() } : {}),
+    ...(person.phone ? { phone: phone(person.phone) } : {}),
   }
 }
 
@@ -238,10 +255,11 @@ const copyEvent = (source: JsonDogEvent, copier: Copier, standIns: StandIns, ori
 const copyRegistration = (source: JsonRegistration, copier: Copier, standIns: StandIns, originals: CopyOriginals) => {
   const registration: JsonRegistration = removeRegistrationCreationMetadata(structuredClone(source))
 
-  registration.owner = copyPerson(registration.owner, standIns, originals)
-  registration.handler = copyPerson(registration.handler, standIns, originals)
-  registration.payer = copyPerson(registration.payer, standIns, originals)
-  registration.owners = registration.owners?.map((owner) => copyPerson(owner, standIns, originals) ?? owner)
+  const phone = registrationPhones(standIns)
+  registration.owner = copyPerson(registration.owner, standIns, phone, originals)
+  registration.handler = copyPerson(registration.handler, standIns, phone, originals)
+  registration.payer = copyPerson(registration.payer, standIns, phone, originals)
+  registration.owners = registration.owners?.map((owner) => copyPerson(owner, standIns, phone, originals) ?? owner)
   if (registration.breeder?.name) {
     originals.names.add(normalize(registration.breeder.name))
     registration.breeder = { ...registration.breeder, name: standIns.name(registration.breeder.name) }
