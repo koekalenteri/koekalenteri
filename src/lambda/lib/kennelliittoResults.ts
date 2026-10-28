@@ -34,6 +34,7 @@ import {
   KC_STATE_HANDED_OVER,
   kcKnownDogOf,
   kcResultDay,
+  kcTextKey,
 } from '../../lib/kennelliittoResults'
 import { getRegistrationClass, isScorableRegistration } from '../../lib/registration'
 import { kcFormatOfEventType, placementsFor } from '../../lib/results'
@@ -770,18 +771,6 @@ const skippedReports = (
       )
     )
 
-/**
- * A dog whose number could not be written here: nothing was sent for it, and it stays unsent, so sending
- * it again is the advice the page gives for an answer this app could not store.
- */
-const regNoNotWrittenReport = (registration: JsonRegistration): KcSendReport => ({
-  answerNotStored: true,
-  id: registration.id,
-  name: registration.dog.name ?? '',
-  outcome: 'failed',
-  regNo: registration.dog.regNo,
-})
-
 /** A dog that was asked for and not sent, for the one reason given. */
 const skippedFor = (item: Evaluated, problem: KcProblem): KcSendReport =>
   skippedReport(item.registration.id, { ...item, report: { ...item.report, problems: [problem] } })
@@ -797,12 +786,9 @@ interface SendOptions {
   startedAt: number
   /** The dogs whose number the secretary chose to change to the one Kennelliitto knows (KOE-1653). */
   switchRegNos: ReadonlySet<string>
-  /** The numbers this request has taken from Kennelliitto so far, as `isSameKcText` compares them. */
+  /** The numbers this request has taken from Kennelliitto so far, as `kcTextKey` reads them. */
   takenRegNos: Set<string>
 }
-
-/** A number as `isSameKcText` compares it, for a set of them. */
-const regNoKey = (regNo: string) => regNo.trim().toLocaleUpperCase('fi')
 
 /**
  * Whether the number is another entry's already: one of the trial's entries as read, or one this request
@@ -814,7 +800,7 @@ const isRegNoTaken = (
   regNo: string,
   { registrations, takenRegNos }: Pick<SendOptions, 'registrations' | 'takenRegNos'>
 ): boolean =>
-  takenRegNos.has(regNoKey(regNo)) ||
+  takenRegNos.has(kcTextKey(regNo)) ||
   registrations.some(
     (other) => other.id !== registration.id && !other.cancelled && isSameKcText(other.dog.regNo, regNo)
   )
@@ -835,16 +821,12 @@ const switchRegNo = async (
     return skippedFor(item, { code: 'kcRegNoTaken', detail: kcDog.regNo })
   }
   // Taken before the write, which is the first wait: the dogs of a sending run side by side.
-  options.takenRegNos.add(regNoKey(kcDog.regNo))
+  options.takenRegNos.add(kcTextKey(kcDog.regNo))
 
   const updatedAt = nowOf(req).toISOString()
-  // A thrown write is this dog's failure: nothing is sent for it, and the other dogs' reports are kept.
-  try {
-    await writeDogRegNo(req.event.id, registration.id, kcDog.regNo, updatedAt)
-  } catch (error) {
-    logger.error('dog regNo write failed', { error, eventId: req.event.id, registrationId: registration.id })
-    return regNoNotWrittenReport(registration)
-  }
+  // Nothing has gone to Kennelliitto for this dog yet, and the write is an unconditional update, so a
+  // throw here is a fault of the table: it fails the request, and the page reads the dogs again.
+  await writeDogRegNo(req.event.id, registration.id, kcDog.regNo, updatedAt)
 
   const auditKey = registrationAuditKey({ eventId: req.event.id, id: registration.id })
   await audit({ auditKey, ...dogRegNoChangedAudit(registration.dog.regNo, kcDog.regNo), user: req.userName })

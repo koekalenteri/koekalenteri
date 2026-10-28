@@ -512,12 +512,14 @@ export type KcDogField = 'regNo' | 'name' | 'rfid' | 'dob' | 'breed' | 'gender'
 export type KcComparedDog = Pick<JsonDog, 'dob' | 'gender' | 'name' | 'regNo' | 'rfid'> & { breedCode?: string }
 
 /**
- * Whether two registration numbers (or names) are the same, compared trimmed and without case. A space
- * inside the number or the Estonian dash is a difference, which the secretary resolves by taking
- * Kennelliitto's number (KOE-1653).
+ * A registration number (or name) as it is compared: trimmed and without case. A space inside the number
+ * or the Estonian dash stays, so it is a difference, which the secretary resolves by taking Kennelliitto's
+ * number (KOE-1653).
  */
-export const isSameKcText = (a: string | undefined, b: string | undefined): boolean =>
-  (a ?? '').trim().toLocaleUpperCase('fi') === (b ?? '').trim().toLocaleUpperCase('fi')
+export const kcTextKey = (value: string | undefined): string => (value ?? '').trim().toLocaleUpperCase('fi')
+
+/** Whether two registration numbers (or names) are the same, as `kcTextKey` reads them. */
+export const isSameKcText = (a: string | undefined, b: string | undefined): boolean => kcTextKey(a) === kcTextKey(b)
 
 /** The microchips are the same: Kennelliitto has one, and it is the entry's. */
 const isSameChip = (ours: Pick<KcComparedDog, 'rfid'>, kcDog: Pick<KcKnownDog, 'rfid'>): boolean =>

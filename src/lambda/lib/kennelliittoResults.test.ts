@@ -1425,26 +1425,6 @@ describe('kennelliittoResults', () => {
       ])
     })
 
-    it('sends nothing for a dog whose number cannot be written, and keeps the other dogs’ reports', async () => {
-      registrations = [swedish('d1', {}), dog('d2', 'FI10002/20', 'NOME-A2')]
-      mockWriteDogRegNo.mockRejectedValueOnce(new Error('ProvisionedThroughputExceededException'))
-
-      const result = await sendKennelliittoResults(ctx(), ['d1', 'd2'], {
-        force: false,
-        switchRegNos: ['d1'],
-      })
-
-      expect(result.reports).toEqual([
-        { answerNotStored: true, id: 'd1', name: 'FILURIN PARADOX', outcome: 'failed', regNo: 'SE22358/2021' },
-        expect.objectContaining({ id: 'd2', outcome: 'sent' }),
-      ])
-      expect(tallennat()).toHaveLength(1)
-      expect(registrations[0].kcResult).toBeUndefined()
-      expect(mockAudit).not.toHaveBeenCalledWith(
-        expect.objectContaining({ messageKey: 'audit.messages.dogRegNoChanged' })
-      )
-    })
-
     it('takes Kennelliitto’s number for a dog found by its name, never adding it again', async () => {
       registrations = [
         swedish('d1', { name: 'SOLVEIGH NEVER TOUCHING GROUND', regNo: 'SE39800/2023', rfid: '756097201013080' }),
