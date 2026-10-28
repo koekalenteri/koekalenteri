@@ -100,7 +100,8 @@ export const DogInfo = ({
   const typed = typedDogFields(reg?.dog)
   // The number is looked up, judged and stored without the edges of what was typed (KOE-1651).
   const regNo = state.input.trim()
-  const typedLocked = disabled || !reg?.dog?.regNo || regNo !== reg.dog.regNo
+  const regNoEdited = regNo !== reg?.dog?.regNo
+  const typedLocked = disabled || !reg?.dog?.regNo || regNoEdited
   const rfidDisabled = typedLocked || !typed.rfid
   const detailsDisabled = typedLocked || !typed.details
   // Kennelliitto's dog without a birth date gets one typed too, but not after the trial: there only
@@ -111,7 +112,7 @@ export const DogInfo = ({
   const holdsTypedDog = Boolean(reg?.dog?.name) && typed.details
   // A number Kennelliitto does not know becomes the user's to type, so it must be in its registry's
   // form; so must a typed dog's corrected number, as it is typed. The stored one is not judged (KOE-1651).
-  const judgeRegNo = state.mode === 'notfound' || (holdsTypedDog && regNo !== reg?.dog?.regNo)
+  const judgeRegNo = state.mode === 'notfound' || (holdsTypedDog && regNoEdited)
   const typedRegNoError = judgeRegNo ? regNoError(regNo) : undefined
   const [loading, setLoading] = useState(false)
   const [delayed, setDelayed] = useState(false)
@@ -122,11 +123,10 @@ export const DogInfo = ({
   const handleChange = useCallback(
     (props: DeepPartial<DogCachedInfo>) => {
       // An edit of a dog typed by hand keeps it cached as typed, also once it is stored (KOE-1651).
-      const manual = state.mode === 'manual' || (state.mode === 'update' && typed.details)
-      const cache = actions.updateCache({ ...props, manual })
+      const cache = actions.updateCache({ ...props, manual: state.mode === 'manual' || holdsTypedDog })
       onChange?.({ dog: cache.dog })
     },
-    [actions, onChange, state.mode, typed.details]
+    [actions, holdsTypedDog, onChange, state.mode]
   )
 
   const updateDog = useCallback(
@@ -160,11 +160,12 @@ export const DogInfo = ({
 
   /**
    * A dog typed by hand that Kennelliitto does not know by its corrected number stays as it was typed,
-   * people and all; only the number changes, and the dog is cached under it as typed (KOE-1651).
+   * people and all; only the number changes, and the dog is cached under it as typed. It goes on as the
+   * stored typed dog does, with its number open for another correction (KOE-1651).
    */
   const keepTypedDog = useCallback(() => {
     onChange?.({ dog: actions.updateCache({ dog: { ...reg.dog, regNo }, manual: true }).dog })
-    setState((prev) => ({ ...prev, mode: 'manual' }))
+    setState((prev) => ({ ...prev, mode: 'update' }))
   }, [actions, onChange, reg.dog, regNo])
 
   const fetchDog = useCallback(async () => {

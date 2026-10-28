@@ -671,8 +671,11 @@ describe('DogInfo', () => {
           ownerPays,
         })
       )
-      // Straight to typing: the fields open, and the registrant's own browser offers the dog by its new number.
-      expect(screen.getByRole('button', { name: 'registration.cta.manual' })).toBeInTheDocument()
+      // On as the stored typed dog: details open, the number open for another correction, and the
+      // registrant's own browser offers the dog by its new number.
+      expect(screen.getByRole('button', { name: 'registration.cta.update' })).toBeDisabled()
+      expect(screen.getByText('registration.cta.helper.typed date')).toBeInTheDocument()
+      expect(input).toBeEnabled()
       expect(screen.getByLabelText('dog.name')).toBeEnabled()
       expect(screen.getByLabelText('dog.name')).toHaveValue('DOG NAME 10')
       expect(cachedDog('EST-03102/26')).toEqual(
@@ -680,7 +683,7 @@ describe('DogInfo', () => {
       )
     })
 
-    it('starts a new search from no dog once the corrected number is kept', async () => {
+    it('keeps the dog through a second correction of a kept number', async () => {
       vi.spyOn(dogApi, 'getDog').mockRejectedValue({ status: 404 })
       const onRegistration = vi.fn()
       const { user } = renderWithUserEvents(
@@ -690,18 +693,30 @@ describe('DogInfo', () => {
       )
       const input = screen.getByRole('combobox', { name: 'dog.regNo' })
 
-      await user.type(input, '{Backspace}2', { initialSelectionEnd: 9, initialSelectionStart: 9 })
+      // A wrong correction first: EST-03101/27.
+      await user.type(input, '{Backspace}7', { initialSelectionEnd: 12, initialSelectionStart: 12 })
       await flushPromises()
       await user.click(screen.getByRole('button', { name: 'registration.cta.fetch' }))
       await flushPromises()
-      await user.click(screen.getByRole('button', { name: 'registration.cta.manual' }))
+      expect(input).toBeEnabled()
+
+      await user.type(input, '{Backspace}6', { initialSelectionEnd: 12, initialSelectionStart: 12 })
+      await user.type(input, '{Backspace}2', { initialSelectionEnd: 9, initialSelectionStart: 9 })
+      await flushPromises()
+      expect(input).toHaveValue('EST-03102/26')
+      await user.click(screen.getByRole('button', { name: 'registration.cta.fetch' }))
       await flushPromises()
 
-      expect(input).toHaveValue('')
+      const { breeder, dog, handler, owner } = registrationWithStaticDates
       expect(onRegistration).toHaveBeenLastCalledWith(
-        expect.objectContaining({ dog: expect.objectContaining({ regNo: '' }), handler: undefined, owner: undefined })
+        expect.objectContaining({
+          breeder,
+          dog: expect.objectContaining({ name: dog.name, regNo: 'EST-03102/26' }),
+          handler,
+          owner,
+        })
       )
-      expect(screen.getByLabelText('dog.name')).toHaveValue('')
+      expect(input).toBeEnabled()
     })
 
     it('keeps the dog when the lookup of the corrected number fails', async () => {
@@ -796,6 +811,28 @@ describe('DogInfo', () => {
         })
       )
       expect(cachedDog('EST-03101/26')).toEqual(expect.objectContaining({ manual: true }))
+    })
+
+    it('keeps the dog cached as typed when its number is typed back and its name edited', async () => {
+      const { user } = renderWithUserEvents(
+        <StatefulDogInfo initial={typedDogRegistration} />,
+        { wrapper: Wrapper },
+        { advanceTimers: vi.advanceTimersByTime }
+      )
+      const input = screen.getByRole('combobox', { name: 'dog.regNo' })
+
+      await user.type(input, '{Backspace}2', { initialSelectionEnd: 9, initialSelectionStart: 9 })
+      await user.type(input, '{Backspace}1', { initialSelectionEnd: 9, initialSelectionStart: 9 })
+      await flushPromises()
+      expect(input).toHaveValue('EST-03101/26')
+
+      await user.type(screen.getByLabelText('dog.name'), ' II')
+      await flushPromises()
+      runAllTimers()
+
+      expect(cachedDog('EST-03101/26')).toEqual(
+        expect.objectContaining({ dog: expect.objectContaining({ name: 'DOG NAME 10 II' }), manual: true })
+      )
     })
 
     it('keeps the name locked after the trial', async () => {
