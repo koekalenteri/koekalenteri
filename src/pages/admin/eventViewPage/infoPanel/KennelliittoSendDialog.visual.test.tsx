@@ -74,11 +74,12 @@ it('says what stops the whole trial and offers no sending', async () => {
   )
 })
 
-it('reports who was saved and who was refused, with Kennelliitto’s own words', async () => {
+it('reports who was saved and who was refused with Kennelliitto’s own words, and the dogs it could not send (KOE-1656)', async () => {
   await shoot(
     <KennelliittoSendDialog
       {...sendProps}
       phase={{
+        blocked: [dog('10008', 'Musti', 'blocked', [{ code: 'microchipInvalid', detail: '623372020' }])],
         kind: 'report',
         summary: {
           blockers: [],
@@ -119,6 +120,7 @@ it('says the server failed, with its status, when it answered a sending with an 
     <KennelliittoSendDialog
       {...sendProps}
       phase={{
+        blocked: [],
         kind: 'report',
         summary: {
           blockers: [],
@@ -174,6 +176,7 @@ it('says a foreign dog Kennelliitto did not add, with its reasons or without the
     <KennelliittoSendDialog
       {...sendProps}
       phase={{
+        blocked: [],
         kind: 'report',
         summary: {
           blockers: [],

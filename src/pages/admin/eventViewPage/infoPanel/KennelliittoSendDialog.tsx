@@ -24,7 +24,11 @@ export type KcSendPhase =
   /** The dogs Kennelliitto knows by another number, to decide about before the sending (KOE-1653). */
   | { kind: 'regNos'; preview: KcPreviewResponse; rows: KcRegNoRow[] }
   | { kind: 'sending'; done: number; total: number }
-  | { kind: 'report'; summary: KcSendSummary }
+  /**
+   * What the server said of the dogs asked for, and beside it the dogs the preview said cannot be sent,
+   * which are never asked for and so have no report of their own (KOE-1656).
+   */
+  | { kind: 'report'; summary: KcSendSummary; blocked: KcDogReport[] }
 
 interface Props {
   readonly decisions: KcRegNoDecisions
@@ -52,6 +56,10 @@ export const dogsToSend = (preview: KcPreviewResponse, force: boolean): KcDogRep
 export const dogsToDecide = (preview: KcPreviewResponse): KcDogReport[] =>
   preview.dogs.filter((dog) => dog.kcDog && dog.status === 'ready')
 
+/** The dogs whose result cannot be sent, with the problems that say why; a sending never asks for them. */
+export const dogsBlocked = (preview: KcPreviewResponse): KcDogReport[] =>
+  preview.dogs.filter((dog) => dog.status === 'blocked')
+
 /** Whether the preview has anything to send, as it is or after the choices. */
 const hasAnythingToSend = (preview: KcPreviewResponse, force: boolean) =>
   !preview.blockers.length && (dogsToSend(preview, force).length > 0 || dogsToDecide(preview).length > 0)
@@ -78,7 +86,7 @@ const Preview = ({
     )
   }
 
-  const blocked = preview.dogs.filter((dog) => dog.status === 'blocked')
+  const blocked = dogsBlocked(preview)
   const creates = preview.dogs.filter((dog) => dog.createsDog && !dog.kcDog)
   const summary = (['ready', 'changed', 'unchanged', 'notRecorded', 'blocked'] as const).filter((status) =>
     count(status)
@@ -134,11 +142,16 @@ const Interrupted = ({ errorStatus }: { readonly errorStatus: KcSendSummary['err
   return <Alert severity="error">{t('results.kennelliitto.serverError', { status: errorStatus })}</Alert>
 }
 
-const Report = ({ summary }: { readonly summary: KcSendSummary }) => {
+/**
+ * What came of a sending. The failed list holds Kennelliitto's refusals and then the dogs the preview said
+ * cannot be sent, so it names every dog whose result did not get there (KOE-1656).
+ */
+const Report = ({ blocked, summary }: { readonly blocked: KcDogReport[]; readonly summary: KcSendSummary }) => {
   const { t } = useTranslation()
   const sent = summary.reports.filter((report) => report.outcome === 'sent')
   const failed = summary.reports.filter((report) => report.outcome === 'failed')
   const skipped = summary.reports.filter((report) => report.outcome === 'skipped')
+  const failedLines = [...failed.map((report) => failedLine(t, report)), ...blocked.map((dog) => dogLine(t, dog))]
 
   return (
     <Stack spacing={2}>
@@ -156,12 +169,12 @@ const Report = ({ summary }: { readonly summary: KcSendSummary }) => {
           <KennelliittoDogList lines={sent.map((report) => ({ id: report.id, text: dogLabel(report) }))} />
         </Alert>
       )}
-      {failed.length > 0 && (
+      {failedLines.length > 0 && (
         <Alert severity="error">
           <Typography sx={{ fontWeight: 600 }} variant="body2">
-            {t('results.kennelliitto.failure', { count: failed.length })}
+            {t('results.kennelliitto.failure', { count: failedLines.length })}
           </Typography>
-          <KennelliittoDogList lines={failed.map((report) => failedLine(t, report))} />
+          <KennelliittoDogList lines={failedLines} />
         </Alert>
       )}
       {skipped.length > 0 && (
@@ -220,7 +233,7 @@ export const KennelliittoSendDialog = ({
             <LinearProgress value={phase.total ? (phase.done * 100) / phase.total : 0} variant="determinate" />
           </Stack>
         )}
-        {phase.kind === 'report' && <Report summary={phase.summary} />}
+        {phase.kind === 'report' && <Report blocked={phase.blocked} summary={phase.summary} />}
       </DialogContent>
       <DialogActions>
         <Button onClick={onClose}>{t('results.kennelliitto.close')}</Button>

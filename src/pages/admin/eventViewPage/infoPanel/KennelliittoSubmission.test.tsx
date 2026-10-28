@@ -616,6 +616,88 @@ describe('KennelliittoSubmission (KOE-1579)', () => {
     })
   })
 
+  describe('the dogs the preview said cannot be sent (KOE-1656)', () => {
+    /** One dog saved, one refused by Kennelliitto, one never sent: its microchip cannot be right. */
+    const sendWithOneBlocked = async (send: () => void) => {
+      vi.mocked(previewKennelliittoResults).mockResolvedValueOnce({
+        blockers: [],
+        dogs: [
+          dogReport('run-1', 'ready'),
+          dogReport('run-2', 'blocked', [{ code: 'microchipInvalid', detail: '623372020' }]),
+          dogReport('dog-3', 'ready'),
+          { ...dogReport('dog-4', 'ready'), status: 'notRecorded' },
+          { ...dogReport('dog-5', 'ready'), status: 'sentGone' },
+        ],
+      })
+      vi.mocked(sendKennelliittoResults).mockClear()
+      send()
+      const rendered = await renderSection()
+      await rendered.user.click(screen.getByRole('button', { name: 'Lähetä Omakoiraan' }))
+      await flushPromises()
+      await rendered.user.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Lähetä Omakoiraan' }))
+      await flushPromises()
+      await flushPromises()
+      return rendered
+    }
+    const failedAlert = () => {
+      const alert = screen.getByText(/Tulosten tallennus Omakoiraan epäonnistui/).closest<HTMLElement>('[role="alert"]')
+      if (!alert) throw new Error('no failure alert')
+      return within(alert)
+    }
+
+    describeWithTranslations('fi', () => {
+      it('lists them among the failed with their reason, and counts them in', async () => {
+        await sendWithOneBlocked(() =>
+          vi.mocked(sendKennelliittoResults).mockResolvedValueOnce({
+            blockers: [],
+            notAttempted: [],
+            patches: [],
+            reports: [
+              { id: 'run-1', name: 'Koira run-1', outcome: 'sent', regNo: 'REG-run-1' },
+              {
+                errors: ['Koiran nimi ei täsmää.'],
+                id: 'dog-3',
+                name: 'Koira dog-3',
+                outcome: 'failed',
+                regNo: 'REG-dog-3',
+                status: 400,
+              },
+            ],
+          })
+        )
+
+        // Only the dogs that can go are asked for; the blocked one is the page's to report.
+        expect(sendKennelliittoResults).toHaveBeenCalledWith(
+          'test1',
+          ['run-1', 'dog-3'],
+          { force: false, switchRegNos: [] },
+          expect.anything()
+        )
+        const failed = failedAlert()
+        expect(failed.getByText('Tulosten tallennus Omakoiraan epäonnistui 2 koiralle')).toBeInTheDocument()
+        expect(
+          failed.getByText('Koira run-2 (REG-run-2): Tunnistusmerkinnässä 623372020 pitää olla 15 numeroa')
+        ).toBeInTheDocument()
+        expect(failed.getByText('Koira dog-3 (REG-dog-3): Koiran nimi ei täsmää.')).toBeInTheDocument()
+        // A dog without a result, or whose result is gone, is no failure.
+        expect(screen.queryByText(/Koira dog-4/)).not.toBeInTheDocument()
+        expect(screen.queryByText(/Koira dog-5/)).not.toBeInTheDocument()
+      })
+
+      it('lists them when the sending was cut short too', async () => {
+        await sendWithOneBlocked(() =>
+          vi.mocked(sendKennelliittoResults).mockRejectedValueOnce(new Error('Network Error'))
+        )
+
+        const failed = failedAlert()
+        expect(failed.getByText('Tulosten tallennus Omakoiraan epäonnistui 1 koiralle')).toBeInTheDocument()
+        expect(
+          failed.getByText('Koira run-2 (REG-run-2): Tunnistusmerkinnässä 623372020 pitää olla 15 numeroa')
+        ).toBeInTheDocument()
+      })
+    })
+  })
+
   describe('what a hand-over answers', () => {
     const openHandOver = async () => {
       const { user } = await renderSection(eventWithStaticDates, { 'run-1': { kcResult: sentOk } })
