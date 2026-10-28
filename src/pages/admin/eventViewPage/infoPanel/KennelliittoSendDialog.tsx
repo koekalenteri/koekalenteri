@@ -127,7 +127,7 @@ const Report = ({ summary }: { readonly summary: KcSendSummary }) => {
           <Typography sx={{ fontWeight: 600 }} variant="body2">
             {t('results.kennelliitto.success', { count: sent.length })}
           </Typography>
-          <Typography variant="body2">{sent.map(dogLabel).join(', ')}</Typography>
+          <KennelliittoDogList lines={sent.map((report) => ({ id: report.id, text: dogLabel(report) }))} />
         </Alert>
       )}
       {failed.length > 0 && (
