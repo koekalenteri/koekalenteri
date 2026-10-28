@@ -166,6 +166,22 @@ export const writeKcResult = async (
   }
 }
 
+/**
+ * Takes the registration number Kennelliitto knows the dog by (KOE-1653): `dog.regNo` alone, nothing
+ * else of the dog. Moves `updatedAt`, so the incremental fetch hands the row on, and not `modifiedAt`: a
+ * form open on the entry is not stale for it, and its save carries operations that leave the number as
+ * written here unless the number itself was edited (KOE-1575). No condition: the sending read the row in
+ * the same request, and registrations are not deleted.
+ */
+export const writeDogRegNo = async (
+  eventId: JsonRegistration['eventId'],
+  id: JsonRegistration['id'],
+  regNo: string,
+  updatedAt: string
+): Promise<void> => {
+  await dynamoDB.update({ eventId, id }, { set: { 'dog.regNo': regNo, updatedAt } }, 'NONE')
+}
+
 /** The steps after a new registration is stored that must each run once, however many attempts arrive. */
 export type NewRegistrationPhase =
   | 'newRegistrationPublishedAt'

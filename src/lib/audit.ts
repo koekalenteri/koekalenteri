@@ -304,6 +304,10 @@ export const dogAddedToKennelliittoAudit = () => auditMessage('audit.messages.do
 /** A foreign dog Kennelliitto did not add, with the reasons as it worded them. */
 export const dogAddFailedAudit = (reason: string) => auditMessage('audit.messages.dogAddFailed', { reason })
 
+/** The entry's registration number changed to the one Kennelliitto knows the dog by (KOE-1653). */
+export const dogRegNoChangedAudit = (from: string, to: string) =>
+  auditMessage('audit.messages.dogRegNoChanged', { from, to })
+
 export const resultsHandedOverAudit = () => auditMessage('audit.messages.resultsHandedOver')
 
 export const kcGuidFoundAudit = () => auditMessage('audit.messages.kcGuidFound')

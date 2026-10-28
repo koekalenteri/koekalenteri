@@ -196,6 +196,11 @@ export interface JsonKcResult {
   tulosId?: number
   /** The day (yyyy-MM-dd) the accepted result was sent for: a result sent for another day is another result in Kennelliitto. */
   day?: string
+  /**
+   * The registration number the accepted result was sent with (KOE-1653): the dog may have had another
+   * number here, and sending again or removing the result must name the dog Kennelliitto holds it for.
+   */
+  regNo?: string
   at: string
   by: string
   /** What Kennelliitto answered to a refused call, as it worded it. */

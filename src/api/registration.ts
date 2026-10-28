@@ -268,7 +268,7 @@ export async function putEventResults(
 type KennelliittoRequest =
   | { action: 'handOver'; withoutBlocked?: boolean }
   | { action: 'preview'; registrationIds?: string[] }
-  | { action: 'send'; force?: boolean; registrationIds: string[] }
+  | { action: 'send'; force?: boolean; registrationIds: string[]; switchRegNos?: string[] }
 
 const kennelliittoResults = async <R>(
   eventId: string,
@@ -292,14 +292,23 @@ export const previewKennelliittoResults = (
   signal?: AbortSignal
 ) => kennelliittoResults<KcPreviewResponse>(eventId, { action: 'preview', registrationIds }, token, signal)
 
-/** At most ten dogs at a time; the server refuses more. */
+/**
+ * At most ten dogs at a time; the server refuses more. `switchRegNos` is the whole sending's, for the dogs
+ * Kennelliitto knows by another number (KOE-1653): the server reads the ones of the dogs it is given.
+ */
 export const sendKennelliittoResults = (
   eventId: string,
   registrationIds: string[],
-  force: boolean,
+  { force, switchRegNos }: { force: boolean; switchRegNos?: string[] },
   token: string,
   signal?: AbortSignal
-) => kennelliittoResults<KcSendResponse>(eventId, { action: 'send', force, registrationIds }, token, signal)
+) =>
+  kennelliittoResults<KcSendResponse>(
+    eventId,
+    { action: 'send', force, registrationIds, ...(switchRegNos ? { switchRegNos } : {}) },
+    token,
+    signal
+  )
 
 export const handOverKennelliittoResults = (
   eventId: string,

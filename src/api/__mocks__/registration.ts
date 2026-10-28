@@ -233,10 +233,10 @@ export const sendKennelliittoResults = vi.fn(
   async (
     _eventId: string,
     _registrationIds: string[],
-    _force: boolean,
+    _options: { force: boolean; switchRegNos?: string[] },
     _token: string,
     _signal?: AbortSignal
-  ): Promise<KcSendResponse> => ({ blockers: [], kcResults: [], notAttempted: [], reports: [] })
+  ): Promise<KcSendResponse> => ({ blockers: [], notAttempted: [], patches: [], reports: [] })
 )
 
 export const handOverKennelliittoResults = vi.fn(

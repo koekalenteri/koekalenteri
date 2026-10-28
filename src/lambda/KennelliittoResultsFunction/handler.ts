@@ -26,14 +26,19 @@ interface KennelliittoRequest {
   /** Send again even where the result is what was sent, after an edit made in Omakoira itself. */
   force?: boolean
   registrationIds?: unknown
+  /**
+   * The dogs Kennelliitto knows by another number whose number the secretary chose to change to
+   * Kennelliitto's (KOE-1653). The whole sending's list comes with every chunk.
+   */
+  switchRegNos?: unknown
   /** Accepts that the dogs listed as left out stay out of the hand-over. */
   withoutBlocked?: boolean
 }
 
-const idsOf = (value: unknown): string[] | undefined => {
+const idsOf = (value: unknown, field: string): string[] | undefined => {
   if (value === undefined) return undefined
   if (!Array.isArray(value) || !value.every((id) => typeof id === 'string')) {
-    throw httpError(422, 'registrationIds must be a list of ids')
+    throw httpError(422, `${field} must be a list of ids`)
   }
   return value
 }
@@ -72,11 +77,12 @@ const sendAction = async (run: Run) => {
   }
   const { eventPatch, patches, ...sent } = await sendKennelliittoResults(run.ctx, ids, {
     force: run.body.force === true,
+    switchRegNos: idsOf(run.body.switchRegNos, 'switchRegNos') ?? [],
   })
   if (patches.length) await publishRegistrationPatches(run.eventId, patches, run.organizerId)
   await publishEvent(run, eventPatch)
   if (sent.blockers.length) throw httpError(409, { blockers: sent.blockers, error: 'blocked' })
-  return { ...sent, kcResults: patches }
+  return { ...sent, patches }
 }
 
 /** Why a hand-over did not happen, as the answer the page reads it from. */
@@ -112,7 +118,7 @@ const kennelliittoResultsLambda = lambda('kennelliittoResults', async (event) =>
 
   const eventId = getParam(event, 'eventId')
   const body = parseJSONWithFallback<KennelliittoRequest>(event.body, {})
-  const ids = idsOf(body.registrationIds)
+  const ids = idsOf(body.registrationIds, 'registrationIds')
   const action = body.action ? ACTIONS[body.action] : undefined
   if (!action) throw httpError(400, 'unknown action')
 

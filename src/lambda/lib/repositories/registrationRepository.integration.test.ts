@@ -1,7 +1,7 @@
 import type { JsonKcResult, JsonRegistration } from '../../../types'
 import { uniqueId } from '../../test-utils/integration'
 import CustomDynamoClient from '../../utils/CustomDynamoClient'
-import { readRegistration, writeKcResult } from './registrationRepository'
+import { readRegistration, writeDogRegNo, writeKcResult } from './registrationRepository'
 
 /**
  * What sending a dog's result to Kennelliitto came to is written on condition it is still the record
@@ -89,5 +89,28 @@ describe('writeKcResult against DynamoDB-local', () => {
     ).resolves.toBe(false)
 
     await expect(readRegistration(eventId, id, true)).resolves.toBeUndefined()
+  })
+})
+
+/** The number Kennelliitto knows the dog by replaces the entry's, and nothing else of the dog (KOE-1653). */
+describe('writeDogRegNo against DynamoDB-local', () => {
+  const client = new CustomDynamoClient('EventRegistrationTable')
+
+  it('changes the number alone and moves updatedAt, leaving modifiedAt', async () => {
+    const registration = {
+      dog: { name: 'FILURIN PARADOX', regNo: 'SE22358/2021', rfid: '981098106889342' },
+      eventId: uniqueId('event'),
+      id: uniqueId('registration'),
+      modifiedAt: '2026-10-01T10:00:00.000Z',
+    }
+    await client.write(registration)
+
+    await writeDogRegNo(registration.eventId, registration.id, 'FI25555/20', '2026-10-28T10:00:00.000Z')
+
+    await expect(readRegistration(registration.eventId, registration.id, true)).resolves.toMatchObject({
+      dog: { name: 'FILURIN PARADOX', regNo: 'FI25555/20', rfid: '981098106889342' },
+      modifiedAt: '2026-10-01T10:00:00.000Z',
+      updatedAt: '2026-10-28T10:00:00.000Z',
+    })
   })
 })

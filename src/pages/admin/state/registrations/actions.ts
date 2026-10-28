@@ -2,7 +2,6 @@ import type { TFunction } from 'i18next'
 import type { EventResultSubmission } from '@/api/registration'
 import type { KcBlocker, KcDogReport, KcSendReport, KcSendResponse } from '@/lib/kennelliittoResults'
 import type {
-  JsonKcResult,
   PublicDogEvent,
   Registration,
   RegistrationGroupMove,
@@ -34,8 +33,8 @@ import { isTestEnv } from '@/lib/env'
 import { latestCollectionUpdate, reconcileCollection } from '@/lib/incremental'
 import { createPatchOperations } from '@/lib/patch'
 import { GROUP_KEY_CANCELLED, withoutAdminProtectedFields, withRegistrationOverrides } from '@/lib/registration'
-import { isObject } from '@/lib/utils'
-import { toKcResult } from '@/lib/wire'
+import { applyPatchesById, isObject } from '@/lib/utils'
+import { toRegistration } from '@/lib/wire'
 import { validIdTokenAtom } from '@/pages/state'
 import { showRegistrationSaveConflict } from '@/pages/state/registration/registrationSaveError'
 import { adminEventAtom } from '../events'
@@ -141,6 +140,13 @@ const chunksOf = (ids: readonly string[]): string[][] =>
     ids.slice(index * KC_SEND_CHUNK, (index + 1) * KC_SEND_CHUNK)
   )
 
+/** How a sending goes: forced over unchanged results, and what to do with the dogs Kennelliitto knows by another number. */
+interface KcSendOptions {
+  force: boolean
+  /** The dogs to take Kennelliitto's number for, the whole sending's (KOE-1653). */
+  switchRegNos?: string[]
+}
+
 export interface KcSendSummary {
   blockers: KcBlocker[]
   /** The status of the error the server answered with, when the sending was cut short by one. */
@@ -225,21 +231,16 @@ const foldChunk = (summary: KcSendSummary, response: KcSendResponse): { retry: s
 
 /**
  * Folds what sending the results to Kennelliitto came to into the event's registrations, so the page
- * that sent them shows it without waiting for the socket.
+ * that sent them shows it without waiting for the socket: the same patches the socket brings, applied
+ * the way it applies them (what was sent, and a number taken from Kennelliitto, KOE-1653).
  */
-const useStoreKcResults = (eventId: string) =>
+const useStoreKcPatches = (eventId: string) =>
   useAtomCallback(
     useCallback(
-      async (get, set, stored: ReadonlyArray<{ id: string; kcResult: JsonKcResult }>) => {
-        if (stored.length === 0) return
+      async (get, set, patches: KcSendResponse['patches']) => {
+        if (patches.length === 0) return
         const registrations = await get(adminEventRegistrationsAtom(eventId))
-        set(
-          adminEventRegistrationsAtom(eventId),
-          registrations.map((registration) => {
-            const written = stored.find((item) => item.id === registration.id)
-            return written ? { ...registration, kcResult: toKcResult(written.kcResult) } : registration
-          })
-        )
+        set(adminEventRegistrationsAtom(eventId), applyPatchesById(registrations, patches.map(toRegistration)))
       },
       [eventId]
     )
@@ -251,7 +252,7 @@ const useStoreKcResults = (eventId: string) =>
  */
 export const useKennelliittoResults = (eventId: string) => {
   const token = useAtomValue(validIdTokenAtom)
-  const store = useStoreKcResults(eventId)
+  const store = useStoreKcPatches(eventId)
 
   const reload = useAtomCallback(
     useCallback(
@@ -275,7 +276,7 @@ export const useKennelliittoResults = (eventId: string) => {
   const sendChunks = useCallback(
     async (
       queue: string[][],
-      force: boolean,
+      options: KcSendOptions,
       summary: KcSendSummary,
       onProgress?: (done: number) => void
     ): Promise<KcSendSummary> => {
@@ -284,15 +285,16 @@ export const useKennelliittoResults = (eventId: string) => {
 
       let answer: { response: KcSendResponse } | { error: unknown }
       try {
-        answer = { response: await sendKennelliittoResults(eventId, chunk, force, token ?? '') }
+        // Every chunk carries the whole sending's choices, the retries of a chunk too: the server reads its own.
+        answer = { response: await sendKennelliittoResults(eventId, chunk, options, token ?? '') }
       } catch (error) {
         answer = { error }
       }
       if ('response' in answer) {
-        await store(answer.response.kcResults)
+        await store(answer.response.patches)
         const folded = foldChunk(summary, answer.response)
         onProgress?.(folded.summary.reports.length)
-        return sendChunks([...folded.retry, ...rest], force, folded.summary, onProgress)
+        return sendChunks([...folded.retry, ...rest], options, folded.summary, onProgress)
       }
 
       const undelivered = [...summary.notAttempted, ...chunk, ...rest.flat()]
@@ -314,10 +316,10 @@ export const useKennelliittoResults = (eventId: string) => {
   )
 
   const send = useCallback(
-    (registrationIds: readonly string[], force: boolean, onProgress?: (done: number) => void) =>
+    (registrationIds: readonly string[], options: KcSendOptions, onProgress?: (done: number) => void) =>
       sendChunks(
         chunksOf(registrationIds),
-        force,
+        options,
         { blockers: [], interrupted: false, notAttempted: [], reports: [] },
         onProgress
       ),

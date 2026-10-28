@@ -4,6 +4,7 @@ import { ThemeProvider } from '@mui/material/styles'
 import { page } from 'vitest/browser'
 import { render } from 'vitest-browser-react'
 import theme from '@/assets/Theme'
+import { toDayKey } from '@/lib/day'
 import { describeInLanguage } from '@/test-utils/language'
 import { KennelliittoHandOverDialog } from './KennelliittoHandOverDialog'
 import { KennelliittoSendDialog } from './KennelliittoSendDialog'
@@ -36,8 +37,11 @@ const preview: KcPreviewResponse = {
 }
 
 const sendProps: ComponentProps<typeof KennelliittoSendDialog> = {
+  decisions: {},
   force: false,
+  onBack: noop,
   onClose: noop,
+  onDecide: noop,
   onForce: noop,
   onSend: noop,
   open: true,
@@ -45,8 +49,8 @@ const sendProps: ComponentProps<typeof KennelliittoSendDialog> = {
 }
 
 // The dialogs render through a portal, so a capture is the dialog itself.
-const shoot = async (ui: React.ReactNode, ready: string, name: string) => {
-  await page.viewport(900, 900)
+const shoot = async (ui: React.ReactNode, ready: string, name: string, height = 900) => {
+  await page.viewport(900, height)
   const screen = await render(<ThemeProvider theme={theme}>{ui}</ThemeProvider>)
   await expect.element(screen.getByText(ready)).toBeVisible()
   await expect(screen.getByRole('dialog')).toMatchScreenshot(name)
@@ -236,7 +240,77 @@ it('asks for the secretary’s word before it hands over a trial with nothing se
   )
 })
 
+/**
+ * Testi2, 27.10.2026: one dog Kennelliitto found by its microchip under a Finnish number, and one it
+ * found by its name only, with no microchip and no birth date of its own (KOE-1653).
+ */
+const filurin = { ...dog('1', 'FILURIN PARADOX', 'ready'), regNo: 'SE22358/2021' }
+const solveigh = { ...dog('2', 'SOLVEIGH NEVER TOUCHING GROUND', 'ready'), regNo: 'SE39800/2023' }
+const regNoPhase: ComponentProps<typeof KennelliittoSendDialog>['phase'] = {
+  kind: 'regNos',
+  preview: { blockers: [], dogs: [filurin, solveigh] },
+  rows: [
+    {
+      dog: {
+        breedCode: '121',
+        dob: toDayKey(2020, 3, 22),
+        gender: 'F',
+        name: 'FILURIN PARADOX',
+        regNo: 'SE22358/2021',
+        rfid: '981098106889342',
+      },
+      kcDog: {
+        breedCode: '121',
+        dob: toDayKey(2020, 3, 22),
+        foundBy: 'microchip',
+        gender: 'F',
+        name: 'FILURIN PARADOX',
+        regNo: 'FI25555/20',
+        rfid: '981098106889342',
+      },
+      report: filurin,
+    },
+    {
+      dog: {
+        breedCode: '121',
+        dob: toDayKey(2023, 5, 2),
+        gender: 'F',
+        name: 'SOLVEIGH NEVER TOUCHING GROUND',
+        regNo: 'SE39800/2023',
+        rfid: '756097201013080',
+      },
+      kcDog: {
+        breedCode: '121',
+        foundBy: 'name',
+        gender: 'F',
+        name: 'SOLVEIGH NEVER TOUCHING GROUND',
+        regNo: 'SE39800/23',
+        rfid: '',
+      },
+      report: solveigh,
+    },
+  ],
+}
+
+it('asks in one view what to do with the dogs Kennelliitto knows by another number (KOE-1653)', async () => {
+  await shoot(
+    <KennelliittoSendDialog {...sendProps} decisions={{ '1': 'switch' }} phase={regNoPhase} />,
+    'Vahvista ja lähetä',
+    'kennelliitto-send-regnos',
+    1500
+  )
+})
+
 describeInLanguage('en', () => {
+  it('asks in one view what to do with the dogs Kennelliitto knows by another number', async () => {
+    await shoot(
+      <KennelliittoSendDialog {...sendProps} decisions={{ '1': 'switch' }} phase={regNoPhase} />,
+      'Confirm and send',
+      'kennelliitto-send-regnos-en',
+      1500
+    )
+  })
+
   it('asks before sending, lists the dogs that cannot be sent and why', async () => {
     await shoot(
       <KennelliittoSendDialog {...sendProps} />,

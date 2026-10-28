@@ -465,8 +465,8 @@ describe('useKennelliittoResults', () => {
   const sendOne = (kcResult: typeof sentResult | Omit<typeof sentResult, 'day'>) => {
     vi.mocked(registrationApi.sendKennelliittoResults).mockResolvedValueOnce({
       blockers: [],
-      kcResults: [{ id: registrationWithStaticDates.id, kcResult }],
       notAttempted: [],
+      patches: [{ id: registrationWithStaticDates.id, kcResult }],
       reports: [],
     })
     const rendered = renderHook(
@@ -484,7 +484,7 @@ describe('useKennelliittoResults', () => {
     const { result } = sendOne(sentResult)
 
     await act(async () => {
-      await result.current.kc.send([registrationWithStaticDates.id], false)
+      await result.current.kc.send([registrationWithStaticDates.id], { force: false })
     })
 
     const { kcResult } = result.current.registrations[0]
@@ -492,12 +492,76 @@ describe('useKennelliittoResults', () => {
     expect(kcResult?.day).toBe('2026-09-26')
   })
 
+  it('takes the number Kennelliitto knows the dog by from the same patch as what was sent (KOE-1653)', async () => {
+    vi.mocked(registrationApi.sendKennelliittoResults).mockResolvedValueOnce({
+      blockers: [],
+      notAttempted: [],
+      patches: [
+        {
+          dog: { name: registrationWithStaticDates.dog.name, regNo: 'FI25555/20' },
+          id: registrationWithStaticDates.id,
+          kcResult: { ...sentResult, regNo: 'FI25555/20' },
+          updatedAt: '2026-09-26T10:00:00.000Z',
+        },
+      ],
+      reports: [],
+    })
+    const { result } = renderHook(
+      () => ({ kc: useKennelliittoResults(id), registrations: useAtomValue(adminEventRegistrationsAtom(id)) }),
+      { wrapper }
+    )
+
+    await act(async () => {
+      await result.current.kc.send([registrationWithStaticDates.id], {
+        force: false,
+        switchRegNos: [registrationWithStaticDates.id],
+      })
+    })
+
+    const [registration] = result.current.registrations
+    expect(registration.dog).toMatchObject({ name: registrationWithStaticDates.dog.name, regNo: 'FI25555/20' })
+    expect(registration.kcResult).toMatchObject({ at: new Date('2026-09-26T10:00:00.000Z'), regNo: 'FI25555/20' })
+    expect(registration.updatedAt).toEqual(new Date('2026-09-26T10:00:00.000Z'))
+  })
+
+  it('sends the whole sending’s choices with every chunk, a retried one too (KOE-1653)', async () => {
+    const switchRegNos = ['a', 'b']
+    vi.mocked(registrationApi.sendKennelliittoResults)
+      .mockResolvedValueOnce({
+        blockers: [],
+        notAttempted: ['b'],
+        patches: [],
+        reports: [{ id: 'a', name: 'A', outcome: 'sent', regNo: 'FI1/20' }],
+      })
+      .mockResolvedValueOnce({ blockers: [], notAttempted: [], patches: [], reports: [] })
+    const { result } = renderHook(() => useKennelliittoResults(id), { wrapper })
+
+    await act(async () => {
+      await result.current.send(['a', 'b'], { force: false, switchRegNos })
+    })
+
+    expect(registrationApi.sendKennelliittoResults).toHaveBeenNthCalledWith(
+      1,
+      id,
+      ['a', 'b'],
+      { force: false, switchRegNos },
+      expect.any(String)
+    )
+    expect(registrationApi.sendKennelliittoResults).toHaveBeenNthCalledWith(
+      2,
+      id,
+      ['b'],
+      { force: false, switchRegNos },
+      expect.any(String)
+    )
+  })
+
   it('has no day to convert when the stored result has none', async () => {
     const { day: _day, ...withoutDay } = sentResult
     const { result } = sendOne(withoutDay)
 
     await act(async () => {
-      await result.current.kc.send([registrationWithStaticDates.id], false)
+      await result.current.kc.send([registrationWithStaticDates.id], { force: false })
     })
 
     expect(result.current.registrations[0].kcResult?.at).toBeInstanceOf(Date)
@@ -520,7 +584,7 @@ describe('useKennelliittoResults', () => {
 
     let summary: Awaited<ReturnType<typeof result.current.send>> | undefined
     await act(async () => {
-      summary = await result.current.send([registrationWithStaticDates.id], false)
+      summary = await result.current.send([registrationWithStaticDates.id], { force: false })
     })
 
     expect(summary).toEqual({

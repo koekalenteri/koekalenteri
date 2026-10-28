@@ -14,11 +14,15 @@ const problemText = (t: TFunction, problem: KcProblem): string =>
 /** The dog the way a list of them names it: the name and the registration number. */
 export const dogLabel = (dog: Pick<KcDogReport, 'name' | 'regNo'>): string => `${dog.name} (${dog.regNo})`
 
-/** A dog and why it is on a list: the problems of a result that cannot be sent, or what its state says. */
-const dogReason = (t: TFunction, dog: KcDogReport): string =>
-  dog.problems.length
-    ? dog.problems.map((problem) => problemText(t, problem)).join('; ')
-    : t(`results.kennelliitto.dogStatus.${dog.status}`)
+/**
+ * A dog and why it is on a list: the problems of a result that cannot be sent, that Kennelliitto knows it
+ * by another number and a choice is needed (KOE-1653), or what its state says.
+ */
+const dogReason = (t: TFunction, dog: KcDogReport): string => {
+  if (dog.problems.length) return dog.problems.map((problem) => problemText(t, problem)).join('; ')
+  if (dog.kcDog) return t('results.kennelliitto.regNo.reason', { regNo: dog.kcDog.regNo })
+  return t(`results.kennelliitto.dogStatus.${dog.status}`)
+}
 
 /** A dog as a line of a list: who it is, and why it is there. */
 export const dogLine = (t: TFunction, dog: KcDogReport): DogLine => ({

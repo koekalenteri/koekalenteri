@@ -259,7 +259,7 @@ const toEventResult = converter<JsonEventResult, EventResult>()({
 const toLastEmail = converter<JsonLastEmail, LastEmail>()({ sentAt: timestamp })
 
 /** `day` is a day key and stays the string it is (KOE-1140). */
-export const toKcResult = converter<JsonKcResult, KcResult>()({ at: timestamp })
+const toKcResult = converter<JsonKcResult, KcResult>()({ at: timestamp })
 
 /** How a stored dog date (a day key, a zone-less stamp, an instant) is read as a day. */
 type CalendarDayRule = (value: string) => DayKey | undefined

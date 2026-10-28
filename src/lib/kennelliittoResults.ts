@@ -1,10 +1,12 @@
 import type {
+  DayKey,
   DogGender,
   JsonConfirmedEvent,
   JsonDog,
   JsonKcResult,
   JsonKcState,
   JsonRegistration,
+  Patch,
   PublicJudge,
 } from '../types'
 import { dayOf, isDayKey, TIME_ZONE } from './day'
@@ -113,6 +115,11 @@ export type KcProblemCode =
   | 'noBirthDate'
   | 'noBreed'
   | 'countryUnknown'
+  /* A foreign dog Kennelliitto knows by another registration number (KOE-1653). */
+  /** No choice was made for it, so nothing was sent; `detail` is Kennelliitto's number. */
+  | 'kcRegNoDiffers'
+  /** Another entry of the trial already has Kennelliitto's number (`detail`): the same dog entered twice. */
+  | 'kcRegNoTaken'
 
 export interface KcProblem {
   code: KcProblemCode
@@ -369,6 +376,12 @@ type KcForeignDog = Pick<JsonDog, 'breedCode' | 'dob' | 'gender' | 'name' | 'reg
 /** Kennelliitto's `id_Sukupuoli` (Testi2, 27.10.2026). */
 const KC_GENDER: Record<DogGender, number> = { F: 102, M: 101 }
 
+const DOG_GENDERS: readonly DogGender[] = ['F', 'M']
+
+/** The sex of Kennelliitto's `id_Sukupuoli`, read from the same table `KC_GENDER` writes it by. */
+export const dogGenderOfKc = (id: number | null | undefined): DogGender | undefined =>
+  DOG_GENDERS.find((gender) => KC_GENDER[gender] === id)
+
 /** A Finnish dog is never added as a foreign one, whatever its number looks like. */
 const FINLAND = 'FI'
 
@@ -449,6 +462,107 @@ export const buildKcForeignDog = (
   }
 }
 
+/** Which lookup found the dog in Kennelliitto: its number, its microchip or its exact name (KOE-1653). */
+export type KcFoundBy = 'regNo' | 'microchip' | 'name'
+
+/**
+ * A dog Kennelliitto knows under another registration number than the entry has (KOE-1653), with what
+ * the secretary compares it by. Kennelliitto's empty birth date (0001-01-01) is no date.
+ */
+export interface KcKnownDog {
+  breedCode?: string
+  dob?: DayKey
+  foundBy: KcFoundBy
+  gender?: DogGender
+  name: string
+  regNo: string
+  /** Empty when Kennelliitto has no microchip for the dog. */
+  rfid: string
+}
+
+/** What of a Koira answer `kcKnownDogOf` reads. Structural, so the lambda passes its answer as it is. */
+interface KcDogAnswer {
+  id_Sukupuoli: number | null
+  nimi: string
+  rekisterinumero: string
+  rotukoodi: string
+  syntymäaika: string | null
+  tunnistusmerkintä: string
+}
+
+export const kcKnownDogOf = (answer: KcDogAnswer, foundBy: KcFoundBy): KcKnownDog => {
+  const dob = answer.syntymäaika?.slice(0, 10)
+  const gender = dogGenderOfKc(answer.id_Sukupuoli)
+  const breedCode = answer.rotukoodi.trim()
+  return {
+    ...(breedCode ? { breedCode } : {}),
+    ...(isDayKey(dob) ? { dob } : {}),
+    foundBy,
+    ...(gender ? { gender } : {}),
+    name: answer.nimi.trim(),
+    regNo: answer.rekisterinumero.trim(),
+    rfid: answer.tunnistusmerkintä.trim(),
+  }
+}
+
+/** The details of a dog the secretary compares between the entry and Kennelliitto. */
+export type KcDogField = 'regNo' | 'name' | 'rfid' | 'dob' | 'breed' | 'gender'
+
+/** A dog as the comparison reads it: the entry's, or Kennelliitto's, whose breed code is any code it gives. */
+export type KcComparedDog = Pick<JsonDog, 'dob' | 'gender' | 'name' | 'regNo' | 'rfid'> & { breedCode?: string }
+
+/**
+ * A registration number (or name) as it is compared: trimmed and without case. A space inside the number
+ * or the Estonian dash stays, so it is a difference, which the secretary resolves by taking Kennelliitto's
+ * number (KOE-1653).
+ */
+export const kcTextKey = (value: string | undefined): string => (value ?? '').trim().toLocaleUpperCase('fi')
+
+/** Whether two registration numbers (or names) are the same, as `kcTextKey` reads them. */
+export const isSameKcText = (a: string | undefined, b: string | undefined): boolean => kcTextKey(a) === kcTextKey(b)
+
+/** The microchips are the same: Kennelliitto has one, and it is the entry's. */
+const isSameChip = (ours: Pick<KcComparedDog, 'rfid'>, kcDog: Pick<KcKnownDog, 'rfid'>): boolean =>
+  kcDog.rfid !== '' && ours.rfid?.trim() === kcDog.rfid
+
+/** A detail Kennelliitto does not have is no difference: there is nothing to compare with. */
+const differsUnlessMissing = <T>(ours: T | undefined, theirs: T | undefined): boolean =>
+  theirs !== undefined && ours !== theirs
+
+/**
+ * Where the entry's dog and Kennelliitto's differ. What Kennelliitto does not have (no microchip, no birth
+ * date, no breed or sex) is no difference (KOE-1653).
+ */
+export const kcDogDifferences = (ours: KcComparedDog, kcDog: KcKnownDog): KcDogField[] => {
+  const differs: Array<[KcDogField, boolean]> = [
+    ['regNo', !isSameKcText(ours.regNo, kcDog.regNo)],
+    ['name', !isSameKcText(ours.name, kcDog.name)],
+    ['rfid', kcDog.rfid !== '' && !isSameChip(ours, kcDog)],
+    ['dob', differsUnlessMissing(ours.dob, kcDog.dob)],
+    ['breed', differsUnlessMissing(ours.breedCode, kcDog.breedCode)],
+    ['gender', differsUnlessMissing(ours.gender, kcDog.gender)],
+  ]
+  return differs.filter(([, differ]) => differ).map(([field]) => field)
+}
+
+/**
+ * A dog found by its name is the entry's dog only when its breed and sex are not different: the same, or
+ * missing from Kennelliitto, which is no difference here either (KOE-1653).
+ */
+export const isKcNameMatch = (ours: KcComparedDog, kcDog: KcKnownDog): boolean =>
+  !differsUnlessMissing(ours.breedCode, kcDog.breedCode) && !differsUnlessMissing(ours.gender, kcDog.gender)
+
+/**
+ * What a dog Kennelliitto knows by another number starts with in the dialog: Kennelliitto's number when the
+ * microchips are the same, else no choice, so the secretary looks at the dog before anything is sent.
+ * Adding such a dog as a new one is not offered: Kennelliitto refuses to add a dog of exactly the same
+ * name ("Koira löytyy jo nimellä").
+ */
+export const defaultKcRegNoChoice = (
+  ours: Pick<KcComparedDog, 'rfid'>,
+  kcDog: Pick<KcKnownDog, 'rfid'>
+): 'switch' | undefined => (isSameChip(ours, kcDog) ? 'switch' : undefined)
+
 /** A day as a person reads it, d.M.yyyy: the form a message that names a day carries. */
 export const finnishDay = (day: string): string => {
   const [year, month, date] = day.split('-')
@@ -480,6 +594,11 @@ export interface KcDogReport {
   /** What Kennelliitto answered when the last call was refused. */
   errors?: string[]
   id: string
+  /**
+   * Kennelliitto knows the dog under another number (KOE-1653): the result is sent only after the
+   * secretary chose what to do with it.
+   */
+  kcDog?: KcKnownDog
   eventClass?: string
   name: string
   problems: KcProblem[]
@@ -536,10 +655,13 @@ export interface KcPreviewResponse {
 
 export interface KcSendResponse {
   blockers: KcBlocker[]
-  /** What each dog's sending came to, in the form the registration stores it. */
-  kcResults: Array<{ id: string; kcResult: JsonKcResult }>
   /** Dogs the request had no time left for: ask for them again. */
   notAttempted: string[]
+  /**
+   * What changed on the registrations, one patch per dog: what its sending came to (`kcResult`), and the
+   * registration number taken from Kennelliitto (`dog`, KOE-1653). The open pages get the same patches.
+   */
+  patches: Patch<JsonRegistration>[]
   reports: KcSendReport[]
 }
 
