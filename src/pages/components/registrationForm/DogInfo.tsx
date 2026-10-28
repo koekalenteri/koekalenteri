@@ -100,15 +100,20 @@ export const DogInfo = ({
   const typed = typedDogFields(reg?.dog)
   // The number is looked up, judged and stored without the edges of what was typed (KOE-1651).
   const regNo = state.input.trim()
-  const typedLocked = disabled || !reg?.dog?.regNo || regNo !== reg.dog.regNo
+  const regNoEdited = regNo !== reg?.dog?.regNo
+  const typedLocked = disabled || !reg?.dog?.regNo || regNoEdited
   const rfidDisabled = typedLocked || !typed.rfid
   const detailsDisabled = typedLocked || !typed.details
   // Kennelliitto's dog without a birth date gets one typed too, but not after the trial: there only
   // the typed details open, by the rule `typedDogChange` takes them by.
   const dobDisabled = typedLocked || !(typed.details || (!typedDogOnly && state.dob))
   const validRegNo = validateRegNo(regNo)
-  // A number Kennelliitto does not know becomes the user's to type, so it must be in its registry's form.
-  const typedRegNoError = state.mode === 'notfound' ? regNoError(regNo) : undefined
+  // A dog the registration holds that was typed by hand; a fresh entry or a number not found holds none.
+  const holdsTypedDog = Boolean(reg?.dog?.name) && typed.details
+  // A number Kennelliitto does not know becomes the user's to type, so it must be in its registry's
+  // form; so must a typed dog's corrected number, as it is typed. The stored one is not judged (KOE-1651).
+  const judgeRegNo = state.mode === 'notfound' || (holdsTypedDog && regNoEdited)
+  const typedRegNoError = judgeRegNo ? regNoError(regNo) : undefined
   const [loading, setLoading] = useState(false)
   const [delayed, setDelayed] = useState(false)
   const allowRefresh = shouldAllowRefresh(reg?.dog)
@@ -117,10 +122,11 @@ export const DogInfo = ({
 
   const handleChange = useCallback(
     (props: DeepPartial<DogCachedInfo>) => {
-      const cache = actions.updateCache({ ...props, manual: state.mode === 'manual' })
+      // An edit of a dog typed by hand keeps it cached as typed, also once it is stored (KOE-1651).
+      const cache = actions.updateCache({ ...props, manual: state.mode === 'manual' || holdsTypedDog })
       onChange?.({ dog: cache.dog })
     },
-    [actions, onChange, state.mode]
+    [actions, holdsTypedDog, onChange, state.mode]
   )
 
   const updateDog = useCallback(
@@ -152,44 +158,74 @@ export const DogInfo = ({
     [onChange, orgId, reg?.dog]
   )
 
+  /**
+   * A dog typed by hand that Kennelliitto does not know by its corrected number stays as it was typed,
+   * people and all; only the number changes, and the dog is cached under it as typed. It goes on as the
+   * stored typed dog does, with its number open for another correction (KOE-1651).
+   */
+  const keepTypedDog = useCallback(() => {
+    onChange?.({ dog: actions.updateCache({ dog: { ...reg.dog, regNo }, manual: true }).dog })
+    setState((prev) => ({ ...prev, mode: 'update' }))
+  }, [actions, onChange, reg.dog, regNo])
+
+  const fetchDog = useCallback(
+    async (mode: State['mode']) => {
+      try {
+        const cache = await actions.fetch()
+        // A number typed back that is cached as typed is one Kennelliitto did not know either: the dog
+        // held wins over an older cache of it. A number picked from the list asks for that dog.
+        const typedBack = Boolean(cache?.manual) && mode !== 'autofetch'
+        if (holdsTypedDog && (!cache?.dog?.regNo || typedBack)) {
+          keepTypedDog()
+          return
+        }
+        updateDog(cache)
+        if (regNo) {
+          let newMode: State['mode'] = 'update'
+          if (!cache?.dog?.regNo) newMode = 'notfound'
+          if (cache?.manual) newMode = 'manual'
+
+          setState((prev) => ({
+            ...prev,
+            dob: !isValidDob(cache?.dog?.dob),
+            mode: newMode,
+            rfid: !!cache?.dog?.rfidEditable,
+          }))
+        }
+      } catch (err) {
+        console.error(err)
+        // A failed lookup takes no dog typed by hand with it either (KOE-1651).
+        if (!holdsTypedDog) updateDog({ dog: emptyDog })
+        setState((prev) => ({ ...prev, mode: 'error' }))
+      }
+    },
+    [actions, holdsTypedDog, keepTypedDog, regNo, updateDog]
+  )
+
   const handleDogOperation = useCallback(
     async (mode: State['mode']) => {
       const delay = 100
 
       if (mode === 'autofetch' || mode === 'fetch') {
-        try {
-          const cache = await actions.fetch()
-          updateDog(cache)
-          if (regNo) {
-            let newMode: State['mode'] = 'update'
-            if (!cache?.dog?.regNo) newMode = 'notfound'
-            if (cache?.manual) newMode = 'manual'
-
-            setState((prev) => ({
-              ...prev,
-              dob: !isValidDob(cache?.dog?.dob),
-              mode: newMode,
-              rfid: !!cache?.dog?.rfidEditable,
-            }))
-          }
-        } catch (err) {
-          console.error(err)
-          updateDog({ dog: emptyDog })
-          setState((prev) => ({ ...prev, mode: 'error' }))
-        }
+        await fetchDog(mode)
       } else if (mode === 'update') {
         updateDog(await actions.refresh(reg.dog))
       } else if (mode === 'notfound') {
         // Entering the dog by hand makes its chip the user's to type.
         onChange?.({ dog: actions.updateCache({ manual: true }).dog })
         setState((prev) => ({ ...prev, mode: 'manual' }))
+      } else if (mode === 'error' && holdsTypedDog) {
+        keepTypedDog()
       } else {
+        // A new search starts from no dog. Emptying the number alone does not clear a dog typed by
+        // hand, so the search clears it here (KOE-1651).
+        updateDog({ dog: emptyDog })
         setState({ dob: false, input: '', mode: 'fetch' })
       }
 
       return delay
     },
-    [actions, onChange, reg.dog, regNo, updateDog]
+    [actions, fetchDog, holdsTypedDog, keepTypedDog, onChange, reg.dog, updateDog]
   )
 
   const buttonClick = useCallback(() => {
@@ -241,11 +277,12 @@ export const DogInfo = ({
         setState((prev) => ({ ...prev, input: reg.dog?.regNo ?? '' }))
         return
       }
-      if ((validRegNo && state.mode === 'autofetch') || regNo === '') {
+      // An emptied number clears the dog, but not one typed by hand: its number is being corrected (KOE-1651).
+      if ((validRegNo && state.mode === 'autofetch') || (regNo === '' && !holdsTypedDog)) {
         buttonClick()
       }
     }
-  }, [buttonClick, reg.dog?.regNo, state.mode, regNo, validRegNo])
+  }, [buttonClick, holdsTypedDog, reg.dog?.regNo, state.mode, regNo, validRegNo])
 
   return (
     <CollapsibleSection
@@ -283,7 +320,7 @@ export const DogInfo = ({
         <DogDetails
           formValues={formValues}
           updateField={updateField}
-          nameDisabled={disabledByMode}
+          nameDisabled={locked || detailsDisabled}
           titlesDisabled={titlesDisabled}
           rfidDisabled={rfidDisabled}
           dobDisabled={dobDisabled}

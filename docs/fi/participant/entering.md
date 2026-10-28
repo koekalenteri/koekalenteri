@@ -36,7 +36,9 @@ ei löydy tietoja, saat ilmoituksen *{t:registration.cta.helper.notfound}* ja vo
 käsin — tarkista kuitenkin ensin numero, sillä pelkkä kirjoitusvirhe riittää. Käsin täytettävän
 koiran rekisterinumeron pitää olla rekisterin omassa muodossa ilman ylimääräisiä välilyöntejä tai
 pisteitä. Jos se ei ole, lomake kertoo odotetun muodon, esimerkiksi *{t:validation.regNo.DK}*, eikä
-päästä täyttämään tietoja käsin ennen kuin numero on korjattu. Kun kirjoitat
+päästä täyttämään tietoja käsin ennen kuin numero on korjattu. Käsin täytetyn koiran numeron voi
+korjata myöhemminkin: jos Kennelliitto ei tunne korjattua numeroa, koiran ja ihmisten tiedot säilyvät
+ja vain numero vaihtuu. Käsin täytetyn koiran nimen voi korjata kuten sen muutkin tiedot. Kun kirjoitat
 tunnistusmerkinnän itse (käsin täytetylle koiralle tai koiralle, jolle Kennelliitolla ei ole sirua),
 anna mikrosirun 15 numeroa. Välilyönnit poistuvat itsestään, eikä lomake hyväksy muuta.
 

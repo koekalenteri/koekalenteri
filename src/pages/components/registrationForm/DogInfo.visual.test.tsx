@@ -131,6 +131,28 @@ it('says the form a number not found must take to be entered by hand', async () 
   await expect(screen.getByTestId('visual-root')).toMatchScreenshot('dog-info-regno-invalid')
 })
 
+it('marks the corrected number of a dog entered by hand as it is typed', async () => {
+  // A stored dog typed by hand: its number is the registrant's, so a corrected one must be in its
+  // registry's form before it can be looked up (KOE-1651).
+  await page.viewport(1000, 900)
+  const typed: DeepPartial<Registration> = {
+    dog: { ...registration.dog, refreshDate: undefined, regNo: 'EST-03101/26' },
+  }
+  const screen = await render(
+    <TestProvider>
+      <Frame>
+        <DogInfo reg={typed} eventDate="2026-06-06" minDogAgeMonths={9} orgId="org" open />
+      </Frame>
+    </TestProvider>
+  )
+
+  await userEvent.fill(screen.getByLabelText('Rekisterinumero'), 'EST03101/26')
+
+  await expect.element(screen.getByText('Virolaiset rekisterinumerot ovat muotoa EST-12345/20')).toBeVisible()
+  await expect.element(screen.getByRole('button', { name: 'Hae koiran tiedot' })).toBeDisabled()
+  await expect(screen.getByTestId('visual-root')).toMatchScreenshot('dog-info-typed-regno-invalid')
+})
+
 // The guide's English page shows the section in English (KOE-1437).
 describeInLanguage('en', () => {
   it('shows the fetched dog with its titles, parents and RFID locked as facts', async () => {

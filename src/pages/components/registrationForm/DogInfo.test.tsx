@@ -31,19 +31,41 @@ function Wrapper(props: { readonly children?: ReactNode }) {
   )
 }
 
+interface StatefulProps {
+  readonly initial?: DeepPartial<Registration>
+  readonly typedDogOnly?: boolean
+  /** Hears the registration after every change, as the form would hold it. */
+  readonly onRegistration?: (reg: DeepPartial<Registration>) => void
+}
+
 /** The section with its registration kept as the form keeps it, so a change reaches the next render. */
-function StatefulDogInfo() {
-  const [reg, setReg] = useState<DeepPartial<Registration>>({})
+function StatefulDogInfo({ initial = {}, typedDogOnly, onRegistration }: StatefulProps) {
+  const [reg, setReg] = useState<DeepPartial<Registration>>(initial)
   return (
     <DogInfo
       reg={reg}
       eventDate={eventDate}
       minDogAgeMonths={15}
       orgId="test"
-      onChange={(changes, replace) => setReg((prev) => (replace ? { ...prev, ...changes } : merge(prev, changes)))}
+      typedDogOnly={typedDogOnly}
+      onChange={(changes, replace) =>
+        setReg((prev) => {
+          const next = replace ? { ...prev, ...changes } : merge(prev, changes)
+          onRegistration?.(next)
+          return next
+        })
+      }
     />
   )
 }
+
+/** A dog the registrant entered by hand: never fetched from Kennelliitto, so no refresh date (KOE-1651). */
+const typedDogRegistration: DeepPartial<Registration> = {
+  ...registrationWithStaticDates,
+  dog: { ...registrationWithStaticDates.dog, refreshDate: undefined, regNo: 'EST-03101/26' },
+}
+
+const cachedDog = (regNo: string) => JSON.parse(localStorage.getItem('dog-cache') ?? '{}')[regNo]
 
 describe('DogInfo', () => {
   beforeEach(() => vi.useFakeTimers())
@@ -112,12 +134,8 @@ describe('DogInfo', () => {
     const reg = {}
     const changeHandler = vi.fn((props) => Object.assign(reg, props))
 
-    vi.mocked(localStorage.getItem).mockImplementation((key: string) => {
-      if (key === 'dog-cache') {
-        return JSON.stringify({ 'TESTDOG-0020': {} })
-      }
-      return null
-    })
+    // The real storage, which afterEach clears: a mocked getItem would outlive this test.
+    localStorage.setItem('dog-cache', JSON.stringify({ 'TESTDOG-0020': {} }))
 
     const { user } = renderWithUserEvents(
       <DogInfo reg={reg} eventDate={eventDate} minDogAgeMonths={15} onChange={changeHandler} orgId="test" />,
@@ -596,5 +614,314 @@ describe('DogInfo', () => {
     await flushPromises()
 
     expect(screen.getByLabelText('dog.rfid')).toBeDisabled()
+  })
+  describe('a dog entered by hand that the registration holds (KOE-1651)', () => {
+    it('marks a corrected number by its registry rule as it is typed', async () => {
+      const { user } = renderWithUserEvents(
+        <StatefulDogInfo initial={typedDogRegistration} />,
+        { wrapper: Wrapper },
+        { advanceTimers: vi.advanceTimersByTime }
+      )
+      const input = screen.getByRole('combobox', { name: 'dog.regNo' })
+
+      // The hyphen out: "EST03101/26", which the loose lookup rule lets through.
+      await user.type(input, '{Backspace}', { initialSelectionEnd: 4, initialSelectionStart: 4 })
+      await flushPromises()
+
+      expect(input).toHaveValue('EST03101/26')
+      expect(input).toHaveAttribute('aria-invalid', 'true')
+      expect(screen.getByText('validation.regNo.EST')).toBeInTheDocument()
+      expect(screen.getByRole('button', { name: 'registration.cta.fetch' })).toBeDisabled()
+    })
+
+    it('does not judge the number it was stored with', async () => {
+      render(<StatefulDogInfo initial={merge(typedDogRegistration, { dog: { regNo: 'DK 21568/2021' } })} />, {
+        wrapper: Wrapper,
+      })
+      await flushPromises()
+
+      expect(screen.getByRole('combobox', { name: 'dog.regNo' })).toHaveAttribute('aria-invalid', 'false')
+      expect(screen.queryByText(/^validation\.regNo\./)).not.toBeInTheDocument()
+    })
+
+    it('keeps the dog and its people when Kennelliitto does not know the corrected number', async () => {
+      vi.spyOn(dogApi, 'getDog').mockRejectedValue({ status: 404 })
+      const onRegistration = vi.fn()
+      const { user } = renderWithUserEvents(
+        <StatefulDogInfo initial={typedDogRegistration} onRegistration={onRegistration} />,
+        { wrapper: Wrapper },
+        { advanceTimers: vi.advanceTimersByTime }
+      )
+      const input = screen.getByRole('combobox', { name: 'dog.regNo' })
+
+      await user.type(input, '{Backspace}2', { initialSelectionEnd: 9, initialSelectionStart: 9 })
+      await flushPromises()
+      expect(input).toHaveValue('EST-03102/26')
+      await user.click(screen.getByRole('button', { name: 'registration.cta.fetch' }))
+      await flushPromises()
+
+      const { breeder, dog, handler, owner, ownerHandles, ownerPays } = registrationWithStaticDates
+      expect(onRegistration).toHaveBeenLastCalledWith(
+        expect.objectContaining({
+          breeder,
+          dog: expect.objectContaining({ dob: dog.dob, name: dog.name, regNo: 'EST-03102/26', rfid: dog.rfid }),
+          handler,
+          owner,
+          ownerHandles,
+          ownerPays,
+        })
+      )
+      // On as the stored typed dog: details open, the number open for another correction, and the
+      // registrant's own browser offers the dog by its new number.
+      expect(screen.getByRole('button', { name: 'registration.cta.update' })).toBeDisabled()
+      expect(screen.getByText('registration.cta.helper.typed date')).toBeInTheDocument()
+      expect(input).toBeEnabled()
+      expect(screen.getByLabelText('dog.name')).toBeEnabled()
+      expect(screen.getByLabelText('dog.name')).toHaveValue('DOG NAME 10')
+      expect(cachedDog('EST-03102/26')).toEqual(
+        expect.objectContaining({ dog: expect.objectContaining({ name: dog.name }), manual: true })
+      )
+    })
+
+    it('keeps the dog through a second correction of a kept number', async () => {
+      vi.spyOn(dogApi, 'getDog').mockRejectedValue({ status: 404 })
+      const onRegistration = vi.fn()
+      const { user } = renderWithUserEvents(
+        <StatefulDogInfo initial={typedDogRegistration} onRegistration={onRegistration} />,
+        { wrapper: Wrapper },
+        { advanceTimers: vi.advanceTimersByTime }
+      )
+      const input = screen.getByRole('combobox', { name: 'dog.regNo' })
+
+      // A wrong correction first: EST-03101/27.
+      await user.type(input, '{Backspace}7', { initialSelectionEnd: 12, initialSelectionStart: 12 })
+      await flushPromises()
+      await user.click(screen.getByRole('button', { name: 'registration.cta.fetch' }))
+      await flushPromises()
+      expect(input).toBeEnabled()
+
+      await user.type(input, '{Backspace}6', { initialSelectionEnd: 12, initialSelectionStart: 12 })
+      await user.type(input, '{Backspace}2', { initialSelectionEnd: 9, initialSelectionStart: 9 })
+      await flushPromises()
+      expect(input).toHaveValue('EST-03102/26')
+      await user.click(screen.getByRole('button', { name: 'registration.cta.fetch' }))
+      await flushPromises()
+
+      const { breeder, dog, handler, owner } = registrationWithStaticDates
+      expect(onRegistration).toHaveBeenLastCalledWith(
+        expect.objectContaining({
+          breeder,
+          dog: expect.objectContaining({ name: dog.name, regNo: 'EST-03102/26' }),
+          handler,
+          owner,
+        })
+      )
+      expect(input).toBeEnabled()
+    })
+
+    it('keeps the dog when the lookup of the corrected number fails', async () => {
+      vi.spyOn(dogApi, 'getDog').mockRejectedValue({ status: 501 })
+      const errSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined)
+      const onRegistration = vi.fn()
+      const { user } = renderWithUserEvents(
+        <StatefulDogInfo initial={typedDogRegistration} onRegistration={onRegistration} />,
+        { wrapper: Wrapper },
+        { advanceTimers: vi.advanceTimersByTime }
+      )
+      const input = screen.getByRole('combobox', { name: 'dog.regNo' })
+
+      await user.type(input, '{Backspace}2', { initialSelectionEnd: 9, initialSelectionStart: 9 })
+      await flushPromises()
+      await user.click(screen.getByRole('button', { name: 'registration.cta.fetch' }))
+      await flushPromises()
+
+      expect(errSpy).toHaveBeenCalledWith({ status: 501 })
+      expect(onRegistration).not.toHaveBeenCalled()
+      expect(screen.getByText('registration.cta.helper.error date')).toBeInTheDocument()
+
+      // Entering it by hand goes on with the dog as it was typed, under the corrected number.
+      await user.click(screen.getByRole('button', { name: 'registration.cta.error' }))
+      await flushPromises()
+
+      const { dog, owner } = registrationWithStaticDates
+      expect(onRegistration).toHaveBeenLastCalledWith(
+        expect.objectContaining({ dog: expect.objectContaining({ name: dog.name, regNo: 'EST-03102/26' }), owner })
+      )
+      expect(screen.getByLabelText('dog.name')).toBeEnabled()
+    })
+
+    it('takes the dog Kennelliitto knows by the corrected number', async () => {
+      vi.spyOn(dogApi, 'getDog').mockResolvedValue(registrationDogAged20MonthsAndNoResults)
+      const onRegistration = vi.fn()
+      const { user } = renderWithUserEvents(
+        <StatefulDogInfo initial={typedDogRegistration} onRegistration={onRegistration} />,
+        { wrapper: Wrapper },
+        { advanceTimers: vi.advanceTimersByTime }
+      )
+      const input = screen.getByRole('combobox', { name: 'dog.regNo' })
+
+      await user.clear(input)
+      await user.type(input, registrationDogAged20MonthsAndNoResults.regNo)
+      await flushPromises()
+      await user.click(screen.getByRole('button', { name: 'registration.cta.fetch' }))
+      await flushPromises()
+
+      expect(onRegistration).toHaveBeenLastCalledWith(
+        expect.objectContaining({
+          dog: expect.objectContaining({ name: registrationDogAged20MonthsAndNoResults.name }),
+        })
+      )
+      expect(screen.getByRole('button', { name: 'registration.cta.update' })).toBeInTheDocument()
+    })
+
+    it('keeps the dog when its number is emptied', async () => {
+      const onRegistration = vi.fn()
+      const { user } = renderWithUserEvents(
+        <StatefulDogInfo initial={typedDogRegistration} onRegistration={onRegistration} />,
+        { wrapper: Wrapper },
+        { advanceTimers: vi.advanceTimersByTime }
+      )
+      const input = screen.getByRole('combobox', { name: 'dog.regNo' })
+
+      await user.clear(input)
+      await flushPromises()
+
+      expect(input).toHaveValue('')
+      expect(onRegistration).not.toHaveBeenCalled()
+      expect(screen.getByLabelText('dog.name')).toHaveValue('DOG NAME 10')
+    })
+
+    it('lets its name be corrected, and keeps the dog one typed by hand', async () => {
+      const onRegistration = vi.fn()
+      const { user } = renderWithUserEvents(
+        <StatefulDogInfo initial={typedDogRegistration} onRegistration={onRegistration} />,
+        { wrapper: Wrapper },
+        { advanceTimers: vi.advanceTimersByTime }
+      )
+      const name = screen.getByLabelText('dog.name')
+      expect(name).toBeEnabled()
+
+      await user.type(name, ' II')
+      await flushPromises()
+      runAllTimers()
+
+      expect(onRegistration).toHaveBeenLastCalledWith(
+        expect.objectContaining({
+          dog: expect.objectContaining({ name: 'DOG NAME 10 II', regNo: 'EST-03101/26' }),
+        })
+      )
+      expect(cachedDog('EST-03101/26')).toEqual(expect.objectContaining({ manual: true }))
+    })
+
+    it('keeps the dog when a corrected number is turned back to one cached as typed', async () => {
+      vi.spyOn(dogApi, 'getDog').mockRejectedValue({ status: 404 })
+      const onRegistration = vi.fn()
+      const { user } = renderWithUserEvents(
+        <StatefulDogInfo initial={typedDogRegistration} onRegistration={onRegistration} />,
+        { wrapper: Wrapper },
+        { advanceTimers: vi.advanceTimersByTime }
+      )
+      const input = screen.getByRole('combobox', { name: 'dog.regNo' })
+
+      // An edit caches the dog under its number as typed, with no people.
+      await user.type(screen.getByLabelText('dog.name'), ' II')
+      await flushPromises()
+      runAllTimers()
+      expect(cachedDog('EST-03101/26')).toEqual(expect.objectContaining({ manual: true }))
+
+      await user.type(input, '{Backspace}2', { initialSelectionEnd: 9, initialSelectionStart: 9 })
+      await flushPromises()
+      await user.click(screen.getByRole('button', { name: 'registration.cta.fetch' }))
+      await flushPromises()
+      await user.type(screen.getByLabelText('dog.name'), 'I')
+      await flushPromises()
+      runAllTimers()
+
+      // The first number was right after all.
+      await user.type(input, '{Backspace}1', { initialSelectionEnd: 9, initialSelectionStart: 9 })
+      await flushPromises()
+      await user.click(screen.getByRole('button', { name: 'registration.cta.fetch' }))
+      await flushPromises()
+
+      const { breeder, handler, owner } = registrationWithStaticDates
+      expect(onRegistration).toHaveBeenLastCalledWith(
+        expect.objectContaining({
+          breeder,
+          dog: expect.objectContaining({ name: 'DOG NAME 10 III', regNo: 'EST-03101/26' }),
+          handler,
+          owner,
+        })
+      )
+      expect(input).toBeEnabled()
+      expect(screen.getByRole('button', { name: 'registration.cta.update' })).toBeDisabled()
+      expect(cachedDog('EST-03101/26')).toEqual(
+        expect.objectContaining({
+          dog: expect.objectContaining({ name: 'DOG NAME 10 III', regNo: 'EST-03101/26' }),
+          manual: true,
+        })
+      )
+    })
+
+    it('loads another dog typed by hand that is picked from the list', async () => {
+      localStorage.setItem(
+        'dog-cache',
+        JSON.stringify({ 'EST-04444/25': { dog: { name: 'OTHER DOG', regNo: 'EST-04444/25' }, manual: true } })
+      )
+      const onRegistration = vi.fn()
+      const { user } = renderWithUserEvents(
+        <StatefulDogInfo initial={typedDogRegistration} onRegistration={onRegistration} />,
+        { wrapper: Wrapper },
+        { advanceTimers: vi.advanceTimersByTime }
+      )
+      const input = screen.getByRole('combobox', { name: 'dog.regNo' })
+
+      await user.clear(input)
+      await user.type(input, 'EST-04{ArrowDown}{Enter}')
+      await flushPromises()
+
+      expect(input).toHaveValue('EST-04444/25')
+      expect(onRegistration).toHaveBeenLastCalledWith(
+        expect.objectContaining({ dog: expect.objectContaining({ name: 'OTHER DOG', regNo: 'EST-04444/25' }) })
+      )
+      expect(cachedDog('EST-04444/25')).toEqual(
+        expect.objectContaining({ dog: expect.objectContaining({ name: 'OTHER DOG' }) })
+      )
+    })
+
+    it('keeps the dog cached as typed when its number is typed back and its name edited', async () => {
+      const { user } = renderWithUserEvents(
+        <StatefulDogInfo initial={typedDogRegistration} />,
+        { wrapper: Wrapper },
+        { advanceTimers: vi.advanceTimersByTime }
+      )
+      const input = screen.getByRole('combobox', { name: 'dog.regNo' })
+
+      await user.type(input, '{Backspace}2', { initialSelectionEnd: 9, initialSelectionStart: 9 })
+      await user.type(input, '{Backspace}1', { initialSelectionEnd: 9, initialSelectionStart: 9 })
+      await flushPromises()
+      expect(input).toHaveValue('EST-03101/26')
+
+      await user.type(screen.getByLabelText('dog.name'), ' II')
+      await flushPromises()
+      runAllTimers()
+
+      expect(cachedDog('EST-03101/26')).toEqual(
+        expect.objectContaining({ dog: expect.objectContaining({ name: 'DOG NAME 10 II' }), manual: true })
+      )
+    })
+
+    it('keeps the name locked after the trial', async () => {
+      render(<StatefulDogInfo initial={typedDogRegistration} typedDogOnly />, { wrapper: Wrapper })
+      await flushPromises()
+
+      expect(screen.getByLabelText('dog.name')).toBeDisabled()
+    })
+  })
+
+  it('keeps the name of a dog fetched from Kennelliitto locked', async () => {
+    render(<StatefulDogInfo initial={registrationWithStaticDates} />, { wrapper: Wrapper })
+    await flushPromises()
+
+    expect(screen.getByLabelText('dog.name')).toBeDisabled()
   })
 })
