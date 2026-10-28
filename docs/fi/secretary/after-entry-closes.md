@@ -215,7 +215,9 @@ koepaikkailmoitus.
 Kokeen jälkeen tulokset lähetetään Kennelliiton Omakoiraan paneelin *{t:results.kennelliitto.title}*
 -osiosta painikkeella **{t:results.kennelliitto.send}**. Ikkuna kertoo ensin, montako tulosta lähtee ja
 mitkä koirat eivät voi lähteä ja miksi. Ulkomainen koira, jota Kennelliitto ei tunne, lisätään sinne
-ennen tulosta.
+ennen tulosta. Lähetyksen jälkeen ikkuna kertoo, minkä koirien tulokset tallentuivat Omakoiraan ja minkä
+eivät. Epäonnistuneissa ovat syineen sekä koirat, joiden tuloksen Kennelliitto hylkäsi, että koirat,
+joita ei voinut lähettää.
 
 Kennelliitto voi tuntea ulkomaisen koiran toisella rekisterinumerolla, esimerkiksi kun koira on
 rekisteröity uudelleen Suomeen. Koekalenteri etsii koiraa silloin myös tunnistusmerkinnällä ja nimellä,

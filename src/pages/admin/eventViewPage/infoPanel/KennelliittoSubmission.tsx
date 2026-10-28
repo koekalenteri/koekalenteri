@@ -23,7 +23,7 @@ import { KcIdLookupButton } from '../../components/KcIdLookupButton'
 import { useSaveKcLink } from '../../hooks/useSaveKcLink'
 import { useKennelliittoResults } from '../../state/registrations/actions'
 import { KennelliittoHandOverDialog } from './KennelliittoHandOverDialog'
-import { dogsToDecide, dogsToSend, KennelliittoSendDialog } from './KennelliittoSendDialog'
+import { dogsBlocked, dogsToDecide, dogsToSend, KennelliittoSendDialog } from './KennelliittoSendDialog'
 import { PublishingSection } from './PublishingSection'
 import { actionButtonSx } from './styles'
 
@@ -146,11 +146,14 @@ const KennelliittoSubmission = ({ event, onRefreshState, registrations }: Props)
       return
     }
     const { ids, switchRegNos } = sendingOf(sendPhase.preview, forceSend, rows, regNoDecisions)
+    // Never asked for, so the server says nothing of them: the report lists them from the preview (KOE-1656).
+    const blocked = dogsBlocked(sendPhase.preview)
     const onProgress = (done: number) => setSendPhase({ done, kind: 'sending', total: ids.length })
     setSendPhase({ done: 0, kind: 'sending', total: ids.length })
     const summary = await kc.send(ids, { force: forceSend, switchRegNos }, onProgress)
     // The answers of every request and retry, put back in the list's order (KOE-1652).
     setSendPhase({
+      blocked,
       kind: 'report',
       summary: { ...summary, reports: inRegistrationOrder(summary.reports, registrations) },
     })

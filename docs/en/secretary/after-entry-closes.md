@@ -18,7 +18,7 @@ covers:
   - src/pages/admin/StartListPreviewPage.tsx
   - src/pages/admin/startListPage/**
   - src/pages/ClassStartNumbersPage.tsx
-sourceHash: 0b3c35
+sourceHash: 50e8ae
 ---
 
 Once entry has closed, the secretary's work goes step by step: picking the participants, the
@@ -222,7 +222,9 @@ notification.
 After the trial, the results are sent to Kennelliitto's Omakoira with the **{t:results.kennelliitto.send}**
 button in the panel's *{t:results.kennelliitto.title}* section. The dialog first tells how many results
 go and which dogs cannot go and why. A foreign dog Kennelliitto does not know is added there before its
-result.
+result. After the sending, the dialog tells which dogs' results were saved in Omakoira and which were not.
+The failed ones list, each with its reason, both the dogs whose result Kennelliitto refused and the dogs
+that could not be sent.
 
 Kennelliitto may know a foreign dog by another registration number, for example when the dog has been
 registered again in Finland. Koekalenteri then looks for the dog by its microchip and its name too, and
