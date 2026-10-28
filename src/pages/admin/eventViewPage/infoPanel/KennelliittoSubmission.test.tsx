@@ -6,7 +6,7 @@ import { act, cleanup, screen, within } from '@testing-library/react'
 import { useAtomValue } from 'jotai'
 import { Suspense } from 'react'
 import { eventWithStaticDates } from '@/__mockData__/events'
-import { registrationsToEventWithStations } from '@/__mockData__/resultsEvent'
+import { RESULTS_EVENT_DAY, registrationsToEventWithStations } from '@/__mockData__/resultsEvent'
 import { putEvent, searchEventKcIdChoices } from '@/api/event'
 import { APIError } from '@/api/http'
 import { handOverKennelliittoResults, previewKennelliittoResults, sendKennelliittoResults } from '@/api/registration'
@@ -430,7 +430,7 @@ describe('KennelliittoSubmission (KOE-1579)', () => {
 
         expect(sendKennelliittoResults).toHaveBeenCalledWith(
           'test1',
-          ['dog-3', 'run-1'],
+          ['run-1', 'dog-3'],
           { force: false, switchRegNos: ['run-1'] },
           expect.anything()
         )
@@ -449,7 +449,7 @@ describe('KennelliittoSubmission (KOE-1579)', () => {
 
         expect(sendKennelliittoResults).toHaveBeenCalledWith(
           'test1',
-          ['dog-3', 'run-1', 'run-2'],
+          ['run-1', 'run-2', 'dog-3'],
           { force: false, switchRegNos: ['run-1', 'run-2'] },
           expect.anything()
         )
@@ -807,6 +807,97 @@ describe('KennelliittoSubmission (KOE-1579)', () => {
 
       expect(sendButton()).toBeEnabled()
       expect(screen.queryByText('results.kennelliitto.blocker.handedOver')).not.toBeInTheDocument()
+    })
+  })
+
+  describe('the dogs in the order of the secretary’s list (KOE-1652)', () => {
+    // The drawn numbers put run-2 first on the list, though the dogs are held run-1 first.
+    const drawn: Record<string, Partial<Registration>> = {
+      'run-1': { startGroup: { date: RESULTS_EVENT_DAY, key: 'ALO-AP', number: 2, time: 'ap' } },
+      'run-2': { startGroup: { date: RESULTS_EVENT_DAY, key: 'ALO-AP', number: 1, time: 'ap' } },
+    }
+    /** The lines of the list under the alert that says `heading`. */
+    const listUnder = (heading: string) => {
+      const alert = screen.getAllByRole('alert').find((element) => within(element).queryByText(heading))
+      if (!alert) throw new Error(`no alert with ${heading}`)
+      return within(alert)
+        .getAllByRole('listitem')
+        .map((item) => item.textContent)
+    }
+    const sent = (id: string) => ({ id, name: `Koira ${id}`, outcome: 'sent' as const, regNo: `REG-${id}` })
+
+    it('lists the dogs of the preview as the list has them, a dog not on it last', async () => {
+      vi.mocked(previewKennelliittoResults).mockResolvedValueOnce({
+        blockers: [],
+        dogs: [
+          dogReport('run-1', 'blocked', [{ code: 'noJudge' }]),
+          dogReport('gone', 'blocked', [{ code: 'noJudge' }]),
+          dogReport('run-2', 'blocked', [{ code: 'noJudge' }]),
+        ],
+      })
+      const { user } = await renderSection(eventWithStaticDates, drawn)
+
+      await user.click(sendButton())
+      await flushPromises()
+
+      const items = within(screen.getByRole('dialog'))
+        .getAllByRole('listitem')
+        .map((item) => item.textContent)
+      expect(items).toEqual([
+        'Koira run-2 (REG-run-2): results.kennelliitto.problem.noJudge detail',
+        'Koira run-1 (REG-run-1): results.kennelliitto.problem.noJudge detail',
+        'Koira gone (REG-gone): results.kennelliitto.problem.noJudge detail',
+      ])
+    })
+
+    it('lists the dogs saved one under another, as the list has them', async () => {
+      vi.mocked(previewKennelliittoResults).mockResolvedValueOnce({
+        blockers: [],
+        dogs: [dogReport('run-1', 'ready'), dogReport('run-2', 'ready')],
+      })
+      vi.mocked(sendKennelliittoResults).mockResolvedValueOnce({
+        blockers: [],
+        notAttempted: [],
+        patches: [],
+        reports: [sent('run-1'), sent('run-2')],
+      })
+      const { user } = await renderSection(eventWithStaticDates, drawn)
+
+      await user.click(sendButton())
+      await flushPromises()
+      await user.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'results.kennelliitto.send' }))
+      await flushPromises()
+      await flushPromises()
+
+      expect(listUnder('results.kennelliitto.success count')).toEqual([
+        'Koira run-2 (REG-run-2)',
+        'Koira run-1 (REG-run-1)',
+      ])
+    })
+
+    it('lists the results the hand-over wants sent first as the list has them', async () => {
+      vi.mocked(handOverKennelliittoResults).mockRejectedValueOnce(
+        new APIError(new Response(null, { status: 409 }), {
+          dogs: [dogReport('run-1', 'ready'), dogReport('run-2', 'ready')],
+          error: 'unsentResults',
+        })
+      )
+      const { user } = await renderSection(eventWithStaticDates, {
+        'run-1': { ...drawn['run-1'], kcResult: sentOk },
+        'run-2': drawn['run-2'],
+      })
+
+      await user.click(handOverButton())
+      await flushPromises()
+      await user.click(
+        within(screen.getByRole('dialog')).getByRole('button', { name: 'results.kennelliitto.handOverButton' })
+      )
+      await flushPromises()
+
+      expect(listUnder('results.kennelliitto.handOver.unsent')).toEqual([
+        'Koira run-2 (REG-run-2): results.kennelliitto.dogStatus.ready',
+        'Koira run-1 (REG-run-1): results.kennelliitto.dogStatus.ready',
+      ])
     })
   })
 })

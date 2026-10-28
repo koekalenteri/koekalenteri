@@ -678,6 +678,24 @@ export const sortRegistrationsByDateClassTimeAndNumber = <T extends SortableRegi
     ? byClassTimeAndNumber(a, b)
     : sortableDate(placementOf(a)?.date).localeCompare(sortableDate(placementOf(b)?.date))
 
+/**
+ * Items that name a registration by its id, in the order the secretary's start list has those
+ * registrations (KOE-1652): day, class, time and number. An item whose registration is not in the
+ * list goes last, and items the list cannot tell apart keep the order they came in.
+ */
+export const inRegistrationOrder = <T extends { readonly id: string }>(
+  items: readonly T[],
+  registrations: readonly (SortableRegistration & { readonly id: string })[]
+): T[] => {
+  const rank = new Map(
+    [...registrations]
+      .sort(sortRegistrationsByDateClassTimeAndNumber)
+      .map((registration, index) => [registration.id, index])
+  )
+  const rankOf = (item: T) => rank.get(item.id) ?? rank.size
+  return [...items].sort((a, b) => rankOf(a) - rankOf(b))
+}
+
 export const getRegistrationNumberingGroupKey = <T extends JsonRegistration | Registration>(
   reg: Pick<T, 'cancelled' | 'class' | 'eventType' | 'group'>
 ) => {

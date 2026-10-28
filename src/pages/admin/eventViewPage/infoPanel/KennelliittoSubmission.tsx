@@ -18,7 +18,7 @@ import { useTranslation } from 'react-i18next'
 import { reportError } from '@/lib/client/error'
 import { getEventProgress, uniqueClasses } from '@/lib/event'
 import { countSentResults, defaultKcRegNoChoice, isResultsLocked } from '@/lib/kennelliittoResults'
-import { getRegistrationClass, isScorableRegistration } from '@/lib/registration'
+import { getRegistrationClass, inRegistrationOrder, isScorableRegistration } from '@/lib/registration'
 import { KcIdLookupButton } from '../../components/KcIdLookupButton'
 import { useSaveKcLink } from '../../hooks/useSaveKcLink'
 import { useKennelliittoResults } from '../../state/registrations/actions'
@@ -72,11 +72,27 @@ const regNoRowsOf = (preview: KcPreviewResponse, registrations: Registration[]):
 const defaultDecisions = (rows: KcRegNoRow[]): KcRegNoDecisions =>
   Object.fromEntries(rows.map((row) => [row.report.id, defaultKcRegNoChoice(row.dog, row.kcDog)]))
 
-/** What a confirmed choice sends: the dogs as they are, and the dogs whose number is changed to Kennelliitto's. */
+/**
+ * What a confirmed choice sends: the dogs as they are, and the dogs whose number is changed to Kennelliitto's,
+ * all in the preview's order, which is the start list's (KOE-1652).
+ */
 const sendingOf = (preview: KcPreviewResponse, force: boolean, rows: KcRegNoRow[], decisions: KcRegNoDecisions) => {
   const switchRegNos = rows.filter((row) => decisions[row.report.id] === 'switch').map((row) => row.report.id)
-  return { ids: [...dogsToSend(preview, force).map((dog) => dog.id), ...switchRegNos], switchRegNos }
+  const sent = new Set([...dogsToSend(preview, force).map((dog) => dog.id), ...switchRegNos])
+  return { ids: preview.dogs.filter((dog) => sent.has(dog.id)).map((dog) => dog.id), switchRegNos }
 }
+
+/**
+ * The hand-over's answer with its dogs in the order of the secretary's start list (KOE-1652), as the
+ * sending's answers are; the server lists them in the order it read them.
+ */
+const handOverInRegistrationOrder = (
+  outcome: Exclude<KcHandOverOutcome, { kind: 'done' }>,
+  registrations: Registration[]
+): Exclude<KcHandOverOutcome, { kind: 'done' }> =>
+  outcome.kind === 'confirmationNeeded' || outcome.kind === 'unsent'
+    ? { ...outcome, dogs: inRegistrationOrder(outcome.dogs, registrations) }
+    : outcome
 
 /**
  * Sending the results to Kennelliitto's Omakoira and handing the trial to the chief judge, as a step of
@@ -111,12 +127,14 @@ const KennelliittoSubmission = ({ event, onRefreshState, registrations }: Props)
     setSendPhase({ kind: 'loading' })
     setSendOpen(true)
     try {
-      setSendPhase({ kind: 'preview', preview: await kc.preview() })
+      // Every list of dogs the dialogs show is in the order of the secretary's start list (KOE-1652).
+      const preview = await kc.preview()
+      setSendPhase({ kind: 'preview', preview: { ...preview, dogs: inRegistrationOrder(preview.dogs, registrations) } })
     } catch (error) {
       reportError(error)
       setSendPhase({ kind: 'failed' })
     }
-  }, [kc])
+  }, [kc, registrations])
 
   const handleSend = useCallback(async () => {
     if (sendPhase.kind !== 'preview' && sendPhase.kind !== 'regNos') return
@@ -131,7 +149,11 @@ const KennelliittoSubmission = ({ event, onRefreshState, registrations }: Props)
     const onProgress = (done: number) => setSendPhase({ done, kind: 'sending', total: ids.length })
     setSendPhase({ done: 0, kind: 'sending', total: ids.length })
     const summary = await kc.send(ids, { force: forceSend, switchRegNos }, onProgress)
-    setSendPhase({ kind: 'report', summary })
+    // The answers of every request and retry, put back in the list's order (KOE-1652).
+    setSendPhase({
+      kind: 'report',
+      summary: { ...summary, reports: inRegistrationOrder(summary.reports, registrations) },
+    })
   }, [forceSend, kc, registrations, regNoDecisions, sendPhase])
 
   const decideRegNo = useCallback((id: string, decision: KcRegNoDecision) => {
@@ -155,8 +177,8 @@ const KennelliittoSubmission = ({ event, onRefreshState, registrations }: Props)
       enqueueSnackbar(t('results.kennelliitto.handOver.done'), { variant: 'success' })
       return
     }
-    setHandOverOutcome(outcome)
-  }, [handOverAccepted, kc, t])
+    setHandOverOutcome(handOverInRegistrationOrder(outcome, registrations))
+  }, [handOverAccepted, kc, registrations, t])
 
   return (
     <>
