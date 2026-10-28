@@ -910,6 +910,27 @@ describe('DogInfo', () => {
       )
     })
 
+    it('is back as stored when its number is typed back', async () => {
+      const { user } = renderWithUserEvents(
+        <StatefulDogInfo initial={typedDogRegistration} />,
+        { wrapper: Wrapper },
+        { advanceTimers: vi.advanceTimersByTime }
+      )
+      const input = screen.getByRole('combobox', { name: 'dog.regNo' })
+
+      await user.type(input, '{Backspace}', { initialSelectionEnd: 12, initialSelectionStart: 12 })
+      await flushPromises()
+      expect(screen.getByRole('button', { name: 'registration.cta.fetch' })).toBeInTheDocument()
+      await user.type(input, '6')
+      await flushPromises()
+
+      expect(input).toHaveValue('EST-03101/26')
+      expect(screen.getByRole('button', { name: 'registration.cta.update' })).toBeDisabled()
+      expect(screen.getByText('registration.cta.helper.typed date')).toBeInTheDocument()
+      expect(screen.getByLabelText('dog.name')).toBeEnabled()
+      expect(screen.getByRole('button', { name: /^Choose date/ })).toBeEnabled()
+    })
+
     it('keeps the name locked after the trial', async () => {
       render(<StatefulDogInfo initial={typedDogRegistration} typedDogOnly />, { wrapper: Wrapper })
       await flushPromises()
@@ -923,5 +944,26 @@ describe('DogInfo', () => {
     await flushPromises()
 
     expect(screen.getByLabelText('dog.name')).toBeDisabled()
+  })
+
+  it('is back as fetched when the number of a dog from Kennelliitto is typed back (KOE-1651)', async () => {
+    const { user } = renderWithUserEvents(
+      <StatefulDogInfo initial={registrationWithStaticDates} />,
+      { wrapper: Wrapper },
+      { advanceTimers: vi.advanceTimersByTime }
+    )
+    const input = screen.getByRole('combobox', { name: 'dog.regNo' })
+    const regNo = registrationWithStaticDates.dog.regNo
+
+    await user.type(input, '{Backspace}', { initialSelectionEnd: regNo.length, initialSelectionStart: regNo.length })
+    await flushPromises()
+    expect(screen.getByRole('button', { name: 'registration.cta.fetch' })).toBeInTheDocument()
+    await user.type(input, regNo.slice(-1))
+    await flushPromises()
+
+    expect(input).toHaveValue(regNo)
+    expect(screen.getByRole('button', { name: 'registration.cta.update' })).toBeInTheDocument()
+    expect(screen.getByLabelText('dog.name')).toBeDisabled()
+    expect(screen.getByRole('button', { name: /^Choose date/ })).toBeDisabled()
   })
 })
