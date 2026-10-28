@@ -1,13 +1,13 @@
 import { renderHook } from '@testing-library/react'
 import { reportError } from '@/lib/client/error'
-import { useReadStateWhileLocked } from './useReadStateWhileLocked'
+import { useReadStateWhenDue } from './useReadStateWhenDue'
 
 vi.mock('@/lib/client/error', () => ({ reportError: vi.fn() }))
 
-describe('useReadStateWhileLocked', () => {
-  it('reads the state once when the page is locked, however often it renders with a new read function', () => {
+describe('useReadStateWhenDue', () => {
+  it('reads the state once when a read is due, however often it renders with a new read function', () => {
     const first = vi.fn(async () => undefined)
-    const { rerender } = renderHook(({ read }) => useReadStateWhileLocked(true, read), {
+    const { rerender } = renderHook(({ read }) => useReadStateWhenDue(true, read), {
       initialProps: { read: first },
     })
 
@@ -19,23 +19,23 @@ describe('useReadStateWhileLocked', () => {
     expect(second).not.toHaveBeenCalled()
   })
 
-  it('reads nothing while the page is open', () => {
+  it('reads nothing while no read is due', () => {
     const read = vi.fn(async () => undefined)
 
-    renderHook(() => useReadStateWhileLocked(false, read))
+    renderHook(() => useReadStateWhenDue(false, read))
 
     expect(read).not.toHaveBeenCalled()
   })
 
-  it('reads again each time the page becomes locked, with the function it has by then', () => {
+  it('reads again each time a read falls due, with the function it has by then', () => {
     const early = vi.fn(async () => undefined)
     const late = vi.fn(async () => undefined)
-    const { rerender } = renderHook(({ locked, read }) => useReadStateWhileLocked(locked, read), {
-      initialProps: { locked: true, read: early },
+    const { rerender } = renderHook(({ due, read }) => useReadStateWhenDue(due, read), {
+      initialProps: { due: true, read: early },
     })
 
-    rerender({ locked: false, read: early })
-    rerender({ locked: true, read: late })
+    rerender({ due: false, read: early })
+    rerender({ due: true, read: late })
 
     expect(early).toHaveBeenCalledTimes(1)
     expect(late).toHaveBeenCalledTimes(1)
@@ -44,7 +44,7 @@ describe('useReadStateWhileLocked', () => {
   it('reports a read that fails and does not let it escape', async () => {
     const failure = new Error('no answer')
 
-    renderHook(() => useReadStateWhileLocked(true, () => Promise.reject(failure)))
+    renderHook(() => useReadStateWhenDue(true, () => Promise.reject(failure)))
     await vi.waitFor(() => expect(reportError).toHaveBeenCalledWith(failure))
   })
 })

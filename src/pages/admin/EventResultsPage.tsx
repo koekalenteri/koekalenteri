@@ -174,12 +174,12 @@ export default function EventResultsPage() {
   // event form to fetch something the secretary is already standing in front of.
   const saveKcId = useSaveKcLink(event)
 
-  // Results handed to the chief judge are out of the secretary's hands until the judge sends them back.
-  // The state Kennelliitto reports is what locks, so a locked page reads it afresh: a judge who has sent the
-  // trial back opens it again without anyone having to do anything here.
-  const { locked, refreshState: readState } = useResultsLock(event, kc.preview)
   // Asked the way the event view's Omakoira section is, so the column and the section agree (KOE-1579).
   const official = useIsOfficialEventType(event?.eventType)
+  // Results handed to the chief judge are out of the secretary's hands until the judge sends them back.
+  // The state Kennelliitto reports is what locks, so an official trial's page reads it when it opens: a trial
+  // handed over or confirmed in Omakoira directly locks here (KOE-1222), and one the judge sent back opens.
+  const { locked, refreshState: readState } = useResultsLock(event, kc.preview, { readOnOpen: official })
   const kennelliitto = !!event && official
   const sentCount = useMemo(() => countSentResults(registrations), [registrations])
 

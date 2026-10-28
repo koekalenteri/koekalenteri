@@ -1347,9 +1347,10 @@ describe('EventResultsPage and Kennelliitto (KOE-1140)', () => {
         unchanged: [],
       })
     )
-    vi.mocked(previewKennelliittoResults).mockClear()
     const { user } = await renderQualitativePage('fi', {})
     await flushPromises()
+    // The page read the state when it opened; only the read the refused save makes counts here.
+    vi.mocked(previewKennelliittoResults).mockClear()
     await user.click(within(rowFor('Ensimmainen')).getByLabelText('results.column.result'))
     await user.click(screen.getByRole('option', { name: 'NOU1' }))
     await flushPromises()
@@ -1394,10 +1395,11 @@ describe('EventResultsPage and Kennelliitto (KOE-1140)', () => {
         unchanged: [],
       })
     )
-    vi.mocked(previewKennelliittoResults).mockClear()
     expectConsoleOutput(/reportError .*TypeError/)
     const { user } = await renderQualitativePage('fi', {})
     await flushPromises()
+    // The page read the state when it opened; only the read the refused save makes counts here.
+    vi.mocked(previewKennelliittoResults).mockClear()
     await user.click(within(rowFor('Ensimmainen')).getByLabelText('results.column.result'))
     await user.click(screen.getByRole('option', { name: 'NOU1' }))
     await flushPromises()

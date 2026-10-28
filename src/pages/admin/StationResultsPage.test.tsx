@@ -340,12 +340,13 @@ describe('StationResultsPage', () => {
     }
 
     it('reads the state when the trial turns out to be handed over, so an open post page does not stay editable', async () => {
-      vi.mocked(previewKennelliittoResults).mockClear()
       vi.mocked(putEventResults).mockRejectedValueOnce(
         new APIError(new Response(null, { status: 423 }), { error: 'resultsLocked' })
       )
       const { user } = await renderStation('fi', '1', singlePostEvent)
       await flushPromises()
+      // The page read the state when it opened; only the read the refused save makes counts here.
+      vi.mocked(previewKennelliittoResults).mockClear()
 
       await pickFirstDog(user)
 

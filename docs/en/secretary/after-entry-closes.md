@@ -18,7 +18,7 @@ covers:
   - src/pages/admin/StartListPreviewPage.tsx
   - src/pages/admin/startListPage/**
   - src/pages/ClassStartNumbersPage.tsx
-sourceHash: 006734
+sourceHash: 0b3c35
 ---
 
 Once entry has closed, the secretary's work goes step by step: picking the participants, the
@@ -245,6 +245,6 @@ When the results have been sent, the trial is handed over to the chief judge wit
 have to be sent first, and the dogs whose result cannot be sent: those can be left out of the hand-over.
 Once the trial has been handed over or the judge has confirmed
 the results in Omakoira, the results can no longer be edited in Koekalenteri or in Omakoira:
-the results page opens read-only and says so. If the judge returns the trial, editing opens again:
-Koekalenteri reads the trial's state from Kennelliitto, and the results page's
+the results page opens read-only and says so. If the judge returns the trial, editing opens again: the
+results page reads the trial's state from Kennelliitto whenever it is opened, and the locked page's
 **{t:results.kennelliitto.refreshState}** button reads it at once.

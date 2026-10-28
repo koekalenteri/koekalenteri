@@ -13,7 +13,7 @@ covers:
   - src/pages/admin/eventViewPage/infoPanel/ResultsPublishing.tsx
   - src/pages/admin/components/KcIdLookupButton.tsx
   - src/pages/admin/components/StartDaySelector.tsx
-sourceHash: 793555
+sourceHash: b525b3
 ---
 
 On the trial day the secretary's job is to record what the dogs did and to get the results in
@@ -105,9 +105,11 @@ meanwhile been recorded differently elsewhere again, the dialog shows the new ve
 
 In an official trial the *{t:results.kennelliitto.column}* column tells for each dog whether its result is
 in Omakoira: *{t:results.kennelliitto.badge.sent}*, *{t:results.kennelliitto.badge.changed}*,
-*{t:results.kennelliitto.badge.unsent}* or *{t:results.kennelliitto.badge.failed}*. Sending the results
-and correcting them after sending are described on the page
-[After entry closes](/docs/secretary/after-entry-closes), under *Sending the results to Kennelliitto*.
+*{t:results.kennelliitto.badge.unsent}* or *{t:results.kennelliitto.badge.failed}*. The results page and a
+post's scoring page read the trial's state from Kennelliitto when they open, so a trial handed to the judge
+opens read-only also when it was handed over in Omakoira directly. Sending the results and correcting them
+after sending are described on the page [After entry closes](/docs/secretary/after-entry-closes), under
+*Sending the results to Kennelliitto*.
 
 ## Publishing results
 

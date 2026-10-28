@@ -238,6 +238,6 @@ Kun tulokset on lähetetty, koe luovutetaan ylituomarille painikkeella
 lähettää ensin, ja koirat, joiden tulosta ei voi lähettää: ne voi jättää pois luovutuksesta.
 Kun koe on luovutettu tai tuomari on vahvistanut tulokset Omakoirassa,
 tuloksia ei voi enää muokata Koekalenterissa eikä Omakoirassa: tulossivu avautuu vain
-luettavaksi ja kertoo sen. Jos tuomari palauttaa kokeen, muokkaus avautuu uudelleen:
-Koekalenteri lukee kokeen tilan Kennelliitosta, ja tulossivun painike
+luettavaksi ja kertoo sen. Jos tuomari palauttaa kokeen, muokkaus avautuu uudelleen: tulossivu lukee
+kokeen tilan Kennelliitosta aina, kun se avataan, ja lukitun sivun painike
 **{t:results.kennelliitto.refreshState}** lukee sen heti.
