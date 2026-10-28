@@ -16,7 +16,7 @@ import { useTranslation } from 'react-i18next'
 import { reportError } from '@/lib/client/error'
 import { getEventProgress, uniqueClasses } from '@/lib/event'
 import { countSentResults, isResultsLocked } from '@/lib/kennelliittoResults'
-import { getRegistrationClass, isScorableRegistration } from '@/lib/registration'
+import { getRegistrationClass, inRegistrationOrder, isScorableRegistration } from '@/lib/registration'
 import { KcIdLookupButton } from '../../components/KcIdLookupButton'
 import { useSaveKcLink } from '../../hooks/useSaveKcLink'
 import { useKennelliittoResults } from '../../state/registrations/actions'
@@ -60,6 +60,18 @@ const getSentRows = (event: ConfirmedEvent, registrations: Registration[]): Sent
 }
 
 /**
+ * The hand-over's answer with its dogs in the order of the secretary's start list (KOE-1652), as the
+ * sending's answers are; the server lists them in the order it read them.
+ */
+const handOverInRegistrationOrder = (
+  outcome: Exclude<KcHandOverOutcome, { kind: 'done' }>,
+  registrations: Registration[]
+): Exclude<KcHandOverOutcome, { kind: 'done' }> =>
+  outcome.kind === 'confirmationNeeded' || outcome.kind === 'unsent'
+    ? { ...outcome, dogs: inRegistrationOrder(outcome.dogs, registrations) }
+    : outcome
+
+/**
  * Sending the results to Kennelliitto's Omakoira and handing the trial to the chief judge, as a step of
  * its own in the event management (KOE-1579). It was a secondary button at the foot of the results
  * entry, out of sight of the steps a trial goes through.
@@ -91,20 +103,26 @@ const KennelliittoSubmission = ({ event, onRefreshState, registrations }: Props)
     setSendPhase({ kind: 'loading' })
     setSendOpen(true)
     try {
-      setSendPhase({ kind: 'preview', preview: await kc.preview() })
+      // Every list of dogs the dialogs show is in the order of the secretary's start list (KOE-1652).
+      const preview = await kc.preview()
+      setSendPhase({ kind: 'preview', preview: { ...preview, dogs: inRegistrationOrder(preview.dogs, registrations) } })
     } catch (error) {
       reportError(error)
       setSendPhase({ kind: 'failed' })
     }
-  }, [kc])
+  }, [kc, registrations])
 
   const handleSend = useCallback(async () => {
     if (sendPhase.kind !== 'preview') return
     const ids = dogsToSend(sendPhase.preview, forceSend).map((dog) => dog.id)
     setSendPhase({ done: 0, kind: 'sending', total: ids.length })
     const summary = await kc.send(ids, forceSend, (done) => setSendPhase({ done, kind: 'sending', total: ids.length }))
-    setSendPhase({ kind: 'report', summary })
-  }, [forceSend, kc, sendPhase])
+    // The answers of every request and retry, put back in the list's order.
+    setSendPhase({
+      kind: 'report',
+      summary: { ...summary, reports: inRegistrationOrder(summary.reports, registrations) },
+    })
+  }, [forceSend, kc, registrations, sendPhase])
 
   const openHandOver = useCallback(() => {
     setHandOverOutcome(undefined)
@@ -119,8 +137,8 @@ const KennelliittoSubmission = ({ event, onRefreshState, registrations }: Props)
       enqueueSnackbar(t('results.kennelliitto.handOver.done'), { variant: 'success' })
       return
     }
-    setHandOverOutcome(outcome)
-  }, [handOverAccepted, kc, t])
+    setHandOverOutcome(handOverInRegistrationOrder(outcome, registrations))
+  }, [handOverAccepted, kc, registrations, t])
 
   return (
     <>
