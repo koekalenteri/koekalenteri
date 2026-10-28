@@ -9,7 +9,7 @@ import { emptyDog } from '@/lib/data'
 import { createDogUpdateFromFormValues, isValidDob, shouldAllowRefresh, typedDogFields } from '@/lib/dog'
 import { stripOwnerKey, withDefaultOwnerSelection } from '@/lib/registration'
 import { hasChanges } from '@/lib/utils'
-import { validateRegNo } from '@/lib/validation'
+import { regNoError, validateRegNo } from '@/lib/validation'
 import { useDogActions } from '../../state/dog'
 import { cachedDogRegNumbersAtom } from '../../state/dog/derivedAtoms'
 import CollapsibleSection from '../CollapsibleSection'
@@ -33,7 +33,8 @@ interface Props {
 }
 
 interface State {
-  regNo: string
+  /** The number as the field shows it, uppercased; a space typed at its end waits for the next key. */
+  input: string
   mode: 'fetch' | 'manual' | 'update' | 'notfound' | 'autofetch' | 'error'
   dob: boolean
 }
@@ -54,11 +55,11 @@ export const DogInfo = ({
   const { t } = useTranslation()
   const [state, setState] = useState<State>({
     dob: !isValidDob(reg?.dog?.dob),
+    input: reg?.dog?.regNo ?? '',
     // A bare regNo without dog data is a half-written draft (an interrupted fetch, a persisted
     // admin draft): starting it in 'update' would lock every field around an empty dog with the
     // fetch CTA dead, so only a dog that actually has data starts in 'update' (KOE-1269).
     mode: reg?.dog?.regNo && reg.dog.name ? 'update' : 'fetch',
-    regNo: reg?.dog?.regNo ?? '',
   })
 
   // Group local state for all form fields with a single debounced update
@@ -97,18 +98,22 @@ export const DogInfo = ({
   // so an error never lands on a locked field nor skips an open one (KOE-1650). They wait for the dog
   // the number names: none while it is being looked up or was not found.
   const typed = typedDogFields(reg?.dog)
-  const typedLocked = disabled || !reg?.dog?.regNo || state.regNo !== reg.dog.regNo
+  // The number is looked up, judged and stored without the edges of what was typed (KOE-1651).
+  const regNo = state.input.trim()
+  const typedLocked = disabled || !reg?.dog?.regNo || regNo !== reg.dog.regNo
   const rfidDisabled = typedLocked || !typed.rfid
   const detailsDisabled = typedLocked || !typed.details
   // Kennelliitto's dog without a birth date gets one typed too, but not after the trial: there only
   // the typed details open, by the rule `typedDogChange` takes them by.
   const dobDisabled = typedLocked || !(typed.details || (!typedDogOnly && state.dob))
-  const validRegNo = validateRegNo(state.regNo)
+  const validRegNo = validateRegNo(regNo)
+  // A number Kennelliitto does not know becomes the user's to type, so it must be in its registry's form.
+  const typedRegNoError = state.mode === 'notfound' ? regNoError(regNo) : undefined
   const [loading, setLoading] = useState(false)
   const [delayed, setDelayed] = useState(false)
   const allowRefresh = shouldAllowRefresh(reg?.dog)
   const cachedRegNos = useAtomValue(cachedDogRegNumbersAtom)
-  const actions = useDogActions(state.regNo)
+  const actions = useDogActions(regNo)
 
   const handleChange = useCallback(
     (props: DeepPartial<DogCachedInfo>) => {
@@ -155,7 +160,7 @@ export const DogInfo = ({
         try {
           const cache = await actions.fetch()
           updateDog(cache)
-          if (state.regNo) {
+          if (regNo) {
             let newMode: State['mode'] = 'update'
             if (!cache?.dog?.regNo) newMode = 'notfound'
             if (cache?.manual) newMode = 'manual'
@@ -179,12 +184,12 @@ export const DogInfo = ({
         onChange?.({ dog: actions.updateCache({ manual: true }).dog })
         setState((prev) => ({ ...prev, mode: 'manual' }))
       } else {
-        setState({ dob: false, mode: 'fetch', regNo: '' })
+        setState({ dob: false, input: '', mode: 'fetch' })
       }
 
       return delay
     },
-    [actions, onChange, reg.dog, state.regNo, updateDog]
+    [actions, onChange, reg.dog, regNo, updateDog]
   )
 
   const buttonClick = useCallback(() => {
@@ -209,35 +214,38 @@ export const DogInfo = ({
 
   const handleRegNoChange = useCallback(
     (_event: SyntheticEvent<Element, Event>, value: string | null) => {
-      if (value !== null && value !== state.regNo) {
-        const upper = value.toLocaleUpperCase().trim()
-        setState({ dob: false, mode: 'fetch', regNo: upper })
-      }
+      const input = value?.toLocaleUpperCase()
+      if (input === undefined || input === state.input) return
+      // Spaces inside a number are typed one key at a time ("LSVK LR 1234/19"), so the field keeps
+      // them; only a change of the number itself starts a new search.
+      setState((prev) =>
+        input.trim() === prev.input.trim() ? { ...prev, input } : { dob: false, input, mode: 'fetch' }
+      )
     },
-    [state.regNo]
+    [state.input]
   )
 
   const handleRegNoSelect = useCallback(
     (_event: SyntheticEvent<Element, Event>, value: string | null) => {
-      if (value !== null && value !== state.regNo) {
+      if (value !== null && value !== state.input) {
         const upper = value.toLocaleUpperCase().trim()
-        setState({ dob: false, mode: 'autofetch', regNo: upper })
+        setState({ dob: false, input: upper, mode: 'autofetch' })
       }
     },
-    [state.regNo]
+    [state.input]
   )
 
   useEffect(() => {
-    if (state.regNo !== (reg.dog?.regNo ?? '')) {
+    if (regNo !== (reg.dog?.regNo ?? '')) {
       if (document.visibilityState === 'hidden') {
-        setState((prev) => ({ ...prev, regNo: reg.dog?.regNo ?? '' }))
+        setState((prev) => ({ ...prev, input: reg.dog?.regNo ?? '' }))
         return
       }
-      if ((validRegNo && state.mode === 'autofetch') || state.regNo === '') {
+      if ((validRegNo && state.mode === 'autofetch') || regNo === '') {
         buttonClick()
       }
     }
-  }, [buttonClick, reg.dog?.regNo, state.mode, state.regNo, validRegNo])
+  }, [buttonClick, reg.dog?.regNo, state.mode, regNo, validRegNo])
 
   return (
     <CollapsibleSection
@@ -256,10 +264,11 @@ export const DogInfo = ({
       >
         <Grid size={{ lg: 3, md: 6, sm: 7, xs: 12 }}>
           <DogSearch
-            regNo={state.regNo}
+            regNo={state.input}
             disabled={locked}
             disabledByMode={disabledByMode}
             validRegNo={validRegNo}
+            typedRegNoError={typedRegNoError}
             allowRefresh={allowRefresh}
             mode={state.mode}
             loading={loading}

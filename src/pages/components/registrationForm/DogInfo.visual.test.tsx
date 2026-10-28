@@ -2,7 +2,7 @@ import type { DeepPartial, Language, Registration } from '@/types'
 import { ThemeProvider } from '@mui/material/styles'
 import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
-import { page } from 'vitest/browser'
+import { page, userEvent } from 'vitest/browser'
 import { render } from 'vitest-browser-react'
 import theme from '@/assets/Theme'
 import { locales } from '@/i18n'
@@ -15,6 +15,12 @@ import { DogInfo } from './DogInfo'
 // The fixtures below carry absolute dates, and what the view says about them depends on where
 // today falls; the day the baselines were taken is the day this file keeps (KOE-1423).
 freezeClockAt('2026-09-07')
+
+// Kennelliitto knows no dog by the number typed below (KOE-1651).
+vi.mock(import('@/api/dog'), async (importOriginal) => ({
+  ...(await importOriginal()),
+  getDog: async () => Promise.reject(Object.assign(new Error('Not found'), { status: 404 })),
+}))
 
 interface FrameProps {
   readonly children: React.ReactNode
@@ -102,6 +108,27 @@ it('marks a typed microchip that is not 15 digits and says why', async () => {
   await expect.element(screen.getByText('Tunnistusmerkinnässä pitää olla 15 numeroa')).toBeVisible()
   await expect.element(screen.getByText(/\d+ \S+ sitten\.$/)).toBeVisible()
   await expect(screen.getByTestId('visual-root')).toMatchScreenshot('dog-info-microchip-invalid')
+})
+
+it('says the form a number not found must take to be entered by hand', async () => {
+  // A number Kennelliitto does not know is the registrant's to type, in its registry's form; the
+  // button that enters the dog by hand waits for it (KOE-1651). Below the lg breakpoint the number
+  // gets half the row, so it shows in full.
+  await page.viewport(1000, 900)
+  const screen = await render(
+    <TestProvider>
+      <Frame>
+        <DogInfo reg={{}} eventDate="2026-06-06" minDogAgeMonths={9} orgId="org" open />
+      </Frame>
+    </TestProvider>
+  )
+
+  await userEvent.fill(screen.getByLabelText('Rekisterinumero'), 'DK 21568/2021')
+  await screen.getByRole('button', { name: 'Hae koiran tiedot' }).click()
+
+  await expect.element(screen.getByText('Tanskalaiset rekisterinumerot ovat muotoa DK12345/2021')).toBeVisible()
+  await expect.element(screen.getByRole('button', { name: 'Syötä tiedot käsin' })).toBeDisabled()
+  await expect(screen.getByTestId('visual-root')).toMatchScreenshot('dog-info-regno-invalid')
 })
 
 // The guide's English page shows the section in English (KOE-1437).

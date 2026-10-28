@@ -1607,12 +1607,22 @@
       "nameFormat": "A name field can hold only one person — add each owner as a row of their own.",
       "phone": "The phone number is invalid",
       "phoneOptional": "The phone number is invalid — correct it or clear the field",
+      "regNo": "$t(validation.regNo.{{type}})",
       "required": "$t(registration.{{field}}) is incomplete",
       "reserve": "Select participation from reserve position",
       "restrictedToBreeds": "Only dogs of these breeds may enter this trial: {{breeds}}.",
       "restrictedToMembers": "Only members of the organizing club may enter this trial. Tick the membership if the owner or the handler is a member.",
       "restrictedToMembersOrBreeds": "Only members of the organizing club and dogs of these breeds may enter this trial: {{breeds}}. Tick the membership if the owner or the handler is a member.",
       "terms": "It is mandatory to accept registration terms and the data protection statement."
+    },
+    "regNo": {
+      "DK": "Danish registration numbers look like DK12345/2021",
+      "EST": "Estonian registration numbers look like EST-12345/20",
+      "invalid": "Invalid registration number: it cannot contain a space or a dot",
+      "LSVK": "Lithuanian registration numbers look like LSVK LR 1234/20",
+      "LV": "Latvian registration numbers look like LV-LBR-1234/20",
+      "NO": "Norwegian registration numbers look like NO12345/21",
+      "SE": "Swedish registration numbers look like SE12345/2021"
     }
   },
   "viewResults": "View results",

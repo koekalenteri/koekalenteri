@@ -2284,6 +2284,63 @@ describe('putRegistrationLabmda', () => {
     })
   })
 
+  // The number the registrant types for a dog entered by hand must be in its registry's form
+  // (KOE-1651); the one Kennelliitto knows the dog by, and the one a stored entry holds, pass as they are.
+  describe('registration number (KOE-1651)', () => {
+    const { id: _1, paidAmount: _2, paidAt: _3, paymentStatus: _4, ...entry } = registrationWithStaticDatesAndClass
+    const withRegNo = (regNo: string) => ({ ...entry, dog: { ...entry.dog, regNo }, state: 'ready' })
+
+    beforeEach(() => {
+      vi.setSystemTime(eventWithStaticDatesAndClass.entryStartDate)
+      mockGetLiveEvent.mockResolvedValueOnce(JSON.parse(JSON.stringify(eventWithStaticDatesAndClass)))
+    })
+
+    it.each([
+      ['a space inside a Danish number', 'DK 21568/2021'],
+      ['an Estonian number without its hyphen', 'EST48412/20'],
+      ['a space inside a number of no known form', 'XX 12345/20'],
+    ])('refuses a new entry whose typed number has %s', async (_case, regNo) => {
+      const res = await putRegistrationLabmda(constructAPIGwEvent(withRegNo(regNo)))
+
+      expect(res.statusCode).toBe(400)
+      expect(mockWriteRegistration).not.toHaveBeenCalled()
+    })
+
+    it('stores a typed number in its registry form', async () => {
+      const res = await putRegistrationLabmda(constructAPIGwEvent(withRegNo('EST-12345/E20')))
+
+      expect(res.statusCode).toBe(200)
+      expect(mockWriteRegistration).toHaveBeenCalledWith(
+        expect.objectContaining({ dog: expect.objectContaining({ regNo: 'EST-12345/E20' }) })
+      )
+    })
+
+    it('lets the number Kennelliitto knows the dog by through whatever its form', async () => {
+      mockReadDog.mockResolvedValueOnce({ regNo: 'EST48412/20' })
+
+      const res = await putRegistrationLabmda(constructAPIGwEvent(withRegNo('EST48412/20')))
+
+      expect(res.statusCode).toBe(200)
+      expect(mockReadDog).toHaveBeenCalledWith('EST48412/20')
+    })
+
+    it('lets an edit through that leaves a stored spaced number as it is', async () => {
+      const stored = storedRegistrationJson({
+        ...registrationWithStaticDates,
+        dog: { ...registrationWithStaticDates.dog, regNo: 'DK 21568/2021' },
+      })
+      mockGetLiveEvent.mockReset()
+      mockGetLiveEvent.mockResolvedValueOnce(JSON.parse(JSON.stringify(eventWithStaticDates)))
+      mockGetRegistration.mockResolvedValueOnce(stored)
+
+      const res = await putRegistrationLabmda(
+        constructAPIGwEvent({ eventId: stored.eventId, id: stored.id, notes: 'changed notes' })
+      )
+
+      expect(res.statusCode).toBe(200)
+    })
+  })
+
   // The participant's form locks its sections one by one; the server holds them by the same rule
   // (`getParticipantFieldLocks`, KOE-1588), whatever the request is sent as.
   describe('participant field locks (KOE-1588)', () => {

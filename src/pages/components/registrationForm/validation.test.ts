@@ -21,7 +21,7 @@ const testDog: Dog = {
   dam: { name: 'Dam', titles: '' },
   dob: '2018-03-28',
   name: 'Test Dog',
-  regNo: 'test-123',
+  regNo: 'FI12345/18',
   results: [],
   rfid: '985120012345678',
   sire: { name: 'Sire', titles: '' },
@@ -79,6 +79,40 @@ describe('validation', () => {
         // refreshDate says where the dog came from.
         const dog = { ...testDog, refreshDate: new Date('2024-01-01'), rfid: '9851200123456789' }
         expect(validateDog(testEvent, { dog })).toBe(false)
+      })
+    })
+
+    describe('registration number the registrant types (KOE-1651)', () => {
+      const testEvent = { eventType: 'NOU', startDate: '2020-10-15' as const }
+
+      it.each([
+        ['DK 21568/2021', 'DK'],
+        ['SE 12345/2024', 'SE'],
+        ['EST48412/20', 'EST'],
+        ['XX 12345/20', 'invalid'],
+      ])('refuses %p on a dog entered by hand, naming the form (%s)', (regNo, type) => {
+        expect(validateDog(testEvent, { dog: { ...testDog, regNo } })).toEqual({
+          key: 'regNo',
+          opts: { field: 'dog', type },
+        })
+      })
+
+      it('accepts a number in its registry form on a dog entered by hand', () => {
+        expect(validateDog(testEvent, { dog: { ...testDog, regNo: 'DK21568/2021' } })).toBe(false)
+      })
+
+      it('lets the number Kennelliitto gave through whatever its form', () => {
+        const dog = { ...testDog, kcId: 1, refreshDate: new Date('2026-06-01'), regNo: 'DK 21568/2021' }
+        expect(validateDog(testEvent, { dog })).toBe(false)
+      })
+
+      it('lets a number the saved entry already holds through, so the entry stays editable', () => {
+        const dog = { ...testDog, regNo: 'DK 21568/2021' }
+        expect(validateDog(testEvent, { dog }, 'DK 21568/2021')).toBe(false)
+        expect(validateDog(testEvent, { dog: { ...dog, regNo: 'DK 21568/2022' } }, 'DK 21568/2021')).toEqual({
+          key: 'regNo',
+          opts: { field: 'dog', type: 'DK' },
+        })
       })
     })
 
@@ -198,7 +232,7 @@ describe('validation', () => {
             eventType,
             startDate: '2024-10-15' as const,
           },
-          { dog: { ...testDog, kcId: 123, regNo } }
+          { dog: { ...testDog, kcId: 123, refreshDate: new Date('2024-10-01'), regNo } }
         )
       ).toEqual(expected)
     })
@@ -210,7 +244,7 @@ describe('validation', () => {
             eventType,
             startDate: '2024-10-15' as const,
           },
-          { dog: { ...testDog, kcId: 123, regNo: 'KCSB4027CU' } }
+          { dog: { ...testDog, kcId: 123, refreshDate: new Date('2024-10-01'), regNo: 'KCSB4027CU' } }
         )
       ).toEqual(false)
     })
@@ -1250,6 +1284,17 @@ describe('validation', () => {
       const saved = regWithOwnerNamed('Matti ja Maija Meikäläinen')
 
       expect(nameFormatErrors(regWithOwnerNamed('Pekka ja Liisa Virtanen'), saved)).toHaveLength(1)
+    })
+
+    it('judges a typed registration number against the one the saved entry holds (KOE-1651)', () => {
+      const saved = { ...regWithOwnerNamed('Matti Meikäläinen'), dog: { ...testDog, regNo: 'DK 21568/2021' } }
+      const regNoErrors = (reg: Registration) =>
+        validateRegistration(reg, nameFormatEvent, saved).filter((e) => e.key === 'regNo')
+
+      expect(regNoErrors({ ...saved, notes: 'edited' })).toHaveLength(0)
+      expect(regNoErrors({ ...saved, dog: { ...testDog, regNo: 'SE 12345/2024' } })).toEqual([
+        { key: 'regNo', opts: { field: 'dog', type: 'SE' } },
+      ])
     })
 
     it('should skip fields in NOT_VALIDATED list', () => {

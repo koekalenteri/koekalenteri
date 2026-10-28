@@ -3,6 +3,7 @@ import type { BreedCode, DayKey, Dog, PublicConfirmedEvent, Registration, TestRe
 import { dogAgeInMonths, isMicrochip, minDogAgeFor, typedDogFields } from '@/lib/dog'
 import { validName } from '@/lib/name'
 import { getOwnerRole, getRegistrationOwners, ownerKeyAt, resolveOwnerSelection } from '@/lib/registration'
+import { regNoError } from '@/lib/validation'
 import { REQUIREMENTS } from '@/rules'
 import { validateOwner, validatePerson } from './personValidation'
 
@@ -11,7 +12,6 @@ const VALIDATORS: Validators2<Registration, 'registration', PublicConfirmedEvent
   breeder: (reg) => (reg.breeder?.name ? false : 'required'),
   class: (reg, _req, evt) => evt.classes.length > 0 && !reg.class,
   dates: (reg) => reg.dates.length === 0,
-  dog: (reg, _req, evt) => validateDog(evt, reg),
   // The selection must resolve to an actual owner to stand in for the handler/payer; a stale key
   // that names nobody must not skip validation, or an unvalidated person would be persisted.
   handler: (reg) =>
@@ -42,10 +42,15 @@ const VALIDATORS: Validators2<Registration, 'registration', PublicConfirmedEvent
 function validateRegistrationField(
   registration: Registration,
   field: keyof Registration,
-  event: PublicConfirmedEvent
+  event: PublicConfirmedEvent,
+  savedRegistration?: Registration | null
 ): ValidationResult<Registration, 'registration'> {
   const validator = VALIDATORS[field] ?? ((value) => value[field] === undefined || value[field] === '')
-  const result = validator(registration, true, event)
+  // The dog alone is judged against the saved entry: a number already stored is not judged again.
+  const result =
+    field === 'dog'
+      ? validateDog(event, registration, savedRegistration?.dog?.regNo)
+      : validator(registration, true, event)
   if (!result) return false
   if (result === true) return { key: 'choose', opts: { field } }
   if (typeof result === 'string') return { key: result, opts: { field } }
@@ -94,7 +99,7 @@ export function validateRegistration(
   let field: keyof Registration
   for (field in registration) {
     if (NOT_VALIDATED.has(field)) continue
-    const result = validateRegistrationField(registration, field, event)
+    const result = validateRegistrationField(registration, field, event, savedRegistration)
     if (result) errors.push(result)
   }
   const nameFormat = validateOwnerNames(registration, savedRegistration)
@@ -123,10 +128,14 @@ const validateDogForEvent = (event: { eventType: string }, dog: Partial<Dog>) =>
 
 export function validateDog(
   event: { eventType: string; startDate: DayKey },
-  reg: { class?: Exclude<Registration['class'], undefined>; dog?: Dog; results?: Partial<TestResult>[] }
+  reg: { class?: Exclude<Registration['class'], undefined>; dog?: Dog; results?: Partial<TestResult>[] },
+  savedRegNo?: string
 ): WideValidationResult<Registration, 'registration'> {
   const dog = reg.dog
   if (!dog?.regNo || !dog?.name) return 'required'
+
+  const regNo = validateTypedRegNo(dog, savedRegNo)
+  if (regNo) return regNo
 
   const forEvent = validateDogForEvent(event, dog)
   if (forEvent) return { key: forEvent, opts: { field: 'dog' } }
@@ -139,6 +148,16 @@ export function validateDog(
 
   if (!dog.rfid?.trim() || !dog.dam?.name?.trim() || !dog.sire?.name?.trim()) return 'required'
   return validateMicrochip(dog)
+}
+
+/**
+ * The number the user types for a dog entered by hand must be in its registry's form (KOE-1651).
+ * Kennelliitto's number is not judged, nor one the saved entry already holds: fixing that is not
+ * the registrant's to be held back by. Typed or not is `typedDogFields`, as for the chip.
+ */
+const validateTypedRegNo = (dog: Pick<Dog, 'refreshDate' | 'regNo'>, savedRegNo?: string) => {
+  const error = typedDogFields(dog).details && dog.regNo !== savedRegNo ? regNoError(dog.regNo) : undefined
+  return error ? { key: 'regNo' as const, opts: { field: 'dog' as const, type: error } } : false
 }
 
 /**
