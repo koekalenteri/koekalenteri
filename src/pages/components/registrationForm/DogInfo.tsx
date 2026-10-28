@@ -39,6 +39,25 @@ interface State {
   dob: boolean
 }
 
+/**
+ * The state the registration's own dog opens in, and returns to when its number is typed back (KOE-1651).
+ * A bare regNo without dog data is a half-written draft (an interrupted fetch, a persisted admin draft):
+ * starting it in 'update' would lock every field around an empty dog with the fetch CTA dead, so only a
+ * dog that actually has data starts in 'update' (KOE-1269).
+ */
+const storedDogState = (dog: DeepPartial<Registration>['dog']): State => ({
+  dob: !isValidDob(dog?.dob),
+  input: dog?.regNo ?? '',
+  mode: dog?.regNo && dog.name ? 'update' : 'fetch',
+})
+
+/**
+ * The state for a number typed or picked from the list: a new number is looked up by `mode`, but the
+ * stored number back again is the stored dog again, whichever way it came back (KOE-1651).
+ */
+const newNumberState = (dog: DeepPartial<Registration>['dog'], input: string, mode: 'fetch' | 'autofetch'): State =>
+  input.trim() === dog?.regNo ? { ...storedDogState(dog), input } : { dob: false, input, mode }
+
 export const DogInfo = ({
   reg,
   eventDate,
@@ -53,14 +72,7 @@ export const DogInfo = ({
   orgId,
 }: Props) => {
   const { t } = useTranslation()
-  const [state, setState] = useState<State>({
-    dob: !isValidDob(reg?.dog?.dob),
-    input: reg?.dog?.regNo ?? '',
-    // A bare regNo without dog data is a half-written draft (an interrupted fetch, a persisted
-    // admin draft): starting it in 'update' would lock every field around an empty dog with the
-    // fetch CTA dead, so only a dog that actually has data starts in 'update' (KOE-1269).
-    mode: reg?.dog?.regNo && reg.dog.name ? 'update' : 'fetch',
-  })
+  const [state, setState] = useState<State>(() => storedDogState(reg?.dog))
 
   // Group local state for all form fields with a single debounced update
   const [formValues, updateField] = useLocalStateGroup<{
@@ -253,22 +265,22 @@ export const DogInfo = ({
       const input = value?.toLocaleUpperCase()
       if (input === undefined || input === state.input) return
       // Spaces inside a number are typed one key at a time ("LSVK LR 1234/19"), so the field keeps
-      // them; only a change of the number itself starts a new search.
+      // them; only a change of the number itself starts a new search, and the stored number typed
+      // back is the stored dog again.
       setState((prev) =>
-        input.trim() === prev.input.trim() ? { ...prev, input } : { dob: false, input, mode: 'fetch' }
+        input.trim() === prev.input.trim() ? { ...prev, input } : newNumberState(reg?.dog, input, 'fetch')
       )
     },
-    [state.input]
+    [reg?.dog, state.input]
   )
 
   const handleRegNoSelect = useCallback(
     (_event: SyntheticEvent<Element, Event>, value: string | null) => {
       if (value !== null && value !== state.input) {
-        const upper = value.toLocaleUpperCase().trim()
-        setState({ dob: false, input: upper, mode: 'autofetch' })
+        setState(newNumberState(reg?.dog, value.toLocaleUpperCase().trim(), 'autofetch'))
       }
     },
-    [state.input]
+    [reg?.dog, state.input]
   )
 
   useEffect(() => {
