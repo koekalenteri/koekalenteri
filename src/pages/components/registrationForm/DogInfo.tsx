@@ -168,42 +168,46 @@ export const DogInfo = ({
     setState((prev) => ({ ...prev, mode: 'update' }))
   }, [actions, onChange, reg.dog, regNo])
 
-  const fetchDog = useCallback(async () => {
-    try {
-      const cache = await actions.fetch()
-      // A number cached as typed is one Kennelliitto did not know either: the dog held wins over an
-      // older cache of it, so a number typed back keeps the dog and its people too.
-      if (holdsTypedDog && (!cache?.dog?.regNo || cache.manual)) {
-        keepTypedDog()
-        return
-      }
-      updateDog(cache)
-      if (regNo) {
-        let newMode: State['mode'] = 'update'
-        if (!cache?.dog?.regNo) newMode = 'notfound'
-        if (cache?.manual) newMode = 'manual'
+  const fetchDog = useCallback(
+    async (mode: State['mode']) => {
+      try {
+        const cache = await actions.fetch()
+        // A number typed back that is cached as typed is one Kennelliitto did not know either: the dog
+        // held wins over an older cache of it. A number picked from the list asks for that dog.
+        const typedBack = Boolean(cache?.manual) && mode !== 'autofetch'
+        if (holdsTypedDog && (!cache?.dog?.regNo || typedBack)) {
+          keepTypedDog()
+          return
+        }
+        updateDog(cache)
+        if (regNo) {
+          let newMode: State['mode'] = 'update'
+          if (!cache?.dog?.regNo) newMode = 'notfound'
+          if (cache?.manual) newMode = 'manual'
 
-        setState((prev) => ({
-          ...prev,
-          dob: !isValidDob(cache?.dog?.dob),
-          mode: newMode,
-          rfid: !!cache?.dog?.rfidEditable,
-        }))
+          setState((prev) => ({
+            ...prev,
+            dob: !isValidDob(cache?.dog?.dob),
+            mode: newMode,
+            rfid: !!cache?.dog?.rfidEditable,
+          }))
+        }
+      } catch (err) {
+        console.error(err)
+        // A failed lookup takes no dog typed by hand with it either (KOE-1651).
+        if (!holdsTypedDog) updateDog({ dog: emptyDog })
+        setState((prev) => ({ ...prev, mode: 'error' }))
       }
-    } catch (err) {
-      console.error(err)
-      // A failed lookup takes no dog typed by hand with it either (KOE-1651).
-      if (!holdsTypedDog) updateDog({ dog: emptyDog })
-      setState((prev) => ({ ...prev, mode: 'error' }))
-    }
-  }, [actions, holdsTypedDog, keepTypedDog, regNo, updateDog])
+    },
+    [actions, holdsTypedDog, keepTypedDog, regNo, updateDog]
+  )
 
   const handleDogOperation = useCallback(
     async (mode: State['mode']) => {
       const delay = 100
 
       if (mode === 'autofetch' || mode === 'fetch') {
-        await fetchDog()
+        await fetchDog(mode)
       } else if (mode === 'update') {
         updateDog(await actions.refresh(reg.dog))
       } else if (mode === 'notfound') {

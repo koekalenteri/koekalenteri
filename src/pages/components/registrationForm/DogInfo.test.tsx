@@ -862,6 +862,32 @@ describe('DogInfo', () => {
       )
     })
 
+    it('loads another dog typed by hand that is picked from the list', async () => {
+      localStorage.setItem(
+        'dog-cache',
+        JSON.stringify({ 'EST-04444/25': { dog: { name: 'OTHER DOG', regNo: 'EST-04444/25' }, manual: true } })
+      )
+      const onRegistration = vi.fn()
+      const { user } = renderWithUserEvents(
+        <StatefulDogInfo initial={typedDogRegistration} onRegistration={onRegistration} />,
+        { wrapper: Wrapper },
+        { advanceTimers: vi.advanceTimersByTime }
+      )
+      const input = screen.getByRole('combobox', { name: 'dog.regNo' })
+
+      await user.clear(input)
+      await user.type(input, 'EST-04{ArrowDown}{Enter}')
+      await flushPromises()
+
+      expect(input).toHaveValue('EST-04444/25')
+      expect(onRegistration).toHaveBeenLastCalledWith(
+        expect.objectContaining({ dog: expect.objectContaining({ name: 'OTHER DOG', regNo: 'EST-04444/25' }) })
+      )
+      expect(cachedDog('EST-04444/25')).toEqual(
+        expect.objectContaining({ dog: expect.objectContaining({ name: 'OTHER DOG' }) })
+      )
+    })
+
     it('keeps the dog cached as typed when its number is typed back and its name edited', async () => {
       const { user } = renderWithUserEvents(
         <StatefulDogInfo initial={typedDogRegistration} />,
