@@ -192,6 +192,17 @@ describe('judgeSection utils', () => {
       expect(result?.[2].judge).toEqual([])
     })
 
+    it('removes the old judge from the classes it held when the judge is cleared (KOE-1660)', () => {
+      event.classes[0].judge = judge1
+      event.classes[1].judge = [judge2, judge1]
+
+      const result = updateJudge(event, judge1.id, undefined, filterClassesByJudgeId(event.classes, judge1.id))
+
+      expect(result?.[0].judge).toEqual([])
+      expect(result?.[1].judge).toEqual([judge2])
+      expect(result?.[2].judge).toEqual([])
+    })
+
     it('should not add duplicate judges', () => {
       // Setup: Class1 already has judge1
       event.classes[0].judge = judge1
