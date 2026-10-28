@@ -171,7 +171,9 @@ export const DogInfo = ({
   const fetchDog = useCallback(async () => {
     try {
       const cache = await actions.fetch()
-      if (holdsTypedDog && !cache?.dog?.regNo) {
+      // A number cached as typed is one Kennelliitto did not know either: the dog held wins over an
+      // older cache of it, so a number typed back keeps the dog and its people too.
+      if (holdsTypedDog && (!cache?.dog?.regNo || cache.manual)) {
         keepTypedDog()
         return
       }

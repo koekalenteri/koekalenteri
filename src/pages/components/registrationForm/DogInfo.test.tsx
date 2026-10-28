@@ -813,6 +813,55 @@ describe('DogInfo', () => {
       expect(cachedDog('EST-03101/26')).toEqual(expect.objectContaining({ manual: true }))
     })
 
+    it('keeps the dog when a corrected number is turned back to one cached as typed', async () => {
+      vi.spyOn(dogApi, 'getDog').mockRejectedValue({ status: 404 })
+      const onRegistration = vi.fn()
+      const { user } = renderWithUserEvents(
+        <StatefulDogInfo initial={typedDogRegistration} onRegistration={onRegistration} />,
+        { wrapper: Wrapper },
+        { advanceTimers: vi.advanceTimersByTime }
+      )
+      const input = screen.getByRole('combobox', { name: 'dog.regNo' })
+
+      // An edit caches the dog under its number as typed, with no people.
+      await user.type(screen.getByLabelText('dog.name'), ' II')
+      await flushPromises()
+      runAllTimers()
+      expect(cachedDog('EST-03101/26')).toEqual(expect.objectContaining({ manual: true }))
+
+      await user.type(input, '{Backspace}2', { initialSelectionEnd: 9, initialSelectionStart: 9 })
+      await flushPromises()
+      await user.click(screen.getByRole('button', { name: 'registration.cta.fetch' }))
+      await flushPromises()
+      await user.type(screen.getByLabelText('dog.name'), 'I')
+      await flushPromises()
+      runAllTimers()
+
+      // The first number was right after all.
+      await user.type(input, '{Backspace}1', { initialSelectionEnd: 9, initialSelectionStart: 9 })
+      await flushPromises()
+      await user.click(screen.getByRole('button', { name: 'registration.cta.fetch' }))
+      await flushPromises()
+
+      const { breeder, handler, owner } = registrationWithStaticDates
+      expect(onRegistration).toHaveBeenLastCalledWith(
+        expect.objectContaining({
+          breeder,
+          dog: expect.objectContaining({ name: 'DOG NAME 10 III', regNo: 'EST-03101/26' }),
+          handler,
+          owner,
+        })
+      )
+      expect(input).toBeEnabled()
+      expect(screen.getByRole('button', { name: 'registration.cta.update' })).toBeDisabled()
+      expect(cachedDog('EST-03101/26')).toEqual(
+        expect.objectContaining({
+          dog: expect.objectContaining({ name: 'DOG NAME 10 III', regNo: 'EST-03101/26' }),
+          manual: true,
+        })
+      )
+    })
+
     it('keeps the dog cached as typed when its number is typed back and its name edited', async () => {
       const { user } = renderWithUserEvents(
         <StatefulDogInfo initial={typedDogRegistration} />,
