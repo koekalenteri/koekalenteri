@@ -29,25 +29,27 @@ export const hasJudge = (c: DeepPartial<EventClass>, id?: number): boolean =>
 export const filterClassesByJudgeId = (classes?: DeepPartial<EventClass>[], id?: number) =>
   classes?.filter((c) => hasJudge(c, id))
 
-const selectJudge = (j?: PartialPublicJudgeValue, judge?: PublicJudge, oldJudgeId?: number): PartialPublicJudge[] => {
+const selectJudge = (
+  j: PartialPublicJudgeValue | undefined,
+  judge: PublicJudge,
+  oldJudgeId?: number
+): PartialPublicJudge[] => {
   const a = makeArray(j)
 
   if (oldJudgeId !== undefined) {
     const oldIndex = a.findIndex((cj) => cj.id === oldJudgeId)
-    if (oldIndex !== -1 && judge) {
+    if (oldIndex !== -1) {
       a[oldIndex] = judge
 
       return a
     }
   }
 
-  if (judge) {
-    const index = a.findIndex((cj) => cj.id === judge.id)
-    if (index === -1) {
-      a.push(judge)
-    } else {
-      a[index] = judge
-    }
+  const index = a.findIndex((cj) => cj.id === judge.id)
+  if (index === -1) {
+    a.push(judge)
+  } else {
+    a[index] = judge
   }
 
   return a
@@ -70,6 +72,7 @@ export const updateJudge = (
 
   return event.classes?.map((c) => ({
     ...c,
-    judge: isSelected(c) ? selectJudge(c.judge, judge, oldJudgeId) : removeJudge(c.judge, oldJudgeId),
+    // Without a new judge the old one leaves every class, selected or not (KOE-1660).
+    judge: judge && isSelected(c) ? selectJudge(c.judge, judge, oldJudgeId) : removeJudge(c.judge, oldJudgeId),
   }))
 }
