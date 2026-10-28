@@ -19,12 +19,14 @@ import { removeRegistrationCreationMetadata } from './registration'
  * dev, or between test and dev. Every person in it is replaced before the copy leaves the source,
  * and the copy is checked for anything that got through before it is sent anywhere.
  *
- * Addresses and names are replaced deterministically within one copy — the same person always gets
+ * Addresses and names are replaced deterministically within one copy. The same person always gets
  * the same stand-in, so logic that compares people (handler = owner, deduplicated recipients, the
- * same handler with two dogs) behaves as it did in the source — and keyed with a random secret per
- * copy that is never stored, so a stand-in cannot be traced back by guessing. A person is their name
- * and address together, as the group rules count them: test data often has one tester's name on
- * every entry, each with its own plus-address. Numbers compare nothing, and are handed out in order.
+ * same handler with two dogs) behaves as it did in the source. The stand-ins are keyed with a random
+ * secret per copy that is never stored, so a stand-in cannot be traced back by guessing. A person is
+ * their name and address together, as the group rules count them: test data often has one tester's
+ * name on every entry, each with its own plus-address. Numbers are handed out in order and compared
+ * only as written within one registration: the same string there gets the same stand-in, so `owner`
+ * and `owners[0]` agree (KOE-1663). Across registrations a number is never compared.
  */
 
 /** Who makes the copy: every mail the copy can send goes to this person. */
@@ -47,7 +49,8 @@ interface CopyOriginals {
 
 /**
  * Every number in a copy is a number from this range, handed out in order: what the original was
- * (Finnish or not, however written) makes no difference. Mobile prefix 048 is in Traficom's own
+ * (Finnish or not, however written) makes no difference, except that an identical source string
+ * within one registration repeats its stand-in. Mobile prefix 048 is in Traficom's own
  * number reserve, allocated to no operator (Traficom regulation M 32 V/2025, annex 1). Finland has
  * no range set aside for fiction, and 040 is fully allocated. Check annex 1 again whenever the
  * regulation is renewed.
