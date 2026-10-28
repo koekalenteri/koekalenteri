@@ -38,20 +38,21 @@ export function HandlerInfo({
   const { t } = useTranslation()
   const [cache, setCache] = useDogCacheKey(reg.dog?.regNo, 'handler')
 
+  const storedMembership = reg.handler?.membership ?? false
   const handleChange = useCallback(
-    (props: Partial<RegistrationPerson>) => {
-      const membership =
-        props.membership === undefined ? cache?.membership : { ...cache?.membership, [orgId]: props.membership }
-      const cached = setCache({ ...cache, ...props, membership })
+    (props: Partial<Omit<RegistrationPerson, 'membership'>>) => {
+      const cached = setCache({ ...cache, ...props })
       if (cached) {
-        // A locked membership is the one the lock allows this person, whatever the cache learned elsewhere.
+        // A contact detail never changes the membership (KOE-1661): the membership section does, and
+        // the effect below takes the cached one. A locked membership is the one the lock allows this
+        // person, whatever the cache learned elsewhere.
         const handlerMembership = lockedMembership
           ? lockedMembership({ email: cached.email ?? '', name: cached.name ?? '' })
-          : (cached.membership?.[orgId] ?? false)
+          : storedMembership
         onChange?.({ handler: { ...cached, membership: handlerMembership } })
       }
     },
-    [cache, lockedMembership, onChange, orgId, setCache]
+    [cache, lockedMembership, onChange, setCache, storedMembership]
   )
 
   useEffect(() => {
