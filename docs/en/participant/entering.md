@@ -9,7 +9,7 @@ covers:
   - src/pages/RegistrationCreatePage.tsx
   - src/pages/components/RegistrationForm.tsx
   - src/pages/components/registrationForm/**
-sourceHash: 1c8295
+sourceHash: e6aa70
 ---
 
 Entering a trial needs no account and no sign-in. All you need is access to the email address you
@@ -36,7 +36,10 @@ returns nothing you get *{t:registration.cta.helper.notfound}* and can fill the 
 hand — but check the number first, a single typo is enough. The number of a dog filled in by hand
 must be in its registry's own form, without extra spaces or dots. If it is not, the form tells the
 expected form, for example *{t:validation.regNo.DK}*, and lets you fill the details in by hand only
-once the number is corrected. When you type the ID marking yourself
+once the number is corrected. The number of a dog filled in by hand can be corrected later too: if the
+Kennel Club does not know the corrected number, the details of the dog and its people stay and only the
+number changes. The name of a dog filled in by hand can be corrected like its other details. When you
+type the ID marking yourself
 (for a dog filled in by hand, or one the Kennel Club has no chip for), give the microchip's 15 digits.
 Spaces are removed as you type, and the form accepts nothing else.
 
