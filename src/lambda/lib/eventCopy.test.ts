@@ -167,6 +167,50 @@ describe('createEventCopy', () => {
     ])
   })
 
+  // The registration form rewrites the owner from owners[0], so the two must agree (KOE-1663)
+  it('gives the same number in one registration the same stand-in, and another number the next one', () => {
+    const phone = '040 765 4321'
+    const [registration] = createEventCopy(
+      {
+        event: sourceEvent(),
+        registrations: [
+          {
+            ...sourceRegistrations()[1],
+            handler: { email: 'matti@example.fi', membership: true, name: 'Matti Meikäläinen', phone },
+            owner: { email: 'matti@example.fi', membership: true, name: 'Matti Meikäläinen', phone },
+            owners: [
+              { email: 'matti@example.fi', key: 'a', membership: true, name: 'Matti Meikäläinen', phone },
+              { email: 'toinen@example.fi', key: 'b', membership: false, name: 'Toinen Omistaja', phone: '050 1' },
+            ],
+          },
+        ],
+      },
+      copier,
+      key
+    ).copy.registrations
+
+    expect(registration.owner?.phone).toMatch(COPY_PHONE)
+    expect(registration.owners?.[0].phone).toBe(registration.owner?.phone)
+    expect(registration.handler?.phone).toBe(registration.owner?.phone)
+    expect(registration.owners?.[1].phone).toMatch(COPY_PHONE)
+    expect(registration.owners?.[1].phone).not.toBe(registration.owner?.phone)
+  })
+
+  // A number is never compared across registrations (Jukka 28.9.2026)
+  it('gives the same number in two registrations different stand-ins', () => {
+    const phone = '040 765 4321'
+    const registrations = [0, 1].map((i) => ({
+      ...sourceRegistrations()[1],
+      handler: { email: 'matti@example.fi', membership: true, name: 'Matti Meikäläinen', phone },
+      id: `reg-${i}`,
+    }))
+    const [one, other] = createEventCopy({ event: sourceEvent(), registrations }, copier, key).copy.registrations
+
+    expect(one.handler?.phone).toMatch(COPY_PHONE)
+    expect(other.handler?.phone).toMatch(COPY_PHONE)
+    expect(other.handler?.phone).not.toBe(one.handler?.phone)
+  })
+
   it('keeps what does not identify a person', () => {
     expect(first.owner?.location).toBe('Espoo')
     expect(first.owner?.membership).toBe(true)

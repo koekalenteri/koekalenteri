@@ -19,12 +19,14 @@ import { removeRegistrationCreationMetadata } from './registration'
  * dev, or between test and dev. Every person in it is replaced before the copy leaves the source,
  * and the copy is checked for anything that got through before it is sent anywhere.
  *
- * Addresses and names are replaced deterministically within one copy — the same person always gets
+ * Addresses and names are replaced deterministically within one copy. The same person always gets
  * the same stand-in, so logic that compares people (handler = owner, deduplicated recipients, the
- * same handler with two dogs) behaves as it did in the source — and keyed with a random secret per
- * copy that is never stored, so a stand-in cannot be traced back by guessing. A person is their name
- * and address together, as the group rules count them: test data often has one tester's name on
- * every entry, each with its own plus-address. Numbers compare nothing, and are handed out in order.
+ * same handler with two dogs) behaves as it did in the source. The stand-ins are keyed with a random
+ * secret per copy that is never stored, so a stand-in cannot be traced back by guessing. A person is
+ * their name and address together, as the group rules count them: test data often has one tester's
+ * name on every entry, each with its own plus-address. Numbers are handed out in order and compared
+ * only as written within one registration: the same string there gets the same stand-in, so `owner`
+ * and `owners[0]` agree (KOE-1663). Across registrations a number is never compared.
  */
 
 /** Who makes the copy: every mail the copy can send goes to this person. */
@@ -47,7 +49,8 @@ interface CopyOriginals {
 
 /**
  * Every number in a copy is a number from this range, handed out in order: what the original was
- * (Finnish or not, however written) makes no difference. Mobile prefix 048 is in Traficom's own
+ * (Finnish or not, however written) makes no difference, except that an identical source string
+ * within one registration repeats its stand-in. Mobile prefix 048 is in Traficom's own
  * number reserve, allocated to no operator (Traficom regulation M 32 V/2025, annex 1). Finland has
  * no range set aside for fiction, and 040 is fully allocated. Check annex 1 again whenever the
  * regulation is renewed.
@@ -168,9 +171,26 @@ const collectOriginals = (value: unknown, originals: CopyOriginals) => {
 const replaceEmails = (copy: EventCopy, standIns: StandIns): EventCopy =>
   JSON.parse(JSON.stringify(copy).replace(EMAIL_RE, (match) => standIns.email(match)))
 
+/**
+ * One registration's phone stand-ins: the same number gets the same stand-in, so the owner and its
+ * mirror in owners agree (KOE-1663). A new map per registration: a number is never compared across
+ * registrations, so two entries sharing one still get different stand-ins.
+ */
+const registrationPhones = (standIns: StandIns) => {
+  const phones = new Map<string, string>()
+  return (original: string) => {
+    const known = phones.get(original)
+    if (known) return known
+    const phone = standIns.phone()
+    phones.set(original, phone)
+    return phone
+  }
+}
+
 const copyPerson = <P extends Partial<RegistrationOwner>>(
   person: P | undefined,
   standIns: StandIns,
+  phone: (original: string) => string,
   originals: CopyOriginals
 ): P | undefined => {
   if (!person) return person
@@ -179,7 +199,7 @@ const copyPerson = <P extends Partial<RegistrationOwner>>(
   return {
     ...person,
     ...(person.name ? { name: standIns.name(person.name, person.email) } : {}),
-    ...(person.phone ? { phone: standIns.phone() } : {}),
+    ...(person.phone ? { phone: phone(person.phone) } : {}),
   }
 }
 
@@ -238,10 +258,11 @@ const copyEvent = (source: JsonDogEvent, copier: Copier, standIns: StandIns, ori
 const copyRegistration = (source: JsonRegistration, copier: Copier, standIns: StandIns, originals: CopyOriginals) => {
   const registration: JsonRegistration = removeRegistrationCreationMetadata(structuredClone(source))
 
-  registration.owner = copyPerson(registration.owner, standIns, originals)
-  registration.handler = copyPerson(registration.handler, standIns, originals)
-  registration.payer = copyPerson(registration.payer, standIns, originals)
-  registration.owners = registration.owners?.map((owner) => copyPerson(owner, standIns, originals) ?? owner)
+  const phone = registrationPhones(standIns)
+  registration.owner = copyPerson(registration.owner, standIns, phone, originals)
+  registration.handler = copyPerson(registration.handler, standIns, phone, originals)
+  registration.payer = copyPerson(registration.payer, standIns, phone, originals)
+  registration.owners = registration.owners?.map((owner) => copyPerson(owner, standIns, phone, originals) ?? owner)
   if (registration.breeder?.name) {
     originals.names.add(normalize(registration.breeder.name))
     registration.breeder = { ...registration.breeder, name: standIns.name(registration.breeder.name) }
