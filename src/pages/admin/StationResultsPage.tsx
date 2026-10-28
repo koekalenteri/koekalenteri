@@ -20,6 +20,7 @@ import { StationScoring } from '../components/stationScoring/StationScoring'
 import { idTokenAtom, languageAtom } from '../state'
 import EventNotFound from './components/EventNotFound'
 import { StationPhasesEditor } from './eventResultsPage/StationPhasesEditor'
+import { useIsOfficialEventType } from './hooks/useIsOfficialEventType'
 import { useResultsLock } from './hooks/useResultsLock'
 import { adminConfirmedEventAtom, adminEventRegistrationsAtom, useAdminEventActions } from './state'
 import { useAdminEventScope } from './state/eventScope'
@@ -44,9 +45,10 @@ export default function StationResultsPage() {
   // this page is subscribed to the event.
   useEventSubscription(eventId)
 
-  // The state Kennelliitto reports is what locks, so a page that opens locked reads it afresh: a judge who
-  // has sent the trial back opens the post again without anyone asking for it.
-  const { locked, refreshState } = useResultsLock(event, kc.preview)
+  // The state Kennelliitto reports is what locks, so an official trial's post reads it when it opens: a trial
+  // handed over or confirmed in Omakoira directly locks here (KOE-1222), and one the judge sent back opens.
+  const official = useIsOfficialEventType(event?.eventType)
+  const { locked, refreshState } = useResultsLock(event, kc.preview, { readOnOpen: official })
   // A save found the trial locked, or a dog it named gone: the page learns it the same way the results page does.
   const handleLocked = useCallback(() => {
     refreshState().catch(reportError)

@@ -20,6 +20,12 @@ import { adminEventRegistrationsAtom, adminEventsAtom } from './state'
 // The trial is long past; a day of its own keeps what the page says about it from moving (KOE-1423).
 freezeClockAt('2026-09-07')
 
+// An official trial's post reads Kennelliitto's state when it opens; the answer is not what these captures are about.
+vi.mock(import('../../api/registration'), async (importOriginal) => ({
+  ...(await importOriginal()),
+  previewKennelliittoResults: vi.fn(async () => ({ blockers: [], dogs: [] })),
+}))
+
 // The page renders inside a real WebSocketProvider in production; give it a no-op subscription.
 vi.mock(import('../../hooks/useEventSubscription'), () => ({
   useEventSubscription: () => ({ viewers: [] }),

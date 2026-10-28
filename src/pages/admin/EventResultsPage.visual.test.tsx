@@ -20,7 +20,7 @@ import { adminEventRegistrationsAtom, adminEventsAtom } from './state'
 // The trial is long past; a day of its own keeps what the page says about it from moving (KOE-1423).
 freezeClockAt('2026-09-07')
 
-// A page that is locked reads Kennelliitto's state afresh; the answer is not what these captures are about.
+// An official trial's results page reads Kennelliitto's state when it opens; the answer is not what these captures are about.
 vi.mock(import('../../api/registration'), async (importOriginal) => ({
   ...(await importOriginal()),
   previewKennelliittoResults: vi.fn(async () => ({ blockers: [], dogs: [] })),
