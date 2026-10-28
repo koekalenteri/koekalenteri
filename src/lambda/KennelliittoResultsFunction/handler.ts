@@ -1,7 +1,5 @@
-import type { KcRegNoChoices } from '../../lib/kennelliittoResults'
 import type { JsonConfirmedEvent } from '../../types'
 import { isOfficialEventType } from '../../lib/event'
-import { isKcRegNoChoice } from '../../lib/kennelliittoResults'
 import { kcFormatOfEventType } from '../../lib/results'
 import { authorizeWithMemberOf } from '../lib/auth'
 import { getEvent } from '../lib/event'
@@ -28,36 +26,21 @@ interface KennelliittoRequest {
   /** Send again even where the result is what was sent, after an edit made in Omakoira itself. */
   force?: boolean
   registrationIds?: unknown
-  /** What to do with the dogs Kennelliitto knows by another number, by registration id (KOE-1653). */
-  regNoChoices?: unknown
+  /**
+   * The dogs Kennelliitto knows by another number whose number the secretary chose to change to
+   * Kennelliitto's (KOE-1653). The whole sending's list comes with every chunk.
+   */
+  switchRegNos?: unknown
   /** Accepts that the dogs listed as left out stay out of the hand-over. */
   withoutBlocked?: boolean
 }
 
-const idsOf = (value: unknown): string[] | undefined => {
+const idsOf = (value: unknown, field: string): string[] | undefined => {
   if (value === undefined) return undefined
   if (!Array.isArray(value) || !value.every((id) => typeof id === 'string')) {
-    throw httpError(422, 'registrationIds must be a list of ids')
+    throw httpError(422, `${field} must be a list of ids`)
   }
   return value
-}
-
-/**
- * The choices of a sending: a map of registration ids to a choice. The whole map comes with every chunk of
- * a sending, so the ids of other chunks are in it and left alone; a choice is acted on only for a dog the
- * sending itself finds Kennelliitto knows by another number.
- */
-const regNoChoicesOf = (value: unknown): KcRegNoChoices => {
-  if (value === undefined) return {}
-  if (typeof value !== 'object' || value === null || Array.isArray(value)) {
-    throw httpError(422, 'regNoChoices must be a map of registration ids to a choice')
-  }
-  const choices: KcRegNoChoices = {}
-  for (const [id, choice] of Object.entries(value)) {
-    if (!isKcRegNoChoice(choice)) throw httpError(422, 'regNoChoices takes switch')
-    choices[id] = choice
-  }
-  return choices
 }
 
 type Ctx = Parameters<typeof previewKennelliittoResults>[0]
@@ -94,7 +77,7 @@ const sendAction = async (run: Run) => {
   }
   const { eventPatch, patches, ...sent } = await sendKennelliittoResults(run.ctx, ids, {
     force: run.body.force === true,
-    regNoChoices: regNoChoicesOf(run.body.regNoChoices),
+    switchRegNos: idsOf(run.body.switchRegNos, 'switchRegNos') ?? [],
   })
   if (patches.length) await publishRegistrationPatches(run.eventId, patches, run.organizerId)
   await publishEvent(run, eventPatch)
@@ -135,7 +118,7 @@ const kennelliittoResultsLambda = lambda('kennelliittoResults', async (event) =>
 
   const eventId = getParam(event, 'eventId')
   const body = parseJSONWithFallback<KennelliittoRequest>(event.body, {})
-  const ids = idsOf(body.registrationIds)
+  const ids = idsOf(body.registrationIds, 'registrationIds')
   const action = body.action ? ACTIONS[body.action] : undefined
   if (!action) throw httpError(400, 'unknown action')
 

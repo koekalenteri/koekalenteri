@@ -12,13 +12,14 @@ import {
   buildKcForeignDog,
   buildKcResult,
   countSentResults,
+  defaultKcRegNoChoice,
   dogGenderOfKc,
   finnishDay,
   isKcDayReached,
-  isKcRegNoChoice,
+  isKcNameMatch,
   isKcStateWritable,
   isResultsLocked,
-  KC_GENDER,
+  isSameKcText,
   kcCountryOfRegNo,
   kcDogDifferences,
   kcKnownDogOf,
@@ -603,8 +604,8 @@ describe('a dog Kennelliitto knows by another number (KOE-1653)', () => {
     ).toEqual({ foundBy: 'name', name: 'FILURIN PARADOX', regNo: 'FI25555/20', rfid: '' })
   })
 
-  it('reads the sex both ways with one table', () => {
-    expect([dogGenderOfKc(KC_GENDER.F), dogGenderOfKc(KC_GENDER.M), dogGenderOfKc(null), dogGenderOfKc(1)]).toEqual([
+  it('reads Kennelliitto’s sex codes (Testi2: 102 narttu, 101 uros)', () => {
+    expect([dogGenderOfKc(102), dogGenderOfKc(101), dogGenderOfKc(null), dogGenderOfKc(1)]).toEqual([
       'F',
       'M',
       undefined,
@@ -631,11 +632,48 @@ describe('a dog Kennelliitto knows by another number (KOE-1653)', () => {
   })
 
   it.each([
-    ['switch', true],
-    ['addNew', false],
-    ['skip', false],
-    [undefined, false],
-  ])('takes %j as a choice: %j', (value, expected) => {
-    expect(isKcRegNoChoice(value)).toBe(expected)
+    ['the same number', 'SE22358/2021', 'SE22358/2021', true],
+    ['another case', 'se22358/2021', 'SE22358/2021', true],
+    ['spaces around it', ' SE22358/2021 ', 'SE22358/2021', true],
+    ['a space inside it', 'SE 22358/2021', 'SE22358/2021', false],
+    ['the Estonian dash', 'EST-12345/20', 'EST12345/20', false],
+  ])('compares registration numbers: %s', (_, a, b, same) => {
+    expect(isSameKcText(a, b)).toBe(same)
+  })
+
+  describe('a dog found by its name', () => {
+    const found = kcKnownDogOf(answer, 'name')
+
+    it('is the entry’s dog when breed and sex are the same', () => {
+      expect(isKcNameMatch(ours, found)).toBe(true)
+    })
+
+    it.each([
+      ['sex', { gender: 'M' as const }],
+      ['breed', { breedCode: '122' }],
+    ])('is another dog when its %s is another', (_, fields) => {
+      expect(isKcNameMatch({ ...ours, ...fields }, found)).toBe(false)
+    })
+
+    it('is the entry’s dog when Kennelliitto has no breed or sex for it, missing data being no difference', () => {
+      const lacking = kcKnownDogOf({ ...answer, id_Sukupuoli: null, rotukoodi: '' }, 'name')
+      expect(isKcNameMatch({ ...ours, breedCode: '122', gender: 'M' }, lacking)).toBe(true)
+    })
+  })
+
+  describe('the choice a dog starts with', () => {
+    it('is Kennelliitto’s number when the microchips are the same, however the dog was found', () => {
+      expect(defaultKcRegNoChoice(ours, kcKnownDogOf(answer, 'regNo'))).toBe('switch')
+    })
+
+    it('is none when Kennelliitto has another microchip', () => {
+      expect(defaultKcRegNoChoice({ rfid: '981098106889343' }, kcKnownDogOf(answer, 'regNo'))).toBeUndefined()
+    })
+
+    it('is none when Kennelliitto has no microchip', () => {
+      const noChip = kcKnownDogOf({ ...answer, tunnistusmerkintä: '' }, 'name')
+      expect(defaultKcRegNoChoice(ours, noChip)).toBeUndefined()
+      expect(defaultKcRegNoChoice({ rfid: '' }, noChip)).toBeUndefined()
+    })
   })
 })

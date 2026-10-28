@@ -120,8 +120,6 @@ export type KcProblemCode =
   | 'kcRegNoDiffers'
   /** Another entry of the trial already has Kennelliitto's number (`detail`): the same dog entered twice. */
   | 'kcRegNoTaken'
-  /** The number could not be changed here, so nothing was sent. */
-  | 'kcRegNoNotChanged'
 
 export interface KcProblem {
   code: KcProblemCode
@@ -376,14 +374,13 @@ export interface KcForeignDogBody {
 type KcForeignDog = Pick<JsonDog, 'breedCode' | 'dob' | 'gender' | 'name' | 'regNo' | 'rfid'>
 
 /** Kennelliitto's `id_Sukupuoli` (Testi2, 27.10.2026). */
-export const KC_GENDER: Record<DogGender, number> = { F: 102, M: 101 }
+const KC_GENDER: Record<DogGender, number> = { F: 102, M: 101 }
 
-/** The sex of Kennelliitto's `id_Sukupuoli`, the other way round from `KC_GENDER`. */
-export const dogGenderOfKc = (id: number | null | undefined): DogGender | undefined => {
-  if (id === KC_GENDER.F) return 'F'
-  if (id === KC_GENDER.M) return 'M'
-  return undefined
-}
+const DOG_GENDERS: readonly DogGender[] = ['F', 'M']
+
+/** The sex of Kennelliitto's `id_Sukupuoli`, read from the same table `KC_GENDER` writes it by. */
+export const dogGenderOfKc = (id: number | null | undefined): DogGender | undefined =>
+  DOG_GENDERS.find((gender) => KC_GENDER[gender] === id)
 
 /** A Finnish dog is never added as a foreign one, whatever its number looks like. */
 const FINLAND = 'FI'
@@ -514,36 +511,55 @@ export type KcDogField = 'regNo' | 'name' | 'rfid' | 'dob' | 'breed' | 'gender'
 /** A dog as the comparison reads it: the entry's, or Kennelliitto's, whose breed code is any code it gives. */
 export type KcComparedDog = Pick<JsonDog, 'dob' | 'gender' | 'name' | 'regNo' | 'rfid'> & { breedCode?: string }
 
-const sameText = (a: string | undefined, b: string) =>
-  (a ?? '').trim().toLocaleUpperCase('fi') === b.toLocaleUpperCase('fi')
+/**
+ * Whether two registration numbers (or names) are the same, compared trimmed and without case. A space
+ * inside the number or the Estonian dash is a difference, which the secretary resolves by taking
+ * Kennelliitto's number (KOE-1653).
+ */
+export const isSameKcText = (a: string | undefined, b: string | undefined): boolean =>
+  (a ?? '').trim().toLocaleUpperCase('fi') === (b ?? '').trim().toLocaleUpperCase('fi')
+
+/** The microchips are the same: Kennelliitto has one, and it is the entry's. */
+const isSameChip = (ours: Pick<KcComparedDog, 'rfid'>, kcDog: Pick<KcKnownDog, 'rfid'>): boolean =>
+  kcDog.rfid !== '' && ours.rfid?.trim() === kcDog.rfid
+
+/** A detail Kennelliitto does not have is no difference: there is nothing to compare with. */
+const differsUnlessMissing = <T>(ours: T | undefined, theirs: T | undefined): boolean =>
+  theirs !== undefined && ours !== theirs
 
 /**
  * Where the entry's dog and Kennelliitto's differ. What Kennelliitto does not have (no microchip, no birth
- * date, no breed or sex) is no difference: there is nothing to compare with (KOE-1653).
+ * date, no breed or sex) is no difference (KOE-1653).
  */
 export const kcDogDifferences = (ours: KcComparedDog, kcDog: KcKnownDog): KcDogField[] => {
   const differs: Array<[KcDogField, boolean]> = [
-    ['regNo', !sameText(ours.regNo, kcDog.regNo)],
-    ['name', !sameText(ours.name, kcDog.name)],
-    ['rfid', kcDog.rfid !== '' && ours.rfid?.trim() !== kcDog.rfid],
-    ['dob', kcDog.dob !== undefined && ours.dob !== kcDog.dob],
-    ['breed', kcDog.breedCode !== undefined && ours.breedCode !== kcDog.breedCode],
-    ['gender', kcDog.gender !== undefined && ours.gender !== kcDog.gender],
+    ['regNo', !isSameKcText(ours.regNo, kcDog.regNo)],
+    ['name', !isSameKcText(ours.name, kcDog.name)],
+    ['rfid', kcDog.rfid !== '' && !isSameChip(ours, kcDog)],
+    ['dob', differsUnlessMissing(ours.dob, kcDog.dob)],
+    ['breed', differsUnlessMissing(ours.breedCode, kcDog.breedCode)],
+    ['gender', differsUnlessMissing(ours.gender, kcDog.gender)],
   ]
   return differs.filter(([, differ]) => differ).map(([field]) => field)
 }
 
 /**
- * What the secretary may do with a dog Kennelliitto knows by another number, besides leaving its result
- * unsent for now: take Kennelliitto's number. Adding a dog found by its name as a new one is not offered:
- * Kennelliitto refuses to add a dog of exactly the same name ("Koira löytyy jo nimellä").
+ * A dog found by its name is the entry's dog only when its breed and sex are not different: the same, or
+ * missing from Kennelliitto, which is no difference here either (KOE-1653).
  */
-export type KcRegNoChoice = 'switch'
+export const isKcNameMatch = (ours: KcComparedDog, kcDog: KcKnownDog): boolean =>
+  !differsUnlessMissing(ours.breedCode, kcDog.breedCode) && !differsUnlessMissing(ours.gender, kcDog.gender)
 
-/** The choices a sending carries, by registration id. A dog left out of it is not sent. */
-export type KcRegNoChoices = Partial<Record<string, KcRegNoChoice>>
-
-export const isKcRegNoChoice = (value: unknown): value is KcRegNoChoice => value === 'switch'
+/**
+ * What a dog Kennelliitto knows by another number starts with in the dialog: Kennelliitto's number when the
+ * microchips are the same, else no choice, so the secretary looks at the dog before anything is sent.
+ * Adding such a dog as a new one is not offered: Kennelliitto refuses to add a dog of exactly the same
+ * name ("Koira löytyy jo nimellä").
+ */
+export const defaultKcRegNoChoice = (
+  ours: Pick<KcComparedDog, 'rfid'>,
+  kcDog: Pick<KcKnownDog, 'rfid'>
+): 'switch' | undefined => (isSameChip(ours, kcDog) ? 'switch' : undefined)
 
 /** A day as a person reads it, d.M.yyyy: the form a message that names a day carries. */
 export const finnishDay = (day: string): string => {

@@ -514,7 +514,7 @@ describe('useKennelliittoResults', () => {
     await act(async () => {
       await result.current.kc.send([registrationWithStaticDates.id], {
         force: false,
-        regNoChoices: { [registrationWithStaticDates.id]: 'switch' },
+        switchRegNos: [registrationWithStaticDates.id],
       })
     })
 
@@ -525,7 +525,7 @@ describe('useKennelliittoResults', () => {
   })
 
   it('sends the whole sending’s choices with every chunk, a retried one too (KOE-1653)', async () => {
-    const regNoChoices = { a: 'switch' as const, b: 'switch' as const }
+    const switchRegNos = ['a', 'b']
     vi.mocked(registrationApi.sendKennelliittoResults)
       .mockResolvedValueOnce({
         blockers: [],
@@ -537,21 +537,21 @@ describe('useKennelliittoResults', () => {
     const { result } = renderHook(() => useKennelliittoResults(id), { wrapper })
 
     await act(async () => {
-      await result.current.send(['a', 'b'], { force: false, regNoChoices })
+      await result.current.send(['a', 'b'], { force: false, switchRegNos })
     })
 
     expect(registrationApi.sendKennelliittoResults).toHaveBeenNthCalledWith(
       1,
       id,
       ['a', 'b'],
-      { force: false, regNoChoices },
+      { force: false, switchRegNos },
       expect.any(String)
     )
     expect(registrationApi.sendKennelliittoResults).toHaveBeenNthCalledWith(
       2,
       id,
       ['b'],
-      { force: false, regNoChoices },
+      { force: false, switchRegNos },
       expect.any(String)
     )
   })

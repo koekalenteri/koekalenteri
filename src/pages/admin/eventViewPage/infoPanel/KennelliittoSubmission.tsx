@@ -1,4 +1,4 @@
-import type { KcPreviewResponse, KcRegNoChoices } from '@/lib/kennelliittoResults'
+import type { KcPreviewResponse } from '@/lib/kennelliittoResults'
 import type { ConfirmedEvent, Registration } from '@/types'
 import type { KcHandOverOutcome } from '../../state/registrations/actions'
 import type { KcRegNoDecision, KcRegNoDecisions, KcRegNoRow } from './KennelliittoRegNoChoices'
@@ -17,13 +17,12 @@ import { useCallback, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { reportError } from '@/lib/client/error'
 import { getEventProgress, uniqueClasses } from '@/lib/event'
-import { countSentResults, isResultsLocked } from '@/lib/kennelliittoResults'
+import { countSentResults, defaultKcRegNoChoice, isResultsLocked } from '@/lib/kennelliittoResults'
 import { getRegistrationClass, isScorableRegistration } from '@/lib/registration'
 import { KcIdLookupButton } from '../../components/KcIdLookupButton'
 import { useSaveKcLink } from '../../hooks/useSaveKcLink'
 import { useKennelliittoResults } from '../../state/registrations/actions'
 import { KennelliittoHandOverDialog } from './KennelliittoHandOverDialog'
-import { defaultKcRegNoChoice } from './KennelliittoRegNoChoices'
 import { dogsToDecide, dogsToSend, KennelliittoSendDialog } from './KennelliittoSendDialog'
 import { PublishingSection } from './PublishingSection'
 import { actionButtonSx } from './styles'
@@ -73,17 +72,10 @@ const regNoRowsOf = (preview: KcPreviewResponse, registrations: Registration[]):
 const defaultDecisions = (rows: KcRegNoRow[]): KcRegNoDecisions =>
   Object.fromEntries(rows.map((row) => [row.report.id, defaultKcRegNoChoice(row.dog, row.kcDog)]))
 
-/** What a confirmed choice sends: the dogs as they are, the dogs decided about but not left out, and the choices. */
+/** What a confirmed choice sends: the dogs as they are, and the dogs whose number is changed to Kennelliitto's. */
 const sendingOf = (preview: KcPreviewResponse, force: boolean, rows: KcRegNoRow[], decisions: KcRegNoDecisions) => {
-  const regNoChoices: KcRegNoChoices = {}
-  for (const row of rows) {
-    const decision = decisions[row.report.id]
-    if (decision === 'switch') regNoChoices[row.report.id] = decision
-  }
-  return {
-    ids: [...dogsToSend(preview, force).map((dog) => dog.id), ...Object.keys(regNoChoices)],
-    regNoChoices,
-  }
+  const switchRegNos = rows.filter((row) => decisions[row.report.id] === 'switch').map((row) => row.report.id)
+  return { ids: [...dogsToSend(preview, force).map((dog) => dog.id), ...switchRegNos], switchRegNos }
 }
 
 /**
@@ -135,10 +127,10 @@ const KennelliittoSubmission = ({ event, onRefreshState, registrations }: Props)
       setSendPhase({ kind: 'regNos', preview: sendPhase.preview, rows })
       return
     }
-    const { ids, regNoChoices } = sendingOf(sendPhase.preview, forceSend, rows, regNoDecisions)
+    const { ids, switchRegNos } = sendingOf(sendPhase.preview, forceSend, rows, regNoDecisions)
     const onProgress = (done: number) => setSendPhase({ done, kind: 'sending', total: ids.length })
     setSendPhase({ done: 0, kind: 'sending', total: ids.length })
-    const summary = await kc.send(ids, { force: forceSend, regNoChoices }, onProgress)
+    const summary = await kc.send(ids, { force: forceSend, switchRegNos }, onProgress)
     setSendPhase({ kind: 'report', summary })
   }, [forceSend, kc, registrations, regNoDecisions, sendPhase])
 

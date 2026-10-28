@@ -173,7 +173,7 @@ describe('kennelliittoResultsLambda', () => {
 
       await call({ action: 'send', force: true, registrationIds: ids })
 
-      expect(mockSend).toHaveBeenCalledWith(expect.anything(), ids, { force: true, regNoChoices: {} })
+      expect(mockSend).toHaveBeenCalledWith(expect.anything(), ids, { force: true, switchRegNos: [] })
       expect(mockPublishRegistrationPatches).toHaveBeenCalledWith(
         'event-1',
         [{ id: 'r0', kcResult: { status: 'sent' } }],
@@ -224,23 +224,23 @@ describe('kennelliittoResultsLambda', () => {
     it('does not force unless asked to', async () => {
       await call({ action: 'send', registrationIds: ['a'] })
 
-      expect(mockSend).toHaveBeenCalledWith(expect.anything(), ['a'], { force: false, regNoChoices: {} })
+      expect(mockSend).toHaveBeenCalledWith(expect.anything(), ['a'], { force: false, switchRegNos: [] })
     })
 
-    it('passes on the choices for dogs Kennelliitto knows by another number, those of other chunks too (KOE-1653)', async () => {
-      const regNoChoices = { a: 'switch', z: 'switch' }
+    it('passes on the dogs to take Kennelliitto’s number for, those of other chunks too (KOE-1653)', async () => {
+      const switchRegNos = ['a', 'z']
 
-      await call({ action: 'send', registrationIds: ['a'], regNoChoices })
+      await call({ action: 'send', registrationIds: ['a'], switchRegNos })
 
-      expect(mockSend).toHaveBeenCalledWith(expect.anything(), ['a'], { force: false, regNoChoices })
+      expect(mockSend).toHaveBeenCalledWith(expect.anything(), ['a'], { force: false, switchRegNos })
     })
 
-    it.each([[['switch']], ['switch'], [{ a: 'keep' }], [{ a: 'addNew' }], [{ a: null }]])(
-      'refuses choices that are not a map of ids to switch: %j',
-      async (regNoChoices) => {
-        await call({ action: 'send', registrationIds: ['a'], regNoChoices })
+    it.each([[{ a: 'switch' }], ['a'], [[1]], [[null]]])(
+      'refuses switchRegNos that are not a list of ids: %j',
+      async (switchRegNos) => {
+        await call({ action: 'send', registrationIds: ['a'], switchRegNos })
 
-        expect(mockResponse).toHaveBeenCalledWith(422, expect.stringContaining('regNoChoices'), expect.anything())
+        expect(mockResponse).toHaveBeenCalledWith(422, 'switchRegNos must be a list of ids', expect.anything())
         expect(mockSend).not.toHaveBeenCalled()
       }
     )

@@ -328,14 +328,14 @@ describe('KennelliittoSubmission (KOE-1579)', () => {
         1,
         'test1',
         ids.slice(0, 10),
-        { force: false, regNoChoices: {} },
+        { force: false, switchRegNos: [] },
         expect.anything()
       )
       expect(sendKennelliittoResults).toHaveBeenNthCalledWith(
         2,
         'test1',
         ids.slice(10),
-        { force: false, regNoChoices: {} },
+        { force: false, switchRegNos: [] },
         expect.anything()
       )
       expect(screen.getByText('results.kennelliitto.success count')).toBeInTheDocument()
@@ -360,7 +360,7 @@ describe('KennelliittoSubmission (KOE-1579)', () => {
       expect(sendKennelliittoResults).toHaveBeenLastCalledWith(
         'test1',
         ['run-1'],
-        { force: true, regNoChoices: {} },
+        { force: true, switchRegNos: [] },
         expect.anything()
       )
     })
@@ -431,7 +431,7 @@ describe('KennelliittoSubmission (KOE-1579)', () => {
         expect(sendKennelliittoResults).toHaveBeenCalledWith(
           'test1',
           ['dog-3', 'run-1'],
-          { force: false, regNoChoices: { 'run-1': 'switch' } },
+          { force: false, switchRegNos: ['run-1'] },
           expect.anything()
         )
       })
@@ -450,7 +450,7 @@ describe('KennelliittoSubmission (KOE-1579)', () => {
         expect(sendKennelliittoResults).toHaveBeenCalledWith(
           'test1',
           ['dog-3', 'run-1', 'run-2'],
-          { force: false, regNoChoices: { 'run-1': 'switch', 'run-2': 'switch' } },
+          { force: false, switchRegNos: ['run-1', 'run-2'] },
           expect.anything()
         )
       })
@@ -556,7 +556,7 @@ describe('KennelliittoSubmission (KOE-1579)', () => {
         2,
         'test1',
         ['run-2'],
-        { force: false, regNoChoices: {} },
+        { force: false, switchRegNos: [] },
         expect.anything()
       )
       expect(screen.getByText('results.kennelliitto.success count')).toBeInTheDocument()

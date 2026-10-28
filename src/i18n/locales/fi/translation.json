@@ -1232,7 +1232,6 @@
         "dayNotReached": "Tuloksia voi kirjata koepäivänä ({{detail}}) tai sen jälkeen",
         "judgeWithoutNumber": "Tuomarilla {{detail}} ei ole Kennelliiton jäsennumeroa",
         "kcRegNoDiffers": "Kennelliitto tuntee koiran numerolla {{detail}}. Valitse lähetyksessä, mitä tehdään.",
-        "kcRegNoNotChanged": "Rekisterinumeroa ei saatu vaihdettua, joten tulosta ei lähetetty. Yritä uudelleen.",
         "kcRegNoTaken": "Numero {{detail}} on jo toisella ilmoittautumisella tässä kokeessa, joten sama koira on ilmoitettu kahdesti. Tarkista ilmoittautumiset.",
         "microchipInvalid": "Tunnistusmerkinnässä {{detail}} pitää olla 15 numeroa",
         "noBirthDate": "Koiran syntymäaika puuttuu",

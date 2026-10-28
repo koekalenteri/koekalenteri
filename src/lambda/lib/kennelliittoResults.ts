@@ -7,7 +7,6 @@ import type {
   KcFoundBy,
   KcKnownDog,
   KcProblem,
-  KcRegNoChoices,
   KcResultBody,
   KcSendReport,
 } from '../../lib/kennelliittoResults'
@@ -29,7 +28,9 @@ import {
   buildKcResult,
   finnishDay,
   isKcDayReached,
+  isKcNameMatch,
   isKcStateWritable,
+  isSameKcText,
   KC_STATE_HANDED_OVER,
   kcKnownDogOf,
   kcResultDay,
@@ -390,16 +391,6 @@ const regNoCandidates = (regNo: string): string[] => {
   return [trimmed, prefix.endsWith('-') ? `EST${rest}` : `EST-${rest}`]
 }
 
-/**
- * Whether Kennelliitto's number is the entry's: compared trimmed and without case. A space inside the
- * number or the Estonian dash is a difference, which the secretary resolves by taking Kennelliitto's.
- */
-const isSameRegNo = (a: string, b: string): boolean => a.trim().toUpperCase() === b.trim().toUpperCase()
-
-/** A dog found by its name is the entry's dog only when the breed and the sex are the same too. */
-const isKcNameMatch = (dog: JsonRegistration['dog'], kcDog: KcKnownDog): boolean =>
-  kcDog.breedCode === dog.breedCode && kcDog.gender === dog.gender
-
 type KcLookup = { kind: 'known' } | { kind: 'unknown' } | { kind: 'differs'; kcDog: KcKnownDog }
 
 interface LookupStep {
@@ -422,7 +413,7 @@ const lookupSteps = (dog: JsonRegistration['dog']): LookupStep[] => {
 
 /** What Kennelliitto's dog is to the entry's: the same number, a dog to choose about, or not this dog at all. */
 const judgeKcDog = (dog: JsonRegistration['dog'], kcDog: KcKnownDog): KcLookup => {
-  if (isSameRegNo(dog.regNo, kcDog.regNo)) return { kind: 'known' }
+  if (isSameKcText(dog.regNo, kcDog.regNo)) return { kind: 'known' }
   if (kcDog.foundBy === 'name' && !isKcNameMatch(dog, kcDog)) return { kind: 'unknown' }
   return { kcDog, kind: 'differs' }
 }
@@ -779,6 +770,18 @@ const skippedReports = (
       )
     )
 
+/**
+ * A dog whose number could not be written here: nothing was sent for it, and it stays unsent, so sending
+ * it again is the advice the page gives for an answer this app could not store.
+ */
+const regNoNotWrittenReport = (registration: JsonRegistration): KcSendReport => ({
+  answerNotStored: true,
+  id: registration.id,
+  name: registration.dog.name ?? '',
+  outcome: 'failed',
+  regNo: registration.dog.regNo,
+})
+
 /** A dog that was asked for and not sent, for the one reason given. */
 const skippedFor = (item: Evaluated, problem: KcProblem): KcSendReport =>
   skippedReport(item.registration.id, { ...item, report: { ...item.report, problems: [problem] } })
@@ -791,49 +794,70 @@ interface SendOptions {
   patches: Patch<JsonRegistration>[]
   /** Every entry of the trial, for the dog a number taken from Kennelliitto already belongs to. */
   registrations: JsonRegistration[]
-  regNoChoices: KcRegNoChoices
   startedAt: number
+  /** The dogs whose number the secretary chose to change to the one Kennelliitto knows (KOE-1653). */
+  switchRegNos: ReadonlySet<string>
+  /** The numbers this request has taken from Kennelliitto so far, as `isSameKcText` compares them. */
+  takenRegNos: Set<string>
 }
+
+/** A number as `isSameKcText` compares it, for a set of them. */
+const regNoKey = (regNo: string) => regNo.trim().toLocaleUpperCase('fi')
+
+/**
+ * Whether the number is another entry's already: one of the trial's entries as read, or one this request
+ * switched before. A cancelled entry does not count, unlike for the duplicate entry check of
+ * `lib/registration.ts`: a cancelled entry that holds the number must not stop the live one's result.
+ */
+const isRegNoTaken = (
+  registration: JsonRegistration,
+  regNo: string,
+  { registrations, takenRegNos }: Pick<SendOptions, 'registrations' | 'takenRegNos'>
+): boolean =>
+  takenRegNos.has(regNoKey(regNo)) ||
+  registrations.some(
+    (other) => other.id !== registration.id && !other.cancelled && isSameKcText(other.dog.regNo, regNo)
+  )
 
 /**
  * Takes Kennelliitto's number for the dog (KOE-1653): writes it on the entry, says so in the change
  * history and the patches, and sends the result with it. Refused when another entry of the trial has the
- * number already, the same dog entered twice; then nothing is written or sent.
+ * number already, the same dog entered twice (`isRegNoTaken`); then nothing is written or sent.
  */
 const switchRegNo = async (
   req: KcRequest,
   item: Sendable & Pick<Evaluated, 'report'>,
   kcDog: KcKnownDog,
-  { patches, registrations }: Pick<SendOptions, 'patches' | 'registrations'>
+  options: Pick<SendOptions, 'patches' | 'registrations' | 'takenRegNos'>
 ): Promise<Sendable | KcSendReport> => {
   const { registration } = item
-  const taken = registrations.some(
-    (other) => other.id !== registration.id && !other.cancelled && isSameRegNo(other.dog.regNo, kcDog.regNo)
-  )
-  if (taken) return skippedFor(item, { code: 'kcRegNoTaken', detail: kcDog.regNo })
+  if (isRegNoTaken(registration, kcDog.regNo, options)) {
+    return skippedFor(item, { code: 'kcRegNoTaken', detail: kcDog.regNo })
+  }
+  // Taken before the write, which is the first wait: the dogs of a sending run side by side.
+  options.takenRegNos.add(regNoKey(kcDog.regNo))
 
   const updatedAt = nowOf(req).toISOString()
-  let written = false
-  // A failure is this dog's: nothing is sent for it, and the others go on.
+  // A thrown write is this dog's failure: nothing is sent for it, and the other dogs' reports are kept.
   try {
-    written = await writeDogRegNo(req.event.id, registration.id, kcDog.regNo, updatedAt)
+    await writeDogRegNo(req.event.id, registration.id, kcDog.regNo, updatedAt)
   } catch (error) {
     logger.error('dog regNo write failed', { error, eventId: req.event.id, registrationId: registration.id })
+    return regNoNotWrittenReport(registration)
   }
-  if (!written) return skippedFor(item, { code: 'kcRegNoNotChanged' })
 
   const auditKey = registrationAuditKey({ eventId: req.event.id, id: registration.id })
   await audit({ auditKey, ...dogRegNoChangedAudit(registration.dog.regNo, kcDog.regNo), user: req.userName })
   const dog = { ...registration.dog, regNo: kcDog.regNo }
-  mergePatch(patches, { dog, id: registration.id, updatedAt })
+  mergePatch(options.patches, { dog, id: registration.id, updatedAt })
   const body = { ...item.body, rekisterinumero: kcDog.regNo }
   return { body, hash: hashKcBody(body), registration: { ...registration, dog } }
 }
 
 /**
  * What the secretary chose for a dog Kennelliitto knows by another number, made into what is sent (KOE-1653).
- * A choice is taken from the sending's map only for a dog this request found to be one to choose about: the
- * preview it was made on may be older, and a dog Kennelliitto now knows by its own number is sent as it is.
+ * A choice is acted on only for a dog this request found to be one to choose about: the preview it was made
+ * on may be older, and a dog Kennelliitto now knows by its own number is sent as it is.
  */
 const resolveRegNoChoice = async (
   req: KcRequest,
@@ -842,8 +866,7 @@ const resolveRegNoChoice = async (
 ): Promise<Sendable | KcSendReport> => {
   const { kcDog } = item.report
   if (!kcDog) return item
-  const choice = options.regNoChoices[item.registration.id]
-  if (choice === 'switch') return switchRegNo(req, item, kcDog, options)
+  if (options.switchRegNos.has(item.registration.id)) return switchRegNo(req, item, kcDog, options)
   return skippedFor(item, { code: 'kcRegNoDiffers', detail: kcDog.regNo })
 }
 
@@ -873,7 +896,7 @@ const sendDog = async (req: KcRequest, item: Evaluated, options: SendOptions): P
 export const sendKennelliittoResults = async (
   ctx: KcContext,
   ids: string[],
-  { force, regNoChoices = {} }: { force: boolean; regNoChoices?: KcRegNoChoices }
+  { force, switchRegNos = [] }: { force: boolean; switchRegNos?: string[] }
 ): Promise<KcSendResult> => {
   const req = startRequest(ctx)
   const startedAt = nowOf(req).getTime()
@@ -894,7 +917,15 @@ export const sendKennelliittoResults = async (
   )
   const notAttempted: string[] = []
 
-  const options = { force, notAttempted, patches, registrations, regNoChoices, startedAt }
+  const options: SendOptions = {
+    force,
+    notAttempted,
+    patches,
+    registrations,
+    startedAt,
+    switchRegNos: new Set(switchRegNos),
+    takenRegNos: new Set(),
+  }
   const sent = await mapWithConcurrency(evaluated, SEND_CONCURRENCY, (item) => sendDog(sendReq, item, options))
   const reports = sent.filter((report): report is KcSendReport => report !== undefined)
 

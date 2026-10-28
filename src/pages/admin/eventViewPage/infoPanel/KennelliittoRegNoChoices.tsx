@@ -1,6 +1,5 @@
 import type { TFunction } from 'i18next'
-import type { KcComparedDog, KcDogField, KcDogReport, KcKnownDog, KcRegNoChoice } from '@/lib/kennelliittoResults'
-import type { Dog } from '@/types'
+import type { KcComparedDog, KcDogField, KcDogReport, KcKnownDog } from '@/lib/kennelliittoResults'
 import FormControlLabel from '@mui/material/FormControlLabel'
 import Paper from '@mui/material/Paper'
 import Radio from '@mui/material/Radio'
@@ -13,11 +12,14 @@ import TableHead from '@mui/material/TableHead'
 import TableRow from '@mui/material/TableRow'
 import Typography from '@mui/material/Typography'
 import { useTranslation } from 'react-i18next'
-import { isKcRegNoChoice, kcDogDifferences } from '@/lib/kennelliittoResults'
+import { kcDogDifferences } from '@/lib/kennelliittoResults'
 import { dogLabel } from './kennelliittoMessages'
 
-/** What the secretary decides for a dog Kennelliitto knows by another number: a choice, or to leave it unsent for now. */
-export type KcRegNoDecision = KcRegNoChoice | 'leave'
+/**
+ * What the secretary decides for a dog Kennelliitto knows by another number: take Kennelliitto's number,
+ * or leave its result unsent for now (KOE-1653).
+ */
+export type KcRegNoDecision = 'switch' | 'leave'
 
 export type KcRegNoDecisions = Partial<Record<string, KcRegNoDecision>>
 
@@ -27,13 +29,6 @@ export interface KcRegNoRow {
   readonly kcDog: KcKnownDog
   readonly report: KcDogReport
 }
-
-/**
- * The choice a row starts with: Kennelliitto's number when the microchips are the same, else none, so the
- * secretary has to look at the dog before anything is sent (KOE-1653).
- */
-export const defaultKcRegNoChoice = (dog: Pick<Dog, 'rfid'>, kcDog: KcKnownDog): KcRegNoDecision | undefined =>
-  kcDog.rfid !== '' && dog.rfid?.trim() === kcDog.rfid ? 'switch' : undefined
 
 /** Every row has a decision: what the confirmation waits for. */
 export const isEveryRegNoDecided = (rows: readonly KcRegNoRow[], decisions: KcRegNoDecisions): boolean =>
@@ -97,7 +92,7 @@ interface RowProps {
   readonly row: KcRegNoRow
 }
 
-const isDecision = (value: string): value is KcRegNoDecision => value === 'leave' || isKcRegNoChoice(value)
+const isDecision = (value: string): value is KcRegNoDecision => value === 'switch' || value === 'leave'
 
 const RegNoRow = ({ decision, onChange, row }: RowProps) => {
   const { t } = useTranslation()

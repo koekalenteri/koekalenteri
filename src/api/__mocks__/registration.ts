@@ -1,4 +1,4 @@
-import type { KcPreviewResponse, KcRegNoChoices, KcSendResponse } from '../../lib/kennelliittoResults'
+import type { KcPreviewResponse, KcSendResponse } from '../../lib/kennelliittoResults'
 import type {
   AuditRecord,
   ConfirmedEvent,
@@ -233,7 +233,7 @@ export const sendKennelliittoResults = vi.fn(
   async (
     _eventId: string,
     _registrationIds: string[],
-    _options: { force: boolean; regNoChoices?: KcRegNoChoices },
+    _options: { force: boolean; switchRegNos?: string[] },
     _token: string,
     _signal?: AbortSignal
   ): Promise<KcSendResponse> => ({ blockers: [], notAttempted: [], patches: [], reports: [] })

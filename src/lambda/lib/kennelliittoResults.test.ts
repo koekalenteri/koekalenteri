@@ -70,13 +70,12 @@ const mockWriteKcResult = vi.fn(
   }
 )
 
-/** The rule of `writeDogRegNo`: the number alone, on a registration that is there. */
+/** The rule of `writeDogRegNo`: the number alone. */
 const mockWriteDogRegNo = vi.fn(async (_eventId: string, id: string, regNo: string, updatedAt: string) => {
   const registration = registrations.find((reg) => reg.id === id)
-  if (!registration) return false
+  if (!registration) return
   registration.dog.regNo = regNo
   registration.updatedAt = updatedAt
-  return true
 })
 
 vi.doMock('./audit', () => ({
@@ -1164,7 +1163,11 @@ describe('kennelliittoResults', () => {
       tunnistusmerkintä: '981098106889342',
       väri: 'musta',
     }
-    /** Testi2: SE39800/2023 is SE39800/23 there, without a microchip, found by its name only. */
+    /**
+     * Testi2: SE39800/2023 is SE39800/23 there, without a microchip, found by its name only. Testi2 never
+     * recorded a name lookup's body, so the breed, sex and other fields here are invented (copied from the
+     * dog above) and are no evidence of what Kennelliitto answers.
+     */
     const solveigh = {
       ...filurin,
       id: 2600001,
@@ -1263,13 +1266,16 @@ describe('kennelliittoResults', () => {
       expect(preview.dogs[0].kcDog).toEqual(expect.objectContaining({ foundBy: 'regNo', regNo: 'EST-12345/20' }))
     })
 
-    it('adds a dog found by name as a new one when its breed or sex is another', async () => {
+    it.each([
+      ['sex', { gender: 'M' as const }],
+      ['breed', { breedCode: '122' as const }],
+    ])('adds a dog found by name as a new one when its %s is another', async (_, fields) => {
       registrations = [
         swedish('d1', {
-          gender: 'M',
           name: 'SOLVEIGH NEVER TOUCHING GROUND',
           regNo: 'SE39800/2023',
           rfid: '756097201013080',
+          ...fields,
         }),
       ]
 
@@ -1278,6 +1284,31 @@ describe('kennelliittoResults', () => {
       expect(preview.dogs[0].kcDog).toBeUndefined()
       expect(preview.dogs[0].createsDog).toEqual({ code: 'SE', name: 'Ruotsi' })
     })
+
+    it('takes a dog found by name as the entry’s when Kennelliitto has no breed or sex for it', async () => {
+      kcDogs['SE39800/23'] = { ...solveigh, id_Sukupuoli: null, rotukoodi: '' }
+      registrations = [
+        swedish('d1', { name: 'SOLVEIGH NEVER TOUCHING GROUND', regNo: 'SE39800/2023', rfid: '756097201013080' }),
+      ]
+
+      const preview = await previewKennelliittoResults(ctx())
+
+      expect(preview.dogs[0].kcDog).toEqual(expect.objectContaining({ foundBy: 'name', regNo: 'SE39800/23' }))
+      expect(preview.dogs[0].createsDog).toBeUndefined()
+    })
+
+    it.each(['se22358/2021', ' SE22358/2021 '])(
+      'reads the dog as known when Kennelliitto answers with its number written otherwise (%j)',
+      async (regNo) => {
+        kcDogs[regNo.trim()] = { ...filurin, rekisterinumero: 'SE22358/2021' }
+        registrations = [swedish('d1', { regNo })]
+
+        const preview = await previewKennelliittoResults(ctx())
+
+        expect(preview.dogs[0].kcDog).toBeUndefined()
+        expect(preview.dogs[0].createsDog).toBeUndefined()
+      }
+    )
 
     it('neither adds the dog nor sends its result without the secretary’s choice', async () => {
       registrations = [swedish('d1', {})]
@@ -1300,7 +1331,7 @@ describe('kennelliittoResults', () => {
     it('takes Kennelliitto’s number, says so, and sends the result with it in the same request', async () => {
       registrations = [swedish('d1', {})]
 
-      const result = await sendKennelliittoResults(ctx(), ['d1'], { force: false, regNoChoices: { d1: 'switch' } })
+      const result = await sendKennelliittoResults(ctx(), ['d1'], { force: false, switchRegNos: ['d1'] })
 
       expect(mockWriteDogRegNo).toHaveBeenCalledWith('event-1', 'd1', 'FI25555/20', '2026-09-26T10:00:00.000Z')
       expect(mockAudit).toHaveBeenCalledWith({
@@ -1336,7 +1367,7 @@ describe('kennelliittoResults', () => {
     it('reads the dog as known by its new number afterwards', async () => {
       registrations = [swedish('d1', {})]
 
-      await sendKennelliittoResults(ctx(), ['d1'], { force: false, regNoChoices: { d1: 'switch' } })
+      await sendKennelliittoResults(ctx(), ['d1'], { force: false, switchRegNos: ['d1'] })
       const preview = await previewKennelliittoResults(ctx())
 
       expect(preview.dogs).toEqual([expect.objectContaining({ id: 'd1', regNo: 'FI25555/20', status: 'unchanged' })])
@@ -1345,7 +1376,7 @@ describe('kennelliittoResults', () => {
 
     it('keeps the number it sent with through a refusal of a later sending', async () => {
       registrations = [swedish('d1', {})]
-      await sendKennelliittoResults(ctx(), ['d1'], { force: false, regNoChoices: { d1: 'switch' } })
+      await sendKennelliittoResults(ctx(), ['d1'], { force: false, switchRegNos: ['d1'] })
       tallennaReply['FI25555/20'] = { body: { virheet: ['Ei.'] }, status: 400 }
 
       await sendKennelliittoResults(ctx(), ['d1'], { force: true })
@@ -1356,7 +1387,7 @@ describe('kennelliittoResults', () => {
     it('refuses to take a number another entry of the trial has, the same dog entered twice', async () => {
       registrations = [swedish('d1', {}), dog('d2', 'FI25555/20', 'NOME-A2')]
 
-      const result = await sendKennelliittoResults(ctx(), ['d1'], { force: false, regNoChoices: { d1: 'switch' } })
+      const result = await sendKennelliittoResults(ctx(), ['d1'], { force: false, switchRegNos: ['d1'] })
 
       expect(mockWriteDogRegNo).not.toHaveBeenCalled()
       expect(tallennat()).toEqual([])
@@ -1372,31 +1403,43 @@ describe('kennelliittoResults', () => {
     it('takes the number when the other entry with it is cancelled', async () => {
       registrations = [swedish('d1', {}), dog('d2', 'FI25555/20', undefined, { cancelled: true })]
 
-      const result = await sendKennelliittoResults(ctx(), ['d1'], { force: false, regNoChoices: { d1: 'switch' } })
+      const result = await sendKennelliittoResults(ctx(), ['d1'], { force: false, switchRegNos: ['d1'] })
 
       expect(result.reports).toEqual([expect.objectContaining({ id: 'd1', outcome: 'sent' })])
     })
 
-    it.each([
-      ['is not there any more', () => mockWriteDogRegNo.mockResolvedValueOnce(false)],
-      [
-        'cannot be written',
-        () => mockWriteDogRegNo.mockRejectedValueOnce(new Error('ProvisionedThroughputExceededException')),
-      ],
-    ])('sends nothing for a dog whose number %s, and goes on with the others', async (_, fail) => {
+    it('takes a number only once in a request, when two entries of one dog are switched to it together', async () => {
+      registrations = [swedish('d1', {}), swedish('d2', {})]
+
+      const result = await sendKennelliittoResults(ctx(), ['d1', 'd2'], { force: false, switchRegNos: ['d1', 'd2'] })
+
+      expect(mockWriteDogRegNo).toHaveBeenCalledTimes(1)
+      expect(tallennat()).toHaveLength(1)
+      expect(result.reports).toEqual([
+        expect.objectContaining({ id: 'd1', outcome: 'sent', regNo: 'FI25555/20' }),
+        expect.objectContaining({
+          id: 'd2',
+          outcome: 'skipped',
+          problems: [{ code: 'kcRegNoTaken', detail: 'FI25555/20' }],
+        }),
+      ])
+    })
+
+    it('sends nothing for a dog whose number cannot be written, and keeps the other dogs’ reports', async () => {
       registrations = [swedish('d1', {}), dog('d2', 'FI10002/20', 'NOME-A2')]
-      fail()
+      mockWriteDogRegNo.mockRejectedValueOnce(new Error('ProvisionedThroughputExceededException'))
 
       const result = await sendKennelliittoResults(ctx(), ['d1', 'd2'], {
         force: false,
-        regNoChoices: { d1: 'switch' },
+        switchRegNos: ['d1'],
       })
 
       expect(result.reports).toEqual([
-        expect.objectContaining({ id: 'd1', outcome: 'skipped', problems: [{ code: 'kcRegNoNotChanged' }] }),
+        { answerNotStored: true, id: 'd1', name: 'FILURIN PARADOX', outcome: 'failed', regNo: 'SE22358/2021' },
         expect.objectContaining({ id: 'd2', outcome: 'sent' }),
       ])
       expect(tallennat()).toHaveLength(1)
+      expect(registrations[0].kcResult).toBeUndefined()
       expect(mockAudit).not.toHaveBeenCalledWith(
         expect.objectContaining({ messageKey: 'audit.messages.dogRegNoChanged' })
       )
@@ -1407,7 +1450,7 @@ describe('kennelliittoResults', () => {
         swedish('d1', { name: 'SOLVEIGH NEVER TOUCHING GROUND', regNo: 'SE39800/2023', rfid: '756097201013080' }),
       ]
 
-      const result = await sendKennelliittoResults(ctx(), ['d1'], { force: false, regNoChoices: { d1: 'switch' } })
+      const result = await sendKennelliittoResults(ctx(), ['d1'], { force: false, switchRegNos: ['d1'] })
 
       expect(ulkomaiset()).toEqual([])
       expect(tallennat()).toEqual([
@@ -1420,7 +1463,7 @@ describe('kennelliittoResults', () => {
       registrations = [swedish('d1', {})]
       kcDogs['SE22358/2021'] = { ...filurin, rekisterinumero: 'SE22358/2021' }
 
-      const result = await sendKennelliittoResults(ctx(), ['d1'], { force: false, regNoChoices: { d1: 'switch' } })
+      const result = await sendKennelliittoResults(ctx(), ['d1'], { force: false, switchRegNos: ['d1'] })
 
       expect(mockWriteDogRegNo).not.toHaveBeenCalled()
       expect(ulkomaiset()).toEqual([])

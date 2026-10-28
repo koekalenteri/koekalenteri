@@ -1232,7 +1232,6 @@
         "dayNotReached": "Results can be entered on the trial day ({{detail}}) or after it",
         "judgeWithoutNumber": "The judge {{detail}} has no Kennel Club member number",
         "kcRegNoDiffers": "Kennelliitto knows the dog as {{detail}}. Choose what to do when sending.",
-        "kcRegNoNotChanged": "The registration number could not be changed, so the result was not sent. Try again.",
         "kcRegNoTaken": "Another entry of this trial already has the number {{detail}}, so the same dog is entered twice. Check the entries.",
         "microchipInvalid": "The microchip number {{detail}} must have 15 digits",
         "noBirthDate": "The dog's date of birth is missing",

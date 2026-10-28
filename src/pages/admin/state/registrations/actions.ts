@@ -1,6 +1,6 @@
 import type { TFunction } from 'i18next'
 import type { EventResultSubmission } from '@/api/registration'
-import type { KcBlocker, KcDogReport, KcRegNoChoices, KcSendReport, KcSendResponse } from '@/lib/kennelliittoResults'
+import type { KcBlocker, KcDogReport, KcSendReport, KcSendResponse } from '@/lib/kennelliittoResults'
 import type {
   PublicDogEvent,
   Registration,
@@ -143,7 +143,8 @@ const chunksOf = (ids: readonly string[]): string[][] =>
 /** How a sending goes: forced over unchanged results, and what to do with the dogs Kennelliitto knows by another number. */
 interface KcSendOptions {
   force: boolean
-  regNoChoices?: KcRegNoChoices
+  /** The dogs to take Kennelliitto's number for, the whole sending's (KOE-1653). */
+  switchRegNos?: string[]
 }
 
 export interface KcSendSummary {

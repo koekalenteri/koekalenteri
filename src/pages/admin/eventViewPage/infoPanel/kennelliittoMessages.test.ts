@@ -71,7 +71,6 @@ describe('the messages of a sending', () => {
   it.each([
     [{ code: 'kcRegNoDiffers', detail: 'FI25555/20' }, 'Kennelliitto tuntee koiran numerolla FI25555/20.'],
     [{ code: 'kcRegNoTaken', detail: 'FI25555/20' }, 'Numero FI25555/20 on jo toisella ilmoittautumisella'],
-    [{ code: 'kcRegNoNotChanged' }, 'Rekisterinumeroa ei saatu vaihdettua'],
   ] as const)('says why a dog with another number in Kennelliitto was not sent: %j', (problem, text) => {
     const line = skippedLine(finnish.t, {
       dogStatus: 'ready',

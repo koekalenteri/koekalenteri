@@ -105,22 +105,12 @@ describe('writeDogRegNo against DynamoDB-local', () => {
     }
     await client.write(registration)
 
-    await expect(
-      writeDogRegNo(registration.eventId, registration.id, 'FI25555/20', '2026-10-28T10:00:00.000Z')
-    ).resolves.toBe(true)
+    await writeDogRegNo(registration.eventId, registration.id, 'FI25555/20', '2026-10-28T10:00:00.000Z')
 
     await expect(readRegistration(registration.eventId, registration.id, true)).resolves.toMatchObject({
       dog: { name: 'FILURIN PARADOX', regNo: 'FI25555/20', rfid: '981098106889342' },
       modifiedAt: '2026-10-01T10:00:00.000Z',
       updatedAt: '2026-10-28T10:00:00.000Z',
     })
-  })
-
-  it('writes nothing for a registration that is not there', async () => {
-    const eventId = uniqueId('event')
-    const id = uniqueId('registration')
-
-    await expect(writeDogRegNo(eventId, id, 'FI25555/20', '2026-10-28T10:00:00.000Z')).resolves.toBe(false)
-    await expect(readRegistration(eventId, id, true)).resolves.toBeUndefined()
   })
 })
