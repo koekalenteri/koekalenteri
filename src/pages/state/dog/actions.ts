@@ -92,7 +92,11 @@ function applyCache(
     if (cache?.dog?.titles) {
       overrides.titles = cache.dog.titles
     }
-    if (cache?.dog?.rfid) {
+    // The chip is the user's to type on a dog entered by hand or one Kennelliitto has no chip for. A
+    // chip typed while Kennelliitto had none gives way once it has one: the field is locked then, and
+    // a stale typed chip would be one nobody can correct (KOE-1650).
+    const rfidEditable = Boolean(cache?.manual) || !dog.rfid
+    if (cache?.dog?.rfid && rfidEditable) {
       overrides.rfid = cache.dog.rfid
     }
     if (cache?.dog?.dob) {
@@ -112,9 +116,10 @@ function applyCache(
     }
 
     result.dog = merge<DeepPartial<Dog>>(dog, overrides)
-    result.dog.rfidEditable = !dog.rfid
+    result.dog.rfidEditable = rfidEditable
   } else {
     result.dog = cache?.dog ? { ...cache.dog, regNo } : { regNo }
+    result.dog.rfidEditable = Boolean(cache?.manual)
   }
 
   return result

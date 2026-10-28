@@ -6,7 +6,7 @@ import { useAtomValue } from 'jotai'
 import { useCallback, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { emptyDog } from '@/lib/data'
-import { createDogUpdateFromFormValues, isValidDob, shouldAllowRefresh } from '@/lib/dog'
+import { createDogUpdateFromFormValues, isValidDob, shouldAllowRefresh, typedDogFields } from '@/lib/dog'
 import { stripOwnerKey, withDefaultOwnerSelection } from '@/lib/registration'
 import { hasChanges } from '@/lib/utils'
 import { validateRegNo } from '@/lib/validation'
@@ -22,6 +22,8 @@ interface Props {
   readonly eventDate: DayKey
   readonly minDogAgeMonths: number
   readonly disabled?: boolean
+  /** Only the details the user typed stay open: a secretary's fix after the trial (KOE-1650). */
+  readonly typedDogOnly?: boolean
   readonly error?: boolean
   readonly helperText?: string
   readonly onChange?: (props: DeepPartial<Registration>, replace?: boolean) => void
@@ -41,6 +43,7 @@ export const DogInfo = ({
   eventDate,
   minDogAgeMonths,
   disabled,
+  typedDogOnly,
   error,
   helperText,
   onChange,
@@ -86,11 +89,20 @@ export const DogInfo = ({
     }
   )
 
-  // Derived state
-  const disabledByMode = disabled || state.mode !== 'manual'
-  const sireDamDisabled = disabledByMode && (disabled || state.mode !== 'update')
-  const rfidDisabled = disabled || state.mode === 'notfound' || (state.mode !== 'manual' && !reg?.dog?.rfidEditable)
-  const dobDisabled = disabledByMode && (!state.dob || state.mode === 'notfound')
+  // Derived state. `typedDogOnly` leaves open only the details the user typed (KOE-1650).
+  const locked = disabled || typedDogOnly
+  const disabledByMode = locked || state.mode !== 'manual'
+  const titlesDisabled = locked || (state.mode !== 'manual' && state.mode !== 'update')
+  // The details the user types follow the dog, by the rule the validation reads too (`typedDogFields`),
+  // so an error never lands on a locked field nor skips an open one (KOE-1650). They wait for the dog
+  // the number names: none while it is being looked up or was not found.
+  const typed = typedDogFields(reg?.dog)
+  const typedLocked = disabled || !reg?.dog?.regNo || state.regNo !== reg.dog.regNo
+  const rfidDisabled = typedLocked || !typed.rfid
+  const detailsDisabled = typedLocked || !typed.details
+  // Kennelliitto's dog without a birth date gets one typed too, but not after the trial: there only
+  // the typed details open, by the rule `typedDogChange` takes them by.
+  const dobDisabled = typedLocked || !(typed.details || (!typedDogOnly && state.dob))
   const validRegNo = validateRegNo(state.regNo)
   const [loading, setLoading] = useState(false)
   const [delayed, setDelayed] = useState(false)
@@ -163,6 +175,8 @@ export const DogInfo = ({
       } else if (mode === 'update') {
         updateDog(await actions.refresh(reg.dog))
       } else if (mode === 'notfound') {
+        // Entering the dog by hand makes its chip the user's to type.
+        onChange?.({ dog: actions.updateCache({ manual: true }).dog })
         setState((prev) => ({ ...prev, mode: 'manual' }))
       } else {
         setState({ dob: false, mode: 'fetch', regNo: '' })
@@ -170,7 +184,7 @@ export const DogInfo = ({
 
       return delay
     },
-    [actions, reg.dog, state.regNo, updateDog]
+    [actions, onChange, reg.dog, state.regNo, updateDog]
   )
 
   const buttonClick = useCallback(() => {
@@ -243,7 +257,7 @@ export const DogInfo = ({
         <Grid size={{ lg: 3, md: 6, sm: 7, xs: 12 }}>
           <DogSearch
             regNo={state.regNo}
-            disabled={disabled}
+            disabled={locked}
             disabledByMode={disabledByMode}
             validRegNo={validRegNo}
             allowRefresh={allowRefresh}
@@ -260,12 +274,12 @@ export const DogInfo = ({
         <DogDetails
           formValues={formValues}
           updateField={updateField}
-          disabledByMode={disabledByMode}
+          nameDisabled={disabledByMode}
+          titlesDisabled={titlesDisabled}
           rfidDisabled={rfidDisabled}
           dobDisabled={dobDisabled}
-          sireDamDisabled={sireDamDisabled}
-          disabled={disabled}
-          mode={state.mode}
+          detailsDisabled={detailsDisabled}
+          sireDamDisabled={titlesDisabled}
           reg={reg}
           eventDate={eventDate}
           minDogAgeMonths={minDogAgeMonths}

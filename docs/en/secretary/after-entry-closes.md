@@ -9,6 +9,7 @@ covers:
   - src/pages/admin/eventViewPage/infoPanel/**
   - src/pages/admin/eventViewPage/MoveToPositionDialog.tsx
   - src/pages/admin/eventViewPage/RegistrationCreateDialog.tsx
+  - src/pages/admin/eventViewPage/RegistrationEditDialog.tsx
   - src/pages/admin/eventViewPage/SendMessageDialog.tsx
   - src/pages/admin/eventViewPage/MessageRecipientsDialog.tsx
   - src/pages/admin/EventStartNumbersPage.tsx
@@ -17,7 +18,7 @@ covers:
   - src/pages/admin/StartListPreviewPage.tsx
   - src/pages/admin/startListPage/**
   - src/pages/ClassStartNumbersPage.tsx
-sourceHash: 528c60
+sourceHash: f87fd4
 ---
 
 Once entry has closed, the secretary's work goes step by step: picking the participants, the
@@ -198,6 +199,14 @@ the payer. The payment request can still be sent for a week after the trial's la
 though the row's other actions have closed and the class may have been judged, so a fee left
 unpaid can be collected after the trial. The entrant can pay during the same week; after that a
 payment can no longer be started.
+
+## Fixing a dog's details after the trial
+
+Once the trial is over or the class has been judged, an entry opens read-only. For a dog entered by
+hand (the registration number says *{t:registration.cta.helper.typed}*), the ID marking, sex, date of
+birth and breed stay editable all the same, so that the results can be sent to the Kennel Club. The ID
+marking must be the microchip's 15 digits. The details of a dog fetched from the Kennel Club stay
+locked.
 
 ## A message to the participants
 

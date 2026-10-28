@@ -9,6 +9,7 @@ covers:
   - src/pages/admin/eventViewPage/infoPanel/**
   - src/pages/admin/eventViewPage/MoveToPositionDialog.tsx
   - src/pages/admin/eventViewPage/RegistrationCreateDialog.tsx
+  - src/pages/admin/eventViewPage/RegistrationEditDialog.tsx
   - src/pages/admin/eventViewPage/SendMessageDialog.tsx
   - src/pages/admin/eventViewPage/MessageRecipientsDialog.tsx
   - src/pages/admin/EventStartNumbersPage.tsx
@@ -191,6 +192,14 @@ Kun koemaksu tai sen osa on maksamatta ja ilmoittautuja voi sen maksaa, rivin va
 lähettää vielä viikon ajan kokeen viimeisen päivän jälkeen, vaikka rivin muut toiminnot ovat jo
 sulkeutuneet ja luokka olisi arvosteltu, joten maksamatta jäänyt koemaksu voidaan periä kokeen
 jälkeenkin. Ilmoittautuja voi maksaa saman viikon ajan; sen jälkeen maksua ei voi enää aloittaa.
+
+## Koiran tietojen korjaus kokeen jälkeen
+
+Kun koe on ohi tai luokka on arvosteltu, ilmoittautuminen aukeaa vain luettavaksi. Käsin syötetyn
+koiran (rekisterinumeron alla lukee *{t:registration.cta.helper.typed}*) tunnistusmerkintä,
+sukupuoli, syntymäaika ja rotu jäävät kuitenkin muokattaviksi, jotta tulokset voi lähettää
+Kennelliittoon. Tunnistusmerkinnässä pitää olla mikrosirun 15 numeroa. Kennelliitosta haetun koiran
+tiedot pysyvät lukittuina.
 
 ## Viesti osallistujille
 

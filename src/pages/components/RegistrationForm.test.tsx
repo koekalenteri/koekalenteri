@@ -673,6 +673,185 @@ describe('RegistrationForm', () => {
 
   // The sections close for the participant one by one, by the rule PutRegistration holds them by
   // (`getParticipantFieldLocks`, KOE-1588). The file's clock is the real one; these set the day.
+  // After the trial the secretary may still fix what was typed of the dog, which the results send
+  // needs; the rest of the entry stays as it is (KOE-1650).
+  describe('after the trial (KOE-1650)', () => {
+    /** The form as the edit dialog holds it: every change comes back as the next registration. */
+    function AfterTrial({
+      initial,
+      onChange,
+      onSave,
+    }: {
+      readonly initial: Registration
+      readonly onChange?: (registration: Registration) => void
+      readonly onSave: () => Promise<void>
+    }) {
+      const [registration, setRegistration] = useState(initial)
+      return (
+        <RegistrationForm
+          admin
+          changes={registration !== initial}
+          event={eventWithStaticDates}
+          onChange={(next) => {
+            onChange?.(next)
+            setRegistration(next)
+          }}
+          onSave={onSave}
+          registration={registration}
+          savedRegistration={initial}
+          typedDogOnly
+        />
+      )
+    }
+    // The case of the issue: a dog entered by hand (GetDog never stamped it), its chip a registration
+    // number's digits, and no rfidEditable, since it was stored before the flag was set for such a dog.
+    const { refreshDate: _refreshDate, ...handEnteredDog } = registrationWithStaticDates.dog
+    const handEntered: Registration = { ...registrationWithStaticDates, dog: { ...handEnteredDog, rfid: '623372020' } }
+    const rfidField = () => screen.getByRole('textbox', { name: 'dog.rfid' })
+    const saveButton = () => screen.getByRole('button', { name: 'registration.cta.saveChanges' })
+
+    it("opens only a hand-entered dog's typed details and saves a fixed chip", async () => {
+      const onSave = vi.fn(async () => undefined)
+      const { user } = renderWithUserEvents(
+        <AfterTrial initial={handEntered} onSave={onSave} />,
+        { wrapper: Wrapper },
+        { advanceTimers: vi.advanceTimersByTime }
+      )
+      await flushPromises()
+
+      expect(rfidField()).toBeEnabled()
+      expect(rfidField()).toHaveAttribute('aria-invalid', 'true')
+      expect(screen.getByRole('combobox', { name: 'dog.breed' })).toBeEnabled()
+      expect(screen.getByRole('combobox', { name: 'dog.gender' })).toBeEnabled()
+      expect(screen.getByRole('combobox', { name: 'dog.regNo' })).toBeDisabled()
+      expect(screen.getByRole('textbox', { name: 'dog.name' })).toBeDisabled()
+      expect(screen.getByRole('combobox', { name: 'registration.reserve' })).toBeDisabled()
+      expect(screen.getByRole('textbox', { name: 'registration.notes' })).toBeDisabled()
+      expect(saveButton()).toBeDisabled()
+
+      await user.clear(rfidField())
+      await user.type(rfidField(), '98512001234567')
+      await runPendingTimers()
+      await flushPromises()
+      expect(saveButton()).toBeDisabled()
+
+      await user.type(rfidField(), '8')
+      await runPendingTimers()
+      await flushPromises()
+      expect(rfidField()).toHaveAttribute('aria-invalid', 'false')
+      expect(saveButton()).toBeEnabled()
+
+      await user.click(saveButton())
+      expect(onSave).toHaveBeenCalledTimes(1)
+    })
+
+    it('changes nothing on opening an entry whose owner selection is unset', async () => {
+      const onChange = vi.fn()
+      const { ownerHandles: _handles, ownerPays: _pays, ...unset } = handEntered
+      render(<AfterTrial initial={unset} onChange={onChange} onSave={async () => undefined} />, { wrapper: Wrapper })
+      await flushPromises()
+      await runPendingTimers()
+
+      expect(onChange).not.toHaveBeenCalled()
+      expect(saveButton()).toBeDisabled()
+    })
+
+    // The judged entry's qualification is not the fix's to recompute or to wait on.
+    it('saves a chip fix as the only change, on an entry that does not qualify', async () => {
+      const onChange = vi.fn()
+      const onSave = vi.fn(async () => undefined)
+      const notQualifying: Registration = { ...handEntered, qualifies: false, qualifyingResults: [] }
+      const { user } = renderWithUserEvents(
+        <AfterTrial initial={notQualifying} onChange={onChange} onSave={onSave} />,
+        { wrapper: Wrapper },
+        { advanceTimers: vi.advanceTimersByTime }
+      )
+      await flushPromises()
+
+      await user.clear(rfidField())
+      await user.type(rfidField(), '985120012345678')
+      await runPendingTimers()
+      await flushPromises()
+
+      expect(onChange).toHaveBeenLastCalledWith({
+        ...notQualifying,
+        dog: { ...notQualifying.dog, rfid: '985120012345678' },
+      })
+      expect(saveButton()).toBeEnabled()
+      await user.click(saveButton())
+      expect(onSave).toHaveBeenCalledTimes(1)
+    })
+
+    it("opens the hand-entered dog's birth date and takes its sex", async () => {
+      const onChange = vi.fn()
+      const { user } = renderWithUserEvents(
+        <AfterTrial initial={handEntered} onChange={onChange} onSave={async () => undefined} />,
+        { wrapper: Wrapper },
+        { advanceTimers: vi.advanceTimersByTime }
+      )
+      await flushPromises()
+
+      expect(screen.getByRole('button', { name: /choose date/i })).toBeEnabled()
+
+      await user.click(screen.getByRole('combobox', { name: 'dog.gender' }))
+      await user.click(await screen.findByRole('option', { name: 'dog.genderChoises.F' }))
+      await runPendingTimers()
+      await flushPromises()
+
+      expect(onChange).toHaveBeenLastCalledWith({ ...handEntered, dog: { ...handEntered.dog, gender: 'F' } })
+    })
+
+    it("takes the hand-entered dog's birth date and breed", async () => {
+      const onChange = vi.fn()
+      const noDob: Registration = { ...handEntered, dog: { ...handEntered.dog, dob: undefined } }
+      const { user } = renderWithUserEvents(
+        <AfterTrial initial={noDob} onChange={onChange} onSave={async () => undefined} />,
+        { wrapper: Wrapper },
+        { advanceTimers: vi.advanceTimersByTime }
+      )
+      await flushPromises()
+
+      await typeDateKeyByKey(user, screen.getByRole('group', { name: 'dog.dob' }), '15032020')
+      await runPendingTimers()
+      expect(onChange).toHaveBeenLastCalledWith({ ...noDob, dog: { ...noDob.dog, dob: '2020-03-15' } })
+
+      await user.click(screen.getByRole('combobox', { name: 'dog.breed' }))
+      // The breeds are offered in a fixed order; the first is 122.
+      const [first] = await screen.findAllByRole('option')
+      await user.click(first)
+      await runPendingTimers()
+      await flushPromises()
+      expect(onChange).toHaveBeenLastCalledWith({
+        ...noDob,
+        dog: { ...noDob.dog, breedCode: '122', dob: '2020-03-15' },
+      })
+    })
+
+    // Only the typed details open after the trial: a Kennelliitto dog's missing birth date is not one,
+    // and the results send never needs it.
+    it("keeps a Kennelliitto dog's missing birth date locked", async () => {
+      const noDob: Registration = {
+        ...registrationWithStaticDates,
+        dog: { ...registrationWithStaticDates.dog, dob: undefined },
+      }
+      render(<AfterTrial initial={noDob} onSave={async () => undefined} />, { wrapper: Wrapper })
+      await flushPromises()
+
+      expect(screen.getByRole('button', { name: /choose date/i })).toBeDisabled()
+    })
+
+    it("keeps a Kennelliitto dog's details locked", async () => {
+      render(<AfterTrial initial={registrationWithStaticDates} onSave={async () => undefined} />, {
+        wrapper: Wrapper,
+      })
+      await flushPromises()
+
+      expect(rfidField()).toBeDisabled()
+      expect(screen.getByRole('combobox', { name: 'dog.breed' })).toBeDisabled()
+      expect(screen.getByRole('combobox', { name: 'dog.gender' })).toBeDisabled()
+    })
+  })
+
   describe('participant field locks (KOE-1588)', () => {
     const entryOpen = () => vi.setSystemTime(frozenInstant(eventWithStaticDates.entryStartDate))
     const trialDay = () => vi.setSystemTime(frozenInstant(eventWithStaticDates.startDate))

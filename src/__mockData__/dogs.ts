@@ -18,7 +18,7 @@ export const registrationDogAged10MonthsAndNoResults: Dog = {
   refreshDate: dayStart(eventWithStaticDates.entryStartDate, TIME_ZONE),
   regNo: 'TESTDOG-0010',
   results: [],
-  rfid: '1234567890123456',
+  rfid: '123456789012345',
   sire: {
     name: 'Sire Name',
     titles: 'Sire titles',
@@ -39,7 +39,7 @@ export const registrationDogAged20MonthsAndNoResults: Dog = {
   refreshDate: dayStart(eventWithStaticDates.entryStartDate, TIME_ZONE),
   regNo: 'TESTDOG-0020',
   results: [],
-  rfid: '1234567890123457',
+  rfid: '123456789012346',
   sire: {
     name: 'Sire Name',
     titles: 'Sire titles',
@@ -69,7 +69,7 @@ export const registrationDogAged28MonthsWithNOUResult: Dog = {
       type: 'NOU',
     },
   ],
-  rfid: '1234567890123457',
+  rfid: '123456789012346',
   sire: {
     name: 'Sire Name',
     titles: 'Sire titles',

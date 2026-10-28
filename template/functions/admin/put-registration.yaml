@@ -19,6 +19,9 @@
             TableName: !Ref EventStatsTable
         - DynamoDBReadPolicy:
             TableName: !Ref UserTable
+        # A typed microchip is checked against the one Kennelliitto gave the dog (KOE-1650).
+        - DynamoDBReadPolicy:
+            TableName: !Ref DogTable
         # The entrant's payment picture after a secretary's edit reads the open payments (KOE-1553).
         - DynamoDBReadPolicy:
             TableName: !Ref TransactionTable

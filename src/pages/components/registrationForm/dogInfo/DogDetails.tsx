@@ -1,12 +1,11 @@
 import type { BreedCode, DayKey, DeepPartial, DogGender, Registration } from '@/types'
-import type { DogMode } from './DogSearch'
 import FormControl from '@mui/material/FormControl'
 import Grid from '@mui/material/Grid'
 import TextField from '@mui/material/TextField'
 import { DatePicker } from '@mui/x-date-pickers'
 import { useTranslation } from 'react-i18next'
 import { addMonths, localDateOf, localDayOf } from '@/lib/day'
-import { latestDobForAge } from '@/lib/dog'
+import { isMicrochip, latestDobForAge, normalizeMicrochip } from '@/lib/dog'
 import AutocompleteSingle from '../../AutocompleteSingle'
 import { useDayField } from '../../dayPicker'
 import { TitlesAndName } from './TitlesAndName'
@@ -25,12 +24,14 @@ interface DogFormValues {
 interface DogDetailsProps {
   formValues: DogFormValues
   updateField: (field: keyof DogFormValues, value: any) => void
-  disabledByMode: boolean
+  /** The name. */
+  nameDisabled: boolean
+  titlesDisabled: boolean
   rfidDisabled: boolean
   dobDisabled: boolean
+  /** The sex and the breed. */
+  detailsDisabled: boolean
   sireDamDisabled: boolean
-  disabled?: boolean
-  mode: DogMode
   reg: DeepPartial<Registration>
   eventDate: DayKey
   minDogAgeMonths: number
@@ -39,12 +40,12 @@ interface DogDetailsProps {
 export const DogDetails = ({
   formValues,
   updateField,
-  disabledByMode,
+  nameDisabled,
+  titlesDisabled,
   rfidDisabled,
   dobDisabled,
+  detailsDisabled,
   sireDamDisabled,
-  disabled,
-  mode,
   reg,
   eventDate,
   minDogAgeMonths,
@@ -54,25 +55,28 @@ export const DogDetails = ({
   // The picker's days are the browser's (KOE-1548): it opens two years back and offers 15 years.
   const today = localDayOf(new Date())
   const dobField = useDayField(formValues.dob, (day) => updateField('dob', day))
+  // Only a chip the user may type is judged; one Kennelliitto gave is shown as it is (KOE-1650).
+  const rfidInvalid = !rfidDisabled && formValues.rfid !== '' && !isMicrochip(formValues.rfid)
 
   return (
     <>
       <Grid size={{ lg: 3, md: 6, sm: 5, xs: 12 }}>
         <TextField
           className={rfidDisabled && reg?.dog?.rfid ? 'fact' : ''}
-          disabled={disabled || rfidDisabled}
+          disabled={rfidDisabled}
           fullWidth
           label={t('dog.rfid')}
           value={formValues.rfid ?? ''}
-          error={!rfidDisabled && !formValues.rfid.trim()}
-          onChange={(e) => updateField('rfid', e.target.value)}
+          error={(!rfidDisabled && !formValues.rfid) || rfidInvalid}
+          helperText={rfidInvalid ? t('validation.registration.microchip') : undefined}
+          onChange={(e) => updateField('rfid', normalizeMicrochip(e.target.value))}
         />
       </Grid>
       <Grid container spacing={1} size={{ lg: 6, xs: 12 }}>
         <TitlesAndName
-          className={disabledByMode && reg?.dog?.breedCode ? 'fact' : ''}
-          disabledTitles={disabled || (disabledByMode && mode !== 'update')}
-          disabledName={disabledByMode}
+          className={nameDisabled && reg?.dog?.breedCode ? 'fact' : ''}
+          disabledTitles={titlesDisabled}
+          disabledName={nameDisabled}
           id="dog"
           name={formValues.name}
           nameLabel={t('dog.name')}
@@ -88,7 +92,7 @@ export const DogDetails = ({
         <FormControl className={dobDisabled && reg?.dog?.dob ? 'fact' : ''} fullWidth>
           <DatePicker
             referenceDate={localDateOf(addMonths(today, -24))}
-            disabled={disabled || dobDisabled}
+            disabled={dobDisabled}
             format={t('dateFormatString.long')}
             label={t('dog.dob')}
             maxDate={localDateOf(latestDobForAge(eventDate, minDogAgeMonths))}
@@ -107,10 +111,10 @@ export const DogDetails = ({
       </Grid>
       <Grid size={{ lg: 3, sm: 3, xs: 6 }}>
         <AutocompleteSingle<DogGender | '', true>
-          className={disabledByMode && reg?.dog?.gender ? 'fact' : ''}
+          className={detailsDisabled && reg?.dog?.gender ? 'fact' : ''}
           disableClearable
-          disabled={disabledByMode}
-          error={!disabledByMode && !reg?.dog?.gender}
+          disabled={detailsDisabled}
+          error={!detailsDisabled && !reg?.dog?.gender}
           getOptionLabel={(o) => (o ? t(`dog.genderChoises.${o}`) : '')}
           isOptionEqualToValue={(o, v) => o === v}
           label={t('dog.gender')}
@@ -121,10 +125,10 @@ export const DogDetails = ({
       </Grid>
       <Grid size={{ sm: 6, xs: 12 }}>
         <AutocompleteSingle<BreedCode | '', true>
-          className={disabledByMode && reg?.dog?.breedCode ? 'fact' : ''}
+          className={detailsDisabled && reg?.dog?.breedCode ? 'fact' : ''}
           disableClearable
-          disabled={disabledByMode}
-          error={!disabledByMode && !reg?.dog?.breedCode}
+          disabled={detailsDisabled}
+          error={!detailsDisabled && !reg?.dog?.breedCode}
           getOptionLabel={(o) => (o ? breed(o) : '')}
           isOptionEqualToValue={(o, v) => o === v}
           label={t('dog.breed')}

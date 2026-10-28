@@ -870,6 +870,7 @@
         "invalid": "Invalid registration number",
         "manual": "Input dog information manually",
         "notfound": "No information found by registration number",
+        "typed": "The dog's details were entered by hand",
         "update": "Dog basic info and test results were fetched from The Finnish Kennel Club API {{date, distance}} ago."
       },
       "invalid": "Fetch information",
@@ -1578,6 +1579,7 @@
       "dogSM": "Only dogs registered in Finland are eligible to enter the Finnish Championship test",
       "email": "The email address is invalid",
       "emailOptional": "The email address is invalid — correct it or clear the field",
+      "microchip": "The microchip number must have 15 digits",
       "nameFormat": "A name field can hold only one person — add each owner as a row of their own.",
       "phone": "The phone number is invalid",
       "phoneOptional": "The phone number is invalid — correct it or clear the field",

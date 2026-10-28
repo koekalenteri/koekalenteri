@@ -1,4 +1,4 @@
-import type { JsonRegistration, PatchOperation } from '../../types'
+import type { JsonDog, JsonRegistration, PatchOperation } from '../../types'
 import { vi } from 'vitest'
 import { ADMIN_PROTECTED_REGISTRATION_FIELDS, REGISTRATION_MONEY_FIELDS } from '../../lib/registration'
 import { httpError, LambdaError } from '../lib/lambda'
@@ -60,6 +60,9 @@ vi.doMock('../lib/repositories/registrationRepository', () => ({
   updateRegistrationField: mockUpdateRegistrationField,
   writeRegistration: mockWriteRegistration,
 }))
+// The dog table: no dog unless a test puts one there.
+const mockReadDog = vi.fn<(regNo: string) => Promise<JsonDog | undefined>>().mockResolvedValue(undefined)
+vi.doMock('../lib/repositories/dogRepository', () => ({ readDog: mockReadDog }))
 // Outside prod mail goes to staff only; nobody is staff here (KOE-1469).
 vi.doMock('../lib/repositories/userRepository', () => ({ queryUsersByEmail: vi.fn().mockResolvedValue([]) }))
 // Nobody has the public start list open.
@@ -1094,5 +1097,129 @@ describe('putAdminRegistrationLambda', () => {
     expect(mockWriteRegistration).not.toHaveBeenCalled()
 
     expect(result.statusCode).toBe(200)
+  })
+
+  // The secretary types a chip by the same rule as the registrant (KOE-1650); the one Kennelliitto
+  // gave the dog, and the one a stored entry already holds, pass as they are.
+  describe('microchip (KOE-1650)', () => {
+    const create = (rfid?: string) => ({
+      ...event,
+      body: JSON.stringify({ ...newRegistrationBody, dog: { ...newRegistrationBody.dog, rfid } }),
+    })
+
+    it('refuses a new registration whose typed chip is not 15 digits', async () => {
+      const result = await putAdminRegistrationLambda(create('623372020'))
+
+      expect(result.statusCode).toBe(400)
+      expect(mockWriteRegistration).not.toHaveBeenCalled()
+    })
+
+    // The form strips them as they are typed; the server normalizes nothing.
+    it('refuses a typed chip with spaces and invisible characters in it', async () => {
+      const result = await putAdminRegistrationLambda(create('985 120\t012\u00a0345\u200b678'))
+
+      expect(result.statusCode).toBe(400)
+      expect(mockWriteRegistration).not.toHaveBeenCalled()
+    })
+
+    it('refuses a chip that is not a string, which no body schema stops here', async () => {
+      const result = await putAdminRegistrationLambda({
+        ...event,
+        body: JSON.stringify({ ...newRegistrationBody, dog: { ...newRegistrationBody.dog, rfid: 985120012345678 } }),
+      })
+
+      expect(result.statusCode).toBe(400)
+      expect(mockWriteRegistration).not.toHaveBeenCalled()
+    })
+
+    it('stores a typed chip of 15 digits', async () => {
+      const result = await putAdminRegistrationLambda(create('985120012345678'))
+
+      expect(result.statusCode).toBe(200)
+      expect(mockWriteRegistration).toHaveBeenCalledWith(
+        expect.objectContaining({ dog: expect.objectContaining({ rfid: '985120012345678' }) })
+      )
+    })
+
+    it('lets the chip Kennelliitto gave the dog through whatever its form', async () => {
+      mockReadDog.mockResolvedValueOnce({ regNo: 'DOG123', rfid: 'FIN12345' })
+
+      const result = await putAdminRegistrationLambda(create('FIN12345'))
+
+      expect(result.statusCode).toBe(200)
+    })
+
+    it('refuses a typed bad chip that is not the one Kennelliitto gave the dog', async () => {
+      mockReadDog.mockResolvedValueOnce({ regNo: 'DOG123', rfid: 'FIN12345' })
+
+      const result = await putAdminRegistrationLambda(create('623372020'))
+
+      expect(result.statusCode).toBe(400)
+      expect(mockReadDog).toHaveBeenCalledWith('DOG123')
+      expect(mockWriteRegistration).not.toHaveBeenCalled()
+    })
+
+    // Whether a chip is there at all is the form's to ask; the server judges only one it is given.
+    it.each([
+      ['an empty chip', ''],
+      ['no chip', undefined],
+    ])('stores a new registration with %s', async (_case, rfid) => {
+      const result = await putAdminRegistrationLambda(create(rfid))
+
+      expect(result.statusCode).toBe(200)
+      expect(mockReadDog).not.toHaveBeenCalled()
+    })
+
+    it('refuses an edit that types a bad chip', async () => {
+      const result = await putAdminRegistrationLambda(
+        edit([{ path: ['dog', 'rfid'], type: 'CREATE', value: '623372020' }])
+      )
+
+      expect(result.statusCode).toBe(400)
+      expect(result.body).toContain('dog.rfid must be 15 digits')
+      expect(mockPatchRegistration).not.toHaveBeenCalled()
+    })
+
+    // The issue's case: a dog entered by hand, its chip a registration number's digits, found by the
+    // results send once the trial was over. The secretary's fix is taken then too.
+    it('takes the fix of a bad chip on a trial that is over', async () => {
+      mockGetEvent.mockResolvedValueOnce({
+        classes: [{ class: 'ALO', date: '2024-01-01', state: 'ended' }],
+        cost: 40,
+        endDate: '2024-01-01',
+        organizer: { id: 'org-1' },
+        startDate: '2024-01-01',
+        state: 'completed',
+      })
+      mockGetRegistration.mockResolvedValueOnce({
+        ...JSON.parse(event.body ?? ''),
+        dog: { breedCode: '111', regNo: 'SE62337/2020', rfid: '623372020' },
+        state: 'ready',
+      })
+
+      const result = await putAdminRegistrationLambda(
+        edit([{ path: ['dog', 'rfid'], type: 'CHANGE', value: '985120012345678' }])
+      )
+
+      expect(result.statusCode).toBe(200)
+      expect(mockPatchRegistration).toHaveBeenCalledWith(
+        'event123',
+        'reg456',
+        expect.anything(),
+        expect.objectContaining({ dog: expect.objectContaining({ rfid: '985120012345678' }) })
+      )
+    })
+
+    it('lets an edit through that leaves a stored bad chip as it is', async () => {
+      mockGetRegistration.mockResolvedValueOnce({
+        ...JSON.parse(event.body ?? ''),
+        dog: { breedCode: '111', regNo: 'DOG123', rfid: '623372020' },
+        state: 'draft',
+      })
+
+      const result = await putAdminRegistrationLambda(notesEdit)
+
+      expect(result.statusCode).toBe(200)
+    })
   })
 })

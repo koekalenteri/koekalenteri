@@ -1,5 +1,6 @@
 import type {
   DayKey,
+  JsonDog,
   JsonDogEvent,
   JsonManualTestResult,
   JsonRegistration,
@@ -90,9 +91,11 @@ vi.doMock('../lib/ws/actions', () => ({
   publishRegistrationPatchesStrict: mockPublishRegistrationPatches,
 }))
 
-// The dog table: no official results unless a test puts a dog's there.
+// The dog table: no dog and no official results unless a test puts a dog's there.
 const mockReadOfficialResults = vi.fn<(regNo: string) => Promise<JsonTestResult[]>>().mockResolvedValue([])
+const mockReadDog = vi.fn<(regNo: string) => Promise<JsonDog | undefined>>().mockResolvedValue(undefined)
 vi.doMock('../lib/repositories/dogRepository', () => ({
+  readDog: mockReadDog,
   readOfficialResults: mockReadOfficialResults,
 }))
 
@@ -2168,6 +2171,116 @@ describe('putRegistrationLabmda', () => {
           qualifyingResults: [expect.objectContaining({ official: true, result: 'NOU1', type: 'NOU' })],
         })
       )
+    })
+  })
+
+  // The chip the registrant types must be one Kennelliitto takes (KOE-1650); the one Kennelliitto
+  // itself gave the dog, and the one a stored entry already holds, pass as they are.
+  describe('microchip (KOE-1650)', () => {
+    const { id: _1, paidAmount: _2, paidAt: _3, paymentStatus: _4, ...entry } = registrationWithStaticDatesAndClass
+    const withChip = (rfid: string) => ({ ...entry, dog: { ...entry.dog, rfid }, state: 'ready' })
+
+    beforeEach(() => {
+      vi.setSystemTime(eventWithStaticDatesAndClass.entryStartDate)
+      mockGetLiveEvent.mockResolvedValueOnce(JSON.parse(JSON.stringify(eventWithStaticDatesAndClass)))
+    })
+
+    it.each([
+      ['a registration number without its prefix', '623372020'],
+      ['16 digits', '9851200123456789'],
+      ['a letter', '98512001234567A'],
+    ])('refuses a new entry whose typed chip is %s', async (_case, rfid) => {
+      const res = await putRegistrationLabmda(constructAPIGwEvent(withChip(rfid)))
+
+      expect(res.statusCode).toBe(400)
+      expect(mockWriteRegistration).not.toHaveBeenCalled()
+    })
+
+    // The form strips them as they are typed; the server normalizes nothing.
+    it('refuses a typed chip with spaces and invisible characters in it', async () => {
+      const res = await putRegistrationLabmda(constructAPIGwEvent(withChip(' 985 120\t012\u00a0345\u200b678 ')))
+
+      expect(res.statusCode).toBe(400)
+      expect(mockWriteRegistration).not.toHaveBeenCalled()
+    })
+
+    it('stores a typed chip of 15 digits', async () => {
+      const res = await putRegistrationLabmda(constructAPIGwEvent(withChip('985120012345678')))
+
+      expect(res.statusCode).toBe(200)
+      expect(mockWriteRegistration).toHaveBeenCalledWith(
+        expect.objectContaining({ dog: expect.objectContaining({ rfid: '985120012345678' }) })
+      )
+    })
+
+    it('lets the chip Kennelliitto gave the dog through whatever its form', async () => {
+      mockReadDog.mockResolvedValueOnce({ regNo: entry.dog.regNo, rfid: 'FIN12345' })
+
+      const res = await putRegistrationLabmda(constructAPIGwEvent(withChip('FIN12345')))
+
+      expect(res.statusCode).toBe(200)
+      expect(mockWriteRegistration).toHaveBeenCalledWith(
+        expect.objectContaining({ dog: expect.objectContaining({ rfid: 'FIN12345' }) })
+      )
+    })
+
+    it('refuses a typed bad chip that is not the one Kennelliitto gave the dog', async () => {
+      mockReadDog.mockResolvedValueOnce({ regNo: entry.dog.regNo, rfid: 'FIN12345' })
+
+      const res = await putRegistrationLabmda(constructAPIGwEvent(withChip('623372020')))
+
+      expect(res.statusCode).toBe(400)
+      expect(mockReadDog).toHaveBeenCalledWith(entry.dog.regNo)
+      expect(mockWriteRegistration).not.toHaveBeenCalled()
+    })
+
+    // Whether a chip is there at all is the form's to ask; the server judges only one it is given.
+    it.each([
+      ['an empty chip', ''],
+      ['no chip', undefined],
+    ])('stores an entry with %s', async (_case, rfid) => {
+      const res = await putRegistrationLabmda(
+        constructAPIGwEvent({ ...entry, dog: { ...entry.dog, rfid }, state: 'ready' })
+      )
+
+      expect(res.statusCode).toBe(200)
+      expect(mockReadDog).not.toHaveBeenCalled()
+    })
+
+    it('lets an edit through that leaves a stored bad chip as it is', async () => {
+      const stored = storedRegistrationJson({
+        ...registrationWithStaticDates,
+        dog: { ...registrationWithStaticDates.dog, rfid: '623372020' },
+      })
+      mockGetLiveEvent.mockReset()
+      mockGetLiveEvent.mockResolvedValueOnce(JSON.parse(JSON.stringify(eventWithStaticDates)))
+      mockGetRegistration.mockResolvedValueOnce(stored)
+
+      const res = await putRegistrationLabmda(
+        constructAPIGwEvent({ eventId: stored.eventId, id: stored.id, notes: 'changed notes' })
+      )
+
+      expect(res.statusCode).toBe(200)
+    })
+
+    it('refuses an edit that types a bad chip over a stored one', async () => {
+      // The dog stays the participant's to change until the entry is paid or picked (KOE-1588).
+      const { paidAmount: _5, paidAt: _6, paymentStatus: _7, ...unpaid } = registrationWithStaticDates
+      const stored = storedRegistrationJson(unpaid)
+      mockGetLiveEvent.mockReset()
+      mockGetLiveEvent.mockResolvedValueOnce(JSON.parse(JSON.stringify(eventWithStaticDates)))
+      mockGetRegistration.mockResolvedValueOnce(stored)
+
+      const res = await putRegistrationLabmda(
+        constructAPIGwEvent({
+          dog: { ...stored.dog, rfid: '623372020' },
+          eventId: stored.eventId,
+          id: stored.id,
+        })
+      )
+
+      expect(res.statusCode).toBe(400)
+      expect(mockPatchRegistration).not.toHaveBeenCalled()
     })
   })
 

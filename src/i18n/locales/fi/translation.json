@@ -870,6 +870,7 @@
         "invalid": "Virheellinen rekisterinumero",
         "manual": "Syötä tiedot käsin",
         "notfound": "Rekisterinumerolla ei löytynyt tietoja",
+        "typed": "Koiran tiedot on syötetty käsin",
         "update": "Koiran perustiedot ja koetulokset on haettu Kennelliiton rajapinnasta {{date, distance}} sitten."
       },
       "invalid": "Hae koiran tiedot",
@@ -1578,6 +1579,7 @@
       "dogSM": "SM-kokeeseen ovat oikeutettuja ilmoittautumaan vain Suomessa rekisteröidyt koirat",
       "email": "Sähköpostiosoite on virheellinen",
       "emailOptional": "Sähköpostiosoite on virheellinen — korjaa se tai tyhjennä kenttä",
+      "microchip": "Tunnistusmerkinnässä pitää olla 15 numeroa",
       "nameFormat": "Nimikenttään ei voi kirjoittaa useampaa henkilöä — lisää jokainen omistaja omana rivinään listaan.",
       "phone": "Puhelinnumero on virheellinen",
       "phoneOptional": "Puhelinnumero on virheellinen — korjaa se tai tyhjennä kenttä",

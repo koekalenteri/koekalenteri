@@ -1,9 +1,10 @@
 import type { ReactNode } from 'react'
+import type { DeepPartial, Registration } from '@/types'
 import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
 import { render, screen } from '@testing-library/react'
 import { Provider } from 'jotai'
-import { Suspense } from 'react'
+import { Suspense, useState } from 'react'
 import { registrationDogAged20MonthsAndNoResults } from '@/__mockData__/dogs'
 import { registrationWithStaticDates } from '@/__mockData__/registrations'
 import * as dogApi from '@/api/dog'
@@ -27,6 +28,20 @@ function Wrapper(props: { readonly children?: ReactNode }) {
         </AppSnackbarProvider>
       </Provider>
     </LocalizationProvider>
+  )
+}
+
+/** The section with its registration kept as the form keeps it, so a change reaches the next render. */
+function StatefulDogInfo() {
+  const [reg, setReg] = useState<DeepPartial<Registration>>({})
+  return (
+    <DogInfo
+      reg={reg}
+      eventDate={eventDate}
+      minDogAgeMonths={15}
+      orgId="test"
+      onChange={(changes, replace) => setReg((prev) => (replace ? { ...prev, ...changes } : merge(prev, changes)))}
+    />
   )
 }
 
@@ -214,11 +229,12 @@ describe('DogInfo', () => {
   it('should transition to manual mode when clicking button in notfound state', async () => {
     vi.spyOn(dogApi, 'getDog').mockRejectedValue({ status: 404 })
 
-    const reg = {}
     const { user } = renderWithUserEvents(
-      <DogInfo reg={reg} eventDate={eventDate} minDogAgeMonths={15} orgId="test" />,
+      <StatefulDogInfo />,
       { wrapper: Wrapper },
-      { advanceTimers: vi.advanceTimersByTime }
+      {
+        advanceTimers: vi.advanceTimersByTime,
+      }
     )
 
     // First get to notfound state
@@ -245,6 +261,28 @@ describe('DogInfo', () => {
     // Button should now show reset
     const resetButton = screen.getByRole('button', { name: 'registration.cta.manual' })
     expect(resetButton).toBeInTheDocument()
+  })
+
+  it('opens the chip for typing when the dog is entered by hand (KOE-1650)', async () => {
+    vi.spyOn(dogApi, 'getDog').mockRejectedValue({ status: 404 })
+    const { user } = renderWithUserEvents(
+      <StatefulDogInfo />,
+      { wrapper: Wrapper },
+      {
+        advanceTimers: vi.advanceTimersByTime,
+      }
+    )
+
+    await user.type(screen.getByRole('combobox', { name: 'dog.regNo' }), 'TESTDOG-0020')
+    await flushPromises()
+    await user.click(screen.getByRole('button', { name: 'registration.cta.fetch' }))
+    await flushPromises()
+    expect(screen.getByLabelText('dog.rfid')).toBeDisabled()
+
+    await user.click(screen.getByRole('button', { name: 'registration.cta.notfound' }))
+    await flushPromises()
+
+    expect(screen.getByLabelText('dog.rfid')).toBeEnabled()
   })
 
   it('should reset form when clicking button in manual mode', async () => {
@@ -408,6 +446,64 @@ describe('DogInfo', () => {
     await flushPromises()
 
     expect(rfidField).toHaveValue('123456789012345')
+  })
+
+  it('stores a typed microchip without the spaces and invisible characters pasted with it (KOE-1650)', async () => {
+    const onChange = vi.fn()
+    const reg = merge(registrationWithStaticDates, {
+      dog: { ...registrationWithStaticDates.dog, rfid: '', rfidEditable: true },
+    })
+
+    const { user } = renderWithUserEvents(
+      <DogInfo reg={reg} eventDate={eventDate} minDogAgeMonths={15} orgId="test" onChange={onChange} />,
+      { wrapper: Wrapper },
+      { advanceTimers: vi.advanceTimersByTime }
+    )
+
+    const rfidField = screen.getByLabelText('dog.rfid')
+    await user.click(rfidField)
+    await user.paste('985 120\t012\u00a0345\u200b678 ')
+    await flushPromises()
+    runAllTimers()
+
+    expect(rfidField).toHaveValue('985120012345678')
+    expect(rfidField).toHaveAttribute('aria-invalid', 'false')
+    expect(onChange).toHaveBeenLastCalledWith(
+      expect.objectContaining({ dog: expect.objectContaining({ rfid: '985120012345678' }) })
+    )
+  })
+
+  it('neither opens nor marks the chip Kennelliitto gave a dog stored before kcId was kept (KOE-1650)', async () => {
+    // Rows from before 6bf6c9354 (2024-08-05) hold no kcId on a dog fetched from Kennelliitto.
+    const reg = merge(registrationWithStaticDates, {
+      dog: { ...registrationWithStaticDates.dog, rfid: '9851200123456789' },
+    })
+
+    render(<DogInfo reg={reg} eventDate={eventDate} minDogAgeMonths={15} orgId="test" />, { wrapper: Wrapper })
+    await flushPromises()
+
+    const rfidField = screen.getByLabelText('dog.rfid')
+    expect(rfidField).toBeDisabled()
+    expect(rfidField).toHaveAttribute('aria-invalid', 'false')
+  })
+
+  it('marks a typed microchip that is not 15 digits and says why (KOE-1650)', async () => {
+    const reg = merge(registrationWithStaticDates, {
+      dog: { ...registrationWithStaticDates.dog, rfid: '', rfidEditable: true },
+    })
+
+    const { user } = renderWithUserEvents(
+      <DogInfo reg={reg} eventDate={eventDate} minDogAgeMonths={15} orgId="test" />,
+      { wrapper: Wrapper },
+      { advanceTimers: vi.advanceTimersByTime }
+    )
+
+    const rfidField = screen.getByLabelText('dog.rfid')
+    await user.type(rfidField, '623372020')
+    await flushPromises()
+
+    expect(rfidField).toHaveAttribute('aria-invalid', 'true')
+    expect(screen.getByText('validation.registration.microchip')).toBeInTheDocument()
   })
 
   it('should disable RFID after update when refreshed dog has RFID', async () => {

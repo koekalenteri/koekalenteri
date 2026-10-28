@@ -24,6 +24,38 @@ export const dogAgeInMonths = (dob: DayKey, eventStart: DayKey): number => month
 /** The latest birth day of a dog that is `months` old on the trial's first day. */
 export const latestDobForAge = (eventStart: DayKey, months: number): DayKey => latestDayMonthsBefore(eventStart, months)
 
+/** Kennelliitto takes a microchip of exactly this form: 15 digits, nothing else (KOE-1201). */
+const RE_MICROCHIP = /^\d{15}$/
+
+/** Whether a microchip number is one Kennelliitto takes; anything but a string is not (KOE-1650). */
+export const isMicrochip = (value: unknown): boolean => typeof value === 'string' && RE_MICROCHIP.test(value)
+
+/**
+ * A typed microchip number without the spaces, tabs and invisible characters a copy brings with it:
+ * a vet's paper groups the digits ("985 120 012 345 678"), and a paste may carry a zero-width space
+ * (KOE-1650).
+ */
+export const normalizeMicrochip = (value: string): string => value.replaceAll(/[\s\p{Cf}]/gu, '')
+
+/** Which of the dog's details are the user's to type, rather than Kennelliitto's to give. */
+interface TypedDogFields {
+  /** The sex, the birth date and the breed. */
+  details: boolean
+  rfid: boolean
+}
+
+/**
+ * Which of the dog's details the user types, the one rule the registration form opens its fields by
+ * and judges them by (KOE-1650). A dog GetDog read from Kennelliitto carries the `refreshDate` it
+ * stamps (since 2022); one entered by hand has none, and all of these are the user's. Of a
+ * Kennelliitto dog only a chip it has none for is (`rfidEditable`). A row stored before 2022 has no
+ * `refreshDate` either and counts as entered by hand.
+ */
+export const typedDogFields = (dog?: { refreshDate?: unknown; rfidEditable?: boolean } | null): TypedDogFields => {
+  const byHand = !dog?.refreshDate
+  return { details: byHand, rfid: byHand || Boolean(dog?.rfidEditable) }
+}
+
 /** The earliest day a result of the dog can have. */
 export const earliestResultDay = (dob: DayKey): DayKey => addMonths(dob, MIN_RESULT_AGE_MONTHS)
 

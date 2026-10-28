@@ -33,7 +33,9 @@ järjestyksessä kuin ne ovat.
 **Koiran tiedot.** Kirjoita rekisterinumero ja paina *{t:registration.cta.fetch}*. Koekalenteri hakee
 Kennelliiton rajapinnasta nimen, rodun, syntymäajan, vanhemmat ja aiemmat koetulokset. Jos numerolla
 ei löydy tietoja, saat ilmoituksen *{t:registration.cta.helper.notfound}* ja voit täyttää tiedot
-käsin — tarkista kuitenkin ensin numero, sillä pelkkä kirjoitusvirhe riittää.
+käsin — tarkista kuitenkin ensin numero, sillä pelkkä kirjoitusvirhe riittää. Kun kirjoitat
+tunnistusmerkinnän itse (käsin täytetylle koiralle tai koiralle, jolle Kennelliitolla ei ole sirua),
+anna mikrosirun 15 numeroa. Välilyönnit poistuvat itsestään, eikä lomake hyväksy muuta.
 
 !shot[DogInfo/dog-info-fetched] Koiran tiedot haettuna Kennelliitosta
 

@@ -1,6 +1,6 @@
 import type { ValidationResult, Validators2, WideValidationResult } from '@/i18n/validation'
 import type { BreedCode, DayKey, Dog, PublicConfirmedEvent, Registration, TestResult } from '@/types'
-import { dogAgeInMonths, minDogAgeFor } from '@/lib/dog'
+import { dogAgeInMonths, isMicrochip, minDogAgeFor, typedDogFields } from '@/lib/dog'
 import { validName } from '@/lib/name'
 import { getOwnerRole, getRegistrationOwners, ownerKeyAt, resolveOwnerSelection } from '@/lib/registration'
 import { REQUIREMENTS } from '@/rules'
@@ -138,5 +138,23 @@ export function validateDog(
   if (minAge) return { key: 'dogAge', opts: { field: 'dog', length: minAge } }
 
   if (!dog.rfid?.trim() || !dog.dam?.name?.trim() || !dog.sire?.name?.trim()) return 'required'
-  return false
+  return validateMicrochip(dog)
+}
+
+/**
+ * The chip the user may type must be one Kennelliitto takes; the one it gave is not judged, whatever
+ * its form (KOE-1650). Typed or not is `typedDogFields`, the rule the dog's form opens the field by.
+ */
+const validateMicrochip = (dog: Pick<Dog, 'refreshDate' | 'rfid' | 'rfidEditable'>) =>
+  typedDogFields(dog).rfid && !isMicrochip(dog.rfid)
+    ? { key: 'microchip' as const, opts: { field: 'dog' as const } }
+    : false
+
+/**
+ * What stands in the way of saving a fix to the dog's typed details after the trial (KOE-1650): only
+ * the chip's rule. The rest of the entry is locked and is not the fix's to hold back.
+ */
+export function validateTypedDog(registration: Registration) {
+  const chip = registration.dog ? validateMicrochip(registration.dog) : false
+  return chip ? [chip] : []
 }

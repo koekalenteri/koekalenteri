@@ -17,6 +17,7 @@ import {
   registrationConfirmedAudit,
   registrationDaysMismatchAudit,
 } from '../../lib/audit'
+import { isMicrochip } from '../../lib/dog'
 import { registrationDatesOutsideClass } from '../../lib/event'
 import { applyPatchOperations, InvalidPatchError, isPatchOperationRequest } from '../../lib/patch'
 import {
@@ -45,6 +46,7 @@ import {
   registrationConflictBody,
 } from './registration'
 import { getRegistrationChanges } from './registrationAudit'
+import { readDog } from './repositories/dogRepository'
 import {
   claimNewRegistrationPostProcessing,
   clearRegistrationEmailDeliveryStatus,
@@ -107,6 +109,21 @@ export const parseRegistrationRequest = (
     ? { eventId: operationRequest.eventId, id: operationRequest.id }
     : parsed
   return { operationRequest, registration }
+}
+
+/**
+ * Refuses a microchip the client typed that Kennelliitto would not take: 15 digits and nothing else
+ * (KOE-1650). The form strips spaces and invisible characters as they are typed, so the server
+ * normalizes nothing. Passes as they are: no chip (presence is the form's to ask), the chip the stored
+ * registration already holds (an edit that leaves it, or an old row with a bad one), and the chip
+ * Kennelliitto gave the dog, which the dog table holds as GetDog wrote it and may be of any form.
+ */
+export const assertTypedMicrochip = async (data: JsonRegistration, existing?: JsonRegistration) => {
+  // The admin endpoint has no body schema, so the value may be anything.
+  const chip: unknown = data.dog?.rfid
+  if (chip === undefined || chip === '' || chip === existing?.dog?.rfid || isMicrochip(chip)) return
+  if (typeof chip === 'string' && (await readDog(data.dog.regNo))?.rfid === chip) return
+  throw httpError(400, { message: 'Bad request: dog.rfid must be 15 digits' })
 }
 
 /**
