@@ -1,4 +1,4 @@
-import { isFinnishRegNo, isKcDomesticRegNo, isModernFinnishRegNo, validateRegNo } from './validation'
+import { isFinnishRegNo, isKcDomesticRegNo, isModernFinnishRegNo, regNoError, validateRegNo } from './validation'
 
 describe('validRegNo', () => {
   it.each([
@@ -29,6 +29,79 @@ describe('validRegNo', () => {
 
   it.each(['', 'A1', ' FI44076/17', 'FI44076/17 '])('should return false for %p', (regNo) => {
     expect(validateRegNo(regNo)).toEqual(false)
+  })
+
+  // Looking a dog up takes any spelling Kennelliitto may hold, the Estonian sections too (KOE-1651).
+  it.each(['EST-12345/E20', 'EST-12345/U20', 'EST-12345/MA20', 'EST48412/20', 'DK 21568/2021', 'LSVK LR 1234/19'])(
+    'lets %s be looked up',
+    (regNo) => {
+      expect(validateRegNo(regNo)).toEqual(true)
+    }
+  )
+})
+
+describe('regNoError', () => {
+  const VALID_CASES = [
+    'CLP/LR/ 36170',
+    'DK04329/2016',
+    'DRC -L 1822362',
+    'DRC-L 1620751',
+    'FI44076/17',
+    'ER12345/24',
+    'KCAS 03997505',
+    'KCAU1583901',
+    'KCREG AW01372609',
+    'LO1752937',
+    'LOE 2442557',
+    'LOF 266115/28299',
+    'LOF259519/34993',
+    'MET .LABR.968/17',
+    'NHSB3168346',
+    'ÖHZB LR 12568',
+    'SE39992/2017',
+    'SHSB 742304',
+    'S11405/2007',
+    'VDH/DRC-B14-1002',
+    'NOCH12345/20',
+    'SE12345/2024',
+    'DK21568/2021',
+    'NO12345/20',
+    'EST-12345/20',
+    'EST-12345/E20',
+    'EST-12345/U20',
+    'EST-12345/MA20',
+    'LV-LBR-1234/19',
+    'LV-LBR-12345/19',
+    'LSVK LR 1234/19',
+    'LSVK LRR 12345/19',
+  ]
+
+  it.each(VALID_CASES)('takes %s as typed', (regNo) => {
+    expect(regNoError(regNo)).toBeUndefined()
+  })
+
+  it.each([
+    ['DK 21568/2021', 'DK'],
+    ['DK-21568/2021', 'DK'],
+    ['DK21568/21', 'DK'],
+    ['SE 12345/2024', 'SE'],
+    ['SE1234/2024', 'SE'],
+    ['NO12345/2020', 'NO'],
+    ['EST48412/20', 'EST'],
+    ['EST-12345/X20', 'EST'],
+    ['LV LBR 1234/19', 'LV'],
+    ['LVLBR1234/19', 'LV'],
+    ['LSVK-LR-1234/19', 'LSVK'],
+    ['LSVKLR1234/19', 'LSVK'],
+    ['XX 12345/20', 'invalid'],
+    ['XX.12345/20', 'invalid'],
+    ['FI 12345/20', 'invalid'],
+    ['FI.12345/20', 'invalid'],
+    ['NHSB 3168346', 'invalid'],
+    ['A1', 'invalid'],
+    ['', 'invalid'],
+  ])('refuses %s with the %s message', (regNo, error) => {
+    expect(regNoError(regNo)).toEqual(error)
   })
 })
 

@@ -1,4 +1,5 @@
 import type { SyntheticEvent } from 'react'
+import type { RegNoError } from '@/lib/validation'
 import Autocomplete from '@mui/material/Autocomplete'
 import Button from '@mui/material/Button'
 import CircularProgress from '@mui/material/CircularProgress'
@@ -11,18 +12,20 @@ import { useTranslation } from 'react-i18next'
 type DogMode = 'fetch' | 'manual' | 'update' | 'notfound' | 'autofetch' | 'error'
 
 interface DogSearchProps {
-  regNo: string
-  disabled?: boolean
-  disabledByMode: boolean
-  validRegNo: boolean
-  allowRefresh: boolean
-  mode: DogMode
-  loading: boolean
-  cachedRegNos: string[] | null
-  refreshDate?: Date
-  onRegNoChange: (event: SyntheticEvent<Element, Event>, value: string | null) => void
-  onRegNoSelect: (event: SyntheticEvent<Element, Event>, value: string | null) => void
-  onButtonClick: () => void
+  readonly regNo: string
+  readonly disabled?: boolean
+  readonly disabledByMode: boolean
+  readonly validRegNo: boolean
+  /** Why the number cannot be entered by hand: it is not in its registry's form (KOE-1651). */
+  readonly typedRegNoError?: RegNoError
+  readonly allowRefresh: boolean
+  readonly mode: DogMode
+  readonly loading: boolean
+  readonly cachedRegNos: string[] | null
+  readonly refreshDate?: Date
+  readonly onRegNoChange: (event: SyntheticEvent<Element, Event>, value: string | null) => void
+  readonly onRegNoSelect: (event: SyntheticEvent<Element, Event>, value: string | null) => void
+  readonly onButtonClick: () => void
 }
 
 export const DogSearch = ({
@@ -30,6 +33,7 @@ export const DogSearch = ({
   disabled,
   disabledByMode,
   validRegNo,
+  typedRegNoError,
   allowRefresh,
   mode,
   loading,
@@ -48,7 +52,9 @@ export const DogSearch = ({
           id="txtReknro"
           disabled={disabled || !disabledByMode}
           freeSolo
-          renderInput={(props) => <TextField {...props} error={!validRegNo} label={t('dog.regNo')} />}
+          renderInput={(props) => (
+            <TextField {...props} error={!validRegNo || Boolean(typedRegNoError)} label={t('dog.regNo')} />
+          )}
           value={regNo}
           inputValue={regNo}
           onChange={onRegNoSelect}
@@ -57,7 +63,7 @@ export const DogSearch = ({
           sx={{ display: 'flex', flexGrow: 1, mr: 1 }}
         />
         <Button
-          disabled={disabled || !validRegNo || (mode === 'update' && !allowRefresh)}
+          disabled={disabled || !validRegNo || Boolean(typedRegNoError) || (mode === 'update' && !allowRefresh)}
           variant="contained"
           onClick={onButtonClick}
         >
@@ -69,6 +75,7 @@ export const DogSearch = ({
         {/* A dog entered by hand was never fetched, so it has no time to tell (KOE-1650). */}
         {t(`registration.cta.helper.${mode === 'update' && !refreshDate ? 'typed' : mode}`, { date: refreshDate })}
       </FormHelperText>
+      {typedRegNoError && <FormHelperText error>{t(`validation.regNo.${typedRegNoError}`)}</FormHelperText>}
     </FormControl>
   )
 }

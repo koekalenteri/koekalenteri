@@ -30,6 +30,7 @@ import { persistRegistrationWithGroups } from '../lib/registrationPersistence'
 import {
   applyRegistrationPatchRequest,
   assertTypedMicrochip,
+  assertTypedRegNo,
   completeDuplicateRegistration,
   completeNewRegistration,
   finalizeRegistrationUpdate,
@@ -76,6 +77,7 @@ const saveAdminRegistration = async (
   existing: JsonRegistration | undefined,
   { timestamp, user }: AdminRegistrationRequest
 ) => {
+  await assertTypedRegNo(data, existing)
   await assertTypedMicrochip(data, existing)
   // Days are stored as keys (KOE-1547); a browser loaded before that sends instants.
   rekeyRegistrationDays(data, legacyRegistrationDays)

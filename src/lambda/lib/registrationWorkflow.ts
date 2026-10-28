@@ -28,6 +28,7 @@ import {
 } from '../../lib/registration'
 import { withRegistrationDayKeys } from '../../lib/storedDays'
 import { isObject, unique } from '../../lib/utils'
+import { regNoError } from '../../lib/validation'
 import { CONFIG } from '../config'
 import { audit, auditStrict, registrationAuditKey } from './audit'
 import { emailTo, registrationEmailTags, registrationEmailTemplateData, sendTemplatedMail } from './email'
@@ -124,6 +125,21 @@ export const assertTypedMicrochip = async (data: JsonRegistration, existing?: Js
   if (chip === undefined || chip === '' || chip === existing?.dog?.rfid || isMicrochip(chip)) return
   if (typeof chip === 'string' && (await readDog(data.dog.regNo))?.rfid === chip) return
   throw httpError(400, { message: 'Bad request: dog.rfid must be 15 digits' })
+}
+
+/**
+ * Refuses a registration number the client typed that is not in its registry's form (KOE-1651), by
+ * the rule the form judges a dog entered by hand with (`regNoError`). The server normalizes nothing.
+ * Passes as they are: no number (presence is the form's to ask), the number the stored registration
+ * already holds (an edit that leaves it, or an old row with a spaced one), and a number the dog table
+ * holds, which only GetDog writes, so Kennelliitto's own spelling of any form.
+ */
+export const assertTypedRegNo = async (data: JsonRegistration, existing?: JsonRegistration) => {
+  // The admin endpoint has no body schema, so the value may be anything.
+  const regNo: unknown = data.dog?.regNo
+  if (regNo === undefined || regNo === '' || regNo === existing?.dog?.regNo) return
+  if (typeof regNo === 'string' && (!regNoError(regNo) || (await readDog(regNo)))) return
+  throw httpError(400, { message: "Bad request: dog.regNo is not in its registry's form" })
 }
 
 /**

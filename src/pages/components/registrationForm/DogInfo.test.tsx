@@ -285,6 +285,63 @@ describe('DogInfo', () => {
     expect(screen.getByLabelText('dog.rfid')).toBeEnabled()
   })
 
+  it('looks any number up, but enters by hand only one in its registry form (KOE-1651)', async () => {
+    vi.spyOn(dogApi, 'getDog').mockRejectedValue({ status: 404 })
+    const { user } = renderWithUserEvents(
+      <StatefulDogInfo />,
+      { wrapper: Wrapper },
+      {
+        advanceTimers: vi.advanceTimersByTime,
+      }
+    )
+
+    await user.click(screen.getByRole('combobox', { name: 'dog.regNo' }))
+    await user.paste('DK 21568/2021')
+    await flushPromises()
+    // Kennelliitto may know the dog by this spelling, so it can be looked up.
+    await user.click(screen.getByRole('button', { name: 'registration.cta.fetch' }))
+    await flushPromises()
+
+    expect(screen.getByText('registration.cta.helper.notfound date')).toBeInTheDocument()
+    expect(screen.getByText('validation.regNo.DK')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'registration.cta.notfound' })).toBeDisabled()
+  })
+
+  it('lets a number in its registry form not found be entered by hand (KOE-1651)', async () => {
+    vi.spyOn(dogApi, 'getDog').mockRejectedValue({ status: 404 })
+    const { user } = renderWithUserEvents(
+      <StatefulDogInfo />,
+      { wrapper: Wrapper },
+      {
+        advanceTimers: vi.advanceTimersByTime,
+      }
+    )
+
+    await user.type(screen.getByRole('combobox', { name: 'dog.regNo' }), 'DK21568/2021')
+    await flushPromises()
+    await user.click(screen.getByRole('button', { name: 'registration.cta.fetch' }))
+    await flushPromises()
+
+    expect(screen.queryByText(/^validation\.regNo\./)).not.toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'registration.cta.notfound' })).toBeEnabled()
+  })
+
+  it('keeps the spaces typed inside a number (KOE-1651)', async () => {
+    const { user } = renderWithUserEvents(
+      <StatefulDogInfo />,
+      { wrapper: Wrapper },
+      {
+        advanceTimers: vi.advanceTimersByTime,
+      }
+    )
+
+    await user.type(screen.getByRole('combobox', { name: 'dog.regNo' }), 'lsvk lr 1234/19')
+    await flushPromises()
+
+    expect(screen.getByRole('combobox', { name: 'dog.regNo' })).toHaveValue('LSVK LR 1234/19')
+    expect(screen.getByRole('button', { name: 'registration.cta.fetch' })).toBeEnabled()
+  })
+
   it('should reset form when clicking button in manual mode', async () => {
     vi.spyOn(dogApi, 'getDog').mockRejectedValue({ status: 404 })
 

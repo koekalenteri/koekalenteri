@@ -166,7 +166,7 @@ describe('putAdminRegistrationLambda', () => {
       dates: [],
       dog: {
         breedCode: '111',
-        regNo: 'DOG123',
+        regNo: 'FI12345/20',
       },
       eventId: 'event123',
       handler: {
@@ -216,7 +216,7 @@ describe('putAdminRegistrationLambda', () => {
       dates: [],
       dog: {
         breedCode: '111',
-        regNo: 'DOG123',
+        regNo: 'FI12345/20',
       },
       eventId: 'event123',
       handler: {
@@ -338,7 +338,7 @@ describe('putAdminRegistrationLambda', () => {
         dates: [],
         dog: {
           breedCode: '111',
-          regNo: 'DOG123',
+          regNo: 'FI12345/20',
         },
         eventId: 'event123',
         handler: {
@@ -493,7 +493,7 @@ describe('putAdminRegistrationLambda', () => {
         dates: [],
         dog: {
           breedCode: '111',
-          regNo: 'DOG123',
+          regNo: 'FI12345/20',
         },
         eventId: 'event123',
         handler: {
@@ -626,7 +626,7 @@ describe('putAdminRegistrationLambda', () => {
     const stored = {
       class: 'ALO',
       dates: [],
-      dog: { breedCode: '111', regNo: 'DOG123' },
+      dog: { breedCode: '111', regNo: 'FI12345/20' },
       eventId: 'event123',
       eventResult: storedResult,
       handler: { email: 'handler@example.com' },
@@ -710,9 +710,9 @@ describe('putAdminRegistrationLambda', () => {
     expect(mockPatchRegistration).toHaveBeenCalledWith(
       'event123',
       'reg456',
-      expect.objectContaining({ dog: { breedCode: '111', regNo: 'DOG123' }, eventId: 'event123', id: 'reg456' }),
+      expect.objectContaining({ dog: { breedCode: '111', regNo: 'FI12345/20' }, eventId: 'event123', id: 'reg456' }),
       expect.objectContaining({
-        dog: { breedCode: '111', name: 'Patched dog name', regNo: 'DOG123' },
+        dog: { breedCode: '111', name: 'Patched dog name', regNo: 'FI12345/20' },
         notes: 'updated notes',
       })
     )
@@ -862,7 +862,7 @@ describe('putAdminRegistrationLambda', () => {
         dates: [],
         dog: {
           breedCode: '111',
-          regNo: 'DOG123',
+          regNo: 'FI12345/20',
         },
         eventId: 'event123',
         handler: {
@@ -888,7 +888,7 @@ describe('putAdminRegistrationLambda', () => {
       dates: [],
       dog: {
         breedCode: '111',
-        regNo: 'DOG123',
+        regNo: 'FI12345/20',
       },
       eventId: 'event123',
       eventType: 'test',
@@ -1010,7 +1010,7 @@ describe('putAdminRegistrationLambda', () => {
         dates: [],
         dog: {
           breedCode: '111',
-          regNo: 'DOG123',
+          regNo: 'FI12345/20',
         },
         eventId: 'event123',
         handler: {
@@ -1034,7 +1034,7 @@ describe('putAdminRegistrationLambda', () => {
       createdAt: '2024-01-01T00:00:00.000Z',
       createdBy: 'test',
       dates: [],
-      dog: { breedCode: '111', regNo: 'DOG123' },
+      dog: { breedCode: '111', regNo: 'FI12345/20' },
       eventId: 'event123',
       eventType: 'test',
       handler: { email: 'existing@example.com', membership: false, name: '' },
@@ -1142,7 +1142,7 @@ describe('putAdminRegistrationLambda', () => {
     })
 
     it('lets the chip Kennelliitto gave the dog through whatever its form', async () => {
-      mockReadDog.mockResolvedValueOnce({ regNo: 'DOG123', rfid: 'FIN12345' })
+      mockReadDog.mockResolvedValueOnce({ regNo: 'FI12345/20', rfid: 'FIN12345' })
 
       const result = await putAdminRegistrationLambda(create('FIN12345'))
 
@@ -1150,12 +1150,12 @@ describe('putAdminRegistrationLambda', () => {
     })
 
     it('refuses a typed bad chip that is not the one Kennelliitto gave the dog', async () => {
-      mockReadDog.mockResolvedValueOnce({ regNo: 'DOG123', rfid: 'FIN12345' })
+      mockReadDog.mockResolvedValueOnce({ regNo: 'FI12345/20', rfid: 'FIN12345' })
 
       const result = await putAdminRegistrationLambda(create('623372020'))
 
       expect(result.statusCode).toBe(400)
-      expect(mockReadDog).toHaveBeenCalledWith('DOG123')
+      expect(mockReadDog).toHaveBeenCalledWith('FI12345/20')
       expect(mockWriteRegistration).not.toHaveBeenCalled()
     })
 
@@ -1213,13 +1213,81 @@ describe('putAdminRegistrationLambda', () => {
     it('lets an edit through that leaves a stored bad chip as it is', async () => {
       mockGetRegistration.mockResolvedValueOnce({
         ...JSON.parse(event.body ?? ''),
-        dog: { breedCode: '111', regNo: 'DOG123', rfid: '623372020' },
+        dog: { breedCode: '111', regNo: 'FI12345/20', rfid: '623372020' },
         state: 'draft',
       })
 
       const result = await putAdminRegistrationLambda(notesEdit)
 
       expect(result.statusCode).toBe(200)
+    })
+  })
+
+  // The secretary types a dog's number by the same rule as the registrant (KOE-1651); the one
+  // Kennelliitto gave the dog, and the one a stored entry already holds, pass as they are.
+  describe('registration number (KOE-1651)', () => {
+    const create = (regNo?: unknown) => ({
+      ...event,
+      body: JSON.stringify({ ...newRegistrationBody, dog: { ...newRegistrationBody.dog, regNo } }),
+    })
+
+    it.each([
+      ['a space inside a Danish number', 'DK 21568/2021'],
+      ['an Estonian number without its hyphen', 'EST48412/20'],
+      ['a dot inside a number of no known form', 'XX.12345/20'],
+    ])('refuses a new registration whose typed number has %s', async (_case, regNo) => {
+      const result = await putAdminRegistrationLambda(create(regNo))
+
+      expect(result.statusCode).toBe(400)
+      expect(result.body).toContain("dog.regNo is not in its registry's form")
+      expect(mockWriteRegistration).not.toHaveBeenCalled()
+    })
+
+    it('refuses a number that is not a string, which no body schema stops here', async () => {
+      const result = await putAdminRegistrationLambda(create(2156820))
+
+      expect(result.statusCode).toBe(400)
+      expect(mockWriteRegistration).not.toHaveBeenCalled()
+    })
+
+    it('stores a typed number in its registry form', async () => {
+      const result = await putAdminRegistrationLambda(create('LSVK LR 1234/19'))
+
+      expect(result.statusCode).toBe(200)
+      expect(mockWriteRegistration).toHaveBeenCalledWith(
+        expect.objectContaining({ dog: expect.objectContaining({ regNo: 'LSVK LR 1234/19' }) })
+      )
+    })
+
+    it('lets the number Kennelliitto knows the dog by through whatever its form', async () => {
+      mockReadDog.mockResolvedValueOnce({ regNo: 'DK 21568/2021' })
+
+      const result = await putAdminRegistrationLambda(create('DK 21568/2021'))
+
+      expect(result.statusCode).toBe(200)
+      expect(mockReadDog).toHaveBeenCalledWith('DK 21568/2021')
+    })
+
+    it('refuses an edit that types a number outside its registry form', async () => {
+      const result = await putAdminRegistrationLambda(
+        edit([{ path: ['dog', 'regNo'], type: 'CHANGE', value: 'SE 12345/2024' }])
+      )
+
+      expect(result.statusCode).toBe(400)
+      expect(mockPatchRegistration).not.toHaveBeenCalled()
+    })
+
+    it('lets an edit through that leaves a stored spaced number as it is', async () => {
+      mockGetRegistration.mockResolvedValueOnce({
+        ...JSON.parse(event.body ?? ''),
+        dog: { breedCode: '111', regNo: 'DK 21568/2021' },
+        state: 'draft',
+      })
+
+      const result = await putAdminRegistrationLambda(notesEdit)
+
+      expect(result.statusCode).toBe(200)
+      expect(mockReadDog).not.toHaveBeenCalledWith('DK 21568/2021')
     })
   })
 })
