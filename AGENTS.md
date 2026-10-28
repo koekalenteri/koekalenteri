@@ -17,8 +17,6 @@ Read `LLM_CONTEXT.md` for the project overview and architecture notes.
   are `src/lambda/**/*.integration.test.ts`, beside the module they run; each writes under ids of its
   own and asserts on those, never on a table's whole content. Never part of `npm test` or the
   pre-commit hook; CI runs them in the `integration` job with the container as a service (KOE-1369).
-  A test whose wrapped handler answers anything but 200 prints one EMF metrics line (`Error`): the
-  wrapper's metric sink writes to stdout past the console guard. A 200 writes no metric.
 
 ### A green run is a quiet run
 
@@ -363,9 +361,12 @@ Read `LLM_CONTEXT.md` for the project overview and architecture notes.
   the stack parameter `AlarmEmail` (the repository secret `ALARM_EMAIL`). Test has no alarms; dev's
   and prod's mail when they fire and when they clear. `src/lambda/template.test.ts` fails on an
   alarm without them (KOE-1602).
-- The `lambda()` wrapper counts every answer but a 200 as `Error` of its service in the
-  `KoekalenteriApp/<stack name>` namespace (`src/lambda/lib/metrics.ts`) and writes no metric for a
-  200: AWS/Lambda Invocations already counts those, and a custom metric is billed per month.
+- Every metric series is billed per month, so an alarm reads one AWS gives for free (AWS/Lambda
+  Invocations or Errors of a function, the API stage's 4XXError and 5XXError) or a metric filter's,
+  and the code publishes none of its own. API Gateway's per-method detailed metrics
+  (`MetricsEnabled: true` in `template/api.yaml`) are five billed series per method and stack; a
+  method's throttle works without them, and `src/lambda/template.test.ts` fails on one and on an
+  alarm that reads a method's series (KOE-1649).
 - A custom metric is published under the stack, never in a namespace the stacks share: dev, test
   and prod are stacks in one account, and a shared namespace makes one metric of all three, so a
   stage's alarm fires on another stage's events. An `AWS::Logs::MetricFilter` publishes to
