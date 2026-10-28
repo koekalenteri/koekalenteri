@@ -966,4 +966,57 @@ describe('DogInfo', () => {
     expect(screen.getByLabelText('dog.name')).toBeDisabled()
     expect(screen.getByRole('button', { name: /^Choose date/ })).toBeDisabled()
   })
+
+  describe('the stored number back after an edit (KOE-1651)', () => {
+    /** Deletes the last character of the stored number, then puts it back with `back`. */
+    async function editAndRestore(initial: DeepPartial<Registration>, back: string) {
+      const { user } = renderWithUserEvents(
+        <StatefulDogInfo initial={initial} />,
+        { wrapper: Wrapper },
+        { advanceTimers: vi.advanceTimersByTime }
+      )
+      const input = screen.getByRole('combobox', { name: 'dog.regNo' })
+      const end = initial.dog?.regNo?.length ?? 0
+      await user.type(input, '{Backspace}', { initialSelectionEnd: end, initialSelectionStart: end })
+      await flushPromises()
+      await user.type(input, back)
+      await flushPromises()
+      expect(input).toHaveValue(initial.dog?.regNo)
+    }
+
+    const cacheDog = (dog: DeepPartial<Registration>['dog'], manual: boolean) =>
+      localStorage.setItem('dog-cache', JSON.stringify({ [dog?.regNo ?? '']: { dog, manual } }))
+
+    it('is the typed dog again when its number is picked from the list', async () => {
+      cacheDog({ name: 'DOG NAME 10 III', regNo: 'EST-03101/26' }, true)
+
+      await editAndRestore(typedDogRegistration, '{ArrowDown}{Enter}')
+
+      expect(screen.getByRole('button', { name: 'registration.cta.update' })).toBeDisabled()
+      expect(screen.getByLabelText('dog.name')).toBeEnabled()
+    })
+
+    it('is the fetched dog again when its number is picked from the list', async () => {
+      cacheDog(registrationWithStaticDates.dog, false)
+
+      await editAndRestore(registrationWithStaticDates, '{ArrowDown}{Enter}')
+
+      expect(screen.getByRole('button', { name: 'registration.cta.update' })).toBeInTheDocument()
+      expect(screen.getByLabelText('dog.name')).toBeDisabled()
+    })
+
+    it('still offers the fetch for a stored number without dog data (KOE-1269)', async () => {
+      await editAndRestore({ dog: { regNo: 'FI12345/20' } }, '0')
+
+      expect(screen.getByRole('button', { name: 'registration.cta.fetch' })).toBeEnabled()
+    })
+
+    it('opens the birth date again for a fetched dog without one', async () => {
+      const { dog } = registrationWithStaticDates
+      await editAndRestore({ ...registrationWithStaticDates, dog: { ...dog, dob: undefined } }, dog.regNo.slice(-1))
+
+      expect(screen.getByRole('button', { name: 'registration.cta.update' })).toBeInTheDocument()
+      expect(screen.getByRole('button', { name: /^Choose date/ })).toBeEnabled()
+    })
+  })
 })

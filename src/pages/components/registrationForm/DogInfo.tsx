@@ -51,6 +51,13 @@ const storedDogState = (dog: DeepPartial<Registration>['dog']): State => ({
   mode: dog?.regNo && dog.name ? 'update' : 'fetch',
 })
 
+/**
+ * The state for a number typed or picked from the list: a new number is looked up by `mode`, but the
+ * stored number back again is the stored dog again, whichever way it came back (KOE-1651).
+ */
+const newNumberState = (dog: DeepPartial<Registration>['dog'], input: string, mode: 'fetch' | 'autofetch'): State =>
+  input.trim() === dog?.regNo ? { ...storedDogState(dog), input } : { dob: false, input, mode }
+
 export const DogInfo = ({
   reg,
   eventDate,
@@ -260,11 +267,9 @@ export const DogInfo = ({
       // Spaces inside a number are typed one key at a time ("LSVK LR 1234/19"), so the field keeps
       // them; only a change of the number itself starts a new search, and the stored number typed
       // back is the stored dog again.
-      setState((prev) => {
-        if (input.trim() === prev.input.trim()) return { ...prev, input }
-        if (input.trim() === reg?.dog?.regNo) return { ...storedDogState(reg.dog), input }
-        return { dob: false, input, mode: 'fetch' }
-      })
+      setState((prev) =>
+        input.trim() === prev.input.trim() ? { ...prev, input } : newNumberState(reg?.dog, input, 'fetch')
+      )
     },
     [reg?.dog, state.input]
   )
@@ -272,11 +277,10 @@ export const DogInfo = ({
   const handleRegNoSelect = useCallback(
     (_event: SyntheticEvent<Element, Event>, value: string | null) => {
       if (value !== null && value !== state.input) {
-        const upper = value.toLocaleUpperCase().trim()
-        setState({ dob: false, input: upper, mode: 'autofetch' })
+        setState(newNumberState(reg?.dog, value.toLocaleUpperCase().trim(), 'autofetch'))
       }
     },
-    [state.input]
+    [reg?.dog, state.input]
   )
 
   useEffect(() => {
