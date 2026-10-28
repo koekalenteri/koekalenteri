@@ -1,7 +1,7 @@
 import type { UserEvent } from '@testing-library/user-event'
 import type { RouteObject } from 'react-router'
 import type { Language } from '../../i18n'
-import type { ConfirmedEvent, Registration } from '../../types'
+import type { ConfirmedEvent, EventType, Registration } from '../../types'
 import { ThemeProvider } from '@mui/material'
 import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
@@ -23,7 +23,7 @@ import { DataMemoryRouter, flushPromises, renderSuspendedWithUserEvents, TEST_ID
 import AppSnackbarProvider from '../components/AppSnackbarProvider'
 import { idTokenAtom } from '../state'
 import StationResultsPage from './StationResultsPage'
-import { adminEventRegistrationsAtom, adminEventsAtom } from './state'
+import { adminEventRegistrationsAtom, adminEventsAtom, adminEventTypesAtom } from './state'
 
 vi.mock('../../api/user')
 vi.mock('../../api/event')
@@ -59,7 +59,12 @@ const renderPage = (language: Language, stationId: string) => {
 }
 
 /** The post's own screen, on a course that exists and has dogs queued for it. */
-const renderStation = (language: Language, stationId = 'post-2', event = eventWithStations) => {
+const renderStation = (
+  language: Language,
+  stationId = 'post-2',
+  event = eventWithStations,
+  eventTypes?: EventType[]
+) => {
   const routes: RouteObject[] = [{ element: <StationResultsPage />, path: Path.admin.stationResults() }]
 
   return renderSuspendedWithUserEvents(
@@ -70,6 +75,7 @@ const renderStation = (language: Language, stationId = 'post-2', event = eventWi
             set(idTokenAtom, TEST_ID_TOKEN)
             set(adminEventsAtom, [event])
             set(adminEventRegistrationsAtom(event.id), registrationsToEventWithStations)
+            if (eventTypes) void set(adminEventTypesAtom, eventTypes)
           }}
         >
           <Suspense fallback={<div>loading...</div>}>
@@ -400,6 +406,26 @@ describe('StationResultsPage', () => {
 
       expect(previewKennelliittoResults).toHaveBeenCalledTimes(1)
       expect(previewKennelliittoResults).toHaveBeenCalledWith(eventWithStations.id, [], expect.anything(), undefined)
+    })
+
+    it('asks nothing of Kennelliitto for a trial of a type it does not know (KOE-1222)', async () => {
+      const at = new Date('2021-02-10T12:00:00Z')
+      const unofficial: EventType = {
+        active: true,
+        createdAt: at,
+        createdBy: 'test',
+        description: { en: '', fi: '', sv: '' },
+        eventType: 'TEST1',
+        modifiedAt: at,
+        modifiedBy: 'test',
+        official: false,
+      }
+      vi.mocked(previewKennelliittoResults).mockClear()
+      await renderStation('fi', 'post-2', { ...eventWithStations, eventType: 'TEST1' }, [unofficial])
+      await flushPromises()
+
+      expect(screen.getByRole('button', { name: 'results.save' })).toBeInTheDocument()
+      expect(previewKennelliittoResults).not.toHaveBeenCalled()
     })
   })
 })
