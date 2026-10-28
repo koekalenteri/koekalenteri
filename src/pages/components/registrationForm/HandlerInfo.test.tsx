@@ -153,6 +153,29 @@ describe('HadnlerInfo', () => {
     })
   })
 
+  // KOE-1661: a browser with no dog cache (the secretary's always) keeps the stored membership when a
+  // contact detail is edited; only the membership section changes it.
+  it.each([
+    ['the secretary', true],
+    ['the participant', false],
+  ])('keeps the stored membership when %s edits the phone with no dog cache', async (_case, admin) => {
+    const reg = clone<Registration>(registrationWithStaticDates)
+    reg.ownerHandles = false
+    reg.handler = { email: 'handler@example.com', location: '', membership: true, name: 'Handler', phone: '' }
+    const onChange = vi.fn()
+    const { user } = renderWithUserEvents(
+      <HandlerInfo admin={admin} reg={reg} onChange={onChange} orgId="test" />,
+      { wrapper: Wrapper },
+      { advanceTimers: vi.advanceTimersByTime }
+    )
+    await flushPromises()
+
+    await user.type(screen.getByRole('textbox', { name: 'contact.phone' }), '1')
+    await flushPromises()
+
+    expect(onChange).toHaveBeenLastCalledWith({ handler: expect.objectContaining({ membership: true }) })
+  })
+
   // KOE-1598: an unset selection is the owner handling, so the cached handler membership is not
   // written over the stored handler; a separate handler still takes it.
   it.each([
