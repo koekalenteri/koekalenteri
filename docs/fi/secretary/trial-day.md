@@ -100,6 +100,13 @@ itsestään. Jos sama koirakko on ehditty kirjata muualla toisin, tallennus pys�
 tallennus epäonnistuu, ikkuna jää auki ja syötetyt pisteet säilyvät; jos koirakko on sillä välin
 kirjattu muualla taas toisin, ikkuna näyttää uuden version.
 
+Virallisessa kokeessa sarake *{t:results.kennelliitto.column}* kertoo jokaisen
+koiran kohdalla, onko sen tulos Omakoirassa: *{t:results.kennelliitto.badge.sent}*,
+*{t:results.kennelliitto.badge.changed}*, *{t:results.kennelliitto.badge.unsent}* tai
+*{t:results.kennelliitto.badge.failed}*. Lähetyksestä ja tulosten korjaamisesta lähetyksen jälkeen
+kerrotaan sivulla [Ilmoittautumisajan jälkeen](/docs/secretary/after-entry-closes), kohdassa
+*Tulosten lähetys Kennelliittoon*.
+
 ## Tulosten julkaisu
 
 Tulokset julkaistaan luokittain paneelin painikkeella **{t:eventManagement.results.publish}**, ja

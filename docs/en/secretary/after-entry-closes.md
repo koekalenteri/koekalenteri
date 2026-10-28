@@ -18,7 +18,7 @@ covers:
   - src/pages/admin/StartListPreviewPage.tsx
   - src/pages/admin/startListPage/**
   - src/pages/ClassStartNumbersPage.tsx
-sourceHash: 6d1c03
+sourceHash: 5b1eb1
 ---
 
 Once entry has closed, the secretary's work goes step by step: picking the participants, the
@@ -233,3 +233,15 @@ to the one Kennelliitto knows or its result is left unsent for now. The change i
 and **{t:results.kennelliitto.regNo.back}** goes back without changing anything.
 
 !shot[KennelliittoSendDialog/kennelliitto-send-regnos] The dogs Kennelliitto knows by another number, in one view
+
+A sent result shows dimmed on the dog in Koiranet until the judge has confirmed it. Until then the result
+can still be corrected on the results page and sent again. A corrected result reads
+*{t:results.kennelliitto.badge.changed}* in the *{t:results.kennelliitto.column}* column, and the send
+dialog counts it among the changed results. Sending again updates only the changed results in Omakoira.
+
+When every result has been sent, the trial is handed over to the chief judge with the
+**{t:results.kennelliitto.handOverButton}** button. Once the trial has been handed over or the judge has
+confirmed the results in Omakoira, the results can no longer be edited in Koekalenteri or in Omakoira:
+the results page opens read-only and says so. If the judge returns the trial, editing opens again:
+Koekalenteri reads the trial's state from Kennelliitto, and the results page's
+**{t:results.kennelliitto.refreshState}** button reads it at once.

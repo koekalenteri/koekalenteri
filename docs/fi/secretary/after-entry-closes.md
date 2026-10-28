@@ -226,3 +226,15 @@ tallentaa vaihdetut numerot ilmoittautumisiin ja lähettää tulokset, ja **{t:r
 palaa muuttamatta mitään.
 
 !shot[KennelliittoSendDialog/kennelliitto-send-regnos] Kennelliiton toisella numerolla tuntemat koirat yhdessä näkymässä
+
+Lähetetty tulos näkyy koiralla Koiranetissä himmeänä, kunnes tuomari on vahvistanut sen. Siihen asti
+tulosta voi vielä korjata tulossivulla ja lähettää uudelleen. Korjatun tuloksen kohdalla lukee sarakkeessa
+*{t:results.kennelliitto.column}* *{t:results.kennelliitto.badge.changed}*, ja lähetysikkuna laskee sen
+muuttuneisiin tuloksiin. Uusi lähetys päivittää Omakoiraan vain muuttuneet tulokset.
+
+Kun kaikki tulokset on lähetetty, koe luovutetaan ylituomarille painikkeella
+**{t:results.kennelliitto.handOverButton}**. Kun koe on luovutettu tai tuomari on vahvistanut tulokset
+Omakoirassa, tuloksia ei voi enää muokata Koekalenterissa eikä Omakoirassa: tulossivu avautuu vain
+luettavaksi ja kertoo sen. Jos tuomari palauttaa kokeen, muokkaus avautuu uudelleen:
+Koekalenteri lukee kokeen tilan Kennelliitosta, ja tulossivun painike
+**{t:results.kennelliitto.refreshState}** lukee sen heti.
