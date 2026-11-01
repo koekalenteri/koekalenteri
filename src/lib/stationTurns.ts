@@ -133,7 +133,7 @@ type DogTurn = StationTurnSpan & { dogs: readonly StationTurnSpanDog[] }
 const throughKeys = <T extends DogTurn>(turns: readonly T[], stationId: string, byExercise: boolean): number =>
   new Set(
     completedGroupTurns(turns, stationId).flatMap((turn) =>
-      turn.dogs.map((dog) => `${dog.number ?? ''}#${dog.name}${byExercise ? `#${turn.exercise ?? ''}` : ''}`)
+      turn.dogs.map((dog) => [dog.number ?? '', dog.name, ...(byExercise ? [turn.exercise ?? ''] : [])].join('#'))
     )
   ).size
 
