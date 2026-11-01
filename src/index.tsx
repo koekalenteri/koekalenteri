@@ -9,12 +9,14 @@ import './i18n'
 import App from './App'
 import theme from './assets/Theme'
 import { setDocumentLanguage } from './i18n/language'
+import { stageTitle } from './lib/env'
 import { registerServiceWorker, unregisterServiceWorker } from './serviceWorkerRegistration'
 
 import './index.css'
 
 // i18next has booted in the stored language (./i18n); the document says the same before anything renders.
 setDocumentLanguage(document.documentElement, i18n.language)
+document.title = stageTitle(document.title)
 
 const container = document.getElementById('root')
 

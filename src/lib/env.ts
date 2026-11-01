@@ -19,6 +19,13 @@ export const isTestEnv = (detectTestRunner: () => boolean = isTestRunnerDefined)
 
 export const isProdEnv = (): boolean => process.env.NODE_ENV === 'production'
 
+/**
+ * The page title outside prod names the environment, so a dev tab and a test tab are told apart
+ * from a prod tab. The stage goes in front: a narrow tab shows only the first words of a title.
+ */
+export const stageTitle = (title: string, stage: 'dev' | 'test' | 'prod' = apiStage()): string =>
+  stage === 'prod' ? title : `(${stage}) ${title}`
+
 type Stage = 'prod' | 'test' | 'dev'
 
 /**
