@@ -1,5 +1,6 @@
-import type { PublicDogEvent } from '@/types'
+import type { PublicDogEvent, RegistrationClass } from '@/types'
 import { createStore } from 'jotai'
+import { eventWithStaticDatesAndClass } from '@/__mockData__/events'
 import { eventFilterAtom, eventsAtom } from './atoms'
 import {
   filterEventClassesAtom,
@@ -61,19 +62,22 @@ describe('event derived atoms', () => {
 
   describe('the option lists', () => {
     // The filters read only a few fields; the minimal events convert at this boundary.
-    const trial = (id: string, eventType: string, eventClass: string, judge: string, organizer: string) =>
-      ({
-        classes: [{ class: eventClass }],
-        endDate: new Date('2026-06-02'),
-        eventType,
-        id,
-        judges: [{ name: judge }],
-        name: id,
-        organizer: { id: organizer, name: organizer },
-        places: 1,
-        startDate: new Date('2026-06-01'),
-        state: 'confirmed',
-      }) as unknown as PublicDogEvent
+    const trial = (
+      id: string,
+      eventType: string,
+      eventClass: RegistrationClass,
+      judge: string,
+      organizer: string
+    ): PublicDogEvent => ({
+      ...eventWithStaticDatesAndClass,
+      classes: [{ class: eventClass, date: eventWithStaticDatesAndClass.startDate }],
+      eventType,
+      id,
+      judges: [{ id: 1, name: judge }],
+      name: id,
+      organizer: { id: organizer, name: organizer },
+      state: 'confirmed',
+    })
     const store = createStore()
     store.set(eventsAtom, [
       trial('a', 'NOME-B', 'ALO', 'Judge A', 'org-1'),

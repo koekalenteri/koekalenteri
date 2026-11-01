@@ -85,27 +85,27 @@ function withinOrganizerFilter(event: PublicDogEvent, { organizer }: FilterProps
   return true
 }
 
-const FACET_FILTERS = {
-  eventClass: withinEventTypeClassFilter,
-  eventType: withinEventTypeFilter,
-  judge: withinJudgeFilter,
-  organizer: withinOrganizerFilter,
-} as const
-export type EventFilterFacet = keyof typeof FACET_FILTERS
-// The order the facets are checked in; the keys above are sorted, so they cannot give it.
-const FACETS: readonly EventFilterFacet[] = ['eventType', 'eventClass', 'organizer', 'judge']
+export type EventFilterFacet = 'eventType' | 'eventClass' | 'organizer' | 'judge'
+type FacetFilter = (event: PublicDogEvent, filter: FilterProps) => boolean
+/** The facets in the order they are checked; `except` names the one a facet's option list leaves out. */
+const FACET_FILTERS: ReadonlyArray<readonly [EventFilterFacet, FacetFilter]> = [
+  ['eventType', withinEventTypeFilter],
+  ['eventClass', withinEventTypeClassFilter],
+  ['organizer', withinOrganizerFilter],
+  ['judge', withinJudgeFilter],
+]
 
 /**
  * Whether the event passes the search filter. `except` leaves one facet out: a facet's option list
  * is built from the events the other facets still allow, so that the list offers what the search
- * can still reach.
+ * can still reach. `except` never lifts the draft, date, switch or results checks.
  */
 export const matchesEventFilter = (event: PublicDogEvent, filter: FilterProps, except?: EventFilterFacet): boolean =>
   event.state !== 'draft' &&
   withinDateFilters(event, filter) &&
   withinSwitchFilters(event, filter) &&
   withinResultsFilter(event, filter) &&
-  FACETS.every((facet) => facet === except || FACET_FILTERS[facet](event, filter))
+  FACET_FILTERS.every(([facet, within]) => facet === except || within(event, filter))
 
 export function serializeFilter(eventFilter: FilterProps): string {
   const params = new URLSearchParams()
