@@ -347,6 +347,71 @@ describe('StationScoring', () => {
 
       expect(await screen.findByRole('heading', { name: '3. third' })).toBeInTheDocument()
     })
+
+    it('counts a dog whose round ended at this very post as done, its outcome recorded here', () => {
+      renderScoring({ eventType: 'NOWT', registrations: [dog('here', 1, '1')] })
+
+      expect(screen.getByRole('button', { name: '1 here' })).toHaveClass('MuiChip-filled')
+    })
+
+    it('asks for the scores of a dog whose round ended at a post after this one, and does not count it done', async () => {
+      const user = userEvent.setup()
+      renderScoring({ eventType: 'NOWT', registrations: [dog('later', 1, 'post-5')] })
+
+      expect(screen.getByRole('button', { name: '1 later' })).toHaveClass('MuiChip-outlined')
+      await user.click(screen.getByRole('button', { name: '1 later' }))
+      expect(screen.getAllByLabelText(/results\.column\.task/)).toHaveLength(2)
+      expect(screen.queryByText(/results\.notReached/)).not.toBeInTheDocument()
+    })
+
+    it('keeps a score stored here after the stop as an input, since it counts and may need clearing', async () => {
+      const user = userEvent.setup()
+      const stray = { index: 0, judge, points: 7, stationId: '1', updatedAt: at, updatedBy: 'Rasti 1' }
+      const stopped = dog('stopped', 1, 'post-0')
+      renderScoring({
+        eventType: 'NOWT',
+        registrations: [{ ...stopped, eventResult: { ...stopped.eventResult, tasks: [stray] } }],
+      })
+
+      await user.click(screen.getByRole('button', { name: '1 stopped' }))
+
+      expect(screen.getByLabelText(/results\.column\.task/)).toHaveValue('7')
+      expect(screen.getAllByText(/results\.notReached/)).toHaveLength(1)
+    })
+  })
+
+  describe('the outcome a post asks for (KOE-1669)', () => {
+    const one = (eventType: string) => ({
+      class: 'ALO' as const,
+      dog: { name: 'Koira' },
+      eventType,
+      group: { ...group, number: 1 },
+      id: 'run-1',
+      ...(eventType === 'NOWT' ? { visit: { parts: 1 as const, postsBefore: [], tasks: 1, tasksBefore: 0 } } : {}),
+    })
+
+    it.each([
+      [
+        'NOWT',
+        [
+          'results.notInterrupted',
+          'results.retirement.handlerChoice',
+          'results.retirement.injury',
+          'results.retirement.illness',
+          'results.retirement.judgeStopped',
+        ],
+      ],
+      ['NOME-A', ['results.notInterrupted', 'results.retirement.judgeStopped']],
+    ])('offers %s its own ways for a round to end', async (eventType, expected) => {
+      const user = userEvent.setup()
+      renderScoring({ eventType, registrations: [one(eventType)] })
+
+      await user.click(screen.getByRole('button', { name: '1 Koira' }))
+      await user.click(screen.getByLabelText('results.interruption'))
+
+      const options = within(screen.getByRole('listbox')).getAllByRole('option')
+      expect(options.map((option) => option.textContent)).toEqual(expected)
+    })
   })
 
   describe('a save that is refused (KOE-1140)', () => {

@@ -26,8 +26,8 @@ export const RegistrationDetails = ({ registration: reg, index, warnNumberPendin
     : `${t('startList.owner')} ${reg.owner}, ${t('startList.handler')} ${reg.handler}`
   const sire = formatDogName(reg.dog.sire)
   const dam = formatDogName(reg.dog.dam)
-  // Koiranet's "Lisämerkinnät" beside the code: a stopped trial takes the same dash an eliminated dog
-  // takes, and this is what tells the two apart (KOE-1300).
+  // Koiranet's "Lisämerkinnät" beside the code: a stopped trial takes a nought or a dash, and the mark is
+  // what tells it apart from a plain result (KOE-1300, KOE-1669).
   const result = formatResultLine(reg, t)
 
   return (

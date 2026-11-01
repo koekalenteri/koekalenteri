@@ -1,7 +1,6 @@
 import type { EventResultSubmission } from '@/api/registration'
 import type {
   EventResult,
-  EventResultRetirement,
   EventResultsResponse,
   EventStation,
   PublicDogEvent,
@@ -34,8 +33,8 @@ import { makeArray } from '@/lib/judge'
 import { liveFormat } from '@/lib/liveFormat'
 import { getRegistrationClass } from '@/lib/registration'
 import {
+  endedBefore,
   formatTaskName,
-  isRecordedTask,
   parseEventResultCode,
   scoresAtPosts,
   stationSlots,
@@ -47,7 +46,7 @@ import { JudgeSelect } from './JudgeSelect'
 import { ResultSummary } from './ResultSummary'
 import { RoundOutcome } from './RoundOutcome'
 import { StationTurnControls } from './StationTurnControls'
-import { TaskNotReached, TaskScore } from './TaskScore'
+import { TaskScore } from './TaskScore'
 import { emptyEdit } from './types'
 
 /**
@@ -117,13 +116,6 @@ const seededEdit = (dog: StationScoringDog, stationId: string, eventType: string
     tasks: [],
   }
 }
-
-/**
- * Whether the dog's round ended at a post its group visits before this one, so it never comes here
- * (KOE-1669). A round ended at an unknown post ("Ei tiedossa") is not known to have missed any.
- */
-const endedBefore = (retirement: EventResultRetirement | undefined, visit: StationVisitLayout | undefined): boolean =>
-  Boolean(retirement?.stationId && visit?.postsBefore.includes(retirement.stationId))
 
 /**
  * The dog in front of the judge when the screen opens: whoever the open turn holds. Coming back to a
@@ -208,16 +200,20 @@ export function StationScoring({
     () => (qualitative || !visit ? [] : stationSlots(station.id, visit)),
     [qualitative, station.id, visit]
   )
+  // The dog's round ended at a post before this one, so it never came here (KOE-1669).
+  const ended = endedBefore(edit.retirement, visit?.postsBefore ?? [])
 
   /**
    * A dog this post has already scored, so the judge can see at a glance who is still to come. A dog whose
-   * round ended at an earlier post is not to come either.
+   * round ended here is done too, its outcome recorded at this post, and one whose round ended at an
+   * earlier post never comes (KOE-1669).
    */
   const isScored = useCallback(
     (dog: StationScoringDog) => {
       const stored = dog.eventResult
       if (qualitative) return Boolean(stored?.result ?? stored?.elimination ?? stored?.retirement)
-      if (endedBefore(stored?.retirement, dog.visit)) return true
+      const { retirement } = stored ?? {}
+      if (retirement?.stationId === station.id || endedBefore(retirement, dog.visit?.postsBefore ?? [])) return true
       return stored?.tasks?.some((task) => task.stationId === station.id) ?? false
     },
     [qualitative, station.id]
@@ -395,48 +391,41 @@ export function StationScoring({
                 />
               </>
             )}
-            {round.map((task) => {
-              const value = edit.tasks.find((entry) => entry.index === task.index)
-              // A score stored here anyway stays an input: it counts, so the judge's secretary can clear it.
-              if (endedBefore(edit.retirement, visit) && !(value && isRecordedTask(value))) {
-                return (
-                  <TaskNotReached key={`${task.stationId}#${task.index}`} name={formatTaskName(task, t)} showName />
-                )
-              }
-              return (
-                <TaskScore
-                  defaultJudge={lastJudge}
-                  judges={judges}
-                  name={formatTaskName(task, t)}
-                  key={`${task.stationId}#${task.index}`}
-                  onChange={(item, points, zeroFault) =>
-                    setEdit((prev) => ({
-                      ...prev,
-                      tasks: [
-                        ...prev.tasks.filter((entry) => entry.index !== item.index),
-                        {
-                          index: item.index,
-                          judge:
-                            prev.tasks.find((entry) => entry.index === item.index)?.judge ?? lastJudge ?? judges[0],
-                          points,
-                          stationId: item.stationId,
-                          ...(zeroFault ? { zeroFault } : {}),
-                        },
-                      ],
-                    }))
-                  }
-                  onJudgeChange={(item, judge) => {
-                    setLastJudge(judge)
-                    setEdit((prev) => ({
-                      ...prev,
-                      tasks: prev.tasks.map((entry) => (entry.index === item.index ? { ...entry, judge } : entry)),
-                    }))
-                  }}
-                  task={task}
-                  value={value}
-                />
-              )
-            })}
+            {round.map((task) => (
+              <TaskScore
+                defaultJudge={lastJudge}
+                judges={judges}
+                name={formatTaskName(task, t)}
+                key={`${task.stationId}#${task.index}`}
+                notReached={ended}
+                onChange={(item, points, zeroFault) =>
+                  setEdit((prev) => ({
+                    ...prev,
+                    tasks: [
+                      ...prev.tasks.filter((entry) => entry.index !== item.index),
+                      {
+                        index: item.index,
+                        judge: prev.tasks.find((entry) => entry.index === item.index)?.judge ?? lastJudge ?? judges[0],
+                        points,
+                        stationId: item.stationId,
+                        ...(zeroFault ? { zeroFault } : {}),
+                      },
+                    ],
+                  }))
+                }
+                onJudgeChange={(item, judge) => {
+                  setLastJudge(judge)
+                  setEdit((prev) => ({
+                    ...prev,
+                    tasks: prev.tasks.map((entry) => (entry.index === item.index ? { ...entry, judge } : entry)),
+                  }))
+                }}
+                // No column header names the task here, so a task not reached names it in its text.
+                showName={ended}
+                task={task}
+                value={edit.tasks.find((entry) => entry.index === task.index)}
+              />
+            ))}
           </Stack>
 
           <RoundOutcome eventType={eventType} onChange={setEdit} stationId={station.id} stations={[]} value={edit} />

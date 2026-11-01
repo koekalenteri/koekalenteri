@@ -12,6 +12,7 @@ import {
   deriveNowtResult,
   dogRound,
   eliminatingFaults,
+  endedBefore,
   eventResultPrefix,
   formatEventResult,
   formatPostTaskName,
@@ -32,6 +33,7 @@ import {
   resultMarks,
   resultPrefixAsKennelClub,
   roundColumns,
+  roundPostsBefore,
   roundsDiffer,
   STOPPED_RESULT_CODE,
   sameEventResult,
@@ -42,7 +44,7 @@ import {
   stationVersion,
   taskEntryCeiling,
   toScoredTasks,
-  unreachedStations,
+  withStoredTotals,
 } from './results'
 
 /** One task at its own post, the common layout. */
@@ -1012,7 +1014,7 @@ describe('isRecordedTask (KOE-1666)', () => {
   })
 })
 
-describe('unreachedStations (KOE-1669)', () => {
+describe('endedBefore (KOE-1669)', () => {
   const day = '2026-09-12' as const
   // The group goes round from post 3, so the round's order is not the posts' numbering.
   const round = dogRound(
@@ -1023,21 +1025,64 @@ describe('unreachedStations (KOE-1669)', () => {
     { class: 'ALO', day }
   )
 
-  it("names the posts after the one the round ended at, in the round's order", () => {
-    expect([...unreachedStations(round, { stationId: 'post-3' })]).toEqual(['post-1', 'post-2'])
-    expect([...unreachedStations(round, { stationId: 'post-1' })]).toEqual(['post-2'])
+  it("reads the posts before a post off the round, in the round's order", () => {
+    expect(roundPostsBefore(round, 'post-3')).toEqual([])
+    expect(roundPostsBefore(round, 'post-2')).toEqual(['post-3', 'post-1'])
+    expect(roundPostsBefore(round, 'post-9')).toEqual([])
   })
 
-  it('names none after the last post', () => {
-    expect(unreachedStations(round, { stationId: 'post-2' }).size).toBe(0)
+  it('ends the round before every post after the one it ended at', () => {
+    const at = { stationId: 'post-3' }
+    expect(['post-3', 'post-1', 'post-2'].map((post) => endedBefore(at, roundPostsBefore(round, post)))).toEqual([
+      false,
+      true,
+      true,
+    ])
   })
 
   it.each([
     ['no outcome', undefined],
     ['an unknown post ("Ei tiedossa")', {}],
-    ['a post the round does not have', { stationId: 'post-9' }],
-  ])('names none for %s', (_name, retirement) => {
-    expect(unreachedStations(round, retirement).size).toBe(0)
+    ['a post not in the list', { stationId: 'post-9' }],
+    ['a post that comes after this one', { stationId: 'post-5' }],
+    ['this very post', { stationId: 'post-1' }],
+  ])('does not end it for %s', (_name, retirement) => {
+    expect(endedBefore(retirement, ['post-0'])).toBe(false)
+  })
+})
+
+describe('withStoredTotals (KOE-1669)', () => {
+  const day = '2026-09-12' as const
+  const event = { stations: [1, 2].map((number) => ({ date: day, id: `post-${number}`, number })) }
+  const at = { updatedAt: '2026-09-12T09:00:00.000Z', updatedBy: 'Sihteeri' }
+  const dog = (eventResult: JsonEventResult, eventType = 'NOWT') => ({
+    class: 'ALO',
+    eventResult,
+    eventType,
+    group: { date: day, key: `${day}-ap`, number: 1 },
+  })
+  const retired: JsonEventResult = {
+    ...at,
+    result: 'ALO0',
+    retirement: { cause: 'handlerChoice', stationId: 'post-1' },
+    tasks: [{ ...at, index: 0, points: 12, stationId: 'post-1' }],
+  }
+
+  it('works out the totals of a result stored without them, against the whole round', () => {
+    expect(withStoredTotals(event, dog(retired)).eventResult).toEqual({
+      ...retired,
+      maxPoints: 40,
+      percentage: 30,
+      points: 12,
+    })
+  })
+
+  it.each([
+    ['a result with its totals', dog({ ...retired, maxPoints: 40, percentage: 25, points: 10 })],
+    ['a result without tasks', dog({ ...at, result: 'ALO1' })],
+    ['a type not scored at posts', dog(retired, 'NOME-B')],
+  ])('leaves %s as it is', (_name, registration) => {
+    expect(withStoredTotals(event, registration)).toBe(registration)
   })
 })
 

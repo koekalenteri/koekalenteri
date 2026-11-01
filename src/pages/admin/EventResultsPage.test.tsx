@@ -761,6 +761,31 @@ describe('EventResultsPage', () => {
     expect(screen.getByLabelText('results.couldStillHavePlaced')).toBeInTheDocument()
   })
 
+  it('sends an illness picked from the menu as its own cause, with the post it happened at (KOE-1669)', async () => {
+    const { i18n } = useTranslation()
+    const { user } = await renderScoringPage(i18n.language as Language)
+    await flushPromises()
+
+    await score(user, within(rowFor('Ensimmainen')).getAllByRole('textbox')[0], '12')
+    await user.click(within(rowFor('Ensimmainen')).getByLabelText('results.outcome'))
+    await user.click(screen.getByRole('option', { name: 'results.retirement.illness' }))
+    await user.click(within(rowFor('Ensimmainen')).getByLabelText('results.outcomeAt'))
+    await user.click(screen.getByRole('option', { name: /event\.station 1$/ }))
+    await user.click(screen.getByRole('button', { name: 'results.save' }))
+    await flushPromises()
+
+    expect(putEventResults).toHaveBeenCalledWith(
+      expect.any(String),
+      [
+        expect.objectContaining({
+          eventResult: expect.objectContaining({ retirement: { cause: 'illness', stationId: 'post-1' } }),
+          id: 'run-1',
+        }),
+      ],
+      expect.any(String)
+    )
+  })
+
   it('sends only the dogs that were actually scored', async () => {
     const { i18n } = useTranslation()
     const { user } = await renderScoringPage(i18n.language as Language)

@@ -7,7 +7,7 @@ import TextField from '@mui/material/TextField'
 import Typography from '@mui/material/Typography'
 import { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
-import { nowtZeroFaults, taskEntryCeiling } from '@/lib/results'
+import { isRecordedTask, nowtZeroFaults, taskEntryCeiling } from '@/lib/results'
 import { NumberInput } from '../NumberInput'
 
 interface Props {
@@ -25,28 +25,12 @@ interface Props {
   readonly defaultJudge?: PublicJudge
   readonly onChange: (task: RoundTask, points: number | null, zeroFault?: NowtZeroFault) => void
   readonly onJudgeChange: (task: RoundTask, judge?: PublicJudge) => void
-}
-
-interface NotReachedProps {
-  /** Names the task, as {@link TaskScore} does. */
-  readonly name: string
-  readonly showName?: boolean
-}
-
-/**
- * A task the dog never reached, its round having ended at an earlier post: "kesk", as the results sheet
- * writes it (KOE-1669). Not an input, since there is nothing to score. Where no column header names the
- * task, the text names it.
- */
-export const TaskNotReached = ({ name, showName = false }: NotReachedProps) => {
-  const { t } = useTranslation()
-  const text = t('results.notReached')
-
-  return (
-    <Typography sx={{ color: 'text.secondary', minWidth: 64 }} variant="body2">
-      {showName ? `${name}: ${text}` : text}
-    </Typography>
-  )
+  /**
+   * The dog's round ended at an earlier post (`endedBefore`), so it never came here: the task reads
+   * "kesk", as the results sheet writes it, instead of asking for points (KOE-1669). A score stored here
+   * anyway stays an input, since it counts and may need clearing.
+   */
+  readonly notReached?: boolean
 }
 
 export const TaskScore = ({
@@ -59,6 +43,7 @@ export const TaskScore = ({
   defaultJudge,
   onChange,
   onJudgeChange,
+  notReached = false,
 }: Props) => {
   const { t } = useTranslation()
   const judge = value?.judge ?? defaultJudge ?? judges[0]
@@ -95,6 +80,16 @@ export const TaskScore = ({
       ),
     [onChange, task]
   )
+
+  if (notReached && !(value && isRecordedTask(value))) {
+    // Where no column header names the task, the text names it.
+    const text = t('results.notReached')
+    return (
+      <Typography sx={{ color: 'text.secondary', minWidth: 64 }} variant="body2">
+        {showName ? `${name}: ${text}` : text}
+      </Typography>
+    )
+  }
 
   return (
     <Stack

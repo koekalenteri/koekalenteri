@@ -22,7 +22,7 @@ import {
   isScorableRegistration,
   sortRegistrationsByDateClassTimeAndNumber,
 } from './registration'
-import { dogVisits, stationQueue } from './rotation'
+import { dogVisits, rotationDogOf, stationQueue } from './rotation'
 import { isObject } from './utils'
 
 /**
@@ -35,15 +35,20 @@ export type ResultCode = '1' | '2' | '3' | '0' | '-'
 /**
  * The marks published beside a result (KOE-1300).
  *
- * The rules say what a stopped dog's result line reads — a nought, see `STOPPED_RESULT_CODE` — but a
- * nought is also what a dog that simply failed to place gets, and NOME-B §4.3.3 requires more than that:
- * "Keskeyttämisen syy ja se, kenen toimesta keskeyttäminen on tapahtunut, merkitään arvosteluun." The
- * mark carries the second half of that beside the code, the way Koiranet carries it in "Lisämerkinnät"
- * rather than inside the result. (The first half — the reason — is KOE-1299.)
+ * The rules say what a stopped dog's result line reads: a nought for the judge's stop on the dog's work
+ * (`STOPPED_RESULT_CODE`), a dash for an injury or an illness (NOWT §5.4.1). Either is also what a dog
+ * gets that simply went unplaced or was withdrawn by its handler, and NOME-B §4.3.3 requires more than
+ * that: "Keskeyttämisen syy ja se, kenen toimesta keskeyttäminen on tapahtunut, merkitään arvosteluun."
+ * The mark tells the judge's stop apart from a plain nought or dash, beside the code, the way Koiranet
+ * carries it in "Lisämerkinnät" rather than inside the result. (The reason itself is KOE-1299.)
  *
  * Derived rather than entered: the secretary records what happened, and the mark follows. Every stop the
  * judge makes carries it, an injured or ill dog's included: Kennelliitto publishes those dashes with
  * "Kesk." beside them, and a handler's own withdrawal with neither (KOE-1669).
+ *
+ * The rules about a stop's code (`canBeStopped`, `withResultCode`, the outcome control's lock, the
+ * qualitative fill-in in `resolveEventResult`) test `judgeStopped` alone on purpose: injury and illness
+ * are offered only where the code is derived from them (NOWT), never entered beside them.
  */
 const JUDGE_STOP_CAUSES: ReadonlySet<EventResultRetirement['cause']> = new Set(['judgeStopped', 'injury', 'illness'])
 
@@ -275,18 +280,24 @@ export const stationSlots = (
   })
 
 /**
- * The posts a dog never reached: those after the post its round ended at, in the order of its round
- * (KOE-1669). Nothing where the round did not end early, where the post is not recorded ("Ei tiedossa")
- * or where it is not one of the round's.
+ * The posts a dog's round visits before a post, in its order: what `StationVisitLayout.postsBefore`
+ * carries to the post's own link, read here off the whole round. None for a post the round lacks.
  */
-export const unreachedStations = (
-  round: readonly Pick<RoundTask, 'stationId'>[],
-  retirement: Pick<EventResultRetirement, 'stationId'> | undefined
-): Set<string> => {
+export const roundPostsBefore = (round: readonly Pick<RoundTask, 'stationId'>[], stationId: string): string[] => {
   const posts = [...new Set(round.map((task) => task.stationId))]
-  const at = retirement?.stationId ? posts.indexOf(retirement.stationId) : -1
-  return new Set(at < 0 ? [] : posts.slice(at + 1))
+  const at = posts.indexOf(stationId)
+  return at < 0 ? [] : posts.slice(0, at)
 }
+
+/**
+ * Whether a dog's round ended at a post before this one, so the dog never reached it and the post reads
+ * "kesk" (KOE-1669). Not where the round did not end early, where the post it ended at is not recorded
+ * ("Ei tiedossa"), or where that post comes at or after this one.
+ */
+export const endedBefore = (
+  retirement: Pick<EventResultRetirement, 'stationId'> | undefined,
+  postsBefore: readonly string[]
+): boolean => Boolean(retirement?.stationId && postsBefore.includes(retirement.stationId))
 
 /**
  * The scored slots of one dog's round, in the order its rotation group visits the posts (KOE-1665):
@@ -704,6 +715,25 @@ export const resolveEventResult = (
 }
 
 /**
+ * The registration with its NOWT totals worked out from its stored tasks where the stored result has
+ * none: a round that ended early saved before KOE-1669, when such a round kept no totals. The tasks are
+ * read against the dog's round as `resolveEventResult` reads them; nothing else of the result changes.
+ * A result with totals, or of a type not scored at posts, is returned as it is.
+ */
+export const withStoredTotals = <T extends SortableRegistration & { eventResult?: JsonEventResult }>(
+  event: RotationEvent,
+  registration: T
+): T => {
+  const stored = registration.eventResult
+  if (!stored?.tasks || stored.percentage !== undefined || !scoresAtPosts(registration.eventType)) return registration
+
+  const { maxPoints, percentage, points } = nowtTotals(
+    toScoredTasks(dogRound(event, rotationDogOf(registration)), stored.tasks)
+  )
+  return { ...registration, eventResult: { ...stored, maxPoints, percentage, points } }
+}
+
+/**
  * Whether two stored results say the same thing about the dog.
  *
  * `updatedAt` and `updatedBy` record who wrote it down and when, not what happened, so they are left
@@ -800,9 +830,10 @@ type PlacementRow = Pick<
  * (a participant with a day), was awarded a prize (code 1, 2 or 3) and has points to be ordered by —
  * a prize 0, a dash and an unscored dog get none and take no rank. A round that ended early is kept out
  * by its code, the nought or the dash, not by missing points: it keeps what it earned (KOE-1669). An
- * awarded dog without points, a row whose totals were never stored, takes no rank either. Dogs are ranked within their class and day, by the share of
- * the round's maximum compared exactly (maxPoints can differ within a class: its rotation groups may do
- * different numbers of tasks, and the posts may have been edited).
+ * awarded dog without points, a row whose totals were never stored, takes no rank either. Dogs are
+ * ranked within their class and day, by the share of the round's maximum compared exactly (maxPoints can
+ * differ within a class: its rotation groups may do different numbers of tasks, and the posts may have
+ * been edited).
  * Ties share a rank and the next rank skips: 1, 2, 2, 4.
  *
  * The day is the one the dog ran: the frozen placement's over the working order's, as the trial's

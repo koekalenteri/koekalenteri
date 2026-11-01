@@ -309,6 +309,12 @@ describe('kennelliittoResults', () => {
       expect([body.tulos, body.pisteet, body.keskeytetty]).toEqual(['VOI-', 23, false])
     })
 
+    it("sends a handler's withdrawal on a nought with what it earned and without keskeytetty (KOE-1669)", () => {
+      const retirement = { cause: 'handlerChoice', stationId: 's1' } as const
+      const body = sent(nowt({ percentage: 19, result: 'VOI0', retirement }, { placement: undefined }))
+      expect([body.tulos, body.pisteet, body.keskeytetty]).toEqual(['VOI0', 19, false])
+    })
+
     it.each(['injury', 'illness'] as const)(
       'sends a dash the judge stopped for %s as keskeytetty (KOE-1669)',
       (cause) => {

@@ -16,17 +16,17 @@ import { memo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { getRegistrationPlacement } from '@/lib/registration'
 import {
+  endedBefore,
   formatPostTaskName,
   formatTaskName,
-  isRecordedTask,
   parseEventResultCode,
+  roundPostsBefore,
   scoresAtPosts,
-  unreachedStations,
 } from '@/lib/results'
 import { JudgeSelect } from '../../components/stationScoring/JudgeSelect'
 import { ResultSummary } from '../../components/stationScoring/ResultSummary'
 import { asksOutcome, outcomeLabelKeys, RoundOutcome } from '../../components/stationScoring/RoundOutcome'
-import { TaskNotReached, TaskScore } from '../../components/stationScoring/TaskScore'
+import { TaskScore } from '../../components/stationScoring/TaskScore'
 import { emptyEdit, sameResultEdit } from '../../components/stationScoring/types'
 import { KennelliittoStatus } from './KennelliittoStatus'
 
@@ -192,9 +192,10 @@ function ResultsTable({
     const edit = edits[registration.id] ?? seededEdit(registration.eventResult)
     const { tasks } = edit
     const own = roundFor(registration)
-    // A post after the one the round ended at was never reached. A score stored there anyway stays an
-    // input, so the secretary sees it, since it counts, and can clear it.
-    const unreached = unreachedStations(wholeRoundFor(registration), edit.retirement)
+    // A post after the one the round ended at was never reached, read off the dog's whole round as the
+    // post's own link reads it off its visit (KOE-1669).
+    const whole = wholeRoundFor(registration)
+    const notReached = (task: RoundTask) => endedBefore(edit.retirement, roundPostsBefore(whole, task.stationId))
 
     const writeTask = (task: RoundTask, changes: Partial<TaskEdit>) => {
       const existing = tasks.find((item) => taskKey(item) === taskKey(task))
@@ -260,11 +261,6 @@ function ResultsTable({
         const task = own.find((item) => taskKey(item) === taskKey(column))
         if (!task) return null
 
-        const value = tasks.find((entry) => taskKey(entry) === taskKey(task))
-        if (unreached.has(task.stationId) && !(value && isRecordedTask(value))) {
-          return <TaskNotReached key={taskKey(task)} name={formatTaskName(task, t)} showName={compact} />
-        }
-
         return (
           <TaskScore
             defaultJudge={defaultJudges[task.stationId]}
@@ -272,6 +268,7 @@ function ResultsTable({
             judges={judgesFor(task.stationId)}
             key={taskKey(task)}
             name={formatTaskName(task, t)}
+            notReached={notReached(task)}
             showName={compact}
             onChange={setTask}
             onJudgeChange={(item, judge) => {
@@ -279,7 +276,7 @@ function ResultsTable({
               writeTask(item, { judge })
             }}
             task={task}
-            value={value}
+            value={tasks.find((entry) => taskKey(entry) === taskKey(task))}
           />
         )
       }),

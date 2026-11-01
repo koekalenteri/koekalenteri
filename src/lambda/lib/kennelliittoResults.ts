@@ -37,7 +37,7 @@ import {
   kcTextKey,
 } from '../../lib/kennelliittoResults'
 import { getRegistrationClass, isScorableRegistration } from '../../lib/registration'
-import { kcFormatOfEventType, placementsFor } from '../../lib/results'
+import { kcFormatOfEventType, placementsFor, withStoredTotals } from '../../lib/results'
 import { mapWithConcurrency } from '../../lib/utils'
 import { isKcDomesticRegNo } from '../../lib/validation'
 import { KLKieli } from '../types/KLAPI'
@@ -345,14 +345,18 @@ const evaluateKcDog = (
  * The chosen dogs (every dog, with no ids), each with the rank it holds among all the dogs of the trial.
  * The ranks are derived over everyone that `registrations` holds, not over the chosen dogs alone: a dog's
  * rank depends on the other dogs, so the hash of its body moves when another dog's result does.
+ *
+ * A round that ended early saved before KOE-1669 has no stored totals; they are worked out from its tasks
+ * here (`withStoredTotals`), so it is sent with what it earned rather than 0, without being saved again.
  */
 const evaluateAll = (
   event: JsonConfirmedEvent,
-  registrations: JsonRegistration[],
+  stored: JsonRegistration[],
   koemuoto: NonNullable<KcTrial['koemuoto']>,
   now: Date,
   ids?: string[]
 ): Evaluated[] => {
+  const registrations = stored.map((registration) => withStoredTotals(event, registration))
   const placements = placementsFor(registrations)
   const chosen = ids ? registrations.filter((registration) => ids.includes(registration.id)) : registrations
   return chosen.flatMap(
