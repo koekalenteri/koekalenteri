@@ -1,6 +1,6 @@
 import type { PublicDogEvent, RegistrationClass } from '@/types'
 import { createStore } from 'jotai'
-import { eventWithStaticDatesAndClass } from '@/__mockData__/events'
+import { eventWithStaticDates, eventWithStaticDatesAndClass } from '@/__mockData__/events'
 import { eventFilterAtom, eventsAtom } from './atoms'
 import {
   filterEventClassesAtom,
@@ -27,32 +27,14 @@ describe('event derived atoms', () => {
         withUpcomingEntry: false,
       })
       store.set(eventsAtom, [
-        // The filters read only a few fields; the minimal events convert at these boundaries.
         {
-          classes: [],
-          endDate: new Date('2026-06-02'),
-          eventType: 'NOME-B',
+          ...eventWithStaticDates,
           id: 'event-with-organizer',
-          judges: [],
-          name: 'Event with organizer',
           organizer: { id: 'org-1', name: 'Organizer One' },
-          places: 1,
-          startDate: new Date('2026-06-01'),
           state: 'confirmed',
-        } as unknown as PublicDogEvent,
-        // Deliberately missing the organizer, to cover the filter's defensive path
-        {
-          classes: [],
-          endDate: new Date('2026-06-04'),
-          eventType: 'NOME-B',
-          id: 'event-without-organizer',
-          judges: [],
-          name: 'Event without organizer',
-          organizer: undefined,
-          places: 1,
-          startDate: new Date('2026-06-03'),
-          state: 'confirmed',
-        } as unknown as PublicDogEvent,
+        },
+        // An organizer without its data, to cover the filter's defensive path
+        { ...eventWithStaticDates, id: 'event-without-organizer', organizer: { id: '', name: '' }, state: 'confirmed' },
       ])
 
       expect(store.get(filteredEventsAtom)).toHaveLength(2)
