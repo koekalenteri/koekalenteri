@@ -1053,6 +1053,45 @@ describe('endedBefore (KOE-1669)', () => {
     expect(endedAtExercise(retirement, posts)).toBeUndefined()
     expect(endedBefore(retirement, 3, posts)).toBe(false)
   })
+
+  // A running order changed after the stop moves the numbers, and nothing rewrites the stored outcome:
+  // the post stays the anchor, and the number counts only while it still names an exercise there.
+  describe('after the running order changed', () => {
+    it('reads the post when the exercise the number named was removed', () => {
+      // Stored as the third exercise of P3, P1, P3; the first exercise is then removed.
+      const stopped = { exercise: 3, stationId: 'post-3' }
+      const changed = ['post-1', 'post-3']
+
+      expect(endedAtExercise(stopped, changed)).toBe(2)
+      expect([1, 2].map((exercise) => endedBefore(stopped, exercise, changed))).toEqual([false, false])
+    })
+
+    it('reads the post when the number is past the end of the running order', () => {
+      expect(endedAtExercise({ exercise: 5, stationId: 'post-1' }, posts)).toBe(2)
+      expect(endedAtExercise({ exercise: 5 }, posts)).toBeUndefined()
+    })
+
+    it('reads no place when the post has left the running order', () => {
+      expect(endedAtExercise({ exercise: 2, stationId: 'post-1' }, ['post-3', 'post-3'])).toBeUndefined()
+    })
+
+    it('keeps the number when it still names an exercise at its post', () => {
+      const stopped = { exercise: 1, stationId: 'post-3' }
+      const changed = ['post-3', 'post-3', 'post-1']
+
+      expect(endedAtExercise(stopped, changed)).toBe(1)
+      expect([1, 2, 3].map((exercise) => endedBefore(stopped, exercise, changed))).toEqual([false, true, true])
+    })
+
+    it('lets the post win when the number now names another post', () => {
+      // Stored at P1, the second exercise of P3, P1, P3; read against P1, P3, P3.
+      const stopped = { exercise: 2, stationId: 'post-1' }
+      const changed = ['post-1', 'post-3', 'post-3']
+
+      expect(endedAtExercise(stopped, changed)).toBe(1)
+      expect([1, 2, 3].map((exercise) => endedBefore(stopped, exercise, changed))).toEqual([false, true, true])
+    })
+  })
 })
 
 describe('withStoredTotals (KOE-1669)', () => {

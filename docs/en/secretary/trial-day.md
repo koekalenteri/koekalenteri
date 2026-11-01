@@ -14,7 +14,7 @@ covers:
   - src/pages/admin/eventViewPage/infoPanel/ResultsPublishing.tsx
   - src/pages/admin/components/KcIdLookupButton.tsx
   - src/pages/admin/components/StartDaySelector.tsx
-sourceHash: 15ad30
+sourceHash: 9bd044
 ---
 
 On the trial day the secretary's job is to record what the dogs did and to get the results in
@@ -168,8 +168,10 @@ working test (NOWT) the choices and their results under the rules are:
 A handler's withdrawal carries no *{t:results.marks.interrupted}* mark, just as in the Kennel Club's
 breeding database. The view of all posts also asks *{t:results.outcomeAt}*, that is, at which exercise
 the trial ended, for example "Exercise 3 (post 3)": a group can come to one post more than once, so
-the post alone does not say which visit it was. A stop recorded before the running orders, with its
-post alone, is read as the last exercise at that post. The exercises after the stop in the dog's
+the post alone does not say which visit it was. A stop stays with its post, as the points do: the
+exercise only tells the visits to one post apart. A stop recorded before the running orders, with its
+post alone, is read as the last exercise at that post, and so is a stop whose exercise number is at
+another post after the running order changed. The exercises after the stop in the dog's
 running order read *{t:results.notReached}*, in the view narrowed to one post too and on the post's
 own entry page, where the dog shows as done for those exercises. The points
 earned until then stay and can be edited, and their total against the whole running order's maximum

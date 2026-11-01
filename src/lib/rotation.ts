@@ -242,26 +242,28 @@ export const rotationGroupsOfDay = (event: RotationEvent, day: string): Rotation
  * ended, KOE-1669). An exercise at a post the event lacks is skipped and not numbered.
  */
 const groupVisits = (event: RotationEvent, group: RotationGroup): RotationVisit[] => {
+  const placed = groupExercises(group).flatMap((exercise) => {
+    const station = stationById(event, exercise.stationId)
+    return station ? [{ exercise, station }] : []
+  })
+  const exercisePosts = placed.map(({ station }) => station.id)
   const visits: RotationVisit[] = []
   const slotsAt = new Map<string, number>()
-  for (const exercise of groupExercises(group)) {
-    const station = stationById(event, exercise.stationId)
-    if (!station) continue
+  for (const { exercise, station } of placed) {
     const parts = exercise.parts ?? stationParts(station)
     const slotsBefore = slotsAt.get(station.id) ?? 0
     slotsAt.set(station.id, slotsBefore + parts)
     const dogsAtOnce = exercise.dogsAtOnce ?? station.dogsAtOnce
     visits.push({
       exercise: visits.length + 1,
-      exercisePosts: [],
+      exercisePosts,
       parts,
       slotsBefore,
       station,
       ...(dogsAtOnce === undefined ? {} : { dogsAtOnce }),
     })
   }
-  const exercisePosts = visits.map((visit) => visit.station.id)
-  return visits.map((visit) => ({ ...visit, exercisePosts }))
+  return visits
 }
 
 /** A dog's visits on its day, in its group's running order. */

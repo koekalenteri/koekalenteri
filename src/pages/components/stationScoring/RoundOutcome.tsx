@@ -1,3 +1,4 @@
+import type { ExerciseSlot } from '@/lib/results'
 import type { EliminatingFault, EventStation } from '@/types'
 import type { ResultEdit } from './types'
 import Checkbox from '@mui/material/Checkbox'
@@ -13,6 +14,7 @@ import {
   canBeStopped,
   eliminatingFaults,
   endedAtExercise,
+  exercisePostsOf,
   hasJudgeStop,
   STOPPED_RESULT_CODE,
   scoresAtPosts,
@@ -53,7 +55,7 @@ interface Props {
   readonly disabled?: boolean
   /** Which rules' hylkäävät virheet to offer. They are not the same list for every event type. */
   readonly eventType?: string
-  /** The posts a round could have ended at. Empty for event types that are not scored at posts. */
+  /** The day's posts, which name the places on offer. */
   readonly stations: EventStation[]
   /** Set in a post's own view: the round can only have ended at the post being scored. */
   readonly stationId?: string
@@ -69,23 +71,7 @@ interface Props {
 }
 
 /** An exercise of the dog's running order and the post it is done at. */
-interface Place {
-  exercise: number
-  stationId: string
-}
-
-/** The posts of some places, by exercise number, as `endedAtExercise` reads them. */
-const postsOf = (places: readonly Place[]): string[] => {
-  const posts: string[] = []
-  for (const place of places) posts[place.exercise - 1] = place.stationId
-  return posts
-}
-
-/** Where an outcome is stored: the exercise and its post, or the post alone, or nowhere ("Ei tiedossa"). */
-const placeFields = (place: Place | undefined, where: string): { stationId?: string; exercise?: number } => {
-  if (place) return { exercise: place.exercise, stationId: place.stationId }
-  return where ? { stationId: where } : {}
-}
+type Place = Pick<ExerciseSlot, 'exercise' | 'stationId'>
 
 const outcomeOf = (edit: ResultEdit) => edit.elimination?.fault ?? edit.retirement?.cause ?? SCORED
 const stationOf = (edit: ResultEdit) => edit.elimination?.stationId ?? edit.retirement?.stationId ?? ''
@@ -119,10 +105,15 @@ export const RoundOutcome = ({
   // Where the round is scored by exercise, the place is an exercise: the only one on view, or the one the
   // stored outcome names, a stop stored with its post alone read as the last exercise there.
   const fixedPlace = stationId && places?.length === 1 ? places[0] : undefined
-  const named = value.retirement ?? (value.elimination ? { stationId: value.elimination.stationId } : undefined)
-  const namedExercise = places ? endedAtExercise(named, postsOf(places)) : undefined
+  const namedExercise = places
+    ? endedAtExercise(value.retirement ?? value.elimination, exercisePostsOf(places))
+    : undefined
   const place = fixedPlace ?? places?.find((item) => item.exercise === namedExercise)
-  const at = useMemo(() => placeFields(place, where), [place, where])
+  // Where the outcome is stored: the exercise and its post, or the post alone, or nowhere ("Ei tiedossa").
+  const at = useMemo(() => {
+    if (place) return { exercise: place.exercise, stationId: place.stationId }
+    return where ? { stationId: where } : {}
+  }, [place, where])
   // A qualitative type collects its result rather than deriving one, so a stop fills its nought in here
   // — the secretary records the stop, not the stop and then the code it is published as. Nothing is
   // filled in for a post-scored round, where the code is derived from the scores.
@@ -178,9 +169,7 @@ export const RoundOutcome = ({
       const retirement = retirementOf(next)
       if (retirement) return onChange({ retirement: { cause: retirement, ...at }, ...kept })
 
-      // An elimination is located by its post alone.
-      const { exercise: _exercise, ...postAt } = at
-      return onChange({ elimination: { fault: next as EliminatingFault, ...postAt }, ...kept })
+      return onChange({ elimination: { fault: next as EliminatingFault, ...at }, ...kept })
     },
     [at, onChange, stopped, value.resultCode, value.tasks]
   )
@@ -188,15 +177,15 @@ export const RoundOutcome = ({
   const handleWhere = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
       const picked = places?.find((item) => String(item.exercise) === event.target.value)
-      const next = picked ? picked.stationId : event.target.value || undefined
+      const placed = picked ? { exercise: picked.exercise, stationId: picked.stationId } : {}
 
-      if (value.elimination) return onChange({ ...value, elimination: { ...value.elimination, stationId: next } })
+      if (value.elimination) {
+        const { exercise: _exercise, stationId: _stationId, ...elimination } = value.elimination
+        return onChange({ ...value, elimination: { ...elimination, ...placed } })
+      }
       if (value.retirement) {
-        const { exercise: _old, ...retirement } = value.retirement
-        return onChange({
-          ...value,
-          retirement: { ...retirement, stationId: next, ...(picked ? { exercise: picked.exercise } : {}) },
-        })
+        const { exercise: _exercise, stationId: _stationId, ...retirement } = value.retirement
+        return onChange({ ...value, retirement: { ...retirement, ...placed } })
       }
     },
     [onChange, places, value]
@@ -257,24 +246,6 @@ export const RoundOutcome = ({
                 exercise: item.exercise,
                 number: stations.find((station) => station.id === item.stationId)?.number ?? '',
               })}
-            </MenuItem>
-          ))}
-        </TextField>
-      )}
-      {outcome !== SCORED && !places && stations.length > 0 && !stationId && (
-        <TextField
-          disabled={disabled}
-          label={t('results.outcomeAt')}
-          onChange={handleWhere}
-          select
-          size="small"
-          sx={{ minWidth: 190 }}
-          value={where}
-        >
-          <MenuItem value="">{t('results.outcomeAtUnknown')}</MenuItem>
-          {stations.map((station) => (
-            <MenuItem key={station.id} value={station.id}>
-              {t('event.station')} {station.number}
             </MenuItem>
           ))}
         </TextField>

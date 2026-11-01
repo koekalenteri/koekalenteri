@@ -232,6 +232,27 @@ describeWithTranslations('fi', () => {
     expect(screen.getByText('Jonoa jäljellä n. 35–35 min (5 vuoroa)')).toBeInTheDocument()
   })
 
+  it('counts a dog through both its exercises at the post as one dog, and the queue as done (KOE-1665)', () => {
+    const twiceHere = {
+      ...rotationEvent,
+      liveTurns: [
+        turn({ endedAt: new Date('2026-09-12T08:07:00Z'), exercise: 1, id: 'first' }),
+        turn({
+          endedAt: new Date('2026-09-12T08:14:00Z'),
+          exercise: 2,
+          id: 'second',
+          startedAt: new Date('2026-09-12T08:07:00Z'),
+        }),
+      ],
+      rotations: [{ class: 'ALO', exercises: [{ stationId: 'post-1' }, { stationId: 'post-1' }] }],
+    } as PublicConfirmedEvent
+
+    render(<LiveStatus event={twiceHere} participants={[entered('ALO', 5)]} />)
+
+    expect(screen.getByText(/^1 koirakko käynyt/)).toBeInTheDocument()
+    expect(screen.getByText(/^Kaikki koirakot käyneet/)).toBeInTheDocument()
+  })
+
   it("queues the whole entry at the post of a type not scored at posts, with the post's own figure", () => {
     // NOME-B: one post that takes four at a time. Twelve dogs in two classes, four through: eight
     // left is two turns. Split per class it would have been three (two and two of AVO's and VOI's six).

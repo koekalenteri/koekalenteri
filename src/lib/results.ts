@@ -301,18 +301,24 @@ export const exercisePostsOf = (round: readonly Pick<ExerciseSlot, 'stationId' |
 }
 
 /**
- * The exercise a dog's round ended at (KOE-1669): the one the stop names (KOE-1665), or for a stop stored
- * with its post alone, before the exercises were numbered, the last exercise at that post, so that
- * nothing stored reads as ending earlier than it can have. None where the round did not end early, where
- * the place is not recorded ("Ei tiedossa"), or where the post is not in the running order.
+ * The exercise a dog's round ended at (KOE-1669). The post is the durable locator and the exercise the
+ * refinement for a post the group comes to more than once (KOE-1665): the stored number is trusted only
+ * while it still names an exercise at that post, since a running order changed later moves the numbers
+ * and nothing rewrites a stored outcome. Otherwise, and for a stop stored with its post alone, it is the
+ * last exercise at the post, so nothing stored reads as ending earlier than it can have. None where the
+ * round did not end early, where the place is not recorded ("Ei tiedossa"), or where the post has left
+ * the running order.
  */
 export const endedAtExercise = (
-  retirement: Pick<EventResultRetirement, 'stationId' | 'exercise'> | undefined,
+  place: Pick<EventResultRetirement, 'stationId' | 'exercise'> | undefined,
   exercisePosts: readonly string[]
 ): number | undefined => {
-  if (retirement?.exercise !== undefined) return retirement.exercise
-  if (!retirement?.stationId) return undefined
-  const last = exercisePosts.lastIndexOf(retirement.stationId)
+  const { stationId, exercise } = place ?? {}
+  if (exercise !== undefined && (!stationId || exercisePosts[exercise - 1] === stationId)) {
+    return exercise <= exercisePosts.length ? exercise : undefined
+  }
+  if (!stationId) return undefined
+  const last = exercisePosts.lastIndexOf(stationId)
   return last < 0 ? undefined : last + 1
 }
 

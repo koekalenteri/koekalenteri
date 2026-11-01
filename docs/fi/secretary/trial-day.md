@@ -173,8 +173,9 @@ Ohjaajan keskeytys ei saa merkintää *{t:results.marks.interrupted}*, kuten ei 
 jalostustietojärjestelmässäkään. Kaikkien suorituspaikkojen näkymässä kysytään lisäksi
 *{t:results.outcomeAt}*, eli millä rastilla koe päättyi, esimerkiksi "Rasti 3 (suorituspaikka 3)":
 ryhmä voi käydä samassa paikassa useammin, joten paikka ei yksin kerro, mikä käynti oli kyseessä.
-Ennen suoritusjärjestystä kirjattu keskeytys, jossa on vain paikka, luetaan paikan viimeiseksi
-rastiksi. Keskeytyksen jälkeiset rastit koiran suoritusjärjestyksessä näkyvät tekstinä
+Keskeytys pysyy paikassaan kuten pisteetkin: rasti vain erottaa saman paikan käynnit. Ennen
+suoritusjärjestystä kirjattu keskeytys, jossa on vain paikka, luetaan paikan viimeiseksi rastiksi,
+samoin keskeytys, jonka rastinumero on suoritusjärjestyksen muutoksen jälkeen toisessa paikassa. Keskeytyksen jälkeiset rastit koiran suoritusjärjestyksessä näkyvät tekstinä
 *{t:results.notReached}*, myös yhteen suorituspaikkaan rajatussa näkymässä ja suorituspaikan
 kirjaussivulla, jossa koirakko näkyy jo käyneenä niiden rastien kohdalla. Siihen asti
 saadut pisteet säilyvät ja niitä voi muokata, ja rivin alla näkyy niiden summa koko suoritusjärjestyksen

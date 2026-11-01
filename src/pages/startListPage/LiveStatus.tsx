@@ -16,6 +16,7 @@ import {
   completedGroupTurns,
   currentPhase,
   dogsThrough,
+  exercisesThrough,
   isBreakTurn,
   isLiveNow,
   isWholeTurn,
@@ -82,7 +83,8 @@ const LiveStationCard = ({ event, stationId, turns, participants, single }: Stat
   const throughput = stationThroughput(turns, stationId)
   const queue = stationQueueOf(event, stationId, participants)
   const starters = queue.reduce((sum, group) => sum + group.dogs, 0)
-  const through = dogsThrough(turns, stationId)
+  // The queue holds a dog once for each exercise it does here; the card counts the dogs.
+  const through = exercisesThrough(turns, stationId)
   const wait = waitEstimate(throughput, queue, through, format.flow)
   // The last dog is through: the one thing left to say is when.
   const lastEnd = completed
@@ -142,7 +144,7 @@ const LiveStationCard = ({ event, stationId, turns, participants, single }: Stat
           color: 'text.secondary',
         }}
       >
-        {t('liveStatus.through', { count: through })}
+        {t('liveStatus.through', { count: dogsThrough(turns, stationId) })}
         {throughput
           ? ` · ${t('liveStatus.throughput', {
               max: minutes(throughput.maxMs),

@@ -905,26 +905,28 @@ describe('putEventResultsLambda', () => {
     })
   })
 
-  it('keeps the post an elimination happened at', async () => {
+  it('keeps the exercise and post an elimination happened at (KOE-1665)', async () => {
+    const elimination = { exercise: 2, fault: 'hardMouth' as const, stationId: 'post-3' }
     await putEventResultsLambda(
-      apiEvent([
-        {
-          eventResult: {
-            elimination: { fault: 'hardMouth', stationId: 'post-3' },
-            tasks: [{ index: 0, points: 17, stationId: 'post-1' }],
-          },
-          id: 'reg-1',
-        },
-      ])
+      apiEvent([{ eventResult: { elimination, tasks: [{ index: 0, points: 17, stationId: 'post-1' }] }, id: 'reg-1' }])
     )
 
-    const stored = mockUpdateRegistrationField.mock.calls[0][3]
+    // Which post threw the dog out is worth knowing, and it is lost the moment only the fault is kept. A
+    // round that ended early keeps what a post had already scored, as every ended round does (KOE-1669).
+    expect(mockUpdateRegistrationField).toHaveBeenCalledWith(
+      'event-1',
+      'reg-1',
+      'eventResult',
+      expect.objectContaining({ elimination, points: 17, result: 'AVO-' })
+    )
+  })
 
-    // Which post threw the dog out is worth knowing, and it is lost the moment only the fault is kept.
-    expect(stored.elimination).toEqual({ fault: 'hardMouth', stationId: 'post-3' })
-    expect(stored.result).toBe('AVO-')
-    // A round that ended early keeps what a post had already scored, as every ended round does (KOE-1669).
-    expect(stored.points).toBe(17)
+  it.each([0, 1.5, '3'])('refuses an elimination exercise of %j', async (exercise) => {
+    await expect(
+      putEventResultsLambda(
+        apiEvent([{ eventResult: { elimination: { exercise, fault: 'hardMouth' }, tasks: [] }, id: 'reg-1' }])
+      )
+    ).rejects.toThrow('Malformed elimination exercise')
   })
   describe('a trial handed to the chief judge', () => {
     const handedOver = { ...nowtEvent, kcState: { code: 1253, name: 'Ylituomarin hyväksyttäväksi', readAt: 'x' } }

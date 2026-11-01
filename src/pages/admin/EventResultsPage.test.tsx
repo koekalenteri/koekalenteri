@@ -742,6 +742,50 @@ describe('EventResultsPage', () => {
     expect(within(rowFor('Ensimmainen')).getByLabelText('results.outcomeAt')).toBeInTheDocument()
   })
 
+  it('keeps which visit to a post an elimination happened at (KOE-1665)', async () => {
+    const { i18n } = useTranslation()
+    // The first dog's group comes to post 1 twice; the elimination is at the first visit.
+    const { user } = await renderScoringPage(i18n.language as Language, registrationsToEventWithStations, {
+      ...eventWithStations,
+      rotations: [
+        {
+          class: 'ALO',
+          exercises: [{ stationId: 'post-1' }, { stationId: 'post-2' }, { stationId: 'post-1' }],
+          firstNumber: 1,
+          lastNumber: 9,
+        },
+      ],
+    })
+    await flushPromises()
+
+    await user.click(within(rowFor('Ensimmainen')).getByLabelText('results.outcome'))
+    await user.click(screen.getByRole('option', { name: 'results.eliminatingFaults.hardMouth' }))
+    await user.click(within(rowFor('Ensimmainen')).getByLabelText('results.outcomeAt'))
+    const [first] = screen.getAllByRole('option', { name: /^results\.outcomeAtExercise/ })
+    const label = first.textContent ?? ''
+    await user.click(first)
+    await flushPromises()
+
+    // Stored with its post alone, it would read back as the last visit there.
+    expect(within(rowFor('Ensimmainen')).getByLabelText('results.outcomeAt')).toHaveTextContent(label)
+
+    await user.click(screen.getByRole('button', { name: 'results.save' }))
+    await flushPromises()
+
+    expect(putEventResults).toHaveBeenCalledWith(
+      expect.any(String),
+      [
+        expect.objectContaining({
+          eventResult: expect.objectContaining({
+            elimination: { exercise: 1, fault: 'hardMouth', stationId: 'post-1' },
+          }),
+          id: 'run-1',
+        }),
+      ],
+      expect.any(String)
+    )
+  })
+
   it('asks of a handler withdrawal only whether a prize was still in reach', async () => {
     const { i18n } = useTranslation()
     const { user } = await renderScoringPage(i18n.language as Language)

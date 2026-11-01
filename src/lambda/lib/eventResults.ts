@@ -223,6 +223,15 @@ const pickTask = (value: unknown, judges: PublicJudge[]): SubmittedTask => {
   }
 }
 
+/** The exercise a round ended at (KOE-1665): a number from 1, or none. */
+const pickExercise = (value: unknown, what: string): { exercise?: number } => {
+  if (value === undefined || value === null) return {}
+  if (typeof value !== 'number' || !Number.isInteger(value) || value < 1) {
+    throw new LambdaError(422, `Malformed ${what} exercise`)
+  }
+  return { exercise: value }
+}
+
 const pickElimination = (value: unknown, eventType: string): EventResultElimination => {
   if (!isRecord(value)) throw new LambdaError(422, 'Malformed elimination')
 
@@ -231,19 +240,14 @@ const pickElimination = (value: unknown, eventType: string): EventResultEliminat
     throw new LambdaError(422, `Eliminating fault '${String(value.fault)}' is not valid for ${eventType}`)
   }
 
-  return { fault, ...(typeof value.stationId === 'string' ? { stationId: value.stationId } : {}) }
+  return {
+    fault,
+    ...(typeof value.stationId === 'string' ? { stationId: value.stationId } : {}),
+    ...pickExercise(value.exercise, 'elimination'),
+  }
 }
 
 const RETIREMENT_CAUSES = ['handlerChoice', 'injury', 'illness', 'judgeStopped'] as const
-
-/** The exercise a round ended at (KOE-1665): a number from 1, or none. */
-const pickExercise = (value: unknown): { exercise?: number } => {
-  if (value === undefined || value === null) return {}
-  if (typeof value !== 'number' || !Number.isInteger(value) || value < 1) {
-    throw new LambdaError(422, 'Malformed retirement exercise')
-  }
-  return { exercise: value }
-}
 
 const pickRetirement = (value: unknown): EventResultRetirement => {
   if (!isRecord(value)) throw new LambdaError(422, 'Malformed retirement')
@@ -255,7 +259,7 @@ const pickRetirement = (value: unknown): EventResultRetirement => {
     cause,
     ...(typeof value.couldStillHavePlaced === 'boolean' ? { couldStillHavePlaced: value.couldStillHavePlaced } : {}),
     ...(typeof value.stationId === 'string' ? { stationId: value.stationId } : {}),
-    ...pickExercise(value.exercise),
+    ...pickExercise(value.exercise, 'retirement'),
   }
 }
 

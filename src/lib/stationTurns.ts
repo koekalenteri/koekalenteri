@@ -127,22 +127,32 @@ export const stationThroughput = (
   }
 }
 
+type DogTurn = StationTurnSpan & { dogs: readonly StationTurnSpanDog[] }
+
+/** The dogs of a post's closed spans, told apart by number and name, the handles the public shape has. */
+const throughKeys = <T extends DogTurn>(turns: readonly T[], stationId: string, byExercise: boolean): number =>
+  new Set(
+    completedGroupTurns(turns, stationId).flatMap((turn) =>
+      turn.dogs.map((dog) => `${dog.number ?? ''}#${dog.name}${byExercise ? `#${turn.exercise ?? ''}` : ''}`)
+    )
+  ).size
+
 /**
  * How many dogs a post has actually had through, which is not the number of turns: one walk-up span
  * moves four dogs along, and a dog sent out again — retrieve after retrieve at an A trial — is still
- * one dog through. A dog doing two exercises at the post is through twice, once for each (KOE-1665).
- * Counted from the closed spans only: the group on the ground has not been through yet. Dogs are told
- * apart by number and name, the handles the public shape has.
+ * one dog through. So is a dog doing two exercises at the post (KOE-1665): this is the number people
+ * read, and the queue is counted by `exercisesThrough`. Counted from the closed spans only: the group
+ * on the ground has not been through yet.
  */
-export const dogsThrough = <T extends StationTurnSpan & { dogs: readonly StationTurnSpanDog[] }>(
-  turns: readonly T[],
-  stationId: string
-): number =>
-  new Set(
-    completedGroupTurns(turns, stationId).flatMap((turn) =>
-      turn.dogs.map((dog) => `${dog.number ?? ''}#${dog.name}#${turn.exercise ?? ''}`)
-    )
-  ).size
+export const dogsThrough = <T extends DogTurn>(turns: readonly T[], stationId: string): number =>
+  throughKeys(turns, stationId, false)
+
+/**
+ * How far a post has got through its queue (`stationQueueOf`), which holds a dog once for each exercise
+ * it does there (KOE-1665): a dog through two of them is two entries of the queue gone.
+ */
+export const exercisesThrough = <T extends DogTurn>(turns: readonly T[], stationId: string): number =>
+  throughKeys(turns, stationId, true)
 
 /** A range, because the answer is an estimate and must never read as a promise. */
 interface WaitEstimate {

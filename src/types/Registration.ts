@@ -99,6 +99,8 @@ export interface EventResultElimination {
   fault: EliminatingFault
   /** Absent for event types with no posts. */
   stationId?: string
+  /** The exercise it happened at, where the round is scored by exercise, as `EventResultRetirement.exercise`. */
+  exercise?: number
 }
 
 /** Why a round ended before it was scored. Only a handler's own withdrawal is conditional. */
@@ -120,12 +122,17 @@ export interface EventResultRetirement {
    * have placed, and a zero otherwise. An injured or ill dog always takes the dash.
    */
   couldStillHavePlaced?: boolean
-  /** Where it happened. An injury in particular is worth locating, not just counting. */
+  /**
+   * Where it happened. An injury in particular is worth locating, not just counting. The post is the
+   * anchor, as a score stays with its post: a running order changed later leaves it pointing at the same
+   * place.
+   */
   stationId?: string
   /**
    * The exercise the round ended at, by its number in the dog's running order, where the round is scored
-   * by exercise (KOE-1665): a group may come to one post more than once, so the post alone does not say
-   * which visit. A stop stored without it is read as the last exercise at its post (`endedAtExercise`).
+   * by exercise (KOE-1665). It refines the post for a group that comes to one post more than once, which
+   * the post alone does not tell apart. A stop stored without it, or with a number the running order no
+   * longer has at that post, is read as the last exercise at its post (`endedAtExercise`).
    */
   exercise?: number
 }
