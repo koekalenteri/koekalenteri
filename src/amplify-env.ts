@@ -46,6 +46,11 @@ if (!AWSConfig.Auth?.Cognito.identityPoolId && isDevEnv()) {
 
 export const RUM_CONFIG: AwsRumConfig = {
   allowCookies: true,
+  // The client keeps its Cognito identity, credentials and session under keys suffixed with the
+  // monitor's id, so a browser that reported to an earlier monitor does not reuse that monitor's
+  // identity here. The guest role only trusts its own pool, and the client never clears an identity
+  // that STS refuses (KOE-1672).
+  cookieAttributes: { unique: true },
   enableXRay: false,
   endpoint: process.env.REACT_APP_RUM_ENDPOINT,
   guestRoleArn: process.env.REACT_APP_RUM_ROLE_ARN,

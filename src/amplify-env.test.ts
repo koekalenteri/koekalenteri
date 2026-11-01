@@ -50,6 +50,14 @@ describe('RUM_CONFIG', () => {
 
     expect(RUM_CONFIG.sessionSampleRate).toBe(rate)
   })
+
+  // An identity cached from a previous monitor's pool is refused by the guest role and never cleared
+  // by the client, so the storage keys have to carry the monitor's id (KOE-1672).
+  it('keeps its identity and session per monitor', async () => {
+    const { RUM_CONFIG } = await import('./amplify-env')
+
+    expect(RUM_CONFIG.cookieAttributes).toEqual({ unique: true })
+  })
 })
 
 describe('shouldIgnoreRumError', () => {
