@@ -115,17 +115,15 @@ export const ResultSummary = ({ round, edit, stored, eventType, eventClass, disa
           {t('results.placement', { placement })}
         </Typography>
       )}
-      {/* A voided round has no total worth showing beside dogs that ran everything. */}
-      {!edit.elimination && !edit.retirement && (
-        <Typography
-          variant="caption"
-          sx={{
-            color: 'text.secondary',
-          }}
-        >
-          {t('results.runningTotal', { maxPoints, points })}
-        </Typography>
-      )}
+      {/* A round that ended early shows what it earned too, as it is stored and sent (KOE-1669). */}
+      <Typography
+        variant="caption"
+        sx={{
+          color: 'text.secondary',
+        }}
+      >
+        {t('results.runningTotal', { maxPoints, points })}
+      </Typography>
     </>
   )
 }

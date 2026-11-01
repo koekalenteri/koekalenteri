@@ -237,9 +237,10 @@ export const rotationGroupsOfDay = (event: RotationEvent, day: string): Rotation
 
 /**
  * A group's visits to the posts in its running order, one per exercise (Jukka 1.11.2026): the exercises
- * numbered across the whole order, the post's defaults filled in, and each one's first slot at its post
- * counted over the group's exercises there before it. An exercise at a post the event lacks is skipped
- * and not numbered.
+ * numbered across the whole order, the post's defaults filled in, each one's first slot at its post
+ * counted over the group's exercises there before it, and the posts of the exercises before it (a round
+ * that ended at one of them never reaches this one, KOE-1669). An exercise at a post the event lacks is
+ * skipped and not numbered.
  */
 const groupVisits = (event: RotationEvent, group: RotationGroup): RotationVisit[] => {
   const visits: RotationVisit[] = []
@@ -254,6 +255,7 @@ const groupVisits = (event: RotationEvent, group: RotationGroup): RotationVisit[
     visits.push({
       exercise: visits.length + 1,
       parts,
+      postsBefore: [...new Set(visits.map((visit) => visit.station.id))],
       slotsBefore,
       station,
       ...(dogsAtOnce === undefined ? {} : { dogsAtOnce }),
@@ -296,9 +298,16 @@ export const stationArrivals = (event: RotationEvent, stationId: string): Statio
 }
 
 /** What the link is sent of a visit: the layout, without the post. */
-const visitLayoutOf = ({ exercise, parts, slotsBefore, dogsAtOnce }: RotationVisit): StationVisitLayout => ({
+const visitLayoutOf = ({
   exercise,
   parts,
+  postsBefore,
+  slotsBefore,
+  dogsAtOnce,
+}: RotationVisit): StationVisitLayout => ({
+  exercise,
+  parts,
+  postsBefore,
   slotsBefore,
   ...(dogsAtOnce === undefined ? {} : { dogsAtOnce }),
 })

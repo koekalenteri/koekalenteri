@@ -1341,6 +1341,7 @@
       "interrupted": "Stopped"
     },
     "notInterrupted": "Not interrupted",
+    "notReached": "ret.",
     "openLiveEntry": "Live entry",
     "outcome": "Elimination / retirement",
     "outcomeAt": "Where",
@@ -1352,6 +1353,7 @@
     "resultNone": "No result",
     "retirement": {
       "handlerChoice": "Handler withdrew",
+      "illness": "Dog fell ill",
       "injury": "Dog was injured",
       "judgeStopped": "Judge stopped the trial"
     },

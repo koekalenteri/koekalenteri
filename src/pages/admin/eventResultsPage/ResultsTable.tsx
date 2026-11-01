@@ -15,12 +15,19 @@ import Typography from '@mui/material/Typography'
 import { memo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { getRegistrationPlacement } from '@/lib/registration'
-import { columnKey, formatTaskName, parseEventResultCode, scoresAtPosts } from '@/lib/results'
+import {
+  columnKey,
+  endedBefore,
+  formatTaskName,
+  parseEventResultCode,
+  roundPostsBefore,
+  scoresAtPosts,
+} from '@/lib/results'
 import { JudgeSelect } from '../../components/stationScoring/JudgeSelect'
 import { ResultSummary } from '../../components/stationScoring/ResultSummary'
 import { asksOutcome, outcomeLabelKeys, RoundOutcome } from '../../components/stationScoring/RoundOutcome'
 import { TaskScore } from '../../components/stationScoring/TaskScore'
-import { emptyEdit, isVoided, sameResultEdit } from '../../components/stationScoring/types'
+import { emptyEdit, sameResultEdit } from '../../components/stationScoring/types'
 import { KennelliittoStatus } from './KennelliittoStatus'
 
 interface Props {
@@ -34,6 +41,11 @@ interface Props {
   readonly roundFor: (registration: Registration) => ExerciseSlot[]
   /** A dog's whole round, for deriving the prize. Absent in a post's own view, where it is unknowable. */
   readonly fullRoundFor?: (registration: Registration) => ExerciseSlot[]
+  /**
+   * A dog's whole round in every view, a post's own included: which exercises come after the post its
+   * round ended at, and so read "kesk" (KOE-1669). Not a signal to derive a prize, as {@link fullRoundFor} is.
+   */
+  readonly wholeRoundFor: (registration: Registration) => ExerciseSlot[]
   readonly eventType: string
   readonly eventClass?: string
   readonly stations: EventStation[]
@@ -92,6 +104,7 @@ function ResultsTable({
   round,
   roundFor,
   fullRoundFor,
+  wholeRoundFor,
   eventType,
   eventClass,
   stations,
@@ -163,8 +176,11 @@ function ResultsTable({
   const controlsFor = (registration: Registration): RowControls => {
     const edit = edits[registration.id] ?? seededEdit(registration.eventResult)
     const { tasks } = edit
-    const voided = isVoided(edit)
     const own = roundFor(registration)
+    // A post after the one the round ended at was never reached, read off the dog's whole round as the
+    // post's own link reads it off its visit (KOE-1669).
+    const whole = wholeRoundFor(registration)
+    const notReached = (task: ExerciseSlot) => endedBefore(edit.retirement, roundPostsBefore(whole, task.exercise))
 
     const writeTask = (task: ExerciseSlot, changes: Partial<TaskEdit>) => {
       const existing = tasks.find((item) => taskKey(item) === taskKey(task))
@@ -234,10 +250,11 @@ function ResultsTable({
         return (
           <TaskScore
             defaultJudge={defaultJudges[task.stationId]}
-            disabled={disabled || voided}
+            disabled={disabled}
             judges={judgesFor(task.stationId)}
             key={taskKey(task)}
             name={formatTaskName(task, t)}
+            notReached={notReached(task)}
             showName={compact}
             onChange={setTask}
             onJudgeChange={(item, judge) => {

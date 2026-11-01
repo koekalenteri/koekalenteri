@@ -1539,6 +1539,31 @@ describe('kennelliittoResults', () => {
       ])
     })
 
+    it('sends what a withdrawn round stored without totals earned, worked out from its tasks (KOE-1669)', async () => {
+      // A round that ended early kept no totals before KOE-1669, and an unchanged row cannot be saved again.
+      const stations = [1, 2].map((number) => ({ date: '2026-09-26' as const, id: `post-${number}`, number }))
+      const at = { updatedAt: '2026-09-26T09:00:00.000Z', updatedBy: 'Sihteeri' }
+      registrations = [
+        dog('withdrawn', 'FI20008/20', 'ALO-', {
+          class: 'ALO',
+          eventResult: {
+            ...at,
+            judge: chief,
+            result: 'ALO-',
+            retirement: { cause: 'handlerChoice', couldStillHavePlaced: true, stationId: 'post-1' },
+            tasks: [{ ...at, index: 0, points: 12, stationId: 'post-1' }],
+          },
+          eventType: 'NOWT',
+        }),
+      ]
+
+      await sendKennelliittoResults(ctx({ eventType: 'NOWT', stations }), ['withdrawn'], { force: false })
+
+      expect(tallennat().map((call) => call.body)).toEqual([
+        expect.objectContaining({ keskeytetty: false, pisteet: 30, rekisterinumero: 'FI20008/20', tulos: 'ALO-' }),
+      ])
+    })
+
     it('sends no placement for a nought, and does not send an awarded dog that has no points to rank by', async () => {
       registrations = [
         nowtDog('nought', 'FI20004/20', 'ALO0', 40),

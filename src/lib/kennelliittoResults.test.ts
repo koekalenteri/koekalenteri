@@ -105,10 +105,12 @@ describe('kennelliittoResults', () => {
       expect(sent(buildKcResult(event('NOU'), dog(result({ result: 'NOU1' })), koemuotoNOU)).hylätty).toEqual(false)
     })
 
-    it('takes keskeytetty from the row: the dash of NOME-A is a stop, the nought is not', () => {
+    it("takes keskeytetty from the judge's stop, not from the row, which calls the NOME-A dash a stop (KOE-1669)", () => {
+      // The rows of Koe/Koemuoto mark every dash keskeytys, but a dash without a stop is the handler's
+      // withdrawal or a withheld laatuarvostelu, which the breeding database shows without Kesk.
       const dash = sent(buildKcResult(event('NOME-A'), dog(result({ result: 'NOME-A-' })), koemuotoNOME_A))
       const nought = sent(buildKcResult(event('NOME-A'), dog(result({ result: 'NOME-A0' })), koemuotoNOME_A))
-      expect([dash.keskeytetty, nought.keskeytetty]).toEqual([true, false])
+      expect([dash.keskeytetty, nought.keskeytetty]).toEqual([false, false])
     })
 
     it("sends a judge's stop as keskeytetty where the format has a stop at all", () => {
@@ -296,10 +298,30 @@ describe('kennelliittoResults', () => {
       expect(sent(buildKcResult(event('NOWT'), registration, koemuotoNOWT)).pisteet).toEqual(40)
     })
 
-    it('sends points 0 for a round that was stopped', () => {
-      const body = sent(nowt({ elimination: { fault: 'aggression' }, result: 'VOI-' }))
+    it('sends points 0 for a result stored without a total, as a stopped round was before KOE-1669', () => {
+      const body = sent(nowt({ result: 'VOI0', retirement: { cause: 'judgeStopped' } }, { placement: undefined }))
       expect([body.pisteet, body.keskeytetty]).toEqual([0, true])
     })
+
+    it("sends a handler's withdrawal with its points and without keskeytetty, as Kennelliitto publishes it (KOE-1669)", () => {
+      const retirement = { cause: 'handlerChoice', couldStillHavePlaced: true } as const
+      const body = sent(nowt({ percentage: 23, result: 'VOI-', retirement }, { placement: undefined }))
+      expect([body.tulos, body.pisteet, body.keskeytetty]).toEqual(['VOI-', 23, false])
+    })
+
+    it("sends a handler's withdrawal on a nought with what it earned and without keskeytetty (KOE-1669)", () => {
+      const retirement = { cause: 'handlerChoice', stationId: 's1' } as const
+      const body = sent(nowt({ percentage: 19, result: 'VOI0', retirement }, { placement: undefined }))
+      expect([body.tulos, body.pisteet, body.keskeytetty]).toEqual(['VOI0', 19, false])
+    })
+
+    it.each(['injury', 'illness'] as const)(
+      'sends a dash the judge stopped for %s as keskeytetty (KOE-1669)',
+      (cause) => {
+        const body = sent(nowt({ percentage: 15, result: 'VOI-', retirement: { cause } }, { placement: undefined }))
+        expect([body.pisteet, body.keskeytetty]).toEqual([15, true])
+      }
+    )
 
     it('names the post judges after the class judge as prize judges, the class judge first', () => {
       const body = sent(

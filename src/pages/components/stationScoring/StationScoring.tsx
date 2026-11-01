@@ -33,6 +33,7 @@ import { makeArray } from '@/lib/judge'
 import { liveFormat } from '@/lib/liveFormat'
 import { getRegistrationClass } from '@/lib/registration'
 import {
+  endedBefore,
   formatTaskName,
   holdsScore,
   parseEventResultCode,
@@ -47,7 +48,7 @@ import { ResultSummary } from './ResultSummary'
 import { RoundOutcome } from './RoundOutcome'
 import { StationTurnControls } from './StationTurnControls'
 import { TaskScore } from './TaskScore'
-import { emptyEdit, isVoided } from './types'
+import { emptyEdit } from './types'
 
 /**
  * A dog as this screen needs it. Structural on purpose: the event secretary's view has the whole
@@ -226,15 +227,21 @@ export function StationScoring({
     () => (qualitative || !visit ? [] : visitSlots(station.id, visit)),
     [qualitative, station.id, visit]
   )
+  // The dog's round ended at a post before this one, so it never came here (KOE-1669).
+  const ended = endedBefore(edit.retirement, visit?.postsBefore ?? [])
 
   /**
    * A place in the queue this post has already scored, so the judge can see at a glance who is still to
-   * come: the dog's score for the exercise of that place, or any here where the dog has no visit.
+   * come: the dog's score for the exercise of that place, or any here where the dog has no visit. A dog
+   * whose round ended here is done too, its outcome recorded at this post, and one whose round ended at
+   * the post of an earlier exercise never comes (KOE-1669).
    */
   const isScored = useCallback(
     (dog: StationScoringDog) => {
       const stored = dog.eventResult
       if (qualitative) return Boolean(stored?.result ?? stored?.elimination ?? stored?.retirement)
+      const { retirement } = stored ?? {}
+      if (retirement?.stationId === station.id || endedBefore(retirement, dog.visit?.postsBefore ?? [])) return true
       const slots = dog.visit ? visitSlots(station.id, dog.visit) : []
       return (
         stored?.tasks?.some(
@@ -427,10 +434,10 @@ export function StationScoring({
             {round.map((task) => (
               <TaskScore
                 defaultJudge={lastJudge}
-                disabled={isVoided(edit)}
                 judges={judges}
                 name={formatTaskName(task, t)}
                 key={`${task.stationId}#${task.index}`}
+                notReached={ended}
                 onChange={(item, points, zeroFault) =>
                   setEdit((prev) => ({
                     ...prev,
@@ -453,6 +460,8 @@ export function StationScoring({
                     tasks: prev.tasks.map((entry) => (entry.index === item.index ? { ...entry, judge } : entry)),
                   }))
                 }}
+                // No column header names the task here, so a task not reached names it in its text.
+                showName={ended}
                 task={task}
                 value={edit.tasks.find((entry) => entry.index === task.index)}
               />

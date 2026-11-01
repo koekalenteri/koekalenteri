@@ -268,7 +268,7 @@ describe('StationScoring', () => {
       eventType: 'NOWT',
       group: { ...group, key: `${eventClass}-AP`, number: 1 },
       id,
-      visit: { exercise, parts, slotsBefore },
+      visit: { exercise, parts, postsBefore: ['post-0'], slotsBefore },
     })
 
     it('keeps the classes in the order they reach the post', () => {
@@ -301,6 +301,133 @@ describe('StationScoring', () => {
 
       await user.click(chips[1])
       expect(screen.getAllByLabelText(/results\.column\.task/)).toHaveLength(1)
+    })
+  })
+
+  describe('a dog whose round ended at an earlier post (KOE-1669)', () => {
+    const at = new Date('2026-09-12T09:00:00Z')
+    const dog = (id: string, number: number, retiredAt?: string) => ({
+      class: 'ALO' as const,
+      dog: { name: id },
+      eventType: 'NOWT',
+      group: { ...group, number },
+      id,
+      visit: { exercise: 3, parts: 2 as const, postsBefore: ['post-0'], slotsBefore: 0 },
+      ...(retiredAt
+        ? {
+            eventResult: {
+              retirement: { cause: 'handlerChoice' as const, stationId: retiredAt },
+              updatedAt: at,
+            },
+          }
+        : {}),
+    })
+
+    it('shows kesk instead of the inputs and counts the dog as done', async () => {
+      const user = userEvent.setup()
+      renderScoring({ eventType: 'NOWT', registrations: [dog('stopped', 1, 'post-0')] })
+
+      expect(screen.getByRole('button', { name: '1 stopped' })).toHaveClass('MuiChip-filled')
+      await user.click(screen.getByRole('button', { name: '1 stopped' }))
+
+      expect(screen.getAllByText(/results\.notReached/)).toHaveLength(2)
+      expect(screen.queryByLabelText(/results\.column\.task/)).not.toBeInTheDocument()
+    })
+
+    it('asks for the scores of a dog whose round ended here or at an unknown post', async () => {
+      const user = userEvent.setup()
+      renderScoring({
+        eventType: 'NOWT',
+        registrations: [
+          dog('here', 1, '1'),
+          { ...dog('unknown', 2), eventResult: { retirement: { cause: 'injury' as const }, updatedAt: at } },
+        ],
+      })
+
+      await user.click(screen.getByRole('button', { name: '1 here' }))
+      expect(screen.getAllByLabelText(/results\.column\.task/)).toHaveLength(2)
+      await user.click(screen.getByRole('button', { name: '2 unknown' }))
+      expect(screen.getAllByLabelText(/results\.column\.task/)).toHaveLength(2)
+      expect(screen.queryByText(/results\.notReached/)).not.toBeInTheDocument()
+    })
+
+    it('moves on past it to the next dog the post has to score', async () => {
+      const user = userEvent.setup()
+      renderScoring({
+        eventType: 'NOWT',
+        registrations: [dog('first', 1), dog('stopped', 2, 'post-0'), dog('third', 3)],
+      })
+
+      await user.click(screen.getByRole('button', { name: '1 first' }))
+      await user.type(screen.getAllByLabelText(/results\.column\.task/)[0], '15')
+      await user.click(screen.getByRole('button', { name: 'results.save' }))
+
+      expect(await screen.findByRole('heading', { name: '3. third' })).toBeInTheDocument()
+    })
+
+    it('counts a dog whose round ended at this very post as done, its outcome recorded here', () => {
+      renderScoring({ eventType: 'NOWT', registrations: [dog('here', 1, '1')] })
+
+      expect(screen.getByRole('button', { name: '1 here' })).toHaveClass('MuiChip-filled')
+    })
+
+    it('asks for the scores of a dog whose round ended at a post after this one, and does not count it done', async () => {
+      const user = userEvent.setup()
+      renderScoring({ eventType: 'NOWT', registrations: [dog('later', 1, 'post-5')] })
+
+      expect(screen.getByRole('button', { name: '1 later' })).toHaveClass('MuiChip-outlined')
+      await user.click(screen.getByRole('button', { name: '1 later' }))
+      expect(screen.getAllByLabelText(/results\.column\.task/)).toHaveLength(2)
+      expect(screen.queryByText(/results\.notReached/)).not.toBeInTheDocument()
+    })
+
+    it('keeps a score stored here after the stop as an input, since it counts and may need clearing', async () => {
+      const user = userEvent.setup()
+      const stray = { index: 0, judge, points: 7, stationId: '1', updatedAt: at, updatedBy: 'Rasti 1' }
+      const stopped = dog('stopped', 1, 'post-0')
+      renderScoring({
+        eventType: 'NOWT',
+        registrations: [{ ...stopped, eventResult: { ...stopped.eventResult, tasks: [stray] } }],
+      })
+
+      await user.click(screen.getByRole('button', { name: '1 stopped' }))
+
+      expect(screen.getByLabelText(/results\.column\.task/)).toHaveValue('7')
+      expect(screen.getAllByText(/results\.notReached/)).toHaveLength(1)
+    })
+  })
+
+  describe('the outcome a post asks for (KOE-1669)', () => {
+    const one = (eventType: string) => ({
+      class: 'ALO' as const,
+      dog: { name: 'Koira' },
+      eventType,
+      group: { ...group, number: 1 },
+      id: 'run-1',
+      ...(eventType === 'NOWT' ? { visit: { exercise: 1, parts: 1 as const, postsBefore: [], slotsBefore: 0 } } : {}),
+    })
+
+    it.each([
+      [
+        'NOWT',
+        [
+          'results.notInterrupted',
+          'results.retirement.handlerChoice',
+          'results.retirement.injury',
+          'results.retirement.illness',
+          'results.retirement.judgeStopped',
+        ],
+      ],
+      ['NOME-A', ['results.notInterrupted', 'results.retirement.judgeStopped']],
+    ])('offers %s its own ways for a round to end', async (eventType, expected) => {
+      const user = userEvent.setup()
+      renderScoring({ eventType, registrations: [one(eventType)] })
+
+      await user.click(screen.getByRole('button', { name: '1 Koira' }))
+      await user.click(screen.getByLabelText('results.interruption'))
+
+      const options = within(screen.getByRole('listbox')).getAllByRole('option')
+      expect(options.map((option) => option.textContent)).toEqual(expected)
     })
   })
 

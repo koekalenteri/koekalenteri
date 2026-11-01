@@ -30,7 +30,7 @@ const entry = (): StationEntry => ({
       eventType: 'NOWT',
       group: { date: '2026-09-12', key: 'AVO-AP', number: 1, time: 'ap' },
       id: 'run-1',
-      visit: { exercise: 1, parts: 1, slotsBefore: 0 },
+      visit: { exercise: 1, parts: 1, postsBefore: [], slotsBefore: 0 },
     },
     {
       class: 'AVO',
@@ -38,7 +38,7 @@ const entry = (): StationEntry => ({
       eventType: 'NOWT',
       group: { date: '2026-09-12', key: 'AVO-AP', number: 2, time: 'ap' },
       id: 'run-2',
-      visit: { exercise: 1, parts: 1, slotsBefore: 0 },
+      visit: { exercise: 1, parts: 1, postsBefore: [], slotsBefore: 0 },
     },
   ],
   station: { date: '2026-09-12', id: 'post-1', number: 1 },

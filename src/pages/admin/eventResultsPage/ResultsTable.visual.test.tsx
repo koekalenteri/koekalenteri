@@ -29,9 +29,10 @@ const runners = registrationsToEventWithStations.filter((reg) => reg.group?.key 
 // Every dog of the fixture is one group, so one round stands for all of them.
 const round = dogRound(eventWithStations, rotationDogOf(registrationsToEventWithStations[0]))
 const roundOf = () => round
-// One dog through the whole course on a first prize, one the judge stopped at the second post with its
-// first-post score intact — the two shapes a real screenful mixes. The stop reads as the nought and
-// carries "Kesk." beside it (KOE-1300).
+// One dog through the whole course on a first prize, and one whose handler withdrew it at the first
+// post: the score it earned there stays an input and counts in its total, the post it never reached reads
+// "kesk", and the result is the nought without "Kesk." beside it, as Kennelliitto publishes a handler's
+// own withdrawal (KOE-1669).
 const nowtEdits: Record<string, ResultEdit> = {
   'run-1': {
     tasks: [
@@ -41,7 +42,7 @@ const nowtEdits: Record<string, ResultEdit> = {
     ],
   },
   'run-2': {
-    retirement: { cause: 'judgeStopped', stationId: 'post-2' },
+    retirement: { cause: 'handlerChoice', stationId: 'post-1' },
     tasks: [{ index: 0, judge, points: 12, stationId: 'post-1' }],
   },
 }
@@ -83,6 +84,7 @@ const nowtTable = (compact = false) => (
     registrations={runners}
     round={round}
     roundFor={roundOf}
+    wholeRoundFor={roundOf}
     stations={eventWithStations.stations ?? []}
   />
 )
@@ -101,6 +103,7 @@ const nomeBTable = () => (
     registrations={nomeBRegistrations}
     round={[]}
     roundFor={() => []}
+    wholeRoundFor={() => []}
     stations={[]}
   />
 )
@@ -119,6 +122,7 @@ const nouTable = (compact = false) => (
     registrations={nouRegistrations}
     round={[]}
     roundFor={() => []}
+    wholeRoundFor={() => []}
     stations={[]}
   />
 )
@@ -190,6 +194,7 @@ const kcTable = (compact = false) => (
     registrations={kcRegistrations}
     round={[]}
     roundFor={() => []}
+    wholeRoundFor={() => []}
     stations={[]}
   />
 )
@@ -244,6 +249,7 @@ it('shows the rank of each awarded dog beside its prize', async () => {
         registrations={placed}
         round={round}
         roundFor={roundOf}
+        wholeRoundFor={roundOf}
         stations={eventWithStations.stations ?? []}
       />
     </Frame>
@@ -312,6 +318,7 @@ it('names the columns by exercise number whatever post each group did them at', 
         registrations={runners}
         round={roundColumns(runners.map(splitRound))}
         roundFor={splitRound}
+        wholeRoundFor={splitRound}
         stations={eventWithStations.stations ?? []}
       />
     </Frame>
@@ -372,6 +379,7 @@ it('shows a NOME-A result as Kennelliitto lists it (KOE-1592)', async () => {
         registrations={nomeARegistrations}
         round={[]}
         roundFor={() => []}
+        wholeRoundFor={() => []}
         stations={[]}
       />
     </Frame>

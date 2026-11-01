@@ -151,7 +151,7 @@ voi rajata yhteen suorituspaikkaan, jolloin näkyvissä ovat vain siellä tehdyt
 silloin pois, koska se riippuu muistakin paikoista. Valinnassa ovat vain näytettävän päivän
 suorituspaikat, ja rajattuna sivulla ovat vain ne koirakot, joiden ryhmä käy paikassa.
 
-!shot[ResultsTable/results-entry-nowt] NOWT-luokan pisteet rasteittain, toinen koirakko keskeytetty suorituspaikalla 2
+!shot[ResultsTable/results-entry-nowt] NOWT-luokan pisteet rasteittain, toisen koirakon ohjaaja keskeytti suorituspaikalla 1
 
 **Muut koemuodot.** Tulos on tuomarin päätös ja se valitaan kentästä *{t:results.column.result}*:
 palkintosija 1–3, nolla tai viiva, NOU- ja NKM-kokeessa vain hyväksytty tai hylätty. Vieressä on
@@ -159,10 +159,28 @@ palkintosija 1–3, nolla tai viiva, NOU- ja NKM-kokeessa vain hyväksytty tai h
 
 !shot[ResultsTable/results-entry-nou] NOU-kokeen tulokset: tuomari ja tulos
 
-**Keskeytys.** Kentästä *{t:results.interruption}* kirjataan
-*{t:results.retirement.judgeStopped}*. Keskeytetyn koirakon tulos on sääntöjen mukaan nolla, ja
-julkaistulla listalla sen perässä on merkintä *{t:results.marks.interrupted}*. Kaikkien
-suorituspaikkojen näkymässä kysytään lisäksi *{t:results.outcomeAt}*, eli millä suorituspaikalla keskeytys tapahtui. Jo
+**Keskeytys.** Kentästä *{t:results.interruption}* kirjataan, jos koirakon koe päättyi kesken.
+Työkokeessa (NOWT) vaihtoehdot ja niiden tulokset sääntöjen mukaan ovat:
+
+- *{t:results.retirement.handlerChoice}*: tulos on nolla. Jos tuomarin mielestä koiralla olisi vielä
+  ollut mahdollisuus palkintosijoille, ruksataan *{t:results.couldStillHavePlaced}*, jolloin tulos on
+  viiva.
+- *{t:results.retirement.injury}* tai *{t:results.retirement.illness}*: tuomari keskeytti kokeen, ja
+  tulos on viiva, jonka perässä on julkaistulla listalla merkintä *{t:results.marks.interrupted}*.
+- *{t:results.retirement.judgeStopped}*: tulos on nolla ja merkintä *{t:results.marks.interrupted}*.
+
+Ohjaajan keskeytys ei saa merkintää *{t:results.marks.interrupted}*, kuten ei Kennelliiton
+jalostustietojärjestelmässäkään. Kaikkien suorituspaikkojen näkymässä kysytään lisäksi
+*{t:results.outcomeAt}*, eli millä suorituspaikalla koe päättyi. Sitä seuraavat rastit koiran
+suoritusjärjestyksessä näkyvät tekstinä *{t:results.notReached}*, myös yhteen suorituspaikkaan
+rajatussa näkymässä ja suorituspaikan kirjaussivulla, jossa koirakko näkyy jo käyneenä. Siihen asti
+saadut pisteet säilyvät ja niitä voi muokata, ja rivin alla näkyy niiden summa koko suoritusjärjestyksen
+enimmäispisteitä vasten. Sama summa lähtee Omakoiraan. Jos myöhemmälle rastille on jo kirjattu
+pisteet, kenttä jää näkyviin ja pisteet lasketaan summaan, joten ne voi tarvittaessa poistaa. Kun
+valintana on *{t:results.outcomeAtUnknown}*, mikään rasti ei näy keskeytettynä.
+
+Muissa koemuodoissa kentästä kirjataan vain *{t:results.retirement.judgeStopped}*. Tulos on sääntöjen
+mukaan nolla, ja julkaistulla listalla sen perässä on merkintä *{t:results.marks.interrupted}*. Jo
 kirjattu palkintosija ei voi saada keskeytystä rinnalleen; poista ensin tulos.
 
 Keskeytys kysytään vain koemuodoissa, joissa Kennelliitto sen kirjaa (NOME-A, NOME-B, NKM ja NOWT).

@@ -2318,18 +2318,27 @@ describe('putEventLambda', () => {
       expect(auditMock).toHaveBeenCalledWith(expect.objectContaining({ messageKey: 'audit.messages.resultRecomputed' }))
     })
 
-    it('asks about a dropped task without points that records a retirement', async () => {
-      await record(nowtEvent, {
-        'dog-a': [
-          { index: 0, judge, points: 10, stationId: 'post-1' },
-          { index: 0, judge, points: null, retired: true, stationId: 'post-2' },
-        ],
-      })
+    it('recomputes a round that ended at a post the change removes from what the other posts earned', async () => {
+      getEventMock.mockResolvedValue(nowtEvent)
+      const retirement = { cause: 'handlerChoice', stationId: 'post-2' } as const
+      const tasks = [
+        { index: 0, judge, points: 10, stationId: 'post-1' },
+        { index: 1, judge, points: 8, stationId: 'post-1' },
+      ]
+      await processResultSubmissions(
+        'existing',
+        nowtEvent,
+        stored(),
+        [{ eventResult: { retirement, tasks }, id: 'dog-a' }],
+        'Sihteeri'
+      )
+      expect(eventResultOf('dog-a')).toMatchObject({ maxPoints: 60, points: 18, result: 'ALO0' })
 
+      // The second post's exercise leaves the running order: the round ended where it no longer goes.
       const res = await patchRotations(firstOnly)
 
-      expect(res.statusCode).toEqual(409)
-      expect(JSON.parse(res.body)).toMatchObject({ dogs: [{ id: 'dog-a', tasks: 1 }] })
+      expect(res.statusCode).toEqual(200)
+      expect(eventResultOf('dog-a')).toMatchObject({ maxPoints: 40, points: 18, result: 'ALO0', retirement })
     })
 
     describe('a running order', () => {

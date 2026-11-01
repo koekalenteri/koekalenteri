@@ -12,6 +12,7 @@ import {
   deriveNowtResult,
   dogRound,
   eliminatingFaults,
+  endedBefore,
   eventResultPrefix,
   formatEventResult,
   formatResultLine,
@@ -31,6 +32,7 @@ import {
   resultMarks,
   resultPrefixAsKennelClub,
   roundColumns,
+  roundPostsBefore,
   roundsDiffer,
   STOPPED_RESULT_CODE,
   sameEventResult,
@@ -41,6 +43,7 @@ import {
   taskEntryCeiling,
   toScoredTasks,
   visitSlots,
+  withStoredTotals,
 } from './results'
 
 /**
@@ -82,7 +85,7 @@ describe('nowtTotals', () => {
 
 describe('deriveNowtResult', () => {
   it('awards a first prize on 65 of 80, which the absolute rules figure calls a second', () => {
-    // The case the percentage rule exists for: 65 points is §5.8.1's second-prize number, but on a
+    // The case the percentage rule exists for: 65 points is §5.4.1's second-prize number, but on a
     // four-post round it is 81.25 % and every post clears its floor of 10.
     expect(deriveNowtResult({ tasks: round(17, 18, 16, 14) })).toBe('1')
   })
@@ -156,6 +159,11 @@ describe('deriveNowtResult', () => {
 
     it('records an injured dog as a dash without asking about contention', () => {
       expect(deriveNowtResult({ retirement: { cause: 'injury' }, tasks: round(17, null, null, null) })).toBe('-')
+    })
+
+    it('records a dog the judge stopped for illness as a dash, as an injured one', () => {
+      // §5.4.1 gives the dash to a stop "koiran loukkaantumisen tai sairastumisen vuoksi" (KOE-1669).
+      expect(deriveNowtResult({ retirement: { cause: 'illness' }, tasks: round(17, 0, null, null) })).toBe('-')
     })
 
     it("dashes a handler's withdrawal only where the dog could still have placed", () => {
@@ -331,7 +339,23 @@ describe('stationDogsInOrder', () => {
     const event = { eventType: 'NOWT', stations: [{ date: '2026-09-12' as const, id: 'post-1', number: 1 }] }
 
     expect(stationDogsInOrder(event, 'post-1', [dog('a', 1)])).toEqual([
-      { ...dog('a', 1), visit: { exercise: 1, parts: 1, slotsBefore: 0 } },
+      { ...dog('a', 1), visit: { exercise: 1, parts: 1, postsBefore: [], slotsBefore: 0 } },
+    ])
+  })
+
+  it("names the posts of the group's exercises before this one, in its own order (KOE-1669)", () => {
+    const day = '2026-09-12' as const
+    const event = {
+      eventType: 'NOWT',
+      rotations: [
+        { class: 'ALO' as const, exercises: ['post-3', 'post-1', 'post-2'].map((stationId) => ({ stationId })) },
+      ],
+      stations: [1, 2, 3].map((number) => ({ date: day, id: `post-${number}`, number })),
+    }
+    const alo = { ...dog('a', 1), class: 'ALO' as const }
+
+    expect(stationDogsInOrder(event, 'post-2', [alo]).map((item) => item.visit?.postsBefore)).toEqual([
+      ['post-3', 'post-1'],
     ])
   })
 })
@@ -450,9 +474,14 @@ describe('resultMarks', () => {
     expect(resultMarks({ retirement: { cause: 'judgeStopped' } })).toEqual(['interrupted'])
   })
 
-  it('marks nothing else, an unrecorded result included', () => {
-    expect(resultMarks({ retirement: { cause: 'injury' } })).toEqual([])
+  it.each(['injury', 'illness'] as const)('marks a stop for %s, which the judge makes too (KOE-1669)', (cause) => {
+    expect(resultMarks({ retirement: { cause } })).toEqual(['interrupted'])
+  })
+
+  it("marks nothing else, a handler's own withdrawal and an unrecorded result included", () => {
+    // Kennelliitto publishes a handler's dash with its points and no Kesk. beside it (KOE-1669).
     expect(resultMarks({ retirement: { cause: 'handlerChoice' } })).toEqual([])
+    expect(resultMarks({ retirement: { cause: 'handlerChoice', couldStillHavePlaced: true } })).toEqual([])
     expect(resultMarks({})).toEqual([])
     expect(resultMarks()).toEqual([])
   })
@@ -597,12 +626,31 @@ describe('resolveEventResult', () => {
     expect(resolveEventResult({ resultCode: '2', tasks: fullRound(17, 18, 16, 14) }, nowt).result).toBe('AVO2')
   })
 
-  it('publishes no percentage for a voided round', () => {
+  it('publishes what an eliminated round earned, by the rule of every round that ended early', () => {
     const result = resolveEventResult({ elimination: { fault: 'hardMouth' }, tasks: [entered('post-1', 17)] }, nowt)
 
-    expect(result.result).toBe('AVO-')
-    expect(result.percentage).toBeUndefined()
-    expect(result.points).toBeUndefined()
+    expect(result).toMatchObject({ maxPoints: 80, percentage: 21.25, points: 17, result: 'AVO-' })
+  })
+
+  it('counts a score stored at a post after the stop, which the secretary sees and can clear', () => {
+    const tasks = [entered('post-1', 12), entered('post-3', 15)]
+    const result = resolveEventResult({ retirement: { cause: 'handlerChoice', stationId: 'post-2' }, tasks }, nowt)
+
+    expect(result).toMatchObject({ maxPoints: 80, points: 27, result: 'AVO0' })
+  })
+
+  it.each([
+    ['handlerChoice', 'AVO0'],
+    ['injury', 'AVO-'],
+    ['illness', 'AVO-'],
+    ['judgeStopped', 'AVO0'],
+  ] as const)('publishes what a round withdrawn for %s earned, against the whole round (KOE-1669)', (cause, code) => {
+    const result = resolveEventResult(
+      { retirement: { cause, stationId: 'post-2' }, tasks: [entered('post-1', 12), entered('post-2', 0)] },
+      nowt
+    )
+
+    expect(result).toMatchObject({ maxPoints: 80, percentage: 15, points: 12, result: code })
   })
 
   it('leaves the result open while the round is half entered', () => {
@@ -974,9 +1022,83 @@ describe('isRecordedTask (KOE-1666)', () => {
     ['an empty field', { points: null }, false],
     ['a zero reason without points', { points: null, zeroFault: 'unknown' as const }, true],
     ['a recall without points', { points: null, recalled: true }, true],
-    ['a retirement without points', { points: null, retired: true }, true],
   ])('reads %s as recorded: %s', (_name, task, recorded) => {
     expect(isRecordedTask(task)).toEqual(recorded)
+  })
+})
+
+describe('endedBefore (KOE-1669)', () => {
+  const day = '2026-09-12' as const
+  // The group starts at post 3 and comes back to it, so the order is not the posts' numbering.
+  const round = dogRound(
+    {
+      rotations: [
+        { class: 'ALO', exercises: ['post-3', 'post-1', 'post-2', 'post-3'].map((stationId) => ({ stationId })) },
+      ],
+      stations: [1, 2, 3].map((number) => ({ date: day, id: `post-${number}`, number, parts: 2 as const })),
+    },
+    { class: 'ALO', day }
+  )
+
+  it("reads the posts of the exercises before an exercise off the round, in the round's order", () => {
+    expect(roundPostsBefore(round, 1)).toEqual([])
+    expect(roundPostsBefore(round, 3)).toEqual(['post-3', 'post-1'])
+    expect(roundPostsBefore(round, 4)).toEqual(['post-3', 'post-1', 'post-2'])
+  })
+
+  it('ends the round before every exercise after the post it ended at, its second visit there included', () => {
+    const at = { stationId: 'post-3' }
+    expect([1, 2, 3, 4].map((exercise) => endedBefore(at, roundPostsBefore(round, exercise)))).toEqual([
+      false,
+      true,
+      true,
+      true,
+    ])
+  })
+
+  it.each([
+    ['no outcome', undefined],
+    ['an unknown post ("Ei tiedossa")', {}],
+    ['a post not in the list', { stationId: 'post-9' }],
+    ['a post that comes after this one', { stationId: 'post-5' }],
+    ['this very post', { stationId: 'post-1' }],
+  ])('does not end it for %s', (_name, retirement) => {
+    expect(endedBefore(retirement, ['post-0'])).toBe(false)
+  })
+})
+
+describe('withStoredTotals (KOE-1669)', () => {
+  const day = '2026-09-12' as const
+  const event = { stations: [1, 2].map((number) => ({ date: day, id: `post-${number}`, number })) }
+  const at = { updatedAt: '2026-09-12T09:00:00.000Z', updatedBy: 'Sihteeri' }
+  const dog = (eventResult: JsonEventResult, eventType = 'NOWT') => ({
+    class: 'ALO',
+    eventResult,
+    eventType,
+    group: { date: day, key: `${day}-ap`, number: 1 },
+  })
+  const retired: JsonEventResult = {
+    ...at,
+    result: 'ALO0',
+    retirement: { cause: 'handlerChoice', stationId: 'post-1' },
+    tasks: [{ ...at, index: 0, points: 12, stationId: 'post-1' }],
+  }
+
+  it('works out the totals of a result stored without them, against the whole round', () => {
+    expect(withStoredTotals(event, dog(retired)).eventResult).toEqual({
+      ...retired,
+      maxPoints: 40,
+      percentage: 30,
+      points: 12,
+    })
+  })
+
+  it.each([
+    ['a result with its totals', dog({ ...retired, maxPoints: 40, percentage: 25, points: 10 })],
+    ['a result without tasks', dog({ ...at, result: 'ALO1' })],
+    ['a type not scored at posts', dog(retired, 'NOME-B')],
+  ])('leaves %s as it is', (_name, registration) => {
+    expect(withStoredTotals(event, registration)).toBe(registration)
   })
 })
 
