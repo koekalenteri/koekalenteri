@@ -7,6 +7,7 @@ import {
   UpdateTemplateCommand,
 } from '@aws-sdk/client-ses'
 import { explainTemplateRejection, findEmailTemplateError } from '../../lib/emailTemplate'
+import { stageTitle } from '../../lib/env'
 import { CONFIG } from '../config'
 import { authorizeAdmin, getUsername } from '../lib/auth'
 import { parseJSONWithFallback } from '../lib/json'
@@ -55,6 +56,17 @@ const updateOrCreateTemplate = async (language: Language, template: EmailTemplat
   }
 }
 
+/**
+ * The stack's own SES template from the markdown source. Outside prod the subject names the stage,
+ * "(dev) Ilmoittautumisen vahvistus", so a tester's mailbox tells a dev mail from a prod mail the
+ * way a tab title does (KOE-1671). A template saved before this keeps its subject until it is saved
+ * again: SES renders the stored template, and sending cannot change the subject.
+ */
+const sesTemplate = async (id: string, language: Language, source: string): Promise<EmailTemplateContent> => {
+  const template = await markdownToTemplate(`${id}-${CONFIG.stackName}-${language}`, source)
+  return { ...template, SubjectPart: stageTitle(template.SubjectPart ?? '', CONFIG.stageName) }
+}
+
 const putEmailTemplateLambda = lambda('putEmailTemplate', async (event) => {
   await authorizeAdmin(event)
 
@@ -77,8 +89,8 @@ const putEmailTemplateLambda = lambda('putEmailTemplate', async (event) => {
 
   // Generate SES compatible template for all languages
   data.ses = {
-    en: await markdownToTemplate(`${item.id}-${CONFIG.stackName}-en`, data.en),
-    fi: await markdownToTemplate(`${item.id}-${CONFIG.stackName}-fi`, data.fi),
+    en: await sesTemplate(item.id, 'en', data.en),
+    fi: await sesTemplate(item.id, 'fi', data.fi),
   }
 
   if (data.ses) {
