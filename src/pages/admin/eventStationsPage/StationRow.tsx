@@ -6,7 +6,7 @@ import Grid from '@mui/material/Grid'
 import Typography from '@mui/material/Typography'
 import { useCallback, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
-import { asksDogsAtOnce, DOG_COUNTS, stationDogsAtOnce } from '@/lib/liveFormat'
+import { DOG_COUNTS, liveFormat, stationDogsAtOnce } from '@/lib/liveFormat'
 import { POST_PARTS, POST_TASK_COUNTS, stationParts, stationTaskCount } from '@/lib/rotation'
 import AutocompleteMulti from '../../components/AutocompleteMulti'
 import AutocompleteSingle from '../../components/AutocompleteSingle'
@@ -42,8 +42,9 @@ export const StationRow = ({ event, station, disabled, onChange, onRemove }: Pro
   )
   const handleDogsChange = useCallback((dogsAtOnce: number) => onChange({ dogsAtOnce }), [onChange])
 
-  // Asked only where the format leaves it to the post.
-  const asksDogs = asksDogsAtOnce(event.eventType)
+  // Asked only where the format leaves it to the post. NOME-A runs four whatever anyone types here,
+  // and NOU one, so offering the field there would be offering a lie.
+  const asksDogsAtOnce = liveFormat(event.eventType).dogsAtOnce === undefined
 
   return (
     <Grid
@@ -82,7 +83,7 @@ export const StationRow = ({ event, station, disabled, onChange, onRemove }: Pro
           value={stationParts(station)}
         />
       </Grid>
-      {asksDogs && (
+      {asksDogsAtOnce && (
         <Grid sx={{ width: 150 }}>
           <AutocompleteSingle
             disableClearable

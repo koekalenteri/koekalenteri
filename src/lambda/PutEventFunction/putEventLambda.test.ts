@@ -484,6 +484,7 @@ describe('putEventLambda', () => {
       signIn(mockSecretary)
       getEventMock.mockResolvedValueOnce({
         ...mockEvent,
+        eventType: 'NOWT',
         stations: [{ date: '2026-09-12', id: 'post-1', number: 1 }],
       })
 
@@ -510,7 +511,7 @@ describe('putEventLambda', () => {
       const rotations: EventRotationGroup[] = [
         { class: 'ALO', posts: [{ stationId: 'post-1' }, { stationId: 'post-2' }] },
       ]
-      const stored = { ...mockEvent, rotations, stations: posts }
+      const stored = { ...mockEvent, eventType: 'NOWT', rotations, stations: posts }
 
       it('refuses a patch of the posts alone that removes a post a stored group visits', async () => {
         signIn(mockSecretary)
@@ -535,6 +536,7 @@ describe('putEventLambda', () => {
         const res = await putEventLambda(
           constructAPIGwEvent({
             ...mockEvent,
+            eventType: 'NOWT',
             rotations: [{ class: 'ALO', firstNumber: 9, lastNumber: 1, posts: [{ stationId: 'post-1' }] }],
             stations: posts,
           })
@@ -542,6 +544,18 @@ describe('putEventLambda', () => {
 
         expect(res.statusCode).toEqual(400)
         expect(JSON.parse(res.body)).toMatchObject({ errors: [{ group: 0, kind: 'range' }] })
+      })
+
+      it('leaves the rotation of a type not scored at posts unchecked: nothing reads it', async () => {
+        signIn(mockSecretary)
+        getEventMock.mockResolvedValueOnce({ ...stored, eventType: 'NOME-B' })
+
+        const res = await putEventLambda(
+          constructAPIGwEvent({ id: 'existing', stations: [posts[0]] }, { method: 'PATCH' })
+        )
+
+        expect(res.statusCode).toEqual(200)
+        expect(patchEventMock).toHaveBeenCalled()
       })
 
       it('leaves a patch that touches neither alone, whatever is stored', async () => {

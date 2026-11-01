@@ -14,6 +14,7 @@ import {
 import { hasPaymentLockingRegistrations, paymentTermsDiffer } from '../../lib/payment'
 import { getStartListBlocker, isStartListFlagPublished } from '../../lib/publishing'
 import { groupParticipantsByClass } from '../../lib/registration'
+import { scoresAtPosts } from '../../lib/results'
 import { rotationShapeErrors } from '../../lib/rotation'
 import { eventBodySchema } from '../../lib/schema/event'
 import { legacyEventDay, rekeyEventDays, requestDay } from '../../lib/storedDays'
@@ -204,8 +205,9 @@ const checkMergedEvent = (data: JsonConfirmedEvent, item: Patch<JsonConfirmedEve
   if (invalidDateField) {
     throw httpError(400, { message: `Bad request: ${invalidDateField} must be a valid date` })
   }
-  // Read on the merged event, so a patch of either half still has to fit the other (KOE-1665).
-  if (item.rotations !== undefined || item.stations !== undefined) {
+  // Read on the merged event, so a patch of either half still has to fit the other (KOE-1665). A rotation
+  // matters only where the results are scored at posts; no reader of another type reads one.
+  if (scoresAtPosts(data.eventType) && (item.rotations !== undefined || item.stations !== undefined)) {
     const rotationErrors = rotationShapeErrors(data)
     if (rotationErrors.length) {
       throw httpError(400, {

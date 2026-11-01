@@ -14,7 +14,7 @@ covers:
   - src/pages/admin/eventViewPage/infoPanel/ResultsPublishing.tsx
   - src/pages/admin/components/KcIdLookupButton.tsx
   - src/pages/admin/components/StartDaySelector.tsx
-sourceHash: bf6c2a
+sourceHash: c396d9
 ---
 
 On the trial day the secretary's job is to record what the dogs did and to get the results in
@@ -84,20 +84,21 @@ another's in pairs: the post's entry view puts as many dogs in a turn as the gro
 head of the queue takes, and the start list's wait estimate counts the turns left group by group
 with the same figures. In a three-class trial, for example, ALO goes round posts 1, 2 and 3 and does
 two tasks at post 3, AVO goes round 3, 1 and 2 and VOI 2, 3 and 1, and every class has a maximum of
-80. Three groups added in a row go round 1, 2, 3; 2, 3, 1 and 3, 1, 2, so this rotation is two class
-changes away from the suggestion: the second group's class is changed to VOI and the third's to AVO.
-In a one-class trial the rotation is split by start number, for example numbers 1 - 8 start at post
-1 and 9 - 16 at post 2.
+80. After two tasks are marked at the first group's last post, three groups added in a row go round
+1, 2, 3; 2, 3, 1 and 3, 1, 2, each with two tasks at its own last post, so this rotation is two
+class changes away from the suggestion: the second group's class is changed to VOI and the third's
+to AVO. In a one-class trial the rotation is split by start number, for example numbers 1 - 8 start
+at post 1 and 9 - 16 at post 2.
 
-Below the posts each post reads as the groups reach it, for example "Station 1: ALO, AVO, VOI
-(x 2)": "(x 2)" says the group does two tasks there, and "(2 parts)" that the task is split in two
+Below the posts each post reads as the groups reach it, for example "Station 1: ALO, AVO, VOI (x
+2)": "(x 2)" says the group does two tasks there, and "(2 parts)" that the task is split in two
 parts. The number ranges of one class must not overlap, and a range cannot stand beside a group of
 the whole class. When a class is split into number ranges and a participant falls outside every
 range, the page lists the reasons and does not save. A post of the day that is removed leaves every
 round, and a group left with no post is removed. If a dog's number later moves outside the ranges,
-the dog goes with the nearest group: past the last range with the last group, before the first range with the first, and between ranges with the lower group; a dog
-without a number goes with the first group. A dog's round is always made of the posts of its own
-trial day.
+the dog goes with the nearest group: past the last range with the last group, before the first range
+with the first, and between ranges with the lower group; a dog without a number goes with the first
+group. A dog's round is always made of the posts of its own trial day.
 
 !shot[EventStationsPage/event-stations-rotation] A three-class rotation: each class starts at a different post and does two tasks at its last
 

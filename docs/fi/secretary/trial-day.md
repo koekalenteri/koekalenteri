@@ -84,10 +84,12 @@ rastin oletusta. Sama rasti voi siten ottaa yhden luokan koirat yksitellen ja to
 rastin kirjausnäkymä nostaa vuoroon jonon kärjessä olevan koiran ryhmän koiramäärän, ja lähtölistan
 odotusarvio laskee jäljellä olevat vuorot ryhmittäin samalla määrällä. Esimerkiksi kolmen luokan
 kokeessa ALO kiertää rastit 1, 2 ja 3 ja tekee rastilla 3 kaksi tehtävää, AVO kiertää 3, 1 ja 2 ja
-VOI 2, 3 ja 1, jolloin jokaisen luokan enimmäispistemäärä on 80. Kolme peräkkäin lisättyä ryhmää
-kiertävät 1, 2, 3; 2, 3, 1 ja 3, 1, 2, joten tämä kierto on kahden luokanvaihdon päässä
-ehdotuksesta: toisen ryhmän luokaksi valitaan VOI ja kolmannen AVO. Yhden luokan kokeessa kierto
-jaetaan koenumeroilla, esimerkiksi numerot 1 - 8 aloittavat rastilta 1 ja 9 - 16 rastilta 2.
+VOI 2, 3 ja 1, jolloin jokaisen luokan enimmäispistemäärä on 80. Kun ensimmäisen ryhmän viimeiselle
+rastille on merkitty kaksi tehtävää ennen kahden muun lisäämistä, kolme peräkkäin lisättyä ryhmää
+kiertävät 1, 2, 3; 2, 3, 1 ja 3, 1, 2, kukin kahdella tehtävällä omalla viimeisellä rastillaan,
+joten tämä kierto on kahden luokanvaihdon päässä ehdotuksesta: toisen ryhmän luokaksi valitaan VOI
+ja kolmannen AVO. Yhden luokan kokeessa kierto jaetaan koenumeroilla, esimerkiksi numerot 1 - 8
+aloittavat rastilta 1 ja 9 - 16 rastilta 2.
 
 Rastien alla näkyy jokainen rasti sellaisena kuin ryhmät sille saapuvat, esimerkiksi "Rasti 1: ALO,
 AVO, VOI (x 2)": "(x 2)" kertoo, että ryhmä tekee rastilla kaksi tehtävää, ja "(2 osaa)", että

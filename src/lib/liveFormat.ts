@@ -106,12 +106,6 @@ export const MAX_DOGS_AT_ONCE = 10
 export const DOG_COUNTS: readonly number[] = Array.from({ length: MAX_DOGS_AT_ONCE }, (_unused, index) => index + 1)
 
 /**
- * Whether the post is asked how many dogs it takes at once. NOME-A runs four whatever anyone types and
- * NOU one, so offering the field there would be offering a lie.
- */
-export const asksDogsAtOnce = (eventType?: string): boolean => liveFormat(eventType).dogsAtOnce === undefined
-
-/**
  * How many dogs one turn at this post holds.
  *
  * The format's own number wins where it has one — NOME-A is four whatever anyone configures — and
