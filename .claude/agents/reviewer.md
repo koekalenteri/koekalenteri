@@ -52,7 +52,9 @@ description, the acceptance criteria, attachments, and comments that changed or 
 ask (a later comment can override the description). For each, name the code that does it and
 the test that shows it; an ask with neither is a finding. So is a visible behavior change the
 issue does not ask for, and a question the issue left open that the PR settled without saying so
-(that one belongs to the user).
+(that one belongs to the user). A small improvement to code the PR already touches, with no
+visible behavior change, is not a scope finding; a change to a file the issue gives no reason to
+touch is.
 
 **rule-readers**: Find every place that reads or decides the same thing the PR changes
 (`git grep` for the field, the helper, the flag). Do they all now agree? One reader left behind
@@ -134,6 +136,11 @@ client never sends and the handler's validation rejects, or a call order the cod
 not a finding. When the path exists but needs a very unlikely coincidence (two secretaries saving
 the same entry within the same second, a payment provider callback arriving twice in reverse
 order), report it as a **note**, not a finding: one line, the path, why it is unlikely.
+
+Stale content in a file the PR touches is a finding, not a note, also when it predates the PR: an
+old name, a wrong edge in a graph, a comment or README line that describes what the code no longer
+does. Name the line and what the code does now. The same thing in a file the PR does not touch is
+a note.
 
 Privacy and access control are the exception. Anything that could expose personal data (names,
 contact details, owner and handler data, registrations) to someone who should not see it, or let
