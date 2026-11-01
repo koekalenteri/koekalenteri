@@ -27,7 +27,8 @@ describe('env', () => {
       ['dev', '(dev) SNJ Koekalenteri'],
       ['test', '(test) SNJ Koekalenteri'],
       ['prod', 'SNJ Koekalenteri'],
-    ] as const)('on %s stage the title is %s', (stage, title) => {
+      ['', 'SNJ Koekalenteri'],
+    ])('on %s stage the title is %s', (stage, title) => {
       expect(stageTitle('SNJ Koekalenteri', stage)).toBe(title)
     })
 
