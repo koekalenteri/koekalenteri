@@ -1,7 +1,15 @@
 import type { TFunction } from 'i18next'
-import type { EventClass, EventRotationGroup, EventStation, StationVisitLayout } from '../types'
+import type {
+  EventClass,
+  EventRotationGroup,
+  EventRotationPost,
+  EventStation,
+  RegistrationClass,
+  StationVisitLayout,
+} from '../types'
 import type { SortableRegistration } from './registration'
 import { compareRegistrationClasses } from './event'
+import { stationDogsAtOnce } from './liveFormat'
 import {
   getRegistrationClass,
   getRegistrationGroupDay,
@@ -31,7 +39,44 @@ export const POST_PARTS: readonly (1 | 2)[] = [1, 2]
 /** The tasks a group may do at one post. Three is room enough; a fourth would be a post of its own. */
 export const POST_TASK_COUNTS: readonly number[] = [1, 2, 3]
 
-export type RotationStation = Pick<EventStation, 'id' | 'number' | 'date' | 'parts' | 'tasks' | 'taskCount'>
+export type RotationStation = Pick<
+  EventStation,
+  'id' | 'number' | 'date' | 'parts' | 'tasks' | 'taskCount' | 'dogsAtOnce'
+>
+
+/** What a group does at one post, every figure given: a visit's own or the post's default. */
+export interface VisitSettings {
+  taskCount: number
+  parts: 1 | 2
+  dogsAtOnce: number
+}
+
+/** A post's own dogs at once as a visit compares with it, read as the turns read it; no format fixes it here. */
+const stationDogs = (station: Pick<EventStation, 'dogsAtOnce'>): number => stationDogsAtOnce(undefined, station)
+
+/** What a visit does at its post, the post's defaults filled in where the visit sets nothing. */
+export const visitSettingsOf = (
+  station: Pick<EventStation, 'parts' | 'tasks' | 'taskCount' | 'dogsAtOnce'>,
+  post: Omit<EventRotationPost, 'stationId'> = {}
+): VisitSettings => ({
+  dogsAtOnce: post.dogsAtOnce ?? stationDogs(station),
+  parts: post.parts ?? stationParts(station),
+  taskCount: post.taskCount ?? stationTaskCount(station),
+})
+
+/**
+ * A visit as a group stores it. A value equal to the post's own default is left out, so the visit
+ * follows the post when its default changes later.
+ */
+export const rotationVisitOf = (
+  station: Pick<EventStation, 'id' | 'parts' | 'tasks' | 'taskCount' | 'dogsAtOnce'>,
+  { taskCount, parts, dogsAtOnce }: VisitSettings
+): EventRotationPost => ({
+  stationId: station.id,
+  ...(taskCount === stationTaskCount(station) ? {} : { taskCount }),
+  ...(parts === stationParts(station) ? {} : { parts }),
+  ...(dogsAtOnce === stationDogs(station) ? {} : { dogsAtOnce }),
+})
 
 /** What the rotation reads of an event. */
 export interface RotationEvent {
@@ -44,10 +89,14 @@ export interface RotationEvent {
 /**
  * What of an event decides the dogs' rounds, and nothing else: a post's judges, its link token or its
  * phases change no round, so an event save that changes only those reads no registration (KOE-1666).
+ * Neither does how many dogs a post or a group's visit takes at once: it changes no round and no score.
  */
 export const roundInputsOf = (event: RotationEvent) => ({
   classes: (event.classes ?? []).map((item) => ({ class: item.class, day: getRegistrationGroupDay(item.date) })),
-  rotations: event.rotations ?? [],
+  rotations: (event.rotations ?? []).map((group) => ({
+    ...group,
+    posts: group.posts.map(({ dogsAtOnce: _dogs, ...post }) => post),
+  })),
   stations: (event.stations ?? []).map((station) => ({
     day: stationDay(station),
     id: station.id,
@@ -185,7 +234,15 @@ const groupVisits = (event: RotationEvent, group: RotationGroup): RotationVisit[
     const station = stationById(event, post.stationId)
     if (!station) continue
     const tasks = post.taskCount ?? stationTaskCount(station)
-    visits.push({ parts: post.parts ?? stationParts(station), position: visits.length, station, tasks, tasksBefore })
+    const dogsAtOnce = post.dogsAtOnce ?? station.dogsAtOnce
+    visits.push({
+      parts: post.parts ?? stationParts(station),
+      position: visits.length,
+      station,
+      tasks,
+      tasksBefore,
+      ...(dogsAtOnce === undefined ? {} : { dogsAtOnce }),
+    })
     tasksBefore += tasks
   }
   return visits
@@ -222,18 +279,32 @@ export const stationArrivals = (event: RotationEvent, stationId: string): Statio
     .sort(compareArrivals)
 }
 
+/** What the link is sent of a visit: the layout, without the post and the place in the round. */
+const visitLayoutOf = ({ parts, tasks, tasksBefore, dogsAtOnce }: RotationVisit): StationVisitLayout => ({
+  parts,
+  tasks,
+  tasksBefore,
+  ...(dogsAtOnce === undefined ? {} : { dogsAtOnce }),
+})
+
+/** A group told apart from the others of its day: its class and where its range starts. */
+const groupKey = (group: RotationGroup) => `${group.class}#${group.firstNumber ?? ''}`
+
 /**
- * The dogs that come to a post, in the order their groups reach it and, within a group, in start order,
- * each with what its group does there. A dog whose group does not visit the post, a dog of another day
- * among them, is not in the queue. The station link and the secretary's view of a post read the same
- * queue.
+ * The dogs that come to a post split by group, the groups in the order they reach it and the dogs of
+ * each in start order, each group with what it does there. A dog whose group does not visit the post,
+ * a dog of another day among them, is not in the queue.
+ *
+ * A dog is placed by its start number. Where a class is split into number ranges and its numbers are
+ * not out yet (the public start list before they are published), every dog of the class is placed with
+ * its first range's group, and that group stands for the whole class.
  */
-export const stationQueue = <T extends Registrationish>(
+export const stationQueueByGroup = <T extends Registrationish>(
   event: RotationEvent,
   stationId: string,
   registrations: readonly T[]
-): { registration: T; visit: StationVisitLayout }[] =>
-  registrations
+): { registrations: T[]; visit: StationVisitLayout }[] => {
+  const arrivals = registrations
     .flatMap((registration) => {
       const group = rotationGroupOf(event, rotationDogOf(registration))
       const visit = groupStationVisit(event, group, stationId)
@@ -244,10 +315,66 @@ export const stationQueue = <T extends Registrationish>(
         compareArrivals(a.arrival, b.arrival) ||
         sortRegistrationsByDateClassTimeAndNumber(a.registration, b.registration)
     )
-    .map(({ arrival: { parts, tasks, tasksBefore }, registration }) => ({
-      registration,
-      visit: { parts, tasks, tasksBefore },
-    }))
+
+  const groups: { key: string; registrations: T[]; visit: StationVisitLayout }[] = []
+  for (const { arrival, registration } of arrivals) {
+    const key = groupKey(arrival.group)
+    const last = groups.at(-1)
+    if (last?.key === key) last.registrations.push(registration)
+    else groups.push({ key, registrations: [registration], visit: visitLayoutOf(arrival) })
+  }
+  return groups.map(({ registrations: dogs, visit }) => ({ registrations: dogs, visit }))
+}
+
+/**
+ * The dogs that come to a post, in the order their groups reach it and, within a group, in start order,
+ * each with what its group does there. The station link and the secretary's view of a post read the
+ * same queue.
+ */
+export const stationQueue = <T extends Registrationish>(
+  event: RotationEvent,
+  stationId: string,
+  registrations: readonly T[]
+): { registration: T; visit: StationVisitLayout }[] =>
+  stationQueueByGroup(event, stationId, registrations).flatMap(({ registrations: dogs, visit }) =>
+    dogs.map((registration) => ({ registration, visit }))
+  )
+
+/**
+ * The group a secretary adds next on a day (KOE-1665). The rotation usually turns the same way for
+ * every group, so it follows the day's last group: its posts moved on by one, starting at the post the
+ * previous group visited second and wrapping round. What a column does (tasks, parts, dogs at once)
+ * stays with the column, so "two tasks at the last post" is at the new group's own last post; it is
+ * read off the previous post and stored against the new one. The class is the first of the day without
+ * a group; once every class has one, the previous group's, its range going on from the previous range.
+ * The day's first group goes round the posts in number order with the first class.
+ *
+ * `stations` are the day's posts in number order, `dayGroups` the stored groups of the day in list order.
+ */
+export const nextRotationGroup = (
+  stations: readonly RotationStation[],
+  classes: readonly RegistrationClass[],
+  dayGroups: readonly EventRotationGroup[]
+): EventRotationGroup => {
+  const withoutGroup = classes.find((item) => !dayGroups.some((group) => group.class === item))
+  const previous = dayGroups.at(-1)
+  if (!previous)
+    return { class: withoutGroup ?? classes[0], posts: stations.map((station) => ({ stationId: station.id })) }
+
+  const stationOf = (post: EventRotationPost) => stations.find((station) => station.id === post.stationId)
+  const posts = previous.posts.flatMap((post, at) => {
+    const from = stationOf(post)
+    const to = stationOf(previous.posts[(at + 1) % previous.posts.length])
+    return from && to ? [rotationVisitOf(to, visitSettingsOf(from, post))] : []
+  })
+
+  if (withoutGroup) return { class: withoutGroup, posts }
+  return {
+    class: previous.class,
+    ...(previous.lastNumber === undefined ? {} : { firstNumber: previous.lastNumber + 1 }),
+    posts,
+  }
+}
 
 /** Why a stored rotation cannot be read. `group` is the index in `rotations`. */
 type RotationShapeError =

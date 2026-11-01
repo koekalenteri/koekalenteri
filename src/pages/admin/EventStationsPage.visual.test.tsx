@@ -67,7 +67,7 @@ it("lays out the course under each of the trial's days", async () => {
 })
 
 // The organiser's map of KOE-1665: three judges at three posts, each class starting at a different
-// post and doing two tasks at its last.
+// post and doing two tasks at its last. VOI does its first post in pairs.
 const judge = (id: number, name: string) => ({ id, name })
 const rotationEvent: ConfirmedEvent = {
   ...eventWithStations,
@@ -80,7 +80,10 @@ const rotationEvent: ConfirmedEvent = {
   rotations: [
     { class: 'ALO', posts: [{ stationId: 'r1' }, { stationId: 'r2' }, { stationId: 'r3', taskCount: 2 }] },
     { class: 'AVO', posts: [{ stationId: 'r3' }, { stationId: 'r1' }, { stationId: 'r2', taskCount: 2 }] },
-    { class: 'VOI', posts: [{ stationId: 'r2' }, { stationId: 'r3' }, { stationId: 'r1', taskCount: 2 }] },
+    {
+      class: 'VOI',
+      posts: [{ dogsAtOnce: 2, stationId: 'r2' }, { stationId: 'r3' }, { stationId: 'r1', taskCount: 2 }],
+    },
   ],
   stations: [1, 2, 3].map((number) => ({
     date: RESULTS_EVENT_DAY,

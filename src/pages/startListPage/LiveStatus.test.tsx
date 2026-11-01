@@ -1,8 +1,12 @@
 import type { PublicConfirmedEvent } from '../../types/Event'
 import { render, screen } from '@testing-library/react'
+import { describeWithTranslations } from '@/test-utils/language'
 import { LiveStatus } from './LiveStatus'
 
 vi.mock('../../api/event')
+vi.mock('react-i18next', async (importOriginal) =>
+  (await import('@/test-utils/language')).spyOnUseTranslation(importOriginal)
+)
 
 const baseEvent = {
   eventType: 'NOWT',
@@ -61,7 +65,12 @@ describe('LiveStatus', () => {
     // Today, so the day is still live; closed, so the last dog is through.
     const minutesAgo = (minutes: number) => new Date(Date.now() - minutes * 60000)
     const done = turn({ endedAt: minutesAgo(10), startedAt: minutesAgo(17) })
-    render(<LiveStatus event={{ ...baseEvent, liveTurns: [done] }} participants={[{}]} />)
+    render(
+      <LiveStatus
+        event={{ ...baseEvent, liveTurns: [done] }}
+        participants={[{ class: 'AVO', group: { date: '2026-09-12', key: 'x', number: 5 } }]}
+      />
+    )
 
     expect(screen.getByText(/liveStatus\.allThrough/)).toBeInTheDocument()
     expect(screen.queryByText('liveStatus.free')).not.toBeInTheDocument()
@@ -130,7 +139,11 @@ describe('LiveStatus', () => {
         turn({ id: 'open', startedAt: new Date('2026-09-12T08:07:00Z') }),
       ],
     } as PublicConfirmedEvent
-    const participants = [{}, {}, {}, {}, { cancelled: true }]
+    const participants = [1, 2, 3, 4, 5].map((number) => ({
+      class: 'AVO',
+      group: { date: '2026-09-12' as const, key: 'x', number },
+      ...(number === 5 ? { cancelled: true } : {}),
+    }))
 
     render(<LiveStatus event={event} participants={participants} />)
 
@@ -170,5 +183,69 @@ describe('LiveStatus', () => {
     render(<LiveStatus event={event} />)
 
     expect(screen.getByText(/5 Ensimmainen \(liveStatus\.mark\.gotRetrieve\)/)).toBeInTheDocument()
+  })
+})
+
+describeWithTranslations('fi', () => {
+  beforeAll(() => {
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date('2026-09-12T12:00:00Z'))
+  })
+  afterAll(() => vi.useRealTimers())
+
+  // ALO takes post 1 in pairs, though the post takes one at a time; AVO never comes to post 1.
+  const rotationEvent = {
+    ...baseEvent,
+    liveTurns: [
+      turn({ endedAt: new Date('2026-09-12T08:07:00Z'), id: 'done' }),
+      turn({ id: 'open', startedAt: new Date('2026-09-12T08:07:00Z') }),
+    ],
+    rotations: [
+      { class: 'ALO', posts: [{ dogsAtOnce: 2, stationId: 'post-1' }, { stationId: 'post-2' }] },
+      { class: 'AVO', posts: [{ stationId: 'post-2' }] },
+    ],
+    stations: [
+      { date: '2026-09-12', dogsAtOnce: 1, id: 'post-1', number: 1, parts: 1 },
+      { date: '2026-09-12', id: 'post-2', number: 2, parts: 1 },
+    ],
+  } as PublicConfirmedEvent
+  const entered = (eventClass: string, number: number) => ({
+    class: eventClass,
+    group: { date: '2026-09-12' as const, key: 'x', number },
+  })
+  const participants = [
+    ...[1, 2, 3, 4].map((number) => entered('ALO', number)),
+    ...[5, 6, 7].map((number) => entered('AVO', number)),
+    { ...entered('ALO', 8), cancelled: true },
+  ]
+
+  it("queues the whole entry at the post of a type not scored at posts, with the post's own figure", () => {
+    // NOME-B: one post that takes four at a time. Twelve dogs in two classes, four through: eight
+    // left is two turns. Split per class it would have been three (two and two of AVO's and VOI's six).
+    const event = {
+      ...baseEvent,
+      eventType: 'NOME-B',
+      liveTurns: [
+        turn({
+          dogs: ['A', 'B', 'C', 'D'].map((name, at) => ({ name, number: at + 1 })),
+          endedAt: new Date('2026-09-12T08:07:00Z'),
+          id: 'done',
+        }),
+      ],
+      stations: [{ date: '2026-09-12', dogsAtOnce: 4, id: 'post-1', number: 1, parts: 1 }],
+    } as PublicConfirmedEvent
+    const twelve = Array.from({ length: 12 }, (_unused, at) => entered(at < 6 ? 'AVO' : 'VOI', at + 1))
+
+    render(<LiveStatus event={event} participants={twelve} />)
+
+    expect(screen.getByText('Jonoa jäljellä n. 14–14 min (2 vuoroa)')).toBeInTheDocument()
+  })
+
+  it('counts the turns ahead at a post with the dogs at once of each group that comes to it (KOE-1665)', () => {
+    render(<LiveStatus event={rotationEvent} participants={participants} />)
+
+    // Four ALO dogs come to post 1, one is through: three left in pairs is two turns of 7 minutes.
+    // AVO's three are not in the queue, and the post's own one-at-a-time would have said three turns.
+    expect(screen.getByText('Jonoa jäljellä n. 14–14 min (2 vuoroa)')).toBeInTheDocument()
   })
 })

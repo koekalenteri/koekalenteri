@@ -50,7 +50,7 @@ export interface LivePhase {
 interface LiveFormat {
   /** Whether the day rotates between several posts or runs at one implicit post. */
   posts: 'one' | 'many'
-  /** Dogs per turn where the format fixes it. Absent leaves it to the post's own form. */
+  /** Dogs per turn where the format fixes it. Absent leaves it to the post's default, or the group's own figure at the post. */
   dogsAtOnce?: number
   flow: LiveFlow
   tasks: LiveTaskModel
@@ -84,7 +84,7 @@ const NOU_PHASES: readonly LivePhase[] = [{ key: 'briefing', whole: true }, { ke
 
 /** One post, whose phases the post's own secretary writes down, since a B trial's day varies. */
 const NOME_B: LiveFormat = { flow: 'queue', marks: [], posts: 'one', tasks: 'phases' }
-/** Four or five posts that the classes rotate past; each post's own form says how many dogs. */
+/** Four or five posts that the classes rotate past; the post's default or the group's own figure there says how many dogs. */
 const NOWT: LiveFormat = { flow: 'queue', marks: [], posts: 'many', tasks: 'post' }
 
 const LIVE_FORMATS = new Map<string, LiveFormat>([
@@ -102,17 +102,21 @@ export const liveFormat = (eventType?: string): LiveFormat => LIVE_FORMATS.get(e
 /** A whole entry never runs at once; more dogs than this is a malformed request, not a walk-up. */
 export const MAX_DOGS_AT_ONCE = 10
 
+/** The counts a post or a group's visit may take at once. */
+export const DOG_COUNTS: readonly number[] = Array.from({ length: MAX_DOGS_AT_ONCE }, (_unused, index) => index + 1)
+
 /**
  * How many dogs one turn at this post holds.
  *
  * The format's own number wins where it has one — NOME-A is four whatever anyone configures — and
- * otherwise it is the post's own form, which is where a walk-up is described. One when neither says.
+ * otherwise it is the figure given: the post's own form, or what a rotation group does at the post
+ * (its `StationVisitLayout`, KOE-1665), which is where a walk-up is described. One when neither says.
  */
-export const stationDogsAtOnce = (eventType?: string, station?: Pick<EventStation, 'dogsAtOnce'>): number => {
+export const stationDogsAtOnce = (eventType?: string, given?: Pick<EventStation, 'dogsAtOnce'>): number => {
   const fixed = liveFormat(eventType).dogsAtOnce
   if (fixed) return fixed
 
-  const own = station?.dogsAtOnce ?? 0
+  const own = given?.dogsAtOnce ?? 0
   if (own < 1) return 1
   return Math.min(own, MAX_DOGS_AT_ONCE)
 }

@@ -206,7 +206,14 @@ export function StationScoring({
 
   /** The queue as the turn controls need it, for picking a walk-up out of the class on show. */
   const turnDogs = useMemo(
-    () => dogs.map((dog) => ({ done: isScored(dog), id: dog.id, name: dog.dog.name, number: dog.group?.number })),
+    () =>
+      dogs.map((dog) => ({
+        done: isScored(dog),
+        id: dog.id,
+        name: dog.dog.name,
+        number: dog.group?.number,
+        visit: dog.visit,
+      })),
     [dogs, isScored]
   )
 

@@ -6,7 +6,7 @@ import Grid from '@mui/material/Grid'
 import Typography from '@mui/material/Typography'
 import { useCallback, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
-import { liveFormat, MAX_DOGS_AT_ONCE, stationDogsAtOnce } from '@/lib/liveFormat'
+import { DOG_COUNTS, liveFormat, stationDogsAtOnce } from '@/lib/liveFormat'
 import { POST_PARTS, POST_TASK_COUNTS, stationParts, stationTaskCount } from '@/lib/rotation'
 import AutocompleteMulti from '../../components/AutocompleteMulti'
 import AutocompleteSingle from '../../components/AutocompleteSingle'
@@ -21,8 +21,6 @@ interface Props {
 
 const judgeLabel = (judge?: PublicJudge) => judge?.name ?? ''
 const sameJudge = (a: PublicJudge, b: PublicJudge) => a.id === b.id
-/** One, a pair task, a walk-up — and room for a wider one without a code change. */
-const DOG_COUNTS: number[] = Array.from({ length: MAX_DOGS_AT_ONCE }, (_unused, index) => index + 1)
 
 export const StationRow = ({ event, station, disabled, onChange, onRemove }: Props) => {
   const { t } = useTranslation()

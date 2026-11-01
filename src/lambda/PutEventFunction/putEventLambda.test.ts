@@ -484,6 +484,7 @@ describe('putEventLambda', () => {
       signIn(mockSecretary)
       getEventMock.mockResolvedValueOnce({
         ...mockEvent,
+        eventType: 'NOWT',
         stations: [{ date: '2026-09-12', id: 'post-1', number: 1 }],
       })
 
@@ -510,7 +511,7 @@ describe('putEventLambda', () => {
       const rotations: EventRotationGroup[] = [
         { class: 'ALO', posts: [{ stationId: 'post-1' }, { stationId: 'post-2' }] },
       ]
-      const stored = { ...mockEvent, rotations, stations: posts }
+      const stored = { ...mockEvent, eventType: 'NOWT', rotations, stations: posts }
 
       it('refuses a patch of the posts alone that removes a post a stored group visits', async () => {
         signIn(mockSecretary)
@@ -535,6 +536,7 @@ describe('putEventLambda', () => {
         const res = await putEventLambda(
           constructAPIGwEvent({
             ...mockEvent,
+            eventType: 'NOWT',
             rotations: [{ class: 'ALO', firstNumber: 9, lastNumber: 1, posts: [{ stationId: 'post-1' }] }],
             stations: posts,
           })
@@ -542,6 +544,18 @@ describe('putEventLambda', () => {
 
         expect(res.statusCode).toEqual(400)
         expect(JSON.parse(res.body)).toMatchObject({ errors: [{ group: 0, kind: 'range' }] })
+      })
+
+      it('leaves the rotation of a type not scored at posts unchecked: nothing reads it', async () => {
+        signIn(mockSecretary)
+        getEventMock.mockResolvedValueOnce({ ...stored, eventType: 'NOME-B' })
+
+        const res = await putEventLambda(
+          constructAPIGwEvent({ id: 'existing', stations: [posts[0]] }, { method: 'PATCH' })
+        )
+
+        expect(res.statusCode).toEqual(200)
+        expect(patchEventMock).toHaveBeenCalled()
       })
 
       it('leaves a patch that touches neither alone, whatever is stored', async () => {
@@ -1368,6 +1382,14 @@ describe('putEventLambda', () => {
     [
       { rotations: [{ class: 'ALO', posts: [{ stationId: 'post-1', taskCount: 0 }] }] },
       'rotations.0.posts.0.taskCount must be at least 1',
+    ],
+    [
+      { rotations: [{ class: 'ALO', posts: [{ dogsAtOnce: 0, stationId: 'post-1' }] }] },
+      'rotations.0.posts.0.dogsAtOnce must be at least 1',
+    ],
+    [
+      { rotations: [{ class: 'ALO', posts: [{ dogsAtOnce: 11, stationId: 'post-1' }] }] },
+      'rotations.0.posts.0.dogsAtOnce must be at most 10',
     ],
   ])('should return 400 for %p before looking the event up', async (body, message) => {
     signIn(mockSecretary)
@@ -2196,6 +2218,15 @@ describe('putEventLambda', () => {
       expect(mockReadEventRegistrations).not.toHaveBeenCalled()
     })
 
+    it('reads no registration when only the dogs a post takes at once change (KOE-1665)', async () => {
+      getEventMock.mockResolvedValue({ ...nowtEvent, kcState: handedOverState })
+
+      const res = await patchStations([{ ...posts[0], dogsAtOnce: 2 }, posts[1]])
+
+      expect(res.statusCode).toEqual(200)
+      expect(mockReadEventRegistrations).not.toHaveBeenCalled()
+    })
+
     it('refuses a change that would alter a result of a trial handed to the judge, and writes nothing', async () => {
       await record(nowtEvent, { 'dog-a': scores([10, 20], 10) })
       getEventMock.mockResolvedValue({ ...nowtEvent, kcState: handedOverState })
@@ -2322,6 +2353,19 @@ describe('putEventLambda', () => {
 
         expect(res.statusCode).toEqual(200)
         expect(eventResultOf('dog-a')).toMatchObject({ maxPoints: 40, points: 30, result: 'ALO2' })
+      })
+
+      it("reads no registration when only the group's dogs at once at a post change", async () => {
+        getEventMock.mockResolvedValue({ ...rotated, kcState: handedOverState })
+        const pairs: EventRotationGroup = {
+          ...group(2),
+          posts: group(2).posts.map((post) => ({ ...post, dogsAtOnce: 2 })),
+        }
+
+        const res = await patchRotations([pairs])
+
+        expect(res.statusCode).toEqual(200)
+        expect(mockReadEventRegistrations).not.toHaveBeenCalled()
       })
 
       it('leaves the results alone when only the order of the posts changes', async () => {

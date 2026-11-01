@@ -1,4 +1,5 @@
-import { integer, literal, minValue, optional, pipe, union } from 'valibot'
+import { integer, literal, maxValue, minValue, optional, pipe, union } from 'valibot'
+import { MAX_DOGS_AT_ONCE } from '../liveFormat'
 import { arrayOf, bool, maybe, num, objectOf, oneOf, str } from './common'
 
 const cost = union([num, objectOf({})], 'must be a number or an object')
@@ -10,7 +11,15 @@ const parts = union([literal(1), literal(2)], 'must be 1 or 2')
 /** A post's own layout; the rest of a post is the Rastit page's to shape. */
 const station = objectOf({ parts: optional(parts), taskCount: optional(count) })
 
-const rotationPost = objectOf({ parts: optional(parts), stationId: str, taskCount: optional(count) })
+/** A walk-up of a group, at most what the Rastit page offers. */
+const dogsAtOnce = pipe(count, maxValue(MAX_DOGS_AT_ONCE, `must be at most ${MAX_DOGS_AT_ONCE}`))
+
+const rotationPost = objectOf({
+  dogsAtOnce: optional(dogsAtOnce),
+  parts: optional(parts),
+  stationId: str,
+  taskCount: optional(count),
+})
 
 /**
  * A rotation group. Whether its range is whole, what its posts name and whether two groups share a

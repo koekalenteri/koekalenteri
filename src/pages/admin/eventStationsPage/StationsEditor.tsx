@@ -8,6 +8,7 @@ import { nanoid } from 'nanoid'
 import { memo, useCallback, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { getEventDays } from '@/lib/event'
+import { scoresAtPosts } from '@/lib/results'
 import { rotationGroupDay, stationParts } from '@/lib/rotation'
 import { RotationEditor } from './RotationEditor'
 import { StationRow } from './StationRow'
@@ -117,6 +118,8 @@ function StationsEditor({ event, disabled, onChange }: Props) {
     [setStations, stations]
   )
 
+  const rotates = scoresAtPosts(event.eventType)
+
   return (
     <Grid
       container
@@ -149,13 +152,16 @@ function StationsEditor({ event, disabled, onChange }: Props) {
               </Button>
             </Grid>
           </Grid>
-          <RotationEditor
-            day={day}
-            disabled={disabled}
-            event={event}
-            heading={days.length > 1 ? 'h3' : 'h2'}
-            onChange={setRotations}
-          />
+          {/* A rotation decides where the dogs are scored, so only the types scored at posts have one. */}
+          {rotates && (
+            <RotationEditor
+              day={day}
+              disabled={disabled}
+              event={event}
+              heading={days.length > 1 ? 'h3' : 'h2'}
+              onChange={setRotations}
+            />
+          )}
         </Box>
       ))}
     </Grid>

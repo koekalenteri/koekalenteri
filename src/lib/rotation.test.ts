@@ -6,6 +6,7 @@ import {
   dayStations,
   formatRotationGroup,
   formatStationArrivals,
+  nextRotationGroup,
   rotationCoverageErrors,
   rotationDogOf,
   rotationGroupOf,
@@ -16,6 +17,7 @@ import {
   stationArrivals,
   stationParts,
   stationQueue,
+  stationQueueByGroup,
 } from './rotation'
 
 const DAY: DayKey = '2026-09-12'
@@ -250,11 +252,158 @@ describe('stationQueue', () => {
     expect(stationQueue(event, 'post-1', [dog('other-day', 'ALO', 1, OTHER_DAY)])).toEqual([])
   })
 
+  it("gives each dog its group's own dogs at once, or the post's where the group sets none", () => {
+    const pairs = {
+      rotations: [
+        { class: 'ALO' as const, posts: [{ dogsAtOnce: 1, stationId: 'post-1' }] },
+        { class: 'AVO' as const, posts: [{ stationId: 'post-1' }] },
+      ],
+      stations: [{ ...post(1), dogsAtOnce: 2 }],
+    }
+
+    expect(
+      stationQueue(pairs, 'post-1', [dog('avo', 'AVO', 2), dog('alo', 'ALO', 1)]).map(({ registration, visit }) => [
+        registration.id,
+        visit.dogsAtOnce,
+      ])
+    ).toEqual([
+      ['alo', 1],
+      ['avo', 2],
+    ])
+  })
+
   it('reads the frozen number over the working order', () => {
     expect(rotationDogOf({ ...dog('a', 'AVO', 3), startGroup: { date: DAY, key: 'x', number: 12 } })).toEqual({
       class: 'AVO',
       day: DAY,
       number: 12,
+    })
+  })
+})
+
+describe('stationQueueByGroup', () => {
+  const dog = (id: string, eventClass: 'ALO' | 'AVO', number: number) => ({
+    class: eventClass,
+    eventType: 'NOWT',
+    group: { date: DAY, key: 'x', number, time: 'kp' as const },
+    id,
+  })
+
+  it('splits the queue of a post into its groups as they reach it, each with what it does there', () => {
+    const ranged = {
+      rotations: [
+        {
+          class: 'AVO' as const,
+          firstNumber: 1,
+          lastNumber: 2,
+          posts: [{ stationId: 'post-2' }, { stationId: 'post-1' }],
+        },
+        { class: 'AVO' as const, firstNumber: 3, lastNumber: 4, posts: [{ dogsAtOnce: 2, stationId: 'post-1' }] },
+      ],
+      stations: [post(1), post(2)],
+    }
+    const dogs = [dog('a1', 'AVO', 1), dog('a3', 'AVO', 3), dog('a2', 'AVO', 2), dog('a4', 'AVO', 4)]
+
+    expect(
+      stationQueueByGroup(ranged, 'post-1', dogs).map(({ registrations, visit }) => [
+        registrations.map((registration) => registration.id),
+        visit.dogsAtOnce,
+      ])
+    ).toEqual([
+      [['a3', 'a4'], 2],
+      [['a1', 'a2'], undefined],
+    ])
+  })
+
+  it('keeps apart two groups that do the same at the post', () => {
+    const dogs = [dog('alo', 'ALO', 1), dog('avo', 'AVO', 2)]
+
+    expect(stationQueueByGroup({ stations: [post(1)] }, 'post-1', dogs)).toHaveLength(2)
+  })
+})
+
+describe('nextRotationGroup', () => {
+  const classes = ['ALO', 'AVO', 'VOI'] as const
+  const ids = (group: EventRotationGroup) => group.posts.map((visit) => visit.stationId)
+
+  it("gives the day's first group the posts in number order and the first class", () => {
+    expect(nextRotationGroup([post(1), post(2)], classes, [])).toEqual({
+      class: 'ALO',
+      posts: [{ stationId: 'post-1' }, { stationId: 'post-2' }],
+    })
+  })
+
+  it('starts the next group at the post the previous one visited second, the column settings staying put', () => {
+    const first = nextRotationGroup(stations, classes, [])
+    const marked = { ...first, posts: first.posts.map((visit, at) => (at === 2 ? { ...visit, taskCount: 2 } : visit)) }
+    const second = nextRotationGroup(stations, classes, [marked])
+    const third = nextRotationGroup(stations, classes, [marked, second])
+
+    expect([marked, second, third].map(ids)).toEqual([
+      ['post-1', 'post-2', 'post-3'],
+      ['post-2', 'post-3', 'post-1'],
+      ['post-3', 'post-1', 'post-2'],
+    ])
+    expect([second, third].map((group) => group.posts.map((visit) => visit.taskCount))).toEqual([
+      [undefined, undefined, 2],
+      [undefined, undefined, 2],
+    ])
+    expect([marked, second, third].map((group) => group.class)).toEqual(['ALO', 'AVO', 'VOI'])
+  })
+
+  it("follows the previous group's own round, not the post numbers", () => {
+    const previous: EventRotationGroup = {
+      class: 'ALO',
+      posts: [{ stationId: 'post-3' }, { stationId: 'post-1' }, { stationId: 'post-2' }],
+    }
+
+    expect(ids(nextRotationGroup(stations, classes, [previous]))).toEqual(['post-1', 'post-2', 'post-3'])
+  })
+
+  it("carries what a column does, resolved from its post's defaults, and stores only what differs from the new post's", () => {
+    const defaults = [{ ...post(1), dogsAtOnce: 2 }, post(2), { ...post(3), taskCount: 2 }]
+    const previous: EventRotationGroup = {
+      class: 'ALO',
+      posts: [{ stationId: 'post-1' }, { parts: 2, stationId: 'post-2' }, { stationId: 'post-3' }],
+    }
+
+    expect(nextRotationGroup(defaults, classes, [previous]).posts).toEqual([
+      { dogsAtOnce: 2, stationId: 'post-2' },
+      { parts: 2, stationId: 'post-3', taskCount: 1 },
+      { dogsAtOnce: 1, stationId: 'post-1', taskCount: 2 },
+    ])
+  })
+
+  it('drops a visit to a post the day no longer has', () => {
+    const previous: EventRotationGroup = { class: 'ALO', posts: [{ stationId: 'post-1' }, { stationId: 'gone' }] }
+
+    expect(ids(nextRotationGroup(stations, classes, [previous]))).toEqual([])
+  })
+
+  it('keeps a round of one post at that post', () => {
+    const previous: EventRotationGroup = { class: 'ALO', posts: [{ stationId: 'post-2' }] }
+
+    expect(ids(nextRotationGroup(stations, classes, [previous]))).toEqual(['post-2'])
+  })
+
+  it("takes the previous group's class once every class has a group, its range going on from the previous", () => {
+    const previous: EventRotationGroup = {
+      class: 'AVO',
+      firstNumber: 1,
+      lastNumber: 8,
+      posts: [{ stationId: 'post-1' }, { stationId: 'post-2' }],
+    }
+    const next = nextRotationGroup(stations, ['AVO'], [previous])
+
+    expect(next).toEqual({ class: 'AVO', firstNumber: 9, posts: [{ stationId: 'post-2' }, { stationId: 'post-1' }] })
+  })
+
+  it('gives no range where the previous group has no last number', () => {
+    const previous: EventRotationGroup = { class: 'AVO', posts: [{ stationId: 'post-1' }] }
+
+    expect(nextRotationGroup(stations, ['AVO'], [previous])).toEqual({
+      class: 'AVO',
+      posts: [{ stationId: 'post-1' }],
     })
   })
 })
@@ -449,6 +598,17 @@ describe('roundInputsOf (KOE-1666)', () => {
 
     expect(roundInputsOf(reordered)).not.toEqual(roundInputsOf(ordered))
     expect(roundInputsOf(ordered).rotations).toEqual(ordered.rotations)
+  })
+
+  it('leaves out how many dogs a group takes at once: it changes no round and no score', () => {
+    const group = (dogsAtOnce?: number): EventRotationGroup => ({
+      class: 'ALO',
+      posts: [{ stationId: 'post-1', ...(dogsAtOnce ? { dogsAtOnce } : {}) }],
+    })
+
+    expect(roundInputsOf({ ...event, rotations: [group(2)] })).toEqual(
+      roundInputsOf({ ...event, rotations: [group()] })
+    )
   })
 
   it('reads an event without posts or classes as empty', () => {

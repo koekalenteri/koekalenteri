@@ -226,11 +226,10 @@ export type EventStation = {
   /** How many tasks a group does here unless its rotation says otherwise. Absent is one. */
   taskCount?: number
   /**
-   * How many dogs this post takes at once (KOE-1259): one, a pair task, or a walk-up. It is the
-   * post's own form, fixed for the whole trial, so it lives here beside `tasks` rather than on each
-   * turn — and it stays a plain count, because a wider walk-up must not need a code change. Absent
-   * means one. Note the trap it shares a number with: a task in two *parts* and a *pair* task run by
-   * two dogs are different axes.
+   * How many dogs this post takes at once (KOE-1259): one, a pair task, or a walk-up. It is the post's
+   * default, which a rotation group's visit may override (`EventRotationPost`, KOE-1665), and it stays
+   * a plain count, because a wider walk-up must not need a code change. Absent means one. Note the trap
+   * it shares a number with: a task in two *parts* and a *pair* task run by two dogs are different axes.
    */
   dogsAtOnce?: number
   /** Versions the post's tokenized entry link (KOE-1258); bumping it revokes every link issued. */
@@ -344,6 +343,11 @@ export interface StationVisitLayout {
   parts: 1 | 2
   /** The tasks the group does before this post, so a task is numbered across the whole round. */
   tasksBefore: number
+  /**
+   * How many dogs the group takes at once here: its own figure, or the post's default. Absent where
+   * neither sets one. The format's fixed figure still wins over it (`stationDogsAtOnce`).
+   */
+  dogsAtOnce?: number
 }
 
 /**
@@ -472,6 +476,8 @@ export interface EventRotationPost {
   taskCount?: number
   /** The parts each of those tasks splits into. Absent follows the post's `parts`. */
   parts?: 1 | 2
+  /** How many dogs the group takes at once here. Absent follows the post's `dogsAtOnce`. */
+  dogsAtOnce?: number
 }
 
 /**

@@ -110,6 +110,61 @@ describe('StationTurnControls', () => {
       expect(onTurn).toHaveBeenCalledWith({ registrationIds: ['run-1', 'run-3'], type: 'start' })
     })
 
+    describe('the group at the head of the queue (KOE-1665)', () => {
+      const visit = (dogsAtOnce?: number) => ({
+        parts: 1 as const,
+        tasks: 1,
+        tasksBefore: 0,
+        ...(dogsAtOnce ? { dogsAtOnce } : {}),
+      })
+      const inGroup = (dogsAtOnce?: number) => walkUpDogs.map((dog) => ({ ...dog, visit: visit(dogsAtOnce) }))
+
+      it("takes as many dogs as that group does at the post, not the post's own figure", async () => {
+        const user = userEvent.setup()
+        const { onTurn } = renderControls({
+          dogs: inGroup(2),
+          eventType: 'NOWT',
+          station: { id: 'post-1', tasks: 1 },
+        })
+
+        await user.click(screen.getByRole('button', { name: /liveStatus.group/ }))
+        const menu = within(screen.getByRole('menu'))
+        for (const name of ['5 Ensimmainen', '6 Toinen', '7 Kolmas']) await user.click(menu.getByText(name))
+        await user.keyboard('{Escape}')
+        await user.click(screen.getByRole('button', { name: 'liveStatus.startTurn' }))
+
+        expect(onTurn).toHaveBeenCalledWith({ registrationIds: ['run-1', 'run-2'], type: 'start' })
+      })
+
+      it('offers no group picker where that group runs the post one at a time', () => {
+        renderControls({ dogs: inGroup(1), eventType: 'NOWT', station: { dogsAtOnce: 4, id: 'post-1', tasks: 1 } })
+
+        expect(screen.queryByRole('button', { name: /liveStatus.group/ })).not.toBeInTheDocument()
+      })
+
+      it('reads the figure of the dog on show once every queued dog is through', () => {
+        const dogs = inGroup(2).map((dog) => ({ ...dog, done: true }))
+        renderControls({
+          dogs,
+          eventType: 'NOWT',
+          selectedDog: { ...walkUpDogs[0], visit: visit(1) },
+          station: { dogsAtOnce: 4, id: 'post-1', tasks: 1 },
+        })
+
+        expect(screen.queryByRole('button', { name: /liveStatus.group/ })).not.toBeInTheDocument()
+      })
+
+      it("reads the next group's figure once the head group is through", () => {
+        const dogs = [
+          { ...walkUpDogs[0], done: true, visit: visit(1) },
+          ...walkUpDogs.slice(1).map((dog) => ({ ...dog, visit: visit(2) })),
+        ]
+        renderControls({ dogs, eventType: 'NOWT', station: { id: 'post-1', tasks: 1 } })
+
+        expect(screen.getByRole('button', { name: /liveStatus.group/ })).toBeInTheDocument()
+      })
+    })
+
     it("starts a run at the first of the day's phases, from the fixed list of a taipumuskoe", async () => {
       const user = userEvent.setup()
       const { onTurn } = renderControls({

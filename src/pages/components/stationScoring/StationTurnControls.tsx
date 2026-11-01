@@ -1,6 +1,6 @@
 import type { LivePhase } from '@/lib/liveFormat'
 import type { StationTurnSpan } from '@/lib/stationTurns'
-import type { EventStation, LiveMark, StationTurnOp, StationTurnPause } from '@/types'
+import type { EventStation, LiveMark, StationTurnOp, StationTurnPause, StationVisitLayout } from '@/types'
 import FreeBreakfastOutlined from '@mui/icons-material/FreeBreakfastOutlined'
 import GroupsOutlined from '@mui/icons-material/GroupsOutlined'
 import PlayArrow from '@mui/icons-material/PlayArrow'
@@ -46,6 +46,8 @@ interface TurnDog {
   number?: number
   /** Already scored at this post: its day here is over, whatever the timeline says. */
   done?: boolean
+  /** What the dog's rotation group does at this post, where it has one (KOE-1665). */
+  visit?: Pick<StationVisitLayout, 'dogsAtOnce'>
 }
 
 interface Props {
@@ -84,8 +86,6 @@ export const StationTurnControls = ({ station, eventType, turns, dogs, selectedD
 
   const stationId = station.id
   const format = liveFormat(eventType)
-  const dogsAtOnce = stationDogsAtOnce(eventType, station)
-  const picksGroup = dogsAtOnce > 1 && (dogs?.length ?? 0) > 0
 
   // The day's phases, where the format has them: the ones a run goes through in order, and the ones
   // the whole entry attends at once, which are started on their own like a break is.
@@ -138,6 +138,12 @@ export const StationTurnControls = ({ station, eventType, turns, dogs, selectedD
     )
   const alreadyRun = (dog: TurnDog) => Boolean(dog.done) || (!runsAgain && hasRun(dog))
   const eligible = (dogs ?? []).filter((dog) => !alreadyRun(dog))
+
+  // A turn holds as many dogs as the group at the head of the queue takes at this post (KOE-1665): one
+  // class may run it one at a time and the next in pairs. With nobody left queueing, the dog on show.
+  const head = eligible[0] ?? selectedDog
+  const dogsAtOnce = stationDogsAtOnce(eventType, head?.visit ?? station)
+  const picksGroup = dogsAtOnce > 1 && (dogs?.length ?? 0) > 0
 
   // The picked group is what runs; the dog open in the scoring view is the single-dog shorthand for it.
   const nextTurnIds = () => {

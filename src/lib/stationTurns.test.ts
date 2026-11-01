@@ -148,27 +148,63 @@ describe('stationTurns', () => {
 
   describe('waitEstimate', () => {
     const throughput = { count: 3, maxMs: 8 * 60000, meanMs: 7 * 60000, minMs: 6 * 60000 }
+    const queue = (dogs: number, dogsAtOnce: number) => [{ dogs, dogsAtOnce }]
 
     it('divides the queue by the dogs a turn holds before multiplying', () => {
       // Twelve dogs at a post taking four at a time is three turns, not twelve. Getting this
       // backwards overstates the wait fourfold, which is what sends someone home before their turn.
-      expect(waitEstimate(throughput, 12, 4)).toEqual({ groupsAhead: 3, maxMs: 24 * 60000, minMs: 18 * 60000 })
-      expect(waitEstimate(throughput, 12, 1)).toEqual({ groupsAhead: 12, maxMs: 96 * 60000, minMs: 72 * 60000 })
+      expect(waitEstimate(throughput, queue(12, 4), 0)).toEqual({
+        groupsAhead: 3,
+        maxMs: 24 * 60000,
+        minMs: 18 * 60000,
+      })
+      expect(waitEstimate(throughput, queue(12, 1), 0)).toEqual({
+        groupsAhead: 12,
+        maxMs: 96 * 60000,
+        minMs: 72 * 60000,
+      })
     })
 
     it('rounds a part-full last group up to a whole turn', () => {
-      expect(waitEstimate(throughput, 9, 4)?.groupsAhead).toBe(3)
+      expect(waitEstimate(throughput, queue(9, 4), 0)?.groupsAhead).toBe(3)
+    })
+
+    it("counts each rotation group's turns with its own dogs at once (KOE-1665)", () => {
+      // Five dogs one at a time, then six in pairs: 5 + 3 turns, where one figure for the whole queue
+      // would say 11 or 6.
+      expect(
+        waitEstimate(
+          throughput,
+          [
+            { dogs: 5, dogsAtOnce: 1 },
+            { dogs: 6, dogsAtOnce: 2 },
+          ],
+          0
+        )?.groupsAhead
+      ).toBe(8)
+    })
+
+    it('takes the dogs through from the front of the queue, the group on the ground first', () => {
+      const groups = [
+        { dogs: 4, dogsAtOnce: 1 },
+        { dogs: 6, dogsAtOnce: 2 },
+      ]
+
+      expect(waitEstimate(throughput, groups, 2)?.groupsAhead).toBe(2 + 3)
+      expect(waitEstimate(throughput, groups, 6)?.groupsAhead).toBe(2)
     })
 
     it('withholds the estimate with nothing to go on, and with nobody left to run', () => {
-      expect(waitEstimate(undefined, 12, 4)).toBeUndefined()
-      expect(waitEstimate(throughput, 0, 4)).toBeUndefined()
-      expect(waitEstimate(throughput, -3, 4)).toBeUndefined()
+      expect(waitEstimate(undefined, queue(12, 4), 0)).toBeUndefined()
+      expect(waitEstimate(throughput, queue(0, 4), 0)).toBeUndefined()
+      expect(waitEstimate(throughput, queue(12, 4), 12)).toBeUndefined()
+      expect(waitEstimate(throughput, queue(12, 4), 15)).toBeUndefined()
+      expect(waitEstimate(throughput, [], 0)).toBeUndefined()
     })
 
     it('withholds it entirely on open ground, where minutes describe nothing anyone is doing', () => {
-      expect(waitEstimate(throughput, 12, 4, 'field')).toBeUndefined()
-      expect(waitEstimate(throughput, 12, 4, 'queue')).toBeDefined()
+      expect(waitEstimate(throughput, queue(12, 4), 0, 'field')).toBeUndefined()
+      expect(waitEstimate(throughput, queue(12, 4), 0, 'queue')).toBeDefined()
     })
   })
 

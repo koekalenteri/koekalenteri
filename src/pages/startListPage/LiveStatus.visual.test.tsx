@@ -89,7 +89,7 @@ const walkUpEvent = {
       stationId: 'post-3',
     },
   ],
-  stations: [{ date: minutesAgo(0), dogsAtOnce: 2, id: 'post-3', number: 3, tasks: 1 }],
+  stations: [{ date: '2026-06-13', dogsAtOnce: 2, id: 'post-3', number: 3, tasks: 1 }],
   // The live view reads only the fields above; the minimal event converts here.
 } as unknown as PublicConfirmedEvent
 
@@ -104,10 +104,16 @@ it('shows who is at each post and how fast the queue is moving (KOE-1259)', asyn
   await expect(screen.getByTestId('visual-root')).toMatchScreenshot('live-status')
 })
 
+// The entry of the day, in one class: every one of them comes to the post.
+const starters = Array.from({ length: 20 }, (_unused, index) => ({
+  class: 'AVO',
+  group: { date: '2026-06-13' as const, key: '2026-06-13-kp', number: index + 1 },
+}))
+
 it('turns the pace into the number people want: how long the queue still is (KOE-1259)', async () => {
   const screen = await render(
     <Frame>
-      <LiveStatus event={walkUpEvent} participants={Array.from({ length: 20 }, () => ({}))} />
+      <LiveStatus event={walkUpEvent} participants={starters} />
     </Frame>
   )
 
