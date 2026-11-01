@@ -1,7 +1,13 @@
 import type { PublicDogEvent } from '@/types'
 import { createStore } from 'jotai'
 import { eventFilterAtom, eventsAtom } from './atoms'
-import { filteredEventsAtom, filterOrganizersAtom } from './derivedAtoms'
+import {
+  filterEventClassesAtom,
+  filterEventTypesAtom,
+  filteredEventsAtom,
+  filterJudgesAtom,
+  filterOrganizersAtom,
+} from './derivedAtoms'
 
 describe('event derived atoms', () => {
   describe('filterOrganizersAtom', () => {
@@ -50,6 +56,51 @@ describe('event derived atoms', () => {
 
       expect(store.get(filteredEventsAtom)).toHaveLength(2)
       expect(store.get(filterOrganizersAtom)).toEqual([{ id: 'org-1', name: 'Organizer One' }])
+    })
+  })
+
+  describe('the option lists', () => {
+    // The filters read only a few fields; the minimal events convert at this boundary.
+    const trial = (id: string, eventType: string, eventClass: string, judge: string, organizer: string) =>
+      ({
+        classes: [{ class: eventClass }],
+        endDate: new Date('2026-06-02'),
+        eventType,
+        id,
+        judges: [{ name: judge }],
+        name: id,
+        organizer: { id: organizer, name: organizer },
+        places: 1,
+        startDate: new Date('2026-06-01'),
+        state: 'confirmed',
+      }) as unknown as PublicDogEvent
+    const store = createStore()
+    store.set(eventsAtom, [
+      trial('a', 'NOME-B', 'ALO', 'Judge A', 'org-1'),
+      trial('b', 'NOU', 'AVO', 'Judge B', 'org-1'),
+      trial('c', 'NOME-A', 'VOI', 'Judge C', 'org-2'),
+    ])
+    // NOME-B selected, and the search held to org-1.
+    store.set(eventFilterAtom, {
+      end: null,
+      eventClass: [],
+      eventType: ['NOME-B'],
+      judge: [],
+      organizer: ['org-1'],
+      start: null,
+    })
+
+    it('apply every facet to the list', () => {
+      expect(store.get(filteredEventsAtom).map((event) => event.id)).toEqual(['a'])
+    })
+
+    it('list each facet from the events every other facet allows', () => {
+      // NOU is selected out by the type facet itself, so it stays on offer; NOME-A is out by organizer.
+      expect(store.get(filterEventTypesAtom)).toEqual(['NOME-B', 'NOU'])
+      expect(store.get(filterEventClassesAtom)).toEqual(['ALO'])
+      expect(store.get(filterJudgesAtom).map((judge) => judge.name)).toEqual(['Judge A'])
+      // org-2 holds only a NOME-A trial, which the type facet leaves out.
+      expect(store.get(filterOrganizersAtom).map((organizer) => organizer.id)).toEqual(['org-1'])
     })
   })
 })

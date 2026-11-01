@@ -1,109 +1,28 @@
 import type { PublicJudge } from '@/types'
+import type { EventFilterFacet } from './filters'
 import i18next from 'i18next'
 import { atom } from 'jotai'
 import { atomFamily } from 'jotai-family'
 import { compareByLocalizedString } from '@/lib/client/sort'
 import { unique, uniqueFn } from '@/lib/utils'
 import { eventFilterAtom, eventsAtom } from './atoms'
-import {
-  withinDateFilters,
-  withinEventTypeClassFilter,
-  withinEventTypeFilter,
-  withinJudgeFilter,
-  withinOrganizerFilter,
-  withinResultsFilter,
-  withinSwitchFilters,
-} from './filters'
+import { matchesEventFilter } from './filters'
 
 export const eventAtom = atomFamily((eventId: string | undefined) =>
   atom((get) => (eventId ? get(eventsAtom).find((event) => event.id === eventId) : null))
 )
 
-export const filteredEventsAtom = atom((get) => {
-  const filter = get(eventFilterAtom)
-  const events = get(eventsAtom)
-
-  return events.filter((event) => {
-    return (
-      event.state !== 'draft' &&
-      withinDateFilters(event, filter) &&
-      withinSwitchFilters(event, filter) &&
-      withinResultsFilter(event, filter) &&
-      withinEventTypeFilter(event, filter) &&
-      withinEventTypeClassFilter(event, filter) &&
-      withinOrganizerFilter(event, filter) &&
-      withinJudgeFilter(event, filter)
-    )
+const filteredEventsExcept = (facet?: EventFilterFacet) =>
+  atom((get) => {
+    const filter = get(eventFilterAtom)
+    return get(eventsAtom).filter((event) => matchesEventFilter(event, filter, facet))
   })
-})
 
-const filteredEventsForTypeAtom = atom((get) => {
-  const filter = get(eventFilterAtom)
-  const events = get(eventsAtom)
-
-  return events.filter((event) => {
-    return (
-      event.state !== 'draft' &&
-      withinDateFilters(event, filter) &&
-      withinSwitchFilters(event, filter) &&
-      withinResultsFilter(event, filter) &&
-      withinEventTypeClassFilter(event, filter) &&
-      withinOrganizerFilter(event, filter) &&
-      withinJudgeFilter(event, filter)
-    )
-  })
-})
-
-const filteredEventsForEventClassAtom = atom((get) => {
-  const filter = get(eventFilterAtom)
-  const events = get(eventsAtom)
-
-  return events.filter((event) => {
-    return (
-      event.state !== 'draft' &&
-      withinDateFilters(event, filter) &&
-      withinSwitchFilters(event, filter) &&
-      withinResultsFilter(event, filter) &&
-      withinEventTypeFilter(event, filter) &&
-      withinOrganizerFilter(event, filter) &&
-      withinJudgeFilter(event, filter)
-    )
-  })
-})
-
-const filteredEventsForOrganizerAtom = atom((get) => {
-  const filter = get(eventFilterAtom)
-  const events = get(eventsAtom)
-
-  return events.filter((event) => {
-    return (
-      event.state !== 'draft' &&
-      withinDateFilters(event, filter) &&
-      withinSwitchFilters(event, filter) &&
-      withinResultsFilter(event, filter) &&
-      withinEventTypeFilter(event, filter) &&
-      withinEventTypeClassFilter(event, filter) &&
-      withinJudgeFilter(event, filter)
-    )
-  })
-})
-
-const filteredEventsForJudgeAtom = atom((get) => {
-  const filter = get(eventFilterAtom)
-  const events = get(eventsAtom)
-
-  return events.filter((event) => {
-    return (
-      event.state !== 'draft' &&
-      withinDateFilters(event, filter) &&
-      withinSwitchFilters(event, filter) &&
-      withinResultsFilter(event, filter) &&
-      withinEventTypeFilter(event, filter) &&
-      withinEventTypeClassFilter(event, filter) &&
-      withinOrganizerFilter(event, filter)
-    )
-  })
-})
+export const filteredEventsAtom = filteredEventsExcept()
+const filteredEventsForTypeAtom = filteredEventsExcept('eventType')
+const filteredEventsForEventClassAtom = filteredEventsExcept('eventClass')
+const filteredEventsForOrganizerAtom = filteredEventsExcept('organizer')
+const filteredEventsForJudgeAtom = filteredEventsExcept('judge')
 
 export const filterEventTypesAtom = atom((get) => {
   const events = get(filteredEventsForTypeAtom)
