@@ -10,6 +10,9 @@
         # without this the save of a start list flag died in AccessDenied (KOE-1465).
         - DynamoDBReadPolicy:
             TableName: !Ref EventRegistrationTable
+        # A change of the posts, the rotation or the classes recomputes the stored results (KOE-1666).
+        - DynamoDBWritePolicy:
+            TableName: !Ref EventRegistrationTable
         # A new or changed organizer must be one this environment holds (KOE-1580).
         - DynamoDBReadPolicy:
             TableName: !Ref OrganizerTable

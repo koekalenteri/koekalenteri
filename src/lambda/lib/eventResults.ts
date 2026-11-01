@@ -1,4 +1,4 @@
-import type { SubmittedEventResult, SubmittedTask } from '../../lib/results'
+import type { ResultTasksDroppedBody, RoundTask, SubmittedEventResult, SubmittedTask } from '../../lib/results'
 import type {
   EventResultElimination,
   EventResultRetirement,
@@ -9,18 +9,22 @@ import type {
   Patch,
   PublicJudge,
 } from '../../types'
-import { resultSavedAudit } from '../../lib/audit'
+import { createHash } from 'node:crypto'
+import { resultRecomputedAudit, resultSavedAudit } from '../../lib/audit'
 import { objectsDiffer } from '../../lib/diff'
 import { makeArray } from '../../lib/judge'
 import { isResultsLocked } from '../../lib/kennelliittoResults'
-import { isScorableRegistration } from '../../lib/registration'
+import { getRegistrationPlacement, isScorableRegistration } from '../../lib/registration'
 import {
   availableResultCodes,
   dogRound,
   eliminatingFaults,
+  isRecordedTask,
   mergeStationTasks,
   nowtZeroFaults,
+  reconcileRoundTasks,
   resolveEventResult,
+  roundsDiffer,
   sameEventResult,
   sameStationTasks,
   scoresAtPosts,
@@ -28,13 +32,17 @@ import {
   stationVersion,
   taskEntryCeiling,
 } from '../../lib/results'
-import { rotationDogOf } from '../../lib/rotation'
+import { rotationDogOf, roundInputsOf } from '../../lib/rotation'
 import { mapWithConcurrency } from '../../lib/utils'
 import { audit, registrationAuditKey } from './audit'
 import { getEvent } from './event'
 import { parseJSONWithFallback } from './json'
-import { LambdaError } from './lambda'
-import { updateRegistrationField } from './repositories/registrationRepository'
+import { httpError, LambdaError } from './lambda'
+import {
+  readEventRegistrations,
+  updateRegistrationField,
+  writeRecomputedEventResult,
+} from './repositories/registrationRepository'
 
 /** The outcome dropdown's Finnish labels, for the audit line (KOE-1284). */
 const ELIMINATING_FAULT_TEXT: Record<EventResultElimination['fault'], string> = {
@@ -554,4 +562,184 @@ export const processResultSubmissions = async (
   })
 
   return { conflicts, locked, patches, saved, unchanged }
+}
+
+/**
+ * A dog whose stored result a change of the event's posts, rotation or classes changes (KOE-1666): the
+ * result as recomputed, and the recorded scores the change drops. An empty field the change leaves out is
+ * gone from the result too, but is no score to ask about (`isRecordedTask`).
+ */
+interface RecomputedResult {
+  registration: JsonRegistration & { eventResult: JsonEventResult }
+  eventResult: JsonEventResult
+  dropped: JsonEventResultTask[]
+}
+
+/** The stored result as the submission it was saved from, with only the scores the new round keeps. */
+const storedAsSubmitted = (stored: JsonEventResult, tasks: JsonEventResultTask[]): SubmittedEventResult => {
+  const {
+    maxPoints: _maxPoints,
+    percentage: _percentage,
+    points: _points,
+    result: _result,
+    tasks: _tasks,
+    updatedAt: _at,
+    updatedBy: _by,
+    ...rest
+  } = stored
+  return { ...rest, tasks }
+}
+
+interface RecomputeContext {
+  before: JsonConfirmedEvent
+  after: JsonConfirmedEvent
+  timestamp: string
+  userName: string
+}
+
+/**
+ * One dog's result against the event as it is about to be saved, by the rule its save uses (`resolveFor`).
+ * Only a dog whose round scores differently is looked at, and only a result that comes out different is
+ * returned: the recompute is attributed to whoever saved the change, and moves the version only where
+ * there is something new to see.
+ */
+const recomputeFor = (registration: JsonRegistration, context: RecomputeContext): RecomputedResult | undefined => {
+  const stored = registration.eventResult
+  if (!stored || !isScorableRegistration(registration)) return undefined
+
+  const dog = rotationDogOf(registration)
+  const before: RoundTask[] = dogRound(context.before, dog)
+  const after: RoundTask[] = dogRound(context.after, dog)
+  if (!roundsDiffer(before, after)) return undefined
+
+  const { dropped, kept } = reconcileRoundTasks(before, after, stored.tasks)
+  const eventResult = resolveFor(
+    context.after,
+    registration,
+    storedAsSubmitted(stored, kept),
+    context.timestamp,
+    context.userName
+  )
+  if (sameEventResult(stored, eventResult)) return undefined
+
+  return {
+    dropped: dropped.filter(isRecordedTask),
+    eventResult,
+    registration: { ...registration, eventResult: stored },
+  }
+}
+
+const planRecompute = (registrations: readonly JsonRegistration[], context: RecomputeContext): RecomputedResult[] =>
+  registrations.flatMap((registration) => recomputeFor(registration, context) ?? [])
+
+/** Each dropped score, named by its dog, its slot and the version it was recorded in. */
+const dropKeys = (plan: readonly RecomputedResult[]): string[] =>
+  plan
+    .flatMap(({ dropped, registration }) =>
+      dropped.map((task) => `${registration.id}|${task.stationId}#${task.index}|${task.updatedAt}`)
+    )
+    .sort((a, b) => a.localeCompare(b, 'en'))
+
+/**
+ * The confirmation of one set of drops. A score recorded or changed after the secretary was asked gives
+ * another set, and so another confirmation: what they confirmed is never stretched over it.
+ */
+const dropConfirmation = (keys: readonly string[]): string => createHash('sha256').update(keys.join('\n')).digest('hex')
+
+const droppedTasksBody = (plan: readonly RecomputedResult[]): ResultTasksDroppedBody => ({
+  confirmation: dropConfirmation(dropKeys(plan)),
+  dogs: plan
+    .filter(({ dropped }) => dropped.length > 0)
+    .map(({ dropped, registration }) => {
+      const number = getRegistrationPlacement(registration)?.number
+      return {
+        id: registration.id,
+        name: registration.dog.name ?? '',
+        tasks: dropped.length,
+        ...(registration.class ? { class: registration.class } : {}),
+        ...(number === undefined ? {} : { number }),
+      }
+    }),
+  error: 'resultTasksDropped',
+})
+
+/**
+ * What a patch must say for the open pages to arrive at the stored result: a key the recompute left out
+ * (a prize the round no longer supports, the totals of a round now incomplete) goes as `null`, which is
+ * how a patch deletes, or the pages would go on showing it.
+ */
+const eventResultPatch = (stored: JsonEventResult, eventResult: JsonEventResult): Patch<JsonEventResult> => {
+  const removed = Object.keys(stored).filter((key) => !Object.hasOwn(eventResult, key))
+  return { ...eventResult, ...Object.fromEntries(removed.map((key) => [key, null])) }
+}
+
+const LAYOUT_CHANGED_MESSAGE = 'The results changed while the stations were saved; save again'
+
+/**
+ * Writes one dog's recomputed result over the result it was recomputed from. A dog a post saved in the
+ * meantime stops the save before the event is stored: saving again recomputes the dogs still different,
+ * against what is stored then, and asks again about any score that would go.
+ */
+const writeRecomputed = async (
+  eventId: string,
+  { dropped, eventResult, registration }: RecomputedResult,
+  context: RecomputeContext
+): Promise<Patch<JsonRegistration>> => {
+  if (await isEventLocked(eventId)) throw httpError(423, { error: 'resultsLocked' })
+
+  const { id } = registration
+  if (!(await writeRecomputedEventResult(eventId, id, eventResult, registration.eventResult.updatedAt))) {
+    throw httpError(409, { error: 'staleData', message: LAYOUT_CHANGED_MESSAGE })
+  }
+
+  await audit({
+    auditKey: registrationAuditKey({ eventId, id }),
+    ...resultRecomputedAudit(
+      auditResultText(eventResult, context.after.eventType, registration.class ?? undefined),
+      dropped.length
+    ),
+    user: context.userName,
+  })
+  return { eventResult: eventResultPatch(registration.eventResult, eventResult), id }
+}
+
+interface ResultRecomputeRequest {
+  /** The event as stored, its days read as keys. */
+  existing: JsonConfirmedEvent | undefined
+  /** The event as it is about to be saved. */
+  data: JsonConfirmedEvent
+  /** What the secretary confirmed of the drops they were shown, from `?confirmDrops`. */
+  confirmDrops: string | undefined
+  timestamp: string
+  userName: string
+}
+
+/**
+ * Brings the stored results in step with a change of the event's posts, rotation or classes (KOE-1666),
+ * before the event itself is saved: the dogs are written first, so a save that stops halfway leaves the
+ * change unsaved and saving it again recomputes what is left. A trial whose results are handed over is
+ * not changed (423), and a change that drops recorded scores is made only once the secretary has
+ * confirmed that very set of drops (409 `resultTasksDropped` until then). Answers the patches for the
+ * open pages, to be sent once the event is saved.
+ */
+export const recomputeEventResults = async ({
+  confirmDrops,
+  data,
+  existing,
+  timestamp,
+  userName,
+}: ResultRecomputeRequest): Promise<Patch<JsonRegistration>[]> => {
+  if (!existing || !scoresAtPosts(data.eventType)) return []
+  if (!objectsDiffer(roundInputsOf(existing), roundInputsOf(data))) return []
+
+  const context: RecomputeContext = { after: data, before: existing, timestamp, userName }
+  const plan = planRecompute(await readEventRegistrations(data.id, true), context)
+  if (plan.length === 0) return []
+
+  if (await isEventLocked(data.id)) throw httpError(423, { error: 'resultsLocked' })
+
+  const keys = dropKeys(plan)
+  if (keys.length && confirmDrops !== dropConfirmation(keys)) throw httpError(409, droppedTasksBody(plan))
+
+  return mapWithConcurrency(plan, 1, (entry) => writeRecomputed(data.id, entry, context))
 }

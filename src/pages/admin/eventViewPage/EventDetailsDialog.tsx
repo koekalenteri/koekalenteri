@@ -5,6 +5,7 @@ import { useAtom, useAtomValue } from 'jotai'
 import { useCallback } from 'react'
 import { localizedEventName } from '@/lib/event'
 import { languageAtom } from '../../state'
+import DroppedTasksDialog from '../components/DroppedTasksDialog'
 import EventForm from '../components/EventForm'
 import useEventForm from '../hooks/useEventForm'
 import { adminEventAtom } from '../state'
@@ -19,29 +20,21 @@ export default function EventDetailsDialog({ eventId, onClose, open }: Props) {
   const [storedEvent] = useAtom(adminEventAtom(eventId))
   const language = useAtomValue(languageAtom)
 
-  // Use the hook with custom options
+  // No redirect: the dialog closes once the save has gone through, and stays open on a refusal or while
+  // the secretary is asked about dropped scores (KOE-1666).
   const {
     event,
     changes,
     canSave,
+    dropsDialogProps,
     handleChange,
-    handleSave: originalHandleSave,
+    handleSave,
     handleCancel: originalHandleCancel,
   } = useEventForm({
     eventId,
+    onSaved: onClose,
     storedEvent,
-    // Don't provide onSaveRedirect to prevent navigation
   })
-
-  // Override handleSave to close dialog but not navigate
-  const handleSave = useCallback(async () => {
-    try {
-      await originalHandleSave()
-      onClose?.()
-    } catch (error) {
-      console.error(error)
-    }
-  }, [originalHandleSave, onClose])
 
   // Override handleCancel to close dialog but not navigate
   const handleCancel = useCallback(() => {
@@ -83,6 +76,7 @@ export default function EventDetailsDialog({ eventId, onClose, open }: Props) {
           onCancel={handleCancel}
           onSave={handleSave}
         />
+        <DroppedTasksDialog {...dropsDialogProps} />
       </DialogContent>
     </Dialog>
   )

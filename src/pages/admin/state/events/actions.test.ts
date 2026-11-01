@@ -7,6 +7,7 @@ import { exportEventToStage, putEvent, putResultsPublished } from '@/api/event'
 import { putStationTurn } from '@/api/station'
 import { TEST_ID_TOKEN } from '@/test-utils/utils'
 import {
+  adminSaveEventAtom,
   buildEventSavePatch,
   buildStartListClassPublishedPatch,
   buildStartListPublishedPatch,
@@ -247,6 +248,39 @@ describe('useAdminEventActions start list publishing', () => {
 
     await expect(result.current.setStartListPublished(event, published)).resolves.toBe(event)
     expect(putEvent).not.toHaveBeenCalled()
+  })
+})
+
+describe('adminSaveEventAtom (KOE-1666)', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+    localStorage.setItem('idToken', JSON.stringify(TEST_ID_TOKEN))
+  })
+  afterEach(() => localStorage.clear())
+
+  it('sends the confirmation of the dropped scores with the save that answers the question, and none otherwise', async () => {
+    const store = createStore()
+    store.set(adminEventAtom(eventWithStaticDates.id), eventWithStaticDates)
+    store.set(adminEventIdAtom, eventWithStaticDates.id)
+    const event = { ...eventWithStaticDates, name: 'Uusi' }
+
+    await store.set(adminSaveEventAtom, { confirmDrops: 'drops-1', event })
+    await store.set(adminSaveEventAtom, { event })
+
+    expect(putEvent).toHaveBeenNthCalledWith(
+      1,
+      expect.objectContaining({ name: 'Uusi' }),
+      TEST_ID_TOKEN,
+      undefined,
+      'drops-1'
+    )
+    expect(putEvent).toHaveBeenNthCalledWith(
+      2,
+      expect.objectContaining({ id: event.id }),
+      TEST_ID_TOKEN,
+      undefined,
+      undefined
+    )
   })
 })
 

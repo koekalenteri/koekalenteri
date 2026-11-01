@@ -86,9 +86,18 @@ export const buildStartListPublishedPatch = (
 /** Save without subscribing the form controller to asynchronous event collections. */
 export const adminSaveEventAtom = atom(
   null,
-  async (get, set, { event, formChanges }: { event: Patch<DogEvent>; formChanges?: Patch<DogEvent> }) => {
+  async (
+    get,
+    set,
+    {
+      confirmDrops,
+      event,
+      formChanges,
+    }: { event: Patch<DogEvent>; formChanges?: Patch<DogEvent>; confirmDrops?: string }
+  ) => {
     const currentAdminEvent = await get(adminCurrentEventAtom)
-    const saved = await putEvent(buildEventSavePatch(event, currentAdminEvent, formChanges), get(validIdTokenAtom))
+    const patch = buildEventSavePatch(event, currentAdminEvent, formChanges)
+    const saved = await putEvent(patch, get(validIdTokenAtom), undefined, confirmDrops)
 
     set(adminEventIdAtom, saved.id)
     await set(adminCurrentEventAtom, saved)

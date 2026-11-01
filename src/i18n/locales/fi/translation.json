@@ -79,6 +79,8 @@
       "registrationDaysOutsideEvent": "Valitut päivät ({{days}}) eivät ole tapahtuman päiviä",
       "resultChanged": "Muutti tulosta",
       "resultChangedDetail": "Muutti tulosta: {{result}}",
+      "resultRecomputed": "Laski tuloksen uudelleen rastien muutoksen jälkeen: {{result}}",
+      "resultRecomputedDropped": "Laski tuloksen uudelleen rastien muutoksen jälkeen, kirjattuja tehtäviä poistui {{dropped}}: {{result}}",
       "resultSaved": "Tallensi tuloksen",
       "resultSavedDetail": "Tallensi tuloksen: {{result}}",
       "resultSendFailed": "Tulosta ei saatu lähetettyä Omakoiraan: {{reason}}",
@@ -387,6 +389,16 @@
     },
     "priority": "Etusijat",
     "restrictions": "Rajoitukset",
+    "resultsLocked": "Tulokset on luovutettu ylituomarille tai hyväksytty, joten kirjattuja tuloksia ei voi enää muuttaa. Muutos olisi muuttanut tuloksia, eikä sitä tallennettu.",
+    "resultTasksDropped": {
+      "body": "Muutos poistaa näiden koirien kirjattuja tehtäviä, koska niiden tehtäviä ei enää ole kierroksella tai ne tarkoittavat nyt eri tehtävää. Poistetut pisteet eivät palaudu, vaikka muutos perutaan myöhemmin.",
+      "confirm": "Tallenna ja poista pisteet",
+      "dog_one": "{{dog}} ({{eventClass}}, nro {{number}}): {{count}} tehtävä",
+      "dog_other": "{{dog}} ({{eventClass}}, nro {{number}}): {{count}} tehtävää",
+      "dogWithoutNumber_one": "{{dog}} ({{eventClass}}): {{count}} tehtävä",
+      "dogWithoutNumber_other": "{{dog}} ({{eventClass}}): {{count}} tehtävää",
+      "title": "Kirjattuja pisteitä poistuu"
+    },
     "retrieveType": "Koe pidetään",
     "retrieveTypes": {
       "dummies": "dameilla",

@@ -48,6 +48,7 @@ const {
   updateRegistrationField,
   writeEmailDeliveryStatus,
   writeKcResult,
+  writeRecomputedEventResult,
   writeMigratedRegistration,
   writeRegistration,
   writeRegistrationFields,
@@ -276,6 +277,36 @@ describe('registrationRepository', () => {
       mockUpdate.mockRejectedValueOnce(error)
 
       await expect(writeEmailDeliveryStatus('e1', 'r1', status)).rejects.toBe(error)
+    })
+  })
+
+  describe('writeRecomputedEventResult (KOE-1666)', () => {
+    const eventResult = { result: 'ALO3', updatedAt: '2026-11-01T12:00:00.000Z', updatedBy: 'Sihteeri' }
+
+    it('writes over the result it was recomputed from only, and moves the row on', async () => {
+      mockUpdate.mockResolvedValueOnce({})
+
+      await expect(writeRecomputedEventResult('e1', 'r1', eventResult, '2026-10-31T12:00:00.000Z')).resolves.toBe(true)
+      expect(mockUpdate).toHaveBeenCalledWith(
+        { eventId: 'e1', id: 'r1' },
+        { set: { eventResult, updatedAt: expect.any(String) } },
+        'NONE',
+        {
+          expression: '#eventResult.#updatedAt = :previous',
+          names: { '#eventResult': 'eventResult', '#updatedAt': 'updatedAt' },
+          values: { ':previous': '2026-10-31T12:00:00.000Z' },
+        }
+      )
+    })
+
+    it('answers false for a result written meanwhile, and lets any other failure through', async () => {
+      mockUpdate.mockRejectedValueOnce(namedError('ConditionalCheckFailedException'))
+      await expect(writeRecomputedEventResult('e1', 'r1', eventResult, 'old')).resolves.toBe(false)
+
+      mockUpdate.mockRejectedValueOnce(namedError('ProvisionedThroughputExceededException'))
+      await expect(writeRecomputedEventResult('e1', 'r1', eventResult, 'old')).rejects.toThrow(
+        'ProvisionedThroughputExceededException'
+      )
     })
   })
 

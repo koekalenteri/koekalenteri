@@ -2,6 +2,7 @@ import { useAtomValue } from 'jotai'
 import { useParams } from 'react-router'
 import { useEventSubscription } from '../../hooks/useEventSubscription'
 import { Path } from '../../routeConfig'
+import DroppedTasksDialog from './components/DroppedTasksDialog'
 import EventForm from './components/EventForm'
 import EventNotFound from './components/EventNotFound'
 import OtherViewers from './eventViewPage/OtherViewers'
@@ -14,7 +15,7 @@ export default function EventEditPage() {
   useAdminEventScope(eventId)
   const { viewers } = useEventSubscription(eventId)
   const storedEvent = useAtomValue(adminEventAtom(eventId))
-  const { event, changes, canSave, handleChange, handleSave, handleCancel } = useEventForm({
+  const { event, changes, canSave, dropsDialogProps, handleChange, handleSave, handleCancel } = useEventForm({
     eventId,
     onDoneRedirect: Path.admin.events,
     storedEvent,
@@ -35,6 +36,7 @@ export default function EventEditPage() {
         onSave={handleSave}
         onCancel={handleCancel}
       />
+      <DroppedTasksDialog {...dropsDialogProps} />
     </>
   )
 }

@@ -237,6 +237,17 @@ test('putEvent updates with PATCH', async () => {
   expect(updatedEvent.id).not.toBeUndefined()
 })
 
+test('putEvent sends back the confirmation of the scores the change drops (KOE-1666)', async () => {
+  fetchMock.mockResponseOnce(JSON.stringify(emptyEvent))
+
+  await putEvent({ id: 'TestEventID', stations: [] }, 'token', undefined, 'a/b+c')
+
+  expect(fetchMock).toHaveBeenCalledWith(
+    `${API_BASE_URL}/admin/event/?confirmDrops=a%2Fb%2Bc`,
+    expect.objectContaining({ method: 'PATCH' })
+  )
+})
+
 // East of Finland, so Kennelliitto's zone-less stamps read as local time would name the day before.
 describeInTimeZone('Asia/Tokyo', () => {
   test('searchEventKcIdChoices', async () => {

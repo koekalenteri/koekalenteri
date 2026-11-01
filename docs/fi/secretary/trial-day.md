@@ -4,6 +4,7 @@ audience: secretary
 order: 40
 covers:
   - src/pages/admin/EventStationsPage.tsx
+  - src/pages/admin/components/DroppedTasksDialog.tsx
   - src/pages/admin/eventStationsPage/**
   - src/pages/admin/EventResultsPage.tsx
   - src/pages/admin/eventResultsPage/**
@@ -87,7 +88,24 @@ sen oman koepäivän rasteista.
 
 !shot[EventStationsPage/event-stations-rotation] Kolmen luokan kierto: jokainen luokka aloittaa eri rastilta ja tekee viimeisellä rastillaan kaksi tehtävää
 
-**{t:save}** tallentaa rastit ja kierron kokeen tietoihin.
+**{t:save}** tallentaa rastit ja kierron kokeen tietoihin. Jos koirille on jo kirjattu tuloksia,
+tallennus laskee niiden pisteet, enimmäispisteet, prosentin ja palkinnon uudelleen uuden kierroksen
+mukaan, joten sijoitukset ja Omakoiraan lähtevät tulokset vastaavat tulostaulukkoa. Sama koskee
+luokkien muuttamista kokeen tiedoissa. Jos koiran kierrokseen tulee tehtävä, jota ei ole vielä
+pisteytetty, koiran palkinto poistuu, kunnes tehtävä on pisteytetty. Jo lähetetty tulos, joka
+muuttuu, on *Omakoira*-sarakkeessa tilassa *{t:results.kennelliitto.badge.changed}* ja lähetetään
+uudelleen.
+
+Kirjattu tehtävä säilyy vain, jos sen paikka tarkoittaa koiran uudella kierroksella samaa tehtävää
+kuin ennen. Kun esimerkiksi rastin tehtävämäärä vaihdetaan kahdesta yhteen tai tehtävän osajako
+muuttuu, poistuvat pisteet luetellaan ennen tallennusta koirittain. **{t:event.resultTasksDropped.confirm}**
+tallentaa muutoksen ja poistaa pisteet, eivätkä ne palaa, vaikka muutos perutaan myöhemmin.
+**{t:cancel}** jättää muutoksen tallentamatta.
+
+!shot[DroppedTasksDialog/dropped-tasks] Rastin muutos poistaisi kolmen koiran kirjattuja tehtäviä
+
+Kun tulokset on luovutettu ylituomarille tai hyväksytty, muutosta, joka muuttaisi kirjattuja
+tuloksia, ei tallenneta. Muutos, joka ei muuta yhdenkään koiran tulosta, tallentuu silti.
 
 ## Tulosten syöttö
 

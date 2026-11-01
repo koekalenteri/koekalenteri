@@ -1,4 +1,5 @@
 import type { DayKey, EventRotationGroup, EventStation } from '../types'
+import type { RotationEvent } from './rotation'
 import i18n from 'i18next'
 import { dogRound, nowtTotals, toScoredTasks } from './results'
 import {
@@ -11,6 +12,7 @@ import {
   rotationGroupsOfDay,
   rotationShapeErrors,
   rotationStartLines,
+  roundInputsOf,
   stationArrivals,
   stationParts,
   stationQueue,
@@ -417,5 +419,39 @@ describe('rotationStartLines', () => {
 
   it('has nothing to say of a day that runs in number order', () => {
     expect(rotationStartLines({ stations }, 'ALO', DAY, true, t)).toEqual([])
+  })
+})
+
+describe('roundInputsOf (KOE-1666)', () => {
+  const event: RotationEvent = { classes: [{ class: 'ALO', date: DAY }], stations: [post(1)] }
+
+  it('reads a post with its defaults filled in, so an absent default is the same as the default', () => {
+    expect(roundInputsOf(event)).toEqual({
+      classes: [{ class: 'ALO', day: DAY }],
+      rotations: [],
+      stations: [{ day: DAY, id: 'post-1', number: 1, parts: 1, taskCount: 1 }],
+    })
+    expect(roundInputsOf({ ...event, stations: [{ ...post(1), taskCount: 1 }] })).toEqual(roundInputsOf(event))
+  })
+
+  it('leaves out what decides no round: the judges, the link token, the phases', () => {
+    const busy = { ...post(1), judges: [{ id: 1, name: 'Tuomari' }], phases: ['aamu'], tokenVersion: 3 }
+    expect(roundInputsOf({ ...event, stations: [busy] })).toEqual(roundInputsOf(event))
+  })
+
+  it('reads a rotation group whose posts come in another order as a change', () => {
+    const group = (posts: string[]): EventRotationGroup => ({
+      class: 'ALO',
+      posts: posts.map((stationId) => ({ stationId })),
+    })
+    const ordered = { ...event, rotations: [group(['post-1', 'post-2'])], stations: [post(1), post(2)] }
+    const reordered = { ...ordered, rotations: [group(['post-2', 'post-1'])] }
+
+    expect(roundInputsOf(reordered)).not.toEqual(roundInputsOf(ordered))
+    expect(roundInputsOf(ordered).rotations).toEqual(ordered.rotations)
+  })
+
+  it('reads an event without posts or classes as empty', () => {
+    expect(roundInputsOf({})).toEqual({ classes: [], rotations: [], stations: [] })
   })
 })

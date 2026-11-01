@@ -4,6 +4,7 @@ audience: secretary
 order: 40
 covers:
   - src/pages/admin/EventStationsPage.tsx
+  - src/pages/admin/components/DroppedTasksDialog.tsx
   - src/pages/admin/eventStationsPage/**
   - src/pages/admin/EventResultsPage.tsx
   - src/pages/admin/eventResultsPage/**
@@ -13,7 +14,7 @@ covers:
   - src/pages/admin/eventViewPage/infoPanel/ResultsPublishing.tsx
   - src/pages/admin/components/KcIdLookupButton.tsx
   - src/pages/admin/components/StartDaySelector.tsx
-sourceHash: f6c83b
+sourceHash: d9ac7d
 ---
 
 On the trial day the secretary's job is to record what the dogs did and to get the results in
@@ -87,7 +88,23 @@ trial day.
 
 !shot[EventStationsPage/event-stations-rotation] A three-class rotation: each class starts at a different post and does two tasks at its last
 
-**{t:save}** stores the posts and the rotation in the event's details.
+**{t:save}** stores the posts and the rotation in the event's details. When results have already been
+recorded, the save works out their points, maximum, percentage and prize again for the new rounds, so
+the placements and the results sent to Omakoira match the results table. The same goes for changing
+the classes in the event's details. If a dog's round gains a task that has not been scored yet, the
+dog's prize goes until that task is scored. A result already sent that changes reads
+*{t:results.kennelliitto.badge.changed}* in the *Omakoira* column and is sent again.
+
+A recorded task is kept only where its place means the same task in the dog's new round as before.
+When, for example, a post goes from two tasks to one or a task's parts change, the scores that would
+go are listed dog by dog before the save. **{t:event.resultTasksDropped.confirm}** saves the change
+and removes those scores, and they do not come back if the change is undone later. **{t:cancel}**
+leaves the change unsaved.
+
+!shot[DroppedTasksDialog/dropped-tasks] A change of a post would remove recorded tasks from three dogs
+
+Once the results have been handed over to the chief judge or confirmed, a change that would alter
+recorded results is not saved. A change that alters no dog's result is still saved.
 
 ## Entering results
 

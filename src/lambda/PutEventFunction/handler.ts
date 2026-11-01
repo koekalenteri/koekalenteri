@@ -30,6 +30,7 @@ import {
   saveEvent,
   updateRegistrations,
 } from '../lib/event'
+import { recomputeEventResults } from '../lib/eventResults'
 import { parseJSONWithFallback } from '../lib/json'
 import { httpError, isPatchRequest, lambda, response } from '../lib/lambda'
 import { logger } from '../lib/log'
@@ -37,7 +38,12 @@ import { readOrganizer } from '../lib/repositories/organizerRepository'
 import { readEventRegistrations } from '../lib/repositories/registrationRepository'
 import { validateBody } from '../lib/request'
 import { moveOrganizerEventStats } from '../lib/stats/stats'
-import { publishEventChange, publishEventCounts } from '../lib/ws/actions'
+import {
+  publishEventChange,
+  publishEventCounts,
+  publishPublicStartList,
+  publishRegistrationPatches,
+} from '../lib/ws/actions'
 
 const isMemberOfOrganizer = (memberOf: string[], organizerId: string | undefined) =>
   !!organizerId && memberOf.includes(organizerId)
@@ -419,6 +425,16 @@ const putEventLambda = lambda('putEvent', async (event) => {
   await checkPublishing(existing, item, data)
   await updateEventDerivedFields(data)
 
+  // The stored results follow a change of the posts, the rotation or the classes, written before the
+  // event so that a save stopped halfway is made again in full (KOE-1666).
+  const resultPatches = await recomputeEventResults({
+    confirmDrops: event.queryStringParameters?.confirmDrops,
+    data,
+    existing,
+    timestamp,
+    userName: user.name,
+  })
+
   // modification info is always updated
   data.modifiedAt = timestamp
   data.modifiedBy = user.name
@@ -426,6 +442,10 @@ const putEventLambda = lambda('putEvent', async (event) => {
 
   // Update registrations in case the secretary version was out of date.
   const result = await persistEventWithRegistrations(stored, data)
+  if (resultPatches.length) {
+    await publishRegistrationPatches(data.id, resultPatches, data.organizer.id)
+    await publishPublicStartList(data.id)
+  }
 
   // Organizer stats are keyed by organizer + start date, so an edit to either has to carry the
   // already-counted registrations across rather than leave them under the old key. An event stored

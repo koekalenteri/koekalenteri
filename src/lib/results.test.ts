@@ -19,16 +19,20 @@ import {
   formatShownResult,
   formatTaskName,
   hasJudgeStop,
+  isRecordedTask,
+  isResultTasksDroppedBody,
   kcFormatOfEventType,
   mergeStationTasks,
   nowtTotals,
   parseEventResultCode,
   partMaxPoints,
   placementsFor,
+  reconcileRoundTasks,
   resolveEventResult,
   resultMarks,
   resultPrefixAsKennelClub,
   roundColumns,
+  roundsDiffer,
   STOPPED_RESULT_CODE,
   sameEventResult,
   sameStationTasks,
@@ -913,5 +917,88 @@ describe('formatResultLine', () => {
     expect(formatResultLine({ marks: ['interrupted'], placement: 2, result: 'AVO1' }, t)).toBe('AVO1 Stopped Place 2')
     expect(formatResultLine({ result: 'AVO0' }, t)).toBe('AVO0')
     expect(formatResultLine({}, t)).toBe('')
+  })
+})
+
+describe('reconcileRoundTasks (KOE-1666)', () => {
+  const whole = stationSlots('post-1', { parts: 1, tasks: 2, tasksBefore: 0 })
+  const split = stationSlots('post-1', { parts: 2, tasks: 1, tasksBefore: 0 })
+  const scored = (...indexes: number[]) => indexes.map((index) => ({ index, points: 8, stationId: 'post-1' }))
+
+  it('keeps every score of a round that stays as it was', () => {
+    expect(reconcileRoundTasks(whole, whole, scored(0, 1))).toEqual({ dropped: [], kept: scored(0, 1) })
+  })
+
+  it('drops the score of a task the round no longer has', () => {
+    const one = stationSlots('post-1', { parts: 1, tasks: 1, tasksBefore: 0 })
+    expect(reconcileRoundTasks(whole, one, scored(0, 1))).toEqual({ dropped: scored(1), kept: scored(0) })
+  })
+
+  it('drops a score whose slot now means a part instead of a task, or the second task instead of a part', () => {
+    expect(reconcileRoundTasks(whole, split, scored(0, 1))).toEqual({ dropped: scored(0, 1), kept: [] })
+    expect(reconcileRoundTasks(split, whole, scored(0, 1))).toEqual({ dropped: scored(0, 1), kept: [] })
+  })
+
+  it('keeps the parts of a split task when the post gets a second one', () => {
+    const twoSplit = stationSlots('post-1', { parts: 2, tasks: 2, tasksBefore: 0 })
+    expect(reconcileRoundTasks(split, twoSplit, scored(0, 1))).toEqual({ dropped: [], kept: scored(0, 1) })
+  })
+
+  it('drops a score whose slot is in one round only', () => {
+    const one = stationSlots('post-1', { parts: 1, tasks: 1, tasksBefore: 0 })
+    expect(reconcileRoundTasks(one, whole, scored(1))).toEqual({ dropped: scored(1), kept: [] })
+    expect(reconcileRoundTasks(whole, one, scored(1))).toEqual({ dropped: scored(1), kept: [] })
+  })
+
+  it('drops a score the round before did not read either, and has nothing to say of no scores', () => {
+    expect(reconcileRoundTasks(split, split, scored(5))).toEqual({ dropped: scored(5), kept: [] })
+    expect(reconcileRoundTasks(whole, split, undefined)).toEqual({ dropped: [], kept: [] })
+  })
+})
+
+describe('isRecordedTask (KOE-1666)', () => {
+  it.each([
+    ['a score', { points: 12 }, true],
+    ['a zero', { points: 0 }, true],
+    ['an empty field', { points: null }, false],
+    ['a zero reason without points', { points: null, zeroFault: 'unknown' as const }, true],
+    ['a recall without points', { points: null, recalled: true }, true],
+    ['a retirement without points', { points: null, retired: true }, true],
+  ])('reads %s as recorded: %s', (_name, task, recorded) => {
+    expect(isRecordedTask(task)).toEqual(recorded)
+  })
+})
+
+describe('roundsDiffer (KOE-1666)', () => {
+  const first = stationSlots('post-1', { parts: 1, tasks: 1, tasksBefore: 0 })
+  const second = stationSlots('post-2', { parts: 1, tasks: 1, tasksBefore: 1 })
+
+  it('reads the same slots in another order as the same round', () => {
+    expect(roundsDiffer([...first, ...second], [...second, ...first])).toEqual(false)
+  })
+
+  it.each([
+    ['a slot more', [...first, ...second]],
+    ['a split task', stationSlots('post-1', { parts: 2, tasks: 1, tasksBefore: 0 }).slice(0, 1)],
+    ['another post', second],
+  ])('reads %s as a different round', (_name, after) => {
+    expect(roundsDiffer(first, after)).toEqual(true)
+  })
+})
+
+describe('isResultTasksDroppedBody (KOE-1666)', () => {
+  const body = { confirmation: 'abc', dogs: [{ id: 'r1', name: 'Hukka', tasks: 1 }], error: 'resultTasksDropped' }
+
+  it('reads the question the event save asks about dropped scores', () => {
+    expect(isResultTasksDroppedBody(body)).toEqual(true)
+  })
+
+  it.each([
+    ['another error', { ...body, error: 'staleData' }],
+    ['no confirmation', { ...body, confirmation: undefined }],
+    ['a dog without a count', { ...body, dogs: [{ id: 'r1', name: 'Hukka' }] }],
+    ['no body', undefined],
+  ])('refuses %s', (_name, value) => {
+    expect(isResultTasksDroppedBody(value)).toEqual(false)
   })
 })

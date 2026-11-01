@@ -25,8 +25,18 @@ vi.mock('../state/events/actions', async () => {
   return {
     adminSaveEventAtom: atom(
       null,
-      (_get, _set, { event, formChanges }: { event: DogEvent; formChanges?: Partial<DogEvent> }) =>
-        formChanges ? mockSave(event, formChanges) : mockSave(event)
+      (
+        _get,
+        _set,
+        {
+          confirmDrops,
+          event,
+          formChanges,
+        }: { event: DogEvent; formChanges?: Partial<DogEvent>; confirmDrops?: string }
+      ) => {
+        if (confirmDrops) return mockSave(event, formChanges, confirmDrops)
+        return formChanges ? mockSave(event, formChanges) : mockSave(event)
+      }
     ),
   }
 })
@@ -446,5 +456,75 @@ describe('useEventForm', () => {
 
     expect(mockResetEvent).toHaveBeenCalled()
     expect(mockNavigate).not.toHaveBeenCalled()
+  })
+
+  describe('a change that drops recorded scores (KOE-1666)', () => {
+    const asked = {
+      confirmation: 'drops-1',
+      dogs: [{ class: 'ALO', id: 'dog-a', name: 'Hukka', number: 1, tasks: 1 }],
+      error: 'resultTasksDropped',
+    }
+    const dropped = () => new APIError({ status: 409, statusText: 'Conflict' } as Response, asked)
+
+    it('asks instead of reporting a failure, and keeps the form as edited', async () => {
+      mockSave.mockRejectedValueOnce(dropped())
+      const onSaved = vi.fn()
+      const { result } = renderHook(() => useEventForm({ onDoneRedirect: '/events', onSaved }), { wrapper: Provider })
+
+      await act(async () => {
+        await result.current.handleSave()
+      })
+
+      expect(result.current.dropsDialogProps).toMatchObject({ dogs: asked.dogs, open: true })
+      expect(mockEnqueueSnackbar).not.toHaveBeenCalled()
+      expect(mockResetEvent).not.toHaveBeenCalled()
+      expect(onSaved).not.toHaveBeenCalled()
+    })
+
+    it('saves again with the confirmation it was given once the secretary confirms', async () => {
+      mockSave.mockRejectedValueOnce(dropped()).mockResolvedValueOnce(mockEvent)
+      const onSaved = vi.fn()
+      const { result } = renderHook(() => useEventForm({ onDoneRedirect: '/events', onSaved }), { wrapper: Provider })
+      await act(async () => {
+        await result.current.handleSave()
+      })
+
+      await act(async () => {
+        await result.current.dropsDialogProps.onConfirm()
+      })
+
+      expect(mockSave).toHaveBeenLastCalledWith(mockEvent, undefined, 'drops-1')
+      expect(result.current.dropsDialogProps.open).toBe(false)
+      expect(mockNavigate).toHaveBeenCalledWith('/events')
+      expect(onSaved).toHaveBeenCalledTimes(1)
+    })
+
+    it('saves nothing when the secretary cancels', async () => {
+      mockSave.mockRejectedValueOnce(dropped())
+      const { result } = renderHook(() => useEventForm(), { wrapper: Provider })
+      await act(async () => {
+        await result.current.handleSave()
+      })
+
+      act(() => {
+        result.current.dropsDialogProps.onCancel()
+      })
+
+      expect(result.current.dropsDialogProps.open).toBe(false)
+      expect(mockSave).toHaveBeenCalledTimes(1)
+    })
+
+    it('says so when the results are handed over and the change would alter them', async () => {
+      mockSave.mockRejectedValueOnce(
+        new APIError({ status: 423, statusText: 'Locked' } as Response, { error: 'resultsLocked' })
+      )
+      const { result } = renderHook(() => useEventForm(), { wrapper: Provider })
+
+      await act(async () => {
+        await result.current.handleSave()
+      })
+
+      expect(mockEnqueueSnackbar).toHaveBeenCalledWith('event.resultsLocked', errorSnackbarOptions)
+    })
   })
 })
