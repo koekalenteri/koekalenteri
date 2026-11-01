@@ -5,7 +5,7 @@ order: 30
 covers:
   - src/pages/StartListPage.tsx
   - src/pages/startListPage/**
-sourceHash: 178ba0
+sourceHash: b139b3
 ---
 
 The start list is the trial's public page, where the organizer publishes the participants, the
@@ -51,7 +51,8 @@ final while another is still alphabetical.
 
 Once the organizer has published a class's results, the last line of each dog's row is its
 result: the class and the prize, AVO1 for example, or a nought or a dash as the rules say. If the
-judge stopped the trial, the result carries the mark *{t:results.marks.interrupted}* after it. In a working test (NOWT)
+judge stopped the trial, an injured or ill dog's included, the result carries the mark
+*{t:results.marks.interrupted}* after it. A handler's own withdrawal carries none. In a working test (NOWT)
 a dog that earned a prize also shows its rank in its class that day, for example *Place 2*; dogs
 with equal points share a rank.
 Results are published class by class, and day by day in a trial of several days, so the page can

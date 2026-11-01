@@ -43,7 +43,8 @@ export type NowtZeroFault =
  * The faults a judge ends a dog's trial on: NOWT's hylkäävät virheet (§5.3.5), NOME-A's (§3.3.3),
  * NOME-B's keskeytyssyyt (§4.3.3) and the taipumuskoe's failed qualities (§2.3.2), in the rules edition
  * in force from 15.4.2023. The round is voided, so every one of these resolves to a dash rather than a
- * zero, and this code is then the only place the reason survives.
+ * zero (its points so far are still kept, KOE-1669), and this code is then the only place the reason
+ * survives.
  *
  * One code per rules bullet, shared across the lists where the bullets say the same thing. The union is
  * wider than any one list, and `eliminatingFaults` in `lib/results.ts` says which codes each event type
@@ -106,13 +107,17 @@ export interface EventResultRetirement {
    * `judgeStopped` is the judge ending the dog's trial — in NOME-A on two serious faults, where an
    * eye-wipe or a first dog down does it alone (§3.3.3), and in NOME-B on the keskeytyssyyt of §4.3.3.
    * It is deliberately not an `EventResultElimination`: a stop is not itself a hylkäävä virhe, and
-   * §4.3.3 asks for who stopped the trial as well as why. It publishes as a nought and a `ResultMark`
-   * (KOE-1300); the reason is KOE-1299's to record.
+   * §4.3.3 asks for who stopped the trial as well as why. `judgeStopped` alone publishes as a nought;
+   * it carries a `ResultMark` (KOE-1300), and the reason is KOE-1299's to record.
+   *
+   * `injury` and `illness` are the judge's stop of NOWT §1.8, kept apart for statistics: both publish as
+   * a dash with the same mark (§5.4.1). `handlerChoice` is the handler's own withdrawal, which carries no
+   * mark (KOE-1669).
    */
-  cause: 'handlerChoice' | 'injury' | 'judgeStopped'
+  cause: 'handlerChoice' | 'injury' | 'illness' | 'judgeStopped'
   /**
-   * The judge's call, asked only for `handlerChoice`: §5.8.1 grants the dash where the dog could still
-   * have placed, and a zero otherwise. An injured dog always takes the dash.
+   * The judge's call, asked only for `handlerChoice`: §5.4.1 grants the dash where the dog could still
+   * have placed, and a zero otherwise. An injured or ill dog always takes the dash.
    */
   couldStillHavePlaced?: boolean
   /** Where it happened. An injury in particular is worth locating, not just counting. */
@@ -122,9 +127,10 @@ export interface EventResultRetirement {
 /**
  * A note published beside the result rather than in place of it — Koiranet's "Lisämerkinnät" (KOE-1300).
  *
- * The result line says how the dog placed, and a stopped trial takes the nought the rules give it — the
- * same nought a dog that simply failed to place takes. The mark is what distinguishes them, which is
- * why it rides alongside instead of replacing the code. Stored as a code, never as a label — the
+ * The result line says how the dog placed, and a stopped trial takes the code the rules give it: the
+ * nought for the judge's stop, the dash for an injury or an illness. A dog that went unplaced or was
+ * withdrawn by its handler takes the same codes. The mark is what tells the stop apart, which is why it
+ * rides alongside instead of replacing the code. Stored as a code, never as a label: the
  * Finnish wording is an i18n key.
  *
  * Derived from what is recorded, never entered: see `resultMarks` in `lib/results.ts`.
@@ -147,8 +153,6 @@ export interface JsonEventResultTask {
    * the entry, never the denominator — scoring against the reduced figure would erase the penalty.
    */
   recalled?: boolean
-  /** The round stopped here. Recorded as a dash, which is not a zero and contributes nothing. */
-  retired?: boolean
   /** Required whenever `points` is 0, so the reason survives into later statistics. */
   zeroFault?: NowtZeroFault
   judge?: PublicJudge
@@ -174,7 +178,10 @@ export interface JsonEventResult {
   points?: number
   /** The round's nominal maximum — 80 or 100, depending on how many posts the event ran. */
   maxPoints?: number
-  /** Derived. Absent for a voided round, which has nothing to compare against a complete one. */
+  /**
+   * Derived: `points` against the whole round's `maxPoints`, also for a round that ended early, whose
+   * earned points Kennelliitto publishes beside its nought or dash (KOE-1669).
+   */
   percentage?: number
   /** Composed as prefix + code, e.g. `ALO1`, `AVO-`, `NOU0`. */
   result?: string

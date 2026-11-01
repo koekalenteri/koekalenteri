@@ -11,8 +11,8 @@ export type TaskEdit = SubmittedTask
 /**
  * One dog's round as it stands on screen.
  *
- * A round that was eliminated or withdrawn is not a round with low scores — it has no scores to give,
- * so the two are held side by side rather than folded into the task list.
+ * How a round ended is held beside its scores rather than folded into the task list: a round that ended
+ * early keeps what it earned up to then (KOE-1669).
  */
 export interface ResultEdit {
   tasks: TaskEdit[]
@@ -41,9 +41,6 @@ export const withResultCode = (edit: ResultEdit, resultCode?: ResultCode): Resul
     ...(resultCode ? { resultCode } : {}),
   }
 }
-
-/** Whether the round ended before it could be scored, so the task inputs have nothing to collect. */
-export const isVoided = (edit: ResultEdit): boolean => Boolean(edit.elimination ?? edit.retirement)
 
 /**
  * The edit reduced to what it would store: a task with nothing in it is no task, the order the slots

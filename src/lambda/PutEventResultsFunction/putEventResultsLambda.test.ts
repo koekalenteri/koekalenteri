@@ -288,6 +288,24 @@ describe('putEventResultsLambda', () => {
     })
   })
 
+  it('stores and audits an ill dog as a dash with what it earned, naming the cause (KOE-1669)', async () => {
+    const retirement = { cause: 'illness' as const }
+    await putEventResultsLambda(apiEvent([{ eventResult: { retirement, tasks: scores(17, 18, 16, 14) }, id: 'reg-1' }]))
+
+    expect(mockUpdateRegistrationField).toHaveBeenCalledWith(
+      'event-1',
+      'reg-1',
+      'eventResult',
+      expect.objectContaining({ maxPoints: 80, points: 65, result: 'AVO-', retirement })
+    )
+    expect(mockAudit).toHaveBeenCalledWith({
+      auditKey: 'event-1:reg-1',
+      messageKey: 'audit.messages.resultSavedDetail',
+      messageParams: { result: 'AVO-, 65/80 p, koira sairastui' },
+      user: 'Sihteeri',
+    })
+  })
+
   it('rejects an empty submission without touching anything', async () => {
     await putEventResultsLambda(apiEvent([]))
 
@@ -885,8 +903,8 @@ describe('putEventResultsLambda', () => {
     // Which post threw the dog out is worth knowing, and it is lost the moment only the fault is kept.
     expect(stored.elimination).toEqual({ fault: 'hardMouth', stationId: 'post-3' })
     expect(stored.result).toBe('AVO-')
-    // A voided round has no total to publish, even though a post had already scored it.
-    expect(stored.points).toBeUndefined()
+    // A round that ended early keeps what a post had already scored, as every ended round does (KOE-1669).
+    expect(stored.points).toBe(17)
   })
   describe('a trial handed to the chief judge', () => {
     const handedOver = { ...nowtEvent, kcState: { code: 1253, name: 'Ylituomarin hyväksyttäväksi', readAt: 'x' } }

@@ -14,7 +14,7 @@ covers:
   - src/pages/admin/eventViewPage/infoPanel/ResultsPublishing.tsx
   - src/pages/admin/components/KcIdLookupButton.tsx
   - src/pages/admin/components/StartDaySelector.tsx
-sourceHash: c396d9
+sourceHash: 0b1ad2
 ---
 
 On the trial day the secretary's job is to record what the dogs did and to get the results in
@@ -141,7 +141,7 @@ post, showing only that post's tasks — the result is then left out, since it d
 posts too. The choice offers only the shown day's posts, and the narrowed page lists only the dogs
 whose group comes to that post.
 
-!shot[ResultsTable/results-entry-nowt] A NOWT class's points per task, the second dog stopped at post 2
+!shot[ResultsTable/results-entry-nowt] A NOWT class's points per task, the second dog's handler withdrew at post 1
 
 **Other event types.** The result is the judge's decision and is picked in the
 *{t:results.column.result}* field: a prize of 1 to 3, a nought or a dash, and in NOU and NKM
@@ -149,11 +149,29 @@ trials only pass or fail. Beside it is *{t:results.judge}*, when the class has m
 
 !shot[ResultsTable/results-entry-nou] A NOU trial's results: judge and result
 
-**Interruption.** The *{t:results.interruption}* field records
-*{t:results.retirement.judgeStopped}*. A stopped dog's result is a nought, as the rules say, and on
-the published list it carries the mark *{t:results.marks.interrupted}*. The whole-round view also
-asks *{t:results.outcomeAt}*, that is, at which post the round was stopped. A prize already
-recorded cannot take a stop beside it; clear the result first.
+**Interruption.** The *{t:results.interruption}* field records a dog's trial that ended early. In a
+working test (NOWT) the choices and their results under the rules are:
+
+- *{t:results.retirement.handlerChoice}*: the result is a nought. If the judge holds that the dog
+  could still have reached a prize, tick *{t:results.couldStillHavePlaced}*, and the result is a dash.
+- *{t:results.retirement.injury}* or *{t:results.retirement.illness}*: the judge stopped the trial,
+  and the result is a dash with the mark *{t:results.marks.interrupted}* after it on the published list.
+- *{t:results.retirement.judgeStopped}*: the result is a nought with the mark
+  *{t:results.marks.interrupted}*.
+
+A handler's withdrawal carries no *{t:results.marks.interrupted}* mark, just as in the Kennel Club's
+breeding database. The whole-round view also asks *{t:results.outcomeAt}*, that is, at which post the
+round ended. The posts after it in the dog's round read *{t:results.notReached}*, in the view narrowed
+to one post too and on the post's own entry page, where the dog shows as done. The points earned
+until then stay and can be edited, and their total against the whole round's maximum shows under the
+row. The same total goes to Omakoira. If points were already entered at a later post, the field stays
+and the points count in the total, so they can be cleared if need be. When the choice is
+*{t:results.outcomeAtUnknown}*, no post shows as not reached.
+
+In the other formats the field records only *{t:results.retirement.judgeStopped}*. The result is a
+nought, as the rules say, and on the published list it carries the mark
+*{t:results.marks.interrupted}*. A prize already recorded cannot take a stop beside it; clear the
+result first.
 
 The interruption is asked only in the formats where the Kennel Club records one (NOME-A, NOME-B, NKM
 and NOWT). An aptitude test (NOU) has no interruption, so the field is not shown. If a NOU dog already

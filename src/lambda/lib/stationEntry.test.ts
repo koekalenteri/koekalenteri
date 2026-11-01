@@ -118,7 +118,7 @@ describe('stationEntry', () => {
         eventType: 'NOWT',
         group: { date: '2026-09-12', key: 'ALO-AP', number: 1, time: 'ap' },
         id: 'run-1',
-        visit: { parts: 1, tasks: 1, tasksBefore: 0 },
+        visit: { parts: 1, postsBefore: [], tasks: 1, tasksBefore: 0 },
       })
       // The link is shared on paper at a venue; contact details must not ride on it.
       expect(JSON.stringify(result)).not.toContain('example.com')

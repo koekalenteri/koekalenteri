@@ -22,7 +22,7 @@ import {
   isScorableRegistration,
   sortRegistrationsByDateClassTimeAndNumber,
 } from './registration'
-import { dogVisits, stationQueue } from './rotation'
+import { dogVisits, rotationDogOf, stationQueue } from './rotation'
 import { isObject } from './utils'
 
 /**
@@ -35,16 +35,25 @@ export type ResultCode = '1' | '2' | '3' | '0' | '-'
 /**
  * The marks published beside a result (KOE-1300).
  *
- * The rules say what a stopped dog's result line reads — a nought, see `STOPPED_RESULT_CODE` — but a
- * nought is also what a dog that simply failed to place gets, and NOME-B §4.3.3 requires more than that:
- * "Keskeyttämisen syy ja se, kenen toimesta keskeyttäminen on tapahtunut, merkitään arvosteluun." The
- * mark carries the second half of that beside the code, the way Koiranet carries it in "Lisämerkinnät"
- * rather than inside the result. (The first half — the reason — is KOE-1299.)
+ * The rules say what a stopped dog's result line reads: a nought for the judge's stop on the dog's work
+ * (`STOPPED_RESULT_CODE`), a dash for an injury or an illness (NOWT §5.4.1). Either is also what a dog
+ * gets that simply went unplaced or was withdrawn by its handler, and NOME-B §4.3.3 requires more than
+ * that: "Keskeyttämisen syy ja se, kenen toimesta keskeyttäminen on tapahtunut, merkitään arvosteluun."
+ * The mark tells the judge's stop apart from a plain nought or dash, beside the code, the way Koiranet
+ * carries it in "Lisämerkinnät" rather than inside the result. (The reason itself is KOE-1299.)
  *
- * Derived rather than entered: the secretary records what happened, and the mark follows.
+ * Derived rather than entered: the secretary records what happened, and the mark follows. Every stop the
+ * judge makes carries it, an injured or ill dog's included: Kennelliitto publishes those dashes with
+ * "Kesk." beside them, and a handler's own withdrawal with neither (KOE-1669).
+ *
+ * The rules about a stop's code (`canBeStopped`, `withResultCode`, the outcome control's lock, the
+ * qualitative fill-in in `resolveEventResult`) test `judgeStopped` alone on purpose: injury and illness
+ * are offered only where the code is derived from them (NOWT), never entered beside them.
  */
+const JUDGE_STOP_CAUSES: ReadonlySet<EventResultRetirement['cause']> = new Set(['judgeStopped', 'injury', 'illness'])
+
 export const resultMarks = (result?: { retirement?: EventResultRetirement }): ResultMark[] =>
-  result?.retirement?.cause === 'judgeStopped' ? ['interrupted'] : []
+  result?.retirement && JUDGE_STOP_CAUSES.has(result.retirement.cause) ? ['interrupted'] : []
 
 /** The marks as one reader-facing string, for wherever the result itself is spelled out. */
 export const formatResultMarks = (marks: readonly ResultMark[] | undefined, t: TFunction<'translation'>): string =>
@@ -271,6 +280,26 @@ export const stationSlots = (
   })
 
 /**
+ * The posts a dog's round visits before a post, in its order: what `StationVisitLayout.postsBefore`
+ * carries to the post's own link, read here off the whole round. None for a post the round lacks.
+ */
+export const roundPostsBefore = (round: readonly Pick<RoundTask, 'stationId'>[], stationId: string): string[] => {
+  const posts = [...new Set(round.map((task) => task.stationId))]
+  const at = posts.indexOf(stationId)
+  return at < 0 ? [] : posts.slice(0, at)
+}
+
+/**
+ * Whether a dog's round ended at a post before this one, so the dog never reached it and the post reads
+ * "kesk" (KOE-1669). Not where the round did not end early, where the post it ended at is not recorded
+ * ("Ei tiedossa"), or where that post comes at or after this one.
+ */
+export const endedBefore = (
+  retirement: Pick<EventResultRetirement, 'stationId'> | undefined,
+  postsBefore: readonly string[]
+): boolean => Boolean(retirement?.stationId && postsBefore.includes(retirement.stationId))
+
+/**
  * The scored slots of one dog's round, in the order its rotation group visits the posts (KOE-1665):
  * every post of its day in number order where the day has no rotation of its own. A day without posts
  * has an empty round.
@@ -305,12 +334,11 @@ const sameSlot = (a: RoundTask | undefined, b: RoundTask | undefined): boolean =
 
 /**
  * Whether a stored task records anything. The results table stores a slot it shows as unscored
- * (`points: null`) as soon as the row is edited, so a task without points, a zero's reason, a recall or a
- * retirement is an empty field, and dropping it loses nothing the secretary would need to be asked about.
+ * (`points: null`) as soon as the row is edited, so a task without points, a zero's reason or a recall
+ * is an empty field, and dropping it loses nothing the secretary would need to be asked about.
  */
-export const isRecordedTask = (
-  task: Pick<JsonEventResultTask, 'points' | 'recalled' | 'retired' | 'zeroFault'>
-): boolean => task.points !== null || Boolean(task.zeroFault) || Boolean(task.recalled) || Boolean(task.retired)
+export const isRecordedTask = (task: Pick<JsonEventResultTask, 'points' | 'recalled' | 'zeroFault'>): boolean =>
+  task.points !== null || Boolean(task.zeroFault) || Boolean(task.recalled)
 
 const slotsByKey = (round: readonly RoundTask[]) => new Map(round.map((slot) => [slotKey(slot), slot]))
 
@@ -491,6 +519,7 @@ export const deriveNowtResult = ({ tasks, elimination, retirement }: NowtResultI
   // §5.4.1 grants the handler's own withdrawal the dash only where a prize was still in reach.
   if (retirement?.cause === 'handlerChoice') return retirement.couldStillHavePlaced ? '-' : '0'
   if (retirement?.cause === 'judgeStopped') return STOPPED_RESULT_CODE
+  // The judge's stop for injury or illness, which §5.4.1 gives the dash.
   if (retirement) return '-'
 
   if (tasks.length === 0 || tasks.some((task) => task.points === null)) return undefined
@@ -655,7 +684,6 @@ export const resolveEventResult = (
   { eventType, eventClass, round = [] }: EventResultContext
 ): Omit<JsonEventResult, 'updatedAt' | 'updatedBy'> => {
   const { tasks, resultCode, ...rest } = submitted
-  const voided = Boolean(submitted.elimination) || Boolean(submitted.retirement)
 
   if (!scoresAtPosts(eventType)) {
     // Nothing to derive: a qualitative type is whatever the judge decided — except a stopped trial,
@@ -672,16 +700,37 @@ export const resolveEventResult = (
   const scored = toScoredTasks(round, tasks)
   const code = resultCode ?? deriveNowtResult({ ...submitted, tasks: scored })
 
-  // A voided round has no total worth publishing: two thirds of a round is not a worse performance
-  // than a whole one, and a percentage beside dogs who ran everything invites the wrong comparison.
-  const totals = voided ? undefined : nowtTotals(scored)
+  // A round that ended early keeps what it earned, against the whole round: Kennelliitto publishes those
+  // points beside the nought or the dash (KOE-1669).
+  const totals = nowtTotals(scored)
 
   return {
     ...rest,
     ...(tasks ? { tasks } : {}),
-    ...(totals ? { maxPoints: totals.maxPoints, percentage: totals.percentage, points: totals.points } : {}),
+    maxPoints: totals.maxPoints,
+    percentage: totals.percentage,
+    points: totals.points,
     ...(code ? { result: formatEventResult(code, eventType, eventClass) } : {}),
   }
+}
+
+/**
+ * The registration with its NOWT totals worked out from its stored tasks where the stored result has
+ * none: a round that ended early saved before KOE-1669, when such a round kept no totals. The tasks are
+ * read against the dog's round as `resolveEventResult` reads them; nothing else of the result changes.
+ * A result with totals, or of a type not scored at posts, is returned as it is.
+ */
+export const withStoredTotals = <T extends SortableRegistration & { eventResult?: JsonEventResult }>(
+  event: RotationEvent,
+  registration: T
+): T => {
+  const stored = registration.eventResult
+  if (!stored?.tasks || stored.percentage !== undefined || !scoresAtPosts(registration.eventType)) return registration
+
+  const { maxPoints, percentage, points } = nowtTotals(
+    toScoredTasks(dogRound(event, rotationDogOf(registration)), stored.tasks)
+  )
+  return { ...registration, eventResult: { ...stored, maxPoints, percentage, points } }
 }
 
 /**
@@ -779,10 +828,12 @@ type PlacementRow = Pick<
  *
  * Only events scored at posts rank; a qualitative type has nothing to order by. A dog ranks when it ran
  * (a participant with a day), was awarded a prize (code 1, 2 or 3) and has points to be ordered by —
- * a prize 0, a dash, an unscored dog and an awarded dog without points (a voided round whose code was
- * overridden) get none and take no rank. Dogs are ranked within their class and day, by the share of
- * the round's maximum compared exactly (maxPoints can differ within a class: its rotation groups may do
- * different numbers of tasks, and the posts may have been edited).
+ * a prize 0, a dash and an unscored dog get none and take no rank. A round that ended early is kept out
+ * by its code, the nought or the dash, not by missing points: it keeps what it earned (KOE-1669). An
+ * awarded dog without points, a row whose totals were never stored, takes no rank either. Dogs are
+ * ranked within their class and day, by the share of the round's maximum compared exactly (maxPoints can
+ * differ within a class: its rotation groups may do different numbers of tasks, and the posts may have
+ * been edited).
  * Ties share a rank and the next rank skips: 1, 2, 2, 4.
  *
  * The day is the one the dog ran: the frozen placement's over the working order's, as the trial's

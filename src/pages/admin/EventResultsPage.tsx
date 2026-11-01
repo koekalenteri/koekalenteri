@@ -503,6 +503,7 @@ export default function EventResultsPage() {
           roundFor={roundFor}
           stationId={scoped ? scope : undefined}
           stations={dayPosts}
+          wholeRoundFor={fullRoundFor}
         />
       </Box>
 
