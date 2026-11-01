@@ -18,7 +18,7 @@ const Notices = () => {
   const { enqueueSnackbar } = useSnackbar()
 
   useEffect(() => {
-    for (const [variant, message] of notices) enqueueSnackbar(message, { variant })
+    for (const [variant, message] of notices) enqueueSnackbar(message, { key: variant, variant })
   }, [enqueueSnackbar])
 
   return null
