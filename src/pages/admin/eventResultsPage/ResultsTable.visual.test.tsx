@@ -255,26 +255,27 @@ it('shows the rank of each awarded dog beside its prize', async () => {
   await expect(screen.getByTestId('visual-root')).toMatchScreenshot('results-entry-nowt-placement')
 })
 
-// One class in two rotation groups by start number (KOE-1665): the first group starts at post 1 and does
-// two tasks at post 2, the second starts at post 2 and does two at post 1. The columns are every slot
-// either has, in the first group's order, and a dog's row leaves the other group's extra task empty.
+// One class in two groups by start number (KOE-1665): the first group starts at post 1 and does its last
+// two exercises at post 2, the second starts at post 2 and does its last two at post 1. The columns are
+// the exercise numbers, "Rasti 1".."Rasti 3", whatever post each group did them at.
 const split = {
   ...eventWithStations,
   rotations: [
     {
       class: 'ALO' as const,
+      exercises: [
+        { stationId: 'post-1' },
+        { parts: 1 as const, stationId: 'post-2' },
+        { parts: 1 as const, stationId: 'post-2' },
+      ],
       firstNumber: 1,
       lastNumber: 1,
-      posts: [{ stationId: 'post-1' }, { parts: 1 as const, stationId: 'post-2', taskCount: 2 }],
     },
     {
       class: 'ALO' as const,
+      exercises: [{ parts: 1 as const, stationId: 'post-2' }, { stationId: 'post-1' }, { stationId: 'post-1' }],
       firstNumber: 2,
       lastNumber: 9,
-      posts: [
-        { parts: 1 as const, stationId: 'post-2' },
-        { stationId: 'post-1', taskCount: 2 },
-      ],
     },
   ],
 }
@@ -296,7 +297,7 @@ const splitEdits: Record<string, ResultEdit> = {
   },
 }
 
-it("leaves empty the slots a dog's rotation group does not have", async () => {
+it('names the columns by exercise number whatever post each group did them at', async () => {
   const screen = await render(
     <Frame>
       <ResultsTable
@@ -316,7 +317,7 @@ it("leaves empty the slots a dog's rotation group does not have", async () => {
     </Frame>
   )
 
-  await expect.element(screen.getByText('Rasti 1, tehtävä 2')).toBeVisible()
+  await expect.element(screen.getByText('Rasti 3')).toBeVisible()
   await expect(screen.getByTestId('visual-root')).toMatchScreenshot('results-entry-nowt-groups')
 })
 

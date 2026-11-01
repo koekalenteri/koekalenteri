@@ -147,7 +147,7 @@ describe('EventStationsPage', () => {
     // ALO runs dogs 1 and 2; the range 1 - 1 leaves dog 2 out.
     const split: ConfirmedEvent = {
       ...eventWithStations,
-      rotations: [{ class: 'ALO', firstNumber: 1, lastNumber: 1, posts: [{ stationId: 'post-1' }] }],
+      rotations: [{ class: 'ALO', exercises: [{ stationId: 'post-1' }], firstNumber: 1, lastNumber: 1 }],
     }
     const [first, second, reserve] = registrationsToEventWithStations
 
@@ -170,7 +170,7 @@ describe('EventStationsPage', () => {
       ['a range the wrong way round', { firstNumber: 9, lastNumber: 1 }],
     ])('refuses %s, and does not save', async (_case, range) => {
       const { user } = await renderSeeded(
-        { ...eventWithStations, rotations: [{ class: 'ALO', ...range, posts: [{ stationId: 'post-1' }] }] },
+        { ...eventWithStations, rotations: [{ class: 'ALO', ...range, exercises: [{ stationId: 'post-1' }] }] },
         registrationsToEventWithStations
       )
       await flushPromises()
@@ -183,7 +183,7 @@ describe('EventStationsPage', () => {
     it("leaves no group behind when the day's only post is deleted, and saves", async () => {
       const onePost: ConfirmedEvent = {
         ...eventWithStations,
-        rotations: [{ class: 'ALO', posts: [{ stationId: 'post-1' }] }],
+        rotations: [{ class: 'ALO', exercises: [{ stationId: 'post-1' }] }],
         stations: [eventWithStations.stations?.[0] ?? { date: eventWithStations.startDate, id: 'post-1', number: 1 }],
       }
       const { user } = await renderSeeded(onePost, registrationsToEventWithStations)

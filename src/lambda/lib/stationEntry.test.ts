@@ -118,21 +118,27 @@ describe('stationEntry', () => {
         eventType: 'NOWT',
         group: { date: '2026-09-12', key: 'ALO-AP', number: 1, time: 'ap' },
         id: 'run-1',
-        visit: { parts: 1, tasks: 1, tasksBefore: 0 },
+        visit: { exercise: 1, parts: 1, slotsBefore: 0 },
       })
       // The link is shared on paper at a venue; contact details must not ride on it.
       expect(JSON.stringify(result)).not.toContain('example.com')
       expect(JSON.stringify(result)).not.toContain('regNo')
     })
 
-    it('lists the dogs in the order their rotation groups reach the post, each with its tasks there (KOE-1665)', () => {
+    it('lists the dogs exercise by exercise as their groups come to the post, each with its exercise there (KOE-1665)', () => {
       const posts = [station, { date: '2026-09-12' as const, id: 'post-2', number: 2 }]
       const rotated = {
         ...confirmedEvent,
         rotations: [
-          { class: 'ALO' as const, posts: [{ stationId: 'post-1' }, { stationId: 'post-2', taskCount: 2 }] },
-          { class: 'AVO' as const, posts: [{ stationId: 'post-2' }, { stationId: 'post-1', taskCount: 2 }] },
-          { class: 'VOI' as const, posts: [{ stationId: 'post-2' }] },
+          {
+            class: 'ALO' as const,
+            exercises: [{ stationId: 'post-1' }, { stationId: 'post-2' }, { stationId: 'post-2' }],
+          },
+          {
+            class: 'AVO' as const,
+            exercises: [{ stationId: 'post-2' }, { stationId: 'post-1' }, { stationId: 'post-1' }],
+          },
+          { class: 'VOI' as const, exercises: [{ stationId: 'post-2' }] },
         ],
         stations: posts,
       }
@@ -144,11 +150,12 @@ describe('stationEntry', () => {
       ]
 
       expect(
-        stationEntryResponse(rotated, station, dogs).registrations.map((dog) => [dog.id, dog.visit?.tasks])
+        stationEntryResponse(rotated, station, dogs).registrations.map((dog) => [dog.id, dog.visit?.exercise])
       ).toEqual([
         ['run-1', 1],
         ['run-2', 1],
         ['run-3', 2],
+        ['run-3', 3],
       ])
     })
 

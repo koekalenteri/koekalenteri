@@ -594,8 +594,8 @@ describe('EventResultsPage', () => {
     const { user } = await renderScoringPage(i18n.language as Language, registrationsToEventWithStations, {
       ...eventWithStations,
       rotations: [
-        { class: 'ALO', firstNumber: 1, lastNumber: 1, posts: [{ stationId: 'post-1' }, { stationId: 'post-2' }] },
-        { class: 'ALO', firstNumber: 2, lastNumber: 9, posts: [{ stationId: 'post-1' }] },
+        { class: 'ALO', exercises: [{ stationId: 'post-1' }, { stationId: 'post-2' }], firstNumber: 1, lastNumber: 1 },
+        { class: 'ALO', exercises: [{ stationId: 'post-1' }], firstNumber: 2, lastNumber: 9 },
       ],
     })
     await flushPromises()
@@ -961,12 +961,12 @@ describe('ResultSummary', () => {
   it('derives the prize with the same module the server saves with', async () => {
     const { deriveNowtResult, formatEventResult, toScoredTasks } = await import('../../lib/results')
     const round = [1, 2, 3, 4].map((number) => ({
+      exercise: number,
       index: 0,
       maxPoints: 20,
+      part: 0,
       parts: 1 as const,
       stationId: `post-${number}`,
-      task: 0,
-      taskNumber: number,
     }))
     const tasks = [17, 18, 16, 14].map((points, index) => ({ index: 0, points, stationId: `post-${index + 1}` }))
 

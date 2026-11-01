@@ -490,7 +490,10 @@ describe('putEventLambda', () => {
 
       const res = await putEventLambda(
         constructAPIGwEvent(
-          { id: 'existing', rotations: [{ class: 'ALO', posts: [{ stationId: 'post-1' }, { stationId: 'gone' }] }] },
+          {
+            id: 'existing',
+            rotations: [{ class: 'ALO', exercises: [{ stationId: 'post-1' }, { stationId: 'gone' }] }],
+          },
           { method: 'PATCH' }
         )
       )
@@ -509,7 +512,7 @@ describe('putEventLambda', () => {
         { date: '2026-09-12', id: 'post-2', number: 2 },
       ]
       const rotations: EventRotationGroup[] = [
-        { class: 'ALO', posts: [{ stationId: 'post-1' }, { stationId: 'post-2' }] },
+        { class: 'ALO', exercises: [{ stationId: 'post-1' }, { stationId: 'post-2' }] },
       ]
       const stored = { ...mockEvent, eventType: 'NOWT', rotations, stations: posts }
 
@@ -537,7 +540,7 @@ describe('putEventLambda', () => {
           constructAPIGwEvent({
             ...mockEvent,
             eventType: 'NOWT',
-            rotations: [{ class: 'ALO', firstNumber: 9, lastNumber: 1, posts: [{ stationId: 'post-1' }] }],
+            rotations: [{ class: 'ALO', exercises: [{ stationId: 'post-1' }], firstNumber: 9, lastNumber: 1 }],
             stations: posts,
           })
         )
@@ -1380,16 +1383,16 @@ describe('putEventLambda', () => {
     [{ priority: 'members' }, 'priority must be an array'],
     [{ stations: [{ parts: 3 }] }, 'stations.0.parts must be 1 or 2'],
     [
-      { rotations: [{ class: 'ALO', posts: [{ stationId: 'post-1', taskCount: 0 }] }] },
-      'rotations.0.posts.0.taskCount must be at least 1',
+      { rotations: [{ class: 'ALO', exercises: [{ parts: 3, stationId: 'post-1' }] }] },
+      'rotations.0.exercises.0.parts must be 1 or 2',
     ],
     [
-      { rotations: [{ class: 'ALO', posts: [{ dogsAtOnce: 0, stationId: 'post-1' }] }] },
-      'rotations.0.posts.0.dogsAtOnce must be at least 1',
+      { rotations: [{ class: 'ALO', exercises: [{ dogsAtOnce: 0, stationId: 'post-1' }] }] },
+      'rotations.0.exercises.0.dogsAtOnce must be at least 1',
     ],
     [
-      { rotations: [{ class: 'ALO', posts: [{ dogsAtOnce: 11, stationId: 'post-1' }] }] },
-      'rotations.0.posts.0.dogsAtOnce must be at most 10',
+      { rotations: [{ class: 'ALO', exercises: [{ dogsAtOnce: 11, stationId: 'post-1' }] }] },
+      'rotations.0.exercises.0.dogsAtOnce must be at most 10',
     ],
   ])('should return 400 for %p before looking the event up', async (body, message) => {
     signIn(mockSecretary)
@@ -1993,9 +1996,17 @@ describe('putEventLambda', () => {
     const day = '2025-06-01'
     const judge = { id: 1000001, name: 'Pääty Tuomari' }
     const posts: EventStation[] = [
-      { date: day, id: 'post-1', judges: [judge], number: 1, taskCount: 2 },
+      { date: day, id: 'post-1', judges: [judge], number: 1 },
       { date: day, id: 'post-2', judges: [judge], number: 2 },
     ]
+    /** ALO's running order, by post id. */
+    const alo = (...ids: string[]): EventRotationGroup => ({
+      class: 'ALO',
+      exercises: ids.map((stationId) => ({ stationId })),
+    })
+    // Two exercises at the first post, then one at the second.
+    const twoAtFirst = [alo('post-1', 'post-1', 'post-2')]
+    const oneEach = [alo('post-1', 'post-2')]
     const nowtEvent: JsonConfirmedEvent = {
       ...mockEvent,
       classes: [{ class: 'ALO', date: day }],
@@ -2004,6 +2015,7 @@ describe('putEventLambda', () => {
       eventType: 'NOWT',
       judges: [judge],
       kcGuid: '2b81e6a1-559b-407c-87c7-b8a9b89b1987',
+      rotations: twoAtFirst,
       state: 'confirmed',
       stations: posts,
     }
@@ -2024,7 +2036,6 @@ describe('putEventLambda', () => {
       { index: 0, judge, points: post2, stationId: 'post-2' },
     ]
     const handedOverState = { code: KC_STATE_HANDED_OVER, name: 'Luovutettu', readAt: '2025-03-22T10:00:00.000Z' }
-    const onePost1Task: EventStation[] = [{ ...posts[0], taskCount: 1 }, posts[1]]
     const stored = () => [...storedRegistrations.values()]
     const eventResultOf = (id: string) => storedRegistrations.get(id)?.eventResult
 
@@ -2067,6 +2078,11 @@ describe('putEventLambda', () => {
       const request = constructAPIGwEvent({ id: 'existing', stations }, { method: 'PATCH' })
       return putEventLambda(query ? { ...request, queryStringParameters: query } : request)
     }
+    const patchRotations = (rotations: EventRotationGroup[], query?: Record<string, string>) => {
+      signIn(mockSecretary)
+      const request = constructAPIGwEvent({ id: 'existing', rotations }, { method: 'PATCH' })
+      return putEventLambda(query ? { ...request, queryStringParameters: query } : request)
+    }
 
     beforeEach(() => {
       storedRegistrations.clear()
@@ -2077,7 +2093,7 @@ describe('putEventLambda', () => {
     })
 
     it('asks before dropping recorded scores, then recomputes so placement and the sending match the table', async () => {
-      // Two posts, the first with two tasks: A 10 + 20 + 10 = 40/60, B 12 + 12 + 12 = 36/60. A places first.
+      // Two exercises at the first post, one at the second: A 10 + 20 + 10 = 40/60, B 12 + 12 + 12 = 36/60.
       await record(nowtEvent, { 'dog-a': scores([10, 20], 10), 'dog-b': scores([12, 12], 12) })
       expect(placementsFor(stored())).toEqual(
         new Map([
@@ -2086,8 +2102,8 @@ describe('putEventLambda', () => {
         ])
       )
 
-      // The first post is made one task: its second task's score goes, so the secretary is asked first.
-      const asked = await patchStations(onePost1Task)
+      // The first post is made one exercise: the second one's score goes, so the secretary is asked first.
+      const asked = await patchRotations(oneEach)
       expect(asked.statusCode).toEqual(409)
       const body = JSON.parse(asked.body)
       expect(body).toEqual({
@@ -2103,10 +2119,10 @@ describe('putEventLambda', () => {
       expect(eventResultOf('dog-a')?.result).toEqual('ALO2')
 
       // Confirmed: A 10 + 10 = 20/40 (50 %), B 12 + 12 = 24/40 (60 %). B now places first.
-      const res = await patchStations(onePost1Task, { confirmDrops: body.confirmation })
+      const res = await patchRotations(oneEach, { confirmDrops: body.confirmation })
       expect(res.statusCode).toEqual(200)
 
-      const changed: JsonConfirmedEvent = { ...nowtEvent, stations: onePost1Task }
+      const changed: JsonConfirmedEvent = { ...nowtEvent, rotations: oneEach }
       const shown = stored().map((registration) => ({
         ...registration,
         eventResult: shownResult(changed, registration),
@@ -2138,7 +2154,7 @@ describe('putEventLambda', () => {
     it('asks again when the confirmation is not of the drops the change makes now', async () => {
       await record(nowtEvent, { 'dog-a': scores([10, 20], 10) })
 
-      const res = await patchStations(onePost1Task, { confirmDrops: 'a confirmation of something else' })
+      const res = await patchRotations(oneEach, { confirmDrops: 'a confirmation of something else' })
 
       expect(res.statusCode).toEqual(409)
       expect(JSON.parse(res.body)).toMatchObject({ dogs: [{ id: 'dog-a', tasks: 1 }], error: 'resultTasksDropped' })
@@ -2146,8 +2162,7 @@ describe('putEventLambda', () => {
     })
 
     it('recomputes without asking where nothing is dropped, and the patch removes a prize the round no longer has', async () => {
-      const onePerPost: EventStation[] = [{ ...posts[0], taskCount: 1 }, posts[1]]
-      const event = { ...nowtEvent, stations: onePerPost }
+      const event = { ...nowtEvent, rotations: oneEach }
       getEventMock.mockResolvedValue(event)
       await record(event, {
         'dog-a': [
@@ -2163,8 +2178,8 @@ describe('putEventLambda', () => {
         sent = patches
       })
 
-      // A second task at the first post: nothing recorded there yet, so the round is incomplete.
-      const res = await patchStations(posts)
+      // A second exercise at the first post: nothing recorded there yet, so the round is incomplete.
+      const res = await patchRotations(twoAtFirst)
 
       expect(res.statusCode).toEqual(200)
       const after = eventResultOf('dog-a')
@@ -2174,10 +2189,10 @@ describe('putEventLambda', () => {
     })
 
     it.each<[string, EventStation[], EventStation[], number]>([
-      ['parts 1 to 2', [{ ...posts[0], taskCount: 1 }], [{ ...posts[0], parts: 2, taskCount: 1 }], 1],
-      ['parts 2 to 1', [{ ...posts[0], parts: 2, taskCount: 1 }], [{ ...posts[0], taskCount: 1 }], 2],
-    ])('drops a score whose slot means another task after %s', async (_name, from, to, dropped) => {
-      const event = { ...nowtEvent, stations: from }
+      ['parts 1 to 2', [posts[0]], [{ ...posts[0], parts: 2 }], 1],
+      ['parts 2 to 1', [{ ...posts[0], parts: 2 }], [posts[0]], 2],
+    ])('drops a score whose slot means another exercise after %s', async (_name, from, to, dropped) => {
+      const event = { ...nowtEvent, rotations: [alo('post-1')], stations: from }
       const recorded = dogRound(event, rotationDogOf(dogAt('dog-a', 1))).map((slot) => ({
         index: slot.index,
         judge,
@@ -2192,9 +2207,9 @@ describe('putEventLambda', () => {
       expect(JSON.parse(res.body)).toMatchObject({ dogs: [{ id: 'dog-a', tasks: dropped }] })
     })
 
-    it('keeps the scores of a split post given a second task, whose first task still means the same', async () => {
-      const split: EventStation[] = [{ ...posts[0], parts: 2, taskCount: 1 }]
-      const event = { ...nowtEvent, stations: split }
+    it('keeps the scores of a split post given a second exercise, whose first still means the same', async () => {
+      const split: EventStation[] = [{ ...posts[0], parts: 2 }]
+      const event = { ...nowtEvent, rotations: [alo('post-1')], stations: split }
       await record(event, {
         'dog-a': [
           { index: 0, judge, points: 9, stationId: 'post-1' },
@@ -2202,7 +2217,7 @@ describe('putEventLambda', () => {
         ],
       })
 
-      const res = await patchStations([{ ...posts[0], parts: 2, taskCount: 2 }])
+      const res = await patchRotations([alo('post-1', 'post-1')])
 
       expect(res.statusCode).toEqual(200)
       expect(eventResultOf('dog-a')?.tasks?.map((task) => task.points)).toEqual([9, 8])
@@ -2231,7 +2246,7 @@ describe('putEventLambda', () => {
       await record(nowtEvent, { 'dog-a': scores([10, 20], 10) })
       getEventMock.mockResolvedValue({ ...nowtEvent, kcState: handedOverState })
 
-      const res = await patchStations(onePost1Task)
+      const res = await patchRotations(oneEach)
 
       expect(res.statusCode).toEqual(423)
       expect(JSON.parse(res.body)).toEqual({ error: 'resultsLocked' })
@@ -2241,7 +2256,7 @@ describe('putEventLambda', () => {
 
     it('stops at the dog where the trial was handed over while the results were written', async () => {
       await record(nowtEvent, { 'dog-a': scores([10, 20], 10), 'dog-b': scores([12, 12], 12) })
-      const asked = JSON.parse((await patchStations(onePost1Task)).body)
+      const asked = JSON.parse((await patchRotations(oneEach)).body)
       const handedOver = { ...nowtEvent, kcState: handedOverState }
       // The save's own read, the check before the writes and the first dog's find it open; the second dog's does not.
       getEventMock
@@ -2250,7 +2265,7 @@ describe('putEventLambda', () => {
         .mockResolvedValueOnce(nowtEvent)
         .mockResolvedValue(handedOver)
 
-      const res = await patchStations(onePost1Task, { confirmDrops: asked.confirmation })
+      const res = await patchRotations(oneEach, { confirmDrops: asked.confirmation })
 
       expect(res.statusCode).toEqual(423)
       expect(mockWriteRecomputedEventResult).toHaveBeenCalledTimes(1)
@@ -2261,7 +2276,7 @@ describe('putEventLambda', () => {
       getEventMock.mockResolvedValue({ ...nowtEvent, kcState: handedOverState })
 
       // No dog has a result yet, so the change has nothing to recompute.
-      const res = await patchStations(onePost1Task)
+      const res = await patchRotations(oneEach)
 
       expect(res.statusCode).toEqual(200)
       expect(patchEventMock).toHaveBeenCalled()
@@ -2270,7 +2285,7 @@ describe('putEventLambda', () => {
     it('leaves a type judged as a whole alone', async () => {
       getEventMock.mockResolvedValue({ ...nowtEvent, eventType: 'NOME-B' })
 
-      const res = await patchStations(onePost1Task)
+      const res = await patchRotations(oneEach)
 
       expect(res.statusCode).toEqual(200)
       expect(mockReadEventRegistrations).not.toHaveBeenCalled()
@@ -2278,10 +2293,10 @@ describe('putEventLambda', () => {
 
     it('stops before the event is saved when a post saved the dog meanwhile', async () => {
       await record(nowtEvent, { 'dog-a': scores([10, 20], 10), 'dog-b': scores([12, 12], 12) })
-      const asked = JSON.parse((await patchStations(onePost1Task)).body)
+      const asked = JSON.parse((await patchRotations(oneEach)).body)
       mockWriteRecomputedEventResult.mockResolvedValueOnce(false)
 
-      const res = await patchStations(onePost1Task, { confirmDrops: asked.confirmation })
+      const res = await patchRotations(oneEach, { confirmDrops: asked.confirmation })
 
       expect(res.statusCode).toEqual(409)
       expect(JSON.parse(res.body)).toMatchObject({ error: 'staleData' })
@@ -2298,7 +2313,7 @@ describe('putEventLambda', () => {
         ],
       })
 
-      const res = await patchStations(onePost1Task)
+      const res = await patchRotations(oneEach)
 
       expect(res.statusCode).toEqual(200)
       expect(eventResultOf('dog-a')).toMatchObject({ maxPoints: 40, points: 20, result: 'ALO3' })
@@ -2314,42 +2329,32 @@ describe('putEventLambda', () => {
         ],
       })
 
-      const res = await patchStations(onePost1Task)
+      const res = await patchRotations(oneEach)
 
       expect(res.statusCode).toEqual(409)
       expect(JSON.parse(res.body)).toMatchObject({ dogs: [{ id: 'dog-a', tasks: 1 }] })
     })
 
-    describe('a rotation group', () => {
-      // Each post one task, but the class does two at the second post.
-      const group = (secondPostTasks?: number): EventRotationGroup => ({
-        class: 'ALO',
-        posts: [
-          { stationId: 'post-1' },
-          { stationId: 'post-2', ...(secondPostTasks ? { taskCount: secondPostTasks } : {}) },
-        ],
-      })
-      const rotated = { ...nowtEvent, rotations: [group(2)], stations: onePost1Task }
+    describe('a running order', () => {
+      // One exercise at the first post, two at the second.
+      const rotated = { ...nowtEvent, rotations: [alo('post-1', 'post-2', 'post-2')] }
       const recorded = [
         { index: 0, judge, points: 10, stationId: 'post-1' },
         { index: 0, judge, points: 20, stationId: 'post-2' },
         { index: 1, judge, points: 10, stationId: 'post-2' },
       ]
-      const patchRotations = (rotations: EventRotationGroup[], query?: Record<string, string>) => {
-        signIn(mockSecretary)
-        const request = constructAPIGwEvent({ id: 'existing', rotations }, { method: 'PATCH' })
-        return putEventLambda(query ? { ...request, queryStringParameters: query } : request)
-      }
 
-      it('recomputes the dogs when the group no longer does two tasks at a post', async () => {
+      it('recomputes the dogs when the group no longer does two exercises at a post', async () => {
         await record(rotated, { 'dog-a': recorded })
         expect(eventResultOf('dog-a')).toMatchObject({ maxPoints: 60, points: 40 })
 
-        const asked = await patchRotations([group()])
+        const asked = await patchRotations([alo('post-1', 'post-2')])
         expect(asked.statusCode).toEqual(409)
         expect(JSON.parse(asked.body)).toMatchObject({ dogs: [{ id: 'dog-a', tasks: 1 }] })
 
-        const res = await patchRotations([group()], { confirmDrops: JSON.parse(asked.body).confirmation })
+        const res = await patchRotations([alo('post-1', 'post-2')], {
+          confirmDrops: JSON.parse(asked.body).confirmation,
+        })
 
         expect(res.statusCode).toEqual(200)
         expect(eventResultOf('dog-a')).toMatchObject({ maxPoints: 40, points: 30, result: 'ALO2' })
@@ -2358,8 +2363,8 @@ describe('putEventLambda', () => {
       it("reads no registration when only the group's dogs at once at a post change", async () => {
         getEventMock.mockResolvedValue({ ...rotated, kcState: handedOverState })
         const pairs: EventRotationGroup = {
-          ...group(2),
-          posts: group(2).posts.map((post) => ({ ...post, dogsAtOnce: 2 })),
+          class: 'ALO',
+          exercises: ['post-1', 'post-2', 'post-2'].map((stationId) => ({ dogsAtOnce: 2, stationId })),
         }
 
         const res = await patchRotations([pairs])
@@ -2370,7 +2375,7 @@ describe('putEventLambda', () => {
 
       it('leaves the results alone when only the order of the posts changes', async () => {
         await record(rotated, { 'dog-a': recorded })
-        const reordered: EventRotationGroup = { ...group(2), posts: [...group(2).posts].reverse() }
+        const reordered = alo('post-2', 'post-2', 'post-1')
 
         const res = await patchRotations([reordered])
 

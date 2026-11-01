@@ -147,7 +147,7 @@ describe('putEventResultsLambda', () => {
   it("scores a dog against its rotation group's own split of a post (KOE-1665)", async () => {
     mockGetAuthorizedEvent.mockResolvedValue({
       ...nowtEvent,
-      rotations: [{ class: 'ALO', posts: [{ parts: 2, stationId: 'post-1' }] }],
+      rotations: [{ class: 'ALO', exercises: [{ parts: 2, stationId: 'post-1' }] }],
     })
     mockReadEventRegistrations.mockResolvedValue([registration('reg-1', 'ALO')])
 
@@ -174,15 +174,15 @@ describe('putEventResultsLambda', () => {
       rotations: [
         {
           class: 'AVO',
+          exercises: [{ stationId: 'post-2' }, { stationId: 'post-1' }, { stationId: 'post-1' }],
           firstNumber: 1,
           lastNumber: 8,
-          posts: [{ stationId: 'post-2' }, { stationId: 'post-1', taskCount: 2 }],
         },
         {
           class: 'AVO',
+          exercises: [{ stationId: 'post-1' }, { stationId: 'post-2' }, { stationId: 'post-2' }],
           firstNumber: 9,
           lastNumber: 16,
-          posts: [{ stationId: 'post-1' }, { stationId: 'post-2', taskCount: 2 }],
         },
       ],
     })

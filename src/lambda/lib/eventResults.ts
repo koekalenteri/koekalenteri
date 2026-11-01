@@ -1,4 +1,4 @@
-import type { ResultTasksDroppedBody, RoundTask, SubmittedEventResult, SubmittedTask } from '../../lib/results'
+import type { ExerciseSlot, ResultTasksDroppedBody, SubmittedEventResult, SubmittedTask } from '../../lib/results'
 import type {
   EventResultElimination,
   EventResultRetirement,
@@ -608,8 +608,8 @@ const recomputeFor = (registration: JsonRegistration, context: RecomputeContext)
   if (!stored || !isScorableRegistration(registration)) return undefined
 
   const dog = rotationDogOf(registration)
-  const before: RoundTask[] = dogRound(context.before, dog)
-  const after: RoundTask[] = dogRound(context.after, dog)
+  const before: ExerciseSlot[] = dogRound(context.before, dog)
+  const after: ExerciseSlot[] = dogRound(context.after, dog)
   if (!roundsDiffer(before, after)) return undefined
 
   const { dropped, kept } = reconcileRoundTasks(before, after, stored.tasks)

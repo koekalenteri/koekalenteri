@@ -73,7 +73,9 @@ export const Path = {
     startNumbers: (id: string = ':id') => `${ADMIN_EVENTS}/startnumbers/${id}`,
     stationResults: (id: string = ':id', stationId: string = ':stationId') =>
       `${ADMIN_EVENTS}/results/${id}/station/${stationId}`,
-    stations: (id: string = ':id') => `${ADMIN_EVENTS}/stations/${id}`,
+    /** The posts page (KOE-1665); its address before the posts were called posts redirects here. */
+    stations: (id: string = ':id') => `${ADMIN_EVENTS}/posts/${id}`,
+    stationsBefore: (id: string = ':id') => `${ADMIN_EVENTS}/stations/${id}`,
     stats: `${ADMIN_ROOT}/stats`,
     users: `${ADMIN_ROOT}/users`,
     viewEvent: (id: string = ':id') => `${ADMIN_EVENTS}/view/${id}`,

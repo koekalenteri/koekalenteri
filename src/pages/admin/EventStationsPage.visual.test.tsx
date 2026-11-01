@@ -67,7 +67,7 @@ it("lays out the course under each of the trial's days", async () => {
 })
 
 // The organiser's map of KOE-1665: three judges at three posts, each class starting at a different
-// post and doing two tasks at its last. VOI does its first post in pairs.
+// post and doing its last two exercises at one. VOI does its first exercise in pairs.
 const judge = (id: number, name: string) => ({ id, name })
 const rotationEvent: ConfirmedEvent = {
   ...eventWithStations,
@@ -78,11 +78,11 @@ const rotationEvent: ConfirmedEvent = {
   ],
   judges: [judge(1, 'Tuomari A'), judge(2, 'Tuomari B'), judge(3, 'Tuomari C')],
   rotations: [
-    { class: 'ALO', posts: [{ stationId: 'r1' }, { stationId: 'r2' }, { stationId: 'r3', taskCount: 2 }] },
-    { class: 'AVO', posts: [{ stationId: 'r3' }, { stationId: 'r1' }, { stationId: 'r2', taskCount: 2 }] },
+    { class: 'ALO', exercises: [{ stationId: 'r1' }, { stationId: 'r2' }, { stationId: 'r3' }, { stationId: 'r3' }] },
+    { class: 'AVO', exercises: [{ stationId: 'r3' }, { stationId: 'r1' }, { stationId: 'r2' }, { stationId: 'r2' }] },
     {
       class: 'VOI',
-      posts: [{ dogsAtOnce: 2, stationId: 'r2' }, { stationId: 'r3' }, { stationId: 'r1', taskCount: 2 }],
+      exercises: [{ dogsAtOnce: 2, stationId: 'r2' }, { stationId: 'r3' }, { stationId: 'r1' }, { stationId: 'r1' }],
     },
   ],
   stations: [1, 2, 3].map((number) => ({
@@ -114,20 +114,24 @@ const renderRotation = (language: Language) =>
     </div>
   )
 
-it("lays out a day's rotation the way the organiser's map does (KOE-1665)", async () => {
-  await page.viewport(1280, 900)
+it("lays out a day's running orders the way the organiser's map does (KOE-1665)", async () => {
+  await page.viewport(1280, 1000)
   const screen = await renderRotation('fi')
 
-  await expect.element(screen.getByText('Rasti 1: ALO, AVO, VOI (x 2)')).toBeVisible()
+  await expect
+    .element(screen.getByText('Suorituspaikka 1: ALO (rasti 1), AVO (rasti 2), VOI (rastit 3 ja 4)'))
+    .toBeVisible()
   await expect(screen.getByTestId('visual-root')).toMatchScreenshot('event-stations-rotation')
 })
 
 describeInLanguage('en', () => {
-  it("lays out a day's rotation the way the organiser's map does (KOE-1665)", async () => {
-    await page.viewport(1280, 900)
+  it("lays out a day's running orders the way the organiser's map does (KOE-1665)", async () => {
+    await page.viewport(1280, 1000)
     const screen = await renderRotation('en')
 
-    await expect.element(screen.getByText('Station 1: ALO, AVO, VOI (x 2)')).toBeVisible()
+    await expect
+      .element(screen.getByText('Post 1: ALO (exercise 1), AVO (exercise 2), VOI (exercises 3 and 4)'))
+      .toBeVisible()
     await expect(screen.getByTestId('visual-root')).toMatchScreenshot('event-stations-rotation-en')
   })
 })

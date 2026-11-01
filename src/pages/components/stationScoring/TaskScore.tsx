@@ -1,4 +1,4 @@
-import type { RoundTask } from '@/lib/results'
+import type { ExerciseSlot } from '@/lib/results'
 import type { NowtZeroFault, PublicJudge } from '@/types'
 import type { TaskEdit } from './types'
 import MenuItem from '@mui/material/MenuItem'
@@ -11,7 +11,7 @@ import { nowtZeroFaults, taskEntryCeiling } from '@/lib/results'
 import { NumberInput } from '../NumberInput'
 
 interface Props {
-  readonly task: RoundTask
+  readonly task: ExerciseSlot
   readonly value?: TaskEdit
   readonly disabled?: boolean
   /** Names the task. Shown as the field's own label where no column header does, as on a phone's
@@ -23,8 +23,8 @@ interface Props {
   readonly judges: PublicJudge[]
   /** Carried over from the dog before, since a post is usually judged by the same person all day. */
   readonly defaultJudge?: PublicJudge
-  readonly onChange: (task: RoundTask, points: number | null, zeroFault?: NowtZeroFault) => void
-  readonly onJudgeChange: (task: RoundTask, judge?: PublicJudge) => void
+  readonly onChange: (task: ExerciseSlot, points: number | null, zeroFault?: NowtZeroFault) => void
+  readonly onJudgeChange: (task: ExerciseSlot, judge?: PublicJudge) => void
 }
 
 export const TaskScore = ({

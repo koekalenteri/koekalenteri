@@ -135,6 +135,6 @@ it('opens the day on the briefing, with the first run ready to go (KOE-1259)', a
     </Frame>
   )
 
-  await expect.element(screen.getByText('Rasti vapaa')).toBeVisible()
+  await expect.element(screen.getByText('Suorituspaikka vapaa')).toBeVisible()
   await expect(screen.getByTestId('visual-root')).toMatchScreenshot('station-turn-day-start')
 })

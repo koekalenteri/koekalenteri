@@ -296,12 +296,12 @@ describe('ParticipantList', () => {
   describe('rotation groups (KOE-1665)', () => {
     const stations = [1, 2].map((number) => ({ date: '2023-01-01' as const, id: `post-${number}`, number }))
     const rotations = [
-      { class: 'AVO' as const, posts: [{ stationId: 'post-2' }, { stationId: 'post-1', taskCount: 2 }] },
+      { class: 'AVO' as const, exercises: [{ stationId: 'post-2' }, { stationId: 'post-1' }, { stationId: 'post-1' }] },
       {
         class: 'VOI' as const,
+        exercises: [{ stationId: 'post-1' }, { stationId: 'post-2' }],
         firstNumber: 1,
         lastNumber: 8,
-        posts: [{ stationId: 'post-1' }, { stationId: 'post-2' }],
       },
     ]
     const participants = [

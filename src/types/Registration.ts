@@ -131,13 +131,18 @@ export interface EventResultRetirement {
  */
 export type ResultMark = 'interrupted'
 
-/** One task's score for one dog. A task is identified by its post and its position within it. */
+/**
+ * One exercise's score for one dog, or one part's of a split exercise (the stored key `tasks` predates
+ * the rules' word, rasti). A score is addressed by its post and its slot there, never by the exercise
+ * number: the judge scored the dog at a post, so a running order changed later keeps the score with the
+ * post that gave it (KOE-1665).
+ */
 export interface JsonEventResultTask {
   stationId: string
   /**
-   * 0-based slot within the post: task × parts + part, as the dog's round lays it out (`RoundTask`). A
-   * post stored with `tasks: 2` before KOE-1665 is one task in two parts, so its slots 0 and 1 keep
-   * their meaning.
+   * 0-based slot at the post: the parts of the group's exercises there, counted in exercise order, as the
+   * dog's round lays it out (`ExerciseSlot`). A post stored before KOE-1665 with `tasks: 2` is one
+   * exercise in two parts, so its slots 0 and 1 keep their meaning.
    */
   index: number
   /** `null` while unscored. `0` is a real score and bars every prize; it is not the same as unscored. */

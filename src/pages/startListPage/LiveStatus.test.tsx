@@ -201,8 +201,8 @@ describeWithTranslations('fi', () => {
       turn({ id: 'open', startedAt: new Date('2026-09-12T08:07:00Z') }),
     ],
     rotations: [
-      { class: 'ALO', posts: [{ dogsAtOnce: 2, stationId: 'post-1' }, { stationId: 'post-2' }] },
-      { class: 'AVO', posts: [{ stationId: 'post-2' }] },
+      { class: 'ALO', exercises: [{ dogsAtOnce: 2, stationId: 'post-1' }, { stationId: 'post-2' }] },
+      { class: 'AVO', exercises: [{ stationId: 'post-2' }] },
     ],
     stations: [
       { date: '2026-09-12', dogsAtOnce: 1, id: 'post-1', number: 1, parts: 1 },
@@ -218,6 +218,19 @@ describeWithTranslations('fi', () => {
     ...[5, 6, 7].map((number) => entered('AVO', number)),
     { ...entered('ALO', 8), cancelled: true },
   ]
+
+  it('queues a group doing two exercises at the post once for each (KOE-1665)', () => {
+    const twiceHere = {
+      ...rotationEvent,
+      liveTurns: [turn({ endedAt: new Date('2026-09-12T08:07:00Z'), exercise: 1, id: 'done' })],
+      rotations: [{ class: 'ALO', exercises: [{ stationId: 'post-1' }, { stationId: 'post-1' }] }],
+    } as PublicConfirmedEvent
+
+    render(<LiveStatus event={twiceHere} participants={[1, 2, 3].map((number) => entered('ALO', number))} />)
+
+    // Three dogs, two exercises each, one through: five turns of 7 minutes, one at a time.
+    expect(screen.getByText('Jonoa jäljellä n. 35–35 min (5 vuoroa)')).toBeInTheDocument()
+  })
 
   it("queues the whole entry at the post of a type not scored at posts, with the post's own figure", () => {
     // NOME-B: one post that takes four at a time. Twelve dogs in two classes, four through: eight

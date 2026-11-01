@@ -32,7 +32,14 @@ import { compareRegistrationClasses } from '@/lib/event'
 import { makeArray } from '@/lib/judge'
 import { liveFormat } from '@/lib/liveFormat'
 import { getRegistrationClass } from '@/lib/registration'
-import { formatTaskName, parseEventResultCode, scoresAtPosts, stationSlots, stationVersion } from '@/lib/results'
+import {
+  formatTaskName,
+  holdsScore,
+  parseEventResultCode,
+  scoresAtPosts,
+  stationVersion,
+  visitSlots,
+} from '@/lib/results'
 import { openTurn } from '@/lib/stationTurns'
 import { AsyncButton } from '../AsyncButton'
 import { JudgeSelect } from './JudgeSelect'
@@ -111,18 +118,31 @@ const seededEdit = (dog: StationScoringDog, stationId: string, eventType: string
 }
 
 /**
- * The dog in front of the judge when the screen opens: whoever the open turn holds. Coming back to a
- * turn already started must land on that dog, not on an empty screen. The public turn shape carries
- * no ids, so the match is by start number and name — the same two things the post calls out.
+ * A place in the post's queue: a dog and the exercise it does here. A dog whose group does two exercises
+ * at the post is in the queue twice (KOE-1665).
+ */
+const entryKey = (dog: StationScoringDog): string => `${dog.id}#${dog.visit?.exercise ?? ''}`
+
+/**
+ * The dog in front of the judge when the screen opens: whoever the open turn holds, at the exercise the
+ * turn names. Coming back to a turn already started must land on that dog, not on an empty screen. The
+ * public turn shape carries no ids, so the match is by start number and name — the same two things the
+ * post calls out.
  */
 const dogAtPost = (
   registrations: readonly StationScoringDog[],
   turns: readonly StationTurnItem[] | undefined,
   stationId: string
 ): StationScoringDog | undefined => {
-  const running = turns && openTurn(turns, stationId)?.dogs[0]
+  const open = turns && openTurn(turns, stationId)
+  const running = open?.dogs[0]
   if (!running) return undefined
-  return registrations.find((dog) => dog.group?.number === running.number && dog.dog.name === running.name)
+  return registrations.find(
+    (dog) =>
+      dog.group?.number === running.number &&
+      dog.dog.name === running.name &&
+      (open.exercise === undefined || dog.visit?.exercise === undefined || dog.visit.exercise === open.exercise)
+  )
 }
 
 /**
@@ -153,7 +173,7 @@ export function StationScoring({
 
   // A qualitative type has no tasks to score; the judge's decision is the result, entered as such.
   const qualitative = !scoresAtPosts(eventType)
-  // Where the day runs at one post, "Rasti 1" names nothing anyone calls it; the event is the title.
+  // Where the day runs at one post, "Suorituspaikka 1" names nothing anyone calls it; the event is the title.
   const singlePost = liveFormat(eventType).posts === 'one'
 
   // Where the rotation says who comes when, the classes are in the order they reach the post, as the dogs
@@ -167,7 +187,7 @@ export function StationScoring({
   const [selectedClass, setSelectedClass] = useState<string | undefined>(
     initial ? getRegistrationClass(initial) : eventClasses[0]
   )
-  const [selectedId, setSelectedId] = useState<string | undefined>(initial?.id)
+  const [selectedKey, setSelectedKey] = useState<string | undefined>(initial && entryKey(initial))
   const [edit, setEdit] = useState<ResultEdit>(initial ? seededEdit(initial, station.id, eventType) : emptyEdit)
   const [lastJudge, setLastJudge] = useState<PublicJudge | undefined>()
 
@@ -184,22 +204,40 @@ export function StationScoring({
     return (own.length ? own : classJudges).filter((judge): judge is PublicJudge => Boolean(judge?.id))
   }, [classes, eventClass, station.judges])
 
-  const selected = dogs.find((dog) => dog.id === selectedId)
+  const selected = dogs.find((dog) => entryKey(dog) === selectedKey)
+  // A dog in the queue twice, for two exercises here, is named with the exercise on its chip.
+  const twice = useMemo(() => {
+    const seen = new Set<string>()
+    const repeated = new Set<string>()
+    for (const dog of dogs) {
+      if (seen.has(dog.id)) repeated.add(dog.id)
+      seen.add(dog.id)
+    }
+    return repeated
+  }, [dogs])
 
-  // This post's slots for the dog in front of the judge: its group's tasks here, each whole or in parts,
-  // and none at all where nothing is scored.
+  // This post's slots for the dog in front of the judge: the exercise of its group it does here, whole or
+  // in parts, and none at all where nothing is scored.
   const visit = selected?.visit
   const round = useMemo(
-    () => (qualitative || !visit ? [] : stationSlots(station.id, visit)),
+    () => (qualitative || !visit ? [] : visitSlots(station.id, visit)),
     [qualitative, station.id, visit]
   )
 
-  /** A dog this post has already scored, so the judge can see at a glance who is still to come. */
+  /**
+   * A place in the queue this post has already scored, so the judge can see at a glance who is still to
+   * come: the dog's score for the exercise of that place, or any here where the dog has no visit.
+   */
   const isScored = useCallback(
     (dog: StationScoringDog) => {
       const stored = dog.eventResult
       if (qualitative) return Boolean(stored?.result ?? stored?.elimination ?? stored?.retirement)
-      return stored?.tasks?.some((task) => task.stationId === station.id) ?? false
+      const slots = dog.visit ? visitSlots(station.id, dog.visit) : []
+      return (
+        stored?.tasks?.some(
+          (task) => task.stationId === station.id && (!dog.visit || slots.some((slot) => holdsScore(slot, task)))
+        ) ?? false
+      )
     },
     [qualitative, station.id]
   )
@@ -219,7 +257,7 @@ export function StationScoring({
 
   const select = useCallback(
     (dog: StationScoringDog) => {
-      setSelectedId(dog.id)
+      setSelectedKey(entryKey(dog))
       setEdit(seededEdit(dog, station.id, eventType))
     },
     [eventType, station.id]
@@ -263,10 +301,10 @@ export function StationScoring({
 
     enqueueSnackbar(response.saved.length ? t('results.saved') : t('results.alreadySaved'), { variant: 'success' })
 
-    // Move on to the next dog that has not been through this post: at a post the queue is the job.
-    const next = dogs.find((dog) => !isScored(dog) && dog.id !== selected.id)
+    // Move on to the next place in the queue not scored yet: at a post the queue is the job.
+    const next = dogs.find((dog) => !isScored(dog) && entryKey(dog) !== entryKey(selected))
     if (next) select(next)
-    else setSelectedId(undefined)
+    else setSelectedKey(undefined)
   }, [
     dogs,
     edit,
@@ -282,6 +320,13 @@ export function StationScoring({
     station.id,
     t,
   ])
+
+  const chipLabel = (dog: StationScoringDog) => {
+    const name = `${dog.group?.number ?? '?'} ${dog.dog.name ?? ''}`
+    return dog.visit && twice.has(dog.id)
+      ? `${name} · ${t('results.column.task', { number: dog.visit.exercise })}`
+      : name
+  }
 
   return (
     <Paper
@@ -322,7 +367,7 @@ export function StationScoring({
           dogs={turnDogs}
           eventType={eventType}
           onTurn={onTurn}
-          selectedDog={turnDogs.find((dog) => dog.id === selected?.id)}
+          selectedDog={selected && turnDogs[dogs.indexOf(selected)]}
           station={station}
           turns={turns}
         />
@@ -331,9 +376,9 @@ export function StationScoring({
       <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, p: 2 }}>
         {dogs.map((dog) => (
           <Chip
-            color={dog.id === selectedId ? 'primary' : 'default'}
-            key={dog.id}
-            label={`${dog.group?.number ?? '?'} ${dog.dog.name ?? ''}`}
+            color={entryKey(dog) === selectedKey ? 'primary' : 'default'}
+            key={entryKey(dog)}
+            label={chipLabel(dog)}
             onClick={() => select(dog)}
             variant={isScored(dog) ? 'filled' : 'outlined'}
           />

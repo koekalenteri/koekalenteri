@@ -5,31 +5,32 @@ import { arrayOf, bool, maybe, num, objectOf, oneOf, str } from './common'
 const cost = union([num, objectOf({})], 'must be a number or an object')
 
 const count = pipe(num, integer('must be an integer'), minValue(1, 'must be at least 1'))
-/** A task whole or in two parts (KOE-1665). */
+/** An exercise whole or in two parts (KOE-1665). */
 const parts = union([literal(1), literal(2)], 'must be 1 or 2')
 
-/** A post's own layout; the rest of a post is the Rastit page's to shape. */
-const station = objectOf({ parts: optional(parts), taskCount: optional(count) })
+/** A post's own layout; the rest of a post is the posts page's to shape. */
+const station = objectOf({ parts: optional(parts) })
 
-/** A walk-up of a group, at most what the Rastit page offers. */
+/** A walk-up, at most what the posts page offers. */
 const dogsAtOnce = pipe(count, maxValue(MAX_DOGS_AT_ONCE, `must be at most ${MAX_DOGS_AT_ONCE}`))
 
-const rotationPost = objectOf({
+/** One exercise of a group's running order (KOE-1665). */
+const exercise = objectOf({
   dogsAtOnce: optional(dogsAtOnce),
   parts: optional(parts),
   stationId: str,
-  taskCount: optional(count),
 })
 
 /**
- * A rotation group. Whether its range is whole, what its posts name and whether two groups share a
- * number is checked against the merged event (`rotationShapeErrors`).
+ * A group with its running order. Whether its range is whole, what its exercises name and whether two
+ * groups share a number is checked against the merged event (`rotationShapeErrors`). A `posts` key of
+ * a group stored in dev before the running order is not refused here: the object is loose.
  */
 const rotationGroup = objectOf({
   class: str,
+  exercises: arrayOf(exercise),
   firstNumber: optional(count),
   lastNumber: optional(count),
-  posts: arrayOf(rotationPost),
 })
 
 /**

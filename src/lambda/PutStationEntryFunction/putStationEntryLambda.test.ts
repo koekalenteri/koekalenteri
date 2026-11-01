@@ -106,6 +106,73 @@ describe('putStationEntryLambda', () => {
     ])
   })
 
+  describe("another post's scores (KOE-1665)", () => {
+    const at = '2026-09-12T08:00:00.000Z'
+    const score = (stationId: string, points: number) => ({
+      index: 0,
+      points,
+      stationId,
+      updatedAt: at,
+      updatedBy: 'x',
+    })
+    const stored = asJsonRegistration({
+      class: 'AVO',
+      eventId: 'event-1',
+      eventResult: { tasks: [score('post-2', 15)], updatedAt: at, updatedBy: 'x' },
+      eventType: 'NOWT',
+      group: { date: '2026-09-12', key: 'AVO-AP', number: 1 },
+      id: 'reg-1',
+    })
+    /** A result as the link is answered with it: this post's one score, no other post's. */
+    const onlyThisPost = expect.objectContaining({ tasks: [expect.objectContaining({ stationId: 'post-1' })] })
+
+    it("keeps them beside this post's score and answers with this post's only", async () => {
+      mockReadEventRegistrations.mockResolvedValue([stored])
+
+      await putStationEntryLambda(
+        apiEvent([{ eventResult: { tasks: [{ index: 0, points: 17, stationId: 'post-1' }] }, id: 'reg-1' }])
+      )
+
+      expect(mockUpdateRegistrationField).toHaveBeenCalledWith(
+        'event-1',
+        'reg-1',
+        'eventResult',
+        expect.objectContaining({
+          tasks: [
+            expect.objectContaining({ points: 15, stationId: 'post-2' }),
+            expect.objectContaining({ points: 17, stationId: 'post-1' }),
+          ],
+        })
+      )
+      expect(mockResponse).toHaveBeenCalledWith(
+        200,
+        expect.objectContaining({ saved: [expect.objectContaining({ eventResult: onlyThisPost })] }),
+        expect.anything()
+      )
+    })
+
+    it('answers a conflict without them', async () => {
+      mockReadEventRegistrations.mockResolvedValue([
+        { ...stored, eventResult: { ...stored.eventResult, tasks: [score('post-2', 15), score('post-1', 12)] } },
+      ])
+
+      await putStationEntryLambda(
+        apiEvent([
+          { basedOn: 'stale', eventResult: { tasks: [{ index: 0, points: 17, stationId: 'post-1' }] }, id: 'reg-1' },
+        ])
+      )
+
+      expect(mockResponse).toHaveBeenCalledWith(
+        409,
+        expect.objectContaining({
+          conflicts: [expect.objectContaining({ stored: onlyThisPost, submitted: onlyThisPost })],
+          error: 'resultConflict',
+        }),
+        expect.anything()
+      )
+    })
+  })
+
   it('refuses a wrong token before touching anything', async () => {
     await expect(
       putStationEntryLambda(apiEvent([{ eventResult: { tasks: [] }, id: 'reg-1' }], 'wrong'))
@@ -152,9 +219,9 @@ describe('putStationEntryLambda', () => {
     expect(mockUpdateRegistrationField).toHaveBeenCalledTimes(1)
     const saved = mockUpdateRegistrationField.mock.calls[0][3]
     expect(saved.tasks).toHaveLength(1)
-    expect(saved.tasks[0]).toMatchObject({ points: 17, stationId: 'post-1', updatedBy: 'Rasti 1' })
+    expect(saved.tasks[0]).toMatchObject({ points: 17, stationId: 'post-1', updatedBy: 'Suorituspaikka 1' })
 
-    expect(mockAudit).toHaveBeenCalledWith(expect.objectContaining({ user: 'Rasti 1' }))
+    expect(mockAudit).toHaveBeenCalledWith(expect.objectContaining({ user: 'Suorituspaikka 1' }))
   })
 
   it('drops the whole-round fields a station link may not write', async () => {

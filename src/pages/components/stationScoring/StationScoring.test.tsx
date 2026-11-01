@@ -261,14 +261,14 @@ describe('StationScoring', () => {
     expect(screen.getByRole('tab', { name: 'ALO', selected: true })).toBeInTheDocument()
   })
 
-  describe('a post in a rotation (KOE-1665)', () => {
-    const nowt = (id: string, eventClass: 'ALO' | 'VOI', tasks: number) => ({
+  describe('a post in a running order (KOE-1665)', () => {
+    const nowt = (id: string, eventClass: 'ALO' | 'VOI', exercise: number, parts: 1 | 2 = 1, slotsBefore = 0) => ({
       class: eventClass,
       dog: { name: id },
       eventType: 'NOWT',
       group: { ...group, key: `${eventClass}-AP`, number: 1 },
       id,
-      visit: { parts: 1 as const, tasks, tasksBefore: 2 },
+      visit: { exercise, parts, slotsBefore },
     })
 
     it('keeps the classes in the order they reach the post', () => {
@@ -277,13 +277,30 @@ describe('StationScoring', () => {
       expect(screen.getAllByRole('tab').map((tab) => tab.textContent)).toEqual(['VOI', 'ALO'])
     })
 
-    it("scores the tasks the dog's group does here, numbered across its round", async () => {
+    it('scores the exercise of the place in the queue, its parts each a field', async () => {
       const user = userEvent.setup()
-      renderScoring({ eventType: 'NOWT', registrations: [nowt('alo', 'ALO', 2)] })
+      renderScoring({ eventType: 'NOWT', registrations: [nowt('alo', 'ALO', 2, 2)] })
 
       await user.click(screen.getByRole('button', { name: '1 alo' }))
 
-      expect(screen.getAllByLabelText(/results\.column\.task/)).toHaveLength(2)
+      expect(screen.getAllByLabelText(/results\.column\.taskPart/)).toHaveLength(2)
+    })
+
+    it('lists a dog doing two exercises here once for each, and marks the one scored', async () => {
+      const user = userEvent.setup()
+      const scored = {
+        ...nowt('alo', 'ALO', 3),
+        eventResult: { tasks: [{ index: 0, points: 15, stationId: '1', updatedAt: new Date(), updatedBy: 'x' }] },
+      }
+      const second = { ...nowt('alo', 'ALO', 4, 1, 1), eventResult: scored.eventResult }
+      renderScoring({ eventType: 'NOWT', registrations: [scored, second] })
+
+      const chips = screen.getAllByRole('button', { name: /^1 alo · results\.column\.task/ })
+      expect(chips).toHaveLength(2)
+      expect(chips.map((chip) => chip.className.includes('MuiChip-filled'))).toEqual([true, false])
+
+      await user.click(chips[1])
+      expect(screen.getAllByLabelText(/results\.column\.task/)).toHaveLength(1)
     })
   })
 

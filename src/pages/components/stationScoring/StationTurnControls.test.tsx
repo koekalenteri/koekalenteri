@@ -110,16 +110,14 @@ describe('StationTurnControls', () => {
       expect(onTurn).toHaveBeenCalledWith({ registrationIds: ['run-1', 'run-3'], type: 'start' })
     })
 
-    describe('the group at the head of the queue (KOE-1665)', () => {
-      const visit = (dogsAtOnce?: number) => ({
-        parts: 1 as const,
-        tasks: 1,
-        tasksBefore: 0,
+    describe('the exercise at the head of the queue (KOE-1665)', () => {
+      const visit = (dogsAtOnce?: number, exercise = 1) => ({
+        exercise,
         ...(dogsAtOnce ? { dogsAtOnce } : {}),
       })
       const inGroup = (dogsAtOnce?: number) => walkUpDogs.map((dog) => ({ ...dog, visit: visit(dogsAtOnce) }))
 
-      it("takes as many dogs as that group does at the post, not the post's own figure", async () => {
+      it("takes as many dogs as that exercise does, not the post's own figure, and names the exercise", async () => {
         const user = userEvent.setup()
         const { onTurn } = renderControls({
           dogs: inGroup(2),
@@ -133,10 +131,10 @@ describe('StationTurnControls', () => {
         await user.keyboard('{Escape}')
         await user.click(screen.getByRole('button', { name: 'liveStatus.startTurn' }))
 
-        expect(onTurn).toHaveBeenCalledWith({ registrationIds: ['run-1', 'run-2'], type: 'start' })
+        expect(onTurn).toHaveBeenCalledWith({ exercise: 1, registrationIds: ['run-1', 'run-2'], type: 'start' })
       })
 
-      it('offers no group picker where that group runs the post one at a time', () => {
+      it('offers no group picker where that exercise is done one at a time', () => {
         renderControls({ dogs: inGroup(1), eventType: 'NOWT', station: { dogsAtOnce: 4, id: 'post-1', tasks: 1 } })
 
         expect(screen.queryByRole('button', { name: /liveStatus.group/ })).not.toBeInTheDocument()
@@ -152,6 +150,45 @@ describe('StationTurnControls', () => {
         })
 
         expect(screen.queryByRole('button', { name: /liveStatus.group/ })).not.toBeInTheDocument()
+      })
+
+      it('sends a dog out once for each exercise it does at the post, the walk-up picked among one exercise', async () => {
+        const user = userEvent.setup()
+        const ranThird = { ...openTurn, endedAt: new Date('2026-09-12T08:07:00Z'), exercise: 3 }
+        const dogs = [
+          ...walkUpDogs.map((dog) => ({ ...dog, visit: visit(2, 3) })),
+          ...walkUpDogs.map((dog) => ({ ...dog, visit: visit(2, 4) })),
+        ]
+        const { onTurn } = renderControls({
+          dogs,
+          eventType: 'NOWT',
+          station: { id: 'post-1', tasks: 1 },
+          turns: [ranThird],
+        })
+
+        await user.click(screen.getByRole('button', { name: /liveStatus.group/ }))
+        const menu = within(screen.getByRole('menu'))
+        // 5 Ensimmainen ran exercise 3: the head is still exercise 3, for the two others.
+        expect(menu.queryByText('5 Ensimmainen')).not.toBeInTheDocument()
+        await user.click(menu.getByText('6 Toinen'))
+        await user.keyboard('{Escape}')
+        await user.click(screen.getByRole('button', { name: 'liveStatus.startTurn' }))
+
+        expect(onTurn).toHaveBeenCalledWith({ exercise: 3, registrationIds: ['run-2'], type: 'start' })
+      })
+
+      it('reads a turn stored without an exercise as the dog having run the post', () => {
+        const ran = { ...openTurn, endedAt: new Date('2026-09-12T08:07:00Z') }
+        const dogs = [{ ...walkUpDogs[0], visit: visit(1, 2) }]
+        renderControls({
+          dogs,
+          eventType: 'NOWT',
+          selectedDog: dogs[0],
+          station: { id: 'post-1', tasks: 1 },
+          turns: [ran],
+        })
+
+        expect(screen.getByRole('button', { name: 'liveStatus.startTurn' })).toBeDisabled()
       })
 
       it("reads the next group's figure once the head group is through", () => {

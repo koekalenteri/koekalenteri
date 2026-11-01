@@ -46,8 +46,11 @@ interface TurnDog {
   number?: number
   /** Already scored at this post: its day here is over, whatever the timeline says. */
   done?: boolean
-  /** What the dog's rotation group does at this post, where it has one (KOE-1665). */
-  visit?: Pick<StationVisitLayout, 'dogsAtOnce'>
+  /**
+   * The exercise of its group the dog does at this place in the queue, where the post scores exercises
+   * (KOE-1665). A dog doing two exercises here is in the queue twice, once for each.
+   */
+  visit?: Pick<StationVisitLayout, 'exercise' | 'dogsAtOnce'>
 }
 
 interface Props {
@@ -124,34 +127,42 @@ export const StationTurnControls = ({ station, eventType, turns, dogs, selectedD
     }
   }
 
-  // A dog runs a post once — except where the format says otherwise: a NOME-A dog goes out for
-  // retrieve after retrieve. The timeline is the record, so a dog it already names is not sent out
-  // again; and a dog already scored here is done whatever the timeline says, since a score is the
-  // end of its day at the post. The match is by number and name, the handles the public shape has.
+  // A dog runs a post once for each exercise it does there — except where the format says otherwise:
+  // a NOME-A dog goes out for retrieve after retrieve. The timeline is the record, so a dog it already
+  // names for the exercise is not sent out again; and a dog already scored for it is done whatever the
+  // timeline says, since a score is the end of that exercise. The match is by number and name, the
+  // handles the public shape has, and by the exercise where both the turn and the queue name one.
   const runsAgain = format.tasks === 'retrieve'
+  const sameExercise = (turn: StationTurnItem, dog: TurnDog) =>
+    turn.exercise === undefined || dog.visit === undefined || turn.exercise === dog.visit.exercise
   const hasRun = (dog: TurnDog) =>
     turns.some(
       (turn) =>
         turn.stationId === stationId &&
         !isBreakTurn(turn) &&
+        sameExercise(turn, dog) &&
         turn.dogs.some((ran) => ran.number === dog.number && ran.name === dog.name)
     )
   const alreadyRun = (dog: TurnDog) => Boolean(dog.done) || (!runsAgain && hasRun(dog))
   const eligible = (dogs ?? []).filter((dog) => !alreadyRun(dog))
 
-  // A turn holds as many dogs as the group at the head of the queue takes at this post (KOE-1665): one
-  // class may run it one at a time and the next in pairs. With nobody left queueing, the dog on show.
+  // A turn holds as many dogs as the exercise at the head of the queue takes (KOE-1665): one class may do
+  // it one at a time and the next in pairs. With nobody left queueing, the dog on show. A turn is for one
+  // exercise, so a walk-up is picked among the dogs queueing for the head's.
   const head = eligible[0] ?? selectedDog
   const dogsAtOnce = stationDogsAtOnce(eventType, head?.visit ?? station)
   const picksGroup = dogsAtOnce > 1 && (dogs?.length ?? 0) > 0
+  const pickable = eligible.filter((dog) => dog.visit?.exercise === head?.visit?.exercise)
 
   // The picked group is what runs; the dog open in the scoring view is the single-dog shorthand for it.
-  const nextTurnIds = () => {
-    const picked = groupIds.filter((id) => eligible.some((dog) => dog.id === id))
-    if (picked.length) return picked.slice(0, dogsAtOnce)
-    return selectedDog && !alreadyRun(selectedDog) ? [selectedDog.id] : []
+  const nextTurn = (): { ids: string[]; exercise?: number } => {
+    const picked = groupIds.filter((id) => pickable.some((dog) => dog.id === id))
+    if (picked.length) return { exercise: head?.visit?.exercise, ids: picked.slice(0, dogsAtOnce) }
+    return selectedDog && !alreadyRun(selectedDog)
+      ? { exercise: selectedDog.visit?.exercise, ids: [selectedDog.id] }
+      : { ids: [] }
   }
-  const startIds = nextTurnIds()
+  const { ids: startIds, exercise: startExercise } = nextTurn()
   const canStart = startIds.length > 0
   const selectedHasRun = Boolean(selectedDog && alreadyRun(selectedDog))
   const runOpen = Boolean(open) && !isBreakTurn(open ?? {}) && !isWholeTurn(open ?? {})
@@ -164,7 +175,12 @@ export const StationTurnControls = ({ station, eventType, turns, dogs, selectedD
   const handleStart = async () => {
     if (!canStart) return
     const first = runPhases[0]
-    await runOp({ registrationIds: startIds, type: 'start', ...(first ? { phase: first.key } : {}) })
+    await runOp({
+      registrationIds: startIds,
+      type: 'start',
+      ...(first ? { phase: first.key } : {}),
+      ...(startExercise === undefined ? {} : { exercise: startExercise }),
+    })
     setGroupIds([])
   }
 
@@ -293,7 +309,7 @@ export const StationTurnControls = ({ station, eventType, turns, dogs, selectedD
         {/* The walk-up, picked before it is started: the menu stays open so several dogs go in with
             one visit, and the count on the button says how many are in hand. */}
         <Menu anchorEl={groupMenuAnchor} onClose={() => setGroupMenuAnchor(undefined)} open={Boolean(groupMenuAnchor)}>
-          {eligible.map((dog) => (
+          {pickable.map((dog) => (
             <MenuItem key={dog.id} onClick={() => toggleGroupDog(dog.id)}>
               <Checkbox checked={groupIds.includes(dog.id)} size="small" sx={{ mr: 1, p: 0 }} />
               {turnDogLabel(dog)}

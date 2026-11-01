@@ -17,7 +17,7 @@ describe('docsPathForRoute', () => {
     ['/admin/event/startlist/abc123', 'secretary/after-entry-closes'],
     ['/admin/event/results/abc123', 'secretary/trial-day'],
     ['/admin/event/results/abc123/station/st1', 'secretary/trial-day'],
-    ['/admin/event/stations/abc123', 'secretary/trial-day'],
+    ['/admin/event/posts/abc123', 'secretary/trial-day'],
     ['/admin/judge', 'secretary/directories'],
     ['/admin/officials', 'secretary/directories'],
     ['/admin/organizations', 'admin/payments'],

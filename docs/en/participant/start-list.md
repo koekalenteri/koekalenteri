@@ -5,7 +5,7 @@ order: 30
 covers:
   - src/pages/StartListPage.tsx
   - src/pages/startListPage/**
-sourceHash: 178ba0
+sourceHash: e0ba4f
 ---
 
 The start list is the trial's public page, where the organizer publishes the participants, the
@@ -23,12 +23,13 @@ parents, the owner and handler, and the breeder. A withdrawn dog stays in its pl
 
 !shot[RegistrationDetails/start-list-result] A dog's row, with its result already on it
 
-In a trial scored at posts (NOWT), the class heading is followed by the post the class starts at and
-the order it goes round the posts in, when the organizer has laid out a rotation. "(x 2)" after a
-post means the group does two tasks there. When a class is split into start number ranges, each
-range has a line of its own, and the ranges show only once the class's start numbers are published.
+In a trial scored by exercise (NOWT), the class heading is followed by the class's running order as
+posts, for example "ALO: posts 1, 2, 3, 3", when the organizer has laid one out. The posts come in
+the order of the exercises, and a post twice means two exercises at that post. When a class is split
+into start number ranges, each range has a line of its own, and the ranges show only once the class's
+start numbers are published.
 
-!shot[ParticipantList/start-list-rotation] The classes' rotations: ALO starts at post 1, AVO is split into two number ranges
+!shot[ParticipantList/start-list-rotation] The classes' running orders: ALO does its last two exercises at post 3, AVO is split into two number ranges
 
 The page updates by itself when the organizer publishes more or records a cancellation; there is
 no need to reload it.

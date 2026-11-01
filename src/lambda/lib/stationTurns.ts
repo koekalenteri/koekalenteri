@@ -20,6 +20,18 @@ const MARKS: readonly LiveMark[] = ['onRetrieve', 'gotRetrieve', 'noRetrieve', '
 /** A phase is a key or a label somebody typed; longer than this is not a phase. */
 const MAX_PHASE_LENGTH = 40
 
+/** A running order of more exercises than this is not a work test. */
+const MAX_EXERCISE = 20
+
+/** The exercise a turn is for, where the post scores exercises (KOE-1665): a number from 1, or none. */
+const parseExercise = (exercise: unknown): { exercise?: number } => {
+  if (exercise === undefined) return {}
+  if (typeof exercise !== 'number' || !Number.isInteger(exercise) || exercise < 1 || exercise > MAX_EXERCISE) {
+    throw new LambdaError(422, 'invalid exercise')
+  }
+  return { exercise }
+}
+
 const isStringArray = (value: unknown): value is string[] =>
   Array.isArray(value) && value.every((item) => typeof item === 'string')
 
@@ -27,20 +39,21 @@ const isStringArray = (value: unknown): value is string[] =>
  * An empty group is allowed only with a phase, since a whole-entry phase is the one span that holds
  * no dogs; whether that phase actually is one is the apply step's to check, which knows the post.
  */
-const parseStart = (registrationIds: unknown, phase: unknown): StationTurnOp => {
+const parseStart = (registrationIds: unknown, phase: unknown, exercise: unknown): StationTurnOp => {
   if (!isStringArray(registrationIds) || registrationIds.length > MAX_DOGS_AT_ONCE) {
     throw new LambdaError(422, 'invalid turn dogs')
   }
+  const forExercise = parseExercise(exercise)
 
   if (phase === undefined) {
     if (registrationIds.length === 0) throw new LambdaError(422, 'invalid turn dogs')
-    return { registrationIds, type: 'start' }
+    return { registrationIds, type: 'start', ...forExercise }
   }
 
   if (typeof phase !== 'string' || phase.length === 0 || phase.length > MAX_PHASE_LENGTH) {
     throw new LambdaError(422, 'invalid phase')
   }
-  return { phase, registrationIds, type: 'start' }
+  return { phase, registrationIds, type: 'start', ...forExercise }
 }
 
 const parseMark = (index: unknown, mark: unknown): StationTurnOp => {
@@ -54,8 +67,9 @@ const parseMark = (index: unknown, mark: unknown): StationTurnOp => {
 
 export const parseStationTurnOp = (body: unknown): StationTurnOp => {
   if (typeof body !== 'object' || body === null) throw new LambdaError(422, 'no turn')
-  const { type, registrationIds, pause, phase, index, mark } = body as {
+  const { type, registrationIds, pause, phase, index, mark, exercise } = body as {
     type?: unknown
+    exercise?: unknown
     registrationIds?: unknown
     pause?: unknown
     phase?: unknown
@@ -69,7 +83,7 @@ export const parseStationTurnOp = (body: unknown): StationTurnOp => {
     if (!knownPause) throw new LambdaError(422, 'unknown pause')
     return { pause: knownPause, type }
   }
-  if (type === 'start') return parseStart(registrationIds, phase)
+  if (type === 'start') return parseStart(registrationIds, phase, exercise)
   if (type === 'mark') return parseMark(index, mark)
 
   throw new LambdaError(422, 'unknown turn op')
@@ -150,6 +164,7 @@ export const applyStationTurnOp = (
       registrationIds: op.registrationIds,
       startedAt: at,
       stationId,
+      ...(op.exercise === undefined ? {} : { exercise: op.exercise }),
       ...(op.phase === undefined ? {} : { phases: [{ key: op.phase, startedAt: at }] }),
     },
   ]

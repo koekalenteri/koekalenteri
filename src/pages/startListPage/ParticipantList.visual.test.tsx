@@ -87,18 +87,18 @@ const nowt: PublicConfirmedEvent = {
   id: 'event-nowt',
   name: 'NOWT Akaa',
   rotations: [
-    { class: 'ALO', posts: [{ stationId: 'r1' }, { stationId: 'r2' }, { stationId: 'r3', taskCount: 2 }] },
+    { class: 'ALO', exercises: [{ stationId: 'r1' }, { stationId: 'r2' }, { stationId: 'r3' }, { stationId: 'r3' }] },
     {
       class: 'AVO',
+      exercises: [{ stationId: 'r3' }, { stationId: 'r1' }, { stationId: 'r2' }, { stationId: 'r2' }],
       firstNumber: 1,
       lastNumber: 8,
-      posts: [{ stationId: 'r3' }, { stationId: 'r1' }, { stationId: 'r2', taskCount: 2 }],
     },
     {
       class: 'AVO',
+      exercises: [{ stationId: 'r2' }, { stationId: 'r3' }, { stationId: 'r1' }, { stationId: 'r1' }],
       firstNumber: 9,
       lastNumber: 16,
-      posts: [{ stationId: 'r2' }, { stationId: 'r3' }, { stationId: 'r1', taskCount: 2 }],
     },
   ],
   startNumbersPublished: true,
@@ -117,26 +117,26 @@ const runners = [
   runner('AVO', 'WATERFOWLER ONNI', 'FI10718/23', 10),
 ]
 
-it('tells each group where it starts and in which order it goes round the posts (KOE-1665)', async () => {
+it("tells each group's running order as posts (KOE-1665)", async () => {
   const screen = await render(
     <Frame>
       <ParticipantList event={nowt} participants={runners} />
     </Frame>
   )
 
-  await expect.element(screen.getByText(/^ALO: aloittaa rastilta 1/)).toBeVisible()
+  await expect.element(screen.getByText(/^ALO: suorituspaikat 1/)).toBeVisible()
   await expect(screen.getByTestId('visual-root')).toMatchScreenshot('start-list-rotation')
 })
 
 describeInLanguage('en', () => {
-  it('tells each group where it starts and in which order it goes round the posts (KOE-1665)', async () => {
+  it("tells each group's running order as posts (KOE-1665)", async () => {
     const screen = await render(
       <Frame>
         <ParticipantList event={nowt} participants={runners} />
       </Frame>
     )
 
-    await expect.element(screen.getByText(/^ALO: starts at station 1/)).toBeVisible()
+    await expect.element(screen.getByText(/^ALO: posts 1/)).toBeVisible()
     await expect(screen.getByTestId('visual-root')).toMatchScreenshot('start-list-rotation-en')
   })
 })

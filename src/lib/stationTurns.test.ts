@@ -137,6 +137,15 @@ describe('stationTurns', () => {
       expect(dogsThrough(twice, 'post-1')).toBe(1)
     })
 
+    it('counts a dog doing two exercises at the post as through once for each (KOE-1665)', () => {
+      const both = [
+        turn({ endedAt: '2026-09-12T08:05:00.000Z', exercise: 3 }),
+        turn({ endedAt: '2026-09-12T08:15:00.000Z', exercise: 4, id: 'turn-2', startedAt: '2026-09-12T08:10:00.000Z' }),
+      ]
+
+      expect(dogsThrough(both, 'post-1')).toBe(2)
+    })
+
     it('counts dogs rather than turns, so one walk-up moves the queue by four', () => {
       const walkUp = { dogs: [{ name: 'a' }, { name: 'b' }, { name: 'c' }, { name: 'd' }] }
       const turns = [minuteTurn('a', 0, 6, walkUp), minuteTurn('b', 6, 12), minuteTurn('open', 12)]

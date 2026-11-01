@@ -7,7 +7,7 @@ import Typography from '@mui/material/Typography'
 import { useCallback, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { DOG_COUNTS, liveFormat, stationDogsAtOnce } from '@/lib/liveFormat'
-import { POST_PARTS, POST_TASK_COUNTS, stationParts, stationTaskCount } from '@/lib/rotation'
+import { POST_PARTS, stationParts } from '@/lib/rotation'
 import AutocompleteMulti from '../../components/AutocompleteMulti'
 import AutocompleteSingle from '../../components/AutocompleteSingle'
 
@@ -35,11 +35,6 @@ export const StationRow = ({ event, station, disabled, onChange, onRemove }: Pro
 
   const handleJudgesChange = useCallback((value: PublicJudge[]) => onChange({ judges: value }), [onChange])
   const handlePartsChange = useCallback((parts: 1 | 2) => onChange({ parts }), [onChange])
-  // One is the default and is left out, as an optional field is: absent, never stored as a value of its own.
-  const handleTaskCountChange = useCallback(
-    (taskCount: number) => onChange({ taskCount: taskCount > 1 ? taskCount : undefined }),
-    [onChange]
-  )
   const handleDogsChange = useCallback((dogsAtOnce: number) => onChange({ dogsAtOnce }), [onChange])
 
   // Asked only where the format leaves it to the post. NOME-A runs four whatever anyone types here,
@@ -55,7 +50,7 @@ export const StationRow = ({ event, station, disabled, onChange, onRemove }: Pro
         width: '100%',
       }}
     >
-      <Grid sx={{ width: 90 }}>
+      <Grid sx={{ width: 140 }}>
         <Typography color={disabled ? 'text.disabled' : 'text.primary'}>
           {t('event.station')} {station.number}
         </Typography>
@@ -65,17 +60,6 @@ export const StationRow = ({ event, station, disabled, onChange, onRemove }: Pro
           disableClearable
           disabled={disabled}
           // Autocomplete wants a string for the option it shows; handed the number itself it says so on every render.
-          getOptionLabel={String}
-          label={t('event.stationTaskCount')}
-          onChange={handleTaskCountChange}
-          options={POST_TASK_COUNTS}
-          value={stationTaskCount(station)}
-        />
-      </Grid>
-      <Grid sx={{ width: 120 }}>
-        <AutocompleteSingle
-          disableClearable
-          disabled={disabled}
           getOptionLabel={String}
           label={t('event.stationParts')}
           onChange={handlePartsChange}

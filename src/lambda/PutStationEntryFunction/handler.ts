@@ -30,7 +30,7 @@ const putStationEntryLambda = lambda('putStationEntry', async (event) => {
     confirmedEvent,
     registrations,
     submissions,
-    `Rasti ${station.number}`
+    `Suorituspaikka ${station.number}`
   )
 
   if (patches.length) await publishRegistrationPatches(eventId, patches, confirmedEvent.organizer.id)

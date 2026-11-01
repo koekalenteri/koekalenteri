@@ -1,4 +1,4 @@
-import type { RoundTask } from '@/lib/results'
+import type { ExerciseSlot } from '@/lib/results'
 import type { EventResult, ResultMark } from '@/types'
 import type { ResultEdit } from './types'
 import MenuItem from '@mui/material/MenuItem'
@@ -18,7 +18,7 @@ import {
 import { withResultCode } from './types'
 
 interface Props {
-  readonly round?: RoundTask[]
+  readonly round?: ExerciseSlot[]
   readonly edit: ResultEdit
   readonly stored?: EventResult
   readonly eventType: string

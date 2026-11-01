@@ -14,7 +14,7 @@ covers:
   - src/pages/admin/eventViewPage/infoPanel/ResultsPublishing.tsx
   - src/pages/admin/components/KcIdLookupButton.tsx
   - src/pages/admin/components/StartDaySelector.tsx
-sourceHash: c396d9
+sourceHash: b1f687
 ---
 
 On the trial day the secretary's job is to record what the dogs did and to get the results in
@@ -47,75 +47,81 @@ if a number already belongs to another dog or is not one of the class's.
 
 ## Posts
 
-In a NOWT trial the dogs go round posts, and the points are recorded post by post. The posts are
-defined on their own page, opened with the panel's **{t:eventManagement.stations}** button; the
-button shows only for the event types scored at posts. A course is usually laid out at the venue,
-so the page is separate from the event's details.
+In a NOWT trial the dogs do their exercises at the judges' posts, and the points are recorded
+exercise by exercise. An exercise is one performance worth 20 points, and a trial usually has four or
+five. The posts are defined on their own page, opened with the panel's
+**{t:eventManagement.stations}** button; the button shows only for the event types scored by
+exercise. A course is usually laid out at the venue, so the page is separate from the event's details.
 
 Each trial day gets its own posts with **{t:event.stationAdd}**, numbered from one within the day.
-For a post you record *{t:event.stationTaskCount}*, *{t:event.stationParts}*,
-*{t:event.stationDogsAtOnce}* and *{t:event.stationJudges}*, picked from the trial's judges.
-*{t:event.stationDogsAtOnce}* is the post's default for how many dogs it takes in one turn. A task
-is always worth 20 points, so a post's maximum is its number of tasks times 20. Parts 2 splits a
-task into two parts of 10; the first-prize floor, half the task's points, then applies to the sum of
-the parts. A post with two tasks saved before rotation groups existed is read as one task in two
+For a post you record *{t:event.stationParts}*, *{t:event.stationDogsAtOnce}* and
+*{t:event.stationJudges}*, picked from the trial's judges. The parts and the dogs are the post's
+defaults for its exercises. Parts 2 splits an exercise into two parts of 10; the first-prize floor,
+half the exercise's points, then applies to the sum of the parts. *{t:event.stationDogsAtOnce}* says
+how many dogs go into one turn. A post saved earlier in two parts is read as one exercise in two
 parts, so its results stay as they were. A post that is not needed is removed with
 **{t:event.stationRemove}**, and the rest are renumbered.
 
-**{t:event.rotation.title}.** Below the day's posts you say in which order the dogs go round them.
-Without rotation groups every class goes round the day's posts in number order and does each post's
-default number of tasks, as before. **{t:event.rotation.add}** adds a rotation group: a class, or a
-range of its start numbers (*{t:event.rotation.firstNumber}* and *{t:event.rotation.lastNumber}* are
-left empty when the group is the whole class). The day's first group goes round the day's posts in
-number order. The next group is suggested from the previous one, since the groups usually all go round
-the same way: it starts at the post the previous group visited second and goes round in the same
-order. A column's settings stay in the column, so two tasks at the last post move to the new group's
-own last post. The class is the first class without a group; once every class of the day has a group,
-it is the previous group's class, *{t:event.rotation.firstNumber}* is the previous group's last number
-plus one and *{t:event.rotation.lastNumber}* is left empty. A suggestion can be edited like any group,
-its class included. The order is changed by picking a post in a column: when the group already visits
-that post in another column, the two posts change places and each keeps its own settings. A post the
-group does not visit yet takes over the column's settings. *{t:event.rotation.visitNone}* takes the
-post out of the round while the group has other posts; the whole group is removed with
-its own bin button. **+** adds a post the group does not visit yet. For each post
-you can give the group's number of tasks (1 - 3), the parts and *{t:event.stationDogsAtOnce}*;
-otherwise the post's default applies. So one post can take one class's dogs one at a time and
-another's in pairs: the post's entry view puts as many dogs in a turn as the group of the dog at the
-head of the queue takes, and the start list's wait estimate counts the turns left group by group
-with the same figures. In a three-class trial, for example, ALO goes round posts 1, 2 and 3 and does
-two tasks at post 3, AVO goes round 3, 1 and 2 and VOI 2, 3 and 1, and every class has a maximum of
-80. After two tasks are marked at the first group's last post, three groups added in a row go round
-1, 2, 3; 2, 3, 1 and 3, 1, 2, each with two tasks at its own last post, so this rotation is two
-class changes away from the suggestion: the second group's class is changed to VOI and the third's
-to AVO. In a one-class trial the rotation is split by start number, for example numbers 1 - 8 start
-at post 1 and 9 - 16 at post 2.
+**{t:event.rotation.title}.** Below the day's posts you say in which order and at which posts each
+group does its exercises. Without groups every class does one exercise at each of the day's posts in
+number order, as before. **{t:event.rotation.add}** adds a group: a class, or a range of its start
+numbers (*{t:event.rotation.firstNumber}* and *{t:event.rotation.lastNumber}* are left empty when the
+group is the whole class). The group's row holds its exercises in order, and for each you pick the
+post, the parts and *{t:event.stationDogsAtOnce}*; otherwise the post's default applies. One post can
+take several exercises, in a row or apart: two exercises at one post are two columns, and a
+two-judge trial can go round the posts twice (1, 2, 1, 2). When an exercise's post changes, its parts
+and dogs at once stay the same, also when they were the old post's defaults. **+** adds an exercise
+at the post of the group's last one, and *{t:event.rotation.visitNone}* removes an exercise while the
+group has others; the whole group is removed with its own bin button. When a group has other than
+four or five exercises, the page warns of it but saves.
 
-Below the posts each post reads as the groups reach it, for example "Station 1: ALO, AVO, VOI (x
-2)": "(x 2)" says the group does two tasks there, and "(2 parts)" that the task is split in two
-parts. The number ranges of one class must not overlap, and a range cannot stand beside a group of
-the whole class. When a class is split into number ranges and a participant falls outside every
-range, the page lists the reasons and does not save. A post of the day that is removed leaves every
-round, and a group left with no post is removed. If a dog's number later moves outside the ranges,
-the dog goes with the nearest group: past the last range with the last group, before the first range
-with the first, and between ranges with the lower group; a dog without a number goes with the first
-group. A dog's round is always made of the posts of its own trial day.
+The day's first group does one exercise at each post in number order. The next group is suggested
+from the previous one, since the groups usually all go round the same way: it starts at the post where
+the previous group did its second exercise and goes on in the same order. A post repeated in a row
+stays in a row, so the previous 1, 2, 3, 3 gives 2, 3, 1, 1. An exercise keeps its parts and dogs at
+once with its number. The class is the first class without a group; once every class of the day has
+a group, it is the previous group's class, *{t:event.rotation.firstNumber}* is the previous group's
+last number plus one and *{t:event.rotation.lastNumber}* is left empty. A suggestion can be edited
+like any group, its class included.
 
-!shot[EventStationsPage/event-stations-rotation] A three-class rotation: each class starts at a different post and does two tasks at its last
+In a three-class trial, for example, ALO does exercises 1, 2, 3 and 4 at posts 1, 2, 3 and 3, AVO at
+posts 3, 1, 2 and 2 and VOI at posts 2, 3, 1 and 1, and every class has a maximum of 80. When a
+fourth exercise at post 3 is added to the first group before the other two are added, they get posts
+2, 3, 1, 1 and 3, 1, 2, 2, and swapping their classes gives the example's order. In a one-class trial
+the running order is split by start number, for example numbers 1 - 8 start at post 1 and 9 - 16 at
+post 2.
 
-**{t:save}** stores the posts and the rotation in the event's details. When results have already been
-recorded, the save works out their points, maximum, percentage and prize again for the new rounds, so
-the placements and the results sent to Omakoira match the results table. The same goes for changing
-the classes in the event's details. If a dog's round gains a task that has not been scored yet, the
-dog's prize goes until that task is scored. A result already sent that changes reads
-*{t:results.kennelliitto.badge.changed}* in the *Omakoira* column and is sent again.
+Below the posts each post reads as the groups reach it by exercise number, for example "Post 1: ALO
+(exercise 1), AVO (exercise 2), VOI (exercises 3 and 4)". A turn at a post takes as many dogs as the
+exercise of the dog at the head of the queue, and a group doing two exercises at a post queues there
+once for each: all its dogs for exercise 3 first, then for exercise 4. The start list's wait estimate
+counts the turns left the same way, group by group and exercise by exercise.
 
-A recorded task is kept only where its place means the same task in the dog's new round as before.
-When, for example, a post goes from two tasks to one or a task's parts change, the scores that would
-go are listed dog by dog before the save. **{t:event.resultTasksDropped.confirm}** saves the change
-and removes those scores, and they do not come back if the change is undone later. **{t:cancel}**
-leaves the change unsaved.
+The number ranges of one class must not overlap, and a range cannot stand beside a group of the whole
+class. When a class is split into number ranges and a participant falls outside every range, the page
+lists the reasons and does not save. A post of the day that is removed takes its exercises out of
+every running order, and a group left with no exercise is removed. If a dog's number later moves
+outside the ranges, the dog belongs to the nearest group: past the last range the last group, before
+the first range the first, and between ranges the lower group; a dog without a number belongs to the
+first group. A dog's exercises are always done at the posts of its own trial day.
 
-!shot[DroppedTasksDialog/dropped-tasks] A change of a post would remove recorded tasks from three dogs
+!shot[EventStationsPage/event-stations-rotation] A three-class running order: each class starts at a different post and does its last two exercises at one post
+
+**{t:save}** stores the posts and the running orders in the event's details. When results have
+already been recorded, the save works out their points, maximum, percentage and prize again for the
+new running orders, so the placements and the results sent to Omakoira match the results table. The
+same goes for changing the classes in the event's details. If a dog gains an exercise that has not
+been scored yet, the dog's prize goes until that exercise is scored. A result already sent that
+changes reads *{t:results.kennelliitto.badge.changed}* in the *Omakoira* column and is sent again.
+
+Recorded points belong to the post where the judge gave them: changing a running order does not move
+them to another post. They are kept as long as the post still has as many exercises with the same
+parts. When, for example, a post's second exercise leaves a group's order or an exercise's parts
+change, the scores that would go are listed dog by dog before the save.
+**{t:event.resultTasksDropped.confirm}** saves the change and removes the scores, and they do not
+come back even if the change is undone later. **{t:cancel}** leaves the change unsaved.
+
+!shot[DroppedTasksDialog/dropped-tasks] A change would remove recorded scores from three dogs
 
 Once the results have been handed over to the chief judge or confirmed, a change that would alter
 recorded results is not saved. A change that alters no dog's result is still saved.
@@ -127,21 +133,20 @@ started, and opens the **{t:results.title}** page. In a multi-day trial the day 
 and the classes are on their own tabs. The page lists only the dogs picked as participants, in
 running order.
 
-**A trial scored at posts (NOWT).** Every task has its own column in the group's rotation order,
-and the tasks are numbered through the whole round. The parts of a task split in two have columns of
-their own, for example "Task 2, part 1/2". When a class is split into number ranges and the groups'
-rounds differ, the columns are named by post, for example "Station 2, task 2", and a dog's row has
-a field only for its own group's tasks. The points go in a field under which the task's maximum
-shows. Under the field is the judge who judged the task: at a post with one judge the name is just
-shown, at a post with several it is picked, and the choice carries over to the next dog. Zero points need a reason in the *{t:results.zeroFault}* field. When the
-scorecard does not say why the task scored nothing, pick *{t:results.zeroFaults.unknown}*. The result
-is worked out on the row by itself, as the rules say: a single zero rules out a prize, and the
-total of the points shows under the row. With *{t:results.scope}* the page can be narrowed to one
-post, showing only that post's tasks — the result is then left out, since it depends on the other
-posts too. The choice offers only the shown day's posts, and the narrowed page lists only the dogs
-whose group comes to that post.
+**A trial scored by exercise (NOWT).** Every exercise has its own column by its number, "Exercise
+1", "Exercise 2" and so on, whatever post the group did it at. The parts of an exercise split in two
+have columns of their own, for example "Exercise 2, part 1/2". A dog's row has a field only for its
+own group's exercises. The points go in a field under which the exercise's maximum shows. Under the
+field is the judge who judged the exercise: at a post with one judge the name is just shown, at a
+post with several it is picked, and the choice carries over to the next dog. Zero points need a
+reason in the *{t:results.zeroFault}* field. When the scorecard does not say why the exercise scored
+nothing, pick *{t:results.zeroFaults.unknown}*. The result is worked out on the row by itself, as the
+rules say: a single zero rules out a prize, and the total of the points shows under the row. With
+*{t:results.scope}* the page can be narrowed to one post, showing only the exercises done there; the
+result is then left out, since it depends on the other posts too. The choice offers only the shown
+day's posts, and the narrowed page lists only the dogs whose group comes to that post.
 
-!shot[ResultsTable/results-entry-nowt] A NOWT class's points per task, the second dog stopped at post 2
+!shot[ResultsTable/results-entry-nowt] A NOWT class's points per exercise, the second dog stopped at post 2
 
 **Other event types.** The result is the judge's decision and is picked in the
 *{t:results.column.result}* field: a prize of 1 to 3, a nought or a dash, and in NOU and NKM
@@ -151,7 +156,7 @@ trials only pass or fail. Beside it is *{t:results.judge}*, when the class has m
 
 **Interruption.** The *{t:results.interruption}* field records
 *{t:results.retirement.judgeStopped}*. A stopped dog's result is a nought, as the rules say, and on
-the published list it carries the mark *{t:results.marks.interrupted}*. The whole-round view also
+the published list it carries the mark *{t:results.marks.interrupted}*. The view of all posts also
 asks *{t:results.outcomeAt}*, that is, at which post the round was stopped. A prize already
 recorded cannot take a stop beside it; clear the result first.
 

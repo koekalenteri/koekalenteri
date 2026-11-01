@@ -11,7 +11,7 @@ import { useTickWhile } from '../../hooks/useTickWhile'
 import { isEventLive } from '../../lib/event'
 import { liveFormat, livePhaseLabel, stationDogsAtOnce, stationPhases } from '../../lib/liveFormat'
 import { scoresAtPosts } from '../../lib/results'
-import { stationQueueByGroup } from '../../lib/rotation'
+import { stationQueueEntries } from '../../lib/rotation'
 import {
   completedGroupTurns,
   currentPhase,
@@ -35,12 +35,13 @@ const minutes = (ms: number) => Math.max(0, Math.round(ms / 60000))
 type LiveParticipant = SortableRegistration & { cancelled?: boolean }
 
 /**
- * The queue at a post, a part per rotation group with the dogs it brings and how many a turn of it
- * holds. Where the dogs go round posts, a post's queue is the dogs whose group visits it (KOE-1665);
- * elsewhere the post is the whole trial and the whole entry queues at it, as one part.
+ * The queue at a post, a part per group and exercise with the dogs it brings and how many a turn of it
+ * holds. Where the dogs go round posts, a post's queue is the dogs whose group does an exercise there, a
+ * group doing two coming twice (KOE-1665); elsewhere the post is the whole trial and the whole entry
+ * queues at it, as one part.
  *
  * Before a split class's numbers are published the rows carry none, so the class counts as its first
- * range's group (`stationQueueByGroup`); the numbers are out before the trial, so this is rare.
+ * range's group (`stationQueueEntries`); the numbers are out before the trial, so this is rare.
  */
 const stationQueueOf = (
   event: PublicConfirmedEvent,
@@ -51,7 +52,7 @@ const stationQueueOf = (
   if (!station || !scoresAtPosts(event.eventType)) {
     return [{ dogs: participants.length, dogsAtOnce: stationDogsAtOnce(event.eventType, station) }]
   }
-  return stationQueueByGroup(event, stationId, participants).map(({ registrations, visit }) => ({
+  return stationQueueEntries(event, stationId, participants).map(({ registrations, visit }) => ({
     dogs: registrations.length,
     dogsAtOnce: stationDogsAtOnce(event.eventType, visit),
   }))

@@ -72,9 +72,9 @@ export const formatResultLine = (
 const NOWT_PRIZE_THRESHOLD_PERCENT = { 1: 80, 2: 65, 3: 50 } as const
 
 /**
- * A task is always worth 20, whether it is scored whole or in two parts of 10. §5.3.1 says it of a post
- * ("Jokaisen rastin enimmäispistemäärä on 20 pistettä"); in practice a group may do two tasks at one
- * post, and each is a task of 20, so a post is worth its tasks times 20 (KOE-1665).
+ * An exercise (the rules' rasti; a `task` in this module's older names) is always worth 20, whether it is
+ * scored whole or in two parts of 10: §5.3.1, "Jokaisen rastin enimmäispistemäärä on 20 pistettä". A
+ * group may do two exercises in a row at one post, each of 20 (KOE-1665).
  */
 const TASK_MAX_POINTS = 20
 
@@ -213,10 +213,10 @@ export const nowtZeroFaults: readonly NowtZeroFault[] = [
   'unknown',
 ]
 
-/** One part of a task as scored for one dog, joined to its definition in the dog's round. */
+/** One part of an exercise as scored for one dog, joined to its definition in the dog's round. */
 export interface ScoredTask {
   stationId: string
-  /** 0-based task within the post. The parts of one task share it; the first-prize floor reads it. */
+  /** The exercise's number in the dog's running order. Its parts share it; the first-prize floor reads it. */
   task?: number
   /** The task's nominal maximum. Never the halved figure from an ALO recall. */
   maxPoints: number
@@ -240,68 +240,99 @@ interface NowtResultInput {
 export const taskEntryCeiling = (task: Pick<JsonEventResultTask, 'recalled'> & { maxPoints: number }): number =>
   task.recalled ? Math.floor(task.maxPoints / 2) : task.maxPoints
 
-/** One scored slot in a dog's round: a task, or one part of a split task. */
-export interface RoundTask {
+/**
+ * One scored slot in a dog's round: an exercise, or one part of a split exercise (KOE-1665).
+ *
+ * A score is stored at its post and its slot there (`stationId`, `index`), never at the exercise number:
+ * the judge scored the dog at a post, so a running order reordered or a range edited later keeps each
+ * score with the post that gave it. An exercise moved to another post therefore leaves its score on
+ * the old post, where it no longer counts. The number, the part and the maximum are read off the dog's
+ * running order for the screens.
+ */
+export interface ExerciseSlot {
   stationId: string
   /**
-   * 0-based slot within the post, the address a stored score carries: task × parts + part. A post
-   * stored before KOE-1665 with `tasks: 2` is one task in two parts, so its slots 0 and 1 read as before.
+   * 0-based slot at the post, the address a stored score carries: the parts of the exercises the group
+   * does there, counted in exercise order. A post stored before KOE-1665 with `tasks: 2` is one exercise in two parts,
+   * so its slots 0 and 1 read as before.
    */
   index: number
-  /** 0-based task within the post. */
-  task: number
-  /** The task's number across the whole round, from 1, in the order the group does them. */
-  taskNumber: number
-  /** The parts the task splits into; the slot's part is `index % parts`. */
+  /** The exercise's number in the dog's running order, from 1. */
+  exercise: number
+  /** 0-based part of the exercise. */
+  part: number
+  /** The parts the exercise splits into. */
   parts: 1 | 2
   maxPoints: number
 }
 
 /**
- * The scored slots of one visit to a post: its tasks, each whole or in parts. Expanding the split here
- * rather than storing each slot means a task's parts cannot fail to add up to the task.
+ * The scored slots of one visit to a post: its exercise, whole or in parts, addressed from the slots the
+ * group's exercises there take before it. Expanding the split here rather than storing each slot means
+ * an exercise's parts cannot fail to add up to it.
  */
-export const stationSlots = (
+export const visitSlots = (
   stationId: string,
-  { tasks, parts, tasksBefore }: Pick<StationVisitLayout, 'tasks' | 'parts' | 'tasksBefore'>
-): RoundTask[] =>
-  Array.from({ length: tasks * parts }, (_unused, index) => {
-    const task = Math.floor(index / parts)
-    return { index, maxPoints: partMaxPoints(parts), parts, stationId, task, taskNumber: tasksBefore + task + 1 }
-  })
+  { exercise, parts, slotsBefore }: Pick<StationVisitLayout, 'exercise' | 'parts' | 'slotsBefore'>
+): ExerciseSlot[] =>
+  Array.from({ length: parts }, (_unused, part) => ({
+    exercise,
+    index: slotsBefore + part,
+    maxPoints: partMaxPoints(parts),
+    part,
+    parts,
+    stationId,
+  }))
 
 /**
- * The scored slots of one dog's round, in the order its rotation group visits the posts (KOE-1665):
- * every post of its day in number order where the day has no rotation of its own. A day without posts
+ * The scored slots of one dog's round, in its group's running order (KOE-1665): one exercise at each
+ * post of its day in number order where the day has no running order of its own. A day without posts
  * has an empty round.
  */
-export const dogRound = (event: RotationEvent, dog: RotationDog): RoundTask[] =>
-  dogVisits(event, dog).flatMap((visit) => stationSlots(visit.station.id, visit))
+export const dogRound = (event: RotationEvent, dog: RotationDog): ExerciseSlot[] =>
+  dogVisits(event, dog).flatMap((visit) => visitSlots(visit.station.id, visit))
+
+/** A column of the results table: an exercise number, split the same way, and a part of it. */
+export const columnKey = (slot: Pick<ExerciseSlot, 'exercise' | 'part' | 'parts'>): string =>
+  `${slot.exercise}#${slot.parts}#${slot.part}`
+
+/** Whether a dog's slot belongs in a column: the same exercise number, split the same way, the same part. */
+export const inColumn = (slot: ExerciseSlot, column: ExerciseSlot): boolean => columnKey(slot) === columnKey(column)
 
 /**
- * The columns of a table of dogs whose rounds may differ: every slot any of them has, in the order of
- * the first round that has it. Rows in start order put the first group's rotation first.
+ * The columns of a table of dogs whose rounds may differ: every exercise number any of them has, split
+ * as each has it, in exercise order. A column is "Rasti 3" whatever post a dog's group did it at.
  */
-export const roundColumns = (rounds: readonly (readonly RoundTask[])[]): RoundTask[] => {
+export const roundColumns = (rounds: readonly (readonly ExerciseSlot[])[]): ExerciseSlot[] => {
   const seen = new Set<string>()
-  return rounds.flat().filter((task) => {
-    const key = `${task.stationId}#${task.index}`
-    if (seen.has(key)) return false
-    seen.add(key)
-    return true
-  })
+  return rounds
+    .flat()
+    .filter((slot) => {
+      const key = columnKey(slot)
+      if (seen.has(key)) return false
+      seen.add(key)
+      return true
+    })
+    .sort((a, b) => a.exercise - b.exercise || a.parts - b.parts || a.part - b.part)
 }
 
-/** Where a stored score sits: its post and its slot there, the address `stationSlots` gives it. */
-const slotKey = (slot: Pick<RoundTask, 'stationId' | 'index'>): string => `${slot.stationId}#${slot.index}`
+/** Where a stored score sits: its post and its slot there, the address `visitSlots` gives it. */
+const slotKey = (slot: Pick<ExerciseSlot, 'stationId' | 'index'>): string => `${slot.stationId}#${slot.index}`
+
+/** Whether a dog's slot holds this stored score. */
+export const holdsScore = (
+  slot: Pick<ExerciseSlot, 'stationId' | 'index'>,
+  task: Pick<ExerciseSlot, 'stationId' | 'index'>
+) => slotKey(slot) === slotKey(task)
 
 /**
- * Whether a slot reads a stored score the same way in two rounds: the same task of the post, split the
- * same way. A slot's index is task × parts + part, so a change of `parts` gives an index another task or
- * another maximum, and a score kept there would be read with a meaning it was not given.
+ * Whether a slot reads a stored score the same way in two rounds: the same slot of the post, split the
+ * same way. A slot's index counts parts, so a change of `parts` gives an index another exercise or
+ * another maximum, and a score kept there would be read with a meaning it was not given. The exercise
+ * number may change: the score stays with the post that gave it.
  */
-const sameSlot = (a: RoundTask | undefined, b: RoundTask | undefined): boolean =>
-  a !== undefined && a.task === b?.task && a.parts === b?.parts
+const sameSlot = (a: ExerciseSlot | undefined, b: ExerciseSlot | undefined): boolean =>
+  a !== undefined && b !== undefined && a.parts === b.parts && a.part === b.part
 
 /**
  * Whether a stored task records anything. The results table stores a slot it shows as unscored
@@ -312,14 +343,14 @@ export const isRecordedTask = (
   task: Pick<JsonEventResultTask, 'points' | 'recalled' | 'retired' | 'zeroFault'>
 ): boolean => task.points !== null || Boolean(task.zeroFault) || Boolean(task.recalled) || Boolean(task.retired)
 
-const slotsByKey = (round: readonly RoundTask[]) => new Map(round.map((slot) => [slotKey(slot), slot]))
+const slotsByKey = (round: readonly ExerciseSlot[]) => new Map(round.map((slot) => [slotKey(slot), slot]))
 
 /**
  * Whether a dog's round scores differently after a change of the posts, the rotation or the classes
  * (KOE-1666): a slot added, removed, or meaning something else. A new order of the same slots is not a
  * difference, since the total and the prize do not depend on it.
  */
-export const roundsDiffer = (before: readonly RoundTask[], after: readonly RoundTask[]): boolean => {
+export const roundsDiffer = (before: readonly ExerciseSlot[], after: readonly ExerciseSlot[]): boolean => {
   if (before.length !== after.length) return true
   const next = slotsByKey(after)
   return before.some((slot) => !sameSlot(slot, next.get(slotKey(slot))))
@@ -332,8 +363,8 @@ export const roundsDiffer = (before: readonly RoundTask[], after: readonly Round
  * writes, and the recompute leaves them out, so no score is read against a task it was not given for.
  */
 export const reconcileRoundTasks = <T extends Pick<JsonEventResultTask, 'stationId' | 'index'>>(
-  before: readonly RoundTask[],
-  after: readonly RoundTask[],
+  before: readonly ExerciseSlot[],
+  after: readonly ExerciseSlot[],
   tasks: readonly T[] | undefined
 ): { kept: T[]; dropped: T[] } => {
   const previous = slotsByKey(before)
@@ -380,34 +411,17 @@ export const isResultTasksDroppedBody = (body: unknown): body is ResultTasksDrop
   Array.isArray(body.dogs) &&
   body.dogs.every(isDroppedTasksDog)
 
-/**
- * A slot named by its post rather than its place in a round: "Rasti 2", "Rasti 2, tehtävä 2", with the
- * part after it where the task is split. The heading of a column the rows of a class number differently,
- * the class going round in rotation groups of their own order.
- */
-export const formatPostTaskName = (
-  task: RoundTask,
-  station: { number: number } | undefined,
-  t: TFunction<'translation'>
-): string => {
-  const number = station?.number ?? ''
-  const name =
-    task.task > 0 ? t('results.column.postTask', { number, task: task.task + 1 }) : t('results.column.post', { number })
-  return task.parts > 1
-    ? `${name}, ${t('results.column.part', { part: (task.index % task.parts) + 1, parts: task.parts })}`
-    : name
-}
-
-/** A slot as the secretary reads it: "Tehtävä 2", or "Tehtävä 2, osa 1/2" for a part of a split task. */
-export const formatTaskName = (task: RoundTask, t: TFunction<'translation'>): string =>
-  task.parts > 1
-    ? t('results.column.taskPart', { number: task.taskNumber, part: (task.index % task.parts) + 1, parts: task.parts })
-    : t('results.column.task', { number: task.taskNumber })
+/** A slot as the secretary reads it: "Rasti 2", or "Rasti 2, osa 1/2" for a part of a split exercise. */
+export const formatTaskName = (slot: ExerciseSlot, t: TFunction<'translation'>): string =>
+  slot.parts > 1
+    ? t('results.column.taskPart', { number: slot.exercise, part: slot.part + 1, parts: slot.parts })
+    : t('results.column.task', { number: slot.exercise })
 
 /**
- * The dogs a post sees, in the order they come to it. Where the post scores tasks, that is the rotation's
- * queue (`stationQueue`), each dog with what its group does here, and a dog whose group does not come
- * here is left out. Where nothing is scored the post is the whole trial: every dog, in start order.
+ * The dogs a post sees, in the order they come to it. Where the post scores exercises, that is the
+ * post's queue (`stationQueue`): each dog once for each exercise its group does here, with that
+ * exercise, and a dog whose group does not come here left out. Where nothing is scored the post is the
+ * whole trial: every dog, in start order.
  */
 export const stationDogsInOrder = <T extends SortableRegistration>(
   event: RotationEvent & { eventType: string },
@@ -424,15 +438,15 @@ export const stationDogsInOrder = <T extends SortableRegistration>(
  * rather than vanishing from the total.
  */
 export const toScoredTasks = (
-  round: readonly RoundTask[],
+  round: readonly ExerciseSlot[],
   // Provenance is irrelevant to a score, so this accepts a task on its way in as readily as one stored.
   scored: readonly Pick<JsonEventResultTask, 'stationId' | 'index' | 'points'>[] | undefined
 ): ScoredTask[] =>
-  round.map((task) => ({
-    maxPoints: task.maxPoints,
-    points: scored?.find((entry) => entry.stationId === task.stationId && entry.index === task.index)?.points ?? null,
-    stationId: task.stationId,
-    task: task.task,
+  round.map((slot) => ({
+    maxPoints: slot.maxPoints,
+    points: scored?.find((entry) => holdsScore(slot, entry))?.points ?? null,
+    stationId: slot.stationId,
+    task: slot.exercise,
   }))
 
 export const nowtTotals = (tasks: readonly ScoredTask[]) => {
@@ -452,7 +466,7 @@ const atLeastPercent = (points: number, maxPoints: number, percent: number) => p
 /**
  * Every task must yield at least half its points for a first prize. A task worth 20 therefore has a
  * floor of 10. Where a task splits into two parts the floor applies to their sum, so 9 + 8 clears it
- * although neither part reaches 10. Two tasks at one post are floored each on its own (KOE-1665).
+ * although neither part reaches 10. Two exercises at one post are floored each on its own (KOE-1665).
  *
  * Not printed in §5.4.1, which gives the thresholds and nothing else — Jukka asserted the rule, so it
  * is practice or lives in the ohjeet. Tracked as unverified in the rules conformance ledger.
@@ -640,7 +654,7 @@ interface EventResultContext {
   eventType: string
   eventClass?: string
   /** The dog's round (`dogRound`). Read only for an event type scored at posts. */
-  round?: readonly RoundTask[]
+  round?: readonly ExerciseSlot[]
 }
 
 /**

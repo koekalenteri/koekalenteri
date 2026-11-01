@@ -130,28 +130,18 @@ describe('StationsEditor', () => {
     })
   })
 
-  describe('rotation (KOE-1665)', () => {
+  describe('running order (KOE-1665)', () => {
     const classes = [
       { class: 'ALO' as const, date: '2026-09-12' as const },
       { class: 'AVO' as const, date: '2026-09-12' as const },
     ]
     const stations = [station('a', 1), station('b', 2)]
+    const at = (...ids: string[]) => ids.map((stationId) => ({ stationId }))
 
-    it('says every class goes round the posts in number order while there is no group', () => {
+    it('says every class does one exercise at each post in number order while there is no group', () => {
       renderComponent({ event: testEvent({ classes, stations }), onChange: vi.fn() })
 
       expect(screen.getByText('event.rotation.default')).toBeInTheDocument()
-    })
-
-    it("adds the day's first group for the first class, visiting the posts in number order", async () => {
-      const onChange = vi.fn()
-      const { user } = renderComponent({ event: testEvent({ classes, stations: [...stations].reverse() }), onChange })
-
-      await user.click(screen.getByRole('button', { name: 'event.rotation.add' }))
-
-      expect(onChange).toHaveBeenCalledWith(
-        expect.objectContaining({ rotations: [{ class: 'ALO', posts: [{ stationId: 'a' }, { stationId: 'b' }] }] })
-      )
     })
 
     it("suggests a day's first group from that day's posts, not from another day's groups", async () => {
@@ -160,7 +150,7 @@ describe('StationsEditor', () => {
       const event = testEvent({
         classes: [...classes, { class: 'VOI', date: sunday }],
         endDate: sunday,
-        rotations: [{ class: 'AVO', firstNumber: 1, lastNumber: 8, posts: [{ stationId: 'b' }, { stationId: 'a' }] }],
+        rotations: [{ class: 'AVO', exercises: at('b', 'a'), firstNumber: 1, lastNumber: 8 }],
         stations: [...stations, station('c', 1, { date: sunday }), station('d', 2, { date: sunday })],
       })
       const { user } = renderComponent({ event, onChange })
@@ -169,30 +159,30 @@ describe('StationsEditor', () => {
 
       expect(onChange).toHaveBeenCalledWith(
         expect.objectContaining({
-          rotations: [...(event.rotations ?? []), { class: 'VOI', posts: [{ stationId: 'c' }, { stationId: 'd' }] }],
+          rotations: [...(event.rotations ?? []), { class: 'VOI', exercises: at('c', 'd') }],
         })
       )
     })
 
-    it('takes a removed post out of every group, and drops a group left with none', async () => {
+    it("takes a removed post's exercises out of every group, and drops a group left with none", async () => {
       const onChange = vi.fn()
       const rotations = [
-        { class: 'ALO' as const, posts: [{ stationId: 'a' }, { stationId: 'b', taskCount: 2 }] },
-        { class: 'AVO' as const, posts: [{ stationId: 'a' }] },
+        { class: 'ALO' as const, exercises: at('a', 'b', 'b') },
+        { class: 'AVO' as const, exercises: at('a') },
       ]
       const { user } = renderComponent({ event: testEvent({ classes, rotations, stations }), onChange })
 
       await user.click(screen.getAllByRole('button', { name: 'event.stationRemove' })[0])
 
       expect(onChange).toHaveBeenCalledWith({
-        rotations: [{ class: 'ALO', posts: [{ stationId: 'b', taskCount: 2 }] }],
+        rotations: [{ class: 'ALO', exercises: at('b', 'b') }],
         stations: [station('b', 1)],
       })
     })
 
     it('removes a group', async () => {
       const onChange = vi.fn()
-      const rotations = [{ class: 'ALO' as const, posts: [{ stationId: 'a' }] }]
+      const rotations = [{ class: 'ALO' as const, exercises: at('a') }]
       const { user } = renderComponent({ event: testEvent({ classes, rotations, stations }), onChange })
 
       await user.click(screen.getByRole('button', { name: 'event.rotation.remove' }))
@@ -200,17 +190,26 @@ describe('StationsEditor', () => {
       expect(onChange).toHaveBeenCalledWith({ rotations: [], stations })
     })
 
-    it('adds the next post the group does not visit yet', async () => {
+    it('adds an exercise at the post of the last one, two in a row there', async () => {
       const onChange = vi.fn()
-      const rotations = [{ class: 'ALO' as const, posts: [{ stationId: 'b' }] }]
+      const rotations = [{ class: 'ALO' as const, exercises: at('b') }]
       const { user } = renderComponent({ event: testEvent({ classes, rotations, stations }), onChange })
 
       await user.click(screen.getByRole('button', { name: 'event.rotation.visitAdd' }))
 
-      expect(onChange).toHaveBeenCalledWith({
-        rotations: [{ class: 'ALO', posts: [{ stationId: 'b' }, { stationId: 'a' }] }],
-        stations,
-      })
+      expect(onChange).toHaveBeenCalledWith({ rotations: [{ class: 'ALO', exercises: at('b', 'b') }], stations })
+    })
+
+    it('shows a group stored before the running order as one without exercises, which cannot be saved until removed', async () => {
+      const onChange = vi.fn()
+      // A dev row of the shape #1708 wrote, posts and no exercises.
+      const rotations: EventRotationGroup[] = JSON.parse('[{"class":"ALO","posts":[{"stationId":"a","taskCount":2}]}]')
+      const { user } = renderComponent({ event: testEvent({ classes, rotations, stations }), onChange })
+
+      expect(screen.queryByRole('combobox', { name: 'event.rotation.visit' })).not.toBeInTheDocument()
+      await user.click(screen.getByRole('button', { name: 'event.rotation.remove' }))
+
+      expect(onChange).toHaveBeenCalledWith({ rotations: [], stations })
     })
   })
 
@@ -256,72 +255,66 @@ const mapClasses = [
 ]
 const mapStations = [station('r1', 1), station('r2', 2), station('r3', 3)]
 
-/** The rotation the last patch would save. */
+/** A running order by post id, each exercise at the post's defaults. */
+const exercisesAt = (...ids: string[]) => ids.map((stationId) => ({ stationId }))
+
+/** The running orders the last patch would save. */
 const savesRotations = (onChange: ReturnType<typeof vi.fn>, rotations: unknown) =>
   expect(onChange).toHaveBeenLastCalledWith(expect.objectContaining({ rotations }))
 
 describeWithTranslations('fi', () => {
-  it("enters the organiser's map through the page: each new group goes round from the next post (KOE-1665)", async () => {
+  it("enters the organiser's map through the page, warning of a running order of other than four or five (KOE-1665)", async () => {
     const onChange = vi.fn()
     const { user } = renderWithUserEvents(
       <Harness initial={testEvent({ classes: mapClasses, stations: mapStations })} onChange={onChange} />,
       undefined
     )
-    const pick = async (label: RegExp | string, at: number, option: string) => {
-      await user.click(screen.getAllByRole('combobox', { name: label })[at])
-      await user.click(within(screen.getByRole('listbox')).getByRole('option', { name: option }))
-    }
-    const add = () => user.click(screen.getByRole('button', { name: 'Lisää kiertoryhmä' }))
+    const add = () => user.click(screen.getByRole('button', { name: 'Lisää ryhmä' }))
 
     await add()
-    // The posts' own "Tehtäviä" come first; the first group's last visit does two tasks.
-    await pick(/^Tehtäviä$/, mapStations.length + 2, '2')
+    // Three exercises, one at each post, warn: a work test has four or five. The save is not refused.
+    expect(screen.getByText('ALO: 3 rastia; työkokeessa on tavallisesti 4 tai 5 rastia.')).toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: 'Lisää rasti' }))
+    expect(screen.queryByText(/ALO: \d rastia/)).not.toBeInTheDocument()
     await add()
     await add()
 
     savesRotations(onChange, [
-      { class: 'ALO', posts: [{ stationId: 'r1' }, { stationId: 'r2' }, { stationId: 'r3', taskCount: 2 }] },
-      { class: 'AVO', posts: [{ stationId: 'r2' }, { stationId: 'r3' }, { stationId: 'r1', taskCount: 2 }] },
-      { class: 'VOI', posts: [{ stationId: 'r3' }, { stationId: 'r1' }, { stationId: 'r2', taskCount: 2 }] },
+      { class: 'ALO', exercises: exercisesAt('r1', 'r2', 'r3', 'r3') },
+      { class: 'AVO', exercises: exercisesAt('r2', 'r3', 'r1', 'r1') },
+      { class: 'VOI', exercises: exercisesAt('r3', 'r1', 'r2', 'r2') },
     ])
-
-    // The map turns the other way round: AVO starts at post 3 and VOI at post 2.
-    await pick('Luokka', 1, 'VOI')
-    await pick('Luokka', 2, 'AVO')
-    expect(screen.getByText('Rasti 1: ALO, AVO, VOI (x 2)')).toBeInTheDocument()
-    expect(screen.getByText('Rasti 2: VOI, ALO, AVO (x 2)')).toBeInTheDocument()
-    expect(screen.getByText('Rasti 3: AVO, VOI, ALO (x 2)')).toBeInTheDocument()
   })
 
-  it("stores a group's own dogs at once at a post, and leaves out the post's own (KOE-1665)", async () => {
+  it("stores an exercise's own dogs at once, and leaves out the post's own (KOE-1665)", async () => {
     const onChange = vi.fn()
     const initial = testEvent({
       classes: mapClasses,
-      rotations: [{ class: 'ALO', posts: [{ stationId: 'r1' }] }],
+      rotations: [{ class: 'ALO', exercises: exercisesAt('r1') }],
       stations: [station('r1', 1, { dogsAtOnce: 2 })],
     })
     const { user } = renderWithUserEvents(<Harness initial={initial} onChange={onChange} />, undefined)
-    const visitField = () => screen.getAllByRole('combobox', { name: 'Koiria kerralla' }).at(-1)
+    const exerciseField = () => screen.getAllByRole('combobox', { name: 'Koiria kerralla' }).at(-1)
     const pick = async (option: string) => {
-      const field = visitField()
+      const field = exerciseField()
       if (field) await user.click(field)
       await user.click(within(screen.getByRole('listbox')).getByRole('option', { name: option }))
     }
 
-    expect(visitField()).toHaveTextContent('2')
+    expect(exerciseField()).toHaveTextContent('2')
     await pick('1')
-    savesRotations(onChange, [{ class: 'ALO', posts: [{ dogsAtOnce: 1, stationId: 'r1' }] }])
+    savesRotations(onChange, [{ class: 'ALO', exercises: [{ dogsAtOnce: 1, stationId: 'r1' }] }])
 
     await pick('2')
-    savesRotations(onChange, [{ class: 'ALO', posts: [{ stationId: 'r1' }] }])
+    savesRotations(onChange, [{ class: 'ALO', exercises: exercisesAt('r1') }])
   })
 
-  it('puts a picked post in place of a visit to a post the day no longer has', async () => {
+  it('puts a picked post in place of an exercise at a post the day no longer has', async () => {
     const onChange = vi.fn()
     const { user } = renderWithUserEvents(
       <RotationRow
         classes={['ALO']}
-        group={{ class: 'ALO', posts: [{ stationId: 'gone', taskCount: 2 }] }}
+        group={{ class: 'ALO', exercises: [{ parts: 2, stationId: 'gone' }] }}
         onChange={onChange}
         onRemove={vi.fn()}
         stations={[station('r1', 1)]}
@@ -330,13 +323,13 @@ describeWithTranslations('fi', () => {
     )
 
     expect(screen.getByRole('combobox', { name: 'Koiria kerralla' })).toHaveAttribute('aria-disabled', 'true')
-    await user.click(screen.getByRole('combobox', { name: '1. rasti' }))
-    await user.click(within(screen.getByRole('listbox')).getByRole('option', { name: 'Rasti 1' }))
+    await user.click(screen.getByRole('combobox', { name: 'Rasti 1' }))
+    await user.click(within(screen.getByRole('listbox')).getByRole('option', { name: 'Suorituspaikka 1' }))
 
-    expect(onChange).toHaveBeenCalledWith({ class: 'ALO', posts: [{ stationId: 'r1' }] })
+    expect(onChange).toHaveBeenCalledWith({ class: 'ALO', exercises: exercisesAt('r1') })
   })
 
-  it('shows no rotation for a type not scored at posts, whose one post is the whole trial', () => {
+  it('shows no running order for a type not scored at posts, whose one post is the whole trial', () => {
     renderWithUserEvents(
       <Harness
         initial={testEvent({ classes: mapClasses, eventType: 'NOME-B', stations: [station('r1', 1)] })}
@@ -345,17 +338,17 @@ describeWithTranslations('fi', () => {
       undefined
     )
 
-    expect(screen.getByText('Rasti 1')).toBeInTheDocument()
-    expect(screen.queryByRole('heading', { name: 'Kierto' })).not.toBeInTheDocument()
-    expect(screen.queryByRole('button', { name: 'Lisää kiertoryhmä' })).not.toBeInTheDocument()
+    expect(screen.getByText('Suorituspaikka 1')).toBeInTheDocument()
+    expect(screen.queryByRole('heading', { name: 'Suoritusjärjestys' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Lisää ryhmä' })).not.toBeInTheDocument()
   })
 
   describe('a group row (KOE-1665)', () => {
     const one = (group: Partial<EventRotationGroup> = {}) =>
       testEvent({
         classes: mapClasses,
-        rotations: [{ class: 'ALO', posts: [{ stationId: 'r1' }, { stationId: 'r2' }], ...group }],
-        stations: [station('r1', 1), station('r2', 2, { parts: 2, taskCount: 2 })],
+        rotations: [{ class: 'ALO', exercises: exercisesAt('r1', 'r2'), ...group }],
+        stations: [station('r1', 1), station('r2', 2, { parts: 2 })],
       })
 
     it('stores a typed range, and never a number it cannot read', async () => {
@@ -366,12 +359,12 @@ describeWithTranslations('fi', () => {
       savesRotations(onChange, [expect.objectContaining({ firstNumber: 3, lastNumber: 8 })])
 
       await user.clear(screen.getByLabelText('Alkaen nro'))
-      savesRotations(onChange, [{ class: 'ALO', lastNumber: 8, posts: [{ stationId: 'r1' }, { stationId: 'r2' }] }])
+      savesRotations(onChange, [{ class: 'ALO', exercises: exercisesAt('r1', 'r2'), lastNumber: 8 }])
 
       await user.clear(screen.getByLabelText('Päättyen nro'))
       await user.type(screen.getByLabelText('Päättyen nro'), 'x')
       // Neither NaN nor an empty number is stored: the bound is simply absent.
-      savesRotations(onChange, [{ class: 'ALO', posts: [{ stationId: 'r1' }, { stationId: 'r2' }] }])
+      savesRotations(onChange, [{ class: 'ALO', exercises: exercisesAt('r1', 'r2') }])
     })
 
     it('changes the class', async () => {
@@ -384,113 +377,99 @@ describeWithTranslations('fi', () => {
       savesRotations(onChange, [expect.objectContaining({ class: 'VOI' })])
     })
 
-    it("keeps a visit's tasks with its post when the round is reordered", async () => {
-      const onChange = vi.fn()
-      const initial = one({ posts: [{ stationId: 'r1', taskCount: 3 }, { stationId: 'r2' }] })
-      const { user } = renderWithUserEvents(<Harness initial={initial} onChange={onChange} />, undefined)
-
-      await user.click(screen.getByRole('combobox', { name: '1. rasti' }))
-      await user.click(within(screen.getByRole('listbox')).getByRole('option', { name: 'Rasti 2' }))
-
-      savesRotations(onChange, [
-        expect.objectContaining({ posts: [{ stationId: 'r2' }, { stationId: 'r1', taskCount: 3 }] }),
-      ])
-    })
-
-    it("leaves out a visit's task count and parts where they are the post's own", async () => {
+    it("leaves out an exercise's parts where they are the post's own", async () => {
       const onChange = vi.fn()
       const { user } = renderWithUserEvents(<Harness initial={one()} onChange={onChange} />, undefined)
-      const visitFields = (name: string) => screen.getAllByRole('combobox', { name }).slice(-2)
+      const exerciseFields = (name: string) => screen.getAllByRole('combobox', { name }).slice(-2)
       const pick = async (field: HTMLElement, option: string) => {
         await user.click(field)
         await user.click(within(screen.getByRole('listbox')).getByRole('option', { name: option }))
       }
 
-      // r1 does one task whole by default, r2 two tasks in two parts.
-      await pick(visitFields('Tehtäviä')[0], '2')
-      await pick(visitFields('Osajako')[1], '1')
+      // r1 is done whole by default, r2 in two parts.
+      await pick(exerciseFields('Osajako')[0], '2')
+      await pick(exerciseFields('Osajako')[1], '1')
       savesRotations(onChange, [
         expect.objectContaining({
-          posts: [
-            { stationId: 'r1', taskCount: 2 },
+          exercises: [
+            { parts: 2, stationId: 'r1' },
             { parts: 1, stationId: 'r2' },
           ],
         }),
       ])
 
-      await pick(visitFields('Tehtäviä')[0], '1')
-      await pick(visitFields('Osajako')[1], '2')
-      savesRotations(onChange, [expect.objectContaining({ posts: [{ stationId: 'r1' }, { stationId: 'r2' }] })])
+      await pick(exerciseFields('Osajako')[0], '1')
+      await pick(exerciseFields('Osajako')[1], '2')
+      savesRotations(onChange, [expect.objectContaining({ exercises: exercisesAt('r1', 'r2') })])
     })
 
-    it('cannot take out the last visit; the group goes with its own button', async () => {
+    it('cannot take out the last exercise; the group goes with its own button', async () => {
       const onChange = vi.fn()
       const { user } = renderWithUserEvents(
-        <Harness initial={one({ posts: [{ stationId: 'r1' }] })} onChange={onChange} />,
+        <Harness initial={one({ exercises: exercisesAt('r1') })} onChange={onChange} />,
         undefined
       )
 
-      await user.click(screen.getByRole('combobox', { name: '1. rasti' }))
-      expect(within(screen.getByRole('listbox')).queryByRole('option', { name: 'Ei rastia' })).not.toBeInTheDocument()
+      await user.click(screen.getByRole('combobox', { name: 'Rasti 1' }))
+      expect(
+        within(screen.getByRole('listbox')).queryByRole('option', { name: 'Poista rasti' })
+      ).not.toBeInTheDocument()
       await user.keyboard('{Escape}')
 
-      await user.click(screen.getByRole('button', { name: 'Poista kiertoryhmä' }))
+      await user.click(screen.getByRole('button', { name: 'Poista ryhmä' }))
       savesRotations(onChange, [])
     })
 
-    it('takes out a visit while the group keeps another', async () => {
+    it('takes out an exercise while the group keeps another', async () => {
       const onChange = vi.fn()
       const { user } = renderWithUserEvents(<Harness initial={one()} onChange={onChange} />, undefined)
 
-      await user.click(screen.getByRole('combobox', { name: '1. rasti' }))
-      await user.click(within(screen.getByRole('listbox')).getByRole('option', { name: 'Ei rastia' }))
+      await user.click(screen.getByRole('combobox', { name: 'Rasti 1' }))
+      await user.click(within(screen.getByRole('listbox')).getByRole('option', { name: 'Poista rasti' }))
 
-      savesRotations(onChange, [expect.objectContaining({ posts: [{ stationId: 'r2' }] })])
+      savesRotations(onChange, [expect.objectContaining({ exercises: exercisesAt('r2') })])
     })
 
-    it('keeps what the group does at a point of its round when a post it does not visit takes the place', async () => {
+    it("keeps an exercise's parts and dogs at once when its post changes, a default of the old post too", async () => {
       const onChange = vi.fn()
       const initial = testEvent({
         classes: mapClasses,
-        rotations: [{ class: 'ALO', posts: [{ stationId: 'r1' }, { parts: 2, stationId: 'r2', taskCount: 2 }] }],
-        stations: mapStations,
+        rotations: [{ class: 'ALO', exercises: exercisesAt('r1') }],
+        stations: [station('r1', 1, { dogsAtOnce: 4, parts: 2 }), station('r2', 2)],
       })
       const { user } = renderWithUserEvents(<Harness initial={initial} onChange={onChange} />, undefined)
 
-      await user.click(screen.getByRole('combobox', { name: '2. rasti' }))
-      await user.click(within(screen.getByRole('listbox')).getByRole('option', { name: 'Rasti 3' }))
+      await user.click(screen.getByRole('combobox', { name: 'Rasti 1' }))
+      await user.click(within(screen.getByRole('listbox')).getByRole('option', { name: 'Suorituspaikka 2' }))
 
-      // A swap moves a visit whole with its post; a new post takes over the visit's own settings.
+      savesRotations(onChange, [expect.objectContaining({ exercises: [{ dogsAtOnce: 4, parts: 2, stationId: 'r2' }] })])
+    })
+
+    it('lets the same post come again, in a row or apart', async () => {
+      const onChange = vi.fn()
+      const { user } = renderWithUserEvents(
+        <Harness initial={one({ exercises: exercisesAt('r1', 'r2', 'r2') })} onChange={onChange} />,
+        undefined
+      )
+
+      await user.click(screen.getByRole('combobox', { name: 'Rasti 3' }))
+      await user.click(within(screen.getByRole('listbox')).getByRole('option', { name: 'Suorituspaikka 1' }))
+
       savesRotations(onChange, [
-        expect.objectContaining({ posts: [{ stationId: 'r1' }, { parts: 2, stationId: 'r3', taskCount: 2 }] }),
+        expect.objectContaining({ exercises: [...exercisesAt('r1', 'r2'), { parts: 2, stationId: 'r1' }] }),
       ])
-    })
-
-    it('keeps what a column shows when a post it does not visit takes the place, a default of the old post too', async () => {
-      const onChange = vi.fn()
-      const initial = testEvent({
-        classes: mapClasses,
-        rotations: [{ class: 'ALO', posts: [{ stationId: 'r1' }] }],
-        stations: [station('r1', 1, { dogsAtOnce: 4, taskCount: 2 }), station('r2', 2)],
-      })
-      const { user } = renderWithUserEvents(<Harness initial={initial} onChange={onChange} />, undefined)
-
-      await user.click(screen.getByRole('combobox', { name: '1. rasti' }))
-      await user.click(within(screen.getByRole('listbox')).getByRole('option', { name: 'Rasti 2' }))
-
-      savesRotations(onChange, [expect.objectContaining({ posts: [{ dogsAtOnce: 4, stationId: 'r2', taskCount: 2 }] })])
     })
 
     it('drops a group whose class no longer runs on the day of its posts', async () => {
       const onChange = vi.fn()
       const initial = testEvent({
         classes: [{ class: 'AVO', date: '2026-09-12' }],
-        rotations: [{ class: 'ALO', posts: [{ stationId: 'r1' }] }],
+        rotations: [{ class: 'ALO', exercises: exercisesAt('r1') }],
         stations: mapStations,
       })
       const { user } = renderWithUserEvents(<Harness initial={initial} onChange={onChange} />, undefined)
 
-      await user.click(screen.getByRole('button', { name: 'Lisää rasti' }))
+      await user.click(screen.getByRole('button', { name: 'Lisää suorituspaikka' }))
 
       savesRotations(onChange, [])
     })

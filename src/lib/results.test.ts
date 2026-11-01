@@ -1,4 +1,4 @@
-import type { JsonEventResult, JsonEventResultTask } from '../types'
+import type { EventRotationGroup, EventStation, JsonEventResult, JsonEventResultTask } from '../types'
 import type { ScoredTask, SubmittedEventResult } from './results'
 import i18n from 'i18next'
 import koemuotoNKM from '../lambda/lib/KLIntegraatio-fixtures/koemuoto-NKM.json'
@@ -14,7 +14,6 @@ import {
   eliminatingFaults,
   eventResultPrefix,
   formatEventResult,
-  formatPostTaskName,
   formatResultLine,
   formatShownResult,
   formatTaskName,
@@ -38,11 +37,23 @@ import {
   sameStationTasks,
   shownEventResult,
   stationDogsInOrder,
-  stationSlots,
   stationVersion,
   taskEntryCeiling,
   toScoredTasks,
+  visitSlots,
 } from './results'
+
+/**
+ * The slots of `tasks` exercises a group does at one post, numbered after `tasksBefore` exercises
+ * elsewhere: a fixture builder over `visitSlots`.
+ */
+const postSlots = (
+  stationId: string,
+  { parts, tasks, tasksBefore }: { parts: 1 | 2; tasks: number; tasksBefore: number }
+) =>
+  Array.from({ length: tasks }, (_unused, at) =>
+    visitSlots(stationId, { exercise: tasksBefore + at + 1, parts, slotsBefore: at * parts })
+  ).flat()
 
 /** One task at its own post, the common layout. */
 const task = (stationId: string, points: number | null, maxPoints = 20): ScoredTask => ({
@@ -263,58 +274,40 @@ describe('taskEntryCeiling', () => {
   })
 })
 
-describe('stationSlots', () => {
-  it('numbers the tasks of a visit after the ones the group did before it', () => {
-    expect(stationSlots('post-2', { parts: 1, tasks: 2, tasksBefore: 3 })).toEqual([
-      { index: 0, maxPoints: 20, parts: 1, stationId: 'post-2', task: 0, taskNumber: 4 },
-      { index: 1, maxPoints: 20, parts: 1, stationId: 'post-2', task: 1, taskNumber: 5 },
+describe('visitSlots', () => {
+  it('addresses an exercise after the slots the group takes at the post before it', () => {
+    expect(visitSlots('post-2', { exercise: 4, parts: 1, slotsBefore: 1 })).toEqual([
+      { exercise: 4, index: 1, maxPoints: 20, part: 0, parts: 1, stationId: 'post-2' },
     ])
   })
 
-  it('addresses each part of a split task as its own slot', () => {
-    expect(stationSlots('post-1', { parts: 2, tasks: 1, tasksBefore: 0 })).toEqual([
-      { index: 0, maxPoints: 10, parts: 2, stationId: 'post-1', task: 0, taskNumber: 1 },
-      { index: 1, maxPoints: 10, parts: 2, stationId: 'post-1', task: 0, taskNumber: 1 },
+  it('addresses each part of a split exercise as its own slot', () => {
+    expect(visitSlots('post-1', { exercise: 1, parts: 2, slotsBefore: 0 })).toEqual([
+      { exercise: 1, index: 0, maxPoints: 10, part: 0, parts: 2, stationId: 'post-1' },
+      { exercise: 1, index: 1, maxPoints: 10, part: 1, parts: 2, stationId: 'post-1' },
     ])
   })
 })
 
 describe('roundColumns', () => {
-  it('keeps the first round order and adds what only the later rounds have', () => {
-    const first = [...stationSlots('post-1', { parts: 1, tasks: 1, tasksBefore: 0 })]
+  it('gives every exercise number any round has, in number order, whatever post it was done at', () => {
+    const first = postSlots('post-1', { parts: 1, tasks: 1, tasksBefore: 0 })
     const second = [
-      ...stationSlots('post-2', { parts: 1, tasks: 1, tasksBefore: 0 }),
-      ...stationSlots('post-1', { parts: 1, tasks: 2, tasksBefore: 1 }),
+      ...postSlots('post-2', { parts: 1, tasks: 1, tasksBefore: 0 }),
+      ...postSlots('post-1', { parts: 1, tasks: 2, tasksBefore: 1 }),
     ]
 
-    expect(roundColumns([first, second]).map((item) => `${item.stationId}#${item.index}`)).toEqual([
-      'post-1#0',
-      'post-2#0',
-      'post-1#1',
-    ])
+    expect(roundColumns([second, first]).map((item) => item.exercise)).toEqual([1, 2, 3])
   })
 })
 
 describe('formatTaskName', () => {
-  it('names a whole task by its number across the round, and a part by its task too', () => {
-    const [whole] = stationSlots('post-1', { parts: 1, tasks: 1, tasksBefore: 1 })
-    const [, second] = stationSlots('post-1', { parts: 2, tasks: 1, tasksBefore: 1 })
+  it('names an exercise by its number in the running order, and a part by its exercise too', () => {
+    const [whole] = postSlots('post-1', { parts: 1, tasks: 1, tasksBefore: 1 })
+    const [, second] = postSlots('post-1', { parts: 2, tasks: 1, tasksBefore: 1 })
 
-    expect(formatTaskName(whole, i18n.getFixedT('fi'))).toBe('Tehtävä 2')
-    expect(formatTaskName(second, i18n.getFixedT('fi'))).toBe('Tehtävä 2, osa 2/2')
-  })
-})
-
-describe('formatPostTaskName', () => {
-  it('names a slot by its post, its task there where it has more than one, and its part', () => {
-    const t = i18n.getFixedT('fi')
-    const [first, , , fourth] = stationSlots('post-3', { parts: 2, tasks: 2, tasksBefore: 0 })
-
-    expect(formatPostTaskName(first, { number: 3 }, t)).toBe('Rasti 3, osa 1/2')
-    expect(formatPostTaskName(fourth, { number: 3 }, t)).toBe('Rasti 3, tehtävä 2, osa 2/2')
-    expect(
-      formatPostTaskName(stationSlots('post-1', { parts: 1, tasks: 1, tasksBefore: 4 })[0], { number: 1 }, t)
-    ).toBe('Rasti 1')
+    expect(formatTaskName(whole, i18n.getFixedT('fi'))).toBe('Rasti 2')
+    expect(formatTaskName(second, i18n.getFixedT('fi'))).toBe('Rasti 2, osa 2/2')
   })
 })
 
@@ -338,15 +331,15 @@ describe('stationDogsInOrder', () => {
     const event = { eventType: 'NOWT', stations: [{ date: '2026-09-12' as const, id: 'post-1', number: 1 }] }
 
     expect(stationDogsInOrder(event, 'post-1', [dog('a', 1)])).toEqual([
-      { ...dog('a', 1), visit: { parts: 1, tasks: 1, tasksBefore: 0 } },
+      { ...dog('a', 1), visit: { exercise: 1, parts: 1, slotsBefore: 0 } },
     ])
   })
 })
 
 describe('toScoredTasks', () => {
   const round = [
-    ...stationSlots('post-1', { parts: 2, tasks: 1, tasksBefore: 0 }),
-    ...stationSlots('post-2', { parts: 1, tasks: 1, tasksBefore: 1 }),
+    ...postSlots('post-1', { parts: 2, tasks: 1, tasksBefore: 0 }),
+    ...postSlots('post-2', { parts: 1, tasks: 1, tasksBefore: 1 }),
   ]
 
   const scored = (stationId: string, index: number, points: number | null): JsonEventResultTask => ({
@@ -359,9 +352,9 @@ describe('toScoredTasks', () => {
 
   it('joins entries onto the round', () => {
     expect(toScoredTasks(round, [scored('post-1', 0, 9), scored('post-1', 1, 8), scored('post-2', 0, 18)])).toEqual([
-      { maxPoints: 10, points: 9, stationId: 'post-1', task: 0 },
-      { maxPoints: 10, points: 8, stationId: 'post-1', task: 0 },
-      { maxPoints: 20, points: 18, stationId: 'post-2', task: 0 },
+      { maxPoints: 10, points: 9, stationId: 'post-1', task: 1 },
+      { maxPoints: 10, points: 8, stationId: 'post-1', task: 1 },
+      { maxPoints: 20, points: 18, stationId: 'post-2', task: 2 },
     ])
   })
 
@@ -380,8 +373,8 @@ describe('toScoredTasks', () => {
 
   it('ignores entries for posts the round no longer holds', () => {
     expect(
-      toScoredTasks(stationSlots('post-1', { parts: 1, tasks: 1, tasksBefore: 0 }), [scored('removed', 0, 20)])
-    ).toEqual([{ maxPoints: 20, points: null, stationId: 'post-1', task: 0 }])
+      toScoredTasks(postSlots('post-1', { parts: 1, tasks: 1, tasksBefore: 0 }), [scored('removed', 0, 20)])
+    ).toEqual([{ maxPoints: 20, points: null, stationId: 'post-1', task: 1 }])
   })
 })
 
@@ -659,7 +652,7 @@ describe('resolveEventResult', () => {
   it("scores a split task against the dog's own round, its parts adding up to 20", () => {
     const result = resolveEventResult(
       { tasks: [entered('post-1', 9), { ...entered('post-1', 8), index: 1 }] },
-      { eventClass: 'ALO', eventType: 'NOWT', round: stationSlots('post-1', { parts: 2, tasks: 1, tasksBefore: 0 }) }
+      { eventClass: 'ALO', eventType: 'NOWT', round: postSlots('post-1', { parts: 2, tasks: 1, tasksBefore: 0 }) }
     )
 
     expect(result).toMatchObject({ maxPoints: 20, points: 17 })
@@ -921,8 +914,8 @@ describe('formatResultLine', () => {
 })
 
 describe('reconcileRoundTasks (KOE-1666)', () => {
-  const whole = stationSlots('post-1', { parts: 1, tasks: 2, tasksBefore: 0 })
-  const split = stationSlots('post-1', { parts: 2, tasks: 1, tasksBefore: 0 })
+  const whole = postSlots('post-1', { parts: 1, tasks: 2, tasksBefore: 0 })
+  const split = postSlots('post-1', { parts: 2, tasks: 1, tasksBefore: 0 })
   const scored = (...indexes: number[]) => indexes.map((index) => ({ index, points: 8, stationId: 'post-1' }))
 
   it('keeps every score of a round that stays as it was', () => {
@@ -930,7 +923,7 @@ describe('reconcileRoundTasks (KOE-1666)', () => {
   })
 
   it('drops the score of a task the round no longer has', () => {
-    const one = stationSlots('post-1', { parts: 1, tasks: 1, tasksBefore: 0 })
+    const one = postSlots('post-1', { parts: 1, tasks: 1, tasksBefore: 0 })
     expect(reconcileRoundTasks(whole, one, scored(0, 1))).toEqual({ dropped: scored(1), kept: scored(0) })
   })
 
@@ -940,12 +933,12 @@ describe('reconcileRoundTasks (KOE-1666)', () => {
   })
 
   it('keeps the parts of a split task when the post gets a second one', () => {
-    const twoSplit = stationSlots('post-1', { parts: 2, tasks: 2, tasksBefore: 0 })
+    const twoSplit = postSlots('post-1', { parts: 2, tasks: 2, tasksBefore: 0 })
     expect(reconcileRoundTasks(split, twoSplit, scored(0, 1))).toEqual({ dropped: [], kept: scored(0, 1) })
   })
 
   it('drops a score whose slot is in one round only', () => {
-    const one = stationSlots('post-1', { parts: 1, tasks: 1, tasksBefore: 0 })
+    const one = postSlots('post-1', { parts: 1, tasks: 1, tasksBefore: 0 })
     expect(reconcileRoundTasks(one, whole, scored(1))).toEqual({ dropped: scored(1), kept: [] })
     expect(reconcileRoundTasks(whole, one, scored(1))).toEqual({ dropped: scored(1), kept: [] })
   })
@@ -970,8 +963,8 @@ describe('isRecordedTask (KOE-1666)', () => {
 })
 
 describe('roundsDiffer (KOE-1666)', () => {
-  const first = stationSlots('post-1', { parts: 1, tasks: 1, tasksBefore: 0 })
-  const second = stationSlots('post-2', { parts: 1, tasks: 1, tasksBefore: 1 })
+  const first = postSlots('post-1', { parts: 1, tasks: 1, tasksBefore: 0 })
+  const second = postSlots('post-2', { parts: 1, tasks: 1, tasksBefore: 1 })
 
   it('reads the same slots in another order as the same round', () => {
     expect(roundsDiffer([...first, ...second], [...second, ...first])).toEqual(false)
@@ -979,7 +972,7 @@ describe('roundsDiffer (KOE-1666)', () => {
 
   it.each([
     ['a slot more', [...first, ...second]],
-    ['a split task', stationSlots('post-1', { parts: 2, tasks: 1, tasksBefore: 0 }).slice(0, 1)],
+    ['a split task', postSlots('post-1', { parts: 2, tasks: 1, tasksBefore: 0 }).slice(0, 1)],
     ['another post', second],
   ])('reads %s as a different round', (_name, after) => {
     expect(roundsDiffer(first, after)).toEqual(true)
@@ -1000,5 +993,45 @@ describe('isResultTasksDroppedBody (KOE-1666)', () => {
     ['no body', undefined],
   ])('refuses %s', (_name, value) => {
     expect(isResultTasksDroppedBody(value)).toEqual(false)
+  })
+})
+
+describe('scores addressed by exercise (KOE-1665, 1.11.2026 model)', () => {
+  const t = i18n.getFixedT('fi')
+  const DAY = '2026-09-12' as const
+  const post = (number: number, extra: Partial<EventStation> = {}): EventStation => ({
+    date: DAY,
+    id: `post-${number}`,
+    number,
+    ...extra,
+  })
+  const stations = [post(1, { tasks: 2 }), post(2)]
+  const round = dogRound({ stations }, { class: 'ALO', day: DAY })
+
+  it('reads a score stored by post and slot, as production holds them, as its exercise and part', () => {
+    const stored = [
+      { index: 1, points: 8, stationId: 'post-1' },
+      { index: 0, points: 15, stationId: 'post-2' },
+    ]
+
+    expect(toScoredTasks(round, stored).map((task) => task.points)).toEqual([null, 8, 15])
+  })
+
+  it('names the columns by exercise number whatever post a group did it at', () => {
+    const rotations: EventRotationGroup[] = [
+      { class: 'ALO', exercises: [{ stationId: 'post-1' }, { stationId: 'post-2' }], firstNumber: 1, lastNumber: 8 },
+      { class: 'ALO', exercises: [{ stationId: 'post-2' }, { stationId: 'post-1' }], firstNumber: 9, lastNumber: 16 },
+    ]
+    const event = { rotations, stations: [post(1), post(2)] }
+    const columns = roundColumns([
+      dogRound(event, { class: 'ALO', day: DAY, number: 1 }),
+      dogRound(event, { class: 'ALO', day: DAY, number: 9 }),
+    ])
+
+    expect(columns.map((column) => formatTaskName(column, t))).toEqual(['Rasti 1', 'Rasti 2'])
+  })
+
+  it('names a part of a split exercise', () => {
+    expect(round.map((slot) => formatTaskName(slot, t))).toEqual(['Rasti 1, osa 1/2', 'Rasti 1, osa 2/2', 'Rasti 2'])
   })
 })

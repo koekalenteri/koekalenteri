@@ -199,12 +199,10 @@ type EventEntryDates = 'entryStartDate' | 'entryEndDate'
 type ConfirmedEventRequiredDates = EventRequiredDates | EventEntryDates
 
 /**
- * A physical scoring post ("rasti"). Judges are stationed at a post and it persists through the day
- * while the rotation groups pass it, each running its own exercise there.
- *
- * `taskCount` and `parts` are the post's defaults, which a rotation group may override for its own
- * visit (`EventRotationPost`). A task is always worth `TASK_MAX_POINTS` and its parts split that evenly,
- * so a post's maximum is its tasks times 20 (KOE-1665).
+ * A post ("suorituspaikka"): a judge's fixed place for the day, which the groups pass in their running
+ * order. An exercise ("rasti", the rules' 20-point performance) is done at a post; a group may do two
+ * in a row at one (KOE-1665). `parts` and `dogsAtOnce` are the post's defaults, which an exercise of a
+ * group's running order may override (`EventExercise`).
  */
 export type EventStation = {
   id: string
@@ -216,18 +214,16 @@ export type EventStation = {
    * single-judge shape, but this field is new and has no such history to accommodate.
    */
   judges?: PublicJudge[]
-  /** The parts each task here splits into: one part of 20 points, or two of 10. Absent is one. */
+  /** The parts each exercise here splits into: one part of 20 points, or two of 10. Absent is one. */
   parts?: 1 | 2
   /**
    * The name `parts` had on rows stored before KOE-1665, when a post was always worth 20 and `tasks: 2`
-   * split it in two. Read only through `stationParts` (src/lib/rotation.ts); the Rastit page drops it.
+   * split it in two. Read only through `stationParts` (src/lib/rotation.ts); the posts page drops it.
    */
   tasks?: 1 | 2
-  /** How many tasks a group does here unless its rotation says otherwise. Absent is one. */
-  taskCount?: number
   /**
    * How many dogs this post takes at once (KOE-1259): one, a pair task, or a walk-up. It is the post's
-   * default, which a rotation group's visit may override (`EventRotationPost`, KOE-1665), and it stays
+   * default, which a group's visit may override (`EventExercise`, KOE-1665), and it stays
    * a plain count, because a wider walk-up must not need a code change. Absent means one. Note the trap
    * it shares a number with: a task in two *parts* and a *pair* task run by two dogs are different axes.
    */
@@ -279,6 +275,12 @@ export interface JsonPublicStationTurn {
   stationId: string
   /** Denormalized at write time so the public projection never needs the registrations. */
   dogs: JsonStationTurnDog[]
+  /**
+   * The exercise the turn is for, by its number in the dogs' running order, where the post scores
+   * exercises (KOE-1665): a dog doing two exercises at a post comes to it twice. Absent on a turn stored
+   * before and in the formats without exercises, where it is the post's only one.
+   */
+  exercise?: number
   startedAt: string
   endedAt?: string
   pause?: StationTurnPause
@@ -321,7 +323,7 @@ export type StationTurn = Replace<
  * is what says the previous one ended, and one tap must be enough.
  */
 export type StationTurnOp =
-  | { type: 'start'; registrationIds: string[]; phase?: string }
+  | { type: 'start'; registrationIds: string[]; phase?: string; exercise?: number }
   | { type: 'break'; pause: StationTurnPause }
   | { type: 'end' }
   /** Move the open run on to the next phase of the day, closing the phase it is in. */
@@ -333,18 +335,22 @@ export type StationTurnOp =
   | { type: 'mark'; index: number; mark: LiveMark }
 
 /**
- * What a dog's rotation group does at one post (KOE-1665): derived from the rotation, never stored.
- * The link has neither the rotation nor the dog's frozen number to work it out, so the server sends it.
+ * What a dog's group does on one visit to a post (KOE-1665): one exercise of its running order, derived
+ * from the running order, never stored. The link has neither the running order nor the dog's frozen
+ * number to work it out, so the server sends it.
  */
 export interface StationVisitLayout {
-  /** The tasks the group does at this post. */
-  tasks: number
-  /** The parts each of those tasks splits into. */
+  /** The exercise's number in the group's running order, from 1. */
+  exercise: number
+  /** The parts it splits into. */
   parts: 1 | 2
-  /** The tasks the group does before this post, so a task is numbered across the whole round. */
-  tasksBefore: number
   /**
-   * How many dogs the group takes at once here: its own figure, or the post's default. Absent where
+   * The slots the group's exercises at this post take before this one, so its first part's stored
+   * address is this (`ExerciseSlot.index`): a group doing two exercises at one post counts on.
+   */
+  slotsBefore: number
+  /**
+   * How many dogs a turn of this exercise holds: its own figure, or the post's default. Absent where
    * neither sets one. The format's fixed figure still wins over it (`stationDogsAtOnce`).
    */
   dogsAtOnce?: number
@@ -469,29 +475,37 @@ export interface JsonStartNumberPatch {
 }
 export type StartNumberPatch = ReplaceOptional<JsonStartNumberPatch, 'startGroup', RegistrationGroup | null>
 
-/** One post a rotation group visits, in the order it visits them (KOE-1665). */
-export interface EventRotationPost {
+/**
+ * One exercise ("rasti") of a group's running order (KOE-1665): a 20-point performance at a post. Its
+ * number is its place in the order, from 1.
+ */
+export interface EventExercise {
   stationId: string
-  /** The tasks the group does here. Absent follows the post's `taskCount`. */
-  taskCount?: number
-  /** The parts each of those tasks splits into. Absent follows the post's `parts`. */
+  /** The parts it splits into. Absent follows the post's `parts`. */
   parts?: 1 | 2
-  /** How many dogs the group takes at once here. Absent follows the post's `dogsAtOnce`. */
+  /**
+   * How many dogs a turn holds. A figure of the visit: read from the first of the exercises a group does
+   * in a row at a post (`visitDogsAtOnce`). Absent follows the post's `dogsAtOnce`.
+   */
   dogsAtOnce?: number
 }
 
 /**
- * A rotation group ("kiertoryhmä"): one class, or the start numbers `firstNumber`..`lastNumber` of it,
- * on the day of its posts. A start number is the dog's own across the whole event, so a range names
- * the dogs it holds. The day is not stored: it is the day of the posts, which are all on one day.
+ * A group ("ryhmä"): one class, or the start numbers `firstNumber`..`lastNumber` of it, on the day of
+ * its posts, with its running order ("suoritusjärjestys"). A start number is the dog's own across the
+ * whole event, so a range names the dogs it holds. The day is not stored: it is the day of the posts,
+ * which are all on one day.
  */
 export interface EventRotationGroup {
   class: RegistrationClass
   /** Both or neither. Without a range the group is the whole class. */
   firstNumber?: number
   lastNumber?: number
-  /** At least one, each post at most once. */
-  posts: EventRotationPost[]
+  /**
+   * The running order: at least one exercise, the exercises at one post in a row. Absent on a group
+   * stored before the exercises (dev only, as `posts`), which reads as a group without any.
+   */
+  exercises?: EventExercise[]
 }
 
 export type KcEventInfo = {

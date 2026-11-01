@@ -18,11 +18,11 @@ covers:
 
 Koepäivänä koesihteerin työ on kirjata, mitä koirakot tekivät, ja saada tulokset osallistujien
 nähtäville. Tapahtumasivun **{t:eventManagement.tabs.management}** -paneelin osio
-*{t:eventManagement.results.title}* kokoaa kaiken tähän kuuluvan: rastien määrittelyn,
+*{t:eventManagement.results.title}* kokoaa kaiken tähän kuuluvan: suorituspaikkojen määrittelyn,
 tulosten syötön ja luokittaisen julkaisun. Tallentaminen ja julkaiseminen ovat kaksi eri asiaa —
 syötetty tulos näkyy vain ylläpidossa, kunnes luokka julkaistaan.
 
-!shot[ResultsPublishing/results-publishing] Tulosten julkaisu luokittain, alla rastit ja tulosten syöttö
+!shot[ResultsPublishing/results-publishing] Tulosten julkaisu luokittain, alla suorituspaikat ja tulosten syöttö
 
 ## Ennen kokeen alkua
 
@@ -43,82 +43,88 @@ kirjautumista, ja tallennus kertoo heti, jos numero on jo toisella koiralla tai 
 
 !shot[StartNumbersEntry/start-numbers-entry-class-link] Luokkasihteerin näkymä omaan luokkaansa
 
-## Rastit
+## Suorituspaikat
 
-NOWT-kokeessa koirakot kiertävät rasteja, ja pisteet kirjataan rasteittain. Rastit määritellään
-omalla sivullaan, jonka paneelin painike **{t:eventManagement.stations}** avaa; painike näkyy vain
-niissä koemuodoissa, joissa pisteytys tehdään rasteilla. Rata rakennetaan yleensä vasta
-koepaikalla, joten sivu on erillään kokeen tiedoista.
+NOWT-kokeessa koirakot tekevät rastinsa tuomarien suorituspaikoilla, ja pisteet kirjataan
+rasteittain. Rasti on yksi 20 pisteen suoritus, ja kokeessa on tavallisesti neljä tai viisi rastia.
+Suorituspaikat määritellään omalla sivullaan, jonka paneelin painike
+**{t:eventManagement.stations}** avaa; painike näkyy vain niissä koemuodoissa, joissa pisteet
+kirjataan rasteilla. Rata rakennetaan yleensä vasta koepaikalla, joten sivu on erillään kokeen
+tiedoista.
 
-Jokaiselle koepäivälle lisätään omat rastinsa painikkeella **{t:event.stationAdd}**, ja ne
-numeroidaan päivän sisällä yhdestä alkaen. Rastista kirjataan *{t:event.stationTaskCount}*,
-*{t:event.stationParts}*, *{t:event.stationDogsAtOnce}* ja *{t:event.stationJudges}*, jotka
-valitaan kokeen tuomareista. *{t:event.stationDogsAtOnce}* on rastin oletus sille, montako koiraa
-rastille otetaan kerralla samaan vuoroon. Tehtävä on aina 20 pistettä, joten rastin enimmäispistemäärä on sen
-tehtävien määrä kertaa 20. Osajako 2 jakaa tehtävän kahteen 10 pisteen osaan; ensimmäisen palkinnon
-alaraja, puolet tehtävän pisteistä, koskee silloin osien summaa. Ennen kiertoryhmiä tallennettu
-kahden tehtävän rasti luetaan yhtenä tehtävänä kahdessa osassa, joten sen tulokset säilyvät
-ennallaan. Tarpeeton rasti poistetaan painikkeella **{t:event.stationRemove}**, ja loput
-numeroituvat uudelleen.
+Jokaiselle koepäivälle lisätään omat suorituspaikkansa painikkeella **{t:event.stationAdd}**, ja ne
+numeroidaan päivän sisällä yhdestä alkaen. Suorituspaikalle kirjataan *{t:event.stationParts}*,
+*{t:event.stationDogsAtOnce}* ja *{t:event.stationJudges}*, jotka valitaan kokeen tuomareista.
+Osajako ja koiramäärä ovat paikan oletuksia sen rasteille. Osajako 2 jakaa rastin kahteen 10 pisteen
+osaan; ensimmäisen palkinnon alaraja, puolet rastin pisteistä, koskee silloin osien summaa.
+*{t:event.stationDogsAtOnce}* kertoo, montako koiraa otetaan kerralla samaan vuoroon. Aiemmin
+kahteen osaan tallennettu paikka luetaan yhtenä rastina kahdessa osassa, joten sen tulokset
+säilyvät ennallaan. Tarpeeton suorituspaikka poistetaan painikkeella
+**{t:event.stationRemove}**, ja loput numeroituvat uudelleen.
 
-**{t:event.rotation.title}.** Päivän rastien alla kerrotaan, missä järjestyksessä koirakot rastit
-kiertävät. Ilman kiertoryhmiä jokainen luokka kiertää päivän rastit numerojärjestyksessä ja tekee
-kullakin rastilla rastin oletusmäärän tehtäviä, kuten ennenkin. Painike
-**{t:event.rotation.add}** lisää kiertoryhmän: ryhmä on luokka tai luokan koenumeroväli
-(*{t:event.rotation.firstNumber}* ja *{t:event.rotation.lastNumber}* jätetään tyhjiksi, kun
-ryhmä on koko luokka). Päivän ensimmäinen ryhmä kiertää päivän rastit numerojärjestyksessä. Seuraava
-ryhmä ehdotetaan edellisen perusteella, koska kiertosuunta on yleensä kaikilla sama: ryhmä aloittaa
-rastilta, jolla edellinen kävi toisena, ja kiertää samassa järjestyksessä. Sarakkeen asetukset
-pysyvät sarakkeessa, joten viimeisen rastin kaksi tehtävää siirtyvät uuden ryhmän omalle viimeiselle
-rastille. Luokaksi tulee ensimmäinen luokka ilman ryhmää; kun kaikilla päivän luokilla on ryhmä,
-luokaksi tulee edellisen ryhmän luokka, *{t:event.rotation.firstNumber}* on edellisen ryhmän
-viimeinen numero plus yksi ja *{t:event.rotation.lastNumber}* jää tyhjäksi. Ehdotusta voi muokata
-kuten mitä tahansa ryhmää, myös vaihtamalla sen luokan. Järjestys muutetaan
-valitsemalla sarakkeeseen rasti: jos ryhmä käy jo valitulla rastilla toisessa sarakkeessa, rastit
-vaihtavat paikkaa ja kumpikin säilyttää omat asetuksensa. Rasti, jolla ryhmä ei vielä käy, saa
-sarakkeen asetukset. Valinta *{t:event.rotation.visitNone}* poistaa
-rastin kierrosta, kun ryhmällä on muitakin rasteja; koko ryhmä poistetaan sen omalla
-roskakoripainikkeella. **+** lisää kiertoon rastin, jolla ryhmä ei vielä käy. Kullekin rastille voi
-antaa ryhmän tehtävien määrän (1 - 3), osajaon ja *{t:event.stationDogsAtOnce}*; muuten noudatetaan
-rastin oletusta. Sama rasti voi siten ottaa yhden luokan koirat yksitellen ja toisen pareittain:
-rastin kirjausnäkymä nostaa vuoroon jonon kärjessä olevan koiran ryhmän koiramäärän, ja lähtölistan
-odotusarvio laskee jäljellä olevat vuorot ryhmittäin samalla määrällä. Esimerkiksi kolmen luokan
-kokeessa ALO kiertää rastit 1, 2 ja 3 ja tekee rastilla 3 kaksi tehtävää, AVO kiertää 3, 1 ja 2 ja
-VOI 2, 3 ja 1, jolloin jokaisen luokan enimmäispistemäärä on 80. Kun ensimmäisen ryhmän viimeiselle
-rastille on merkitty kaksi tehtävää ennen kahden muun lisäämistä, kolme peräkkäin lisättyä ryhmää
-kiertävät 1, 2, 3; 2, 3, 1 ja 3, 1, 2, kukin kahdella tehtävällä omalla viimeisellä rastillaan,
-joten tämä kierto on kahden luokanvaihdon päässä ehdotuksesta: toisen ryhmän luokaksi valitaan VOI
-ja kolmannen AVO. Yhden luokan kokeessa kierto jaetaan koenumeroilla, esimerkiksi numerot 1 - 8
-aloittavat rastilta 1 ja 9 - 16 rastilta 2.
+**{t:event.rotation.title}.** Päivän suorituspaikkojen alla kerrotaan, missä järjestyksessä ja missä
+paikoissa kukin ryhmä tekee rastinsa. Ilman ryhmiä jokainen luokka tekee yhden rastin kullakin päivän
+suorituspaikalla numerojärjestyksessä, kuten ennenkin. Painike **{t:event.rotation.add}** lisää
+ryhmän: ryhmä on luokka tai luokan koenumeroväli (*{t:event.rotation.firstNumber}* ja
+*{t:event.rotation.lastNumber}* jätetään tyhjiksi, kun ryhmä on koko luokka). Ryhmän rivillä ovat
+sen rastit järjestyksessä, ja kullekin rastille valitaan suorituspaikka, osajako ja
+*{t:event.stationDogsAtOnce}*; muuten noudatetaan paikan oletusta. Sama suorituspaikka voi olla
+useammalla rastilla, peräkkäin tai erillään: kaksi rastia samassa paikassa ovat kaksi saraketta, ja
+kahden tuomarin koe voi kiertää paikat kahdesti (1, 2, 1, 2). Kun rastin suorituspaikkaa vaihdetaan,
+rastin osajako ja koiramäärä pysyvät samoina, myös kun ne olivat vanhan paikan oletuksia. **+** lisää
+rastin samaan suorituspaikkaan kuin ryhmän viimeinen rasti, ja valinta
+*{t:event.rotation.visitNone}* poistaa rastin, kun ryhmällä on muitakin rasteja; koko ryhmä
+poistetaan sen omalla roskakoripainikkeella. Jos ryhmällä on muu määrä kuin neljä tai viisi rastia,
+sivu varoittaa siitä mutta tallentaa.
 
-Rastien alla näkyy jokainen rasti sellaisena kuin ryhmät sille saapuvat, esimerkiksi "Rasti 1: ALO,
-AVO, VOI (x 2)": "(x 2)" kertoo, että ryhmä tekee rastilla kaksi tehtävää, ja "(2 osaa)", että
-tehtävä on jaettu kahteen osaan. Saman luokan numerovälit eivät saa mennä päällekkäin, eikä koko
-luokan ryhmän rinnalla voi olla saman luokan numeroväliä. Jos luokka on jaettu numeroväleihin ja
-jokin osallistuja jää kaikkien välien ulkopuolelle, sivu luettelee syyt eikä tallenna. Kun päivän
-rasti poistetaan, se poistuu kaikista kierroista, ja ryhmä, jolle ei jää yhtään rastia, poistuu.
-Jos koiran numero myöhemmin muuttuu välien ulkopuolelle, koira kiertää lähimmän ryhmän mukana:
-viimeisen välin jälkeen viimeisen ryhmän, ensimmäistä väliä ennen ensimmäisen ja välien välissä
-alemman ryhmän; koira ilman numeroa kiertää ensimmäisen ryhmän mukana. Koiran kierros koostuu aina
-sen oman koepäivän rasteista.
+Päivän ensimmäinen ryhmä tekee yhden rastin kullakin suorituspaikalla numerojärjestyksessä. Seuraava
+ryhmä ehdotetaan edellisen perusteella, koska ryhmät kiertävät yleensä samaan suuntaan: ryhmä
+aloittaa paikasta, jossa edellinen teki toisen rastinsa, ja jatkaa samassa järjestyksessä. Peräkkäin
+toistuva paikka pysyy peräkkäisenä, joten edellisen 1, 2, 3, 3 antaa 2, 3, 1, 1. Rastin osajako ja
+koiramäärä pysyvät rastin numerolla. Luokaksi tulee ensimmäinen luokka ilman ryhmää; kun kaikilla
+päivän luokilla on ryhmä, luokaksi tulee edellisen ryhmän luokka, *{t:event.rotation.firstNumber}* on
+edellisen ryhmän viimeinen numero plus yksi ja *{t:event.rotation.lastNumber}* jää tyhjäksi.
+Ehdotusta voi muokata kuten mitä tahansa ryhmää, myös vaihtamalla sen luokan.
 
-!shot[EventStationsPage/event-stations-rotation] Kolmen luokan kierto: jokainen luokka aloittaa eri rastilta ja tekee viimeisellä rastillaan kaksi tehtävää
+Esimerkiksi kolmen luokan kokeessa ALO tekee rastit 1, 2, 3 ja 4 suorituspaikoilla 1, 2, 3 ja 3, AVO
+paikoilla 3, 1, 2 ja 2 ja VOI paikoilla 2, 3, 1 ja 1, jolloin jokaisen luokan enimmäispistemäärä on 80.
+Kun ensimmäiselle ryhmälle on lisätty neljäs rasti paikkaan 3 ennen kahden muun lisäämistä, ne saavat
+paikat 2, 3, 1, 1 ja 3, 1, 2, 2, ja esimerkin järjestykseen riittää vaihtaa niiden luokat keskenään.
+Yhden luokan kokeessa suoritusjärjestys jaetaan koenumeroilla, esimerkiksi numerot 1 - 8 aloittavat
+paikasta 1 ja 9 - 16 paikasta 2.
 
-**{t:save}** tallentaa rastit ja kierron kokeen tietoihin. Jos koirille on jo kirjattu tuloksia,
-tallennus laskee niiden pisteet, enimmäispisteet, prosentin ja palkinnon uudelleen uuden kierroksen
-mukaan, joten sijoitukset ja Omakoiraan lähtevät tulokset vastaavat tulostaulukkoa. Sama koskee
-luokkien muuttamista kokeen tiedoissa. Jos koiran kierrokseen tulee tehtävä, jota ei ole vielä
-pisteytetty, koiran palkinto poistuu, kunnes tehtävä on pisteytetty. Jo lähetetty tulos, joka
+Suorituspaikkojen alla näkyy jokainen paikka sellaisena kuin ryhmät sille saapuvat rastin numeron
+mukaan, esimerkiksi "Suorituspaikka 1: ALO (rasti 1), AVO (rasti 2), VOI (rastit 3 ja 4)". Paikan
+vuoroon nostetaan jonon kärjessä olevan koiran rastin koiramäärä, ja ryhmä, joka tekee paikassa kaksi
+rastia, jonottaa sinne kerran kummallekin: ensin kaikki ryhmän koirat rastille 3, sitten rastille 4.
+Lähtölistan odotusarvio laskee jäljellä olevat vuorot samoin, ryhmittäin ja rasteittain.
+
+Saman luokan numerovälit eivät saa mennä päällekkäin, eikä koko luokan ryhmän rinnalla voi olla saman
+luokan numeroväliä. Jos luokka on jaettu numeroväleihin ja jokin osallistuja jää kaikkien välien
+ulkopuolelle, sivu luettelee syyt eikä tallenna. Kun päivän suorituspaikka poistetaan, sen rastit
+poistuvat kaikista suoritusjärjestyksistä, ja ryhmä, jolle ei jää yhtään rastia, poistuu. Jos koiran
+numero myöhemmin muuttuu välien ulkopuolelle, koira kuuluu lähimpään ryhmään: viimeisen välin
+jälkeen viimeiseen, ensimmäistä väliä ennen ensimmäiseen ja välien välissä alempaan; koira ilman
+numeroa kuuluu ensimmäiseen ryhmään. Koiran rastit tehdään aina sen oman koepäivän suorituspaikoilla.
+
+!shot[EventStationsPage/event-stations-rotation] Kolmen luokan suoritusjärjestys: jokainen luokka aloittaa eri suorituspaikasta ja tekee kaksi viimeistä rastiaan samassa paikassa
+
+**{t:save}** tallentaa suorituspaikat ja suoritusjärjestyksen kokeen tietoihin. Jos koirille on jo
+kirjattu tuloksia, tallennus laskee niiden pisteet, enimmäispisteet, prosentin ja palkinnon uudelleen
+uuden suoritusjärjestyksen mukaan, joten sijoitukset ja Omakoiraan lähtevät tulokset vastaavat
+tulostaulukkoa. Sama koskee luokkien muuttamista kokeen tiedoissa. Jos koiralle tulee rasti, jota ei
+ole vielä pisteytetty, koiran palkinto poistuu, kunnes rasti on pisteytetty. Jo lähetetty tulos, joka
 muuttuu, on *Omakoira*-sarakkeessa tilassa *{t:results.kennelliitto.badge.changed}* ja lähetetään
 uudelleen.
 
-Kirjattu tehtävä säilyy vain, jos sen paikka tarkoittaa koiran uudella kierroksella samaa tehtävää
-kuin ennen. Kun esimerkiksi rastin tehtävämäärä vaihdetaan kahdesta yhteen tai tehtävän osajako
-muuttuu, poistuvat pisteet luetellaan ennen tallennusta koirittain. **{t:event.resultTasksDropped.confirm}**
-tallentaa muutoksen ja poistaa pisteet, eivätkä ne palaa, vaikka muutos perutaan myöhemmin.
-**{t:cancel}** jättää muutoksen tallentamatta.
+Kirjatut pisteet kuuluvat suorituspaikalle, jossa tuomari ne antoi: suoritusjärjestyksen muuttaminen
+ei siirrä niitä toiselle paikalle. Pisteet säilyvät, kun paikassa tehdään yhä yhtä monta rastia
+samalla osajaolla. Kun esimerkiksi paikan toinen rasti poistuu ryhmän järjestyksestä tai rastin
+osajako muuttuu, poistuvat pisteet luetellaan ennen tallennusta koirittain.
+**{t:event.resultTasksDropped.confirm}** tallentaa muutoksen ja poistaa pisteet, eivätkä ne palaa,
+vaikka muutos perutaan myöhemmin. **{t:cancel}** jättää muutoksen tallentamatta.
 
-!shot[DroppedTasksDialog/dropped-tasks] Rastin muutos poistaisi kolmen koiran kirjattuja tehtäviä
+!shot[DroppedTasksDialog/dropped-tasks] Muutos poistaisi kolmen koiran kirjattuja pisteitä
 
 Kun tulokset on luovutettu ylituomarille tai hyväksytty, muutosta, joka muuttaisi kirjattuja
 tuloksia, ei tallenneta. Muutos, joka ei muuta yhdenkään koiran tulosta, tallentuu silti.
@@ -129,22 +135,21 @@ Paneelin painike **{t:eventManagement.enterResults}** aktivoituu, kun koe on alk
 sivun **{t:results.title}**. Monipäiväisessä kokeessa valitaan ensin päivä, ja luokat ovat omilla
 välilehdillään. Sivulla ovat vain osallistujiksi nostetut koirakot starttijärjestyksessä.
 
-**Rasteilla pisteytettävä koe (NOWT).** Jokaisella tehtävällä on oma sarakkeensa ryhmän
-kiertojärjestyksessä, ja tehtävät numeroidaan koko kierroksen läpi. Kahteen osaan jaetun tehtävän
-osat ovat omissa sarakkeissaan, esimerkiksi "Tehtävä 2, osa 1/2". Jos luokka on jaettu
-numeroväleihin ja ryhmien kierrokset eroavat, sarakkeet nimetään rasteittain, esimerkiksi "Rasti 2,
-tehtävä 2", ja koiran rivillä on kenttä vain sen oman ryhmän tehtäville. Pisteet kirjoitetaan
-kenttään, jonka alla näkyy tehtävän enimmäispistemäärä. Kentän alla on tehtävää arvostellut tuomari:
-yhden tuomarin rastilla nimi vain näytetään, useamman tuomarin rastilla se valitaan ja valinta
-siirtyy seuraavalle koirakolle. Nolla pistettä vaatii syyn kenttään *{t:results.zeroFault}*. Jos
-arvostelukortista ei käy ilmi, miksi tehtävä nollattiin, valitaan *{t:results.zeroFaults.unknown}*.
+**Rasteilla pisteytettävä koe (NOWT).** Jokaisella rastilla on oma sarakkeensa rastin numerolla,
+"Rasti 1", "Rasti 2" ja niin edelleen, riippumatta siitä, missä suorituspaikassa ryhmä rastin teki.
+Kahteen osaan jaetun rastin osat ovat omissa sarakkeissaan, esimerkiksi "Rasti 2, osa 1/2". Koiran
+rivillä on kenttä vain sen oman ryhmän rasteille. Pisteet kirjoitetaan kenttään, jonka alla näkyy
+rastin enimmäispistemäärä. Kentän alla on rastin arvostellut tuomari: yhden tuomarin
+suorituspaikalla nimi vain näytetään, useamman tuomarin paikalla se valitaan ja valinta siirtyy
+seuraavalle koirakolle. Nolla pistettä vaatii syyn kenttään *{t:results.zeroFault}*. Jos
+arvostelukortista ei käy ilmi, miksi rasti nollattiin, valitaan *{t:results.zeroFaults.unknown}*.
 Tulos lasketaan riville itsestään sääntöjen mukaan: yksikin nolla
 estää palkintosijan, ja rivin alla näkyy pisteiden summa. Valinnalla *{t:results.scope}* sivun
-voi rajata yhteen rastiin, jolloin näkyvissä ovat vain sen rastin tehtävät — tulos jää silloin
-pois, koska se riippuu muistakin rasteista. Valinnassa ovat vain näytettävän päivän rastit, ja
-rajattuna sivulla ovat vain ne koirakot, joiden ryhmä käy rastilla.
+voi rajata yhteen suorituspaikkaan, jolloin näkyvissä ovat vain siellä tehdyt rastit; tulos jää
+silloin pois, koska se riippuu muistakin paikoista. Valinnassa ovat vain näytettävän päivän
+suorituspaikat, ja rajattuna sivulla ovat vain ne koirakot, joiden ryhmä käy paikassa.
 
-!shot[ResultsTable/results-entry-nowt] NOWT-luokan pisteet tehtävittäin, toinen koirakko keskeytetty rastilla 2
+!shot[ResultsTable/results-entry-nowt] NOWT-luokan pisteet rasteittain, toinen koirakko keskeytetty suorituspaikalla 2
 
 **Muut koemuodot.** Tulos on tuomarin päätös ja se valitaan kentästä *{t:results.column.result}*:
 palkintosija 1–3, nolla tai viiva, NOU- ja NKM-kokeessa vain hyväksytty tai hylätty. Vieressä on
@@ -154,8 +159,8 @@ palkintosija 1–3, nolla tai viiva, NOU- ja NKM-kokeessa vain hyväksytty tai h
 
 **Keskeytys.** Kentästä *{t:results.interruption}* kirjataan
 *{t:results.retirement.judgeStopped}*. Keskeytetyn koirakon tulos on sääntöjen mukaan nolla, ja
-julkaistulla listalla sen perässä on merkintä *{t:results.marks.interrupted}*. Koko kierroksen
-näkymässä kysytään lisäksi *{t:results.outcomeAt}*, eli millä rastilla keskeytys tapahtui. Jo
+julkaistulla listalla sen perässä on merkintä *{t:results.marks.interrupted}*. Kaikkien
+suorituspaikkojen näkymässä kysytään lisäksi *{t:results.outcomeAt}*, eli millä suorituspaikalla keskeytys tapahtui. Jo
 kirjattu palkintosija ei voi saada keskeytystä rinnalleen; poista ensin tulos.
 
 Keskeytys kysytään vain koemuodoissa, joissa Kennelliitto sen kirjaa (NOME-A, NOME-B, NKM ja NOWT).
@@ -177,7 +182,7 @@ kirjattu muualla taas toisin, ikkuna näyttää uuden version.
 Virallisessa kokeessa sarake *{t:results.kennelliitto.column}* kertoo jokaisen koiran kohdalla,
 onko sen tulos Omakoirassa: *{t:results.kennelliitto.badge.sent}*,
 *{t:results.kennelliitto.badge.changed}*, *{t:results.kennelliitto.badge.unsent}* tai
-*{t:results.kennelliitto.badge.failed}*. Tulossivu ja rastin kirjaussivu lukevat kokeen tilan
+*{t:results.kennelliitto.badge.failed}*. Tulossivu ja suorituspaikan kirjaussivu lukevat kokeen tilan
 Kennelliitosta avautuessaan, joten tuomarille luovutettu koe avautuu vain luettavaksi myös silloin,
 kun se on luovutettu suoraan Omakoirassa. Lähetyksestä ja tulosten korjaamisesta lähetyksen jälkeen
 kerrotaan sivulla [Ilmoittautumisajan jälkeen](/docs/secretary/after-entry-closes), kohdassa
