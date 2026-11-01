@@ -33,30 +33,56 @@ every component in between (KOE-1347).
 
 ## Events
 
+An arrow points from an atom to what it reads; a parallelogram is an API call. `adminEventsAtom` is
+`adminEventsRemoteAtom` under a second name, and the `*ByIdAtom` and `(eventId)` atoms are families
+keyed by the event. `adminSaveEventAtom` is write-only: after the read and the call shown here, it
+writes `adminEventIdAtom`, `adminCurrentEventAtom` and the public `eventsAtom`.
+
 ```mermaid
 graph LR
-  adminEventsAtom-->adminEventsRemoteAtom
-  adminEventsAtom-->localStorage
+  adminEventsAtom-->sessionStorage
+  adminEventsAtom-->userAtom
+  adminEventsAtom-->userRefreshAtom
+  adminEventsAtom-->validIdTokenAtom
+  adminEventsAtom-->getAdminEvents[/getAdminEvents/]-->aws
+
   adminNewEventAtom-->localStorage
   adminShowFinishedEventsAtom-->localStorage
   adminEventFilterTextAtom-->localStorage
   adminEventIdAtom-->localStorage
-  adminEventClassAtom-->localStorage
-  adminEditableEventByIdAtom-->localStorage
-  adminEditableEventByIdAtom-->adminEventAtom
+  adminEventOrganizerIdAtom-->localStorage
+  adminEventColumnsAtom-->localStorage
 
   localStorage[(localStorage)]
-  adminEventsRemoteAtom-->getAdminEvents[/getAdminEvents/]-->aws
+  sessionStorage[(sessionStorage)]
 
   adminEventAtom-->adminNewEventAtom
   adminEventAtom-->adminEventsAtom
 
-  adminCurrentEventAtom-->adminEditableEventByIdAtom
+  adminLinkedKcGuidsAtom-->adminEventsAtom
+  adminKnownKcGuidsAtom-->adminLinkedKcGuidsAtom
+
+  adminConfirmedEventAtom-->adminEventAtom
+
   adminCurrentEventAtom-->adminEventIdAtom
+  adminCurrentEventAtom-->adminEventAtom
 
   adminFilteredEventsAtom-->adminEventsAtom
   adminFilteredEventsAtom-->adminEventFilterTextAtom
   adminFilteredEventsAtom-->adminShowFinishedEventsAtom
+
+  adminEventOrganizersAtom-->adminEventsAtom
+
+  adminEventClassAtom-->sessionStorage
+  adminEventClassAtom-->adminCurrentEventAtom
+
+  adminEditableEventByIdAtom-->sessionStorage
+  adminEditableEventByIdAtom-->adminEventAtom
+
+  adminSaveEventAtom-->adminCurrentEventAtom
+  adminSaveEventAtom-->validIdTokenAtom
+  adminSaveEventAtom-->eventsAtom
+  adminSaveEventAtom-->putEvent[/putEvent/]-->aws
 
   aws[(cloud)]
 ```
