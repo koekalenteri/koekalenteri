@@ -97,7 +97,12 @@ graph LR
 ## Events
 
 `adminEventsAtom` is `adminEventsRemoteAtom` under a second name, and `adminEditableEventByIdAtom`
-and the `(eventId)` atoms are families keyed by the event. `adminSaveEventAtom` is write-only: after the read and the call shown here, it
+and the `(eventId)` atoms are families keyed by the event. The fetched list is kept in sessionStorage
+(`adminEvents`, with the user's id, admin flag and roles under `adminEvents:scope`), and the next
+fetch in the same tab with the same scope asks `getAdminEvents` only for the events changed since the
+newest stamp in it, merged by id. A local write (a save, a websocket patch) is not kept: the server
+stamps it, so the next fetch brings it. A change of roles or user fetches the whole list again, and
+signing out clears the storage (KOE-1668). `adminSaveEventAtom` is write-only: after the read and the call shown here, it
 writes `adminEventIdAtom`, `adminCurrentEventAtom` and the public `eventsAtom`.
 
 ```mermaid

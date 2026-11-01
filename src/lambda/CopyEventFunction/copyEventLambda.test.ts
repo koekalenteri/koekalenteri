@@ -146,6 +146,7 @@ describe('copyEventHandler', () => {
       startDate: '2025-06-10',
       state: 'published',
       turns: [{ id: 'turn-1' }],
+      updatedAt: '2025-06-01T00:00:00.000Z',
     }
     mockAuthorize.mockResolvedValueOnce(user)
     setEventBody(event, input)
@@ -178,6 +179,8 @@ describe('copyEventHandler', () => {
       startListPublished: false,
       startNumbersPublished: false,
       state: 'draft',
+      // A new row for the admin list's incremental fetch, not the source's stamp (KOE-1668)
+      updatedAt: now.toISOString(),
     })
 
     expect(mockResponse).toHaveBeenCalled()

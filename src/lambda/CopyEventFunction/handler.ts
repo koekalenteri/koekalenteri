@@ -63,9 +63,10 @@ const copyEventLambda = lambda('copyEvent', async (event) => {
   // A copy made here is this environment's own event, not a copy from another one (KOE-1639)
   delete item.copiedFrom
 
-  // modification info is always updated
+  // modification info is always updated, and the copy is a new row for the incremental fetch
   item.modifiedAt = timestamp
   item.modifiedBy = user.name
+  item.updatedAt = timestamp
 
   // Whole calendar days: a day key has no time of day for a change of time to move.
   const days = daysBetween(item.startDate, newStartDay)

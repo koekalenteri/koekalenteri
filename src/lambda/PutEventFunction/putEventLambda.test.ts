@@ -314,6 +314,41 @@ describe('putEventLambda', () => {
     expect(res.statusCode).toEqual(200)
   })
 
+  // The admin list's incremental fetch reads deletedAt as a stamp of the row, so a browser clock
+  // ahead must not reach the table (KOE-1668).
+  // The file's clock stands at 2025-03-22T10:45:33.000Z.
+  describe('the time of a deletion', () => {
+    it('is the server time, not the one the browser sent', async () => {
+      signIn(mockSecretary)
+      getEventMock.mockResolvedValueOnce({ ...mockEvent, state: 'draft' })
+
+      await putEventLambda(
+        constructAPIGwEvent<Partial<JsonDogEvent>>({ deletedAt: '2025-03-22T12:45:33.000Z', id: 'existing' })
+      )
+
+      expect(patchEventMock).toHaveBeenCalledWith(
+        'existing',
+        expect.anything(),
+        expect.objectContaining({ deletedAt: '2025-03-22T10:45:33.000Z', updatedAt: '2025-03-22T10:45:33.000Z' })
+      )
+    })
+
+    it('stays the time stored for an event deleted before', async () => {
+      signIn(mockSecretary)
+      getEventMock.mockResolvedValueOnce({ ...mockEvent, deletedAt: '2025-03-01T08:00:00.000Z', state: 'draft' })
+
+      await putEventLambda(
+        constructAPIGwEvent<Partial<JsonDogEvent>>({ deletedAt: '2025-03-22T12:45:33.000Z', id: 'existing' })
+      )
+
+      expect(patchEventMock).toHaveBeenCalledWith(
+        'existing',
+        expect.anything(),
+        expect.objectContaining({ deletedAt: '2025-03-01T08:00:00.000Z' })
+      )
+    })
+  })
+
   describe('deleting by stage (KOE-1640)', () => {
     const { stageName } = CONFIG
     const copiedFrom = { at: '2025-03-01T10:00:00.000Z', by: 'admin', eventId: 'source', stage: 'prod' }

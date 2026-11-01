@@ -1,9 +1,7 @@
 import type { APIGatewayProxyEvent } from 'aws-lambda'
 import { vi } from 'vitest'
+import { CURSOR_LOOKBACK_MS } from '../lib/incremental'
 import { answerRejections } from '../test-utils/helpers'
-
-/** The handler's lookback: the cursor trails the newest stamp by this much */
-const CURSOR_LOOKBACK_MS = 60 * 1000
 
 const mockLambda = vi.fn((_name, fn) => answerRejections(fn, mockResponse))
 const mockResponse = vi.fn()

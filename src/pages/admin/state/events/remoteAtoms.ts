@@ -43,22 +43,43 @@ const subjectAtom = atom((get) => {
   return token ? getJwtSubject(token) : undefined
 })
 
-const remoteAdminEventsAtom = atom(async (get): Promise<AdminEventList> => {
+const CACHE_KEY = 'adminEvents'
+const SCOPE_KEY = 'adminEvents:scope'
+
+/**
+ * The fetched list, kept for the next fetch of the same session to ask only for what changed since
+ * its newest stamp (KOE-1668). A local write is not kept: the server stamps every event write, so
+ * the next fetch brings it back anyway.
+ */
+const storeAdminEvents = (events: DogEvent[], scope: string) => {
+  try {
+    sessionStorage.setItem(CACHE_KEY, JSON.stringify(events))
+    sessionStorage.setItem(SCOPE_KEY, scope)
+  } catch {
+    // A full storage keeps the list stored before, which is consistent with its scope: the next
+    // fetch asks for the changes since that one, or for the whole list after a change of roles.
+  }
+}
+
+const remoteAdminEventsAtom = atom(async (get, { signal }): Promise<AdminEventList> => {
   const fetchKey = get(fetchKeyAtom)
   const subject = get(subjectAtom)
   const token = get(validIdTokenAtom)
   const user = await get(userAtom)
   if (!token || !user) return { events: [], fetchKey }
 
-  const scopeKey = 'adminEvents:scope'
-  const stored: unknown = parseStorageJSON(sessionStorage.getItem('adminEvents'))
+  const scope = cacheScope(user)
+  const stored: unknown = parseStorageJSON(sessionStorage.getItem(CACHE_KEY))
   const cached =
-    sessionStorage.getItem(scopeKey) === cacheScope(user) && Array.isArray(stored) ? stored.map(toDogEvent) : undefined
+    sessionStorage.getItem(SCOPE_KEY) === scope && Array.isArray(stored) ? stored.map(toDogEvent) : undefined
   const since = cached ? latestCollectionUpdate(cached)?.getTime() : undefined
-  const events = await getAdminEvents(token, since)
+  const fetched = await getAdminEvents(token, since)
+  const events = cached && since ? reconcileAdminEvents(cached, fetched) : sortEvents(fetched)
 
-  sessionStorage.setItem(scopeKey, cacheScope(user))
-  return { events: cached && since ? reconcileAdminEvents(cached, events) : sortEvents(events), fetchKey, subject }
+  // A fetch that settles after the token changed, a sign-out among them, must not store the list
+  // again into the storage the sign-out cleared.
+  if (!signal.aborted) storeAdminEvents(events, scope)
+  return { events, fetchKey, subject }
 })
 
 // The first load suspends on this one Promise, instead of a fresh `.then` on every read.

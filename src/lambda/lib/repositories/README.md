@@ -29,6 +29,10 @@ The epic was [KOE-1405](https://koekalenteri.atlassian.net/browse/KOE-1405), clo
   the organizer's (the public pages, the token links) goes through `readLiveEvent`, which answers a
   deleted event as no event; `getLiveEvent` in `lib/event.ts` turns that into the 404 of a missing
   one ([KOE-1586](https://koekalenteri.atlassian.net/browse/KOE-1586)).
+- Every write of an event row moves its `updatedAt`, which the admin list's incremental fetch reads
+  (`gsiSeasonUpdatedAt`): `writeEventFields` stamps it with the current time unless the changes set
+  their own, and a whole-row `writeEvent` carries the caller's. The workflow locks are the one write
+  that leaves it ([KOE-1668](https://koekalenteri.atlassian.net/browse/KOE-1668)).
 - `src/lambda/lib/ws/connectionRepository.ts` follows the same convention and stays in the ws
   domain.
 

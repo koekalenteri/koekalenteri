@@ -98,38 +98,25 @@ describe('getAdminEventsLambda', () => {
     expect(mockResponse).toHaveBeenCalledWith(200, [...byOrganizer.org1, ...byOrganizer.org3], event)
   })
 
-  it('queries events with since parameter', async () => {
+  // An edit to a past season's trial (its results in January) is stamped now: the since walk reads
+  // every season the full read covers (KOE-1668).
+  it('reads every season from the earliest for the changes since', async () => {
     vi.useFakeTimers()
     vi.setSystemTime(new Date('2026-05-12T00:00:00.000Z'))
-    const user = { admin: true, id: 'admin1' }
-    const memberOf = ['org1']
-    const since = '1717171717171' // 31.5.2024 16:08Z
-    const eventWithSince = {
-      ...event,
-      queryStringParameters: { since },
-    }
+    const since = String(Date.parse('2026-05-11T10:00:00.000Z'))
+    const pastSeasonEvent = { id: 'event2025', organizer: { id: 'org1' } }
+    mockAuthorizeWithMemberOf.mockResolvedValueOnce({ memberOf: ['org1'], user: { admin: true, id: 'admin1' } })
+    mockReadSeasonEventsUpdatedSince.mockImplementation(async (season: number) =>
+      season === 2025 ? [pastSeasonEvent] : []
+    )
 
-    const startSeason = 2024
-    const endSeason = 2027
+    await getAdminEventsLambda({ ...event, queryStringParameters: { since } })
 
-    const seasonEvents1 = [{ id: 'event1', organizer: { id: 'org1' } }]
-    const seasonEvents2 = [{ id: 'event2', organizer: { id: 'org2' } }]
-
-    mockAuthorizeWithMemberOf.mockResolvedValueOnce({ memberOf, user })
-    mockReadSeasonEventsUpdatedSince.mockResolvedValueOnce(seasonEvents1)
-    mockReadSeasonEventsUpdatedSince.mockResolvedValueOnce(seasonEvents2)
-
-    await getAdminEventsLambda(eventWithSince)
-
-    // Check that query was called for each season
-    expect(mockReadSeasonEventsUpdatedSince).toHaveBeenCalledTimes(endSeason - startSeason + 1)
-    const updatedAfter = new Date(Number(since)).toISOString()
-    expect(mockReadSeasonEventsUpdatedSince).toHaveBeenNthCalledWith(1, startSeason, updatedAfter)
-    expect(mockReadSeasonEventsUpdatedSince).toHaveBeenNthCalledWith(4, endSeason, updatedAfter)
+    expect(mockReadSeasonEventsUpdatedSince).toHaveBeenCalledTimes(2027 - 2020 + 1)
+    expect(mockReadSeasonEventsUpdatedSince).toHaveBeenNthCalledWith(1, 2020, expect.any(String))
+    expect(mockReadSeasonEventsUpdatedSince).toHaveBeenLastCalledWith(2027, expect.any(String))
     expect(mockReadSeasonEvents).not.toHaveBeenCalled()
-
-    // Check that response combines all season events
-    expect(mockResponse).toHaveBeenCalledWith(200, [...seasonEvents1, ...seasonEvents2], eventWithSince)
+    expect(mockResponse).toHaveBeenCalledWith(200, [pastSeasonEvent], expect.anything())
   })
 
   // Before New Year a trial in early January is already next season's, and the full read lists it:
@@ -146,10 +133,22 @@ describe('getAdminEventsLambda', () => {
 
     await getAdminEventsLambda({ ...event, queryStringParameters: { since } })
 
-    expect(mockReadSeasonEventsUpdatedSince).toHaveBeenCalledTimes(2)
-    expect(mockReadSeasonEventsUpdatedSince).toHaveBeenNthCalledWith(1, 2026, '2026-12-19T10:00:00.000Z')
-    expect(mockReadSeasonEventsUpdatedSince).toHaveBeenNthCalledWith(2, 2027, '2026-12-19T10:00:00.000Z')
+    expect(mockReadSeasonEventsUpdatedSince).toHaveBeenLastCalledWith(2027, expect.any(String))
     expect(mockResponse).toHaveBeenCalledWith(200, nextSeasonEvents, expect.anything())
+  })
+
+  // A row stamped a moment before it was committed may land after a read that already saw newer
+  // stamps; reaching back a minute brings it, and the client merges the overlap by id.
+  it('reads the changes from a minute before the newest stamp the client holds', async () => {
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date('2026-05-12T00:00:00.000Z'))
+    const since = String(Date.parse('2026-05-11T10:00:00.000Z'))
+    mockAuthorizeWithMemberOf.mockResolvedValueOnce({ memberOf: ['org1'], user: { admin: true, id: 'admin1' } })
+    mockReadSeasonEventsUpdatedSince.mockResolvedValue([])
+
+    await getAdminEventsLambda({ ...event, queryStringParameters: { since } })
+
+    expect(mockReadSeasonEventsUpdatedSince).toHaveBeenCalledWith(2026, '2026-05-11T09:59:00.000Z')
   })
 
   it('answers 400 to a since that has no calendar day', async () => {
@@ -161,19 +160,18 @@ describe('getAdminEventsLambda', () => {
     expect(mockReadSeasonEventsUpdatedSince).not.toHaveBeenCalled()
   })
 
-  // 22:30Z on 31.12.2025 is already 2026 in Finland: the seasons are Finnish years, as the events' are.
-  it('starts the since walk from the Finnish season of the instant', async () => {
+  it("keeps only the club's own events among the changes since", async () => {
     vi.useFakeTimers()
     vi.setSystemTime(new Date('2026-05-12T00:00:00.000Z'))
-    const since = String(Date.parse('2025-12-31T22:30:00.000Z'))
-    mockAuthorizeWithMemberOf.mockResolvedValueOnce({ memberOf: ['org1'], user: { admin: true, id: 'admin1' } })
-    mockReadSeasonEventsUpdatedSince.mockResolvedValue([])
+    const since = String(Date.parse('2026-05-11T10:00:00.000Z'))
+    const own = { id: 'own', organizer: { id: 'org1' } }
+    const other = { id: 'other', organizer: { id: 'org2' } }
+    mockAuthorizeWithMemberOf.mockResolvedValueOnce({ memberOf: ['org1'], user: { admin: false, id: 'user1' } })
+    mockReadSeasonEventsUpdatedSince.mockImplementation(async (season: number) => (season === 2026 ? [own, other] : []))
 
     await getAdminEventsLambda({ ...event, queryStringParameters: { since } })
 
-    expect(mockReadSeasonEventsUpdatedSince).toHaveBeenCalledTimes(2)
-    expect(mockReadSeasonEventsUpdatedSince).toHaveBeenNthCalledWith(1, 2026, '2025-12-31T22:30:00.000Z')
-    expect(mockReadSeasonEventsUpdatedSince).toHaveBeenNthCalledWith(2, 2027, '2025-12-31T22:30:00.000Z')
+    expect(mockResponse).toHaveBeenCalledWith(200, [own], expect.anything())
   })
 
   it('returns an empty array for a club with no events', async () => {
