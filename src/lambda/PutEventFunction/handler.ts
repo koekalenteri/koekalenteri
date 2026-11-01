@@ -14,6 +14,7 @@ import {
 import { hasPaymentLockingRegistrations, paymentTermsDiffer } from '../../lib/payment'
 import { getStartListBlocker, isStartListFlagPublished } from '../../lib/publishing'
 import { groupParticipantsByClass } from '../../lib/registration'
+import { rotationShapeErrors } from '../../lib/rotation'
 import { eventBodySchema } from '../../lib/schema/event'
 import { legacyEventDay, rekeyEventDays, requestDay } from '../../lib/storedDays'
 import { patchMerge } from '../../lib/utils'
@@ -196,6 +197,17 @@ const checkMergedEvent = (data: JsonConfirmedEvent, item: Patch<JsonConfirmedEve
   const invalidDateField = invalidEventDateField(data, item, isUpdate)
   if (invalidDateField) {
     throw httpError(400, { message: `Bad request: ${invalidDateField} must be a valid date` })
+  }
+  // Read on the merged event, so a patch of either half still has to fit the other (KOE-1665).
+  if (item.rotations !== undefined || item.stations !== undefined) {
+    const rotationErrors = rotationShapeErrors(data)
+    if (rotationErrors.length) {
+      throw httpError(400, {
+        error: 'invalidRotation',
+        errors: rotationErrors,
+        message: 'Bad request: the rotation groups do not fit the posts',
+      })
+    }
   }
 }
 

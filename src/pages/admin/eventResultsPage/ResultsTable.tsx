@@ -15,7 +15,7 @@ import Typography from '@mui/material/Typography'
 import { memo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { getRegistrationPlacement } from '@/lib/registration'
-import { parseEventResultCode, scoresAtPosts } from '@/lib/results'
+import { formatPostTaskName, formatTaskName, parseEventResultCode, scoresAtPosts } from '@/lib/results'
 import { JudgeSelect } from '../../components/stationScoring/JudgeSelect'
 import { ResultSummary } from '../../components/stationScoring/ResultSummary'
 import { asksOutcome, outcomeLabelKeys, RoundOutcome } from '../../components/stationScoring/RoundOutcome'
@@ -25,10 +25,15 @@ import { KennelliittoStatus } from './KennelliittoStatus'
 
 interface Props {
   readonly registrations: Registration[]
-  /** The scored slots this view covers: the whole round, or one post's. */
+  /**
+   * The columns: every slot any dog of the view has (`roundColumns`), the whole round or one post's.
+   * The dogs of one class may differ, when the class splits into rotation groups by start number.
+   */
   readonly round: RoundTask[]
-  /** The whole class round, for deriving the prize. Absent in a post's own view, where it is unknowable. */
-  readonly fullRound?: RoundTask[]
+  /** A dog's own slots in this view. A column the dog has no slot in stays empty on its row. */
+  readonly roundFor: (registration: Registration) => RoundTask[]
+  /** A dog's whole round, for deriving the prize. Absent in a post's own view, where it is unknowable. */
+  readonly fullRoundFor?: (registration: Registration) => RoundTask[]
   readonly eventType: string
   readonly eventClass?: string
   readonly stations: EventStation[]
@@ -63,6 +68,7 @@ interface Props {
 interface RowControls {
   /** Who judged the dog, for event types with no posts to attribute the scoring to. */
   judge?: ReactNode
+  /** One per column; `null` where the dog's round has no such slot. */
   tasks: ReactNode[]
   outcome: ReactNode
   result: ReactNode
@@ -79,12 +85,13 @@ const EVENT_JUDGE_KEY = 'event'
 
 /**
  * One table serving both the event secretary and a station secretary. They differ only in which slots
- * are in scope — the whole round, or one post's one or two — so the difference is a prop, not a screen.
+ * are in scope (the whole round, or one post's), so the difference is a prop, not a screen.
  */
 function ResultsTable({
   registrations,
   round,
-  fullRound,
+  roundFor,
+  fullRoundFor,
   eventType,
   eventClass,
   stations,
@@ -150,10 +157,29 @@ function ResultsTable({
     onChange(registration.id, sameResultEdit(attributed(next), stored) ? undefined : next)
   }
 
+  // The columns are named by the tasks' places in the round while every dog has each at the same place.
+  // Where the class goes round in groups of different orders, one slot is a different task for each
+  // group, and the headings name the posts instead (KOE-1665).
+  const numberedAlike = round.every((column) =>
+    registrations.every((registration) => {
+      const own = roundFor(registration).find((item) => taskKey(item) === taskKey(column))
+      return !own || own.taskNumber === column.taskNumber
+    })
+  )
+  const columnName = (column: RoundTask) =>
+    numberedAlike
+      ? formatTaskName(column, t)
+      : formatPostTaskName(
+          column,
+          stations.find((station) => station.id === column.stationId),
+          t
+        )
+
   const controlsFor = (registration: Registration): RowControls => {
     const edit = edits[registration.id] ?? seededEdit(registration.eventResult)
     const { tasks } = edit
     const voided = isVoided(edit)
+    const own = roundFor(registration)
 
     const writeTask = (task: RoundTask, changes: Partial<TaskEdit>) => {
       const existing = tasks.find((item) => taskKey(item) === taskKey(task))
@@ -210,28 +236,33 @@ function ResultsTable({
           eventClass={eventClass}
           eventType={eventType}
           onChange={(next) => report(registration, attributed(next))}
-          round={fullRound}
+          round={fullRoundFor?.(registration)}
           placement={edits[registration.id] ? undefined : placements?.get(registration.id)}
           stored={registration.eventResult}
         />
       ),
-      tasks: round.map((task, index) => (
-        <TaskScore
-          defaultJudge={defaultJudges[task.stationId]}
-          disabled={disabled || voided}
-          judges={judgesFor(task.stationId)}
-          key={taskKey(task)}
-          name={t('results.column.task', { number: index + 1 })}
-          showName={compact}
-          onChange={setTask}
-          onJudgeChange={(item, judge) => {
-            onJudgeChange(item.stationId, judge)
-            writeTask(item, { judge })
-          }}
-          task={task}
-          value={tasks.find((entry) => taskKey(entry) === taskKey(task))}
-        />
-      )),
+      tasks: round.map((column) => {
+        const task = own.find((item) => taskKey(item) === taskKey(column))
+        if (!task) return null
+
+        return (
+          <TaskScore
+            defaultJudge={defaultJudges[task.stationId]}
+            disabled={disabled || voided}
+            judges={judgesFor(task.stationId)}
+            key={taskKey(task)}
+            name={formatTaskName(task, t)}
+            showName={compact}
+            onChange={setTask}
+            onJudgeChange={(item, judge) => {
+              onJudgeChange(item.stationId, judge)
+              writeTask(item, { judge })
+            }}
+            task={task}
+            value={tasks.find((entry) => taskKey(entry) === taskKey(task))}
+          />
+        )
+      }),
     }
   }
 
@@ -261,9 +292,9 @@ function ResultsTable({
             <TableCell>{t('dog.regNo')}</TableCell>
             <TableCell>{t('results.column.handler')}</TableCell>
             {qualitative && <TableCell>{t('results.judge')}</TableCell>}
-            {round.map((task, index) => (
+            {round.map((task) => (
               <TableCell align="center" key={taskKey(task)}>
-                {t('results.column.task', { number: index + 1 })}
+                {columnName(task)}
               </TableCell>
             ))}
             {/* An entered result comes first, since whether a stop can stand depends on it; a derived one
@@ -359,7 +390,7 @@ const ResultCard = ({ registration, qualitative, controls, kennelliitto }: CardP
       </Stack>
       <Stack spacing={1.5}>
         {controls.judge}
-        {controls.tasks.length > 0 && (
+        {controls.tasks.some(Boolean) && (
           <Stack
             direction="row"
             useFlexGap

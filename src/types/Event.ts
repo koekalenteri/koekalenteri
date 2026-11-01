@@ -181,6 +181,12 @@ export interface JsonDogEvent extends JsonDbRecord {
   /** Scoring posts, for event types that score at posts (NOWT). */
   stations?: EventStation[]
   /**
+   * The rotation groups of the day (KOE-1665): which posts a class, or a range of its start numbers,
+   * visits and in which order. A class with no group on a day visits that day's posts in number order.
+   * Public on purpose: the start list tells the handlers where their group starts.
+   */
+  rotations?: EventRotationGroup[]
+  /**
    * The live timeline of the trial day (KOE-1259): every span a post has run, turns and breaks alike,
    * appended as the day goes. Server-owned — written only through the turn endpoint, never by an
    * event save — and stripped from the public event, which carries the derived `liveTurns` instead.
@@ -194,12 +200,11 @@ type ConfirmedEventRequiredDates = EventRequiredDates | EventEntryDates
 
 /**
  * A physical scoring post ("rasti"). Judges are stationed at a post and it persists through the day
- * while the classes rotate past it, each running its own exercise there.
+ * while the rotation groups pass it, each running its own exercise there.
  *
- * `tasks` is the course as built, which a class may override through `JsonEventClassStation`. A post is
- * always worth `STATION_MAX_POINTS` and its tasks split that evenly, so what varies is the number of
- * tasks, never the maximum — deriving each task's ceiling from the split rather than storing it means a
- * post's tasks cannot fail to add up to the post.
+ * `taskCount` and `parts` are the post's defaults, which a rotation group may override for its own
+ * visit (`EventRotationPost`). A task is always worth `TASK_MAX_POINTS` and its parts split that evenly,
+ * so a post's maximum is its tasks times 20 (KOE-1665).
  */
 export type EventStation = {
   id: string
@@ -211,14 +216,21 @@ export type EventStation = {
    * single-judge shape, but this field is new and has no such history to accommodate.
    */
   judges?: PublicJudge[]
-  /** One task worth the post's full points, or two worth half each. */
-  tasks: 1 | 2
+  /** The parts each task here splits into: one part of 20 points, or two of 10. Absent is one. */
+  parts?: 1 | 2
+  /**
+   * The name `parts` had on rows stored before KOE-1665, when a post was always worth 20 and `tasks: 2`
+   * split it in two. Read only through `stationParts` (src/lib/rotation.ts); the Rastit page drops it.
+   */
+  tasks?: 1 | 2
+  /** How many tasks a group does here unless its rotation says otherwise. Absent is one. */
+  taskCount?: number
   /**
    * How many dogs this post takes at once (KOE-1259): one, a pair task, or a walk-up. It is the
    * post's own form, fixed for the whole trial, so it lives here beside `tasks` rather than on each
    * turn — and it stays a plain count, because a wider walk-up must not need a code change. Absent
-   * means one. Note the trap it shares a number with: two *tasks* worth ten points each and a *pair*
-   * task run by two dogs are different axes.
+   * means one. Note the trap it shares a number with: a task in two *parts* and a *pair* task run by
+   * two dogs are different axes.
    */
   dogsAtOnce?: number
   /** Versions the post's tokenized entry link (KOE-1258); bumping it revokes every link issued. */
@@ -322,6 +334,19 @@ export type StationTurnOp =
   | { type: 'mark'; index: number; mark: LiveMark }
 
 /**
+ * What a dog's rotation group does at one post (KOE-1665): derived from the rotation, never stored.
+ * The link has neither the rotation nor the dog's frozen number to work it out, so the server sends it.
+ */
+export interface StationVisitLayout {
+  /** The tasks the group does at this post. */
+  tasks: number
+  /** The parts each of those tasks splits into. */
+  parts: 1 | 2
+  /** The tasks the group does before this post, so a task is numbered across the whole round. */
+  tasksBefore: number
+}
+
+/**
  * One dog as a judge's secretary's live entry link may see it: enough to call the dog up and score it,
  * nothing more. Owner and handler details stay off a link this widely shared.
  */
@@ -331,6 +356,8 @@ export interface JsonStationEntryDog {
   eventType: string
   group?: JsonRegistrationGroup
   dog: { name?: string }
+  /** Where the post scores tasks: what the dog's group does here. Absent for a qualitative type. */
+  visit?: StationVisitLayout
   /**
    * This post's own recordings only; the rest of the round is not this link's to see. The result and
    * the judge ride along for a qualitative type alone, whose post is the whole trial.
@@ -438,17 +465,27 @@ export interface JsonStartNumberPatch {
 }
 export type StartNumberPatch = ReplaceOptional<JsonStartNumberPatch, 'startGroup', RegistrationGroup | null>
 
-/**
- * How many tasks one class runs at a post, where that differs from the post's own layout.
- *
- * A course is normally built once and every class runs it as laid out, so this is an override rather
- * than a requirement: absent an entry, the class follows `EventStation.tasks`. Keeping the two
- * separate leaves room for a class to split a post the others do not, without duplicating the whole
- * course per class.
- */
-export type JsonEventClassStation = {
+/** One post a rotation group visits, in the order it visits them (KOE-1665). */
+export interface EventRotationPost {
   stationId: string
-  tasks: 1 | 2
+  /** The tasks the group does here. Absent follows the post's `taskCount`. */
+  taskCount?: number
+  /** The parts each of those tasks splits into. Absent follows the post's `parts`. */
+  parts?: 1 | 2
+}
+
+/**
+ * A rotation group ("kiertoryhmä"): one class, or the start numbers `firstNumber`..`lastNumber` of it,
+ * on the day of its posts. A start number is the dog's own across the whole event, so a range names
+ * the dogs it holds. The day is not stored: it is the day of the posts, which are all on one day.
+ */
+export interface EventRotationGroup {
+  class: RegistrationClass
+  /** Both or neither. Without a range the group is the whole class. */
+  firstNumber?: number
+  lastNumber?: number
+  /** At least one, each post at most once. */
+  posts: EventRotationPost[]
 }
 
 export type KcEventInfo = {
@@ -555,8 +592,6 @@ export type EventClass = {
   entries?: number
   members?: number
   state?: EventClassState
-  /** Posts this class splits differently from the course as built. Absent entries follow the post. */
-  stations?: JsonEventClassStation[]
 }
 
 export type EventClassState = 'picked' | 'invited' | 'started' | 'ended' | 'completed'

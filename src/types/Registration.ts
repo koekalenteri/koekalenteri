@@ -134,7 +134,11 @@ export type ResultMark = 'interrupted'
 /** One task's score for one dog. A task is identified by its post and its position within it. */
 export interface JsonEventResultTask {
   stationId: string
-  /** 0-based position among that post's tasks. */
+  /**
+   * 0-based slot within the post: task × parts + part, as the dog's round lays it out (`RoundTask`). A
+   * post stored with `tasks: 2` before KOE-1665 is one task in two parts, so its slots 0 and 1 keep
+   * their meaning.
+   */
   index: number
   /** `null` while unscored. `0` is a real score and bars every prize; it is not the same as unscored. */
   points: number | null

@@ -24,7 +24,7 @@ export type LiveFlow = 'queue' | 'field'
 
 /** What one turn at this format's post is a turn *of*. */
 type LiveTaskModel =
-  /** The post is the unit; its one or two tasks are not separately timed (NOWT). */
+  /** The post is the unit; the tasks a group does there are not separately timed (NOWT). */
   | 'post'
   /**
    * The day at the post is divided into named phases and a turn says which: the format's own fixed
@@ -141,7 +141,7 @@ interface StationHost<D> {
 export const resolveStation = <D>(event: StationHost<D>, stationId: string): StationOf<D> | undefined => {
   if (event.stations?.length) return event.stations.find((station) => station.id === stationId)
   if (stationId !== IMPLICIT_STATION_ID || liveFormat(event.eventType).posts !== 'one') return undefined
-  return { date: event.startDate, id: IMPLICIT_STATION_ID, number: 1, tasks: 1 }
+  return { date: event.startDate, id: IMPLICIT_STATION_ID, number: 1 }
 }
 
 /** The fixed phases have translated names; a post's own phase is its label as written. */

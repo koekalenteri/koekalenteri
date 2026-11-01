@@ -84,7 +84,7 @@ describe('liveFormat', () => {
   })
 
   describe('resolveStation', () => {
-    const stored = { date: '2026-09-12', id: 'post-1', number: 1, tasks: 1 as const }
+    const stored = { date: '2026-09-12', id: 'post-1', number: 1 }
 
     it('answers for the implicit post of a single-post format that has none stored', () => {
       const event = { eventType: 'NOME-B', startDate: '2026-09-12' }
@@ -93,7 +93,6 @@ describe('liveFormat', () => {
         date: '2026-09-12',
         id: IMPLICIT_STATION_ID,
         number: 1,
-        tasks: 1,
       })
       expect(resolveStation({ ...event, stations: [] }, IMPLICIT_STATION_ID)).toEqual(
         resolveStation(event, IMPLICIT_STATION_ID)

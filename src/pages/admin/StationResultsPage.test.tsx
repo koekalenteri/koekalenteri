@@ -160,7 +160,7 @@ describe('StationResultsPage', () => {
     expect(putEvent).toHaveBeenCalledWith(
       expect.objectContaining({
         id: singlePostEvent.id,
-        stations: [{ date: singlePostEvent.startDate, id: '1', number: 1, tasks: 1, tokenVersion: 2 }],
+        stations: [{ date: singlePostEvent.startDate, id: '1', number: 1, tokenVersion: 2 }],
       }),
       TEST_ID_TOKEN
     )

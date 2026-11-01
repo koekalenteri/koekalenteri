@@ -15,6 +15,7 @@ import { reportError } from '../../lib/client/error'
 import { localizedEventName } from '../../lib/event'
 import { liveFormat, resolveStation } from '../../lib/liveFormat'
 import { isScorableRegistration } from '../../lib/registration'
+import { stationDogsInOrder } from '../../lib/results'
 import { Path } from '../../routeConfig'
 import { StationScoring } from '../components/stationScoring/StationScoring'
 import { idTokenAtom, languageAtom } from '../state'
@@ -59,7 +60,11 @@ export default function StationResultsPage() {
 
   // The event's own post, or the implicit single post of a format that lays none out (NOME-B, NOU).
   const station = event && resolveStation(event, stationId)
-  const scorable = useMemo(() => registrations.filter(isScorableRegistration), [registrations])
+  // The dogs as the post's link lists them: in the order their groups come here, each with its tasks here.
+  const scorable = useMemo(
+    () => (event ? stationDogsInOrder(event, stationId, registrations.filter(isScorableRegistration)) : []),
+    [event, registrations, stationId]
+  )
 
   // What came back is the stored truth for that dog: folding it in is what marks the dog as done in
   // the queue, and what keeps the post from scoring it twice.

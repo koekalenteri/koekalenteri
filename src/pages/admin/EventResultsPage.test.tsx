@@ -66,7 +66,11 @@ const renderPage = (language: Language) => {
  * in two, and an entry list with a reserve in it. Everything the table itself does needs a round to do
  * it to, so the seeded atoms stand in for the event and its entries.
  */
-const renderScoringPage = (language: Language, registrations = registrationsToEventWithStations) => {
+const renderScoringPage = (
+  language: Language,
+  registrations = registrationsToEventWithStations,
+  event: ConfirmedEvent = eventWithStations
+) => {
   const routes: RouteObject[] = [{ element: <EventResultsPage />, path: Path.admin.results() }]
 
   return renderSuspendedWithUserEvents(
@@ -75,13 +79,13 @@ const renderScoringPage = (language: Language, registrations = registrationsToEv
         <Provider
           initializeState={({ set }) => {
             set(idTokenAtom, TEST_ID_TOKEN)
-            set(adminEventsAtom, [eventWithStations])
-            set(adminEventRegistrationsAtom(eventWithStations.id), registrations)
+            set(adminEventsAtom, [event])
+            set(adminEventRegistrationsAtom(event.id), registrations)
           }}
         >
           <Suspense fallback={<div>loading...</div>}>
             <AppSnackbarProvider>
-              <DataMemoryRouter initialEntries={[Path.admin.results(eventWithStations.id)]} routes={routes} />
+              <DataMemoryRouter initialEntries={[Path.admin.results(event.id)]} routes={routes} />
             </AppSnackbarProvider>
           </Suspense>
         </Provider>
@@ -535,6 +539,76 @@ describe('EventResultsPage', () => {
     expect(screen.getByRole('link', { name: 'results.openLiveEntry' })).toBeInTheDocument()
   })
 
+  it("offers only the day's own posts to narrow to (KOE-1665)", async () => {
+    const { i18n } = useTranslation()
+    const nextDay = { date: '2021-02-11' as const, id: 'post-next', number: 1 }
+    const { user } = await renderScoringPage(i18n.language as Language, registrationsToEventWithStations, {
+      ...eventWithStations,
+      stations: [...(eventWithStations.stations ?? []), nextDay],
+    })
+    await flushPromises()
+
+    await user.click(screen.getByLabelText('results.scope'))
+
+    expect(screen.getAllByRole('option').map((option) => option.textContent)).toEqual([
+      'results.scopeAll',
+      'event.station 1',
+      'event.station 2',
+    ])
+  })
+
+  it('falls back to the whole round on a day without the post picked, and keeps it for its own day (KOE-1665)', async () => {
+    const { i18n } = useTranslation()
+    const nextDay = '2021-02-11' as const
+    const [first, second] = registrationsToEventWithStations
+    const twoDays: ConfirmedEvent = {
+      ...eventWithStations,
+      classes: [...eventWithStations.classes, { class: 'ALO', date: nextDay }],
+      endDate: nextDay,
+      stations: [...(eventWithStations.stations ?? []), { date: nextDay, id: 'post-next', number: 1 }],
+    }
+    const dogs = [first, { ...second, group: { date: nextDay, key: 'ALO-AP', number: 2, time: 'ap' as const } }]
+    const { user } = await renderScoringPage(i18n.language as Language, dogs, twoDays)
+    await flushPromises()
+
+    await user.click(screen.getByLabelText('results.scope'))
+    await user.click(screen.getByRole('option', { name: 'event.station 2' }))
+    await flushPromises()
+    // Post 2 alone: its two parts.
+    expect(screen.getAllByRole('columnheader', { name: /results\.column\.task/ })).toHaveLength(2)
+
+    const [, dayTwo] = screen.getAllByRole('button', { name: /dateFormat\.wdshort/ })
+    await user.click(dayTwo)
+    await flushPromises()
+    // Day 2 has one post of its own, and the round is all of it.
+    expect(screen.getByText('Toinen')).toBeInTheDocument()
+    expect(screen.getAllByRole('columnheader', { name: /results\.column\.task/ })).toHaveLength(1)
+
+    await user.click(screen.getAllByRole('button', { name: /dateFormat\.wdshort/ })[0])
+    await flushPromises()
+    expect(screen.getAllByRole('columnheader', { name: /results\.column\.task/ })).toHaveLength(2)
+  })
+
+  it("lists in a post's own view only the dogs whose group comes to it (KOE-1665)", async () => {
+    const { i18n } = useTranslation()
+    const { user } = await renderScoringPage(i18n.language as Language, registrationsToEventWithStations, {
+      ...eventWithStations,
+      rotations: [
+        { class: 'ALO', firstNumber: 1, lastNumber: 1, posts: [{ stationId: 'post-1' }, { stationId: 'post-2' }] },
+        { class: 'ALO', firstNumber: 2, lastNumber: 9, posts: [{ stationId: 'post-1' }] },
+      ],
+    })
+    await flushPromises()
+    expect(screen.getByText('Toinen')).toBeInTheDocument()
+
+    await user.click(screen.getByLabelText('results.scope'))
+    await user.click(screen.getByRole('option', { name: 'event.station 2' }))
+    await flushPromises()
+
+    expect(screen.getByText('Ensimmainen')).toBeInTheDocument()
+    expect(screen.queryByText('Toinen')).not.toBeInTheDocument()
+  })
+
   it("shows each awarded dog's rank in the whole round, and none in a post's own view", async () => {
     const { i18n } = useTranslation()
     const at = new Date('2021-02-10T10:00:00Z')
@@ -886,12 +960,14 @@ describe('EventResultsPage', () => {
 describe('ResultSummary', () => {
   it('derives the prize with the same module the server saves with', async () => {
     const { deriveNowtResult, formatEventResult, toScoredTasks } = await import('../../lib/results')
-    const round = [
-      { index: 0, maxPoints: 20, stationId: 'post-1' },
-      { index: 0, maxPoints: 20, stationId: 'post-2' },
-      { index: 0, maxPoints: 20, stationId: 'post-3' },
-      { index: 0, maxPoints: 20, stationId: 'post-4' },
-    ]
+    const round = [1, 2, 3, 4].map((number) => ({
+      index: 0,
+      maxPoints: 20,
+      parts: 1 as const,
+      stationId: `post-${number}`,
+      task: 0,
+      taskNumber: number,
+    }))
     const tasks = [17, 18, 16, 14].map((points, index) => ({ index: 0, points, stationId: `post-${index + 1}` }))
 
     // 65 of 80 is 81.25 %: a first prize, though 65 is the rules' second-prize number.

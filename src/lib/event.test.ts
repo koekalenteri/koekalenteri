@@ -1518,7 +1518,7 @@ describe('copyDogEvent across a change of time (KOE-1542)', () => {
     endDate: days[days.length - 1],
     placesPerDay: Object.fromEntries(days.map((day, i) => [day, 10 + i])),
     startDate: days[0],
-    stations: days.map((day) => ({ date: day, id: `post-${day}`, number: 1, tasks: 1 })),
+    stations: days.map((day) => ({ date: day, id: `post-${day}`, number: 1 })),
   })
 
   /** Every day the copy stores lands on the day it should. */
@@ -1740,6 +1740,16 @@ describe('sanitizeDogEvent', () => {
     expect(sanitized.liveTurns).toEqual([
       { dogs: [{ name: 'Dog', number: 5 }], id: 'turn-1', startedAt: '2026-09-12T08:00:00.000Z', stationId: 'post-1' },
     ])
+  })
+
+  it('keeps the posts and the rotation groups public, for the start list tells handlers where to start (KOE-1665)', () => {
+    const event = {
+      id: 'event-1',
+      rotations: [{ class: 'ALO', firstNumber: 1, lastNumber: 8, posts: [{ stationId: 'post-1', taskCount: 2 }] }],
+      stations: [{ date: '2026-09-12', id: 'post-1', number: 1, parts: 2 }],
+    }
+
+    expect(sanitizeDogEvent(asDogEvent(event))).toEqual(event)
   })
 
   it('should handle event with only private fields', () => {

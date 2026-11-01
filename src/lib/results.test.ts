@@ -9,29 +9,34 @@ import koemuotoNOWT from '../lambda/lib/KLIntegraatio-fixtures/koemuoto-NOWT.jso
 import {
   availableResultCodes,
   canBeStopped,
-  classRound,
   deriveNowtResult,
+  dogRound,
   eliminatingFaults,
   eventResultPrefix,
   formatEventResult,
+  formatPostTaskName,
   formatResultLine,
   formatShownResult,
+  formatTaskName,
   hasJudgeStop,
   kcFormatOfEventType,
   mergeStationTasks,
   nowtTotals,
   parseEventResultCode,
+  partMaxPoints,
   placementsFor,
   resolveEventResult,
   resultMarks,
   resultPrefixAsKennelClub,
+  roundColumns,
   STOPPED_RESULT_CODE,
   sameEventResult,
   sameStationTasks,
   shownEventResult,
+  stationDogsInOrder,
+  stationSlots,
   stationVersion,
   taskEntryCeiling,
-  taskMaxPoints,
   toScoredTasks,
 } from './results'
 
@@ -67,7 +72,7 @@ describe('deriveNowtResult', () => {
     expect(deriveNowtResult({ tasks: round(17, 18, 16, 14) })).toBe('1')
   })
 
-  it('applies the per-post floor to a split post, not to its individual tasks', () => {
+  it('applies the floor to a split task, not to its individual parts', () => {
     const tasks = [
       task('post-1', 9, 10),
       task('post-1', 8, 10),
@@ -76,8 +81,21 @@ describe('deriveNowtResult', () => {
       task('post-4', 14),
     ]
 
-    // 9 and 8 each fall under 10, but the post totals 17 of 20 and clears the floor.
+    // 9 and 8 each fall under 10, but the task totals 17 of 20 and clears the floor.
     expect(deriveNowtResult({ tasks })).toBe('1')
+  })
+
+  it('floors each of two tasks at one post on its own (KOE-1665)', () => {
+    const twoTasks = (second: number) => [
+      task('post-1', 20),
+      task('post-2', 20),
+      task('post-3', 20),
+      { ...task('post-3', second), task: 1 },
+    ]
+
+    // 29 of 40 at post 3 would clear a floor on the post's sum; the second task alone has 9 of 20.
+    expect(deriveNowtResult({ tasks: twoTasks(9) })).toBe('2')
+    expect(deriveNowtResult({ tasks: twoTasks(10) })).toBe('1')
   })
 
   it('drops to a second prize when one post falls below half', () => {
@@ -209,14 +227,14 @@ describe('eliminatingFaults', () => {
   })
 })
 
-describe('taskMaxPoints', () => {
-  it('gives a lone task the whole post', () => {
-    expect(taskMaxPoints(1)).toBe(20)
+describe('partMaxPoints', () => {
+  it('gives a whole task 20 points', () => {
+    expect(partMaxPoints(1)).toBe(20)
   })
 
-  it('splits a post evenly between two tasks, so the parts cannot fail to add up', () => {
-    expect(taskMaxPoints(2) * 2).toBe(taskMaxPoints(1))
-    expect(taskMaxPoints(2)).toBe(10)
+  it('splits a task evenly between two parts, so the parts cannot fail to add up', () => {
+    expect(partMaxPoints(2) * 2).toBe(partMaxPoints(1))
+    expect(partMaxPoints(2)).toBe(10)
   })
 })
 
@@ -241,52 +259,91 @@ describe('taskEntryCeiling', () => {
   })
 })
 
-describe('classRound', () => {
-  it('expands each post into its own slots, in course order', () => {
-    expect(
-      classRound([
-        { id: 'post-1', tasks: 2 },
-        { id: 'post-2', tasks: 1 },
-      ])
-    ).toEqual([
-      { index: 0, maxPoints: 10, stationId: 'post-1' },
-      { index: 1, maxPoints: 10, stationId: 'post-1' },
-      { index: 0, maxPoints: 20, stationId: 'post-2' },
+describe('stationSlots', () => {
+  it('numbers the tasks of a visit after the ones the group did before it', () => {
+    expect(stationSlots('post-2', { parts: 1, tasks: 2, tasksBefore: 3 })).toEqual([
+      { index: 0, maxPoints: 20, parts: 1, stationId: 'post-2', task: 0, taskNumber: 4 },
+      { index: 1, maxPoints: 20, parts: 1, stationId: 'post-2', task: 1, taskNumber: 5 },
     ])
   })
 
-  it('lets one class split a post differently from the course as built', () => {
-    const stations = [{ id: 'post-1', tasks: 1 as const }]
-
-    expect(classRound(stations, [{ stationId: 'post-1', tasks: 2 }])).toEqual([
-      { index: 0, maxPoints: 10, stationId: 'post-1' },
-      { index: 1, maxPoints: 10, stationId: 'post-1' },
+  it('addresses each part of a split task as its own slot', () => {
+    expect(stationSlots('post-1', { parts: 2, tasks: 1, tasksBefore: 0 })).toEqual([
+      { index: 0, maxPoints: 10, parts: 2, stationId: 'post-1', task: 0, taskNumber: 1 },
+      { index: 1, maxPoints: 10, parts: 2, stationId: 'post-1', task: 0, taskNumber: 1 },
     ])
   })
+})
 
-  it('follows the post where the class has no entry of its own', () => {
-    const stations = [{ id: 'post-1', tasks: 2 as const }]
-
-    expect(classRound(stations, [{ stationId: 'other', tasks: 1 }])).toEqual(classRound(stations))
-  })
-
-  it('always adds up to the posts it came from, however they are split', () => {
-    const stations = [
-      { id: 'post-1', tasks: 2 as const },
-      { id: 'post-2', tasks: 1 as const },
-      { id: 'post-3', tasks: 2 as const },
-      { id: 'post-4', tasks: 1 as const },
+describe('roundColumns', () => {
+  it('keeps the first round order and adds what only the later rounds have', () => {
+    const first = [...stationSlots('post-1', { parts: 1, tasks: 1, tasksBefore: 0 })]
+    const second = [
+      ...stationSlots('post-2', { parts: 1, tasks: 1, tasksBefore: 0 }),
+      ...stationSlots('post-1', { parts: 1, tasks: 2, tasksBefore: 1 }),
     ]
 
-    expect(nowtTotals(toScoredTasks(classRound(stations), [])).maxPoints).toBe(80)
+    expect(roundColumns([first, second]).map((item) => `${item.stationId}#${item.index}`)).toEqual([
+      'post-1#0',
+      'post-2#0',
+      'post-1#1',
+    ])
+  })
+})
+
+describe('formatTaskName', () => {
+  it('names a whole task by its number across the round, and a part by its task too', () => {
+    const [whole] = stationSlots('post-1', { parts: 1, tasks: 1, tasksBefore: 1 })
+    const [, second] = stationSlots('post-1', { parts: 2, tasks: 1, tasksBefore: 1 })
+
+    expect(formatTaskName(whole, i18n.getFixedT('fi'))).toBe('Tehtävä 2')
+    expect(formatTaskName(second, i18n.getFixedT('fi'))).toBe('Tehtävä 2, osa 2/2')
+  })
+})
+
+describe('formatPostTaskName', () => {
+  it('names a slot by its post, its task there where it has more than one, and its part', () => {
+    const t = i18n.getFixedT('fi')
+    const [first, , , fourth] = stationSlots('post-3', { parts: 2, tasks: 2, tasksBefore: 0 })
+
+    expect(formatPostTaskName(first, { number: 3 }, t)).toBe('Rasti 3, osa 1/2')
+    expect(formatPostTaskName(fourth, { number: 3 }, t)).toBe('Rasti 3, tehtävä 2, osa 2/2')
+    expect(
+      formatPostTaskName(stationSlots('post-1', { parts: 1, tasks: 1, tasksBefore: 4 })[0], { number: 1 }, t)
+    ).toBe('Rasti 1')
+  })
+})
+
+describe('stationDogsInOrder', () => {
+  const dog = (id: string, number: number) => ({
+    class: 'ALO' as const,
+    group: { date: '2026-09-12' as const, key: 'x', number },
+    id,
+  })
+
+  it('keeps every dog of a post that is the whole trial, in start order, without a visit', () => {
+    expect(
+      stationDogsInOrder({ eventType: 'NOME-B' }, '1', [dog('b', 2), dog('a', 1)]).map((item) => [item.id, item.visit])
+    ).toEqual([
+      ['a', undefined],
+      ['b', undefined],
+    ])
+  })
+
+  it("gives each dog of a scored post its group's visit there", () => {
+    const event = { eventType: 'NOWT', stations: [{ date: '2026-09-12' as const, id: 'post-1', number: 1 }] }
+
+    expect(stationDogsInOrder(event, 'post-1', [dog('a', 1)])).toEqual([
+      { ...dog('a', 1), visit: { parts: 1, tasks: 1, tasksBefore: 0 } },
+    ])
   })
 })
 
 describe('toScoredTasks', () => {
-  const round = classRound([
-    { id: 'post-1', tasks: 2 },
-    { id: 'post-2', tasks: 1 },
-  ])
+  const round = [
+    ...stationSlots('post-1', { parts: 2, tasks: 1, tasksBefore: 0 }),
+    ...stationSlots('post-2', { parts: 1, tasks: 1, tasksBefore: 1 }),
+  ]
 
   const scored = (stationId: string, index: number, points: number | null): JsonEventResultTask => ({
     index,
@@ -298,13 +355,13 @@ describe('toScoredTasks', () => {
 
   it('joins entries onto the round', () => {
     expect(toScoredTasks(round, [scored('post-1', 0, 9), scored('post-1', 1, 8), scored('post-2', 0, 18)])).toEqual([
-      { maxPoints: 10, points: 9, stationId: 'post-1' },
-      { maxPoints: 10, points: 8, stationId: 'post-1' },
-      { maxPoints: 20, points: 18, stationId: 'post-2' },
+      { maxPoints: 10, points: 9, stationId: 'post-1', task: 0 },
+      { maxPoints: 10, points: 8, stationId: 'post-1', task: 0 },
+      { maxPoints: 20, points: 18, stationId: 'post-2', task: 0 },
     ])
   })
 
-  it('tells the two tasks of one post apart', () => {
+  it('tells the two parts of one task apart', () => {
     const result = toScoredTasks(round, [scored('post-1', 1, 8)])
 
     expect(result.map((item) => item.points)).toEqual([null, 8, null])
@@ -318,9 +375,9 @@ describe('toScoredTasks', () => {
   })
 
   it('ignores entries for posts the round no longer holds', () => {
-    expect(toScoredTasks(classRound([{ id: 'post-1', tasks: 1 }]), [scored('removed', 0, 20)])).toEqual([
-      { maxPoints: 20, points: null, stationId: 'post-1' },
-    ])
+    expect(
+      toScoredTasks(stationSlots('post-1', { parts: 1, tasks: 1, tasksBefore: 0 }), [scored('removed', 0, 20)])
+    ).toEqual([{ maxPoints: 20, points: null, stationId: 'post-1', task: 0 }])
   })
 })
 
@@ -497,15 +554,14 @@ describe('shownEventResult', () => {
 })
 
 describe('resolveEventResult', () => {
+  const day = '2026-09-12' as const
   const nowt = {
     eventClass: 'AVO',
     eventType: 'NOWT',
-    stations: [
-      { id: 'post-1', tasks: 1 as const },
-      { id: 'post-2', tasks: 1 as const },
-      { id: 'post-3', tasks: 1 as const },
-      { id: 'post-4', tasks: 1 as const },
-    ],
+    round: dogRound(
+      { stations: [1, 2, 3, 4].map((number) => ({ date: day, id: `post-${number}`, number })) },
+      { class: 'AVO', day }
+    ),
   }
 
   const entered = (stationId: string, points: number | null): JsonEventResultTask => ({
@@ -596,15 +652,10 @@ describe('resolveEventResult', () => {
     expect(result.result).toBe('AVO0')
   })
 
-  it('honours a class that splits a post differently from the course', () => {
+  it("scores a split task against the dog's own round, its parts adding up to 20", () => {
     const result = resolveEventResult(
       { tasks: [entered('post-1', 9), { ...entered('post-1', 8), index: 1 }] },
-      {
-        classStations: [{ stationId: 'post-1', tasks: 2 }],
-        eventClass: 'ALO',
-        eventType: 'NOWT',
-        stations: [{ id: 'post-1', tasks: 1 }],
-      }
+      { eventClass: 'ALO', eventType: 'NOWT', round: stationSlots('post-1', { parts: 2, tasks: 1, tasksBefore: 0 }) }
     )
 
     expect(result).toMatchObject({ maxPoints: 20, points: 17 })

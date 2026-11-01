@@ -30,6 +30,7 @@ const entry = (): StationEntry => ({
       eventType: 'NOWT',
       group: { date: '2026-09-12', key: 'AVO-AP', number: 1, time: 'ap' },
       id: 'run-1',
+      visit: { parts: 1, tasks: 1, tasksBefore: 0 },
     },
     {
       class: 'AVO',
@@ -37,9 +38,10 @@ const entry = (): StationEntry => ({
       eventType: 'NOWT',
       group: { date: '2026-09-12', key: 'AVO-AP', number: 2, time: 'ap' },
       id: 'run-2',
+      visit: { parts: 1, tasks: 1, tasksBefore: 0 },
     },
   ],
-  station: { date: '2026-09-12', id: 'post-1', number: 1, tasks: 1 },
+  station: { date: '2026-09-12', id: 'post-1', number: 1 },
 })
 
 const renderPage = () => {

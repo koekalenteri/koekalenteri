@@ -50,10 +50,44 @@ niissä koemuodoissa, joissa pisteytys tehdään rasteilla. Rata rakennetaan yle
 koepaikalla, joten sivu on erillään kokeen tiedoista.
 
 Jokaiselle koepäivälle lisätään omat rastinsa painikkeella **{t:event.stationAdd}**, ja ne
-numeroidaan päivän sisällä yhdestä alkaen. Rastista kirjataan *{t:event.stationTasks}* (yksi tai
-kaksi), *{t:event.stationDogsAtOnce}* ja *{t:event.stationJudges}*, jotka valitaan kokeen
-tuomareista. Tarpeeton rasti poistetaan painikkeella **{t:event.stationRemove}**, ja loput
-numeroituvat uudelleen. **{t:save}** tallentaa rastit kokeen tietoihin.
+numeroidaan päivän sisällä yhdestä alkaen. Rastista kirjataan *{t:event.stationTaskCount}*,
+*{t:event.stationParts}*, *{t:event.stationDogsAtOnce}* ja *{t:event.stationJudges}*, jotka
+valitaan kokeen tuomareista. Tehtävä on aina 20 pistettä, joten rastin enimmäispistemäärä on sen
+tehtävien määrä kertaa 20. Osajako 2 jakaa tehtävän kahteen 10 pisteen osaan; ensimmäisen palkinnon
+alaraja, puolet tehtävän pisteistä, koskee silloin osien summaa. Ennen kiertoryhmiä tallennettu
+kahden tehtävän rasti luetaan yhtenä tehtävänä kahdessa osassa, joten sen tulokset säilyvät
+ennallaan. Tarpeeton rasti poistetaan painikkeella **{t:event.stationRemove}**, ja loput
+numeroituvat uudelleen.
+
+**{t:event.rotation.title}.** Päivän rastien alla kerrotaan, missä järjestyksessä koirakot rastit
+kiertävät. Ilman kiertoryhmiä jokainen luokka kiertää päivän rastit numerojärjestyksessä ja tekee
+kullakin rastilla rastin oletusmäärän tehtäviä, kuten ennenkin. Painike
+**{t:event.rotation.add}** lisää kiertoryhmän: ryhmä on luokka tai luokan koenumeroväli
+(*{t:event.rotation.firstNumber}* ja *{t:event.rotation.lastNumber}* jätetään tyhjiksi, kun
+ryhmä on koko luokka). Uusi ryhmä kiertää päivän rastit numerojärjestyksessä. Järjestys muutetaan
+valitsemalla sarakkeeseen rasti: jos ryhmä käy jo valitulla rastilla toisessa sarakkeessa, rastit
+vaihtavat paikkaa ja kumpikin säilyttää tehtävänsä. Valinta *{t:event.rotation.visitNone}* poistaa
+rastin kierrosta, kun ryhmällä on muitakin rasteja; koko ryhmä poistetaan sen omalla
+roskakoripainikkeella. **+** lisää kiertoon rastin, jolla ryhmä ei vielä käy. Kullekin rastille voi
+antaa ryhmän tehtävien määrän (1 - 3) ja osajaon; muuten noudatetaan rastin oletusta. Esimerkiksi kolmen
+luokan kokeessa ALO kiertää rastit 1, 2 ja 3 ja tekee rastilla 3 kaksi tehtävää, AVO kiertää 3, 1
+ja 2 ja VOI 2, 3 ja 1, jolloin jokaisen luokan enimmäispistemäärä on 80. Yhden luokan kokeessa
+kierto jaetaan koenumeroilla, esimerkiksi numerot 1 - 8 aloittavat rastilta 1 ja 9 - 16 rastilta 2.
+
+Rastien alla näkyy jokainen rasti sellaisena kuin ryhmät sille saapuvat, esimerkiksi "Rasti 1: ALO,
+AVO, VOI (x 2)": "(x 2)" kertoo, että ryhmä tekee rastilla kaksi tehtävää, ja "(2 osaa)", että
+tehtävä on jaettu kahteen osaan. Saman luokan numerovälit eivät saa mennä päällekkäin, eikä koko
+luokan ryhmän rinnalla voi olla saman luokan numeroväliä. Jos luokka on jaettu numeroväleihin ja
+jokin osallistuja jää kaikkien välien ulkopuolelle, sivu luettelee syyt eikä tallenna. Kun päivän
+rasti poistetaan, se poistuu kaikista kierroista, ja ryhmä, jolle ei jää yhtään rastia, poistuu.
+Jos koiran numero myöhemmin muuttuu välien ulkopuolelle, koira kiertää lähimmän ryhmän mukana:
+viimeisen välin jälkeen viimeisen ryhmän, ensimmäistä väliä ennen ensimmäisen ja välien välissä
+alemman ryhmän; koira ilman numeroa kiertää ensimmäisen ryhmän mukana. Koiran kierros koostuu aina
+sen oman koepäivän rasteista.
+
+!shot[EventStationsPage/event-stations-rotation] Kolmen luokan kierto: jokainen luokka aloittaa eri rastilta ja tekee viimeisellä rastillaan kaksi tehtävää
+
+**{t:save}** tallentaa rastit ja kierron kokeen tietoihin.
 
 ## Tulosten syöttö
 
@@ -61,15 +95,20 @@ Paneelin painike **{t:eventManagement.enterResults}** aktivoituu, kun koe on alk
 sivun **{t:results.title}**. Monipäiväisessä kokeessa valitaan ensin päivä, ja luokat ovat omilla
 välilehdillään. Sivulla ovat vain osallistujiksi nostetut koirakot starttijärjestyksessä.
 
-**Rasteilla pisteytettävä koe (NOWT).** Jokaisella tehtävällä on oma sarakkeensa, ja pisteet
-kirjoitetaan kenttään, jonka alla näkyy tehtävän enimmäispistemäärä. Kentän alla on tehtävää
-arvostellut tuomari: yhden tuomarin rastilla nimi vain näytetään, useamman tuomarin rastilla
-se valitaan ja valinta siirtyy seuraavalle koirakolle. Nolla pistettä vaatii syyn kenttään
-*{t:results.zeroFault}*. Jos arvostelukortista ei käy ilmi, miksi tehtävä nollattiin, valitaan
-*{t:results.zeroFaults.unknown}*. Tulos lasketaan riville itsestään sääntöjen mukaan: yksikin nolla
+**Rasteilla pisteytettävä koe (NOWT).** Jokaisella tehtävällä on oma sarakkeensa ryhmän
+kiertojärjestyksessä, ja tehtävät numeroidaan koko kierroksen läpi. Kahteen osaan jaetun tehtävän
+osat ovat omissa sarakkeissaan, esimerkiksi "Tehtävä 2, osa 1/2". Jos luokka on jaettu
+numeroväleihin ja ryhmien kierrokset eroavat, sarakkeet nimetään rasteittain, esimerkiksi "Rasti 2,
+tehtävä 2", ja koiran rivillä on kenttä vain sen oman ryhmän tehtäville. Pisteet kirjoitetaan
+kenttään, jonka alla näkyy tehtävän enimmäispistemäärä. Kentän alla on tehtävää arvostellut tuomari:
+yhden tuomarin rastilla nimi vain näytetään, useamman tuomarin rastilla se valitaan ja valinta
+siirtyy seuraavalle koirakolle. Nolla pistettä vaatii syyn kenttään *{t:results.zeroFault}*. Jos
+arvostelukortista ei käy ilmi, miksi tehtävä nollattiin, valitaan *{t:results.zeroFaults.unknown}*.
+Tulos lasketaan riville itsestään sääntöjen mukaan: yksikin nolla
 estää palkintosijan, ja rivin alla näkyy pisteiden summa. Valinnalla *{t:results.scope}* sivun
 voi rajata yhteen rastiin, jolloin näkyvissä ovat vain sen rastin tehtävät — tulos jää silloin
-pois, koska se riippuu muistakin rasteista.
+pois, koska se riippuu muistakin rasteista. Valinnassa ovat vain näytettävän päivän rastit, ja
+rajattuna sivulla ovat vain ne koirakot, joiden ryhmä käy rastilla.
 
 !shot[ResultsTable/results-entry-nowt] NOWT-luokan pisteet tehtävittäin, toinen koirakko keskeytetty rastilla 2
 

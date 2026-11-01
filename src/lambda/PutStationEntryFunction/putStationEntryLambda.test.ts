@@ -1,7 +1,7 @@
 import type { APIGatewayProxyEvent } from 'aws-lambda'
-import type { EventStation, JsonRegistration } from '../../types'
+import type { EventStation } from '../../types'
 import { vi } from 'vitest'
-import { asJsonConfirmedEvent, deletedEvent, eventNotFound } from '../test-utils/helpers'
+import { asJsonConfirmedEvent, asJsonRegistration, deletedEvent, eventNotFound } from '../test-utils/helpers'
 import { loggedLines } from '../test-utils/logs'
 
 const mockLambda = vi.fn((_name, fn) => fn)
@@ -50,18 +50,23 @@ const { default: putStationEntryLambda } = await import('./handler')
 const { getStationEntryToken } = await import('../lib/stationEntry')
 const actualActions = await vi.importActual<typeof import('../lib/ws/actions')>('../lib/ws/actions')
 
-const station: EventStation = { date: '2026-09-12', id: 'post-1', number: 1, tasks: 1 as const }
+const station: EventStation = { date: '2026-09-12', id: 'post-1', number: 1 }
 
 const confirmedEvent = asJsonConfirmedEvent({
   classes: [],
   eventType: 'NOWT',
   id: 'event-1',
   organizer: { id: 'org-1', name: 'Org' },
-  stations: [station, { date: '2026-09-12', id: 'post-2', number: 2, tasks: 1 as const }],
+  stations: [station, { date: '2026-09-12', id: 'post-2', number: 2 }],
 })
 
 const registration = (id: string) =>
-  ({ class: 'AVO', eventId: 'event-1', group: { key: 'AVO-AP', number: 1 }, id }) as JsonRegistration
+  asJsonRegistration({
+    class: 'AVO',
+    eventId: 'event-1',
+    group: { date: '2026-09-12', key: 'AVO-AP', number: 1 },
+    id,
+  })
 
 const apiEvent = (body: unknown, token?: string): APIGatewayProxyEvent => {
   const bearer = token ?? getStationEntryToken('event-1', station)

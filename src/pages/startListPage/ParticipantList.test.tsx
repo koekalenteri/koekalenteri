@@ -293,6 +293,40 @@ describe('ParticipantList', () => {
     expect(writeText).toHaveBeenCalledWith(expect.stringContaining('(startNumbersNotPublished)'))
   })
 
+  describe('rotation groups (KOE-1665)', () => {
+    const stations = [1, 2].map((number) => ({ date: '2023-01-01' as const, id: `post-${number}`, number }))
+    const rotations = [
+      { class: 'AVO' as const, posts: [{ stationId: 'post-2' }, { stationId: 'post-1', taskCount: 2 }] },
+      {
+        class: 'VOI' as const,
+        firstNumber: 1,
+        lastNumber: 8,
+        posts: [{ stationId: 'post-1' }, { stationId: 'post-2' }],
+      },
+    ]
+    const participants = [
+      createMockRegistration('AVO', 'AVO Dog', 1, '2023-01-01', 'ap'),
+      createMockRegistration('VOI', 'VOI Dog', 2, '2023-01-01', 'ap'),
+    ]
+
+    it("tells each class's groups where they start, a range only once the numbers are out", () => {
+      const event = { ...mockEvent, rotations, startNumbersPublished: { AVO: false, VOI: false }, stations }
+      const { rerender } = render(<ParticipantList participants={participants} event={event} />)
+
+      // The mocked translator gives the key; the line's text is rotation.test.ts's to check.
+      expect(screen.getAllByText(/^event\.rotation\.startLine/)).toHaveLength(1)
+
+      rerender(<ParticipantList participants={participants} event={{ ...event, startNumbersPublished: true }} />)
+      expect(screen.getAllByText(/^event\.rotation\.startLine/)).toHaveLength(2)
+    })
+
+    it('adds nothing to a day that runs in number order', () => {
+      render(<ParticipantList participants={participants} event={{ ...mockEvent, stations }} />)
+
+      expect(screen.queryByText(/^event\.rotation\.startLine/)).not.toBeInTheDocument()
+    })
+  })
+
   it('renders an unpublished event class as a header on the public start list', () => {
     const mockParticipants: PublicRegistration[] = [createMockRegistration('AVO', 'Dog 1', 1, '2023-01-01', 'ap')]
 

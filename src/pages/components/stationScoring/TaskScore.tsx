@@ -42,6 +42,9 @@ export const TaskScore = ({
   const judge = value?.judge ?? defaultJudge ?? judges[0]
   const points = value?.points ?? null
   const ceiling = taskEntryCeiling({ maxPoints: task.maxPoints, recalled: value?.recalled })
+  // A part's name ("Tehtävä 2, osa 1/2") needs the room its label takes where the field shows it.
+  let width = 64
+  if (showName) width = task.parts > 1 ? 150 : 96
 
   const handlePoints = useCallback(
     (next?: number) => {
@@ -83,7 +86,7 @@ export const TaskScore = ({
         label={showName ? name : undefined}
         onChange={handlePoints}
         slotProps={showName ? undefined : { input: { inputProps: { 'aria-label': name } } }}
-        sx={{ width: showName ? 96 : 64 }}
+        sx={{ width }}
         value={points ?? undefined}
         // The ceiling belongs on screen: an ALO recall halves it, and the entry is capped either way.
         helperText={`/ ${ceiling}`}

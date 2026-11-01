@@ -1,5 +1,12 @@
 import type { Theme } from '@mui/material'
-import type { EventResult, EventResultsResponse, EventStation, PublicJudge, StoredEventResult } from '../../types'
+import type {
+  EventResult,
+  EventResultsResponse,
+  EventStation,
+  PublicJudge,
+  Registration,
+  StoredEventResult,
+} from '../../types'
 import type { ResultEdit } from '../components/stationScoring/types'
 import type { ConflictChoice, ResultConflict } from './eventResultsPage/ConflictDialog'
 import Save from '@mui/icons-material/Save'
@@ -34,7 +41,8 @@ import {
   isScorableRegistration,
   sortRegistrationsByDateClassTimeAndNumber,
 } from '../../lib/registration'
-import { classRound, placementsFor, scoresAtPosts, stationVersion } from '../../lib/results'
+import { dogRound, placementsFor, roundColumns, scoresAtPosts, stationVersion } from '../../lib/results'
+import { dayStations, rotationDogOf } from '../../lib/rotation'
 import { Path } from '../../routeConfig'
 import { AsyncButton } from '../components/AsyncButton'
 import { emptyEdit } from '../components/stationScoring/types'
@@ -92,7 +100,7 @@ export default function EventResultsPage() {
   const compact = useMediaQuery((theme: Theme) => theme.breakpoints.down('md'))
 
   const scorable = useMemo(() => registrations.filter(isScorableRegistration), [registrations])
-  const [scope, setScope] = useState<string>(WHOLE_ROUND)
+  const [pickedScope, setPickedScope] = useState<string>(WHOLE_ROUND)
   const [edits, setEdits] = useState<Record<string, ResultEdit>>({})
   const [defaultJudges, setDefaultJudges] = useState<Record<string, PublicJudge | undefined>>({})
   const [conflicts, setConflicts] = useState<ResultConflict[]>([])
@@ -127,13 +135,25 @@ export default function EventResultsPage() {
     [dayRegistrations, eventClass]
   )
 
+  // The posts of the day on screen: a dog's round is made of its own day's posts (KOE-1665), so another
+  // day's post is nothing to narrow to or to name as where a trial ended. A post picked on another day
+  // gives way to the whole round.
+  const dayPosts = useMemo(() => (day ? dayStations({ stations }, day) : stations), [day, stations])
+  const scope = dayPosts.some((station) => station.id === pickedScope) ? pickedScope : WHOLE_ROUND
+
   // Ranked over every dog of the event, so a class's other day cannot leak into this one's ranks.
   const placements = useMemo(() => placementsFor(registrations), [registrations])
 
-  const fullRound = useMemo(() => {
-    const classStations = event?.classes?.find((item) => item.class === eventClass)?.stations
-    return classRound(stations, classStations)
-  }, [event?.classes, eventClass, stations])
+  // Each dog's round is its rotation group's (KOE-1665): the dogs of one class may differ when it splits
+  // by start number, so the round is asked per dog, and the columns are what any of them has.
+  const roundEvent = useMemo(
+    () => ({ classes: event?.classes, rotations: event?.rotations, stations }),
+    [event?.classes, event?.rotations, stations]
+  )
+  const fullRoundFor = useCallback(
+    (registration: Registration) => dogRound(roundEvent, rotationDogOf(registration)),
+    [roundEvent]
+  )
 
   // A post's own view narrows the columns; the prize is withheld there, because it depends on posts
   // this view cannot see and a partial figure would read as a verdict.
@@ -142,10 +162,19 @@ export default function EventResultsPage() {
   // all the same: the live clock and the queue are what the day is run from (KOE-1259).
   const singlePost = liveFormat(event?.eventType).posts === 'one'
   const stationViewId = scoped ? scope : IMPLICIT_STATION_ID
-  const round = useMemo(
-    () => (scoped ? fullRound.filter((task) => task.stationId === scope) : fullRound),
-    [fullRound, scope, scoped]
+  const roundFor = useCallback(
+    (registration: Registration) => {
+      const full = fullRoundFor(registration)
+      return scoped ? full.filter((task) => task.stationId === scope) : full
+    },
+    [fullRoundFor, scope, scoped]
   )
+  // A post's own view lists the dogs whose group comes to it, as the post's link does.
+  const tableRows = useMemo(
+    () => (scoped ? rows.filter((registration) => roundFor(registration).length > 0) : rows),
+    [roundFor, rows, scoped]
+  )
+  const round = useMemo(() => roundColumns(tableRows.map(roundFor)), [roundFor, tableRows])
 
   // A post names its own judges; where it names none, the class's judge stands for it.
   const classJudges = useMemo(
@@ -434,17 +463,17 @@ export default function EventResultsPage() {
             {t('results.openLiveEntry')}
           </Button>
         )}
-        {stations.length > 0 && (
+        {dayPosts.length > 0 && (
           <TextField
             label={t('results.scope')}
-            onChange={(e) => setScope(e.target.value)}
+            onChange={(e) => setPickedScope(e.target.value)}
             select
             size="small"
             sx={{ minWidth: 180 }}
             value={scope}
           >
             <MenuItem value={WHOLE_ROUND}>{t('results.scopeAll')}</MenuItem>
-            {stations.map((station) => (
+            {dayPosts.map((station) => (
               <MenuItem key={station.id} value={station.id}>
                 {t('event.station')} {station.number}
               </MenuItem>
@@ -461,7 +490,7 @@ export default function EventResultsPage() {
           edits={edits}
           eventClass={eventClass}
           eventType={event.eventType}
-          fullRound={scoped ? undefined : fullRound}
+          fullRoundFor={scoped ? undefined : fullRoundFor}
           onChange={handleChange}
           placements={scoped ? undefined : placements}
           defaultJudges={defaultJudges}
@@ -469,10 +498,11 @@ export default function EventResultsPage() {
           judgesFor={judgesFor}
           kennelliitto={kennelliitto}
           onJudgeChange={(id, judge) => setDefaultJudges((prev) => ({ ...prev, [id]: judge }))}
-          registrations={rows}
+          registrations={tableRows}
           round={round}
+          roundFor={roundFor}
           stationId={scoped ? scope : undefined}
-          stations={stations}
+          stations={dayPosts}
         />
       </Box>
 
