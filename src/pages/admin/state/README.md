@@ -33,75 +33,134 @@ every component in between (KOE-1347).
 
 ## Events
 
+An arrow points from an atom to what it reads; a parallelogram is an API call. `adminEventsAtom` is
+`adminEventsRemoteAtom` under a second name, and the `*ByIdAtom` and `(eventId)` atoms are families
+keyed by the event. `adminSaveEventAtom` is write-only: after the read and the call shown here, it
+writes `adminEventIdAtom`, `adminCurrentEventAtom` and the public `eventsAtom`.
+
 ```mermaid
 graph LR
-  adminEventsAtom-->adminEventsRemoteAtom
-  adminEventsAtom-->localStorage
+  adminEventsAtom-->sessionStorage
+  adminEventsAtom-->userAtom
+  adminEventsAtom-->userRefreshAtom
+  adminEventsAtom-->validIdTokenAtom
+  adminEventsAtom-->getAdminEvents[/getAdminEvents/]-->aws
+
   adminNewEventAtom-->localStorage
   adminShowFinishedEventsAtom-->localStorage
   adminEventFilterTextAtom-->localStorage
   adminEventIdAtom-->localStorage
-  adminEventClassAtom-->localStorage
-  adminEditableEventByIdAtom-->localStorage
-  adminEditableEventByIdAtom-->adminEventAtom
+  adminEventOrganizerIdAtom-->localStorage
+  adminEventColumnsAtom-->localStorage
 
   localStorage[(localStorage)]
-  adminEventsRemoteAtom-->getAdminEvents[/getAdminEvents/]-->aws
+  sessionStorage[(sessionStorage)]
 
   adminEventAtom-->adminNewEventAtom
   adminEventAtom-->adminEventsAtom
 
-  adminCurrentEventAtom-->adminEditableEventByIdAtom
+  adminLinkedKcGuidsAtom-->adminEventsAtom
+  adminKnownKcGuidsAtom-->adminLinkedKcGuidsAtom
+
+  adminConfirmedEventAtom-->adminEventAtom
+
   adminCurrentEventAtom-->adminEventIdAtom
+  adminCurrentEventAtom-->adminEventAtom
 
   adminFilteredEventsAtom-->adminEventsAtom
   adminFilteredEventsAtom-->adminEventFilterTextAtom
   adminFilteredEventsAtom-->adminShowFinishedEventsAtom
+
+  adminEventOrganizersAtom-->adminEventsAtom
+
+  adminEventClassAtom-->sessionStorage
+  adminEventClassAtom-->adminCurrentEventAtom
+
+  adminEditableEventByIdAtom-->sessionStorage
+  adminEditableEventByIdAtom-->adminEventAtom
+
+  adminSaveEventAtom-->adminCurrentEventAtom
+  adminSaveEventAtom-->validIdTokenAtom
+  adminSaveEventAtom-->eventsAtom
+  adminSaveEventAtom-->putEvent[/putEvent/]-->aws
 
   aws[(cloud)]
 ```
 
 ## Officials
 
+`adminOfficialsAtom` is `adminOfficialsRemoteAtom` under a second name. The list is cached in the
+encrypted IndexedDB store (`cached/README.md`), and only fetched when the cached revision is stale.
+
 ```mermaid
 graph LR
-  officialsAtom-->localStorage
-  officialsAtom-->officialsRemoteAtom
-  officialFilterAtom
+  adminOfficialsAtom-->indexedDB
+  adminOfficialsAtom-->userAtom
+  adminOfficialsAtom-->validIdTokenAtom
+  adminOfficialsAtom-->getOfficials[/getOfficials/]-->aws
+  adminOfficialFilterAtom
 
-  localStorage[(localStorage)]
-  officialsRemoteAtom-->getOfficials[/getOfficials/]-->aws[(cloud)]
+  indexedDB[(IndexedDB)]
 
-  filteredOfficialsAtom-->officialFilterAtom
-  filteredOfficialsAtom-->officialsAtom
+  adminFilteredOfficialsAtom-->adminOfficialsAtom
+  adminFilteredOfficialsAtom-->adminOfficialFilterAtom
+
+  aws[(cloud)]
 ```
 
 ## Organizers
 
+`adminOrganizersAtom` is `adminOrganizersRemoteAtom` under a second name, cached the same way as
+the officials.
+
 ```mermaid
 graph LR
-  organizersAtom-->localStorage
-  organizersAtom-->organizersRemoteAtom
-  organizersFilterAtom
+  adminOrganizersAtom-->indexedDB
+  adminOrganizersAtom-->userAtom
+  adminOrganizersAtom-->validIdTokenAtom
+  adminOrganizersAtom-->getAdminOrganizers[/getAdminOrganizers/]-->aws
+  adminOrganizerFilterAtom
+  adminOrganizerIdAtom-->localStorage
+  adminOrganizerColumnsAtom-->localStorage
+  adminShowOnlyOrganizersWithUsersAtom-->localStorage
 
   localStorage[(localStorage)]
-  organizersRemoteAtom-->getOrganizers[/getOrganizers/]-->aws[(cloud)]
+  indexedDB[(IndexedDB)]
 
-  filteredOrganizersAtom-->organizersFilterAtom
-  filteredOrganizersAtom-->organizersAtom
+  adminCurrentOrganizerAtom-->adminOrganizerIdAtom
+  adminCurrentOrganizerAtom-->adminOrganizersAtom
+
+  aws[(cloud)]
 ```
 
 ## Registrations
 
+The `(eventId)` atoms are families keyed by the event, and `adminEventRegistrationAtom` and the
+editable copy by the event and the registration. `adminBackgroundActionsRunningAtom`,
+`adminEventRegistrationsFetchedAtAtom` and `adminEventRegistrationsCursorAtom` are plain in-memory
+atoms that the registration actions write.
+
 ```mermaid
 graph LR
+  adminEventRegistrationsAtom-->validIdTokenAtom
+  adminEventRegistrationsAtom-->getRegistrations[/getRegistrations/]-->aws
+  adminPendingRegistrationGroupMovesAtom
+  adminBackgroundActionsRunningAtom
+  adminEventRegistrationsFetchedAtAtom
+  adminEventRegistrationsCursorAtom
   adminRegistrationIdAtom-->localStorage
-  eventRegistrationsAtom-->localStorage
+  adminNewRegistrationAtom-->localStorage
 
   localStorage[(localStorage)]
+  sessionStorage[(sessionStorage)]
 
-  currentEventRegistrationsAtom-->adminEventIdAtom
-  currentEventRegistrationsAtom-->eventRegistrationsAtom
+  adminEventRegistrationAtom-->adminEventRegistrationsAtom
+  adminEventPaymentLockedAtom-->adminEventRegistrationsAtom
+  adminProjectedEventRegistrationsAtom-->adminEventRegistrationsAtom
+  adminProjectedEventRegistrationsAtom-->adminPendingRegistrationGroupMovesAtom
 
-  currentAdminRegistrationAtom-->adminRegistrationIdAtom
+  adminEditableEventRegistrationByEventIdAndIdAtom-->sessionStorage
+  adminEditableEventRegistrationByEventIdAndIdAtom-->adminEventRegistrationAtom
+
+  aws[(cloud)]
 ```
