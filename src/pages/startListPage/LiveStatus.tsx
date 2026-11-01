@@ -1,3 +1,4 @@
+import type { SortableRegistration } from '../../lib/registration'
 import type { PublicConfirmedEvent, PublicStationTurn } from '../../types/Event'
 import Box from '@mui/material/Box'
 import Paper from '@mui/material/Paper'
@@ -9,6 +10,8 @@ import { getEvent } from '../../api/event'
 import { useTickWhile } from '../../hooks/useTickWhile'
 import { isEventLive } from '../../lib/event'
 import { liveFormat, livePhaseLabel, stationDogsAtOnce, stationPhases } from '../../lib/liveFormat'
+import { scoresAtPosts } from '../../lib/results'
+import { stationQueueByGroup } from '../../lib/rotation'
 import {
   completedGroupTurns,
   currentPhase,
@@ -28,12 +31,38 @@ const CLOCK_TICK_MS = 30000
 
 const minutes = (ms: number) => Math.max(0, Math.round(ms / 60000))
 
+/** A row of the published start list, as far as the live view reads it. */
+type LiveParticipant = SortableRegistration & { cancelled?: boolean }
+
+/**
+ * The queue at a post, a part per rotation group with the dogs it brings and how many a turn of it
+ * holds. Where the dogs go round posts, a post's queue is the dogs whose group visits it (KOE-1665);
+ * elsewhere the post is the whole trial and the whole entry queues at it, as one part.
+ *
+ * Before a split class's numbers are published the rows carry none, so the class counts as its first
+ * range's group (`stationQueueByGroup`); the numbers are out before the trial, so this is rare.
+ */
+const stationQueueOf = (
+  event: PublicConfirmedEvent,
+  stationId: string,
+  participants: readonly LiveParticipant[]
+): { dogs: number; dogsAtOnce: number }[] => {
+  const station = event.stations?.find((item) => item.id === stationId)
+  if (!station || !scoresAtPosts(event.eventType)) {
+    return [{ dogs: participants.length, dogsAtOnce: stationDogsAtOnce(event.eventType, station) }]
+  }
+  return stationQueueByGroup(event, stationId, participants).map(({ registrations, visit }) => ({
+    dogs: registrations.length,
+    dogsAtOnce: stationDogsAtOnce(event.eventType, visit),
+  }))
+}
+
 interface StationCardProps {
   readonly event: PublicConfirmedEvent
   readonly stationId: string
   readonly turns: readonly PublicStationTurn[]
-  /** How many dogs are entered at all — what the queue at each post is counted down from. */
-  readonly starters: number
+  /** The dogs entered and not cancelled, of which the post's queue is made. */
+  readonly participants: readonly LiveParticipant[]
   readonly single: boolean
 }
 
@@ -41,7 +70,7 @@ interface StationCardProps {
  * One post's card. Split out of the list because a post says several things at once — who is on it,
  * how fast it has been going, and how much of the queue is left — and each of them is conditional.
  */
-const LiveStationCard = ({ event, stationId, turns, starters, single }: StationCardProps) => {
+const LiveStationCard = ({ event, stationId, turns, participants, single }: StationCardProps) => {
   const { t } = useTranslation()
 
   const station = event.stations?.find((item) => item.id === stationId)
@@ -50,9 +79,10 @@ const LiveStationCard = ({ event, stationId, turns, starters, single }: StationC
   const open = openTurn(turns, stationId)
   const completed = completedGroupTurns(turns, stationId)
   const throughput = stationThroughput(turns, stationId)
-  const dogsAtOnce = stationDogsAtOnce(event.eventType, station)
+  const queue = stationQueueOf(event, stationId, participants)
+  const starters = queue.reduce((sum, group) => sum + group.dogs, 0)
   const through = dogsThrough(turns, stationId)
-  const wait = waitEstimate(throughput, starters - through, dogsAtOnce, format.flow)
+  const wait = waitEstimate(throughput, queue, through, format.flow)
   // The last dog is through: the one thing left to say is when.
   const lastEnd = completed
     .map((turn) => new Date(turn.endedAt ?? turn.startedAt).valueOf())
@@ -152,7 +182,7 @@ export const LiveStatus = ({
 }: {
   readonly event: PublicConfirmedEvent
   /** The published start list, only to count how many dogs each post still has to get through. */
-  readonly participants?: readonly { cancelled?: boolean }[]
+  readonly participants?: readonly LiveParticipant[]
 }) => {
   const { t } = useTranslation()
   // Polled turns fill in when the socket is quiet. Each poll remembers which prop value it was based
@@ -182,8 +212,7 @@ export const LiveStatus = ({
   if (!isEventLive({ ...event, liveTurns: turns })) return null
 
   const stationIds = liveStationIds(turns)
-  // Every dog visits every post over the day, so the whole entry is the queue at each of them.
-  const starters = (participants ?? []).filter((participant) => !participant.cancelled).length
+  const entered = (participants ?? []).filter((participant) => !participant.cancelled)
 
   return (
     <Box
@@ -207,7 +236,7 @@ export const LiveStatus = ({
             event={event}
             key={stationId}
             single={liveFormat(event.eventType).posts === 'one'}
-            starters={starters}
+            participants={entered}
             stationId={stationId}
             turns={turns}
           />

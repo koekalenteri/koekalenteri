@@ -7,7 +7,8 @@ import Typography from '@mui/material/Typography'
 import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { compareRegistrationClasses } from '@/lib/event'
-import { dayStations, formatStationArrivals, rotationGroupDay } from '@/lib/rotation'
+import { asksDogsAtOnce } from '@/lib/liveFormat'
+import { dayStations, formatStationArrivals, nextRotationGroup, rotationGroupDay } from '@/lib/rotation'
 import { RotationRow } from './RotationRow'
 
 interface Props {
@@ -55,13 +56,15 @@ export const RotationEditor = ({ day, event, disabled, heading, onChange }: Prop
       group ? rotations.map((item, at) => (at === index ? group : item)) : rotations.filter((_, at) => at !== index)
     )
 
-  const add = () => {
-    const withoutGroup = classes.find((item) => !groups.some(({ group }) => group.class === item))
+  const add = () =>
     onChange([
       ...rotations,
-      { class: withoutGroup ?? classes[0], posts: stations.map((station) => ({ stationId: station.id })) },
+      nextRotationGroup(
+        stations,
+        classes,
+        groups.map(({ group }) => group)
+      ),
     ])
-  }
 
   return (
     <Stack spacing={1} sx={{ mt: 1, width: '100%' }}>
@@ -75,6 +78,7 @@ export const RotationEditor = ({ day, event, disabled, heading, onChange }: Prop
       )}
       {groups.map(({ group, index, key }) => (
         <RotationRow
+          asksDogsAtOnce={asksDogsAtOnce(event.eventType)}
           classes={classes}
           disabled={disabled}
           group={group}

@@ -147,26 +147,43 @@ interface WaitEstimate {
   maxMs: number
 }
 
+/** One rotation group's share of a post's queue: how many dogs it brings and how many a turn holds. */
+interface QueueGroup {
+  dogs: number
+  dogsAtOnce: number
+}
+
 /**
  * How long the dogs still queueing at a post will take, from the pace the post has actually kept.
  *
- * Throughput measures a *group*, because a walk-up is one span however many dogs it holds, so the
- * queue is divided by the post's `dogsAtOnce` before it is multiplied. Getting that backwards
+ * Throughput measures a *group*, because a walk-up is one span however many dogs it holds, so each
+ * part of the queue is divided by its `dogsAtOnce` before it is multiplied. Getting that backwards
  * overstates the wait by exactly that factor — twelve dogs at a post taking four at a time is three
  * turns, not twelve — and a fourfold overstatement is what sends someone home before their turn.
+ *
+ * The queue comes in the rotation groups' order of arrival, each with its own figure (KOE-1665): a post
+ * may take one class one at a time and the next in pairs, so the turns are counted per group and
+ * summed. The `through` dogs are taken off the front, since a post works through its queue in that order.
  *
  * Withheld with no figures to go on, and withheld under `field`, where the entry is on the ground
  * rather than waiting to be called and a number of minutes would describe nothing.
  */
 export const waitEstimate = (
   throughput: StationThroughput | undefined,
-  dogsAhead: number,
-  dogsAtOnce: number,
+  queue: readonly QueueGroup[],
+  through: number,
   flow: LiveFlow = 'queue'
 ): WaitEstimate | undefined => {
-  if (flow === 'field' || !throughput || dogsAhead <= 0) return undefined
+  if (flow === 'field' || !throughput) return undefined
 
-  const groupsAhead = Math.ceil(dogsAhead / Math.max(1, dogsAtOnce))
+  let passed = Math.max(0, through)
+  let groupsAhead = 0
+  for (const group of queue) {
+    const left = Math.max(0, group.dogs - passed)
+    passed = Math.max(0, passed - group.dogs)
+    groupsAhead += Math.ceil(left / Math.max(1, group.dogsAtOnce))
+  }
+  if (groupsAhead === 0) return undefined
 
   return { groupsAhead, maxMs: groupsAhead * throughput.maxMs, minMs: groupsAhead * throughput.minMs }
 }

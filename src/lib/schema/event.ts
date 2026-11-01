@@ -10,7 +10,12 @@ const parts = union([literal(1), literal(2)], 'must be 1 or 2')
 /** A post's own layout; the rest of a post is the Rastit page's to shape. */
 const station = objectOf({ parts: optional(parts), taskCount: optional(count) })
 
-const rotationPost = objectOf({ parts: optional(parts), stationId: str, taskCount: optional(count) })
+const rotationPost = objectOf({
+  dogsAtOnce: optional(count),
+  parts: optional(parts),
+  stationId: str,
+  taskCount: optional(count),
+})
 
 /**
  * A rotation group. Whether its range is whole, what its posts name and whether two groups share a

@@ -102,17 +102,27 @@ export const liveFormat = (eventType?: string): LiveFormat => LIVE_FORMATS.get(e
 /** A whole entry never runs at once; more dogs than this is a malformed request, not a walk-up. */
 export const MAX_DOGS_AT_ONCE = 10
 
+/** The counts a post or a group's visit may take at once. */
+export const DOG_COUNTS: readonly number[] = Array.from({ length: MAX_DOGS_AT_ONCE }, (_unused, index) => index + 1)
+
+/**
+ * Whether the post is asked how many dogs it takes at once. NOME-A runs four whatever anyone types and
+ * NOU one, so offering the field there would be offering a lie.
+ */
+export const asksDogsAtOnce = (eventType?: string): boolean => liveFormat(eventType).dogsAtOnce === undefined
+
 /**
  * How many dogs one turn at this post holds.
  *
  * The format's own number wins where it has one — NOME-A is four whatever anyone configures — and
- * otherwise it is the post's own form, which is where a walk-up is described. One when neither says.
+ * otherwise it is the figure given: the post's own form, or what a rotation group does at the post
+ * (its `StationVisitLayout`, KOE-1665), which is where a walk-up is described. One when neither says.
  */
-export const stationDogsAtOnce = (eventType?: string, station?: Pick<EventStation, 'dogsAtOnce'>): number => {
+export const stationDogsAtOnce = (eventType?: string, given?: Pick<EventStation, 'dogsAtOnce'>): number => {
   const fixed = liveFormat(eventType).dogsAtOnce
   if (fixed) return fixed
 
-  const own = station?.dogsAtOnce ?? 0
+  const own = given?.dogsAtOnce ?? 0
   if (own < 1) return 1
   return Math.min(own, MAX_DOGS_AT_ONCE)
 }

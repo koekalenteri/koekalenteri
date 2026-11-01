@@ -53,7 +53,8 @@ koepaikalla, joten sivu on erillään kokeen tiedoista.
 Jokaiselle koepäivälle lisätään omat rastinsa painikkeella **{t:event.stationAdd}**, ja ne
 numeroidaan päivän sisällä yhdestä alkaen. Rastista kirjataan *{t:event.stationTaskCount}*,
 *{t:event.stationParts}*, *{t:event.stationDogsAtOnce}* ja *{t:event.stationJudges}*, jotka
-valitaan kokeen tuomareista. Tehtävä on aina 20 pistettä, joten rastin enimmäispistemäärä on sen
+valitaan kokeen tuomareista. *{t:event.stationDogsAtOnce}* on rastin oletus sille, montako koiraa
+rastille otetaan kerralla samaan vuoroon. Tehtävä on aina 20 pistettä, joten rastin enimmäispistemäärä on sen
 tehtävien määrä kertaa 20. Osajako 2 jakaa tehtävän kahteen 10 pisteen osaan; ensimmäisen palkinnon
 alaraja, puolet tehtävän pisteistä, koskee silloin osien summaa. Ennen kiertoryhmiä tallennettu
 kahden tehtävän rasti luetaan yhtenä tehtävänä kahdessa osassa, joten sen tulokset säilyvät
@@ -65,14 +66,27 @@ kiertävät. Ilman kiertoryhmiä jokainen luokka kiertää päivän rastit numer
 kullakin rastilla rastin oletusmäärän tehtäviä, kuten ennenkin. Painike
 **{t:event.rotation.add}** lisää kiertoryhmän: ryhmä on luokka tai luokan koenumeroväli
 (*{t:event.rotation.firstNumber}* ja *{t:event.rotation.lastNumber}* jätetään tyhjiksi, kun
-ryhmä on koko luokka). Uusi ryhmä kiertää päivän rastit numerojärjestyksessä. Järjestys muutetaan
+ryhmä on koko luokka). Päivän ensimmäinen ryhmä kiertää päivän rastit numerojärjestyksessä. Seuraava
+ryhmä ehdotetaan edellisen perusteella, koska kiertosuunta on yleensä kaikilla sama: ryhmä aloittaa
+rastilta, jolla edellinen kävi toisena, ja kiertää samassa järjestyksessä. Sarakkeen asetukset
+pysyvät sarakkeessa, joten viimeisen rastin kaksi tehtävää siirtyvät uuden ryhmän omalle viimeiselle
+rastille. Luokaksi tulee ensimmäinen luokka ilman ryhmää; kun kaikilla päivän luokilla on ryhmä,
+luokaksi tulee edellisen ryhmän luokka ja *{t:event.rotation.firstNumber}* on edellisen ryhmän
+viimeinen numero plus yksi. Ehdotusta voi muokata kuten mitä tahansa ryhmää. Järjestys muutetaan
 valitsemalla sarakkeeseen rasti: jos ryhmä käy jo valitulla rastilla toisessa sarakkeessa, rastit
-vaihtavat paikkaa ja kumpikin säilyttää tehtävänsä. Valinta *{t:event.rotation.visitNone}* poistaa
+vaihtavat paikkaa ja kumpikin säilyttää omat asetuksensa. Rasti, jolla ryhmä ei vielä käy, saa
+sarakkeen asetukset. Valinta *{t:event.rotation.visitNone}* poistaa
 rastin kierrosta, kun ryhmällä on muitakin rasteja; koko ryhmä poistetaan sen omalla
 roskakoripainikkeella. **+** lisää kiertoon rastin, jolla ryhmä ei vielä käy. Kullekin rastille voi
-antaa ryhmän tehtävien määrän (1 - 3) ja osajaon; muuten noudatetaan rastin oletusta. Esimerkiksi kolmen
-luokan kokeessa ALO kiertää rastit 1, 2 ja 3 ja tekee rastilla 3 kaksi tehtävää, AVO kiertää 3, 1
-ja 2 ja VOI 2, 3 ja 1, jolloin jokaisen luokan enimmäispistemäärä on 80. Yhden luokan kokeessa
+antaa ryhmän tehtävien määrän (1 - 3), osajaon ja *{t:event.stationDogsAtOnce}*; muuten noudatetaan
+rastin oletusta. Koiramäärä kysytään vain, kun koemuoto ei kiinnitä sitä. Sama rasti voi siten ottaa
+yhden luokan koirat yksitellen ja toisen pareittain: rastin kirjausnäkymä nostaa vuoroon jonon
+kärjessä olevan koiran ryhmän koiramäärän, ja lähtölistan odotusarvio laskee jäljellä olevat vuorot
+ryhmittäin samalla määrällä. Esimerkiksi kolmen luokan kokeessa ALO kiertää rastit 1, 2 ja 3 ja tekee
+rastilla 3 kaksi tehtävää, AVO kiertää 3, 1 ja 2 ja VOI 2, 3 ja 1, jolloin jokaisen luokan
+enimmäispistemäärä on 80. Kun ALO:n viimeiselle rastille on merkitty kaksi tehtävää ennen kahden
+muun ryhmän lisäämistä, ne kiertävät 2, 3, 1 ja 3, 1, 2 kahdella tehtävällä viimeisellä rastillaan,
+ja kartan mukaiseen kiertoon riittää vaihtaa niiden luokat keskenään. Yhden luokan kokeessa
 kierto jaetaan koenumeroilla, esimerkiksi numerot 1 - 8 aloittavat rastilta 1 ja 9 - 16 rastilta 2.
 
 Rastien alla näkyy jokainen rasti sellaisena kuin ryhmät sille saapuvat, esimerkiksi "Rasti 1: ALO,

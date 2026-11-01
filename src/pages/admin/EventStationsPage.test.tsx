@@ -8,7 +8,7 @@ import { cleanup, screen } from '@testing-library/react'
 import { Suspense } from 'react'
 import { useTranslation } from 'react-i18next'
 import { TestProvider as Provider } from 'test-utils/AtomProvider'
-import { eventWithStaticDates, eventWithStaticDatesAndClass } from '../../__mockData__/events'
+import { eventWithStaticDates } from '../../__mockData__/events'
 import { eventWithStations, registrationsToEventWithStations } from '../../__mockData__/resultsEvent'
 import theme from '../../assets/Theme'
 import { locales } from '../../i18n'
@@ -126,17 +126,16 @@ describe('EventStationsPage', () => {
   })
 
   it('will not save two groups of one class that both hold every number (KOE-1665)', async () => {
-    const { i18n } = useTranslation()
-    // One class a day, ALO on both.
-    const { user } = await renderPage(i18n.language as Language, eventWithStaticDatesAndClass.id)
+    // ALO and AVO run the day; a third group goes with the last class, AVO, again without a range.
+    const { user } = await renderSeeded(eventWithStations, registrationsToEventWithStations)
     await flushPromises()
 
-    await user.click(screen.getAllByRole('button', { name: 'event.stationAdd' })[0])
-    await user.click(screen.getAllByRole('button', { name: 'event.rotation.add' })[0])
+    await user.click(screen.getByRole('button', { name: 'event.rotation.add' }))
+    await user.click(screen.getByRole('button', { name: 'event.rotation.add' }))
     expect(screen.queryByText('event.rotation.errorsTitle')).not.toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'save' })).toBeEnabled()
 
-    await user.click(screen.getAllByRole('button', { name: 'event.rotation.add' })[0])
+    await user.click(screen.getByRole('button', { name: 'event.rotation.add' }))
     await flushPromises()
 
     expect(screen.getByText('event.rotation.errorsTitle')).toBeInTheDocument()

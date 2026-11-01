@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react'
+import type { VisitSettings } from '@/lib/rotation'
 import type { EventRotationGroup, EventRotationPost, EventStation, RegistrationClass } from '@/types'
 import AddOutlined from '@mui/icons-material/AddOutlined'
 import DeleteOutline from '@mui/icons-material/DeleteOutlined'
@@ -7,7 +8,8 @@ import MenuItem from '@mui/material/MenuItem'
 import Stack from '@mui/material/Stack'
 import TextField from '@mui/material/TextField'
 import { useTranslation } from 'react-i18next'
-import { POST_PARTS, POST_TASK_COUNTS, stationParts, stationTaskCount } from '@/lib/rotation'
+import { DOG_COUNTS, MAX_DOGS_AT_ONCE } from '@/lib/liveFormat'
+import { POST_PARTS, POST_TASK_COUNTS, rotationVisitOf, visitSettingsOf } from '@/lib/rotation'
 
 interface Props {
   readonly group: EventRotationGroup
@@ -15,6 +17,8 @@ interface Props {
   readonly classes: RegistrationClass[]
   /** The posts of the day, in number order. */
   readonly stations: EventStation[]
+  /** Whether a visit is asked its dogs at once: only where the format leaves it to the post. */
+  readonly asksDogsAtOnce?: boolean
   readonly disabled?: boolean
   readonly onChange: (group: EventRotationGroup) => void
   readonly onRemove: () => void
@@ -37,25 +41,25 @@ const withNumber = (
 }
 
 /**
- * A visit as the group stores it. A value equal to the post's own default is left out, so the visit
- * follows the post when its default changes later.
- */
-const visitOf = (station: EventStation, taskCount: number, parts: 1 | 2): EventRotationPost => ({
-  stationId: station.id,
-  ...(taskCount === stationTaskCount(station) ? {} : { taskCount }),
-  ...(parts === stationParts(station) ? {} : { parts }),
-})
-
-/**
  * A visit's post picked anew. A post the group already visits elsewhere changes places with this one,
- * the two visits moving whole, tasks and parts with their posts, so a round is reordered without losing
- * anything and still visits each post once. A post the group does not visit takes this visit's place
- * and keeps what the group does at this point of its round. "Ei rastia" takes the visit out.
+ * the two visits moving whole, tasks, parts and dogs at once with their posts, so a round is reordered
+ * without losing anything and still visits each post once. A post the group does not visit takes this
+ * visit's place and keeps what the column shows, read off the old post and stored against the new one,
+ * as a suggested group's column does (`nextRotationGroup`). "Ei rastia" takes the visit out.
  */
-const withPost = (posts: readonly EventRotationPost[], index: number, picked?: EventStation): EventRotationPost[] => {
+const withPost = (
+  posts: readonly EventRotationPost[],
+  index: number,
+  stations: readonly EventStation[],
+  picked?: EventStation
+): EventRotationPost[] => {
   if (!picked) return posts.filter((_, at) => at !== index)
   const other = posts.findIndex((post) => post.stationId === picked.id)
-  if (other === -1) return posts.map((post, at) => (at === index ? { ...post, stationId: picked.id } : post))
+  if (other === -1) {
+    const old = stations.find((station) => station.id === posts[index].stationId)
+    const visit = old ? rotationVisitOf(picked, visitSettingsOf(old, posts[index])) : { stationId: picked.id }
+    return posts.map((post, at) => (at === index ? visit : post))
+  }
   return posts.map((post, at) => {
     if (at === index) return posts[other]
     if (at === other) return posts[index]
@@ -87,6 +91,9 @@ const RowSelect = ({ label, value, width, disabled, onChange, children }: Select
   </TextField>
 )
 
+/** What a visit to a post the day no longer has shows: its fields are disabled until a post is picked. */
+const UNKNOWN_POST_SETTINGS: VisitSettings = { dogsAtOnce: 1, parts: 1, taskCount: 1 }
+
 const countItems = (counts: readonly number[]) =>
   counts.map((count) => (
     <MenuItem key={count} value={count}>
@@ -96,9 +103,9 @@ const countItems = (counts: readonly number[]) =>
 
 /**
  * One rotation group: its class, its start numbers where the class is split, and the posts it visits
- * in order, each with the tasks and parts it does there.
+ * in order, each with the tasks, parts and dogs at once it does there.
  */
-export const RotationRow = ({ group, classes, stations, disabled, onChange, onRemove }: Props) => {
+export const RotationRow = ({ group, classes, stations, asksDogsAtOnce, disabled, onChange, onRemove }: Props) => {
   const { t } = useTranslation()
   const unvisited = stations.filter((station) => !group.posts.some((post) => post.stationId === station.id))
   const setPosts = (posts: EventRotationPost[]) => onChange({ ...group, posts })
@@ -143,15 +150,17 @@ export const RotationRow = ({ group, classes, stations, disabled, onChange, onRe
       {numberField('lastNumber')}
       {group.posts.map((post, index) => {
         const station = stations.find((item) => item.id === post.stationId)
-        const taskCount = post.taskCount ?? (station ? stationTaskCount(station) : 1)
-        const parts = post.parts ?? (station ? stationParts(station) : 1)
-        const setVisit = (next: EventRotationPost) =>
-          setPosts(group.posts.map((item, at) => (at === index ? next : item)))
+        const settings = station ? visitSettingsOf(station, post) : UNKNOWN_POST_SETTINGS
+        const setVisit = (change: Partial<VisitSettings>) =>
+          station &&
+          setPosts(
+            group.posts.map((item, at) => (at === index ? rotationVisitOf(station, { ...settings, ...change }) : item))
+          )
 
         return (
           // A post appears in a round once at most, so it names its own place there. The visit's post on
           // top, what the group does there under it, so a round of several posts fits a row.
-          <Stack key={post.stationId} spacing={0.5} sx={{ width: 164 }}>
+          <Stack key={post.stationId} spacing={0.5} sx={{ width: asksDogsAtOnce ? 288 : 164 }}>
             <RowSelect
               disabled={disabled}
               label={t('event.rotation.visit', { number: index + 1 })}
@@ -160,6 +169,7 @@ export const RotationRow = ({ group, classes, stations, disabled, onChange, onRe
                   withPost(
                     group.posts,
                     index,
+                    stations,
                     stations.find((item) => item.id === value)
                   )
                 )
@@ -178,8 +188,8 @@ export const RotationRow = ({ group, classes, stations, disabled, onChange, onRe
               <RowSelect
                 disabled={disabled || !station}
                 label={t('event.stationTaskCount')}
-                onChange={(value) => station && setVisit(visitOf(station, Number(value), parts))}
-                value={taskCount}
+                onChange={(value) => setVisit({ taskCount: Number(value) })}
+                value={settings.taskCount}
                 width={80}
               >
                 {countItems(POST_TASK_COUNTS)}
@@ -189,13 +199,24 @@ export const RotationRow = ({ group, classes, stations, disabled, onChange, onRe
                 label={t('event.stationParts')}
                 onChange={(value) => {
                   const picked = POST_PARTS.find((item) => item === Number(value))
-                  if (station && picked) setVisit(visitOf(station, taskCount, picked))
+                  if (picked) setVisit({ parts: picked })
                 }}
-                value={parts}
+                value={settings.parts}
                 width={80}
               >
                 {countItems(POST_PARTS)}
               </RowSelect>
+              {asksDogsAtOnce && (
+                <RowSelect
+                  disabled={disabled || !station}
+                  label={t('event.stationDogsAtOnce')}
+                  onChange={(value) => setVisit({ dogsAtOnce: Number(value) })}
+                  value={Math.min(settings.dogsAtOnce, MAX_DOGS_AT_ONCE)}
+                  width={120}
+                >
+                  {countItems(DOG_COUNTS)}
+                </RowSelect>
+              )}
             </Stack>
           </Stack>
         )

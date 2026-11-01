@@ -14,7 +14,7 @@ covers:
   - src/pages/admin/eventViewPage/infoPanel/ResultsPublishing.tsx
   - src/pages/admin/components/KcIdLookupButton.tsx
   - src/pages/admin/components/StartDaySelector.tsx
-sourceHash: d9ac7d
+sourceHash: 22c402
 ---
 
 On the trial day the secretary's job is to record what the dogs did and to get the results in
@@ -54,7 +54,8 @@ so the page is separate from the event's details.
 
 Each trial day gets its own posts with **{t:event.stationAdd}**, numbered from one within the day.
 For a post you record *{t:event.stationTaskCount}*, *{t:event.stationParts}*,
-*{t:event.stationDogsAtOnce}* and *{t:event.stationJudges}*, picked from the trial's judges. A task
+*{t:event.stationDogsAtOnce}* and *{t:event.stationJudges}*, picked from the trial's judges.
+*{t:event.stationDogsAtOnce}* is the post's default for how many dogs it takes in one turn. A task
 is always worth 20 points, so a post's maximum is its number of tasks times 20. Parts 2 splits a
 task into two parts of 10; the first-prize floor, half the task's points, then applies to the sum of
 the parts. A post with two tasks saved before rotation groups existed is read as one task in two
@@ -65,14 +66,26 @@ parts, so its results stay as they were. A post that is not needed is removed wi
 Without rotation groups every class goes round the day's posts in number order and does each post's
 default number of tasks, as before. **{t:event.rotation.add}** adds a rotation group: a class, or a
 range of its start numbers (*{t:event.rotation.firstNumber}* and *{t:event.rotation.lastNumber}* are
-left empty when the group is the whole class). A new group goes round the day's posts in number
-order. The order is changed by picking a post in a column: when the group already visits that post in
-another column, the two posts change places and each keeps its tasks. *{t:event.rotation.visitNone}*
+left empty when the group is the whole class). The day's first group goes round the day's posts in
+number order. The next group is suggested from the previous one, since the groups usually all go round
+the same way: it starts at the post the previous group visited second and goes round in the same
+order. A column's settings stay in the column, so two tasks at the last post move to the new group's
+own last post. The class is the first class without a group; once every class of the day has a group,
+it is the previous group's class, and *{t:event.rotation.firstNumber}* is the previous group's last
+number plus one. A suggestion can be edited like any group. The order is changed by picking a post in
+a column: when the group already visits that post in another column, the two posts change places and
+each keeps its own settings. A post the group does not visit yet takes over the column's settings. *{t:event.rotation.visitNone}*
 takes the post out of the round while the group has other posts; the whole group is removed with
 its own bin button. **+** adds a post the group does not visit yet. For each post
-you can give the group's number of tasks (1 - 3) and the parts; otherwise the post's default
-applies. In a three-class trial, for example, ALO goes round posts 1, 2 and 3 and does two tasks at
-post 3, AVO goes round 3, 1 and 2 and VOI 2, 3 and 1, and every class has a maximum of 80. In a
+you can give the group's number of tasks (1 - 3), the parts and *{t:event.stationDogsAtOnce}*;
+otherwise the post's default applies. The number of dogs is asked only when the event type does not
+fix it. So one post can take one class's dogs one at a time and another's in pairs: the post's entry
+view puts as many dogs in a turn as the group of the dog at the head of the queue takes, and the
+start list's wait estimate counts the turns left group by group with the same figures. In a
+three-class trial, for example, ALO goes round posts 1, 2 and 3 and does two tasks at post 3, AVO goes
+round 3, 1 and 2 and VOI 2, 3 and 1, and every class has a maximum of 80. When ALO's last post is
+marked for two tasks before the other two groups are added, they go round 2, 3, 1 and 3, 1, 2 with
+two tasks at their own last post, and swapping their classes gives the map's rotation. In a
 one-class trial the rotation is split by start number, for example numbers 1 - 8 start at post 1 and
 9 - 16 at post 2.
 

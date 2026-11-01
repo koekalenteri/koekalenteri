@@ -1369,6 +1369,10 @@ describe('putEventLambda', () => {
       { rotations: [{ class: 'ALO', posts: [{ stationId: 'post-1', taskCount: 0 }] }] },
       'rotations.0.posts.0.taskCount must be at least 1',
     ],
+    [
+      { rotations: [{ class: 'ALO', posts: [{ dogsAtOnce: 0, stationId: 'post-1' }] }] },
+      'rotations.0.posts.0.dogsAtOnce must be at least 1',
+    ],
   ])('should return 400 for %p before looking the event up', async (body, message) => {
     signIn(mockSecretary)
 
