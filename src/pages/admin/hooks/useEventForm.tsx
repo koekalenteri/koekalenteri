@@ -36,6 +36,15 @@ type RefusalKey =
   | 'event.paymentLocked'
   | 'event.resultsLocked'
 
+/** The 409s the server names, by the error it names them with. */
+const CONFLICT_NOTICES: Partial<Record<string, RefusalKey>> = {
+  kcGuidConflict: 'event.kcGuidConflict',
+  kcGuidLocked: 'event.kcGuidLocked',
+  kcIdConflict: 'event.kcIdConflict',
+  paymentLocked: 'event.paymentLocked',
+  staleData: 'event.staleData',
+}
+
 /**
  * The notice for a refusal the secretary can act on: no right to this event, or a 409 the server
  * named. Anything else is unexpected and gets the general notice, with the error logged.
@@ -44,12 +53,8 @@ const knownRefusal = (error: unknown): RefusalKey | undefined => {
   if (!(error instanceof APIError)) return undefined
   if (error.status === 403) return 'event.saveForbidden'
   if (error.status === 423 && isObject(error.body) && error.body.error === 'resultsLocked') return 'event.resultsLocked'
-  if (error.status === 409 && isObject(error.body)) {
-    if (error.body.error === 'staleData') return 'event.staleData'
-    if (error.body.error === 'kcIdConflict') return 'event.kcIdConflict'
-    if (error.body.error === 'kcGuidConflict') return 'event.kcGuidConflict'
-    if (error.body.error === 'kcGuidLocked') return 'event.kcGuidLocked'
-    if (error.body.error === 'paymentLocked') return 'event.paymentLocked'
+  if (error.status === 409 && isObject(error.body) && typeof error.body.error === 'string') {
+    return CONFLICT_NOTICES[error.body.error]
   }
   return undefined
 }

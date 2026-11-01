@@ -301,7 +301,7 @@ const slotKey = (slot: Pick<RoundTask, 'stationId' | 'index'>): string => `${slo
  * another maximum, and a score kept there would be read with a meaning it was not given.
  */
 const sameSlot = (a: RoundTask | undefined, b: RoundTask | undefined): boolean =>
-  a !== undefined && b !== undefined && a.task === b.task && a.parts === b.parts
+  a !== undefined && a.task === b?.task && a.parts === b?.parts
 
 /**
  * Whether a stored task records anything. The results table stores a slot it shows as unscored

@@ -944,6 +944,12 @@ describe('reconcileRoundTasks (KOE-1666)', () => {
     expect(reconcileRoundTasks(split, twoSplit, scored(0, 1))).toEqual({ dropped: [], kept: scored(0, 1) })
   })
 
+  it('drops a score whose slot is in one round only', () => {
+    const one = stationSlots('post-1', { parts: 1, tasks: 1, tasksBefore: 0 })
+    expect(reconcileRoundTasks(one, whole, scored(1))).toEqual({ dropped: scored(1), kept: [] })
+    expect(reconcileRoundTasks(whole, one, scored(1))).toEqual({ dropped: scored(1), kept: [] })
+  })
+
   it('drops a score the round before did not read either, and has nothing to say of no scores', () => {
     expect(reconcileRoundTasks(split, split, scored(5))).toEqual({ dropped: scored(5), kept: [] })
     expect(reconcileRoundTasks(whole, split, undefined)).toEqual({ dropped: [], kept: [] })
