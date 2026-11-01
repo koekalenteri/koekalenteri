@@ -20,8 +20,8 @@ A component never calls a write in `src/api` itself: it calls an action (`useAdm
 `useAdminRegistrationActions`, `useSaveEventResults`), and the action calls the API and stores what
 came back in the atoms. That is what keeps the screen that wrote showing what it wrote without
 waiting for its own change to come back over the socket, and what keeps the cached and the stored
-state the same thing (KOE-1343). Reads that touch no atom — an audit trail, a token link, a search —
-may call the API directly. An actions hook subscribes to nothing asynchronous and needs no router:
+state the same thing (KOE-1343). A read that touches no atom may call the API
+directly: an audit trail, a token link, a search. An actions hook subscribes to nothing asynchronous and needs no router:
 it reads the selected event, the calendar and the user through `useAtomCallback` when an action
 runs, so any view can hold it without suspending, and navigation after an action is the view's.
 
