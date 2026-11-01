@@ -13,7 +13,7 @@ covers:
   - src/pages/admin/eventViewPage/infoPanel/ResultsPublishing.tsx
   - src/pages/admin/components/KcIdLookupButton.tsx
   - src/pages/admin/components/StartDaySelector.tsx
-sourceHash: 44597d
+sourceHash: f6c83b
 ---
 
 On the trial day the secretary's job is to record what the dogs did and to get the results in
@@ -166,5 +166,3 @@ results stay hidden until that day is published too. A day cannot be published b
 begun.
 
 Publishing concerns the calendar only: it does not send the results to the Kennel Club.
-
-TODO: The post's own entry view and the judge's secretary's live entry link are switched off in the release (`liveViewEnabled`); describe them when they are turned on.

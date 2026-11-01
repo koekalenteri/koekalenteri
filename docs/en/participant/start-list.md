@@ -5,7 +5,7 @@ order: 30
 covers:
   - src/pages/StartListPage.tsx
   - src/pages/startListPage/**
-sourceHash: b87ebb
+sourceHash: 178ba0
 ---
 
 The start list is the trial's public page, where the organizer publishes the participants, the
@@ -59,5 +59,3 @@ show classes with results beside classes that have none yet.
 
 The results are shown only on the calendar's start list. They reach the Kennel Club's breeding
 database independently of the calendar.
-
-TODO: The start list's Live section (who is at the post now, how the queue is moving) is switched off in the release (`liveViewEnabled`); describe it when it is turned on.

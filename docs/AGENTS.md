@@ -64,10 +64,10 @@ link into the Service Desk form, filled in with the page, the version and the la
   what the text says is in it.
 - **Both languages in the same change**, Finnish first, then the English translation with its
   `sourceHash`. Do not leave English for later; the build would not let the change in anyway.
-- **Do not guess.** Where the code does not settle what to write — a flow you cannot follow, a
-  rule you cannot find, a decision the club makes — leave a line starting with `TODO` saying
-  exactly what is unsettled. `npm run check-docs` lists them for the developer; a guessed
-  sentence is not listed anywhere.
+- **Do not guess.** Where the code does not settle what to write (a flow you cannot follow, a
+  rule you cannot find, a decision the club makes), leave the unsettled thing out of the page and
+  say in the pull request description exactly what is unsettled. A `TODO` line is no way out: it
+  renders as a visible paragraph on the public guide, and `npm run check-docs` refuses it.
 - **Do not describe what does not exist.** No feature without a route and a component, no
   button without a key, no picture without a test.
 - **Sentences, not slides.** The old PDFs were slide decks; the guide is prose with short sections,
@@ -87,8 +87,9 @@ frontmatter is only the `date` (and `sourceHash` in the translation); the versio
 - **Group under `## Uutta`, `## Korjattu` and `## Nopeampaa`** (`New`, `Fixed`, `Faster`), in that
   order, and leave out a group that has nothing. Name controls with `{t:key}` like any page.
 - **Draft, then write.** `npm run release-notes -- v<version>` writes both files from the commits
-  with a `TODO` line at the top; the notes are done when the `TODO` is gone and the English
-  `sourceHash` is renewed. A version bump without its notes does not pass `npm run check-docs`.
+  with a `TODO` line at the top, and `npm run check-docs` refuses the draft until that `TODO` is
+  gone; the notes are done when it is and the English `sourceHash` is renewed. A version bump
+  without its notes does not pass `npm run check-docs`.
 
 ## The rules
 
@@ -104,7 +105,7 @@ for §4.4, rather than quoting it.
 | Command | What it does |
 | --- | --- |
 | `npm run build-docs` | writes `src/generated/docs/index.ts` from `docs/`; commit the result |
-| `npm run check-docs` | the bindings, the generated module, links, `TODO`s and coverage; pre-commit and CI run it |
+| `npm run check-docs` | refuses a broken binding, a stale generated module, a dead link or a `TODO` line, and lists what no guide covers; pre-commit and CI run it |
 | `npm run docs-coverage -- --staged` | which pages a staged change concerns; pre-commit prints it as a hint |
 | `npm run docs-update -- --since v1.11.2` | the release brief: pages, commits, issues; `--run` starts the session |
 | `npm run release-notes -- v1.11.3` | drafts `docs/<language>/whats-new/1.11.3.md` in both languages from the commits |
