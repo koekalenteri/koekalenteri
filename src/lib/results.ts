@@ -274,15 +274,8 @@ export const stationSlots = (
  * every post of its day in number order where the day has no rotation of its own. A day without posts
  * has an empty round.
  */
-export const dogRound = (event: RotationEvent, dog: RotationDog): RoundTask[] => {
-  let tasksBefore = 0
-
-  return dogVisits(event, dog).flatMap(({ station, taskCount, parts }) => {
-    const slots = stationSlots(station.id, { parts, tasks: taskCount, tasksBefore })
-    tasksBefore += taskCount
-    return slots
-  })
-}
+export const dogRound = (event: RotationEvent, dog: RotationDog): RoundTask[] =>
+  dogVisits(event, dog).flatMap((visit) => stationSlots(visit.station.id, visit))
 
 /**
  * The columns of a table of dogs whose rounds may differ: every slot any of them has, in the order of
@@ -334,12 +327,7 @@ export const stationDogsInOrder = <T extends SortableRegistration>(
 ): (T & { visit?: StationVisitLayout })[] => {
   if (!scoresAtPosts(event.eventType)) return [...registrations].sort(sortRegistrationsByDateClassTimeAndNumber)
 
-  return stationQueue(event, stationId, registrations).map(
-    ({ registration, visit: { tasks, parts, tasksBefore } }) => ({
-      ...registration,
-      visit: { parts, tasks, tasksBefore },
-    })
-  )
+  return stationQueue(event, stationId, registrations).map(({ registration, visit }) => ({ ...registration, visit }))
 }
 
 /**

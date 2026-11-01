@@ -1,4 +1,4 @@
-import { check, integer, literal, minValue, optional, pipe, union } from 'valibot'
+import { integer, literal, minValue, optional, pipe, union } from 'valibot'
 import { arrayOf, bool, maybe, num, objectOf, oneOf, str } from './common'
 
 const cost = union([num, objectOf({})], 'must be a number or an object')
@@ -13,23 +13,15 @@ const station = objectOf({ parts: optional(parts), taskCount: optional(count) })
 const rotationPost = objectOf({ parts: optional(parts), stationId: str, taskCount: optional(count) })
 
 /**
- * A rotation group. Its range is both numbers or neither, the first not after the last; what the posts
- * name, and whether two groups share a number, is checked against the merged event
- * (`rotationShapeErrors`).
+ * A rotation group. Whether its range is whole, what its posts name and whether two groups share a
+ * number is checked against the merged event (`rotationShapeErrors`).
  */
-const rotationGroup = pipe(
-  objectOf({
-    class: str,
-    firstNumber: optional(count),
-    lastNumber: optional(count),
-    posts: arrayOf(rotationPost),
-  }),
-  check(
-    (group) => (group.firstNumber === undefined) === (group.lastNumber === undefined),
-    'must have both firstNumber and lastNumber or neither'
-  ),
-  check((group) => (group.firstNumber ?? 0) <= (group.lastNumber ?? 0), 'must not have firstNumber after lastNumber')
-)
+const rotationGroup = objectOf({
+  class: str,
+  firstNumber: optional(count),
+  lastNumber: optional(count),
+  posts: arrayOf(rotationPost),
+})
 
 /**
  * The shape of an event body on the wire, read the same partial, non-stripping way as

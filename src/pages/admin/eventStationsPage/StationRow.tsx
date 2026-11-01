@@ -7,7 +7,7 @@ import Typography from '@mui/material/Typography'
 import { useCallback, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { liveFormat, MAX_DOGS_AT_ONCE, stationDogsAtOnce } from '@/lib/liveFormat'
-import { POST_PARTS, POST_TASK_COUNTS, stationParts, stationTaskCount } from '@/lib/rotation'
+import { POST_PARTS, POST_TASK_COUNTS, stationParts } from '@/lib/rotation'
 import AutocompleteMulti from '../../components/AutocompleteMulti'
 import AutocompleteSingle from '../../components/AutocompleteSingle'
 
@@ -71,7 +71,7 @@ export const StationRow = ({ event, station, disabled, onChange, onRemove }: Pro
           label={t('event.stationTaskCount')}
           onChange={handleTaskCountChange}
           options={POST_TASK_COUNTS}
-          value={stationTaskCount(station)}
+          value={station.taskCount ?? 1}
         />
       </Grid>
       <Grid sx={{ width: 120 }}>

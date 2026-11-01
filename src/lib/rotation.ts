@@ -28,9 +28,6 @@ export const POST_PARTS: readonly (1 | 2)[] = [1, 2]
 /** The tasks a group may do at one post. Three is room enough; a fourth would be a post of its own. */
 export const POST_TASK_COUNTS: readonly number[] = [1, 2, 3]
 
-/** How many tasks a group does at a post unless its rotation says otherwise. */
-export const stationTaskCount = (station: Pick<EventStation, 'taskCount'>): number => station.taskCount ?? 1
-
 export type RotationStation = Pick<EventStation, 'id' | 'number' | 'date' | 'parts' | 'tasks' | 'taskCount'>
 
 /** What the rotation reads of an event. */
@@ -49,17 +46,12 @@ export interface RotationDog {
   number?: number
 }
 
-/** One visit of a group to a post, the post's defaults resolved. */
-interface RotationVisit {
+/**
+ * One visit of a group to a post: what the group does there, the post's defaults resolved, and where in
+ * its round the visit falls. The link is sent the `StationVisitLayout` part of it.
+ */
+interface RotationVisit extends StationVisitLayout {
   station: RotationStation
-  /** The tasks the group does here. */
-  taskCount: number
-  /** The parts each of those tasks splits into. */
-  parts: 1 | 2
-}
-
-/** A group's visit to one post, and where in its round it falls. */
-interface StationVisit extends StationVisitLayout {
   /** 0-based position of the post in the group's round: the order the groups arrive in. */
   position: number
 }
@@ -70,7 +62,7 @@ interface StationVisit extends StationVisitLayout {
  */
 type RotationGroup = Omit<EventRotationGroup, 'class'> & { class: string }
 
-interface StationArrival extends StationVisit {
+interface StationArrival extends RotationVisit {
   group: RotationGroup
 }
 
@@ -163,36 +155,33 @@ export const rotationGroupsOfDay = (event: RotationEvent, day: string): Rotation
   })
 }
 
-/** A group's posts in its own order, with the post's defaults filled in. A post the event lacks is skipped. */
-const groupVisits = (event: RotationEvent, group: RotationGroup): RotationVisit[] =>
-  group.posts.flatMap((post) => {
+/**
+ * A group's posts in its own order, with the post's defaults filled in and the tasks it does before each.
+ * A post the event lacks is skipped.
+ */
+const groupVisits = (event: RotationEvent, group: RotationGroup): RotationVisit[] => {
+  const visits: RotationVisit[] = []
+  let tasksBefore = 0
+  for (const post of group.posts) {
     const station = stationById(event, post.stationId)
-    if (!station) return []
-    return [
-      {
-        parts: post.parts ?? stationParts(station),
-        station,
-        taskCount: post.taskCount ?? stationTaskCount(station),
-      },
-    ]
-  })
+    if (!station) continue
+    const tasks = post.taskCount ?? station.taskCount ?? 1
+    visits.push({ parts: post.parts ?? stationParts(station), position: visits.length, station, tasks, tasksBefore })
+    tasksBefore += tasks
+  }
+  return visits
+}
 
 /** A dog's posts on its day, in the order its group visits them. */
 export const dogVisits = (event: RotationEvent, dog: RotationDog): RotationVisit[] =>
   groupVisits(event, rotationGroupOf(event, dog))
 
 /** A group's visit to one post, or undefined when the group does not go there. */
-const groupStationVisit = (event: RotationEvent, group: RotationGroup, stationId: string): StationVisit | undefined => {
-  const visits = groupVisits(event, group)
-  const position = visits.findIndex((visit) => visit.station.id === stationId)
-  if (position === -1) return undefined
-
-  const tasksBefore = visits.slice(0, position).reduce((sum, visit) => sum + visit.taskCount, 0)
-  return { parts: visits[position].parts, position, tasks: visits[position].taskCount, tasksBefore }
-}
+const groupStationVisit = (event: RotationEvent, group: RotationGroup, stationId: string): RotationVisit | undefined =>
+  groupVisits(event, group).find((visit) => visit.station.id === stationId)
 
 /** Arrival order at a post: the post's place in the group's round, then class, then start number. */
-const compareArrivals = (a: StationVisit & { group: RotationGroup }, b: StationVisit & { group: RotationGroup }) =>
+const compareArrivals = (a: StationArrival, b: StationArrival) =>
   a.position - b.position ||
   compareRegistrationClasses(a.group.class, b.group.class) ||
   (a.group.firstNumber ?? 0) - (b.group.firstNumber ?? 0)
@@ -214,34 +203,32 @@ export const stationArrivals = (event: RotationEvent, stationId: string): Statio
     .sort(compareArrivals)
 }
 
-/** A dog in a post's queue, with what its group does there. */
-interface QueuedDog<T> {
-  registration: T
-  visit: StationVisit
-}
-
 /**
- * The dogs that come to a post, in the order their groups reach it and, within a group, in start order.
- * A dog whose group does not visit the post, a dog of another day among them, is not in the queue. The
- * station link and the secretary's view of a post read the same queue.
+ * The dogs that come to a post, in the order their groups reach it and, within a group, in start order,
+ * each with what its group does there. A dog whose group does not visit the post, a dog of another day
+ * among them, is not in the queue. The station link and the secretary's view of a post read the same
+ * queue.
  */
 export const stationQueue = <T extends Registrationish>(
   event: RotationEvent,
   stationId: string,
   registrations: readonly T[]
-): QueuedDog<T>[] =>
+): { registration: T; visit: StationVisitLayout }[] =>
   registrations
     .flatMap((registration) => {
       const group = rotationGroupOf(event, rotationDogOf(registration))
       const visit = groupStationVisit(event, group, stationId)
-      return visit ? [{ group, registration, visit }] : []
+      return visit ? [{ arrival: { ...visit, group }, registration }] : []
     })
     .sort(
       (a, b) =>
-        compareArrivals({ ...a.visit, group: a.group }, { ...b.visit, group: b.group }) ||
+        compareArrivals(a.arrival, b.arrival) ||
         sortRegistrationsByDateClassTimeAndNumber(a.registration, b.registration)
     )
-    .map(({ registration, visit }) => ({ registration, visit }))
+    .map(({ arrival: { parts, tasks, tasksBefore }, registration }) => ({
+      registration,
+      visit: { parts, tasks, tasksBefore },
+    }))
 
 /** Why a stored rotation cannot be read. `group` is the index in `rotations`. */
 type RotationShapeError =
@@ -311,19 +298,6 @@ export const rotationShapeErrors = (event: RotationEvent): RotationShapeError[] 
 
   return errors
 }
-
-/**
- * The groups as a reader reads them: a group that names no post the event has, or whose class does not
- * run on the day of its posts, is dropped. The Rastit page saves these, so a removed post or a class
- * moved to another day leaves nothing behind.
- */
-export const readableRotations = (event: RotationEvent): EventRotationGroup[] =>
-  (event.rotations ?? []).flatMap((group) => {
-    const posts = group.posts.filter((post) => stationById(event, post.stationId))
-    if (posts.length === 0) return []
-    const kept = posts.length === group.posts.length ? group : { ...group, posts }
-    return readsOn(event, kept, rotationGroupDay(event, kept)) ? [kept] : []
-  })
 
 /** A dog the stored ranges of its class leave out: it is scored with the nearest group, but it should not be. */
 interface RotationCoverageError {
@@ -403,9 +377,7 @@ export const formatStationArrivals = (
  */
 const formatRotationRound = (event: RotationEvent, group: RotationGroup, t: TFunction<'translation'>): string => {
   const visits = groupVisits(event, group)
-  const order = visits
-    .map((visit) => `${visit.station.number}${formatVisitExtent({ parts: visit.parts, tasks: visit.taskCount }, t)}`)
-    .join(', ')
+  const order = visits.map((visit) => `${visit.station.number}${formatVisitExtent(visit, t)}`).join(', ')
   return t('event.rotation.startLine', {
     group: formatRotationGroup(group, t),
     order,

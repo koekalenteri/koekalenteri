@@ -399,17 +399,13 @@
       "coverageOutside": "Luokan {{eventClass}} koenumero {{number}} ({{dog}}) ei kuulu mihinkään numeroväliin.",
       "default": "Kiertoryhmiä ei ole: jokainen luokka kiertää päivän rastit numerojärjestyksessä ja tekee kullakin rastin oletusmäärän tehtäviä.",
       "error": {
-        "mixedDays": "Kiertoryhmän {{group}} rastit ovat eri päiviltä.",
         "noPosts": "Kiertoryhmä {{group}} ei käy yhdelläkään rastilla.",
         "overlap": "Kiertoryhmien {{group}} ja {{other}} numerovälit menevät päällekkäin.",
-        "postTwice": "Kiertoryhmä {{group}} käy rastilla {{number}} kahdesti.",
-        "range": "Kiertoryhmän {{group}} numerovälistä puuttuu alku tai loppu, tai alku on lopun jälkeen.",
-        "unknownPost": "Kiertoryhmä {{group}} käy rastilla, jota ei ole."
+        "range": "Kiertoryhmän {{group}} numerovälistä puuttuu alku tai loppu, tai alku on lopun jälkeen."
       },
       "errorsTitle": "Kiertoa ei voi tallentaa:",
       "firstNumber": "Alkaen nro",
       "group": "{{eventClass}} {{first}}–{{last}}",
-      "info": "Kiertoryhmä on luokka tai luokan koenumeroväli. Ryhmä kiertää rastit tässä annetussa järjestyksessä. Rastikohtaisesti voi antaa tehtävien määrän ja osajaon; muuten noudatetaan rastin oletusta.",
       "lastNumber": "Päättyen nro",
       "parts": "{{count}} osaa",
       "postSummary": "Rasti {{number}}: {{groups}}",

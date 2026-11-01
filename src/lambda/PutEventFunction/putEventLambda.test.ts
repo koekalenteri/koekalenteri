@@ -1,4 +1,4 @@
-import type { JsonDogEvent, JsonUser } from '../../types'
+import type { EventRotationGroup, EventStation, JsonDogEvent, JsonUser } from '../../types'
 import { vi } from 'vitest'
 import { legacyDayValue } from '../../test-utils/finnishDays'
 import { constructAPIGwEvent } from '../test-utils/helpers'
@@ -412,6 +412,72 @@ describe('putEventLambda', () => {
         errors: [{ group: 0, kind: 'unknownPost', stationId: 'gone' }],
       })
       expect(patchEventMock).not.toHaveBeenCalled()
+    })
+
+    describe('rotation groups against the merged event (KOE-1665)', () => {
+      const posts: EventStation[] = [
+        { date: '2026-09-12', id: 'post-1', number: 1 },
+        { date: '2026-09-12', id: 'post-2', number: 2 },
+      ]
+      const rotations: EventRotationGroup[] = [
+        { class: 'ALO', posts: [{ stationId: 'post-1' }, { stationId: 'post-2' }] },
+      ]
+      const stored = { ...mockEvent, rotations, stations: posts }
+
+      it('refuses a patch of the posts alone that removes a post a stored group visits', async () => {
+        signIn(mockSecretary)
+        getEventMock.mockResolvedValueOnce(stored)
+
+        const res = await putEventLambda(
+          constructAPIGwEvent({ id: 'existing', stations: [posts[0]] }, { method: 'PATCH' })
+        )
+
+        expect(res.statusCode).toEqual(400)
+        expect(JSON.parse(res.body)).toMatchObject({
+          error: 'invalidRotation',
+          errors: [{ group: 0, kind: 'unknownPost', stationId: 'post-2' }],
+        })
+        expect(patchEventMock).not.toHaveBeenCalled()
+      })
+
+      it('checks a whole event that carries both, a range included', async () => {
+        signIn(mockSecretary)
+        getEventMock.mockResolvedValueOnce(mockEvent)
+
+        const res = await putEventLambda(
+          constructAPIGwEvent({
+            ...mockEvent,
+            rotations: [{ class: 'ALO', firstNumber: 9, lastNumber: 1, posts: [{ stationId: 'post-1' }] }],
+            stations: posts,
+          })
+        )
+
+        expect(res.statusCode).toEqual(400)
+        expect(JSON.parse(res.body)).toMatchObject({ errors: [{ group: 0, kind: 'range' }] })
+      })
+
+      it('leaves a patch that touches neither alone, whatever is stored', async () => {
+        signIn(mockSecretary)
+        getEventMock.mockResolvedValueOnce({ ...stored, stations: [posts[0]] })
+
+        const res = await putEventLambda(
+          constructAPIGwEvent({ id: 'existing', name: 'Uusi nimi' }, { method: 'PATCH' })
+        )
+
+        expect(res.statusCode).toEqual(200)
+      })
+
+      it('accepts a rotation that fits the posts', async () => {
+        signIn(mockSecretary)
+        getEventMock.mockResolvedValueOnce(mockEvent)
+
+        const res = await putEventLambda(
+          constructAPIGwEvent({ id: 'existing', rotations, stations: posts }, { method: 'PATCH' })
+        )
+
+        expect(res.statusCode).toEqual(200)
+        expect(patchEventMock).toHaveBeenCalled()
+      })
     })
 
     it('refuses a secretary a change to a stored event without an organizer', async () => {
@@ -1214,14 +1280,6 @@ describe('putEventLambda', () => {
     [
       { rotations: [{ class: 'ALO', posts: [{ stationId: 'post-1', taskCount: 0 }] }] },
       'rotations.0.posts.0.taskCount must be at least 1',
-    ],
-    [
-      { rotations: [{ class: 'ALO', firstNumber: 1, posts: [] }] },
-      'rotations.0 must have both firstNumber and lastNumber or neither',
-    ],
-    [
-      { rotations: [{ class: 'ALO', firstNumber: 9, lastNumber: 1, posts: [] }] },
-      'rotations.0 must not have firstNumber after lastNumber',
     ],
   ])('should return 400 for %p before looking the event up', async (body, message) => {
     signIn(mockSecretary)

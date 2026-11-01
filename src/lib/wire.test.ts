@@ -11,7 +11,6 @@ import {
   toCollection,
   toDog,
   toDogEvent,
-  toEventClass,
   toEventKcIdChoice,
   toEventStatsItem,
   toPublicRegistration,
@@ -224,18 +223,6 @@ describe('wire', () => {
       expect(record.timestamp).toEqual(new Date('2026-05-01T08:00:00.000Z'))
       expect(record.messageParams).toEqual({ toDate: '2026-05-01', toNumber: 1 })
       expect(record.changes?.[0].next.text).toBe('2026-05-01T21:00:00.000Z')
-    })
-  })
-
-  describe('toEventClass', () => {
-    it('drops the per-class split of the posts that gave way to the rotation groups (KOE-1665)', () => {
-      const legacy = {
-        class: 'ALO' as const,
-        date: '2026-09-12' as const,
-        stations: [{ stationId: 'post-1', tasks: 2 }],
-      }
-
-      expect(toEventClass(legacy)).toEqual({ class: 'ALO', date: '2026-09-12' })
     })
   })
 

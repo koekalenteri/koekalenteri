@@ -5,7 +5,6 @@ import {
   dayStations,
   formatRotationGroup,
   formatStationArrivals,
-  readableRotations,
   rotationCoverageErrors,
   rotationDogOf,
   rotationGroupOf,
@@ -15,7 +14,6 @@ import {
   stationArrivals,
   stationParts,
   stationQueue,
-  stationTaskCount,
 } from './rotation'
 
 const DAY: DayKey = '2026-09-12'
@@ -94,7 +92,7 @@ describe('dogRound with a rotation', () => {
   })
 })
 
-describe('stationParts and stationTaskCount', () => {
+describe('stationParts', () => {
   it.each([
     [{}, 1],
     [{ parts: 2 as const }, 2],
@@ -105,8 +103,9 @@ describe('stationParts and stationTaskCount', () => {
   })
 
   it('does one task at a post unless it says more', () => {
-    expect(stationTaskCount({})).toBe(1)
-    expect(stationTaskCount({ taskCount: 2 })).toBe(2)
+    const twice: EventStation = { ...post(1), taskCount: 2 }
+
+    expect(dogRound({ stations: [twice] }, { class: 'ALO', day: DAY }).map((task) => task.taskNumber)).toEqual([1, 2])
   })
 })
 
@@ -221,6 +220,30 @@ describe('stationQueue', () => {
     ])
   })
 
+  it('takes the lower range first where two groups of a class reach the post at the same turn', () => {
+    const ranged: EventRotationGroup[] = [
+      { class: 'AVO', firstNumber: 9, lastNumber: 16, posts: [{ stationId: 'post-1' }] },
+      { class: 'AVO', firstNumber: 1, lastNumber: 8, posts: [{ stationId: 'post-1', taskCount: 2 }] },
+    ]
+
+    expect(
+      stationQueue({ rotations: ranged, stations }, 'post-1', [dog('high', 'AVO', 10), dog('low', 'AVO', 3)]).map(
+        ({ registration, visit }) => [registration.id, visit.tasks]
+      )
+    ).toEqual([
+      ['low', 2],
+      ['high', 1],
+    ])
+  })
+
+  it("keeps a day's post to that day's dogs where both days have posts", () => {
+    const twoDays = { stations: [post(1), post(1, 1, OTHER_DAY)] }
+    const dogs = [dog('first', 'ALO', 1), dog('second', 'ALO', 2, OTHER_DAY)]
+
+    expect(stationQueue(twoDays, 'post-1', dogs).map(({ registration }) => registration.id)).toEqual(['first'])
+    expect(stationQueue(twoDays, 'post-1-b', dogs).map(({ registration }) => registration.id)).toEqual(['second'])
+  })
+
   it('leaves out a dog whose group does not come to the post', () => {
     expect(stationQueue(event, 'post-1', [dog('other-day', 'ALO', 1, OTHER_DAY)])).toEqual([])
   })
@@ -292,6 +315,18 @@ describe('rotationShapeErrors', () => {
     ).toEqual([{ group: 0, kind: 'range' }])
   })
 
+  it('refuses two groups of one class and day that both hold every number', () => {
+    expect(
+      rotationShapeErrors({
+        rotations: [
+          { class: 'AVO', posts: [{ stationId: 'post-1' }] },
+          { class: 'AVO', posts: [{ stationId: 'post-2' }] },
+        ],
+        stations,
+      })
+    ).toEqual([{ group: 0, kind: 'overlap', other: 1 }])
+  })
+
   it('lets the same numbers repeat in another class or on another day', () => {
     expect(
       rotationShapeErrors({
@@ -333,30 +368,6 @@ describe('rotationCoverageErrors', () => {
 
   it('has nothing to say of a class that is one group', () => {
     expect(rotationCoverageErrors(event, [dog('any')])).toEqual([])
-  })
-})
-
-describe('readableRotations', () => {
-  it('drops a post the event no longer has, and a group left without posts', () => {
-    expect(
-      readableRotations({
-        rotations: [
-          { class: 'ALO', posts: [{ stationId: 'gone' }, { stationId: 'post-2', taskCount: 2 }] },
-          { class: 'AVO', posts: [{ stationId: 'gone' }] },
-        ],
-        stations,
-      })
-    ).toEqual([{ class: 'ALO', posts: [{ stationId: 'post-2', taskCount: 2 }] }])
-  })
-
-  it('drops a group whose class does not run on the day of its posts', () => {
-    const classes = [{ class: 'ALO' as const, date: DAY }]
-
-    expect(readableRotations({ classes, rotations, stations })).toEqual([rotations[0]])
-  })
-
-  it('keeps the groups as they are when nothing is amiss', () => {
-    expect(readableRotations(event)).toEqual(rotations)
   })
 })
 

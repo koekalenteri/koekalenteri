@@ -13,7 +13,7 @@ covers:
   - src/pages/admin/eventViewPage/infoPanel/ResultsPublishing.tsx
   - src/pages/admin/components/KcIdLookupButton.tsx
   - src/pages/admin/components/StartDaySelector.tsx
-sourceHash: c7ab5c
+sourceHash: b6e4a2
 ---
 
 On the trial day the secretary's job is to record what the dogs did and to get the results in
@@ -64,17 +64,22 @@ parts, so its results stay as they were. A post that is not needed is removed wi
 Without rotation groups every class goes round the day's posts in number order and does each post's
 default number of tasks, as before. **{t:event.rotation.add}** adds a rotation group: a class, or a
 range of its start numbers (*{t:event.rotation.firstNumber}* and *{t:event.rotation.lastNumber}* are
-left empty when the group is the whole class). The group gets its posts in the order it visits them,
-each at most once, and per post the number of tasks and the parts; otherwise the post's default
+left empty when the group is the whole class). A new group goes round the day's posts in number
+order. The order is changed by picking a post in a column: when the group already visits that post in
+another column, the two posts change places and each keeps its tasks. *{t:event.rotation.visitNone}*
+takes the post out of the round, and **+** adds a post the group does not visit yet. For each post
+you can give the group's number of tasks (1 - 3) and the parts; otherwise the post's default
 applies. In a three-class trial, for example, ALO goes round posts 1, 2 and 3 and does two tasks at
 post 3, AVO goes round 3, 1 and 2 and VOI 2, 3 and 1, and every class has a maximum of 80. In a
 one-class trial the rotation is split by start number, for example numbers 1 - 8 start at post 1 and
 9 - 16 at post 2.
 
 Below the posts each post reads as the groups reach it, for example "Station 1: ALO, AVO, VOI
-(x 2)". The number ranges of one class must not overlap, and a range cannot stand beside a group of
-the whole class. When a class is split into number ranges and a participant falls outside every
-range or has no start number yet, the page lists the reasons and does not save. If a dog's number
+(x 2)": "(x 2)" says the group does two tasks there, and "(2 parts)" that the task is split in two
+parts. The number ranges of one class must not overlap, and a range cannot stand beside a group of
+the whole class. The page lists the reasons and does not save when a group has no post, or when a
+class is split into number ranges and a participant falls outside every range or has no start
+number yet. If a dog's number
 later moves outside the ranges, the dog goes with the nearest group: past the last range with the
 last group, before the first range with the first, and between ranges with the lower group; a dog
 without a number goes with the first group. A dog's round is always made of the posts of its own

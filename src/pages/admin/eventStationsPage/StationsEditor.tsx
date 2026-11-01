@@ -8,7 +8,7 @@ import { nanoid } from 'nanoid'
 import { memo, useCallback, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { getEventDays } from '@/lib/event'
-import { readableRotations, stationParts } from '@/lib/rotation'
+import { rotationGroupDay, stationParts } from '@/lib/rotation'
 import { RotationEditor } from './RotationEditor'
 import { StationRow } from './StationRow'
 
@@ -49,6 +49,23 @@ const savedStation = ({ tasks, taskCount, ...station }: EventStation): EventStat
   ...(taskCount && taskCount > 1 ? { taskCount } : {}),
 })
 
+/**
+ * The groups as this page saves them. A visit to a removed post goes, and so does a group whose class no
+ * longer runs on the day of its posts. A group left with no visit stays, for the page to say so and to
+ * refuse the save until it has one again.
+ */
+const savedRotations = (event: StationsEditorEvent, rotations: EventRotationGroup[], stations: EventStation[]) =>
+  rotations
+    .map((group) => {
+      const posts = group.posts.filter((post) => stations.some((station) => station.id === post.stationId))
+      return posts.length === group.posts.length ? group : { ...group, posts }
+    })
+    .filter((group) => {
+      const day = rotationGroupDay({ stations }, group)
+      const classes = event.classes.filter((item) => item.date === day)
+      return !day || classes.length === 0 || classes.some((item) => item.class === group.class)
+    })
+
 function StationsEditor({ event, disabled, onChange }: Props) {
   const { t } = useTranslation()
   const stations = useMemo(() => event.stations ?? [], [event.stations])
@@ -65,13 +82,20 @@ function StationsEditor({ event, disabled, onChange }: Props) {
 
   // `stations` is an array, so a patch replaces it outright rather than merging by index — which is
   // what removal needs. The posts and the rotation always go together, so a removed post leaves no
-  // group visiting it and a group left with no post of the event is dropped (KOE-1665).
+  // group visiting it (KOE-1665).
   const setLayout = useCallback(
     (nextStations: EventStation[], nextRotations: EventRotationGroup[] = event.rotations ?? []) => {
       const stations = renumber(nextStations).map(savedStation)
-      onChange?.({ rotations: readableRotations({ ...event, rotations: nextRotations, stations }), stations })
+      onChange?.({ rotations: savedRotations(event, nextRotations, stations), stations })
     },
     [event, onChange]
+  )
+  const homeDay = useCallback(
+    (group: EventRotationGroup) =>
+      rotationGroupDay(event, group) ||
+      event.classes.find((item) => item.class === group.class)?.date ||
+      (days[0] ?? ''),
+    [days, event]
   )
   const setStations = useCallback((next: EventStation[]) => setLayout(next), [setLayout])
   const setRotations = useCallback((next: EventRotationGroup[]) => setLayout(stations, next), [setLayout, stations])
@@ -137,6 +161,7 @@ function StationsEditor({ event, disabled, onChange }: Props) {
             disabled={disabled}
             event={event}
             heading={days.length > 1 ? 'h3' : 'h2'}
+            homeDay={homeDay}
             onChange={setRotations}
           />
         </Box>

@@ -42,7 +42,7 @@ import {
   sortRegistrationsByDateClassTimeAndNumber,
 } from '../../lib/registration'
 import { dogRound, placementsFor, roundColumns, scoresAtPosts, stationVersion } from '../../lib/results'
-import { rotationDogOf } from '../../lib/rotation'
+import { dayStations, rotationDogOf } from '../../lib/rotation'
 import { Path } from '../../routeConfig'
 import { AsyncButton } from '../components/AsyncButton'
 import { emptyEdit } from '../components/stationScoring/types'
@@ -100,7 +100,7 @@ export default function EventResultsPage() {
   const compact = useMediaQuery((theme: Theme) => theme.breakpoints.down('md'))
 
   const scorable = useMemo(() => registrations.filter(isScorableRegistration), [registrations])
-  const [scope, setScope] = useState<string>(WHOLE_ROUND)
+  const [pickedScope, setScope] = useState<string>(WHOLE_ROUND)
   const [edits, setEdits] = useState<Record<string, ResultEdit>>({})
   const [defaultJudges, setDefaultJudges] = useState<Record<string, PublicJudge | undefined>>({})
   const [conflicts, setConflicts] = useState<ResultConflict[]>([])
@@ -135,6 +135,12 @@ export default function EventResultsPage() {
     [dayRegistrations, eventClass]
   )
 
+  // The posts of the day on screen: a dog's round is made of its own day's posts (KOE-1665), so another
+  // day's post is nothing to narrow to or to name as where a trial ended. A post picked on another day
+  // gives way to the whole round.
+  const dayPosts = useMemo(() => (day ? dayStations({ stations }, day) : stations), [day, stations])
+  const scope = dayPosts.some((station) => station.id === pickedScope) ? pickedScope : WHOLE_ROUND
+
   // Ranked over every dog of the event, so a class's other day cannot leak into this one's ranks.
   const placements = useMemo(() => placementsFor(registrations), [registrations])
 
@@ -163,7 +169,12 @@ export default function EventResultsPage() {
     },
     [fullRoundFor, scope, scoped]
   )
-  const round = useMemo(() => roundColumns(rows.map(roundFor)), [roundFor, rows])
+  // A post's own view lists the dogs whose group comes to it, as the post's link does.
+  const tableRows = useMemo(
+    () => (scoped ? rows.filter((registration) => roundFor(registration).length > 0) : rows),
+    [roundFor, rows, scoped]
+  )
+  const round = useMemo(() => roundColumns(tableRows.map(roundFor)), [roundFor, tableRows])
 
   // A post names its own judges; where it names none, the class's judge stands for it.
   const classJudges = useMemo(
@@ -452,7 +463,7 @@ export default function EventResultsPage() {
             {t('results.openLiveEntry')}
           </Button>
         )}
-        {stations.length > 0 && (
+        {dayPosts.length > 0 && (
           <TextField
             label={t('results.scope')}
             onChange={(e) => setScope(e.target.value)}
@@ -462,7 +473,7 @@ export default function EventResultsPage() {
             value={scope}
           >
             <MenuItem value={WHOLE_ROUND}>{t('results.scopeAll')}</MenuItem>
-            {stations.map((station) => (
+            {dayPosts.map((station) => (
               <MenuItem key={station.id} value={station.id}>
                 {t('event.station')} {station.number}
               </MenuItem>
@@ -487,11 +498,11 @@ export default function EventResultsPage() {
           judgesFor={judgesFor}
           kennelliitto={kennelliitto}
           onJudgeChange={(id, judge) => setDefaultJudges((prev) => ({ ...prev, [id]: judge }))}
-          registrations={rows}
+          registrations={tableRows}
           round={round}
           roundFor={roundFor}
           stationId={scoped ? scope : undefined}
-          stations={stations}
+          stations={dayPosts}
         />
       </Box>
 

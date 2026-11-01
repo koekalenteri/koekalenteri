@@ -319,16 +319,7 @@ export const {
   toRegistration: toStoredRegistration,
 } = dogDateConverters(localCalendarDayOf)
 
-const convertEventClass = converter<EventClass, EventClass>()({ date: eventDay })
-
-/**
- * A class as the model holds it. `stations`, a per-class split of the posts no screen ever wrote, gave
- * way to the rotation groups (KOE-1665) and is dropped here, so the next save of the event leaves it out.
- */
-export const toEventClass = (json: EventClass & { stations?: unknown }): EventClass => {
-  const { stations: _legacy, ...eventClass } = json
-  return convertEventClass(eventClass)
-}
+export const toEventClass = converter<EventClass, EventClass>()({ date: eventDay })
 
 const toEventStation = converter<EventStation, EventStation>()({ date: eventDay })
 

@@ -64,16 +64,21 @@ kiertävät. Ilman kiertoryhmiä jokainen luokka kiertää päivän rastit numer
 kullakin rastilla rastin oletusmäärän tehtäviä, kuten ennenkin. Painike
 **{t:event.rotation.add}** lisää kiertoryhmän: ryhmä on luokka tai luokan koenumeroväli
 (*{t:event.rotation.firstNumber}* ja *{t:event.rotation.lastNumber}* jätetään tyhjiksi, kun
-ryhmä on koko luokka). Ryhmälle valitaan rastit kiertojärjestyksessä, kukin enintään kerran, ja
-rastikohtaisesti tehtävien määrä ja osajako; muuten noudatetaan rastin oletusta. Esimerkiksi kolmen
+ryhmä on koko luokka). Uusi ryhmä kiertää päivän rastit numerojärjestyksessä. Järjestys muutetaan
+valitsemalla sarakkeeseen rasti: jos ryhmä käy jo valitulla rastilla toisessa sarakkeessa, rastit
+vaihtavat paikkaa ja kumpikin säilyttää tehtävänsä. Valinta *{t:event.rotation.visitNone}* poistaa
+rastin kierrosta, ja **+** lisää kiertoon rastin, jolla ryhmä ei vielä käy. Kullekin rastille voi
+antaa ryhmän tehtävien määrän (1 - 3) ja osajaon; muuten noudatetaan rastin oletusta. Esimerkiksi kolmen
 luokan kokeessa ALO kiertää rastit 1, 2 ja 3 ja tekee rastilla 3 kaksi tehtävää, AVO kiertää 3, 1
 ja 2 ja VOI 2, 3 ja 1, jolloin jokaisen luokan enimmäispistemäärä on 80. Yhden luokan kokeessa
 kierto jaetaan koenumeroilla, esimerkiksi numerot 1 - 8 aloittavat rastilta 1 ja 9 - 16 rastilta 2.
 
 Rastien alla näkyy jokainen rasti sellaisena kuin ryhmät sille saapuvat, esimerkiksi "Rasti 1: ALO,
-AVO, VOI (x 2)". Saman luokan numerovälit eivät saa mennä päällekkäin, eikä koko luokan ryhmän
-rinnalla voi olla saman luokan numeroväliä. Jos luokka on jaettu numeroväleihin ja jokin osallistuja
-jää kaikkien välien ulkopuolelle tai on vielä ilman koenumeroa, sivu luettelee syyt eikä tallenna.
+AVO, VOI (x 2)": "(x 2)" kertoo, että ryhmä tekee rastilla kaksi tehtävää, ja "(2 osaa)", että
+tehtävä on jaettu kahteen osaan. Saman luokan numerovälit eivät saa mennä päällekkäin, eikä koko
+luokan ryhmän rinnalla voi olla saman luokan numeroväliä. Sivu luettelee syyt eikä tallenna, jos
+ryhmällä ei ole yhtään rastia tai jos luokka on jaettu numeroväleihin ja jokin osallistuja jää
+kaikkien välien ulkopuolelle tai on vielä ilman koenumeroa.
 Jos koiran numero myöhemmin muuttuu välien ulkopuolelle, koira kiertää lähimmän ryhmän mukana:
 viimeisen välin jälkeen viimeisen ryhmän, ensimmäistä väliä ennen ensimmäisen ja välien välissä
 alemman ryhmän; koira ilman numeroa kiertää ensimmäisen ryhmän mukana. Koiran kierros koostuu aina

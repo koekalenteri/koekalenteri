@@ -66,7 +66,11 @@ const renderPage = (language: Language) => {
  * in two, and an entry list with a reserve in it. Everything the table itself does needs a round to do
  * it to, so the seeded atoms stand in for the event and its entries.
  */
-const renderScoringPage = (language: Language, registrations = registrationsToEventWithStations) => {
+const renderScoringPage = (
+  language: Language,
+  registrations = registrationsToEventWithStations,
+  event: ConfirmedEvent = eventWithStations
+) => {
   const routes: RouteObject[] = [{ element: <EventResultsPage />, path: Path.admin.results() }]
 
   return renderSuspendedWithUserEvents(
@@ -75,13 +79,13 @@ const renderScoringPage = (language: Language, registrations = registrationsToEv
         <Provider
           initializeState={({ set }) => {
             set(idTokenAtom, TEST_ID_TOKEN)
-            set(adminEventsAtom, [eventWithStations])
-            set(adminEventRegistrationsAtom(eventWithStations.id), registrations)
+            set(adminEventsAtom, [event])
+            set(adminEventRegistrationsAtom(event.id), registrations)
           }}
         >
           <Suspense fallback={<div>loading...</div>}>
             <AppSnackbarProvider>
-              <DataMemoryRouter initialEntries={[Path.admin.results(eventWithStations.id)]} routes={routes} />
+              <DataMemoryRouter initialEntries={[Path.admin.results(event.id)]} routes={routes} />
             </AppSnackbarProvider>
           </Suspense>
         </Provider>
@@ -533,6 +537,44 @@ describe('EventResultsPage', () => {
 
     expect(screen.getAllByText(/results\.column\.task/)).toHaveLength(2)
     expect(screen.getByRole('link', { name: 'results.openLiveEntry' })).toBeInTheDocument()
+  })
+
+  it("offers only the day's own posts to narrow to (KOE-1665)", async () => {
+    const { i18n } = useTranslation()
+    const nextDay = { date: '2021-02-11' as const, id: 'post-next', number: 1 }
+    const { user } = await renderScoringPage(i18n.language as Language, registrationsToEventWithStations, {
+      ...eventWithStations,
+      stations: [...(eventWithStations.stations ?? []), nextDay],
+    })
+    await flushPromises()
+
+    await user.click(screen.getByLabelText('results.scope'))
+
+    expect(screen.getAllByRole('option').map((option) => option.textContent)).toEqual([
+      'results.scopeAll',
+      'event.station 1',
+      'event.station 2',
+    ])
+  })
+
+  it("lists in a post's own view only the dogs whose group comes to it (KOE-1665)", async () => {
+    const { i18n } = useTranslation()
+    const { user } = await renderScoringPage(i18n.language as Language, registrationsToEventWithStations, {
+      ...eventWithStations,
+      rotations: [
+        { class: 'ALO', firstNumber: 1, lastNumber: 1, posts: [{ stationId: 'post-1' }, { stationId: 'post-2' }] },
+        { class: 'ALO', firstNumber: 2, lastNumber: 9, posts: [{ stationId: 'post-1' }] },
+      ],
+    })
+    await flushPromises()
+    expect(screen.getByText('Toinen')).toBeInTheDocument()
+
+    await user.click(screen.getByLabelText('results.scope'))
+    await user.click(screen.getByRole('option', { name: 'event.station 2' }))
+    await flushPromises()
+
+    expect(screen.getByText('Ensimmainen')).toBeInTheDocument()
+    expect(screen.queryByText('Toinen')).not.toBeInTheDocument()
   })
 
   it("shows each awarded dog's rank in the whole round, and none in a post's own view", async () => {

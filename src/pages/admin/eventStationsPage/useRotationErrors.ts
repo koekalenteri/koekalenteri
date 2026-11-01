@@ -17,18 +17,14 @@ const rotationErrorMessages = (
 ): string[] => {
   const rotations = event.rotations ?? []
   const groupName = (index: number) => (rotations[index] ? formatRotationGroup(rotations[index], t) : '')
-  const postNumber = (stationId: string) => event.stations?.find((station) => station.id === stationId)?.number
 
-  const shape = rotationShapeErrors(event).map((error) => {
+  // The editor offers only the day's posts and keeps each once in a round, so of the shape errors it can
+  // produce only these three; the server refuses the others (unknown post, a post twice, mixed days).
+  const shape = rotationShapeErrors(event).flatMap((error) => {
     const group = groupName(error.group)
-    switch (error.kind) {
-      case 'overlap':
-        return t('event.rotation.error.overlap', { group, other: groupName(error.other) })
-      case 'postTwice':
-        return t('event.rotation.error.postTwice', { group, number: postNumber(error.stationId) })
-      default:
-        return t(`event.rotation.error.${error.kind}`, { group })
-    }
+    if (error.kind === 'overlap') return [t('event.rotation.error.overlap', { group, other: groupName(error.other) })]
+    if (error.kind === 'noPosts' || error.kind === 'range') return [t(`event.rotation.error.${error.kind}`, { group })]
+    return []
   })
 
   // A number range that leaves a dog of its class out is caught here, where the dogs are known: the

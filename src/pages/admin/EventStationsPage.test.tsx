@@ -1,5 +1,6 @@
 import type { RouteObject } from 'react-router'
 import type { Language } from '../../i18n'
+import type { ConfirmedEvent, Registration } from '../../types'
 import { ThemeProvider } from '@mui/material'
 import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
@@ -8,6 +9,7 @@ import { Suspense } from 'react'
 import { useTranslation } from 'react-i18next'
 import { TestProvider as Provider } from 'test-utils/AtomProvider'
 import { eventWithStaticDates, eventWithStaticDatesAndClass } from '../../__mockData__/events'
+import { eventWithStations, registrationsToEventWithStations } from '../../__mockData__/resultsEvent'
 import theme from '../../assets/Theme'
 import { locales } from '../../i18n'
 import { Path } from '../../routeConfig'
@@ -15,6 +17,7 @@ import { DataMemoryRouter, flushPromises, renderSuspendedWithUserEvents, TEST_ID
 import AppSnackbarProvider from '../components/AppSnackbarProvider'
 import { idTokenAtom } from '../state'
 import EventStationsPage from './EventStationsPage'
+import { adminEventRegistrationsAtom, adminEventsAtom } from './state'
 
 vi.mock('../../api/user')
 vi.mock('../../api/event')
@@ -47,6 +50,33 @@ const renderPage = (language: Language, eventId = eventWithStaticDates.id) => {
     { advanceTimers: vi.advanceTimersByTime }
   )
 }
+
+/** The page over an event and dogs of its own, seeded rather than read from the mocked API. */
+const renderSeeded = (event: ConfirmedEvent, registrations: Registration[]) =>
+  renderSuspendedWithUserEvents(
+    <ThemeProvider theme={theme}>
+      <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales.fi}>
+        <Provider
+          initializeState={({ set }) => {
+            set(idTokenAtom, TEST_ID_TOKEN)
+            set(adminEventsAtom, [event])
+            set(adminEventRegistrationsAtom(event.id), registrations)
+          }}
+        >
+          <Suspense fallback={<div>loading...</div>}>
+            <AppSnackbarProvider>
+              <DataMemoryRouter
+                initialEntries={[Path.admin.stations(event.id)]}
+                routes={[{ element: <EventStationsPage />, path: Path.admin.stations() }]}
+              />
+            </AppSnackbarProvider>
+          </Suspense>
+        </Provider>
+      </LocalizationProvider>
+    </ThemeProvider>,
+    undefined,
+    { advanceTimers: vi.advanceTimersByTime }
+  )
 
 describe('EventStationsPage', () => {
   beforeAll(() => vi.useFakeTimers())
@@ -110,5 +140,50 @@ describe('EventStationsPage', () => {
     expect(screen.getByText('event.rotation.errorsTitle')).toBeInTheDocument()
     expect(screen.getByText(/^event\.rotation\.error\.overlap/)).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'save' })).toBeDisabled()
+  })
+
+  describe('a class split into number ranges (KOE-1665)', () => {
+    // ALO runs dogs 1 and 2; the range 1 - 1 leaves dog 2 out.
+    const split: ConfirmedEvent = {
+      ...eventWithStations,
+      rotations: [{ class: 'ALO', firstNumber: 1, lastNumber: 1, posts: [{ stationId: 'post-1' }] }],
+    }
+    const [first, second, reserve] = registrationsToEventWithStations
+
+    const editSomething = async (user: Awaited<ReturnType<typeof renderSeeded>>['user']) => {
+      await user.click(screen.getAllByRole('button', { name: 'event.stationAdd' })[0])
+      await flushPromises()
+    }
+
+    it('names a dog outside every range, and does not save', async () => {
+      const { user } = await renderSeeded(split, registrationsToEventWithStations)
+      await flushPromises()
+      await editSomething(user)
+
+      expect(screen.getByText(/^event\.rotation\.coverageOutside/)).toBeInTheDocument()
+      expect(screen.getByRole('button', { name: 'save' })).toBeDisabled()
+    })
+
+    it('names a dog that has no number yet, and does not save', async () => {
+      // The type gives every placed dog a number; a row stored without one is what the message is for,
+      // so the fixture says it the only way the type lets it.
+      const unnumbered = { ...second, group: { date: eventWithStations.startDate, key: 'ALO-AP' } } as Registration
+      const { user } = await renderSeeded(split, [first, unnumbered])
+      await flushPromises()
+      await editSomething(user)
+
+      expect(screen.getByText(/^event\.rotation\.coverageNoNumber/)).toBeInTheDocument()
+      expect(screen.getByRole('button', { name: 'save' })).toBeDisabled()
+    })
+
+    it('does not count a withdrawn dog or a reserve', async () => {
+      const withdrawn = { ...second, cancelled: true }
+      const { user } = await renderSeeded(split, [first, withdrawn, reserve])
+      await flushPromises()
+      await editSomething(user)
+
+      expect(screen.queryByText('event.rotation.errorsTitle')).not.toBeInTheDocument()
+      expect(screen.getByRole('button', { name: 'save' })).toBeEnabled()
+    })
   })
 })
