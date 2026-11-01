@@ -19,6 +19,7 @@ import {
   formatShownResult,
   formatTaskName,
   hasJudgeStop,
+  isRecordedTask,
   isResultTasksDroppedBody,
   kcFormatOfEventType,
   mergeStationTasks,
@@ -946,6 +947,19 @@ describe('reconcileRoundTasks (KOE-1666)', () => {
   it('drops a score the round before did not read either, and has nothing to say of no scores', () => {
     expect(reconcileRoundTasks(split, split, scored(5))).toEqual({ dropped: scored(5), kept: [] })
     expect(reconcileRoundTasks(whole, split, undefined)).toEqual({ dropped: [], kept: [] })
+  })
+})
+
+describe('isRecordedTask (KOE-1666)', () => {
+  it.each([
+    ['a score', { points: 12 }, true],
+    ['a zero', { points: 0 }, true],
+    ['an empty field', { points: null }, false],
+    ['a zero reason without points', { points: null, zeroFault: 'unknown' as const }, true],
+    ['a recall without points', { points: null, recalled: true }, true],
+    ['a retirement without points', { points: null, retired: true }, true],
+  ])('reads %s as recorded: %s', (_name, task, recorded) => {
+    expect(isRecordedTask(task)).toEqual(recorded)
   })
 })
 

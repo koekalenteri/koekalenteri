@@ -123,7 +123,9 @@ describe('EventEditPage', () => {
 
     expect(putEvent).toHaveBeenCalledWith(
       expect.objectContaining({ name: 'Syyskoe', names: { en: 'Autumn trial' } }),
-      expect.anything()
+      expect.anything(),
+      undefined,
+      undefined
     )
   })
 
@@ -137,6 +139,11 @@ describe('EventEditPage', () => {
     await user.click(screen.getByRole('button', { name: 'save' }))
     await flushPromises()
 
-    expect(putEvent).toHaveBeenCalledWith(expect.objectContaining({ name: 'Syyskoe' }), expect.anything())
+    expect(putEvent).toHaveBeenCalledWith(
+      expect.objectContaining({ name: 'Syyskoe' }),
+      expect.anything(),
+      undefined,
+      undefined
+    )
   })
 })

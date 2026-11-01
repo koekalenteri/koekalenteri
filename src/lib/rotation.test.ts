@@ -439,6 +439,18 @@ describe('roundInputsOf (KOE-1666)', () => {
     expect(roundInputsOf({ ...event, stations: [busy] })).toEqual(roundInputsOf(event))
   })
 
+  it('reads a rotation group whose posts come in another order as a change', () => {
+    const group = (posts: string[]): EventRotationGroup => ({
+      class: 'ALO',
+      posts: posts.map((stationId) => ({ stationId })),
+    })
+    const ordered = { ...event, rotations: [group(['post-1', 'post-2'])], stations: [post(1), post(2)] }
+    const reordered = { ...ordered, rotations: [group(['post-2', 'post-1'])] }
+
+    expect(roundInputsOf(reordered)).not.toEqual(roundInputsOf(ordered))
+    expect(roundInputsOf(ordered).rotations).toEqual(ordered.rotations)
+  })
+
   it('reads an event without posts or classes as empty', () => {
     expect(roundInputsOf({})).toEqual({ classes: [], rotations: [], stations: [] })
   })

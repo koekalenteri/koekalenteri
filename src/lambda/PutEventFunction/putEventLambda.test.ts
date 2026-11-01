@@ -62,7 +62,6 @@ const storeEventResult = (id: string, eventResult: JsonEventResult) => {
   const registration = storedRegistrations.get(id)
   if (registration) storedRegistrations.set(id, { ...registration, eventResult })
 }
-const mockReadRegistration = vi.fn(async (_eventId: string, id: string) => storedRegistrations.get(id))
 /** Writes over the result it was recomputed from only, as the repository's condition does. */
 const mockWriteRecomputedEventResult = vi.fn(
   async (_eventId: string, id: string, eventResult: JsonEventResult, previousUpdatedAt: string) => {
@@ -73,7 +72,6 @@ const mockWriteRecomputedEventResult = vi.fn(
 )
 vi.doMock('../lib/repositories/registrationRepository', () => ({
   readEventRegistrations: mockReadEventRegistrations,
-  readRegistration: mockReadRegistration,
   updateRegistrationField: vi.fn(async (_eventId: string, id: string, field: string, value: JsonEventResult) => {
     if (field === 'eventResult') storeEventResult(id, value)
   }),
@@ -2212,74 +2210,123 @@ describe('putEventLambda', () => {
       expect(mockReadEventRegistrations).not.toHaveBeenCalled()
     })
 
-    it('recomputes once more a dog a post saved meanwhile', async () => {
-      await record(nowtEvent, { 'dog-a': scores([10, 20], 10) })
+    it('stops before the event is saved when a post saved the dog meanwhile', async () => {
+      await record(nowtEvent, { 'dog-a': scores([10, 20], 10), 'dog-b': scores([12, 12], 12) })
       const asked = JSON.parse((await patchStations(onePost1Task)).body)
-      // The post rescores the second post between the read and the write; the drop it was asked about stays.
-      mockWriteRecomputedEventResult.mockImplementationOnce(async (_eventId, id) => {
-        const registration = storedRegistrations.get(id)
-        const tasks = registration?.eventResult?.tasks?.map((task) =>
-          task.stationId === 'post-2' ? { ...task, points: 20, updatedAt: '2025-03-22T10:50:00.000Z' } : task
-        )
-        if (registration?.eventResult) storeEventResult(id, { ...registration.eventResult, tasks, updatedAt: 'later' })
-        return false
-      })
-
-      const res = await patchStations(onePost1Task, { confirmDrops: asked.confirmation })
-
-      expect(res.statusCode).toEqual(200)
-      expect(eventResultOf('dog-a')).toMatchObject({ maxPoints: 40, points: 30, result: 'ALO2' })
-    })
-
-    it('writes nothing for a dog that has nothing left to recompute when read again', async () => {
-      await record(nowtEvent, { 'dog-a': scores([10, 20], 10) })
-      const asked = JSON.parse((await patchStations(onePost1Task)).body)
-      // The entry is cancelled between the read and the write: a cancelled dog has no round to score.
-      mockWriteRecomputedEventResult.mockImplementationOnce(async (_eventId, id) => {
-        const registration = storedRegistrations.get(id)
-        if (registration) storedRegistrations.set(id, { ...registration, cancelled: true })
-        return false
-      })
-
-      const res = await patchStations(onePost1Task, { confirmDrops: asked.confirmation })
-
-      expect(res.statusCode).toEqual(200)
-      expect(eventResultOf('dog-a')?.result).toEqual('ALO2')
-      expect(mockPublishRegistrationPatches).not.toHaveBeenCalled()
-    })
-
-    it('stops before the event is saved when the dog is written over again', async () => {
-      await record(nowtEvent, { 'dog-a': scores([10, 20], 10) })
-      const asked = JSON.parse((await patchStations(onePost1Task)).body)
-      mockWriteRecomputedEventResult.mockResolvedValueOnce(false).mockResolvedValueOnce(false)
+      mockWriteRecomputedEventResult.mockResolvedValueOnce(false)
 
       const res = await patchStations(onePost1Task, { confirmDrops: asked.confirmation })
 
       expect(res.statusCode).toEqual(409)
       expect(JSON.parse(res.body)).toMatchObject({ error: 'staleData' })
+      expect(mockWriteRecomputedEventResult).toHaveBeenCalledTimes(1)
       expect(patchEventMock).not.toHaveBeenCalled()
     })
 
-    it('asks again when the dog read again drops a score the secretary was not asked about', async () => {
-      await record(nowtEvent, { 'dog-a': scores([10, 20], 10) })
-      const asked = JSON.parse((await patchStations(onePost1Task)).body)
-      // The post corrects the very task the change drops: that score is not the one confirmed.
-      mockWriteRecomputedEventResult.mockImplementationOnce(async (_eventId, id) => {
-        const registration = storedRegistrations.get(id)
-        const tasks = registration?.eventResult?.tasks?.map((task) =>
-          task.index === 1 ? { ...task, points: 5, updatedAt: '2025-03-22T10:50:00.000Z' } : task
-        )
-        if (registration?.eventResult) storeEventResult(id, { ...registration.eventResult, tasks, updatedAt: 'later' })
-        return false
+    it('recomputes without asking where the task dropped is an empty field', async () => {
+      await record(nowtEvent, {
+        'dog-a': [
+          { index: 0, judge, points: 10, stationId: 'post-1' },
+          { index: 1, judge, points: null, stationId: 'post-1' },
+          { index: 0, judge, points: 10, stationId: 'post-2' },
+        ],
       })
 
-      const res = await patchStations(onePost1Task, { confirmDrops: asked.confirmation })
+      const res = await patchStations(onePost1Task)
+
+      expect(res.statusCode).toEqual(200)
+      expect(eventResultOf('dog-a')).toMatchObject({ maxPoints: 40, points: 20, result: 'ALO3' })
+      expect(eventResultOf('dog-a')?.tasks).toHaveLength(2)
+      expect(auditMock).toHaveBeenCalledWith(expect.objectContaining({ messageKey: 'audit.messages.resultRecomputed' }))
+    })
+
+    it('asks about a dropped task without points that records a retirement', async () => {
+      await record(nowtEvent, {
+        'dog-a': [
+          { index: 0, judge, points: 10, stationId: 'post-1' },
+          { index: 1, judge, points: null, retired: true, stationId: 'post-1' },
+        ],
+      })
+
+      const res = await patchStations(onePost1Task)
 
       expect(res.statusCode).toEqual(409)
-      const body = JSON.parse(res.body)
-      expect(body).toMatchObject({ dogs: [{ id: 'dog-a', tasks: 1 }], error: 'resultTasksDropped' })
-      expect(body.confirmation).not.toEqual(asked.confirmation)
-      expect(patchEventMock).not.toHaveBeenCalled()
+      expect(JSON.parse(res.body)).toMatchObject({ dogs: [{ id: 'dog-a', tasks: 1 }] })
+    })
+
+    describe('a rotation group', () => {
+      // Each post one task, but the class does two at the second post.
+      const group = (secondPostTasks?: number): EventRotationGroup => ({
+        class: 'ALO',
+        posts: [
+          { stationId: 'post-1' },
+          { stationId: 'post-2', ...(secondPostTasks ? { taskCount: secondPostTasks } : {}) },
+        ],
+      })
+      const rotated = { ...nowtEvent, rotations: [group(2)], stations: onePost1Task }
+      const recorded = [
+        { index: 0, judge, points: 10, stationId: 'post-1' },
+        { index: 0, judge, points: 20, stationId: 'post-2' },
+        { index: 1, judge, points: 10, stationId: 'post-2' },
+      ]
+      const patchRotations = (rotations: EventRotationGroup[], query?: Record<string, string>) => {
+        signIn(mockSecretary)
+        const request = constructAPIGwEvent({ id: 'existing', rotations }, { method: 'PATCH' })
+        return putEventLambda(query ? { ...request, queryStringParameters: query } : request)
+      }
+
+      it('recomputes the dogs when the group no longer does two tasks at a post', async () => {
+        await record(rotated, { 'dog-a': recorded })
+        expect(eventResultOf('dog-a')).toMatchObject({ maxPoints: 60, points: 40 })
+
+        const asked = await patchRotations([group()])
+        expect(asked.statusCode).toEqual(409)
+        expect(JSON.parse(asked.body)).toMatchObject({ dogs: [{ id: 'dog-a', tasks: 1 }] })
+
+        const res = await patchRotations([group()], { confirmDrops: JSON.parse(asked.body).confirmation })
+
+        expect(res.statusCode).toEqual(200)
+        expect(eventResultOf('dog-a')).toMatchObject({ maxPoints: 40, points: 30, result: 'ALO2' })
+      })
+
+      it('leaves the results alone when only the order of the posts changes', async () => {
+        await record(rotated, { 'dog-a': recorded })
+        const reordered: EventRotationGroup = { ...group(2), posts: [...group(2).posts].reverse() }
+
+        const res = await patchRotations([reordered])
+
+        expect(res.statusCode).toEqual(200)
+        expect(mockWriteRecomputedEventResult).not.toHaveBeenCalled()
+      })
+
+      it('recomputes the dogs of a class moved to another day, whose group is then no longer read', async () => {
+        const twoClasses: JsonConfirmedEvent = {
+          ...rotated,
+          classes: [
+            { class: 'ALO', date: day },
+            { class: 'AVO', date: day },
+          ],
+        }
+        await record(twoClasses, { 'dog-a': recorded })
+        signIn(mockSecretary)
+
+        const res = await putEventLambda(
+          constructAPIGwEvent(
+            {
+              classes: [
+                { class: 'ALO', date: '2025-06-02' },
+                { class: 'AVO', date: day },
+              ],
+              id: 'existing',
+            },
+            { method: 'PATCH' }
+          )
+        )
+
+        // The class goes round the day's posts in number order again, one task at each: a score goes.
+        expect(res.statusCode).toEqual(409)
+        expect(JSON.parse(res.body)).toMatchObject({ dogs: [{ id: 'dog-a', tasks: 1 }], error: 'resultTasksDropped' })
+      })
     })
   })
 })

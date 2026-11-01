@@ -19,6 +19,7 @@ import {
   availableResultCodes,
   dogRound,
   eliminatingFaults,
+  isRecordedTask,
   mergeStationTasks,
   nowtZeroFaults,
   reconcileRoundTasks,
@@ -39,7 +40,6 @@ import { parseJSONWithFallback } from './json'
 import { httpError, LambdaError } from './lambda'
 import {
   readEventRegistrations,
-  readRegistration,
   updateRegistrationField,
   writeRecomputedEventResult,
 } from './repositories/registrationRepository'
@@ -566,7 +566,8 @@ export const processResultSubmissions = async (
 
 /**
  * A dog whose stored result a change of the event's posts, rotation or classes changes (KOE-1666): the
- * result as recomputed, and the recorded scores the change drops.
+ * result as recomputed, and the recorded scores the change drops. An empty field the change leaves out is
+ * gone from the result too, but is no score to ask about (`isRecordedTask`).
  */
 interface RecomputedResult {
   registration: JsonRegistration & { eventResult: JsonEventResult }
@@ -621,7 +622,11 @@ const recomputeFor = (registration: JsonRegistration, context: RecomputeContext)
   )
   if (sameEventResult(stored, eventResult)) return undefined
 
-  return { dropped, eventResult, registration: { ...registration, eventResult: stored } }
+  return {
+    dropped: dropped.filter(isRecordedTask),
+    eventResult,
+    registration: { ...registration, eventResult: stored },
+  }
 }
 
 const planRecompute = (registrations: readonly JsonRegistration[], context: RecomputeContext): RecomputedResult[] =>
@@ -672,34 +677,21 @@ const LAYOUT_CHANGED_MESSAGE = 'The results changed while the stations were save
 
 /**
  * Writes one dog's recomputed result over the result it was recomputed from. A dog a post saved in the
- * meantime is read again and recomputed once; if it is written over again, or the new reading drops a
- * score the secretary was not asked about, the save stops before the event is stored, so saving again
- * starts over from the event as it was.
+ * meantime stops the save before the event is stored: saving again recomputes the dogs still different,
+ * against what is stored then, and asks again about any score that would go.
  */
 const writeRecomputed = async (
   eventId: string,
-  entry: RecomputedResult,
-  confirmed: ReadonlySet<string>,
+  { dropped, eventResult, registration }: RecomputedResult,
   context: RecomputeContext
-): Promise<Patch<JsonRegistration> | undefined> => {
+): Promise<Patch<JsonRegistration>> => {
   if (await isEventLocked(eventId)) throw httpError(423, { error: 'resultsLocked' })
 
-  let written: RecomputedResult | undefined = entry
-  const { id } = entry.registration
-  if (!(await writeRecomputedEventResult(eventId, id, entry.eventResult, entry.registration.eventResult.updatedAt))) {
-    const fresh = await readRegistration(eventId, id, true)
-    written = fresh && recomputeFor(fresh, context)
-    if (!written) return undefined
-    if (dropKeys([written]).some((key) => !confirmed.has(key))) {
-      throw httpError(409, droppedTasksBody(planRecompute(await readEventRegistrations(eventId, true), context)))
-    }
-    const { eventResult, registration } = written
-    if (!(await writeRecomputedEventResult(eventId, id, eventResult, registration.eventResult.updatedAt))) {
-      throw httpError(409, { error: 'staleData', message: LAYOUT_CHANGED_MESSAGE })
-    }
+  const { id } = registration
+  if (!(await writeRecomputedEventResult(eventId, id, eventResult, registration.eventResult.updatedAt))) {
+    throw httpError(409, { error: 'staleData', message: LAYOUT_CHANGED_MESSAGE })
   }
 
-  const { dropped, eventResult, registration } = written
   await audit({
     auditKey: registrationAuditKey({ eventId, id }),
     ...resultRecomputedAudit(
@@ -749,7 +741,5 @@ export const recomputeEventResults = async ({
   const keys = dropKeys(plan)
   if (keys.length && confirmDrops !== dropConfirmation(keys)) throw httpError(409, droppedTasksBody(plan))
 
-  const confirmed = new Set(keys)
-  const patches = await mapWithConcurrency(plan, 1, (entry) => writeRecomputed(data.id, entry, confirmed, context))
-  return patches.filter((patch): patch is Patch<JsonRegistration> => patch !== undefined)
+  return mapWithConcurrency(plan, 1, (entry) => writeRecomputed(data.id, entry, context))
 }

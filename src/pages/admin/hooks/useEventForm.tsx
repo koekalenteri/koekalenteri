@@ -54,6 +54,16 @@ const knownRefusal = (error: unknown): RefusalKey | undefined => {
   return undefined
 }
 
+/**
+ * What the secretary is told of a refused save. A refusal the server did not name is unexpected, so it is
+ * logged as well as reported.
+ */
+const refusalNotice = (error: unknown): RefusalKey | 'event.saveFailed' => {
+  const known = knownRefusal(error)
+  if (!known) console.error(error)
+  return known ?? 'event.saveFailed'
+}
+
 /** The question a save answered with when the change would drop recorded scores (KOE-1666). */
 const droppedTasksOf = (error: unknown): ResultTasksDroppedBody | undefined =>
   error instanceof APIError && error.status === 409 && isResultTasksDroppedBody(error.body) ? error.body : undefined
@@ -103,7 +113,7 @@ export default function useEventForm(options: EventFormOptions = {}) {
 
       try {
         const saved = await saveEvent({
-          ...(confirmDrops ? { confirmDrops } : {}),
+          confirmDrops,
           event,
           formChanges: storedEvent ? { ...changes, modifiedAt: initialEvent.current.modifiedAt } : undefined,
         })
@@ -127,9 +137,7 @@ export default function useEventForm(options: EventFormOptions = {}) {
         }
         // A refused save must not pass in silence: the form stays as it was, and the secretary would
         // take the quiet for a success (KOE-1482).
-        const known = knownRefusal(error)
-        if (!known) console.error(error)
-        enqueueSnackbar(t(known ?? 'event.saveFailed'), errorSnackbarOptions)
+        enqueueSnackbar(t(refusalNotice(error)), errorSnackbarOptions)
       }
     },
     [

@@ -97,9 +97,7 @@ export const adminSaveEventAtom = atom(
   ) => {
     const currentAdminEvent = await get(adminCurrentEventAtom)
     const patch = buildEventSavePatch(event, currentAdminEvent, formChanges)
-    const token = get(validIdTokenAtom)
-    // Only a save answering the question about dropped scores carries the confirmation (KOE-1666).
-    const saved = confirmDrops ? await putEvent(patch, token, undefined, confirmDrops) : await putEvent(patch, token)
+    const saved = await putEvent(patch, get(validIdTokenAtom), undefined, confirmDrops)
 
     set(adminEventIdAtom, saved.id)
     await set(adminCurrentEventAtom, saved)

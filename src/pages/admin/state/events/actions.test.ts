@@ -258,7 +258,7 @@ describe('adminSaveEventAtom (KOE-1666)', () => {
   })
   afterEach(() => localStorage.clear())
 
-  it('sends the confirmation of the dropped scores with the save that answers the question, and only then', async () => {
+  it('sends the confirmation of the dropped scores with the save that answers the question, and none otherwise', async () => {
     const store = createStore()
     store.set(adminEventAtom(eventWithStaticDates.id), eventWithStaticDates)
     store.set(adminEventIdAtom, eventWithStaticDates.id)
@@ -274,7 +274,13 @@ describe('adminSaveEventAtom (KOE-1666)', () => {
       undefined,
       'drops-1'
     )
-    expect(putEvent).toHaveBeenNthCalledWith(2, expect.objectContaining({ id: event.id }), TEST_ID_TOKEN)
+    expect(putEvent).toHaveBeenNthCalledWith(
+      2,
+      expect.objectContaining({ id: event.id }),
+      TEST_ID_TOKEN,
+      undefined,
+      undefined
+    )
   })
 })
 

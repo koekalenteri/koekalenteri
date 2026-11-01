@@ -301,7 +301,16 @@ const slotKey = (slot: Pick<RoundTask, 'stationId' | 'index'>): string => `${slo
  * another maximum, and a score kept there would be read with a meaning it was not given.
  */
 const sameSlot = (a: RoundTask | undefined, b: RoundTask | undefined): boolean =>
-  Boolean(a && b && a.task === b.task && a.parts === b.parts)
+  a !== undefined && b !== undefined && a.task === b.task && a.parts === b.parts
+
+/**
+ * Whether a stored task records anything. The results table stores a slot it shows as unscored
+ * (`points: null`) as soon as the row is edited, so a task without points, a zero's reason, a recall or a
+ * retirement is an empty field, and dropping it loses nothing the secretary would need to be asked about.
+ */
+export const isRecordedTask = (
+  task: Pick<JsonEventResultTask, 'points' | 'recalled' | 'retired' | 'zeroFault'>
+): boolean => task.points !== null || Boolean(task.zeroFault) || Boolean(task.recalled) || Boolean(task.retired)
 
 const slotsByKey = (round: readonly RoundTask[]) => new Map(round.map((slot) => [slotKey(slot), slot]))
 
