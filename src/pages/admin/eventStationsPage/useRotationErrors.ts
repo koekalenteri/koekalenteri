@@ -26,7 +26,7 @@ const rotationErrorMessages = (
     const group = groupName(error.group)
     if (error.kind === 'overlap') return [t('event.rotation.error.overlap', { group, other: groupName(error.other) })]
     if (error.kind === 'range') return [t('event.rotation.error.range', { group })]
-    if (error.kind === 'noPosts') return [t('event.rotation.error.noExercises', { group })]
+    if (error.kind === 'noExercises') return [t('event.rotation.error.noExercises', { group })]
     return []
   })
 
@@ -46,8 +46,8 @@ const rotationErrorMessages = (
 }
 
 /**
- * Why the Rastit page may not save the rotation as it stands; empty when it may. A type not scored at
- * posts has no rotation editor and no reader of a rotation, so a stored one never blocks its save.
+ * Why the posts page may not save the running orders as they stand; empty when it may. A type not scored
+ * by exercise has no running order editor and no reader of one, so a stored one never blocks its save.
  */
 export function useRotationErrors(eventId: string, event: RotationLayout | undefined): string[] {
   const { t } = useTranslation()

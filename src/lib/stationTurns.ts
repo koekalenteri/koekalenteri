@@ -152,7 +152,10 @@ interface WaitEstimate {
   maxMs: number
 }
 
-/** One rotation group's share of a post's queue: how many dogs it brings and how many a turn holds. */
+/**
+ * One entry of a post's queue, one group's exercise there: how many dogs it brings and how many a turn of
+ * that exercise holds.
+ */
 interface QueueGroup {
   dogs: number
   dogsAtOnce: number

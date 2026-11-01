@@ -177,6 +177,23 @@ describe('StationTurnControls', () => {
         expect(onTurn).toHaveBeenCalledWith({ exercise: 3, registrationIds: ['run-2'], type: 'start' })
       })
 
+      it('sends a dog that ran its first exercise at the post out again for its second', async () => {
+        const user = userEvent.setup()
+        const ranThird = { ...openTurn, endedAt: new Date('2026-09-12T08:07:00Z'), exercise: 3 }
+        const fourth = { ...walkUpDogs[0], visit: visit(1, 4) }
+        const { onTurn } = renderControls({
+          dogs: [{ ...walkUpDogs[0], visit: visit(1, 3) }, fourth],
+          eventType: 'NOWT',
+          selectedDog: fourth,
+          station: { id: 'post-1', tasks: 1 },
+          turns: [ranThird],
+        })
+
+        await user.click(screen.getByRole('button', { name: 'liveStatus.startTurn' }))
+
+        expect(onTurn).toHaveBeenCalledWith({ exercise: 4, registrationIds: ['run-1'], type: 'start' })
+      })
+
       it('reads a turn stored without an exercise as the dog having run the post', () => {
         const ran = { ...openTurn, endedAt: new Date('2026-09-12T08:07:00Z') }
         const dogs = [{ ...walkUpDogs[0], visit: visit(1, 2) }]

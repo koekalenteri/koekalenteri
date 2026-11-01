@@ -15,7 +15,7 @@ import Typography from '@mui/material/Typography'
 import { memo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { getRegistrationPlacement } from '@/lib/registration'
-import { columnKey, formatTaskName, inColumn, parseEventResultCode, scoresAtPosts } from '@/lib/results'
+import { columnKey, formatTaskName, parseEventResultCode, scoresAtPosts } from '@/lib/results'
 import { JudgeSelect } from '../../components/stationScoring/JudgeSelect'
 import { ResultSummary } from '../../components/stationScoring/ResultSummary'
 import { asksOutcome, outcomeLabelKeys, RoundOutcome } from '../../components/stationScoring/RoundOutcome'
@@ -227,7 +227,8 @@ function ResultsTable({
         />
       ),
       tasks: round.map((column) => {
-        const task = own.find((item) => inColumn(item, column))
+        // A dog's slot belongs in a column of the same exercise number, split the same way, the same part.
+        const task = own.find((item) => columnKey(item) === columnKey(column))
         if (!task) return null
 
         return (

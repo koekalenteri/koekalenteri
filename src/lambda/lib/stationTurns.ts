@@ -20,13 +20,10 @@ const MARKS: readonly LiveMark[] = ['onRetrieve', 'gotRetrieve', 'noRetrieve', '
 /** A phase is a key or a label somebody typed; longer than this is not a phase. */
 const MAX_PHASE_LENGTH = 40
 
-/** A running order of more exercises than this is not a work test. */
-const MAX_EXERCISE = 20
-
 /** The exercise a turn is for, where the post scores exercises (KOE-1665): a number from 1, or none. */
 const parseExercise = (exercise: unknown): { exercise?: number } => {
   if (exercise === undefined) return {}
-  if (typeof exercise !== 'number' || !Number.isInteger(exercise) || exercise < 1 || exercise > MAX_EXERCISE) {
+  if (typeof exercise !== 'number' || !Number.isInteger(exercise) || exercise < 1) {
     throw new LambdaError(422, 'invalid exercise')
   }
   return { exercise }

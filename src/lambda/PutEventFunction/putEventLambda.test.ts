@@ -2006,7 +2006,8 @@ describe('putEventLambda', () => {
     })
     // Two exercises at the first post, then one at the second.
     const twoAtFirst = [alo('post-1', 'post-1', 'post-2')]
-    const oneEach = [alo('post-1', 'post-2')]
+    // The second post's exercise taken out: its score goes, the first post's two stay where they were.
+    const firstOnly = [alo('post-1', 'post-1')]
     const nowtEvent: JsonConfirmedEvent = {
       ...mockEvent,
       classes: [{ class: 'ALO', date: day }],
@@ -2093,8 +2094,9 @@ describe('putEventLambda', () => {
     })
 
     it('asks before dropping recorded scores, then recomputes so placement and the sending match the table', async () => {
-      // Two exercises at the first post, one at the second: A 10 + 20 + 10 = 40/60, B 12 + 12 + 12 = 36/60.
-      await record(nowtEvent, { 'dog-a': scores([10, 20], 10), 'dog-b': scores([12, 12], 12) })
+      // Two exercises at the first post, one at the second: A 8 + 12 + 20 = 40/60 (8 is under the first
+      // prize's floor, so ALO2), B 12 + 12 + 12 = 36/60 (ALO3). A places first.
+      await record(nowtEvent, { 'dog-a': scores([8, 12], 20), 'dog-b': scores([12, 12], 12) })
       expect(placementsFor(stored())).toEqual(
         new Map([
           ['dog-a', 1],
@@ -2102,8 +2104,8 @@ describe('putEventLambda', () => {
         ])
       )
 
-      // The first post is made one exercise: the second one's score goes, so the secretary is asked first.
-      const asked = await patchRotations(oneEach)
+      // The second post's exercise is taken out: its score goes, so the secretary is asked first.
+      const asked = await patchRotations(firstOnly)
       expect(asked.statusCode).toEqual(409)
       const body = JSON.parse(asked.body)
       expect(body).toEqual({
@@ -2118,11 +2120,11 @@ describe('putEventLambda', () => {
       expect(patchEventMock).not.toHaveBeenCalled()
       expect(eventResultOf('dog-a')?.result).toEqual('ALO2')
 
-      // Confirmed: A 10 + 10 = 20/40 (50 %), B 12 + 12 = 24/40 (60 %). B now places first.
-      const res = await patchRotations(oneEach, { confirmDrops: body.confirmation })
+      // Confirmed: A 8 + 12 = 20/40 (50 %), B 12 + 12 = 24/40 (60 %). B now places first.
+      const res = await patchRotations(firstOnly, { confirmDrops: body.confirmation })
       expect(res.statusCode).toEqual(200)
 
-      const changed: JsonConfirmedEvent = { ...nowtEvent, rotations: oneEach }
+      const changed: JsonConfirmedEvent = { ...nowtEvent, rotations: firstOnly }
       const shown = stored().map((registration) => ({
         ...registration,
         eventResult: shownResult(changed, registration),
@@ -2131,7 +2133,7 @@ describe('putEventLambda', () => {
       expect(stored().map((registration) => registration.eventResult?.result)).toEqual(['ALO3', 'ALO3'])
       expect(eventResultOf('dog-a')?.tasks?.map((task) => `${task.stationId}#${task.index}`)).toEqual([
         'post-1#0',
-        'post-2#0',
+        'post-1#1',
       ])
       expect(placementsFor(stored())).toEqual(placementsFor(shown))
       expect(placementsFor(stored()).get('dog-b')).toEqual(1)
@@ -2154,7 +2156,7 @@ describe('putEventLambda', () => {
     it('asks again when the confirmation is not of the drops the change makes now', async () => {
       await record(nowtEvent, { 'dog-a': scores([10, 20], 10) })
 
-      const res = await patchRotations(oneEach, { confirmDrops: 'a confirmation of something else' })
+      const res = await patchRotations(firstOnly, { confirmDrops: 'a confirmation of something else' })
 
       expect(res.statusCode).toEqual(409)
       expect(JSON.parse(res.body)).toMatchObject({ dogs: [{ id: 'dog-a', tasks: 1 }], error: 'resultTasksDropped' })
@@ -2162,14 +2164,9 @@ describe('putEventLambda', () => {
     })
 
     it('recomputes without asking where nothing is dropped, and the patch removes a prize the round no longer has', async () => {
-      const event = { ...nowtEvent, rotations: oneEach }
+      const event = { ...nowtEvent, rotations: [alo('post-1')] }
       getEventMock.mockResolvedValue(event)
-      await record(event, {
-        'dog-a': [
-          { index: 0, judge, points: 15, stationId: 'post-1' },
-          { index: 0, judge, points: 15, stationId: 'post-2' },
-        ],
-      })
+      await record(event, { 'dog-a': [{ index: 0, judge, points: 15, stationId: 'post-1' }] })
       const before = storedRegistrations.get('dog-a')
       expect(before?.eventResult?.result).toEqual('ALO2')
 
@@ -2178,20 +2175,20 @@ describe('putEventLambda', () => {
         sent = patches
       })
 
-      // A second exercise at the first post: nothing recorded there yet, so the round is incomplete.
-      const res = await patchRotations(twoAtFirst)
+      // An exercise at the second post: nothing recorded there yet, so the round is incomplete.
+      const res = await patchRotations([alo('post-1', 'post-2')])
 
       expect(res.statusCode).toEqual(200)
       const after = eventResultOf('dog-a')
       expect(after).not.toHaveProperty('result')
-      expect(after).toMatchObject({ maxPoints: 60, points: 30 })
+      expect(after).toMatchObject({ maxPoints: 40, points: 15 })
       expect(patchMerge(before ?? {}, sent[0])).toEqual(storedRegistrations.get('dog-a'))
     })
 
     it.each<[string, EventStation[], EventStation[], number]>([
       ['parts 1 to 2', [posts[0]], [{ ...posts[0], parts: 2 }], 1],
-      ['parts 2 to 1', [{ ...posts[0], parts: 2 }], [posts[0]], 2],
-    ])('drops a score whose slot means another exercise after %s', async (_name, from, to, dropped) => {
+      ['parts 2 to 1', [{ ...posts[0], parts: 2 }], [posts[0]], 1],
+    ])('drops the scores of an exercise whose slots mean another thing after %s', async (_name, from, to, dropped) => {
       const event = { ...nowtEvent, rotations: [alo('post-1')], stations: from }
       const recorded = dogRound(event, rotationDogOf(dogAt('dog-a', 1))).map((slot) => ({
         index: slot.index,
@@ -2207,7 +2204,7 @@ describe('putEventLambda', () => {
       expect(JSON.parse(res.body)).toMatchObject({ dogs: [{ id: 'dog-a', tasks: dropped }] })
     })
 
-    it('keeps the scores of a split post given a second exercise, whose first still means the same', async () => {
+    it("drops a post's scores when it gets a second exercise, the places there being counted anew", async () => {
       const split: EventStation[] = [{ ...posts[0], parts: 2 }]
       const event = { ...nowtEvent, rotations: [alo('post-1')], stations: split }
       await record(event, {
@@ -2219,9 +2216,9 @@ describe('putEventLambda', () => {
 
       const res = await patchRotations([alo('post-1', 'post-1')])
 
-      expect(res.statusCode).toEqual(200)
-      expect(eventResultOf('dog-a')?.tasks?.map((task) => task.points)).toEqual([9, 8])
-      expect(eventResultOf('dog-a')).toMatchObject({ maxPoints: 40, points: 17 })
+      // One exercise in two parts: the secretary is told of one exercise.
+      expect(res.statusCode).toEqual(409)
+      expect(JSON.parse(res.body)).toMatchObject({ dogs: [{ id: 'dog-a', tasks: 1 }] })
     })
 
     it('reads no registration for a change no round reads, such as a post judge', async () => {
@@ -2246,7 +2243,7 @@ describe('putEventLambda', () => {
       await record(nowtEvent, { 'dog-a': scores([10, 20], 10) })
       getEventMock.mockResolvedValue({ ...nowtEvent, kcState: handedOverState })
 
-      const res = await patchRotations(oneEach)
+      const res = await patchRotations(firstOnly)
 
       expect(res.statusCode).toEqual(423)
       expect(JSON.parse(res.body)).toEqual({ error: 'resultsLocked' })
@@ -2256,7 +2253,7 @@ describe('putEventLambda', () => {
 
     it('stops at the dog where the trial was handed over while the results were written', async () => {
       await record(nowtEvent, { 'dog-a': scores([10, 20], 10), 'dog-b': scores([12, 12], 12) })
-      const asked = JSON.parse((await patchRotations(oneEach)).body)
+      const asked = JSON.parse((await patchRotations(firstOnly)).body)
       const handedOver = { ...nowtEvent, kcState: handedOverState }
       // The save's own read, the check before the writes and the first dog's find it open; the second dog's does not.
       getEventMock
@@ -2265,7 +2262,7 @@ describe('putEventLambda', () => {
         .mockResolvedValueOnce(nowtEvent)
         .mockResolvedValue(handedOver)
 
-      const res = await patchRotations(oneEach, { confirmDrops: asked.confirmation })
+      const res = await patchRotations(firstOnly, { confirmDrops: asked.confirmation })
 
       expect(res.statusCode).toEqual(423)
       expect(mockWriteRecomputedEventResult).toHaveBeenCalledTimes(1)
@@ -2276,7 +2273,7 @@ describe('putEventLambda', () => {
       getEventMock.mockResolvedValue({ ...nowtEvent, kcState: handedOverState })
 
       // No dog has a result yet, so the change has nothing to recompute.
-      const res = await patchRotations(oneEach)
+      const res = await patchRotations(firstOnly)
 
       expect(res.statusCode).toEqual(200)
       expect(patchEventMock).toHaveBeenCalled()
@@ -2285,7 +2282,7 @@ describe('putEventLambda', () => {
     it('leaves a type judged as a whole alone', async () => {
       getEventMock.mockResolvedValue({ ...nowtEvent, eventType: 'NOME-B' })
 
-      const res = await patchRotations(oneEach)
+      const res = await patchRotations(firstOnly)
 
       expect(res.statusCode).toEqual(200)
       expect(mockReadEventRegistrations).not.toHaveBeenCalled()
@@ -2293,10 +2290,10 @@ describe('putEventLambda', () => {
 
     it('stops before the event is saved when a post saved the dog meanwhile', async () => {
       await record(nowtEvent, { 'dog-a': scores([10, 20], 10), 'dog-b': scores([12, 12], 12) })
-      const asked = JSON.parse((await patchRotations(oneEach)).body)
+      const asked = JSON.parse((await patchRotations(firstOnly)).body)
       mockWriteRecomputedEventResult.mockResolvedValueOnce(false)
 
-      const res = await patchRotations(oneEach, { confirmDrops: asked.confirmation })
+      const res = await patchRotations(firstOnly, { confirmDrops: asked.confirmation })
 
       expect(res.statusCode).toEqual(409)
       expect(JSON.parse(res.body)).toMatchObject({ error: 'staleData' })
@@ -2308,12 +2305,12 @@ describe('putEventLambda', () => {
       await record(nowtEvent, {
         'dog-a': [
           { index: 0, judge, points: 10, stationId: 'post-1' },
-          { index: 1, judge, points: null, stationId: 'post-1' },
-          { index: 0, judge, points: 10, stationId: 'post-2' },
+          { index: 1, judge, points: 10, stationId: 'post-1' },
+          { index: 0, judge, points: null, stationId: 'post-2' },
         ],
       })
 
-      const res = await patchRotations(oneEach)
+      const res = await patchRotations(firstOnly)
 
       expect(res.statusCode).toEqual(200)
       expect(eventResultOf('dog-a')).toMatchObject({ maxPoints: 40, points: 20, result: 'ALO3' })
@@ -2325,11 +2322,11 @@ describe('putEventLambda', () => {
       await record(nowtEvent, {
         'dog-a': [
           { index: 0, judge, points: 10, stationId: 'post-1' },
-          { index: 1, judge, points: null, retired: true, stationId: 'post-1' },
+          { index: 0, judge, points: null, retired: true, stationId: 'post-2' },
         ],
       })
 
-      const res = await patchRotations(oneEach)
+      const res = await patchRotations(firstOnly)
 
       expect(res.statusCode).toEqual(409)
       expect(JSON.parse(res.body)).toMatchObject({ dogs: [{ id: 'dog-a', tasks: 1 }] })
@@ -2344,20 +2341,22 @@ describe('putEventLambda', () => {
         { index: 1, judge, points: 10, stationId: 'post-2' },
       ]
 
-      it('recomputes the dogs when the group no longer does two exercises at a post', async () => {
+      it("recomputes the dogs when the group no longer does two exercises at a post, dropping both of the post's scores", async () => {
         await record(rotated, { 'dog-a': recorded })
         expect(eventResultOf('dog-a')).toMatchObject({ maxPoints: 60, points: 40 })
 
+        // The places at the second post are counted anew, so neither of its scores can be kept.
         const asked = await patchRotations([alo('post-1', 'post-2')])
         expect(asked.statusCode).toEqual(409)
-        expect(JSON.parse(asked.body)).toMatchObject({ dogs: [{ id: 'dog-a', tasks: 1 }] })
+        expect(JSON.parse(asked.body)).toMatchObject({ dogs: [{ id: 'dog-a', tasks: 2 }] })
 
         const res = await patchRotations([alo('post-1', 'post-2')], {
           confirmDrops: JSON.parse(asked.body).confirmation,
         })
 
         expect(res.statusCode).toEqual(200)
-        expect(eventResultOf('dog-a')).toMatchObject({ maxPoints: 40, points: 30, result: 'ALO2' })
+        expect(eventResultOf('dog-a')).toMatchObject({ maxPoints: 40, points: 10 })
+        expect(eventResultOf('dog-a')).not.toHaveProperty('result')
       })
 
       it("reads no registration when only the group's dogs at once at a post change", async () => {
@@ -2407,9 +2406,9 @@ describe('putEventLambda', () => {
           )
         )
 
-        // The class goes round the day's posts in number order again, one task at each: a score goes.
+        // The class does one exercise at each post again: the second post's two scores go.
         expect(res.statusCode).toEqual(409)
-        expect(JSON.parse(res.body)).toMatchObject({ dogs: [{ id: 'dog-a', tasks: 1 }], error: 'resultTasksDropped' })
+        expect(JSON.parse(res.body)).toMatchObject({ dogs: [{ id: 'dog-a', tasks: 2 }], error: 'resultTasksDropped' })
       })
     })
   })

@@ -62,7 +62,10 @@ interface StationScoringDog {
   handler?: { name?: string }
   eventResult?: Pick<EventResult, 'elimination' | 'retirement' | 'tasks' | 'result' | 'judge'> &
     Partial<Pick<EventResult, 'updatedAt'>>
-  /** What the dog's rotation group does at this post, where the post scores tasks (KOE-1665). */
+  /**
+   * The exercise of the dog's group at this place in the post's queue, where the post scores exercises
+   * (KOE-1665). A dog doing two exercises here is in the list twice, once with each.
+   */
   visit?: StationVisitLayout
 }
 

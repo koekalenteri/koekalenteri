@@ -178,12 +178,13 @@ export interface JsonDogEvent extends JsonDbRecord {
    */
   startNumberLinkVersions?: Record<string, number>
   resultsPublished?: ResultsPublishedState
-  /** Scoring posts, for event types that score at posts (NOWT). */
+  /** The judges' posts, for event types scored by exercise (NOWT). */
   stations?: EventStation[]
   /**
-   * The rotation groups of the day (KOE-1665): which posts a class, or a range of its start numbers,
-   * visits and in which order. A class with no group on a day visits that day's posts in number order.
-   * Public on purpose: the start list tells the handlers where their group starts.
+   * The groups of the day with their running orders (KOE-1665): which exercises a class, or a range of
+   * its start numbers, does at which posts and in which order. A class with no group on a day does one
+   * exercise at each of that day's posts in number order. Public on purpose: the start list tells the
+   * handlers their group's running order.
    */
   rotations?: EventRotationGroup[]
   /**
@@ -483,10 +484,7 @@ export interface EventExercise {
   stationId: string
   /** The parts it splits into. Absent follows the post's `parts`. */
   parts?: 1 | 2
-  /**
-   * How many dogs a turn holds. A figure of the visit: read from the first of the exercises a group does
-   * in a row at a post (`visitDogsAtOnce`). Absent follows the post's `dogsAtOnce`.
-   */
+  /** How many dogs a turn of this exercise holds. Absent follows the post's `dogsAtOnce`. */
   dogsAtOnce?: number
 }
 

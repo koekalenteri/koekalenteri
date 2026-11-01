@@ -296,9 +296,6 @@ export const dogRound = (event: RotationEvent, dog: RotationDog): ExerciseSlot[]
 export const columnKey = (slot: Pick<ExerciseSlot, 'exercise' | 'part' | 'parts'>): string =>
   `${slot.exercise}#${slot.parts}#${slot.part}`
 
-/** Whether a dog's slot belongs in a column: the same exercise number, split the same way, the same part. */
-export const inColumn = (slot: ExerciseSlot, column: ExerciseSlot): boolean => columnKey(slot) === columnKey(column)
-
 /**
  * The columns of a table of dogs whose rounds may differ: every exercise number any of them has, split
  * as each has it, in exercise order. A column is "Rasti 3" whatever post a dog's group did it at.
@@ -331,8 +328,10 @@ export const holdsScore = (
  * another maximum, and a score kept there would be read with a meaning it was not given. The exercise
  * number may change: the score stays with the post that gave it.
  */
-const sameSlot = (a: ExerciseSlot | undefined, b: ExerciseSlot | undefined): boolean =>
-  a !== undefined && b !== undefined && a.parts === b.parts && a.part === b.part
+const sameSlot = (a: ExerciseSlot | undefined, b: ExerciseSlot | undefined): boolean => {
+  if (!a || !b) return false
+  return a.parts === b.parts && a.part === b.part
+}
 
 /**
  * Whether a stored task records anything. The results table stores a slot it shows as unscored
@@ -356,11 +355,23 @@ export const roundsDiffer = (before: readonly ExerciseSlot[], after: readonly Ex
   return before.some((slot) => !sameSlot(slot, next.get(slotKey(slot))))
 }
 
+/** How many slots a round has at each post. */
+const slotCounts = (round: readonly ExerciseSlot[]) => {
+  const counts = new Map<string, number>()
+  for (const slot of round) counts.set(slot.stationId, (counts.get(slot.stationId) ?? 0) + 1)
+  return counts
+}
+
 /**
  * The stored scores a new round keeps, and the ones it drops (KOE-1666). A score is kept only where its
  * slot means the same in the dog's round before the change and after it; everything else is dropped,
  * a score the old round did not read either. The event save warns about the dropped ones before it
- * writes, and the recompute leaves them out, so no score is read against a task it was not given for.
+ * writes, and the recompute leaves them out, so no score is read against an exercise it was not given for.
+ *
+ * A score's address is its slot's place among the post's slots (KOE-1665). Where the number of slots at
+ * a post changes, an exercise added there before another or one of its repeats taken out, the places
+ * shift and a kept score would land on another exercise. So a changed count at a post drops every score
+ * of that post, each named in the warning; an unchanged count keeps them by place as before.
  */
 export const reconcileRoundTasks = <T extends Pick<JsonEventResultTask, 'stationId' | 'index'>>(
   before: readonly ExerciseSlot[],
@@ -369,15 +380,33 @@ export const reconcileRoundTasks = <T extends Pick<JsonEventResultTask, 'station
 ): { kept: T[]; dropped: T[] } => {
   const previous = slotsByKey(before)
   const next = slotsByKey(after)
+  const countsBefore = slotCounts(before)
+  const countsAfter = slotCounts(after)
   const kept: T[] = []
   const dropped: T[] = []
   for (const task of tasks ?? []) {
     const key = slotKey(task)
-    if (sameSlot(previous.get(key), next.get(key))) kept.push(task)
+    const countKept = countsBefore.get(task.stationId) === countsAfter.get(task.stationId)
+    if (countKept && sameSlot(previous.get(key), next.get(key))) kept.push(task)
     else dropped.push(task)
   }
   return { dropped, kept }
 }
+
+/**
+ * How many exercises of a round some scores are of: the parts of one exercise count once, and a score the
+ * round does not read counts on its own. What the secretary is told of dropped scores is exercises.
+ */
+export const exercisesScored = (
+  round: readonly ExerciseSlot[],
+  tasks: readonly Pick<JsonEventResultTask, 'stationId' | 'index'>[]
+): number =>
+  new Set(
+    tasks.map((task) => {
+      const slot = round.find((item) => holdsScore(item, task))
+      return slot ? `exercise ${slot.exercise}` : slotKey(task)
+    })
+  ).size
 
 /** A dog that would lose recorded scores to a change of the posts, as the secretary is asked about it. */
 export interface DroppedTasksDog {

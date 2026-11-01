@@ -19,6 +19,7 @@ import {
   availableResultCodes,
   dogRound,
   eliminatingFaults,
+  exercisesScored,
   isRecordedTask,
   mergeStationTasks,
   nowtZeroFaults,
@@ -573,6 +574,8 @@ interface RecomputedResult {
   registration: JsonRegistration & { eventResult: JsonEventResult }
   eventResult: JsonEventResult
   dropped: JsonEventResultTask[]
+  /** The exercises the dropped scores are of, which the secretary is told: a split exercise counts once. */
+  droppedExercises: number
 }
 
 /** The stored result as the submission it was saved from, with only the scores the new round keeps. */
@@ -622,8 +625,10 @@ const recomputeFor = (registration: JsonRegistration, context: RecomputeContext)
   )
   if (sameEventResult(stored, eventResult)) return undefined
 
+  const recorded = dropped.filter(isRecordedTask)
   return {
-    dropped: dropped.filter(isRecordedTask),
+    dropped: recorded,
+    droppedExercises: exercisesScored(before, recorded),
     eventResult,
     registration: { ...registration, eventResult: stored },
   }
@@ -650,12 +655,12 @@ const droppedTasksBody = (plan: readonly RecomputedResult[]): ResultTasksDropped
   confirmation: dropConfirmation(dropKeys(plan)),
   dogs: plan
     .filter(({ dropped }) => dropped.length > 0)
-    .map(({ dropped, registration }) => {
+    .map(({ droppedExercises, registration }) => {
       const number = getRegistrationPlacement(registration)?.number
       return {
         id: registration.id,
         name: registration.dog.name ?? '',
-        tasks: dropped.length,
+        tasks: droppedExercises,
         ...(registration.class ? { class: registration.class } : {}),
         ...(number === undefined ? {} : { number }),
       }
@@ -682,7 +687,7 @@ const LAYOUT_CHANGED_MESSAGE = 'The results changed while the stations were save
  */
 const writeRecomputed = async (
   eventId: string,
-  { dropped, eventResult, registration }: RecomputedResult,
+  { droppedExercises, eventResult, registration }: RecomputedResult,
   context: RecomputeContext
 ): Promise<Patch<JsonRegistration>> => {
   if (await isEventLocked(eventId)) throw httpError(423, { error: 'resultsLocked' })
@@ -696,7 +701,7 @@ const writeRecomputed = async (
     auditKey: registrationAuditKey({ eventId, id }),
     ...resultRecomputedAudit(
       auditResultText(eventResult, context.after.eventType, registration.class ?? undefined),
-      dropped.length
+      droppedExercises
     ),
     user: context.userName,
   })

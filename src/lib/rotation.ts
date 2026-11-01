@@ -75,9 +75,15 @@ export const exerciseOf = (
 /** A group's running order. A group stored before the exercises (dev only, as `posts`) has none. */
 export const groupExercises = (group: Pick<EventRotationGroup, 'exercises'>): EventExercise[] => group.exercises ?? []
 
-/** Whether the exercise at `index` starts a run: the first of the exercises a group does at one post in a row. */
-const startsRun = (exercises: readonly Pick<EventExercise, 'stationId'>[], index: number): boolean =>
-  index === 0 || exercises[index - 1].stationId !== exercises[index].stationId
+/**
+ * An exercise moved from one post to another, keeping what it shows: its parts and dogs at once are read
+ * off the old post, its defaults included, and stored against the new one.
+ */
+export const moveExercise = (
+  from: Pick<EventStation, 'parts' | 'tasks' | 'dogsAtOnce'>,
+  to: Pick<EventStation, 'id' | 'parts' | 'tasks' | 'dogsAtOnce'>,
+  exercise: Omit<EventExercise, 'stationId'>
+): EventExercise => exerciseOf(to, exerciseSettingsOf(from, exercise))
 
 /** What the rotation reads of an event. */
 export interface RotationEvent {
@@ -355,11 +361,11 @@ export const stationQueue = <T extends Registrationish>(
 /** The runs of a running order: the exercises a group does at one post in a row, its post and how many. */
 const runsOf = (exercises: readonly EventExercise[]): { stationId: string; length: number }[] => {
   const runs: { stationId: string; length: number }[] = []
-  exercises.forEach((exercise, index) => {
+  for (const exercise of exercises) {
     const last = runs.at(-1)
-    if (last && !startsRun(exercises, index)) last.length += 1
+    if (last?.stationId === exercise.stationId) last.length += 1
     else runs.push({ length: 1, stationId: exercise.stationId })
-  })
+  }
   return runs
 }
 
@@ -392,7 +398,7 @@ export const nextRotationGroup = (
   const exercises = previousExercises.flatMap((exercise, at) => {
     const from = stationOf(exercise.stationId)
     const to = stationOf(movedTo[at])
-    return from && to ? [exerciseOf(to, exerciseSettingsOf(from, exercise))] : []
+    return from && to ? [moveExercise(from, to, exercise)] : []
   })
 
   if (withoutGroup) return { class: withoutGroup, exercises }
@@ -405,15 +411,15 @@ export const nextRotationGroup = (
 
 /** Why a stored rotation cannot be read. `group` is the index in `rotations`. */
 type RotationShapeError =
-  | { kind: 'noPosts'; group: number }
+  | { kind: 'noExercises'; group: number }
   | { kind: 'range'; group: number }
   | { kind: 'unknownPost'; group: number; stationId: string }
   | { kind: 'mixedDays'; group: number }
   | { kind: 'overlap'; group: number; other: number }
 
-const postErrors = (event: RotationEvent, group: EventRotationGroup, index: number): RotationShapeError[] => {
+const exerciseErrors = (event: RotationEvent, group: EventRotationGroup, index: number): RotationShapeError[] => {
   const exercises = groupExercises(group)
-  if (exercises.length === 0) return [{ group: index, kind: 'noPosts' }]
+  if (exercises.length === 0) return [{ group: index, kind: 'noExercises' }]
 
   const errors: RotationShapeError[] = []
   const days = new Set<string>()
@@ -453,7 +459,7 @@ export const rotationShapeErrors = (event: RotationEvent): RotationShapeError[] 
   const rotations = event.rotations ?? []
   const errors = rotations.flatMap((group, index) => [
     ...(rangeIsWhole(group) ? [] : [{ group: index, kind: 'range' as const }]),
-    ...postErrors(event, group, index),
+    ...exerciseErrors(event, group, index),
   ])
 
   rotations.forEach((group, index) => {
@@ -469,9 +475,11 @@ export const rotationShapeErrors = (event: RotationEvent): RotationShapeError[] 
   return errors
 }
 
-/** What the posts page warns of without refusing it. `group` is the index in `rotations`. */
+/**
+ * What the posts page warns of without refusing it: a group's running order of other than four or five
+ * exercises. `group` is the index in `rotations`.
+ */
 interface RotationWarning {
-  kind: 'exerciseCount'
   group: number
   count: number
 }
@@ -480,9 +488,7 @@ interface RotationWarning {
 export const rotationWarnings = (event: Pick<RotationEvent, 'rotations'>): RotationWarning[] =>
   (event.rotations ?? []).flatMap((group, index) => {
     const count = groupExercises(group).length
-    return count === 0 || USUAL_EXERCISE_COUNTS.has(count)
-      ? []
-      : [{ count, group: index, kind: 'exerciseCount' as const }]
+    return count === 0 || USUAL_EXERCISE_COUNTS.has(count) ? [] : [{ count, group: index }]
   })
 
 /** A dog the stored ranges of its class leave out: it is scored with the nearest group, but it should not be. */

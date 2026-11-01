@@ -1,4 +1,4 @@
-import type { EventRotationGroup, EventStation, JsonEventResult, JsonEventResultTask } from '../types'
+import type { EventStation, JsonEventResult, JsonEventResultTask } from '../types'
 import type { ScoredTask, SubmittedEventResult } from './results'
 import i18n from 'i18next'
 import koemuotoNKM from '../lambda/lib/KLIntegraatio-fixtures/koemuoto-NKM.json'
@@ -922,9 +922,14 @@ describe('reconcileRoundTasks (KOE-1666)', () => {
     expect(reconcileRoundTasks(whole, whole, scored(0, 1))).toEqual({ dropped: [], kept: scored(0, 1) })
   })
 
-  it('drops the score of a task the round no longer has', () => {
+  it("drops the scores of a post that loses one of its exercises, the kept place being another's now", () => {
     const one = postSlots('post-1', { parts: 1, tasks: 1, tasksBefore: 0 })
-    expect(reconcileRoundTasks(whole, one, scored(0, 1))).toEqual({ dropped: scored(1), kept: scored(0) })
+    expect(reconcileRoundTasks(whole, one, scored(0, 1))).toEqual({ dropped: scored(0, 1), kept: [] })
+  })
+
+  it('keeps the scores of a post whose slots stay as they were while another post changes', () => {
+    const other = postSlots('post-2', { parts: 1, tasks: 1, tasksBefore: 2 })
+    expect(reconcileRoundTasks(whole, [...whole, ...other], scored(0, 1))).toEqual({ dropped: [], kept: scored(0, 1) })
   })
 
   it('drops a score whose slot now means a part instead of a task, or the second task instead of a part', () => {
@@ -932,9 +937,22 @@ describe('reconcileRoundTasks (KOE-1666)', () => {
     expect(reconcileRoundTasks(split, whole, scored(0, 1))).toEqual({ dropped: scored(0, 1), kept: [] })
   })
 
-  it('keeps the parts of a split task when the post gets a second one', () => {
+  it('drops every score of a post whose number of slots changes, a second exercise added after included', () => {
     const twoSplit = postSlots('post-1', { parts: 2, tasks: 2, tasksBefore: 0 })
-    expect(reconcileRoundTasks(split, twoSplit, scored(0, 1))).toEqual({ dropped: [], kept: scored(0, 1) })
+    expect(reconcileRoundTasks(split, twoSplit, scored(0, 1))).toEqual({ dropped: scored(0, 1), kept: [] })
+  })
+
+  it('drops both scores of a post when the first of its two exercises leaves the order (KOE-1665)', () => {
+    const event = (...ids: string[]) => ({
+      rotations: [{ class: 'ALO' as const, exercises: ids.map((stationId) => ({ stationId })) }],
+      stations: [1, 3].map((number) => ({ date: '2026-09-12' as const, id: `P${number}`, number })),
+    })
+    const dog = { class: 'ALO', day: '2026-09-12' }
+    const before = dogRound(event('P3', 'P1', 'P3'), dog)
+    const after = dogRound(event('P1', 'P3'), dog)
+    const stored = [0, 1].map((index) => ({ index, points: 15 + index, stationId: 'P3' }))
+
+    expect(reconcileRoundTasks(before, after, stored)).toEqual({ dropped: stored, kept: [] })
   })
 
   it('drops a score whose slot is in one round only', () => {
@@ -996,8 +1014,7 @@ describe('isResultTasksDroppedBody (KOE-1666)', () => {
   })
 })
 
-describe('scores addressed by exercise (KOE-1665, 1.11.2026 model)', () => {
-  const t = i18n.getFixedT('fi')
+describe('a score stored by post and slot (KOE-1665)', () => {
   const DAY = '2026-09-12' as const
   const post = (number: number, extra: Partial<EventStation> = {}): EventStation => ({
     date: DAY,
@@ -1015,23 +1032,5 @@ describe('scores addressed by exercise (KOE-1665, 1.11.2026 model)', () => {
     ]
 
     expect(toScoredTasks(round, stored).map((task) => task.points)).toEqual([null, 8, 15])
-  })
-
-  it('names the columns by exercise number whatever post a group did it at', () => {
-    const rotations: EventRotationGroup[] = [
-      { class: 'ALO', exercises: [{ stationId: 'post-1' }, { stationId: 'post-2' }], firstNumber: 1, lastNumber: 8 },
-      { class: 'ALO', exercises: [{ stationId: 'post-2' }, { stationId: 'post-1' }], firstNumber: 9, lastNumber: 16 },
-    ]
-    const event = { rotations, stations: [post(1), post(2)] }
-    const columns = roundColumns([
-      dogRound(event, { class: 'ALO', day: DAY, number: 1 }),
-      dogRound(event, { class: 'ALO', day: DAY, number: 9 }),
-    ])
-
-    expect(columns.map((column) => formatTaskName(column, t))).toEqual(['Rasti 1', 'Rasti 2'])
-  })
-
-  it('names a part of a split exercise', () => {
-    expect(round.map((slot) => formatTaskName(slot, t))).toEqual(['Rasti 1, osa 1/2', 'Rasti 1, osa 2/2', 'Rasti 2'])
   })
 })

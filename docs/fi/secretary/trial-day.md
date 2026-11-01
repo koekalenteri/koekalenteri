@@ -79,8 +79,9 @@ sivu varoittaa siitä mutta tallentaa.
 
 Päivän ensimmäinen ryhmä tekee yhden rastin kullakin suorituspaikalla numerojärjestyksessä. Seuraava
 ryhmä ehdotetaan edellisen perusteella, koska ryhmät kiertävät yleensä samaan suuntaan: ryhmä
-aloittaa paikasta, jossa edellinen teki toisen rastinsa, ja jatkaa samassa järjestyksessä. Peräkkäin
-toistuva paikka pysyy peräkkäisenä, joten edellisen 1, 2, 3, 3 antaa 2, 3, 1, 1. Rastin osajako ja
+aloittaa paikasta, johon edellinen siirtyi ensimmäisestä paikastaan, ja jatkaa samassa järjestyksessä.
+Peräkkäin toistuva paikka pysyy peräkkäisenä, joten edellisen 1, 2, 3, 3 antaa 2, 3, 1, 1 ja 1, 1, 2, 3
+antaa 2, 2, 3, 1. Rastin osajako ja
 koiramäärä pysyvät rastin numerolla. Luokaksi tulee ensimmäinen luokka ilman ryhmää; kun kaikilla
 päivän luokilla on ryhmä, luokaksi tulee edellisen ryhmän luokka, *{t:event.rotation.firstNumber}* on
 edellisen ryhmän viimeinen numero plus yksi ja *{t:event.rotation.lastNumber}* jää tyhjäksi.
@@ -119,8 +120,9 @@ uudelleen.
 
 Kirjatut pisteet kuuluvat suorituspaikalle, jossa tuomari ne antoi: suoritusjärjestyksen muuttaminen
 ei siirrä niitä toiselle paikalle. Pisteet säilyvät, kun paikassa tehdään yhä yhtä monta rastia
-samalla osajaolla. Kun esimerkiksi paikan toinen rasti poistuu ryhmän järjestyksestä tai rastin
-osajako muuttuu, poistuvat pisteet luetellaan ennen tallennusta koirittain.
+samalla osajaolla. Jos paikan rastien tai osien määrä muuttuu, kaikki paikassa kirjatut pisteet
+poistuvat, koska paikan rastit lasketaan silloin uudelleen; poistuvat pisteet luetellaan ennen
+tallennusta koirittain.
 **{t:event.resultTasksDropped.confirm}** tallentaa muutoksen ja poistaa pisteet, eivätkä ne palaa,
 vaikka muutos perutaan myöhemmin. **{t:cancel}** jättää muutoksen tallentamatta.
 

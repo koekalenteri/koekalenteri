@@ -35,6 +35,23 @@ describe('routes', () => {
     expect(response.headers.get('Location')).toBe('/live-entry/event-1/post-1/access/a%2Fb')
   })
 
+  it('redirects a bookmark of the posts page under its old stations path (KOE-1665)', async () => {
+    const route = findRoute(Path.admin.stationsBefore(':id'))
+    const loader = typeof route?.loader === 'function' ? route.loader : undefined
+    const url = new URL('http://localhost/admin/event/stations/abc')
+    const response = await loader?.({
+      context: {},
+      params: { id: 'abc' },
+      pattern: Path.admin.stationsBefore(':id'),
+      request: new Request(url),
+      url,
+    })
+
+    expect(response).toBeInstanceOf(Response)
+    if (!(response instanceof Response)) return
+    expect(response.headers.get('Location')).toBe('/admin/event/posts/abc')
+  })
+
   // The start list page is loaded on navigation, and its loader travels with it. A loader left
   // behind on the route object would be the one react-router keeps, and the lazy one silently
   // ignored -- the page would render with no data.

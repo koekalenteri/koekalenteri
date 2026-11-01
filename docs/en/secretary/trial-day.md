@@ -14,7 +14,7 @@ covers:
   - src/pages/admin/eventViewPage/infoPanel/ResultsPublishing.tsx
   - src/pages/admin/components/KcIdLookupButton.tsx
   - src/pages/admin/components/StartDaySelector.tsx
-sourceHash: b1f687
+sourceHash: b83556
 ---
 
 On the trial day the secretary's job is to record what the dogs did and to get the results in
@@ -76,9 +76,9 @@ group has others; the whole group is removed with its own bin button. When a gro
 four or five exercises, the page warns of it but saves.
 
 The day's first group does one exercise at each post in number order. The next group is suggested
-from the previous one, since the groups usually all go round the same way: it starts at the post where
-the previous group did its second exercise and goes on in the same order. A post repeated in a row
-stays in a row, so the previous 1, 2, 3, 3 gives 2, 3, 1, 1. An exercise keeps its parts and dogs at
+from the previous one, since the groups usually all go round the same way: it starts at the post the
+previous group moved to after its first post and goes on in the same order. A post repeated in a row
+stays in a row, so the previous 1, 2, 3, 3 gives 2, 3, 1, 1 and 1, 1, 2, 3 gives 2, 2, 3, 1. An exercise keeps its parts and dogs at
 once with its number. The class is the first class without a group; once every class of the day has
 a group, it is the previous group's class, *{t:event.rotation.firstNumber}* is the previous group's
 last number plus one and *{t:event.rotation.lastNumber}* is left empty. A suggestion can be edited
@@ -116,8 +116,9 @@ changes reads *{t:results.kennelliitto.badge.changed}* in the *Omakoira* column 
 
 Recorded points belong to the post where the judge gave them: changing a running order does not move
 them to another post. They are kept as long as the post still has as many exercises with the same
-parts. When, for example, a post's second exercise leaves a group's order or an exercise's parts
-change, the scores that would go are listed dog by dog before the save.
+parts. When the number of exercises or parts at a post changes, every score recorded there goes, since
+the post's exercises are then counted anew; the scores that would go are listed dog by dog before the
+save.
 **{t:event.resultTasksDropped.confirm}** saves the change and removes the scores, and they do not
 come back even if the change is undone later. **{t:cancel}** leaves the change unsaved.
 
@@ -157,7 +158,7 @@ trials only pass or fail. Beside it is *{t:results.judge}*, when the class has m
 **Interruption.** The *{t:results.interruption}* field records
 *{t:results.retirement.judgeStopped}*. A stopped dog's result is a nought, as the rules say, and on
 the published list it carries the mark *{t:results.marks.interrupted}*. The view of all posts also
-asks *{t:results.outcomeAt}*, that is, at which post the round was stopped. A prize already
+asks *{t:results.outcomeAt}*, that is, at which post the dog was stopped. A prize already
 recorded cannot take a stop beside it; clear the result first.
 
 The interruption is asked only in the formats where the Kennel Club records one (NOME-A, NOME-B, NKM

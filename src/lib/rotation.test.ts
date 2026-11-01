@@ -139,7 +139,7 @@ describe('dogRound with a running order', () => {
     const legacy = { rotations: [JSON.parse(JSON.stringify(stored))], stations }
 
     expect(dogRound(legacy, { class: 'ALO', day: DAY })).toEqual(dogRound({ stations }, { class: 'ALO', day: DAY }))
-    expect(rotationShapeErrors(legacy)).toEqual([{ group: 0, kind: 'noPosts' }])
+    expect(rotationShapeErrors(legacy)).toEqual([{ group: 0, kind: 'noExercises' }])
   })
 })
 
@@ -225,14 +225,32 @@ describe('dayStations', () => {
 })
 
 describe('stationArrivals', () => {
-  it('lists the visits in exercise order, a group doing two exercises at the post coming twice', () => {
-    expect(
-      stationArrivals(event, 'post-1').map(({ exercise, group, slotsBefore }) => [group.class, exercise, slotsBefore])
-    ).toEqual([
+  it('lists the visits in exercise order, a group coming once for each exercise, in a row or apart', () => {
+    const arrivals = (rotationEvent: RotationEvent) =>
+      stationArrivals(rotationEvent, 'post-1').map(({ exercise, group, slotsBefore }) => [
+        group.class,
+        exercise,
+        slotsBefore,
+      ])
+    const twiceApart = {
+      rotations: [
+        { class: 'ALO' as const, exercises: order(1, 2, 1, 2) },
+        { class: 'AVO' as const, exercises: order(2, 1, 2, 1) },
+      ],
+      stations,
+    }
+
+    expect(arrivals(event)).toEqual([
       ['ALO', 1, 0],
       ['AVO', 2, 0],
       ['VOI', 3, 0],
       ['VOI', 4, 1],
+    ])
+    expect(arrivals(twiceApart)).toEqual([
+      ['ALO', 1, 0],
+      ['AVO', 2, 0],
+      ['ALO', 3, 1],
+      ['AVO', 4, 1],
     ])
   })
 
@@ -429,7 +447,7 @@ describe('rotationShapeErrors', () => {
         stations,
       })
     ).toEqual([
-      { group: 0, kind: 'noPosts' },
+      { group: 0, kind: 'noExercises' },
       { group: 1, kind: 'unknownPost', stationId: 'gone' },
     ])
   })
@@ -500,7 +518,7 @@ describe('rotationWarnings', () => {
   it('warns, without refusing, of a running order of other than four or five exercises', () => {
     const three = { rotations: [{ class: 'ALO' as const, exercises: order(1, 2, 3) }], stations }
 
-    expect(rotationWarnings(three)).toEqual([{ count: 3, group: 0, kind: 'exerciseCount' }])
+    expect(rotationWarnings(three)).toEqual([{ count: 3, group: 0 }])
     expect(rotationShapeErrors(three)).toEqual([])
     expect(rotationWarnings(event)).toEqual([])
   })
@@ -552,17 +570,6 @@ describe('formatting', () => {
   it("reads a post as the organiser's map does, by exercise number, a group's visits in a row together", () => {
     expect(formatStationArrivals(event, stations[0], t)).toBe(
       'Suorituspaikka 1: ALO (rasti 1), AVO (rasti 2), VOI (rastit 3 ja 4)'
-    )
-  })
-
-  it('lists a group coming to the post twice apart at each of its visits', () => {
-    const twice: EventRotationGroup[] = [
-      { class: 'ALO', exercises: order(1, 2, 1, 2) },
-      { class: 'AVO', exercises: order(2, 1, 2, 1) },
-    ]
-
-    expect(formatStationArrivals({ rotations: twice, stations }, stations[0], t)).toBe(
-      'Suorituspaikka 1: ALO (rasti 1), AVO (rasti 2), ALO (rasti 3), AVO (rasti 4)'
     )
   })
 

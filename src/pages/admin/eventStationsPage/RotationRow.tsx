@@ -9,7 +9,7 @@ import Stack from '@mui/material/Stack'
 import TextField from '@mui/material/TextField'
 import { useTranslation } from 'react-i18next'
 import { DOG_COUNTS } from '@/lib/liveFormat'
-import { exerciseOf, exerciseSettingsOf, groupExercises, POST_PARTS } from '@/lib/rotation'
+import { exerciseOf, exerciseSettingsOf, groupExercises, moveExercise, POST_PARTS } from '@/lib/rotation'
 
 interface Props {
   readonly group: EventRotationGroup
@@ -51,7 +51,7 @@ const withPost = (
 ): EventExercise[] => {
   if (!picked) return exercises.filter((_, at) => at !== index)
   const old = stations.find((station) => station.id === exercises[index].stationId)
-  const moved = old ? exerciseOf(picked, exerciseSettingsOf(old, exercises[index])) : { stationId: picked.id }
+  const moved = old ? moveExercise(old, picked, exercises[index]) : { stationId: picked.id }
   return exercises.map((exercise, at) => (at === index ? moved : exercise))
 }
 
@@ -141,6 +141,9 @@ export const RotationRow = ({ group, classes, stations, disabled, onChange, onRe
       {numberField('lastNumber')}
       {exercises.map((exercise, index) => {
         const station = stations.find((item) => item.id === exercise.stationId)
+        // A key that stays with the column while the order around it changes: the post and which of its
+        // exercises in the order this one is, since the same post may be in several columns.
+        const nth = exercises.slice(0, index).filter((item) => item.stationId === exercise.stationId).length
         const settings = station ? exerciseSettingsOf(station, exercise) : UNKNOWN_POST_SETTINGS
         const setExercise = (change: Partial<ExerciseSettings>) =>
           station &&
@@ -149,10 +152,8 @@ export const RotationRow = ({ group, classes, stations, disabled, onChange, onRe
           )
 
         return (
-          // A column is the exercise's place in the order: the same post may be in several columns. Its
-          // post on top, its parts and dogs at once under it, so an order of five fits a row.
-          // biome-ignore lint/suspicious/noArrayIndexKey: the place in the order is what a column is
-          <Stack key={index} spacing={0.5} sx={{ width: 184 }}>
+          // The exercise's post on top, its parts and dogs at once under it, so an order of five fits a row.
+          <Stack key={`${exercise.stationId}-${nth}`} spacing={0.5} sx={{ width: 184 }}>
             <RowSelect
               disabled={disabled}
               label={t('event.rotation.visit', { number: index + 1 })}

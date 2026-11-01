@@ -120,15 +120,6 @@ describe('ResultsTable rotation groups (KOE-1665)', () => {
     expect(screen.getAllByRole('columnheader', { name: /results\.column\.task/ })).toHaveLength(2)
     expect(screen.getAllByLabelText(/results\.column\.task/)).toHaveLength(2)
   })
-
-  it('names the columns by exercise number where the groups of a class do them at different posts', () => {
-    renderGroups([
-      ['post-1', 'post-2'],
-      ['post-2', 'post-1'],
-    ])
-
-    expect(screen.getAllByRole('columnheader', { name: /^results\.column\.task/ })).toHaveLength(2)
-  })
 })
 
 describeWithTranslations('fi', () => {

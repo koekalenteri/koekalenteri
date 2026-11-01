@@ -445,21 +445,6 @@ describeWithTranslations('fi', () => {
       savesRotations(onChange, [expect.objectContaining({ exercises: [{ dogsAtOnce: 4, parts: 2, stationId: 'r2' }] })])
     })
 
-    it('lets the same post come again, in a row or apart', async () => {
-      const onChange = vi.fn()
-      const { user } = renderWithUserEvents(
-        <Harness initial={one({ exercises: exercisesAt('r1', 'r2', 'r2') })} onChange={onChange} />,
-        undefined
-      )
-
-      await user.click(screen.getByRole('combobox', { name: 'Rasti 3' }))
-      await user.click(within(screen.getByRole('listbox')).getByRole('option', { name: 'Suorituspaikka 1' }))
-
-      savesRotations(onChange, [
-        expect.objectContaining({ exercises: [...exercisesAt('r1', 'r2'), { parts: 2, stationId: 'r1' }] }),
-      ])
-    })
-
     it('drops a group whose class no longer runs on the day of its posts', async () => {
       const onChange = vi.fn()
       const initial = testEvent({

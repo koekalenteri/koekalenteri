@@ -57,8 +57,8 @@ describe('stationTurns', () => {
         registrationIds: [],
         type: 'start',
       })
-      expect(parseStationTurnOp({ exercise: 3, registrationIds: ['run-1'], type: 'start' })).toEqual({
-        exercise: 3,
+      expect(parseStationTurnOp({ exercise: 21, registrationIds: ['run-1'], type: 'start' })).toEqual({
+        exercise: 21,
         registrationIds: ['run-1'],
         type: 'start',
       })
@@ -85,7 +85,6 @@ describe('stationTurns', () => {
       [{ mark: 'gotRetrieve', type: 'mark' }],
       [{ exercise: 0, registrationIds: ['run-1'], type: 'start' }],
       [{ exercise: 1.5, registrationIds: ['run-1'], type: 'start' }],
-      [{ exercise: 21, registrationIds: ['run-1'], type: 'start' }],
       [{ exercise: '3', registrationIds: ['run-1'], type: 'start' }],
     ])('refuses %j with 422', (body) => {
       expect(() => parseStationTurnOp(body)).toThrow(expect.objectContaining({ status: 422 }))
