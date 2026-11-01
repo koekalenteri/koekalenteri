@@ -33,9 +33,13 @@ export const asksOutcome = (eventType: string | undefined, carriesStop = false):
   outcomeReasonEnabled || hasJudgeStop(eventType) || carriesStop
 
 const SCORED = ''
-const INJURY = 'injury'
 const HANDLER_CHOICE = 'handlerChoice'
 const JUDGE_STOPPED = 'judgeStopped'
+
+/** The ways a round ends that the judge does not decide on the dog's work, in the order the menu offers them. */
+const RETIREMENTS = ['handlerChoice', 'injury', 'illness'] as const
+type Retirement = (typeof RETIREMENTS)[number]
+const retirementOf = (value: string): Retirement | undefined => RETIREMENTS.find((cause) => cause === value)
 
 interface Props {
   readonly value: ResultEdit
@@ -61,8 +65,9 @@ const stationOf = (edit: ResultEdit) => edit.elimination?.stationId ?? edit.reti
  * finish — even though the rules treat them differently: every elimination is a dash, while a handler's
  * own withdrawal is a dash only if the judge holds the dog could still have placed.
  *
- * While `outcomeReasonEnabled` is off the control asks only whether the judge stopped the trial
- * (KOE-1300); the rest of the list waits on KOE-1299 rather than being rebuilt then.
+ * While `outcomeReasonEnabled` is off, a round scored at posts (NOWT) offers the retirements and the
+ * judge's stop (KOE-1669), and the other formats the judge's stop alone (KOE-1300); the hylkäävät virheet
+ * wait on KOE-1299 rather than being rebuilt then.
  */
 export const RoundOutcome = ({
   value,
@@ -88,9 +93,18 @@ export const RoundOutcome = ({
   // stop away (`withResultCode`), so the control is never greyed out while showing one.
   const stopLocked = stopped !== undefined && !canBeStopped(value.resultCode)
   const offersStop = hasJudgeStop(eventType) || carriesStop
-  // Why the round ended, where that is asked at all: each format's own hylkäävät virheet, then the
-  // retirements that are not the judge's stop. Built as a list so the one question that is always asked
-  // reads as one item in the menu rather than as a gate around every line of it.
+  // Why the round ended, where that is asked at all: each format's own hylkäävät virheet, where they are
+  // switched on, then the retirements that are not the judge's stop. A round scored at posts asks for
+  // those in any case, since its result is derived from them (KOE-1669). Built as a list so the one
+  // question that is always asked reads as one item in the menu rather than as a gate around every line.
+  const retirements =
+    outcomeReasonEnabled || scoresAtPosts(eventType)
+      ? RETIREMENTS.map((cause) => (
+          <MenuItem key={cause} value={cause}>
+            {t(`results.retirement.${cause}`)}
+          </MenuItem>
+        ))
+      : []
   const reasons = outcomeReasonEnabled
     ? [
         <ListSubheader key="eliminated">{t('results.outcomeEliminated')}</ListSubheader>,
@@ -100,14 +114,9 @@ export const RoundOutcome = ({
           </MenuItem>
         )),
         <ListSubheader key="retired">{t('results.outcomeRetired')}</ListSubheader>,
-        <MenuItem key={INJURY} value={INJURY}>
-          {t('results.retirement.injury')}
-        </MenuItem>,
-        <MenuItem key={HANDLER_CHOICE} value={HANDLER_CHOICE}>
-          {t('results.retirement.handlerChoice')}
-        </MenuItem>,
+        ...retirements,
       ]
-    : []
+    : retirements
 
   const handleOutcome = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -121,7 +130,6 @@ export const RoundOutcome = ({
       const kept = { tasks: value.tasks, ...(value.resultCode ? { resultCode: value.resultCode } : {}) }
 
       if (next === SCORED) return onChange(kept)
-      if (next === INJURY) return onChange({ retirement: { cause: 'injury', ...at }, ...kept })
       if (next === JUDGE_STOPPED) {
         return onChange({
           ...kept,
@@ -129,9 +137,8 @@ export const RoundOutcome = ({
           retirement: { cause: 'judgeStopped', ...at },
         })
       }
-      if (next === HANDLER_CHOICE) {
-        return onChange({ retirement: { cause: 'handlerChoice', ...at }, ...kept })
-      }
+      const retirement = retirementOf(next)
+      if (retirement) return onChange({ retirement: { cause: retirement, ...at }, ...kept })
 
       return onChange({ elimination: { fault: next as EliminatingFault, ...at }, ...kept })
     },
@@ -205,7 +212,7 @@ export const RoundOutcome = ({
         </TextField>
       )}
 
-      {/* §5.8.1 asks this only of a handler's own withdrawal; an injured dog always takes the dash. */}
+      {/* §5.4.1 asks this only of a handler's own withdrawal; an injured or ill dog always takes the dash. */}
       {outcome === HANDLER_CHOICE && (
         <FormControlLabel
           control={

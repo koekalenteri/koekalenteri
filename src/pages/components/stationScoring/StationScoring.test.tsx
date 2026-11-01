@@ -268,7 +268,7 @@ describe('StationScoring', () => {
       eventType: 'NOWT',
       group: { ...group, key: `${eventClass}-AP`, number: 1 },
       id,
-      visit: { parts: 1 as const, tasks, tasksBefore: 2 },
+      visit: { parts: 1 as const, postsBefore: ['post-0'], tasks, tasksBefore: 2 },
     })
 
     it('keeps the classes in the order they reach the post', () => {
@@ -284,6 +284,68 @@ describe('StationScoring', () => {
       await user.click(screen.getByRole('button', { name: '1 alo' }))
 
       expect(screen.getAllByLabelText(/results\.column\.task/)).toHaveLength(2)
+    })
+  })
+
+  describe('a dog whose round ended at an earlier post (KOE-1669)', () => {
+    const at = new Date('2026-09-12T09:00:00Z')
+    const dog = (id: string, number: number, retiredAt?: string) => ({
+      class: 'ALO' as const,
+      dog: { name: id },
+      eventType: 'NOWT',
+      group: { ...group, number },
+      id,
+      visit: { parts: 1 as const, postsBefore: ['post-0'], tasks: 2, tasksBefore: 2 },
+      ...(retiredAt
+        ? {
+            eventResult: {
+              retirement: { cause: 'handlerChoice' as const, stationId: retiredAt },
+              updatedAt: at,
+            },
+          }
+        : {}),
+    })
+
+    it('shows kesk instead of the inputs and counts the dog as done', async () => {
+      const user = userEvent.setup()
+      renderScoring({ eventType: 'NOWT', registrations: [dog('stopped', 1, 'post-0')] })
+
+      expect(screen.getByRole('button', { name: '1 stopped' })).toHaveClass('MuiChip-filled')
+      await user.click(screen.getByRole('button', { name: '1 stopped' }))
+
+      expect(screen.getAllByText(/results\.notReached/)).toHaveLength(2)
+      expect(screen.queryByLabelText(/results\.column\.task/)).not.toBeInTheDocument()
+    })
+
+    it('asks for the scores of a dog whose round ended here or at an unknown post', async () => {
+      const user = userEvent.setup()
+      renderScoring({
+        eventType: 'NOWT',
+        registrations: [
+          dog('here', 1, '1'),
+          { ...dog('unknown', 2), eventResult: { retirement: { cause: 'injury' as const }, updatedAt: at } },
+        ],
+      })
+
+      await user.click(screen.getByRole('button', { name: '1 here' }))
+      expect(screen.getAllByLabelText(/results\.column\.task/)).toHaveLength(2)
+      await user.click(screen.getByRole('button', { name: '2 unknown' }))
+      expect(screen.getAllByLabelText(/results\.column\.task/)).toHaveLength(2)
+      expect(screen.queryByText(/results\.notReached/)).not.toBeInTheDocument()
+    })
+
+    it('moves on past it to the next dog the post has to score', async () => {
+      const user = userEvent.setup()
+      renderScoring({
+        eventType: 'NOWT',
+        registrations: [dog('first', 1), dog('stopped', 2, 'post-0'), dog('third', 3)],
+      })
+
+      await user.click(screen.getByRole('button', { name: '1 first' }))
+      await user.type(screen.getAllByLabelText(/results\.column\.task/)[0], '15')
+      await user.click(screen.getByRole('button', { name: 'results.save' }))
+
+      expect(await screen.findByRole('heading', { name: '3. third' })).toBeInTheDocument()
     })
   })
 

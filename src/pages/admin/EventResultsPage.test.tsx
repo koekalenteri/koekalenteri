@@ -286,7 +286,7 @@ describe('EventResultsPage', () => {
     expect(screen.getByText('results.column.outcome')).toBeInTheDocument()
   })
 
-  it('asks only whether the judge stopped the trial while the reason is switched off', async () => {
+  it('asks how a NOWT round ended, without the faults, while the reason is switched off (KOE-1669)', async () => {
     const { i18n } = useTranslation()
     features.outcomeReasonEnabled = false
     try {
@@ -295,13 +295,23 @@ describe('EventResultsPage', () => {
 
       await user.click(within(rowFor('Ensimmainen')).getByLabelText('results.interruption'))
 
-      // Recording *why* is KOE-1299 and still switched off, so the column narrows to the one question
-      // the secretary can answer, and its heading narrows with it.
-      const options = within(screen.getByRole('listbox')).getAllByRole('option')
-      expect(options.map((option) => option.textContent)).toEqual([
+      // The hylkäävät virheet are KOE-1299 and still switched off, and with them the headings that
+      // would split the list; a round scored at posts derives its result from how it ended, so the
+      // retirements are asked beside the judge's stop.
+      const listbox = screen.getByRole('listbox')
+      expect(
+        within(listbox)
+          .getAllByRole('option')
+          .map((option) => option.textContent)
+      ).toEqual([
         'results.notInterrupted',
+        'results.retirement.handlerChoice',
+        'results.retirement.injury',
+        'results.retirement.illness',
         'results.retirement.judgeStopped',
       ])
+      expect(within(listbox).queryByText('results.outcomeRetired')).not.toBeInTheDocument()
+      expect(within(listbox).queryByText('results.outcomeEliminated')).not.toBeInTheDocument()
 
       await user.click(screen.getByRole('option', { name: 'results.retirement.judgeStopped' }))
       await flushPromises()
@@ -310,6 +320,27 @@ describe('EventResultsPage', () => {
       // shape the breeding database shows (ALO0, Kesk.).
       expect(within(rowFor('Ensimmainen')).getByText('ALO0')).toBeInTheDocument()
       expect(within(rowFor('Ensimmainen')).getByText('results.marks.interrupted')).toBeInTheDocument()
+    } finally {
+      features.outcomeReasonEnabled = true
+    }
+  })
+
+  it('asks a NOME-B round only whether the judge stopped it while the reason is switched off (KOE-1669)', async () => {
+    const { i18n } = useTranslation()
+    const nomeB: ConfirmedEvent = { ...eventWithStaticDates, eventType: 'NOME-B' }
+    features.outcomeReasonEnabled = false
+    try {
+      const { user } = await renderQualitativePage(i18n.language as Language, {}, nomeB)
+      await flushPromises()
+
+      await user.click(within(rowFor('Ensimmainen')).getByLabelText('results.interruption'))
+
+      // A qualitative result is the judge's decision, entered as such: nothing derives it from a retirement.
+      const options = within(screen.getByRole('listbox')).getAllByRole('option')
+      expect(options.map((option) => option.textContent)).toEqual([
+        'results.notInterrupted',
+        'results.retirement.judgeStopped',
+      ])
     } finally {
       features.outcomeReasonEnabled = true
     }
@@ -720,7 +751,7 @@ describe('EventResultsPage', () => {
     await user.click(screen.getByRole('option', { name: 'results.retirement.injury' }))
     await flushPromises()
 
-    // An injured dog always takes the dash, so §5.8.1's question is not asked of it.
+    // An injured dog always takes the dash, so §5.4.1's question is not asked of it.
     expect(screen.queryByLabelText('results.couldStillHavePlaced')).not.toBeInTheDocument()
 
     await user.click(within(rowFor('Ensimmainen')).getByLabelText('results.outcome'))

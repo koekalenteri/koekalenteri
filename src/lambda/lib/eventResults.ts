@@ -70,6 +70,7 @@ const ELIMINATING_FAULT_TEXT: Record<EventResultElimination['fault'], string> = 
 
 const RETIREMENT_CAUSE_TEXT: Record<EventResultRetirement['cause'], string> = {
   handlerChoice: 'ohjaaja keskeytti',
+  illness: 'koira sairastui',
   injury: 'koira loukkaantui',
   judgeStopped: 'tuomari keskeytti kokeen',
 }
@@ -216,7 +217,6 @@ const pickTask = (value: unknown, judges: PublicJudge[]): SubmittedTask => {
     points: value.points,
     stationId: value.stationId,
     ...(value.recalled === true ? { recalled: true } : {}),
-    ...(value.retired === true ? { retired: true } : {}),
     ...(zeroFault ? { zeroFault } : {}),
     ...(judge ? { judge } : {}),
   }
@@ -233,7 +233,7 @@ const pickElimination = (value: unknown, eventType: string): EventResultEliminat
   return { fault, ...(typeof value.stationId === 'string' ? { stationId: value.stationId } : {}) }
 }
 
-const RETIREMENT_CAUSES = ['handlerChoice', 'injury', 'judgeStopped'] as const
+const RETIREMENT_CAUSES = ['handlerChoice', 'injury', 'illness', 'judgeStopped'] as const
 
 const pickRetirement = (value: unknown): EventResultRetirement => {
   if (!isRecord(value)) throw new LambdaError(422, 'Malformed retirement')

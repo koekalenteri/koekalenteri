@@ -224,7 +224,8 @@ export const rotationGroupsOfDay = (event: RotationEvent, day: string): Rotation
 }
 
 /**
- * A group's posts in its own order, with the post's defaults filled in and the tasks it does before each.
+ * A group's posts in its own order, with the post's defaults filled in and the tasks and posts it does
+ * before each.
  * A post the event lacks is skipped.
  */
 const groupVisits = (event: RotationEvent, group: RotationGroup): RotationVisit[] => {
@@ -238,6 +239,7 @@ const groupVisits = (event: RotationEvent, group: RotationGroup): RotationVisit[
     visits.push({
       parts: post.parts ?? stationParts(station),
       position: visits.length,
+      postsBefore: visits.map((visit) => visit.station.id),
       station,
       tasks,
       tasksBefore,
@@ -280,8 +282,9 @@ export const stationArrivals = (event: RotationEvent, stationId: string): Statio
 }
 
 /** What the link is sent of a visit: the layout, without the post and the place in the round. */
-const visitLayoutOf = ({ parts, tasks, tasksBefore, dogsAtOnce }: RotationVisit): StationVisitLayout => ({
+const visitLayoutOf = ({ parts, postsBefore, tasks, tasksBefore, dogsAtOnce }: RotationVisit): StationVisitLayout => ({
   parts,
+  postsBefore,
   tasks,
   tasksBefore,
   ...(dogsAtOnce === undefined ? {} : { dogsAtOnce }),

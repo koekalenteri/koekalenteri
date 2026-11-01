@@ -14,7 +14,7 @@ const Frame = ({ children }: { readonly children: React.ReactNode }) => (
 const judge = { id: 223, name: 'Tuomari 2', official: true }
 const station = { id: 'post-2', judges: [judge], number: 2 }
 /** The group's second post, its one task split into two parts of 10 (KOE-1665). */
-const visit = { parts: 2 as const, tasks: 1, tasksBefore: 1 }
+const visit = { parts: 2 as const, postsBefore: ['post-1'], tasks: 1, tasksBefore: 1 }
 const group = { date: eventWithStations.startDate, key: 'ALO-AP', time: 'ap' as const }
 
 // One dog through the post, the next one open in front of the judge (KOE-1258).
@@ -122,4 +122,31 @@ it('shows a NOME-A result at the post as Kennelliitto lists it', async () => {
   await screen.getByText('1 Ensimmainen').click()
   await expect.element(screen.getByText('A1', { exact: true })).toBeVisible()
   await expect(screen.getByTestId('visual-root')).toMatchScreenshot('station-scoring-nome-a')
+})
+
+// A dog whose handler withdrew it at the post before comes no further: its chip reads as done, and its
+// tasks here read "kesk" instead of asking for points (KOE-1669).
+it('shows kesk at a post the dog never reached', async () => {
+  const withdrawn = {
+    ...registrations[1],
+    eventResult: { retirement: { cause: 'handlerChoice' as const, stationId: 'post-1' } },
+  }
+  const screen = await render(
+    <Frame>
+      <StationScoring
+        classes={eventWithStations.classes}
+        eventType="NOWT"
+        onSave={async () => ({ registrations: [], saved: [] })}
+        onTurn={async () => {}}
+        registrations={[registrations[0], withdrawn]}
+        station={station}
+        subtitle="Tuloskoe"
+        turns={turns}
+      />
+    </Frame>
+  )
+
+  await screen.getByText('2 Toinen').click()
+  await expect.element(screen.getByText('Tehtävä 2, osa 1/2: kesk')).toBeVisible()
+  await expect(screen.getByTestId('visual-root')).toMatchScreenshot('station-scoring-not-reached')
 })

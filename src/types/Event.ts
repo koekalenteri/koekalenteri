@@ -348,6 +348,11 @@ export interface StationVisitLayout {
    * neither sets one. The format's fixed figure still wins over it (`stationDogsAtOnce`).
    */
   dogsAtOnce?: number
+  /**
+   * The posts the group visits before this one, in its round's order: a dog whose round ended at one of
+   * them never reaches this post, which the post then shows as "kesk" (KOE-1669).
+   */
+  postsBefore: string[]
 }
 
 /**

@@ -1,6 +1,7 @@
 import type { EventResultSubmission } from '@/api/registration'
 import type {
   EventResult,
+  EventResultRetirement,
   EventResultsResponse,
   EventStation,
   PublicDogEvent,
@@ -32,15 +33,22 @@ import { compareRegistrationClasses } from '@/lib/event'
 import { makeArray } from '@/lib/judge'
 import { liveFormat } from '@/lib/liveFormat'
 import { getRegistrationClass } from '@/lib/registration'
-import { formatTaskName, parseEventResultCode, scoresAtPosts, stationSlots, stationVersion } from '@/lib/results'
+import {
+  formatTaskName,
+  isRecordedTask,
+  parseEventResultCode,
+  scoresAtPosts,
+  stationSlots,
+  stationVersion,
+} from '@/lib/results'
 import { openTurn } from '@/lib/stationTurns'
 import { AsyncButton } from '../AsyncButton'
 import { JudgeSelect } from './JudgeSelect'
 import { ResultSummary } from './ResultSummary'
 import { RoundOutcome } from './RoundOutcome'
 import { StationTurnControls } from './StationTurnControls'
-import { TaskScore } from './TaskScore'
-import { emptyEdit, isVoided } from './types'
+import { TaskNotReached, TaskScore } from './TaskScore'
+import { emptyEdit } from './types'
 
 /**
  * A dog as this screen needs it. Structural on purpose: the event secretary's view has the whole
@@ -109,6 +117,13 @@ const seededEdit = (dog: StationScoringDog, stationId: string, eventType: string
     tasks: [],
   }
 }
+
+/**
+ * Whether the dog's round ended at a post its group visits before this one, so it never comes here
+ * (KOE-1669). A round ended at an unknown post ("Ei tiedossa") is not known to have missed any.
+ */
+const endedBefore = (retirement: EventResultRetirement | undefined, visit: StationVisitLayout | undefined): boolean =>
+  Boolean(retirement?.stationId && visit?.postsBefore.includes(retirement.stationId))
 
 /**
  * The dog in front of the judge when the screen opens: whoever the open turn holds. Coming back to a
@@ -194,11 +209,15 @@ export function StationScoring({
     [qualitative, station.id, visit]
   )
 
-  /** A dog this post has already scored, so the judge can see at a glance who is still to come. */
+  /**
+   * A dog this post has already scored, so the judge can see at a glance who is still to come. A dog whose
+   * round ended at an earlier post is not to come either.
+   */
   const isScored = useCallback(
     (dog: StationScoringDog) => {
       const stored = dog.eventResult
       if (qualitative) return Boolean(stored?.result ?? stored?.elimination ?? stored?.retirement)
+      if (endedBefore(stored?.retirement, dog.visit)) return true
       return stored?.tasks?.some((task) => task.stationId === station.id) ?? false
     },
     [qualitative, station.id]
@@ -376,39 +395,48 @@ export function StationScoring({
                 />
               </>
             )}
-            {round.map((task) => (
-              <TaskScore
-                defaultJudge={lastJudge}
-                disabled={isVoided(edit)}
-                judges={judges}
-                name={formatTaskName(task, t)}
-                key={`${task.stationId}#${task.index}`}
-                onChange={(item, points, zeroFault) =>
-                  setEdit((prev) => ({
-                    ...prev,
-                    tasks: [
-                      ...prev.tasks.filter((entry) => entry.index !== item.index),
-                      {
-                        index: item.index,
-                        judge: prev.tasks.find((entry) => entry.index === item.index)?.judge ?? lastJudge ?? judges[0],
-                        points,
-                        stationId: item.stationId,
-                        ...(zeroFault ? { zeroFault } : {}),
-                      },
-                    ],
-                  }))
-                }
-                onJudgeChange={(item, judge) => {
-                  setLastJudge(judge)
-                  setEdit((prev) => ({
-                    ...prev,
-                    tasks: prev.tasks.map((entry) => (entry.index === item.index ? { ...entry, judge } : entry)),
-                  }))
-                }}
-                task={task}
-                value={edit.tasks.find((entry) => entry.index === task.index)}
-              />
-            ))}
+            {round.map((task) => {
+              const value = edit.tasks.find((entry) => entry.index === task.index)
+              // A score stored here anyway stays an input: it counts, so the judge's secretary can clear it.
+              if (endedBefore(edit.retirement, visit) && !(value && isRecordedTask(value))) {
+                return (
+                  <TaskNotReached key={`${task.stationId}#${task.index}`} name={formatTaskName(task, t)} showName />
+                )
+              }
+              return (
+                <TaskScore
+                  defaultJudge={lastJudge}
+                  judges={judges}
+                  name={formatTaskName(task, t)}
+                  key={`${task.stationId}#${task.index}`}
+                  onChange={(item, points, zeroFault) =>
+                    setEdit((prev) => ({
+                      ...prev,
+                      tasks: [
+                        ...prev.tasks.filter((entry) => entry.index !== item.index),
+                        {
+                          index: item.index,
+                          judge:
+                            prev.tasks.find((entry) => entry.index === item.index)?.judge ?? lastJudge ?? judges[0],
+                          points,
+                          stationId: item.stationId,
+                          ...(zeroFault ? { zeroFault } : {}),
+                        },
+                      ],
+                    }))
+                  }
+                  onJudgeChange={(item, judge) => {
+                    setLastJudge(judge)
+                    setEdit((prev) => ({
+                      ...prev,
+                      tasks: prev.tasks.map((entry) => (entry.index === item.index ? { ...entry, judge } : entry)),
+                    }))
+                  }}
+                  task={task}
+                  value={value}
+                />
+              )
+            })}
           </Stack>
 
           <RoundOutcome eventType={eventType} onChange={setEdit} stationId={station.id} stations={[]} value={edit} />

@@ -27,6 +27,28 @@ interface Props {
   readonly onJudgeChange: (task: RoundTask, judge?: PublicJudge) => void
 }
 
+interface NotReachedProps {
+  /** Names the task, as {@link TaskScore} does. */
+  readonly name: string
+  readonly showName?: boolean
+}
+
+/**
+ * A task the dog never reached, its round having ended at an earlier post: "kesk", as the results sheet
+ * writes it (KOE-1669). Not an input, since there is nothing to score. Where no column header names the
+ * task, the text names it.
+ */
+export const TaskNotReached = ({ name, showName = false }: NotReachedProps) => {
+  const { t } = useTranslation()
+  const text = t('results.notReached')
+
+  return (
+    <Typography sx={{ color: 'text.secondary', minWidth: 64 }} variant="body2">
+      {showName ? `${name}: ${text}` : text}
+    </Typography>
+  )
+}
+
 export const TaskScore = ({
   task,
   value,

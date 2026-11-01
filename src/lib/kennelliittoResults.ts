@@ -235,8 +235,9 @@ export const kcResultDay = (registration: Pick<KcResultRegistration, 'group' | '
   getRegistrationGroupDay(getRegistrationPlacement(registration)?.date) || undefined
 
 /**
- * The percentage NOWT sends in place of points: `points * 100 / maxPoints` as recorded, and 0 for a
- * round that was stopped, which has no total (the dash is sent with points 0, Juha). Nothing is
+ * The percentage NOWT sends in place of points: `points * 100 / maxPoints` as recorded. A round that
+ * ended early sends what it earned too, nought and dash alike, as the breeding database publishes them
+ * (KOE-1669); a result stored before that has no total and sends 0 until it is saved again. Nothing is
  * rounded, and nothing is checked against the result's limits, which Kennelliitto's own list gets
  * wrong for ALO0 and ALO-: it answers with its reasons when it refuses a number.
  */
@@ -246,8 +247,9 @@ const pointsOf = (registration: KcResultRegistration): number => registration.ev
  * The placement Kennelliitto takes with a NOWT result: the rank `placementsFor` derived for the dog over
  * every dog of the trial, which is why it is an input here and not computed from the one registration.
  * The API says a placement is given only where the format's results have one, so the other formats send
- * none. An awarded dog (prize 1, 2 or 3) that has no rank has no points to be ranked by (a voided round
- * whose code was overridden), and is not sent until it has.
+ * none. An awarded dog (prize 1, 2 or 3) that has no rank has no points to be ranked by (a row whose
+ * totals were never stored), and is not sent until it has. A round that ended early is a nought or a
+ * dash, which rank nowhere.
  */
 const placementOf = (
   event: KcResultEvent,
@@ -329,7 +331,9 @@ export const buildKcResult = (
   return {
     body: {
       hylätty: row.hylätty,
-      keskeytetty: row.keskeytys || resultMarks(registration.eventResult).length > 0,
+      // The judge's stop alone, as its mark: the format's rows call every dash a stop, but a handler's
+      // own dash is published without "Kesk." (KOE-1669).
+      keskeytetty: resultMarks(registration.eventResult).length > 0,
       koeGUID: event.kcGuid,
       nimi: name,
       palkintotuomarit: judges.palkintotuomarit,

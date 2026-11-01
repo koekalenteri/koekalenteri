@@ -1339,6 +1339,7 @@
       "interrupted": "Kesk."
     },
     "notInterrupted": "Ei keskeytystä",
+    "notReached": "kesk",
     "openLiveEntry": "Live-kirjaus",
     "outcome": "Hylkäys / keskeytys",
     "outcomeAt": "Missä",
@@ -1350,6 +1351,7 @@
     "resultNone": "Ei tulosta",
     "retirement": {
       "handlerChoice": "Ohjaaja keskeytti",
+      "illness": "Koira sairastui",
       "injury": "Koira loukkaantui",
       "judgeStopped": "Tuomari keskeytti kokeen"
     },
