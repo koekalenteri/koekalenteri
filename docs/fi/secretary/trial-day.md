@@ -67,7 +67,8 @@ kullakin rastilla rastin oletusmäärän tehtäviä, kuten ennenkin. Painike
 ryhmä on koko luokka). Uusi ryhmä kiertää päivän rastit numerojärjestyksessä. Järjestys muutetaan
 valitsemalla sarakkeeseen rasti: jos ryhmä käy jo valitulla rastilla toisessa sarakkeessa, rastit
 vaihtavat paikkaa ja kumpikin säilyttää tehtävänsä. Valinta *{t:event.rotation.visitNone}* poistaa
-rastin kierrosta, ja **+** lisää kiertoon rastin, jolla ryhmä ei vielä käy. Kullekin rastille voi
+rastin kierrosta, kun ryhmällä on muitakin rasteja; koko ryhmä poistetaan sen omalla
+roskakoripainikkeella. **+** lisää kiertoon rastin, jolla ryhmä ei vielä käy. Kullekin rastille voi
 antaa ryhmän tehtävien määrän (1 - 3) ja osajaon; muuten noudatetaan rastin oletusta. Esimerkiksi kolmen
 luokan kokeessa ALO kiertää rastit 1, 2 ja 3 ja tekee rastilla 3 kaksi tehtävää, AVO kiertää 3, 1
 ja 2 ja VOI 2, 3 ja 1, jolloin jokaisen luokan enimmäispistemäärä on 80. Yhden luokan kokeessa
@@ -76,9 +77,9 @@ kierto jaetaan koenumeroilla, esimerkiksi numerot 1 - 8 aloittavat rastilta 1 ja
 Rastien alla näkyy jokainen rasti sellaisena kuin ryhmät sille saapuvat, esimerkiksi "Rasti 1: ALO,
 AVO, VOI (x 2)": "(x 2)" kertoo, että ryhmä tekee rastilla kaksi tehtävää, ja "(2 osaa)", että
 tehtävä on jaettu kahteen osaan. Saman luokan numerovälit eivät saa mennä päällekkäin, eikä koko
-luokan ryhmän rinnalla voi olla saman luokan numeroväliä. Sivu luettelee syyt eikä tallenna, jos
-ryhmällä ei ole yhtään rastia tai jos luokka on jaettu numeroväleihin ja jokin osallistuja jää
-kaikkien välien ulkopuolelle tai on vielä ilman koenumeroa.
+luokan ryhmän rinnalla voi olla saman luokan numeroväliä. Jos luokka on jaettu numeroväleihin ja
+jokin osallistuja jää kaikkien välien ulkopuolelle, sivu luettelee syyt eikä tallenna. Kun päivän
+rasti poistetaan, se poistuu kaikista kierroista, ja ryhmä, jolle ei jää yhtään rastia, poistuu.
 Jos koiran numero myöhemmin muuttuu välien ulkopuolelle, koira kiertää lähimmän ryhmän mukana:
 viimeisen välin jälkeen viimeisen ryhmän, ensimmäistä väliä ennen ensimmäisen ja välien välissä
 alemman ryhmän; koira ilman numeroa kiertää ensimmäisen ryhmän mukana. Koiran kierros koostuu aina
@@ -106,7 +107,8 @@ arvostelukortista ei käy ilmi, miksi tehtävä nollattiin, valitaan *{t:results
 Tulos lasketaan riville itsestään sääntöjen mukaan: yksikin nolla
 estää palkintosijan, ja rivin alla näkyy pisteiden summa. Valinnalla *{t:results.scope}* sivun
 voi rajata yhteen rastiin, jolloin näkyvissä ovat vain sen rastin tehtävät — tulos jää silloin
-pois, koska se riippuu muistakin rasteista.
+pois, koska se riippuu muistakin rasteista. Valinnassa ovat vain näytettävän päivän rastit, ja
+rajattuna sivulla ovat vain ne koirakot, joiden ryhmä käy rastilla.
 
 !shot[ResultsTable/results-entry-nowt] NOWT-luokan pisteet tehtävittäin, toinen koirakko keskeytetty rastilla 2
 

@@ -395,11 +395,9 @@
     "rotation": {
       "add": "Lisää kiertoryhmä",
       "class": "Luokka",
-      "coverageNoNumber": "Luokka {{eventClass}} on jaettu numeroväleihin, mutta koiralla {{dog}} ei ole vielä koenumeroa.",
       "coverageOutside": "Luokan {{eventClass}} koenumero {{number}} ({{dog}}) ei kuulu mihinkään numeroväliin.",
       "default": "Kiertoryhmiä ei ole: jokainen luokka kiertää päivän rastit numerojärjestyksessä ja tekee kullakin rastin oletusmäärän tehtäviä.",
       "error": {
-        "noPosts": "Kiertoryhmä {{group}} ei käy yhdelläkään rastilla.",
         "overlap": "Kiertoryhmien {{group}} ja {{other}} numerovälit menevät päällekkäin.",
         "range": "Kiertoryhmän {{group}} numerovälistä puuttuu alku tai loppu, tai alku on lopun jälkeen."
       },

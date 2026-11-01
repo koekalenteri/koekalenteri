@@ -7,7 +7,7 @@ import MenuItem from '@mui/material/MenuItem'
 import Stack from '@mui/material/Stack'
 import TextField from '@mui/material/TextField'
 import { useTranslation } from 'react-i18next'
-import { POST_PARTS, POST_TASK_COUNTS, stationParts } from '@/lib/rotation'
+import { POST_PARTS, POST_TASK_COUNTS, stationParts, stationTaskCount } from '@/lib/rotation'
 
 interface Props {
   readonly group: EventRotationGroup
@@ -42,14 +42,15 @@ const withNumber = (
  */
 const visitOf = (station: EventStation, taskCount: number, parts: 1 | 2): EventRotationPost => ({
   stationId: station.id,
-  ...(taskCount === (station.taskCount ?? 1) ? {} : { taskCount }),
+  ...(taskCount === stationTaskCount(station) ? {} : { taskCount }),
   ...(parts === stationParts(station) ? {} : { parts }),
 })
 
 /**
  * A visit's post picked anew. A post the group already visits elsewhere changes places with this one,
- * each visit keeping what the group does there, so a round is reordered without losing it and still
- * visits each post once. "Ei rastia" takes the visit out.
+ * the two visits moving whole, tasks and parts with their posts, so a round is reordered without losing
+ * anything and still visits each post once. A post the group does not visit takes this visit's place
+ * and keeps what the group does at this point of its round. "Ei rastia" takes the visit out.
  */
 const withPost = (posts: readonly EventRotationPost[], index: number, picked?: EventStation): EventRotationPost[] => {
   if (!picked) return posts.filter((_, at) => at !== index)
@@ -142,7 +143,7 @@ export const RotationRow = ({ group, classes, stations, disabled, onChange, onRe
       {numberField('lastNumber')}
       {group.posts.map((post, index) => {
         const station = stations.find((item) => item.id === post.stationId)
-        const taskCount = post.taskCount ?? station?.taskCount ?? 1
+        const taskCount = post.taskCount ?? (station ? stationTaskCount(station) : 1)
         const parts = post.parts ?? (station ? stationParts(station) : 1)
         const setVisit = (next: EventRotationPost) =>
           setPosts(group.posts.map((item, at) => (at === index ? next : item)))
@@ -165,7 +166,8 @@ export const RotationRow = ({ group, classes, stations, disabled, onChange, onRe
               }
               value={station ? station.id : ''}
             >
-              <MenuItem value="">{t('event.rotation.visitNone')}</MenuItem>
+              {/* A group visits one post at least: the last visit goes with the group's own button. */}
+              {group.posts.length > 1 && <MenuItem value="">{t('event.rotation.visitNone')}</MenuItem>}
               {stations.map((item) => (
                 <MenuItem key={item.id} value={item.id}>
                   {t('event.station')} {item.number}

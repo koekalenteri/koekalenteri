@@ -557,6 +557,38 @@ describe('EventResultsPage', () => {
     ])
   })
 
+  it('falls back to the whole round on a day without the post picked, and keeps it for its own day (KOE-1665)', async () => {
+    const { i18n } = useTranslation()
+    const nextDay = '2021-02-11' as const
+    const [first, second] = registrationsToEventWithStations
+    const twoDays: ConfirmedEvent = {
+      ...eventWithStations,
+      classes: [...eventWithStations.classes, { class: 'ALO', date: nextDay }],
+      endDate: nextDay,
+      stations: [...(eventWithStations.stations ?? []), { date: nextDay, id: 'post-next', number: 1 }],
+    }
+    const dogs = [first, { ...second, group: { date: nextDay, key: 'ALO-AP', number: 2, time: 'ap' as const } }]
+    const { user } = await renderScoringPage(i18n.language as Language, dogs, twoDays)
+    await flushPromises()
+
+    await user.click(screen.getByLabelText('results.scope'))
+    await user.click(screen.getByRole('option', { name: 'event.station 2' }))
+    await flushPromises()
+    // Post 2 alone: its two parts.
+    expect(screen.getAllByRole('columnheader', { name: /results\.column\.task/ })).toHaveLength(2)
+
+    const [, dayTwo] = screen.getAllByRole('button', { name: /dateFormat\.wdshort/ })
+    await user.click(dayTwo)
+    await flushPromises()
+    // Day 2 has one post of its own, and the round is all of it.
+    expect(screen.getByText('Toinen')).toBeInTheDocument()
+    expect(screen.getAllByRole('columnheader', { name: /results\.column\.task/ })).toHaveLength(1)
+
+    await user.click(screen.getAllByRole('button', { name: /dateFormat\.wdshort/ })[0])
+    await flushPromises()
+    expect(screen.getAllByRole('columnheader', { name: /results\.column\.task/ })).toHaveLength(2)
+  })
+
   it("lists in a post's own view only the dogs whose group comes to it (KOE-1665)", async () => {
     const { i18n } = useTranslation()
     const { user } = await renderScoringPage(i18n.language as Language, registrationsToEventWithStations, {

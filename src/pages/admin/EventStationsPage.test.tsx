@@ -83,6 +83,8 @@ describe('EventStationsPage', () => {
   afterEach(() => {
     cleanup()
     vi.runOnlyPendingTimers()
+    // The form keeps an unsaved edit in session storage, which would carry into the next test's page.
+    sessionStorage.clear()
   })
   afterAll(() => vi.useRealTimers())
 
@@ -164,16 +166,35 @@ describe('EventStationsPage', () => {
       expect(screen.getByRole('button', { name: 'save' })).toBeDisabled()
     })
 
-    it('names a dog that has no number yet, and does not save', async () => {
-      // The type gives every placed dog a number; a row stored without one is what the message is for,
-      // so the fixture says it the only way the type lets it.
-      const unnumbered = { ...second, group: { date: eventWithStations.startDate, key: 'ALO-AP' } } as Registration
-      const { user } = await renderSeeded(split, [first, unnumbered])
+    it.each([
+      ['a first number alone', { firstNumber: 1 }],
+      ['a range the wrong way round', { firstNumber: 9, lastNumber: 1 }],
+    ])('refuses %s, and does not save', async (_case, range) => {
+      const { user } = await renderSeeded(
+        { ...eventWithStations, rotations: [{ class: 'ALO', ...range, posts: [{ stationId: 'post-1' }] }] },
+        registrationsToEventWithStations
+      )
       await flushPromises()
       await editSomething(user)
 
-      expect(screen.getByText(/^event\.rotation\.coverageNoNumber/)).toBeInTheDocument()
+      expect(screen.getByText(/^event\.rotation\.error\.range/)).toBeInTheDocument()
       expect(screen.getByRole('button', { name: 'save' })).toBeDisabled()
+    })
+
+    it("leaves no group behind when the day's only post is deleted, and saves", async () => {
+      const onePost: ConfirmedEvent = {
+        ...eventWithStations,
+        rotations: [{ class: 'ALO', posts: [{ stationId: 'post-1' }] }],
+        stations: [eventWithStations.stations?.[0] ?? { date: eventWithStations.startDate, id: 'post-1', number: 1 }],
+      }
+      const { user } = await renderSeeded(onePost, registrationsToEventWithStations)
+      await flushPromises()
+
+      await user.click(screen.getByRole('button', { name: 'event.stationRemove' }))
+      await flushPromises()
+
+      expect(screen.queryByText('event.rotation.errorsTitle')).not.toBeInTheDocument()
+      expect(screen.getByRole('button', { name: 'save' })).toBeEnabled()
     })
 
     it('does not count a withdrawn dog or a reserve', async () => {

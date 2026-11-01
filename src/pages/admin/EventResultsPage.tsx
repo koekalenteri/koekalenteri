@@ -100,7 +100,7 @@ export default function EventResultsPage() {
   const compact = useMediaQuery((theme: Theme) => theme.breakpoints.down('md'))
 
   const scorable = useMemo(() => registrations.filter(isScorableRegistration), [registrations])
-  const [pickedScope, setScope] = useState<string>(WHOLE_ROUND)
+  const [pickedScope, setPickedScope] = useState<string>(WHOLE_ROUND)
   const [edits, setEdits] = useState<Record<string, ResultEdit>>({})
   const [defaultJudges, setDefaultJudges] = useState<Record<string, PublicJudge | undefined>>({})
   const [conflicts, setConflicts] = useState<ResultConflict[]>([])
@@ -466,7 +466,7 @@ export default function EventResultsPage() {
         {dayPosts.length > 0 && (
           <TextField
             label={t('results.scope')}
-            onChange={(e) => setScope(e.target.value)}
+            onChange={(e) => setPickedScope(e.target.value)}
             select
             size="small"
             sx={{ minWidth: 180 }}

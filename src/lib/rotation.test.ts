@@ -356,13 +356,12 @@ describe('rotationCoverageErrors', () => {
     id,
   })
 
-  it('names the dogs in a gap, past the ranges or without a number', () => {
+  it('names the dogs in a gap or past the ranges, and leaves a dog without a number to the first group', () => {
     expect(
       rotationCoverageErrors(ranged, [dog('in', 3), dog('gap', 9), dog('past', 17), dog('none'), dog('voi', 9, 'VOI')])
     ).toEqual([
       { class: 'AVO', day: DAY, number: 9, registrationId: 'gap' },
       { class: 'AVO', day: DAY, number: 17, registrationId: 'past' },
-      { class: 'AVO', day: DAY, registrationId: 'none' },
     ])
   })
 

@@ -50,9 +50,8 @@ const savedStation = ({ tasks, taskCount, ...station }: EventStation): EventStat
 })
 
 /**
- * The groups as this page saves them. A visit to a removed post goes, and so does a group whose class no
- * longer runs on the day of its posts. A group left with no visit stays, for the page to say so and to
- * refuse the save until it has one again.
+ * The groups as this page saves them. A visit to a removed post goes, and so does a group left with no
+ * visit or whose class no longer runs on the day of its posts.
  */
 const savedRotations = (event: StationsEditorEvent, rotations: EventRotationGroup[], stations: EventStation[]) =>
   rotations
@@ -61,9 +60,10 @@ const savedRotations = (event: StationsEditorEvent, rotations: EventRotationGrou
       return posts.length === group.posts.length ? group : { ...group, posts }
     })
     .filter((group) => {
+      if (group.posts.length === 0) return false
       const day = rotationGroupDay({ stations }, group)
       const classes = event.classes.filter((item) => item.date === day)
-      return !day || classes.length === 0 || classes.some((item) => item.class === group.class)
+      return classes.length === 0 || classes.some((item) => item.class === group.class)
     })
 
 function StationsEditor({ event, disabled, onChange }: Props) {
@@ -89,13 +89,6 @@ function StationsEditor({ event, disabled, onChange }: Props) {
       onChange?.({ rotations: savedRotations(event, nextRotations, stations), stations })
     },
     [event, onChange]
-  )
-  const homeDay = useCallback(
-    (group: EventRotationGroup) =>
-      rotationGroupDay(event, group) ||
-      event.classes.find((item) => item.class === group.class)?.date ||
-      (days[0] ?? ''),
-    [days, event]
   )
   const setStations = useCallback((next: EventStation[]) => setLayout(next), [setLayout])
   const setRotations = useCallback((next: EventRotationGroup[]) => setLayout(stations, next), [setLayout, stations])
@@ -161,7 +154,6 @@ function StationsEditor({ event, disabled, onChange }: Props) {
             disabled={disabled}
             event={event}
             heading={days.length > 1 ? 'h3' : 'h2'}
-            homeDay={homeDay}
             onChange={setRotations}
           />
         </Box>

@@ -395,11 +395,9 @@
     "rotation": {
       "add": "Add rotation group",
       "class": "Class",
-      "coverageNoNumber": "Class {{eventClass}} is split into number ranges, but {{dog}} has no start number yet.",
       "coverageOutside": "Start number {{number}} of class {{eventClass}} ({{dog}}) is in no number range.",
       "default": "There are no rotation groups: every class goes round the day's stations in number order and does each station's default number of tasks.",
       "error": {
-        "noPosts": "Rotation group {{group}} visits no station.",
         "overlap": "The number ranges of rotation groups {{group}} and {{other}} overlap.",
         "range": "The number range of rotation group {{group}} lacks its first or last number, or the first is after the last."
       },

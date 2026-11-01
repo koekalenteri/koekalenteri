@@ -155,7 +155,7 @@ describe('StationsEditor', () => {
       })
     })
 
-    it('takes a removed post out of every group, and keeps a group left with none for the page to refuse', async () => {
+    it('takes a removed post out of every group, and drops a group left with none', async () => {
       const onChange = vi.fn()
       const rotations = [
         { class: 'ALO' as const, posts: [{ stationId: 'a' }, { stationId: 'b', taskCount: 2 }] },
@@ -166,10 +166,7 @@ describe('StationsEditor', () => {
       await user.click(screen.getAllByRole('button', { name: 'event.stationRemove' })[0])
 
       expect(onChange).toHaveBeenCalledWith({
-        rotations: [
-          { class: 'ALO', posts: [{ stationId: 'b', taskCount: 2 }] },
-          { class: 'AVO', posts: [] },
-        ],
+        rotations: [{ class: 'ALO', posts: [{ stationId: 'b', taskCount: 2 }] }],
         stations: [station('b', 1)],
       })
     })
@@ -353,7 +350,7 @@ describeWithTranslations('fi', () => {
       savesRotations(onChange, [expect.objectContaining({ posts: [{ stationId: 'r1' }, { stationId: 'r2' }] })])
     })
 
-    it('keeps a group whose last visit is taken out, for the page to refuse', async () => {
+    it('cannot take out the last visit; the group goes with its own button', async () => {
       const onChange = vi.fn()
       const { user } = renderWithUserEvents(
         <Harness initial={one({ posts: [{ stationId: 'r1' }] })} onChange={onChange} />,
@@ -361,10 +358,53 @@ describeWithTranslations('fi', () => {
       )
 
       await user.click(screen.getByRole('combobox', { name: '1. rasti' }))
+      expect(within(screen.getByRole('listbox')).queryByRole('option', { name: 'Ei rastia' })).not.toBeInTheDocument()
+      await user.keyboard('{Escape}')
+
+      await user.click(screen.getByRole('button', { name: 'Poista kiertoryhmä' }))
+      savesRotations(onChange, [])
+    })
+
+    it('takes out a visit while the group keeps another', async () => {
+      const onChange = vi.fn()
+      const { user } = renderWithUserEvents(<Harness initial={one()} onChange={onChange} />, undefined)
+
+      await user.click(screen.getByRole('combobox', { name: '1. rasti' }))
       await user.click(within(screen.getByRole('listbox')).getByRole('option', { name: 'Ei rastia' }))
 
-      savesRotations(onChange, [{ class: 'ALO', posts: [] }])
-      expect(screen.getByRole('combobox', { name: 'Luokka' })).toBeInTheDocument()
+      savesRotations(onChange, [expect.objectContaining({ posts: [{ stationId: 'r2' }] })])
+    })
+
+    it('keeps what the group does at a point of its round when a post it does not visit takes the place', async () => {
+      const onChange = vi.fn()
+      const initial = testEvent({
+        classes: mapClasses,
+        rotations: [{ class: 'ALO', posts: [{ stationId: 'r1' }, { parts: 2, stationId: 'r2', taskCount: 2 }] }],
+        stations: mapStations,
+      })
+      const { user } = renderWithUserEvents(<Harness initial={initial} onChange={onChange} />, undefined)
+
+      await user.click(screen.getByRole('combobox', { name: '2. rasti' }))
+      await user.click(within(screen.getByRole('listbox')).getByRole('option', { name: 'Rasti 3' }))
+
+      // A swap moves a visit whole with its post; a new post takes over the visit's own settings.
+      savesRotations(onChange, [
+        expect.objectContaining({ posts: [{ stationId: 'r1' }, { parts: 2, stationId: 'r3', taskCount: 2 }] }),
+      ])
+    })
+
+    it('drops a group whose class no longer runs on the day of its posts', async () => {
+      const onChange = vi.fn()
+      const initial = testEvent({
+        classes: [{ class: 'AVO', date: '2026-09-12' }],
+        rotations: [{ class: 'ALO', posts: [{ stationId: 'r1' }] }],
+        stations: mapStations,
+      })
+      const { user } = renderWithUserEvents(<Harness initial={initial} onChange={onChange} />, undefined)
+
+      await user.click(screen.getByRole('button', { name: 'Lisää rasti' }))
+
+      savesRotations(onChange, [])
     })
   })
 })

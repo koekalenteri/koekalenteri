@@ -22,6 +22,9 @@ import {
 export const stationParts = (station: Pick<EventStation, 'parts' | 'tasks'>): 1 | 2 =>
   station.parts ?? station.tasks ?? 1
 
+/** How many tasks a group does at a post unless its rotation says otherwise. */
+export const stationTaskCount = (station: Pick<EventStation, 'taskCount'>): number => station.taskCount ?? 1
+
 /** The splits a post's task takes: whole, or two parts of 10. */
 export const POST_PARTS: readonly (1 | 2)[] = [1, 2]
 
@@ -165,7 +168,7 @@ const groupVisits = (event: RotationEvent, group: RotationGroup): RotationVisit[
   for (const post of group.posts) {
     const station = stationById(event, post.stationId)
     if (!station) continue
-    const tasks = post.taskCount ?? station.taskCount ?? 1
+    const tasks = post.taskCount ?? stationTaskCount(station)
     visits.push({ parts: post.parts ?? stationParts(station), position: visits.length, station, tasks, tasksBefore })
     tasksBefore += tasks
   }
@@ -304,37 +307,27 @@ interface RotationCoverageError {
   registrationId: string
   class: string
   day: string
-  number?: number
+  number: number
 }
 
 /**
  * The participants whose class splits into number ranges on their day but whose number falls in none
- * of them, or who have no number yet. The Rastit page refuses to save such a rotation; the server does
- * not check it, since a number drawn later can move a dog out of a range the page accepted.
+ * of them. The Rastit page refuses to save such a rotation; the server does not check it, since a number
+ * drawn later can move a dog out of a range the page accepted. A dog without a number has no range to
+ * miss: the nearest-group rule puts it with the first group.
  */
 export const rotationCoverageErrors = (
   event: RotationEvent,
   registrations: readonly (Registrationish & { id: string })[]
 ): RotationCoverageError[] =>
   registrations.flatMap((registration) => {
-    const dog = rotationDogOf(registration)
-    const groups = storedGroupsOf(event, dog.class, dog.day)
+    const { class: eventClass, day, number } = rotationDogOf(registration)
+    if (number === undefined) return []
+    const groups = storedGroupsOf(event, eventClass, day)
     if (groups.length === 0 || groups.some((group) => group.firstNumber === undefined)) return []
 
-    const { number } = dog
-    const covered =
-      number !== undefined &&
-      groups.some((group) => (group.firstNumber ?? 0) <= number && number <= (group.lastNumber ?? 0))
-    if (covered) return []
-
-    return [
-      {
-        class: dog.class ?? '',
-        day: dog.day,
-        registrationId: registration.id,
-        ...(number === undefined ? {} : { number }),
-      },
-    ]
+    const covered = groups.some((group) => (group.firstNumber ?? 0) <= number && number <= (group.lastNumber ?? 0))
+    return covered ? [] : [{ class: eventClass ?? '', day, number, registrationId: registration.id }]
   })
 
 /** A group as the secretary and the handlers read it: its class, and its start numbers where it has a range. */

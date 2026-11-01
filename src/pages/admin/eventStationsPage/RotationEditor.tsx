@@ -7,7 +7,7 @@ import Typography from '@mui/material/Typography'
 import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { compareRegistrationClasses } from '@/lib/event'
-import { dayStations, formatStationArrivals } from '@/lib/rotation'
+import { dayStations, formatStationArrivals, rotationGroupDay } from '@/lib/rotation'
 import { RotationRow } from './RotationRow'
 
 interface Props {
@@ -16,8 +16,6 @@ interface Props {
   readonly disabled?: boolean
   /** One level below the day's heading, or below the page's where a one-day trial has none. */
   readonly heading: 'h2' | 'h3'
-  /** The day a group is shown under: the day of its posts, or for a group left without one, its class's. */
-  readonly homeDay: (group: EventRotationGroup) => string
   /** The event's whole list of groups, this day's edited and the other days' as they were. */
   readonly onChange: (rotations: EventRotationGroup[]) => void
 }
@@ -27,7 +25,7 @@ interface Props {
  * posts it visits in order, and below them each post as the groups reach it. Without a group of its
  * own a class runs the day's posts in number order, which is what the page says while there is none.
  */
-export const RotationEditor = ({ day, event, disabled, heading, homeDay, onChange }: Props) => {
+export const RotationEditor = ({ day, event, disabled, heading, onChange }: Props) => {
   const { t } = useTranslation()
   const rotations = useMemo(() => event.rotations ?? [], [event.rotations])
   const stations = useMemo(() => dayStations(event, day), [day, event])
@@ -45,9 +43,9 @@ export const RotationEditor = ({ day, event, disabled, heading, homeDay, onChang
     () =>
       rotations
         .map((group, index) => ({ group, index }))
-        .filter(({ group }) => homeDay(group) === day)
+        .filter(({ group }) => rotationGroupDay(event, group) === day)
         .map((item, turn) => ({ ...item, key: `${day}:${turn}` })),
-    [day, homeDay, rotations]
+    [day, event, rotations]
   )
 
   if (stations.length === 0) return null
