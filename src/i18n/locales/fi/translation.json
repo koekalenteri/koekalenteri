@@ -1382,8 +1382,8 @@
     "placeholder": "Hae..."
   },
   "send": "Lähetä",
+  "showFinishedEvents": "Näytä myös valmiit tapahtumat",
   "showOrganizersWithUsers": "Näytä vain yhdistykset, joilla on käyttäjiä",
-  "showPastEvents": "Näytä myös menneet tapahtumat",
   "size": {
     "en": "Koko englanniksi",
     "fi": "Koko suomeksi"

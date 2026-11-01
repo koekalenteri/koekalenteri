@@ -14,7 +14,7 @@ import { describeInLanguage } from '../../test-utils/language'
 import { TEST_ID_TOKEN } from '../../test-utils/utils'
 import { idTokenAtom } from '../state'
 import EventListPage from './EventListPage'
-import { adminEventsAtom, adminShowPastEventsAtom } from './state'
+import { adminEventsAtom, adminShowFinishedEventsAtom } from './state'
 
 // The list is filtered by who is looking. The guide shows it to a secretary (before-entry-opens), so
 // the screenshots are a club secretary's: an admin would also see admin-only actions (KOE-1471).
@@ -111,7 +111,7 @@ const renderAt = async (
             set(idTokenAtom, TEST_ID_TOKEN)
             set(adminEventsAtom, rows)
             // The fixtures have fixed dates, so the capture must not depend on today's.
-            set(adminShowPastEventsAtom, true)
+            set(adminShowFinishedEventsAtom, true)
           }}
         >
           <MemoryRouter>
@@ -167,7 +167,7 @@ describeInLanguage('en', () => {
     const screen = await renderAt(DESKTOP, 'en')
 
     await expect.element(screen.getByText('Autumn trial')).toBeVisible()
-    await expect.element(screen.getByText('Also show past events')).toBeVisible()
+    await expect.element(screen.getByText('Also show finished events')).toBeVisible()
     expect(screen.getByText('Entry is closed', { exact: true }).elements()).toHaveLength(events.length)
     await expect(screen.getByTestId('visual-root')).toMatchScreenshot('event-list-desktop-en')
   })

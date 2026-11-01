@@ -4,7 +4,7 @@ import { atom } from 'jotai'
 import { unwrap } from 'jotai/utils'
 import { atomFamily } from 'jotai-family'
 import { compareByLocalizedString } from '@/lib/client/sort'
-import { compareEventsByDate, isEventOver } from '@/lib/event'
+import { compareEventsByDate, isEventFinished } from '@/lib/event'
 import { mapMaybe } from '@/lib/maybePromise'
 import { isConfirmedEvent } from '@/lib/typeGuards'
 import { uniqueFn } from '@/lib/utils'
@@ -13,7 +13,7 @@ import {
   adminEventIdAtom,
   adminEventsAtom,
   adminNewEventAtom,
-  adminShowPastEventsAtom,
+  adminShowFinishedEventsAtom,
 } from './atoms'
 
 export const adminEventAtom = atomFamily((eventId: string | undefined) =>
@@ -93,12 +93,12 @@ const searchLines = (event: DogEvent): string[] =>
 
 export const adminFilteredEventsAtom = atom((get) => {
   const filter = get(adminEventFilterTextAtom).toLocaleLowerCase(i18next.language)
-  const showPast = get(adminShowPastEventsAtom)
+  const showFinished = get(adminShowFinishedEventsAtom)
   return mapMaybe(get(adminEventsAtom), (events) =>
     events.filter(
       (event) =>
         !event.deletedAt &&
-        (showPast || !event.endDate || !isEventOver(event)) &&
+        (showFinished || !isEventFinished(event)) &&
         (!filter || searchLines(event).some((line) => line.includes(filter)))
     )
   )

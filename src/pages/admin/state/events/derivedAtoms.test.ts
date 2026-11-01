@@ -1,7 +1,7 @@
 import type { DayKey, DogEvent } from '@/types'
 import { createStore } from 'jotai'
 import { emptyEvent } from '@/__mockData__/emptyEvent'
-import { adminEventFilterTextAtom, adminEventIdAtom, adminEventsAtom, adminShowPastEventsAtom } from './atoms'
+import { adminEventFilterTextAtom, adminEventIdAtom, adminEventsAtom, adminShowFinishedEventsAtom } from './atoms'
 import {
   adminCurrentEventAtom,
   adminEventAtom,
@@ -29,16 +29,53 @@ describe('admin event derived atoms', () => {
     vi.useRealTimers()
   })
 
-  it('keeps events ending today visible when past events are hidden', async () => {
+  // An ended trial is still the secretary's work until its results are out (KOE-1667): it leaves the
+  // default list when they are published in every class, when it was cancelled, or 30 days on.
+  const defaultList = (events: DogEvent[]) => {
+    const store = createStore()
+    store.set(adminEventsAtom, events)
+    store.set(adminEventFilterTextAtom, '')
+    store.set(adminShowFinishedEventsAtom, false)
+    return store.get(adminFilteredEventsAtom)
+  }
+
+  it('keeps a trial that ended yesterday with its results unpublished (KOE-1667)', async () => {
     const today = event('today', '2026-05-28')
     const yesterday = event('yesterday', '2026-05-27')
 
-    const store = createStore()
-    store.set(adminEventsAtom, [today, yesterday])
-    store.set(adminEventFilterTextAtom, '')
-    store.set(adminShowPastEventsAtom, false)
+    expect(await defaultList([today, yesterday])).toEqual([today, yesterday])
+  })
 
-    expect(await store.get(adminFilteredEventsAtom)).toEqual([today])
+  it('keeps a trial whose results are out in only some classes (KOE-1667)', async () => {
+    const partly: DogEvent = {
+      ...event('partly', '2026-05-27'),
+      classes: [
+        { class: 'ALO', date: '2026-05-27' },
+        { class: 'AVO', date: '2026-05-27' },
+      ],
+      resultsPublished: { ALO: true },
+    }
+
+    expect(await defaultList([partly])).toEqual([partly])
+  })
+
+  it('drops a trial whose results are out in every class (KOE-1667)', async () => {
+    const published: DogEvent = { ...event('published', '2026-05-27'), resultsPublished: { ALO: true } }
+
+    expect(await defaultList([published])).toEqual([])
+  })
+
+  it('drops a cancelled trial once its day is over (KOE-1667)', async () => {
+    const cancelled: DogEvent = { ...event('cancelled', '2026-05-27'), state: 'cancelled' }
+
+    expect(await defaultList([cancelled])).toEqual([])
+  })
+
+  it('keeps an ended trial for 29 days and drops it on the 30th (KOE-1667)', async () => {
+    const day29 = event('day29', '2026-04-29')
+    const day30 = event('day30', '2026-04-28')
+
+    expect(await defaultList([day29, day30])).toEqual([day29])
   })
 
   // The list shows an English user the English name (KOE-1453), so the search finds an event by its
@@ -57,7 +94,7 @@ describe('admin event derived atoms', () => {
     const store = createStore()
     store.set(adminEventsAtom, [named, other])
     store.set(adminEventFilterTextAtom, filter)
-    store.set(adminShowPastEventsAtom, false)
+    store.set(adminShowFinishedEventsAtom, false)
     return store.get(adminFilteredEventsAtom)
   }
 

@@ -40,7 +40,7 @@ import {
   adminEventIdAtom,
   adminEventOrganizerIdAtom,
   adminNewEventAtom,
-  adminShowPastEventsAtom,
+  adminShowFinishedEventsAtom,
   useAdminEventActions,
 } from './state'
 import { adminUserEventOrganizersAtom, adminUserFilteredEventsAtom } from './state/derivedAtoms'
@@ -59,7 +59,7 @@ export default function EventListPage() {
   const confirm = useConfirm()
   const { t, i18n } = useTranslation()
   const navigate = useNavigate()
-  const [showPast, setShowPast] = useAtom(adminShowPastEventsAtom)
+  const [showFinished, setShowFinished] = useAtom(adminShowFinishedEventsAtom)
   const [searchText, setSearchText] = useAtom(adminEventFilterTextAtom)
   const [selectedEventID, setSelectedEventID] = useAtom(adminEventIdAtom)
   const [visibilityModel, setVisibilityModel] = useAtom(adminEventColumnsAtom)
@@ -144,9 +144,9 @@ export default function EventListPage() {
   )
 
   const clearSearch = useCallback(() => setSearchText(''), [setSearchText])
-  const toggleShowPast = useCallback(
-    (_event: React.SyntheticEvent<Element, Event>, checked: boolean) => setShowPast(checked),
-    [setShowPast]
+  const toggleShowFinished = useCallback(
+    (_event: React.SyntheticEvent<Element, Event>, checked: boolean) => setShowFinished(checked),
+    [setShowFinished]
   )
 
   useEffect(() => {
@@ -251,12 +251,12 @@ export default function EventListPage() {
                 ></AutocompleteSingle>
                 <FormControlLabel
                   sx={{ m: 0, ml: 'auto', pl: 1 }}
-                  checked={showPast}
+                  checked={showFinished}
                   control={<Switch size="small" />}
-                  label={t('showPastEvents')}
+                  label={t('showFinishedEvents')}
                   labelPlacement="start"
-                  name="showPast"
-                  onChange={toggleShowPast}
+                  name="showFinished"
+                  onChange={toggleShowFinished}
                   slotProps={{ typography: { noWrap: true } }}
                 />
               </Stack>

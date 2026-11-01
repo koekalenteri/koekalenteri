@@ -37,26 +37,26 @@ every component in between (KOE-1347).
 graph LR
   adminEventsAtom-->adminEventsRemoteAtom
   adminEventsAtom-->localStorage
-  newEventAtom-->localStorage
-  adminShowPastEventsAtom-->localStorage
+  adminNewEventAtom-->localStorage
+  adminShowFinishedEventsAtom-->localStorage
   adminEventFilterTextAtom-->localStorage
   adminEventIdAtom-->localStorage
-  eventClassAtom-->localStorage
-  editableEventByIdAtom-->localStorage
-  editableEventByIdAtom-->adminEventAtom
+  adminEventClassAtom-->localStorage
+  adminEditableEventByIdAtom-->localStorage
+  adminEditableEventByIdAtom-->adminEventAtom
 
   localStorage[(localStorage)]
-  adminEventsRemoteAtom-->getEvents[/getEvents/]-->aws
+  adminEventsRemoteAtom-->getAdminEvents[/getAdminEvents/]-->aws
 
-  adminEventAtom-->newEventAtom
+  adminEventAtom-->adminNewEventAtom
   adminEventAtom-->adminEventsAtom
 
-  currentAdminEventAtom-->editableEventByIdAtom
-  currentAdminEventAtom-->adminEventIdAtom
+  adminCurrentEventAtom-->adminEditableEventByIdAtom
+  adminCurrentEventAtom-->adminEventIdAtom
 
-  filteredAdminEventsAtom-->adminEventsAtom
-  filteredAdminEventsAtom-->adminEventFilterTextAtom
-  filteredAdminEventsAtom-->adminShowPastEventsAtom
+  adminFilteredEventsAtom-->adminEventsAtom
+  adminFilteredEventsAtom-->adminEventFilterTextAtom
+  adminFilteredEventsAtom-->adminShowFinishedEventsAtom
 
   aws[(cloud)]
 ```

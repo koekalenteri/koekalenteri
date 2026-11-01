@@ -32,6 +32,7 @@ import {
   eventDayKey,
   eventRegistrationDateKey,
   eventTypeLabel,
+  FINISHED_DAYS_AFTER_TRIAL,
   finnishDaySpan,
   foldDayScope,
   getEventClassesByDays,
@@ -67,6 +68,7 @@ import {
   isEntryUpcoming,
   isEventDateString,
   isEventDeletable,
+  isEventFinished,
   isEventLive,
   isEventOver,
   isMockTrialClass,
@@ -1434,6 +1436,52 @@ describe('isPaymentWindowOpen (KOE-1589)', () => {
 
   it('counts a trial without an end day as open, as isEventOver counts it as not over', () => {
     expect(isPaymentWindowOpen({}, new Date('2026-11-09T12:00:00+02:00'))).toBe(true)
+  })
+})
+
+describe('isEventFinished (KOE-1667)', () => {
+  const now = new Date('2026-11-01T12:00:00+02:00')
+  const trial = {
+    classes: [
+      { class: 'ALO' as const, date: '2026-10-31' },
+      { class: 'AVO' as const, date: '2026-10-31' },
+    ],
+    endDate: '2026-10-31',
+    startDate: '2026-10-31',
+    state: 'confirmed' as const,
+  }
+
+  it.each([
+    ['ended with its results unpublished', trial, false],
+    ['ended with its results out in every class', { ...trial, resultsPublished: { ALO: true, AVO: true } }, true],
+    ['ended with its results out in some classes', { ...trial, resultsPublished: { ALO: true } }, false],
+    [
+      'ending today with its results out in every class',
+      { ...trial, endDate: '2026-11-01', resultsPublished: true },
+      false,
+    ],
+    [
+      'classless and ended with its results out',
+      { endDate: '2026-10-31', resultsPublished: true, state: 'completed' as const },
+      true,
+    ],
+    ['cancelled and over', { ...trial, state: 'cancelled' as const }, true],
+    ['cancelled and upcoming', { ...trial, endDate: '2026-11-07', state: 'cancelled' as const }, false],
+    ['a draft whose day is over', { ...trial, state: 'draft' as const }, false],
+    ['a draft with results flagged out', { ...trial, resultsPublished: true, state: 'draft' as const }, false],
+    ['29 days past with its results unpublished', { ...trial, endDate: '2026-10-03' }, false],
+    ['30 days past with its results unpublished', { ...trial, endDate: '2026-10-02' }, true],
+    ['a draft 30 days past', { ...trial, endDate: '2026-10-02', state: 'draft' as const }, true],
+    ['without an end day', { state: 'draft' as const }, false],
+  ])('reads a trial %s', (_name, event, finished) => {
+    expect(isEventFinished(event, now)).toBe(finished)
+  })
+
+  it('reaches the cap at the start of the Finnish day, at FINISHED_DAYS_AFTER_TRIAL days', () => {
+    const event = { ...trial, endDate: '2026-10-02' }
+    expect(FINISHED_DAYS_AFTER_TRIAL).toBe(30)
+    expect(isEventFinished(event, new Date('2026-10-31T21:59:00.000Z'))).toBe(false)
+    expect(isEventFinished(event, new Date('2026-10-31T22:00:00.000Z'))).toBe(true)
   })
 })
 
