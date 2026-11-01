@@ -35,6 +35,7 @@ import {
   registrationConfirmedAudit,
   registrationCreatedAudit,
   registrationDaysMismatchAudit,
+  resultRecomputedAudit,
   resultSavedAudit,
   resultsPublishedAudit,
   startListAudit,
@@ -547,5 +548,18 @@ describe('auditLabelParams', () => {
     // Neither a Date nor text: nothing to read a day from, so it is left as it came.
     expect(auditLabelParams({ eventDate: 5 })).toEqual({ eventDate: 5 })
     expect(auditLabelParams({ eventDate: '' })).toEqual({ eventDate: '' })
+  })
+})
+
+describe('resultRecomputedAudit (KOE-1666)', () => {
+  it('says the result was worked out again, and how many scores the change dropped when it dropped any', () => {
+    expect(resultRecomputedAudit('ALO3, 20/40 p', 0)).toEqual({
+      messageKey: 'audit.messages.resultRecomputed',
+      messageParams: { result: 'ALO3, 20/40 p' },
+    })
+    expect(resultRecomputedAudit('ALO3, 20/40 p', 2)).toEqual({
+      messageKey: 'audit.messages.resultRecomputedDropped',
+      messageParams: { dropped: 2, result: 'ALO3, 20/40 p' },
+    })
   })
 })

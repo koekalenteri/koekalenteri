@@ -23,6 +23,7 @@ import {
   sortRegistrationsByDateClassTimeAndNumber,
 } from './registration'
 import { dogVisits, stationQueue } from './rotation'
+import { isObject } from './utils'
 
 /**
  * The result codes shared by every event type. `0` and `-` are different outcomes: `0` says the dog was
@@ -290,6 +291,85 @@ export const roundColumns = (rounds: readonly (readonly RoundTask[])[]): RoundTa
     return true
   })
 }
+
+/** Where a stored score sits: its post and its slot there, the address `stationSlots` gives it. */
+const slotKey = (slot: Pick<RoundTask, 'stationId' | 'index'>): string => `${slot.stationId}#${slot.index}`
+
+/**
+ * Whether a slot reads a stored score the same way in two rounds: the same task of the post, split the
+ * same way. A slot's index is task × parts + part, so a change of `parts` gives an index another task or
+ * another maximum, and a score kept there would be read with a meaning it was not given.
+ */
+const sameSlot = (a: RoundTask | undefined, b: RoundTask | undefined): boolean =>
+  Boolean(a && b && a.task === b.task && a.parts === b.parts)
+
+const slotsByKey = (round: readonly RoundTask[]) => new Map(round.map((slot) => [slotKey(slot), slot]))
+
+/**
+ * Whether a dog's round scores differently after a change of the posts, the rotation or the classes
+ * (KOE-1666): a slot added, removed, or meaning something else. A new order of the same slots is not a
+ * difference, since the total and the prize do not depend on it.
+ */
+export const roundsDiffer = (before: readonly RoundTask[], after: readonly RoundTask[]): boolean => {
+  if (before.length !== after.length) return true
+  const next = slotsByKey(after)
+  return before.some((slot) => !sameSlot(slot, next.get(slotKey(slot))))
+}
+
+/**
+ * The stored scores a new round keeps, and the ones it drops (KOE-1666). A score is kept only where its
+ * slot means the same in the dog's round before the change and after it; everything else is dropped,
+ * a score the old round did not read either. The event save warns about the dropped ones before it
+ * writes, and the recompute leaves them out, so no score is read against a task it was not given for.
+ */
+export const reconcileRoundTasks = <T extends Pick<JsonEventResultTask, 'stationId' | 'index'>>(
+  before: readonly RoundTask[],
+  after: readonly RoundTask[],
+  tasks: readonly T[] | undefined
+): { kept: T[]; dropped: T[] } => {
+  const previous = slotsByKey(before)
+  const next = slotsByKey(after)
+  const kept: T[] = []
+  const dropped: T[] = []
+  for (const task of tasks ?? []) {
+    const key = slotKey(task)
+    if (sameSlot(previous.get(key), next.get(key))) kept.push(task)
+    else dropped.push(task)
+  }
+  return { dropped, kept }
+}
+
+/** A dog that would lose recorded scores to a change of the posts, as the secretary is asked about it. */
+export interface DroppedTasksDog {
+  id: string
+  name: string
+  class?: string
+  /** The start number, where the dog has one. */
+  number?: number
+  /** How many recorded scores it loses. */
+  tasks: number
+}
+
+/**
+ * The event save's answer when a change of the posts, the rotation or the classes would drop recorded
+ * scores (KOE-1666). `confirmation` is opaque: a save that sends it back confirms this very set of drops,
+ * and a set that has changed since is asked about again.
+ */
+export interface ResultTasksDroppedBody {
+  error: 'resultTasksDropped'
+  confirmation: string
+  dogs: DroppedTasksDog[]
+}
+
+const isDroppedTasksDog = (value: unknown): value is DroppedTasksDog =>
+  isObject(value) && typeof value.id === 'string' && typeof value.name === 'string' && typeof value.tasks === 'number'
+
+export const isResultTasksDroppedBody = (body: unknown): body is ResultTasksDroppedBody =>
+  isObject(body) &&
+  body.error === 'resultTasksDropped' &&
+  typeof body.confirmation === 'string' &&
+  Array.isArray(body.dogs) &&
+  body.dogs.every(isDroppedTasksDog)
 
 /**
  * A slot named by its post rather than its place in a round: "Rasti 2", "Rasti 2, tehtävä 2", with the

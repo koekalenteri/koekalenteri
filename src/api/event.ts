@@ -111,11 +111,21 @@ export const getEventAuditTrail = async (
 ): Promise<AuditRecord[] | undefined> =>
   (await http.get<JsonAuditRecord[]>(`${ADMIN_PATH}audit/${id}`, withToken({ signal }, token))).map(toAuditRecord)
 
-export async function putEvent(event: Patch<DogEvent>, token?: string, signal?: AbortSignal): Promise<DogEvent> {
+/**
+ * `confirmDrops` is the confirmation the save answered with when the change would drop recorded scores
+ * (`ResultTasksDroppedBody`, KOE-1666): sending it back confirms that very set of drops.
+ */
+export async function putEvent(
+  event: Patch<DogEvent>,
+  token?: string,
+  signal?: AbortSignal,
+  confirmDrops?: string
+): Promise<DogEvent> {
   const request = withToken({ signal }, token)
+  const path = confirmDrops ? `${ADMIN_PATH}?confirmDrops=${encodeURIComponent(confirmDrops)}` : ADMIN_PATH
   const saved = event.id
-    ? await http.patch<Patch<DogEvent>, JsonDogEvent>(ADMIN_PATH, event, request)
-    : await http.post<Patch<DogEvent>, JsonDogEvent>(ADMIN_PATH, event, request)
+    ? await http.patch<Patch<DogEvent>, JsonDogEvent>(path, event, request)
+    : await http.post<Patch<DogEvent>, JsonDogEvent>(path, event, request)
   return toDogEvent(saved.data)
 }
 

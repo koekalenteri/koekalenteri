@@ -1,4 +1,6 @@
+import type { ResultTasksDroppedBody } from '@/lib/results'
 import type { DogEvent, Patch } from '@/types'
+import type { DroppedTasksDialogProps } from '../components/DroppedTasksDialog'
 import { useAtom, useSetAtom } from 'jotai'
 import { useResetAtom } from 'jotai/utils'
 import { useSnackbar } from 'notistack'
@@ -8,6 +10,7 @@ import { useNavigate } from 'react-router'
 import { APIError } from '@/api/http'
 import { errorSnackbarOptions } from '@/lib/client/snackbar'
 import { getEventSavedMessage } from '@/lib/event'
+import { isResultTasksDroppedBody } from '@/lib/results'
 import { getChanges, isEmptyObject, isObject } from '@/lib/utils'
 import { adminEditableEventByIdAtom, adminNewEventAtom, adminSaveEventAtom } from '../state'
 
@@ -20,6 +23,8 @@ type EventFormOptions = {
    * A page that edits one part of an event should say what it saved instead.
    */
   savedMessage?: string
+  /** Called once a save has gone through, after the notice: a dialog closes itself here rather than on a refusal. */
+  onSaved?: () => void
 }
 
 type RefusalKey =
@@ -29,6 +34,7 @@ type RefusalKey =
   | 'event.kcGuidConflict'
   | 'event.kcGuidLocked'
   | 'event.paymentLocked'
+  | 'event.resultsLocked'
 
 /**
  * The notice for a refusal the secretary can act on: no right to this event, or a 409 the server
@@ -37,6 +43,7 @@ type RefusalKey =
 const knownRefusal = (error: unknown): RefusalKey | undefined => {
   if (!(error instanceof APIError)) return undefined
   if (error.status === 403) return 'event.saveForbidden'
+  if (error.status === 423 && isObject(error.body) && error.body.error === 'resultsLocked') return 'event.resultsLocked'
   if (error.status === 409 && isObject(error.body)) {
     if (error.body.error === 'staleData') return 'event.staleData'
     if (error.body.error === 'kcIdConflict') return 'event.kcIdConflict'
@@ -47,11 +54,15 @@ const knownRefusal = (error: unknown): RefusalKey | undefined => {
   return undefined
 }
 
+/** The question a save answered with when the change would drop recorded scores (KOE-1666). */
+const droppedTasksOf = (error: unknown): ResultTasksDroppedBody | undefined =>
+  error instanceof APIError && error.status === 409 && isResultTasksDroppedBody(error.body) ? error.body : undefined
+
 /**
  * A hook that handles common event form operations for both create and edit scenarios
  */
 export default function useEventForm(options: EventFormOptions = {}) {
-  const { eventId, storedEvent = null, onDoneRedirect, savedMessage } = options
+  const { eventId, storedEvent = null, onDoneRedirect, onSaved, savedMessage } = options
 
   const [event, setEvent] = useAtom(eventId ? adminEditableEventByIdAtom(eventId) : adminNewEventAtom)
   const resetEvent = useResetAtom(eventId ? adminEditableEventByIdAtom(eventId) : adminNewEventAtom)
@@ -65,6 +76,7 @@ export default function useEventForm(options: EventFormOptions = {}) {
   const createMode = !storedEvent
   const [changes, setChanges] = useState<Patch<DogEvent>>(getChanges(storedEvent ?? initialEvent.current, event))
   const [canSave, setCanSave] = useState<boolean>(createMode || !isEmptyObject(changes))
+  const [droppedTasks, setDroppedTasks] = useState<ResultTasksDroppedBody>()
 
   /**
    * Despite the `Patch` type, this replaces the stored event outright — a caller handing it a real
@@ -83,34 +95,72 @@ export default function useEventForm(options: EventFormOptions = {}) {
     [setEvent, storedEvent]
   )
 
-  const handleSave = useCallback(async () => {
-    if (!event) {
-      return
-    }
+  const save = useCallback(
+    async (confirmDrops?: string) => {
+      if (!event) {
+        return
+      }
 
-    try {
-      const saved = await saveEvent({
-        event,
-        formChanges: storedEvent ? { ...changes, modifiedAt: initialEvent.current.modifiedAt } : undefined,
-      })
-      if (saved) {
-        initialEvent.current = saved
-        setChanges({})
-        setCanSave(false)
+      try {
+        const saved = await saveEvent({
+          ...(confirmDrops ? { confirmDrops } : {}),
+          event,
+          formChanges: storedEvent ? { ...changes, modifiedAt: initialEvent.current.modifiedAt } : undefined,
+        })
+        if (saved) {
+          initialEvent.current = saved
+          setChanges({})
+          setCanSave(false)
+        }
+        resetEvent()
+        if (onDoneRedirect) {
+          void navigate(onDoneRedirect)
+        }
+        enqueueSnackbar(savedMessage ?? getEventSavedMessage(saved?.state, t), { variant: 'info' })
+        onSaved?.()
+      } catch (error) {
+        // A change that would drop recorded scores is asked about first; the form stays as edited meanwhile.
+        const dropped = droppedTasksOf(error)
+        if (dropped) {
+          setDroppedTasks(dropped)
+          return
+        }
+        // A refused save must not pass in silence: the form stays as it was, and the secretary would
+        // take the quiet for a success (KOE-1482).
+        const known = knownRefusal(error)
+        if (!known) console.error(error)
+        enqueueSnackbar(t(known ?? 'event.saveFailed'), errorSnackbarOptions)
       }
-      resetEvent()
-      if (onDoneRedirect) {
-        void navigate(onDoneRedirect)
-      }
-      enqueueSnackbar(savedMessage ?? getEventSavedMessage(saved?.state, t), { variant: 'info' })
-    } catch (error) {
-      // A refused save must not pass in silence: the form stays as it was, and the secretary would
-      // take the quiet for a success (KOE-1482).
-      const known = knownRefusal(error)
-      if (!known) console.error(error)
-      enqueueSnackbar(t(known ?? 'event.saveFailed'), errorSnackbarOptions)
-    }
-  }, [changes, enqueueSnackbar, event, navigate, onDoneRedirect, resetEvent, saveEvent, savedMessage, storedEvent, t])
+    },
+    [
+      changes,
+      enqueueSnackbar,
+      event,
+      navigate,
+      onDoneRedirect,
+      onSaved,
+      resetEvent,
+      saveEvent,
+      savedMessage,
+      storedEvent,
+      t,
+    ]
+  )
+
+  const handleSave = useCallback(() => save(), [save])
+
+  // Confirming sends back what the save answered with, so the drops confirmed are the ones shown; a set
+  // that changed meanwhile is asked about again.
+  const dropsDialogProps: DroppedTasksDialogProps = {
+    dogs: droppedTasks?.dogs ?? [],
+    onCancel: () => setDroppedTasks(undefined),
+    onConfirm: async () => {
+      const confirmation = droppedTasks?.confirmation
+      setDroppedTasks(undefined)
+      await save(confirmation)
+    },
+    open: droppedTasks !== undefined,
+  }
 
   const handleCancel = useCallback(() => {
     resetEvent()
@@ -122,6 +172,7 @@ export default function useEventForm(options: EventFormOptions = {}) {
   return {
     canSave,
     changes,
+    dropsDialogProps,
     event,
     handleCancel,
     handleChange,

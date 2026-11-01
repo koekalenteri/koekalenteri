@@ -79,6 +79,8 @@
       "registrationDaysOutsideEvent": "The chosen days ({{days}}) are not days of the event",
       "resultChanged": "Changed the result",
       "resultChangedDetail": "Changed the result: {{result}}",
+      "resultRecomputed": "Recomputed the result after the stations changed: {{result}}",
+      "resultRecomputedDropped": "Recomputed the result after the stations changed, {{dropped}} recorded tasks removed: {{result}}",
       "resultSaved": "Saved the result",
       "resultSavedDetail": "Saved the result: {{result}}",
       "resultSendFailed": "Could not send the result to Omakoira: {{reason}}",
@@ -387,6 +389,16 @@
     },
     "priority": "Priorities",
     "restrictions": "Restrictions",
+    "resultsLocked": "The results have been handed over to the chief judge or confirmed, so recorded results can no longer change. This change would have changed them and was not saved.",
+    "resultTasksDropped": {
+      "body": "This change removes recorded tasks from these dogs, because their tasks are no longer in the round or now mean a different task. The removed scores do not come back even if the change is undone later.",
+      "confirm": "Save and remove the scores",
+      "dog_one": "{{dog}} ({{eventClass}}, no. {{number}}): {{count}} task",
+      "dog_other": "{{dog}} ({{eventClass}}, no. {{number}}): {{count}} tasks",
+      "dogWithoutNumber_one": "{{dog}} ({{eventClass}}): {{count}} task",
+      "dogWithoutNumber_other": "{{dog}} ({{eventClass}}): {{count}} tasks",
+      "title": "Recorded scores will be removed"
+    },
     "retrieveType": "The trial is run with",
     "retrieveTypes": {
       "dummies": "dummies",

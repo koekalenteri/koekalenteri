@@ -41,6 +41,22 @@ export interface RotationEvent {
   classes?: readonly Pick<EventClass, 'class' | 'date'>[]
 }
 
+/**
+ * What of an event decides the dogs' rounds, and nothing else: a post's judges, its link token or its
+ * phases change no round, so an event save that changes only those reads no registration (KOE-1666).
+ */
+export const roundInputsOf = (event: RotationEvent) => ({
+  classes: (event.classes ?? []).map((item) => ({ class: item.class, day: getRegistrationGroupDay(item.date) })),
+  rotations: event.rotations ?? [],
+  stations: (event.stations ?? []).map((station) => ({
+    day: stationDay(station),
+    id: station.id,
+    number: station.number,
+    parts: stationParts(station),
+    taskCount: stationTaskCount(station),
+  })),
+})
+
 /** A dog as the rotation places it: its class, its day and its start number. */
 export interface RotationDog {
   class?: string | null

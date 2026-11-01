@@ -292,6 +292,15 @@ export const resultSavedAudit = (changed: boolean, result: string) => {
   return auditMessage(changed ? 'audit.messages.resultChangedDetail' : 'audit.messages.resultSavedDetail', { result })
 }
 
+/**
+ * A result worked out again because the event's posts, rotation or classes changed (KOE-1666), with the
+ * number of recorded scores the change dropped when it dropped any.
+ */
+export const resultRecomputedAudit = (result: string, dropped: number) =>
+  dropped
+    ? auditMessage('audit.messages.resultRecomputedDropped', { dropped, result })
+    : auditMessage('audit.messages.resultRecomputed', { result })
+
 /** A result sent to Kennelliitto's Omakoira (KOE-1140). */
 export const resultSentToKennelliittoAudit = () => auditMessage('audit.messages.resultSentToKennelliitto')
 

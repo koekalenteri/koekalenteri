@@ -1,7 +1,7 @@
 import type { JsonKcResult, JsonRegistration } from '../../../types'
 import { uniqueId } from '../../test-utils/integration'
 import CustomDynamoClient from '../../utils/CustomDynamoClient'
-import { readRegistration, writeDogRegNo, writeKcResult } from './registrationRepository'
+import { readRegistration, writeDogRegNo, writeKcResult, writeRecomputedEventResult } from './registrationRepository'
 
 /**
  * What sending a dog's result to Kennelliitto came to is written on condition it is still the record
@@ -111,6 +111,49 @@ describe('writeDogRegNo against DynamoDB-local', () => {
       dog: { name: 'FILURIN PARADOX', regNo: 'FI25555/20', rfid: '981098106889342' },
       modifiedAt: '2026-10-01T10:00:00.000Z',
       updatedAt: '2026-10-28T10:00:00.000Z',
+    })
+  })
+})
+
+/**
+ * A recomputed result is written over the result it was recomputed from only (KOE-1666), on a condition
+ * that reads a field inside the stored result; the expression has to be one DynamoDB takes.
+ */
+describe('writeRecomputedEventResult against DynamoDB-local', () => {
+  const client = new CustomDynamoClient('EventRegistrationTable')
+  const result = (updatedAt: string, points: number) => ({ points, updatedAt, updatedBy: 'Sihteeri' })
+
+  const storedRegistration = async () => {
+    const registration = {
+      eventId: uniqueId('event'),
+      eventResult: result('2026-11-01T10:00:00.000Z', 40),
+      id: uniqueId('registration'),
+    }
+    await client.write(registration)
+    return registration
+  }
+
+  it('writes over the result it was recomputed from', async () => {
+    const { eventId, id } = await storedRegistration()
+
+    await expect(
+      writeRecomputedEventResult(eventId, id, result('2026-11-01T11:00:00.000Z', 20), '2026-11-01T10:00:00.000Z')
+    ).resolves.toBe(true)
+
+    await expect(readRegistration(eventId, id, true)).resolves.toMatchObject({
+      eventResult: result('2026-11-01T11:00:00.000Z', 20),
+    })
+  })
+
+  it('leaves a result saved meanwhile as it is', async () => {
+    const { eventId, id } = await storedRegistration()
+
+    await expect(
+      writeRecomputedEventResult(eventId, id, result('2026-11-01T11:00:00.000Z', 20), '2026-11-01T09:00:00.000Z')
+    ).resolves.toBe(false)
+
+    await expect(readRegistration(eventId, id, true)).resolves.toMatchObject({
+      eventResult: result('2026-11-01T10:00:00.000Z', 40),
     })
   })
 })

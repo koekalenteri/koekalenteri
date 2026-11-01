@@ -15,6 +15,7 @@ import { useParams } from 'react-router'
 import { merge } from '../../lib/utils'
 import { Path } from '../../routeConfig'
 import { AsyncButton } from '../components/AsyncButton'
+import DroppedTasksDialog from './components/DroppedTasksDialog'
 import EventNotFound from './components/EventNotFound'
 import StationsEditor from './eventStationsPage/StationsEditor'
 import { useRotationErrors } from './eventStationsPage/useRotationErrors'
@@ -31,7 +32,7 @@ export default function EventStationsPage() {
   const { id: eventId = '' } = useParams()
   useAdminEventScope(eventId)
   const storedEvent = useAtomValue(adminEventAtom(eventId))
-  const { event, canSave, handleChange, handleSave, handleCancel } = useEventForm({
+  const { event, canSave, dropsDialogProps, handleChange, handleSave, handleCancel } = useEventForm({
     eventId,
     onDoneRedirect: Path.admin.viewEvent(eventId),
     savedMessage: t('event.stationsSaved'),
@@ -108,6 +109,7 @@ export default function EventStationsPage() {
           {t('cancel')}
         </Button>
       </Stack>
+      <DroppedTasksDialog {...dropsDialogProps} />
     </Paper>
   )
 }

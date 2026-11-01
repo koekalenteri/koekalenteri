@@ -77,7 +77,7 @@ export const getEventAuditTrail = vi.fn(
 )
 
 export const putEvent = vi.fn(
-  async (event: Patch<DogEvent>, _token?: string, _signal?: AbortSignal): Promise<DogEvent> => {
+  async (event: Patch<DogEvent>, _token?: string, _signal?: AbortSignal, _confirmDrops?: string): Promise<DogEvent> => {
     return new Promise((resolve, reject) => {
       let existing: DogEvent | undefined
       if (!event.id) {

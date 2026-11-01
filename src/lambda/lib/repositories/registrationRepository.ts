@@ -167,6 +167,30 @@ export const writeKcResult = async (
 }
 
 /**
+ * Stores a result recomputed for a change of the event's posts (KOE-1666), only over the result it was
+ * recomputed from: `previousUpdatedAt` is the `eventResult.updatedAt` that was read, so a score a post
+ * saved meanwhile is never carried away. Answers whether it was written.
+ */
+export const writeRecomputedEventResult = async (
+  eventId: JsonRegistration['eventId'],
+  id: JsonRegistration['id'],
+  eventResult: NonNullable<JsonRegistration['eventResult']>,
+  previousUpdatedAt: string
+): Promise<boolean> => {
+  try {
+    await dynamoDB.update({ eventId, id }, { set: { eventResult, updatedAt: new Date().toISOString() } }, 'NONE', {
+      expression: '#eventResult.#updatedAt = :previous',
+      names: { '#eventResult': 'eventResult', '#updatedAt': 'updatedAt' },
+      values: { ':previous': previousUpdatedAt },
+    })
+    return true
+  } catch (error) {
+    if (isConditionalCheckFailure(error)) return false
+    throw error
+  }
+}
+
+/**
  * Takes the registration number Kennelliitto knows the dog by (KOE-1653): `dog.regNo` alone, nothing
  * else of the dog. Moves `updatedAt`, so the incremental fetch hands the row on, and not `modifiedAt`: a
  * form open on the entry is not stale for it, and its save carries operations that leave the number as
