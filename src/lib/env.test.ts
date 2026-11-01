@@ -1,4 +1,4 @@
-import { apiStage, copyTargets, isDevEnv, isProdEnv, isTestEnv, stackName } from './env'
+import { apiStage, copyTargets, isDevEnv, isProdEnv, isTestEnv, stackName, stageTitle } from './env'
 
 const testRunnerDefined = () => true
 const testRunnerUndefined = () => false
@@ -19,6 +19,22 @@ describe('env', () => {
       vi.stubEnv('REACT_APP_API_BASE_URL', url)
 
       expect(apiStage()).toBe(stage)
+    })
+  })
+
+  describe('stageTitle', () => {
+    it.each([
+      ['dev', '(dev) SNJ Koekalenteri'],
+      ['test', '(test) SNJ Koekalenteri'],
+      ['prod', 'SNJ Koekalenteri'],
+    ] as const)('on %s stage the title is %s', (stage, title) => {
+      expect(stageTitle('SNJ Koekalenteri', stage)).toBe(title)
+    })
+
+    it('reads the stage from the API URL by default', () => {
+      vi.stubEnv('REACT_APP_API_BASE_URL', 'https://api.example.com/test')
+
+      expect(stageTitle('SNJ Koekalenteri')).toBe('(test) SNJ Koekalenteri')
     })
   })
 
