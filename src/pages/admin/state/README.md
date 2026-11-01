@@ -1,6 +1,15 @@
 # State available to authenticated users
 
 These flowcharts describe the relationship between source atoms, derived atoms, remote atoms, and persistent storage.
+An arrow points from an atom to what it reads; a parallelogram is an API call. Every exported atom is drawn; a helper
+atom a module keeps to itself (a stored or remote atom inside a family, an override, a filter step) is drawn as part of
+the exported atom that owns it. An atom with no arrow lives in memory only. The public atoms these read (`userAtom`,
+`validIdTokenAtom`, ...) are drawn in [the public state README](../../state/README.md).
+
+The reference collections (email templates, event types, judges, locations, officials, organizers, users) are built
+with `atomWithCachedRemoteCollection` and cached in an encrypted IndexedDB store; when they are fetched and how a write
+reaches the cache is in [cached/README.md](cached/README.md). In each graph such a collection reads `userAtom` and
+`validIdTokenAtom` and stores into `indexedDB`.
 
 Derived atoms that combine state from multiple admin domains live in the parent `derivedAtoms.ts` module. Feature folders own
 their source, editable, remote, and derived atoms alongside actions for that domain.
@@ -11,8 +20,8 @@ A component never calls a write in `src/api` itself: it calls an action (`useAdm
 `useAdminRegistrationActions`, `useSaveEventResults`), and the action calls the API and stores what
 came back in the atoms. That is what keeps the screen that wrote showing what it wrote without
 waiting for its own change to come back over the socket, and what keeps the cached and the stored
-state the same thing (KOE-1343). Reads that touch no atom — an audit trail, a token link, a search —
-may call the API directly. An actions hook subscribes to nothing asynchronous and needs no router:
+state the same thing (KOE-1343). A read that touches no atom may call the API
+directly: an audit trail, a token link, a search. An actions hook subscribes to nothing asynchronous and needs no router:
 it reads the selected event, the calendar and the user through `useAtomCallback` when an action
 runs, so any view can hold it without suspending, and navigation after an action is the view's.
 
@@ -31,11 +40,64 @@ and what it was opened for. The page renders the dialogs; the buttons that open 
 lists and the info panel, and call `useOpenEventViewDialog()` instead of receiving a setter through
 every component in between (KOE-1347).
 
+## Across domains
+
+The parent `derivedAtoms.ts` combines the events, the organizers and the users with the signed-in user's roles: what
+the event list, the organizer list and the organizer pickers offer to this user.
+
+```mermaid
+graph LR
+  adminUsersOrganizersAtom-->adminUsersAtom
+  adminUsersOrganizersAtom-->adminOrganizersAtom
+
+  adminUserOrganizersAtom-->userAtom
+  adminUserOrganizersAtom-->adminOrganizersAtom
+
+  adminUserEventOrganizersAtom-->userAtom
+  adminUserEventOrganizersAtom-->adminEventOrganizersAtom
+
+  adminUserAdminOrganizersAtom-->userAtom
+  adminUserAdminOrganizersAtom-->adminOrganizersAtom
+
+  adminUserFilteredEventsAtom-->userAtom
+  adminUserFilteredEventsAtom-->adminFilteredEventsAtom
+  adminUserFilteredEventsAtom-->adminEventOrganizerIdAtom
+
+  adminFilteredOrganizersAtom-->adminOrganizerFilterAtom
+  adminFilteredOrganizersAtom-->adminOrganizersAtom
+  adminFilteredOrganizersAtom-->adminShowOnlyOrganizersWithUsersAtom
+  adminFilteredOrganizersAtom-->adminUsersAtom
+```
+
+## Email templates
+
+`adminEmailTemplatesAtom` is `adminEmailTemplatesRemoteAtom` under a second name, a cached collection
+([cached/README.md](cached/README.md)) that always holds a template for every id the code knows, an empty one if the
+table has none yet. `adminEditableTemplateByIdAtom(templateId)` is the template being edited, kept in this tab;
+`useAdminEmailTemplatesActions().save` stores it with `putEmailTemplate`.
+
+```mermaid
+graph LR
+  adminEmailTemplatesAtom-->indexedDB
+  adminEmailTemplatesAtom-->userAtom
+  adminEmailTemplatesAtom-->validIdTokenAtom
+  adminEmailTemplatesAtom-->getEmailTemplates[/getEmailTemplates/]-->aws
+
+  indexedDB[(IndexedDB)]
+  sessionStorage[(sessionStorage)]
+
+  adminEmailTemplateAtom-->adminEmailTemplatesAtom
+
+  adminEditableTemplateByIdAtom-->sessionStorage
+  adminEditableTemplateByIdAtom-->adminEmailTemplateAtom
+
+  aws[(cloud)]
+```
+
 ## Events
 
-An arrow points from an atom to what it reads; a parallelogram is an API call. `adminEventsAtom` is
-`adminEventsRemoteAtom` under a second name, and the `*ByIdAtom` and `(eventId)` atoms are families
-keyed by the event. `adminSaveEventAtom` is write-only: after the read and the call shown here, it
+`adminEventsAtom` is `adminEventsRemoteAtom` under a second name, and `adminEditableEventByIdAtom`
+and the `(eventId)` atoms are families keyed by the event. `adminSaveEventAtom` is write-only: after the read and the call shown here, it
 writes `adminEventIdAtom`, `adminCurrentEventAtom` and the public `eventsAtom`.
 
 ```mermaid
@@ -87,10 +149,83 @@ graph LR
   aws[(cloud)]
 ```
 
+## Event types
+
+`adminEventTypesAtom` is `adminEventTypesRemoteAtom` under a second name, a cached collection
+([cached/README.md](cached/README.md)). `adminEventTypeClassesAtom` and `adminEventTypeGroupsByTypeAtom` are constant
+tables, the classes and the registration times each event type offers; `adminEventTypeGroupsAtom(eventType)` picks the
+times of one type, with the unofficial events' times for a type that is not official.
+
+```mermaid
+graph LR
+  adminEventTypesAtom-->indexedDB
+  adminEventTypesAtom-->userAtom
+  adminEventTypesAtom-->validIdTokenAtom
+  adminEventTypesAtom-->getEventTypes[/getEventTypes/]-->aws
+  adminEventTypeFilterAtom
+  adminEventTypeClassesAtom
+  adminEventTypeGroupsByTypeAtom
+
+  indexedDB[(IndexedDB)]
+
+  adminActiveEventTypesAtom-->adminEventTypesAtom
+
+  adminFilteredEventTypesAtom-->adminEventTypeFilterAtom
+  adminFilteredEventTypesAtom-->adminEventTypesAtom
+
+  adminEventTypeGroupsAtom-->adminEventTypeGroupsByTypeAtom
+
+  aws[(cloud)]
+```
+
+## Judges
+
+`adminJudgesAtom` is `adminJudgesRemoteAtom` under a second name, a cached collection
+([cached/README.md](cached/README.md)) built like the officials' list. `useAdminJudgesActions().refresh` refetches it
+and the users with it.
+
+```mermaid
+graph LR
+  adminJudgesAtom-->indexedDB
+  adminJudgesAtom-->userAtom
+  adminJudgesAtom-->validIdTokenAtom
+  adminJudgesAtom-->getJudges[/getJudges/]-->aws
+  adminJudgeFilterAtom
+
+  indexedDB[(IndexedDB)]
+
+  adminActiveJudgesAtom-->adminJudgesAtom
+
+  adminFilteredJudgesAtom-->adminJudgesAtom
+  adminFilteredJudgesAtom-->adminJudgeFilterAtom
+
+  aws[(cloud)]
+```
+
+## Locations
+
+The municipalities the event form suggests for the location. `adminLocationsAtom` is `adminLocationsRemoteAtom` under a
+second name, a cached collection ([cached/README.md](cached/README.md)); `adminLocationNamesAtom` is their names, and
+an empty list when the fetch fails, since the field is free text either way.
+
+```mermaid
+graph LR
+  adminLocationsAtom-->indexedDB
+  adminLocationsAtom-->userAtom
+  adminLocationsAtom-->validIdTokenAtom
+  adminLocationsAtom-->getLocations[/getLocations/]-->aws
+
+  indexedDB[(IndexedDB)]
+
+  adminLocationNamesAtom-->adminLocationsAtom
+
+  aws[(cloud)]
+```
+
 ## Officials
 
-`adminOfficialsAtom` is `adminOfficialsRemoteAtom` under a second name. The list is cached in the
-encrypted IndexedDB store (`cached/README.md`), and only fetched when the cached revision is stale.
+`adminOfficialsAtom` is `adminOfficialsRemoteAtom` under a second name, a cached collection
+([cached/README.md](cached/README.md)). `useAdminOfficialsActions().refresh` refetches it and the users with it.
 
 ```mermaid
 graph LR
@@ -110,8 +245,9 @@ graph LR
 
 ## Organizers
 
-`adminOrganizersAtom` is `adminOrganizersRemoteAtom` under a second name, cached the same way as
-the officials.
+`adminOrganizersAtom` is `adminOrganizersRemoteAtom` under a second name, a cached collection
+([cached/README.md](cached/README.md)). `adminFilteredOrganizersAtom`, which also reads the users, is drawn under
+[Across domains](#across-domains).
 
 ```mermaid
 graph LR
@@ -161,6 +297,76 @@ graph LR
 
   adminEditableEventRegistrationByEventIdAndIdAtom-->sessionStorage
   adminEditableEventRegistrationByEventIdAndIdAtom-->adminEventRegistrationAtom
+
+  aws[(cloud)]
+```
+
+## Stats
+
+The admin statistics page. `adminStatsYearAtom`, `adminStatsOrganizerIdAtom` and `adminCapacityStatsEventTypeAtom` are
+its pickers. `adminOrganizerEventStatsAtom` fetches every organizer's event stats once and the page filters them;
+`adminCapacityStatsAtom` is keyed by `eventType|organizerId` and `adminJudgeWorkloadAtom` by `year|organizerId`, so a
+change of either picker fetches again. With the event type `ALL`, `adminCapacityStatsAtom` fetches every active event
+type and merges them.
+
+```mermaid
+graph LR
+  adminStatsYearAtom
+  adminStatsOrganizerIdAtom-->localStorage
+  adminCapacityStatsEventTypeAtom-->localStorage
+
+  localStorage[(localStorage)]
+
+  adminOrganizerEventStatsAtom-->validIdTokenAtom
+  adminOrganizerEventStatsAtom-->getOrganizerEventStats[/getOrganizerEventStats/]-->aws
+
+  adminCapacityStatsAtom-->validIdTokenAtom
+  adminCapacityStatsAtom-->adminActiveEventTypesAtom
+  adminCapacityStatsAtom-->getAdminCapacityStats[/getAdminCapacityStats/]-->aws
+
+  adminJudgeWorkloadAtom-->validIdTokenAtom
+  adminJudgeWorkloadAtom-->getAdminJudgeWorkload[/getAdminJudgeWorkload/]-->aws
+
+  adminStatsOrganizersAtom-->userAtom
+  adminStatsOrganizersAtom-->adminOrganizersAtom
+  adminStatsOrganizersAtom-->adminOrganizerEventStatsAtom
+
+  aws[(cloud)]
+```
+
+## Users
+
+`adminUsersAtom` is `adminUsersRemoteAtom` under a second name, a cached collection
+([cached/README.md](cached/README.md)). The users page refreshes it for `lastSeen` at most once per interval, and
+`adminUsersRefreshedAtAtom` records when, in memory only so a reload forces it. `websocketAdminUsersAtom` is the list
+`useWebSocket` names an event's other viewers from, and empty for a user who may not read the users.
+
+```mermaid
+graph LR
+  adminUsersAtom-->indexedDB
+  adminUsersAtom-->userAtom
+  adminUsersAtom-->validIdTokenAtom
+  adminUsersAtom-->getUsers[/getUsers/]-->aws
+  adminUsersRefreshedAtAtom
+  adminUserFilterAtom
+  adminUserIdAtom-->localStorage
+  adminUsersOrganizerIdAtom-->localStorage
+  adminUsersColumnsAtom-->localStorage
+
+  localStorage[(localStorage)]
+  indexedDB[(IndexedDB)]
+
+  adminFilteredUsersAtom-->isAdminAtom
+  adminFilteredUsersAtom-->adminUserFilterAtom
+  adminFilteredUsersAtom-->adminUsersAtom
+  adminFilteredUsersAtom-->adminUserOrgIdsAtom
+  adminFilteredUsersAtom-->adminUsersOrganizerIdAtom
+
+  websocketAdminUsersAtom-->userAtom
+  websocketAdminUsersAtom-->adminUsersAtom
+
+  adminCurrentUserAtom-->adminUserIdAtom
+  adminCurrentUserAtom-->adminUsersAtom
 
   aws[(cloud)]
 ```
