@@ -352,9 +352,8 @@ interface MigratedTable<T extends object> {
  * stays untouched: it records a user's edit, which this is not.
  *
  * Only the fields the migrations changed are written. A whole-row Put would also write back every
- * other field as read, and some writers move fields without touching `updatedAt` (a start list
- * publication, the registration group lock), so the condition could not see them and the Put would
- * undo them.
+ * other field as read, and the workflow locks (the registration group lock) move fields without
+ * touching `updatedAt`, so the condition could not see them and the Put would undo them.
  */
 const bumpedChanges = <T extends object>(row: ReadRow<T>) => {
   const { remove, set } = createPatch(row.item, row.before)

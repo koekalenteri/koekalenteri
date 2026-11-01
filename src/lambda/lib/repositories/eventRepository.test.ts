@@ -278,9 +278,30 @@ describe('eventRepository', () => {
       expect(mockWrite).toHaveBeenCalledWith(event)
     })
 
-    it('writeEventFields updates the fields with no condition', async () => {
+    it('writeEventFields updates the fields with no condition, and moves updatedAt to now', async () => {
+      vi.useFakeTimers({ now: new Date('2026-11-01T10:00:00.000Z'), toFake: ['Date'] })
       await writeEventFields('event-1', { remove: ['note'], set: { name: 'Uusi' } })
-      expect(mockUpdate).toHaveBeenCalledWith({ id: 'event-1' }, { remove: ['note'], set: { name: 'Uusi' } })
+      vi.useRealTimers()
+      expect(mockUpdate).toHaveBeenCalledWith(
+        { id: 'event-1' },
+        { remove: ['note'], set: { name: 'Uusi', updatedAt: '2026-11-01T10:00:00.000Z' } }
+      )
+    })
+
+    it('writeEventFields keeps the updatedAt the changes set', async () => {
+      await writeEventFields('event-1', { set: { name: 'Uusi', updatedAt: '2026-10-31T08:00:00.000Z' } })
+      expect(mockUpdate).toHaveBeenCalledWith(
+        { id: 'event-1' },
+        { set: { name: 'Uusi', updatedAt: '2026-10-31T08:00:00.000Z' } }
+      )
+    })
+
+    it('writeEventFields moves updatedAt on a write that only removes fields', async () => {
+      await writeEventFields('event-1', { remove: ['note'] })
+      expect(mockUpdate).toHaveBeenCalledWith(
+        { id: 'event-1' },
+        { remove: ['note'], set: { updatedAt: expect.any(String) } }
+      )
     })
 
     it('writeWorkflowLock takes a lock nobody holds, or one that has expired', async () => {

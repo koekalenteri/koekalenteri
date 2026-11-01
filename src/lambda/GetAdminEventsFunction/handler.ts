@@ -1,7 +1,7 @@
 import type { JsonDogEvent, JsonUser } from '../../types'
-import { currentYear, TIME_ZONE, yearOf } from '../../lib/day'
+import { currentYear, TIME_ZONE } from '../../lib/day'
 import { authorizeWithMemberOf } from '../lib/auth'
-import { parseDateParam } from '../lib/incremental'
+import { CURSOR_LOOKBACK_MS, parseDateParam } from '../lib/incremental'
 import { httpError, lambda, response } from '../lib/lambda'
 import {
   readOrganizerEvents,
@@ -12,7 +12,7 @@ import {
 /**
  * The seasons a superadmin's list walks back through: from the latest season down, stopping once two
  * seasons in a row hold nothing. Seasons are contiguous in practice, and the calendar has no data
- * before this floor.
+ * before this floor. The since walk reads every season from it.
  */
 const EARLIEST_SEASON = 2020
 const EMPTY_SEASONS_TO_STOP = 2
@@ -27,15 +27,18 @@ const latestSeason = () => currentYear(TIME_ZONE) + 1
 const querySeason = (season: number, updatedAfter?: string) =>
   updatedAfter ? readSeasonEventsUpdatedSince(season, updatedAfter) : readSeasonEvents(season)
 
-/** What changed since the client last asked, every season the change can be in. */
+/**
+ * What changed since the client last asked, in every season the full read covers: an edit to a past
+ * season's trial (its results in January) is stamped now, long after its season (KOE-1668). The read
+ * reaches CURSOR_LOOKBACK_MS back from `since`, the newest stamp the client holds, so a row stamped
+ * a moment before it was committed still comes back.
+ */
 const queryChangedSince = async (since: string): Promise<JsonDogEvent[]> => {
   const sinceInstant = parseDateParam(since)
   if (!sinceInstant) throw httpError(400, 'Bad request: since must be a valid time')
-  const updatedAfter = sinceInstant.toISOString()
-  // The seasons are Finnish years, as the events' are (GetEventsFunction).
-  const startSeason = yearOf(sinceInstant, TIME_ZONE)
+  const updatedAfter = new Date(sinceInstant.getTime() - CURSOR_LOOKBACK_MS).toISOString()
   const endSeason = latestSeason()
-  const seasons = Array.from({ length: endSeason - startSeason + 1 }, (_, index) => startSeason + index)
+  const seasons = Array.from({ length: endSeason - EARLIEST_SEASON + 1 }, (_, index) => EARLIEST_SEASON + index)
 
   const perSeason = await Promise.all(seasons.map((season) => querySeason(season, updatedAfter)))
   return perSeason.flatMap((seasonEvents) => seasonEvents ?? [])

@@ -203,9 +203,13 @@ export const writeEvent = async (event: JsonDogEvent) => {
   await dynamoDB.write(event)
 }
 
-/** Sets and removes fields of the event, with no condition. */
+/**
+ * Sets and removes fields of the event, with no condition. `updatedAt` moves with every write, now
+ * unless the changes set it: the admin list's incremental fetch reads it, and a row written without
+ * moving it never reaches a browser that already holds the event (KOE-1668).
+ */
 export const writeEventFields = async (eventId: string, changes: UpdateActions) => {
-  await dynamoDB.update({ id: eventId }, changes)
+  await dynamoDB.update({ id: eventId }, { ...changes, set: { updatedAt: new Date().toISOString(), ...changes.set } })
 }
 
 /**

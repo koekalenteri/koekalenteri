@@ -16,6 +16,12 @@ export function parseDateParam(value: string | undefined): Date | undefined {
 
 type TimestampedItem = Parameters<typeof itemStamp>[0]
 
+/**
+ * How far an incremental read reaches back before the newest stamp a client holds: a row stamped
+ * before it was committed is still asked for, and the few rows delivered twice are merged by id.
+ */
+export const CURSOR_LOOKBACK_MS = 60 * 1000
+
 /** The latest stamp a row carries, the one `changedSince` judges it by. */
 const itemUpdatedAt = (item: TimestampedItem) => {
   const stamp = itemStamp(item)

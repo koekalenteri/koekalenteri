@@ -1,7 +1,7 @@
 import type { JsonDogEvent } from '../../types'
 import { currentYear, dayOf, TIME_ZONE, yearEnd, yearOf, yearStart } from '../../lib/day'
 import { sanitizeDogEvent, storedDayKey } from '../../lib/event'
-import { changedSince, collectionCursor, parseDateParam } from '../lib/incremental'
+import { CURSOR_LOOKBACK_MS, changedSince, collectionCursor, parseDateParam } from '../lib/incremental'
 import { lambda, response } from '../lib/lambda'
 import { readPublicSeasonEvents } from '../lib/repositories/eventRepository'
 
@@ -57,9 +57,6 @@ async function queryEventsForRange(start?: Date, end?: Date): Promise<JsonDogEve
 
   return perSeason.flatMap((seasonEvents) => seasonEvents ?? [])
 }
-
-/** How far the cursor trails the newest stamp, to catch rows stamped before they were committed */
-const CURSOR_LOOKBACK_MS = 60 * 1000
 
 const getEventsLambda = lambda('getEvents', async (event) => {
   const start = parseDateParam(event.queryStringParameters?.start)

@@ -1,5 +1,6 @@
 import type { DayKey, DogEvent } from '@/types'
 import { createStore } from 'jotai'
+import { eventWithStaticDatesAnd3Classes } from '@/__mockData__/events'
 import { getAdminEvents } from '@/api/event'
 import { idTokenAtom } from '@/pages/state'
 import { makeTestIdToken } from '@/test-utils/utils'
@@ -38,6 +39,8 @@ describe('adminEventsRemoteAtom', () => {
   beforeEach(() => {
     vi.mocked(getAdminEvents).mockReset()
   })
+
+  afterEach(() => sessionStorage.clear())
 
   const pendingFetch = () => {
     let resolve: (events: DogEvent[]) => void = () => undefined
@@ -162,5 +165,93 @@ describe('adminEventsRemoteAtom', () => {
     await vi.waitFor(() => expect(getAdminEvents).toHaveBeenCalledTimes(2))
 
     expect(store.get(adminEventsRemoteAtom)).toBeInstanceOf(Promise)
+  })
+
+  describe('the session cache (KOE-1668)', () => {
+    const NEWEST = Date.parse('2026-01-02T00:00:00.000Z')
+
+    it('asks only for the changes since the newest cached update after a token refresh', async () => {
+      vi.mocked(getAdminEvents).mockResolvedValueOnce([first, third]).mockResolvedValueOnce([fourth])
+      const store = createStore()
+      store.set(idTokenAtom, TOKEN)
+      expect(await store.get(adminEventsRemoteAtom)).toEqual([first, third])
+
+      store.set(idTokenAtom, REFRESHED_TOKEN)
+
+      const events = await store.get(adminEventsRemoteAtom)
+      expect(getAdminEvents).toHaveBeenLastCalledWith(REFRESHED_TOKEN, NEWEST)
+      expect(events).toEqual([first, third, fourth])
+    })
+
+    it('asks only for the changes after a reload of the page', async () => {
+      vi.mocked(getAdminEvents).mockResolvedValueOnce([first, third]).mockResolvedValueOnce([])
+      const before = createStore()
+      before.set(idTokenAtom, TOKEN)
+      await before.get(adminEventsRemoteAtom)
+
+      const after = createStore()
+      after.set(idTokenAtom, TOKEN)
+
+      const events = await after.get(adminEventsRemoteAtom)
+      expect(getAdminEvents).toHaveBeenLastCalledWith(TOKEN, NEWEST)
+      expect(events).toEqual([first, third])
+    })
+
+    it('reads back from the cache the event it was given', async () => {
+      const stored: DogEvent = { ...eventWithStaticDatesAnd3Classes, updatedAt: new Date('2026-01-02T00:00:00.000Z') }
+      vi.mocked(getAdminEvents).mockResolvedValueOnce([stored]).mockResolvedValueOnce([])
+      const before = createStore()
+      before.set(idTokenAtom, TOKEN)
+      await before.get(adminEventsRemoteAtom)
+
+      const after = createStore()
+      after.set(idTokenAtom, TOKEN)
+
+      expect(await after.get(adminEventsRemoteAtom)).toEqual([stored])
+    })
+
+    it('fetches the whole list again for a user whose roles have changed', async () => {
+      sessionStorage.setItem('adminEvents', JSON.stringify([third]))
+      sessionStorage.setItem(
+        'adminEvents:scope',
+        JSON.stringify({ admin: false, id: 'asdf1234', roles: [['org', 'admin']] })
+      )
+      vi.mocked(getAdminEvents).mockResolvedValueOnce([first])
+      const store = createStore()
+      store.set(idTokenAtom, TOKEN)
+
+      expect(await store.get(adminEventsRemoteAtom)).toEqual([first])
+      expect(getAdminEvents).toHaveBeenCalledWith(TOKEN, undefined)
+    })
+
+    it('serves the fetched list when the storage is full', async () => {
+      const setItem = vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
+        throw new DOMException('quota', 'QuotaExceededError')
+      })
+      vi.mocked(getAdminEvents).mockResolvedValueOnce([first, third])
+      const store = createStore()
+      store.set(idTokenAtom, TOKEN)
+
+      const events = await store.get(adminEventsRemoteAtom)
+      setItem.mockRestore()
+
+      expect(events).toEqual([first, third])
+    })
+
+    it('stores nothing from a fetch that settles after a sign-out', async () => {
+      const pending = pendingFetch()
+      vi.mocked(getAdminEvents).mockReturnValueOnce(pending.promise)
+      const store = createStore()
+      store.set(idTokenAtom, TOKEN)
+      store.sub(adminEventsRemoteAtom, () => undefined)
+      await vi.waitFor(() => expect(getAdminEvents).toHaveBeenCalledTimes(1))
+
+      store.set(idTokenAtom, undefined)
+      sessionStorage.clear()
+      pending.resolve([first])
+      await vi.waitFor(async () => expect(await store.get(adminEventsRemoteAtom)).toEqual([]))
+
+      expect(sessionStorage.getItem('adminEvents')).toBeNull()
+    })
   })
 })

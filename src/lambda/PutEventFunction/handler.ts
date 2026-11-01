@@ -372,6 +372,15 @@ const checkOrganizerExists = async (existing: JsonConfirmedEvent | undefined, da
   }
 }
 
+/**
+ * A deletion carries the server's time, not the one the browser sent: the admin list's incremental
+ * fetch reads `deletedAt` as a stamp of the row, and a browser clock ahead would carry its cursor past
+ * the edits that follow (KOE-1668). An event deleted before keeps the time it was deleted at.
+ */
+const stampDeletion = (data: JsonConfirmedEvent, existing: JsonConfirmedEvent | undefined, timestamp: string) => {
+  if (data.deletedAt) data.deletedAt = existing?.deletedAt ?? timestamp
+}
+
 const putEventLambda = lambda('putEvent', async (event) => {
   const { memberOf, user } = await authorizeWithMemberOf(event)
 
@@ -439,6 +448,7 @@ const putEventLambda = lambda('putEvent', async (event) => {
   data.modifiedAt = timestamp
   data.modifiedBy = user.name
   data.updatedAt = timestamp
+  stampDeletion(data, existing, timestamp)
 
   // Update registrations in case the secretary version was out of date.
   const result = await persistEventWithRegistrations(stored, data)
