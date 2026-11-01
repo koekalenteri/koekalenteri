@@ -10,7 +10,7 @@ covers:
   - src/pages/admin/EventCreatePage.tsx
   - src/pages/admin/EventEditPage.tsx
   - src/pages/admin/OrganizerListPage.tsx
-sourceHash: 86a477
+sourceHash: dcce46
 ---
 
 Once a trial has been created in the calendar, the secretary's job before entry opens is to make
@@ -25,7 +25,9 @@ opens shows the trials of every club you have access to.
 !shot[EventListPage/event-list-desktop] The event list in administration
 
 The list can be shaped to suit you: **Columns** picks the visible columns, the search box narrows
-the rows, the **{t:organization}** selector shows one club's trials only, and **{t:showPastEvents}** brings the finished ones back into the list. Clicking a row enables the buttons at the
+the rows, the **{t:organization}** selector shows one club's trials only, and **{t:showFinishedEvents}** brings the finished ones into the list too. A trial that
+has ended stays in the list until its results are published in every class, it is cancelled or 30
+days have passed since it ended. Clicking a row enables the buttons at the
 top: *{t:edit}*, *{t:copy}*, *{t:delete}* and *{t:registrations}*. *{t:delete}* is available only when
 the trial's state is *{t:event.states.draft}*, *{t:event.states.tentative}* or
 *{t:event.states.cancelled}*.

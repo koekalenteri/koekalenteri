@@ -238,6 +238,20 @@ export const PAYMENT_DAYS_AFTER_TRIAL = 7
 export const isPaymentWindowOpen = ({ endDate }: Pick<EventVitals, 'endDate'>, now = new Date()) =>
   !dayPasses(endDate, (day) => addDays(day, PAYMENT_DAYS_AFTER_TRIAL) < today(now))
 
+/** Days after the trial's last day from which it is finished whatever its state (KOE-1667). */
+export const FINISHED_DAYS_AFTER_TRIAL = 30
+
+/**
+ * Whether the trial is past the secretary's work, which takes it off the admin's default event list:
+ * its day is over and its results are out in every class, it was cancelled, or the
+ * {@link FINISHED_DAYS_AFTER_TRIAL}th Finnish day after its last day has come (KOE-1667).
+ */
+export const isEventFinished = (event: EventVitals & ResultsDaysEvent, now = new Date()): boolean =>
+  isEventOver(event, now) &&
+  ((isConfirmedEvent({ state: event.state }) && hasAllResultsPublished(event)) ||
+    event.state === 'cancelled' ||
+    dayPasses(event.endDate, (day) => addDays(day, FINISHED_DAYS_AFTER_TRIAL) <= today(now)))
+
 /**
  * Whether an entry is past changing: the trial's day has gone, or this class has been judged. The
  * entries stay readable either way - only editing, cancelling, moving and messaging close (KOE-1388).

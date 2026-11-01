@@ -38,7 +38,7 @@ graph LR
   adminEventsAtom-->adminEventsRemoteAtom
   adminEventsAtom-->localStorage
   newEventAtom-->localStorage
-  adminShowPastEventsAtom-->localStorage
+  adminShowFinishedEventsAtom-->localStorage
   adminEventFilterTextAtom-->localStorage
   adminEventIdAtom-->localStorage
   eventClassAtom-->localStorage
@@ -56,7 +56,7 @@ graph LR
 
   filteredAdminEventsAtom-->adminEventsAtom
   filteredAdminEventsAtom-->adminEventFilterTextAtom
-  filteredAdminEventsAtom-->adminShowPastEventsAtom
+  filteredAdminEventsAtom-->adminShowFinishedEventsAtom
 
   aws[(cloud)]
 ```

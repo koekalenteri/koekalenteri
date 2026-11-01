@@ -20,7 +20,7 @@ export const adminNewEventAtom = atomWithLocalStorage<DogEvent, JsonDogEvent>(
   } as unknown as DogEvent,
   { revive: toDogEvent }
 )
-export const adminShowPastEventsAtom = atomWithLocalStorage('adminShowPastEvents', false)
+export const adminShowFinishedEventsAtom = atomWithLocalStorage('adminShowFinishedEvents', false)
 export const adminEventFilterTextAtom = atomWithLocalStorage('adminEventFilterText', '')
 export const adminEventIdAtom = atomWithLocalStorage<string | undefined>('adminEventId', undefined)
 export const adminEventOrganizerIdAtom = atomWithLocalStorage('adminEventOrganizerId', '')

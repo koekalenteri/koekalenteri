@@ -1382,8 +1382,8 @@
     "placeholder": "Search..."
   },
   "send": "Send",
+  "showFinishedEvents": "Also show finished events",
   "showOrganizersWithUsers": "Show only organizations with users",
-  "showPastEvents": "Also show past events",
   "size": {
     "en": "Koko englanniksi",
     "fi": "Koko suomeksi"

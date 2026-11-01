@@ -24,7 +24,9 @@ tapahtumalistaus näyttää kaikkien niiden yhdistysten kokeet, joihin sinulla o
 !shot[EventListPage/event-list-desktop] Tapahtumalistaus ylläpidossa
 
 Listausta voi muokata itselle sopivaksi: **Sarakkeet** valitsee näkyvät sarakkeet, hakukenttä
-rajaa rivejä, **{t:organization}**-valinta näyttää vain yhden yhdistyksen kokeet, ja **{t:showPastEvents}** tuo listaan jo päättyneet kokeet. Rivin valinta klikkaamalla aktivoi yläreunan
+rajaa rivejä, **{t:organization}**-valinta näyttää vain yhden yhdistyksen kokeet, ja **{t:showFinishedEvents}** tuo listaan myös valmiit kokeet. Päättynyt koe pysyy
+listassa, kunnes sen tulokset on julkaistu kaikissa luokissa, se on peruttu tai sen päättymisestä
+on kulunut 30 päivää. Rivin valinta klikkaamalla aktivoi yläreunan
 painikkeet: *{t:edit}*, *{t:copy}*, *{t:delete}* ja *{t:registrations}*. *{t:delete}* on käytettävissä
 vain, kun kokeen tila on *{t:event.states.draft}*, *{t:event.states.tentative}* tai
 *{t:event.states.cancelled}*.
