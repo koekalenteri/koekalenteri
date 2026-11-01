@@ -61,7 +61,7 @@ describe('event derived atoms', () => {
   })
 
   describe('the option lists', () => {
-    // The filters read only a few fields; the minimal events convert at this boundary.
+    // One confirmed trial per row; only the fields the facets read differ.
     const trial = (
       id: string,
       eventType: string,
