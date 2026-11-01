@@ -39,6 +39,11 @@ commits on the same branch.
 - Write the test that fails without the change first, and keep the evidence (the failing output)
   for the PR body.
 - A test that exposes an app bug gets the app fixed, not the test bent around it.
+- Fix everything stale in the files you touch, also when it predates your change: an old name, a
+  wrong edge in a graph, a comment or README line that describes what the code no longer does. A
+  small improvement to the code you touch belongs in the same PR. A bigger improvement, or one in
+  a file you would not otherwise touch, goes in your report for the orchestrator to raise with the
+  user; it gets its own issue.
 - Before a workaround for a dependency, check whether a newer release already fixes it.
 - Run tests one at a time in the foreground through the npm scripts
   (`npm run test-frontend -- --run <paths>`, `npm run test-backend -- --run <paths>`); never in

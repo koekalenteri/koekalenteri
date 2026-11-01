@@ -118,9 +118,15 @@ When all have reported:
   The gate checks ratings, duplication and hotspots, not the issue count, so a PR with new code
   smells passes it (#1450 did with 8). Only an issue on a line the PR did not touch, or one from
   a rule SonarCloud just added, belongs elsewhere.
-- A real bug the review finds outside the issue's scope (it predates the PR, or fixing it would
-  change a shared rule the issue does not ask about): not the implementer's. Bring it to the
-  user with the evidence and ask with `AskUserQuestion` whether it gets its own issue. See "Follow-up issues" below.
+- Stale content in a file the PR touches is the implementer's, in the same PR, also when it
+  predates the PR: an old name, a wrong edge in a graph, a comment or README line that describes
+  what the code no longer does. So is a small improvement to code the PR touches. "Belongs to
+  `main`" covers only files the PR does not touch, or changes that would widen the PR's subject
+  (#1710 left a one-word graph fix for a separate PR; that was wrong).
+- A real bug or a bigger improvement the review finds outside the issue's scope (it is in a file
+  the PR does not touch, or fixing it would change a shared rule the issue does not ask about):
+  not the implementer's. Bring it to the user with the evidence and ask with `AskUserQuestion`
+  whether it gets its own issue. See "Follow-up issues" below.
 - Send the rest to the implementer through `SendMessage` (its agent ID from step 2), as one
   package. Do not start a new implementer; its context is the point.
 
