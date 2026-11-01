@@ -191,8 +191,11 @@ const COMMON_ELIMINATING_FAULTS: readonly EliminatingFault[] = [
 export const eliminatingFaults = (eventType?: string): readonly EliminatingFault[] =>
   ELIMINATING_FAULTS_BY_EVENT_TYPE.get(eventType ?? '') ?? COMMON_ELIMINATING_FAULTS
 
-/** Every zero-fault code, for validating a submission's claim at the write boundary. */
-export const nowtZeroFaults: NowtZeroFault[] = [
+/**
+ * Every zero-fault code, in the order the menu offers them, and for validating a submission's claim at
+ * the write boundary. `unknown` comes last, after the rules' own faults (KOE-1664).
+ */
+export const nowtZeroFaults: readonly NowtZeroFault[] = [
   'unauthorizedRun',
   'outOfControl',
   'persistentNoise',
@@ -202,6 +205,7 @@ export const nowtZeroFaults: NowtZeroFault[] = [
   'huntingWithDummy',
   'swappedDummy',
   'eyeWipe',
+  'unknown',
 ]
 
 /** One task as scored for one dog, joined to its definition in the class's round. */

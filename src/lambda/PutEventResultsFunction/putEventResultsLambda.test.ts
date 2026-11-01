@@ -300,6 +300,28 @@ describe('putEventResultsLambda', () => {
     ).rejects.toThrow('not part of the round')
   })
 
+  it('stores a zero whose reason is not known as its own code (KOE-1664)', async () => {
+    await putEventResultsLambda(
+      apiEvent([
+        { eventResult: { tasks: [{ index: 0, points: 0, stationId: 'post-1', zeroFault: 'unknown' }] }, id: 'reg-1' },
+      ])
+    )
+
+    expect(savedResult()).toMatchObject({ tasks: [expect.objectContaining({ points: 0, zeroFault: 'unknown' })] })
+  })
+
+  it('refuses a zero fault the list does not know', async () => {
+    await expect(
+      putEventResultsLambda(
+        apiEvent([
+          { eventResult: { tasks: [{ index: 0, points: 0, stationId: 'post-1', zeroFault: 'guess' }] }, id: 'reg-1' },
+        ])
+      )
+    ).rejects.toThrow("Unknown zero fault 'guess'")
+
+    expect(mockUpdateRegistrationField).not.toHaveBeenCalled()
+  })
+
   it('caps how many dogs one request may carry', async () => {
     const batch = Array.from({ length: 201 }, (_ignored, index) => ({
       eventResult: { tasks: scores(1, 1, 1, 1) },

@@ -13,7 +13,7 @@ covers:
   - src/pages/admin/eventViewPage/infoPanel/ResultsPublishing.tsx
   - src/pages/admin/components/KcIdLookupButton.tsx
   - src/pages/admin/components/StartDaySelector.tsx
-sourceHash: b525b3
+sourceHash: 30daad
 ---
 
 On the trial day the secretary's job is to record what the dogs did and to get the results in
@@ -67,7 +67,8 @@ running order.
 **A trial scored at posts (NOWT).** Every task has its own column, and the points go in a field
 under which the task's maximum shows. Under the field is the judge who judged the task: at a post
 with one judge the name is just shown, at a post with several it is picked, and the choice carries
-over to the next dog. Zero points need a reason in the *{t:results.zeroFault}* field. The result
+over to the next dog. Zero points need a reason in the *{t:results.zeroFault}* field. When the
+scorecard does not say why the task scored nothing, pick *{t:results.zeroFaults.unknown}*. The result
 is worked out on the row by itself, as the rules say: a single zero rules out a prize, and the
 total of the points shows under the row. With *{t:results.scope}* the page can be narrowed to one
 post, showing only that post's tasks — the result is then left out, since it depends on the other
