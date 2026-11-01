@@ -1,8 +1,16 @@
 import type { DayKey, PublicDogEvent } from '@/types'
-import { eventWithStaticDates } from '@/__mockData__/events'
+import type { EventFilterFacet } from './filters'
+import type { FilterProps } from './types'
+import { eventWithStaticDates, eventWithStaticDatesAndClass } from '@/__mockData__/events'
 import { addDays } from '@/lib/day'
 import { endOfFinnishDay, legacyDayValue, startOfFinnishDay } from '@/test-utils/finnishDays'
-import { deserializeFilter, serializeFilter, withinDateFilters, withinResultsFilter } from './filters'
+import {
+  deserializeFilter,
+  matchesEventFilter,
+  serializeFilter,
+  withinDateFilters,
+  withinResultsFilter,
+} from './filters'
 
 describe('state.events.filters', () => {
   describe('the URL days', () => {
@@ -182,6 +190,54 @@ describe('state.events.filters', () => {
       // AVO's results went out and then its list was hidden; ALO's list is public but has no results.
       // Some list and some results are public, but no class has both, so there is nothing to read.
       expect(withinResultsFilter(classed({ AVO: true }, { ALO: true, AVO: false }), filter)).toBe(false)
+    })
+  })
+
+  describe('matchesEventFilter', () => {
+    // A NOME-B trial in February 2021 with an ALO class, organizer org-1 and judge Tuomari 1.
+    const event: PublicDogEvent = {
+      ...eventWithStaticDatesAndClass,
+      organizer: { id: 'org-1', name: 'Organizer One' },
+      state: 'confirmed',
+    }
+    const emptyFilter: FilterProps = {
+      end: null,
+      eventClass: [],
+      eventType: [],
+      judge: [],
+      organizer: [],
+      start: null,
+    }
+
+    it('passes an event with an empty filter', () => {
+      expect(matchesEventFilter(event, emptyFilter)).toBe(true)
+    })
+
+    it('leaves out a draft', () => {
+      expect(matchesEventFilter({ ...event, state: 'draft' }, emptyFilter)).toBe(false)
+      expect(matchesEventFilter({ ...event, state: 'draft' }, emptyFilter, 'eventType')).toBe(false)
+    })
+
+    it.each<[EventFilterFacet, Partial<FilterProps>]>([
+      ['eventType', { eventType: ['NOU'] }],
+      ['eventClass', { eventClass: ['VOI'] }],
+      ['organizer', { organizer: ['org-2'] }],
+      ['judge', { judge: ['Tuomari 2'] }],
+    ])('leaves out an event the %s facet misses, unless that facet is the one left out', (facet, values) => {
+      const filter = { ...emptyFilter, ...values }
+
+      expect(matchesEventFilter(event, filter)).toBe(false)
+      expect(matchesEventFilter(event, filter, facet)).toBe(true)
+      // Leaving out another facet does not lift this one.
+      const other: EventFilterFacet = facet === 'judge' ? 'eventType' : 'judge'
+      expect(matchesEventFilter(event, filter, other)).toBe(false)
+    })
+
+    it('never lifts the date, switch or results filters', () => {
+      expect(matchesEventFilter(event, { ...emptyFilter, start: '2021-03-01' }, 'judge')).toBe(false)
+      // Its entry closed in 2021, so the open-entry switch leaves it out whatever the clock says now.
+      expect(matchesEventFilter(event, { ...emptyFilter, withOpenEntry: true }, 'organizer')).toBe(false)
+      expect(matchesEventFilter(event, { ...emptyFilter, withResults: true }, 'eventType')).toBe(false)
     })
   })
 })

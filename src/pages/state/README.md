@@ -41,7 +41,7 @@ The public calendar. `eventsAtom` and `eventMetadataAtom` are the stored copy an
 fetches by itself: `useFetchEvents()` (`hooks.ts`) calls `getEvents` and `getEvent` and writes `eventsAtom`,
 `eventMetadataAtom` and `eventsLoadingAtom`. The filter lives in the URL's search parameters and is mirrored to
 sessionStorage, so a return to the calendar restores it. Each `filter*Atom` offers the choices that the other filters
-still leave, through a helper that applies every filter but its own.
+still leave: `matchesEventFilter` (`events/filters.ts`) applies the whole filter, or all of it but one facet.
 
 ```mermaid
 graph LR
