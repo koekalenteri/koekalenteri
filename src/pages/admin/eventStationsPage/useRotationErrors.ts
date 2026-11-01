@@ -4,10 +4,11 @@ import { useAtomValue } from 'jotai'
 import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { isScorableRegistration } from '@/lib/registration'
+import { scoresAtPosts } from '@/lib/results'
 import { formatRotationGroup, rotationCoverageErrors, rotationShapeErrors } from '@/lib/rotation'
 import { adminEventRegistrationsAtom } from '../state'
 
-type RotationLayout = Pick<DogEvent, 'classes' | 'rotations' | 'stations'>
+type RotationLayout = Pick<DogEvent, 'classes' | 'eventType' | 'rotations' | 'stations'>
 
 /** Every reason the rotation cannot be saved, as the secretary reads it. */
 const rotationErrorMessages = (
@@ -42,10 +43,16 @@ const rotationErrorMessages = (
   return [...new Set([...shape, ...coverage])]
 }
 
-/** Why the Rastit page may not save the rotation as it stands; empty when it may. */
+/**
+ * Why the Rastit page may not save the rotation as it stands; empty when it may. A type not scored at
+ * posts has no rotation editor and no reader of a rotation, so a stored one never blocks its save.
+ */
 export function useRotationErrors(eventId: string, event: RotationLayout | undefined): string[] {
   const { t } = useTranslation()
   const registrations = useAtomValue(adminEventRegistrationsAtom(eventId))
 
-  return useMemo(() => (event ? rotationErrorMessages(event, registrations, t) : []), [event, registrations, t])
+  return useMemo(
+    () => (event && scoresAtPosts(event.eventType) ? rotationErrorMessages(event, registrations, t) : []),
+    [event, registrations, t]
+  )
 }

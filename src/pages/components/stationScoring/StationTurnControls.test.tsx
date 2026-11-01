@@ -142,6 +142,18 @@ describe('StationTurnControls', () => {
         expect(screen.queryByRole('button', { name: /liveStatus.group/ })).not.toBeInTheDocument()
       })
 
+      it('reads the figure of the dog on show once every queued dog is through', () => {
+        const dogs = inGroup(2).map((dog) => ({ ...dog, done: true }))
+        renderControls({
+          dogs,
+          eventType: 'NOWT',
+          selectedDog: { ...walkUpDogs[0], visit: visit(1) },
+          station: { dogsAtOnce: 4, id: 'post-1', tasks: 1 },
+        })
+
+        expect(screen.queryByRole('button', { name: /liveStatus.group/ })).not.toBeInTheDocument()
+      })
+
       it("reads the next group's figure once the head group is through", () => {
         const dogs = [
           { ...walkUpDogs[0], done: true, visit: visit(1) },

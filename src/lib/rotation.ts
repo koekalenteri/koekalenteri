@@ -9,6 +9,7 @@ import type {
 } from '../types'
 import type { SortableRegistration } from './registration'
 import { compareRegistrationClasses } from './event'
+import { stationDogsAtOnce } from './liveFormat'
 import {
   getRegistrationClass,
   getRegistrationGroupDay,
@@ -50,8 +51,8 @@ export interface VisitSettings {
   dogsAtOnce: number
 }
 
-/** A post's own dogs at once as a visit compares with it: absent is one, as `stationDogsAtOnce` reads it. */
-const stationDogs = (station: Pick<EventStation, 'dogsAtOnce'>): number => station.dogsAtOnce ?? 1
+/** A post's own dogs at once as a visit compares with it, read as the turns read it; no format fixes it here. */
+const stationDogs = (station: Pick<EventStation, 'dogsAtOnce'>): number => stationDogsAtOnce(undefined, station)
 
 /** What a visit does at its post, the post's defaults filled in where the visit sets nothing. */
 export const visitSettingsOf = (

@@ -8,7 +8,7 @@ import MenuItem from '@mui/material/MenuItem'
 import Stack from '@mui/material/Stack'
 import TextField from '@mui/material/TextField'
 import { useTranslation } from 'react-i18next'
-import { DOG_COUNTS, MAX_DOGS_AT_ONCE } from '@/lib/liveFormat'
+import { DOG_COUNTS } from '@/lib/liveFormat'
 import { POST_PARTS, POST_TASK_COUNTS, rotationVisitOf, visitSettingsOf } from '@/lib/rotation'
 
 interface Props {
@@ -17,8 +17,6 @@ interface Props {
   readonly classes: RegistrationClass[]
   /** The posts of the day, in number order. */
   readonly stations: EventStation[]
-  /** Whether a visit is asked its dogs at once: only where the format leaves it to the post. */
-  readonly asksDogsAtOnce?: boolean
   readonly disabled?: boolean
   readonly onChange: (group: EventRotationGroup) => void
   readonly onRemove: () => void
@@ -105,7 +103,7 @@ const countItems = (counts: readonly number[]) =>
  * One rotation group: its class, its start numbers where the class is split, and the posts it visits
  * in order, each with the tasks, parts and dogs at once it does there.
  */
-export const RotationRow = ({ group, classes, stations, asksDogsAtOnce, disabled, onChange, onRemove }: Props) => {
+export const RotationRow = ({ group, classes, stations, disabled, onChange, onRemove }: Props) => {
   const { t } = useTranslation()
   const unvisited = stations.filter((station) => !group.posts.some((post) => post.stationId === station.id))
   const setPosts = (posts: EventRotationPost[]) => onChange({ ...group, posts })
@@ -160,7 +158,7 @@ export const RotationRow = ({ group, classes, stations, asksDogsAtOnce, disabled
         return (
           // A post appears in a round once at most, so it names its own place there. The visit's post on
           // top, what the group does there under it, so a round of several posts fits a row.
-          <Stack key={post.stationId} spacing={0.5} sx={{ width: asksDogsAtOnce ? 288 : 164 }}>
+          <Stack key={post.stationId} spacing={0.5} sx={{ width: 288 }}>
             <RowSelect
               disabled={disabled}
               label={t('event.rotation.visit', { number: index + 1 })}
@@ -206,17 +204,16 @@ export const RotationRow = ({ group, classes, stations, asksDogsAtOnce, disabled
               >
                 {countItems(POST_PARTS)}
               </RowSelect>
-              {asksDogsAtOnce && (
-                <RowSelect
-                  disabled={disabled || !station}
-                  label={t('event.stationDogsAtOnce')}
-                  onChange={(value) => setVisit({ dogsAtOnce: Number(value) })}
-                  value={Math.min(settings.dogsAtOnce, MAX_DOGS_AT_ONCE)}
-                  width={120}
-                >
-                  {countItems(DOG_COUNTS)}
-                </RowSelect>
-              )}
+              {/* Rotation is only for the types scored at posts, and none of them fixes the figure. */}
+              <RowSelect
+                disabled={disabled || !station}
+                label={t('event.stationDogsAtOnce')}
+                onChange={(value) => setVisit({ dogsAtOnce: Number(value) })}
+                value={settings.dogsAtOnce}
+                width={120}
+              >
+                {countItems(DOG_COUNTS)}
+              </RowSelect>
             </Stack>
           </Stack>
         )

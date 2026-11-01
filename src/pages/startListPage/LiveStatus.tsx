@@ -181,7 +181,10 @@ export const LiveStatus = ({
   participants,
 }: {
   readonly event: PublicConfirmedEvent
-  /** The published start list, only to count how many dogs each post still has to get through. */
+  /**
+   * The published start list: each dog placed in its rotation group by class, day and number, to count
+   * how many dogs each post still has to get through and how many a turn of them holds.
+   */
   readonly participants?: readonly LiveParticipant[]
 }) => {
   const { t } = useTranslation()

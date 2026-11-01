@@ -7,7 +7,6 @@ import Typography from '@mui/material/Typography'
 import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { compareRegistrationClasses } from '@/lib/event'
-import { asksDogsAtOnce } from '@/lib/liveFormat'
 import { dayStations, formatStationArrivals, nextRotationGroup, rotationGroupDay } from '@/lib/rotation'
 import { RotationRow } from './RotationRow'
 
@@ -78,7 +77,6 @@ export const RotationEditor = ({ day, event, disabled, heading, onChange }: Prop
       )}
       {groups.map(({ group, index, key }) => (
         <RotationRow
-          asksDogsAtOnce={asksDogsAtOnce(event.eventType)}
           classes={classes}
           disabled={disabled}
           group={group}

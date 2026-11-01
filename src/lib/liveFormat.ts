@@ -50,7 +50,7 @@ export interface LivePhase {
 interface LiveFormat {
   /** Whether the day rotates between several posts or runs at one implicit post. */
   posts: 'one' | 'many'
-  /** Dogs per turn where the format fixes it. Absent leaves it to the post's own form. */
+  /** Dogs per turn where the format fixes it. Absent leaves it to the post's default, or the group's own figure at the post. */
   dogsAtOnce?: number
   flow: LiveFlow
   tasks: LiveTaskModel
@@ -84,7 +84,7 @@ const NOU_PHASES: readonly LivePhase[] = [{ key: 'briefing', whole: true }, { ke
 
 /** One post, whose phases the post's own secretary writes down, since a B trial's day varies. */
 const NOME_B: LiveFormat = { flow: 'queue', marks: [], posts: 'one', tasks: 'phases' }
-/** Four or five posts that the classes rotate past; each post's own form says how many dogs. */
+/** Four or five posts that the classes rotate past; the post's default or the group's own figure there says how many dogs. */
 const NOWT: LiveFormat = { flow: 'queue', marks: [], posts: 'many', tasks: 'post' }
 
 const LIVE_FORMATS = new Map<string, LiveFormat>([

@@ -1373,6 +1373,10 @@ describe('putEventLambda', () => {
       { rotations: [{ class: 'ALO', posts: [{ dogsAtOnce: 0, stationId: 'post-1' }] }] },
       'rotations.0.posts.0.dogsAtOnce must be at least 1',
     ],
+    [
+      { rotations: [{ class: 'ALO', posts: [{ dogsAtOnce: 11, stationId: 'post-1' }] }] },
+      'rotations.0.posts.0.dogsAtOnce must be at most 10',
+    ],
   ])('should return 400 for %p before looking the event up', async (body, message) => {
     signIn(mockSecretary)
 
@@ -2200,6 +2204,15 @@ describe('putEventLambda', () => {
       expect(mockReadEventRegistrations).not.toHaveBeenCalled()
     })
 
+    it('reads no registration when only the dogs a post takes at once change (KOE-1665)', async () => {
+      getEventMock.mockResolvedValue({ ...nowtEvent, kcState: handedOverState })
+
+      const res = await patchStations([{ ...posts[0], dogsAtOnce: 2 }, posts[1]])
+
+      expect(res.statusCode).toEqual(200)
+      expect(mockReadEventRegistrations).not.toHaveBeenCalled()
+    })
+
     it('refuses a change that would alter a result of a trial handed to the judge, and writes nothing', async () => {
       await record(nowtEvent, { 'dog-a': scores([10, 20], 10) })
       getEventMock.mockResolvedValue({ ...nowtEvent, kcState: handedOverState })
@@ -2326,6 +2339,19 @@ describe('putEventLambda', () => {
 
         expect(res.statusCode).toEqual(200)
         expect(eventResultOf('dog-a')).toMatchObject({ maxPoints: 40, points: 30, result: 'ALO2' })
+      })
+
+      it("reads no registration when only the group's dogs at once at a post change", async () => {
+        getEventMock.mockResolvedValue({ ...rotated, kcState: handedOverState })
+        const pairs: EventRotationGroup = {
+          ...group(2),
+          posts: group(2).posts.map((post) => ({ ...post, dogsAtOnce: 2 })),
+        }
+
+        const res = await patchRotations([pairs])
+
+        expect(res.statusCode).toEqual(200)
+        expect(mockReadEventRegistrations).not.toHaveBeenCalled()
       })
 
       it('leaves the results alone when only the order of the posts changes', async () => {

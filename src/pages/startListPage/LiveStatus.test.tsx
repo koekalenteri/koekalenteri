@@ -219,6 +219,28 @@ describeWithTranslations('fi', () => {
     { ...entered('ALO', 8), cancelled: true },
   ]
 
+  it("queues the whole entry at the post of a type not scored at posts, with the post's own figure", () => {
+    // NOME-B: one post that takes four at a time. Twelve dogs in two classes, four through: eight
+    // left is two turns. Split per class it would have been three (two and two of AVO's and VOI's six).
+    const event = {
+      ...baseEvent,
+      eventType: 'NOME-B',
+      liveTurns: [
+        turn({
+          dogs: ['A', 'B', 'C', 'D'].map((name, at) => ({ name, number: at + 1 })),
+          endedAt: new Date('2026-09-12T08:07:00Z'),
+          id: 'done',
+        }),
+      ],
+      stations: [{ date: '2026-09-12', dogsAtOnce: 4, id: 'post-1', number: 1, parts: 1 }],
+    } as PublicConfirmedEvent
+    const twelve = Array.from({ length: 12 }, (_unused, at) => entered(at < 6 ? 'AVO' : 'VOI', at + 1))
+
+    render(<LiveStatus event={event} participants={twelve} />)
+
+    expect(screen.getByText('Jonoa jäljellä n. 14–14 min (2 vuoroa)')).toBeInTheDocument()
+  })
+
   it('counts the turns ahead at a post with the dogs at once of each group that comes to it (KOE-1665)', () => {
     render(<LiveStatus event={rotationEvent} participants={participants} />)
 

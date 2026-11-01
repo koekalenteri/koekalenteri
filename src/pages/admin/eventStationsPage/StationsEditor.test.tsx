@@ -1,6 +1,6 @@
 import type { DayKey, DogEvent, EventRotationGroup, EventStation, Patch } from '@/types'
 import type { Props, StationsEditorEvent } from './StationsEditor'
-import { render, screen, within } from '@testing-library/react'
+import { screen, within } from '@testing-library/react'
 import { useState } from 'react'
 import { merge } from '@/lib/utils'
 import { describeWithTranslations } from '@/test-utils/language'
@@ -154,6 +154,26 @@ describe('StationsEditor', () => {
       )
     })
 
+    it("suggests a day's first group from that day's posts, not from another day's groups", async () => {
+      const onChange = vi.fn()
+      const sunday: DayKey = '2026-09-13'
+      const event = testEvent({
+        classes: [...classes, { class: 'VOI', date: sunday }],
+        endDate: sunday,
+        rotations: [{ class: 'AVO', firstNumber: 1, lastNumber: 8, posts: [{ stationId: 'b' }, { stationId: 'a' }] }],
+        stations: [...stations, station('c', 1, { date: sunday }), station('d', 2, { date: sunday })],
+      })
+      const { user } = renderComponent({ event, onChange })
+
+      await user.click(screen.getAllByRole('button', { name: 'event.rotation.add' })[1])
+
+      expect(onChange).toHaveBeenCalledWith(
+        expect.objectContaining({
+          rotations: [...(event.rotations ?? []), { class: 'VOI', posts: [{ stationId: 'c' }, { stationId: 'd' }] }],
+        })
+      )
+    })
+
     it('takes a removed post out of every group, and drops a group left with none', async () => {
       const onChange = vi.fn()
       const rotations = [
@@ -296,26 +316,10 @@ describeWithTranslations('fi', () => {
     savesRotations(onChange, [{ class: 'ALO', posts: [{ stationId: 'r1' }] }])
   })
 
-  it('asks a visit no dogs at once where the format fixes the figure', () => {
-    render(
-      <RotationRow
-        classes={['ALO']}
-        group={{ class: 'ALO', posts: [{ stationId: 'r1' }] }}
-        onChange={vi.fn()}
-        onRemove={vi.fn()}
-        stations={[station('r1', 1)]}
-      />
-    )
-
-    expect(screen.getByRole('combobox', { name: 'Tehtäviä' })).toBeInTheDocument()
-    expect(screen.queryByRole('combobox', { name: 'Koiria kerralla' })).not.toBeInTheDocument()
-  })
-
   it('puts a picked post in place of a visit to a post the day no longer has', async () => {
     const onChange = vi.fn()
     const { user } = renderWithUserEvents(
       <RotationRow
-        asksDogsAtOnce
         classes={['ALO']}
         group={{ class: 'ALO', posts: [{ stationId: 'gone', taskCount: 2 }] }}
         onChange={onChange}

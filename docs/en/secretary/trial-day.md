@@ -14,7 +14,7 @@ covers:
   - src/pages/admin/eventViewPage/infoPanel/ResultsPublishing.tsx
   - src/pages/admin/components/KcIdLookupButton.tsx
   - src/pages/admin/components/StartDaySelector.tsx
-sourceHash: 22c402
+sourceHash: bf6c2a
 ---
 
 On the trial day the secretary's job is to record what the dogs did and to get the results in
@@ -71,31 +71,31 @@ number order. The next group is suggested from the previous one, since the group
 the same way: it starts at the post the previous group visited second and goes round in the same
 order. A column's settings stay in the column, so two tasks at the last post move to the new group's
 own last post. The class is the first class without a group; once every class of the day has a group,
-it is the previous group's class, and *{t:event.rotation.firstNumber}* is the previous group's last
-number plus one. A suggestion can be edited like any group. The order is changed by picking a post in
-a column: when the group already visits that post in another column, the two posts change places and
-each keeps its own settings. A post the group does not visit yet takes over the column's settings. *{t:event.rotation.visitNone}*
-takes the post out of the round while the group has other posts; the whole group is removed with
+it is the previous group's class, *{t:event.rotation.firstNumber}* is the previous group's last number
+plus one and *{t:event.rotation.lastNumber}* is left empty. A suggestion can be edited like any group,
+its class included. The order is changed by picking a post in a column: when the group already visits
+that post in another column, the two posts change places and each keeps its own settings. A post the
+group does not visit yet takes over the column's settings. *{t:event.rotation.visitNone}* takes the
+post out of the round while the group has other posts; the whole group is removed with
 its own bin button. **+** adds a post the group does not visit yet. For each post
 you can give the group's number of tasks (1 - 3), the parts and *{t:event.stationDogsAtOnce}*;
-otherwise the post's default applies. The number of dogs is asked only when the event type does not
-fix it. So one post can take one class's dogs one at a time and another's in pairs: the post's entry
-view puts as many dogs in a turn as the group of the dog at the head of the queue takes, and the
-start list's wait estimate counts the turns left group by group with the same figures. In a
-three-class trial, for example, ALO goes round posts 1, 2 and 3 and does two tasks at post 3, AVO goes
-round 3, 1 and 2 and VOI 2, 3 and 1, and every class has a maximum of 80. When ALO's last post is
-marked for two tasks before the other two groups are added, they go round 2, 3, 1 and 3, 1, 2 with
-two tasks at their own last post, and swapping their classes gives the map's rotation. In a
-one-class trial the rotation is split by start number, for example numbers 1 - 8 start at post 1 and
-9 - 16 at post 2.
+otherwise the post's default applies. So one post can take one class's dogs one at a time and
+another's in pairs: the post's entry view puts as many dogs in a turn as the group of the dog at the
+head of the queue takes, and the start list's wait estimate counts the turns left group by group
+with the same figures. In a three-class trial, for example, ALO goes round posts 1, 2 and 3 and does
+two tasks at post 3, AVO goes round 3, 1 and 2 and VOI 2, 3 and 1, and every class has a maximum of
+80. Three groups added in a row go round 1, 2, 3; 2, 3, 1 and 3, 1, 2, so this rotation is two class
+changes away from the suggestion: the second group's class is changed to VOI and the third's to AVO.
+In a one-class trial the rotation is split by start number, for example numbers 1 - 8 start at post
+1 and 9 - 16 at post 2.
 
 Below the posts each post reads as the groups reach it, for example "Station 1: ALO, AVO, VOI
 (x 2)": "(x 2)" says the group does two tasks there, and "(2 parts)" that the task is split in two
 parts. The number ranges of one class must not overlap, and a range cannot stand beside a group of
 the whole class. When a class is split into number ranges and a participant falls outside every
 range, the page lists the reasons and does not save. A post of the day that is removed leaves every
-round, and a group left with no post is removed. If a dog's number later moves outside the ranges, the dog goes with the nearest group: past the last range with the
-last group, before the first range with the first, and between ranges with the lower group; a dog
+round, and a group left with no post is removed. If a dog's number later moves outside the ranges,
+the dog goes with the nearest group: past the last range with the last group, before the first range with the first, and between ranges with the lower group; a dog
 without a number goes with the first group. A dog's round is always made of the posts of its own
 trial day.
 

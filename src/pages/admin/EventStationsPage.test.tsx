@@ -196,6 +196,15 @@ describe('EventStationsPage', () => {
       expect(screen.getByRole('button', { name: 'save' })).toBeEnabled()
     })
 
+    it('lets a type not scored at posts save past a stored rotation it never reads', async () => {
+      const { user } = await renderSeeded({ ...split, eventType: 'NOME-B' }, registrationsToEventWithStations)
+      await flushPromises()
+      await editSomething(user)
+
+      expect(screen.queryByText(/^event\.rotation\.coverageOutside/)).not.toBeInTheDocument()
+      expect(screen.getByRole('button', { name: 'save' })).toBeEnabled()
+    })
+
     it('does not count a withdrawn dog or a reserve', async () => {
       const withdrawn = { ...second, cancelled: true }
       const { user } = await renderSeeded(split, [first, withdrawn, reserve])
