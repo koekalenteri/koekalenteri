@@ -65,7 +65,8 @@ välilehdillään. Sivulla ovat vain osallistujiksi nostetut koirakot starttijä
 kirjoitetaan kenttään, jonka alla näkyy tehtävän enimmäispistemäärä. Kentän alla on tehtävää
 arvostellut tuomari: yhden tuomarin rastilla nimi vain näytetään, useamman tuomarin rastilla
 se valitaan ja valinta siirtyy seuraavalle koirakolle. Nolla pistettä vaatii syyn kenttään
-*{t:results.zeroFault}*. Tulos lasketaan riville itsestään sääntöjen mukaan: yksikin nolla
+*{t:results.zeroFault}*. Jos arvostelukortista ei käy ilmi, miksi tehtävä nollattiin, valitaan
+*{t:results.zeroFaults.unknown}*. Tulos lasketaan riville itsestään sääntöjen mukaan: yksikin nolla
 estää palkintosijan, ja rivin alla näkyy pisteiden summa. Valinnalla *{t:results.scope}* sivun
 voi rajata yhteen rastiin, jolloin näkyvissä ovat vain sen rastin tehtävät — tulos jää silloin
 pois, koska se riippuu muistakin rasteista.

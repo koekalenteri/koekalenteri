@@ -7,21 +7,8 @@ import TextField from '@mui/material/TextField'
 import Typography from '@mui/material/Typography'
 import { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
-import { taskEntryCeiling } from '@/lib/results'
+import { nowtZeroFaults, taskEntryCeiling } from '@/lib/results'
 import { NumberInput } from '../NumberInput'
-
-/** §5.7.3. Codes rather than labels, so a rules rewording cannot orphan recorded history. */
-const ZERO_FAULTS: NowtZeroFault[] = [
-  'unauthorizedRun',
-  'outOfControl',
-  'persistentNoise',
-  'abandonedRetrieve',
-  'refusedWater',
-  'dummyNotFound',
-  'huntingWithDummy',
-  'swappedDummy',
-  'eyeWipe',
-]
 
 interface Props {
   readonly task: RoundTask
@@ -75,7 +62,12 @@ export const TaskScore = ({
   )
 
   const handleFault = useCallback(
-    (event: React.ChangeEvent<HTMLInputElement>) => onChange(task, 0, event.target.value as NowtZeroFault),
+    (event: React.ChangeEvent<HTMLInputElement>) =>
+      onChange(
+        task,
+        0,
+        nowtZeroFaults.find((fault) => fault === event.target.value)
+      ),
     [onChange, task]
   )
 
@@ -139,7 +131,7 @@ export const TaskScore = ({
           sx={{ minWidth: 150 }}
           value={value?.zeroFault ?? ''}
         >
-          {ZERO_FAULTS.map((fault) => (
+          {nowtZeroFaults.map((fault) => (
             <MenuItem key={fault} value={fault}>
               {t(`results.zeroFaults.${fault}`)}
             </MenuItem>

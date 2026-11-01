@@ -1331,7 +1331,8 @@
       "persistentNoise": "Toistuva vinkuminen tai haukkuminen",
       "refusedWater": "Kieltäytyminen vesityöskentelystä",
       "swappedDummy": "Damin vaihtaminen",
-      "unauthorizedRun": "Luvaton lähtö noutoon"
+      "unauthorizedRun": "Luvaton lähtö noutoon",
+      "unknown": "Ei tiedossa"
     }
   },
   "role": "Rooli",

@@ -592,29 +592,33 @@ describe('EventResultsPage', () => {
     expect(screen.getByRole('button', { name: 'results.save' })).toBeEnabled()
   })
 
-  it('asks why a task scored nothing, and will not let the zero stand unexplained', async () => {
-    const { i18n } = useTranslation()
-    const { user } = await renderScoringPage(i18n.language as Language)
-    await flushPromises()
+  // 'unknown' is the secretary's "ei tiedossa" when the scorecard does not say why (KOE-1664).
+  it.each(['eyeWipe', 'unknown'])(
+    'asks why a task scored nothing, and will not let the zero stand unexplained (%s)',
+    async (code) => {
+      const { i18n } = useTranslation()
+      const { user } = await renderScoringPage(i18n.language as Language)
+      await flushPromises()
 
-    expect(screen.queryByLabelText('results.zeroFault')).not.toBeInTheDocument()
+      expect(screen.queryByLabelText('results.zeroFault')).not.toBeInTheDocument()
 
-    await score(user, within(rowFor('Ensimmainen')).getAllByRole('textbox')[0], '0')
+      await score(user, within(rowFor('Ensimmainen')).getAllByRole('textbox')[0], '0')
 
-    // A zero without a reason is what would leave the series unable to answer the question it is
-    // collected for, so the select opens in an error state until one is chosen.
-    const fault = within(rowFor('Ensimmainen')).getByLabelText('results.zeroFault')
-    expect(fault).toBeInTheDocument()
-    expect(fault.closest('.MuiFormControl-root')?.querySelector('.Mui-error')).toBeTruthy()
+      // A zero without a reason is what would leave the series unable to answer the question it is
+      // collected for, so the select opens in an error state until one is chosen.
+      const fault = within(rowFor('Ensimmainen')).getByLabelText('results.zeroFault')
+      expect(fault).toBeInTheDocument()
+      expect(fault.closest('.MuiFormControl-root')?.querySelector('.Mui-error')).toBeTruthy()
 
-    await user.click(fault)
-    await user.click(screen.getByRole('option', { name: 'results.zeroFaults.eyeWipe' }))
-    await flushPromises()
+      await user.click(fault)
+      await user.click(screen.getByRole('option', { name: `results.zeroFaults.${code}` }))
+      await flushPromises()
 
-    expect(
-      within(rowFor('Ensimmainen')).getByLabelText('results.zeroFault').closest('.MuiFormControl-root')
-    ).not.toHaveClass('Mui-error')
-  })
+      const chosen = within(rowFor('Ensimmainen')).getByLabelText('results.zeroFault')
+      expect(chosen).toHaveTextContent(`results.zeroFaults.${code}`)
+      expect(chosen.closest('.MuiFormControl-root')?.querySelector('.Mui-error')).toBeNull()
+    }
+  )
 
   it('voids the round on an eliminating fault and asks where it happened', async () => {
     const { i18n } = useTranslation()

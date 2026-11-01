@@ -1331,7 +1331,8 @@
       "persistentNoise": "Persistent whining or barking",
       "refusedWater": "Refused to work in water",
       "swappedDummy": "Swapped the dummy",
-      "unauthorizedRun": "Unauthorised run-in"
+      "unauthorizedRun": "Unauthorised run-in",
+      "unknown": "Not known"
     }
   },
   "role": "Role",

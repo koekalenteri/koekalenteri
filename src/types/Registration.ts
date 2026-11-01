@@ -21,7 +21,7 @@ export type RegistrationClass = 'ALO' | 'AVO' | 'VOI'
 export type RegistrationTemplateContext = '' | 'cancel' | 'confirm' | 'receipt' | 'update' | 'invitation' | 'refund'
 
 /**
- * Faults that zero a single task while the dog carries on (NOWT rules §5.7.3).
+ * Faults that zero a single task while the dog carries on (NOWT rules §5.7.3), and `unknown`.
  *
  * Stored as a code, never as a label: the Finnish wording is an i18n key, and a rules revision must be
  * able to reword it without orphaning the recorded history.
@@ -36,6 +36,8 @@ export type NowtZeroFault =
   | 'huntingWithDummy'
   | 'swappedDummy'
   | 'eyeWipe'
+  /** Not a §5.7.3 bullet: the secretary's "ei tiedossa" when the scorecard does not say why (KOE-1664). */
+  | 'unknown'
 
 /**
  * The faults a judge ends a dog's trial on: NOWT's hylkäävät virheet (§5.3.5), NOME-A's (§3.3.3),
