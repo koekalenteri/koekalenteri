@@ -16,7 +16,7 @@ import { isResultsLocked } from '../../lib/kennelliittoResults'
 import { isScorableRegistration } from '../../lib/registration'
 import {
   availableResultCodes,
-  classRound,
+  dogRound,
   eliminatingFaults,
   mergeStationTasks,
   nowtZeroFaults,
@@ -28,6 +28,7 @@ import {
   stationVersion,
   taskEntryCeiling,
 } from '../../lib/results'
+import { rotationDogOf } from '../../lib/rotation'
 import { mapWithConcurrency } from '../../lib/utils'
 import { audit, registrationAuditKey } from './audit'
 import { getEvent } from './event'
@@ -341,14 +342,12 @@ const resolveFor = (
   updatedBy: string
 ): JsonEventResult => {
   const eventClass = registration.class ?? undefined
-  const classStations = confirmedEvent.classes?.find((item) => item.class === eventClass)?.stations
 
   return {
     ...resolveEventResult(submitted, {
-      classStations,
       eventClass,
       eventType: confirmedEvent.eventType,
-      stations: confirmedEvent.stations,
+      round: dogRound(confirmedEvent, rotationDogOf(registration)),
     }),
     updatedAt,
     updatedBy,
@@ -433,9 +432,7 @@ const validateSubmittedTasks = (
   const tasks = submission.eventResult.tasks
   if (!tasks?.length) return
 
-  const eventClass = registration.class ?? undefined
-  const classStations = confirmedEvent.classes?.find((item) => item.class === eventClass)?.stations
-  const round = classRound(confirmedEvent.stations ?? [], classStations)
+  const round = dogRound(confirmedEvent, rotationDogOf(registration))
 
   for (const task of tasks) {
     const slot = round.find((item) => item.stationId === task.stationId && item.index === task.index)

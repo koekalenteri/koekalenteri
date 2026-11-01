@@ -8,11 +8,12 @@ import type {
   JsonStationEntry,
   JsonStationEntryDog,
   JsonStationTurn,
+  StationVisitLayout,
 } from '../../types'
 import { isResultsLocked } from '../../lib/kennelliittoResults'
 import { resolveStation } from '../../lib/liveFormat'
-import { isScorableRegistration, sortRegistrationsByDateClassTimeAndNumber } from '../../lib/registration'
-import { scoresAtPosts } from '../../lib/results'
+import { isScorableRegistration } from '../../lib/registration'
+import { scoresAtPosts, stationDogsInOrder } from '../../lib/results'
 import { linkedEventProjection } from './event'
 import { LambdaError } from './lambda'
 import { DEFAULT_LINK_TOKEN_VERSION, deriveLinkToken, getBearerToken, linkTokensMatch } from './linkToken'
@@ -61,9 +62,13 @@ export const authorizeStationEntry = (
 /**
  * The dogs as the link may see them. A judge's secretary needs the start number, the dog's name and
  * the class to call dogs up — owner and handler details stay off a link this widely shared. The tasks
- * are this post's own: what the other posts recorded is not this link's to see either.
+ * are this post's own: what the other posts recorded is not this link's to see either. The visit is
+ * what the dog's rotation group does here (KOE-1665), which the link has no rotation to work out.
  */
-const stationEntryDog = (registration: JsonRegistration, stationId: string): JsonStationEntryDog => {
+const stationEntryDog = (
+  registration: JsonRegistration & { visit?: StationVisitLayout },
+  stationId: string
+): JsonStationEntryDog => {
   const stored = registration.eventResult
   const scoped = stored && scopeResultToStation(stored, stationId, registration.eventType)
   // The version rides along — a whole-trial post's next save is based on it; who wrote it does not.
@@ -76,6 +81,7 @@ const stationEntryDog = (registration: JsonRegistration, stationId: string): Jso
     group: registration.group,
     id: registration.id,
     ...(Object.keys(eventResult).length ? { eventResult } : {}),
+    ...(registration.visit ? { visit: registration.visit } : {}),
   }
 }
 
@@ -120,10 +126,10 @@ export const stationEntryResponse = (
 
   return {
     event: { ...linkedEventProjection(confirmedEvent), ...(isResultsLocked(confirmedEvent) ? { locked: true } : {}) },
-    registrations: registrations
-      .filter(isScorableRegistration)
-      .sort(sortRegistrationsByDateClassTimeAndNumber)
-      .map((registration) => stationEntryDog(registration, station.id)),
+    // In the order the rotation groups reach the post; a dog whose group does not come here is not listed.
+    registrations: stationDogsInOrder(confirmedEvent, station.id, registrations.filter(isScorableRegistration)).map(
+      (registration) => stationEntryDog(registration, station.id)
+    ),
     station: publicStation,
     turns: publicStationTurns(confirmedEvent.turns, station.id),
   }

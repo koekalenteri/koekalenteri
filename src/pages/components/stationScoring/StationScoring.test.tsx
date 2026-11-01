@@ -8,7 +8,7 @@ import { StationScoring } from './StationScoring'
 
 const judge = { id: 223, name: 'Tuomari 2' }
 const otherJudge = { id: 224, name: 'Tuomari 3' }
-const station = { id: '1', judges: [judge], number: 1, tasks: 1 as const }
+const station = { id: '1', judges: [judge], number: 1 }
 const group = { date: '2026-09-12' as const, key: 'ALO-AP', time: 'ap' as const }
 
 /** A NOME-B: judged, not scored — the post is the whole trial, and the result is the judge's word. */
@@ -259,6 +259,32 @@ describe('StationScoring', () => {
 
     expect(screen.getAllByRole('tab').map((tab) => tab.textContent)).toEqual(['ALO', 'AVO', 'VOI'])
     expect(screen.getByRole('tab', { name: 'ALO', selected: true })).toBeInTheDocument()
+  })
+
+  describe('a post in a rotation (KOE-1665)', () => {
+    const nowt = (id: string, eventClass: 'ALO' | 'VOI', tasks: number) => ({
+      class: eventClass,
+      dog: { name: id },
+      eventType: 'NOWT',
+      group: { ...group, key: `${eventClass}-AP`, number: 1 },
+      id,
+      visit: { parts: 1 as const, tasks, tasksBefore: 2 },
+    })
+
+    it('keeps the classes in the order they reach the post', () => {
+      renderScoring({ eventType: 'NOWT', registrations: [nowt('voi', 'VOI', 1), nowt('alo', 'ALO', 2)] })
+
+      expect(screen.getAllByRole('tab').map((tab) => tab.textContent)).toEqual(['VOI', 'ALO'])
+    })
+
+    it("scores the tasks the dog's group does here, numbered across its round", async () => {
+      const user = userEvent.setup()
+      renderScoring({ eventType: 'NOWT', registrations: [nowt('alo', 'ALO', 2)] })
+
+      await user.click(screen.getByRole('button', { name: '1 alo' }))
+
+      expect(screen.getAllByLabelText(/results\.column\.task/)).toHaveLength(2)
+    })
   })
 
   describe('a save that is refused (KOE-1140)', () => {

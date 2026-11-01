@@ -8,11 +8,12 @@ const station = (id: string, number: number, overrides: Partial<EventStation> = 
   date: '2026-09-12',
   id,
   number,
-  tasks: 1,
+  parts: 1,
   ...overrides,
 })
 
 const testEvent = (overrides: Partial<StationsEditorEvent> = {}): StationsEditorEvent => ({
+  classes: [],
   endDate: '2026-09-12',
   eventType: 'NOWT',
   judges: [],
@@ -40,7 +41,8 @@ describe('StationsEditor', () => {
     await user.click(screen.getByRole('button', { name: 'event.stationAdd' }))
 
     expect(onChange).toHaveBeenCalledWith({
-      stations: [station('a', 1), expect.objectContaining({ number: 2, tasks: 1 })],
+      rotations: [],
+      stations: [station('a', 1), expect.objectContaining({ number: 2, parts: 1 })],
     })
   })
 
@@ -54,7 +56,7 @@ describe('StationsEditor', () => {
     await user.click(screen.getAllByRole('button', { name: 'event.stationRemove' })[0])
 
     // 'b' and 'c' keep their identity but move up, so the posts still read 1..n.
-    expect(onChange).toHaveBeenCalledWith({ stations: [station('b', 1), station('c', 2)] })
+    expect(onChange).toHaveBeenCalledWith({ rotations: [], stations: [station('b', 1), station('c', 2)] })
   })
 
   it('numbers each day from one, since every day is built as its own course', async () => {
@@ -73,6 +75,7 @@ describe('StationsEditor', () => {
     await user.click(screen.getAllByRole('button', { name: 'event.stationAdd' })[1])
 
     expect(onChange).toHaveBeenCalledWith({
+      rotations: [],
       stations: [
         station('a', 1, { date: saturday }),
         station('b', 2, { date: saturday }),
@@ -101,7 +104,87 @@ describe('StationsEditor', () => {
 
     // Saturday's remaining post becomes 1; Sunday's is untouched.
     expect(onChange).toHaveBeenCalledWith({
+      rotations: [],
       stations: [station('b', 1, { date: saturday }), station('c', 1, { date: sunday })],
+    })
+  })
+
+  it('saves a post stored with the old name of its split under the new one (KOE-1665)', async () => {
+    const onChange = vi.fn()
+    const legacy: EventStation = { date: '2026-09-12', id: 'a', number: 1, tasks: 2 }
+    const { user } = renderComponent({ event: testEvent({ stations: [legacy] }), onChange })
+
+    await user.click(screen.getByRole('button', { name: 'event.stationAdd' }))
+
+    expect(onChange).toHaveBeenCalledWith({
+      rotations: [],
+      stations: [station('a', 1, { parts: 2 }), expect.objectContaining({ number: 2, parts: 1 })],
+    })
+  })
+
+  describe('rotation (KOE-1665)', () => {
+    const classes = [
+      { class: 'ALO' as const, date: '2026-09-12' as const },
+      { class: 'AVO' as const, date: '2026-09-12' as const },
+    ]
+    const stations = [station('a', 1), station('b', 2)]
+
+    it('says every class goes round the posts in number order while there is no group', () => {
+      renderComponent({ event: testEvent({ classes, stations }), onChange: vi.fn() })
+
+      expect(screen.getByText('event.rotation.default')).toBeInTheDocument()
+    })
+
+    it('adds a group for the first class without one, visiting the posts in number order', async () => {
+      const onChange = vi.fn()
+      const rotations = [{ class: 'ALO' as const, posts: [{ stationId: 'b' }, { stationId: 'a' }] }]
+      const { user } = renderComponent({ event: testEvent({ classes, rotations, stations }), onChange })
+
+      await user.click(screen.getByRole('button', { name: 'event.rotation.add' }))
+
+      expect(onChange).toHaveBeenCalledWith({
+        rotations: [...rotations, { class: 'AVO', posts: [{ stationId: 'a' }, { stationId: 'b' }] }],
+        stations,
+      })
+    })
+
+    it('takes a removed post out of every group, and drops a group left with none', async () => {
+      const onChange = vi.fn()
+      const rotations = [
+        { class: 'ALO' as const, posts: [{ stationId: 'a' }, { stationId: 'b', taskCount: 2 }] },
+        { class: 'AVO' as const, posts: [{ stationId: 'a' }] },
+      ]
+      const { user } = renderComponent({ event: testEvent({ classes, rotations, stations }), onChange })
+
+      await user.click(screen.getAllByRole('button', { name: 'event.stationRemove' })[0])
+
+      expect(onChange).toHaveBeenCalledWith({
+        rotations: [{ class: 'ALO', posts: [{ stationId: 'b', taskCount: 2 }] }],
+        stations: [station('b', 1)],
+      })
+    })
+
+    it('removes a group', async () => {
+      const onChange = vi.fn()
+      const rotations = [{ class: 'ALO' as const, posts: [{ stationId: 'a' }] }]
+      const { user } = renderComponent({ event: testEvent({ classes, rotations, stations }), onChange })
+
+      await user.click(screen.getByRole('button', { name: 'event.rotation.remove' }))
+
+      expect(onChange).toHaveBeenCalledWith({ rotations: [], stations })
+    })
+
+    it('adds the next post the group does not visit yet', async () => {
+      const onChange = vi.fn()
+      const rotations = [{ class: 'ALO' as const, posts: [{ stationId: 'b' }] }]
+      const { user } = renderComponent({ event: testEvent({ classes, rotations, stations }), onChange })
+
+      await user.click(screen.getByRole('button', { name: 'event.rotation.visitAdd' }))
+
+      expect(onChange).toHaveBeenCalledWith({
+        rotations: [{ class: 'ALO', posts: [{ stationId: 'b' }, { stationId: 'a' }] }],
+        stations,
+      })
     })
   })
 

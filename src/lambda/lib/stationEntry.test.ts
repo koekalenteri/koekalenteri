@@ -9,7 +9,7 @@ import {
   stationEntryResponse,
 } from './stationEntry'
 
-const station: EventStation = { date: '2026-09-12', id: 'post-1', number: 1, tasks: 1 as const }
+const station: EventStation = { date: '2026-09-12', id: 'post-1', number: 1 }
 
 const confirmedEvent = asJsonConfirmedEvent({
   classes: [{ class: 'ALO' }],
@@ -56,7 +56,6 @@ describe('stationEntry', () => {
         date: '2026-09-12',
         id: '1',
         number: 1,
-        tasks: 1,
       })
       // A NOWT with no course laid out has no post at all, implicit or otherwise.
       expect(() =>
@@ -65,7 +64,7 @@ describe('stationEntry', () => {
     })
 
     it('closes the implicit post to the old link once its version has been written down', () => {
-      const revoked: EventStation = { date: '2026-09-12', id: '1', number: 1, tasks: 1 as const, tokenVersion: 2 }
+      const revoked: EventStation = { date: '2026-09-12', id: '1', number: 1, tokenVersion: 2 }
       const singlePost = asJsonConfirmedEvent({ ...confirmedEvent, eventType: 'NOME-B', stations: [revoked] })
       const before = getStationEntryToken('event-1', { id: '1' })
       const after = getStationEntryToken('event-1', revoked)
@@ -119,10 +118,38 @@ describe('stationEntry', () => {
         eventType: 'NOWT',
         group: { date: '2026-09-12', key: 'ALO-AP', number: 1, time: 'ap' },
         id: 'run-1',
+        visit: { parts: 1, tasks: 1, tasksBefore: 0 },
       })
       // The link is shared on paper at a venue; contact details must not ride on it.
       expect(JSON.stringify(result)).not.toContain('example.com')
       expect(JSON.stringify(result)).not.toContain('regNo')
+    })
+
+    it('lists the dogs in the order their rotation groups reach the post, each with its tasks there (KOE-1665)', () => {
+      const posts = [station, { date: '2026-09-12' as const, id: 'post-2', number: 2 }]
+      const rotated = {
+        ...confirmedEvent,
+        rotations: [
+          { class: 'ALO' as const, posts: [{ stationId: 'post-1' }, { stationId: 'post-2', taskCount: 2 }] },
+          { class: 'AVO' as const, posts: [{ stationId: 'post-2' }, { stationId: 'post-1', taskCount: 2 }] },
+          { class: 'VOI' as const, posts: [{ stationId: 'post-2' }] },
+        ],
+        stations: posts,
+      }
+      const dogs = [
+        registration('run-3', { class: 'AVO' }),
+        registration('run-2'),
+        registration('run-1'),
+        registration('run-4', { class: 'VOI' }),
+      ]
+
+      expect(
+        stationEntryResponse(rotated, station, dogs).registrations.map((dog) => [dog.id, dog.visit?.tasks])
+      ).toEqual([
+        ['run-1', 1],
+        ['run-2', 1],
+        ['run-3', 2],
+      ])
     })
 
     it("serves a qualitative type's verdict, so the link can show who is done", () => {
@@ -132,7 +159,7 @@ describe('stationEntry', () => {
         eventResult: { judge, result: 'ALO1', updatedAt: 't1', updatedBy: 'u' },
         eventType: 'NOME-B',
       })
-      const implicit: EventStation = { date: '2026-09-12', id: '1', number: 1, tasks: 1 as const }
+      const implicit: EventStation = { date: '2026-09-12', id: '1', number: 1 }
 
       // The version rides along, since the post's next save of this dog is based on it.
       expect(stationEntryResponse(singlePost, implicit, [scored]).registrations[0].eventResult).toEqual({

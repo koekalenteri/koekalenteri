@@ -9,6 +9,7 @@ import type {
   RegistrationGroup,
   RegistrationTime,
   StationTurnOp,
+  StationVisitLayout,
 } from '@/types'
 import type { StationTurnItem } from './StationTurnControls'
 import type { ResultEdit } from './types'
@@ -30,8 +31,8 @@ import { errorSnackbarOptions } from '@/lib/client/snackbar'
 import { compareRegistrationClasses } from '@/lib/event'
 import { makeArray } from '@/lib/judge'
 import { liveFormat } from '@/lib/liveFormat'
-import { getRegistrationClass, sortRegistrationsByDateClassTimeAndNumber } from '@/lib/registration'
-import { classRound, parseEventResultCode, scoresAtPosts, stationVersion } from '@/lib/results'
+import { getRegistrationClass } from '@/lib/registration'
+import { formatTaskName, parseEventResultCode, scoresAtPosts, stationSlots, stationVersion } from '@/lib/results'
 import { openTurn } from '@/lib/stationTurns'
 import { AsyncButton } from '../AsyncButton'
 import { JudgeSelect } from './JudgeSelect'
@@ -54,16 +55,21 @@ interface StationScoringDog {
   handler?: { name?: string }
   eventResult?: Pick<EventResult, 'elimination' | 'retirement' | 'tasks' | 'result' | 'judge'> &
     Partial<Pick<EventResult, 'updatedAt'>>
+  /** What the dog's rotation group does at this post, where the post scores tasks (KOE-1665). */
+  visit?: StationVisitLayout
 }
 
 interface Props {
-  readonly station: Pick<EventStation, 'id' | 'number' | 'tasks' | 'judges' | 'dogsAtOnce'>
+  readonly station: Pick<EventStation, 'id' | 'number' | 'judges' | 'dogsAtOnce'>
   readonly eventType: string
   /** The line under the post number: the event's name, and whatever else the caller may show. */
   readonly subtitle?: string
-  /** For per-class splits of this post, and for the class judges where the post names none. */
+  /** For the class judges where the post names none. */
   readonly classes?: PublicDogEvent['classes']
-  /** Scorable dogs only. */
+  /**
+   * Scorable dogs only, in the order they come to the post (`stationQueue`): the groups as they arrive,
+   * each in start order. The screen keeps that order.
+   */
   readonly registrations: StationScoringDog[]
   readonly onSave: (submission: EventResultSubmission) => Promise<EventResultsResponse>
   /** The post's live timeline (KOE-1259); the clock and its buttons render only when provided. */
@@ -150,10 +156,12 @@ export function StationScoring({
   // Where the day runs at one post, "Rasti 1" names nothing anyone calls it; the event is the title.
   const singlePost = liveFormat(eventType).posts === 'one'
 
-  const eventClasses = useMemo(
-    () => [...new Set(registrations.map(getRegistrationClass))].sort(compareRegistrationClasses),
-    [registrations]
-  )
+  // Where the rotation says who comes when, the classes are in the order they reach the post, as the dogs
+  // came; elsewhere in the class order (KOE-1596).
+  const eventClasses = useMemo(() => {
+    const classes = [...new Set(registrations.map(getRegistrationClass))]
+    return registrations.some((dog) => dog.visit) ? classes : classes.sort(compareRegistrationClasses)
+  }, [registrations])
   // Read once, on opening: the dog already at the post is where the screen starts, class tab included.
   const [initial] = useState(() => dogAtPost(registrations, turns, station.id))
   const [selectedClass, setSelectedClass] = useState<string | undefined>(
@@ -166,19 +174,9 @@ export function StationScoring({
   const eventClass = selectedClass ?? eventClasses[0]
 
   const dogs = useMemo(
-    () =>
-      registrations
-        .filter((reg) => getRegistrationClass(reg) === eventClass)
-        .sort(sortRegistrationsByDateClassTimeAndNumber),
+    () => registrations.filter((reg) => getRegistrationClass(reg) === eventClass),
     [eventClass, registrations]
   )
-
-  // Only this post's slots, which is one task or two — and none at all where nothing is scored.
-  const round = useMemo(() => {
-    if (qualitative) return []
-    const classStations = classes?.find((item) => item.class === eventClass)?.stations
-    return classRound([station], classStations).filter((task) => task.stationId === station.id)
-  }, [classes, eventClass, qualitative, station])
 
   const judges = useMemo(() => {
     const own = station.judges ?? []
@@ -187,6 +185,14 @@ export function StationScoring({
   }, [classes, eventClass, station.judges])
 
   const selected = dogs.find((dog) => dog.id === selectedId)
+
+  // This post's slots for the dog in front of the judge: its group's tasks here, each whole or in parts,
+  // and none at all where nothing is scored.
+  const visit = selected?.visit
+  const round = useMemo(
+    () => (qualitative || !visit ? [] : stationSlots(station.id, visit)),
+    [qualitative, station.id, visit]
+  )
 
   /** A dog this post has already scored, so the judge can see at a glance who is still to come. */
   const isScored = useCallback(
@@ -363,12 +369,12 @@ export function StationScoring({
                 />
               </>
             )}
-            {round.map((task, index) => (
+            {round.map((task) => (
               <TaskScore
                 defaultJudge={lastJudge}
                 disabled={isVoided(edit)}
                 judges={judges}
-                name={t('results.column.task', { number: index + 1 })}
+                name={formatTaskName(task, t)}
                 key={`${task.stationId}#${task.index}`}
                 onChange={(item, points, zeroFault) =>
                   setEdit((prev) => ({

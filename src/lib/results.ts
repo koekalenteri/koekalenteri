@@ -3,7 +3,6 @@ import type {
   EliminatingFault,
   EventResultElimination,
   EventResultRetirement,
-  JsonEventClassStation,
   JsonEventResult,
   JsonEventResultTask,
   JsonRegistration,
@@ -11,14 +10,19 @@ import type {
   PublicJudge,
   Registration,
   ResultMark,
+  StationVisitLayout,
 } from '../types'
+import type { SortableRegistration } from './registration'
+import type { RotationDog, RotationEvent } from './rotation'
 import { objectsDiffer } from './diff'
 import {
   getRegistrationClass,
   getRegistrationGroupDay,
   getRegistrationPlacement,
   isScorableRegistration,
+  sortRegistrationsByDateClassTimeAndNumber,
 } from './registration'
+import { dogVisits, stationQueue } from './rotation'
 
 /**
  * The result codes shared by every event type. `0` and `-` are different outcomes: `0` says the dog was
@@ -67,14 +71,14 @@ export const formatResultLine = (
 const NOWT_PRIZE_THRESHOLD_PERCENT = { 1: 80, 2: 65, 3: 50 } as const
 
 /**
- * A post is always worth 20, whether it sets one task of 20 or two of 10: §5.3.1, "Jokaisen rastin
- * enimmäispistemäärä on 20 pistettä". Splitting a post into two tasks is not in the rules, so a change
- * of convention stays a change to this one value.
+ * A task is always worth 20, whether it is scored whole or in two parts of 10. §5.3.1 says it of a post
+ * ("Jokaisen rastin enimmäispistemäärä on 20 pistettä"); in practice a group may do two tasks at one
+ * post, and each is a task of 20, so a post is worth its tasks times 20 (KOE-1665).
  */
-const STATION_MAX_POINTS = 20
+const TASK_MAX_POINTS = 20
 
-/** A post's points split evenly between its tasks, so the parts always add up to the whole. */
-export const taskMaxPoints = (tasks: 1 | 2): number => STATION_MAX_POINTS / tasks
+/** A task's points split evenly between its parts, so the parts always add up to the task. */
+export const partMaxPoints = (parts: 1 | 2): number => TASK_MAX_POINTS / parts
 
 /** Event types scored at posts. Everything else is judged qualitatively and has no tasks. */
 const POST_SCORED_EVENT_TYPES = new Set(['NOWT', 'NOWT SM'])
@@ -208,9 +212,11 @@ export const nowtZeroFaults: readonly NowtZeroFault[] = [
   'unknown',
 ]
 
-/** One task as scored for one dog, joined to its definition in the class's round. */
+/** One part of a task as scored for one dog, joined to its definition in the dog's round. */
 export interface ScoredTask {
   stationId: string
+  /** 0-based task within the post. The parts of one task share it; the first-prize floor reads it. */
+  task?: number
   /** The task's nominal maximum. Never the halved figure from an ALO recall. */
   maxPoints: number
   /** `null` while unscored. */
@@ -233,30 +239,108 @@ interface NowtResultInput {
 export const taskEntryCeiling = (task: Pick<JsonEventResultTask, 'recalled'> & { maxPoints: number }): number =>
   task.recalled ? Math.floor(task.maxPoints / 2) : task.maxPoints
 
-/** One scored slot in a class's round. */
+/** One scored slot in a dog's round: a task, or one part of a split task. */
 export interface RoundTask {
   stationId: string
-  /** 0-based position among that post's tasks. */
+  /**
+   * 0-based slot within the post, the address a stored score carries: task × parts + part. A post
+   * stored before KOE-1665 with `tasks: 2` is one task in two parts, so its slots 0 and 1 read as before.
+   */
   index: number
+  /** 0-based task within the post. */
+  task: number
+  /** The task's number across the whole round, from 1, in the order the group does them. */
+  taskNumber: number
+  /** The parts the task splits into; the slot's part is `index % parts`. */
+  parts: 1 | 2
   maxPoints: number
 }
 
 /**
- * The scored slots a class runs, in course order.
- *
- * A class follows the course as built unless it has its own entry for a post. Expanding the split here
- * rather than storing each slot means a post's tasks cannot fail to add up to the post.
+ * The scored slots of one visit to a post: its tasks, each whole or in parts. Expanding the split here
+ * rather than storing each slot means a task's parts cannot fail to add up to the task.
  */
-export const classRound = (
-  stations: readonly { id: string; tasks: 1 | 2 }[],
-  classStations?: readonly JsonEventClassStation[]
+export const stationSlots = (
+  stationId: string,
+  { tasks, parts, tasksBefore }: Pick<StationVisitLayout, 'tasks' | 'parts' | 'tasksBefore'>
 ): RoundTask[] =>
-  stations.flatMap((station) => {
-    const tasks = classStations?.find((entry) => entry.stationId === station.id)?.tasks ?? station.tasks
-    const maxPoints = taskMaxPoints(tasks)
-
-    return Array.from({ length: tasks }, (_unused, index) => ({ index, maxPoints, stationId: station.id }))
+  Array.from({ length: tasks * parts }, (_unused, index) => {
+    const task = Math.floor(index / parts)
+    return { index, maxPoints: partMaxPoints(parts), parts, stationId, task, taskNumber: tasksBefore + task + 1 }
   })
+
+/**
+ * The scored slots of one dog's round, in the order its rotation group visits the posts (KOE-1665):
+ * every post of its day in number order where the day has no rotation of its own. A day without posts
+ * has an empty round.
+ */
+export const dogRound = (event: RotationEvent, dog: RotationDog): RoundTask[] => {
+  let tasksBefore = 0
+
+  return dogVisits(event, dog).flatMap(({ station, taskCount, parts }) => {
+    const slots = stationSlots(station.id, { parts, tasks: taskCount, tasksBefore })
+    tasksBefore += taskCount
+    return slots
+  })
+}
+
+/**
+ * The columns of a table of dogs whose rounds may differ: every slot any of them has, in the order of
+ * the first round that has it. Rows in start order put the first group's rotation first.
+ */
+export const roundColumns = (rounds: readonly (readonly RoundTask[])[]): RoundTask[] => {
+  const seen = new Set<string>()
+  return rounds.flat().filter((task) => {
+    const key = `${task.stationId}#${task.index}`
+    if (seen.has(key)) return false
+    seen.add(key)
+    return true
+  })
+}
+
+/**
+ * A slot named by its post rather than its place in a round: "Rasti 2", "Rasti 2, tehtävä 2", with the
+ * part after it where the task is split. The heading of a column the rows of a class number differently,
+ * the class going round in rotation groups of their own order.
+ */
+export const formatPostTaskName = (
+  task: RoundTask,
+  station: { number: number } | undefined,
+  t: TFunction<'translation'>
+): string => {
+  const number = station?.number ?? ''
+  const name =
+    task.task > 0 ? t('results.column.postTask', { number, task: task.task + 1 }) : t('results.column.post', { number })
+  return task.parts > 1
+    ? `${name}, ${t('results.column.part', { part: (task.index % task.parts) + 1, parts: task.parts })}`
+    : name
+}
+
+/** A slot as the secretary reads it: "Tehtävä 2", or "Tehtävä 2, osa 1/2" for a part of a split task. */
+export const formatTaskName = (task: RoundTask, t: TFunction<'translation'>): string =>
+  task.parts > 1
+    ? t('results.column.taskPart', { number: task.taskNumber, part: (task.index % task.parts) + 1, parts: task.parts })
+    : t('results.column.task', { number: task.taskNumber })
+
+/**
+ * The dogs a post sees, in the order they come to it. Where the post scores tasks, that is the rotation's
+ * queue (`stationQueue`), each dog with what its group does here, and a dog whose group does not come
+ * here is left out. Where nothing is scored the post is the whole trial: every dog, in start order.
+ */
+export const stationDogsInOrder = <T extends SortableRegistration>(
+  event: RotationEvent & { eventType: string },
+  stationId: string,
+  registrations: readonly T[]
+): (T & { visit?: StationVisitLayout })[] => {
+  if (!scoresAtPosts(event.eventType)) return [...registrations].sort(sortRegistrationsByDateClassTimeAndNumber)
+
+  return stationQueue(event, stationId, registrations).map(
+    ({ registration, visit: { tasks, parts, tasksBefore } }) => ({
+      ...registration,
+      visit: { parts, tasks, tasksBefore },
+    })
+  )
+}
 
 /**
  * Join a class's round to one dog's entries, driven by the round so an unscored task reads as `null`
@@ -271,6 +355,7 @@ export const toScoredTasks = (
     maxPoints: task.maxPoints,
     points: scored?.find((entry) => entry.stationId === task.stationId && entry.index === task.index)?.points ?? null,
     stationId: task.stationId,
+    task: task.task,
   }))
 
 export const nowtTotals = (tasks: readonly ScoredTask[]) => {
@@ -288,24 +373,25 @@ export const nowtTotals = (tasks: readonly ScoredTask[]) => {
 const atLeastPercent = (points: number, maxPoints: number, percent: number) => points * 100 >= percent * maxPoints
 
 /**
- * Every post must yield at least half its points for a first prize. A post worth 20 therefore has a
- * floor of 10. Where a post splits into two tasks the floor applies to their sum, so 9 + 8 clears it
- * although neither task reaches 10.
+ * Every task must yield at least half its points for a first prize. A task worth 20 therefore has a
+ * floor of 10. Where a task splits into two parts the floor applies to their sum, so 9 + 8 clears it
+ * although neither part reaches 10. Two tasks at one post are floored each on its own (KOE-1665).
  *
  * Not printed in §5.4.1, which gives the thresholds and nothing else — Jukka asserted the rule, so it
  * is practice or lives in the ohjeet. Tracked as unverified in the rules conformance ledger.
  */
-const everyPostAtLeastHalf = (tasks: readonly ScoredTask[]): boolean => {
-  const posts = new Map<string, { points: number; maxPoints: number }>()
+const everyTaskAtLeastHalf = (tasks: readonly ScoredTask[]): boolean => {
+  const sums = new Map<string, { points: number; maxPoints: number }>()
 
   for (const task of tasks) {
-    const post = posts.get(task.stationId) ?? { maxPoints: 0, points: 0 }
-    post.points += task.points ?? 0
-    post.maxPoints += task.maxPoints
-    posts.set(task.stationId, post)
+    const key = `${task.stationId}#${task.task ?? 0}`
+    const sum = sums.get(key) ?? { maxPoints: 0, points: 0 }
+    sum.points += task.points ?? 0
+    sum.maxPoints += task.maxPoints
+    sums.set(key, sum)
   }
 
-  return [...posts.values()].every((post) => post.points * 2 >= post.maxPoints)
+  return [...sums.values()].every((sum) => sum.points * 2 >= sum.maxPoints)
 }
 
 /**
@@ -339,8 +425,8 @@ export const deriveNowtResult = ({ tasks, elimination, retirement }: NowtResultI
   const { points, maxPoints } = nowtTotals(tasks)
   if (maxPoints === 0) return '0'
 
-  // The per-post floor gates the first prize only; second and third go on the total alone.
-  if (atLeastPercent(points, maxPoints, NOWT_PRIZE_THRESHOLD_PERCENT[1]) && everyPostAtLeastHalf(tasks)) return '1'
+  // The per-task floor gates the first prize only; second and third go on the total alone.
+  if (atLeastPercent(points, maxPoints, NOWT_PRIZE_THRESHOLD_PERCENT[1]) && everyTaskAtLeastHalf(tasks)) return '1'
   if (atLeastPercent(points, maxPoints, NOWT_PRIZE_THRESHOLD_PERCENT[2])) return '2'
   if (atLeastPercent(points, maxPoints, NOWT_PRIZE_THRESHOLD_PERCENT[3])) return '3'
 
@@ -476,8 +562,8 @@ export interface SubmittedEventResult {
 interface EventResultContext {
   eventType: string
   eventClass?: string
-  stations?: readonly { id: string; tasks: 1 | 2 }[]
-  classStations?: readonly JsonEventClassStation[]
+  /** The dog's round (`dogRound`). Read only for an event type scored at posts. */
+  round?: readonly RoundTask[]
 }
 
 /**
@@ -489,7 +575,7 @@ interface EventResultContext {
  */
 export const resolveEventResult = (
   submitted: SubmittedEventResult,
-  { eventType, eventClass, stations = [], classStations }: EventResultContext
+  { eventType, eventClass, round = [] }: EventResultContext
 ): Omit<JsonEventResult, 'updatedAt' | 'updatedBy'> => {
   const { tasks, resultCode, ...rest } = submitted
   const voided = Boolean(submitted.elimination) || Boolean(submitted.retirement)
@@ -506,7 +592,7 @@ export const resolveEventResult = (
     }
   }
 
-  const scored = toScoredTasks(classRound(stations, classStations), tasks)
+  const scored = toScoredTasks(round, tasks)
   const code = resultCode ?? deriveNowtResult({ ...submitted, tasks: scored })
 
   // A voided round has no total worth publishing: two thirds of a round is not a worse performance
@@ -618,7 +704,8 @@ type PlacementRow = Pick<
  * (a participant with a day), was awarded a prize (code 1, 2 or 3) and has points to be ordered by —
  * a prize 0, a dash, an unscored dog and an awarded dog without points (a voided round whose code was
  * overridden) get none and take no rank. Dogs are ranked within their class and day, by the share of
- * the round's maximum compared exactly (maxPoints can differ within a class if the posts were edited).
+ * the round's maximum compared exactly (maxPoints can differ within a class: its rotation groups may do
+ * different numbers of tasks, and the posts may have been edited).
  * Ties share a rank and the next rank skips: 1, 2, 2, 4.
  *
  * The day is the one the dog ran: the frozen placement's over the working order's, as the trial's

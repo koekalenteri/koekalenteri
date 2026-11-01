@@ -5,7 +5,8 @@ import { page } from 'vitest/browser'
 import { render } from 'vitest-browser-react'
 import { eventWithStations, registrationsToEventWithStations } from '@/__mockData__/resultsEvent'
 import theme from '@/assets/Theme'
-import { classRound, placementsFor } from '@/lib/results'
+import { dogRound, placementsFor, roundColumns } from '@/lib/results'
+import { rotationDogOf } from '@/lib/rotation'
 import { describeInLanguage } from '@/test-utils/language'
 import ResultsTable from './ResultsTable'
 
@@ -25,7 +26,9 @@ const noop = () => {}
 /** The dogs that ran; a reserve has no row on this screen. */
 const runners = registrationsToEventWithStations.filter((reg) => reg.group?.key !== 'reserve')
 
-const round = classRound(eventWithStations.stations ?? [])
+// Every dog of the fixture is one group, so one round stands for all of them.
+const round = dogRound(eventWithStations, rotationDogOf(registrationsToEventWithStations[0]))
+const roundOf = () => round
 // One dog through the whole course on a first prize, one the judge stopped at the second post with its
 // first-post score intact — the two shapes a real screenful mixes. The stop reads as the nought and
 // carries "Kesk." beside it (KOE-1300).
@@ -73,12 +76,13 @@ const nowtTable = (compact = false) => (
     edits={nowtEdits}
     eventClass="ALO"
     eventType="NOWT"
-    fullRound={round}
+    fullRoundFor={roundOf}
     judgesFor={() => [judge]}
     onChange={noop}
     onJudgeChange={noop}
     registrations={runners}
     round={round}
+    roundFor={roundOf}
     stations={eventWithStations.stations ?? []}
   />
 )
@@ -90,13 +94,13 @@ const nomeBTable = () => (
     edits={nomeBEdits}
     eventClass="ALO"
     eventType="NOME-B"
-    fullRound={[]}
     judges={nouJudges}
     judgesFor={() => []}
     onChange={noop}
     onJudgeChange={noop}
     registrations={nomeBRegistrations}
     round={[]}
+    roundFor={() => []}
     stations={[]}
   />
 )
@@ -108,13 +112,13 @@ const nouTable = (compact = false) => (
     defaultJudges={{}}
     edits={nouEdits}
     eventType="NOU"
-    fullRound={[]}
     judges={nouJudges}
     judgesFor={() => []}
     onChange={noop}
     onJudgeChange={noop}
     registrations={nouRegistrations}
     round={[]}
+    roundFor={() => []}
     stations={[]}
   />
 )
@@ -178,7 +182,6 @@ const kcTable = (compact = false) => (
     defaultJudges={{}}
     edits={{}}
     eventType="NOU"
-    fullRound={[]}
     judges={nouJudges}
     judgesFor={() => []}
     kennelliitto
@@ -186,6 +189,7 @@ const kcTable = (compact = false) => (
     onJudgeChange={noop}
     registrations={kcRegistrations}
     round={[]}
+    roundFor={() => []}
     stations={[]}
   />
 )
@@ -232,13 +236,14 @@ it('shows the rank of each awarded dog beside its prize', async () => {
         edits={{}}
         eventClass="ALO"
         eventType="NOWT"
-        fullRound={round}
+        fullRoundFor={roundOf}
         judgesFor={() => [judge]}
         onChange={noop}
         onJudgeChange={noop}
         placements={placementsFor(placed)}
         registrations={placed}
         round={round}
+        roundFor={roundOf}
         stations={eventWithStations.stations ?? []}
       />
     </Frame>
@@ -248,6 +253,71 @@ it('shows the rank of each awarded dog beside its prize', async () => {
   await expect.element(screen.getByText('Sija 1')).toBeVisible()
   await expect.element(screen.getByText('Sija 2').first()).toBeVisible()
   await expect(screen.getByTestId('visual-root')).toMatchScreenshot('results-entry-nowt-placement')
+})
+
+// One class in two rotation groups by start number (KOE-1665): the first group starts at post 1 and does
+// two tasks at post 2, the second starts at post 2 and does two at post 1. The columns are every slot
+// either has, in the first group's order, and a dog's row leaves the other group's extra task empty.
+const split = {
+  ...eventWithStations,
+  rotations: [
+    {
+      class: 'ALO' as const,
+      firstNumber: 1,
+      lastNumber: 1,
+      posts: [{ stationId: 'post-1' }, { parts: 1 as const, stationId: 'post-2', taskCount: 2 }],
+    },
+    {
+      class: 'ALO' as const,
+      firstNumber: 2,
+      lastNumber: 9,
+      posts: [
+        { parts: 1 as const, stationId: 'post-2' },
+        { stationId: 'post-1', taskCount: 2 },
+      ],
+    },
+  ],
+}
+const splitRound = (registration: Registration) => dogRound(split, rotationDogOf(registration))
+const splitEdits: Record<string, ResultEdit> = {
+  'run-1': {
+    tasks: [
+      { index: 0, judge, points: 17, stationId: 'post-1' },
+      { index: 0, judge, points: 16, stationId: 'post-2' },
+      { index: 1, judge, points: 18, stationId: 'post-2' },
+    ],
+  },
+  'run-2': {
+    tasks: [
+      { index: 0, judge, points: 15, stationId: 'post-2' },
+      { index: 0, judge, points: 14, stationId: 'post-1' },
+      { index: 1, judge, points: 19, stationId: 'post-1' },
+    ],
+  },
+}
+
+it("leaves empty the slots a dog's rotation group does not have", async () => {
+  const screen = await render(
+    <Frame>
+      <ResultsTable
+        defaultJudges={{}}
+        edits={splitEdits}
+        eventClass="ALO"
+        eventType="NOWT"
+        fullRoundFor={splitRound}
+        judgesFor={() => [judge]}
+        onChange={noop}
+        onJudgeChange={noop}
+        registrations={runners}
+        round={roundColumns(runners.map(splitRound))}
+        roundFor={splitRound}
+        stations={eventWithStations.stations ?? []}
+      />
+    </Frame>
+  )
+
+  await expect.element(screen.getByText('Rasti 1, tehtävä 2')).toBeVisible()
+  await expect(screen.getByTestId('visual-root')).toMatchScreenshot('results-entry-nowt-groups')
 })
 
 it('shows a pass/fail round with the result and the judge as the entry', async () => {
@@ -294,13 +364,13 @@ it('shows a NOME-A result as Kennelliitto lists it (KOE-1592)', async () => {
         edits={{}}
         eventClass="NOME-A"
         eventType="NOME-A"
-        fullRound={[]}
         judges={nouJudges}
         judgesFor={() => []}
         onChange={noop}
         onJudgeChange={noop}
         registrations={nomeARegistrations}
         round={[]}
+        roundFor={() => []}
         stations={[]}
       />
     </Frame>

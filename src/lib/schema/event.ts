@@ -1,7 +1,35 @@
-import { union } from 'valibot'
+import { check, integer, literal, minValue, optional, pipe, union } from 'valibot'
 import { arrayOf, bool, maybe, num, objectOf, oneOf, str } from './common'
 
 const cost = union([num, objectOf({})], 'must be a number or an object')
+
+const count = pipe(num, integer('must be an integer'), minValue(1, 'must be at least 1'))
+/** A task whole or in two parts (KOE-1665). */
+const parts = union([literal(1), literal(2)], 'must be 1 or 2')
+
+/** A post's own layout; the rest of a post is the Rastit page's to shape. */
+const station = objectOf({ parts: optional(parts), taskCount: optional(count) })
+
+const rotationPost = objectOf({ parts: optional(parts), stationId: str, taskCount: optional(count) })
+
+/**
+ * A rotation group. Its range is both numbers or neither, the first not after the last; what the posts
+ * name, and whether two groups share a number, is checked against the merged event
+ * (`rotationShapeErrors`).
+ */
+const rotationGroup = pipe(
+  objectOf({
+    class: str,
+    firstNumber: optional(count),
+    lastNumber: optional(count),
+    posts: arrayOf(rotationPost),
+  }),
+  check(
+    (group) => (group.firstNumber === undefined) === (group.lastNumber === undefined),
+    'must have both firstNumber and lastNumber or neither'
+  ),
+  check((group) => (group.firstNumber ?? 0) <= (group.lastNumber ?? 0), 'must not have firstNumber after lastNumber')
+)
 
 /**
  * The shape of an event body on the wire, read the same partial, non-stripping way as
@@ -45,9 +73,11 @@ export const eventBodySchema = objectOf({
   qualificationStartDate: maybe(str),
   restrictions: maybe(arrayOf(str)),
   retrieveType: maybe(oneOf(['game', 'dummies'])),
+  rotations: maybe(arrayOf(rotationGroup)),
   secretary: maybe(objectOf({})),
   startDate: maybe(str),
   state: maybe(
     oneOf(['draft', 'tentative', 'cancelled', 'confirmed', 'picked', 'invited', 'started', 'ended', 'completed'])
   ),
+  stations: maybe(arrayOf(station)),
 })

@@ -30,6 +30,7 @@ import { CancelledRegistration } from './CancelledRegistration'
 import { ClassHeader } from './ClassHeader'
 import { DateHeader } from './DateHeader'
 import { RegistrationDetails } from './RegistrationDetails'
+import { RotationHeader } from './RotationHeader'
 import { TimeHeader } from './TimeHeader'
 
 interface ParticipantListProps {
@@ -174,6 +175,13 @@ export const ParticipantList = ({
                     event={event}
                     lastDate={lastDate}
                     published={isStartListAvailableForRegistration(event, reg)}
+                    numbersPublished={isStartNumbersAvailableForRegistration(event, reg)}
+                  />,
+                  <RotationHeader
+                    classValue={reg.class}
+                    date={date}
+                    event={event}
+                    key={`rotation-${reg.class}-${date}`}
                     numbersPublished={isStartNumbersAvailableForRegistration(event, reg)}
                   />
                 )

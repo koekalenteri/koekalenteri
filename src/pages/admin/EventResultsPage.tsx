@@ -1,5 +1,12 @@
 import type { Theme } from '@mui/material'
-import type { EventResult, EventResultsResponse, EventStation, PublicJudge, StoredEventResult } from '../../types'
+import type {
+  EventResult,
+  EventResultsResponse,
+  EventStation,
+  PublicJudge,
+  Registration,
+  StoredEventResult,
+} from '../../types'
 import type { ResultEdit } from '../components/stationScoring/types'
 import type { ConflictChoice, ResultConflict } from './eventResultsPage/ConflictDialog'
 import Save from '@mui/icons-material/Save'
@@ -34,7 +41,8 @@ import {
   isScorableRegistration,
   sortRegistrationsByDateClassTimeAndNumber,
 } from '../../lib/registration'
-import { classRound, placementsFor, scoresAtPosts, stationVersion } from '../../lib/results'
+import { dogRound, placementsFor, roundColumns, scoresAtPosts, stationVersion } from '../../lib/results'
+import { rotationDogOf } from '../../lib/rotation'
 import { Path } from '../../routeConfig'
 import { AsyncButton } from '../components/AsyncButton'
 import { emptyEdit } from '../components/stationScoring/types'
@@ -130,10 +138,16 @@ export default function EventResultsPage() {
   // Ranked over every dog of the event, so a class's other day cannot leak into this one's ranks.
   const placements = useMemo(() => placementsFor(registrations), [registrations])
 
-  const fullRound = useMemo(() => {
-    const classStations = event?.classes?.find((item) => item.class === eventClass)?.stations
-    return classRound(stations, classStations)
-  }, [event?.classes, eventClass, stations])
+  // Each dog's round is its rotation group's (KOE-1665): the dogs of one class may differ when it splits
+  // by start number, so the round is asked per dog, and the columns are what any of them has.
+  const roundEvent = useMemo(
+    () => ({ classes: event?.classes, rotations: event?.rotations, stations }),
+    [event?.classes, event?.rotations, stations]
+  )
+  const fullRoundFor = useCallback(
+    (registration: Registration) => dogRound(roundEvent, rotationDogOf(registration)),
+    [roundEvent]
+  )
 
   // A post's own view narrows the columns; the prize is withheld there, because it depends on posts
   // this view cannot see and a partial figure would read as a verdict.
@@ -142,10 +156,14 @@ export default function EventResultsPage() {
   // all the same: the live clock and the queue are what the day is run from (KOE-1259).
   const singlePost = liveFormat(event?.eventType).posts === 'one'
   const stationViewId = scoped ? scope : IMPLICIT_STATION_ID
-  const round = useMemo(
-    () => (scoped ? fullRound.filter((task) => task.stationId === scope) : fullRound),
-    [fullRound, scope, scoped]
+  const roundFor = useCallback(
+    (registration: Registration) => {
+      const full = fullRoundFor(registration)
+      return scoped ? full.filter((task) => task.stationId === scope) : full
+    },
+    [fullRoundFor, scope, scoped]
   )
+  const round = useMemo(() => roundColumns(rows.map(roundFor)), [roundFor, rows])
 
   // A post names its own judges; where it names none, the class's judge stands for it.
   const classJudges = useMemo(
@@ -461,7 +479,7 @@ export default function EventResultsPage() {
           edits={edits}
           eventClass={eventClass}
           eventType={event.eventType}
-          fullRound={scoped ? undefined : fullRound}
+          fullRoundFor={scoped ? undefined : fullRoundFor}
           onChange={handleChange}
           placements={scoped ? undefined : placements}
           defaultJudges={defaultJudges}
@@ -471,6 +489,7 @@ export default function EventResultsPage() {
           onJudgeChange={(id, judge) => setDefaultJudges((prev) => ({ ...prev, [id]: judge }))}
           registrations={rows}
           round={round}
+          roundFor={roundFor}
           stationId={scoped ? scope : undefined}
           stations={stations}
         />

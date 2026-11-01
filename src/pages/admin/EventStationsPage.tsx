@@ -1,6 +1,8 @@
 import type { DogEvent, Patch } from '../../types'
 import Cancel from '@mui/icons-material/Cancel'
 import Save from '@mui/icons-material/Save'
+import Alert from '@mui/material/Alert'
+import AlertTitle from '@mui/material/AlertTitle'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import Paper from '@mui/material/Paper'
@@ -15,6 +17,7 @@ import { Path } from '../../routeConfig'
 import { AsyncButton } from '../components/AsyncButton'
 import EventNotFound from './components/EventNotFound'
 import StationsEditor from './eventStationsPage/StationsEditor'
+import { useRotationErrors } from './eventStationsPage/useRotationErrors'
 import useEventForm from './hooks/useEventForm'
 import { adminEventAtom } from './state'
 import { useAdminEventScope } from './state/eventScope'
@@ -34,6 +37,9 @@ export default function EventStationsPage() {
     savedMessage: t('event.stationsSaved'),
     storedEvent,
   })
+
+  // A rotation that leaves a dog out, or that the server would refuse, is not saved (KOE-1665).
+  const rotationErrors = useRotationErrors(eventId, event)
 
   // `useEventForm` stores whatever it is handed, so it must be handed a whole event. The editor emits a
   // patch, and passing that straight through would replace the stored event with just `{ stations }` —
@@ -71,6 +77,14 @@ export default function EventStationsPage() {
       <Box sx={{ flexGrow: 1, overflow: 'auto', p: 2 }}>
         <StationsEditor event={event} onChange={handleStationsChange} />
       </Box>
+      {rotationErrors.length > 0 && (
+        <Alert severity="error" sx={{ mx: 2 }}>
+          <AlertTitle>{t('event.rotation.errorsTitle')}</AlertTitle>
+          {rotationErrors.map((message) => (
+            <div key={message}>{message}</div>
+          ))}
+        </Alert>
+      )}
       <Stack
         spacing={1}
         direction="row"
@@ -81,7 +95,13 @@ export default function EventStationsPage() {
           p: 1,
         }}
       >
-        <AsyncButton color="primary" disabled={!canSave} startIcon={<Save />} variant="contained" onClick={handleSave}>
+        <AsyncButton
+          color="primary"
+          disabled={!canSave || rotationErrors.length > 0}
+          startIcon={<Save />}
+          variant="contained"
+          onClick={handleSave}
+        >
           {t('save')}
         </AsyncButton>
         <Button startIcon={<Cancel />} variant="outlined" onClick={handleCancel}>

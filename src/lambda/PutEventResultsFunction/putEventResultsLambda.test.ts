@@ -2,7 +2,7 @@ import type { APIGatewayProxyEvent } from 'aws-lambda'
 import type { JsonConfirmedEvent, JsonRegistration } from '../../types'
 import { vi } from 'vitest'
 import { httpError } from '../lib/lambda'
-import { answerRejections } from '../test-utils/helpers'
+import { answerRejections, asJsonRegistration } from '../test-utils/helpers'
 import { loggedLines } from '../test-utils/logs'
 
 const mockLambda = vi.fn((_name, fn) => answerRejections(fn, mockResponse))
@@ -73,16 +73,21 @@ const nowtEvent: Pick<JsonConfirmedEvent, 'eventType' | 'organizer' | 'stations'
   eventType: 'NOWT',
   organizer: { id: 'org-1', name: 'Org' },
   stations: [
-    { date: '2026-09-12', id: 'post-1', number: 1, tasks: 1 },
-    { date: '2026-09-12', id: 'post-2', number: 2, tasks: 1 },
-    { date: '2026-09-12', id: 'post-3', number: 3, tasks: 1 },
-    { date: '2026-09-12', id: 'post-4', number: 4, tasks: 1 },
+    { date: '2026-09-12', id: 'post-1', number: 1 },
+    { date: '2026-09-12', id: 'post-2', number: 2 },
+    { date: '2026-09-12', id: 'post-3', number: 3 },
+    { date: '2026-09-12', id: 'post-4', number: 4 },
   ],
 }
 
-/** A dog that ran: only a participant group has a round to record against it. */
-const registration = (id: string, eventClass: JsonRegistration['class'] = 'AVO') =>
-  ({ class: eventClass, eventId: 'event-1', group: { key: 'AVO-AP', number: 1 }, id }) as JsonRegistration
+/** A dog that ran: only a participant group has a round to record against it, the posts of its day. */
+const registration = (id: string, eventClass: JsonRegistration['class'] = 'AVO', number = 1) =>
+  asJsonRegistration({
+    class: eventClass,
+    eventId: 'event-1',
+    group: { date: '2026-09-12', key: 'AVO-AP', number },
+    id,
+  })
 
 const scores = (...points: number[]) =>
   points.map((value, index) => ({ index: 0, points: value, stationId: `post-${index + 1}` }))
@@ -139,11 +144,10 @@ describe('putEventResultsLambda', () => {
     expect(savedResult()).toMatchObject({ points: 40, result: 'AVO3' })
   })
 
-  it('scores a class against its own split of a post', async () => {
+  it("scores a dog against its rotation group's own split of a post (KOE-1665)", async () => {
     mockGetAuthorizedEvent.mockResolvedValue({
       ...nowtEvent,
-      classes: [{ class: 'ALO', date: '2026-09-12', stations: [{ stationId: 'post-1', tasks: 2 }] }],
-      stations: [nowtEvent.stations?.[0]],
+      rotations: [{ class: 'ALO', posts: [{ parts: 2, stationId: 'post-1' }] }],
     })
     mockReadEventRegistrations.mockResolvedValue([registration('reg-1', 'ALO')])
 
@@ -162,6 +166,49 @@ describe('putEventResultsLambda', () => {
     )
 
     expect(savedResult()).toMatchObject({ maxPoints: 20, points: 17 })
+  })
+
+  it("scores two tasks at a post at 20 each, and refuses a slot outside the dog's group (KOE-1665)", async () => {
+    mockGetAuthorizedEvent.mockResolvedValue({
+      ...nowtEvent,
+      rotations: [
+        {
+          class: 'AVO',
+          firstNumber: 1,
+          lastNumber: 8,
+          posts: [{ stationId: 'post-2' }, { stationId: 'post-1', taskCount: 2 }],
+        },
+        {
+          class: 'AVO',
+          firstNumber: 9,
+          lastNumber: 16,
+          posts: [{ stationId: 'post-1' }, { stationId: 'post-2', taskCount: 2 }],
+        },
+      ],
+    })
+    mockReadEventRegistrations.mockResolvedValue([registration('reg-1', 'AVO', 3), registration('reg-2', 'AVO', 12)])
+
+    await putEventResultsLambda(
+      apiEvent([
+        {
+          eventResult: {
+            tasks: [
+              { index: 0, points: 18, stationId: 'post-2' },
+              { index: 0, points: 17, stationId: 'post-1' },
+              { index: 1, points: 16, stationId: 'post-1' },
+            ],
+          },
+          id: 'reg-1',
+        },
+      ])
+    )
+    expect(savedResult()).toMatchObject({ maxPoints: 60, points: 51, result: 'AVO1' })
+
+    await expect(
+      putEventResultsLambda(
+        apiEvent([{ eventResult: { tasks: [{ index: 1, points: 10, stationId: 'post-1' }] }, id: 'reg-2' }])
+      )
+    ).rejects.toThrow('Task post-1#1 is not part of the round')
   })
 
   it('publishes the start list only after every result is written (KOE-1516)', async () => {

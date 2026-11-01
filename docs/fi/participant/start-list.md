@@ -22,6 +22,14 @@ joten numerot eivät siirry peruutuksen takia.
 
 !shot[RegistrationDetails/start-list-result] Koirakon rivi, jolla on jo tulos
 
+Rasteilla pisteytettävässä kokeessa (NOWT) luokan otsikon alla kerrotaan, miltä rastilta
+luokka aloittaa ja missä järjestyksessä se kiertää rastit, jos järjestäjä on määrittänyt kierron.
+Merkintä "(x 2)" rastin perässä tarkoittaa, että ryhmä tekee rastilla kaksi tehtävää. Jos luokka on
+jaettu koenumeroväleihin, jokaisella välillä on oma rivinsä, ja välit näkyvät vasta, kun luokan
+starttinumerot on julkaistu.
+
+!shot[ParticipantList/start-list-rotation] Luokkien kierrot: ALO aloittaa rastilta 1, AVO on jaettu kahteen numeroväliin
+
 Sivu päivittyy itsestään, kun järjestäjä julkaisee lisää tai kirjaa peruutuksen; sitä ei tarvitse
 ladata uudelleen.
 

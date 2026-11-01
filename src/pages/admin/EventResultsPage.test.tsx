@@ -886,12 +886,14 @@ describe('EventResultsPage', () => {
 describe('ResultSummary', () => {
   it('derives the prize with the same module the server saves with', async () => {
     const { deriveNowtResult, formatEventResult, toScoredTasks } = await import('../../lib/results')
-    const round = [
-      { index: 0, maxPoints: 20, stationId: 'post-1' },
-      { index: 0, maxPoints: 20, stationId: 'post-2' },
-      { index: 0, maxPoints: 20, stationId: 'post-3' },
-      { index: 0, maxPoints: 20, stationId: 'post-4' },
-    ]
+    const round = [1, 2, 3, 4].map((number) => ({
+      index: 0,
+      maxPoints: 20,
+      parts: 1 as const,
+      stationId: `post-${number}`,
+      task: 0,
+      taskNumber: number,
+    }))
     const tasks = [17, 18, 16, 14].map((points, index) => ({ index: 0, points, stationId: `post-${index + 1}` }))
 
     // 65 of 80 is 81.25 %: a first prize, though 65 is the rules' second-prize number.

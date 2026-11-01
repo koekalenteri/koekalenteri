@@ -12,7 +12,9 @@ const Frame = ({ children }: { readonly children: React.ReactNode }) => (
 )
 
 const judge = { id: 223, name: 'Tuomari 2', official: true }
-const station = { id: 'post-2', judges: [judge], number: 2, tasks: 2 }
+const station = { id: 'post-2', judges: [judge], number: 2 }
+/** The group's second post, its one task split into two parts of 10 (KOE-1665). */
+const visit = { parts: 2 as const, tasks: 1, tasksBefore: 1 }
 const group = { date: eventWithStations.startDate, key: 'ALO-AP', time: 'ap' as const }
 
 // One dog through the post, the next one open in front of the judge (KOE-1258).
@@ -25,6 +27,7 @@ const registrations = [
     group: { ...group, number: 1 },
     handler: { name: 'Minsu Rauramo' },
     id: 'run-1',
+    visit,
   },
   {
     class: 'ALO' as const,
@@ -33,6 +36,7 @@ const registrations = [
     group: { ...group, number: 2 },
     handler: { name: 'Sari Alho' },
     id: 'run-2',
+    visit,
   },
 ]
 

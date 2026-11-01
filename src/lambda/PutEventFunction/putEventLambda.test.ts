@@ -392,6 +392,28 @@ describe('putEventLambda', () => {
       expect(patchEventMock).not.toHaveBeenCalled()
     })
 
+    it('refuses rotation groups that do not fit the posts, read on the merged event (KOE-1665)', async () => {
+      signIn(mockSecretary)
+      getEventMock.mockResolvedValueOnce({
+        ...mockEvent,
+        stations: [{ date: '2026-09-12', id: 'post-1', number: 1 }],
+      })
+
+      const res = await putEventLambda(
+        constructAPIGwEvent(
+          { id: 'existing', rotations: [{ class: 'ALO', posts: [{ stationId: 'post-1' }, { stationId: 'gone' }] }] },
+          { method: 'PATCH' }
+        )
+      )
+
+      expect(res.statusCode).toEqual(400)
+      expect(JSON.parse(res.body)).toMatchObject({
+        error: 'invalidRotation',
+        errors: [{ group: 0, kind: 'unknownPost', stationId: 'gone' }],
+      })
+      expect(patchEventMock).not.toHaveBeenCalled()
+    })
+
     it('refuses a secretary a change to a stored event without an organizer', async () => {
       signIn(mockSecretary)
       getEventMock.mockResolvedValueOnce(orphanEvent)
@@ -1188,6 +1210,19 @@ describe('putEventLambda', () => {
     [{ paymentTime: 'later' }, 'paymentTime must be one of: registration, confirmation'],
     [{ organizer: { id: 2 } }, 'organizer.id must be a string'],
     [{ priority: 'members' }, 'priority must be an array'],
+    [{ stations: [{ parts: 3 }] }, 'stations.0.parts must be 1 or 2'],
+    [
+      { rotations: [{ class: 'ALO', posts: [{ stationId: 'post-1', taskCount: 0 }] }] },
+      'rotations.0.posts.0.taskCount must be at least 1',
+    ],
+    [
+      { rotations: [{ class: 'ALO', firstNumber: 1, posts: [] }] },
+      'rotations.0 must have both firstNumber and lastNumber or neither',
+    ],
+    [
+      { rotations: [{ class: 'ALO', firstNumber: 9, lastNumber: 1, posts: [] }] },
+      'rotations.0 must not have firstNumber after lastNumber',
+    ],
   ])('should return 400 for %p before looking the event up', async (body, message) => {
     signIn(mockSecretary)
 

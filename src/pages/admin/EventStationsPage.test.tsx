@@ -7,7 +7,7 @@ import { cleanup, screen } from '@testing-library/react'
 import { Suspense } from 'react'
 import { useTranslation } from 'react-i18next'
 import { TestProvider as Provider } from 'test-utils/AtomProvider'
-import { eventWithStaticDates } from '../../__mockData__/events'
+import { eventWithStaticDates, eventWithStaticDatesAndClass } from '../../__mockData__/events'
 import theme from '../../assets/Theme'
 import { locales } from '../../i18n'
 import { Path } from '../../routeConfig'
@@ -24,7 +24,7 @@ vi.mock('../../api/official')
 vi.mock('../../api/organizer')
 vi.mock('../../api/registration')
 
-const renderPage = (language: Language) => {
+const renderPage = (language: Language, eventId = eventWithStaticDates.id) => {
   // A save sends the page to the event's view; without a route there the router logs a 404.
   const routes: RouteObject[] = [
     { element: <EventStationsPage />, path: Path.admin.stations() },
@@ -37,7 +37,7 @@ const renderPage = (language: Language) => {
         <Provider initializeState={({ set }) => set(idTokenAtom, TEST_ID_TOKEN)}>
           <Suspense fallback={<div>loading...</div>}>
             <AppSnackbarProvider>
-              <DataMemoryRouter initialEntries={[Path.admin.stations(eventWithStaticDates.id)]} routes={routes} />
+              <DataMemoryRouter initialEntries={[Path.admin.stations(eventId)]} routes={routes} />
             </AppSnackbarProvider>
           </Suspense>
         </Provider>
@@ -91,5 +91,24 @@ describe('EventStationsPage', () => {
 
     // The shared form hook otherwise announces "event published", which is not what happened here.
     expect(screen.getByText('event.stationsSaved')).toBeInTheDocument()
+  })
+
+  it('will not save two groups of one class that both hold every number (KOE-1665)', async () => {
+    const { i18n } = useTranslation()
+    // One class a day, ALO on both.
+    const { user } = await renderPage(i18n.language as Language, eventWithStaticDatesAndClass.id)
+    await flushPromises()
+
+    await user.click(screen.getAllByRole('button', { name: 'event.stationAdd' })[0])
+    await user.click(screen.getAllByRole('button', { name: 'event.rotation.add' })[0])
+    expect(screen.queryByText('event.rotation.errorsTitle')).not.toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'save' })).toBeEnabled()
+
+    await user.click(screen.getAllByRole('button', { name: 'event.rotation.add' })[0])
+    await flushPromises()
+
+    expect(screen.getByText('event.rotation.errorsTitle')).toBeInTheDocument()
+    expect(screen.getByText(/^event\.rotation\.error\.overlap/)).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'save' })).toBeDisabled()
   })
 })
