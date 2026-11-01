@@ -310,7 +310,13 @@ describe('ParticipantList', () => {
     ]
 
     it("tells each class's groups where they start, a range only once the numbers are out", () => {
-      const event = { ...mockEvent, rotations, startNumbersPublished: { AVO: false, VOI: false }, stations }
+      const event = {
+        ...mockEvent,
+        eventType: 'NOWT',
+        rotations,
+        startNumbersPublished: { AVO: false, VOI: false },
+        stations,
+      }
       const { rerender } = render(<ParticipantList participants={participants} event={event} />)
 
       // The mocked translator gives the key; the line's text is rotation.test.ts's to check.
@@ -320,8 +326,15 @@ describe('ParticipantList', () => {
       expect(screen.getAllByText(/^event\.rotation\.startLine/)).toHaveLength(2)
     })
 
+    it('says nothing of a stored rotation where the type is not scored at posts', () => {
+      const event = { ...mockEvent, eventType: 'NOME-B', rotations, startNumbersPublished: true, stations }
+      render(<ParticipantList participants={participants} event={event} />)
+
+      expect(screen.queryByText(/^event\.rotation\.startLine/)).not.toBeInTheDocument()
+    })
+
     it('adds nothing to a day that runs in number order', () => {
-      render(<ParticipantList participants={participants} event={{ ...mockEvent, stations }} />)
+      render(<ParticipantList participants={participants} event={{ ...mockEvent, eventType: 'NOWT', stations }} />)
 
       expect(screen.queryByText(/^event\.rotation\.startLine/)).not.toBeInTheDocument()
     })
