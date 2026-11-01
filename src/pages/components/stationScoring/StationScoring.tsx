@@ -33,6 +33,7 @@ import { makeArray } from '@/lib/judge'
 import { liveFormat } from '@/lib/liveFormat'
 import { getRegistrationClass } from '@/lib/registration'
 import {
+  endedAtExercise,
   endedBefore,
   formatTaskName,
   holdsScore,
@@ -227,27 +228,30 @@ export function StationScoring({
     () => (qualitative || !visit ? [] : visitSlots(station.id, visit)),
     [qualitative, station.id, visit]
   )
-  // The dog's round ended at a post before this one, so it never came here (KOE-1669).
-  const ended = endedBefore(edit.retirement, visit?.postsBefore ?? [])
+  // The dog's round ended at an exercise before this one, so it never came to it (KOE-1669).
+  const ended = visit ? endedBefore(edit.retirement, visit.exercise, visit.exercisePosts) : false
 
   /**
    * A place in the queue this post has already scored, so the judge can see at a glance who is still to
-   * come: the dog's score for the exercise of that place, or any here where the dog has no visit. A dog
-   * whose round ended here is done too, its outcome recorded at this post, and one whose round ended at
-   * the post of an earlier exercise never comes (KOE-1669).
+   * come: the dog's score for the exercise of that place, or any here where the dog has no visit. A place
+   * whose exercise is the one the round ended at is done too, its outcome recorded there, and one after it
+   * is never reached (KOE-1669).
    */
   const isScored = useCallback(
     (dog: StationScoringDog) => {
       const stored = dog.eventResult
       if (qualitative) return Boolean(stored?.result ?? stored?.elimination ?? stored?.retirement)
       const { retirement } = stored ?? {}
-      if (retirement?.stationId === station.id || endedBefore(retirement, dog.visit?.postsBefore ?? [])) return true
-      const slots = dog.visit ? visitSlots(station.id, dog.visit) : []
-      return (
-        stored?.tasks?.some(
-          (task) => task.stationId === station.id && (!dog.visit || slots.some((slot) => holdsScore(slot, task)))
-        ) ?? false
-      )
+      const { visit: place } = dog
+      if (!place)
+        return (
+          retirement?.stationId === station.id ||
+          (stored?.tasks?.some((task) => task.stationId === station.id) ?? false)
+        )
+      const endedAt = endedAtExercise(retirement, place.exercisePosts)
+      if (endedAt !== undefined && place.exercise >= endedAt) return true
+      const slots = visitSlots(station.id, place)
+      return stored?.tasks?.some((task) => slots.some((slot) => holdsScore(slot, task))) ?? false
     },
     [qualitative, station.id]
   )
@@ -468,7 +472,14 @@ export function StationScoring({
             ))}
           </Stack>
 
-          <RoundOutcome eventType={eventType} onChange={setEdit} stationId={station.id} stations={[]} value={edit} />
+          <RoundOutcome
+            eventType={eventType}
+            onChange={setEdit}
+            places={visit ? [{ exercise: visit.exercise, stationId: station.id }] : undefined}
+            stationId={station.id}
+            stations={[]}
+            value={edit}
+          />
         </Stack>
       )}
 

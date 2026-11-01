@@ -761,7 +761,7 @@ describe('EventResultsPage', () => {
     expect(screen.getByLabelText('results.couldStillHavePlaced')).toBeInTheDocument()
   })
 
-  it('sends an illness picked from the menu as its own cause, with the post it happened at (KOE-1669)', async () => {
+  it('sends an illness picked from the menu as its own cause, with the exercise and post it happened at (KOE-1669)', async () => {
     const { i18n } = useTranslation()
     const { user } = await renderScoringPage(i18n.language as Language)
     await flushPromises()
@@ -770,7 +770,8 @@ describe('EventResultsPage', () => {
     await user.click(within(rowFor('Ensimmainen')).getByLabelText('results.outcome'))
     await user.click(screen.getByRole('option', { name: 'results.retirement.illness' }))
     await user.click(within(rowFor('Ensimmainen')).getByLabelText('results.outcomeAt'))
-    await user.click(screen.getByRole('option', { name: /event\.station 1$/ }))
+    // The places are the exercises of the dog's running order, the first at post 1.
+    await user.click(screen.getAllByRole('option', { name: /^results\.outcomeAtExercise/ })[0])
     await user.click(screen.getByRole('button', { name: 'results.save' }))
     await flushPromises()
 
@@ -778,7 +779,7 @@ describe('EventResultsPage', () => {
       expect.any(String),
       [
         expect.objectContaining({
-          eventResult: expect.objectContaining({ retirement: { cause: 'illness', stationId: 'post-1' } }),
+          eventResult: expect.objectContaining({ retirement: { cause: 'illness', exercise: 1, stationId: 'post-1' } }),
           id: 'run-1',
         }),
       ],

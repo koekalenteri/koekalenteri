@@ -12,6 +12,7 @@ import {
   deriveNowtResult,
   dogRound,
   eliminatingFaults,
+  endedAtExercise,
   endedBefore,
   eventResultPrefix,
   formatEventResult,
@@ -32,7 +33,6 @@ import {
   resultMarks,
   resultPrefixAsKennelClub,
   roundColumns,
-  roundPostsBefore,
   roundsDiffer,
   STOPPED_RESULT_CODE,
   sameEventResult,
@@ -339,11 +339,11 @@ describe('stationDogsInOrder', () => {
     const event = { eventType: 'NOWT', stations: [{ date: '2026-09-12' as const, id: 'post-1', number: 1 }] }
 
     expect(stationDogsInOrder(event, 'post-1', [dog('a', 1)])).toEqual([
-      { ...dog('a', 1), visit: { exercise: 1, parts: 1, postsBefore: [], slotsBefore: 0 } },
+      { ...dog('a', 1), visit: { exercise: 1, exercisePosts: ['post-1'], parts: 1, slotsBefore: 0 } },
     ])
   })
 
-  it("names the posts of the group's exercises before this one, in its own order (KOE-1669)", () => {
+  it("names the posts of the group's whole running order, in its own order (KOE-1669)", () => {
     const day = '2026-09-12' as const
     const event = {
       eventType: 'NOWT',
@@ -354,8 +354,8 @@ describe('stationDogsInOrder', () => {
     }
     const alo = { ...dog('a', 1), class: 'ALO' as const }
 
-    expect(stationDogsInOrder(event, 'post-2', [alo]).map((item) => item.visit?.postsBefore)).toEqual([
-      ['post-3', 'post-1'],
+    expect(stationDogsInOrder(event, 'post-2', [alo]).map((item) => item.visit?.exercisePosts)).toEqual([
+      ['post-3', 'post-1', 'post-2'],
     ])
   })
 })
@@ -970,11 +970,6 @@ describe('reconcileRoundTasks (KOE-1666)', () => {
     expect(reconcileRoundTasks(whole, whole, scored(0, 1))).toEqual({ dropped: [], kept: scored(0, 1) })
   })
 
-  it("drops the scores of a post that loses one of its exercises, the kept place being another's now", () => {
-    const one = postSlots('post-1', { parts: 1, tasks: 1, tasksBefore: 0 })
-    expect(reconcileRoundTasks(whole, one, scored(0, 1))).toEqual({ dropped: scored(0, 1), kept: [] })
-  })
-
   it('keeps the scores of a post whose slots stay as they were while another post changes', () => {
     const other = postSlots('post-2', { parts: 1, tasks: 1, tasksBefore: 2 })
     expect(reconcileRoundTasks(whole, [...whole, ...other], scored(0, 1))).toEqual({ dropped: [], kept: scored(0, 1) })
@@ -1028,42 +1023,35 @@ describe('isRecordedTask (KOE-1666)', () => {
 })
 
 describe('endedBefore (KOE-1669)', () => {
-  const day = '2026-09-12' as const
-  // The group starts at post 3 and comes back to it, so the order is not the posts' numbering.
-  const round = dogRound(
-    {
-      rotations: [
-        { class: 'ALO', exercises: ['post-3', 'post-1', 'post-2', 'post-3'].map((stationId) => ({ stationId })) },
-      ],
-      stations: [1, 2, 3].map((number) => ({ date: day, id: `post-${number}`, number, parts: 2 as const })),
-    },
-    { class: 'ALO', day }
-  )
+  // P3, P1, P3: the dog comes back to post 3, so the post alone does not say which visit the stop was.
+  const posts = ['post-3', 'post-1', 'post-3']
+  const exercises = [1, 2, 3]
 
-  it("reads the posts of the exercises before an exercise off the round, in the round's order", () => {
-    expect(roundPostsBefore(round, 1)).toEqual([])
-    expect(roundPostsBefore(round, 3)).toEqual(['post-3', 'post-1'])
-    expect(roundPostsBefore(round, 4)).toEqual(['post-3', 'post-1', 'post-2'])
+  it('reads the exercises after the one the round ended at as not reached, and not the one it ended at', () => {
+    const stoppedAtThird = { exercise: 3, stationId: 'post-3' }
+
+    expect(exercises.map((exercise) => endedBefore(stoppedAtThird, exercise, posts))).toEqual([false, false, false])
+    expect(endedAtExercise(stoppedAtThird, posts)).toBe(3)
+    expect(endedBefore({ exercise: 1, stationId: 'post-3' }, 2, posts)).toBe(true)
   })
 
-  it('ends the round before every exercise after the post it ended at, its second visit there included', () => {
-    const at = { stationId: 'post-3' }
-    expect([1, 2, 3, 4].map((exercise) => endedBefore(at, roundPostsBefore(round, exercise)))).toEqual([
+  it('reads a stop stored with its post alone, before the exercises were numbered, as the last exercise there', () => {
+    expect(endedAtExercise({ stationId: 'post-3' }, posts)).toBe(3)
+    expect(exercises.map((exercise) => endedBefore({ stationId: 'post-3' }, exercise, posts))).toEqual([
       false,
-      true,
-      true,
-      true,
+      false,
+      false,
     ])
+    expect(endedAtExercise({ stationId: 'post-1' }, posts)).toBe(2)
   })
 
   it.each([
     ['no outcome', undefined],
-    ['an unknown post ("Ei tiedossa")', {}],
-    ['a post not in the list', { stationId: 'post-9' }],
-    ['a post that comes after this one', { stationId: 'post-5' }],
-    ['this very post', { stationId: 'post-1' }],
+    ['an unknown place ("Ei tiedossa")', {}],
+    ['a post not in the running order', { stationId: 'post-9' }],
   ])('does not end it for %s', (_name, retirement) => {
-    expect(endedBefore(retirement, ['post-0'])).toBe(false)
+    expect(endedAtExercise(retirement, posts)).toBeUndefined()
+    expect(endedBefore(retirement, 3, posts)).toBe(false)
   })
 })
 

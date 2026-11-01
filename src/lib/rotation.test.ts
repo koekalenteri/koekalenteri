@@ -568,8 +568,19 @@ describe('formatting', () => {
   })
 
   it("reads a post as the organiser's map does, by exercise number, a group's visits in a row together", () => {
+    const twiceApart = {
+      rotations: [
+        { class: 'ALO' as const, exercises: order(1, 2, 1, 2) },
+        { class: 'AVO' as const, exercises: order(2, 1, 2, 1) },
+      ],
+      stations,
+    }
+
     expect(formatStationArrivals(event, stations[0], t)).toBe(
       'Suorituspaikka 1: ALO (rasti 1), AVO (rasti 2), VOI (rastit 3 ja 4)'
+    )
+    expect(formatStationArrivals(twiceApart, stations[0], t)).toBe(
+      'Suorituspaikka 1: ALO (rasti 1), AVO (rasti 2), ALO (rasti 3), AVO (rasti 4)'
     )
   })
 

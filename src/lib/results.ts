@@ -293,25 +293,41 @@ export const visitSlots = (
     stationId,
   }))
 
-/**
- * The posts of the exercises a dog's round has before an exercise, in its order: what
- * `StationVisitLayout.postsBefore` carries to the post's own link, read here off the whole round. A
- * post the group comes to twice is among them for its second exercise there.
- */
-export const roundPostsBefore = (
-  round: readonly Pick<ExerciseSlot, 'stationId' | 'exercise'>[],
-  exercise: number
-): string[] => [...new Set(round.filter((slot) => slot.exercise < exercise).map((slot) => slot.stationId))]
+/** The posts of a dog's running order, an exercise each, in its order: index n is exercise n + 1. */
+export const exercisePostsOf = (round: readonly Pick<ExerciseSlot, 'stationId' | 'exercise'>[]): string[] => {
+  const posts: string[] = []
+  for (const slot of round) posts[slot.exercise - 1] = slot.stationId
+  return posts
+}
 
 /**
- * Whether a dog's round ended at a post of an exercise before this one, so the dog never reached this
- * exercise and it reads "kesk" (KOE-1669). Not where the round did not end early, where the post it ended
- * at is not recorded ("Ei tiedossa"), or where no exercise before this one is at that post.
+ * The exercise a dog's round ended at (KOE-1669): the one the stop names (KOE-1665), or for a stop stored
+ * with its post alone, before the exercises were numbered, the last exercise at that post, so that
+ * nothing stored reads as ending earlier than it can have. None where the round did not end early, where
+ * the place is not recorded ("Ei tiedossa"), or where the post is not in the running order.
+ */
+export const endedAtExercise = (
+  retirement: Pick<EventResultRetirement, 'stationId' | 'exercise'> | undefined,
+  exercisePosts: readonly string[]
+): number | undefined => {
+  if (retirement?.exercise !== undefined) return retirement.exercise
+  if (!retirement?.stationId) return undefined
+  const last = exercisePosts.lastIndexOf(retirement.stationId)
+  return last < 0 ? undefined : last + 1
+}
+
+/**
+ * Whether a dog's round ended at an exercise before this one, so the dog never reached it and it reads
+ * "kesk" (KOE-1669). The exercise it ended at is still entered.
  */
 export const endedBefore = (
-  retirement: Pick<EventResultRetirement, 'stationId'> | undefined,
-  postsBefore: readonly string[]
-): boolean => Boolean(retirement?.stationId && postsBefore.includes(retirement.stationId))
+  retirement: Pick<EventResultRetirement, 'stationId' | 'exercise'> | undefined,
+  exercise: number,
+  exercisePosts: readonly string[]
+): boolean => {
+  const at = endedAtExercise(retirement, exercisePosts)
+  return at !== undefined && exercise > at
+}
 
 /**
  * The scored slots of one dog's round, in its group's running order (KOE-1665): one exercise at each
@@ -443,7 +459,7 @@ export interface DroppedTasksDog {
   class?: string
   /** The start number, where the dog has one. */
   number?: number
-  /** How many recorded scores it loses. */
+  /** How many exercises it loses recorded scores of, a split exercise counted once. */
   tasks: number
 }
 

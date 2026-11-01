@@ -268,7 +268,7 @@ describe('StationScoring', () => {
       eventType: 'NOWT',
       group: { ...group, key: `${eventClass}-AP`, number: 1 },
       id,
-      visit: { exercise, parts, postsBefore: ['post-0'], slotsBefore },
+      visit: { exercise, exercisePosts: ['post-0', '1', '1', '1'], parts, slotsBefore },
     })
 
     it('keeps the classes in the order they reach the post', () => {
@@ -302,6 +302,25 @@ describe('StationScoring', () => {
       await user.click(chips[1])
       expect(screen.getAllByLabelText(/results\.column\.task/)).toHaveLength(1)
     })
+
+    it('marks done only the place of the exercise the round ended at, a post come to twice (KOE-1669)', () => {
+      const ended = {
+        eventResult: {
+          retirement: { cause: 'handlerChoice' as const, exercise: 3, stationId: '1' },
+          updatedAt: new Date(),
+        },
+      }
+      const order = ['1', 'post-1', '1']
+      const place = (exercise: number, slotsBefore: number) => ({
+        ...nowt('alo', 'ALO', exercise, 1, slotsBefore),
+        ...ended,
+        visit: { exercise, exercisePosts: order, parts: 1 as const, slotsBefore },
+      })
+      renderScoring({ eventType: 'NOWT', registrations: [place(1, 0), place(3, 1)] })
+
+      const chips = screen.getAllByRole('button', { name: /^1 alo · results\.column\.task/ })
+      expect(chips.map((chip) => chip.className.includes('MuiChip-filled'))).toEqual([false, true])
+    })
   })
 
   describe('a dog whose round ended at an earlier post (KOE-1669)', () => {
@@ -312,7 +331,7 @@ describe('StationScoring', () => {
       eventType: 'NOWT',
       group: { ...group, number },
       id,
-      visit: { exercise: 3, parts: 2 as const, postsBefore: ['post-0'], slotsBefore: 0 },
+      visit: { exercise: 3, exercisePosts: ['post-0', 'post-x', '1'], parts: 2 as const, slotsBefore: 0 },
       ...(retiredAt
         ? {
             eventResult: {
@@ -404,7 +423,9 @@ describe('StationScoring', () => {
       eventType,
       group: { ...group, number: 1 },
       id: 'run-1',
-      ...(eventType === 'NOWT' ? { visit: { exercise: 1, parts: 1 as const, postsBefore: [], slotsBefore: 0 } } : {}),
+      ...(eventType === 'NOWT'
+        ? { visit: { exercise: 1, exercisePosts: ['1'], parts: 1 as const, slotsBefore: 0 } }
+        : {}),
     })
 
     it.each([

@@ -356,10 +356,11 @@ export interface StationVisitLayout {
    */
   dogsAtOnce?: number
   /**
-   * The posts of the group's exercises before this one, in its order: a dog whose round ended at one of
-   * them never reaches this exercise, which the post then shows as "kesk" (KOE-1669).
+   * The posts of the group's whole running order, an exercise each, in its order: where a dog's round
+   * ended (`endedAtExercise`) and so which exercises it never reached, which the post shows as "kesk"
+   * (KOE-1669).
    */
-  postsBefore: string[]
+  exercisePosts: string[]
 }
 
 /**

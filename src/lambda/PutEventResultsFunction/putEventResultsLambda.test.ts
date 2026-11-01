@@ -288,6 +288,26 @@ describe('putEventResultsLambda', () => {
     })
   })
 
+  it('stores the exercise a round ended at beside its post (KOE-1665)', async () => {
+    const retirement = { cause: 'injury' as const, exercise: 3, stationId: 'post-1' }
+    await putEventResultsLambda(apiEvent([{ eventResult: { retirement, tasks: scores(17, 18, 16, 14) }, id: 'reg-1' }]))
+
+    expect(mockUpdateRegistrationField).toHaveBeenCalledWith(
+      'event-1',
+      'reg-1',
+      'eventResult',
+      expect.objectContaining({ retirement })
+    )
+  })
+
+  it.each([0, 1.5, '3'])('refuses a retirement exercise of %j', async (exercise) => {
+    await expect(
+      putEventResultsLambda(
+        apiEvent([{ eventResult: { retirement: { cause: 'injury', exercise }, tasks: [] }, id: 'reg-1' }])
+      )
+    ).rejects.toThrow('Malformed retirement exercise')
+  })
+
   it('stores and audits an ill dog as a dash with what it earned, naming the cause (KOE-1669)', async () => {
     const retirement = { cause: 'illness' as const }
     await putEventResultsLambda(apiEvent([{ eventResult: { retirement, tasks: scores(17, 18, 16, 14) }, id: 'reg-1' }]))

@@ -18,9 +18,9 @@ import { getRegistrationPlacement } from '@/lib/registration'
 import {
   columnKey,
   endedBefore,
+  exercisePostsOf,
   formatTaskName,
   parseEventResultCode,
-  roundPostsBefore,
   scoresAtPosts,
 } from '@/lib/results'
 import { JudgeSelect } from '../../components/stationScoring/JudgeSelect'
@@ -180,7 +180,12 @@ function ResultsTable({
     // A post after the one the round ended at was never reached, read off the dog's whole round as the
     // post's own link reads it off its visit (KOE-1669).
     const whole = wholeRoundFor(registration)
-    const notReached = (task: ExerciseSlot) => endedBefore(edit.retirement, roundPostsBefore(whole, task.exercise))
+    const exercisePosts = exercisePostsOf(whole)
+    const notReached = (task: ExerciseSlot) => endedBefore(edit.retirement, task.exercise, exercisePosts)
+    // Where the round may have ended: an exercise of the dog's order, at the post on view where there is one.
+    const places = exercisePosts
+      .map((post, at) => ({ exercise: at + 1, stationId: post }))
+      .filter((place) => !stationId || place.stationId === stationId)
 
     const writeTask = (task: ExerciseSlot, changes: Partial<TaskEdit>) => {
       const existing = tasks.find((item) => taskKey(item) === taskKey(task))
@@ -224,6 +229,7 @@ function ResultsTable({
           carriesStop={carriesStop(registration)}
           disabled={disabled}
           eventType={eventType}
+          places={qualitative ? undefined : places}
           stationId={stationId}
           stations={stations}
           onChange={(next) => report(registration, attributed(next))}

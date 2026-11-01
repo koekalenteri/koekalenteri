@@ -122,6 +122,12 @@ export interface EventResultRetirement {
   couldStillHavePlaced?: boolean
   /** Where it happened. An injury in particular is worth locating, not just counting. */
   stationId?: string
+  /**
+   * The exercise the round ended at, by its number in the dog's running order, where the round is scored
+   * by exercise (KOE-1665): a group may come to one post more than once, so the post alone does not say
+   * which visit. A stop stored without it is read as the last exercise at its post (`endedAtExercise`).
+   */
+  exercise?: number
 }
 
 /**

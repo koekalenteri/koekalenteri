@@ -171,9 +171,12 @@ Työkokeessa (NOWT) vaihtoehdot ja niiden tulokset sääntöjen mukaan ovat:
 
 Ohjaajan keskeytys ei saa merkintää *{t:results.marks.interrupted}*, kuten ei Kennelliiton
 jalostustietojärjestelmässäkään. Kaikkien suorituspaikkojen näkymässä kysytään lisäksi
-*{t:results.outcomeAt}*, eli millä suorituspaikalla koe päättyi. Sitä seuraavat rastit koiran
-suoritusjärjestyksessä näkyvät tekstinä *{t:results.notReached}*, myös yhteen suorituspaikkaan
-rajatussa näkymässä ja suorituspaikan kirjaussivulla, jossa koirakko näkyy jo käyneenä. Siihen asti
+*{t:results.outcomeAt}*, eli millä rastilla koe päättyi, esimerkiksi "Rasti 3 (suorituspaikka 3)":
+ryhmä voi käydä samassa paikassa useammin, joten paikka ei yksin kerro, mikä käynti oli kyseessä.
+Ennen suoritusjärjestystä kirjattu keskeytys, jossa on vain paikka, luetaan paikan viimeiseksi
+rastiksi. Keskeytyksen jälkeiset rastit koiran suoritusjärjestyksessä näkyvät tekstinä
+*{t:results.notReached}*, myös yhteen suorituspaikkaan rajatussa näkymässä ja suorituspaikan
+kirjaussivulla, jossa koirakko näkyy jo käyneenä niiden rastien kohdalla. Siihen asti
 saadut pisteet säilyvät ja niitä voi muokata, ja rivin alla näkyy niiden summa koko suoritusjärjestyksen
 enimmäispisteitä vasten. Sama summa lähtee Omakoiraan. Jos myöhemmälle rastille on jo kirjattu
 pisteet, kenttä jää näkyviin ja pisteet lasketaan summaan, joten ne voi tarvittaessa poistaa. Kun

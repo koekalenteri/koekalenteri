@@ -14,7 +14,7 @@ covers:
   - src/pages/admin/eventViewPage/infoPanel/ResultsPublishing.tsx
   - src/pages/admin/components/KcIdLookupButton.tsx
   - src/pages/admin/components/StartDaySelector.tsx
-sourceHash: a8c17c
+sourceHash: 15ad30
 ---
 
 On the trial day the secretary's job is to record what the dogs did and to get the results in
@@ -166,9 +166,12 @@ working test (NOWT) the choices and their results under the rules are:
   *{t:results.marks.interrupted}*.
 
 A handler's withdrawal carries no *{t:results.marks.interrupted}* mark, just as in the Kennel Club's
-breeding database. The view of all posts also asks *{t:results.outcomeAt}*, that is, at which post the
-trial ended. The exercises after it in the dog's running order read *{t:results.notReached}*, in the
-view narrowed to one post too and on the post's own entry page, where the dog shows as done. The points
+breeding database. The view of all posts also asks *{t:results.outcomeAt}*, that is, at which exercise
+the trial ended, for example "Exercise 3 (post 3)": a group can come to one post more than once, so
+the post alone does not say which visit it was. A stop recorded before the running orders, with its
+post alone, is read as the last exercise at that post. The exercises after the stop in the dog's
+running order read *{t:results.notReached}*, in the view narrowed to one post too and on the post's
+own entry page, where the dog shows as done for those exercises. The points
 earned until then stay and can be edited, and their total against the whole running order's maximum
 shows under the row. The same total goes to Omakoira. If points were already entered for a later
 exercise, the field stays and the points count in the total, so they can be cleared if need be. When
