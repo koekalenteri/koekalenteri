@@ -59,5 +59,3 @@ luokkia, joiden tulokset ovat jo näkyvissä, ja luokkia, joilla ei vielä ole n
 
 Tulokset näkyvät vain Koekalenterin starttilistalla. Kennelliiton jalostustietojärjestelmään ne
 kirjataan Koekalenterista riippumatta.
-
-TODO: Starttilistan Live-osio (rastilla nyt, jonon eteneminen) on julkaisusta pois kytkettynä (`liveViewEnabled`); kuvataan, kun se otetaan käyttöön.

@@ -7,8 +7,8 @@
  * The draft is scaffolding, not the notes: commit subjects grouped by what they were (features,
  * fixes, speed), each with the issues it claims and, given Jira credentials, their titles. The
  * notes themselves are written in the reader's words over this draft, in both languages, before
- * the version bump -- `npm run check-docs` refuses a package.json version without them, and the
- * `TODO` lines left here keep showing up in its output until they are gone.
+ * the version bump -- `npm run check-docs` refuses a package.json version without them, and
+ * refuses the draft itself while the `TODO` line left here is still in it.
  *
  * Usage: release-notes.mjs v1.11.3 [--since <tag>] [--force]
  * Env:   JIRA_USER_EMAIL, JIRA_API_TOKEN for the issues' titles

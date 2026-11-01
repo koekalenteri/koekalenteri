@@ -6,9 +6,10 @@
  * Errors fail the run (pre-commit and the CI `docs` job): a page that does not bind -- an unknown
  * `{t:key}`, a `!shot` with no reference picture, a translation out of step with its original --
  * a generated module that is not what the sources say, a link to a page that does not exist, a
- * picture written as a markdown image instead of a `!shot`, and a package.json version with no
- * release notes. Warnings only print: `TODO` marks a guide's author left for a person to settle,
- * and the application's pages that no guide covers.
+ * picture written as a markdown image instead of a `!shot`, a package.json version with no
+ * release notes, and a `TODO` line, which would render as a visible paragraph on the public guide
+ * (a drafted release note keeps failing until its `TODO` is written out). Warnings only print:
+ * the application's pages that no guide covers.
  *
  * `--online` also fetches every external link; off by default, because the network is not part
  * of a commit.
@@ -121,7 +122,9 @@ if (online) {
 for (const document of documents) {
   document.body.split('\n').forEach((text, index) => {
     if (/\bTODO\b/.test(text)) {
-      warnings.push(`${document.file}:${document.frontmatterLines + index + 1}: TODO left for a person to settle`)
+      errors.push(
+        `${document.file}:${document.frontmatterLines + index + 1}: a TODO line renders as a paragraph on the public guide; settle it or leave it out`
+      )
     }
   })
 }

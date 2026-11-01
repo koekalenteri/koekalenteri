@@ -167,5 +167,3 @@ päätteeksi, eikä toisen päivän tuloksia näytetä, ennen kuin myös se päi
 voi julkaista ennen kuin se on alkanut.
 
 Julkaisu koskee vain Koekalenteria: se ei lähetä tuloksia Kennelliittoon.
-
-TODO: Rastin oma kirjausnäkymä ja tuomarin sihteerin live-kirjauslinkki ovat julkaisusta pois kytkettyinä (`liveViewEnabled`); kuvataan, kun ne otetaan käyttöön.
