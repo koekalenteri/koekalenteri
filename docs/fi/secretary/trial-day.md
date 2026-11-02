@@ -217,11 +217,12 @@ Virallisessa kokeessa sarake *{t:results.kennelliitto.column}* kertoo jokaisen k
 onko sen tulos Omakoirassa: *{t:results.kennelliitto.badge.sent}*,
 *{t:results.kennelliitto.badge.changed}*, *{t:results.kennelliitto.badge.unsent}*,
 *{t:results.kennelliitto.badge.blocked}*, *{t:results.kennelliitto.badge.sentGone}* tai
-*{t:results.kennelliitto.badge.failed}*. Sarake lukee koirat samoin kuin lähetysikkuna: tulos on
-muuttunut, kun Omakoiraan lähtevä tieto on toinen kuin lähetetty, oli muutos koiran omassa tuloksessa,
-sijoituksessa toisen koiran tuloksen takia, tuomareissa tai koiran tiedoissa. Tallennus ilman muutosta
-ei muuta tilaa. Ulkomaisesta koirasta lähetysikkuna kysyy vielä Kennelliitolta, joten se voi pyytää
-valintaa koirasta, jonka kohdalla sarakkeessa lukee *{t:results.kennelliitto.badge.unsent}*. Tulossivu ja suorituspaikan kirjaussivu lukevat kokeen tilan
+*{t:results.kennelliitto.badge.failed}*. Sarake näyttää saman kuin lähetysikkuna: sivu kysyy koirien
+tilan Koekalenterin palvelimelta avautuessaan ja jokaisen tallennuksen jälkeen. Tulos on muuttunut, kun
+Omakoiraan lähtevä tieto on toinen kuin lähetetty, oli muutos koiran omassa tuloksessa, sijoituksessa
+toisen koiran tuloksen takia, tuomareissa tai koiran tiedoissa. Tallennus ilman muutosta ei muuta tilaa.
+Jos Kennelliittoa ei saada kysyttyä tai koe on jo luovutettu, sarake näyttää vain viimeisimmän lähetyksen
+tuloksen. Tulossivu ja suorituspaikan kirjaussivu lukevat kokeen tilan
 Kennelliitosta avautuessaan, joten tuomarille luovutettu koe avautuu vain luettavaksi myös silloin,
 kun se on luovutettu suoraan Omakoirassa. Lähetyksestä ja tulosten korjaamisesta lähetyksen jälkeen
 kerrotaan sivulla [Ilmoittautumisajan jälkeen](/docs/secretary/after-entry-closes), kohdassa

@@ -123,12 +123,6 @@ export interface JsonDogEvent extends JsonDbRecord {
    * chief judge (1253) or finished (304) locks its results here (`isResultsLocked`).
    */
   kcState?: JsonKcState
-  /**
-   * What of Kennelliitto's format the result bodies are built from, as the last preview, sending or
-   * hand-over read it. Server-owned like `kcState`: the results page builds the same bodies from it, so
-   * its badges read every dog as the send dialog does (`kcResultBadges`).
-   */
-  kcKoemuoto?: KcKoemuoto
   location: string
   members?: number
   /**
@@ -536,24 +530,6 @@ export type JsonKcState = {
 }
 export type KcState = Replace<JsonKcState, 'readAt', Date>
 
-/** A result of Kennelliitto's format (Koe/Koemuoto `tulokset`), as far as a result body reads it. */
-export interface KcKoemuotoResult {
-  hylätty: boolean
-  keskeytys: boolean
-  tulos: string
-  tulostyyppi: number
-}
-
-/**
- * What of Kennelliitto's format (Koe/Koemuoto) a result body is built from (`buildKcResult`). Structural,
- * so the lambda passes its own answer as it is; the event stores it as read (`kcKoemuoto`).
- */
-export interface KcKoemuoto {
-  koemuoto: string
-  tarkenteet: string[]
-  tulokset: KcKoemuotoResult[]
-}
-
 /** A trial as Kennelliitto lists it, as the kcId search answers: its days as ISO timestamps. */
 export type EventKcIdChoice = {
   classes: string[]
@@ -601,7 +577,6 @@ type NonPublicDogEventProperties =
   | 'kcId'
   | 'kcGuid'
   | 'kcEvent'
-  | 'kcKoemuoto'
   | 'kcState'
   | 'official'
   | 'secretary'

@@ -1,8 +1,8 @@
-import type { JsonConfirmedEvent, JsonKcState, JsonRegistration, KcKoemuoto } from '../../types'
+import type { JsonConfirmedEvent, JsonKcState, JsonRegistration } from '../../types'
 import type { KLIntegraatioConfig } from '../types/KLIntegraatio'
 import { createHash } from 'node:crypto'
 import { onTestFinished, vi } from 'vitest'
-import { isResultsLocked, kcResultBadges } from '../../lib/kennelliittoResults'
+import { isResultsLocked } from '../../lib/kennelliittoResults'
 import { legacyDayValue } from '../../test-utils/finnishDays'
 import { asJsonConfirmedEvent, asJsonRegistration } from '../test-utils/helpers'
 import { loggedLines } from '../test-utils/logs'
@@ -18,7 +18,6 @@ const GUID = '2b81e6a1-559b-407c-87c7-b8a9b89b1987'
 /** What the fake tables hold. Rewritten in every test. */
 let storedState: JsonKcState | undefined
 let storedGuid: string | undefined
-let storedKoemuoto: KcKoemuoto | undefined
 let registrations: JsonRegistration[]
 let secondRead: (() => void) | undefined
 
@@ -48,9 +47,6 @@ const mockWriteKcGuid = vi.fn(async (_id: string, guid: string) => {
   if (storedGuid) return false
   storedGuid = guid
   return true
-})
-const mockWriteKcKoemuoto = vi.fn(async (_id: string, kcKoemuoto: KcKoemuoto) => {
-  storedKoemuoto = kcKoemuoto
 })
 const mockFindEventWithKcGuid = vi.fn<() => Promise<{ id: string } | undefined>>(async () => undefined)
 const mockGetEvent = vi.fn(async () => asJsonConfirmedEvent({ kcGuid: storedGuid, kcState: storedState }))
@@ -95,7 +91,6 @@ vi.doMock('./event', () => ({
   writeKcGuid: mockWriteKcGuid,
   writeKcState: mockWriteKcState,
 }))
-vi.doMock('./repositories/eventRepository', () => ({ writeKcKoemuoto: mockWriteKcKoemuoto }))
 vi.doMock('./kcTrial', () => ({ searchKcTrials: mockSearchKcTrials }))
 vi.doMock('./registration', () => ({
   getReadyRegistrationsByEventId: mockGetReady,
@@ -257,7 +252,6 @@ const event = (fields: Partial<JsonConfirmedEvent> = {}) =>
     kcGuid: GUID,
     organizer: { id: 'org-1', name: 'Org' },
     ...(storedState ? { kcState: storedState } : {}),
-    ...(storedKoemuoto ? { kcKoemuoto: storedKoemuoto } : {}),
     ...fields,
   })
 
@@ -295,22 +289,6 @@ const tallennat = () => calls.filter((call) => call.path === 'Koe/Tulos/Tallenna
 const statusOf = (preview: Awaited<ReturnType<typeof previewKennelliittoResults>>, id: string) =>
   preview.dogs.find((item) => item.id === id)?.status
 
-// What of Koe/Koemuoto a body is built from, and nothing more: the rest of the answer is not read.
-const formatOfNOME_A: KcKoemuoto = {
-  koemuoto: 'NOME-A',
-  tarkenteet: [],
-  tulokset: koemuotoNOME_A.tulokset.map(({ hylätty, keskeytys, tulos, tulostyyppi }) => ({
-    hylätty,
-    keskeytys,
-    tulos,
-    tulostyyppi,
-  })),
-}
-
-/** What the results page shows beside the dog, from the event and the registrations as stored. */
-const badgeOf = (id: string, fields: Partial<JsonConfirmedEvent> = {}) =>
-  kcResultBadges(event(fields), registrations, new Date(now)).get(id)?.status
-
 describe('kennelliittoResults', () => {
   beforeAll(() => {
     // The client logs what Kennelliitto refuses and what never got an answer; these tests cause both on purpose.
@@ -343,7 +321,6 @@ describe('kennelliittoResults', () => {
     now = Date.parse('2026-09-26T10:00:00.000Z')
     storedState = { code: 754, name: 'Hyväksytty', readAt: '2026-09-26T09:00:00.000Z' }
     storedGuid = GUID
-    storedKoemuoto = undefined
     readsOfRegistrations = 0
     secondRead = undefined
     registrations = [dog('d1', 'FI10001/20', 'NOME-A1'), dog('d2', 'FI10002/20', 'NOME-A2')]
@@ -548,47 +525,6 @@ describe('kennelliittoResults', () => {
       expect(preview.dogs.find((item) => item.id === 'blocked')?.problems).toEqual([
         { code: 'judgeWithoutNumber', detail: 'Ulkomaalainen' },
       ])
-      // The results page reads each dog by the same rule, from what the preview stored on the event.
-      expect(registrations.map((registration) => [registration.id, badgeOf(registration.id)])).toEqual([
-        ...preview.dogs.map((item) => [item.id, item.status]),
-        ['reserve', undefined],
-      ])
-    })
-
-    it("stores Kennelliitto's format on the event for the results page, and tells the open pages", async () => {
-      const preview = await previewKennelliittoResults(ctx())
-
-      expect(storedKoemuoto).toEqual(formatOfNOME_A)
-      expect(preview.eventPatch).toMatchObject({ kcKoemuoto: formatOfNOME_A })
-    })
-
-    it('writes the format once, so reading the trial again does not move the event', async () => {
-      await previewKennelliittoResults(ctx())
-      const second = await previewKennelliittoResults(ctx())
-
-      expect(mockWriteKcKoemuoto).toHaveBeenCalledTimes(1)
-      expect(second.eventPatch).toBeUndefined()
-    })
-
-    it('answers the preview when the format cannot be written, and tells the pages nothing of it', async () => {
-      mockWriteKcKoemuoto.mockRejectedValueOnce(new Error('ProvisionedThroughputExceededException'))
-
-      const preview = await previewKennelliittoResults(ctx())
-
-      expect(preview.dogs.map((item) => item.status)).toEqual(['ready', 'ready'])
-      expect(preview.eventPatch).toBeUndefined()
-      expect(loggedLines(vi.mocked(console.error))).toEqual([
-        expect.objectContaining({ eventId: 'event-1', message: 'kcKoemuoto write failed' }),
-      ])
-    })
-
-    it('does not write the format again when it is the one stored', async () => {
-      storedKoemuoto = formatOfNOME_A
-
-      const preview = await previewKennelliittoResults(ctx())
-
-      expect(mockWriteKcKoemuoto).not.toHaveBeenCalled()
-      expect(preview.eventPatch).toBeUndefined()
     })
 
     it('blocks a dog whose day has not begun', async () => {
@@ -792,16 +728,12 @@ describe('kennelliittoResults', () => {
       })
     })
 
-    it('reads a result saved again as it was as unchanged, in the preview and beside the dog, and sends nothing', async () => {
+    it('reads a result saved again as it was as unchanged, and sends nothing, whenever it was saved', async () => {
       await sendKennelliittoResults(ctx(), ['d1'], { force: false })
       calls = []
-      const resaved = { ...registrations[0].eventResult, updatedAt: '2026-09-26T09:30:00.000Z', updatedBy: 'S' }
-      registrations[0].eventResult = resaved
+      registrations[0].eventResult = { ...registrations[0].eventResult, updatedAt: 'edited-and-back', updatedBy: 'S' }
 
-      expect([statusOf(await previewKennelliittoResults(ctx()), 'd1'), badgeOf('d1')]).toEqual([
-        'unchanged',
-        'unchanged',
-      ])
+      expect(statusOf(await previewKennelliittoResults(ctx()), 'd1')).toEqual('unchanged')
       await sendKennelliittoResults(ctx(), ['d1'], { force: false })
       expect(tallennat()).toEqual([])
     })
@@ -1605,21 +1537,13 @@ describe('kennelliittoResults', () => {
     it("reads a dog as changed when another dog's result moves its rank, and sends it again with the new rank", async () => {
       await sendKennelliittoResults(nowtCtx(), ['b'], { force: false })
       expect(sijoitukset()).toEqual([['FI20002/20', 2]])
-      const nowt = { eventType: 'NOWT' }
-      expect([statusOf(await previewKennelliittoResults(nowtCtx()), 'b'), badgeOf('b', nowt)]).toEqual([
-        'unchanged',
-        'unchanged',
-      ])
+      expect(statusOf(await previewKennelliittoResults(nowtCtx()), 'b')).toEqual('unchanged')
 
       // The winner's round is voided to a nought: b is first now, with the same result of its own.
       const winner = registrations.find((reg) => reg.id === 'a')
       if (winner?.eventResult) winner.eventResult = { ...winner.eventResult, result: 'ALO0' }
 
-      // b's own result is as it was sent, and still both the preview and the results page read it as changed.
-      expect([statusOf(await previewKennelliittoResults(nowtCtx()), 'b'), badgeOf('b', nowt)]).toEqual([
-        'changed',
-        'changed',
-      ])
+      expect(statusOf(await previewKennelliittoResults(nowtCtx()), 'b')).toEqual('changed')
       await sendKennelliittoResults(nowtCtx(), ['b'], { force: false })
       expect(sijoitukset()).toEqual([
         ['FI20002/20', 2],
@@ -2488,7 +2412,6 @@ describe('kennelliittoResults', () => {
 
     it('does not return what it could not write: a reading that lost the race is not the state', async () => {
       storedState = undefined
-      storedKoemuoto = formatOfNOME_A
       mockWriteKcState.mockResolvedValueOnce(false)
 
       const preview = await previewKennelliittoResults(ctx())

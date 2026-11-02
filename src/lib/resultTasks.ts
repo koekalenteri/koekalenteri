@@ -1,6 +1,7 @@
 import type {
   EventResultRetirement,
   EventStation,
+  JsonEventResult,
   JsonEventResultTask,
   PublicJudge,
   StationVisitLayout,
@@ -336,11 +337,7 @@ export const mergeStationTasks = <T extends StationScopedTask>(
  * the judges of the post where the dog's group does the exercise, the stored judge picking which. What is
  * sent to Kennelliitto names these, so editing a post's judges after a send changes the body sent.
  */
-export const withEffectiveJudges = <
-  T extends SortableRegistration & {
-    eventResult?: { tasks?: readonly Pick<JsonEventResultTask, 'exercise' | 'judge'>[] }
-  },
->(
+export const withEffectiveJudges = <T extends SortableRegistration & { eventResult?: JsonEventResult }>(
   event: Omit<RotationEvent, 'stations'> & { stations?: readonly (RotationStation & Pick<EventStation, 'judges'>)[] },
   registration: T
 ): T => {

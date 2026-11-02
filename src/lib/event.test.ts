@@ -1723,7 +1723,6 @@ describe('sanitizeDogEvent', () => {
       invitationAttachments: { ALO: 'attachment.pdf' },
       kcGuid: '2b81e6a1-559b-407c-87c7-b8a9b89b1987',
       kcId: 12345,
-      kcKoemuoto: { koemuoto: 'NOU', tarkenteet: [], tulokset: [] },
       kcState: { code: 1253, name: 'Ylituomarin hyväksyttäväksi', readAt: '2026-09-26T10:00:00.000Z' },
       modifiedBy: 'user-3',
       name: 'Test Event',
@@ -1745,7 +1744,6 @@ describe('sanitizeDogEvent', () => {
     expect(sanitized.kcId).toBeUndefined()
     expect(sanitized.kcGuid).toBeUndefined()
     expect(sanitized.kcState).toBeUndefined()
-    expect(sanitized.kcKoemuoto).toBeUndefined()
     expect(sanitized.invitationAttachment).toBeUndefined()
     expect(sanitized.invitationAttachmentHistory).toBeUndefined()
     expect(sanitized.invitationAttachments).toBeUndefined()
@@ -1828,15 +1826,8 @@ describe('sanitizeDogEvent', () => {
 })
 
 describe('stripKennelliittoLink (KOE-1534)', () => {
-  it('removes the GUID, the old id, the snapshot, and the state and format read from the trial, and nothing else', () => {
-    const event = {
-      kcEvent: { classes: [] },
-      kcGuid: 'guid',
-      kcId: 1,
-      kcKoemuoto: { koemuoto: 'NOU', tarkenteet: [], tulokset: [] },
-      kcState: { code: 754 },
-      name: 'Koe',
-    }
+  it('removes the GUID, the old id, the snapshot and the state read from the trial, and nothing else', () => {
+    const event = { kcEvent: { classes: [] }, kcGuid: 'guid', kcId: 1, kcState: { code: 754 }, name: 'Koe' }
 
     expect(stripKennelliittoLink(event)).toEqual({ name: 'Koe' })
     expect(KENNELLIITTO_LINK_FIELDS.every((field) => !Object.hasOwn(event, field))).toBe(true)

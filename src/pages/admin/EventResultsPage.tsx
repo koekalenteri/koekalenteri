@@ -56,6 +56,7 @@ import { useStartDayClasses } from './components/useStartDayClasses'
 import { ConflictDialog } from './eventResultsPage/ConflictDialog'
 import ResultsTable from './eventResultsPage/ResultsTable'
 import { useIsOfficialEventType } from './hooks/useIsOfficialEventType'
+import { useKennelliittoDogs } from './hooks/useKennelliittoDogs'
 import { useResultsLock } from './hooks/useResultsLock'
 import { useSaveKcLink } from './hooks/useSaveKcLink'
 import { adminConfirmedEventAtom, adminEventRegistrationsAtom } from './state'
@@ -209,12 +210,19 @@ export default function EventResultsPage() {
   // Results handed to the chief judge are out of the secretary's hands until the judge sends them back.
   // The state Kennelliitto reports is what locks, so an official trial's page reads it when it opens: a trial
   // handed over or confirmed in Omakoira directly locks here (KOE-1222), and one the judge sent back opens.
-  const { locked, refreshState: readState } = useResultsLock(event, kc.preview, { readOnOpen: official })
-  // Each dog read by the send dialog's rule, over every dog of the event: another dog's result moves a rank.
+  // That read is the preview of every dog, which the Omakoira column shows, so the column says of each dog
+  // what the send dialog says; it is read again after each save.
+  const { preview } = kc
+  const previewAll = useCallback(() => preview(), [preview])
+  const { dogs: kcDogs, refresh: refreshKcDogs } = useKennelliittoDogs(previewAll)
+  const { locked, refreshState: readState } = useResultsLock(event, refreshKcDogs, { readOnOpen: official })
   const kennelliitto = useMemo(
-    () => (event && official ? kcResultBadges(event, registrations, new Date()) : undefined),
-    [event, official, registrations]
+    () => (event && official ? kcResultBadges(registrations, kcDogs) : undefined),
+    [event, official, registrations, kcDogs]
   )
+  const followSave = useCallback(() => {
+    if (official) refreshKcDogs().catch(reportError)
+  }, [official, refreshKcDogs])
   const sentCount = useMemo(() => countSentResults(registrations), [registrations])
 
   const refreshState = useCallback(async () => {
@@ -314,8 +322,9 @@ export default function EventResultsPage() {
       setEdits((prev) => Object.fromEntries(body.conflicts.map(({ id }) => [id, prev[id] ?? emptyEdit])))
       setConflicts(body.conflicts)
       setChoices({})
+      followSave()
     },
-    [storeResults]
+    [followSave, storeResults]
   )
 
   /**
@@ -349,10 +358,11 @@ export default function EventResultsPage() {
       const response = await saveResults(submissions)
       report(response.saved.length)
       setEdits({})
+      followSave()
     } catch (error) {
       await settleFailedSave(error)
     }
-  }, [edits, report, saveResults, settleFailedSave, submissionFor])
+  }, [edits, followSave, report, saveResults, settleFailedSave, submissionFor])
 
   const handleResolve = useCallback(async () => {
     // Only the dogs the secretary decided to overrule are sent again, each based on the version that
@@ -366,6 +376,7 @@ export default function EventResultsPage() {
       try {
         const response = await saveResults(submissions)
         report(response.saved.length)
+        followSave()
       } catch (error) {
         // The dialog stays up with the edits behind it, or shows the conflicts that beat this save too.
         await settleFailedSave(error)
@@ -376,7 +387,7 @@ export default function EventResultsPage() {
     setConflicts([])
     setChoices({})
     setEdits({})
-  }, [choices, conflicts, edits, report, saveResults, settleFailedSave, submissionFor])
+  }, [choices, conflicts, edits, followSave, report, saveResults, settleFailedSave, submissionFor])
 
   if (!event?.id) return <EventNotFound />
 

@@ -858,40 +858,6 @@ describe('putEventLambda', () => {
       )
     })
 
-    it('restores the format read from the trial over a copy that rides an event save', async () => {
-      const format = { koemuoto: 'NOU', tarkenteet: [], tulokset: [] }
-      signIn(mockSecretary)
-      getEventMock.mockResolvedValueOnce({ ...mockEvent, kcKoemuoto: format })
-
-      await putEventLambda(
-        constructAPIGwEvent<Partial<JsonDogEvent>>({ id: 'existing', kcKoemuoto: { ...format, tarkenteet: ['x'] } })
-      )
-
-      expect(patchEventMock).toHaveBeenCalledWith(
-        'existing',
-        expect.objectContaining({ kcKoemuoto: format }),
-        expect.objectContaining({ kcKoemuoto: format })
-      )
-    })
-
-    it('does not let a client write a format where none is stored', async () => {
-      signIn(mockSecretary)
-      getEventMock.mockResolvedValueOnce(mockEvent)
-
-      await putEventLambda(
-        constructAPIGwEvent<Partial<JsonDogEvent>>({
-          id: 'existing',
-          kcKoemuoto: { koemuoto: 'NOU', tarkenteet: [], tulokset: [] },
-        })
-      )
-
-      expect(patchEventMock).toHaveBeenCalledWith(
-        'existing',
-        mockEvent,
-        expect.not.objectContaining({ kcKoemuoto: expect.anything() })
-      )
-    })
-
     it('does not let a client write a state where none is stored', async () => {
       signIn(mockSecretary)
       getEventMock.mockResolvedValueOnce(mockEvent)

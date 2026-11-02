@@ -528,13 +528,7 @@ export const resolveEventResult = (
  * read against the dog's round as `resolveEventResult` reads them; nothing else of the result changes.
  * A result with totals, or of a type not scored at posts, is returned as it is.
  */
-export const withStoredTotals = <
-  T extends SortableRegistration & {
-    eventResult?: Pick<JsonEventResult, 'percentage'> & {
-      tasks?: readonly Pick<JsonEventResultTask, 'exercise' | 'part' | 'points'>[]
-    }
-  },
->(
+export const withStoredTotals = <T extends SortableRegistration & { eventResult?: JsonEventResult }>(
   event: RotationEvent,
   registration: T
 ): T => {

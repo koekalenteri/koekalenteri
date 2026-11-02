@@ -2,6 +2,7 @@ import type { UserEvent } from '@testing-library/user-event'
 import type { RouteObject } from 'react-router'
 import type { TestStore } from 'test-utils/AtomProvider'
 import type { Language } from '../../i18n'
+import type { KcDogReport, KcDogStatus, KcPreviewResponse } from '../../lib/kennelliittoResults'
 import type { ConfirmedEvent, EventResult, EventType, Registration } from '../../types'
 import { ThemeProvider } from '@mui/material'
 import { LocalizationProvider } from '@mui/x-date-pickers'
@@ -17,9 +18,7 @@ import { APIError } from '../../api/http'
 import { getRegistrations, previewKennelliittoResults, putEventResults } from '../../api/registration'
 import theme from '../../assets/Theme'
 import { locales } from '../../i18n'
-import koemuotoNOU from '../../lambda/lib/KLIntegraatio-fixtures/koemuoto-NOU.json'
 import { addDays } from '../../lib/day'
-import { buildKcResult, hashKcBody, kcKoemuotoOf } from '../../lib/kennelliittoResults'
 import { Path } from '../../routeConfig'
 import { expectConsoleOutput } from '../../test-utils/consoleGuard'
 import { describeInLanguage } from '../../test-utils/language'
@@ -1349,12 +1348,7 @@ describe('EventResultsPage and Kennelliitto (KOE-1140)', () => {
 
   const noon = new Date('2021-02-10T12:00:00Z')
   const stored = (result: string, updatedAt = noon): EventResult => ({ result, updatedAt, updatedBy: 'Sihteeri' })
-  const sentOk = {
-    at: noon,
-    by: 'Sihteeri',
-    payloadHash: 'h',
-    status: 'sent' as const,
-  }
+  const sentOk = { at: noon, by: 'Sihteeri', payloadHash: 'h', status: 'sent' as const }
   /** A handled-over trial: Kennelliitto has it with the chief judge. */
   const handedOver = { ...eventWithStaticDates, kcState: { code: 1253, name: 'x', readAt: noon } }
 
@@ -1401,40 +1395,104 @@ describe('EventResultsPage and Kennelliitto (KOE-1140)', () => {
   })
 
   describe('where each dog stands beside it', () => {
-    const format = kcKoemuotoOf(koemuotoNOU)
-    const withFormat: ConfirmedEvent = { ...eventWithStaticDates, kcGuid: 'kc-guid', kcKoemuoto: format }
-    /** The dog as Omakoira holds it: sent with the body of `result`, as the sending hashes it. */
-    const sentWith = (id: string, result: EventResult) => {
-      const registration = registrationsToEventWithStations.find((reg) => reg.id === id)
-      if (!registration) throw new Error(`no ${id}`)
-      const outcome = buildKcResult(withFormat, { ...registration, class: undefined, eventResult: result }, format)
-      if (!outcome.ok) throw new Error(outcome.problems.map((problem) => problem.code).join())
-      return { kcResult: { ...sentOk, payloadHash: hashKcBody(outcome.body) } }
+    const dog = (id: string, status: KcDogStatus): KcDogReport => ({ id, name: id, problems: [], regNo: id, status })
+    const answer = (first: KcDogStatus, second: KcDogStatus): KcPreviewResponse => ({
+      blockers: [],
+      dogs: [dog('run-1', first), dog('run-2', second)],
+    })
+    const sentBoth = { 'run-1': { kcResult: sentOk }, 'run-2': { kcResult: sentOk } }
+    const badgeOf = (name: string) => within(rowFor(name)).getByText(/^results\.kennelliitto\.badge\./).textContent
+    const saveFirst = async (user: UserEvent) => {
+      await user.click(within(rowFor('Ensimmainen')).getByLabelText('results.column.result'))
+      await user.click(screen.getByRole('option', { name: 'NOU1' }))
+      await user.click(screen.getByRole('button', { name: 'results.save' }))
+      await flushPromises()
     }
 
-    it('reads each dog as the send dialog does, by the body it would send', async () => {
-      // One saved again as it was sent, a later save of the same body; the other changed after it was sent.
-      const later = new Date('2021-02-10T13:00:00Z')
+    it('says of each dog what the send dialog says, from the preview of every dog read when the page opens', async () => {
+      vi.mocked(previewKennelliittoResults).mockClear().mockResolvedValueOnce(answer('unchanged', 'changed'))
       await renderQualitativePage(
         'fi',
-        { 'run-1': stored('NOU1', later), 'run-2': stored('NOU0', later) },
-        withFormat,
-        { 'run-1': sentWith('run-1', stored('NOU1')), 'run-2': sentWith('run-2', stored('NOU1')) }
+        { 'run-1': stored('NOU1'), 'run-2': stored('NOU0') },
+        eventWithStaticDates,
+        sentBoth
       )
       await flushPromises()
 
-      expect(within(rowFor('Ensimmainen')).getByText('results.kennelliitto.badge.sent')).toBeInTheDocument()
-      expect(within(rowFor('Toinen')).getByText('results.kennelliitto.badge.changed')).toBeInTheDocument()
+      expect(previewKennelliittoResults).toHaveBeenCalledWith('test1', undefined, expect.anything(), undefined)
+      expect([badgeOf('Ensimmainen'), badgeOf('Toinen')]).toEqual([
+        'results.kennelliitto.badge.sent',
+        'results.kennelliitto.badge.changed',
+      ])
     })
 
-    it('reads what was stored of the sending while the event has no format stored', async () => {
+    it('reads a dog saved again as it was sent as sent once the preview is read again after the save', async () => {
+      vi.mocked(previewKennelliittoResults)
+        .mockResolvedValueOnce(answer('changed', 'unchanged'))
+        .mockResolvedValueOnce(answer('unchanged', 'unchanged'))
+      const { user } = await renderQualitativePage(
+        'fi',
+        { 'run-1': stored('NOU0'), 'run-2': stored('NOU1') },
+        eventWithStaticDates,
+        sentBoth
+      )
+      await flushPromises()
+      expect(badgeOf('Ensimmainen')).toEqual('results.kennelliitto.badge.changed')
+
+      await saveFirst(user)
+
+      expect(badgeOf('Ensimmainen')).toEqual('results.kennelliitto.badge.sent')
+    })
+
+    it("reads a dog whose rank another dog's save moved as changed once the preview is read again", async () => {
+      vi.mocked(previewKennelliittoResults)
+        .mockResolvedValueOnce(answer('ready', 'unchanged'))
+        .mockResolvedValueOnce(answer('ready', 'changed'))
+      const { user } = await renderQualitativePage(
+        'fi',
+        { 'run-1': stored('NOU0'), 'run-2': stored('NOU1') },
+        eventWithStaticDates,
+        { 'run-2': { kcResult: sentOk } }
+      )
+      await flushPromises()
+      expect(badgeOf('Toinen')).toEqual('results.kennelliitto.badge.sent')
+
+      await saveFirst(user)
+
+      expect(badgeOf('Toinen')).toEqual('results.kennelliitto.badge.changed')
+    })
+
+    it('keeps the answer to the read asked for last, when an earlier read answers after it', async () => {
+      let answerFirst: (response: KcPreviewResponse) => void = () => {}
+      vi.mocked(previewKennelliittoResults)
+        .mockImplementationOnce(() => new Promise((resolve) => (answerFirst = resolve)))
+        .mockResolvedValueOnce(answer('changed', 'unchanged'))
+      const { user } = await renderQualitativePage(
+        'fi',
+        { 'run-1': stored('NOU0'), 'run-2': stored('NOU1') },
+        eventWithStaticDates,
+        sentBoth
+      )
+      await flushPromises()
+
+      await saveFirst(user)
+      answerFirst(answer('unchanged', 'unchanged'))
+      await flushPromises()
+
+      expect(badgeOf('Ensimmainen')).toEqual('results.kennelliitto.badge.changed')
+    })
+
+    it('reads what was stored of the last sending when the preview has no dogs', async () => {
+      vi.mocked(previewKennelliittoResults).mockResolvedValueOnce({ blockers: [{ code: 'kcUnavailable' }], dogs: [] })
       await renderQualitativePage('fi', { 'run-1': stored('NOU1'), 'run-2': stored('NOU0') }, eventWithStaticDates, {
         'run-1': { kcResult: sentOk },
       })
       await flushPromises()
 
-      expect(within(rowFor('Ensimmainen')).getByText('results.kennelliitto.badge.sent')).toBeInTheDocument()
-      expect(within(rowFor('Toinen')).getByText('results.kennelliitto.badge.unsent')).toBeInTheDocument()
+      expect([badgeOf('Ensimmainen'), badgeOf('Toinen')]).toEqual([
+        'results.kennelliitto.badge.sent',
+        'results.kennelliitto.badge.unsent',
+      ])
     })
   })
 
@@ -1465,7 +1523,7 @@ describe('EventResultsPage and Kennelliitto (KOE-1140)', () => {
       await user.click(screen.getByRole('button', { name: 'results.kennelliitto.refreshState' }))
       await flushPromises()
 
-      expect(previewKennelliittoResults).toHaveBeenCalledWith('test1', [], expect.anything(), undefined)
+      expect(previewKennelliittoResults).toHaveBeenCalledWith('test1', undefined, expect.anything(), undefined)
     })
   })
 
@@ -1487,7 +1545,7 @@ describe('EventResultsPage and Kennelliitto (KOE-1140)', () => {
       await flushPromises()
 
       expect(previewKennelliittoResults).toHaveBeenCalledTimes(1)
-      expect(previewKennelliittoResults).toHaveBeenCalledWith('test1', [], expect.anything(), undefined)
+      expect(previewKennelliittoResults).toHaveBeenCalledWith('test1', undefined, expect.anything(), undefined)
       expect(screen.getByText('results.kennelliitto.locked')).toBeInTheDocument()
       expect(screen.getByRole('button', { name: 'results.save' })).toBeDisabled()
     })
@@ -1550,7 +1608,7 @@ describe('EventResultsPage and Kennelliitto (KOE-1140)', () => {
     // The dog is stored as the server says, and nothing of it is left to save.
     expect(within(rowFor('Ensimmainen')).getByLabelText('results.column.result')).toHaveTextContent('NOU1')
     expect(screen.getByRole('button', { name: 'results.save' })).toBeDisabled()
-    expect(previewKennelliittoResults).toHaveBeenCalledWith('test1', [], expect.anything(), undefined)
+    expect(previewKennelliittoResults).toHaveBeenCalledWith('test1', undefined, expect.anything(), undefined)
   })
 
   it('folds in a dog the batch found stored already, and takes it off the screen, when it finds the trial locked', async () => {
@@ -1597,7 +1655,7 @@ describe('EventResultsPage and Kennelliitto (KOE-1140)', () => {
     await flushPromises()
 
     expect(screen.getByText('results.kennelliitto.lockedSave')).toBeInTheDocument()
-    expect(previewKennelliittoResults).toHaveBeenCalledWith('test1', [], expect.anything(), undefined)
+    expect(previewKennelliittoResults).toHaveBeenCalledWith('test1', undefined, expect.anything(), undefined)
   })
 
   describe('a batch refused because a dog is no longer on the trial', () => {

@@ -1469,7 +1469,6 @@ export function sanitizeDogEvent(
     kcId: _kcId,
     kcGuid: _kcGuid,
     kcEvent: _kcEvent,
-    kcKoemuoto: _kcKoemuoto,
     kcState: _kcState,
     invitationAttachment: _invitationAttachment,
     invitationAttachmentHistory: _invitationAttachmentHistory,
@@ -1670,11 +1669,8 @@ export const stripInvitationAttachments = <
   return event
 }
 
-/**
- * What links an event to its Kennelliitto trial: the GUID, the old integer id, the snapshot of the trial,
- * and what was last read of it (its state and its format).
- */
-export const KENNELLIITTO_LINK_FIELDS = ['kcEvent', 'kcGuid', 'kcId', 'kcKoemuoto', 'kcState'] as const
+/** What links an event to its Kennelliitto trial: the GUID, the old integer id and the snapshot of the trial. */
+export const KENNELLIITTO_LINK_FIELDS = ['kcEvent', 'kcGuid', 'kcId', 'kcState'] as const
 
 /**
  * Removes the link to a Kennelliitto trial. A copy of an event is not the event the link was made
@@ -1682,7 +1678,7 @@ export const KENNELLIITTO_LINK_FIELDS = ['kcEvent', 'kcGuid', 'kcId', 'kcKoemuot
  * trial goes with it.
  */
 export const stripKennelliittoLink = <
-  T extends { kcEvent?: unknown; kcGuid?: unknown; kcId?: unknown; kcKoemuoto?: unknown; kcState?: unknown },
+  T extends { kcEvent?: unknown; kcGuid?: unknown; kcId?: unknown; kcState?: unknown },
 >(
   event: T
 ): T => {
