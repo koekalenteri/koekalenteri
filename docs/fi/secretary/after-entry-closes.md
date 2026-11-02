@@ -23,7 +23,7 @@ covers:
 Kun ilmoittautumisaika on päättynyt, koesihteerin työ etenee vaihe kerrallaan: osallistujien
 valinta, koepaikka- ja varasijailmoitukset, koekutsut, starttilista ja lopulta paikan päällä
 arvotut starttinumerot. Tapahtumasivun **{t:eventManagement.tabs.management}** -paneeli kulkee samassa
-järjestyksessä ja kertoo joka vaiheessa, mikä on tehty ja mikä on seuraavaksi mahdollista —
+järjestyksessä ja kertoo joka vaiheessa, mikä on tehty ja mikä on seuraavaksi mahdollista:
 painike, jota ei vielä voi painaa, kertoo syyn vieressään.
 
 ## Ilmoittautumisen lisääminen jälkikäteen
@@ -38,7 +38,7 @@ koepaikkailmoituksen mukana.
 
 Koekalenteri hakee koiran koetulokset Kennelliiton jalostustietokannasta ja tarkastaa oikeuden
 osallistua luokkaan itse. Käsin tarkastettavia ovat vain ne koirakot, joiden riville
-ilmoittautuja on lisännyt tuloksia itse — ne tunnistaa huutomerkkikuvakkeesta. Rivin kuvakkeet
+ilmoittautuja on lisännyt tuloksia itse. Ne tunnistaa huutomerkkikuvakkeesta. Rivin kuvakkeet
 selittyvät, kun hiiren vie niiden päälle:
 
 | Kuvake | Mitä se tarkoittaa |
@@ -51,7 +51,7 @@ selittyvät, kun hiiren vie niiden päälle:
 | punainen kirje | sähköpostin toimitus ilmoittautujalle epäonnistui |
 | kirjekuori | koekutsu on lähetetty; avattu kuori tarkoittaa kuitattua kutsua |
 | ajastettu lähetys | koekutsu lähtee vasta, kun koepaikka on maksettu |
-| huutomerkki | ilmoittautuja on lisännyt koetuloksia itse — **tarkista osanotto-oikeus** |
+| huutomerkki | ilmoittautuja on lisännyt koetuloksia itse, **tarkista osanotto-oikeus** |
 | puhekupla | ilmoittautuja on kirjoittanut lisätietoja |
 | muistiinpano | ilmoittautumisella on koesihteerin sisäinen kommentti |
 
@@ -96,8 +96,8 @@ epäonnistuu, rivi saa punaisen kirjekuvakkeen.
 
 Kun koepaikkailmoitukset on kerran lähetetty, paneeli ei enää salli osallistujan siirtämistä
 takaisin varasijalle. Jos varasijalta nostetaan tämän jälkeen uusi koirakko osallistujiin,
-kalenteri kysyy vahvistuksen ja lähettää koepaikkailmoituksen — ja koekutsun, jos kutsut on jo
-lähetetty — sille automaattisesti.
+kalenteri kysyy vahvistuksen ja lähettää sille automaattisesti koepaikkailmoituksen ja, jos kutsut on jo
+lähetetty, myös koekutsun.
 
 ## Varasijailmoitus
 
@@ -158,8 +158,8 @@ jaetut linkit; seuraava kopiointi antaa uuden.
 
 !shot[StartNumbersEntry/start-numbers-entry-links] Luokkasihteerien linkit jaetaan omalta välilehdeltään
 
-Kun päivän kaikki numerot on tallennettu, ne julkaistaan luokittain — ja usean päivän luokassa
-päivittäin — painikkeella **{t:eventManagement.startList.publishNumbers}**. Keskeneräistä päivää ei voi julkaista; silloin
+Kun päivän kaikki numerot on tallennettu, ne julkaistaan luokittain (usean päivän luokassa
+päivittäin) painikkeella **{t:eventManagement.startList.publishNumbers}**. Keskeneräistä päivää ei voi julkaista; silloin
 kalenteri pyytää syöttämään ensin kaikki numerot. Numerot odottavat koekutsuja samoin kuin
 starttilista: luokan ensimmäisen koepäivän aamuun asti rivillä lukee
 *{t:eventManagement.startList.invitationsRequired}*, eikä numeroita voi julkaista. Jos kokeessa ei arvota numeroita lainkaan,
