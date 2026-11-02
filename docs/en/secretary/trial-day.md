@@ -14,7 +14,7 @@ covers:
   - src/pages/admin/eventViewPage/infoPanel/ResultsPublishing.tsx
   - src/pages/admin/components/KcIdLookupButton.tsx
   - src/pages/admin/components/StartDaySelector.tsx
-sourceHash: 25cc63
+sourceHash: 954b99
 ---
 
 On the trial day the secretary's job is to record what the dogs did and to get the results in
