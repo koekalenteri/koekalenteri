@@ -5,6 +5,7 @@ import type {
   EventResultRetirement,
   JsonEventResult,
   JsonEventResultTask,
+  JsonPublicRegistration,
   JsonRegistration,
   NowtZeroFault,
   PublicJudge,
@@ -61,15 +62,46 @@ export const resultMarks = (result?: { retirement?: EventResultRetirement }): Re
 export const formatResultMarks = (marks: readonly ResultMark[] | undefined, t: TFunction<'translation'>): string =>
   (marks ?? []).map((mark) => t(`results.marks.${mark}`)).join(' ')
 
+/** What a published result says of the dog's points. */
+type ResultTotals = Pick<JsonPublicRegistration, 'maxPoints' | 'percentage' | 'points'>
+
 /**
- * The result as it is read out beside a dog: the code, the marks it carries and the placement, each
- * only where there is one. One line for the screen and the copied text alike.
+ * The totals as they are shown: the points, the maximum and the percentage as a whole number, or
+ * nothing where the result has none (a qualitative type). Display only; the prize thresholds compare
+ * the exact ratio (`atLeastPercent`), so a dog shown at 65 % may still have missed a second prize. The
+ * result line and the exported sheet both read them here, so the two round alike (KOE-1673).
+ */
+export const shownTotals = ({ points, maxPoints, percentage }: ResultTotals): Required<ResultTotals> | undefined =>
+  points !== undefined && maxPoints && percentage !== undefined
+    ? { maxPoints, percentage: Math.round(percentage), points }
+    : undefined
+
+/** The totals of a result as they are read out, "65/80 p 81 %", or nothing where there are none. */
+const formatResultTotals = (totals: ResultTotals, t: TFunction<'translation'>): string => {
+  const shown = shownTotals(totals)
+  return shown ? t('results.totals', shown) : ''
+}
+
+/**
+ * The result as it is read out beside a dog: the code, the points against the maximum with the
+ * percentage, the marks it carries and the placement, each only where there is one. One line for the
+ * screen and the copied text alike.
  */
 export const formatResultLine = (
-  { marks, placement, result }: { marks?: readonly ResultMark[]; placement?: number; result?: string },
+  {
+    marks,
+    placement,
+    result,
+    ...totals
+  }: ResultTotals & { marks?: readonly ResultMark[]; placement?: number; result?: string },
   t: TFunction<'translation'>
 ): string =>
-  [result, formatResultMarks(marks, t), placement ? t('results.placement', { placement }) : '']
+  [
+    result,
+    result ? formatResultTotals(totals, t) : '',
+    formatResultMarks(marks, t),
+    placement ? t('results.placement', { placement }) : '',
+  ]
     .filter(Boolean)
     .join(' ')
 

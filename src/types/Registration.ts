@@ -550,6 +550,13 @@ export interface JsonPublicRegistration {
    * judge stopped (KOE-1300). Absent rather than empty when there is nothing to add.
    */
   marks?: ResultMark[]
+  /**
+   * Published with the result of an event type scored at posts: the points the dog earned against its
+   * whole round, also for a round that ended early (KOE-1673). `percentage` is unrounded, as stored.
+   */
+  points?: number
+  maxPoints?: number
+  percentage?: number
 }
 
 export interface PublicRegistration extends Omit<JsonPublicRegistration, 'dog' | 'group'> {

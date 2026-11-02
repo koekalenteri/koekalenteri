@@ -21,7 +21,7 @@ import {
   sortRegistrationsByDateClassTimeAndNumber,
   withDefaultOwnerSelection,
 } from '../../lib/registration'
-import { placementsFor, resultMarks, shownEventResult } from '../../lib/results'
+import { placementsFor, resultMarks, shownEventResult, withStoredTotals } from '../../lib/results'
 import { getLiveEvent } from './event'
 import { readEventRegistrations } from './repositories/registrationRepository'
 
@@ -59,10 +59,14 @@ const buildPublicStartList = (
   // anywhere and are unaffected.
   const drawn = registrations.some((reg) => !reg.cancelled && reg.startGroup?.date)
 
-  // Derived over everyone who ran, so a withheld row still takes its rank; published only with the result.
-  const placements = placementsFor(registrations)
+  // A round that ended early saved before KOE-1669 has no stored totals; they are worked out from its
+  // tasks here, so the list shows what it earned without the row being saved again (KOE-1673).
+  const withTotals = registrations.map((reg) => withStoredTotals(confirmedEvent, reg))
 
-  const publicRegs = registrations
+  // Derived over everyone who ran, so a withheld row still takes its rank; published only with the result.
+  const placements = placementsFor(withTotals)
+
+  const publicRegs = withTotals
     .filter((reg) => isInEventClasses(confirmedEvent, reg))
     .map((reg) =>
       reg.cancelled
@@ -150,8 +154,6 @@ const publicRow = (
   const numbersAvailable = isStartNumbersAvailableForRegistration(confirmedEvent, registered)
   if (!preview && numbersAvailable && !reg.startGroup && drawn) return undefined
 
-  const marks = resultMarks(reg.eventResult)
-
   return {
     ...(preview ? { numberProvisional: !reg.startGroup } : {}),
     breeder: reg.breeder?.name,
@@ -161,17 +163,43 @@ const publicRow = (
     handler: getHandlingPerson(reg)?.name ?? '',
     owner: formatOwnerNames(reg),
     ownerHandles: publishedOwnerHandles(reg),
-    // The marks ride with the result and only where it does: a mark on its own would tell a reader
-    // something about a dog whose result is not published yet (KOE-1300).
     ...(isResultsAvailableForRegistration(confirmedEvent, registered)
-      ? {
-          ...(marks.length ? { marks } : {}),
-          ...(placement ? { placement } : {}),
-          // Kennelliitto's spelling, as KoiraNet lists it; the stored result keeps its prefix (KOE-1592).
-          result: shownEventResult(reg.eventResult?.result, confirmedEvent.eventType, reg.class ?? undefined),
-        }
+      ? publishedResult(confirmedEvent, reg, placement)
       : {}),
   }
+}
+
+type PublishedResult = Pick<
+  JsonPublicRegistration,
+  'marks' | 'maxPoints' | 'percentage' | 'placement' | 'points' | 'result'
+>
+
+/**
+ * What the row says of the dog's result, once the class's results are published. The marks, the rank
+ * and the totals ride with the result and only where it does: on their own they would tell a reader
+ * something about a dog whose result is not published yet (KOE-1300, KOE-1673).
+ */
+const publishedResult = (confirmedEvent: JsonDogEvent, reg: JsonRegistration, placement?: number): PublishedResult => {
+  const stored = reg.eventResult
+  const marks = resultMarks(stored)
+  // Kennelliitto's spelling, as KoiraNet lists it; the stored result keeps its prefix (KOE-1592).
+  const result = shownEventResult(stored?.result, confirmedEvent.eventType, reg.class ?? undefined)
+
+  return {
+    ...(marks.length ? { marks } : {}),
+    ...(placement ? { placement } : {}),
+    ...(result ? publishedTotals(stored) : {}),
+    result,
+  }
+}
+
+/** The points against the whole round, where the round has a maximum; a qualitative type has none. */
+const publishedTotals = (
+  stored: JsonRegistration['eventResult']
+): Pick<PublishedResult, 'maxPoints' | 'percentage' | 'points'> => {
+  const { maxPoints, percentage, points } = stored ?? {}
+  if (!maxPoints || points === undefined || percentage === undefined) return {}
+  return { maxPoints, percentage, points }
 }
 
 /**
