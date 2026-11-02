@@ -129,8 +129,16 @@ interface KcSendResult {
   reports: KcSendReport[]
 }
 
-/** Sha-256 of the body as it is sent. The one mapping builds the body, so equal results give equal bodies. */
-const hashKcBody = (body: KcResultBody): string => createHash('sha256').update(JSON.stringify(body)).digest('hex')
+/**
+ * Sha-256 of the body as it is sent. The one mapping builds the body, so equal results give equal bodies.
+ * The points to enter by hand count too (KOE-1676): a correction that still goes as 0 changes what the
+ * secretary has to enter in Omakoira, so the dog reads as changed and is named again. Without them the
+ * hash is the body's alone, as it was.
+ */
+const hashKcBody = (body: KcResultBody, pointsByHand: number | undefined): string =>
+  createHash('sha256')
+    .update(JSON.stringify(pointsByHand === undefined ? body : { body, pointsByHand }))
+    .digest('hex')
 
 const klintOf = (ctx: KcContext): KLIntegraatio => ctx.klint ?? getKLIntegraatio()
 
@@ -334,7 +342,7 @@ const evaluateKcDog = (
   const problems = [...(outcome.ok ? [] : outcome.problems), ...dayProblems(registration, now)]
   if (!outcome.ok || problems.length) return { registration, report: dogReport(registration, 'blocked', problems) }
 
-  const hash = hashKcBody(outcome.body)
+  const hash = hashKcBody(outcome.body, outcome.pointsByHand)
   const previous = registration.kcResult
   let status: KcDogStatus = 'ready'
   if (previous?.status === 'sent' && previous.payloadHash === hash) status = 'unchanged'
@@ -357,6 +365,7 @@ const evaluateKcDog = (
  * A round that ended early saved before KOE-1669 has no stored totals; they are worked out from its tasks
  * here (`withStoredTotals`), without being saved again: it is sent with what it earned, or, where
  * Kennelliitto takes no more for its result, named with those points for entering by hand (KOE-1676).
+ * Those points are part of the hash, so a correction of them reads as changed even when the body is not.
  * Each score is judged by the judges of its exercise's post as the event stands.
  */
 const evaluateAll = (
@@ -848,7 +857,7 @@ const switchRegNo = async (
   const dog = { ...registration.dog, regNo: kcDog.regNo }
   mergePatch(options.patches, { dog, id: registration.id, updatedAt })
   const body = { ...item.body, rekisterinumero: kcDog.regNo }
-  return { body, hash: hashKcBody(body), registration: { ...registration, dog } }
+  return { body, hash: hashKcBody(body, item.report.pointsByHand), registration: { ...registration, dog } }
 }
 
 /**

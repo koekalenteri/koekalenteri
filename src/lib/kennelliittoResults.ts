@@ -255,9 +255,10 @@ export const kcResultDay = (registration: Pick<KcResultRegistration, 'group' | '
  * and returned as `pointsByHand`, so the send dialog names the dog and the secretary enters the real
  * points in Omakoira by hand, which its own form accepts. Everything else is sent as it is, and nothing
  * else is checked against the row's limits, which Kennelliitto's own list gets wrong for ALO0 and ALO-:
- * it answers with its reasons when it refuses a number. When Kennelliitto widens a range, the body
- * changes, the dog reads as changed once and is sent again with its points: the workaround retires
- * itself without a change here.
+ * it answers with its reasons when it refuses a number. The sent hash covers `pointsByHand` too, so a
+ * correction that still goes as 0 reads as changed and names the new points. When Kennelliitto widens a
+ * range, the body changes, the dog reads as changed once and is sent again with its points: the
+ * workaround retires itself without a change here.
  */
 const pointsOf = (
   registration: KcResultRegistration,

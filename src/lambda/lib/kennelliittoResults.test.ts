@@ -1606,6 +1606,21 @@ describe('kennelliittoResults', () => {
 
         expect(statusOf(await previewKennelliittoResults(nowtCtx()), 'nought')).toEqual('unchanged')
       })
+
+      it('reads a dog whose corrected points still go as 0 as changed, and names the new points', async () => {
+        registrations = [nowtDog('nought', 'FI20009/20', 'ALO0', 63.75)]
+        await sendKennelliittoResults(nowtCtx(), ['nought'], { force: false })
+        const [sent] = registrations
+        sent.eventResult = { ...sent.eventResult, percentage: 75, points: 75, updatedAt: 'later', updatedBy: 'S' }
+        calls = []
+
+        const preview = await previewKennelliittoResults(nowtCtx())
+        expect(preview.dogs.map((dog) => [dog.status, dog.pointsByHand])).toEqual([['changed', 75]])
+
+        const result = await sendKennelliittoResults(nowtCtx(), ['nought'], { force: false })
+        expect(tallennat().map((call) => call.body?.pisteet)).toEqual([0])
+        expect(result.reports.map((report) => [report.outcome, report.pointsByHand])).toEqual([['sent', 75]])
+      })
     })
 
     it("names the judges of each exercise's post as the event stands, not the ones stored with the scores (KOE-1665)", async () => {
