@@ -60,7 +60,8 @@ export const TaskScore = ({
   const points = value?.points ?? null
   const ceiling = taskEntryCeiling({ maxPoints: task.maxPoints, recalled: value?.recalled })
   // A part's name ("Tehtävä 2, osa 1/2") needs the room its label takes where the field shows it.
-  let width = 64
+  // A table column has two digits to show and a ceiling beside it, so its field is the narrower.
+  let width = inline ? 48 : 64
   if (showName) width = task.parts > 1 ? 150 : 96
 
   const handlePoints = useCallback(
