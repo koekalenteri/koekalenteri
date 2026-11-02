@@ -118,15 +118,24 @@ ole vielä pisteytetty, koiran palkinto poistuu, kunnes rasti on pisteytetty. Jo
 muuttuu, on *Omakoira*-sarakkeessa tilassa *{t:results.kennelliitto.badge.changed}* ja lähetetään
 uudelleen.
 
-Kirjatut pisteet kuuluvat suorituspaikalle, jossa tuomari ne antoi: suoritusjärjestyksen muuttaminen
-ei siirrä niitä toiselle paikalle. Pisteet säilyvät, kun paikassa tehdään yhä yhtä monta rastia
-samalla osajaolla. Jos paikan rastien tai osien määrä muuttuu, kaikki paikassa kirjatut pisteet
-poistuvat, koska paikan rastit lasketaan silloin uudelleen; poistuvat pisteet luetellaan ennen
-tallennusta koirittain.
+Kirjatut pisteet kuuluvat rastille, jolle ne kirjattiin: rasti 3 pysyy rastina 3, vaikka sen
+suorituspaikka tai ryhmän suoritusjärjestys muuttuu. Kun esimerkiksi neljä suorituspaikkaa korjataan
+kolmeksi niin, että kolmas paikka tekee rastit 3 ja 4, jokaisen koiran rastien 1, 2, 3 ja 4 pisteet
+säilyvät ennallaan, eikä tallennus kysy mitään. Pisteen tuomari on sen suorituspaikan tuomari, jossa
+ryhmä tekee rastin: kirjattu tuomari pysyy, kun hän on paikan tuomareita, ja muuten tuomariksi
+luetaan paikan ensimmäinen tuomari. Omakoiraan lähtevät tuomarit luetaan samoin.
+
+Pisteet poistuvat vain, kun rasti poistuu suoritusjärjestyksestä tai rastin osajako muuttuu, koska
+pisteitä ei silloin voi lukea samalle rastille. Poistuvat pisteet luetellaan ennen tallennusta
+koirittain.
 **{t:event.resultTasksDropped.confirm}** tallentaa muutoksen ja poistaa pisteet, eivätkä ne palaa,
 vaikka muutos perutaan myöhemmin. **{t:cancel}** jättää muutoksen tallentamatta.
 
 !shot[DroppedTasksDialog/dropped-tasks] Muutos poistaisi kolmen koiran kirjattuja pisteitä
+
+Huomaa: jos suoritusjärjestyksen keskelle lisätään rasti sen jälkeen, kun pisteitä on kirjattu, sen
+jälkeisten rastien numerot kasvavat yhdellä, mutta kirjatut pisteet pysyvät vanhoilla numeroillaan.
+Lisää rasti silloin järjestyksen loppuun tai tarkista tulostaulukko tallennuksen jälkeen.
 
 Kun tulokset on luovutettu ylituomarille tai hyväksytty, muutosta, joka muuttaisi kirjattuja
 tuloksia, ei tallenneta. Muutos, joka ei muuta yhdenkään koiran tulosta, tallentuu silti.
@@ -173,9 +182,9 @@ Ohjaajan keskeytys ei saa merkintää *{t:results.marks.interrupted}*, kuten ei 
 jalostustietojärjestelmässäkään. Kaikkien suorituspaikkojen näkymässä kysytään lisäksi
 *{t:results.outcomeAt}*, eli millä rastilla koe päättyi, esimerkiksi "Rasti 3 (suorituspaikka 3)":
 ryhmä voi käydä samassa paikassa useammin, joten paikka ei yksin kerro, mikä käynti oli kyseessä.
-Keskeytys pysyy paikassaan kuten pisteetkin: rasti vain erottaa saman paikan käynnit. Ennen
-suoritusjärjestystä kirjattu keskeytys, jossa on vain paikka, luetaan paikan viimeiseksi rastiksi,
-samoin keskeytys, jonka rastinumero on suoritusjärjestyksen muutoksen jälkeen toisessa paikassa. Keskeytyksen jälkeiset rastit koiran suoritusjärjestyksessä näkyvät tekstinä
+Keskeytys kirjataan rastille kuten pisteetkin, ja se pysyy sillä rastilla, vaikka suoritusjärjestys
+muuttuu. Aiemmin kirjattu keskeytys, jossa on vain paikka, luetaan paikan viimeiseksi rastiksi.
+Keskeytyksen jälkeiset rastit koiran suoritusjärjestyksessä näkyvät tekstinä
 *{t:results.notReached}*, myös yhteen suorituspaikkaan rajatussa näkymässä ja suorituspaikan
 kirjaussivulla, jossa koirakko näkyy jo käyneenä niiden rastien kohdalla. Siihen asti
 saadut pisteet säilyvät ja niitä voi muokata, ja rivin alla näkyy niiden summa koko suoritusjärjestyksen

@@ -16,7 +16,7 @@ import { memo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { getRegistrationPlacement } from '@/lib/registration'
 import { formatTaskName, parseEventResultCode, scoresAtPosts } from '@/lib/results'
-import { columnKey, endedBefore, exercisePostsOf } from '@/lib/resultTasks'
+import { columnKey, effectiveJudge, endedBefore, exercisePostsOf } from '@/lib/resultTasks'
 import { JudgeSelect } from '../../components/stationScoring/JudgeSelect'
 import { ResultSummary } from '../../components/stationScoring/ResultSummary'
 import { asksOutcome, outcomeLabelKeys, RoundOutcome } from '../../components/stationScoring/RoundOutcome'
@@ -84,7 +84,7 @@ interface RowControls {
 const carriesStop = (registration: Registration): boolean =>
   registration.eventResult?.retirement?.cause === 'judgeStopped'
 
-const taskKey = (task: { stationId: string; index: number }) => `${task.stationId}#${task.index}`
+const taskKey = (task: { exercise: number; part: number }) => `${task.exercise}#${task.part}`
 
 /** Where the carried judge lives in `defaultJudges` for rows that have no posts. */
 const EVENT_JUDGE_KEY = 'event'
@@ -184,17 +184,23 @@ function ResultsTable({
     const writeTask = (task: ExerciseSlot, changes: Partial<TaskEdit>) => {
       const existing = tasks.find((item) => taskKey(item) === taskKey(task))
       // Scoring a task attributes it to whoever is showing, so the secretary only touches the
-      // judge control when it actually changes.
-      const judge = changes.judge ?? existing?.judge ?? defaultJudges[task.stationId] ?? judgesFor(task.stationId)[0]
+      // judge control when it actually changes. A stored judge stands while it judges at the exercise's
+      // post (`effectiveJudge`, KOE-1665).
+      const postJudges = judgesFor(task.stationId)
+      const judge =
+        changes.judge ??
+        (existing?.judge ? effectiveJudge(existing, postJudges) : undefined) ??
+        defaultJudges[task.stationId] ??
+        postJudges[0]
 
       report(registration, {
         ...edit,
         tasks: [
           ...tasks.filter((item) => taskKey(item) !== taskKey(task)),
           {
-            index: task.index,
+            exercise: task.exercise,
+            part: task.part,
             points: existing?.points ?? null,
-            stationId: task.stationId,
             ...existing,
             ...changes,
             ...(judge ? { judge } : {}),

@@ -33,7 +33,15 @@ import { makeArray } from '@/lib/judge'
 import { liveFormat } from '@/lib/liveFormat'
 import { getRegistrationClass } from '@/lib/registration'
 import { formatTaskName, parseEventResultCode, scoresAtPosts } from '@/lib/results'
-import { endedAtExercise, endedBefore, holdsScore, stationVersion, visitSlots } from '@/lib/resultTasks'
+import {
+  effectiveJudge,
+  endedAtExercise,
+  endedBefore,
+  exercisesAtPost,
+  holdsScore,
+  stationVersion,
+  visitSlots,
+} from '@/lib/resultTasks'
 import { openTurn } from '@/lib/stationTurns'
 import { AsyncButton } from '../AsyncButton'
 import { JudgeSelect } from './JudgeSelect'
@@ -94,13 +102,21 @@ interface Props {
  * than replaces. A post-scored type's recording is its tasks; a qualitative type's is the judge's
  * decision, read back out of the stored string, and who made it.
  */
+/**
+ * The exercises the dog's group does at this post, from its visit (KOE-1665): the post's own scores. A
+ * post the group comes to twice holds both exercises.
+ */
+const exercisesHere = (dog: StationScoringDog, stationId: string): number[] =>
+  dog.visit ? exercisesAtPost(dog.visit.exercisePosts, stationId) : []
+
 const seededEdit = (dog: StationScoringDog, stationId: string, eventType: string): ResultEdit => {
   const stored = dog.eventResult
   const outcome = { elimination: stored?.elimination, retirement: stored?.retirement }
 
   if (scoresAtPosts(eventType)) {
+    const here = exercisesHere(dog, stationId)
     const tasks = (stored?.tasks ?? [])
-      .filter((task) => task.stationId === stationId)
+      .filter((task) => here.includes(task.exercise))
       .map(({ updatedAt: _at, updatedBy: _by, ...task }) => task)
     return { ...outcome, tasks }
   }
@@ -225,7 +241,7 @@ export function StationScoring({
 
   /**
    * A place in the queue this post has already scored, so the judge can see at a glance who is still to
-   * come: the dog's score for the exercise of that place, or any here where the dog has no visit. A place
+   * come: the dog's score for the exercise of that place, or its stop here where the dog has no visit. A place
    * whose exercise is the one the round ended at is done too, its outcome recorded there, and one after it
    * is never reached (KOE-1669).
    */
@@ -235,11 +251,7 @@ export function StationScoring({
       if (qualitative) return Boolean(stored?.result ?? stored?.elimination ?? stored?.retirement)
       const { retirement } = stored ?? {}
       const { visit: place } = dog
-      if (!place)
-        return (
-          retirement?.stationId === station.id ||
-          (stored?.tasks?.some((task) => task.stationId === station.id) ?? false)
-        )
+      if (!place) return retirement?.stationId === station.id
       const endedAt = endedAtExercise(retirement, place.exercisePosts)
       if (endedAt !== undefined && place.exercise >= endedAt) return true
       const slots = visitSlots(station.id, place)
@@ -279,7 +291,7 @@ export function StationScoring({
     try {
       response = await onSave({
         // Where the post is the whole trial, the version is the whole result's, as on the results page.
-        basedOn: qualitative ? stored?.updatedAt : stationVersion(stored?.tasks, station.id),
+        basedOn: qualitative ? stored?.updatedAt : stationVersion(stored?.tasks, exercisesHere(selected, station.id)),
         eventResult: {
           elimination: edit.elimination,
           retirement: edit.retirement,
@@ -432,34 +444,38 @@ export function StationScoring({
                 defaultJudge={lastJudge}
                 judges={judges}
                 name={formatTaskName(task, t)}
-                key={`${task.stationId}#${task.index}`}
+                key={`${task.exercise}#${task.part}`}
                 notReached={ended}
                 onChange={(item, points, zeroFault) =>
-                  setEdit((prev) => ({
-                    ...prev,
-                    tasks: [
-                      ...prev.tasks.filter((entry) => entry.index !== item.index),
-                      {
-                        index: item.index,
-                        judge: prev.tasks.find((entry) => entry.index === item.index)?.judge ?? lastJudge ?? judges[0],
-                        points,
-                        stationId: item.stationId,
-                        ...(zeroFault ? { zeroFault } : {}),
-                      },
-                    ],
-                  }))
+                  setEdit((prev) => {
+                    const existing = prev.tasks.find((entry) => holdsScore(item, entry))
+                    const judge = existing?.judge ? effectiveJudge(existing, judges) : (lastJudge ?? judges[0])
+                    return {
+                      ...prev,
+                      tasks: [
+                        ...prev.tasks.filter((entry) => !holdsScore(item, entry)),
+                        {
+                          exercise: item.exercise,
+                          part: item.part,
+                          points,
+                          ...(judge ? { judge } : {}),
+                          ...(zeroFault ? { zeroFault } : {}),
+                        },
+                      ],
+                    }
+                  })
                 }
                 onJudgeChange={(item, judge) => {
                   setLastJudge(judge)
                   setEdit((prev) => ({
                     ...prev,
-                    tasks: prev.tasks.map((entry) => (entry.index === item.index ? { ...entry, judge } : entry)),
+                    tasks: prev.tasks.map((entry) => (holdsScore(item, entry) ? { ...entry, judge } : entry)),
                   }))
                 }}
                 // No column header names the task here, so a task not reached names it in its text.
                 showName={ended}
                 task={task}
-                value={edit.tasks.find((entry) => entry.index === task.index)}
+                value={edit.tasks.find((entry) => holdsScore(task, entry))}
               />
             ))}
           </Stack>

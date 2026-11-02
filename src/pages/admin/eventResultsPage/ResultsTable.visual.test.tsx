@@ -37,14 +37,14 @@ const roundOf = () => round
 const nowtEdits: Record<string, ResultEdit> = {
   'run-1': {
     tasks: [
-      { index: 0, judge, points: 17, stationId: 'post-1' },
-      { index: 0, judge, points: 8, stationId: 'post-2' },
-      { index: 1, judge, points: 9, stationId: 'post-2' },
+      { exercise: 1, judge, part: 0, points: 17 },
+      { exercise: 2, judge, part: 0, points: 8 },
+      { exercise: 2, judge, part: 1, points: 9 },
     ],
   },
   'run-2': {
-    retirement: { cause: 'handlerChoice', stationId: 'post-1' },
-    tasks: [{ index: 0, judge, points: 12, stationId: 'post-1' }],
+    retirement: { cause: 'handlerChoice', exercise: 1 },
+    tasks: [{ exercise: 1, judge, part: 0, points: 12 }],
   },
 }
 
@@ -214,9 +214,9 @@ const storedResult = (points: number[], result: string): Registration['eventResu
   points: points.reduce((sum, value) => sum + value, 0),
   result,
   tasks: [
-    { index: 0, points: points[0], stationId: 'post-1', updatedAt: '2021-02-10T10:00:00Z', updatedBy: 'Rasti 1' },
-    { index: 0, points: points[1], stationId: 'post-2', updatedAt: '2021-02-10T10:00:00Z', updatedBy: 'Rasti 2' },
-    { index: 1, points: points[2], stationId: 'post-2', updatedAt: '2021-02-10T10:00:00Z', updatedBy: 'Rasti 2' },
+    { exercise: 1, part: 0, points: points[0], updatedAt: '2021-02-10T10:00:00Z', updatedBy: 'Rasti 1' },
+    { exercise: 2, part: 0, points: points[1], updatedAt: '2021-02-10T10:00:00Z', updatedBy: 'Rasti 2' },
+    { exercise: 2, part: 1, points: points[2], updatedAt: '2021-02-10T10:00:00Z', updatedBy: 'Rasti 2' },
   ],
   updatedAt: '2021-02-10T10:00:00Z',
   updatedBy: 'Rasti 2',
@@ -290,16 +290,16 @@ const splitRound = (registration: Registration) => dogRound(split, rotationDogOf
 const splitEdits: Record<string, ResultEdit> = {
   'run-1': {
     tasks: [
-      { index: 0, judge, points: 17, stationId: 'post-1' },
-      { index: 0, judge, points: 16, stationId: 'post-2' },
-      { index: 1, judge, points: 18, stationId: 'post-2' },
+      { exercise: 1, judge, part: 0, points: 17 },
+      { exercise: 2, judge, part: 0, points: 16 },
+      { exercise: 3, judge, part: 0, points: 18 },
     ],
   },
   'run-2': {
     tasks: [
-      { index: 0, judge, points: 15, stationId: 'post-2' },
-      { index: 0, judge, points: 14, stationId: 'post-1' },
-      { index: 1, judge, points: 19, stationId: 'post-1' },
+      { exercise: 1, judge, part: 0, points: 15 },
+      { exercise: 2, judge, part: 0, points: 14 },
+      { exercise: 3, judge, part: 0, points: 19 },
     ],
   },
 }

@@ -102,11 +102,13 @@ export const RoundOutcome = ({
     ? endedAtExercise(value.retirement ?? value.elimination, exercisePostsOf(places))
     : undefined
   const place = fixedPlace ?? places?.find((item) => item.exercise === namedExercise)
-  // Where the outcome is stored: the exercise and its post, or the post alone, or nowhere ("Ei tiedossa").
+  // Where the outcome is stored: the exercise where the round is scored by exercise, which like a score
+  // stays with its number whatever the posts become (KOE-1665), the post for a type judged as a whole,
+  // or nowhere ("Ei tiedossa").
   const at = useMemo(() => {
-    if (place) return { exercise: place.exercise, stationId: place.stationId }
+    if (places) return place ? { exercise: place.exercise } : {}
     return where ? { stationId: where } : {}
-  }, [place, where])
+  }, [place, places, where])
   // A qualitative type collects its result rather than deriving one, so a stop fills its nought in here
   // — the secretary records the stop, not the stop and then the code it is published as. Nothing is
   // filled in for a post-scored round, where the code is derived from the scores.
@@ -170,7 +172,7 @@ export const RoundOutcome = ({
   const handleWhere = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
       const picked = places?.find((item) => String(item.exercise) === event.target.value)
-      const placed = picked ? { exercise: picked.exercise, stationId: picked.stationId } : {}
+      const placed = picked ? { exercise: picked.exercise } : {}
 
       if (value.elimination) {
         const { exercise: _exercise, stationId: _stationId, ...elimination } = value.elimination

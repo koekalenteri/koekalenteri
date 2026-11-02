@@ -97,7 +97,10 @@ export type EliminatingFault =
  */
 export interface EventResultElimination {
   fault: EliminatingFault
-  /** Absent for event types with no posts. */
+  /**
+   * The post, for a type judged as a whole at posts. A round scored by exercise stores the exercise; a
+   * post stored there before KOE-1665 is read as the last exercise at it (`endedAtExercise`).
+   */
   stationId?: string
   /** The exercise it happened at, where the round is scored by exercise, as `EventResultRetirement.exercise`. */
   exercise?: number
@@ -123,16 +126,14 @@ export interface EventResultRetirement {
    */
   couldStillHavePlaced?: boolean
   /**
-   * Where it happened. An injury in particular is worth locating, not just counting. The post is the
-   * anchor, as a score stays with its post: a running order changed later leaves it pointing at the same
-   * place.
+   * Where it happened, for a type judged as a whole at posts. An injury in particular is worth locating,
+   * not just counting. A round scored by exercise stores the exercise instead; a post stored there before
+   * KOE-1665 is read as the last exercise at it (`endedAtExercise`).
    */
   stationId?: string
   /**
    * The exercise the round ended at, by its number in the dog's running order, where the round is scored
-   * by exercise (KOE-1665). It refines the post for a group that comes to one post more than once, which
-   * the post alone does not tell apart. A stop stored without it, or with a number the running order no
-   * longer has at that post, is read as the last exercise at its post (`endedAtExercise`).
+   * by exercise (KOE-1665). Like a score it stays with its exercise number whatever the posts become.
    */
   exercise?: number
 }
@@ -152,18 +153,16 @@ export type ResultMark = 'interrupted'
 
 /**
  * One exercise's score for one dog, or one part's of a split exercise (the stored key `tasks` predates
- * the rules' word, rasti). A score is addressed by its post and its slot there, never by the exercise
- * number: the judge scored the dog at a post, so a running order changed later keeps the score with the
- * post that gave it (KOE-1665).
+ * the rules' word, rasti). A score is addressed by its exercise number in the dog's running order and
+ * its part, which is what it was entered against ("Rasti 3"): it stays with that exercise whatever the
+ * posts or the running order become (KOE-1665, Jukka 2.11.2026). The post and its judges are read off the
+ * running order; `judge` only picks which of the post's judges gave it (`effectiveJudge`).
  */
 export interface JsonEventResultTask {
-  stationId: string
-  /**
-   * 0-based slot at the post: the parts of the group's exercises there, counted in exercise order, as the
-   * dog's round lays it out (`ExerciseSlot`). A post stored before KOE-1665 with `tasks: 2` is one
-   * exercise in two parts, so its slots 0 and 1 keep their meaning.
-   */
-  index: number
+  /** The exercise's number in the dog's running order, from 1. */
+  exercise: number
+  /** 0-based part of the exercise: 0 for a whole exercise, always stored, so equal scores compare equal. */
+  part: number
   /** `null` while unscored. `0` is a real score and bars every prize; it is not the same as unscored. */
   points: number | null
   /**
@@ -178,6 +177,27 @@ export interface JsonEventResultTask {
   updatedBy: string
 }
 
+/**
+ * A score as stored before KOE-1665 addressed scores by exercise: at its post and its slot there, the
+ * parts of the group's exercises at the post counted in exercise order (a post stored with `tasks: 2` is
+ * one exercise in two parts). Never written again. It is read through the dog's round of the layout it
+ * was stored under (`exerciseTaskOf`), and rewritten by exercise by the next write of the dog's result;
+ * the rows of a trial nobody writes again keep it, so the type stays until a migration rewrites them.
+ */
+export interface LegacyEventResultTask extends Omit<JsonEventResultTask, 'exercise' | 'part'> {
+  stationId: string
+  index: number
+}
+
+/** A score as the table may hold it. */
+export type StoredEventResultTask = JsonEventResultTask | LegacyEventResultTask
+
+/**
+ * A result with every score addressed by exercise (`withExerciseAddresses`): what the lambdas hand on and
+ * what a client is ever sent.
+ */
+export type ExerciseEventResult = Omit<JsonEventResult, 'tasks'> & { tasks?: JsonEventResultTask[] }
+
 /** Client-side shapes: `updatedAt` is made a `Date` at the typed boundary (`lib/wire.ts`), as `paidAt` and `refundAt` are. */
 export type EventResultTask = Replace<JsonEventResultTask, 'updatedAt', Date>
 export type EventResult = Replace<Omit<JsonEventResult, 'tasks'>, 'updatedAt', Date> & {
@@ -190,8 +210,11 @@ export type EventResult = Replace<Omit<JsonEventResult, 'tasks'>, 'updatedAt', D
  * past, not what it did here.
  */
 export interface JsonEventResult {
-  /** Per-task scores, for event types scored at posts (NOWT). */
-  tasks?: JsonEventResultTask[]
+  /**
+   * Per-exercise scores, for event types scored at posts (NOWT), as stored: a row written before KOE-1665
+   * addressed them by post (`LegacyEventResultTask`).
+   */
+  tasks?: StoredEventResultTask[]
   /** Derived server-side from `tasks`; a client-supplied total is ignored. */
   points?: number
   /** The round's nominal maximum — 80 or 100, depending on how many posts the event ran. */
@@ -243,9 +266,12 @@ export interface JsonKcResult {
 /** `at` as the client holds it; `day` is a day key, a string on both sides of the wire. */
 export type KcResult = Replace<JsonKcResult, 'at', Date>
 
+/** A registration with its result addressed by exercise (`withExerciseAddresses`). */
+export type ExerciseRegistration = Omit<JsonRegistration, 'eventResult'> & { eventResult?: ExerciseEventResult }
+
 export interface JsonStoredEventResult {
   id: string
-  eventResult: JsonEventResult
+  eventResult: ExerciseEventResult
 }
 export type StoredEventResult = Replace<JsonStoredEventResult, 'eventResult', EventResult>
 
@@ -253,8 +279,8 @@ export type StoredEventResult = Replace<JsonStoredEventResult, 'eventResult', Ev
 export interface JsonEventResultConflict {
   id: string
   stationId?: string
-  stored: JsonEventResult
-  submitted: JsonEventResult
+  stored: ExerciseEventResult
+  submitted: ExerciseEventResult
 }
 export type EventResultConflict = Replace<JsonEventResultConflict, 'stored' | 'submitted', EventResult>
 

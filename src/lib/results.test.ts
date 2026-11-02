@@ -1,4 +1,4 @@
-import type { JsonEventResult, JsonEventResultTask } from '../types'
+import type { ExerciseEventResult, JsonEventResult, JsonEventResultTask } from '../types'
 import type { SubmittedEventResult } from './results'
 import type { ScoredTask } from './resultTasks'
 import i18n from 'i18next'
@@ -30,6 +30,8 @@ import {
   shownEventResult,
   stationDogsInOrder,
   taskEntryCeiling,
+  withEffectiveJudges,
+  withExerciseAddresses,
   withStoredTotals,
 } from './results'
 import { dogRound, visitSlots } from './resultTasks'
@@ -498,15 +500,15 @@ describe('resolveEventResult', () => {
     ),
   }
 
-  const entered = (stationId: string, points: number | null): JsonEventResultTask => ({
-    index: 0,
+  const entered = (exercise: number, points: number | null): JsonEventResultTask => ({
+    exercise,
+    part: 0,
     points,
-    stationId,
     updatedAt: '2026-08-29T10:00:00.000Z',
     updatedBy: 'secretary',
   })
 
-  const fullRound = (...points: number[]) => points.map((value, index) => entered(`post-${index + 1}`, value))
+  const fullRound = (...points: number[]) => points.map((value, index) => entered(index + 1, value))
 
   it('derives the totals and composes the result', () => {
     expect(resolveEventResult({ tasks: fullRound(17, 18, 16, 14) }, nowt)).toMatchObject({
@@ -535,14 +537,14 @@ describe('resolveEventResult', () => {
   })
 
   it('publishes what an eliminated round earned, by the rule of every round that ended early', () => {
-    const result = resolveEventResult({ elimination: { fault: 'hardMouth' }, tasks: [entered('post-1', 17)] }, nowt)
+    const result = resolveEventResult({ elimination: { fault: 'hardMouth' }, tasks: [entered(1, 17)] }, nowt)
 
     expect(result).toMatchObject({ maxPoints: 80, percentage: 21.25, points: 17, result: 'AVO-' })
   })
 
   it('counts a score stored at a post after the stop, which the secretary sees and can clear', () => {
-    const tasks = [entered('post-1', 12), entered('post-3', 15)]
-    const result = resolveEventResult({ retirement: { cause: 'handlerChoice', stationId: 'post-2' }, tasks }, nowt)
+    const tasks = [entered(1, 12), entered(3, 15)]
+    const result = resolveEventResult({ retirement: { cause: 'handlerChoice', exercise: 2 }, tasks }, nowt)
 
     expect(result).toMatchObject({ maxPoints: 80, points: 27, result: 'AVO0' })
   })
@@ -554,7 +556,7 @@ describe('resolveEventResult', () => {
     ['judgeStopped', 'AVO0'],
   ] as const)('publishes what a round withdrawn for %s earned, against the whole round (KOE-1669)', (cause, code) => {
     const result = resolveEventResult(
-      { retirement: { cause, stationId: 'post-2' }, tasks: [entered('post-1', 12), entered('post-2', 0)] },
+      { retirement: { cause, exercise: 2 }, tasks: [entered(1, 12), entered(2, 0)] },
       nowt
     )
 
@@ -607,7 +609,7 @@ describe('resolveEventResult', () => {
 
   it("scores a split task against the dog's own round, its parts adding up to 20", () => {
     const result = resolveEventResult(
-      { tasks: [entered('post-1', 9), { ...entered('post-1', 8), index: 1 }] },
+      { tasks: [entered(1, 9), { ...entered(1, 8), part: 1 }] },
       { eventClass: 'ALO', eventType: 'NOWT', round: postSlots('post-1', { parts: 2, tasks: 1, tasksBefore: 0 }) }
     )
 
@@ -800,21 +802,97 @@ describe('formatResultLine', () => {
   })
 })
 
+describe('withExerciseAddresses (KOE-1665)', () => {
+  const day = '2026-09-12' as const
+  const event = { stations: [1, 2, 3].map((number) => ({ date: day, id: `post-${number}`, number })) }
+  const at = { updatedAt: '2026-09-12T09:00:00.000Z', updatedBy: 'Sihteeri' }
+  const dog = (eventResult: JsonEventResult | undefined, eventType = 'NOWT') => ({
+    class: 'ALO',
+    eventResult,
+    eventType,
+    group: { date: day, key: `${day}-ap`, number: 1 },
+    id: 'dog-a',
+  })
+
+  it('reads every score stored by post as its exercise, and a stop stored by post as the last exercise there', () => {
+    const stored: JsonEventResult = {
+      ...at,
+      retirement: { cause: 'injury', stationId: 'post-3' },
+      tasks: [
+        { ...at, index: 0, points: 12, stationId: 'post-2' },
+        { ...at, exercise: 1, part: 0, points: 15 },
+      ],
+    }
+
+    expect(withExerciseAddresses(event, dog(stored)).eventResult).toEqual({
+      ...at,
+      retirement: { cause: 'injury', exercise: 3 },
+      tasks: [
+        { ...at, exercise: 2, part: 0, points: 12 },
+        { ...at, exercise: 1, part: 0, points: 15 },
+      ],
+    })
+  })
+
+  it('keeps the post of a stop in a type judged as a whole, and leaves a dog without a result as it is', () => {
+    const stopped: JsonEventResult = {
+      ...at,
+      result: 'ALO0',
+      retirement: { cause: 'judgeStopped', stationId: 'post-1' },
+    }
+
+    expect(withExerciseAddresses(event, dog(stopped, 'NOME-B')).eventResult).toEqual(stopped)
+    expect(withExerciseAddresses(event, dog(undefined))).not.toHaveProperty('eventResult')
+  })
+})
+
+describe('withEffectiveJudges (KOE-1665)', () => {
+  const day = '2026-09-12' as const
+  const a = { id: 1, name: 'A' }
+  const b = { id: 2, name: 'B' }
+  const at = { updatedAt: '2026-09-12T09:00:00.000Z', updatedBy: 'Sihteeri' }
+  // Exercise 2 is done at the first post now, whose judge is A; it was scored by B at the second.
+  const event = {
+    rotations: [{ class: 'ALO' as const, exercises: [{ stationId: 'post-1' }, { stationId: 'post-1' }] }],
+    stations: [
+      { date: day, id: 'post-1', judges: [a], number: 1 },
+      { date: day, id: 'post-2', judges: [b], number: 2 },
+    ],
+  }
+
+  it("names each score's judge from the post doing its exercise", () => {
+    const registration = {
+      class: 'ALO',
+      eventResult: {
+        ...at,
+        tasks: [
+          { ...at, exercise: 1, judge: a, part: 0, points: 15 },
+          { ...at, exercise: 2, judge: b, part: 0, points: 16 },
+        ],
+      },
+      eventType: 'NOWT',
+      group: { date: day, key: `${day}-ap`, number: 1 },
+    }
+
+    expect(withEffectiveJudges(event, registration).eventResult?.tasks?.map((task) => task.judge)).toEqual([a, a])
+  })
+})
+
 describe('withStoredTotals (KOE-1669)', () => {
   const day = '2026-09-12' as const
   const event = { stations: [1, 2].map((number) => ({ date: day, id: `post-${number}`, number })) }
   const at = { updatedAt: '2026-09-12T09:00:00.000Z', updatedBy: 'Sihteeri' }
-  const dog = (eventResult: JsonEventResult, eventType = 'NOWT') => ({
+  const dog = (eventResult: ExerciseEventResult, eventType = 'NOWT') => ({
     class: 'ALO',
     eventResult,
     eventType,
     group: { date: day, key: `${day}-ap`, number: 1 },
   })
-  const retired: JsonEventResult = {
+  const retired: ExerciseEventResult = {
     ...at,
     result: 'ALO0',
-    retirement: { cause: 'handlerChoice', stationId: 'post-1' },
-    tasks: [{ ...at, index: 0, points: 12, stationId: 'post-1' }],
+    retirement: { cause: 'handlerChoice', exercise: 1 },
+    tasks: [{ ...at, exercise: 1, part: 0, points: 12 }],
   }
 
   it('works out the totals of a result stored without them, against the whole round', () => {

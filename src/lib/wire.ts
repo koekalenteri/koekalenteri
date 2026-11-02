@@ -75,11 +75,13 @@ import type {
   StationTurn,
   StationTurnPhase,
   StoredEventResult,
+  StoredEventResultTask,
   TestResult,
   Transaction,
   User,
 } from '../types'
 import { calendarDayOf, legacyStoredEventDay, localCalendarDayOf, TIME_ZONE } from './day'
+import { isExerciseTask } from './resultTasks'
 
 /**
  * The boundary between what crosses the wire (an API response, a WebSocket message, a value read
@@ -251,8 +253,16 @@ const toPublicRegistrationGroup = converter<JsonPublicRegistrationGroup, PublicR
 
 const toEventResultTask = converter<JsonEventResultTask, EventResultTask>()({ updatedAt: timestamp })
 
+/**
+ * The scores of a result, each by its exercise. The lambdas send nothing else (`withExerciseAddresses`,
+ * KOE-1665); a score stored by its post would need the dog's round to be read, which a browser does not
+ * work out, so one is never taken in.
+ */
+const toExerciseTasks = (values: readonly StoredEventResultTask[]): EventResultTask[] =>
+  values.flatMap((task) => (isExerciseTask(task) ? [toEventResultTask(task)] : []))
+
 const toEventResult = converter<JsonEventResult, EventResult>()({
-  tasks: arrayOf(toEventResultTask),
+  tasks: toExerciseTasks,
   updatedAt: timestamp,
 })
 

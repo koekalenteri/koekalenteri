@@ -8,7 +8,7 @@ import Typography from '@mui/material/Typography'
 import { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import { nowtZeroFaults, taskEntryCeiling } from '@/lib/results'
-import { isRecordedTask } from '@/lib/resultTasks'
+import { effectiveJudge, isRecordedTask } from '@/lib/resultTasks'
 import { NumberInput } from '../NumberInput'
 
 interface Props {
@@ -27,7 +27,7 @@ interface Props {
   readonly onChange: (task: ExerciseSlot, points: number | null, zeroFault?: NowtZeroFault) => void
   readonly onJudgeChange: (task: ExerciseSlot, judge?: PublicJudge) => void
   /**
-   * The dog's round ended at the post of an earlier exercise (`endedBefore`), so it never came to this
+   * The dog's round ended at an earlier exercise (`endedBefore`), so it never came to this
    * one: it reads "kesk", as the results sheet writes it, instead of asking for points (KOE-1669). A score
    * stored here anyway stays an input, since it counts and may need clearing.
    */
@@ -47,7 +47,9 @@ export const TaskScore = ({
   notReached = false,
 }: Props) => {
   const { t } = useTranslation()
-  const judge = value?.judge ?? defaultJudge ?? judges[0]
+  // A stored judge stands while it judges at the exercise's post; one from before the exercise moved to
+  // another post gives way to the post's own (`effectiveJudge`, KOE-1665).
+  const judge = value?.judge ? effectiveJudge(value, judges) : (defaultJudge ?? judges[0])
   const points = value?.points ?? null
   const ceiling = taskEntryCeiling({ maxPoints: task.maxPoints, recalled: value?.recalled })
   // A part's name ("Tehtävä 2, osa 1/2") needs the room its label takes where the field shows it.

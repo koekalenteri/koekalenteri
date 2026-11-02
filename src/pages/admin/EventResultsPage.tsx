@@ -42,7 +42,7 @@ import {
   sortRegistrationsByDateClassTimeAndNumber,
 } from '../../lib/registration'
 import { placementsFor, scoresAtPosts } from '../../lib/results'
-import { dogRound, roundColumns, stationVersion } from '../../lib/resultTasks'
+import { dogRound, exercisePostsOf, exercisesAtPost, roundColumns, stationVersion } from '../../lib/resultTasks'
 import { dayStations, rotationDogOf } from '../../lib/rotation'
 import { Path } from '../../routeConfig'
 import { AsyncButton } from '../components/AsyncButton'
@@ -233,23 +233,28 @@ export default function EventResultsPage() {
 
   const submissionFor = useCallback(
     (id: string, edit: ResultEdit, overrideBase?: EventResult) => {
-      const stored = overrideBase ?? registrations.find((reg) => reg.id === id)?.eventResult
+      const registration = registrations.find((reg) => reg.id === id)
+      const stored = overrideBase ?? registration?.eventResult
+      // A post's own view sends the exercises the dog's group does there, which are all the post may write
+      // (KOE-1665): the row holds the whole round, the other posts' scores included.
+      const here = scoped && registration ? exercisesAtPost(exercisePostsOf(fullRoundFor(registration)), scope) : []
+      const tasks = scoped ? edit.tasks.filter((task) => here.includes(task.exercise)) : edit.tasks
 
       return {
         // The version this edit was made against, so the server can tell a second writer from a retry.
-        basedOn: scoped ? stationVersion(stored?.tasks, scope) : stored?.updatedAt,
+        basedOn: scoped ? stationVersion(stored?.tasks, here) : stored?.updatedAt,
         eventResult: {
           elimination: edit.elimination,
           ...(edit.judge ? { judge: edit.judge } : {}),
           ...(edit.resultCode ? { resultCode: edit.resultCode } : {}),
           retirement: edit.retirement,
-          tasks: edit.tasks,
+          tasks,
         },
         id,
         ...(scoped ? { stationId: scope } : {}),
       }
     },
-    [registrations, scope, scoped]
+    [fullRoundFor, registrations, scope, scoped]
   )
 
   const report = useCallback(

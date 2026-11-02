@@ -1,8 +1,9 @@
 import type { APIGatewayProxyEvent } from 'aws-lambda'
 import type {
   EventStation,
+  ExerciseEventResult,
+  ExerciseRegistration,
   JsonConfirmedEvent,
-  JsonEventResult,
   JsonPublicStationTurn,
   JsonRegistration,
   JsonStationEntry,
@@ -13,7 +14,8 @@ import type {
 import { isResultsLocked } from '../../lib/kennelliittoResults'
 import { resolveStation } from '../../lib/liveFormat'
 import { isScorableRegistration } from '../../lib/registration'
-import { scoresAtPosts, stationDogsInOrder } from '../../lib/results'
+import { scoresAtPosts, stationDogsInOrder, withExerciseAddresses } from '../../lib/results'
+import { exercisesAtPost } from '../../lib/resultTasks'
 import { linkedEventProjection } from './event'
 import { LambdaError } from './lambda'
 import { DEFAULT_LINK_TOKEN_VERSION, deriveLinkToken, getBearerToken, linkTokensMatch } from './linkToken'
@@ -66,11 +68,12 @@ export const authorizeStationEntry = (
  * what the dog's rotation group does here (KOE-1665), which the link has no rotation to work out.
  */
 const stationEntryDog = (
-  registration: JsonRegistration & { visit?: StationVisitLayout },
+  registration: ExerciseRegistration & { visit?: StationVisitLayout },
   stationId: string
 ): JsonStationEntryDog => {
   const stored = registration.eventResult
-  const scoped = stored && scopeResultToStation(stored, stationId, registration.eventType)
+  const exercises = registration.visit ? exercisesAtPost(registration.visit.exercisePosts, stationId) : []
+  const scoped = stored && scopeResultToStation(stored, exercises, registration.eventType)
   // The version rides along — a whole-trial post's next save is based on it; who wrote it does not.
   const { updatedBy: _by, ...eventResult } = scoped ?? {}
 
@@ -86,24 +89,25 @@ const stationEntryDog = (
 }
 
 /**
- * A stored result as the station's link may see it: this post's tasks and the round-ending outcomes,
- * with the derived totals and prize stripped. A post's own view withholds the prize on purpose — it
+ * A stored result as the station's link may see it: this post's tasks, the exercises the dog's group does
+ * there (`stationExercises`, KOE-1665), and the round-ending outcomes, with the derived totals and prize
+ * stripped. A post's own view withholds the prize on purpose — it
  * depends on posts this link cannot see — so the write path must not hand it back. A qualitative type
  * has no such derivation: its result is the judge's decision, recorded at this very post, and the
  * link needs it back to show the dog as done.
  */
 export const scopeResultToStation = (
-  result: JsonEventResult,
-  stationId: string,
+  result: ExerciseEventResult,
+  exercises: readonly number[],
   eventType: string
-): JsonEventResult => {
+): ExerciseEventResult => {
   const { elimination, retirement, tasks, result: verdict, judge, updatedAt, updatedBy } = result
   const qualitative = !scoresAtPosts(eventType)
 
   return {
     ...(elimination ? { elimination } : {}),
     ...(retirement ? { retirement } : {}),
-    ...(tasks?.length ? { tasks: tasks.filter((task) => task.stationId === stationId) } : {}),
+    ...(tasks?.length ? { tasks: tasks.filter((task) => exercises.includes(task.exercise)) } : {}),
     ...(qualitative && verdict ? { result: verdict } : {}),
     ...(qualitative && judge ? { judge } : {}),
     updatedAt,
@@ -127,9 +131,14 @@ export const stationEntryResponse = (
   return {
     event: { ...linkedEventProjection(confirmedEvent), ...(isResultsLocked(confirmedEvent) ? { locked: true } : {}) },
     // In the order the rotation groups reach the post; a dog whose group does not come here is not listed.
-    registrations: stationDogsInOrder(confirmedEvent, station.id, registrations.filter(isScorableRegistration)).map(
-      (registration) => stationEntryDog(registration, station.id)
-    ),
+    // Every score by exercise, as the link reads them (KOE-1665).
+    registrations: stationDogsInOrder(
+      confirmedEvent,
+      station.id,
+      registrations
+        .filter(isScorableRegistration)
+        .map((registration) => withExerciseAddresses(confirmedEvent, registration))
+    ).map((registration) => stationEntryDog(registration, station.id)),
     station: publicStation,
     turns: publicStationTurns(confirmedEvent.turns, station.id),
   }

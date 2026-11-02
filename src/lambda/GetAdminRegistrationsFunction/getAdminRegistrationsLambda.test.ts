@@ -125,6 +125,37 @@ describe('getAdminRegistrationsLambda', () => {
     )
   })
 
+  it('sends every score by its exercise, a score stored by post read through the layout (KOE-1665)', async () => {
+    const eventId = 'event123'
+    const day = '2026-09-12'
+    mockGetEvent.mockResolvedValueOnce({
+      eventType: 'NOWT',
+      organizer: { id: 'org1' },
+      stations: [1, 2].map((number) => ({ date: day, id: `post-${number}`, number })),
+    })
+    const at = { updatedAt: '2026-09-12T10:00:00.000Z', updatedBy: 'Rasti 2' }
+    mockGetParam.mockReturnValueOnce(eventId)
+    mockReadEventRegistrations.mockResolvedValueOnce([
+      {
+        class: 'ALO',
+        eventId,
+        eventResult: { ...at, tasks: [{ ...at, index: 0, points: 15, stationId: 'post-2' }] },
+        eventType: 'NOWT',
+        group: { date: day, key: 'ap', number: 1 },
+        id: 'reg1',
+        state: 'ready',
+      },
+    ])
+
+    await getAdminRegistrationsLambda(event)
+
+    expect(mockResponse).toHaveBeenCalledWith(
+      200,
+      [expect.objectContaining({ eventResult: { ...at, tasks: [{ ...at, exercise: 2, part: 0, points: 15 }] } })],
+      event
+    )
+  })
+
   it('handles empty query results', async () => {
     const eventId = 'event123'
     const emptyRegistrations: unknown[] = []

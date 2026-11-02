@@ -22,7 +22,7 @@ const registrations = [
   {
     class: 'ALO' as const,
     dog: { name: 'Ensimmainen' },
-    eventResult: { tasks: [{ index: 0, judge, points: 8, stationId: 'post-2' }] },
+    eventResult: { tasks: [{ exercise: 2, judge, part: 0, points: 8 }] },
     eventType: 'NOWT',
     group: { ...group, number: 1 },
     handler: { name: 'Minsu Rauramo' },

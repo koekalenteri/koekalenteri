@@ -277,6 +277,8 @@ const copyRegistration = (source: JsonRegistration, copier: Copier, standIns: St
   registration.createdBy = copier.name
   registration.modifiedBy = copier.name
   if (registration.deletedBy) registration.deletedBy = copier.name
+  // The scores are copied as stored. The copy keeps the event's posts, their ids and its running orders
+  // as they are, so a score stored by post (KOE-1665) still reads as the same exercise in the copy.
   if (registration.eventResult) {
     const { notes, tasks } = registration.eventResult
     registration.eventResult = {

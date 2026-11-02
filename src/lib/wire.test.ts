@@ -32,6 +32,29 @@ const stamps = {
 }
 
 describe('wire', () => {
+  describe('a result', () => {
+    it('takes the scores by exercise and none stored by post, which the lambdas never send (KOE-1665)', () => {
+      const at = '2026-09-12T08:05:00.000Z'
+      const registration = toRegistration({
+        ...stamps,
+        eventId: 'e1',
+        eventResult: {
+          tasks: [
+            { exercise: 1, part: 0, points: 10, updatedAt: at, updatedBy: 'u' },
+            { index: 0, points: 12, stationId: 'post-2', updatedAt: at, updatedBy: 'u' },
+          ],
+          updatedAt: at,
+          updatedBy: 'u',
+        },
+        id: 'r1',
+      } satisfies Patch<JsonRegistration>)
+
+      expect(registration.eventResult?.tasks).toEqual([
+        { exercise: 1, part: 0, points: 10, updatedAt: new Date(at), updatedBy: 'u' },
+      ])
+    })
+  })
+
   describe('converter', () => {
     it('makes a Date of every named field, and leaves a text that looks like a date alone', () => {
       const registration = toRegistration({

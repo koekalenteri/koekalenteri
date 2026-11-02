@@ -97,7 +97,7 @@ describe('LiveEntryPage', () => {
     expect(stationId).toBe('post-1')
     expect(token).toBe('link-token')
     expect(submissions[0]).toMatchObject({
-      eventResult: { tasks: [{ index: 0, points: 17, stationId: 'post-1' }] },
+      eventResult: { tasks: [{ exercise: 1, part: 0, points: 17 }] },
       id: 'run-1',
       stationId: 'post-1',
     })

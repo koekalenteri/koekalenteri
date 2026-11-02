@@ -173,9 +173,9 @@ describe('ResultsTable result spelling', () => {
 })
 
 describe('ResultsTable after a round that ended early (KOE-1669)', () => {
-  const task = (stationId: string, index: number, points: number | null) => ({ index, points, stationId })
-  const retired = (stationId: string | undefined, tasks = [task('post-1', 0, 12)]): ResultEdit => ({
-    retirement: { cause: 'handlerChoice', ...(stationId ? { stationId } : {}) },
+  const task = (exercise: number, part: number, points: number | null) => ({ exercise, part, points })
+  const retired = (exercise: number | undefined, tasks = [task(1, 0, 12)]): ResultEdit => ({
+    retirement: { cause: 'handlerChoice', ...(exercise ? { exercise } : {}) },
     tasks,
   })
   const renderOne = (edit: ResultEdit, scope?: string) => {
@@ -201,7 +201,7 @@ describe('ResultsTable after a round that ended early (KOE-1669)', () => {
   }
 
   it('shows the posts after the stop as kesk and keeps the posts up to it as inputs', () => {
-    renderOne(retired('post-1'))
+    renderOne(retired(1))
 
     // Post 1 is one task, post 2 one task in two parts.
     expect(screen.getAllByText('results.notReached')).toHaveLength(2)
@@ -210,7 +210,7 @@ describe('ResultsTable after a round that ended early (KOE-1669)', () => {
   })
 
   it('shows kesk in a post of its own the same way as in the whole round', () => {
-    renderOne(retired('post-1'), 'post-2')
+    renderOne(retired(1), 'post-2')
 
     expect(screen.getAllByText('results.notReached')).toHaveLength(2)
     expect(screen.queryByLabelText(/results\.column\.task/)).not.toBeInTheDocument()
@@ -224,7 +224,7 @@ describe('ResultsTable after a round that ended early (KOE-1669)', () => {
   })
 
   it('keeps a score stored after the stop as an input, since it counts and may need clearing', () => {
-    renderOne(retired('post-1', [task('post-1', 0, 12), task('post-2', 0, 7)]))
+    renderOne(retired(1, [task(1, 0, 12), task(2, 0, 7)]))
 
     expect(screen.getAllByText('results.notReached')).toHaveLength(1)
     expect(screen.getAllByLabelText(/results\.column\.task/)).toHaveLength(2)
@@ -234,10 +234,10 @@ describe('ResultsTable after a round that ended early (KOE-1669)', () => {
 describeWithTranslations('fi', () => {
   it('shows the total of a round that ended early as the server stores it (KOE-1669)', () => {
     const tasks = [
-      { index: 0, points: 12, stationId: 'post-1' },
-      { index: 1, points: 5, stationId: 'post-2' },
+      { exercise: 1, part: 0, points: 12 },
+      { exercise: 2, part: 1, points: 5 },
     ]
-    const retirement = { cause: 'injury', stationId: 'post-2' } as const
+    const retirement = { cause: 'injury', exercise: 2 } as const
     // The server's tasks carry who stored them; that does not enter the total.
     const stamped = tasks.map((task) => ({ ...task, updatedAt: '', updatedBy: '' }))
     const stored = resolveEventResult({ retirement, tasks: stamped }, { eventClass: 'ALO', eventType: 'NOWT', round })

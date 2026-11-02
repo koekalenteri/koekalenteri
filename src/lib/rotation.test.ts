@@ -44,9 +44,10 @@ const rotations: EventRotationGroup[] = [
 ]
 const event = { rotations, stations }
 
-const slot = (exercise: number, stationId: string, index = 0, part = 0, parts: 1 | 2 = 1) => ({
+/** A slot of a dog's round; `legacyIndex` is its place among the group's slots at the post. */
+const slot = (exercise: number, stationId: string, legacyIndex = 0, part = 0, parts: 1 | 2 = 1) => ({
   exercise,
-  index,
+  legacyIndex,
   maxPoints: 20 / parts,
   part,
   parts,
@@ -76,7 +77,7 @@ describe('dogRound with a running order', () => {
     )
   })
 
-  it('addresses the slots at a post over the exercises the group does there, apart as well as in a row', () => {
+  it('counts the slots at a post over the exercises the group does there, apart as well as in a row', () => {
     const twice = { rotations: [{ class: 'ALO' as const, exercises: order(1, 2, 1, 2) }], stations }
 
     expect(dogRound(twice, { class: 'ALO', day: DAY })).toEqual([

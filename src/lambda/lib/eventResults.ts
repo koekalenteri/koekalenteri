@@ -3,12 +3,15 @@ import type { ExerciseSlot, ResultTasksDroppedBody } from '../../lib/resultTasks
 import type {
   EventResultElimination,
   EventResultRetirement,
+  ExerciseEventResult,
+  ExerciseRegistration,
   JsonConfirmedEvent,
   JsonEventResult,
   JsonEventResultTask,
   JsonRegistration,
   Patch,
   PublicJudge,
+  StoredEventResultTask,
 } from '../../types'
 import { createHash } from 'node:crypto'
 import { resultRecomputedAudit, resultSavedAudit } from '../../lib/audit'
@@ -25,15 +28,21 @@ import {
   scoresAtPosts,
   shownEventResult,
   taskEntryCeiling,
+  withExerciseAddresses,
 } from '../../lib/results'
 import {
   dogRound,
+  exerciseStopOf,
   exercisesScored,
+  exerciseTaskOf,
+  holdsScore,
   isRecordedTask,
+  legacyReadChanges,
   mergeStationTasks,
   reconcileRoundTasks,
   roundsDiffer,
   sameStationTasks,
+  stationExercises,
   stationVersion,
 } from '../../lib/resultTasks'
 import { rotationDogOf, roundInputsOf } from '../../lib/rotation'
@@ -100,6 +109,21 @@ const auditResultText = (eventResult: JsonEventResult, eventType: string, eventC
   return parts.join(', ')
 }
 
+/**
+ * A score as a page loaded before KOE-1665 sends it: at its post and its slot there. Taken for one
+ * release only, so a station page left open across the deploy still saves (KOE-1665: remove in the
+ * release after). It is read through the dog's round before it is a `SubmittedTask`.
+ */
+type LegacySubmittedTask = Omit<SubmittedTask, 'exercise' | 'part'> & { stationId: string; index: number }
+
+/** A score as a request sent it, in either address. */
+type PickedTask = SubmittedTask | LegacySubmittedTask
+
+/** A submission as parsed, its scores in the address they came in. */
+interface ParsedSubmission extends Omit<ResultSubmission, 'eventResult'> {
+  eventResult: Omit<SubmittedEventResult, 'tasks'> & { tasks?: PickedTask[] }
+}
+
 interface ResultSubmission {
   id: string
   eventResult: Omit<SubmittedEventResult, 'tasks'> & { tasks?: SubmittedTask[] }
@@ -126,7 +150,7 @@ interface ResultSubmission {
  */
 interface StoredEventResult {
   id: string
-  eventResult: JsonEventResult
+  eventResult: ExerciseEventResult
 }
 
 /** A dog whose stored result was written by someone else and disagrees with this submission. */
@@ -134,8 +158,8 @@ interface EventResultConflict {
   id: string
   /** Present when only one post is in dispute, so the rest of the round need not be re-entered. */
   stationId?: string
-  stored: JsonEventResult
-  submitted: JsonEventResult
+  stored: ExerciseEventResult
+  submitted: ExerciseEventResult
 }
 
 interface ProcessedResultSubmissions {
@@ -193,14 +217,30 @@ const resolveJudge = (value: unknown, judges: PublicJudge[]): PublicJudge | unde
   return judges.find((judge) => judge.id !== undefined && judge.id === picked.id) ?? picked
 }
 
-const pickTask = (value: unknown, judges: PublicJudge[]): SubmittedTask => {
-  if (
-    !isRecord(value) ||
-    typeof value.stationId !== 'string' ||
-    typeof value.index !== 'number' ||
-    !Number.isInteger(value.index) ||
-    (value.points !== null && typeof value.points !== 'number')
-  ) {
+const isCount = (value: unknown, least: number): value is number =>
+  typeof value === 'number' && Number.isInteger(value) && value >= least
+
+/**
+ * Where a submitted score goes: its exercise and part, a missing part being the whole exercise. A page
+ * loaded before KOE-1665 sends its post and slot instead, accepted for one release (KOE-1665: remove in
+ * the release after).
+ */
+const pickAddress = (
+  value: Record<string, unknown>
+): Pick<SubmittedTask, 'exercise' | 'part'> | Pick<LegacySubmittedTask, 'stationId' | 'index'> | undefined => {
+  if (isCount(value.exercise, 1)) {
+    if (value.part === undefined || value.part === null) return { exercise: value.exercise, part: 0 }
+    return isCount(value.part, 0) ? { exercise: value.exercise, part: value.part } : undefined
+  }
+  if (typeof value.stationId === 'string' && isCount(value.index, 0)) {
+    return { index: value.index, stationId: value.stationId }
+  }
+  return undefined
+}
+
+const pickTask = (value: unknown, judges: PublicJudge[]): PickedTask => {
+  const address = isRecord(value) ? pickAddress(value) : undefined
+  if (!isRecord(value) || !address || (value.points !== null && typeof value.points !== 'number')) {
     throw new LambdaError(422, 'Malformed task')
   }
 
@@ -217,9 +257,8 @@ const pickTask = (value: unknown, judges: PublicJudge[]): SubmittedTask => {
   const judge = resolveJudge(value.judge, judges)
 
   return {
-    index: value.index,
+    ...address,
     points: value.points,
-    stationId: value.stationId,
     ...(value.recalled === true ? { recalled: true } : {}),
     ...(zeroFault ? { zeroFault } : {}),
     ...(judge ? { judge } : {}),
@@ -275,7 +314,7 @@ const pickSubmittedResult = (
   value: unknown,
   confirmedEvent: JsonConfirmedEvent,
   judges: PublicJudge[]
-): ResultSubmission['eventResult'] => {
+): ParsedSubmission['eventResult'] => {
   if (!isRecord(value)) throw new LambdaError(422, 'Malformed result submission')
 
   const { eventType } = confirmedEvent
@@ -302,7 +341,7 @@ const pickSubmittedResult = (
   }
 }
 
-export const parseSubmissions = (body: string | null, confirmedEvent: JsonConfirmedEvent): ResultSubmission[] => {
+export const parseSubmissions = (body: string | null, confirmedEvent: JsonConfirmedEvent): ParsedSubmission[] => {
   const parsed = parseJSONWithFallback(body, [])
   if (!Array.isArray(parsed)) return []
   if (parsed.length > MAX_RESULT_SUBMISSIONS) {
@@ -310,7 +349,7 @@ export const parseSubmissions = (body: string | null, confirmedEvent: JsonConfir
   }
 
   const judges = knownJudges(confirmedEvent)
-  const submissions: ResultSubmission[] = []
+  const submissions: ParsedSubmission[] = []
 
   for (const value of parsed) {
     if (!isRecord(value) || typeof value.id !== 'string') continue
@@ -334,10 +373,10 @@ export const parseSubmissions = (body: string | null, confirmedEvent: JsonConfir
  * decision and who made it, so those two go through.
  */
 export const stationScopedSubmission = (
-  submission: ResultSubmission,
+  submission: ParsedSubmission,
   stationId: string,
   eventType: string
-): ResultSubmission => {
+): ParsedSubmission => {
   const { elimination, retirement, tasks, resultCode, judge } = submission.eventResult
   const qualitative = !scoresAtPosts(eventType)
 
@@ -362,11 +401,11 @@ export const stationScopedSubmission = (
  */
 const resolveFor = (
   confirmedEvent: JsonConfirmedEvent,
-  registration: JsonRegistration,
+  registration: Pick<JsonRegistration, 'class' | 'eventType' | 'group' | 'startGroup'>,
   submitted: SubmittedEventResult,
   updatedAt: string,
   updatedBy: string
-): JsonEventResult => {
+): ExerciseEventResult => {
   const eventClass = registration.class ?? undefined
 
   return {
@@ -385,15 +424,15 @@ const resolveFor = (
  * from the writing is what lets the loop below read as three outcomes rather than as one long branch.
  */
 type SubmissionOutcome =
-  | { kind: 'unchanged'; eventResult: JsonEventResult }
-  | { kind: 'conflict'; stored: JsonEventResult; submitted: JsonEventResult }
-  | { kind: 'save'; eventResult: JsonEventResult; hadStored: boolean }
+  | { kind: 'unchanged'; eventResult: ExerciseEventResult }
+  | { kind: 'conflict'; stored: ExerciseEventResult; submitted: ExerciseEventResult }
+  | { kind: 'save'; eventResult: ExerciseEventResult; hadStored: boolean }
 
 /**
  * Whether a submission changes the round-ending outcome. Task equality alone must not read as a retry:
  * an elimination recorded before the post scored anything arrives with the task list unchanged.
  */
-const outcomeDiffers = (stored: JsonEventResult | undefined, submitted: SubmittedEventResult): boolean =>
+const outcomeDiffers = (stored: ExerciseEventResult | undefined, submitted: SubmittedEventResult): boolean =>
   objectsDiffer(
     { elimination: stored?.elimination, retirement: stored?.retirement },
     { elimination: submitted.elimination, retirement: submitted.retirement }
@@ -401,15 +440,17 @@ const outcomeDiffers = (stored: JsonEventResult | undefined, submitted: Submitte
 
 const classifySubmission = (
   confirmedEvent: JsonConfirmedEvent,
-  registration: JsonRegistration,
+  registration: ExerciseRegistration,
   submission: ResultSubmission,
   timestamp: string,
   userName: string
 ): SubmissionOutcome => {
   const stored = registration.eventResult
-  // A post's slice of a scored round is its tasks; where nothing is scored the post is the whole
-  // trial, and its submission is the whole result — compared, versioned and merged as one.
+  // A post's slice of a scored round is its tasks, the exercises the dog's group does there; where
+  // nothing is scored the post is the whole trial, and its submission is the whole result — compared,
+  // versioned and merged as one.
   const stationId = scoresAtPosts(confirmedEvent.eventType) ? submission.stationId : undefined
+  const exercises = stationId ? stationExercises(confirmedEvent, registration, stationId) : []
   const submittedTasks = stampProvenance(submission.eventResult.tasks, timestamp, userName)
   const submitted: SubmittedEventResult = { ...submission.eventResult, tasks: submittedTasks }
   const resolve = (result: SubmittedEventResult) =>
@@ -419,22 +460,22 @@ const classifySubmission = (
   // secretary saves again, and the first attempt turns out to have landed. Comparing content rather
   // than version makes that read as already stored, not as someone else's competing edit.
   const alreadyStored = stationId
-    ? sameStationTasks(stored?.tasks, submittedTasks, stationId) && !outcomeDiffers(stored, submitted)
+    ? sameStationTasks(stored?.tasks, submittedTasks, exercises) && !outcomeDiffers(stored, submitted)
     : sameEventResult(stored, resolve(submitted))
 
   if (alreadyStored) return { eventResult: stored ?? resolve(submitted), kind: 'unchanged' }
 
   // Only a genuinely different result written by someone else is a conflict. Scoped to the post when
   // the submission is: two stations scoring the same dog touch different tasks and must not collide.
-  const storedVersion = stationId ? stationVersion(stored?.tasks, stationId) : stored?.updatedAt
+  const storedVersion = stationId ? stationVersion(stored?.tasks, exercises) : stored?.updatedAt
 
-  if (storedVersion && storedVersion !== submission.basedOn) {
-    return { kind: 'conflict', stored: stored as JsonEventResult, submitted: resolve(submitted) }
+  if (stored && storedVersion && storedVersion !== submission.basedOn) {
+    return { kind: 'conflict', stored, submitted: resolve(submitted) }
   }
 
   // Merge rather than replace, or a station secretary's save carries away the scores another post
   // already recorded for the same dog.
-  const tasks = stationId ? mergeStationTasks(stored?.tasks, submittedTasks, stationId) : submittedTasks
+  const tasks = stationId ? mergeStationTasks(stored?.tasks, submittedTasks, exercises) : submittedTasks
 
   return { eventResult: resolve({ ...submitted, tasks }), hadStored: Boolean(stored), kind: 'save' }
 }
@@ -444,31 +485,76 @@ const classifySubmission = (
  * and the tokenized station endpoint, so the two cannot drift on what counts as a retry, a conflict
  * or a save — `userName` is whoever this write is attributed to.
  */
+/** A stop or an elimination by exercise, as the round it was stored or sent under reads it (KOE-1665). */
+const exercisePlace = <P extends Pick<EventResultRetirement, 'stationId' | 'exercise'>>(
+  place: P,
+  round: readonly ExerciseSlot[]
+): P | (Omit<P, 'stationId' | 'exercise'> & { exercise?: number }) =>
+  place.stationId ? exerciseStopOf(place, round) : place
+
+/** What a post's save or the event save is told when the layout it was made against has changed. */
+const LAYOUT_CHANGED_MESSAGE = 'The results changed while the stations were saved; save again'
+
+/** A task's address as an error names it. */
+const taskName = (task: PickedTask): string =>
+  'exercise' in task ? `exercise ${task.exercise}#${task.part}` : `${task.stationId}#${task.index}`
+
+/**
+ * A submission's scores, and where the round is scored by exercise its stop, by exercise (KOE-1665). A
+ * score or a stop sent by its post, from a page loaded before the release that addresses them by
+ * exercise, is read through the dog's round (KOE-1665: remove in the release after); a score the round
+ * has no slot for is refused.
+ */
+const addressSubmission = (
+  round: readonly ExerciseSlot[],
+  submission: ParsedSubmission,
+  byExercise: boolean
+): ResultSubmission => {
+  const { tasks, retirement, elimination, ...eventResult } = submission.eventResult
+  const addressed = tasks?.map((task) => {
+    const read = exerciseTaskOf(round, task)
+    if (!read) throw new LambdaError(422, `Task ${taskName(task)} is not part of the round`)
+    return read
+  })
+  return {
+    ...submission,
+    eventResult: {
+      ...eventResult,
+      ...(addressed ? { tasks: addressed } : {}),
+      ...(retirement ? { retirement: byExercise ? exercisePlace(retirement, round) : retirement } : {}),
+      ...(elimination ? { elimination: byExercise ? exercisePlace(elimination, round) : elimination } : {}),
+    },
+  }
+}
+
 /**
  * Refuse a score the round cannot hold. The totals are recomputed rather than trusted, but a
  * recomputation happily sums an out-of-range figure — 30 points on a 20-point task would derive an
  * unearned prize as faithfully as a real score — and a task naming a slot outside the round would
- * ride along stored forever.
+ * ride along stored forever. A post's submission may hold only the exercises the dog's group does at the
+ * post: a page opened before the running order changed would otherwise send an exercise the merge leaves
+ * out and report it saved, so it is told the layout changed and reloads (409).
  */
 const validateSubmittedTasks = (
-  confirmedEvent: JsonConfirmedEvent,
-  registration: JsonRegistration,
-  submission: ResultSubmission
+  round: readonly ExerciseSlot[],
+  submission: ResultSubmission,
+  exercises: readonly number[] | undefined
 ): void => {
   const tasks = submission.eventResult.tasks
   if (!tasks?.length) return
 
-  const round = dogRound(confirmedEvent, rotationDogOf(registration))
-
   for (const task of tasks) {
-    const slot = round.find((item) => item.stationId === task.stationId && item.index === task.index)
+    const slot = round.find((item) => holdsScore(item, task))
     if (!slot) {
-      throw new LambdaError(422, `Task ${task.stationId}#${task.index} is not part of the round`)
+      throw new LambdaError(422, `Task ${taskName(task)} is not part of the round`)
+    }
+    if (exercises && !exercises.includes(task.exercise)) {
+      throw httpError(409, { error: 'staleData', message: LAYOUT_CHANGED_MESSAGE })
     }
 
     const ceiling = taskEntryCeiling({ maxPoints: slot.maxPoints, ...(task.recalled ? { recalled: true } : {}) })
     if (task.points !== null && (task.points < 0 || task.points > ceiling)) {
-      throw new LambdaError(422, `Task points ${task.points} out of range for ${task.stationId}#${task.index}`)
+      throw new LambdaError(422, `Task points ${task.points} out of range for ${taskName(task)}`)
     }
   }
 }
@@ -483,30 +569,37 @@ const isEventLocked = async (eventId: string): Promise<boolean> => isResultsLock
 /** A submission checked and classified, ready to be written or reported. */
 interface PlannedSubmission {
   outcome: SubmissionOutcome
-  registration: JsonRegistration
+  registration: ExerciseRegistration
   submission: ResultSubmission
 }
 
 /** Everything a submission may be refused for before anything is written, and what it turns out to be. */
 const planSubmission = (
   confirmedEvent: JsonConfirmedEvent,
-  registrations: JsonRegistration[],
-  submission: ResultSubmission,
+  registrations: readonly ExerciseRegistration[],
+  parsed: ParsedSubmission,
   timestamp: string,
   userName: string
 ): PlannedSubmission => {
-  const registration = registrations.find((item) => item.id === submission.id)
-  if (!registration) throw new LambdaError(404, `Registration '${submission.id}' not found`)
+  const registration = registrations.find((item) => item.id === parsed.id)
+  if (!registration) throw new LambdaError(404, `Registration '${parsed.id}' not found`)
 
   // A reserve never called up and a cancelled entry have no round to record. The views do not offer
   // them a row, so this is a client working from a list that has moved on since it loaded — refusing
   // is what stops a result being attributed to a dog that was not there.
   if (!isScorableRegistration(registration)) {
-    throw new LambdaError(422, `Registration '${submission.id}' did not run`)
+    throw new LambdaError(422, `Registration '${parsed.id}' did not run`)
   }
 
+  const round = dogRound(confirmedEvent, rotationDogOf(registration))
+  const submission = addressSubmission(round, parsed, scoresAtPosts(confirmedEvent.eventType))
   if (scoresAtPosts(confirmedEvent.eventType)) {
-    validateSubmittedTasks(confirmedEvent, registration, submission)
+    const { stationId } = submission
+    validateSubmittedTasks(
+      round,
+      submission,
+      stationId ? stationExercises(confirmedEvent, registration, stationId) : undefined
+    )
   }
 
   // The alphabet is the event type's own: a pass/fail test awards 1 or 0 and nothing else, so a code
@@ -526,10 +619,13 @@ const planSubmission = (
 export const processResultSubmissions = async (
   eventId: string,
   confirmedEvent: JsonConfirmedEvent,
-  registrations: JsonRegistration[],
-  submissions: ResultSubmission[],
+  stored: readonly JsonRegistration[],
+  submissions: readonly ParsedSubmission[],
   userName: string
 ): Promise<ProcessedResultSubmissions> => {
+  // Every score by exercise before anything is compared, so a dog stored by post is read, and written
+  // back, the way the pages see it (KOE-1665).
+  const registrations = stored.map((registration) => withExerciseAddresses(confirmedEvent, registration))
   // One timestamp for the batch, so every task saved together shares a version.
   const timestamp = new Date().toISOString()
 
@@ -589,14 +685,23 @@ export const processResultSubmissions = async (
  */
 interface RecomputedResult {
   registration: JsonRegistration & { eventResult: JsonEventResult }
-  eventResult: JsonEventResult
-  dropped: JsonEventResultTask[]
+  eventResult: ExerciseEventResult
+  dropped: StoredEventResultTask[]
+  /** The round the dropped scores were stored under, which reads them. */
+  before: ExerciseSlot[]
   /** The exercises the dropped scores are of, which the secretary is told: a split exercise counts once. */
   droppedExercises: number
 }
 
-/** The stored result as the submission it was saved from, with only the scores the new round keeps. */
-const storedAsSubmitted = (stored: JsonEventResult, tasks: JsonEventResultTask[]): SubmittedEventResult => {
+/**
+ * The stored result as the submission it was saved from, with only the scores the new round keeps, and
+ * a stop or an elimination stored by post read as the exercise it was at in the round before.
+ */
+const storedAsSubmitted = (
+  stored: JsonEventResult,
+  tasks: JsonEventResultTask[],
+  before: readonly ExerciseSlot[]
+): SubmittedEventResult => {
   const {
     maxPoints: _maxPoints,
     percentage: _percentage,
@@ -605,9 +710,16 @@ const storedAsSubmitted = (stored: JsonEventResult, tasks: JsonEventResultTask[]
     tasks: _tasks,
     updatedAt: _at,
     updatedBy: _by,
+    retirement,
+    elimination,
     ...rest
   } = stored
-  return { ...rest, tasks }
+  return {
+    ...rest,
+    ...(retirement ? { retirement: exercisePlace(retirement, before) } : {}),
+    ...(elimination ? { elimination: exercisePlace(elimination, before) } : {}),
+    tasks,
+  }
 }
 
 interface RecomputeContext {
@@ -619,24 +731,29 @@ interface RecomputeContext {
 
 /**
  * One dog's result against the event as it is about to be saved, by the rule its save uses (`resolveFor`).
- * Only a dog whose round scores differently is looked at, and only a result that comes out different is
- * returned: the recompute is attributed to whoever saved the change, and moves the version only where
- * there is something new to see.
+ * A dog is looked at where its round scores differently, or where a score or a stop it has stored by post
+ * would read as another exercise in the new layout (`legacyReadChanges`, KOE-1665): that dog is written
+ * by exercise now, read through the layout it was stored under. Any other dog is read through its stored
+ * layout as before, so a change no score depends on writes nobody. A cancelled dog is looked at too, so
+ * its stored scores stay readable; only a dog with no round at all is left as it is. Only a result that
+ * comes out different is returned: the recompute is attributed to whoever saved the change, and moves
+ * the version only where there is something new to see.
  */
 const recomputeFor = (registration: JsonRegistration, context: RecomputeContext): RecomputedResult | undefined => {
   const stored = registration.eventResult
-  if (!stored || !isScorableRegistration(registration)) return undefined
+  if (!stored) return undefined
 
   const dog = rotationDogOf(registration)
   const before: ExerciseSlot[] = dogRound(context.before, dog)
   const after: ExerciseSlot[] = dogRound(context.after, dog)
-  if (!roundsDiffer(before, after)) return undefined
+  if (before.length === 0) return undefined
+  if (!roundsDiffer(before, after) && !legacyReadChanges(before, after, stored)) return undefined
 
   const { dropped, kept } = reconcileRoundTasks(before, after, stored.tasks)
   const eventResult = resolveFor(
     context.after,
     registration,
-    storedAsSubmitted(stored, kept),
+    storedAsSubmitted(stored, kept, before),
     context.timestamp,
     context.userName
   )
@@ -644,6 +761,7 @@ const recomputeFor = (registration: JsonRegistration, context: RecomputeContext)
 
   const recorded = dropped.filter(isRecordedTask)
   return {
+    before,
     dropped: recorded,
     droppedExercises: exercisesScored(before, recorded),
     eventResult,
@@ -654,11 +772,18 @@ const recomputeFor = (registration: JsonRegistration, context: RecomputeContext)
 const planRecompute = (registrations: readonly JsonRegistration[], context: RecomputeContext): RecomputedResult[] =>
   registrations.flatMap((registration) => recomputeFor(registration, context) ?? [])
 
-/** Each dropped score, named by its dog, its slot and the version it was recorded in. */
+/** A dropped score's address in the round it was stored under: its exercise, or its post where none reads it. */
+const droppedAddress = (before: readonly ExerciseSlot[], task: StoredEventResultTask): string => {
+  const read = exerciseTaskOf(before, task)
+  if (read) return `${read.exercise}#${read.part}`
+  return 'stationId' in task ? `${task.stationId}@${task.index}` : `${task.exercise}#${task.part}`
+}
+
+/** Each dropped score, named by its dog, its exercise and the version it was recorded in. */
 const dropKeys = (plan: readonly RecomputedResult[]): string[] =>
   plan
-    .flatMap(({ dropped, registration }) =>
-      dropped.map((task) => `${registration.id}|${task.stationId}#${task.index}|${task.updatedAt}`)
+    .flatMap(({ before, dropped, registration }) =>
+      dropped.map((task) => `${registration.id}|${droppedAddress(before, task)}|${task.updatedAt}`)
     )
     .sort((a, b) => a.localeCompare(b, 'en'))
 
@@ -690,12 +815,10 @@ const droppedTasksBody = (plan: readonly RecomputedResult[]): ResultTasksDropped
  * (a prize the round no longer supports, the totals of a round now incomplete) goes as `null`, which is
  * how a patch deletes, or the pages would go on showing it.
  */
-const eventResultPatch = (stored: JsonEventResult, eventResult: JsonEventResult): Patch<JsonEventResult> => {
+const eventResultPatch = (stored: JsonEventResult, eventResult: ExerciseEventResult): Patch<JsonEventResult> => {
   const removed = Object.keys(stored).filter((key) => !Object.hasOwn(eventResult, key))
   return { ...eventResult, ...Object.fromEntries(removed.map((key) => [key, null])) }
 }
-
-const LAYOUT_CHANGED_MESSAGE = 'The results changed while the stations were saved; save again'
 
 /**
  * Writes one dog's recomputed result over the result it was recomputed from. A dog a post saved in the

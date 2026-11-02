@@ -766,7 +766,7 @@ describe('EventResultsPage', () => {
     await user.click(first)
     await flushPromises()
 
-    // Stored with its post alone, it would read back as the last visit there.
+    // Stored by its exercise, it reads back as the first visit, not the last one to the post.
     expect(within(rowFor('Ensimmainen')).getByLabelText('results.outcomeAt')).toHaveTextContent(label)
 
     await user.click(screen.getByRole('button', { name: 'results.save' }))
@@ -777,7 +777,7 @@ describe('EventResultsPage', () => {
       [
         expect.objectContaining({
           eventResult: expect.objectContaining({
-            elimination: { exercise: 1, fault: 'hardMouth', stationId: 'post-1' },
+            elimination: { exercise: 1, fault: 'hardMouth' },
           }),
           id: 'run-1',
         }),
@@ -805,7 +805,7 @@ describe('EventResultsPage', () => {
     expect(screen.getByLabelText('results.couldStillHavePlaced')).toBeInTheDocument()
   })
 
-  it('sends an illness picked from the menu as its own cause, with the exercise and post it happened at (KOE-1669)', async () => {
+  it('sends an illness picked from the menu as its own cause, with the exercise it happened at (KOE-1669)', async () => {
     const { i18n } = useTranslation()
     const { user } = await renderScoringPage(i18n.language as Language)
     await flushPromises()
@@ -823,7 +823,7 @@ describe('EventResultsPage', () => {
       expect.any(String),
       [
         expect.objectContaining({
-          eventResult: expect.objectContaining({ retirement: { cause: 'illness', exercise: 1, stationId: 'post-1' } }),
+          eventResult: expect.objectContaining({ retirement: { cause: 'illness', exercise: 1 } }),
           id: 'run-1',
         }),
       ],
@@ -856,7 +856,7 @@ describe('EventResultsPage', () => {
         ? {
             ...reg,
             eventResult: {
-              tasks: [{ index: 0, points: 17, stationId: 'post-1', updatedAt: storedAt, updatedBy: 'Rasti 1' }],
+              tasks: [{ exercise: 1, part: 0, points: 17, updatedAt: storedAt, updatedBy: 'Rasti 1' }],
               updatedAt: storedAt,
               updatedBy: 'Rasti 1',
             },
@@ -878,8 +878,8 @@ describe('EventResultsPage', () => {
     const [, submissions] = vi.mocked(putEventResults).mock.lastCall ?? []
     expect(submissions?.[0].eventResult.tasks).toEqual(
       expect.arrayContaining([
-        expect.objectContaining({ points: 17, stationId: 'post-1' }),
-        expect.objectContaining({ points: 8, stationId: 'post-2' }),
+        expect.objectContaining({ exercise: 1, points: 17 }),
+        expect.objectContaining({ exercise: 2, part: 0, points: 8 }),
       ])
     )
   })
@@ -1064,13 +1064,13 @@ describe('ResultSummary', () => {
     const { toScoredTasks } = await import('../../lib/resultTasks')
     const round = [1, 2, 3, 4].map((number) => ({
       exercise: number,
-      index: 0,
+      legacyIndex: 0,
       maxPoints: 20,
       part: 0,
       parts: 1 as const,
       stationId: `post-${number}`,
     }))
-    const tasks = [17, 18, 16, 14].map((points, index) => ({ index: 0, points, stationId: `post-${index + 1}` }))
+    const tasks = [17, 18, 16, 14].map((points, index) => ({ exercise: index + 1, part: 0, points }))
 
     // 65 of 80 is 81.25 %: a first prize, though 65 is the rules' second-prize number.
     const code = deriveNowtResult({ tasks: toScoredTasks(round, tasks) })
@@ -1123,9 +1123,9 @@ describe('judge attribution', () => {
 
     // A post is manned by the same person all day, so the previous dog's judge is the likely answer
     // for the next one — the AC asks for it to be offered, not typed again.
-    const scored = [{ index: 0, judge, points: 17, stationId: 'post-1', updatedAt: 'x', updatedBy: 'y' }]
+    const scored = [{ exercise: 1, judge, part: 0, points: 17, updatedAt: 'x', updatedBy: 'y' }]
 
-    expect(mergeStationTasks(undefined, scored, 'post-1')[0].judge).toEqual(judge)
+    expect(mergeStationTasks(undefined, scored, [1])[0].judge).toEqual(judge)
   })
 })
 

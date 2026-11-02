@@ -14,7 +14,7 @@ covers:
   - src/pages/admin/eventViewPage/infoPanel/ResultsPublishing.tsx
   - src/pages/admin/components/KcIdLookupButton.tsx
   - src/pages/admin/components/StartDaySelector.tsx
-sourceHash: 9bd044
+sourceHash: f26d69
 ---
 
 On the trial day the secretary's job is to record what the dogs did and to get the results in
@@ -114,15 +114,25 @@ same goes for changing the classes in the event's details. If a dog gains an exe
 been scored yet, the dog's prize goes until that exercise is scored. A result already sent that
 changes reads *{t:results.kennelliitto.badge.changed}* in the *Omakoira* column and is sent again.
 
-Recorded points belong to the post where the judge gave them: changing a running order does not move
-them to another post. They are kept as long as the post still has as many exercises with the same
-parts. When the number of exercises or parts at a post changes, every score recorded there goes, since
-the post's exercises are then counted anew; the scores that would go are listed dog by dog before the
-save.
+Recorded points belong to the exercise they were entered for: exercise 3 stays exercise 3 whatever
+post does it and whatever the group's running order becomes. When, for example, four posts are
+corrected to three, the third post doing exercises 3 and 4, every dog keeps its points for exercises
+1, 2, 3 and 4 as they were, and the save asks nothing. The judge of a score is a judge of the post
+where the group does the exercise: the recorded judge stays while they judge at that post, and
+otherwise the post's first judge is read as the judge. The judges sent to Omakoira are read the same
+way.
+
+Points go only when an exercise leaves the running order or an exercise is split differently, since
+the points can then no longer be read as the same exercise. The scores that would go are listed dog
+by dog before the save.
 **{t:event.resultTasksDropped.confirm}** saves the change and removes the scores, and they do not
 come back even if the change is undone later. **{t:cancel}** leaves the change unsaved.
 
 !shot[DroppedTasksDialog/dropped-tasks] A change would remove recorded scores from three dogs
+
+Note: when an exercise is added in the middle of a running order after points have been recorded,
+the exercises after it are numbered one higher, but the recorded points keep their old numbers. Add
+the exercise at the end of the order instead, or check the results table after the save.
 
 Once the results have been handed over to the chief judge or confirmed, a change that would alter
 recorded results is not saved. A change that alters no dog's result is still saved.
@@ -168,10 +178,9 @@ working test (NOWT) the choices and their results under the rules are:
 A handler's withdrawal carries no *{t:results.marks.interrupted}* mark, just as in the Kennel Club's
 breeding database. The view of all posts also asks *{t:results.outcomeAt}*, that is, at which exercise
 the trial ended, for example "Exercise 3 (post 3)": a group can come to one post more than once, so
-the post alone does not say which visit it was. A stop stays with its post, as the points do: the
-exercise only tells the visits to one post apart. A stop recorded before the running orders, with its
-post alone, is read as the last exercise at that post, and so is a stop whose exercise number is at
-another post after the running order changed. The exercises after the stop in the dog's
+the post alone does not say which visit it was. A stop is recorded for its exercise, as the
+points are, and stays with that exercise when the running order changes. A stop recorded earlier with
+its post alone is read as the last exercise at that post. The exercises after the stop in the dog's
 running order read *{t:results.notReached}*, in the view narrowed to one post too and on the post's
 own entry page, where the dog shows as done for those exercises. The points
 earned until then stay and can be edited, and their total against the whole running order's maximum

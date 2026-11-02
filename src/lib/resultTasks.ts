@@ -1,7 +1,15 @@
-import type { EventResultRetirement, JsonEventResultTask, StationVisitLayout } from '../types'
+import type {
+  EventResultRetirement,
+  JsonEventResultTask,
+  LegacyEventResultTask,
+  PublicJudge,
+  StationVisitLayout,
+  StoredEventResultTask,
+} from '../types'
+import type { SortableRegistration } from './registration'
 import type { RotationDog, RotationEvent } from './rotation'
 import { objectsDiffer } from './diff'
-import { dogVisits } from './rotation'
+import { dogVisits, rotationDogOf } from './rotation'
 import { isObject } from './utils'
 
 /**
@@ -28,20 +36,19 @@ export interface ScoredTask {
 /**
  * One scored slot in a dog's round: an exercise, or one part of a split exercise (KOE-1665).
  *
- * A score is stored at its post and its slot there (`stationId`, `index`), never at the exercise number:
- * the judge scored the dog at a post, so a running order reordered or a range edited later keeps each
- * score with the post that gave it. An exercise moved to another post therefore leaves its score on
- * the old post, where it no longer counts. The number, the part and the maximum are read off the dog's
- * running order for the screens.
+ * A score is stored at its exercise number and part (`JsonEventResultTask`), the address the results
+ * table's "Rasti n" and the post's link enter it against, so it stays with its exercise whatever the posts
+ * or the running order become. The post, the maximum and the judges are read off the dog's running order.
  */
 export interface ExerciseSlot {
+  /** The post the dog's group does the exercise at. */
   stationId: string
   /**
-   * 0-based slot at the post, the address a stored score carries: the parts of the exercises the group
-   * does there, counted in exercise order. A post stored before KOE-1665 with `tasks: 2` is one exercise in two parts,
-   * so its slots 0 and 1 read as before.
+   * The slot's place among the group's slots at the post, the parts of its exercises there counted in
+   * exercise order: the address a score stored before KOE-1665 carries (`LegacyEventResultTask.index`),
+   * read only by `exerciseTaskOf`. A post stored with `tasks: 2` is one exercise in two parts.
    */
-  index: number
+  legacyIndex: number
   /** The exercise's number in the dog's running order, from 1. */
   exercise: number
   /** 0-based part of the exercise. */
@@ -52,9 +59,8 @@ export interface ExerciseSlot {
 }
 
 /**
- * The scored slots of one visit to a post: its exercise, whole or in parts, addressed from the slots the
- * group's exercises there take before it. Expanding the split here rather than storing each slot means
- * an exercise's parts cannot fail to add up to it.
+ * The scored slots of one visit to a post: its exercise, whole or in parts. Expanding the split here
+ * rather than storing each slot means an exercise's parts cannot fail to add up to it.
  */
 export const visitSlots = (
   stationId: string,
@@ -62,7 +68,7 @@ export const visitSlots = (
 ): ExerciseSlot[] =>
   Array.from({ length: parts }, (_unused, part) => ({
     exercise,
-    index: slotsBefore + part,
+    legacyIndex: slotsBefore + part,
     maxPoints: partMaxPoints(parts),
     part,
     parts,
@@ -76,23 +82,30 @@ export const exercisePostsOf = (round: readonly Pick<ExerciseSlot, 'stationId' |
   return posts
 }
 
+/** The exercises a dog's group does at a post, by number, from its posts in exercise order. */
+export const exercisesAtPost = (exercisePosts: readonly string[], stationId: string): number[] =>
+  exercisePosts.flatMap((post, at) => (post === stationId ? [at + 1] : []))
+
 /**
- * The exercise a dog's round ended at (KOE-1669). The post is the durable locator and the exercise the
- * refinement for a post the group comes to more than once (KOE-1665): the stored number is trusted only
- * while it still names an exercise at that post, since a running order changed later moves the numbers
- * and nothing rewrites a stored outcome. Otherwise, and for a stop stored with its post alone, it is the
- * last exercise at the post, so nothing stored reads as ending earlier than it can have. None where the
- * round did not end early, where the place is not recorded ("Ei tiedossa"), or where the post has left
- * the running order.
+ * The exercises a dog's group does at a post (`exercisesAtPost`), from the dog's round: a post's save and
+ * its view are scoped to these.
+ */
+export const stationExercises = (event: RotationEvent, registration: SortableRegistration, stationId: string) =>
+  exercisesAtPost(exercisePostsOf(dogRound(event, rotationDogOf(registration))), stationId)
+
+/**
+ * The exercise a dog's round ended at (KOE-1669), where the round is scored by exercise: the stored
+ * exercise while the round has it (KOE-1665). A place stored with its post alone, before the exercise was
+ * stored, is the last exercise at that post, so nothing stored reads as ending earlier than it can have.
+ * None where the round did not end early, where the place is not recorded ("Ei tiedossa"), or where the
+ * place is not in the round.
  */
 export const endedAtExercise = (
   place: Pick<EventResultRetirement, 'stationId' | 'exercise'> | undefined,
   exercisePosts: readonly string[]
 ): number | undefined => {
   const { stationId, exercise } = place ?? {}
-  if (exercise !== undefined && (!stationId || exercisePosts[exercise - 1] === stationId)) {
-    return exercise <= exercisePosts.length ? exercise : undefined
-  }
+  if (exercise !== undefined && exercise <= exercisePosts.length) return exercise
   if (!stationId) return undefined
   const last = exercisePosts.lastIndexOf(stationId)
   return last < 0 ? undefined : last + 1
@@ -140,24 +153,93 @@ export const roundColumns = (rounds: readonly (readonly ExerciseSlot[])[]): Exer
     .sort((a, b) => a.exercise - b.exercise || a.parts - b.parts || a.part - b.part)
 }
 
-/** Where a stored score sits: its post and its slot there, the address `visitSlots` gives it. */
-const slotKey = (slot: Pick<ExerciseSlot, 'stationId' | 'index'>): string => `${slot.stationId}#${slot.index}`
+/** The address of a score: its exercise number and part. */
+type TaskAddress = Pick<JsonEventResultTask, 'exercise' | 'part'>
 
-/** Whether a dog's slot holds this stored score. */
-export const holdsScore = (
-  slot: Pick<ExerciseSlot, 'stationId' | 'index'>,
-  task: Pick<ExerciseSlot, 'stationId' | 'index'>
-) => slotKey(slot) === slotKey(task)
+/** The address of a score stored before KOE-1665: its post and its slot there. */
+type LegacyAddress = Pick<LegacyEventResultTask, 'stationId' | 'index'>
+
+/** A score in either address, as stored or as a page sent it before the release that stored by exercise. */
+type AnyAddress = Partial<TaskAddress & LegacyAddress>
+
+/** A score, its address by exercise. */
+type Addressed<T> = Omit<T, keyof AnyAddress> & TaskAddress
+
+const addressKey = ({ exercise, part }: TaskAddress): string => `${exercise}#${part}`
+
+/** Whether a dog's slot holds this score. */
+export const holdsScore = (slot: TaskAddress, task: TaskAddress): boolean =>
+  slot.exercise === task.exercise && slot.part === task.part
 
 /**
- * Whether a slot reads a stored score the same way in two rounds: the same slot of the post, split the
- * same way. A slot's index counts parts, so a change of `parts` gives an index another exercise or
- * another maximum, and a score kept there would be read with a meaning it was not given. The exercise
- * number may change: the score stays with the post that gave it.
+ * A score by its exercise (KOE-1665, Jukka 2.11.2026). A score stored before the exercise was stored is
+ * read through the dog's round of the layout it was stored under: the slot with its post and its place
+ * there gives the exercise and the part. Undefined for one that round does not have.
  */
-const sameSlot = (a: ExerciseSlot | undefined, b: ExerciseSlot | undefined): boolean => {
-  if (!a || !b) return false
-  return a.parts === b.parts && a.part === b.part
+export const exerciseTaskOf = <T extends AnyAddress>(
+  round: readonly ExerciseSlot[],
+  task: T
+): Addressed<T> | undefined => {
+  const { exercise, part, stationId, index, ...rest } = task
+  if (exercise !== undefined) return { ...rest, exercise, part: part ?? 0 }
+  const slot = round.find((item) => item.stationId === stationId && item.legacyIndex === index)
+  return slot ? { ...rest, exercise: slot.exercise, part: slot.part } : undefined
+}
+
+/** Whether a stored score is addressed by its exercise, as every score written since KOE-1665 is. */
+export const isExerciseTask = (task: StoredEventResultTask): task is JsonEventResultTask => 'exercise' in task
+
+/** Whether a score was stored by its post, before the exercise was stored. */
+const isLegacyTask = (task: AnyAddress): boolean => task.exercise === undefined
+
+/** The later of two writes. A `Date` on the client, the ISO string it was stored as on the server. */
+const writtenLater = (a: { updatedAt?: string | Date }, b: { updatedAt?: string | Date }): boolean =>
+  new Date(a.updatedAt ?? 0).getTime() > new Date(b.updatedAt ?? 0).getTime()
+
+type StoredTaskLike = AnyAddress & { updatedAt?: string | Date }
+
+/** Each score the round holds beside its address there, in stored order, and the ones it cannot hold. */
+const addressPairs = <T extends StoredTaskLike>(round: readonly ExerciseSlot[], tasks: readonly T[] | undefined) => {
+  const placed = new Map<string, T>()
+  const addresses = new Map<T, Addressed<T>>()
+  const dropped: T[] = []
+  for (const task of tasks ?? []) {
+    const addressed = exerciseTaskOf(round, task)
+    if (!addressed) {
+      dropped.push(task)
+      continue
+    }
+    const key = addressKey(addressed)
+    const other = placed.get(key)
+    if (other && !writtenLater(task, other)) {
+      dropped.push(task)
+      continue
+    }
+    if (other) {
+      dropped.push(other)
+      addresses.delete(other)
+    }
+    placed.set(key, task)
+    addresses.set(task, addressed)
+  }
+  const kept = (tasks ?? []).flatMap((task) => {
+    const addressed = addresses.get(task)
+    return addressed ? [{ addressed, task }] : []
+  })
+  return { dropped, kept }
+}
+
+/**
+ * The scores of a round by exercise, against the layout they were stored under, and the ones it cannot
+ * hold: a score of a slot the round does not have, and where two scores read as one exercise and part (a
+ * score stored by post beside one written by exercise, say), the one recorded first.
+ */
+export const addressTasks = <T extends StoredTaskLike>(
+  round: readonly ExerciseSlot[],
+  tasks: readonly T[] | undefined
+): { kept: Addressed<T>[]; dropped: T[] } => {
+  const { kept, dropped } = addressPairs(round, tasks)
+  return { dropped, kept: kept.map(({ addressed }) => addressed) }
 }
 
 /**
@@ -168,69 +250,101 @@ const sameSlot = (a: ExerciseSlot | undefined, b: ExerciseSlot | undefined): boo
 export const isRecordedTask = (task: Pick<JsonEventResultTask, 'points' | 'recalled' | 'zeroFault'>): boolean =>
   task.points !== null || Boolean(task.zeroFault) || Boolean(task.recalled)
 
-const slotsByKey = (round: readonly ExerciseSlot[]) => new Map(round.map((slot) => [slotKey(slot), slot]))
+/** A round's slots by exercise and part. */
+const slotsByAddress = (round: readonly ExerciseSlot[]) => new Map(round.map((slot) => [addressKey(slot), slot]))
 
 /**
  * Whether a dog's round scores differently after a change of the posts, the rotation or the classes
- * (KOE-1666): a slot added, removed, or meaning something else. A new order of the same slots is not a
- * difference, since the total and the prize do not depend on it.
+ * (KOE-1666): another number of exercises, or an exercise split another way. A score stays with its
+ * exercise, so which post does an exercise, and in which order the posts come, is no difference.
  */
 export const roundsDiffer = (before: readonly ExerciseSlot[], after: readonly ExerciseSlot[]): boolean => {
   if (before.length !== after.length) return true
-  const next = slotsByKey(after)
-  return before.some((slot) => !sameSlot(slot, next.get(slotKey(slot))))
-}
-
-/** How many slots a round has at each post. */
-const slotCounts = (round: readonly ExerciseSlot[]) => {
-  const counts = new Map<string, number>()
-  for (const slot of round) counts.set(slot.stationId, (counts.get(slot.stationId) ?? 0) + 1)
-  return counts
+  const next = slotsByAddress(after)
+  return before.some((slot) => next.get(addressKey(slot))?.parts !== slot.parts)
 }
 
 /**
- * The stored scores a new round keeps, and the ones it drops (KOE-1666). A score is kept only where its
- * slot means the same in the dog's round before the change and after it; everything else is dropped,
- * a score the old round did not read either. The event save warns about the dropped ones before it
- * writes, and the recompute leaves them out, so no score is read against an exercise it was not given for.
- *
- * A score's address is its slot's place among the post's slots (KOE-1665). Where the number of slots at
- * a post changes, an exercise added there before another or one of its repeats taken out, the places
- * shift and a kept score would land on another exercise. So a changed count at a post drops every score
- * of that post, each named in the warning; an unchanged count keeps them by place as before.
+ * The stored scores a new round keeps, and the ones it drops (KOE-1666, KOE-1665). Each is read by its
+ * exercise against the round it was stored under (`addressTasks`), and kept where the new round has its
+ * exercise split the same way: an exercise taken off the running order, or split another way, drops its
+ * scores. A new order of the posts or another post for an exercise drops nothing. The event save asks
+ * about the recorded ones before it writes.
  */
-export const reconcileRoundTasks = <T extends Pick<JsonEventResultTask, 'stationId' | 'index'>>(
+export const reconcileRoundTasks = <T extends StoredTaskLike>(
   before: readonly ExerciseSlot[],
   after: readonly ExerciseSlot[],
   tasks: readonly T[] | undefined
-): { kept: T[]; dropped: T[] } => {
-  const previous = slotsByKey(before)
-  const next = slotsByKey(after)
-  const countsBefore = slotCounts(before)
-  const countsAfter = slotCounts(after)
-  const kept: T[] = []
-  const dropped: T[] = []
-  for (const task of tasks ?? []) {
-    const key = slotKey(task)
-    const countKept = countsBefore.get(task.stationId) === countsAfter.get(task.stationId)
-    if (countKept && sameSlot(previous.get(key), next.get(key))) kept.push(task)
+): { kept: Addressed<T>[]; dropped: T[] } => {
+  const previous = slotsByAddress(before)
+  const next = slotsByAddress(after)
+  const { kept: read, dropped } = addressPairs(before, tasks)
+  const kept: Addressed<T>[] = []
+  for (const { addressed, task } of read) {
+    const key = addressKey(addressed)
+    const parts = next.get(key)?.parts
+    if (parts !== undefined && parts === (previous.get(key)?.parts ?? parts)) kept.push(addressed)
     else dropped.push(task)
   }
   return { dropped, kept }
 }
 
 /**
+ * Whether the scores or the stop stored by post before KOE-1665 read as other exercises in the new round
+ * than in the one they were stored under: four posts corrected to three, say, where the fourth post's
+ * score is exercise 4 only in the old layout. Such a dog is written by exercise before the layout
+ * changes; any other change leaves it to be read through its stored layout as before.
+ */
+export const legacyReadChanges = (
+  before: readonly ExerciseSlot[],
+  after: readonly ExerciseSlot[],
+  result: { tasks?: readonly AnyAddress[]; retirement?: StopPlace; elimination?: StopPlace } | undefined
+): boolean => {
+  const addressOf = (round: readonly ExerciseSlot[], task: AnyAddress) => {
+    const addressed = exerciseTaskOf(round, task)
+    return addressed ? addressKey(addressed) : undefined
+  }
+  const taskMoves = (result?.tasks ?? []).some(
+    (task) => isLegacyTask(task) && addressOf(before, task) !== addressOf(after, task)
+  )
+  const stopMoves = [result?.retirement, result?.elimination].some(
+    (place) =>
+      isLegacyStop(place) &&
+      endedAtExercise(place, exercisePostsOf(before)) !== endedAtExercise(place, exercisePostsOf(after))
+  )
+  return taskMoves || stopMoves
+}
+
+/** Where a round ended, as a stop or an elimination stores it. */
+type StopPlace = Pick<EventResultRetirement, 'stationId' | 'exercise'>
+
+/** Whether a round scored by exercise stores where it ended by post alone, as it did before KOE-1665. */
+export const isLegacyStop = (place: StopPlace | undefined): boolean =>
+  Boolean(place?.stationId) && place?.exercise === undefined
+
+/**
+ * Where a round scored by exercise ended, by its exercise: a place stored by post alone read as the last
+ * exercise at that post in the round it was stored under, and no place where that round does not have
+ * the post. A place stored by exercise is returned as it is, without a post.
+ */
+export const exerciseStopOf = <P extends StopPlace>(
+  place: P,
+  round: readonly ExerciseSlot[]
+): Omit<P, 'stationId' | 'exercise'> & { exercise?: number } => {
+  const { stationId: _post, exercise: _exercise, ...rest } = place
+  const exercise = endedAtExercise(place, exercisePostsOf(round))
+  return exercise === undefined ? rest : { ...rest, exercise }
+}
+
+/**
  * How many exercises of a round some scores are of: the parts of one exercise count once, and a score the
  * round does not read counts on its own. What the secretary is told of dropped scores is exercises.
  */
-export const exercisesScored = (
-  round: readonly ExerciseSlot[],
-  tasks: readonly Pick<JsonEventResultTask, 'stationId' | 'index'>[]
-): number =>
+export const exercisesScored = (round: readonly ExerciseSlot[], tasks: readonly AnyAddress[]): number =>
   new Set(
     tasks.map((task) => {
-      const slot = round.find((item) => holdsScore(item, task))
-      return slot ? `exercise ${slot.exercise}` : slotKey(task)
+      const addressed = exerciseTaskOf(round, task)
+      return addressed ? `exercise ${addressed.exercise}` : `post ${task.stationId}#${task.index}`
     })
   ).size
 
@@ -273,7 +387,7 @@ export const isResultTasksDroppedBody = (body: unknown): body is ResultTasksDrop
 export const toScoredTasks = (
   round: readonly ExerciseSlot[],
   // Provenance is irrelevant to a score, so this accepts a task on its way in as readily as one stored.
-  scored: readonly Pick<JsonEventResultTask, 'stationId' | 'index' | 'points'>[] | undefined
+  scored: readonly Pick<JsonEventResultTask, 'exercise' | 'part' | 'points'>[] | undefined
 ): ScoredTask[] =>
   round.map((slot) => ({
     maxPoints: slot.maxPoints,
@@ -283,19 +397,38 @@ export const toScoredTasks = (
   }))
 
 /**
+ * The judge of a score: one of the judges of the post where the dog's group does the exercise. The stored
+ * judge picks which of them, while it is one; where the exercise has moved to another post since, the
+ * post's first judge stands for it. A post naming no judges leaves the stored one.
+ */
+export const effectiveJudge = (
+  task: Pick<JsonEventResultTask, 'judge'>,
+  postJudges: readonly PublicJudge[]
+): PublicJudge | undefined => {
+  const { judge } = task
+  if (postJudges.length === 0) return judge
+  const same = (other: PublicJudge) =>
+    judge !== undefined && (judge.id === undefined ? other.name === judge.name : other.id === judge.id)
+  return postJudges.find(same) ?? postJudges[0]
+}
+
+/**
  * The task shape these helpers need. Generic over `updatedAt` because the client holds a `Date`, made
  * at the typed boundary (`lib/wire.ts`), while the server holds the string it stored.
  */
-interface StationScopedTask {
-  stationId: string
-  index: number
+interface StationScopedTask extends TaskAddress {
   updatedAt: string | Date
   updatedBy: string
 }
 
-/** The tasks belonging to one post. */
-const stationTasks = <T extends StationScopedTask>(tasks: readonly T[] | undefined, stationId: string): T[] =>
-  (tasks ?? []).filter((task) => task.stationId === stationId)
+/**
+ * The tasks belonging to one post: the exercises the dog's group does there (`exercisesAtPost`). A post
+ * the group comes to twice holds both exercises.
+ */
+const stationTasks = <T extends StationScopedTask>(
+  tasks: readonly T[] | undefined,
+  exercises: readonly number[]
+): T[] => (tasks ?? []).filter((task) => exercises.includes(task.exercise))
 
 /**
  * The latest write among a post's tasks — the version a station-scoped edit is made against.
@@ -306,29 +439,28 @@ const stationTasks = <T extends StationScopedTask>(tasks: readonly T[] | undefin
  */
 export const stationVersion = <T extends StationScopedTask>(
   tasks: readonly T[] | undefined,
-  stationId: string
+  exercises: readonly number[]
 ): T['updatedAt'] | undefined => {
-  const own = stationTasks(tasks, stationId)
+  const own = stationTasks(tasks, exercises)
   if (!own.length) return undefined
 
   // Compare by instant rather than sorting the raw values: sorting happens to work on ISO strings and
   // not at all on Date objects, which sort by their locale text.
-  return own.reduce((latest, task) => (new Date(task.updatedAt) > new Date(latest.updatedAt) ? task : latest), own[0])
-    .updatedAt
+  return own.reduce((latest, task) => (writtenLater(task, latest) ? task : latest), own[0]).updatedAt
 }
 
 const withoutProvenance = <T extends StationScopedTask>({ updatedAt: _at, updatedBy: _by, ...rest }: T) => rest
-const byIndex = (a: { index: number }, b: { index: number }) => a.index - b.index
+const byAddress = (a: TaskAddress, b: TaskAddress) => a.exercise - b.exercise || a.part - b.part
 
 /** Whether two rounds say the same thing about one post, ignoring who recorded it and when. */
 export const sameStationTasks = <T extends StationScopedTask>(
   a: readonly T[] | undefined,
   b: readonly T[] | undefined,
-  stationId: string
+  exercises: readonly number[]
 ): boolean =>
   !objectsDiffer(
-    stationTasks(a, stationId).map(withoutProvenance).sort(byIndex),
-    stationTasks(b, stationId).map(withoutProvenance).sort(byIndex)
+    stationTasks(a, exercises).map(withoutProvenance).sort(byAddress),
+    stationTasks(b, exercises).map(withoutProvenance).sort(byAddress)
   )
 
 /**
@@ -340,5 +472,8 @@ export const sameStationTasks = <T extends StationScopedTask>(
 export const mergeStationTasks = <T extends StationScopedTask>(
   stored: readonly T[] | undefined,
   submitted: readonly T[] | undefined,
-  stationId: string
-): T[] => [...(stored ?? []).filter((task) => task.stationId !== stationId), ...stationTasks(submitted, stationId)]
+  exercises: readonly number[]
+): T[] => [
+  ...(stored ?? []).filter((task) => !exercises.includes(task.exercise)),
+  ...stationTasks(submitted, exercises),
+]

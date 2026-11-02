@@ -247,8 +247,8 @@ describe('kennelliittoResults', () => {
 
   describe('NOWT', () => {
     const tasks = [
-      { index: 0, judge: second, points: 8, stationId: 's1', updatedAt: 'a', updatedBy: 'b' },
-      { index: 1, judge: third, points: 9, stationId: 's1', updatedAt: 'a', updatedBy: 'b' },
+      { exercise: 1, judge: second, part: 0, points: 8, updatedAt: 'a', updatedBy: 'b' },
+      { exercise: 2, judge: third, part: 0, points: 9, updatedAt: 'a', updatedBy: 'b' },
     ]
     /** A NOWT dog as the sending sees it: ranked first among its class unless the test says otherwise. */
     const nowt = (
@@ -331,33 +331,6 @@ describe('kennelliittoResults', () => {
         )
       )
       expect([body.tuomarit, body.palkintotuomarit]).toEqual([[chief.id], [second.id, third.id]])
-    })
-
-    it("names the judge of the exercise's post now, where the exercise moved to another post (KOE-1665)", () => {
-      // Exercise 2 was scored by the second judge at post s2, then the posts were corrected: exercise 2 is
-      // done at s1, whose judge is the third.
-      const stations = [
-        { date: '2026-09-26' as const, id: 's1', judges: [third], number: 1 },
-        { date: '2026-09-26' as const, id: 's2', judges: [second], number: 2 },
-      ]
-      const rotations = [{ class: 'VOI' as const, exercises: [{ stationId: 's1' }, { stationId: 's1' }] }]
-      const byExercise = [
-        { exercise: 1, judge: third, points: 8, updatedAt: 'a', updatedBy: 'b' },
-        { exercise: 2, judge: second, points: 9, updatedAt: 'a', updatedBy: 'b' },
-      ]
-      const body = sent(
-        buildKcResult(
-          event('NOWT', {
-            classes: [{ class: 'VOI', date: legacyDayValue('x'), judge: chief }],
-            rotations,
-            stations,
-          }),
-          dog(result({ percentage: 70, result: 'VOI2', tasks: byExercise }), { class: 'VOI' }),
-          koemuotoNOWT,
-          1
-        )
-      )
-      expect([body.tuomarit, body.palkintotuomarit]).toEqual([[chief.id], [third.id]])
     })
 
     it('sends sert and vara sert as the format spells them', () => {
