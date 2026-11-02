@@ -1386,6 +1386,34 @@ describe('kennelliittoResults', () => {
       expect(preview.dogs[0].kcDog).toBeUndefined()
     })
 
+    it('keeps the points to enter by hand in the hash of a dog sent with Kennelliitto’s number (KOE-1676)', async () => {
+      // ALO0 takes only 0, so the dog's 40 % go as 0 and are named for entering by hand.
+      koemuoto = 'NOWT'
+      registrations = [
+        {
+          ...swedish('d1', {}),
+          class: 'ALO',
+          eventResult: {
+            maxPoints: 100,
+            percentage: 40,
+            points: 40,
+            result: 'ALO0',
+            updatedAt: '2026-09-26T09:00:00.000Z',
+            updatedBy: 'Sihteeri',
+          },
+          eventType: 'NOWT',
+        },
+      ]
+      const nowt = () => ctx({ eventType: 'NOWT' })
+
+      await sendKennelliittoResults(nowt(), ['d1'], { force: false, switchRegNos: ['d1'] })
+      const preview = await previewKennelliittoResults(nowt())
+
+      expect(preview.dogs.map((item) => [item.regNo, item.status, item.pointsByHand])).toEqual([
+        ['FI25555/20', 'unchanged', 40],
+      ])
+    })
+
     it('keeps the number it sent with through a refusal of a later sending', async () => {
       registrations = [swedish('d1', {})]
       await sendKennelliittoResults(ctx(), ['d1'], { force: false, switchRegNos: ['d1'] })
@@ -1617,6 +1645,22 @@ describe('kennelliittoResults', () => {
         await sendKennelliittoResults(nowtCtx(), ['nought'], { force: false })
 
         expect(statusOf(await previewKennelliittoResults(nowtCtx()), 'nought')).toEqual('unchanged')
+      })
+
+      it('reads a dog sent before this change as unchanged when it has no points to enter by hand', async () => {
+        // The hash stored before KOE-1676 was the body's alone; a dog whose points fit keeps it.
+        registrations = [nowtDog('dash', 'FI20010/20', 'ALO-', 30)]
+        await sendKennelliittoResults(nowtCtx(), ['dash'], { force: false })
+        const [call] = tallennat()
+        const [sent] = registrations
+        sent.kcResult = {
+          at: '2026-09-26T10:00:00.000Z',
+          by: 'Sihteeri',
+          payloadHash: createHash('sha256').update(JSON.stringify(call.body)).digest('hex'),
+          status: 'sent',
+        }
+
+        expect(statusOf(await previewKennelliittoResults(nowtCtx()), 'dash')).toEqual('unchanged')
       })
 
       it('reads a dog whose corrected points still go as 0 as changed, and names the new points', async () => {

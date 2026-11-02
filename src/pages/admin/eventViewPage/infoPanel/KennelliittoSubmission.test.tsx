@@ -365,6 +365,48 @@ describe('KennelliittoSubmission (KOE-1579)', () => {
       )
     })
 
+    describeWithTranslations('fi', () => {
+      // A dog whose points Omakoira takes no more of for its result: it goes with 0 (KOE-1676).
+      const handEntryLines = () => screen.queryAllByText(/: pisteet /).map((line) => line.textContent)
+      const handEntryPreview = () =>
+        vi.mocked(previewKennelliittoResults).mockResolvedValueOnce({
+          blockers: [],
+          dogs: [
+            { ...dogReport('run-1', 'ready'), pointsByHand: 63.75 },
+            { ...dogReport('run-2', 'unchanged'), pointsByHand: 40 },
+            { ...dogReport('run-3', 'blocked', [{ code: 'noJudge' }]), pointsByHand: 55 },
+          ],
+        })
+      const openFinnishSend = async () => {
+        const rendered = await renderSection()
+        await rendered.user.click(screen.getByRole('button', { name: 'Lähetä Omakoiraan' }))
+        await flushPromises()
+        return rendered
+      }
+
+      it('names the dogs about to be sent whose points go as 0, and still lets them be sent (KOE-1676)', async () => {
+        handEntryPreview()
+
+        await openFinnishSend()
+
+        expect(handEntryLines()).toEqual(['Koira run-1 (REG-run-1): pisteet 63,75'])
+        const dialog = within(screen.getByRole('dialog'))
+        expect(dialog.getByRole('button', { name: 'Lähetä Omakoiraan' })).toBeEnabled()
+      })
+
+      it('names an unchanged dog too when the unchanged results are sent again (KOE-1676)', async () => {
+        handEntryPreview()
+        const { user } = await openFinnishSend()
+
+        await user.click(within(screen.getByRole('dialog')).getByRole('checkbox', { name: /Lähetä uudelleen myös/ }))
+
+        expect(handEntryLines()).toEqual([
+          'Koira run-1 (REG-run-1): pisteet 63,75',
+          'Koira run-2 (REG-run-2): pisteet 40',
+        ])
+      })
+    })
+
     describe('dogs Kennelliitto knows by another number (KOE-1653)', () => {
       const chip = '981098106889342'
       const known = (id: string, foundBy: 'microchip' | 'name', rfid: string) => ({
@@ -613,6 +655,35 @@ describe('KennelliittoSubmission (KOE-1579)', () => {
       expect(
         screen.getByText('Koira run-2 (REG-run-2): results.kennelliitto.problem.noJudge detail')
       ).toBeInTheDocument()
+    })
+
+    describeWithTranslations('fi', () => {
+      it('names after the sending only the sent dogs whose points went as 0 (KOE-1676)', async () => {
+        vi.mocked(sendKennelliittoResults).mockResolvedValueOnce({
+          blockers: [],
+          notAttempted: [],
+          patches: [],
+          reports: [
+            { ...sent('run-1'), pointsByHand: 63.75 },
+            { ...sent('run-2'), outcome: 'failed', pointsByHand: 40, status: 400 },
+          ],
+        })
+        vi.mocked(previewKennelliittoResults).mockResolvedValueOnce({
+          blockers: [],
+          dogs: [dogReport('run-1', 'ready'), dogReport('run-2', 'ready')],
+        })
+        const { user } = await renderSection()
+        await user.click(screen.getByRole('button', { name: 'Lähetä Omakoiraan' }))
+        await flushPromises()
+
+        await user.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Lähetä Omakoiraan' }))
+        await flushPromises()
+        await flushPromises()
+
+        expect(screen.queryAllByText(/: pisteet /).map((line) => line.textContent)).toEqual([
+          'Koira run-1 (REG-run-1): pisteet 63,75',
+        ])
+      })
     })
   })
 
