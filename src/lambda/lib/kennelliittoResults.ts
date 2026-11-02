@@ -537,8 +537,12 @@ export const previewKennelliittoResults = async (ctx: KcContext, ids?: string[])
   return { blockers: [], dogs: evaluated.map(({ report }) => report), ...withState }
 }
 
-/** The id Kennelliitto gave the saved result. The type says `TulosId`; the camelCase of v1.01 is accepted too. */
+/**
+ * The id Kennelliitto gave the saved result. Testi2 answers it as a bare number (2.11.2026); the API
+ * document's `{ TulosId }` and the camelCase of v1.01 are accepted too.
+ */
 const tulosIdOf = (json: unknown): number | undefined => {
+  if (typeof json === 'number') return json
   if (typeof json !== 'object' || json === null) return undefined
   let id: unknown
   if ('TulosId' in json) id = json.TulosId

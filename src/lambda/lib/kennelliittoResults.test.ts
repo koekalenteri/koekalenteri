@@ -220,7 +220,8 @@ const fakeFetch = async (input: string | URL | Request, init?: RequestInit) => {
         ? new Response(null, { status: 204 })
         : Response.json(reply.body ?? {}, { status: reply.status })
     }
-    return Response.json({ TulosId: nextTulosId++ })
+    // Testi2 answers the id as a bare number (2.11.2026).
+    return Response.json(nextTulosId++)
   }
   throw new Error(`unexpected ${path}`)
 }
@@ -560,6 +561,17 @@ describe('kennelliittoResults', () => {
         status: 'sent',
         tulosId: 100,
       })
+    })
+
+    it.each([
+      ['the API document', { TulosId: 7 }],
+      ['v1.01', { tulosId: 7 }],
+    ])('takes the id in the object spelling of %s too', async (_name, body) => {
+      tallennaReply['FI10001/20'] = { body, status: 200 }
+
+      await sendKennelliittoResults(ctx(), ['d1'], { force: false })
+
+      expect(registrations[0].kcResult).toMatchObject({ status: 'sent', tulosId: 7 })
     })
 
     it('tells the page what changed so it need not reload', async () => {

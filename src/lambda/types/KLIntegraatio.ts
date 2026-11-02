@@ -4,8 +4,9 @@ import type { JsonObject } from '../../types'
  * Types for Kennelliitto's Integraatio API (KLIntegraatio.ts).
  *
  * Response types follow real Testi2 responses read on 15.10.2026, not the API document's tables.
- * Where no real sample exists the type says so: the request bodies of the
- * four write calls, which follow the API document and are exercised with mocked fetch only.
+ * Where no real sample exists the type says so. Of the write calls' request bodies, Tallenna and Poista
+ * were taken by Testi2 on 2.11.2026; the others follow the API document and are exercised with mocked
+ * fetch only.
  */
 
 export type KLIntegraatioConfig = {
@@ -189,7 +190,10 @@ export type KLIntKoira = {
   väri: string
 }
 
-/** Request body of Koe/Tulos/Tallenna, from the API document (no real sample). */
+/**
+ * Request body of Koe/Tulos/Tallenna, from the API document. Testi2 took it on 2.11.2026 (AVO3 with
+ * pisteet 63.75: 200), so decimals are accepted.
+ */
 export type KLIntTulosTallenna = {
   hylätty: boolean
   keskeytetty: boolean
@@ -206,11 +210,13 @@ export type KLIntTulosTallenna = {
   tuomarit: number[]
 }
 
-export type KLIntTulosTallennaVastaus = {
-  TulosId: number
-}
+/**
+ * The answer of Koe/Tulos/Tallenna. Testi2 answers a bare number, the id of the saved result (200, body
+ * `4434312`, 2.11.2026); the API document's `{ TulosId }` is kept in case production follows it.
+ */
+export type KLIntTulosTallennaVastaus = number | { TulosId: number }
 
-/** Request body of Koe/Tulos/Poista, from the API document (no real sample). */
+/** Request body of Koe/Tulos/Poista, verified on Testi2 2.11.2026 (200, body `1`). */
 export type KLIntTulosPoista = {
   koeGUID: string
   päivä: string
