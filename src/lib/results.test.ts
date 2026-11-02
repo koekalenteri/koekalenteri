@@ -20,6 +20,7 @@ import {
   hasJudgeStop,
   kcFormatOfEventType,
   nowtTotals,
+  nowtZeroFaults,
   parseEventResultCode,
   placementsFor,
   resolveEventResult,
@@ -86,69 +87,109 @@ describe('deriveNowtResult', () => {
     expect(deriveNowtResult({ tasks: round(20, 20, 5, 5) })).toBe('3')
   })
 
-  it('uses the ratio rather than a rounded percentage at the boundary', () => {
-    // 51 of 80 is 63.75 %, which rounds to 64 % but must not reach the 65 % second prize.
+  it('compares the exact share of the maximum, which on whole points agrees with the rounded percentage', () => {
+    // §5.4.1's thresholds fall on whole points of a maximum that is a multiple of 20 (§5.3.1): 52 of 80 is
+    // exactly 65 %, and the score below it, 51, is 63.75 %. The exact comparison states the rule without
+    // relying on that.
     expect(deriveNowtResult({ tasks: round(13, 13, 13, 12) })).toBe('3')
-    // 52 of 80 is exactly 65 %.
     expect(deriveNowtResult({ tasks: round(13, 13, 13, 13) })).toBe('2')
   })
+})
 
-  it('bars every prize when a single task scored zero', () => {
-    // 60 of 80 is 75 %, comfortably a second prize, but a zero cannot be rewarded.
+/**
+ * Every branch of `deriveNowtResult` against §5.4.1 of the rules in force from 15.4.2023: "Jos koiran
+ * pistemäärä ei riitä palkintoon tai se on tehnyt nollatulokseen johtavan tai hylkäävän virheen, tai koe
+ * on keskeytetty koepaikalla tapahtuneen koiran kurittamisen vuoksi, merkitään palkinnon kohdalle nolla
+ * (0). Ohjaajan keskeyttäessä tilanteessa, jossa tuomarin mielestä koiralla olisi vielä ollut
+ * mahdollisuus yltää palkinnoille, tai tuomarin keskeytettyä kokeen koiran loukkaantumisen tai
+ * sairastumisen vuoksi, merkitään tulokseksi viiva (-)." (KOE-1678)
+ */
+describe('deriveNowtResult by §5.4.1 (15.4.2023)', () => {
+  it.each(eliminatingFaults('NOWT'))('§5.4.1: a hylkäävä virhe (%s) is a nought, not a dash', (fault) => {
+    expect(deriveNowtResult({ elimination: { fault }, tasks: round(17, null, null, null) })).toBe('0')
+  })
+
+  it('§5.4.1: a stop for disciplining the dog at the venue is a nought', () => {
+    expect(deriveNowtResult({ elimination: { fault: 'harshHandling' }, tasks: round(20, 20, 20, 20) })).toBe('0')
+  })
+
+  it('§5.4.1: a hylkäävä virhe settles the result before the scores and before completeness', () => {
+    expect(deriveNowtResult({ elimination: { fault: 'aggression' }, tasks: round(0, 18, 16, 14) })).toBe('0')
+    expect(deriveNowtResult({ elimination: { fault: 'gunShyness' }, tasks: [] })).toBe('0')
+  })
+
+  it("§5.4.1: the handler's withdrawal is a dash only where the judge held a prize still in reach", () => {
+    const tasks = round(17, null, null, null)
+
+    expect(deriveNowtResult({ retirement: { cause: 'handlerChoice', couldStillHavePlaced: true }, tasks })).toBe('-')
+    expect(deriveNowtResult({ retirement: { cause: 'handlerChoice', couldStillHavePlaced: false }, tasks })).toBe('0')
+    expect(deriveNowtResult({ retirement: { cause: 'handlerChoice' }, tasks })).toBe('0')
+  })
+
+  it.each(['injury', 'illness'] as const)("§5.4.1: the judge's stop for the dog's %s is a dash", (cause) => {
+    expect(deriveNowtResult({ retirement: { cause }, tasks: round(17, 0, null, null) })).toBe('-')
+  })
+
+  it("§5.3.5, §5.4.1: the judge's stop on the dog's work is a nought", () => {
+    expect(deriveNowtResult({ retirement: { cause: 'judgeStopped' }, tasks: round(20, 20, 20, 20) })).toBe('0')
+  })
+
+  it('§5.3.4, §5.4.1: a nollatulokseen johtava virhe is a nought, whatever the total', () => {
+    // 60 of 80 is 75 %, a second prize by the total.
     expect(deriveNowtResult({ tasks: round(20, 20, 20, 0) })).toBe('0')
   })
 
-  it('gives a third prize at exactly half and a zero below it', () => {
-    expect(deriveNowtResult({ tasks: round(10, 10, 10, 10) })).toBe('3')
-    expect(deriveNowtResult({ tasks: round(10, 10, 10, 9) })).toBe('0')
+  it.each([
+    [[16, 16, 16, 16], '1'],
+    [[16, 16, 16, 15], '2'],
+    [[13, 13, 13, 13], '2'],
+    [[13, 13, 13, 12], '3'],
+    [[10, 10, 10, 10], '3'],
+    [[10, 10, 10, 9], '0'],
+  ] as const)('§5.4.1: %j of 80 is %s by the 80, 65 and 50 % thresholds', (points, code) => {
+    expect(deriveNowtResult({ tasks: round(...points) })).toBe(code)
   })
 
-  it('returns nothing while the round is still being entered', () => {
+  it('§5.4.1 has no branch for a round still being entered: nothing is derived yet', () => {
     expect(deriveNowtResult({ tasks: round(17, 18, null, null) })).toBeUndefined()
     expect(deriveNowtResult({ tasks: [] })).toBeUndefined()
   })
 
-  describe('voided rounds', () => {
-    it('records every eliminating fault as a dash rather than a zero', () => {
-      expect(deriveNowtResult({ elimination: { fault: 'hardMouth' }, tasks: round(17, null, null, null) })).toBe('-')
-      expect(deriveNowtResult({ elimination: { fault: 'harshHandling' }, tasks: round(17, null, null, null) })).toBe(
-        '-'
-      )
-    })
+  it('not a rule: a round with no maximum takes no prize, where every threshold would hold', () => {
+    expect(deriveNowtResult({ tasks: [task(5, 0)] })).toBe('0')
+  })
+})
 
-    it('records an injured dog as a dash without asking about contention', () => {
-      expect(deriveNowtResult({ retirement: { cause: 'injury' }, tasks: round(17, null, null, null) })).toBe('-')
-    })
-
-    it('records a dog the judge stopped for illness as a dash, as an injured one', () => {
-      // §5.4.1 gives the dash to a stop "koiran loukkaantumisen tai sairastumisen vuoksi" (KOE-1669).
-      expect(deriveNowtResult({ retirement: { cause: 'illness' }, tasks: round(17, 0, null, null) })).toBe('-')
-    })
-
-    it("dashes a handler's withdrawal only where the dog could still have placed", () => {
-      const tasks = round(17, null, null, null)
-
-      expect(deriveNowtResult({ retirement: { cause: 'handlerChoice', couldStillHavePlaced: true }, tasks })).toBe('-')
-      expect(deriveNowtResult({ retirement: { cause: 'handlerChoice', couldStillHavePlaced: false }, tasks })).toBe('0')
-    })
-
-    it('settles an exclusion before the zero rule, so the dog is not reported as having failed on merit', () => {
-      expect(deriveNowtResult({ elimination: { fault: 'aggression' }, tasks: round(0, 18, 16, 14) })).toBe('-')
-    })
-
-    it('settles a voided round before completeness, so an unfinished scorecard still resolves', () => {
-      expect(deriveNowtResult({ elimination: { fault: 'gunShyness' }, tasks: [] })).toBe('-')
-    })
-
-    it("records a judge's stop as a nought rather than a dash", () => {
-      // The breeding database publishes a stopped dog as ALO0 with Kesk. beside it: the code says the
-      // dog was not placed, and the mark says why. A dash would read as an elimination.
-      expect(deriveNowtResult({ retirement: { cause: 'judgeStopped' }, tasks: round(17, null, null, null) })).toBe('0')
-    })
+describe('nowtZeroFaults', () => {
+  it('lists §5.3.4 one to one and in its order, with the secretary\'s "ei tiedossa" last (KOE-1664)', () => {
+    expect(nowtZeroFaults).toEqual([
+      'failedRetrieve',
+      'unauthorizedRun',
+      'outOfControl',
+      'physicalContact',
+      'persistentNoise',
+      'refusedWater',
+      'huntingWithDummy',
+      'swappedDummy',
+      'eyeWipe',
+      'unknown',
+    ])
   })
 })
 
 describe('eliminatingFaults', () => {
+  it('lists §5.3.5 one to one and in its order for NOWT, then the stop §5.4.1 names', () => {
+    for (const eventType of ['NOWT', 'NOWT SM']) {
+      expect(eliminatingFaults(eventType)).toEqual([
+        'aggression',
+        'gunShyness',
+        'excessiveShyness',
+        'hardMouth',
+        'harshHandling',
+      ])
+    }
+  })
+
   it('offers merkkaaminen only where the NOU rules give it', () => {
     // §2.3.2 fails the Hakuinto quality of the taipumuskoe for continual scent-marking. NOWT §5.3.5 has
     // four faults and this is not among them, so offering it there would invite a record the rules of
@@ -347,7 +388,7 @@ describe('hasJudgeStop', () => {
 })
 
 describe('resultMarks', () => {
-  it("marks a judge's stop, which the dash it shares with an elimination cannot say", () => {
+  it("marks a judge's stop, which the nought it shares with an elimination cannot say", () => {
     expect(resultMarks({ retirement: { cause: 'judgeStopped' } })).toEqual(['interrupted'])
   })
 
@@ -497,16 +538,16 @@ describe('resolveEventResult', () => {
     expect(result.result).toBe('AVO3')
   })
 
-  it('lets a submitted code override the derived prize', () => {
-    // §5.4.1 grants no discretion here and no client sends this; the server-side override stands until
-    // the deferred conformance work decides whether it should exist at all.
-    expect(resolveEventResult({ resultCode: '2', tasks: fullRound(17, 18, 16, 14) }, nowt).result).toBe('AVO2')
+  it('derives the prize of a format scored at posts whatever code came with it (§5.4.1)', () => {
+    // §5.4.1 gives the prize by the percentage and grants the judge no discretion over it (KOE-1678).
+    expect(resolveEventResult({ resultCode: '2', tasks: fullRound(17, 18, 16, 14) }, nowt).result).toBe('AVO1')
+    expect(resolveEventResult({ resultCode: '1', tasks: fullRound(17, 18) }, nowt).result).toBeUndefined()
   })
 
-  it('publishes what an eliminated round earned, by the rule of every round that ended early', () => {
+  it('publishes what an eliminated round earned beside its nought (§5.4.1)', () => {
     const result = resolveEventResult({ elimination: { fault: 'hardMouth' }, tasks: [entered(1, 17)] }, nowt)
 
-    expect(result).toMatchObject({ maxPoints: 80, percentage: 21.25, points: 17, result: 'AVO-' })
+    expect(result).toMatchObject({ maxPoints: 80, percentage: 21.25, points: 17, result: 'AVO0' })
   })
 
   it('counts a score stored at a post after the stop, which the secretary sees and can clear', () => {

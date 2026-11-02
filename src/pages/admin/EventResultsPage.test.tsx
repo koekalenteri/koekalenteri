@@ -697,8 +697,9 @@ describe('EventResultsPage', () => {
     expect(screen.getByRole('button', { name: 'results.save' })).toBeEnabled()
   })
 
-  // 'unknown' is the secretary's "ei tiedossa" when the scorecard does not say why (KOE-1664).
-  it.each(['eyeWipe', 'unknown'])(
+  // 'unknown' is the secretary's "ei tiedossa" when the scorecard does not say why (KOE-1664);
+  // 'failedRetrieve' and 'physicalContact' are §5.3.4's own (KOE-1678).
+  it.each(['failedRetrieve', 'physicalContact', 'eyeWipe', 'unknown'])(
     'asks why a task scored nothing, and will not let the zero stand unexplained (%s)',
     async (code) => {
       const { i18n } = useTranslation()
@@ -736,9 +737,9 @@ describe('EventResultsPage', () => {
     await user.click(screen.getByRole('option', { name: 'results.eliminatingFaults.hardMouth' }))
     await flushPromises()
 
-    // Every elimination is a dash rather than a zero, and which post threw the dog out is worth
-    // keeping rather than losing.
-    expect(screen.getByText('ALO-')).toBeInTheDocument()
+    // An elimination is a nought (§5.4.1, KOE-1678), and which post threw the dog out is worth keeping
+    // rather than losing.
+    expect(screen.getByText('ALO0')).toBeInTheDocument()
     expect(within(rowFor('Ensimmainen')).getByLabelText('results.outcomeAt')).toBeInTheDocument()
   })
 
@@ -1094,24 +1095,6 @@ describe('conflict handling', () => {
 
     expect(error.status).toBe(409)
     expect(error.body).toMatchObject({ conflicts: [{ id: 'reg-1' }] })
-  })
-})
-
-describe('a round that was not scored', () => {
-  it('is a dash rather than a zero, whichever fault ended it', async () => {
-    const { deriveNowtResult } = await import('../../lib/results')
-    const tasks = [{ maxPoints: 20, points: 17, task: 1 }]
-
-    expect(deriveNowtResult({ elimination: { fault: 'harshHandling' }, tasks })).toBe('-')
-    expect(deriveNowtResult({ retirement: { cause: 'injury' }, tasks })).toBe('-')
-  })
-
-  it("turns a handler's withdrawal on whether the dog was still in contention", async () => {
-    const { deriveNowtResult } = await import('../../lib/results')
-    const tasks = [{ maxPoints: 20, points: 17, task: 1 }]
-
-    expect(deriveNowtResult({ retirement: { cause: 'handlerChoice', couldStillHavePlaced: true }, tasks })).toBe('-')
-    expect(deriveNowtResult({ retirement: { cause: 'handlerChoice', couldStillHavePlaced: false }, tasks })).toBe('0')
   })
 })
 

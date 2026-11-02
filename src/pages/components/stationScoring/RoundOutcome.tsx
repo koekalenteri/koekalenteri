@@ -73,9 +73,10 @@ const stationOf = (edit: ResultEdit) => edit.elimination?.stationId ?? edit.reti
 /**
  * How the round ended, where that is something other than being scored.
  *
- * Elimination and withdrawal sit in one control because they answer the same question — the dog did not
- * finish — even though the rules treat them differently: every elimination is a dash, while a handler's
- * own withdrawal is a dash only if the judge holds the dog could still have placed.
+ * Elimination and withdrawal sit in one control because they answer the same question, that the dog did
+ * not finish, even though the rules treat them differently: in a working test an elimination is the
+ * nought (§5.4.1), while a handler's own withdrawal is a dash if the judge holds the dog could still have
+ * placed.
  *
  * While `outcomeReasonEnabled` is off, a round scored at posts (NOWT) offers the retirements and the
  * judge's stop (KOE-1669), and the other formats the judge's stop alone (KOE-1300); the hylkäävät virheet

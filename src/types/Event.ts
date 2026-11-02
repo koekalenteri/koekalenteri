@@ -211,7 +211,7 @@ export type EventStation = {
   number: number
   date: DayKey
   /**
-   * Several judges may work one post (§5.7). Always an array: `classes[].judge` carries a legacy
+   * Several judges may work one post (NOWT §5.3.1). Always an array: `classes[].judge` carries a legacy
    * single-judge shape, but this field is new and has no such history to accommodate.
    */
   judges?: PublicJudge[]

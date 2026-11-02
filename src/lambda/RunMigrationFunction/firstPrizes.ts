@@ -40,8 +40,12 @@ export const restoreFirstPrize = (registration: JsonRegistration, event: JsonDog
   return true
 }
 
-/** Records on each registration whose prize the migration raised what it was and what it is now. */
-export const auditRestoredFirstPrizes = async (
+/**
+ * Records on each registration whose result a migration changed what it was and what it is now: the first
+ * prize `restoreFirstPrize` raised (KOE-1677), and the nought `storeEliminationsAsNought` gave an
+ * elimination stored as the dash (KOE-1678).
+ */
+export const auditRederivedResults = async (
   written: readonly { before: JsonRegistration; item: JsonRegistration }[]
 ) => {
   for (const { before, item } of written) {

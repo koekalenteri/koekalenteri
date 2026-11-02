@@ -224,6 +224,16 @@ describe('putStationEntryLambda', () => {
     expect(mockUpdateRegistrationField).not.toHaveBeenCalled()
   })
 
+  it('refuses a result code for a round scored at posts, whose result is derived (§5.4.1, KOE-1678)', async () => {
+    await expect(
+      putStationEntryLambda(
+        apiEvent([{ eventResult: { resultCode: '1', tasks: [{ exercise: 1, points: 17 }] }, id: 'reg-1' }])
+      )
+    ).rejects.toThrow("Result code '1' is not taken for NOWT: its result is derived from the scores")
+
+    expect(mockUpdateRegistrationField).not.toHaveBeenCalled()
+  })
+
   it('drops the whole-round fields a station link may not write', async () => {
     await putStationEntryLambda(
       apiEvent([
@@ -233,7 +243,6 @@ describe('putStationEntryLambda', () => {
             junk: 'x',
             notes: 'ei rastin asia',
             resCert: true,
-            resultCode: '1',
             tasks: [{ exercise: 1, points: 17 }],
           },
           id: 'reg-1',
@@ -241,9 +250,8 @@ describe('putStationEntryLambda', () => {
       ])
     )
 
-    // The certs, the notes and an overriding result code are the event secretary's; a widely shared
-    // link writes its post's scores and outcome, nothing else.
-    // The dropped result code did not sneak into a derived result either: the round is incomplete.
+    // The certs and the notes are the event secretary's; a widely shared link writes its post's scores
+    // and outcome, nothing else. The round is incomplete, so no result is derived either.
     for (const field of ['cert', 'junk', 'notes', 'resCert', 'result']) {
       expect(mockUpdateRegistrationField).not.toHaveBeenCalledWith(
         'event-1',

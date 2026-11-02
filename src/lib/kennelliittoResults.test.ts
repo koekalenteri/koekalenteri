@@ -26,6 +26,8 @@ import {
   kcResultBadge,
   kcResultDay,
 } from './kennelliittoResults'
+import { resolveEventResult } from './results'
+import { dogRound } from './resultTasks'
 import { patchMerge } from './utils'
 
 const chief = { id: 1000001, name: 'Pääty Tuomari' }
@@ -279,7 +281,7 @@ describe('kennelliittoResults', () => {
           koemuotoNOWT
         )
       )
-      const dash = sent(nowt({ elimination: { fault: 'aggression' }, result: 'VOI-' }, { placement: undefined }))
+      const dash = sent(nowt({ result: 'VOI-', retirement: { cause: 'injury' } }, { placement: undefined }))
       expect([nought.sijoitus, dash.sijoitus]).toEqual([undefined, undefined])
       expect('sijoitus' in nought || 'sijoitus' in dash).toEqual(false)
     })
@@ -323,7 +325,7 @@ describe('kennelliittoResults', () => {
       [
         'an AVO dash, whose 0 to 0 row sets no limit',
         'AVO',
-        { elimination: { fault: 'aggression' }, percentage: 20, result: 'AVO-' },
+        { percentage: 20, result: 'AVO-', retirement: { cause: 'injury' } },
         [20, undefined],
       ],
       ['a VOI dash over 49 %', 'VOI', { percentage: 60, result: 'VOI-' }, [60, undefined]],
@@ -339,6 +341,32 @@ describe('kennelliittoResults', () => {
         expect(pointsSent(fields, cls)).toEqual(expected)
       }
     )
+
+    /** A round an elimination ended at the fourth exercise, as a save stores it: 51 of 80, 63.75 %. */
+    const eliminated = (cls: RegistrationClass) => {
+      const round = dogRound(
+        { stations: [1, 2, 3, 4].map((number) => ({ date: '2026-09-12' as const, id: `post-${number}`, number })) },
+        { class: cls, day: '2026-09-12' }
+      )
+      const tasks = [17, 17, 17].map((points, index) => ({
+        exercise: index + 1,
+        part: 0,
+        points,
+        updatedAt: '2026-09-12T10:00:00.000Z',
+        updatedBy: 'Rasti',
+      }))
+      return resolveEventResult(
+        { elimination: { exercise: 4, fault: 'hardMouth' }, tasks },
+        { eventClass: cls, eventType: 'NOWT', round }
+      )
+    }
+
+    it('sends an eliminated round as the nought §5.4.1 gives it, by the limit of its row (KOE-1678)', () => {
+      // AVO0 takes 0 to 49, so the 63.75 % goes for entering by hand; ALO0's 0 to 0 row sets no limit.
+      expect(eliminated('AVO')).toMatchObject({ percentage: 63.75, result: 'AVO0' })
+      expect(pointsSent(eliminated('AVO'), 'AVO')).toEqual([0, 63.75])
+      expect(pointsSent(eliminated('ALO'), 'ALO')).toEqual([63.75, undefined])
+    })
 
     it('sends no points and nothing to enter by hand in a format not scored at posts', () => {
       const outcome = buildKcResult(event('NOU'), dog(result({ percentage: 60, result: 'NOU0' })), koemuotoNOU)
