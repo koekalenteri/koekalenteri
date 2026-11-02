@@ -14,14 +14,14 @@ covers:
   - src/pages/admin/eventViewPage/infoPanel/ResultsPublishing.tsx
   - src/pages/admin/components/KcIdLookupButton.tsx
   - src/pages/admin/components/StartDaySelector.tsx
-sourceHash: 4bfdad
+sourceHash: ef56f6
 ---
 
 On the trial day the secretary's job is to record what the dogs did and to get the results in
 front of the participants. The *{t:eventManagement.results.title}* section of the event page's
 **{t:eventManagement.tabs.management}** panel gathers everything that belongs to it: defining the
 posts, entering the results and publishing them class by class. Saving and publishing are two
-different things — an entered result is visible only in the admin views until the class is
+different things: an entered result is visible only in the admin views until the class is
 published.
 
 !shot[ResultsPublishing/results-publishing] Publishing results per class, with the posts and the entry below

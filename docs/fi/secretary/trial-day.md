@@ -19,7 +19,7 @@ covers:
 Koepäivänä koesihteerin työ on kirjata, mitä koirakot tekivät, ja saada tulokset osallistujien
 nähtäville. Tapahtumasivun **{t:eventManagement.tabs.management}** -paneelin osio
 *{t:eventManagement.results.title}* kokoaa kaiken tähän kuuluvan: suorituspaikkojen määrittelyn,
-tulosten syötön ja luokittaisen julkaisun. Tallentaminen ja julkaiseminen ovat kaksi eri asiaa —
+tulosten syötön ja luokittaisen julkaisun. Tallentaminen ja julkaiseminen ovat kaksi eri asiaa:
 syötetty tulos näkyy vain ylläpidossa, kunnes luokka julkaistaan.
 
 !shot[ResultsPublishing/results-publishing] Tulosten julkaisu luokittain, alla suorituspaikat ja tulosten syöttö

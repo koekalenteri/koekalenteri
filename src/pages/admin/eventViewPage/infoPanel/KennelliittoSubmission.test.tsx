@@ -666,6 +666,7 @@ describe('KennelliittoSubmission (KOE-1579)', () => {
           reports: [
             { ...sent('run-1'), pointsByHand: 63.75 },
             { ...sent('run-2'), outcome: 'failed', pointsByHand: 40, status: 400 },
+            { ...sent('run-3'), outcome: 'skipped', pointsByHand: 55 },
           ],
         })
         vi.mocked(previewKennelliittoResults).mockResolvedValueOnce({
