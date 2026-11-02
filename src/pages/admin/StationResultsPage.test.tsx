@@ -357,7 +357,13 @@ describe('StationResultsPage', () => {
       await pickFirstDog(user)
 
       expect(screen.getByText('results.kennelliitto.lockedSave')).toBeInTheDocument()
-      expect(previewKennelliittoResults).toHaveBeenCalledWith(eventWithStations.id, [], expect.anything(), undefined)
+      expect(previewKennelliittoResults).toHaveBeenCalledWith(
+        eventWithStations.id,
+        [],
+        expect.anything(),
+        undefined,
+        undefined
+      )
     })
 
     it('keeps the scores on screen when a dog is gone, reads the list again and lets another dog be picked', async () => {
@@ -396,7 +402,13 @@ describe('StationResultsPage', () => {
       expect(screen.getByRole('button', { name: 'results.save' })).toBeDisabled()
       // A judge who has sent the trial back opens the post again without anyone asking for it.
       expect(previewKennelliittoResults).toHaveBeenCalledTimes(1)
-      expect(previewKennelliittoResults).toHaveBeenCalledWith(eventWithStations.id, [], expect.anything(), undefined)
+      expect(previewKennelliittoResults).toHaveBeenCalledWith(
+        eventWithStations.id,
+        [],
+        expect.anything(),
+        undefined,
+        undefined
+      )
     })
 
     it('reads the state of a trial stored open when it opens, so a trial handed over in Omakoira locks the post too (KOE-1222)', async () => {
@@ -405,7 +417,13 @@ describe('StationResultsPage', () => {
       await flushPromises()
 
       expect(previewKennelliittoResults).toHaveBeenCalledTimes(1)
-      expect(previewKennelliittoResults).toHaveBeenCalledWith(eventWithStations.id, [], expect.anything(), undefined)
+      expect(previewKennelliittoResults).toHaveBeenCalledWith(
+        eventWithStations.id,
+        [],
+        expect.anything(),
+        undefined,
+        undefined
+      )
     })
 
     it('asks nothing of Kennelliitto for a trial of a type it does not know (KOE-1222)', async () => {

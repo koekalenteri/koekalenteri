@@ -9,23 +9,19 @@ import { dogNotAddedText, problemsText } from '../eventViewPage/infoPanel/kennel
 /** The badges a dog shows. A dog with no result shows none: the row says so already. */
 type ShownBadge = Exclude<KcResultBadge, 'notRecorded'>
 
-const COLORS: Record<ShownBadge, 'default' | 'error' | 'success' | 'warning'> = {
-  blocked: 'error',
-  changed: 'warning',
-  failed: 'error',
-  ready: 'default',
-  sentGone: 'warning',
-  unchanged: 'success',
+interface BadgeLook {
+  color: 'default' | 'error' | 'success' | 'warning'
+  /** The badge's key: where the send dialog puts the dog, worded for a column beside it. */
+  label: 'blocked' | 'changed' | 'failed' | 'sent' | 'sentGone' | 'unsent'
 }
 
-/** The label of each badge: where the send dialog puts the dog, worded for a column beside it. */
-const LABELS: Record<ShownBadge, 'blocked' | 'changed' | 'failed' | 'sent' | 'sentGone' | 'unsent'> = {
-  blocked: 'blocked',
-  changed: 'changed',
-  failed: 'failed',
-  ready: 'unsent',
-  sentGone: 'sentGone',
-  unchanged: 'sent',
+const LOOKS: Record<ShownBadge, BadgeLook> = {
+  blocked: { color: 'error', label: 'blocked' },
+  changed: { color: 'warning', label: 'changed' },
+  failed: { color: 'error', label: 'failed' },
+  ready: { color: 'default', label: 'unsent' },
+  sentGone: { color: 'warning', label: 'sentGone' },
+  unchanged: { color: 'success', label: 'sent' },
 }
 
 const isShown = (status: KcResultBadge): status is ShownBadge => status !== 'notRecorded'
@@ -56,11 +52,12 @@ export const KennelliittoStatus = ({ badge, registration }: Props) => {
   if (!badge || !isShown(badge.status)) return null
 
   const { status } = badge
+  const { color, label } = LOOKS[status]
   const reasons = tooltipOf(t, badge, registration)
   const chip = (
     <Chip
-      color={COLORS[status]}
-      label={t(`results.kennelliitto.badge.${LABELS[status]}`)}
+      color={color}
+      label={t(`results.kennelliitto.badge.${label}`)}
       size="small"
       variant={status === 'ready' || status === 'blocked' ? 'outlined' : 'filled'}
     />

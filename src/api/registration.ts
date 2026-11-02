@@ -267,7 +267,7 @@ export async function putEventResults(
 
 type KennelliittoRequest =
   | { action: 'handOver'; withoutBlocked?: boolean }
-  | { action: 'preview'; registrationIds?: string[] }
+  | { action: 'preview'; registrationIds?: string[]; withoutDogLookup?: boolean }
   | { action: 'send'; force?: boolean; registrationIds: string[]; switchRegNos?: string[] }
 
 const kennelliittoResults = async <R>(
@@ -284,13 +284,23 @@ const kennelliittoResults = async <R>(
     )
   ).data
 
-/** What sending would do, without sending: the dialog's list. A write to Kennelliitto it is not. */
+/**
+ * What sending would do, without sending: the dialog's list. A write to Kennelliitto it is not.
+ * `withoutDogLookup` leaves Kennelliitto unasked about the foreign dogs, for the results page's column.
+ */
 export const previewKennelliittoResults = (
   eventId: string,
   registrationIds: string[] | undefined,
   token: string,
-  signal?: AbortSignal
-) => kennelliittoResults<KcPreviewResponse>(eventId, { action: 'preview', registrationIds }, token, signal)
+  signal?: AbortSignal,
+  { withoutDogLookup }: { withoutDogLookup?: boolean } = {}
+) =>
+  kennelliittoResults<KcPreviewResponse>(
+    eventId,
+    { action: 'preview', registrationIds, ...(withoutDogLookup ? { withoutDogLookup } : {}) },
+    token,
+    signal
+  )
 
 /**
  * At most ten dogs at a time; the server refuses more. `switchRegNos` is the whole sending's, for the dogs

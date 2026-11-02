@@ -506,8 +506,16 @@ const evaluateWithKc = async (
   return { evaluated: applyForeignLookup(evaluated, lookup), lookup }
 }
 
-/** What sending would do, without sending: the secretary's list before the confirmation. */
-export const previewKennelliittoResults = async (ctx: KcContext, ids?: string[]): Promise<KcPreview> => {
+/**
+ * What sending would do, without sending: the secretary's list before the confirmation. `withoutDogLookup`
+ * leaves Kennelliitto unasked about the foreign dogs (KOE-1201, KOE-1653): the results page reads every dog
+ * on open and after each change, and shows such a dog as the evaluation has it; the dialog asks.
+ */
+export const previewKennelliittoResults = async (
+  ctx: KcContext,
+  ids?: string[],
+  { withoutDogLookup = false }: { withoutDogLookup?: boolean } = {}
+): Promise<KcPreview> => {
   const req = startRequest(ctx)
   const trial = await openKcTrial(req, { findGuid: true })
   const state = trial.event.kcState && { code: trial.event.kcState.code, name: trial.event.kcState.name }
@@ -516,13 +524,17 @@ export const previewKennelliittoResults = async (ctx: KcContext, ids?: string[])
   if (!koemuoto) return { blockers: trial.blockers, dogs: [], ...withState }
 
   const registrations = await getReadyRegistrationsByEventId(ctx.event.id, true)
-  const { evaluated } = await evaluateWithKc(
-    { ...req, event: trial.event },
-    { event: trial.event, koemuoto },
-    registrations,
-    nowOf(ctx),
-    ids
-  )
+  const evaluated = withoutDogLookup
+    ? evaluateAll(trial.event, registrations, koemuoto, nowOf(ctx), ids)
+    : (
+        await evaluateWithKc(
+          { ...req, event: trial.event },
+          { event: trial.event, koemuoto },
+          registrations,
+          nowOf(ctx),
+          ids
+        )
+      ).evaluated
   return { blockers: [], dogs: evaluated.map(({ report }) => report), ...withState }
 }
 

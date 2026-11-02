@@ -571,6 +571,12 @@ describe('kennelliittoResults', () => {
       }
     })
 
+    it('gives no badge to a dog the preview does not name: one that did not run and has nothing sent', () => {
+      const badges = kcResultBadges([entry('ran'), entry('reserve', { status: 'failed' })], [report('ran', 'ready')])
+
+      expect([...badges.keys()]).toEqual(['ran'])
+    })
+
     it('says nothing of a dog that has no result and was never sent, when the preview has no dogs', () => {
       expect(kcResultBadges([entry('d', undefined, '')], []).size).toEqual(0)
     })

@@ -14,7 +14,7 @@ covers:
   - src/pages/admin/eventViewPage/infoPanel/ResultsPublishing.tsx
   - src/pages/admin/components/KcIdLookupButton.tsx
   - src/pages/admin/components/StartDaySelector.tsx
-sourceHash: 03f80a
+sourceHash: 800910
 ---
 
 On the trial day the secretary's job is to record what the dogs did and to get the results in
@@ -212,12 +212,15 @@ In an official trial the *{t:results.kennelliitto.column}* column tells for each
 in Omakoira: *{t:results.kennelliitto.badge.sent}*, *{t:results.kennelliitto.badge.changed}*,
 *{t:results.kennelliitto.badge.unsent}*, *{t:results.kennelliitto.badge.blocked}*,
 *{t:results.kennelliitto.badge.sentGone}* or *{t:results.kennelliitto.badge.failed}*. The column shows
-the same as the send dialog: the page asks Koekalenteri's server where the dogs stand when it opens and
-after every save. A result has changed when what would go to Omakoira differs from what was sent, whether
-the change is in the dog's own result, in its placement because of another dog's result, in the judges or
-in the dog's details. Saving without a change does not change the state. If Kennelliitto cannot be asked,
-or the trial has already been handed over, the column shows only the outcome of the last sending. The
-results page and a
+the same as the send dialog: the page asks where the dogs stand when it opens, and a moment after results
+have been saved, also at a post or by another secretary. A result has changed when what would go to
+Omakoira differs from what was sent, whether the change is in the dog's own result, in its placement
+because of another dog's result, in the judges or in the dog's details. Saving without a change does not
+change the state. *{t:results.kennelliitto.badge.blocked}*: the result cannot be sent, and hovering over
+the state shows why; correct the result or the dog's details. *{t:results.kennelliitto.badge.sentGone}*:
+the result is in Omakoira although the dog no longer has a result here; record the result again, or leave
+the dog out of the hand-over when the hand-over dialog asks. If Kennelliitto cannot be asked, or the trial
+has already been handed over, the column shows only the outcome of the last sending. The results page and a
 post's scoring page read the trial's state from Kennelliitto when they open, so a trial handed to the judge
 opens read-only also when it was handed over in Omakoira directly. Sending the results and correcting them
 after sending are described on the page [After entry closes](/docs/secretary/after-entry-closes), under

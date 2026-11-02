@@ -45,6 +45,21 @@ describe('KennelliittoStatus', () => {
     expect(screen.getByLabelText(/^results\.kennelliitto\.dogNotAdded/)).toBeInTheDocument()
   })
 
+  it.each([
+    ['blocked', { problems: [{ code: 'noMicrochip' }], status: 'blocked' } satisfies KcBadge, /problem\.noMicrochip/],
+    ['ready', { problems: [], status: 'ready' } satisfies KcBadge, undefined],
+  ])('does not say a foreign dog was not added once it reads %s', (_case, badge, tooltip) => {
+    render(
+      <KennelliittoStatus
+        badge={badge}
+        registration={registration({ at, by: 'Sihteeri', dogNotAdded: true, status: 'failed' })}
+      />
+    )
+
+    expect(screen.queryByLabelText(/dogNotAdded/)).not.toBeInTheDocument()
+    if (tooltip) expect(screen.getByLabelText(tooltip)).toBeInTheDocument()
+  })
+
   it('explains a result that cannot be sent with what the send dialog says of it', () => {
     const badge: KcBadge = { problems: [{ code: 'judgeWithoutNumber', detail: 'Ulkomaalainen' }], status: 'blocked' }
     render(<KennelliittoStatus badge={badge} registration={registration()} />)

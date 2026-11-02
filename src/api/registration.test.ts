@@ -12,6 +12,7 @@ import {
   patchRegistration,
   postAdminRegistration,
   postRegistration,
+  previewKennelliittoResults,
   putEventResults,
   putRegistrationGroups,
 } from './registration'
@@ -279,6 +280,26 @@ test('putRegistrationGroups', async () => {
   expect(fetchMock).toHaveBeenCalledTimes(1)
   expect(fetchMock).toHaveBeenCalledWith(`${API_BASE_URL}/admin/reg-groups/test-id`, expect.any(Object))
   expect(items).toHaveLength(1)
+})
+
+describe('previewKennelliittoResults', () => {
+  it.each([
+    ['the send dialog', undefined, { action: 'preview', registrationIds: ['a'] }],
+    [
+      'the results page, which leaves the foreign dogs unasked',
+      { withoutDogLookup: true },
+      { action: 'preview', registrationIds: ['a'], withoutDogLookup: true },
+    ],
+  ])('asks the preview as %s does', async (_case, options, body) => {
+    fetchMock.mockResponseOnce(JSON.stringify({ blockers: [], dogs: [] }))
+
+    await previewKennelliittoResults('test-id', ['a'], 'test-token', undefined, options)
+
+    expect(fetchMock).toHaveBeenCalledWith(
+      `${API_BASE_URL}/admin/event-results/test-id/kennelliitto`,
+      expect.objectContaining({ body: JSON.stringify(body), method: 'POST' })
+    )
+  })
 })
 
 describe('getStartList', () => {

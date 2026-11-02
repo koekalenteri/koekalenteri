@@ -218,11 +218,15 @@ onko sen tulos Omakoirassa: *{t:results.kennelliitto.badge.sent}*,
 *{t:results.kennelliitto.badge.changed}*, *{t:results.kennelliitto.badge.unsent}*,
 *{t:results.kennelliitto.badge.blocked}*, *{t:results.kennelliitto.badge.sentGone}* tai
 *{t:results.kennelliitto.badge.failed}*. Sarake näyttää saman kuin lähetysikkuna: sivu kysyy koirien
-tilan Koekalenterin palvelimelta avautuessaan ja jokaisen tallennuksen jälkeen. Tulos on muuttunut, kun
-Omakoiraan lähtevä tieto on toinen kuin lähetetty, oli muutos koiran omassa tuloksessa, sijoituksessa
-toisen koiran tuloksen takia, tuomareissa tai koiran tiedoissa. Tallennus ilman muutosta ei muuta tilaa.
-Jos Kennelliittoa ei saada kysyttyä tai koe on jo luovutettu, sarake näyttää vain viimeisimmän lähetyksen
-tuloksen. Tulossivu ja suorituspaikan kirjaussivu lukevat kokeen tilan
+tilan avautuessaan ja aina hetken kuluttua siitä, kun koirien tuloksia on tallennettu, myös
+suorituspaikalla tai toisen sihteerin tallentamina. Tulos on muuttunut, kun Omakoiraan lähtevä tieto on
+toinen kuin lähetetty, oli muutos koiran omassa tuloksessa, sijoituksessa toisen koiran tuloksen takia,
+tuomareissa tai koiran tiedoissa. Tallennus ilman muutosta ei muuta tilaa.
+*{t:results.kennelliitto.badge.blocked}*: tulosta ei voi lähettää, ja tilan päälle vietäessä näkyy syy;
+korjaa tulos tai koiran tiedot. *{t:results.kennelliitto.badge.sentGone}*: tulos on Omakoirassa, mutta
+koiralla ei ole enää tulosta tässä; kirjaa tulos uudelleen, tai jätä koira pois luovutuksesta, kun
+luovutusikkuna kysyy sitä. Jos Kennelliittoa ei saada kysyttyä tai koe on jo luovutettu, sarake näyttää
+vain viimeisimmän lähetyksen tuloksen. Tulossivu ja suorituspaikan kirjaussivu lukevat kokeen tilan
 Kennelliitosta avautuessaan, joten tuomarille luovutettu koe avautuu vain luettavaksi myös silloin,
 kun se on luovutettu suoraan Omakoirassa. Lähetyksestä ja tulosten korjaamisesta lähetyksen jälkeen
 kerrotaan sivulla [Ilmoittautumisajan jälkeen](/docs/secretary/after-entry-closes), kohdassa

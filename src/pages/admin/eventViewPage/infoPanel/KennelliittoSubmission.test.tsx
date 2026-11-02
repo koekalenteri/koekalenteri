@@ -248,7 +248,13 @@ describe('KennelliittoSubmission (KOE-1579)', () => {
       expect(screen.getByText('results.kennelliitto.confirmNote')).toBeInTheDocument()
       // The sentence about no more editing belongs to the hand-over, not to the sending.
       expect(screen.queryByText('results.kennelliitto.handOver.confirm')).not.toBeInTheDocument()
-      expect(previewKennelliittoResults).toHaveBeenLastCalledWith('test1', undefined, expect.anything(), undefined)
+      expect(previewKennelliittoResults).toHaveBeenLastCalledWith(
+        'test1',
+        undefined,
+        expect.anything(),
+        undefined,
+        undefined
+      )
       expect(screen.queryByRole('radiogroup')).not.toBeInTheDocument()
     })
 

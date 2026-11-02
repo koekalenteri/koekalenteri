@@ -984,6 +984,16 @@ describe('kennelliittoResults', () => {
       expect(posts()).toEqual([])
     })
 
+    it('asks Kennelliitto nothing of the dog for a preview without the lookup, as the results page reads it', async () => {
+      registrations = [foreign('d1')]
+
+      const preview = await previewKennelliittoResults(ctx(), undefined, { withoutDogLookup: true })
+
+      expect(preview.dogs).toEqual([expect.objectContaining({ id: 'd1', problems: [], status: 'ready' })])
+      expect(preview.dogs[0].createsDog).toBeUndefined()
+      expect(calls.filter((call) => call.path === 'Koira' || call.path === 'Yleista/Maat')).toEqual([])
+    })
+
     it('only sends the result of a foreign dog Kennelliitto knows', async () => {
       registrations = [foreign('d1')]
       kcDogs['SE12345/2024'] = kcAnswer({ id: 1, nimi: 'Koira d1', rekisterinumero: 'SE12345/2024' })
