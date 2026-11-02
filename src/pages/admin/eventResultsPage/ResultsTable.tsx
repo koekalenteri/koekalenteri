@@ -291,7 +291,7 @@ function ResultsTable({
 
   return (
     <TableContainer component={Paper} variant="outlined">
-      <Table size="small" stickyHeader sx={{ '& td': { py: 0.5 } }}>
+      <Table size="small" stickyHeader sx={{ '& td': { py: 0.5 }, '& td, & th': { px: 1 } }}>
         <TableHead>
           <TableRow>
             <TableCell align="right">{t('results.column.number')}</TableCell>

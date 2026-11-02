@@ -210,7 +210,7 @@ export const RoundOutcome = ({
 
   return (
     // In a table the cell is as wide as its fields, so a long label wraps instead of widening the column.
-    <Stack spacing={0.5} sx={inline ? { width: 190 } : undefined}>
+    <Stack spacing={0.5} sx={inline && !idle ? { width: 160 } : undefined}>
       {/* With the stop the only thing on offer, a locked stop is a locked control; with the reasons of
           KOE-1299 beside it, only the stop's own line goes grey. */}
       <TextField

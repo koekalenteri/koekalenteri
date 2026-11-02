@@ -1,3 +1,4 @@
+import type { ExerciseSlot } from '@/lib/resultTasks'
 import type { PublicJudge, Registration } from '@/types'
 import type { ResultEdit } from '../../components/stationScoring/types'
 import { ThemeProvider } from '@mui/material/styles'
@@ -34,6 +35,18 @@ const runners = registrationsToEventWithStations
 // Every dog of the fixture is one group, so one round stands for all of them.
 const round = dogRound(eventWithStations, rotationDogOf(registrationsToEventWithStations[0]))
 const roundOf = () => round
+// A working test is always four or five exercises, one of which may be split in two: six score columns
+// at the most, and that is the width the table has to fit.
+const wholeCourse: ExerciseSlot[] = [1, 2, 3, 4, 5].flatMap((exercise) =>
+  (exercise === 3 ? [0, 1] : [0]).map((part) => ({
+    exercise,
+    maxPoints: exercise === 3 ? 10 : 20,
+    part,
+    parts: exercise === 3 ? 2 : 1,
+    stationId: exercise % 2 ? 'post-1' : 'post-2',
+  }))
+)
+const wholeCourseOf = () => wholeCourse
 // One dog through the whole course on a first prize, and one whose handler withdrew it at the first
 // post: the score it earned there stays an input and counts in its total, the post it never reached reads
 // "kesk", and the result is the nought without "Kesk." beside it, as Kennelliitto publishes a handler's
@@ -41,9 +54,12 @@ const roundOf = () => round
 const nowtEdits: Record<string, ResultEdit> = {
   'run-1': {
     tasks: [
-      { exercise: 1, judge, part: 0, points: 17 },
-      { exercise: 2, judge, part: 0, points: 8 },
-      { exercise: 2, judge, part: 1, points: 9 },
+      { exercise: 1, judge, part: 0, points: 18 },
+      { exercise: 2, judge, part: 0, points: 17 },
+      { exercise: 3, judge, part: 0, points: 9 },
+      { exercise: 3, judge, part: 1, points: 9 },
+      { exercise: 4, judge, part: 0, points: 19 },
+      { exercise: 5, judge, part: 0, points: 18 },
     ],
   },
   'run-2': {
@@ -82,14 +98,14 @@ const nowtTable = (compact = false) => (
     edits={nowtEdits}
     eventClass="ALO"
     eventType="NOWT"
-    fullRoundFor={roundOf}
+    fullRoundFor={wholeCourseOf}
     judgesFor={() => [judge]}
     onChange={noop}
     onJudgeChange={noop}
     registrations={runners}
-    round={round}
-    roundFor={roundOf}
-    wholeRoundFor={roundOf}
+    round={wholeCourse}
+    roundFor={wholeCourseOf}
+    wholeRoundFor={wholeCourseOf}
     stations={eventWithStations.stations ?? []}
   />
 )
