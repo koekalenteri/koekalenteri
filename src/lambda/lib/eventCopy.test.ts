@@ -367,6 +367,7 @@ describe('findCopyLeaks', () => {
   it.each([
     ['kcGuid', { kcGuid: '2b81e6a1-559b-407c-87c7-b8a9b89b1987' }],
     ['kcState', { kcState: { code: 1253, name: 'x', readAt: 'y' } }],
+    ['kcKoemuoto', { kcKoemuoto: { koemuoto: 'NOU', tarkenteet: [], tulokset: [] } }],
     ['kcId', { kcId: 451859 }],
     [
       'kcEvent',

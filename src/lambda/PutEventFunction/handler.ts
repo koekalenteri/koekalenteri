@@ -155,6 +155,9 @@ const restoreServerOwnedLocks = (data: JsonConfirmedEvent, existing: JsonConfirm
   // copy riding an event save would put back a lock a hand-over just took, or lift one.
   delete data.kcState
   if (existing?.kcState) data.kcState = existing.kcState
+  // The format read with it (`kcKoemuoto`) is the server's alike.
+  delete data.kcKoemuoto
+  if (existing?.kcKoemuoto) data.kcKoemuoto = existing.kcKoemuoto
   // The numbers are published only through PutStartNumbersFunction, which freezes them and holds the
   // publish to its rules; an event save must not flip them on the side (KOE-1466).
   if (existing) {

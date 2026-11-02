@@ -17,7 +17,9 @@ import { APIError } from '../../api/http'
 import { getRegistrations, previewKennelliittoResults, putEventResults } from '../../api/registration'
 import theme from '../../assets/Theme'
 import { locales } from '../../i18n'
+import koemuotoNOU from '../../lambda/lib/KLIntegraatio-fixtures/koemuoto-NOU.json'
 import { addDays } from '../../lib/day'
+import { buildKcResult, hashKcBody, kcKoemuotoOf } from '../../lib/kennelliittoResults'
 import { Path } from '../../routeConfig'
 import { expectConsoleOutput } from '../../test-utils/consoleGuard'
 import { describeInLanguage } from '../../test-utils/language'
@@ -1351,7 +1353,6 @@ describe('EventResultsPage and Kennelliitto (KOE-1140)', () => {
     at: noon,
     by: 'Sihteeri',
     payloadHash: 'h',
-    resultVersion: noon.toISOString(),
     status: 'sent' as const,
   }
   /** A handled-over trial: Kennelliitto has it with the chief judge. */
@@ -1399,18 +1400,42 @@ describe('EventResultsPage and Kennelliitto (KOE-1140)', () => {
     expect(screen.getByText('results.kennelliitto.column')).toBeInTheDocument()
   })
 
-  it('shows where each dog stands beside it', async () => {
-    await renderQualitativePage(
-      'fi',
-      { 'run-1': stored('NOU1'), 'run-2': stored('NOU0', new Date('2021-02-10T13:00:00Z')) },
-      eventWithStaticDates,
-      { 'run-1': { kcResult: sentOk }, 'run-2': { kcResult: sentOk } }
-    )
-    await flushPromises()
+  describe('where each dog stands beside it', () => {
+    const format = kcKoemuotoOf(koemuotoNOU)
+    const withFormat: ConfirmedEvent = { ...eventWithStaticDates, kcGuid: 'kc-guid', kcKoemuoto: format }
+    /** The dog as Omakoira holds it: sent with the body of `result`, as the sending hashes it. */
+    const sentWith = (id: string, result: EventResult) => {
+      const registration = registrationsToEventWithStations.find((reg) => reg.id === id)
+      if (!registration) throw new Error(`no ${id}`)
+      const outcome = buildKcResult(withFormat, { ...registration, class: undefined, eventResult: result }, format)
+      if (!outcome.ok) throw new Error(outcome.problems.map((problem) => problem.code).join())
+      return { kcResult: { ...sentOk, payloadHash: hashKcBody(outcome.body) } }
+    }
 
-    // One was sent as it stands; the other was edited after it was sent.
-    expect(within(rowFor('Ensimmainen')).getByText('results.kennelliitto.badge.sent')).toBeInTheDocument()
-    expect(within(rowFor('Toinen')).getByText('results.kennelliitto.badge.changed')).toBeInTheDocument()
+    it('reads each dog as the send dialog does, by the body it would send', async () => {
+      // One saved again as it was sent, a later save of the same body; the other changed after it was sent.
+      const later = new Date('2021-02-10T13:00:00Z')
+      await renderQualitativePage(
+        'fi',
+        { 'run-1': stored('NOU1', later), 'run-2': stored('NOU0', later) },
+        withFormat,
+        { 'run-1': sentWith('run-1', stored('NOU1')), 'run-2': sentWith('run-2', stored('NOU1')) }
+      )
+      await flushPromises()
+
+      expect(within(rowFor('Ensimmainen')).getByText('results.kennelliitto.badge.sent')).toBeInTheDocument()
+      expect(within(rowFor('Toinen')).getByText('results.kennelliitto.badge.changed')).toBeInTheDocument()
+    })
+
+    it('reads what was stored of the sending while the event has no format stored', async () => {
+      await renderQualitativePage('fi', { 'run-1': stored('NOU1'), 'run-2': stored('NOU0') }, eventWithStaticDates, {
+        'run-1': { kcResult: sentOk },
+      })
+      await flushPromises()
+
+      expect(within(rowFor('Ensimmainen')).getByText('results.kennelliitto.badge.sent')).toBeInTheDocument()
+      expect(within(rowFor('Toinen')).getByText('results.kennelliitto.badge.unsent')).toBeInTheDocument()
+    })
   })
 
   it('says a trial has been sent but not handed over, without offering the hand-over here', async () => {

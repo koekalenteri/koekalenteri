@@ -4,6 +4,7 @@ import type {
   JsonDogEvent,
   JsonKcState,
   JsonStationTurn,
+  KcKoemuoto,
   ResultsPublishedState,
 } from '../../../types'
 import type { UpdateActions } from '../../utils/CustomDynamoClient'
@@ -324,6 +325,17 @@ export const restoreKcState = async (eventId: string, restored: JsonKcState, loc
     expression: 'attribute_exists(#id) AND #kcState.#readAt = :lockedAt',
     names: { '#id': 'id', '#kcState': 'kcState', '#readAt': 'readAt' },
     values: { ':lockedAt': lockedAt },
+  })
+}
+
+/**
+ * Keeps what of the Kennel Club's format the result bodies are built from (`kcKoemuoto`). A field-level
+ * write, never a save of the event, and `updatedAt` moves so an incremental fetch carries it.
+ */
+export const writeKcKoemuoto = async (eventId: string, kcKoemuoto: KcKoemuoto, updatedAt: string) => {
+  await dynamoDB.update({ id: eventId }, { set: { kcKoemuoto, updatedAt } }, 'NONE', {
+    expression: 'attribute_exists(#id)',
+    names: { '#id': 'id' },
   })
 }
 

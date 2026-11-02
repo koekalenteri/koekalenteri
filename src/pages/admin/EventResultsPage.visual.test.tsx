@@ -80,7 +80,7 @@ const sentRegistrations: Registration[] = registrations.map((registration) => ({
   class: undefined,
   eventResult: { result: 'NOU1', updatedAt: sentAt, updatedBy: 'Sihteeri' },
   eventType: 'NOU',
-  kcResult: { at: sentAt, by: 'Sihteeri', payloadHash: 'h', resultVersion: sentAt.toISOString(), status: 'sent' },
+  kcResult: { at: sentAt, by: 'Sihteeri', payloadHash: 'h', status: 'sent' },
 }))
 
 const capture = async (shown: ConfirmedEvent, name: string, ready: string) => {

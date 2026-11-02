@@ -34,7 +34,7 @@ import { errorSnackbarOptions } from '../../lib/client/snackbar'
 import { localizedEventName } from '../../lib/event'
 import { liveViewEnabled } from '../../lib/features'
 import { makeArray } from '../../lib/judge'
-import { countSentResults } from '../../lib/kennelliittoResults'
+import { countSentResults, kcResultBadges } from '../../lib/kennelliittoResults'
 import { IMPLICIT_STATION_ID, liveFormat, scoresAtPosts } from '../../lib/liveFormat'
 import {
   getRegistrationClass,
@@ -210,7 +210,11 @@ export default function EventResultsPage() {
   // The state Kennelliitto reports is what locks, so an official trial's page reads it when it opens: a trial
   // handed over or confirmed in Omakoira directly locks here (KOE-1222), and one the judge sent back opens.
   const { locked, refreshState: readState } = useResultsLock(event, kc.preview, { readOnOpen: official })
-  const kennelliitto = !!event && official
+  // Each dog read by the send dialog's rule, over every dog of the event: another dog's result moves a rank.
+  const kennelliitto = useMemo(
+    () => (event && official ? kcResultBadges(event, registrations, new Date()) : undefined),
+    [event, official, registrations]
+  )
   const sentCount = useMemo(() => countSentResults(registrations), [registrations])
 
   const refreshState = useCallback(async () => {

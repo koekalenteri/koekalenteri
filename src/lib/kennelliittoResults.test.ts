@@ -1,5 +1,6 @@
-import type { JsonEventResult, RegistrationClass } from '../types'
-import type { KcKoemuoto, KcResultEvent, KcResultRegistration } from './kennelliittoResults'
+import type { JsonEventResult, KcKoemuoto, RegistrationClass } from '../types'
+import type { KcEvaluatedRegistration, KcResultEvent, KcResultRegistration } from './kennelliittoResults'
+import { createHash } from 'node:crypto'
 import koemuotoNKM from '../lambda/lib/KLIntegraatio-fixtures/koemuoto-NKM.json'
 import koemuotoNOME_A from '../lambda/lib/KLIntegraatio-fixtures/koemuoto-NOME-A.json'
 import koemuotoNOME_B from '../lambda/lib/KLIntegraatio-fixtures/koemuoto-NOME-B.json'
@@ -15,6 +16,7 @@ import {
   defaultKcRegNoChoice,
   dogGenderOfKc,
   finnishDay,
+  hashKcBody,
   isKcDayReached,
   isKcNameMatch,
   isKcStateWritable,
@@ -23,7 +25,8 @@ import {
   kcCountryOfRegNo,
   kcDogDifferences,
   kcKnownDogOf,
-  kcResultBadge,
+  kcKoemuotoOf,
+  kcResultBadges,
   kcResultDay,
 } from './kennelliittoResults'
 import { resolveEventResult } from './results'
@@ -507,33 +510,62 @@ describe('kennelliittoResults', () => {
     })
   })
 
+  describe('the hash of a body', () => {
+    it('is the one node:crypto gives, so the hashes stored by the sending stay valid', () => {
+      const body = sent(buildKcResult(event('NOU'), dog(result({ result: 'NOU0' })), koemuotoNOU))
+
+      expect(hashKcBody(body)).toEqual(createHash('sha256').update(JSON.stringify(body)).digest('hex'))
+    })
+  })
+
   describe('where a dog stands beside it', () => {
-    const at = '2026-09-26T09:00:00.000Z'
-    const registration = (kcResult?: Parameters<typeof kcResultBadge>[0]['kcResult'], resultAt = at) => ({
-      eventResult: { result: 'NOU1', updatedAt: resultAt },
-      kcResult,
+    const now = new Date('2026-09-26T10:00:00.000Z')
+    const nou = { ...event('NOU'), kcKoemuoto: kcKoemuotoOf(koemuotoNOU) }
+    const entry = (fields: Partial<KcEvaluatedRegistration>): KcEvaluatedRegistration => ({
+      ...dog(result({ result: 'NOU1' })),
+      eventType: 'NOU',
+      ...fields,
+    })
+    const body = sent(buildKcResult(nou, entry({}), nou.kcKoemuoto))
+    const hash = hashKcBody(body)
+
+    // A refusal keeps the hash Kennelliitto accepted before, and the dialog sends such a dog again (changed).
+    it.each([
+      ['refused at its first sending', {}],
+      ['refused after an earlier sending was accepted', { payloadHash: hash }],
+    ])('reads a dog the dialog would send as failed when it was %s', (_case, kept) => {
+      const registration = entry({ kcResult: { status: 'failed', ...kept } })
+
+      expect(kcResultBadges(nou, [registration], now).get('reg-1')?.status).toEqual('failed')
+    })
+
+    it('reads a dog sent as it stands as unchanged', () => {
+      const registration = entry({ kcResult: { payloadHash: hash, status: 'sent' } })
+
+      expect(kcResultBadges(nou, [registration], now).get('reg-1')?.status).toEqual('unchanged')
+    })
+
+    it('reads a failed dog that cannot be sent as the dialog does, with why', () => {
+      const registration = entry({ eventResult: result({ result: 'NOU-' }), kcResult: { status: 'failed' } })
+
+      expect(kcResultBadges(nou, [registration], now).get('reg-1')).toEqual({
+        problems: [{ code: 'resultNotAllowed', detail: 'NOU-' }],
+        status: 'blocked',
+      })
     })
 
     it.each([
-      ['a failed sending', registration({ status: 'failed' }), 'failed'],
-      ['a result sent as it stands', registration({ payloadHash: 'h', resultVersion: at, status: 'sent' }), 'sent'],
-      [
-        'a result edited after it was sent',
-        registration({ payloadHash: 'h', resultVersion: at, status: 'sent' }, '2026-09-26T10:00:00.000Z'),
-        'changed',
-      ],
-      [
-        'a result sent without knowing what Kennelliitto holds',
-        registration({ resultVersion: at, status: 'sent' }),
-        'changed',
-      ],
-      ['a result not sent', registration(), 'unsent'],
-    ])('says %s', (_name, input, expected) => {
-      expect(kcResultBadge(input)).toEqual(expected)
+      ['a failed sending', { status: 'failed' as const }, 'failed'],
+      ['a sending accepted', { payloadHash: 'h', status: 'sent' as const }, 'unchanged'],
+      ['no sending', undefined, 'ready'],
+    ])('reads %s from what was stored while the event has no format stored', (_case, kcResult, expected) => {
+      const badges = kcResultBadges(event('NOU'), [entry({ kcResult })], now)
+
+      expect(badges.get('reg-1')).toEqual({ problems: [], status: expected })
     })
 
-    it('says nothing of a dog that has no result and was never sent', () => {
-      expect(kcResultBadge({})).toBeUndefined()
+    it('says nothing of a dog that has no result and was never sent, while the event has no format stored', () => {
+      expect(kcResultBadges(event('NOU'), [entry({ eventResult: undefined })], now).size).toEqual(0)
     })
   })
 })

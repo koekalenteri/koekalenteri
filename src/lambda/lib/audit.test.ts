@@ -65,6 +65,7 @@ describe('audit', () => {
 
       const messages = getEventAuditMessages(stored, {
         id: 'event-id',
+        kcKoemuoto: { koemuoto: 'NOU', tarkenteet: [], tulokset: [] },
         kcState: { code: 754, name: 'Hyväksytty', readAt: '2026-09-26T09:00:00.000Z' },
         name: 'Uusi nimi',
       })

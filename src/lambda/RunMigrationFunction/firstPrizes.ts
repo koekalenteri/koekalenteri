@@ -35,8 +35,8 @@ export const restoreFirstPrize = (registration: JsonRegistration, event: JsonDog
   stored.points = resolved.points
   stored.maxPoints = resolved.maxPoints
   stored.percentage = resolved.percentage
-  // A new version of the result, so a dog sent to Omakoira with the second prize reads as changed
-  // (`kcResultBadge` compares the version sent with this) and is sent again.
+  // A new version of the result. A dog sent to Omakoira with the second prize reads as changed by its
+  // new body (`evaluateKcDogs`), and is sent again.
   stored.updatedAt = new Date().toISOString()
   return true
 }

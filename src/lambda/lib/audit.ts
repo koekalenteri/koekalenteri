@@ -74,6 +74,7 @@ const eventAuditExcludedFields = new Set<string>([
   'createdBy',
   'kcEvent',
   // Read from Kennelliitto, never saved by a person: a stale copy in a save body is no change of the event's.
+  'kcKoemuoto',
   'kcState',
   'modifiedAt',
   'modifiedBy',

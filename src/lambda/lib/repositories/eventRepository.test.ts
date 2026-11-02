@@ -44,6 +44,7 @@ const {
   writeEvent,
   writeEventFields,
   writeKcGuidLink,
+  writeKcKoemuoto,
   writeKcStateLock,
   writeKcStateReading,
   writeMigratedEvent,
@@ -505,6 +506,18 @@ describe('eventRepository', () => {
           names: { '#id': 'id', '#kcState': 'kcState', '#readAt': 'readAt' },
           values: { ':lockedAt': state.readAt },
         }
+      )
+    })
+
+    it('writeKcKoemuoto keeps the format on an event that exists, moving updatedAt', async () => {
+      const kcKoemuoto = { koemuoto: 'NOU', tarkenteet: [], tulokset: [] }
+      await writeKcKoemuoto('event-1', kcKoemuoto, '2026-09-26T10:00:00.000Z')
+
+      expect(mockUpdate).toHaveBeenCalledWith(
+        { id: 'event-1' },
+        { set: { kcKoemuoto, updatedAt: '2026-09-26T10:00:00.000Z' } },
+        'NONE',
+        { expression: 'attribute_exists(#id)', names: { '#id': 'id' } }
       )
     })
 

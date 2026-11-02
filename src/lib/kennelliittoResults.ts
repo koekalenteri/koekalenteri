@@ -3,9 +3,13 @@ import type {
   DogGender,
   JsonConfirmedEvent,
   JsonDog,
+  JsonEventResult,
+  JsonEventResultTask,
   JsonKcResult,
   JsonKcState,
   JsonRegistration,
+  KcKoemuoto,
+  KcKoemuotoResult,
   Patch,
   PublicJudge,
 } from '../types'
@@ -14,8 +18,22 @@ import { isMicrochip } from './dog'
 import { hasRetrieveTypeChoice, isMockTrialClass } from './event'
 import { makeArray } from './judge'
 import { scoresAtPosts } from './liveFormat'
-import { getRegistrationGroupDay, getRegistrationPlacement } from './registration'
-import { parseEventResultCode, resultMarks, resultPrefixAsKennelClub, shownEventResult } from './results'
+import {
+  getRegistrationClass,
+  getRegistrationGroupDay,
+  getRegistrationPlacement,
+  isScorableRegistration,
+} from './registration'
+import {
+  parseEventResultCode,
+  placementsFor,
+  resultMarks,
+  resultPrefixAsKennelClub,
+  shownEventResult,
+  withStoredTotals,
+} from './results'
+import { withEffectiveJudges } from './resultTasks'
+import { sha256Hex } from './sha256'
 
 /**
  * Turning a dog's recorded result into the body Kennelliitto's Koe/Tulos/Tallenna takes (KOE-1140).
@@ -48,33 +66,34 @@ export const isResultsLocked = (event: { kcState?: Pick<JsonKcState, 'code'> }):
 export const countSentResults = (registrations: ReadonlyArray<{ kcResult?: Pick<JsonKcResult, 'status'> }>): number =>
   registrations.filter((registration) => registration.kcResult?.status === 'sent').length
 
+/** Only what a body is built from: the rest of Koe/Koemuoto's answer is not read, and not stored. */
+export const kcKoemuotoOf = ({ koemuoto, tarkenteet, tulokset }: KcKoemuoto): KcKoemuoto => ({
+  koemuoto,
+  tarkenteet,
+  tulokset: tulokset.map(({ hylätty, keskeytys, tulos, tulostyyppi }) => ({ hylätty, keskeytys, tulos, tulostyyppi })),
+})
+
 /** Koe/Koemuoto `tulostyyppi` of the result itself and of an additional info. */
 const RESULT_TYPE = 247
 const INFO_TYPE = 250
-
-export interface KcKoemuotoResult {
-  hylätty: boolean
-  keskeytys: boolean
-  tulos: string
-  tulostyyppi: number
-}
-
-/** What of Koe/Koemuoto the mapping reads. Structural, so the lambda passes its own answer as it is. */
-export interface KcKoemuoto {
-  koemuoto: string
-  tarkenteet: string[]
-  tulokset: KcKoemuotoResult[]
-}
 
 export type KcResultEvent = Pick<
   JsonConfirmedEvent,
   'classes' | 'eventType' | 'judges' | 'kcGuid' | 'mockTrial' | 'retrieveType'
 >
 
-export type KcResultRegistration = Pick<
-  JsonRegistration,
-  'class' | 'dog' | 'eventResult' | 'group' | 'id' | 'startGroup'
->
+/**
+ * What of a recorded result a body is built from: everything but who wrote it down and when, so a stored
+ * result and the browser's (whose stamps are Dates) both fit.
+ */
+type KcEventResult = Omit<JsonEventResult, 'tasks' | 'updatedAt' | 'updatedBy'> & {
+  tasks?: Omit<JsonEventResultTask, 'updatedAt' | 'updatedBy'>[]
+}
+
+export type KcResultRegistration = Pick<JsonRegistration, 'class' | 'group' | 'id' | 'startGroup'> & {
+  dog: Pick<JsonDog, 'name' | 'regNo'>
+  eventResult?: KcEventResult
+}
 
 /** The body of Koe/Tulos/Tallenna. Built in one place, so equal results give equal bodies and equal hashes. */
 export interface KcResultBody {
@@ -686,26 +705,174 @@ export interface KcSendResponse {
   reports: KcSendReport[]
 }
 
-/** What the page shows of a dog's result beside the dog, from the registration alone. */
-export type KcResultBadge = 'changed' | 'failed' | 'sent' | 'unsent'
+/**
+ * Sha-256 of the body as it is meant to be sent. The one mapping builds the body, so equal results give
+ * equal bodies. A body Omakoira took only with 0 points is hashed with its real points (KOE-1676), so the
+ * dog is sent again when its result changes, and not before. The browser makes the same hex as Node's
+ * `createHash`, so the results page compares with the hash stored when the dog was sent.
+ */
+export const hashKcBody = (body: KcResultBody): string => sha256Hex(JSON.stringify(body))
+
+/** What of a dog's last sending says where it stands. */
+type KcSentResult = Pick<JsonKcResult, 'day' | 'errors' | 'payloadHash' | 'pointsByHand' | 'status' | 'tulosId'>
+
+/** A registration as it is evaluated for sending: the stored one, or the browser's. */
+export type KcEvaluatedRegistration = KcResultRegistration &
+  Pick<JsonRegistration, 'cancelled' | 'eventType'> & { kcResult?: KcSentResult }
+
+/** The event as the evaluation reads it: what a body is built from, and the posts that judged each score. */
+type KcEvaluationEvent = KcResultEvent & Parameters<typeof withEffectiveJudges>[0]
+
+/** Where a dog stands, with the body and its hash for a dog that can be sent. */
+export interface KcEvaluation<R extends KcEvaluatedRegistration> {
+  body?: KcResultBody
+  hash?: string
+  registration: R
+  report: KcDogReport
+}
+
+export const kcDogReport = (
+  registration: KcEvaluatedRegistration,
+  status: KcDogStatus,
+  problems: KcProblem[] = []
+): KcDogReport => {
+  const { kcResult } = registration
+  const eventClass = getRegistrationClass(registration)
+  return {
+    ...(kcResult?.errors ? { errors: kcResult.errors } : {}),
+    ...(kcResult?.pointsByHand === undefined ? {} : { pointsByHand: kcResult.pointsByHand }),
+    ...(eventClass ? { eventClass } : {}),
+    id: registration.id,
+    name: registration.dog.name ?? '',
+    problems,
+    regNo: registration.dog.regNo,
+    status,
+    ...(kcResult?.tulosId ? { tulosId: kcResult.tulosId } : {}),
+  }
+}
 
 /**
- * Where a dog's result stands with Kennelliitto, as far as the stored registration says. A result
- * edited after it was sent, and one sent without knowing what Kennelliitto holds, both want sending
- * again; the preview, which also sees the content, has the last word.
+ * What the dog's day says against sending: the day has not begun, or the result was sent for another day.
+ * The day is part of what Kennelliitto keys a result by, so a dog moved after sending would leave a second
+ * result behind; the old one has to go first (KOE-1220). Days are named d.M.yyyy, as a person reads them.
  */
-export const kcResultBadge = (registration: {
-  eventResult?: { result?: string; updatedAt: Date | string }
-  kcResult?: { payloadHash?: string; resultVersion?: string; status: JsonKcResult['status'] }
-}): KcResultBadge | undefined => {
-  const { eventResult, kcResult } = registration
-  if (kcResult?.status === 'failed') return 'failed'
-  if (kcResult?.status === 'sent') {
-    const current =
-      !eventResult ||
-      kcResult.resultVersion === undefined ||
-      new Date(kcResult.resultVersion).getTime() === new Date(eventResult.updatedAt).getTime()
-    return kcResult.payloadHash !== undefined && current ? 'sent' : 'changed'
+const dayProblems = (registration: KcEvaluatedRegistration, now: Date): KcProblem[] => {
+  const day = kcResultDay(registration)
+  const sentDay = registration.kcResult?.day
+  const problems: KcProblem[] = []
+  if (day && !isKcDayReached(day, now)) problems.push({ code: 'dayNotReached', detail: finnishDay(day) })
+  if (day && sentDay && sentDay !== day) problems.push({ code: 'dayChanged', detail: finnishDay(sentDay) })
+  return problems
+}
+
+/** A body that can be sent, against what was sent: the hash of the body decides, never when the result was saved. */
+const sentStatus = (previous: KcSentResult | undefined, hash: string): KcDogStatus => {
+  if (previous?.status === 'sent' && previous.payloadHash === hash) return 'unchanged'
+  return previous?.payloadHash ? 'changed' : 'ready'
+}
+
+/**
+ * Where a dog stands, from the registration, the format's results and the dog's rank among the trial's
+ * dogs. Makes no call. Undefined for a dog that did not run and has nothing sent.
+ */
+const evaluateKcDog = <R extends KcEvaluatedRegistration>(
+  event: KcResultEvent,
+  registration: R,
+  koemuoto: KcKoemuoto,
+  now: Date,
+  placement: number | undefined
+): KcEvaluation<R> | undefined => {
+  const scorable = isScorableRegistration(registration)
+  if (!scorable || !registration.eventResult?.result) {
+    if (registration.kcResult?.status === 'sent') return { registration, report: kcDogReport(registration, 'sentGone') }
+    return scorable ? { registration, report: kcDogReport(registration, 'notRecorded') } : undefined
   }
-  return eventResult?.result ? 'unsent' : undefined
+
+  const outcome = buildKcResult(event, registration, koemuoto, placement)
+  const problems = [...(outcome.ok ? [] : outcome.problems), ...dayProblems(registration, now)]
+  if (!outcome.ok || problems.length) return { registration, report: kcDogReport(registration, 'blocked', problems) }
+
+  const hash = hashKcBody(outcome.body)
+  return {
+    body: outcome.body,
+    hash,
+    registration,
+    report: kcDogReport(registration, sentStatus(registration.kcResult, hash)),
+  }
+}
+
+/**
+ * Where the chosen dogs stand (every dog, with no ids), each with the rank it holds among all the dogs of
+ * the trial. The ranks are derived over everyone that `registrations` holds, not over the chosen dogs
+ * alone: a dog's rank depends on the other dogs, so the hash of its body moves when another dog's result
+ * does. The sending, its preview, the hand-over and the results page all read the dogs here.
+ *
+ * A round that ended early saved before KOE-1669 has no stored totals; they are worked out from its tasks
+ * here (`withStoredTotals`), so it is sent with what it earned without being saved again. Each score is
+ * judged by the judges of its exercise's post as the event stands (KOE-1665).
+ */
+export const evaluateKcDogs = <R extends KcEvaluatedRegistration>(
+  event: KcEvaluationEvent,
+  stored: readonly R[],
+  koemuoto: KcKoemuoto,
+  now: Date,
+  ids?: readonly string[]
+): KcEvaluation<R>[] => {
+  const registrations = stored.map((registration) => withStoredTotals(event, withEffectiveJudges(event, registration)))
+  const placements = placementsFor(registrations)
+  const chosen = ids ? registrations.filter((registration) => ids.includes(registration.id)) : registrations
+  return chosen.flatMap(
+    (registration) => evaluateKcDog(event, registration, koemuoto, now, placements.get(registration.id)) ?? []
+  )
+}
+
+/** What the results page shows beside a dog: where the send dialog puts it, or a sending that failed. */
+export type KcResultBadge = KcDogStatus | 'failed'
+
+export interface KcBadge {
+  /** Why a `blocked` dog cannot be sent. */
+  problems: KcProblem[]
+  status: KcResultBadge
+}
+
+/** A dog the dialog would send, whose last sending Kennelliitto refused or never answered, reads as that. */
+const badgeOf = ({ registration, report }: KcEvaluation<KcEvaluatedRegistration>): KcBadge => {
+  const sendable = report.status === 'ready' || report.status === 'changed'
+  const status = sendable && registration.kcResult?.status === 'failed' ? 'failed' : report.status
+  return { problems: report.problems, status }
+}
+
+/**
+ * The last sending's outcome alone, for an event that has no format stored yet: one not read from
+ * Kennelliitto since the format was first stored, which opening the results page does.
+ */
+const storedBadge = (registration: KcEvaluatedRegistration): KcResultBadge | undefined => {
+  if (registration.kcResult?.status === 'failed') return 'failed'
+  if (registration.kcResult?.status === 'sent') return 'unchanged'
+  return registration.eventResult?.result ? 'ready' : undefined
+}
+
+/**
+ * Where each dog's result stands with Kennelliitto, by the rule the send dialog reads it by
+ * (`evaluateKcDogs`), from the event's stored format, all the event's registrations and the time now.
+ * What is not known outside the sending is Kennelliitto's own word on a foreign dog (KOE-1201, KOE-1653):
+ * such a dog reads as ready here, and the dialog asks about it.
+ */
+export const kcResultBadges = (
+  event: KcEvaluationEvent & { kcKoemuoto?: KcKoemuoto },
+  registrations: readonly KcEvaluatedRegistration[],
+  now: Date
+): Map<string, KcBadge> => {
+  const { kcKoemuoto } = event
+  if (!kcKoemuoto) {
+    return new Map(
+      registrations.flatMap((registration) => {
+        const status = storedBadge(registration)
+        return status ? [[registration.id, { problems: [], status }]] : []
+      })
+    )
+  }
+  return new Map(
+    evaluateKcDogs(event, registrations, kcKoemuoto, now).map((item) => [item.registration.id, badgeOf(item)])
+  )
 }

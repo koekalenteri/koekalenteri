@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react'
+import type { KcBadge } from '@/lib/kennelliittoResults'
 import type { ExerciseSlot } from '@/lib/resultTasks'
 import type { EventResult, EventStation, NowtZeroFault, PublicJudge, Registration } from '@/types'
 import type { ResultEdit, TaskEdit } from '../../components/stationScoring/types'
@@ -62,8 +63,11 @@ interface Props {
    * phone in the field (KOE-1280). The controls are the same either way; only their arrangement differs.
    */
   readonly compact?: boolean
-  /** Shows where each dog's result stands with Kennelliitto's Omakoira (KOE-1140). */
-  readonly kennelliitto?: boolean
+  /**
+   * Where each dog's result stands with Kennelliitto's Omakoira (KOE-1140), by the send dialog's rule
+   * (`kcResultBadges`). The column shows only with it.
+   */
+  readonly kennelliitto?: ReadonlyMap<string, KcBadge>
   /**
    * Each awarded dog's rank (`placementsFor`). Absent in a post's own view, where it is unknowable. A row
    * with an unsaved edit shows none: the rank is of what is stored, and the edit may move it.
@@ -331,7 +335,7 @@ function ResultsTable({
                 {!qualitative && <TableCell align="right">{controls.result}</TableCell>}
                 {kennelliitto && (
                   <TableCell>
-                    <KennelliittoStatus registration={registration} />
+                    <KennelliittoStatus badge={kennelliitto.get(registration.id)} registration={registration} />
                   </TableCell>
                 )}
               </TableRow>
@@ -347,7 +351,7 @@ interface CardProps {
   readonly registration: Registration
   readonly qualitative: boolean
   readonly controls: RowControls
-  readonly kennelliitto?: boolean
+  readonly kennelliitto?: ReadonlyMap<string, KcBadge>
 }
 
 /**
@@ -389,7 +393,7 @@ const ResultCard = ({ registration, qualitative, controls, kennelliitto }: CardP
           >
             {identity}
           </Typography>
-          {kennelliitto && <KennelliittoStatus registration={registration} />}
+          {kennelliitto && <KennelliittoStatus badge={kennelliitto.get(registration.id)} registration={registration} />}
         </Box>
         {!qualitative && <Box sx={{ flexShrink: 0, textAlign: 'right' }}>{controls.result}</Box>}
       </Stack>

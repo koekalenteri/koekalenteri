@@ -239,7 +239,8 @@ nollan vain, jos Omakoira hylkää ne taas.
 !shot[KennelliittoSendDialog/kennelliitto-send-points-by-hand] Koirat, joiden pisteet kirjataan Omakoiraan käsin
 
 Lähetetty tulos näkyy koiralla Koiranetissä himmeänä, kunnes tuomari on vahvistanut sen. Tulosta voi
-korjata tulossivulla ja lähettää uudelleen, kunnes koe on luovutettu tuomarille. Korjatun tuloksen kohdalla
+korjata tulossivulla ja lähettää uudelleen, kunnes koe on luovutettu tuomarille. Kun Omakoiraan lähtevä
+tieto muuttuu, myös toisen koiran tuloksen siirtämän sijoituksen tai tuomarien takia, koiran kohdalla
 lukee sarakkeessa *{t:results.kennelliitto.column}* *{t:results.kennelliitto.badge.changed}*, ja
 lähetysikkuna laskee sen muuttuneisiin tuloksiin. Uusi lähetys lähettää vain uudet ja muuttuneet
 tulokset; ennallaan olevia ei lähetetä uudelleen.

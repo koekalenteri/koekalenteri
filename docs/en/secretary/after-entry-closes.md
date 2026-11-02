@@ -18,7 +18,7 @@ covers:
   - src/pages/admin/StartListPreviewPage.tsx
   - src/pages/admin/startListPage/**
   - src/pages/ClassStartNumbersPage.tsx
-sourceHash: 6649cb
+sourceHash: b9e659
 ---
 
 Once entry has closed, the secretary's work goes step by step: picking the participants, the
@@ -246,8 +246,9 @@ Omakoira refuses them again.
 !shot[KennelliittoSendDialog/kennelliitto-send-points-by-hand] The dogs whose points are entered in Omakoira by hand
 
 A sent result shows dimmed on the dog in Koiranet until the judge has confirmed it. The result can be
-corrected on the results page and sent again until the trial is handed over to the judge. A corrected
-result reads *{t:results.kennelliitto.badge.changed}* in the *{t:results.kennelliitto.column}* column,
+corrected on the results page and sent again until the trial is handed over to the judge. When what
+would go to Omakoira changes, also through a placement another dog's result moved or through the judges,
+the dog reads *{t:results.kennelliitto.badge.changed}* in the *{t:results.kennelliitto.column}* column,
 and the send dialog counts it among the changed results. Sending again sends only the new and changed
 results; the unchanged ones are not sent again.
 

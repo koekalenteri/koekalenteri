@@ -33,7 +33,6 @@ const sentOk = {
   at: noon,
   by: 'Sihteeri',
   payloadHash: 'h',
-  resultVersion: noon.toISOString(),
   status: 'sent' as const,
 }
 const dogReport = (
@@ -560,7 +559,6 @@ describe('KennelliittoSubmission (KOE-1579)', () => {
               at: noon.toISOString(),
               by: 'Sihteeri',
               payloadHash: 'h',
-              resultVersion: noon.toISOString(),
               status: 'sent',
             },
           },

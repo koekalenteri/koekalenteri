@@ -1,46 +1,68 @@
 import type { TFunction } from 'i18next'
-import type { KcResultBadge } from '@/lib/kennelliittoResults'
+import type { KcBadge, KcResultBadge } from '@/lib/kennelliittoResults'
 import type { Registration } from '@/types'
 import Chip from '@mui/material/Chip'
 import Tooltip from '@mui/material/Tooltip'
 import { useTranslation } from 'react-i18next'
-import { kcResultBadge } from '@/lib/kennelliittoResults'
-import { dogNotAddedText } from '../eventViewPage/infoPanel/kennelliittoMessages'
+import { dogNotAddedText, problemsText } from '../eventViewPage/infoPanel/kennelliittoMessages'
 
-const COLORS: Record<KcResultBadge, 'default' | 'error' | 'success' | 'warning'> = {
+/** The badges a dog shows. A dog with no result shows none: the row says so already. */
+type ShownBadge = Exclude<KcResultBadge, 'notRecorded'>
+
+const COLORS: Record<ShownBadge, 'default' | 'error' | 'success' | 'warning'> = {
+  blocked: 'error',
   changed: 'warning',
   failed: 'error',
-  sent: 'success',
-  unsent: 'default',
+  ready: 'default',
+  sentGone: 'warning',
+  unchanged: 'success',
 }
 
+/** The label of each badge: where the send dialog puts the dog, worded for a column beside it. */
+const LABELS: Record<ShownBadge, 'blocked' | 'changed' | 'failed' | 'sent' | 'sentGone' | 'unsent'> = {
+  blocked: 'blocked',
+  changed: 'changed',
+  failed: 'failed',
+  ready: 'unsent',
+  sentGone: 'sentGone',
+  unchanged: 'sent',
+}
+
+const isShown = (status: KcResultBadge): status is ShownBadge => status !== 'notRecorded'
+
 interface Props {
-  readonly registration: Pick<Registration, 'dog' | 'eventResult' | 'kcResult'>
+  readonly badge?: KcBadge
+  readonly registration: Pick<Registration, 'dog' | 'kcResult'>
 }
 
 /**
  * What the badge explains on hover: a foreign dog Kennelliitto did not add says so whether or not it gave
- * reasons (KOE-1201); otherwise an edit since the sending, or Kennelliitto's reasons for a refusal.
+ * reasons (KOE-1201); why a result cannot be sent; what a change or a removed result means; otherwise
+ * Kennelliitto's reasons for a refusal.
  */
-const tooltipOf = (t: TFunction, badge: KcResultBadge, { dog, kcResult }: Props['registration']) => {
-  if (kcResult?.dogNotAdded) return dogNotAddedText(t, { errors: kcResult.errors, regNo: dog.regNo })
-  if (badge === 'changed') return t('results.kennelliitto.badge.changedNote')
+const tooltipOf = (t: TFunction, { problems, status }: KcBadge, { dog, kcResult }: Props['registration']) => {
+  if (kcResult?.dogNotAdded && status === 'failed') {
+    return dogNotAddedText(t, { errors: kcResult.errors, regNo: dog.regNo })
+  }
+  if (status === 'blocked') return problemsText(t, problems)
+  if (status === 'changed') return t('results.kennelliitto.badge.changedNote')
+  if (status === 'sentGone') return t('results.kennelliitto.dogStatus.sentGone')
   return kcResult?.errors?.join(' ')
 }
 
-/** Where a dog's result stands with Kennelliitto, beside the dog. Nothing for a dog with no result. */
-export const KennelliittoStatus = ({ registration }: Props) => {
+/** Where a dog's result stands with Kennelliitto, beside the dog, as the send dialog reads it. */
+export const KennelliittoStatus = ({ badge, registration }: Props) => {
   const { t } = useTranslation()
-  const badge = kcResultBadge(registration)
-  if (!badge) return null
+  if (!badge || !isShown(badge.status)) return null
 
+  const { status } = badge
   const reasons = tooltipOf(t, badge, registration)
   const chip = (
     <Chip
-      color={COLORS[badge]}
-      label={t(`results.kennelliitto.badge.${badge}`)}
+      color={COLORS[status]}
+      label={t(`results.kennelliitto.badge.${LABELS[status]}`)}
       size="small"
-      variant={badge === 'unsent' ? 'outlined' : 'filled'}
+      variant={status === 'ready' || status === 'blocked' ? 'outlined' : 'filled'}
     />
   )
 

@@ -3,6 +3,7 @@ import type {
   KcCountry,
   KcDogReport,
   KcDogStatus,
+  KcEvaluation,
   KcForeignDogBody,
   KcFoundBy,
   KcKnownDog,
@@ -10,10 +11,18 @@ import type {
   KcResultBody,
   KcSendReport,
 } from '../../lib/kennelliittoResults'
-import type { JsonConfirmedEvent, JsonDogEvent, JsonKcResult, JsonKcState, JsonRegistration, Patch } from '../../types'
-import type { KLIntKoemuoto, KLIntKoiraParametrit } from '../types/KLIntegraatio'
+import type {
+  JsonConfirmedEvent,
+  JsonDogEvent,
+  JsonKcResult,
+  JsonKcState,
+  JsonRegistration,
+  KcKoemuoto,
+  Patch,
+} from '../../types'
+import type { KLIntKoiraParametrit } from '../types/KLIntegraatio'
 import type KLIntegraatio from './KLIntegraatio'
-import { createHash } from 'node:crypto'
+import { isDeepStrictEqual } from 'node:util'
 import {
   dogAddedToKennelliittoAudit,
   dogAddFailedAudit,
@@ -25,20 +34,18 @@ import {
 } from '../../lib/audit'
 import {
   buildKcForeignDog,
-  buildKcResult,
-  finnishDay,
-  isKcDayReached,
+  evaluateKcDogs,
+  hashKcBody,
   isKcNameMatch,
   isKcStateWritable,
   isSameKcText,
   KC_STATE_HANDED_OVER,
+  kcDogReport,
   kcKnownDogOf,
-  kcResultDay,
+  kcKoemuotoOf,
   kcTextKey,
 } from '../../lib/kennelliittoResults'
-import { getRegistrationClass, isScorableRegistration } from '../../lib/registration'
-import { kcFormatOfEventType, placementsFor, withStoredTotals } from '../../lib/results'
-import { withEffectiveJudges } from '../../lib/resultTasks'
+import { kcFormatOfEventType } from '../../lib/results'
 import { mapWithConcurrency } from '../../lib/utils'
 import { isKcDomesticRegNo } from '../../lib/validation'
 import { KLKieli } from '../types/KLAPI'
@@ -50,14 +57,15 @@ import { searchKcTrials } from './kcTrial'
 import { LambdaError } from './lambda'
 import { logger } from './log'
 import { getReadyRegistrationsByEventId, getRegistration } from './registration'
+import { writeKcKoemuoto } from './repositories/eventRepository'
 import { writeDogRegNo, writeKcResult } from './repositories/registrationRepository'
 
 /**
  * Sending a trial's results to Kennelliitto's Omakoira (KOE-1140): the checks that need no write, the
  * dog-by-dog sending, and the hand-over to the chief judge.
  *
- * Every body is built here from the stored registration with the one pure mapping the pre-check shows
- * the secretary (`buildKcResult`); nothing about a result is taken from the client.
+ * Every body is built here from the stored registration with the one pure evaluation the results page
+ * reads its badges by too (`evaluateKcDogs`); nothing about a result is taken from the client.
  */
 
 /** Dogs sent at one time. Kennelliitto is one service for the whole country; a few at once is polite. */
@@ -108,7 +116,7 @@ interface KcTrial {
   /** The trial as it stands, with the GUID and the state this request found. */
   event: JsonConfirmedEvent
   blockers: KcBlocker[]
-  koemuoto?: KLIntKoemuoto
+  koemuoto?: KcKoemuoto
   /** What changed on the event itself, for the handler to publish. */
   eventPatch?: Patch<JsonDogEvent>
 }
@@ -128,13 +136,6 @@ interface KcSendResult {
   patches: Patch<JsonRegistration>[]
   reports: KcSendReport[]
 }
-
-/**
- * Sha-256 of the body as it is meant to be sent. The one mapping builds the body, so equal results give
- * equal bodies. A body Omakoira took only with 0 points is hashed with its real points (KOE-1676), so the
- * dog is sent again when its result changes, and not before.
- */
-const hashKcBody = (body: KcResultBody): string => createHash('sha256').update(JSON.stringify(body)).digest('hex')
 
 const klintOf = (ctx: KcContext): KLIntegraatio => ctx.klint ?? getKLIntegraatio()
 
@@ -250,6 +251,31 @@ const readState = async (
   return blocker ? { blocker, ...stored } : { ...stored, koemuoto: lue.json.koemuoto }
 }
 
+/**
+ * Keeps on the event what of Kennelliitto's format the bodies are built from, for the results page to read
+ * the dogs by the same rule (`kcResultBadges`). Written only when it differs from the stored one, so opening
+ * the results page, which reads the trial, does not move the event's `updatedAt` every time. The request
+ * goes on without it when the write fails: the bodies are built from the answer itself, and the next read
+ * writes it again.
+ */
+const storeKoemuoto = async (
+  req: KcRequest,
+  event: JsonConfirmedEvent,
+  koemuoto: KcKoemuoto,
+  eventPatch?: Patch<JsonDogEvent>
+): Promise<{ event: JsonConfirmedEvent; eventPatch?: Patch<JsonDogEvent> }> => {
+  const unchanged = { event, ...(eventPatch ? { eventPatch } : {}) }
+  if (isDeepStrictEqual(event.kcKoemuoto, koemuoto)) return unchanged
+  const updatedAt = nowOf(req).toISOString()
+  try {
+    await writeKcKoemuoto(event.id, koemuoto, updatedAt)
+  } catch (error) {
+    logger.error('kcKoemuoto write failed', { error, eventId: event.id })
+    return unchanged
+  }
+  return { event: { ...event, kcKoemuoto: koemuoto }, eventPatch: { ...eventPatch, kcKoemuoto: koemuoto, updatedAt } }
+}
+
 const stopped = (blocker: KcBlocker, event: JsonConfirmedEvent, eventPatch?: Patch<JsonDogEvent>): KcTrial => ({
   blockers: [blocker],
   event,
@@ -270,107 +296,17 @@ const openKcTrial = async (req: KcRequest, { findGuid }: { findGuid: boolean }):
   const read = await readState(req, linked)
   if ('blocker' in read) return stopped(read.blocker, read.event, read.eventPatch)
 
-  const koemuoto = await klintOf(req).lueKoemuoto({ koemuoto: read.koemuoto }, { signal: req.signal })
-  if (koemuoto.status !== 200 || !koemuoto.json) {
-    return stopped(upstreamBlocker(koemuoto.status, koemuoto.virheet), read.event, read.eventPatch)
+  const answer = await klintOf(req).lueKoemuoto({ koemuoto: read.koemuoto }, { signal: req.signal })
+  if (answer.status !== 200 || !answer.json) {
+    return stopped(upstreamBlocker(answer.status, answer.virheet), read.event, read.eventPatch)
   }
-  return {
-    blockers: [],
-    event: read.event,
-    ...(read.eventPatch ? { eventPatch: read.eventPatch } : {}),
-    koemuoto: koemuoto.json,
-  }
+  const koemuoto = kcKoemuotoOf(answer.json)
+  const stored = await storeKoemuoto(req, read.event, koemuoto, read.eventPatch)
+  return { blockers: [], ...stored, koemuoto }
 }
 
-const dogReport = (registration: JsonRegistration, status: KcDogStatus, problems: KcProblem[] = []): KcDogReport => ({
-  ...(registration.kcResult?.errors ? { errors: registration.kcResult.errors } : {}),
-  ...(registration.kcResult?.pointsByHand === undefined ? {} : { pointsByHand: registration.kcResult.pointsByHand }),
-  ...(getRegistrationClass(registration) ? { eventClass: getRegistrationClass(registration) } : {}),
-  id: registration.id,
-  name: registration.dog.name ?? '',
-  problems,
-  regNo: registration.dog.regNo,
-  status,
-  ...(registration.kcResult?.tulosId ? { tulosId: registration.kcResult.tulosId } : {}),
-})
-
-interface Evaluated {
-  body?: KcResultBody
-  /** The Koira/Ulkomainen body of a foreign dog Kennelliitto does not know: sent before the result (KOE-1201). */
-  foreignDog?: KcForeignDogBody
-  hash?: string
-  registration: JsonRegistration
-  report: KcDogReport
-}
-
-/**
- * What the dog's day says against sending: the day has not begun, or the result was sent for another day.
- * The day is part of what Kennelliitto keys a result by, so a dog moved after sending would leave a second
- * result behind; the old one has to go first (KOE-1220). Days are named d.M.yyyy, as a person reads them.
- */
-const dayProblems = (registration: JsonRegistration, now: Date): KcProblem[] => {
-  const day = kcResultDay(registration)
-  const sentDay = registration.kcResult?.day
-  const problems: KcProblem[] = []
-  if (day && !isKcDayReached(day, now)) problems.push({ code: 'dayNotReached', detail: finnishDay(day) })
-  if (day && sentDay && sentDay !== day) problems.push({ code: 'dayChanged', detail: finnishDay(sentDay) })
-  return problems
-}
-
-/**
- * Where a dog stands, from the stored registration, the format's results and the dog's rank among the
- * trial's dogs. Makes no call.
- */
-const evaluateKcDog = (
-  event: JsonConfirmedEvent,
-  registration: JsonRegistration,
-  koemuoto: NonNullable<KcTrial['koemuoto']>,
-  now: Date,
-  placement: number | undefined
-): Evaluated | undefined => {
-  const scorable = isScorableRegistration(registration)
-  const sent = registration.kcResult?.status === 'sent'
-  if (!scorable || !registration.eventResult?.result) {
-    if (sent) return { registration, report: dogReport(registration, 'sentGone') }
-    return scorable ? { registration, report: dogReport(registration, 'notRecorded') } : undefined
-  }
-
-  const outcome = buildKcResult(event, registration, koemuoto, placement)
-  const problems = [...(outcome.ok ? [] : outcome.problems), ...dayProblems(registration, now)]
-  if (!outcome.ok || problems.length) return { registration, report: dogReport(registration, 'blocked', problems) }
-
-  const hash = hashKcBody(outcome.body)
-  const previous = registration.kcResult
-  let status: KcDogStatus = 'ready'
-  if (previous?.status === 'sent' && previous.payloadHash === hash) status = 'unchanged'
-  else if (previous?.payloadHash) status = 'changed'
-  return { body: outcome.body, hash, registration, report: dogReport(registration, status) }
-}
-
-/**
- * The chosen dogs (every dog, with no ids), each with the rank it holds among all the dogs of the trial.
- * The ranks are derived over everyone that `registrations` holds, not over the chosen dogs alone: a dog's
- * rank depends on the other dogs, so the hash of its body moves when another dog's result does.
- *
- * A round that ended early saved before KOE-1669 has no stored totals; they are worked out from its tasks
- * here (`withStoredTotals`), so it is sent with what it earned without being saved again.
- * Each score is judged by the judges of its exercise's post as the event stands.
- */
-const evaluateAll = (
-  event: JsonConfirmedEvent,
-  stored: JsonRegistration[],
-  koemuoto: NonNullable<KcTrial['koemuoto']>,
-  now: Date,
-  ids?: string[]
-): Evaluated[] => {
-  // Each score judged by the judges of its exercise's post as the event stands (KOE-1665).
-  const registrations = stored.map((registration) => withStoredTotals(event, withEffectiveJudges(event, registration)))
-  const placements = placementsFor(registrations)
-  const chosen = ids ? registrations.filter((registration) => ids.includes(registration.id)) : registrations
-  return chosen.flatMap(
-    (registration) => evaluateKcDog(event, registration, koemuoto, now, placements.get(registration.id)) ?? []
-  )
-}
+/** A dog as the evaluation has it, with the Koira/Ulkomainen body of a foreign dog Kennelliitto does not know (KOE-1201). */
+type Evaluated = KcEvaluation<JsonRegistration> & { foreignDog?: KcForeignDogBody }
 
 /**
  * What Kennelliitto said of the foreign dogs it was asked about (KOE-1201): the ones it does not know, the
@@ -479,7 +415,7 @@ const lookUpForeignDogs = async (req: KcRequest, evaluated: Evaluated[]): Promis
 const withForeignDog = (item: Evaluated, countries: KcCountry[]): Evaluated => {
   const { registration } = item
   const built = buildKcForeignDog(registration.dog, countries)
-  if ('problems' in built) return { registration, report: dogReport(registration, 'blocked', built.problems) }
+  if ('problems' in built) return { registration, report: kcDogReport(registration, 'blocked', built.problems) }
   return { ...item, foreignDog: built.body, report: { ...item.report, createsDog: built.country } }
 }
 
@@ -495,12 +431,12 @@ const applyForeignLookup = (evaluated: Evaluated[], { countries, differs, unknow
 /** The chosen dogs as `evaluateAll` has them, with Kennelliitto asked about the foreign ones among them. */
 const evaluateWithKc = async (
   req: KcRequest,
-  trial: { event: JsonConfirmedEvent; koemuoto: NonNullable<KcTrial['koemuoto']> },
+  trial: { event: JsonConfirmedEvent; koemuoto: KcKoemuoto },
   registrations: JsonRegistration[],
   now: Date,
   ids?: string[]
 ): Promise<{ evaluated: Evaluated[]; lookup: ForeignLookup }> => {
-  const evaluated = evaluateAll(trial.event, registrations, trial.koemuoto, now, ids)
+  const evaluated = evaluateKcDogs(trial.event, registrations, trial.koemuoto, now, ids)
   const lookup = await lookUpForeignDogs(req, evaluated)
   return { evaluated: applyForeignLookup(evaluated, lookup), lookup }
 }
@@ -550,7 +486,6 @@ interface Sent {
   hash: string
   /** The registration number the body named the dog by. */
   regNo: string
-  version: string
 }
 
 /** What Kennelliitto holds from before, which stays known through a refusal and through no answer at all. */
@@ -578,7 +513,6 @@ const nextKcResult = (
       day: sent.day,
       payloadHash: sent.hash,
       regNo: sent.regNo,
-      resultVersion: sent.version,
       status: 'sent',
       ...(tulosId === undefined ? {} : { tulosId }),
     }
@@ -589,7 +523,6 @@ const nextKcResult = (
       by,
       errors: call.virheet,
       ...(previous?.payloadHash ? { payloadHash: previous.payloadHash } : {}),
-      ...(previous?.resultVersion ? { resultVersion: previous.resultVersion } : {}),
       status: 'failed',
       ...kept,
     }
@@ -613,7 +546,7 @@ const recordKcResult = async (
   const updatedAt = next.at
   if (await writeKcResult(event.id, registration.id, next, registration.kcResult?.at, updatedAt)) return next
 
-  const { payloadHash: _unknown, resultVersion: _version, ...unknown } = next
+  const { payloadHash: _unknown, ...unknown } = next
   const latest = (await getRegistration(event.id, registration.id, true)).kcResult?.at
   if (await writeKcResult(event.id, registration.id, unknown, latest, updatedAt)) return unknown
   logger.warn('kcResult could not be recorded', { eventId: event.id, registrationId: registration.id })
@@ -717,13 +650,10 @@ const sendOne = async (
   const notAdded = foreignDog && (await addForeignDog(req, registration, foreignDog, patches))
   if (notAdded) return notAdded
 
-  // The version is read before the call: a result saved while Kennelliitto thinks about it is a later
-  // version than the one the hash stands for, and reads as changed afterwards.
-  const version = registration.eventResult?.updatedAt ?? ''
   const { call, pointsByHand } = await saveResult(req, body)
   const outcome = nextKcResult(
     call,
-    { day: body.päivä, hash, regNo: body.rekisterinumero, version },
+    { day: body.päivä, hash, regNo: body.rekisterinumero },
     registration.kcResult,
     req.userName,
     nowOf(req).toISOString()
@@ -758,25 +688,6 @@ const sentReport = (
     ...(sent ? {} : { status: callStatus }),
     ...(recorded && next.tulosId !== undefined ? { tulosId: next.tulosId } : {}),
     ...(sent && recorded && next.pointsByHand !== undefined ? { pointsByHand: next.pointsByHand } : {}),
-  }
-}
-
-/**
- * A result whose hash is what was sent needs no new call, but the version it stands for moves on: an
- * edit that was taken back has a later `updatedAt` and the same content.
- */
-const keepVersion = async (req: KcRequest, { registration }: Evaluated, patches: Patch<JsonRegistration>[]) => {
-  const { kcResult } = registration
-  const version = registration.eventResult?.updatedAt
-  if (!kcResult || !version || kcResult.resultVersion === version) return
-  const next: JsonKcResult = { ...kcResult, resultVersion: version }
-  // Nothing was sent, so a failed write loses nothing: the dog stays unchanged and the request goes on.
-  try {
-    if (await writeKcResult(req.event.id, registration.id, next, kcResult.at, nowOf(req).toISOString())) {
-      mergePatch(patches, { id: registration.id, kcResult: next })
-    }
-  } catch (error) {
-    logger.error('kcResult version write failed', { error, eventId: req.event.id, registrationId: registration.id })
   }
 }
 
@@ -903,10 +814,7 @@ const resolveRegNoChoice = async (
 const sendDog = async (req: KcRequest, item: Evaluated, options: SendOptions): Promise<KcSendReport | undefined> => {
   const { force, notAttempted, patches, startedAt } = options
   const { body, hash, report } = item
-  if (report.status === 'unchanged' && !force) {
-    await keepVersion(req, item, patches)
-    return unchangedReport(item)
-  }
+  if (report.status === 'unchanged' && !force) return unchangedReport(item)
   if (!body || !hash || !(isSendable(report.status) || report.status === 'unchanged')) return undefined
   if (nowOf(req).getTime() - startedAt > START_CUTOFF_MS) {
     notAttempted.push(report.id)
@@ -1122,7 +1030,7 @@ export const handOverKennelliittoResults = async (
   if (first) return { blockers: [], handedOver: false, ...first, ...eventPatch }
 
   const lock = await takeLock(req, event)
-  const secondLook = evaluateAll(event, await getReadyRegistrationsByEventId(event.id, true), koemuoto, nowOf(req))
+  const secondLook = evaluateKcDogs(event, await getReadyRegistrationsByEventId(event.id, true), koemuoto, nowOf(req))
   const second = handOverGate(applyForeignLookup(secondLook, firstLook.lookup), withoutBlocked)
   if (second) {
     await lock.release()
