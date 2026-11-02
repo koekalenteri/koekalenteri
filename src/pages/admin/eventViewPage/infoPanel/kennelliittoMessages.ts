@@ -63,10 +63,10 @@ export const createsDogLine = (dog: KcDogReport): DogLine => ({
 /** A dog whose result goes with 0 points, and the points to enter in Omakoira by hand in their place (KOE-1676). */
 export const pointsByHandLine = (
   t: TFunction,
-  dog: Pick<KcDogReport, 'id' | 'name' | 'pointsByHand' | 'regNo'>
+  dog: Pick<KcDogReport, 'id' | 'name' | 'regNo'> & { readonly pointsByHand: number }
 ): DogLine => ({
   id: dog.id,
-  text: t('results.kennelliitto.pointsByHandLine', { dog: dogLabel(dog), points: dog.pointsByHand ?? 0 }),
+  text: t('results.kennelliitto.pointsByHandLine', { dog: dogLabel(dog), points: dog.pointsByHand }),
 })
 
 /**

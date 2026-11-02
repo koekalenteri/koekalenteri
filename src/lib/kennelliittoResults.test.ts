@@ -307,6 +307,9 @@ describe('kennelliittoResults', () => {
       ['a nought of a whole round under 50 %', 'VOI', { percentage: 40, result: 'VOI0' }, [40, undefined]],
       ['an ALO dash under 50 %, which its row takes', 'ALO', { percentage: 30, result: 'ALO-' }, [30, undefined]],
       ['a nought with no points', 'AVO', { percentage: 0, result: 'AVO0' }, [0, undefined]],
+      ['a nought at its maximum', 'AVO', { percentage: 49, result: 'AVO0' }, [49, undefined]],
+      ['a nought just above its maximum', 'AVO', { percentage: 49.5, result: 'AVO0' }, [0, 49.5]],
+      ['an ALO nought with no points, which its row takes', 'ALO', { percentage: 0, result: 'ALO0' }, [0, undefined]],
       [
         'a stopped nought over 49 %',
         'AVO',
@@ -315,7 +318,12 @@ describe('kennelliittoResults', () => {
       ],
       ['a dash with points', 'AVO', { elimination: { fault: 'aggression' }, percentage: 20, result: 'AVO-' }, [0, 20]],
       ['an ALO nought with points, whose row takes only 0', 'ALO', { percentage: 40, result: 'ALO0' }, [0, 40]],
-      ['a prize above its row, which 0 would not fix', 'VOI', { percentage: 64.9, result: 'VOI3' }, [64.9, undefined]],
+      [
+        'a value above the maximum of a row that does not take 0',
+        'VOI',
+        { percentage: 70, result: 'VOI3' },
+        [70, undefined],
+      ],
     ] as const)(
       'sends %s as Kennelliitto takes it, the rest for entering by hand (KOE-1676)',
       (_name, cls, fields, expected) => {

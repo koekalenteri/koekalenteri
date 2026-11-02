@@ -84,7 +84,9 @@ const PointsByHand = ({
   readonly heading: string
 }) => {
   const { t } = useTranslation()
-  const listed = dogs.filter((dog) => dog.pointsByHand !== undefined)
+  const listed = dogs.flatMap(({ pointsByHand, ...dog }) =>
+    pointsByHand === undefined ? [] : [{ ...dog, pointsByHand }]
+  )
   if (!listed.length) return null
   return (
     <Alert severity="info">

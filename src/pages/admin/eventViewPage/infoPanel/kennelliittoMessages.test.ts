@@ -209,14 +209,7 @@ describe('the messages of a sending', () => {
     ['in English with a decimal point', () => english.t, 'Hukka (FI1/20): points 63.75'],
     ['rounded to two decimals', () => finnish.t, 'Hukka (FI1/20): pisteet 66,67', 66.666_666],
   ])('names the points to enter in Omakoira by hand %s (KOE-1676)', (_case, t, text, points = 63.75) => {
-    const dog = received({
-      id: 'a',
-      name: 'Hukka',
-      pointsByHand: points,
-      problems: [],
-      regNo: 'FI1/20',
-      status: 'ready',
-    })
+    const dog = { id: 'a', name: 'Hukka', pointsByHand: points, regNo: 'FI1/20' }
 
     expect(pointsByHandLine(t(), dog)).toEqual({ id: 'a', text })
   })
