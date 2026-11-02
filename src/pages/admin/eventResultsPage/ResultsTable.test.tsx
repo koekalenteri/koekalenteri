@@ -74,6 +74,15 @@ describe('ResultsTable layout', () => {
     }
   })
 
+  it('leaves the headings without a judge where a post has several, since the choice is on the row', () => {
+    judges = [judge, { id: 224, name: 'Tuomari 3', official: true }]
+    renderTable({})
+
+    for (const heading of screen.getAllByRole('columnheader', { name: /results\.column\.task/ })) {
+      expect(heading).not.toHaveTextContent(/Tuomari/)
+    }
+  })
+
   it('keeps the interruption control named for a screen reader while it is a lone dash', () => {
     renderTable({})
 
