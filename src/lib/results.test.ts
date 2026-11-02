@@ -1,5 +1,6 @@
 import type { JsonEventResult, JsonEventResultTask } from '../types'
-import type { ScoredTask, SubmittedEventResult } from './results'
+import type { SubmittedEventResult } from './results'
+import type { ScoredTask } from './resultTasks'
 import i18n from 'i18next'
 import koemuotoNKM from '../lambda/lib/KLIntegraatio-fixtures/koemuoto-NKM.json'
 import koemuotoNOME_A from '../lambda/lib/KLIntegraatio-fixtures/koemuoto-NOME-A.json'
@@ -10,53 +11,50 @@ import {
   availableResultCodes,
   canBeStopped,
   deriveNowtResult,
-  dogRound,
   eliminatingFaults,
-  endedBefore,
   eventResultPrefix,
   formatEventResult,
-  formatPostTaskName,
   formatResultLine,
   formatShownResult,
   formatTaskName,
   hasJudgeStop,
-  isRecordedTask,
-  isResultTasksDroppedBody,
   kcFormatOfEventType,
-  mergeStationTasks,
   nowtTotals,
   parseEventResultCode,
-  partMaxPoints,
   placementsFor,
-  reconcileRoundTasks,
   resolveEventResult,
   resultMarks,
   resultPrefixAsKennelClub,
-  roundColumns,
-  roundPostsBefore,
-  roundsDiffer,
   STOPPED_RESULT_CODE,
   sameEventResult,
-  sameStationTasks,
   shownEventResult,
   stationDogsInOrder,
-  stationSlots,
-  stationVersion,
   taskEntryCeiling,
-  toScoredTasks,
   withStoredTotals,
 } from './results'
+import { dogRound, visitSlots, withEffectiveJudges } from './resultTasks'
 
-/** One task at its own post, the common layout. */
-const task = (stationId: string, points: number | null, maxPoints = 20): ScoredTask => ({
+/**
+ * The slots of `tasks` exercises a group does at one post, numbered after `tasksBefore` exercises
+ * elsewhere: a fixture builder over `visitSlots`.
+ */
+const postSlots = (
+  stationId: string,
+  { parts, tasks, tasksBefore }: { parts: 1 | 2; tasks: number; tasksBefore: number }
+) =>
+  Array.from({ length: tasks }, (_unused, at) =>
+    visitSlots(stationId, { exercise: tasksBefore + at + 1, parts })
+  ).flat()
+
+/** A scored part of an exercise, by the exercise's number. */
+const task = (exercise: number, points: number | null, maxPoints = 20): ScoredTask => ({
   maxPoints,
   points,
-  stationId,
+  task: exercise,
 })
 
-/** A four-post round, one task each, scored as given. */
-const round = (...points: (number | null)[]): ScoredTask[] =>
-  points.map((value, index) => task(`post-${index + 1}`, value))
+/** A four-exercise round, scored as given. */
+const round = (...points: (number | null)[]): ScoredTask[] => points.map((value, index) => task(index + 1, value))
 
 describe('nowtTotals', () => {
   it('sums points and maxima and reports the exact ratio', () => {
@@ -80,27 +78,16 @@ describe('deriveNowtResult', () => {
   })
 
   it('applies the floor to a split task, not to its individual parts', () => {
-    const tasks = [
-      task('post-1', 9, 10),
-      task('post-1', 8, 10),
-      task('post-2', 18),
-      task('post-3', 16),
-      task('post-4', 14),
-    ]
+    const tasks = [task(1, 9, 10), task(1, 8, 10), task(2, 18), task(3, 16), task(4, 14)]
 
     // 9 and 8 each fall under 10, but the task totals 17 of 20 and clears the floor.
     expect(deriveNowtResult({ tasks })).toBe('1')
   })
 
-  it('floors each of two tasks at one post on its own (KOE-1665)', () => {
-    const twoTasks = (second: number) => [
-      task('post-1', 20),
-      task('post-2', 20),
-      task('post-3', 20),
-      { ...task('post-3', second), task: 1 },
-    ]
+  it('floors each of two exercises at one post on its own (KOE-1665)', () => {
+    const twoTasks = (second: number) => [task(1, 20), task(2, 20), task(3, 20), task(4, second)]
 
-    // 29 of 40 at post 3 would clear a floor on the post's sum; the second task alone has 9 of 20.
+    // Exercises 3 and 4 at one post: 29 of 40 would clear a floor on the post's sum; exercise 4 alone has 9 of 20.
     expect(deriveNowtResult({ tasks: twoTasks(9) })).toBe('2')
     expect(deriveNowtResult({ tasks: twoTasks(10) })).toBe('1')
   })
@@ -239,17 +226,6 @@ describe('eliminatingFaults', () => {
   })
 })
 
-describe('partMaxPoints', () => {
-  it('gives a whole task 20 points', () => {
-    expect(partMaxPoints(1)).toBe(20)
-  })
-
-  it('splits a task evenly between two parts, so the parts cannot fail to add up', () => {
-    expect(partMaxPoints(2) * 2).toBe(partMaxPoints(1))
-    expect(partMaxPoints(2)).toBe(10)
-  })
-})
-
 describe('taskEntryCeiling', () => {
   it('leaves an uninterrupted task at its full maximum', () => {
     expect(taskEntryCeiling({ maxPoints: 20 })).toBe(20)
@@ -266,63 +242,18 @@ describe('taskEntryCeiling', () => {
     // hand out first prizes the rules disallow.
     const ceiling = taskEntryCeiling({ maxPoints: 20, recalled: true })
 
-    expect(deriveNowtResult({ tasks: [...round(20, 20, 20), task('post-4', ceiling)] })).toBe('1')
-    expect(deriveNowtResult({ tasks: [...round(20, 20, 20), task('post-4', ceiling - 1)] })).toBe('2')
-  })
-})
-
-describe('stationSlots', () => {
-  it('numbers the tasks of a visit after the ones the group did before it', () => {
-    expect(stationSlots('post-2', { parts: 1, tasks: 2, tasksBefore: 3 })).toEqual([
-      { index: 0, maxPoints: 20, parts: 1, stationId: 'post-2', task: 0, taskNumber: 4 },
-      { index: 1, maxPoints: 20, parts: 1, stationId: 'post-2', task: 1, taskNumber: 5 },
-    ])
-  })
-
-  it('addresses each part of a split task as its own slot', () => {
-    expect(stationSlots('post-1', { parts: 2, tasks: 1, tasksBefore: 0 })).toEqual([
-      { index: 0, maxPoints: 10, parts: 2, stationId: 'post-1', task: 0, taskNumber: 1 },
-      { index: 1, maxPoints: 10, parts: 2, stationId: 'post-1', task: 0, taskNumber: 1 },
-    ])
-  })
-})
-
-describe('roundColumns', () => {
-  it('keeps the first round order and adds what only the later rounds have', () => {
-    const first = [...stationSlots('post-1', { parts: 1, tasks: 1, tasksBefore: 0 })]
-    const second = [
-      ...stationSlots('post-2', { parts: 1, tasks: 1, tasksBefore: 0 }),
-      ...stationSlots('post-1', { parts: 1, tasks: 2, tasksBefore: 1 }),
-    ]
-
-    expect(roundColumns([first, second]).map((item) => `${item.stationId}#${item.index}`)).toEqual([
-      'post-1#0',
-      'post-2#0',
-      'post-1#1',
-    ])
+    expect(deriveNowtResult({ tasks: [...round(20, 20, 20), task(4, ceiling)] })).toBe('1')
+    expect(deriveNowtResult({ tasks: [...round(20, 20, 20), task(4, ceiling - 1)] })).toBe('2')
   })
 })
 
 describe('formatTaskName', () => {
-  it('names a whole task by its number across the round, and a part by its task too', () => {
-    const [whole] = stationSlots('post-1', { parts: 1, tasks: 1, tasksBefore: 1 })
-    const [, second] = stationSlots('post-1', { parts: 2, tasks: 1, tasksBefore: 1 })
+  it('names an exercise by its number in the running order, and a part by its exercise too', () => {
+    const [whole] = postSlots('post-1', { parts: 1, tasks: 1, tasksBefore: 1 })
+    const [, second] = postSlots('post-1', { parts: 2, tasks: 1, tasksBefore: 1 })
 
-    expect(formatTaskName(whole, i18n.getFixedT('fi'))).toBe('Tehtävä 2')
-    expect(formatTaskName(second, i18n.getFixedT('fi'))).toBe('Tehtävä 2, osa 2/2')
-  })
-})
-
-describe('formatPostTaskName', () => {
-  it('names a slot by its post, its task there where it has more than one, and its part', () => {
-    const t = i18n.getFixedT('fi')
-    const [first, , , fourth] = stationSlots('post-3', { parts: 2, tasks: 2, tasksBefore: 0 })
-
-    expect(formatPostTaskName(first, { number: 3 }, t)).toBe('Rasti 3, osa 1/2')
-    expect(formatPostTaskName(fourth, { number: 3 }, t)).toBe('Rasti 3, tehtävä 2, osa 2/2')
-    expect(
-      formatPostTaskName(stationSlots('post-1', { parts: 1, tasks: 1, tasksBefore: 4 })[0], { number: 1 }, t)
-    ).toBe('Rasti 1')
+    expect(formatTaskName(whole, i18n.getFixedT('fi'))).toBe('Rasti 2')
+    expect(formatTaskName(second, i18n.getFixedT('fi'))).toBe('Rasti 2, osa 2/2')
   })
 })
 
@@ -346,64 +277,24 @@ describe('stationDogsInOrder', () => {
     const event = { eventType: 'NOWT', stations: [{ date: '2026-09-12' as const, id: 'post-1', number: 1 }] }
 
     expect(stationDogsInOrder(event, 'post-1', [dog('a', 1)])).toEqual([
-      { ...dog('a', 1), visit: { parts: 1, postsBefore: [], tasks: 1, tasksBefore: 0 } },
+      { ...dog('a', 1), visit: { exercise: 1, exercisePosts: ['post-1'], parts: 1 } },
     ])
   })
 
-  it('names the posts the group visits before this one, in its own order (KOE-1669)', () => {
+  it("names the posts of the group's whole running order, in its own order (KOE-1669)", () => {
     const day = '2026-09-12' as const
     const event = {
       eventType: 'NOWT',
-      rotations: [{ class: 'ALO' as const, posts: ['post-3', 'post-1', 'post-2'].map((stationId) => ({ stationId })) }],
+      rotations: [
+        { class: 'ALO' as const, exercises: ['post-3', 'post-1', 'post-2'].map((stationId) => ({ stationId })) },
+      ],
       stations: [1, 2, 3].map((number) => ({ date: day, id: `post-${number}`, number })),
     }
     const alo = { ...dog('a', 1), class: 'ALO' as const }
 
-    expect(stationDogsInOrder(event, 'post-2', [alo]).map((item) => item.visit?.postsBefore)).toEqual([
-      ['post-3', 'post-1'],
+    expect(stationDogsInOrder(event, 'post-2', [alo]).map((item) => item.visit?.exercisePosts)).toEqual([
+      ['post-3', 'post-1', 'post-2'],
     ])
-  })
-})
-
-describe('toScoredTasks', () => {
-  const round = [
-    ...stationSlots('post-1', { parts: 2, tasks: 1, tasksBefore: 0 }),
-    ...stationSlots('post-2', { parts: 1, tasks: 1, tasksBefore: 1 }),
-  ]
-
-  const scored = (stationId: string, index: number, points: number | null): JsonEventResultTask => ({
-    index,
-    points,
-    stationId,
-    updatedAt: '2026-08-29T10:00:00.000Z',
-    updatedBy: 'secretary',
-  })
-
-  it('joins entries onto the round', () => {
-    expect(toScoredTasks(round, [scored('post-1', 0, 9), scored('post-1', 1, 8), scored('post-2', 0, 18)])).toEqual([
-      { maxPoints: 10, points: 9, stationId: 'post-1', task: 0 },
-      { maxPoints: 10, points: 8, stationId: 'post-1', task: 0 },
-      { maxPoints: 20, points: 18, stationId: 'post-2', task: 0 },
-    ])
-  })
-
-  it('tells the two parts of one task apart', () => {
-    const result = toScoredTasks(round, [scored('post-1', 1, 8)])
-
-    expect(result.map((item) => item.points)).toEqual([null, 8, null])
-  })
-
-  it('reads a task with no entry as unscored instead of dropping it from the maximum', () => {
-    const result = toScoredTasks(round, [scored('post-1', 0, 9)])
-
-    expect(result.map((item) => item.points)).toEqual([9, null, null])
-    expect(nowtTotals(result).maxPoints).toBe(40)
-  })
-
-  it('ignores entries for posts the round no longer holds', () => {
-    expect(
-      toScoredTasks(stationSlots('post-1', { parts: 1, tasks: 1, tasksBefore: 0 }), [scored('removed', 0, 20)])
-    ).toEqual([{ maxPoints: 20, points: null, stationId: 'post-1', task: 0 }])
   })
 })
 
@@ -595,15 +486,15 @@ describe('resolveEventResult', () => {
     ),
   }
 
-  const entered = (stationId: string, points: number | null): JsonEventResultTask => ({
-    index: 0,
+  const entered = (exercise: number, points: number | null): JsonEventResultTask => ({
+    exercise,
+    part: 0,
     points,
-    stationId,
     updatedAt: '2026-08-29T10:00:00.000Z',
     updatedBy: 'secretary',
   })
 
-  const fullRound = (...points: number[]) => points.map((value, index) => entered(`post-${index + 1}`, value))
+  const fullRound = (...points: number[]) => points.map((value, index) => entered(index + 1, value))
 
   it('derives the totals and composes the result', () => {
     expect(resolveEventResult({ tasks: fullRound(17, 18, 16, 14) }, nowt)).toMatchObject({
@@ -632,14 +523,14 @@ describe('resolveEventResult', () => {
   })
 
   it('publishes what an eliminated round earned, by the rule of every round that ended early', () => {
-    const result = resolveEventResult({ elimination: { fault: 'hardMouth' }, tasks: [entered('post-1', 17)] }, nowt)
+    const result = resolveEventResult({ elimination: { fault: 'hardMouth' }, tasks: [entered(1, 17)] }, nowt)
 
     expect(result).toMatchObject({ maxPoints: 80, percentage: 21.25, points: 17, result: 'AVO-' })
   })
 
   it('counts a score stored at a post after the stop, which the secretary sees and can clear', () => {
-    const tasks = [entered('post-1', 12), entered('post-3', 15)]
-    const result = resolveEventResult({ retirement: { cause: 'handlerChoice', stationId: 'post-2' }, tasks }, nowt)
+    const tasks = [entered(1, 12), entered(3, 15)]
+    const result = resolveEventResult({ retirement: { cause: 'handlerChoice', exercise: 2 }, tasks }, nowt)
 
     expect(result).toMatchObject({ maxPoints: 80, points: 27, result: 'AVO0' })
   })
@@ -651,7 +542,7 @@ describe('resolveEventResult', () => {
     ['judgeStopped', 'AVO0'],
   ] as const)('publishes what a round withdrawn for %s earned, against the whole round (KOE-1669)', (cause, code) => {
     const result = resolveEventResult(
-      { retirement: { cause, stationId: 'post-2' }, tasks: [entered('post-1', 12), entered('post-2', 0)] },
+      { retirement: { cause, exercise: 2 }, tasks: [entered(1, 12), entered(2, 0)] },
       nowt
     )
 
@@ -704,8 +595,8 @@ describe('resolveEventResult', () => {
 
   it("scores a split task against the dog's own round, its parts adding up to 20", () => {
     const result = resolveEventResult(
-      { tasks: [entered('post-1', 9), { ...entered('post-1', 8), index: 1 }] },
-      { eventClass: 'ALO', eventType: 'NOWT', round: stationSlots('post-1', { parts: 2, tasks: 1, tasksBefore: 0 }) }
+      { tasks: [entered(1, 9), { ...entered(1, 8), part: 1 }] },
+      { eventClass: 'ALO', eventType: 'NOWT', round: postSlots('post-1', { parts: 2, tasks: 1, tasksBefore: 0 }) }
     )
 
     expect(result).toMatchObject({ maxPoints: 20, points: 17 })
@@ -732,75 +623,6 @@ describe('sameEventResult', () => {
   it('treats a missing result as different from any result', () => {
     expect(sameEventResult(undefined, result('x', 'a'))).toBe(false)
     expect(sameEventResult(undefined, undefined)).toBe(true)
-  })
-})
-
-describe('per-post entry', () => {
-  const at = (stationId: string, index: number, points: number, updatedAt: string): JsonEventResultTask => ({
-    index,
-    points,
-    stationId,
-    updatedAt,
-    updatedBy: 'joku',
-  })
-
-  const stored = [at('post-1', 0, 17, '2026-09-12T10:00:00.000Z'), at('post-2', 0, 18, '2026-09-12T11:00:00.000Z')]
-
-  describe('mergeStationTasks', () => {
-    it('replaces one post and leaves the rest of the round alone', () => {
-      const merged = mergeStationTasks(stored, [at('post-1', 0, 12, '2026-09-12T12:00:00.000Z')], 'post-1')
-
-      expect(merged).toEqual([
-        at('post-2', 0, 18, '2026-09-12T11:00:00.000Z'),
-        at('post-1', 0, 12, '2026-09-12T12:00:00.000Z'),
-      ])
-    })
-
-    it('drops tasks submitted for a post the submission does not cover', () => {
-      // A post may only speak for itself, however the client filled the payload.
-      const merged = mergeStationTasks(stored, [at('post-2', 0, 1, 'x'), at('post-3', 0, 20, 'x')], 'post-3')
-
-      expect(merged.map((task) => [task.stationId, task.points])).toEqual([
-        ['post-1', 17],
-        ['post-2', 18],
-        ['post-3', 20],
-      ])
-    })
-
-    it('adds a post that had nothing stored yet', () => {
-      expect(mergeStationTasks(undefined, [at('post-1', 0, 17, 'x')], 'post-1')).toHaveLength(1)
-    })
-  })
-
-  describe('stationVersion', () => {
-    it("reports the latest write among that post's tasks", () => {
-      const twoTasks = [at('post-1', 0, 9, '2026-09-12T10:00:00.000Z'), at('post-1', 1, 8, '2026-09-12T12:00:00.000Z')]
-
-      expect(stationVersion(twoTasks, 'post-1')).toBe('2026-09-12T12:00:00.000Z')
-    })
-
-    it('is unaware of other posts, so their saves cannot make this one look stale', () => {
-      expect(stationVersion(stored, 'post-1')).toBe('2026-09-12T10:00:00.000Z')
-    })
-
-    it('has no version for a post nothing has scored', () => {
-      expect(stationVersion(stored, 'post-9')).toBeUndefined()
-    })
-  })
-
-  describe('sameStationTasks', () => {
-    it('ignores who recorded a score and when', () => {
-      expect(sameStationTasks(stored, [at('post-1', 0, 17, 'much later')], 'post-1')).toBe(true)
-    })
-
-    it('sees a different score', () => {
-      expect(sameStationTasks(stored, [at('post-1', 0, 12, 'x')], 'post-1')).toBe(false)
-    })
-
-    it('compares only the post in question', () => {
-      // Post 2 differs wildly, but this is a post 1 submission.
-      expect(sameStationTasks(stored, [at('post-1', 0, 17, 'x'), at('post-2', 0, 0, 'x')], 'post-1')).toBe(true)
-    })
   })
 })
 
@@ -966,88 +788,35 @@ describe('formatResultLine', () => {
   })
 })
 
-describe('reconcileRoundTasks (KOE-1666)', () => {
-  const whole = stationSlots('post-1', { parts: 1, tasks: 2, tasksBefore: 0 })
-  const split = stationSlots('post-1', { parts: 2, tasks: 1, tasksBefore: 0 })
-  const scored = (...indexes: number[]) => indexes.map((index) => ({ index, points: 8, stationId: 'post-1' }))
-
-  it('keeps every score of a round that stays as it was', () => {
-    expect(reconcileRoundTasks(whole, whole, scored(0, 1))).toEqual({ dropped: [], kept: scored(0, 1) })
-  })
-
-  it('drops the score of a task the round no longer has', () => {
-    const one = stationSlots('post-1', { parts: 1, tasks: 1, tasksBefore: 0 })
-    expect(reconcileRoundTasks(whole, one, scored(0, 1))).toEqual({ dropped: scored(1), kept: scored(0) })
-  })
-
-  it('drops a score whose slot now means a part instead of a task, or the second task instead of a part', () => {
-    expect(reconcileRoundTasks(whole, split, scored(0, 1))).toEqual({ dropped: scored(0, 1), kept: [] })
-    expect(reconcileRoundTasks(split, whole, scored(0, 1))).toEqual({ dropped: scored(0, 1), kept: [] })
-  })
-
-  it('keeps the parts of a split task when the post gets a second one', () => {
-    const twoSplit = stationSlots('post-1', { parts: 2, tasks: 2, tasksBefore: 0 })
-    expect(reconcileRoundTasks(split, twoSplit, scored(0, 1))).toEqual({ dropped: [], kept: scored(0, 1) })
-  })
-
-  it('drops a score whose slot is in one round only', () => {
-    const one = stationSlots('post-1', { parts: 1, tasks: 1, tasksBefore: 0 })
-    expect(reconcileRoundTasks(one, whole, scored(1))).toEqual({ dropped: scored(1), kept: [] })
-    expect(reconcileRoundTasks(whole, one, scored(1))).toEqual({ dropped: scored(1), kept: [] })
-  })
-
-  it('drops a score the round before did not read either, and has nothing to say of no scores', () => {
-    expect(reconcileRoundTasks(split, split, scored(5))).toEqual({ dropped: scored(5), kept: [] })
-    expect(reconcileRoundTasks(whole, split, undefined)).toEqual({ dropped: [], kept: [] })
-  })
-})
-
-describe('isRecordedTask (KOE-1666)', () => {
-  it.each([
-    ['a score', { points: 12 }, true],
-    ['a zero', { points: 0 }, true],
-    ['an empty field', { points: null }, false],
-    ['a zero reason without points', { points: null, zeroFault: 'unknown' as const }, true],
-    ['a recall without points', { points: null, recalled: true }, true],
-  ])('reads %s as recorded: %s', (_name, task, recorded) => {
-    expect(isRecordedTask(task)).toEqual(recorded)
-  })
-})
-
-describe('endedBefore (KOE-1669)', () => {
+describe('withEffectiveJudges (KOE-1665)', () => {
   const day = '2026-09-12' as const
-  // The group goes round from post 3, so the round's order is not the posts' numbering.
-  const round = dogRound(
-    {
-      rotations: [{ class: 'ALO', posts: ['post-3', 'post-1', 'post-2'].map((stationId) => ({ stationId })) }],
-      stations: [1, 2, 3].map((number) => ({ date: day, id: `post-${number}`, number, taskCount: 2 })),
-    },
-    { class: 'ALO', day }
-  )
+  const a = { id: 1, name: 'A' }
+  const b = { id: 2, name: 'B' }
+  const at = { updatedAt: '2026-09-12T09:00:00.000Z', updatedBy: 'Sihteeri' }
+  // Exercise 2 is done at the first post now, whose judge is A; it was scored by B at the second.
+  const event = {
+    rotations: [{ class: 'ALO' as const, exercises: [{ stationId: 'post-1' }, { stationId: 'post-1' }] }],
+    stations: [
+      { date: day, id: 'post-1', judges: [a], number: 1 },
+      { date: day, id: 'post-2', judges: [b], number: 2 },
+    ],
+  }
 
-  it("reads the posts before a post off the round, in the round's order", () => {
-    expect(roundPostsBefore(round, 'post-3')).toEqual([])
-    expect(roundPostsBefore(round, 'post-2')).toEqual(['post-3', 'post-1'])
-    expect(roundPostsBefore(round, 'post-9')).toEqual([])
-  })
+  it("names each score's judge from the post doing its exercise", () => {
+    const registration = {
+      class: 'ALO',
+      eventResult: {
+        ...at,
+        tasks: [
+          { ...at, exercise: 1, judge: a, part: 0, points: 15 },
+          { ...at, exercise: 2, judge: b, part: 0, points: 16 },
+        ],
+      },
+      eventType: 'NOWT',
+      group: { date: day, key: `${day}-ap`, number: 1 },
+    }
 
-  it('ends the round before every post after the one it ended at', () => {
-    const at = { stationId: 'post-3' }
-    expect(['post-3', 'post-1', 'post-2'].map((post) => endedBefore(at, roundPostsBefore(round, post)))).toEqual([
-      false,
-      true,
-      true,
-    ])
-  })
-
-  it.each([
-    ['no outcome', undefined],
-    ['an unknown post ("Ei tiedossa")', {}],
-    ['a post not in the list', { stationId: 'post-9' }],
-    ['a post that comes after this one', { stationId: 'post-5' }],
-    ['this very post', { stationId: 'post-1' }],
-  ])('does not end it for %s', (_name, retirement) => {
-    expect(endedBefore(retirement, ['post-0'])).toBe(false)
+    expect(withEffectiveJudges(event, registration).eventResult?.tasks?.map((task) => task.judge)).toEqual([a, a])
   })
 })
 
@@ -1064,8 +833,8 @@ describe('withStoredTotals (KOE-1669)', () => {
   const retired: JsonEventResult = {
     ...at,
     result: 'ALO0',
-    retirement: { cause: 'handlerChoice', stationId: 'post-1' },
-    tasks: [{ ...at, index: 0, points: 12, stationId: 'post-1' }],
+    retirement: { cause: 'handlerChoice', exercise: 1 },
+    tasks: [{ ...at, exercise: 1, part: 0, points: 12 }],
   }
 
   it('works out the totals of a result stored without them, against the whole round', () => {
@@ -1083,39 +852,5 @@ describe('withStoredTotals (KOE-1669)', () => {
     ['a type not scored at posts', dog(retired, 'NOME-B')],
   ])('leaves %s as it is', (_name, registration) => {
     expect(withStoredTotals(event, registration)).toBe(registration)
-  })
-})
-
-describe('roundsDiffer (KOE-1666)', () => {
-  const first = stationSlots('post-1', { parts: 1, tasks: 1, tasksBefore: 0 })
-  const second = stationSlots('post-2', { parts: 1, tasks: 1, tasksBefore: 1 })
-
-  it('reads the same slots in another order as the same round', () => {
-    expect(roundsDiffer([...first, ...second], [...second, ...first])).toEqual(false)
-  })
-
-  it.each([
-    ['a slot more', [...first, ...second]],
-    ['a split task', stationSlots('post-1', { parts: 2, tasks: 1, tasksBefore: 0 }).slice(0, 1)],
-    ['another post', second],
-  ])('reads %s as a different round', (_name, after) => {
-    expect(roundsDiffer(first, after)).toEqual(true)
-  })
-})
-
-describe('isResultTasksDroppedBody (KOE-1666)', () => {
-  const body = { confirmation: 'abc', dogs: [{ id: 'r1', name: 'Hukka', tasks: 1 }], error: 'resultTasksDropped' }
-
-  it('reads the question the event save asks about dropped scores', () => {
-    expect(isResultTasksDroppedBody(body)).toEqual(true)
-  })
-
-  it.each([
-    ['another error', { ...body, error: 'staleData' }],
-    ['no confirmation', { ...body, confirmation: undefined }],
-    ['a dog without a count', { ...body, dogs: [{ id: 'r1', name: 'Hukka' }] }],
-    ['no body', undefined],
-  ])('refuses %s', (_name, value) => {
-    expect(isResultTasksDroppedBody(value)).toEqual(false)
   })
 })

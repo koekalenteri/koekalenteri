@@ -1550,8 +1550,8 @@ describe('kennelliittoResults', () => {
             ...at,
             judge: chief,
             result: 'ALO-',
-            retirement: { cause: 'handlerChoice', couldStillHavePlaced: true, stationId: 'post-1' },
-            tasks: [{ ...at, index: 0, points: 12, stationId: 'post-1' }],
+            retirement: { cause: 'handlerChoice', couldStillHavePlaced: true, exercise: 1 },
+            tasks: [{ ...at, exercise: 1, part: 0, points: 12 }],
           },
           eventType: 'NOWT',
         }),
@@ -1562,6 +1562,40 @@ describe('kennelliittoResults', () => {
       expect(tallennat().map((call) => call.body)).toEqual([
         expect.objectContaining({ keskeytetty: false, pisteet: 30, rekisterinumero: 'FI20008/20', tulos: 'ALO-' }),
       ])
+    })
+
+    it("names the judges of each exercise's post as the event stands, not the ones stored with the scores (KOE-1665)", async () => {
+      // Exercise 2 was scored by the second post's judge; the posts were then corrected so that the first
+      // post does both exercises, and its judge is the one sent.
+      const first = { id: 1000003, name: 'Ensimmäinen' }
+      const other = { id: 1000004, name: 'Toinen' }
+      const stations = [
+        { date: '2026-09-26' as const, id: 'post-1', judges: [first], number: 1 },
+        { date: '2026-09-26' as const, id: 'post-2', judges: [other], number: 2 },
+      ]
+      const rotations = [{ class: 'ALO' as const, exercises: [{ stationId: 'post-1' }, { stationId: 'post-1' }] }]
+      const at = { updatedAt: '2026-09-26T09:00:00.000Z', updatedBy: 'Sihteeri' }
+      registrations = [
+        dog('scored', 'FI20009/20', 'ALO2', {
+          class: 'ALO',
+          eventResult: {
+            ...at,
+            maxPoints: 40,
+            percentage: 70,
+            points: 28,
+            result: 'ALO2',
+            tasks: [
+              { ...at, exercise: 1, judge: first, part: 0, points: 14 },
+              { ...at, exercise: 2, judge: other, part: 0, points: 14 },
+            ],
+          },
+          eventType: 'NOWT',
+        }),
+      ]
+
+      await sendKennelliittoResults(ctx({ eventType: 'NOWT', rotations, stations }), ['scored'], { force: false })
+
+      expect(tallennat().map((call) => call.body?.palkintotuomarit)).toEqual([[first.id]])
     })
 
     it('sends no placement for a nought, and does not send an awarded dog that has no points to rank by', async () => {

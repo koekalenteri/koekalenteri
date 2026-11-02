@@ -99,6 +99,12 @@ const LIVE_FORMATS = new Map<string, LiveFormat>([
 
 export const liveFormat = (eventType?: string): LiveFormat => LIVE_FORMATS.get(eventType ?? '') ?? DEFAULT_LIVE_FORMAT
 
+/**
+ * Whether an event type is scored at posts, exercise by exercise (`tasks: 'post'`). Everything else is
+ * judged qualitatively and has no tasks.
+ */
+export const scoresAtPosts = (eventType?: string): boolean => liveFormat(eventType).tasks === 'post'
+
 /** A whole entry never runs at once; more dogs than this is a malformed request, not a walk-up. */
 export const MAX_DOGS_AT_ONCE = 10
 

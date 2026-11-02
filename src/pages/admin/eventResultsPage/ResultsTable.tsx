@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react'
-import type { RoundTask } from '@/lib/results'
+import type { ExerciseSlot } from '@/lib/resultTasks'
 import type { EventResult, EventStation, NowtZeroFault, PublicJudge, Registration } from '@/types'
 import type { ResultEdit, TaskEdit } from '../../components/stationScoring/types'
 import Box from '@mui/material/Box'
@@ -14,15 +14,10 @@ import TableRow from '@mui/material/TableRow'
 import Typography from '@mui/material/Typography'
 import { memo } from 'react'
 import { useTranslation } from 'react-i18next'
+import { scoresAtPosts } from '@/lib/liveFormat'
 import { getRegistrationPlacement } from '@/lib/registration'
-import {
-  endedBefore,
-  formatPostTaskName,
-  formatTaskName,
-  parseEventResultCode,
-  roundPostsBefore,
-  scoresAtPosts,
-} from '@/lib/results'
+import { formatTaskName, parseEventResultCode } from '@/lib/results'
+import { columnKey, effectiveJudge, endedBefore, exercisePostsOf } from '@/lib/resultTasks'
 import { JudgeSelect } from '../../components/stationScoring/JudgeSelect'
 import { ResultSummary } from '../../components/stationScoring/ResultSummary'
 import { asksOutcome, outcomeLabelKeys, RoundOutcome } from '../../components/stationScoring/RoundOutcome'
@@ -33,19 +28,19 @@ import { KennelliittoStatus } from './KennelliittoStatus'
 interface Props {
   readonly registrations: Registration[]
   /**
-   * The columns: every slot any dog of the view has (`roundColumns`), the whole round or one post's.
-   * The dogs of one class may differ, when the class splits into rotation groups by start number.
+   * The columns: every exercise any dog of the view has (`roundColumns`), the whole round or one post's.
+   * The dogs of one class may differ, when the class splits into groups by start number.
    */
-  readonly round: RoundTask[]
+  readonly round: ExerciseSlot[]
   /** A dog's own slots in this view. A column the dog has no slot in stays empty on its row. */
-  readonly roundFor: (registration: Registration) => RoundTask[]
+  readonly roundFor: (registration: Registration) => ExerciseSlot[]
   /** A dog's whole round, for deriving the prize. Absent in a post's own view, where it is unknowable. */
-  readonly fullRoundFor?: (registration: Registration) => RoundTask[]
+  readonly fullRoundFor?: (registration: Registration) => ExerciseSlot[]
   /**
-   * A dog's whole round in every view, a post's own included: which posts come after the one its round
-   * ended at, and so read "kesk" (KOE-1669). Not a signal to derive a prize, as {@link fullRoundFor} is.
+   * A dog's whole round in every view, a post's own included: which exercises come after the post its
+   * round ended at, and so read "kesk" (KOE-1669). Not a signal to derive a prize, as {@link fullRoundFor} is.
    */
-  readonly wholeRoundFor: (registration: Registration) => RoundTask[]
+  readonly wholeRoundFor: (registration: Registration) => ExerciseSlot[]
   readonly eventType: string
   readonly eventClass?: string
   readonly stations: EventStation[]
@@ -90,7 +85,7 @@ interface RowControls {
 const carriesStop = (registration: Registration): boolean =>
   registration.eventResult?.retirement?.cause === 'judgeStopped'
 
-const taskKey = (task: { stationId: string; index: number }) => `${task.stationId}#${task.index}`
+const taskKey = (task: { exercise: number; part: number }) => `${task.exercise}#${task.part}`
 
 /** Where the carried judge lives in `defaultJudges` for rows that have no posts. */
 const EVENT_JUDGE_KEY = 'event'
@@ -170,23 +165,8 @@ function ResultsTable({
     onChange(registration.id, sameResultEdit(attributed(next), stored) ? undefined : next)
   }
 
-  // The columns are named by the tasks' places in the round while every dog has each at the same place.
-  // Where the class goes round in groups of different orders, one slot is a different task for each
-  // group, and the headings name the posts instead (KOE-1665).
-  const numberedAlike = round.every((column) =>
-    registrations.every((registration) => {
-      const own = roundFor(registration).find((item) => taskKey(item) === taskKey(column))
-      return !own || own.taskNumber === column.taskNumber
-    })
-  )
-  const columnName = (column: RoundTask) =>
-    numberedAlike
-      ? formatTaskName(column, t)
-      : formatPostTaskName(
-          column,
-          stations.find((station) => station.id === column.stationId),
-          t
-        )
+  // A column is an exercise number, "Rasti 3", whatever post a dog's group did it at (KOE-1665).
+  const columnName = (column: ExerciseSlot) => formatTaskName(column, t)
 
   const controlsFor = (registration: Registration): RowControls => {
     const edit = edits[registration.id] ?? seededEdit(registration.eventResult)
@@ -195,22 +175,28 @@ function ResultsTable({
     // A post after the one the round ended at was never reached, read off the dog's whole round as the
     // post's own link reads it off its visit (KOE-1669).
     const whole = wholeRoundFor(registration)
-    const notReached = (task: RoundTask) => endedBefore(edit.retirement, roundPostsBefore(whole, task.stationId))
+    const exercisePosts = exercisePostsOf(whole)
+    const notReached = (task: ExerciseSlot) => endedBefore(edit.retirement, task.exercise, exercisePosts)
+    // Where the round may have ended: an exercise of the dog's order, at the post on view where there is one.
+    const places = exercisePosts
+      .map((post, at) => ({ exercise: at + 1, stationId: post }))
+      .filter((place) => !stationId || place.stationId === stationId)
 
-    const writeTask = (task: RoundTask, changes: Partial<TaskEdit>) => {
+    const writeTask = (task: ExerciseSlot, changes: Partial<TaskEdit>) => {
       const existing = tasks.find((item) => taskKey(item) === taskKey(task))
       // Scoring a task attributes it to whoever is showing, so the secretary only touches the
-      // judge control when it actually changes.
-      const judge = changes.judge ?? existing?.judge ?? defaultJudges[task.stationId] ?? judgesFor(task.stationId)[0]
+      // judge control when it actually changes. A stored judge stands while it judges at the exercise's
+      // post (`effectiveJudge`, KOE-1665).
+      const judge = changes.judge ?? effectiveJudge(existing, judgesFor(task.stationId), defaultJudges[task.stationId])
 
       report(registration, {
         ...edit,
         tasks: [
           ...tasks.filter((item) => taskKey(item) !== taskKey(task)),
           {
-            index: task.index,
+            exercise: task.exercise,
+            part: task.part,
             points: existing?.points ?? null,
-            stationId: task.stationId,
             ...existing,
             ...changes,
             ...(judge ? { judge } : {}),
@@ -219,7 +205,7 @@ function ResultsTable({
       })
     }
 
-    const setTask = (task: RoundTask, points: number | null, zeroFault?: NowtZeroFault) =>
+    const setTask = (task: ExerciseSlot, points: number | null, zeroFault?: NowtZeroFault) =>
       writeTask(task, { points, zeroFault })
 
     return {
@@ -239,6 +225,7 @@ function ResultsTable({
           carriesStop={carriesStop(registration)}
           disabled={disabled}
           eventType={eventType}
+          places={qualitative ? undefined : places}
           stationId={stationId}
           stations={stations}
           onChange={(next) => report(registration, attributed(next))}
@@ -258,7 +245,8 @@ function ResultsTable({
         />
       ),
       tasks: round.map((column) => {
-        const task = own.find((item) => taskKey(item) === taskKey(column))
+        // A dog's slot belongs in a column of the same exercise number, split the same way, the same part.
+        const task = own.find((item) => columnKey(item) === columnKey(column))
         if (!task) return null
 
         return (
@@ -310,7 +298,7 @@ function ResultsTable({
             <TableCell>{t('results.column.handler')}</TableCell>
             {qualitative && <TableCell>{t('results.judge')}</TableCell>}
             {round.map((task) => (
-              <TableCell align="center" key={taskKey(task)}>
+              <TableCell align="center" key={columnKey(task)}>
                 {columnName(task)}
               </TableCell>
             ))}
@@ -334,7 +322,7 @@ function ResultsTable({
                 <TableCell>{registration.handler?.name}</TableCell>
                 {qualitative && <TableCell>{controls.judge}</TableCell>}
                 {controls.tasks.map((task, index) => (
-                  <TableCell align="center" key={taskKey(round[index])}>
+                  <TableCell align="center" key={columnKey(round[index])}>
                     {task}
                   </TableCell>
                 ))}

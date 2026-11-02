@@ -30,7 +30,7 @@ const entry = (): StationEntry => ({
       eventType: 'NOWT',
       group: { date: '2026-09-12', key: 'AVO-AP', number: 1, time: 'ap' },
       id: 'run-1',
-      visit: { parts: 1, postsBefore: [], tasks: 1, tasksBefore: 0 },
+      visit: { exercise: 1, exercisePosts: ['post-1'], parts: 1 },
     },
     {
       class: 'AVO',
@@ -38,7 +38,7 @@ const entry = (): StationEntry => ({
       eventType: 'NOWT',
       group: { date: '2026-09-12', key: 'AVO-AP', number: 2, time: 'ap' },
       id: 'run-2',
-      visit: { parts: 1, postsBefore: [], tasks: 1, tasksBefore: 0 },
+      visit: { exercise: 1, exercisePosts: ['post-1'], parts: 1 },
     },
   ],
   station: { date: '2026-09-12', id: 'post-1', number: 1 },
@@ -97,7 +97,7 @@ describe('LiveEntryPage', () => {
     expect(stationId).toBe('post-1')
     expect(token).toBe('link-token')
     expect(submissions[0]).toMatchObject({
-      eventResult: { tasks: [{ index: 0, points: 17, stationId: 'post-1' }] },
+      eventResult: { tasks: [{ exercise: 1, part: 0, points: 17 }] },
       id: 'run-1',
       stationId: 'post-1',
     })

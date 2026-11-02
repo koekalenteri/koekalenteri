@@ -1,3 +1,4 @@
+import type { ExerciseSlot } from '@/lib/resultTasks'
 import type { EliminatingFault, EventStation } from '@/types'
 import type { ResultEdit } from './types'
 import Checkbox from '@mui/material/Checkbox'
@@ -6,10 +7,12 @@ import ListSubheader from '@mui/material/ListSubheader'
 import MenuItem from '@mui/material/MenuItem'
 import Stack from '@mui/material/Stack'
 import TextField from '@mui/material/TextField'
-import { useCallback } from 'react'
+import { useCallback, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { outcomeReasonEnabled } from '@/lib/features'
-import { canBeStopped, eliminatingFaults, hasJudgeStop, STOPPED_RESULT_CODE, scoresAtPosts } from '@/lib/results'
+import { scoresAtPosts } from '@/lib/liveFormat'
+import { canBeStopped, eliminatingFaults, hasJudgeStop, STOPPED_RESULT_CODE } from '@/lib/results'
+import { endedAtExercise, exercisePostsOf } from '@/lib/resultTasks'
 
 /**
  * What the control is asking, which narrows with it while the reason list waits on KOE-1299: with only
@@ -46,14 +49,23 @@ interface Props {
   readonly disabled?: boolean
   /** Which rules' hylkäävät virheet to offer. They are not the same list for every event type. */
   readonly eventType?: string
-  /** The posts a round could have ended at. Empty for event types that are not scored at posts. */
+  /** The day's posts, which name the places on offer. */
   readonly stations: EventStation[]
   /** Set in a post's own view: the round can only have ended at the post being scored. */
   readonly stationId?: string
+  /**
+   * Where a round scored by exercise may have ended (KOE-1665): the exercises of the dog's running order,
+   * those at the post on view where there is one. A post may come more than once, so the place is an
+   * exercise, stored with its post. Absent for the formats that are not scored by exercise.
+   */
+  readonly places?: readonly Place[]
   /** The stored result carries a judge's stop, which stays clearable where the format has none. */
   readonly carriesStop?: boolean
   readonly onChange: (edit: ResultEdit) => void
 }
+
+/** An exercise of the dog's running order and the post it is done at. */
+type Place = Pick<ExerciseSlot, 'exercise' | 'stationId'>
 
 const outcomeOf = (edit: ResultEdit) => edit.elimination?.fault ?? edit.retirement?.cause ?? SCORED
 const stationOf = (edit: ResultEdit) => edit.elimination?.stationId ?? edit.retirement?.stationId ?? ''
@@ -75,6 +87,7 @@ export const RoundOutcome = ({
   eventType,
   stations,
   stationId,
+  places,
   carriesStop = false,
   onChange,
 }: Props) => {
@@ -83,6 +96,20 @@ export const RoundOutcome = ({
   const outcome = outcomeOf(value)
   // A post's own view already knows where it happened; the whole-round view has to ask.
   const where = stationId ?? stationOf(value)
+  // Where the round is scored by exercise, the place is an exercise: the only one on view, or the one the
+  // stored outcome names, a stop stored with its post alone read as the last exercise there.
+  const fixedPlace = stationId && places?.length === 1 ? places[0] : undefined
+  const namedExercise = places
+    ? endedAtExercise(value.retirement ?? value.elimination, exercisePostsOf(places))
+    : undefined
+  const place = fixedPlace ?? places?.find((item) => item.exercise === namedExercise)
+  // Where the outcome is stored: the exercise where the round is scored by exercise, which like a score
+  // stays with its number whatever the posts become (KOE-1665), the post for a type judged as a whole,
+  // or nowhere ("Ei tiedossa").
+  const at = useMemo(() => {
+    if (places) return place ? { exercise: place.exercise } : {}
+    return where ? { stationId: where } : {}
+  }, [place, places, where])
   // A qualitative type collects its result rather than deriving one, so a stop fills its nought in here
   // — the secretary records the stop, not the stop and then the code it is published as. Nothing is
   // filled in for a post-scored round, where the code is derived from the scores.
@@ -122,8 +149,6 @@ export const RoundOutcome = ({
     (event: React.ChangeEvent<HTMLInputElement>) => {
       const next = event.target.value
 
-      const at = where ? { stationId: where } : {}
-
       // Scores — and a qualitative type's entered result — survive the choice: a dog eliminated at the
       // last post keeps what it earned at the first, and switching back should not have quietly thrown
       // that away.
@@ -142,27 +167,34 @@ export const RoundOutcome = ({
 
       return onChange({ elimination: { fault: next as EliminatingFault, ...at }, ...kept })
     },
-    [onChange, stopped, value.resultCode, value.tasks, where]
+    [at, onChange, stopped, value.resultCode, value.tasks]
   )
 
   const handleWhere = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
-      const next = event.target.value || undefined
+      const picked = places?.find((item) => String(item.exercise) === event.target.value)
+      const placed = picked ? { exercise: picked.exercise } : {}
 
-      if (value.elimination) return onChange({ ...value, elimination: { ...value.elimination, stationId: next } })
-      if (value.retirement) return onChange({ ...value, retirement: { ...value.retirement, stationId: next } })
+      if (value.elimination) {
+        const { exercise: _exercise, stationId: _stationId, ...elimination } = value.elimination
+        return onChange({ ...value, elimination: { ...elimination, ...placed } })
+      }
+      if (value.retirement) {
+        const { exercise: _exercise, stationId: _stationId, ...retirement } = value.retirement
+        return onChange({ ...value, retirement: { ...retirement, ...placed } })
+      }
     },
-    [onChange, value]
+    [onChange, places, value]
   )
 
   const handleContention = useCallback(
     (_event: React.ChangeEvent<HTMLInputElement>, checked: boolean) =>
       onChange({
-        retirement: { cause: 'handlerChoice', couldStillHavePlaced: checked, ...(where ? { stationId: where } : {}) },
+        retirement: { cause: 'handlerChoice', couldStillHavePlaced: checked, ...at },
         tasks: value.tasks,
         ...(value.resultCode ? { resultCode: value.resultCode } : {}),
       }),
-    [onChange, value.resultCode, value.tasks, where]
+    [at, onChange, value.resultCode, value.tasks]
   )
 
   if (!asksOutcome(eventType, carriesStop)) return null
@@ -193,7 +225,7 @@ export const RoundOutcome = ({
       </TextField>
 
       {/* A round ends somewhere, and which post is worth keeping rather than losing. */}
-      {outcome !== SCORED && stations.length > 0 && !stationId && (
+      {outcome !== SCORED && places && places.length > 0 && !fixedPlace && (
         <TextField
           disabled={disabled}
           label={t('results.outcomeAt')}
@@ -201,12 +233,15 @@ export const RoundOutcome = ({
           select
           size="small"
           sx={{ minWidth: 190 }}
-          value={where}
+          value={place ? String(place.exercise) : ''}
         >
           <MenuItem value="">{t('results.outcomeAtUnknown')}</MenuItem>
-          {stations.map((station) => (
-            <MenuItem key={station.id} value={station.id}>
-              {t('event.station')} {station.number}
+          {places.map((item) => (
+            <MenuItem key={item.exercise} value={String(item.exercise)}>
+              {t('results.outcomeAtExercise', {
+                exercise: item.exercise,
+                number: stations.find((station) => station.id === item.stationId)?.number ?? '',
+              })}
             </MenuItem>
           ))}
         </TextField>

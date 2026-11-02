@@ -14,6 +14,8 @@ import { dayOf, TIME_ZONE } from './day'
  */
 export interface StationTurnSpan {
   stationId: string
+  /** The exercise the span is for (KOE-1665); absent where the post has only one. */
+  exercise?: number
   startedAt: string | Date
   endedAt?: string | Date
   pause?: StationTurnPause
@@ -125,19 +127,32 @@ export const stationThroughput = (
   }
 }
 
+type DogTurn = StationTurnSpan & { dogs: readonly StationTurnSpanDog[] }
+
+/** The dogs of a post's closed spans, told apart by number and name, the handles the public shape has. */
+const throughKeys = <T extends DogTurn>(turns: readonly T[], stationId: string, byExercise: boolean): number =>
+  new Set(
+    completedGroupTurns(turns, stationId).flatMap((turn) =>
+      turn.dogs.map((dog) => [dog.number ?? '', dog.name, ...(byExercise ? [turn.exercise ?? ''] : [])].join('#'))
+    )
+  ).size
+
 /**
  * How many dogs a post has actually had through, which is not the number of turns: one walk-up span
  * moves four dogs along, and a dog sent out again — retrieve after retrieve at an A trial — is still
- * one dog through. Counted from the closed spans only: the group on the ground has not been through
- * yet. Dogs are told apart by number and name, the handles the public shape has.
+ * one dog through. So is a dog doing two exercises at the post (KOE-1665): this is the number people
+ * read, and the queue is counted by `exercisesThrough`. Counted from the closed spans only: the group
+ * on the ground has not been through yet.
  */
-export const dogsThrough = <T extends StationTurnSpan & { dogs: readonly StationTurnSpanDog[] }>(
-  turns: readonly T[],
-  stationId: string
-): number =>
-  new Set(
-    completedGroupTurns(turns, stationId).flatMap((turn) => turn.dogs.map((dog) => `${dog.number ?? ''}#${dog.name}`))
-  ).size
+export const dogsThrough = <T extends DogTurn>(turns: readonly T[], stationId: string): number =>
+  throughKeys(turns, stationId, false)
+
+/**
+ * How far a post has got through its queue (`stationQueueOf`), which holds a dog once for each exercise
+ * it does there (KOE-1665): a dog through two of them is two entries of the queue gone.
+ */
+export const exercisesThrough = <T extends DogTurn>(turns: readonly T[], stationId: string): number =>
+  throughKeys(turns, stationId, true)
 
 /** A range, because the answer is an estimate and must never read as a promise. */
 interface WaitEstimate {
@@ -147,7 +162,10 @@ interface WaitEstimate {
   maxMs: number
 }
 
-/** One rotation group's share of a post's queue: how many dogs it brings and how many a turn holds. */
+/**
+ * One entry of a post's queue, one group's exercise there: how many dogs it brings and how many a turn of
+ * that exercise holds.
+ */
 interface QueueGroup {
   dogs: number
   dogsAtOnce: number
@@ -161,9 +179,9 @@ interface QueueGroup {
  * overstates the wait by exactly that factor — twelve dogs at a post taking four at a time is three
  * turns, not twelve — and a fourfold overstatement is what sends someone home before their turn.
  *
- * The queue comes in the rotation groups' order of arrival, each with its own figure (KOE-1665): a post
- * may take one class one at a time and the next in pairs, so the turns are counted per group and
- * summed. The `through` dogs are taken off the front, since a post works through its queue in that order.
+ * The queue comes in its order, a part per group and exercise, each with its own figure (KOE-1665): a
+ * post may take one class one at a time and the next in pairs, and a group doing two exercises there
+ * queues twice, so the turns are counted per part and summed. The `through` dogs are taken off the front, since a post works through its queue in that order.
  *
  * Withheld with no figures to go on, and withheld under `field`, where the entry is on the ground
  * rather than waiting to be called and a number of minutes would describe nothing.

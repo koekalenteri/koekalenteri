@@ -261,14 +261,14 @@ describe('StationScoring', () => {
     expect(screen.getByRole('tab', { name: 'ALO', selected: true })).toBeInTheDocument()
   })
 
-  describe('a post in a rotation (KOE-1665)', () => {
-    const nowt = (id: string, eventClass: 'ALO' | 'VOI', tasks: number) => ({
+  describe('a post in a running order (KOE-1665)', () => {
+    const nowt = (id: string, eventClass: 'ALO' | 'VOI', exercise: number, parts: 1 | 2 = 1) => ({
       class: eventClass,
       dog: { name: id },
       eventType: 'NOWT',
       group: { ...group, key: `${eventClass}-AP`, number: 1 },
       id,
-      visit: { parts: 1 as const, postsBefore: ['post-0'], tasks, tasksBefore: 2 },
+      visit: { exercise, exercisePosts: ['post-0', '1', '1', '1'], parts },
     })
 
     it('keeps the classes in the order they reach the post', () => {
@@ -277,29 +277,66 @@ describe('StationScoring', () => {
       expect(screen.getAllByRole('tab').map((tab) => tab.textContent)).toEqual(['VOI', 'ALO'])
     })
 
-    it("scores the tasks the dog's group does here, numbered across its round", async () => {
+    it('scores the exercise of the place in the queue, its parts each a field', async () => {
       const user = userEvent.setup()
-      renderScoring({ eventType: 'NOWT', registrations: [nowt('alo', 'ALO', 2)] })
+      renderScoring({ eventType: 'NOWT', registrations: [nowt('alo', 'ALO', 2, 2)] })
 
       await user.click(screen.getByRole('button', { name: '1 alo' }))
 
-      expect(screen.getAllByLabelText(/results\.column\.task/)).toHaveLength(2)
+      expect(screen.getAllByLabelText(/results\.column\.taskPart/)).toHaveLength(2)
+    })
+
+    it('lists a dog doing two exercises here once for each, and marks the one scored', async () => {
+      const user = userEvent.setup()
+      const scored = {
+        ...nowt('alo', 'ALO', 3),
+        eventResult: { tasks: [{ exercise: 3, part: 0, points: 15, updatedAt: new Date(), updatedBy: 'x' }] },
+      }
+      const second = { ...nowt('alo', 'ALO', 4, 1), eventResult: scored.eventResult }
+      renderScoring({ eventType: 'NOWT', registrations: [scored, second] })
+
+      const chips = screen.getAllByRole('button', { name: /^1 alo · results\.column\.task/ })
+      expect(chips).toHaveLength(2)
+      expect(chips.map((chip) => chip.className.includes('MuiChip-filled'))).toEqual([true, false])
+
+      await user.click(chips[1])
+      expect(screen.getAllByLabelText(/results\.column\.task/)).toHaveLength(1)
+    })
+
+    it('marks done only the place of the exercise the round ended at, a post come to twice (KOE-1669)', () => {
+      const ended = {
+        eventResult: {
+          retirement: { cause: 'handlerChoice' as const, exercise: 3 },
+          updatedAt: new Date(),
+        },
+      }
+      const order = ['1', 'post-1', '1']
+      const place = (exercise: number) => ({
+        ...nowt('alo', 'ALO', exercise, 1),
+        ...ended,
+        visit: { exercise, exercisePosts: order, parts: 1 as const },
+      })
+      renderScoring({ eventType: 'NOWT', registrations: [place(1), place(3)] })
+
+      const chips = screen.getAllByRole('button', { name: /^1 alo · results\.column\.task/ })
+      expect(chips.map((chip) => chip.className.includes('MuiChip-filled'))).toEqual([false, true])
     })
   })
 
   describe('a dog whose round ended at an earlier post (KOE-1669)', () => {
     const at = new Date('2026-09-12T09:00:00Z')
-    const dog = (id: string, number: number, retiredAt?: string) => ({
+    /** A dog at exercise 3, the post's one; `retiredAt` is the exercise its round ended at. */
+    const dog = (id: string, number: number, retiredAt?: number) => ({
       class: 'ALO' as const,
       dog: { name: id },
       eventType: 'NOWT',
       group: { ...group, number },
       id,
-      visit: { parts: 1 as const, postsBefore: ['post-0'], tasks: 2, tasksBefore: 2 },
+      visit: { exercise: 3, exercisePosts: ['post-0', 'post-x', '1'], parts: 2 as const },
       ...(retiredAt
         ? {
             eventResult: {
-              retirement: { cause: 'handlerChoice' as const, stationId: retiredAt },
+              retirement: { cause: 'handlerChoice' as const, exercise: retiredAt },
               updatedAt: at,
             },
           }
@@ -308,7 +345,7 @@ describe('StationScoring', () => {
 
     it('shows kesk instead of the inputs and counts the dog as done', async () => {
       const user = userEvent.setup()
-      renderScoring({ eventType: 'NOWT', registrations: [dog('stopped', 1, 'post-0')] })
+      renderScoring({ eventType: 'NOWT', registrations: [dog('stopped', 1, 1)] })
 
       expect(screen.getByRole('button', { name: '1 stopped' })).toHaveClass('MuiChip-filled')
       await user.click(screen.getByRole('button', { name: '1 stopped' }))
@@ -322,7 +359,7 @@ describe('StationScoring', () => {
       renderScoring({
         eventType: 'NOWT',
         registrations: [
-          dog('here', 1, '1'),
+          dog('here', 1, 3),
           { ...dog('unknown', 2), eventResult: { retirement: { cause: 'injury' as const }, updatedAt: at } },
         ],
       })
@@ -338,7 +375,7 @@ describe('StationScoring', () => {
       const user = userEvent.setup()
       renderScoring({
         eventType: 'NOWT',
-        registrations: [dog('first', 1), dog('stopped', 2, 'post-0'), dog('third', 3)],
+        registrations: [dog('first', 1), dog('stopped', 2, 1), dog('third', 3)],
       })
 
       await user.click(screen.getByRole('button', { name: '1 first' }))
@@ -349,14 +386,14 @@ describe('StationScoring', () => {
     })
 
     it('counts a dog whose round ended at this very post as done, its outcome recorded here', () => {
-      renderScoring({ eventType: 'NOWT', registrations: [dog('here', 1, '1')] })
+      renderScoring({ eventType: 'NOWT', registrations: [dog('here', 1, 3)] })
 
       expect(screen.getByRole('button', { name: '1 here' })).toHaveClass('MuiChip-filled')
     })
 
     it('asks for the scores of a dog whose round ended at a post after this one, and does not count it done', async () => {
       const user = userEvent.setup()
-      renderScoring({ eventType: 'NOWT', registrations: [dog('later', 1, 'post-5')] })
+      renderScoring({ eventType: 'NOWT', registrations: [dog('later', 1, 5)] })
 
       expect(screen.getByRole('button', { name: '1 later' })).toHaveClass('MuiChip-outlined')
       await user.click(screen.getByRole('button', { name: '1 later' }))
@@ -366,8 +403,8 @@ describe('StationScoring', () => {
 
     it('keeps a score stored here after the stop as an input, since it counts and may need clearing', async () => {
       const user = userEvent.setup()
-      const stray = { index: 0, judge, points: 7, stationId: '1', updatedAt: at, updatedBy: 'Rasti 1' }
-      const stopped = dog('stopped', 1, 'post-0')
+      const stray = { exercise: 3, judge, part: 0, points: 7, updatedAt: at, updatedBy: 'Rasti 1' }
+      const stopped = dog('stopped', 1, 1)
       renderScoring({
         eventType: 'NOWT',
         registrations: [{ ...stopped, eventResult: { ...stopped.eventResult, tasks: [stray] } }],
@@ -387,7 +424,7 @@ describe('StationScoring', () => {
       eventType,
       group: { ...group, number: 1 },
       id: 'run-1',
-      ...(eventType === 'NOWT' ? { visit: { parts: 1 as const, postsBefore: [], tasks: 1, tasksBefore: 0 } } : {}),
+      ...(eventType === 'NOWT' ? { visit: { exercise: 1, exercisePosts: ['1'], parts: 1 as const } } : {}),
     })
 
     it.each([

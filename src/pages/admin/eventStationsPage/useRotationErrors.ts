@@ -3,8 +3,8 @@ import type { DogEvent, Registration } from '@/types'
 import { useAtomValue } from 'jotai'
 import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
+import { scoresAtPosts } from '@/lib/liveFormat'
 import { isScorableRegistration } from '@/lib/registration'
-import { scoresAtPosts } from '@/lib/results'
 import { formatRotationGroup, rotationCoverageErrors, rotationShapeErrors } from '@/lib/rotation'
 import { adminEventRegistrationsAtom } from '../state'
 
@@ -19,12 +19,14 @@ const rotationErrorMessages = (
   const rotations = event.rotations ?? []
   const groupName = (index: number) => (rotations[index] ? formatRotationGroup(rotations[index], t) : '')
 
-  // The editor offers only the day's posts, keeps each once in a round and every group at one post at
-  // least, so of the shape errors it can produce only these two; the server refuses the others.
+  // The editor offers only the day's posts and keeps every group at one exercise at least, so of the
+  // shape errors it can produce only these; the server refuses the others. A group without exercises is
+  // one stored in dev before the running order, which the secretary removes.
   const shape = rotationShapeErrors(event).flatMap((error) => {
     const group = groupName(error.group)
     if (error.kind === 'overlap') return [t('event.rotation.error.overlap', { group, other: groupName(error.other) })]
     if (error.kind === 'range') return [t('event.rotation.error.range', { group })]
+    if (error.kind === 'noExercises') return [t('event.rotation.error.noExercises', { group })]
     return []
   })
 
@@ -44,8 +46,8 @@ const rotationErrorMessages = (
 }
 
 /**
- * Why the Rastit page may not save the rotation as it stands; empty when it may. A type not scored at
- * posts has no rotation editor and no reader of a rotation, so a stored one never blocks its save.
+ * Why the posts page may not save the running orders as they stand; empty when it may. A type not scored
+ * by exercise has no running order editor and no reader of one, so a stored one never blocks its save.
  */
 export function useRotationErrors(eventId: string, event: RotationLayout | undefined): string[] {
   const { t } = useTranslation()

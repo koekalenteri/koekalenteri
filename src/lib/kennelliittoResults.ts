@@ -13,8 +13,9 @@ import { dayOf, isDayKey, TIME_ZONE } from './day'
 import { isMicrochip } from './dog'
 import { hasRetrieveTypeChoice, isMockTrialClass } from './event'
 import { makeArray } from './judge'
+import { scoresAtPosts } from './liveFormat'
 import { getRegistrationGroupDay, getRegistrationPlacement } from './registration'
-import { parseEventResultCode, resultMarks, resultPrefixAsKennelClub, scoresAtPosts, shownEventResult } from './results'
+import { parseEventResultCode, resultMarks, resultPrefixAsKennelClub, shownEventResult } from './results'
 
 /**
  * Turning a dog's recorded result into the body Kennelliitto's Koe/Tulos/Tallenna takes (KOE-1140).

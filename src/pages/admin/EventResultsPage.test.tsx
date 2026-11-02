@@ -625,8 +625,8 @@ describe('EventResultsPage', () => {
     const { user } = await renderScoringPage(i18n.language as Language, registrationsToEventWithStations, {
       ...eventWithStations,
       rotations: [
-        { class: 'ALO', firstNumber: 1, lastNumber: 1, posts: [{ stationId: 'post-1' }, { stationId: 'post-2' }] },
-        { class: 'ALO', firstNumber: 2, lastNumber: 9, posts: [{ stationId: 'post-1' }] },
+        { class: 'ALO', exercises: [{ stationId: 'post-1' }, { stationId: 'post-2' }], firstNumber: 1, lastNumber: 1 },
+        { class: 'ALO', exercises: [{ stationId: 'post-1' }], firstNumber: 2, lastNumber: 9 },
       ],
     })
     await flushPromises()
@@ -742,6 +742,50 @@ describe('EventResultsPage', () => {
     expect(within(rowFor('Ensimmainen')).getByLabelText('results.outcomeAt')).toBeInTheDocument()
   })
 
+  it('keeps which visit to a post an elimination happened at (KOE-1665)', async () => {
+    const { i18n } = useTranslation()
+    // The first dog's group comes to post 1 twice; the elimination is at the first visit.
+    const { user } = await renderScoringPage(i18n.language as Language, registrationsToEventWithStations, {
+      ...eventWithStations,
+      rotations: [
+        {
+          class: 'ALO',
+          exercises: [{ stationId: 'post-1' }, { stationId: 'post-2' }, { stationId: 'post-1' }],
+          firstNumber: 1,
+          lastNumber: 9,
+        },
+      ],
+    })
+    await flushPromises()
+
+    await user.click(within(rowFor('Ensimmainen')).getByLabelText('results.outcome'))
+    await user.click(screen.getByRole('option', { name: 'results.eliminatingFaults.hardMouth' }))
+    await user.click(within(rowFor('Ensimmainen')).getByLabelText('results.outcomeAt'))
+    const [first] = screen.getAllByRole('option', { name: /^results\.outcomeAtExercise/ })
+    const label = first.textContent ?? ''
+    await user.click(first)
+    await flushPromises()
+
+    // Stored by its exercise, it reads back as the first visit, not the last one to the post.
+    expect(within(rowFor('Ensimmainen')).getByLabelText('results.outcomeAt')).toHaveTextContent(label)
+
+    await user.click(screen.getByRole('button', { name: 'results.save' }))
+    await flushPromises()
+
+    expect(putEventResults).toHaveBeenCalledWith(
+      expect.any(String),
+      [
+        expect.objectContaining({
+          eventResult: expect.objectContaining({
+            elimination: { exercise: 1, fault: 'hardMouth' },
+          }),
+          id: 'run-1',
+        }),
+      ],
+      expect.any(String)
+    )
+  })
+
   it('asks of a handler withdrawal only whether a prize was still in reach', async () => {
     const { i18n } = useTranslation()
     const { user } = await renderScoringPage(i18n.language as Language)
@@ -761,7 +805,7 @@ describe('EventResultsPage', () => {
     expect(screen.getByLabelText('results.couldStillHavePlaced')).toBeInTheDocument()
   })
 
-  it('sends an illness picked from the menu as its own cause, with the post it happened at (KOE-1669)', async () => {
+  it('sends an illness picked from the menu as its own cause, with the exercise it happened at (KOE-1669)', async () => {
     const { i18n } = useTranslation()
     const { user } = await renderScoringPage(i18n.language as Language)
     await flushPromises()
@@ -770,7 +814,8 @@ describe('EventResultsPage', () => {
     await user.click(within(rowFor('Ensimmainen')).getByLabelText('results.outcome'))
     await user.click(screen.getByRole('option', { name: 'results.retirement.illness' }))
     await user.click(within(rowFor('Ensimmainen')).getByLabelText('results.outcomeAt'))
-    await user.click(screen.getByRole('option', { name: /event\.station 1$/ }))
+    // The places are the exercises of the dog's running order, the first at post 1.
+    await user.click(screen.getAllByRole('option', { name: /^results\.outcomeAtExercise/ })[0])
     await user.click(screen.getByRole('button', { name: 'results.save' }))
     await flushPromises()
 
@@ -778,7 +823,7 @@ describe('EventResultsPage', () => {
       expect.any(String),
       [
         expect.objectContaining({
-          eventResult: expect.objectContaining({ retirement: { cause: 'illness', stationId: 'post-1' } }),
+          eventResult: expect.objectContaining({ retirement: { cause: 'illness', exercise: 1 } }),
           id: 'run-1',
         }),
       ],
@@ -811,7 +856,7 @@ describe('EventResultsPage', () => {
         ? {
             ...reg,
             eventResult: {
-              tasks: [{ index: 0, points: 17, stationId: 'post-1', updatedAt: storedAt, updatedBy: 'Rasti 1' }],
+              tasks: [{ exercise: 1, part: 0, points: 17, updatedAt: storedAt, updatedBy: 'Rasti 1' }],
               updatedAt: storedAt,
               updatedBy: 'Rasti 1',
             },
@@ -833,8 +878,8 @@ describe('EventResultsPage', () => {
     const [, submissions] = vi.mocked(putEventResults).mock.lastCall ?? []
     expect(submissions?.[0].eventResult.tasks).toEqual(
       expect.arrayContaining([
-        expect.objectContaining({ points: 17, stationId: 'post-1' }),
-        expect.objectContaining({ points: 8, stationId: 'post-2' }),
+        expect.objectContaining({ exercise: 1, points: 17 }),
+        expect.objectContaining({ exercise: 2, part: 0, points: 8 }),
       ])
     )
   })
@@ -1015,16 +1060,16 @@ describe('EventResultsPage', () => {
 
 describe('ResultSummary', () => {
   it('derives the prize with the same module the server saves with', async () => {
-    const { deriveNowtResult, formatEventResult, toScoredTasks } = await import('../../lib/results')
+    const { deriveNowtResult, formatEventResult } = await import('../../lib/results')
+    const { toScoredTasks } = await import('../../lib/resultTasks')
     const round = [1, 2, 3, 4].map((number) => ({
-      index: 0,
+      exercise: number,
       maxPoints: 20,
+      part: 0,
       parts: 1 as const,
       stationId: `post-${number}`,
-      task: 0,
-      taskNumber: number,
     }))
-    const tasks = [17, 18, 16, 14].map((points, index) => ({ index: 0, points, stationId: `post-${index + 1}` }))
+    const tasks = [17, 18, 16, 14].map((points, index) => ({ exercise: index + 1, part: 0, points }))
 
     // 65 of 80 is 81.25 %: a first prize, though 65 is the rules' second-prize number.
     const code = deriveNowtResult({ tasks: toScoredTasks(round, tasks) })
@@ -1055,7 +1100,7 @@ describe('conflict handling', () => {
 describe('a round that was not scored', () => {
   it('is a dash rather than a zero, whichever fault ended it', async () => {
     const { deriveNowtResult } = await import('../../lib/results')
-    const tasks = [{ maxPoints: 20, points: 17, stationId: 'post-1' }]
+    const tasks = [{ maxPoints: 20, points: 17, task: 1 }]
 
     expect(deriveNowtResult({ elimination: { fault: 'harshHandling' }, tasks })).toBe('-')
     expect(deriveNowtResult({ retirement: { cause: 'injury' }, tasks })).toBe('-')
@@ -1063,7 +1108,7 @@ describe('a round that was not scored', () => {
 
   it("turns a handler's withdrawal on whether the dog was still in contention", async () => {
     const { deriveNowtResult } = await import('../../lib/results')
-    const tasks = [{ maxPoints: 20, points: 17, stationId: 'post-1' }]
+    const tasks = [{ maxPoints: 20, points: 17, task: 1 }]
 
     expect(deriveNowtResult({ retirement: { cause: 'handlerChoice', couldStillHavePlaced: true }, tasks })).toBe('-')
     expect(deriveNowtResult({ retirement: { cause: 'handlerChoice', couldStillHavePlaced: false }, tasks })).toBe('0')
@@ -1072,14 +1117,14 @@ describe('a round that was not scored', () => {
 
 describe('judge attribution', () => {
   it('carries the judge onto the score rather than asking again for every dog', async () => {
-    const { mergeStationTasks } = await import('../../lib/results')
+    const { mergeStationTasks } = await import('../../lib/resultTasks')
     const judge = { id: 1, name: 'Lappalainen Mika', official: true }
 
     // A post is manned by the same person all day, so the previous dog's judge is the likely answer
     // for the next one — the AC asks for it to be offered, not typed again.
-    const scored = [{ index: 0, judge, points: 17, stationId: 'post-1', updatedAt: 'x', updatedBy: 'y' }]
+    const scored = [{ exercise: 1, judge, part: 0, points: 17, updatedAt: 'x', updatedBy: 'y' }]
 
-    expect(mergeStationTasks(undefined, scored, 'post-1')[0].judge).toEqual(judge)
+    expect(mergeStationTasks(undefined, scored, [1])[0].judge).toEqual(judge)
   })
 })
 

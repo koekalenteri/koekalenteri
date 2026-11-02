@@ -13,8 +13,10 @@ import type {
   StationVisitLayout,
 } from '../types'
 import type { SortableRegistration } from './registration'
-import type { RotationDog, RotationEvent } from './rotation'
+import type { ExerciseSlot, ScoredTask } from './resultTasks'
+import type { RotationEvent } from './rotation'
 import { objectsDiffer } from './diff'
+import { scoresAtPosts } from './liveFormat'
 import {
   getRegistrationClass,
   getRegistrationGroupDay,
@@ -22,8 +24,8 @@ import {
   isScorableRegistration,
   sortRegistrationsByDateClassTimeAndNumber,
 } from './registration'
-import { dogVisits, rotationDogOf, stationQueue } from './rotation'
-import { isObject } from './utils'
+import { dogRound, toScoredTasks } from './resultTasks'
+import { rotationDogOf, stationQueue } from './rotation'
 
 /**
  * The result codes shared by every event type. `0` and `-` are different outcomes: `0` says the dog was
@@ -79,21 +81,6 @@ export const formatResultLine = (
  * 81 % and has earned a *first* prize — comparing raw points would score it a second.
  */
 const NOWT_PRIZE_THRESHOLD_PERCENT = { 1: 80, 2: 65, 3: 50 } as const
-
-/**
- * A task is always worth 20, whether it is scored whole or in two parts of 10. §5.3.1 says it of a post
- * ("Jokaisen rastin enimmäispistemäärä on 20 pistettä"); in practice a group may do two tasks at one
- * post, and each is a task of 20, so a post is worth its tasks times 20 (KOE-1665).
- */
-const TASK_MAX_POINTS = 20
-
-/** A task's points split evenly between its parts, so the parts always add up to the task. */
-export const partMaxPoints = (parts: 1 | 2): number => TASK_MAX_POINTS / parts
-
-/** Event types scored at posts. Everything else is judged qualitatively and has no tasks. */
-const POST_SCORED_EVENT_TYPES = new Set(['NOWT', 'NOWT SM'])
-
-export const scoresAtPosts = (eventType?: string): boolean => POST_SCORED_EVENT_TYPES.has(eventType ?? '')
 
 /**
  * The formats in which a judge's stop is recorded at all. This mirrors the `keskeytys` rows of
@@ -222,17 +209,6 @@ export const nowtZeroFaults: readonly NowtZeroFault[] = [
   'unknown',
 ]
 
-/** One part of a task as scored for one dog, joined to its definition in the dog's round. */
-export interface ScoredTask {
-  stationId: string
-  /** 0-based task within the post. The parts of one task share it; the first-prize floor reads it. */
-  task?: number
-  /** The task's nominal maximum. Never the halved figure from an ALO recall. */
-  maxPoints: number
-  /** `null` while unscored. */
-  points: number | null
-}
-
 interface NowtResultInput {
   tasks: readonly ScoredTask[]
   elimination?: EventResultElimination
@@ -249,193 +225,17 @@ interface NowtResultInput {
 export const taskEntryCeiling = (task: Pick<JsonEventResultTask, 'recalled'> & { maxPoints: number }): number =>
   task.recalled ? Math.floor(task.maxPoints / 2) : task.maxPoints
 
-/** One scored slot in a dog's round: a task, or one part of a split task. */
-export interface RoundTask {
-  stationId: string
-  /**
-   * 0-based slot within the post, the address a stored score carries: task × parts + part. A post
-   * stored before KOE-1665 with `tasks: 2` is one task in two parts, so its slots 0 and 1 read as before.
-   */
-  index: number
-  /** 0-based task within the post. */
-  task: number
-  /** The task's number across the whole round, from 1, in the order the group does them. */
-  taskNumber: number
-  /** The parts the task splits into; the slot's part is `index % parts`. */
-  parts: 1 | 2
-  maxPoints: number
-}
+/** A slot as the secretary reads it: "Rasti 2", or "Rasti 2, osa 1/2" for a part of a split exercise. */
+export const formatTaskName = (slot: ExerciseSlot, t: TFunction<'translation'>): string =>
+  slot.parts > 1
+    ? t('results.column.taskPart', { number: slot.exercise, part: slot.part + 1, parts: slot.parts })
+    : t('results.column.task', { number: slot.exercise })
 
 /**
- * The scored slots of one visit to a post: its tasks, each whole or in parts. Expanding the split here
- * rather than storing each slot means a task's parts cannot fail to add up to the task.
- */
-export const stationSlots = (
-  stationId: string,
-  { tasks, parts, tasksBefore }: Pick<StationVisitLayout, 'tasks' | 'parts' | 'tasksBefore'>
-): RoundTask[] =>
-  Array.from({ length: tasks * parts }, (_unused, index) => {
-    const task = Math.floor(index / parts)
-    return { index, maxPoints: partMaxPoints(parts), parts, stationId, task, taskNumber: tasksBefore + task + 1 }
-  })
-
-/**
- * The posts a dog's round visits before a post, in its order: what `StationVisitLayout.postsBefore`
- * carries to the post's own link, read here off the whole round. None for a post the round lacks.
- */
-export const roundPostsBefore = (round: readonly Pick<RoundTask, 'stationId'>[], stationId: string): string[] => {
-  const posts = [...new Set(round.map((task) => task.stationId))]
-  const at = posts.indexOf(stationId)
-  return at < 0 ? [] : posts.slice(0, at)
-}
-
-/**
- * Whether a dog's round ended at a post before this one, so the dog never reached it and the post reads
- * "kesk" (KOE-1669). Not where the round did not end early, where the post it ended at is not recorded
- * ("Ei tiedossa"), or where that post comes at or after this one.
- */
-export const endedBefore = (
-  retirement: Pick<EventResultRetirement, 'stationId'> | undefined,
-  postsBefore: readonly string[]
-): boolean => Boolean(retirement?.stationId && postsBefore.includes(retirement.stationId))
-
-/**
- * The scored slots of one dog's round, in the order its rotation group visits the posts (KOE-1665):
- * every post of its day in number order where the day has no rotation of its own. A day without posts
- * has an empty round.
- */
-export const dogRound = (event: RotationEvent, dog: RotationDog): RoundTask[] =>
-  dogVisits(event, dog).flatMap((visit) => stationSlots(visit.station.id, visit))
-
-/**
- * The columns of a table of dogs whose rounds may differ: every slot any of them has, in the order of
- * the first round that has it. Rows in start order put the first group's rotation first.
- */
-export const roundColumns = (rounds: readonly (readonly RoundTask[])[]): RoundTask[] => {
-  const seen = new Set<string>()
-  return rounds.flat().filter((task) => {
-    const key = `${task.stationId}#${task.index}`
-    if (seen.has(key)) return false
-    seen.add(key)
-    return true
-  })
-}
-
-/** Where a stored score sits: its post and its slot there, the address `stationSlots` gives it. */
-const slotKey = (slot: Pick<RoundTask, 'stationId' | 'index'>): string => `${slot.stationId}#${slot.index}`
-
-/**
- * Whether a slot reads a stored score the same way in two rounds: the same task of the post, split the
- * same way. A slot's index is task × parts + part, so a change of `parts` gives an index another task or
- * another maximum, and a score kept there would be read with a meaning it was not given.
- */
-const sameSlot = (a: RoundTask | undefined, b: RoundTask | undefined): boolean =>
-  a !== undefined && a.task === b?.task && a.parts === b?.parts
-
-/**
- * Whether a stored task records anything. The results table stores a slot it shows as unscored
- * (`points: null`) as soon as the row is edited, so a task without points, a zero's reason or a recall
- * is an empty field, and dropping it loses nothing the secretary would need to be asked about.
- */
-export const isRecordedTask = (task: Pick<JsonEventResultTask, 'points' | 'recalled' | 'zeroFault'>): boolean =>
-  task.points !== null || Boolean(task.zeroFault) || Boolean(task.recalled)
-
-const slotsByKey = (round: readonly RoundTask[]) => new Map(round.map((slot) => [slotKey(slot), slot]))
-
-/**
- * Whether a dog's round scores differently after a change of the posts, the rotation or the classes
- * (KOE-1666): a slot added, removed, or meaning something else. A new order of the same slots is not a
- * difference, since the total and the prize do not depend on it.
- */
-export const roundsDiffer = (before: readonly RoundTask[], after: readonly RoundTask[]): boolean => {
-  if (before.length !== after.length) return true
-  const next = slotsByKey(after)
-  return before.some((slot) => !sameSlot(slot, next.get(slotKey(slot))))
-}
-
-/**
- * The stored scores a new round keeps, and the ones it drops (KOE-1666). A score is kept only where its
- * slot means the same in the dog's round before the change and after it; everything else is dropped,
- * a score the old round did not read either. The event save warns about the dropped ones before it
- * writes, and the recompute leaves them out, so no score is read against a task it was not given for.
- */
-export const reconcileRoundTasks = <T extends Pick<JsonEventResultTask, 'stationId' | 'index'>>(
-  before: readonly RoundTask[],
-  after: readonly RoundTask[],
-  tasks: readonly T[] | undefined
-): { kept: T[]; dropped: T[] } => {
-  const previous = slotsByKey(before)
-  const next = slotsByKey(after)
-  const kept: T[] = []
-  const dropped: T[] = []
-  for (const task of tasks ?? []) {
-    const key = slotKey(task)
-    if (sameSlot(previous.get(key), next.get(key))) kept.push(task)
-    else dropped.push(task)
-  }
-  return { dropped, kept }
-}
-
-/** A dog that would lose recorded scores to a change of the posts, as the secretary is asked about it. */
-export interface DroppedTasksDog {
-  id: string
-  name: string
-  class?: string
-  /** The start number, where the dog has one. */
-  number?: number
-  /** How many recorded scores it loses. */
-  tasks: number
-}
-
-/**
- * The event save's answer when a change of the posts, the rotation or the classes would drop recorded
- * scores (KOE-1666). `confirmation` is opaque: a save that sends it back confirms this very set of drops,
- * and a set that has changed since is asked about again.
- */
-export interface ResultTasksDroppedBody {
-  error: 'resultTasksDropped'
-  confirmation: string
-  dogs: DroppedTasksDog[]
-}
-
-const isDroppedTasksDog = (value: unknown): value is DroppedTasksDog =>
-  isObject(value) && typeof value.id === 'string' && typeof value.name === 'string' && typeof value.tasks === 'number'
-
-export const isResultTasksDroppedBody = (body: unknown): body is ResultTasksDroppedBody =>
-  isObject(body) &&
-  body.error === 'resultTasksDropped' &&
-  typeof body.confirmation === 'string' &&
-  Array.isArray(body.dogs) &&
-  body.dogs.every(isDroppedTasksDog)
-
-/**
- * A slot named by its post rather than its place in a round: "Rasti 2", "Rasti 2, tehtävä 2", with the
- * part after it where the task is split. The heading of a column the rows of a class number differently,
- * the class going round in rotation groups of their own order.
- */
-export const formatPostTaskName = (
-  task: RoundTask,
-  station: { number: number } | undefined,
-  t: TFunction<'translation'>
-): string => {
-  const number = station?.number ?? ''
-  const name =
-    task.task > 0 ? t('results.column.postTask', { number, task: task.task + 1 }) : t('results.column.post', { number })
-  return task.parts > 1
-    ? `${name}, ${t('results.column.part', { part: (task.index % task.parts) + 1, parts: task.parts })}`
-    : name
-}
-
-/** A slot as the secretary reads it: "Tehtävä 2", or "Tehtävä 2, osa 1/2" for a part of a split task. */
-export const formatTaskName = (task: RoundTask, t: TFunction<'translation'>): string =>
-  task.parts > 1
-    ? t('results.column.taskPart', { number: task.taskNumber, part: (task.index % task.parts) + 1, parts: task.parts })
-    : t('results.column.task', { number: task.taskNumber })
-
-/**
- * The dogs a post sees, in the order they come to it. Where the post scores tasks, that is the rotation's
- * queue (`stationQueue`), each dog with what its group does here, and a dog whose group does not come
- * here is left out. Where nothing is scored the post is the whole trial: every dog, in start order.
+ * The dogs a post sees, in the order they come to it. Where the post scores exercises, that is the
+ * post's queue (`stationQueue`): each dog once for each exercise its group does here, with that
+ * exercise, and a dog whose group does not come here left out. Where nothing is scored the post is the
+ * whole trial: every dog, in start order.
  */
 export const stationDogsInOrder = <T extends SortableRegistration>(
   event: RotationEvent & { eventType: string },
@@ -446,22 +246,6 @@ export const stationDogsInOrder = <T extends SortableRegistration>(
 
   return stationQueue(event, stationId, registrations).map(({ registration, visit }) => ({ ...registration, visit }))
 }
-
-/**
- * Join a class's round to one dog's entries, driven by the round so an unscored task reads as `null`
- * rather than vanishing from the total.
- */
-export const toScoredTasks = (
-  round: readonly RoundTask[],
-  // Provenance is irrelevant to a score, so this accepts a task on its way in as readily as one stored.
-  scored: readonly Pick<JsonEventResultTask, 'stationId' | 'index' | 'points'>[] | undefined
-): ScoredTask[] =>
-  round.map((task) => ({
-    maxPoints: task.maxPoints,
-    points: scored?.find((entry) => entry.stationId === task.stationId && entry.index === task.index)?.points ?? null,
-    stationId: task.stationId,
-    task: task.task,
-  }))
 
 export const nowtTotals = (tasks: readonly ScoredTask[]) => {
   const points = tasks.reduce((sum, task) => sum + (task.points ?? 0), 0)
@@ -480,7 +264,7 @@ const atLeastPercent = (points: number, maxPoints: number, percent: number) => p
 /**
  * Every task must yield at least half its points for a first prize. A task worth 20 therefore has a
  * floor of 10. Where a task splits into two parts the floor applies to their sum, so 9 + 8 clears it
- * although neither part reaches 10. Two tasks at one post are floored each on its own (KOE-1665).
+ * although neither part reaches 10. Two exercises at one post are floored each on its own (KOE-1665).
  *
  * Not printed in §5.4.1, which gives the thresholds and nothing else — Jukka asserted the rule, so it
  * is practice or lives in the ohjeet. Tracked as unverified in the rules conformance ledger.
@@ -489,7 +273,7 @@ const everyTaskAtLeastHalf = (tasks: readonly ScoredTask[]): boolean => {
   const sums = new Map<string, { points: number; maxPoints: number }>()
 
   for (const task of tasks) {
-    const key = `${task.stationId}#${task.task ?? 0}`
+    const key = String(task.task)
     const sum = sums.get(key) ?? { maxPoints: 0, points: 0 }
     sum.points += task.points ?? 0
     sum.maxPoints += task.maxPoints
@@ -669,7 +453,7 @@ interface EventResultContext {
   eventType: string
   eventClass?: string
   /** The dog's round (`dogRound`). Read only for an event type scored at posts. */
-  round?: readonly RoundTask[]
+  round?: readonly ExerciseSlot[]
 }
 
 /**
@@ -752,67 +536,6 @@ export const sameEventResult = (a?: JsonEventResult, b?: JsonEventResult): boole
 
   return !objectsDiffer(bare(a), bare(b))
 }
-
-/**
- * The task shape these helpers need. Generic over `updatedAt` because the client holds a `Date`, made
- * at the typed boundary (`lib/wire.ts`), while the server holds the string it stored.
- */
-interface StationScopedTask {
-  stationId: string
-  index: number
-  updatedAt: string | Date
-  updatedBy: string
-}
-
-/** The tasks belonging to one post. */
-const stationTasks = <T extends StationScopedTask>(tasks: readonly T[] | undefined, stationId: string): T[] =>
-  (tasks ?? []).filter((task) => task.stationId === stationId)
-
-/**
- * The latest write among a post's tasks — the version a station-scoped edit is made against.
- *
- * Provenance is tracked per post rather than per result because posts are scored in parallel. A whole-
- * result version would go stale every time any other post saved, and every station's next save would
- * look like a conflict with work it never touched.
- */
-export const stationVersion = <T extends StationScopedTask>(
-  tasks: readonly T[] | undefined,
-  stationId: string
-): T['updatedAt'] | undefined => {
-  const own = stationTasks(tasks, stationId)
-  if (!own.length) return undefined
-
-  // Compare by instant rather than sorting the raw values: sorting happens to work on ISO strings and
-  // not at all on Date objects, which sort by their locale text.
-  return own.reduce((latest, task) => (new Date(task.updatedAt) > new Date(latest.updatedAt) ? task : latest), own[0])
-    .updatedAt
-}
-
-const withoutProvenance = <T extends StationScopedTask>({ updatedAt: _at, updatedBy: _by, ...rest }: T) => rest
-const byIndex = (a: { index: number }, b: { index: number }) => a.index - b.index
-
-/** Whether two rounds say the same thing about one post, ignoring who recorded it and when. */
-export const sameStationTasks = <T extends StationScopedTask>(
-  a: readonly T[] | undefined,
-  b: readonly T[] | undefined,
-  stationId: string
-): boolean =>
-  !objectsDiffer(
-    stationTasks(a, stationId).map(withoutProvenance).sort(byIndex),
-    stationTasks(b, stationId).map(withoutProvenance).sort(byIndex)
-  )
-
-/**
- * Replace one post's tasks and leave the rest of the round as stored.
- *
- * Posts are scored independently, so a station secretary submitting their own post must not carry away
- * the scores another post already recorded for the same dog.
- */
-export const mergeStationTasks = <T extends StationScopedTask>(
-  stored: readonly T[] | undefined,
-  submitted: readonly T[] | undefined,
-  stationId: string
-): T[] => [...(stored ?? []).filter((task) => task.stationId !== stationId), ...stationTasks(submitted, stationId)]
 
 /** What `placementsFor` reads of a registration: where the dog ran and what it scored. */
 type PlacementRow = Pick<

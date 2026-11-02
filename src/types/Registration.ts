@@ -97,8 +97,12 @@ export type EliminatingFault =
  */
 export interface EventResultElimination {
   fault: EliminatingFault
-  /** Absent for event types with no posts. */
+  /**
+   * The post, for a type judged as a whole at posts. A round scored by exercise stores the exercise.
+   */
   stationId?: string
+  /** The exercise it happened at, where the round is scored by exercise, as `EventResultRetirement.exercise`. */
+  exercise?: number
 }
 
 /** Why a round ended before it was scored. Only a handler's own withdrawal is conditional. */
@@ -120,8 +124,16 @@ export interface EventResultRetirement {
    * have placed, and a zero otherwise. An injured or ill dog always takes the dash.
    */
   couldStillHavePlaced?: boolean
-  /** Where it happened. An injury in particular is worth locating, not just counting. */
+  /**
+   * Where it happened, for a type judged as a whole at posts. An injury in particular is worth locating,
+   * not just counting. A round scored by exercise stores the exercise instead.
+   */
   stationId?: string
+  /**
+   * The exercise the round ended at, by its number in the dog's running order, where the round is scored
+   * by exercise (KOE-1665). Like a score it stays with its exercise number whatever the posts become.
+   */
+  exercise?: number
 }
 
 /**
@@ -137,15 +149,18 @@ export interface EventResultRetirement {
  */
 export type ResultMark = 'interrupted'
 
-/** One task's score for one dog. A task is identified by its post and its position within it. */
+/**
+ * One exercise's score for one dog, or one part's of a split exercise (the stored key `tasks` predates
+ * the rules' word, rasti). A score is addressed by its exercise number in the dog's running order and
+ * its part, which is what it was entered against ("Rasti 3"): it stays with that exercise whatever the
+ * posts or the running order become (KOE-1665, Jukka 2.11.2026). The post and its judges are read off the
+ * running order; `judge` only picks which of the post's judges gave it (`effectiveJudge`).
+ */
 export interface JsonEventResultTask {
-  stationId: string
-  /**
-   * 0-based slot within the post: task × parts + part, as the dog's round lays it out (`RoundTask`). A
-   * post stored with `tasks: 2` before KOE-1665 is one task in two parts, so its slots 0 and 1 keep
-   * their meaning.
-   */
-  index: number
+  /** The exercise's number in the dog's running order, from 1. */
+  exercise: number
+  /** 0-based part of the exercise: 0 for a whole exercise, always stored, so equal scores compare equal. */
+  part: number
   /** `null` while unscored. `0` is a real score and bars every prize; it is not the same as unscored. */
   points: number | null
   /**
@@ -172,7 +187,7 @@ export type EventResult = Replace<Omit<JsonEventResult, 'tasks'>, 'updatedAt', D
  * past, not what it did here.
  */
 export interface JsonEventResult {
-  /** Per-task scores, for event types scored at posts (NOWT). */
+  /** Per-exercise scores, for event types scored at posts (NOWT). */
   tasks?: JsonEventResultTask[]
   /** Derived server-side from `tasks`; a client-supplied total is ignored. */
   points?: number

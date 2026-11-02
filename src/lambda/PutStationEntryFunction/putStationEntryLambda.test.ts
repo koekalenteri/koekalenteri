@@ -95,15 +95,77 @@ describe('putStationEntryLambda', () => {
     const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined)
     mockQueryAdminConnections.mockRejectedValueOnce(new Error('scan failed'))
 
-    await putStationEntryLambda(
-      apiEvent([{ eventResult: { tasks: [{ index: 0, points: 17, stationId: 'post-1' }] }, id: 'reg-1' }])
-    )
+    await putStationEntryLambda(apiEvent([{ eventResult: { tasks: [{ exercise: 1, points: 17 }] }, id: 'reg-1' }]))
 
     expect(mockUpdateRegistrationField).toHaveBeenCalledTimes(1)
     expect(mockResponse).toHaveBeenCalledWith(200, expect.anything(), expect.anything())
     expect(loggedLines(errorSpy)).toEqual([
       expect.objectContaining({ message: 'live push failed', publication: 'registration patches' }),
     ])
+  })
+
+  describe("another post's scores (KOE-1665)", () => {
+    const at = '2026-09-12T08:00:00.000Z'
+    // Without a running order of its own the day's posts are done in number order: post 2 is exercise 2.
+    const score = (exercise: number, points: number) => ({
+      exercise,
+      part: 0,
+      points,
+      updatedAt: at,
+      updatedBy: 'x',
+    })
+    const stored = asJsonRegistration({
+      class: 'AVO',
+      eventId: 'event-1',
+      eventResult: { tasks: [score(2, 15)], updatedAt: at, updatedBy: 'x' },
+      eventType: 'NOWT',
+      group: { date: '2026-09-12', key: 'AVO-AP', number: 1 },
+      id: 'reg-1',
+    })
+    /** A result as the link is answered with it: this post's one score, no other post's. */
+    const onlyThisPost = expect.objectContaining({ tasks: [expect.objectContaining({ exercise: 1 })] })
+
+    it("keeps them beside this post's score and answers with this post's only", async () => {
+      mockReadEventRegistrations.mockResolvedValue([stored])
+
+      await putStationEntryLambda(apiEvent([{ eventResult: { tasks: [{ exercise: 1, points: 17 }] }, id: 'reg-1' }]))
+
+      expect(mockUpdateRegistrationField).toHaveBeenCalledWith(
+        'event-1',
+        'reg-1',
+        'eventResult',
+        expect.objectContaining({
+          tasks: [
+            expect.objectContaining({ exercise: 2, points: 15 }),
+            expect.objectContaining({ exercise: 1, part: 0, points: 17 }),
+          ],
+        })
+      )
+      expect(mockResponse).toHaveBeenCalledWith(
+        200,
+        expect.objectContaining({ saved: [expect.objectContaining({ eventResult: onlyThisPost })] }),
+        expect.anything()
+      )
+    })
+
+    it('answers a conflict without them', async () => {
+      mockReadEventRegistrations.mockResolvedValue([
+        { ...stored, eventResult: { ...stored.eventResult, tasks: [score(2, 15), score(1, 12)] } },
+      ])
+
+      await putStationEntryLambda(
+        apiEvent([{ basedOn: 'stale', eventResult: { tasks: [{ exercise: 1, points: 17 }] }, id: 'reg-1' }])
+      )
+
+      expect(mockResponse).toHaveBeenCalledWith(
+        409,
+        expect.objectContaining({
+          conflicts: [expect.objectContaining({ stored: onlyThisPost, submitted: onlyThisPost })],
+          error: 'resultConflict',
+        }),
+        expect.anything()
+      )
+    })
   })
 
   it('refuses a wrong token before touching anything', async () => {
@@ -121,9 +183,7 @@ describe('putStationEntryLambda', () => {
     mockGetLiveEvent.mockRejectedValue(eventNotFound('event-1'))
 
     await expect(
-      putStationEntryLambda(
-        apiEvent([{ eventResult: { tasks: [{ index: 0, points: 17, stationId: 'post-1' }] }, id: 'reg-1' }])
-      )
+      putStationEntryLambda(apiEvent([{ eventResult: { tasks: [{ exercise: 1, points: 17 }] }, id: 'reg-1' }]))
     ).rejects.toMatchObject({ status: 404 })
 
     expect(mockGetLiveEvent).toHaveBeenCalledWith('event-1')
@@ -135,13 +195,7 @@ describe('putStationEntryLambda', () => {
     await putStationEntryLambda(
       apiEvent([
         {
-          eventResult: {
-            tasks: [
-              { index: 0, points: 17, stationId: 'post-1' },
-              // A task naming another post is dropped by the scoped merge, not written.
-              { index: 0, points: 20, stationId: 'post-2' },
-            ],
-          },
+          eventResult: { tasks: [{ exercise: 1, points: 17 }] },
           id: 'reg-1',
           // A claimed scope is overridden by the path: this link is one post's and nothing else's.
           stationId: 'post-2',
@@ -150,11 +204,24 @@ describe('putStationEntryLambda', () => {
     )
 
     expect(mockUpdateRegistrationField).toHaveBeenCalledTimes(1)
-    const saved = mockUpdateRegistrationField.mock.calls[0][3]
-    expect(saved.tasks).toHaveLength(1)
-    expect(saved.tasks[0]).toMatchObject({ points: 17, stationId: 'post-1', updatedBy: 'Rasti 1' })
+    expect(mockUpdateRegistrationField).toHaveBeenCalledWith(
+      'event-1',
+      'reg-1',
+      'eventResult',
+      expect.objectContaining({
+        tasks: [expect.objectContaining({ exercise: 1, part: 0, points: 17, updatedBy: 'Suorituspaikka 1' })],
+      })
+    )
 
-    expect(mockAudit).toHaveBeenCalledWith(expect.objectContaining({ user: 'Rasti 1' }))
+    expect(mockAudit).toHaveBeenCalledWith(expect.objectContaining({ user: 'Suorituspaikka 1' }))
+  })
+
+  it('refuses an exercise the post does not do, so a page opened before the order changed reloads (KOE-1665)', async () => {
+    await expect(
+      putStationEntryLambda(apiEvent([{ eventResult: { tasks: [{ exercise: 2, points: 20 }] }, id: 'reg-1' }]))
+    ).rejects.toMatchObject({ status: 409 })
+
+    expect(mockUpdateRegistrationField).not.toHaveBeenCalled()
   })
 
   it('drops the whole-round fields a station link may not write', async () => {
@@ -167,7 +234,7 @@ describe('putStationEntryLambda', () => {
             notes: 'ei rastin asia',
             resCert: true,
             resultCode: '1',
-            tasks: [{ index: 0, points: 17, stationId: 'post-1' }],
+            tasks: [{ exercise: 1, points: 17 }],
           },
           id: 'reg-1',
         },
@@ -176,26 +243,35 @@ describe('putStationEntryLambda', () => {
 
     // The certs, the notes and an overriding result code are the event secretary's; a widely shared
     // link writes its post's scores and outcome, nothing else.
-    const saved = mockUpdateRegistrationField.mock.calls[0][3]
-    expect(saved).not.toHaveProperty('cert')
-    expect(saved).not.toHaveProperty('resCert')
-    expect(saved).not.toHaveProperty('notes')
-    expect(saved).not.toHaveProperty('junk')
     // The dropped result code did not sneak into a derived result either: the round is incomplete.
-    expect(saved).not.toHaveProperty('result')
-    expect(saved.tasks).toEqual([expect.objectContaining({ points: 17, stationId: 'post-1' })])
+    for (const field of ['cert', 'junk', 'notes', 'resCert', 'result']) {
+      expect(mockUpdateRegistrationField).not.toHaveBeenCalledWith(
+        'event-1',
+        'reg-1',
+        'eventResult',
+        expect.objectContaining({ [field]: expect.anything() })
+      )
+    }
+    expect(mockUpdateRegistrationField).toHaveBeenCalledWith(
+      'event-1',
+      'reg-1',
+      'eventResult',
+      expect.objectContaining({ tasks: [expect.objectContaining({ exercise: 1, points: 17 })] })
+    )
   })
 
   it('saves a round-ending outcome that arrives without a score', async () => {
     await putStationEntryLambda(
-      apiEvent([{ eventResult: { retirement: { cause: 'injury', stationId: 'post-1' }, tasks: [] }, id: 'reg-1' }])
+      apiEvent([{ eventResult: { retirement: { cause: 'injury', exercise: 1 }, tasks: [] }, id: 'reg-1' }])
     )
 
     expect(mockUpdateRegistrationField).toHaveBeenCalledTimes(1)
-    expect(mockUpdateRegistrationField.mock.calls[0][3]).toMatchObject({
-      result: 'AVO-',
-      retirement: { cause: 'injury', stationId: 'post-1' },
-    })
+    expect(mockUpdateRegistrationField).toHaveBeenCalledWith(
+      'event-1',
+      'reg-1',
+      'eventResult',
+      expect.objectContaining({ result: 'AVO-', retirement: { cause: 'injury', exercise: 1 } })
+    )
   })
 
   it('echoes back only what the link may see', async () => {
@@ -203,7 +279,7 @@ describe('putStationEntryLambda', () => {
       {
         ...registration('reg-1'),
         eventResult: {
-          tasks: [{ index: 0, points: 12, stationId: 'post-2', updatedAt: 't2', updatedBy: 'u' }],
+          tasks: [{ exercise: 2, part: 0, points: 12, updatedAt: 't2', updatedBy: 'u' }],
           updatedAt: 't2',
           updatedBy: 'u',
         },
@@ -214,20 +290,30 @@ describe('putStationEntryLambda', () => {
       apiEvent([
         {
           basedOn: undefined,
-          eventResult: { tasks: [{ index: 0, points: 17, stationId: 'post-1' }] },
+          eventResult: { tasks: [{ exercise: 1, points: 17 }] },
           id: 'reg-1',
         },
       ])
     )
 
-    const [status, payload] = mockResponse.mock.calls[0]
-    expect(status).toBe(200)
-    // The stored round holds another post's score and, once complete, the prize — neither of which is
-    // this link's to see.
-    expect(payload.saved[0].eventResult.tasks).toHaveLength(1)
-    expect(payload.saved[0].eventResult.tasks[0]).toMatchObject({ stationId: 'post-1' })
-    expect(payload.saved[0].eventResult).not.toHaveProperty('result')
-    expect(payload.saved[0].eventResult).not.toHaveProperty('points')
+    // The stored round holds another post's score and, once complete, the prize; neither is this link's
+    // to see.
+    expect(mockResponse).toHaveBeenCalledWith(
+      200,
+      expect.objectContaining({
+        saved: [
+          {
+            eventResult: {
+              tasks: [expect.objectContaining({ exercise: 1 })],
+              updatedAt: expect.any(String),
+              updatedBy: expect.any(String),
+            },
+            id: 'reg-1',
+          },
+        ],
+      }),
+      expect.anything()
+    )
   })
   it('refuses the post once the trial is handed to the chief judge, with its own status and code', async () => {
     const handedOver = { ...confirmedEvent, kcState: { code: 1253, name: 'x', readAt: 'y' } }
@@ -235,9 +321,7 @@ describe('putStationEntryLambda', () => {
     mockGetEvent.mockResolvedValue(handedOver)
 
     await expect(
-      putStationEntryLambda(
-        apiEvent([{ eventResult: { tasks: [{ index: 0, points: 17, stationId: 'post-1' }] }, id: 'reg-1' }])
-      )
+      putStationEntryLambda(apiEvent([{ eventResult: { tasks: [{ exercise: 1, points: 17 }] }, id: 'reg-1' }]))
     ).rejects.toMatchObject({ body: { error: 'resultsLocked' }, status: 423 })
 
     expect(mockUpdateRegistrationField).not.toHaveBeenCalled()

@@ -13,8 +13,8 @@ const Frame = ({ children }: { readonly children: React.ReactNode }) => (
 
 const judge = { id: 223, name: 'Tuomari 2', official: true }
 const station = { id: 'post-2', judges: [judge], number: 2 }
-/** The group's second post, its one task split into two parts of 10 (KOE-1665). */
-const visit = { parts: 2 as const, postsBefore: ['post-1'], tasks: 1, tasksBefore: 1 }
+/** The group's second exercise, at this post, split into two parts of 10 (KOE-1665). */
+const visit = { exercise: 2, exercisePosts: ['post-1', 'post-2'], parts: 2 as const }
 const group = { date: eventWithStations.startDate, key: 'ALO-AP', time: 'ap' as const }
 
 // One dog through the post, the next one open in front of the judge (KOE-1258).
@@ -22,7 +22,7 @@ const registrations = [
   {
     class: 'ALO' as const,
     dog: { name: 'Ensimmainen' },
-    eventResult: { tasks: [{ index: 0, judge, points: 8, stationId: 'post-2' }] },
+    eventResult: { tasks: [{ exercise: 2, judge, part: 0, points: 8 }] },
     eventType: 'NOWT',
     group: { ...group, number: 1 },
     handler: { name: 'Minsu Rauramo' },
@@ -126,10 +126,10 @@ it('shows a NOME-A result at the post as Kennelliitto lists it', async () => {
 
 // A dog whose handler withdrew it at the post before comes no further: its chip reads as done, and its
 // tasks here read "kesk" instead of asking for points (KOE-1669).
-it('shows kesk at a post the dog never reached', async () => {
+it('shows kesk at an exercise the dog never reached', async () => {
   const withdrawn = {
     ...registrations[1],
-    eventResult: { retirement: { cause: 'handlerChoice' as const, stationId: 'post-1' } },
+    eventResult: { retirement: { cause: 'handlerChoice' as const, exercise: 1 } },
   }
   const screen = await render(
     <Frame>
@@ -147,6 +147,6 @@ it('shows kesk at a post the dog never reached', async () => {
   )
 
   await screen.getByText('2 Toinen').click()
-  await expect.element(screen.getByText('Tehtävä 2, osa 1/2: kesk')).toBeVisible()
+  await expect.element(screen.getByText('Rasti 2, osa 1/2: kesk')).toBeVisible()
   await expect(screen.getByTestId('visual-root')).toMatchScreenshot('station-scoring-not-reached')
 })

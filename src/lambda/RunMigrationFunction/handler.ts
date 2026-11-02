@@ -34,6 +34,7 @@ import { readAllUsers, readUser, writeMigratedUserRoles } from '../lib/repositor
 import { moveOrganizerEventStats } from '../lib/stats/stats'
 import { userScopes } from '../lib/user'
 import { findOrganizerRepoints, repointRoles, unmappableRoleIds } from './organizerRepoints'
+import { storeScoresByExercise } from './scoreAddresses'
 
 /**
  * What a migration did to a row: whether it changed it, or, for one that also reports what it could
@@ -44,9 +45,15 @@ type MigrationOutcome = boolean | DayRekeying
 /** What a run reads once, before any row, for the migrations that need more than the row itself. */
 interface MigrationContext {
   organizerRepoints: OrganizerRepoints
+  /** The events by id, read when a pending migration needs a row's event (`needsEvents`). */
+  events: ReadonlyMap<string, JsonDogEvent>
 }
 
-/** The rows a migration left as they were for someone to look at, and why, for the release log. */
+/**
+ * The rows a migration left as they were, or the values it could not place and took out of them, for
+ * someone to look at, and why. The release log is the only record of them: a run that has recorded the
+ * migration does not report them again.
+ */
 interface SkippedRows {
   ids: string[]
   detail: Record<string, unknown>[]
@@ -60,6 +67,8 @@ interface Migration<T> {
   name: string
   run: (row: T, context: MigrationContext) => MigrationOutcome
   skipped?: (rows: T[], context: MigrationContext) => SkippedRows
+  /** Whether `run` reads the row's event from the context. */
+  needsEvents?: boolean
 }
 
 const eventMigrations: Migration<JsonDogEvent>[] = [
@@ -263,6 +272,29 @@ const registrationMigrations: Migration<JsonRegistration>[] = [
         changed = true
       }
       return changed
+    },
+  },
+  {
+    // KOE-1665: a score stored at its post and its place there becomes its exercise and part, read
+    // through the dog's round of the event's stored layout, and a stop or an elimination stored by post
+    // alone becomes the last exercise at that post (`storeScoresByExercise`). A score the layout cannot
+    // place is removed and logged with its values and the dog's class and number, so it can be entered
+    // again. That log is the only record of a removed value: a forced rerun finds nothing to report.
+    // The rule's version is the literal argument: a correction bumps it, and so reruns this.
+    name: 'storeScoresByExercise',
+    needsEvents: true,
+    run: (registration, { events }) => storeScoresByExercise(registration, events.get(registration.eventId), 1).changed,
+    // A migration answers only whether it changed a row, and its skips are read off the rows as read, so
+    // the rows are converted again here, on copies, for what could not be placed.
+    skipped: (registrations, { events }) => {
+      const detail = registrations.flatMap(
+        (registration) =>
+          storeScoresByExercise(structuredClone(registration), events.get(registration.eventId), 1).unplaced
+      )
+      return {
+        detail,
+        ids: [...new Set(detail.map(({ eventId, registrationId }) => `${eventId}/${registrationId}`))],
+      }
     },
   },
 ]
@@ -622,36 +654,45 @@ const pendingRun = <T extends object>(table: MigratedTable<T>, applied: Map<stri
 /** Nothing to repoint: the context of a run that migrates neither events nor users. */
 const NO_REPOINTS: OrganizerRepoints = { known: new Set(), targets: new Map(), unmatched: new Map() }
 
+/** Whether a table's pending migrations read the rows' events. */
+const readsEvents = <T>(pending: Pending<T>[] | undefined) =>
+  Boolean(pending?.some(({ migration }) => migration.needsEvents))
+
 /**
  * Reads what the organizer repoint decides from, once per run. A table with no live organizer would
  * leave every event an orphan with nothing to match, and recording the migration then would keep it
  * from running once the table is filled, so the run fails instead, unless no event names an organizer.
  */
-const readMigrationContext = async (events: JsonDogEvent[]): Promise<MigrationContext> => {
+const readOrganizerRepoints = async (events: JsonDogEvent[]): Promise<OrganizerRepoints> => {
   const organizers = await readOrganizersIncludingDeleted()
   if (events.some(({ organizer }) => organizer?.id) && organizers.every(({ deletedAt }) => deletedAt)) {
     throw new LambdaError(500, 'The organizer table holds no live organizer; refresh it before migrating')
   }
-  return { organizerRepoints: findOrganizerRepoints(events, organizers) }
+  return findOrganizerRepoints(events, organizers)
 }
 
 /** The run's tables in the order they are migrated, with the events read once when either needs them. */
 const pendingRuns = async (applied: Map<string, string | undefined>) => {
   const pendingEvents = pendingOf(eventTable([]), applied)
   const pendingUsers = pendingOf(userTable, applied)
-  const needsEvents = Boolean(pendingEvents || pendingUsers)
-  const events = needsEvents ? await readAllEvents(true) : []
+  const pendingRegistrations = pendingOf(registrationTable, applied)
+  const repoints = Boolean(pendingEvents || pendingUsers)
+  const readEvents = repoints || readsEvents(pendingRegistrations)
+  const events = readEvents ? await readAllEvents(true) : []
   // The repoint decides from the live events, as before the day migrations read the deleted ones too:
   // a deleted event's name must not split an orphan id's match. A deleted event on a matched id moves
   // with the live ones; one on an id with no live event stays as it is, unreported.
   const live = events.filter(({ deletedAt }) => !deletedAt)
-  const context = needsEvents ? await readMigrationContext(live) : { organizerRepoints: NO_REPOINTS }
+  const context: MigrationContext = {
+    events: new Map(events.map((item) => [item.id, item])),
+    organizerRepoints: repoints ? await readOrganizerRepoints(live) : NO_REPOINTS,
+  }
   // The users first: their roles are mapped from the events as read, so a run that fails after them
   // still finds the orphan events, and the mapping, the next time. The events first would leave none.
   const runs = [
     pendingUsers && tableRun(userTable, pendingUsers),
     pendingEvents && tableRun(eventTable(events), pendingEvents),
-    pendingRun(registrationTable, applied),
+    pendingRegistrations && tableRun(registrationTable, pendingRegistrations),
     pendingRun(dogTable, applied),
     pendingRun(organizerStatsTable, applied),
   ].filter((run): run is TableRun => !!run)
@@ -683,7 +724,7 @@ const runMigrationLambda = lambda('runMigration', async (event) => {
 
   const skipped = reports.filter((report) => report.skipped)
   if (skipped.length) {
-    logger.warn('migrations left rows as they were', {
+    logger.warn('migrations skipped values they could not place or left rows as they were', {
       skipped: skipped.map(({ detail, name, skipped: rows }) => ({ detail, name, ...rows })),
     })
   }

@@ -1,4 +1,4 @@
-import type { RoundTask } from '@/lib/results'
+import type { ExerciseSlot } from '@/lib/resultTasks'
 import type { NowtZeroFault, PublicJudge } from '@/types'
 import type { TaskEdit } from './types'
 import MenuItem from '@mui/material/MenuItem'
@@ -7,11 +7,12 @@ import TextField from '@mui/material/TextField'
 import Typography from '@mui/material/Typography'
 import { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
-import { isRecordedTask, nowtZeroFaults, taskEntryCeiling } from '@/lib/results'
+import { nowtZeroFaults, taskEntryCeiling } from '@/lib/results'
+import { effectiveJudge, isRecordedTask } from '@/lib/resultTasks'
 import { NumberInput } from '../NumberInput'
 
 interface Props {
-  readonly task: RoundTask
+  readonly task: ExerciseSlot
   readonly value?: TaskEdit
   readonly disabled?: boolean
   /** Names the task. Shown as the field's own label where no column header does, as on a phone's
@@ -23,12 +24,12 @@ interface Props {
   readonly judges: PublicJudge[]
   /** Carried over from the dog before, since a post is usually judged by the same person all day. */
   readonly defaultJudge?: PublicJudge
-  readonly onChange: (task: RoundTask, points: number | null, zeroFault?: NowtZeroFault) => void
-  readonly onJudgeChange: (task: RoundTask, judge?: PublicJudge) => void
+  readonly onChange: (task: ExerciseSlot, points: number | null, zeroFault?: NowtZeroFault) => void
+  readonly onJudgeChange: (task: ExerciseSlot, judge?: PublicJudge) => void
   /**
-   * The dog's round ended at an earlier post (`endedBefore`), so it never came here: the task reads
-   * "kesk", as the results sheet writes it, instead of asking for points (KOE-1669). A score stored here
-   * anyway stays an input, since it counts and may need clearing.
+   * The dog's round ended at an earlier exercise (`endedBefore`), so it never came to this
+   * one: it reads "kesk", as the results sheet writes it, instead of asking for points (KOE-1669). A score
+   * stored here anyway stays an input, since it counts and may need clearing.
    */
   readonly notReached?: boolean
 }
@@ -46,7 +47,9 @@ export const TaskScore = ({
   notReached = false,
 }: Props) => {
   const { t } = useTranslation()
-  const judge = value?.judge ?? defaultJudge ?? judges[0]
+  // A stored judge stands while it judges at the exercise's post; one from before the exercise moved to
+  // another post gives way to the post's own (`effectiveJudge`, KOE-1665).
+  const judge = effectiveJudge(value, judges, defaultJudge)
   const points = value?.points ?? null
   const ceiling = taskEntryCeiling({ maxPoints: task.maxPoints, recalled: value?.recalled })
   // A part's name ("Tehtävä 2, osa 1/2") needs the room its label takes where the field shows it.

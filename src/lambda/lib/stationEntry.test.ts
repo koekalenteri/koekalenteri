@@ -118,21 +118,27 @@ describe('stationEntry', () => {
         eventType: 'NOWT',
         group: { date: '2026-09-12', key: 'ALO-AP', number: 1, time: 'ap' },
         id: 'run-1',
-        visit: { parts: 1, postsBefore: [], tasks: 1, tasksBefore: 0 },
+        visit: { exercise: 1, exercisePosts: ['post-1'], parts: 1 },
       })
       // The link is shared on paper at a venue; contact details must not ride on it.
       expect(JSON.stringify(result)).not.toContain('example.com')
       expect(JSON.stringify(result)).not.toContain('regNo')
     })
 
-    it('lists the dogs in the order their rotation groups reach the post, each with its tasks there (KOE-1665)', () => {
+    it('lists the dogs exercise by exercise as their groups come to the post, each with its exercise there (KOE-1665)', () => {
       const posts = [station, { date: '2026-09-12' as const, id: 'post-2', number: 2 }]
       const rotated = {
         ...confirmedEvent,
         rotations: [
-          { class: 'ALO' as const, posts: [{ stationId: 'post-1' }, { stationId: 'post-2', taskCount: 2 }] },
-          { class: 'AVO' as const, posts: [{ stationId: 'post-2' }, { stationId: 'post-1', taskCount: 2 }] },
-          { class: 'VOI' as const, posts: [{ stationId: 'post-2' }] },
+          {
+            class: 'ALO' as const,
+            exercises: [{ stationId: 'post-1' }, { stationId: 'post-2' }, { stationId: 'post-2' }],
+          },
+          {
+            class: 'AVO' as const,
+            exercises: [{ stationId: 'post-2' }, { stationId: 'post-1' }, { stationId: 'post-1' }],
+          },
+          { class: 'VOI' as const, exercises: [{ stationId: 'post-2' }] },
         ],
         stations: posts,
       }
@@ -144,11 +150,12 @@ describe('stationEntry', () => {
       ]
 
       expect(
-        stationEntryResponse(rotated, station, dogs).registrations.map((dog) => [dog.id, dog.visit?.tasks])
+        stationEntryResponse(rotated, station, dogs).registrations.map((dog) => [dog.id, dog.visit?.exercise])
       ).toEqual([
         ['run-1', 1],
         ['run-2', 1],
         ['run-3', 2],
+        ['run-3', 3],
       ])
     })
 
@@ -181,8 +188,8 @@ describe('stationEntry', () => {
       const scored = registration('run-1', {
         eventResult: {
           tasks: [
-            { index: 0, points: 17, stationId: 'post-1', updatedAt: 't1', updatedBy: 'u' },
-            { index: 0, points: 12, stationId: 'post-2', updatedAt: 't2', updatedBy: 'u' },
+            { exercise: 1, part: 0, points: 17, updatedAt: 't1', updatedBy: 'u' },
+            { exercise: 2, part: 0, points: 12, updatedAt: 't2', updatedBy: 'u' },
           ],
           updatedAt: 't2',
           updatedBy: 'u',
@@ -192,29 +199,71 @@ describe('stationEntry', () => {
       const [dog] = stationEntryResponse(confirmedEvent, station, [scored]).registrations
 
       expect(dog.eventResult?.tasks).toHaveLength(1)
-      expect(dog.eventResult?.tasks?.[0]).toMatchObject({ points: 17, stationId: 'post-1' })
+      expect(dog.eventResult?.tasks?.[0]).toMatchObject({ exercise: 1, part: 0, points: 17 })
+    })
+    describe('a post doing two exercises of the running order (KOE-1665, Jukka 2.11.2026)', () => {
+      const posts = [1, 2, 3].map((number) => ({ date: '2026-09-12' as const, id: `post-${number}`, number }))
+      const third = posts[2]
+      const corrected = {
+        ...confirmedEvent,
+        rotations: [
+          {
+            class: 'ALO' as const,
+            exercises: [
+              { stationId: 'post-1' },
+              { stationId: 'post-2' },
+              { stationId: 'post-3' },
+              { stationId: 'post-3' },
+            ],
+          },
+        ],
+        stations: posts,
+      }
+      const byExercise = (exercise: number, points: number) => ({
+        exercise,
+        part: 0,
+        points,
+        updatedAt: 't1',
+        updatedBy: 'u',
+      })
+
+      it('serves both exercises of the post, the scores of both, and no other', () => {
+        const scored = registration('run-1', {
+          eventResult: {
+            tasks: [byExercise(1, 11), byExercise(3, 13), byExercise(4, 14)],
+            updatedAt: 't1',
+            updatedBy: 'u',
+          },
+        })
+
+        const entries = stationEntryResponse(corrected, third, [scored]).registrations
+
+        expect(entries.map((dog) => dog.visit?.exercise)).toEqual([3, 4])
+        expect(entries[0].eventResult?.tasks).toEqual([byExercise(3, 13), byExercise(4, 14)])
+      })
     })
   })
 
   describe('scopeResultToStation', () => {
     it('strips the derived prize and the other posts, keeping the version stamps', () => {
       const result: JsonEventResult = {
-        elimination: { fault: 'hardMouth', stationId: 'post-2' },
+        elimination: { exercise: 2, fault: 'hardMouth' },
         maxPoints: 80,
         percentage: 81.25,
         points: 65,
         result: 'AVO1',
         tasks: [
-          { index: 0, points: 17, stationId: 'post-1', updatedAt: 't1', updatedBy: 'u' },
-          { index: 0, points: 12, stationId: 'post-2', updatedAt: 't2', updatedBy: 'u' },
+          { exercise: 1, part: 0, points: 17, updatedAt: 't1', updatedBy: 'u' },
+          { exercise: 2, part: 0, points: 12, updatedAt: 't2', updatedBy: 'u' },
         ],
         updatedAt: 't2',
         updatedBy: 'u',
       }
 
-      expect(scopeResultToStation(result, 'post-1', 'NOWT')).toEqual({
-        elimination: { fault: 'hardMouth', stationId: 'post-2' },
-        tasks: [{ index: 0, points: 17, stationId: 'post-1', updatedAt: 't1', updatedBy: 'u' }],
+      // The post does exercise 1 of the dog's running order.
+      expect(scopeResultToStation(result, [1], 'NOWT')).toEqual({
+        elimination: { exercise: 2, fault: 'hardMouth' },
+        tasks: [{ exercise: 1, part: 0, points: 17, updatedAt: 't1', updatedBy: 'u' }],
         updatedAt: 't2',
         updatedBy: 'u',
       })
@@ -224,14 +273,14 @@ describe('stationEntry', () => {
       const judge = { id: 123, name: 'Tuomari' }
       const result: JsonEventResult = { judge, result: 'ALO1', updatedAt: 't1', updatedBy: 'u' }
 
-      expect(scopeResultToStation(result, '1', 'NOME-B')).toEqual({
+      expect(scopeResultToStation(result, [], 'NOME-B')).toEqual({
         judge,
         result: 'ALO1',
         updatedAt: 't1',
         updatedBy: 'u',
       })
       // A NOWT's result is derived from posts this link cannot see, so it stays off.
-      expect(scopeResultToStation(result, 'post-1', 'NOWT')).toEqual({ updatedAt: 't1', updatedBy: 'u' })
+      expect(scopeResultToStation(result, [1], 'NOWT')).toEqual({ updatedAt: 't1', updatedBy: 'u' })
     })
   })
 })

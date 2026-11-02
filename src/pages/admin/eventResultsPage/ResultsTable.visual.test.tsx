@@ -5,7 +5,8 @@ import { page } from 'vitest/browser'
 import { render } from 'vitest-browser-react'
 import { eventWithStations, registrationsToEventWithStations } from '@/__mockData__/resultsEvent'
 import theme from '@/assets/Theme'
-import { dogRound, placementsFor, roundColumns } from '@/lib/results'
+import { placementsFor } from '@/lib/results'
+import { dogRound, roundColumns } from '@/lib/resultTasks'
 import { rotationDogOf } from '@/lib/rotation'
 import { describeInLanguage } from '@/test-utils/language'
 import ResultsTable from './ResultsTable'
@@ -36,14 +37,14 @@ const roundOf = () => round
 const nowtEdits: Record<string, ResultEdit> = {
   'run-1': {
     tasks: [
-      { index: 0, judge, points: 17, stationId: 'post-1' },
-      { index: 0, judge, points: 8, stationId: 'post-2' },
-      { index: 1, judge, points: 9, stationId: 'post-2' },
+      { exercise: 1, judge, part: 0, points: 17 },
+      { exercise: 2, judge, part: 0, points: 8 },
+      { exercise: 2, judge, part: 1, points: 9 },
     ],
   },
   'run-2': {
-    retirement: { cause: 'handlerChoice', stationId: 'post-1' },
-    tasks: [{ index: 0, judge, points: 12, stationId: 'post-1' }],
+    retirement: { cause: 'handlerChoice', exercise: 1 },
+    tasks: [{ exercise: 1, judge, part: 0, points: 12 }],
   },
 }
 
@@ -213,9 +214,9 @@ const storedResult = (points: number[], result: string): Registration['eventResu
   points: points.reduce((sum, value) => sum + value, 0),
   result,
   tasks: [
-    { index: 0, points: points[0], stationId: 'post-1', updatedAt: '2021-02-10T10:00:00Z', updatedBy: 'Rasti 1' },
-    { index: 0, points: points[1], stationId: 'post-2', updatedAt: '2021-02-10T10:00:00Z', updatedBy: 'Rasti 2' },
-    { index: 1, points: points[2], stationId: 'post-2', updatedAt: '2021-02-10T10:00:00Z', updatedBy: 'Rasti 2' },
+    { exercise: 1, part: 0, points: points[0], updatedAt: '2021-02-10T10:00:00Z', updatedBy: 'Rasti 1' },
+    { exercise: 2, part: 0, points: points[1], updatedAt: '2021-02-10T10:00:00Z', updatedBy: 'Rasti 2' },
+    { exercise: 2, part: 1, points: points[2], updatedAt: '2021-02-10T10:00:00Z', updatedBy: 'Rasti 2' },
   ],
   updatedAt: '2021-02-10T10:00:00Z',
   updatedBy: 'Rasti 2',
@@ -261,26 +262,27 @@ it('shows the rank of each awarded dog beside its prize', async () => {
   await expect(screen.getByTestId('visual-root')).toMatchScreenshot('results-entry-nowt-placement')
 })
 
-// One class in two rotation groups by start number (KOE-1665): the first group starts at post 1 and does
-// two tasks at post 2, the second starts at post 2 and does two at post 1. The columns are every slot
-// either has, in the first group's order, and a dog's row leaves the other group's extra task empty.
+// One class in two groups by start number (KOE-1665): the first group starts at post 1 and does its last
+// two exercises at post 2, the second starts at post 2 and does its last two at post 1. The columns are
+// the exercise numbers, "Rasti 1".."Rasti 3", whatever post each group did them at.
 const split = {
   ...eventWithStations,
   rotations: [
     {
       class: 'ALO' as const,
+      exercises: [
+        { stationId: 'post-1' },
+        { parts: 1 as const, stationId: 'post-2' },
+        { parts: 1 as const, stationId: 'post-2' },
+      ],
       firstNumber: 1,
       lastNumber: 1,
-      posts: [{ stationId: 'post-1' }, { parts: 1 as const, stationId: 'post-2', taskCount: 2 }],
     },
     {
       class: 'ALO' as const,
+      exercises: [{ parts: 1 as const, stationId: 'post-2' }, { stationId: 'post-1' }, { stationId: 'post-1' }],
       firstNumber: 2,
       lastNumber: 9,
-      posts: [
-        { parts: 1 as const, stationId: 'post-2' },
-        { stationId: 'post-1', taskCount: 2 },
-      ],
     },
   ],
 }
@@ -288,21 +290,21 @@ const splitRound = (registration: Registration) => dogRound(split, rotationDogOf
 const splitEdits: Record<string, ResultEdit> = {
   'run-1': {
     tasks: [
-      { index: 0, judge, points: 17, stationId: 'post-1' },
-      { index: 0, judge, points: 16, stationId: 'post-2' },
-      { index: 1, judge, points: 18, stationId: 'post-2' },
+      { exercise: 1, judge, part: 0, points: 17 },
+      { exercise: 2, judge, part: 0, points: 16 },
+      { exercise: 3, judge, part: 0, points: 18 },
     ],
   },
   'run-2': {
     tasks: [
-      { index: 0, judge, points: 15, stationId: 'post-2' },
-      { index: 0, judge, points: 14, stationId: 'post-1' },
-      { index: 1, judge, points: 19, stationId: 'post-1' },
+      { exercise: 1, judge, part: 0, points: 15 },
+      { exercise: 2, judge, part: 0, points: 14 },
+      { exercise: 3, judge, part: 0, points: 19 },
     ],
   },
 }
 
-it("leaves empty the slots a dog's rotation group does not have", async () => {
+it('names the columns by exercise number whatever post each group did them at', async () => {
   const screen = await render(
     <Frame>
       <ResultsTable
@@ -323,7 +325,7 @@ it("leaves empty the slots a dog's rotation group does not have", async () => {
     </Frame>
   )
 
-  await expect.element(screen.getByText('Rasti 1, tehtävä 2')).toBeVisible()
+  await expect.element(screen.getByText('Rasti 3')).toBeVisible()
   await expect(screen.getByTestId('visual-root')).toMatchScreenshot('results-entry-nowt-groups')
 })
 

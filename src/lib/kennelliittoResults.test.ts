@@ -247,8 +247,8 @@ describe('kennelliittoResults', () => {
 
   describe('NOWT', () => {
     const tasks = [
-      { index: 0, judge: second, points: 8, stationId: 's1', updatedAt: 'a', updatedBy: 'b' },
-      { index: 1, judge: third, points: 9, stationId: 's1', updatedAt: 'a', updatedBy: 'b' },
+      { exercise: 1, judge: second, part: 0, points: 8, updatedAt: 'a', updatedBy: 'b' },
+      { exercise: 2, judge: third, part: 0, points: 9, updatedAt: 'a', updatedBy: 'b' },
     ]
     /** A NOWT dog as the sending sees it: ranked first among its class unless the test says otherwise. */
     const nowt = (
@@ -310,7 +310,7 @@ describe('kennelliittoResults', () => {
     })
 
     it("sends a handler's withdrawal on a nought with what it earned and without keskeytetty (KOE-1669)", () => {
-      const retirement = { cause: 'handlerChoice', stationId: 's1' } as const
+      const retirement = { cause: 'handlerChoice', exercise: 1 } as const
       const body = sent(nowt({ percentage: 19, result: 'VOI0', retirement }, { placement: undefined }))
       expect([body.tulos, body.pisteet, body.keskeytetty]).toEqual(['VOI0', 19, false])
     })
@@ -385,10 +385,10 @@ describe('kennelliittoResults', () => {
     it('refuses a dog judged by more than four judges besides the chief', () => {
       const judge = (id: number) => ({ id, name: `Tuomari ${id}` })
       const tasks = [2001, 2002, 2003, 2004, 2005].map((id, index) => ({
-        index,
+        exercise: index + 1,
         judge: judge(id),
+        part: 0,
         points: 10,
-        stationId: `s${index}`,
         updatedAt: 'a',
         updatedBy: 'b',
       }))

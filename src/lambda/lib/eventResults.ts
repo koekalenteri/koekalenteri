@@ -1,4 +1,5 @@
-import type { ResultTasksDroppedBody, RoundTask, SubmittedEventResult, SubmittedTask } from '../../lib/results'
+import type { SubmittedEventResult, SubmittedTask } from '../../lib/results'
+import type { ExerciseSlot, ResultTasksDroppedBody } from '../../lib/resultTasks'
 import type {
   EventResultElimination,
   EventResultRetirement,
@@ -14,24 +15,28 @@ import { resultRecomputedAudit, resultSavedAudit } from '../../lib/audit'
 import { objectsDiffer } from '../../lib/diff'
 import { makeArray } from '../../lib/judge'
 import { isResultsLocked } from '../../lib/kennelliittoResults'
+import { scoresAtPosts } from '../../lib/liveFormat'
 import { getRegistrationPlacement, isScorableRegistration } from '../../lib/registration'
 import {
   availableResultCodes,
-  dogRound,
   eliminatingFaults,
-  isRecordedTask,
-  mergeStationTasks,
   nowtZeroFaults,
-  reconcileRoundTasks,
   resolveEventResult,
-  roundsDiffer,
   sameEventResult,
-  sameStationTasks,
-  scoresAtPosts,
   shownEventResult,
-  stationVersion,
   taskEntryCeiling,
 } from '../../lib/results'
+import {
+  dogRound,
+  holdsScore,
+  isRecordedTask,
+  mergeStationTasks,
+  reconcileRoundTasks,
+  roundsDiffer,
+  sameStationTasks,
+  stationExercises,
+  stationVersion,
+} from '../../lib/resultTasks'
 import { rotationDogOf, roundInputsOf } from '../../lib/rotation'
 import { mapWithConcurrency } from '../../lib/utils'
 import { audit, registrationAuditKey } from './audit'
@@ -189,14 +194,19 @@ const resolveJudge = (value: unknown, judges: PublicJudge[]): PublicJudge | unde
   return judges.find((judge) => judge.id !== undefined && judge.id === picked.id) ?? picked
 }
 
+const isCount = (value: unknown, least: number): value is number =>
+  typeof value === 'number' && Number.isInteger(value) && value >= least
+
+/** Where a submitted score goes: its exercise and part, a missing part being the whole exercise. */
+const pickAddress = (value: Record<string, unknown>): Pick<SubmittedTask, 'exercise' | 'part'> | undefined => {
+  if (!isCount(value.exercise, 1)) return undefined
+  if (value.part === undefined || value.part === null) return { exercise: value.exercise, part: 0 }
+  return isCount(value.part, 0) ? { exercise: value.exercise, part: value.part } : undefined
+}
+
 const pickTask = (value: unknown, judges: PublicJudge[]): SubmittedTask => {
-  if (
-    !isRecord(value) ||
-    typeof value.stationId !== 'string' ||
-    typeof value.index !== 'number' ||
-    !Number.isInteger(value.index) ||
-    (value.points !== null && typeof value.points !== 'number')
-  ) {
+  const address = isRecord(value) ? pickAddress(value) : undefined
+  if (!isRecord(value) || !address || (value.points !== null && typeof value.points !== 'number')) {
     throw new LambdaError(422, 'Malformed task')
   }
 
@@ -213,13 +223,30 @@ const pickTask = (value: unknown, judges: PublicJudge[]): SubmittedTask => {
   const judge = resolveJudge(value.judge, judges)
 
   return {
-    index: value.index,
+    ...address,
     points: value.points,
-    stationId: value.stationId,
     ...(value.recalled === true ? { recalled: true } : {}),
     ...(zeroFault ? { zeroFault } : {}),
     ...(judge ? { judge } : {}),
   }
+}
+
+/**
+ * Where a round ended: the exercise where the round is scored by exercise (KOE-1665), a number from 1 or
+ * none, and the post for a type judged as a whole at posts.
+ */
+const pickPlace = (
+  value: Record<string, unknown>,
+  eventType: string,
+  what: string
+): { exercise?: number } | { stationId?: string } => {
+  if (!scoresAtPosts(eventType)) return typeof value.stationId === 'string' ? { stationId: value.stationId } : {}
+  const { exercise } = value
+  if (exercise === undefined || exercise === null) return {}
+  if (typeof exercise !== 'number' || !Number.isInteger(exercise) || exercise < 1) {
+    throw new LambdaError(422, `Malformed ${what} exercise`)
+  }
+  return { exercise }
 }
 
 const pickElimination = (value: unknown, eventType: string): EventResultElimination => {
@@ -230,12 +257,15 @@ const pickElimination = (value: unknown, eventType: string): EventResultEliminat
     throw new LambdaError(422, `Eliminating fault '${String(value.fault)}' is not valid for ${eventType}`)
   }
 
-  return { fault, ...(typeof value.stationId === 'string' ? { stationId: value.stationId } : {}) }
+  return {
+    fault,
+    ...pickPlace(value, eventType, 'elimination'),
+  }
 }
 
 const RETIREMENT_CAUSES = ['handlerChoice', 'injury', 'illness', 'judgeStopped'] as const
 
-const pickRetirement = (value: unknown): EventResultRetirement => {
+const pickRetirement = (value: unknown, eventType: string): EventResultRetirement => {
   if (!isRecord(value)) throw new LambdaError(422, 'Malformed retirement')
 
   const cause = RETIREMENT_CAUSES.find((item) => item === value.cause)
@@ -244,7 +274,7 @@ const pickRetirement = (value: unknown): EventResultRetirement => {
   return {
     cause,
     ...(typeof value.couldStillHavePlaced === 'boolean' ? { couldStillHavePlaced: value.couldStillHavePlaced } : {}),
-    ...(typeof value.stationId === 'string' ? { stationId: value.stationId } : {}),
+    ...pickPlace(value, eventType, 'retirement'),
   }
 }
 
@@ -278,7 +308,7 @@ const pickSubmittedResult = (
     ...(typeof value.cert === 'boolean' ? { cert: value.cert } : {}),
     ...(typeof value.resCert === 'boolean' ? { resCert: value.resCert } : {}),
     ...(value.elimination != null ? { elimination: pickElimination(value.elimination, eventType) } : {}),
-    ...(value.retirement != null ? { retirement: pickRetirement(value.retirement) } : {}),
+    ...(value.retirement != null ? { retirement: pickRetirement(value.retirement, eventType) } : {}),
     ...(judge ? { judge } : {}),
     ...(typeof value.notes === 'string' ? { notes: value.notes } : {}),
   }
@@ -311,7 +341,7 @@ export const parseSubmissions = (body: string | null, confirmedEvent: JsonConfir
 /**
  * What a tokenized station link may write: its post's scores and the round-ending outcome. The
  * whole-round fields — cert, notes, an overriding result code — are the event secretary's, and are
- * dropped here the same way the merge drops tasks naming another post. Except where there is no
+ * dropped here the same way the merge drops tasks of the exercises done at other posts. Except where there is no
  * round to score: a qualitative type's post *is* the whole trial, and its recording is the judge's
  * decision and who made it, so those two go through.
  */
@@ -344,7 +374,7 @@ export const stationScopedSubmission = (
  */
 const resolveFor = (
   confirmedEvent: JsonConfirmedEvent,
-  registration: JsonRegistration,
+  registration: Pick<JsonRegistration, 'class' | 'eventType' | 'group' | 'startGroup'>,
   submitted: SubmittedEventResult,
   updatedAt: string,
   updatedBy: string
@@ -389,9 +419,11 @@ const classifySubmission = (
   userName: string
 ): SubmissionOutcome => {
   const stored = registration.eventResult
-  // A post's slice of a scored round is its tasks; where nothing is scored the post is the whole
-  // trial, and its submission is the whole result — compared, versioned and merged as one.
+  // A post's slice of a scored round is its tasks, the exercises the dog's group does there. Where
+  // nothing is scored the post is the whole trial, and its submission is the whole result, compared,
+  // versioned and merged as one.
   const stationId = scoresAtPosts(confirmedEvent.eventType) ? submission.stationId : undefined
+  const exercises = stationId ? stationExercises(confirmedEvent, registration, stationId) : []
   const submittedTasks = stampProvenance(submission.eventResult.tasks, timestamp, userName)
   const submitted: SubmittedEventResult = { ...submission.eventResult, tasks: submittedTasks }
   const resolve = (result: SubmittedEventResult) =>
@@ -401,22 +433,22 @@ const classifySubmission = (
   // secretary saves again, and the first attempt turns out to have landed. Comparing content rather
   // than version makes that read as already stored, not as someone else's competing edit.
   const alreadyStored = stationId
-    ? sameStationTasks(stored?.tasks, submittedTasks, stationId) && !outcomeDiffers(stored, submitted)
+    ? sameStationTasks(stored?.tasks, submittedTasks, exercises) && !outcomeDiffers(stored, submitted)
     : sameEventResult(stored, resolve(submitted))
 
   if (alreadyStored) return { eventResult: stored ?? resolve(submitted), kind: 'unchanged' }
 
   // Only a genuinely different result written by someone else is a conflict. Scoped to the post when
   // the submission is: two stations scoring the same dog touch different tasks and must not collide.
-  const storedVersion = stationId ? stationVersion(stored?.tasks, stationId) : stored?.updatedAt
+  const storedVersion = stationId ? stationVersion(stored?.tasks, exercises) : stored?.updatedAt
 
-  if (storedVersion && storedVersion !== submission.basedOn) {
-    return { kind: 'conflict', stored: stored as JsonEventResult, submitted: resolve(submitted) }
+  if (stored && storedVersion && storedVersion !== submission.basedOn) {
+    return { kind: 'conflict', stored, submitted: resolve(submitted) }
   }
 
   // Merge rather than replace, or a station secretary's save carries away the scores another post
   // already recorded for the same dog.
-  const tasks = stationId ? mergeStationTasks(stored?.tasks, submittedTasks, stationId) : submittedTasks
+  const tasks = stationId ? mergeStationTasks(stored?.tasks, submittedTasks, exercises) : submittedTasks
 
   return { eventResult: resolve({ ...submitted, tasks }), hadStored: Boolean(stored), kind: 'save' }
 }
@@ -426,31 +458,40 @@ const classifySubmission = (
  * and the tokenized station endpoint, so the two cannot drift on what counts as a retry, a conflict
  * or a save — `userName` is whoever this write is attributed to.
  */
+/** What a post's save or the event save is told when the layout it was made against has changed. */
+const LAYOUT_CHANGED_MESSAGE = 'The results changed while the stations were saved; save again'
+
+/** A task's address as an error names it. */
+const taskName = (task: SubmittedTask): string => `exercise ${task.exercise}#${task.part}`
+
 /**
  * Refuse a score the round cannot hold. The totals are recomputed rather than trusted, but a
  * recomputation happily sums an out-of-range figure — 30 points on a 20-point task would derive an
  * unearned prize as faithfully as a real score — and a task naming a slot outside the round would
- * ride along stored forever.
+ * ride along stored forever. A post's submission may hold only the exercises the dog's group does at the
+ * post: a page opened before the running order changed would otherwise send an exercise the merge leaves
+ * out and report it saved, so it is told the layout changed and reloads (409).
  */
 const validateSubmittedTasks = (
-  confirmedEvent: JsonConfirmedEvent,
-  registration: JsonRegistration,
-  submission: ResultSubmission
+  round: readonly ExerciseSlot[],
+  submission: ResultSubmission,
+  exercises: readonly number[] | undefined
 ): void => {
   const tasks = submission.eventResult.tasks
   if (!tasks?.length) return
 
-  const round = dogRound(confirmedEvent, rotationDogOf(registration))
-
   for (const task of tasks) {
-    const slot = round.find((item) => item.stationId === task.stationId && item.index === task.index)
+    const slot = round.find((item) => holdsScore(item, task))
     if (!slot) {
-      throw new LambdaError(422, `Task ${task.stationId}#${task.index} is not part of the round`)
+      throw new LambdaError(422, `Task ${taskName(task)} is not part of the round`)
+    }
+    if (exercises && !exercises.includes(task.exercise)) {
+      throw httpError(409, { error: 'staleData', message: LAYOUT_CHANGED_MESSAGE })
     }
 
     const ceiling = taskEntryCeiling({ maxPoints: slot.maxPoints, ...(task.recalled ? { recalled: true } : {}) })
     if (task.points !== null && (task.points < 0 || task.points > ceiling)) {
-      throw new LambdaError(422, `Task points ${task.points} out of range for ${task.stationId}#${task.index}`)
+      throw new LambdaError(422, `Task points ${task.points} out of range for ${taskName(task)}`)
     }
   }
 }
@@ -472,7 +513,7 @@ interface PlannedSubmission {
 /** Everything a submission may be refused for before anything is written, and what it turns out to be. */
 const planSubmission = (
   confirmedEvent: JsonConfirmedEvent,
-  registrations: JsonRegistration[],
+  registrations: readonly JsonRegistration[],
   submission: ResultSubmission,
   timestamp: string,
   userName: string
@@ -488,7 +529,12 @@ const planSubmission = (
   }
 
   if (scoresAtPosts(confirmedEvent.eventType)) {
-    validateSubmittedTasks(confirmedEvent, registration, submission)
+    const { stationId } = submission
+    validateSubmittedTasks(
+      dogRound(confirmedEvent, rotationDogOf(registration)),
+      submission,
+      stationId ? stationExercises(confirmedEvent, registration, stationId) : undefined
+    )
   }
 
   // The alphabet is the event type's own: a pass/fail test awards 1 or 0 and nothing else, so a code
@@ -508,8 +554,8 @@ const planSubmission = (
 export const processResultSubmissions = async (
   eventId: string,
   confirmedEvent: JsonConfirmedEvent,
-  registrations: JsonRegistration[],
-  submissions: ResultSubmission[],
+  registrations: readonly JsonRegistration[],
+  submissions: readonly ResultSubmission[],
   userName: string
 ): Promise<ProcessedResultSubmissions> => {
   // One timestamp for the batch, so every task saved together shares a version.
@@ -573,6 +619,8 @@ interface RecomputedResult {
   registration: JsonRegistration & { eventResult: JsonEventResult }
   eventResult: JsonEventResult
   dropped: JsonEventResultTask[]
+  /** The exercises the dropped scores are of, which the secretary is told: a split exercise counts once. */
+  droppedExercises: number
 }
 
 /** The stored result as the submission it was saved from, with only the scores the new round keeps. */
@@ -599,17 +647,17 @@ interface RecomputeContext {
 
 /**
  * One dog's result against the event as it is about to be saved, by the rule its save uses (`resolveFor`).
- * Only a dog whose round scores differently is looked at, and only a result that comes out different is
- * returned: the recompute is attributed to whoever saved the change, and moves the version only where
- * there is something new to see.
+ * Only a dog whose round scores differently is looked at (another number of exercises, or an exercise
+ * split another way), and only a result that comes out different is returned: the recompute is attributed
+ * to whoever saved the change, and moves the version only where there is something new to see.
  */
 const recomputeFor = (registration: JsonRegistration, context: RecomputeContext): RecomputedResult | undefined => {
   const stored = registration.eventResult
   if (!stored || !isScorableRegistration(registration)) return undefined
 
   const dog = rotationDogOf(registration)
-  const before: RoundTask[] = dogRound(context.before, dog)
-  const after: RoundTask[] = dogRound(context.after, dog)
+  const before: ExerciseSlot[] = dogRound(context.before, dog)
+  const after: ExerciseSlot[] = dogRound(context.after, dog)
   if (!roundsDiffer(before, after)) return undefined
 
   const { dropped, kept } = reconcileRoundTasks(before, after, stored.tasks)
@@ -622,8 +670,11 @@ const recomputeFor = (registration: JsonRegistration, context: RecomputeContext)
   )
   if (sameEventResult(stored, eventResult)) return undefined
 
+  const recorded = dropped.filter(isRecordedTask)
   return {
-    dropped: dropped.filter(isRecordedTask),
+    dropped: recorded,
+    // What the secretary is told of is exercises: the parts of one exercise count once.
+    droppedExercises: new Set(recorded.map((task) => task.exercise)).size,
     eventResult,
     registration: { ...registration, eventResult: stored },
   }
@@ -632,11 +683,11 @@ const recomputeFor = (registration: JsonRegistration, context: RecomputeContext)
 const planRecompute = (registrations: readonly JsonRegistration[], context: RecomputeContext): RecomputedResult[] =>
   registrations.flatMap((registration) => recomputeFor(registration, context) ?? [])
 
-/** Each dropped score, named by its dog, its slot and the version it was recorded in. */
+/** Each dropped score, named by its dog, its exercise and the version it was recorded in. */
 const dropKeys = (plan: readonly RecomputedResult[]): string[] =>
   plan
     .flatMap(({ dropped, registration }) =>
-      dropped.map((task) => `${registration.id}|${task.stationId}#${task.index}|${task.updatedAt}`)
+      dropped.map((task) => `${registration.id}|${task.exercise}#${task.part}|${task.updatedAt}`)
     )
     .sort((a, b) => a.localeCompare(b, 'en'))
 
@@ -650,12 +701,12 @@ const droppedTasksBody = (plan: readonly RecomputedResult[]): ResultTasksDropped
   confirmation: dropConfirmation(dropKeys(plan)),
   dogs: plan
     .filter(({ dropped }) => dropped.length > 0)
-    .map(({ dropped, registration }) => {
+    .map(({ droppedExercises, registration }) => {
       const number = getRegistrationPlacement(registration)?.number
       return {
         id: registration.id,
         name: registration.dog.name ?? '',
-        tasks: dropped.length,
+        tasks: droppedExercises,
         ...(registration.class ? { class: registration.class } : {}),
         ...(number === undefined ? {} : { number }),
       }
@@ -673,8 +724,6 @@ const eventResultPatch = (stored: JsonEventResult, eventResult: JsonEventResult)
   return { ...eventResult, ...Object.fromEntries(removed.map((key) => [key, null])) }
 }
 
-const LAYOUT_CHANGED_MESSAGE = 'The results changed while the stations were saved; save again'
-
 /**
  * Writes one dog's recomputed result over the result it was recomputed from. A dog a post saved in the
  * meantime stops the save before the event is stored: saving again recomputes the dogs still different,
@@ -682,7 +731,7 @@ const LAYOUT_CHANGED_MESSAGE = 'The results changed while the stations were save
  */
 const writeRecomputed = async (
   eventId: string,
-  { dropped, eventResult, registration }: RecomputedResult,
+  { droppedExercises, eventResult, registration }: RecomputedResult,
   context: RecomputeContext
 ): Promise<Patch<JsonRegistration>> => {
   if (await isEventLocked(eventId)) throw httpError(423, { error: 'resultsLocked' })
@@ -696,7 +745,7 @@ const writeRecomputed = async (
     auditKey: registrationAuditKey({ eventId, id }),
     ...resultRecomputedAudit(
       auditResultText(eventResult, context.after.eventType, registration.class ?? undefined),
-      dropped.length
+      droppedExercises
     ),
     user: context.userName,
   })

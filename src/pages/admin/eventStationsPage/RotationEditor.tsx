@@ -7,7 +7,14 @@ import Typography from '@mui/material/Typography'
 import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { compareRegistrationClasses } from '@/lib/event'
-import { dayStations, formatStationArrivals, nextRotationGroup, rotationGroupDay } from '@/lib/rotation'
+import {
+  dayStations,
+  formatRotationGroup,
+  formatStationArrivals,
+  nextRotationGroup,
+  rotationGroupDay,
+  rotationWarnings,
+} from '@/lib/rotation'
 import { RotationRow } from './RotationRow'
 
 interface Props {
@@ -21,9 +28,10 @@ interface Props {
 }
 
 /**
- * The rotation of one day (KOE-1665): its groups, each a class or a range of its start numbers and the
- * posts it visits in order, and below them each post as the groups reach it. Without a group of its
- * own a class runs the day's posts in number order, which is what the page says while there is none.
+ * The running orders of one day (KOE-1665): its groups, each a class or a range of its start numbers and
+ * its exercises in order, a warning where a group has other than four or five, and below them each post
+ * as the groups reach it. Without a group of its own a class does one exercise at each of the day's
+ * posts in number order, which is what the page says while there is none.
  */
 export const RotationEditor = ({ day, event, disabled, heading, onChange }: Props) => {
   const { t } = useTranslation()
@@ -38,14 +46,33 @@ export const RotationEditor = ({ day, event, disabled, heading, onChange }: Prop
   )
   // Each with its place in the event's list, which is what an edit replaces. A group has no id, and a
   // key made of what it holds would change, and remount the row, with every digit typed into its range;
-  // its turn among the day's groups stays put while it is edited.
+  // its turn among the day's groups stays put while it is edited. A group with no exercise has no day,
+  // a group stored in dev before the running order among them: it shows on the first day, to be removed.
   const groups = useMemo(
     () =>
       rotations
         .map((group, index) => ({ group, index }))
-        .filter(({ group }) => rotationGroupDay(event, group) === day)
+        .filter(({ group }) => (rotationGroupDay(event, group) || event.startDate) === day)
         .map((item, turn) => ({ ...item, key: `${day}:${turn}` })),
     [day, event, rotations]
+  )
+  const warnings = useMemo(
+    () =>
+      rotationWarnings(event).flatMap((warning) => {
+        const group = rotations[warning.group]
+        return groups.some((item) => item.index === warning.group)
+          ? [
+              {
+                index: warning.group,
+                text: t('event.rotation.warning.exerciseCount', {
+                  count: warning.count,
+                  group: formatRotationGroup(group, t),
+                }),
+              },
+            ]
+          : []
+      }),
+    [event, groups, rotations, t]
   )
 
   if (stations.length === 0) return null
@@ -86,6 +113,18 @@ export const RotationEditor = ({ day, event, disabled, heading, onChange }: Prop
           stations={stations}
         />
       ))}
+      {warnings.length > 0 && (
+        <Stack spacing={0.25}>
+          <Typography variant="body2" sx={{ color: 'warning.dark' }}>
+            {t('event.rotation.warningsTitle')}
+          </Typography>
+          {warnings.map((warning) => (
+            <Typography key={warning.index} variant="body2" sx={{ color: 'warning.dark' }}>
+              {warning.text}
+            </Typography>
+          ))}
+        </Stack>
+      )}
       <div>
         <Button disabled={disabled || classes.length === 0} onClick={add} startIcon={<AddOutlined />}>
           {t('event.rotation.add')}

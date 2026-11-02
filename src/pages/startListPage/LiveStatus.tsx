@@ -9,13 +9,13 @@ import { useTranslation } from 'react-i18next'
 import { getEvent } from '../../api/event'
 import { useTickWhile } from '../../hooks/useTickWhile'
 import { isEventLive } from '../../lib/event'
-import { liveFormat, livePhaseLabel, stationDogsAtOnce, stationPhases } from '../../lib/liveFormat'
-import { scoresAtPosts } from '../../lib/results'
-import { stationQueueByGroup } from '../../lib/rotation'
+import { liveFormat, livePhaseLabel, scoresAtPosts, stationDogsAtOnce, stationPhases } from '../../lib/liveFormat'
+import { stationQueueEntries } from '../../lib/rotation'
 import {
   completedGroupTurns,
   currentPhase,
   dogsThrough,
+  exercisesThrough,
   isBreakTurn,
   isLiveNow,
   isWholeTurn,
@@ -35,12 +35,13 @@ const minutes = (ms: number) => Math.max(0, Math.round(ms / 60000))
 type LiveParticipant = SortableRegistration & { cancelled?: boolean }
 
 /**
- * The queue at a post, a part per rotation group with the dogs it brings and how many a turn of it
- * holds. Where the dogs go round posts, a post's queue is the dogs whose group visits it (KOE-1665);
- * elsewhere the post is the whole trial and the whole entry queues at it, as one part.
+ * The queue at a post, a part per group and exercise with the dogs it brings and how many a turn of it
+ * holds. Where the dogs go round posts, a post's queue is the dogs whose group does an exercise there, a
+ * group doing two coming twice (KOE-1665); elsewhere the post is the whole trial and the whole entry
+ * queues at it, as one part.
  *
  * Before a split class's numbers are published the rows carry none, so the class counts as its first
- * range's group (`stationQueueByGroup`); the numbers are out before the trial, so this is rare.
+ * range's group (`stationQueueEntries`); the numbers are out before the trial, so this is rare.
  */
 const stationQueueOf = (
   event: PublicConfirmedEvent,
@@ -51,7 +52,7 @@ const stationQueueOf = (
   if (!station || !scoresAtPosts(event.eventType)) {
     return [{ dogs: participants.length, dogsAtOnce: stationDogsAtOnce(event.eventType, station) }]
   }
-  return stationQueueByGroup(event, stationId, participants).map(({ registrations, visit }) => ({
+  return stationQueueEntries(event, stationId, participants).map(({ registrations, visit }) => ({
     dogs: registrations.length,
     dogsAtOnce: stationDogsAtOnce(event.eventType, visit),
   }))
@@ -81,7 +82,8 @@ const LiveStationCard = ({ event, stationId, turns, participants, single }: Stat
   const throughput = stationThroughput(turns, stationId)
   const queue = stationQueueOf(event, stationId, participants)
   const starters = queue.reduce((sum, group) => sum + group.dogs, 0)
-  const through = dogsThrough(turns, stationId)
+  // The queue holds a dog once for each exercise it does here; the card counts the dogs.
+  const through = exercisesThrough(turns, stationId)
   const wait = waitEstimate(throughput, queue, through, format.flow)
   // The last dog is through: the one thing left to say is when.
   const lastEnd = completed
@@ -141,7 +143,7 @@ const LiveStationCard = ({ event, stationId, turns, participants, single }: Stat
           color: 'text.secondary',
         }}
       >
-        {t('liveStatus.through', { count: through })}
+        {t('liveStatus.through', { count: dogsThrough(turns, stationId) })}
         {throughput
           ? ` · ${t('liveStatus.throughput', {
               max: minutes(throughput.maxMs),
@@ -182,7 +184,7 @@ export const LiveStatus = ({
 }: {
   readonly event: PublicConfirmedEvent
   /**
-   * The published start list: each dog placed in its rotation group by class, day and number, to count
+   * The published start list: each dog placed in its group by class, day and number, to count
    * how many dogs each post still has to get through and how many a turn of them holds.
    */
   readonly participants?: readonly LiveParticipant[]

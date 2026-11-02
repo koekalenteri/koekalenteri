@@ -132,6 +132,7 @@ describe('runMigrationLambda', () => {
     { count: roles, name: 'repointOrphanOrganizerRoles' },
     { count: 0, name: 'storeRegistrationDaysAsKeys' },
     { count: 0, name: 'storeOwnerSelections' },
+    { count: 0, name: 'storeScoresByExercise' },
     { count: 0, name: 'storeDogDaysAsKeys' },
     { count: 0, name: 'storeOrganizerStatsDaysAsKeys' },
   ]
@@ -654,7 +655,7 @@ describe('runMigrationLambda', () => {
       )
       expect(loggedLines(warn)).toEqual([
         expect.objectContaining({
-          message: 'migrations left rows as they were',
+          message: 'migrations skipped values they could not place or left rows as they were',
           skipped: [
             expect.objectContaining({
               ...skipped,
@@ -943,6 +944,7 @@ describe('runMigrationLambda', () => {
       'repointOrphanOrganizerRoles',
       'storeRegistrationDaysAsKeys',
       'storeOwnerSelections',
+      'storeScoresByExercise',
       'storeDogDaysAsKeys',
       'storeOrganizerStatsDaysAsKeys',
     ]
@@ -989,10 +991,10 @@ describe('runMigrationLambda', () => {
     it('records every migration of a forced run, with the hash of its code', async () => {
       await runMigrationLambda(event)
 
-      expect(mockMarkApplied).toHaveBeenCalledTimes(11)
+      expect(mockMarkApplied).toHaveBeenCalledTimes(12)
       expect(mockMarkApplied).toHaveBeenCalledWith('fixSeasonFromStartDate', 2, hashes.get('fixSeasonFromStartDate'))
       expect(mockMarkApplied).toHaveBeenCalledWith('populateUpdatedAt', 0, hashes.get('populateUpdatedAt'))
-      expect(new Set(hashes.values()).size).toBe(11)
+      expect(new Set(hashes.values()).size).toBe(12)
     })
 
     it('reads the registry once, for every migration in the code', async () => {
@@ -2182,6 +2184,276 @@ describe('runMigrationLambda', () => {
       expect(mockReadRegistration).toHaveBeenCalledWith('event1', 'reg1', true)
       expect(mockWriteMigratedRegistration).toHaveBeenCalledTimes(1)
       expect(mockResponse).toHaveBeenCalledWith(200, [{ count: 0, name: 'storeOwnerSelections' }], directEvent)
+    })
+  })
+
+  describe('the scores stored by post, rewritten by exercise (KOE-1665)', () => {
+    const directEvent = constructPartialAPIGwEvent({})
+    const day = '2026-09-12'
+    let hashes: Map<string, string>
+    const pendingOnly = (name: string) => new Map([...hashes].filter(([applied]) => applied !== name))
+
+    // Production's layout: four posts in number order, one exercise each, the second split in two
+    // (stored before KOE-1665 as `tasks: 2`). Without a running order the posts are done in number order.
+    const nowtEvent = {
+      classes: [{ class: 'ALO', date: day }],
+      eventType: 'NOWT',
+      id: 'event1',
+      startDate: day,
+      stations: [1, 2, 3, 4].map((number) => ({
+        date: day,
+        id: `post-${number}`,
+        number,
+        ...(number === 2 ? { tasks: 2 } : {}),
+      })),
+      updatedAt: 'kept',
+    }
+    const at = { updatedAt: '2026-09-12T10:00:00.000Z', updatedBy: 'Rasti' }
+    const byPost = (post: number, index: number, points: number) => ({
+      ...at,
+      index,
+      points,
+      stationId: `post-${post}`,
+    })
+    const byExercise = (exercise: number, part: number, points: number) => ({ ...at, exercise, part, points })
+    const row = (id: string, eventResult: Record<string, unknown>, fields: Record<string, unknown> = {}) => ({
+      class: 'ALO',
+      dog: { regNo: `FI${id}/21` },
+      eventId: 'event1',
+      eventResult: { ...at, ...eventResult },
+      eventType: 'NOWT',
+      group: { date: day, key: `${day}-ap`, number: 1 },
+      id,
+      ownerHandles: true,
+      ownerPays: true,
+      updatedAt: 'read',
+      ...fields,
+    })
+    /** The patch the migration wrote for a row: the fields it set, by path, and the ones it removed. */
+    const written = (id: string, set: Record<string, unknown>, remove?: string[]) =>
+      expect(mockWriteMigratedRegistration).toHaveBeenCalledWith(
+        'event1',
+        id,
+        { ...(remove ? { remove } : {}), set: { ...set, updatedAt: expect.not.stringMatching(/^read$/) } },
+        'read'
+      )
+
+    beforeEach(async () => {
+      hashes = new Map()
+      mockMarkApplied.mockImplementation(async (name: string, _count: number, hash: string) => {
+        hashes.set(name, hash)
+      })
+      mockReadAllEvents.mockResolvedValueOnce([])
+      await runMigrationLambda(event)
+      vi.clearAllMocks()
+      mockMarkApplied.mockResolvedValue(undefined)
+      mockReadApplied.mockResolvedValue(pendingOnly('storeScoresByExercise'))
+      mockReadAllDogs.mockResolvedValue([])
+      mockReadAllOrganizerEventStats.mockResolvedValue([])
+      mockReadOrganizers.mockResolvedValue([])
+      mockReadAllEvents.mockResolvedValue([nowtEvent, { eventType: 'NOME-B', id: 'event2', updatedAt: 'kept' }])
+      mockReadRegistrationEventIds.mockResolvedValue(['event1'])
+      mockWriteMigratedRegistration.mockResolvedValue(undefined)
+    })
+
+    it('rewrites each score by its exercise and part, through the layout it was stored under', async () => {
+      mockReadEventRegistrations.mockResolvedValueOnce([
+        row('reg1', {
+          tasks: [byPost(1, 0, 15), byPost(2, 0, 8), byPost(2, 1, 9), byPost(3, 0, 17), byPost(4, 0, 18)],
+        }),
+      ])
+
+      await runMigrationLambda(directEvent)
+
+      written('reg1', {
+        'eventResult.tasks': [
+          byExercise(1, 0, 15),
+          byExercise(2, 0, 8),
+          byExercise(2, 1, 9),
+          byExercise(3, 0, 17),
+          byExercise(4, 0, 18),
+        ],
+      })
+      expect(mockResponse).toHaveBeenCalledWith(200, [{ count: 1, name: 'storeScoresByExercise' }], directEvent)
+    })
+
+    it('reads a stop stored by post alone as the last exercise at that post, and converts a cancelled dog too', async () => {
+      mockReadEventRegistrations.mockResolvedValueOnce([
+        row('reg2', { retirement: { cause: 'injury', stationId: 'post-3' }, tasks: [byPost(1, 0, 12)] }),
+        row(
+          'reg3',
+          { elimination: { fault: 'hardMouth', stationId: 'post-4' }, tasks: [byPost(4, 0, 11)] },
+          { cancelled: true, group: { date: day, key: 'cancelled', number: 1 } }
+        ),
+      ])
+
+      await runMigrationLambda(directEvent)
+
+      written('reg2', { 'eventResult.retirement.exercise': 3, 'eventResult.tasks': [byExercise(1, 0, 12)] }, [
+        'eventResult.retirement.stationId',
+      ])
+      written('reg3', { 'eventResult.elimination.exercise': 4, 'eventResult.tasks': [byExercise(4, 0, 11)] }, [
+        'eventResult.elimination.stationId',
+      ])
+    })
+
+    it('leaves a row already stored by exercise, and a type not scored at posts, as they are', async () => {
+      mockReadRegistrationEventIds.mockResolvedValue(['event1', 'event2'])
+      mockReadEventRegistrations
+        .mockResolvedValueOnce([row('reg4', { tasks: [byExercise(1, 0, 15)] })])
+        .mockResolvedValueOnce([
+          row(
+            'reg5',
+            { result: 'ALO0', retirement: { cause: 'judgeStopped', stationId: 'post-1' } },
+            { eventId: 'event2', eventType: 'NOME-B' }
+          ),
+        ])
+
+      await runMigrationLambda(directEvent)
+
+      expect(mockWriteMigratedRegistration).not.toHaveBeenCalled()
+      expect(mockResponse).toHaveBeenCalledWith(200, [{ count: 0, name: 'storeScoresByExercise' }], directEvent)
+    })
+
+    /** The run's log line for its skipped rows. */
+    const skippedLog = (detail: Record<string, unknown>[], ids: string[]) => [
+      expect.objectContaining({ skipped: [{ count: ids.length, detail, ids, name: 'storeScoresByExercise' }] }),
+    ]
+
+    it('removes a score the layout cannot place and logs it with its values, and converts the rest of the row', async () => {
+      const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+      const unplaceable = {
+        ...byPost(9, 0, 10),
+        judge: { id: 7, name: 'Tuomari' },
+        recalled: true,
+        zeroFault: 'unknown',
+      }
+      mockReadEventRegistrations.mockResolvedValueOnce([row('reg6', { tasks: [byPost(1, 0, 15), unplaceable] })])
+
+      await runMigrationLambda(directEvent)
+
+      // The row holds only what reads by exercise; the score that cannot be placed is entered again by hand.
+      written('reg6', { 'eventResult.tasks': [byExercise(1, 0, 15)] })
+      expect(mockResponse).toHaveBeenCalledWith(
+        200,
+        [{ count: 1, name: 'storeScoresByExercise', skipped: { count: 1, ids: ['event1/reg6'] } }],
+        directEvent
+      )
+      expect(loggedLines(warn)).toEqual(
+        skippedLog(
+          [
+            {
+              class: 'ALO',
+              eventId: 'event1',
+              index: 0,
+              judge: 'Tuomari',
+              number: 1,
+              points: 10,
+              recalled: true,
+              registrationId: 'reg6',
+              stationId: 'post-9',
+              updatedAt: at.updatedAt,
+              zeroFault: 'unknown',
+            },
+          ],
+          ['event1/reg6']
+        )
+      )
+    })
+
+    it('converts a score beside a stop already stored by exercise, and leaves a stop with no place alone', async () => {
+      mockReadEventRegistrations.mockResolvedValueOnce([
+        row('reg11', { retirement: { cause: 'injury', exercise: 2 }, tasks: [byPost(1, 0, 12)] }),
+        row('reg12', { retirement: { cause: 'illness' }, tasks: [byPost(1, 0, 13)] }),
+      ])
+
+      await runMigrationLambda(directEvent)
+
+      written('reg11', { 'eventResult.tasks': [byExercise(1, 0, 12)] })
+      written('reg12', { 'eventResult.tasks': [byExercise(1, 0, 13)] })
+    })
+
+    it('logs a score of a dog with no class or start number by its ids alone, and only the values it had', async () => {
+      const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+      mockReadEventRegistrations.mockResolvedValueOnce([
+        row('reg13', { tasks: [byPost(9, 0, 10)] }, { class: undefined, group: { date: day, key: `${day}-ap` } }),
+      ])
+
+      await runMigrationLambda(directEvent)
+
+      written('reg13', { 'eventResult.tasks': [] })
+      expect(loggedLines(warn)).toEqual(
+        skippedLog(
+          [
+            {
+              eventId: 'event1',
+              index: 0,
+              points: 10,
+              registrationId: 'reg13',
+              stationId: 'post-9',
+              updatedAt: at.updatedAt,
+            },
+          ],
+          ['event1/reg13']
+        )
+      )
+    })
+
+    it('keeps the cause of a stop or an elimination at a post the round does not have, with no place, and logs it', async () => {
+      const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+      mockReadEventRegistrations.mockResolvedValueOnce([
+        row('reg9', { retirement: { cause: 'injury', stationId: 'post-9' } }),
+        row('reg10', { elimination: { fault: 'hardMouth', stationId: 'post-9' } }),
+      ])
+
+      await runMigrationLambda(directEvent)
+
+      written('reg9', {}, ['eventResult.retirement.stationId'])
+      written('reg10', {}, ['eventResult.elimination.stationId'])
+      expect(loggedLines(warn)).toEqual(
+        skippedLog(
+          [
+            {
+              class: 'ALO',
+              eventId: 'event1',
+              number: 1,
+              place: 'retirement',
+              registrationId: 'reg9',
+              stationId: 'post-9',
+            },
+            {
+              class: 'ALO',
+              eventId: 'event1',
+              number: 1,
+              place: 'elimination',
+              registrationId: 'reg10',
+              stationId: 'post-9',
+            },
+          ],
+          ['event1/reg9', 'event1/reg10']
+        )
+      )
+    })
+
+    // Between the deploy and this migration a post's save stores a score by exercise beside the one the
+    // row still holds by post for the same exercise.
+    it('keeps a score saved by exercise after the deploy over the older one stored by post, and reports neither', async () => {
+      const later = { ...byExercise(4, 0, 19), updatedAt: '2026-09-12T11:00:00.000Z' }
+      mockReadEventRegistrations.mockResolvedValueOnce([row('reg7', { tasks: [byPost(4, 0, 18), later] })])
+
+      await runMigrationLambda(directEvent)
+
+      written('reg7', { 'eventResult.tasks': [later] })
+      expect(mockResponse).toHaveBeenCalledWith(200, [{ count: 1, name: 'storeScoresByExercise' }], directEvent)
+    })
+
+    it('keeps the score stored by post where it is the later of the two', async () => {
+      const earlier = { ...byExercise(4, 0, 19), updatedAt: '2026-09-12T09:00:00.000Z' }
+      mockReadEventRegistrations.mockResolvedValueOnce([row('reg8', { tasks: [earlier, byPost(4, 0, 18)] })])
+
+      await runMigrationLambda(directEvent)
+
+      written('reg8', { 'eventResult.tasks': [byExercise(4, 0, 18)] })
     })
   })
 })

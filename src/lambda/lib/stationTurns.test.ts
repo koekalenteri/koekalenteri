@@ -57,6 +57,11 @@ describe('stationTurns', () => {
         registrationIds: [],
         type: 'start',
       })
+      expect(parseStationTurnOp({ exercise: 21, registrationIds: ['run-1'], type: 'start' })).toEqual({
+        exercise: 21,
+        registrationIds: ['run-1'],
+        type: 'start',
+      })
       expect(parseStationTurnOp({ index: 2, mark: 'eyeWipe', type: 'mark' })).toEqual({
         index: 2,
         mark: 'eyeWipe',
@@ -78,6 +83,9 @@ describe('stationTurns', () => {
       [{ index: -1, mark: 'gotRetrieve', type: 'mark' }],
       [{ index: 10, mark: 'gotRetrieve', type: 'mark' }],
       [{ mark: 'gotRetrieve', type: 'mark' }],
+      [{ exercise: 0, registrationIds: ['run-1'], type: 'start' }],
+      [{ exercise: 1.5, registrationIds: ['run-1'], type: 'start' }],
+      [{ exercise: '3', registrationIds: ['run-1'], type: 'start' }],
     ])('refuses %j with 422', (body) => {
       expect(() => parseStationTurnOp(body)).toThrow(expect.objectContaining({ status: 422 }))
     })
@@ -102,6 +110,18 @@ describe('stationTurns', () => {
           stationId: 'post-1',
         },
       ])
+    })
+
+    it('records the exercise a turn is for (KOE-1665)', () => {
+      const turns = applyStationTurnOp(
+        [],
+        [registration('run-1')],
+        'post-1',
+        { exercise: 4, registrationIds: ['run-1'], type: 'start' },
+        NOW
+      )
+
+      expect(turns[0]).toMatchObject({ exercise: 4, registrationIds: ['run-1'] })
     })
 
     it('closes the open span when the next thing starts, on this post only', () => {

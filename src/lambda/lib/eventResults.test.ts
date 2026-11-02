@@ -11,7 +11,7 @@ describe('eventResults', () => {
         judge,
         notes: 'not the link to say',
         resultCode: '1' as const,
-        tasks: [{ index: 0, points: 17, stationId: 'post-1' }],
+        tasks: [{ exercise: 1, part: 0, points: 17 }],
       },
       id: 'run-1',
       stationId: 'claimed-elsewhere',
@@ -22,7 +22,7 @@ describe('eventResults', () => {
         basedOn: 'v1',
         eventResult: {
           elimination: { fault: 'hardMouth' },
-          tasks: [{ index: 0, points: 17, stationId: 'post-1' }],
+          tasks: [{ exercise: 1, part: 0, points: 17 }],
         },
         id: 'run-1',
         stationId: 'post-1',
@@ -34,7 +34,7 @@ describe('eventResults', () => {
         elimination: { fault: 'hardMouth' },
         judge,
         resultCode: '1',
-        tasks: [{ index: 0, points: 17, stationId: 'post-1' }],
+        tasks: [{ exercise: 1, part: 0, points: 17 }],
       })
     })
   })

@@ -1,4 +1,4 @@
-import type { DroppedTasksDog } from '@/lib/results'
+import type { DroppedTasksDog } from '@/lib/resultTasks'
 import { ThemeProvider } from '@mui/material/styles'
 import { render } from 'vitest-browser-react'
 import theme from '@/assets/Theme'

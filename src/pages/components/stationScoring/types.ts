@@ -54,13 +54,13 @@ const normalizeEdit = (edit: ResultEdit) => ({
   tasks: edit.tasks
     .filter((task) => task.points !== null && task.points !== undefined)
     .map((task) => ({
-      index: task.index,
+      exercise: task.exercise,
       judge: task.judge?.id ?? null,
+      part: task.part,
       points: task.points,
-      stationId: task.stationId,
       zeroFault: task.zeroFault ?? null,
     }))
-    .sort((a, b) => a.stationId.localeCompare(b.stationId) || a.index - b.index),
+    .sort((a, b) => a.exercise - b.exercise || a.part - b.part),
 })
 
 /**

@@ -1,4 +1,4 @@
-import type { DayKey, DogEvent, EventRotationGroup, EventStation, Patch } from '@/types'
+import type { DayKey, DogEvent, EventExercise, EventRotationGroup, EventStation, Patch } from '@/types'
 import AddOutlined from '@mui/icons-material/AddOutlined'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
@@ -8,8 +8,8 @@ import { nanoid } from 'nanoid'
 import { memo, useCallback, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { getEventDays } from '@/lib/event'
-import { scoresAtPosts } from '@/lib/results'
-import { rotationGroupDay, stationParts } from '@/lib/rotation'
+import { scoresAtPosts } from '@/lib/liveFormat'
+import { groupExercises, rotationGroupDay, stationParts } from '@/lib/rotation'
 import { RotationEditor } from './RotationEditor'
 import { StationRow } from './StationRow'
 
@@ -42,27 +42,42 @@ const renumber = (stations: EventStation[]): EventStation[] => {
 
 /**
  * A post as this page saves it: its split under the name it has had since KOE-1665, the legacy
- * `tasks` read once and dropped, and a default task count of one left out.
+ * `tasks` read once and dropped. A count of exercises stored on a post in dev before the running order
+ * is dropped too: an exercise is the running order's now (KOE-1665).
  */
-const savedStation = ({ tasks, taskCount, ...station }: EventStation): EventStation => ({
-  ...station,
-  parts: stationParts({ parts: station.parts, tasks }),
-  ...(taskCount && taskCount > 1 ? { taskCount } : {}),
+const savedStation = ({ tasks, ...station }: EventStation & { taskCount?: number }): EventStation => {
+  const { taskCount: _dropped, ...rest } = station
+  return { ...rest, parts: stationParts({ parts: station.parts, tasks }) }
+}
+
+/**
+ * A group as this page saves it, in the shape of the running order: a group stored in dev before the
+ * exercises carries `posts`, which goes, and is saved without exercises until it is removed.
+ */
+const savedGroup = (
+  { class: eventClass, firstNumber, lastNumber }: EventRotationGroup,
+  exercises: EventExercise[]
+): EventRotationGroup => ({
+  class: eventClass,
+  exercises,
+  ...(firstNumber === undefined ? {} : { firstNumber }),
+  ...(lastNumber === undefined ? {} : { lastNumber }),
 })
 
 /**
- * The groups as this page saves them. A visit to a removed post goes, and so does a group left with no
- * visit or whose class no longer runs on the day of its posts.
+ * The groups as this page saves them. An exercise at a removed post goes, and so does a group left with
+ * no exercise by that or whose class no longer runs on the day of its posts.
  */
 const savedRotations = (event: StationsEditorEvent, rotations: EventRotationGroup[], stations: EventStation[]) =>
   rotations
-    .map((group) => {
-      const posts = group.posts.filter((post) => stations.some((station) => station.id === post.stationId))
-      return posts.length === group.posts.length ? group : { ...group, posts }
+    .flatMap((group) => {
+      const exercises = groupExercises(group)
+      const kept = exercises.filter((exercise) => stations.some((station) => station.id === exercise.stationId))
+      return exercises.length > 0 && kept.length === 0 ? [] : [savedGroup(group, kept)]
     })
     .filter((group) => {
-      if (group.posts.length === 0) return false
       const day = rotationGroupDay({ stations }, group)
+      if (!day) return true
       const classes = event.classes.filter((item) => item.date === day)
       return classes.length === 0 || classes.some((item) => item.class === group.class)
     })

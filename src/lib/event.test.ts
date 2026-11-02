@@ -1793,7 +1793,9 @@ describe('sanitizeDogEvent', () => {
   it('keeps the posts and the rotation groups public, for the start list tells handlers where to start (KOE-1665)', () => {
     const event = {
       id: 'event-1',
-      rotations: [{ class: 'ALO', firstNumber: 1, lastNumber: 8, posts: [{ stationId: 'post-1', taskCount: 2 }] }],
+      rotations: [
+        { class: 'ALO', exercises: [{ stationId: 'post-1' }, { stationId: 'post-1' }], firstNumber: 1, lastNumber: 8 },
+      ],
       stations: [{ date: '2026-09-12', id: 'post-1', number: 1, parts: 2 }],
     }
 

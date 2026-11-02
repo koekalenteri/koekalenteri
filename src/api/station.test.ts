@@ -27,13 +27,13 @@ const modelTurn = {
 }
 
 const wireResult = {
-  tasks: [{ index: 0, points: 10, stationId: '1', updatedAt: '2026-09-12T08:05:00.000Z', updatedBy: 'u' }],
+  tasks: [{ exercise: 1, part: 0, points: 10, updatedAt: '2026-09-12T08:05:00.000Z', updatedBy: 'u' }],
   updatedAt: '2026-09-12T08:05:00.000Z',
   updatedBy: 'u',
 }
 
 const modelResult = {
-  tasks: [{ index: 0, points: 10, stationId: '1', updatedAt: new Date('2026-09-12T08:05:00.000Z'), updatedBy: 'u' }],
+  tasks: [{ exercise: 1, part: 0, points: 10, updatedAt: new Date('2026-09-12T08:05:00.000Z'), updatedBy: 'u' }],
   updatedAt: new Date('2026-09-12T08:05:00.000Z'),
   updatedBy: 'u',
 }

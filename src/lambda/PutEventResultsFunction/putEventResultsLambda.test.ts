@@ -89,8 +89,7 @@ const registration = (id: string, eventClass: JsonRegistration['class'] = 'AVO',
     id,
   })
 
-const scores = (...points: number[]) =>
-  points.map((value, index) => ({ index: 0, points: value, stationId: `post-${index + 1}` }))
+const scores = (...points: number[]) => points.map((value, index) => ({ exercise: index + 1, part: 0, points: value }))
 
 describe('putEventResultsLambda', () => {
   beforeEach(() => {
@@ -147,7 +146,7 @@ describe('putEventResultsLambda', () => {
   it("scores a dog against its rotation group's own split of a post (KOE-1665)", async () => {
     mockGetAuthorizedEvent.mockResolvedValue({
       ...nowtEvent,
-      rotations: [{ class: 'ALO', posts: [{ parts: 2, stationId: 'post-1' }] }],
+      rotations: [{ class: 'ALO', exercises: [{ parts: 2, stationId: 'post-1' }] }],
     })
     mockReadEventRegistrations.mockResolvedValue([registration('reg-1', 'ALO')])
 
@@ -156,8 +155,8 @@ describe('putEventResultsLambda', () => {
         {
           eventResult: {
             tasks: [
-              { index: 0, points: 9, stationId: 'post-1' },
-              { index: 1, points: 8, stationId: 'post-1' },
+              { exercise: 1, part: 0, points: 9 },
+              { exercise: 1, part: 1, points: 8 },
             ],
           },
           id: 'reg-1',
@@ -168,21 +167,21 @@ describe('putEventResultsLambda', () => {
     expect(savedResult()).toMatchObject({ maxPoints: 20, points: 17 })
   })
 
-  it("scores two tasks at a post at 20 each, and refuses a slot outside the dog's group (KOE-1665)", async () => {
+  it("scores two exercises at a post at 20 each, and refuses an exercise outside the dog's group (KOE-1665)", async () => {
     mockGetAuthorizedEvent.mockResolvedValue({
       ...nowtEvent,
       rotations: [
         {
           class: 'AVO',
+          exercises: [{ stationId: 'post-2' }, { stationId: 'post-1' }, { stationId: 'post-1' }],
           firstNumber: 1,
           lastNumber: 8,
-          posts: [{ stationId: 'post-2' }, { stationId: 'post-1', taskCount: 2 }],
         },
         {
           class: 'AVO',
+          exercises: [{ stationId: 'post-1' }, { stationId: 'post-2' }, { stationId: 'post-2' }],
           firstNumber: 9,
           lastNumber: 16,
-          posts: [{ stationId: 'post-1' }, { stationId: 'post-2', taskCount: 2 }],
         },
       ],
     })
@@ -193,9 +192,9 @@ describe('putEventResultsLambda', () => {
         {
           eventResult: {
             tasks: [
-              { index: 0, points: 18, stationId: 'post-2' },
-              { index: 0, points: 17, stationId: 'post-1' },
-              { index: 1, points: 16, stationId: 'post-1' },
+              { exercise: 1, points: 18 },
+              { exercise: 2, points: 17 },
+              { exercise: 3, points: 16 },
             ],
           },
           id: 'reg-1',
@@ -205,10 +204,8 @@ describe('putEventResultsLambda', () => {
     expect(savedResult()).toMatchObject({ maxPoints: 60, points: 51, result: 'AVO1' })
 
     await expect(
-      putEventResultsLambda(
-        apiEvent([{ eventResult: { tasks: [{ index: 1, points: 10, stationId: 'post-1' }] }, id: 'reg-2' }])
-      )
-    ).rejects.toThrow('Task post-1#1 is not part of the round')
+      putEventResultsLambda(apiEvent([{ eventResult: { tasks: [{ exercise: 4, points: 10 }] }, id: 'reg-2' }]))
+    ).rejects.toThrow('Task exercise 4#0 is not part of the round')
   })
 
   it('publishes the start list only after every result is written (KOE-1516)', async () => {
@@ -344,12 +341,103 @@ describe('putEventResultsLambda', () => {
     expect(mockUpdateRegistrationField).not.toHaveBeenCalled()
   })
 
+  it.each([0, 1.5, '3'])('refuses a retirement exercise of %j', async (exercise) => {
+    await expect(
+      putEventResultsLambda(
+        apiEvent([{ eventResult: { retirement: { cause: 'injury', exercise }, tasks: [] }, id: 'reg-1' }])
+      )
+    ).rejects.toThrow('Malformed retirement exercise')
+  })
+
+  it('stores the exercise a round ended at (KOE-1665)', async () => {
+    const retirement = { cause: 'injury' as const, exercise: 3 }
+    await putEventResultsLambda(apiEvent([{ eventResult: { retirement, tasks: scores(17, 18, 16, 14) }, id: 'reg-1' }]))
+
+    expect(mockUpdateRegistrationField).toHaveBeenCalledWith(
+      'event-1',
+      'reg-1',
+      'eventResult',
+      expect.objectContaining({ retirement })
+    )
+  })
+
+  describe('where a round ended, by the way the type is scored (KOE-1665)', () => {
+    it('keeps only the exercise of a round scored by exercise, whatever post a page sent beside it', async () => {
+      await putEventResultsLambda(
+        apiEvent([
+          {
+            eventResult: { retirement: { cause: 'injury', exercise: 3, stationId: 'post-1' }, tasks: [] },
+            id: 'reg-1',
+          },
+        ])
+      )
+      await putEventResultsLambda(
+        apiEvent([
+          {
+            eventResult: { elimination: { exercise: 2, fault: 'hardMouth', stationId: 'post-1' }, tasks: [] },
+            id: 'reg-1',
+          },
+        ])
+      )
+
+      expect(mockUpdateRegistrationField).toHaveBeenNthCalledWith(
+        1,
+        'event-1',
+        'reg-1',
+        'eventResult',
+        expect.objectContaining({ retirement: { cause: 'injury', exercise: 3 } })
+      )
+      expect(mockUpdateRegistrationField).toHaveBeenNthCalledWith(
+        2,
+        'event-1',
+        'reg-1',
+        'eventResult',
+        expect.objectContaining({ elimination: { exercise: 2, fault: 'hardMouth' } })
+      )
+    })
+
+    it('keeps only the post of a type judged as a whole at its posts', async () => {
+      mockGetAuthorizedEvent.mockResolvedValue({ ...nowtEvent, eventType: 'NOME-B' })
+      await putEventResultsLambda(
+        apiEvent([
+          {
+            eventResult: { resultCode: '0', retirement: { cause: 'judgeStopped', exercise: 3, stationId: 'post-1' } },
+            id: 'reg-1',
+          },
+        ])
+      )
+      await putEventResultsLambda(
+        apiEvent([
+          {
+            eventResult: { elimination: { exercise: 2, fault: 'aggression', stationId: 'post-2' }, resultCode: '-' },
+            id: 'reg-1',
+          },
+        ])
+      )
+
+      expect(mockUpdateRegistrationField).toHaveBeenNthCalledWith(
+        1,
+        'event-1',
+        'reg-1',
+        'eventResult',
+        expect.objectContaining({ retirement: { cause: 'judgeStopped', stationId: 'post-1' } })
+      )
+      expect(mockUpdateRegistrationField).toHaveBeenNthCalledWith(
+        2,
+        'event-1',
+        'reg-1',
+        'eventResult',
+        expect.objectContaining({ elimination: { fault: 'aggression', stationId: 'post-2' } })
+      )
+    })
+  })
+
   it('caps a recalled task at its halved ceiling', async () => {
     await expect(
       putEventResultsLambda(
         apiEvent([
           {
-            eventResult: { tasks: [{ index: 0, points: 11, recalled: true, stationId: 'post-1' }] },
+            eventResult: { tasks: [{ exercise: 1, points: 11, recalled: true }] },
             id: 'reg-1',
           },
         ])
@@ -359,17 +447,13 @@ describe('putEventResultsLambda', () => {
 
   it('refuses a task naming a slot outside the round', async () => {
     await expect(
-      putEventResultsLambda(
-        apiEvent([{ eventResult: { tasks: [{ index: 0, points: 10, stationId: 'post-9' }] }, id: 'reg-1' }])
-      )
+      putEventResultsLambda(apiEvent([{ eventResult: { tasks: [{ exercise: 9, points: 10 }] }, id: 'reg-1' }]))
     ).rejects.toThrow('not part of the round')
   })
 
   it('stores a zero whose reason is not known as its own code (KOE-1664)', async () => {
     await putEventResultsLambda(
-      apiEvent([
-        { eventResult: { tasks: [{ index: 0, points: 0, stationId: 'post-1', zeroFault: 'unknown' }] }, id: 'reg-1' },
-      ])
+      apiEvent([{ eventResult: { tasks: [{ exercise: 1, points: 0, zeroFault: 'unknown' }] }, id: 'reg-1' }])
     )
 
     expect(savedResult()).toMatchObject({ tasks: [expect.objectContaining({ points: 0, zeroFault: 'unknown' })] })
@@ -378,9 +462,7 @@ describe('putEventResultsLambda', () => {
   it('refuses a zero fault the list does not know', async () => {
     await expect(
       putEventResultsLambda(
-        apiEvent([
-          { eventResult: { tasks: [{ index: 0, points: 0, stationId: 'post-1', zeroFault: 'guess' }] }, id: 'reg-1' },
-        ])
+        apiEvent([{ eventResult: { tasks: [{ exercise: 1, points: 0, zeroFault: 'guess' }] }, id: 'reg-1' }])
       )
     ).rejects.toThrow("Unknown zero fault 'guess'")
 
@@ -578,10 +660,11 @@ describe('putEventResultsLambda', () => {
   })
 
   describe('parallel entry by post', () => {
-    const scoredAt = (stationId: string, points: number, updatedAt: string, updatedBy: string) => ({
-      index: 0,
+    // Without a running order of its own the day's posts are done in number order: post n is exercise n.
+    const scoredAt = (exercise: number, points: number, updatedAt: string, updatedBy: string) => ({
+      exercise,
+      part: 0,
       points,
-      stationId,
       updatedAt,
       updatedBy,
     })
@@ -595,18 +678,16 @@ describe('putEventResultsLambda', () => {
       ])
 
     it("keeps another post's scores when one post saves its own", async () => {
-      withStored(scoredAt('post-1', 17, '2026-09-12T10:00:00.000Z', 'Rasti 1'))
+      withStored(scoredAt(1, 17, '2026-09-12T10:00:00.000Z', 'Rasti 1'))
 
       await putEventResultsLambda(
-        apiEvent([
-          { eventResult: { tasks: [{ index: 0, points: 18, stationId: 'post-3' }] }, id: 'reg-1', stationId: 'post-3' },
-        ])
+        apiEvent([{ eventResult: { tasks: [{ exercise: 3, points: 18 }] }, id: 'reg-1', stationId: 'post-3' }])
       )
 
       const stored = mockUpdateRegistrationField.mock.calls[0][3]
       expect(stored.tasks).toEqual([
-        expect.objectContaining({ points: 17, stationId: 'post-1' }),
-        expect.objectContaining({ points: 18, stationId: 'post-3' }),
+        expect.objectContaining({ exercise: 1, points: 17 }),
+        expect.objectContaining({ exercise: 3, part: 0, points: 18 }),
       ])
       expect(stored.points).toBe(35)
     })
@@ -614,12 +695,10 @@ describe('putEventResultsLambda', () => {
     it('does not call two posts scoring the same dog a conflict', async () => {
       // Post 3 saved last, so the whole result is newer than anything post 1 ever saw. Versioning the
       // result rather than the post would reject post 1's first save as stale.
-      withStored(scoredAt('post-3', 18, '2026-09-12T11:00:00.000Z', 'Rasti 3'))
+      withStored(scoredAt(3, 18, '2026-09-12T11:00:00.000Z', 'Rasti 3'))
 
       await putEventResultsLambda(
-        apiEvent([
-          { eventResult: { tasks: [{ index: 0, points: 17, stationId: 'post-1' }] }, id: 'reg-1', stationId: 'post-1' },
-        ])
+        apiEvent([{ eventResult: { tasks: [{ exercise: 1, points: 17 }] }, id: 'reg-1', stationId: 'post-1' }])
       )
 
       expect(mockUpdateRegistrationField).toHaveBeenCalledTimes(1)
@@ -629,13 +708,13 @@ describe('putEventResultsLambda', () => {
     })
 
     it('reports a conflict only when the same post was rescored by someone else', async () => {
-      withStored(scoredAt('post-1', 17, '2026-09-12T11:00:00.000Z', 'Joku muu'))
+      withStored(scoredAt(1, 17, '2026-09-12T11:00:00.000Z', 'Joku muu'))
 
       await putEventResultsLambda(
         apiEvent([
           {
             basedOn: '2026-09-12T10:00:00.000Z',
-            eventResult: { tasks: [{ index: 0, points: 12, stationId: 'post-1' }] },
+            eventResult: { tasks: [{ exercise: 1, points: 12 }] },
             id: 'reg-1',
             stationId: 'post-1',
           },
@@ -651,12 +730,10 @@ describe('putEventResultsLambda', () => {
     })
 
     it('treats a post resending what it already stored as nothing new', async () => {
-      withStored(scoredAt('post-1', 17, '2026-09-12T10:00:00.000Z', 'Rasti 1'))
+      withStored(scoredAt(1, 17, '2026-09-12T10:00:00.000Z', 'Rasti 1'))
 
       await putEventResultsLambda(
-        apiEvent([
-          { eventResult: { tasks: [{ index: 0, points: 17, stationId: 'post-1' }] }, id: 'reg-1', stationId: 'post-1' },
-        ])
+        apiEvent([{ eventResult: { tasks: [{ exercise: 1, points: 17 }] }, id: 'reg-1', stationId: 'post-1' }])
       )
 
       expect(mockUpdateRegistrationField).not.toHaveBeenCalled()
@@ -667,15 +744,15 @@ describe('putEventResultsLambda', () => {
     it('saves an elimination that arrives with the task list unchanged', async () => {
       // A dog can be thrown out before or after its post scored: the outcome is then the whole save,
       // and task equality alone must not make it read as a retry that changes nothing.
-      withStored(scoredAt('post-1', 17, '2026-09-12T10:00:00.000Z', 'Rasti 1'))
+      withStored(scoredAt(1, 17, '2026-09-12T10:00:00.000Z', 'Rasti 1'))
 
       await putEventResultsLambda(
         apiEvent([
           {
             basedOn: '2026-09-12T10:00:00.000Z',
             eventResult: {
-              elimination: { fault: 'aggression', stationId: 'post-1' },
-              tasks: [{ index: 0, points: 17, stationId: 'post-1' }],
+              elimination: { exercise: 1, fault: 'aggression' },
+              tasks: [{ exercise: 1, points: 17 }],
             },
             id: 'reg-1',
             stationId: 'post-1',
@@ -685,21 +762,23 @@ describe('putEventResultsLambda', () => {
 
       expect(mockUpdateRegistrationField).toHaveBeenCalledTimes(1)
       expect(mockUpdateRegistrationField.mock.calls[0][3]).toMatchObject({
-        elimination: { fault: 'aggression', stationId: 'post-1' },
+        elimination: { exercise: 1, fault: 'aggression' },
         result: 'AVO-',
       })
     })
 
-    it("ignores tasks a post submits for somebody else's post", async () => {
-      withStored(scoredAt('post-2', 20, '2026-09-12T10:00:00.000Z', 'Rasti 2'))
+    it("refuses a post's save that carries another post's exercise, and writes nothing (KOE-1665)", async () => {
+      withStored(scoredAt(2, 20, '2026-09-12T10:00:00.000Z', 'Rasti 2'))
 
+      // A page opened before the running order changed would send an exercise the post no longer does: it
+      // is told the layout changed rather than told it saved what was left out.
       await putEventResultsLambda(
         apiEvent([
           {
             eventResult: {
               tasks: [
-                { index: 0, points: 17, stationId: 'post-1' },
-                { index: 0, points: 1, stationId: 'post-2' },
+                { exercise: 1, points: 17 },
+                { exercise: 2, points: 1 },
               ],
             },
             id: 'reg-1',
@@ -708,19 +787,30 @@ describe('putEventResultsLambda', () => {
         ])
       )
 
-      // Post 2 keeps its own 20; the stray task is dropped rather than overwriting it.
-      expect(mockUpdateRegistrationField.mock.calls[0][3].tasks).toEqual([
-        expect.objectContaining({ points: 20, stationId: 'post-2' }),
-        expect.objectContaining({ points: 17, stationId: 'post-1' }),
-      ])
+      expect(mockResponse).toHaveBeenCalledWith(409, expect.objectContaining({ error: 'staleData' }), expect.anything())
+
+      expect(mockUpdateRegistrationField).not.toHaveBeenCalled()
+    })
+  })
+
+  describe('a score address the round cannot hold (KOE-1665)', () => {
+    it.each([
+      ['a negative part', { exercise: 1, part: -1 }],
+      ['a part that is not a whole number', { exercise: 1, part: 0.5 }],
+      ['exercise 0', { exercise: 0 }],
+    ])('refuses %s', async (_name, address) => {
+      await expect(
+        putEventResultsLambda(apiEvent([{ eventResult: { tasks: [{ ...address, points: 10 }] }, id: 'reg-1' }]))
+      ).rejects.toThrow('Malformed task')
     })
   })
 
   describe('one user entering a whole round, dog by dog', () => {
-    const scoredAt = (stationId: string, points: number, updatedAt: string, updatedBy: string) => ({
-      index: 0,
+    // Without a running order of its own the day's posts are done in number order: post n is exercise n.
+    const scoredAt = (exercise: number, points: number, updatedAt: string, updatedBy: string) => ({
+      exercise,
+      part: 0,
       points,
-      stationId,
       updatedAt,
       updatedBy,
     })
@@ -737,7 +827,7 @@ describe('putEventResultsLambda', () => {
         {
           ...registration('reg-1'),
           eventResult: {
-            tasks: [scoredAt('post-1', 17, '2026-09-12T10:00:00.000Z', 'Rasti 1')],
+            tasks: [scoredAt(1, 17, '2026-09-12T10:00:00.000Z', 'Rasti 1')],
             updatedAt: '2026-09-12T10:00:00.000Z',
             updatedBy: 'Rasti 1',
           },
@@ -757,7 +847,7 @@ describe('putEventResultsLambda', () => {
         {
           ...registration('reg-1'),
           eventResult: {
-            tasks: [scoredAt('post-1', 17, '2026-09-12T10:00:00.000Z', 'Rasti 1')],
+            tasks: [scoredAt(1, 17, '2026-09-12T10:00:00.000Z', 'Rasti 1')],
             updatedAt: '2026-09-12T10:00:00.000Z',
             updatedBy: 'Rasti 1',
           },
@@ -782,7 +872,7 @@ describe('putEventResultsLambda', () => {
         apiEvent([
           {
             basedOn: afterRound.tasks[2].updatedAt,
-            eventResult: { tasks: [{ index: 0, points: 20, stationId: 'post-3' }] },
+            eventResult: { tasks: [{ exercise: 3, points: 20 }] },
             id: 'reg-1',
             stationId: 'post-3',
           },
@@ -798,16 +888,14 @@ describe('putEventResultsLambda', () => {
   describe('scoring one dog at a time at the post', () => {
     it('lets the secretary correct a dog they just scored', async () => {
       await putEventResultsLambda(
-        apiEvent([
-          { eventResult: { tasks: [{ index: 0, points: 17, stationId: 'post-2' }] }, id: 'reg-1', stationId: 'post-2' },
-        ])
+        apiEvent([{ eventResult: { tasks: [{ exercise: 2, points: 17 }] }, id: 'reg-1', stationId: 'post-2' }])
       )
 
       // Everything the next save needs is in the response: without it the secretary conflicts with
       // their own work, and a venue with a bad connection cannot fall back on the WebSocket.
       const [, first] = mockResponse.mock.calls[0]
       const version = first.saved[0].eventResult.tasks.find(
-        (task: { stationId: string }) => task.stationId === 'post-2'
+        (task: { exercise: number }) => task.exercise === 2
       ).updatedAt
 
       mockReadEventRegistrations.mockResolvedValue([
@@ -820,7 +908,7 @@ describe('putEventResultsLambda', () => {
         apiEvent([
           {
             basedOn: version,
-            eventResult: { tasks: [{ index: 0, points: 15, stationId: 'post-2' }] },
+            eventResult: { tasks: [{ exercise: 2, points: 15 }] },
             id: 'reg-1',
             stationId: 'post-2',
           },
@@ -885,26 +973,28 @@ describe('putEventResultsLambda', () => {
     })
   })
 
-  it('keeps the post an elimination happened at', async () => {
+  it('keeps the exercise an elimination happened at (KOE-1665)', async () => {
+    const elimination = { exercise: 2, fault: 'hardMouth' as const }
     await putEventResultsLambda(
-      apiEvent([
-        {
-          eventResult: {
-            elimination: { fault: 'hardMouth', stationId: 'post-3' },
-            tasks: [{ index: 0, points: 17, stationId: 'post-1' }],
-          },
-          id: 'reg-1',
-        },
-      ])
+      apiEvent([{ eventResult: { elimination, tasks: [{ exercise: 1, points: 17 }] }, id: 'reg-1' }])
     )
 
-    const stored = mockUpdateRegistrationField.mock.calls[0][3]
+    // Which post threw the dog out is worth knowing, and it is lost the moment only the fault is kept. A
+    // round that ended early keeps what a post had already scored, as every ended round does (KOE-1669).
+    expect(mockUpdateRegistrationField).toHaveBeenCalledWith(
+      'event-1',
+      'reg-1',
+      'eventResult',
+      expect.objectContaining({ elimination, points: 17, result: 'AVO-' })
+    )
+  })
 
-    // Which post threw the dog out is worth knowing, and it is lost the moment only the fault is kept.
-    expect(stored.elimination).toEqual({ fault: 'hardMouth', stationId: 'post-3' })
-    expect(stored.result).toBe('AVO-')
-    // A round that ended early keeps what a post had already scored, as every ended round does (KOE-1669).
-    expect(stored.points).toBe(17)
+  it.each([0, 1.5, '3'])('refuses an elimination exercise of %j', async (exercise) => {
+    await expect(
+      putEventResultsLambda(
+        apiEvent([{ eventResult: { elimination: { exercise, fault: 'hardMouth' }, tasks: [] }, id: 'reg-1' }])
+      )
+    ).rejects.toThrow('Malformed elimination exercise')
   })
   describe('a trial handed to the chief judge', () => {
     const handedOver = { ...nowtEvent, kcState: { code: 1253, name: 'Ylituomarin hyväksyttäväksi', readAt: 'x' } }
