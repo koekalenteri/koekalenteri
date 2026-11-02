@@ -4,7 +4,7 @@ import type { PublicConfirmedEvent } from '../types/Event'
 import type { PublicRegistration } from '../types/Registration'
 import { dayParts } from './day'
 import { formatDogName } from './dog'
-import { formatResultMarks } from './results'
+import { formatResultMarks, shownTotals } from './results'
 
 /**
  * The response header that carries a fetched start list's version: the server time taken just
@@ -62,6 +62,9 @@ export function startListSpreadsheetRows(
       t('startListExport.handler'),
       t('startListExport.breeder'),
       t('startListExport.result'),
+      t('startListExport.points'),
+      t('startListExport.maxPoints'),
+      t('startListExport.percentage'),
       t('startListExport.marks'),
       t('results.column.placement'),
     ],
@@ -74,7 +77,7 @@ export function startListSpreadsheetRows(
             registration.class ?? '',
             registration.group.number ?? '',
             t('startList.absent'),
-            ...Array.from({ length: 10 }, () => ''),
+            ...Array.from({ length: 13 }, () => ''),
           ]
         : [
             spreadsheetDay(registration.group.date ?? event.startDate),
@@ -90,12 +93,19 @@ export function startListSpreadsheetRows(
             registration.ownerHandles ? registration.owner : registration.handler,
             registration.breeder,
             registration.result ?? '',
+            ...totalsCells(registration),
             // Koiranet keeps these apart from the result, and so does the sheet someone types into it.
             formatResultMarks(registration.marks, t),
             registration.placement ?? '',
           ]
     ),
   ]
+}
+
+/** The points, the maximum and the percentage as the result line shows them, or three empty cells. */
+function totalsCells(registration: PublicRegistration): (number | string)[] {
+  const shown = shownTotals(registration)
+  return shown ? [shown.points, shown.maxPoints, shown.percentage] : ['', '', '']
 }
 
 /** A day as the sheet library takes one: the host's local noon of it, since it writes a Date's local day parts. */

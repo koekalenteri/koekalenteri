@@ -126,13 +126,24 @@ it('greys a working-order number in the preview and flags it beside a drawn one'
   await expect(screen.getByTestId('visual-root')).toMatchScreenshot('start-list-preview-number-pending')
 })
 
-/** The row with its published result. */
+/**
+ * The row with its published working test result: the code, the points against the maximum with the
+ * whole percentage, and the rank (KOE-1673).
+ */
+const awarded: PublicRegistration = {
+  ...registration,
+  maxPoints: 80,
+  percentage: 81.25,
+  placement: 2,
+  points: 65,
+}
+
 const renderResultRow = () =>
   render(
     <Frame>
       <Table>
         <TableBody>
-          <RegistrationDetails index={0} registration={registration} />
+          <RegistrationDetails index={0} registration={awarded} />
         </TableBody>
       </Table>
     </Frame>
@@ -141,7 +152,7 @@ const renderResultRow = () =>
 it('publishes the result on its own line under the start list row', async () => {
   const screen = await renderResultRow()
 
-  await expect.element(screen.getByText('AVO1')).toBeVisible()
+  await expect.element(screen.getByText('AVO1 65/80 p 81 % Sija 2')).toBeVisible()
   await expect(screen.getByTestId('visual-root')).toMatchScreenshot('start-list-result')
 })
 
@@ -150,7 +161,7 @@ describeInLanguage('en', () => {
   it('publishes the result on its own line under the start list row', async () => {
     const screen = await renderResultRow()
 
-    await expect.element(screen.getByText('AVO1')).toBeVisible()
+    await expect.element(screen.getByText('AVO1 65/80 pts 81% Place 2')).toBeVisible()
     await expect.element(screen.getByText(/owner & handler/)).toBeVisible()
     await expect(screen.getByTestId('visual-root')).toMatchScreenshot('start-list-result-en')
   })
@@ -159,8 +170,16 @@ describeInLanguage('en', () => {
 it("carries a judge's stop beside the result, on the same line", async () => {
   // KOE-1300: the nought on its own says the dog was judged and went unplaced, which is not what
   // happened. "Kesk." is Koiranet's lisämerkintä, and it belongs where the result is rather than in a
-  // note somewhere else — the breeding database prints the pair the same way.
-  const stopped: PublicRegistration = { ...registration, marks: ['interrupted'], result: 'AVO0' }
+  // note somewhere else: the breeding database prints the pair the same way. What the round earned
+  // before the stop comes between the two, as Kennelliitto publishes it (KOE-1669, KOE-1673).
+  const stopped: PublicRegistration = {
+    ...registration,
+    marks: ['interrupted'],
+    maxPoints: 80,
+    percentage: 28.75,
+    points: 23,
+    result: 'AVO0',
+  }
 
   const screen = await render(
     <Frame>
@@ -172,6 +191,6 @@ it("carries a judge's stop beside the result, on the same line", async () => {
     </Frame>
   )
 
-  await expect.element(screen.getByText('AVO0 Kesk.')).toBeVisible()
+  await expect.element(screen.getByText('AVO0 23/80 p 29 % Kesk.')).toBeVisible()
   await expect(screen.getByTestId('visual-root')).toMatchScreenshot('start-list-result-interrupted')
 })

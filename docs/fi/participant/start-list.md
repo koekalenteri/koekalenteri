@@ -52,9 +52,11 @@ lopullinen toisen ollessa vielä aakkosjärjestyksessä.
 Kun järjestäjä on julkaissut luokan tulokset, jokaisen koirakon rivin viimeinen rivi on sen
 tulos: luokka ja palkintosija, esimerkiksi AVO1, tai nolla ja viiva sääntöjen mukaan. Jos tuomari
 keskeytti kokeen, myös koiran loukkaantumisen tai sairastumisen vuoksi, tuloksen perässä on merkintä
-*{t:results.marks.interrupted}*. Ohjaajan oma keskeytys ei saa merkintää. Työkokeessa (NOWT) palkitun koiran
-rivillä näkyy myös sen sija luokassa sinä päivänä, esimerkiksi *Sija 2*; samat pisteet saaneet
-jakavat sijan. Tulokset
+*{t:results.marks.interrupted}*. Ohjaajan oma keskeytys ei saa merkintää. Työkokeessa (NOWT) tuloksen
+perässä ovat koiran pisteet kierroksen enimmäispisteistä ja prosentti kokonaislukuna, esimerkiksi
+*AVO1 65/80 p 81 %*. Kesken jääneellä kierroksella ne ovat siihen asti ansaitut pisteet, nollan tai
+viivan perässä. Palkitun koiran rivillä näkyy myös sen sija luokassa sinä päivänä, esimerkiksi
+*Sija 2*; samat pisteet saaneet jakavat sijan. Tulokset
 julkaistaan luokittain, ja useampipäiväisessä kokeessa päivä kerrallaan, joten sivulla voi olla
 luokkia, joiden tulokset ovat jo näkyvissä, ja luokkia, joilla ei vielä ole niitä.
 

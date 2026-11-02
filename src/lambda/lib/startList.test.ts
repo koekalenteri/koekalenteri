@@ -1,3 +1,4 @@
+import type { JsonEventResult } from '../../types'
 import { vi } from 'vitest'
 import { asJsonConfirmedEvent, asJsonRegistration, eventNotFound } from '../test-utils/helpers'
 
@@ -254,6 +255,94 @@ describe('readPublishedStartList (KOE-1516)', () => {
 
       expect(participants).toHaveLength(1)
       expect(participants[0]).not.toHaveProperty('placement')
+    })
+  })
+
+  describe('totals (KOE-1673)', () => {
+    // Two posts of one exercise each, worth 20 apiece, so the dog's round is worth 40.
+    const scoredEvent = {
+      ...publishedEvent,
+      classes: [{ class: 'ALO', state: 'ended' as const }],
+      eventType: 'NOWT',
+      resultsPublished: { ALO: true },
+      state: 'ended' as const,
+      stations: [1, 2].map((number) => ({ date: '2025-01-01', id: `post-${number}`, number })),
+    }
+    const at = { updatedAt: '2025-01-01T09:00:00.000Z', updatedBy: 'Sihteeri' }
+    const scoredRow = (eventResult: JsonEventResult, eventType = 'NOWT') =>
+      asJsonRegistration({
+        ...registration,
+        eventResult,
+        eventType,
+        group: { date: '2025-01-01', key: 'participants', number: 1 },
+      })
+    const awarded: JsonEventResult = { ...at, maxPoints: 40, percentage: 82.5, points: 33, result: 'ALO1' }
+
+    it('publishes the points, the maximum and the percentage with the result', async () => {
+      mockGetLiveEvent.mockResolvedValue(scoredEvent)
+      mockReadEventRegistrations.mockResolvedValue([scoredRow(awarded)])
+
+      const { participants } = await readPublishedStartList('event-1')
+
+      expect(participants).toEqual([
+        expect.objectContaining({ maxPoints: 40, percentage: 82.5, placement: 1, points: 33, result: 'ALO1' }),
+      ])
+    })
+
+    it('withholds them where the results are not published', async () => {
+      mockGetLiveEvent.mockResolvedValue({ ...scoredEvent, resultsPublished: { ALO: false } })
+      mockReadEventRegistrations.mockResolvedValue([scoredRow(awarded)])
+
+      const { participants } = await readPublishedStartList('event-1')
+
+      expect(participants).toHaveLength(1)
+      for (const key of ['points', 'maxPoints', 'percentage']) expect(participants[0]).not.toHaveProperty(key)
+    })
+
+    it('works out what a round that ended early earned when it was stored without totals (KOE-1669)', async () => {
+      mockGetLiveEvent.mockResolvedValue(scoredEvent)
+      mockReadEventRegistrations.mockResolvedValue([
+        scoredRow({
+          ...at,
+          result: 'ALO-',
+          retirement: { cause: 'injury', exercise: 2 },
+          tasks: [{ ...at, exercise: 1, part: 0, points: 12 }],
+        }),
+      ])
+
+      const { participants } = await readPublishedStartList('event-1')
+
+      expect(participants).toEqual([
+        expect.objectContaining({ marks: ['interrupted'], maxPoints: 40, percentage: 30, points: 12, result: 'ALO-' }),
+      ])
+    })
+
+    it('publishes none for a dog whose round has no result yet', async () => {
+      mockGetLiveEvent.mockResolvedValue(scoredEvent)
+      mockReadEventRegistrations.mockResolvedValue([
+        scoredRow({
+          ...at,
+          maxPoints: 40,
+          percentage: 50,
+          points: 20,
+          tasks: [{ ...at, exercise: 1, part: 0, points: 20 }],
+        }),
+      ])
+
+      const { participants } = await readPublishedStartList('event-1')
+
+      expect(participants).toHaveLength(1)
+      for (const key of ['points', 'maxPoints', 'percentage']) expect(participants[0]).not.toHaveProperty(key)
+    })
+
+    it('publishes none for a type not scored at posts', async () => {
+      mockGetLiveEvent.mockResolvedValue({ ...scoredEvent, eventType: 'NOME-B' })
+      mockReadEventRegistrations.mockResolvedValue([scoredRow({ ...at, result: 'ALO1' }, 'NOME-B')])
+
+      const { participants } = await readPublishedStartList('event-1')
+
+      expect(participants).toEqual([expect.objectContaining({ result: 'ALO1' })])
+      for (const key of ['points', 'maxPoints', 'percentage']) expect(participants[0]).not.toHaveProperty(key)
     })
   })
 })
