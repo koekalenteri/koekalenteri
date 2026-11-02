@@ -337,6 +337,19 @@ describe('readPublishedStartList (KOE-1516)', () => {
       for (const key of ['points', 'maxPoints', 'percentage']) expect(participants[0]).not.toHaveProperty(key)
     })
 
+    it('publishes none for a round without a maximum', async () => {
+      // What a scored type stores when its round has no scorable exercise: totals of nothing.
+      mockGetLiveEvent.mockResolvedValue(scoredEvent)
+      mockReadEventRegistrations.mockResolvedValue([
+        scoredRow({ ...at, maxPoints: 0, percentage: 0, points: 0, result: 'ALO0' }),
+      ])
+
+      const { participants } = await readPublishedStartList('event-1')
+
+      expect(participants).toEqual([expect.objectContaining({ result: 'ALO0' })])
+      for (const key of ['points', 'maxPoints', 'percentage']) expect(participants[0]).not.toHaveProperty(key)
+    })
+
     it('publishes none for a type not scored at posts', async () => {
       // Tasks and totals a qualitative row never holds, so neither the fill-in nor the publication may
       // read them: only a type scored at posts has totals to show.
