@@ -285,6 +285,70 @@ describe('putEventResultsLambda', () => {
     })
   })
 
+  it('stores and audits an ill dog as a dash with what it earned, naming the cause (KOE-1669)', async () => {
+    const retirement = { cause: 'illness' as const }
+    await putEventResultsLambda(apiEvent([{ eventResult: { retirement, tasks: scores(17, 18, 16, 14) }, id: 'reg-1' }]))
+
+    expect(mockUpdateRegistrationField).toHaveBeenCalledWith(
+      'event-1',
+      'reg-1',
+      'eventResult',
+      expect.objectContaining({ maxPoints: 80, points: 65, result: 'AVO-', retirement })
+    )
+    expect(mockAudit).toHaveBeenCalledWith({
+      auditKey: 'event-1:reg-1',
+      messageKey: 'audit.messages.resultSavedDetail',
+      messageParams: { result: 'AVO-, 65/80 p, koira sairastui' },
+      user: 'Sihteeri',
+    })
+  })
+
+  it('rejects an empty submission without touching anything', async () => {
+    await putEventResultsLambda(apiEvent([]))
+
+    expect(mockResponse).toHaveBeenCalledWith(422, 'no results', expect.anything())
+    // The event itself is read first — parsing validates against its round — but nothing is written.
+    expect(mockReadEventRegistrations).not.toHaveBeenCalled()
+    expect(mockUpdateRegistrationField).not.toHaveBeenCalled()
+  })
+
+  it('strips fields the result schema does not know rather than storing them', async () => {
+    await putEventResultsLambda(
+      apiEvent([
+        {
+          eventResult: { cert: 'totta kai', junk: 'x', ownerNotes: { nested: true }, tasks: scores(17, 18, 16, 14) },
+          id: 'reg-1',
+        },
+      ])
+    )
+
+    // The stored item must not be writable by whatever a request chooses to put in it: this write
+    // path is shared with the widely shared tokenized station link (KOE-1258).
+    expect(savedResult()).not.toHaveProperty('junk')
+    expect(savedResult()).not.toHaveProperty('ownerNotes')
+    // A cert claim that is not a boolean is noise, not a certificate.
+    expect(savedResult()).not.toHaveProperty('cert')
+    expect(savedResult()).toMatchObject({ points: 65, result: 'AVO1' })
+  })
+
+  it('refuses points beyond what the task can hold', async () => {
+    // The totals are recomputed, but a recomputation happily sums 30 on a 20-point task into an
+    // unearned prize — the range is the server's to enforce.
+    await expect(
+      putEventResultsLambda(apiEvent([{ eventResult: { tasks: scores(30, 10, 10, 10) }, id: 'reg-1' }]))
+    ).rejects.toThrow('out of range')
+
+    expect(mockUpdateRegistrationField).not.toHaveBeenCalled()
+  })
+
+  it.each([0, 1.5, '3'])('refuses a retirement exercise of %j', async (exercise) => {
+    await expect(
+      putEventResultsLambda(
+        apiEvent([{ eventResult: { retirement: { cause: 'injury', exercise }, tasks: [] }, id: 'reg-1' }])
+      )
+    ).rejects.toThrow('Malformed retirement exercise')
+  })
+
   it('stores the exercise a round ended at (KOE-1665)', async () => {
     const retirement = { cause: 'injury' as const, exercise: 3 }
     await putEventResultsLambda(apiEvent([{ eventResult: { retirement, tasks: scores(17, 18, 16, 14) }, id: 'reg-1' }]))

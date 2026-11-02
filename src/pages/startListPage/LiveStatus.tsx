@@ -9,8 +9,7 @@ import { useTranslation } from 'react-i18next'
 import { getEvent } from '../../api/event'
 import { useTickWhile } from '../../hooks/useTickWhile'
 import { isEventLive } from '../../lib/event'
-import { liveFormat, livePhaseLabel, stationDogsAtOnce, stationPhases } from '../../lib/liveFormat'
-import { scoresAtPosts } from '../../lib/resultTasks'
+import { liveFormat, livePhaseLabel, scoresAtPosts, stationDogsAtOnce, stationPhases } from '../../lib/liveFormat'
 import { stationQueueEntries } from '../../lib/rotation'
 import {
   completedGroupTurns,

@@ -19,11 +19,6 @@ import { isObject } from './utils'
  */
 const TASK_MAX_POINTS = 20
 
-/** Event types scored at posts. Everything else is judged qualitatively and has no tasks. */
-const POST_SCORED_EVENT_TYPES = new Set(['NOWT', 'NOWT SM'])
-
-export const scoresAtPosts = (eventType?: string): boolean => POST_SCORED_EVENT_TYPES.has(eventType ?? '')
-
 /** A task's points split evenly between its parts, so the parts always add up to the task. */
 export const partMaxPoints = (parts: 1 | 2): number => TASK_MAX_POINTS / parts
 
@@ -155,7 +150,7 @@ export const holdsScore = (slot: TaskAddress, task: TaskAddress): boolean =>
   slot.exercise === task.exercise && slot.part === task.part
 
 /** The later of two writes. A `Date` on the client, the ISO string it was stored as on the server. */
-const writtenLater = (a: { updatedAt?: string | Date }, b: { updatedAt?: string | Date }): boolean =>
+export const writtenLater = (a: { updatedAt?: string | Date }, b: { updatedAt?: string | Date }): boolean =>
   new Date(a.updatedAt ?? 0).getTime() > new Date(b.updatedAt ?? 0).getTime()
 
 /**
@@ -166,19 +161,29 @@ const writtenLater = (a: { updatedAt?: string | Date }, b: { updatedAt?: string 
 export const isRecordedTask = (task: Pick<JsonEventResultTask, 'points' | 'recalled' | 'zeroFault'>): boolean =>
   task.points !== null || Boolean(task.zeroFault) || Boolean(task.recalled)
 
-/** A round's slots by exercise and part. */
-const slotsByAddress = (round: readonly ExerciseSlot[]) => new Map(round.map((slot) => [addressKey(slot), slot]))
+/** How each exercise and part of a round is split, by address. */
+const partsByAddress = (round: readonly ExerciseSlot[]) => new Map(round.map((slot) => [addressKey(slot), slot.parts]))
+
+/**
+ * Whether a score at an address reads the same in the new round as in the old: the new round has its
+ * exercise and part, split the same way. An address the old round lacks never reads the same.
+ */
+const readsTheSame = (before: readonly ExerciseSlot[], after: readonly ExerciseSlot[]) => {
+  const was = partsByAddress(before)
+  const now = partsByAddress(after)
+  return (address: TaskAddress) => {
+    const parts = now.get(addressKey(address))
+    return parts !== undefined && parts === was.get(addressKey(address))
+  }
+}
 
 /**
  * Whether a dog's round scores differently after a change of the posts, the rotation or the classes
  * (KOE-1666): another number of exercises, or an exercise split another way. A score stays with its
  * exercise, so which post does an exercise, and in which order the posts come, is no difference.
  */
-export const roundsDiffer = (before: readonly ExerciseSlot[], after: readonly ExerciseSlot[]): boolean => {
-  if (before.length !== after.length) return true
-  const next = slotsByAddress(after)
-  return before.some((slot) => next.get(addressKey(slot))?.parts !== slot.parts)
-}
+export const roundsDiffer = (before: readonly ExerciseSlot[], after: readonly ExerciseSlot[]): boolean =>
+  before.length !== after.length || !before.every(readsTheSame(before, after))
 
 /**
  * The stored scores a new round keeps, and the ones it drops (KOE-1666, KOE-1665): a score stays where
@@ -191,24 +196,12 @@ export const reconcileRoundTasks = <T extends TaskAddress>(
   after: readonly ExerciseSlot[],
   tasks: readonly T[] | undefined
 ): { kept: T[]; dropped: T[] } => {
-  const previous = slotsByAddress(before)
-  const next = slotsByAddress(after)
+  const keeps = readsTheSame(before, after)
   const kept: T[] = []
   const dropped: T[] = []
-  for (const task of tasks ?? []) {
-    const parts = next.get(addressKey(task))?.parts
-    if (parts !== undefined && parts === previous.get(addressKey(task))?.parts) kept.push(task)
-    else dropped.push(task)
-  }
+  for (const task of tasks ?? []) (keeps(task) ? kept : dropped).push(task)
   return { dropped, kept }
 }
-
-/**
- * How many exercises some scores are of: the parts of one exercise count once. What the secretary is
- * told of dropped scores is exercises.
- */
-export const exercisesScored = (tasks: readonly Pick<JsonEventResultTask, 'exercise'>[]): number =>
-  new Set(tasks.map((task) => task.exercise)).size
 
 /** A dog that would lose recorded scores to a change of the posts, as the secretary is asked about it. */
 export interface DroppedTasksDog {

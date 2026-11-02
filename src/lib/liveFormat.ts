@@ -1,6 +1,11 @@
 import type { TFunction } from 'i18next'
 import type { EventStation, LiveMark } from '../types'
 
+/** Event types scored at posts. Everything else is judged qualitatively and has no tasks. */
+const POST_SCORED_EVENT_TYPES = new Set(['NOWT', 'NOWT SM'])
+
+export const scoresAtPosts = (eventType?: string): boolean => POST_SCORED_EVENT_TYPES.has(eventType ?? '')
+
 /**
  * How an event type runs its day at a post (KOE-1259, phase 4).
  *

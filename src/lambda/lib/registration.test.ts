@@ -57,6 +57,7 @@ const {
   applyOwnerOverrides,
   authorizeRegistrationEdit,
   authorizeRegistrationRead,
+  createRegistrationPatch,
   deriveRegistrationEditToken,
   getLastEmail,
   findClassesToMark,
@@ -86,6 +87,18 @@ const asRegistrationsByClass = (data: Record<string, DeepPartial<JsonRegistratio
   data as Record<string, JsonRegistration[]>
 const asRegistrationsByClassAndGroup = (data: Record<string, Record<string, DeepPartial<JsonRegistration>[]>>) =>
   data as Record<string, Record<string, JsonRegistration[]>>
+
+describe('createRegistrationPatch', () => {
+  it('sends what changed of a registration it had before', () => {
+    const stored = asJsonRegistration({ eventId: 'e1', id: 'r1', internalNotes: 'call' })
+
+    expect(createRegistrationPatch({ ...stored, internalNotes: 'done' }, stored)).toEqual({
+      eventId: 'e1',
+      id: 'r1',
+      internalNotes: 'done',
+    })
+  })
+})
 
 describe('createSentRegistrationMessagesAudit', () => {
   afterEach(() => vi.clearAllMocks())

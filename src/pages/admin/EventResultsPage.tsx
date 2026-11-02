@@ -35,21 +35,14 @@ import { localizedEventName } from '../../lib/event'
 import { liveViewEnabled } from '../../lib/features'
 import { makeArray } from '../../lib/judge'
 import { countSentResults } from '../../lib/kennelliittoResults'
-import { IMPLICIT_STATION_ID, liveFormat } from '../../lib/liveFormat'
+import { IMPLICIT_STATION_ID, liveFormat, scoresAtPosts } from '../../lib/liveFormat'
 import {
   getRegistrationClass,
   isScorableRegistration,
   sortRegistrationsByDateClassTimeAndNumber,
 } from '../../lib/registration'
 import { placementsFor } from '../../lib/results'
-import {
-  dogRound,
-  exercisePostsOf,
-  exercisesAtPost,
-  roundColumns,
-  scoresAtPosts,
-  stationVersion,
-} from '../../lib/resultTasks'
+import { dogRound, exercisePostsOf, exercisesAtPost, roundColumns, stationVersion } from '../../lib/resultTasks'
 import { dayStations, rotationDogOf } from '../../lib/rotation'
 import { Path } from '../../routeConfig'
 import { AsyncButton } from '../components/AsyncButton'

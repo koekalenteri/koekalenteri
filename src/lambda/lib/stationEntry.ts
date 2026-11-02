@@ -11,10 +11,10 @@ import type {
   StationVisitLayout,
 } from '../../types'
 import { isResultsLocked } from '../../lib/kennelliittoResults'
-import { resolveStation } from '../../lib/liveFormat'
+import { resolveStation, scoresAtPosts } from '../../lib/liveFormat'
 import { isScorableRegistration } from '../../lib/registration'
 import { stationDogsInOrder } from '../../lib/results'
-import { scoresAtPosts, stationExercises, stationTasks } from '../../lib/resultTasks'
+import { stationExercises, stationTasks } from '../../lib/resultTasks'
 import { linkedEventProjection } from './event'
 import { LambdaError } from './lambda'
 import { DEFAULT_LINK_TOKEN_VERSION, deriveLinkToken, getBearerToken, linkTokensMatch } from './linkToken'

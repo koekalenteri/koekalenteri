@@ -30,7 +30,7 @@ import { reportError } from '@/lib/client/error'
 import { errorSnackbarOptions } from '@/lib/client/snackbar'
 import { compareRegistrationClasses } from '@/lib/event'
 import { makeArray } from '@/lib/judge'
-import { liveFormat } from '@/lib/liveFormat'
+import { liveFormat, scoresAtPosts } from '@/lib/liveFormat'
 import { getRegistrationClass } from '@/lib/registration'
 import { formatTaskName, parseEventResultCode } from '@/lib/results'
 import {
@@ -39,7 +39,6 @@ import {
   endedBefore,
   exercisesAtPost,
   holdsScore,
-  scoresAtPosts,
   stationVersion,
   visitSlots,
 } from '@/lib/resultTasks'
@@ -243,7 +242,7 @@ export function StationScoring({
 
   /**
    * A place in the queue this post has already scored, so the judge can see at a glance who is still to
-   * come: the dog's score for the exercise of that place, or its stop here where the dog has no visit. A place
+   * come: the dog's score for the exercise of that place; a dog with no visit here has none. A place
    * whose exercise is the one the round ended at is done too, its outcome recorded there, and one after it
    * is never reached (KOE-1669).
    */
@@ -253,7 +252,7 @@ export function StationScoring({
       if (qualitative) return Boolean(stored?.result ?? stored?.elimination ?? stored?.retirement)
       const { retirement } = stored ?? {}
       const { visit: place } = dog
-      if (!place) return retirement?.stationId === station.id
+      if (!place) return false
       const endedAt = endedAtExercise(retirement, place.exercisePosts)
       if (endedAt !== undefined && place.exercise >= endedAt) return true
       const slots = visitSlots(station.id, place)

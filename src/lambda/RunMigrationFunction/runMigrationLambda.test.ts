@@ -2315,32 +2315,86 @@ describe('runMigrationLambda', () => {
       expect(mockResponse).toHaveBeenCalledWith(200, [{ count: 0, name: 'storeScoresByExercise' }], directEvent)
     })
 
-    it('reports a score the layout cannot place instead of dropping it, and converts the rest of the row', async () => {
+    /** The run's log line for its skipped rows. */
+    const skippedLog = (detail: Record<string, unknown>[], ids: string[]) => [
+      expect.objectContaining({ skipped: [{ count: ids.length, detail, ids, name: 'storeScoresByExercise' }] }),
+    ]
+
+    it('removes a score the layout cannot place and logs it with its values, and converts the rest of the row', async () => {
       const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
-      mockReadEventRegistrations.mockResolvedValueOnce([row('reg6', { tasks: [byPost(1, 0, 15), byPost(9, 0, 10)] })])
+      const unplaceable = {
+        ...byPost(9, 0, 10),
+        judge: { id: 7, name: 'Tuomari' },
+        recalled: true,
+        zeroFault: 'unknown',
+      }
+      mockReadEventRegistrations.mockResolvedValueOnce([row('reg6', { tasks: [byPost(1, 0, 15), unplaceable] })])
 
       await runMigrationLambda(directEvent)
 
-      written('reg6', { 'eventResult.tasks': [byExercise(1, 0, 15), byPost(9, 0, 10)] })
+      // The row holds only what reads by exercise; the score that cannot be placed is entered again by hand.
+      written('reg6', { 'eventResult.tasks': [byExercise(1, 0, 15)] })
       expect(mockResponse).toHaveBeenCalledWith(
         200,
         [{ count: 1, name: 'storeScoresByExercise', skipped: { count: 1, ids: ['event1/reg6'] } }],
         directEvent
       )
-      expect(loggedLines(warn)).toEqual([
-        expect.objectContaining({
-          skipped: [
+      expect(loggedLines(warn)).toEqual(
+        skippedLog(
+          [
             {
-              count: 1,
-              detail: [
-                { class: 'ALO', eventId: 'event1', index: 0, number: 1, registrationId: 'reg6', stationId: 'post-9' },
-              ],
-              ids: ['event1/reg6'],
-              name: 'storeScoresByExercise',
+              class: 'ALO',
+              eventId: 'event1',
+              index: 0,
+              judge: 'Tuomari',
+              number: 1,
+              points: 10,
+              recalled: true,
+              registrationId: 'reg6',
+              stationId: 'post-9',
+              updatedAt: at.updatedAt,
+              zeroFault: 'unknown',
             },
           ],
-        }),
+          ['event1/reg6']
+        )
+      )
+    })
+
+    it('keeps the cause of a stop or an elimination at a post the round does not have, with no place, and logs it', async () => {
+      const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+      mockReadEventRegistrations.mockResolvedValueOnce([
+        row('reg9', { retirement: { cause: 'injury', stationId: 'post-9' } }),
+        row('reg10', { elimination: { fault: 'hardMouth', stationId: 'post-9' } }),
       ])
+
+      await runMigrationLambda(directEvent)
+
+      written('reg9', {}, ['eventResult.retirement.stationId'])
+      written('reg10', {}, ['eventResult.elimination.stationId'])
+      expect(loggedLines(warn)).toEqual(
+        skippedLog(
+          [
+            {
+              class: 'ALO',
+              eventId: 'event1',
+              number: 1,
+              place: 'retirement',
+              registrationId: 'reg9',
+              stationId: 'post-9',
+            },
+            {
+              class: 'ALO',
+              eventId: 'event1',
+              number: 1,
+              place: 'elimination',
+              registrationId: 'reg10',
+              stationId: 'post-9',
+            },
+          ],
+          ['event1/reg9', 'event1/reg10']
+        )
+      )
     })
 
     // Between the deploy and this migration a post's save stores a score by exercise beside the one the

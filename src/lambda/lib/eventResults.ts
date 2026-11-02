@@ -15,6 +15,7 @@ import { resultRecomputedAudit, resultSavedAudit } from '../../lib/audit'
 import { objectsDiffer } from '../../lib/diff'
 import { makeArray } from '../../lib/judge'
 import { isResultsLocked } from '../../lib/kennelliittoResults'
+import { scoresAtPosts } from '../../lib/liveFormat'
 import { getRegistrationPlacement, isScorableRegistration } from '../../lib/registration'
 import {
   availableResultCodes,
@@ -27,14 +28,12 @@ import {
 } from '../../lib/results'
 import {
   dogRound,
-  exercisesScored,
   holdsScore,
   isRecordedTask,
   mergeStationTasks,
   reconcileRoundTasks,
   roundsDiffer,
   sameStationTasks,
-  scoresAtPosts,
   stationExercises,
   stationVersion,
 } from '../../lib/resultTasks'
@@ -241,6 +240,15 @@ const pickExercise = (value: unknown, what: string): { exercise?: number } => {
   return { exercise: value }
 }
 
+/**
+ * Where a round ended: the exercise where the round is scored by exercise (KOE-1665), a number from 1 or
+ * none, and the post for a type judged as a whole at posts.
+ */
+const pickPlace = (value: Record<string, unknown>, eventType: string, what: string) => {
+  if (scoresAtPosts(eventType)) return pickExercise(value.exercise, what)
+  return typeof value.stationId === 'string' ? { stationId: value.stationId } : {}
+}
+
 const pickElimination = (value: unknown, eventType: string): EventResultElimination => {
   if (!isRecord(value)) throw new LambdaError(422, 'Malformed elimination')
 
@@ -251,14 +259,13 @@ const pickElimination = (value: unknown, eventType: string): EventResultEliminat
 
   return {
     fault,
-    ...(typeof value.stationId === 'string' ? { stationId: value.stationId } : {}),
-    ...pickExercise(value.exercise, 'elimination'),
+    ...pickPlace(value, eventType, 'elimination'),
   }
 }
 
 const RETIREMENT_CAUSES = ['handlerChoice', 'injury', 'illness', 'judgeStopped'] as const
 
-const pickRetirement = (value: unknown): EventResultRetirement => {
+const pickRetirement = (value: unknown, eventType: string): EventResultRetirement => {
   if (!isRecord(value)) throw new LambdaError(422, 'Malformed retirement')
 
   const cause = RETIREMENT_CAUSES.find((item) => item === value.cause)
@@ -267,8 +274,7 @@ const pickRetirement = (value: unknown): EventResultRetirement => {
   return {
     cause,
     ...(typeof value.couldStillHavePlaced === 'boolean' ? { couldStillHavePlaced: value.couldStillHavePlaced } : {}),
-    ...(typeof value.stationId === 'string' ? { stationId: value.stationId } : {}),
-    ...pickExercise(value.exercise, 'retirement'),
+    ...pickPlace(value, eventType, 'retirement'),
   }
 }
 
@@ -302,7 +308,7 @@ const pickSubmittedResult = (
     ...(typeof value.cert === 'boolean' ? { cert: value.cert } : {}),
     ...(typeof value.resCert === 'boolean' ? { resCert: value.resCert } : {}),
     ...(value.elimination != null ? { elimination: pickElimination(value.elimination, eventType) } : {}),
-    ...(value.retirement != null ? { retirement: pickRetirement(value.retirement) } : {}),
+    ...(value.retirement != null ? { retirement: pickRetirement(value.retirement, eventType) } : {}),
     ...(judge ? { judge } : {}),
     ...(typeof value.notes === 'string' ? { notes: value.notes } : {}),
   }
@@ -667,7 +673,8 @@ const recomputeFor = (registration: JsonRegistration, context: RecomputeContext)
   const recorded = dropped.filter(isRecordedTask)
   return {
     dropped: recorded,
-    droppedExercises: exercisesScored(recorded),
+    // What the secretary is told of is exercises: the parts of one exercise count once.
+    droppedExercises: new Set(recorded.map((task) => task.exercise)).size,
     eventResult,
     registration: { ...registration, eventResult: stored },
   }

@@ -16,6 +16,7 @@ import type { SortableRegistration } from './registration'
 import type { ExerciseSlot, ScoredTask } from './resultTasks'
 import type { RotationEvent } from './rotation'
 import { objectsDiffer } from './diff'
+import { scoresAtPosts } from './liveFormat'
 import {
   getRegistrationClass,
   getRegistrationGroupDay,
@@ -23,7 +24,7 @@ import {
   isScorableRegistration,
   sortRegistrationsByDateClassTimeAndNumber,
 } from './registration'
-import { dogRound, scoresAtPosts, toScoredTasks } from './resultTasks'
+import { dogRound, toScoredTasks } from './resultTasks'
 import { rotationDogOf, stationQueue } from './rotation'
 
 /**

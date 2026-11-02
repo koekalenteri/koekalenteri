@@ -64,7 +64,7 @@ interface Migration<T> {
   run: (row: T, context: MigrationContext) => MigrationOutcome
   skipped?: (rows: T[], context: MigrationContext) => SkippedRows
   /** Whether `run` reads the row's event from the context. */
-  needsEvents?: true
+  needsEvents?: boolean
 }
 
 const eventMigrations: Migration<JsonDogEvent>[] = [
@@ -274,14 +274,17 @@ const registrationMigrations: Migration<JsonRegistration>[] = [
     // KOE-1665: a score stored at its post and its place there becomes its exercise and part, read
     // through the dog's round of the event's stored layout, and a stop or an elimination stored by post
     // alone becomes the last exercise at that post (`storeScoresByExercise`). A score the layout cannot
-    // place is left as stored and reported with the dog's class and number, so it can be entered again.
+    // place is removed and logged with its values and the dog's class and number, so it can be entered
+    // again. The rule's version is the literal argument: a correction bumps it, and so reruns this.
     name: 'storeScoresByExercise',
     needsEvents: true,
-    run: (registration, { events }) => storeScoresByExercise(registration, events.get(registration.eventId)).changed,
+    run: (registration, { events }) => storeScoresByExercise(registration, events.get(registration.eventId), 1).changed,
+    // A migration answers only whether it changed a row, and its skips are read off the rows as read, so
+    // the rows are converted again here, on copies, for what could not be placed.
     skipped: (registrations, { events }) => {
       const detail = registrations.flatMap(
         (registration) =>
-          storeScoresByExercise(structuredClone(registration), events.get(registration.eventId)).unplaced
+          storeScoresByExercise(structuredClone(registration), events.get(registration.eventId), 1).unplaced
       )
       return {
         detail,
@@ -669,8 +672,8 @@ const pendingRuns = async (applied: Map<string, string | undefined>) => {
   const pendingUsers = pendingOf(userTable, applied)
   const pendingRegistrations = pendingOf(registrationTable, applied)
   const repoints = Boolean(pendingEvents || pendingUsers)
-  const needsEvents = repoints || readsEvents(pendingRegistrations)
-  const events = needsEvents ? await readAllEvents(true) : []
+  const readEvents = repoints || readsEvents(pendingRegistrations)
+  const events = readEvents ? await readAllEvents(true) : []
   // The repoint decides from the live events, as before the day migrations read the deleted ones too:
   // a deleted event's name must not split an orphan id's match. A deleted event on a matched id moves
   // with the live ones; one on an id with no live event stays as it is, unreported.

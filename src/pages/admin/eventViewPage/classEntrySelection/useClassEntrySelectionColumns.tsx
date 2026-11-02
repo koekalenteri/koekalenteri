@@ -17,6 +17,7 @@ import { useCallback, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { breedAbbreviation } from '@/lib/dog'
 import { eventDayKey, isEventOngoing, isEventOver, registrationDatesOutsideClass } from '@/lib/event'
+import { scoresAtPosts } from '@/lib/liveFormat'
 import { getPaymentPicture } from '@/lib/payment'
 import {
   GROUP_KEY_CANCELLED,
@@ -27,7 +28,6 @@ import {
   isPredefinedReason,
 } from '@/lib/registration'
 import { placementsFor, shownEventResult } from '@/lib/results'
-import { scoresAtPosts } from '@/lib/resultTasks'
 import { isConfirmedEvent } from '@/lib/typeGuards'
 import GroupColors from './GroupColors'
 import RegistrationIcons from './RegistrationIcons'

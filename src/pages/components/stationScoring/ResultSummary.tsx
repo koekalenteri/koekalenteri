@@ -5,6 +5,7 @@ import MenuItem from '@mui/material/MenuItem'
 import TextField from '@mui/material/TextField'
 import Typography from '@mui/material/Typography'
 import { useTranslation } from 'react-i18next'
+import { scoresAtPosts } from '@/lib/liveFormat'
 import {
   availableResultCodes,
   deriveNowtResult,
@@ -13,7 +14,7 @@ import {
   resultMarks,
   shownEventResult,
 } from '@/lib/results'
-import { scoresAtPosts, toScoredTasks } from '@/lib/resultTasks'
+import { toScoredTasks } from '@/lib/resultTasks'
 import { withResultCode } from './types'
 
 interface Props {
