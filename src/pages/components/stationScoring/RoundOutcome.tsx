@@ -45,9 +45,6 @@ const RETIREMENTS = ['handlerChoice', 'injury', 'illness'] as const
 type Retirement = (typeof RETIREMENTS)[number]
 const retirementOf = (value: string): Retirement | undefined => RETIREMENTS.find((cause) => cause === value)
 
-/** A table cell is as wide as its fields, so a long label wraps instead of widening the column. */
-const TABLE_CELL_WIDTH = { width: 160 }
-
 /** The column header names a control nothing has been chosen in, so it shrinks to a dash. */
 const idleSelectProps = (name: string): TextFieldProps['slotProps'] => ({
   // A screen reader still gets the name the visible label would have given.
@@ -59,7 +56,20 @@ const idleSelectProps = (name: string): TextFieldProps['slotProps'] => ({
   },
 })
 
-const outcomeFieldSx = (idle: boolean) => (idle ? { minWidth: 0, width: 72 } : { minWidth: 190 })
+/**
+ * How the control looks in a table cell: as wide as its fields, so a long label wraps instead of widening
+ * the column, and until an outcome is chosen only a dash under the column header, which names it.
+ */
+const cellLayout = (inline: boolean, outcome: string, name: string) => {
+  const idle = inline && outcome === SCORED
+
+  return {
+    cellSx: inline && !idle ? { width: 160 } : undefined,
+    fieldSx: idle ? { minWidth: 0, width: 72 } : { minWidth: 190 },
+    label: idle ? undefined : name,
+    slotProps: idle ? idleSelectProps(name) : undefined,
+  }
+}
 
 interface Props {
   readonly value: ResultEdit
@@ -169,7 +179,7 @@ export const RoundOutcome = ({
       ]
     : retirements
 
-  const idle = inline && outcome === SCORED
+  const layout = cellLayout(inline, outcome, t(labels.field))
 
   const handleOutcome = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -226,17 +236,17 @@ export const RoundOutcome = ({
   if (!asksOutcome(eventType, carriesStop)) return null
 
   return (
-    <Stack spacing={0.5} sx={inline && !idle ? TABLE_CELL_WIDTH : undefined}>
+    <Stack spacing={0.5} sx={layout.cellSx}>
       {/* With the stop the only thing on offer, a locked stop is a locked control; with the reasons of
           KOE-1299 beside it, only the stop's own line goes grey. */}
       <TextField
         disabled={disabled || (stopLocked && reasons.length === 0)}
-        label={idle ? undefined : t(labels.field)}
+        label={layout.label}
         onChange={handleOutcome}
         select
         size="small"
-        slotProps={idle ? idleSelectProps(t(labels.field)) : undefined}
-        sx={outcomeFieldSx(idle)}
+        slotProps={layout.slotProps}
+        sx={layout.fieldSx}
         value={outcome}
       >
         {/* Completing the round is the default, so this reads as the absence of a note rather than an
