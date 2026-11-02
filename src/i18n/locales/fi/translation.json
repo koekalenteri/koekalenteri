@@ -81,6 +81,7 @@
       "resultChangedDetail": "Muutti tulosta: {{result}}",
       "resultRecomputed": "Laski tuloksen uudelleen suorituspaikkojen tai suoritusjärjestyksen muutoksen jälkeen: {{result}}",
       "resultRecomputedDropped": "Laski tuloksen uudelleen suorituspaikkojen tai suoritusjärjestyksen muutoksen jälkeen, kirjattuja rasteja poistui {{dropped}}: {{result}}",
+      "resultRederived": "Korjasi palkinnon voimassa olevien sääntöjen mukaiseksi (KOE-1677): {{previous}} -> {{result}}",
       "resultSaved": "Tallensi tuloksen",
       "resultSavedDetail": "Tallensi tuloksen: {{result}}",
       "resultSendFailed": "Tulosta ei saatu lähetettyä Omakoiraan: {{reason}}",

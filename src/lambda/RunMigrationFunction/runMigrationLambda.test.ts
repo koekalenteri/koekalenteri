@@ -29,6 +29,7 @@ const mockMoveOrganizerEventStats = vi.fn()
 const mockReadAllUsers = vi.fn()
 const mockReadUser = vi.fn()
 const mockWriteMigratedUserRoles = vi.fn()
+const mockAudit = vi.fn()
 
 vi.doMock('../lib/lambda', async () => ({
   ...(await vi.importActual<typeof import('../lib/lambda')>('../lib/lambda')),
@@ -50,6 +51,11 @@ vi.doMock('../lib/dataVersions', () => ({
   bumpDataVersion: mockBumpDataVersion,
   markMigrationApplied: mockMarkApplied,
   readAppliedMigrations: mockReadApplied,
+}))
+
+vi.doMock('../lib/audit', async () => ({
+  ...(await vi.importActual<typeof import('../lib/audit')>('../lib/audit')),
+  audit: mockAudit,
 }))
 
 vi.doMock('../lib/repositories/organizerRepository', () => ({
@@ -133,6 +139,7 @@ describe('runMigrationLambda', () => {
     { count: 0, name: 'storeRegistrationDaysAsKeys' },
     { count: 0, name: 'storeOwnerSelections' },
     { count: 0, name: 'storeScoresByExercise' },
+    { count: 0, name: 'restoreFirstPrizes' },
     { count: 0, name: 'storeDogDaysAsKeys' },
     { count: 0, name: 'storeOrganizerStatsDaysAsKeys' },
   ]
@@ -945,6 +952,7 @@ describe('runMigrationLambda', () => {
       'storeRegistrationDaysAsKeys',
       'storeOwnerSelections',
       'storeScoresByExercise',
+      'restoreFirstPrizes',
       'storeDogDaysAsKeys',
       'storeOrganizerStatsDaysAsKeys',
     ]
@@ -991,10 +999,10 @@ describe('runMigrationLambda', () => {
     it('records every migration of a forced run, with the hash of its code', async () => {
       await runMigrationLambda(event)
 
-      expect(mockMarkApplied).toHaveBeenCalledTimes(12)
+      expect(mockMarkApplied).toHaveBeenCalledTimes(13)
       expect(mockMarkApplied).toHaveBeenCalledWith('fixSeasonFromStartDate', 2, hashes.get('fixSeasonFromStartDate'))
       expect(mockMarkApplied).toHaveBeenCalledWith('populateUpdatedAt', 0, hashes.get('populateUpdatedAt'))
-      expect(new Set(hashes.values()).size).toBe(12)
+      expect(new Set(hashes.values()).size).toBe(13)
     })
 
     it('reads the registry once, for every migration in the code', async () => {
@@ -2454,6 +2462,129 @@ describe('runMigrationLambda', () => {
       await runMigrationLambda(directEvent)
 
       written('reg8', { 'eventResult.tasks': [byExercise(4, 0, 18)] })
+    })
+  })
+
+  describe('the first prizes the per-task floor withheld (KOE-1677)', () => {
+    const directEvent = constructPartialAPIGwEvent({})
+    const day = '2026-10-31'
+    let hashes: Map<string, string>
+    const pendingOnly = (name: string) => new Map([...hashes].filter(([applied]) => applied !== name))
+
+    // Four posts, one exercise of 20 each.
+    const nowtEvent = {
+      classes: [{ class: 'ALO', date: day }],
+      eventType: 'NOWT',
+      id: 'event1',
+      startDate: day,
+      stations: [1, 2, 3, 4].map((number) => ({ date: day, id: `post-${number}`, number })),
+      updatedAt: 'kept',
+    }
+    const at = { updatedAt: '2026-10-31T10:00:00.000Z', updatedBy: 'Sihteeri' }
+    const scored = (...points: number[]) =>
+      points.map((value, index) => ({ ...at, exercise: index + 1, part: 0, points: value }))
+    const totals = (points: number) => ({ maxPoints: 80, percentage: (points * 100) / 80, points })
+    const row = (id: string, eventResult: Record<string, unknown>) => ({
+      class: 'ALO',
+      dog: { regNo: `FI${id}/21` },
+      eventId: 'event1',
+      eventResult: { ...at, ...eventResult },
+      eventType: 'NOWT',
+      group: { date: day, key: `${day}-ap`, number: 1 },
+      id,
+      ownerHandles: true,
+      ownerPays: true,
+      updatedAt: 'read',
+    })
+
+    beforeEach(async () => {
+      hashes = new Map()
+      mockMarkApplied.mockImplementation(async (name: string, _count: number, hash: string) => {
+        hashes.set(name, hash)
+      })
+      mockReadAllEvents.mockResolvedValueOnce([])
+      await runMigrationLambda(event)
+      vi.clearAllMocks()
+      mockMarkApplied.mockResolvedValue(undefined)
+      mockReadApplied.mockResolvedValue(pendingOnly('restoreFirstPrizes'))
+      mockReadAllDogs.mockResolvedValue([])
+      mockReadAllOrganizerEventStats.mockResolvedValue([])
+      mockReadOrganizers.mockResolvedValue([])
+      mockReadAllEvents.mockResolvedValue([nowtEvent])
+      mockReadRegistrationEventIds.mockResolvedValue(['event1'])
+      mockWriteMigratedRegistration.mockResolvedValue(undefined)
+    })
+
+    it('gives a first prize to a second stored at 80 % with a task under half, and records it on the trail', async () => {
+      // 64 of 80 with exercise 4 at 9 of 20; stored before the totals were kept, so they come with it.
+      mockReadEventRegistrations.mockResolvedValueOnce([row('reg1', { result: 'ALO2', tasks: scored(20, 20, 15, 9) })])
+
+      await runMigrationLambda(directEvent)
+
+      expect(mockWriteMigratedRegistration).toHaveBeenCalledWith(
+        'event1',
+        'reg1',
+        {
+          set: {
+            'eventResult.maxPoints': 80,
+            'eventResult.percentage': 80,
+            'eventResult.points': 64,
+            'eventResult.result': 'ALO1',
+            updatedAt: expect.not.stringMatching(/^read$/),
+          },
+        },
+        'read'
+      )
+      expect(mockAudit).toHaveBeenCalledTimes(1)
+      expect(mockAudit).toHaveBeenCalledWith({
+        auditKey: 'event1:reg1',
+        messageKey: 'audit.messages.resultRederived',
+        messageParams: { previous: 'ALO2', result: 'ALO1' },
+        user: 'system',
+      })
+      expect(mockResponse).toHaveBeenCalledWith(200, [{ count: 1, name: 'restoreFirstPrizes' }], directEvent)
+    })
+
+    it('leaves a second prize the percentage earns, a first, a zero, a voided round and a row without scores', async () => {
+      mockReadEventRegistrations.mockResolvedValueOnce([
+        // 64 of 80 is not reached: 63 is 78.75 %.
+        row('reg2', { ...totals(63), result: 'ALO2', tasks: scored(20, 20, 14, 9) }),
+        row('reg3', { ...totals(64), result: 'ALO1', tasks: scored(20, 20, 15, 9) }),
+        // A zero bars every prize, whatever the total.
+        row('reg4', { ...totals(60), result: 'ALO0', tasks: scored(20, 20, 20, 0) }),
+        // The handler's withdrawal decides before the scores do.
+        row('reg5', {
+          ...totals(64),
+          result: 'ALO2',
+          retirement: { cause: 'handlerChoice', couldStillHavePlaced: true, exercise: 4 },
+          tasks: scored(20, 20, 15, 9),
+        }),
+        row('reg6', { result: 'ALO2' }),
+      ])
+
+      await runMigrationLambda(directEvent)
+
+      expect(mockWriteMigratedRegistration).not.toHaveBeenCalled()
+      expect(mockAudit).not.toHaveBeenCalled()
+      expect(mockResponse).toHaveBeenCalledWith(200, [{ count: 0, name: 'restoreFirstPrizes' }], directEvent)
+    })
+
+    it('leaves a result whose event is gone, and a type not scored at posts', async () => {
+      mockReadRegistrationEventIds.mockResolvedValue(['event1', 'event2', 'event3'])
+      mockReadAllEvents.mockResolvedValue([nowtEvent, { eventType: 'NOME-B', id: 'event3', updatedAt: 'kept' }])
+      mockReadEventRegistrations
+        .mockResolvedValueOnce([])
+        .mockResolvedValueOnce([
+          { ...row('reg7', { result: 'ALO2', tasks: scored(20, 20, 15, 9) }), eventId: 'event2' },
+        ])
+        .mockResolvedValueOnce([
+          { ...row('reg8', { result: 'ALO2', tasks: scored(20, 20, 15, 9) }), eventId: 'event3', eventType: 'NOME-B' },
+        ])
+
+      await runMigrationLambda(directEvent)
+
+      expect(mockWriteMigratedRegistration).not.toHaveBeenCalled()
+      expect(mockResponse).toHaveBeenCalledWith(200, [{ count: 0, name: 'restoreFirstPrizes' }], directEvent)
     })
   })
 })

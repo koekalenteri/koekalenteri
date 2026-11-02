@@ -33,6 +33,7 @@ import {
 import { readAllUsers, readUser, writeMigratedUserRoles } from '../lib/repositories/userRepository'
 import { moveOrganizerEventStats } from '../lib/stats/stats'
 import { userScopes } from '../lib/user'
+import { auditRestoredFirstPrizes, restoreFirstPrize } from './firstPrizes'
 import { findOrganizerRepoints, repointRoles, unmappableRoleIds } from './organizerRepoints'
 import { storeScoresByExercise } from './scoreAddresses'
 
@@ -297,6 +298,15 @@ const registrationMigrations: Migration<JsonRegistration>[] = [
       }
     },
   },
+  {
+    // KOE-1677: a working test result stored as a second prize because a task fell under half its points,
+    // a floor the rules in force do not have, gets the first prize its percentage earns, with its totals.
+    // The start list and the Omakoira send read the stored result, so both pick the correction up; the
+    // registration's audit trail records the result before and after (`auditRestoredFirstPrizes`).
+    name: 'restoreFirstPrizes',
+    needsEvents: true,
+    run: (registration, { events }) => restoreFirstPrize(registration, events.get(registration.eventId)),
+  },
 ]
 
 const dogMigrations: Migration<JsonDog>[] = [
@@ -446,6 +456,8 @@ const userTable: MigratedTable<JsonUser> = {
 const LOADER_CONCURRENCY = 4
 
 const registrationTable: MigratedTable<JsonRegistration> = {
+  // A prize the migrations raised is recorded on the registration's trail, also when a later write fails.
+  afterWrites: auditRestoredFirstPrizes,
   id: (registration) => `${registration.eventId}/${registration.id}`,
   loaders: async () => (await readRegistrationEventIds()).map((eventId) => () => readEventRegistrations(eventId, true)),
   migrations: registrationMigrations,
