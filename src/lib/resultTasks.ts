@@ -24,8 +24,6 @@ export const partMaxPoints = (parts: 1 | 2): number => TASK_MAX_POINTS / parts
 
 /** One part of an exercise as scored for one dog, joined to its definition in the dog's round. */
 export interface ScoredTask {
-  /** The exercise's number in the dog's running order. Its parts share it; the first-prize floor reads it. */
-  task: number
   /** The task's nominal maximum. Never the halved figure from an ALO recall. */
   maxPoints: number
   /** `null` while unscored. */
@@ -247,7 +245,6 @@ export const toScoredTasks = (
   round.map((slot) => ({
     maxPoints: slot.maxPoints,
     points: scored?.find((entry) => holdsScore(slot, entry))?.points ?? null,
-    task: slot.exercise,
   }))
 
 /**
