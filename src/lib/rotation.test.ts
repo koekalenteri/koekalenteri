@@ -1,7 +1,8 @@
 import type { DayKey, EventRotationGroup, EventStation } from '../types'
 import type { RotationEvent } from './rotation'
 import i18n from 'i18next'
-import { dogRound, nowtTotals, toScoredTasks } from './results'
+import { nowtTotals } from './results'
+import { dogRound, toScoredTasks } from './resultTasks'
 import {
   dayStations,
   formatRotationGroup,

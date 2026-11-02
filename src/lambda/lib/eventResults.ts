@@ -1,4 +1,5 @@
-import type { ExerciseSlot, ResultTasksDroppedBody, SubmittedEventResult, SubmittedTask } from '../../lib/results'
+import type { SubmittedEventResult, SubmittedTask } from '../../lib/results'
+import type { ExerciseSlot, ResultTasksDroppedBody } from '../../lib/resultTasks'
 import type {
   EventResultElimination,
   EventResultRetirement,
@@ -17,22 +18,24 @@ import { isResultsLocked } from '../../lib/kennelliittoResults'
 import { getRegistrationPlacement, isScorableRegistration } from '../../lib/registration'
 import {
   availableResultCodes,
-  dogRound,
   eliminatingFaults,
+  nowtZeroFaults,
+  resolveEventResult,
+  sameEventResult,
+  scoresAtPosts,
+  shownEventResult,
+  taskEntryCeiling,
+} from '../../lib/results'
+import {
+  dogRound,
   exercisesScored,
   isRecordedTask,
   mergeStationTasks,
-  nowtZeroFaults,
   reconcileRoundTasks,
-  resolveEventResult,
   roundsDiffer,
-  sameEventResult,
   sameStationTasks,
-  scoresAtPosts,
-  shownEventResult,
   stationVersion,
-  taskEntryCeiling,
-} from '../../lib/results'
+} from '../../lib/resultTasks'
 import { rotationDogOf, roundInputsOf } from '../../lib/rotation'
 import { mapWithConcurrency } from '../../lib/utils'
 import { audit, registrationAuditKey } from './audit'

@@ -32,16 +32,8 @@ import { compareRegistrationClasses } from '@/lib/event'
 import { makeArray } from '@/lib/judge'
 import { liveFormat } from '@/lib/liveFormat'
 import { getRegistrationClass } from '@/lib/registration'
-import {
-  endedAtExercise,
-  endedBefore,
-  formatTaskName,
-  holdsScore,
-  parseEventResultCode,
-  scoresAtPosts,
-  stationVersion,
-  visitSlots,
-} from '@/lib/results'
+import { formatTaskName, parseEventResultCode, scoresAtPosts } from '@/lib/results'
+import { endedAtExercise, endedBefore, holdsScore, stationVersion, visitSlots } from '@/lib/resultTasks'
 import { openTurn } from '@/lib/stationTurns'
 import { AsyncButton } from '../AsyncButton'
 import { JudgeSelect } from './JudgeSelect'

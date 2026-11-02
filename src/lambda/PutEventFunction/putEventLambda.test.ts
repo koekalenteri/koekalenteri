@@ -149,15 +149,8 @@ const { CONFIG } = await import('../config')
 const { default: putEventLambda } = await import('./handler')
 const { processResultSubmissions } = await import('../lib/eventResults')
 const { buildKcResult, KC_STATE_HANDED_OVER } = await import('../../lib/kennelliittoResults')
-const {
-  deriveNowtResult,
-  dogRound,
-  formatEventResult,
-  isResultTasksDroppedBody,
-  nowtTotals,
-  placementsFor,
-  toScoredTasks,
-} = await import('../../lib/results')
+const { deriveNowtResult, formatEventResult, nowtTotals, placementsFor } = await import('../../lib/results')
+const { dogRound, isResultTasksDroppedBody, toScoredTasks } = await import('../../lib/resultTasks')
 const { patchMerge } = await import('../../lib/utils')
 const { rotationDogOf } = await import('../../lib/rotation')
 

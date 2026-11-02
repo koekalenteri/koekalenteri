@@ -1060,7 +1060,8 @@ describe('EventResultsPage', () => {
 
 describe('ResultSummary', () => {
   it('derives the prize with the same module the server saves with', async () => {
-    const { deriveNowtResult, formatEventResult, toScoredTasks } = await import('../../lib/results')
+    const { deriveNowtResult, formatEventResult } = await import('../../lib/results')
+    const { toScoredTasks } = await import('../../lib/resultTasks')
     const round = [1, 2, 3, 4].map((number) => ({
       exercise: number,
       index: 0,
@@ -1117,7 +1118,7 @@ describe('a round that was not scored', () => {
 
 describe('judge attribution', () => {
   it('carries the judge onto the score rather than asking again for every dog', async () => {
-    const { mergeStationTasks } = await import('../../lib/results')
+    const { mergeStationTasks } = await import('../../lib/resultTasks')
     const judge = { id: 1, name: 'Lappalainen Mika', official: true }
 
     // A post is manned by the same person all day, so the previous dog's judge is the likely answer

@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react'
-import type { ExerciseSlot } from '@/lib/results'
+import type { ExerciseSlot } from '@/lib/resultTasks'
 import type { EventResult, EventStation, NowtZeroFault, PublicJudge, Registration } from '@/types'
 import type { ResultEdit, TaskEdit } from '../../components/stationScoring/types'
 import Box from '@mui/material/Box'
@@ -15,14 +15,8 @@ import Typography from '@mui/material/Typography'
 import { memo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { getRegistrationPlacement } from '@/lib/registration'
-import {
-  columnKey,
-  endedBefore,
-  exercisePostsOf,
-  formatTaskName,
-  parseEventResultCode,
-  scoresAtPosts,
-} from '@/lib/results'
+import { formatTaskName, parseEventResultCode, scoresAtPosts } from '@/lib/results'
+import { columnKey, endedBefore, exercisePostsOf } from '@/lib/resultTasks'
 import { JudgeSelect } from '../../components/stationScoring/JudgeSelect'
 import { ResultSummary } from '../../components/stationScoring/ResultSummary'
 import { asksOutcome, outcomeLabelKeys, RoundOutcome } from '../../components/stationScoring/RoundOutcome'

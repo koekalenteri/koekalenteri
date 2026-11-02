@@ -1,4 +1,4 @@
-import type { ExerciseSlot } from '@/lib/results'
+import type { ExerciseSlot } from '@/lib/resultTasks'
 import type { EventResult, ResultMark } from '@/types'
 import type { ResultEdit } from './types'
 import MenuItem from '@mui/material/MenuItem'
@@ -13,8 +13,8 @@ import {
   resultMarks,
   scoresAtPosts,
   shownEventResult,
-  toScoredTasks,
 } from '@/lib/results'
+import { toScoredTasks } from '@/lib/resultTasks'
 import { withResultCode } from './types'
 
 interface Props {

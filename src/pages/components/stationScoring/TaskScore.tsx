@@ -1,4 +1,4 @@
-import type { ExerciseSlot } from '@/lib/results'
+import type { ExerciseSlot } from '@/lib/resultTasks'
 import type { NowtZeroFault, PublicJudge } from '@/types'
 import type { TaskEdit } from './types'
 import MenuItem from '@mui/material/MenuItem'
@@ -7,7 +7,8 @@ import TextField from '@mui/material/TextField'
 import Typography from '@mui/material/Typography'
 import { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
-import { isRecordedTask, nowtZeroFaults, taskEntryCeiling } from '@/lib/results'
+import { nowtZeroFaults, taskEntryCeiling } from '@/lib/results'
+import { isRecordedTask } from '@/lib/resultTasks'
 import { NumberInput } from '../NumberInput'
 
 interface Props {

@@ -1,4 +1,4 @@
-import type { DroppedTasksDog } from '@/lib/results'
+import type { DroppedTasksDog } from '@/lib/resultTasks'
 import Button from '@mui/material/Button'
 import Dialog from '@mui/material/Dialog'
 import DialogActions from '@mui/material/DialogActions'
