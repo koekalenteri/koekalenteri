@@ -21,30 +21,37 @@ export type RegistrationClass = 'ALO' | 'AVO' | 'VOI'
 export type RegistrationTemplateContext = '' | 'cancel' | 'confirm' | 'receipt' | 'update' | 'invitation' | 'refund'
 
 /**
- * Faults that zero a single task while the dog carries on (NOWT rules §5.7.3), and `unknown`.
+ * The nollatulokseen johtavat virheet of NOWT §5.3.4, one code per bullet in the list's order, and
+ * `unknown`. Each zeroes the exercise while the dog carries on, and bars every prize (§5.4.1). The
+ * working test's eye-wipe is one of these; NOME-A's eye-wipe stops the trial (§3.3.3) and is not.
  *
  * Stored as a code, never as a label: the Finnish wording is an i18n key, and a rules revision must be
  * able to reword it without orphaning the recorded history.
  */
 export type NowtZeroFault =
+  /**
+   * Noudon epäonnistuminen: every case where the dog does not bring the dummy it was sent for to the
+   * handler (the WT judging instructions, §10.4), a dummy not found and a retrieve given up alike.
+   */
+  | 'failedRetrieve'
   | 'unauthorizedRun'
   | 'outOfControl'
+  | 'physicalContact'
+  /** Vinkuminen tai haukkuminen. The code predates the wording; the bullet has no "toistuva". */
   | 'persistentNoise'
-  | 'abandonedRetrieve'
   | 'refusedWater'
-  | 'dummyNotFound'
   | 'huntingWithDummy'
   | 'swappedDummy'
   | 'eyeWipe'
-  /** Not a §5.7.3 bullet: the secretary's "ei tiedossa" when the scorecard does not say why (KOE-1664). */
+  /** Not a §5.3.4 bullet: the secretary's "ei tiedossa" when the scorecard does not say why (KOE-1664). */
   | 'unknown'
 
 /**
  * The faults a judge ends a dog's trial on: NOWT's hylkäävät virheet (§5.3.5), NOME-A's (§3.3.3),
  * NOME-B's keskeytyssyyt (§4.3.3) and the taipumuskoe's failed qualities (§2.3.2), in the rules edition
- * in force from 15.4.2023. The round is voided, so every one of these resolves to a dash rather than a
- * zero (its points so far are still kept, KOE-1669), and this code is then the only place the reason
- * survives.
+ * in force from 15.4.2023. In a working test the round ends there and the result is the nought (§5.4.1,
+ * KOE-1678), its points so far still kept (KOE-1669); in the other formats the result is the code the
+ * secretary enters. Either way this code is the only place the reason survives.
  *
  * One code per rules bullet, shared across the lists where the bullets say the same thing. The union is
  * wider than any one list, and `eliminatingFaults` in `lib/results.ts` says which codes each event type
@@ -90,7 +97,7 @@ export type EliminatingFault =
   | 'harshHandling'
 
 /**
- * A round ended by a hylkäävä virhe (§5.7.2). Every one of these is a dash rather than a zero.
+ * A round ended by a hylkäävä virhe (NOWT §5.3.5), which in a working test is the nought (§5.4.1).
  *
  * The post is recorded because an elimination happens somewhere: which post a dog was thrown out at is
  * worth knowing, and it is lost the moment only the fault is kept.

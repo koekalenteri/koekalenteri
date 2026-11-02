@@ -4,7 +4,9 @@ import type { JsonEventStatsItem } from '../../types/Stats'
 import type { OrganizerRepoints } from './organizerRepoints'
 import { createHash } from 'node:crypto'
 import { getEventSeason } from '../../lib/event'
+import { scoresAtPosts } from '../../lib/liveFormat'
 import { getRegistrationOwners, resolveOwnerPerson } from '../../lib/registration'
+import { formatEventResult, parseEventResultCode } from '../../lib/results'
 import { legacyDecoder, rekeyDogDays, rekeyEventDays, rekeyRegistrationDays } from '../../lib/storedDays'
 import { mapWithConcurrency } from '../../lib/utils'
 import { authorizeAdmin } from '../lib/auth'
@@ -33,7 +35,7 @@ import {
 import { readAllUsers, readUser, writeMigratedUserRoles } from '../lib/repositories/userRepository'
 import { moveOrganizerEventStats } from '../lib/stats/stats'
 import { userScopes } from '../lib/user'
-import { auditRestoredFirstPrizes, restoreFirstPrize } from './firstPrizes'
+import { auditRederivedResults, restoreFirstPrize } from './firstPrizes'
 import { findOrganizerRepoints, repointRoles, unmappableRoleIds } from './organizerRepoints'
 import { storeScoresByExercise } from './scoreAddresses'
 
@@ -302,12 +304,48 @@ const registrationMigrations: Migration<JsonRegistration>[] = [
     // KOE-1677: a working test result stored as a second prize because a task fell under half its points,
     // a floor the rules in force do not have, gets the first prize its percentage earns, with its totals.
     // The start list and the Omakoira send read the stored result, so both pick the correction up; the
-    // registration's audit trail records the result before and after (`auditRestoredFirstPrizes`).
+    // registration's audit trail records the result before and after (`auditRederivedResults`).
     name: 'restoreFirstPrizes',
     needsEvents: true,
     run: (registration, { events }) => restoreFirstPrize(registration, events.get(registration.eventId)),
   },
+  {
+    // KOE-1678: §5.3.4 has one noudon epäonnistuminen, which the zero faults stored as two codes. A score
+    // given either is stored with the one code; nothing else of the result changes.
+    name: 'storeFailedRetrieve',
+    run: (registration) => {
+      let changed = false
+      for (const task of registration.eventResult?.tasks ?? []) {
+        if (task.zeroFault && SPLIT_RETRIEVE_FAULTS.has(task.zeroFault)) {
+          task.zeroFault = 'failedRetrieve'
+          changed = true
+        }
+      }
+      return changed
+    },
+  },
+  {
+    // KOE-1678: §5.4.1 gives a working test round an elimination ended the nought, where it was stored as
+    // the dash. A new version of the result, so a dog sent to Omakoira with the dash reads as changed and is
+    // sent again; the registration's trail records the result before and after (`auditRederivedResults`).
+    name: 'storeEliminationsAsNought',
+    run: (registration) => {
+      const stored = registration.eventResult
+      if (!stored?.elimination || !scoresAtPosts(registration.eventType)) return false
+      const eventClass = registration.class ?? undefined
+      if (parseEventResultCode(stored.result, registration.eventType, eventClass) !== '-') return false
+      stored.result = formatEventResult('0', registration.eventType, eventClass)
+      stored.updatedAt = new Date().toISOString()
+      return true
+    },
+  },
 ]
+
+/**
+ * The zero-fault codes a failed retrieve was split into before KOE-1678, read only by `storeFailedRetrieve`.
+ * Strings rather than `NowtZeroFault`, which no longer has them.
+ */
+const SPLIT_RETRIEVE_FAULTS: ReadonlySet<string> = new Set(['abandonedRetrieve', 'dummyNotFound'])
 
 const dogMigrations: Migration<JsonDog>[] = [
   {
@@ -456,8 +494,8 @@ const userTable: MigratedTable<JsonUser> = {
 const LOADER_CONCURRENCY = 4
 
 const registrationTable: MigratedTable<JsonRegistration> = {
-  // A prize the migrations raised is recorded on the registration's trail, also when a later write fails.
-  afterWrites: auditRestoredFirstPrizes,
+  // A result the migrations changed is recorded on the registration's trail, also when a later write fails.
+  afterWrites: auditRederivedResults,
   id: (registration) => `${registration.eventId}/${registration.id}`,
   loaders: async () => (await readRegistrationEventIds()).map((eventId) => () => readEventRegistrations(eventId, true)),
   migrations: registrationMigrations,

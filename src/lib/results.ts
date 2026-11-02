@@ -40,7 +40,8 @@ export type ResultCode = '1' | '2' | '3' | '0' | '-'
  *
  * The rules say what a stopped dog's result line reads: a nought for the judge's stop on the dog's work
  * (`STOPPED_RESULT_CODE`), a dash for an injury or an illness (NOWT §5.4.1). Either is also what a dog
- * gets that simply went unplaced or was withdrawn by its handler, and NOME-B §4.3.3 requires more than
+ * gets that simply went unplaced, made a hylkäävä virhe (the nought) or was withdrawn by its handler, and
+ * NOME-B §4.3.3 requires more than
  * that: "Keskeyttämisen syy ja se, kenen toimesta keskeyttäminen on tapahtunut, merkitään arvosteluun."
  * The mark tells the judge's stop apart from a plain nought or dash, beside the code, the way Koiranet
  * carries it in "Lisämerkinnät" rather than inside the result. (The reason itself is KOE-1299.)
@@ -67,9 +68,10 @@ type ResultTotals = Pick<JsonPublicRegistration, 'maxPoints' | 'percentage' | 'p
 
 /**
  * The totals as they are shown: the points, the maximum and the percentage as a whole number, or
- * nothing where the result has none (a qualitative type). Display only; the prize thresholds compare
- * the exact ratio (`atLeastPercent`), so a dog shown at 65 % may still have missed a second prize. The
- * result line and the exported sheet both read them here, so the two round alike (KOE-1673).
+ * nothing where the result has none (a qualitative type). Display only, as §5.3.1 announces the result
+ * "prosentin tarkkuudella"; what is stored and sent stays exact (`nowtTotals`), and the prize thresholds
+ * compare the exact ratio (`atLeastPercent`). The result line and the exported sheet both read them here,
+ * so the two round alike (KOE-1673).
  */
 export const shownTotals = ({ points, maxPoints, percentage }: ResultTotals): Required<ResultTotals> | undefined =>
   points !== undefined && maxPoints && percentage !== undefined
@@ -226,15 +228,16 @@ export const eliminatingFaults = (eventType?: string): readonly EliminatingFault
 
 /**
  * Every zero-fault code, in the order the menu offers them, and for validating a submission's claim at
- * the write boundary. `unknown` comes last, after the rules' own faults (KOE-1664).
+ * the write boundary: NOWT §5.3.4's list one to one and in its order (KOE-1678), then `unknown`, the
+ * secretary's "ei tiedossa" (KOE-1664).
  */
 export const nowtZeroFaults: readonly NowtZeroFault[] = [
+  'failedRetrieve',
   'unauthorizedRun',
   'outOfControl',
+  'physicalContact',
   'persistentNoise',
-  'abandonedRetrieve',
   'refusedWater',
-  'dummyNotFound',
   'huntingWithDummy',
   'swappedDummy',
   'eyeWipe',
@@ -279,6 +282,12 @@ export const stationDogsInOrder = <T extends SortableRegistration>(
   return stationQueue(event, stationId, registrations).map(({ registration, visit }) => ({ ...registration, visit }))
 }
 
+/**
+ * The round's points, its maximum and the percentage of the one against the other. §5.3.1 announces the
+ * result "prosentteina maksimipistemäärästä prosentin tarkkuudella", which is how it is shown
+ * (`shownTotals`). The percentage stored and sent to Omakoira stays exact: rounding it once on the way
+ * in would make every later reader round a rounded figure, and Omakoira takes the decimals (KOE-1678).
+ */
 export const nowtTotals = (tasks: readonly ScoredTask[]) => {
   const points = tasks.reduce((sum, task) => sum + (task.points ?? 0), 0)
   const maxPoints = tasks.reduce((sum, task) => sum + task.maxPoints, 0)
@@ -287,29 +296,27 @@ export const nowtTotals = (tasks: readonly ScoredTask[]) => {
 }
 
 /**
- * Compare as a ratio rather than a rounded percentage. On a four-post round the thresholds land on whole
- * numbers, but real scores do not — 53 of 80 is 66.25 % — and a dog on 64.6 % displayed as "65 %" must
- * not collect a second prize it did not earn.
+ * The thresholds of §5.4.1 read as written: at least this share of the maximum, compared exactly rather
+ * than through a rounded percentage. Today the two agree, since points are whole and every exercise is
+ * worth 20 (§5.3.1), so 80, 65 and 50 % of the maximum all fall on whole points. The exact form needs no
+ * such reasoning to be right, and orders dogs as `placementsFor` does (KOE-1678).
  */
 const atLeastPercent = (points: number, maxPoints: number, percent: number) => points * 100 >= percent * maxPoints
 
 /**
- * The prize for a round scored at posts.
+ * The prize for a round scored at posts, by §5.4.1 of the rules in force from 15.4.2023. It is the only
+ * source of a working test's result: the rules leave the judge no discretion over it (KOE-1678).
  *
  * Returns `undefined` while the round is still incomplete, so a half-entered scorecard shows no prize
  * rather than a misleading one.
  *
- * Ordering carries meaning. Elimination and withdrawal *void* the round — there is no performance left
- * to judge — so they settle the result before any scoring runs. Checking the zero rule first would let
- * an early zero override an exclusion, reporting a dog as having failed on merit when it was in fact
- * thrown out.
+ * A round that ended early settles the result before any scoring runs, and before the round is complete:
+ * there is nothing left to score.
  */
 export const deriveNowtResult = ({ tasks, elimination, retirement }: NowtResultInput): ResultCode | undefined => {
-  // §5.4.1 puts a hylkäävä virhe in the same sentence as an insufficient score and gives both a nought,
-  // so by the rules this is '0'. An earlier ruling in this project put eliminations on the dash and
-  // stands until Jukka revisits it; the divergence is in the rules conformance ledger, and the field
-  // that would reach this is switched off meanwhile (KOE-1299).
-  if (elimination) return '-'
+  // §5.4.1: a hylkäävä virhe (§5.3.5), and a trial stopped for disciplining the dog at the venue, are
+  // the nought (KOE-1678).
+  if (elimination) return '0'
   // §5.4.1 grants the handler's own withdrawal the dash only where a prize was still in reach.
   if (retirement?.cause === 'handlerChoice') return retirement.couldStillHavePlaced ? '-' : '0'
   if (retirement?.cause === 'judgeStopped') return STOPPED_RESULT_CODE
@@ -318,11 +325,12 @@ export const deriveNowtResult = ({ tasks, elimination, retirement }: NowtResultI
 
   if (tasks.length === 0 || tasks.some((task) => task.points === null)) return undefined
 
-  // A single zero bars every prize, whatever the total: "jos koira on saanut jostain tehtävästä nolla
-  // pistettä, sitä ei voida palkita".
+  // §5.4.1: a nollatulokseen johtava virhe (§5.3.4), which zeroes its exercise, is the nought whatever
+  // the total.
   if (tasks.some((task) => task.points === 0)) return '0'
 
   const { points, maxPoints } = nowtTotals(tasks)
+  // Not a rule: no round has a maximum of 0, and against one every threshold would hold.
   if (maxPoints === 0) return '0'
 
   // §5.4.1 (edition 15.4.2023) places on the total alone: 80, 65 and 50 % of the maximum. The rules
@@ -448,9 +456,9 @@ export type SubmittedTask = Omit<JsonEventResultTask, 'updatedAt' | 'updatedBy'>
 export interface SubmittedEventResult {
   tasks?: JsonEventResultTask[]
   /**
-   * The only source of a result for qualitative event types. For post-scored types this overrides the
-   * derivation, though §5.4.1 grants no such discretion — no client sends one, and whether the
-   * server-side override should stay belongs to the deferred conformance work.
+   * The only source of a result for qualitative event types. A type scored at posts takes none: its
+   * result is derived (§5.4.1, KOE-1678), the write boundary refuses one (`pickSubmittedResult`), and
+   * `resolveEventResult` does not read it.
    */
   resultCode?: ResultCode
   cert?: boolean
@@ -493,8 +501,12 @@ export const resolveEventResult = (
     }
   }
 
+  // The derivation is the only source of a scored type's result (§5.4.1, KOE-1678). A code that came
+  // with it is not read rather than refused: the server refuses it at its own boundary
+  // (`pickSubmittedResult`), and this function also answers the entry screen as scores are typed, where
+  // there is nothing to refuse to.
   const scored = toScoredTasks(round, tasks)
-  const code = resultCode ?? deriveNowtResult({ ...submitted, tasks: scored })
+  const code = deriveNowtResult({ ...submitted, tasks: scored })
 
   // A round that ended early keeps what it earned, against the whole round: Kennelliitto publishes those
   // points beside the nought or the dash (KOE-1669).
