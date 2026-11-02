@@ -387,8 +387,8 @@ describeWithTranslations('fi', () => {
       }
 
       // r1 is done whole by default, r2 in two parts.
-      await pick(exerciseFields('Osajako')[0], '2')
-      await pick(exerciseFields('Osajako')[1], '1')
+      await pick(exerciseFields('Tehtäviä')[0], '2')
+      await pick(exerciseFields('Tehtäviä')[1], '1')
       savesRotations(onChange, [
         expect.objectContaining({
           exercises: [
@@ -398,8 +398,8 @@ describeWithTranslations('fi', () => {
         }),
       ])
 
-      await pick(exerciseFields('Osajako')[0], '1')
-      await pick(exerciseFields('Osajako')[1], '2')
+      await pick(exerciseFields('Tehtäviä')[0], '1')
+      await pick(exerciseFields('Tehtäviä')[1], '2')
       savesRotations(onChange, [expect.objectContaining({ exercises: exercisesAt('r1', 'r2') })])
     })
 

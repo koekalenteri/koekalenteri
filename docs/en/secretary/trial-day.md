@@ -14,7 +14,7 @@ covers:
   - src/pages/admin/eventViewPage/infoPanel/ResultsPublishing.tsx
   - src/pages/admin/components/KcIdLookupButton.tsx
   - src/pages/admin/components/StartDaySelector.tsx
-sourceHash: 25cc63
+sourceHash: 954b99
 ---
 
 On the trial day the secretary's job is to record what the dogs did and to get the results in
@@ -55,8 +55,8 @@ exercise. A course is usually laid out at the venue, so the page is separate fro
 
 Each trial day gets its own posts with **{t:event.stationAdd}**, numbered from one within the day.
 For a post you record *{t:event.stationParts}*, *{t:event.stationDogsAtOnce}* and
-*{t:event.stationJudges}*, picked from the trial's judges. The parts and the dogs are the post's
-defaults for its exercises. Parts 2 splits an exercise into two parts of 10. *{t:event.stationDogsAtOnce}* says
+*{t:event.stationJudges}*, picked from the trial's judges. The tasks and the dogs are the post's
+defaults for its exercises. Tasks 2 splits an exercise into two parts of 10. *{t:event.stationDogsAtOnce}* says
 how many dogs go into one turn. A post saved earlier in two parts is read as one exercise in two
 parts, so its results stay as they were. A post that is not needed is removed with
 **{t:event.stationRemove}**, and the rest are renumbered.
@@ -66,9 +66,9 @@ group does its exercises. Without groups every class does one exercise at each o
 number order, as before. **{t:event.rotation.add}** adds a group: a class, or a range of its start
 numbers (*{t:event.rotation.firstNumber}* and *{t:event.rotation.lastNumber}* are left empty when the
 group is the whole class). The group's row holds its exercises in order, and for each you pick the
-post, the parts and *{t:event.stationDogsAtOnce}*; otherwise the post's default applies. One post can
+post, the tasks and *{t:event.stationDogsAtOnce}*; otherwise the post's default applies. One post can
 take several exercises, in a row or apart: two exercises at one post are two columns, and a
-two-judge trial can go round the posts twice (1, 2, 1, 2). When an exercise's post changes, its parts
+two-judge trial can go round the posts twice (1, 2, 1, 2). When an exercise's post changes, its tasks
 and dogs at once stay the same, also when they were the old post's defaults. **+** adds an exercise
 at the post of the group's last one, and *{t:event.rotation.visitNone}* removes an exercise while the
 group has others; the whole group is removed with its own bin button. When a group has other than
@@ -77,7 +77,7 @@ four or five exercises, the page warns of it but saves.
 The day's first group does one exercise at each post in number order. The next group is suggested
 from the previous one, since the groups usually all go round the same way: it starts at the post the
 previous group moved to after its first post and goes on in the same order. A post repeated in a row
-stays in a row, so the previous 1, 2, 3, 3 gives 2, 3, 1, 1 and 1, 1, 2, 3 gives 2, 2, 3, 1. An exercise keeps its parts and dogs at
+stays in a row, so the previous 1, 2, 3, 3 gives 2, 3, 1, 1 and 1, 1, 2, 3 gives 2, 2, 3, 1. An exercise keeps its tasks and dogs at
 once with its number. The class is the first class without a group; once every class of the day has
 a group, it is the previous group's class, *{t:event.rotation.firstNumber}* is the previous group's
 last number plus one and *{t:event.rotation.lastNumber}* is left empty. A suggestion can be edited
