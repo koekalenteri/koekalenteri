@@ -1,4 +1,4 @@
-import type { EventStation, JsonEventResult, JsonEventResultTask } from '../types'
+import type { EventExercise, EventRotationGroup, EventStation, JsonEventResult, JsonEventResultTask } from '../types'
 import type { ScoredTask, SubmittedEventResult } from './results'
 import i18n from 'i18next'
 import koemuotoNKM from '../lambda/lib/KLIntegraatio-fixtures/koemuoto-NKM.json'
@@ -11,10 +11,13 @@ import {
   canBeStopped,
   deriveNowtResult,
   dogRound,
+  effectiveJudge,
   eliminatingFaults,
   endedAtExercise,
   endedBefore,
   eventResultPrefix,
+  exercisesAtPost,
+  exerciseTaskOf,
   formatEventResult,
   formatResultLine,
   formatShownResult,
@@ -1181,5 +1184,181 @@ describe('a score stored by post and slot (KOE-1665)', () => {
     ]
 
     expect(toScoredTasks(round, stored).map((task) => task.points)).toEqual([null, 8, 15])
+  })
+})
+
+describe('scores addressed by exercise (KOE-1665, Jukka 2.11.2026)', () => {
+  const day = '2026-09-12' as const
+  const dog = { class: 'ALO', day }
+  /** Posts 1..n of the day, one of them stored before KOE-1665 with `tasks: 2` where asked. */
+  const stations = (count: number, legacySplit?: string) =>
+    Array.from({ length: count }, (_unused, at) => ({
+      date: day,
+      id: `P${at + 1}`,
+      number: at + 1,
+      ...(legacySplit === `P${at + 1}` ? { tasks: 2 as const } : {}),
+    }))
+  const ordered = (...exercises: EventExercise[]): EventRotationGroup[] => [{ class: 'ALO', exercises }]
+  const scored = (exercise: number, points = 15, part?: number) => ({
+    exercise,
+    points,
+    ...(part === undefined ? {} : { part }),
+    updatedAt: '2026-09-12T10:00:00.000Z',
+    updatedBy: 'Sihteeri',
+  })
+  const legacy = (stationId: string, index: number, points = 15) => ({
+    index,
+    points,
+    stationId,
+    updatedAt: '2026-09-12T10:00:00.000Z',
+    updatedBy: 'Sihteeri',
+  })
+  // Four old-style posts, one exercise each, in number order: the layout every production trial has.
+  const fourPosts = { stations: stations(4) }
+  // The truth: three posts, the third doing exercises 3 and 4.
+  const threePosts = {
+    rotations: ordered({ stationId: 'P1' }, { stationId: 'P2' }, { stationId: 'P3' }, { stationId: 'P3' }),
+    stations: stations(3),
+  }
+
+  describe('exerciseTaskOf', () => {
+    it('reads a score stored at a post and its slot there as the exercise of that slot', () => {
+      const round = dogRound(fourPosts, dog)
+      expect(exerciseTaskOf(round, legacy('P3', 0, 13))).toEqual(scored(3, 13))
+      expect(exerciseTaskOf(round, legacy('P1', 0, 11))).toEqual(scored(1, 11))
+    })
+
+    it('reads a post stored with `tasks: 2` as one exercise in two parts', () => {
+      const round = dogRound({ stations: stations(4, 'P2') }, dog)
+      expect(exerciseTaskOf(round, legacy('P2', 0, 8))).toEqual(scored(2, 8, 0))
+      expect(exerciseTaskOf(round, legacy('P2', 1, 9))).toEqual(scored(2, 9, 1))
+      expect(exerciseTaskOf(round, legacy('P3', 0, 12))).toEqual(scored(3, 12))
+    })
+
+    it('reads the slots of a post a group comes to twice in exercise order', () => {
+      const round = dogRound(threePosts, dog)
+      expect(exerciseTaskOf(round, legacy('P3', 1, 18))).toEqual(scored(4, 18))
+    })
+
+    it('leaves a score stored by exercise as it is, and reads nothing of a slot the round does not have', () => {
+      const round = dogRound(fourPosts, dog)
+      expect(exerciseTaskOf(round, scored(4, 18))).toEqual(scored(4, 18))
+      expect(exerciseTaskOf(round, legacy('P3', 1))).toBeUndefined()
+      expect(exerciseTaskOf(round, legacy('P9', 0))).toBeUndefined()
+    })
+  })
+
+  describe('reconcileRoundTasks', () => {
+    it('keeps every score when four posts are corrected to the three the trial had, and the rounds read the same', () => {
+      const before = dogRound(fourPosts, dog)
+      const after = dogRound(threePosts, dog)
+      const stored = [scored(1, 11), scored(2, 12), scored(3, 13), scored(4, 14)]
+
+      expect(roundsDiffer(before, after)).toBe(false)
+      expect(reconcileRoundTasks(before, after, stored)).toEqual({ dropped: [], kept: stored })
+    })
+
+    it('reads scores stored at their posts against the layout they were stored in, and keeps them by exercise', () => {
+      const stored = [legacy('P1', 0, 11), legacy('P2', 0, 12), legacy('P3', 0, 13), legacy('P4', 0, 14)]
+
+      expect(reconcileRoundTasks(dogRound(fourPosts, dog), dogRound(threePosts, dog), stored)).toEqual({
+        dropped: [],
+        kept: [scored(1, 11), scored(2, 12), scored(3, 13), scored(4, 14)],
+      })
+    })
+
+    it('drops the scores of an exercise taken off the end of the running order', () => {
+      const after = dogRound(
+        { ...threePosts, rotations: ordered({ stationId: 'P1' }, { stationId: 'P2' }, { stationId: 'P3' }) },
+        dog
+      )
+      const stored = [scored(1), scored(2), scored(3), scored(4, 14)]
+
+      expect(roundsDiffer(dogRound(threePosts, dog), after)).toBe(true)
+      expect(reconcileRoundTasks(dogRound(threePosts, dog), after, stored)).toEqual({
+        dropped: [scored(4, 14)],
+        kept: [scored(1), scored(2), scored(3)],
+      })
+    })
+
+    it('drops the scores of an exercise now split another way, whole to parts and parts to whole', () => {
+      const split = dogRound(
+        {
+          ...threePosts,
+          rotations: ordered(
+            { stationId: 'P1' },
+            { parts: 2, stationId: 'P2' },
+            { stationId: 'P3' },
+            { stationId: 'P3' }
+          ),
+        },
+        dog
+      )
+      const whole = dogRound(threePosts, dog)
+
+      expect(roundsDiffer(whole, split)).toBe(true)
+      expect(reconcileRoundTasks(whole, split, [scored(1), scored(2, 16)])).toEqual({
+        dropped: [scored(2, 16)],
+        kept: [scored(1)],
+      })
+      expect(reconcileRoundTasks(split, whole, [scored(2, 8, 0), scored(2, 9, 1)])).toEqual({
+        dropped: [scored(2, 8, 0), scored(2, 9, 1)],
+        kept: [],
+      })
+    })
+
+    it('reads a new order of the same posts as no difference, the scores staying with their exercise', () => {
+      const reordered = dogRound(
+        {
+          ...threePosts,
+          rotations: ordered({ stationId: 'P3' }, { stationId: 'P3' }, { stationId: 'P1' }, { stationId: 'P2' }),
+        },
+        dog
+      )
+      expect(roundsDiffer(dogRound(threePosts, dog), reordered)).toBe(false)
+    })
+  })
+
+  describe('exercisesAtPost', () => {
+    it('names the exercises a group does at a post, from its posts in exercise order', () => {
+      expect(exercisesAtPost(['P1', 'P2', 'P3', 'P3'], 'P3')).toEqual([3, 4])
+      expect(exercisesAtPost(['P1', 'P2', 'P3', 'P3'], 'P4')).toEqual([])
+    })
+  })
+
+  describe('a post scoped by its exercises', () => {
+    const atThird = [3, 4]
+
+    it("replaces the post's exercises and leaves the others as stored", () => {
+      const stored = [scored(1, 11), scored(3, 13), scored(4, 14)]
+      const submitted = [scored(3, 17), scored(4, 18)]
+
+      expect(mergeStationTasks(stored, submitted, atThird)).toEqual([scored(1, 11), scored(3, 17), scored(4, 18)])
+    })
+
+    it("versions the post by its exercises' latest write", () => {
+      const stored = [{ ...scored(1), updatedAt: '2026-09-12T12:00:00.000Z' }, scored(4)]
+      expect(stationVersion(stored, atThird)).toEqual('2026-09-12T10:00:00.000Z')
+      expect(sameStationTasks(stored, [scored(4)], atThird)).toBe(true)
+    })
+  })
+
+  describe('effectiveJudge', () => {
+    const a = { id: 1, name: 'A' }
+    const b = { id: 2, name: 'B' }
+    const c = { id: 3, name: 'C' }
+
+    it("takes the stored judge where it is one of the post's judges", () => {
+      expect(effectiveJudge({ judge: b }, [a, b])).toEqual(b)
+    })
+
+    it("takes the post's first judge where the exercise's post changed since", () => {
+      expect(effectiveJudge({ judge: c }, [a, b])).toEqual(a)
+      expect(effectiveJudge({}, [a, b])).toEqual(a)
+    })
+
+    it('keeps the stored judge where the post names none', () => {
+      expect(effectiveJudge({ judge: c }, [])).toEqual(c)
+    })
   })
 })

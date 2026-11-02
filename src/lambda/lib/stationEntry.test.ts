@@ -201,6 +201,61 @@ describe('stationEntry', () => {
       expect(dog.eventResult?.tasks).toHaveLength(1)
       expect(dog.eventResult?.tasks?.[0]).toMatchObject({ points: 17, stationId: 'post-1' })
     })
+    describe('a post doing two exercises of the running order (KOE-1665, Jukka 2.11.2026)', () => {
+      const posts = [1, 2, 3].map((number) => ({ date: '2026-09-12' as const, id: `post-${number}`, number }))
+      const third = posts[2]
+      const corrected = {
+        ...confirmedEvent,
+        rotations: [
+          {
+            class: 'ALO' as const,
+            exercises: [
+              { stationId: 'post-1' },
+              { stationId: 'post-2' },
+              { stationId: 'post-3' },
+              { stationId: 'post-3' },
+            ],
+          },
+        ],
+        stations: posts,
+      }
+      const byExercise = (exercise: number, points: number) => ({ exercise, points, updatedAt: 't1', updatedBy: 'u' })
+
+      it('serves both exercises of the post, the scores of both, and no other', () => {
+        const scored = registration('run-1', {
+          eventResult: {
+            tasks: [byExercise(1, 11), byExercise(3, 13), byExercise(4, 14)],
+            updatedAt: 't1',
+            updatedBy: 'u',
+          },
+        })
+
+        const entries = stationEntryResponse(corrected, third, [scored]).registrations
+
+        expect(entries.map((dog) => dog.visit?.exercise)).toEqual([3, 4])
+        expect(entries[0].eventResult?.tasks).toEqual([
+          { exercise: 3, points: 13, updatedAt: 't1', updatedBy: 'u' },
+          { exercise: 4, points: 14, updatedAt: 't1', updatedBy: 'u' },
+        ])
+      })
+
+      it('serves a score stored at its post and slot there by its exercise', () => {
+        const stored = registration('run-1', {
+          eventResult: {
+            tasks: [
+              { index: 0, points: 13, stationId: 'post-3', updatedAt: 't1', updatedBy: 'u' },
+              { index: 0, points: 11, stationId: 'post-1', updatedAt: 't1', updatedBy: 'u' },
+            ],
+            updatedAt: 't1',
+            updatedBy: 'u',
+          },
+        })
+
+        const [entry] = stationEntryResponse(corrected, third, [stored]).registrations
+
+        expect(entry.eventResult?.tasks).toEqual([{ exercise: 3, points: 13, updatedAt: 't1', updatedBy: 'u' }])
+      })
+    })
   })
 
   describe('scopeResultToStation', () => {
