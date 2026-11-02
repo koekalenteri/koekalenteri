@@ -56,7 +56,7 @@ Jokaiselle koepäivälle lisätään omat suorituspaikkansa painikkeella **{t:ev
 numeroidaan päivän sisällä yhdestä alkaen. Suorituspaikalle kirjataan *{t:event.stationParts}*,
 *{t:event.stationDogsAtOnce}* ja *{t:event.stationJudges}*, jotka valitaan kokeen tuomareista.
 Osajako ja koiramäärä ovat paikan oletuksia sen rasteille. Osajako 2 jakaa rastin kahteen 10 pisteen
-osaan; ensimmäisen palkinnon alaraja, puolet rastin pisteistä, koskee silloin osien summaa.
+osaan.
 *{t:event.stationDogsAtOnce}* kertoo, montako koiraa otetaan kerralla samaan vuoroon. Aiemmin
 kahteen osaan tallennettu paikka luetaan yhtenä rastina kahdessa osassa, joten sen tulokset
 säilyvät ennallaan. Tarpeeton suorituspaikka poistetaan painikkeella
