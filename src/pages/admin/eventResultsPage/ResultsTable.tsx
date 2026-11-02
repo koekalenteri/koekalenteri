@@ -297,17 +297,21 @@ function ResultsTable({
             <TableCell align="right">{t('results.column.number')}</TableCell>
             <TableCell>{t('results.column.team')}</TableCell>
             {qualitative && <TableCell>{t('results.judge')}</TableCell>}
-            {round.map((task) => (
-              <TableCell align="center" key={columnKey(task)}>
-                {columnName(task)}
-                {/* A post's lone judge is the same on every row, so it is said once, here. */}
-                {judgesFor(task.stationId).length === 1 && (
-                  <Typography component="div" variant="caption" sx={{ color: 'text.secondary', fontWeight: 400 }}>
-                    {judgesFor(task.stationId)[0].name}
-                  </Typography>
-                )}
-              </TableCell>
-            ))}
+            {round.map((task) => {
+              const [only, ...others] = judgesFor(task.stationId)
+
+              return (
+                <TableCell align="center" key={columnKey(task)}>
+                  {columnName(task)}
+                  {/* A post's lone judge is the same on every row, so it is said once, here. */}
+                  {only && others.length === 0 && (
+                    <Typography component="div" variant="caption" sx={{ color: 'text.secondary', fontWeight: 400 }}>
+                      {only.name}
+                    </Typography>
+                  )}
+                </TableCell>
+              )
+            })}
             {/* An entered result comes first, since whether a stop can stand depends on it; a derived one
                 sums the row up and closes it. */}
             {qualitative && <TableCell>{t('results.column.result')}</TableCell>}

@@ -25,9 +25,9 @@ const PHONE = 360
 const judge: PublicJudge = { id: 223, name: 'Tuomari 2', official: true }
 const noop = () => {}
 
-/** The dogs that ran; a reserve has no row on this screen. */
 // Registered names are upper case and long, so the dog's cell has to take one that does not fit a column.
 const realNames = ["MIDDLE RIVER'S DRAGON VERMAX", 'GOLDWOOD TIGER LILY RH']
+/** The dogs that ran; a reserve has no row on this screen. */
 const runners = registrationsToEventWithStations
   .filter((reg) => reg.group?.key !== 'reserve')
   .map((reg, index) => (realNames[index] ? { ...reg, dog: { ...reg.dog, name: realNames[index] } } : reg))

@@ -149,10 +149,10 @@ välilehdillään. Sivulla ovat vain osallistujiksi nostetut koirakot starttijä
 **Rasteilla pisteytettävä koe (NOWT).** Jokaisella rastilla on oma sarakkeensa rastin numerolla,
 "Rasti 1", "Rasti 2" ja niin edelleen, riippumatta siitä, missä suorituspaikassa ryhmä rastin teki.
 Kahteen osaan jaetun rastin osat ovat omissa sarakkeissaan, esimerkiksi "Rasti 2, osa 1/2". Koiran
-rivillä on kenttä vain sen oman ryhmän rasteille. Pisteet kirjoitetaan kenttään, jonka alla näkyy
-rastin enimmäispistemäärä. Kentän alla on rastin arvostellut tuomari: yhden tuomarin
-suorituspaikalla nimi vain näytetään, useamman tuomarin paikalla se valitaan ja valinta siirtyy
-seuraavalle koirakolle. Nolla pistettä vaatii syyn kenttään *{t:results.zeroFault}*. Jos
+rivillä on kenttä vain sen oman ryhmän rasteille. Pisteet kirjoitetaan kenttään, jonka vieressä näkyy
+rastin enimmäispistemäärä. Jos suorituspaikalla on yksi tuomari, hänen nimensä näkyy sarakkeen
+otsikossa; useamman tuomarin paikalla tuomari valitaan kentän alta ja valinta siirtyy seuraavalle
+koirakolle. Koiran nimi, rekisterinumero ja ohjaaja ovat samassa sarakkeessa *{t:results.column.team}*. Nolla pistettä vaatii syyn kenttään *{t:results.zeroFault}*. Jos
 arvostelukortista ei käy ilmi, miksi rasti nollattiin, valitaan *{t:results.zeroFaults.unknown}*.
 Tulos lasketaan riville itsestään sääntöjen mukaan: yksikin nolla
 estää palkintosijan, ja rivin alla näkyy pisteiden summa. Valinnalla *{t:results.scope}* sivun
@@ -169,6 +169,7 @@ palkintosija 1–3, nolla tai viiva, NOU- ja NKM-kokeessa vain hyväksytty tai h
 !shot[ResultsTable/results-entry-nou] NOU-kokeen tulokset: tuomari ja tulos
 
 **Keskeytys.** Kentästä *{t:results.interruption}* kirjataan, jos koirakon koe päättyi kesken.
+Taulukossa kenttä näkyy rivillä pelkkänä viivana, kunnes keskeytys valitaan.
 Työkokeessa (NOWT) vaihtoehdot ja niiden tulokset sääntöjen mukaan ovat:
 
 - *{t:results.retirement.handlerChoice}*: tulos on nolla. Jos tuomarin mielestä koiralla olisi vielä

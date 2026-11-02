@@ -60,6 +60,7 @@ export const TaskScore = ({
   const points = value?.points ?? null
   const ceiling = taskEntryCeiling({ maxPoints: task.maxPoints, recalled: value?.recalled })
   // A part's name ("Tehtävä 2, osa 1/2") needs the room its label takes where the field shows it.
+  const ceilingText = `/ ${ceiling}`
   // A table column has two digits to show and a ceiling beside it, so its field is the narrower.
   let width = inline ? 48 : 64
   if (showName) width = task.parts > 1 ? 150 : 96
@@ -149,7 +150,7 @@ export const TaskScore = ({
       sx={{ width }}
       value={points ?? undefined}
       // The ceiling belongs on screen: an ALO recall halves it, and the entry is capped either way.
-      helperText={inline ? undefined : `/ ${ceiling}`}
+      helperText={inline ? undefined : ceilingText}
     />
   )
 
@@ -159,7 +160,7 @@ export const TaskScore = ({
         <Stack direction="row" spacing={0.5} sx={{ alignItems: 'center' }}>
           {input}
           <Typography variant="caption" sx={{ color: 'text.secondary', whiteSpace: 'nowrap' }}>
-            {`/ ${ceiling}`}
+            {ceilingText}
           </Typography>
         </Stack>
         {judgeSelect}

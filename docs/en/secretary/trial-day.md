@@ -14,7 +14,7 @@ covers:
   - src/pages/admin/eventViewPage/infoPanel/ResultsPublishing.tsx
   - src/pages/admin/components/KcIdLookupButton.tsx
   - src/pages/admin/components/StartDaySelector.tsx
-sourceHash: 25cc63
+sourceHash: 8c414a
 ---
 
 On the trial day the secretary's job is to record what the dogs did and to get the results in
@@ -146,9 +146,10 @@ running order.
 **A trial scored by exercise (NOWT).** Every exercise has its own column by its number, "Exercise
 1", "Exercise 2" and so on, whatever post the group did it at. The parts of an exercise split in two
 have columns of their own, for example "Exercise 2, part 1/2". A dog's row has a field only for its
-own group's exercises. The points go in a field under which the exercise's maximum shows. Under the
-field is the judge who judged the exercise: at a post with one judge the name is just shown, at a
-post with several it is picked, and the choice carries over to the next dog. Zero points need a
+own group's exercises. The points go in a field beside which the exercise's maximum shows. At a post
+with one judge the judge's name shows in the column heading; at a post with several the judge is
+picked under the field, and the choice carries over to the next dog. The dog's name, registration
+number and handler share the *{t:results.column.team}* column. Zero points need a
 reason in the *{t:results.zeroFault}* field. When the scorecard does not say why the exercise scored
 nothing, pick *{t:results.zeroFaults.unknown}*. The result is worked out on the row by itself, as the
 rules say: a single zero rules out a prize, and the total of the points shows under the row. With
@@ -164,7 +165,8 @@ trials only pass or fail. Beside it is *{t:results.judge}*, when the class has m
 
 !shot[ResultsTable/results-entry-nou] A NOU trial's results: judge and result
 
-**Interruption.** The *{t:results.interruption}* field records a dog's trial that ended early. In a
+**Interruption.** The *{t:results.interruption}* field records a dog's trial that ended early. In the
+table the field shows as a lone dash on the row until an interruption is picked. In a
 working test (NOWT) the choices and their results under the rules are:
 
 - *{t:results.retirement.handlerChoice}*: the result is a nought. If the judge holds that the dog
