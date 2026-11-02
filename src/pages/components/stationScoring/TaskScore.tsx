@@ -11,6 +11,78 @@ import { nowtZeroFaults, taskEntryCeiling } from '@/lib/results'
 import { effectiveJudge, isRecordedTask } from '@/lib/resultTasks'
 import { NumberInput } from '../NumberInput'
 
+/**
+ * A part's name ("Tehtävä 2, osa 1/2") needs the room its label takes where the field shows it; a table
+ * column has two digits to show and a ceiling beside it, so its field is the narrower.
+ */
+const scoreFieldWidth = (inline: boolean, showName: boolean, parts: number) => {
+  if (showName) return parts > 1 ? 150 : 96
+  return inline ? 48 : 64
+}
+
+const selectWidth = (inline: boolean) => (inline ? { width: 130 } : { minWidth: 150 })
+
+interface ZeroFaultProps {
+  readonly value?: NowtZeroFault
+  readonly disabled?: boolean
+  readonly inline: boolean
+  readonly onChange: (event: React.ChangeEvent<HTMLInputElement>) => void
+}
+
+/** A zero without a reason is the one thing that makes the whole series unanswerable later. */
+const ZeroFaultField = ({ value, disabled, inline, onChange }: ZeroFaultProps) => {
+  const { t } = useTranslation()
+
+  return (
+    <TextField
+      disabled={disabled}
+      error={!value}
+      label={t('results.zeroFault')}
+      onChange={onChange}
+      select
+      size="small"
+      sx={selectWidth(inline)}
+      value={value ?? ''}
+    >
+      {nowtZeroFaults.map((item) => (
+        <MenuItem key={item} value={item}>
+          {t(`results.zeroFaults.${item}`)}
+        </MenuItem>
+      ))}
+    </TextField>
+  )
+}
+
+interface JudgeFieldProps {
+  readonly judges: PublicJudge[]
+  readonly value?: PublicJudge
+  readonly disabled?: boolean
+  readonly inline: boolean
+  readonly onChange: (event: React.ChangeEvent<HTMLInputElement>) => void
+}
+
+const JudgeField = ({ judges, value, disabled, inline, onChange }: JudgeFieldProps) => {
+  const { t } = useTranslation()
+
+  return (
+    <TextField
+      disabled={disabled}
+      label={t('results.judge')}
+      onChange={onChange}
+      select
+      size="small"
+      sx={selectWidth(inline)}
+      value={value ? String(value.id) : ''}
+    >
+      {judges.map((candidate) => (
+        <MenuItem key={candidate.id} value={String(candidate.id)}>
+          {candidate.name}
+        </MenuItem>
+      ))}
+    </TextField>
+  )
+}
+
 interface Props {
   readonly task: ExerciseSlot
   readonly value?: TaskEdit
@@ -59,11 +131,8 @@ export const TaskScore = ({
   const judge = effectiveJudge(value, judges, defaultJudge)
   const points = value?.points ?? null
   const ceiling = taskEntryCeiling({ maxPoints: task.maxPoints, recalled: value?.recalled })
-  // A part's name ("Tehtävä 2, osa 1/2") needs the room its label takes where the field shows it.
   const ceilingText = `/ ${ceiling}`
-  // A table column has two digits to show and a ceiling beside it, so its field is the narrower.
-  let width = inline ? 48 : 64
-  if (showName) width = task.parts > 1 ? 150 : 96
+  const width = scoreFieldWidth(inline, showName, task.parts)
 
   const handlePoints = useCallback(
     (next?: number) => {
@@ -104,41 +173,11 @@ export const TaskScore = ({
   }
 
   const fault = points === 0 && (
-    <TextField
-      disabled={disabled}
-      error={!value?.zeroFault}
-      // A zero without a reason is the one thing that makes the whole series unanswerable later.
-      label={t('results.zeroFault')}
-      onChange={handleFault}
-      select
-      size="small"
-      sx={inline ? { width: 130 } : { minWidth: 150 }}
-      value={value?.zeroFault ?? ''}
-    >
-      {nowtZeroFaults.map((item) => (
-        <MenuItem key={item} value={item}>
-          {t(`results.zeroFaults.${item}`)}
-        </MenuItem>
-      ))}
-    </TextField>
+    <ZeroFaultField disabled={disabled} inline={inline} onChange={handleFault} value={value?.zeroFault} />
   )
 
   const judgeSelect = judges.length > 1 && (
-    <TextField
-      disabled={disabled}
-      label={t('results.judge')}
-      onChange={handleJudge}
-      select
-      size="small"
-      sx={inline ? { width: 130 } : { minWidth: 150 }}
-      value={judge ? String(judge.id) : ''}
-    >
-      {judges.map((candidate) => (
-        <MenuItem key={candidate.id} value={String(candidate.id)}>
-          {candidate.name}
-        </MenuItem>
-      ))}
-    </TextField>
+    <JudgeField disabled={disabled} inline={inline} judges={judges} onChange={handleJudge} value={judge} />
   )
 
   const input = (

@@ -1,3 +1,4 @@
+import type { TextFieldProps } from '@mui/material/TextField'
 import type { ExerciseSlot } from '@/lib/resultTasks'
 import type { EliminatingFault, EventStation } from '@/types'
 import type { ResultEdit } from './types'
@@ -43,6 +44,22 @@ const JUDGE_STOPPED = 'judgeStopped'
 const RETIREMENTS = ['handlerChoice', 'injury', 'illness'] as const
 type Retirement = (typeof RETIREMENTS)[number]
 const retirementOf = (value: string): Retirement | undefined => RETIREMENTS.find((cause) => cause === value)
+
+/** A table cell is as wide as its fields, so a long label wraps instead of widening the column. */
+const TABLE_CELL_WIDTH = { width: 160 }
+
+/** The column header names a control nothing has been chosen in, so it shrinks to a dash. */
+const idleSelectProps = (name: string): TextFieldProps['slotProps'] => ({
+  // A screen reader still gets the name the visible label would have given.
+  htmlInput: { 'aria-label': name },
+  select: {
+    displayEmpty: true,
+    MenuProps: { slotProps: { paper: { sx: { minWidth: 240 } } } },
+    renderValue: () => '–',
+  },
+})
+
+const outcomeFieldSx = (idle: boolean) => (idle ? { minWidth: 0, width: 72 } : { minWidth: 190 })
 
 interface Props {
   readonly value: ResultEdit
@@ -209,8 +226,7 @@ export const RoundOutcome = ({
   if (!asksOutcome(eventType, carriesStop)) return null
 
   return (
-    // In a table the cell is as wide as its fields, so a long label wraps instead of widening the column.
-    <Stack spacing={0.5} sx={inline && !idle ? { width: 160 } : undefined}>
+    <Stack spacing={0.5} sx={inline && !idle ? TABLE_CELL_WIDTH : undefined}>
       {/* With the stop the only thing on offer, a locked stop is a locked control; with the reasons of
           KOE-1299 beside it, only the stop's own line goes grey. */}
       <TextField
@@ -219,20 +235,8 @@ export const RoundOutcome = ({
         onChange={handleOutcome}
         select
         size="small"
-        slotProps={
-          idle
-            ? {
-                // The column header names the control, so a screen reader still gets its name.
-                htmlInput: { 'aria-label': t(labels.field) },
-                select: {
-                  displayEmpty: true,
-                  MenuProps: { slotProps: { paper: { sx: { minWidth: 240 } } } },
-                  renderValue: () => '–',
-                },
-              }
-            : undefined
-        }
-        sx={{ minWidth: idle ? 0 : 190, width: idle ? 72 : undefined }}
+        slotProps={idle ? idleSelectProps(t(labels.field)) : undefined}
+        sx={outcomeFieldSx(idle)}
         value={outcome}
       >
         {/* Completing the round is the default, so this reads as the absence of a note rather than an
