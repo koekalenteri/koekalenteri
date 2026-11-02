@@ -225,6 +225,7 @@ function ResultsTable({
           carriesStop={carriesStop(registration)}
           disabled={disabled}
           eventType={eventType}
+          inline={!compact}
           places={qualitative ? undefined : places}
           stationId={stationId}
           stations={stations}
@@ -295,7 +296,6 @@ function ResultsTable({
           <TableRow>
             <TableCell align="right">{t('results.column.number')}</TableCell>
             <TableCell>{t('results.column.team')}</TableCell>
-            <TableCell>{t('dog.regNo')}</TableCell>
             {qualitative && <TableCell>{t('results.judge')}</TableCell>}
             {round.map((task) => (
               <TableCell align="center" key={columnKey(task)}>
@@ -323,13 +323,12 @@ function ResultsTable({
             return (
               <TableRow hover key={registration.id}>
                 <TableCell align="right">{getRegistrationPlacement(registration)?.number}</TableCell>
-                <TableCell sx={{ minWidth: 280 }}>
+                <TableCell sx={{ minWidth: 260 }}>
                   {registration.dog.name}
                   <Typography component="div" variant="body2" sx={{ color: 'text.secondary' }}>
-                    {registration.handler?.name}
+                    {[registration.dog.regNo, registration.handler?.name].filter(Boolean).join(' · ')}
                   </Typography>
                 </TableCell>
-                <TableCell>{registration.dog.regNo}</TableCell>
                 {qualitative && <TableCell>{controls.judge}</TableCell>}
                 {controls.tasks.map((task, index) => (
                   <TableCell align="center" key={columnKey(round[index])}>

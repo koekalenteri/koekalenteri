@@ -62,6 +62,11 @@ interface Props {
   /** The stored result carries a judge's stop, which stays clearable where the format has none. */
   readonly carriesStop?: boolean
   readonly onChange: (edit: ResultEdit) => void
+  /**
+   * A table cell: a round that was simply scored is the rule and an outcome the exception, so until one
+   * is picked the control is a narrow dash under its column header rather than a field of its own.
+   */
+  readonly inline?: boolean
 }
 
 /** An exercise of the dog's running order and the post it is done at. */
@@ -90,6 +95,7 @@ export const RoundOutcome = ({
   stationId,
   places,
   carriesStop = false,
+  inline = false,
   onChange,
 }: Props) => {
   const { t } = useTranslation()
@@ -146,6 +152,8 @@ export const RoundOutcome = ({
       ]
     : retirements
 
+  const idle = inline && outcome === SCORED
+
   const handleOutcome = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
       const next = event.target.value
@@ -201,16 +209,30 @@ export const RoundOutcome = ({
   if (!asksOutcome(eventType, carriesStop)) return null
 
   return (
-    <Stack spacing={0.5}>
+    // In a table the cell is as wide as its fields, so a long label wraps instead of widening the column.
+    <Stack spacing={0.5} sx={inline ? { width: 190 } : undefined}>
       {/* With the stop the only thing on offer, a locked stop is a locked control; with the reasons of
           KOE-1299 beside it, only the stop's own line goes grey. */}
       <TextField
         disabled={disabled || (stopLocked && reasons.length === 0)}
-        label={t(labels.field)}
+        label={idle ? undefined : t(labels.field)}
         onChange={handleOutcome}
         select
         size="small"
-        sx={{ minWidth: 190 }}
+        slotProps={
+          idle
+            ? {
+                // The column header names the control, so a screen reader still gets its name.
+                htmlInput: { 'aria-label': t(labels.field) },
+                select: {
+                  displayEmpty: true,
+                  MenuProps: { slotProps: { paper: { sx: { minWidth: 240 } } } },
+                  renderValue: () => '–',
+                },
+              }
+            : undefined
+        }
+        sx={{ minWidth: idle ? 0 : 190, width: idle ? 72 : undefined }}
         value={outcome}
       >
         {/* Completing the round is the default, so this reads as the absence of a note rather than an

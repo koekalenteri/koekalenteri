@@ -21,8 +21,9 @@ interface Props {
   /** Whether {@link name} is rendered as a visible label. */
   readonly showName?: boolean
   /**
-   * One row of a table: the ceiling and a zero's reason sit beside the field instead of under it, and a
-   * lone judge is left to the column header, so the row keeps one height whatever is entered.
+   * One row of a table: the ceiling sits beside the field, and a lone judge is left to the column header.
+   * A zero's reason and a chosen judge stay narrow, so a column never grows past the width it has
+   * without them and the table does not scroll sideways.
    */
   readonly inline?: boolean
   /** Who may have judged this task: the post's own judges, or the class's where the post names none. */
@@ -109,7 +110,7 @@ export const TaskScore = ({
       onChange={handleFault}
       select
       size="small"
-      sx={{ minWidth: inline ? 120 : 150 }}
+      sx={inline ? { width: 130 } : { minWidth: 150 }}
       value={value?.zeroFault ?? ''}
     >
       {nowtZeroFaults.map((item) => (
@@ -127,7 +128,7 @@ export const TaskScore = ({
       onChange={handleJudge}
       select
       size="small"
-      sx={{ minWidth: inline ? 120 : 150 }}
+      sx={inline ? { width: 130 } : { minWidth: 150 }}
       value={judge ? String(judge.id) : ''}
     >
       {judges.map((candidate) => (
@@ -153,11 +154,13 @@ export const TaskScore = ({
 
   if (inline) {
     return (
-      <Stack direction="row" spacing={0.5} sx={{ alignItems: 'center', justifyContent: 'center' }}>
-        {input}
-        <Typography variant="caption" sx={{ color: 'text.secondary', whiteSpace: 'nowrap' }}>
-          {`/ ${ceiling}`}
-        </Typography>
+      <Stack spacing={0.5} sx={{ alignItems: 'center' }}>
+        <Stack direction="row" spacing={0.5} sx={{ alignItems: 'center' }}>
+          {input}
+          <Typography variant="caption" sx={{ color: 'text.secondary', whiteSpace: 'nowrap' }}>
+            {`/ ${ceiling}`}
+          </Typography>
+        </Stack>
         {judgeSelect}
         {fault}
       </Stack>

@@ -1221,7 +1221,7 @@ describe('a pass/fail event type', () => {
     await renderQualitativePage(i18n.language as Language)
     await flushPromises()
 
-    expect(within(rowFor('Ensimmainen')).getByText('REG-run-1')).toBeInTheDocument()
+    expect(within(rowFor('Ensimmainen')).getByText(/REG-run-1/)).toBeInTheDocument()
   })
 
   it('states a lone event judge and attributes the result to them', async () => {
