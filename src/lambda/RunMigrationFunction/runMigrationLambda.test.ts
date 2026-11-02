@@ -2516,8 +2516,12 @@ describe('runMigrationLambda', () => {
     })
 
     it('gives a first prize to a second stored at 80 % with a task under half, and records it on the trail', async () => {
-      // 64 of 80 with exercise 4 at 9 of 20; stored before the totals were kept, so they come with it.
-      mockReadEventRegistrations.mockResolvedValueOnce([row('reg1', { result: 'ALO2', tasks: scored(20, 20, 15, 9) })])
+      // 64 of 80 with exercise 4 at 9 of 20; stored before the totals were kept, so they come with it. The
+      // second prize was sent to Omakoira as this version of the result.
+      const kcResult = { payloadHash: 'sent-hash', resultVersion: at.updatedAt, status: 'sent' as const }
+      mockReadEventRegistrations.mockResolvedValueOnce([
+        { ...row('reg1', { result: 'ALO2', tasks: scored(20, 20, 15, 9) }), kcResult },
+      ])
 
       await runMigrationLambda(directEvent)
 
@@ -2530,6 +2534,8 @@ describe('runMigrationLambda', () => {
             'eventResult.percentage': 80,
             'eventResult.points': 64,
             'eventResult.result': 'ALO1',
+            // A new version of the result: the one sent no longer matches, so the dog reads as changed.
+            'eventResult.updatedAt': expect.not.stringContaining(at.updatedAt),
             updatedAt: expect.not.stringMatching(/^read$/),
           },
         },

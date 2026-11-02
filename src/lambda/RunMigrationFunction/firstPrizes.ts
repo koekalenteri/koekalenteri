@@ -34,6 +34,9 @@ export const restoreFirstPrize = (registration: JsonRegistration, event: JsonDog
   stored.points = resolved.points
   stored.maxPoints = resolved.maxPoints
   stored.percentage = resolved.percentage
+  // A new version of the result, so a dog sent to Omakoira with the second prize reads as changed
+  // (`kcResultBadge` compares the version sent with this) and is sent again.
+  stored.updatedAt = new Date().toISOString()
   return true
 }
 
@@ -42,17 +45,14 @@ export const auditRestoredFirstPrizes = async (
   written: readonly { before: JsonRegistration; item: JsonRegistration }[]
 ) => {
   for (const { before, item } of written) {
-    const previous = before.eventResult?.result
-    const result = item.eventResult?.result
+    const eventClass = item.class ?? undefined
+    const previous = shownEventResult(before.eventResult?.result, item.eventType, eventClass)
+    const result = shownEventResult(item.eventResult?.result, item.eventType, eventClass)
     if (!previous || !result || previous === result) continue
 
-    const eventClass = item.class ?? undefined
     await audit({
       auditKey: registrationAuditKey({ eventId: item.eventId, id: item.id }),
-      ...resultRederivedAudit(
-        shownEventResult(previous, item.eventType, eventClass) ?? previous,
-        shownEventResult(result, item.eventType, eventClass) ?? result
-      ),
+      ...resultRederivedAudit(previous, result),
       user: 'system',
     })
   }

@@ -104,7 +104,9 @@ describe('restoreFirstPrizes against DynamoDB-local (KOE-1677)', () => {
     await runMigrationLambda(constructPartialAPIGwEvent({}))
 
     const raised = await readRegistration(eventId, lowered.id, true)
-    expect(raised?.eventResult).toEqual({ ...lowered.eventResult, result: 'ALO1' })
+    expect(raised?.eventResult).toEqual({ ...lowered.eventResult, result: 'ALO1', updatedAt: expect.any(String) })
+    // A new version of the result, so a dog sent with the second prize reads as changed.
+    expect(raised?.eventResult?.updatedAt).not.toBe(lowered.eventResult.updatedAt)
     expect(raised?.updatedAt).not.toBe(lowered.updatedAt)
     await expect(readRegistration(eventId, earned.id, true)).resolves.toEqual(earned)
 
@@ -120,5 +122,7 @@ describe('restoreFirstPrizes against DynamoDB-local (KOE-1677)', () => {
     // A second run finds nothing more to do.
     await runMigrationLambda(constructPartialAPIGwEvent({}))
     await expect(readAuditTrail(`${eventId}:${lowered.id}`)).resolves.toHaveLength(1)
+    await expect(readRegistration(eventId, lowered.id, true)).resolves.toEqual(raised)
+    await expect(readRegistration(eventId, earned.id, true)).resolves.toEqual(earned)
   })
 })
