@@ -20,6 +20,11 @@ interface Props {
   readonly name: string
   /** Whether {@link name} is rendered as a visible label. */
   readonly showName?: boolean
+  /**
+   * One row of a table: the ceiling and a zero's reason sit beside the field instead of under it, and a
+   * lone judge is left to the column header, so the row keeps one height whatever is entered.
+   */
+  readonly inline?: boolean
   /** Who may have judged this task: the post's own judges, or the class's where the post names none. */
   readonly judges: PublicJudge[]
   /** Carried over from the dog before, since a post is usually judged by the same person all day. */
@@ -40,6 +45,7 @@ export const TaskScore = ({
   disabled,
   name,
   showName = false,
+  inline = false,
   judges,
   defaultJudge,
   onChange,
@@ -94,6 +100,70 @@ export const TaskScore = ({
     )
   }
 
+  const fault = points === 0 && (
+    <TextField
+      disabled={disabled}
+      error={!value?.zeroFault}
+      // A zero without a reason is the one thing that makes the whole series unanswerable later.
+      label={t('results.zeroFault')}
+      onChange={handleFault}
+      select
+      size="small"
+      sx={{ minWidth: inline ? 120 : 150 }}
+      value={value?.zeroFault ?? ''}
+    >
+      {nowtZeroFaults.map((item) => (
+        <MenuItem key={item} value={item}>
+          {t(`results.zeroFaults.${item}`)}
+        </MenuItem>
+      ))}
+    </TextField>
+  )
+
+  const judgeSelect = judges.length > 1 && (
+    <TextField
+      disabled={disabled}
+      label={t('results.judge')}
+      onChange={handleJudge}
+      select
+      size="small"
+      sx={{ minWidth: inline ? 120 : 150 }}
+      value={judge ? String(judge.id) : ''}
+    >
+      {judges.map((candidate) => (
+        <MenuItem key={candidate.id} value={String(candidate.id)}>
+          {candidate.name}
+        </MenuItem>
+      ))}
+    </TextField>
+  )
+
+  const input = (
+    <NumberInput
+      disabled={disabled}
+      label={showName ? name : undefined}
+      onChange={handlePoints}
+      slotProps={showName ? undefined : { input: { inputProps: { 'aria-label': name } } }}
+      sx={{ width }}
+      value={points ?? undefined}
+      // The ceiling belongs on screen: an ALO recall halves it, and the entry is capped either way.
+      helperText={inline ? undefined : `/ ${ceiling}`}
+    />
+  )
+
+  if (inline) {
+    return (
+      <Stack direction="row" spacing={0.5} sx={{ alignItems: 'center', justifyContent: 'center' }}>
+        {input}
+        <Typography variant="caption" sx={{ color: 'text.secondary', whiteSpace: 'nowrap' }}>
+          {`/ ${ceiling}`}
+        </Typography>
+        {judgeSelect}
+        {fault}
+      </Stack>
+    )
+  }
+
   return (
     <Stack
       spacing={0.5}
@@ -101,16 +171,7 @@ export const TaskScore = ({
         alignItems: 'center',
       }}
     >
-      <NumberInput
-        disabled={disabled}
-        label={showName ? name : undefined}
-        onChange={handlePoints}
-        slotProps={showName ? undefined : { input: { inputProps: { 'aria-label': name } } }}
-        sx={{ width }}
-        value={points ?? undefined}
-        // The ceiling belongs on screen: an ALO recall halves it, and the entry is capped either way.
-        helperText={`/ ${ceiling}`}
-      />
+      {input}
       {/*
           The AC's two shapes. One judge is a fact to state, not a choice to offer; several is a choice,
           and the previous dog's judge is the likely answer because a post is manned all day.
@@ -125,42 +186,8 @@ export const TaskScore = ({
           {judges[0].name}
         </Typography>
       )}
-      {judges.length > 1 && (
-        <TextField
-          disabled={disabled}
-          label={t('results.judge')}
-          onChange={handleJudge}
-          select
-          size="small"
-          sx={{ minWidth: 150 }}
-          value={judge ? String(judge.id) : ''}
-        >
-          {judges.map((candidate) => (
-            <MenuItem key={candidate.id} value={String(candidate.id)}>
-              {candidate.name}
-            </MenuItem>
-          ))}
-        </TextField>
-      )}
-      {points === 0 && (
-        <TextField
-          disabled={disabled}
-          error={!value?.zeroFault}
-          // A zero without a reason is the one thing that makes the whole series unanswerable later.
-          label={t('results.zeroFault')}
-          onChange={handleFault}
-          select
-          size="small"
-          sx={{ minWidth: 150 }}
-          value={value?.zeroFault ?? ''}
-        >
-          {nowtZeroFaults.map((fault) => (
-            <MenuItem key={fault} value={fault}>
-              {t(`results.zeroFaults.${fault}`)}
-            </MenuItem>
-          ))}
-        </TextField>
-      )}
+      {judgeSelect}
+      {fault}
     </Stack>
   )
 }

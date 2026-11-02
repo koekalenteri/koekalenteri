@@ -12,7 +12,7 @@ import { describeInLanguage } from '@/test-utils/language'
 import ResultsTable from './ResultsTable'
 
 /** Wrapper the screenshot is taken of: a fixed width and an opaque background keep captures stable. */
-const Frame = ({ children, width = 1150 }: { readonly children: React.ReactNode; readonly width?: number }) => (
+const Frame = ({ children, width = 1280 }: { readonly children: React.ReactNode; readonly width?: number }) => (
   <div data-testid="visual-root" style={{ background: '#fff', padding: 16, width }}>
     <ThemeProvider theme={theme}>{children}</ThemeProvider>
   </div>
@@ -25,7 +25,11 @@ const judge: PublicJudge = { id: 223, name: 'Tuomari 2', official: true }
 const noop = () => {}
 
 /** The dogs that ran; a reserve has no row on this screen. */
-const runners = registrationsToEventWithStations.filter((reg) => reg.group?.key !== 'reserve')
+// Registered names are upper case and long, so the dog's cell has to take one that does not fit a column.
+const realNames = ["MIDDLE RIVER'S DRAGON VERMAX", 'GOLDWOOD TIGER LILY RH']
+const runners = registrationsToEventWithStations
+  .filter((reg) => reg.group?.key !== 'reserve')
+  .map((reg, index) => (realNames[index] ? { ...reg, dog: { ...reg.dog, name: realNames[index] } } : reg))
 
 // Every dog of the fixture is one group, so one round stands for all of them.
 const round = dogRound(eventWithStations, rotationDogOf(registrationsToEventWithStations[0]))
@@ -397,7 +401,7 @@ describeInLanguage('en', () => {
     const screen = await render(<Frame>{nowtTable()}</Frame>)
 
     await expect.element(screen.getByText('ALO1')).toBeVisible()
-    await expect.element(screen.getByRole('columnheader', { name: 'Dog' })).toBeVisible()
+    await expect.element(screen.getByRole('columnheader', { name: 'Team' })).toBeVisible()
     await expect(screen.getByTestId('visual-root')).toMatchScreenshot('results-entry-nowt-en')
   })
 
@@ -405,7 +409,7 @@ describeInLanguage('en', () => {
     const screen = await render(<Frame>{nouTable()}</Frame>)
 
     await expect.element(screen.getByText('NOU1')).toBeVisible()
-    await expect.element(screen.getByRole('columnheader', { name: 'Dog' })).toBeVisible()
+    await expect.element(screen.getByRole('columnheader', { name: 'Team' })).toBeVisible()
     await expect(screen.getByTestId('visual-root')).toMatchScreenshot('results-entry-nou-en')
   })
 
@@ -413,7 +417,7 @@ describeInLanguage('en', () => {
     const screen = await render(<Frame>{nomeBTable()}</Frame>)
 
     await expect.element(screen.getByText('ALO1')).toBeVisible()
-    await expect.element(screen.getByRole('columnheader', { name: 'Dog' })).toBeVisible()
+    await expect.element(screen.getByRole('columnheader', { name: 'Team' })).toBeVisible()
     await expect(screen.getByTestId('visual-root')).toMatchScreenshot('results-entry-nome-b-en')
   })
 })

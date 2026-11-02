@@ -1173,7 +1173,8 @@
       "placement": "Sija",
       "result": "Tulos",
       "task": "Rasti {{number}}",
-      "taskPart": "Rasti {{number}}, osa {{part}}/{{parts}}"
+      "taskPart": "Rasti {{number}}, osa {{part}}/{{parts}}",
+      "team": "Koirakko"
     },
     "conflictInfo": "Näitä tuloksia on muutettu muualla sillä välin. Valitse kumpi jää voimaan.",
     "conflictMine": "Sinun: {{result}}",
@@ -1183,7 +1184,7 @@
     "conflicts_other": "{{count}} tulosta on muuttunut muualla. Tarkista ja tallenna uudelleen.",
     "conflictTitle": "Ristiriitaiset tulokset",
     "copyLiveEntryLink": "Kopioi live-kirjauksen linkki",
-    "couldStillHavePlaced": "Olisi vielä voinut palkintosijoille",
+    "couldStillHavePlaced": "Olisi vielä voinut sijoittua palkintosijoille",
     "eliminatingFaults": {
       "aggression": "Aggressiivinen käyttäytyminen",
       "chasedUnshotGame": "Ampumattoman riistan takaa-ajaminen",

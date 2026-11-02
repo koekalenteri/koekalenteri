@@ -257,6 +257,7 @@ function ResultsTable({
             key={taskKey(task)}
             name={formatTaskName(task, t)}
             notReached={notReached(task)}
+            inline={!compact}
             showName={compact}
             onChange={setTask}
             onJudgeChange={(item, judge) => {
@@ -289,17 +290,22 @@ function ResultsTable({
 
   return (
     <TableContainer component={Paper} variant="outlined">
-      <Table size="small" stickyHeader>
+      <Table size="small" stickyHeader sx={{ '& td': { py: 0.5 } }}>
         <TableHead>
           <TableRow>
             <TableCell align="right">{t('results.column.number')}</TableCell>
-            <TableCell>{t('results.column.dog')}</TableCell>
+            <TableCell>{t('results.column.team')}</TableCell>
             <TableCell>{t('dog.regNo')}</TableCell>
-            <TableCell>{t('results.column.handler')}</TableCell>
             {qualitative && <TableCell>{t('results.judge')}</TableCell>}
             {round.map((task) => (
               <TableCell align="center" key={columnKey(task)}>
                 {columnName(task)}
+                {/* A post's lone judge is the same on every row, so it is said once, here. */}
+                {judgesFor(task.stationId).length === 1 && (
+                  <Typography component="div" variant="caption" sx={{ color: 'text.secondary', fontWeight: 400 }}>
+                    {judgesFor(task.stationId)[0].name}
+                  </Typography>
+                )}
               </TableCell>
             ))}
             {/* An entered result comes first, since whether a stop can stand depends on it; a derived one
@@ -317,9 +323,13 @@ function ResultsTable({
             return (
               <TableRow hover key={registration.id}>
                 <TableCell align="right">{getRegistrationPlacement(registration)?.number}</TableCell>
-                <TableCell>{registration.dog.name}</TableCell>
+                <TableCell sx={{ minWidth: 280 }}>
+                  {registration.dog.name}
+                  <Typography component="div" variant="body2" sx={{ color: 'text.secondary' }}>
+                    {registration.handler?.name}
+                  </Typography>
+                </TableCell>
                 <TableCell>{registration.dog.regNo}</TableCell>
-                <TableCell>{registration.handler?.name}</TableCell>
                 {qualitative && <TableCell>{controls.judge}</TableCell>}
                 {controls.tasks.map((task, index) => (
                   <TableCell align="center" key={columnKey(round[index])}>
