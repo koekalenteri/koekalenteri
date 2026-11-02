@@ -4,6 +4,7 @@ import { scoresAtPosts } from '../../lib/liveFormat'
 import { parseEventResultCode, resolveEventResult, shownEventResult } from '../../lib/results'
 import { dogRound } from '../../lib/resultTasks'
 import { rotationDogOf } from '../../lib/rotation'
+import { mapWithConcurrency } from '../../lib/utils'
 import { audit, registrationAuditKey } from '../lib/audit'
 
 /**
@@ -40,24 +41,32 @@ export const restoreFirstPrize = (registration: JsonRegistration, event: JsonDog
   return true
 }
 
+/** Audit lines written at once: each goes to its own registration's trail. */
+const AUDIT_CONCURRENCY = 5
+
+type WrittenRow = { before: JsonRegistration; item: JsonRegistration }
+
+/** The audit line of a row whose result a migration changed, or nothing for a row it did not. */
+const rederivedResultAudit = ({ before, item }: WrittenRow) => {
+  const eventClass = item.class ?? undefined
+  const previous = shownEventResult(before.eventResult?.result, item.eventType, eventClass)
+  const result = shownEventResult(item.eventResult?.result, item.eventType, eventClass)
+  if (!previous || !result || previous === result) return []
+
+  return [
+    {
+      auditKey: registrationAuditKey({ eventId: item.eventId, id: item.id }),
+      ...resultRederivedAudit(previous, result),
+      user: 'system',
+    },
+  ]
+}
+
 /**
  * Records on each registration whose result a migration changed what it was and what it is now: the first
  * prize `restoreFirstPrize` raised (KOE-1677), and the nought `storeEliminationsAsNought` gave an
  * elimination stored as the dash (KOE-1678).
  */
-export const auditRederivedResults = async (
-  written: readonly { before: JsonRegistration; item: JsonRegistration }[]
-) => {
-  for (const { before, item } of written) {
-    const eventClass = item.class ?? undefined
-    const previous = shownEventResult(before.eventResult?.result, item.eventType, eventClass)
-    const result = shownEventResult(item.eventResult?.result, item.eventType, eventClass)
-    if (!previous || !result || previous === result) continue
-
-    await audit({
-      auditKey: registrationAuditKey({ eventId: item.eventId, id: item.id }),
-      ...resultRederivedAudit(previous, result),
-      user: 'system',
-    })
-  }
+export const auditRederivedResults = async (written: readonly WrittenRow[]) => {
+  await mapWithConcurrency(written.flatMap(rederivedResultAudit), AUDIT_CONCURRENCY, (record) => audit(record))
 }
