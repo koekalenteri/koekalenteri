@@ -294,28 +294,6 @@ export const nowtTotals = (tasks: readonly ScoredTask[]) => {
 const atLeastPercent = (points: number, maxPoints: number, percent: number) => points * 100 >= percent * maxPoints
 
 /**
- * Every task must yield at least half its points for a first prize. A task worth 20 therefore has a
- * floor of 10. Where a task splits into two parts the floor applies to their sum, so 9 + 8 clears it
- * although neither part reaches 10. Two exercises at one post are floored each on its own (KOE-1665).
- *
- * Not printed in §5.4.1, which gives the thresholds and nothing else — Jukka asserted the rule, so it
- * is practice or lives in the ohjeet. Tracked as unverified in the rules conformance ledger.
- */
-const everyTaskAtLeastHalf = (tasks: readonly ScoredTask[]): boolean => {
-  const sums = new Map<string, { points: number; maxPoints: number }>()
-
-  for (const task of tasks) {
-    const key = String(task.task)
-    const sum = sums.get(key) ?? { maxPoints: 0, points: 0 }
-    sum.points += task.points ?? 0
-    sum.maxPoints += task.maxPoints
-    sums.set(key, sum)
-  }
-
-  return [...sums.values()].every((sum) => sum.points * 2 >= sum.maxPoints)
-}
-
-/**
  * The prize for a round scored at posts.
  *
  * Returns `undefined` while the round is still incomplete, so a half-entered scorecard shows no prize
@@ -347,8 +325,10 @@ export const deriveNowtResult = ({ tasks, elimination, retirement }: NowtResultI
   const { points, maxPoints } = nowtTotals(tasks)
   if (maxPoints === 0) return '0'
 
-  // The per-task floor gates the first prize only; second and third go on the total alone.
-  if (atLeastPercent(points, maxPoints, NOWT_PRIZE_THRESHOLD_PERCENT[1]) && everyTaskAtLeastHalf(tasks)) return '1'
+  // §5.4.1 (edition 15.4.2023) places on the total alone: 80, 65 and 50 % of the maximum. The rules
+  // replaced in 2016 also asked half of each task's points for a first prize; that floor went on 2.11.2026
+  // (KOE-1677).
+  if (atLeastPercent(points, maxPoints, NOWT_PRIZE_THRESHOLD_PERCENT[1])) return '1'
   if (atLeastPercent(points, maxPoints, NOWT_PRIZE_THRESHOLD_PERCENT[2])) return '2'
   if (atLeastPercent(points, maxPoints, NOWT_PRIZE_THRESHOLD_PERCENT[3])) return '3'
 

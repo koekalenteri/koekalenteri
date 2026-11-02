@@ -301,6 +301,13 @@ export const resultRecomputedAudit = (result: string, dropped: number) =>
     ? auditMessage('audit.messages.resultRecomputedDropped', { dropped, result })
     : auditMessage('audit.messages.resultRecomputed', { result })
 
+/**
+ * A working test result whose first prize the per-task floor had withheld, raised by the data migration
+ * (KOE-1677): the result before and after, as KoiraNet lists them.
+ */
+export const resultRederivedAudit = (previous: string, result: string) =>
+  auditMessage('audit.messages.resultRederived', { previous, result })
+
 /** A result sent to Kennelliitto's Omakoira (KOE-1140). */
 export const resultSentToKennelliittoAudit = () => auditMessage('audit.messages.resultSentToKennelliitto')
 

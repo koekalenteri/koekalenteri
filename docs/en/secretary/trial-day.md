@@ -14,7 +14,7 @@ covers:
   - src/pages/admin/eventViewPage/infoPanel/ResultsPublishing.tsx
   - src/pages/admin/components/KcIdLookupButton.tsx
   - src/pages/admin/components/StartDaySelector.tsx
-sourceHash: 800f66
+sourceHash: 4c7edf
 ---
 
 On the trial day the secretary's job is to record what the dogs did and to get the results in
@@ -56,8 +56,7 @@ exercise. A course is usually laid out at the venue, so the page is separate fro
 Each trial day gets its own posts with **{t:event.stationAdd}**, numbered from one within the day.
 For a post you record *{t:event.stationParts}*, *{t:event.stationDogsAtOnce}* and
 *{t:event.stationJudges}*, picked from the trial's judges. The parts and the dogs are the post's
-defaults for its exercises. Parts 2 splits an exercise into two parts of 10; the first-prize floor,
-half the exercise's points, then applies to the sum of the parts. *{t:event.stationDogsAtOnce}* says
+defaults for its exercises. Parts 2 splits an exercise into two parts of 10. *{t:event.stationDogsAtOnce}* says
 how many dogs go into one turn. A post saved earlier in two parts is read as one exercise in two
 parts, so its results stay as they were. A post that is not needed is removed with
 **{t:event.stationRemove}**, and the rest are renumbered.

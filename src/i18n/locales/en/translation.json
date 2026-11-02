@@ -81,6 +81,7 @@
       "resultChangedDetail": "Changed the result: {{result}}",
       "resultRecomputed": "Recomputed the result after the posts or the running order changed: {{result}}",
       "resultRecomputedDropped": "Recomputed the result after the posts or the running order changed, {{dropped}} recorded exercises removed: {{result}}",
+      "resultRederived": "Corrected the prize to the rules in force (KOE-1677): {{previous}} -> {{result}}",
       "resultSaved": "Saved the result",
       "resultSavedDetail": "Saved the result: {{result}}",
       "resultSendFailed": "Could not send the result to Omakoira: {{reason}}",

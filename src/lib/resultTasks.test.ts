@@ -85,9 +85,9 @@ describe('toScoredTasks', () => {
 
   it('joins entries onto the round by exercise and part', () => {
     expect(toScoredTasks(round, [scored(1, 0, 9), scored(1, 1, 8), scored(2, 0, 18)])).toEqual([
-      { maxPoints: 10, points: 9, task: 1 },
-      { maxPoints: 10, points: 8, task: 1 },
-      { maxPoints: 20, points: 18, task: 2 },
+      { maxPoints: 10, points: 9 },
+      { maxPoints: 10, points: 8 },
+      { maxPoints: 20, points: 18 },
     ])
   })
 
@@ -106,7 +106,7 @@ describe('toScoredTasks', () => {
 
   it('ignores entries for exercises the round does not have', () => {
     expect(toScoredTasks(postSlots('post-1', { parts: 1, tasks: 1, tasksBefore: 0 }), [scored(5, 0, 20)])).toEqual([
-      { maxPoints: 20, points: null, task: 1 },
+      { maxPoints: 20, points: null },
     ])
   })
 })

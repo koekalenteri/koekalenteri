@@ -2087,8 +2087,8 @@ describe('putEventLambda', () => {
     })
 
     it('asks before dropping recorded scores, then recomputes so placement and the sending match the table', async () => {
-      // Two exercises at the first post, one at the second: A 8 + 12 + 20 = 40/60 (8 is under the first
-      // prize's floor, so ALO2), B 12 + 12 + 12 = 36/60 (ALO3). A places first.
+      // Two exercises at the first post, one at the second: A 8 + 12 + 20 = 40/60 (66.7 %, so ALO2),
+      // B 12 + 12 + 12 = 36/60 (60 %, ALO3). A places first.
       await record(nowtEvent, { 'dog-a': scores([8, 12], 20), 'dog-b': scores([12, 12], 12) })
       expect(placementsFor(stored())).toEqual(
         new Map([

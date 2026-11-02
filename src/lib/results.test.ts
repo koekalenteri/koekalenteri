@@ -46,15 +46,11 @@ const postSlots = (
     visitSlots(stationId, { exercise: tasksBefore + at + 1, parts })
   ).flat()
 
-/** A scored part of an exercise, by the exercise's number. */
-const task = (exercise: number, points: number | null, maxPoints = 20): ScoredTask => ({
-  maxPoints,
-  points,
-  task: exercise,
-})
+/** A scored exercise, or a part of one where its maximum is 10. */
+const task = (points: number | null, maxPoints = 20): ScoredTask => ({ maxPoints, points })
 
 /** A four-exercise round, scored as given. */
-const round = (...points: (number | null)[]): ScoredTask[] => points.map((value, index) => task(index + 1, value))
+const round = (...points: (number | null)[]): ScoredTask[] => points.map((value) => task(value))
 
 describe('nowtTotals', () => {
   it('sums points and maxima and reports the exact ratio', () => {
@@ -73,33 +69,20 @@ describe('nowtTotals', () => {
 describe('deriveNowtResult', () => {
   it('awards a first prize on 65 of 80, which the absolute rules figure calls a second', () => {
     // The case the percentage rule exists for: 65 points is §5.4.1's second-prize number, but on a
-    // four-post round it is 81.25 % and every post clears its floor of 10.
+    // four-post round it is 81.25 %.
     expect(deriveNowtResult({ tasks: round(17, 18, 16, 14) })).toBe('1')
   })
 
-  it('applies the floor to a split task, not to its individual parts', () => {
-    const tasks = [task(1, 9, 10), task(1, 8, 10), task(2, 18), task(3, 16), task(4, 14)]
-
-    // 9 and 8 each fall under 10, but the task totals 17 of 20 and clears the floor.
-    expect(deriveNowtResult({ tasks })).toBe('1')
+  it('awards a first prize at 80 % although one task yields under half its points (KOE-1677)', () => {
+    // 64 of 80 is exactly 80 %, with exercise 4 at 9 of 20. §5.4.1 of the 15.4.2023 edition sets no
+    // floor per task; the one that asked for half of each task belonged to the rules replaced in 2016.
+    expect(deriveNowtResult({ tasks: round(20, 20, 15, 9) })).toBe('1')
+    // The same with the low score on a split exercise: 9 + 3 of 20.
+    expect(deriveNowtResult({ tasks: [task(9, 10), task(3, 10), ...round(20, 20, 20)] })).toBe('1')
   })
 
-  it('floors each of two exercises at one post on its own (KOE-1665)', () => {
-    const twoTasks = (second: number) => [task(1, 20), task(2, 20), task(3, 20), task(4, second)]
-
-    // Exercises 3 and 4 at one post: 29 of 40 would clear a floor on the post's sum; exercise 4 alone has 9 of 20.
-    expect(deriveNowtResult({ tasks: twoTasks(9) })).toBe('2')
-    expect(deriveNowtResult({ tasks: twoTasks(10) })).toBe('1')
-  })
-
-  it('drops to a second prize when one post falls below half', () => {
-    // 80 % overall, but post 4 yields 9 of 20.
-    expect(deriveNowtResult({ tasks: round(20, 20, 15, 9) })).toBe('2')
-  })
-
-  it('gates only the first prize on the per-post floor', () => {
-    // 50 of 80 is 62.5 %, and two posts sit at 5 of 20 — well under half. Second and third prizes go
-    // on the total alone, so this is a third prize rather than a zero.
+  it('places on the total alone when tasks yield under half their points', () => {
+    // 50 of 80 is 62.5 %, with two tasks at 5 of 20: a third prize rather than a zero.
     expect(deriveNowtResult({ tasks: round(20, 20, 5, 5) })).toBe('3')
   })
 
@@ -236,14 +219,12 @@ describe('taskEntryCeiling', () => {
     expect(taskEntryCeiling({ maxPoints: 10, recalled: true })).toBe(5)
   })
 
-  it('leaves a recalled dog needing a flawless re-send to keep a first prize', () => {
-    // The ceiling and the per-post floor meet at 10, so only a perfect remainder stays eligible. This
-    // is the intended penalty, not an off-by-one: scoring against the reduced ceiling instead would
-    // hand out first prizes the rules disallow.
+  it('keeps the forfeited half of a recalled task as the penalty', () => {
+    // 16 + 16 + 16 + 10 is 58 of 80, 72.5 %: a second prize. Scored against the reduced ceiling it would
+    // be 58 of 70, 82.9 %, and a first prize the rules disallow.
     const ceiling = taskEntryCeiling({ maxPoints: 20, recalled: true })
 
-    expect(deriveNowtResult({ tasks: [...round(20, 20, 20), task(4, ceiling)] })).toBe('1')
-    expect(deriveNowtResult({ tasks: [...round(20, 20, 20), task(4, ceiling - 1)] })).toBe('2')
+    expect(deriveNowtResult({ tasks: [...round(16, 16, 16), task(ceiling)] })).toBe('2')
   })
 })
 
