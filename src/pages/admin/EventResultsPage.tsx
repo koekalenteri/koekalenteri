@@ -239,9 +239,6 @@ export default function EventResultsPage() {
       // (KOE-1665): the row holds the whole round, the other posts' scores included.
       const here = scoped && registration ? exercisesAtPost(exercisePostsOf(fullRoundFor(registration)), scope) : []
       const tasks = scoped ? edit.tasks.filter((task) => here.includes(task.exercise)) : edit.tasks
-      // A result is entered only where nothing derives one: a type scored at posts takes its result from
-      // the scores (§5.4.1), and the server refuses a code for it (KOE-1678).
-      const resultCode = scoresAtPosts(event?.eventType) ? undefined : edit.resultCode
 
       return {
         // The version this edit was made against, so the server can tell a second writer from a retry.
@@ -249,7 +246,7 @@ export default function EventResultsPage() {
         eventResult: {
           elimination: edit.elimination,
           ...(edit.judge ? { judge: edit.judge } : {}),
-          ...(resultCode ? { resultCode } : {}),
+          ...(edit.resultCode ? { resultCode: edit.resultCode } : {}),
           retirement: edit.retirement,
           tasks,
         },
@@ -257,7 +254,7 @@ export default function EventResultsPage() {
         ...(scoped ? { stationId: scope } : {}),
       }
     },
-    [event?.eventType, fullRoundFor, registrations, scope, scoped]
+    [fullRoundFor, registrations, scope, scoped]
   )
 
   const report = useCallback(

@@ -178,7 +178,7 @@ describe('nowtZeroFaults', () => {
 })
 
 describe('eliminatingFaults', () => {
-  it('lists §5.3.5 one to one and in its order for NOWT, then the stop §5.4.1 names', () => {
+  it('lists for NOWT the four faults of §5.3.5 in its order, then harshHandling', () => {
     for (const eventType of ['NOWT', 'NOWT SM']) {
       expect(eliminatingFaults(eventType)).toEqual([
         'aggression',
