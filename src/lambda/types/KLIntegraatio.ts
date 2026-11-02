@@ -43,8 +43,11 @@ export type KLIntKoemuodonTulos = {
   järjestys: number
   keskeytys: boolean
   /**
-   * The point range Kennelliitto lists for the result. A range of 0 to 0 sets no limit: Testi2 took 30 and
-   * 60 on ALO0, AVO- and VOI- on 2.11.2026, and refused 60 on AVO0 and ALO-, whose range is 0 to 49.
+   * The point range Kennelliitto lists for the result. Omakoira does not enforce it as listed, and its
+   * checks changed within a day (Testi2, 2.11.2026, with AVO0/VOI0 and ALO- listed as 0 to 49, ALO0,
+   * AVO- and VOI- as 0 to 0): in the afternoon it refused 60 on AVO0, VOI0 and ALO- and took 30 and 60 on
+   * ALO0, AVO- and VOI-; in the evening it took 60 on AVO0 and 63.75 on VOI0, and still refused 60 on ALO-
+   * and 80 on ALO2. Nothing reads it; a refusal of the points is retried with 0 instead (KOE-1676).
    */
   pisteetMax: number
   pisteetMin: number

@@ -37,6 +37,7 @@ import {
   registrationDaysMismatchAudit,
   resultRecomputedAudit,
   resultSavedAudit,
+  resultSentToKennelliittoAudit,
   resultsPublishedAudit,
   startListAudit,
   startNumberPublishedAudit,
@@ -421,6 +422,11 @@ describe('formatAuditMessage', () => {
       'ALO tulokset julkaistu la 12.9.',
     ],
     [registrationCancelledAudit('dog-heat'), 'Ilmoittautuminen peruttiin, syy: Koiran juoksut'],
+    [resultSentToKennelliittoAudit(), 'Lähetti tuloksen Omakoiraan'],
+    [
+      resultSentToKennelliittoAudit(63.75),
+      'Lähetti tuloksen Omakoiraan pisteillä 0, koska Omakoira ei ottanut vastaan pisteitä 63,75. Pisteet kirjataan Omakoiraan käsin.',
+    ],
     [registrationCancelledAudit(), 'Ilmoittautuminen peruttiin, syy: (ei täytetty)'],
     [refundPaytrailFailedAudit(500), 'Maksun palautus epäonnistui Paytrailissa (500): Tuntematon virhe'],
     [

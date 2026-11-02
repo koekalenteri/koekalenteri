@@ -242,6 +242,11 @@ export interface JsonKcResult {
   errors?: string[]
   /** The call that failed was the one adding the foreign dog to Kennelliitto; no result was sent (KOE-1201). */
   dogNotAdded?: true
+  /**
+   * The points Omakoira refused for the result, which it then took with 0 (KOE-1676): to be entered in
+   * Omakoira by hand. Kept until a sending is accepted with the points.
+   */
+  pointsByHand?: number
 }
 
 /** `at` as the client holds it; `day` is a day key, a string on both sides of the wire. */

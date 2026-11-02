@@ -295,52 +295,17 @@ describe('kennelliittoResults', () => {
       expect('sijoitus' in body).toEqual(false)
     })
 
-    /** What a NOWT dog sends as points, and what the secretary is told to enter by hand. */
-    const pointsSent = (fields: Partial<JsonEventResult>, cls: RegistrationClass) => {
-      // A nought or a dash ranks nowhere, so the placement is read only for a prize.
-      const outcome = nowt(fields, { cls })
-      if (!outcome.ok) throw new Error(`not sendable: ${outcome.problems.map((p) => p.code).join(',')}`)
-      return [outcome.body.pisteet, outcome.pointsByHand]
-    }
-
-    // Koe/Koemuoto lists VOI0/AVO0 and ALO- as 0 to 49, VOI-/AVO- and ALO0 as 0 to 0, VOI3 as 50 to 64.
-    // Testi2 (2.11.2026) enforces the 0 to 49 rows and takes any points on a 0 to 0 row.
+    // Kennelliitto's list of ranges is not what Omakoira enforces (Testi2 2.11.2026), so nothing is
+    // checked here: a refusal of the range is retried with 0 by the sending (KOE-1676).
     it.each([
-      ['a prize', 'VOI', { percentage: 66.25, result: 'VOI2' }, [66.25, undefined]],
-      ['a nought of a whole round under 50 %', 'VOI', { percentage: 40, result: 'VOI0' }, [40, undefined]],
-      ['an ALO dash under 50 %', 'ALO', { percentage: 30, result: 'ALO-' }, [30, undefined]],
-      ['a nought with no points', 'AVO', { percentage: 0, result: 'AVO0' }, [0, undefined]],
-      ['a nought at its maximum', 'AVO', { percentage: 49, result: 'AVO0' }, [49, undefined]],
-      ['a nought just above its maximum', 'AVO', { percentage: 49.5, result: 'AVO0' }, [0, 49.5]],
-      ['a VOI nought over 49 %', 'VOI', { percentage: 60, result: 'VOI0' }, [0, 60]],
-      [
-        'a stopped nought over 49 %',
-        'AVO',
-        { percentage: 63.75, result: 'AVO0', retirement: { cause: 'judgeStopped', exercise: 3 } },
-        [0, 63.75],
-      ],
-      ['an ALO dash over 49 %', 'ALO', { percentage: 60, result: 'ALO-' }, [0, 60]],
-      ['an ALO nought, whose 0 to 0 row sets no limit', 'ALO', { percentage: 40, result: 'ALO0' }, [40, undefined]],
-      ['an ALO nought over 49 %', 'ALO', { percentage: 60, result: 'ALO0' }, [60, undefined]],
-      [
-        'an AVO dash, whose 0 to 0 row sets no limit',
-        'AVO',
-        { percentage: 20, result: 'AVO-', retirement: { cause: 'injury' } },
-        [20, undefined],
-      ],
-      ['a VOI dash over 49 %', 'VOI', { percentage: 60, result: 'VOI-' }, [60, undefined]],
-      [
-        'a value above the maximum of a row that does not take 0',
-        'VOI',
-        { percentage: 70, result: 'VOI3' },
-        [70, undefined],
-      ],
-    ] as const)(
-      'sends %s as Kennelliitto takes it, the rest for entering by hand (KOE-1676)',
-      (_name, cls, fields, expected) => {
-        expect(pointsSent(fields, cls)).toEqual(expected)
-      }
-    )
+      ['a prize', 'VOI', { percentage: 66.25, result: 'VOI2' }],
+      ['a nought over 49 %', 'AVO', { percentage: 60, result: 'AVO0' }],
+      ['a stopped nought', 'VOI', { percentage: 63.75, result: 'VOI0', retirement: { cause: 'judgeStopped' } }],
+      ['an ALO dash over 49 %', 'ALO', { percentage: 60, result: 'ALO-' }],
+      ['a dash', 'AVO', { percentage: 20, result: 'AVO-', retirement: { cause: 'injury' } }],
+    ] as const)('sends the percentage of %s as it is (KOE-1676)', (_name, cls, fields) => {
+      expect(sent(nowt(fields, { cls })).pisteet).toEqual(fields.percentage)
+    })
 
     /** A round an elimination ended at the fourth exercise, as a save stores it: 51 of 80, 63.75 %. */
     const eliminated = (cls: RegistrationClass) => {
@@ -361,16 +326,14 @@ describe('kennelliittoResults', () => {
       )
     }
 
-    it('sends an eliminated round as the nought §5.4.1 gives it, by the limit of its row (KOE-1678)', () => {
-      // AVO0 takes 0 to 49, so the 63.75 % goes for entering by hand; ALO0's 0 to 0 row sets no limit.
+    it('sends an eliminated round as the nought §5.4.1 gives it, with its percentage as it is (KOE-1678)', () => {
       expect(eliminated('AVO')).toMatchObject({ percentage: 63.75, result: 'AVO0' })
-      expect(pointsSent(eliminated('AVO'), 'AVO')).toEqual([0, 63.75])
-      expect(pointsSent(eliminated('ALO'), 'ALO')).toEqual([63.75, undefined])
+      expect(sent(nowt(eliminated('AVO'), { cls: 'AVO' })).pisteet).toEqual(63.75)
     })
 
-    it('sends no points and nothing to enter by hand in a format not scored at posts', () => {
+    it('sends no points in a format not scored at posts', () => {
       const outcome = buildKcResult(event('NOU'), dog(result({ percentage: 60, result: 'NOU0' })), koemuotoNOU)
-      expect(['pisteet' in sent(outcome), 'pointsByHand' in outcome]).toEqual([false, false])
+      expect('pisteet' in sent(outcome)).toEqual(false)
     })
 
     it('sends points 0 for a result stored without a total, as a stopped round was before KOE-1669', () => {

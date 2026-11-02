@@ -130,15 +130,11 @@ interface KcSendResult {
 }
 
 /**
- * Sha-256 of the body as it is sent. The one mapping builds the body, so equal results give equal bodies.
- * The points to enter by hand count too (KOE-1676): a correction that still goes as 0 changes what the
- * secretary has to enter in Omakoira, so the dog reads as changed and is named again. Without them the
- * hash is the body's alone, as it was.
+ * Sha-256 of the body as it is meant to be sent. The one mapping builds the body, so equal results give
+ * equal bodies. A body Omakoira took only with 0 points is hashed with its real points (KOE-1676), so the
+ * dog is sent again when its result changes, and not before.
  */
-const hashKcBody = (body: KcResultBody, pointsByHand: number | undefined): string =>
-  createHash('sha256')
-    .update(JSON.stringify(pointsByHand === undefined ? body : { body, pointsByHand }))
-    .digest('hex')
+const hashKcBody = (body: KcResultBody): string => createHash('sha256').update(JSON.stringify(body)).digest('hex')
 
 const klintOf = (ctx: KcContext): KLIntegraatio => ctx.klint ?? getKLIntegraatio()
 
@@ -288,6 +284,7 @@ const openKcTrial = async (req: KcRequest, { findGuid }: { findGuid: boolean }):
 
 const dogReport = (registration: JsonRegistration, status: KcDogStatus, problems: KcProblem[] = []): KcDogReport => ({
   ...(registration.kcResult?.errors ? { errors: registration.kcResult.errors } : {}),
+  ...(registration.kcResult?.pointsByHand === undefined ? {} : { pointsByHand: registration.kcResult.pointsByHand }),
   ...(getRegistrationClass(registration) ? { eventClass: getRegistrationClass(registration) } : {}),
   id: registration.id,
   name: registration.dog.name ?? '',
@@ -342,19 +339,12 @@ const evaluateKcDog = (
   const problems = [...(outcome.ok ? [] : outcome.problems), ...dayProblems(registration, now)]
   if (!outcome.ok || problems.length) return { registration, report: dogReport(registration, 'blocked', problems) }
 
-  const hash = hashKcBody(outcome.body, outcome.pointsByHand)
+  const hash = hashKcBody(outcome.body)
   const previous = registration.kcResult
   let status: KcDogStatus = 'ready'
   if (previous?.status === 'sent' && previous.payloadHash === hash) status = 'unchanged'
   else if (previous?.payloadHash) status = 'changed'
-  const report = dogReport(registration, status)
-  const { pointsByHand } = outcome
-  return {
-    body: outcome.body,
-    hash,
-    registration,
-    report: pointsByHand === undefined ? report : { ...report, pointsByHand },
-  }
+  return { body: outcome.body, hash, registration, report: dogReport(registration, status) }
 }
 
 /**
@@ -363,9 +353,7 @@ const evaluateKcDog = (
  * rank depends on the other dogs, so the hash of its body moves when another dog's result does.
  *
  * A round that ended early saved before KOE-1669 has no stored totals; they are worked out from its tasks
- * here (`withStoredTotals`), without being saved again: it is sent with what it earned, or, where
- * Kennelliitto takes no more for its result, named with those points for entering by hand (KOE-1676).
- * Those points are part of the hash, so a correction of them reads as changed even when the body is not.
+ * here (`withStoredTotals`), so it is sent with what it earned without being saved again.
  * Each score is judged by the judges of its exercise's post as the event stands.
  */
 const evaluateAll = (
@@ -570,6 +558,8 @@ const keptOf = (previous: JsonKcResult | undefined) => ({
   ...(previous?.day === undefined ? {} : { day: previous.day }),
   ...(previous?.regNo === undefined ? {} : { regNo: previous.regNo }),
   ...(previous?.tulosId === undefined ? {} : { tulosId: previous.tulosId }),
+  // Omakoira still holds the 0 it took, so the points still have to be entered by hand (KOE-1676).
+  ...(previous?.pointsByHand === undefined ? {} : { pointsByHand: previous.pointsByHand }),
 })
 
 const nextKcResult = (
@@ -694,6 +684,31 @@ const addForeignDog = async (
   return settleDog(req, registration, { auditEntry, next, status: call.status }, patches)
 }
 
+/** Omakoira's words for points it does not take with the result (Testi2, 2.11.2026). */
+const RANGE_REFUSAL = 'Tuloksen pistemäärä ei osu tuloksen pistemääräalueelle'
+
+type TallennaCall = Awaited<ReturnType<KLIntegraatio['tallennaTulos']>>
+
+/** Omakoira refused the points of the body for its result, and there are points to drop. */
+const isRangeRefusal = (call: TallennaCall, body: KcResultBody): boolean =>
+  call.status === 400 && Boolean(call.virheet?.includes(RANGE_REFUSAL)) && (body.pisteet ?? 0) > 0
+
+/**
+ * Saves the result. Omakoira does not enforce the points as Kennelliitto's list gives them, and its checks
+ * change (KOE-1676), so the points go as they are; a refusal of their range is sent once more with 0, and
+ * when that is taken, the points are `pointsByHand`, for the secretary to enter in Omakoira.
+ */
+const saveResult = async (
+  req: KcRequest,
+  body: KcResultBody
+): Promise<{ call: TallennaCall; pointsByHand?: number }> => {
+  const client = klintOf(req)
+  const call = await client.tallennaTulos(body, { signal: req.signal })
+  if (!isRangeRefusal(call, body)) return { call }
+  const retry = await client.tallennaTulos({ ...body, pisteet: 0 }, { signal: req.signal })
+  return { call: retry, pointsByHand: body.pisteet }
+}
+
 const sendOne = async (
   req: KcRequest,
   { body, foreignDog, hash, registration }: Sendable,
@@ -705,16 +720,19 @@ const sendOne = async (
   // The version is read before the call: a result saved while Kennelliitto thinks about it is a later
   // version than the one the hash stands for, and reads as changed afterwards.
   const version = registration.eventResult?.updatedAt ?? ''
-  const call = await klintOf(req).tallennaTulos(body, { signal: req.signal })
-  const next = nextKcResult(
+  const { call, pointsByHand } = await saveResult(req, body)
+  const outcome = nextKcResult(
     call,
     { day: body.päivä, hash, regNo: body.rekisterinumero, version },
     registration.kcResult,
     req.userName,
     nowOf(req).toISOString()
   )
+  const next = outcome.status === 'sent' && pointsByHand !== undefined ? { ...outcome, pointsByHand } : outcome
   const auditEntry =
-    next.status === 'sent' ? resultSentToKennelliittoAudit() : resultSendFailedAudit(failureReason(next, call.status))
+    next.status === 'sent'
+      ? resultSentToKennelliittoAudit(next.pointsByHand)
+      : resultSendFailedAudit(failureReason(next, call.status))
   return settleDog(req, registration, { auditEntry, next, status: call.status }, patches)
 }
 
@@ -739,6 +757,7 @@ const sentReport = (
     ...(next.errors ? { errors: next.errors } : {}),
     ...(sent ? {} : { status: callStatus }),
     ...(recorded && next.tulosId !== undefined ? { tulosId: next.tulosId } : {}),
+    ...(sent && recorded && next.pointsByHand !== undefined ? { pointsByHand: next.pointsByHand } : {}),
   }
 }
 
@@ -861,7 +880,7 @@ const switchRegNo = async (
   const dog = { ...registration.dog, regNo: kcDog.regNo }
   mergePatch(options.patches, { dog, id: registration.id, updatedAt })
   const body = { ...item.body, rekisterinumero: kcDog.regNo }
-  return { body, hash: hashKcBody(body, item.report.pointsByHand), registration: { ...registration, dog } }
+  return { body, hash: hashKcBody(body), registration: { ...registration, dog } }
 }
 
 /**
@@ -894,10 +913,7 @@ const sendDog = async (req: KcRequest, item: Evaluated, options: SendOptions): P
     return undefined
   }
   const resolved = await resolveRegNoChoice(req, { ...item, body, hash }, options)
-  if ('outcome' in resolved) return resolved
-  const sent = await sendOne(req, resolved, patches)
-  const { pointsByHand } = report
-  return sent.outcome === 'sent' && pointsByHand !== undefined ? { ...sent, pointsByHand } : sent
+  return 'outcome' in resolved ? resolved : sendOne(req, resolved, patches)
 }
 
 /**

@@ -48,11 +48,11 @@ const sendProps: ComponentProps<typeof KennelliittoSendDialog> = {
   phase: { kind: 'preview', preview },
 }
 
-// Two WT dogs whose points Omakoira takes no more of for their result: one goes now, one went before (KOE-1676).
+// Two WT dogs whose points Omakoira refused when they were last sent, one sent again now and one not: both are named (KOE-1676).
 const pointsByHandPreview: KcPreviewResponse = {
   blockers: [],
   dogs: [
-    { ...dog('20001', 'Hukka', 'ready'), pointsByHand: 63.75 },
+    { ...dog('20001', 'Hukka', 'changed'), pointsByHand: 63.75 },
     dog('20002', 'Rölli', 'ready'),
     { ...dog('20003', 'Musti', 'unchanged'), pointsByHand: 40 },
   ],

@@ -73,8 +73,8 @@ const hasAnythingToSend = (preview: KcPreviewResponse, force: boolean) =>
   !preview.blockers.length && (dogsToSend(preview, force).length > 0 || dogsToDecide(preview).length > 0)
 
 /**
- * The dogs whose result goes with 0 points because Omakoira takes no more for it now, and the points to enter
- * there by hand (KOE-1676). Information only: the dogs are sent all the same.
+ * The dogs whose points Omakoira refused when they were last sent, so the result went with 0, and the stored
+ * points to enter there by hand (KOE-1676). Information only: it changes nothing about what is sent.
  */
 const PointsByHand = ({
   dogs,
@@ -152,7 +152,7 @@ const Preview = ({
         </Alert>
       )}
       <PointsByHand
-        dogs={[...dogsToSend(preview, force), ...dogsToDecide(preview)]}
+        dogs={preview.dogs.filter((dog) => dog.status !== 'blocked')}
         heading={t('results.kennelliitto.pointsByHand')}
       />
       {blocked.length > 0 && (

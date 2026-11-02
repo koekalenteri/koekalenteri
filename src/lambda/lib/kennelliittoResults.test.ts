@@ -128,6 +128,12 @@ let hooks: { asetaTila?: () => void; lue?: () => void }
 let lueStatus: number | undefined
 /** Paths of Kennelliitto that take the request and say nothing. */
 let hungPaths: Set<string>
+/**
+ * Dogs whose points Omakoira refuses for the result (KOE-1676), by registration number: `points` refuses
+ * any points above 0, `always` refuses 0 too.
+ */
+let rangeRefused: Record<string, 'always' | 'points'>
+const RANGE_REFUSAL = 'Tuloksen pistemäärä ei osu tuloksen pistemääräalueelle'
 /** The dogs Kennelliitto knows, by registration number. Any other is answered as Testi2 answers an unknown dog. */
 let kcDogs: Record<string, object>
 /** What the fake does to Koira/Ulkomainen; the default creates the dog. */
@@ -220,6 +226,10 @@ const fakeFetch = async (input: string | URL | Request, init?: RequestInit) => {
         ? new Response(null, { status: 204 })
         : Response.json(reply.body ?? {}, { status: reply.status })
     }
+    const refused = rangeRefused[String(body?.rekisterinumero)]
+    if (refused === 'always' || (refused === 'points' && Number(body?.pisteet) > 0)) {
+      return Response.json({ virheet: [RANGE_REFUSAL] }, { status: 400 })
+    }
     // Testi2 answers the id as a bare number (2.11.2026).
     return Response.json(nextTulosId++)
   }
@@ -302,6 +312,7 @@ describe('kennelliittoResults', () => {
     hooks = {}
     lueStatus = undefined
     hungPaths = new Set()
+    rangeRefused = {}
     kcDogs = {}
     ulkomainenReply = undefined
     nextDogId = 900
@@ -1386,9 +1397,9 @@ describe('kennelliittoResults', () => {
       expect(preview.dogs[0].kcDog).toBeUndefined()
     })
 
-    it('keeps the points to enter by hand in the hash of a dog sent with Kennelliitto’s number (KOE-1676)', async () => {
-      // AVO0 takes 0 to 49, so the dog's 60 % go as 0 and are named for entering by hand.
+    it('names the points to enter by hand of a dog sent with Kennelliitto’s number after a refusal (KOE-1676)', async () => {
       koemuoto = 'NOWT'
+      rangeRefused['FI25555/20'] = 'points'
       registrations = [
         {
           ...swedish('d1', {}),
@@ -1409,6 +1420,10 @@ describe('kennelliittoResults', () => {
       await sendKennelliittoResults(nowt(), ['d1'], { force: false, switchRegNos: ['d1'] })
       const preview = await previewKennelliittoResults(nowt())
 
+      expect(tallennat().map((call) => [call.body?.rekisterinumero, call.body?.pisteet])).toEqual([
+        ['FI25555/20', 60],
+        ['FI25555/20', 0],
+      ])
       expect(preview.dogs.map((item) => [item.regNo, item.status, item.pointsByHand])).toEqual([
         ['FI25555/20', 'unchanged', 60],
       ])
@@ -1604,54 +1619,128 @@ describe('kennelliittoResults', () => {
       ])
     })
 
-    describe('points Kennelliitto takes no more of for the result (KOE-1676)', () => {
-      // AVO0 takes 0 to 49; ALO0's 0 to 0 sets no limit (Testi2 2.11.2026).
+    describe('points Omakoira refuses for the result (KOE-1676)', () => {
+      const bodiesOf = (regNo: string) =>
+        tallennat()
+          .filter((call) => call.body?.rekisterinumero === regNo)
+          .map((call) => call.body?.pisteet)
+      const hashOf = (body: unknown) => createHash('sha256').update(JSON.stringify(body)).digest('hex')
+
       beforeEach(() => {
         registrations = [
           nowtDog('nought', 'FI20009/20', 'AVO0', 60, { class: 'AVO' }),
           nowtDog('free', 'FI20010/20', 'ALO0', 40),
         ]
+        rangeRefused['FI20009/20'] = 'points'
       })
 
-      it('names the dog to enter by hand in the preview, as ready to send', async () => {
-        const preview = await previewKennelliittoResults(nowtCtx())
-
-        expect(preview.dogs.map((dog) => [dog.id, dog.status, dog.pointsByHand])).toEqual([
-          ['nought', 'ready', 60],
-          ['free', 'ready', undefined],
-        ])
-      })
-
-      it('sends 0 in its place and says what to enter by hand once it is sent', async () => {
+      it('sends the points as they are, and retries a refusal of their range with 0', async () => {
         const result = await sendKennelliittoResults(nowtCtx(), ['nought', 'free'], { force: false })
 
-        expect(tallennat().map((call) => [call.body?.rekisterinumero, call.body?.pisteet])).toEqual([
-          ['FI20009/20', 0],
-          ['FI20010/20', 40],
-        ])
+        expect([bodiesOf('FI20009/20'), bodiesOf('FI20010/20')]).toEqual([[60, 0], [40]])
         expect(result.reports.map((report) => [report.id, report.outcome, report.pointsByHand])).toEqual([
           ['nought', 'sent', 60],
           ['free', 'sent', undefined],
         ])
       })
 
-      it('says nothing to enter by hand for a dog Kennelliitto refused', async () => {
+      it('stores the points to enter by hand, and the hash of the body with the points', async () => {
+        await sendKennelliittoResults(nowtCtx(), ['nought'], { force: false })
+
+        const [intended] = tallennat()
+        expect(registrations[0].kcResult).toMatchObject({
+          payloadHash: hashOf(intended.body),
+          pointsByHand: 60,
+          status: 'sent',
+        })
+        expect(mockAudit).toHaveBeenCalledWith(
+          expect.objectContaining({
+            messageKey: 'audit.messages.resultSentToKennelliittoWithoutPoints',
+            messageParams: { points: 60 },
+          })
+        )
+      })
+
+      it('reads the dog as unchanged afterwards, and names it for hand entry from what is stored', async () => {
+        await sendKennelliittoResults(nowtCtx(), ['nought'], { force: false })
+
+        const preview = await previewKennelliittoResults(nowtCtx())
+
+        expect(preview.dogs.map((dog) => [dog.id, dog.status, dog.pointsByHand])).toEqual([
+          ['nought', 'unchanged', 60],
+          ['free', 'ready', undefined],
+        ])
+      })
+
+      it('names a corrected dog with the points refused when it was last sent, not the new ones', async () => {
+        await sendKennelliittoResults(nowtCtx(), ['nought'], { force: false })
+        const [sent] = registrations
+        sent.eventResult = { ...sent.eventResult, percentage: 75, points: 75, updatedAt: 'later', updatedBy: 'S' }
+
+        const preview = await previewKennelliittoResults(nowtCtx())
+
+        // The dialog says "when last sent": the stored value is what Omakoira was given 0 for.
+        expect(preview.dogs.map((dog) => [dog.id, dog.status, dog.pointsByHand])).toEqual([
+          ['nought', 'changed', 60],
+          ['free', 'ready', undefined],
+        ])
+      })
+
+      it('forgets the points to enter by hand once Omakoira takes the points', async () => {
+        await sendKennelliittoResults(nowtCtx(), ['nought'], { force: false })
+        delete rangeRefused['FI20009/20']
+
+        const result = await sendKennelliittoResults(nowtCtx(), ['nought'], { force: true })
+
+        expect(result.reports.map((report) => [report.outcome, report.pointsByHand])).toEqual([['sent', undefined]])
+        expect(registrations[0].kcResult?.pointsByHand).toBeUndefined()
+      })
+
+      it('keeps the points to enter by hand through a later refusal, as Omakoira still holds 0', async () => {
+        await sendKennelliittoResults(nowtCtx(), ['nought'], { force: false })
         tallennaReply['FI20009/20'] = { body: { virheet: ['Ei.'] }, status: 400 }
+
+        await sendKennelliittoResults(nowtCtx(), ['nought'], { force: true })
+
+        expect(registrations[0].kcResult).toMatchObject({ errors: ['Ei.'], pointsByHand: 60, status: 'failed' })
+      })
+
+      it('does not retry a refusal for another reason', async () => {
+        tallennaReply['FI20009/20'] = { body: { virheet: ['Koiran nimi ei täsmää.'] }, status: 400 }
 
         const result = await sendKennelliittoResults(nowtCtx(), ['nought'], { force: false })
 
-        expect(result.reports).toEqual([expect.objectContaining({ id: 'nought', outcome: 'failed' })])
+        expect(bodiesOf('FI20009/20')).toEqual([60])
+        expect(result.reports).toEqual([
+          expect.objectContaining({ errors: ['Koiran nimi ei täsmää.'], id: 'nought', outcome: 'failed' }),
+        ])
         expect('pointsByHand' in result.reports[0]).toEqual(false)
       })
 
-      it('reads a dog sent with 0 before as unchanged', async () => {
-        await sendKennelliittoResults(nowtCtx(), ['nought'], { force: false })
+      it('fails with Kennelliitto’s reasons when the 0 is refused too', async () => {
+        rangeRefused['FI20009/20'] = 'always'
 
-        expect(statusOf(await previewKennelliittoResults(nowtCtx()), 'nought')).toEqual('unchanged')
+        const result = await sendKennelliittoResults(nowtCtx(), ['nought'], { force: false })
+
+        expect(bodiesOf('FI20009/20')).toEqual([60, 0])
+        expect(result.reports).toEqual([
+          expect.objectContaining({ errors: [RANGE_REFUSAL], id: 'nought', outcome: 'failed' }),
+        ])
+        expect(registrations[0].kcResult).toMatchObject({ errors: [RANGE_REFUSAL], status: 'failed' })
+        expect(registrations[0].kcResult?.pointsByHand).toBeUndefined()
       })
 
-      it('reads a dog sent before this change as unchanged when it has no points to enter by hand', async () => {
-        // The hash stored before KOE-1676 was the body's alone; a dog whose points fit keeps it.
+      it('never retries a dog that has no points to drop', async () => {
+        registrations = [nowtDog('nil', 'FI20011/20', 'AVO0', 0, { class: 'AVO' })]
+        rangeRefused['FI20011/20'] = 'always'
+
+        const result = await sendKennelliittoResults(nowtCtx(), ['nil'], { force: false })
+
+        expect(bodiesOf('FI20011/20')).toEqual([0])
+        expect(result.reports).toEqual([expect.objectContaining({ id: 'nil', outcome: 'failed' })])
+      })
+
+      it('reads a dog sent before this change as unchanged, its stored hash being the body’s alone', async () => {
         registrations = [nowtDog('dash', 'FI20010/20', 'ALO-', 30)]
         await sendKennelliittoResults(nowtCtx(), ['dash'], { force: false })
         const [call] = tallennat()
@@ -1659,26 +1748,11 @@ describe('kennelliittoResults', () => {
         sent.kcResult = {
           at: '2026-09-26T10:00:00.000Z',
           by: 'Sihteeri',
-          payloadHash: createHash('sha256').update(JSON.stringify(call.body)).digest('hex'),
+          payloadHash: hashOf(call.body),
           status: 'sent',
         }
 
         expect(statusOf(await previewKennelliittoResults(nowtCtx()), 'dash')).toEqual('unchanged')
-      })
-
-      it('reads a dog whose corrected points still go as 0 as changed, and names the new points', async () => {
-        registrations = [nowtDog('nought', 'FI20009/20', 'AVO0', 63.75, { class: 'AVO' })]
-        await sendKennelliittoResults(nowtCtx(), ['nought'], { force: false })
-        const [sent] = registrations
-        sent.eventResult = { ...sent.eventResult, percentage: 75, points: 75, updatedAt: 'later', updatedBy: 'S' }
-        calls = []
-
-        const preview = await previewKennelliittoResults(nowtCtx())
-        expect(preview.dogs.map((dog) => [dog.status, dog.pointsByHand])).toEqual([['changed', 75]])
-
-        const result = await sendKennelliittoResults(nowtCtx(), ['nought'], { force: false })
-        expect(tallennat().map((call) => call.body?.pisteet)).toEqual([0])
-        expect(result.reports.map((report) => [report.outcome, report.pointsByHand])).toEqual([['sent', 75]])
       })
     })
 

@@ -366,13 +366,13 @@ describe('KennelliittoSubmission (KOE-1579)', () => {
     })
 
     describeWithTranslations('fi', () => {
-      // A dog whose points Omakoira takes no more of for its result: it goes with 0 (KOE-1676).
+      // A dog whose points Omakoira refused when it was last sent, so it went with 0 (KOE-1676).
       const handEntryLines = () => screen.queryAllByText(/: pisteet /).map((line) => line.textContent)
       const handEntryPreview = () =>
         vi.mocked(previewKennelliittoResults).mockResolvedValueOnce({
           blockers: [],
           dogs: [
-            { ...dogReport('run-1', 'ready'), pointsByHand: 63.75 },
+            { ...dogReport('run-1', 'changed'), pointsByHand: 63.75 },
             { ...dogReport('run-2', 'unchanged'), pointsByHand: 40 },
             { ...dogReport('run-3', 'blocked', [{ code: 'noJudge' }]), pointsByHand: 55 },
           ],
@@ -384,26 +384,18 @@ describe('KennelliittoSubmission (KOE-1579)', () => {
         return rendered
       }
 
-      it('names the dogs about to be sent whose points go as 0, and still lets them be sent (KOE-1676)', async () => {
+      it('names every dog whose points were refused last time, sent again or not, and still lets them be sent (KOE-1676)', async () => {
         handEntryPreview()
 
         await openFinnishSend()
 
-        expect(handEntryLines()).toEqual(['Koira run-1 (REG-run-1): pisteet 63,75'])
-        const dialog = within(screen.getByRole('dialog'))
-        expect(dialog.getByRole('button', { name: 'Lähetä Omakoiraan' })).toBeEnabled()
-      })
-
-      it('names an unchanged dog too when the unchanged results are sent again (KOE-1676)', async () => {
-        handEntryPreview()
-        const { user } = await openFinnishSend()
-
-        await user.click(within(screen.getByRole('dialog')).getByRole('checkbox', { name: /Lähetä uudelleen myös/ }))
-
+        // The unchanged dog is named too: its points still have to be entered by hand. The blocked one is not.
         expect(handEntryLines()).toEqual([
           'Koira run-1 (REG-run-1): pisteet 63,75',
           'Koira run-2 (REG-run-2): pisteet 40',
         ])
+        const dialog = within(screen.getByRole('dialog'))
+        expect(dialog.getByRole('button', { name: 'Lähetä Omakoiraan' })).toBeEnabled()
       })
     })
 

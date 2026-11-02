@@ -55,9 +55,6 @@ const INFO_TYPE = 250
 export interface KcKoemuotoResult {
   hylätty: boolean
   keskeytys: boolean
-  /** The points Kennelliitto takes with the result, both ends included; 0 to 0 sets no limit (KOE-1676). */
-  pisteetMax: number
-  pisteetMin: number
   tulos: string
   tulostyyppi: number
 }
@@ -131,14 +128,7 @@ export interface KcProblem {
   detail?: string
 }
 
-type KcResultOutcome =
-  | {
-      body: KcResultBody
-      ok: true
-      /** The dog's percentage, when the body carries 0 in its place (`pointsOf`, KOE-1676). */
-      pointsByHand?: number
-    }
-  | { ok: false; problems: KcProblem[] }
+type KcResultOutcome = { body: KcResultBody; ok: true } | { ok: false; problems: KcProblem[] }
 
 /** Kennelliitto takes at most this many judges besides the chief. */
 const MAX_PRIZE_JUDGES = 4
@@ -251,34 +241,17 @@ export const kcResultDay = (registration: Pick<KcResultRegistration, 'group' | '
  * announces the result "prosentin tarkkuudella", which is how it is shown (`shownTotals`); the figure sent
  * stays exact, as it is stored, since Omakoira takes the decimals (KOE-1678).
  *
- * A workaround until Kennelliitto fixes its interface (KOE-1676): it refuses points outside some of
- * the ranges its own list gives the results, so a stopped dog with 51/80 on AVO0 was refused. What its
- * list says and what Testi2 enforced on 2.11.2026:
+ * Nothing is checked against the result's range (KOE-1676). Kennelliitto's Koe/Koemuoto lists one per
+ * result, but Omakoira does not enforce them as listed, and its checks changed within a day. On Testi2,
+ * 2.11.2026, with AVO0 and VOI0 listed as 0 to 49, ALO- as 0 to 49 and ALO0, AVO- and VOI- as 0 to 0:
  *
- *   row               listed    accepted     refused
- *   AVO0, VOI0        0 to 49   49           60, 63.75
- *   ALO-              0 to 49   30           60
- *   ALO0              0 to 0    30, 60
- *   AVO-, VOI-        0 to 0    30, 60
- *   AVO3              50 to 64  63.75
+ *   in the afternoon   AVO0/VOI0 60 and 63.75 refused, ALO- 60 refused, ALO0, AVO-, VOI- 30 and 60 taken
+ *   in the evening     AVO0 60 and VOI0 63.75 taken, ALO- 60 refused, ALO2 80 refused
  *
- * So a range of 0 to 0 sets no limit, and the dog is sent with its points. On a row that takes 0 with a
- * maximum above it, a percentage above the maximum is sent as 0 and returned as `pointsByHand`: the send
- * dialog names the dog, and the secretary enters the real points in Omakoira by hand, which its own form
- * accepts. Everything else is sent as it is, and Kennelliitto answers with its reasons when it refuses a
- * number. The sent hash covers `pointsByHand` too, so a correction that still goes as 0 reads as changed
- * and names the new points. When Kennelliitto widens a range, the body changes, the dog reads as changed
- * once and is sent again with its points: the workaround retires itself without a change here.
+ * So the points go as they are, and a sending that Omakoira refuses for the range is retried with 0 by the
+ * lambda, which names the dog for entering the points in Omakoira by hand.
  */
-const pointsOf = (
-  registration: KcResultRegistration,
-  row: Pick<KcKoemuotoResult, 'pisteetMax' | 'pisteetMin'>
-): { pisteet: number; pointsByHand?: number } => {
-  const percentage = registration.eventResult?.percentage ?? 0
-  const limited = row.pisteetMax > 0 && row.pisteetMin === 0
-  if (limited && percentage > row.pisteetMax) return { pisteet: 0, pointsByHand: percentage }
-  return { pisteet: percentage }
-}
+const pointsOf = (registration: KcResultRegistration): number => registration.eventResult?.percentage ?? 0
 
 /**
  * The placement Kennelliitto takes with a NOWT result: the rank `placementsFor` derived for the dog over
@@ -365,7 +338,6 @@ export const buildKcResult = (
   const regNo = registration.dog.regNo?.trim()
   if (!row || !day || !name || !regNo || !event.kcGuid) return { ok: false, problems }
 
-  const points = scoresAtPosts(event.eventType) ? pointsOf(registration, row) : undefined
   return {
     body: {
       hylätty: row.hylätty,
@@ -379,13 +351,12 @@ export const buildKcResult = (
       rekisterinumero: regNo,
       tulos: row.tulos,
       tuomarit: judges.tuomarit,
-      ...(points ? { pisteet: points.pisteet } : {}),
+      ...(scoresAtPosts(event.eventType) ? { pisteet: pointsOf(registration) } : {}),
       ...(rank.sijoitus === undefined ? {} : { sijoitus: rank.sijoitus }),
       ...(info.infos.length ? { lisätiedot: info.infos.join(', ') } : {}),
       ...(type.tarkenne ? { tarkenne: type.tarkenne } : {}),
     },
     ok: true,
-    ...(points?.pointsByHand === undefined ? {} : { pointsByHand: points.pointsByHand }),
   }
 }
 
@@ -645,8 +616,8 @@ export interface KcDogReport {
   eventClass?: string
   name: string
   /**
-   * The points to enter in Omakoira by hand: the result goes with 0, since Kennelliitto takes no more for
-   * it (KOE-1676). Never a problem: the dog is sent all the same.
+   * The points to enter in Omakoira by hand: Omakoira refused them for the result when the dog was last
+   * sent, and took the result with 0 (KOE-1676). From the stored result; never a problem.
    */
   pointsByHand?: number
   problems: KcProblem[]
@@ -688,7 +659,7 @@ export interface KcSendReport {
   id: string
   name: string
   outcome: KcSendOutcome
-  /** A `sent` dog's points to enter in Omakoira by hand, as `KcDogReport` has them (KOE-1676). */
+  /** A `sent` dog's points to enter in Omakoira by hand: they were refused and the result went with 0 (KOE-1676). */
   pointsByHand?: number
   problems?: KcProblem[]
   regNo: string

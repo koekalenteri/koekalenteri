@@ -308,8 +308,14 @@ export const resultRecomputedAudit = (result: string, dropped: number) =>
 export const resultRederivedAudit = (previous: string, result: string) =>
   auditMessage('audit.messages.resultRederived', { previous, result })
 
-/** A result sent to Kennelliitto's Omakoira (KOE-1140). */
-export const resultSentToKennelliittoAudit = () => auditMessage('audit.messages.resultSentToKennelliitto')
+/**
+ * A result sent to Kennelliitto's Omakoira (KOE-1140). With `pointsByHand`, Omakoira refused those points
+ * for the result and took it with 0, so they are entered there by hand (KOE-1676).
+ */
+export const resultSentToKennelliittoAudit = (pointsByHand?: number) =>
+  pointsByHand === undefined
+    ? auditMessage('audit.messages.resultSentToKennelliitto')
+    : auditMessage('audit.messages.resultSentToKennelliittoWithoutPoints', { points: pointsByHand })
 
 /** A result Kennelliitto refused, with the reasons as it worded them. */
 export const resultSendFailedAudit = (reason: string) => auditMessage('audit.messages.resultSendFailed', { reason })
