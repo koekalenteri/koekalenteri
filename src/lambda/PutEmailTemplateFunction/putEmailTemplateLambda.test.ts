@@ -1,3 +1,4 @@
+import type { EmailTemplateContent } from '../../types'
 import { vi } from 'vitest'
 import { httpError } from '../lib/lambda'
 import { answerRejections, constructPartialAPIGwEvent } from '../test-utils/helpers'
@@ -20,6 +21,7 @@ const mockMarkdownToTemplate = vi.fn()
 const mockReadEmailTemplate = vi.fn()
 const mockWriteEmailTemplate = vi.fn()
 const mockSend = vi.fn()
+const mockConfig = { stackName: 'stack-name', stageName: 'prod' }
 
 vi.doMock('../lib/lambda', async () => ({
   ...(await vi.importActual<typeof import('../lib/lambda')>('../lib/lambda')),
@@ -29,7 +31,7 @@ vi.doMock('../lib/lambda', async () => ({
 
 vi.doMock('../lib/auth', () => ({
   authorize: mockAuthorize,
-  authorizeAdmin: async (event: any) => {
+  authorizeAdmin: async (event: unknown) => {
     const user = await mockAuthorize(event)
     if (!user) throw httpError(401, 'Unauthorized')
     if (!user.admin) throw httpError(403, 'Forbidden')
@@ -81,13 +83,11 @@ vi.doMock('@aws-sdk/client-ses', () => {
 
   // Mock CONFIG
   vi.doMock('../config', () => ({
-    CONFIG: {
-      stackName: 'stack-name',
-    },
+    CONFIG: mockConfig,
   }))
 
   return {
-    CreateTemplateCommand: vi.fn(function MockCreateTemplateCommand(params: any) {
+    CreateTemplateCommand: vi.fn(function MockCreateTemplateCommand(params: { Template: EmailTemplateContent }) {
       return { ...params, command: 'CreateTemplateCommand' }
     }),
     InvalidTemplateException,
@@ -95,7 +95,7 @@ vi.doMock('@aws-sdk/client-ses', () => {
       return { send: mockSend }
     }),
     TemplateDoesNotExistException,
-    UpdateTemplateCommand: vi.fn(function MockUpdateTemplateCommand(params: any) {
+    UpdateTemplateCommand: vi.fn(function MockUpdateTemplateCommand(params: { Template: EmailTemplateContent }) {
       return { ...params, command: 'UpdateTemplateCommand' }
     }),
   }
@@ -137,6 +137,7 @@ describe('putEmailTemplateLambda', () => {
 
   beforeEach(() => {
     vi.clearAllMocks()
+    mockConfig.stageName = 'prod'
 
     // Default mock implementations
     mockAuthorize.mockResolvedValue({
@@ -481,6 +482,37 @@ describe('putEmailTemplateLambda', () => {
 
     // Check if response was not returned
     expect(mockResponse).not.toHaveBeenCalled()
+  })
+
+  it('names the stage in the subject outside prod', async () => {
+    mockConfig.stageName = 'dev'
+
+    await putEmailTemplateLambda(event)
+
+    expect(mockSend).toHaveBeenCalledTimes(2)
+    expect(mockSend).toHaveBeenCalledWith(
+      expect.objectContaining({ Template: expect.objectContaining({ SubjectPart: '(dev) Test Subject' }) })
+    )
+    expect(mockWriteEmailTemplate).toHaveBeenCalledWith(
+      expect.objectContaining({
+        ses: {
+          en: expect.objectContaining({ SubjectPart: '(dev) Test Subject' }),
+          fi: expect.objectContaining({ SubjectPart: '(dev) Test Subject' }),
+        },
+      })
+    )
+  })
+
+  it('leaves the prod subject alone', async () => {
+    await putEmailTemplateLambda(event)
+
+    expect(mockSend).toHaveBeenCalledTimes(2)
+    expect(mockSend).not.toHaveBeenCalledWith(
+      expect.objectContaining({ Template: expect.objectContaining({ SubjectPart: expect.stringContaining('(') }) })
+    )
+    expect(mockSend).toHaveBeenCalledWith(
+      expect.objectContaining({ Template: expect.objectContaining({ SubjectPart: 'Test Subject' }) })
+    )
   })
 
   it('throws an error if markdownToTemplate fails', async () => {

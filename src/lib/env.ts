@@ -20,11 +20,13 @@ export const isTestEnv = (detectTestRunner: () => boolean = isTestRunnerDefined)
 export const isProdEnv = (): boolean => process.env.NODE_ENV === 'production'
 
 /**
- * The page title outside prod names the environment, so a dev tab and a test tab are told apart
- * from a prod tab. The stage goes in front: a narrow tab shows only the first words of a title.
+ * A page title or a mail subject outside prod names the environment, so a dev tab and a test tab
+ * are told apart from a prod tab, and a dev mail from a prod mail. The stage goes in front: a narrow
+ * tab or a mailbox list shows only the first words. Only dev and test are named; prod and a stage
+ * the deployment never gave a name (local) stay as they are.
  */
-export const stageTitle = (title: string, stage: 'dev' | 'test' | 'prod' = apiStage()): string =>
-  stage === 'prod' ? title : `(${stage}) ${title}`
+export const stageTitle = (title: string, stage: string = apiStage()): string =>
+  stage === 'dev' || stage === 'test' ? `(${stage}) ${title}` : title
 
 type Stage = 'prod' | 'test' | 'dev'
 
