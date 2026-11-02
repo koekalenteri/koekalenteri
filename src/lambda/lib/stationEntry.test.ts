@@ -1,4 +1,4 @@
-import type { EventStation, ExerciseEventResult, JsonRegistration } from '../../types'
+import type { EventStation, JsonEventResult, JsonRegistration } from '../../types'
 import { asJsonConfirmedEvent, asJsonRegistration } from '../test-utils/helpers'
 import { linkedEventProjection } from './event'
 import {
@@ -118,7 +118,7 @@ describe('stationEntry', () => {
         eventType: 'NOWT',
         group: { date: '2026-09-12', key: 'ALO-AP', number: 1, time: 'ap' },
         id: 'run-1',
-        visit: { exercise: 1, exercisePosts: ['post-1'], parts: 1, slotsBefore: 0 },
+        visit: { exercise: 1, exercisePosts: ['post-1'], parts: 1 },
       })
       // The link is shared on paper at a venue; contact details must not ride on it.
       expect(JSON.stringify(result)).not.toContain('example.com')
@@ -188,8 +188,8 @@ describe('stationEntry', () => {
       const scored = registration('run-1', {
         eventResult: {
           tasks: [
-            { index: 0, points: 17, stationId: 'post-1', updatedAt: 't1', updatedBy: 'u' },
-            { index: 0, points: 12, stationId: 'post-2', updatedAt: 't2', updatedBy: 'u' },
+            { exercise: 1, part: 0, points: 17, updatedAt: 't1', updatedBy: 'u' },
+            { exercise: 2, part: 0, points: 12, updatedAt: 't2', updatedBy: 'u' },
           ],
           updatedAt: 't2',
           updatedBy: 'u',
@@ -241,29 +241,12 @@ describe('stationEntry', () => {
         expect(entries.map((dog) => dog.visit?.exercise)).toEqual([3, 4])
         expect(entries[0].eventResult?.tasks).toEqual([byExercise(3, 13), byExercise(4, 14)])
       })
-
-      it('serves a score stored at its post and slot there by its exercise', () => {
-        const stored = registration('run-1', {
-          eventResult: {
-            tasks: [
-              { index: 0, points: 13, stationId: 'post-3', updatedAt: 't1', updatedBy: 'u' },
-              { index: 0, points: 11, stationId: 'post-1', updatedAt: 't1', updatedBy: 'u' },
-            ],
-            updatedAt: 't1',
-            updatedBy: 'u',
-          },
-        })
-
-        const [entry] = stationEntryResponse(corrected, third, [stored]).registrations
-
-        expect(entry.eventResult?.tasks).toEqual([byExercise(3, 13)])
-      })
     })
   })
 
   describe('scopeResultToStation', () => {
     it('strips the derived prize and the other posts, keeping the version stamps', () => {
-      const result: ExerciseEventResult = {
+      const result: JsonEventResult = {
         elimination: { exercise: 2, fault: 'hardMouth' },
         maxPoints: 80,
         percentage: 81.25,
@@ -288,7 +271,7 @@ describe('stationEntry', () => {
 
     it("keeps a qualitative type's result and judge, which are the post's own recording", () => {
       const judge = { id: 123, name: 'Tuomari' }
-      const result: ExerciseEventResult = { judge, result: 'ALO1', updatedAt: 't1', updatedBy: 'u' }
+      const result: JsonEventResult = { judge, result: 'ALO1', updatedAt: 't1', updatedBy: 'u' }
 
       expect(scopeResultToStation(result, [], 'NOME-B')).toEqual({
         judge,

@@ -49,7 +49,7 @@ export const TaskScore = ({
   const { t } = useTranslation()
   // A stored judge stands while it judges at the exercise's post; one from before the exercise moved to
   // another post gives way to the post's own (`effectiveJudge`, KOE-1665).
-  const judge = value?.judge ? effectiveJudge(value, judges) : (defaultJudge ?? judges[0])
+  const judge = effectiveJudge(value, judges, defaultJudge)
   const points = value?.points ?? null
   const ceiling = taskEntryCeiling({ maxPoints: task.maxPoints, recalled: value?.recalled })
   // A part's name ("Tehtävä 2, osa 1/2") needs the room its label takes where the field shows it.

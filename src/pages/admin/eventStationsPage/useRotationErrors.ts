@@ -4,7 +4,7 @@ import { useAtomValue } from 'jotai'
 import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { isScorableRegistration } from '@/lib/registration'
-import { scoresAtPosts } from '@/lib/results'
+import { scoresAtPosts } from '@/lib/resultTasks'
 import { formatRotationGroup, rotationCoverageErrors, rotationShapeErrors } from '@/lib/rotation'
 import { adminEventRegistrationsAtom } from '../state'
 

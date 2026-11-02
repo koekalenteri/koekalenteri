@@ -1,17 +1,13 @@
-import type { EventExercise, EventRotationGroup, EventStation, JsonEventResultTask } from '../types'
-import type { ScoredTask } from './resultTasks'
+import type { EventExercise, EventRotationGroup, JsonEventResultTask } from '../types'
 import { nowtTotals } from './results'
 import {
-  addressTasks,
   dogRound,
   effectiveJudge,
   endedAtExercise,
   endedBefore,
   exercisesAtPost,
-  exerciseTaskOf,
   isRecordedTask,
   isResultTasksDroppedBody,
-  legacyReadChanges,
   mergeStationTasks,
   partMaxPoints,
   reconcileRoundTasks,
@@ -32,19 +28,8 @@ const postSlots = (
   { parts, tasks, tasksBefore }: { parts: 1 | 2; tasks: number; tasksBefore: number }
 ) =>
   Array.from({ length: tasks }, (_unused, at) =>
-    visitSlots(stationId, { exercise: tasksBefore + at + 1, parts, slotsBefore: at * parts })
+    visitSlots(stationId, { exercise: tasksBefore + at + 1, parts })
   ).flat()
-
-/** One task at its own post, the common layout. */
-const task = (stationId: string, points: number | null, maxPoints = 20): ScoredTask => ({
-  maxPoints,
-  points,
-  stationId,
-})
-
-/** A four-post round, one task each, scored as given. */
-const _round = (...points: (number | null)[]): ScoredTask[] =>
-  points.map((value, index) => task(`post-${index + 1}`, value))
 
 describe('partMaxPoints', () => {
   it('gives a whole task 20 points', () => {
@@ -58,16 +43,16 @@ describe('partMaxPoints', () => {
 })
 
 describe('visitSlots', () => {
-  it('places an exercise after the slots the group takes at the post before it, as scores stored by post read it', () => {
-    expect(visitSlots('post-2', { exercise: 4, parts: 1, slotsBefore: 1 })).toEqual([
-      { exercise: 4, legacyIndex: 1, maxPoints: 20, part: 0, parts: 1, stationId: 'post-2' },
+  it('gives a whole exercise one slot of 20 at its post', () => {
+    expect(visitSlots('post-2', { exercise: 4, parts: 1 })).toEqual([
+      { exercise: 4, maxPoints: 20, part: 0, parts: 1, stationId: 'post-2' },
     ])
   })
 
   it('gives each part of a split exercise a slot of its own', () => {
-    expect(visitSlots('post-1', { exercise: 1, parts: 2, slotsBefore: 0 })).toEqual([
-      { exercise: 1, legacyIndex: 0, maxPoints: 10, part: 0, parts: 2, stationId: 'post-1' },
-      { exercise: 1, legacyIndex: 1, maxPoints: 10, part: 1, parts: 2, stationId: 'post-1' },
+    expect(visitSlots('post-1', { exercise: 1, parts: 2 })).toEqual([
+      { exercise: 1, maxPoints: 10, part: 0, parts: 2, stationId: 'post-1' },
+      { exercise: 1, maxPoints: 10, part: 1, parts: 2, stationId: 'post-1' },
     ])
   })
 })
@@ -100,9 +85,9 @@ describe('toScoredTasks', () => {
 
   it('joins entries onto the round by exercise and part', () => {
     expect(toScoredTasks(round, [scored(1, 0, 9), scored(1, 1, 8), scored(2, 0, 18)])).toEqual([
-      { maxPoints: 10, points: 9, stationId: 'post-1', task: 1 },
-      { maxPoints: 10, points: 8, stationId: 'post-1', task: 1 },
-      { maxPoints: 20, points: 18, stationId: 'post-2', task: 2 },
+      { maxPoints: 10, points: 9, task: 1 },
+      { maxPoints: 10, points: 8, task: 1 },
+      { maxPoints: 20, points: 18, task: 2 },
     ])
   })
 
@@ -121,7 +106,7 @@ describe('toScoredTasks', () => {
 
   it('ignores entries for exercises the round does not have', () => {
     expect(toScoredTasks(postSlots('post-1', { parts: 1, tasks: 1, tasksBefore: 0 }), [scored(5, 0, 20)])).toEqual([
-      { maxPoints: 20, points: null, stationId: 'post-1', task: 1 },
+      { maxPoints: 20, points: null, task: 1 },
     ])
   })
 })
@@ -184,6 +169,13 @@ describe('per-post entry, by the exercises the group does at the post (KOE-1665)
 
     it('sees a different score', () => {
       expect(sameStationTasks(stored, [at(1, 0, 12, 'x')], [1])).toBe(false)
+    })
+
+    it('compares the scores of a post doing two exercises whatever order they were saved in', () => {
+      const atThird = [at(3, 0, 13, 'x'), at(4, 0, 14, 'x')]
+
+      expect(sameStationTasks(atThird, [at(4, 0, 14, 'y'), at(3, 0, 13, 'y')], [3, 4])).toBe(true)
+      expect(sameStationTasks(atThird, [at(4, 0, 13, 'y'), at(3, 0, 14, 'y')], [3, 4])).toBe(false)
     })
 
     it('compares only the post in question', () => {
@@ -257,74 +249,30 @@ describe('isRecordedTask (KOE-1666)', () => {
 })
 
 describe('endedBefore (KOE-1669)', () => {
-  // P3, P1, P3: the dog comes back to post 3, so the post alone does not say which visit the stop was.
+  // P3, P1, P3: the dog comes back to post 3, so the post alone would not say which visit the stop was.
   const posts = ['post-3', 'post-1', 'post-3']
   const exercises = [1, 2, 3]
 
   it('reads the exercises after the one the round ended at as not reached, and not the one it ended at', () => {
-    const stoppedAtThird = { exercise: 3, stationId: 'post-3' }
-
-    expect(exercises.map((exercise) => endedBefore(stoppedAtThird, exercise, posts))).toEqual([false, false, false])
-    expect(endedAtExercise(stoppedAtThird, posts)).toBe(3)
-    expect(endedBefore({ exercise: 1, stationId: 'post-3' }, 2, posts)).toBe(true)
-  })
-
-  it('reads a stop stored with its post alone, before the exercises were numbered, as the last exercise there', () => {
-    expect(endedAtExercise({ stationId: 'post-3' }, posts)).toBe(3)
-    expect(exercises.map((exercise) => endedBefore({ stationId: 'post-3' }, exercise, posts))).toEqual([
-      false,
-      false,
-      false,
-    ])
-    expect(endedAtExercise({ stationId: 'post-1' }, posts)).toBe(2)
+    expect(exercises.map((exercise) => endedBefore({ exercise: 3 }, exercise, posts))).toEqual([false, false, false])
+    expect(endedAtExercise({ exercise: 3 }, posts)).toBe(3)
+    expect(endedBefore({ exercise: 1 }, 2, posts)).toBe(true)
   })
 
   it.each([
     ['no outcome', undefined],
     ['an unknown place ("Ei tiedossa")', {}],
-    ['a post not in the running order', { stationId: 'post-9' }],
+    ['an exercise the running order no longer has', { exercise: 5 }],
   ])('does not end it for %s', (_name, retirement) => {
     expect(endedAtExercise(retirement, posts)).toBeUndefined()
     expect(endedBefore(retirement, 3, posts)).toBe(false)
   })
 
-  // A stop stays with its exercise number, as a score does (KOE-1665): a post stored beside it is read
-  // only where the number is not in the round.
-  describe('after the running order changed', () => {
-    it('reads the post when the exercise the number named was removed', () => {
-      // Stored as the third exercise of P3, P1, P3; the first exercise is then removed.
-      const stopped = { exercise: 3, stationId: 'post-3' }
-      const changed = ['post-1', 'post-3']
+  it('keeps the number when the running order changes, as a score keeps its exercise (KOE-1665)', () => {
+    const changed = ['post-1', 'post-3', 'post-3']
 
-      expect(endedAtExercise(stopped, changed)).toBe(2)
-      expect([1, 2].map((exercise) => endedBefore(stopped, exercise, changed))).toEqual([false, false])
-    })
-
-    it('reads the post when the number is past the end of the running order', () => {
-      expect(endedAtExercise({ exercise: 5, stationId: 'post-1' }, posts)).toBe(2)
-      expect(endedAtExercise({ exercise: 5 }, posts)).toBeUndefined()
-    })
-
-    it('keeps the number when the post stored beside it has left the running order', () => {
-      expect(endedAtExercise({ exercise: 2, stationId: 'post-1' }, ['post-3', 'post-3'])).toBe(2)
-    })
-
-    it('keeps the number when it still names an exercise at its post', () => {
-      const stopped = { exercise: 1, stationId: 'post-3' }
-      const changed = ['post-3', 'post-3', 'post-1']
-
-      expect(endedAtExercise(stopped, changed)).toBe(1)
-      expect([1, 2, 3].map((exercise) => endedBefore(stopped, exercise, changed))).toEqual([false, true, true])
-    })
-
-    it('keeps the number when it now names another post', () => {
-      // Stored at P1, the second exercise of P3, P1, P3; read against P1, P3, P3.
-      const stopped = { exercise: 2, stationId: 'post-1' }
-      const changed = ['post-1', 'post-3', 'post-3']
-
-      expect(endedAtExercise(stopped, changed)).toBe(2)
-      expect([1, 2, 3].map((exercise) => endedBefore(stopped, exercise, changed))).toEqual([false, false, true])
-    })
+    expect(endedAtExercise({ exercise: 2 }, changed)).toBe(2)
+    expect([1, 2, 3].map((exercise) => endedBefore({ exercise: 2 }, exercise, changed))).toEqual([false, false, true])
   })
 })
 
@@ -366,50 +314,17 @@ describe('isResultTasksDroppedBody (KOE-1666)', () => {
   })
 })
 
-describe('a score stored by post and slot (KOE-1665)', () => {
-  const DAY = '2026-09-12' as const
-  const post = (number: number, extra: Partial<EventStation> = {}): EventStation => ({
-    date: DAY,
-    id: `post-${number}`,
-    number,
-    ...extra,
-  })
-  const stations = [post(1, { tasks: 2 }), post(2)]
-  const round = dogRound({ stations }, { class: 'ALO', day: DAY })
-
-  it('reads a score stored by post and slot, as production holds them, as its exercise and part', () => {
-    const stored = [
-      { index: 1, points: 8, stationId: 'post-1' },
-      { index: 0, points: 15, stationId: 'post-2' },
-    ]
-
-    expect(toScoredTasks(round, addressTasks(round, stored).kept).map((task) => task.points)).toEqual([null, 8, 15])
-  })
-})
-
 describe('scores addressed by exercise (KOE-1665, Jukka 2.11.2026)', () => {
   const day = '2026-09-12' as const
   const dog = { class: 'ALO', day }
-  /** Posts 1..n of the day, one of them stored before KOE-1665 with `tasks: 2` where asked. */
-  const stations = (count: number, legacySplit?: string) =>
-    Array.from({ length: count }, (_unused, at) => ({
-      date: day,
-      id: `P${at + 1}`,
-      number: at + 1,
-      ...(legacySplit === `P${at + 1}` ? { tasks: 2 as const } : {}),
-    }))
+  /** Posts 1..n of the day. */
+  const stations = (count: number) =>
+    Array.from({ length: count }, (_unused, at) => ({ date: day, id: `P${at + 1}`, number: at + 1 }))
   const ordered = (...exercises: EventExercise[]): EventRotationGroup[] => [{ class: 'ALO', exercises }]
   const scored = (exercise: number, points = 15, part = 0) => ({
     exercise,
     part,
     points,
-    updatedAt: '2026-09-12T10:00:00.000Z',
-    updatedBy: 'Sihteeri',
-  })
-  const legacy = (stationId: string, index: number, points = 15) => ({
-    index,
-    points,
-    stationId,
     updatedAt: '2026-09-12T10:00:00.000Z',
     updatedBy: 'Sihteeri',
   })
@@ -421,33 +336,6 @@ describe('scores addressed by exercise (KOE-1665, Jukka 2.11.2026)', () => {
     stations: stations(3),
   }
 
-  describe('exerciseTaskOf', () => {
-    it('reads a score stored at a post and its slot there as the exercise of that slot', () => {
-      const round = dogRound(fourPosts, dog)
-      expect(exerciseTaskOf(round, legacy('P3', 0, 13))).toEqual(scored(3, 13))
-      expect(exerciseTaskOf(round, legacy('P1', 0, 11))).toEqual(scored(1, 11))
-    })
-
-    it('reads a post stored with `tasks: 2` as one exercise in two parts', () => {
-      const round = dogRound({ stations: stations(4, 'P2') }, dog)
-      expect(exerciseTaskOf(round, legacy('P2', 0, 8))).toEqual(scored(2, 8, 0))
-      expect(exerciseTaskOf(round, legacy('P2', 1, 9))).toEqual(scored(2, 9, 1))
-      expect(exerciseTaskOf(round, legacy('P3', 0, 12))).toEqual(scored(3, 12))
-    })
-
-    it('reads the slots of a post a group comes to twice in exercise order', () => {
-      const round = dogRound(threePosts, dog)
-      expect(exerciseTaskOf(round, legacy('P3', 1, 18))).toEqual(scored(4, 18))
-    })
-
-    it('leaves a score stored by exercise as it is, and reads nothing of a slot the round does not have', () => {
-      const round = dogRound(fourPosts, dog)
-      expect(exerciseTaskOf(round, scored(4, 18))).toEqual(scored(4, 18))
-      expect(exerciseTaskOf(round, legacy('P3', 1))).toBeUndefined()
-      expect(exerciseTaskOf(round, legacy('P9', 0))).toBeUndefined()
-    })
-  })
-
   describe('reconcileRoundTasks', () => {
     it('keeps every score when four posts are corrected to the three the trial had, and the rounds read the same', () => {
       const before = dogRound(fourPosts, dog)
@@ -456,15 +344,6 @@ describe('scores addressed by exercise (KOE-1665, Jukka 2.11.2026)', () => {
 
       expect(roundsDiffer(before, after)).toBe(false)
       expect(reconcileRoundTasks(before, after, stored)).toEqual({ dropped: [], kept: stored })
-    })
-
-    it('reads scores stored at their posts against the layout they were stored in, and keeps them by exercise', () => {
-      const stored = [legacy('P1', 0, 11), legacy('P2', 0, 12), legacy('P3', 0, 13), legacy('P4', 0, 14)]
-
-      expect(reconcileRoundTasks(dogRound(fourPosts, dog), dogRound(threePosts, dog), stored)).toEqual({
-        dropped: [],
-        kept: [scored(1, 11), scored(2, 12), scored(3, 13), scored(4, 14)],
-      })
     })
 
     it('drops the scores of an exercise taken off the end of the running order', () => {
@@ -516,57 +395,6 @@ describe('scores addressed by exercise (KOE-1665, Jukka 2.11.2026)', () => {
         dog
       )
       expect(roundsDiffer(dogRound(threePosts, dog), reordered)).toBe(false)
-    })
-  })
-
-  describe('two scores of one exercise', () => {
-    it('keeps the one recorded later and drops the other, whichever address each is stored in', () => {
-      const old = legacy('P4', 0, 14)
-      const later = { ...scored(4, 18), updatedAt: '2026-09-12T11:00:00.000Z' }
-      const round = dogRound(fourPosts, dog)
-
-      expect(reconcileRoundTasks(round, dogRound(threePosts, dog), [old, later])).toEqual({
-        dropped: [old],
-        kept: [later],
-      })
-      const earlier = { ...scored(4, 18), updatedAt: '2026-09-12T09:00:00.000Z' }
-      expect(addressTasks(round, [old, earlier])).toEqual({ dropped: [earlier], kept: [scored(4, 14)] })
-    })
-  })
-
-  describe('legacyReadChanges', () => {
-    const stored = { tasks: [legacy('P1', 0), legacy('P2', 0), legacy('P3', 0), legacy('P4', 0)] }
-
-    it('sees a score stored by post that reads as another exercise in the new layout', () => {
-      expect(legacyReadChanges(dogRound(fourPosts, dog), dogRound(threePosts, dog), stored)).toBe(true)
-    })
-
-    it('sees a stop stored by post that reads as another exercise', () => {
-      const stopped = { retirement: { cause: 'injury' as const, stationId: 'P4' } }
-      expect(legacyReadChanges(dogRound(fourPosts, dog), dogRound(threePosts, dog), stopped)).toBe(true)
-    })
-
-    it('sees nothing where the scores read the same, a post renumbered or the scores stored by exercise', () => {
-      const renumbered = {
-        stations: stations(4).map((post) => (post.id === 'P2' ? { ...post, number: 9 } : post)),
-      }
-      // The day's posts are in number order without a running order, so a renumbered post moves its
-      // exercise; with a running order of its own, a renumbering changes nothing.
-      const ordered4 = {
-        rotations: ordered({ stationId: 'P1' }, { stationId: 'P2' }, { stationId: 'P3' }, { stationId: 'P4' }),
-      }
-      expect(
-        legacyReadChanges(
-          dogRound({ ...fourPosts, ...ordered4 }, dog),
-          dogRound({ ...renumbered, ...ordered4 }, dog),
-          stored
-        )
-      ).toBe(false)
-      expect(
-        legacyReadChanges(dogRound(fourPosts, dog), dogRound(threePosts, dog), {
-          tasks: [scored(1), scored(4)],
-        })
-      ).toBe(false)
     })
   })
 

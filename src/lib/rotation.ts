@@ -237,9 +237,8 @@ export const rotationGroupsOfDay = (event: RotationEvent, day: string): Rotation
 
 /**
  * A group's visits to the posts in its running order, one per exercise (Jukka 1.11.2026): the exercises
- * numbered across the whole order, the post's defaults filled in, each one's first slot at its post
- * counted over the group's exercises there before it, and the posts of the whole order (where a round
- * ended, KOE-1669). An exercise at a post the event lacks is skipped and not numbered.
+ * numbered across the whole order, the post's defaults filled in, and the posts of the whole order
+ * (where a round ended, KOE-1669). An exercise at a post the event lacks is skipped and not numbered.
  */
 const groupVisits = (event: RotationEvent, group: RotationGroup): RotationVisit[] => {
   const placed = groupExercises(group).flatMap((exercise) => {
@@ -248,17 +247,13 @@ const groupVisits = (event: RotationEvent, group: RotationGroup): RotationVisit[
   })
   const exercisePosts = placed.map(({ station }) => station.id)
   const visits: RotationVisit[] = []
-  const slotsAt = new Map<string, number>()
   for (const { exercise, station } of placed) {
     const parts = exercise.parts ?? stationParts(station)
-    const slotsBefore = slotsAt.get(station.id) ?? 0
-    slotsAt.set(station.id, slotsBefore + parts)
     const dogsAtOnce = exercise.dogsAtOnce ?? station.dogsAtOnce
     visits.push({
       exercise: visits.length + 1,
       exercisePosts,
       parts,
-      slotsBefore,
       station,
       ...(dogsAtOnce === undefined ? {} : { dogsAtOnce }),
     })
@@ -300,17 +295,10 @@ export const stationArrivals = (event: RotationEvent, stationId: string): Statio
 }
 
 /** What the link is sent of a visit: the layout, without the post. */
-const visitLayoutOf = ({
+const visitLayoutOf = ({ exercise, exercisePosts, parts, dogsAtOnce }: RotationVisit): StationVisitLayout => ({
   exercise,
   exercisePosts,
   parts,
-  slotsBefore,
-  dogsAtOnce,
-}: RotationVisit): StationVisitLayout => ({
-  exercise,
-  exercisePosts,
-  parts,
-  slotsBefore,
   ...(dogsAtOnce === undefined ? {} : { dogsAtOnce }),
 })
 

@@ -57,7 +57,7 @@ const sourceRegistrations = (): JsonRegistration[] => {
       emailDeliveryStatus: { at: '2026-01-01', email: 'matti@example.fi', status: 'bounce' },
       eventResult: {
         notes: 'Matti hoiti hienosti',
-        tasks: [{ index: 0, points: 10, stationId: 's1', updatedAt: '2026-01-01', updatedBy: 'Rastin kirjuri' }],
+        tasks: [{ exercise: 1, part: 0, points: 10, updatedAt: '2026-01-01', updatedBy: 'Rastin kirjuri' }],
         updatedAt: '2026-01-01',
         updatedBy: 'Tuomo Tuomari',
       },

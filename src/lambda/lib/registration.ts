@@ -300,19 +300,10 @@ const serializePatchRemovals = (value: unknown): unknown => {
   return value
 }
 
-/**
- * What the admin pages are sent of a changed registration. A whole row leaves its result out: only the
- * result endpoints change it, and they send it with every score by exercise (KOE-1665), while the row as
- * stored may still hold scores by post that a page cannot read, and merging those in would blank its
- * table.
- */
 export const createRegistrationPatch = (registration: JsonRegistration, existing?: JsonRegistration) => {
   const withoutCreationMetadata = <T extends object>(item: T) => removeRegistrationCreationMetadata({ ...item })
 
-  if (!existing) {
-    const { eventResult: _result, ...row } = registration
-    return withoutCreationMetadata(row)
-  }
+  if (!existing) return withoutCreationMetadata(registration)
 
   const { changes } = createPatch(registration, existing)
   return {

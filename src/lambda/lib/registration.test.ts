@@ -57,7 +57,6 @@ const {
   applyOwnerOverrides,
   authorizeRegistrationEdit,
   authorizeRegistrationRead,
-  createRegistrationPatch,
   deriveRegistrationEditToken,
   getLastEmail,
   findClassesToMark,
@@ -87,32 +86,6 @@ const asRegistrationsByClass = (data: Record<string, DeepPartial<JsonRegistratio
   data as Record<string, JsonRegistration[]>
 const asRegistrationsByClassAndGroup = (data: Record<string, Record<string, DeepPartial<JsonRegistration>[]>>) =>
   data as Record<string, Record<string, JsonRegistration[]>>
-
-describe('createRegistrationPatch', () => {
-  const stored = asJsonRegistration({
-    eventId: 'e1',
-    eventResult: {
-      tasks: [{ index: 0, points: 15, stationId: 'post-2', updatedAt: 'x', updatedBy: 'y' }],
-      updatedAt: 'x',
-      updatedBy: 'y',
-    },
-    id: 'r1',
-    internalNotes: 'call',
-  })
-
-  it('leaves the result out of a whole row, which may still hold scores by post a page cannot read (KOE-1665)', () => {
-    expect(createRegistrationPatch(stored)).not.toHaveProperty('eventResult')
-    expect(createRegistrationPatch(stored)).toMatchObject({ id: 'r1', internalNotes: 'call' })
-  })
-
-  it('sends what changed of a registration it had before', () => {
-    expect(createRegistrationPatch({ ...stored, internalNotes: 'done' }, stored)).toEqual({
-      eventId: 'e1',
-      id: 'r1',
-      internalNotes: 'done',
-    })
-  })
-})
 
 describe('createSentRegistrationMessagesAudit', () => {
   afterEach(() => vi.clearAllMocks())

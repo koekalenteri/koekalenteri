@@ -385,10 +385,10 @@ describe('kennelliittoResults', () => {
     it('refuses a dog judged by more than four judges besides the chief', () => {
       const judge = (id: number) => ({ id, name: `Tuomari ${id}` })
       const tasks = [2001, 2002, 2003, 2004, 2005].map((id, index) => ({
-        index,
+        exercise: index + 1,
         judge: judge(id),
+        part: 0,
         points: 10,
-        stationId: `s${index}`,
         updatedAt: 'a',
         updatedBy: 'b',
       }))

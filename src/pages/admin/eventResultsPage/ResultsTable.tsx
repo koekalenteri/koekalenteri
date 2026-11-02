@@ -15,8 +15,8 @@ import Typography from '@mui/material/Typography'
 import { memo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { getRegistrationPlacement } from '@/lib/registration'
-import { formatTaskName, parseEventResultCode, scoresAtPosts } from '@/lib/results'
-import { columnKey, effectiveJudge, endedBefore, exercisePostsOf } from '@/lib/resultTasks'
+import { formatTaskName, parseEventResultCode } from '@/lib/results'
+import { columnKey, effectiveJudge, endedBefore, exercisePostsOf, scoresAtPosts } from '@/lib/resultTasks'
 import { JudgeSelect } from '../../components/stationScoring/JudgeSelect'
 import { ResultSummary } from '../../components/stationScoring/ResultSummary'
 import { asksOutcome, outcomeLabelKeys, RoundOutcome } from '../../components/stationScoring/RoundOutcome'
@@ -186,12 +186,7 @@ function ResultsTable({
       // Scoring a task attributes it to whoever is showing, so the secretary only touches the
       // judge control when it actually changes. A stored judge stands while it judges at the exercise's
       // post (`effectiveJudge`, KOE-1665).
-      const postJudges = judgesFor(task.stationId)
-      const judge =
-        changes.judge ??
-        (existing?.judge ? effectiveJudge(existing, postJudges) : undefined) ??
-        defaultJudges[task.stationId] ??
-        postJudges[0]
+      const judge = changes.judge ?? effectiveJudge(existing, judgesFor(task.stationId), defaultJudges[task.stationId])
 
       report(registration, {
         ...edit,

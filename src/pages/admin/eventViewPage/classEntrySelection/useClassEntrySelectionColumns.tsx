@@ -26,7 +26,8 @@ import {
   getRegistrationGroupKey,
   isPredefinedReason,
 } from '@/lib/registration'
-import { placementsFor, scoresAtPosts, shownEventResult } from '@/lib/results'
+import { placementsFor, shownEventResult } from '@/lib/results'
+import { scoresAtPosts } from '@/lib/resultTasks'
 import { isConfirmedEvent } from '@/lib/typeGuards'
 import GroupColors from './GroupColors'
 import RegistrationIcons from './RegistrationIcons'

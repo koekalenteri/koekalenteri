@@ -391,7 +391,7 @@
     "restrictions": "Restrictions",
     "resultsLocked": "The results have been handed over to the chief judge or confirmed, so recorded results can no longer change. This change would have changed them and was not saved.",
     "resultTasksDropped": {
-      "body": "This change removes recorded scores from these dogs, because those exercises are no longer done at their post or the exercise is now split differently. The removed scores do not come back even if the change is undone later.",
+      "body": "This change removes recorded scores from these dogs, because the exercise has left the running order or is now split differently. The removed scores do not come back even if the change is undone later.",
       "confirm": "Save and remove the scores",
       "dog_one": "{{dog}} ({{eventClass}}, no. {{number}}): {{count}} exercise",
       "dog_other": "{{dog}} ({{eventClass}}, no. {{number}}): {{count}} exercises",

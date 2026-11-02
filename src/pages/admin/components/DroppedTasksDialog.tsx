@@ -20,8 +20,8 @@ export interface DroppedTasksDialogProps {
 
 /**
  * Asks before an event save drops recorded scores (KOE-1666): a change of the posts, the rotation or the
- * classes that leaves a recorded task out of a dog's round, or makes its slot mean another task. The
- * dogs are the ones the save named, so what is confirmed is what the server would drop.
+ * classes that takes a scored exercise out of a dog's running order, or splits it another way (KOE-1665).
+ * The dogs are the ones the save named, so what is confirmed is what the server would drop.
  */
 export default function DroppedTasksDialog({ dogs, open, onCancel, onConfirm }: DroppedTasksDialogProps) {
   const { t } = useTranslation()

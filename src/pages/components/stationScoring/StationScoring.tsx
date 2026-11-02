@@ -32,13 +32,14 @@ import { compareRegistrationClasses } from '@/lib/event'
 import { makeArray } from '@/lib/judge'
 import { liveFormat } from '@/lib/liveFormat'
 import { getRegistrationClass } from '@/lib/registration'
-import { formatTaskName, parseEventResultCode, scoresAtPosts } from '@/lib/results'
+import { formatTaskName, parseEventResultCode } from '@/lib/results'
 import {
   effectiveJudge,
   endedAtExercise,
   endedBefore,
   exercisesAtPost,
   holdsScore,
+  scoresAtPosts,
   stationVersion,
   visitSlots,
 } from '@/lib/resultTasks'
@@ -104,7 +105,8 @@ interface Props {
  */
 /**
  * The exercises the dog's group does at this post, from its visit (KOE-1665): the post's own scores. A
- * post the group comes to twice holds both exercises.
+ * post the group comes to twice holds both exercises. The page has no running order to work them out
+ * from; the visit's posts give the list `stationExercises` gives the server from the same layout.
  */
 const exercisesHere = (dog: StationScoringDog, stationId: string): number[] =>
   dog.visit ? exercisesAtPost(dog.visit.exercisePosts, stationId) : []
@@ -449,7 +451,7 @@ export function StationScoring({
                 onChange={(item, points, zeroFault) =>
                   setEdit((prev) => {
                     const existing = prev.tasks.find((entry) => holdsScore(item, entry))
-                    const judge = existing?.judge ? effectiveJudge(existing, judges) : (lastJudge ?? judges[0])
+                    const judge = effectiveJudge(existing, judges, lastJudge)
                     return {
                       ...prev,
                       tasks: [

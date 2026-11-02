@@ -1,4 +1,4 @@
-import type { ExerciseEventResult, JsonEventResult, JsonEventResultTask } from '../types'
+import type { JsonEventResult, JsonEventResultTask } from '../types'
 import type { SubmittedEventResult } from './results'
 import type { ScoredTask } from './resultTasks'
 import i18n from 'i18next'
@@ -30,11 +30,9 @@ import {
   shownEventResult,
   stationDogsInOrder,
   taskEntryCeiling,
-  withEffectiveJudges,
-  withExerciseAddresses,
   withStoredTotals,
 } from './results'
-import { dogRound, visitSlots } from './resultTasks'
+import { dogRound, visitSlots, withEffectiveJudges } from './resultTasks'
 
 /**
  * The slots of `tasks` exercises a group does at one post, numbered after `tasksBefore` exercises
@@ -45,19 +43,18 @@ const postSlots = (
   { parts, tasks, tasksBefore }: { parts: 1 | 2; tasks: number; tasksBefore: number }
 ) =>
   Array.from({ length: tasks }, (_unused, at) =>
-    visitSlots(stationId, { exercise: tasksBefore + at + 1, parts, slotsBefore: at * parts })
+    visitSlots(stationId, { exercise: tasksBefore + at + 1, parts })
   ).flat()
 
-/** One task at its own post, the common layout. */
-const task = (stationId: string, points: number | null, maxPoints = 20): ScoredTask => ({
+/** A scored part of an exercise, by the exercise's number. */
+const task = (exercise: number, points: number | null, maxPoints = 20): ScoredTask => ({
   maxPoints,
   points,
-  stationId,
+  task: exercise,
 })
 
-/** A four-post round, one task each, scored as given. */
-const round = (...points: (number | null)[]): ScoredTask[] =>
-  points.map((value, index) => task(`post-${index + 1}`, value))
+/** A four-exercise round, scored as given. */
+const round = (...points: (number | null)[]): ScoredTask[] => points.map((value, index) => task(index + 1, value))
 
 describe('nowtTotals', () => {
   it('sums points and maxima and reports the exact ratio', () => {
@@ -81,27 +78,16 @@ describe('deriveNowtResult', () => {
   })
 
   it('applies the floor to a split task, not to its individual parts', () => {
-    const tasks = [
-      task('post-1', 9, 10),
-      task('post-1', 8, 10),
-      task('post-2', 18),
-      task('post-3', 16),
-      task('post-4', 14),
-    ]
+    const tasks = [task(1, 9, 10), task(1, 8, 10), task(2, 18), task(3, 16), task(4, 14)]
 
     // 9 and 8 each fall under 10, but the task totals 17 of 20 and clears the floor.
     expect(deriveNowtResult({ tasks })).toBe('1')
   })
 
-  it('floors each of two tasks at one post on its own (KOE-1665)', () => {
-    const twoTasks = (second: number) => [
-      task('post-1', 20),
-      task('post-2', 20),
-      task('post-3', 20),
-      { ...task('post-3', second), task: 1 },
-    ]
+  it('floors each of two exercises at one post on its own (KOE-1665)', () => {
+    const twoTasks = (second: number) => [task(1, 20), task(2, 20), task(3, 20), task(4, second)]
 
-    // 29 of 40 at post 3 would clear a floor on the post's sum; the second task alone has 9 of 20.
+    // Exercises 3 and 4 at one post: 29 of 40 would clear a floor on the post's sum; exercise 4 alone has 9 of 20.
     expect(deriveNowtResult({ tasks: twoTasks(9) })).toBe('2')
     expect(deriveNowtResult({ tasks: twoTasks(10) })).toBe('1')
   })
@@ -256,8 +242,8 @@ describe('taskEntryCeiling', () => {
     // hand out first prizes the rules disallow.
     const ceiling = taskEntryCeiling({ maxPoints: 20, recalled: true })
 
-    expect(deriveNowtResult({ tasks: [...round(20, 20, 20), task('post-4', ceiling)] })).toBe('1')
-    expect(deriveNowtResult({ tasks: [...round(20, 20, 20), task('post-4', ceiling - 1)] })).toBe('2')
+    expect(deriveNowtResult({ tasks: [...round(20, 20, 20), task(4, ceiling)] })).toBe('1')
+    expect(deriveNowtResult({ tasks: [...round(20, 20, 20), task(4, ceiling - 1)] })).toBe('2')
   })
 })
 
@@ -291,7 +277,7 @@ describe('stationDogsInOrder', () => {
     const event = { eventType: 'NOWT', stations: [{ date: '2026-09-12' as const, id: 'post-1', number: 1 }] }
 
     expect(stationDogsInOrder(event, 'post-1', [dog('a', 1)])).toEqual([
-      { ...dog('a', 1), visit: { exercise: 1, exercisePosts: ['post-1'], parts: 1, slotsBefore: 0 } },
+      { ...dog('a', 1), visit: { exercise: 1, exercisePosts: ['post-1'], parts: 1 } },
     ])
   })
 
@@ -802,50 +788,6 @@ describe('formatResultLine', () => {
   })
 })
 
-describe('withExerciseAddresses (KOE-1665)', () => {
-  const day = '2026-09-12' as const
-  const event = { stations: [1, 2, 3].map((number) => ({ date: day, id: `post-${number}`, number })) }
-  const at = { updatedAt: '2026-09-12T09:00:00.000Z', updatedBy: 'Sihteeri' }
-  const dog = (eventResult: JsonEventResult | undefined, eventType = 'NOWT') => ({
-    class: 'ALO',
-    eventResult,
-    eventType,
-    group: { date: day, key: `${day}-ap`, number: 1 },
-    id: 'dog-a',
-  })
-
-  it('reads every score stored by post as its exercise, and a stop stored by post as the last exercise there', () => {
-    const stored: JsonEventResult = {
-      ...at,
-      retirement: { cause: 'injury', stationId: 'post-3' },
-      tasks: [
-        { ...at, index: 0, points: 12, stationId: 'post-2' },
-        { ...at, exercise: 1, part: 0, points: 15 },
-      ],
-    }
-
-    expect(withExerciseAddresses(event, dog(stored)).eventResult).toEqual({
-      ...at,
-      retirement: { cause: 'injury', exercise: 3 },
-      tasks: [
-        { ...at, exercise: 2, part: 0, points: 12 },
-        { ...at, exercise: 1, part: 0, points: 15 },
-      ],
-    })
-  })
-
-  it('keeps the post of a stop in a type judged as a whole, and leaves a dog without a result as it is', () => {
-    const stopped: JsonEventResult = {
-      ...at,
-      result: 'ALO0',
-      retirement: { cause: 'judgeStopped', stationId: 'post-1' },
-    }
-
-    expect(withExerciseAddresses(event, dog(stopped, 'NOME-B')).eventResult).toEqual(stopped)
-    expect(withExerciseAddresses(event, dog(undefined))).not.toHaveProperty('eventResult')
-  })
-})
-
 describe('withEffectiveJudges (KOE-1665)', () => {
   const day = '2026-09-12' as const
   const a = { id: 1, name: 'A' }
@@ -882,13 +824,13 @@ describe('withStoredTotals (KOE-1669)', () => {
   const day = '2026-09-12' as const
   const event = { stations: [1, 2].map((number) => ({ date: day, id: `post-${number}`, number })) }
   const at = { updatedAt: '2026-09-12T09:00:00.000Z', updatedBy: 'Sihteeri' }
-  const dog = (eventResult: ExerciseEventResult, eventType = 'NOWT') => ({
+  const dog = (eventResult: JsonEventResult, eventType = 'NOWT') => ({
     class: 'ALO',
     eventResult,
     eventType,
     group: { date: day, key: `${day}-ap`, number: 1 },
   })
-  const retired: ExerciseEventResult = {
+  const retired: JsonEventResult = {
     ...at,
     result: 'ALO0',
     retirement: { cause: 'handlerChoice', exercise: 1 },

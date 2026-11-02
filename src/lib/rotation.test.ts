@@ -44,10 +44,9 @@ const rotations: EventRotationGroup[] = [
 ]
 const event = { rotations, stations }
 
-/** A slot of a dog's round; `legacyIndex` is its place among the group's slots at the post. */
-const slot = (exercise: number, stationId: string, legacyIndex = 0, part = 0, parts: 1 | 2 = 1) => ({
+/** A slot of a dog's round. */
+const slot = (exercise: number, stationId: string, part = 0, parts: 1 | 2 = 1) => ({
   exercise,
-  legacyIndex,
   maxPoints: 20 / parts,
   part,
   parts,
@@ -67,7 +66,7 @@ describe('dogRound with a running order', () => {
       slot(1, 'post-3'),
       slot(2, 'post-1'),
       slot(3, 'post-2'),
-      slot(4, 'post-2', 1),
+      slot(4, 'post-2'),
     ])
   })
 
@@ -77,14 +76,14 @@ describe('dogRound with a running order', () => {
     )
   })
 
-  it('counts the slots at a post over the exercises the group does there, apart as well as in a row', () => {
+  it('lays out a post the group comes to twice apart, an exercise each time', () => {
     const twice = { rotations: [{ class: 'ALO' as const, exercises: order(1, 2, 1, 2) }], stations }
 
     expect(dogRound(twice, { class: 'ALO', day: DAY })).toEqual([
       slot(1, 'post-1'),
       slot(2, 'post-2'),
-      slot(3, 'post-1', 1),
-      slot(4, 'post-2', 1),
+      slot(3, 'post-1'),
+      slot(4, 'post-2'),
     ])
   })
 
@@ -100,8 +99,8 @@ describe('dogRound with a running order', () => {
     const legacy: EventStation = { date: DAY, id: 'post-1', number: 1, tasks: 2 }
 
     expect(dogRound({ stations: [legacy, post(2)] }, { class: 'ALO', day: DAY })).toEqual([
-      slot(1, 'post-1', 0, 0, 2),
-      slot(1, 'post-1', 1, 1, 2),
+      slot(1, 'post-1', 0, 2),
+      slot(1, 'post-1', 1, 2),
       slot(2, 'post-2'),
     ])
   })
@@ -118,10 +117,10 @@ describe('dogRound with a running order', () => {
     ]
 
     expect(dogRound({ rotations: split, stations }, { class: 'ALO', day: DAY })).toEqual([
-      slot(1, 'post-1', 0, 0, 2),
-      slot(1, 'post-1', 1, 1, 2),
-      slot(2, 'post-1', 2, 0, 2),
-      slot(2, 'post-1', 3, 1, 2),
+      slot(1, 'post-1', 0, 2),
+      slot(1, 'post-1', 1, 2),
+      slot(2, 'post-1', 0, 2),
+      slot(2, 'post-1', 1, 2),
     ])
   })
 
@@ -229,11 +228,7 @@ describe('dayStations', () => {
 describe('stationArrivals', () => {
   it('lists the visits in exercise order, a group coming once for each exercise, in a row or apart', () => {
     const arrivals = (rotationEvent: RotationEvent) =>
-      stationArrivals(rotationEvent, 'post-1').map(({ exercise, group, slotsBefore }) => [
-        group.class,
-        exercise,
-        slotsBefore,
-      ])
+      stationArrivals(rotationEvent, 'post-1').map(({ exercise, group }) => [group.class, exercise])
     const twiceApart = {
       rotations: [
         { class: 'ALO' as const, exercises: order(1, 2, 1, 2) },
@@ -243,16 +238,16 @@ describe('stationArrivals', () => {
     }
 
     expect(arrivals(event)).toEqual([
-      ['ALO', 1, 0],
-      ['AVO', 2, 0],
-      ['VOI', 3, 0],
-      ['VOI', 4, 1],
+      ['ALO', 1],
+      ['AVO', 2],
+      ['VOI', 3],
+      ['VOI', 4],
     ])
     expect(arrivals(twiceApart)).toEqual([
-      ['ALO', 1, 0],
-      ['AVO', 2, 0],
-      ['ALO', 3, 1],
-      ['AVO', 4, 1],
+      ['ALO', 1],
+      ['AVO', 2],
+      ['ALO', 3],
+      ['AVO', 4],
     ])
   })
 

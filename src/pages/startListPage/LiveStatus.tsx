@@ -10,7 +10,7 @@ import { getEvent } from '../../api/event'
 import { useTickWhile } from '../../hooks/useTickWhile'
 import { isEventLive } from '../../lib/event'
 import { liveFormat, livePhaseLabel, stationDogsAtOnce, stationPhases } from '../../lib/liveFormat'
-import { scoresAtPosts } from '../../lib/results'
+import { scoresAtPosts } from '../../lib/resultTasks'
 import { stationQueueEntries } from '../../lib/rotation'
 import {
   completedGroupTurns,

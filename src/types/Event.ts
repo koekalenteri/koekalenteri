@@ -2,8 +2,8 @@ import type {
   DayKey,
   DbRecord,
   EventResult,
-  ExerciseEventResult,
   JsonDbRecord,
+  JsonEventResult,
   JsonRegistrationDate,
   JsonRegistrationGroup,
   JsonUser,
@@ -346,11 +346,6 @@ export interface StationVisitLayout {
   /** The parts it splits into. */
   parts: 1 | 2
   /**
-   * The slots the group's exercises at this post take before this one, so its first part's stored
-   * address is this (`ExerciseSlot.index`): a group doing two exercises at one post counts on.
-   */
-  slotsBefore: number
-  /**
    * How many dogs a turn of this exercise holds: its own figure, or the post's default. Absent where
    * neither sets one. The format's fixed figure still wins over it (`stationDogsAtOnce`).
    */
@@ -379,8 +374,8 @@ export interface JsonStationEntryDog {
    * This post's own recordings only; the rest of the round is not this link's to see. The result and
    * the judge ride along for a qualitative type alone, whose post is the whole trial.
    */
-  eventResult?: Pick<ExerciseEventResult, 'elimination' | 'retirement' | 'tasks' | 'result' | 'judge'> &
-    Partial<Pick<ExerciseEventResult, 'updatedAt'>>
+  eventResult?: Pick<JsonEventResult, 'elimination' | 'retirement' | 'tasks' | 'result' | 'judge'> &
+    Partial<Pick<JsonEventResult, 'updatedAt'>>
 }
 export type StationEntryDog = Omit<JsonStationEntryDog, 'group' | 'eventResult'> & {
   group?: RegistrationGroup

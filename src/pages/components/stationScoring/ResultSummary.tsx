@@ -11,10 +11,9 @@ import {
   formatShownResult,
   nowtTotals,
   resultMarks,
-  scoresAtPosts,
   shownEventResult,
 } from '@/lib/results'
-import { toScoredTasks } from '@/lib/resultTasks'
+import { scoresAtPosts, toScoredTasks } from '@/lib/resultTasks'
 import { withResultCode } from './types'
 
 interface Props {

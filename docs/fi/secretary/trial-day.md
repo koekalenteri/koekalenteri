@@ -183,7 +183,7 @@ jalostustietojärjestelmässäkään. Kaikkien suorituspaikkojen näkymässä ky
 *{t:results.outcomeAt}*, eli millä rastilla koe päättyi, esimerkiksi "Rasti 3 (suorituspaikka 3)":
 ryhmä voi käydä samassa paikassa useammin, joten paikka ei yksin kerro, mikä käynti oli kyseessä.
 Keskeytys kirjataan rastille kuten pisteetkin, ja se pysyy sillä rastilla, vaikka suoritusjärjestys
-muuttuu. Aiemmin kirjattu keskeytys, jossa on vain paikka, luetaan paikan viimeiseksi rastiksi.
+muuttuu.
 Keskeytyksen jälkeiset rastit koiran suoritusjärjestyksessä näkyvät tekstinä
 *{t:results.notReached}*, myös yhteen suorituspaikkaan rajatussa näkymässä ja suorituspaikan
 kirjaussivulla, jossa koirakko näkyy jo käyneenä niiden rastien kohdalla. Siihen asti

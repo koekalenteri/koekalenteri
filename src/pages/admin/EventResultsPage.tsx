@@ -41,8 +41,15 @@ import {
   isScorableRegistration,
   sortRegistrationsByDateClassTimeAndNumber,
 } from '../../lib/registration'
-import { placementsFor, scoresAtPosts } from '../../lib/results'
-import { dogRound, exercisePostsOf, exercisesAtPost, roundColumns, stationVersion } from '../../lib/resultTasks'
+import { placementsFor } from '../../lib/results'
+import {
+  dogRound,
+  exercisePostsOf,
+  exercisesAtPost,
+  roundColumns,
+  scoresAtPosts,
+  stationVersion,
+} from '../../lib/resultTasks'
 import { dayStations, rotationDogOf } from '../../lib/rotation'
 import { Path } from '../../routeConfig'
 import { AsyncButton } from '../components/AsyncButton'

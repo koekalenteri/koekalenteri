@@ -391,7 +391,7 @@
     "restrictions": "Rajoitukset",
     "resultsLocked": "Tulokset on luovutettu ylituomarille tai hyväksytty, joten kirjattuja tuloksia ei voi enää muuttaa. Muutos olisi muuttanut tuloksia, eikä sitä tallennettu.",
     "resultTasksDropped": {
-      "body": "Muutos poistaa näiden koirien kirjattuja pisteitä, koska niiden suorituspaikassa ei enää tehdä niitä rasteja tai rasti on nyt jaettu eri tavalla. Poistetut pisteet eivät palaudu, vaikka muutos perutaan myöhemmin.",
+      "body": "Muutos poistaa näiden koirien kirjattuja pisteitä, koska rasti on poistunut suoritusjärjestyksestä tai se on nyt jaettu eri tavalla. Poistetut pisteet eivät palaudu, vaikka muutos perutaan myöhemmin.",
       "confirm": "Tallenna ja poista pisteet",
       "dog_one": "{{dog}} ({{eventClass}}, nro {{number}}): {{count}} rasti",
       "dog_other": "{{dog}} ({{eventClass}}, nro {{number}}): {{count}} rastia",

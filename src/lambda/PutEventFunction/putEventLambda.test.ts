@@ -150,7 +150,7 @@ const { default: putEventLambda } = await import('./handler')
 const { processResultSubmissions } = await import('../lib/eventResults')
 const { buildKcResult, KC_STATE_HANDED_OVER } = await import('../../lib/kennelliittoResults')
 const { deriveNowtResult, formatEventResult, nowtTotals, placementsFor } = await import('../../lib/results')
-const { addressTasks, dogRound, isResultTasksDroppedBody, toScoredTasks } = await import('../../lib/resultTasks')
+const { dogRound, isResultTasksDroppedBody, toScoredTasks } = await import('../../lib/resultTasks')
 const { patchMerge } = await import('../../lib/utils')
 const { rotationDogOf } = await import('../../lib/rotation')
 
@@ -2036,8 +2036,7 @@ describe('putEventLambda', () => {
     /** What the results table shows for a dog: its scores read against the event's posts as they are now. */
     const shownResult = (event: JsonConfirmedEvent, registration: JsonRegistration): JsonEventResult => {
       const result = registration.eventResult
-      const round = dogRound(event, rotationDogOf(registration))
-      const scored = toScoredTasks(round, addressTasks(round, result?.tasks).kept)
+      const scored = toScoredTasks(dogRound(event, rotationDogOf(registration)), result?.tasks)
       const code = deriveNowtResult({ tasks: scored })
       const { maxPoints, percentage, points } = nowtTotals(scored)
       return {
@@ -2125,10 +2124,8 @@ describe('putEventLambda', () => {
       }))
 
       expect(stored().map((registration) => registration.eventResult?.result)).toEqual(['ALO3', 'ALO3'])
-      // Stored by exercise now (KOE-1665): exercises 1 and 2, both at the first post.
-      expect(
-        eventResultOf('dog-a')?.tasks?.map((task) => ('exercise' in task ? task.exercise : task.stationId))
-      ).toEqual([1, 2])
+      // Exercises 1 and 2, both at the first post, keep their scores (KOE-1665).
+      expect(eventResultOf('dog-a')?.tasks?.map((task) => task.exercise)).toEqual([1, 2])
       expect(placementsFor(stored())).toEqual(placementsFor(shown))
       expect(placementsFor(stored()).get('dog-b')).toEqual(1)
       expect(kcSent(stored(), changed)).toEqual(kcSent(shown, changed))
@@ -2347,143 +2344,26 @@ describe('putEventLambda', () => {
       const fourPostEvent: JsonConfirmedEvent = { ...nowtEvent, rotations: [], stations: fourPosts }
       // The truth: three posts, the third doing exercises 3 and 4.
       const corrected = { rotations: [alo('post-1', 'post-2', 'post-3', 'post-3')], stations: fourPosts.slice(0, 3) }
-      const at = '2025-03-20T09:00:00.000Z'
-      /** A dog as production stores it: each score at its post and slot there, the totals read off them. */
-      const legacyScored = (
-        id: string,
-        number: number,
-        points: number[],
-        extra: Partial<JsonEventResult> = {}
-      ): JsonRegistration => {
-        const tasks = points.map((value, index) => ({
-          index: 0,
-          judge,
-          points: value,
-          stationId: `post-${index + 1}`,
-          updatedAt: at,
-          updatedBy: 'Sihteeri',
-        }))
-        const registration = {
-          ...dogAt(id, number),
-          eventResult: { tasks, updatedAt: at, updatedBy: 'Sihteeri', ...extra },
-        }
-        return { ...registration, eventResult: shownResult(fourPostEvent, registration) }
-      }
-      const patchCorrected = () => {
+
+      it('asks nothing and writes nobody, locked or not: every dog keeps its exercises 1 to 4 and its prize', async () => {
+        await record(fourPostEvent, {
+          'dog-a': [15, 16, 17, 18].map((points, at) => ({ exercise: at + 1, judge, part: 0, points })),
+        })
+        const before = eventResultOf('dog-a')
+        getEventMock.mockResolvedValue({ ...fourPostEvent, kcState: handedOverState })
         signIn(mockSecretary)
-        return putEventLambda(constructAPIGwEvent({ id: 'existing', ...corrected }, { method: 'PATCH' }))
-      }
-      const byExercise = (id: string) =>
-        eventResultOf(id)?.tasks?.map((task) => [
-          'exercise' in task ? task.exercise : undefined,
-          task.points,
-          'stationId' in task,
-        ])
 
-      beforeEach(() => {
-        getEventMock.mockResolvedValue(fourPostEvent)
-      })
-
-      it('asks nothing, and every dog keeps its exercises 1 to 4, its points and its prize, stored by exercise', async () => {
-        const a = legacyScored('dog-a', 1, [15, 16, 17, 18])
-        const b = legacyScored('dog-b', 2, [12, 13, 14, 19])
-        storedRegistrations.set(a.id, a)
-        storedRegistrations.set(b.id, b)
-
-        const res = await patchCorrected()
-
-        expect(res.statusCode).toEqual(200)
-        expect(byExercise('dog-a')).toEqual([
-          [1, 15, false],
-          [2, 16, false],
-          [3, 17, false],
-          [4, 18, false],
-        ])
-        expect(byExercise('dog-b')?.map(([exercise, points]) => [exercise, points])).toEqual([
-          [1, 12],
-          [2, 13],
-          [3, 14],
-          [4, 19],
-        ])
-        for (const before of [a, b]) {
-          expect(eventResultOf(before.id)).toMatchObject({
-            maxPoints: before.eventResult?.maxPoints,
-            points: before.eventResult?.points,
-            result: before.eventResult?.result,
-          })
-        }
-        expect(eventResultOf('dog-a')?.tasks?.[3]).toMatchObject({ judge })
-      })
-
-      it('writes only the dogs still stored at their posts when a save that stopped halfway is made again', async () => {
-        const a = legacyScored('dog-a', 1, [15, 16, 17, 18])
-        const done = {
-          ...a,
-          eventResult: {
-            ...a.eventResult,
-            tasks: [15, 16, 17, 18].map((points, index) => ({
-              exercise: index + 1,
-              judge,
-              part: 0,
-              points,
-              updatedAt: at,
-              updatedBy: 'Sihteeri',
-            })),
-            updatedAt: at,
-            updatedBy: 'Sihteeri',
-          },
-        }
-        storedRegistrations.set('dog-a', done)
-        storedRegistrations.set('dog-b', legacyScored('dog-b', 2, [12, 13, 14, 19]))
-
-        const res = await patchCorrected()
-
-        expect(res.statusCode).toEqual(200)
-        expect(mockWriteRecomputedEventResult).toHaveBeenCalledTimes(1)
-        expect(mockWriteRecomputedEventResult).toHaveBeenCalledWith('existing', 'dog-b', expect.anything(), at)
-        expect(eventResultOf('dog-a')).toEqual(done.eventResult)
-      })
-
-      it('converts a cancelled dog too, so its scores stay readable in the new layout', async () => {
-        const cancelled = { ...legacyScored('dog-a', 1, [15, 16, 17, 18]), cancelled: true }
-        storedRegistrations.set('dog-a', cancelled)
-
-        const res = await patchCorrected()
-
-        expect(res.statusCode).toEqual(200)
-        expect(byExercise('dog-a')?.map(([exercise, points]) => [exercise, points])).toEqual([
-          [1, 15],
-          [2, 16],
-          [3, 17],
-          [4, 18],
-        ])
-      })
-
-      it('writes nobody, locked or not, for a change that reads every stored score the same', async () => {
-        // With a running order of its own a renumbered post changes no exercise, so the dogs stored by
-        // post are left to be read through the layout as before.
-        const ordered = { ...fourPostEvent, rotations: [alo('post-1', 'post-2', 'post-3', 'post-4')] }
-        getEventMock.mockResolvedValue({ ...ordered, kcState: handedOverState })
-        storedRegistrations.set('dog-a', legacyScored('dog-a', 1, [15, 16, 17, 18]))
-
-        const res = await patchStations(fourPosts.map((post) => (post.id === 'post-2' ? { ...post, number: 9 } : post)))
+        const res = await putEventLambda(constructAPIGwEvent({ id: 'existing', ...corrected }, { method: 'PATCH' }))
 
         expect(res.statusCode).toEqual(200)
         expect(mockWriteRecomputedEventResult).not.toHaveBeenCalled()
-      })
-
-      it('reads a stop stored with its post alone as the last exercise there, and stores it by exercise', async () => {
-        const stopped = legacyScored('dog-a', 1, [15, 16, 17], {
-          retirement: { cause: 'handlerChoice', stationId: 'post-4' },
+        expect(
+          shownResult({ ...fourPostEvent, ...corrected }, storedRegistrations.get('dog-a') ?? dogAt('dog-a', 1))
+        ).toMatchObject({
+          maxPoints: before?.maxPoints,
+          points: before?.points,
+          result: before?.result,
         })
-        storedRegistrations.set('dog-a', stopped)
-
-        const res = await patchCorrected()
-
-        expect(res.statusCode).toEqual(200)
-        expect(eventResultOf('dog-a')?.retirement).toEqual({ cause: 'handlerChoice', exercise: 4 })
-        // The handler's own withdrawal publishes as a nought with what the round earned (KOE-1669).
-        expect(eventResultOf('dog-a')).toMatchObject({ maxPoints: 80, points: 48, result: 'ALO0' })
       })
     })
 

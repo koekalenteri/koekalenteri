@@ -1064,7 +1064,6 @@ describe('ResultSummary', () => {
     const { toScoredTasks } = await import('../../lib/resultTasks')
     const round = [1, 2, 3, 4].map((number) => ({
       exercise: number,
-      legacyIndex: 0,
       maxPoints: 20,
       part: 0,
       parts: 1 as const,
@@ -1101,7 +1100,7 @@ describe('conflict handling', () => {
 describe('a round that was not scored', () => {
   it('is a dash rather than a zero, whichever fault ended it', async () => {
     const { deriveNowtResult } = await import('../../lib/results')
-    const tasks = [{ maxPoints: 20, points: 17, stationId: 'post-1' }]
+    const tasks = [{ maxPoints: 20, points: 17, task: 1 }]
 
     expect(deriveNowtResult({ elimination: { fault: 'harshHandling' }, tasks })).toBe('-')
     expect(deriveNowtResult({ retirement: { cause: 'injury' }, tasks })).toBe('-')
@@ -1109,7 +1108,7 @@ describe('a round that was not scored', () => {
 
   it("turns a handler's withdrawal on whether the dog was still in contention", async () => {
     const { deriveNowtResult } = await import('../../lib/results')
-    const tasks = [{ maxPoints: 20, points: 17, stationId: 'post-1' }]
+    const tasks = [{ maxPoints: 20, points: 17, task: 1 }]
 
     expect(deriveNowtResult({ retirement: { cause: 'handlerChoice', couldStillHavePlaced: true }, tasks })).toBe('-')
     expect(deriveNowtResult({ retirement: { cause: 'handlerChoice', couldStillHavePlaced: false }, tasks })).toBe('0')

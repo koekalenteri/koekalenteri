@@ -262,13 +262,13 @@ describe('StationScoring', () => {
   })
 
   describe('a post in a running order (KOE-1665)', () => {
-    const nowt = (id: string, eventClass: 'ALO' | 'VOI', exercise: number, parts: 1 | 2 = 1, slotsBefore = 0) => ({
+    const nowt = (id: string, eventClass: 'ALO' | 'VOI', exercise: number, parts: 1 | 2 = 1) => ({
       class: eventClass,
       dog: { name: id },
       eventType: 'NOWT',
       group: { ...group, key: `${eventClass}-AP`, number: 1 },
       id,
-      visit: { exercise, exercisePosts: ['post-0', '1', '1', '1'], parts, slotsBefore },
+      visit: { exercise, exercisePosts: ['post-0', '1', '1', '1'], parts },
     })
 
     it('keeps the classes in the order they reach the post', () => {
@@ -292,7 +292,7 @@ describe('StationScoring', () => {
         ...nowt('alo', 'ALO', 3),
         eventResult: { tasks: [{ exercise: 3, part: 0, points: 15, updatedAt: new Date(), updatedBy: 'x' }] },
       }
-      const second = { ...nowt('alo', 'ALO', 4, 1, 1), eventResult: scored.eventResult }
+      const second = { ...nowt('alo', 'ALO', 4, 1), eventResult: scored.eventResult }
       renderScoring({ eventType: 'NOWT', registrations: [scored, second] })
 
       const chips = screen.getAllByRole('button', { name: /^1 alo · results\.column\.task/ })
@@ -306,17 +306,17 @@ describe('StationScoring', () => {
     it('marks done only the place of the exercise the round ended at, a post come to twice (KOE-1669)', () => {
       const ended = {
         eventResult: {
-          retirement: { cause: 'handlerChoice' as const, exercise: 3, stationId: '1' },
+          retirement: { cause: 'handlerChoice' as const, exercise: 3 },
           updatedAt: new Date(),
         },
       }
       const order = ['1', 'post-1', '1']
-      const place = (exercise: number, slotsBefore: number) => ({
-        ...nowt('alo', 'ALO', exercise, 1, slotsBefore),
+      const place = (exercise: number) => ({
+        ...nowt('alo', 'ALO', exercise, 1),
         ...ended,
-        visit: { exercise, exercisePosts: order, parts: 1 as const, slotsBefore },
+        visit: { exercise, exercisePosts: order, parts: 1 as const },
       })
-      renderScoring({ eventType: 'NOWT', registrations: [place(1, 0), place(3, 1)] })
+      renderScoring({ eventType: 'NOWT', registrations: [place(1), place(3)] })
 
       const chips = screen.getAllByRole('button', { name: /^1 alo · results\.column\.task/ })
       expect(chips.map((chip) => chip.className.includes('MuiChip-filled'))).toEqual([false, true])
@@ -332,7 +332,7 @@ describe('StationScoring', () => {
       eventType: 'NOWT',
       group: { ...group, number },
       id,
-      visit: { exercise: 3, exercisePosts: ['post-0', 'post-x', '1'], parts: 2 as const, slotsBefore: 0 },
+      visit: { exercise: 3, exercisePosts: ['post-0', 'post-x', '1'], parts: 2 as const },
       ...(retiredAt
         ? {
             eventResult: {
@@ -424,9 +424,7 @@ describe('StationScoring', () => {
       eventType,
       group: { ...group, number: 1 },
       id: 'run-1',
-      ...(eventType === 'NOWT'
-        ? { visit: { exercise: 1, exercisePosts: ['1'], parts: 1 as const, slotsBefore: 0 } }
-        : {}),
+      ...(eventType === 'NOWT' ? { visit: { exercise: 1, exercisePosts: ['1'], parts: 1 as const } } : {}),
     })
 
     it.each([

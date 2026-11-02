@@ -14,7 +14,7 @@ covers:
   - src/pages/admin/eventViewPage/infoPanel/ResultsPublishing.tsx
   - src/pages/admin/components/KcIdLookupButton.tsx
   - src/pages/admin/components/StartDaySelector.tsx
-sourceHash: f26d69
+sourceHash: cdcdc2
 ---
 
 On the trial day the secretary's job is to record what the dogs did and to get the results in
@@ -179,8 +179,7 @@ A handler's withdrawal carries no *{t:results.marks.interrupted}* mark, just as 
 breeding database. The view of all posts also asks *{t:results.outcomeAt}*, that is, at which exercise
 the trial ended, for example "Exercise 3 (post 3)": a group can come to one post more than once, so
 the post alone does not say which visit it was. A stop is recorded for its exercise, as the
-points are, and stays with that exercise when the running order changes. A stop recorded earlier with
-its post alone is read as the last exercise at that post. The exercises after the stop in the dog's
+points are, and stays with that exercise when the running order changes. The exercises after the stop in the dog's
 running order read *{t:results.notReached}*, in the view narrowed to one post too and on the post's
 own entry page, where the dog shows as done for those exercises. The points
 earned until then stay and can be edited, and their total against the whole running order's maximum

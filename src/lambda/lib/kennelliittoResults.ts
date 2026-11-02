@@ -37,13 +37,8 @@ import {
   kcTextKey,
 } from '../../lib/kennelliittoResults'
 import { getRegistrationClass, isScorableRegistration } from '../../lib/registration'
-import {
-  kcFormatOfEventType,
-  placementsFor,
-  withEffectiveJudges,
-  withExerciseAddresses,
-  withStoredTotals,
-} from '../../lib/results'
+import { kcFormatOfEventType, placementsFor, withStoredTotals } from '../../lib/results'
+import { withEffectiveJudges } from '../../lib/resultTasks'
 import { mapWithConcurrency } from '../../lib/utils'
 import { isKcDomesticRegNo } from '../../lib/validation'
 import { KLKieli } from '../types/KLAPI'
@@ -354,7 +349,7 @@ const evaluateKcDog = (
  *
  * A round that ended early saved before KOE-1669 has no stored totals; they are worked out from its tasks
  * here (`withStoredTotals`), so it is sent with what it earned rather than 0, without being saved again.
- * The tasks are read by exercise first, each judged by its post's judges as the event stands.
+ * Each score is judged by the judges of its exercise's post as the event stands.
  */
 const evaluateAll = (
   event: JsonConfirmedEvent,
@@ -363,10 +358,8 @@ const evaluateAll = (
   now: Date,
   ids?: string[]
 ): Evaluated[] => {
-  // Each score by exercise, judged by its post's judges as the event stands (KOE-1665).
-  const registrations = stored.map((registration) =>
-    withStoredTotals(event, withEffectiveJudges(event, withExerciseAddresses(event, registration)))
-  )
+  // Each score judged by the judges of its exercise's post as the event stands (KOE-1665).
+  const registrations = stored.map((registration) => withStoredTotals(event, withEffectiveJudges(event, registration)))
   const placements = placementsFor(registrations)
   const chosen = ids ? registrations.filter((registration) => ids.includes(registration.id)) : registrations
   return chosen.flatMap(

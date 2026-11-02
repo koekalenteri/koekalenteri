@@ -204,9 +204,14 @@ describe('putStationEntryLambda', () => {
     )
 
     expect(mockUpdateRegistrationField).toHaveBeenCalledTimes(1)
-    const saved = mockUpdateRegistrationField.mock.calls[0][3]
-    expect(saved.tasks).toHaveLength(1)
-    expect(saved.tasks[0]).toMatchObject({ exercise: 1, part: 0, points: 17, updatedBy: 'Suorituspaikka 1' })
+    expect(mockUpdateRegistrationField).toHaveBeenCalledWith(
+      'event-1',
+      'reg-1',
+      'eventResult',
+      expect.objectContaining({
+        tasks: [expect.objectContaining({ exercise: 1, part: 0, points: 17, updatedBy: 'Suorituspaikka 1' })],
+      })
+    )
 
     expect(mockAudit).toHaveBeenCalledWith(expect.objectContaining({ user: 'Suorituspaikka 1' }))
   })
@@ -217,17 +222,6 @@ describe('putStationEntryLambda', () => {
     ).rejects.toMatchObject({ status: 409 })
 
     expect(mockUpdateRegistrationField).not.toHaveBeenCalled()
-  })
-
-  it('saves a score a page loaded before KOE-1665 sends by its post and slot, by its exercise', async () => {
-    await putStationEntryLambda(
-      apiEvent([{ eventResult: { tasks: [{ index: 0, points: 17, stationId: 'post-1' }] }, id: 'reg-1' }])
-    )
-
-    expect(mockUpdateRegistrationField.mock.calls[0][3].tasks).toEqual([
-      expect.objectContaining({ exercise: 1, part: 0, points: 17 }),
-    ])
-    expect(mockUpdateRegistrationField.mock.calls[0][3].tasks[0]).not.toHaveProperty('stationId')
   })
 
   it('drops the whole-round fields a station link may not write', async () => {
@@ -249,14 +243,21 @@ describe('putStationEntryLambda', () => {
 
     // The certs, the notes and an overriding result code are the event secretary's; a widely shared
     // link writes its post's scores and outcome, nothing else.
-    const saved = mockUpdateRegistrationField.mock.calls[0][3]
-    expect(saved).not.toHaveProperty('cert')
-    expect(saved).not.toHaveProperty('resCert')
-    expect(saved).not.toHaveProperty('notes')
-    expect(saved).not.toHaveProperty('junk')
     // The dropped result code did not sneak into a derived result either: the round is incomplete.
-    expect(saved).not.toHaveProperty('result')
-    expect(saved.tasks).toEqual([expect.objectContaining({ exercise: 1, points: 17 })])
+    for (const field of ['cert', 'junk', 'notes', 'resCert', 'result']) {
+      expect(mockUpdateRegistrationField).not.toHaveBeenCalledWith(
+        'event-1',
+        'reg-1',
+        'eventResult',
+        expect.objectContaining({ [field]: expect.anything() })
+      )
+    }
+    expect(mockUpdateRegistrationField).toHaveBeenCalledWith(
+      'event-1',
+      'reg-1',
+      'eventResult',
+      expect.objectContaining({ tasks: [expect.objectContaining({ exercise: 1, points: 17 })] })
+    )
   })
 
   it('saves a round-ending outcome that arrives without a score', async () => {
@@ -265,10 +266,12 @@ describe('putStationEntryLambda', () => {
     )
 
     expect(mockUpdateRegistrationField).toHaveBeenCalledTimes(1)
-    expect(mockUpdateRegistrationField.mock.calls[0][3]).toMatchObject({
-      result: 'AVO-',
-      retirement: { cause: 'injury', exercise: 1 },
-    })
+    expect(mockUpdateRegistrationField).toHaveBeenCalledWith(
+      'event-1',
+      'reg-1',
+      'eventResult',
+      expect.objectContaining({ result: 'AVO-', retirement: { cause: 'injury', exercise: 1 } })
+    )
   })
 
   it('echoes back only what the link may see', async () => {
@@ -293,14 +296,24 @@ describe('putStationEntryLambda', () => {
       ])
     )
 
-    const [status, payload] = mockResponse.mock.calls[0]
-    expect(status).toBe(200)
-    // The stored round holds another post's score and, once complete, the prize — neither of which is
-    // this link's to see.
-    expect(payload.saved[0].eventResult.tasks).toHaveLength(1)
-    expect(payload.saved[0].eventResult.tasks[0]).toMatchObject({ exercise: 1 })
-    expect(payload.saved[0].eventResult).not.toHaveProperty('result')
-    expect(payload.saved[0].eventResult).not.toHaveProperty('points')
+    // The stored round holds another post's score and, once complete, the prize; neither is this link's
+    // to see.
+    expect(mockResponse).toHaveBeenCalledWith(
+      200,
+      expect.objectContaining({
+        saved: [
+          {
+            eventResult: {
+              tasks: [expect.objectContaining({ exercise: 1 })],
+              updatedAt: expect.any(String),
+              updatedBy: expect.any(String),
+            },
+            id: 'reg-1',
+          },
+        ],
+      }),
+      expect.anything()
+    )
   })
   it('refuses the post once the trial is handed to the chief judge, with its own status and code', async () => {
     const handedOver = { ...confirmedEvent, kcState: { code: 1253, name: 'x', readAt: 'y' } }

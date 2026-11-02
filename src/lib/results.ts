@@ -3,8 +3,6 @@ import type {
   EliminatingFault,
   EventResultElimination,
   EventResultRetirement,
-  EventStation,
-  ExerciseEventResult,
   JsonEventResult,
   JsonEventResultTask,
   JsonRegistration,
@@ -16,7 +14,7 @@ import type {
 } from '../types'
 import type { SortableRegistration } from './registration'
 import type { ExerciseSlot, ScoredTask } from './resultTasks'
-import type { RotationEvent, RotationStation } from './rotation'
+import type { RotationEvent } from './rotation'
 import { objectsDiffer } from './diff'
 import {
   getRegistrationClass,
@@ -25,7 +23,7 @@ import {
   isScorableRegistration,
   sortRegistrationsByDateClassTimeAndNumber,
 } from './registration'
-import { addressTasks, dogRound, effectiveJudge, exerciseStopOf, isLegacyStop, toScoredTasks } from './resultTasks'
+import { dogRound, scoresAtPosts, toScoredTasks } from './resultTasks'
 import { rotationDogOf, stationQueue } from './rotation'
 
 /**
@@ -82,11 +80,6 @@ export const formatResultLine = (
  * 81 % and has earned a *first* prize — comparing raw points would score it a second.
  */
 const NOWT_PRIZE_THRESHOLD_PERCENT = { 1: 80, 2: 65, 3: 50 } as const
-
-/** Event types scored at posts. Everything else is judged qualitatively and has no tasks. */
-const POST_SCORED_EVENT_TYPES = new Set(['NOWT', 'NOWT SM'])
-
-export const scoresAtPosts = (eventType?: string): boolean => POST_SCORED_EVENT_TYPES.has(eventType ?? '')
 
 /**
  * The formats in which a judge's stop is recorded at all. This mirrors the `keskeytys` rows of
@@ -279,7 +272,7 @@ const everyTaskAtLeastHalf = (tasks: readonly ScoredTask[]): boolean => {
   const sums = new Map<string, { points: number; maxPoints: number }>()
 
   for (const task of tasks) {
-    const key = `${task.stationId}#${task.task ?? 0}`
+    const key = String(task.task)
     const sum = sums.get(key) ?? { maxPoints: 0, points: 0 }
     sum.points += task.points ?? 0
     sum.maxPoints += task.maxPoints
@@ -472,7 +465,7 @@ interface EventResultContext {
 export const resolveEventResult = (
   submitted: SubmittedEventResult,
   { eventType, eventClass, round = [] }: EventResultContext
-): Omit<ExerciseEventResult, 'updatedAt' | 'updatedBy'> => {
+): Omit<JsonEventResult, 'updatedAt' | 'updatedBy'> => {
   const { tasks, resultCode, ...rest } = submitted
 
   if (!scoresAtPosts(eventType)) {
@@ -510,7 +503,7 @@ export const resolveEventResult = (
  * read against the dog's round as `resolveEventResult` reads them; nothing else of the result changes.
  * A result with totals, or of a type not scored at posts, is returned as it is.
  */
-export const withStoredTotals = <T extends SortableRegistration & { eventResult?: ExerciseEventResult }>(
+export const withStoredTotals = <T extends SortableRegistration & { eventResult?: JsonEventResult }>(
   event: RotationEvent,
   registration: T
 ): T => {
@@ -521,63 +514,6 @@ export const withStoredTotals = <T extends SortableRegistration & { eventResult?
     toScoredTasks(dogRound(event, rotationDogOf(registration)), stored.tasks)
   )
   return { ...registration, eventResult: { ...stored, maxPoints, percentage, points } }
-}
-
-/** A stop or an elimination by exercise, where the round is scored by exercise and it is stored by post. */
-const exercisePlace = <P extends Pick<EventResultRetirement, 'stationId' | 'exercise'>>(
-  place: P,
-  round: readonly ExerciseSlot[],
-  byExercise: boolean
-): P | (Omit<P, 'stationId' | 'exercise'> & { exercise?: number }) =>
-  byExercise && isLegacyStop(place) ? exerciseStopOf(place, round) : place
-
-/**
- * A registration's stored result with every score, and where the round is scored by exercise the place it
- * ended at, addressed by exercise (KOE-1665, Jukka 2.11.2026): what a lambda hands on, so no page ever
- * reads a score by its post. A score stored by post is read through the dog's round of the layout as it
- * stands, which is the one it was stored under, since an event save that would read it as another exercise
- * writes the dog by exercise first (`legacyReadChanges`). A score the round cannot hold is left out, and
- * of two read as one exercise the later.
- */
-export const withExerciseAddresses = <T extends SortableRegistration & { eventResult?: JsonEventResult }>(
-  event: RotationEvent,
-  registration: T
-): Omit<T, 'eventResult'> & { eventResult?: ExerciseEventResult } => {
-  const { eventResult: stored, ...rest } = registration
-  if (!stored) return rest
-  const round = dogRound(event, rotationDogOf(registration))
-  const byExercise = scoresAtPosts(registration.eventType)
-  const { tasks, retirement, elimination, ...result } = stored
-  const eventResult: ExerciseEventResult = {
-    ...result,
-    ...(tasks ? { tasks: addressTasks(round, tasks).kept } : {}),
-    ...(retirement ? { retirement: exercisePlace(retirement, round, byExercise) } : {}),
-    ...(elimination ? { elimination: exercisePlace(elimination, round, byExercise) } : {}),
-  }
-  return { ...rest, eventResult }
-}
-
-/**
- * A result with each score's judge read off the event as it stands (`effectiveJudge`, KOE-1665): one of
- * the judges of the post where the dog's group does the exercise, the stored judge picking which. What is
- * sent to Kennelliitto names these, so editing a post's judges after a send changes the body sent.
- */
-export const withEffectiveJudges = <T extends SortableRegistration & { eventResult?: ExerciseEventResult }>(
-  event: Omit<RotationEvent, 'stations'> & { stations?: readonly (RotationStation & Pick<EventStation, 'judges'>)[] },
-  registration: T
-): T => {
-  const tasks = registration.eventResult?.tasks
-  if (!registration.eventResult || !tasks?.length) return registration
-  const round = dogRound(event, rotationDogOf(registration))
-  const judgesAt = (exercise: number) => {
-    const stationId = round.find((slot) => slot.exercise === exercise)?.stationId
-    return event.stations?.find((station) => station.id === stationId)?.judges ?? []
-  }
-  const judged = tasks.map(({ judge: _stored, ...task }) => {
-    const judge = effectiveJudge({ judge: _stored }, judgesAt(task.exercise))
-    return judge ? { ...task, judge } : task
-  })
-  return { ...registration, eventResult: { ...registration.eventResult, tasks: judged } }
 }
 
 /**
