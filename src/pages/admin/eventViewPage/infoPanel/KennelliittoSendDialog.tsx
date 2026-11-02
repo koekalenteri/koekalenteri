@@ -15,7 +15,15 @@ import Typography from '@mui/material/Typography'
 import { useTranslation } from 'react-i18next'
 import { KennelliittoDogList } from './KennelliittoDogList'
 import { isEveryRegNoDecided, KennelliittoRegNoChoices } from './KennelliittoRegNoChoices'
-import { blockerText, createsDogLine, dogLabel, dogLine, failedLine, skippedLine } from './kennelliittoMessages'
+import {
+  blockerText,
+  createsDogLine,
+  dogLabel,
+  dogLine,
+  failedLine,
+  pointsByHandLine,
+  skippedLine,
+} from './kennelliittoMessages'
 
 export type KcSendPhase =
   | { kind: 'loading' }
@@ -63,6 +71,30 @@ export const dogsBlocked = (preview: KcPreviewResponse): KcDogReport[] =>
 /** Whether the preview has anything to send, as it is or after the choices. */
 const hasAnythingToSend = (preview: KcPreviewResponse, force: boolean) =>
   !preview.blockers.length && (dogsToSend(preview, force).length > 0 || dogsToDecide(preview).length > 0)
+
+/**
+ * The dogs whose result goes with 0 points because Omakoira takes no more for it now, and the points to enter
+ * there by hand (KOE-1676). Information only: the dogs are sent all the same.
+ */
+const PointsByHand = ({
+  dogs,
+  heading,
+}: {
+  readonly dogs: ReadonlyArray<Pick<KcDogReport, 'id' | 'name' | 'pointsByHand' | 'regNo'>>
+  readonly heading: string
+}) => {
+  const { t } = useTranslation()
+  const listed = dogs.filter((dog) => dog.pointsByHand !== undefined)
+  if (!listed.length) return null
+  return (
+    <Alert severity="info">
+      <Typography sx={{ fontWeight: 600 }} variant="body2">
+        {heading}
+      </Typography>
+      <KennelliittoDogList lines={listed.map((dog) => pointsByHandLine(t, dog))} />
+    </Alert>
+  )
+}
 
 const Preview = ({
   force,
@@ -117,6 +149,10 @@ const Preview = ({
           <KennelliittoDogList lines={creates.map(createsDogLine)} />
         </Alert>
       )}
+      <PointsByHand
+        dogs={[...dogsToSend(preview, force), ...dogsToDecide(preview)]}
+        heading={t('results.kennelliitto.pointsByHand')}
+      />
       {blocked.length > 0 && (
         <Alert severity="error">
           <KennelliittoDogList lines={blocked.map((dog) => dogLine(t, dog))} />
@@ -169,6 +205,7 @@ const Report = ({ blocked, summary }: { readonly blocked: KcDogReport[]; readonl
           <KennelliittoDogList lines={sent.map((report) => ({ id: report.id, text: dogLabel(report) }))} />
         </Alert>
       )}
+      <PointsByHand dogs={sent} heading={t('results.kennelliitto.pointsByHandSent')} />
       {failedLines.length > 0 && (
         <Alert severity="error">
           <Typography sx={{ fontWeight: 600 }} variant="body2">

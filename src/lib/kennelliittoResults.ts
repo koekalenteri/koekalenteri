@@ -55,6 +55,9 @@ const INFO_TYPE = 250
 export interface KcKoemuotoResult {
   hylätty: boolean
   keskeytys: boolean
+  /** The points Kennelliitto takes with the result, both ends included. */
+  pisteetMax: number
+  pisteetMin: number
   tulos: string
   tulostyyppi: number
 }
@@ -128,7 +131,14 @@ export interface KcProblem {
   detail?: string
 }
 
-type KcResultOutcome = { body: KcResultBody; ok: true } | { ok: false; problems: KcProblem[] }
+type KcResultOutcome =
+  | {
+      body: KcResultBody
+      ok: true
+      /** The dog's percentage, when the body carries 0 in its place (`pointsOf`, KOE-1676). */
+      pointsByHand?: number
+    }
+  | { ok: false; problems: KcProblem[] }
 
 /** Kennelliitto takes at most this many judges besides the chief. */
 const MAX_PRIZE_JUDGES = 4
@@ -236,13 +246,27 @@ export const kcResultDay = (registration: Pick<KcResultRegistration, 'group' | '
   getRegistrationGroupDay(getRegistrationPlacement(registration)?.date) || undefined
 
 /**
- * The percentage NOWT sends in place of points: `points * 100 / maxPoints` as recorded. A round that
- * ended early sends what it earned too, nought and dash alike, as the breeding database publishes them
- * (KOE-1669); a result stored before that has no total and sends 0 until it is saved again. Nothing is
- * rounded, and nothing is checked against the result's limits, which Kennelliitto's own list gets
- * wrong for ALO0 and ALO-: it answers with its reasons when it refuses a number.
+ * The points NOWT sends: the percentage `points * 100 / maxPoints` as recorded, unrounded, a round that
+ * ended early with what it earned (KOE-1669); a result stored before that with no total sends 0.
+ *
+ * A workaround until Kennelliitto fixes its interface (KOE-1676): its format gives a nought or a dash
+ * no room for what the dog earned. VOI0 and AVO0 take 0–49, ALO0, VOI- and AVO- only 0, so a stopped
+ * dog with 51/80 was refused. A percentage above the row's maximum on a row that takes 0 is sent as 0,
+ * and returned as `pointsByHand`, so the send dialog names the dog and the secretary enters the real
+ * points in Omakoira by hand, which its own form accepts. Everything else is sent as it is, and nothing
+ * else is checked against the row's limits, which Kennelliitto's own list gets wrong for ALO0 and ALO-:
+ * it answers with its reasons when it refuses a number. When Kennelliitto widens a range, the body
+ * changes, the dog reads as changed once and is sent again with its points: the workaround retires
+ * itself without a change here.
  */
-const pointsOf = (registration: KcResultRegistration): number => registration.eventResult?.percentage ?? 0
+const pointsOf = (
+  registration: KcResultRegistration,
+  row: Pick<KcKoemuotoResult, 'pisteetMax' | 'pisteetMin'>
+): { pisteet: number; pointsByHand?: number } => {
+  const percentage = registration.eventResult?.percentage ?? 0
+  if (percentage > row.pisteetMax && row.pisteetMin === 0) return { pisteet: 0, pointsByHand: percentage }
+  return { pisteet: percentage }
+}
 
 /**
  * The placement Kennelliitto takes with a NOWT result: the rank `placementsFor` derived for the dog over
@@ -329,6 +353,7 @@ export const buildKcResult = (
   const regNo = registration.dog.regNo?.trim()
   if (!row || !day || !name || !regNo || !event.kcGuid) return { ok: false, problems }
 
+  const points = scoresAtPosts(event.eventType) ? pointsOf(registration, row) : undefined
   return {
     body: {
       hylätty: row.hylätty,
@@ -342,12 +367,13 @@ export const buildKcResult = (
       rekisterinumero: regNo,
       tulos: row.tulos,
       tuomarit: judges.tuomarit,
-      ...(scoresAtPosts(event.eventType) ? { pisteet: pointsOf(registration) } : {}),
+      ...(points ? { pisteet: points.pisteet } : {}),
       ...(rank.sijoitus === undefined ? {} : { sijoitus: rank.sijoitus }),
       ...(info.infos.length ? { lisätiedot: info.infos.join(', ') } : {}),
       ...(type.tarkenne ? { tarkenne: type.tarkenne } : {}),
     },
     ok: true,
+    ...(points?.pointsByHand === undefined ? {} : { pointsByHand: points.pointsByHand }),
   }
 }
 
@@ -606,6 +632,11 @@ export interface KcDogReport {
   kcDog?: KcKnownDog
   eventClass?: string
   name: string
+  /**
+   * The points to enter in Omakoira by hand: the result goes with 0, since Kennelliitto takes no more for
+   * it (KOE-1676). Never a problem: the dog is sent all the same.
+   */
+  pointsByHand?: number
   problems: KcProblem[]
   regNo: string
   status: KcDogStatus
@@ -645,6 +676,8 @@ export interface KcSendReport {
   id: string
   name: string
   outcome: KcSendOutcome
+  /** A `sent` dog's points to enter in Omakoira by hand, as `KcDogReport` has them (KOE-1676). */
+  pointsByHand?: number
   problems?: KcProblem[]
   regNo: string
   /** The status Kennelliitto answered with, for a call it refused without giving reasons. */

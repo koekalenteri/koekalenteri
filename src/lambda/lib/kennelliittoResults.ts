@@ -339,7 +339,14 @@ const evaluateKcDog = (
   let status: KcDogStatus = 'ready'
   if (previous?.status === 'sent' && previous.payloadHash === hash) status = 'unchanged'
   else if (previous?.payloadHash) status = 'changed'
-  return { body: outcome.body, hash, registration, report: dogReport(registration, status) }
+  const report = dogReport(registration, status)
+  const { pointsByHand } = outcome
+  return {
+    body: outcome.body,
+    hash,
+    registration,
+    report: pointsByHand === undefined ? report : { ...report, pointsByHand },
+  }
 }
 
 /**
@@ -348,7 +355,8 @@ const evaluateKcDog = (
  * rank depends on the other dogs, so the hash of its body moves when another dog's result does.
  *
  * A round that ended early saved before KOE-1669 has no stored totals; they are worked out from its tasks
- * here (`withStoredTotals`), so it is sent with what it earned rather than 0, without being saved again.
+ * here (`withStoredTotals`), without being saved again: it is sent with what it earned, or, where
+ * Kennelliitto takes no more for its result, named with those points for entering by hand (KOE-1676).
  * Each score is judged by the judges of its exercise's post as the event stands.
  */
 const evaluateAll = (
@@ -873,7 +881,10 @@ const sendDog = async (req: KcRequest, item: Evaluated, options: SendOptions): P
     return undefined
   }
   const resolved = await resolveRegNoChoice(req, { ...item, body, hash }, options)
-  return 'outcome' in resolved ? resolved : sendOne(req, resolved, patches)
+  if ('outcome' in resolved) return resolved
+  const sent = await sendOne(req, resolved, patches)
+  const { pointsByHand } = report
+  return sent.outcome === 'sent' && pointsByHand !== undefined ? { ...sent, pointsByHand } : sent
 }
 
 /**

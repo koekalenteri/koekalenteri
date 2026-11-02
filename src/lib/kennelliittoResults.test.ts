@@ -293,9 +293,39 @@ describe('kennelliittoResults', () => {
       expect('sijoitus' in body).toEqual(false)
     })
 
-    it('does not check the points against the limits of the result, which Kennelliitto lists wrongly for ALO0', () => {
-      const registration = dog(result({ percentage: 40, result: 'ALO0', tasks }), { class: 'ALO' })
-      expect(sent(buildKcResult(event('NOWT'), registration, koemuotoNOWT)).pisteet).toEqual(40)
+    /** What a NOWT dog sends as points, and what the secretary is told to enter by hand. */
+    const pointsSent = (fields: Partial<JsonEventResult>, cls: RegistrationClass) => {
+      // A nought or a dash ranks nowhere, so the placement is read only for a prize.
+      const outcome = nowt(fields, { cls })
+      if (!outcome.ok) throw new Error(`not sendable: ${outcome.problems.map((p) => p.code).join(',')}`)
+      return [outcome.body.pisteet, outcome.pointsByHand]
+    }
+
+    // Koe/Koemuoto (Testi2 2.11.2026): VOI0/AVO0 0–49, VOI-/AVO- 0–0, ALO0 0–0, ALO- 0–49, VOI3 50–64.
+    it.each([
+      ['a prize', 'VOI', { percentage: 66.25, result: 'VOI2' }, [66.25, undefined]],
+      ['a nought of a whole round under 50 %', 'VOI', { percentage: 40, result: 'VOI0' }, [40, undefined]],
+      ['an ALO dash under 50 %, which its row takes', 'ALO', { percentage: 30, result: 'ALO-' }, [30, undefined]],
+      ['a nought with no points', 'AVO', { percentage: 0, result: 'AVO0' }, [0, undefined]],
+      [
+        'a stopped nought over 49 %',
+        'AVO',
+        { percentage: 63.75, result: 'AVO0', retirement: { cause: 'judgeStopped', exercise: 3 } },
+        [0, 63.75],
+      ],
+      ['a dash with points', 'AVO', { elimination: { fault: 'aggression' }, percentage: 20, result: 'AVO-' }, [0, 20]],
+      ['an ALO nought with points, whose row takes only 0', 'ALO', { percentage: 40, result: 'ALO0' }, [0, 40]],
+      ['a prize above its row, which 0 would not fix', 'VOI', { percentage: 64.9, result: 'VOI3' }, [64.9, undefined]],
+    ] as const)(
+      'sends %s as Kennelliitto takes it, the rest for entering by hand (KOE-1676)',
+      (_name, cls, fields, expected) => {
+        expect(pointsSent(fields, cls)).toEqual(expected)
+      }
+    )
+
+    it('sends no points and nothing to enter by hand in a format not scored at posts', () => {
+      const outcome = buildKcResult(event('NOU'), dog(result({ percentage: 60, result: 'NOU0' })), koemuotoNOU)
+      expect(['pisteet' in sent(outcome), 'pointsByHand' in outcome]).toEqual([false, false])
     })
 
     it('sends points 0 for a result stored without a total, as a stopped round was before KOE-1669', () => {
@@ -303,10 +333,10 @@ describe('kennelliittoResults', () => {
       expect([body.pisteet, body.keskeytetty]).toEqual([0, true])
     })
 
-    it("sends a handler's withdrawal with its points and without keskeytetty, as Kennelliitto publishes it (KOE-1669)", () => {
+    it("sends a handler's withdrawal without keskeytetty, as Kennelliitto publishes it (KOE-1669)", () => {
       const retirement = { cause: 'handlerChoice', couldStillHavePlaced: true } as const
       const body = sent(nowt({ percentage: 23, result: 'VOI-', retirement }, { placement: undefined }))
-      expect([body.tulos, body.pisteet, body.keskeytetty]).toEqual(['VOI-', 23, false])
+      expect([body.tulos, body.pisteet, body.keskeytetty]).toEqual(['VOI-', 0, false])
     })
 
     it("sends a handler's withdrawal on a nought with what it earned and without keskeytetty (KOE-1669)", () => {
@@ -319,7 +349,7 @@ describe('kennelliittoResults', () => {
       'sends a dash the judge stopped for %s as keskeytetty (KOE-1669)',
       (cause) => {
         const body = sent(nowt({ percentage: 15, result: 'VOI-', retirement: { cause } }, { placement: undefined }))
-        expect([body.pisteet, body.keskeytetty]).toEqual([15, true])
+        expect([body.pisteet, body.keskeytetty]).toEqual([0, true])
       }
     )
 

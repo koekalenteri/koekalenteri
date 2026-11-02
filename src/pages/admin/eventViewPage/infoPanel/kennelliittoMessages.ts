@@ -60,6 +60,15 @@ export const createsDogLine = (dog: KcDogReport): DogLine => ({
   text: dog.createsDog ? `${dogLabel(dog)}: ${dog.createsDog.name}` : dogLabel(dog),
 })
 
+/** A dog whose result goes with 0 points, and the points to enter in Omakoira by hand in their place (KOE-1676). */
+export const pointsByHandLine = (
+  t: TFunction,
+  dog: Pick<KcDogReport, 'id' | 'name' | 'pointsByHand' | 'regNo'>
+): DogLine => ({
+  id: dog.id,
+  text: t('results.kennelliitto.pointsByHandLine', { dog: dogLabel(dog), points: dog.pointsByHand ?? 0 }),
+})
+
 /**
  * Why a sent dog failed: Kennelliitto's own words; else the status of a call it did not accept, since
  * then there was no answer to store and sending again is the advice; else, for a dog it accepted, that

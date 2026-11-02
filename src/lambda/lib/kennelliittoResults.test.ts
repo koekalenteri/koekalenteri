@@ -1564,6 +1564,50 @@ describe('kennelliittoResults', () => {
       ])
     })
 
+    describe('points Kennelliitto takes no more of for the result (KOE-1676)', () => {
+      // ALO0 takes only 0 (Koe/Koemuoto, Testi2 2.11.2026); ALO- takes 0–49.
+      beforeEach(() => {
+        registrations = [nowtDog('nought', 'FI20009/20', 'ALO0', 40), nowtDog('dash', 'FI20010/20', 'ALO-', 30)]
+      })
+
+      it('names the dog to enter by hand in the preview, as ready to send', async () => {
+        const preview = await previewKennelliittoResults(nowtCtx())
+
+        expect(preview.dogs.map((dog) => [dog.id, dog.status, dog.pointsByHand])).toEqual([
+          ['nought', 'ready', 40],
+          ['dash', 'ready', undefined],
+        ])
+      })
+
+      it('sends 0 in its place and says what to enter by hand once it is sent', async () => {
+        const result = await sendKennelliittoResults(nowtCtx(), ['nought', 'dash'], { force: false })
+
+        expect(tallennat().map((call) => [call.body?.rekisterinumero, call.body?.pisteet])).toEqual([
+          ['FI20009/20', 0],
+          ['FI20010/20', 30],
+        ])
+        expect(result.reports.map((report) => [report.id, report.outcome, report.pointsByHand])).toEqual([
+          ['nought', 'sent', 40],
+          ['dash', 'sent', undefined],
+        ])
+      })
+
+      it('says nothing to enter by hand for a dog Kennelliitto refused', async () => {
+        tallennaReply['FI20009/20'] = { body: { virheet: ['Ei.'] }, status: 400 }
+
+        const result = await sendKennelliittoResults(nowtCtx(), ['nought'], { force: false })
+
+        expect(result.reports).toEqual([expect.objectContaining({ id: 'nought', outcome: 'failed' })])
+        expect('pointsByHand' in result.reports[0]).toEqual(false)
+      })
+
+      it('reads a dog sent with 0 before as unchanged', async () => {
+        await sendKennelliittoResults(nowtCtx(), ['nought'], { force: false })
+
+        expect(statusOf(await previewKennelliittoResults(nowtCtx()), 'nought')).toEqual('unchanged')
+      })
+    })
+
     it("names the judges of each exercise's post as the event stands, not the ones stored with the scores (KOE-1665)", async () => {
       // Exercise 2 was scored by the second post's judge; the posts were then corrected so that the first
       // post does both exercises, and its judge is the one sent.
