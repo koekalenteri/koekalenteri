@@ -655,7 +655,7 @@ describe('runMigrationLambda', () => {
       )
       expect(loggedLines(warn)).toEqual([
         expect.objectContaining({
-          message: 'migrations left rows as they were',
+          message: 'migrations skipped values they could not place or left rows as they were',
           skipped: [
             expect.objectContaining({
               ...skipped,
@@ -2357,6 +2357,44 @@ describe('runMigrationLambda', () => {
             },
           ],
           ['event1/reg6']
+        )
+      )
+    })
+
+    it('converts a score beside a stop already stored by exercise, and leaves a stop with no place alone', async () => {
+      mockReadEventRegistrations.mockResolvedValueOnce([
+        row('reg11', { retirement: { cause: 'injury', exercise: 2 }, tasks: [byPost(1, 0, 12)] }),
+        row('reg12', { retirement: { cause: 'illness' }, tasks: [byPost(1, 0, 13)] }),
+      ])
+
+      await runMigrationLambda(directEvent)
+
+      written('reg11', { 'eventResult.tasks': [byExercise(1, 0, 12)] })
+      written('reg12', { 'eventResult.tasks': [byExercise(1, 0, 13)] })
+    })
+
+    it('logs a score of a dog with no class or start number by its ids alone, and only the values it had', async () => {
+      const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+      mockReadEventRegistrations.mockResolvedValueOnce([
+        row('reg13', { tasks: [byPost(9, 0, 10)] }, { class: undefined, group: { date: day, key: `${day}-ap` } }),
+      ])
+
+      await runMigrationLambda(directEvent)
+
+      written('reg13', { 'eventResult.tasks': [] })
+      expect(loggedLines(warn)).toEqual(
+        skippedLog(
+          [
+            {
+              eventId: 'event1',
+              index: 0,
+              points: 10,
+              registrationId: 'reg13',
+              stationId: 'post-9',
+              updatedAt: at.updatedAt,
+            },
+          ],
+          ['event1/reg13']
         )
       )
     })

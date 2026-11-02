@@ -361,6 +361,77 @@ describe('putEventResultsLambda', () => {
     )
   })
 
+  describe('where a round ended, by the way the type is scored (KOE-1665)', () => {
+    it('keeps only the exercise of a round scored by exercise, whatever post a page sent beside it', async () => {
+      await putEventResultsLambda(
+        apiEvent([
+          {
+            eventResult: { retirement: { cause: 'injury', exercise: 3, stationId: 'post-1' }, tasks: [] },
+            id: 'reg-1',
+          },
+        ])
+      )
+      await putEventResultsLambda(
+        apiEvent([
+          {
+            eventResult: { elimination: { exercise: 2, fault: 'hardMouth', stationId: 'post-1' }, tasks: [] },
+            id: 'reg-1',
+          },
+        ])
+      )
+
+      expect(mockUpdateRegistrationField).toHaveBeenNthCalledWith(
+        1,
+        'event-1',
+        'reg-1',
+        'eventResult',
+        expect.objectContaining({ retirement: { cause: 'injury', exercise: 3 } })
+      )
+      expect(mockUpdateRegistrationField).toHaveBeenNthCalledWith(
+        2,
+        'event-1',
+        'reg-1',
+        'eventResult',
+        expect.objectContaining({ elimination: { exercise: 2, fault: 'hardMouth' } })
+      )
+    })
+
+    it('keeps only the post of a type judged as a whole at its posts', async () => {
+      mockGetAuthorizedEvent.mockResolvedValue({ ...nowtEvent, eventType: 'NOME-B' })
+      await putEventResultsLambda(
+        apiEvent([
+          {
+            eventResult: { resultCode: '0', retirement: { cause: 'judgeStopped', exercise: 3, stationId: 'post-1' } },
+            id: 'reg-1',
+          },
+        ])
+      )
+      await putEventResultsLambda(
+        apiEvent([
+          {
+            eventResult: { elimination: { exercise: 2, fault: 'aggression', stationId: 'post-2' }, resultCode: '-' },
+            id: 'reg-1',
+          },
+        ])
+      )
+
+      expect(mockUpdateRegistrationField).toHaveBeenNthCalledWith(
+        1,
+        'event-1',
+        'reg-1',
+        'eventResult',
+        expect.objectContaining({ retirement: { cause: 'judgeStopped', stationId: 'post-1' } })
+      )
+      expect(mockUpdateRegistrationField).toHaveBeenNthCalledWith(
+        2,
+        'event-1',
+        'reg-1',
+        'eventResult',
+        expect.objectContaining({ elimination: { fault: 'aggression', stationId: 'post-2' } })
+      )
+    })
+  })
+
   it('caps a recalled task at its halved ceiling', async () => {
     await expect(
       putEventResultsLambda(

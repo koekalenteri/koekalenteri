@@ -231,22 +231,22 @@ const pickTask = (value: unknown, judges: PublicJudge[]): SubmittedTask => {
   }
 }
 
-/** The exercise a round ended at (KOE-1665): a number from 1, or none. */
-const pickExercise = (value: unknown, what: string): { exercise?: number } => {
-  if (value === undefined || value === null) return {}
-  if (typeof value !== 'number' || !Number.isInteger(value) || value < 1) {
-    throw new LambdaError(422, `Malformed ${what} exercise`)
-  }
-  return { exercise: value }
-}
-
 /**
  * Where a round ended: the exercise where the round is scored by exercise (KOE-1665), a number from 1 or
  * none, and the post for a type judged as a whole at posts.
  */
-const pickPlace = (value: Record<string, unknown>, eventType: string, what: string) => {
-  if (scoresAtPosts(eventType)) return pickExercise(value.exercise, what)
-  return typeof value.stationId === 'string' ? { stationId: value.stationId } : {}
+const pickPlace = (
+  value: Record<string, unknown>,
+  eventType: string,
+  what: string
+): { exercise?: number } | { stationId?: string } => {
+  if (!scoresAtPosts(eventType)) return typeof value.stationId === 'string' ? { stationId: value.stationId } : {}
+  const { exercise } = value
+  if (exercise === undefined || exercise === null) return {}
+  if (typeof exercise !== 'number' || !Number.isInteger(exercise) || exercise < 1) {
+    throw new LambdaError(422, `Malformed ${what} exercise`)
+  }
+  return { exercise }
 }
 
 const pickElimination = (value: unknown, eventType: string): EventResultElimination => {

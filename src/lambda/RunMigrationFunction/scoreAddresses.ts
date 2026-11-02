@@ -21,26 +21,6 @@ type StoredTask = Omit<JsonEventResultTask, 'exercise' | 'part'> &
 /** A stop or an elimination as a row may hold it: stored before KOE-1665 by its post alone. */
 type StoredPlace = { stationId?: string; exercise?: number }
 
-/**
- * A score or a stop the layout cannot place, removed from the row and logged with its values so it can be
- * entered again by hand: the dog as the results page finds it, the post and the slot it was stored at.
- */
-type UnplacedScore = {
-  eventId: string
-  registrationId: string
-  class?: string
-  number?: number
-  stationId?: string
-  index?: number
-  points?: number | null
-  zeroFault?: string
-  recalled?: boolean
-  judge?: string
-  updatedAt?: string
-  /** Set for a stop or an elimination, which keeps its cause with no place; absent for a score. */
-  place?: 'retirement' | 'elimination'
-}
-
 /** The exercise and part of each slot of a round, by the old address: the post and the place there. */
 const slotsByPost = (round: ReturnType<typeof dogRound>) => {
   const counted = new Map<string, number>()
@@ -53,7 +33,7 @@ const slotsByPost = (round: ReturnType<typeof dogRound>) => {
   return slots
 }
 
-/** The value a score had, for the log of the ones dropped. */
+/** The values a score had, for the log of the ones that cannot be placed. */
 const valuesOf = ({ stationId, index, points, zeroFault, recalled, judge, updatedAt }: StoredTask) => ({
   index,
   points,
@@ -63,6 +43,19 @@ const valuesOf = ({ stationId, index, points, zeroFault, recalled, judge, update
   ...(recalled ? { recalled } : {}),
   ...(judge ? { judge: judge.name } : {}),
 })
+
+/**
+ * A score or a stop the layout cannot place, removed from the row and logged with its values so it can be
+ * entered again by hand: the dog as the results page finds it, the post and the slot it was stored at.
+ */
+type UnplacedScore = Partial<ReturnType<typeof valuesOf>> & {
+  eventId: string
+  registrationId: string
+  class?: string
+  number?: number
+  /** Set for a stop or an elimination, which keeps its cause with no place; absent for a score. */
+  place?: 'retirement' | 'elimination'
+}
 
 /** Of the scores of one exercise and part, the one written last. */
 const latestOf = (tasks: readonly StoredTask[]) => {
@@ -82,7 +75,7 @@ const latestOf = (tasks: readonly StoredTask[]) => {
  * deploy, before this ran, beside the one stored by post) the later stays. A score the layout cannot place
  * is removed and named in `unplaced` with its values; a stop or an elimination at a post the round does not
  * have keeps its cause with no place, and is named the same way. Only an event scored at posts is read.
- * `rule` is `SCORE_ADDRESS_RULE`, which the migration names as a literal.
+ * `_rule` is `SCORE_ADDRESS_RULE`, which the migration names as a literal.
  */
 export const storeScoresByExercise = (
   registration: JsonRegistration,
@@ -129,7 +122,7 @@ export const storeScoresByExercise = (
   const byExercise = <P extends StoredPlace>(place: P, key: 'retirement' | 'elimination') => {
     if (!place.stationId || place.exercise !== undefined) return place
     changed = true
-    const { stationId, exercise: _exercise, ...rest } = place
+    const { stationId, ...rest } = place
     const last = posts.lastIndexOf(stationId)
     if (last < 0) unplaced.push(name({ place: key, stationId }))
     return last < 0 ? rest : { ...rest, exercise: last + 1 }

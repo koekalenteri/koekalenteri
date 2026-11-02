@@ -49,7 +49,11 @@ interface MigrationContext {
   events: ReadonlyMap<string, JsonDogEvent>
 }
 
-/** The rows a migration left as they were for someone to look at, and why, for the release log. */
+/**
+ * The rows a migration left as they were, or the values it could not place and took out of them, for
+ * someone to look at, and why. The release log is the only record of them: a run that has recorded the
+ * migration does not report them again.
+ */
 interface SkippedRows {
   ids: string[]
   detail: Record<string, unknown>[]
@@ -275,7 +279,8 @@ const registrationMigrations: Migration<JsonRegistration>[] = [
     // through the dog's round of the event's stored layout, and a stop or an elimination stored by post
     // alone becomes the last exercise at that post (`storeScoresByExercise`). A score the layout cannot
     // place is removed and logged with its values and the dog's class and number, so it can be entered
-    // again. The rule's version is the literal argument: a correction bumps it, and so reruns this.
+    // again. That log is the only record of a removed value: a forced rerun finds nothing to report.
+    // The rule's version is the literal argument: a correction bumps it, and so reruns this.
     name: 'storeScoresByExercise',
     needsEvents: true,
     run: (registration, { events }) => storeScoresByExercise(registration, events.get(registration.eventId), 1).changed,
@@ -719,7 +724,7 @@ const runMigrationLambda = lambda('runMigration', async (event) => {
 
   const skipped = reports.filter((report) => report.skipped)
   if (skipped.length) {
-    logger.warn('migrations left rows as they were', {
+    logger.warn('migrations skipped values they could not place or left rows as they were', {
       skipped: skipped.map(({ detail, name, skipped: rows }) => ({ detail, name, ...rows })),
     })
   }
