@@ -26,6 +26,8 @@ import {
   kcResultBadge,
   kcResultDay,
 } from './kennelliittoResults'
+import { resolveEventResult } from './results'
+import { dogRound } from './resultTasks'
 import { patchMerge } from './utils'
 
 const chief = { id: 1000001, name: 'Pääty Tuomari' }
@@ -279,7 +281,7 @@ describe('kennelliittoResults', () => {
           koemuotoNOWT
         )
       )
-      const dash = sent(nowt({ elimination: { fault: 'aggression' }, result: 'VOI-' }, { placement: undefined }))
+      const dash = sent(nowt({ result: 'VOI-', retirement: { cause: 'injury' } }, { placement: undefined }))
       expect([nought.sijoitus, dash.sijoitus]).toEqual([undefined, undefined])
       expect('sijoitus' in nought || 'sijoitus' in dash).toEqual(false)
     })
@@ -300,9 +302,33 @@ describe('kennelliittoResults', () => {
       ['a nought over 49 %', 'AVO', { percentage: 60, result: 'AVO0' }],
       ['a stopped nought', 'VOI', { percentage: 63.75, result: 'VOI0', retirement: { cause: 'judgeStopped' } }],
       ['an ALO dash over 49 %', 'ALO', { percentage: 60, result: 'ALO-' }],
-      ['a dash', 'AVO', { elimination: { fault: 'aggression' }, percentage: 20, result: 'AVO-' }],
+      ['a dash', 'AVO', { percentage: 20, result: 'AVO-', retirement: { cause: 'injury' } }],
     ] as const)('sends the percentage of %s as it is (KOE-1676)', (_name, cls, fields) => {
       expect(sent(nowt(fields, { cls })).pisteet).toEqual(fields.percentage)
+    })
+
+    /** A round an elimination ended at the fourth exercise, as a save stores it: 51 of 80, 63.75 %. */
+    const eliminated = (cls: RegistrationClass) => {
+      const round = dogRound(
+        { stations: [1, 2, 3, 4].map((number) => ({ date: '2026-09-12' as const, id: `post-${number}`, number })) },
+        { class: cls, day: '2026-09-12' }
+      )
+      const tasks = [17, 17, 17].map((points, index) => ({
+        exercise: index + 1,
+        part: 0,
+        points,
+        updatedAt: '2026-09-12T10:00:00.000Z',
+        updatedBy: 'Rasti',
+      }))
+      return resolveEventResult(
+        { elimination: { exercise: 4, fault: 'hardMouth' }, tasks },
+        { eventClass: cls, eventType: 'NOWT', round }
+      )
+    }
+
+    it('sends an eliminated round as the nought §5.4.1 gives it, with its percentage as it is (KOE-1678)', () => {
+      expect(eliminated('AVO')).toMatchObject({ percentage: 63.75, result: 'AVO0' })
+      expect(sent(nowt(eliminated('AVO'), { cls: 'AVO' })).pisteet).toEqual(63.75)
     })
 
     it('sends no points in a format not scored at posts', () => {

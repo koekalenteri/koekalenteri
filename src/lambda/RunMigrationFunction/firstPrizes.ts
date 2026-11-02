@@ -46,8 +46,8 @@ const AUDIT_CONCURRENCY = 5
 
 type WrittenRow = { before: JsonRegistration; item: JsonRegistration }
 
-/** The audit line of a row whose prize the migration raised, or nothing for a row it did not. */
-const restoredPrizeAudit = ({ before, item }: WrittenRow) => {
+/** The audit line of a row whose result a migration changed, or nothing for a row it did not. */
+const rederivedResultAudit = ({ before, item }: WrittenRow) => {
   const eventClass = item.class ?? undefined
   const previous = shownEventResult(before.eventResult?.result, item.eventType, eventClass)
   const result = shownEventResult(item.eventResult?.result, item.eventType, eventClass)
@@ -62,7 +62,11 @@ const restoredPrizeAudit = ({ before, item }: WrittenRow) => {
   ]
 }
 
-/** Records on each registration whose prize the migration raised what it was and what it is now. */
-export const auditRestoredFirstPrizes = async (written: readonly WrittenRow[]) => {
-  await mapWithConcurrency(written.flatMap(restoredPrizeAudit), AUDIT_CONCURRENCY, (record) => audit(record))
+/**
+ * Records on each registration whose result a migration changed what it was and what it is now: the first
+ * prize `restoreFirstPrize` raised (KOE-1677), and the nought `storeEliminationsAsNought` gave an
+ * elimination stored as the dash (KOE-1678).
+ */
+export const auditRederivedResults = async (written: readonly WrittenRow[]) => {
+  await mapWithConcurrency(written.flatMap(rederivedResultAudit), AUDIT_CONCURRENCY, (record) => audit(record))
 }

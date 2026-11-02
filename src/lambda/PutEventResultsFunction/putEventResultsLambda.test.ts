@@ -469,6 +469,42 @@ describe('putEventResultsLambda', () => {
     expect(mockUpdateRegistrationField).not.toHaveBeenCalled()
   })
 
+  it.each(['failedRetrieve', 'physicalContact'])('stores the §5.3.4 zero fault %s (KOE-1678)', async (zeroFault) => {
+    await putEventResultsLambda(
+      apiEvent([{ eventResult: { tasks: [{ exercise: 1, points: 0, zeroFault }] }, id: 'reg-1' }])
+    )
+
+    expect(mockUpdateRegistrationField).toHaveBeenCalledWith(
+      'event-1',
+      'reg-1',
+      'eventResult',
+      expect.objectContaining({ tasks: [expect.objectContaining({ points: 0, zeroFault })] })
+    )
+  })
+
+  it.each(['abandonedRetrieve', 'dummyNotFound'])(
+    'refuses %s, which §5.3.4 calls noudon epäonnistuminen (KOE-1678)',
+    async (zeroFault) => {
+      await expect(
+        putEventResultsLambda(
+          apiEvent([{ eventResult: { tasks: [{ exercise: 1, points: 0, zeroFault }] }, id: 'reg-1' }])
+        )
+      ).rejects.toThrow(`Unknown zero fault '${zeroFault}'`)
+
+      expect(mockUpdateRegistrationField).not.toHaveBeenCalled()
+    }
+  )
+
+  it('refuses a result code where the result is derived from the scores (§5.4.1, KOE-1678)', async () => {
+    await expect(
+      putEventResultsLambda(
+        apiEvent([{ eventResult: { resultCode: '2', tasks: scores(17, 18, 16, 14) }, id: 'reg-1' }])
+      )
+    ).rejects.toThrow("Result code '2' is not taken for NOWT: its result is derived from the scores")
+
+    expect(mockUpdateRegistrationField).not.toHaveBeenCalled()
+  })
+
   it('caps how many dogs one request may carry', async () => {
     const batch = Array.from({ length: 201 }, (_ignored, index) => ({
       eventResult: { tasks: scores(1, 1, 1, 1) },
@@ -763,7 +799,7 @@ describe('putEventResultsLambda', () => {
       expect(mockUpdateRegistrationField).toHaveBeenCalledTimes(1)
       expect(mockUpdateRegistrationField.mock.calls[0][3]).toMatchObject({
         elimination: { exercise: 1, fault: 'aggression' },
-        result: 'AVO-',
+        result: 'AVO0',
       })
     })
 
@@ -985,7 +1021,7 @@ describe('putEventResultsLambda', () => {
       'event-1',
       'reg-1',
       'eventResult',
-      expect.objectContaining({ elimination, points: 17, result: 'AVO-' })
+      expect.objectContaining({ elimination, points: 17, result: 'AVO0' })
     )
   })
 

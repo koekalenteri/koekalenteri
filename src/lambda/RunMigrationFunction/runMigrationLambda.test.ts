@@ -140,6 +140,8 @@ describe('runMigrationLambda', () => {
     { count: 0, name: 'storeOwnerSelections' },
     { count: 0, name: 'storeScoresByExercise' },
     { count: 0, name: 'restoreFirstPrizes' },
+    { count: 0, name: 'storeFailedRetrieve' },
+    { count: 0, name: 'storeEliminationsAsNought' },
     { count: 0, name: 'storeDogDaysAsKeys' },
     { count: 0, name: 'storeOrganizerStatsDaysAsKeys' },
   ]
@@ -953,6 +955,8 @@ describe('runMigrationLambda', () => {
       'storeOwnerSelections',
       'storeScoresByExercise',
       'restoreFirstPrizes',
+      'storeFailedRetrieve',
+      'storeEliminationsAsNought',
       'storeDogDaysAsKeys',
       'storeOrganizerStatsDaysAsKeys',
     ]
@@ -999,10 +1003,10 @@ describe('runMigrationLambda', () => {
     it('records every migration of a forced run, with the hash of its code', async () => {
       await runMigrationLambda(event)
 
-      expect(mockMarkApplied).toHaveBeenCalledTimes(13)
+      expect(mockMarkApplied).toHaveBeenCalledTimes(allNames.length)
       expect(mockMarkApplied).toHaveBeenCalledWith('fixSeasonFromStartDate', 2, hashes.get('fixSeasonFromStartDate'))
       expect(mockMarkApplied).toHaveBeenCalledWith('populateUpdatedAt', 0, hashes.get('populateUpdatedAt'))
-      expect(new Set(hashes.values()).size).toBe(13)
+      expect(new Set(hashes.values()).size).toBe(allNames.length)
     })
 
     it('reads the registry once, for every migration in the code', async () => {
@@ -2591,6 +2595,131 @@ describe('runMigrationLambda', () => {
 
       expect(mockWriteMigratedRegistration).not.toHaveBeenCalled()
       expect(mockResponse).toHaveBeenCalledWith(200, [{ count: 0, name: 'restoreFirstPrizes' }], directEvent)
+    })
+  })
+
+  describe('the working test results stored by the rules in force (KOE-1678)', () => {
+    const directEvent = constructPartialAPIGwEvent({})
+    let hashes: Map<string, string>
+    const pendingOnly = (...names: string[]) => new Map([...hashes].filter(([applied]) => !names.includes(applied)))
+    const at = { updatedAt: '2026-09-12T10:00:00.000Z', updatedBy: 'Rasti' }
+    const scored = (exercise: number, points: number, zeroFault?: string) => ({
+      ...at,
+      exercise,
+      part: 0,
+      points,
+      ...(zeroFault ? { zeroFault } : {}),
+    })
+    const row = (id: string, eventResult: Record<string, unknown>, fields: Record<string, unknown> = {}) => ({
+      class: 'ALO',
+      dog: { regNo: `FI${id}/21` },
+      eventId: 'event1',
+      eventResult: { ...at, ...eventResult },
+      eventType: 'NOWT',
+      id,
+      ownerHandles: true,
+      ownerPays: true,
+      updatedAt: 'read',
+      ...fields,
+    })
+
+    beforeEach(async () => {
+      hashes = new Map()
+      mockMarkApplied.mockImplementation(async (name: string, _count: number, hash: string) => {
+        hashes.set(name, hash)
+      })
+      mockReadAllEvents.mockResolvedValueOnce([])
+      await runMigrationLambda(event)
+      vi.clearAllMocks()
+      mockMarkApplied.mockResolvedValue(undefined)
+      mockReadAllDogs.mockResolvedValue([])
+      mockReadAllOrganizerEventStats.mockResolvedValue([])
+      mockReadOrganizers.mockResolvedValue([])
+      mockReadAllEvents.mockResolvedValue([])
+      mockReadRegistrationEventIds.mockResolvedValue(['event1'])
+      mockWriteMigratedRegistration.mockResolvedValue(undefined)
+    })
+
+    describe('storeFailedRetrieve: §5.3.4 has one noudon epäonnistuminen', () => {
+      beforeEach(() => {
+        mockReadApplied.mockResolvedValue(pendingOnly('storeFailedRetrieve'))
+      })
+
+      it('stores both codes the failed retrieve was split into as the one code, and leaves the rest', async () => {
+        mockReadEventRegistrations.mockResolvedValueOnce([
+          row('reg1', {
+            result: 'ALO0',
+            tasks: [scored(1, 0, 'abandonedRetrieve'), scored(2, 15), scored(3, 0, 'dummyNotFound')],
+          }),
+          row('reg2', { result: 'ALO0', tasks: [scored(1, 0, 'eyeWipe'), scored(2, 0, 'unknown'), scored(3, 17)] }),
+          row('reg3', { result: 'ALO3', tasks: [scored(1, 15), scored(2, 15)] }),
+        ])
+
+        await runMigrationLambda(directEvent)
+
+        expect(mockWriteMigratedRegistration).toHaveBeenCalledTimes(1)
+        expect(mockWriteMigratedRegistration).toHaveBeenCalledWith(
+          'event1',
+          'reg1',
+          {
+            set: {
+              'eventResult.tasks': [scored(1, 0, 'failedRetrieve'), scored(2, 15), scored(3, 0, 'failedRetrieve')],
+              updatedAt: expect.not.stringMatching(/^read$/),
+            },
+          },
+          'read'
+        )
+        expect(mockResponse).toHaveBeenCalledWith(200, [{ count: 1, name: 'storeFailedRetrieve' }], directEvent)
+      })
+    })
+
+    describe('storeEliminationsAsNought: §5.4.1 gives a hylkäävä virhe the nought', () => {
+      beforeEach(() => {
+        mockReadApplied.mockResolvedValue(pendingOnly('storeEliminationsAsNought'))
+      })
+
+      it('stores the nought for a working test round an elimination ended, as a new version of the result', async () => {
+        mockReadEventRegistrations.mockResolvedValueOnce([
+          row('reg1', { elimination: { exercise: 2, fault: 'hardMouth' }, result: 'ALO-', tasks: [scored(1, 17)] }),
+        ])
+
+        await runMigrationLambda(directEvent)
+
+        expect(mockWriteMigratedRegistration).toHaveBeenCalledWith(
+          'event1',
+          'reg1',
+          {
+            set: {
+              'eventResult.result': 'ALO0',
+              // A new version, so a dog sent to Omakoira with the dash reads as changed and is sent again.
+              'eventResult.updatedAt': expect.not.stringContaining(at.updatedAt),
+              updatedAt: expect.not.stringMatching(/^read$/),
+            },
+          },
+          'read'
+        )
+        expect(mockAudit).toHaveBeenCalledWith({
+          auditKey: 'event1:reg1',
+          messageKey: 'audit.messages.resultRederived',
+          messageParams: { previous: 'ALO-', result: 'ALO0' },
+          user: 'system',
+        })
+        expect(mockResponse).toHaveBeenCalledWith(200, [{ count: 1, name: 'storeEliminationsAsNought' }], directEvent)
+      })
+
+      it('leaves a dash no elimination gave, a nought already stored and a format whose result is entered', async () => {
+        mockReadEventRegistrations.mockResolvedValueOnce([
+          row('reg2', { result: 'ALO-', retirement: { cause: 'injury' }, tasks: [scored(1, 17)] }),
+          row('reg3', { elimination: { fault: 'aggression' }, result: 'ALO0', tasks: [scored(1, 17)] }),
+          row('reg4', { elimination: { fault: 'aggression' }, result: 'ALO-' }, { eventType: 'NOME-B' }),
+          row('reg5', { elimination: { fault: 'aggression' } }),
+        ])
+
+        await runMigrationLambda(directEvent)
+
+        expect(mockWriteMigratedRegistration).not.toHaveBeenCalled()
+        expect(mockResponse).toHaveBeenCalledWith(200, [{ count: 0, name: 'storeEliminationsAsNought' }], directEvent)
+      })
     })
   })
 })

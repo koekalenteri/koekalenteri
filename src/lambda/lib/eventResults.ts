@@ -298,6 +298,15 @@ const pickSubmittedResult = (
   if (typeof value.resultCode === 'string' && !resultCode) {
     throw new LambdaError(422, `Result code '${value.resultCode}' is not valid for ${eventType}`)
   }
+  // A type scored at posts takes its result from the scores alone (§5.4.1, KOE-1678), and no client sends
+  // one for it: a code here is a client bug, refused like a code outside the alphabet rather than dropped
+  // without a word. `resolveEventResult` does not read one either, since it also answers the entry screen.
+  if (resultCode && scoresAtPosts(eventType)) {
+    throw new LambdaError(
+      422,
+      `Result code '${resultCode}' is not taken for ${eventType}: its result is derived from the scores`
+    )
+  }
 
   const tasks = Array.isArray(value.tasks) ? value.tasks.map((task) => pickTask(task, judges)) : undefined
   const judge = resolveJudge(value.judge, judges)
@@ -340,7 +349,7 @@ export const parseSubmissions = (body: string | null, confirmedEvent: JsonConfir
 
 /**
  * What a tokenized station link may write: its post's scores and the round-ending outcome. The
- * whole-round fields — cert, notes, an overriding result code — are the event secretary's, and are
+ * whole-round fields, cert and notes, are the event secretary's, and are
  * dropped here the same way the merge drops tasks of the exercises done at other posts. Except where there is no
  * round to score: a qualitative type's post *is* the whole trial, and its recording is the judge's
  * decision and who made it, so those two go through.

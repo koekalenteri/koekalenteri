@@ -237,7 +237,9 @@ export const kcResultDay = (registration: Pick<KcResultRegistration, 'group' | '
 
 /**
  * The points NOWT sends: the percentage `points * 100 / maxPoints` as recorded, unrounded, a round that
- * ended early with what it earned (KOE-1669); a result stored before that with no total sends 0.
+ * ended early with what it earned (KOE-1669); a result stored before that with no total sends 0. §5.3.1
+ * announces the result "prosentin tarkkuudella", which is how it is shown (`shownTotals`); the figure sent
+ * stays exact, as it is stored, since Omakoira takes the decimals (KOE-1678).
  *
  * Nothing is checked against the result's range (KOE-1676). Kennelliitto's Koe/Koemuoto lists one per
  * result, but Omakoira does not enforce them as listed, and its checks changed within a day. On Testi2,
