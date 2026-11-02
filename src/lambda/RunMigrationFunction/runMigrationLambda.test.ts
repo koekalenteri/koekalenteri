@@ -2521,8 +2521,8 @@ describe('runMigrationLambda', () => {
 
     it('gives a first prize to a second stored at 80 % with a task under half, and records it on the trail', async () => {
       // 64 of 80 with exercise 4 at 9 of 20; stored before the totals were kept, so they come with it. The
-      // second prize was sent to Omakoira as this version of the result.
-      const kcResult = { payloadHash: 'sent-hash', resultVersion: at.updatedAt, status: 'sent' as const }
+      // second prize was sent to Omakoira, and the first one makes another body to send.
+      const kcResult = { payloadHash: 'sent-hash', status: 'sent' as const }
       mockReadEventRegistrations.mockResolvedValueOnce([
         { ...row('reg1', { result: 'ALO2', tasks: scored(20, 20, 15, 9) }), kcResult },
       ])

@@ -268,8 +268,8 @@ export const useKennelliittoResults = (eventId: string) => {
   )
 
   const preview = useCallback(
-    (registrationIds?: string[], signal?: AbortSignal) =>
-      previewKennelliittoResults(eventId, registrationIds, token ?? '', signal),
+    (registrationIds?: string[], signal?: AbortSignal, options?: { withoutDogLookup?: boolean }) =>
+      previewKennelliittoResults(eventId, registrationIds, token ?? '', signal, options),
     [eventId, token]
   )
 

@@ -26,6 +26,8 @@ interface KennelliittoRequest {
   /** Send again even where the result is what was sent, after an edit made in Omakoira itself. */
   force?: boolean
   registrationIds?: unknown
+  /** A preview that leaves Kennelliitto unasked about the foreign dogs: the results page's read. */
+  withoutDogLookup?: boolean
   /**
    * The dogs Kennelliitto knows by another number whose number the secretary chose to change to
    * Kennelliitto's (KOE-1653). The whole sending's list comes with every chunk.
@@ -65,7 +67,9 @@ const publishEvent = async ({ eventId, organizerId }: Run, patch: Omit<EventPatc
 }
 
 const previewAction = async (run: Run) => {
-  const { eventPatch, ...preview } = await previewKennelliittoResults(run.ctx, run.ids)
+  const { eventPatch, ...preview } = await previewKennelliittoResults(run.ctx, run.ids, {
+    withoutDogLookup: run.body.withoutDogLookup === true,
+  })
   await publishEvent(run, eventPatch)
   return preview
 }

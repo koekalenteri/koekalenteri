@@ -11,6 +11,10 @@ export const blockerText = (t: TFunction, blocker: KcBlocker): string => {
 const problemText = (t: TFunction, problem: KcProblem): string =>
   t(`results.kennelliitto.problem.${problem.code}`, { detail: problem.detail ?? '' })
 
+/** Why a result cannot be sent, as the send dialog and the results page's badge both word it. */
+export const problemsText = (t: TFunction, problems: readonly KcProblem[]): string =>
+  problems.map((problem) => problemText(t, problem)).join('; ')
+
 /** The dog the way a list of them names it: the name and the registration number. */
 export const dogLabel = (dog: Pick<KcDogReport, 'name' | 'regNo'>): string => `${dog.name} (${dog.regNo})`
 
@@ -19,7 +23,7 @@ export const dogLabel = (dog: Pick<KcDogReport, 'name' | 'regNo'>): string => `$
  * by another number and a choice is needed (KOE-1653), or what its state says.
  */
 const dogReason = (t: TFunction, dog: KcDogReport): string => {
-  if (dog.problems.length) return dog.problems.map((problem) => problemText(t, problem)).join('; ')
+  if (dog.problems.length) return problemsText(t, dog.problems)
   if (dog.kcDog) return t('results.kennelliitto.regNo.reason', { regNo: dog.kcDog.regNo })
   return t(`results.kennelliitto.dogStatus.${dog.status}`)
 }
@@ -35,7 +39,7 @@ export const skippedLine = (t: TFunction, report: KcSendReport): DogLine => ({
   id: report.id,
   text: `${report.name ? dogLabel(report) : report.id}: ${
     report.problems?.length
-      ? report.problems.map((problem) => problemText(t, problem)).join('; ')
+      ? problemsText(t, report.problems)
       : t(`results.kennelliitto.dogStatus.${report.dogStatus ?? 'notRecorded'}`)
   }`,
 })

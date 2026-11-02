@@ -2,11 +2,12 @@ import type { UserEvent } from '@testing-library/user-event'
 import type { RouteObject } from 'react-router'
 import type { TestStore } from 'test-utils/AtomProvider'
 import type { Language } from '../../i18n'
+import type { KcDogReport, KcDogStatus, KcPreviewResponse } from '../../lib/kennelliittoResults'
 import type { ConfirmedEvent, EventResult, EventType, Registration } from '../../types'
 import { ThemeProvider } from '@mui/material'
 import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
-import { cleanup, screen, within } from '@testing-library/react'
+import { act, cleanup, screen, within } from '@testing-library/react'
 import { Suspense } from 'react'
 import { useTranslation } from 'react-i18next'
 import { TestProvider as Provider } from 'test-utils/AtomProvider'
@@ -25,6 +26,7 @@ import { DataMemoryRouter, flushPromises, renderSuspendedWithUserEvents, TEST_ID
 import AppSnackbarProvider from '../components/AppSnackbarProvider'
 import { idTokenAtom } from '../state'
 import EventResultsPage from './EventResultsPage'
+import { KC_DOGS_REREAD_MS } from './hooks/useKennelliittoDogs'
 import { adminEventRegistrationsAtom, adminEventsAtom, adminEventTypesAtom } from './state'
 
 // Two release switches: the live entry link (KOE-1259) and the reason a round ended (KOE-1299). The
@@ -103,6 +105,21 @@ const renderScoringPage = (
 /** The store the last qualitative page was rendered with: what the socket would write lands here. */
 let qualitativeStore: TestStore | undefined
 
+/** The dogs of the qualitative page, with the results and the fields a test gives them. */
+const qualitativeRegistrations = (
+  event: ConfirmedEvent,
+  storedResults: Record<string, EventResult>,
+  extra: Record<string, Partial<Registration>>
+): Registration[] =>
+  registrationsToEventWithStations.map((reg) => ({
+    ...reg,
+    class: undefined,
+    eventId: event.id,
+    eventResult: storedResults[reg.id],
+    eventType: event.eventType,
+    ...extra[reg.id],
+  }))
+
 const renderQualitativePage = (
   language: Language,
   storedResults: Record<string, EventResult> = {},
@@ -111,14 +128,7 @@ const renderQualitativePage = (
   idToken: string = TEST_ID_TOKEN,
   eventTypes?: EventType[]
 ) => {
-  const registrations = registrationsToEventWithStations.map((reg) => ({
-    ...reg,
-    class: undefined,
-    eventId: event.id,
-    eventResult: storedResults[reg.id],
-    eventType: event.eventType,
-    ...extra[reg.id],
-  }))
+  const registrations = qualitativeRegistrations(event, storedResults, extra)
   const routes: RouteObject[] = [{ element: <EventResultsPage />, path: Path.admin.results() }]
 
   return renderSuspendedWithUserEvents(
@@ -1347,13 +1357,7 @@ describe('EventResultsPage and Kennelliitto (KOE-1140)', () => {
 
   const noon = new Date('2021-02-10T12:00:00Z')
   const stored = (result: string, updatedAt = noon): EventResult => ({ result, updatedAt, updatedBy: 'Sihteeri' })
-  const sentOk = {
-    at: noon,
-    by: 'Sihteeri',
-    payloadHash: 'h',
-    resultVersion: noon.toISOString(),
-    status: 'sent' as const,
-  }
+  const sentOk = { at: noon, by: 'Sihteeri', payloadHash: 'h', status: 'sent' as const }
   /** A handled-over trial: Kennelliitto has it with the chief judge. */
   const handedOver = { ...eventWithStaticDates, kcState: { code: 1253, name: 'x', readAt: noon } }
 
@@ -1399,18 +1403,239 @@ describe('EventResultsPage and Kennelliitto (KOE-1140)', () => {
     expect(screen.getByText('results.kennelliitto.column')).toBeInTheDocument()
   })
 
-  it('shows where each dog stands beside it', async () => {
-    await renderQualitativePage(
-      'fi',
-      { 'run-1': stored('NOU1'), 'run-2': stored('NOU0', new Date('2021-02-10T13:00:00Z')) },
-      eventWithStaticDates,
-      { 'run-1': { kcResult: sentOk }, 'run-2': { kcResult: sentOk } }
-    )
-    await flushPromises()
+  describe('where each dog stands beside it', () => {
+    const dog = (id: string, status: KcDogStatus): KcDogReport => ({ id, name: id, problems: [], regNo: id, status })
+    const answer = (first: KcDogStatus, second: KcDogStatus): KcPreviewResponse => ({
+      blockers: [],
+      dogs: [dog('run-1', first), dog('run-2', second)],
+    })
+    const sentBoth = { 'run-1': { kcResult: sentOk }, 'run-2': { kcResult: sentOk } }
+    const badgeOf = (name: string) => within(rowFor(name)).getByText(/^results\.kennelliitto\.badge\./).textContent
+    const saveFirst = async (user: UserEvent) => {
+      await user.click(within(rowFor('Ensimmainen')).getByLabelText('results.column.result'))
+      await user.click(screen.getByRole('option', { name: 'NOU1' }))
+      await user.click(screen.getByRole('button', { name: 'results.save' }))
+      await flushPromises()
+    }
+    /** The time the page waits after the dogs change before it reads the preview again. */
+    const waitForReread = async () => {
+      act(() => vi.advanceTimersByTime(KC_DOGS_REREAD_MS))
+      await flushPromises()
+    }
+    /** A result saved elsewhere (a post, another secretary), as the socket's patch puts it on the page. */
+    const savedElsewhere = (results: Record<string, EventResult>) =>
+      act(() =>
+        qualitativeStore?.set(
+          adminEventRegistrationsAtom('test1'),
+          qualitativeRegistrations(eventWithStaticDates, results, sentBoth)
+        )
+      )
+    const later = new Date('2021-02-10T13:00:00Z')
 
-    // One was sent as it stands; the other was edited after it was sent.
-    expect(within(rowFor('Ensimmainen')).getByText('results.kennelliitto.badge.sent')).toBeInTheDocument()
-    expect(within(rowFor('Toinen')).getByText('results.kennelliitto.badge.changed')).toBeInTheDocument()
+    it('says of each dog what the send dialog says, from the preview of every dog read when the page opens', async () => {
+      vi.mocked(previewKennelliittoResults).mockClear().mockResolvedValueOnce(answer('unchanged', 'changed'))
+      await renderQualitativePage(
+        'fi',
+        { 'run-1': stored('NOU1'), 'run-2': stored('NOU0') },
+        eventWithStaticDates,
+        sentBoth
+      )
+      await flushPromises()
+
+      // Without Kennelliitto's word on the foreign dogs: the send dialog asks that when it opens.
+      expect(previewKennelliittoResults).toHaveBeenCalledWith('test1', undefined, expect.anything(), undefined, {
+        withoutDogLookup: true,
+      })
+      expect([badgeOf('Ensimmainen'), badgeOf('Toinen')]).toEqual([
+        'results.kennelliitto.badge.sent',
+        'results.kennelliitto.badge.changed',
+      ])
+    })
+
+    it('reads a dog saved again as it was sent as sent once the preview is read again after the save', async () => {
+      vi.mocked(previewKennelliittoResults)
+        .mockResolvedValueOnce(answer('changed', 'unchanged'))
+        .mockResolvedValueOnce(answer('unchanged', 'unchanged'))
+      const { user } = await renderQualitativePage(
+        'fi',
+        { 'run-1': stored('NOU0'), 'run-2': stored('NOU1') },
+        eventWithStaticDates,
+        sentBoth
+      )
+      await flushPromises()
+      expect(badgeOf('Ensimmainen')).toEqual('results.kennelliitto.badge.changed')
+
+      await saveFirst(user)
+      await waitForReread()
+
+      expect(badgeOf('Ensimmainen')).toEqual('results.kennelliitto.badge.sent')
+    })
+
+    it("reads a dog whose rank another dog's save moved as changed once the preview is read again", async () => {
+      vi.mocked(previewKennelliittoResults)
+        .mockResolvedValueOnce(answer('ready', 'unchanged'))
+        .mockResolvedValueOnce(answer('ready', 'changed'))
+      const { user } = await renderQualitativePage(
+        'fi',
+        { 'run-1': stored('NOU0'), 'run-2': stored('NOU1') },
+        eventWithStaticDates,
+        { 'run-2': { kcResult: sentOk } }
+      )
+      await flushPromises()
+      expect(badgeOf('Toinen')).toEqual('results.kennelliitto.badge.sent')
+
+      await saveFirst(user)
+      await waitForReread()
+
+      expect(badgeOf('Toinen')).toEqual('results.kennelliitto.badge.changed')
+    })
+
+    it('reads the preview again when a result saved elsewhere reaches the page, once for several', async () => {
+      vi.mocked(previewKennelliittoResults)
+        .mockClear()
+        .mockResolvedValueOnce(answer('unchanged', 'unchanged'))
+        .mockResolvedValueOnce(answer('changed', 'changed'))
+      await renderQualitativePage(
+        'fi',
+        { 'run-1': stored('NOU1'), 'run-2': stored('NOU1') },
+        eventWithStaticDates,
+        sentBoth
+      )
+      await flushPromises()
+
+      // A post saves one dog after another: the page waits for the burst to end.
+      savedElsewhere({ 'run-1': stored('NOU0', later), 'run-2': stored('NOU1') })
+      await flushPromises()
+      savedElsewhere({ 'run-1': stored('NOU0', later), 'run-2': stored('NOU0', later) })
+      await flushPromises()
+      expect([badgeOf('Ensimmainen'), badgeOf('Toinen')]).toEqual([
+        'results.kennelliitto.badge.sent',
+        'results.kennelliitto.badge.sent',
+      ])
+      await waitForReread()
+
+      expect(previewKennelliittoResults).toHaveBeenCalledTimes(2)
+      expect([badgeOf('Ensimmainen'), badgeOf('Toinen')]).toEqual([
+        'results.kennelliitto.badge.changed',
+        'results.kennelliitto.badge.changed',
+      ])
+    })
+
+    const bothSent = { 'run-1': stored('NOU1'), 'run-2': stored('NOU1') }
+    const openWithBothSent = async () => {
+      vi.mocked(previewKennelliittoResults).mockClear().mockResolvedValueOnce(answer('unchanged', 'unchanged'))
+      await renderQualitativePage('fi', bothSent, eventWithStaticDates, sentBoth)
+      await flushPromises()
+    }
+
+    it.each([
+      ['a sending recorded from the event view', { kcResult: { ...sentOk, at: later, payloadHash: 'other' } }],
+      ['a dog cancelled', { cancelled: true }],
+    ])('reads the preview again once for any change of a dog that reaches the page: %s', async (_case, change) => {
+      await openWithBothSent()
+
+      act(() =>
+        qualitativeStore?.set(
+          adminEventRegistrationsAtom('test1'),
+          qualitativeRegistrations(eventWithStaticDates, bothSent, {
+            ...sentBoth,
+            'run-2': { ...sentBoth['run-2'], ...change },
+          })
+        )
+      )
+      await waitForReread()
+      await waitForReread()
+
+      expect(previewKennelliittoResults).toHaveBeenCalledTimes(2)
+    })
+
+    it('reads the preview again once when the event is edited, its judges say', async () => {
+      await openWithBothSent()
+
+      await act(async () => {
+        await qualitativeStore?.set(adminEventsAtom, [
+          { ...eventWithStaticDates, judges: [{ id: 456, name: 'Toinen tuomari' }], modifiedAt: later },
+        ])
+      })
+      await waitForReread()
+      await waitForReread()
+
+      expect(previewKennelliittoResults).toHaveBeenCalledTimes(2)
+    })
+
+    it('settles after one read: the state the preview writes onto the event reads nothing more', async () => {
+      vi.mocked(previewKennelliittoResults)
+        .mockClear()
+        .mockImplementationOnce(async () => {
+          // The state read reaches the page as the event patch the server publishes, which moves only updatedAt.
+          qualitativeStore?.set(adminEventsAtom, [
+            { ...eventWithStaticDates, kcState: { code: 754, name: 'Hyväksytty', readAt: later }, updatedAt: later },
+          ])
+          return answer('unchanged', 'unchanged')
+        })
+      await renderQualitativePage('fi', bothSent, eventWithStaticDates, sentBoth)
+      await flushPromises()
+      await waitForReread()
+      await waitForReread()
+
+      expect(previewKennelliittoResults).toHaveBeenCalledTimes(1)
+    })
+
+    it('reports a read again that fails, and keeps what the last one said', async () => {
+      expectConsoleOutput(/reportError .*unreachable/)
+      vi.mocked(previewKennelliittoResults)
+        .mockResolvedValueOnce(answer('unchanged', 'changed'))
+        .mockRejectedValueOnce(new Error('unreachable'))
+      await renderQualitativePage(
+        'fi',
+        { 'run-1': stored('NOU1'), 'run-2': stored('NOU0') },
+        eventWithStaticDates,
+        sentBoth
+      )
+      await flushPromises()
+
+      savedElsewhere({ 'run-1': stored('NOU0', later), 'run-2': stored('NOU0') })
+      await waitForReread()
+
+      expect([badgeOf('Ensimmainen'), badgeOf('Toinen')]).toEqual([
+        'results.kennelliitto.badge.sent',
+        'results.kennelliitto.badge.changed',
+      ])
+    })
+
+    it('keeps the answer to the read asked for last, when an earlier read answers after it', async () => {
+      let answerFirst: (response: KcPreviewResponse) => void = () => {}
+      vi.mocked(previewKennelliittoResults)
+        .mockImplementationOnce(() => new Promise((resolve) => (answerFirst = resolve)))
+        .mockResolvedValueOnce(answer('changed', 'unchanged'))
+      const { user } = await renderQualitativePage(
+        'fi',
+        { 'run-1': stored('NOU0'), 'run-2': stored('NOU1') },
+        eventWithStaticDates,
+        sentBoth
+      )
+      await flushPromises()
+
+      await saveFirst(user)
+      await waitForReread()
+      answerFirst(answer('unchanged', 'unchanged'))
+      await flushPromises()
+
+      expect(badgeOf('Ensimmainen')).toEqual('results.kennelliitto.badge.changed')
+    })
+
+    it('reads what was stored of the last sending when the preview has no dogs', async () => {
+      vi.mocked(previewKennelliittoResults).mockResolvedValueOnce({ blockers: [{ code: 'kcUnavailable' }], dogs: [] })
+      await renderQualitativePage('fi', { 'run-1': stored('NOU1'), 'run-2': stored('NOU0') }, eventWithStaticDates, {
+        'run-1': { kcResult: sentOk },
+      })
+      await flushPromises()
+
+      expect([badgeOf('Ensimmainen'), badgeOf('Toinen')]).toEqual([
+        'results.kennelliitto.badge.sent',
+        'results.kennelliitto.badge.unsent',
+      ])
+    })
   })
 
   it('says a trial has been sent but not handed over, without offering the hand-over here', async () => {
@@ -1440,7 +1665,9 @@ describe('EventResultsPage and Kennelliitto (KOE-1140)', () => {
       await user.click(screen.getByRole('button', { name: 'results.kennelliitto.refreshState' }))
       await flushPromises()
 
-      expect(previewKennelliittoResults).toHaveBeenCalledWith('test1', [], expect.anything(), undefined)
+      expect(previewKennelliittoResults).toHaveBeenCalledWith('test1', undefined, expect.anything(), undefined, {
+        withoutDogLookup: true,
+      })
     })
   })
 
@@ -1462,7 +1689,9 @@ describe('EventResultsPage and Kennelliitto (KOE-1140)', () => {
       await flushPromises()
 
       expect(previewKennelliittoResults).toHaveBeenCalledTimes(1)
-      expect(previewKennelliittoResults).toHaveBeenCalledWith('test1', [], expect.anything(), undefined)
+      expect(previewKennelliittoResults).toHaveBeenCalledWith('test1', undefined, expect.anything(), undefined, {
+        withoutDogLookup: true,
+      })
       expect(screen.getByText('results.kennelliitto.locked')).toBeInTheDocument()
       expect(screen.getByRole('button', { name: 'results.save' })).toBeDisabled()
     })
@@ -1525,7 +1754,9 @@ describe('EventResultsPage and Kennelliitto (KOE-1140)', () => {
     // The dog is stored as the server says, and nothing of it is left to save.
     expect(within(rowFor('Ensimmainen')).getByLabelText('results.column.result')).toHaveTextContent('NOU1')
     expect(screen.getByRole('button', { name: 'results.save' })).toBeDisabled()
-    expect(previewKennelliittoResults).toHaveBeenCalledWith('test1', [], expect.anything(), undefined)
+    expect(previewKennelliittoResults).toHaveBeenCalledWith('test1', undefined, expect.anything(), undefined, {
+      withoutDogLookup: true,
+    })
   })
 
   it('folds in a dog the batch found stored already, and takes it off the screen, when it finds the trial locked', async () => {
@@ -1572,7 +1803,9 @@ describe('EventResultsPage and Kennelliitto (KOE-1140)', () => {
     await flushPromises()
 
     expect(screen.getByText('results.kennelliitto.lockedSave')).toBeInTheDocument()
-    expect(previewKennelliittoResults).toHaveBeenCalledWith('test1', [], expect.anything(), undefined)
+    expect(previewKennelliittoResults).toHaveBeenCalledWith('test1', undefined, expect.anything(), undefined, {
+      withoutDogLookup: true,
+    })
   })
 
   describe('a batch refused because a dog is no longer on the trial', () => {

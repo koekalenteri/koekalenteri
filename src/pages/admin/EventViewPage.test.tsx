@@ -103,7 +103,7 @@ describe('EventViewPage', () => {
 
     // The panel is closed, its handle all there is of it; the page reads the state all the same.
     expect(screen.getByRole('button', { name: 'eventManagement.open' })).toBeInTheDocument()
-    expect(previewKennelliittoResults).toHaveBeenCalledWith('test1', [], 'id-token', undefined)
+    expect(previewKennelliittoResults).toHaveBeenCalledWith('test1', [], 'id-token', undefined, undefined)
     expect(lastStep()).toHaveTextContent('event.states.resultsHandedOver')
     expect(lastStep()?.querySelector('.MuiStepIcon-root')).toHaveClass('Mui-completed')
 
@@ -126,7 +126,7 @@ describe('EventViewPage', () => {
     await flushPromises()
 
     expect(previewKennelliittoResults).toHaveBeenCalledTimes(2)
-    expect(previewKennelliittoResults).toHaveBeenLastCalledWith('test1', [], 'id-token', undefined)
+    expect(previewKennelliittoResults).toHaveBeenLastCalledWith('test1', [], 'id-token', undefined, undefined)
   })
 
   it('renders properly for event without classes', async () => {

@@ -686,26 +686,56 @@ export interface KcSendResponse {
   reports: KcSendReport[]
 }
 
-/** What the page shows of a dog's result beside the dog, from the registration alone. */
-export type KcResultBadge = 'changed' | 'failed' | 'sent' | 'unsent'
+/** What the results page shows beside a dog: where the send dialog puts it, or a sending that failed. */
+export type KcResultBadge = KcDogStatus | 'failed'
+
+export interface KcBadge {
+  /** Why a `blocked` dog cannot be sent. */
+  problems: KcProblem[]
+  status: KcResultBadge
+}
+
+type KcBadgeRegistration = {
+  eventResult?: { result?: string }
+  id: string
+  kcResult?: Pick<JsonKcResult, 'status'>
+}
+
+/** A dog the dialog would send, whose last sending Kennelliitto refused or never answered, reads as that. */
+const previewBadge = (report: KcDogReport, registration: KcBadgeRegistration | undefined): KcBadge => {
+  const sendable = report.status === 'ready' || report.status === 'changed'
+  const status = sendable && registration?.kcResult?.status === 'failed' ? 'failed' : report.status
+  return { problems: report.problems, status }
+}
+
+/** The last sending's outcome alone, for a page that has no preview to read the dogs by. */
+const storedBadge = (registration: KcBadgeRegistration): KcResultBadge | undefined => {
+  if (registration.kcResult?.status === 'failed') return 'failed'
+  if (registration.kcResult?.status === 'sent') return 'unchanged'
+  return registration.eventResult?.result ? 'ready' : undefined
+}
 
 /**
- * Where a dog's result stands with Kennelliitto, as far as the stored registration says. A result
- * edited after it was sent, and one sent without knowing what Kennelliitto holds, both want sending
- * again; the preview, which also sees the content, has the last word.
+ * Where each dog's result stands with Kennelliitto, beside the dog. The dogs are read from the preview
+ * the send dialog shows (`dogs`, which the results page asks for when it opens and when the dogs change),
+ * so the page and the dialog say the same of every dog but one kind: for a foreign dog not yet sent, the
+ * dialog asks Kennelliitto about the dog and may then say it cannot be sent or that Kennelliitto knows it
+ * under another number, which the page's preview does not ask, so the column shows that only after sending.
+ * A preview with no dogs (a trial Kennelliitto cannot be asked about, one handed over, or one not linked)
+ * leaves the last sending's stored outcome alone.
  */
-export const kcResultBadge = (registration: {
-  eventResult?: { result?: string; updatedAt: Date | string }
-  kcResult?: { payloadHash?: string; resultVersion?: string; status: JsonKcResult['status'] }
-}): KcResultBadge | undefined => {
-  const { eventResult, kcResult } = registration
-  if (kcResult?.status === 'failed') return 'failed'
-  if (kcResult?.status === 'sent') {
-    const current =
-      !eventResult ||
-      kcResult.resultVersion === undefined ||
-      new Date(kcResult.resultVersion).getTime() === new Date(eventResult.updatedAt).getTime()
-    return kcResult.payloadHash !== undefined && current ? 'sent' : 'changed'
+export const kcResultBadges = (
+  registrations: readonly KcBadgeRegistration[],
+  dogs: readonly KcDogReport[] | undefined
+): Map<string, KcBadge> => {
+  if (dogs?.length) {
+    const byId = new Map(registrations.map((registration) => [registration.id, registration]))
+    return new Map(dogs.map((report) => [report.id, previewBadge(report, byId.get(report.id))]))
   }
-  return eventResult?.result ? 'unsent' : undefined
+  return new Map(
+    registrations.flatMap((registration) => {
+      const status = storedBadge(registration)
+      return status ? [[registration.id, { problems: [], status }]] : []
+    })
+  )
 }

@@ -106,7 +106,8 @@ describe('kennelliittoResultsLambda', () => {
 
     expect(mockPreview).toHaveBeenCalledWith(
       { event: confirmedEvent, official: true, organizerKcId: 400294, userName: 'Sihteeri' },
-      undefined
+      undefined,
+      { withoutDogLookup: false }
     )
     // A championship is looked up as its plain format.
     expect(mockReadEventType).toHaveBeenCalledWith('NOME-A')
@@ -125,6 +126,14 @@ describe('kennelliittoResultsLambda', () => {
     ])
   })
 
+  it('previews without asking Kennelliitto about the foreign dogs when the request says so', async () => {
+    mockPreview.mockResolvedValue({ blockers: [], dogs: [] })
+
+    await call({ action: 'preview', withoutDogLookup: true })
+
+    expect(mockPreview).toHaveBeenCalledWith(expect.anything(), undefined, { withoutDogLookup: true })
+  })
+
   it('refuses an action it does not know', async () => {
     await call({ action: 'delete' })
 
@@ -136,7 +145,7 @@ describe('kennelliittoResultsLambda', () => {
 
     await call({ action: 'preview', registrationIds: ['a'] })
 
-    expect(mockPreview).toHaveBeenCalledWith(expect.anything(), ['a'])
+    expect(mockPreview).toHaveBeenCalledWith(expect.anything(), ['a'], { withoutDogLookup: false })
     expect(mockPublishEventChange).toHaveBeenCalledWith({
       audience: 'admin',
       organizerId: 'org-1',

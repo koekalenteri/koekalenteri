@@ -1,5 +1,12 @@
 import type { JsonEventResult, RegistrationClass } from '../types'
-import type { KcKoemuoto, KcResultEvent, KcResultRegistration } from './kennelliittoResults'
+import type {
+  KcDogReport,
+  KcDogStatus,
+  KcKoemuoto,
+  KcProblem,
+  KcResultEvent,
+  KcResultRegistration,
+} from './kennelliittoResults'
 import koemuotoNKM from '../lambda/lib/KLIntegraatio-fixtures/koemuoto-NKM.json'
 import koemuotoNOME_A from '../lambda/lib/KLIntegraatio-fixtures/koemuoto-NOME-A.json'
 import koemuotoNOME_B from '../lambda/lib/KLIntegraatio-fixtures/koemuoto-NOME-B.json'
@@ -23,7 +30,7 @@ import {
   kcCountryOfRegNo,
   kcDogDifferences,
   kcKnownDogOf,
-  kcResultBadge,
+  kcResultBadges,
   kcResultDay,
 } from './kennelliittoResults'
 import { resolveEventResult } from './results'
@@ -508,32 +515,70 @@ describe('kennelliittoResults', () => {
   })
 
   describe('where a dog stands beside it', () => {
-    const at = '2026-09-26T09:00:00.000Z'
-    const registration = (kcResult?: Parameters<typeof kcResultBadge>[0]['kcResult'], resultAt = at) => ({
-      eventResult: { result: 'NOU1', updatedAt: resultAt },
+    const report = (id: string, status: KcDogStatus, problems: KcProblem[] = []): KcDogReport => ({
+      id,
+      name: `Koira ${id}`,
+      problems,
+      regNo: `FI${id}`,
+      status,
+    })
+    const entry = (id: string, kcResult?: { status: 'failed' | 'sent' }, result = 'NOU1') => ({
+      eventResult: { result },
+      id,
       kcResult,
     })
 
-    it.each([
-      ['a failed sending', registration({ status: 'failed' }), 'failed'],
-      ['a result sent as it stands', registration({ payloadHash: 'h', resultVersion: at, status: 'sent' }), 'sent'],
-      [
-        'a result edited after it was sent',
-        registration({ payloadHash: 'h', resultVersion: at, status: 'sent' }, '2026-09-26T10:00:00.000Z'),
-        'changed',
-      ],
-      [
-        'a result sent without knowing what Kennelliitto holds',
-        registration({ resultVersion: at, status: 'sent' }),
-        'changed',
-      ],
-      ['a result not sent', registration(), 'unsent'],
-    ])('says %s', (_name, input, expected) => {
-      expect(kcResultBadge(input)).toEqual(expected)
+    it('says of every dog what the send dialog says of it', () => {
+      const blocked = [{ code: 'judgeWithoutNumber' as const, detail: 'Ulkomaalainen' }]
+      const dogs = [
+        report('ready', 'ready'),
+        report('same', 'unchanged'),
+        report('changed', 'changed'),
+        report('blocked', 'blocked', blocked),
+        report('none', 'notRecorded'),
+        report('gone', 'sentGone'),
+      ]
+      const registrations = dogs.map((dog) => entry(dog.id))
+
+      expect([...kcResultBadges(registrations, dogs)]).toEqual(
+        dogs.map((dog) => [dog.id, { problems: dog.problems, status: dog.status }])
+      )
     })
 
-    it('says nothing of a dog that has no result and was never sent', () => {
-      expect(kcResultBadge({})).toBeUndefined()
+    it.each([
+      ['refused at its first sending', 'ready'],
+      ['refused after an earlier sending was accepted', 'changed'],
+    ] as const)('reads a dog the dialog would send as failed when it was %s', (_case, status) => {
+      const badges = kcResultBadges([entry('d', { status: 'failed' })], [report('d', status)])
+
+      expect(badges.get('d')?.status).toEqual('failed')
+    })
+
+    it('reads a failed dog that cannot be sent as the dialog does, with why', () => {
+      const problems = [{ code: 'resultNotAllowed' as const, detail: 'NOU-' }]
+      const badges = kcResultBadges([entry('d', { status: 'failed' })], [report('d', 'blocked', problems)])
+
+      expect(badges.get('d')).toEqual({ problems, status: 'blocked' })
+    })
+
+    it.each([
+      ['a failed sending', { status: 'failed' as const }, 'failed'],
+      ['a sending accepted', { status: 'sent' as const }, 'unchanged'],
+      ['no sending', undefined, 'ready'],
+    ])('reads %s from what was stored when the preview has no dogs', (_case, kcResult, expected) => {
+      for (const dogs of [undefined, []]) {
+        expect(kcResultBadges([entry('d', kcResult)], dogs).get('d')).toEqual({ problems: [], status: expected })
+      }
+    })
+
+    it('gives no badge to a dog the preview does not name: one that did not run and has nothing sent', () => {
+      const badges = kcResultBadges([entry('ran'), entry('reserve', { status: 'failed' })], [report('ran', 'ready')])
+
+      expect([...badges.keys()]).toEqual(['ran'])
+    })
+
+    it('says nothing of a dog that has no result and was never sent, when the preview has no dogs', () => {
+      expect(kcResultBadges([entry('d', undefined, '')], []).size).toEqual(0)
     })
   })
 })

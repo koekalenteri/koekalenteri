@@ -226,8 +226,6 @@ export interface JsonKcResult {
   status: 'sent' | 'failed'
   /** Of the last body Kennelliitto accepted. Absent when the outcome of the last call is unknown. */
   payloadHash?: string
-  /** The result (`eventResult.updatedAt`) the hash was made from. */
-  resultVersion?: string
   tulosId?: number
   /** The day (yyyy-MM-dd) the accepted result was sent for: a result sent for another day is another result in Kennelliitto. */
   day?: string
