@@ -55,8 +55,8 @@ tiedoista.
 Jokaiselle koepäivälle lisätään omat suorituspaikkansa painikkeella **{t:event.stationAdd}**, ja ne
 numeroidaan päivän sisällä yhdestä alkaen. Suorituspaikalle kirjataan *{t:event.stationParts}*,
 *{t:event.stationDogsAtOnce}* ja *{t:event.stationJudges}*, jotka valitaan kokeen tuomareista.
-Osajako ja koiramäärä ovat paikan oletuksia sen rasteille. Osajako 2 jakaa rastin kahteen 10 pisteen
-osaan.
+Tehtävien määrä ja koiramäärä ovat paikan oletuksia sen rasteille. Kaksi tehtävää jakaa rastin kahteen
+10 pisteen osaan.
 *{t:event.stationDogsAtOnce}* kertoo, montako koiraa otetaan kerralla samaan vuoroon. Aiemmin
 kahteen osaan tallennettu paikka luetaan yhtenä rastina kahdessa osassa, joten sen tulokset
 säilyvät ennallaan. Tarpeeton suorituspaikka poistetaan painikkeella
@@ -67,11 +67,11 @@ paikoissa kukin ryhmä tekee rastinsa. Ilman ryhmiä jokainen luokka tekee yhden
 suorituspaikalla numerojärjestyksessä, kuten ennenkin. Painike **{t:event.rotation.add}** lisää
 ryhmän: ryhmä on luokka tai luokan koenumeroväli (*{t:event.rotation.firstNumber}* ja
 *{t:event.rotation.lastNumber}* jätetään tyhjiksi, kun ryhmä on koko luokka). Ryhmän rivillä ovat
-sen rastit järjestyksessä, ja kullekin rastille valitaan suorituspaikka, osajako ja
+sen rastit järjestyksessä, ja kullekin rastille valitaan suorituspaikka, tehtävien määrä ja
 *{t:event.stationDogsAtOnce}*; muuten noudatetaan paikan oletusta. Sama suorituspaikka voi olla
 useammalla rastilla, peräkkäin tai erillään: kaksi rastia samassa paikassa ovat kaksi saraketta, ja
 kahden tuomarin koe voi kiertää paikat kahdesti (1, 2, 1, 2). Kun rastin suorituspaikkaa vaihdetaan,
-rastin osajako ja koiramäärä pysyvät samoina, myös kun ne olivat vanhan paikan oletuksia. **+** lisää
+rastin tehtävien määrä ja koiramäärä pysyvät samoina, myös kun ne olivat vanhan paikan oletuksia. **+** lisää
 rastin samaan suorituspaikkaan kuin ryhmän viimeinen rasti, ja valinta
 *{t:event.rotation.visitNone}* poistaa rastin, kun ryhmällä on muitakin rasteja; koko ryhmä
 poistetaan sen omalla roskakoripainikkeella. Jos ryhmällä on muu määrä kuin neljä tai viisi rastia,
@@ -81,7 +81,7 @@ Päivän ensimmäinen ryhmä tekee yhden rastin kullakin suorituspaikalla numero
 ryhmä ehdotetaan edellisen perusteella, koska ryhmät kiertävät yleensä samaan suuntaan: ryhmä
 aloittaa paikasta, johon edellinen siirtyi ensimmäisestä paikastaan, ja jatkaa samassa järjestyksessä.
 Peräkkäin toistuva paikka pysyy peräkkäisenä, joten edellisen 1, 2, 3, 3 antaa 2, 3, 1, 1 ja 1, 1, 2, 3
-antaa 2, 2, 3, 1. Rastin osajako ja
+antaa 2, 2, 3, 1. Rastin tehtävien määrä ja
 koiramäärä pysyvät rastin numerolla. Luokaksi tulee ensimmäinen luokka ilman ryhmää; kun kaikilla
 päivän luokilla on ryhmä, luokaksi tulee edellisen ryhmän luokka, *{t:event.rotation.firstNumber}* on
 edellisen ryhmän viimeinen numero plus yksi ja *{t:event.rotation.lastNumber}* jää tyhjäksi.
@@ -125,7 +125,7 @@ säilyvät ennallaan, eikä tallennus kysy mitään. Pisteen tuomari on sen suor
 ryhmä tekee rastin: kirjattu tuomari pysyy, kun hän on paikan tuomareita, ja muuten tuomariksi
 luetaan paikan ensimmäinen tuomari. Omakoiraan lähtevät tuomarit luetaan samoin.
 
-Pisteet poistuvat vain, kun rasti poistuu suoritusjärjestyksestä tai rastin osajako muuttuu, koska
+Pisteet poistuvat vain, kun rasti poistuu suoritusjärjestyksestä tai rastin tehtävien määrä muuttuu, koska
 pisteitä ei silloin voi lukea samalle rastille. Poistuvat pisteet luetellaan ennen tallennusta
 koirittain.
 **{t:event.resultTasksDropped.confirm}** tallentaa muutoksen ja poistaa pisteet, eivätkä ne palaa,
