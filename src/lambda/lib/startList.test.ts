@@ -315,6 +315,8 @@ describe('readPublishedStartList (KOE-1516)', () => {
       expect(participants).toEqual([
         expect.objectContaining({ marks: ['interrupted'], maxPoints: 40, percentage: 30, points: 12, result: 'ALO-' }),
       ])
+      // A dash takes no rank, whatever it earned.
+      expect(participants[0]).not.toHaveProperty('placement')
     })
 
     it('publishes none for a dog whose round has no result yet', async () => {
@@ -336,8 +338,12 @@ describe('readPublishedStartList (KOE-1516)', () => {
     })
 
     it('publishes none for a type not scored at posts', async () => {
+      // Tasks and totals a qualitative row never holds, so neither the fill-in nor the publication may
+      // read them: only a type scored at posts has totals to show.
       mockGetLiveEvent.mockResolvedValue({ ...scoredEvent, eventType: 'NOME-B' })
-      mockReadEventRegistrations.mockResolvedValue([scoredRow({ ...at, result: 'ALO1' }, 'NOME-B')])
+      mockReadEventRegistrations.mockResolvedValue([
+        scoredRow({ ...at, result: 'ALO1', tasks: [{ ...at, exercise: 1, part: 0, points: 12 }] }, 'NOME-B'),
+      ])
 
       const { participants } = await readPublishedStartList('event-1')
 

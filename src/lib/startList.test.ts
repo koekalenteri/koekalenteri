@@ -9,6 +9,7 @@ import {
   isStartListUpToDate,
   newestStartListVersion,
   parseStartListVersion,
+  startListColumnWidths,
   startListSpreadsheetRows,
   startListVersionOf,
 } from './startList'
@@ -220,6 +221,13 @@ describe('a published result on the exported list', () => {
       const [, row] = startListSpreadsheetRows([{ ...qualitative, placement: undefined }], event, t)
 
       expect(row.slice(-6)).toEqual(['ALO1', '', '', '', '', ''])
+    })
+
+    it('each have a width of their own, so the marks and the place keep theirs', () => {
+      const [header] = startListSpreadsheetRows([], event, t)
+
+      expect(startListColumnWidths).toHaveLength(header.length)
+      expect(startListColumnWidths.slice(-6)).toEqual([12, 8, 8, 6, 16, 8])
     })
 
     it('are empty cells on a cancelled row, which is as wide as the header', () => {

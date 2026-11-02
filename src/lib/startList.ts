@@ -42,32 +42,41 @@ export const newestStartListVersion = (a: number | undefined, b: number | undefi
   return Math.max(a, b)
 }
 
+/**
+ * The exported sheet's columns, each header with its width in characters. The header row and the
+ * widths are both read from this list, so a column added to one is in the other (KOE-1673).
+ */
+const START_LIST_COLUMNS = [
+  ['startListExport.date', 12],
+  ['startListExport.time', 14],
+  ['startListExport.class', 10],
+  ['startListExport.number', 8],
+  ['startListExport.dog', 28],
+  ['startListExport.registrationNumber', 18],
+  ['startListExport.dateOfBirth', 14],
+  ['startListExport.sire', 24],
+  ['startListExport.dam', 24],
+  ['startListExport.owner', 24],
+  ['startListExport.handler', 24],
+  ['startListExport.breeder', 24],
+  ['startListExport.result', 12],
+  ['startListExport.points', 8],
+  ['startListExport.maxPoints', 8],
+  ['startListExport.percentage', 6],
+  ['startListExport.marks', 16],
+  ['results.column.placement', 8],
+] as const
+
+/** The widths of the exported sheet's columns, in the order of its header. */
+export const startListColumnWidths: number[] = START_LIST_COLUMNS.map(([, width]) => width)
+
 export function startListSpreadsheetRows(
   participants: PublicRegistration[],
   event: PublicConfirmedEvent,
   t: TFunction
 ) {
   return [
-    [
-      t('startListExport.date'),
-      t('startListExport.time'),
-      t('startListExport.class'),
-      t('startListExport.number'),
-      t('startListExport.dog'),
-      t('startListExport.registrationNumber'),
-      t('startListExport.dateOfBirth'),
-      t('startListExport.sire'),
-      t('startListExport.dam'),
-      t('startListExport.owner'),
-      t('startListExport.handler'),
-      t('startListExport.breeder'),
-      t('startListExport.result'),
-      t('startListExport.points'),
-      t('startListExport.maxPoints'),
-      t('startListExport.percentage'),
-      t('startListExport.marks'),
-      t('results.column.placement'),
-    ],
+    START_LIST_COLUMNS.map(([key]) => t(key)),
     ...participants.map((registration) =>
       // A cancelled row carries its frozen number and the mark, nothing else (KOE-1017).
       registration.cancelled
@@ -77,7 +86,7 @@ export function startListSpreadsheetRows(
             registration.class ?? '',
             registration.group.number ?? '',
             t('startList.absent'),
-            ...Array.from({ length: 13 }, () => ''),
+            ...Array.from({ length: START_LIST_COLUMNS.length - 5 }, () => ''),
           ]
         : [
             spreadsheetDay(registration.group.date ?? event.startDate),

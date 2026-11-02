@@ -25,7 +25,7 @@ import {
 import { startListFileName } from '../../lib/fileName'
 import { judgeName } from '../../lib/judge'
 import { formatResultLine } from '../../lib/results'
-import { startListSpreadsheetRows } from '../../lib/startList'
+import { startListColumnWidths, startListSpreadsheetRows } from '../../lib/startList'
 import { CancelledRegistration } from './CancelledRegistration'
 import { ClassHeader } from './ClassHeader'
 import { DateHeader } from './DateHeader'
@@ -99,7 +99,7 @@ export const ParticipantList = ({
           <Button
             onClick={() => {
               downloadXlsx({
-                columnWidths: [12, 14, 10, 8, 28, 18, 14, 24, 24, 24, 24, 24, 12, 16, 8],
+                columnWidths: startListColumnWidths,
                 fileName: startListFileName(event),
                 rows: spreadsheetRows,
                 sheetName: t('startListExport.sheetName'),
