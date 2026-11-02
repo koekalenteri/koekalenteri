@@ -201,11 +201,6 @@ const routes: RouteObject[] = [
         path: Path.admin.stations(':id'),
       },
       {
-        // A bookmark of the page under the name it had before the posts were called posts.
-        loader: ({ params }) => redirect(Path.admin.stations(params.id ?? '')),
-        path: Path.admin.stationsBefore(':id'),
-      },
-      {
         lazy: () =>
           reloadOnChunkLoadError(async () => ({
             Component: (await import(/* webpackChunkName: "admin" */ './pages/admin/EventStartNumbersPage')).default,
