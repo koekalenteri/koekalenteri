@@ -14,7 +14,7 @@ covers:
   - src/pages/admin/eventViewPage/infoPanel/ResultsPublishing.tsx
   - src/pages/admin/components/KcIdLookupButton.tsx
   - src/pages/admin/components/StartDaySelector.tsx
-sourceHash: 800910
+sourceHash: 483c08
 ---
 
 On the trial day the secretary's job is to record what the dogs did and to get the results in
@@ -216,7 +216,9 @@ the same as the send dialog: the page asks where the dogs stand when it opens, a
 have been saved, also at a post or by another secretary. A result has changed when what would go to
 Omakoira differs from what was sent, whether the change is in the dog's own result, in its placement
 because of another dog's result, in the judges or in the dog's details. Saving without a change does not
-change the state. *{t:results.kennelliitto.badge.blocked}*: the result cannot be sent, and hovering over
+change the state. The exception is a foreign dog not yet sent: the send dialog asks Kennelliitto about the
+dog and may then say it cannot be sent or that Kennelliitto knows it under another number, and the column
+shows that only after sending. *{t:results.kennelliitto.badge.blocked}*: the result cannot be sent, and hovering over
 the state shows why; correct the result or the dog's details. *{t:results.kennelliitto.badge.sentGone}*:
 the result is in Omakoira although the dog no longer has a result here; record the result again, or leave
 the dog out of the hand-over when the hand-over dialog asks. If Kennelliitto cannot be asked, or the trial

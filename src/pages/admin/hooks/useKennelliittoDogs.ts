@@ -1,6 +1,6 @@
 import type { KcDogReport, KcPreviewResponse } from '@/lib/kennelliittoResults'
 import type { Registration } from '@/types'
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import useDebouncedCallback from '@/hooks/useDebouncedCallback'
 import { reportError } from '@/lib/client/error'
 
@@ -8,33 +8,12 @@ import { reportError } from '@/lib/client/error'
 export const KC_DOGS_REREAD_MS = 3000
 
 /**
- * What of the dogs can move a status the preview gives: a result saved (by this page, a post or another
- * secretary), a sending recorded, a dog cancelled, moved or renamed. The event's own edits (judges, posts)
- * count by its `modifiedAt`. The stamps go in as they are: `JSON.stringify` writes a Date as its instant.
- */
-const statusInputsOf = (registrations: readonly Registration[], eventModifiedAt: Date | undefined): string =>
-  JSON.stringify([
-    eventModifiedAt,
-    registrations.map(({ cancelled, dog, eventResult, group, id, kcResult, startGroup }) => [
-      id,
-      eventResult?.updatedAt,
-      kcResult?.at,
-      kcResult?.status,
-      cancelled,
-      group?.key,
-      group?.date,
-      startGroup?.key,
-      dog.name,
-      dog.regNo,
-    ]),
-  ])
-
-/**
  * Where each dog of the trial stands with Kennelliitto, as the send dialog's preview says it. `refresh` reads
  * it: the results page gives it to `useResultsLock` as the read it makes on open, since a preview reads the
- * trial's state too. After that it is read again a moment after the dogs change, whoever changed them, the
- * page's own saves included. Of two reads under way, the one asked for last is kept, whichever answers last;
- * a read that fails is reported and leaves the last answer standing.
+ * trial's state too. After that it is read again a moment after the dogs change in any way, whoever changed
+ * them (a post, another secretary, a sending, the page's own saves), or after an edit of the event
+ * (`modifiedAt`, which a preview's own state write does not move). Of two reads under way, the one asked
+ * for last is kept, whichever answers last; a read that fails is reported and leaves the last answer standing.
  */
 export const useKennelliittoDogs = (
   preview: () => Promise<KcPreviewResponse>,
@@ -52,13 +31,13 @@ export const useKennelliittoDogs = (
   }, [preview])
 
   const reread = useDebouncedCallback(() => refresh().catch(reportError), KC_DOGS_REREAD_MS)
-  const inputs = useMemo(() => statusInputsOf(registrations, eventModifiedAt), [registrations, eventModifiedAt])
-  const seen = useRef(inputs)
+  const edited = eventModifiedAt?.getTime()
+  const seen = useRef({ edited, registrations })
   useEffect(() => {
-    if (seen.current === inputs) return
-    seen.current = inputs
+    if (seen.current.registrations === registrations && seen.current.edited === edited) return
+    seen.current = { edited, registrations }
     if (enabled) reread()
-  }, [enabled, inputs, reread])
+  }, [edited, enabled, registrations, reread])
 
   return { dogs, refresh }
 }

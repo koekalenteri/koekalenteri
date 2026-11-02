@@ -221,8 +221,10 @@ onko sen tulos Omakoirassa: *{t:results.kennelliitto.badge.sent}*,
 tilan avautuessaan ja aina hetken kuluttua siitä, kun koirien tuloksia on tallennettu, myös
 suorituspaikalla tai toisen sihteerin tallentamina. Tulos on muuttunut, kun Omakoiraan lähtevä tieto on
 toinen kuin lähetetty, oli muutos koiran omassa tuloksessa, sijoituksessa toisen koiran tuloksen takia,
-tuomareissa tai koiran tiedoissa. Tallennus ilman muutosta ei muuta tilaa.
-*{t:results.kennelliitto.badge.blocked}*: tulosta ei voi lähettää, ja tilan päälle vietäessä näkyy syy;
+tuomareissa tai koiran tiedoissa. Tallennus ilman muutosta ei muuta tilaa. Poikkeus on ulkomainen koira,
+jota ei ole vielä lähetetty: lähetysikkuna kysyy siitä Kennelliitolta ja voi sitten kertoa, ettei tulosta
+voi lähettää tai että Kennelliitto tuntee koiran toisella numerolla, ja sarake näyttää sen vasta
+lähetyksen jälkeen. *{t:results.kennelliitto.badge.blocked}*: tulosta ei voi lähettää, ja tilan päälle vietäessä näkyy syy;
 korjaa tulos tai koiran tiedot. *{t:results.kennelliitto.badge.sentGone}*: tulos on Omakoirassa, mutta
 koiralla ei ole enää tulosta tässä; kirjaa tulos uudelleen, tai jätä koira pois luovutuksesta, kun
 luovutusikkuna kysyy sitä. Jos Kennelliittoa ei saada kysyttyä tai koe on jo luovutettu, sarake näyttää

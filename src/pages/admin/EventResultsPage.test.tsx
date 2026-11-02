@@ -1521,6 +1521,66 @@ describe('EventResultsPage and Kennelliitto (KOE-1140)', () => {
       ])
     })
 
+    const bothSent = { 'run-1': stored('NOU1'), 'run-2': stored('NOU1') }
+    const openWithBothSent = async () => {
+      vi.mocked(previewKennelliittoResults).mockClear().mockResolvedValueOnce(answer('unchanged', 'unchanged'))
+      await renderQualitativePage('fi', bothSent, eventWithStaticDates, sentBoth)
+      await flushPromises()
+    }
+
+    it.each([
+      ['a sending recorded from the event view', { kcResult: { ...sentOk, at: later, payloadHash: 'other' } }],
+      ['a dog cancelled', { cancelled: true }],
+    ])('reads the preview again once for any change of a dog that reaches the page: %s', async (_case, change) => {
+      await openWithBothSent()
+
+      act(() =>
+        qualitativeStore?.set(
+          adminEventRegistrationsAtom('test1'),
+          qualitativeRegistrations(eventWithStaticDates, bothSent, {
+            ...sentBoth,
+            'run-2': { ...sentBoth['run-2'], ...change },
+          })
+        )
+      )
+      await waitForReread()
+      await waitForReread()
+
+      expect(previewKennelliittoResults).toHaveBeenCalledTimes(2)
+    })
+
+    it('reads the preview again once when the event is edited, its judges say', async () => {
+      await openWithBothSent()
+
+      await act(async () => {
+        await qualitativeStore?.set(adminEventsAtom, [
+          { ...eventWithStaticDates, judges: [{ id: 456, name: 'Toinen tuomari' }], modifiedAt: later },
+        ])
+      })
+      await waitForReread()
+      await waitForReread()
+
+      expect(previewKennelliittoResults).toHaveBeenCalledTimes(2)
+    })
+
+    it('settles after one read: the state the preview writes onto the event reads nothing more', async () => {
+      vi.mocked(previewKennelliittoResults)
+        .mockClear()
+        .mockImplementationOnce(async () => {
+          // The state read reaches the page as the event patch the server publishes, which moves only updatedAt.
+          qualitativeStore?.set(adminEventsAtom, [
+            { ...eventWithStaticDates, kcState: { code: 754, name: 'Hyväksytty', readAt: later }, updatedAt: later },
+          ])
+          return answer('unchanged', 'unchanged')
+        })
+      await renderQualitativePage('fi', bothSent, eventWithStaticDates, sentBoth)
+      await flushPromises()
+      await waitForReread()
+      await waitForReread()
+
+      expect(previewKennelliittoResults).toHaveBeenCalledTimes(1)
+    })
+
     it('reports a read again that fails, and keeps what the last one said', async () => {
       expectConsoleOutput(/reportError .*unreachable/)
       vi.mocked(previewKennelliittoResults)

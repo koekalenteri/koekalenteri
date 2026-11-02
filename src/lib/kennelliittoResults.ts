@@ -717,9 +717,12 @@ const storedBadge = (registration: KcBadgeRegistration): KcResultBadge | undefin
 
 /**
  * Where each dog's result stands with Kennelliitto, beside the dog. The dogs are read from the preview
- * the send dialog shows (`dogs`, which the results page asks for when it opens and after each save), so
- * the page and the dialog say the same of every dog. A preview with no dogs (a trial Kennelliitto cannot
- * be asked about, one handed over, or one not linked) leaves the last sending's stored outcome alone.
+ * the send dialog shows (`dogs`, which the results page asks for when it opens and when the dogs change),
+ * so the page and the dialog say the same of every dog but one kind: for a foreign dog not yet sent, the
+ * dialog asks Kennelliitto about the dog and may then say it cannot be sent or that Kennelliitto knows it
+ * under another number, which the page's preview does not ask, so the column shows that only after sending.
+ * A preview with no dogs (a trial Kennelliitto cannot be asked about, one handed over, or one not linked)
+ * leaves the last sending's stored outcome alone.
  */
 export const kcResultBadges = (
   registrations: readonly KcBadgeRegistration[],
