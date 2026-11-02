@@ -27,8 +27,13 @@
             TableName: !Ref UserTable
         - DynamoDBWritePolicy:
             TableName: !Ref UserTable
+        # A first prize restored by the migration goes on the registration's audit trail, which is
+        # pushed to the admins watching the event (KOE-1677).
+        - DynamoDBWritePolicy:
+            TableName: !Ref AuditTable
         - !Ref AuthorizePolicy
         - CloudWatchPutMetricPolicy: {}
+        - !Ref WebSocketPolicy
       Events:
         RunMigration:
           Type: Api
