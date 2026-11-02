@@ -229,12 +229,14 @@ palaa muuttamatta mitään.
 
 !shot[KennelliittoSendDialog/kennelliitto-send-regnos] Kennelliiton toisella numerolla tuntemat koirat yhdessä näkymässä
 
-WT-kokeessa Kennelliiton tulosriville on määritelty pistealue, eikä Omakoira tällä hetkellä ota vastaan
-pisteitä, jotka eivät osu tuloksen alueelle. Tällaiset pisteet lähtevät Omakoiraan nollana. Näin käy
-esimerkiksi AVO- tai VOI-luokan keskeytetylle koiralle, jolla oli kertynyt yli 49 %. Lähetysikkuna
-luettelee nämä koirat oikeine pisteineen ennen lähetystä ja sen jälkeen, ja pisteet kirjataan Omakoiraan
-käsin, kunnes Kennelliitto korjaa rajapintansa. Jos pisteitä korjataan lähetyksen jälkeen, koira näkyy
-muuttuneena ja ikkuna kertoo uudet pisteet. Muut koirat lähtevät pisteineen kuten ennenkin.
+WT-kokeessa Omakoira rajoittaa tällä hetkellä joidenkin tulosten pisteitä: tätä nykyä AVO- ja
+VOI-luokan nollatulokselle ja ALO-luokan viivalle se ei ota yli 49 pistettä. Kun koiran pisteet ylittävät
+tuloksen rajan, tulos lähtee Omakoiraan pisteillä 0. Näin käy esimerkiksi AVO- tai VOI-luokan
+keskeytetylle koiralle, jolla oli kertynyt yli 49 %. Lähetysikkuna luettelee nämä koirat oikeine
+pisteineen ennen lähetystä ja sen jälkeen, ja pisteet kirjataan Omakoiraan käsin, kunnes Kennelliitto
+korjaa rajapintansa. Jos pisteitä korjataan lähetyksen jälkeen, koira näkyy muuttuneena ja ikkuna kertoo
+uudet pisteet. Muut tulokset, myös ALO-luokan nollatulos ja AVO- ja VOI-luokan viiva, lähtevät
+pisteineen.
 
 !shot[KennelliittoSendDialog/kennelliitto-send-points-by-hand] Koirat, joiden pisteet kirjataan Omakoiraan käsin
 

@@ -301,23 +301,32 @@ describe('kennelliittoResults', () => {
       return [outcome.body.pisteet, outcome.pointsByHand]
     }
 
-    // Koe/Koemuoto (Testi2 2.11.2026): VOI0/AVO0 0–49, VOI-/AVO- 0–0, ALO0 0–0, ALO- 0–49, VOI3 50–64.
+    // Koe/Koemuoto lists VOI0/AVO0 and ALO- as 0 to 49, VOI-/AVO- and ALO0 as 0 to 0, VOI3 as 50 to 64.
+    // Testi2 (2.11.2026) enforces the 0 to 49 rows and takes any points on a 0 to 0 row.
     it.each([
       ['a prize', 'VOI', { percentage: 66.25, result: 'VOI2' }, [66.25, undefined]],
       ['a nought of a whole round under 50 %', 'VOI', { percentage: 40, result: 'VOI0' }, [40, undefined]],
-      ['an ALO dash under 50 %, which its row takes', 'ALO', { percentage: 30, result: 'ALO-' }, [30, undefined]],
+      ['an ALO dash under 50 %', 'ALO', { percentage: 30, result: 'ALO-' }, [30, undefined]],
       ['a nought with no points', 'AVO', { percentage: 0, result: 'AVO0' }, [0, undefined]],
       ['a nought at its maximum', 'AVO', { percentage: 49, result: 'AVO0' }, [49, undefined]],
       ['a nought just above its maximum', 'AVO', { percentage: 49.5, result: 'AVO0' }, [0, 49.5]],
-      ['an ALO nought with no points, which its row takes', 'ALO', { percentage: 0, result: 'ALO0' }, [0, undefined]],
+      ['a VOI nought over 49 %', 'VOI', { percentage: 60, result: 'VOI0' }, [0, 60]],
       [
         'a stopped nought over 49 %',
         'AVO',
         { percentage: 63.75, result: 'AVO0', retirement: { cause: 'judgeStopped', exercise: 3 } },
         [0, 63.75],
       ],
-      ['a dash with points', 'AVO', { elimination: { fault: 'aggression' }, percentage: 20, result: 'AVO-' }, [0, 20]],
-      ['an ALO nought with points, whose row takes only 0', 'ALO', { percentage: 40, result: 'ALO0' }, [0, 40]],
+      ['an ALO dash over 49 %', 'ALO', { percentage: 60, result: 'ALO-' }, [0, 60]],
+      ['an ALO nought, whose 0 to 0 row sets no limit', 'ALO', { percentage: 40, result: 'ALO0' }, [40, undefined]],
+      ['an ALO nought over 49 %', 'ALO', { percentage: 60, result: 'ALO0' }, [60, undefined]],
+      [
+        'an AVO dash, whose 0 to 0 row sets no limit',
+        'AVO',
+        { elimination: { fault: 'aggression' }, percentage: 20, result: 'AVO-' },
+        [20, undefined],
+      ],
+      ['a VOI dash over 49 %', 'VOI', { percentage: 60, result: 'VOI-' }, [60, undefined]],
       [
         'a value above the maximum of a row that does not take 0',
         'VOI',
@@ -341,10 +350,10 @@ describe('kennelliittoResults', () => {
       expect([body.pisteet, body.keskeytetty]).toEqual([0, true])
     })
 
-    it("sends a handler's withdrawal without keskeytetty, as Kennelliitto publishes it (KOE-1669)", () => {
+    it("sends a handler's withdrawal with its points and without keskeytetty, as Kennelliitto publishes it (KOE-1669)", () => {
       const retirement = { cause: 'handlerChoice', couldStillHavePlaced: true } as const
       const body = sent(nowt({ percentage: 23, result: 'VOI-', retirement }, { placement: undefined }))
-      expect([body.tulos, body.pisteet, body.keskeytetty]).toEqual(['VOI-', 0, false])
+      expect([body.tulos, body.pisteet, body.keskeytetty]).toEqual(['VOI-', 23, false])
     })
 
     it("sends a handler's withdrawal on a nought with what it earned and without keskeytetty (KOE-1669)", () => {
@@ -357,7 +366,7 @@ describe('kennelliittoResults', () => {
       'sends a dash the judge stopped for %s as keskeytetty (KOE-1669)',
       (cause) => {
         const body = sent(nowt({ percentage: 15, result: 'VOI-', retirement: { cause } }, { placement: undefined }))
-        expect([body.pisteet, body.keskeytetty]).toEqual([0, true])
+        expect([body.pisteet, body.keskeytetty]).toEqual([15, true])
       }
     )
 

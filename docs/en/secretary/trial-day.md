@@ -14,7 +14,7 @@ covers:
   - src/pages/admin/eventViewPage/infoPanel/ResultsPublishing.tsx
   - src/pages/admin/components/KcIdLookupButton.tsx
   - src/pages/admin/components/StartDaySelector.tsx
-sourceHash: ef56f6
+sourceHash: 800f66
 ---
 
 On the trial day the secretary's job is to record what the dogs did and to get the results in
@@ -183,8 +183,9 @@ points are, and stays with that exercise when the running order changes. The exe
 running order read *{t:results.notReached}*, in the view narrowed to one post too and on the post's
 own entry page, where the dog shows as done for those exercises. The points
 earned until then stay and can be edited, and their total against the whole running order's maximum
-shows under the row. The same total goes to Omakoira, unless it is points Omakoira does not take for
-this result at the moment. Then the result goes with 0 points, and the send dialog tells the points to
+shows under the row. The same total goes to Omakoira, except where Omakoira limits the result's
+points at the moment and the total is over the limit (today a nought in the AVO and VOI classes and a dash
+in the ALO class over 49 %). Then the result goes with 0 points, and the send dialog tells the points to
 enter in Omakoira by hand. If points were already entered for a later
 exercise, the field stays and the points count in the total, so they can be cleared if need be. When
 the choice is *{t:results.outcomeAtUnknown}*, no exercise shows as not reached.
