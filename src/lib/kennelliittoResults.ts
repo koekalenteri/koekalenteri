@@ -55,7 +55,7 @@ const INFO_TYPE = 250
 export interface KcKoemuotoResult {
   hylätty: boolean
   keskeytys: boolean
-  /** The points Kennelliitto takes with the result, both ends included. */
+  /** The points Kennelliitto takes with the result, both ends included; 0 to 0 sets no limit (KOE-1676). */
   pisteetMax: number
   pisteetMin: number
   tulos: string
@@ -249,23 +249,32 @@ export const kcResultDay = (registration: Pick<KcResultRegistration, 'group' | '
  * The points NOWT sends: the percentage `points * 100 / maxPoints` as recorded, unrounded, a round that
  * ended early with what it earned (KOE-1669); a result stored before that with no total sends 0.
  *
- * A workaround until Kennelliitto fixes its interface (KOE-1676): its format gives a nought or a dash
- * no room for what the dog earned. VOI0 and AVO0 take 0–49, ALO0, VOI- and AVO- only 0, so a stopped
- * dog with 51/80 was refused. A percentage above the row's maximum on a row that takes 0 is sent as 0,
- * and returned as `pointsByHand`, so the send dialog names the dog and the secretary enters the real
- * points in Omakoira by hand, which its own form accepts. Everything else is sent as it is, and nothing
- * else is checked against the row's limits, which Kennelliitto's own list gets wrong for ALO0 and ALO-:
- * it answers with its reasons when it refuses a number. The sent hash covers `pointsByHand` too, so a
- * correction that still goes as 0 reads as changed and names the new points. When Kennelliitto widens a
- * range, the body changes, the dog reads as changed once and is sent again with its points: the
- * workaround retires itself without a change here.
+ * A workaround until Kennelliitto fixes its interface (KOE-1676): it refuses points outside some of
+ * the ranges its own list gives the results, so a stopped dog with 51/80 on AVO0 was refused. What its
+ * list says and what Testi2 enforced on 2.11.2026:
+ *
+ *   row               listed    accepted     refused
+ *   AVO0, VOI0        0 to 49   49           60, 63.75
+ *   ALO-              0 to 49   30           60
+ *   ALO0              0 to 0    30, 60
+ *   AVO-, VOI-        0 to 0    30, 60
+ *   AVO3              50 to 64  63.75
+ *
+ * So a range of 0 to 0 sets no limit, and the dog is sent with its points. On a row that takes 0 with a
+ * maximum above it, a percentage above the maximum is sent as 0 and returned as `pointsByHand`: the send
+ * dialog names the dog, and the secretary enters the real points in Omakoira by hand, which its own form
+ * accepts. Everything else is sent as it is, and Kennelliitto answers with its reasons when it refuses a
+ * number. The sent hash covers `pointsByHand` too, so a correction that still goes as 0 reads as changed
+ * and names the new points. When Kennelliitto widens a range, the body changes, the dog reads as changed
+ * once and is sent again with its points: the workaround retires itself without a change here.
  */
 const pointsOf = (
   registration: KcResultRegistration,
   row: Pick<KcKoemuotoResult, 'pisteetMax' | 'pisteetMin'>
 ): { pisteet: number; pointsByHand?: number } => {
   const percentage = registration.eventResult?.percentage ?? 0
-  if (percentage > row.pisteetMax && row.pisteetMin === 0) return { pisteet: 0, pointsByHand: percentage }
+  const limited = row.pisteetMax > 0 && row.pisteetMin === 0
+  if (limited && percentage > row.pisteetMax) return { pisteet: 0, pointsByHand: percentage }
   return { pisteet: percentage }
 }
 

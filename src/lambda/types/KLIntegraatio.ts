@@ -42,6 +42,10 @@ export type KLIntKoemuodonTulos = {
   hylätty: boolean
   järjestys: number
   keskeytys: boolean
+  /**
+   * The point range Kennelliitto lists for the result. A range of 0 to 0 sets no limit: Testi2 took 30 and
+   * 60 on ALO0, AVO- and VOI- on 2.11.2026, and refused 60 on AVO0 and ALO-, whose range is 0 to 49.
+   */
   pisteetMax: number
   pisteetMin: number
   /** The result string as KL spells it, e.g. ALO1, VOI-, sert, vara sert. */
