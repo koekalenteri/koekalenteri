@@ -786,6 +786,24 @@ describe('formatResultLine', () => {
     expect(formatResultLine({ result: 'AVO0' }, t)).toBe('AVO0')
     expect(formatResultLine({}, t)).toBe('')
   })
+
+  it('reads the points against the maximum and the whole percentage after the code (KOE-1673)', () => {
+    const totals = { maxPoints: 80, percentage: 81.25, points: 65 }
+    expect(formatResultLine({ ...totals, placement: 2, result: 'ALO1' }, i18n.getFixedT('fi'))).toBe(
+      'ALO1 65/80 p 81 % Sija 2'
+    )
+    expect(formatResultLine({ ...totals, placement: 2, result: 'ALO1' }, t)).toBe('ALO1 65/80 pts 81% Place 2')
+  })
+
+  it('reads what a round that ended early earned between the code and the mark (KOE-1673)', () => {
+    const early = { marks: ['interrupted'] as const, maxPoints: 80, percentage: 28.75, points: 23, result: 'ALO-' }
+    expect(formatResultLine(early, i18n.getFixedT('fi'))).toBe('ALO- 23/80 p 29 % Kesk.')
+  })
+
+  it('reads no totals without a result, nor a total of a round without a maximum (KOE-1673)', () => {
+    expect(formatResultLine({ maxPoints: 80, percentage: 75, points: 60 }, t)).toBe('')
+    expect(formatResultLine({ maxPoints: 0, percentage: 0, points: 0, result: 'ALO0' }, t)).toBe('ALO0')
+  })
 })
 
 describe('withEffectiveJudges (KOE-1665)', () => {

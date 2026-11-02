@@ -9,6 +9,7 @@ import {
   isStartListUpToDate,
   newestStartListVersion,
   parseStartListVersion,
+  startListColumnWidths,
   startListSpreadsheetRows,
   startListVersionOf,
 } from './startList'
@@ -99,6 +100,9 @@ describe('startListSpreadsheetRows', () => {
         'Handler',
         'Breeder',
         'Result',
+        'Points',
+        'Maximum',
+        '%',
         'Additional marks',
         'Place',
       ],
@@ -110,6 +114,9 @@ describe('startListSpreadsheetRows', () => {
         'ALO',
         2,
         'ABSENT',
+        '',
+        '',
+        '',
         '',
         '',
         '',
@@ -143,7 +150,7 @@ describe('a published result on the exported list', () => {
 
     // The download is what gets circulated, so a result missing here is a file that disagrees with
     // the page it came from.
-    expect(row.at(-3)).toBe('ALO1')
+    expect(row.at(-6)).toBe('ALO1')
     expect(row.at(-2)).toBe('')
     expect(row.at(-1)).toBe('')
   })
@@ -182,8 +189,53 @@ describe('a published result on the exported list', () => {
 
     const [, row] = startListSpreadsheetRows([registration], event, t)
 
-    expect(row.at(-3)).toBe('AVO0')
+    expect(row.at(-6)).toBe('AVO0')
     expect(row.at(-2)).toBe('Stopped')
+  })
+
+  describe('the points, the maximum and the percentage (KOE-1673)', () => {
+    const event: PublicConfirmedEvent = { ...eventWithStaticDates, classes: [] }
+    const scored: PublicRegistration = {
+      breeder: 'Test Breeder',
+      class: 'ALO',
+      dog: { name: 'Test Dog', regNo: 'REG1' },
+      group: { key: 'ALO', number: 2 },
+      handler: 'Test Handler',
+      maxPoints: 80,
+      owner: 'Test Owner',
+      percentage: 81.25,
+      placement: 2,
+      points: 65,
+      result: 'ALO1',
+    }
+
+    it('come after the result as plain numbers, the percentage rounded as the line shows it', () => {
+      const [header, row] = startListSpreadsheetRows([scored], event, t)
+
+      expect(header.slice(-6)).toEqual(['Result', 'Points', 'Maximum', '%', 'Additional marks', 'Place'])
+      expect(row.slice(-6)).toEqual(['ALO1', 65, 80, 81, '', 2])
+    })
+
+    it('are empty cells for a result without them', () => {
+      const { maxPoints, percentage, points, ...qualitative } = scored
+      const [, row] = startListSpreadsheetRows([{ ...qualitative, placement: undefined }], event, t)
+
+      expect(row.slice(-6)).toEqual(['ALO1', '', '', '', '', ''])
+    })
+
+    it('each have a width of their own, so the marks and the place keep theirs', () => {
+      const [header] = startListSpreadsheetRows([], event, t)
+
+      expect(startListColumnWidths).toHaveLength(header.length)
+      expect(startListColumnWidths.slice(-6)).toEqual([12, 8, 8, 6, 16, 8])
+    })
+
+    it('are empty cells on a cancelled row, which is as wide as the header', () => {
+      const [header, row] = startListSpreadsheetRows([{ ...scored, cancelled: true }], event, t)
+
+      expect(row).toHaveLength(header.length)
+      expect(row.slice(-6)).toEqual(['', '', '', '', '', ''])
+    })
   })
 })
 

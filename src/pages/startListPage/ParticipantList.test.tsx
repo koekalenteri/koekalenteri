@@ -17,18 +17,26 @@ import { ParticipantList } from './ParticipantList'
  */
 const t = i18n.getFixedT('en') as TFunction
 
-// The global mock returns keys; the placement's number is the thing the copied text must carry.
+// The global mock returns keys; the result line is the thing the copied text must carry, so its parts
+// read as the Finnish page writes them.
 vi.mock('react-i18next', async () => {
   const actual = await vi.importActual<typeof import('../../__mocks__/react-i18next')>('../../__mocks__/react-i18next')
+  const { default: real } = await vi.importActual<typeof import('i18next')>('i18next')
+  const fi = real.getFixedT('fi')
   return {
     ...actual,
     useTranslation: () => {
       const base = actual.useTranslation()
-      return {
-        ...base,
-        t: (key: string, options?: { placement?: number }) =>
-          key === 'results.placement' ? `Sija ${options?.placement}` : base.t(key, options),
+      const t = (key: string, options: Record<string, unknown> = {}) => {
+        switch (key) {
+          case 'results.placement':
+          case 'results.totals':
+            return fi(key, options)
+          default:
+            return base.t(key, options)
+        }
       }
+      return { ...base, t }
     },
   }
 })
@@ -556,12 +564,15 @@ describe('ParticipantList', () => {
     expect(screen.getAllByTestId('registration-details')).toHaveLength(3)
   })
 
-  it('carries the result and the placement into the copied text', async () => {
+  it('carries the result, its totals and the placement into the copied text', async () => {
     const user = userEvent.setup()
     mockClipboard()
     const participant = {
       ...createMockRegistration('AVO', 'Dog 1', 1, '2023-01-01', 'ap'),
+      maxPoints: 80,
+      percentage: 81.25,
       placement: 2,
+      points: 65,
       result: 'AVO1',
     }
 
@@ -569,7 +580,8 @@ describe('ParticipantList', () => {
 
     await user.click(screen.getByRole('button', { name: /copy|kopioi/i }))
 
-    expect(writeText).toHaveBeenCalledWith(expect.stringContaining('AVO1 Sija 2'))
+    // The points and the whole percentage too (KOE-1673): the copied text carries what the screen shows.
+    expect(writeText).toHaveBeenCalledWith(expect.stringContaining('AVO1 65/80 p 81 % Sija 2'))
   })
 
   it('reports a failed copy instead of failing silently', async () => {
@@ -666,6 +678,9 @@ describe('ParticipantList', () => {
         'Handler',
         'Breeder',
         'Result',
+        'Points',
+        'Maximum',
+        '%',
         'Additional marks',
         'Place',
       ],
@@ -682,6 +697,9 @@ describe('ParticipantList', () => {
         'Test Owner',
         'Test Handler',
         'Test Breeder',
+        '',
+        '',
+        '',
         '',
         '',
         '',
