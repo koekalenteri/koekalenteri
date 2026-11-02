@@ -18,7 +18,7 @@ covers:
   - src/pages/admin/StartListPreviewPage.tsx
   - src/pages/admin/startListPage/**
   - src/pages/ClassStartNumbersPage.tsx
-sourceHash: 9e9fae
+sourceHash: a29da0
 ---
 
 Once entry has closed, the secretary's work goes step by step: picking the participants, the
@@ -236,14 +236,11 @@ and **{t:results.kennelliitto.regNo.back}** goes back without changing anything.
 
 !shot[KennelliittoSendDialog/kennelliitto-send-regnos] The dogs Kennelliitto knows by another number, in one view
 
-In a WT trial, Omakoira limits the points of some results at the moment: today it takes no more than 49
-points for a nought in the AVO and VOI classes and for a dash in the ALO class. When a dog's points are
-over the result's limit, the result goes to Omakoira with 0 points. That happens, for example, to a
-stopped dog in the AVO or VOI class that had earned over 49 %. The send dialog lists these dogs with their
-real points before the sending and after it, and the points are entered in Omakoira by hand until
-Kennelliitto fixes its interface. If the points are corrected after the sending, the dog shows as changed
-and the dialog tells the new points. The other results, a nought in the ALO class and a dash in the AVO
-and VOI classes among them, go with their points.
+In a WT trial, the points go to Omakoira as they are. Where Omakoira does not take the points for the
+dog's result, the result is sent again with 0 points. After the sending, the dialog lists these dogs with
+their real points, and the points are entered in Omakoira by hand until Kennelliitto fixes its interface.
+When such a dog is sent again, for example for a corrected result, the dialog names it before the sending
+too: the sending tries the points first and sends 0 only if Omakoira refuses them again.
 
 !shot[KennelliittoSendDialog/kennelliitto-send-points-by-hand] The dogs whose points are entered in Omakoira by hand
 

@@ -188,9 +188,8 @@ Keskeytyksen jälkeiset rastit koiran suoritusjärjestyksessä näkyvät tekstin
 *{t:results.notReached}*, myös yhteen suorituspaikkaan rajatussa näkymässä ja suorituspaikan
 kirjaussivulla, jossa koirakko näkyy jo käyneenä niiden rastien kohdalla. Siihen asti
 saadut pisteet säilyvät ja niitä voi muokata, ja rivin alla näkyy niiden summa koko suoritusjärjestyksen
-enimmäispisteitä vasten. Sama summa lähtee Omakoiraan, paitsi jos Omakoira rajoittaa tällä hetkellä
-tuloksen pisteitä ja summa ylittää rajan (tätä nykyä AVO- ja VOI-luokan nollatulos ja ALO-luokan viiva yli
-49 %). Silloin tulos lähtee pisteillä 0, ja lähetysikkuna kertoo pisteet, jotka kirjataan Omakoiraan käsin. Jos myöhemmälle rastille on jo kirjattu
+enimmäispisteitä vasten. Sama summa lähtee Omakoiraan. Jos Omakoira ei ota sitä vastaan tälle
+tulokselle, tulos lähtee pisteillä 0, ja lähetysikkuna kertoo pisteet, jotka kirjataan Omakoiraan käsin. Jos myöhemmälle rastille on jo kirjattu
 pisteet, kenttä jää näkyviin ja pisteet lasketaan summaan, joten ne voi tarvittaessa poistaa. Kun
 valintana on *{t:results.outcomeAtUnknown}*, mikään rasti ei näy keskeytettynä.
 
