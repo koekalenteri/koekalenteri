@@ -48,6 +48,18 @@ const sendProps: ComponentProps<typeof KennelliittoSendDialog> = {
   phase: { kind: 'preview', preview },
 }
 
+// Two WT dogs whose points Omakoira takes no more of for their result: one goes now, one went before (KOE-1676).
+const pointsByHandPreview: KcPreviewResponse = {
+  blockers: [],
+  dogs: [
+    { ...dog('20001', 'Hukka', 'ready'), pointsByHand: 63.75 },
+    dog('20002', 'Rölli', 'ready'),
+    { ...dog('20003', 'Musti', 'unchanged'), pointsByHand: 40 },
+  ],
+}
+
+const pointsByHandProps = { ...sendProps, phase: { kind: 'preview', preview: pointsByHandPreview } } as const
+
 // The dialogs render through a portal, so a capture is the dialog itself.
 const shoot = async (ui: React.ReactNode, ready: string, name: string, height = 900) => {
   await page.viewport(900, height)
@@ -304,6 +316,37 @@ it('asks in one view what to do with the dogs Kennelliitto knows by another numb
   )
 })
 
+it('names the dogs whose points go to Omakoira as 0, to enter by hand (KOE-1676)', async () => {
+  await shoot(
+    <KennelliittoSendDialog {...pointsByHandProps} />,
+    'Hukka (FI20001/21): pisteet 63,75',
+    'kennelliitto-send-points-by-hand'
+  )
+})
+
+it('names the sent dogs whose points to enter in Omakoira by hand (KOE-1676)', async () => {
+  await shoot(
+    <KennelliittoSendDialog
+      {...sendProps}
+      phase={{
+        blocked: [],
+        kind: 'report',
+        summary: {
+          blockers: [],
+          interrupted: false,
+          notAttempted: [],
+          reports: [
+            { id: '20001', name: 'Hukka', outcome: 'sent', pointsByHand: 63.75, regNo: 'FI20001/21' },
+            { id: '20002', name: 'Rölli', outcome: 'sent', regNo: 'FI20002/21' },
+          ],
+        },
+      }}
+    />,
+    'Hukka (FI20001/21): pisteet 63,75',
+    'kennelliitto-send-points-by-hand-report'
+  )
+})
+
 describeInLanguage('en', () => {
   it('asks in one view what to do with the dogs Kennelliitto knows by another number', async () => {
     await shoot(
@@ -311,6 +354,14 @@ describeInLanguage('en', () => {
       'Confirm and send',
       'kennelliitto-send-regnos-en',
       1500
+    )
+  })
+
+  it('names the dogs whose points go to Omakoira as 0, to enter by hand', async () => {
+    await shoot(
+      <KennelliittoSendDialog {...pointsByHandProps} />,
+      'Hukka (FI20001/21): points 63.75',
+      'kennelliitto-send-points-by-hand-en'
     )
   })
 

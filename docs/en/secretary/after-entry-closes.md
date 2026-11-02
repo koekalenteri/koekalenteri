@@ -18,13 +18,13 @@ covers:
   - src/pages/admin/StartListPreviewPage.tsx
   - src/pages/admin/startListPage/**
   - src/pages/ClassStartNumbersPage.tsx
-sourceHash: 50e8ae
+sourceHash: 261075
 ---
 
 Once entry has closed, the secretary's work goes step by step: picking the participants, the
 participant and reserve notifications, the invitations, the start list and finally the start numbers
 drawn at the venue. The event page's **{t:eventManagement.tabs.management}** panel runs in the same order and says at
-every step what has been done and what is possible next — a button that cannot be pressed yet has
+every step what has been done and what is possible next: a button that cannot be pressed yet has
 its reason beside it.
 
 ## Adding an entry afterwards
@@ -40,7 +40,7 @@ If the trial's payment time is *{t:paymentTimeOptions.confirmation}*, the button
 
 The calendar fetches the dog's trial results from the Kennel Club's breeding database and checks the
 right to enter the class itself. Only the dogs whose row shows results added by the entrant need
-checking by hand — the exclamation mark icon marks them. The row's icons explain themselves when the
+checking by hand. The exclamation mark icon marks them. The row's icons explain themselves when the
 mouse hovers over them:
 
 | Icon | What it means |
@@ -53,7 +53,7 @@ mouse hovers over them:
 | red letter | an email to the entrant could not be delivered |
 | envelope | the invitation has been sent; an opened envelope means an acknowledged invitation |
 | scheduled send | the invitation goes out only once the place has been paid for |
-| exclamation mark | the entrant has added trial results themselves — **check eligibility** |
+| exclamation mark | the entrant has added trial results themselves, **check eligibility** |
 | speech bubble | the entrant has written additional information |
 | note | the entry carries the secretary's internal comment |
 
@@ -99,8 +99,8 @@ gets a red letter icon.
 
 Once the participant notifications have gone out, the panel no longer lets a participant be moved
 back to the reserve list. If a new dog is then raised from the reserve list to the participants, the
-calendar asks for confirmation and sends it the participant notification — and the invitation, if
-the invitations have already gone out — automatically.
+calendar asks for confirmation and sends it the participant notification automatically, and the invitation
+too if the invitations have already gone out.
 
 ## Reserve notification
 
@@ -163,8 +163,8 @@ class's shared links; the next copy gives a new one.
 
 !shot[StartNumbersEntry/start-numbers-entry-links] The class secretaries' links are handed out from a tab of their own
 
-Once all of a day's numbers have been saved, they are published class by class — and in a multi-day
-class day by day — with **{t:eventManagement.startList.publishNumbers}**. A half-entered day cannot be published; the
+Once all of a day's numbers have been saved, they are published class by class (in a multi-day
+class day by day) with **{t:eventManagement.startList.publishNumbers}**. A half-entered day cannot be published; the
 calendar then asks for all the numbers first. The numbers wait on the invitations the same way the
 start list does: until the morning of the class's first day the row reads
 *{t:eventManagement.startList.invitationsRequired}* and the numbers cannot be published. If the trial draws no numbers at all, publishing
@@ -235,6 +235,15 @@ to the one Kennelliitto knows or its result is left unsent for now. The change i
 and **{t:results.kennelliitto.regNo.back}** goes back without changing anything.
 
 !shot[KennelliittoSendDialog/kennelliitto-send-regnos] The dogs Kennelliitto knows by another number, in one view
+
+In a WT trial, Kennelliitto's result row has a range of points, and Omakoira does not take points outside
+the result's range at the moment. Such points go to Omakoira as 0. That happens, for example, to a
+stopped dog in the AVO or VOI class that had earned over 49 %. The send dialog lists these dogs with their
+real points before the sending and after it, and the points are entered in Omakoira by hand until
+Kennelliitto fixes its interface. If the points are corrected after the sending, the dog shows as changed
+and the dialog tells the new points. The other dogs go with their points as before.
+
+!shot[KennelliittoSendDialog/kennelliitto-send-points-by-hand] The dogs whose points are entered in Omakoira by hand
 
 A sent result shows dimmed on the dog in Koiranet until the judge has confirmed it. The result can be
 corrected on the results page and sent again until the trial is handed over to the judge. A corrected

@@ -129,8 +129,16 @@ interface KcSendResult {
   reports: KcSendReport[]
 }
 
-/** Sha-256 of the body as it is sent. The one mapping builds the body, so equal results give equal bodies. */
-const hashKcBody = (body: KcResultBody): string => createHash('sha256').update(JSON.stringify(body)).digest('hex')
+/**
+ * Sha-256 of the body as it is sent. The one mapping builds the body, so equal results give equal bodies.
+ * The points to enter by hand count too (KOE-1676): a correction that still goes as 0 changes what the
+ * secretary has to enter in Omakoira, so the dog reads as changed and is named again. Without them the
+ * hash is the body's alone, as it was.
+ */
+const hashKcBody = (body: KcResultBody, pointsByHand: number | undefined): string =>
+  createHash('sha256')
+    .update(JSON.stringify(pointsByHand === undefined ? body : { body, pointsByHand }))
+    .digest('hex')
 
 const klintOf = (ctx: KcContext): KLIntegraatio => ctx.klint ?? getKLIntegraatio()
 
@@ -334,12 +342,19 @@ const evaluateKcDog = (
   const problems = [...(outcome.ok ? [] : outcome.problems), ...dayProblems(registration, now)]
   if (!outcome.ok || problems.length) return { registration, report: dogReport(registration, 'blocked', problems) }
 
-  const hash = hashKcBody(outcome.body)
+  const hash = hashKcBody(outcome.body, outcome.pointsByHand)
   const previous = registration.kcResult
   let status: KcDogStatus = 'ready'
   if (previous?.status === 'sent' && previous.payloadHash === hash) status = 'unchanged'
   else if (previous?.payloadHash) status = 'changed'
-  return { body: outcome.body, hash, registration, report: dogReport(registration, status) }
+  const report = dogReport(registration, status)
+  const { pointsByHand } = outcome
+  return {
+    body: outcome.body,
+    hash,
+    registration,
+    report: pointsByHand === undefined ? report : { ...report, pointsByHand },
+  }
 }
 
 /**
@@ -348,7 +363,9 @@ const evaluateKcDog = (
  * rank depends on the other dogs, so the hash of its body moves when another dog's result does.
  *
  * A round that ended early saved before KOE-1669 has no stored totals; they are worked out from its tasks
- * here (`withStoredTotals`), so it is sent with what it earned rather than 0, without being saved again.
+ * here (`withStoredTotals`), without being saved again: it is sent with what it earned, or, where
+ * Kennelliitto takes no more for its result, named with those points for entering by hand (KOE-1676).
+ * Those points are part of the hash, so a correction of them reads as changed even when the body is not.
  * Each score is judged by the judges of its exercise's post as the event stands.
  */
 const evaluateAll = (
@@ -520,8 +537,12 @@ export const previewKennelliittoResults = async (ctx: KcContext, ids?: string[])
   return { blockers: [], dogs: evaluated.map(({ report }) => report), ...withState }
 }
 
-/** The id Kennelliitto gave the saved result. The type says `TulosId`; the camelCase of v1.01 is accepted too. */
+/**
+ * The id Kennelliitto gave the saved result. Testi2 answers it as a bare number (2.11.2026); the API
+ * document's `{ TulosId }` and the camelCase of v1.01 are accepted too.
+ */
 const tulosIdOf = (json: unknown): number | undefined => {
+  if (typeof json === 'number') return json
   if (typeof json !== 'object' || json === null) return undefined
   let id: unknown
   if ('TulosId' in json) id = json.TulosId
@@ -840,7 +861,7 @@ const switchRegNo = async (
   const dog = { ...registration.dog, regNo: kcDog.regNo }
   mergePatch(options.patches, { dog, id: registration.id, updatedAt })
   const body = { ...item.body, rekisterinumero: kcDog.regNo }
-  return { body, hash: hashKcBody(body), registration: { ...registration, dog } }
+  return { body, hash: hashKcBody(body, item.report.pointsByHand), registration: { ...registration, dog } }
 }
 
 /**
@@ -873,7 +894,10 @@ const sendDog = async (req: KcRequest, item: Evaluated, options: SendOptions): P
     return undefined
   }
   const resolved = await resolveRegNoChoice(req, { ...item, body, hash }, options)
-  return 'outcome' in resolved ? resolved : sendOne(req, resolved, patches)
+  if ('outcome' in resolved) return resolved
+  const sent = await sendOne(req, resolved, patches)
+  const { pointsByHand } = report
+  return sent.outcome === 'sent' && pointsByHand !== undefined ? { ...sent, pointsByHand } : sent
 }
 
 /**

@@ -1,14 +1,24 @@
 import type { KcDogReport } from '@/lib/kennelliittoResults'
 import i18next from 'i18next'
+import en from '@/i18n/locales/en/translation.json'
 import fi from '@/i18n/locales/fi/translation.json'
 import { finnishDay } from '@/lib/kennelliittoResults'
 import { parseJSON } from '@/lib/utils'
-import { createsDogLine, dogLine, dogNotAddedText, failedLine, skippedLine } from './kennelliittoMessages'
+import {
+  createsDogLine,
+  dogLine,
+  dogNotAddedText,
+  failedLine,
+  pointsByHandLine,
+  skippedLine,
+} from './kennelliittoMessages'
 
 const finnish = i18next.createInstance()
-beforeAll(() =>
-  finnish.init({ interpolation: { escapeValue: false }, lng: 'fi', resources: { fi: { translation: fi } } })
-)
+const english = i18next.createInstance()
+beforeAll(async () => {
+  await finnish.init({ interpolation: { escapeValue: false }, lng: 'fi', resources: { fi: { translation: fi } } })
+  await english.init({ interpolation: { escapeValue: false }, lng: 'en', resources: { en: { translation: en } } })
+})
 
 /** What the page makes of an answer: the body as JSON, parsed as written. */
 const received = (dog: KcDogReport): KcDogReport => parseJSON(JSON.stringify(dog))
@@ -192,5 +202,15 @@ describe('the messages of a sending', () => {
     ],
   ])('says a dog was not added %s', (_case, fields, text) => {
     expect(dogNotAddedText(finnish.t, { regNo: 'SE1/20', ...fields })).toEqual(text)
+  })
+
+  it.each([
+    ['in Finnish with a decimal comma', () => finnish.t, 'Hukka (FI1/20): pisteet 63,75'],
+    ['in English with a decimal point', () => english.t, 'Hukka (FI1/20): points 63.75'],
+    ['rounded to two decimals', () => finnish.t, 'Hukka (FI1/20): pisteet 66,67', 66.666_666],
+  ])('names the points to enter in Omakoira by hand %s (KOE-1676)', (_case, t, text, points = 63.75) => {
+    const dog = { id: 'a', name: 'Hukka', pointsByHand: points, regNo: 'FI1/20' }
+
+    expect(pointsByHandLine(t(), dog)).toEqual({ id: 'a', text })
   })
 })
