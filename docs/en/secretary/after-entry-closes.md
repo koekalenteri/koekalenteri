@@ -18,7 +18,7 @@ covers:
   - src/pages/admin/StartListPreviewPage.tsx
   - src/pages/admin/startListPage/**
   - src/pages/ClassStartNumbersPage.tsx
-sourceHash: a29da0
+sourceHash: 6649cb
 ---
 
 Once entry has closed, the secretary's work goes step by step: picking the participants, the
@@ -239,8 +239,9 @@ and **{t:results.kennelliitto.regNo.back}** goes back without changing anything.
 In a WT trial, the points go to Omakoira as they are. Where Omakoira does not take the points for the
 dog's result, the result is sent again with 0 points. After the sending, the dialog lists these dogs with
 their real points, and the points are entered in Omakoira by hand until Kennelliitto fixes its interface.
-When such a dog is sent again, for example for a corrected result, the dialog names it before the sending
-too: the sending tries the points first and sends 0 only if Omakoira refuses them again.
+The dialog names these dogs at the start of later sendings too, until Omakoira takes the points. If a dog
+is sent again, for example for a corrected result, the sending tries the points first and sends 0 only if
+Omakoira refuses them again.
 
 !shot[KennelliittoSendDialog/kennelliitto-send-points-by-hand] The dogs whose points are entered in Omakoira by hand
 

@@ -1672,6 +1672,20 @@ describe('kennelliittoResults', () => {
         ])
       })
 
+      it('names a corrected dog with the points refused when it was last sent, not the new ones', async () => {
+        await sendKennelliittoResults(nowtCtx(), ['nought'], { force: false })
+        const [sent] = registrations
+        sent.eventResult = { ...sent.eventResult, percentage: 75, points: 75, updatedAt: 'later', updatedBy: 'S' }
+
+        const preview = await previewKennelliittoResults(nowtCtx())
+
+        // The dialog says "when last sent": the stored value is what Omakoira was given 0 for.
+        expect(preview.dogs.map((dog) => [dog.id, dog.status, dog.pointsByHand])).toEqual([
+          ['nought', 'changed', 60],
+          ['free', 'ready', undefined],
+        ])
+      })
+
       it('forgets the points to enter by hand once Omakoira takes the points', async () => {
         await sendKennelliittoResults(nowtCtx(), ['nought'], { force: false })
         delete rangeRefused['FI20009/20']

@@ -1269,7 +1269,7 @@
       "notAttempted_one": "{{count}} koiralle ei ehditty yrittää lähetystä. Lähetä uudelleen.",
       "notAttempted_other": "{{count}} koiralle ei ehditty yrittää lähetystä. Lähetä uudelleen.",
       "nothingToSend": "Ei lähetettävää.",
-      "pointsByHand": "Omakoira ei viime lähetyksellä ottanut vastaan näiden koirien pisteitä, ja tulos lähti pisteillä 0. Lähetys yrittää ensin pisteitä. Jos Omakoira hylkää ne taas, tulos lähtee pisteillä 0, ja pisteet kirjataan Omakoiraan käsin:",
+      "pointsByHand": "Omakoira ei viime lähetyksellä ottanut vastaan näiden koirien pisteitä, ja tulos lähti pisteillä 0. Kirjaa pisteet Omakoiraan käsin. Jos koira lähetetään uudelleen, lähetys yrittää ensin pisteitä:",
       "pointsByHandLine": "{{dog}}: pisteet {{points, number(maximumFractionDigits: 2)}}",
       "pointsByHandSent": "Omakoira ei ottanut vastaan näiden koirien pisteitä niiden tulokselle, joten tulos lähti pisteillä 0. Kirjaa pisteet Omakoiraan käsin, kunnes Kennelliitto korjaa rajapintansa:",
       "problem": {

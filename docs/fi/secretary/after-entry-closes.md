@@ -231,9 +231,10 @@ palaa muuttamatta mitään.
 
 WT-kokeessa pisteet lähtevät Omakoiraan sellaisinaan. Jos Omakoira ei ota pisteitä vastaan koiran
 tulokselle, tulos lähetetään uudelleen pisteillä 0. Lähetyksen jälkeen ikkuna luettelee nämä koirat
-oikeine pisteineen, ja pisteet kirjataan Omakoiraan käsin, kunnes Kennelliitto korjaa rajapintansa. Kun
-tällainen koira lähetetään uudelleen, esimerkiksi korjatun tuloksen vuoksi, ikkuna nimeää sen jo ennen
-lähetystä: lähetys yrittää ensin pisteitä ja lähettää nollan vain, jos Omakoira hylkää ne taas.
+oikeine pisteineen, ja pisteet kirjataan Omakoiraan käsin, kunnes Kennelliitto korjaa rajapintansa. Ikkuna
+nimeää nämä koirat myös seuraavien lähetysten alussa, kunnes Omakoira ottaa pisteet vastaan. Jos koira
+lähetetään uudelleen, esimerkiksi korjatun tuloksen vuoksi, lähetys yrittää ensin pisteitä ja lähettää
+nollan vain, jos Omakoira hylkää ne taas.
 
 !shot[KennelliittoSendDialog/kennelliitto-send-points-by-hand] Koirat, joiden pisteet kirjataan Omakoiraan käsin
 

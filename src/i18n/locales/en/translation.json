@@ -1269,7 +1269,7 @@
       "notAttempted_one": "There was no time to try sending for {{count}} dog. Send again.",
       "notAttempted_other": "There was no time to try sending for {{count}} dogs. Send again.",
       "nothingToSend": "Nothing to send.",
-      "pointsByHand": "Omakoira did not take these dogs' points when they were last sent, and the result went with 0 points. The sending tries the points first. If Omakoira refuses them again, the result goes with 0 points, and the points are entered in Omakoira by hand:",
+      "pointsByHand": "Omakoira did not take these dogs' points when they were last sent, and the result went with 0 points. Enter the points in Omakoira by hand. If a dog is sent again, the sending tries the points first:",
       "pointsByHandLine": "{{dog}}: points {{points, number(maximumFractionDigits: 2)}}",
       "pointsByHandSent": "Omakoira did not take these dogs' points for their result, so the result went with 0 points. Enter the points in Omakoira by hand until the Kennel Club fixes its interface:",
       "problem": {

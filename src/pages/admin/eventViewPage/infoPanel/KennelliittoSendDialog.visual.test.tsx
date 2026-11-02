@@ -48,7 +48,7 @@ const sendProps: ComponentProps<typeof KennelliittoSendDialog> = {
   phase: { kind: 'preview', preview },
 }
 
-// Two WT dogs whose points Omakoira refused when they were last sent: one goes again now, one does not (KOE-1676).
+// Two WT dogs whose points Omakoira refused when they were last sent, one sent again now and one not: both are named (KOE-1676).
 const pointsByHandPreview: KcPreviewResponse = {
   blockers: [],
   dogs: [
