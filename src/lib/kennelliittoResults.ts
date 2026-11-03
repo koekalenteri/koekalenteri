@@ -224,7 +224,10 @@ const tarkenneOf = (event: KcResultEvent, koemuoto: KcKoemuoto): { tarkenne?: st
   return tarkenne ? { tarkenne } : { problems: [{ code: 'retrieveTypeNotAllowed', detail: wanted }] }
 }
 
-/** Whether the format has any result that is a stop, which is the only place a judge's stop can go. */
+/**
+ * Whether the format lists any result as a stop, which says it records a judge's stop at all. The row
+ * the stop is sent on is `STOPPED_RESULT_CODE` (or NOWT's injury dash), not necessarily one flagged keskeytys.
+ */
 const formatAllowsStop = (koemuoto: KcKoemuoto): boolean => koemuoto.tulokset.some((row) => row.keskeytys)
 
 /**

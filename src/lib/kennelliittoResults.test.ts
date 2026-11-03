@@ -115,7 +115,7 @@ describe('kennelliittoResults', () => {
     })
 
     it("takes keskeytetty from the judge's stop, not from the row, which calls the NOME-A dash a stop (KOE-1669)", () => {
-      // The rows of Koe/Koemuoto mark every dash keskeytys, but a dash without a stop is the handler's
+      // Koe/Koemuoto marks the NOME-A dash keskeytys, but a dash without a stop is the handler's
       // withdrawal or a withheld laatuarvostelu, which the breeding database shows without Kesk.
       const dash = sent(buildKcResult(event('NOME-A'), dog(result({ result: 'NOME-A-' })), koemuotoNOME_A))
       const nought = sent(buildKcResult(event('NOME-A'), dog(result({ result: 'NOME-A0' })), koemuotoNOME_A))
@@ -126,6 +126,22 @@ describe('kennelliittoResults', () => {
       const registration = dog(result({ result: 'NOME-A0', retirement: { cause: 'judgeStopped' } }))
       expect(sent(buildKcResult(event('NOME-A'), registration, koemuotoNOME_A)).keskeytetty).toEqual(true)
     })
+
+    it.each([
+      ['NKM0', event('NKM'), dog(result({ result: 'NKM0', retirement: { cause: 'judgeStopped' } })), koemuotoNKM],
+      [
+        'ALO0',
+        event('NOME-B', { retrieveType: 'dummies' }),
+        dog(result({ judge: chief, result: 'ALO0', retirement: { cause: 'judgeStopped' } }), { class: 'ALO' }),
+        koemuotoNOME_B,
+      ],
+    ])(
+      "sends a judge's stop as the rules' nought %s, not the dash (KOE-1647)",
+      (nought, trial, registration, koemuoto) => {
+        const body = sent(buildKcResult(trial, registration, koemuoto))
+        expect([body.tulos, body.keskeytetty]).toEqual([nought, true])
+      }
+    )
 
     it("refuses a judge's stop in a format that has none, instead of saying a thing the format cannot hold", () => {
       const registration = dog(result({ result: 'NOU0', retirement: { cause: 'judgeStopped' } }))

@@ -358,8 +358,7 @@ describe('canBeStopped', () => {
 })
 
 describe('hasJudgeStop', () => {
-  // Koemuoto/Lue/Tulokset lists a keskeytys row for each of these (KLIntegraatio-fixtures/koemuoto-*.json),
-  // and a championship follows its format.
+  // The rules of each of these record a judge's stop, and a championship follows its format.
   it.each(['NKM', 'NOME-A', 'NOME-A SM', 'NOME-B', 'NOME-B SM', 'NOWT', 'NOWT SM'])(
     'lets the judge stop a %s',
     (eventType) => {
@@ -372,8 +371,8 @@ describe('hasJudgeStop', () => {
     expect(hasJudgeStop('NOU')).toBe(false)
   })
 
-  // The list mirrors Kennelliitto's answer, so a refreshed fixture that disagrees fails here rather
-  // than hiding a stop the format has, or offering one it has not.
+  // Kennelliitto's answer agrees with the rules on which formats have a stop, so a refreshed fixture that
+  // disagrees fails here rather than hiding a stop the format has, or offering one it has not.
   it.each([koemuotoNKM, koemuotoNOME_A, koemuotoNOME_B, koemuotoNOU, koemuotoNOWT])(
     'agrees with the keskeytys rows Kennelliitto lists for $koemuoto',
     (koemuoto) => {
