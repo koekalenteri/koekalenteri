@@ -7,7 +7,7 @@ import { typedDogFields } from '@/lib/dog'
  * the number among them, which the results send needs (KOE-1650, KOE-1674); every other section of the
  * form stays locked. Only the form reads this: the admin lambda does not enforce it.
  */
-export const TYPED_DOG_ONLY_LOCKS: ParticipantFieldLocks = {
+const TYPED_DOG_ONLY_LOCKS: ParticipantFieldLocks = {
   dog: false,
   entry: true,
   membership: true,
@@ -15,6 +15,19 @@ export const TYPED_DOG_ONLY_LOCKS: ParticipantFieldLocks = {
   people: true,
   results: true,
 }
+
+/**
+ * What the sections of the form read. After the trial they read the stored entry: they close on a
+ * missing number and key their caches by it, and a number being corrected is empty or half-typed for a
+ * while (KOE-1674). They take no change then, so the stored entry is what they would show anyway.
+ */
+export const formSections = <R>(
+  typedDogOnly: boolean | undefined,
+  locks: ParticipantFieldLocks,
+  stored: R,
+  registration: R
+): { locks: ParticipantFieldLocks; registration: R } =>
+  typedDogOnly ? { locks: TYPED_DOG_ONLY_LOCKS, registration: stored } : { locks, registration }
 
 /**
  * Of a change the form is handed, only what it may take after the trial: the dog's details the user

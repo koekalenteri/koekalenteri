@@ -594,6 +594,7 @@ describe('DogInfo', () => {
 
     vi.spyOn(dogApi, 'getDog').mockResolvedValue({
       ...registrationDogAged20MonthsAndNoResults,
+      regNo: reg.dog.regNo,
       rfid: '981000000000001',
     })
 
@@ -1071,6 +1072,83 @@ describe('DogInfo', () => {
         expect(regNoField()).toBeDisabled()
       })
     })
+  })
+
+  // A send opens when the class starts, before the entry closes. The save refuses a new number on
+  // such a row, so the field says the same (KOE-1674).
+  describe('a row Kennelliitto may hold a result for, while the entry is open (KOE-1674)', () => {
+    const sent = {
+      at: new Date('2026-11-04T10:00:00.000Z'),
+      by: 'Sihteeri',
+      payloadHash: 'h',
+      regNo: registrationWithStaticDates.dog.regNo,
+      status: 'sent' as const,
+    }
+    const regNoField = () => screen.getByRole('combobox', { name: 'dog.regNo' })
+    const refreshable = {
+      ...registrationWithStaticDates,
+      dog: { ...registrationWithStaticDates.dog, refreshDate: new Date(Date.now() - 1000 * 60 * 10) },
+      kcResult: sent,
+    }
+
+    it("locks a Kennelliitto dog's number and keeps its refresh", async () => {
+      const refreshed = { ...registrationDogAged20MonthsAndNoResults, regNo: refreshable.dog.regNo }
+      const getDog = vi.spyOn(dogApi, 'getDog').mockResolvedValue(refreshed)
+      const onRegistration = vi.fn()
+      const { user } = renderWithUserEvents(
+        <StatefulDogInfo initial={refreshable} onRegistration={onRegistration} />,
+        { wrapper: Wrapper },
+        { advanceTimers: vi.advanceTimersByTime }
+      )
+      await flushPromises()
+
+      expect(regNoField()).toBeDisabled()
+      await user.click(screen.getByRole('button', { name: 'registration.cta.update' }))
+      await flushPromises()
+
+      expect(getDog).toHaveBeenCalledWith(refreshable.dog.regNo, true)
+      expect(onRegistration).toHaveBeenLastCalledWith(
+        expect.objectContaining({
+          dog: expect.objectContaining({ name: refreshed.name, regNo: refreshable.dog.regNo }),
+        })
+      )
+    })
+
+    it("locks a typed dog's number and leaves its details open", async () => {
+      render(<StatefulDogInfo initial={{ ...typedDogRegistration, kcResult: sent }} />, { wrapper: Wrapper })
+      await flushPromises()
+
+      expect(regNoField()).toBeDisabled()
+      expect(screen.getByRole('textbox', { name: 'dog.rfid' })).toBeEnabled()
+    })
+
+    it('stays open after a refusal', async () => {
+      const kcResult = { at: sent.at, by: sent.by, errors: ['Ei löydy'], status: 'failed' as const }
+      render(<StatefulDogInfo initial={{ ...registrationWithStaticDates, kcResult }} />, { wrapper: Wrapper })
+      await flushPromises()
+
+      expect(regNoField()).toBeEnabled()
+    })
+  })
+
+  // Kennelliitto may answer with the number it has written the results for (GetDog). `refresh` gives
+  // nothing back then, and that must not take the dog from the entry.
+  it('keeps the dog when a refresh answers with another number', async () => {
+    const dog = { ...registrationWithStaticDates.dog, refreshDate: new Date(Date.now() - 1000 * 60 * 10) }
+    vi.spyOn(dogApi, 'getDog').mockResolvedValue({ ...registrationDogAged20MonthsAndNoResults, regNo: 'FI99999/20' })
+    const onRegistration = vi.fn()
+    const { user } = renderWithUserEvents(
+      <StatefulDogInfo initial={{ ...registrationWithStaticDates, dog }} onRegistration={onRegistration} />,
+      { wrapper: Wrapper },
+      { advanceTimers: vi.advanceTimersByTime }
+    )
+    await flushPromises()
+
+    await user.click(screen.getByRole('button', { name: 'registration.cta.update' }))
+    await flushPromises()
+
+    expect(onRegistration).not.toHaveBeenCalled()
+    expect(screen.getByRole('combobox', { name: 'dog.regNo' })).toHaveValue(dog.regNo)
   })
 
   it('keeps the name of a dog fetched from Kennelliitto locked', async () => {

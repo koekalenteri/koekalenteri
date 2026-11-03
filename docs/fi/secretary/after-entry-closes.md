@@ -200,9 +200,12 @@ koiran (rekisterinumeron alla lukee *{t:registration.cta.helper.typed}*) rekiste
 tunnistusmerkintä, sukupuoli, syntymäaika ja rotu jäävät kuitenkin muokattaviksi, jotta tulokset voi
 lähettää Kennelliittoon. Tunnistusmerkinnässä pitää olla mikrosirun 15 numeroa. Korjatun
 rekisterinumeron pitää olla rekisterinsä muodossa. Vain numero muuttuu eikä Kennelliitosta haeta mitään,
-joten kirjoita numero ja tallenna ilmoittautuminen. Numero lukittuu, kun koiran tulos on lähetetty
-Kennelliittoon tai lähetykseen ei tullut vastausta ja tulos voi olla siellä. Kennelliiton hylkäämä tulos
-jättää numeron auki. Kennelliitosta haetun koiran tiedot pysyvät lukittuina.
+joten kirjoita numero ja tallenna ilmoittautuminen. Kennelliitosta haetun koiran tiedot pysyvät
+lukittuina.
+
+Koiran rekisterinumero lukittuu heti, kun sen tulos on lähetetty Kennelliittoon tai lähetykseen ei tullut
+vastausta ja tulos voi olla siellä, myös kokeen vielä ollessa käynnissä. Kennelliiton hylkäämä tulos
+jättää numeron auki.
 
 ## Viesti osallistujille
 

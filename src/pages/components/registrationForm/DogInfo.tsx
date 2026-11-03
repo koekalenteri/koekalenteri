@@ -126,12 +126,13 @@ export const DogInfo = ({
   const validRegNo = validateRegNo(regNo)
   // A dog the registration holds that was typed by hand; a fresh entry or a number not found holds none.
   const holdsTypedDog = Boolean(reg?.dog?.name) && typed.details
+  // Once Kennelliitto may hold a result for the number the field locks, by the rule the save holds it
+  // by. A send opens when the class starts, so this comes before the trial is over too (KOE-1674).
+  const regNoLocked = kcMayHoldResult(reg?.kcResult)
   // After the trial a typed dog's number is corrected, not looked up: it goes to the form as it is typed
   // and nothing else of the dog changes. Mode 'update' never leaves this path, as the button is off for
-  // a dog without a refresh date, so no fetch can replace the dog. Once Kennelliitto may hold a result
-  // for the number the field locks, by the rule the save holds it by (KOE-1674).
-  const numberOnly =
-    !disabled && typedDogOnly && holdsTypedDog && state.mode === 'update' && !kcMayHoldResult(reg?.kcResult)
+  // a dog without a refresh date, so no fetch can replace the dog (KOE-1674).
+  const numberOnly = !disabled && typedDogOnly && holdsTypedDog && state.mode === 'update' && !regNoLocked
   // A number Kennelliitto does not know becomes the user's to type, so it must be in its registry's
   // form; so must a typed dog's corrected number, as it is typed. The stored one is not judged (KOE-1651).
   const regNoChanged = numberOnly ? regNo !== savedRegNo : regNoEdited
@@ -238,7 +239,9 @@ export const DogInfo = ({
       if (mode === 'autofetch' || mode === 'fetch') {
         await fetchDog(mode)
       } else if (mode === 'update') {
-        updateDog(await actions.refresh(reg.dog))
+        // Nothing back when Kennelliitto answers with another number: the entry keeps the dog it holds.
+        const refreshed = await actions.refresh(reg.dog)
+        if (refreshed) updateDog(refreshed)
       } else if (mode === 'notfound') {
         // Entering the dog by hand makes its chip the user's to type.
         onChange?.({ dog: actions.updateCache({ manual: true }).dog })
@@ -346,6 +349,7 @@ export const DogInfo = ({
           <DogSearch
             regNo={state.input}
             disabled={locked && !numberOnly}
+            regNoLocked={regNoLocked}
             disabledByMode={disabledByMode}
             validRegNo={validRegNo}
             typedRegNoError={typedRegNoError}

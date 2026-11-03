@@ -77,7 +77,7 @@ import { OwnerInfo } from './registrationForm/OwnerInfo'
 import { PayerInfo } from './registrationForm/PayerInfo'
 import PaymentInfo from './registrationForm/PaymentInfo'
 import QualifyingResultsInfo from './registrationForm/QualifyingResultsInfo'
-import { TYPED_DOG_ONLY_LOCKS, typedDogChange } from './registrationForm/typedDogOnly'
+import { formSections, typedDogChange } from './registrationForm/typedDogOnly'
 import { validateRegistration, validateTypedDog } from './registrationForm/validation'
 
 /**
@@ -173,10 +173,12 @@ export default function RegistrationForm({
   // (KOE-1588). The server decides those on its own.
   // After the trial the sections lock as a participant's would, all but the dog's typed details, and
   // only their own rules hold back saving a fix to them (KOE-1650, KOE-1674).
-  const sectionLocks = typedDogOnly ? TYPED_DOG_ONLY_LOCKS : locks
-  // The locked sections after the trial read the stored entry: they close on a missing number and key
-  // their caches by it, and a number being corrected is empty or half-typed for a while (KOE-1674).
-  const sectionRegistration = typedDogOnly ? stored : registration
+  const { locks: sectionLocks, registration: sectionRegistration } = formSections(
+    typedDogOnly,
+    locks,
+    stored,
+    registration
+  )
   const freeDisabled = disabled || typedDogOnly
   const errors = useMemo(
     () =>

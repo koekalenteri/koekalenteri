@@ -18,7 +18,7 @@ covers:
   - src/pages/admin/StartListPreviewPage.tsx
   - src/pages/admin/startListPage/**
   - src/pages/ClassStartNumbersPage.tsx
-sourceHash: e9c93e
+sourceHash: 74270f
 ---
 
 Once entry has closed, the secretary's work goes step by step: picking the participants, the
@@ -207,9 +207,11 @@ hand (the registration number says *{t:registration.cta.helper.typed}*), the reg
 marking, sex, date of birth and breed stay editable all the same, so that the results can be sent to
 the Kennel Club. The ID marking must be the microchip's 15 digits. A corrected registration number must
 be in its registry's form; only the number changes and nothing is fetched from the Kennel Club, so type
-it and save the entry. The number locks once the dog's result has gone to the Kennel Club, or a sending
-got no answer and the Kennel Club may hold the result; a result the Kennel Club refused leaves it open.
-The details of a dog fetched from the Kennel Club stay locked.
+it and save the entry. The details of a dog fetched from the Kennel Club stay locked.
+
+The registration number of any dog locks as soon as its result has gone to the Kennel Club, or a sending
+got no answer and the Kennel Club may hold the result, also while the trial is still running. A result
+the Kennel Club refused leaves the number open.
 
 ## A message to the participants
 
