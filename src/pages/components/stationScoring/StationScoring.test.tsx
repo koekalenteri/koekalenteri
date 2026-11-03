@@ -56,6 +56,78 @@ const renderScoring = (props: Partial<Parameters<typeof StationScoring>[0]> = {}
 }
 
 describe('StationScoring', () => {
+  // The server keeps what the post does not hold, so the link must not offer to change it (KOE-1615).
+  describe('an outcome on the post link', () => {
+    const post = { id: 'post-1', judges: [judge], number: 1 }
+    const nowtDog = (eventResult: object, exercise = 1, exercisePosts = ['post-1', 'post-2']) => ({
+      class: 'ALO' as const,
+      dog: { name: 'Toinen' },
+      eventResult,
+      eventType: 'NOWT',
+      group: { ...group, number: 2 },
+      id: 'run-1',
+      visit: { exercise, exercisePosts, parts: 1 as const },
+    })
+    const renderAtPost = (registrations: ReturnType<typeof nowtDog>[], ownOutcomeOnly = true) =>
+      renderScoring({ eventType: 'NOWT', ownOutcomeOnly, registrations, station: post })
+    const outcomeField = () => screen.getByLabelText('results.interruption')
+
+    it.each([
+      ["at another post's exercise", { retirement: { cause: 'injury', exercise: 2 } }],
+      ['without a place', { retirement: { cause: 'injury' } }],
+      ["at an exercise the dog's round no longer has", { retirement: { cause: 'injury', exercise: 9 } }],
+    ])('only shows one %s', async (_name, eventResult) => {
+      const user = userEvent.setup()
+      renderAtPost([nowtDog(eventResult)])
+
+      await user.click(screen.getByRole('button', { name: '2 Toinen' }))
+
+      expect(outcomeField()).toHaveAttribute('aria-disabled', 'true')
+    })
+
+    it("leaves a qualitative type's outcome to its one post", async () => {
+      const user = userEvent.setup()
+      renderScoring({
+        ownOutcomeOnly: true,
+        registrations: [{ ...dogs[0], eventResult: { retirement: { cause: 'judgeStopped' } } }],
+      })
+
+      await user.click(screen.getByRole('button', { name: '1 Ensimmainen' }))
+
+      expect(outcomeField()).not.toHaveAttribute('aria-disabled')
+    })
+
+    it("lets the secretary's post view change the same outcome", async () => {
+      const user = userEvent.setup()
+      renderAtPost([nowtDog({ retirement: { cause: 'injury', exercise: 2 } })], false)
+
+      await user.click(screen.getByRole('button', { name: '2 Toinen' }))
+
+      expect(outcomeField()).not.toHaveAttribute('aria-disabled')
+    })
+
+    it.each([0, 1])('lets a post undo its outcome from place %i of a dog it scores twice', async (place) => {
+      const posts = ['post-1', 'post-2', 'post-1']
+      const eventResult = { retirement: { cause: 'injury', exercise: 3 } }
+      const user = userEvent.setup()
+      const { onSave } = renderAtPost([nowtDog(eventResult, 1, posts), nowtDog(eventResult, 3, posts)])
+
+      await user.click(screen.getAllByRole('button', { name: /^2 Toinen · / })[place])
+      expect(outcomeField()).not.toHaveAttribute('aria-disabled')
+
+      await user.click(outcomeField())
+      await user.click(screen.getByRole('option', { name: 'results.notInterrupted' }))
+      await user.click(screen.getByRole('button', { name: 'results.save' }))
+
+      expect(onSave).toHaveBeenCalledWith(
+        expect.objectContaining({
+          eventResult: expect.objectContaining({ elimination: undefined, retirement: undefined }),
+          id: 'run-1',
+        })
+      )
+    })
+  })
+
   describe('a qualitative type', () => {
     it('asks for the result rather than points, since there is nothing to score', async () => {
       const user = userEvent.setup()

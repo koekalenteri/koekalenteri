@@ -194,6 +194,11 @@ tulokselle, tulos lähtee pisteillä 0, ja lähetysikkuna kertoo pisteet, jotka 
 pisteet, kenttä jää näkyviin ja pisteet lasketaan summaan, joten ne voi tarvittaessa poistaa. Kun
 valintana on *{t:results.outcomeAtUnknown}*, mikään rasti ei näy keskeytettynä.
 
+Suorituspaikan linkistä kirjataan ja muutetaan vain sen suorituspaikan omien rastien keskeytystä.
+Keskeytys, joka on kirjattu toisen suorituspaikan rastille, ilman rastia tai rastille, jota koiran
+suoritusjärjestyksessä ei enää ole, näkyy linkin sivulla, mutta sitä ei voi siellä muuttaa eikä linkin
+tallennus poista sitä. Sen muuttaa koesihteeri.
+
 Muissa koemuodoissa kentästä kirjataan vain *{t:results.retirement.judgeStopped}*. Tulos on sääntöjen
 mukaan nolla, ja julkaistulla listalla sen perässä on merkintä *{t:results.marks.interrupted}*. Jo
 kirjattu palkintosija ei voi saada keskeytystä rinnalleen; poista ensin tulos.

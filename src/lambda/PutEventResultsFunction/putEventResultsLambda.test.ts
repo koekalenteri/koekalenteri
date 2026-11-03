@@ -728,6 +728,33 @@ describe('putEventResultsLambda', () => {
       expect(stored.points).toBe(35)
     })
 
+    // The link's rule is the link's (KOE-1615): the secretary's post view may change any outcome.
+    it("lets the secretary's post view change an outcome stored at another post", async () => {
+      mockReadEventRegistrations.mockResolvedValue([
+        {
+          ...registration('reg-1'),
+          eventResult: {
+            retirement: { cause: 'injury', exercise: 3 },
+            tasks: [],
+            updatedAt: '2026-09-12T10:00:00.000Z',
+            updatedBy: 'Rasti 3',
+          },
+        },
+      ])
+
+      await putEventResultsLambda(
+        apiEvent([
+          {
+            eventResult: { retirement: { cause: 'illness', exercise: 3 }, tasks: [{ exercise: 1, points: 17 }] },
+            id: 'reg-1',
+            stationId: 'post-1',
+          },
+        ])
+      )
+
+      expect(savedResult().retirement).toEqual({ cause: 'illness', exercise: 3 })
+    })
+
     it('does not call two posts scoring the same dog a conflict', async () => {
       // Post 3 saved last, so the whole result is newer than anything post 1 ever saw. Versioning the
       // result rather than the post would reject post 1's first save as stale.

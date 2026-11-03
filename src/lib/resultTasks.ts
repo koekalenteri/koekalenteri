@@ -1,4 +1,5 @@
 import type {
+  EventResultElimination,
   EventResultRetirement,
   EventStation,
   JsonEventResult,
@@ -95,6 +96,22 @@ export const endedAtExercise = (
   const exercise = place?.exercise
   return exercise !== undefined && exercise <= exercisePosts.length ? exercise : undefined
 }
+
+/**
+ * Whether a round's ending is not for a post doing these exercises to set (KOE-1615): one is recorded and
+ * names none of them. That covers an ending at another post, one without a place ("Ei tiedossa"), and one
+ * at an exercise the dog's round no longer has, which a change of layout leaves behind. The last two have
+ * no post, so only the event secretary changes them.
+ */
+export const outcomeHeldElsewhere = (
+  result:
+    | { elimination?: Pick<EventResultElimination, 'exercise'>; retirement?: Pick<EventResultRetirement, 'exercise'> }
+    | undefined,
+  exercises: readonly number[]
+): boolean =>
+  [result?.elimination, result?.retirement].some(
+    (place) => place && (place.exercise === undefined || !exercises.includes(place.exercise))
+  )
 
 /**
  * Whether a dog's round ended at an exercise before this one, so the dog never reached it and it reads

@@ -150,3 +150,30 @@ it('shows kesk at an exercise the dog never reached', async () => {
   await expect.element(screen.getByText('Rasti 2, osa 1/2: kesk')).toBeVisible()
   await expect(screen.getByTestId('visual-root')).toMatchScreenshot('station-scoring-not-reached')
 })
+
+// On the post's link an outcome recorded at another post only shows: the server keeps it (KOE-1615).
+it("shows an outcome recorded at another post as not this link's to change", async () => {
+  const withdrawn = {
+    ...registrations[1],
+    eventResult: { retirement: { cause: 'handlerChoice' as const, exercise: 1 } },
+  }
+  const screen = await render(
+    <Frame>
+      <StationScoring
+        classes={eventWithStations.classes}
+        eventType="NOWT"
+        onSave={async () => ({ registrations: [], saved: [] })}
+        onTurn={async () => {}}
+        ownOutcomeOnly
+        registrations={[registrations[0], withdrawn]}
+        station={station}
+        subtitle="Tuloskoe"
+        turns={turns}
+      />
+    </Frame>
+  )
+
+  await screen.getByText('2 Toinen').click()
+  await expect.element(screen.getByText('Rasti 2, osa 1/2: kesk')).toBeVisible()
+  await expect(screen.getByTestId('visual-root')).toMatchScreenshot('station-scoring-outcome-elsewhere')
+})

@@ -10,8 +10,8 @@ import { publishRegistrationPatches } from '../lib/ws/actions'
 /**
  * Scores from the station's tokenized link. The same classification the event secretary's endpoint
  * runs, with two differences: the write is attributed to the post rather than a user, and the scope is
- * this one post — whatever the body claims, every submission is forced onto the path's station, and
- * the merge then drops any task naming another post.
+ * this one post. Whatever the body claims, every submission is forced onto the path's station, a task
+ * naming another post is refused, and an outcome the post does not hold stays as stored (KOE-1615).
  */
 const putStationEntryLambda = lambda('putStationEntry', async (event) => {
   const eventId = getParam(event, 'eventId')
@@ -20,12 +20,14 @@ const putStationEntryLambda = lambda('putStationEntry', async (event) => {
   const confirmedEvent = await getLiveEvent<JsonConfirmedEvent>(eventId)
   const station = authorizeStationEntry(event, eventId, confirmedEvent, stationId)
 
-  const submissions = parseSubmissions(event.body, confirmedEvent).map((submission) =>
-    stationScopedSubmission(submission, stationId, confirmedEvent.eventType)
-  )
-  if (submissions.length === 0) throw httpError(422, 'no results')
+  const parsed = parseSubmissions(event.body, confirmedEvent)
+  if (parsed.length === 0) throw httpError(422, 'no results')
 
   const registrations = await readEventRegistrations(eventId)
+  const registrationOf = (id: string) => registrations.find((item) => item.id === id)
+  const submissions = parsed.map((submission) =>
+    stationScopedSubmission(submission, stationId, confirmedEvent, registrationOf(submission.id))
+  )
   const { conflicts, locked, patches, saved, unchanged } = await processResultSubmissions(
     eventId,
     confirmedEvent,
@@ -40,7 +42,7 @@ const putStationEntryLambda = lambda('putStationEntry', async (event) => {
   // here, without the derived prize the whole-round data would carry.
   const { eventType } = confirmedEvent
   const exercisesOf = (id: string) => {
-    const registration = registrations.find((item) => item.id === id)
+    const registration = registrationOf(id)
     return registration ? stationExercises(confirmedEvent, registration, stationId) : []
   }
   const scope = (results: typeof saved) =>

@@ -39,6 +39,7 @@ import {
   endedBefore,
   exercisesAtPost,
   holdsScore,
+  outcomeHeldElsewhere,
   stationVersion,
   visitSlots,
 } from '@/lib/resultTasks'
@@ -95,6 +96,11 @@ interface Props {
   readonly onLocked?: () => void
   /** The save was refused because the dog is not on the trial any more: the caller reads the list again. */
   readonly onRefused?: () => void
+  /**
+   * The server keeps an outcome this post does not hold, so the control only shows it (KOE-1615). The
+   * token link's rule; the event secretary's post view may change any outcome.
+   */
+  readonly ownOutcomeOnly?: boolean
 }
 
 /**
@@ -182,6 +188,7 @@ export function StationScoring({
   lockedText,
   onLocked,
   onRefused,
+  ownOutcomeOnly = false,
 }: Props) {
   const { t } = useTranslation()
 
@@ -482,6 +489,7 @@ export function StationScoring({
           </Stack>
 
           <RoundOutcome
+            disabled={ownOutcomeOnly && !qualitative && outcomeHeldElsewhere(edit, exercisesHere(selected, station.id))}
             eventType={eventType}
             onChange={setEdit}
             places={visit ? [{ exercise: visit.exercise, stationId: station.id }] : undefined}
