@@ -128,23 +128,16 @@ describe('kennelliittoResults', () => {
     })
 
     it.each([
+      ['NKM0', event('NKM'), dog(result({ result: 'NKM0', retirement: { cause: 'judgeStopped' } })), koemuotoNKM],
       [
-        'NKM',
-        'NKM0',
-        event('NKM'),
-        dog(result({ result: 'NKM0', retirement: { cause: 'judgeStopped' } })),
-        koemuotoNKM,
-      ],
-      [
-        'NOME-B',
         'ALO0',
         event('NOME-B', { retrieveType: 'dummies' }),
         dog(result({ judge: chief, result: 'ALO0', retirement: { cause: 'judgeStopped' } }), { class: 'ALO' }),
         koemuotoNOME_B,
       ],
     ])(
-      "sends a judge's stop in %s on the rules' nought %s, not the row flagged keskeytys (KOE-1647)",
-      (_format, nought, trial, registration, koemuoto) => {
+      "sends a judge's stop as the rules' nought %s, not the dash (KOE-1647)",
+      (nought, trial, registration, koemuoto) => {
         const body = sent(buildKcResult(trial, registration, koemuoto))
         expect([body.tulos, body.keskeytetty]).toEqual([nought, true])
       }

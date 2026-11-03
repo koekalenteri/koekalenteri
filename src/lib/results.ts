@@ -359,7 +359,7 @@ export const availableResultCodes = (eventType: string): ResultCode[] =>
   PASS_FAIL_EVENT_TYPES.has(eventType) ? ['1', '0'] : ['1', '2', '3', '0', '-']
 
 /**
- * What a trial the judge stopped reads as: a nought.
+ * What a trial the judge stopped reads as: a nought, with the exceptions below.
  *
  * NOME-B §4.4 ("tuomari joutuu keskeyttämään kokeen, merkitään palkintosijan kohdalle nolla (0)") and
  * NKM §6.4 give the judge's stop the nought outright, NOWT §5.4.1 for the stops it names (injury or
