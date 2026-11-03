@@ -24,13 +24,9 @@ const putStationEntryLambda = lambda('putStationEntry', async (event) => {
   if (parsed.length === 0) throw httpError(422, 'no results')
 
   const registrations = await readEventRegistrations(eventId)
+  const registrationOf = (id: string) => registrations.find((item) => item.id === id)
   const submissions = parsed.map((submission) =>
-    stationScopedSubmission(
-      submission,
-      stationId,
-      confirmedEvent,
-      registrations.find((item) => item.id === submission.id)
-    )
+    stationScopedSubmission(submission, stationId, confirmedEvent, registrationOf(submission.id))
   )
   const { conflicts, locked, patches, saved, unchanged } = await processResultSubmissions(
     eventId,
@@ -46,7 +42,7 @@ const putStationEntryLambda = lambda('putStationEntry', async (event) => {
   // here, without the derived prize the whole-round data would carry.
   const { eventType } = confirmedEvent
   const exercisesOf = (id: string) => {
-    const registration = registrations.find((item) => item.id === id)
+    const registration = registrationOf(id)
     return registration ? stationExercises(confirmedEvent, registration, stationId) : []
   }
   const scope = (results: typeof saved) =>

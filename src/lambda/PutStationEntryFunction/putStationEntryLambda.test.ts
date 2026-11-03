@@ -387,6 +387,13 @@ describe('putStationEntryLambda', () => {
     })
   })
 
+  it('refuses a body with no results before reading the registrations', async () => {
+    await expect(putStationEntryLambda(apiEvent([]))).rejects.toMatchObject({ body: 'no results', status: 422 })
+
+    expect(mockReadEventRegistrations).not.toHaveBeenCalled()
+    expect(mockUpdateRegistrationField).not.toHaveBeenCalled()
+  })
+
   it('refuses a wrong token before touching anything', async () => {
     await expect(
       putStationEntryLambda(apiEvent([{ eventResult: { tasks: [] }, id: 'reg-1' }], 'wrong'))
