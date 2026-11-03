@@ -116,7 +116,13 @@ export default class KLAPI {
         }
         if (json) {
           const time = Number((process.hrtime.bigint() - start) / 100000n) / 10
-          logger.info('KLAPI response', { durationMs: time, path, response: json })
+          // Size only: the bodies carry phone numbers, email addresses and owners (see hashIdentity).
+          logger.info('KLAPI response', {
+            bytes: Buffer.byteLength(JSON.stringify(json)),
+            durationMs: time,
+            path,
+            rows: Array.isArray(json) ? json.length : 1,
+          })
         } else {
           error = await res.text()
           logger.error('KLAPI returned no json', { error, path, status })

@@ -1,5 +1,6 @@
 import type { KLAPIConfig } from '../types/KLAPI'
 import { vi } from 'vitest'
+import { loggedLines } from '../test-utils/logs'
 import { KLKieli } from '../types/KLAPI'
 import KLAPI from './KLAPI'
 
@@ -20,6 +21,7 @@ const respondOnce = (response: Partial<Response>) => mockFetch.mockResolvedValue
 
 describe('KLAPI', () => {
   let klapi: KLAPI
+  const infoSpy = vi.spyOn(console, 'info').mockImplementation(() => {})
 
   beforeAll(() => {
     vi.spyOn(console, 'log').mockImplementation(() => {})
@@ -302,6 +304,60 @@ describe('KLAPI', () => {
       const result = await klapi.lueKennelpiirit()
       expect(result.status).toBe(200)
       expect(result.json).toBeUndefined()
+    })
+  })
+
+  describe('response log line', () => {
+    const judge = {
+      jäsennumero: 1234,
+      kennelpiiri: 'Uusimaa',
+      koemuodot: [],
+      nimi: 'Matti Mäkinen',
+      paikkakunta: 'Espoo',
+      puhelin: '040 1234567',
+      sähköposti: 'matti.makinen@example.com',
+    }
+    const responseLines = () => loggedLines(infoSpy).filter(({ message }) => message === 'KLAPI response')
+    const sizeLine = (path: string, rows: number, bytes: number) => ({
+      bytes,
+      durationMs: expect.any(Number),
+      level: 'info',
+      message: 'KLAPI response',
+      path,
+      rows,
+    })
+
+    it('holds the size of a list, not its content', async () => {
+      const body = [judge, { ...judge, jäsennumero: 5678 }]
+      respondOnce({ json: async () => body, ok: true, status: 200 })
+
+      const result = await klapi.lueKoemuodonYlituomarit({ Kieli: KLKieli.Suomi, Koemuoto: 'NOME-B' })
+
+      expect(result.json).toEqual(body)
+      // The non-ASCII letters make the byte count differ from the string's length.
+      const bytes = Buffer.byteLength(JSON.stringify(body))
+      expect(bytes).toBeGreaterThan(JSON.stringify(body).length)
+      expect(responseLines()).toEqual([sizeLine('Koemuoto/Lue/Ylituomarit', 2, bytes)])
+      const written = JSON.stringify(responseLines())
+      expect(written).not.toContain(judge.puhelin)
+      expect(written).not.toContain(judge.sähköposti)
+    })
+
+    it('counts an object as one row', async () => {
+      const body = { nimi: 'Mäkisen Testi', rekisterinumero: 'FI12345/21' }
+      respondOnce({ json: async () => body, ok: true, status: 200 })
+
+      await klapi.lueKoiranPerustiedot({ Kieli: KLKieli.Suomi, Rekisterinumero: 'FI12345/21' })
+
+      expect(responseLines()).toEqual([sizeLine('Koira/Lue/Perustiedot', 1, Buffer.byteLength(JSON.stringify(body)))])
+    })
+
+    it('counts an empty list as no rows', async () => {
+      respondOnce({ json: async () => [], ok: true, status: 200 })
+
+      await klapi.lueKennelpiirit()
+
+      expect(responseLines()).toEqual([sizeLine('Yleista/Lue/Kennelpiirit', 0, 2)])
     })
   })
 })
