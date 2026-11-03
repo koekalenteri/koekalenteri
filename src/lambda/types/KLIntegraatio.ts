@@ -42,9 +42,9 @@ export type KLIntKoemuodonTulos = {
   hylätty: boolean
   järjestys: number
   /**
-   * The rows Kennelliitto lists as a stop: `NKM-`, NOME-A `A-` and `Kesk.`, NOWT `ALO-`/`AVO-`/`VOI-`
-   * and `Kesk.`, NOME-B only `Kesk.`. It does not constrain what Tallenna takes: a judge's stop is sent
-   * on the rules' nought with `keskeytetty: true`, which Testi2 took in every format (4.11.2026, KOE-1647).
+   * The rows Kennelliitto flags as a stop (`NKM-`, `A-`, `ALO-`/`AVO-`/`VOI-`, the `Kesk.` info row; per
+   * format in KLIntegraatio-fixtures). The flag does not constrain what Tallenna takes: see
+   * `STOPPED_RESULT_CODE` in src/lib/results.ts.
    */
   keskeytys: boolean
   /**
