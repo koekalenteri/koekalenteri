@@ -117,12 +117,13 @@ export const formatResultLine = (
 const NOWT_PRIZE_THRESHOLD_PERCENT = { 1: 80, 2: 65, 3: 50 } as const
 
 /**
- * The formats in which a judge's stop is recorded at all. This mirrors the `keskeytys` rows of
- * Kennelliitto's Koemuoto/Lue/Tulokset (src/lambda/lib/KLIntegraatio-fixtures/koemuoto-*.json): NKM,
- * NOME-A, NOME-B and NOWT list one, NOU lists only NOU1 and NOU0, so a taipumuskoe is never stopped
- * (KOE-1643). The entry screen reads this list because it has no koemuoto at hand; the write to
- * Kennelliitto still checks the live answer (`formatAllowsStop`). A format not listed here offers no
- * stop until someone adds it.
+ * The formats whose rules record a judge's stop: NOME-A §3.3.3, NOME-B §4.3.3, NOWT §5.3.5 and §1.8,
+ * NKM §6.4. NOU has none, and Kennelliitto lists only NOU1 and NOU0 for it, so a taipumuskoe is never
+ * stopped (KOE-1643). Kennelliitto's Koemuoto/Lue/Tulokset agrees: each of the four lists some
+ * `keskeytys` row (src/lambda/lib/KLIntegraatio-fixtures/koemuoto-*.json), though not the row the stop
+ * is sent on (`STOPPED_RESULT_CODE`). The entry screen reads this set because it has no koemuoto at
+ * hand; the write to Kennelliitto still checks the live answer (`formatAllowsStop`). A format not listed
+ * here offers no stop until someone adds it.
  */
 const JUDGE_STOP_FORMATS = new Set(['NKM', 'NOME-A', 'NOME-B', 'NOWT'])
 
@@ -362,11 +363,15 @@ export const availableResultCodes = (eventType: string): ResultCode[] =>
 /**
  * What a trial the judge stopped reads as: a nought.
  *
- * Every format's rules agree, so this needs no per-format answer — NOME-B §4.4 ("tuomari joutuu
+ * Every format's rules agree, so this needs no per-format answer: NOME-B §4.4 ("tuomari joutuu
  * keskeyttämään kokeen, merkitään palkintosijan kohdalle nolla (0)"), NKM §6.4 in the same words,
  * NOME-A §3.4 and NOWT §5.4.1 for the stops those name. The dash is reserved for a *handler* retiring
  * while a prize was still in reach, and in NOWT for a judge stopping over injury or illness; a judge's
  * stop on the dog's work is never the dash. A published NOME-B row reads `ALO0` with `Kesk.` beside it.
+ *
+ * The line sent to Kennelliitto follows the rules, not the row Koemuoto/Lue/Tulokset flags `keskeytys`
+ * (`NKM-`, `A-`, NOWT `ALO-`): a stop the rules give the nought goes as the nought. Omakoira takes it with
+ * `keskeytetty: true` in every format (Testi2, 4.11.2026: NKM0, ALO0, AVO0, A0 and NOME-B VOI0, KOE-1647).
  *
  * Shared by the entry screen and the write boundary so the secretary sees the line that gets stored.
  */
@@ -374,7 +379,7 @@ export const STOPPED_RESULT_CODE = '0' satisfies ResultCode
 
 /**
  * Whether a result can carry a judge's stop. The rules give the stop the nought and nothing else, so a
- * prize or a dash with `Kesk.` beside it would say two things at once — the shape the entry screen let
+ * prize or a dash with `Kesk.` beside it would say two things at once, the shape the entry screen let
  * through until Minsu found it there (KOE-1300). Nothing entered yet can carry one: the stop fills the
  * nought in.
  */

@@ -41,6 +41,11 @@ export type KLIntegraatioResult<T> = {
 export type KLIntKoemuodonTulos = {
   hylätty: boolean
   järjestys: number
+  /**
+   * The rows Kennelliitto lists as a stop: `NKM-`, NOME-A `A-` and `Kesk.`, NOWT `ALO-`/`AVO-`/`VOI-`
+   * and `Kesk.`, NOME-B only `Kesk.`. It does not constrain what Tallenna takes: a judge's stop is sent
+   * on the rules' nought with `keskeytetty: true`, which Testi2 took in every format (4.11.2026, KOE-1647).
+   */
   keskeytys: boolean
   /**
    * The point range Kennelliitto lists for the result. Omakoira does not enforce it as listed, and its

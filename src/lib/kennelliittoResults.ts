@@ -224,7 +224,12 @@ const tarkenneOf = (event: KcResultEvent, koemuoto: KcKoemuoto): { tarkenne?: st
   return tarkenne ? { tarkenne } : { problems: [{ code: 'retrieveTypeNotAllowed', detail: wanted }] }
 }
 
-/** Whether the format has any result that is a stop, which is the only place a judge's stop can go. */
+/**
+ * Whether the format lists any result as a stop, which says it records a judge's stop at all. The row
+ * that carries the stop is the rules' nought (`STOPPED_RESULT_CODE`), or NOWT's dash for injury or
+ * illness, not the row the list flags: Omakoira takes the nought with `keskeytetty: true` in every
+ * format (Testi2, 4.11.2026, KOE-1647).
+ */
 const formatAllowsStop = (koemuoto: KcKoemuoto): boolean => koemuoto.tulokset.some((row) => row.keskeytys)
 
 /**
@@ -289,7 +294,10 @@ const basicProblems = (
   return problems
 }
 
-/** The result's own problems: Kennelliitto's format does not list it, or it cannot carry the judge's stop. */
+/**
+ * The result's own problems: Kennelliitto's format does not list it, or the format has no stop at all
+ * for the judge's stop. The row need not be the one the format flags `keskeytys` (`formatAllowsStop`).
+ */
 const resultProblems = (
   registration: KcResultRegistration,
   event: KcResultEvent,

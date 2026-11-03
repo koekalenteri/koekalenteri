@@ -115,7 +115,7 @@ describe('kennelliittoResults', () => {
     })
 
     it("takes keskeytetty from the judge's stop, not from the row, which calls the NOME-A dash a stop (KOE-1669)", () => {
-      // The rows of Koe/Koemuoto mark every dash keskeytys, but a dash without a stop is the handler's
+      // Koe/Koemuoto marks the NOME-A dash keskeytys, but a dash without a stop is the handler's
       // withdrawal or a withheld laatuarvostelu, which the breeding database shows without Kesk.
       const dash = sent(buildKcResult(event('NOME-A'), dog(result({ result: 'NOME-A-' })), koemuotoNOME_A))
       const nought = sent(buildKcResult(event('NOME-A'), dog(result({ result: 'NOME-A0' })), koemuotoNOME_A))
