@@ -1,3 +1,4 @@
+import type { TextFieldProps } from '@mui/material/TextField'
 import type { ExerciseSlot } from '@/lib/resultTasks'
 import type { EliminatingFault, EventStation } from '@/types'
 import type { ResultEdit } from './types'
@@ -44,6 +45,32 @@ const RETIREMENTS = ['handlerChoice', 'injury', 'illness'] as const
 type Retirement = (typeof RETIREMENTS)[number]
 const retirementOf = (value: string): Retirement | undefined => RETIREMENTS.find((cause) => cause === value)
 
+/** The column header names a control nothing has been chosen in, so it shrinks to a dash. */
+const idleSelectProps = (name: string): TextFieldProps['slotProps'] => ({
+  // A screen reader still gets the name the visible label would have given.
+  htmlInput: { 'aria-label': name },
+  select: {
+    displayEmpty: true,
+    MenuProps: { slotProps: { paper: { sx: { minWidth: 240 } } } },
+    renderValue: () => '–',
+  },
+})
+
+/**
+ * How the control looks in a table cell: as wide as its fields, so a long label wraps instead of widening
+ * the column, and until an outcome is chosen only a dash under the column header, which names it.
+ */
+const cellLayout = (inline: boolean, outcome: string, name: string) => {
+  const idle = inline && outcome === SCORED
+
+  return {
+    cellSx: inline && !idle ? { width: 160 } : undefined,
+    fieldSx: idle ? { minWidth: 0, width: 72 } : { minWidth: 190 },
+    label: idle ? undefined : name,
+    slotProps: idle ? idleSelectProps(name) : undefined,
+  }
+}
+
 interface Props {
   readonly value: ResultEdit
   readonly disabled?: boolean
@@ -62,6 +89,11 @@ interface Props {
   /** The stored result carries a judge's stop, which stays clearable where the format has none. */
   readonly carriesStop?: boolean
   readonly onChange: (edit: ResultEdit) => void
+  /**
+   * A table cell: a round that was simply scored is the rule and an outcome the exception, so until one
+   * is picked the control is a narrow dash under its column header rather than a field of its own.
+   */
+  readonly inline?: boolean
 }
 
 /** An exercise of the dog's running order and the post it is done at. */
@@ -90,6 +122,7 @@ export const RoundOutcome = ({
   stationId,
   places,
   carriesStop = false,
+  inline = false,
   onChange,
 }: Props) => {
   const { t } = useTranslation()
@@ -146,6 +179,8 @@ export const RoundOutcome = ({
       ]
     : retirements
 
+  const layout = cellLayout(inline, outcome, t(labels.field))
+
   const handleOutcome = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
       const next = event.target.value
@@ -201,16 +236,17 @@ export const RoundOutcome = ({
   if (!asksOutcome(eventType, carriesStop)) return null
 
   return (
-    <Stack spacing={0.5}>
+    <Stack spacing={0.5} sx={layout.cellSx}>
       {/* With the stop the only thing on offer, a locked stop is a locked control; with the reasons of
           KOE-1299 beside it, only the stop's own line goes grey. */}
       <TextField
         disabled={disabled || (stopLocked && reasons.length === 0)}
-        label={t(labels.field)}
+        label={layout.label}
         onChange={handleOutcome}
         select
         size="small"
-        sx={{ minWidth: 190 }}
+        slotProps={layout.slotProps}
+        sx={layout.fieldSx}
         value={outcome}
       >
         {/* Completing the round is the default, so this reads as the absence of a note rather than an

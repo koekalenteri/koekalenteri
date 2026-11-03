@@ -1173,7 +1173,8 @@
       "placement": "Place",
       "result": "Result",
       "task": "Exercise {{number}}",
-      "taskPart": "Exercise {{number}}, part {{part}}/{{parts}}"
+      "taskPart": "Exercise {{number}}, part {{part}}/{{parts}}",
+      "team": "Team"
     },
     "conflictInfo": "These results were changed elsewhere in the meantime. Choose which one stands.",
     "conflictMine": "Yours: {{result}}",

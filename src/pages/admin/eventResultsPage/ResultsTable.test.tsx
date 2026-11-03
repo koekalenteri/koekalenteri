@@ -31,7 +31,15 @@ const registrations: Registration[] = [
   { ...second, eventResult: stored(25, 'ALO3') },
 ]
 
-const renderTable = (edits: Record<string, ResultEdit>, placements?: ReadonlyMap<string, number>) =>
+const judge = { id: 223, name: 'Tuomari 2', official: true }
+
+let judges: (typeof judge)[] = []
+
+const renderTable = (
+  edits: Record<string, ResultEdit>,
+  placements?: ReadonlyMap<string, number>,
+  rows: Registration[] = registrations
+) =>
   render(
     <ResultsTable
       defaultJudges={{}}
@@ -39,17 +47,56 @@ const renderTable = (edits: Record<string, ResultEdit>, placements?: ReadonlyMap
       eventClass="ALO"
       eventType="NOWT"
       fullRoundFor={roundOf}
-      judgesFor={() => []}
+      judgesFor={() => judges}
       onChange={() => {}}
       onJudgeChange={() => {}}
       placements={placements}
-      registrations={registrations}
+      registrations={rows}
       round={round}
       roundFor={roundOf}
       wholeRoundFor={roundOf}
       stations={eventWithStations.stations ?? []}
     />
   )
+
+describe('ResultsTable layout', () => {
+  afterEach(() => {
+    judges = []
+  })
+
+  it('names the lone judge of a post once, in the column heading, not on every row', () => {
+    judges = [judge]
+    renderTable({})
+
+    expect(screen.getAllByText(judge.name)).toHaveLength(round.length)
+    for (const heading of screen.getAllByRole('columnheader', { name: /results\.column\.task/ })) {
+      expect(heading).toHaveTextContent(judge.name)
+    }
+  })
+
+  it('leaves the headings without a judge where a post has several, since the choice is on the row', () => {
+    judges = [judge, { id: 224, name: 'Tuomari 3', official: true }]
+    renderTable({})
+
+    for (const heading of screen.getAllByRole('columnheader', { name: /results\.column\.task/ })) {
+      expect(heading).not.toHaveTextContent(/Tuomari/)
+    }
+  })
+
+  it('keeps the interruption control named for a screen reader while it is a lone dash', () => {
+    renderTable({})
+
+    expect(screen.getAllByRole('combobox', { name: /results\.(interruption|outcome)/ })).toHaveLength(2)
+  })
+
+  it('shows the registration number with the handler, without a stray separator when it is missing', () => {
+    const [withNumber, withoutNumber] = registrations
+    renderTable({}, undefined, [withNumber, { ...withoutNumber, dog: { ...withoutNumber.dog, regNo: '' } }])
+
+    expect(screen.getByText(`${withNumber.dog.regNo} · ${withNumber.handler?.name}`)).toBeInTheDocument()
+    expect(screen.getByText(`${withoutNumber.handler?.name}`)).toBeInTheDocument()
+  })
+})
 
 describe('ResultsTable placement', () => {
   it('shows a rank under the prize of each awarded dog', () => {

@@ -229,6 +229,7 @@ function ResultsTable({
           carriesStop={carriesStop(registration)}
           disabled={disabled}
           eventType={eventType}
+          inline={!compact}
           places={qualitative ? undefined : places}
           stationId={stationId}
           stations={stations}
@@ -261,6 +262,7 @@ function ResultsTable({
             key={taskKey(task)}
             name={formatTaskName(task, t)}
             notReached={notReached(task)}
+            inline={!compact}
             showName={compact}
             onChange={setTask}
             onJudgeChange={(item, judge) => {
@@ -293,19 +295,27 @@ function ResultsTable({
 
   return (
     <TableContainer component={Paper} variant="outlined">
-      <Table size="small" stickyHeader>
+      <Table size="small" stickyHeader sx={{ '& td': { py: 0.5 }, '& td, & th': { px: 1 } }}>
         <TableHead>
           <TableRow>
             <TableCell align="right">{t('results.column.number')}</TableCell>
-            <TableCell>{t('results.column.dog')}</TableCell>
-            <TableCell>{t('dog.regNo')}</TableCell>
-            <TableCell>{t('results.column.handler')}</TableCell>
+            <TableCell>{t('results.column.team')}</TableCell>
             {qualitative && <TableCell>{t('results.judge')}</TableCell>}
-            {round.map((task) => (
-              <TableCell align="center" key={columnKey(task)}>
-                {columnName(task)}
-              </TableCell>
-            ))}
+            {round.map((task) => {
+              const [only, ...others] = judgesFor(task.stationId)
+
+              return (
+                <TableCell align="center" key={columnKey(task)}>
+                  {columnName(task)}
+                  {/* A post's lone judge is the same on every row, so it is said once, here. */}
+                  {only && others.length === 0 && (
+                    <Typography component="div" variant="caption" sx={{ color: 'text.secondary', fontWeight: 400 }}>
+                      {only.name}
+                    </Typography>
+                  )}
+                </TableCell>
+              )
+            })}
             {/* An entered result comes first, since whether a stop can stand depends on it; a derived one
                 sums the row up and closes it. */}
             {qualitative && <TableCell>{t('results.column.result')}</TableCell>}
@@ -321,9 +331,12 @@ function ResultsTable({
             return (
               <TableRow hover key={registration.id}>
                 <TableCell align="right">{getRegistrationPlacement(registration)?.number}</TableCell>
-                <TableCell>{registration.dog.name}</TableCell>
-                <TableCell>{registration.dog.regNo}</TableCell>
-                <TableCell>{registration.handler?.name}</TableCell>
+                <TableCell sx={{ minWidth: 260 }}>
+                  {registration.dog.name}
+                  <Typography component="div" variant="body2" sx={{ color: 'text.secondary' }}>
+                    {[registration.dog.regNo, registration.handler?.name].filter(Boolean).join(' · ')}
+                  </Typography>
+                </TableCell>
                 {qualitative && <TableCell>{controls.judge}</TableCell>}
                 {controls.tasks.map((task, index) => (
                   <TableCell align="center" key={columnKey(round[index])}>
