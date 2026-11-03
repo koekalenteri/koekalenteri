@@ -41,6 +41,11 @@ export type KLIntegraatioResult<T> = {
 export type KLIntKoemuodonTulos = {
   hylätty: boolean
   järjestys: number
+  /**
+   * The rows Kennelliitto flags as a stop (`NKM-`, `A-`, `ALO-`/`AVO-`/`VOI-`, the `Kesk.` info row; per
+   * format in KLIntegraatio-fixtures). The flag does not constrain what Tallenna takes: see
+   * `STOPPED_RESULT_CODE` in src/lib/results.ts.
+   */
   keskeytys: boolean
   /**
    * The point range Kennelliitto lists for the result. Omakoira does not enforce it as listed, and its

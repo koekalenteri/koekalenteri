@@ -31,6 +31,7 @@ import {
   holdsScore,
   isRecordedTask,
   mergeStationTasks,
+  outcomeHeldElsewhere,
   reconcileRoundTasks,
   roundsDiffer,
   sameStationTasks,
@@ -347,20 +348,48 @@ export const parseSubmissions = (body: string | null, confirmedEvent: JsonConfir
   return submissions
 }
 
+type RoundOutcomes = Pick<SubmittedEventResult, 'elimination' | 'retirement'>
+
 /**
- * What a tokenized station link may write: its post's scores and the round-ending outcome. The
- * whole-round fields, cert and notes, are the event secretary's, and are
- * dropped here the same way the merge drops tasks of the exercises done at other posts. Except where there is no
- * round to score: a qualitative type's post *is* the whole trial, and its recording is the judge's
- * decision and who made it, so those two go through.
+ * The outcome a post's save leaves on a round scored at posts (KOE-1615). A post sets, changes or clears
+ * an outcome at its own exercises. Where the stored one or the submitted one is held elsewhere
+ * (`outcomeHeldElsewhere`) the stored pair stands, or none: the save's scores still go in, and a page
+ * echoing an outcome the secretary has since cleared saves without it.
+ */
+const postOutcomes = (
+  submitted: RoundOutcomes,
+  stored: RoundOutcomes | undefined,
+  exercises: readonly number[]
+): RoundOutcomes =>
+  outcomeHeldElsewhere(stored, exercises) || outcomeHeldElsewhere(submitted, exercises) ? (stored ?? {}) : submitted
+
+/** Where a qualitative type's post is the whole trial, its outcome is at that post, whatever the body claims. */
+const atPost = (outcomes: RoundOutcomes, stationId: string): RoundOutcomes => ({
+  ...(outcomes.elimination ? { elimination: { ...outcomes.elimination, stationId } } : {}),
+  ...(outcomes.retirement ? { retirement: { ...outcomes.retirement, stationId } } : {}),
+})
+
+/**
+ * What a tokenized station link may write: its post's scores and the outcome that ended the round, where
+ * it is the post's own (`postOutcomes`). The event secretary's endpoint shares the classification but not
+ * this rule, and may change any outcome. The whole-round fields, cert and notes, are the secretary's, and
+ * are dropped here the same way the merge drops tasks of the exercises done at other posts. Except where
+ * there is no round to score: a qualitative type's post *is* the whole trial, and its recording is the
+ * judge's decision and who made it, so those two go through. A registration not on the event is left for
+ * the classification to refuse.
  */
 export const stationScopedSubmission = (
   submission: ResultSubmission,
   stationId: string,
-  eventType: string
+  confirmedEvent: JsonConfirmedEvent,
+  registration: JsonRegistration | undefined
 ): ResultSubmission => {
-  const { elimination, retirement, tasks, resultCode, judge } = submission.eventResult
-  const qualitative = !scoresAtPosts(eventType)
+  const { tasks, resultCode, judge } = submission.eventResult
+  const qualitative = !scoresAtPosts(confirmedEvent.eventType)
+  const exercises = registration && !qualitative ? stationExercises(confirmedEvent, registration, stationId) : []
+  const { elimination, retirement } = qualitative
+    ? atPost(submission.eventResult, stationId)
+    : postOutcomes(submission.eventResult, registration?.eventResult, exercises)
 
   return {
     eventResult: {

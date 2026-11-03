@@ -168,6 +168,232 @@ describe('putStationEntryLambda', () => {
     })
   })
 
+  describe('the outcome that ended the round (KOE-1615)', () => {
+    const at = '2026-09-12T08:00:00.000Z'
+    const post2 = { date: '2026-09-12', id: 'post-2', number: 2 }
+    const version = { updatedAt: at, updatedBy: 'x' }
+    const stored = (eventResult: object) =>
+      mockReadEventRegistrations.mockResolvedValue([{ ...registration('reg-1'), eventResult }])
+    /** A save by post 2, which without a running order of its own is exercise 2. */
+    const saveAtPost2 = (eventResult: object, basedOn?: string) => {
+      mockGetParam.mockImplementation((_event, name: string) => (name === 'eventId' ? 'event-1' : 'post-2'))
+      return putStationEntryLambda(
+        apiEvent(
+          [{ ...(basedOn ? { basedOn } : {}), eventResult, id: 'reg-1' }],
+          getStationEntryToken('event-1', post2)
+        )
+      )
+    }
+    const written = (fields: object) =>
+      expect(mockUpdateRegistrationField).toHaveBeenCalledWith(
+        'event-1',
+        'reg-1',
+        'eventResult',
+        expect.objectContaining(fields)
+      )
+
+    const elsewhere = [
+      ['elimination', { elimination: { exercise: 1, fault: 'hardMouth' } }],
+      ['retirement', { retirement: { cause: 'injury', exercise: 1 } }],
+    ] as const
+
+    it.each(elsewhere)(
+      "keeps another post's %s when a post saves its scores and no outcome",
+      async (_name, outcome) => {
+        stored({ tasks: [], ...version, ...outcome })
+
+        await saveAtPost2({ tasks: [{ exercise: 2, points: 15 }] })
+
+        written({ ...outcome, tasks: [expect.objectContaining({ exercise: 2, points: 15 })] })
+        expect(mockResponse).toHaveBeenCalledWith(200, expect.anything(), expect.anything())
+      }
+    )
+
+    it.each(elsewhere)("keeps another post's %s when a post sends an outcome of its own", async (_name, outcome) => {
+      stored({ tasks: [], ...version, ...outcome })
+
+      await saveAtPost2({ retirement: { cause: 'handlerChoice', exercise: 2 }, tasks: [{ exercise: 2, points: 15 }] })
+
+      written(outcome)
+      expect(mockUpdateRegistrationField).not.toHaveBeenCalledWith(
+        'event-1',
+        'reg-1',
+        'eventResult',
+        expect.objectContaining({ retirement: expect.objectContaining({ cause: 'handlerChoice' }) })
+      )
+    })
+
+    it("reads a retry without the outcome as already stored, when the outcome is another post's", async () => {
+      const outcome = { retirement: { cause: 'injury', exercise: 1 } }
+      stored({ tasks: [{ exercise: 2, part: 0, points: 15, ...version }], ...version, ...outcome })
+
+      await saveAtPost2({ tasks: [{ exercise: 2, points: 15 }] }, at)
+
+      expect(mockUpdateRegistrationField).not.toHaveBeenCalled()
+      expect(mockResponse).toHaveBeenCalledWith(
+        200,
+        expect.objectContaining({ saved: [], unchanged: [expect.objectContaining({ id: 'reg-1' })] }),
+        expect.anything()
+      )
+    })
+
+    it('answers a conflict with the kept outcome rather than a cleared one', async () => {
+      const outcome = { retirement: { cause: 'injury', exercise: 1 } }
+      stored({ tasks: [{ exercise: 2, part: 0, points: 12, ...version }], ...version, ...outcome })
+
+      await saveAtPost2({ tasks: [{ exercise: 2, points: 15 }] }, 'stale')
+
+      expect(mockUpdateRegistrationField).not.toHaveBeenCalled()
+      expect(mockResponse).toHaveBeenCalledWith(
+        409,
+        expect.objectContaining({
+          conflicts: [
+            expect.objectContaining({
+              stored: expect.objectContaining(outcome),
+              submitted: expect.objectContaining(outcome),
+            }),
+          ],
+        }),
+        expect.anything()
+      )
+    })
+
+    it('keeps an outcome stored without a place, which no post recorded', async () => {
+      const outcome = { retirement: { cause: 'injury' } }
+      stored({ tasks: [], ...version, ...outcome })
+
+      await saveAtPost2({ tasks: [{ exercise: 2, points: 15 }] })
+
+      written(outcome)
+    })
+
+    it('lets a post clear the outcome at its own exercise', async () => {
+      stored({ tasks: [], ...version, retirement: { cause: 'injury', exercise: 2 } })
+
+      await saveAtPost2({ tasks: [{ exercise: 2, points: 15 }] })
+
+      expect(mockUpdateRegistrationField).toHaveBeenCalledTimes(1)
+      expect(mockUpdateRegistrationField).not.toHaveBeenCalledWith(
+        'event-1',
+        'reg-1',
+        'eventResult',
+        expect.objectContaining({ retirement: expect.anything() })
+      )
+    })
+
+    it('lets a post change the outcome at its own exercise', async () => {
+      stored({ tasks: [], ...version, retirement: { cause: 'injury', exercise: 2 } })
+
+      await saveAtPost2({ retirement: { cause: 'illness', exercise: 2 }, tasks: [] })
+
+      written({ retirement: { cause: 'illness', exercise: 2 } })
+    })
+
+    const noOutcome = (call: object) =>
+      expect(mockUpdateRegistrationField).not.toHaveBeenCalledWith(
+        'event-1',
+        'reg-1',
+        'eventResult',
+        expect.objectContaining(call)
+      )
+
+    it.each([
+      ["another post's exercise", { elimination: { exercise: 1, fault: 'hardMouth' } }],
+      ["another post's exercise, as a retirement", { retirement: { cause: 'injury', exercise: 1 } }],
+      ['no exercise', { retirement: { cause: 'injury' } }],
+    ])(
+      'saves the scores without an outcome naming %s, as a page echoing a cleared one does',
+      async (_name, outcome) => {
+        await saveAtPost2({ ...outcome, tasks: [{ exercise: 2, points: 15 }] })
+
+        written({ tasks: [expect.objectContaining({ exercise: 2, points: 15 })] })
+        noOutcome({ elimination: expect.anything() })
+        noOutcome({ retirement: expect.anything() })
+      }
+    )
+
+    it("keeps the post's own outcome when the body names another post's", async () => {
+      const own = { retirement: { cause: 'injury', exercise: 2 } }
+      stored({ tasks: [], ...version, ...own })
+
+      await saveAtPost2({ retirement: { cause: 'illness', exercise: 1 }, tasks: [{ exercise: 2, points: 15 }] })
+
+      written(own)
+    })
+
+    it("keeps an outcome at an exercise the dog's round no longer has", async () => {
+      const gone = { retirement: { cause: 'injury', exercise: 9 } }
+      stored({ tasks: [], ...version, ...gone })
+
+      await saveAtPost2({ tasks: [{ exercise: 2, points: 15 }] })
+
+      written(gone)
+    })
+
+    it('ignores an outcome for a dog whose group does not come to this post', async () => {
+      const elsewhereOnly = {
+        ...confirmedEvent,
+        rotations: [{ class: 'AVO', exercises: [{ stationId: 'post-1' }] }],
+      }
+      mockGetLiveEvent.mockResolvedValue(elsewhereOnly)
+      mockGetEvent.mockResolvedValue(elsewhereOnly)
+
+      await saveAtPost2({ retirement: { cause: 'injury', exercise: 1 }, tasks: [] })
+
+      expect(mockUpdateRegistrationField).not.toHaveBeenCalled()
+      expect(mockResponse).toHaveBeenCalledWith(
+        200,
+        expect.objectContaining({ saved: [], unchanged: [expect.objectContaining({ id: 'reg-1' })] }),
+        expect.anything()
+      )
+    })
+
+    it('still refuses a dog that did not run as such, rather than as a stale page', async () => {
+      mockReadEventRegistrations.mockResolvedValue([{ ...registration('reg-1'), cancelled: true }])
+
+      await expect(saveAtPost2({ retirement: { cause: 'injury', exercise: 1 }, tasks: [] })).rejects.toThrow(
+        'did not run'
+      )
+    })
+
+    describe('a qualitative type', () => {
+      const nomeB = asJsonConfirmedEvent({
+        classes: [],
+        eventType: 'NOME-B',
+        id: 'event-1',
+        organizer: { id: 'org-1', name: 'Org' },
+        startDate: '2026-09-12',
+      })
+
+      it("places the outcome at the path's post, whatever the body claims", async () => {
+        mockGetLiveEvent.mockResolvedValue(nomeB)
+        mockGetEvent.mockResolvedValue(nomeB)
+        mockGetParam.mockImplementation((_event, name: string) => (name === 'eventId' ? 'event-1' : '1'))
+
+        await putStationEntryLambda(
+          apiEvent(
+            [
+              {
+                eventResult: { resultCode: '0', retirement: { cause: 'judgeStopped', stationId: 'elsewhere' } },
+                id: 'reg-1',
+              },
+            ],
+            getStationEntryToken('event-1', { id: '1' })
+          )
+        )
+
+        written({ retirement: { cause: 'judgeStopped', stationId: '1' } })
+      })
+    })
+  })
+
+  it('refuses a body with no results before reading the registrations', async () => {
+    await expect(putStationEntryLambda(apiEvent([]))).rejects.toMatchObject({ body: 'no results', status: 422 })
+
+    expect(mockReadEventRegistrations).not.toHaveBeenCalled()
+    expect(mockUpdateRegistrationField).not.toHaveBeenCalled()
+  })
+
   it('refuses a wrong token before touching anything', async () => {
     await expect(
       putStationEntryLambda(apiEvent([{ eventResult: { tasks: [] }, id: 'reg-1' }], 'wrong'))
