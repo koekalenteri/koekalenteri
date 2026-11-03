@@ -18,7 +18,7 @@ interface Props {
   readonly registrationId: string
   /**
    * A trial that is over: the entry stays readable but not editable (KOE-1388), all but the dog's
-   * details typed by hand, which the results send needs (KOE-1650).
+   * details typed by hand, its number among them, which the results send needs (KOE-1650, KOE-1674).
    */
   readonly typedDogOnly?: boolean
 }

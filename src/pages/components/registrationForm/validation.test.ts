@@ -14,7 +14,7 @@ import { addDays, dayOf, TIME_ZONE } from '@/lib/day'
 import { latestDobForAge } from '@/lib/dog'
 import { filterRelevantResults, objectContains } from '@/lib/qualification'
 import { describeInTimeZone } from '@/test-utils/timeZone'
-import { validateDog, validateRegistration } from './validation'
+import { validateDog, validateRegistration, validateTypedDog } from './validation'
 
 const testDog: Dog = {
   breedCode: '122',
@@ -1731,5 +1731,41 @@ describe('validation', () => {
       // @ts-expect-error unknown field
       expect(result.some((e) => e.opts?.field === 'anotherUnknown')).toBe(false)
     })
+  })
+})
+
+describe('validateTypedDog', () => {
+  const chip = '985120012345678'
+  const reg = (dog: Partial<Dog>) => ({ ...registrationWithStaticDates, dog: { ...testDog, rfid: chip, ...dog } })
+  const regNoError = (type: string) => ({ key: 'regNo', opts: { field: 'dog', type } })
+
+  it('does not judge the number the entry is stored with, whatever its form', () => {
+    expect(validateTypedDog(reg({ regNo: 'EST03101/26' }), 'EST03101/26')).toEqual([])
+  })
+
+  it('judges a corrected number by its registry form', () => {
+    expect(validateTypedDog(reg({ regNo: 'EST03101/26' }), 'EST-03101/25')).toEqual([regNoError('EST')])
+    expect(validateTypedDog(reg({ regNo: 'EST-03101/26' }), 'EST-03101/25')).toEqual([])
+  })
+
+  it('refuses an emptied number', () => {
+    expect(validateTypedDog(reg({ regNo: '' }), 'EST-03101/25')).toEqual([regNoError('invalid')])
+  })
+
+  it('names the number and the chip when both are wrong', () => {
+    expect(validateTypedDog(reg({ regNo: '', rfid: '1' }), 'EST-03101/25')).toEqual([
+      regNoError('invalid'),
+      { key: 'microchip', opts: { field: 'dog' } },
+    ])
+  })
+
+  it('does not judge the number of a dog from Kennelliitto', () => {
+    expect(validateTypedDog(reg({ refreshDate: new Date('2026-06-01'), regNo: 'EST03101/26' }), 'X')).toEqual([])
+  })
+
+  it('has nothing to judge without a dog', () => {
+    const { dog: _dog, ...noDog } = registrationWithStaticDates
+    // @ts-expect-error a row without a dog, which the type does not know
+    expect(validateTypedDog(noDog)).toEqual([])
   })
 })

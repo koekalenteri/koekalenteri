@@ -196,10 +196,13 @@ jälkeenkin. Ilmoittautuja voi maksaa saman viikon ajan; sen jälkeen maksua ei 
 ## Koiran tietojen korjaus kokeen jälkeen
 
 Kun koe on ohi tai luokka on arvosteltu, ilmoittautuminen aukeaa vain luettavaksi. Käsin syötetyn
-koiran (rekisterinumeron alla lukee *{t:registration.cta.helper.typed}*) tunnistusmerkintä,
-sukupuoli, syntymäaika ja rotu jäävät kuitenkin muokattaviksi, jotta tulokset voi lähettää
-Kennelliittoon. Tunnistusmerkinnässä pitää olla mikrosirun 15 numeroa. Kennelliitosta haetun koiran
-tiedot pysyvät lukittuina.
+koiran (rekisterinumeron alla lukee *{t:registration.cta.helper.typed}*) rekisterinumero,
+tunnistusmerkintä, sukupuoli, syntymäaika ja rotu jäävät kuitenkin muokattaviksi, jotta tulokset voi
+lähettää Kennelliittoon. Tunnistusmerkinnässä pitää olla mikrosirun 15 numeroa. Korjatun
+rekisterinumeron pitää olla rekisterinsä muodossa. Vain numero muuttuu eikä Kennelliitosta haeta mitään,
+joten kirjoita numero ja tallenna ilmoittautuminen. Numero lukittuu, kun koiran tulos on lähetetty
+Kennelliittoon tai lähetykseen ei tullut vastausta ja tulos voi olla siellä. Kennelliiton hylkäämä tulos
+jättää numeron auki. Kennelliitosta haetun koiran tiedot pysyvät lukittuina.
 
 ## Viesti osallistujille
 

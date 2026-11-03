@@ -91,7 +91,8 @@ export default function EventViewPage() {
   const { eventClasses, stateByClass, missingClasses } = useAdminEventRegistrationInfo(event, allRegistrations)
   // The entry stays readable after its class has been judged, but not editable; the class the entry
   // sits in decides, the same way the list's own actions are gated (KOE-1388). What was typed of a
-  // dog entered by hand stays the secretary's to fix for the results send (KOE-1650).
+  // dog entered by hand stays the secretary's to fix for the results send, the number too until
+  // Kennelliitto may hold a result for it (KOE-1650, KOE-1674).
   const entryEditingClosed = useMemo(() => {
     if (!event) return false
     const registrationClass = selectedRegistration ? getRegistrationClass(selectedRegistration) : undefined

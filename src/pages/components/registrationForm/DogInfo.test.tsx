@@ -34,12 +34,13 @@ function Wrapper(props: { readonly children?: ReactNode }) {
 interface StatefulProps {
   readonly initial?: DeepPartial<Registration>
   readonly typedDogOnly?: boolean
+  readonly savedRegNo?: string
   /** Hears the registration after every change, as the form would hold it. */
   readonly onRegistration?: (reg: DeepPartial<Registration>) => void
 }
 
 /** The section with its registration kept as the form keeps it, so a change reaches the next render. */
-function StatefulDogInfo({ initial = {}, typedDogOnly, onRegistration }: StatefulProps) {
+function StatefulDogInfo({ initial = {}, typedDogOnly, savedRegNo, onRegistration }: StatefulProps) {
   const [reg, setReg] = useState<DeepPartial<Registration>>(initial)
   return (
     <DogInfo
@@ -48,6 +49,7 @@ function StatefulDogInfo({ initial = {}, typedDogOnly, onRegistration }: Statefu
       minDogAgeMonths={15}
       orgId="test"
       typedDogOnly={typedDogOnly}
+      savedRegNo={savedRegNo}
       onChange={(changes, replace) =>
         setReg((prev) => {
           const next = replace ? { ...prev, ...changes } : merge(prev, changes)
@@ -936,6 +938,138 @@ describe('DogInfo', () => {
       await flushPromises()
 
       expect(screen.getByLabelText('dog.name')).toBeDisabled()
+    })
+
+    describe('its number after the trial (KOE-1674)', () => {
+      const saved = 'EST-03101/26'
+      const afterTrial = (
+        initial: DeepPartial<Registration> = typedDogRegistration,
+        onRegistration?: (reg: DeepPartial<Registration>) => void
+      ) =>
+        renderWithUserEvents(
+          <StatefulDogInfo initial={initial} typedDogOnly savedRegNo={saved} onRegistration={onRegistration} />,
+          { wrapper: Wrapper },
+          { advanceTimers: vi.advanceTimersByTime }
+        )
+      const regNoField = () => screen.getByRole('combobox', { name: 'dog.regNo' })
+      const cacheEntry = (regNo: string, dog: DeepPartial<Registration>['dog'], manual = false) =>
+        localStorage.setItem('dog-cache', JSON.stringify({ [regNo]: { dog, manual } }))
+
+      it('takes a number from the list as the number alone', async () => {
+        cacheEntry('EST-03101/25', { name: 'KENNELLIITON KOIRA', regNo: 'EST-03101/25' })
+        const getDog = vi.spyOn(dogApi, 'getDog')
+        const onRegistration = vi.fn()
+        const { user } = afterTrial(typedDogRegistration, onRegistration)
+        await flushPromises()
+
+        await user.clear(regNoField())
+        await user.type(regNoField(), 'EST-03101/2')
+        await user.click(await screen.findByRole('option', { name: 'EST-03101/25' }))
+        await flushPromises()
+
+        expect(regNoField()).toHaveValue('EST-03101/25')
+        expect(getDog).not.toHaveBeenCalled()
+        expect(onRegistration).toHaveBeenLastCalledWith({
+          ...typedDogRegistration,
+          dog: { ...typedDogRegistration.dog, regNo: 'EST-03101/25' },
+        })
+      })
+
+      it('writes no cache, and a chip fixed after it stays apart from the dog cached under the number', async () => {
+        const kcDog = { name: 'KENNELLIITON KOIRA', regNo: 'EST-03101/25', rfid: '111111111111111' }
+        cacheEntry('EST-03101/25', kcDog)
+        const before = localStorage.getItem('dog-cache')
+        const onRegistration = vi.fn()
+        const { user } = afterTrial(typedDogRegistration, onRegistration)
+        await flushPromises()
+
+        await user.clear(regNoField())
+        await user.type(regNoField(), 'EST-03101/25')
+        await flushPromises()
+        const rfid = screen.getByRole('textbox', { name: 'dog.rfid' })
+        await user.clear(rfid)
+        await user.type(rfid, '985120012345678')
+        await runAllTimers()
+        await flushPromises()
+
+        expect(localStorage.getItem('dog-cache')).toBe(before)
+        expect(onRegistration).toHaveBeenLastCalledWith(
+          expect.objectContaining({
+            dog: expect.objectContaining({
+              name: typedDogRegistration.dog?.name,
+              regNo: 'EST-03101/25',
+              rfid: '985120012345678',
+            }),
+          })
+        )
+      })
+
+      it('judges only a number other than the stored one', async () => {
+        const stored = merge(typedDogRegistration, { dog: { regNo: 'EST03101/26' } })
+        render(<StatefulDogInfo initial={stored} typedDogOnly savedRegNo="EST03101/26" />, { wrapper: Wrapper })
+        await flushPromises()
+
+        expect(regNoField()).toBeEnabled()
+        expect(regNoField()).toHaveAttribute('aria-invalid', 'false')
+      })
+
+      it.each([
+        [
+          'an accepted send',
+          { at: new Date('2026-11-04T10:00:00.000Z'), by: 'Sihteeri', payloadHash: 'h', status: 'sent' as const },
+        ],
+        [
+          'a send with no answer',
+          { at: new Date('2026-11-04T10:00:00.000Z'), by: 'Sihteeri', status: 'failed' as const },
+        ],
+      ])('locks after %s', async (_state, kcResult) => {
+        afterTrial({ ...typedDogRegistration, kcResult })
+        await flushPromises()
+
+        expect(regNoField()).toBeDisabled()
+      })
+
+      it('stays open after a refusal, which the correction may fix', async () => {
+        afterTrial({
+          ...typedDogRegistration,
+          kcResult: {
+            at: new Date('2026-11-04T10:00:00.000Z'),
+            by: 'Sihteeri',
+            errors: ['Ei löydy'],
+            status: 'failed' as const,
+          },
+        })
+        await flushPromises()
+
+        expect(regNoField()).toBeEnabled()
+      })
+
+      it('stays locked on a row without a number, which would start a lookup', async () => {
+        afterTrial(merge(typedDogRegistration, { dog: { regNo: '' } }))
+        await flushPromises()
+
+        expect(regNoField()).toBeDisabled()
+        expect(screen.getByRole('button', { name: 'registration.cta.fetch' })).toBeDisabled()
+      })
+
+      it('stays locked on a form closed altogether', async () => {
+        render(
+          <DogInfo
+            reg={typedDogRegistration}
+            eventDate={eventDate}
+            minDogAgeMonths={15}
+            orgId="test"
+            disabled
+            typedDogOnly
+          />,
+          {
+            wrapper: Wrapper,
+          }
+        )
+        await flushPromises()
+
+        expect(regNoField()).toBeDisabled()
+      })
     })
   })
 
