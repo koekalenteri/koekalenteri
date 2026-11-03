@@ -1,4 +1,5 @@
 import type { CreatePaymentResponse, Language, PublicConfirmedEvent } from '../types'
+import CssBaseline from '@mui/material/CssBaseline'
 import { ThemeProvider } from '@mui/material/styles'
 import { Provider } from 'jotai'
 import { MemoryRouter } from 'react-router'
@@ -58,6 +59,20 @@ const event = {
 
 const registration = withPaymentPicture(event, { ...unpaidRegistrationWithStaticDatesAndClass, totalAmount: 50 })
 
+/** A second payment for the dog: the row is marked and keeps the amounts it had. */
+const chargedTwice = withPaymentPicture(event, { ...registration, paymentStatus: 'DUPLICATE' as const })
+
+interface RenderOptions {
+  /**
+   * The box model index.tsx gives the app: without it the page's padding runs past the frame and cuts
+   * off a sentence that fills the line.
+   */
+  readonly appBoxModel?: boolean
+  readonly paytrailError?: string
+  readonly responseStatus?: number
+  readonly row?: typeof registration
+}
+
 /**
  * The page at a screen's width. The payer sees the page in the language they entered in -- the page
  * switches to the registration's language itself -- so that is where the language goes.
@@ -65,20 +80,20 @@ const registration = withPaymentPicture(event, { ...unpaidRegistrationWithStatic
 const renderAt = async (
   { height, width }: { height: number; width: number },
   language: Language = 'fi',
-  responseStatus?: number,
-  paytrailError?: string
+  { appBoxModel, paytrailError, responseStatus, row = registration }: RenderOptions = {}
 ) => {
   await page.viewport(width, height)
 
   return render(
     <ThemeProvider theme={theme}>
+      {appBoxModel ? <CssBaseline /> : null}
       <div data-testid="visual-root" style={{ background: '#fff', width }}>
         <Provider>
           <MemoryRouter>
             <PaymentPageWithData
-              registrationId={registration.id}
+              registrationId={row.id}
               event={event as PublicConfirmedEvent}
-              registration={{ ...registration, language }}
+              registration={{ ...row, language }}
               response={responseStatus ? undefined : response}
               responseStatus={responseStatus}
               paytrailError={paytrailError}
@@ -111,7 +126,7 @@ it('wraps the payment method groups on a phone', async () => {
 // A notice in place of the methods: the sentence keeps its size, and the page's title above it is for
 // a screen reader only, so the notice is not announced as the page's name (KOE-1506).
 it('tells the payer the registration is already paid', async () => {
-  const screen = await renderAt(DESKTOP, 'fi', 204)
+  const screen = await renderAt(DESKTOP, 'fi', { responseStatus: 204 })
 
   await expect.element(screen.getByText('Ilmoittautuminen on jo maksettu')).toBeVisible()
   await expect.element(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Ilmoittautumisen maksu')
@@ -119,12 +134,22 @@ it('tells the payer the registration is already paid', async () => {
   await expect(screen.getByTestId('visual-root')).toMatchScreenshot('payment-page-already-paid')
 })
 
+// The longest of the notices, in the same h2 size, on the 409 a payment charged twice gets (KOE-1528).
+it('tells the payer a payment charged twice goes back through the secretary', async () => {
+  const screen = await renderAt(DESKTOP, 'fi', { appBoxModel: true, responseStatus: 409, row: chargedTwice })
+
+  const notice =
+    'Maksu veloitettiin sen jälkeen, kun koiran toinen ilmoittautuminen oli jo maksettu. Ota yhteyttä koesihteeriin maksun palauttamiseksi.'
+  await expect.element(screen.getByText(notice)).toBeVisible()
+  await expect(screen.getByTestId('visual-root')).toMatchScreenshot('payment-page-duplicate')
+})
+
 /** Paytrail's own JSON answer to a payment it would not create. */
 const PAYTRAIL_REFUSAL = JSON.stringify({ message: 'Validation failed', status: 'error' })
 
 // Paytrail's refusal, with its status and words, in the payer's language (KOE-1513).
 it('tells the payer Paytrail refused the payment', async () => {
-  const screen = await renderAt(DESKTOP, 'fi', 400, PAYTRAIL_REFUSAL)
+  const screen = await renderAt(DESKTOP, 'fi', { paytrailError: PAYTRAIL_REFUSAL, responseStatus: 400 })
 
   const notice = 'Maksun luonti epäonnistui Paytrailissa (400): Validation failed'
   await expect.element(screen.getByText(notice)).toBeVisible()
@@ -134,7 +159,7 @@ it('tells the payer Paytrail refused the payment', async () => {
 // The guide's English page shows the page in English (KOE-1437).
 describeInLanguage('en', () => {
   it('tells the payer Paytrail refused the payment', async () => {
-    const screen = await renderAt(DESKTOP, 'en', 400, PAYTRAIL_REFUSAL)
+    const screen = await renderAt(DESKTOP, 'en', { paytrailError: PAYTRAIL_REFUSAL, responseStatus: 400 })
 
     const notice = 'Payment could not be created at Paytrail (400): Validation failed'
     await expect.element(screen.getByText(notice)).toBeVisible()

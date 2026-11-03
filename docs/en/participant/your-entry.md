@@ -11,7 +11,7 @@ covers:
   - src/pages/components/RegistrationEventInfo.tsx
   - src/pages/components/RegistrationForm.tsx
   - src/lib/registration.ts
-sourceHash: 08a68b
+sourceHash: 90343f
 ---
 
 The link in your confirmation email opens your entry's own page, headed **{t:entryList}**. The
@@ -34,7 +34,7 @@ and what stage your entry is at.
 | Line | What it can say |
 | --- | --- |
 | priority | *{t:registration.priority.hasPriority}* or *{t:registration.priority.noPriority}* — the grounds for priority are in the trial's details |
-| payment | *{t:paymentStatus.success}*, *{t:paymentStatus.missing}*, *{t:paymentStatus.waitingForConfirmation}*, *{t:paymentStatus.pending}*, *{t:paymentStatus.refunded}* or *{t:paymentStatus.notCharged}*; when part of the fee is missing, the line names the amount |
+| payment | *{t:paymentStatus.success}*, *{t:paymentStatus.missing}*, *{t:paymentStatus.waitingForConfirmation}*, *{t:paymentStatus.pending}*, *{t:paymentStatus.refunded}*, *{t:paymentStatus.notCharged}* or *{t:paymentStatus.duplicate}*; when part of the fee is missing, the line names the amount |
 | stage | *{t:registration.status.received}*, *{t:registration.status.placeOffered}*, *{t:registration.status.confirmed}*, *{t:registration.status.confirmedAndInvitationRead}* or *{t:registration.status.cancelled}* |
 
 The same facts appear as icons on the dog's row; hover over the icons to see what they mean.

@@ -67,8 +67,11 @@ interface Props {
   readonly responseStatus?: number
 }
 
-/** The payment line's statuses that leave nothing to pay on this page: the page says so instead. */
-const NOTICE_STATUSES = new Set<PaymentPictureStatus>(['notCharged', 'refunded', 'waitingForPlace'])
+/**
+ * The payment line's statuses that leave nothing to pay on this page, a payment charged twice among
+ * them: the page says so instead.
+ */
+const NOTICE_STATUSES = new Set<PaymentPictureStatus>(['duplicate', 'notCharged', 'refunded', 'waitingForPlace'])
 
 const paymentErrorStatusKey = {
   403: 'paymentPage.error403',
@@ -106,6 +109,8 @@ export const PaymentPageWithData = ({
     return renderMessage(t('paymentPage.registrationNotFound', { registrationId }))
   }
 
+  const { status: paymentStatus } = registration.payment
+
   const renderNotice = (message: string) => (
     <Paper sx={{ p: 1, width: '100%' }} elevation={0}>
       <Grid
@@ -125,14 +130,16 @@ export const PaymentPageWithData = ({
       <Divider sx={{ my: 1 }} />
       <RegistrationDetails event={event} registration={registration} />
       <Divider sx={{ my: 1 }} />
-      <PaymentDetails event={event} registration={registration} includePayable />
+      {/* A payment charged twice waits for its refund: the row of what is to pay would ask for the fee
+          again under the sentence that says so (KOE-1528). */}
+      <PaymentDetails event={event} registration={registration} includePayable={paymentStatus !== 'duplicate'} />
     </Paper>
   )
 
   // The notice says what the status line says (KOE-1526), whatever PaymentCreate answered: paying at
   // confirmation waits for a place, not for the confirmation; a fee that went back was refunded, not
-  // paid; and a trial that is not confirmed charges nothing.
-  const { status: paymentStatus } = registration.payment
+  // paid; a trial that is not confirmed charges nothing; and a payment charged twice waits for its
+  // refund, where the 409's "try again" of a payment in progress would never help (KOE-1528).
   if (NOTICE_STATUSES.has(paymentStatus)) {
     return renderNotice(t(PAYMENT_STATUS_KEY[paymentStatus]))
   }

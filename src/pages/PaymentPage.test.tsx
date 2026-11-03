@@ -550,6 +550,42 @@ describe('PaymentPage', () => {
           expect(container).not.toHaveTextContent('paymentStatus.waitingForConfirmation')
         }
       )
+
+      // PaymentCreate answers 409 to both, so only the picture tells them apart: trying again helps
+      // the payment in progress and never the one charged twice (KOE-1528).
+      it.each([
+        ['a payment charged twice', 'DUPLICATE', 'duplicate', 'paymentStatus.duplicate', 'paymentPage.error409'],
+        ['a payment in progress', 'PENDING', 'inProgress', 'paymentPage.error409', 'paymentStatus.duplicate'],
+      ] as const)('tells the 409 of %s from the other', async (_case, rowStatus, status, shown, notShown) => {
+        const { container } = renderPage(
+          'registration',
+          {
+            ...testRegistration,
+            payment: paymentPictureWith({ ...owing, canPay: false, status }),
+            paymentStatus: rowStatus,
+          },
+          { responseStatus: 409 }
+        )
+        await flushPromises()
+
+        expect(container).toHaveTextContent(shown)
+        expect(container).not.toHaveTextContent(notShown)
+      })
+
+      it('asks for no fee under the notice of a payment charged twice', async () => {
+        const { container } = renderPage(
+          'registration',
+          {
+            ...testRegistration,
+            payment: paymentPictureWith({ ...owing, canPay: false, status: 'duplicate' }),
+            paymentStatus: 'DUPLICATE',
+          },
+          { responseStatus: 409 }
+        )
+        await flushPromises()
+
+        expect(container).not.toHaveTextContent('registration.toBePaid')
+      })
     })
 
     it('should allow payment when payment is after confirmation and registration is confirmed', async () => {
