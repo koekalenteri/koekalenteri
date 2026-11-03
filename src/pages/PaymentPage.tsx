@@ -67,8 +67,11 @@ interface Props {
   readonly responseStatus?: number
 }
 
-/** The payment line's statuses that leave nothing to pay on this page: the page says so instead. */
-const NOTICE_STATUSES = new Set<PaymentPictureStatus>(['notCharged', 'refunded', 'waitingForPlace'])
+/**
+ * The payment line's statuses that leave nothing to pay on this page, a payment charged twice among
+ * them: the page says so instead.
+ */
+const NOTICE_STATUSES = new Set<PaymentPictureStatus>(['duplicate', 'notCharged', 'refunded', 'waitingForPlace'])
 
 const paymentErrorStatusKey = {
   403: 'paymentPage.error403',
@@ -131,7 +134,8 @@ export const PaymentPageWithData = ({
 
   // The notice says what the status line says (KOE-1526), whatever PaymentCreate answered: paying at
   // confirmation waits for a place, not for the confirmation; a fee that went back was refunded, not
-  // paid; and a trial that is not confirmed charges nothing.
+  // paid; a trial that is not confirmed charges nothing; and a payment charged twice waits for its
+  // refund, where the 409's "try again" of a payment in progress would never help (KOE-1528).
   const { status: paymentStatus } = registration.payment
   if (NOTICE_STATUSES.has(paymentStatus)) {
     return renderNotice(t(PAYMENT_STATUS_KEY[paymentStatus]))
