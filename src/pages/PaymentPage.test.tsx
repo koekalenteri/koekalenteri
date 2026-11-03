@@ -571,6 +571,21 @@ describe('PaymentPage', () => {
         expect(container).toHaveTextContent(shown)
         expect(container).not.toHaveTextContent(notShown)
       })
+
+      it('asks for no fee under the notice of a payment charged twice', async () => {
+        const { container } = renderPage(
+          'registration',
+          {
+            ...testRegistration,
+            payment: paymentPictureWith({ ...owing, canPay: false, status: 'duplicate' }),
+            paymentStatus: 'DUPLICATE',
+          },
+          { responseStatus: 409 }
+        )
+        await flushPromises()
+
+        expect(container).not.toHaveTextContent('registration.toBePaid')
+      })
     })
 
     it('should allow payment when payment is after confirmation and registration is confirmed', async () => {

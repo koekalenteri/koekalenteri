@@ -109,6 +109,8 @@ export const PaymentPageWithData = ({
     return renderMessage(t('paymentPage.registrationNotFound', { registrationId }))
   }
 
+  const { status: paymentStatus } = registration.payment
+
   const renderNotice = (message: string) => (
     <Paper sx={{ p: 1, width: '100%' }} elevation={0}>
       <Grid
@@ -128,7 +130,9 @@ export const PaymentPageWithData = ({
       <Divider sx={{ my: 1 }} />
       <RegistrationDetails event={event} registration={registration} />
       <Divider sx={{ my: 1 }} />
-      <PaymentDetails event={event} registration={registration} includePayable />
+      {/* A payment charged twice waits for its refund: the row of what is to pay would ask for the fee
+          again under the sentence that says so (KOE-1528). */}
+      <PaymentDetails event={event} registration={registration} includePayable={paymentStatus !== 'duplicate'} />
     </Paper>
   )
 
@@ -136,7 +140,6 @@ export const PaymentPageWithData = ({
   // confirmation waits for a place, not for the confirmation; a fee that went back was refunded, not
   // paid; a trial that is not confirmed charges nothing; and a payment charged twice waits for its
   // refund, where the 409's "try again" of a payment in progress would never help (KOE-1528).
-  const { status: paymentStatus } = registration.payment
   if (NOTICE_STATUSES.has(paymentStatus)) {
     return renderNotice(t(PAYMENT_STATUS_KEY[paymentStatus]))
   }
