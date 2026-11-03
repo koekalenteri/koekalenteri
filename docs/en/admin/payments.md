@@ -13,7 +13,7 @@ covers:
   - src/lambda/lib/payment.ts
   - src/lambda/PaymentCreateFunction/**
   - src/lambda/RefundCreateFunction/**
-sourceHash: 50e3c5
+sourceHash: 2609a4
 ---
 
 Koekalenteri is a web shop: the entrant pays the entry fee in the calendar, and the money goes
@@ -86,9 +86,10 @@ active, 0.55 € for every successful payment, and for card, mobile and invoice 
 1.35 € with the other methods.
 
 The monthly fee runs only while the service is active. The club activates and deactivates its
-account itself through Paytrail's customer service — deactivate it when no trials are coming, and
+account itself through Paytrail's customer service. Deactivate it when no trials are coming, and
 agree who activates it before the next trial's entry opens. With an inactive account the entry
-stops at the payment: the entrant is told, instead of a payment, that the club's payment service agreement is not in force, and to contact the trial secretary.
+stops at the payment: the entrant is told, instead of a payment, that creating the payment failed
+at Paytrail, with the reason Paytrail gave.
 
 ## The sub-merchant agreement
 

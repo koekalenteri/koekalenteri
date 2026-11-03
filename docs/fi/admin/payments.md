@@ -85,9 +85,10 @@ lisäksi 2 % summasta. Neljänkymmenen euron ilmoittautumismaksusta jäi siis pa
 0,55 € ja muilla maksutavoilla 1,35 € Paytrailille.
 
 Kuukausimaksu juoksee vain, kun palvelu on aktiivinen. Yhdistys aktivoi ja passivoi tilinsä itse
-Paytrailin asiakaspalvelun kautta — passivoi tili, kun kokeita ei ole tulossa, ja sovi, kuka
+Paytrailin asiakaspalvelun kautta. Passivoi tili, kun kokeita ei ole tulossa, ja sovi, kuka
 huolehtii aktivoinnista ennen seuraavan kokeen ilmoittautumisajan alkua. Passiivisella tilillä
-ilmoittautuminen pysähtyy maksuun: ilmoittautuja saa maksun sijasta ilmoituksen, ettei yhdistyksen maksupalvelusopimus ole voimassa, ja kehotuksen ottaa yhteyttä koesihteeriin.
+ilmoittautuminen pysähtyy maksuun: ilmoittautuja saa maksun sijasta ilmoituksen, että maksun luonti
+epäonnistui Paytrailissa, ja Paytrailin antaman syyn.
 
 ## Alakauppiassopimus
 

@@ -1,6 +1,5 @@
 import type { APIGatewayEvent, APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
 import { gzipSync } from 'node:zlib'
-import { ServiceException } from '@smithy/smithy-client'
 import { CONFIG } from '../config'
 import { getOrigin } from '../lib/api-gw'
 import { debugProxyEvent, logger, withLogContext } from './log'
@@ -165,7 +164,9 @@ export const response = <T = unknown>(
 
 /**
  * Lambda function wrapper with error handling: a thrown `LambdaError` (`httpError`) becomes the
- * response, and anything else is logged as an error and answered with the AWS service's status or 501.
+ * response, and anything else is logged as an error and answered with the constant 500, whatever was
+ * thrown: what failed stays in the log, under the request id the answer names (KOE-1622). A direct
+ * invocation has no request id, and its answer leaves it out.
  */
 export const lambda =
   (service: string, handler: LambdaHandler) =>
@@ -183,12 +184,7 @@ export const lambda =
         }
 
         logger.error('unhandled error', { error: err })
-
-        if (err instanceof ServiceException) {
-          return response(err.$metadata?.httpStatusCode ?? 501, err.message, event)
-        }
-
-        return response(501, err, event)
+        return response(500, { error: 'Internal server error', requestId: event.requestContext?.requestId }, event)
       }
     })
 

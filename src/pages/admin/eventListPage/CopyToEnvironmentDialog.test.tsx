@@ -1,7 +1,12 @@
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { APIError } from '@/api/http'
+import { describeWithTranslations } from '@/test-utils/language'
 import CopyToEnvironmentDialog from './CopyToEnvironmentDialog'
+
+vi.mock('react-i18next', async (importOriginal) =>
+  (await import('@/test-utils/language')).spyOnUseTranslation(importOriginal)
+)
 
 const renderDialog = (onCopy = vi.fn(), targets: string[] = ['test', 'dev']) => {
   const onClose = vi.fn()
@@ -60,6 +65,27 @@ describe('CopyToEnvironmentDialog', () => {
     // The test translations name the interpolated values; the visual test shows the message itself
     expect(await screen.findByText('eventCopy.failed message')).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'eventCopy.copy' })).toBeEnabled()
+  })
+
+  describeWithTranslations('en', () => {
+    it.each([
+      ['the general reason to a failure the server keeps to itself (KOE-1622)', '', 'Something went wrong.'],
+      ['the status text of a failure that has one', 'timeout loading /x', 'timeout loading /x'],
+    ])('gives %s', async (_name, statusText, reason) => {
+      const user = userEvent.setup()
+      renderDialog(
+        vi.fn().mockRejectedValue(
+          new APIError(new Response(null, { status: 500, statusText }), {
+            error: 'Internal server error',
+            requestId: 'req-1',
+          })
+        )
+      )
+
+      await user.click(screen.getByRole('button', { name: 'Copy' }))
+
+      expect(await screen.findByRole('alert')).toHaveTextContent(`Copying failed: ${reason}`)
+    })
   })
 
   it('names the copy the target already holds when it refuses a second one (KOE-1639)', async () => {

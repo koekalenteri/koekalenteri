@@ -28,7 +28,7 @@ const saveError = (e: unknown): EmailTemplateError => {
         message: body.message,
       }
     }
-    return { message: typeof body === 'string' && body ? body : e.message }
+    return { message: (typeof body === 'string' && body) || e.statusText || i18next.t('error.somethingWentWrong') }
   }
   return { message: e instanceof Error ? e.message : i18next.t('error.somethingWentWrong') }
 }

@@ -1,4 +1,5 @@
 import type { APIGatewayEvent, APIGatewayProxyEvent } from 'aws-lambda'
+import { ResourceNotFoundException } from '@aws-sdk/client-dynamodb'
 import { vi } from 'vitest'
 import { constructPartialAPIGwEvent } from '../test-utils/helpers'
 import { loggedLines } from '../test-utils/logs'
@@ -91,6 +92,38 @@ describe('lambda wrapper', () => {
     })(event)
 
     expect(loggedLines(errorSpy)).toContainEqual(expect.objectContaining({ message: 'unhandled error' }))
+  })
+
+  // What failed stays in the log: the client gets the same answer to whatever was thrown (KOE-1622).
+  describe('anything but a LambdaError', () => {
+    const TABLE = 'koekalenteri-prod-EventTable'
+    const tableMissing = (httpStatusCode: number) =>
+      new ResourceNotFoundException({ $metadata: { httpStatusCode }, message: `Table ${TABLE} not found` })
+
+    it.each([
+      ['an object', { table: TABLE }],
+      ['a string', `Table ${TABLE} not found`],
+      ['an error with fields of its own', Object.assign(new Error('boom'), { table: TABLE })],
+      ['an AWS service error with a 400', tableMissing(400)],
+      ['an AWS service error with a 404', tableMissing(404)],
+    ])('answers %s with the constant 500', async (_name, thrown) => {
+      const result = await lambda('test', async () => {
+        throw thrown
+      })(event)
+
+      expect(result.statusCode).toBe(500)
+      expect(JSON.parse(result.body)).toEqual({ error: 'Internal server error', requestId: 'req-1' })
+      expect(loggedLines(errorSpy)).toContainEqual(expect.objectContaining({ message: 'unhandled error' }))
+    })
+
+    it('leaves the request id out of a direct invocation, which has none', async () => {
+      const result = await lambda('test', async () => {
+        throw new Error('boom')
+      })(constructPartialAPIGwEvent({}))
+
+      expect(result.statusCode).toBe(500)
+      expect(JSON.parse(result.body)).toEqual({ error: 'Internal server error' })
+    })
   })
 })
 

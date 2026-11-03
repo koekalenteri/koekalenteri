@@ -14,7 +14,6 @@ import { createPayment } from '../api/payment'
 import { useRegistrationLanguage } from '../hooks/useRegistrationLanguage'
 import { paytrailErrorText } from '../lib/payment'
 import { hasPaymentPicture } from '../lib/registration'
-import { printContactInfo } from '../lib/utils'
 import { Path } from '../routeConfig'
 import { ErrorInfo } from './components/ErrorInfo'
 import { HiddenPageTitle } from './components/HiddenPageTitle'
@@ -156,11 +155,6 @@ export const PaymentPageWithData = ({
         status: responseStatus,
       })
     )
-  }
-
-  if (responseStatus === 501) {
-    const secretaryContact = printContactInfo(event.contactInfo?.secretary)
-    return renderNotice(t('paymentPage.error501MerchantInactive', { contact: secretaryContact }))
   }
 
   const errorKey = responseStatus
