@@ -14,6 +14,8 @@ type DogMode = 'fetch' | 'manual' | 'update' | 'notfound' | 'autofetch' | 'error
 interface DogSearchProps {
   readonly regNo: string
   readonly disabled?: boolean
+  /** The number alone is closed; the button stays by its own rules, as a refresh keeps the number (KOE-1674). */
+  readonly regNoLocked?: boolean
   readonly disabledByMode: boolean
   readonly validRegNo: boolean
   /** Why the number cannot be entered by hand: it is not in its registry's form (KOE-1651). */
@@ -31,6 +33,7 @@ interface DogSearchProps {
 export const DogSearch = ({
   regNo,
   disabled,
+  regNoLocked,
   disabledByMode,
   validRegNo,
   typedRegNoError,
@@ -50,7 +53,7 @@ export const DogSearch = ({
       <Box sx={{ alignItems: 'center', display: 'flex' }}>
         <Autocomplete
           id="txtReknro"
-          disabled={disabled || !disabledByMode}
+          disabled={disabled || regNoLocked || !disabledByMode}
           freeSolo
           renderInput={(props) => (
             <TextField {...props} error={!validRegNo || Boolean(typedRegNoError)} label={t('dog.regNo')} />

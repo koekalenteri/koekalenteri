@@ -24,6 +24,21 @@ import { parseEventResultCode, resultMarks, resultPrefixAsKennelClub, shownEvent
  * dialog cannot promise a result the server then refuses to send.
  */
 
+/**
+ * Whether Kennelliitto may hold a result for the dog under the number the entry has, so that number can
+ * no longer be corrected by hand (KOE-1674): the result would stay there under the old number. An accepted
+ * send leaves `payloadHash` and, since KOE-1653, `regNo`, and both outlast a later failure. A result call
+ * without an answer leaves neither and no reasons, and may have been taken. A refusal with reasons holds
+ * nothing, and neither does a dog Kennelliitto did not add, as no result was sent: there the correction
+ * is what fixes it.
+ */
+export const kcMayHoldResult = (
+  kc?: { dogNotAdded?: boolean; errors?: unknown[]; payloadHash?: string; regNo?: string; status?: string } | null
+): boolean => {
+  if (kc?.payloadHash || kc?.regNo) return true
+  return kc?.status === 'failed' && !kc.errors?.length && !kc.dogNotAdded
+}
+
 /** The states of a trial in Kennelliitto that this code acts on (Koe/Lue `tila`, Testi2 15.10.2026). */
 const KC_STATE_OPEN = 754
 /** Handed to the chief judge for approval. Koe/AsetaTila takes this code. */

@@ -91,8 +91,8 @@ it('shows the entry read-only once the trial is over', async () => {
 
 it('leaves the typed details of a hand-entered dog open once the trial is over', async () => {
   // The issue's case (KOE-1650): a dog entered by hand, its chip a registration number's digits. The
-  // secretary may fix the chip, the sex, the birth date and the breed for the results send; the rest
-  // of the entry stays read-only.
+  // secretary may fix the number (KOE-1674), the chip, the sex, the birth date and the breed for the
+  // results send; the rest of the entry stays read-only.
   const { refreshDate: _refreshDate, ...handEnteredDog } = registrationWithStaticDates.dog
   const handEntered = { ...registrationWithStaticDates, dog: { ...handEnteredDog, rfid: '623372020' } }
   const screen = await render(

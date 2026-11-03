@@ -9,6 +9,7 @@ import { Suspense, useState } from 'react'
 import { eventWithStaticDates } from '../../__mockData__/events'
 import { paymentPictureWith } from '../../__mockData__/paymentPicture'
 import { registrationWithStaticDates, unpaidRegistrationWithStaticDates } from '../../__mockData__/registrations'
+import * as dogApi from '../../api/dog'
 import theme from '../../assets/Theme'
 import { locales } from '../../i18n'
 import { frozenInstant } from '../../test-utils/freezeClock'
@@ -23,6 +24,7 @@ import {
 import AppSnackbarProvider from './AppSnackbarProvider'
 import RegistrationForm from './RegistrationForm'
 
+vi.mock('../../api/dog')
 vi.mock('../../api/event')
 vi.mock('../../api/eventType')
 vi.mock('../../api/judge')
@@ -723,7 +725,7 @@ describe('RegistrationForm', () => {
       expect(rfidField()).toHaveAttribute('aria-invalid', 'true')
       expect(screen.getByRole('combobox', { name: 'dog.breed' })).toBeEnabled()
       expect(screen.getByRole('combobox', { name: 'dog.gender' })).toBeEnabled()
-      expect(screen.getByRole('combobox', { name: 'dog.regNo' })).toBeDisabled()
+      expect(screen.getByRole('combobox', { name: 'dog.regNo' })).toBeEnabled()
       expect(screen.getByRole('textbox', { name: 'dog.name' })).toBeDisabled()
       expect(screen.getByRole('combobox', { name: 'registration.reserve' })).toBeDisabled()
       expect(screen.getByRole('textbox', { name: 'registration.notes' })).toBeDisabled()
@@ -827,6 +829,137 @@ describe('RegistrationForm', () => {
       })
     })
 
+    // The number of a dog entered by hand is one of the typed details (KOE-1674). Only the number
+    // changes: nothing is looked up, so no dog, people or results come along, and no cache is written.
+    describe("a hand-entered dog's number (KOE-1674)", () => {
+      const correctable: Registration = {
+        ...registrationWithStaticDates,
+        dog: { ...handEnteredDog, regNo: 'EST-03101/26', rfid: '985120012345678' },
+      }
+      const regNoField = () => screen.getByRole('combobox', { name: 'dog.regNo' })
+
+      it('saves a corrected number as the only change, without a lookup', async () => {
+        const getDog = vi.spyOn(dogApi, 'getDog')
+        getDog.mockClear()
+        const onChange = vi.fn()
+        const onSave = vi.fn(async () => undefined)
+        const { user } = renderWithUserEvents(
+          <AfterTrial initial={correctable} onChange={onChange} onSave={onSave} />,
+          { wrapper: Wrapper },
+          { advanceTimers: vi.advanceTimersByTime }
+        )
+        await flushPromises()
+
+        expect(regNoField()).toBeEnabled()
+        await user.type(regNoField(), '{Backspace}5', { initialSelectionEnd: 12, initialSelectionStart: 12 })
+        await runPendingTimers()
+        await flushPromises()
+
+        expect(regNoField()).toHaveValue('EST-03101/25')
+        expect(regNoField()).toHaveAttribute('aria-invalid', 'false')
+        expect(onChange).toHaveBeenLastCalledWith({
+          ...correctable,
+          dog: { ...correctable.dog, regNo: 'EST-03101/25' },
+        })
+        expect(getDog).not.toHaveBeenCalled()
+        expect(JSON.parse(localStorage.getItem('dog-cache') ?? '{}')).not.toHaveProperty(['EST-03101/25'])
+        // The button has no part in this: the dog stays typed, and the number is saved with the form.
+        expect(screen.getByRole('button', { name: 'registration.cta.update' })).toBeDisabled()
+        expect(screen.getByText(/registration\.cta\.helper\.typed/)).toBeInTheDocument()
+
+        expect(saveButton()).toBeEnabled()
+        await user.click(saveButton())
+        expect(onSave).toHaveBeenCalledTimes(1)
+      })
+
+      it("refuses a number that is not in its registry's form, and takes the stored one back", async () => {
+        const onChange = vi.fn()
+        const { user } = renderWithUserEvents(
+          <AfterTrial initial={correctable} onChange={onChange} onSave={async () => undefined} />,
+          { wrapper: Wrapper },
+          { advanceTimers: vi.advanceTimersByTime }
+        )
+        await flushPromises()
+
+        // The hyphen out: "EST03101/26", which the loose lookup rule lets through.
+        await user.type(regNoField(), '{Backspace}', { initialSelectionEnd: 4, initialSelectionStart: 4 })
+        await flushPromises()
+        expect(regNoField()).toHaveAttribute('aria-invalid', 'true')
+        expect(screen.getByText('validation.regNo.EST')).toBeInTheDocument()
+        expect(saveButton()).toBeDisabled()
+
+        await user.type(regNoField(), '-', { initialSelectionEnd: 3, initialSelectionStart: 3 })
+        await flushPromises()
+        expect(regNoField()).toHaveAttribute('aria-invalid', 'false')
+        expect(screen.queryByText('validation.regNo.EST')).not.toBeInTheDocument()
+        expect(onChange).toHaveBeenLastCalledWith(correctable)
+      })
+
+      it('refuses an emptied number and keeps the dog', async () => {
+        const onChange = vi.fn()
+        const { user } = renderWithUserEvents(
+          <AfterTrial initial={correctable} onChange={onChange} onSave={async () => undefined} />,
+          { wrapper: Wrapper },
+          { advanceTimers: vi.advanceTimersByTime }
+        )
+        await flushPromises()
+
+        await user.clear(regNoField())
+        await runPendingTimers()
+        await flushPromises()
+
+        expect(onChange).toHaveBeenLastCalledWith({ ...correctable, dog: { ...correctable.dog, regNo: '' } })
+        expect(regNoField()).toHaveAttribute('aria-invalid', 'true')
+        expect(saveButton()).toBeDisabled()
+      })
+
+      // Select-all and retype is the usual way to correct a number. The sections that close on a missing
+      // number read the stored entry here, and nothing but the number comes to the form.
+      it('leaves the other sections as they are while the number is empty or half-typed', async () => {
+        const before = localStorage.getItem('dog-cache')
+        const { user } = renderWithUserEvents(
+          <AfterTrial initial={correctable} onSave={async () => undefined} />,
+          { wrapper: Wrapper },
+          { advanceTimers: vi.advanceTimersByTime }
+        )
+        await flushPromises()
+        const sectionsOpen = () => {
+          expect(document.getElementById('breeder_name')?.closest('.MuiCollapse-entered')).not.toBeNull()
+          expect(screen.queryByText(/validation\.registration\.choose/)).not.toBeInTheDocument()
+        }
+        sectionsOpen()
+
+        await user.clear(regNoField())
+        await runPendingTimers()
+        await flushPromises()
+        sectionsOpen()
+
+        await user.type(regNoField(), 'EST-0')
+        await runPendingTimers()
+        await flushPromises()
+        sectionsOpen()
+        expect(saveButton()).toBeDisabled()
+        expect(localStorage.getItem('dog-cache')).toBe(before)
+      })
+
+      it('stays locked once Kennelliitto may hold a result for it', async () => {
+        const kcResult = {
+          at: new Date('2026-11-04T10:00:00.000Z'),
+          by: 'Sihteeri',
+          payloadHash: 'h',
+          status: 'sent' as const,
+        }
+        render(<AfterTrial initial={{ ...correctable, kcResult }} onSave={async () => undefined} />, {
+          wrapper: Wrapper,
+        })
+        await flushPromises()
+
+        expect(regNoField()).toBeDisabled()
+        // The rest of a typed dog's details stay open.
+        expect(rfidField()).toBeEnabled()
+      })
+    })
+
     // Only the typed details open after the trial: a Kennelliitto dog's missing birth date is not one,
     // and the results send never needs it.
     it("keeps a Kennelliitto dog's missing birth date locked", async () => {
@@ -849,6 +982,8 @@ describe('RegistrationForm', () => {
       expect(rfidField()).toBeDisabled()
       expect(screen.getByRole('combobox', { name: 'dog.breed' })).toBeDisabled()
       expect(screen.getByRole('combobox', { name: 'dog.gender' })).toBeDisabled()
+      expect(screen.getByRole('combobox', { name: 'dog.regNo' })).toBeDisabled()
+      expect(screen.getByRole('button', { name: 'registration.cta.update' })).toBeDisabled()
     })
   })
 

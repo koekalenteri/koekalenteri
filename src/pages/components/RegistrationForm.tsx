@@ -77,7 +77,7 @@ import { OwnerInfo } from './registrationForm/OwnerInfo'
 import { PayerInfo } from './registrationForm/PayerInfo'
 import PaymentInfo from './registrationForm/PaymentInfo'
 import QualifyingResultsInfo from './registrationForm/QualifyingResultsInfo'
-import { TYPED_DOG_ONLY_LOCKS, typedDogChange } from './registrationForm/typedDogOnly'
+import { formSections, typedDogChange } from './registrationForm/typedDogOnly'
 import { validateRegistration, validateTypedDog } from './registrationForm/validation'
 
 /**
@@ -172,15 +172,20 @@ export default function RegistrationForm({
   // PutRegistration reads too), or a qualification only the locked class, dog and results decide
   // (KOE-1588). The server decides those on its own.
   // After the trial the sections lock as a participant's would, all but the dog's typed details, and
-  // only the chip's rule holds back saving a fix to them (KOE-1650).
-  const sectionLocks = typedDogOnly ? TYPED_DOG_ONLY_LOCKS : locks
+  // only their own rules hold back saving a fix to them (KOE-1650, KOE-1674).
+  const { locks: sectionLocks, registration: sectionRegistration } = formSections(
+    typedDogOnly,
+    locks,
+    stored,
+    registration
+  )
   const freeDisabled = disabled || typedDogOnly
   const errors = useMemo(
     () =>
       typedDogOnly
-        ? validateTypedDog(registration)
+        ? validateTypedDog(registration, stored.dog?.regNo)
         : validationErrors.filter((error) => !isParticipantFieldLocked(locks, error.opts.field)),
-    [locks, registration, typedDogOnly, validationErrors]
+    [locks, registration, stored, typedDogOnly, validationErrors]
   )
   const restriction = useMemo(
     () => (isEntryRestrictionLocked(event, locks) ? undefined : getRestrictionNotice(event, registration, tBreed)),
@@ -218,8 +223,8 @@ export default function RegistrationForm({
   const handleChange = useCallback(
     (change: DeepPartial<Registration> | undefined = {}, replace?: boolean) => {
       if (disabled) return
-      // After the trial only the dog's typed details are taken, and the qualification of the judged
-      // entry stays as it was (KOE-1650).
+      // After the trial only the dog's typed details are taken, its number among them, and the
+      // qualification of the judged entry stays as it was (KOE-1650, KOE-1674).
       const props = typedDogOnly ? typedDogChange(registration.dog, change) : change
 
       // Process results and qualifications
@@ -291,12 +296,12 @@ export default function RegistrationForm({
       texts[error.opts.field] = t(`validation.registration.${error.key}`, error.opts)
       states[error.opts.field] = true
     }
-    if (!registration?.dog?.regNo) {
+    if (!sectionRegistration.dog?.regNo) {
       texts.breeder = texts.owner = texts.qualifyingResults = t('validation.registration.choose', { field: 'dog' })
       states.breeder = states.owner = states.qualifyingResults = true
     }
     return [texts, states]
-  }, [errors, registration, restriction, t])
+  }, [errors, registration, restriction, sectionRegistration, t])
 
   // The address check needs the list of top-level domains; it is fetched here, once, so it has
   // arrived by the time anyone has typed an address (KOE-1347).
@@ -445,6 +450,7 @@ export default function RegistrationForm({
           minDogAgeMonths={minDogAgeFor(event.eventType)}
           disabled={disabled || sectionLocks.dog}
           typedDogOnly={typedDogOnly}
+          savedRegNo={stored.dog?.regNo}
           error={errorStates.dog}
           helperText={helperTexts.dog}
           onChange={handleChange}
@@ -453,7 +459,7 @@ export default function RegistrationForm({
           orgId={event.organizer.id}
         />
         <BreederInfo
-          reg={registration}
+          reg={sectionRegistration}
           disabled={disabled || sectionLocks.people}
           error={errorStates.breeder}
           helperText={helperTexts.breeder}
@@ -463,7 +469,7 @@ export default function RegistrationForm({
         />
         <OwnerInfo
           admin={admin}
-          reg={registration}
+          reg={sectionRegistration}
           disabled={disabled || sectionLocks.people}
           error={errorStates.owner}
           membershipLocked={locks.membership}
@@ -476,7 +482,7 @@ export default function RegistrationForm({
         <Collapse in={selectsSomeoneElse(registration.ownerHandles)}>
           <HandlerInfo
             admin={admin}
-            reg={registration}
+            reg={sectionRegistration}
             disabled={disabled || sectionLocks.people}
             error={errorStates.handler}
             lockedMembership={locks.membership ? lockedHandlerClaim : undefined}
@@ -489,7 +495,7 @@ export default function RegistrationForm({
         </Collapse>
         <Collapse in={selectsSomeoneElse(registration.ownerPays)}>
           <PayerInfo
-            reg={registration}
+            reg={sectionRegistration}
             disabled={freeDisabled}
             error={errorStates.payer}
             helperText={helperTexts.payer}
@@ -500,7 +506,7 @@ export default function RegistrationForm({
         </Collapse>
         <QualifyingResultsInfo
           eventType={event.eventType}
-          regNo={registration.dog?.regNo}
+          regNo={sectionRegistration.dog?.regNo}
           dob={registration.dog?.dob}
           disabled={disabled || sectionLocks.results}
           rankingPeriod={rankingPeriod}
@@ -524,7 +530,7 @@ export default function RegistrationForm({
           disabled={disabled || sectionLocks.membership}
           error={restriction?.section === 'membership'}
           helperText={restriction?.section === 'membership' ? restriction.text : undefined}
-          reg={registration}
+          reg={sectionRegistration}
           orgId={event.organizer.id}
           onChange={handleChange}
         />

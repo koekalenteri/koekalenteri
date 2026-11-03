@@ -7,6 +7,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { emptyDog } from '@/lib/data'
 import { createDogUpdateFromFormValues, isValidDob, shouldAllowRefresh, typedDogFields } from '@/lib/dog'
+import { kcMayHoldResult } from '@/lib/kennelliittoResults'
 import { stripOwnerKey, withDefaultOwnerSelection } from '@/lib/registration'
 import { hasChanges } from '@/lib/utils'
 import { regNoError, validateRegNo } from '@/lib/validation'
@@ -24,6 +25,8 @@ interface Props {
   readonly disabled?: boolean
   /** Only the details the user typed stay open: a secretary's fix after the trial (KOE-1650). */
   readonly typedDogOnly?: boolean
+  /** The number the entry is stored with: after the trial only a number other than this is judged (KOE-1674). */
+  readonly savedRegNo?: string
   readonly error?: boolean
   readonly helperText?: string
   readonly onChange?: (props: DeepPartial<Registration>, replace?: boolean) => void
@@ -64,6 +67,7 @@ export const DogInfo = ({
   minDogAgeMonths,
   disabled,
   typedDogOnly,
+  savedRegNo,
   error,
   helperText,
   onChange,
@@ -102,7 +106,7 @@ export const DogInfo = ({
     }
   )
 
-  // Derived state. `typedDogOnly` leaves open only the details the user typed (KOE-1650).
+  // Derived state. `typedDogOnly` leaves open only the details the user typed (KOE-1650, KOE-1674).
   const locked = disabled || typedDogOnly
   const disabledByMode = locked || state.mode !== 'manual'
   const titlesDisabled = locked || (state.mode !== 'manual' && state.mode !== 'update')
@@ -122,9 +126,17 @@ export const DogInfo = ({
   const validRegNo = validateRegNo(regNo)
   // A dog the registration holds that was typed by hand; a fresh entry or a number not found holds none.
   const holdsTypedDog = Boolean(reg?.dog?.name) && typed.details
+  // Once Kennelliitto may hold a result for the number the field locks, by the rule the save holds it
+  // by. A send opens when the class starts, so this comes before the trial is over too (KOE-1674).
+  const regNoLocked = kcMayHoldResult(reg?.kcResult)
+  // After the trial a typed dog's number is corrected, not looked up: it goes to the form as it is typed
+  // and nothing else of the dog changes. Mode 'update' never leaves this path, as the button is off for
+  // a dog without a refresh date, so no fetch can replace the dog (KOE-1674).
+  const numberOnly = !disabled && typedDogOnly && holdsTypedDog && state.mode === 'update' && !regNoLocked
   // A number Kennelliitto does not know becomes the user's to type, so it must be in its registry's
   // form; so must a typed dog's corrected number, as it is typed. The stored one is not judged (KOE-1651).
-  const judgeRegNo = state.mode === 'notfound' || (holdsTypedDog && regNoEdited)
+  const regNoChanged = numberOnly ? regNo !== savedRegNo : regNoEdited
+  const judgeRegNo = state.mode === 'notfound' || (holdsTypedDog && regNoChanged)
   const typedRegNoError = judgeRegNo ? regNoError(regNo) : undefined
   const [loading, setLoading] = useState(false)
   const [delayed, setDelayed] = useState(false)
@@ -134,11 +146,17 @@ export const DogInfo = ({
 
   const handleChange = useCallback(
     (props: DeepPartial<DogCachedInfo>) => {
+      // A fix after the trial stays on the entry: the cache under a corrected number may be a dog of
+      // Kennelliitto's, which would be merged into the change and marked as typed (KOE-1674).
+      if (numberOnly) {
+        onChange?.({ dog: props.dog })
+        return
+      }
       // An edit of a dog typed by hand keeps it cached as typed, also once it is stored (KOE-1651).
       const cache = actions.updateCache({ ...props, manual: state.mode === 'manual' || holdsTypedDog })
       onChange?.({ dog: cache.dog })
     },
-    [actions, holdsTypedDog, onChange, state.mode]
+    [actions, holdsTypedDog, numberOnly, onChange, state.mode]
   )
 
   const updateDog = useCallback(
@@ -221,7 +239,9 @@ export const DogInfo = ({
       if (mode === 'autofetch' || mode === 'fetch') {
         await fetchDog(mode)
       } else if (mode === 'update') {
-        updateDog(await actions.refresh(reg.dog))
+        // Nothing back when Kennelliitto answers with another number: the entry keeps the dog it holds.
+        const refreshed = await actions.refresh(reg.dog)
+        if (refreshed) updateDog(refreshed)
       } else if (mode === 'notfound') {
         // Entering the dog by hand makes its chip the user's to type.
         onChange?.({ dog: actions.updateCache({ manual: true }).dog })
@@ -260,10 +280,23 @@ export const DogInfo = ({
     )
   }, [delayed, handleDogOperation, loading, state.mode])
 
+  /** The number alone, as it stands in the field: what a correction after the trial changes (KOE-1674). */
+  const correctNumber = useCallback(
+    (input: string) => {
+      setState((prev) => ({ ...prev, input }))
+      onChange?.({ dog: { regNo: input.trim() } })
+    },
+    [onChange]
+  )
+
   const handleRegNoChange = useCallback(
     (_event: SyntheticEvent<Element, Event>, value: string | null) => {
       const input = value?.toLocaleUpperCase()
       if (input === undefined || input === state.input) return
+      if (numberOnly) {
+        correctNumber(input)
+        return
+      }
       // Spaces inside a number are typed one key at a time ("LSVK LR 1234/19"), so the field keeps
       // them; only a change of the number itself starts a new search, and the stored number typed
       // back is the stored dog again.
@@ -271,16 +304,17 @@ export const DogInfo = ({
         input.trim() === prev.input.trim() ? { ...prev, input } : newNumberState(reg?.dog, input, 'fetch')
       )
     },
-    [reg?.dog, state.input]
+    [correctNumber, numberOnly, reg?.dog, state.input]
   )
 
   const handleRegNoSelect = useCallback(
     (_event: SyntheticEvent<Element, Event>, value: string | null) => {
-      if (value !== null && value !== state.input) {
-        setState(newNumberState(reg?.dog, value.toLocaleUpperCase().trim(), 'autofetch'))
-      }
+      if (value === null || value === state.input) return
+      const input = value.toLocaleUpperCase().trim()
+      if (numberOnly) correctNumber(input)
+      else setState(newNumberState(reg?.dog, input, 'autofetch'))
     },
-    [reg?.dog, state.input]
+    [correctNumber, numberOnly, reg?.dog, state.input]
   )
 
   useEffect(() => {
@@ -314,7 +348,8 @@ export const DogInfo = ({
         <Grid size={{ lg: 3, md: 6, sm: 7, xs: 12 }}>
           <DogSearch
             regNo={state.input}
-            disabled={locked}
+            disabled={locked && !numberOnly}
+            regNoLocked={regNoLocked}
             disabledByMode={disabledByMode}
             validRegNo={validRegNo}
             typedRegNoError={typedRegNoError}

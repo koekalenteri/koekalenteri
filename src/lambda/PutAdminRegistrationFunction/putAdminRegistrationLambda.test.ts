@@ -1277,6 +1277,48 @@ describe('putAdminRegistrationLambda', () => {
       expect(mockPatchRegistration).not.toHaveBeenCalled()
     })
 
+    // Sending writes no `modifiedAt`, so a dialog opened before a send passes the stale check (KOE-1674).
+    describe('once Kennelliitto may hold a result', () => {
+      const stored = (kcResult: unknown) => ({
+        ...JSON.parse(event.body ?? ''),
+        dog: { breedCode: '111', regNo: 'EST-03101/26' },
+        kcResult,
+        state: 'draft',
+      })
+      const by = { at: '2026-11-04T10:00:00.000Z', by: 'Sihteeri' }
+      const newNumber = edit([{ path: ['dog', 'regNo'], type: 'CHANGE', value: 'EST-03101/25' }])
+
+      it.each([
+        ['an accepted send', { ...by, payloadHash: 'h', regNo: 'EST-03101/26', status: 'sent' }, 'EST-03101/25'],
+        ['a send with no answer', { ...by, status: 'failed' }, 'EST-03101/25'],
+        ['an emptied number', { ...by, payloadHash: 'h', status: 'sent' }, ''],
+      ])('refuses a new number after %s', async (_state, kcResult, value) => {
+        mockGetRegistration.mockResolvedValueOnce(stored(kcResult))
+
+        const result = await putAdminRegistrationLambda(edit([{ path: ['dog', 'regNo'], type: 'CHANGE', value }]))
+
+        expect(result.statusCode).toBe(400)
+        expect(result.body).toContain('dog.regNo is locked')
+        expect(mockPatchRegistration).not.toHaveBeenCalled()
+      })
+
+      it('lets an edit through that leaves the number as it is', async () => {
+        mockGetRegistration.mockResolvedValueOnce(stored({ ...by, payloadHash: 'h', status: 'sent' }))
+
+        const result = await putAdminRegistrationLambda(notesEdit)
+
+        expect(result.statusCode).toBe(200)
+      })
+
+      it('lets a correction through after a refusal, which holds nothing', async () => {
+        mockGetRegistration.mockResolvedValueOnce(stored({ ...by, errors: ['Ei löydy'], status: 'failed' }))
+
+        const result = await putAdminRegistrationLambda(newNumber)
+
+        expect(result.statusCode).toBe(200)
+      })
+    })
+
     it('lets an edit through that leaves a stored spaced number as it is', async () => {
       mockGetRegistration.mockResolvedValueOnce({
         ...JSON.parse(event.body ?? ''),

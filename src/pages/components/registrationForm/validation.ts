@@ -170,10 +170,13 @@ const validateMicrochip = (dog: Pick<Dog, 'refreshDate' | 'rfid' | 'rfidEditable
     : false
 
 /**
- * What stands in the way of saving a fix to the dog's typed details after the trial (KOE-1650): only
- * the chip's rule. The rest of the entry is locked and is not the fix's to hold back.
+ * What stands in the way of saving a fix to the dog's typed details after the trial: the number's rule
+ * (KOE-1674) and the chip's (KOE-1650). The rest of the entry is locked and is not the fix's to hold back.
  */
-export function validateTypedDog(registration: Registration) {
-  const chip = registration.dog ? validateMicrochip(registration.dog) : false
-  return chip ? [chip] : []
+export function validateTypedDog(registration: Registration, savedRegNo?: string) {
+  const { dog } = registration
+  if (!dog) return []
+  const regNo = validateTypedRegNo(dog, savedRegNo)
+  const chip = validateMicrochip(dog)
+  return [...(regNo ? [regNo] : []), ...(chip ? [chip] : [])]
 }

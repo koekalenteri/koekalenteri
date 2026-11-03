@@ -19,6 +19,7 @@ import {
 } from '../../lib/audit'
 import { isMicrochip } from '../../lib/dog'
 import { registrationDatesOutsideClass } from '../../lib/event'
+import { kcMayHoldResult } from '../../lib/kennelliittoResults'
 import { applyPatchOperations, InvalidPatchError, isPatchOperationRequest } from '../../lib/patch'
 import {
   GROUP_KEY_RESERVE,
@@ -137,7 +138,13 @@ export const assertTypedMicrochip = async (data: JsonRegistration, existing?: Js
 export const assertTypedRegNo = async (data: JsonRegistration, existing?: JsonRegistration) => {
   // The admin endpoint has no body schema, so the value may be anything.
   const regNo: unknown = data.dog?.regNo
-  if (regNo === undefined || regNo === '' || regNo === existing?.dog?.regNo) return
+  if (regNo === undefined || regNo === existing?.dog?.regNo) return
+  // Sending writes no `modifiedAt`, so a dialog opened before a send gets past the stale check. The
+  // sending's own switch (`writeDogRegNo`) does not come through here (KOE-1674).
+  if (kcMayHoldResult(existing?.kcResult)) {
+    throw httpError(400, { message: 'Bad request: dog.regNo is locked, Kennelliitto may hold a result for it' })
+  }
+  if (regNo === '') return
   if (typeof regNo === 'string' && (!regNoError(regNo) || (await readDog(regNo)))) return
   throw httpError(400, { message: "Bad request: dog.regNo is not in its registry's form" })
 }

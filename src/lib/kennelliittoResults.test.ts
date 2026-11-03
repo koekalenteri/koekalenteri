@@ -30,6 +30,7 @@ import {
   kcCountryOfRegNo,
   kcDogDifferences,
   kcKnownDogOf,
+  kcMayHoldResult,
   kcResultBadges,
   kcResultDay,
 } from './kennelliittoResults'
@@ -796,5 +797,30 @@ describe('a dog Kennelliitto knows by another number (KOE-1653)', () => {
       expect(defaultKcRegNoChoice(ours, noChip)).toBeUndefined()
       expect(defaultKcRegNoChoice({ rfid: '' }, noChip)).toBeUndefined()
     })
+  })
+})
+
+// Each state is what `nextKcResult` and `addForeignDog` in the lambda write (KOE-1674).
+describe('kcMayHoldResult', () => {
+  const by = { at: '2026-11-04T10:00:00.000Z', by: 'Sihteeri' }
+
+  it.each([
+    ['nothing sent', undefined, false],
+    ['an accepted send', { ...by, payloadHash: 'h', regNo: 'EST-1/26', status: 'sent' }, true],
+    ['an accepted send from before KOE-1653, with no number', { ...by, payloadHash: 'h', status: 'sent' }, true],
+    ['a refusal on the first send', { ...by, errors: ['Ei löydy'], status: 'failed' }, false],
+    [
+      'a refusal after an accepted send',
+      { ...by, errors: ['Ei löydy'], payloadHash: 'h', regNo: 'EST-1/26', status: 'failed' },
+      true,
+    ],
+    ['no answer on the first send', { ...by, status: 'failed' }, true],
+    ['no answer after an accepted send', { ...by, regNo: 'EST-1/26', status: 'failed' }, true],
+    ['a refusal that follows no answer', { ...by, errors: ['Ei löydy'], status: 'failed' }, false],
+    ['a dog not added, with reasons', { ...by, dogNotAdded: true, errors: ['Ei'], status: 'failed' }, false],
+    ['a dog not added, with no answer', { ...by, dogNotAdded: true, status: 'failed' }, false],
+    ['a dog not added after an accepted send', { ...by, dogNotAdded: true, regNo: 'EST-1/26', status: 'failed' }, true],
+  ])('%s', (_state, kc, expected) => {
+    expect(kcMayHoldResult(kc)).toBe(expected)
   })
 })
