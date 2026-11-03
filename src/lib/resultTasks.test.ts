@@ -9,6 +9,7 @@ import {
   isRecordedTask,
   isResultTasksDroppedBody,
   mergeStationTasks,
+  outcomeHeldElsewhere,
   partMaxPoints,
   reconcileRoundTasks,
   roundColumns,
@@ -273,6 +274,27 @@ describe('endedBefore (KOE-1669)', () => {
 
     expect(endedAtExercise({ exercise: 2 }, changed)).toBe(2)
     expect([1, 2, 3].map((exercise) => endedBefore({ exercise: 2 }, exercise, changed))).toEqual([false, false, true])
+  })
+})
+
+describe('outcomeHeldElsewhere (KOE-1615)', () => {
+  it.each([
+    ['no result', undefined, false],
+    ['no outcome', {}, false],
+    ['a retirement at one of the exercises', { retirement: { exercise: 3 } }, false],
+    ['an elimination at one of the exercises', { elimination: { exercise: 1 } }, false],
+    ['a retirement at another exercise', { retirement: { exercise: 2 } }, true],
+    ['an elimination at another exercise', { elimination: { exercise: 2 } }, true],
+    ['a retirement without a place', { retirement: {} }, true],
+    ['an elimination without a place', { elimination: {} }, true],
+    ['one of two elsewhere', { elimination: { exercise: 1 }, retirement: { exercise: 2 } }, true],
+    ['an exercise the round no longer has', { retirement: { exercise: 9 } }, true],
+  ])('%s', (_name, result, expected) => {
+    expect(outcomeHeldElsewhere(result, [1, 3])).toBe(expected)
+  })
+
+  it('holds every outcome elsewhere from a post the dog does not come to', () => {
+    expect(outcomeHeldElsewhere({ retirement: { exercise: 1 } }, [])).toBe(true)
   })
 })
 

@@ -14,7 +14,7 @@ covers:
   - src/pages/admin/eventViewPage/infoPanel/ResultsPublishing.tsx
   - src/pages/admin/components/KcIdLookupButton.tsx
   - src/pages/admin/components/StartDaySelector.tsx
-sourceHash: 8d4d4e
+sourceHash: 52e8cd
 ---
 
 On the trial day the secretary's job is to record what the dogs did and to get the results in
@@ -188,6 +188,11 @@ shows under the row. The same total goes to Omakoira. Where Omakoira does not ta
 result, the result goes with 0 points, and the send dialog tells the points to enter in Omakoira by hand. If points were already entered for a later
 exercise, the field stays and the points count in the total, so they can be cleared if need be. When
 the choice is *{t:results.outcomeAtUnknown}*, no exercise shows as not reached.
+
+A post's link records and changes an interruption only at that post's own exercises. An interruption
+recorded at another post's exercise, without an exercise, or at an exercise the dog's running order no
+longer has shows on the link's page but cannot be changed there, and a save from the link does not
+remove it. The secretary changes it.
 
 In the other formats the field records only *{t:results.retirement.judgeStopped}*. The result is a
 nought, as the rules say, and on the published list it carries the mark

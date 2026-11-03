@@ -99,6 +99,7 @@ export function Component() {
       onRefused={handleRefused}
       onSave={handleSave}
       onTurn={handleTurn}
+      ownOutcomeOnly
       registrations={entry.registrations}
       station={entry.station}
       subtitle={subtitle}
