@@ -225,7 +225,8 @@ export const previewKennelliittoResults = vi.fn(
     _eventId: string,
     _registrationIds: string[] | undefined,
     _token: string,
-    _signal?: AbortSignal
+    _signal?: AbortSignal,
+    _options?: { withoutDogLookup?: boolean }
   ): Promise<KcPreviewResponse> => ({ blockers: [], dogs: [] })
 )
 

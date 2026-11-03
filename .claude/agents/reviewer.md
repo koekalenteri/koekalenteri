@@ -101,7 +101,14 @@ takes away. Findings:
 - a new module, layer or indirection where a few lines in the module that already owns the
   domain would do;
 - a stored field, flag or config that can be derived from what is already stored;
-- a fix that grew past the cause: more files, readers or concepts than the issue needs.
+- a fix that grew past the cause: more files, readers or concepts than the issue needs;
+- code the diff writes that a helper in `src/lib` or `src/lambda/lib` already does: for each new
+  function and each inline block of more than a few lines, `git grep` those folders for one that
+  computes the same thing, and name it (a second deep merge beside `patchMerge`, a hand-written
+  task filter beside `stationTasks`);
+- an export the diff leaves without a production caller: for each call the diff removes or
+  moves, `git grep` the callee; when only its own file and tests still use it, it goes, with
+  those tests. knip does not catch this, since a test import counts as a use for it.
 For each, name what to delete, inline or collapse, and show the behavior stays the same for every
 input a real path gives it. A guard that protects personal data or access control is never a
 finding here. Nothing to take away is a valid result.

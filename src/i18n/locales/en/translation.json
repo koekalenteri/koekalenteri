@@ -1212,10 +1212,12 @@
     "kennelliitto": {
       "answerNotStored": "Kennelliitto’s answer could not be stored in Koekalenteri. Send the dog again.",
       "badge": {
+        "blocked": "Cannot be sent",
         "changed": "Changed",
-        "changedNote": "The result was changed after sending: send it again",
+        "changedNote": "What would be sent has changed since sending, such as the result, the placement, the judges or the dog's details: send it again",
         "failed": "Error",
         "sent": "Sent",
+        "sentGone": "Sent, result gone",
         "unsent": "Not sent"
       },
       "blocker": {

@@ -1212,10 +1212,12 @@
     "kennelliitto": {
       "answerNotStored": "Kennelliiton vastausta ei saatu tallennettua Koekalenteriin. Lähetä koira uudelleen.",
       "badge": {
+        "blocked": "Ei voi lähettää",
         "changed": "Muuttunut",
-        "changedNote": "Tulosta on muutettu lähetyksen jälkeen: lähetä se uudelleen",
+        "changedNote": "Lähetettävä tulos on muuttunut lähetyksen jälkeen, esimerkiksi tulos, sijoitus, tuomarit tai koiran tiedot: lähetä se uudelleen",
         "failed": "Virhe",
         "sent": "Lähetetty",
+        "sentGone": "Lähetetty, tulos poissa",
         "unsent": "Ei lähetetty"
       },
       "blocker": {

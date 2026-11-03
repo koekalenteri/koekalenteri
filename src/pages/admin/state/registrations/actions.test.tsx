@@ -458,7 +458,6 @@ describe('useKennelliittoResults', () => {
     by: 'Sihteeri',
     day: '2026-09-26',
     payloadHash: 'h',
-    resultVersion: '2026-09-26T09:00:00.000Z',
     status: 'sent' as const,
   }
 

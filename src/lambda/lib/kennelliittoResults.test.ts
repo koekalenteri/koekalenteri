@@ -568,7 +568,6 @@ describe('kennelliittoResults', () => {
       expect(registrations[0].kcResult).toMatchObject({
         by: 'Sihteeri',
         payloadHash: createHash('sha256').update(JSON.stringify(call.body)).digest('hex'),
-        resultVersion: '2026-09-26T09:00:00.000Z',
         status: 'sent',
         tulosId: 100,
       })
@@ -721,42 +720,22 @@ describe('kennelliittoResults', () => {
 
       await sendKennelliittoResults(ctx(), ['d1'], { force: false })
 
-      expect(tallennat().map((call) => call.body?.tulos)).toEqual(['A3'])
-      expect(registrations[0].kcResult).toMatchObject({ resultVersion: 'later', status: 'sent' })
+      const [call] = tallennat()
+      expect(call.body?.tulos).toEqual('A3')
+      expect(registrations[0].kcResult).toMatchObject({
+        payloadHash: createHash('sha256').update(JSON.stringify(call.body)).digest('hex'),
+        status: 'sent',
+      })
     })
 
-    it('keeps the version without a call when an edit was taken back and the content is what was sent', async () => {
+    it('reads a result saved again as it was as unchanged, and sends nothing, whenever it was saved', async () => {
       await sendKennelliittoResults(ctx(), ['d1'], { force: false })
       calls = []
       registrations[0].eventResult = { ...registrations[0].eventResult, updatedAt: 'edited-and-back', updatedBy: 'S' }
 
+      expect(statusOf(await previewKennelliittoResults(ctx()), 'd1')).toEqual('unchanged')
       await sendKennelliittoResults(ctx(), ['d1'], { force: false })
-
       expect(tallennat()).toEqual([])
-      expect(registrations[0].kcResult?.resultVersion).toEqual('edited-and-back')
-    })
-
-    it('reports an unchanged dog whose version could not be kept as unchanged, and the others as they went', async () => {
-      registrations.push(dog('d3', 'FI10003/20', 'NOME-A3'))
-      await sendKennelliittoResults(ctx(), ['d2'], { force: false })
-      registrations[1].eventResult = { ...registrations[1].eventResult, updatedAt: 'edited-and-back', updatedBy: 'S' }
-      const write = mockWriteKcResult.getMockImplementation()
-      onTestFinished(() => {
-        if (write) mockWriteKcResult.mockImplementation(write)
-      })
-      mockWriteKcResult.mockImplementation(async (eventId, id, kcResult, previousAt) => {
-        if (id === 'd2') throw new Error('ProvisionedThroughputExceededException')
-        return write ? write(eventId, id, kcResult, previousAt) : false
-      })
-
-      const result = await sendKennelliittoResults(ctx(), ['d1', 'd2', 'd3'], { force: false })
-
-      expect(result.reports.map((report) => [report.id, report.outcome])).toEqual([
-        ['d1', 'sent'],
-        ['d2', 'unchanged'],
-        ['d3', 'sent'],
-      ])
-      expect(result.patches.map((patch) => patch.id)).toEqual(['d1', 'd3'])
     })
 
     it("does not let one dog's refusal stop the others, and keeps Kennelliitto's reasons", async () => {
@@ -838,7 +817,7 @@ describe('kennelliittoResults', () => {
       expect(registrations[0].kcResult?.payloadHash).toBeUndefined()
     })
 
-    it('reads a result saved during the call as a later version, which reads as changed afterwards', async () => {
+    it('reads a result saved during the call as changed afterwards: the hash is of the body that was sent', async () => {
       const original = fakeFetch
       vi.stubGlobal('fetch', async (input: string | URL | Request, init?: RequestInit) => {
         if (String(input).includes('Tulos/Tallenna')) {
@@ -855,7 +834,6 @@ describe('kennelliittoResults', () => {
       await sendKennelliittoResults(ctx(), ['d1'], { force: false })
       vi.stubGlobal('fetch', fakeFetch)
 
-      expect(registrations[0].kcResult?.resultVersion).toEqual('2026-09-26T09:00:00.000Z')
       expect(statusOf(await previewKennelliittoResults(ctx()), 'd1')).toEqual('changed')
     })
 
@@ -1004,6 +982,16 @@ describe('kennelliittoResults', () => {
         }),
       ])
       expect(posts()).toEqual([])
+    })
+
+    it('asks Kennelliitto nothing of the dog for a preview without the lookup, as the results page reads it', async () => {
+      registrations = [foreign('d1')]
+
+      const preview = await previewKennelliittoResults(ctx(), undefined, { withoutDogLookup: true })
+
+      expect(preview.dogs).toEqual([expect.objectContaining({ id: 'd1', problems: [], status: 'ready' })])
+      expect(preview.dogs[0].createsDog).toBeUndefined()
+      expect(calls.filter((call) => call.path === 'Koira' || call.path === 'Yleista/Maat')).toEqual([])
     })
 
     it('only sends the result of a foreign dog Kennelliitto knows', async () => {

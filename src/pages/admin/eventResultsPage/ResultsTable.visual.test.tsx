@@ -1,3 +1,4 @@
+import type { KcBadge } from '@/lib/kennelliittoResults'
 import type { ExerciseSlot } from '@/lib/resultTasks'
 import type { PublicJudge, Registration } from '@/types'
 import type { ResultEdit } from '../../components/stationScoring/types'
@@ -171,7 +172,6 @@ const kcRegistrations: Registration[] = [
       at: sentAt,
       by: 'Sihteeri',
       payloadHash: 'h',
-      resultVersion: '2026-09-26T09:00:00.000Z',
       status: 'sent',
     },
   },
@@ -182,7 +182,6 @@ const kcRegistrations: Registration[] = [
       at: sentAt,
       by: 'Sihteeri',
       payloadHash: 'h',
-      resultVersion: '2026-09-26T09:00:00.000Z',
       status: 'sent',
     },
   },
@@ -199,7 +198,30 @@ const kcRegistrations: Registration[] = [
     eventResult: resultAt('2026-09-26T09:00:00Z', 'NOU1'),
     id: 'run-4',
   },
+  {
+    ...nouRegistrations[0],
+    dog: { ...nouRegistrations[0].dog, name: 'Viides', regNo: 'REG-run-5' },
+    eventResult: resultAt('2026-09-26T09:00:00Z', 'NOU1'),
+    id: 'run-5',
+  },
+  {
+    ...nouRegistrations[0],
+    dog: { ...nouRegistrations[0].dog, name: 'Kuudes', regNo: 'REG-run-6' },
+    eventResult: undefined,
+    id: 'run-6',
+    kcResult: { at: sentAt, by: 'Sihteeri', payloadHash: 'h', status: 'sent' },
+  },
 ]
+
+/** Where each dog stands, as `kcResultBadges` reads them: one of each badge a dog with a result shows. */
+const kcBadges = new Map<string, KcBadge>([
+  ['run-1', { problems: [], status: 'unchanged' }],
+  ['run-2', { problems: [], status: 'changed' }],
+  ['run-3', { problems: [], status: 'failed' }],
+  ['run-4', { problems: [], status: 'ready' }],
+  ['run-5', { problems: [{ code: 'judgeWithoutNumber', detail: 'Ulkomaalainen' }], status: 'blocked' }],
+  ['run-6', { problems: [], status: 'sentGone' }],
+])
 
 const kcTable = (compact = false) => (
   <ResultsTable
@@ -209,7 +231,7 @@ const kcTable = (compact = false) => (
     eventType="NOU"
     judges={nouJudges}
     judgesFor={() => []}
-    kennelliitto
+    kennelliitto={kcBadges}
     onChange={noop}
     onJudgeChange={noop}
     registrations={kcRegistrations}
@@ -438,9 +460,9 @@ describeInLanguage('en', () => {
   })
 })
 
-// Last in the file: it takes the viewport its four cards need, and the sheets above keep the default one.
+// Last in the file: it takes the viewport its six cards need, and the sheets above keep the default one.
 it('shows the same on a phone', async () => {
-  await page.viewport(PHONE + 40, 1100)
+  await page.viewport(PHONE + 40, 1300)
   const screen = await render(<Frame width={PHONE}>{kcTable(true)}</Frame>)
 
   await expect.element(screen.getByText('Muuttunut')).toBeVisible()

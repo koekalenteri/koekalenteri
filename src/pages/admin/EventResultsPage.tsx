@@ -34,7 +34,7 @@ import { errorSnackbarOptions } from '../../lib/client/snackbar'
 import { localizedEventName } from '../../lib/event'
 import { liveViewEnabled } from '../../lib/features'
 import { makeArray } from '../../lib/judge'
-import { countSentResults } from '../../lib/kennelliittoResults'
+import { countSentResults, kcResultBadges } from '../../lib/kennelliittoResults'
 import { IMPLICIT_STATION_ID, liveFormat, scoresAtPosts } from '../../lib/liveFormat'
 import {
   getRegistrationClass,
@@ -56,6 +56,7 @@ import { useStartDayClasses } from './components/useStartDayClasses'
 import { ConflictDialog } from './eventResultsPage/ConflictDialog'
 import ResultsTable from './eventResultsPage/ResultsTable'
 import { useIsOfficialEventType } from './hooks/useIsOfficialEventType'
+import { useKennelliittoDogs } from './hooks/useKennelliittoDogs'
 import { useResultsLock } from './hooks/useResultsLock'
 import { useSaveKcLink } from './hooks/useSaveKcLink'
 import { adminConfirmedEventAtom, adminEventRegistrationsAtom } from './state'
@@ -209,8 +210,22 @@ export default function EventResultsPage() {
   // Results handed to the chief judge are out of the secretary's hands until the judge sends them back.
   // The state Kennelliitto reports is what locks, so an official trial's page reads it when it opens: a trial
   // handed over or confirmed in Omakoira directly locks here (KOE-1222), and one the judge sent back opens.
-  const { locked, refreshState: readState } = useResultsLock(event, kc.preview, { readOnOpen: official })
-  const kennelliitto = !!event && official
+  // That read is the preview of every dog, which the Omakoira column shows, so the column says of each dog
+  // what the send dialog says; it is read again when the dogs change, whoever changed them. Kennelliitto is
+  // not asked about the foreign dogs here: the dialog does that when it opens.
+  const { preview } = kc
+  const previewAll = useCallback(() => preview(undefined, undefined, { withoutDogLookup: true }), [preview])
+  const { dogs: kcDogs, refresh: refreshKcDogs } = useKennelliittoDogs(
+    previewAll,
+    registrations,
+    event?.modifiedAt,
+    official
+  )
+  const { locked, refreshState: readState } = useResultsLock(event, refreshKcDogs, { readOnOpen: official })
+  const kennelliitto = useMemo(
+    () => (event && official ? kcResultBadges(registrations, kcDogs) : undefined),
+    [event, official, registrations, kcDogs]
+  )
   const sentCount = useMemo(() => countSentResults(registrations), [registrations])
 
   const refreshState = useCallback(async () => {

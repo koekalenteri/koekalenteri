@@ -28,7 +28,7 @@ const registrations: Registration[] = registrationsToEventWithStations.map((regi
   if (registration.id === 'run-1') {
     return {
       ...registration,
-      kcResult: { at: sentAt, by: 'Sihteeri', payloadHash: 'h', resultVersion: sentAt.toISOString(), status: 'sent' },
+      kcResult: { at: sentAt, by: 'Sihteeri', payloadHash: 'h', status: 'sent' },
     }
   }
   return registration.id === 'run-2' ? { ...registration, class: 'AVO' } : registration
