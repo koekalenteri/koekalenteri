@@ -109,4 +109,5 @@ for §4.4, rather than quoting it.
 | `npm run docs-coverage -- --staged` | which pages a staged change concerns; pre-commit prints it as a hint |
 | `npm run docs-update -- --since v1.11.2` | the release brief: pages, commits, issues; `--run` starts the session |
 | `npm run release-notes -- v1.11.3` | drafts `docs/<language>/whats-new/1.11.3.md` in both languages from the commits |
+| `npm run release-description -- v1.11.3` | the GitHub release's description: the English notes with every `{t:key}` resolved; `release.yml` writes it over the form's text |
 | `npm run build-rules` | extracts `docs/fi/rules/retriever-trials.md` from `docs/sources/*.pdf`; rerun for a new edition |
