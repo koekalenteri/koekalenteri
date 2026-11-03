@@ -70,6 +70,7 @@
     "docs-coverage": "node scripts/docs-coverage.mjs",
     "docs-update": "node scripts/docs-update.mjs",
     "release-notes": "node scripts/release-notes.mjs",
+    "release-description": "node scripts/release-description.mjs",
     "build-frontend": "node scripts/build-frontend.js",
     "build-e2e-frontend": "node e2e/build-frontend.mjs",
     "e2e-catalog": "node e2e/catalog.mjs",

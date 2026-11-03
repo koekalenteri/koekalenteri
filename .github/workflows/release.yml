@@ -69,22 +69,32 @@ jobs:
           echo "deploy_backend=${DEPLOY_BACKEND:-true}" >> $GITHUB_OUTPUT
           echo "deploy_frontend=${DEPLOY_FRONTEND:-true}" >> $GITHUB_OUTPUT
       # The release notes the version shipped with are the release's description too: one text,
-      # written once in docs/fi/whats-new/<version>.md, not a second one typed into the form (KOE-1398).
+      # written once in docs/en/whats-new/<version>.md, not a second one typed into the form
+      # (KOE-1398). The form cannot fill itself in, so the description is written over after the
+      # release is published, with every `{t:key}` resolved; a pre-release describes itself with
+      # its version's notes. The script needs no install, only Node.
       - uses: actions/checkout@v7
         if: ${{ github.event_name == 'release' }}
+      - uses: actions/setup-node@v7
+        if: ${{ github.event_name == 'release' }}
+        with:
+          node-version: 24
       - name: Describe the release from its notes
         if: ${{ github.event_name == 'release' }}
         env:
           GH_TOKEN: ${{ github.token }}
           TAG: ${{ github.event.release.tag_name }}
         run: |
-          NOTES="docs/fi/whats-new/${TAG#v}.md"
-          if [[ -f "$NOTES" ]]; then
-            # The frontmatter is the file's own bookkeeping; the description starts after it.
-            awk 'body { print } /^---$/ { if (++fences == 2) body = 1 }' "$NOTES" > release-notes.md
+          set +e
+          node scripts/release-description.mjs "$TAG" > release-notes.md
+          status=$?
+          set -e
+          if [[ $status -eq 0 ]]; then
             gh release edit "$TAG" --notes-file release-notes.md
+          elif [[ $status -eq 3 ]]; then
+            echo "::warning::$TAG has no release notes; the description stays as it was written"
           else
-            echo "::warning::no release notes at $NOTES; the description stays as it was written"
+            exit $status
           fi
 
   deploy-backend:
