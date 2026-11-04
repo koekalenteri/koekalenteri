@@ -15,7 +15,7 @@ covers:
   - src/lambda/PaymentCreateFunction/**
   - src/lambda/GetDuplicatePaymentsFunction/**
   - src/lambda/RefundCreateFunction/**
-sourceHash: 5bef36
+sourceHash: 7bff1c
 ---
 
 Koekalenteri is a web shop: the entrant pays the entry fee in the calendar, and the money goes
@@ -73,8 +73,9 @@ optional services, what has already been paid and what is still to be paid.
 
 ### {t:registration.duplicatePayments.title}
 
-If a dog already has a paid entry and its old, unfinished entry is still paid, for example on a
-Paytrail tab left open, the money reaches the club but the entry is not completed. It does not show on
+Once a dog has another completed entry, the payment page of its old, unfinished entry no longer offers
+payment methods and says the entry can no longer be paid. A Paytrail tab already open cannot be stopped:
+if the payment is made there, the money reaches the club but the entry is not completed. It does not show on
 the class lists, in the groups or in the counts. The payer is told on the entry's page that the
 payment goes back through the secretary.
 

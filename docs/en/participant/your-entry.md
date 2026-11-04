@@ -11,7 +11,7 @@ covers:
   - src/pages/components/RegistrationEventInfo.tsx
   - src/pages/components/RegistrationForm.tsx
   - src/lib/registration.ts
-sourceHash: 2a4bbd
+sourceHash: 9ea3c6
 ---
 
 The link in your confirmation email opens your entry's own page, headed **{t:entryList}**. The
@@ -51,7 +51,11 @@ been judged: the **{t:registration.cta.pay}** button, the euro sign on the dog's
 payment link work until the end of the seventh day. After that the page and the payment link say
 the entry cannot be found, and a payment can no longer be started.
 
-If an old, unfinished entry gets paid after the dog's other entry has already been paid, the line
+If the dog already has another entry to the same trial, the payment page of its old, unfinished entry
+no longer offers payment methods and reads *{t:paymentPage.error410}*
+
+If an old, unfinished entry still gets paid, on a Paytrail tab that was already open, after the dog's
+other entry has already been paid, the line
 reads *{t:paymentStatus.duplicate}* and this entry cannot be paid. The secretary refunds the payment,
 and the line then reads *{t:paymentStatus.refunded}*.
 
