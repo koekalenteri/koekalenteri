@@ -198,7 +198,7 @@ export interface JsonEventResult {
   tasks?: JsonEventResultTask[]
   /** Derived server-side from `tasks`; a client-supplied total is ignored. */
   points?: number
-  /** The round's nominal maximum — 80 or 100, depending on how many posts the event ran. */
+  /** The round's nominal maximum: 80 or 100, depending on how many exercises the dog's group did. */
   maxPoints?: number
   /**
    * Derived: `points` against the whole round's `maxPoints`, also for a round that ended early, whose

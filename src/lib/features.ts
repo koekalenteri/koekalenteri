@@ -19,7 +19,8 @@ export const liveViewEnabled = false
  * it ended, the handler's withdrawal, an injury, an illness or the judge's stop (KOE-1669), and the
  * other formats only whether the judge stopped the trial (KOE-1300).
  *
- * The vocabulary, the derivations and the write boundary already accept the whole list. Flipping this
- * turns them on; nothing else has to be rebuilt.
+ * The vocabulary and the write boundary already accept the whole list, but flipping this is not all
+ * that is left. An elimination does not yet end the round for `endedBefore` and the post's queue, fill
+ * in a qualitative type's nought or carry a mark in `resultMarks`.
  */
 export const outcomeReasonEnabled = false
