@@ -174,7 +174,10 @@ export const DogInfo = ({
           const [firstOwner] = owners ?? []
           // Only the name: a cache from before KOE-1264 may still hold the breeder's home town.
           changes.breeder = cache?.breeder && { name: cache.breeder.name }
-          changes.handler = cache?.handler && { ...cache?.handler, membership: cache?.handler?.membership?.[orgId] }
+          changes.handler = cache?.handler && {
+            ...cache?.handler,
+            membership: cache?.handler?.membership?.[orgId] ?? false,
+          }
           changes.owner = firstOwner && stripOwnerKey(firstOwner)
           changes.owners = owners
           changes.ownerHandles = withDefaultOwnerSelection(cache?.owner?.ownerHandles)
