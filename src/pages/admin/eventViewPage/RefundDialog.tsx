@@ -1,7 +1,13 @@
 import type { GridRowSelectionModel } from '@mui/x-data-grid'
 import type { ParseKeys } from 'i18next'
 import type { ChangeEventHandler } from 'react'
-import type { MinimalEventForCost, PublicDogEvent, RefundPaymentResponse, Registration, Transaction } from '@/types'
+import type {
+  MinimalEventForCost,
+  PublicDogEvent,
+  RefundPaymentResponse,
+  RefundRegistration,
+  Transaction,
+} from '@/types'
 import Button from '@mui/material/Button'
 import Dialog from '@mui/material/Dialog'
 import DialogActions from '@mui/material/DialogActions'
@@ -24,7 +30,7 @@ import { getPaymentBalance } from '@/lib/cost'
 import { rowSelectionModel } from '@/lib/datagrid'
 import { formatMoney } from '@/lib/money'
 import { getPaymentPicture, isPaytrailRefusal, paytrailErrorText } from '@/lib/payment'
-import { GROUP_KEY_RESERVE } from '@/lib/registration'
+import { GROUP_KEY_RESERVE, isDuplicatePayment } from '@/lib/registration'
 import { isObject } from '@/lib/utils'
 import { NullComponent } from '../../components/NullComponent'
 import { PaymentDetails } from '../../components/PaymentDetails'
@@ -50,7 +56,7 @@ const refundTextKey = (excessOnly: boolean, canHaveHandlingCosts: boolean) => {
 interface Props {
   /** The trial's fee is what the payment is measured against: it tells whether a part was paid over. */
   readonly event: PublicDogEvent & MinimalEventForCost
-  readonly registration: Registration
+  readonly registration: RefundRegistration
   readonly open?: boolean
   readonly onClose?: () => void
 }
@@ -63,8 +69,11 @@ type RefundMode = 'excess' | 'payment'
 
 const transactionAmount = (t: Transaction) => (t.type === 'refund' ? -1 * (t.amount + (t.handlingCost ?? 0)) : t.amount)
 const DEFAULT_HANDLING_COST = 500
-const defaultHandlingCost = (registration: Registration) =>
-  (registration.group?.key ?? GROUP_KEY_RESERVE) !== GROUP_KEY_RESERVE && registration.refundHandlingCost === undefined
+/** A payment charged twice keeps nothing by default, whatever its group: the app let it through (KOE-1693). */
+const defaultHandlingCost = (registration: RefundRegistration) =>
+  !isDuplicatePayment(registration) &&
+  (registration.group?.key ?? GROUP_KEY_RESERVE) !== GROUP_KEY_RESERVE &&
+  registration.refundHandlingCost === undefined
     ? DEFAULT_HANDLING_COST
     : 0
 const defaultRefundMode = (excessAvailable: boolean): RefundMode => (excessAvailable ? 'excess' : 'payment')
@@ -424,15 +433,18 @@ export const RefundDailog = ({ event, open, registration, onClose }: Props) => {
         >
           {t(refundTextKey(excessOnly, canHaveHandlingCosts))}
         </DialogContentText>
-        <TextField
-          label={t('registration.internalNotes')}
-          multiline
-          name="internalNotes"
-          onChange={handleNotesChange}
-          rows={2}
-          sx={{ mt: 1, width: '100%' }}
-          value={internalNotes}
-        />
+        {/* The notes belong to a row on the list, and a payment charged twice is on none (KOE-1693). */}
+        {isDuplicatePayment(registration) ? null : (
+          <TextField
+            label={t('registration.internalNotes')}
+            multiline
+            name="internalNotes"
+            onChange={handleNotesChange}
+            rows={2}
+            sx={{ mt: 1, width: '100%' }}
+            value={internalNotes}
+          />
+        )}
       </DialogContent>
       <DialogActions>
         <Button variant="contained" onClick={handleRefund} disabled={refundTotal <= 0 || handlingCost < 0}>

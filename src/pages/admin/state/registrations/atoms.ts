@@ -1,7 +1,8 @@
-import type { JsonRegistration, Registration, RegistrationGroupMove } from '@/types'
+import type { DuplicatePaymentEntry, JsonRegistration, Registration, RegistrationGroupMove } from '@/types'
 import { atom } from 'jotai'
 import { atomFamily } from 'jotai-family'
-import { getRegistrations } from '@/api/registration'
+import { getDuplicatePayments, getRegistrations } from '@/api/registration'
+import { reportError } from '@/lib/client/error'
 import { keepNewerRows } from '@/lib/incremental'
 import { asSettled } from '@/lib/maybePromise'
 import { createRegistrationDraft } from '@/lib/registration'
@@ -62,6 +63,31 @@ export const adminEventRegistrationsReloadAtom = atom(
     return registrations
   }
 )
+
+/** Bumped to fetch the event's payments charged twice again. */
+export const adminDuplicatePaymentsRefreshAtom = atomFamily((_eventId: string) => atom(0))
+
+/**
+ * The event's payments charged twice that have not gone back. A list of its own: such a row must stay
+ * off everything that reads the registrations (KOE-1693). A failed fetch keeps the last list, as the
+ * section beside the class lists must never take the page down with it.
+ */
+export const adminDuplicatePaymentsAtom = atomFamily((eventId: string) => {
+  let latest: DuplicatePaymentEntry[] = []
+  return loadedAtom(
+    atom(async (get) => {
+      get(adminDuplicatePaymentsRefreshAtom(eventId))
+      const token = get(validIdTokenAtom)
+      if (!token) return latest
+      try {
+        latest = await getDuplicatePayments(eventId, token)
+      } catch (error) {
+        reportError(error)
+      }
+      return latest
+    })
+  )
+})
 
 /** Local-only commands layered over the WebSocket-backed server snapshot. */
 export const adminPendingRegistrationGroupMovesAtom = atomFamily((_eventId: string) =>

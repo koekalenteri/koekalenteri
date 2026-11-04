@@ -181,6 +181,9 @@ Peruutus kirjataan ja maksu palautetaan samoin kuin ilmoittautumisaikana: rivin 
 peruu, vapautuneelle paikalle nostetaan varasijalta seuraava, ja kalenteri lähettää hänelle
 koepaikkailmoituksen ja koekutsun itsestään.
 
+Kahdesti veloitetut maksut palautetaan luokkalistojen yläpuolella olevasta ilmoituksesta, jos sellainen
+näkyy ([Maksuliikenne](/docs/admin/payments)).
+
 Ryhmän sisäinen starttijärjestys tiivistyy peruutuksen jälkeen automaattisesti. Jo syötetyt
 starttinumerot sen sijaan säilyvät, joten julkaistut numerot eivät muutu peruutuksesta.
 

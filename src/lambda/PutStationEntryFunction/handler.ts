@@ -39,7 +39,7 @@ const putStationEntryLambda = lambda('putStationEntry', async (event) => {
   if (patches.length) await publishRegistrationPatches(eventId, patches, confirmedEvent.organizer.id)
 
   // Echo back only what this link may see: its own post's tasks, the exercises the dog's group does
-  // here, without the derived prize the whole-round data would carry.
+  // here, without the derived prize the whole-round data would carry or anyone's name.
   const { eventType } = confirmedEvent
   const exercisesOf = (id: string) => {
     const registration = registrationOf(id)

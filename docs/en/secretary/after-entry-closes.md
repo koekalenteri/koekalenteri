@@ -18,7 +18,7 @@ covers:
   - src/pages/admin/StartListPreviewPage.tsx
   - src/pages/admin/startListPage/**
   - src/pages/ClassStartNumbersPage.tsx
-sourceHash: 917ac6
+sourceHash: 3a3ff4
 ---
 
 Once entry has closed, the secretary's work goes step by step: picking the participants, the
@@ -185,6 +185,9 @@ A cancellation is recorded and a payment refunded the same way as while entry wa
 row's menu (⋮) with **{t:registration.actions.cancel}** or by dragging into *Peruneet* (cancelled), and with
 **{t:registration.actions.refundPayment}**. When a participant cancels, the next dog on the reserve list is raised to the
 freed place, and the calendar sends it the participant notification and the invitation by itself.
+
+Payments charged twice are refunded from the notice above the class lists, when one shows
+([Payments](/docs/admin/payments)).
 
 The running order within a group closes up automatically after a cancellation. Start numbers already
 entered, on the other hand, stay as they are, so published numbers do not change because of a

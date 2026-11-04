@@ -11,7 +11,7 @@ covers:
   - src/pages/components/RegistrationEventInfo.tsx
   - src/pages/components/RegistrationForm.tsx
   - src/lib/registration.ts
-sourceHash: 90343f
+sourceHash: 2a4bbd
 ---
 
 The link in your confirmation email opens your entry's own page, headed **{t:entryList}**. The
@@ -50,6 +50,10 @@ The fee can still be paid for a week after the trial's last day, even if your cl
 been judged: the **{t:registration.cta.pay}** button, the euro sign on the dog's row and the
 payment link work until the end of the seventh day. After that the page and the payment link say
 the entry cannot be found, and a payment can no longer be started.
+
+If an old, unfinished entry gets paid after the dog's other entry has already been paid, the line
+reads *{t:paymentStatus.duplicate}* and this entry cannot be paid. The secretary refunds the payment,
+and the line then reads *{t:paymentStatus.refunded}*.
 
 The button shows only while something is unpaid. If the trial is paid only once you have a place,
 the payment line reads *{t:paymentStatus.waitingForConfirmation}* until the secretary offers you

@@ -38,7 +38,10 @@ import { adminJudgesAtom } from '../pages/admin/state/judges'
 import { adminLocationsAtom } from '../pages/admin/state/locations'
 import { adminOfficialsAtom } from '../pages/admin/state/officials'
 import { adminOrganizersAtom } from '../pages/admin/state/organizers'
-import { adminEventRegistrationsAtom } from '../pages/admin/state/registrations/atoms'
+import {
+  adminDuplicatePaymentsRefreshAtom,
+  adminEventRegistrationsAtom,
+} from '../pages/admin/state/registrations/atoms'
 import { adminUsersAtom } from '../pages/admin/state/user'
 import { websocketAdminUsersAtom } from '../pages/admin/state/user/derivedAtoms'
 import { validIdTokenAtom } from '../pages/state'
@@ -155,8 +158,38 @@ export const applyRegistrations = (registrations: Registration[], next: Registra
   return next
 }
 
-export const applyRegistrationPatches = (registrations: Registration[], patch: Patch<Registration>[]): Registration[] =>
-  applyPatchesById(registrations, patch)
+/**
+ * A row off the list joins it only from a patch of a whole, finished registration. Every other patch
+ * of such a row is a part of one the secretary has no list row for (an unfinished payment settling, a
+ * payment charged twice refunded), and would land on the lists with no dog (KOE-1693).
+ */
+const isInsertableRegistrationPatch = (patch: Patch<Registration>) => patch.state === 'ready'
+
+export const applyRegistrationPatches = (
+  registrations: Registration[],
+  patch: Patch<Registration>[]
+): Registration[] => {
+  const listed = new Set(registrations.map(({ id }) => id))
+  return applyPatchesById(
+    registrations,
+    patch.filter((item) => (item.id && listed.has(item.id)) || isInsertableRegistrationPatch(item))
+  )
+}
+
+/**
+ * Whether a patch tells of a refund on a row off the list: a payment charged twice whose refund moved.
+ * Unfinished payments of other rows settle all the time, and no open tab refetches for those.
+ */
+export const hasUnlistedRefundPatch = (registrations: Registration[], patch: Patch<Registration>[]): boolean => {
+  const listed = new Set(registrations.map(({ id }) => id))
+  return patch.some(
+    (item) =>
+      item.id &&
+      !listed.has(item.id) &&
+      !isInsertableRegistrationPatch(item) &&
+      ('openRefunds' in item || 'refundAmount' in item)
+  )
+}
 
 /**
  * An event list with one websocket patch applied, kept in the calendar order every fetch gives it:
@@ -391,6 +424,9 @@ export const useWebSocket = () => {
         }
 
         set(adminEventRegistrationsAtom(nextEventId), next)
+        if (hasUnlistedRefundPatch(registrations, patch)) {
+          set(adminDuplicatePaymentsRefreshAtom(nextEventId), (count) => count + 1)
+        }
       },
       [markRecentlyUpdated]
     )

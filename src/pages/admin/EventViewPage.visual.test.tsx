@@ -35,6 +35,12 @@ vi.mock(import('../../api/email'), async (importOriginal) => ({
   getEmailTemplates: async () => [],
 }))
 
+// The section above the lists shows only when there is something to refund, and here there is not.
+vi.mock(import('../../api/registration'), async (importOriginal) => ({
+  ...(await importOriginal()),
+  getDuplicatePayments: async () => [],
+}))
+
 const day = (iso: DayKey): DayKey => iso
 const start = day('2026-10-10')
 const end = day('2026-10-11')

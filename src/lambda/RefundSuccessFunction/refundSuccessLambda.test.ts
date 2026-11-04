@@ -293,6 +293,40 @@ describe('refundSuccessLambda', () => {
     expect(mockResponse).toHaveBeenCalledWith(200, undefined, event)
   })
 
+  // A payment charged twice records no amount on its row: read from the row the mail would say nothing
+  // was paid, or less than nothing (KOE-1693).
+  it('tells the payer of a payment charged twice what was paid, and that the set of open refunds emptied', async () => {
+    mockGetRegistration.mockResolvedValueOnce({
+      ...mockRegistration,
+      paidAmount: undefined,
+      paymentStatus: 'DUPLICATE',
+      refundAmount: undefined,
+      refundHandlingCost: undefined,
+    })
+    mockReadRegistration.mockResolvedValueOnce({ ...mockRegistration, openRefunds: undefined })
+
+    await refundSuccessLambda(event)
+
+    expect(mockSendTemplatedMail).toHaveBeenCalledWith(
+      'refund',
+      'fi',
+      expect.any(String),
+      ['payer@example.com'],
+      expect.objectContaining({
+        amount: '10,00\u00A0€',
+        handlingCost: '5,00\u00A0€',
+        paidAmount: '15,00\u00A0€',
+        refundAmount: 10,
+      }),
+      expect.anything()
+    )
+    expect(mockPublishRegistrationPatches).toHaveBeenCalledWith(
+      'event123',
+      [expect.objectContaining({ id: 'reg456', openRefunds: [] })],
+      expect.anything()
+    )
+  })
+
   it('processes successful refund with status "ok"', async () => {
     await refundSuccessLambda(event)
 

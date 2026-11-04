@@ -142,6 +142,84 @@ describe('LiveEntryPage', () => {
     expect(screen.getAllByRole('textbox')[0]).toHaveValue('10')
   })
 
+  // The link has no socket: the 409 is the only way it hears of another writer, and it is raw JSON (KOE-1697).
+  describe('a save that lost to another writer', () => {
+    const read = new Date('2026-09-12T10:00:00.000Z')
+    const beaten = '2026-09-12T10:05:00.000Z'
+    const stored = { tasks: [{ exercise: 1, part: 0, points: 15, updatedAt: beaten }], updatedAt: beaten }
+    const conflict = () =>
+      new APIError(new Response(null, { status: 409 }), {
+        conflicts: [{ id: 'run-1', stationId: 'post-1', stored, submitted: stored }],
+        error: 'resultConflict',
+        saved: [],
+        unchanged: [],
+      })
+    const withScore = (): StationEntry => {
+      const opened = entry()
+      const [first, second] = opened.registrations
+      return {
+        ...opened,
+        registrations: [
+          { ...first, eventResult: { tasks: [{ exercise: 1, part: 0, points: 11, updatedAt: read }] } },
+          second,
+        ],
+      }
+    }
+    const saveIntoConflict = async () => {
+      vi.mocked(getStationEntry).mockResolvedValue(withScore())
+      vi.mocked(putStationEntry).mockRejectedValueOnce(conflict())
+      const { user } = renderPage()
+      await flushPromises()
+      vi.mocked(getStationEntry).mockClear()
+      vi.mocked(putStationEntry).mockClear()
+
+      await user.click(screen.getByRole('button', { name: /1 Ensimmainen/ }))
+      await user.click(screen.getByRole('button', { name: 'results.save' }))
+      await flushPromises()
+      expect(screen.getByText('results.conflictTitle')).toBeInTheDocument()
+      return user
+    }
+
+    it('folds the stored version in on choosing it, so the next save is based on it without reading the day', async () => {
+      const user = await saveIntoConflict()
+
+      await user.click(screen.getByRole('button', { name: 'results.conflictResolve' }))
+      await flushPromises()
+
+      expect(screen.queryByText('results.conflictTitle')).not.toBeInTheDocument()
+      expect(screen.getAllByRole('textbox')[0]).toHaveValue('15')
+      expect(getStationEntry).not.toHaveBeenCalled()
+
+      await user.click(screen.getByRole('button', { name: 'results.save' }))
+      await flushPromises()
+
+      expect(putStationEntry).toHaveBeenLastCalledWith(
+        'event-1',
+        'post-1',
+        [expect.objectContaining({ basedOn: new Date(beaten) })],
+        'link-token'
+      )
+    })
+
+    it('leaves the old version on cancel, so the next save is refused again rather than overwriting', async () => {
+      const user = await saveIntoConflict()
+      vi.mocked(putStationEntry).mockRejectedValueOnce(conflict())
+
+      await user.click(screen.getByRole('button', { name: 'cancel' }))
+      await flushPromises()
+      await user.click(screen.getByRole('button', { name: 'results.save' }))
+      await flushPromises()
+
+      expect(putStationEntry).toHaveBeenLastCalledWith(
+        'event-1',
+        'post-1',
+        [expect.objectContaining({ basedOn: read })],
+        'link-token'
+      )
+      expect(screen.getByText('results.conflictTitle')).toBeInTheDocument()
+    })
+  })
+
   // The link has no socket: the save's refusal is the only way it hears of a new running order (KOE-1694).
   describe('a save refused because the running order changed', () => {
     const staleData = () =>

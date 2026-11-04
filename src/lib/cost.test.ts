@@ -1053,6 +1053,24 @@ describe('hasDifferentMemberPrice', () => {
 
   describe('getPaymentBalance', () => {
     const event = makeEvent(40, 35)
+
+    // The row of a payment charged twice has paid for nothing, also through its refund: read as
+    // money gone it would owe the fee and the refund, and the refund mail would say less than nothing.
+    it.each([
+      ['before the refund', {}],
+      ['after the refund', { refundAmount: 40 }],
+      ['in a place after the refund', { group: { key: '2026-08-15-ap' }, refundAmount: 35, refundHandlingCost: 5 }],
+    ])('owes and holds nothing on a payment charged twice %s', (_name, row) => {
+      expect(
+        getPaymentBalance(event, {
+          createdAt: new Date('2026-08-01T10:00:00.000Z'),
+          dog: {},
+          paymentStatus: 'DUPLICATE',
+          ...row,
+        })
+      ).toEqual({ cost: 40, due: 0, excess: 0, paid: 0 })
+    })
+
     const participant = { key: '2026-08-15-ap', number: 1 }
     const reserve = { key: 'reserve', number: 1 }
     const entry = (

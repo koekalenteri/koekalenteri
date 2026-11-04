@@ -1,5 +1,5 @@
 import type { StationTurnItem } from './StationTurnControls'
-import { render, screen, within } from '@testing-library/react'
+import { render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { APIError } from '../../../api/http'
 import { expectConsoleOutput } from '../../../test-utils/consoleGuard'
@@ -699,10 +699,7 @@ describe('StationScoring', () => {
       expect(screen.getByRole('tab', { name: 'ALO' })).toHaveAttribute('aria-selected', 'true')
     })
 
-    it.each([
-      ['a conflict over the score', { conflicts: [], error: 'resultConflict' }],
-      ['a refusal that names nothing', 'conflict'],
-    ])('leaves %s to the general path: the dog and its scores stay', async (_name, body) => {
+    it('leaves a refusal that names nothing to the general path: the dog and its scores stay', async () => {
       const user = userEvent.setup()
       const onRefused = vi.fn()
       const { onSave } = renderScoring({
@@ -710,7 +707,7 @@ describe('StationScoring', () => {
         onRefused,
         registrations: [place('alo', 'ALO', 1, onceHere, scores)],
       })
-      onSave.mockRejectedValueOnce(new APIError(new Response(null, { status: 409 }), body))
+      onSave.mockRejectedValueOnce(new APIError(new Response(null, { status: 409 }), 'conflict'))
       expectConsoleOutput(/reportError .*409/)
 
       await user.click(screen.getByRole('button', { name: '1 alo' }))
@@ -720,6 +717,230 @@ describe('StationScoring', () => {
       expect(screen.queryByText('results.layoutChanged')).not.toBeInTheDocument()
       expect(onRefused).not.toHaveBeenCalled()
       expect(saveButton()).toBeEnabled()
+    })
+  })
+
+  // Another writer changed this post's score while the page was open; the link has no socket to hear of it (KOE-1697).
+  describe('a save that lost to another writer', () => {
+    const readVersion = '2026-09-12T10:00:00.000Z'
+    const storedVersion = '2026-09-12T10:05:00.000Z'
+    const conflict = (version = storedVersion) => ({
+      conflicts: [
+        {
+          id: 'alo',
+          stationId: '1',
+          // As the 409 carries them: raw JSON, the dates still strings.
+          stored: { tasks: [{ exercise: 1, part: 0, points: 15, updatedAt: version }], updatedAt: version },
+          submitted: { tasks: [{ exercise: 1, part: 0, points: 11, updatedAt: version }], updatedAt: version },
+        },
+      ],
+      error: 'resultConflict',
+      saved: [],
+      unchanged: [],
+    })
+    const refused = (status: number, body: ConstructorParameters<typeof APIError>[1]) =>
+      new APIError(new Response(null, { status }), body)
+    const dog = {
+      class: 'ALO' as const,
+      dog: { name: 'alo' },
+      eventResult: {
+        tasks: [{ exercise: 1, part: 0, points: 11, updatedAt: new Date(readVersion) }],
+      },
+      eventType: 'NOWT',
+      group: { ...group, number: 1 },
+      id: 'alo',
+      visit: { exercise: 1, exercisePosts: ['1', 'post-2'], parts: 1 as const },
+    }
+    const nextDog = {
+      ...dog,
+      dog: { name: 'seuraava' },
+      eventResult: undefined,
+      group: { ...group, number: 2 },
+      id: 'next',
+    }
+    const title = 'results.conflictTitle'
+    const pointsField = () => screen.getAllByRole('textbox')[0]
+
+    /** A save at the post that came back a conflict, with the given first answer. */
+    const saveIntoConflict = async (props: Partial<Parameters<typeof StationScoring>[0]> = {}) => {
+      const user = userEvent.setup()
+      const onRefused = vi.fn()
+      const onStored = vi.fn()
+      const onLocked = vi.fn()
+      const { onSave } = renderScoring({
+        eventType: 'NOWT',
+        onLocked,
+        onRefused,
+        onStored,
+        registrations: [dog, nextDog],
+        ...props,
+      })
+      onSave.mockRejectedValueOnce(refused(409, conflict()))
+
+      await user.click(screen.getByRole('button', { name: '1 alo' }))
+      await user.click(screen.getByRole('button', { name: 'results.save' }))
+      await screen.findByText(title)
+      return { onLocked, onRefused, onSave, onStored, user }
+    }
+    /** Chooses "mine" against the given answer to the resend. */
+    const resendInto = async (answer: Error, props: Partial<Parameters<typeof StationScoring>[0]> = {}) => {
+      const opened = await saveIntoConflict(props)
+      opened.onSave.mockRejectedValueOnce(answer)
+      await opened.user.click(screen.getByRole('radio', { name: /results\.conflictMine/ }))
+      await opened.user.click(screen.getByRole('button', { name: 'results.conflictResolve' }))
+      return opened
+    }
+
+    it('puts both versions to the post and saves "mine" over the version that beat it', async () => {
+      const user = userEvent.setup()
+      const { onSave } = renderScoring({ eventType: 'NOWT', registrations: [dog, nextDog] })
+      onSave.mockRejectedValueOnce(refused(409, conflict()))
+
+      await user.click(screen.getByRole('button', { name: '1 alo' }))
+      await user.click(screen.getByRole('button', { name: 'results.save' }))
+
+      // An expected state, not a fault: nothing is reported, and the console guard fails this test if it is.
+      expect(await screen.findByText('results.conflictTitle')).toBeInTheDocument()
+      expect(screen.queryByText('results.saveFailed')).not.toBeInTheDocument()
+      expect(screen.getByRole('radio', { name: /results\.conflictStored/ })).toBeChecked()
+
+      await user.click(screen.getByRole('radio', { name: /results\.conflictMine/ }))
+      await user.click(screen.getByRole('button', { name: 'results.conflictResolve' }))
+
+      expect(onSave).toHaveBeenCalledTimes(2)
+      expect(onSave).toHaveBeenLastCalledWith(expect.objectContaining({ basedOn: new Date(storedVersion), id: 'alo' }))
+      // Saved like any save: said so, and on to the next dog not scored yet.
+      expect(await screen.findByText('results.saved')).toBeInTheDocument()
+      expect(screen.queryByText(title)).not.toBeInTheDocument()
+      expect(screen.getByRole('heading', { level: 2, name: /seuraava/ })).toBeInTheDocument()
+    })
+
+    it('shows the stored scores on choosing them, stays on the dog and has the caller fold them in', async () => {
+      const { onRefused, onSave, onStored, user } = await saveIntoConflict()
+      // Only on the choice: a conflict left unanswered must keep the old version.
+      expect(onStored).not.toHaveBeenCalled()
+
+      await user.click(screen.getByRole('button', { name: 'results.conflictResolve' }))
+
+      expect(screen.queryByText(title)).not.toBeInTheDocument()
+      expect(pointsField()).toHaveValue('15')
+      expect(screen.getByRole('heading', { level: 2, name: /alo/ })).toBeInTheDocument()
+      expect(onStored).toHaveBeenCalledTimes(1)
+      expect(onStored).toHaveBeenCalledWith({
+        eventResult: expect.objectContaining({ updatedAt: new Date(storedVersion) }),
+        id: 'alo',
+      })
+      expect(onRefused).not.toHaveBeenCalled()
+      expect(onSave).toHaveBeenCalledTimes(1)
+    })
+
+    it('keeps the entered scores on cancel, and the next save is checked anew against the old version', async () => {
+      const { onSave, onStored, user } = await saveIntoConflict()
+      const newer = '2026-09-12T10:09:00.000Z'
+      onSave.mockRejectedValueOnce(refused(409, conflict(newer)))
+
+      await user.click(screen.getByRole('button', { name: 'cancel' }))
+
+      expect(screen.queryByText(title)).not.toBeInTheDocument()
+      expect(pointsField()).toHaveValue('11')
+      expect(onStored).not.toHaveBeenCalled()
+
+      await user.click(screen.getByRole('button', { name: 'results.save' }))
+
+      expect(await screen.findByText(title)).toBeInTheDocument()
+      expect(onSave).toHaveBeenCalledTimes(2)
+      expect(onSave).toHaveBeenLastCalledWith(expect.objectContaining({ basedOn: new Date(readVersion) }))
+    })
+
+    it('asks again against the newer version when a third writer beats the resend', async () => {
+      const newer = '2026-09-12T10:09:00.000Z'
+      const { onSave, user } = await resendInto(refused(409, conflict(newer)))
+
+      await waitFor(() => expect(onSave).toHaveBeenCalledTimes(2))
+      expect(await screen.findByRole('radio', { name: /results\.conflictStored/ })).toBeChecked()
+      expect(screen.queryByText('results.saveFailed')).not.toBeInTheDocument()
+
+      onSave.mockResolvedValueOnce({ conflicts: [], saved: [{ id: 'alo' }], unchanged: [] })
+      await user.click(screen.getByRole('radio', { name: /results\.conflictMine/ }))
+      await user.click(screen.getByRole('button', { name: 'results.conflictResolve' }))
+
+      expect(onSave).toHaveBeenLastCalledWith(expect.objectContaining({ basedOn: new Date(newer) }))
+    })
+
+    it('ends the dialog and keeps the scores when the trial was locked meanwhile', async () => {
+      const { onLocked } = await resendInto(refused(423, { error: 'resultsLocked' }))
+
+      expect(await screen.findByText('results.kennelliitto.lockedSave')).toBeInTheDocument()
+      expect(screen.queryByText(title)).not.toBeInTheDocument()
+      expect(onLocked).toHaveBeenCalledTimes(1)
+      expect(pointsField()).toHaveValue('11')
+    })
+
+    it('ends the dialog and lets go of the dog when the running order changed meanwhile', async () => {
+      const { onRefused } = await resendInto(refused(409, { error: 'staleData' }))
+
+      expect(await screen.findByText('results.layoutChanged')).toBeInTheDocument()
+      expect(screen.queryByText(title)).not.toBeInTheDocument()
+      expect(onRefused).toHaveBeenCalledTimes(1)
+      expect(screen.queryByRole('heading', { level: 2 })).not.toBeInTheDocument()
+    })
+
+    it.each([
+      ['the dog is gone', 422, 1],
+      ['the server fails', 500, 0],
+    ])('ends the dialog, says so and keeps the scores when %s', async (_name, status, reads) => {
+      expectConsoleOutput(new RegExp(`reportError .*${status}`))
+      const { onRefused } = await resendInto(refused(status, 'refused'))
+
+      expect(await screen.findByText('results.saveFailed')).toBeInTheDocument()
+      expect(screen.queryByText(title)).not.toBeInTheDocument()
+      expect(onRefused).toHaveBeenCalledTimes(reads)
+      expect(pointsField()).toHaveValue('11')
+    })
+
+    describe('of a qualitative type, whose post is the whole trial', () => {
+      const saveIntoQualitativeConflict = async () => {
+        const user = userEvent.setup()
+        const { onSave } = renderScoring({
+          registrations: [{ ...dogs[0], eventResult: { result: 'ALO2', updatedAt: new Date(readVersion) } }],
+        })
+        onSave.mockRejectedValueOnce(
+          refused(409, {
+            conflicts: [
+              {
+                id: 'run-1',
+                stored: { result: 'ALO1', updatedAt: storedVersion },
+                submitted: { result: 'ALO2', updatedAt: storedVersion },
+              },
+            ],
+            saved: [],
+            unchanged: [],
+          })
+        )
+
+        await user.click(screen.getByRole('button', { name: '1 Ensimmainen' }))
+        await user.click(screen.getByRole('button', { name: 'results.save' }))
+        await screen.findByText(title)
+        return { onSave, user }
+      }
+
+      it('bases the resend on the whole result', async () => {
+        const { onSave, user } = await saveIntoQualitativeConflict()
+
+        await user.click(screen.getByRole('radio', { name: /results\.conflictMine/ }))
+        await user.click(screen.getByRole('button', { name: 'results.conflictResolve' }))
+
+        expect(onSave).toHaveBeenLastCalledWith(expect.objectContaining({ basedOn: new Date(storedVersion) }))
+      })
+
+      it('shows the stored result on choosing it', async () => {
+        const { user } = await saveIntoQualitativeConflict()
+
+        await user.click(screen.getByRole('button', { name: 'results.conflictResolve' }))
+
+        expect(screen.queryByText(title)).not.toBeInTheDocument()
+        expect(screen.getByLabelText('results.column.result')).toHaveTextContent('ALO1')
+      })
     })
   })
 

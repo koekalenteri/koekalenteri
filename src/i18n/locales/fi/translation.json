@@ -928,6 +928,16 @@
     "datesFilterInfo": "Valitse sinulle sopivat päivät",
     "datesInfo": "Valitse sinulle sopivimmat ryhmät. Ryhmätoivettasi ei välttämättä pystytä toteuttamaan.",
     "dog": "Koiran tiedot",
+    "duplicatePayments": {
+      "action": "Toiminto",
+      "amount": "Palautettava",
+      "date": "Maksettu",
+      "dog": "Koira",
+      "payer": "Maksaja",
+      "refundPending": "Palautus kesken",
+      "text": "Nämä maksut veloitettiin, vaikka koiralla oli jo voimassa oleva ilmoittautuminen. Ne eivät ole luokkalistoilla eivätkä laskureissa. Palauta maksu maksajalle.",
+      "title": "Kahdesti veloitetut maksut"
+    },
     "email": {
       "subject": "Ilmoittautumisen vahvistus",
       "subject_cancel": "Ilmoittautumisesi on peruttu",
@@ -1177,8 +1187,10 @@
     },
     "conflictInfo": "Näitä tuloksia on muutettu muualla sillä välin. Valitse kumpi jää voimaan.",
     "conflictMine": "Sinun: {{result}}",
+    "conflictNothing": "ei kirjausta",
     "conflictResolve": "Tallenna valinnat",
     "conflictStored": "Tallennettu ({{who}}): {{result}}",
+    "conflictStoredUnnamed": "Tallennettu: {{result}}",
     "conflicts_one": "{{count}} tulos on muuttunut muualla. Tarkista ja tallenna uudelleen.",
     "conflicts_other": "{{count}} tulosta on muuttunut muualla. Tarkista ja tallenna uudelleen.",
     "conflictTitle": "Ristiriitaiset tulokset",

@@ -2,6 +2,7 @@ import type { KcPreviewResponse, KcSendResponse } from '../../lib/kennelliittoRe
 import type {
   AuditRecord,
   ConfirmedEvent,
+  DuplicatePaymentEntry,
   EventResult,
   EventResultsResponse,
   PublicStartList,
@@ -84,6 +85,8 @@ export const getRegistrations = vi.fn(
       }
     })
 )
+
+export const getDuplicatePayments = vi.fn(async (): Promise<DuplicatePaymentEntry[]> => [])
 
 export const getRegistration = vi.fn(
   async (

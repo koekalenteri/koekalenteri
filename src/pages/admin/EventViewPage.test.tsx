@@ -1,5 +1,6 @@
 import type { RouteObject } from 'react-router'
 import type { TestStore } from 'test-utils/AtomProvider'
+import type { DuplicatePaymentEntry } from '../../types'
 import { ThemeProvider } from '@mui/material'
 import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
@@ -14,7 +15,7 @@ import {
 } from '../../__mockData__/events'
 import { mockEvents } from '../../api/__mocks__/event'
 import { putResultsPublished } from '../../api/event'
-import { previewKennelliittoResults } from '../../api/registration'
+import { getDuplicatePayments, previewKennelliittoResults } from '../../api/registration'
 import theme from '../../assets/Theme'
 import { useEventSubscription } from '../../hooks/useEventSubscription'
 import { locales } from '../../i18n'
@@ -28,7 +29,13 @@ import {
 } from '../../test-utils/utils'
 import AppSnackbarProvider from '../components/AppSnackbarProvider'
 import EventViewPage from './EventViewPage'
-import { adminEventAtom, adminEventClassAtom, adminEventIdAtom, adminEventsAtom } from './state'
+import {
+  adminEventAtom,
+  adminEventClassAtom,
+  adminEventIdAtom,
+  adminEventsAtom,
+  adminProjectedEventRegistrationsAtom,
+} from './state'
 
 vi.mock('../../hooks/useEventSubscription', async () => ({
   useEventSubscription: vi.fn(() => ({ viewers: [] })),
@@ -96,6 +103,40 @@ describe('EventViewPage', () => {
     await flushPromises()
     return { ...rendered, store }
   }
+
+  // The section reads its own list, and a return to the tab is how it hears of a new one (KOE-1693).
+  it('shows a payment charged twice above the lists, off them, and looks again when the tab returns', async () => {
+    const duplicate: DuplicatePaymentEntry = {
+      amount: 50,
+      duplicatePaymentAt: new Date('2021-02-01T10:00:00Z'),
+      registration: {
+        createdAt: new Date('2021-02-01T09:00:00Z'),
+        dog: { name: 'Charged Twice', regNo: 'FI1/21' },
+        eventId: handedOver.id,
+        id: 'duplicate-row',
+        payer: { name: 'Payer' },
+        paymentStatus: 'DUPLICATE',
+      },
+    }
+    vi.mocked(getDuplicatePayments).mockClear()
+    vi.mocked(getDuplicatePayments).mockResolvedValue([duplicate])
+    const { store } = await renderHandedOver()
+
+    expect(await screen.findByText('Charged Twice (FI1/21)')).toBeInTheDocument()
+    expect(getDuplicatePayments).toHaveBeenCalledTimes(1)
+    expect(await store?.get(adminProjectedEventRegistrationsAtom(handedOver.id))).not.toContainEqual(
+      expect.objectContaining({ id: 'duplicate-row' })
+    )
+
+    vi.mocked(getDuplicatePayments).mockResolvedValue([])
+    await act(async () => {
+      document.dispatchEvent(new Event('visibilitychange'))
+    })
+    await flushPromises()
+
+    expect(getDuplicatePayments).toHaveBeenCalledTimes(2)
+    expect(screen.queryByText('Charged Twice (FI1/21)')).not.toBeInTheDocument()
+  })
 
   it('reads the state of a trial with the chief judge with its panel closed, so a trial sent back opens again (KOE-1579)', async () => {
     const { store } = await renderHandedOver()

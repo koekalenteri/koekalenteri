@@ -1,4 +1,4 @@
-import type { EventResult, EventResultsResponse, StationEntry, StationTurn } from '../../types'
+import type { StationEntry, StationEntryResponse, StationEventResult, StationTurn } from '../../types'
 import type { EventResultSubmission } from '../registration'
 import { vi } from 'vitest'
 
@@ -22,9 +22,9 @@ export const putStationEntry = vi.fn(
     results: EventResultSubmission[],
     _token: string,
     _signal?: AbortSignal
-  ): Promise<EventResultsResponse> => ({
+  ): Promise<StationEntryResponse> => ({
     conflicts: [],
-    saved: results.map(({ id }) => ({ eventResult: {} as EventResult, id })),
+    saved: results.map(({ id }) => ({ eventResult: {} as StationEventResult, id })),
     unchanged: [],
   })
 )

@@ -7,6 +7,7 @@ import type {
   JsonRegistration,
   JsonStationEntry,
   JsonStationEntryDog,
+  JsonStationEventResult,
   JsonStationTurn,
   StationVisitLayout,
 } from '../../types'
@@ -73,9 +74,6 @@ const stationEntryDog = (
 ): JsonStationEntryDog => {
   const stored = registration.eventResult
   const exercises = stationExercises(confirmedEvent, registration, stationId)
-  const scoped = stored && scopeResultToStation(stored, exercises, registration.eventType)
-  // The version rides along: a whole-trial post's next save is based on it; who wrote it does not.
-  const { updatedBy: _by, ...eventResult } = scoped ?? {}
 
   return {
     class: registration.class,
@@ -83,7 +81,7 @@ const stationEntryDog = (
     eventType: registration.eventType,
     group: registration.group,
     id: registration.id,
-    ...(Object.keys(eventResult).length ? { eventResult } : {}),
+    ...(stored ? { eventResult: scopeResultToStation(stored, exercises, registration.eventType) } : {}),
     ...(registration.visit ? { visit: registration.visit } : {}),
   }
 }
@@ -95,23 +93,26 @@ const stationEntryDog = (
  * so the write path must not hand it back. A qualitative type
  * has no such derivation: its result is the judge's decision, recorded at this very post, and the
  * link needs it back to show the dog as done.
+ *
+ * No writer's name goes out, of the result or of a task: the link is widely shared, and every answer it
+ * gets is made here, the load, a save's echo and a conflict alike. The tasks' `updatedAt` stays, since a
+ * post's next save is based on it, and so does the result's for a whole-trial post.
  */
 export const scopeResultToStation = (
   result: JsonEventResult,
   exercises: readonly number[],
   eventType: string
-): JsonEventResult => {
-  const { elimination, retirement, tasks, result: verdict, judge, updatedAt, updatedBy } = result
+): JsonStationEventResult => {
+  const { elimination, retirement, tasks, result: verdict, judge, updatedAt } = result
   const qualitative = !scoresAtPosts(eventType)
 
   return {
     ...(elimination ? { elimination } : {}),
     ...(retirement ? { retirement } : {}),
-    ...(tasks?.length ? { tasks: stationTasks(tasks, exercises) } : {}),
+    ...(tasks?.length ? { tasks: stationTasks(tasks, exercises).map(({ updatedBy: _by, ...task }) => task) } : {}),
     ...(qualitative && verdict ? { result: verdict } : {}),
     ...(qualitative && judge ? { judge } : {}),
     updatedAt,
-    updatedBy,
   }
 }
 

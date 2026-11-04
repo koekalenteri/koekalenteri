@@ -9,7 +9,10 @@ import { TestProvider as Provider } from 'test-utils/AtomProvider'
 import { getUsers } from '../api/user'
 import { applyPatch, applyPatchOrInsert } from '../lib/utils'
 import { adminEventsAtom } from '../pages/admin/state/events'
-import { adminEventRegistrationsAtom } from '../pages/admin/state/registrations/atoms'
+import {
+  adminDuplicatePaymentsRefreshAtom,
+  adminEventRegistrationsAtom,
+} from '../pages/admin/state/registrations/atoms'
 import { adminUsersAtom } from '../pages/admin/state/user/atoms'
 import { canReadWebsocketAdminUsers } from '../pages/admin/state/user/derivedAtoms'
 import { idTokenAtom } from '../pages/state'
@@ -20,6 +23,7 @@ import {
   applyRegistrations,
   applyViewers,
   getRegistrationPatchChangedIds,
+  hasUnlistedRefundPatch,
   useWebSocket,
 } from './useWebSocket'
 
@@ -42,6 +46,7 @@ vi.mock('../pages/admin/state/registrations/atoms', async () => {
   const { atomFamily } = await vi.importActual<typeof import('jotai-family')>('jotai-family')
   const { atom } = await vi.importActual<typeof import('jotai')>('jotai')
   return {
+    adminDuplicatePaymentsRefreshAtom: atomFamily((_eventId: string) => atom(0)),
     adminEventRegistrationsAtom: atomFamily((_eventId: string) => atom([])),
   }
 })
@@ -170,13 +175,20 @@ describe('applyRegistrationPatches', () => {
     ])
   })
 
-  it('inserts missing registrations by id', () => {
+  it('inserts a missing registration from the patch of a whole, finished one', () => {
     const current = [{ id: '1', notes: 'old' }] as Registration[]
 
-    expect(applyRegistrationPatches(current, [{ id: '2', notes: 'new' }])).toEqual([
+    expect(applyRegistrationPatches(current, [{ id: '2', notes: 'new', state: 'ready' }])).toEqual([
       { id: '1', notes: 'old' },
-      { id: '2', notes: 'new' },
+      { id: '2', notes: 'new', state: 'ready' },
     ])
+  })
+
+  // A refund's patch on a payment charged twice names a row the list never held (KOE-1693).
+  it('does not insert a patch of a row that is not on the list', () => {
+    const current = [{ id: '1', notes: 'old' }] as Registration[]
+
+    expect(applyRegistrationPatches(current, [{ id: '2', openRefunds: [], refundAmount: 50 }])).toBe(current)
   })
 
   it('returns changed registration ids', () => {
@@ -191,6 +203,23 @@ describe('applyRegistrationPatches', () => {
         { id: '2', notes: 'keep' },
       ])
     ).toEqual(['1'])
+  })
+})
+
+// The patches a payment charged twice gets as its refund moves: its own list is fetched again, and
+// every other unfinished row settling is left alone, or every open tab would refetch (KOE-1693).
+describe('hasUnlistedRefundPatch', () => {
+  const current = [{ id: '1' }] as Registration[]
+
+  it.each([
+    ['a refund applied', { id: '2', openRefunds: [], refundAmount: 50 }, true],
+    ['a refund failed', { id: '2', openRefunds: [] }, true],
+    ['an unfinished payment settled on another row', { id: '2', openPayments: [] }, false],
+    ['a delivery status on another row', { emailDeliveryStatus: undefined, id: '2' }, false],
+    ['a refund on a row on the list', { id: '1', openRefunds: [] }, false],
+    ['a whole new row', { id: '2', openRefunds: [], state: 'ready' as const }, false],
+  ])('%s: %s', (_name, patch, expected) => {
+    expect(hasUnlistedRefundPatch(current, [patch])).toBe(expected)
   })
 })
 
@@ -1494,6 +1523,44 @@ describe('useWebSocket', () => {
       expect(result.current.registrations[0]?.paidAt).toEqual(new Date('2026-05-03T08:00:00.000Z'))
       expect(result.current.recentlyUpdated['admin:registration:reg-1']).toEqual(expect.any(Number))
     })
+  })
+
+  // A refund moving on a payment charged twice reaches its own list and leaves the lists alone
+  // (KOE-1693); another unfinished row settling costs no open tab a fetch.
+  it.each([
+    ['a refund on a row off the list', { id: 'reg-2', openRefunds: [] }, 1],
+    ['a payment settling on a row off the list', { id: 'reg-2', openPayments: [] }, 0],
+    ['a refund on a row on the list', { id: 'reg-1', openRefunds: [] }, 0],
+  ])('fetches the payments charged twice again after %s: %s', async (_name, patch, refreshes) => {
+    const registration = { id: 'reg-1' } as Registration
+    const wrapper = function Wrapper({ children }: { readonly children: ReactNode }) {
+      return createElement(Provider, {
+        children,
+        initializeState: ({ set }: TestStore) => {
+          set(idTokenAtom, 'id-token')
+          set(adminEventRegistrationsAtom('event-1'), [registration])
+        },
+      })
+    }
+    const { result } = renderHook(
+      () => {
+        useWebSocket()
+        return {
+          refreshCount: useAtomValue(adminDuplicatePaymentsRefreshAtom('event-1')),
+          registrations: useAtomValue(adminEventRegistrationsAtom('event-1')),
+        }
+      },
+      { wrapper }
+    )
+
+    await act(async () => {
+      mockWebSocketInstance.onmessage?.({
+        data: JSON.stringify({ eventId: 'event-1', patch: [patch], scope: 'admin:event-registrations' }),
+      })
+    })
+
+    await waitFor(() => expect(result.current.refreshCount).toBe(refreshes))
+    expect(result.current.registrations.map(({ id }) => id)).toEqual(['reg-1'])
   })
 
   it('should apply registration patches that arrive while registrations are loading', async () => {

@@ -2,6 +2,8 @@ import type {
   CustomCost,
   DogEventCost,
   EventState,
+  JsonPaymentTransaction,
+  JsonRefundTransaction,
   JsonRegistration,
   JsonTransaction,
   MinimalEventForCost,
@@ -27,7 +29,14 @@ import {
 } from './cost'
 import { objectsDiffer } from './diff'
 import { storedDayKey } from './event'
-import { canRefund, hasRefundableBalance, isMember, isPaymentReturned, isStarter } from './registration'
+import {
+  canRefund,
+  hasRefundableBalance,
+  isDuplicatePayment,
+  isMember,
+  isPaymentReturned,
+  isStarter,
+} from './registration'
 import { capitalize } from './string'
 import { isConfirmedEvent } from './typeGuards'
 import { isObject } from './utils'
@@ -163,7 +172,7 @@ const getPictureStatus = (
   registration: PictureRegistration,
   { due, excess, inProgress, standing }: PictureStatusFacts
 ): PaymentPictureStatus => {
-  if (registration.paymentStatus === 'DUPLICATE') return 'duplicate'
+  if (isDuplicatePayment(registration)) return isPaymentReturned(registration) ? 'refunded' : 'duplicate'
   if (inProgress) return 'inProgress'
   if (isPaymentReturned(registration)) return due > 0 ? 'unpaid' : 'refunded'
   if (standing) {
@@ -186,7 +195,8 @@ const getPictureStatus = (
  * invisible, so only a row that has none to load (a fresh one, the secretary's) may pass an empty list.
  *
  * The status decides in this order, and the first that applies wins: a payment charged twice
- * (`duplicate`); a payment in progress; a fee that went back (`unpaid` when the place owes it again,
+ * (`duplicate`, `refunded` once it went back; it owes nothing either way, `getPaymentBalance`); a
+ * payment in progress; a fee that went back (`unpaid` when the place owes it again,
  * else `refunded`); money standing for the place (`partial` while a part is missing, `overpaid` above
  * the fee, else `paid`); nothing owed or a trial that is not confirmed (`notCharged`); a fee at
  * confirmation whose place is still awaited (`waitingForPlace`); else `unpaid`. What was paid
@@ -201,13 +211,12 @@ export const getPaymentPicture = (
   const balance = getPaymentBalance(event, registration)
   const due = open ? balance.due : 0
   const inProgress = openTransactions.some(isPaymentInProgress)
-  const held = inProgress || registration.paymentStatus === 'DUPLICATE'
   // Some payment still stands for the place: money paid and not gone back, or a payment recorded
   // before the amounts were kept.
   const standing = isPaymentWithoutAmount(registration) || hasRefundableBalance(registration)
 
   return {
-    canPay: open && due > 0 && !held && isPaymentOpenForPlace(event, registration),
+    canPay: open && due > 0 && !inProgress && isPaymentOpenForPlace(event, registration),
     canRefund: canRefund(registration),
     // Unlike the ordinary refund this asks for no reserve or cancelled place, and for no confirmed
     // trial either: the overpaid part is the entrant's after the trial and in a cancelled one too
@@ -259,10 +268,26 @@ export const getFormPayment = (event: PictureEvent, row: PaymentPictureRow): For
   // group and open payments.
   const offer = row.payment ?? edited
   const due = row.payment && isPaymentReturned(row) && isEventOpenForPayment(event) ? row.payment.due : edited.due
-  const held = offer.status === 'inProgress' || offer.status === 'duplicate'
+  const held = offer.status === 'inProgress'
 
   return { due, waitsForPlace: due > 0 && event.paymentTime === 'confirmation' && !offer.canPay && !held }
 }
+
+/**
+ * What of the payments charged twice has not gone back, in euros as a registration's amounts are; the
+ * transactions hold cents. A refund counts once it is applied, the handling fee kept from it with it,
+ * so one on its way still leaves the money here. The row alone cannot tell: it records no amount for
+ * such a payment, and a second charge can arrive after the first went back (KOE-1693).
+ */
+export const getDuplicatePaymentRemainder = (
+  transactions: readonly (JsonPaymentTransaction | JsonRefundTransaction)[]
+): number =>
+  transactions.reduce((cents, transaction) => {
+    if (transaction.type === 'refund') {
+      return transaction.registrationAppliedAt ? cents - transaction.amount - (transaction.handlingCost ?? 0) : cents
+    }
+    return transaction.duplicatePaymentAt ? cents + transaction.amount : cents
+  }, 0) / 100
 
 /** How long a payment may stay unfinished at Paytrail before it no longer counts as in progress. */
 export const STALE_PENDING_PAYMENT_AGE_MS = 5 * 60 * 1000

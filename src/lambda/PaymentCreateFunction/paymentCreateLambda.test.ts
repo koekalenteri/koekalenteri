@@ -332,10 +332,35 @@ describe('paymentCreateLambda', () => {
     const result = await paymentCreateLambda(event)
 
     expect(result.statusCode).toBe(409)
-    expect(JSON.parse(result.body)).toEqual('Duplicate payment requires a refund')
+    expect(JSON.parse(result.body)).toEqual('A payment charged twice cannot be paid again')
     expect(mockReadTransactionsByReference).not.toHaveBeenCalled()
     expect(mockCreatePayment).not.toHaveBeenCalled()
     expect(mockCreatePaymentTransaction).not.toHaveBeenCalled()
+  })
+
+  // It reads `refunded` by now, and owes nothing, but an old unfinished transaction's Paytrail link is
+  // handed back before the amount is looked at (KOE-1693).
+  it('does not hand a refunded duplicate the link of an unfinished transaction', async () => {
+    mockRead.mockReset()
+    mockRead
+      .mockResolvedValueOnce(createMockRegistration({ paymentStatus: 'DUPLICATE', refundAmount: 50 }))
+      .mockResolvedValueOnce(createMockOrganizer())
+    mockReadTransactionsByReference.mockResolvedValue([
+      {
+        createdAt: new Date(Date.now() - 90 * 1000).toISOString(),
+        paymentResponse: createMockPaymentResponse({ transactionId: 'reusableTx' }),
+        reference: 'event123:reg456',
+        status: 'new',
+        transactionId: 'reusableTx',
+        type: 'payment',
+      },
+    ])
+
+    const result = await paymentCreateLambda(event)
+
+    expect(result.statusCode).toBe(409)
+    expect(JSON.parse(result.body)).toEqual('A payment charged twice cannot be paid again')
+    expect(mockCreatePayment).not.toHaveBeenCalled()
   })
 
   it('rejects a concurrent payment creation before calling Paytrail', async () => {

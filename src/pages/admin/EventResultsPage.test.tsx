@@ -1301,6 +1301,39 @@ describe('EventResultsPage', () => {
     expect(screen.getByRole('button', { name: 'results.save' })).toBeEnabled()
   })
 
+  // Its rows read the post's own exercises (KOE-1697): the name is the writer of those, here nobody's.
+  it("reads a conflict in a post's own view by that post's exercises", async () => {
+    const { i18n } = useTranslation()
+    const at = '2026-09-12T10:00:00.000Z'
+    const otherPost = { tasks: [{ exercise: 99, part: 0, points: 12, updatedAt: at, updatedBy: 'Paikka 1' }] }
+    vi.mocked(putEventResults).mockRejectedValueOnce(
+      new APIError(new Response(null, { status: 409, statusText: 'Conflict' }), {
+        conflicts: [
+          {
+            id: 'run-1',
+            stationId: 'post-2',
+            stored: { ...otherPost, updatedAt: at, updatedBy: 'Paikka 1' },
+            submitted: { updatedAt: at, updatedBy: 'Sihteeri' },
+          },
+        ],
+        error: 'resultConflict',
+        saved: [],
+        unchanged: [],
+      })
+    )
+    const { user } = await renderScoringPage(i18n.language as Language)
+    await flushPromises()
+    await user.click(screen.getByLabelText('results.scope'))
+    await user.click(screen.getByRole('option', { name: 'event.station 2' }))
+    await flushPromises()
+
+    await score(user, within(rowFor('Ensimmainen')).getAllByRole('textbox')[0], '5')
+    await user.click(screen.getByRole('button', { name: 'results.save' }))
+    await flushPromises()
+
+    expect(screen.getByRole('radio', { name: /results\.conflictStoredUnnamed/ })).toBeChecked()
+  })
+
   it('keeps the entered scores and says so when the save is refused', async () => {
     const { i18n } = useTranslation()
     // What the server answers for a dog that did not run: not a conflict, so there is nothing to

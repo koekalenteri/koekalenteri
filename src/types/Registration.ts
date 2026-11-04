@@ -265,6 +265,57 @@ export interface JsonEventResultConflict {
 }
 export type EventResultConflict = Replace<JsonEventResultConflict, 'stored' | 'submitted', EventResult>
 
+/** A score as a post's link gets it: when it was written, which is the version a save is based on, and not by whom. */
+export type JsonStationEventResultTask = Omit<JsonEventResultTask, 'updatedBy'>
+export type StationEventResultTask = Replace<JsonStationEventResultTask, 'updatedAt', Date>
+
+/**
+ * A result as a post's link gets it, on the load, in a save's echo and in a conflict: no writer's name
+ * reaches a link this widely shared. `scopeResultToStation` makes it.
+ */
+export type JsonStationEventResult = Omit<JsonEventResult, 'tasks' | 'updatedBy'> & {
+  tasks?: JsonStationEventResultTask[]
+}
+export type StationEventResult = Replace<Omit<JsonStationEventResult, 'tasks'>, 'updatedAt', Date> & {
+  tasks?: StationEventResultTask[]
+}
+
+export interface JsonStationStoredResult {
+  id: string
+  eventResult: JsonStationEventResult
+}
+export type StationStoredResult = Replace<JsonStationStoredResult, 'eventResult', StationEventResult>
+
+export interface JsonStationEntryConflict {
+  id: string
+  stationId?: string
+  stored: JsonStationEventResult
+  submitted: JsonStationEventResult
+}
+export type StationEntryConflict = Replace<JsonStationEntryConflict, 'stored' | 'submitted', StationEventResult>
+
+/** What a save through a post's link answers with: `JsonEventResultsResponse` without the writers' names. */
+export interface JsonStationEntryResponse {
+  saved: JsonStationStoredResult[]
+  unchanged: JsonStationStoredResult[]
+  conflicts: JsonStationEntryConflict[]
+}
+export type StationEntryResponse = Replace<
+  Replace<JsonStationEntryResponse, 'saved' | 'unchanged', StationStoredResult[]>,
+  'conflicts',
+  StationEntryConflict[]
+>
+
+/**
+ * A result where the screen serves both a post's link and the event secretary: the writers' names are
+ * there on the secretary's answers and not on the link's.
+ */
+export type EventResultVersion = Omit<StationEventResult, 'tasks'> & {
+  tasks?: (StationEventResultTask & { updatedBy?: string })[]
+  updatedBy?: string
+}
+export type ResultConflict = Replace<EventResultConflict, 'stored' | 'submitted', EventResultVersion>
+
 /**
  * What saving results answers with, as the server writes it: the rows written, the ones already so
  * (what a retry over a bad connection gets back), and the edits that lost a race.
@@ -447,6 +498,48 @@ export type RefundField = 'paidAmount' | 'refundAmount' | 'refundHandlingCost'
 
 /** A registration's money as the refund and balance rules read it. */
 export type RegistrationRefundAmounts = Pick<Registration, RefundField>
+
+/**
+ * What the refund dialog reads of an entry: every row on the secretary's list has it, and so does a
+ * payment charged twice, which is on no list and gets only this from the server (KOE-1693).
+ */
+export interface RefundRegistration
+  extends MinimalRegistrationForMembership,
+    RegistrationPlacement,
+    RegistrationRefundAmounts,
+    Pick<
+      Registration,
+      | 'createdAt'
+      | 'eventId'
+      | 'id'
+      | 'internalNotes'
+      | 'openPayments'
+      | 'openRefunds'
+      | 'optionalCosts'
+      | 'paymentStatus'
+      | 'refundStatus'
+      | 'selectedCost'
+      | 'updatedAt'
+    > {
+  dog: Pick<Registration['dog'], 'breedCode' | 'name' | 'regNo'>
+  payer?: Pick<RegistrationPerson, 'name'>
+}
+
+export type JsonRefundRegistration = Omit<RefundRegistration, 'createdAt' | 'updatedAt'> &
+  Pick<JsonRegistration, 'createdAt' | 'updatedAt'>
+
+/** A payment charged twice that has not gone back, as the event view's section lists it (KOE-1693). */
+export interface DuplicatePaymentEntry {
+  /** What has not gone back, in euros. */
+  amount: number
+  duplicatePaymentAt: Date
+  registration: RefundRegistration
+}
+
+export interface JsonDuplicatePaymentEntry extends Omit<DuplicatePaymentEntry, 'duplicatePaymentAt' | 'registration'> {
+  duplicatePaymentAt: string
+  registration: JsonRefundRegistration
+}
 
 /** The public row's group: the number is withheld until the class's start numbers are published. */
 export type JsonPublicRegistrationGroup = Omit<JsonRegistrationGroup, 'number'> & { number?: number }

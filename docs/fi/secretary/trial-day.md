@@ -134,6 +134,15 @@ Jos suoritusjärjestys muuttuu, kun suorituspaikan kirjaussivu on auki, sivu ker
 ettei koiran tulosta tallennettu, ja lukee koirat uudelleen. Syötetyt pisteet eivät säily: valitse koira
 listalta ja syötä pisteet uudelleen. Jos sivu ei silti näytä uutta järjestystä, lataa sivu uudelleen.
 
+Jos joku muu on muuttanut koiran pisteitä suorituspaikan rastilla, kun kirjaussivu on auki, tallennus
+pysähtyy ikkunaan **{t:results.conflictTitle}**. Ikkuna näyttää suorituspaikan omat pisteet: mitä nyt on
+tallennettu ja mitä itse syötit. Jos versiossa on keskeytys, sekin näkyy. Valmiiksi on valittu tallennettu
+versio. **{t:results.conflictResolve}** näyttää sen pisteet sivulla, ja koira pysyy valittuna. Jos valitset
+oman versiosi, se tallennetaan tallennetun päälle, ja sivu siirtyy seuraavaan koiraan. **{t:cancel}** sulkee
+ikkunan, ja syötetyt pisteet säilyvät; kun tallennat uudelleen, sivu kysyy saman asian, jos tulos on yhä
+toinen. Jos tallennus ei onnistu muusta syystä, ikkuna sulkeutuu ja sivu kertoo sen. Koesihteerin omassa
+suorituspaikkanäkymässä ikkuna kertoo, kuka on tallentanut viimeksi. Suorituspaikan linkistä nimiä ei näy.
+
 Pisteet poistuvat vain, kun rasti poistuu suoritusjärjestyksestä tai rastin tehtävien määrä muuttuu, koska
 pisteitä ei silloin voi lukea samalle rastille. Poistuvat pisteet luetellaan ennen tallennusta
 koirittain.
@@ -227,8 +236,9 @@ Puhelimella koirakot ovat allekkain omina kortteinaan samoilla kentillä.
 **{t:results.save}** tallentaa vain muuttuneet rivit; **{t:cancel}** hylkää muutokset. Jos sivulta
 poistuu tallentamatta, sivu kysyy ensin: **{t:unsavedChanges.stay}** jää sivulle, ja
 **{t:unsavedChanges.leave}** hylkää muutokset. Välilehden sulkemisesta tai uudelleenlataamisesta
-varoittaa selain itse. Toisen koesihteerin tallennukset päivittyvät sivulle
-itsestään. Jos sama koirakko on ehditty kirjata muualla toisin, tallennus pysähtyy ikkunaan
+varoittaa selain itse.
+
+Toisen koesihteerin tallennukset päivittyvät sivulle itsestään. Jos sama koirakko on ehditty kirjata muualla toisin, tallennus pysähtyy ikkunaan
 **{t:results.conflictTitle}**, joka näyttää molemmat versiot ja kysyy, kumpi jää voimaan;
 **{t:results.conflictResolve}** tallentaa valinnat. Muut rivit on tallennettu jo silloin. Jos valintojen
 tallennus epäonnistuu, ikkuna jää auki ja syötetyt pisteet säilyvät; jos koirakko on sillä välin
