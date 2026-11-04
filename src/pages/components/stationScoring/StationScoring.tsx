@@ -298,6 +298,33 @@ export function StationScoring({
     [eventType, station.id]
   )
 
+  /** What a save the server did not take leaves on screen, and what the caller is told. */
+  const settleRefusal = useCallback(
+    (error: unknown) => {
+      // Handed to the chief judge from somewhere else meanwhile: the scores stay on screen, unsaved.
+      if (error instanceof APIError && error.status === 423) {
+        enqueueSnackbar(t('results.kennelliitto.lockedSave'), { variant: 'error' })
+        onLocked?.()
+        return
+      }
+      // An expected state, not a fault. The edit was seeded from the old order and may hold an exercise the post
+      // no longer does, under a place in the queue that still exists, so saving it would only be refused again:
+      // the dog is let go, and the next pick starts from the list as read again.
+      if (isLayoutChanged(error)) {
+        enqueueSnackbar(t('results.layoutChanged'), errorSnackbarOptions)
+        onRefused?.()
+        setSelectedKey(undefined)
+        return
+      }
+      // Anything else refuses this dog and nothing more: the scores stay on screen, another dog can be picked,
+      // and a dog that is gone from the trial is a list that has moved on, which the caller reads again.
+      reportError(error)
+      enqueueSnackbar(t('results.saveFailed'), errorSnackbarOptions)
+      if (error instanceof APIError && (error.status === 404 || error.status === 422)) onRefused?.()
+    },
+    [onLocked, onRefused, t]
+  )
+
   const handleSave = useCallback(async () => {
     if (!selected) return
 
@@ -320,26 +347,7 @@ export function StationScoring({
         stationId: station.id,
       })
     } catch (error) {
-      // Handed to the chief judge from somewhere else meanwhile: the scores stay on screen, unsaved.
-      if (error instanceof APIError && error.status === 423) {
-        enqueueSnackbar(t('results.kennelliitto.lockedSave'), { variant: 'error' })
-        onLocked?.()
-        return
-      }
-      // An expected state, not a fault. The edit was seeded from the old order and may hold an exercise the post
-      // no longer does, under a place in the queue that still exists, so saving it would only be refused again:
-      // the dog is let go, and the next pick starts from the list as read again.
-      if (isLayoutChanged(error)) {
-        enqueueSnackbar(t('results.layoutChanged'), errorSnackbarOptions)
-        onRefused?.()
-        setSelectedKey(undefined)
-        return
-      }
-      // Anything else refuses this dog and nothing more: the scores stay on screen, another dog can be picked,
-      // and a dog that is gone from the trial is a list that has moved on, which the caller reads again.
-      reportError(error)
-      enqueueSnackbar(t('results.saveFailed'), errorSnackbarOptions)
-      if (error instanceof APIError && (error.status === 404 || error.status === 422)) onRefused?.()
+      settleRefusal(error)
       return
     }
 
@@ -349,21 +357,7 @@ export function StationScoring({
     const next = dogs.find((dog) => !isScored(dog) && entryKey(dog) !== entryKey(selected))
     if (next) select(next)
     else setSelectedKey(undefined)
-  }, [
-    dogs,
-    edit,
-    isScored,
-    judges,
-    lastJudge,
-    onLocked,
-    onRefused,
-    onSave,
-    qualitative,
-    select,
-    selected,
-    station.id,
-    t,
-  ])
+  }, [dogs, edit, isScored, judges, lastJudge, onSave, qualitative, select, selected, settleRefusal, station.id, t])
 
   const chipLabel = (dog: StationScoringDog) => {
     const name = `${dog.group?.number ?? '?'} ${dog.dog.name ?? ''}`
