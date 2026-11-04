@@ -308,8 +308,7 @@ type TaskRecord = TaskAddress & Pick<JsonEventResultTask, 'judge' | 'points' | '
 const saysTheSame = (task: TaskRecord, stored: TaskRecord | undefined): boolean => {
   if (!isRecordedTask(task)) return !stored || !isRecordedTask(stored)
   return (
-    stored !== undefined &&
-    task.points === stored.points &&
+    task.points === stored?.points &&
     task.zeroFault === stored.zeroFault &&
     Boolean(task.recalled) === Boolean(stored.recalled) &&
     (task.judge?.id ?? task.judge?.name) === (stored.judge?.id ?? stored.judge?.name)

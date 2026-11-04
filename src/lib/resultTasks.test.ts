@@ -458,6 +458,9 @@ describe('scores addressed by exercise (KOE-1665, Jukka 2.11.2026)', () => {
     it('holds a score at another exercise that nothing is stored for', () => {
       expect(heldTasks([typed], [], atFirst)).toEqual([typed])
       expect(heldTasks([typed], undefined, atFirst)).toEqual([typed])
+      // Recorded without points: null is still no match for the nothing stored.
+      const recalled = { exercise: 2, part: 0, points: null, recalled: true }
+      expect(heldTasks([recalled], [], atFirst)).toEqual([recalled])
     })
 
     it('holds a score that differs from the stored one at its address', () => {

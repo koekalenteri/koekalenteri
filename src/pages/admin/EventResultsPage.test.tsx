@@ -3,7 +3,7 @@ import type { RouteObject } from 'react-router'
 import type { TestStore } from 'test-utils/AtomProvider'
 import type { Language } from '../../i18n'
 import type { KcDogReport, KcDogStatus, KcPreviewResponse } from '../../lib/kennelliittoResults'
-import type { ConfirmedEvent, EventResult, EventType, Registration } from '../../types'
+import type { ConfirmedEvent, EventResult, EventResultsResponse, EventType, Registration } from '../../types'
 import { ThemeProvider } from '@mui/material'
 import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
@@ -968,6 +968,13 @@ describe('EventResultsPage', () => {
       return within(rowFor(dog)).getAllByRole('textbox')[0]
     }
 
+    /** The server's answer when a dog's part of the save was stored already. */
+    const foundStored = (id: string): EventResultsResponse => ({
+      conflicts: [],
+      saved: [],
+      unchanged: [{ eventResult: { updatedAt: new Date('2021-02-10T12:00:00Z'), updatedBy: 'Sihteeri' }, id }],
+    })
+
     const conflictOn = (id: string, saved: string[] = []) =>
       new APIError(new Response(null, { status: 409, statusText: 'Conflict' }), {
         conflicts: [{ id, stored: { result: 'ALO2' }, submitted: { result: 'ALO1' } }],
@@ -1035,11 +1042,7 @@ describe('EventResultsPage', () => {
 
     it('says only that scores were held when nothing else was saved', async () => {
       const { i18n } = useTranslation()
-      vi.mocked(putEventResults).mockResolvedValueOnce({
-        conflicts: [],
-        saved: [],
-        unchanged: [{ eventResult: {} as EventResult, id: 'run-1' }],
-      })
+      vi.mocked(putEventResults).mockResolvedValueOnce(foundStored('run-1'))
       const { user } = await renderScoringPage(i18n.language as Language)
       await flushPromises()
 
@@ -1085,11 +1088,7 @@ describe('EventResultsPage', () => {
 
     it('still says already saved when nothing was saved and nothing is held', async () => {
       const { i18n } = useTranslation()
-      vi.mocked(putEventResults).mockResolvedValueOnce({
-        conflicts: [],
-        saved: [],
-        unchanged: [{ eventResult: {} as EventResult, id: 'run-1' }],
-      })
+      vi.mocked(putEventResults).mockResolvedValueOnce(foundStored('run-1'))
       const { user } = await renderScoringPage(i18n.language as Language)
       await flushPromises()
 
