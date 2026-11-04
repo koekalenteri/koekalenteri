@@ -118,6 +118,11 @@ ole vielä pisteytetty, koiran palkinto poistuu, kunnes rasti on pisteytetty. Jo
 muuttuu, on *Omakoira*-sarakkeessa tilassa *{t:results.kennelliitto.badge.changed}* ja lähetetään
 uudelleen.
 
+Onnistunut tallennus palaa tapahtumasivulle. Otsikon vieressä oleva **{t:results.backToEvent}** vie
+samaan paikkaan. Jos muutoksia ei ole tallennettu, sivu kysyy ensin: **{t:unsavedChanges.stay}** jää
+sivulle, ja **{t:unsavedChanges.leave}** hylkää muutokset. Sama kysymys tulee, jos sivulta poistuu
+sivuvalikosta tai selaimen paluupainikkeella. **{t:cancel}** hylkää muutokset heti kysymättä.
+
 Kirjatut pisteet kuuluvat rastille, jolle ne kirjattiin: rasti 3 pysyy rastina 3, vaikka sen
 suorituspaikka tai ryhmän suoritusjärjestys muuttuu. Kun esimerkiksi neljä suorituspaikkaa korjataan
 kolmeksi niin, että kolmas paikka tekee rastit 3 ja 4, jokaisen koiran rastien 1, 2, 3 ja 4 pisteet
@@ -147,8 +152,9 @@ tuloksia, ei tallenneta. Muutos, joka ei muuta yhdenkään koiran tulosta, talle
 ## Tulosten syöttö
 
 Paneelin painike **{t:eventManagement.enterResults}** aktivoituu, kun koe on alkanut, ja avaa
-sivun **{t:results.title}**. Monipäiväisessä kokeessa valitaan ensin päivä, ja luokat ovat omilla
-välilehdillään. Sivulla ovat vain osallistujiksi nostetut koirakot starttijärjestyksessä.
+sivun **{t:results.title}**. Otsikon alla näkyvät kokeen päivä, tyyppi, paikka ja nimi, kuten
+suorituspaikkojen, starttinumeroiden ja suorituspaikan kirjaussivuillakin. Monipäiväisessä kokeessa
+valitaan ensin päivä, ja luokat ovat omilla välilehdillään. Sivulla ovat vain osallistujiksi nostetut koirakot starttijärjestyksessä.
 
 **Rasteilla pisteytettävä koe (NOWT).** Jokaisella rastilla on oma sarakkeensa rastin numerolla,
 "Rasti 1", "Rasti 2" ja niin edelleen, riippumatta siitä, missä suorituspaikassa ryhmä rastin teki.
@@ -219,7 +225,9 @@ kirjattu keskeytys, kenttä näkyy sen rivillä, jotta keskeytyksen voi poistaa.
 Puhelimella koirakot ovat allekkain omina kortteinaan samoilla kentillä.
 
 **{t:results.save}** tallentaa vain muuttuneet rivit; **{t:cancel}** hylkää muutokset. Jos sivulta
-poistuu tallentamatta, selain varoittaa. Toisen koesihteerin tallennukset päivittyvät sivulle
+poistuu tallentamatta, sivu kysyy ensin: **{t:unsavedChanges.stay}** jää sivulle, ja
+**{t:unsavedChanges.leave}** hylkää muutokset. Välilehden sulkemisesta tai uudelleenlataamisesta
+varoittaa selain itse. Toisen koesihteerin tallennukset päivittyvät sivulle
 itsestään. Jos sama koirakko on ehditty kirjata muualla toisin, tallennus pysähtyy ikkunaan
 **{t:results.conflictTitle}**, joka näyttää molemmat versiot ja kysyy, kumpi jää voimaan;
 **{t:results.conflictResolve}** tallentaa valinnat. Muut rivit on tallennettu jo silloin. Jos valintojen

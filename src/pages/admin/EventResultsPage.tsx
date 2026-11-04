@@ -31,7 +31,6 @@ import { useEventSubscription } from '../../hooks/useEventSubscription'
 import { useUnsavedChangesWarning } from '../../hooks/useUnsavedChangesWarning'
 import { reportError } from '../../lib/client/error'
 import { errorSnackbarOptions } from '../../lib/client/snackbar'
-import { localizedEventName } from '../../lib/event'
 import { liveViewEnabled } from '../../lib/features'
 import { makeArray } from '../../lib/judge'
 import { countSentResults, kcResultBadges } from '../../lib/kennelliittoResults'
@@ -54,7 +53,7 @@ import { dayStations, rotationDogOf } from '../../lib/rotation'
 import { Path } from '../../routeConfig'
 import { AsyncButton } from '../components/AsyncButton'
 import { emptyEdit } from '../components/stationScoring/types'
-import { idTokenAtom, languageAtom } from '../state'
+import { idTokenAtom } from '../state'
 import { EntryPageHeader } from './components/EntryPageHeader'
 import EventNotFound from './components/EventNotFound'
 import { KcIdLookupButton } from './components/KcIdLookupButton'
@@ -97,7 +96,6 @@ export default function EventResultsPage() {
   useAdminEventScope(eventId)
   const _token = useAtomValue(idTokenAtom)
   const event = useAtomValue(adminConfirmedEventAtom(eventId))
-  const language = useAtomValue(languageAtom)
   const registrations = useAtomValue(adminEventRegistrationsAtom(eventId))
   const saveResults = useSaveEventResults(eventId)
   const storeResults = useStoreEventResults(eventId)
@@ -434,20 +432,12 @@ export default function EventResultsPage() {
 
   if (!event?.id) return <EventNotFound />
 
-  const name = localizedEventName(event, language)
-
   return (
     <Paper
       elevation={2}
       sx={{ display: 'flex', flexDirection: 'column', flexGrow: 1, maxHeight: '100%', maxWidth: '100%' }}
     >
-      <EntryPageHeader eventId={eventId} title={t('results.title')}>
-        {/* Which trial these results belong to, so the secretary is never entering against the wrong
-            event: the day, the format, the venue and the name, same order as the AC gives them. */}
-        <Typography variant="body2">
-          {t('dateFormat.datespan', { end: event.endDate, start: event.startDate })} {event.eventType} {event.location}
-          {name ? ` (${name})` : ''}
-        </Typography>
+      <EntryPageHeader event={event} title={t('results.title')}>
         {event.kcGuid ? (
           <Typography
             variant="body2"

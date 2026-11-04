@@ -102,6 +102,7 @@
     "test-integration": "node scripts/test-integration.js",
     "test": "node scripts/test.js",
     "typecheck": "tsc --noEmit -p tsconfig.json",
+    "update-tlds": "node scripts/update-tlds.mjs",
     "i18n-compare": "node scripts/compare-translations.js src/i18n/locales/fi/translation.json src/i18n/locales/en/translation.json",
     "i18n-sort": "node scripts/sort-translations.js src/i18n/locales/fi/translation.json && node scripts/sort-translations.js src/i18n/locales/en/translation.json",
     "knip": "knip --config knip.config.json",
