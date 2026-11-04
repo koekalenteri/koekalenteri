@@ -409,6 +409,41 @@ describe('StationResultsPage', () => {
       expect(screen.getByRole('button', { name: '2 Toinen' })).toBeInTheDocument()
     })
 
+    it("folds the other writer's version into the row on choosing it, without reading the list (KOE-1697)", async () => {
+      const at = '2026-09-12T10:05:00.000Z'
+      const judge = { id: 223, name: 'Tuomari 2' }
+      vi.mocked(putEventResults).mockRejectedValueOnce(
+        new APIError(new Response(null, { status: 409 }), {
+          conflicts: [
+            {
+              id: 'run-1',
+              stored: { judge, result: 'ALO2', updatedAt: at, updatedBy: 'Toinen sihteeri' },
+              submitted: { judge, result: 'ALO1', updatedAt: at, updatedBy: 'Sihteeri' },
+            },
+          ],
+          error: 'resultConflict',
+          saved: [],
+          unchanged: [],
+        })
+      )
+      vi.mocked(getRegistrations).mockClear()
+      const { i18n } = useTranslation()
+      const { user } = await renderStation(i18n.language as Language, '1', singlePostEvent)
+      await flushPromises()
+
+      await pickFirstDog(user)
+      expect(screen.getByText('results.conflictTitle')).toBeInTheDocument()
+      // The modal hides the page from the accessibility tree while it is up.
+      expect(screen.getByRole('button', { hidden: true, name: '1 Ensimmainen' })).toHaveClass('MuiChip-outlined')
+
+      await user.click(screen.getByRole('button', { name: 'results.conflictResolve' }))
+      await flushPromises()
+
+      expect(screen.queryByText('results.conflictTitle')).not.toBeInTheDocument()
+      expect(screen.getByRole('button', { name: '1 Ensimmainen' })).toHaveClass('MuiChip-filled')
+      expect(getRegistrations).not.toHaveBeenCalled()
+    })
+
     it('says the running order changed and reads the list again, letting go of the dog (KOE-1694)', async () => {
       vi.mocked(putEventResults).mockRejectedValueOnce(
         new APIError(new Response(null, { status: 409 }), { error: 'staleData', message: 'layout changed' })

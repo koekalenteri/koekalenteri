@@ -1,17 +1,19 @@
 import type { ReactNode } from 'react'
 import type { EventResultSubmission } from '@/api/registration'
 import type {
-  EventResult,
-  EventResultsResponse,
+  EventResultVersion,
   EventStation,
   PublicDogEvent,
   PublicJudge,
   RegistrationClass,
   RegistrationGroup,
   RegistrationTime,
+  ResultConflict,
+  StationEntryResponse,
   StationTurnOp,
   StationVisitLayout,
 } from '@/types'
+import type { ConflictChoice } from './ConflictDialog'
 import type { StationTurnItem } from './StationTurnControls'
 import type { ResultEdit } from './types'
 import Save from '@mui/icons-material/Save'
@@ -28,6 +30,7 @@ import { useCallback, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { APIError } from '@/api/http'
 import { reportError } from '@/lib/client/error'
+import { resultConflictResponse } from '@/lib/client/resultConflict'
 import { errorSnackbarOptions } from '@/lib/client/snackbar'
 import { compareRegistrationClasses } from '@/lib/event'
 import { makeArray } from '@/lib/judge'
@@ -35,18 +38,19 @@ import { scoresAtPosts } from '@/lib/liveFormat'
 import { getRegistrationClass } from '@/lib/registration'
 import { formatTaskName, parseEventResultCode } from '@/lib/results'
 import {
+  editVersion,
   effectiveJudge,
   endedAtExercise,
   endedBefore,
   exercisesAtPost,
   holdsScore,
   outcomeHeldElsewhere,
-  stationVersion,
   visitSlots,
 } from '@/lib/resultTasks'
 import { openTurn } from '@/lib/stationTurns'
 import { isObject } from '@/lib/utils'
 import { AsyncButton } from '../AsyncButton'
+import { ConflictDialog } from './ConflictDialog'
 import { JudgeSelect } from './JudgeSelect'
 import { ResultSummary } from './ResultSummary'
 import { RoundOutcome } from './RoundOutcome'
@@ -65,8 +69,8 @@ interface StationScoringDog {
   group?: RegistrationGroup & { time?: RegistrationTime }
   dog: { name?: string }
   handler?: { name?: string }
-  eventResult?: Pick<EventResult, 'elimination' | 'retirement' | 'tasks' | 'result' | 'judge'> &
-    Partial<Pick<EventResult, 'updatedAt'>>
+  eventResult?: Pick<EventResultVersion, 'elimination' | 'retirement' | 'tasks' | 'result' | 'judge'> &
+    Partial<Pick<EventResultVersion, 'updatedAt'>>
   /**
    * The exercise of the dog's group at this place in the post's queue, where the post scores exercises
    * (KOE-1665). A dog doing two exercises here is in the list twice, once with each.
@@ -86,7 +90,7 @@ interface Props {
    * each in start order. The screen keeps that order.
    */
   readonly registrations: StationScoringDog[]
-  readonly onSave: (submission: EventResultSubmission) => Promise<EventResultsResponse>
+  readonly onSave: (submission: EventResultSubmission) => Promise<Pick<StationEntryResponse, 'saved'>>
   /** The post's live timeline (KOE-1259); the clock and its buttons render only when provided. */
   readonly turns?: readonly StationTurnItem[]
   readonly onTurn?: (op: StationTurnOp) => Promise<unknown>
@@ -101,6 +105,12 @@ interface Props {
    * changed: the caller reads the list again.
    */
   readonly onRefused?: () => void
+  /**
+   * The post chose to let the version that beat its save stand: the caller folds it in, so the list's marks
+   * and the next save's version are right whatever the connection does. Only on that choice: a conflict
+   * left unanswered must keep the old version, or the next save would overwrite what the post never saw.
+   */
+  readonly onStored?: (stored: { id: string; eventResult: EventResultVersion }) => void
   /**
    * The server keeps an outcome this post does not hold, so the control only shows it (KOE-1615). The
    * token link's rule; the event secretary's post view may change any outcome.
@@ -152,6 +162,13 @@ const entryKey = (dog: StationScoringDog): string => `${dog.id}#${dog.visit?.exe
 const isLayoutChanged = (error: unknown): boolean =>
   error instanceof APIError && error.status === 409 && isObject(error.body) && error.body.error === 'staleData'
 
+/** A save that lost to another writer, kept for the post to decide on. */
+interface PendingConflict {
+  conflicts: ResultConflict[]
+  dog: StationScoringDog
+  submission: EventResultSubmission
+}
+
 /**
  * The dog in front of the judge when the screen opens: whoever the open turn holds, at the exercise the
  * turn names. Coming back to a turn already started must land on that dog, not on an empty screen. The
@@ -197,6 +214,7 @@ export function StationScoring({
   lockedText,
   onLocked,
   onRefused,
+  onStored,
   ownOutcomeOnly = false,
 }: Props) {
   const { t } = useTranslation()
@@ -218,6 +236,8 @@ export function StationScoring({
   const [selectedKey, setSelectedKey] = useState<string | undefined>(initial && entryKey(initial))
   const [edit, setEdit] = useState<ResultEdit>(initial ? seededEdit(initial, station.id, eventType) : emptyEdit)
   const [lastJudge, setLastJudge] = useState<PublicJudge | undefined>()
+  const [pending, setPending] = useState<PendingConflict>()
+  const [choices, setChoices] = useState<Record<string, ConflictChoice>>({})
 
   // The class on show may have left this post when the list was read again.
   const eventClass = selectedClass && eventClasses.includes(selectedClass) ? selectedClass : eventClasses[0]
@@ -297,9 +317,29 @@ export function StationScoring({
     [eventType, station.id]
   )
 
-  /** What a save the server did not take leaves on screen, and what the caller is told. */
+  /**
+   * Which of a dog's scores its version is made of: this post's, or where nothing is scored here the whole
+   * result, the post being the whole trial.
+   */
+  const versionExercises = useCallback(
+    (dog: StationScoringDog) => (qualitative ? undefined : exercisesHere(dog, station.id)),
+    [qualitative, station.id]
+  )
+
+  /**
+   * What a save the server did not take leaves on screen, and what the caller is told. The save button's and
+   * the conflict dialog's alike: a new conflict is put to the post, every other refusal ends the dialog.
+   */
   const settleRefusal = useCallback(
-    (error: unknown) => {
+    (error: unknown, submission: EventResultSubmission, dog: StationScoringDog) => {
+      // Another writer got there first: an expected state, not a fault, and only the post can tell which stands.
+      const conflicts = resultConflictResponse(error)?.conflicts
+      if (conflicts) {
+        setPending({ conflicts, dog, submission })
+        setChoices({})
+        return
+      }
+      setPending(undefined)
       // Handed to the chief judge from somewhere else meanwhile: the scores stay on screen, unsaved.
       if (error instanceof APIError && error.status === 423) {
         enqueueSnackbar(t('results.kennelliitto.lockedSave'), { variant: 'error' })
@@ -324,17 +364,36 @@ export function StationScoring({
     [onLocked, onRefused, t]
   )
 
+  const submit = useCallback(
+    async (submission: EventResultSubmission, dog: StationScoringDog) => {
+      let saved: number
+      try {
+        saved = (await onSave(submission)).saved.length
+      } catch (error) {
+        settleRefusal(error, submission, dog)
+        return
+      }
+
+      setPending(undefined)
+      enqueueSnackbar(saved ? t('results.saved') : t('results.alreadySaved'), { variant: 'success' })
+
+      // Move on to the next place in the queue not scored yet: at a post the queue is the job.
+      const next = dogs.find((other) => !isScored(other) && entryKey(other) !== entryKey(dog))
+      if (next) select(next)
+      else setSelectedKey(undefined)
+    },
+    [dogs, isScored, onSave, select, settleRefusal, t]
+  )
+
   const handleSave = useCallback(async () => {
     if (!selected) return
 
-    const stored = selected.eventResult
     // A qualitative result is attributed to whoever is judging, as a task's score is at a post.
     const judge = qualitative ? (edit.judge ?? lastJudge ?? judges[0]) : undefined
-    let response: EventResultsResponse
-    try {
-      response = await onSave({
+    await submit(
+      {
         // Where the post is the whole trial, the version is the whole result's, as on the results page.
-        basedOn: qualitative ? stored?.updatedAt : stationVersion(stored?.tasks, exercisesHere(selected, station.id)),
+        basedOn: editVersion(selected.eventResult, versionExercises(selected)),
         eventResult: {
           elimination: edit.elimination,
           retirement: edit.retirement,
@@ -344,19 +403,29 @@ export function StationScoring({
         },
         id: selected.id,
         stationId: station.id,
-      })
-    } catch (error) {
-      settleRefusal(error)
-      return
-    }
+      },
+      selected
+    )
+  }, [edit, judges, lastJudge, qualitative, selected, station.id, submit, versionExercises])
 
-    enqueueSnackbar(response.saved.length ? t('results.saved') : t('results.alreadySaved'), { variant: 'success' })
+  /**
+   * The post decided. "Mine" sends the same save again based on the version that beat it. "Stored" lets that
+   * version stand: the form shows it, the dog stays on screen, and the caller folds it in. Either way the
+   * answer settles this dog alone, so a cancelled dialog leaves nothing behind: the next save is checked anew.
+   */
+  const handleResolve = useCallback(
+    async ({ conflicts: [conflict], dog, submission }: PendingConflict) => {
+      if (choices[conflict.id] === 'mine') {
+        await submit({ ...submission, basedOn: editVersion(conflict.stored, versionExercises(dog)) }, dog)
+        return
+      }
 
-    // Move on to the next place in the queue not scored yet: at a post the queue is the job.
-    const next = dogs.find((dog) => !isScored(dog) && entryKey(dog) !== entryKey(selected))
-    if (next) select(next)
-    else setSelectedKey(undefined)
-  }, [dogs, edit, isScored, judges, lastJudge, onSave, qualitative, select, selected, settleRefusal, station.id, t])
+      setEdit(seededEdit({ ...dog, eventResult: conflict.stored }, station.id, eventType))
+      onStored?.({ eventResult: conflict.stored, id: conflict.id })
+      setPending(undefined)
+    },
+    [choices, eventType, onStored, station.id, submit, versionExercises]
+  )
 
   const chipLabel = (dog: StationScoringDog) => {
     const name = `${dog.group?.number ?? '?'} ${dog.dog.name ?? ''}`
@@ -515,6 +584,19 @@ export function StationScoring({
           {t('results.save')}
         </AsyncButton>
       </Stack>
+
+      {pending && (
+        <ConflictDialog
+          choices={choices}
+          conflicts={pending.conflicts}
+          eventType={eventType}
+          exercisesOf={qualitative ? undefined : () => exercisesHere(pending.dog, station.id)}
+          onChoose={(id, choice) => setChoices((prev) => ({ ...prev, [id]: choice }))}
+          onClose={() => setPending(undefined)}
+          onResolve={() => handleResolve(pending)}
+          registrations={[pending.dog]}
+        />
+      )}
     </Paper>
   )
 }

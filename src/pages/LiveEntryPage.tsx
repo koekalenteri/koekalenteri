@@ -1,5 +1,5 @@
 import type { EventResultSubmission } from '../api/registration'
-import type { StationEntry, StationTurnOp } from '../types'
+import type { StationEntry, StationEntryDog, StationTurnOp } from '../types'
 import Typography from '@mui/material/Typography'
 import { useAtomValue } from 'jotai'
 import { useCallback } from 'react'
@@ -31,13 +31,10 @@ export function Component() {
   )
   const { entry, failed, setEntry } = useLinkedEntry<StationEntry>(load)
 
-  const handleSave = useCallback(
-    async (submission: EventResultSubmission) => {
-      const response = await putStationEntry(eventId, stationId, [submission], token)
-
-      // What came back is now the stored truth for those dogs; folding it in keeps the queue's
-      // scored-marks and the next correction's base version right without refetching the day.
-      const written = [...response.saved, ...response.unchanged]
+  // What is stored for those dogs, as the server said; folding it in keeps the queue's scored-marks and the
+  // next correction's base version right without refetching the day.
+  const foldStored = useCallback(
+    (written: readonly Pick<StationEntryDog, 'id' | 'eventResult'>[]) =>
       setEntry(
         (previous) =>
           previous && {
@@ -47,11 +44,22 @@ export function Component() {
               return stored ? { ...reg, eventResult: stored.eventResult } : reg
             }),
           }
-      )
+      ),
+    [setEntry]
+  )
 
+  const handleSave = useCallback(
+    async (submission: EventResultSubmission) => {
+      const response = await putStationEntry(eventId, stationId, [submission], token)
+      foldStored([...response.saved, ...response.unchanged])
       return response
     },
-    [eventId, setEntry, stationId, token]
+    [eventId, foldStored, stationId, token]
+  )
+
+  const handleStored = useCallback(
+    (stored: Pick<StationEntryDog, 'id' | 'eventResult'>) => foldStored([stored]),
+    [foldStored]
   )
 
   const handleTurn = useCallback(
@@ -105,6 +113,7 @@ export function Component() {
       onLocked={handleLocked}
       onRefused={handleRefused}
       onSave={handleSave}
+      onStored={handleStored}
       onTurn={handleTurn}
       ownOutcomeOnly
       registrations={entry.registrations}

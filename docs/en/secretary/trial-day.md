@@ -14,7 +14,7 @@ covers:
   - src/pages/admin/eventViewPage/infoPanel/ResultsPublishing.tsx
   - src/pages/admin/components/KcIdLookupButton.tsx
   - src/pages/admin/components/StartDaySelector.tsx
-sourceHash: 1741f6
+sourceHash: 2989ac
 ---
 
 On the trial day the secretary's job is to record what the dogs did and to get the results in
@@ -130,6 +130,15 @@ If the running order changes while a post's scoring page is open, the page says 
 dog's result was not saved, and reads the dogs again. The points entered are not kept: pick the dog
 from the list and enter them again. If the page still does not show the new order, reload it.
 
+If someone else has changed the dog's scores at the post's exercise while the entry page is open, the save
+stops at the dialog **{t:results.conflictTitle}**. The dialog shows the post's own scores: what is stored
+now and what you entered. An interruption in a version shows too. The stored version is selected to begin
+with. **{t:results.conflictResolve}** shows its scores on the page, and the dog stays selected. If you pick
+your own version, it is saved over the stored one, and the page moves on to the next dog. **{t:cancel}**
+closes the dialog and the entered scores stay; when you save again, the page asks the same thing if the
+result is still different. If the save fails for another reason, the dialog closes and the page says so.
+In the secretary's own view of a post the dialog says who saved last. The post's link shows no names.
+
 Points go only when an exercise leaves the running order or an exercise is split differently, since
 the points can then no longer be read as the same exercise. The scores that would go are listed dog
 by dog before the save.
@@ -222,8 +231,9 @@ On a phone the dogs are listed one under another as cards with the same fields.
 **{t:results.save}** saves only the rows that changed; **{t:cancel}** discards the changes. If you
 leave the page without saving, the page asks first: **{t:unsavedChanges.stay}** stays on the page, and
 **{t:unsavedChanges.leave}** discards the changes. Closing or reloading the tab gets the browser's own
-warning. Another secretary's saves reach the page by
-themselves. If the same dog has meanwhile been recorded differently elsewhere, the save stops at
+warning.
+
+Another secretary's saves reach the page by themselves. If the same dog has meanwhile been recorded differently elsewhere, the save stops at
 the dialog **{t:results.conflictTitle}**, which shows both versions and asks which one stands;
 **{t:results.conflictResolve}** saves the choices. The other rows have already been saved by then. If
 saving the choices fails, the dialog stays open and the entered scores are kept; if the dog has
