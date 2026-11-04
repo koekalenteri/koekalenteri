@@ -265,16 +265,16 @@ describe('stats/rebuild', () => {
       mockReadAllStatKeys.mockResolvedValueOnce(statKeys)
     }
     const organizerRow = { PK: 'ORG#organizer-moved', SK: '2026-03-01#moved' }
-    const writtenRows = () => mockWriteStatRecords.mock.calls.flatMap(([rows]) => rows)
-    const deletedKeys = () => mockDeleteStatRecords.mock.calls.flatMap(([keys]) => keys)
 
     it('writes them from the rows, over what the key held', async () => {
       arrange([organizerRow])
 
       await scheduledHandler()
 
-      expect(writtenRows()).toContainEqual(expect.objectContaining({ ...organizerRow, count: 1, paidAmount: 50 }))
-      expect(deletedKeys()).toEqual([])
+      expect(mockWriteStatRecords).toHaveBeenCalledWith(
+        expect.arrayContaining([expect.objectContaining({ ...organizerRow, count: 1, paidAmount: 50 })])
+      )
+      expect(mockDeleteStatRecords).not.toHaveBeenCalled()
     })
 
     it.each([
@@ -290,8 +290,8 @@ describe('stats/rebuild', () => {
 
       await scheduledHandler()
 
-      expect(deletedKeys()).toContainEqual(stale)
-      expect(writtenRows()).toContainEqual(expect.objectContaining(organizerRow))
+      expect(mockDeleteStatRecords).toHaveBeenCalledWith(expect.arrayContaining([stale]))
+      expect(mockWriteStatRecords).toHaveBeenCalledWith(expect.arrayContaining([expect.objectContaining(organizerRow)]))
     })
 
     it('deletes the row of an event that moved out of a year with nothing else left', async () => {
@@ -300,7 +300,8 @@ describe('stats/rebuild', () => {
 
       await scheduledHandler()
 
-      expect(deletedKeys()).toEqual([stale])
+      expect(mockDeleteStatRecords).toHaveBeenCalledTimes(1)
+      expect(mockDeleteStatRecords).toHaveBeenCalledWith([stale])
     })
 
     it('deletes the row of a deleted event, which the read of the events leaves out', async () => {
@@ -309,7 +310,8 @@ describe('stats/rebuild', () => {
 
       await scheduledHandler()
 
-      expect(deletedKeys()).toEqual([ofDeleted])
+      expect(mockDeleteStatRecords).toHaveBeenCalledTimes(1)
+      expect(mockDeleteStatRecords).toHaveBeenCalledWith([ofDeleted])
     })
 
     it('deletes an organizer row no year can be read from, as nothing would ever replace it', async () => {
@@ -318,7 +320,8 @@ describe('stats/rebuild', () => {
 
       await scheduledHandler()
 
-      expect(deletedKeys()).toEqual([unreadable])
+      expect(mockDeleteStatRecords).toHaveBeenCalledTimes(1)
+      expect(mockDeleteStatRecords).toHaveBeenCalledWith([unreadable])
     })
   })
 

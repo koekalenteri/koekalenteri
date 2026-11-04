@@ -16,7 +16,7 @@ The prefixes are `STATS_KEY_PREFIX` and `YEARS_PK` in `eventStatsRepository.ts`;
 
 Every partition is recomputed in one pass from the events and the registrations, which is simpler and cannot drift: nothing else writes the table, so a registration, a payment or a group move shows at the next run, and no writer can race the pass. An event's organizer or start date moving needs no writer either: the run writes the row under the key the event holds now and deletes the key it held before, across years too (`regenerateYear`), and an event deleted since leaves its row the same way, as the rebuild reads live events only.
 
-Only a finished entry counts (`isFinishedEntry` in `src/lib/registration.ts`, the one rule `eventClassStats.ts` reads too): a row still in the payment step, or one whose payment was charged twice, counts in no partition, also when that payment has gone back to the payer.
+Only a finished entry counts (`isFinishedEntry` in `src/lib/registration.ts`, which `eventClassStats.ts` reads too): a row still in the payment step counts in no partition, and a payment charged twice leaves its row there, also after that payment has gone back to the payer.
 
 ## Public interface
 

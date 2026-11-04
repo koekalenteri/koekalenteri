@@ -814,8 +814,9 @@ export const isDuplicatePayment = (reg: Pick<Registration, 'paymentStatus'>): bo
   reg.paymentStatus === 'DUPLICATE'
 
 /**
- * Whether the entry is finished. One still in the payment step, or whose payment was charged twice,
- * is no entry: the statistics, the secretary's list and the event's counts leave it out.
+ * Whether the entry is finished, which is what the statistics count (`stats/rebuild.ts`,
+ * `eventClassStats.ts`). A row still in the payment step is `creating`, and a payment charged twice
+ * leaves its row `creating`, also after that payment has gone back.
  */
 export const isFinishedEntry = (reg: Pick<JsonRegistration, 'state'>): boolean => reg.state === 'ready'
 

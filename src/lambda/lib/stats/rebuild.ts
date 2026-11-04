@@ -770,7 +770,7 @@ const processRegistrationStats = (
     eventBreakdownBuckets,
   }: RegistrationStatsContext
 ): { skipped: boolean; unattributedCapacity: boolean } => {
-  // One still in the payment step, or whose payment was charged twice and refunded, counts nowhere.
+  // A row still in the payment step counts nowhere; a payment charged twice leaves its row there.
   if (!isFinishedEntry(registration)) return { skipped: false, unattributedCapacity: false }
 
   const dated = eventsById.get(registration.eventId)

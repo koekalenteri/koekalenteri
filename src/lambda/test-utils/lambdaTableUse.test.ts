@@ -1026,6 +1026,8 @@ export default async () => {
   await new CustomDynamoClient(table).readAll()
 }
 `,
+  ReExportedDefault: `export { list as default } from '../lib/deep'
+`,
   SetterCaller: `import { list, useLocations } from '../lib/setter'
 
 export default async () => {
@@ -1470,6 +1472,11 @@ describe('createTableUseAnalyzer', () => {
 
   it('follows a client through a Pick parameter and a table through an options property', () => {
     expect(usesOf('Directory')).toEqual(['GetItem locationTable', 'Scan judgeTable'])
+  })
+
+  it("follows a default export that is another module's function", () => {
+    expect(usesOf('ReExportedDefault')).not.toEqual([])
+    expect(usesOf('ReExportedDefault')).toEqual(usesOf('ImportDeep'))
   })
 
   it('collects a shorthand TableName in a transaction item', () => {
