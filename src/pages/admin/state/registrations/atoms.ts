@@ -3,6 +3,7 @@ import { atom } from 'jotai'
 import { atomFamily } from 'jotai-family'
 import { getDuplicatePayments, getRegistrations } from '@/api/registration'
 import { reportError } from '@/lib/client/error'
+import { keepNewerRows } from '@/lib/incremental'
 import { asSettled } from '@/lib/maybePromise'
 import { createRegistrationDraft } from '@/lib/registration'
 import { toStoredRegistration } from '@/lib/wire'
@@ -25,14 +26,43 @@ export const adminEventRegistrationsAtom = atomFamily((eventId: string) => {
   const loadedListAtom = loadedAtom(remoteAtom)
   return atom(
     (get) => asSettled(get(overrideAtom) ?? get(loadedListAtom)),
-    (_get, set, value: Registration[] | ((previous: Registration[]) => Registration[])) =>
-      set(overrideAtom, (current) => {
-        if (typeof value !== 'function') return value
-        if (!current) throw new Error('Cannot update registrations before they have loaded')
-        return value(current)
-      })
+    (get, set, value: Registration[] | ((previous: Registration[]) => Registration[])) => {
+      if (typeof value !== 'function') {
+        set(overrideAtom, value)
+        return
+      }
+      // A list nothing has written to yet is still the loaded one: an update builds on that.
+      const current = get(overrideAtom) ?? asSettled(get(loadedListAtom))
+      if (current instanceof Promise) throw new Error('Cannot update registrations before they have loaded')
+      set(overrideAtom, value(current))
+    }
   )
 })
+
+/**
+ * Reads the event's whole list and writes it, for the view that needs what the server holds now: a
+ * refused save, and a socket that was away. Without a token nothing is read or written (an empty
+ * answer would read as a trial with no dogs), and the answer is undefined.
+ *
+ * The answer belongs to the token that read it, and is dropped if that has changed. The instance is
+ * taken before the read, so an answer arriving after the event's atoms were released goes to the
+ * dropped instance: looking it up again would create one, holding this user's rows for the next login.
+ */
+export const adminEventRegistrationsReloadAtom = atom(
+  null,
+  async (get, set, eventId: string): Promise<Registration[] | undefined> => {
+    const token = get(validIdTokenAtom)
+    if (!token) return undefined
+    const listAtom = adminEventRegistrationsAtom(eventId)
+    const answer = await getRegistrations(eventId, token)
+    if (get(validIdTokenAtom) !== token) return undefined
+
+    const held = get(listAtom)
+    const registrations = held instanceof Promise ? answer : keepNewerRows(held, answer)
+    set(listAtom, registrations)
+    return registrations
+  }
+)
 
 /** Bumped to fetch the event's payments charged twice again. */
 export const adminDuplicatePaymentsRefreshAtom = atomFamily((_eventId: string) => atom(0))

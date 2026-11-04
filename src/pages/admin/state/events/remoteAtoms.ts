@@ -4,7 +4,7 @@ import { atom } from 'jotai'
 import { unwrap } from 'jotai/utils'
 import { getAdminEvents } from '@/api/event'
 import { compareEventsByDate } from '@/lib/event'
-import { latestCollectionUpdate } from '@/lib/incremental'
+import { keepNewerRows, latestCollectionUpdate } from '@/lib/incremental'
 import { trackSettled } from '@/lib/maybePromise'
 import { getJwtSubject } from '@/lib/token'
 import { toDogEvent } from '@/lib/wire'
@@ -61,13 +61,12 @@ const storeAdminEvents = (events: DogEvent[], scope: string) => {
   }
 }
 
-const remoteAdminEventsAtom = atom(async (get, { signal }): Promise<AdminEventList> => {
-  const fetchKey = get(fetchKeyAtom)
-  const subject = get(subjectAtom)
-  const token = get(validIdTokenAtom)
-  const user = await get(userAtom)
-  if (!token || !user) return { events: [], fetchKey }
-
+/**
+ * The list as the server has it: what the last fetch stored, with what has changed since its newest
+ * stamp. The stored list, not the one in hand, gives that stamp: a save made while the socket was away
+ * is stamped past the changes the socket missed.
+ */
+const readAdminEvents = async (token: string, user: User) => {
   const scope = cacheScope(user)
   const stored: unknown = parseStorageJSON(sessionStorage.getItem(CACHE_KEY))
   const cached =
@@ -75,6 +74,17 @@ const remoteAdminEventsAtom = atom(async (get, { signal }): Promise<AdminEventLi
   const since = cached ? latestCollectionUpdate(cached)?.getTime() : undefined
   const fetched = await getAdminEvents(token, since)
   const events = cached && since ? reconcileAdminEvents(cached, fetched) : sortEvents(fetched)
+  return { events, scope }
+}
+
+const remoteAdminEventsAtom = atom(async (get, { signal }): Promise<AdminEventList> => {
+  const fetchKey = get(fetchKeyAtom)
+  const subject = get(subjectAtom)
+  const token = get(validIdTokenAtom)
+  const user = await get(userAtom)
+  if (!token || !user) return { events: [], fetchKey }
+
+  const { events, scope } = await readAdminEvents(token, user)
 
   // A fetch that settles after the token changed, a sign-out among them, must not store the list
   // again into the storage the sign-out cleared.
@@ -155,3 +165,24 @@ export const adminEventsRemoteAtom = atom(
     set(adminEventsOverrideAtom, { ...base, events: value(base.events) })
   }
 )
+
+/**
+ * Reads what changed while the socket was away, without touching the fetch key: a fetch that fails
+ * under a new key throws into every reader, and at a reconnect the network is at its shakiest. A failed
+ * read rejects here and leaves the list as it is. An answer is dropped if the key moved meanwhile: that
+ * fetch read later.
+ */
+export const adminEventsRereadAtom = atom(null, async (get, set) => {
+  // Waited for first, so this read is not answered by a fetch that started before the subscription.
+  await get(remoteAdminEventsAtom)
+  const fetchKey = get(fetchKeyAtom)
+  const token = get(validIdTokenAtom)
+  const user = await get(userAtom)
+  if (!token || !user) return
+
+  const { events, scope } = await readAdminEvents(token, user)
+  if (get(fetchKeyAtom) !== fetchKey) return
+
+  storeAdminEvents(events, scope)
+  await set(adminEventsRemoteAtom, (current) => sortEvents(keepNewerRows(current, events)))
+})

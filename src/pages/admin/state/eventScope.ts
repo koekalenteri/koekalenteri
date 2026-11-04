@@ -1,4 +1,6 @@
+import { atom } from 'jotai'
 import { useEffect } from 'react'
+import { reportError } from '@/lib/client/error'
 import {
   adminConfirmedEventAtom,
   adminEventAtom,
@@ -6,10 +8,14 @@ import {
   adminLinkedKcGuidsAtom,
 } from './events/derivedAtoms'
 import { adminEditableEventByIdAtom } from './events/editableAtoms'
+import { adminEventsRereadAtom } from './events/remoteAtoms'
 import {
+  adminDuplicatePaymentsAtom,
+  adminDuplicatePaymentsRefreshAtom,
   adminEventRegistrationsAtom,
   adminEventRegistrationsCursorAtom,
   adminEventRegistrationsFetchedAtAtom,
+  adminEventRegistrationsReloadAtom,
   adminPendingRegistrationGroupMovesAtom,
 } from './registrations/atoms'
 import { adminEventRegistrationAtom, adminProjectedEventRegistrationsAtom } from './registrations/derivedAtoms'
@@ -18,6 +24,8 @@ import { adminEditableEventRegistrationByEventIdAndIdAtom } from './registration
 /** The families that hold one instance per event the administrator has opened. */
 const EVENT_FAMILIES = [
   adminConfirmedEventAtom,
+  adminDuplicatePaymentsAtom,
+  adminDuplicatePaymentsRefreshAtom,
   adminEditableEventByIdAtom,
   adminEventAtom,
   adminEventRegistrationsAtom,
@@ -55,6 +63,26 @@ const scopes = new Map<string, number>()
 
 /** The events whose atoms are held by a mounted view right now. */
 export const heldAdminEventIds = () => [...scopes.keys()]
+
+/**
+ * Brings the events, and the registrations of the events a mounted view holds, up to what the server
+ * has, after the socket has been away. A failed read is reported and waits for the next reconnect.
+ *
+ * The payments charged twice are a list of their own that only a bump reads again: a refund patch of
+ * such a row sent during the outage was lost, and the registrations read cannot bring it, as those
+ * rows are off that list. A view that does not show the list reads nothing for the bump.
+ */
+export const rereadHeldAdminEventsAtom = atom(null, async (_get, set) => {
+  const held = heldAdminEventIds()
+  for (const eventId of held) set(adminDuplicatePaymentsRefreshAtom(eventId), (count) => count + 1)
+  const reads = await Promise.allSettled<unknown>([
+    set(adminEventsRereadAtom),
+    ...held.map((eventId) => set(adminEventRegistrationsReloadAtom, eventId)),
+  ])
+  for (const read of reads) {
+    if (read.status === 'rejected') reportError(read.reason)
+  }
+})
 
 /**
  * Claims the event's atoms for as long as the view is mounted, and releases them a moment after the

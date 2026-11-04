@@ -5,7 +5,7 @@ This folder contains the Lambda-side WebSocket service layer. It keeps track of 
 ## Runtime flow
 
 1. `$connect` calls `connectWebSocket`, which stores the connection as a public connection and sets a DynamoDB TTL close to API Gateway's maximum WebSocket lifetime.
-2. `$default` messages are handled by `WsMessageFunction`. Clients can authenticate, subscribe to an admin channel, a single event, or an edit-token-authorized participant registration, or unsubscribe.
+2. `$default` messages are handled by `WsMessageFunction`. Clients can authenticate, subscribe to an admin channel, a single event, an event's published start list, or an edit-token-authorized participant registration, or unsubscribe.
 3. Domain mutations call the publish helpers in `actions.ts`. These helpers resolve the right audience and broadcast JSON payloads to each connection. See "Live pushes are best effort" below.
 4. `$disconnect` removes the connection and publishes updated connection or event-viewer state when needed.
 5. Broadcasts that receive `GoneException` clean up stale connections through `disconnectWebSocket`.
@@ -31,18 +31,18 @@ stays unmarked and the retry sends again. The stored data version bump in
 
 All client messages are JSON objects sent to `$default`.
 
-| Action                             | Payload                                                                                                                                         | Result                                                                                                                                                                                         |
-| ---------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Authenticate                       | `{ "action": "authenticate", "token": "<cognito-id-token>" }`                                                                                   | Verifies the Cognito ID token, resolves application authorization, and stores `userId`, `memberOf`, `admin`, and token expiry on the connection.                                               |
-| Subscribe to admin                 | `{ "action": "subscribe", "channel": "admin" }`                                                                                                 | Marks the connection as admin-subscribed. The connection must be an admin or belong to at least one organizer.                                                                                 |
-| Subscribe to event                 | `{ "action": "subscribe", "channel": "event", "eventId": "<event-id>" }`                                                                        | Subscribes the connection to one event's admin updates. The connection must be an admin or member of the event organizer.                                                                      |
-| Subscribe to public start list     | `{ "action": "subscribe", "channel": "public-event", "eventId": "<event-id>" }`                                                                 | Watches one event's published start list. No authentication, and the connection stays in the public audience, so it keeps receiving the event patches broadcast to every anonymous connection. |
-| Subscribe to registration          | `{ "action": "subscribe", "channel": "registration", "eventId": "<event-id>", "registrationId": "<registration-id>", "token": "<edit-token>" }` | Verifies the participant edit token, subscribes to that registration's `participant:registration-patch` updates, and returns its current state in the same shape.                              |
-| Unsubscribe from admin             | `{ "action": "unsubscribe", "channel": "admin" }`                                                                                               | Removes the admin-channel subscription and returns the connection to the public audience.                                                                                                      |
-| Unsubscribe from event             | `{ "action": "unsubscribe", "channel": "event" }`                                                                                               | Removes the current event subscription and publishes updated event viewers.                                                                                                                    |
-| Unsubscribe from public start list | `{ "action": "unsubscribe", "channel": "public-event" }`                                                                                        | Removes the published start list subscription.                                                                                                                                                 |
-| Unsubscribe from registration      | `{ "action": "unsubscribe", "channel": "registration" }`                                                                                        | Removes the current participant registration subscription.                                                                                                                                     |
-| Keepalive                          | `{ "action": "ping" }`                                                                                                                          | Answered with `{ pong: true }` without a connection lookup. API Gateway closes a WebSocket after 10 minutes without traffic, so clients ping well inside that window rather than reconnecting. |
+| Action                             | Payload                                                                                                                                         | Result                                                                                                                                                                                                                                                                                                         |
+| ---------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Authenticate                       | `{ "action": "authenticate", "token": "<cognito-id-token>" }`                                                                                   | Verifies the Cognito ID token, resolves application authorization, and stores `userId`, `memberOf`, `admin`, and token expiry on the connection.                                                                                                                                                               |
+| Subscribe to admin                 | `{ "action": "subscribe", "channel": "admin" }`                                                                                                 | Marks the connection as admin-subscribed. The connection must be an admin or belong to at least one organizer. Acknowledged with `{ adminSubscribed: true }`, which the client's re-read depends on ("After a reconnect").                                                                                     |
+| Subscribe to event                 | `{ "action": "subscribe", "channel": "event", "eventId": "<event-id>" }`                                                                        | Subscribes the connection to one event's admin updates. The connection must be an admin or member of the event organizer. Acknowledged with `{ eventId, subscribed: true }`.                                                                                                                                   |
+| Subscribe to public start list     | `{ "action": "subscribe", "channel": "public-event", "eventId": "<event-id>" }`                                                                 | Watches one event's published start list. No authentication, and the connection stays in the public audience, so it keeps receiving the event patches broadcast to every anonymous connection. Acknowledged with `{ eventId, subscribed: true }`, which the client answers with a fetch ("After a reconnect"). |
+| Subscribe to registration          | `{ "action": "subscribe", "channel": "registration", "eventId": "<event-id>", "registrationId": "<registration-id>", "token": "<edit-token>" }` | Verifies the participant edit token, subscribes to that registration's `participant:registration-patch` updates, and returns its current state in the same shape.                                                                                                                                              |
+| Unsubscribe from admin             | `{ "action": "unsubscribe", "channel": "admin" }`                                                                                               | Removes the admin-channel subscription and returns the connection to the public audience.                                                                                                                                                                                                                      |
+| Unsubscribe from event             | `{ "action": "unsubscribe", "channel": "event" }`                                                                                               | Removes the current event subscription and publishes updated event viewers.                                                                                                                                                                                                                                    |
+| Unsubscribe from public start list | `{ "action": "unsubscribe", "channel": "public-event" }`                                                                                        | Removes the published start list subscription.                                                                                                                                                                                                                                                                 |
+| Unsubscribe from registration      | `{ "action": "unsubscribe", "channel": "registration" }`                                                                                        | Removes the current participant registration subscription.                                                                                                                                                                                                                                                     |
+| Keepalive                          | `{ "action": "ping" }`                                                                                                                          | Answered with `{ pong: true }` without a connection lookup. API Gateway closes a WebSocket after 10 minutes without traffic, so clients ping well inside that window rather than reconnecting, and once on waking to find out whether the socket is still alive ("After a reconnect").                         |
 
 Authentication is optional for public broadcasts, but required for admin and event subscriptions.
 
@@ -83,7 +83,9 @@ after every write that has a broadcast behind it, so an open page always ends on
 - Not available (404) is taken as no rows, the same as the live message for an unpublished list, with
   the version the 404 carries.
 - A failed fetch is not retried on top of the http layer's own retry (a GET, once, on a network
-  error); the next message brings the list.
+  error); the next message or reconnect brings the list.
+- A subscribe's acknowledgement is answered with such a fetch too ("After a reconnect" below): its
+  floor is the version on screen, which was read before the fetch started.
 - Before any versioned list has been accepted, an unversioned message or loader result is taken as it
   is, for a backend deployed before versions.
 - Leaving the event cancels its fetches; a fetch for an event the page has left is never shown.
@@ -102,6 +104,38 @@ Accepted risks:
   An older read can win only if the skew exceeds the time between a sender's write and its own stamp,
   which includes the registration patch broadcast and the connection lookup (tens of milliseconds);
   Lambda clocks are kept in step by Amazon Time Sync to well under a millisecond.
+
+## After a reconnect
+
+The server sends no current state with a subscribe (the registration channel excepted, whose ack
+carries the participant's payment patch), and a broadcast sent while a socket is away is lost. So the
+client reads again when a subscribe is acknowledged. The ack comes after the subscription is stored:
+a read started on it sees everything sent before, and anything later arrives on the socket
+(`useWebSocket` in `src/hooks`, KOE-1523, KOE-1698).
+
+- **The acks.** The route response of `subscribe` (`template/functions/ws/message.yaml`): `{ eventId, subscribed: true }`
+  for the event and the public start list, with no scope, and `{ adminSubscribed: true }` for the admin channel.
+- **Public start list.** Every matching ack, the first included, is answered with a fetch through the
+  versions above. It closes the gap between the page's first read and its subscribe too, for one more
+  GET per page open.
+- **Admin.** An `{ adminSubscribed: true }` on a different connection than the previous one reads the
+  events changed since the last fetch and the whole registration list of every event a mounted view
+  holds (`rereadHeldAdminEventsAtom` in `src/pages/admin/state/eventScope.ts`), and bumps that event's
+  payments charged twice, a list of its own whose rows no registration read brings. The admin channel is the
+  ack because it delivers every event's patches, also to a view without an event subscription. The
+  first ack reads nothing, since the page has just read; signing out starts over. A token refresh
+  replaces the socket and reads the same way: a socket can die unnoticed before it.
+- **Waking up.** A sleeping phone holds a socket that is dead but not closed, and no `close` fires until
+  a send fails. When the page becomes visible with an open socket the client sends `{ action: 'ping' }`,
+  and if nothing arrives on that socket within 5 s it replaces the socket as a token refresh does,
+  without waiting for `close`. Any message clears the timer. A false alarm costs one reconnect and its
+  read.
+- **Races.** A row in an answer does not replace a held row whose stamp is newer (`keepNewerRows` in
+  `src/lib/incremental.ts`). Accepted: a patch without a stamp (a station's turns) that lands during the
+  read can be undone by the answer, and a row added during the read goes from a whole answer. Both
+  converge on the next message or reconnect.
+- **A failed read** is not retried on top of the http layer's own retry; it waits for the next
+  reconnect, and the list stays as it was.
 
 ## Connection model
 

@@ -1,7 +1,11 @@
 import { renderHook } from '@testing-library/react'
 import { heldAdminEventIds, releaseAdminEventAtoms, useAdminEventScope } from './eventScope'
 import { adminEventAtom } from './events/derivedAtoms'
-import { adminEventRegistrationsAtom } from './registrations/atoms'
+import {
+  adminDuplicatePaymentsAtom,
+  adminDuplicatePaymentsRefreshAtom,
+  adminEventRegistrationsAtom,
+} from './registrations/atoms'
 import { adminEventRegistrationAtom } from './registrations/derivedAtoms'
 
 const paramsOf = <P>(family: { getParams(): Iterable<P> }) => [...family.getParams()]
@@ -11,6 +15,8 @@ describe('releaseAdminEventAtoms', () => {
     adminEventAtom('event-1')
     adminEventAtom('event-2')
     adminEventRegistrationsAtom('event-1')
+    adminDuplicatePaymentsAtom('event-1')
+    adminDuplicatePaymentsRefreshAtom('event-1')
     adminEventRegistrationAtom({ eventId: 'event-1', id: 'reg-1' })
     adminEventRegistrationAtom({ eventId: 'event-2', id: 'reg-2' })
 
@@ -19,6 +25,9 @@ describe('releaseAdminEventAtoms', () => {
     expect(paramsOf(adminEventAtom)).not.toContain('event-1')
     expect(paramsOf(adminEventAtom)).toContain('event-2')
     expect(paramsOf(adminEventRegistrationsAtom)).not.toContain('event-1')
+    // Together: a list kept past its bump atom would read the old one, and no later bump would reach it.
+    expect(paramsOf(adminDuplicatePaymentsAtom)).not.toContain('event-1')
+    expect(paramsOf(adminDuplicatePaymentsRefreshAtom)).not.toContain('event-1')
     expect(paramsOf(adminEventRegistrationAtom)).toEqual([{ eventId: 'event-2', id: 'reg-2' }])
   })
 })

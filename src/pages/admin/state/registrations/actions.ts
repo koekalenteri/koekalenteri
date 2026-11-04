@@ -45,6 +45,7 @@ import {
   adminEventRegistrationsAtom,
   adminEventRegistrationsCursorAtom,
   adminEventRegistrationsFetchedAtAtom,
+  adminEventRegistrationsReloadAtom,
   adminPendingRegistrationGroupMovesAtom,
 } from './atoms'
 import { adminProjectedEventRegistrationsAtom } from './derivedAtoms'
@@ -256,18 +257,12 @@ export const useKennelliittoResults = (eventId: string) => {
   const token = useAtomValue(validIdTokenAtom)
   const store = useStoreKcPatches(eventId)
 
-  const reload = useAtomCallback(
-    useCallback(
-      async (_get, set): Promise<Registration[]> => {
-        // Without a token the list cannot be read, and an empty answer would read as a trial with no dogs.
-        if (!token) throw new Error('missing token')
-        const registrations = await getRegistrations(eventId, token)
-        set(adminEventRegistrationsAtom(eventId), registrations)
-        return registrations
-      },
-      [eventId, token]
-    )
-  )
+  const reloadRegistrations = useSetAtom(adminEventRegistrationsReloadAtom)
+  const reload = useCallback(async (): Promise<Registration[]> => {
+    const registrations = await reloadRegistrations(eventId)
+    if (!registrations) throw new Error('missing token')
+    return registrations
+  }, [eventId, reloadRegistrations])
 
   const preview = useCallback(
     (registrationIds?: string[], signal?: AbortSignal, options?: { withoutDogLookup?: boolean }) =>

@@ -10,8 +10,9 @@ import { useWebSocketContext } from './useWebSocketContext'
  * is involved and the connection stays in the public audience, so it keeps receiving the event
  * patches broadcast to every anonymous reader.
  *
- * `listener` receives the published rows, or `undefined` when they did not fit in one message and
- * have to be fetched instead, and the server time they were read. Messages can arrive out of order,
+ * `listener` receives the published rows, or `undefined` when they have to be fetched instead (they
+ * did not fit in one message, or the subscription was just acknowledged, also after a reconnect), and
+ * the server time they were read. Messages can arrive out of order,
  * so the listener keeps the highest version (KOE-1516). It may change on every render; the latest
  * one is always called.
  *

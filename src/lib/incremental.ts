@@ -48,6 +48,23 @@ export const collectionSince = <T>(items: T[], cursor?: number | null): Date | u
 export const collectionResponseCursor = <T>(response: CollectionResponse<T>): number | undefined =>
   Array.isArray(response) ? latestCollectionUpdate(response)?.getTime() : response.cursor
 
+/**
+ * The rows of an answer, each one kept out where the list in hand already holds a newer copy of it: a
+ * read answered before a socket patch or a save, and written after it, must not undo that change. A
+ * row the answer does not name is not looked at, so it goes from a whole list.
+ */
+export const keepNewerRows = <T extends TimestampedItem & { id: string }>(
+  current: readonly T[],
+  answer: readonly T[]
+): T[] => {
+  const currentById = new Map(current.map((row) => [row.id, row]))
+  return answer.map((row) => {
+    const held = currentById.get(row.id)
+    if (!held) return row
+    return (itemStamp(held) ?? Number.NEGATIVE_INFINITY) > (itemStamp(row) ?? Number.NEGATIVE_INFINITY) ? held : row
+  })
+}
+
 export const reconcileCollection = <T>(
   existing: T[],
   response: CollectionResponse<T>,

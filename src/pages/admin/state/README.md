@@ -33,6 +33,18 @@ copies, ...) hold one instance per event ever opened. Every page that opens an e
 drops the event's instances from every family, and the next visit builds them again from storage and
 the server. Add a new event-keyed family to `eventScope.ts`, or it leaks.
 
+`rereadHeldAdminEventsAtom` is write-only: after the socket has been away it runs `adminEventsRereadAtom`
+and, for every held event, `adminEventRegistrationsReloadAtom` and a bump of
+`adminDuplicatePaymentsRefreshAtom`. It reports a read that failed, which then waits for the next
+reconnect. When it runs is in [the ws README](../../../lambda/lib/ws/README.md).
+
+```mermaid
+graph LR
+  rereadHeldAdminEventsAtom-->adminEventsRereadAtom
+  rereadHeldAdminEventsAtom-->adminEventRegistrationsReloadAtom
+  rereadHeldAdminEventsAtom-->adminDuplicatePaymentsRefreshAtom
+```
+
 ## Event view dialogs
 
 `adminEventViewDialogAtom` (`eventViewDialog.ts`) holds which of the event page's dialogs is open,
@@ -102,7 +114,10 @@ and the `(eventId)` atoms are families keyed by the event. The fetched list is k
 fetch in the same tab with the same scope asks `getAdminEvents` only for the events changed since the
 newest stamp in it, merged by id. A local write (a save, a websocket patch) is not kept: the server
 stamps it, so the next fetch brings it. A change of roles or user fetches the whole list again, and
-signing out clears the storage (KOE-1668). `adminEditableEventByIdAtom(eventId)` is one draft per
+signing out clears the storage (KOE-1668). `adminEventsRereadAtom` is write-only: the same read for a
+socket that was away, written over the list without moving the fetch key, so a failure leaves the list
+as it is and only rejects to its caller; a row in hand with a newer stamp stays (`keepNewerRows`), and
+the answer is dropped if the key moved during the read (KOE-1698). `adminEditableEventByIdAtom(eventId)` is one draft per
 event in sessionStorage, shared by every form on the event: the stations page, the edit page and the
 event view's details dialog, which also picks up a draft another of them left (KOE-1700). The stations
 page leaves none behind: leaving it unsaved asks, and the answer to leave discards the draft (KOE-1699),
@@ -117,6 +132,11 @@ graph LR
   adminEventsAtom-->userRefreshAtom
   adminEventsAtom-->validIdTokenAtom
   adminEventsAtom-->getAdminEvents[/getAdminEvents/]-->aws
+  adminEventsRereadAtom-->adminEventsAtom
+  adminEventsRereadAtom-->sessionStorage
+  adminEventsRereadAtom-->userAtom
+  adminEventsRereadAtom-->validIdTokenAtom
+  adminEventsRereadAtom-->getAdminEvents
 
   adminNewEventAtom-->localStorage
   adminShowFinishedEventsAtom-->localStorage
@@ -284,12 +304,24 @@ graph LR
 The `(eventId)` atoms are families keyed by the event, and `adminEventRegistrationAtom` and the
 editable copy by the event and the registration. `adminBackgroundActionsRunningAtom`,
 `adminEventRegistrationsFetchedAtAtom` and `adminEventRegistrationsCursorAtom` are plain in-memory
-atoms that the registration actions write.
+atoms that the registration actions write. `adminEventRegistrationsReloadAtom` is write-only and takes
+the event id: it reads the whole list for a refused save and for a socket that was away, keeps a held
+row with a newer stamp (`keepNewerRows`), and drops the answer if the token changed during the read. It
+takes the list's instance before the read, so an answer after a release cannot recreate it with this
+user's rows for the next login. It neither reads nor moves the cursor (KOE-1698).
+`adminDuplicatePaymentsAtom` is the event's payments charged twice, a list of its own that reads again
+when `adminDuplicatePaymentsRefreshAtom` is bumped (KOE-1693).
 
 ```mermaid
 graph LR
   adminEventRegistrationsAtom-->validIdTokenAtom
   adminEventRegistrationsAtom-->getRegistrations[/getRegistrations/]-->aws
+  adminEventRegistrationsReloadAtom-->adminEventRegistrationsAtom
+  adminEventRegistrationsReloadAtom-->validIdTokenAtom
+  adminEventRegistrationsReloadAtom-->getRegistrations
+  adminDuplicatePaymentsAtom-->adminDuplicatePaymentsRefreshAtom
+  adminDuplicatePaymentsAtom-->validIdTokenAtom
+  adminDuplicatePaymentsAtom-->getDuplicatePayments[/getDuplicatePayments/]-->aws
   adminPendingRegistrationGroupMovesAtom
   adminBackgroundActionsRunningAtom
   adminEventRegistrationsFetchedAtAtom

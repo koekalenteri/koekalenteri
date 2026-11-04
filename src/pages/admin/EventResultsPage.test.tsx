@@ -27,7 +27,12 @@ import AppSnackbarProvider from '../components/AppSnackbarProvider'
 import { idTokenAtom } from '../state'
 import EventResultsPage from './EventResultsPage'
 import { KC_DOGS_REREAD_MS } from './hooks/useKennelliittoDogs'
-import { adminEventRegistrationsAtom, adminEventsAtom, adminEventTypesAtom } from './state'
+import {
+  adminEventRegistrationsAtom,
+  adminEventRegistrationsReloadAtom,
+  adminEventsAtom,
+  adminEventTypesAtom,
+} from './state'
 
 // Two release switches: the live entry link (KOE-1259) and the reason a round ended (KOE-1299). The
 // tests describe both features with them on, and one test each checks what the switch alone takes away.
@@ -63,7 +68,7 @@ const renderPage = (language: Language) => {
   )
 }
 
-/** The store the last scoring page was rendered with: what the socket would write lands here. */
+/** The store the last scoring page was rendered with: what the socket or a reconnect's read writes lands here. */
 let scoringStore: TestStore | undefined
 
 /**
@@ -1021,6 +1026,23 @@ describe('EventResultsPage', () => {
       expect(screen.getByRole('button', { name: 'results.save' })).toBeEnabled()
     })
 
+    it('still holds a score after a reconnect read the list again (KOE-1698)', async () => {
+      const { i18n } = useTranslation()
+      const { user } = await renderScoringPage(i18n.language as Language)
+      await flushPromises()
+
+      await typedAtPost1(user, 'Ensimmainen')
+      listRegistrations.mockResolvedValueOnce(registrationsToEventWithStations.map((row) => ({ ...row })))
+      await act(async () => {
+        await scoringStore?.set(adminEventRegistrationsReloadAtom, eventWithStations.id)
+      })
+      await flushPromises()
+      await save(user)
+
+      expect(screen.getByText('results.heldScores')).toBeInTheDocument()
+      expect(await inWholeRound(user, 'Ensimmainen')).toHaveValue('17')
+    })
+
     it('holds nothing for a dog that has left the list by the time the save is answered', async () => {
       const { i18n } = useTranslation()
       const { user } = await renderScoringPage(i18n.language as Language)
@@ -1260,6 +1282,23 @@ describe('EventResultsPage', () => {
     expect(screen.getByRole('radio', { name: /results\.conflictMine/ })).toBeInTheDocument()
     // Named, because a batch save can come back with several and "one of them" is not actionable.
     expect(within(screen.getByRole('dialog')).getByText('Ensimmainen')).toBeInTheDocument()
+  })
+
+  it('keeps the entered scores when a reconnect reads the list again (KOE-1698)', async () => {
+    const { i18n } = useTranslation()
+    const { user } = await renderScoringPage(i18n.language as Language)
+    await flushPromises()
+
+    await score(user, within(rowFor('Ensimmainen')).getAllByRole('textbox')[0], '20')
+
+    listRegistrations.mockResolvedValueOnce(registrationsToEventWithStations.map((row) => ({ ...row })))
+    await act(async () => {
+      await scoringStore?.set(adminEventRegistrationsReloadAtom, eventWithStations.id)
+    })
+    await flushPromises()
+
+    expect(within(rowFor('Ensimmainen')).getAllByRole('textbox')[0]).toHaveValue('20')
+    expect(screen.getByRole('button', { name: 'results.save' })).toBeEnabled()
   })
 
   // Its rows read the post's own exercises (KOE-1697): the name is the writer of those, here nobody's.
