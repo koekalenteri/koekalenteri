@@ -1,5 +1,6 @@
 import type { EventResultVersion } from '@/types'
 import { render, screen } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 import { describeWithTranslations } from '@/test-utils/language'
 import { ConflictDialog } from './ConflictDialog'
 import { nomeAConflictRegistrations, nomeAConflicts } from './conflictDialogFixtures'
@@ -24,6 +25,28 @@ describeWithTranslations('fi', () => {
 
     expect(screen.getByLabelText('Tallennettu (Toinen sihteeri): A0')).toBeInTheDocument()
     expect(screen.getByLabelText('Sinun: A1')).toBeInTheDocument()
+  })
+
+  it.each([
+    ['mine', { [nomeAConflicts[0].id]: 'stored' as const }, 'Sinun: A1'],
+    ['stored', { [nomeAConflicts[0].id]: 'mine' as const }, 'Tallennettu (Toinen sihteeri): A0'],
+  ])('reports choosing %s', async (choice, choices, label) => {
+    const onChoose = vi.fn()
+    render(
+      <ConflictDialog
+        choices={choices}
+        conflicts={nomeAConflicts}
+        eventType="NOME-A"
+        onChoose={onChoose}
+        onClose={() => {}}
+        onResolve={async () => {}}
+        registrations={nomeAConflictRegistrations}
+      />
+    )
+
+    await userEvent.click(screen.getByLabelText(label))
+
+    expect(onChoose).toHaveBeenCalledWith(nomeAConflicts[0].id, choice)
   })
 
   describe("a post's own view", () => {

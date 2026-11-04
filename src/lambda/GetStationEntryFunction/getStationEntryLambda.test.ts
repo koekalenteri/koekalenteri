@@ -58,6 +58,15 @@ const apiEvent = (token?: string): APIGatewayProxyEvent => {
   return constructPartialAPIGwEvent({ headers: { authorization: `Bearer ${bearer}` } })
 }
 
+/** The whole answer as sent, for what must appear nowhere in it. */
+const capturedAnswer = () => {
+  const answer = { text: '' }
+  mockResponse.mockImplementationOnce((_status: number, payload: unknown) => {
+    answer.text = JSON.stringify(payload)
+  })
+  return answer
+}
+
 describe('getStationEntryLambda', () => {
   beforeEach(() => {
     vi.clearAllMocks()
@@ -77,14 +86,20 @@ describe('getStationEntryLambda', () => {
   })
 
   it('serves the station view for the right token', async () => {
+    const answer = capturedAnswer()
+
     await getStationEntryLambda(apiEvent())
 
-    const [status, payload] = mockResponse.mock.calls[0]
-    expect(status).toBe(200)
-    expect(payload.station).toMatchObject({ id: 'post-1', number: 1 })
-    expect(payload.event).toMatchObject({ eventType: 'NOWT', location: 'Ranua', name: 'Syyskoe' })
-    expect(payload.registrations[0]).toMatchObject({ dog: { name: 'Rekku' }, id: 'reg-1' })
-    expect(JSON.stringify(payload)).not.toContain('example.com')
+    expect(mockResponse).toHaveBeenCalledWith(
+      200,
+      expect.objectContaining({
+        event: expect.objectContaining({ eventType: 'NOWT', location: 'Ranua', name: 'Syyskoe' }),
+        registrations: [expect.objectContaining({ dog: { name: 'Rekku' }, id: 'reg-1' })],
+        station: expect.objectContaining({ id: 'post-1', number: 1 }),
+      }),
+      expect.anything()
+    )
+    expect(answer.text).not.toContain('example.com')
   })
 
   // A link this widely shared names nobody (KOE-1697); the tasks' times stay, since a save is based on them.
@@ -105,11 +120,22 @@ describe('getStationEntryLambda', () => {
       }),
     ])
 
+    const answer = capturedAnswer()
+
     await getStationEntryLambda(apiEvent())
 
-    const [, payload] = mockResponse.mock.calls[0]
-    expect(payload.registrations[0].eventResult.tasks).toEqual([{ exercise: 1, part: 0, points: 17, updatedAt: 't1' }])
-    expect(JSON.stringify(payload)).not.toContain('updatedBy')
+    expect(mockResponse).toHaveBeenCalledWith(
+      200,
+      expect.objectContaining({
+        registrations: [
+          expect.objectContaining({
+            eventResult: { tasks: [{ exercise: 1, part: 0, points: 17, updatedAt: 't1' }], updatedAt: 't1' },
+          }),
+        ],
+      }),
+      expect.anything()
+    )
+    expect(answer.text).not.toContain('updatedBy')
   })
 
   it('refuses a wrong token without reading the registrations', async () => {

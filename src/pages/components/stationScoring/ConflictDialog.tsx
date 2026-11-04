@@ -122,7 +122,7 @@ export const ConflictDialog = ({
                 {nameOf(conflict.id)}
               </Typography>
               <RadioGroup
-                onChange={(_event, value) => onChoose(conflict.id, value as ConflictChoice)}
+                onChange={(_event, value) => onChoose(conflict.id, value === 'mine' ? 'mine' : 'stored')}
                 value={choices[conflict.id] ?? 'stored'}
               >
                 <FormControlLabel control={<Radio size="small" />} label={storedLabel(conflict)} value="stored" />

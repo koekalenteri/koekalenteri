@@ -183,7 +183,7 @@ describe('putStationEntryLambda', () => {
       group: { date: '2026-09-12', key: 'AVO-AP', number: 1 },
       id: 'reg-1',
     })
-    const noName = (body: unknown) => expect(JSON.stringify(body)).not.toContain('updatedBy')
+    const scored = (points: number) => ({ exercise: 1, part: 0, points, updatedAt: expect.any(String) })
 
     beforeEach(() => mockReadEventRegistrations.mockResolvedValue([stored]))
 
@@ -192,10 +192,16 @@ describe('putStationEntryLambda', () => {
         apiEvent([{ basedOn: at, eventResult: { tasks: [{ exercise: 1, points: 17 }] }, id: 'reg-1' }])
       )
 
-      const [status, body] = mockResponse.mock.calls[0]
-      expect(status).toBe(200)
-      expect(body.saved).toHaveLength(1)
-      noName(body)
+      // Whole objects: anything more than these, a name included, fails the match.
+      expect(mockResponse).toHaveBeenCalledWith(
+        200,
+        {
+          conflicts: [],
+          saved: [{ eventResult: { tasks: [scored(17)], updatedAt: expect.any(String) }, id: 'reg-1' }],
+          unchanged: [],
+        },
+        expect.anything()
+      )
     })
 
     it('stays out of a conflict, whose version the next save is based on', async () => {
@@ -203,10 +209,43 @@ describe('putStationEntryLambda', () => {
         apiEvent([{ basedOn: 'stale', eventResult: { tasks: [{ exercise: 1, points: 17 }] }, id: 'reg-1' }])
       )
 
-      const [status, body] = mockResponse.mock.calls[0]
-      expect(status).toBe(409)
-      expect(body.conflicts[0].stored.tasks).toEqual([{ exercise: 1, part: 0, points: 12, updatedAt: at }])
-      noName(body)
+      expect(mockResponse).toHaveBeenCalledWith(
+        409,
+        expect.objectContaining({
+          conflicts: [
+            {
+              id: 'reg-1',
+              stationId: 'post-1',
+              stored: { tasks: [{ exercise: 1, part: 0, points: 12, updatedAt: at }], updatedAt: at },
+              submitted: { tasks: [scored(17)], updatedAt: expect.any(String) },
+            },
+          ],
+        }),
+        expect.anything()
+      )
+    })
+
+    it('stays out of the dogs a batch wrote before it found the trial locked', async () => {
+      const handedOver = { ...confirmedEvent, kcState: { code: 1253, name: 'x', readAt: 'y' } }
+      mockReadEventRegistrations.mockResolvedValue([stored, { ...stored, id: 'reg-2' }, { ...stored, id: 'reg-3' }])
+      // Asked before each dog that would change: open for the second, handed over by the third.
+      mockGetEvent.mockResolvedValueOnce(confirmedEvent).mockResolvedValueOnce(handedOver)
+
+      const refusal = putStationEntryLambda(
+        apiEvent([
+          { basedOn: at, eventResult: { tasks: [{ exercise: 1, points: 12 }] }, id: 'reg-1' },
+          { basedOn: at, eventResult: { tasks: [{ exercise: 1, points: 17 }] }, id: 'reg-2' },
+          { basedOn: at, eventResult: { tasks: [{ exercise: 1, points: 17 }] }, id: 'reg-3' },
+        ])
+      )
+
+      await expect(refusal).rejects.toMatchObject({
+        body: { error: 'resultsLocked', saved: [{ id: 'reg-2' }], unchanged: [{ id: 'reg-1' }] },
+        status: 423,
+      })
+      await expect(refusal).rejects.toSatisfy(
+        (error: { body: unknown }) => !JSON.stringify(error.body).includes('updatedBy')
+      )
     })
   })
 
