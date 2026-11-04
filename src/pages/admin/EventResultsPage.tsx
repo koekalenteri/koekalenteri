@@ -42,7 +42,14 @@ import {
   sortRegistrationsByDateClassTimeAndNumber,
 } from '../../lib/registration'
 import { placementsFor } from '../../lib/results'
-import { dogRound, exercisePostsOf, exercisesAtPost, roundColumns, stationVersion } from '../../lib/resultTasks'
+import {
+  dogRound,
+  exercisePostsOf,
+  exercisesAtPost,
+  heldTasks,
+  roundColumns,
+  stationVersion,
+} from '../../lib/resultTasks'
 import { dayStations, rotationDogOf } from '../../lib/rotation'
 import { Path } from '../../routeConfig'
 import { AsyncButton } from '../components/AsyncButton'
@@ -246,13 +253,19 @@ export default function EventResultsPage() {
     []
   )
 
+  // The exercises the dog's group does at the post on view, which are all a save there may write (KOE-1665).
+  const exercisesHere = useCallback(
+    (registration: Registration) => exercisesAtPost(exercisePostsOf(fullRoundFor(registration)), scope),
+    [fullRoundFor, scope]
+  )
+
   const submissionFor = useCallback(
     (id: string, edit: ResultEdit, overrideBase?: EventResult) => {
       const registration = registrations.find((reg) => reg.id === id)
       const stored = overrideBase ?? registration?.eventResult
-      // A post's own view sends the exercises the dog's group does there, which are all the post may write
-      // (KOE-1665): the row holds the whole round, the other posts' scores included.
-      const here = scoped && registration ? exercisesAtPost(exercisePostsOf(fullRoundFor(registration)), scope) : []
+      // A post's own view sends only its own exercises: the row holds the whole round, the other posts'
+      // scores included. What that leaves out of a dog's edit stays behind (`settleEdits`).
+      const here = scoped && registration ? exercisesHere(registration) : []
       const tasks = scoped ? edit.tasks.filter((task) => here.includes(task.exercise)) : edit.tasks
 
       return {
@@ -269,15 +282,43 @@ export default function EventResultsPage() {
         ...(scoped ? { stationId: scope } : {}),
       }
     },
-    [fullRoundFor, registrations, scope, scoped]
+    [exercisesHere, registrations, scope, scoped]
   )
 
-  const report = useCallback(
-    (savedCount: number) =>
-      // Nothing saved and nothing disputed means it was all already stored — the answer a retry over a
-      // bad connection gets, and worth saying plainly rather than implying a write happened.
-      enqueueSnackbar(savedCount ? t('results.saved') : t('results.alreadySaved'), { variant: 'success' }),
-    [t]
+  /**
+   * Takes the dogs whose save is settled off the screen, but for a score a post's save could not take
+   * (KOE-1696): typed at another post, or at an exercise that has since moved, it stays in the edit for the
+   * whole round to save, and the secretary is told. A disputed dog the secretary left as stored holds nothing:
+   * its edit carries the version just turned down, which a later save would write back. Answers whether a
+   * settled dog stayed.
+   */
+  const settleEdits = useCallback(
+    (settled: (id: string) => boolean) => {
+      const holdsScores = (id: string, edit: ResultEdit) => {
+        const registration = registrations.find((reg) => reg.id === id)
+        if (!scoped || !registration) return false
+        if (conflicts.some((conflict) => conflict.id === id) && choices[id] !== 'mine') return false
+        return heldTasks(edit.tasks, registration.eventResult?.tasks, exercisesHere(registration)).length > 0
+      }
+      const held = Object.entries(edits).some(([id, edit]) => settled(id) && holdsScores(id, edit))
+      setEdits((prev) =>
+        Object.fromEntries(Object.entries(prev).filter(([id, edit]) => !settled(id) || holdsScores(id, edit)))
+      )
+      if (held) enqueueSnackbar(t('results.heldScores'), { variant: 'warning' })
+      return held
+    },
+    [choices, conflicts, edits, exercisesHere, registrations, scoped, t]
+  )
+
+  // Every dog of the save is settled. Nothing saved and nothing disputed or held means it was all already stored,
+  // the answer a retry over a bad connection gets, and worth saying plainly rather than implying a write happened.
+  const finishSave = useCallback(
+    (savedCount: number) => {
+      const held = settleEdits(() => true)
+      if (savedCount) enqueueSnackbar(t('results.saved'), { variant: 'success' })
+      else if (!held) enqueueSnackbar(t('results.alreadySaved'), { variant: 'success' })
+    },
+    [settleEdits, t]
   )
 
   // The list as the server has it: edits of dogs that are no longer on the sheet are dropped, the rest stay.
@@ -287,16 +328,14 @@ export default function EventResultsPage() {
     setEdits((prev) => Object.fromEntries(Object.entries(prev).filter(([id]) => present.has(id))))
   }, [kc])
 
-  // The batch was refused as locked: the dogs saved before the lock are stored, so they are folded in and taken
-  // off the screen like the saved dogs of a conflict. The state is read whatever happens to the fold.
+  // The batch was refused as locked: the dogs saved before the lock are stored, so they are folded in and settled
+  // like the saved dogs of a conflict. The state is read whatever happens to the fold.
   const settleLockedBatch = useCallback(
     async (body: unknown) => {
       const done = savedOf(body)
       try {
         await storeResults(done)
-        setEdits((prev) =>
-          Object.fromEntries(Object.entries(prev).filter(([id]) => !done.some((item) => item.id === id)))
-        )
+        settleEdits((id) => done.some((item) => item.id === id))
       } catch (storeError) {
         // The state still has to be read, or the page stays open to a trial that is not.
         reportError(storeError)
@@ -304,7 +343,7 @@ export default function EventResultsPage() {
       enqueueSnackbar(t('results.kennelliitto.lockedSave'), errorSnackbarOptions)
       await refreshState()
     },
-    [refreshState, storeResults, t]
+    [refreshState, settleEdits, storeResults, t]
   )
 
   // A dog the batch named is not on the trial any more (the list was old): nothing was written. The list is read
@@ -318,15 +357,19 @@ export default function EventResultsPage() {
     [dropGoneDogs, t]
   )
 
-  // Whatever did not conflict is already written; keep only the disputed dogs on screen.
+  // Whatever did not conflict is already written and settled; the disputed dogs stay on screen.
   const settleConflict = useCallback(
     async (body: ResultConflictBody) => {
       await storeResults([...(body.saved ?? []), ...(body.unchanged ?? [])])
-      setEdits((prev) => Object.fromEntries(body.conflicts.map(({ id }) => [id, prev[id] ?? emptyEdit])))
+      settleEdits((id) => !body.conflicts.some((conflict) => conflict.id === id))
+      setEdits((prev) => ({
+        ...prev,
+        ...Object.fromEntries(body.conflicts.map(({ id }) => [id, prev[id] ?? emptyEdit])),
+      }))
       setConflicts(body.conflicts)
       setChoices({})
     },
-    [storeResults]
+    [settleEdits, storeResults]
   )
 
   /**
@@ -358,12 +401,11 @@ export default function EventResultsPage() {
     try {
       // Stored is stored: the action folds what came back into the rows, so the result stays on screen.
       const response = await saveResults(submissions)
-      report(response.saved.length)
-      setEdits({})
+      finishSave(response.saved.length)
     } catch (error) {
       await settleFailedSave(error)
     }
-  }, [edits, report, saveResults, settleFailedSave, submissionFor])
+  }, [edits, finishSave, saveResults, settleFailedSave, submissionFor])
 
   const handleResolve = useCallback(async () => {
     // Only the dogs the secretary decided to overrule are sent again, each based on the version that
@@ -376,18 +418,19 @@ export default function EventResultsPage() {
     if (submissions.length) {
       try {
         const response = await saveResults(submissions)
-        report(response.saved.length)
+        finishSave(response.saved.length)
       } catch (error) {
         // The dialog stays up with the edits behind it, or shows the conflicts that beat this save too.
         await settleFailedSave(error)
         return
       }
+    } else {
+      settleEdits(() => true)
     }
 
     setConflicts([])
     setChoices({})
-    setEdits({})
-  }, [choices, conflicts, edits, report, saveResults, settleFailedSave, submissionFor])
+  }, [choices, conflicts, edits, finishSave, saveResults, settleEdits, settleFailedSave, submissionFor])
 
   if (!event?.id) return <EventNotFound />
 
