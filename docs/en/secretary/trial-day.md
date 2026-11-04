@@ -14,7 +14,7 @@ covers:
   - src/pages/admin/eventViewPage/infoPanel/ResultsPublishing.tsx
   - src/pages/admin/components/KcIdLookupButton.tsx
   - src/pages/admin/components/StartDaySelector.tsx
-sourceHash: 7d729c
+sourceHash: 5f8d9e
 ---
 
 On the trial day the secretary's job is to record what the dogs did and to get the results in
@@ -126,19 +126,6 @@ where the group does the exercise: the recorded judge stays while they judge at 
 otherwise the post's first judge is read as the judge. The judges sent to Omakoira are read the same
 way.
 
-If the running order changes while a post's scoring page is open, the page says on saving that the
-dog's result was not saved, and reads the dogs again. The points entered are not kept: pick the dog
-from the list and enter them again. If the page still does not show the new order, reload it.
-
-If someone else has changed the dog's scores or interruption at the post's exercise since you picked the dog, the save
-stops at the dialog **{t:results.conflictTitle}**. The dialog shows the post's own scores: what is stored
-now and what you entered. An interruption in a version shows too. The stored version is selected to begin
-with. **{t:results.conflictResolve}** shows its scores on the page, and the dog stays selected. If you pick
-your own version, it is saved over the stored one, and the page moves on to the next dog. **{t:cancel}**
-closes the dialog and the entered scores stay; when you save again, the page asks the same thing if the
-result is still different. If the save fails for another reason, the dialog closes and the page says so.
-In the secretary's own view of a post the dialog says who saved last. The post's link shows no names.
-
 Points go only when an exercise leaves the running order or an exercise is split differently, since
 the points can then no longer be read as the same exercise. The scores that would go are listed dog
 by dog before the save.
@@ -158,7 +145,7 @@ recorded results is not saved. A change that alters no dog's result is still sav
 
 The panel's **{t:eventManagement.enterResults}** button becomes active once the trial has
 started, and opens the **{t:results.title}** page. Under the title are the trial's day, type, place and name, as on
-the posts, start numbers and post scoring pages. In a multi-day trial the day is picked first,
+the posts and start numbers pages. In a multi-day trial the day is picked first,
 and the classes are on their own tabs. The page lists only the dogs picked as participants, in
 running order.
 
@@ -202,18 +189,12 @@ breeding database. The view of all posts also asks *{t:results.outcomeAt}*, that
 the trial ended, for example "Exercise 3 (post 3)": a group can come to one post more than once, so
 the post alone does not say which visit it was. A stop is recorded for its exercise, as the
 points are, and stays with that exercise when the running order changes. The exercises after the stop in the dog's
-running order read *{t:results.notReached}*, in the view narrowed to one post too and on the post's
-own entry page, where the dog shows as done for those exercises. The points
+running order read *{t:results.notReached}*, in the view narrowed to one post too. The points
 earned until then stay and can be edited, and their total against the whole running order's maximum
 shows under the row. The same total goes to Omakoira. Where Omakoira does not take it for this
 result, the result goes with 0 points, and the send dialog tells the points to enter in Omakoira by hand. If points were already entered for a later
 exercise, the field stays and the points count in the total, so they can be cleared if need be. When
 the choice is *{t:results.outcomeAtUnknown}*, no exercise shows as not reached.
-
-A post's link records and changes an interruption only at that post's own exercises. An interruption
-recorded at another post's exercise, without an exercise, or at an exercise the dog's running order no
-longer has shows on the link's page but cannot be changed there, and a save from the link does not
-remove it. The secretary changes it.
 
 In the other formats the field records only *{t:results.retirement.judgeStopped}*. The result is a
 nought, as the rules say, and on the published list it carries the mark
@@ -233,23 +214,24 @@ leave the page without saving, the page asks first: **{t:unsavedChanges.stay}** 
 **{t:unsavedChanges.leave}** discards the changes. Closing or reloading the tab gets the browser's own
 warning.
 
-Saves by another secretary or a post reach the page by themselves. If you are editing a dog's row while someone saves results for the same dog, the row shows what you have until you save, and your save changes only what you changed: the other writer's scores and interruption stay, under their name, and the row shows them after the save. If the same exercise or interruption you changed has meanwhile been recorded differently elsewhere, the save stops at
+Saves by another secretary reach the page by themselves. If you are editing a dog's row while someone saves results for the same dog, the row shows what you have until you save, and your save changes only what you changed: the other writer's scores and interruption stay, under their name, and the row shows them after the save. If the same exercise or interruption you changed has meanwhile been recorded differently elsewhere, the save stops at
 the dialog **{t:results.conflictTitle}**, which shows both versions and asks which one stands;
-**{t:results.conflictResolve}** saves the choices. The other rows have already been saved by then. If
+**{t:results.conflictResolve}** saves the choices. The dialog says who saved the result last; in a view narrowed
+to one post it shows only that post's scores and interruption, and says who saved those last. The other rows
+have already been saved by then. If
 saving the choices fails, the dialog stays open and the entered scores are kept; if the dog has
 meanwhile been recorded differently elsewhere again, the dialog shows the new version. When you pick your
 own version, your edit and the other scores of the stored version are saved.
 
 A save of the whole round does not change who recorded an exercise, or when, if what the exercise says stays
-the same. A post gets the conflict dialog only if its scores, or an interruption recorded at its exercise,
-really have changed.
+the same.
 
 In an official trial the *{t:results.kennelliitto.column}* column tells for each dog whether its result is
 in Omakoira: *{t:results.kennelliitto.badge.sent}*, *{t:results.kennelliitto.badge.changed}*,
 *{t:results.kennelliitto.badge.unsent}*, *{t:results.kennelliitto.badge.blocked}*,
 *{t:results.kennelliitto.badge.sentGone}* or *{t:results.kennelliitto.badge.failed}*. The column shows
 the same as the send dialog: the page asks where the dogs stand when it opens, and a moment after results
-have been saved, also at a post or by another secretary. A result has changed when what would go to
+have been saved, also by another secretary. A result has changed when what would go to
 Omakoira differs from what was sent, whether the change is in the dog's own result, in its placement
 because of another dog's result, in the judges or in the dog's details. Saving without a change does not
 change the state. The exception is a foreign dog not yet sent: the send dialog asks Kennelliitto about the
@@ -258,8 +240,8 @@ shows that only after sending. *{t:results.kennelliitto.badge.blocked}*: the res
 the state shows why; correct the result or the dog's details. *{t:results.kennelliitto.badge.sentGone}*:
 the result is in Omakoira although the dog no longer has a result here; record the result again, or leave
 the dog out of the hand-over when the hand-over dialog asks. If Kennelliitto cannot be asked, or the trial
-has already been handed over, the column shows only the outcome of the last sending. The results page and a
-post's scoring page read the trial's state from Kennelliitto when they open, so a trial handed to the judge
+has already been handed over, the column shows only the outcome of the last sending. The results page
+reads the trial's state from Kennelliitto when it opens, so a trial handed to the judge
 opens read-only also when it was handed over in Omakoira directly. Sending the results and correcting them
 after sending are described on the page [After entry closes](/docs/secretary/after-entry-closes), under
 *Sending the results to Kennelliitto*.

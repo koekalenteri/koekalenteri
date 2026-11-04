@@ -1,6 +1,8 @@
 import type { Registration } from '@/types'
 import type { ResultEdit } from '../../components/stationScoring/types'
-import { render, screen } from '@testing-library/react'
+import { render, screen, within } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
+import { useState } from 'react'
 import { eventWithStations, registrationsToEventWithStations } from '@/__mockData__/resultsEvent'
 import { placementsFor, resolveEventResult } from '@/lib/results'
 import { dogRound, roundColumns } from '@/lib/resultTasks'
@@ -216,6 +218,67 @@ describe('ResultsTable result spelling', () => {
 
     expect(screen.getByText('A1')).toBeInTheDocument()
     expect(screen.queryByText('NOME-A1')).not.toBeInTheDocument()
+  })
+})
+
+describe('ResultsTable judge of a dog judged as a whole (KOE-1706)', () => {
+  const classJudge = { id: 223, name: 'Tuomari 2' }
+  const dogsJudge = { id: 224, name: 'Tuomari 3' }
+  const judged: Registration = {
+    ...first,
+    class: 'ALO',
+    eventResult: { judge: dogsJudge, result: 'ALO0', updatedAt: at, updatedBy: 'Sihteeri' },
+    eventType: 'NOME-B',
+  }
+
+  /** The row as the results page holds it: what the table reports is what it is rendered with next. */
+  const Row = ({ onReport }: { readonly onReport: (edit: ResultEdit, clean: boolean) => void }) => {
+    const [edits, setEdits] = useState<Record<string, ResultEdit>>({})
+
+    return (
+      <ResultsTable
+        defaultJudges={{ event: classJudge }}
+        edits={edits}
+        eventClass="ALO"
+        eventType="NOME-B"
+        judges={[classJudge, dogsJudge]}
+        judgesFor={() => []}
+        onChange={(id, edit, isClean) => {
+          onReport(edit, isClean(edit))
+          setEdits({ [id]: edit })
+        }}
+        onJudgeChange={() => {}}
+        registrations={[judged]}
+        round={[]}
+        roundFor={() => []}
+        wholeRoundFor={() => []}
+        stations={[]}
+      />
+    )
+  }
+
+  const chooseOutcome = async (user: ReturnType<typeof userEvent.setup>, name: string) => {
+    await user.click(screen.getByRole('combobox', { name: 'results.interruption' }))
+    await user.click(within(screen.getByRole('listbox')).getByRole('option', { name }))
+  }
+
+  it("keeps the dog's judge through a stop chosen and taken away, and ends up clean", async () => {
+    const user = userEvent.setup()
+    const onReport = vi.fn()
+    render(<Row onReport={onReport} />)
+
+    await chooseOutcome(user, 'results.retirement.judgeStopped')
+
+    expect(onReport).toHaveBeenLastCalledWith(
+      { judge: dogsJudge, resultCode: '0', retirement: { cause: 'judgeStopped' }, tasks: [] },
+      false
+    )
+
+    await chooseOutcome(user, 'results.notInterrupted')
+
+    expect(onReport).toHaveBeenLastCalledWith({ judge: dogsJudge, resultCode: '0', tasks: [] }, true)
+    expect(screen.getByText(dogsJudge.name)).toBeInTheDocument()
+    expect(screen.queryByText(classJudge.name)).not.toBeInTheDocument()
   })
 })
 
