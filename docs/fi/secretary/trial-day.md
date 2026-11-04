@@ -172,8 +172,8 @@ rivillä on kenttä vain sen oman ryhmän rasteille. Pisteet kirjoitetaan kentt�
 rastin enimmäispistemäärä. Jos suorituspaikalla on yksi tuomari, hänen nimensä näkyy sarakkeen
 otsikossa; useamman tuomarin paikalla tuomari valitaan kentän alta ja valinta siirtyy seuraavalle
 koirakolle. Koiran nimi, rekisterinumero ja ohjaaja ovat samassa sarakkeessa *{t:results.column.team}*.
-Nollalle voi kirjata syyn kenttään *{t:results.zeroFault}*, ja kentän voi myös jättää tyhjäksi. Jos
-arvostelukortista ei käy ilmi, miksi rasti nollattiin, voi valita *{t:results.zeroFaults.unknown}*.
+Nollalle voi kirjata syyn kenttään *{t:results.zeroFault}*. Kentän voi jättää tyhjäksi, mikä on sama
+kuin valinta *{t:results.zeroFaultUnknown}*.
 Tulos lasketaan riville itsestään sääntöjen mukaan: yksikin nolla
 estää palkintosijan, ja rivin alla näkyy pisteiden summa. Valinnalla *{t:results.scope}* sivun
 voi rajata yhteen suorituspaikkaan, jolloin näkyvissä ovat vain siellä tehdyt rastit; tulos jää

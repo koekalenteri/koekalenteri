@@ -296,7 +296,7 @@ describe('isRecordedTask (KOE-1666)', () => {
     ['a score', { points: 12 }, true],
     ['a zero', { points: 0 }, true],
     ['an empty field', { points: null }, false],
-    ['a zero reason without points', { points: null, zeroFault: 'unknown' as const }, true],
+    ['a zero reason without points', { points: null, zeroFault: 'eyeWipe' as const }, true],
     ['a recall without points', { points: null, recalled: true }, true],
   ])('reads %s as recorded: %s', (_name, task, recorded) => {
     expect(isRecordedTask(task)).toEqual(recorded)

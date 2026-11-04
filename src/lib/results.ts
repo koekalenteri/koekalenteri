@@ -228,8 +228,7 @@ export const eliminatingFaults = (eventType?: string): readonly EliminatingFault
 
 /**
  * Every zero-fault code, in the order the menu offers them, and for validating a submission's claim at
- * the write boundary: NOWT §5.3.4's list one to one and in its order (KOE-1678), then `unknown`, the
- * secretary's "ei tiedossa" (KOE-1664).
+ * the write boundary: NOWT §5.3.4's list one to one and in its order (KOE-1678).
  */
 export const nowtZeroFaults: readonly NowtZeroFault[] = [
   'failedRetrieve',
@@ -241,7 +240,6 @@ export const nowtZeroFaults: readonly NowtZeroFault[] = [
   'huntingWithDummy',
   'swappedDummy',
   'eyeWipe',
-  'unknown',
 ]
 
 interface NowtResultInput {

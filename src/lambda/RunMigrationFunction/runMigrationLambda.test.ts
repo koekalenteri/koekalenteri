@@ -115,6 +115,7 @@ describe('runMigrationLambda', () => {
     { count: 0, name: 'restoreFirstPrizes' },
     { count: 0, name: 'storeFailedRetrieve' },
     { count: 0, name: 'storeEliminationsAsNought' },
+    { count: 0, name: 'removeUnknownZeroFault' },
     { count: 0, name: 'storeDogDaysAsKeys' },
   ]
 
@@ -861,6 +862,7 @@ describe('runMigrationLambda', () => {
       'restoreFirstPrizes',
       'storeFailedRetrieve',
       'storeEliminationsAsNought',
+      'removeUnknownZeroFault',
       'storeDogDaysAsKeys',
     ]
 
@@ -2424,6 +2426,51 @@ describe('runMigrationLambda', () => {
           'read'
         )
         expect(mockResponse).toHaveBeenCalledWith(200, [{ count: 1, name: 'storeFailedRetrieve' }], directEvent)
+      })
+    })
+
+    describe('removeUnknownZeroFault: a zero whose reason is not known has no code (KOE-1709)', () => {
+      beforeEach(() => {
+        mockReadApplied.mockResolvedValue(pendingOnly('removeUnknownZeroFault'))
+      })
+
+      it('removes the code and leaves a real reason, a task without a reason and the versions as they were', async () => {
+        mockReadEventRegistrations.mockResolvedValueOnce([
+          row('reg1', {
+            result: 'ALO0',
+            tasks: [scored(1, 0, 'unknown'), scored(2, 0, 'eyeWipe'), scored(3, 0), scored(4, 15)],
+          }),
+        ])
+
+        await runMigrationLambda(directEvent)
+
+        // Only the tasks and the row's own `updatedAt`: `eventResult.updatedAt` and each task's stamp stay.
+        expect(mockWriteMigratedRegistration).toHaveBeenCalledTimes(1)
+        expect(mockWriteMigratedRegistration).toHaveBeenCalledWith(
+          'event1',
+          'reg1',
+          {
+            set: {
+              'eventResult.tasks': [scored(1, 0), scored(2, 0, 'eyeWipe'), scored(3, 0), scored(4, 15)],
+              updatedAt: expect.not.stringMatching(/^read$/),
+            },
+          },
+          'read'
+        )
+        expect(mockResponse).toHaveBeenCalledWith(200, [{ count: 1, name: 'removeUnknownZeroFault' }], directEvent)
+      })
+
+      it('writes nothing where no task holds the code', async () => {
+        mockReadEventRegistrations.mockResolvedValueOnce([
+          row('reg1', { result: 'ALO0', tasks: [scored(1, 0, 'eyeWipe'), scored(2, 0), scored(3, 15)] }),
+          row('reg2', { result: 'ALO-' }),
+          { ...row('reg3', {}), eventResult: undefined },
+        ])
+
+        await runMigrationLambda(directEvent)
+
+        expect(mockWriteMigratedRegistration).not.toHaveBeenCalled()
+        expect(mockResponse).toHaveBeenCalledWith(200, [{ count: 0, name: 'removeUnknownZeroFault' }], directEvent)
       })
     })
 

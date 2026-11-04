@@ -329,7 +329,27 @@ const registrationMigrations: Migration<JsonRegistration>[] = [
       return true
     },
   },
+  {
+    // KOE-1709: a zero whose reason is not known has no code. A score stored with the old `unknown` loses it;
+    // nothing else of the result changes, so its version and the task's stamp stay as they were.
+    name: 'removeUnknownZeroFault',
+    run: (registration) => {
+      let changed = false
+      for (const task of registration.eventResult?.tasks ?? []) {
+        if (task.zeroFault && REMOVED_ZERO_FAULTS.has(task.zeroFault)) {
+          delete task.zeroFault
+          changed = true
+        }
+      }
+      return changed
+    },
+  },
 ]
+
+/**
+ * The zero-fault code `removeUnknownZeroFault` removes. Strings rather than `NowtZeroFault`, which no longer has it.
+ */
+const REMOVED_ZERO_FAULTS: ReadonlySet<string> = new Set(['unknown'])
 
 /**
  * The zero-fault codes a failed retrieve was split into before KOE-1678, read only by `storeFailedRetrieve`.

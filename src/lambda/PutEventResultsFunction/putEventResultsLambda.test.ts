@@ -451,14 +451,6 @@ describe('putEventResultsLambda', () => {
     ).rejects.toThrow('not part of the round')
   })
 
-  it('stores a zero whose reason is not known as its own code (KOE-1664)', async () => {
-    await putEventResultsLambda(
-      apiEvent([{ eventResult: { tasks: [{ exercise: 1, points: 0, zeroFault: 'unknown' }] }, id: 'reg-1' }])
-    )
-
-    expect(savedResult()).toMatchObject({ tasks: [expect.objectContaining({ points: 0, zeroFault: 'unknown' })] })
-  })
-
   it.each([
     ['leaves the reason out', { exercise: 1, points: 0 }],
     ['sends an empty reason', { exercise: 1, points: 0, zeroFault: null }],
@@ -469,12 +461,14 @@ describe('putEventResultsLambda', () => {
     expect(savedResult().tasks[0]).not.toHaveProperty('zeroFault')
   })
 
-  it('refuses a zero fault the list does not know', async () => {
-    await expect(
-      putEventResultsLambda(
-        apiEvent([{ eventResult: { tasks: [{ exercise: 1, points: 0, zeroFault: 'guess' }] }, id: 'reg-1' }])
-      )
-    ).rejects.toThrow("Unknown zero fault 'guess'")
+  // 'unknown' was a code until KOE-1709: a zero whose reason is not known now has none.
+  it.each(['guess', 'unknown'])('refuses the zero fault %s, which the list does not hold', async (zeroFault) => {
+    const request = putEventResultsLambda(
+      apiEvent([{ eventResult: { tasks: [{ exercise: 1, points: 0, zeroFault }] }, id: 'reg-1' }])
+    )
+
+    await expect(request).rejects.toMatchObject({ statusCode: 422 })
+    await expect(request).rejects.toThrow(`Unknown zero fault '${zeroFault}'`)
 
     expect(mockUpdateRegistrationField).not.toHaveBeenCalled()
   })
@@ -632,6 +626,26 @@ describe('putEventResultsLambda', () => {
       const [, body] = mockResponse.mock.calls[0]
       expect(body.saved.map((item: { id: string }) => item.id)).toEqual(['reg-2'])
       expect(body.conflicts.map((c: { id: string }) => c.id)).toEqual(['reg-1'])
+    })
+
+    it('takes a stored reason away when the same zero comes back without one (KOE-1709)', async () => {
+      const [first, ...rest] = scores(0, 10, 10, 10)
+      mockReadEventRegistrations.mockResolvedValue([
+        {
+          ...registration('reg-1'),
+          eventResult: {
+            ...stored('2026-09-12T10:00:00.000Z', 30),
+            tasks: [{ ...first, zeroFault: 'eyeWipe' }, ...rest],
+          },
+        },
+      ])
+
+      await putEventResultsLambda(
+        apiEvent([{ basedOn: '2026-09-12T10:00:00.000Z', eventResult: { tasks: [first, ...rest] }, id: 'reg-1' }])
+      )
+
+      expect(savedResult().tasks[0]).toMatchObject({ exercise: 1, points: 0 })
+      expect(savedResult().tasks[0]).not.toHaveProperty('zeroFault')
     })
 
     it('accepts an edit made against the version that is actually stored', async () => {

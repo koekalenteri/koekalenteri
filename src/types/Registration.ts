@@ -21,8 +21,7 @@ export type RegistrationClass = 'ALO' | 'AVO' | 'VOI'
 export type RegistrationTemplateContext = '' | 'cancel' | 'confirm' | 'receipt' | 'update' | 'invitation' | 'refund'
 
 /**
- * The nollatulokseen johtavat virheet of NOWT §5.3.4, one code per bullet in the list's order, and
- * `unknown`. Each zeroes the exercise while the dog carries on, and bars every prize (§5.4.1). The
+ * The nollatulokseen johtavat virheet of NOWT §5.3.4, one code per bullet in the list's order. Each zeroes the exercise while the dog carries on, and bars every prize (§5.4.1). The
  * working test's eye-wipe is one of these; NOME-A's eye-wipe stops the trial (§3.3.3) and is not.
  *
  * Stored as a code, never as a label: the Finnish wording is an i18n key, and a rules revision must be
@@ -43,8 +42,6 @@ export type NowtZeroFault =
   | 'huntingWithDummy'
   | 'swappedDummy'
   | 'eyeWipe'
-  /** Not a §5.3.4 bullet: the secretary's "ei tiedossa" when the scorecard does not say why (KOE-1664). */
-  | 'unknown'
 
 /**
  * The faults a judge ends a dog's trial on: NOWT's hylkäävät virheet (§5.3.5), NOME-A's (§3.3.3),
@@ -175,7 +172,7 @@ export interface JsonEventResultTask {
    * the entry, never the denominator — scoring against the reduced figure would erase the penalty.
    */
   recalled?: boolean
-  /** Why `points` is 0, kept for later statistics. Optional: a zero stands without a reason. */
+  /** Why `points` is 0, kept for later statistics. Optional: a zero whose reason is not known has no code. */
   zeroFault?: NowtZeroFault
   judge?: PublicJudge
   updatedAt: string

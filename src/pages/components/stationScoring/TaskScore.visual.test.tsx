@@ -36,10 +36,10 @@ it('shows a zero with no reason chosen without an error', async () => {
   await expect(page.getByTestId('visual-root')).toMatchScreenshot('task-score-zero-no-reason')
 })
 
-// A zero offers the reasons: the nollatulokseen johtavat virheet of NOWT §5.3.4 in the rules' own order and words,
-// noudon epäonnistuminen as one reason, then "Ei tiedossa" (KOE-1664, KOE-1678). The menu opens over the
-// page, so the capture is the menu itself.
-it('lists the reasons for a zero, in the order of §5.3.4', async () => {
+// A zero offers the reasons: first "Ei tiedossa", the empty option that takes a chosen reason back (KOE-1709),
+// then the nollatulokseen johtavat virheet of NOWT §5.3.4 in the rules' own order and words, noudon
+// epäonnistuminen as one reason (KOE-1678). The menu opens over the page, so the capture is the menu itself.
+it('lists "Ei tiedossa", then the reasons for a zero in the order of §5.3.4', async () => {
   await render(
     <Frame>
       <TaskScore
