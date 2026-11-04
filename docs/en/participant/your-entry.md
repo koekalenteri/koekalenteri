@@ -7,11 +7,12 @@ covers:
   - src/pages/registrationListPage/**
   - src/pages/RegistrationEditPage.tsx
   - src/pages/RegistrationInvitation.tsx
+  - src/pages/PaymentResultPage.tsx
   - src/pages/components/CancelDialog.tsx
   - src/pages/components/RegistrationEventInfo.tsx
   - src/pages/components/RegistrationForm.tsx
   - src/lib/registration.ts
-sourceHash: 9ea3c6
+sourceHash: 20e887
 ---
 
 The link in your confirmation email opens your entry's own page, headed **{t:entryList}**. The
@@ -44,7 +45,9 @@ The same facts appear as icons on the dog's row; hover over the icons to see wha
 When there is something to pay, the payment line has a **{t:registration.cta.pay}** button and
 the dog's row a euro sign named *{t:registration.actions.pay}*. Both take you to Paytrail's payment
 page. When you return from the payment, the page says *{t:registration.notifications.paymentVerifying}*
-and the status updates by itself in a moment.
+and the status updates by itself in a moment. If the return from the payment cannot be verified, the
+page says *{t:registration.notifications.paymentNotConfirmed}* and goes back to the choice of payment
+method.
 
 The fee can still be paid for a week after the trial's last day, even if your class has already
 been judged: the **{t:registration.cta.pay}** button, the euro sign on the dog's row and the

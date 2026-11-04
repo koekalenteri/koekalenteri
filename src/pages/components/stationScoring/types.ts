@@ -1,6 +1,7 @@
 import type { ResultCode, SubmittedTask } from '@/lib/results'
-import type { EventResultElimination, EventResultRetirement, PublicJudge } from '@/types'
-import { canBeStopped } from '@/lib/results'
+import type { EventResultElimination, EventResultRetirement, EventResultVersion, PublicJudge } from '@/types'
+import { scoresAtPosts } from '@/lib/liveFormat'
+import { canBeStopped, parseEventResultCode } from '@/lib/results'
 
 /**
  * One task as the secretary has it on screen. Identical to what goes on the wire: the server assigns
@@ -25,6 +26,38 @@ export interface ResultEdit {
 }
 
 export const emptyEdit: ResultEdit = { tasks: [] }
+
+/** How a round ended, as far as it did: only the fields it has. */
+export const outcomeOf = ({ elimination, retirement }: Pick<ResultEdit, 'elimination' | 'retirement'>) => ({
+  ...(elimination ? { elimination } : {}),
+  ...(retirement ? { retirement } : {}),
+})
+
+/**
+ * What is stored as an edit starts from it, so a correction edits rather than replaces. A round scored at
+ * posts is its tasks and how it ended; a qualitative type's recording is the judge's decision, read back out
+ * of the stored string, and who made it.
+ */
+export const seededResultEdit = (
+  stored: Pick<EventResultVersion, 'elimination' | 'judge' | 'result' | 'retirement' | 'tasks'> | undefined,
+  eventType: string,
+  eventClass?: string
+): ResultEdit => {
+  if (!stored) return emptyEdit
+
+  const outcome = outcomeOf(stored)
+  if (scoresAtPosts(eventType)) {
+    return { ...outcome, tasks: (stored.tasks ?? []).map(({ updatedAt: _at, updatedBy: _by, ...task }) => task) }
+  }
+
+  const resultCode = parseEventResultCode(stored.result, eventType, eventClass)
+  return {
+    ...outcome,
+    ...(stored.judge ? { judge: stored.judge } : {}),
+    ...(resultCode ? { resultCode } : {}),
+    tasks: [],
+  }
+}
 
 /**
  * The edit with its result replaced. A code that cannot carry a judge's stop (`canBeStopped`) takes the

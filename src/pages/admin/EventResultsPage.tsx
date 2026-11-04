@@ -9,7 +9,6 @@ import type {
   StoredEventResult,
 } from '../../types'
 import type { ConflictChoice } from '../components/stationScoring/ConflictDialog'
-import type { ResultEdit } from '../components/stationScoring/types'
 import Save from '@mui/icons-material/Save'
 import { useMediaQuery } from '@mui/material'
 import Alert from '@mui/material/Alert'
@@ -43,12 +42,11 @@ import {
   sortRegistrationsByDateClassTimeAndNumber,
 } from '../../lib/registration'
 import { placementsFor } from '../../lib/results'
-import { dogRound, editVersion, exercisePostsOf, exercisesAtPost, heldTasks, roundColumns } from '../../lib/resultTasks'
+import { dogRound, editVersion, exercisePostsOf, exercisesAtPost, roundColumns } from '../../lib/resultTasks'
 import { dayStations, rotationDogOf } from '../../lib/rotation'
 import { Path } from '../../routeConfig'
 import { AsyncButton } from '../components/AsyncButton'
 import { ConflictDialog } from '../components/stationScoring/ConflictDialog'
-import { emptyEdit } from '../components/stationScoring/types'
 import { idTokenAtom } from '../state'
 import { EntryPageHeader } from './components/EntryPageHeader'
 import EventNotFound from './components/EventNotFound'
@@ -56,6 +54,8 @@ import { KcIdLookupButton } from './components/KcIdLookupButton'
 import { StartDaySelector } from './components/StartDaySelector'
 import { useStartDayClasses } from './components/useStartDayClasses'
 import ResultsTable from './eventResultsPage/ResultsTable'
+import { saveCollides } from './eventResultsPage/resultDraft'
+import { useResultDrafts } from './eventResultsPage/useResultDrafts'
 import { useIsOfficialEventType } from './hooks/useIsOfficialEventType'
 import { useKennelliittoDogs } from './hooks/useKennelliittoDogs'
 import { useResultsLock } from './hooks/useResultsLock'
@@ -93,12 +93,9 @@ export default function EventResultsPage() {
 
   const scorable = useMemo(() => registrations.filter(isScorableRegistration), [registrations])
   const [pickedScope, setPickedScope] = useState<string>(WHOLE_ROUND)
-  const [edits, setEdits] = useState<Record<string, ResultEdit>>({})
   const [defaultJudges, setDefaultJudges] = useState<Record<string, PublicJudge | undefined>>({})
   const [conflicts, setConflicts] = useState<EventResultConflict[]>([])
   const [choices, setChoices] = useState<Record<string, ConflictChoice>>({})
-  // A whole round's scores can ride on these edits; one stray swipe must not discard them (KOE-1283).
-  useUnsavedChangesWarning(Object.keys(edits).length > 0)
 
   const stations: EventStation[] = useMemo(
     () => (scoresAtPosts(event?.eventType) ? (event?.stations ?? []) : []),
@@ -226,16 +223,6 @@ export default function EventResultsPage() {
     }
   }, [readState])
 
-  const handleChange = useCallback(
-    (registrationId: string, edit: ResultEdit | undefined) =>
-      setEdits((prev) => {
-        if (edit) return { ...prev, [registrationId]: edit }
-        const { [registrationId]: _clean, ...rest } = prev
-        return rest
-      }),
-    []
-  )
-
   // The exercises the dog's group does at the post on view, which are all a save there may write (KOE-1665).
   const exercisesHere = useCallback(
     (registration: Registration) => exercisesAtPost(exercisePostsOf(fullRoundFor(registration)), scope),
@@ -251,18 +238,35 @@ export default function EventResultsPage() {
     [exercisesHere, registrations]
   )
 
+  const {
+    cancelEdits,
+    changeEdit,
+    edits,
+    keepDogs,
+    rebasedEdit,
+    settleEdits: settleDrafts,
+  } = useResultDrafts(registrations, event?.eventType, scoped ? exercisesHere : undefined)
+  // A whole round's scores can ride on these edits; one stray swipe must not discard them (KOE-1283).
+  useUnsavedChangesWarning(Object.keys(edits).length > 0)
+
   const submissionFor = useCallback(
-    (id: string, edit: ResultEdit, overrideBase?: EventResult) => {
+    (id: string, overrideBase?: EventResult) => {
       const registration = registrations.find((reg) => reg.id === id)
       const stored = overrideBase ?? registration?.eventResult
+      const rebased = rebasedEdit(id, stored)
+      const { edit } = rebased
       // A post's own view sends only its own exercises: the row holds the whole round, the other posts'
       // scores included. What that leaves out of a dog's edit stays behind (`settleEdits`).
       const here = scoped && registration ? exercisesHere(registration) : []
       const tasks = scoped ? edit.tasks.filter((task) => here.includes(task.exercise)) : edit.tasks
+      // A score both the secretary and another writer changed is sent on the version the edit started from, which
+      // has no stored result where the dog had none: either way the server asks. The rest is merged, and current.
+      // A secretary who chose "mine" has been asked.
+      const collides = !overrideBase && saveCollides(rebased, scoped ? here : undefined)
 
       return {
         // The version this edit was made against, so the server can tell a second writer from a retry.
-        basedOn: editVersion(stored, scoped ? here : undefined),
+        basedOn: editVersion(collides ? rebased.version : stored, scoped ? here : undefined),
         eventResult: {
           elimination: edit.elimination,
           ...(edit.judge ? { judge: edit.judge } : {}),
@@ -274,32 +278,21 @@ export default function EventResultsPage() {
         ...(scoped ? { stationId: scope } : {}),
       }
     },
-    [exercisesHere, registrations, scope, scoped]
+    [exercisesHere, rebasedEdit, registrations, scope, scoped]
   )
 
-  /**
-   * Takes the dogs whose save is settled off the screen, but for a score a post's save could not take
-   * (KOE-1696): typed at another post, or at an exercise that has since moved, it stays in the edit for the
-   * whole round to save, and the secretary is told. A disputed dog the secretary left as stored holds nothing:
-   * its edit carries the version just turned down, which a later save would write back. Answers whether a
-   * settled dog stayed.
-   */
+  // Takes the dogs whose save is settled off the screen, and tells the secretary of a score that stayed behind
+  // (`useResultDrafts`). Answers whether a settled dog stayed.
   const settleEdits = useCallback(
     (settled: (id: string) => boolean) => {
-      const holdsScores = (id: string, edit: ResultEdit) => {
-        const registration = registrations.find((reg) => reg.id === id)
-        if (!scoped || !registration) return false
-        if (conflicts.some((conflict) => conflict.id === id) && choices[id] !== 'mine') return false
-        return heldTasks(edit.tasks, registration.eventResult?.tasks, exercisesHere(registration)).length > 0
-      }
-      const held = Object.entries(edits).some(([id, edit]) => settled(id) && holdsScores(id, edit))
-      setEdits((prev) =>
-        Object.fromEntries(Object.entries(prev).filter(([id, edit]) => !settled(id) || holdsScores(id, edit)))
+      const held = settleDrafts(
+        settled,
+        (id) => conflicts.some((conflict) => conflict.id === id) && choices[id] !== 'mine'
       )
       if (held) enqueueSnackbar(t('results.heldScores'), { variant: 'warning' })
       return held
     },
-    [choices, conflicts, edits, exercisesHere, registrations, scoped, t]
+    [choices, conflicts, settleDrafts, t]
   )
 
   // Every dog of the save is settled. Nothing saved and nothing disputed or held means it was all already stored,
@@ -316,9 +309,8 @@ export default function EventResultsPage() {
   // The list as the server has it: edits of dogs that are no longer on the sheet are dropped, the rest stay.
   const dropGoneDogs = useCallback(async () => {
     const fresh = await kc.reload()
-    const present = new Set(fresh.filter(isScorableRegistration).map((registration) => registration.id))
-    setEdits((prev) => Object.fromEntries(Object.entries(prev).filter(([id]) => present.has(id))))
-  }, [kc])
+    keepDogs(new Set(fresh.filter(isScorableRegistration).map((registration) => registration.id)))
+  }, [kc, keepDogs])
 
   // The batch was refused as locked: the dogs saved before the lock are stored, so they are folded in and settled
   // like the saved dogs of a conflict. The state is read whatever happens to the fold.
@@ -354,10 +346,6 @@ export default function EventResultsPage() {
     async (body: EventResultsResponse) => {
       await storeResults([...body.saved, ...body.unchanged])
       settleEdits((id) => !body.conflicts.some((conflict) => conflict.id === id))
-      setEdits((prev) => ({
-        ...prev,
-        ...Object.fromEntries(body.conflicts.map(({ id }) => [id, prev[id] ?? emptyEdit])),
-      }))
       setConflicts(body.conflicts)
       setChoices({})
     },
@@ -388,7 +376,7 @@ export default function EventResultsPage() {
   )
 
   const handleSave = useCallback(async () => {
-    const submissions = Object.entries(edits).map(([id, edit]) => submissionFor(id, edit))
+    const submissions = Object.keys(edits).map((id) => submissionFor(id))
     if (submissions.length === 0) return
 
     try {
@@ -404,9 +392,7 @@ export default function EventResultsPage() {
     // Only the dogs the secretary decided to overrule are sent again, each based on the version that
     // beat it, so this save is no longer a conflict.
     const mine = conflicts.filter((conflict) => choices[conflict.id] === 'mine')
-    const submissions = mine.map((conflict) =>
-      submissionFor(conflict.id, edits[conflict.id] ?? emptyEdit, conflict.stored)
-    )
+    const submissions = mine.map((conflict) => submissionFor(conflict.id, conflict.stored))
 
     if (submissions.length) {
       try {
@@ -423,7 +409,7 @@ export default function EventResultsPage() {
 
     setConflicts([])
     setChoices({})
-  }, [choices, conflicts, edits, finishSave, saveResults, settleEdits, settleFailedSave, submissionFor])
+  }, [choices, conflicts, finishSave, saveResults, settleEdits, settleFailedSave, submissionFor])
 
   if (!event?.id) return <EventNotFound />
 
@@ -540,7 +526,7 @@ export default function EventResultsPage() {
           eventClass={eventClass}
           eventType={event.eventType}
           fullRoundFor={scoped ? undefined : fullRoundFor}
-          onChange={handleChange}
+          onChange={changeEdit}
           placements={scoped ? undefined : placements}
           defaultJudges={defaultJudges}
           judges={eventJudges}
@@ -566,7 +552,7 @@ export default function EventResultsPage() {
           p: 1,
         }}
       >
-        <Button disabled={Object.keys(edits).length === 0} onClick={() => setEdits({})}>
+        <Button disabled={Object.keys(edits).length === 0} onClick={cancelEdits}>
           {t('cancel')}
         </Button>
         <AsyncButton

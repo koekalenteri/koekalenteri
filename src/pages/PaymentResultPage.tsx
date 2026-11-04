@@ -28,6 +28,12 @@ export const paymentResultLoader = async ({ request }: LoaderFunctionArgs) => {
         id: response.registrationId,
         ...(editToken ? { editToken } : {}),
       }
+      // The signature did not verify, so `checkout-status` is unverified too: nothing confirms a
+      // payment, and nothing will, so waiting for one would leave the payer stuck (KOE-1484).
+      if (response.status === 'refused') {
+        enqueueSnackbar(t('registration.notifications.paymentNotConfirmed'), { variant: 'error' })
+        return redirect(Path.payment(registration))
+      }
       // The payment provider has already reported a successful payment. If the
       // subsequent verification has a transient error, still show the payment
       // status page instead of offering payment again.

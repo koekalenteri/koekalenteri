@@ -7,6 +7,7 @@ covers:
   - src/pages/registrationListPage/**
   - src/pages/RegistrationEditPage.tsx
   - src/pages/RegistrationInvitation.tsx
+  - src/pages/PaymentResultPage.tsx
   - src/pages/components/CancelDialog.tsx
   - src/pages/components/RegistrationEventInfo.tsx
   - src/pages/components/RegistrationForm.tsx
@@ -43,7 +44,8 @@ kuvakkeiden päälle.
 Jos maksettavaa on, maksurivin vieressä on painike **{t:registration.cta.pay}** ja koiran rivillä
 euromerkki, jonka nimi on *{t:registration.actions.pay}*. Kumpikin vie Paytrailin maksusivulle.
 Kun palaat maksusta, sivu ilmoittaa *{t:registration.notifications.paymentVerifying}* ja tila
-päivittyy itsestään hetken kuluttua.
+päivittyy itsestään hetken kuluttua. Jos maksun paluuta ei voida varmentaa, sivu ilmoittaa
+*{t:registration.notifications.paymentNotConfirmed}* ja palaa maksutavan valintaan.
 
 Koemaksun voi maksaa vielä viikon ajan kokeen viimeisen päivän jälkeen, vaikka luokkasi olisi jo
 arvosteltu: painike **{t:registration.cta.pay}**, koiran rivin euromerkki ja maksulinkki toimivat

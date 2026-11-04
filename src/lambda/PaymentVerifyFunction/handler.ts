@@ -7,6 +7,7 @@ import { parseJSONWithFallback } from '../lib/json'
 import { lambda, response } from '../lib/lambda'
 import { logger } from '../lib/log'
 import {
+  CallbackRefusedError,
   parseParams,
   publishCancelledRegistration,
   readCallbackTransaction,
@@ -51,7 +52,10 @@ const paymentVerifyLambda = lambda('paymentVerify', async (event) => {
     return response<VerifyPaymentResponse>(200, { editToken, eventId, paymentStatus, registrationId, status }, event)
   } catch (e) {
     logger.error('failed to verify payment', { error: e, eventId, registrationId })
-    return response<VerifyPaymentResponse>(200, { eventId, paymentStatus, registrationId, status: 'error' }, event)
+    // A refusal is an answer about this return, so the client must not read it as "try again later"
+    // and leave the payer waiting; anything else may still resolve itself (KOE-1484).
+    const status = e instanceof CallbackRefusedError ? 'refused' : 'error'
+    return response<VerifyPaymentResponse>(200, { eventId, paymentStatus, registrationId, status }, event)
   }
 })
 

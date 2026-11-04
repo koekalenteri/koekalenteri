@@ -1029,6 +1029,7 @@
       "groupsBusy": "Tapahtuman tietoja päivitetään parhaillaan. Yritä hetken kuluttua uudelleen.",
       "paymentFailed": "Maksu epäonnistui, ole hyvä ja yritä uudelleen",
       "paymentInProgress": "Tämän koiran maksu on kesken. Yritä uudelleen muutaman minuutin kuluttua.",
+      "paymentNotConfirmed": "Maksua ei voitu vahvistaa. Yritä maksaa uudelleen tai ota yhteyttä koesihteeriin, jos maksu on jo veloitettu.",
       "paymentVerifying": "Maksu vastaanotettu, vahvistetaan vielä. Tila päivittyy hetken kuluttua.",
       "staleData": "Ilmoittautumista on muokattu muualla sen avaamisen jälkeen. Lataa sivu uudelleen ja tee muutokset uudestaan."
     },

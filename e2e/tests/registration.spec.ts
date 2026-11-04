@@ -106,19 +106,23 @@ test.describe('registering and paying', { annotation: issue('KOE-1477'), tag: ['
     expect((await sentTo(owner.email)).map((message) => message.template)).toContain('receipt-e2e-fi')
   })
 
-  test('a return signed with the wrong secret is not taken as a payment', {
-    annotation: issue('KOE-1484', 'the page still says the payment is being verified'),
-  }, async ({ page }) => {
+  test('a return signed with the wrong secret is not taken as a payment', async ({ page }) => {
     const { key, owner, payment } = await register(page)
 
     await payment.payAtBank('Väärennetty paluu')
 
-    // The page stays in "verifying"; neither the callback nor the verify call accepts the signature.
-    await expect(page.getByRole('main').getByText(/^Maksu vastaanotettu, vahvistetaan vielä/)).toBeVisible()
-    await expect(page.getByRole('main').getByText('Olen maksanut')).toBeHidden()
+    // Neither the callback nor the verify call accepts the signature: the payer is told so and gets
+    // the methods back.
+    await expect(page.getByRole('heading', { name: 'Valitse maksutapa' })).toBeVisible()
+    await expect(page.getByText(/^Maksua ei voitu vahvistaa/)).toBeVisible()
     const registration = await readRegistration(key.eventId, key.id)
     expect(registration?.paymentStatus).not.toBe('SUCCESS')
     expect(registration?.paidAt).toBeUndefined()
     expect((await sentTo(owner.email)).map((message) => message.template)).not.toContain('receipt-e2e-fi')
+
+    // The refused attempt does not stand in the way of paying.
+    await payment.payAtBank('Maksa')
+
+    await expect(page.getByRole('main').getByText('Olen maksanut')).toBeVisible()
   })
 })

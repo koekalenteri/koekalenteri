@@ -80,6 +80,7 @@ vi.doMock('./repositories/registrationRepository', () => ({
   readRegistration: mockReadRegistration,
 }))
 const {
+  CallbackRefusedError,
   dropOpenTransaction,
   isTransactionSettled,
   loadOpenPayments,
@@ -97,7 +98,7 @@ const {
   updateTransactionStatus,
   verifyParams,
 } = await import('./payment')
-const { calculateHmac } = await import('./paytrail')
+const { calculateHmac, paytrail } = await import('./paytrail')
 
 const callbackParams = {
   'checkout-provider': 'paytrail',
@@ -164,9 +165,10 @@ describe('payment', () => {
     it('does not log callback parameters when the transaction id is missing', async () => {
       const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined)
 
-      await expect(verifyParams({ signature: 'supplied-signature' })).rejects.toThrow(
-        'Missing checkout-transaction-id from params'
-      )
+      const refusal = verifyParams({ signature: 'supplied-signature' })
+
+      await expect(refusal).rejects.toBeInstanceOf(CallbackRefusedError)
+      await expect(refusal).rejects.toThrow('Missing checkout-transaction-id from params')
 
       expect(loggedLines(consoleSpy)).toEqual([
         { level: 'error', message: 'missing checkout-transaction-id from payment callback' },
@@ -176,11 +178,23 @@ describe('payment', () => {
     it('does not log the supplied signature or calculated HMAC when verification fails', async () => {
       const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined)
 
-      await expect(verifyParams({ ...callbackParams, signature: 'supplied-signature' })).rejects.toThrow(
-        'Verifying payment signature failed'
-      )
+      const refusal = verifyParams({ ...callbackParams, signature: 'supplied-signature' })
+
+      await expect(refusal).rejects.toBeInstanceOf(CallbackRefusedError)
+      await expect(refusal).rejects.toThrow('Verifying payment signature failed')
 
       expect(loggedLines(consoleSpy)).toEqual([{ level: 'error', message: 'verifying payment signature failed' }])
+    })
+
+    it('resolves for a signature that verifies', async () => {
+      await expect(verifyParams(params)).resolves.toBeUndefined()
+    })
+
+    it('does not call a config failure a refusal (KOE-1484)', async () => {
+      const failure = new Error('SSM unavailable')
+      vi.spyOn(paytrail, 'verifyCallbackSignature').mockRejectedValueOnce(failure)
+
+      await expect(verifyParams(params)).rejects.toBe(failure)
     })
   })
 

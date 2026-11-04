@@ -29,13 +29,17 @@ import {
 import {
   dogRound,
   editVersion,
+  exercisePostsOf,
   holdsScore,
   isRecordedTask,
   mergeStationTasks,
+  outcomeDiffers,
+  outcomeExercises,
   outcomeHeldElsewhere,
   reconcileRoundTasks,
   roundsDiffer,
   sameStationTasks,
+  stampTasks,
   stationExercises,
 } from '../../lib/resultTasks'
 import { rotationDogOf, roundInputsOf } from '../../lib/rotation'
@@ -148,16 +152,6 @@ interface ProcessedResultSubmissions {
   saved: StoredEventResult[]
   unchanged: StoredEventResult[]
 }
-
-/**
- * Who recorded a task and when. Stamped here rather than taken from the client: it decides what counts
- * as a competing edit, so it must come from the server that accepted the write.
- */
-const stampProvenance = (
-  tasks: SubmittedTask[] | undefined,
-  updatedAt: string,
-  updatedBy: string
-): JsonEventResultTask[] | undefined => tasks?.map((task) => ({ ...task, updatedAt, updatedBy }))
 
 /**
  * How many dogs one request may carry. A class screenful is a few dozen; the cap is a ceiling on the
@@ -439,16 +433,6 @@ type SubmissionOutcome =
   | { kind: 'conflict'; stored: JsonEventResult; submitted: JsonEventResult }
   | { kind: 'save'; eventResult: JsonEventResult; hadStored: boolean }
 
-/**
- * Whether a submission changes the round-ending outcome. Task equality alone must not read as a retry:
- * an elimination recorded before the post scored anything arrives with the task list unchanged.
- */
-const outcomeDiffers = (stored: JsonEventResult | undefined, submitted: SubmittedEventResult): boolean =>
-  objectsDiffer(
-    { elimination: stored?.elimination, retirement: stored?.retirement },
-    { elimination: submitted.elimination, retirement: submitted.retirement }
-  )
-
 const classifySubmission = (
   confirmedEvent: JsonConfirmedEvent,
   registration: JsonRegistration,
@@ -462,7 +446,21 @@ const classifySubmission = (
   // versioned and merged as one.
   const stationId = scoresAtPosts(confirmedEvent.eventType) ? submission.stationId : undefined
   const exercises = stationId ? stationExercises(confirmedEvent, registration, stationId) : []
-  const submittedTasks = stampProvenance(submission.eventResult.tasks, timestamp, userName)
+  const renewed = outcomeExercises(
+    stored,
+    submission.eventResult,
+    exercisePostsOf(dogRound(confirmedEvent, rotationDogOf(registration)))
+  )
+  const stamped = (tasks: readonly SubmittedTask[]) =>
+    stampTasks(tasks, stored?.tasks, renewed, { updatedAt: timestamp, updatedBy: userName })
+  // A post's save stays as it was sent, where a stored blank marks its place in the queue as done. On a whole
+  // round a blank with nothing stored is nothing: stored, its stamp would give the post a version nobody wrote.
+  const sentTasks = stationId
+    ? submission.eventResult.tasks
+    : submission.eventResult.tasks?.filter(
+        (task) => isRecordedTask(task) || stored?.tasks?.some((entry) => holdsScore(entry, task))
+      )
+  const submittedTasks = sentTasks && stamped(sentTasks)
   const submitted: SubmittedEventResult = { ...submission.eventResult, tasks: submittedTasks }
   const resolve = (result: SubmittedEventResult) =>
     resolveFor(confirmedEvent, registration, result, timestamp, userName)
@@ -485,8 +483,9 @@ const classifySubmission = (
   }
 
   // Merge rather than replace, or a station secretary's save carries away the scores another post
-  // already recorded for the same dog.
-  const tasks = stationId ? mergeStationTasks(stored?.tasks, submittedTasks, exercises) : submittedTasks
+  // already recorded for the same dog. Stamped again after the merge: the secretary's view of one post may
+  // change the outcome of another, and that post's stored tasks are what moves its version.
+  const tasks = stationId ? stamped(mergeStationTasks(stored?.tasks, submittedTasks, exercises)) : submittedTasks
 
   return { eventResult: resolve({ ...submitted, tasks }), hadStored: Boolean(stored), kind: 'save' }
 }
@@ -597,7 +596,7 @@ export const processResultSubmissions = async (
   submissions: readonly ResultSubmission[],
   userName: string
 ): Promise<ProcessedResultSubmissions> => {
-  // One timestamp for the batch, so every task saved together shares a version.
+  // One timestamp for the batch, so every task the batch changes shares a version.
   const timestamp = new Date().toISOString()
 
   const patches: Patch<JsonRegistration>[] = []

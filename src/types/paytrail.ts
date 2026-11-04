@@ -40,7 +40,11 @@ export interface PaytrailRefusalBody {
 }
 
 export interface VerifyPaymentResponse {
-  status: 'ok' | 'error'
+  /**
+   * `refused`: the return's signature did not verify, so nothing in it can be believed. `error`: it
+   * could not be checked right now, and the payment may still be fine (KOE-1484).
+   */
+  status: 'ok' | 'error' | 'refused'
   editToken?: string
   paymentStatus?: GetPaymentResponse['status']
   eventId?: string
