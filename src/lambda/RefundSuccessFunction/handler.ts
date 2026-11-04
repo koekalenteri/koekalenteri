@@ -4,6 +4,7 @@ import { getFixedT } from '../../i18n/lambda'
 import { emailSentAudit, emailSubjectAuditKey, paymentAudit } from '../../lib/audit'
 import { formatMoney } from '../../lib/money'
 import { getProviderName, transactionActor } from '../../lib/payment'
+import { isDuplicatePayment } from '../../lib/registration'
 import { CONFIG } from '../config'
 import { audit, registrationAuditKey } from '../lib/audit'
 import { registrationEmailTags, registrationEmailTemplateData, sendTemplatedMail } from '../lib/email'
@@ -25,6 +26,13 @@ import { applySuccessfulRefund } from '../lib/repositories/transactionRepository
 import { publishRegistrationPatches } from '../lib/ws/actions'
 
 const { frontendURL, emailFrom } = CONFIG
+
+/**
+ * What the refund mail says was paid, in euros. A payment charged twice records no amount on its row:
+ * what it paid is what this refund settles (KOE-1693).
+ */
+const paidForRefundMail = (registration: JsonRegistration, refunded: number, handlingCost: number) =>
+  isDuplicatePayment(registration) ? refunded + handlingCost : (registration.paidAmount ?? 0)
 
 /**
  * refundSuccess is called by payment provider, to update successful refund status
@@ -151,7 +159,7 @@ const refundSuccessLambda = lambda('refundSuccess', async (event) => {
         // The fee this refund kept, as the secretary set it: what was paid less what went back is
         // not it, since a partial refund leaves the rest of the payment standing (KOE-1459).
         handlingCost: formatMoney(handlingCost),
-        paidAmount: formatMoney(registration.paidAmount ?? 0),
+        paidAmount: formatMoney(paidForRefundMail(registration, amount, handlingCost)),
         providerName,
         refundAt: t('dateFormat.long', { date: registration.refundAt }),
       },
@@ -182,7 +190,8 @@ const refundSuccessLambda = lambda('refundSuccess', async (event) => {
         emailDeliveryStatus: null,
         eventId,
         id: registrationId,
-        openRefunds: updatedRegistration?.openRefunds,
+        // An emptied set is gone from the row, and a key without a value never reaches the page.
+        openRefunds: updatedRegistration?.openRefunds ?? [],
         ...changes,
         updatedAt,
       },

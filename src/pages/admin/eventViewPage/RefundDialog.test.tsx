@@ -110,6 +110,50 @@ describe('RefundDialog', () => {
   })
   afterAll(() => vi.useRealTimers())
 
+  // A payment charged twice has no row on a list, and the app let it through (KOE-1693).
+  describe('on a payment charged twice', () => {
+    const duplicate = {
+      createdAt: new Date('2026-08-01T10:00:00.000Z'),
+      dog: { name: 'Rex', regNo: 'FI1/26' },
+      eventId: eventWithStaticDates.id,
+      id: 'duplicate-row',
+      payer: { name: 'Payer' },
+      paymentStatus: 'DUPLICATE' as const,
+    }
+
+    it.each([
+      ['no group', {}],
+      ['the group its own cancel gave it', { cancelled: true, group: { key: 'cancelled' } }],
+      ['a place', { group: { key: 'NOU' } }],
+    ])('keeps no handling fee by default with %s', async (_name, row) => {
+      mockRefundImplementation = vi.fn().mockResolvedValue({ status: 'ok' })
+      const registration = { ...duplicate, ...row }
+      render(<RefundDialog event={eventWithStaticDates} registration={registration} open />, { wrapper: Wrapper })
+      await flushPromises()
+
+      fireEvent.click(screen.getByText('refund'))
+      await flushPromises()
+
+      expect(mockRefundImplementation).toHaveBeenCalledWith(registration, 'payment-123', 3000, 0)
+    })
+
+    it('has no notes field, as the notes belong to a row on the list', async () => {
+      render(<RefundDialog event={eventWithStaticDates} registration={duplicate} open />, { wrapper: Wrapper })
+      await flushPromises()
+
+      expect(screen.queryByRole('textbox', { name: 'registration.internalNotes' })).not.toBeInTheDocument()
+    })
+
+    it('has the notes field on a row on the list', async () => {
+      render(<RefundDialog event={eventWithStaticDates} registration={registrationWithStaticDates} open />, {
+        wrapper: Wrapper,
+      })
+      await flushPromises()
+
+      expect(screen.getByRole('textbox', { name: 'registration.internalNotes' })).toBeInTheDocument()
+    })
+  })
+
   it('renders hidden when open is false', async () => {
     render(<RefundDialog event={eventWithStaticDates} registration={registrationWithStaticDates} open={false} />, {
       wrapper: Wrapper,
@@ -726,7 +770,7 @@ describe('RefundDialog', () => {
       render(
         <RefundDialog
           event={cheaperEvent}
-          registration={{ ...participant, cancelled: true, group: { key: 'cancelled', number: 1 } }}
+          registration={{ ...participant, cancelled: true, group: { key: 'cancelled' } }}
           open={true}
         />,
         { wrapper: Wrapper }

@@ -129,9 +129,7 @@ export const PaymentPageWithData = ({
       <Divider sx={{ my: 1 }} />
       <RegistrationDetails event={event} registration={registration} />
       <Divider sx={{ my: 1 }} />
-      {/* A payment charged twice waits for its refund: the row of what is to pay would ask for the fee
-          again under the sentence that says so (KOE-1528). */}
-      <PaymentDetails event={event} registration={registration} includePayable={paymentStatus !== 'duplicate'} />
+      <PaymentDetails event={event} registration={registration} includePayable />
     </Paper>
   )
 

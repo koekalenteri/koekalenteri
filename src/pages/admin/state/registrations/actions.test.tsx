@@ -14,6 +14,7 @@ import { TEST_ID_TOKEN } from '@/test-utils/utils'
 import { adminEventAtom, adminEventsAtom } from '../events'
 import { useAdminRegistrationActions, useKennelliittoResults } from './actions'
 import {
+  adminDuplicatePaymentsRefreshAtom,
   adminEventRegistrationsAtom,
   adminEventRegistrationsCursorAtom,
   adminEventRegistrationsFetchedAtAtom,
@@ -401,6 +402,45 @@ describe('useAdminRegistrationActions', () => {
     })
 
     expect(result.current.event).toMatchObject({ startListPublished: false, state: 'invited' })
+  })
+
+  // A payment charged twice has no row on the secretary's list and must not get one (KOE-1693).
+  it('leaves the list as it is and fetches its own again when refunding a payment charged twice', async () => {
+    const duplicate = {
+      ...registrationWithStaticDates,
+      id: 'duplicate-row',
+      paymentStatus: 'DUPLICATE' as const,
+      state: 'creating' as const,
+    }
+    vi.mocked(createRefund).mockResolvedValueOnce({ provider: 'nordea', status: 'ok', transactionId: 'r-1' })
+    const { result } = renderHook(
+      () => ({
+        actions: useAdminRegistrationActions(eventWithStaticDates.id),
+        refreshCount: useAtomValue(adminDuplicatePaymentsRefreshAtom(eventWithStaticDates.id)),
+        registrations: useAtomValue(adminProjectedEventRegistrationsAtom(eventWithStaticDates.id)),
+      }),
+      {
+        wrapper: ({ children }: { readonly children: React.ReactNode }) => (
+          <Provider
+            initializeState={({ set }) => {
+              set(idTokenAtom, TEST_ID_TOKEN)
+              set(adminEventsAtom, [eventWithStaticDates])
+              set(adminEventRegistrationsAtom(eventWithStaticDates.id), [registrationWithStaticDates])
+            }}
+          >
+            {children}
+          </Provider>
+        ),
+      }
+    )
+
+    await act(async () => {
+      await result.current.actions.refund(duplicate, 'payment-1', 5000, 0)
+    })
+
+    expect(result.current.registrations.map(({ id }) => id)).toEqual([registrationWithStaticDates.id])
+    // What makes the section fetch its own list again.
+    expect(result.current.refreshCount).toBe(1)
   })
 
   // KOE-1526 review: the row must read right after the click as it will once the refund is applied.

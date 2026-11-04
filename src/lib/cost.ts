@@ -16,7 +16,7 @@ import type {
 import { addDays, dayStart, TIME_ZONE } from './day'
 import { storedDayKey } from './event'
 import { getNetPaidAmount, toCents } from './money'
-import { isMember, isReturnedReserve } from './registration'
+import { isDuplicatePayment, isMember, isReturnedReserve } from './registration'
 
 /**
  * The first moment of the Finnish day `days` days from the one the entry starts on, or undefined for
@@ -356,6 +356,15 @@ export const isPaymentWithoutAmount = (
 ) => registration.paidAmount === undefined && registration.paymentStatus === 'SUCCESS'
 
 /**
+ * What counts as paid towards the fee, in cents. A payment charged twice has paid for nothing, also
+ * once it went back: read through the refund it would be less than nothing (KOE-1693).
+ */
+const paidTowardsFee = (registration: PaymentBalanceRegistration, costCents: number): number => {
+  if (isDuplicatePayment(registration)) return 0
+  return isPaymentWithoutAmount(registration) ? costCents : toCents(getNetPaidAmount(registration))
+}
+
+/**
  * Where the entry's money stands against its fee. The fee is recomputed from the entry as it reads
  * now, so a membership tick removed after a member-price payment shows as `due` (KOE-722) and one
  * added after a full-price payment as `excess` (KOE-1382). What counts as paid is `getNetPaidAmount`.
@@ -369,9 +378,8 @@ export const getPaymentBalance = (
   registration: PaymentBalanceRegistration
 ): PaymentBalance => {
   const costCents = toCents(calculateCost(event, registration).amount)
-  const legacyPayment = isPaymentWithoutAmount(registration)
-  const paidCents = legacyPayment ? costCents : toCents(getNetPaidAmount(registration))
-  const settled = Boolean(registration.cancelled) || isReturnedReserve(registration)
+  const paidCents = paidTowardsFee(registration, costCents)
+  const settled = Boolean(registration.cancelled) || isReturnedReserve(registration) || isDuplicatePayment(registration)
 
   return {
     cost: costCents / 100,

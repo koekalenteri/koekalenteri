@@ -448,6 +448,48 @@ export type RefundField = 'paidAmount' | 'refundAmount' | 'refundHandlingCost'
 /** A registration's money as the refund and balance rules read it. */
 export type RegistrationRefundAmounts = Pick<Registration, RefundField>
 
+/**
+ * What the refund dialog reads of an entry: every row on the secretary's list has it, and so does a
+ * payment charged twice, which is on no list and gets only this from the server (KOE-1693).
+ */
+export interface RefundRegistration
+  extends MinimalRegistrationForMembership,
+    RegistrationPlacement,
+    RegistrationRefundAmounts,
+    Pick<
+      Registration,
+      | 'createdAt'
+      | 'eventId'
+      | 'id'
+      | 'internalNotes'
+      | 'openPayments'
+      | 'openRefunds'
+      | 'optionalCosts'
+      | 'paymentStatus'
+      | 'refundStatus'
+      | 'selectedCost'
+      | 'updatedAt'
+    > {
+  dog: Pick<Registration['dog'], 'breedCode' | 'name' | 'regNo'>
+  payer?: Pick<RegistrationPerson, 'name'>
+}
+
+export type JsonRefundRegistration = Omit<RefundRegistration, 'createdAt' | 'updatedAt'> &
+  Pick<JsonRegistration, 'createdAt' | 'updatedAt'>
+
+/** A payment charged twice that has not gone back, as the event view's section lists it (KOE-1693). */
+export interface DuplicatePaymentEntry {
+  /** What has not gone back, in euros. */
+  amount: number
+  duplicatePaymentAt: Date
+  registration: RefundRegistration
+}
+
+export interface JsonDuplicatePaymentEntry extends Omit<DuplicatePaymentEntry, 'duplicatePaymentAt' | 'registration'> {
+  duplicatePaymentAt: string
+  registration: JsonRefundRegistration
+}
+
 /** The public row's group: the number is withheld until the class's start numbers are published. */
 export type JsonPublicRegistrationGroup = Omit<JsonRegistrationGroup, 'number'> & { number?: number }
 export type PublicRegistrationGroup = Omit<RegistrationGroup, 'number'> & { number?: number }

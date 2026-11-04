@@ -6,6 +6,7 @@ import type {
   DayKey,
   Dog,
   DogEvent,
+  DuplicatePaymentEntry,
   EmailTemplate,
   EventClass,
   EventKcIdChoice,
@@ -22,6 +23,7 @@ import type {
   JsonClassStartNumbers,
   JsonDog,
   JsonDogEvent,
+  JsonDuplicatePaymentEntry,
   JsonEmailTemplate,
   JsonEventResult,
   JsonEventResultConflict,
@@ -41,6 +43,7 @@ import type {
   JsonPublicRegistrationGroup,
   JsonPublicStationTurn,
   JsonQualifyingResult,
+  JsonRefundRegistration,
   JsonRegistration,
   JsonRegistrationDate,
   JsonRegistrationGroup,
@@ -66,6 +69,7 @@ import type {
   PublicRegistrationGroup,
   PublicStationTurn,
   QualifyingResult,
+  RefundRegistration,
   Registration,
   RegistrationDate,
   RegistrationGroup,
@@ -318,6 +322,16 @@ export const {
   toManualTestResult: toStoredManualTestResult,
   toRegistration: toStoredRegistration,
 } = dogDateConverters(localCalendarDayOf)
+
+const toRefundRegistration = converter<JsonRefundRegistration, RefundRegistration>()({
+  createdAt: timestamp,
+  updatedAt: timestamp,
+})
+
+export const toDuplicatePaymentEntry = converter<JsonDuplicatePaymentEntry, DuplicatePaymentEntry>()({
+  duplicatePaymentAt: timestamp,
+  registration: toRefundRegistration,
+})
 
 export const toEventClass = converter<EventClass, EventClass>()({ date: eventDay })
 

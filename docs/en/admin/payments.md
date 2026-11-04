@@ -9,11 +9,13 @@ covers:
   - src/pages/admin/OrganizerListPage.tsx
   - src/pages/admin/organizerListPage/**
   - src/pages/admin/eventViewPage/RefundDialog.tsx
+  - src/pages/admin/eventViewPage/DuplicatePayments.tsx
   - src/pages/admin/eventViewPage/refundDialog/**
   - src/lambda/lib/payment.ts
   - src/lambda/PaymentCreateFunction/**
+  - src/lambda/GetDuplicatePaymentsFunction/**
   - src/lambda/RefundCreateFunction/**
-sourceHash: 2609a4
+sourceHash: 5bef36
 ---
 
 Koekalenteri is a web shop: the entrant pays the entry fee in the calendar, and the money goes
@@ -68,6 +70,26 @@ Above the transactions the dialog shows the entry's cart as it is now: the parti
 optional services, what has already been paid and what is still to be paid.
 
 !shot[RefundDialog/refund-dialog-open] Refunding a payment from the calendar
+
+### {t:registration.duplicatePayments.title}
+
+If a dog already has a paid entry and its old, unfinished entry is still paid, for example on a
+Paytrail tab left open, the money reaches the club but the entry is not completed. It does not show on
+the class lists, in the groups or in the counts. The payer is told on the entry's page that the
+payment goes back through the secretary.
+
+These payments show in the trial's view above the class lists, in a notice of their own, and only when
+there is something to refund. A row shows the dog, the payer, the amount to refund and when it was
+paid. **{t:refund}** opens the same refund dialog as the menu on an entry's row; the handling cost is
+zero to begin with, and can be changed. While the refund is under way the row says
+*{t:registration.duplicatePayments.refundPending}*. Once it is done the row goes away and the payer's
+page says *{t:paymentStatus.refunded}*. If the refund fails, the row stays and it can be tried again.
+The payer gets the ordinary refund message.
+
+The notice does not know of a refund made in Paytrail's merchant panel: refund these payments from
+the calendar, or the row stays.
+
+!shot[DuplicatePayments/duplicate-payments] Payments charged twice in the trial's view
 
 A refund only goes through if the club's Paytrail account holds a balance. Right after a
 settlement it holds none, and the treasurer then moves money to the account with the merchant

@@ -20,7 +20,7 @@ import {
   paytrailRefusalBody,
   STALE_PENDING_PAYMENT_AGE_MS,
 } from '../../lib/payment'
-import { registrationActor } from '../../lib/registration'
+import { isDuplicatePayment, registrationActor } from '../../lib/registration'
 import { paymentCreateSchema } from '../../lib/schema/payment'
 import { splitName } from '../../lib/string'
 import { mapWithConcurrency } from '../../lib/utils'
@@ -143,13 +143,15 @@ const paymentCreateLambda = lambda('paymentCreate', async (event) => {
 
   assertOpenForPayment(jsonEvent, registration)
 
-  // Only the duplicate mark and the amount are read, and neither depends on open payments (a payment
-  // in progress is answered 409 below, from the transactions themselves), so none are loaded.
-  const picture = getPaymentPicture(jsonEvent, registration, [])
-
-  if (picture.status === 'duplicate') {
-    throw httpError(409, 'Duplicate payment requires a refund')
+  // The mark, not the status: a duplicate whose fee went back reads `refunded`, and below an old
+  // unfinished transaction would hand back its Paytrail link before the amount is looked at (KOE-1693).
+  if (isDuplicatePayment(registration)) {
+    throw httpError(409, 'A payment charged twice cannot be paid again')
   }
+
+  // Only the amount is read, and it does not depend on open payments (a payment in progress is
+  // answered 409 below, from the transactions themselves), so none are loaded.
+  const picture = getPaymentPicture(jsonEvent, registration, [])
 
   // Paying at confirmation, only a place pays: the rule the pay offer reads (KOE-1526).
   if (!isPaymentOpenForPlace(jsonEvent, registration)) {
