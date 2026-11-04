@@ -27,6 +27,12 @@ export interface ResultEdit {
 
 export const emptyEdit: ResultEdit = { tasks: [] }
 
+/** How a round ended, as far as it did: only the fields it has. */
+export const outcomeOf = ({ elimination, retirement }: Pick<ResultEdit, 'elimination' | 'retirement'>) => ({
+  ...(elimination ? { elimination } : {}),
+  ...(retirement ? { retirement } : {}),
+})
+
 /**
  * What is stored as an edit starts from it, so a correction edits rather than replaces. A round scored at
  * posts is its tasks and how it ended; a qualitative type's recording is the judge's decision, read back out
@@ -39,10 +45,7 @@ export const seededResultEdit = (
 ): ResultEdit => {
   if (!stored) return emptyEdit
 
-  const outcome = {
-    ...(stored.elimination ? { elimination: stored.elimination } : {}),
-    ...(stored.retirement ? { retirement: stored.retirement } : {}),
-  }
+  const outcome = outcomeOf(stored)
   if (scoresAtPosts(eventType)) {
     return { ...outcome, tasks: (stored.tasks ?? []).map(({ updatedAt: _at, updatedBy: _by, ...task }) => task) }
   }

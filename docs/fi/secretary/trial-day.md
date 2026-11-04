@@ -242,8 +242,8 @@ Toisen koesihteerin ja suorituspaikan tallennukset päivittyvät sivulle itsest�
 **{t:results.conflictTitle}**, joka näyttää molemmat versiot ja kysyy, kumpi jää voimaan;
 **{t:results.conflictResolve}** tallentaa valinnat. Muut rivit on tallennettu jo silloin. Jos valintojen
 tallennus epäonnistuu, ikkuna jää auki ja syötetyt pisteet säilyvät; jos koirakko on sillä välin
-kirjattu muualla taas toisin, ikkuna näyttää uuden version. Oma versiosi ikkunassa on se, mikä tallentuu:
-muokkauksesi ja tallennetun version muut pisteet.
+kirjattu muualla taas toisin, ikkuna näyttää uuden version. Kun valitset oman versiosi, tallentuvat muokkauksesi ja tallennetun version
+muut pisteet.
 
 Koko kierroksen tallennus ei muuta rastin kirjaajaa eikä tallennusaikaa, jos rastin tieto ei muutu. Suorituspaikka saa
 ristiriitaikkunan vain, jos sen rastin pisteitä tai sen rastilla kirjattua keskeytystä on oikeasti muutettu.

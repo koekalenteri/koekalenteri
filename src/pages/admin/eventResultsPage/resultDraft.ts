@@ -1,10 +1,8 @@
-import type { ExerciseSlot } from '@/lib/resultTasks'
-import type { EventResult, EventResultConflict } from '@/types'
+import type { EventResult } from '@/types'
 import type { ResultEdit } from '../../components/stationScoring/types'
 import { scoresAtPosts } from '@/lib/liveFormat'
-import { deriveNowtResult, formatEventResult, nowtTotals } from '@/lib/results'
-import { outcomeDiffers, rebaseTasks, toScoredTasks } from '@/lib/resultTasks'
-import { sameResultEdit, seededResultEdit } from '../../components/stationScoring/types'
+import { outcomeDiffers, rebaseTasks } from '@/lib/resultTasks'
+import { outcomeOf, sameResultEdit, seededResultEdit } from '../../components/stationScoring/types'
 
 /**
  * A dog's unsaved edit on the results page and what it started from: the row as stored at the first change.
@@ -31,11 +29,6 @@ export interface RebasedEdit {
   /** The same of the rest of the result: the outcome pair, or a qualitative type's whole result. */
   outcomeCollided: boolean
 }
-
-const outcomeOf = ({ elimination, retirement }: ResultEdit) => ({
-  ...(elimination ? { elimination } : {}),
-  ...(retirement ? { retirement } : {}),
-})
 
 /**
  * An edit against what is stored now, one rule at each address of the result: what the edit leaves as it
@@ -77,31 +70,3 @@ export const rebaseResultEdit = (
 export const saveCollides = (rebased: RebasedEdit, sentExercises: readonly number[] | undefined): boolean =>
   rebased.outcomeCollided ||
   rebased.collidedExercises.some((exercise) => !sentExercises || sentExercises.includes(exercise))
-
-/**
- * A conflict as the secretary is asked about it. The server's "mine" is the save it turned down, but choosing
- * it sends the edit on the version that beat it, so the two differ where that version holds a score the page
- * had not heard of. A qualitative type's whole result reads the same either way.
- */
-export const conflictAsResent = (
-  conflict: EventResultConflict,
-  resent: ResultEdit,
-  round: readonly ExerciseSlot[],
-  { eventClass, eventType }: ResultReading
-): EventResultConflict => {
-  if (!scoresAtPosts(eventType)) return conflict
-
-  const { elimination: _elimination, result: _result, retirement: _retirement, ...rest } = conflict.submitted
-  const scored = toScoredTasks(round, resent.tasks)
-  const code = deriveNowtResult({ ...resent, tasks: scored })
-  return {
-    ...conflict,
-    submitted: {
-      ...rest,
-      ...outcomeOf(resent),
-      ...nowtTotals(scored),
-      ...(code ? { result: formatEventResult(code, eventType, eventClass) } : {}),
-      tasks: resent.tasks.map((task) => ({ ...task, updatedAt: rest.updatedAt, updatedBy: rest.updatedBy })),
-    },
-  }
-}

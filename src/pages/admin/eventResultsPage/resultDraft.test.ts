@@ -1,10 +1,8 @@
-import type { EventResult, EventResultConflict } from '@/types'
+import type { EventResult } from '@/types'
 import type { ResultEdit } from '../../components/stationScoring/types'
-import { visitSlots } from '@/lib/resultTasks'
-import { conflictAsResent, rebaseResultEdit, saveCollides } from './resultDraft'
+import { rebaseResultEdit, saveCollides } from './resultDraft'
 
 const atStart = new Date('2026-09-12T10:00:00.000Z')
-const later = new Date('2026-09-12T10:05:00.000Z')
 const nowt = { eventType: 'NOWT' }
 
 const task = (exercise: number, points: number | null) => ({ exercise, part: 0, points })
@@ -181,39 +179,5 @@ describe('saveCollides', () => {
 
   it('counts the outcome in either', () => {
     expect(saveCollides({ ...clean, outcomeCollided: true }, [1])).toBe(true)
-  })
-})
-
-describe('conflictAsResent', () => {
-  const round = [...visitSlots('post-1', { exercise: 1, parts: 1 }), ...visitSlots('post-2', { exercise: 2, parts: 1 })]
-  const conflict: EventResultConflict = {
-    id: 'run-1',
-    stored: storedResult([task(1, 18), task(2, 6)], { updatedAt: later }),
-    submitted: { points: 19, result: 'ALO-', tasks: [], updatedAt: later, updatedBy: 'Sihteeri' },
-  }
-
-  it('reads "mine" as the edit on the version that beat it, whose scores the row had not heard of', () => {
-    const { submitted } = conflictAsResent(conflict, { tasks: [task(1, 19), task(2, 6)] }, round, {
-      eventClass: 'ALO',
-      eventType: 'NOWT',
-    })
-
-    expect(submitted.points).toBe(25)
-    expect(submitted.tasks).toEqual([
-      expect.objectContaining({ exercise: 1, points: 19 }),
-      expect.objectContaining({ exercise: 2, points: 6 }),
-    ])
-  })
-
-  it('takes the outcome from the edit too', () => {
-    const before = { ...conflict, submitted: { ...conflict.submitted, retirement: { cause: 'injury' as const } } }
-
-    const { submitted } = conflictAsResent(before, { tasks: [] }, round, { eventClass: 'ALO', eventType: 'NOWT' })
-
-    expect(submitted.retirement).toBeUndefined()
-  })
-
-  it('leaves a qualitative type as the server said', () => {
-    expect(conflictAsResent(conflict, { tasks: [] }, [], { eventType: 'NOU' })).toBe(conflict)
   })
 })

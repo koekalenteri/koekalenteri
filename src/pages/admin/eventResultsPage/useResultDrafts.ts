@@ -4,7 +4,7 @@ import type { RebasedEdit, ResultDraft } from './resultDraft'
 import { useCallback, useMemo, useState } from 'react'
 import { getRegistrationClass } from '@/lib/registration'
 import { heldTasks } from '@/lib/resultTasks'
-import { emptyEdit } from '../../components/stationScoring/types'
+import { seededResultEdit } from '../../components/stationScoring/types'
 import { rebaseResultEdit } from './resultDraft'
 
 /** One dog's draft as it would be saved, and the version it started from. */
@@ -26,15 +26,18 @@ export const useResultDrafts = (
 
   const registrationOf = useCallback((id: string) => registrations.find((reg) => reg.id === id), [registrations])
 
-  const rebase = useCallback(
-    (draft: ResultDraft, id: string, current: EventResult | undefined): RebasedEdit => {
+  const readingOf = useCallback(
+    (id: string) => {
       const registration = registrationOf(id)
-      return rebaseResultEdit(draft, current, {
-        eventClass: registration && getRegistrationClass(registration),
-        eventType: eventType ?? '',
-      })
+      return { eventClass: registration && getRegistrationClass(registration), eventType: eventType ?? '' }
     },
     [eventType, registrationOf]
+  )
+
+  const rebase = useCallback(
+    (draft: ResultDraft, id: string, current: EventResult | undefined): RebasedEdit =>
+      rebaseResultEdit(draft, current, readingOf(id)),
+    [readingOf]
   )
 
   /** An edit that has become what is stored, on saving it as it stands, is no edit and goes. */
@@ -50,13 +53,18 @@ export const useResultDrafts = (
     [rebase, registrationOf]
   )
 
-  /** What saving a dog's edit would send on the given stored result. */
+  /**
+   * What saving a dog's edit would send on the given stored result. A dog with no edit, whose row was taken back
+   * while a save that then lost was on its way, has changed nothing, so it sends what is stored.
+   */
   const rebasedEdit = useCallback(
     (id: string, current: EventResult | undefined): RebasedDraft => {
-      const draft = drafts[id] ?? { edit: emptyEdit, version: registrationOf(id)?.eventResult }
+      const stored = registrationOf(id)?.eventResult
+      const { eventClass, eventType: type } = readingOf(id)
+      const draft = drafts[id] ?? { edit: seededResultEdit(stored, type, eventClass), version: stored }
       return { ...rebase(draft, id, current), version: draft.version }
     },
-    [drafts, rebase, registrationOf]
+    [drafts, readingOf, rebase, registrationOf]
   )
 
   /**
@@ -82,18 +90,6 @@ export const useResultDrafts = (
     [drafts, exercisesOnView, rebase, registrationOf]
   )
 
-  /** A dog in a dispute stays on screen for the secretary to decide on. */
-  const holdDisputedDogs = useCallback(
-    (ids: readonly string[]) =>
-      setDrafts((prev) => ({
-        ...prev,
-        ...Object.fromEntries(
-          ids.map((id) => [id, prev[id] ?? { edit: emptyEdit, version: registrationOf(id)?.eventResult }])
-        ),
-      })),
-    [registrationOf]
-  )
-
   /** The list as the server has it: edits of dogs no longer on the sheet go, the rest stay. */
   const keepDogs = useCallback(
     (present: ReadonlySet<string>) =>
@@ -103,5 +99,5 @@ export const useResultDrafts = (
 
   const cancelEdits = useCallback(() => setDrafts({}), [])
 
-  return { cancelEdits, changeEdit, edits, holdDisputedDogs, keepDogs, rebasedEdit, settleEdits }
+  return { cancelEdits, changeEdit, edits, keepDogs, rebasedEdit, settleEdits }
 }

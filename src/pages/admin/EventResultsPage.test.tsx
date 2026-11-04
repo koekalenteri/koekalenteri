@@ -1059,6 +1059,47 @@ describe('EventResultsPage', () => {
       expect(new Date(lastSubmission()?.basedOn ?? 0)).toEqual(later)
     })
 
+    it("sends what is stored, not a wipe, on 'mine' when the row was taken back while the save was on its way", async () => {
+      const user = await render()
+      const beat = {
+        tasks: [{ ...task(1, 18, later), updatedAt: later.toISOString() }],
+        updatedAt: later.toISOString(),
+        updatedBy: 'Suorituspaikka 1',
+      }
+      let refuse: (reason: APIError) => void = () => {}
+      await score(user, inputsOfDog()[1], '8')
+      vi.mocked(putEventResults).mockImplementationOnce(
+        () =>
+          new Promise((_resolve, reject) => {
+            refuse = reject
+          })
+      )
+
+      await user.click(saveButton())
+      await user.click(inputsOfDog()[1])
+      await user.clear(inputsOfDog()[1])
+      await flushPromises()
+      // Off the field before the dialog takes the focus, whose moves no act wraps.
+      act(() => inputsOfDog()[1].blur())
+      await act(async () => {
+        refuse(
+          new APIError(new Response(null, { status: 409, statusText: 'Conflict' }), {
+            conflicts: [{ id: 'run-1', stored: beat, submitted: beat }],
+            error: 'resultConflict',
+            saved: [],
+            unchanged: [],
+          })
+        )
+        await flushPromises()
+      })
+      await user.click(await screen.findByRole('radio', { name: /results\.conflictMine/ }))
+      await user.click(screen.getByRole('button', { name: 'results.conflictResolve' }))
+      await flushPromises()
+
+      expect(lastSubmission()?.eventResult.tasks).toEqual([expect.objectContaining({ exercise: 1, points: 18 })])
+      expect(new Date(lastSubmission()?.basedOn ?? 0)).toEqual(later)
+    })
+
     it("sends the post's version at the start in a post's own view, when the post changed the score the secretary did", async () => {
       const user = await render()
 

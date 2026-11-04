@@ -14,7 +14,7 @@ covers:
   - src/pages/admin/eventViewPage/infoPanel/ResultsPublishing.tsx
   - src/pages/admin/components/KcIdLookupButton.tsx
   - src/pages/admin/components/StartDaySelector.tsx
-sourceHash: e24540
+sourceHash: ceb7f0
 ---
 
 On the trial day the secretary's job is to record what the dogs did and to get the results in
@@ -237,8 +237,8 @@ Saves by another secretary or a post reach the page by themselves. If you are ed
 the dialog **{t:results.conflictTitle}**, which shows both versions and asks which one stands;
 **{t:results.conflictResolve}** saves the choices. The other rows have already been saved by then. If
 saving the choices fails, the dialog stays open and the entered scores are kept; if the dog has
-meanwhile been recorded differently elsewhere again, the dialog shows the new version. Your version in the
-dialog is what will be saved: your edit and the other scores of the stored version.
+meanwhile been recorded differently elsewhere again, the dialog shows the new version. When you pick your
+own version, your edit and the other scores of the stored version are saved.
 
 A save of the whole round does not change who recorded an exercise, or when, if what the exercise says stays
 the same. A post gets the conflict dialog only if its scores, or an interruption recorded at its exercise,

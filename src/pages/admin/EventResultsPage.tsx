@@ -54,7 +54,7 @@ import { KcIdLookupButton } from './components/KcIdLookupButton'
 import { StartDaySelector } from './components/StartDaySelector'
 import { useStartDayClasses } from './components/useStartDayClasses'
 import ResultsTable from './eventResultsPage/ResultsTable'
-import { conflictAsResent, saveCollides } from './eventResultsPage/resultDraft'
+import { saveCollides } from './eventResultsPage/resultDraft'
 import { useResultDrafts } from './eventResultsPage/useResultDrafts'
 import { useIsOfficialEventType } from './hooks/useIsOfficialEventType'
 import { useKennelliittoDogs } from './hooks/useKennelliittoDogs'
@@ -242,7 +242,6 @@ export default function EventResultsPage() {
     cancelEdits,
     changeEdit,
     edits,
-    holdDisputedDogs,
     keepDogs,
     rebasedEdit,
     settleEdits: settleDrafts,
@@ -347,11 +346,10 @@ export default function EventResultsPage() {
     async (body: EventResultsResponse) => {
       await storeResults([...body.saved, ...body.unchanged])
       settleEdits((id) => !body.conflicts.some((conflict) => conflict.id === id))
-      holdDisputedDogs(body.conflicts.map(({ id }) => id))
       setConflicts(body.conflicts)
       setChoices({})
     },
-    [holdDisputedDogs, settleEdits, storeResults]
+    [settleEdits, storeResults]
   )
 
   /**
@@ -412,21 +410,6 @@ export default function EventResultsPage() {
     setConflicts([])
     setChoices({})
   }, [choices, conflicts, finishSave, saveResults, settleEdits, settleFailedSave, submissionFor])
-
-  // "Mine" reads what choosing it sends: the edit on the version that beat it, whose scores the row may not have yet.
-  const disputes = useMemo(
-    () =>
-      conflicts.map((conflict) => {
-        const registration = registrations.find((reg) => reg.id === conflict.id)
-        return registration
-          ? conflictAsResent(conflict, rebasedEdit(conflict.id, conflict.stored).edit, fullRoundFor(registration), {
-              eventClass: getRegistrationClass(registration),
-              eventType: event?.eventType ?? '',
-            })
-          : conflict
-      }),
-    [conflicts, event?.eventType, fullRoundFor, rebasedEdit, registrations]
-  )
 
   if (!event?.id) return <EventNotFound />
 
@@ -585,7 +568,7 @@ export default function EventResultsPage() {
 
       <ConflictDialog
         choices={choices}
-        conflicts={disputes}
+        conflicts={conflicts}
         eventType={event.eventType}
         exercisesOf={scoped ? exercisesOfDog : undefined}
         onChoose={(id, choice) => setChoices((prev) => ({ ...prev, [id]: choice }))}
