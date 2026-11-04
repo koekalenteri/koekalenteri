@@ -32,6 +32,8 @@ vi.doMock('../lib/event', () => ({
 // The settle is the shared step every other failure writer uses too, tested in lib/payment; this
 // handler only has to hand it the row and send on whatever it answers with (KOE-1526, KOE-1529).
 vi.doMock('../lib/payment', async () => ({
+  // The real class: the handler tells a refusal from a failure by it (KOE-1484).
+  CallbackRefusedError: (await vi.importActual<typeof import('../lib/payment')>('../lib/payment')).CallbackRefusedError,
   // The real check: a refund's parameters never settle a payment (KOE-1608).
   parseParams: mockParseParams,
   publishCancelledRegistration: mockPublishCancelledRegistration,
@@ -41,6 +43,11 @@ vi.doMock('../lib/payment', async () => ({
     .readCallbackTransaction,
   settleFailedTransaction: mockSettleFailedTransaction,
   verifyParams: mockVerifyParams,
+}))
+
+vi.doMock('../lib/secrets', async () => ({
+  ...(await vi.importActual<typeof import('../lib/secrets')>('../lib/secrets')),
+  getPaytrailConfig: () => Promise.resolve({ PAYTRAIL_SECRET: 'the-real-secret' }),
 }))
 
 vi.doMock('../lib/registration', () => ({
@@ -53,6 +60,8 @@ vi.doMock('../lib/repositories/transactionRepository', () => ({
 }))
 
 const { default: paymentVerifyLambda } = await import('./handler')
+const { verifyParams: realVerifyParams } = await vi.importActual<typeof import('../lib/payment')>('../lib/payment')
+const { paytrail } = await import('../lib/paytrail')
 
 describe('paymentVerifyLambda', () => {
   const event = constructPartialAPIGwEvent({
@@ -335,6 +344,51 @@ describe('paymentVerifyLambda', () => {
     )
 
     consoleSpy.mockRestore()
+  })
+
+  describe('the real signature check (KOE-1484)', () => {
+    beforeEach(() => {
+      mockVerifyParams.mockImplementationOnce(realVerifyParams)
+    })
+
+    it('answers refused, with no edit token, for a signature that does not match', async () => {
+      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+
+      await paymentVerifyLambda(event)
+
+      expect(loggedLines(consoleSpy)).toContainEqual(
+        expect.objectContaining({ message: 'verifying payment signature failed' })
+      )
+      consoleSpy.mockRestore()
+      expect(mockGetRegistration).not.toHaveBeenCalled()
+      expect(mockGetRegistrationEditToken).not.toHaveBeenCalled()
+      expect(mockSettleFailedTransaction).not.toHaveBeenCalled()
+      expect(mockResponse).toHaveBeenCalledWith(
+        200,
+        { eventId: 'event123', paymentStatus: 'ok', registrationId: 'reg456', status: 'refused' },
+        event
+      )
+    })
+
+    it('still answers error when the secret could not be read', async () => {
+      vi.spyOn(paytrail, 'verifyCallbackSignature').mockRejectedValueOnce(new Error('SSM unavailable'))
+      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+
+      await paymentVerifyLambda(event)
+
+      expect(loggedLines(consoleSpy)).toContainEqual(
+        expect.objectContaining({
+          error: expect.objectContaining({ message: 'SSM unavailable' }),
+          message: 'failed to verify payment',
+        })
+      )
+      consoleSpy.mockRestore()
+      expect(mockResponse).toHaveBeenCalledWith(
+        200,
+        { eventId: 'event123', paymentStatus: 'ok', registrationId: 'reg456', status: 'error' },
+        event
+      )
+    })
   })
 
   it('handles other errors gracefully', async () => {

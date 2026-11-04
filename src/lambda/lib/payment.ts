@@ -144,15 +144,22 @@ export const parseParams = (params: Partial<PaytrailCallbackParams>) => {
   }
 }
 
+/**
+ * A provider's return or callback that `verifyParams` turned away: nothing in it can be believed. A
+ * failure to check at all (the secret could not be read) is a plain error, and the two get different
+ * answers on PaymentVerify (KOE-1484).
+ */
+export class CallbackRefusedError extends Error {}
+
 export const verifyParams = async (params: Partial<PaytrailCallbackParams>) => {
   if (!params['checkout-transaction-id']) {
     logger.error('missing checkout-transaction-id from payment callback')
-    throw new Error('Missing checkout-transaction-id from params')
+    throw new CallbackRefusedError('Missing checkout-transaction-id from params')
   }
 
   if (!(await paytrail.verifyCallbackSignature(params))) {
     logger.error('verifying payment signature failed')
-    throw new Error('Verifying payment signature failed')
+    throw new CallbackRefusedError('Verifying payment signature failed')
   }
 }
 
