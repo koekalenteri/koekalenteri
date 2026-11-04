@@ -1396,6 +1396,8 @@ describe('lib/user', () => {
         name: 'updated existing',
       }
 
+      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => undefined)
+
       await updateUsersFromOfficialsOrJudges([invalidNew, validExistingMatch], 'officer')
 
       const writeItems = batchWriteArguments?.[0] as JsonUser[]
@@ -1409,6 +1411,40 @@ describe('lib/user', () => {
         })
       )
       expect(JSON.stringify(loggedLines(infoSpy))).not.toContain('not-an-email')
+      expect(loggedLines(warnSpy)).toEqual([expect.objectContaining({ hasEmail: true, sourceId: 555 })])
+      expect(warnSpy).not.toHaveBeenCalledWith(expect.stringContaining('not-an-email'))
+    })
+
+    it('logs a row with an unknown ending by its id, without the address, and does not write it', async () => {
+      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => undefined)
+      const typo: Official = {
+        district: 'district',
+        email: 'tuomari@gmail.con',
+        eventTypes: ['NOME-A'],
+        id: 777,
+        name: 'Tuomari Testinen',
+      }
+
+      await updateUsersFromOfficialsOrJudges([typo], 'judge')
+
+      expect(mockBatchWrite).not.toHaveBeenCalled()
+      expect(loggedLines(warnSpy)).toEqual([
+        { hasEmail: true, level: 'warn', message: 'official directory row dropped: no usable email', sourceId: 777 },
+      ])
+      expect(warnSpy).not.toHaveBeenCalledWith(expect.stringContaining('gmail.con'))
+      expect(warnSpy).not.toHaveBeenCalledWith(expect.stringContaining('Testinen'))
+    })
+
+    it.each(['', '   '])('tells a row without an address (%j) from one with a rejected address', async (email) => {
+      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => undefined)
+      const blank: Official = { district: 'district', email, eventTypes: ['NOME-A'], id: 778, name: 'Tyhjä Testinen' }
+
+      await updateUsersFromOfficialsOrJudges([blank], 'judge')
+
+      expect(mockBatchWrite).not.toHaveBeenCalled()
+      expect(loggedLines(warnSpy)).toEqual([
+        { hasEmail: false, level: 'warn', message: 'official directory row dropped: no usable email', sourceId: 778 },
+      ])
     })
 
     it('triggers canonical-id path compression through updateUsersFromOfficialsOrJudges with inconsistent duplicate ids', async () => {

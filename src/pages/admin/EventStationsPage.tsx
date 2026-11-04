@@ -12,10 +12,12 @@ import { useAtomValue } from 'jotai'
 import { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useParams } from 'react-router'
+import { useUnsavedChangesWarning } from '../../hooks/useUnsavedChangesWarning'
 import { merge } from '../../lib/utils'
 import { Path } from '../../routeConfig'
 import { AsyncButton } from '../components/AsyncButton'
 import DroppedTasksDialog from './components/DroppedTasksDialog'
+import { EntryPageHeader } from './components/EntryPageHeader'
 import EventNotFound from './components/EventNotFound'
 import StationsEditor from './eventStationsPage/StationsEditor'
 import { useRotationErrors } from './eventStationsPage/useRotationErrors'
@@ -32,12 +34,16 @@ export default function EventStationsPage() {
   const { id: eventId = '' } = useParams()
   useAdminEventScope(eventId)
   const storedEvent = useAtomValue(adminEventAtom(eventId))
-  const { event, canSave, dropsDialogProps, handleChange, handleSave, handleCancel } = useEventForm({
+  const { event, canSave, discardChanges, dropsDialogProps, handleChange, handleSave, handleCancel } = useEventForm({
     eventId,
     onDoneRedirect: Path.admin.viewEvent(eventId),
     savedMessage: t('event.stationsSaved'),
     storedEvent,
   })
+
+  // The draft lives in session storage, so leaving has to lose it as the question says it will; it would
+  // otherwise wait unseen behind the old posts on the event view (KOE-1699).
+  useUnsavedChangesWarning(canSave, discardChanges)
 
   // A rotation that leaves a dog out, or that the server would refuse, is not saved (KOE-1665).
   const rotationErrors = useRotationErrors(eventId, event)
@@ -62,10 +68,9 @@ export default function EventStationsPage() {
       elevation={2}
       sx={{ display: 'flex', flexDirection: 'column', flexGrow: 1, maxHeight: '100%', maxWidth: '100%' }}
     >
-      <Box sx={{ pt: 2, px: 2 }}>
-        <Typography variant="h3" component="h1">
-          {t('event.stationsSectionTitle')}
-        </Typography>
+      {/* The trial as stored: the draft is shared with the event form and can hold an unsaved name or day.
+          An event no longer in the list reads as a new one with no id, and then the draft is all there is. */}
+      <EntryPageHeader event={storedEvent?.id ? storedEvent : event} title={t('event.stationsSectionTitle')}>
         <Typography
           variant="body2"
           sx={{
@@ -74,7 +79,7 @@ export default function EventStationsPage() {
         >
           {t('event.stationsInfo')}
         </Typography>
-      </Box>
+      </EntryPageHeader>
       <Box sx={{ flexGrow: 1, overflow: 'auto', p: 2 }}>
         <StationsEditor event={event} onChange={handleStationsChange} />
       </Box>

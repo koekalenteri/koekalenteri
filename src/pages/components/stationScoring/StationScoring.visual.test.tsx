@@ -2,6 +2,7 @@ import { ThemeProvider } from '@mui/material/styles'
 import { render } from 'vitest-browser-react'
 import { eventWithStations } from '@/__mockData__/resultsEvent'
 import theme from '@/assets/Theme'
+import { StationHeading } from './StationHeading'
 import { StationScoring } from './StationScoring'
 
 /** Wrapper the screenshot is taken of: a fixed width and an opaque background keep captures stable. */
@@ -62,7 +63,7 @@ it('scores the dog at the post, one round at a time', async () => {
         onTurn={async () => {}}
         registrations={registrations}
         station={station}
-        subtitle="Tuloskoe"
+        header={<StationHeading eventType="NOWT" station={station} subtitle="Tuloskoe" />}
         turns={turns}
       />
     </Frame>
@@ -85,7 +86,7 @@ it("takes the judge's decision at the post of a qualitative type", async () => {
         onTurn={async () => {}}
         registrations={registrations.map((dog) => ({ ...dog, eventResult: undefined, eventType: 'NOME-B' }))}
         station={{ id: '1', judges: [judge], number: 1, tasks: 1 }}
-        subtitle="Tuloskoe"
+        header={<StationHeading eventType="NOME-B" station={station} subtitle="Tuloskoe" />}
         turns={[{ ...turns[0], stationId: '1' }]}
       />
     </Frame>
@@ -113,7 +114,7 @@ it('shows a NOME-A result at the post as Kennelliitto lists it', async () => {
         onTurn={async () => {}}
         registrations={nomeA}
         station={{ id: '1', judges: [judge], number: 1, tasks: 1 }}
-        subtitle="Tuloskoe"
+        header={<StationHeading eventType="NOME-A" station={station} subtitle="Tuloskoe" />}
         turns={[{ ...turns[0], stationId: '1' }]}
       />
     </Frame>
@@ -140,7 +141,7 @@ it('shows kesk at an exercise the dog never reached', async () => {
         onTurn={async () => {}}
         registrations={[registrations[0], withdrawn]}
         station={station}
-        subtitle="Tuloskoe"
+        header={<StationHeading eventType="NOWT" station={station} subtitle="Tuloskoe" />}
         turns={turns}
       />
     </Frame>
@@ -167,7 +168,7 @@ it("shows an outcome recorded at another post as not this link's to change", asy
         ownOutcomeOnly
         registrations={[registrations[0], withdrawn]}
         station={station}
-        subtitle="Tuloskoe"
+        header={<StationHeading eventType="NOWT" station={station} subtitle="Tuloskoe" />}
         turns={turns}
       />
     </Frame>

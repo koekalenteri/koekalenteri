@@ -226,6 +226,29 @@ describe('StationResultsPage', () => {
     )
   })
 
+  it('titles a one-post trial as the results page does, with the trial beneath (KOE-1699)', async () => {
+    await renderStation('fi', 'post-2', { ...eventWithStations, eventType: 'NOME-B' })
+    await flushPromises()
+
+    expect(screen.getByRole('heading', { level: 1, name: 'results.title' })).toBeInTheDocument()
+    expect(screen.getByText(/ NOME-B test Tuloskoe$/)).toBeInTheDocument()
+  })
+
+  it('titles a trial of many posts by the post (KOE-1699)', async () => {
+    await renderStation('fi')
+    await flushPromises()
+
+    expect(screen.getByRole('heading', { level: 1, name: 'event.station 2' })).toBeInTheDocument()
+  })
+
+  it('says which trial this is: its day, type, place and name (KOE-1699)', async () => {
+    await renderStation('fi')
+    await flushPromises()
+
+    const line = `${eventWithStations.eventType} ${eventWithStations.location} ${eventWithStations.name}`
+    expect(screen.getByText(new RegExp(`^dateFormat\\.datespan.* ${line}$`))).toBeInTheDocument()
+  })
+
   it('will not open on a post the event does not have', async () => {
     const { i18n } = useTranslation()
     await renderPage(i18n.language as Language, 'no-such-post')
@@ -248,21 +271,21 @@ describe('StationResultsPage', () => {
     await renderStation('fi', 'post-2', namedStations)
     await flushPromises()
 
-    expect(screen.getByText('Tuloskoe')).toBeInTheDocument()
+    expect(screen.getByText(/ Tuloskoe$/)).toBeInTheDocument()
   })
 
   describeInLanguage('en', () => {
     it.each([
-      ['its English name', namedStations, 'Results trial'],
+      ['its English name', namedStations, / Results trial$/],
       [
         'its Finnish name when it has no English one',
         { ...eventWithStations, kcGuid: undefined, kcId: undefined },
-        'Tuloskoe',
+        / Tuloskoe$/,
       ],
       [
-        'its event type when it has no name',
+        'its type and place when it has no name',
         { ...eventWithStations, kcGuid: undefined, kcId: undefined, name: '' },
-        'NOWT',
+        / NOWT test$/,
       ],
     ])('names the trial by %s', async (_case, event, expected) => {
       await renderStation('en', 'post-2', event)
@@ -276,14 +299,14 @@ describe('StationResultsPage', () => {
     await renderStation('fi', 'post-2', { ...eventWithStations, kcGuid: '2b81e6a1-559b-407c-87c7-b8a9b89b1987' })
     await flushPromises()
 
-    expect(screen.getByText('Tuloskoe · event.kcGuidLinked')).toBeInTheDocument()
+    expect(screen.getByText('event.kcGuidLinked')).toBeInTheDocument()
   })
 
   it('does not take the old kcId alone for a link', async () => {
     await renderStation('fi', 'post-2', { ...eventWithStations, kcGuid: undefined, kcId: 451859 })
     await flushPromises()
 
-    expect(screen.getByText('Tuloskoe')).toBeInTheDocument()
+    expect(screen.queryByText('event.kcGuidLinked')).not.toBeInTheDocument()
     expect(screen.queryByText(/451859/)).not.toBeInTheDocument()
   })
 

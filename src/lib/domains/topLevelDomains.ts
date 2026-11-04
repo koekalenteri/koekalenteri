@@ -1,7 +1,9 @@
 /**
  * https://data.iana.org/TLD/tlds-alpha-by-domain.txt
  *
- * # Version 2025033100, Last Updated Mon Mar 31 07:07:02 2025 UTC
+ * # Version 2026110300, Last Updated Tue Nov  3 07:07:01 2026 UTC
+ *
+ * Written by `npm run update-tlds`, not by hand.
  */
 const VALID_TLDS = [
   'AAA',
@@ -123,7 +125,6 @@ const VALID_TLDS = [
   'BEATS',
   'BEAUTY',
   'BEER',
-  'BENTLEY',
   'BERLIN',
   'BEST',
   'BESTBUY',
@@ -350,7 +351,6 @@ const VALID_TLDS = [
   'DRIVE',
   'DTV',
   'DUBAI',
-  'DUNLOP',
   'DUPONT',
   'DURBAN',
   'DVAG',
@@ -493,7 +493,6 @@ const VALID_TLDS = [
   'GOLD',
   'GOLDPOINT',
   'GOLF',
-  'GOO',
   'GOODYEAR',
   'GOOG',
   'GOOGLE',
@@ -530,7 +529,6 @@ const VALID_TLDS = [
   'HEALTH',
   'HEALTHCARE',
   'HELP',
-  'HELSINKI',
   'HERE',
   'HERMES',
   'HIPHOP',
@@ -627,7 +625,6 @@ const VALID_TLDS = [
   'JPMORGAN',
   'JPRS',
   'JUEGOS',
-  'JUNIPER',
   'KAUFEN',
   'KDDI',
   'KE',
@@ -663,7 +660,6 @@ const VALID_TLDS = [
   'LACAIXA',
   'LAMBORGHINI',
   'LAMER',
-  'LANCASTER',
   'LAND',
   'LANDROVER',
   'LANXESS',
@@ -750,6 +746,7 @@ const VALID_TLDS = [
   'MEMORIAL',
   'MEN',
   'MENU',
+  'MERCK',
   'MERCKMSD',
   'MG',
   'MH',
@@ -919,7 +916,6 @@ const VALID_TLDS = [
   'PORN',
   'POST',
   'PR',
-  'PRAMERICA',
   'PRAXI',
   'PRESS',
   'PRIME',
@@ -953,7 +949,6 @@ const VALID_TLDS = [
   'REALTY',
   'RECIPES',
   'RED',
-  'REDSTONE',
   'REDUMBRELLA',
   'REHAB',
   'REISE',
@@ -1243,6 +1238,7 @@ const VALID_TLDS = [
   'WATCHES',
   'WEATHER',
   'WEATHERCHANNEL',
+  'WEB',
   'WEBCAM',
   'WEBER',
   'WEBSITE',
@@ -1260,7 +1256,6 @@ const VALID_TLDS = [
   'WINE',
   'WINNERS',
   'WME',
-  'WOLTERSKLUWER',
   'WOODSIDE',
   'WORK',
   'WORKS',

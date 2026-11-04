@@ -515,7 +515,7 @@ describe('EventResultsPage', () => {
     await renderQualitativePage('fi', {}, { ...eventWithStaticDates, name: 'Kevätkoe', names: { en: 'Spring trial' } })
     await flushPromises()
 
-    expect(screen.getByText(/test location \(Kevätkoe\)$/)).toBeInTheDocument()
+    expect(screen.getByText(/test location Kevätkoe$/)).toBeInTheDocument()
   })
 
   it('leaves the name out of the heading of a trial that has none', async () => {
@@ -537,7 +537,7 @@ describe('EventResultsPage', () => {
       await renderQualitativePage('en', {}, event)
       await flushPromises()
 
-      expect(screen.getByText(new RegExp(String.raw`test location \(${expected}\)$`))).toBeInTheDocument()
+      expect(screen.getByText(new RegExp(`test location ${expected}$`))).toBeInTheDocument()
     })
   })
 

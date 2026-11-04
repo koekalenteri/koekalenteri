@@ -1,24 +1,24 @@
 import type { EventResultSubmission } from '../../api/registration'
 import type { EventStation, StationTurnOp } from '../../types'
-import ArrowBack from '@mui/icons-material/ArrowBack'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import Stack from '@mui/material/Stack'
+import Typography from '@mui/material/Typography'
 import { useAtomValue } from 'jotai'
 import { enqueueSnackbar } from 'notistack'
 import { useCallback, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Link, useParams } from 'react-router'
+import { useParams } from 'react-router'
 import { getStationLink } from '../../api/station'
 import { useEventSubscription } from '../../hooks/useEventSubscription'
 import { reportError } from '../../lib/client/error'
-import { localizedEventName } from '../../lib/event'
 import { liveFormat, resolveStation } from '../../lib/liveFormat'
 import { isScorableRegistration } from '../../lib/registration'
 import { stationDogsInOrder } from '../../lib/results'
 import { Path } from '../../routeConfig'
 import { StationScoring } from '../components/stationScoring/StationScoring'
-import { idTokenAtom, languageAtom } from '../state'
+import { idTokenAtom } from '../state'
+import { EntryPageHeader } from './components/EntryPageHeader'
 import EventNotFound from './components/EventNotFound'
 import { StationPhasesEditor } from './eventResultsPage/StationPhasesEditor'
 import { useIsOfficialEventType } from './hooks/useIsOfficialEventType'
@@ -33,7 +33,6 @@ import { useKennelliittoResults, useSaveEventResults } from './state/registratio
  */
 export default function StationResultsPage() {
   const { t } = useTranslation()
-  const language = useAtomValue(languageAtom)
   const { id: eventId = '', stationId = '' } = useParams()
   useAdminEventScope(eventId)
   const token = useAtomValue(idTokenAtom)
@@ -109,12 +108,11 @@ export default function StationResultsPage() {
 
   if (!event?.id || !station) return <EventNotFound />
 
-  // Only the link to Kennelliitto's trial is marked: the old kcId alone says nothing the results can use
-  const kcLink = event.kcGuid ? ` · ${t('event.kcGuidLinked')}` : ''
-  const subtitle = `${localizedEventName(event, language) || event.eventType}${kcLink}`
   // A format whose phases are the post's own gets them written here, at the post, on the day.
   const format = liveFormat(event.eventType)
   const ownPhases = format.tasks === 'phases' && !format.phases
+  // Where the day runs at one post, "Suorituspaikka 1" names nothing anyone calls it.
+  const title = format.posts === 'one' ? t('results.title') : `${t('event.station')} ${station.number}`
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', flexGrow: 1, maxHeight: '100%', maxWidth: '100%' }}>
@@ -128,16 +126,6 @@ export default function StationResultsPage() {
           pb: 1,
         }}
       >
-        {/* The event secretary came from the results page and goes back there; the token link has no such page. */}
-        <Button
-          component={Link}
-          size="small"
-          startIcon={<ArrowBack fontSize="small" />}
-          sx={{ ml: -1 }}
-          to={Path.admin.results(eventId)}
-        >
-          {t('results.backToResults')}
-        </Button>
         {ownPhases && (
           <StationPhasesEditor onSave={(phases) => saveStation({ phases })} phases={station.phases ?? []} />
         )}
@@ -156,6 +144,21 @@ export default function StationResultsPage() {
       <StationScoring
         classes={event.classes}
         eventType={event.eventType}
+        header={
+          // The event secretary came from the results page and goes back there; the token link has no such page.
+          <EntryPageHeader
+            back={{ label: t('results.backToResults'), to: Path.admin.results(eventId) }}
+            event={event}
+            title={title}
+          >
+            {/* Only the link to Kennelliitto's trial is marked: the old kcId alone says nothing the results can use */}
+            {event.kcGuid && (
+              <Typography sx={{ color: 'text.secondary' }} variant="body2">
+                {t('event.kcGuidLinked')}
+              </Typography>
+            )}
+          </EntryPageHeader>
+        }
         locked={locked}
         lockedText={t('results.kennelliitto.lockedPost')}
         onLocked={handleLocked}
@@ -164,7 +167,6 @@ export default function StationResultsPage() {
         onTurn={handleTurn}
         registrations={scorable}
         station={station}
-        subtitle={subtitle}
         turns={event.turns ?? []}
       />
     </Box>
