@@ -246,8 +246,7 @@ describe('SelectMulti', () => {
     const selectElement = within(selectContainer).getByRole('combobox')
     await user.click(selectElement)
 
-    // Get the menu container. It is hidden for some reason, but we can still use it to focus to correct siblings.
-    const listbox = screen.getByRole('listbox', { hidden: true })
+    const listbox = screen.getByRole('listbox')
 
     // Find and click the already selected option to deselect it
     const option1 = within(listbox).getByText('Option 1')
@@ -295,7 +294,7 @@ describe('SelectMulti', () => {
     await user.click(selectElement)
 
     // Get the menu container
-    const listbox = screen.getByRole('listbox', { hidden: true })
+    const listbox = screen.getByRole('listbox')
 
     // Select option 2
     const option2 = within(listbox).getByText('Option 2')
@@ -316,7 +315,7 @@ describe('SelectMulti', () => {
     await user.click(selectElement)
 
     // Get the menu container again
-    const listboxAgain = screen.getByRole('listbox', { hidden: true })
+    const listboxAgain = screen.getByRole('listbox')
 
     // Deselect option 1
     const option1 = within(listboxAgain).getByText('Option 1')
@@ -340,7 +339,7 @@ describe('SelectMulti', () => {
     const selectElement = within(selectContainer).getByRole('combobox')
     await user.click(selectElement)
 
-    const listbox = screen.getByRole('listbox', { hidden: true })
+    const listbox = screen.getByRole('listbox')
 
     // Verify dropdown is open
     expect(screen.getByText('Option 1')).toBeInTheDocument()
@@ -468,7 +467,7 @@ describe('SelectMulti', () => {
       await user.keyboard('{Enter}')
 
       // Verify dropdown is open
-      const listbox = screen.getByRole('listbox', { hidden: true })
+      const listbox = screen.getByRole('listbox')
 
       // Verify dropdown is open
       expect(listbox).toBeVisible()
@@ -513,48 +512,18 @@ describe('SelectMulti', () => {
     })
   })
 
-  // MenuProps configuration tests
-  describe('MenuProps Configuration', () => {
-    it('renders dropdown with disablePortal set to true', async () => {
+  describe('Open menu', () => {
+    it('keeps the options in the accessibility tree', async () => {
       const { user } = renderWithUserEvents(
         <ThemeProvider theme={theme}>
           <SelectMulti options={options} value={[]} onChange={() => {}} label="Test Label" />
         </ThemeProvider>
       )
 
-      // Open dropdown
-      const selectContainer = screen.getByTestId('Test Label')
-      const selectElement = within(selectContainer).getByRole('combobox')
-      await user.click(selectElement)
+      await user.click(within(screen.getByTestId('Test Label')).getByRole('combobox'))
 
-      // Verify dropdown is open
-      expect(screen.getByText('Option 1')).toBeInTheDocument()
-
-      // With disablePortal:true, the menu should be rendered in the document
-      // We can't easily test the exact DOM hierarchy, but we can verify the menu exists
-      const listbox = screen.getByRole('listbox', { hidden: true })
-      expect(listbox).toBeInTheDocument()
-    })
-
-    it('handles MenuProps correctly', async () => {
-      const { user } = renderWithUserEvents(
-        <ThemeProvider theme={theme}>
-          <SelectMulti options={options} value={[]} onChange={() => {}} label="Test Label" />
-        </ThemeProvider>
-      )
-
-      // Open dropdown
-      const selectContainer = screen.getByTestId('Test Label')
-      const selectElement = within(selectContainer).getByRole('combobox')
-      await user.click(selectElement)
-
-      // Verify dropdown is open
-      const listbox = screen.getByRole('listbox', { hidden: true })
-      expect(listbox).toBeInTheDocument()
-
-      // The component sets disablePortal: true in MenuProps
-      // We can't directly test the prop, but we can verify the menu is rendered
-      expect(screen.getByText('Option 1')).toBeInTheDocument()
+      expect(screen.getByRole('option', { name: 'Option 1' })).toBeInTheDocument()
+      expect(screen.getByRole('listbox').closest('[aria-hidden="true"]')).toBeNull()
     })
   })
 

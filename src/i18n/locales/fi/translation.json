@@ -1206,6 +1206,7 @@
       "swappedGame": "Riistan vaihtaminen",
       "unauthorizedRun": "Luvaton lähtö noutoon"
     },
+    "heldScores": "Osa pisteistä jäi tallentamatta, koska niiden rastit eivät kuulu näytettävälle suorituspaikalle. Pisteet ovat tallella näkymässä Kaikki suorituspaikat, ja ne tallennetaan siellä.",
     "interruption": "Keskeytys",
     "judge": "Tuomari",
     "kennelliitto": {

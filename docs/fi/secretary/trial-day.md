@@ -168,7 +168,10 @@ Tulos lasketaan riville itsestään sääntöjen mukaan: yksikin nolla
 estää palkintosijan, ja rivin alla näkyy pisteiden summa. Valinnalla *{t:results.scope}* sivun
 voi rajata yhteen suorituspaikkaan, jolloin näkyvissä ovat vain siellä tehdyt rastit; tulos jää
 silloin pois, koska se riippuu muistakin paikoista. Valinnassa ovat vain näytettävän päivän
-suorituspaikat, ja rajattuna sivulla ovat vain ne koirakot, joiden ryhmä käy paikassa.
+suorituspaikat, ja rajattuna sivulla ovat vain ne koirakot, joiden ryhmä käy paikassa. Rajatussa näkymässä
+tallentuvat vain kyseisen suorituspaikan rastit. Jos olet syöttänyt pisteet toisen suorituspaikan rastille,
+ne jäävät tallentamatta ja sivu kertoo siitä varoituksella. Pisteet ovat tallella näkymässä
+*{t:results.scopeAll}*, ja ne tallennetaan siellä.
 
 !shot[ResultsTable/results-entry-nowt] NOWT-luokan pisteet rasteittain, toisen koirakon ohjaaja keskeytti suorituspaikalla 1
 
