@@ -25,6 +25,11 @@ import {
 } from './atoms'
 import { adminProjectedEventRegistrationsAtom } from './derivedAtoms'
 
+/** The whole read, one of the signatures of the overloaded API call. */
+const listRegistrations = vi.mocked<(eventId: string, token: string, signal?: AbortSignal) => Promise<Registration[]>>(
+  registrationApi.getRegistrations
+)
+
 const mockEnqueueSnackbar = vi.fn()
 
 vi.mock('notistack', () => ({
@@ -339,7 +344,7 @@ describe('useAdminRegistrationActions', () => {
   it('refreshes authoritative registrations after a group move failure', async () => {
     const consoleError = vi.spyOn(console, 'error').mockImplementation(() => undefined)
     vi.spyOn(registrationApi, 'putRegistrationGroups').mockRejectedValueOnce(new Error('network failure'))
-    const refresh = vi.spyOn(registrationApi, 'getRegistrations').mockResolvedValueOnce([queuedRegistration] as never)
+    const refresh = listRegistrations.mockResolvedValueOnce([queuedRegistration])
     const { result } = renderHook(
       () => ({
         actions: useAdminRegistrationActions(eventWithStaticDates.id),
@@ -619,7 +624,7 @@ describe('adminEventRegistrationsAtom', () => {
   afterEach(() => releaseAdminEventAtoms(eventId))
 
   it('builds an update on the loaded list when nothing has written to it yet', async () => {
-    vi.spyOn(registrationApi, 'getRegistrations').mockResolvedValueOnce([row('loaded')] as never)
+    listRegistrations.mockResolvedValueOnce([row('loaded')])
     const store = createStore()
     store.set(idTokenAtom, TEST_ID_TOKEN)
     const listAtom = adminEventRegistrationsAtom(eventId)
@@ -631,7 +636,7 @@ describe('adminEventRegistrationsAtom', () => {
   })
 
   it('refuses an update while the first load is on its way', () => {
-    vi.spyOn(registrationApi, 'getRegistrations').mockReturnValueOnce(new Promise(() => undefined))
+    listRegistrations.mockReturnValueOnce(new Promise(() => undefined))
     const store = createStore()
     store.set(idTokenAtom, TEST_ID_TOKEN)
 
@@ -647,9 +652,12 @@ describe('refreshIfStale on a list nothing has written to (KOE-1698)', () => {
   it('merges an incremental answer into the loaded list', async () => {
     const stale = new Date('2020-01-01T00:00:00.000Z')
     const changed = { ...registrationWithStaticDates, notes: 'changed' }
-    vi.spyOn(registrationApi, 'getRegistrations')
-      .mockResolvedValueOnce([registrationWithStaticDates] as never)
-      .mockResolvedValueOnce({ cursor: stale.getTime(), deletedIds: [], items: [changed] } as never)
+    listRegistrations.mockResolvedValueOnce([registrationWithStaticDates])
+    vi.mocked(registrationApi.getRegistrations).mockResolvedValueOnce({
+      cursor: stale.getTime(),
+      deletedIds: [],
+      items: [changed],
+    })
     const unseededWrapper = ({ children }: { readonly children: React.ReactNode }) => (
       <Provider
         initializeState={({ set }) => {
@@ -706,7 +714,7 @@ describe('adminEventRegistrationsReloadAtom', () => {
     const promise = new Promise<Registration[]>((res) => {
       resolve = res
     })
-    vi.spyOn(registrationApi, 'getRegistrations').mockReturnValueOnce(promise as never)
+    listRegistrations.mockReturnValueOnce(promise)
     return { resolve }
   }
 
@@ -722,7 +730,7 @@ describe('adminEventRegistrationsReloadAtom', () => {
       { ...row('gone', '2026-01-01'), id: 'x' },
     ])
     const answer = [row('read', '2026-01-02')]
-    vi.spyOn(registrationApi, 'getRegistrations').mockResolvedValueOnce(answer as never)
+    listRegistrations.mockResolvedValueOnce(answer)
 
     await expect(store.set(adminEventRegistrationsReloadAtom, eventId)).resolves.toEqual(answer)
 
@@ -746,9 +754,9 @@ describe('adminEventRegistrationsReloadAtom', () => {
 
   it('takes the answer as it is while the first load is on its way', async () => {
     const store = signedInStore()
-    vi.spyOn(registrationApi, 'getRegistrations')
+    listRegistrations
       .mockReturnValueOnce(new Promise(() => undefined))
-      .mockResolvedValueOnce([row('read', '2026-01-02')] as never)
+      .mockResolvedValueOnce([row('read', '2026-01-02')])
     void store.get(adminEventRegistrationsAtom(eventId))
 
     await store.set(adminEventRegistrationsReloadAtom, eventId)

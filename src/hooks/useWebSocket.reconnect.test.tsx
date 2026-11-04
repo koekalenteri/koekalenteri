@@ -1,9 +1,11 @@
 import type { ReactNode } from 'react'
 import type { TestStore } from '../test-utils/AtomProvider'
-import type { CollectionResponse, DogEvent, PublicRegistration, Registration } from '../types'
+import type { DogEvent, PublicRegistration, Registration } from '../types'
 import { act, renderHook } from '@testing-library/react'
 import { createElement } from 'react'
 import { TestProvider as Provider } from 'test-utils/AtomProvider'
+import { registrationWithStaticDates } from '../__mockData__/registrations'
+import { eventWithStations } from '../__mockData__/resultsEvent'
 import { getAdminEvents } from '../api/event'
 import { getRegistrations, getStartList } from '../api/registration'
 import { stationDogsInOrder } from '../lib/results'
@@ -84,43 +86,36 @@ const REFRESHED_TOKEN = makeTestIdToken({ iat: 2, sub: 'secretary' })
 const DAY = '2026-09-12' as const
 
 /** The running order lives on the event: a group walks the posts in the order of its rotation. */
-const eventWithOrder = (order: string[], updatedAt: string) =>
-  ({
-    eventType: 'NOWT',
-    id: EVENT_ID,
-    organizer: { id: 'org' },
-    rotations: [{ class: 'ALO', exercises: order.map((stationId) => ({ stationId })) }],
-    startDate: DAY,
-    stations: [1, 2].map((number) => ({ date: DAY, id: `post-${number}`, number })),
-    updatedAt: new Date(updatedAt),
-  }) as unknown as DogEvent
+const eventWithOrder = (order: string[], updatedAt: string): DogEvent => ({
+  ...eventWithStations,
+  id: EVENT_ID,
+  rotations: [{ class: 'ALO', exercises: order.map((stationId) => ({ stationId })) }],
+  stations: [1, 2].map((number) => ({ date: DAY, id: `post-${number}`, number })),
+  updatedAt: new Date(updatedAt),
+})
 
-const registration = (notes: string, updatedAt: string) =>
-  ({
-    class: 'ALO',
-    eventId: EVENT_ID,
-    group: { date: DAY, key: 'x', number: 1 },
-    id: 'dog-1',
-    notes,
-    updatedAt: new Date(updatedAt),
-  }) as unknown as Registration
+const registration = (notes: string, updatedAt: string): Registration => ({
+  ...registrationWithStaticDates,
+  class: 'ALO',
+  eventId: EVENT_ID,
+  group: { date: DAY, key: 'x', number: 1 },
+  id: 'dog-1',
+  notes,
+  updatedAt: new Date(updatedAt),
+})
 
 const BEFORE = '2026-09-12T08:00:00.000Z'
 const DURING_OUTAGE = '2026-09-12T08:05:00.000Z'
 const AFTER_THE_READ = '2026-09-12T08:06:00.000Z'
 
-/** What the server holds: a since read answers with the rows stamped after it, as the handler does. */
-const serveRegistrations = (row: Registration) =>
-  ((_eventId: string, _token: string, _signal?: AbortSignal, since?: Date) =>
-    Promise.resolve<CollectionResponse<Registration>>(
-      since ? { cursor: row.updatedAt?.getTime() ?? 0, deletedIds: [], items: [row] } : [row]
-    )) as typeof getRegistrations
+/** The whole read, one of the signatures of the overloaded API call. */
+const listRegistrations =
+  vi.mocked<(eventId: string, token: string, signal?: AbortSignal) => Promise<Registration[]>>(getRegistrations)
 
 const orderAtPost = async (store: TestStore, stationId: string) => {
   const event = await store.get(adminEventAtom(EVENT_ID))
   const registrations = await store.get(adminEventRegistrationsAtom(EVENT_ID))
-  return stationDogsInOrder(event as DogEvent & { eventType: string }, stationId, registrations)[0]?.visit
-    ?.exercisePosts
+  return stationDogsInOrder(event, stationId, registrations)[0]?.visit?.exercisePosts
 }
 
 const notesInList = async (store: TestStore) => (await store.get(adminEventRegistrationsAtom(EVENT_ID)))[0]?.notes
@@ -140,7 +135,7 @@ const subscribeOn = async (socket: FakeSocket) => {
  */
 const openSecretaryView = async () => {
   vi.mocked(getAdminEvents).mockResolvedValue([eventWithOrder(['post-1', 'post-2'], BEFORE)])
-  vi.mocked(getRegistrations).mockImplementation(serveRegistrations(registration('before', BEFORE)))
+  listRegistrations.mockResolvedValue([registration('before', BEFORE)])
 
   let created: TestStore | undefined
   const wrapper = ({ children }: { readonly children: ReactNode }) =>
@@ -211,7 +206,6 @@ describe('useWebSocket after the connection comes back', () => {
     FakeSocket.instances.length = 0
     vi.stubGlobal('WebSocket', FakeSocket)
     vi.spyOn(console, 'debug').mockImplementation(() => undefined)
-    vi.spyOn(console, 'warn').mockImplementation(() => undefined)
     vi.mocked(getAdminEvents).mockReset()
     vi.mocked(getRegistrations).mockReset()
     vi.mocked(getStartList).mockReset()
@@ -242,7 +236,7 @@ describe('useWebSocket after the connection comes back', () => {
       const cursor = new Date(BEFORE)
       store.set(adminEventRegistrationsCursorAtom(EVENT_ID), cursor)
 
-      vi.mocked(getRegistrations).mockImplementation(serveRegistrations(registration('during', DURING_OUTAGE)))
+      listRegistrations.mockResolvedValue([registration('during', DURING_OUTAGE)])
       await reconnectSubscribed()
 
       await vi.waitFor(async () => expect(await notesInList(store)).toBe('during'))
@@ -292,6 +286,7 @@ describe('useWebSocket after the connection comes back', () => {
 
     it('reads nothing when the socket refuses the token, and does not come back', async () => {
       await openSecretaryView()
+      expectConsoleOutput(/ws: authentication failed/)
 
       const socket = await reconnect()
       act(() => socket.open())
@@ -307,7 +302,7 @@ describe('useWebSocket after the connection comes back', () => {
       expectConsoleOutput(/reportError Error: events down/, /reportError Error: registrations down/)
 
       vi.mocked(getAdminEvents).mockRejectedValue(new Error('events down'))
-      vi.mocked(getRegistrations).mockRejectedValue(new Error('registrations down'))
+      listRegistrations.mockRejectedValue(new Error('registrations down'))
       await reconnectSubscribed()
 
       await vi.waitFor(() => expect(getRegistrations).toHaveBeenCalledTimes(2))
@@ -321,7 +316,7 @@ describe('useWebSocket after the connection comes back', () => {
       const events = deferred<DogEvent[]>()
       const registrations = deferred<Registration[]>()
       vi.mocked(getAdminEvents).mockReturnValue(events.promise)
-      vi.mocked(getRegistrations).mockReturnValue(registrations.promise as never)
+      listRegistrations.mockReturnValue(registrations.promise)
 
       await reconnectSubscribed()
       await vi.waitFor(() => expect(getRegistrations).toHaveBeenCalledTimes(2))
@@ -435,7 +430,14 @@ describe('useWebSocket after the connection comes back', () => {
   })
 
   describe('the public start list (KOE-1523)', () => {
-    const row = (name: string) => ({ class: 'ALO', dog: { name, regNo: name } }) as unknown as PublicRegistration
+    const row = (name: string): PublicRegistration => ({
+      breeder: 'Kasvattaja',
+      class: 'ALO',
+      dog: { breedCode: '122', gender: 'M', name, regNo: `REG-${name}` },
+      group: { date: DAY, key: 'ALO', number: 1 },
+      handler: 'Ohjaaja',
+      owner: 'Omistaja',
+    })
     const loaded = { participants: [row('loaded')], version: 100 }
 
     const openStartList = () => {

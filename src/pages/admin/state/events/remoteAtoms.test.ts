@@ -281,7 +281,7 @@ describe('adminEventsRemoteAtom', () => {
       expect(getAdminEvents).toHaveBeenLastCalledWith(TOKEN, Date.parse('2026-01-02T00:00:00.000Z'))
     })
 
-    it('does not throw into the readers when the read fails', async () => {
+    it('rejects to its caller and leaves the list as it is when the read fails', async () => {
       const store = await loadedStore()
       vi.mocked(getAdminEvents).mockRejectedValueOnce(new Error('network'))
 
@@ -294,11 +294,11 @@ describe('adminEventsRemoteAtom', () => {
       const store = await loadedStore()
       store.set(idTokenAtom, undefined)
       await vi.waitFor(async () => expect(await store.get(adminEventsRemoteAtom)).toEqual([]))
-      const calls = vi.mocked(getAdminEvents).mock.calls.length
+      vi.mocked(getAdminEvents).mockClear()
 
       await store.set(adminEventsRereadAtom)
 
-      expect(getAdminEvents).toHaveBeenCalledTimes(calls)
+      expect(getAdminEvents).not.toHaveBeenCalled()
     })
 
     it('drops the answer when the fetch key moved during the read, since that fetch read later', async () => {
