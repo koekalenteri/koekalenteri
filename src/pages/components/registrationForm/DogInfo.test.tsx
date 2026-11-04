@@ -159,6 +159,28 @@ describe('DogInfo', () => {
     )
   })
 
+  it.each([
+    { expected: false, membership: { other: true }, title: 'another organization only' },
+    { expected: true, membership: { test: true }, title: 'this organization' },
+  ])("takes a picked dog's cached handler as a member of $title: $expected", async ({ expected, membership }) => {
+    const changeHandler = vi.fn()
+    localStorage.setItem('dog-cache', JSON.stringify({ 'TESTDOG-0020': { handler: { membership, name: 'Handler' } } }))
+
+    const { user } = renderWithUserEvents(
+      <DogInfo reg={{}} eventDate={eventDate} minDogAgeMonths={15} onChange={changeHandler} orgId="test" />,
+      { wrapper: Wrapper },
+      { advanceTimers: vi.advanceTimersByTime }
+    )
+
+    await user.type(screen.getByRole('combobox', { name: 'dog.regNo' }), 't{ArrowDown}{Enter}')
+    await flushPromises()
+
+    expect(changeHandler).toHaveBeenLastCalledWith(
+      expect.objectContaining({ handler: expect.objectContaining({ membership: expected, name: 'Handler' }) }),
+      true
+    )
+  })
+
   it('should display friendly error when api call fails', async () => {
     vi.spyOn(dogApi, 'getDog').mockRejectedValue({ status: 501 })
     const errSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined)
