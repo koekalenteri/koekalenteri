@@ -301,6 +301,40 @@ export const stationTasks = <T extends Pick<StationScopedTask, 'exercise'>>(
   exercises: readonly number[]
 ): T[] => (tasks ?? []).filter((task) => exercises.includes(task.exercise))
 
+/** What a score says, on its way in or as stored: its address, and all but who recorded it and when. */
+type TaskRecord = TaskAddress & Pick<JsonEventResultTask, 'judge' | 'points' | 'recalled' | 'zeroFault'>
+
+/** Whether a task says what the stored one at its address says. A blank says the same as nothing stored. */
+const saysTheSame = (task: TaskRecord, stored: TaskRecord | undefined): boolean => {
+  if (!isRecordedTask(task)) return !stored || !isRecordedTask(stored)
+  return (
+    stored !== undefined &&
+    task.points === stored.points &&
+    task.zeroFault === stored.zeroFault &&
+    Boolean(task.recalled) === Boolean(stored.recalled) &&
+    (task.judge?.id ?? task.judge?.name) === (stored.judge?.id ?? stored.judge?.name)
+  )
+}
+
+/**
+ * What a post's save leaves behind of an edit (KOE-1696): the tasks at exercises the post does not do that
+ * say something other than what is stored. A post's save may not hold those, so they stay unsaved until a
+ * save of the whole round. An address the edit does not hold says nothing.
+ */
+export const heldTasks = <T extends TaskRecord>(
+  tasks: readonly T[],
+  stored: readonly TaskRecord[] | undefined,
+  exercises: readonly number[]
+): T[] =>
+  tasks.filter(
+    (task) =>
+      !exercises.includes(task.exercise) &&
+      !saysTheSame(
+        task,
+        stored?.find((entry) => holdsScore(task, entry))
+      )
+  )
+
 /**
  * The latest write among a post's tasks — the version a station-scoped edit is made against.
  *

@@ -6,6 +6,7 @@ import {
   endedAtExercise,
   endedBefore,
   exercisesAtPost,
+  heldTasks,
   isRecordedTask,
   isResultTasksDroppedBody,
   mergeStationTasks,
@@ -441,6 +442,67 @@ describe('scores addressed by exercise (KOE-1665, Jukka 2.11.2026)', () => {
       const stored = [{ ...scored(1), updatedAt: '2026-09-12T12:00:00.000Z' }, scored(4)]
       expect(stationVersion(stored, atThird)).toEqual('2026-09-12T10:00:00.000Z')
       expect(sameStationTasks(stored, [scored(4)], atThird)).toBe(true)
+    })
+  })
+
+  describe('heldTasks', () => {
+    const judge = { id: 1, name: 'A' }
+    const stored = { exercise: 2, judge, part: 0, points: 15, updatedAt: '2026-09-12T10:00:00.000Z', updatedBy: 'B' }
+    const typed = { exercise: 2, judge, part: 0, points: 15 }
+    const atFirst = [1]
+
+    it("leaves out the post's own exercises, whatever they say", () => {
+      expect(heldTasks([{ ...typed, exercise: 1, points: 3 }], [], atFirst)).toEqual([])
+    })
+
+    it('holds a score at another exercise that nothing is stored for', () => {
+      expect(heldTasks([typed], [], atFirst)).toEqual([typed])
+      expect(heldTasks([typed], undefined, atFirst)).toEqual([typed])
+    })
+
+    it('holds a score that differs from the stored one at its address', () => {
+      expect(heldTasks([{ ...typed, points: 16 }], [stored], atFirst)).toEqual([{ ...typed, points: 16 }])
+      expect(heldTasks([{ ...typed, part: 1 }], [stored], atFirst)).toEqual([{ ...typed, part: 1 }])
+    })
+
+    it('reads who recorded a score and when as no difference', () => {
+      expect(heldTasks([typed], [stored], atFirst)).toEqual([])
+    })
+
+    it('reads a field written empty as no difference', () => {
+      expect(heldTasks([{ ...typed, recalled: false, zeroFault: undefined }], [stored], atFirst)).toEqual([])
+    })
+
+    it('holds another reason for a zero, a recall and another judge', () => {
+      const zero = { ...typed, points: 0, zeroFault: 'failedRetrieve' as const }
+      expect(heldTasks([zero], [{ ...stored, points: 0, zeroFault: 'unauthorizedRun' as const }], atFirst)).toEqual([
+        zero,
+      ])
+      expect(heldTasks([{ ...typed, recalled: true }], [stored], atFirst)).toEqual([{ ...typed, recalled: true }])
+      const other = { ...typed, judge: { id: 2, name: 'B' } }
+      expect(heldTasks([other], [stored], atFirst)).toEqual([other])
+    })
+
+    it('tells a judge without an id by name, and the same judge by id whatever the rest of the object', () => {
+      const named = { ...typed, judge: { name: 'A' } }
+      expect(heldTasks([named], [{ ...stored, judge: { name: 'A' } }], atFirst)).toEqual([])
+      expect(heldTasks([named], [{ ...stored, judge: { name: 'C' } }], atFirst)).toEqual([named])
+      expect(heldTasks([{ ...typed, judge: { id: 1, name: 'A.' } }], [stored], atFirst)).toEqual([])
+    })
+
+    it('reads a blank as nothing, but holds a stored score cleared', () => {
+      const blank = { exercise: 2, part: 0, points: null }
+      expect(heldTasks([blank], [], atFirst)).toEqual([])
+      expect(heldTasks([blank], [{ ...stored, points: null }], atFirst)).toEqual([])
+      expect(heldTasks([blank], [stored], atFirst)).toEqual([blank])
+    })
+
+    it('holds everything recorded where the post has none of the exercises', () => {
+      expect(heldTasks([typed], [], [])).toEqual([typed])
+    })
+
+    it('says nothing of a stored score the edit does not hold', () => {
+      expect(heldTasks([], [stored], atFirst)).toEqual([])
     })
   })
 
