@@ -2,6 +2,7 @@ import {
   collectionResponseCursor,
   collectionSince,
   itemStamp,
+  keepNewerRows,
   latestCollectionUpdate,
   reconcileCollection,
 } from './incremental'
@@ -89,5 +90,28 @@ describe('incremental collections', () => {
     const existing = [{ id: 'a', value: 'unchanged' }]
 
     expect(reconcileCollection(existing, { cursor: 123, deletedIds: [], items: [] })).toBe(existing)
+  })
+
+  describe('keepNewerRows', () => {
+    const row = (id: string, updatedAt?: string) => ({ id, updatedAt })
+
+    it('keeps the copy in hand only where it is newer than the answer', () => {
+      const newer = row('newer', '2026-01-03')
+      const older = row('older', '2026-01-01')
+      const answered = [row('newer', '2026-01-02'), row('older', '2026-01-02'), row('added', '2026-01-02')]
+
+      expect(keepNewerRows([newer, older], answered)).toEqual([newer, answered[1], answered[2]])
+    })
+
+    it('lets a row the answer does not name go', () => {
+      expect(keepNewerRows([row('gone', '2026-01-03')], [])).toEqual([])
+    })
+
+    it('takes the answer when the stamps are equal or there are none to compare', () => {
+      const answered = [row('same', '2026-01-02'), row('unstamped')]
+
+      expect(keepNewerRows([row('same', '2026-01-02'), row('unstamped')], answered)).toEqual(answered)
+      expect(keepNewerRows([row('stamped')], [row('stamped', '2026-01-02')])).toEqual([row('stamped', '2026-01-02')])
+    })
   })
 })

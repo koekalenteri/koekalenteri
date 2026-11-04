@@ -46,6 +46,12 @@ vi.mock('../pages/admin/state/registrations/atoms', async () => {
   }
 })
 
+// Reads against the real state are in useWebSocket.reconnect.test.tsx; this file mocks that state in part.
+vi.mock('../pages/admin/state/eventScope', async () => {
+  const { atom } = await vi.importActual<typeof import('jotai')>('jotai')
+  return { rereadHeldAdminEventsAtom: atom(null, () => undefined) }
+})
+
 vi.mock('../pages/admin/state/user/atoms', async () => {
   const { atom } = await vi.importActual<typeof import('jotai')>('jotai')
   return {

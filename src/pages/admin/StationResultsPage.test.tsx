@@ -1,11 +1,12 @@
 import type { UserEvent } from '@testing-library/user-event'
 import type { RouteObject } from 'react-router'
+import type { TestStore } from 'test-utils/AtomProvider'
 import type { Language } from '../../i18n'
 import type { ConfirmedEvent, EventType, Registration } from '../../types'
 import { ThemeProvider } from '@mui/material'
 import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
-import { cleanup, screen } from '@testing-library/react'
+import { act, cleanup, screen } from '@testing-library/react'
 import { Suspense } from 'react'
 import { useTranslation } from 'react-i18next'
 import { TestProvider as Provider } from 'test-utils/AtomProvider'
@@ -23,7 +24,12 @@ import { DataMemoryRouter, flushPromises, renderSuspendedWithUserEvents, TEST_ID
 import AppSnackbarProvider from '../components/AppSnackbarProvider'
 import { idTokenAtom } from '../state'
 import StationResultsPage from './StationResultsPage'
-import { adminEventRegistrationsAtom, adminEventsAtom, adminEventTypesAtom } from './state'
+import {
+  adminEventRegistrationsAtom,
+  adminEventRegistrationsReloadAtom,
+  adminEventsAtom,
+  adminEventTypesAtom,
+} from './state'
 
 vi.mock('../../api/user')
 vi.mock('../../api/event')
@@ -58,6 +64,9 @@ const renderPage = (language: Language, stationId: string) => {
   )
 }
 
+/** The store of the last post page rendered: what a reconnect's read writes lands here. */
+let stationStore: TestStore | undefined
+
 /** The post's own screen, on a course that exists and has dogs queued for it. */
 const renderStation = (
   language: Language,
@@ -71,11 +80,12 @@ const renderStation = (
     <ThemeProvider theme={theme}>
       <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales[language]}>
         <Provider
-          initializeState={({ set }) => {
-            set(idTokenAtom, TEST_ID_TOKEN)
-            set(adminEventsAtom, [event])
-            set(adminEventRegistrationsAtom(event.id), registrationsToEventWithStations)
-            if (eventTypes) void set(adminEventTypesAtom, eventTypes)
+          initializeState={(store) => {
+            stationStore = store
+            store.set(idTokenAtom, TEST_ID_TOKEN)
+            store.set(adminEventsAtom, [event])
+            store.set(adminEventRegistrationsAtom(event.id), registrationsToEventWithStations)
+            if (eventTypes) void store.set(adminEventTypesAtom, eventTypes)
           }}
         >
           <Suspense fallback={<div>loading...</div>}>
@@ -313,6 +323,25 @@ describe('StationResultsPage', () => {
     // A partial figure here would read as a verdict, and it would be the wrong one.
     expect(screen.queryByText('ALO1')).not.toBeInTheDocument()
     expect(screen.queryByText(/results\.runningTotal/)).not.toBeInTheDocument()
+  })
+
+  it('keeps the points being entered when a reconnect reads the list again (KOE-1698)', async () => {
+    const { i18n } = useTranslation()
+    const { user } = await renderStation(i18n.language as Language)
+    await flushPromises()
+
+    await user.click(screen.getByRole('button', { name: '1 Ensimmainen' }))
+    await flushPromises()
+    await score(user, screen.getAllByRole('textbox')[0], '10')
+
+    listRegistrations.mockResolvedValueOnce(registrationsToEventWithStations.map((row) => ({ ...row })))
+    await act(async () => {
+      await stationStore?.set(adminEventRegistrationsReloadAtom, eventWithStations.id)
+    })
+    await flushPromises()
+
+    expect(screen.getByRole('heading', { name: /Ensimmainen/ })).toBeInTheDocument()
+    expect(screen.getAllByRole('textbox')[0]).toHaveValue('10')
   })
 
   it('moves on to the next dog that has not been through, since at a post the queue is the job', async () => {

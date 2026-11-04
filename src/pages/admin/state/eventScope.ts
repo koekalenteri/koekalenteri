@@ -1,4 +1,6 @@
+import { atom } from 'jotai'
 import { useEffect } from 'react'
+import { reportError } from '@/lib/client/error'
 import {
   adminConfirmedEventAtom,
   adminEventAtom,
@@ -6,10 +8,12 @@ import {
   adminLinkedKcGuidsAtom,
 } from './events/derivedAtoms'
 import { adminEditableEventByIdAtom } from './events/editableAtoms'
+import { adminEventsRereadAtom } from './events/remoteAtoms'
 import {
   adminEventRegistrationsAtom,
   adminEventRegistrationsCursorAtom,
   adminEventRegistrationsFetchedAtAtom,
+  adminEventRegistrationsReloadAtom,
   adminPendingRegistrationGroupMovesAtom,
 } from './registrations/atoms'
 import { adminEventRegistrationAtom, adminProjectedEventRegistrationsAtom } from './registrations/derivedAtoms'
@@ -55,6 +59,20 @@ const scopes = new Map<string, number>()
 
 /** The events whose atoms are held by a mounted view right now. */
 export const heldAdminEventIds = () => [...scopes.keys()]
+
+/**
+ * Brings the events, and the registrations of the events a mounted view holds, up to what the server
+ * has, after the socket has been away. A failed read is reported and waits for the next reconnect.
+ */
+export const rereadHeldAdminEventsAtom = atom(null, async (_get, set) => {
+  const reads = await Promise.allSettled<unknown>([
+    set(adminEventsRereadAtom),
+    ...heldAdminEventIds().map((eventId) => set(adminEventRegistrationsReloadAtom, eventId)),
+  ])
+  for (const read of reads) {
+    if (read.status === 'rejected') reportError(read.reason)
+  }
+})
 
 /**
  * Claims the event's atoms for as long as the view is mounted, and releases them a moment after the

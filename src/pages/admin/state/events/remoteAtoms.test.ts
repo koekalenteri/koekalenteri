@@ -4,7 +4,7 @@ import { eventWithStaticDatesAnd3Classes } from '@/__mockData__/events'
 import { getAdminEvents } from '@/api/event'
 import { idTokenAtom } from '@/pages/state'
 import { makeTestIdToken } from '@/test-utils/utils'
-import { adminEventsRemoteAtom, reconcileAdminEvents } from './remoteAtoms'
+import { adminEventsRemoteAtom, adminEventsRereadAtom, reconcileAdminEvents } from './remoteAtoms'
 
 vi.mock('@/api/event', () => ({
   getAdminEvents: vi.fn(),
@@ -252,6 +252,69 @@ describe('adminEventsRemoteAtom', () => {
       await vi.waitFor(async () => expect(await store.get(adminEventsRemoteAtom)).toEqual([]))
 
       expect(sessionStorage.getItem('adminEvents')).toBeNull()
+    })
+  })
+
+  describe('reading again after the socket was away (KOE-1698)', () => {
+    const NEWEST = Date.parse('2026-01-01T00:00:00.000Z')
+
+    it('asks since what the last fetch stored, not a newer stamp a local save put on the list', async () => {
+      const store = await loadedStore()
+      const saved = event('saved', '2026-06-01', '2026-01-09')
+      await store.set(adminEventsRemoteAtom, (events) => [...events, saved])
+      vi.mocked(getAdminEvents).mockResolvedValueOnce([third])
+
+      await store.set(adminEventsRereadAtom)
+
+      expect(getAdminEvents).toHaveBeenLastCalledWith(TOKEN, NEWEST)
+    })
+
+    it('brings the changes in and stores them, so the next read asks since them', async () => {
+      const store = await loadedStore()
+      vi.mocked(getAdminEvents).mockResolvedValueOnce([third])
+
+      await store.set(adminEventsRereadAtom)
+
+      expect(store.get(adminEventsRemoteAtom)).toEqual([first, third])
+      vi.mocked(getAdminEvents).mockResolvedValueOnce([])
+      await store.set(adminEventsRereadAtom)
+      expect(getAdminEvents).toHaveBeenLastCalledWith(TOKEN, Date.parse('2026-01-02T00:00:00.000Z'))
+    })
+
+    it('does not throw into the readers when the read fails', async () => {
+      const store = await loadedStore()
+      vi.mocked(getAdminEvents).mockRejectedValueOnce(new Error('network'))
+
+      await expect(store.set(adminEventsRereadAtom)).rejects.toThrow('network')
+
+      expect(store.get(adminEventsRemoteAtom)).toEqual([first, second])
+    })
+
+    it('reads nothing without a token', async () => {
+      const store = await loadedStore()
+      store.set(idTokenAtom, undefined)
+      await vi.waitFor(async () => expect(await store.get(adminEventsRemoteAtom)).toEqual([]))
+      const calls = vi.mocked(getAdminEvents).mock.calls.length
+
+      await store.set(adminEventsRereadAtom)
+
+      expect(getAdminEvents).toHaveBeenCalledTimes(calls)
+    })
+
+    it('drops the answer when the fetch key moved during the read, since that fetch read later', async () => {
+      const store = await loadedStore()
+      const read = pendingFetch()
+      vi.mocked(getAdminEvents).mockReturnValueOnce(read.promise)
+      const reread = store.set(adminEventsRereadAtom)
+      await vi.waitFor(() => expect(getAdminEvents).toHaveBeenCalledTimes(2))
+
+      vi.mocked(getAdminEvents).mockResolvedValueOnce([fourth])
+      store.set(idTokenAtom, REFRESHED_TOKEN)
+      await vi.waitFor(() => expect(store.get(adminEventsRemoteAtom)).toEqual([first, fourth]))
+      read.resolve([third])
+      await reread
+
+      expect(store.get(adminEventsRemoteAtom)).toEqual([first, fourth])
     })
   })
 })

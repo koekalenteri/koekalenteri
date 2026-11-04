@@ -1,6 +1,8 @@
 import type React from 'react'
+import type { Registration } from '@/types'
 import { act, renderHook } from '@testing-library/react'
-import { useAtom, useAtomValue, useSetAtom } from 'jotai'
+import { createStore, useAtom, useAtomValue, useSetAtom } from 'jotai'
+import { Suspense } from 'react'
 import { TestProvider as Provider } from 'test-utils/AtomProvider'
 import { eventWithStaticDates } from '@/__mockData__/events'
 import { registrationWithStaticDates } from '@/__mockData__/registrations'
@@ -10,13 +12,15 @@ import { createRefund } from '@/api/payment'
 import * as registrationApi from '@/api/registration'
 import { getPaymentPicture } from '@/lib/payment'
 import { idTokenAtom } from '@/pages/state'
-import { TEST_ID_TOKEN } from '@/test-utils/utils'
+import { makeTestIdToken, TEST_ID_TOKEN } from '@/test-utils/utils'
+import { releaseAdminEventAtoms } from '../eventScope'
 import { adminEventAtom, adminEventsAtom } from '../events'
 import { useAdminRegistrationActions, useKennelliittoResults } from './actions'
 import {
   adminEventRegistrationsAtom,
   adminEventRegistrationsCursorAtom,
   adminEventRegistrationsFetchedAtAtom,
+  adminEventRegistrationsReloadAtom,
   adminPendingRegistrationGroupMovesAtom,
 } from './atoms'
 import { adminProjectedEventRegistrationsAtom } from './derivedAtoms'
@@ -605,5 +609,186 @@ describe('useKennelliittoResults', () => {
 
     await expect(result.current.reload()).rejects.toThrow('missing token')
     expect(registrationApi.getRegistrations).not.toHaveBeenCalled()
+  })
+})
+
+describe('adminEventRegistrationsAtom', () => {
+  const eventId = 'event-for-updates'
+  const row = (notes: string) => ({ ...registrationWithStaticDates, eventId, notes })
+
+  afterEach(() => releaseAdminEventAtoms(eventId))
+
+  it('builds an update on the loaded list when nothing has written to it yet', async () => {
+    vi.spyOn(registrationApi, 'getRegistrations').mockResolvedValueOnce([row('loaded')] as never)
+    const store = createStore()
+    store.set(idTokenAtom, TEST_ID_TOKEN)
+    const listAtom = adminEventRegistrationsAtom(eventId)
+    await store.get(listAtom)
+
+    store.set(listAtom, (current) => current.map((item) => ({ ...item, notes: 'updated' })))
+
+    expect(store.get(listAtom)).toEqual([row('updated')])
+  })
+
+  it('refuses an update while the first load is on its way', () => {
+    vi.spyOn(registrationApi, 'getRegistrations').mockReturnValueOnce(new Promise(() => undefined))
+    const store = createStore()
+    store.set(idTokenAtom, TEST_ID_TOKEN)
+
+    expect(() => store.set(adminEventRegistrationsAtom(eventId), (current) => current)).toThrow(
+      'Cannot update registrations before they have loaded'
+    )
+  })
+})
+
+describe('refreshIfStale on a list nothing has written to (KOE-1698)', () => {
+  const eventId = eventWithStaticDates.id
+
+  it('merges an incremental answer into the loaded list', async () => {
+    const stale = new Date('2020-01-01T00:00:00.000Z')
+    const changed = { ...registrationWithStaticDates, notes: 'changed' }
+    vi.spyOn(registrationApi, 'getRegistrations')
+      .mockResolvedValueOnce([registrationWithStaticDates] as never)
+      .mockResolvedValueOnce({ cursor: stale.getTime(), deletedIds: [], items: [changed] } as never)
+    const unseededWrapper = ({ children }: { readonly children: React.ReactNode }) => (
+      <Provider
+        initializeState={({ set }) => {
+          set(idTokenAtom, TEST_ID_TOKEN)
+          set(adminEventsAtom, [eventWithStaticDates])
+          set(adminEventRegistrationsCursorAtom(eventId), stale)
+          set(adminEventRegistrationsFetchedAtAtom(eventId), stale)
+        }}
+      >
+        <Suspense fallback={null}>{children}</Suspense>
+      </Provider>
+    )
+
+    const rendered = await act(async () =>
+      renderHook(
+        () => ({
+          actions: useAdminRegistrationActions(eventId),
+          registrations: useAtomValue(adminEventRegistrationsAtom(eventId)),
+        }),
+        { wrapper: unseededWrapper }
+      )
+    )
+    const { result } = rendered
+    await vi.waitFor(() => expect(result.current?.registrations).toEqual([registrationWithStaticDates]))
+
+    await act(async () => {
+      await result.current.actions.refreshIfStale()
+    })
+
+    expect(result.current.registrations).toEqual([changed])
+    releaseAdminEventAtoms(eventId)
+  })
+})
+
+describe('adminEventRegistrationsReloadAtom', () => {
+  const eventId = 'event-for-reload'
+  const OTHER_TOKEN = makeTestIdToken({ sub: 'someone-else' })
+  const row = (notes: string, updatedAt: string) => ({
+    ...registrationWithStaticDates,
+    eventId,
+    modifiedAt: new Date(updatedAt),
+    notes,
+    updatedAt: new Date(updatedAt),
+  })
+
+  const signedInStore = () => {
+    const store = createStore()
+    store.set(idTokenAtom, TEST_ID_TOKEN)
+    return store
+  }
+
+  const pendingRead = () => {
+    let resolve: (registrations: Registration[]) => void = () => undefined
+    const promise = new Promise<Registration[]>((res) => {
+      resolve = res
+    })
+    vi.spyOn(registrationApi, 'getRegistrations').mockReturnValueOnce(promise as never)
+    return { resolve }
+  }
+
+  beforeEach(() => {
+    vi.mocked(registrationApi.getRegistrations).mockClear()
+  })
+  afterEach(() => releaseAdminEventAtoms(eventId))
+
+  it('writes and returns the whole list, without a row the answer no longer has', async () => {
+    const store = signedInStore()
+    store.set(adminEventRegistrationsAtom(eventId), [
+      row('kept', '2026-01-01'),
+      { ...row('gone', '2026-01-01'), id: 'x' },
+    ])
+    const answer = [row('read', '2026-01-02')]
+    vi.spyOn(registrationApi, 'getRegistrations').mockResolvedValueOnce(answer as never)
+
+    await expect(store.set(adminEventRegistrationsReloadAtom, eventId)).resolves.toEqual(answer)
+
+    expect(store.get(adminEventRegistrationsAtom(eventId))).toEqual(answer)
+    expect(registrationApi.getRegistrations).toHaveBeenCalledWith(eventId, TEST_ID_TOKEN)
+  })
+
+  it('does not replace a row that became newer during the read', async () => {
+    const store = signedInStore()
+    store.set(adminEventRegistrationsAtom(eventId), [row('before', '2026-01-01')])
+    const read = pendingRead()
+    const reload = store.set(adminEventRegistrationsReloadAtom, eventId)
+
+    const saved = row('saved', '2026-01-03')
+    store.set(adminEventRegistrationsAtom(eventId), [saved])
+    read.resolve([row('read', '2026-01-02')])
+    await reload
+
+    expect(store.get(adminEventRegistrationsAtom(eventId))).toEqual([saved])
+  })
+
+  it('takes the answer as it is while the first load is on its way', async () => {
+    const store = signedInStore()
+    vi.spyOn(registrationApi, 'getRegistrations')
+      .mockReturnValueOnce(new Promise(() => undefined))
+      .mockResolvedValueOnce([row('read', '2026-01-02')] as never)
+    void store.get(adminEventRegistrationsAtom(eventId))
+
+    await store.set(adminEventRegistrationsReloadAtom, eventId)
+
+    expect(store.get(adminEventRegistrationsAtom(eventId))).toEqual([row('read', '2026-01-02')])
+  })
+
+  it('reads and writes nothing without a token', async () => {
+    const store = createStore()
+    store.set(idTokenAtom, undefined)
+
+    await expect(store.set(adminEventRegistrationsReloadAtom, eventId)).resolves.toBeUndefined()
+
+    expect(registrationApi.getRegistrations).not.toHaveBeenCalled()
+  })
+
+  it('drops the answer when the token changed during the read', async () => {
+    const store = signedInStore()
+    const before = [row('before', '2026-01-01')]
+    store.set(adminEventRegistrationsAtom(eventId), before)
+    const read = pendingRead()
+    const reload = store.set(adminEventRegistrationsReloadAtom, eventId)
+
+    store.set(idTokenAtom, OTHER_TOKEN)
+    read.resolve([row('previous user', '2026-01-02')])
+
+    await expect(reload).resolves.toBeUndefined()
+    expect(store.get(adminEventRegistrationsAtom(eventId))).toBe(before)
+  })
+
+  it('does not put an instance back after the atoms were released, for the next login to find', async () => {
+    const store = signedInStore()
+    store.set(adminEventRegistrationsAtom(eventId), [row('before', '2026-01-01')])
+    const read = pendingRead()
+    const reload = store.set(adminEventRegistrationsReloadAtom, eventId)
+
+    releaseAdminEventAtoms(eventId)
+    read.resolve([row('read', '2026-01-02')])
+    await reload
+
+    expect([...adminEventRegistrationsAtom.getParams()]).not.toContain(eventId)
   })
 })

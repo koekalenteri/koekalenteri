@@ -7,7 +7,8 @@ import { useWebSocketContext } from './useWebSocketContext'
  * The subscription is **sticky**: it is sent on mount and NOT cleaned up on
  * unmount. Once an admin opens the admin section, admin event patches keep
  * arriving regardless of which page they navigate to, keeping State atoms
- * up-to-date in the background until logout / token expiry.
+ * up-to-date in the background until logout / token expiry. Its acknowledgement on a new connection
+ * is what brings in what the socket missed (`rereadHeldAdminEventsAtom`, KOE-1698).
  *
  * Must be rendered inside `WebSocketProvider`.
  */

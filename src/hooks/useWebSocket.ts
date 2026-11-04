@@ -13,7 +13,7 @@ import type {
   Registration,
 } from '../types'
 import { isValid } from 'date-fns/isValid'
-import { useAtomValue } from 'jotai'
+import { useAtomValue, useSetAtom } from 'jotai'
 import { unwrap, useAtomCallback } from 'jotai/utils'
 import { createContext, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { getEmailTemplates } from '../api/email'
@@ -31,6 +31,7 @@ import { getIdTokenDiagnostics } from '../lib/token'
 import { applyPatch, applyPatchesById, applyPatchOrInsert, getPatchChangedIds, parseJSON } from '../lib/utils'
 import { toAuditRecord, toDogEvent, toPublicDogEvent, toPublicRegistration, toRegistration } from '../lib/wire'
 import { adminEmailTemplatesAtom, fetchEmailTemplates } from '../pages/admin/state/emailTemplates'
+import { rereadHeldAdminEventsAtom } from '../pages/admin/state/eventScope'
 import { adminEventsAtom } from '../pages/admin/state/events'
 import { adminEventTypesAtom } from '../pages/admin/state/eventTypes'
 import { adminJudgesAtom } from '../pages/admin/state/judges'
@@ -49,8 +50,12 @@ import { WS_API_URL } from '../routeConfig'
 const RECONNECT_INTERVAL = 1000
 // API Gateway closes a WebSocket after 10 minutes without traffic, and every reconnect used to
 // invoke two lambdas. Any client->server message resets the timer, so one ping well inside the
-// window keeps the connection up. Route responses are not configured, so nothing comes back.
+// window keeps the connection up. It is answered with `{ pong: true }`.
 const KEEPALIVE_INTERVAL = 480_000
+// A phone waking from sleep holds a socket that is dead but not closed: no close fires until a send
+// fails, so the wake sends a ping and replaces the socket if this passes with nothing received. A warm
+// connection answers in about 100 ms; a false alarm costs one reconnect and its re-read.
+const WAKE_PROBE_TIMEOUT = 5000
 const validIdTokenValueAtom = unwrap(validIdTokenAtom, (previous) => previous)
 const websocketAdminUsersValueAtom = unwrap(websocketAdminUsersAtom, (previous) => previous ?? [])
 const userValueAtom = unwrap(userAtom, (previous) => previous)
@@ -254,8 +259,9 @@ export const applyViewers = (current: EventViewer[], next: EventViewer[]) => {
 // ── Context ──────────────────────────────────────────────────────────────────
 
 /**
- * Receives the published start list of the subscribed event, or `undefined` when the rows did not
- * fit in one message and have to be fetched instead. `version` is the server time the rows were read
+ * Receives the published start list of the subscribed event, or `undefined` when it has to be fetched
+ * instead: the rows did not fit in one message, or the subscription was just acknowledged, so a read
+ * started now misses nothing sent before it and anything later arrives here. `version` is the server time the rows were read
  * (KOE-1516), `undefined` from a backend that sends none. `eventId` is the event the message was
  * addressed to, which a listener replaced on render may no longer be watching. Ordering is the
  * listener's job, since it also orders its own fetches against the messages.
@@ -292,10 +298,12 @@ export const useWebSocket = () => {
   const adminUsers = useAtomValue(websocketAdminUsersValueAtom)
   const resolvedCurrentUser = useAtomValue(userValueAtom)
   const markRecentlyUpdated = useMarkRecentlyUpdated()
+  const rereadHeldAdminEvents = useSetAtom(rereadHeldAdminEventsAtom)
   const shouldReconnectRef = useRef(true)
 
   // Subscription state — persisted across reconnects
   const adminSubscribedRef = useRef(false)
+  const adminAckConnectionRef = useRef<number | undefined>(undefined)
   const eventIdRef = useRef<string | undefined>(undefined)
   const registrationSubscriptionRef = useRef<
     | {
@@ -465,6 +473,7 @@ export const useWebSocket = () => {
   const [viewers, setViewers] = useState<EventViewer[]>([])
   const wsRef = useRef<WebSocket | null>(null)
   const reconnectTimeoutRef = useRef<ReturnType<typeof globalThis.setTimeout> | null>(null)
+  const wakeProbeTimeoutRef = useRef<ReturnType<typeof globalThis.setTimeout> | undefined>(undefined)
   const reconnectAttempts = useRef(0)
   const connectionSequenceRef = useRef(0)
   const previousTokenRef = useRef<string | undefined>(idTokenRef.current)
@@ -641,9 +650,33 @@ export const useWebSocket = () => {
     [patchRegistrations, refreshAdminData]
   )
 
+  /**
+   * The admin channel is subscribed again on a new connection: every event patch reaches this socket
+   * from here on, so a read started now closes what it missed while it was away. The first connection
+   * reads nothing, the page has just read. A subscribe sent again on the same connection lost nothing.
+   */
+  const handleAdminAck = useCallback(
+    (data: { adminSubscribed?: unknown }, connectionId: number): boolean => {
+      if (data.adminSubscribed !== true) return false
+      const previous = adminAckConnectionRef.current
+      adminAckConnectionRef.current = connectionId
+      if (previous !== undefined && previous !== connectionId) void rereadHeldAdminEvents()
+      return true
+    },
+    [rereadHeldAdminEvents]
+  )
+
   const handlePublicStartListMessage = useCallback((data: any): boolean => {
     const subscription = publicStartListRef.current
-    if (data.scope !== 'public:start-list' || !subscription || data.eventId !== subscription.eventId) return false
+    if (!subscription || data.eventId !== subscription.eventId) return false
+
+    // Subscribed: nothing sent before this reached the page and the server sends no state with a
+    // subscribe, so the list is fetched (KOE-1523). A scoped message with the flag is not an ack.
+    if (data.subscribed === true && !data.scope) {
+      subscription.listener(undefined, undefined, subscription.eventId)
+      return true
+    }
+    if (data.scope !== 'public:start-list') return false
 
     // The rows were composed and sanitized by the server; the typed boundary makes their dates Dates,
     // as for an event patch. `stale` means they did not fit in one message.
@@ -663,6 +696,7 @@ export const useWebSocket = () => {
       console.debug('ws: ', data)
 
       if (handleAdminMessage(data, token)) return
+      if (handleAdminAck(data, connectionId)) return
       if (handlePublicStartListMessage(data)) return
 
       const registrationSubscription = registrationSubscriptionRef.current
@@ -705,8 +739,19 @@ export const useWebSocket = () => {
         handleEventPatchMessage(data)
       }
     },
-    [handleAdminMessage, handleEventPatchMessage, handlePublicStartListMessage, resendActiveSubscriptions]
+    [
+      handleAdminAck,
+      handleAdminMessage,
+      handleEventPatchMessage,
+      handlePublicStartListMessage,
+      resendActiveSubscriptions,
+    ]
   )
+
+  const clearWakeProbe = useCallback(() => {
+    clearTimeout(wakeProbeTimeoutRef.current)
+    wakeProbeTimeoutRef.current = undefined
+  }, [])
 
   const connect = useCallback(() => {
     if (!shouldReconnectRef.current) return
@@ -723,7 +768,10 @@ export const useWebSocket = () => {
     wsRef.current = ws
     configureWebSocket({
       connectionId,
-      handleMessage: (data) => handleMessageData(data, token, ws, connectionId),
+      handleMessage: (data) => {
+        clearWakeProbe()
+        handleMessageData(data, token, ws, connectionId)
+      },
       isCurrent: () => wsRef.current === ws,
       onOpen: () => {
         reconnectAttempts.current = 0
@@ -740,7 +788,23 @@ export const useWebSocket = () => {
       socket: ws,
       token,
     })
-  }, [handleMessageData, resendActiveSubscriptions, sendIfOpen])
+  }, [clearWakeProbe, handleMessageData, resendActiveSubscriptions, sendIfOpen])
+
+  /** A new connection in place of the current one, which is not waited for: a dead socket may never close. */
+  const replaceConnection = useCallback(() => {
+    if (reconnectTimeoutRef.current) {
+      clearTimeout(reconnectTimeoutRef.current)
+      reconnectTimeoutRef.current = null
+    }
+
+    const previousSocket = wsRef.current
+    wsRef.current = null
+    previousSocket?.close()
+
+    if (WS_API_URL) {
+      connect()
+    }
+  }, [connect])
 
   useEffect(() => {
     setViewers((current) => applyViewers(current, resolvedViewers))
@@ -794,24 +858,34 @@ export const useWebSocket = () => {
 
     if (!nextToken) {
       adminSubscribedRef.current = false
+      adminAckConnectionRef.current = undefined
       eventIdRef.current = undefined
       rawViewersRef.current = []
       setViewers([])
     }
 
-    if (reconnectTimeoutRef.current) {
-      clearTimeout(reconnectTimeoutRef.current)
-      reconnectTimeoutRef.current = null
-    }
+    replaceConnection()
+  }, [idToken, replaceConnection])
 
-    const previousSocket = wsRef.current
-    wsRef.current = null
-    previousSocket?.close()
+  useEffect(() => {
+    const probeOnWake = () => {
+      const socket = wsRef.current
+      if (document.visibilityState !== 'visible' || socket?.readyState !== WebSocket.OPEN) return
+      if (wakeProbeTimeoutRef.current !== undefined) return
 
-    if (WS_API_URL) {
-      connect()
+      sendIfOpen({ action: 'ping' }, socket)
+      wakeProbeTimeoutRef.current = globalThis.setTimeout(() => {
+        wakeProbeTimeoutRef.current = undefined
+        if (wsRef.current === socket) replaceConnection()
+      }, WAKE_PROBE_TIMEOUT)
     }
-  }, [connect, idToken])
+    document.addEventListener('visibilitychange', probeOnWake)
+
+    return () => {
+      document.removeEventListener('visibilitychange', probeOnWake)
+      clearWakeProbe()
+    }
+  }, [clearWakeProbe, replaceConnection, sendIfOpen])
 
   return {
     subscribeAdmin,

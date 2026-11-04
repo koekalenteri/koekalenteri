@@ -31,7 +31,7 @@ const nextShownStartList = (
  *
  * Not available (404) means nothing is published, which a live message sends as no rows, so it is
  * taken as just that. Any other failure was already retried and reported by the http layer; the
- * next message brings the list.
+ * next message or reconnect brings the list.
  */
 const fetchStartList = async (eventId: string, signal: AbortSignal): Promise<PublicStartList | undefined> => {
   try {
@@ -50,7 +50,8 @@ const fetchStartList = async (eventId: string, signal: AbortSignal): Promise<Pub
  *
  * Every list carries `version`, the server time its rows were read, and the newest one wins. A
  * message that cannot be used as it is (too large for one message, or unversioned once versions are
- * in use, i.e. sent by a Lambda from before them during a deploy) is answered with a fetch instead.
+ * in use, i.e. sent by a Lambda from before them during a deploy) is answered with a fetch instead,
+ * and so is the acknowledgement of a subscribe (KOE-1523), since the server sends no state with one.
  * That fetch starts after the message arrived, so it read after the message did: a versioned answer
  * counts as at least as new as the newest version known when it started, whatever its own stamp
  * says. Only a list that arrived while it was in flight can outrank it. An unversioned answer comes
