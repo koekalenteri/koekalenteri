@@ -130,19 +130,6 @@ säilyvät ennallaan, eikä tallennus kysy mitään. Pisteen tuomari on sen suor
 ryhmä tekee rastin: kirjattu tuomari pysyy, kun hän on paikan tuomareita, ja muuten tuomariksi
 luetaan paikan ensimmäinen tuomari. Omakoiraan lähtevät tuomarit luetaan samoin.
 
-Jos suoritusjärjestys muuttuu, kun suorituspaikan kirjaussivu on auki, sivu kertoo tallennettaessa,
-ettei koiran tulosta tallennettu, ja lukee koirat uudelleen. Syötetyt pisteet eivät säily: valitse koira
-listalta ja syötä pisteet uudelleen. Jos sivu ei silti näytä uutta järjestystä, lataa sivu uudelleen.
-
-Jos joku muu on muuttanut koiran pisteitä tai keskeytystä suorituspaikan rastilla sen jälkeen, kun valitsit koiran, tallennus
-pysähtyy ikkunaan **{t:results.conflictTitle}**. Ikkuna näyttää suorituspaikan omat pisteet: mitä nyt on
-tallennettu ja mitä itse syötit. Jos versiossa on keskeytys, sekin näkyy. Valmiiksi on valittu tallennettu
-versio. **{t:results.conflictResolve}** näyttää sen pisteet sivulla, ja koira pysyy valittuna. Jos valitset
-oman versiosi, se tallennetaan tallennetun päälle, ja sivu siirtyy seuraavaan koiraan. **{t:cancel}** sulkee
-ikkunan, ja syötetyt pisteet säilyvät; kun tallennat uudelleen, sivu kysyy saman asian, jos tulos on yhä
-toinen. Jos tallennus ei onnistu muusta syystä, ikkuna sulkeutuu ja sivu kertoo sen. Koesihteerin omassa
-suorituspaikkanäkymässä ikkuna kertoo, kuka on tallentanut viimeksi. Suorituspaikan linkistä nimiä ei näy.
-
 Pisteet poistuvat vain, kun rasti poistuu suoritusjärjestyksestä tai rastin tehtävien määrä muuttuu, koska
 pisteitä ei silloin voi lukea samalle rastille. Poistuvat pisteet luetellaan ennen tallennusta
 koirittain.
@@ -162,7 +149,7 @@ tuloksia, ei tallenneta. Muutos, joka ei muuta yhdenkään koiran tulosta, talle
 
 Paneelin painike **{t:eventManagement.enterResults}** aktivoituu, kun koe on alkanut, ja avaa
 sivun **{t:results.title}**. Otsikon alla näkyvät kokeen päivä, tyyppi, paikka ja nimi, kuten
-suorituspaikkojen, starttinumeroiden ja suorituspaikan kirjaussivuillakin. Monipäiväisessä kokeessa
+suorituspaikkojen ja starttinumeroiden sivuillakin. Monipäiväisessä kokeessa
 valitaan ensin päivä, ja luokat ovat omilla välilehdillään. Sivulla ovat vain osallistujiksi nostetut koirakot starttijärjestyksessä.
 
 **Rasteilla pisteytettävä koe (NOWT).** Jokaisella rastilla on oma sarakkeensa rastin numerolla,
@@ -208,18 +195,12 @@ ryhmä voi käydä samassa paikassa useammin, joten paikka ei yksin kerro, mikä
 Keskeytys kirjataan rastille kuten pisteetkin, ja se pysyy sillä rastilla, vaikka suoritusjärjestys
 muuttuu.
 Keskeytyksen jälkeiset rastit koiran suoritusjärjestyksessä näkyvät tekstinä
-*{t:results.notReached}*, myös yhteen suorituspaikkaan rajatussa näkymässä ja suorituspaikan
-kirjaussivulla, jossa koirakko näkyy jo käyneenä niiden rastien kohdalla. Siihen asti
+*{t:results.notReached}*, myös yhteen suorituspaikkaan rajatussa näkymässä. Siihen asti
 saadut pisteet säilyvät ja niitä voi muokata, ja rivin alla näkyy niiden summa koko suoritusjärjestyksen
 enimmäispisteitä vasten. Sama summa lähtee Omakoiraan. Jos Omakoira ei ota sitä vastaan tälle
 tulokselle, tulos lähtee pisteillä 0, ja lähetysikkuna kertoo pisteet, jotka kirjataan Omakoiraan käsin. Jos myöhemmälle rastille on jo kirjattu
 pisteet, kenttä jää näkyviin ja pisteet lasketaan summaan, joten ne voi tarvittaessa poistaa. Kun
 valintana on *{t:results.outcomeAtUnknown}*, mikään rasti ei näy keskeytettynä.
-
-Suorituspaikan linkistä kirjataan ja muutetaan vain sen suorituspaikan omien rastien keskeytystä.
-Keskeytys, joka on kirjattu toisen suorituspaikan rastille, ilman rastia tai rastille, jota koiran
-suoritusjärjestyksessä ei enää ole, näkyy linkin sivulla, mutta sitä ei voi siellä muuttaa eikä linkin
-tallennus poista sitä. Sen muuttaa koesihteeri.
 
 Muissa koemuodoissa kentästä kirjataan vain *{t:results.retirement.judgeStopped}*. Tulos on sääntöjen
 mukaan nolla, ja julkaistulla listalla sen perässä on merkintä *{t:results.marks.interrupted}*. Jo
@@ -238,15 +219,16 @@ poistuu tallentamatta, sivu kysyy ensin: **{t:unsavedChanges.stay}** jää sivul
 **{t:unsavedChanges.leave}** hylkää muutokset. Välilehden sulkemisesta tai uudelleenlataamisesta
 varoittaa selain itse.
 
-Toisen koesihteerin ja suorituspaikan tallennukset päivittyvät sivulle itsestään. Jos muokkaat koiran riviä, kun joku tallentaa saman koiran tuloksia, rivillä näkyvät omat tietosi tallennukseen asti, ja tallennus muuttaa vain ne, joita muutit: toisen tallentamat pisteet ja keskeytys säilyvät tallentajineen, ja rivi näyttää ne tallennuksen jälkeen. Jos sama rasti tai keskeytys on ehditty kirjata muualla toisin kuin itse sen muutit, tallennus pysähtyy ikkunaan
+Toisen koesihteerin tallennukset päivittyvät sivulle itsestään. Jos muokkaat koiran riviä, kun joku tallentaa saman koiran tuloksia, rivillä näkyvät omat tietosi tallennukseen asti, ja tallennus muuttaa vain ne, joita muutit: toisen tallentamat pisteet ja keskeytys säilyvät tallentajineen, ja rivi näyttää ne tallennuksen jälkeen. Jos sama rasti tai keskeytys on ehditty kirjata muualla toisin kuin itse sen muutit, tallennus pysähtyy ikkunaan
 **{t:results.conflictTitle}**, joka näyttää molemmat versiot ja kysyy, kumpi jää voimaan;
-**{t:results.conflictResolve}** tallentaa valinnat. Muut rivit on tallennettu jo silloin. Jos valintojen
+**{t:results.conflictResolve}** tallentaa valinnat. Ikkuna kertoo, kuka on tallentanut tuloksen viimeksi; yhteen
+suorituspaikkaan rajatussa näkymässä se näyttää vain kyseisen suorituspaikan pisteet ja keskeytyksen ja kertoo,
+kuka on tallentanut ne viimeksi. Muut rivit on tallennettu jo silloin. Jos valintojen
 tallennus epäonnistuu, ikkuna jää auki ja syötetyt pisteet säilyvät; jos koirakko on sillä välin
 kirjattu muualla taas toisin, ikkuna näyttää uuden version. Kun valitset oman versiosi, tallentuvat muokkauksesi ja tallennetun version
 muut pisteet.
 
-Koko kierroksen tallennus ei muuta rastin kirjaajaa eikä tallennusaikaa, jos rastin tieto ei muutu. Suorituspaikka saa
-ristiriitaikkunan vain, jos sen rastin pisteitä tai sen rastilla kirjattua keskeytystä on oikeasti muutettu.
+Koko kierroksen tallennus ei muuta rastin kirjaajaa eikä tallennusaikaa, jos rastin tieto ei muutu.
 
 Virallisessa kokeessa sarake *{t:results.kennelliitto.column}* kertoo jokaisen koiran kohdalla,
 onko sen tulos Omakoirassa: *{t:results.kennelliitto.badge.sent}*,
@@ -254,7 +236,7 @@ onko sen tulos Omakoirassa: *{t:results.kennelliitto.badge.sent}*,
 *{t:results.kennelliitto.badge.blocked}*, *{t:results.kennelliitto.badge.sentGone}* tai
 *{t:results.kennelliitto.badge.failed}*. Sarake näyttää saman kuin lähetysikkuna: sivu kysyy koirien
 tilan avautuessaan ja aina hetken kuluttua siitä, kun koirien tuloksia on tallennettu, myös
-suorituspaikalla tai toisen sihteerin tallentamina. Tulos on muuttunut, kun Omakoiraan lähtevä tieto on
+toisen sihteerin tallentamina. Tulos on muuttunut, kun Omakoiraan lähtevä tieto on
 toinen kuin lähetetty, oli muutos koiran omassa tuloksessa, sijoituksessa toisen koiran tuloksen takia,
 tuomareissa tai koiran tiedoissa. Tallennus ilman muutosta ei muuta tilaa. Poikkeus on ulkomainen koira,
 jota ei ole vielä lähetetty: lähetysikkuna kysyy siitä Kennelliitolta ja voi sitten kertoa, ettei tulosta
@@ -263,7 +245,7 @@ lähetyksen jälkeen. *{t:results.kennelliitto.badge.blocked}*: tulosta ei voi l
 korjaa tulos tai koiran tiedot. *{t:results.kennelliitto.badge.sentGone}*: tulos on Omakoirassa, mutta
 koiralla ei ole enää tulosta tässä; kirjaa tulos uudelleen, tai jätä koira pois luovutuksesta, kun
 luovutusikkuna kysyy sitä. Jos Kennelliittoa ei saada kysyttyä tai koe on jo luovutettu, sarake näyttää
-vain viimeisimmän lähetyksen tuloksen. Tulossivu ja suorituspaikan kirjaussivu lukevat kokeen tilan
+vain viimeisimmän lähetyksen tuloksen. Tulossivu lukee kokeen tilan
 Kennelliitosta avautuessaan, joten tuomarille luovutettu koe avautuu vain luettavaksi myös silloin,
 kun se on luovutettu suoraan Omakoirassa. Lähetyksestä ja tulosten korjaamisesta lähetyksen jälkeen
 kerrotaan sivulla [Ilmoittautumisajan jälkeen](/docs/secretary/after-entry-closes), kohdassa
