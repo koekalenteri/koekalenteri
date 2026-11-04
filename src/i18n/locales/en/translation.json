@@ -1028,6 +1028,7 @@
       "groupsBusy": "The event is being updated right now. Please try again in a moment.",
       "paymentFailed": "Payment failed, please try again",
       "paymentInProgress": "A payment for this dog is in progress. Please try again in a few minutes.",
+      "paymentNotConfirmed": "The payment could not be confirmed. Please try paying again, or contact the trial secretary if you have already been charged.",
       "paymentVerifying": "Payment received, still confirming it. The status will update shortly.",
       "staleData": "This registration was edited elsewhere after you opened it. Reload the page and apply your changes again."
     },
