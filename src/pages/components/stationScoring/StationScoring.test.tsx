@@ -970,4 +970,69 @@ describe('StationScoring', () => {
       expect(await screen.findByText('results.kennelliitto.lockedSave')).toBeInTheDocument()
     })
   })
+
+  describe('a form open while the row moves (KOE-1701)', () => {
+    const readVersion = new Date('2026-09-12T10:00:00.000Z')
+    const laterVersion = new Date('2026-09-12T10:05:00.000Z')
+    const atPost = (points: number, updatedAt: Date, exercise = 1) => ({ exercise, part: 0, points, updatedAt })
+    const dog = (
+      eventResult?: { tasks: ReturnType<typeof atPost>[]; updatedAt?: Date },
+      exercise = 1,
+      exercisePosts = ['1', 'post-2']
+    ) => ({
+      class: 'ALO' as const,
+      dog: { name: 'alo' },
+      eventResult,
+      eventType: 'NOWT',
+      group: { ...group, number: 1 },
+      id: 'alo',
+      visit: { exercise, exercisePosts, parts: 1 as const },
+    })
+
+    it('sends the version the form was opened on, so another writer at the post is asked about', async () => {
+      const user = userEvent.setup()
+      const { onSave, rerender } = renderScoring({
+        eventType: 'NOWT',
+        registrations: [dog({ tasks: [atPost(15, readVersion)] })],
+      })
+
+      await user.click(screen.getByRole('button', { name: '1 alo' }))
+      rerender({ registrations: [dog({ tasks: [atPost(18, laterVersion)] })] })
+      await user.click(screen.getByRole('button', { name: 'results.save' }))
+
+      expect(onSave).toHaveBeenCalledWith(expect.objectContaining({ basedOn: readVersion, id: 'alo' }))
+    })
+
+    it('keeps the score just saved when the next place in the queue is the same dog', async () => {
+      const user = userEvent.setup()
+      const order = ['1', '1', 'post-2']
+      const places = (eventResult?: { tasks: ReturnType<typeof atPost>[]; updatedAt?: Date }) => [
+        dog(eventResult, 1, order),
+        dog(eventResult, 2, order),
+      ]
+      const { onSave, rerender } = renderScoring({ eventType: 'NOWT', registrations: places() })
+      const echoed = { tasks: [atPost(15, laterVersion)], updatedAt: laterVersion }
+      onSave.mockResolvedValueOnce({ conflicts: [], saved: [{ eventResult: echoed, id: 'alo' }], unchanged: [] })
+
+      await user.click(screen.getAllByRole('button', { name: /^1 alo · results\.column\.task/ })[0])
+      await user.type(screen.getAllByRole('textbox')[0], '15')
+      await user.click(screen.getByRole('button', { name: 'results.save' }))
+      await screen.findByText('results.saved')
+      rerender({ registrations: places(echoed) })
+      await user.type(screen.getAllByRole('textbox')[0], '12')
+      await user.click(screen.getByRole('button', { name: 'results.save' }))
+
+      expect(onSave).toHaveBeenLastCalledWith(
+        expect.objectContaining({
+          basedOn: laterVersion,
+          eventResult: expect.objectContaining({
+            tasks: expect.arrayContaining([
+              expect.objectContaining({ exercise: 1, points: 15 }),
+              expect.objectContaining({ exercise: 2, points: 12 }),
+            ]),
+          }),
+        })
+      )
+    })
+  })
 })

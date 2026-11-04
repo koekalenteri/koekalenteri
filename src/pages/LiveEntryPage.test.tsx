@@ -143,6 +143,59 @@ describe('LiveEntryPage', () => {
   })
 
   // The link has no socket: the 409 is the only way it hears of another writer, and it is raw JSON (KOE-1697).
+  it('keeps the score just saved, and bases the next on its version, when the same dog comes next (KOE-1701)', async () => {
+    const dog = entry().registrations[0]
+    const order = ['post-1', 'post-1']
+    vi.mocked(getStationEntry).mockResolvedValue({
+      ...entry(),
+      registrations: [
+        { ...dog, visit: { exercise: 1, exercisePosts: order, parts: 1 } },
+        { ...dog, visit: { exercise: 2, exercisePosts: order, parts: 1 } },
+      ],
+    })
+    const savedAt = new Date('2026-09-12T10:05:00.000Z')
+    vi.mocked(putStationEntry).mockClear()
+    vi.mocked(putStationEntry).mockResolvedValueOnce({
+      conflicts: [],
+      saved: [
+        {
+          eventResult: { tasks: [{ exercise: 1, part: 0, points: 15, updatedAt: savedAt }], updatedAt: savedAt },
+          id: 'run-1',
+        },
+      ],
+      unchanged: [],
+    })
+    const { user } = renderPage()
+    await flushPromises()
+
+    await user.click(screen.getAllByRole('button', { name: /^1 Ensimmainen/ })[0])
+    await user.type(screen.getAllByRole('textbox')[0], '15')
+    await flushPromises()
+    await user.click(screen.getByRole('button', { name: 'results.save' }))
+    await flushPromises()
+    await user.type(screen.getAllByRole('textbox')[0], '12')
+    await flushPromises()
+    await user.click(screen.getByRole('button', { name: 'results.save' }))
+    await flushPromises()
+
+    expect(putStationEntry).toHaveBeenLastCalledWith(
+      'event-1',
+      'post-1',
+      [
+        expect.objectContaining({
+          basedOn: savedAt,
+          eventResult: expect.objectContaining({
+            tasks: expect.arrayContaining([
+              expect.objectContaining({ exercise: 1, points: 15 }),
+              expect.objectContaining({ exercise: 2, points: 12 }),
+            ]),
+          }),
+        }),
+      ],
+      'link-token'
+    )
+  })
+
   describe('a save that lost to another writer', () => {
     const read = new Date('2026-09-12T10:00:00.000Z')
     const beaten = '2026-09-12T10:05:00.000Z'

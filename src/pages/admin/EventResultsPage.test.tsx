@@ -904,6 +904,272 @@ describe('EventResultsPage', () => {
     )
   })
 
+  describe('what another writer saved during an edit (KOE-1701)', () => {
+    const atStart = new Date('2021-02-10T10:00:00Z')
+    const later = new Date('2021-02-10T10:05:00Z')
+    const task = (exercise: number, points: number, updatedAt: Date, updatedBy = 'Suorituspaikka 1') => ({
+      exercise,
+      part: 0,
+      points,
+      updatedAt,
+      updatedBy,
+    })
+    const withResult = (eventResult: EventResult): Registration[] =>
+      registrationsToEventWithStations.map((reg) => (reg.id === 'run-1' ? { ...reg, eventResult } : reg))
+    const stored: EventResult = { tasks: [task(1, 17, atStart)], updatedAt: atStart, updatedBy: 'Suorituspaikka 1' }
+    const corrected: EventResult = { tasks: [task(1, 18, later)], updatedAt: later, updatedBy: 'Suorituspaikka 1' }
+    const render = async (eventResult: EventResult = stored) => {
+      const { i18n } = useTranslation()
+      vi.mocked(putEventResults).mockClear()
+      const { user } = await renderScoringPage(i18n.language as Language, withResult(eventResult))
+      await flushPromises()
+      return user
+    }
+    /** A result saved elsewhere, as the socket's patch puts it on the page. */
+    const savedElsewhere = async (eventResult: EventResult) => {
+      await act(() => scoringStore?.set(adminEventRegistrationsAtom(eventWithStations.id), withResult(eventResult)))
+      await flushPromises()
+    }
+    const inputsOfDog = () => within(rowFor('Ensimmainen')).getAllByRole('textbox')
+    const saveButton = () => screen.getByRole('button', { name: 'results.save' })
+    const save = async (user: UserEvent) => {
+      await user.click(saveButton())
+      await flushPromises()
+    }
+    const pickScope = async (user: UserEvent, name: string) => {
+      await user.click(screen.getByLabelText('results.scope'))
+      await user.click(screen.getByRole('option', { name }))
+      await flushPromises()
+    }
+    const retype = async (user: UserEvent, input: HTMLElement, points: string) => {
+      await user.clear(input)
+      await score(user, input, points)
+    }
+    /** What the last save said of the dog: its version, and the score it holds at an exercise. */
+    const lastSubmission = () => vi.mocked(putEventResults).mock.lastCall?.[1][0]
+    const lastPoints = (exercise: number) =>
+      lastSubmission()?.eventResult.tasks?.find((item) => item.exercise === exercise)?.points
+
+    it('keeps the score a post corrected at an exercise the secretary did not touch, on screen and in the save', async () => {
+      const user = await render()
+
+      await score(user, inputsOfDog()[1], '8')
+      await savedElsewhere(corrected)
+
+      // The open row shows what the secretary has; what is saved is the edit on what is stored now.
+      expect(inputsOfDog()[0]).toHaveValue('17')
+
+      const savedRound: EventResult = {
+        tasks: [task(1, 18, later), task(2, 8, later, 'Sihteeri')],
+        updatedAt: later,
+        updatedBy: 'Sihteeri',
+      }
+      vi.mocked(putEventResults).mockResolvedValueOnce({
+        conflicts: [],
+        saved: [{ eventResult: savedRound, id: 'run-1' }],
+        unchanged: [],
+      })
+      await save(user)
+
+      expect(lastPoints(1)).toBe(18)
+      expect(lastPoints(2)).toBe(8)
+      expect(lastSubmission()?.basedOn).toEqual(later)
+      expect(inputsOfDog()[0]).toHaveValue('18')
+      expect(inputsOfDog()[1]).toHaveValue('8')
+    })
+
+    it('keeps an outcome a post recorded during the edit', async () => {
+      const user = await render()
+      const retirement = { cause: 'injury' as const, exercise: 1 }
+
+      await score(user, inputsOfDog()[1], '8')
+      await savedElsewhere({ ...stored, retirement, updatedAt: later })
+      await save(user)
+
+      expect(lastSubmission()?.eventResult.retirement).toEqual(retirement)
+      expect(lastSubmission()?.basedOn).toEqual(later)
+    })
+
+    it('sends the version the edit started from when the secretary and a post changed the same score, so the server asks', async () => {
+      const user = await render()
+
+      await retype(user, inputsOfDog()[0], '19')
+      await savedElsewhere(corrected)
+
+      expect(inputsOfDog()[0]).toHaveValue('19')
+
+      await save(user)
+
+      expect(lastPoints(1)).toBe(19)
+      expect(lastSubmission()?.basedOn).toEqual(atStart)
+    })
+
+    it('sends no version when a post saved the first score of a dog with nothing stored, so the server asks', async () => {
+      const { i18n } = useTranslation()
+      vi.mocked(putEventResults).mockClear()
+      const { user } = await renderScoringPage(i18n.language as Language)
+      await flushPromises()
+
+      await score(user, inputsOfDog()[0], '19')
+      await savedElsewhere(corrected)
+      await save(user)
+
+      expect(lastPoints(1)).toBe(19)
+      expect(lastSubmission()?.basedOn).toBeUndefined()
+    })
+
+    it('sends the fresh version when the two arrived at the same score', async () => {
+      const user = await render()
+
+      await retype(user, inputsOfDog()[0], '18')
+      // A score's judge is part of what it says, and the post's judge stands for both.
+      await savedElsewhere({ ...corrected, tasks: [{ ...task(1, 18, later), judge: eventWithStations.judges[0] }] })
+      await save(user)
+
+      expect(lastSubmission()?.basedOn).toEqual(later)
+    })
+
+    it("resends 'mine' based on the version that beat it, what the secretary did not touch taken from that version", async () => {
+      const user = await render()
+      const beat = {
+        tasks: [
+          { ...task(1, 18, later), updatedAt: later.toISOString() },
+          { ...task(2, 6, later, 'Suorituspaikka 2'), updatedAt: later.toISOString() },
+        ],
+        updatedAt: later.toISOString(),
+        updatedBy: 'Suorituspaikka 2',
+      }
+      await retype(user, inputsOfDog()[0], '19')
+      vi.mocked(putEventResults).mockRejectedValueOnce(
+        new APIError(new Response(null, { status: 409, statusText: 'Conflict' }), {
+          conflicts: [{ id: 'run-1', stored: beat, submitted: beat }],
+          error: 'resultConflict',
+          saved: [],
+          unchanged: [],
+        })
+      )
+
+      await save(user)
+      await user.click(await screen.findByRole('radio', { name: /results\.conflictMine/ }))
+      await user.click(screen.getByRole('button', { name: 'results.conflictResolve' }))
+      await flushPromises()
+
+      expect(lastPoints(1)).toBe(19)
+      expect(lastPoints(2)).toBe(6)
+      expect(new Date(lastSubmission()?.basedOn ?? 0)).toEqual(later)
+    })
+
+    it("sends the post's version at the start in a post's own view, when the post changed the score the secretary did", async () => {
+      const user = await render()
+
+      await pickScope(user, 'event.station 1')
+      await retype(user, inputsOfDog()[0], '19')
+      await savedElsewhere(corrected)
+      await save(user)
+
+      expect(lastPoints(1)).toBe(19)
+      expect(lastSubmission()?.stationId).toBe('post-1')
+      expect(lastSubmission()?.basedOn).toEqual(atStart)
+    })
+
+    it("does not make a post's own view ask about a score of another post", async () => {
+      const both = (points: number, at: Date): EventResult => ({
+        tasks: [task(1, points, at), task(2, 8, atStart, 'Suorituspaikka 2')],
+        updatedAt: at,
+        updatedBy: 'Suorituspaikka 1',
+      })
+      const user = await render(both(17, atStart))
+
+      await retype(user, inputsOfDog()[0], '19')
+      await pickScope(user, 'event.station 2')
+      await retype(user, inputsOfDog()[0], '7')
+      await savedElsewhere(both(18, later))
+      await save(user)
+
+      expect(lastSubmission()?.stationId).toBe('post-2')
+      expect(lastSubmission()?.basedOn).toEqual(atStart)
+    })
+
+    it('reads a row taken back to what is stored as clean, after a post has changed another score', async () => {
+      const user = await render()
+
+      await score(user, inputsOfDog()[1], '8')
+      await savedElsewhere(corrected)
+      await user.clear(inputsOfDog()[1])
+      await flushPromises()
+
+      expect(saveButton()).toBeDisabled()
+    })
+
+    it("holds nothing back of a score the secretary never touched, when a post changed it and another post's view saves", async () => {
+      const both = (points: number, at: Date): EventResult => ({
+        tasks: [task(1, points, at), task(2, 8, atStart, 'Suorituspaikka 2')],
+        updatedAt: at,
+        updatedBy: 'Suorituspaikka 1',
+      })
+      const user = await render(both(17, atStart))
+
+      await pickScope(user, 'event.station 2')
+      await retype(user, inputsOfDog()[0], '7')
+      await savedElsewhere(both(18, later))
+      vi.mocked(putEventResults).mockResolvedValueOnce({
+        conflicts: [],
+        saved: [{ eventResult: { updatedAt: later, updatedBy: 'Sihteeri' }, id: 'run-1' }],
+        unchanged: [],
+      })
+      await save(user)
+
+      expect(screen.queryByText('results.heldScores')).not.toBeInTheDocument()
+      expect(saveButton()).toBeDisabled()
+    })
+
+    describe('of a qualitative type, whose result is whole', () => {
+      const decided = (result: string, updatedAt: Date): EventResult => ({ result, updatedAt, updatedBy: 'Tuomari' })
+      const renderWhole = async (results: Record<string, EventResult> = {}) => {
+        const { i18n } = useTranslation()
+        vi.mocked(putEventResults).mockClear()
+        const { user } = await renderQualitativePage(i18n.language as Language, results)
+        await flushPromises()
+        return user
+      }
+      const decidedElsewhere = async (eventResult: EventResult) => {
+        await act(() =>
+          qualitativeStore?.set(
+            adminEventRegistrationsAtom('test1'),
+            qualitativeRegistrations(eventWithStaticDates, { 'run-1': eventResult }, {})
+          )
+        )
+        await flushPromises()
+      }
+      const pickResult = async (user: UserEvent, name: string) => {
+        await user.click(within(rowFor('Ensimmainen')).getByLabelText('results.column.result'))
+        await user.click(screen.getByRole('option', { name }))
+        await flushPromises()
+      }
+
+      it('sends the version the edit started from when another writer recorded another result', async () => {
+        const user = await renderWhole()
+
+        await pickResult(user, 'NOU1')
+        await decidedElsewhere(decided('NOU0', later))
+        await save(user)
+
+        expect(lastSubmission()?.eventResult.resultCode).toBe('1')
+        expect(lastSubmission()?.basedOn).toBeUndefined()
+      })
+
+      it('sends the fresh version when the other writer recorded the same result', async () => {
+        const user = await renderWhole({ 'run-1': decided('NOU1', atStart) })
+
+        await pickResult(user, 'NOU0')
+        await decidedElsewhere({ ...decided('NOU0', later), judge: eventWithStaticDates.judges[0] })
+        await save(user)
+
+        expect(lastSubmission()?.basedOn).toEqual(later)
+      })
+    })
+  })
+
   describe('a score the post on view cannot save (KOE-1696)', () => {
     const pickScope = async (user: UserEvent, name: string) => {
       await user.click(screen.getByLabelText('results.scope'))

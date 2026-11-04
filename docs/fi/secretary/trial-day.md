@@ -134,7 +134,7 @@ Jos suoritusjärjestys muuttuu, kun suorituspaikan kirjaussivu on auki, sivu ker
 ettei koiran tulosta tallennettu, ja lukee koirat uudelleen. Syötetyt pisteet eivät säily: valitse koira
 listalta ja syötä pisteet uudelleen. Jos sivu ei silti näytä uutta järjestystä, lataa sivu uudelleen.
 
-Jos joku muu on muuttanut koiran pisteitä suorituspaikan rastilla, kun kirjaussivu on auki, tallennus
+Jos joku muu on muuttanut koiran pisteitä tai keskeytystä suorituspaikan rastilla sen jälkeen, kun valitsit koiran, tallennus
 pysähtyy ikkunaan **{t:results.conflictTitle}**. Ikkuna näyttää suorituspaikan omat pisteet: mitä nyt on
 tallennettu ja mitä itse syötit. Jos versiossa on keskeytys, sekin näkyy. Valmiiksi on valittu tallennettu
 versio. **{t:results.conflictResolve}** näyttää sen pisteet sivulla, ja koira pysyy valittuna. Jos valitset
@@ -238,11 +238,15 @@ poistuu tallentamatta, sivu kysyy ensin: **{t:unsavedChanges.stay}** jää sivul
 **{t:unsavedChanges.leave}** hylkää muutokset. Välilehden sulkemisesta tai uudelleenlataamisesta
 varoittaa selain itse.
 
-Toisen koesihteerin tallennukset päivittyvät sivulle itsestään. Jos sama koirakko on ehditty kirjata muualla toisin, tallennus pysähtyy ikkunaan
+Toisen koesihteerin ja suorituspaikan tallennukset päivittyvät sivulle itsestään. Jos muokkaat koiran riviä, kun joku tallentaa saman koiran tuloksia, rivillä näkyvät omat tietosi tallennukseen asti, ja tallennus muuttaa vain ne, joita muutit: toisen tallentamat pisteet ja keskeytys säilyvät tallentajineen, ja rivi näyttää ne tallennuksen jälkeen. Jos sama rasti tai keskeytys on ehditty kirjata muualla toisin kuin itse sen muutit, tallennus pysähtyy ikkunaan
 **{t:results.conflictTitle}**, joka näyttää molemmat versiot ja kysyy, kumpi jää voimaan;
 **{t:results.conflictResolve}** tallentaa valinnat. Muut rivit on tallennettu jo silloin. Jos valintojen
 tallennus epäonnistuu, ikkuna jää auki ja syötetyt pisteet säilyvät; jos koirakko on sillä välin
-kirjattu muualla taas toisin, ikkuna näyttää uuden version.
+kirjattu muualla taas toisin, ikkuna näyttää uuden version. Oma versiosi ikkunassa on se, mikä tallentuu:
+muokkauksesi ja tallennetun version muut pisteet.
+
+Koko kierroksen tallennus ei muuta rastin kirjaajaa eikä tallennusaikaa, jos rastin tieto ei muutu. Suorituspaikka saa
+ristiriitaikkunan vain, jos sen rastin pisteitä tai sen rastilla kirjattua keskeytystä on oikeasti muutettu.
 
 Virallisessa kokeessa sarake *{t:results.kennelliitto.column}* kertoo jokaisen koiran kohdalla,
 onko sen tulos Omakoirassa: *{t:results.kennelliitto.badge.sent}*,

@@ -1183,4 +1183,288 @@ describe('putEventResultsLambda', () => {
       expect(mockGetEvent).toHaveBeenCalledWith('event-1', true)
     })
   })
+
+  describe('what a save stamps (KOE-1703)', () => {
+    const first = '2026-09-12T10:00:00.000Z'
+    const second = '2026-09-12T10:05:00.000Z'
+    const scoredAt = (exercise: number, points: number | null, updatedAt: string, updatedBy: string) => ({
+      exercise,
+      part: 0,
+      points,
+      updatedAt,
+      updatedBy,
+    })
+    /** Without a running order of its own the day's posts are done in number order: post n is exercise n. */
+    const twoPosts = () => [scoredAt(1, 15, first, 'Suorituspaikka 1'), scoredAt(2, 12, second, 'Suorituspaikka 2')]
+    const unstamped = (...tasks: { exercise: number; part: number; points: number | null }[]) =>
+      tasks.map(({ exercise, part, points }) => ({ exercise, part, points }))
+    const storedWith = (eventResult: object, number = 1) => {
+      mockUpdateRegistrationField.mockClear()
+      mockResponse.mockClear()
+      mockReadEventRegistrations.mockResolvedValue([
+        {
+          ...registration('reg-1', 'AVO', number),
+          eventResult: { updatedAt: second, updatedBy: 'Sihteeri', ...eventResult },
+        },
+      ])
+    }
+    const save = (submission: object) => putEventResultsLambda(apiEvent([{ id: 'reg-1', ...submission }]))
+    const expectConflict = () => {
+      expect(mockUpdateRegistrationField).not.toHaveBeenCalled()
+      expect(mockResponse).toHaveBeenCalledWith(
+        409,
+        expect.objectContaining({ error: 'resultConflict' }),
+        expect.anything()
+      )
+    }
+    const correctedSecond = {
+      basedOn: second,
+      eventResult: { tasks: unstamped(twoPosts()[0], { exercise: 2, part: 0, points: 14 }) },
+    }
+    /** A dog of this number does exercise 1 at post 2, and exercises 2 and 3 at post 1. */
+    const postDoingTwo = {
+      ...nowtEvent,
+      rotations: [
+        {
+          class: 'AVO',
+          exercises: [{ stationId: 'post-2' }, { stationId: 'post-1' }, { stationId: 'post-1' }],
+          firstNumber: 1,
+          lastNumber: 8,
+        },
+      ],
+    }
+
+    it('keeps the stamp and the writer on a task a whole-round save does not change', async () => {
+      storedWith({ tasks: twoPosts() })
+
+      await save(correctedSecond)
+
+      const [kept, changed] = savedResult().tasks
+      expect(kept).toMatchObject({ exercise: 1, points: 15, updatedAt: first, updatedBy: 'Suorituspaikka 1' })
+      expect(changed).toMatchObject({ exercise: 2, points: 14, updatedBy: 'Sihteeri' })
+      expect(changed.updatedAt).not.toBe(second)
+      expect(savedResult().updatedAt).not.toBe(second)
+    })
+
+    it('leaves the next save of a post whose score nobody changed without a conflict', async () => {
+      storedWith({ tasks: twoPosts() })
+      await save(correctedSecond)
+      storedWith(savedResult())
+
+      await save({
+        basedOn: first,
+        eventResult: { tasks: [{ exercise: 1, part: 0, points: 18 }] },
+        stationId: 'post-1',
+      })
+
+      expect(mockUpdateRegistrationField).toHaveBeenCalledTimes(1)
+      expect(savedResult().tasks).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({ exercise: 1, points: 18 }),
+          expect.objectContaining({ exercise: 2, points: 14 }),
+        ])
+      )
+    })
+
+    it("keeps a post's correction, its stamp and its writer through a save that carries it along untouched", async () => {
+      const correctedAt = '2026-09-12T10:10:00.000Z'
+      const tasks = [scoredAt(1, 18, correctedAt, 'Suorituspaikka 1'), scoredAt(2, 12, second, 'Suorituspaikka 2')]
+      storedWith({ tasks, updatedAt: correctedAt })
+
+      // What the results page sends once it has rebased the secretary's edit on the post's correction.
+      await save({
+        basedOn: correctedAt,
+        eventResult: { tasks: unstamped(tasks[0], { exercise: 2, part: 0, points: 14 }) },
+      })
+
+      expect(savedResult().tasks[0]).toMatchObject({
+        exercise: 1,
+        points: 18,
+        updatedAt: correctedAt,
+        updatedBy: 'Suorituspaikka 1',
+      })
+      storedWith(savedResult())
+
+      await save({
+        basedOn: correctedAt,
+        eventResult: { tasks: [{ exercise: 1, part: 0, points: 19 }] },
+        stationId: 'post-1',
+      })
+
+      expect(mockUpdateRegistrationField).toHaveBeenCalledTimes(1)
+    })
+
+    it('still gives a post a conflict when a whole-round save did change its score', async () => {
+      storedWith({ tasks: twoPosts() })
+      await save(correctedSecond)
+      storedWith(savedResult())
+
+      await save({
+        basedOn: second,
+        eventResult: { tasks: [{ exercise: 2, part: 0, points: 9 }] },
+        stationId: 'post-2',
+      })
+
+      expectConflict()
+    })
+
+    it('stamps a score a whole-round save cleared, and keeps the stamp of a blank that stays blank', async () => {
+      const blank = scoredAt(3, null, first, 'Suorituspaikka 3')
+      storedWith({ tasks: [...twoPosts(), blank] })
+
+      await save({
+        basedOn: second,
+        eventResult: { tasks: unstamped({ ...twoPosts()[0], points: null }, twoPosts()[1], blank) },
+      })
+
+      const [cleared, kept, stillBlank] = savedResult().tasks
+      expect(cleared).toMatchObject({ exercise: 1, points: null, updatedBy: 'Sihteeri' })
+      expect(kept).toMatchObject({ exercise: 2, updatedAt: second, updatedBy: 'Suorituspaikka 2' })
+      expect(stillBlank).toMatchObject({ exercise: 3, updatedAt: first, updatedBy: 'Suorituspaikka 3' })
+    })
+
+    it('stores no blank a whole-round save brings to an address with nothing stored, so that post holds no version', async () => {
+      storedWith({ tasks: twoPosts() })
+
+      await save({
+        basedOn: second,
+        eventResult: {
+          tasks: unstamped(twoPosts()[0], { exercise: 2, part: 0, points: 14 }, { exercise: 3, part: 0, points: null }),
+        },
+      })
+
+      expect(savedResult().tasks.map((task: { exercise: number }) => task.exercise)).toEqual([1, 2])
+    })
+
+    describe('an outcome, which a stale post page must not undo unasked', () => {
+      const staleAtPost2 = {
+        basedOn: second,
+        eventResult: { tasks: [{ exercise: 2, part: 0, points: 12 }] },
+        stationId: 'post-2',
+      }
+
+      it.each([
+        ['recorded an outcome at the exercise of the post', {}, { retirement: { cause: 'injury', exercise: 2 } }],
+        ['cleared the outcome at the exercise of the post', { retirement: { cause: 'injury', exercise: 2 } }, {}],
+        [
+          'changed the outcome at the exercise of the post',
+          { retirement: { cause: 'injury', exercise: 2 } },
+          { retirement: { cause: 'illness', exercise: 2 } },
+        ],
+        [
+          'moved the outcome away from the post',
+          { retirement: { cause: 'injury', exercise: 2 } },
+          { retirement: { cause: 'injury', exercise: 1 } },
+        ],
+        [
+          'moved the outcome to the post',
+          { retirement: { cause: 'injury', exercise: 1 } },
+          { retirement: { cause: 'injury', exercise: 2 } },
+        ],
+      ])('gives the post a conflict when a whole-round save has %s', async (_name, before, after) => {
+        storedWith({ tasks: twoPosts(), ...before })
+        await save({ basedOn: second, eventResult: { tasks: unstamped(...twoPosts()), ...after } })
+        storedWith(savedResult())
+
+        // The page echoes the outcome it read.
+        await save({ ...staleAtPost2, eventResult: { ...staleAtPost2.eventResult, ...before } })
+
+        expectConflict()
+      })
+
+      it('leaves the stamps of a post the outcome does not name', async () => {
+        storedWith({ tasks: twoPosts() })
+
+        await save({
+          basedOn: second,
+          eventResult: { retirement: { cause: 'injury', exercise: 2 }, tasks: unstamped(...twoPosts()) },
+        })
+
+        expect(savedResult().tasks[0]).toMatchObject({ exercise: 1, updatedAt: first, updatedBy: 'Suorituspaikka 1' })
+      })
+
+      it('moves no stamp for an outcome without a place, which no post can undo', async () => {
+        storedWith({ tasks: twoPosts() })
+
+        await save({
+          basedOn: second,
+          eventResult: { retirement: { cause: 'injury' }, tasks: unstamped(...twoPosts()) },
+        })
+
+        expect(savedResult().tasks).toEqual(twoPosts())
+      })
+
+      it('moves the version of a post doing two exercises when the outcome names the one without a score', async () => {
+        mockGetAuthorizedEvent.mockResolvedValue(postDoingTwo)
+        const tasks = [scoredAt(3, 15, first, 'Suorituspaikka 1')]
+        storedWith({ tasks }, 3)
+        await save({
+          basedOn: second,
+          eventResult: { retirement: { cause: 'injury', exercise: 2 }, tasks: unstamped(...tasks) },
+        })
+        storedWith(savedResult(), 3)
+
+        await save({
+          basedOn: first,
+          eventResult: { tasks: [{ exercise: 3, part: 0, points: 18 }] },
+          stationId: 'post-1',
+        })
+
+        expectConflict()
+      })
+
+      it("moves the version of the post named when the secretary's view of another post clears the outcome", async () => {
+        storedWith({ retirement: { cause: 'injury', exercise: 1 }, tasks: twoPosts() })
+        await save({
+          basedOn: second,
+          eventResult: { tasks: [{ exercise: 2, part: 0, points: 12 }] },
+          stationId: 'post-2',
+        })
+        storedWith(savedResult())
+
+        await save({
+          basedOn: first,
+          eventResult: { retirement: { cause: 'injury', exercise: 1 }, tasks: [{ exercise: 1, part: 0, points: 15 }] },
+          stationId: 'post-1',
+        })
+
+        expectConflict()
+      })
+    })
+
+    describe("a post's own save", () => {
+      const twoExercises = () => [scoredAt(2, 15, first, 'Sihteeri'), scoredAt(3, 12, second, 'Suorituspaikka 1')]
+
+      beforeEach(() => mockGetAuthorizedEvent.mockResolvedValue(postDoingTwo))
+
+      it('keeps the writer of the exercise it did not change, and moves the version by the one it did', async () => {
+        storedWith({ tasks: twoExercises() }, 3)
+
+        await save({
+          basedOn: second,
+          eventResult: { tasks: unstamped(twoExercises()[0], { exercise: 3, part: 0, points: 14 }) },
+          stationId: 'post-1',
+        })
+
+        const [kept, changed] = savedResult().tasks
+        expect(kept).toMatchObject({ exercise: 2, updatedAt: first, updatedBy: 'Sihteeri' })
+        expect(changed).toMatchObject({ exercise: 3, points: 14, updatedBy: 'Sihteeri' })
+        expect(changed.updatedAt).not.toBe(second)
+      })
+
+      it('moves its own version with an outcome saved alone, so a second page at the post is asked', async () => {
+        storedWith({ tasks: twoExercises() }, 3)
+        await save({
+          basedOn: second,
+          eventResult: { retirement: { cause: 'injury', exercise: 3 }, tasks: unstamped(...twoExercises()) },
+          stationId: 'post-1',
+        })
+        storedWith(savedResult(), 3)
+
+        await save({ basedOn: second, eventResult: { tasks: unstamped(...twoExercises()) }, stationId: 'post-1' })
+
+        expectConflict()
+      })
+    })
+  })
 })

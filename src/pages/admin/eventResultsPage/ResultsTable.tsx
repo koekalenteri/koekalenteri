@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react'
 import type { KcBadge } from '@/lib/kennelliittoResults'
 import type { ExerciseSlot } from '@/lib/resultTasks'
-import type { EventResult, EventStation, NowtZeroFault, PublicJudge, Registration } from '@/types'
+import type { EventStation, NowtZeroFault, PublicJudge, Registration } from '@/types'
 import type { ResultEdit, TaskEdit } from '../../components/stationScoring/types'
 import Box from '@mui/material/Box'
 import Paper from '@mui/material/Paper'
@@ -17,13 +17,13 @@ import { memo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { scoresAtPosts } from '@/lib/liveFormat'
 import { getRegistrationPlacement } from '@/lib/registration'
-import { formatTaskName, parseEventResultCode } from '@/lib/results'
+import { formatTaskName } from '@/lib/results'
 import { columnKey, effectiveJudge, endedBefore, exercisePostsOf } from '@/lib/resultTasks'
 import { JudgeSelect } from '../../components/stationScoring/JudgeSelect'
 import { ResultSummary } from '../../components/stationScoring/ResultSummary'
 import { asksOutcome, outcomeLabelKeys, RoundOutcome } from '../../components/stationScoring/RoundOutcome'
 import { TaskScore } from '../../components/stationScoring/TaskScore'
-import { emptyEdit, sameResultEdit } from '../../components/stationScoring/types'
+import { sameResultEdit, seededResultEdit } from '../../components/stationScoring/types'
 import { KennelliittoStatus } from './KennelliittoStatus'
 
 interface Props {
@@ -56,8 +56,12 @@ interface Props {
   readonly onJudgeChange: (stationId: string, judge?: PublicJudge) => void
   readonly edits: Record<string, ResultEdit>
   readonly disabled?: boolean
-  /** `undefined` says the row is back to what is stored: nothing to save for this dog. */
-  readonly onChange: (registrationId: string, edit: ResultEdit | undefined) => void
+  /**
+   * The dog's edit as it now stands, and how to tell it is back to what is stored, and so nothing to save.
+   * The caller asks that of the edit as it would be saved (`rebaseResultEdit`): a score another writer has
+   * since moved is no difference of the secretary's.
+   */
+  readonly onChange: (registrationId: string, edit: ResultEdit, isClean: (saved: ResultEdit) => boolean) => void
   /**
    * One card per dog instead of one row: the round's controls stacked under the dog's name, for a
    * phone in the field (KOE-1280). The controls are the same either way; only their arrangement differs.
@@ -127,30 +131,10 @@ function ResultsTable({
 
   // The stored result seeds the row, so an edit cannot quietly drop what is already recorded. For a
   // qualitative type that is the judge's decision; for a post-scored round it is every task the posts
-  // have saved so far — the whole-round submission replaces the task array, so a row starting blank
-  // would erase the other posts' scores the moment the secretary corrected one cell. (The conflict
-  // check only guards against a *stale* client; a current one would overwrite without a word.)
-  const seededEdit = (stored?: EventResult): ResultEdit => {
-    if (!stored) return emptyEdit
-
-    if (!qualitative) {
-      return {
-        ...(stored.elimination ? { elimination: stored.elimination } : {}),
-        ...(stored.retirement ? { retirement: stored.retirement } : {}),
-        tasks: (stored.tasks ?? []).map(({ updatedAt: _at, updatedBy: _by, ...task }) => task),
-      }
-    }
-
-    const resultCode = parseEventResultCode(stored.result, eventType, eventClass)
-
-    return {
-      ...(stored.elimination ? { elimination: stored.elimination } : {}),
-      ...(stored.judge ? { judge: stored.judge } : {}),
-      ...(stored.retirement ? { retirement: stored.retirement } : {}),
-      ...(resultCode ? { resultCode } : {}),
-      tasks: [],
-    }
-  }
+  // have saved so far: the whole-round submission replaces the task array, so a row starting blank
+  // would erase the other posts' scores the moment the secretary corrected one cell.
+  const seededEdit = (registration: Registration): ResultEdit =>
+    seededResultEdit(registration.eventResult, eventType, eventClass)
 
   // Recording anything for a dog attributes it to whoever is judging, the same way scoring a task
   // does at a post — so with one judge the secretary never touches a judge control at all.
@@ -165,15 +149,15 @@ function ResultsTable({
   // An edit equal to what is stored is not an edit: the row reports itself clean, as the event form
   // does, so reverting a change takes the save button back with it.
   const report = (registration: Registration, next: ResultEdit) => {
-    const stored = attributed(seededEdit(registration.eventResult))
-    onChange(registration.id, sameResultEdit(attributed(next), stored) ? undefined : next)
+    const stored = attributed(seededEdit(registration))
+    onChange(registration.id, next, (saved) => sameResultEdit(attributed(saved), stored))
   }
 
   // A column is an exercise number, "Rasti 3", whatever post a dog's group did it at (KOE-1665).
   const columnName = (column: ExerciseSlot) => formatTaskName(column, t)
 
   const controlsFor = (registration: Registration): RowControls => {
-    const edit = edits[registration.id] ?? seededEdit(registration.eventResult)
+    const edit = edits[registration.id] ?? seededEdit(registration)
     const { tasks } = edit
     const own = roundFor(registration)
     // A post after the one the round ended at was never reached, read off the dog's whole round as the

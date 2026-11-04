@@ -113,6 +113,41 @@ export const outcomeHeldElsewhere = (
     (place) => place && (place.exercise === undefined || !exercises.includes(place.exercise))
   )
 
+/** How a round ended, as far as it did: the pair is one fact, since only one of the two is ever recorded. */
+type RoundOutcome = { elimination?: EventResultElimination; retirement?: EventResultRetirement }
+
+/**
+ * Whether two results say a round ended differently. A save's task list alone must not read as a retry: an
+ * elimination recorded before the post scored anything arrives with the tasks unchanged.
+ */
+export const outcomeDiffers = (a: RoundOutcome | undefined, b: RoundOutcome | undefined): boolean =>
+  objectsDiffer(
+    { elimination: a?.elimination, retirement: a?.retirement },
+    { elimination: b?.elimination, retirement: b?.retirement }
+  )
+
+/**
+ * The exercises whose stamps a change of outcome renews (KOE-1703): every exercise of a post the outcome
+ * before or after the save is that post's own. A post may set or clear its own outcome (KOE-1615), so a page
+ * opened before the change must get a conflict rather than undo it, and a post's version is the latest stamp
+ * of all its tasks, so the whole post moves, also where the outcome's own exercise has no score. An outcome
+ * held elsewhere for every post (no place, or an exercise the round no longer has) names none: the stored
+ * pair stands against any post's save.
+ */
+export const outcomeExercises = (
+  before: RoundOutcome | undefined,
+  after: RoundOutcome | undefined,
+  exercisePosts: readonly string[]
+): number[] => {
+  if (!outcomeDiffers(before, after)) return []
+  const ownOutcome = (outcome: RoundOutcome | undefined, exercises: readonly number[]) =>
+    Boolean(outcome?.elimination ?? outcome?.retirement) && !outcomeHeldElsewhere(outcome, exercises)
+  return [...new Set(exercisePosts)].flatMap((post) => {
+    const exercises = exercisesAtPost(exercisePosts, post)
+    return ownOutcome(before, exercises) || ownOutcome(after, exercises) ? exercises : []
+  })
+}
+
 /**
  * Whether a dog's round ended at an exercise before this one, so the dog never reached it and it reads
  * "kesk" (KOE-1669). The exercise it ended at is still entered.
@@ -169,9 +204,9 @@ export const writtenLater = (a: { updatedAt?: string | Date }, b: { updatedAt?: 
   new Date(a.updatedAt ?? 0).getTime() > new Date(b.updatedAt ?? 0).getTime()
 
 /**
- * Whether a stored task records anything. The results table stores a slot it shows as unscored
- * (`points: null`) as soon as the row is edited, so a task without points, a zero's reason or a recall
- * is an empty field, and dropping it loses nothing the secretary would need to be asked about.
+ * Whether a stored task records anything. A slot can be stored as unscored (`points: null`), by a post's
+ * save or by a score cleared, so a task without points, a zero's reason or a recall is an empty field, and
+ * dropping it loses nothing the secretary would need to be asked about.
  */
 export const isRecordedTask = (task: Pick<JsonEventResultTask, 'points' | 'recalled' | 'zeroFault'>): boolean =>
   task.points !== null || Boolean(task.zeroFault) || Boolean(task.recalled)
@@ -305,8 +340,8 @@ export const stationTasks = <T extends Pick<StationScopedTask, 'exercise'>>(
 type TaskRecord = TaskAddress & Pick<JsonEventResultTask, 'judge' | 'points' | 'recalled' | 'zeroFault'>
 
 /** Whether a task says what the stored one at its address says. A blank says the same as nothing stored. */
-const saysTheSame = (task: TaskRecord, stored: TaskRecord | undefined): boolean => {
-  if (!isRecordedTask(task)) return !stored || !isRecordedTask(stored)
+const saysTheSame = (task: TaskRecord | undefined, stored: TaskRecord | undefined): boolean => {
+  if (!task || !isRecordedTask(task)) return !stored || !isRecordedTask(stored)
   return (
     task.points === stored?.points &&
     task.zeroFault === stored.zeroFault &&
@@ -334,6 +369,49 @@ export const heldTasks = <T extends TaskRecord>(
       )
   )
 
+/**
+ * Who recorded each task and when (KOE-1703). The stamp decides what counts as a competing edit, so it comes
+ * from the server that accepted the write, and it moves only where the task says something new or its post's
+ * outcome changed (`renewed`, `outcomeExercises`). A task that says what the one stored at its address says
+ * keeps that one's stamp and writer, so a save carrying another post's score along leaves that post's version
+ * alone and its name on the score.
+ */
+export const stampTasks = (
+  tasks: readonly (TaskRecord & Partial<Pick<JsonEventResultTask, 'updatedAt' | 'updatedBy'>>)[],
+  stored: readonly JsonEventResultTask[] | undefined,
+  renewed: readonly number[],
+  stamp: Pick<JsonEventResultTask, 'updatedAt' | 'updatedBy'>
+): JsonEventResultTask[] =>
+  tasks.map((task) => {
+    const twin = stored?.find((entry) => holdsScore(task, entry))
+    const keeps = twin && !renewed.includes(task.exercise) && saysTheSame(task, twin)
+    return { ...task, ...(keeps ? { updatedAt: twin.updatedAt, updatedBy: twin.updatedBy } : stamp) }
+  })
+
+/**
+ * An edit's tasks against what is stored now (KOE-1701). An address the edit leaves as it started takes the
+ * stored one. An address the secretary changed stands, and is a collision where the stored one has also
+ * changed since the start and says something else: `collided` names those exercises.
+ */
+export const rebaseTasks = <T extends TaskRecord>(
+  start: readonly T[],
+  edit: readonly T[],
+  current: readonly T[]
+): { collided: number[]; tasks: T[] } => {
+  const at = (tasks: readonly T[], address: TaskAddress) => tasks.find((task) => holdsScore(address, task))
+  const addresses = new Map([...edit, ...start, ...current].map((task) => [addressKey(task), task]))
+  const collided = new Set<number>()
+  const tasks = [...addresses.values()].flatMap((address) => {
+    const mine = at(edit, address)
+    const began = at(start, address)
+    const now = at(current, address)
+    if (saysTheSame(mine, began)) return now ?? []
+    if (!saysTheSame(now, began) && !saysTheSame(now, mine)) collided.add(address.exercise)
+    return mine ?? []
+  })
+  return { collided: [...collided], tasks }
+}
+
 /** The latest write among a post's tasks. */
 const latestStationTask = <T extends Pick<StationScopedTask, 'exercise' | 'updatedAt'>>(
   tasks: readonly T[] | undefined,
@@ -352,7 +430,8 @@ const latestStationTask = <T extends Pick<StationScopedTask, 'exercise' | 'updat
  *
  * Provenance is tracked per post rather than per result because posts are scored in parallel. A whole-
  * result version would go stale every time any other post saved, and every station's next save would
- * look like a conflict with work it never touched.
+ * look like a conflict with work it never touched. A stamp moves only when a task's score or its post's
+ * outcome changes (`stampTasks`), so neither does a save of the whole round move a post it did not change.
  */
 export const stationVersion = <T extends Pick<StationScopedTask, 'exercise' | 'updatedAt'>>(
   tasks: readonly T[] | undefined,
@@ -360,9 +439,8 @@ export const stationVersion = <T extends Pick<StationScopedTask, 'exercise' | 'u
 ): T['updatedAt'] | undefined => latestStationTask(tasks, exercises)?.updatedAt
 
 /**
- * Who holds a post's version: the writer of the task `stationVersion` reads. A whole-round save and
- * `recomputeFor` stamp every task they write, so this is the last writer of the post's tasks and not
- * necessarily whoever changed the score. A post's link gets no names, so there it is undefined.
+ * Who holds a post's version: the writer of the task `stationVersion` reads, which is whoever last changed
+ * one of the post's scores or its outcome (`stampTasks`). A post's link gets no names, so there it is undefined.
  */
 export const stationWriter = (
   tasks: readonly (Pick<StationScopedTask, 'exercise' | 'updatedAt'> & { updatedBy?: string })[] | undefined,

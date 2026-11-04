@@ -215,6 +215,105 @@ describe('StationResultsPage', () => {
     expect(screen.getByRole('button', { name: '2 Toinen' })).toHaveClass('MuiChip-outlined')
   })
 
+  describe('a form open while the row moves (KOE-1701)', () => {
+    const judge = { id: 223, name: 'Tuomari 2' }
+    const scoredAt = (exercise: number, points: number, updatedAt: Date) => ({
+      exercise,
+      judge,
+      part: 0,
+      points,
+      updatedAt,
+      updatedBy: 'x',
+    })
+    const readAt = new Date('2021-02-10T10:00:00Z')
+    const savedAt = new Date('2021-02-10T10:05:00Z')
+    /** One dog that does two exercises at post 1. */
+    const twiceAtPost: ConfirmedEvent = {
+      ...eventWithStations,
+      rotations: [
+        {
+          class: 'ALO',
+          exercises: [{ stationId: 'post-1' }, { stationId: 'post-1' }],
+          firstNumber: 1,
+          lastNumber: 8,
+        },
+      ],
+    }
+    const onlyFirstDog = (eventResult?: Registration['eventResult']) =>
+      act(() =>
+        stationStore?.set(
+          adminEventRegistrationsAtom(eventWithStations.id),
+          registrationsToEventWithStations.slice(0, 1).map((reg) => ({ ...reg, eventResult }))
+        )
+      )
+    const save = async (user: UserEvent) => {
+      await user.click(screen.getByRole('button', { name: 'results.save' }))
+      await flushPromises()
+    }
+
+    it('keeps the score just saved, and bases the next on its version, when the same dog comes next', async () => {
+      const { i18n } = useTranslation()
+      vi.mocked(putEventResults).mockClear()
+      const { user } = await renderStation(i18n.language as Language, 'post-1', twiceAtPost)
+      await flushPromises()
+      await onlyFirstDog()
+      await flushPromises()
+      vi.mocked(putEventResults).mockResolvedValueOnce({
+        conflicts: [],
+        saved: [
+          {
+            eventResult: { tasks: [scoredAt(1, 15, savedAt)], updatedAt: savedAt, updatedBy: 'x' },
+            id: 'run-1',
+          },
+        ],
+        unchanged: [],
+      })
+
+      await user.click(screen.getAllByRole('button', { name: /^1 Ensimmainen/ })[0])
+      await score(user, screen.getAllByRole('textbox')[0], '15')
+      await save(user)
+      await score(user, screen.getAllByRole('textbox')[0], '12')
+      await save(user)
+
+      expect(putEventResults).toHaveBeenLastCalledWith(
+        eventWithStations.id,
+        [
+          expect.objectContaining({
+            basedOn: savedAt,
+            eventResult: expect.objectContaining({
+              tasks: expect.arrayContaining([
+                expect.objectContaining({ exercise: 1, points: 15 }),
+                expect.objectContaining({ exercise: 2, points: 12 }),
+              ]),
+            }),
+          }),
+        ],
+        expect.anything()
+      )
+    })
+
+    it('sends the version the form was opened on when the socket brings another score at the post', async () => {
+      const { i18n } = useTranslation()
+      vi.mocked(putEventResults).mockClear()
+      const { user } = await renderStation(i18n.language as Language, 'post-1')
+      await flushPromises()
+      const atStart = { tasks: [scoredAt(1, 15, readAt)], updatedAt: readAt, updatedBy: 'x' }
+      await onlyFirstDog(atStart)
+      await flushPromises()
+
+      await user.click(screen.getByRole('button', { name: /^1 Ensimmainen/ }))
+      await onlyFirstDog({ tasks: [scoredAt(1, 18, savedAt)], updatedAt: savedAt, updatedBy: 'x' })
+      await flushPromises()
+      await save(user)
+
+      expect(putEventResults).toHaveBeenLastCalledWith(
+        eventWithStations.id,
+        [expect.objectContaining({ basedOn: readAt, id: 'run-1' })],
+        expect.anything()
+      )
+    })
+  })
+
   it('leads back to the results page the secretary came from', async () => {
     const { i18n } = useTranslation()
     await renderStation(i18n.language as Language)
