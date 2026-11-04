@@ -21,6 +21,10 @@ on oikeus; jos yhdistyksiä on useita, ne valitaan kohdasta *{t:organization}*. 
 rajaa kaaviot yhteen vuoteen, ja valittavissa ovat vain ne vuodet, joina yhdistyksellä on ollut
 kokeita.
 
+Luvut päivittyvät öisin, joten tänään tehty ilmoittautuminen, maksu tai palautus näkyy niissä
+huomenna. Vain valmis ilmoittautuminen lasketaan: maksuvaiheeseen jäänyt ei näy luvuissa, eikä
+myöskään kahdesti maksettu ilmoittautuminen tai sen palautus.
+
 | Kaavio tai taulukko | Mitä se kertoo |
 | --- | --- |
 | *{t:stats.admin.title}* | maksetut ja palautetut summat kuukausittain |

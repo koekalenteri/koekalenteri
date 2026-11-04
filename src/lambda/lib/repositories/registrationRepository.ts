@@ -18,9 +18,10 @@ const REGISTRATION_STATS_PROJECTION_NAMES = {
   '#handler': 'handler',
   '#key': 'key',
   '#owner': 'owner',
+  '#state': 'state',
 }
 const REGISTRATION_STATS_PROJECTION =
-  'eventId, id, cancelled, paidAmount, refundAmount, eventType, dog.regNo, dog.breedCode, #handler.email, #handler.membership, #owner.membership, owners, ownerHandles, #class, #group.#key'
+  'eventId, id, cancelled, paidAmount, refundAmount, eventType, dog.regNo, dog.breedCode, #handler.email, #handler.membership, #owner.membership, owners, ownerHandles, #class, #group.#key, #state'
 
 /** Every registration, with only the fields the stats rebuild counts from. */
 export const readRegistrationsForStats = async (): Promise<RegistrationStatsInput[]> =>
@@ -255,29 +256,6 @@ type RegistrationUpdate = Omit<NonNullable<TransactionItem['Update']>, 'Key' | '
 export const registrationUpdateItem = (eventId: string, id: string, update: RegistrationUpdate): TransactionItem => ({
   Update: { ...update, Key: { eventId, id }, TableName: CONFIG.registrationTable },
 })
-
-/**
- * The new registration's stats marker as an item of the stats transaction
- * (`commitNewRegistrationStats` in `eventStatsRepository`): conditioned on the registration
- * existing, not being counted yet and still holding the caller's lease.
- */
-export const newRegistrationStatsMarkItem = (
-  eventId: string,
-  id: string,
-  leaseToken: string,
-  statsAt: string
-): TransactionItem =>
-  registrationUpdateItem(eventId, id, {
-    ConditionExpression: 'attribute_exists(#id) AND attribute_not_exists(#statsAt) AND #lease.#token = :leaseToken',
-    ExpressionAttributeNames: {
-      '#id': 'id',
-      '#lease': 'newRegistrationLease',
-      '#statsAt': 'newRegistrationStatsAt',
-      '#token': 'token',
-    },
-    ExpressionAttributeValues: { ':leaseToken': leaseToken, ':statsAt': statsAt },
-    UpdateExpression: 'SET #statsAt = :statsAt',
-  })
 
 type CreationType = 'payment' | 'refund'
 

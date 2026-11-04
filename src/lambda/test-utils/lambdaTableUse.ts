@@ -1271,8 +1271,16 @@ const checkWrites = (ctx: Context, state: HandlerState, uses: TableUse) => {
   for (const call of state.assigns) checkAssign(ctx, state, call)
 }
 
+/** `export { x as default } from '...'`: a handler that is only another module's function. */
+const reExportsDefault = (statement: ts.Statement) =>
+  ts.isExportDeclaration(statement) &&
+  statement.exportClause !== undefined &&
+  ts.isNamedExports(statement.exportClause) &&
+  statement.exportClause.elements.some((element) => element.name.text === 'default')
+
 const isDefaultExport = (statement: ts.Statement) =>
   ts.isExportAssignment(statement) ||
+  reExportsDefault(statement) ||
   (ts.isFunctionDeclaration(statement) &&
     Boolean(ts.getCombinedModifierFlags(statement) & ts.ModifierFlags.ExportDefault))
 

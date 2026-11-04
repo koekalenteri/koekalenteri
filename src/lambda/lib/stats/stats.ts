@@ -1,4 +1,3 @@
-import type { JsonConfirmedEvent, JsonRegistration } from '../../../types'
 import type {
   BreedStartRateEntry,
   CapacityStatsEntry,
@@ -11,20 +10,9 @@ import type {
   YearlyStatTypes,
   YearlyTotalStat,
 } from '../../../types/Stats'
-import type { OrganizerStatsEvent, StatDeltas } from '../repositories/eventStatsRepository'
 import crypto from 'node:crypto'
-import { dayStart, isDayKey, TIME_ZONE } from '../../../lib/day'
 import { storedYear } from '../../../lib/event'
-import { isMember, isStarter } from '../../../lib/registration'
-import { legacyEventDay } from '../../../lib/storedDays'
-import { isTransactionCanceled } from '../api-gw'
-import { jitteredWait, retryOnConditionFailure } from '../conditionalWrite'
 import {
-  addOrganizerEventStats,
-  commitNewRegistrationStats,
-  isSameOrganizerStatsRow,
-  moveOrganizerEventStatsRow,
-  ORGANIZER_STATS_MOVE_RETRY,
   readAllOrganizerEventStats,
   readBreedStarts,
   readBuckets,
@@ -32,19 +20,12 @@ import {
   readEventBreakdown,
   readJudgeWorkload,
   readOrganizerEventStats,
-  readOrganizerEventStatsRow,
   readRetention,
   readStatsYears,
   readYearlyBreakdown,
   readYearlyTotals,
 } from '../repositories/eventStatsRepository'
 import { readEventTypes } from '../repositories/eventTypeRepository'
-import { readRegistration } from '../repositories/registrationRepository'
-
-const NEW_REGISTRATION_STATS_MAX_ATTEMPTS = 12
-const NEW_REGISTRATION_STATS_RETRY_BASE_MS = 10
-const NEW_REGISTRATION_STATS_RETRY_MAX_MS = 500
-const waitForStatsRetry = jitteredWait(NEW_REGISTRATION_STATS_RETRY_BASE_MS, NEW_REGISTRATION_STATS_RETRY_MAX_MS)
 
 /** The Finnish year of an event's stored start date, or undefined for one without a calendar day. */
 export function eventStatsYear({ startDate }: { startDate: string }): number | undefined {
@@ -300,133 +281,6 @@ export async function getEventBreakdown(year: number): Promise<EventBreakdownEnt
   }))
 }
 
-/** On the waiting list: not cancelled, and not placed in a participant (starting) group. */
-const isReserve = (registration: RegistrationStatsInput): boolean => !registration.cancelled && !isStarter(registration)
-
-/** A starter (non-cancelled, non-reserve) whose owner or handler is a club member. */
-const isMemberStarter = (registration: RegistrationStatsInput): boolean =>
-  isStarter(registration) && isMember(registration)
-
-/**
- * Calculate the deltas for various statistics based on registration changes
- */
-export function calculateStatDeltas(
-  registration: RegistrationStatsInput,
-  existingRegistration: RegistrationStatsInput | undefined
-): StatDeltas {
-  return {
-    cancelledDelta: (registration.cancelled ? 1 : 0) - (existingRegistration?.cancelled ? 1 : 0),
-    memberDelta:
-      (isMemberStarter(registration) ? 1 : 0) -
-      (existingRegistration ? Number(isMemberStarter(existingRegistration)) : 0),
-    paidAmountDelta: (registration.paidAmount ?? 0) - (existingRegistration?.paidAmount ?? 0),
-    paidDelta: (registration.paidAmount ? 1 : 0) - (existingRegistration?.paidAmount ? 1 : 0),
-    refundedAmountDelta: (registration.refundAmount ?? 0) - (existingRegistration?.refundAmount ?? 0),
-    refundedDelta: (registration.refundAmount ? 1 : 0) - (existingRegistration?.refundAmount ? 1 : 0),
-    reserveDelta:
-      (isReserve(registration) ? 1 : 0) - (existingRegistration ? Number(isReserve(existingRegistration)) : 0),
-    totalDelta: existingRegistration ? 0 : 1,
-  }
-}
-
-/** The deltas of registrations that are all new to the event, added up: an event copied in whole (KOE-1471). */
-export function sumNewRegistrationStatDeltas(registrations: RegistrationStatsInput[]): StatDeltas {
-  const deltas = registrations.map((registration) => calculateStatDeltas(registration, undefined))
-  const sum = (pick: (delta: StatDeltas) => number) => deltas.reduce((total, delta) => total + pick(delta), 0)
-  return {
-    cancelledDelta: sum((delta) => delta.cancelledDelta),
-    memberDelta: sum((delta) => delta.memberDelta),
-    paidAmountDelta: sum((delta) => delta.paidAmountDelta),
-    paidDelta: sum((delta) => delta.paidDelta),
-    refundedAmountDelta: sum((delta) => delta.refundedAmountDelta),
-    refundedDelta: sum((delta) => delta.refundedDelta),
-    reserveDelta: sum((delta) => delta.reserveDelta),
-    totalDelta: sum((delta) => delta.totalDelta),
-  }
-}
-
-/**
- * Update the organizer event stats in DynamoDB
- */
-export async function updateOrganizerEventStats(event: OrganizerStatsEvent, deltas: StatDeltas): Promise<void> {
-  await addOrganizerEventStats(event, deltas, new Date().toISOString())
-}
-
-/**
- * Moves an event's accumulated organizer stats when an edit changes the record's key.
- *
- * The key embeds both the organizer and the start date, so editing either would strand the
- * counters under the old key: the orphan keeps showing up in the organizer's finance chart
- * (and the event vanishes from its real date) until someone runs RebuildAllStatsFunction.
- * The nightly rebuild leaves ORG# alone (README.md in this folder), so nothing else repairs
- * this.
- *
- * A registration write can land on `from` between the read below and the transaction commit
- * (it applies a blind ADD to the same key). The delete is conditioned on the `updatedAt` we
- * just read so that race cancels the transaction instead of silently discarding the concurrent
- * increment; a bounded retry then re-reads the fresh item and moves that instead.
- *
- * The same blind ADD can also land on `to` (a registration saved after the event's new key was
- * already in effect), so the destination accumulates rather than overwrites.
- */
-export async function moveOrganizerEventStats(
-  existing: OrganizerStatsEvent,
-  updated: OrganizerStatsEvent
-): Promise<void> {
-  if (isSameOrganizerStatsRow(existing, updated)) return
-
-  await retryOnConditionFailure({
-    ...ORGANIZER_STATS_MOVE_RETRY,
-    // The last cancelled transaction goes to the caller as it came.
-    exhausted: (lastConflict) => lastConflict,
-    initial: await readOrganizerStatsSource(existing),
-    reread: () => readOrganizerStatsSource(existing),
-    work: async (found) => {
-      // No record yet means no registrations have been counted for this event; the first
-      // registration will simply create it under the new key.
-      if (!found || isSameOrganizerStatsRow(found.source, updated)) return
-      // One transaction, because a half-finished move either double-counts the event in the
-      // organizer's totals or drops it, and no scheduled job would notice either.
-      await moveOrganizerEventStatsRow(found.source, updated, found.stats, new Date().toISOString())
-    },
-  })
-}
-
-const HOUR_MS = 3_600_000
-
-/**
- * The starts an organizer stats row may be keyed by while KOE-1547's migrations run, the start as
- * stored first. The event and its stats rows are migrated one after the other, so for a while either
- * may hold the old form: for a stored instant, the key of the day it was stored for; for a key, the
- * instant its Finnish day starts at, and the instants an hour either side of it, which a winter or a
- * summer day's start worked out with the other offset was stored as.
- *
- * The stats migration keys a row by the day its start was stored for (`legacyEventDay`), so that is
- * where a moved row may already be.
- */
-const storedStartForms = (startDate: string): string[] => {
-  if (!isDayKey(startDate)) {
-    const day = legacyEventDay(startDate)
-    return day ? [startDate, day] : [startDate]
-  }
-  const midnight = dayStart(startDate, TIME_ZONE).getTime()
-  return [startDate, ...[0, -HOUR_MS, HOUR_MS].map((offset) => new Date(midnight + offset).toISOString())]
-}
-
-/** The first of the event's possible stats rows that is there, read one after the other. */
-const readFirstStatsRow = async (
-  sources: OrganizerStatsEvent[]
-): Promise<{ source: OrganizerStatsEvent; stats: JsonEventStatsItem } | undefined> => {
-  const [source, ...rest] = sources
-  if (!source) return undefined
-  const stats = await readOrganizerEventStatsRow(source)
-  return stats ? { source, stats } : readFirstStatsRow(rest)
-}
-
-/** The event's organizer stats row, under the start as stored or under the first other form that has one. */
-const readOrganizerStatsSource = (existing: OrganizerStatsEvent) =>
-  readFirstStatsRow(storedStartForms(existing.startDate).map((startDate) => ({ ...existing, startDate })))
-
 /**
  * Helper for bucket calculation
  */
@@ -454,7 +308,7 @@ export function hashStatValue(value: string | undefined = ''): string {
 /**
  * A registration field as a stats sort key. A blank value gets the same bucket as a missing one:
  * DynamoDB refuses an empty string in a key attribute, so a single stored row with '' in any of
- * these fields failed the whole rebuild (RebuildAllStats and the nightly run alike).
+ * these fields failed the whole rebuild.
  */
 export const statIdentifier = (value: string | null | undefined): string => value?.trim() || 'unknown'
 
@@ -472,70 +326,4 @@ export const participationIdentifiers = (registration: RegistrationStatsInput): 
     eventType: statIdentifier(registration.eventType),
     handler: hashedHandlerEmail,
   }
-}
-
-/**
- * Applies a new registration's organizer stats and its completion marker in one transaction.
- *
- * Participation stats (unique dogs/handlers/breeds) used to be applied here too, which needed
- * a read-then-write snapshot pass; they are now recomputed wholesale by RebuildStatsFunction,
- * leaving only the shared ORG# ADD and the registration's own completion marker. The ORG# item
- * has no condition of its own, so a burst of registrations for the same event still cancels
- * each other's transactions with a TransactionConflict — that contention is retried below.
- * Only a genuine failure of *our own* condition (stats already applied, or the lease moved on
- * to another attempt) is treated as terminal.
- */
-export const applyNewRegistrationStatsOnce = async (
-  registration: JsonRegistration,
-  event: JsonConfirmedEvent,
-  leaseToken: string
-): Promise<void> => {
-  const deltas = calculateStatDeltas(registration, undefined)
-  // Not used for the write itself, but an unparseable start date means the rebuild would skip
-  // this event entirely, so fail loudly here rather than recording stats nothing can reconcile.
-  if (eventStatsYear(event) === undefined) {
-    throw new Error(`Cannot derive stats year from event start date: ${event.startDate}`)
-  }
-
-  for (let attempt = 1; attempt <= NEW_REGISTRATION_STATS_MAX_ATTEMPTS; attempt++) {
-    try {
-      await commitNewRegistrationStats(event, deltas, registration, leaseToken, new Date().toISOString())
-      return
-    } catch (error) {
-      if (!isTransactionCanceled(error)) throw error
-
-      const saved = await readRegistration(registration.eventId, registration.id, true)
-      if (saved?.newRegistrationStatsAt) return
-      if (saved?.newRegistrationLease?.token !== leaseToken || attempt === NEW_REGISTRATION_STATS_MAX_ATTEMPTS) {
-        throw error
-      }
-
-      // The organizer ADD has no condition of its own; the lease is still ours and the
-      // completion marker isn't set, so this cancellation was contention on the shared ORG#
-      // item, not a real failure. Full-jitter exponential backoff avoids every cancelled
-      // transaction immediately colliding again.
-      await waitForStatsRetry(attempt)
-    }
-  }
-}
-
-/**
- * Updates organizer event stats in DynamoDB after a registration change.
- * @param {JsonRegistration} registration - The new/updated registration
- * @param {JsonRegistration | undefined} existingRegistration - The previous registration, if any
- * @param {JsonConfirmedEvent} event - The event object
- */
-export const updateEventStatsForRegistration = async (
-  registration: RegistrationStatsInput,
-  existingRegistration: RegistrationStatsInput | undefined,
-  event: JsonConfirmedEvent
-): Promise<void> => {
-  // Validate before any mutation so a retry cannot double-count organizer stats.
-  if (eventStatsYear(event) === undefined) {
-    throw new Error(`Cannot derive stats year from event start date: ${event.startDate}`)
-  }
-
-  // Only the organizer partition is maintained here; README.md names the other partitions' writer.
-  const deltas = calculateStatDeltas(registration, existingRegistration)
-  await updateOrganizerEventStats(event, deltas)
 }

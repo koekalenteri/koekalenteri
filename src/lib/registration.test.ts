@@ -46,6 +46,7 @@ import {
   inRegistrationOrder,
   isAdminRegistrationOperationField,
   isCompleteRegistration,
+  isFinishedEntry,
   isInvitationAwaitingPayment,
   isKeyRespelling,
   isMember,
@@ -123,6 +124,16 @@ describe('lib/registration', () => {
 
     it('returns no additional costs for a legacy numeric event cost', () => {
       expect(getSelectedAdditionalCosts({ ...event, cost: 30 }, registration)).toEqual([])
+    })
+  })
+
+  describe('isFinishedEntry', () => {
+    it.each([
+      ['ready', true],
+      ['creating', false],
+      [undefined, false],
+    ] as const)('state %s: %s', (state, expected) => {
+      expect(isFinishedEntry({ state })).toBe(expected)
     })
   })
 

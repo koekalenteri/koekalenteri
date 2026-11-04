@@ -21,7 +21,16 @@ interface OrganizerEventStats {
 /** What the stats count of a registration: the full row, or the projection the rebuild reads. */
 export type RegistrationStatsInput = Pick<
   JsonRegistration,
-  'cancelled' | 'class' | 'eventId' | 'eventType' | 'group' | 'id' | 'ownerHandles' | 'paidAmount' | 'refundAmount'
+  | 'cancelled'
+  | 'class'
+  | 'eventId'
+  | 'eventType'
+  | 'group'
+  | 'id'
+  | 'ownerHandles'
+  | 'paidAmount'
+  | 'refundAmount'
+  | 'state'
 > & {
   dog?: Pick<JsonRegistration['dog'], 'breedCode' | 'regNo'>
   handler?: Pick<NonNullable<JsonRegistration['handler']>, 'email' | 'membership'>

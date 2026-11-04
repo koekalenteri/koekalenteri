@@ -1528,7 +1528,7 @@
       "judgeWorkloadTitleInfo": "Kuinka monessa kokeessa kukin tuomari toimii valittuna vuonna. Pidetyt ovat jo päättyneitä kokeita, tulevat kokeita, joiden viimeinen päivä ei ole vielä ohi. Luonnoksia, alustavia ja peruttuja kokeita ei lasketa. Luvut päivittyvät öisin.",
       "memberShare": "Jäsenten osuus",
       "memberShareTitle": "Jäsenten osuus osallistujista",
-      "memberShareTitleInfo": "Kuinka suuri osa osallistujista (ei peruneista tai varasijalle jääneistä) oli omistajaltaan tai ohjaajaltaan järjestävän yhdistyksen jäseniä, kuukausittain.",
+      "memberShareTitleInfo": "Kuinka suuri osa osallistujista (ei peruneista tai varasijalle jääneistä) oli omistajaltaan tai ohjaajaltaan järjestävän yhdistyksen jäseniä, kuukausittain. Luvut päivittyvät öisin.",
       "noCapacityData": "Ei tilastoja valitulle koemuodolle",
       "noJudgeData": "Ei tilastoja tuomareista valitulle vuodelle",
       "overviewTitle": "Järjestäjän tilastot",
@@ -1538,10 +1538,10 @@
       "refundedAmount": "Palautettu",
       "reserve": "Varasijoilla",
       "reserveCancelledTitle": "Varasijalle jääneet ja peruutukset",
-      "reserveCancelledTitleInfo": "Varasijalle jääneiden ja peruttujen ilmoittautumisten määrä kuukausittain, valitulle yhdistykselle ja vuodelle. Vain alkaneet kokeet lasketaan.",
+      "reserveCancelledTitleInfo": "Varasijalle jääneiden ja peruttujen ilmoittautumisten määrä kuukausittain, valitulle yhdistykselle ja vuodelle. Vain alkaneet kokeet lasketaan. Luvut päivittyvät öisin.",
       "starters": "Osallistujia",
       "title": "Talouden tilastot",
-      "titleInfo": "Maksettu ja palautettu summa kuukausittain, valitulle yhdistykselle ja vuodelle."
+      "titleInfo": "Maksettu ja palautettu summa kuukausittain, valitulle yhdistykselle ja vuodelle. Luvut päivittyvät öisin."
     },
     "beta": "(beta)",
     "breedDistribution": "Rotujakauma",

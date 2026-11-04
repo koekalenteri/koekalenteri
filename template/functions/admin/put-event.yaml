@@ -18,8 +18,6 @@
             TableName: !Ref OrganizerTable
         - DynamoDBWritePolicy:
             TableName: !Ref AuditTable
-        - DynamoDBCrudPolicy:
-            TableName: !Ref EventStatsTable
         - !Ref AuthorizePolicy
         - Statement:
             - Sid: SSMGetParameterPolicy

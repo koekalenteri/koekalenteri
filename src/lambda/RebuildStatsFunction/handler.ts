@@ -1,5 +1,2 @@
-// Rebuild of every stats partition that has no other writer, nightly and after every deploy; why
-// ORG# is not one of them: src/lambda/lib/stats/README.md.
-import { createHandler, REBUILDABLE_STATS_PARTITIONS } from '../lib/stats/rebuild'
-
-export default createHandler(REBUILDABLE_STATS_PARTITIONS)
+// Rebuild of every stats partition, nightly and after every deploy: src/lambda/lib/stats/README.md.
+export { rebuildStats as default } from '../lib/stats/rebuild'

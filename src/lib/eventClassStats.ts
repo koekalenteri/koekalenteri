@@ -4,7 +4,7 @@ import type { EventClassStatsRow } from '../types/Stats'
 import { getCostValue } from './cost'
 import { compareRegistrationClasses, eventDates, placesForClass, uniqueClasses } from './event'
 import { PRIORITY, priorityValuesToPriority } from './priority'
-import { hasPriority, isStarter } from './registration'
+import { hasPriority, isFinishedEntry, isStarter } from './registration'
 import { unique } from './utils'
 
 type EventClassStatsEvent = Pick<
@@ -99,7 +99,7 @@ export const buildEventClassStats = (
   const runClasses = classes.length > 0 ? classes : ['']
   const figuresByClass = new Map<string, ClassFigures>(runClasses.map((eventClass) => [eventClass, emptyFigures()]))
   for (const registration of registrations) {
-    if (registration.state !== 'ready') continue
+    if (!isFinishedEntry(registration)) continue
     const key = registration.class ?? ''
     const figures = figuresByClass.get(key) ?? emptyFigures()
     addRegistration(figures, event, registration)

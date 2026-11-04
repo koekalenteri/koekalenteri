@@ -14,13 +14,6 @@ vi.doMock('./event', () => ({
   updateRegistrations: mockUpdateRegistrations,
 }))
 
-const mockApplyNewRegistrationStatsOnce = vi.fn()
-const mockUpdateEventStatsForRegistration = vi.fn()
-vi.doMock('./stats/stats', () => ({
-  applyNewRegistrationStatsOnce: mockApplyNewRegistrationStatsOnce,
-  updateEventStatsForRegistration: mockUpdateEventStatsForRegistration,
-}))
-
 const mockPublishEventCounts = vi.fn()
 const mockPublishRegistrationPatches = vi.fn()
 const mockPublishRegistrationPatchesStrict = vi.fn()
@@ -271,7 +264,6 @@ describe('registrationWorkflow', () => {
 
       expect(mockUpdateRegistrations).toHaveBeenCalledWith(saved.eventId)
       expect(mockPublishEventCounts).toHaveBeenCalledWith(recounted)
-      expect(mockApplyNewRegistrationStatsOnce).toHaveBeenCalledWith(saved, recounted, 'token')
       expect(mockAuditStrict).toHaveBeenCalledWith(
         {
           auditKey: `${saved.eventId}:${saved.id}`,
@@ -348,7 +340,6 @@ describe('registrationWorkflow', () => {
 
       await complete(saved)
 
-      expect(mockApplyNewRegistrationStatsOnce).toHaveBeenCalledWith(saved, confirmedEvent, 'token')
       expect(mockAuditStrict).toHaveBeenCalledTimes(1)
       expect(mockUpdateRegistrations).not.toHaveBeenCalled()
       expect(mockSendTemplatedMail).not.toHaveBeenCalled()
@@ -381,14 +372,12 @@ describe('registrationWorkflow', () => {
         ...registration,
         newRegistrationAuditAt: 'done',
         newRegistrationEmailSentAt: 'done',
-        newRegistrationStatsAt: 'done',
         state: 'ready' as const,
       }
       mockClaimNewRegistrationPostProcessing.mockResolvedValueOnce(claimOf(saved))
 
       await complete(saved)
 
-      expect(mockApplyNewRegistrationStatsOnce).not.toHaveBeenCalled()
       expect(mockAuditStrict).not.toHaveBeenCalled()
       expect(mockSendTemplatedMail).not.toHaveBeenCalled()
       expect(mockPublishRegistrationPatchesStrict).toHaveBeenCalledTimes(1)
@@ -474,7 +463,6 @@ describe('registrationWorkflow', () => {
 
       await finalize(saved, registration)
 
-      expect(mockUpdateEventStatsForRegistration).toHaveBeenCalledWith(saved, registration, recounted)
       expect(mockPublishRegistrationPatches).toHaveBeenCalledWith(
         saved.eventId,
         [expect.objectContaining({ id: saved.id, notes: 'changed' })],

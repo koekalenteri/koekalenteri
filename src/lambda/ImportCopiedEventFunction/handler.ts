@@ -15,7 +15,6 @@ import { readJudges } from '../lib/repositories/judgeRepository'
 import { readOrganizers } from '../lib/repositories/organizerRepository'
 import { writeRegistrations } from '../lib/repositories/registrationRepository'
 import { queryUsersByEmail } from '../lib/repositories/userRepository'
-import { sumNewRegistrationStatDeltas, updateOrganizerEventStats } from '../lib/stats/stats'
 import { publishEventChange } from '../lib/ws/actions'
 
 const findAdmin = async (email: string) => {
@@ -48,7 +47,7 @@ export default async function importCopiedEvent(request: CopyImportRequest): Pro
   if (!organizer) throw new Error(`No organizer with Kennel Club number ${organizerKcId} in the target environment`)
 
   // A second copy of the same source would be a second event here, its entries counted again in the
-  // organizer's stats (KOE-1639). A deleted copy is not found, so deleting it lets the event be copied again.
+  // organizer's stats by the next rebuild (KOE-1639). A deleted copy is not found, so deleting it lets the event be copied again.
   const existing = await findEventCopy(source)
   if (existing) {
     logger.info('event copy refused: already copied', { eventId: existing.id })
@@ -79,7 +78,6 @@ export default async function importCopiedEvent(request: CopyImportRequest): Pro
 
   await publishEventChange(await saveEvent(event))
   await writeRegistrations(registrations)
-  if (registrations.length) await updateOrganizerEventStats(event, sumNewRegistrationStatDeltas(registrations))
 
   await audit({
     auditKey: eventAuditKey(event),

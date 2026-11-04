@@ -1,4 +1,4 @@
-  # Nightly rebuild of every stats partition that has no other writer, also started after every deploy
+  # Nightly rebuild of every stats partition, also started after every deploy
   # (.github/workflows/release.yml); see src/lambda/lib/stats/README.md.
   RebuildStatsFunction:
     Type: AWS::Serverless::Function
@@ -27,13 +27,12 @@
             Name: !Sub '${AWS::StackName}-rebuild-stats-nightly'
             # 01:00 UTC = 04:00 Helsinki in summer (EEST), 03:00 in winter (EET), outside registration hours.
             ScheduleExpression: 'cron(0 1 * * ? *)'
-            Description: Nightly rebuild of participation, capacity, judge workload and event breakdown statistics
+            Description: Nightly rebuild of organizer, participation, capacity, judge workload and event breakdown statistics
             State: ENABLED
             FlexibleTimeWindow:
               Mode: 'OFF'
 
-  # A batch rebuild that stops running freezes the stats silently, which the incremental path
-  # never did. Alarm on both outcomes: an erroring run, and no successful run in over 48h.
+  # A batch rebuild that stops running freezes the stats silently. Alarm on both outcomes: an erroring run, and no successful run in over 48h.
   RebuildStatsFunctionErrorAlarm:
     Type: AWS::CloudWatch::Alarm
     Condition: IsNotTestStage

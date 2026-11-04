@@ -19,13 +19,8 @@ const mockWriteMigratedRegistration = vi.fn()
 const mockReadAllDogs = vi.fn()
 const mockReadDog = vi.fn()
 const mockWriteMigratedDog = vi.fn()
-const mockReadAllOrganizerEventStats = vi.fn()
-const mockReadOrganizerEventStatsRow = vi.fn()
-const mockMoveOrganizerEventStatsRow = vi.fn()
-const mockStatsMoveWait = vi.fn(async (_attempt: number) => undefined)
 const mockBumpDataVersion = vi.fn()
 const mockReadOrganizers = vi.fn()
-const mockMoveOrganizerEventStats = vi.fn()
 const mockReadAllUsers = vi.fn()
 const mockReadUser = vi.fn()
 const mockWriteMigratedUserRoles = vi.fn()
@@ -68,12 +63,6 @@ vi.doMock('../lib/repositories/userRepository', () => ({
   writeMigratedUserRoles: mockWriteMigratedUserRoles,
 }))
 
-// Whether the stats row moves is the repository's pure key comparison, run as it is; the move itself
-// is persistence, tested in lib/stats/stats.
-vi.doMock('../lib/stats/stats', () => ({
-  moveOrganizerEventStats: mockMoveOrganizerEventStats,
-}))
-
 vi.doMock('../lib/repositories/eventRepository', () => ({
   readAllEvents: mockReadAllEvents,
   readEvent: mockReadEvent,
@@ -92,22 +81,6 @@ vi.doMock('../lib/repositories/dogRepository', () => ({
   readDog: mockReadDog,
   writeMigratedDog: mockWriteMigratedDog,
 }))
-
-// The key layout is the repository's own, run as it is.
-vi.doMock('../lib/repositories/eventStatsRepository', async () => {
-  const actual = await vi.importActual<typeof import('../lib/repositories/eventStatsRepository')>(
-    '../lib/repositories/eventStatsRepository'
-  )
-  return {
-    moveOrganizerEventStatsRow: mockMoveOrganizerEventStatsRow,
-    // The move's retry as it is, with a wait the tests see and that waits for nothing.
-    ORGANIZER_STATS_MOVE_RETRY: { ...actual.ORGANIZER_STATS_MOVE_RETRY, wait: mockStatsMoveWait },
-    organizerStatsKey: actual.organizerStatsKey,
-    organizerStatsRowEvent: actual.organizerStatsRowEvent,
-    readAllOrganizerEventStats: mockReadAllOrganizerEventStats,
-    readOrganizerEventStatsRow: mockReadOrganizerEventStatsRow,
-  }
-})
 
 const { default: runMigrationLambda } = await import('./handler')
 
@@ -143,7 +116,6 @@ describe('runMigrationLambda', () => {
     { count: 0, name: 'storeFailedRetrieve' },
     { count: 0, name: 'storeEliminationsAsNought' },
     { count: 0, name: 'storeDogDaysAsKeys' },
-    { count: 0, name: 'storeOrganizerStatsDaysAsKeys' },
   ]
 
   // An API Gateway request: it always carries a requestContext, which is what tells it from a direct invoke.
@@ -189,11 +161,9 @@ describe('runMigrationLambda', () => {
     mockMarkApplied.mockResolvedValue(undefined)
     mockReadRegistrationEventIds.mockResolvedValue([])
     mockReadAllDogs.mockResolvedValue([])
-    mockReadAllOrganizerEventStats.mockResolvedValue([])
     // Every organizer id the rows below carry is one the table holds, so the repoint leaves them be.
     mockReadOrganizers.mockResolvedValue([7, 'org1', 'org2', 'org3'].map((id) => ({ id, kcId: 1, name: `Club ${id}` })))
     mockReadAllUsers.mockResolvedValue([])
-    mockMoveOrganizerEventStats.mockResolvedValue(undefined)
     mockWriteMigratedUserRoles.mockResolvedValue(undefined)
   })
 
@@ -474,7 +444,7 @@ describe('runMigrationLambda', () => {
       startDate: '2024-03-29',
       updatedAt: 'read',
     })
-    const repointed = { id: 'aikpqWfqeB', name: 'AURAN NUUSKUT RY' }
+    const _repointed = { id: 'aikpqWfqeB', name: 'AURAN NUUSKUT RY' }
 
     beforeEach(() => {
       mockReadOrganizers.mockResolvedValue([liveOrganizer])
@@ -494,25 +464,11 @@ describe('runMigrationLambda', () => {
       expect(mockResponse).toHaveBeenCalledWith(200, migrationResults(0, 0, 0, 0, 1), directEvent)
     })
 
-    it('moves the organizer stats before it writes the event', async () => {
-      mockReadAllEvents.mockResolvedValueOnce([orphanRow()])
-
-      await runMigrationLambda(directEvent)
-
-      expect(mockMoveOrganizerEventStats).toHaveBeenCalledTimes(1)
-      expect(mockMoveOrganizerEventStats).toHaveBeenCalledWith(
-        expect.objectContaining({ organizer: { id: '-ZC1Jcewbn', name: 'AURAN NUUSKUT RY' } }),
-        expect.objectContaining({ organizer: repointed })
-      )
-      expect(mockMoveOrganizerEventStats).toHaveBeenCalledBefore(mockWriteMigratedEvent)
-    })
-
-    it('moves the stats again on the rerun after the event write failed', async () => {
+    it('writes the event on the rerun after its write failed', async () => {
       mockReadAllEvents.mockResolvedValueOnce([orphanRow()])
       mockWriteMigratedEvent.mockRejectedValueOnce(new Error('write failed'))
 
       await expect(runMigrationLambda(directEvent)).rejects.toThrow('write failed')
-      expect(mockMoveOrganizerEventStats).toHaveBeenCalledTimes(1)
       // Each table is recorded when its own run ends: the users ran first and are recorded, none of the
       // event table's migrations is.
       expect(mockMarkApplied).toHaveBeenCalledTimes(1)
@@ -523,7 +479,6 @@ describe('runMigrationLambda', () => {
       mockReadAllEvents.mockResolvedValueOnce([orphanRow()])
       await runMigrationLambda(directEvent)
 
-      expect(mockMoveOrganizerEventStats).toHaveBeenCalledTimes(2)
       expect(mockWriteMigratedEvent).toHaveBeenLastCalledWith(
         'ia-JHnOtVO',
         // The name is the same, so only the id is written
@@ -531,19 +486,6 @@ describe('runMigrationLambda', () => {
         'read'
       )
       expect(mockMarkApplied).toHaveBeenCalledWith('repointOrphanOrganizer', 1, expect.any(String))
-    })
-
-    it('writes no event whose stats could not be moved', async () => {
-      mockReadAllEvents.mockResolvedValueOnce([orphanRow()])
-      mockMoveOrganizerEventStats.mockRejectedValueOnce(new Error('move failed'))
-
-      await expect(runMigrationLambda(directEvent)).rejects.toThrow('move failed')
-
-      expect(mockWriteMigratedEvent).not.toHaveBeenCalled()
-      // Each table is recorded when its own run ends: the users ran first and are recorded, none of the
-      // event table's migrations is.
-      expect(mockMarkApplied).toHaveBeenCalledTimes(1)
-      expect(mockMarkApplied).toHaveBeenCalledWith('repointOrphanOrganizerRoles', 0, expect.any(String))
     })
 
     // The day migrations read the deleted events too; the repoint decides from the live ones, so a
@@ -592,44 +534,6 @@ describe('runMigrationLambda', () => {
       expect(mockResponse).toHaveBeenCalledWith(200, migrationResults(0, 0, 0, 0, 0), directEvent)
       expect(warn).not.toHaveBeenCalled()
       warn.mockRestore()
-    })
-
-    // KOE-1547 and KOE-1580 in one write: the stats row goes from the start as stored, under the orphan
-    // id, to the start's key under the live one.
-    it('moves the stats to the new organizer and the key of the start when both change in one write', async () => {
-      mockReadAllEvents.mockResolvedValueOnce([{ ...orphanRow(), startDate: '2024-03-28T22:00:00.000Z' }])
-
-      await runMigrationLambda(directEvent)
-
-      expect(mockMoveOrganizerEventStats).toHaveBeenCalledWith(
-        expect.objectContaining({ organizer: orphanRow().organizer, startDate: '2024-03-28T22:00:00.000Z' }),
-        expect.objectContaining({ organizer: repointed, startDate: '2024-03-29' })
-      )
-    })
-
-    // A start rekeyed alone moves its stats row in `storeOrganizerStatsDaysAsKeys`, not here.
-    it('does not move the stats of a row whose start alone is rekeyed', async () => {
-      mockReadAllEvents.mockResolvedValueOnce([
-        { ...orphanRow(), organizer: repointed, organizerId: repointed.id, startDate: '2024-03-28T22:00:00.000Z' },
-      ])
-
-      await runMigrationLambda(directEvent)
-
-      expect(mockWriteMigratedEvent).toHaveBeenCalledWith(
-        'ia-JHnOtVO',
-        { set: expect.objectContaining({ startDate: '2024-03-29' }) },
-        'read'
-      )
-      expect(mockMoveOrganizerEventStats).not.toHaveBeenCalled()
-    })
-
-    it('does not move the stats of a row whose organizer stays', async () => {
-      mockReadAllEvents.mockResolvedValueOnce([{ ...orphanRow(), organizer: repointed, organizerId: undefined }])
-
-      await runMigrationLambda(directEvent)
-
-      expect(mockWriteMigratedEvent).toHaveBeenCalledTimes(1)
-      expect(mockMoveOrganizerEventStats).not.toHaveBeenCalled()
     })
 
     it('leaves an event on a soft-deleted organizer as it is', async () => {
@@ -958,7 +862,6 @@ describe('runMigrationLambda', () => {
       'storeFailedRetrieve',
       'storeEliminationsAsNought',
       'storeDogDaysAsKeys',
-      'storeOrganizerStatsDaysAsKeys',
     ]
 
     // What `aws lambda invoke` delivers: no API Gateway around it, so no requestContext.
@@ -1261,7 +1164,6 @@ describe('runMigrationLambda', () => {
       mockMarkApplied.mockResolvedValue(undefined)
       mockReadRegistrationEventIds.mockResolvedValue([])
       mockReadAllDogs.mockResolvedValue([])
-      mockReadAllOrganizerEventStats.mockResolvedValue([])
     })
 
     const storedEvent = () => ({
@@ -1509,26 +1411,6 @@ describe('runMigrationLambda', () => {
       expect(mockResponse).toHaveBeenCalledWith(200, [{ count: 1, name: 'storeDogDaysAsKeys' }], directEvent)
     })
 
-    it('leaves a stats row whose key names no day, or no event, where it is, and counts the first', async () => {
-      const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
-      mockReadApplied.mockResolvedValue(pendingOnly('storeOrganizerStatsDaysAsKeys'))
-      mockReadAllOrganizerEventStats.mockResolvedValueOnce([
-        { count: 1, organizerId: 'org1', PK: 'ORG#org1', SK: 'not-a-day#event1' },
-        { count: 1, organizerId: 'org1', PK: 'ORG#org1', SK: 'no-event-id' },
-      ])
-
-      await runMigrationLambda(directEvent)
-
-      expect(mockMoveOrganizerEventStatsRow).not.toHaveBeenCalled()
-      expect(mockResponse).toHaveBeenCalledWith(
-        200,
-        [{ count: 0, name: 'storeOrganizerStatsDaysAsKeys', unreadable: 1 }],
-        directEvent
-      )
-      expect(loggedLines(warn)).toEqual([expect.objectContaining({ ids: ['ORG#org1/not-a-day#event1'] })])
-      warn.mockRestore()
-    })
-
     it('leaves a registration whose days are keys as it is, and counts nothing', async () => {
       mockReadApplied.mockResolvedValue(pendingOnly('storeRegistrationDaysAsKeys'))
       mockReadRegistrationEventIds.mockResolvedValueOnce(['event1'])
@@ -1652,71 +1534,7 @@ describe('runMigrationLambda', () => {
       })
     })
 
-    it('leaves an organizer stats row already keyed by a day where it is', async () => {
-      mockReadApplied.mockResolvedValue(pendingOnly('storeOrganizerStatsDaysAsKeys'))
-      mockReadAllOrganizerEventStats.mockResolvedValueOnce([
-        { count: 3, organizerId: 'org1', PK: 'ORG#org1', SK: '2026-06-01#event1', updatedAt: 'read' },
-      ])
-
-      await runMigrationLambda(directEvent)
-
-      expect(mockMoveOrganizerEventStatsRow).not.toHaveBeenCalled()
-      expect(mockResponse).toHaveBeenCalledWith(200, [{ count: 0, name: 'storeOrganizerStatsDaysAsKeys' }], directEvent)
-    })
-
     // The move is a transaction: a registration counted on the old row meanwhile cancels it.
-    it('moves the stats row read again after a registration was counted on it meanwhile', async () => {
-      mockReadApplied.mockResolvedValue(pendingOnly('storeOrganizerStatsDaysAsKeys'))
-      const instantRow = {
-        count: 3,
-        organizerId: 'org1',
-        PK: 'ORG#org1',
-        SK: '2026-05-31T21:00:00.000Z#event1',
-        updatedAt: 'read',
-      }
-      mockReadAllOrganizerEventStats.mockResolvedValueOnce([structuredClone(instantRow)])
-      mockMoveOrganizerEventStatsRow.mockRejectedValueOnce(
-        Object.assign(new Error('cancelled'), { name: 'TransactionCanceledException' })
-      )
-      const counted = { ...instantRow, count: 4, updatedAt: 'counted' }
-      mockReadOrganizerEventStatsRow.mockResolvedValueOnce(structuredClone(counted))
-
-      await runMigrationLambda(directEvent)
-
-      const from = { id: 'event1', organizer: { id: 'org1' }, startDate: '2026-05-31T21:00:00.000Z' }
-      expect(mockReadOrganizerEventStatsRow).toHaveBeenCalledWith(from)
-      // The move waits before it reads the row again, as a save's move does.
-      expect(mockStatsMoveWait).toHaveBeenCalledWith(1)
-      expect(mockStatsMoveWait).toHaveBeenCalledBefore(mockReadOrganizerEventStatsRow)
-      expect(mockMoveOrganizerEventStatsRow).toHaveBeenCalledTimes(2)
-      expect(mockMoveOrganizerEventStatsRow).toHaveBeenLastCalledWith(
-        from,
-        { ...from, startDate: '2026-06-01' },
-        counted,
-        expect.any(String)
-      )
-      expect(mockResponse).toHaveBeenCalledWith(200, [{ count: 1, name: 'storeOrganizerStatsDaysAsKeys' }], directEvent)
-    })
-
-    it('fails the run and records nothing when a stats row keeps being counted on', async () => {
-      mockReadApplied.mockResolvedValue(pendingOnly('storeOrganizerStatsDaysAsKeys'))
-      const instantRow = { count: 3, organizerId: 'org1', PK: 'ORG#org1', SK: '2026-05-31T21:00:00.000Z#event1' }
-      mockReadAllOrganizerEventStats.mockResolvedValueOnce([structuredClone(instantRow)])
-      mockMoveOrganizerEventStatsRow.mockRejectedValue(
-        Object.assign(new Error('cancelled'), { name: 'TransactionCanceledException' })
-      )
-      mockReadOrganizerEventStatsRow.mockImplementation(async () => structuredClone(instantRow))
-
-      await runMigrationLambda(directEvent)
-
-      expect(mockResponse).toHaveBeenCalledWith(409, { error: expect.stringContaining('kept changing') }, directEvent)
-      // As many moves as a save makes of the row (ORGANIZER_STATS_MOVE_RETRY).
-      expect(mockMoveOrganizerEventStatsRow).toHaveBeenCalledTimes(8)
-      expect(mockMarkApplied).not.toHaveBeenCalled()
-      mockMoveOrganizerEventStatsRow.mockReset()
-      mockReadOrganizerEventStatsRow.mockReset()
-    })
-
     // Measured on dev: some days were stored an hour off, a winter day's midnight worked out with the
     // summer offset (23:00 the evening before in Helsinki) and the reverse (01:00), and ends of day too.
     it('writes a day stored an hour off as the day it was stored for (GQ6rUY8RpY, WrGaAW3OCz)', async () => {
@@ -1795,22 +1613,6 @@ describe('runMigrationLambda', () => {
       )
     })
 
-    it('moves a stats row keyed an hour off to the key of the day it was stored for', async () => {
-      mockReadApplied.mockResolvedValue(pendingOnly('storeOrganizerStatsDaysAsKeys'))
-      const row = { count: 2, organizerId: 'org1', PK: 'ORG#org1', SK: '2026-01-02T21:00:00.000Z#E8vPbdTCXn' }
-      mockReadAllOrganizerEventStats.mockResolvedValueOnce([structuredClone(row)])
-
-      await runMigrationLambda(directEvent)
-
-      const from = { id: 'E8vPbdTCXn', organizer: { id: 'org1' }, startDate: '2026-01-02T21:00:00.000Z' }
-      expect(mockMoveOrganizerEventStatsRow).toHaveBeenCalledWith(
-        from,
-        { ...from, startDate: '2026-01-03' },
-        row,
-        expect.any(String)
-      )
-    })
-
     // Dev holds days in offset form, as e2e runs wrote them: 84 event starts and 49 stats keys.
     describe('a day stored in offset form', () => {
       it('writes an event day in offset form as its day: summer and winter starts and an end of day', async () => {
@@ -1878,50 +1680,6 @@ describe('runMigrationLambda', () => {
           'read'
         )
       })
-
-      it.each([
-        ['a summer start', '2026-09-02T00:00:00.000+03:00', '2026-09-02'],
-        ['a winter start', '2026-02-01T00:00:00.000+02:00', '2026-02-01'],
-      ])('moves a stats row keyed by %s in offset form to the key of its day', async (_name, startDate, day) => {
-        mockReadApplied.mockResolvedValue(pendingOnly('storeOrganizerStatsDaysAsKeys'))
-        const row = { count: 1, organizerId: 'org1', PK: 'ORG#org1', SK: `${startDate}#event1` }
-        mockReadAllOrganizerEventStats.mockResolvedValueOnce([structuredClone(row)])
-
-        await runMigrationLambda(directEvent)
-
-        const from = { id: 'event1', organizer: { id: 'org1' }, startDate }
-        expect(mockMoveOrganizerEventStatsRow).toHaveBeenCalledWith(
-          from,
-          { ...from, startDate: day },
-          row,
-          expect.any(String)
-        )
-      })
-    })
-
-    it("moves an organizer's stats row keyed by an instant to the key of its day", async () => {
-      mockReadApplied.mockResolvedValue(pendingOnly('storeOrganizerStatsDaysAsKeys'))
-      const instantRow = {
-        count: 3,
-        date: '2026-05-31T21:00:00.000Z',
-        organizerId: 'org1',
-        PK: 'ORG#org1',
-        SK: '2026-05-31T21:00:00.000Z#event1',
-        updatedAt: 'read',
-      }
-      const keyRow = { ...instantRow, date: '2026-07-01', SK: '2026-07-01#event2' }
-      mockReadAllOrganizerEventStats.mockResolvedValueOnce([structuredClone(instantRow), keyRow])
-
-      await runMigrationLambda(directEvent)
-
-      expect(mockMoveOrganizerEventStatsRow).toHaveBeenCalledTimes(1)
-      expect(mockMoveOrganizerEventStatsRow).toHaveBeenCalledWith(
-        { id: 'event1', organizer: { id: 'org1' }, startDate: '2026-05-31T21:00:00.000Z' },
-        { id: 'event1', organizer: { id: 'org1' }, startDate: '2026-06-01' },
-        instantRow,
-        expect.any(String)
-      )
-      expect(mockResponse).toHaveBeenCalledWith(200, [{ count: 1, name: 'storeOrganizerStatsDaysAsKeys' }], directEvent)
     })
   })
 
@@ -1944,7 +1702,6 @@ describe('runMigrationLambda', () => {
       mockMarkApplied.mockResolvedValue(undefined)
       mockReadApplied.mockResolvedValue(pendingOnly('storeOwnerSelections'))
       mockReadAllDogs.mockResolvedValue([])
-      mockReadAllOrganizerEventStats.mockResolvedValue([])
       mockReadRegistrationEventIds.mockResolvedValue(['event1'])
     })
 
@@ -2261,7 +2018,6 @@ describe('runMigrationLambda', () => {
       mockMarkApplied.mockResolvedValue(undefined)
       mockReadApplied.mockResolvedValue(pendingOnly('storeScoresByExercise'))
       mockReadAllDogs.mockResolvedValue([])
-      mockReadAllOrganizerEventStats.mockResolvedValue([])
       mockReadOrganizers.mockResolvedValue([])
       mockReadAllEvents.mockResolvedValue([nowtEvent, { eventType: 'NOME-B', id: 'event2', updatedAt: 'kept' }])
       mockReadRegistrationEventIds.mockResolvedValue(['event1'])
@@ -2512,7 +2268,6 @@ describe('runMigrationLambda', () => {
       mockMarkApplied.mockResolvedValue(undefined)
       mockReadApplied.mockResolvedValue(pendingOnly('restoreFirstPrizes'))
       mockReadAllDogs.mockResolvedValue([])
-      mockReadAllOrganizerEventStats.mockResolvedValue([])
       mockReadOrganizers.mockResolvedValue([])
       mockReadAllEvents.mockResolvedValue([nowtEvent])
       mockReadRegistrationEventIds.mockResolvedValue(['event1'])
@@ -2633,7 +2388,6 @@ describe('runMigrationLambda', () => {
       vi.clearAllMocks()
       mockMarkApplied.mockResolvedValue(undefined)
       mockReadAllDogs.mockResolvedValue([])
-      mockReadAllOrganizerEventStats.mockResolvedValue([])
       mockReadOrganizers.mockResolvedValue([])
       mockReadAllEvents.mockResolvedValue([])
       mockReadRegistrationEventIds.mockResolvedValue(['event1'])

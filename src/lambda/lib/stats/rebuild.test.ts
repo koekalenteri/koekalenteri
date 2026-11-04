@@ -29,13 +29,11 @@ vi.doMock('../repositories/eventRepository', () => ({
 
 const {
   buildStatsRecords,
-  createHandler,
   getEventStatsRecordYear,
   getStatsRecordPartition,
-  REBUILDABLE_STATS_PARTITIONS,
+  rebuildStats: handler,
 } = await import('./rebuild')
-const handler = createHandler()
-const rebuildHandler = createHandler(REBUILDABLE_STATS_PARTITIONS)
+const { default: scheduledHandler } = await import('../../RebuildStatsFunction/handler')
 
 const event = (id: string, start: string, eventType = 'NOU'): EventStatsEvent => ({
   classes: [],
@@ -55,6 +53,7 @@ const registration = (id: string, eventId: string, overrides = {}) => ({
   id,
   paidAmount: 0,
   refundAmount: 0,
+  state: 'ready' as const,
   ...overrides,
 })
 
@@ -182,8 +181,7 @@ describe('stats/rebuild', () => {
         start('member-cancelled', testEvent.id, { ...member, cancelled: true }),
       ],
       new Map([[testEvent.id, testEvent]]),
-      '2025-01-01T00:00:00.000Z',
-      ['organizer']
+      '2025-01-01T00:00:00.000Z'
     )
 
     expect(records).toContainEqual(
@@ -195,6 +193,136 @@ describe('stats/rebuild', () => {
         reserveRegistrations: 1,
       })
     )
+  })
+
+  describe('an unfinished entry', () => {
+    const held: EventStatsEvent = {
+      ...event('held', '2025-05-01'),
+      classes: [{ class: 'ALO', date: '2025-05-01' as const, places: 10 }],
+      places: 10,
+    }
+    const events = new Map([[held.id, held]])
+    const buildFrom = (registrations: Parameters<typeof buildStatsRecords>[0]) =>
+      buildStatsRecords(registrations, events, '2025-07-01T00:00:00.000Z').records
+    const finished = start('finished', held.id, {
+      class: 'ALO',
+      dog: { breedCode: '122', regNo: 'FI1/25' },
+      handler: { email: 'finished@example.com' },
+      paidAmount: 50,
+    })
+
+    it.each([
+      ['awaiting its payment, on the waiting list by default', { class: 'ALO', state: 'creating' }],
+      ['holding a start of a copied group', { class: 'ALO', group: { key: 'kp' }, state: 'creating' }],
+      ['cancelled while awaiting its payment', { cancelled: true, class: 'ALO', state: 'creating' }],
+      [
+        'whose payment was charged twice and went back',
+        { class: 'ALO', paymentStatus: 'DUPLICATE', refundAmount: 50, state: 'creating' },
+      ],
+    ])('counts in no partition: %s', (_name, row) => {
+      const withoutIt = buildFrom([finished])
+      expect(withoutIt.map(({ PK }) => PK)).toEqual(
+        expect.arrayContaining(['ORG#organizer-held', 'CAPACITY#NOU', 'BREAKDOWN#2025', 'STAT#2025#breedStart'])
+      )
+
+      expect(buildFrom([finished, registration('unfinished', held.id, row)])).toEqual(withoutIt)
+    })
+
+    it('counts no row without a state either: the secretary does not see one', () => {
+      const old = registration('old', held.id, { class: 'ALO', paidAmount: 40, state: undefined })
+
+      expect(buildFrom([finished, old])).toEqual(buildFrom([finished]))
+    })
+
+    it('changes neither the paid nor the refunded sum when a payment charged twice goes back', () => {
+      const duplicate = registration('duplicate', held.id, {
+        class: 'ALO',
+        paymentStatus: 'DUPLICATE',
+        refundAmount: 50,
+        state: 'creating',
+      })
+
+      expect(buildFrom([finished, duplicate]).find(({ PK }) => PK === 'ORG#organizer-held')).toEqual(
+        expect.objectContaining({ count: 1, paidAmount: 50, refundedAmount: 0, refundedRegistrations: 0 })
+      )
+    })
+
+    it('is a starter in the organizer stats once it is paid and placed', () => {
+      const member = { handler: { email: 'member@example.com', membership: true }, ownerHandles: false }
+      const placed = start('placed', held.id, { ...member, class: 'ALO', paidAmount: 50 })
+
+      expect(buildFrom([placed]).find(({ PK }) => PK === 'ORG#organizer-held')).toEqual(
+        expect.objectContaining({ count: 1, memberRegistrations: 1, paidAmount: 50, reserveRegistrations: 0 })
+      )
+    })
+  })
+
+  describe('the organizer rows of the scheduled run', () => {
+    const moved = event('moved', '2026-03-01')
+    const arrange = (statKeys: { PK: string; SK: string }[]) => {
+      mockReadEventsForStats.mockResolvedValueOnce([moved])
+      mockReadRegistrationsForStats.mockResolvedValueOnce([registration('entry', moved.id, { paidAmount: 50 })])
+      mockReadAllStatKeys.mockResolvedValueOnce(statKeys)
+    }
+    const organizerRow = { PK: 'ORG#organizer-moved', SK: '2026-03-01#moved' }
+
+    it('writes them from the rows, over what the key held', async () => {
+      arrange([organizerRow])
+
+      await scheduledHandler()
+
+      expect(mockWriteStatRecords).toHaveBeenCalledWith(
+        expect.arrayContaining([expect.objectContaining({ ...organizerRow, count: 1, paidAmount: 50 })])
+      )
+      expect(mockDeleteStatRecords).not.toHaveBeenCalled()
+    })
+
+    it.each([
+      ['within its year', { PK: 'ORG#organizer-moved', SK: '2026-02-01#moved' }],
+      ['from a year that still has rows of other events', { PK: 'ORG#organizer-moved', SK: '2025-02-01#moved' }],
+      ['from another organizer', { PK: 'ORG#organizer-old', SK: '2026-03-01#moved' }],
+      [
+        'from a key that still holds the start as an instant',
+        { PK: 'ORG#organizer-moved', SK: '2026-02-28T22:00:00.000Z#moved' },
+      ],
+    ])('deletes the row an event left behind when it moved %s', async (_name, stale) => {
+      arrange([organizerRow, stale, { PK: 'TOTALS#2025', SK: 'dog' }])
+
+      await scheduledHandler()
+
+      expect(mockDeleteStatRecords).toHaveBeenCalledWith(expect.arrayContaining([stale]))
+      expect(mockWriteStatRecords).toHaveBeenCalledWith(expect.arrayContaining([expect.objectContaining(organizerRow)]))
+    })
+
+    it('deletes the row of an event that moved out of a year with nothing else left', async () => {
+      const stale = { PK: 'ORG#organizer-moved', SK: '2019-02-01#moved' }
+      arrange([organizerRow, stale])
+
+      await scheduledHandler()
+
+      expect(mockDeleteStatRecords).toHaveBeenCalledTimes(1)
+      expect(mockDeleteStatRecords).toHaveBeenCalledWith([stale])
+    })
+
+    it('deletes the row of a deleted event, which the read of the events leaves out', async () => {
+      const ofDeleted = { PK: 'ORG#organizer-gone', SK: '2026-02-01#gone' }
+      arrange([organizerRow, ofDeleted])
+
+      await scheduledHandler()
+
+      expect(mockDeleteStatRecords).toHaveBeenCalledTimes(1)
+      expect(mockDeleteStatRecords).toHaveBeenCalledWith([ofDeleted])
+    })
+
+    it('deletes an organizer row no year can be read from, as nothing would ever replace it', async () => {
+      const unreadable = { PK: 'ORG#organizer-moved', SK: 'not-a-date#moved' }
+      arrange([organizerRow, unreadable])
+
+      await scheduledHandler()
+
+      expect(mockDeleteStatRecords).toHaveBeenCalledTimes(1)
+      expect(mockDeleteStatRecords).toHaveBeenCalledWith([unreadable])
+    })
   })
 
   it('counts repeated participants and derives unique totals and dog-handler buckets', () => {
@@ -305,7 +433,6 @@ describe('stats/rebuild', () => {
       [start('placed', upcoming.id, { dog: { regNo: 'FI1' }, handler: { email: 'a@example.com' } })],
       new Map([held, upcoming].map((testEvent) => [testEvent.id, testEvent])),
       '2025-10-15T00:00:00.000Z',
-      undefined,
       new Date('2025-10-15T12:00:00.000Z')
     )
 
@@ -1023,11 +1150,10 @@ describe('stats/rebuild', () => {
           [upcoming.id, upcoming],
         ]),
         '2025-01-01T00:00:00.000Z',
-        ['judges'],
         new Date('2025-06-15T12:00:00.000Z')
       )
 
-      expect(records).toEqual([
+      expect(records.filter(({ PK }) => PK.startsWith('JUDGE#'))).toEqual([
         {
           held: 1,
           judgeId: '1',
@@ -1166,9 +1292,8 @@ describe('stats/rebuild', () => {
       expect(records.filter((record) => record.PK === 'JUDGE#2025')).toHaveLength(0)
     })
 
-    it('is classified as its own partition, rebuildable like capacity and participation', () => {
+    it('is classified as its own partition', () => {
       expect(getStatsRecordPartition({ PK: 'JUDGE#2025', SK: '1' })).toBe('judges')
-      expect(REBUILDABLE_STATS_PARTITIONS).toContain('judges')
     })
   })
 
@@ -1215,7 +1340,7 @@ describe('stats/rebuild', () => {
     )
   })
 
-  describe('partition scoping', () => {
+  describe('partitions', () => {
     it.each([
       [{ PK: 'ORG#organizer-1', SK: '2025-06-01#event' }, 'organizer'],
       [{ PK: 'CAPACITY#NOME-B', SK: '2025-06#ALO' }, 'capacity'],
@@ -1230,54 +1355,7 @@ describe('stats/rebuild', () => {
       expect(getStatsRecordPartition(key)).toBe(expected)
     })
 
-    it('never deletes organizer records when they are out of scope', async () => {
-      mockReadEventsForStats.mockResolvedValueOnce([])
-      mockReadRegistrationsForStats.mockResolvedValueOnce([])
-      mockReadAllStatKeys.mockResolvedValueOnce([
-        { PK: 'ORG#organizer-1', SK: '2025-06-01#event' },
-        { PK: 'TOTALS#2025', SK: 'dog' },
-        { PK: 'CAPACITY#NOME-B', SK: '2025-06#ALO' },
-      ])
-
-      await rebuildHandler()
-
-      // ORG# is maintained by registration writes; touching it here would race them.
-      expect(mockDeleteStatRecords).toHaveBeenCalledTimes(1)
-      expect(mockDeleteStatRecords).toHaveBeenCalledWith([
-        { PK: 'TOTALS#2025', SK: 'dog' },
-        { PK: 'CAPACITY#NOME-B', SK: '2025-06#ALO' },
-      ])
-    })
-
-    it('writes no organizer records when they are out of scope', () => {
-      const nomeB: EventStatsEvent = {
-        classes: [{ class: 'ALO', date: '2025-06-01' as const, places: 10 }],
-        endDate: '2025-06-01' as const,
-        eventType: 'NOME-B',
-        id: 'scoped-event',
-        organizer: { id: 'organizer-1' },
-        places: 0,
-        startDate: '2025-06-01' as const,
-        state: 'confirmed',
-      }
-      const registrations = [
-        registration('starter', nomeB.id, { class: 'ALO', eventType: 'NOME-B', group: { key: 'ALO-ap' } }),
-      ]
-
-      const { records } = buildStatsRecords(
-        registrations,
-        new Map([[nomeB.id, nomeB]]),
-        '2025-01-01T00:00:00.000Z',
-        REBUILDABLE_STATS_PARTITIONS
-      )
-
-      expect(records.some((record) => record.PK.startsWith('ORG#'))).toBe(false)
-      expect(records.some((record) => record.PK.startsWith('CAPACITY#'))).toBe(true)
-      expect(records.some((record) => record.PK.startsWith('TOTALS#'))).toBe(true)
-      expect(records.some((record) => record.PK === 'YEARS')).toBe(true)
-    })
-
-    it('rebuilds every partition by default', () => {
+    it('rebuilds every partition', () => {
       const nomeB: EventStatsEvent = {
         classes: [{ class: 'ALO', date: '2025-06-01' as const, places: 10 }],
         endDate: '2025-06-01' as const,
@@ -1426,7 +1504,6 @@ describe('stats/rebuild', () => {
         events.flatMap((testEvent) => entries(testEvent.id)),
         new Map(events.map((testEvent) => [testEvent.id, testEvent])),
         at.toISOString(),
-        undefined,
         at
       )
     const build = (at: Date, events = [upcoming, done]) => buildAll(at, events).records

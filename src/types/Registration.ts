@@ -463,8 +463,9 @@ export interface JsonRegistration extends JsonDbRecord {
   payment?: PaymentPicture
   totalAmount?: number
   selectedCost?: DogEventCostSegment
-  /** Durable, at-least-once completion markers for a newly created registration. */
+  /** Stored rows may hold it; nothing writes or reads it any more (`NEW_REGISTRATION_WORKFLOW_FIELDS`). */
   newRegistrationStatsAt?: string
+  /** Durable, at-least-once completion markers for a newly created registration. */
   newRegistrationPublishedAt?: string
   newRegistrationAuditAt?: string
   newRegistrationEmailSentAt?: string
