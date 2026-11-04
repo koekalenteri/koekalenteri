@@ -1206,6 +1206,7 @@
       "swappedGame": "Swapped game",
       "unauthorizedRun": "Running in"
     },
+    "heldScores": "Some scores were not saved because their exercises do not belong to the post on view. They are still there under All posts, and are saved there.",
     "interruption": "Interruption",
     "judge": "Judge",
     "kennelliitto": {

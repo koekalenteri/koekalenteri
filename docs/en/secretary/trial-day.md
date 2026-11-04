@@ -14,7 +14,7 @@ covers:
   - src/pages/admin/eventViewPage/infoPanel/ResultsPublishing.tsx
   - src/pages/admin/components/KcIdLookupButton.tsx
   - src/pages/admin/components/StartDaySelector.tsx
-sourceHash: e01d3a
+sourceHash: 69a328
 ---
 
 On the trial day the secretary's job is to record what the dogs did and to get the results in
@@ -159,7 +159,9 @@ nothing, pick *{t:results.zeroFaults.unknown}*. The result is worked out on the 
 rules say: a single zero rules out a prize, and the total of the points shows under the row. With
 *{t:results.scope}* the page can be narrowed to one post, showing only the exercises done there; the
 result is then left out, since it depends on the other posts too. The choice offers only the shown
-day's posts, and the narrowed page lists only the dogs whose group comes to that post.
+day's posts, and the narrowed page lists only the dogs whose group comes to that post. A narrowed view
+saves only that post's exercises. A score you typed at another post's exercise is not saved, and the
+page warns you about it. The score is still there under *{t:results.scopeAll}*, and is saved there.
 
 !shot[ResultsTable/results-entry-nowt] A NOWT class's points per exercise, the second dog's handler withdrew at post 1
 

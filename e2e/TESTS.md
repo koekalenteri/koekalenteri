@@ -32,7 +32,7 @@ bug is fixed. See [README.md](README.md) for how they run.
 
 | Test | Tags | Issues |
 | --- | --- | --- |
-| finding an event › the event type filter shows the matching event and hides the other | `@public` | [KOE-1476](https://koekalenteri.atlassian.net/browse/KOE-1476)<br>[KOE-1480](https://koekalenteri.atlassian.net/browse/KOE-1480) the options are picked with includeHidden |
+| finding an event › the event type filter shows the matching event and hides the other | `@public` | [KOE-1476](https://koekalenteri.atlassian.net/browse/KOE-1476) |
 | finding an event › the start date hides an earlier event and shows it again when moved back | `@public` | [KOE-1476](https://koekalenteri.atlassian.net/browse/KOE-1476) |
 | finding an event › a start date typed over a held 1st or a shorter month lands as typed | `@public` | [KOE-1476](https://koekalenteri.atlassian.net/browse/KOE-1476) |
 | finding an event › a start date typed over a 30th, a 31st or December lands as typed | `@public` | [KOE-1476](https://koekalenteri.atlassian.net/browse/KOE-1476) |

@@ -3,7 +3,7 @@ import type { RouteObject } from 'react-router'
 import type { TestStore } from 'test-utils/AtomProvider'
 import type { Language } from '../../i18n'
 import type { KcDogReport, KcDogStatus, KcPreviewResponse } from '../../lib/kennelliittoResults'
-import type { ConfirmedEvent, EventResult, EventType, Registration } from '../../types'
+import type { ConfirmedEvent, EventResult, EventResultsResponse, EventType, Registration } from '../../types'
 import { ThemeProvider } from '@mui/material'
 import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
@@ -68,7 +68,7 @@ const renderPage = (language: Language) => {
   )
 }
 
-/** The store of the last scoring page rendered: what a reconnect's read writes lands here. */
+/** The store the last scoring page was rendered with: what the socket or a reconnect's read writes lands here. */
 let scoringStore: TestStore | undefined
 
 /**
@@ -902,6 +902,359 @@ describe('EventResultsPage', () => {
         expect.objectContaining({ exercise: 2, part: 0, points: 8 }),
       ])
     )
+  })
+
+  describe('a score the post on view cannot save (KOE-1696)', () => {
+    const pickScope = async (user: UserEvent, name: string) => {
+      await user.click(screen.getByLabelText('results.scope'))
+      await user.click(screen.getByRole('option', { name }))
+      await flushPromises()
+    }
+
+    it('keeps a score typed at another post, says so, and saves it in the whole-round view', async () => {
+      const { i18n } = useTranslation()
+      vi.mocked(putEventResults).mockClear()
+      const { user } = await renderScoringPage(i18n.language as Language)
+      await flushPromises()
+
+      await pickScope(user, 'event.station 1')
+      await score(user, within(rowFor('Ensimmainen')).getAllByRole('textbox')[0], '17')
+      await pickScope(user, 'event.station 2')
+      await user.click(screen.getByRole('button', { name: 'results.save' }))
+      await flushPromises()
+
+      // The post on view may not write exercise 1, so nothing of it goes out and nothing says it was stored.
+      const [, scopedSave] = vi.mocked(putEventResults).mock.lastCall ?? []
+      expect(scopedSave).toEqual([
+        expect.objectContaining({
+          eventResult: expect.objectContaining({ tasks: [] }),
+          id: 'run-1',
+          stationId: 'post-2',
+        }),
+      ])
+      expect(screen.getByText('results.heldScores')).toBeInTheDocument()
+      expect(screen.queryByText('results.alreadySaved')).not.toBeInTheDocument()
+      expect(screen.getByRole('button', { name: 'results.save' })).toBeEnabled()
+
+      // Back in the whole round the score is on its row, and goes out with the next save.
+      await pickScope(user, 'results.scopeAll')
+      expect(within(rowFor('Ensimmainen')).getAllByRole('textbox')[0]).toHaveValue('17')
+      await user.click(screen.getByRole('button', { name: 'results.save' }))
+      await flushPromises()
+
+      const [, wholeSave] = vi.mocked(putEventResults).mock.lastCall ?? []
+      expect(wholeSave).toEqual([
+        expect.objectContaining({
+          eventResult: expect.objectContaining({
+            tasks: [expect.objectContaining({ exercise: 1, part: 0, points: 17 })],
+          }),
+          id: 'run-1',
+        }),
+      ])
+      expect(wholeSave?.[0]).not.toHaveProperty('stationId')
+      expect(screen.getByRole('button', { name: 'results.save' })).toBeDisabled()
+    })
+
+    /** Types a score for each of the dogs at post 1, then moves to post 2, where they cannot be saved. */
+    const typedAtPost1 = async (user: UserEvent, ...dogs: string[]) => {
+      await pickScope(user, 'event.station 1')
+      for (const dog of dogs) await score(user, within(rowFor(dog)).getAllByRole('textbox')[0], '17')
+      await pickScope(user, 'event.station 2')
+    }
+
+    const save = async (user: UserEvent) => {
+      await user.click(screen.getByRole('button', { name: 'results.save' }))
+      await flushPromises()
+    }
+
+    /** What the whole round shows at exercise 1 of a dog. */
+    const inWholeRound = async (user: UserEvent, dog: string) => {
+      await pickScope(user, 'results.scopeAll')
+      return within(rowFor(dog)).getAllByRole('textbox')[0]
+    }
+
+    /** The server's answer when a dog's part of the save was stored already. */
+    const foundStored = (id: string): EventResultsResponse => ({
+      conflicts: [],
+      saved: [],
+      unchanged: [{ eventResult: { updatedAt: new Date('2021-02-10T12:00:00Z'), updatedBy: 'Sihteeri' }, id }],
+    })
+
+    const conflictOn = (id: string, saved: string[] = []) =>
+      new APIError(new Response(null, { status: 409, statusText: 'Conflict' }), {
+        conflicts: [{ id, stored: { result: 'ALO2' }, submitted: { result: 'ALO1' } }],
+        error: 'resultConflict',
+        saved: saved.map((item) => ({ eventResult: {}, id: item })),
+        unchanged: [],
+      })
+
+    it('keeps a score whose exercise moved to another post while it was being entered', async () => {
+      const { i18n } = useTranslation()
+      const withPosts = (first: number, second: number): ConfirmedEvent => ({
+        ...eventWithStations,
+        stations: [
+          { date: RESULTS_EVENT_DAY, id: 'post-1', number: first, tasks: 1 },
+          { date: RESULTS_EVENT_DAY, id: 'post-2', number: second, tasks: 1 },
+        ],
+      })
+      const { user } = await renderScoringPage(
+        i18n.language as Language,
+        registrationsToEventWithStations,
+        withPosts(1, 2)
+      )
+      await flushPromises()
+
+      await pickScope(user, 'event.station 1')
+      await score(user, within(rowFor('Ensimmainen')).getAllByRole('textbox')[0], '17')
+
+      // The running order changes elsewhere, and the socket brings it here: exercise 1 is post 2's now.
+      await act(async () => {
+        await scoringStore?.set(adminEventsAtom, [withPosts(2, 1)])
+      })
+      await flushPromises()
+      await save(user)
+
+      const [, submissions] = vi.mocked(putEventResults).mock.lastCall ?? []
+      expect(submissions).toEqual([
+        expect.objectContaining({
+          eventResult: expect.objectContaining({ tasks: [] }),
+          id: 'run-1',
+          stationId: 'post-1',
+        }),
+      ])
+      expect(screen.getByText('results.heldScores')).toBeInTheDocument()
+      expect(screen.getByRole('button', { name: 'results.save' })).toBeEnabled()
+    })
+
+    it('still holds a score after a reconnect read the list again (KOE-1698)', async () => {
+      const { i18n } = useTranslation()
+      const { user } = await renderScoringPage(i18n.language as Language)
+      await flushPromises()
+
+      await typedAtPost1(user, 'Ensimmainen')
+      listRegistrations.mockResolvedValueOnce(registrationsToEventWithStations.map((row) => ({ ...row })))
+      await act(async () => {
+        await scoringStore?.set(adminEventRegistrationsReloadAtom, eventWithStations.id)
+      })
+      await flushPromises()
+      await save(user)
+
+      expect(screen.getByText('results.heldScores')).toBeInTheDocument()
+      expect(await inWholeRound(user, 'Ensimmainen')).toHaveValue('17')
+    })
+
+    it('holds nothing for a dog that has left the list by the time the save is answered', async () => {
+      const { i18n } = useTranslation()
+      const { user } = await renderScoringPage(i18n.language as Language)
+      await flushPromises()
+
+      await typedAtPost1(user, 'Ensimmainen')
+      await act(async () => {
+        await scoringStore?.set(
+          adminEventRegistrationsAtom(eventWithStations.id),
+          registrationsToEventWithStations.filter(({ id }) => id !== 'run-1')
+        )
+      })
+      await flushPromises()
+      await save(user)
+
+      expect(screen.queryByText('results.heldScores')).not.toBeInTheDocument()
+      expect(screen.getByRole('button', { name: 'results.save' })).toBeDisabled()
+    })
+
+    it('says only that scores were held when nothing else was saved', async () => {
+      const { i18n } = useTranslation()
+      vi.mocked(putEventResults).mockResolvedValueOnce(foundStored('run-1'))
+      const { user } = await renderScoringPage(i18n.language as Language)
+      await flushPromises()
+
+      await typedAtPost1(user, 'Ensimmainen')
+      await save(user)
+
+      expect(screen.getByText('results.heldScores')).toBeInTheDocument()
+      expect(screen.queryByText('results.alreadySaved')).not.toBeInTheDocument()
+      expect(screen.queryByText('results.saved')).not.toBeInTheDocument()
+    })
+
+    it('says both when something was saved beside the held score', async () => {
+      const { i18n } = useTranslation()
+      const { user } = await renderScoringPage(i18n.language as Language)
+      await flushPromises()
+
+      await typedAtPost1(user, 'Ensimmainen')
+      await score(user, within(rowFor('Toinen')).getAllByRole('textbox')[0], '8')
+      await save(user)
+
+      expect(screen.getByText('results.saved')).toBeInTheDocument()
+      expect(screen.getByText('results.heldScores')).toBeInTheDocument()
+      // The dog saved in full has left the edits, and the held one has not.
+      expect(await inWholeRound(user, 'Ensimmainen')).toHaveValue('17')
+      await save(user)
+      const [, submissions] = vi.mocked(putEventResults).mock.lastCall ?? []
+      expect(submissions?.map(({ id }) => id)).toEqual(['run-1'])
+    })
+
+    it('clears a dog with nothing held, without the warning', async () => {
+      const { i18n } = useTranslation()
+      const { user } = await renderScoringPage(i18n.language as Language)
+      await flushPromises()
+
+      await pickScope(user, 'event.station 2')
+      await score(user, within(rowFor('Ensimmainen')).getAllByRole('textbox')[0], '8')
+      await save(user)
+
+      expect(screen.getByText('results.saved')).toBeInTheDocument()
+      expect(screen.queryByText('results.heldScores')).not.toBeInTheDocument()
+      expect(screen.getByRole('button', { name: 'results.save' })).toBeDisabled()
+    })
+
+    it('still says already saved when nothing was saved and nothing is held', async () => {
+      const { i18n } = useTranslation()
+      vi.mocked(putEventResults).mockResolvedValueOnce(foundStored('run-1'))
+      const { user } = await renderScoringPage(i18n.language as Language)
+      await flushPromises()
+
+      await pickScope(user, 'event.station 2')
+      await score(user, within(rowFor('Ensimmainen')).getAllByRole('textbox')[0], '8')
+      await save(user)
+
+      expect(screen.getByText('results.alreadySaved')).toBeInTheDocument()
+      expect(screen.queryByText('results.heldScores')).not.toBeInTheDocument()
+    })
+
+    it('saves an outcome with the post and does not read it as held', async () => {
+      const { i18n } = useTranslation()
+      const { user } = await renderScoringPage(i18n.language as Language)
+      await flushPromises()
+
+      await pickScope(user, 'event.station 2')
+      await user.click(within(rowFor('Ensimmainen')).getByLabelText('results.outcome'))
+      await user.click(screen.getByRole('option', { name: 'results.eliminatingFaults.hardMouth' }))
+      await flushPromises()
+      await save(user)
+
+      const [, submissions] = vi.mocked(putEventResults).mock.lastCall ?? []
+      expect(submissions?.[0].eventResult.elimination).toMatchObject({ fault: 'hardMouth' })
+      expect(screen.queryByText('results.heldScores')).not.toBeInTheDocument()
+      expect(screen.getByRole('button', { name: 'results.save' })).toBeDisabled()
+    })
+
+    it('keeps the score of a dog with no exercises at the post, which goes out with none', async () => {
+      const { i18n } = useTranslation()
+      const nextDay = '2021-02-11' as const
+      const [first, second] = registrationsToEventWithStations
+      const twoDays: ConfirmedEvent = {
+        ...eventWithStations,
+        classes: [...eventWithStations.classes, { class: 'ALO', date: nextDay }],
+        endDate: nextDay,
+        stations: [...(eventWithStations.stations ?? []), { date: nextDay, id: 'post-next', number: 1 }],
+      }
+      const dogs = [first, { ...second, group: { date: nextDay, key: 'ALO-AP', number: 2, time: 'ap' as const } }]
+      const { user } = await renderScoringPage(i18n.language as Language, dogs, twoDays)
+      await flushPromises()
+
+      await user.click(screen.getAllByRole('button', { name: /dateFormat\.wdshort/ })[1])
+      await flushPromises()
+      await score(user, within(rowFor('Toinen')).getAllByRole('textbox')[0], '17')
+
+      await user.click(screen.getAllByRole('button', { name: /dateFormat\.wdshort/ })[0])
+      await flushPromises()
+      await pickScope(user, 'event.station 2')
+      await save(user)
+
+      const [, submissions] = vi.mocked(putEventResults).mock.lastCall ?? []
+      expect(submissions).toEqual([
+        expect.objectContaining({
+          eventResult: expect.objectContaining({ tasks: [] }),
+          id: 'run-2',
+          stationId: 'post-2',
+        }),
+      ])
+      expect(screen.getByText('results.heldScores')).toBeInTheDocument()
+      await user.click(screen.getAllByRole('button', { name: /dateFormat\.wdshort/ })[1])
+      await flushPromises()
+      expect(within(rowFor('Toinen')).getAllByRole('textbox')[0]).toHaveValue('17')
+    })
+
+    it('keeps the held score of a dog a conflict did not dispute', async () => {
+      const { i18n } = useTranslation()
+      vi.mocked(putEventResults).mockRejectedValueOnce(conflictOn('run-2', ['run-1']))
+      const { user } = await renderScoringPage(i18n.language as Language)
+      await flushPromises()
+
+      await typedAtPost1(user, 'Ensimmainen')
+      await score(user, within(rowFor('Toinen')).getAllByRole('textbox')[0], '8')
+      await save(user)
+
+      expect(screen.getByText('results.conflictTitle')).toBeInTheDocument()
+      expect(screen.getByText('results.heldScores')).toBeInTheDocument()
+
+      await user.click(screen.getByRole('radio', { name: /results\.conflictStored/ }))
+      await user.click(screen.getByRole('button', { name: 'results.conflictResolve' }))
+      await flushPromises()
+
+      expect(await inWholeRound(user, 'Ensimmainen')).toHaveValue('17')
+      expect(screen.getByRole('button', { name: 'results.save' })).toBeEnabled()
+    })
+
+    it('keeps the held score of a disputed dog the secretary overruled for', async () => {
+      const { i18n } = useTranslation()
+      vi.mocked(putEventResults).mockRejectedValueOnce(conflictOn('run-1'))
+      const { user } = await renderScoringPage(i18n.language as Language)
+      await flushPromises()
+
+      await typedAtPost1(user, 'Ensimmainen')
+      await score(user, within(rowFor('Ensimmainen')).getAllByRole('textbox')[0], '8')
+      await save(user)
+      expect(screen.queryByText('results.heldScores')).not.toBeInTheDocument()
+
+      await user.click(screen.getByRole('radio', { name: /results\.conflictMine/ }))
+      await user.click(screen.getByRole('button', { name: 'results.conflictResolve' }))
+      await flushPromises()
+
+      expect(screen.getByText('results.heldScores')).toBeInTheDocument()
+      expect(await inWholeRound(user, 'Ensimmainen')).toHaveValue('17')
+    })
+
+    it('clears a disputed dog the secretary left as stored, the score typed at another post with it', async () => {
+      const { i18n } = useTranslation()
+      vi.mocked(putEventResults).mockRejectedValueOnce(conflictOn('run-1'))
+      const { user } = await renderScoringPage(i18n.language as Language)
+      await flushPromises()
+
+      await typedAtPost1(user, 'Ensimmainen')
+      await score(user, within(rowFor('Ensimmainen')).getAllByRole('textbox')[0], '8')
+      await save(user)
+
+      await user.click(screen.getByRole('radio', { name: /results\.conflictStored/ }))
+      await user.click(screen.getByRole('button', { name: 'results.conflictResolve' }))
+      await flushPromises()
+
+      // Kept, the edit would write the version just turned down back with the next save.
+      expect(screen.queryByText('results.heldScores')).not.toBeInTheDocument()
+      expect(screen.getByRole('button', { name: 'results.save' })).toBeDisabled()
+    })
+
+    it('keeps a held score when the trial turns out locked', async () => {
+      const { i18n } = useTranslation()
+      vi.mocked(putEventResults).mockRejectedValueOnce(
+        new APIError(new Response(null, { status: 423 }), {
+          conflicts: [],
+          error: 'resultsLocked',
+          saved: [{ eventResult: {}, id: 'run-1' }],
+          unchanged: [],
+        })
+      )
+      const { user } = await renderScoringPage(i18n.language as Language)
+      await flushPromises()
+
+      await typedAtPost1(user, 'Ensimmainen')
+      await save(user)
+
+      expect(screen.getByText('results.kennelliitto.lockedSave')).toBeInTheDocument()
+      expect(screen.getByText('results.heldScores')).toBeInTheDocument()
+      expect(await inWholeRound(user, 'Ensimmainen')).toHaveValue('17')
+    })
   })
 
   it('keeps only the disputed dogs on screen when the save comes back a conflict', async () => {
