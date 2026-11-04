@@ -77,6 +77,8 @@ describe('LiveEntryPage', () => {
     expect(screen.getByText(/2 Toinen/)).toBeInTheDocument()
     // StationScoring names the post; the page adds no second h1 of its own.
     expect(screen.getAllByRole('heading', { level: 1 })).toHaveLength(1)
+    // The link's holder has no account: nothing here leads to the admin side (KOE-1699).
+    expect(screen.queryByRole('link')).not.toBeInTheDocument()
   })
 
   it('saves through the link, scoped to this post', async () => {

@@ -8,9 +8,10 @@ import { useParams } from 'react-router'
 import { getStationEntry, putStationEntry, putStationEntryTurn } from '../api/station'
 import { useLinkedEntry } from '../hooks/useLinkedEntry'
 import { reportError } from '../lib/client/error'
-import { linkedEventSubtitle } from '../lib/event'
+import { eventSubtitle } from '../lib/event'
 import { HiddenPageTitle } from './components/HiddenPageTitle'
 import LoadingIndicator from './components/LoadingIndicator'
+import { StationHeading } from './components/stationScoring/StationHeading'
 import { StationScoring } from './components/stationScoring/StationScoring'
 import { languageAtom } from './state'
 
@@ -96,12 +97,17 @@ export function Component() {
 
   if (!entry) return <LoadingIndicator />
 
-  const subtitle = linkedEventSubtitle(entry.event, language, t)
-
   return (
     <StationScoring
       classes={entry.event.classes}
       eventType={entry.event.eventType}
+      header={
+        <StationHeading
+          eventType={entry.event.eventType}
+          station={entry.station}
+          subtitle={eventSubtitle(entry.event, language, t)}
+        />
+      }
       locked={entry.event.locked}
       lockedText={t('results.kennelliitto.lockedLive')}
       onLocked={handleLocked}
@@ -112,7 +118,6 @@ export function Component() {
       ownOutcomeOnly
       registrations={entry.registrations}
       station={entry.station}
-      subtitle={subtitle}
       turns={entry.turns ?? []}
     />
   )

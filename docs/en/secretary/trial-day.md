@@ -14,7 +14,7 @@ covers:
   - src/pages/admin/eventViewPage/infoPanel/ResultsPublishing.tsx
   - src/pages/admin/components/KcIdLookupButton.tsx
   - src/pages/admin/components/StartDaySelector.tsx
-sourceHash: 2b34db
+sourceHash: 2989ac
 ---
 
 On the trial day the secretary's job is to record what the dogs did and to get the results in
@@ -113,6 +113,11 @@ same goes for changing the classes in the event's details. If a dog gains an exe
 been scored yet, the dog's prize goes until that exercise is scored. A result already sent that
 changes reads *{t:results.kennelliitto.badge.changed}* in the *Omakoira* column and is sent again.
 
+A successful save returns to the event page. **{t:results.backToEvent}** beside the title goes to the
+same place. If there are unsaved changes, the page asks first: **{t:unsavedChanges.stay}** stays on the
+page, and **{t:unsavedChanges.leave}** discards the changes. The same question comes up when you leave
+through the side menu or the browser's back button. **{t:cancel}** discards the changes at once, without asking.
+
 Recorded points belong to the exercise they were entered for: exercise 3 stays exercise 3 whatever
 post does it and whatever the group's running order becomes. When, for example, four posts are
 corrected to three, the third post doing exercises 3 and 4, every dog keeps its points for exercises
@@ -152,7 +157,8 @@ recorded results is not saved. A change that alters no dog's result is still sav
 ## Entering results
 
 The panel's **{t:eventManagement.enterResults}** button becomes active once the trial has
-started, and opens the **{t:results.title}** page. In a multi-day trial the day is picked first,
+started, and opens the **{t:results.title}** page. Under the title are the trial's day, type, place and name, as on
+the posts, start numbers and post scoring pages. In a multi-day trial the day is picked first,
 and the classes are on their own tabs. The page lists only the dogs picked as participants, in
 running order.
 
@@ -223,8 +229,11 @@ has an interruption recorded from before, the field shows on its row so that it 
 On a phone the dogs are listed one under another as cards with the same fields.
 
 **{t:results.save}** saves only the rows that changed; **{t:cancel}** discards the changes. If you
-leave the page without saving, the browser warns you. Another secretary's saves reach the page by
-themselves. If the same dog has meanwhile been recorded differently elsewhere, the save stops at
+leave the page without saving, the page asks first: **{t:unsavedChanges.stay}** stays on the page, and
+**{t:unsavedChanges.leave}** discards the changes. Closing or reloading the tab gets the browser's own
+warning.
+
+Another secretary's saves reach the page by themselves. If the same dog has meanwhile been recorded differently elsewhere, the save stops at
 the dialog **{t:results.conflictTitle}**, which shows both versions and asks which one stands;
 **{t:results.conflictResolve}** saves the choices. The other rows have already been saved by then. If
 saving the choices fails, the dialog stays open and the entered scores are kept; if the dog has

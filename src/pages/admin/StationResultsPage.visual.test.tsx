@@ -41,7 +41,7 @@ describeInLanguage('en', () => {
     await page.viewport(1000, 600)
 
     const screen = await render(
-      <div data-testid="visual-root" style={{ background: '#fff', height: 116, overflow: 'hidden', width: 1000 }}>
+      <div data-testid="visual-root" style={{ background: '#fff', height: 156, overflow: 'hidden', width: 1000 }}>
         <ThemeProvider theme={theme}>
           <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales.en}>
             <TestProvider
@@ -64,7 +64,7 @@ describeInLanguage('en', () => {
       </div>
     )
 
-    await expect.element(screen.getByText(/^Results trial/)).toBeVisible()
+    await expect.element(screen.getByText(/Vaasa Results trial$/)).toBeVisible()
     await expect(screen.getByTestId('visual-root')).toMatchScreenshot('station-results-page-header-en')
   })
 })

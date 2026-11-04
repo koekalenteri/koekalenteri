@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react'
 import type { EventResultSubmission } from '@/api/registration'
 import type {
   EventResultVersion,
@@ -33,7 +34,7 @@ import { resultConflictResponse } from '@/lib/client/resultConflict'
 import { errorSnackbarOptions } from '@/lib/client/snackbar'
 import { compareRegistrationClasses } from '@/lib/event'
 import { makeArray } from '@/lib/judge'
-import { liveFormat, scoresAtPosts } from '@/lib/liveFormat'
+import { scoresAtPosts } from '@/lib/liveFormat'
 import { getRegistrationClass } from '@/lib/registration'
 import { formatTaskName, parseEventResultCode } from '@/lib/results'
 import {
@@ -80,8 +81,8 @@ interface StationScoringDog {
 interface Props {
   readonly station: Pick<EventStation, 'id' | 'number' | 'judges' | 'dogsAtOnce'>
   readonly eventType: string
-  /** The line under the post number: the event's name, and whatever else the caller may show. */
-  readonly subtitle?: string
+  /** The head of the sheet: which post of which trial, and a way back where the caller has one. */
+  readonly header?: ReactNode
   /** For the class judges where the post names none. */
   readonly classes?: PublicDogEvent['classes']
   /**
@@ -203,7 +204,7 @@ const dogAtPost = (
 export function StationScoring({
   station,
   eventType,
-  subtitle,
+  header,
   classes,
   registrations,
   onSave,
@@ -220,8 +221,6 @@ export function StationScoring({
 
   // A qualitative type has no tasks to score; the judge's decision is the result, entered as such.
   const qualitative = !scoresAtPosts(eventType)
-  // Where the day runs at one post, "Suorituspaikka 1" names nothing anyone calls it; the event is the title.
-  const singlePost = liveFormat(eventType).posts === 'one'
 
   // Where the rotation says who comes when, the classes are in the order they reach the post, as the dogs
   // came; elsewhere in the class order (KOE-1596).
@@ -440,22 +439,7 @@ export function StationScoring({
       elevation={2}
       sx={{ display: 'flex', flexDirection: 'column', flexGrow: 1, maxHeight: '100%', maxWidth: '100%' }}
     >
-      <Box sx={{ pt: 2, px: 2 }}>
-        {!singlePost && (
-          <Typography variant="h3" component="h1">
-            {t('event.station')} {station.number}
-          </Typography>
-        )}
-        {subtitle && (
-          <Typography
-            color={singlePost ? undefined : 'text.secondary'}
-            component={singlePost ? 'h1' : 'p'}
-            variant={singlePost ? 'h3' : 'body2'}
-          >
-            {subtitle}
-          </Typography>
-        )}
-      </Box>
+      {header}
 
       {locked && (
         <Alert severity="warning" sx={{ mt: 1, mx: 2 }}>

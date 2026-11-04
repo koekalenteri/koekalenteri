@@ -142,7 +142,7 @@ taulukko.
 
 ## Starttinumerot
 
-Starttinumerot arvotaan koepaikalla ja kirjataan kalenteriin paneelin *{t:eventManagement.startList.numbersPublishing}* -osion painikkeella **{t:eventManagement.enterStartNumbers}**. Sivu näyttää päivän ja luokan koirakot
+Starttinumerot arvotaan koepaikalla ja kirjataan kalenteriin paneelin *{t:eventManagement.startList.numbersPublishing}* -osion painikkeella **{t:eventManagement.enterStartNumbers}**. Otsikon alla näkyy, minkä kokeen numeroita syötetään. Sivu näyttää päivän ja luokan koirakot
 riveinä, ja jokaiselle kirjoitetaan sen arpoma numero. Jos päivällä on aamupäivän ja iltapäivän
 ryhmät, rivit on jaettu vuoron mukaan väliotsikoilla. Numero kuuluu yhdelle koiralle koko
 kokeessa: kahden päivän kokeessa esimerkiksi perjantai 1–24 ja lauantai 25–48, ja sama numero
