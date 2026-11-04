@@ -14,7 +14,7 @@ covers:
   - src/pages/admin/eventViewPage/infoPanel/ResultsPublishing.tsx
   - src/pages/admin/components/KcIdLookupButton.tsx
   - src/pages/admin/components/StartDaySelector.tsx
-sourceHash: d2a188
+sourceHash: fb59fb
 ---
 
 On the trial day the secretary's job is to record what the dogs did and to get the results in
@@ -218,7 +218,9 @@ has an interruption recorded from before, the field shows on its row so that it 
 On a phone the dogs are listed one under another as cards with the same fields.
 
 **{t:results.save}** saves only the rows that changed; **{t:cancel}** discards the changes. If you
-leave the page without saving, the browser warns you. Another secretary's saves reach the page by
+leave the page without saving, the page asks first: **{t:unsavedChanges.stay}** stays on the page, and
+**{t:unsavedChanges.leave}** discards the changes. Closing or reloading the tab gets the browser's own
+warning. Another secretary's saves reach the page by
 themselves. If the same dog has meanwhile been recorded differently elsewhere, the save stops at
 the dialog **{t:results.conflictTitle}**, which shows both versions and asks which one stands;
 **{t:results.conflictResolve}** saves the choices. The other rows have already been saved by then. If

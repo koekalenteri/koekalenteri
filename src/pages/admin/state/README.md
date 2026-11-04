@@ -105,7 +105,8 @@ stamps it, so the next fetch brings it. A change of roles or user fetches the wh
 signing out clears the storage (KOE-1668). `adminEditableEventByIdAtom(eventId)` is one draft per
 event in sessionStorage, shared by every form on the event: the stations page, the edit page and the
 event view's details dialog, which also picks up a draft another of them left (KOE-1700). The stations
-page leaves none behind: leaving it unsaved asks, and the answer to leave discards the draft (KOE-1699).
+page leaves none behind: leaving it unsaved asks, and the answer to leave discards the draft (KOE-1699),
+also one another form left there, since it is the same draft (KOE-1700).
 `adminSaveEventAtom` is write-only: after the read and the call shown here, it
 writes `adminEventIdAtom`, `adminCurrentEventAtom` and the public `eventsAtom`.
 

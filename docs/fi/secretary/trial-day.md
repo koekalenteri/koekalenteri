@@ -153,8 +153,8 @@ tuloksia, ei tallenneta. Muutos, joka ei muuta yhdenkään koiran tulosta, talle
 
 Paneelin painike **{t:eventManagement.enterResults}** aktivoituu, kun koe on alkanut, ja avaa
 sivun **{t:results.title}**. Otsikon alla näkyvät kokeen päivä, tyyppi, paikka ja nimi, kuten
-suorituspaikkojen, starttinumeroiden ja suorituspaikan kirjaussivuillakin. Monipäiväisessä kokeessa valitaan ensin päivä, ja luokat ovat omilla
-välilehdillään. Sivulla ovat vain osallistujiksi nostetut koirakot starttijärjestyksessä.
+suorituspaikkojen, starttinumeroiden ja suorituspaikan kirjaussivuillakin. Monipäiväisessä kokeessa
+valitaan ensin päivä, ja luokat ovat omilla välilehdillään. Sivulla ovat vain osallistujiksi nostetut koirakot starttijärjestyksessä.
 
 **Rasteilla pisteytettävä koe (NOWT).** Jokaisella rastilla on oma sarakkeensa rastin numerolla,
 "Rasti 1", "Rasti 2" ja niin edelleen, riippumatta siitä, missä suorituspaikassa ryhmä rastin teki.
@@ -222,7 +222,9 @@ kirjattu keskeytys, kenttä näkyy sen rivillä, jotta keskeytyksen voi poistaa.
 Puhelimella koirakot ovat allekkain omina kortteinaan samoilla kentillä.
 
 **{t:results.save}** tallentaa vain muuttuneet rivit; **{t:cancel}** hylkää muutokset. Jos sivulta
-poistuu tallentamatta, selain varoittaa. Toisen koesihteerin tallennukset päivittyvät sivulle
+poistuu tallentamatta, sivu kysyy ensin: **{t:unsavedChanges.stay}** jää sivulle, ja
+**{t:unsavedChanges.leave}** hylkää muutokset. Välilehden sulkemisesta tai uudelleenlataamisesta
+varoittaa selain itse. Toisen koesihteerin tallennukset päivittyvät sivulle
 itsestään. Jos sama koirakko on ehditty kirjata muualla toisin, tallennus pysähtyy ikkunaan
 **{t:results.conflictTitle}**, joka näyttää molemmat versiot ja kysyy, kumpi jää voimaan;
 **{t:results.conflictResolve}** tallentaa valinnat. Muut rivit on tallennettu jo silloin. Jos valintojen
