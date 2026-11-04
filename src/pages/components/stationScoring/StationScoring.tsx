@@ -44,6 +44,7 @@ import {
   visitSlots,
 } from '@/lib/resultTasks'
 import { openTurn } from '@/lib/stationTurns'
+import { isObject } from '@/lib/utils'
 import { AsyncButton } from '../AsyncButton'
 import { JudgeSelect } from './JudgeSelect'
 import { ResultSummary } from './ResultSummary'
@@ -94,7 +95,10 @@ interface Props {
   readonly lockedText?: string
   /** The save found the results locked after all; the caller marks its copy of the event as locked. */
   readonly onLocked?: () => void
-  /** The save was refused because the dog is not on the trial any more: the caller reads the list again. */
+  /**
+   * The save was refused because the list is old, the dog gone from the trial or the running order
+   * changed: the caller reads the list again.
+   */
   readonly onRefused?: () => void
   /**
    * The server keeps an outcome this post does not hold, so the control only shows it (KOE-1615). The
@@ -104,11 +108,6 @@ interface Props {
 }
 
 /**
- * What this post already recorded for a dog, as the edit starts from — so a correction edits rather
- * than replaces. A post-scored type's recording is its tasks; a qualitative type's is the judge's
- * decision, read back out of the stored string, and who made it.
- */
-/**
  * The exercises the dog's group does at this post, from its visit (KOE-1665): the post's own scores. A
  * post the group comes to twice holds both exercises. The page has no running order to work them out
  * from; the visit's posts give the list `stationExercises` gives the server from the same layout.
@@ -116,6 +115,11 @@ interface Props {
 const exercisesHere = (dog: StationScoringDog, stationId: string): number[] =>
   dog.visit ? exercisesAtPost(dog.visit.exercisePosts, stationId) : []
 
+/**
+ * What this post already recorded for a dog, as the edit starts from — so a correction edits rather
+ * than replaces. A post-scored type's recording is its tasks; a qualitative type's is the judge's
+ * decision, read back out of the stored string, and who made it.
+ */
 const seededEdit = (dog: StationScoringDog, stationId: string, eventType: string): ResultEdit => {
   const stored = dog.eventResult
   const outcome = { elimination: stored?.elimination, retirement: stored?.retirement }
@@ -142,6 +146,10 @@ const seededEdit = (dog: StationScoringDog, stationId: string, eventType: string
  * at the post is in the queue twice (KOE-1665).
  */
 const entryKey = (dog: StationScoringDog): string => `${dog.id}#${dog.visit?.exercise ?? ''}`
+
+/** The running order changed since this page read it, so the save named an exercise the post no longer does. */
+const isLayoutChanged = (error: unknown): boolean =>
+  error instanceof APIError && error.status === 409 && isObject(error.body) && error.body.error === 'staleData'
 
 /**
  * The dog in front of the judge when the screen opens: whoever the open turn holds, at the exercise the
@@ -212,7 +220,8 @@ export function StationScoring({
   const [edit, setEdit] = useState<ResultEdit>(initial ? seededEdit(initial, station.id, eventType) : emptyEdit)
   const [lastJudge, setLastJudge] = useState<PublicJudge | undefined>()
 
-  const eventClass = selectedClass ?? eventClasses[0]
+  // The class on show may have left this post when the list was read again.
+  const eventClass = selectedClass && eventClasses.includes(selectedClass) ? selectedClass : eventClasses[0]
 
   const dogs = useMemo(
     () => registrations.filter((reg) => getRegistrationClass(reg) === eventClass),
@@ -289,6 +298,33 @@ export function StationScoring({
     [eventType, station.id]
   )
 
+  /** What a save the server did not take leaves on screen, and what the caller is told. */
+  const settleRefusal = useCallback(
+    (error: unknown) => {
+      // Handed to the chief judge from somewhere else meanwhile: the scores stay on screen, unsaved.
+      if (error instanceof APIError && error.status === 423) {
+        enqueueSnackbar(t('results.kennelliitto.lockedSave'), { variant: 'error' })
+        onLocked?.()
+        return
+      }
+      // An expected state, not a fault. The edit was seeded from the old order and may hold an exercise the post
+      // no longer does, under a place in the queue that still exists, so saving it would only be refused again:
+      // the dog is let go, and the next pick starts from the list as read again.
+      if (isLayoutChanged(error)) {
+        enqueueSnackbar(t('results.layoutChanged'), errorSnackbarOptions)
+        onRefused?.()
+        setSelectedKey(undefined)
+        return
+      }
+      // Anything else refuses this dog and nothing more: the scores stay on screen, another dog can be picked,
+      // and a dog that is gone from the trial is a list that has moved on, which the caller reads again.
+      reportError(error)
+      enqueueSnackbar(t('results.saveFailed'), errorSnackbarOptions)
+      if (error instanceof APIError && (error.status === 404 || error.status === 422)) onRefused?.()
+    },
+    [onLocked, onRefused, t]
+  )
+
   const handleSave = useCallback(async () => {
     if (!selected) return
 
@@ -311,17 +347,7 @@ export function StationScoring({
         stationId: station.id,
       })
     } catch (error) {
-      // Handed to the chief judge from somewhere else meanwhile: the scores stay on screen, unsaved.
-      if (error instanceof APIError && error.status === 423) {
-        enqueueSnackbar(t('results.kennelliitto.lockedSave'), { variant: 'error' })
-        onLocked?.()
-        return
-      }
-      // Anything else refuses this dog and nothing more: the scores stay on screen, another dog can be picked,
-      // and a dog that is gone from the trial is a list that has moved on, which the caller reads again.
-      reportError(error)
-      enqueueSnackbar(t('results.saveFailed'), errorSnackbarOptions)
-      if (error instanceof APIError && (error.status === 404 || error.status === 422)) onRefused?.()
+      settleRefusal(error)
       return
     }
 
@@ -331,21 +357,7 @@ export function StationScoring({
     const next = dogs.find((dog) => !isScored(dog) && entryKey(dog) !== entryKey(selected))
     if (next) select(next)
     else setSelectedKey(undefined)
-  }, [
-    dogs,
-    edit,
-    isScored,
-    judges,
-    lastJudge,
-    onLocked,
-    onRefused,
-    onSave,
-    qualitative,
-    select,
-    selected,
-    station.id,
-    t,
-  ])
+  }, [dogs, edit, isScored, judges, lastJudge, onSave, qualitative, select, selected, settleRefusal, station.id, t])
 
   const chipLabel = (dog: StationScoringDog) => {
     const name = `${dog.group?.number ?? '?'} ${dog.dog.name ?? ''}`

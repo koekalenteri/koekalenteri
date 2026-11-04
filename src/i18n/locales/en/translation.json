@@ -1340,6 +1340,7 @@
       },
       "title": "Sending results to Omakoira"
     },
+    "layoutChanged": "The running order has changed and this dog's result was not saved. The points entered were not kept. If the dog is still at this post, pick it from the list and enter the points again.",
     "liveEntryLinkCopied": "Live entry link copied to clipboard",
     "liveEntryLinkInvalid": "This link is not valid. Ask the event secretary for a new one.",
     "liveEntryLinkRevoked": "Live entry link revoked. Share a new link with the judge's secretary.",

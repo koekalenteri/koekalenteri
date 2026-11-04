@@ -1340,6 +1340,7 @@
       },
       "title": "Tulosten lähetys Omakoiraan"
     },
+    "layoutChanged": "Suoritusjärjestys on muuttunut, eikä koiran tulosta tallennettu. Syötetyt pisteet eivät säilyneet. Jos koira on yhä tällä suorituspaikalla, valitse se listalta ja syötä pisteet uudelleen.",
     "liveEntryLinkCopied": "Live-kirjauslinkki kopioitu leikepöydälle",
     "liveEntryLinkInvalid": "Linkki ei ole voimassa. Pyydä koesihteeriltä uusi linkki.",
     "liveEntryLinkRevoked": "Live-kirjauslinkki mitätöity. Jaa tuomarin sihteerille uusi linkki.",

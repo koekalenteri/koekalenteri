@@ -385,6 +385,22 @@ describe('StationResultsPage', () => {
       expect(screen.getByLabelText('results.column.result')).toHaveTextContent('ALO1')
       expect(screen.getByRole('button', { name: '2 Toinen' })).toBeInTheDocument()
     })
+
+    it('says the running order changed and reads the list again, letting go of the dog (KOE-1694)', async () => {
+      vi.mocked(putEventResults).mockRejectedValueOnce(
+        new APIError(new Response(null, { status: 409 }), { error: 'staleData', message: 'layout changed' })
+      )
+      vi.mocked(getRegistrations).mockClear()
+      listRegistrations.mockResolvedValueOnce(registrationsToEventWithStations)
+      const { user } = await renderStation('fi', '1', singlePostEvent)
+      await flushPromises()
+
+      await pickFirstDog(user)
+
+      expect(screen.getByText('results.layoutChanged')).toBeInTheDocument()
+      expect(getRegistrations).toHaveBeenCalledTimes(1)
+      expect(screen.getByRole('button', { name: 'results.save' })).toBeDisabled()
+    })
   })
 
   describe('a trial handed to the chief judge (KOE-1140)', () => {
