@@ -423,7 +423,18 @@ const buildUserUpdates = (
 }
 
 const normalizeItemsWithEmail = (items: Official[] | PartialJsonJudge[]): Official[] => {
-  return items.filter((i) => validEmail(i.email, KNOWN_TLDS)).map((i) => ({ ...i, email: i.email.toLocaleLowerCase() }))
+  const itemsWithEmail: Official[] = []
+  for (const item of items) {
+    if (validEmail(item.email, KNOWN_TLDS)) {
+      itemsWithEmail.push({ ...item, email: item.email.toLocaleLowerCase() })
+    } else {
+      logger.warn('official directory row dropped: no usable email', {
+        hasEmail: item.email.trim() !== '',
+        sourceId: item.id,
+      })
+    }
+  }
+  return itemsWithEmail
 }
 
 const mergeDuplicateUsersByKcId = (allUsers: JsonUser[], linkedUserIds: Set<string>, dateString: string) => {

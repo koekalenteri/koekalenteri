@@ -218,6 +218,17 @@ Read `LLM_CONTEXT.md` for the project overview and architecture notes.
 - `scripts/migrate.sh` and `aws/README.md` cover a different job — copying whole tables between
   stacks — not changing data in place.
 
+## Top-Level Domain List
+
+- `src/lib/domains/topLevelDomains.ts` is IANA's list, written by `npm run update-tlds`
+  (`scripts/update-tlds.mjs`): run it now and then and commit the result, never edit the file by
+  hand. `validEmail(email, KNOWN_TLDS)` refuses an ending the list does not have, so a list left
+  behind turns away real addresses.
+- The Kennelliitto user sync (`updateUsersFromOfficialsOrJudges`) keeps that check, so a typo such as
+  `gmail.con` never reaches a user row. It logs each row it drops at warn, `official directory row
+  dropped: no usable email`, with the row's `sourceId` and `hasEmail` (false for a blank address),
+  never the address or the name (KOE-1689).
+
 ## Post-deploy Smoke Check
 
 - Every deploy `release.yml` makes (dev from ci.yml's `deploy-dev`, test, prod) ends in the `smoke`
