@@ -29,9 +29,10 @@ import { dogRound, toScoredTasks } from './resultTasks'
 import { rotationDogOf, stationQueue } from './rotation'
 
 /**
- * The result codes shared by every event type. `0` and `-` are different outcomes: `0` says the dog was
- * judged and did not place, `-` says there was no completed round to judge. Both differ again from an
- * absent result, which says nothing has been recorded yet.
+ * The result codes shared by every event type. `0` and `-` are different outcomes: `0` says the dog did
+ * not earn a prize, also where its trial was stopped on its work or its handler quit with no prize in
+ * reach; `-` says the round ended with no verdict on that, as the rules of each format name. Both differ
+ * again from an absent result, which says nothing has been recorded yet.
  */
 export type ResultCode = '1' | '2' | '3' | '0' | '-'
 
@@ -111,8 +112,8 @@ export const formatResultLine = (
  * Prize thresholds as percentages of the round's maximum (NOWT rules §5.4.1).
  *
  * The rules print these as the absolute points 80 / 65 / 50, but that is the same percentage against a
- * five-post round. Events now commonly run four posts for a maximum of 80, where a dog on 65 points has
- * 81 % and has earned a *first* prize — comparing raw points would score it a second.
+ * round of five exercises. Events now commonly run four for a maximum of 80, where a dog on 65 points has
+ * 81 % and has earned a *first* prize: comparing raw points would score it a second.
  */
 const NOWT_PRIZE_THRESHOLD_PERCENT = { 1: 80, 2: 65, 3: 50 } as const
 

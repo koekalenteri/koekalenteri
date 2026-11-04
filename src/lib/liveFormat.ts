@@ -9,9 +9,10 @@ import type { EventStation, LiveMark } from '../types'
  * row in the table below, not a branch in the view. That is what lets NOME-A share a screen with NOWT
  * although one records marks and the other scores.
  *
- * Deliberately absent: NKM, because the app has no notion of its format yet, and the tolling trials
- * (NOTO, NOTO-M, in force 1.1.2027), which are not in the app either. Both fall to the default — one
- * post, a queue — which is what they would be given anyway, so neither waits on the other.
+ * Deliberately absent: NKM, whose results are entered like any qualitative type's and whose day has
+ * nothing of its own to configure here, and the tolling trials (NOTO, NOTO-M, in force 1.1.2027), which
+ * are not in the app. Both fall to the default, one post and a queue, which is what they would be given
+ * anyway.
  */
 
 /**
@@ -84,7 +85,7 @@ const NOU_PHASES: readonly LivePhase[] = [{ key: 'briefing', whole: true }, { ke
 
 /** One post, whose phases the post's own secretary writes down, since a B trial's day varies. */
 const NOME_B: LiveFormat = { flow: 'queue', marks: [], posts: 'one', tasks: 'phases' }
-/** Four or five posts that the classes rotate past; the post's default or the group's own figure there says how many dogs. */
+/** Posts that the groups rotate past, doing their exercises; the post's default or the group's own figure there says how many dogs. */
 const NOWT: LiveFormat = { flow: 'queue', marks: [], posts: 'many', tasks: 'post' }
 
 const LIVE_FORMATS = new Map<string, LiveFormat>([

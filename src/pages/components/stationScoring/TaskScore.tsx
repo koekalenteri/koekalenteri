@@ -12,7 +12,7 @@ import { effectiveJudge, isRecordedTask } from '@/lib/resultTasks'
 import { NumberInput } from '../NumberInput'
 
 /**
- * A part's name ("Tehtävä 2, osa 1/2") needs the room its label takes where the field shows it; a table
+ * A part's name ("Rasti 2, osa 1/2") needs the room its label takes where the field shows it; a table
  * column has two digits to show and a ceiling beside it, so its field is the narrower.
  */
 const scoreFieldWidth = (inline: boolean, showName: boolean, parts: number) => {

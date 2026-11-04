@@ -168,7 +168,7 @@ const klResultOf = (registration: KcResultRegistration, event: KcResultEvent, ko
 
 const judgeId = (judge: PublicJudge): number | undefined => (judge.id ? judge.id : undefined)
 
-/** Every judge who judged the dog, the one that judged most of it first. */
+/** The class's or the event's first judge as the chief, then every judge named on the dog's result. */
 const judgesOf = (registration: KcResultRegistration, event: KcResultEvent): PublicJudge[] => {
   const result = registration.eventResult
   const classJudges = makeArray(event.classes.find((item) => item.class === registration.class)?.judge)
