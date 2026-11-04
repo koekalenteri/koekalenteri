@@ -77,6 +77,22 @@ describe('EventStartNumbersPage', () => {
   })
   afterAll(() => vi.useRealTimers())
 
+  it('says which trial this is, beside the way back (KOE-1699)', async () => {
+    const { i18n } = useTranslation()
+    await renderPage(i18n.language as Language)
+    await flushPromises()
+
+    expect(
+      screen.getByText(
+        new RegExp(`${eventWithStations.eventType} ${eventWithStations.location} ${eventWithStations.name}$`)
+      )
+    ).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'results.backToEvent' })).toHaveAttribute(
+      'href',
+      Path.admin.viewEvent(eventWithStations.id)
+    )
+  })
+
   it('lists the dogs that ran with a number field each, and leaves the reserve out', async () => {
     const { i18n } = useTranslation()
     await renderPage(i18n.language as Language)

@@ -65,7 +65,7 @@ describeInLanguage('en', () => {
       </div>
     )
 
-    await expect.element(screen.getByText(/Vaasa \(Results trial\)$/)).toBeVisible()
+    await expect.element(screen.getByText(/Vaasa Results trial$/)).toBeVisible()
     await expect(screen.getByTestId('visual-root')).toMatchScreenshot('event-results-page-header-en')
   })
 })

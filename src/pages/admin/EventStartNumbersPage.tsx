@@ -94,7 +94,7 @@ export default function EventStartNumbersPage() {
     >
       <StartNumbersEntry
         header={
-          <EntryPageHeader eventId={eventId} title={t('startNumbers.title')}>
+          <EntryPageHeader event={event} title={t('startNumbers.title')}>
             <Typography
               variant="body2"
               sx={{

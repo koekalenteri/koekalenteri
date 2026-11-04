@@ -5,9 +5,10 @@ import { useBlocker } from 'react-router'
 
 /**
  * Asks before leaving a page with unsaved edits (KOE-1283): in-app navigation is intercepted with a
- * confirm dialog, and closing or reloading the tab gets the browser's own prompt.
+ * confirm dialog, and closing or reloading the tab gets the browser's own prompt. A page whose edits
+ * outlive it (a draft in storage) drops them through `onLeave` when the answer is to leave.
  */
-export const useUnsavedChangesWarning = (when: boolean) => {
+export const useUnsavedChangesWarning = (when: boolean, onLeave?: () => void) => {
   const { t } = useTranslation()
   const confirm = useConfirm()
   const blocker = useBlocker(
@@ -27,10 +28,14 @@ export const useUnsavedChangesWarning = (when: boolean) => {
       title: t('unsavedChanges.title'),
     }).then(({ confirmed }) => {
       prompting.current = false
-      if (confirmed) blocker.proceed()
-      else blocker.reset()
+      if (confirmed) {
+        onLeave?.()
+        blocker.proceed()
+      } else {
+        blocker.reset()
+      }
     })
-  }, [blocker, confirm, t])
+  }, [blocker, confirm, onLeave, t])
 
   useEffect(() => {
     if (!when) return

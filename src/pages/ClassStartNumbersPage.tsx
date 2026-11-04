@@ -13,7 +13,7 @@ import { useLinkedEntry } from '../hooks/useLinkedEntry'
 import { reportError } from '../lib/client/error'
 import { errorSnackbarOptions } from '../lib/client/snackbar'
 import { refusedStartNumber } from '../lib/client/startNumberErrors'
-import { linkedEventSubtitle } from '../lib/event'
+import { eventSubtitle } from '../lib/event'
 import { StartNumbersEntry } from './admin/eventStartNumbersPage/StartNumbersEntry'
 import LoadingIndicator from './components/LoadingIndicator'
 import { languageAtom } from './state'
@@ -77,7 +77,7 @@ export function Component() {
 
   if (!entry) return <LoadingIndicator />
 
-  const subtitle = linkedEventSubtitle(entry.event, language, t)
+  const subtitle = eventSubtitle(entry.event, language, t)
 
   return (
     <Paper
