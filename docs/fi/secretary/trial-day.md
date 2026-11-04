@@ -118,6 +118,11 @@ ole vielä pisteytetty, koiran palkinto poistuu, kunnes rasti on pisteytetty. Jo
 muuttuu, on *Omakoira*-sarakkeessa tilassa *{t:results.kennelliitto.badge.changed}* ja lähetetään
 uudelleen.
 
+Onnistunut tallennus palaa tapahtumasivulle. Otsikon vieressä oleva **{t:results.backToEvent}** vie
+samaan paikkaan. Jos muutoksia ei ole tallennettu, sivu kysyy ensin: **{t:unsavedChanges.stay}** jää
+sivulle, ja **{t:unsavedChanges.leave}** hylkää muutokset. Sama kysymys tulee, jos sivulta poistuu
+sivuvalikosta tai selaimen paluupainikkeella. **{t:cancel}** hylkää muutokset heti kysymättä.
+
 Kirjatut pisteet kuuluvat rastille, jolle ne kirjattiin: rasti 3 pysyy rastina 3, vaikka sen
 suorituspaikka tai ryhmän suoritusjärjestys muuttuu. Kun esimerkiksi neljä suorituspaikkaa korjataan
 kolmeksi niin, että kolmas paikka tekee rastit 3 ja 4, jokaisen koiran rastien 1, 2, 3 ja 4 pisteet
@@ -147,7 +152,8 @@ tuloksia, ei tallenneta. Muutos, joka ei muuta yhdenkään koiran tulosta, talle
 ## Tulosten syöttö
 
 Paneelin painike **{t:eventManagement.enterResults}** aktivoituu, kun koe on alkanut, ja avaa
-sivun **{t:results.title}**. Monipäiväisessä kokeessa valitaan ensin päivä, ja luokat ovat omilla
+sivun **{t:results.title}**. Otsikon alla näkyvät kokeen päivä, tyyppi, paikka ja nimi, kuten
+suorituspaikkojen, starttinumeroiden ja suorituspaikan kirjaussivuillakin. Monipäiväisessä kokeessa valitaan ensin päivä, ja luokat ovat omilla
 välilehdillään. Sivulla ovat vain osallistujiksi nostetut koirakot starttijärjestyksessä.
 
 **Rasteilla pisteytettävä koe (NOWT).** Jokaisella rastilla on oma sarakkeensa rastin numerolla,

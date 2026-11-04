@@ -18,14 +18,25 @@ const Frame = ({ children }: { readonly children: React.ReactNode }) => (
   </div>
 )
 
+const event = {
+  endDate: '2021-02-11',
+  eventType: 'NOME-B',
+  id: 'test-event',
+  location: 'Vaasa',
+  name: 'Kevätkoe',
+  startDate: '2021-02-10',
+} as const
+
 const header = (
-  <EntryPageHeader eventId="test-event" title="Starttinumerot">
-    <Typography variant="body2">NOME-B, 10.–11.2.2021, test location</Typography>
+  <EntryPageHeader event={event} title="Starttinumerot">
+    <Typography sx={{ color: 'text.secondary' }} variant="body2">
+      Numerot syötetään arvonnan jälkeen.
+    </Typography>
   </EntryPageHeader>
 )
 
-// The head of a batch entry screen: the way back on the title's row, and what the screen says about
-// the trial beneath them (KOE-541).
+// The head of a batch entry screen: the way back on the title's row (KOE-541), which trial this is
+// beneath them (KOE-1699), and then what the screen itself says.
 it('heads a batch entry screen with the way back beside the title', async () => {
   await page.viewport(DESKTOP.width, DESKTOP.height)
 
@@ -65,9 +76,7 @@ it('keeps the arrow on the first line when the heading wraps', async () => {
 
   const screen = await render(
     <Frame>
-      <EntryPageHeader eventId="test-event" title="Starttinumerot ja niiden julkaisu luokittain ja päivittäin">
-        <Typography variant="body2">NOME-B, 10.–11.2.2021, test location</Typography>
-      </EntryPageHeader>
+      <EntryPageHeader event={event} title="Starttinumerot ja niiden julkaisu luokittain ja päivittäin" />
     </Frame>
   )
 

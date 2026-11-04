@@ -5,6 +5,7 @@ import { useAtom, useSetAtom } from 'jotai'
 import { useResetAtom } from 'jotai/utils'
 import { useSnackbar } from 'notistack'
 import { useCallback, useRef, useState } from 'react'
+import { flushSync } from 'react-dom'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router'
 import { APIError } from '@/api/http'
@@ -94,6 +95,17 @@ export default function useEventForm(options: EventFormOptions = {}) {
   const [droppedTasks, setDroppedTasks] = useState<ResultTasksDroppedBody>()
 
   /**
+   * Goes on to the redirect once the form has nothing left to save. The router asks a page's
+   * `useUnsavedChangesWarning` at the moment of `navigate`, so the page must have rendered with that
+   * by then: a state update still waiting for its render would have it ask about a finished form.
+   */
+  const leave = useCallback(() => {
+    if (!onDoneRedirect) return
+    flushSync(() => setCanSave(false))
+    void navigate(onDoneRedirect)
+  }, [navigate, onDoneRedirect])
+
+  /**
    * Despite the `Patch` type, this replaces the stored event outright — a caller handing it a real
    * patch wipes every field the patch does not mention, the id included, and the form then reports the
    * event as missing. Callers must merge into the current event first, as EventForm does.
@@ -128,9 +140,7 @@ export default function useEventForm(options: EventFormOptions = {}) {
           setCanSave(false)
         }
         resetEvent()
-        if (onDoneRedirect) {
-          void navigate(onDoneRedirect)
-        }
+        leave()
         enqueueSnackbar(savedMessage ?? getEventSavedMessage(saved?.state, t), { variant: 'info' })
         onSaved?.()
       } catch (error) {
@@ -145,19 +155,7 @@ export default function useEventForm(options: EventFormOptions = {}) {
         enqueueSnackbar(t(refusalNotice(error)), errorSnackbarOptions)
       }
     },
-    [
-      changes,
-      enqueueSnackbar,
-      event,
-      navigate,
-      onDoneRedirect,
-      onSaved,
-      resetEvent,
-      saveEvent,
-      savedMessage,
-      storedEvent,
-      t,
-    ]
+    [changes, enqueueSnackbar, event, leave, onSaved, resetEvent, saveEvent, savedMessage, storedEvent, t]
   )
 
   const handleSave = useCallback(() => save(), [save])
@@ -177,14 +175,14 @@ export default function useEventForm(options: EventFormOptions = {}) {
 
   const handleCancel = useCallback(() => {
     resetEvent()
-    if (onDoneRedirect) {
-      void navigate(onDoneRedirect)
-    }
-  }, [navigate, resetEvent, onDoneRedirect])
+    leave()
+  }, [leave, resetEvent])
 
   return {
     canSave,
     changes,
+    /** Drops the draft and stays put, for a page whose leaving is decided elsewhere. */
+    discardChanges: resetEvent,
     dropsDialogProps,
     event,
     handleCancel,

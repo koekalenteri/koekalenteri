@@ -174,16 +174,17 @@ export const localizedEventDescription = (
   language: Language
 ): string => event.descriptions?.[language] || event.description
 
+export type EventSubtitleFields = Pick<
+  PublicDogEvent,
+  'endDate' | 'eventType' | 'location' | 'name' | 'names' | 'startDate'
+>
+
 /**
- * The line a tokenized link's screen heads its sheet with (KOE-1258, KOE-1267): when the trial runs,
- * what and where it is, and its name. The link has no navigation to say which trial it opened, so
- * this line is the whole answer — and it reads the same on every such screen.
+ * The line that says which trial a sheet belongs to: when it runs, what and where it is, and its
+ * name. It reads the same on the tokenized links' screens (KOE-1258, KOE-1267), which have no
+ * navigation to say it otherwise, and in the head of a secretary's entry screens (KOE-1699).
  */
-export const linkedEventSubtitle = (
-  event: Pick<PublicDogEvent, 'endDate' | 'eventType' | 'location' | 'name' | 'names' | 'startDate'>,
-  language: Language,
-  t: TFunction
-): string =>
+export const eventSubtitle = (event: EventSubtitleFields, language: Language, t: TFunction): string =>
   [
     t('dateFormat.datespan', { end: event.endDate, start: event.startDate }),
     event.eventType,
