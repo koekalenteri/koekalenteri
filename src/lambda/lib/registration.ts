@@ -535,6 +535,21 @@ export const getReadyRegistrationsByEventId = async (
   return registrations.filter((r) => r.state === 'ready')
 }
 
+/**
+ * The `ready` row the same dog has in the same trial, asked of a row still `creating`: that row can no
+ * longer become the dog's entry, and a payment for it is one charged twice. A cancelled `ready` row
+ * counts too, since the dog's next entry is the secretary's to make. A row past `creating` has no twin
+ * and costs no read.
+ */
+export const findReadyTwin = async (
+  registration: Pick<JsonRegistration, 'dog' | 'eventId' | 'id' | 'state'>
+): Promise<JsonRegistration | undefined> => {
+  if (registration.state !== 'creating') return undefined
+
+  const readyRegistrations = await getReadyRegistrationsByEventId(registration.eventId, true)
+  return readyRegistrations.find((item) => item.id !== registration.id && item.dog.regNo === registration.dog.regNo)
+}
+
 const CREATING_REGISTRATION_RESERVATION_MS = 15 * 60 * 1000
 
 export const registrationConflictBody = (registration: Pick<JsonRegistration, 'cancelled' | 'state'>) =>

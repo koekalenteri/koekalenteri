@@ -21,6 +21,7 @@ const mockRead =
 const mockCreatePaymentTransaction = vi.fn<() => Promise<void>>()
 const mockClaimTransactionCreation = vi.fn<() => Promise<boolean>>(() => Promise.resolve(true))
 const mockReleaseTransactionCreation = vi.fn<() => Promise<void>>(() => Promise.resolve())
+const mockReadEventRegistrations = vi.fn<(eventId: string, consistent?: boolean) => Promise<JsonRegistration[]>>()
 const mockAuthorizeRegistrationEdit = vi.fn<() => string>(() => 'test-edit-token')
 const mockGetRegistration = vi.fn<(eventId: string, registrationId: string) => Promise<JsonRegistration>>(
   async (eventId, registrationId) => {
@@ -60,7 +61,9 @@ vi.doMock('../lib/payment', () => ({
   paymentDescription: vi.fn(() => 'Test Type 1.–2.1. Test Location Test Event'),
 }))
 
-vi.doMock('../lib/registration', () => ({
+// The rule on the dog's other rows runs as it is, on rows from the repository below (KOE-1695).
+vi.doMock('../lib/registration', async () => ({
+  ...(await vi.importActual<typeof import('../lib/registration')>('../lib/registration')),
   authorizeRegistrationEdit: mockAuthorizeRegistrationEdit,
   getRegistration: mockGetRegistration,
 }))
@@ -72,6 +75,7 @@ vi.doMock('../lib/repositories/organizerRepository', () => ({
 
 vi.doMock('../lib/repositories/registrationRepository', () => ({
   claimTransactionCreation: mockClaimTransactionCreation,
+  readEventRegistrations: mockReadEventRegistrations,
   releaseTransactionCreation: mockReleaseTransactionCreation,
 }))
 
@@ -197,6 +201,7 @@ describe('paymentCreateLambda', () => {
     mockReadTransactionsByReference.mockResolvedValue([])
     mockFailUnfinishedTransaction.mockResolvedValue(true)
     mockDropOpenTransaction.mockResolvedValue(true)
+    mockReadEventRegistrations.mockResolvedValue([])
   })
 
   it('creates a payment successfully for a member', async () => {
@@ -1023,5 +1028,113 @@ describe('paymentCreateLambda', () => {
 
     expect(result.statusCode).toEqual(200)
     expect(mockCreatePayment).toHaveBeenCalled()
+  })
+
+  // An old entry left unpaid, whose dog has since been entered again and that entry paid: paying the
+  // old one would only be found a duplicate in PaymentSuccess, with the money charged (KOE-1695).
+  describe('a creating row', () => {
+    const GONE = { message: 'Gone: the dog already has another registration to this event' }
+    const creating = (overrides: Partial<JsonRegistration> = {}) =>
+      createMockRegistration({ state: 'creating', ...overrides })
+    const other = (overrides: Partial<JsonRegistration> = {}) => createMockRegistration({ id: 'reg789', ...overrides })
+
+    const readsRow = (registration: JsonRegistration) => {
+      mockRead.mockReset()
+      mockRead.mockResolvedValueOnce(registration).mockResolvedValueOnce(createMockOrganizer())
+    }
+
+    it('is refused when its dog has a ready row in the trial, before Paytrail is asked', async () => {
+      readsRow(creating())
+      mockReadEventRegistrations.mockResolvedValue([creating(), other()])
+
+      const result = await paymentCreateLambda(event)
+
+      expect(result.statusCode).toEqual(410)
+      expect(JSON.parse(result.body)).toEqual(GONE)
+      expect(mockReadEventRegistrations).toHaveBeenCalledWith('event123', true)
+      expect(mockClaimTransactionCreation).not.toHaveBeenCalled()
+      expect(mockCreatePayment).not.toHaveBeenCalled()
+    })
+
+    it('is refused the same when the ready row has been cancelled', async () => {
+      readsRow(creating())
+      mockReadEventRegistrations.mockResolvedValue([other({ cancelled: true })])
+
+      const result = await paymentCreateLambda(event)
+
+      expect(result.statusCode).toEqual(410)
+      expect(JSON.parse(result.body)).toEqual(GONE)
+      expect(mockCreatePayment).not.toHaveBeenCalled()
+    })
+
+    it('does not hand back its old Paytrail link, and leaves its transactions as they are', async () => {
+      readsRow(creating())
+      mockReadEventRegistrations.mockResolvedValue([other()])
+      mockReadTransactionsByReference.mockResolvedValue([
+        {
+          createdAt: new Date().toISOString(),
+          paymentResponse: createMockPaymentResponse({ transactionId: 'reusableTx' }),
+          reference: 'event123:reg456',
+          status: 'new',
+          transactionId: 'reusableTx',
+          type: 'payment',
+        },
+      ])
+
+      const result = await paymentCreateLambda(event)
+
+      expect(result.statusCode).toEqual(410)
+      expect(JSON.parse(result.body)).toEqual(GONE)
+      expect(mockFailUnfinishedTransaction).not.toHaveBeenCalled()
+      expect(mockDropOpenTransaction).not.toHaveBeenCalled()
+      expect(mockReleaseTransactionCreation).not.toHaveBeenCalled()
+    })
+
+    it('pays when the ready row is another dog', async () => {
+      readsRow(creating())
+      mockReadEventRegistrations.mockResolvedValue([other({ dog: { name: 'Other Dog', regNo: 'OTHER-456' } })])
+
+      const result = await paymentCreateLambda(event)
+
+      expect(result.statusCode).toEqual(200)
+      expect(mockCreatePayment).toHaveBeenCalled()
+    })
+
+    it('pays when its dog has only another creating row', async () => {
+      readsRow(creating())
+      mockReadEventRegistrations.mockResolvedValue([creating(), other({ state: 'creating' })])
+
+      const result = await paymentCreateLambda(event)
+
+      expect(result.statusCode).toEqual(200)
+      expect(mockCreatePayment).toHaveBeenCalled()
+    })
+
+    it('pays when the ready row is itself, read after it turned ready', async () => {
+      readsRow(creating())
+      mockReadEventRegistrations.mockResolvedValue([createMockRegistration()])
+
+      const result = await paymentCreateLambda(event)
+
+      expect(result.statusCode).toEqual(200)
+      expect(mockCreatePayment).toHaveBeenCalled()
+    })
+
+    it('that was charged twice keeps its own answer', async () => {
+      readsRow(creating({ paymentStatus: 'DUPLICATE' }))
+      mockReadEventRegistrations.mockResolvedValue([other()])
+
+      const result = await paymentCreateLambda(event)
+
+      expect(result.statusCode).toEqual(409)
+      expect(JSON.parse(result.body)).toEqual('A payment charged twice cannot be paid again')
+    })
+
+    it('is the only state that pays for reading the trial', async () => {
+      const result = await paymentCreateLambda(event)
+
+      expect(result.statusCode).toEqual(200)
+      expect(mockReadEventRegistrations).not.toHaveBeenCalled()
+    })
   })
 })

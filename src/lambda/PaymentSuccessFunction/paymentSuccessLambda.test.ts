@@ -37,6 +37,7 @@ const mockFixRegistrationGroups = vi.fn(async (registrations: unknown[]) => regi
 const mockLockRegistrationGroups = vi.fn().mockResolvedValue(async () => undefined)
 const mockLockRegistrationPayments = vi.fn().mockResolvedValue(async () => undefined)
 const mockGetReadyRegistrationsByEventId = vi.fn().mockResolvedValue([])
+const mockFindReadyTwin = vi.fn().mockResolvedValue(undefined)
 const mockGetFixedT = vi.fn()
 const mockSendTemplatedMail = vi.fn()
 const mockEmailTo = vi.fn()
@@ -82,6 +83,7 @@ vi.doMock('../lib/registration', () => ({
     ...Object.fromEntries(Object.entries(registration).filter(([key, value]) => existing[key] !== value)),
   })),
   createRegistrationPatches: mockCreateRegistrationPatches,
+  findReadyTwin: mockFindReadyTwin,
   getReadyRegistrationsByEventId: mockGetReadyRegistrationsByEventId,
   getRegistration: mockGetRegistration,
   getRegistrationEditToken: mockGetRegistrationEditToken,
@@ -436,7 +438,7 @@ describe('paymentSuccessLambda', () => {
       state: 'ready',
     }
     const groupedRegistration = { ...readyRegistration, group: { key: 'reserve', number: 1 } }
-    mockGetReadyRegistrationsByEventId.mockResolvedValueOnce([]).mockResolvedValueOnce([readyRegistration])
+    mockGetReadyRegistrationsByEventId.mockResolvedValueOnce([readyRegistration])
     mockFixRegistrationGroups.mockResolvedValueOnce([groupedRegistration])
 
     await paymentSuccessLambda(event)
@@ -453,9 +455,12 @@ describe('paymentSuccessLambda', () => {
     mockRegistrationAuditKey.mockImplementation(
       (registration: { eventId: string; id: string }) => `${registration.eventId}:${registration.id}`
     )
-    mockGetReadyRegistrationsByEventId.mockResolvedValueOnce([
-      { dog: { regNo: 'FI12345' }, eventId: 'event123', id: 'other-registration', state: 'ready' },
-    ])
+    mockFindReadyTwin.mockResolvedValueOnce({
+      dog: { regNo: 'FI12345' },
+      eventId: 'event123',
+      id: 'other-registration',
+      state: 'ready',
+    })
     // getRegistration is called three times here: handleSuccessfulPayment's own fetch,
     // applyPaymentToRegistration's re-fetch (whose result decides the duplicate), and
     // the publisher's strongly consistent re-read after recordDuplicatePayment's DELETE from openPayments --
@@ -490,7 +495,7 @@ describe('paymentSuccessLambda', () => {
     expect(mockApplySuccessfulPayment).not.toHaveBeenCalled()
     expect(mockSendTemplatedMail).not.toHaveBeenCalled()
     expect(mockLockRegistrationPayments).toHaveBeenCalledWith('event123')
-    expect(mockGetReadyRegistrationsByEventId).toHaveBeenCalledWith('event123', true)
+    expect(mockFindReadyTwin).toHaveBeenCalledWith(expect.objectContaining({ id: 'reg456', state: 'creating' }))
     expect(mockGetRegistration).toHaveBeenCalledTimes(3)
     // The transaction and the registration in one write (KOE-1531).
     expect(mockRecordDuplicatePayment).toHaveBeenCalledTimes(1)
@@ -536,7 +541,6 @@ describe('paymentSuccessLambda', () => {
   it('acknowledges a redelivered duplicate whose twin was cancelled since, without a receipt or an audit', async () => {
     // T1 was recorded as a duplicate of a ready twin; the twin is cancelled, so the redelivery finds no
     // twin and tries to apply the payment, which the repository refuses as already a duplicate (KOE-1531).
-    mockGetReadyRegistrationsByEventId.mockResolvedValueOnce([])
     mockApplySuccessfulPayment.mockResolvedValueOnce({
       applied: false,
       appliedAt: '2025-01-01T00:00:00.000Z',
@@ -902,9 +906,12 @@ describe('paymentSuccessLambda', () => {
 
   it('writes both duplicate audits when the entrant picture cannot be built (KOE-1566)', async () => {
     const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined)
-    mockGetReadyRegistrationsByEventId.mockResolvedValueOnce([
-      { dog: { regNo: 'FI12345' }, eventId: 'event123', id: 'other-registration', state: 'ready' },
-    ])
+    mockFindReadyTwin.mockResolvedValueOnce({
+      dog: { regNo: 'FI12345' },
+      eventId: 'event123',
+      id: 'other-registration',
+      state: 'ready',
+    })
     mockGetEvent.mockRejectedValueOnce(new Error('event table down'))
 
     await paymentSuccessLambda(event)

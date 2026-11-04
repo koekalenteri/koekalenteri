@@ -31,7 +31,7 @@ import { parseJSONWithFallback } from '../lib/json'
 import { httpError, lambda, response } from '../lib/lambda'
 import { dropOpenTransaction, paymentDescription } from '../lib/payment'
 import { PaytrailError, paytrail } from '../lib/paytrail'
-import { authorizeRegistrationEdit, getRegistration } from '../lib/registration'
+import { authorizeRegistrationEdit, findReadyTwin, getRegistration } from '../lib/registration'
 import { readOrganizer } from '../lib/repositories/organizerRepository'
 import { claimTransactionCreation, releaseTransactionCreation } from '../lib/repositories/registrationRepository'
 import {
@@ -132,6 +132,22 @@ const assertOpenForPayment = (jsonEvent: JsonConfirmedEvent, registration: Pick<
 }
 
 /**
+ * The refusals the dog's own rows decide. Both come before the transactions are looked at, or an old
+ * unfinished one would hand back its Paytrail link (KOE-1693, KOE-1695), and neither touches them.
+ */
+const assertNotPaidElsewhere = async (registration: JsonRegistration) => {
+  // The mark, not the status: a duplicate whose fee went back reads `refunded`.
+  if (isDuplicatePayment(registration)) {
+    throw httpError(409, 'A payment charged twice cannot be paid again')
+  }
+
+  // Paying here would only be found a duplicate in PaymentSuccess, with the money charged (KOE-1695).
+  if (await findReadyTwin(registration)) {
+    throw httpError(410, { message: 'Gone: the dog already has another registration to this event' })
+  }
+}
+
+/**
  * paymentCreate is called by client to start the payment process
  */
 const paymentCreateLambda = lambda('paymentCreate', async (event) => {
@@ -143,11 +159,7 @@ const paymentCreateLambda = lambda('paymentCreate', async (event) => {
 
   assertOpenForPayment(jsonEvent, registration)
 
-  // The mark, not the status: a duplicate whose fee went back reads `refunded`, and below an old
-  // unfinished transaction would hand back its Paytrail link before the amount is looked at (KOE-1693).
-  if (isDuplicatePayment(registration)) {
-    throw httpError(409, 'A payment charged twice cannot be paid again')
-  }
+  await assertNotPaidElsewhere(registration)
 
   // Only the amount is read, and it does not depend on open payments (a payment in progress is
   // answered 409 below, from the transactions themselves), so none are loaded.

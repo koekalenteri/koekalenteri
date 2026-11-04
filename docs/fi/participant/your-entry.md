@@ -52,8 +52,11 @@ arvosteltu: painike **{t:registration.cta.pay}**, koiran rivin euromerkki ja mak
 seitsemännen päivän loppuun asti. Sen jälkeen sivu ja maksulinkki kertovat, ettei ilmoittautumista
 löydy, eikä maksua voi enää aloittaa.
 
-Jos vanha, kesken jäänyt ilmoittautuminen tulee maksetuksi sen jälkeen, kun koiran toinen
-ilmoittautuminen on jo maksettu, rivillä lukee *{t:paymentStatus.duplicate}*, eikä tätä
+Jos koiralla on jo toinen ilmoittautuminen samaan kokeeseen, vanhan, kesken jääneen ilmoittautumisen
+maksusivu ei enää tarjoa maksutapoja, ja sivulla lukee *{t:paymentPage.error410}*
+
+Jos vanha, kesken jäänyt ilmoittautuminen tulee silti maksetuksi jo auki olleella
+Paytrail-välilehdellä sen jälkeen, kun koiran toinen ilmoittautuminen on jo maksettu, rivillä lukee *{t:paymentStatus.duplicate}*, eikä tätä
 ilmoittautumista voi maksaa. Koesihteeri palauttaa maksun, ja sen jälkeen rivillä lukee
 *{t:paymentStatus.refunded}*.
 

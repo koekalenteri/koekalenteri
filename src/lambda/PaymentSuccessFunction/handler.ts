@@ -36,6 +36,7 @@ import {
 import {
   createRegistrationPatch,
   createRegistrationPatches,
+  findReadyTwin,
   getReadyRegistrationsByEventId,
   getRegistration,
   getRegistrationEditToken,
@@ -105,15 +106,10 @@ const applyPaymentToRegistration = async (
   const releasePaymentLock = await lockRegistrationPayments(registration.eventId)
   try {
     registration = await getRegistration(eventId, registrationId)
-    if (registration.state === 'creating') {
-      const readyRegistrations = await getReadyRegistrationsByEventId(registration.eventId, true)
-      const duplicate = readyRegistrations.find(
-        (item) => item.id !== registration.id && item.dog.regNo === registration.dog.regNo
-      )
-      if (duplicate) {
-        await handleDuplicatePayment(transaction, duplicate, provider, transactionExists, registration)
-        duplicatePayment = true
-      }
+    const duplicate = await findReadyTwin(registration)
+    if (duplicate) {
+      await handleDuplicatePayment(transaction, duplicate, provider, transactionExists, registration)
+      duplicatePayment = true
     }
     if (duplicatePayment) return { appliedPayment, duplicatePayment, previouslyPaid, registration }
 

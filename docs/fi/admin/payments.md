@@ -72,8 +72,9 @@ osallistumismaksun, valitut lisäpalvelut, aiemmin maksetun ja maksettavan summa
 
 ### {t:registration.duplicatePayments.title}
 
-Jos koiralla on jo maksettu ilmoittautuminen ja sen vanha, kesken jäänyt ilmoittautuminen maksetaan
-vielä esimerkiksi auki jääneellä Paytrail-välilehdellä, raha tulee yhdistykselle, mutta
+Kun koiralla on jo toinen valmis ilmoittautuminen, sen vanhan, kesken jääneen ilmoittautumisen
+maksusivu ei enää tarjoa maksutapoja, vaan kertoo, ettei ilmoittautumista voi enää maksaa. Jo auki
+olevaa Paytrail-välilehteä tämä ei estä: jos maksu tehdään siellä, raha tulee yhdistykselle, mutta
 ilmoittautuminen ei valmistu. Se ei näy luokkalistoilla, ryhmissä eikä laskureissa. Maksajalle
 kerrotaan ilmoittautumisen sivulla, että maksu palautetaan koesihteerin kautta.
 

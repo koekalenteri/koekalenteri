@@ -159,6 +159,16 @@ it('tells the payer a payment charged twice has gone back', async () => {
   await expect(screen.getByTestId('visual-root')).toMatchScreenshot('payment-page-duplicate-refunded')
 })
 
+// An old entry whose dog has another registration in the trial: the old link no longer pays (KOE-1695).
+it('tells the payer the dog already has another registration', async () => {
+  const screen = await renderAt(DESKTOP, 'fi', { appBoxModel: true, responseStatus: 410 })
+
+  const notice =
+    'Koiralla on jo toinen ilmoittautuminen tähän kokeeseen, eikä tätä ilmoittautumista voi enää maksaa. Ota tarvittaessa yhteyttä koesihteeriin.'
+  await expect.element(screen.getByText(notice)).toBeVisible()
+  await expect(screen.getByTestId('visual-root')).toMatchScreenshot('payment-page-dog-registered')
+})
+
 /** Paytrail's own JSON answer to a payment it would not create. */
 const PAYTRAIL_REFUSAL = JSON.stringify({ message: 'Validation failed', status: 'error' })
 

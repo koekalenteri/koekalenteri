@@ -9,7 +9,6 @@ import { useAtomValue, useSetAtom } from 'jotai'
 import { Suspense, useCallback, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Await, useLoaderData, useParams } from 'react-router'
-import { APIError } from '../api/http'
 import { createPayment } from '../api/payment'
 import { useRegistrationLanguage } from '../hooks/useRegistrationLanguage'
 import { paytrailErrorText } from '../lib/payment'
@@ -34,22 +33,7 @@ import {
 export const loader = ({ params, request }: { params: Params<string>; request: Request }) => {
   const createPaymentWrap = async () => {
     if (params.id && params.registrationId) {
-      try {
-        return await createPayment(
-          params.id,
-          params.registrationId,
-          params.editToken,
-          readStoredIdToken(),
-          request.signal
-        )
-      } catch (err) {
-        // eat 403 & 404
-        if (err instanceof APIError && (err.status === 403 || err.status === 404)) {
-          return { response: undefined, status: err.status }
-        }
-
-        throw err
-      }
+      return createPayment(params.id, params.registrationId, params.editToken, readStoredIdToken(), request.signal)
     }
     return { response: undefined, status: 0 }
   }
@@ -76,6 +60,7 @@ const paymentErrorStatusKey = {
   403: 'paymentPage.error403',
   404: 'paymentPage.error404',
   409: 'paymentPage.error409',
+  410: 'paymentPage.error410',
   412: 'paymentPage.error412',
   500: 'paymentPage.error500',
 } as const

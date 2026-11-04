@@ -62,6 +62,7 @@ const {
   getLastEmail,
   findClassesToMark,
   findExistingRegistrationToEventForDog,
+  findReadyTwin,
   hasRegistrationChanges,
   getRegistration,
   getReadyRegistrationsByEventId,
@@ -324,6 +325,43 @@ describe('registration', () => {
       mockReadEventRegistrations.mockResolvedValueOnce([reg])
 
       expect(await findExistingRegistrationToEventForDog(reg.eventId, reg.dog.regNo, 'new-attempt')).toBeUndefined()
+    })
+  })
+
+  describe('findReadyTwin', () => {
+    const base = jsonRegistrationsToEventWithParticipantsInvited[0]
+    const creating = { ...base, state: 'creating' as const }
+    const twin = { ...base, id: 'twin', state: 'ready' as const }
+
+    it('finds the ready row of the same dog, with a consistent read', async () => {
+      mockReadEventRegistrations.mockResolvedValueOnce([creating, twin])
+
+      expect(await findReadyTwin(creating)).toEqual(twin)
+      expect(mockReadEventRegistrations).toHaveBeenCalledWith(base.eventId, true)
+    })
+
+    it('counts a cancelled ready row', async () => {
+      const cancelled = { ...twin, cancelled: true }
+      mockReadEventRegistrations.mockResolvedValueOnce([creating, cancelled])
+
+      expect(await findReadyTwin(creating)).toEqual(cancelled)
+    })
+
+    it.each([
+      ['another dog', { ...twin, dog: { ...base.dog, regNo: 'OTHER' } }],
+      ['the row itself, read after it turned ready', { ...twin, id: base.id }],
+      ['a creating row of the same dog', { ...twin, state: 'creating' as const }],
+    ])('does not take %s for a twin', async (_case, row) => {
+      mockReadEventRegistrations.mockResolvedValueOnce([row])
+
+      expect(await findReadyTwin(creating)).toBeUndefined()
+    })
+
+    it('reads nothing for a row that is not creating', async () => {
+      mockReadEventRegistrations.mockClear()
+
+      expect(await findReadyTwin({ ...base, state: 'ready' })).toBeUndefined()
+      expect(mockReadEventRegistrations).not.toHaveBeenCalled()
     })
   })
 

@@ -805,6 +805,7 @@
     "error403": "Maksu on mahdollista vasta koepaikan varmistuttua",
     "error404": "Ilmoittautumista ei löydy tai sitä ei voi enää maksaa",
     "error409": "Maksu on jo käynnissä, voit yrittää uudelleen viiden minuutin kuluttua",
+    "error410": "Koiralla on jo toinen ilmoittautuminen tähän kokeeseen, eikä tätä ilmoittautumista voi enää maksaa. Ota tarvittaessa yhteyttä koesihteeriin.",
     "error412": "Maksupalvelua ei ole määritetty tälle yhdistykselle",
     "error500": "Maksun luonti epäonnistui, yritä myöhemmin uudelleen",
     "errorPaytrail": "Maksun luonti epäonnistui Paytrailissa ({{status}}): {{error}}",

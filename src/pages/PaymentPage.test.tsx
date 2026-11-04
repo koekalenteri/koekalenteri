@@ -637,6 +637,7 @@ describe('PaymentPage', () => {
       [403, 'paymentPage.error403'],
       [404, 'paymentPage.error404'],
       [409, 'paymentPage.error409'],
+      [410, 'paymentPage.error410'],
       [412, 'paymentPage.error412'],
       [500, 'paymentPage.error500'],
     ])('should show mapped payment error message for status %s', async (status, expectedMessage) => {
@@ -736,6 +737,53 @@ describe('PaymentPage', () => {
         expect(screen.getByText(expected)).toBeInTheDocument()
         expect(screen.queryByText(i18n.t('paymentPage.error500', { lng: 'en' }))).toBeNull()
         expect(screen.queryByText(i18n.t('paymentPage.error404', { lng: 'en' }))).toBeNull()
+      })
+    })
+
+    // An old entry whose dog has another registration in the trial: a sentence of its own, since
+    // waiting and trying again, as a payment in progress is told to, would never help (KOE-1695).
+    describe.each([
+      [
+        'fi',
+        'Koiralla on jo toinen ilmoittautuminen tähän kokeeseen, eikä tätä ilmoittautumista voi enää maksaa. Ota tarvittaessa yhteyttä koesihteeriin.',
+      ],
+      [
+        'en',
+        'The dog already has another registration to this trial, so this registration can no longer be paid. Please contact the trial secretary if needed.',
+      ],
+    ] as const)('in %s', (language, sentence) => {
+      describeWithTranslations(language, () => {
+        it('says the dog already has another registration on a 410', async () => {
+          const routes: RouteObject[] = [
+            {
+              element: (
+                <PaymentPageWithData
+                  registrationId="test-reg-id"
+                  event={asPaymentEvent({ cost: 50, id: 'test-id', paymentTime: 'registration' })}
+                  registration={{ ...testRegistration, language, totalAmount: 50 }}
+                  response={undefined}
+                  responseStatus={410}
+                />
+              ),
+              path: '/test-path',
+            },
+          ]
+
+          render(
+            <ThemeProvider theme={theme}>
+              <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales[language]}>
+                <Provider>
+                  <DataMemoryRouter initialEntries={['/test-path']} routes={routes} />
+                </Provider>
+              </LocalizationProvider>
+            </ThemeProvider>
+          )
+          await flushPromises()
+
+          expect(screen.getByText(sentence)).toBeInTheDocument()
+          expect(screen.queryByText(i18n.t('paymentPage.error409', { lng: language }))).toBeNull()
+          expect(screen.queryByText(i18n.t('paymentPage.choosePaymentMethod', { lng: language }))).toBeNull()
+        })
       })
     })
   })
