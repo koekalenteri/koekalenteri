@@ -14,6 +14,7 @@ import { TEST_ID_TOKEN } from '@/test-utils/utils'
 import { adminEventAtom, adminEventsAtom } from '../events'
 import { useAdminRegistrationActions, useKennelliittoResults } from './actions'
 import {
+  adminDuplicatePaymentsRefreshAtom,
   adminEventRegistrationsAtom,
   adminEventRegistrationsCursorAtom,
   adminEventRegistrationsFetchedAtAtom,
@@ -404,7 +405,7 @@ describe('useAdminRegistrationActions', () => {
   })
 
   // A payment charged twice has no row on the secretary's list and must not get one (KOE-1693).
-  it('leaves the list as it is when refunding a payment charged twice', async () => {
+  it('leaves the list as it is and fetches its own again when refunding a payment charged twice', async () => {
     const duplicate = {
       ...registrationWithStaticDates,
       id: 'duplicate-row',
@@ -415,6 +416,7 @@ describe('useAdminRegistrationActions', () => {
     const { result } = renderHook(
       () => ({
         actions: useAdminRegistrationActions(eventWithStaticDates.id),
+        refreshCount: useAtomValue(adminDuplicatePaymentsRefreshAtom(eventWithStaticDates.id)),
         registrations: useAtomValue(adminProjectedEventRegistrationsAtom(eventWithStaticDates.id)),
       }),
       {
@@ -437,6 +439,8 @@ describe('useAdminRegistrationActions', () => {
     })
 
     expect(result.current.registrations.map(({ id }) => id)).toEqual([registrationWithStaticDates.id])
+    // What makes the section fetch its own list again.
+    expect(result.current.refreshCount).toBe(1)
   })
 
   // KOE-1526 review: the row must read right after the click as it will once the refund is applied.

@@ -11,6 +11,7 @@ import { eventWithStaticDates } from '@/__mockData__/events'
 import { getDuplicatePayments } from '@/api/registration'
 import theme from '@/assets/Theme'
 import { locales } from '@/i18n'
+import { expectConsoleOutput } from '@/test-utils/consoleGuard'
 import { flushPromises, TEST_ID_TOKEN } from '@/test-utils/utils'
 import AppSnackbarProvider from '../../components/AppSnackbarProvider'
 import { idTokenAtom } from '../../state/user/atoms'
@@ -126,12 +127,11 @@ describe('DuplicatePayments', () => {
     const store = await renderSection()
 
     vi.mocked(getDuplicatePayments).mockRejectedValueOnce(new Error('network'))
-    const errors = vi.spyOn(console, 'error').mockImplementation(() => {})
+    expectConsoleOutput(/reportError .*network/)
     await act(async () => {
       store.set(adminDuplicatePaymentsRefreshAtom(eventWithStaticDates.id), (count) => count + 1)
     })
     await flushPromises()
-    errors.mockRestore()
 
     expect(screen.getByText('Dog 1 (FI1/26)')).toBeInTheDocument()
   })

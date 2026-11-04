@@ -92,8 +92,8 @@ export interface CostResult {
 
 /**
  * What the entry's payment reads as, in the order the rules decide it: a payment charged twice
- * (`duplicate`, `refunded` once it went back), a payment in progress, a fee that went back (`unpaid` when it is owed again, else `refunded`), money
- * standing for the place (`partial` while a part is missing, `overpaid` above the fee), nothing owed
+ * (`duplicate`, `refunded` once it went back), a payment in progress, a fee that went back (`unpaid`
+ * when it is owed again, else `refunded`), money standing for the place (`partial` while a part is missing, `overpaid` above the fee), nothing owed
  * or a trial that is not confirmed (`notCharged`), a place still awaited (`waitingForPlace`) and
  * last the fee not paid (`unpaid`). A standing payment keeps its status whatever the trial's state.
  */

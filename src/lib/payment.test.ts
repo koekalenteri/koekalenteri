@@ -1,6 +1,8 @@
 import type {
   DayKey,
   EventState,
+  JsonPaymentTransaction,
+  JsonRefundTransaction,
   MinimalEventForCost,
   MinimalRegistrationForCost,
   PaymentPicture,
@@ -554,35 +556,47 @@ describe('payment', () => {
     })
   })
 
-  // KOE-1552: what the form says of the payment, read from the picture of the row it edits.
   describe('getDuplicatePaymentRemainder', () => {
-    const charged = { amount: 5000, duplicatePaymentAt: '2026-08-16T10:00:00.000Z', type: 'payment' as const }
-    const applied = {
-      amount: 4500,
-      handlingCost: 500,
-      registrationAppliedAt: '2026-08-17T10:00:00.000Z',
-      type: 'refund' as const,
-    }
-    const remainderOf = (transactions: object[]) =>
-      getDuplicatePaymentRemainder(transactions as Parameters<typeof getDuplicatePaymentRemainder>[0])
+    const transaction = { createdAt: '2026-08-16T09:00:00.000Z', reference: 'event:row', stamp: 'stamp' }
+    const payment = (overrides: Partial<JsonPaymentTransaction>): JsonPaymentTransaction => ({
+      ...transaction,
+      amount: 5000,
+      status: 'ok',
+      transactionId: 'payment',
+      type: 'payment',
+      ...overrides,
+    })
+    const refund = (overrides: Partial<JsonRefundTransaction>): JsonRefundTransaction => ({
+      ...transaction,
+      amount: 5000,
+      status: 'ok',
+      transactionId: 'refund',
+      type: 'refund',
+      user: 'Secretary',
+      ...overrides,
+    })
+    const charged = payment({ duplicatePaymentAt: '2026-08-16T10:00:00.000Z' })
+    const appliedAt = '2026-08-17T10:00:00.000Z'
+    const applied = refund({ amount: 4500, handlingCost: 500, registrationAppliedAt: appliedAt })
 
-    it.each([
+    it.each<[string, (JsonPaymentTransaction | JsonRefundTransaction)[], number]>([
       ['nothing', [], 0],
       ['a charge, in euros from the cents of the transaction', [charged], 50],
-      ['a charge with a refund on its way', [charged, { amount: 5000, status: 'pending', type: 'refund' }], 50],
+      ['a charge with a refund on its way', [charged, refund({ status: 'pending' })], 50],
       ['a charge refunded less a kept fee', [charged, applied], 0],
       ['a second charge after the first went back', [charged, applied, charged], 50],
-      ['a payment that was not charged twice', [{ amount: 5000, status: 'fail', type: 'payment' }], 0],
+      ['a payment that was not charged twice', [payment({ status: 'fail' })], 0],
       [
         'a refund written without a handling fee',
-        [charged, { amount: 1050, registrationAppliedAt: 'x', type: 'refund' }],
+        [charged, refund({ amount: 1050, registrationAppliedAt: appliedAt })],
         39.5,
       ],
     ])('leaves %s', (_name, transactions, expected) => {
-      expect(remainderOf(transactions)).toBe(expected)
+      expect(getDuplicatePaymentRemainder(transactions)).toBe(expected)
     })
   })
 
+  // KOE-1552: what the form says of the payment, read from the picture of the row it edits.
   describe('getFormPayment', () => {
     const shown = { ...eventWithStaticDates, cost: 40, costMember: 35 }
     const confirmed = { ...shown, state: 'confirmed' as const }
