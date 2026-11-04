@@ -185,6 +185,57 @@ describe('StationScoring', () => {
       })
     })
 
+    describe("the dog's stored judge, who is not the post's first (KOE-1706)", () => {
+      const judged = { ...dogs[0], eventResult: { judge: otherJudge, result: 'ALO0' } }
+      const chooseOutcome = async (user: ReturnType<typeof userEvent.setup>, name: string) => {
+        await user.click(screen.getByLabelText('results.interruption'))
+        await user.click(screen.getByRole('option', { name }))
+      }
+      const renderJudged = () =>
+        renderScoring({ registrations: [judged], station: { ...station, judges: [judge, otherJudge] } })
+
+      it('stays on the save when a stop is chosen', async () => {
+        const user = userEvent.setup()
+        const { onSave } = renderJudged()
+
+        await user.click(screen.getByRole('button', { name: '1 Ensimmainen' }))
+        await chooseOutcome(user, 'results.retirement.judgeStopped')
+        await user.click(screen.getByRole('button', { name: 'results.save' }))
+
+        expect(onSave).toHaveBeenCalledWith(
+          expect.objectContaining({
+            eventResult: expect.objectContaining({
+              judge: otherJudge,
+              resultCode: '0',
+              retirement: { cause: 'judgeStopped', stationId: '1' },
+            }),
+          })
+        )
+      })
+
+      it('stays on the save when a stop is chosen and taken away again', async () => {
+        const user = userEvent.setup()
+        const { onSave } = renderJudged()
+
+        await user.click(screen.getByRole('button', { name: '1 Ensimmainen' }))
+        await chooseOutcome(user, 'results.retirement.judgeStopped')
+        await chooseOutcome(user, 'results.notInterrupted')
+        await user.click(screen.getByRole('button', { name: 'results.save' }))
+
+        expect(onSave).toHaveBeenCalledWith(
+          expect.objectContaining({
+            eventResult: {
+              elimination: undefined,
+              judge: otherJudge,
+              resultCode: '0',
+              retirement: undefined,
+              tasks: [],
+            },
+          })
+        )
+      })
+    })
+
     it("takes a judge's stop back when a prize is picked over it", async () => {
       const user = userEvent.setup()
       const { onSave } = renderScoring()
